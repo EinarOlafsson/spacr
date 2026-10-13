@@ -1,0 +1,29 @@
+{
+  "lesson": "21_model_compare",
+  "english_sha256": "2e2af2044db01642db76b3e444c2b4d0c162c8d05b4fb245e8af6def09705a54",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Model Compare : comparer des masques de segmentation enregistrés",
+  "description": "Chargez deux masques de la même image, lancez le script de comparaison téléchargeable et examinez les scores de recouvrement et les superpositions.",
+  "objectives": [
+    "Choisir des masques du même champ avec la même géométrie de pixels.",
+    "Lancer l’exemple de comparaison de masques enregistrés.",
+    "Lire la table de concordance et examiner les différences de contours."
+  ],
+  "prerequisite": "Téléchargez et extrayez l’exemple Model Compare associé. Il fournit une image, deux masques enregistrés et un script Python d’aide. Utilisez un environnement où spaCR est installé et choisissez un nouveau dossier de sortie en dehors des entrées extraites. L’exemple compare deux choix de prétraitement avec les mêmes poids cpsam ; évaluer l’exactitude nécessite des étiquettes de référence vérifiées.",
+  "scenes": [
+    "Depuis Home, ouvrez Make Masks et choisissez Model Compare. Ce flux permet d’examiner les différences de segmentation sur une même image. Cette démonstration utilise l’exemple associé de masques enregistrés et son script Python d’aide.",
+    "Conservez les poids du modèle et les paramètres de prétraitement avec chaque jeu de masques. Pour préparer votre propre comparaison, utilisez les mêmes champs et la même géométrie de pixels, afin que les recouvrements d’objets correspondent aux mêmes positions dans l’image.",
+    "Extrayez l’exemple associé. Les entrées sont image.tif, batch.tif et preview.npy. Les deux masques décrivent le même champ ; ils ont été produits avec le même modèle et des paramètres de prétraitement différents. Gardez leurs noms de fichier d’origine pour le script fourni.",
+    "Exécutez le script fourni dans votre environnement Python avec spaCR. Réglez la source sur le dossier d’entrée de l’exemple et la sortie sur un nouveau dossier de résultats. Le résumé affiché indique le nombre d’objets, les objets appariés, le recouvrement moyen des objets appariés et l’indice de Rand ajusté. Une concordance plus élevée signifie que les masques se ressemblent davantage ; elle n’indique pas à elle seule quel masque est correct.",
+    "Ouvrez comparison.png. Comparez les deux superpositions de masques avec l’image et examinez les scissions, les fusions et les décalages de contours. Le panneau de droite met en évidence les pixels dont l’appartenance au premier plan diffère. Vérifiez aussi, dans les superpositions, les contours entre objets qui se touchent.",
+    "Ouvrez comparison.csv pour les résultats chiffrés et conservez-le avec comparison.png, les entrées et les paramètres enregistrés. Utilisez des masques de référence vérifiés et des champs représentatifs lorsque vous comparez l’exactitude d’une segmentation ou choisissez un modèle pour votre expérience."
+  ]
+}

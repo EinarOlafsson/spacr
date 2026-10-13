@@ -1,0 +1,139 @@
+{
+  "hosted_run_id": 37763414112,
+  "hosted_source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "item_status": {
+    "N656": "per-screen rebinding tested privately; matching translations/docs/publication and native OS acceptance open",
+    "N674": "Spaceout field source and matching artifacts published; native/aesthetic/performance and current CI acceptance remain separate",
+    "N678": "queued final factual-language review; not a crash or current CPU fix"
+  },
+  "literal_below_90": [
+    {
+      "additional_covered_units_to_90": 15,
+      "branches": 56,
+      "covered_branches": 43,
+      "covered_statements": 125,
+      "floor_exemption": "three CuPy kernels -- the cupy branch of maximum_filter, of matmul and of nearest_neighbours -- are 20 of its 147 statements and run only on CUDA, so 88% is this module's ceiling on any machine without a card, CI included. Every other line is covered (2026-09-19: 77.83% -> 83.74%, with the torch probes, the named-backend refusals and a cupy that imports without a driver all tested). A cupy faked out of numpy would execute those 20 lines and check nothing, which is what tests/test_the_ops_primitives_agree_on_every_backend.py already refuses to do: it SKIPS the cupy agreement case rather than passing it, because a skip says \"not asked\" where a pass would say \"checked\" about a path that never ran.",
+      "missing_branches": [
+        [
+          76,
+          77
+        ],
+        [
+          105,
+          106
+        ],
+        [
+          185,
+          186
+        ],
+        [
+          187,
+          188
+        ],
+        [
+          187,
+          189
+        ],
+        [
+          236,
+          237
+        ],
+        [
+          238,
+          239
+        ],
+        [
+          238,
+          240
+        ],
+        [
+          310,
+          311
+        ],
+        [
+          312,
+          313
+        ],
+        [
+          312,
+          314
+        ],
+        [
+          315,
+          316
+        ],
+        [
+          315,
+          323
+        ]
+      ],
+      "missing_lines": [
+        77,
+        106,
+        186,
+        187,
+        188,
+        189,
+        191,
+        237,
+        238,
+        239,
+        240,
+        311,
+        312,
+        313,
+        314,
+        315,
+        316,
+        317,
+        319,
+        320,
+        321,
+        323
+      ],
+      "path": "spacr/ops_accel.py",
+      "percent": 82.75862068965517,
+      "ratchet_failures": [],
+      "statements": 147
+    }
+  ],
+  "nonexempt_below_90": 0,
+  "numerical_gate_status": "pass",
+  "required_run_status": "failure; 11 of 12 selected coverage test shards succeeded",
+  "schema": "spacr.f288-floor-audit/v1",
+  "source_exact_focused_addition": {
+    "estimated_source_exact_percent_after_adding_test": 84.72906403940887,
+    "not_a_new_full_hosted_measurement": true,
+    "old_missing_branches_now_executed": [
+      [
+        76,
+        77
+      ],
+      [
+        105,
+        106
+      ]
+    ],
+    "old_missing_lines_now_executed": [
+      77,
+      106
+    ],
+    "remaining_combined_units_to_90": 11,
+    "source_blob": "68fd34916dd8a556ec3e335596b0acc67aa0a21f"
+  },
+  "summary": {
+    "failed_modules": 0,
+    "global_issue_count": 0,
+    "improved_modules": 99,
+    "integrity_issue_count": 0,
+    "modules_at_100_percent": 455,
+    "modules_below_100_percent": 209,
+    "modules_below_floor": 1,
+    "modules_checked": 664,
+    "modules_exempt_from_floor": 1,
+    "shipped_modules": 664,
+    "stale_baseline_entries": 0,
+    "stale_exemptions": 0,
+    "unconfirmed_modules": 0
+  }
+}

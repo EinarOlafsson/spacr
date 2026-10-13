@@ -1,0 +1,4793 @@
+"""Structural contracts for external API/docstring localization."""
+from __future__ import annotations
+
+# 2026-09-22: measured public growth and the three object helpers are
+# accounted separately in features/data/411_object_helpers_2026-09-22.json.
+
+import hashlib
+from html import unescape
+import json
+import os
+import re
+import stat
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+from tests.readme_source_words import readme_words
+
+ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
+#: 9,434 -> 9,596 on 2026-09-04. 368's public half: every public method in
+#: dnd_handlers, gate_spec, layers, trellis_spec, dna_rain, graph_builder,
+#: feature_rank and umap_search_viewer now carries its own docstring, and the
+#: API_DOC_ALIASES entries that let 111 of them borrow a base class's text
+#: were retired with them -- so those symbols render their own entry instead
+#: of pointing at someone else's.
+#:
+#: 10,152 -> 10,241 on 2026-09-07. The modules added while the list was
+#: being closed out: `ops_sbs`, `ops_merge`, `ops_settings`, `infection`
+#: and `suggest`, plus `live_zoom`.
+#:
+#: 10,241 -> 10,242 on 2026-09-08, and the single symbol is worth naming
+#: because of what it cost: `RegexEditorDialog.resizeEvent`, added by
+#: 350's clipping fix. ONE public method moved the inventory, which
+#: staled all nine API catalogs and turned
+#: `test_api_doc_catalog_is_symbol_keyed_and_source_hashed` red -- so a
+#: fix in `spacr/qt/regex_editor.py` is a change to eleven files. That is
+#: the cost this ratchet exists to make visible rather than to prevent:
+#: overriding a Qt event handler is a normal thing to do and it is not
+#: free.
+#: 10,243 -> 10,306 on 2026-09-10, +69/-6, and it is the same lesson at
+#: sixty-nine times the scale. Instruction 372's OPS modules (52 symbols
+#: across ops_layout, ops_stitch, ops_phenotype, ops_register, ops_accel,
+#: ops_cycles and ops_solve), 359's layout_policy, 327's TourPilot and the
+#: rest of two sessions' Qt work, less the six retired space accessors.
+#:
+#: FIVE REBUILD PASSES IN ONE NIGHT, because the surface moved five times.
+#: The rule that came out of it is in 288: finish the code, THEN rebuild,
+#: and never mid-batch -- a public docstring added between passes stales
+#: every locale that has already been rebuilt and nothing reports it until
+#: the counts are compared across all ten catalogs.
+#: 10,306 -> 10,299 on 2026-09-10, -12/+5, and this one SHRINKS the
+#: surface deliberately. Four symbols added the night before were not
+#: public API and should never have been on it: `open_at_the_measured_width`
+#: and `the_missing_pip_escape` have one caller each inside `qt/app.py`,
+#: `TourPilot` is instantiated once inside `fractal_travel`, and
+#: `spacr/qt/layout_policy.py` is read by nothing but `app.py`. All four are
+#: private now, which takes twelve entries off (the two helpers, TourPilot
+#: and its four members, the module and its four functions) and puts five
+#: back under `_layout_policy` -- a module keeps its docstring on the
+#: inventory whatever it is called; only the leading underscore on a
+#: FUNCTION or CLASS removes it.
+#:
+#: WHY IT IS WORTH A REBUILD RATHER THAN LEAVING THEM. Those twelve entries
+#: were about to be translated into nine languages and maintained there, for
+#: helpers with one caller each. The rebuild has to happen either way: the
+#: same four docstrings were edited the same night to take instruction
+#: numbers out of published text, which changed their English and staled
+#: their hashes in every locale. This makes the one pass smaller instead of
+#: adding a sixth.
+#:
+#: 10,299 -> 10,339 on 2026-09-11, +40/-0, with the merge from main. The
+#: same arrivals `tests/test_docstring_correctness.py` decomposes against
+#: its own baseline of 10,294 -- five of those forty-five were already on
+#: this side of the count when it was last moved, which is why the two
+#: baselines differ by five and the two deltas by the same five:
+#:
+#:     spacr.embeddings          386, the embedding engine
+#:     spacr.ops_compose         372, the composed OPS window
+#:     spacr.bystanders          388, the infected cell's neighbours
+#:     qt.widgets.dose_response  387, selectivity and the two surfaces
+#:     spacr.point_patterns      388, Ripley's K and L
+#:     spacr.model_zoo           370, the scorecard on a model row
+#:     spacr.scorecard           370, reading one back
+#:     spacr.qt.theme            380, the per-window stylesheet
+#:     spacr.infection           377
+#:
+#: The nine locales were repaired against this inventory before the number
+#: was touched, which is the order this file's own rule asks for: catalogs
+#: first, ratchet second.
+#:
+#: 10,339 -> 10,398 on 2026-09-12, +59/-0. Measured against a detached
+#: worktree at the pin commit rather than by subtracting counts, because a
+#: net figure cannot tell an arrival from a departure and this file has been
+#: wrong that way before. Nothing was removed, and the fifty-nine are the
+#: work that landed between the two commits:
+#:
+#:     spacr.ops_objects            9    372, windowed segmentation
+#:     qt.widgets.dose_response     9    387, the two surfaces
+#:     spacr.ops_sample             7    372, sampling at the coordinates
+#:     spacr.ops_store              7    372, the storage contract
+#:     spacr.qt.screens.embeddings  8    386, the screen and its table
+#:     dose_response dataclasses    8    387, PlateSpec, PlateReport,
+#:                                       PooledFit and Checkerboard
+#:     spacr.embeddings             2    386, the engine
+#:     spacr.qt.theme               2    380, the per-window stylesheet
+#:     ops_objects.PlateObject      1    372
+#:     spacr.infection              1    377, border_rules_agree
+#:     spacr.scorecard              1    370
+#:     spacr.qt, .qt.screens,
+#:       .qt.app.MainWindow,
+#:       .qt.stall_watch            4    module docstrings and one member
+#:
+#: `spacr.infection.border_rules_agree` is the one that staled the catalogs:
+#: it landed AFTER they were built, which is exactly the mid-batch arrival
+#: 288's rule warns about, and it took nine locales red until the repair
+#: pass cleared it.
+#: 10,398 -> 10,400 on 2026-09-12, +2/-0, and both arrived with 364's
+#: settings migration: `spacr.object_roles.split_role_setting` and
+#: `spacr.settings.surviving_setting_name`. Measured by differencing the
+#: symbol sets against the previous measurement, not by subtracting counts.
+#: 10,400 -> 10,401 on 2026-09-12 with 391's
+#: `spacr.object_roles.withdrawn_setting_reason`, the resolver that says why
+#: a setting was withdrawn. Set-differenced against the previous
+#: measurement, not subtracted.
+#: 10,401 -> 10,478 on 2026-09-13, +77/-0 for Map Barcodes (c753b7de7).
+#: Set-differenced against 5a2825f67 rather than subtracted, per the note
+#: above: 31 spacr.barcode_search (its module docstring included), 20
+#: spacr.qt.screens, 14 spacr.settings, 12 spacr.qt.widgets. All nine API
+#: catalogs were regenerated AND repaired before this number moved, which is
+#: the order the assertion's own message asks for.
+# 2026-09-14: 10,478 -> 10,531. Moved by SET DIFFERENCE against the symbol
+# list at f15be8dd2, not by accepting the new total: 53 added, 0 removed, and
+# every addition attributable --
+#     36  spacr.curation_queue        (396, a new module)
+#      8  spacr.cli_make_masks        (396, a new module)
+#      5  spacr.graph_types           (293)
+#      2  spacr.style_base            (291: font_names, font_rc)
+#      1  MakeMasksScreen.open_queue  (396)
+#      1  GroupedPlot.starting_mark   (293)
+# A total that merely rose by 53 would look the same if 53 arrived and 53 of
+# something else quietly left, which is why the baseline set is differenced
+# rather than the counts subtracted.
+# 10,531 -> 10,533 on 2026-09-14: +2 / -0 by set difference --
+# spacr.embeddings.EmbeddingSpec.__post_init__ and
+# spacr.ops_store.Readiness.__bool__, two dunders that already existed
+# and were undocumented. Documenting them is what admits them.
+#
+# THIS NUMBER LIVES IN FOUR FILES: here, test_documentation_i18n,
+# test_api_i18n_extractor (twice) and test_docstring_correctness. It has
+# now been moved twice and BOTH TIMES some siblings were missed and found
+# a day later by a sweep. Grep the literal before believing one edit was
+# enough.
+# 10,533 -> 10,534 on 2026-09-15, +1: `spacr.graph_types.mark_to_start_on`,
+# the helper that reads the Default Graph Type setting and answers in the
+# drawing code's vocabulary (graph_types spells `bar_jitter`, spacrGraph draws
+# `jitter_bar`). Its sibling QC helper became private in the same batch
+# because only one module calls it. Catalogued with reviewed records in all
+# nine languages. NOT A COMPLETE CENSUS: the inventory walks `def`s, so a
+# public name bound by assignment (`canonical_app_key = _normalize_app`) enters
+# the API without moving this number.
+# 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M): +7 / -0 by set difference
+# against nightly 3f27b926a (the same seven moved c3f562c4f's 10,533 to
+# 10,540 before the rebase) -- spacr.ops_engine and spacr.ops_engine.run_ops,
+# spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
+# and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
+# blocks carry reviewed records in all nine locales.
+# 10,541 -> 10,521 on 2026-09-15, +0 / -20 by set difference against
+# the switch commit when the old OPS engine was deleted: the 17 symbols of
+# the old engine's module and `spacr.settings.set_default_stitch`,
+# `set_default_multichannel` and `set_default_general`, the old
+# stitcher's defaults, which nothing called.
+# 10,521 -> 10,523 on 2026-09-15: `spacr.barcode_search.SearchThresholds` and
+# its `__post_init__`. The count is the live surface, measured; the catalogs
+# are NOT regenerated for the two, so the inventory half of the test below
+# names them as missing until the pre-release catalog rebuild runs.
+# 10,523 -> 10,539 on 2026-09-15, +16 / -0 by set difference against
+# nightly dca970671:
+# spacr.qt.make_masks_demo and its seven public functions (412), and
+# spacr.install_cleanup with InstallRecord, RemovalReport,
+# RemovalReport.ok, find_old_installs, remove_install,
+# run_update_sequence and start_update_helper (416). 413 rewrote two
+# existing docstrings and added none. The live surface with those sixteen
+# keys dropped is 10,523, the previous value. Their blocks carry reviewed
+# records in all nine locales
+# (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+# 10,539 -> 11,280 on 2026-09-22: +743 / -2, measured against e23a6ad9a.
+# Exact added/removed keys: features/data/411_api_manifest_refresh_2026-09-22.json.
+# English is refreshed; the locale inventory and source-hash assertions below
+# remain strict and still report the unfinished translated catalog rebuild.
+# 474: ten organism API entries, translated and source-bound in all nine locales.
+# +27 ParaScape/ruler/diagram entries, then +22 flowchart/secondary entries.
+# Source subtraction is recorded in the two dated 411 API receipts.
+# +7 Timeflows nested helpers, with all nine catalogs updated for those keys.
+# +9 held-out validation module/functions/reporting helpers in all locales.
+# +12 inference/cursor/help/schema entries. English and Help are refreshed;
+# all locale key/hash checks remain strict while translations are completed.
+# +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
+# ParaScape update APIs add five entries; the retired Demos label removes one.
+# Exact added/removed sets: features/data/411_parascape_demos_api_2026-09-23.json.
+# Training and plaque calibration delta: 411_training_calibration_api_2026-09-23.json.
+# Growth, asynchronous review and fallback delta: 411_growth_and_async_api_2026-09-23.json.
+# Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
+# PSF module and metadata-only doctor: 411_psf_doctor_api_2026-09-23.json.
+# Mask PSF integration: 411_psf_integration_api_2026-09-23.json.
+# +10 for the News panel's live release refresh: the panel's merge and
+# apply entries, Home's relay, the release-refresh preference pair and
+# the updater's release-notes reader and its cache path.
+# 11,538 -> 11,651 on 2026-09-25: the remaining +114 / -1 of the
+# implementation session (items 502-513) beyond those ten, named by set
+# difference in test_api_i18n_extractor. 11,661 after rebasing on
+# b84c3441c: ten more callables (item 475, PSF/detect chain), named there.
+# 11,710 on nightly 03a02c3b8: +49 / -0, named in test_api_i18n_extractor.
+# 11,758 with item 528's twelve, named in test_api_i18n_extractor.
+# 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
+# 11,834 on 2026-09-26: item 545's eighteen ROI callables, named in
+# test_docstring_correctness.
+# 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
+# 11,861 with item 588's mask_engine.fill_label_holes.
+# 11,865 with items 544 and 573's four spacr.run_journal callables.
+# 593, 2026-09-28: +64 (spacr.folder_consolidation, spacr.channel_sorting and
+# spacr.qt.widgets.channel_sort_dialog).
+# 600, 2026-09-29: +13 (spacr.drop_classification and
+# spacr.qt.widgets.organize_for_measure).
+# 2026-10-01: merge, uncertainty and condition APIs; exact source delta
+# recorded in features/data/615_public_api_delta_2026-10-01.json.
+# 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
+# all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
+# strict audit: features/data/615_translation_acceptance_2026-10-02.json.
+# 2026-10-02 F411: +2/-0, tabular._write_workbook._write and
+# qt.command_palette.CommandPalette._collect_commands.app_is_visible.
+# All 12,036 prior source keys/texts unchanged; nested private parents
+# remain hidden. Exact subtraction is recorded in the F411 slice receipt.
+# 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
+# and spacr._lineage_measurements (the API docstring contract requires
+# one per module); all 12,038 prior symbols unchanged.
+# 2026-10-03 F411: +131/-0, documented nested helpers of 111 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
+# 2026-10-03 F411: +46/-0, documented nested helpers of 23 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,171 prior symbols unchanged.
+# 2026-10-03 F411: +136/-1 (the -1 is ConditionSourceTable.setModel, removed by nightly), documented nested helpers of 39 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,217 prior symbols unchanged.
+# 2026-10-03 F411: +99/-0, documented nested helpers of 19 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,352 prior symbols unchanged.
+# 2026-10-03 F411: +95/-0, documented nested helpers of 13 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,451 prior symbols unchanged.
+# 2026-10-03 F411: +154/-0, documented nested helpers of 11 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,546 prior symbols unchanged.
+# 2026-10-03 F411: +28/-0, documented nested helpers of 1 more module
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,700 prior symbols unchanged.
+# 2026-10-03 F411: +159/-0, documented nested helpers of 11 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,728 prior symbols unchanged.
+# 2026-10-03 F411: +103/-0, documented nested helpers of 3 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,887 prior symbols unchanged.
+# 2026-10-03 F411: +81/-0, documented nested helpers of 2 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,990 prior symbols unchanged.
+# 2026-10-03 F411: +104/-0, documented nested helpers of 2 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
+# 2026-10-04 566 (a71b646a7): +1/-0, the documented nested helper
+# spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
+# Item 662: +4 public mask_engine YOLO helpers, no removals.
+# All 13,177 prior English records preserved; 662_yolo_support receipt.
+# 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+# 2026-10-07: the source-reviewed SCN, Cell-DINO, GUI and ambient additions
+# add these 17 symbols without removing any of the prior 13,182.
+# A further 15 Apply, blinking, popup-wave and renderer contracts enter
+# the same dated source-reviewed inventory; none of the prior rows retire.
+# One further nested background picker enters with unchanged existing prose.
+# 2026-10-10 item 684 (bd22c05bd): +3/-0, MainWindow.snap_window,
+# AmbientWidget.set_click_ripples and the nested Preferences helper
+# _build_the_dialog._density_follows_theme, as test_api_i18n_extractor
+# already counts; all 13,215 prior symbols unchanged.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_218
+SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
+    "spacr.convert.read_scn",
+    "spacr.convert.scn_to_rgb8",
+    "spacr.embeddings._cell_dino_model.forward",
+    "spacr.io._preprocess_mapped_volume_series.load_channel",
+    "spacr.qt.mask_engine.read_image",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+    "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished",
+    "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+    "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._answered",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._network_bytes",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._restore",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._snapshot",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed",
+    "spacr.qt.widgets.ambient.AmbientEngine.set_blink_percent",
+    "spacr.qt.widgets.ambient.AmbientEngine.set_popup_wave_frequency",
+    "spacr.qt.widgets.ambient.AmbientWidget.blink_percent",
+    "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency",
+    "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent",
+    "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency",
+    "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale",
+    "spacr.qt.widgets.ambient.AuroraEngine.buffer_size",
+    "spacr.qt.widgets.ambient.DriftEngine.buffer_size",
+})
+PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
+    "NOTHING IS LOST IN THE MOVE",
+    "THE FIT IS A MEDIAN FIT",
+    "THE MEDIAN, NOT THE MEAN",
+    "A plain dictionary would do the storing",
+    "They used to be one: both keyed on",
+    "each is a bug this project has already had",
+    "which is the whole point of the three being one module",
+    "WHAT IS KEPT IS THE VERSION, NOT A BARE YES",
+    "THROUGH THE REGISTRATION SEAM",
+    "WHY THIS IS THE ONE WITH AN ARGUMENT BEHIND IT FOR MICROSCOPY",
+    "NARROWING GOES THROUGH THE ONE RULE",
+    "WIDENING TO ``uint16`` IS A CAST AND NOT A STRETCH",
+    "A RE-FIT IS NOT A RESTYLE",
+    "THE ROW IS THE RECIPE, and that is the whole design",
+    "TWO CHECKS, BECAUSE NEITHER IS ENOUGH ALONE",
+    "NOTHING IS INSTALLED. The dry run is mandatory",
+    "THE TRAP, AND WHY IT DECIDES THE OUTPUT SHAPE",
+    "THE TWO ROUTES NEED DIFFERENT THINGS",
+    "WHY THIS EXISTS. :func:`read_well_guide_fractions`",
+    "THE FACTOR IS NOT A NO-OP",
+    "THE THREE KINDS, and the distinction between them",
+    "DISTRIBUTION-FREE INFERENCE IS A SEPARATE AXIS",
+    "NOTHING IS RENAMED",
+)
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
+
+
+def test_runtime_catalog_cli_pins_imports_to_its_own_checkout(tmp_path):
+    """A foreign editable checkout must not supply runtime source strings."""
+    foreign_root = tmp_path / "foreign-checkout"
+    foreign_package = foreign_root / "spacr"
+    foreign_package.mkdir(parents=True)
+    (foreign_package / "__init__.py").write_text(
+        "raise RuntimeError('foreign spaCR package imported')\n",
+        encoding="utf-8",
+    )
+    builder = TOOLS / "build_i18n_catalogs.py"
+    probe = """
+import importlib.util
+from pathlib import Path
+import runpy
+
+namespace = runpy.run_path({builder!r}, run_name="i18n_bootstrap_probe")
+origin = Path(importlib.util.find_spec("spacr").origin).resolve()
+print(origin)
+print(Path(namespace["ROOT"]).resolve())
+""".format(builder=str(builder))
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(foreign_root)
+    completed = subprocess.run(
+        [sys.executable, "-c", probe],
+        cwd=tmp_path,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    origin_text, root_text = completed.stdout.strip().splitlines()
+    origin = Path(origin_text)
+    checkout_root = Path(root_text)
+    assert checkout_root == ROOT.resolve()
+    assert origin.is_relative_to(checkout_root)
+
+
+def test_coverage_cli_pins_imports_to_its_own_checkout(tmp_path):
+    """Coverage must not inspect a foreign editable spaCR checkout."""
+    foreign_root = tmp_path / "foreign-checkout"
+    foreign_package = foreign_root / "spacr"
+    foreign_package.mkdir(parents=True)
+    (foreign_package / "__init__.py").write_text(
+        "raise RuntimeError('foreign spaCR package imported')\n",
+        encoding="utf-8",
+    )
+    script = TOOLS / "audit_i18n_coverage.py"
+    probe = """
+import importlib.util
+from pathlib import Path
+import runpy
+
+namespace = runpy.run_path({script!r}, run_name="coverage_bootstrap_probe")
+origin = Path(importlib.util.find_spec("spacr").origin).resolve()
+print(origin)
+print(Path(namespace["ROOT"]).resolve())
+""".format(script=str(script))
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(foreign_root)
+    completed = subprocess.run(
+        [sys.executable, "-c", probe],
+        cwd=tmp_path,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    origin_text, root_text = completed.stdout.strip().splitlines()
+    origin = Path(origin_text)
+    checkout_root = Path(root_text)
+    assert checkout_root == ROOT.resolve()
+    assert origin.is_relative_to(checkout_root)
+
+
+def test_api_reuse_rejects_changed_translation_context(tmp_path, monkeypatch):
+    import build_documentation_i18n as builder
+
+    source = "Translate this prose."
+    key = "spacr.example"
+    monkeypatch.setattr(builder, "API_DIR", tmp_path)
+    monkeypatch.setitem(
+        builder.API_TRANSLATION_CONTEXT,
+        source,
+        "Translate this prose with its current context.",
+    )
+    stale_context = "Translate this prose with its old context."
+    payload = {
+        "schema": 2,
+        "symbols": {
+            key: {
+                "source_sha256": builder._source_hash(source),
+                "source_blocks_sha256": builder._source_block_hashes(source),
+                "translation_source_blocks_sha256": [
+                    builder._source_hash(stale_context)
+                ],
+                "text": "Texto traduzido.",
+            },
+        },
+    }
+    (tmp_path / "pt.json").write_text(json.dumps(payload), encoding="utf-8")
+    assert builder.reusable_api_translations({key: source}, "pt") == {}
+
+    payload["symbols"][key]["translation_source_blocks_sha256"] = (
+        builder._translation_source_block_hashes(source)
+    )
+    (tmp_path / "pt.json").write_text(json.dumps(payload), encoding="utf-8")
+    assert builder.reusable_api_translations({key: source}, "pt") == {
+        key: "Texto traduzido.",
+    }
+
+
+def test_normal_api_generation_translates_current_context_before_hashing(
+    tmp_path, monkeypatch,
+):
+    import build_documentation_i18n as builder
+
+    source = "The raw source sentence."
+    contextual = "The reviewed contextual sentence."
+    monkeypatch.setitem(builder.API_TRANSLATION_CONTEXT, source, contextual)
+    captured = {}
+
+    def fake_translate(blocks, language, model_root, args, **kwargs):
+        captured["blocks"] = list(blocks)
+        captured["namespace"] = kwargs.get("cache_namespace")
+        captured["validator"] = kwargs.get("candidate_validator")
+        return {contextual: "A frase contextual traduzida."}
+
+    monkeypatch.setattr(builder, "_translate_blocks", fake_translate)
+    translated = builder._translate_api_documents(
+        {"spacr.example": source}, "pt", tmp_path, object(),
+    )
+    assert captured["blocks"] == [contextual]
+    assert captured["namespace"] == builder.API_BLOCK_CACHE_NAMESPACE
+    assert captured["validator"](
+        contextual, "A frase contextual traduzida.", "pt"
+    )
+    assert not captured["validator"](
+        contextual, "The reviewed contextual sentence.", "pt"
+    )
+    assert translated == {"spacr.example": "A frase contextual traduzida."}
+
+
+def test_api_repair_reuses_legacy_cache_only_for_identical_model_input(
+    tmp_path, monkeypatch,
+):
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    source = "Return the task status."
+    translated = "Retorna o estado da tarefa."
+    model_root = tmp_path / "models"
+    cache_dir = model_root / ".spacr_translation_cache"
+    cache_dir.mkdir(parents=True)
+    (cache_dir / "pt.json").write_text(
+        json.dumps({source: translated}), encoding="utf-8",
+    )
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("identical-input legacy cache should avoid decoding")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        {"spacr.example": source},
+        "pt",
+        model_root,
+        argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": translated}
+
+    contextual = "Return the software task status."
+    monkeypatch.setitem(builder.API_TRANSLATION_CONTEXT, source, contextual)
+    (cache_dir / "pt.json").write_text(
+        json.dumps({source: translated}), encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        builder,
+        "_translate_blocks",
+        lambda *_args, **_kwargs: {contextual: contextual},
+    )
+    repaired = builder.repair_api_translations(
+        {"spacr.example": source},
+        "pt",
+        model_root,
+        argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": source}
+
+
+def test_api_repair_reuses_exact_historical_blocks_inside_changed_docstrings(
+    tmp_path, monkeypatch,
+):
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    old_source = "Return the task status.\n\nKeep the saved image."
+    old_target = "Retorna o estado da tarefa.\n\nMantém a imagem salva."
+    new_source = "Return the processing status.\n\nKeep the saved image."
+    new_block = "Return the processing status."
+    new_target = "Retorna o estado do processamento."
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: old_source})),
+        encoding="utf-8",
+    )
+    (api_dir / "pt.json").write_text(
+        json.dumps({
+            "schema": 2,
+            "language": "pt",
+            "symbols": {key: {
+                "source_sha256": builder._source_hash(old_source),
+                "source_blocks_sha256":
+                    builder._source_block_hashes(old_source),
+                "translation_source_blocks_sha256":
+                    builder._translation_source_block_hashes(old_source),
+                "text": old_target,
+            }},
+        }),
+        encoding="utf-8",
+    )
+    reviewed = tmp_path / "reviewed"
+    reviewed.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    captured = {}
+
+    def fake_translate(blocks, language, model_root, args, **kwargs):
+        captured["blocks"] = list(blocks)
+        return {new_block: new_target}
+
+    monkeypatch.setattr(builder, "_translate_blocks", fake_translate)
+    repaired = builder.repair_api_translations(
+        {key: new_source},
+        "pt",
+        tmp_path / "models",
+        argparse.Namespace(),
+    )
+    assert captured["blocks"] == [new_block]
+    assert repaired == {
+        key: f"{new_target}\n\nMantém a imagem salva."
+    }
+
+
+def test_historical_api_reuse_keeps_a_valid_popup_target_verbatim(monkeypatch):
+    """Context repair must not rewrite an already valid source-proven target."""
+    import build_documentation_i18n as builder
+
+    source = "Change popup waves without changing pointer reach or dot population."
+    target = (
+        "Cambia las ondas del popup sin modificar el alcance del puntero "
+        "ni el número de puntos.")
+    english = builder._english_manifest({"spacr.example": source})["symbols"]["spacr.example"]
+    translated = dict(
+        english, text=target,
+        translation_source_blocks_sha256=builder._translation_source_block_hashes(source))
+    assert builder._api_block_valid(source, target, "es")
+    assert builder._api_block_valid(builder._api_translation_source(source), target, "es")
+    monkeypatch.setattr(builder, "_contextualize", lambda text, language, canonical:
+                        text.replace("popup", "ventana emergente"))
+    assert builder._historical_api_block_translations(english, translated, "es") == {
+        source: target,
+    }
+
+
+def test_historical_api_reuse_rejects_unverified_context_hashes():
+    import build_documentation_i18n as builder
+
+    source = "Return the task status."
+    english = {
+        "source_sha256": builder._source_hash(source),
+        "source_blocks_sha256": builder._source_block_hashes(source),
+        "text": source,
+    }
+    translated = {
+        "source_sha256": builder._source_hash(source),
+        "source_blocks_sha256": builder._source_block_hashes(source),
+        "translation_source_blocks_sha256": ["stale-context"],
+        "text": "Retorna o estado da tarefa.",
+    }
+    assert builder._historical_api_block_translations(
+        english, translated, "pt"
+    ) == {}
+    translated["translation_source_blocks_sha256"] = (
+        builder._translation_source_block_hashes(source)
+    )
+    assert builder._historical_api_block_translations(
+        english, translated, "pt"
+    ) == {source: "Retorna o estado da tarefa."}
+
+
+def test_api_repair_recovers_history_after_the_manifest_was_rewritten(
+    tmp_path, monkeypatch,
+):
+    """A rewritten ``en.json`` must not cost a changed docstring its old paragraphs.
+
+    On 2026-09-15 ``--sources-only`` ran before ``--repair-api-blocks``, so
+    the working-tree manifest already held the NEW English. No paragraph of a
+    changed docstring could be proven unchanged (``historical_reused=0`` in
+    all nine locales), and eleven that had passed the audit the commit
+    before, and were in no cache, came back exact English. The committed
+    manifest still held the previous English; the repair now reads it as the
+    second candidate, bound by the same source hash.
+    """
+    import argparse
+    import shutil
+    import subprocess
+
+    import build_documentation_i18n as builder
+
+    if shutil.which("git") is None:
+        pytest.skip("git is not available")
+
+    key = "spacr.example"
+    old_source = "Return the task status.\n\nKeep the saved image."
+    old_target = "Retorna o estado da tarefa.\n\nMantém a imagem salva."
+    new_source = "Return the processing status.\n\nKeep the saved image."
+    new_block = "Return the processing status."
+    new_target = "Retorna o estado do processamento."
+    repo = tmp_path / "repo"
+    api_dir = repo / "api"
+    api_dir.mkdir(parents=True)
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: old_source})),
+        encoding="utf-8",
+    )
+    (api_dir / "pt.json").write_text(
+        json.dumps({
+            "schema": 2,
+            "language": "pt",
+            "symbols": {key: {
+                "source_sha256": builder._source_hash(old_source),
+                "source_blocks_sha256":
+                    builder._source_block_hashes(old_source),
+                "translation_source_blocks_sha256":
+                    builder._translation_source_block_hashes(old_source),
+                "text": old_target,
+            }},
+        }),
+        encoding="utf-8",
+    )
+    git = [
+        "git", "-C", str(repo),
+        "-c", "user.name=spaCR test", "-c", "user.email=test@example.invalid",
+        "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null",
+    ]
+    subprocess.run([*git, "init", "-q"], check=True)
+    subprocess.run([*git, "add", "api"], check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "previous English"], check=True)
+    # What --sources-only did first: the working tree now holds the NEW
+    # English, and only the commit remembers the old.
+    (api_dir / "en.json").write_text(
+        json.dumps(builder._english_manifest({key: new_source})),
+        encoding="utf-8",
+    )
+    reviewed = tmp_path / "reviewed"
+    reviewed.mkdir()
+    monkeypatch.setattr(builder, "ROOT", repo)
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    captured = {}
+
+    def fake_translate(blocks, language, model_root, args, **kwargs):
+        captured["blocks"] = list(blocks)
+        return {new_block: new_target}
+
+    monkeypatch.setattr(builder, "_translate_blocks", fake_translate)
+    repaired = builder.repair_api_translations(
+        {key: new_source},
+        "pt",
+        tmp_path / "models",
+        argparse.Namespace(),
+    )
+    # Only the paragraph whose English changed goes to the model; the
+    # unchanged one is carried from the translated catalog.
+    assert captured["blocks"] == [new_block]
+    assert repaired == {
+        key: f"{new_target}\n\nMantém a imagem salva."
+    }
+
+
+def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
+    tmp_path, monkeypatch,
+):
+    import argparse
+    import hashlib
+
+    import build_documentation_i18n as builder
+
+    source = "Return the processing session status."
+    context = builder._api_translation_source(source)
+    target = "Retorna o estado da sessão de processamento."
+    docs = {"spacr.example": source}
+    reviewed = tmp_path / "reviewed"
+    pt = reviewed / "pt"
+    pt.mkdir(parents=True)
+    evidence = {
+        "schema": 1,
+        "language": "pt",
+        "records": [{
+            "label": "spacr.example#0",
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "source": source,
+            "context": context,
+            "translation": target,
+        }],
+    }
+    evidence_path = pt / "tail.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("accepted review must avoid model decoding")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, "pt", tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": target}
+
+    evidence["records"][0]["context"] = context + " changed"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    with pytest.raises(ValueError, match="stale reviewed API context"):
+        builder.reviewed_api_block_translations(docs, "pt")
+
+
+def _reviewed_pt_block(tmp_path, monkeypatch, builder, label, source, target):
+    """Point the builder at one accepted Portuguese reviewed API record."""
+    import hashlib
+
+    reviewed = tmp_path / "reviewed"
+    (reviewed / "pt").mkdir(parents=True)
+    (reviewed / "pt" / "tail.json").write_text(json.dumps({
+        "schema": 1,
+        "language": "pt",
+        "records": [{
+            "label": label,
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "source": source,
+            "context": builder._api_translation_source(source),
+            "translation": target,
+        }],
+    }), encoding="utf-8")
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+
+
+def test_plain_api_build_publishes_accepted_review_instead_of_decoding_it(
+    tmp_path, monkeypatch,
+):
+    """The plain build published English over an accepted reviewed record.
+
+    On 2026-09-15, 410's ``spacr.embeddings.embed_array#1`` shipped the
+    English context expansion in es, zh_CN, pt, ko and is. Each locale had
+    an accepted reviewed record for that block. ``_translate_api_documents``
+    never read reviewed evidence, the model's decode of that block failed,
+    and the fallback is the model input. The fake model here fails the same
+    way: it echoes its input, so decoding the reviewed block would publish
+    English again.
+    """
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    reviewed_block = "Return the processing session status."
+    target = "Retorna o estado da sessão de processamento."
+    other_block = "Keep the saved image."
+    other_target = "Mantém a imagem salva."
+    _reviewed_pt_block(
+        tmp_path, monkeypatch, builder, f"{key}#0", reviewed_block, target,
+    )
+    other_context = builder._api_translation_source(other_block)
+    captured = []
+
+    def echoing_translate(blocks, language, model_root, args, **kwargs):
+        blocks = list(blocks)
+        captured.append(blocks)
+        return {
+            block: other_target if block == other_context else block
+            for block in blocks
+        }
+
+    monkeypatch.setattr(builder, "_translate_blocks", echoing_translate)
+    translated = builder._translate_api_documents(
+        {key: f"{reviewed_block}\n\n{other_block}"}, "pt", tmp_path, object(),
+    )
+    assert captured == [[other_context]]
+    assert translated == {key: f"{target}\n\n{other_target}"}
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("a fully reviewed document must not load a model")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    assert builder._translate_api_documents(
+        {key: reviewed_block}, "pt", tmp_path, object(),
+    ) == {key: target}
+
+
+def test_plain_api_build_restores_accepted_review_over_reused_model_text(
+    tmp_path, monkeypatch,
+):
+    """Reuse keeps a stored entry whole, which must not outrank review.
+
+    A record written for a block whose English did not change leaves the
+    entry's hashes current, so ``reusable_api_translations`` hands back the
+    stored model text. The overlay replaces exactly the reviewed block and
+    returns every other entry unchanged.
+    """
+    import inspect
+
+    import build_documentation_i18n as builder
+
+    key = "spacr.example"
+    reviewed_block = "Return the processing session status."
+    target = "Retorna o estado da sessão de processamento."
+    other_target = "Mantém a imagem salva."
+    _reviewed_pt_block(
+        tmp_path, monkeypatch, builder, f"{key}#0", reviewed_block, target,
+    )
+    docs = {
+        key: f"{reviewed_block}\n\nKeep the saved image.",
+        "spacr.other": "Keep the other image.",
+    }
+    stored = {
+        key: f"Retorna o status da sessão.\n\n{other_target}",
+        "spacr.other": "Mantém a outra imagem.",
+    }
+    assert builder._reviewed_api_overlay(docs, stored, "pt") == {
+        key: f"{target}\n\n{other_target}",
+        "spacr.other": "Mantém a outra imagem.",
+    }
+    # The plain build is the caller that skipped review; hold it to the
+    # overlay rather than only the helper.
+    assert "_reviewed_api_overlay(" in inspect.getsource(builder.main)
+
+
+def test_reviewed_api_validation_waives_only_copied_prose_heuristics():
+    import build_documentation_i18n as builder
+
+    source = "Return the groups variance distribution test."
+    reviewed = "Gibt den groups variance distribution test zurück."
+    assert not builder._api_block_valid(source, reviewed, "de")
+    assert builder._reviewed_api_block_valid(source, reviewed, "de")
+    assert not builder._reviewed_api_block_valid(source, source, "de")
+    assert not builder._reviewed_api_block_valid(
+        source, "Gibt den groups variance distribution test zurück. <broken>", "de"
+    )
+    assert not builder._reviewed_api_block_valid(
+        "The Qt screen shows settings.",
+        "Le criblage Qt affiche les paramètres.",
+        "fr",
+    )
+
+
+def test_reviewed_genus_name_may_equal_english_only_where_listed():
+    """A genus heading is its own translation in Latin-script locales.
+
+    The per-language identity list admits exactly the listed block in the
+    listed languages, for reviewed evidence only; every other exact-English
+    block, model output and non-Latin-script locale still fails.
+    """
+    import build_documentation_i18n as builder
+
+    allowed = builder.API_REVIEWED_EXACT_IDENTITY_BY_LANGUAGE
+    for genus in ("Plasmodium", "Candida", "Toxoplasma"):
+        assert builder._api_block_requires_translation(genus)
+        assert allowed[genus] == frozenset({"sv", "de", "es", "pt", "is", "fr"})
+        for language in allowed[genus]:
+            assert builder._reviewed_api_block_valid(genus, genus, language)
+            # A translated or qualified heading stays valid too.
+            assert builder._reviewed_api_block_valid(
+                genus, f"Organismus {genus}", language,
+            )
+            # Unreviewed model output echoing the English is still refused.
+            assert not builder._api_block_valid(genus, genus, language)
+        for language in ("zh_CN", "hi", "ko"):
+            assert not builder._reviewed_api_block_valid(genus, genus, language)
+    # Exact block only: a sentence naming the genus, a case change or extra
+    # whitespace is not the listed identity.
+    assert not builder._reviewed_api_block_valid(
+        "Plasmodium falciparum", "Plasmodium falciparum", "fr",
+    )
+    assert not builder._reviewed_api_block_valid("plasmodium", "plasmodium", "fr")
+    assert not builder._reviewed_api_block_valid("Plasmodium", " Plasmodium", "fr")
+    assert builder._reviewed_api_block_valid("no", "no", "es")
+    assert not builder._reviewed_api_block_valid("no", "no", "pt")
+    # The gate is otherwise unchanged: ordinary prose copied as English fails.
+    assert not builder._reviewed_api_block_valid("Public API", "Public API", "fr")
+    assert all(
+        isinstance(languages, frozenset) and languages <= set(builder.MODEL_SPECS)
+        for languages in allowed.values()
+    )
+
+
+def test_raises_field_is_not_read_as_a_type_declaration():
+    """``:raises X: word`` is an exception name and prose, not ``X: type``.
+
+    The numpydoc-declaration protector read ``ValueError: sequence`` in
+    ``spacr.timeflows_model.ctc_pairs`` as a declaration, so every locale's
+    whole-document literal check failed on a correctly translated field.
+    """
+    from build_i18n_catalogs import _PROTECT_PATTERNS, _syntax_preserved
+
+    source = (
+        ":raises ValueError: sequence/limit, duplicate frame identities or "
+        "annotation\n    arrays are invalid."
+    )
+    translated = (
+        ":raises ValueError: la séquence ou la limite, les identités de trame "
+        "en double ou les tableaux d'annotations sont invalides."
+    )
+    assert not any(
+        "ValueError: sequence" in match.group(0)
+        for pattern in _PROTECT_PATTERNS
+        for match in pattern.finditer(source)
+    )
+    assert _syntax_preserved(source, translated, check_emphasis=False)
+    # A real numpydoc declaration is still held byte for byte.
+    declaration = "values : sequence of values to check."
+    assert not _syntax_preserved(
+        declaration, "valeurs : séquence des valeurs à vérifier.",
+        check_emphasis=False,
+    )
+
+
+def test_api_repair_keeps_a_source_bound_reviewed_false_friend(
+    tmp_path, monkeypatch,
+):
+    import argparse
+    import hashlib
+
+    import build_documentation_i18n as builder
+
+    source = "Return the groups variance distribution test."
+    target = "Gibt den groups variance distribution test zurück."
+    context = builder._api_translation_source(source)
+    docs = {"spacr.example": source}
+    reviewed = tmp_path / "reviewed"
+    language_dir = reviewed / "de"
+    language_dir.mkdir(parents=True)
+    (language_dir / "tail.json").write_text(
+        json.dumps({
+            "schema": 1,
+            "language": "de",
+            "records": [{
+                "label": "spacr.example#0",
+                "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+                "source": source,
+                "context": context,
+                "translation": target,
+            }],
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    monkeypatch.setattr(
+        builder,
+        "_translate_blocks",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("accepted review must avoid model decoding")
+        ),
+    )
+
+    assert not builder._api_block_valid(source, target, "de")
+    assert builder._reviewed_api_block_valid(source, target, "de")
+    repaired = builder.repair_api_translations(
+        docs, "de", tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": target}
+
+    machine_target = "Gibt den Varianzverteilungstest der Gruppen zurück."
+    assert builder._api_block_valid(source, machine_target, "de")
+    builder.write_language(
+        docs, "de", {"spacr.example": machine_target},
+    )
+    repaired = builder.repair_api_translations(
+        docs, "de", tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {"spacr.example": target}
+
+
+def _integration_review_record(language, label):
+    """Read one actual source-bound record from the item-406 incident."""
+    path = (ROOT / "docs" / "i18n" / "reviewed" / "api" / language
+            / "2026-09-15-integration-review.json")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return next(record for record in payload["records"]
+                if record["label"] == label and not record.get("retired"))
+
+
+@pytest.mark.parametrize("catalog_state", ["missing", "current"])
+@pytest.mark.parametrize("language,label,rewrite_passes", [
+    # None: 577 (5c8b55b7a) stopped the Portuguese well-as-adverb rewrite
+    # when every English "well" is the noun, so this review now survives
+    # contextualizing unchanged; it must still be published verbatim.
+    pytest.param("pt", "spacr.qt.widgets.outlier_model#27", None,
+                 id="portuguese-no-longer-rewritten"),
+    pytest.param("de", "spacr.schema.add_screen_column#3", True,
+                 id="german-rewrite-still-passes"),
+])
+def test_api_repair_publishes_reviewed_target_verbatim_after_contextual_rewrite(
+    tmp_path, monkeypatch, capsys, catalog_state, language, label, rewrite_passes,
+):
+    """An accepted review is neither rewritten nor replaced with English.
+
+    The Portuguese review's ``poço fora`` becomes ``bem fora`` and fails
+    the semantic gate. The German review is changed but still passes: an
+    unresolved-count assertion alone would miss that regression entirely.
+    Both targets come from the actual source-bound integration reviews.
+    """
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    record = _integration_review_record(language, label)
+    source, target = record["source"], record["translation"]
+    context = builder._api_translation_source(source)
+    assert record["context"] == context
+    key = label.rpartition("#")[0]
+    docs = {key: source}
+    reviewed = tmp_path / "reviewed"
+    language_dir = reviewed / language
+    language_dir.mkdir(parents=True)
+    # The fixture contains just the incident paragraph, so its index is zero;
+    # its actual English, source hash, context and reviewed target are intact.
+    evidence_path = language_dir / "incident.json"
+    evidence_path.write_text(json.dumps({
+        "schema": 1, "language": language,
+        "records": [{**record, "label": f"{key}#0"}],
+    }), encoding="utf-8")
+    evidence_bytes = evidence_path.read_bytes()
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", reviewed)
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+
+    assert builder.reviewed_api_block_translations(docs, language) == {source: target}
+    rewritten = builder._contextualize(target, language, source)
+    if rewrite_passes is None:
+        assert rewritten == target
+    else:
+        assert rewritten != target
+        assert all(builder._reviewed_api_block_valid(text, rewritten, language)
+                   for text in (source, context)) is rewrite_passes
+        if not rewrite_passes:
+            assert "scientific-well-as-adverb" in builder._semantic_false_friends(
+                source, rewritten, language,
+            )
+    if catalog_state == "current":
+        builder.write_language(docs, language, {key: target})
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("accepted reviewed evidence must not be decoded")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, language, tmp_path / "models", argparse.Namespace(),
+    )
+    assert repaired == {key: target}
+    assert "unresolved=0" in capsys.readouterr().out
+    builder.write_language(docs, language, repaired)
+    published = json.loads((api_dir / f"{language}.json").read_text(encoding="utf-8"))
+    assert published["symbols"][key]["text"] == target
+    assert published["symbols"][key]["source_sha256"] == record["source_sha256"]
+    assert evidence_path.read_bytes() == evidence_bytes
+
+
+@pytest.mark.parametrize("catalog_state", ["missing", "current"])
+def test_api_repair_still_contextualizes_unreviewed_targets(
+    tmp_path, monkeypatch, capsys, catalog_state,
+):
+    """The verbatim exemption belongs to accepted evidence, not all targets."""
+    import argparse
+
+    import build_documentation_i18n as builder
+
+    language = "de"
+    record = _integration_review_record(language, "spacr.schema.add_screen_column#3")
+    source, target = record["source"], record["translation"]
+    key = "spacr.example"
+    docs = {key: source}
+    context = builder._api_translation_source(source)
+    rewritten = builder._contextualize(target, language, source)
+    assert rewritten != target
+    assert all(builder._api_block_valid(text, rewritten, language)
+               for text in (source, context))
+    api_dir = tmp_path / "api"
+    api_dir.mkdir()
+    monkeypatch.setattr(builder, "API_DIR", api_dir)
+    # Deliberately omit the source-bound evidence. The same words in a
+    # catalog or decoder checkpoint do not acquire reviewed provenance.
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", tmp_path / "no_reviews")
+    if catalog_state == "current":
+        builder.write_language(docs, language, {key: target})
+    model_root = tmp_path / "models"
+    cache_dir = model_root / ".spacr_translation_cache"
+    cache_dir.mkdir(parents=True)
+    cache_path = cache_dir / f"{language}.json"
+    cache_path.write_text(json.dumps({
+        f"{builder.API_BLOCK_CACHE_NAMESPACE}\0{context}": target,
+    }), encoding="utf-8")
+    cache_bytes = cache_path.read_bytes()
+
+    def unexpected_translate(*_args, **_kwargs):
+        raise AssertionError("valid catalog/cache candidates must avoid decoding")
+
+    monkeypatch.setattr(builder, "_translate_blocks", unexpected_translate)
+    repaired = builder.repair_api_translations(
+        docs, language, model_root, argparse.Namespace(),
+    )
+    assert repaired == {key: rewritten}
+    assert "unresolved=0" in capsys.readouterr().out
+    builder.write_language(docs, language, repaired)
+    published = json.loads((api_dir / f"{language}.json").read_text(encoding="utf-8"))
+    assert published["symbols"][key]["text"] == rewritten
+    assert cache_path.read_bytes() == cache_bytes
+
+
+def test_api_audit_prefers_exact_source_bound_review_to_contextual_rewrite():
+    import build_documentation_i18n as builder
+
+    source = "The cytotoxic compound is one row, with an empty EC50 cell."
+    reviewed = "具有细胞毒性的化合物占一行，且 EC50 单元格为空。"
+    assert builder._contextualize(reviewed, "zh_CN", source) != reviewed
+    assert not builder._api_contextual_repair_required(
+        source, reviewed, "zh_CN", reviewed,
+    )
+    assert builder._api_contextual_repair_required(
+        source, reviewed, "zh_CN",
+    )
+
+
+def test_reviewed_runtime_records_are_exact_bound_accepted_only_evidence(
+    tmp_path, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+
+    source = "Choose the output directory."
+    target = "Välj utdatakatalogen."
+    reviewed = tmp_path / "reviewed"
+    sv = reviewed / "sv"
+    sv.mkdir(parents=True)
+    evidence = {
+        "schema": 1,
+        "language": "sv",
+        "records": [{
+            "table": "setting_tooltips",
+            "key": "output_directory",
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "source": source,
+            "translation": target,
+        }],
+    }
+    evidence_path = sv / "tail.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    monkeypatch.setattr(builder, "REVIEWED_RUNTIME_DIR", reviewed)
+    monkeypatch.setattr(
+        builder,
+        "canonical_sources",
+        lambda: {"setting_tooltips": {"output_directory": source}},
+    )
+    builder.reviewed_runtime_translations.cache_clear()
+
+    assert builder.reviewed_runtime_translations("sv") == {source: target}
+    assert builder._reviewed_translation(source, "sv") == target
+    assert builder._translation_candidate_valid(
+        source, target, "sv", force=True,
+    )
+
+    evidence["records"][0]["source_sha256"] = "0" * 64
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    builder.reviewed_runtime_translations.cache_clear()
+    with pytest.raises(ValueError, match="stale reviewed runtime hash"):
+        builder.reviewed_runtime_translations("sv")
+
+    evidence["records"][0]["source_sha256"] = hashlib.sha256(
+        source.encode()
+    ).hexdigest()
+    evidence["records"][0]["translation"] = source
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    builder.reviewed_runtime_translations.cache_clear()
+    with pytest.raises(ValueError, match="rejected reviewed runtime target"):
+        builder.reviewed_runtime_translations("sv")
+
+
+def test_reviewed_hindi_tagline_uses_scientific_screening_sense():
+    import build_i18n_catalogs as builder
+
+    source = "Spatial phenotype analysis of CRISPR screens."
+    target = builder._reviewed_translation(source, "hi")
+
+    assert target == "CRISPR स्क्रीनिंग का स्थानिक फीनोटाइप विश्लेषण।"
+    assert builder._translation_candidate_valid(
+        source, target, "hi", force=True,
+    )
+
+
+def test_api_translation_source_disambiguates_model_input_and_hashes_it():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "Read the image plane.": "Read the image layer.",
+        "Resume the failed pipeline run.":
+            "Resume the failed workflow processing session.",
+        "Run this on a GUI worker thread.":
+            "Execute this on a main GUI execution path.",
+        "Load image crops.": "Load extracted image regions.",
+        "Raises ValueError for invalid input.":
+            "Throws ValueError for invalid input.",
+        "Read the 384-well plate.":
+            "Read the 384-position laboratory microplate.",
+        "Return each well in the plate.":
+            "Return each microplate sample position in the laboratory microplate.",
+        "Return the mapping keys.":
+            "Return the structured-data names.",
+        "A pooled CRISPR screen reports hits.":
+            "A pooled CRISPR screening experiment reports hits.",
+        "The Qt screen shows settings.":
+            "The Qt application view shows settings.",
+        "Return a dictionary of settings.":
+            "Return a key-value mapping of settings.",
+        "Run the preprocessing pipeline.":
+            "Execute the preprocessing workflow.",
+        "Objects inside the polygon gate are selected.":
+            "Objects inside the polygon data-selection boundary are selected.",
+        "Estimate statistical power from sample size.":
+            "Estimate statistical detection sensitivity from sample size.",
+        "Append the job to the queue.":
+            "Append the job to the software job list.",
+        "Read each image field and channel.":
+            "Read each microscope image field of view and image data channel.",
+        "The classifier predicts each crop.":
+            "The machine-learning classification model predicts each extracted image region.",
+        "Return a human-readable reference.":
+            "Return an easy-to-read reference.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+        assert builder._translation_source_block_hashes(source) == [
+            builder._source_hash(expected)
+        ]
+
+
+def test_api_translation_source_keeps_negative_control_senses_and_literals():
+    import build_documentation_i18n as builder
+
+    unchanged = (
+        "The GUI screen compares a pooled CRISPR screen.",
+        "Press the keyboard key.",
+        "Use a power-law exponent.",
+        "Raise the threshold by 0.1.",
+        "A forum discussion thread.",
+        "The aircraft has two planes.",
+        "The tracked trajectory runs across frames.",
+        "Serve food on the plate.",
+        "Store the API key in the credential vault.",
+        "Use ``pipeline`` as the code key.",
+        "People formed a queue outside the application.",
+        "Show the rear of the queue.",
+        "Show the back of the queue.",
+        "The queue held waiting customers.",
+        "The farmer grows a crop in the field.",
+        "The plane landed at the airport.",
+        "Plot the points on a Cartesian plane.",
+        "The carpenter used a flat plane as a hand tool.",
+    )
+    for source in unchanged:
+        assert builder._api_translation_source(source) == source
+
+
+def test_api_translation_source_preserves_fixed_exception_and_run_grammar():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "Raise :class:`PipelineCancelled` when cancellation was requested.":
+            "Throw :class:`PipelineCancelled` when cancellation was requested.",
+        "These are run-journal runs for completed jobs.":
+            "These are processing-session journal folders for completed jobs.",
+        "Re-run the failed workflow.":
+            "Execute the failed workflow again.",
+        "Re-run it after the failed job.":
+            "Execute it again after the failed job.",
+        "The worker recorded 3 crashes in 8 runs.":
+            "The worker recorded 3 crashes in 8 executions.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_preserves_fixed_thread_and_crop_morphology():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "Thread pools use thread counts for worker processes.":
+            "Worker pools use worker-count limits for worker processes.",
+        "A thread pool uses a worker-thread count.":
+            "A worker pool uses a background-worker count.",
+        "A crop-format file and a crop PNG support object-crop previews.":
+            "An image-region-format file and an extracted-image-region PNG "
+            "support object-image-region previews.",
+        "Measure-and-crop creates a crop-and-measure workflow.":
+            "Measurement-and-image-region-extraction creates an image-region "
+            "extraction-and-measurement operation workflow.",
+        "Re-crop the loaded array.":
+            "Extract image regions from the loaded array again.",
+        "A re-crop is requested.":
+            "Extracting image regions again is requested.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_preserves_finite_mapping_key_verbs():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "The cache keys its entries off this mapping key.":
+            "The cache indexes its entries using this structured-data name.",
+        "The model keys on a configuration key.":
+            "The model is indexed by a configuration field name.",
+        "spaCR keys objects by the mapping key.":
+            "spaCR identifies objects by the structured-data name.",
+        "The table keys each row by its mapping key.":
+            "The table identifies each row by its structured-data name.",
+        "Database measurement tables key on the object key.":
+            "Database measurement tables are indexed by the object identifier.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_keeps_keyboard_keys_in_plural_shortcut_prose():
+    """A shortcut configuration still describes input keys, not data names."""
+    import build_documentation_i18n as builder
+
+    for source in (
+        "Global shortcuts reserve a window-wide key; settings can override it.",
+        "Hotkeys use the configured key, with labels from the settings table.",
+    ):
+        expanded = builder._api_translation_source(source)
+        assert "structured-data name" not in expanded
+        assert " key" in expanded
+    assert builder._api_translation_source("Return the mapping keys.") == (
+        "Return the structured-data names.")
+
+
+def test_api_translation_source_preserves_plane_and_queue_grammar():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "Process one row per plane.":
+            "Process one row for each image layer.",
+        "Per-plane labels are stored.":
+            "Per-image-layer labels are stored.",
+        "Read a one-plane list.":
+            "Read a single-image-layer list.",
+        "Use 3-plane input.":
+            "Use 3-image-layer input.",
+        "The worker uses a queue- based scheduler.":
+            "The worker uses a work-list-based scheduler.",
+        "The scheduler queues jobs.":
+            "The scheduler schedules jobs.",
+        "A screen reads a queue of crops for annotation.":
+            "An application view reads an annotation work list of extracted "
+            "image regions for annotation.",
+        "The table keys a crop by path.":
+            "The table keys an extracted image region by path.",
+        "The plate queue appears below the title.":
+            "The plate-processing list appears below the title.",
+        "One step is complete. A queue file for jobs is read next.":
+            "One step is complete. A software job list file for jobs is read next.",
+        "The callback completes. A screen receives the result.":
+            "The callback completes. An application view receives the result.",
+        "Return a wells-by-genes fraction matrix.":
+            "Return a microplate-sample-position-by-gene fraction matrix.",
+        "Read well names for a Plate and write from a WORKER thread.":
+            "Read microplate sample position names for a laboratory microplate "
+            "and write from a background execution unit.",
+        "The user gates on a table; there is no button to gate.":
+            "The user selects rows using a table; there is no button to filter "
+            "data.",
+        # Human waiting lines are an explicit negative control even when the
+        # same sentence also contains a software-worker cue.
+        "Workers watched people wait in a physical queue outside.":
+            "Workers watched people wait in a physical queue outside.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_api_translation_source_preserves_reviewed_corpus_grammar():
+    import build_documentation_i18n as builder
+
+    cases = {
+        "The queue is diversified by uncertainty for the annotator.":
+            "The annotation work list is diversified by uncertainty for the "
+            "annotator.",
+        "DataLoader pre-fetches batches into a queue.":
+            "DataLoader pre-fetches batches into a batch-data buffer.",
+        "Consumes batches from a Queue in coalesced transactions.":
+            "Consumes batches from a batch-data buffer in coalesced transactions.",
+        "Optional queue for errors. A private Queue is created if None.":
+            "Optional work list for errors. A private error-message list is "
+            "created if None.",
+        "Mirrors intensity channels first, then the cell mask.":
+            "Mirrors intensity image data channels first, then the cell mask.",
+        "A frame is channel-last, but a TIFF page is often channel-first; "
+        "guessing turns a 3-channel image into noise.":
+            "A frame stores image data channels last, but a TIFF page often "
+            "stores image data channels first; guessing turns an image with 3 "
+            "data channels into noise.",
+        "A one-column-per-key-column frame for ``labels``, in their order.":
+            "A frame with one output column for each identifier column in "
+            "``labels``, preserving their order.",
+        "*Intermediate paths are threaded, not repeated.*":
+            "*Intermediate paths are linked together, not repeated.*",
+        "4. Done. 5. **A running job is shown here.**":
+            "4. Done. 5. **An executing job is shown here.**",
+        "The error is handled. Pipelines pass False to the Qt screen.":
+            "The error is handled. Workflows pass False to the Qt application view.",
+        "Rows are loaded. Wells are matched to the plate.":
+            "Rows are loaded. Microplate sample positions are matched to the "
+            "laboratory microplate.",
+        "The error is handled. Qt screens catch it at the gate.":
+            "The error is handled. Qt application views catch it at the "
+            "data-selection boundary.",
+        "``diameter`` is stored. Human-readable labels explain it.":
+            "``diameter`` is stored. Easy-to-read labels explain it.",
+        "Without keys, the mapping has no lookup identifiers.":
+            "Without identifiers, the mapping has no lookup identifiers.",
+        "Worker-thread safe callbacks return to the GUI.":
+            "Safe in a background execution unit callbacks return to the GUI.",
+        "Off-thread notices return to the GUI thread.":
+            "Off-execution-path notices return to the main GUI execution path.",
+        "Mapping keys identify dictionary values.":
+            "Structured-data names identify key-value mapping values.",
+    }
+    for source, expected in cases.items():
+        assert builder._api_translation_source(source) == expected
+
+
+def test_madlad7b_cache_namespace_cannot_reuse_older_source_fallback():
+    import build_documentation_i18n as builder
+
+    assert builder.API_BLOCK_CACHE_NAMESPACE == "api-block-v8-madlad7b"
+    old_key = "api-block-v6\0Read the image plane."
+    new_context = builder._api_translation_source("Read the image plane.")
+    new_key = f"{builder.API_BLOCK_CACHE_NAMESPACE}\0{new_context}"
+    assert old_key != new_key
+
+
+def test_model_safe_split_preserves_complete_long_api_blocks():
+    import build_documentation_i18n as builder
+
+    docs = builder.public_docstrings()
+    labels = (
+        "spacr.power_simulate", "spacr.diameter",
+        "spacr.qt.app.MainWindow.pin_all_menu_roles",
+        "spacr.active_learning.crops_for_object_keys",
+    )
+    found_long = False
+    for label in labels:
+        blocks, _layout = builder.translatable_blocks(docs[label])
+        for block in blocks:
+            contextual = builder._api_translation_source(block)
+            pieces = builder._split_model_safe(contextual)
+            assert " ".join(pieces) == re.sub(r"\s+", " ", contextual).strip()
+            assert all(len(piece) <= 760 for piece in pieces)
+            found_long |= len(pieces) > 1
+    assert found_long
+
+
+def test_every_api_translation_context_preserves_the_literal_contract():
+    import build_documentation_i18n as builder
+
+    for key, document in builder.public_docstrings().items():
+        for index, block in enumerate(builder.translatable_blocks(document)[0]):
+            contextual = builder._api_translation_source(block)
+            assert builder._syntax_preserved(block, contextual), (key, index)
+
+
+@pytest.mark.parametrize(
+    ("source_fragment", "required_fragments"),
+    (
+        (
+            "Feature detector for keypoint matching",
+            (
+                "after detection",
+                "using the detector’s ranking",
+                "feature detection and scoring",
+                "in downsampled space",
+            ),
+        ),
+        (
+            "A replicate whose fit failed or did not converge",
+            (
+                "mean over converged fits",
+                "failed or did not converge",
+                "five non-converged fits",
+            ),
+        ),
+        (
+            "get_db_browser_editable` must be on",
+            (
+                "off by default and is not on this screen",
+                "selection alone does nothing",
+                "Otherwise refuse the edit",
+            ),
+        ),
+        (
+            "structural amplitude of the flattened plane",
+            (
+                "structural amplitude (p99 - p30)",
+                "raw-plane noise estimate",
+                "unfilled foreground",
+                "coarse pass sets the suppression radius",
+            ),
+        ),
+    ),
+)
+def test_hard_tail_contexts_retain_the_complete_semantic_contract(
+    source_fragment, required_fragments,
+):
+    import build_documentation_i18n as builder
+
+    matches = [
+        target
+        for source, target in builder.API_TRANSLATION_CONTEXT.items()
+        if source_fragment in source
+    ]
+    assert len(matches) == 1
+    assert all(fragment in matches[0] for fragment in required_fragments)
+
+
+def test_docstring_reflow_preserves_rst_roles_fields_and_inline_code():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Overview with :mod:`spacr.core` and ``an_inline_value``.
+
+:func:`spacr.example` writes ``first, second,
+third`` without changing the literal.
+
+:param source: Input path.
+:returns: A :class:`Result`.
+"""
+    blocks, layout = translatable_blocks(source)
+    rebuilt = rebuild_document(layout, blocks)
+    for value in (
+        ":mod:`spacr.core`",
+        ":func:`spacr.example`",
+        "``an_inline_value``",
+        "``first, second, third``",
+        ":param source:",
+        ":class:`Result`",
+    ):
+        assert value in rebuilt
+
+
+def test_rst_heading_underlines_use_unicode_display_width():
+    from build_documentation_i18n import (
+        _rst_display_width,
+        rebuild_document,
+        translatable_blocks,
+    )
+
+    assert _rst_display_width("데이터") == 6
+    assert _rst_display_width("e\N{COMBINING ACUTE ACCENT}") == 1
+    blocks, layout = translatable_blocks("Data\n----\n\nBody.")
+    assert blocks == ["Data", "Body."]
+    assert rebuild_document(layout, ["데이터", "본문."]) == (
+        "데이터\n------\n\n본문."
+    )
+
+
+def test_literal_block_double_colon_is_structural_chrome_for_all_shapes():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Typical use::
+
+    call()
+
+* Bullet introduction::
+
+      item()
+
+First::
+
+    one()
+
+Second::
+
+    two()
+
+Third::
+
+    three()
+
+Fourth::
+
+    four()"""
+    blocks, layout = translatable_blocks(source)
+    assert all(not block.endswith("::") for block in blocks)
+    assert [block for block in blocks if "Typical" in block] == ["Typical use"]
+    translated = [f"번역 {index}" for index, _block in enumerate(blocks)]
+    rebuilt = rebuild_document(layout, translated)
+    assert rebuilt.count("::") == source.count("::") == 6
+    assert len(translatable_blocks(rebuilt)[0]) == len(blocks)
+    assert "    call()" in rebuilt and "      item()" in rebuilt
+
+
+def test_standalone_literal_intro_is_raw_not_an_empty_translation_block():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Example
+
+::
+
+    literal()"""
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Example"]
+    assert all(block for block in blocks)
+    assert rebuild_document(layout, blocks) == source
+
+
+@pytest.mark.parametrize(
+    ("source", "translated"),
+    (
+        ("``setting`` explains the choice.", "``setting``  explica a escolha."),
+        (
+            ":class:`spacr.Widget` explains the choice.",
+            ":class:`spacr.Widget`   explica a escolha.",
+        ),
+    ),
+)
+def test_leading_literal_model_whitespace_cannot_reparse_as_a_definition(
+    source, translated,
+):
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    blocks, layout = translatable_blocks(source)
+    rebuilt = rebuild_document(layout, [translated])
+    assert "  " not in rebuilt.split(" explica", 1)[0]
+    assert translatable_blocks(rebuilt)[0] == [
+        re.sub(r"\s+(?=explica)", " ", translated)
+    ]
+    assert len(translatable_blocks(rebuilt)[0]) == len(blocks) == 1
+
+
+def test_unlabelled_indented_diagram_after_prose_stays_raw():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Structure:
+    ┌────────┐
+    │ panel  │
+    └────────┘"""
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Structure:"]
+    assert rebuild_document(layout, ["Estrutura:"]) == (
+        "Estrutura:\n    ┌────────┐\n    │ panel  │\n    └────────┘"
+    )
+
+
+def test_simple_table_merges_all_cells_on_a_wrapped_continuation_row():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """============  ============  ============
+question      Mask          Timelapse
+============  ============  ============
+busy text     \"Preview      \"Preview
+              already       already
+              running.\"     running.\"
+============  ============  ============"""
+    blocks, layout = translatable_blocks(source)
+    assert '"Preview already running."' in blocks
+    assert blocks.count('"Preview already running."') == 2
+    rebuilt = rebuild_document(layout, blocks)
+    assert translatable_blocks(rebuilt)[0] == blocks
+
+
+def test_indented_pip_install_command_is_literal_not_prose():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = '''Install it with:
+
+    python -m pip install "spacr[anndata]"'''
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Install it with:"]
+    assert rebuild_document(layout, ["Instale com:"]) == source.replace(
+        "Install it with:", "Instale com:"
+    )
+
+
+def test_unicode_mapping_arrows_are_protected_structural_operators():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "``setting`` → κ = 2 × value; score ≥ 0.8 ± 0.1 ≈ result"
+    protected, mapping = _protect(source)
+    for operator in ("→", "κ", "×", "≥", "±", "≈"):
+        assert operator not in protected
+    assert _restore(protected, mapping) == source
+    target = "``setting`` → κ = 2 × valor; pontuação ≥ 0.8 ± 0.1 ≈ resultado"
+    assert _syntax_preserved(source, target)
+    assert not _syntax_preserved(source, target.replace(" →", ""))
+    assert not _syntax_preserved(source, target.replace("κ", "k"))
+
+
+def test_ui_navigation_glyphs_are_protected_literals():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "Open ⓘ, choose Facet ↓, then use ◀ / ▶ or spaCR ▸ Settings."
+    protected, mapping = _protect(source)
+    for glyph in ("ⓘ", "↓", "◀", "▶", "▸"):
+        assert glyph not in protected
+    assert _restore(protected, mapping) == source
+    assert not _syntax_preserved(source, source.replace("ⓘ", "i"))
+
+
+def test_scientific_units_and_variables_cannot_silently_disappear():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "At 5 µm and 2 µm², κ uses pₒ and pₑ; see §6 © 2025."
+    protected, mapping = _protect(source)
+    for literal in ("µm", "µm²", "κ", "pₒ", "pₑ", "§6", "©"):
+        assert literal not in protected
+    assert _restore(protected, mapping) == source
+    target = "A 5 µm e 2 µm², κ usa pₒ e pₑ; consulte §6 © 2025."
+    assert _syntax_preserved(source, target)
+    assert not _syntax_preserved(source, target.replace("5 µm", "5"))
+    assert not _syntax_preserved(source, target.replace("pₑ", "pe"))
+
+
+def test_unquoted_identifiers_inside_prose_table_cells_stay_exact():
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = "No — deleteLater; then preview_ ready."
+    protected, mapping = _protect(source)
+    for literal in ("deleteLater", "preview_"):
+        assert literal not in protected
+    assert _restore(protected, mapping) == source
+    assert not _syntax_preserved(
+        source, source.replace("deleteLater", "excluirDepois")
+    )
+
+
+def test_numpydoc_field_declarations_are_protected_before_identifiers():
+    from build_documentation_i18n import _api_translation_source
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = (
+        "general : dict General style overrides. "
+        "per_graph : mapping Non-default settings keyed by graph type. "
+        "level : {'grna', 'gene'}, default='grna' Coefficient level. "
+        "colour : color-like or None, default=None Mark colour. "
+        "error : FileNotFoundError Raised when the style file is absent. "
+        ":param scores: array-like Values to normalize. "
+        ":ivar images: list of per-image tensors. "
+        ":ivar written: mappings created by this run. "
+        "Missing module: {module}. "
+        ":returns: dict of resolved values."
+    )
+    protected, mapping = _protect(source)
+    for literal in (
+        "general : dict",
+        "per_graph : mapping",
+        "level : {'grna', 'gene'}, default='grna'",
+        "colour : color-like or None, default=None",
+        "error : FileNotFoundError",
+    ):
+        assert literal not in protected
+    assert ":returns: dict of resolved values." in protected
+    assert ":param scores: array-like Values to normalize." in protected
+    assert ":ivar images: list of per-image tensors." in protected
+    assert ":ivar written: mappings created by this run." in protected
+    assert "Missing module:" in protected
+    assert "{module}" in mapping.values()
+    assert "module: {module}" not in mapping.values()
+    assert _restore(protected, mapping) == source
+    contextual = _api_translation_source(source)
+    assert contextual == (
+        source.replace("Raised when", "Exception used when")
+        .replace("this run", "this processing session")
+        .replace(
+            ":returns: dict of resolved values.",
+            ":returns: key-value mapping of resolved values.",
+        )
+    )
+    translated = source.replace("General style overrides", "Allgemeine Stilwerte")
+    assert _syntax_preserved(source, translated)
+    assert not _syntax_preserved(source, translated.replace(" : dict", " : Wörterbuch"))
+
+
+def test_preview_contract_table_reassembles_prose_but_hides_code_cells():
+    from build_documentation_i18n import (
+        _api_block_requires_translation,
+        public_docstrings,
+        translatable_blocks,
+    )
+
+    blocks, _layout = translatable_blocks(
+        public_docstrings()["spacr.qt.widgets.preview_contract"]
+    )
+    assert blocks.count('"Preview already running."') == 3
+    assert blocks.count("no — deleteLater") == 2
+    assert blocks.count("ready") == 3
+    assert "JobRunner" not in blocks
+    assert "a rescore from the cache" in blocks
+    assert "matplotlib plot" in blocks
+    assert _api_block_requires_translation("no")
+    assert _api_block_requires_translation("no — deleteLater")
+
+
+def test_preview_contract_canonical_layout_preserves_document_literals():
+    import build_documentation_i18n as builder
+    from build_i18n_catalogs import _syntax_preserved
+
+    source = builder.public_docstrings()["spacr.qt.widgets.preview_contract"]
+    blocks, layout = builder.translatable_blocks(source)
+    canonical = builder.rebuild_document(layout, blocks)
+    assert canonical != source
+    assert _syntax_preserved(canonical, canonical, check_emphasis=False)
+    assert '"Preview already running."' in canonical
+    assert '"Preview      ' not in canonical
+
+
+def test_canonical_literal_introducers_never_reach_model_blocks():
+    from build_documentation_i18n import public_docstrings, translatable_blocks
+
+    docs = public_docstrings()
+    for key in (
+        "spacr.align", "spacr.convert", "spacr.custom_features",
+        "spacr.qt.synthetic", "spacr.runctx.random_state",
+    ):
+        blocks, _layout = translatable_blocks(docs[key])
+        assert not any(block.rstrip().endswith("::") for block in blocks), key
+
+
+def test_parser_translates_indented_prose_but_preserves_code_and_diagrams():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Result groups.
+
+:returns: ``(high, low)``.
+
+    ``high`` is the confident group.
+
+    ``low`` is the boundary group.
+
+Example::
+
+    value = compute()
+    print(value)
+
+Diagram
+
+    A --> B
+    B --> C"""
+    blocks, layout = translatable_blocks(source)
+    assert "``high`` is the confident group." in blocks
+    assert "``low`` is the boundary group." in blocks
+    assert not any("value = compute()" in block for block in blocks)
+    assert not any("A --> B" in block for block in blocks)
+    assert rebuild_document(layout, blocks) == source
+
+
+def test_canonical_indented_literal_shapes_are_never_translation_blocks():
+    from build_documentation_i18n import public_docstrings, translatable_blocks
+
+    docs = public_docstrings()
+    forbidden = {
+        "spacr.classify_classes": '{"infected":',
+        "spacr.mask_io": 'np.save("foo_mask.npy"',
+        "spacr.pipeline_v2": "→ renamed + split into channel folders",
+        "spacr.qt.verbose_logger.log_call": "[class.func] args=",
+        "spacr.qt.widgets": "670 ms  spacr.qt.app",
+        "spacr.power_simulate": "Permission is hereby granted",
+    }
+    for key, fragment in forbidden.items():
+        blocks, _layout = translatable_blocks(docs[key])
+        assert not any(fragment in block for block in blocks), (key, fragment)
+    # spacr.qt's launch commands were an indented literal; since 411
+    # (31000d98b) they are inline literals in a prose sentence, which is a
+    # translation block. The command may reach a block only inside ``...``.
+    blocks, _layout = translatable_blocks(docs["spacr.qt"])
+    for block in blocks:
+        if "python -m spacr.qt" in block:
+            assert "``python -m spacr.qt``" in block, block
+
+
+def test_code_definition_shape_inside_explicit_literal_block_stays_exact():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """Example::
+
+    ``name``  exact output
+    ``kind``  another literal"""
+    blocks, layout = translatable_blocks(source)
+    # The literal-block introducer is structural RST chrome.  Translate only
+    # its prose label, then reattach ``::`` during reconstruction.
+    assert blocks == ["Example"]
+    assert rebuild_document(layout, blocks) == source
+
+
+def test_indented_query_and_shortcut_keys_stay_literal_while_help_translates():
+    from build_documentation_i18n import public_docstrings, translatable_blocks
+
+    docs = public_docstrings()
+    query_blocks, _layout = translatable_blocks(
+        docs["spacr.qt.annotate_engine.parse_image_type"]
+    )
+    assert any("contains both" in block for block in query_blocks)
+    assert not any("cell AND nucleus" in block for block in query_blocks)
+
+    shortcut_blocks, _layout = translatable_blocks(docs["spacr.qt.shortcuts"])
+    assert any("Go home" in block for block in shortcut_blocks)
+    assert not any("Ctrl+H" in block or "F1  / ?" in block
+                   for block in shortcut_blocks)
+
+
+def test_shortcut_translation_keeps_compound_bindings_and_layout_exact():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    bindings = [
+        "Ctrl+0", "Ctrl+1..9", "Ctrl+K", "Ctrl+Shift+H", "F1  / ?",
+        "Ctrl+P", "Ctrl+Alt+0", "Ctrl+/", "Ctrl+End", "F11", "Esc",
+        "Meta+Shift+Left", "Cmd+Alt+Home", "Alt+F4", "Ctrl+,",
+    ]
+    source = "Shortcuts:\n\n" + "\n".join(
+        f"    {binding:<20}  Action {index}"
+        for index, binding in enumerate(bindings)
+    )
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Shortcuts:"] + [
+        f"Action {index}" for index in range(len(bindings))
+    ]
+    assert rebuild_document(layout, blocks) == source
+    translated = ["Shortcuts:"] + [
+        f"Acción {index}" for index in range(len(bindings))
+    ]
+    assert rebuild_document(layout, translated) == source.replace("Action", "Acción")
+
+
+def test_parser_preserves_directive_options_and_translates_admonition_title():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """.. admonition:: Important result
+   :class: warning
+
+   Translate this body with :exc:`ValueError`."""
+    blocks, layout = translatable_blocks(source)
+    assert blocks == [
+        "Important result",
+        "Translate this body with :exc:`ValueError`.",
+    ]
+    assert ":class: warning" not in blocks
+    translated = ["Resultado importante", "Traduza este corpo com :exc:`ValueError`."]
+    rebuilt = rebuild_document(layout, translated)
+    assert rebuilt.startswith(".. admonition:: Resultado importante\n")
+    assert "   :class: warning" in rebuilt
+    assert ":exc:`ValueError`" in rebuilt
+
+
+def test_parser_translates_yields_and_seealso_fields():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = (
+        ":yields: one completed result at a time.\n"
+        ":seealso: :py:meth:`spacr.Widget.run` for execution details."
+    )
+    blocks, layout = translatable_blocks(source)
+    assert blocks == [
+        "one completed result at a time.",
+        ":py:meth:`spacr.Widget.run` for execution details.",
+    ]
+    assert rebuild_document(layout, blocks) == source
+
+
+def test_canonical_indented_api_explanations_are_translation_blocks():
+    from build_documentation_i18n import public_docstrings, translatable_blocks
+
+    docs = public_docstrings()
+    expected_fragments = {
+        "spacr.confusion.split_by_confidence":
+            "``high`` is confidence ``>= threshold``",
+        "spacr.measure_hooks":
+            "``channel_arrays`` is exactly the array",
+        "spacr.model_compare":
+            "one model's settings, plus what of it survives.",
+        # Re-pointed 2026-09-15: item 63 (63d5cd86e) removed the bold around
+        # this sentence. reST cannot nest ``False`` inside **...**, so the
+        # old markup rendered its own asterisks.
+        "spacr.power_model.scan_parameters":
+            "Returning exactly ``False`` stops the sweep",
+    }
+    for key, fragment in expected_fragments.items():
+        blocks, _layout = translatable_blocks(docs[key])
+        assert any(fragment in block for block in blocks), (key, fragment)
+
+
+def test_all_rst_role_prefixes_and_payloads_are_protected():
+    from build_i18n_catalogs import _syntax_preserved
+
+    source = (
+        "Use :exc:`ValueError`, :math:`x > 1`, and "
+        ":py:meth:`spacr.Widget.run`."
+    )
+    valid = (
+        "Use :exc:`ValueError`, :math:`x > 1`, e "
+        ":py:meth:`spacr.Widget.run`."
+    )
+    assert _syntax_preserved(source, valid)
+    assert not _syntax_preserved(
+        source, valid.replace(":exc:", ":class:", 1)
+    )
+    assert not _syntax_preserved(
+        source, valid.replace("spacr.Widget.run", "spacr.Widget.stop", 1)
+    )
+
+
+def test_runtime_syntax_gate_accepts_only_exact_reviewed_acronym_normalization():
+    from build_i18n_catalogs import (
+        MANUAL_UI,
+        _syntax_preserved,
+        _syntax_preserved_or_reviewed,
+    )
+
+    assert not _syntax_preserved("pca", "PCA")
+    assert _syntax_preserved_or_reviewed("pca", MANUAL_UI["pca"]["de"], "de")
+    assert not _syntax_preserved_or_reviewed("pca", "PCA changed", "de")
+    assert _syntax_preserved("Export CSVs and PNGs from UMAPs.", "Export CSV-Dateien, PNG-Dateien und UMAPs.")
+
+
+def test_runtime_script_gate_accepts_only_exact_reviewed_acronym():
+    from build_i18n_catalogs import (
+        _translation_candidate_valid,
+        _translation_rejection_reasons,
+    )
+
+    assert _translation_candidate_valid("pca", "PCA", "ko", force=True)
+    assert not _translation_rejection_reasons(
+        "pca", "PCA", "ko", force=True,
+    )
+    assert not _translation_candidate_valid(
+        "unreviewed label", "UNREVIEWED", "ko", force=True,
+    )
+
+
+def test_reviewed_quoted_human_phrases_are_prose_not_api_literals():
+    from build_i18n_catalogs import _syntax_preserved
+
+    assert _syntax_preserved(
+        "Mark objects as 'not scored' or 'exclude this debris'.",
+        "Marque os objetos como 'não pontuados' ou 'exclua estes detritos'.",
+    )
+    assert _syntax_preserved(
+        'Compare "the run that worked" with the failed run.',
+        'Compare "a execução que funcionou" com a execução que falhou.',
+    )
+    assert _syntax_preserved(
+        'An edge threshold should not mean "exclude everything".',
+        'En kanttröskel ska inte betyda "uteslut allt".',
+    )
+
+
+def test_regression_screen_input_is_an_application_view_not_an_experiment():
+    import build_documentation_i18n as builder
+    from build_i18n_catalogs import _gui_screen_source
+
+    source = "Regression screen receiving the resolved input."
+    assert _gui_screen_source(source)
+    assert builder._api_translation_source(source) == (
+        "Regression application view receiving the resolved input."
+    )
+
+
+def test_inline_pip_install_command_is_a_protected_literal():
+    from build_i18n_catalogs import _PROTECT_RE, _syntax_preserved
+
+    source = "Uses the Piper CLI installed with pip install piper-tts."
+    matches = [match.group(0) for match in _PROTECT_RE.finditer(source)]
+    assert "pip install piper-tts" in matches
+    assert _syntax_preserved(
+        source,
+        "Usa a CLI do Piper instalada com pip install piper-tts.",
+    )
+
+
+def test_readme_language_picker_is_never_sent_through_translation():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    picker = (
+        "Languages: `English <README.rst>`_ · "
+        "`Svenska <docs/i18n/readme/README.sv.rst>`_ ·\n"
+        "`简体中文 <docs/i18n/readme/README.zh_CN.rst>`_\n\n"
+        "Translate this sentence."
+    )
+    blocks, layout = translatable_blocks(picker)
+    assert blocks == ["Translate this sentence."]
+    assert rebuild_document(layout, blocks).startswith(
+        "Languages: `English <README.rst>`_ · "
+        "`Svenska <docs/i18n/readme/README.sv.rst>`_ ·\n"
+        "`简体中文 <docs/i18n/readme/README.zh_CN.rst>`_"
+    )
+
+
+def test_readme_generated_image_markup_is_never_sent_through_translation():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    source = """.. spacr-workflow-begin
+
+|Workflow_mask|\\ |Workflow_measure|
+
+**Data**
+
+|App_align|\\ |App_convert|
+
+.. spacr-workflow-end
+
+|DataBioStudies| |DataHuggingFace|
+
+Translate this sentence."""
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Translate this sentence."]
+    assert rebuild_document(layout, blocks) == source
+
+
+def test_independent_link_translation_preserves_reviewed_link_labels():
+    from build_documentation_i18n import (
+        REVIEWED_README_BLOCKS,
+        _localize_readme_link_labels,
+    )
+
+    support_source = next(
+        source for source in REVIEWED_README_BLOCKS
+        if "github.com/EinarOlafsson/spacr/issues" in source
+    )
+    reviewed = REVIEWED_README_BLOCKS[support_source]["de"]
+    target = "https://github.com/EinarOlafsson/spacr/issues"
+    standalone = f"`GitHub Issues <{target}>`_"
+    localized = _localize_readme_link_labels(
+        f"{reviewed}\n\n{standalone}",
+        "de",
+        [("__readme_link_0__", "GitHub Issues", target)],
+        {"__readme_link_0__": "GitHub Probleme"},
+    )
+    assert localized.startswith(reviewed + "\n\n")
+    assert localized.endswith(f"`GitHub Probleme <{target}>`_")
+
+
+def test_old_readme_measurement_reviews_are_retained_without_becoming_current():
+    from build_documentation_i18n import (
+        RETIRED_README_EVIDENCE_BLOCKS, REVIEWED_README_EVIDENCE_BLOCKS,
+    )
+
+    old = next(source for source in RETIRED_README_EVIDENCE_BLOCKS
+               if "1186 MB checkout" in source)
+    assert len(RETIRED_README_EVIDENCE_BLOCKS[old]) == 9
+    assert old not in REVIEWED_README_EVIDENCE_BLOCKS
+    current = next(source for source in REVIEWED_README_EVIDENCE_BLOCKS
+                   if "The nightly tracked tree" in source)
+    assert len(REVIEWED_README_EVIDENCE_BLOCKS[current]) == 9
+
+
+def test_github_summary_has_reviewed_domain_translations():
+    from build_documentation_i18n import (
+        REVIEWED_README_BLOCKS,
+        REVIEWED_README_EVIDENCE_BLOCKS,
+        REVIEWED_README_HEADINGS,
+        translatable_blocks,
+    )
+
+    reviewed_sources = json.loads((ROOT / "tests/data/release_contracts"
+        / "readme_domain_review_sources_2026_10_09.json").read_text())
+    assert set(REVIEWED_README_BLOCKS) == set(reviewed_sources)
+    all_languages = {
+        "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
+    }
+    canonical = readme_words()
+    canonical_blocks, _layout = translatable_blocks(canonical)
+    canonical_normalized = re.sub(r"\s+", " ", canonical)
+    for source, reviewed in REVIEWED_README_BLOCKS.items():
+        is_document_block = canonical_blocks.count(source) == 1
+        assert (
+            is_document_block
+            or (canonical.splitlines().count(source) == 1
+                and f"{source}\n{'^' * len(source)}\n" in canonical)
+            or (source == "Make Masks" and canonical_normalized.count(source) == 2
+                and 'alt="Open the Make Masks API"' in canonical
+                and "Import, Make Masks, Annotate" in canonical)
+            or canonical_normalized.count(source) == 1
+        ), source
+        expected_languages = (
+            set(REVIEWED_README_EVIDENCE_BLOCKS[source])
+            if source in REVIEWED_README_EVIDENCE_BLOCKS
+            else all_languages
+        )
+        assert set(reviewed) == expected_languages
+        for language, target in reviewed.items():
+            if not is_document_block:
+                # Link labels are also translated independently so their
+                # destination can remain byte-for-byte canonical.  Their
+                # reviewed wording may be absorbed into a larger reviewed
+                # paragraph rather than appearing as a standalone value.
+                continue
+            localized = readme_words(
+                ROOT / "docs" / "i18n" / "readme"
+                / f"README.{language}.rst")
+            contract_localized = localized.replace(
+                "<../TRANSLATION_MODELS.md>",
+                "<docs/i18n/TRANSLATION_MODELS.md>",
+            ).replace(
+                "<../../source/", "<docs/source/",
+            )
+            assert target in contract_localized, (source, language)
+    joined = {
+        language: " ".join(
+            block[language]
+            for block in REVIEWED_README_BLOCKS.values()
+            if language in block
+        )
+        for language in all_languages
+    }
+    assert "CRISPR 筛选" in joined["zh_CN"]
+    assert "criblages CRISPR" in joined["fr"]
+    assert "CRISPR 스크리닝" in joined["ko"]
+    assert "CRISPR-skim" in joined["is"]
+    # The reviewed "Try spaCR" heading was added by the
+    # 2026-09-27 source-current README pass.
+    # 17 since 2026-10-10: Docker is now a route in "Install spaCR" rather
+    # than a section of its own.
+    assert len(REVIEWED_README_HEADINGS) == 17
+    assert "Docker installation" not in REVIEWED_README_HEADINGS
+    assert "Try spaCR" in REVIEWED_README_HEADINGS
+    for reviewed in REVIEWED_README_HEADINGS.values():
+        assert set(reviewed) == {
+            "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
+        }
+    assert REVIEWED_README_HEADINGS["Install spaCR"]["hi"] == (
+        "spaCR इंस्टॉल करें"
+    )
+    assert REVIEWED_README_HEADINGS["Conda-forge installation"]["zh_CN"] == (
+        "使用 conda-forge 安装"
+    )
+    assert REVIEWED_README_HEADINGS["PyPI installation"]["de"] == (
+        "Installation über PyPI"
+    )
+
+
+def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
+    from build_documentation_i18n import (
+        REVIEWED_README_EVIDENCE_BLOCKS,
+        translatable_blocks,
+    )
+
+    path = (
+        ROOT / "docs" / "i18n" / "reviewed" / "readme"
+        / "2026-08-26-nightly-merge-gaps.json"
+    )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["schema"] == 1
+    assert payload["source"] == "README.rst"
+    records = payload["records"]
+    assert len(records) == 16
+    canonical, _layout = translatable_blocks(
+        readme_words()
+    )
+    all_languages = {
+        "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
+    }
+
+    # RETIRED RECORDS ARE KEPT AND NOT CHECKED AGAINST THE README.
+    #
+    # Eleven of the sixteen are bound to text that left README.rst in
+    # f9f43a5ba, when the page was restructured. Each is marked `reviewed`
+    # in all nine locales, so deleting them would erase evidence that a human
+    # review happened -- and the mirror of instruction 357's guideline 4,
+    # which forbids CLAIMING a review nobody gave, is that a review somebody
+    # did give is not ours to discard because the sentence it covered was
+    # rewritten. They keep their reviewer, locales and dates; they are simply
+    # no longer bound to a source that is not there.
+    #
+    # Decided by the maintainer on 2026-09-02, offered against archiving them
+    # to a second file and against deleting them outright.
+    #
+    # 11/5 -> 12/4 on 2026-09-19: the "Make Masks" heading record, retired
+    # the same way after the maintainer took that section out of README.rst
+    # in 2db12a301 on 2026-09-16.
+    retired = [r for r in records if r.get("retired")]
+    live = [r for r in records if not r.get("retired")]
+    assert len(retired) == 12 and len(live) == 4
+    assert all(r.get("retired_reason") for r in retired), (
+        "a retired record must say WHY, or the next reader cannot tell a "
+        "deliberate retirement from a record that was quietly broken")
+    for record in retired:
+        assert canonical.count(record["source"]) == 0, (
+            f"{record['source'][:40]!r} is retired but is back in the "
+            f"README -- re-bind the record rather than leaving it retired")
+
+    for record in live:
+        source = record["source"]
+        assert canonical.count(source) == 1
+        assert record["source_sha256"] == hashlib.sha256(
+            source.encode("utf-8")
+        ).hexdigest()
+        assert set(record["status"]) == all_languages
+        reviewed_languages = set(
+            REVIEWED_README_EVIDENCE_BLOCKS.get(source, {})
+        )
+        assert {
+            language
+            for language, status in record["status"].items()
+            if status == "reviewed"
+        } == reviewed_languages
+        assert all(
+            status in {"reviewed", "pending_native_review"}
+            for status in record["status"].values()
+        )
+
+
+def test_the_retirement_note_explains_itself_to_the_next_reader():
+    """A flag nobody can interpret is the same as no flag.
+
+    The ledger carries a `retirement_note` saying what `retired` means and
+    what to do if the wording ever comes back. It is asserted because the
+    whole reason the records were kept rather than deleted is that somebody
+    later has to be able to tell a retired review from a lost one.
+    """
+    path = (
+        ROOT / "docs" / "i18n" / "reviewed" / "readme"
+        / "2026-08-26-nightly-merge-gaps.json"
+    )
+    note = json.loads(path.read_text(encoding="utf-8")).get("retirement_note", "")
+    assert "retired" in note and "re-bind" in note, (
+        "the ledger must say what a retired record is and what to do when "
+        "its source text returns")
+
+
+def test_translation_protection_has_no_nested_tokens_and_round_trips():
+    from build_i18n_catalogs import _protect, _restore
+
+    source = (
+        "Each entry is {'name': <class>, 'where': [{'column': <feature>, "
+        "'op': '>='}], :func:`spacr.core.run` keeps CUDA unchanged, and "
+        "`the release <https://example.test/release>`_ remains a valid link."
+    )
+    protected, mapping = _protect(source)
+    assert all("<x" not in value for value in mapping.values())
+    assert _restore(protected, mapping) == source
+
+
+def test_numeric_protection_markers_restore_when_models_join_target_text():
+    """Joined Latin text and Korean particles must not look like lost tokens.
+
+    Marian commonly removes whitespace around numeric fallback markers.  A
+    Unicode ``\b`` does not exist between the marker's final digit and either
+    a Latin letter or a Hangul particle, so the old restore path discarded a
+    complete translation even though every marker was still present once.
+    """
+    from build_i18n_catalogs import _restore
+
+    mapping = {"0X0": "**", "1X1": "``measurements.db``"}
+    assert _restore(
+        "0X0A tradução termina em 1X1.", mapping,
+    ) == "**A tradução termina em ``measurements.db``."
+    assert _restore(
+        "0X0을 번역하고 1X1에서 읽습니다.", mapping,
+    ) == "**을 번역하고 ``measurements.db``에서 읽습니다."
+
+
+def test_numeric_protection_marker_does_not_match_inside_larger_number():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="did not preserve 0X0 exactly once"):
+        _restore("prefix 10X01 suffix", {"0X0": "**"})
+
+
+def test_xml_markers_restore_after_only_the_opening_angle_is_lost():
+    from build_i18n_catalogs import _restore
+
+    # Marian emits this exact shape for ``*including 0*``: the source zero
+    # touches the shortened marker, while the expected id and closing bracket
+    # remain unambiguous.
+    assert _restore(
+        "x0>Texto 0x1> final x2>",
+        {"<x0>": "**", "<x1>": "*", "<x2>": "**"},
+        protected_text="<x0>Texto 0<x1> final <x2>",
+    ) == "**Texto 0* final **"
+
+
+def test_xml_marker_fuzz_allows_target_order_but_not_ascii_word_suffixes():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    assert _restore(
+        "x1> texto x0>", {"<x0>": "``a``", "<x1>": "``b``"},
+    ) == "``b`` texto ``a``"
+    with pytest.raises(ValueError, match="exactly once"):
+        _restore("matrix0>", {"<x0>": "``a``"})
+
+
+def test_xml_marker_fuzz_consumes_the_retained_closing_angle():
+    from build_i18n_catalogs import _restore
+
+    assert _restore(
+        "x0>Texto x1>", {"<x0>": "**", "<x1>": "**"},
+    ) == "**Texto **"
+    assert ">" not in _restore("x0>Texto", {"<x0>": "``value``"})
+
+
+def test_marker_fusion_requires_the_exact_source_adjacency_contract():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    mapping = {"<x1>": "``value``", "<x2>": "!"}
+    assert _restore(
+        "linear dex1> x2>",
+        mapping,
+        protected_text="linear de<x1> <x2>",
+    ) == "linear de``value`` !"
+    with pytest.raises(ValueError, match="did not preserve <x1>"):
+        _restore(
+            "linear dex1> x2>",
+            mapping,
+            protected_text="linear de <x1> <x2>",
+        )
+
+    assert _restore(
+        "incluindo 0x6>",
+        {"<x6>": "*"},
+        protected_text="incluindo 0<x6>",
+    ) == "incluindo 0*"
+    with pytest.raises(ValueError, match="did not preserve <x6>"):
+        _restore(
+            "incluindo 0x6>",
+            {"<x6>": "*"},
+            protected_text="incluindo zero <x6>",
+        )
+
+
+def test_numeric_marker_digit_fusion_uses_the_exact_source_contract():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    mapping = {"5X5": "**", "6X6": "*"}
+    assert _restore(
+        "5X5incluindo 06X6",
+        mapping,
+        protected_text="5X5including 06X6",
+    ) == "**incluindo 0*"
+    with pytest.raises(ValueError, match="did not preserve 6X6"):
+        _restore("5X5incluindo 06X6", mapping)
+
+
+def test_marker_restore_rejects_unknown_explicit_tokens():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="invented protection token"):
+        _restore(
+            "x0> texto x9>",
+            {"<x0>": "``value``"},
+            protected_text="<x0>",
+        )
+    assert _restore(
+        "x0> texto x9",
+        {"<x0>": "``value``"},
+        protected_text="<x0>",
+    ) == "``value`` texto x9"
+
+
+def test_fully_stripped_xml_marker_is_never_guessed_from_natural_coordinates():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="did not preserve <x0>"):
+        _restore(
+            "valor em x0",
+            {"<x0>": "**"},
+            protected_text="<x0> value at x0",
+        )
+    assert _restore(
+        "medido em x 0.825", {}, protected_text="measured at x 0.825"
+    ) == "medido em x 0.825"
+
+
+def test_marker_restore_checks_raw_output_before_inserting_literal_values():
+    from build_i18n_catalogs import _restore
+
+    assert _restore(
+        "<x0>", {"<x0>": "<x9>"}, protected_text="<x0>"
+    ) == "<x9>"
+    assert _restore(
+        "x0>", {"<x0>": "x9>"}, protected_text="<x0>"
+    ) == "x9>"
+
+
+def test_unclaimed_numeric_shapes_must_match_the_protected_source():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="unprotected numeric"):
+        _restore(
+            "0X0 plus 9X9",
+            {"0X0": "**"},
+            protected_text="0X0 plus",
+        )
+    assert _restore(
+        "0X0 tamanho 9 x 9",
+        {"0X0": "**"},
+        protected_text="0X0 size 9X9",
+    ) == "** tamanho 9 x 9"
+    assert _restore(
+        "imagem 300 x 300", {}, protected_text="image 300 x 300"
+    ) == "imagem 300 x 300"
+
+
+def test_protected_source_contract_must_contain_each_marker_once():
+    import pytest
+    from build_i18n_catalogs import _restore
+
+    with pytest.raises(ValueError, match="protected input did not contain"):
+        _restore("x0>", {"<x0>": "**"}, protected_text="plain text")
+    with pytest.raises(ValueError, match="protected input did not contain"):
+        _restore(
+            "x0>", {"<x0>": "**"}, protected_text="<x0> then <x0>"
+        )
+    with pytest.raises(ValueError, match="exactly once"):
+        _restore(
+            "x0> texto x0>",
+            {"<x0>": "``value``"},
+            protected_text="<x0>",
+        )
+    with pytest.raises(ValueError, match="did not preserve <x1>"):
+        _restore(
+            "x0> texto",
+            {"<x0>": "``a``", "<x1>": "``b``"},
+            protected_text="<x0> then <x1>",
+        )
+
+
+def test_fragment_protection_keeps_short_quotes_as_one_literal_island():
+    from build_i18n_catalogs import _FRAGMENT_PROTECT_RE, _protect
+
+    short = 'means "not looked at"; continue.'
+    protected, mapping = _protect(short, pattern=_FRAGMENT_PROTECT_RE)
+    assert list(mapping.values()) == ['"not looked at"']
+    assert "not looked at" not in protected
+
+    long = 'means "this explanation has five translated words"; continue.'
+    protected, mapping = _protect(long, pattern=_FRAGMENT_PROTECT_RE)
+    assert list(mapping.values()) == ['"', '"']
+    assert "this explanation has five translated words" in protected
+
+    reviewed = 'means "not scored"; continue.'
+    protected, mapping = _protect(reviewed, pattern=_FRAGMENT_PROTECT_RE)
+    assert list(mapping.values()) == ['"', '"']
+    assert "not scored" in protected
+
+
+def test_context_clause_plan_preserves_exact_chrome_and_protected_literals():
+    from build_i18n_catalogs import _context_clause_plan
+
+    source = (
+        "Returns: read ``mapping: value`` — keep the result, but retry "
+        "because the file changed."
+    )
+    plan = _context_clause_plan(source)
+
+    assert "".join(piece for piece, _translate in plan) == source
+    assert [piece for piece, translate in plan if not translate] == [
+        ": ", " — ", ", ", " ",
+    ]
+    assert any(
+        "``mapping: value``" in piece and translate
+        for piece, translate in plan
+    )
+    assert sum(translate for _piece, translate in plan) == 5
+
+
+def test_context_clause_plan_requires_two_translatable_spans():
+    from build_i18n_catalogs import _context_clause_plan
+
+    assert _context_clause_plan("No strong boundary here.") == []
+    assert _context_clause_plan("Type: ``dict[str, int]``") == []
+
+
+def test_fragment_retry_requires_current_latest_mechanical_failure():
+    from build_documentation_i18n import _api_block_valid
+    from build_i18n_catalogs import (
+        _fragment_retry_sources,
+        _translation_candidate_valid,
+    )
+
+    rescued = "Read ``measurements.db``."
+    caller_bad = "Return this value to the caller."
+    syntax_bad = "Write ``results.db``."
+    already_good = "Return the image crop."
+    marker_bad = "Read ``other.db``."
+    semantic_bad = "Return another image crop."
+    script_bad = "Describe the image plane."
+    exact_bad = "Describe the image tile."
+    degenerate_bad = "Describe the pipeline."
+    eos_bad = "Append work to the queue."
+    translations = {
+        rescued: "``measurements.db``에서 읽습니다.",
+        caller_bad: "Return this 값을 to the caller.",
+        syntax_bad: "결과 데이터베이스에 씁니다.",
+        already_good: "이미지 크롭을 반환합니다.",
+        marker_bad: marker_bad,
+        semantic_bad: semantic_bad,
+        script_bad: script_bad,
+        exact_bad: exact_bad,
+        degenerate_bad: degenerate_bad,
+        eos_bad: eos_bad,
+    }
+
+    def valid(source, value):
+        return (
+            _translation_candidate_valid(source, value, "ko", force=True)
+            and _api_block_valid(source, value, "ko")
+        )
+
+    # Pin the fixture: the caller-gate failure is structurally sound, while
+    # the syntax failure dropped its protected database literal.
+    assert _translation_candidate_valid(
+        caller_bad, translations[caller_bad], "ko", force=True,
+    )
+    assert not _api_block_valid(caller_bad, translations[caller_bad], "ko")
+    assert not _translation_candidate_valid(
+        syntax_bad, translations[syntax_bad], "ko", force=True,
+    )
+    assert valid(rescued, translations[rescued])
+    assert valid(already_good, translations[already_good])
+
+    latest_failures = {
+        rescued: {"marker_restore"},
+        caller_bad: {"caller_gate"},
+        syntax_bad: {"protected_syntax"},
+        already_good: {"marker_restore"},
+        marker_bad: {"marker_restore"},
+        semantic_bad: {"semantic"},
+        script_bad: {"target_script"},
+        exact_bad: {"exact"},
+        degenerate_bad: {"degenerate"},
+        eos_bad: {"eos"},
+    }
+    selected = _fragment_retry_sources(
+        translations, translations, valid, latest_failures,
+    )
+    assert selected == [syntax_bad, marker_bad]
+
+
+def test_valid_sentence_retry_is_not_overwritten_by_fragment_fallback():
+    from build_documentation_i18n import _api_block_valid
+    from build_i18n_catalogs import (
+        _fragment_retry_sources,
+        _translation_candidate_valid,
+    )
+
+    rescued = "Read ``measurements.db``."
+    still_bad = "Write ``results.db``."
+    rescued_value = "``measurements.db``에서 읽습니다."
+    translated = {
+        rescued: rescued_value,
+        still_bad: "결과 데이터베이스에 씁니다.",
+    }
+
+    def valid(source, value):
+        return (
+            _translation_candidate_valid(source, value, "ko", force=True)
+            and _api_block_valid(source, value, "ko")
+        )
+
+    latest_failures = {
+        rescued: {"marker_restore"},
+        still_bad: {"protected_syntax"},
+    }
+    seen = _fragment_retry_sources(
+        translated, translated, valid, latest_failures,
+    )
+    for source in seen:
+        # Simulate a rejected fragment falling back to canonical English.
+        translated[source] = source
+    assert seen == [still_bad]
+    assert translated[rescued] == rescued_value
+
+
+def test_incomplete_fragment_output_can_never_be_reassembled():
+    from build_i18n_catalogs import _join_completed_fragments
+
+    pieces = ["번역된 앞부분 ", "", " ``literal`` 뒤부분"]
+    assert _join_completed_fragments(pieces, {"eos"}) is None
+    assert _join_completed_fragments(pieces, set()) == (
+        "번역된 앞부분  ``literal`` 뒤부분"
+    )
+
+
+def test_ranked_generation_returns_one_candidate_per_existing_beam():
+    from build_i18n_catalogs import (
+        _group_ranked_outputs,
+        _ranked_generation_kwargs,
+    )
+
+    assert _ranked_generation_kwargs(4) == {
+        "num_beams": 4,
+        "num_return_sequences": 4,
+    }
+    output = ["a0", "a1", "a2", "a3", "b0", "b1", "b2", "b3"]
+    grouped = _group_ranked_outputs(output, list(output), 2, 4)
+    assert [[value for _sequence, value in group] for group in grouped] == [
+        ["a0", "a1", "a2", "a3"],
+        ["b0", "b1", "b2", "b3"],
+    ]
+
+
+def test_ranked_candidate_skips_invalid_eos_restore_and_gate_results():
+    from build_i18n_catalogs import _first_valid_ranked_candidate
+
+    candidates = [
+        ("incomplete", "ignored"),
+        ("complete", "broken-marker"),
+        ("complete", "gate-rejected"),
+        ("complete", "accepted"),
+    ]
+
+    def restore(value):
+        if value == "broken-marker":
+            raise ValueError("marker was damaged")
+        return value
+
+    def evaluate(value):
+        if value == "gate-rejected":
+            return value, {"caller_gate"}
+        return f"translated:{value}", set()
+
+    selected, failures = _first_valid_ranked_candidate(
+        candidates,
+        completed=lambda sequence: sequence == "complete",
+        restore=restore,
+        evaluate=evaluate,
+    )
+    assert selected == "translated:accepted"
+    assert failures == set()
+
+    selected, failures = _first_valid_ranked_candidate(
+        candidates[:-1],
+        completed=lambda sequence: sequence == "complete",
+        restore=restore,
+        evaluate=evaluate,
+    )
+    assert selected is None
+    assert failures == {"eos", "marker_restore", "caller_gate"}
+
+
+def test_rank_zero_rejection_can_select_rank_one_without_mixing_pieces():
+    from build_i18n_catalogs import (
+        _first_valid_ranked_candidate,
+        _rank_aligned_joins,
+    )
+
+    selected, failures = _first_valid_ranked_candidate(
+        [(object(), "rank-zero"), (object(), "rank-one")],
+        completed=lambda _sequence: True,
+        restore=lambda value: value,
+        evaluate=lambda value: (
+            value,
+            {"protected_syntax"} if value == "rank-zero" else set(),
+        ),
+    )
+    assert selected == "rank-one"
+    assert failures == set()
+
+    assert _rank_aligned_joins(
+        [["left-0", "left-1"], ["right-0", "right-1"]],
+        lambda values: "|".join(values),
+    ) == ["left-0|right-0", "left-1|right-1"]
+    assert _rank_aligned_joins(
+        [["left-0", None], [None, "right-1"]],
+        lambda values: "|".join(values),
+    ) == [None, None]
+
+
+def test_no_valid_beam_falls_back_to_source_without_cache(
+    tmp_path, monkeypatch,
+):
+    import types
+
+    import build_i18n_catalogs as builder
+    import torch
+
+    source = "Translate this deliberately unique beam fixture."
+    model_folder = tmp_path / builder.MODEL_SPECS["pt"][1]
+    model_folder.mkdir(parents=True)
+    generation_calls = []
+
+    class FakeTokenizer:
+        eos_token_id = 2
+        model_max_length = 480
+
+        def __call__(self, value, **_kwargs):
+            if isinstance(value, str):
+                return {"input_ids": [1, 2]}
+            width = max(2, max(map(len, value)))
+            input_ids = torch.ones((len(value), width), dtype=torch.long)
+            return {
+                "input_ids": input_ids,
+                "attention_mask": torch.ones_like(input_ids),
+            }
+
+        def batch_decode(self, output, **_kwargs):
+            values = {
+                11: "Primeira tradução rejeitada.",
+                12: "Segunda tradução rejeitada.",
+            }
+            return [values[int(sequence[0])] for sequence in output]
+
+    tokenizer = FakeTokenizer()
+
+    class FakeModel:
+        def eval(self):
+            return self
+
+        def generate(self, **kwargs):
+            generation_calls.append(kwargs)
+            return torch.tensor([[11, 2], [12, 2]], dtype=torch.long)
+
+    fake_transformers = types.SimpleNamespace(
+        AutoTokenizer=types.SimpleNamespace(
+            from_pretrained=lambda *_args, **_kwargs: tokenizer,
+        ),
+        AutoModelForSeq2SeqLM=types.SimpleNamespace(
+            from_pretrained=lambda *_args, **_kwargs: FakeModel(),
+        ),
+    )
+    monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
+    monkeypatch.setattr(builder, "_seed_cache_from_catalog", lambda *_args: None)
+
+    translated = builder._translate_batches(
+        [source],
+        "pt",
+        tmp_path,
+        device="cpu",
+        batch_size=1,
+        beams=2,
+        threads=1,
+        force_sources={source},
+        cache_namespace="beam-fixture",
+        candidate_validator=lambda *_args: False,
+    )
+
+    assert translated == {source: source}
+    assert len(generation_calls) == 1
+    assert generation_calls[0]["num_beams"] == 2
+    assert generation_calls[0]["num_return_sequences"] == 2
+    cache_path = tmp_path / ".spacr_translation_cache" / "pt.json"
+    assert not cache_path.exists()
+
+
+def test_translation_rejection_reasons_separate_mechanical_and_linguistic():
+    from build_i18n_catalogs import _translation_rejection_reasons
+
+    protected_source = "Read ``measurements.db``."
+    assert _translation_rejection_reasons(
+        protected_source,
+        "측정 데이터베이스를 읽습니다.",
+        "ko",
+        force=True,
+    ) == {"protected_syntax"}
+
+    crop_source = "Return the image crop."
+    semantic = _translation_rejection_reasons(
+        crop_source,
+        "이미지 농작물을 반환합니다.",
+        "ko",
+        force=True,
+    )
+    assert "semantic" in semantic
+    assert "protected_syntax" not in semantic
+
+    caller_source = "Return this value to the caller."
+    assert _translation_rejection_reasons(
+        caller_source,
+        "Return this 값을 to the caller.",
+        "ko",
+        force=True,
+        candidate_validator=lambda _source, _value, _language: False,
+    ) == {"caller_gate"}
+
+
+def test_context_repairs_cannot_disguise_an_exact_english_fallback():
+    from build_i18n_catalogs import _translation_rejection_reasons
+
+    source = "Record the export. Default True."
+    reasons = _translation_rejection_reasons(
+        source, source, "pt", force=True,
+    )
+
+    assert "exact" in reasons
+
+
+def test_reviewed_context_repair_clears_the_wrong_scientific_screen_sense():
+    from build_i18n_catalogs import (
+        _contextualize,
+        _semantic_false_friends,
+        _translation_rejection_reasons,
+    )
+
+    source = "Classify a pooled screen before regression."
+    raw = "Classifique uma tela agrupada antes da regressão."
+    corrected = _contextualize(raw, "pt", source)
+
+    assert _semantic_false_friends(source, raw, "pt")
+    assert corrected == "Classifique uma triagem agrupada antes da regressão."
+    assert not _translation_rejection_reasons(
+        source, corrected, "pt", force=True,
+    )
+
+
+def test_window_wide_shortcut_keys_keep_keyboard_sense():
+    import build_documentation_i18n as builder
+    from build_i18n_catalogs import _semantic_false_friends, _syntax_preserved
+
+    source = builder.public_docstrings()["spacr.qt.shortcuts"]
+    blocks, _layout = builder.translatable_blocks(source)
+    shortcut = next(block for block in blocks if block.startswith("Every window-wide key"))
+    context = builder._api_translation_source(shortcut)
+    assert "Every window-wide key can be rebound." in context
+    assert "a key typed there" in context
+    assert "structured-data name" not in context
+    assert _syntax_preserved(shortcut, context)
+
+    keyboard_source = "Every window-wide key can be rebound in the settings table."
+    keyboard_target = "Todas as teclas globais da janela podem ser reatribuídas na tabela de definições."
+    mapping_source = "Every mapping key names a setting in the table."
+    mapping_target = "Cada tecla do mapeamento identifica uma definição na tabela."
+    assert not _semantic_false_friends(keyboard_source, keyboard_target, "pt")
+    assert _semantic_false_friends(mapping_source, mapping_target, "pt")
+    assert "structured-data name" in builder._api_translation_source(mapping_source)
+
+
+def test_portuguese_exception_and_dictionary_senses_are_reviewed():
+    from build_i18n_catalogs import _contextualize, _semantic_false_friends
+
+    exception_source = "A typo changes the result rather than raising."
+    exception = _contextualize(
+        "Um erro muda o resultado em vez de aumentar.",
+        "pt",
+        exception_source,
+    )
+    assert exception.endswith("em vez de gerar um erro.")
+    assert not _semantic_false_friends(exception_source, exception, "pt")
+
+    dictionary_source = "The Classes dict names each class."
+    dictionary = _contextualize(
+        "O ditado Classes nomeia cada classe.", "pt", dictionary_source,
+    )
+    assert dictionary == "O dicionário Classes nomeia cada classe."
+    assert not _semantic_false_friends(dictionary_source, dictionary, "pt")
+
+
+def test_spanish_emphasis_and_atomic_write_residue_is_translated():
+    from build_i18n_catalogs import _contextualize
+
+    source = (
+        "It does **not** expose the pre-write file; use temp-then-replace."
+    )
+    translated = _contextualize(
+        "Esto *does* **not** expone el archivo pre-write; use temp-then.",
+        "es",
+        source,
+    )
+
+    assert translated == (
+        "Esto *sí* **no** expone el archivo previa a la escritura; "
+        "use temporal y luego."
+    )
+
+
+def test_literal_block_layout_owns_translated_heading_colons():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    blocks, layout = translatable_blocks("Usage::\n\n    spacr-run --list")
+
+    assert blocks == ["Usage"]
+    assert rebuild_document(layout, ["Uso:"]) == (
+        "Uso::\n\n    spacr-run --list"
+    )
+
+
+def test_rejected_models_use_the_reviewed_permissive_replacement():
+    from build_i18n_catalogs import MODEL_SPECS
+
+    for language in ("zh_CN", "hi", "ko", "is"):
+        model, _folder, license_name, _prefix = MODEL_SPECS[language]
+        assert model == "facebook/m2m100_418M"
+        assert license_name == "MIT"
+
+
+def test_secondary_model_is_permissive_and_publicly_attributed():
+    from build_i18n_catalogs import SECONDARY_LICENSE, SECONDARY_MODEL
+
+    attribution = (
+        ROOT / "docs" / "i18n" / "TRANSLATION_MODELS.md"
+    ).read_text(encoding="utf-8")
+    assert SECONDARY_MODEL == "google/madlad400-7b-mt"
+    assert SECONDARY_LICENSE == "Apache-2.0"
+    assert SECONDARY_MODEL in attribution
+    assert SECONDARY_LICENSE in attribution
+
+
+def test_generation_loop_detection_rejects_repeated_labels():
+    from build_i18n_catalogs import _looks_degenerate
+
+    assert _looks_degenerate("Background", "背景" * 120, "zh_CN")
+    assert _looks_degenerate("Run mode", "hamur hamur hamur hamur", "is")
+    assert _looks_degenerate("A technical paragraph. " * 8, "traduction " * 80, "fr")
+    assert not _looks_degenerate("Background", "背景", "zh_CN")
+
+
+def test_translation_cache_checkpoints_merge_independent_lanes(tmp_path):
+    from build_i18n_catalogs import _merge_write_translation_cache
+
+    path = tmp_path / "pt.json"
+    api_baseline: dict[str, str] = {}
+    runtime_baseline: dict[str, str] = {}
+    _merge_write_translation_cache(
+        path, {"api-block-v6\0Source": "API"}, api_baseline,
+    )
+    _merge_write_translation_cache(
+        path, {"Runtime source": "Runtime"}, runtime_baseline,
+    )
+    assert json.loads(path.read_text(encoding="utf-8")) == {
+        "Runtime source": "Runtime",
+        "api-block-v6\0Source": "API",
+    }
+    assert not list(tmp_path.glob("*.tmp"))
+    assert list(tmp_path.glob("*.lock"))
+
+
+def test_translation_cache_atomically_removes_rejected_checkpoint(tmp_path):
+    from build_i18n_catalogs import _merge_write_translation_cache
+
+    path = tmp_path / "ko.json"
+    path.write_text(json.dumps({"api-block-v7\0Source": "Source"}))
+    baseline = {"api-block-v7\0Source": "Source"}
+    _merge_write_translation_cache(path, {}, baseline)
+    assert json.loads(path.read_text()) == {}
+    assert baseline == {}
+
+
+def test_cache_lock_serializes_contending_processes(tmp_path):
+    """A waiter must never enter while the first process holds the inode."""
+    path = tmp_path / "pt.json"
+    worker = """
+import sys
+import time
+sys.path.insert(0, {tools!r})
+from pathlib import Path
+from build_i18n_catalogs import _exclusive_cache_lock
+with _exclusive_cache_lock(Path({path!r})):
+    print('entered', flush=True)
+    time.sleep(float(sys.argv[1]))
+""".format(tools=str(TOOLS), path=str(path))
+    first = subprocess.Popen(
+        [sys.executable, "-c", worker, "0.5"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    assert first.stdout is not None
+    assert first.stdout.readline().strip() == "entered"
+    started = __import__("time").monotonic()
+    second = subprocess.run(
+        [sys.executable, "-c", worker, "0"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    elapsed = __import__("time").monotonic() - started
+    assert elapsed >= 0.35
+    assert second.stdout.strip() == "entered"
+    assert first.wait(timeout=5) == 0
+
+
+def test_cache_lock_releases_descriptor_when_owner_stamp_fails(
+    tmp_path, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+
+    path = tmp_path / "pt.json"
+    real_ftruncate = builder.os.ftruncate
+    monkeypatch.setattr(
+        builder.os,
+        "ftruncate",
+        lambda _descriptor, _length: (_ for _ in ()).throw(OSError("boom")),
+    )
+    with __import__("pytest").raises(OSError, match="boom"):
+        with builder._exclusive_cache_lock(path):
+            pass
+    monkeypatch.setattr(builder.os, "ftruncate", real_ftruncate)
+    with builder._exclusive_cache_lock(path):
+        pass
+
+
+def test_cache_lock_closes_descriptor_when_explicit_unlock_fails(
+    tmp_path, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+
+    path = tmp_path / "pt.json"
+    real_flock = builder.fcntl.flock
+
+    def fail_unlock(descriptor, operation):
+        if operation == builder.fcntl.LOCK_UN:
+            raise OSError("unlock boom")
+        return real_flock(descriptor, operation)
+
+    monkeypatch.setattr(builder.fcntl, "flock", fail_unlock)
+    with __import__("pytest").raises(OSError, match="unlock boom"):
+        with builder._exclusive_cache_lock(path):
+            pass
+    monkeypatch.setattr(builder.fcntl, "flock", real_flock)
+    with builder._exclusive_cache_lock(path):
+        pass
+
+
+def test_atomic_catalog_writes_preserve_existing_mode(tmp_path):
+    from build_documentation_i18n import _write_json
+    from build_i18n_catalogs import _atomic_write_text
+
+    text_path = tmp_path / "catalog.py"
+    json_path = tmp_path / "catalog.json"
+    for path in (text_path, json_path):
+        path.write_text("old", encoding="utf-8")
+        path.chmod(0o664)
+    _atomic_write_text(text_path, "new")
+    _write_json(json_path, {"new": True})
+    assert stat.S_IMODE(text_path.stat().st_mode) == 0o664
+    assert stat.S_IMODE(json_path.stat().st_mode) == 0o664
+
+
+def test_atomic_catalog_writes_clean_temporary_files_after_failure(tmp_path):
+    from build_documentation_i18n import _write_json
+    from build_i18n_catalogs import _atomic_write_text
+
+    with __import__("pytest").raises(TypeError):
+        _write_json(tmp_path / "broken.json", {"value": object()})
+    with __import__("pytest").raises(TypeError):
+        _atomic_write_text(tmp_path / "broken.py", object())
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+def test_catalog_seed_requires_current_per_entry_source_hash(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    from spacr.qt.i18n_catalogs import de, en
+
+    key = next(iter(en.SETTING_TOOLTIPS))
+    source = en.SETTING_TOOLTIPS[key]
+    monkeypatch.setattr(de, "MODEL", builder.MODEL_SPECS["de"][0])
+    monkeypatch.setattr(de, "SOURCE_HASHES", {
+        **getattr(de, "SOURCE_HASHES", {}),
+        ("SETTING_TOOLTIPS", key): "stale",
+    }, raising=False)
+    cache = {}
+    builder._seed_cache_from_catalog("de", cache)
+    assert source not in cache
+
+
+def test_runtime_audit_rejects_a_synthetic_missing_tooltip_translation(
+    tmp_path, monkeypatch, capsys,
+):
+    """A synthetic missing row is detected independently of real-corpus debt."""
+    import build_i18n_catalogs as builder
+
+    sources = {"setting_labels": {}, "setting_tooltips": {
+        "cell_diameter": "Cell diameter in pixels."}, "categories": {},
+        "ui": {}, "module_summaries": {}, "installer": {"language_name": "Svenska"}}
+    catalog_dir = tmp_path / "catalogs"
+    catalog_dir.mkdir()
+    monkeypatch.setattr(builder, "CATALOG_DIR", catalog_dir)
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
+    installer = tmp_path / "packaging/i18n"
+    installer.mkdir(parents=True)
+    (installer / "sv.json").write_text(json.dumps(sources["installer"]))
+    builder.write_english(sources)
+    values = {"SETTING_LABELS": {}, "SETTING_TOOLTIPS": {
+        "cell_diameter": "Celldiameter i pixlar."}, "CATEGORY_HELP": {},
+        "UI": {}, "MODULE_SUMMARIES": {}, "SOURCE_HASHES": builder._source_hashes(sources),
+        "SECONDARY_MODEL": builder.SECONDARY_MODEL, "SECONDARY_LICENSE": builder.SECONDARY_LICENSE}
+    swedish = catalog_dir / "sv.py"
+    swedish.write_text("\n".join(f"{key} = {value!r}" for key, value in values.items()))
+    assert builder.audit(sources, ["sv"]) == 0
+    with swedish.open("a") as handle:
+        handle.write('\nSETTING_TOOLTIPS.pop("cell_diameter")\n')
+    assert builder.audit(sources, ["sv"]) == 1
+    assert "sv/SETTING_TOOLTIPS: 1 missing" in capsys.readouterr().err
+
+
+def test_incremental_api_generation_reuses_only_current_nonblank_entries(
+    monkeypatch, tmp_path,
+):
+    import build_documentation_i18n as builder
+
+    docs = {"spacr.example.current": "Current source.",
+            "spacr.example.changed": "Changed source."}
+    current = docs["spacr.example.current"]
+    payload = {
+        "symbols": {
+            "spacr.example.current": {
+                "source_sha256": hashlib.sha256(current.encode()).hexdigest(),
+                "source_blocks_sha256": builder._source_block_hashes(current),
+                "translation_source_blocks_sha256":
+                    builder._translation_source_block_hashes(current),
+                "text": "Aktuell text.",
+            },
+            "spacr.example.changed": {
+                "source_sha256": "stale",
+                "text": "Gammal text.",
+            },
+        },
+    }
+    (tmp_path / "sv.json").write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr(builder, "API_DIR", tmp_path)
+
+    assert builder.reusable_api_translations(docs, "sv") == {
+        "spacr.example.current": "Aktuell text.",
+    }
+
+
+@pytest.fixture(scope="module")
+def current_documentation_api_contracts():
+    """Extract immutable source contracts once for all locale comparisons."""
+    import build_documentation_i18n as builder
+    docs = builder.public_docstrings()
+    contracts = {
+        key: (builder._source_hash(source), builder._source_block_hashes(source),
+              builder._translation_source_block_hashes(source))
+        for key, source in docs.items()
+    }
+    return docs, contracts
+
+
+@pytest.mark.parametrize("language", ["en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_documentation_api_catalog_inventory_and_hashes_are_current(language, current_documentation_api_contracts):
+    """English freshness is required; localized drift is registered for repair.
+
+    The maintainer made translation compatibility report-only on 2026-09-23.
+    English has its own parametrization so source regressions stay visible.
+    """
+    import build_documentation_i18n as builder
+
+    docs, source_contracts = current_documentation_api_contracts
+    assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
+    assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
+    worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+    assert len(worker_arrivals) == 8
+    assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
+    home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+    assert len(home_ui_arrivals) == 10
+    assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & worker_arrivals.keys()
+    hidden_close = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+    assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
+    assert {key: docs[key] for key in hidden_close} == hidden_close
+    assert hidden_close.keys() <= home_ui_arrivals.keys()
+    # 2026-10-10: N672/N673's 32 editable-volume arrivals are one exact named
+    # contract, as in the extractor and docstring inventory tests; the ratchet
+    # counts the surface before them.
+    volume_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
+    assert len(volume_arrivals) == 32
+    assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
+    # 2026-10-11: N685's four model-zoo helpers (9d48eefa6: default_version_index,
+    # hf_repo_of, is_alternative, is_spacr_owned) are one named contract; the
+    # ratchet is unchanged.
+    zoo_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
+    assert len(zoo_arrivals) == 4
+    assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
+    tem_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "690_tem_api_arrivals_2026-10-11.json").read_text())
+    assert len(tem_arrivals) == 10
+    assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
+    # F534's 22 spatial-submodule symbols (2026-10-11), one named contract.
+    spatial_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text())
+    assert len(spatial_arrivals) == 22
+    assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
+    assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
+    # N691's 4 MitoNet symbols in spacr.model_zoo (2026-10-11).
+    mitonet_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text())
+    assert len(mitonet_arrivals) == 4
+    assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
+    assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
+    drawing_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text())
+    assert len(drawing_arrivals) == 8
+    assert {key: docs[key] for key in drawing_arrivals} == drawing_arrivals
+    assert not drawing_arrivals.keys() & (zoo_arrivals.keys() | volume_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **drawing_arrivals}
+    apply_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "prefs_apply_api_arrivals_2026-10-12.json").read_text())
+    assert len(apply_arrivals) == 8
+    assert {key: docs[key] for key in apply_arrivals} == apply_arrivals
+    assert not apply_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **apply_arrivals}
+    a11y_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text())
+    assert len(a11y_arrivals) == 15
+    assert {key: docs[key] for key in a11y_arrivals} == a11y_arrivals
+    assert not a11y_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **a11y_arrivals}
+    in_container_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text())
+    assert len(in_container_arrivals) == 2
+    assert {key: docs[key] for key in in_container_arrivals} == in_container_arrivals
+    assert not in_container_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **in_container_arrivals}
+    export_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "693_export_settings_api_arrivals_2026-10-12.json").read_text())
+    assert len(export_arrivals) == 3
+    assert {key: docs[key] for key in export_arrivals} == export_arrivals
+    assert not export_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **export_arrivals}
+    response_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "144_regression_response_api_arrivals_2026-10-12.json").read_text())
+    assert len(response_arrivals) == 3
+    assert {key: docs[key] for key in response_arrivals} == response_arrivals
+    assert not response_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **response_arrivals}
+    splash_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text())
+    assert len(splash_arrivals) == 21
+    assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
+    assert not splash_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **splash_arrivals}
+    sequence_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text())
+    assert len(sequence_arrivals) == 5
+    assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
+    assert not sequence_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **sequence_arrivals}
+    # 2026-10-12: spacr-tutorial opens the online lessons; the three
+    # spacr.qt.tutorials arrivals are one named contract.
+    tutorial_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
+    assert len(tutorial_arrivals) == 3
+    assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
+    assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
+    # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
+    model_card_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "model_cards_api_arrivals_2026-10-12.json").read_text())
+    assert len(model_card_arrivals) == 27
+    assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
+    assert not model_card_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
+    # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
+    debounce_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text())
+    assert len(debounce_arrivals) == 4
+    assert {key: docs[key] for key in debounce_arrivals} == debounce_arrivals
+    assert not debounce_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **debounce_arrivals}
+    # 2026-10-13: ConsolePanel.warm_notice_glyphs (71a7563af) lays out the notice glyphs ahead of a first Run; one named contract.
+    warm_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text())
+    assert len(warm_arrivals) == 1
+    assert {key: docs[key] for key in warm_arrivals} == warm_arrivals
+    assert not warm_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **warm_arrivals}
+    # 2026-10-13: Quitting with work in flight (retire_live_work) and the Preferences warm-up polish (_PreferencesWindow.event); one named contract.
+    quit_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text())
+    assert len(quit_arrivals) == 3
+    assert {key: docs[key] for key in quit_arrivals} == quit_arrivals
+    assert not quit_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **quit_arrivals}
+    # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
+    thread_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "thread_retire_api_arrivals_2026-10-13.json").read_text())
+    assert len(thread_arrivals) == 3
+    assert {key: docs[key] for key in thread_arrivals} == thread_arrivals
+    assert not thread_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **thread_arrivals}
+    # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
+    dna_rain_arrivals = json.loads((ROOT / "tests/data"
+        / "release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
+    assert len(dna_rain_arrivals) == 1
+    assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
+    assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dna_rain_arrivals}
+    # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
+    launcher_arrivals = json.loads((ROOT / "tests/data"
+        / "release_contracts"
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text())
+    assert len(launcher_arrivals) == 3
+    assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
+    assert not launcher_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
+               - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+        "The public documentation inventory changed. Regenerate every API "
+        "catalog, review the diff, and update "
+        "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
+    )
+    expected = set(docs)
+    api_dir = ROOT / "docs" / "source" / "_static" / "i18n" / "api"
+    for language in (language,):
+        payload = json.loads(
+            (api_dir / f"{language}.json").read_text(encoding="utf-8")
+        )
+        symbols = payload.get("symbols", {})
+        missing = sorted(expected - set(symbols))
+        extra = sorted(set(symbols) - expected)
+        assert not missing and not extra, (
+            f"{language}: API inventory drift; missing={missing[:10]!r}, "
+            f"extra={extra[:10]!r}"
+        )
+        stale = []
+        for key, (source_hash, block_hashes, context_hashes) in (
+            source_contracts.items()
+        ):
+            record = symbols[key]
+            if (
+                record.get("source_sha256") != source_hash
+                or record.get("source_blocks_sha256") != block_hashes
+                or (
+                    language != "en"
+                    and record.get("translation_source_blocks_sha256")
+                        != context_hashes
+                )
+            ):
+                stale.append(key)
+        assert not stale, (
+            f"{language}: stale API source/hash contracts for "
+            f"{stale[:10]!r}; regenerate the documentation catalogs"
+        )
+
+
+def test_public_api_docstrings_do_not_restore_reviewed_unprofessional_prose():
+    """Keep reviewed development-story and emphatic prose out of the API."""
+    import build_documentation_i18n as builder
+
+    docs = builder.public_docstrings()
+    violations = {
+        symbol: [
+            phrase
+            for phrase in PUBLIC_API_FORBIDDEN_TONE_PHRASES
+            if phrase.casefold() in docstring.casefold()
+        ]
+        for symbol, docstring in docs.items()
+    }
+    violations = {
+        symbol: phrases
+        for symbol, phrases in violations.items()
+        if phrases
+    }
+    assert not violations, (
+        "Public API prose restored reviewed colloquial, changelog-style or "
+        f"all-caps narrative: {violations!r}"
+    )
+
+
+def test_landing_pages_do_not_restore_reviewed_colloquial_prose():
+    """Keep reviewed promotional shorthand out of user-facing entry pages."""
+    landing_text = "\n".join(
+        (ROOT / relative).read_text(encoding="utf-8")
+        for relative in ("README.rst", "docs/source/index.rst")
+    )
+    forbidden = (
+        "Plate images and FASTQ reads go in",
+        "that is the whole path",
+        "when a screen outgrows one desktop",
+    )
+    restored = [
+        phrase for phrase in forbidden
+        if phrase.casefold() in landing_text.casefold()
+    ]
+    assert not restored, (
+        "Landing-page prose restored reviewed colloquial wording: "
+        f"{restored!r}"
+    )
+
+
+def test_api_block_completeness_uses_exact_code_hash_allowlist():
+    from build_documentation_i18n import (
+        API_EXACT_BLOCK_SHA256_ALLOWLIST,
+        _api_block_requires_translation,
+        _source_hash,
+    )
+    from build_i18n_catalogs import _syntax_preserved
+
+    prose = "Return the requested objects in deterministic order."
+    code = "``(H, W, C)``."
+    formula = "lfdr(p) = pi0 * f0(p) / f(p),    f0(p) = 1, p ∈ [0, 1]"
+    assert _api_block_requires_translation(prose)
+    assert _source_hash(code) in API_EXACT_BLOCK_SHA256_ALLOWLIST
+    assert _source_hash(formula) in API_EXACT_BLOCK_SHA256_ALLOWLIST
+    assert not _api_block_requires_translation(code)
+    assert not _api_block_requires_translation(formula)
+    assert _syntax_preserved(
+        'Use "classifier_evaluation" with --dry-run.',
+        'Use "classifier_evaluation" with --dry-run.',
+    )
+    assert not _syntax_preserved(
+        'Use "classifier_evaluation" with --dry-run.',
+        'Use " classifier_evaluation" with --dry-run.',
+    )
+    assert not _syntax_preserved(
+        'Use "classifier_evaluation" with --dry-run.',
+        'Use "classifier_evaluation" with --dry-run and "unexpected_mode".',
+    )
+
+
+def test_api_source_discovery_excludes_untracked_backup_icons():
+    from build_documentation_i18n import public_docstrings
+
+    assert not any("backup_icons" in key for key in public_docstrings())
+
+
+def test_orcid_is_a_protected_translation_contract():
+    from build_i18n_catalogs import _protect, _syntax_preserved
+
+    source = "Copyright Matthew O'Meara (ORCID 0000-0002-3128-5331)."
+    protected, literals = _protect(source)
+    assert "0000-0002-3128-5331" not in protected
+    assert "0000-0002-3128-5331" in literals.values()
+    assert _syntax_preserved(
+        source,
+        "Copyright Matthew O'Meara (ORCID 0000-0002-3128-5331).",
+    )
+    assert not _syntax_preserved(
+        source,
+        "Copyright Matthew O'Meara (ORCID 0003-0012-3128-5331).",
+    )
+
+
+def test_api_copy_gate_catches_partial_english_in_every_target_script():
+    from build_documentation_i18n import _copied_english_phrases
+    from build_i18n_catalogs import MODEL_SPECS
+
+    source = "The panel gets an empty result when the caller cancels."
+    mixed_targets = {
+        "sv": "Panelen är tom; panel gets an empty result.",
+        "de": "Das Feld ist leer; panel gets an empty result.",
+        "es": "El panel está vacío; panel gets an empty result.",
+        "pt": "O painel retorna vazio; panel gets an empty result.",
+        "is": "Spjaldið er tómt; panel gets an empty result.",
+        "fr": "Le panneau est vide; panel gets an empty result.",
+        "hi": "पैनल खाली है; panel gets an empty result.",
+        "ko": "패널이 비어 있습니다; panel gets an empty result.",
+        "zh_CN": "面板为空；panel gets an empty result.",
+    }
+    assert set(mixed_targets) == set(MODEL_SPECS)
+    for language, mixed in mixed_targets.items():
+        assert _copied_english_phrases(source, mixed, language)
+
+    # A protected identifier and a reviewed scientific name are not prose
+    # leakage. The Portuguese future subjunctive ``for`` is not English either.
+    assert not _copied_english_phrases(
+        "Use ``panel.get`` for K-means discovery.",
+        "Use ``panel.get`` para descoberta K-means.",
+        "pt",
+    )
+    for phrase in (
+        "trailing newline", "scratch database", "staging file",
+        "escape hatch", "dtype name", "config dict", "empty bin",
+        "wishful thinking",
+    ):
+        assert _copied_english_phrases(
+            f"Explain the {phrase} clearly.",
+            f"Explique o {phrase} claramente.",
+            "pt",
+        )
+
+
+def test_german_software_loanwords_do_not_hide_english_fragments():
+    from build_documentation_i18n import (
+        _copied_english_phrases,
+        _has_english_residue,
+    )
+
+    source = "The thread returns a string after the event loop."
+    german = "Der Thread gibt nach dem Event-Loop einen String zurück."
+    assert not _has_english_residue(source, german, "de")
+    assert not _copied_english_phrases(source, german, "de")
+
+    partial = "Der Thread returns a string after the Event-Loop."
+    assert _has_english_residue(source, partial, "de")
+    assert _copied_english_phrases(source, partial, "de")
+
+    accepted_terms = {
+        "Use drag and drop with a fuzzy match.":
+            "Drag-and-drop mit einem Fuzzy Match verwenden.",
+        "The denial of service is prevented by a hard cap.":
+            "Der Denial of Service wird durch eine harte Obergrenze verhindert.",
+        "Apply the Mann-Whitney U test and D'Agostino-Pearson test.":
+            "Mann-Whitney-U-Test und D'Agostino-Pearson-Test anwenden.",
+    }
+    for term_source, term_target in accepted_terms.items():
+        assert not _copied_english_phrases(term_source, term_target, "de")
+
+    # Technical terminology is not permission to retain nearby prose.
+    assert _copied_english_phrases(
+        "Use drag and drop when the caller chooses a file.",
+        "Drag-and-drop verwenden when the caller chooses a file.",
+        "de",
+    )
+
+
+def test_swedish_technical_names_do_not_hide_english_fragments():
+    from build_documentation_i18n import _copied_english_phrases
+
+    accepted_terms = {
+        "Use a Mann-Whitney U test with ANOVA and Kruskal.":
+            "Använd Mann–Whitneys U-test tillsammans med ANOVA och Kruskal.",
+        "The urllib3, botocore, tensorflow and asyncio libraries are quiet.":
+            "Biblioteken urllib3, botocore, tensorflow och asyncio är tysta.",
+        "Compute sigma = max(32, min(H, W) / 4).":
+            "Beräkna sigma = max(32, min(H, W) / 4).",
+    }
+    for source, target in accepted_terms.items():
+        assert not _copied_english_phrases(source, target, "sv")
+
+    assert _copied_english_phrases(
+        "Use a Mann-Whitney U test when the caller selects it.",
+        "Använd Mann–Whitneys U-test when the caller selects it.",
+        "sv",
+    )
+
+
+def test_portuguese_residue_gate_distinguishes_for_homograph_from_english():
+    from build_documentation_i18n import _has_english_residue
+
+    assert not _has_english_residue(
+        "Whatever mode is selected.", "Seja qual for o modo selecionado.", "pt",
+    )
+    assert _has_english_residue(
+        "Use this value for the current run.",
+        "Use este valor for the current run.",
+        "pt",
+    )
+
+
+def test_portuguese_semantic_false_friend_families_are_hard_failures():
+    from build_i18n_catalogs import _semantic_false_friends
+
+    cases = {
+        "dictionary-as-dictation": (
+            "Return a dictionary.", "Retorna um ditado.",
+        ),
+        "image-plane-as-aircraft": (
+            "Return the image plane.", "Retorna o avião da imagem.",
+        ),
+        "exception-raise-as-increase": (
+            "Raises ValueError on invalid input.",
+            "Aumenta ValueError para entrada inválida.",
+        ),
+        "raise-window-as-increase": (
+            "The caller can raise or focus it.",
+            "O chamador pode aumentar ou focá-la.",
+        ),
+        "mapping-key-as-keyboard-key": (
+            "Return the mapping keys.", "Retorna as teclas do mapeamento.",
+        ),
+        "scientific-plate-as-dish": (
+            "Read the 96-well plate.", "Lê o prato de 96 poços.",
+        ),
+        "image-tile-as-roof-or-floor-tile": (
+            "Merge the image tiles.", "Mescla os azulejos da imagem.",
+        ),
+        "crop-gender": (
+            "Return the crop.", "Retorna a recorte.",
+        ),
+        "thread-corruption": (
+            "Run on the worker thread.", "Executa em um throw worker.",
+        ),
+        "surplus-angle-bracket": (
+            "Return the value.", "Retorna o valor >.",
+        ),
+    }
+    for family, (source, target) in cases.items():
+        assert family in _semantic_false_friends(source, target, "pt")
+
+
+def test_portuguese_semantic_gate_preserves_reviewed_distinct_senses():
+    from build_documentation_i18n import _api_block_valid
+    from build_i18n_catalogs import _contextualize, _semantic_false_friends
+
+    accepted = (
+        ("Raise score cutoff to 0.8.", "Eleve o limite da pontuação para 0,8."),
+        (
+            "Dropping it would raise the reported power.",
+            "Removê-lo aumentaria a potência relatada.",
+        ),
+        ("Press any key to close.", "Pressione qualquer tecla para fechar."),
+        (
+            "The label is dictated by the caller.",
+            "O rótulo é ditado pelo chamador.",
+        ),
+        ("A CRISPR screen reports hits.", "Uma triagem CRISPR relata hits."),
+        ("Run on the GUI thread.", "Execute na thread da GUI."),
+        (
+            "Map A -> B when score > 3.",
+            "Mapeie A -> B quando a pontuação > 3.",
+        ),
+    )
+    for source, target in accepted:
+        assert _contextualize(target, "pt", source) == target
+        assert not _semantic_false_friends(source, target, "pt")
+        assert _api_block_valid(source, target, "pt")
+
+
+def test_five_locale_semantic_gate_bad_good_matrix():
+    from build_i18n_catalogs import (
+        _semantic_false_friends,
+        _translation_candidate_valid,
+    )
+
+    languages = ("fr", "hi", "ko", "is", "zh_CN")
+    rows = (
+        (
+            "gui-screen-as-scientific-screen",
+            "The Qt screen shows settings.",
+            {
+                "fr": ("Le criblage Qt affiche les paramètres.", "L’écran Qt affiche les paramètres."),
+                "hi": ("Qt स्क्रीनिंग सेटिंग दिखाती है।", "Qt स्क्रीन सेटिंग दिखाती है।"),
+                "ko": ("Qt 스크리닝이 설정을 표시합니다.", "Qt 화면이 설정을 표시합니다."),
+                "is": ("Qt skimun sýnir stillingar.", "Qt skjár sýnir stillingar."),
+                "zh_CN": ("Qt 筛选显示设置。", "Qt 界面显示设置。"),
+            },
+        ),
+        (
+            "scientific-screen-as-ui-screen",
+            "A pooled CRISPR screen reports hits.",
+            {
+                "fr": ("Un écran CRISPR groupé signale les hits.", "Un criblage CRISPR groupé signale les hits."),
+                "hi": ("पूल की गई CRISPR स्क्रीन हिट बताती है।", "पूल की गई CRISPR स्क्रीनिंग हिट बताती है।"),
+                "ko": ("풀드 CRISPR 화면이 히트를 보고합니다.", "풀드 CRISPR 스크리닝이 히트를 보고합니다."),
+                "is": ("Sameinuð CRISPR skjár skilar niðurstöðum.", "Sameinuð CRISPR skimun skilar niðurstöðum."),
+                "zh_CN": ("汇集 CRISPR 屏幕报告命中。", "汇集 CRISPR 筛选报告命中。"),
+            },
+        ),
+        (
+            "pipeline-as-pipe", "Run the preprocessing pipeline.",
+            {
+                "fr": ("Exécutez la canalisation de prétraitement.", "Exécutez le flux de travail de prétraitement."),
+                "hi": ("प्री-प्रोसेसिंग नलियाँ चलाएँ।", "प्री-प्रोसेसिंग कार्यप्रवाह चलाएँ।"),
+                "ko": ("전처리 배관을 실행합니다.", "전처리 워크플로를 실행합니다."),
+                "is": ("Keyrðu leiðsluna.", "Keyrðu forvinnsluvinnsluferlið."),
+                "zh_CN": ("运行预处理管道。", "运行预处理流程。"),
+            },
+        ),
+        (
+            "data-gate-as-door", "Objects inside the polygon gate are selected.",
+            {
+                "fr": ("Les objets dans la porte polygonale sont sélectionnés.", "Les objets dans le gate polygonal sont sélectionnés."),
+                "hi": ("बहुभुज दरवाजा के भीतर ऑब्जेक्ट चुने जाते हैं।", "बहुभुज गेट के भीतर ऑब्जेक्ट चुने जाते हैं।"),
+                "ko": ("다각형 문 안의 객체를 선택합니다.", "다각형 게이트 안의 객체를 선택합니다."),
+                "is": ("Hlutir innan hliðsins eru valdir.", "Hlutir innan gatesins eru valdir."),
+                "zh_CN": ("选择多边形门内的对象。", "选择多边形门控内的对象。"),
+            },
+        ),
+        (
+            "statistical-power-as-authority-or-electricity",
+            "Estimate statistical power from sample size.",
+            {
+                "fr": ("Estimez le pouvoir à partir de la taille d’échantillon.", "Estimez la puissance à partir de la taille d’échantillon."),
+                "hi": ("नमूना आकार से सत्ता का अनुमान लगाएँ।", "नमूना आकार से सांख्यिकीय शक्ति का अनुमान लगाएँ।"),
+                "ko": ("표본 크기에서 권력을 추정합니다.", "표본 크기에서 검정력을 추정합니다."),
+                "is": ("Metið vald út frá úrtaksstærð.", "Metið styrk út frá úrtaksstærð."),
+                "zh_CN": ("根据样本量估计电力。", "根据样本量估计统计功效。"),
+            },
+        ),
+        (
+            "dictionary-as-dictation", "Return a dictionary of settings.",
+            {
+                "fr": ("Retourne une dictée de paramètres.", "Retourne un dictionnaire de paramètres."),
+                "hi": ("सेटिंग का श्रुतलेख लौटाएँ।", "सेटिंग का शब्दकोश लौटाएँ।"),
+                "ko": ("설정 받아쓰기를 반환합니다.", "설정 사전을 반환합니다."),
+                "is": ("Skila fyrirmæli stillinga.", "Skila orðabók stillinga."),
+                "zh_CN": ("返回设置听写。", "返回设置字典。"),
+            },
+        ),
+        (
+            "mapping-key-as-keyboard-key", "Return the mapping keys.",
+            {
+                "fr": ("Retourne les touches du mappage.", "Retourne les clés du mappage."),
+                "hi": ("मैपिंग की कीबोर्ड कुंजी लौटाएँ।", "मैपिंग कुंजियाँ लौटाएँ।"),
+                "ko": ("매핑 키보드 키를 반환합니다.", "매핑 키를 반환합니다."),
+                "is": ("Skila lyklaborðslyklar vörpunar.", "Skila vörpunarlyklum."),
+                "zh_CN": ("返回映射键盘键。", "返回映射键。"),
+            },
+        ),
+        (
+            "image-plane-as-aircraft", "Read the image plane.",
+            {
+                "fr": ("Lisez l’avion de l’image.", "Lisez le plan d’image."),
+                "hi": ("इमेज विमान पढ़ें।", "इमेज प्लेन पढ़ें।"),
+                "ko": ("이미지 항공기를 읽습니다.", "이미지 평면을 읽습니다."),
+                "is": ("Lesið flugvél myndarinnar.", "Lesið myndplanið."),
+                "zh_CN": ("读取图像飞机。", "读取图像平面。"),
+            },
+        ),
+        (
+            "image-tile-as-roof-or-floor-tile", "Align overlapping image tiles.",
+            {
+                "fr": ("Alignez les carreaux d’image superposés.", "Alignez les tuiles d’image superposées."),
+                "hi": ("ओवरलैप वाली फर्श की टाइल संरेखित करें।", "ओवरलैप वाली इमेज टाइल संरेखित करें।"),
+                "ko": ("겹치는 바닥 타일을 정렬합니다.", "겹치는 이미지 타일을 정렬합니다."),
+                "is": ("Samstillið skarast gólfflísar.", "Samstillið skarast myndflísar."),
+                "zh_CN": ("对齐重叠的地板砖。", "对齐重叠的图像瓦片。"),
+            },
+        ),
+        (
+            "scientific-plate-as-dish", "Read the 384-well plate.",
+            {
+                "fr": ("Lisez une assiette de 384 puits.", "Lisez une plaque de 384 puits."),
+                "hi": ("384-वेल थाली पढ़ें।", "384-वेल प्लेट पढ़ें।"),
+                "ko": ("384웰 접시를 읽습니다.", "384웰 플레이트를 읽습니다."),
+                "is": ("Lesið diskur með 384 brunnum.", "Lesið plötu með 384 brunnum."),
+                "zh_CN": ("读取 384 孔盘子。", "读取 384 孔微孔板。"),
+            },
+        ),
+        (
+            "image-crop-as-agriculture", "Load image crops.",
+            {
+                "fr": ("Chargez les récoltes d’image.", "Chargez les vignettes d’image."),
+                "hi": ("इमेज फसल लोड करें।", "इमेज क्रॉप लोड करें।"),
+                "ko": ("이미지 작물을 로드합니다.", "이미지 크롭을 로드합니다."),
+                "is": ("Hlaðið ræktun.", "Hlaðið myndúrklippum."),
+                "zh_CN": ("加载图像作物。", "加载图像裁剪。"),
+            },
+        ),
+        (
+            "compute-run-as-race", "Resume the failed pipeline run.",
+            {
+                "fr": ("Reprenez la course du pipeline échouée.", "Reprenez l’exécution du flux de travail échouée."),
+                "hi": ("विफल पाइपलाइन दौड़ फिर चलाएँ।", "विफल पाइपलाइन रन फिर चलाएँ।"),
+                "ko": ("실패한 파이프라인 경주를 재개합니다.", "실패한 파이프라인 실행을 재개합니다."),
+                "is": ("Haldið áfram misheppnuðu hlaup.", "Haldið áfram misheppnaðri keyrslu."),
+                "zh_CN": ("恢复失败的流程赛跑。", "恢复失败的流程运行。"),
+            },
+        ),
+        (
+            "thread-corruption", "Run this on a GUI worker thread.",
+            {
+                "fr": ("Exécutez ceci sur un fil de discussion GUI.", "Exécutez ceci sur un fil d’exécution GUI."),
+                "hi": ("इसे GUI कार्यकर्ता धागे पर चलाएँ।", "इसे GUI कार्यकर्ता थ्रेड पर चलाएँ।"),
+                "ko": ("GUI 작업자 스트립에서 실행합니다.", "GUI 작업자 스레드에서 실행합니다."),
+                "is": ("Keyrið þetta á GUI-tré.", "Keyrið þetta á vinnuþræði GUI."),
+                "zh_CN": ("在 GUI 工作线上运行。", "在 GUI 工作线程上运行。"),
+            },
+        ),
+        (
+            "exception-raise-as-increase", "Raises ValueError for invalid input.",
+            {
+                "fr": ("Augmente ValueError pour une entrée invalide.", "Lève ValueError pour une entrée invalide."),
+                "hi": ("अमान्य इनपुट पर ValueError बढ़ाएं।", "अमान्य इनपुट पर ValueError उत्पन्न करता है।"),
+                "ko": ("잘못된 입력에 ValueError를 올리면 실패합니다.", "잘못된 입력에 ValueError를 발생시킵니다."),
+                "is": ("Hækkar ValueError fyrir ógilt inntak.", "Kastar ValueError fyrir ógilt inntak."),
+                "zh_CN": ("无效输入会增加 ValueError。", "无效输入会抛出 ValueError。"),
+            },
+        ),
+        (
+            "raise-window-as-increase",
+            "Return this screen so the caller can raise or focus it.",
+            {
+                "fr": ("Retourne cet écran afin que l’appelant puisse le soulever ou le focaliser.", "Retourne cet écran afin que l’appelant puisse le mettre au premier plan ou le focaliser."),
+                "hi": ("यह स्क्रीन लौटाएँ ताकि कॉलर इसे उठा या फोकस कर सके।", "यह स्क्रीन लौटाएँ ताकि कॉलर इसे सामने ला या फोकस कर सके।"),
+                "ko": ("호출자가 화면을 올리거나 포커스하도록 반환합니다.", "호출자가 화면을 앞으로 가져오거나 포커스하도록 반환합니다."),
+                "is": ("Skilið skjánum svo kallari geti hækkað eða fókusað hann.", "Skilið skjánum svo kallari geti fært hann fremst eða fókusað hann."),
+                "zh_CN": ("返回此界面以便调用方提高或聚焦它。", "返回此界面以便调用方置前或聚焦它。"),
+            },
+        ),
+    )
+    for family, source, translations in rows:
+        assert set(translations) == set(languages)
+        for language in languages:
+            bad, good = translations[language]
+            assert family in _semantic_false_friends(source, bad, language), (
+                family, language, bad,
+            )
+            assert not _semantic_false_friends(source, good, language), (
+                family, language, good,
+                _semantic_false_friends(source, good, language),
+            )
+            assert not _translation_candidate_valid(source, bad, language)
+            assert _translation_candidate_valid(source, good, language)
+
+    well_source = "Return each well in the plate."
+    wells = {
+        "fr": ("Retourne chaque bien de la plaque.", "Retourne chaque puits de la plaque."),
+        "hi": ("प्लेट का हर कुआँ लौटाएँ।", "प्लेट का हर वेल लौटाएँ।"),
+        "ko": ("플레이트의 각 우물을 반환합니다.", "플레이트의 각 웰을 반환합니다."),
+        "zh_CN": ("返回微孔板中的每个井。", "返回微孔板中的每个孔。"),
+    }
+    for language, (bad, good) in wells.items():
+        assert "scientific-well-as-adverb" in _semantic_false_friends(
+            well_source, bad, language,
+        )
+        assert not _semantic_false_friends(well_source, good, language)
+        assert not _translation_candidate_valid(well_source, bad, language)
+        assert _translation_candidate_valid(well_source, good, language)
+    assert not _semantic_false_friends(
+        well_source, "Skila hverjum brunni á plötunni.", "is",
+    )
+
+
+def test_semantic_gate_mandatory_negative_controls():
+    from build_i18n_catalogs import _semantic_false_friends
+
+    accepted = (
+        ("This works well.", "Cela fonctionne bien.", "fr"),
+        ("Press the keyboard key.", "Appuyez sur la touche du clavier.", "fr"),
+        ("Use a power-law exponent.", "Utilisez un exposant de pouvoir.", "fr"),
+        ("Use a power of two.", "Utilisez un pouvoir de deux.", "fr"),
+        ("Raise the threshold by 0.1.", "Augmentez le seuil de 0,1.", "fr"),
+        ("A forum discussion thread.", "Un fil de discussion du forum.", "fr"),
+        ("The aircraft has two planes.", "L’aéronef a deux avions.", "fr"),
+        ("The tracked trajectory runs across frames.", "La trajectoire suivie parcourt les images.", "fr"),
+        ("The count that gated it; the invariant this type carries.", "Le compte qui le porte ; l’invariant de ce type.", "fr"),
+        ("A Dataset is a flat bag with no plate geometry.", "Un Dataset est un sac plat sans géométrie de plaque.", "fr"),
+        ("The Home tile button opens settings.", "Le bouton tuile Home ouvre les paramètres.", "fr"),
+        ("The GUI screen compares a pooled CRISPR screen.", "L’écran GUI compare un criblage CRISPR.", "fr"),
+        ("Raises ValueError for invalid input.", "Soulève ValueError pour une entrée invalide.", "fr"),
+        ("Return each well in the plate.", "Skila hverjum brunni á plötunni.", "is"),
+        ("Use ``pipeline`` as the code key.", "Utilisez ``tuyau`` comme clé de code.", "fr"),
+    )
+    for source, target, language in accepted:
+        assert not _semantic_false_friends(source, target, language), (
+            source, target, _semantic_false_friends(source, target, language),
+        )
+    assert "raise-window-as-increase" in _semantic_false_friends(
+        "Return this screen so the caller can raise or focus it.",
+        "Retourne cet écran afin que l’appelant puisse le soulever ou le focaliser.",
+        "fr",
+    )
+
+
+def test_ko_zh_additional_semantic_families_and_negative_controls():
+    from build_i18n_catalogs import _semantic_false_friends
+
+    bad = (
+        ("Append the job to the queue.", "将任务放在尾巴。", "zh_CN", "software-queue-as-tail"),
+        ("Append the job to the queue.", "작업을 꼬리에 추가합니다.", "ko", "software-queue-as-tail"),
+        ("Read each image field.", "读取每个图像领域。", "zh_CN", "imaging-field-as-land-or-domain"),
+        ("Read each image field.", "각 이미지 밭을 읽습니다.", "ko", "imaging-field-as-land-or-domain"),
+        ("Read each image channel.", "读取每个图像频道。", "zh_CN", "imaging-channel-as-broadcast-channel"),
+        ("The classifier predicts crops.", "分类师预测图像裁剪。", "zh_CN", "software-classifier-as-person-or-machine"),
+        ("The classifier predicts crops.", "분류자가 크롭을 예측합니다.", "ko", "software-classifier-as-person-or-machine"),
+        ("Return a human-readable reference.", "返回人文引用。", "zh_CN", "human-readable-as-humanities"),
+        ("One plate to process.", "处理一个盘子。", "zh_CN", "scientific-plate-as-dish"),
+        ("One plate to process.", "한 개의 접시를 처리합니다.", "ko", "scientific-plate-as-dish"),
+        ("Read the mapping keys.", "读取映射密钥。", "zh_CN", "mapping-key-as-secret-key"),
+        ("Return the result.", "此分類上一篇：结果。", "zh_CN", "web-corpus-contamination"),
+    )
+    for source, target, language, family in bad:
+        assert family in _semantic_false_friends(source, target, language)
+
+    accepted = (
+        ("Open the previous article.", "打开上一篇文章。", "zh_CN"),
+        ("Show the tail of the queue.", "显示队列尾部。", "zh_CN"),
+        ("Append the job to the queue.", "将作业追加到队列。", "zh_CN"),
+        ("Store the value in a database field.", "将值存入数据库字段。", "zh_CN"),
+        ("This research field studies agriculture.", "这一研究领域研究农业。", "zh_CN"),
+        ("Select the television broadcast channel.", "选择电视频道。", "zh_CN"),
+        ("The ML classifier predicts each crop.", "机器学习分类器预测每个图像裁剪。", "zh_CN"),
+        ("Return a human-readable reference.", "返回人类可读的引用。", "zh_CN"),
+        ("Serve food on the plate.", "把食物放在盘子里。", "zh_CN"),
+        ("Process one 384-well plate.", "处理一个 384 孔板。", "zh_CN"),
+        ("Store the API key in the credential vault.", "将 API 密钥存入凭据保管库。", "zh_CN"),
+        ("Read the value under this mapping key.", "读取此映射键对应的值。", "zh_CN"),
+        ("Read each image channel.", "각 이미지 채널을 읽습니다.", "ko"),
+    )
+    for source, target, language in accepted:
+        assert not _semantic_false_friends(source, target, language), (
+            source, target, _semantic_false_friends(source, target, language),
+        )
+
+
+def test_opencc_t2s_normalizes_only_unprotected_chinese_prose(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    original_find_library = builder.ctypes.util.find_library
+    probes: list[str] = []
+
+    def counted_find_library(name):
+        probes.append(name)
+        return original_find_library(name)
+
+    builder._opencc_runtime.cache_clear()
+    monkeypatch.setattr(
+        builder.ctypes.util,
+        "find_library",
+        counted_find_library,
+    )
+
+    source = "這個軟體讀取記憶體，保留 ``個為當`` 與 :func:`spacr.run`."
+    normalized = builder._simplify_chinese_prose(source)
+    assert normalized == "这个软体读取记忆体，保留 ``個為當`` 与 :func:`spacr.run`."
+    assert builder._simplify_chinese_prose(normalized) == normalized
+    assert not builder._has_traditional_chinese_prose(normalized)
+    assert builder._has_traditional_chinese_prose(source)
+    assert probes == ["opencc"]
+
+
+def test_opencc_audit_probe_fails_closed_when_dependency_is_missing(
+    monkeypatch,
+):
+    import build_documentation_i18n as docs_builder
+    import build_i18n_catalogs as builder
+
+    builder._opencc_runtime.cache_clear()
+    # BOTH ROUTES, NOT ONE. `_opencc_runtime` tries the system install first
+    # and then the `opencc` wheel's bundled clib, so patching `find_library`
+    # alone leaves the second route open and the resolver correctly succeeds
+    # -- this test then failed asking why nothing was raised. "The dependency
+    # is missing" means missing by every route it is looked for on, so the
+    # import is blocked too: `sys.modules[name] = None` makes `import name`
+    # raise ImportError, which the resolver catches before it gives up.
+    monkeypatch.setattr(builder.ctypes.util, "find_library", lambda _name: None)
+    monkeypatch.setitem(sys.modules, "opencc", None)
+    with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
+        builder._has_traditional_chinese_prose("简体中文")
+    with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
+        builder.audit({}, ["zh_CN"])
+    with __import__("pytest").raises(RuntimeError, match="requires OpenCC"):
+        docs_builder.audit({}, ["zh_CN"])
+
+
+def test_api_translation_context_has_no_reviewed_grammar_failures():
+    import build_documentation_i18n as builder
+
+    forbidden = re.compile(
+        r"\b(?:a|an) execute\b|"
+        r"\b(?:partly|partially) execute\b|"
+        r"\bagain\s+again\b|"
+        r"\b(?:been|was|were|is|are) execute again\b|"
+        r"\b(?:can|could|will|would|should|must|may|might|to|do|does|did) "
+        r"(?:repeat execution|processing run)\b|"
+        # Run/session compounds and re-run objects must retain their English
+        # noun/verb order after the context-neutral sense expansion.
+        r"\bprocessing[- ]session journal (?:runs?|executions?|processing "
+        r"sessions?)\b|"
+        r"\bexecute again\s+(?:it|them|the|this|that|a|an)\b|"
+        r"\b\d+\s+(?:processing[- ]runs?|processing sessions?)\b|"
+        # These caught article, plurality and double-compound regressions in
+        # the thread/crop families during the corpus-wide morphology pass.
+        r"\b(?:a|an)\s+(?:worker pools|background execution units|"
+        r"independent execution paths)\b|"
+        r"\bworker-count (?:limits?) count\b|"
+        r"\ba\s+(?:image-region|extracted-image-region)\b|"
+        r"\ban\s+extracted image regions\b|"
+        r"\b(?:object|annotation|per|measure-and)-extracted image region\b|"
+        # Finite mapping-key verbs need subject agreement, not a generic noun
+        # substitution that leaves the original English verb behind.
+        r"\b(?:features|models|results) is indexed\b|"
+        r"\b(?:feature|model|result) are indexed\b|"
+        r"\b(?:cache keys off it|measurement tables key on)\b|"
+        # Plane and queue compounds are model-facing grammar contracts.
+        r"\bper image layers?\b|"
+        r"\bfor each image layers\b|"
+        r"\ba one image layer\b|"
+        r"\b(?:work list|software job list)[- ]based\b|"
+        r"\bwork-list based\b|"
+        # A protected RST exception role must be governed by Throw/Throws;
+        # inserting an indefinite exception noun before it is ungrammatical.
+        r"\b(?:produce[sd]? an? error|throw an exception)\s+"
+        r":(?:class|exc):`",
+        re.IGNORECASE,
+    )
+    for key, document in builder.public_docstrings().items():
+        blocks, _layout = builder.translatable_blocks(document)
+        for index, block in enumerate(blocks):
+            contextual = builder._api_translation_source(block)
+            assert not forbidden.search(contextual), (key, index, contextual)
+
+
+def test_api_semantic_gate_rejects_bad_senses_and_surplus_globally():
+    from build_documentation_i18n import _api_block_valid
+
+    assert not _api_block_valid(
+        "Raises ValueError on invalid input.",
+        "Aumenta ValueError para entrada inválida.",
+        "pt",
+    )
+    assert not _api_block_valid(
+        "Return the mapping keys.", "Retorna as teclas do mapeamento.", "pt",
+    )
+    assert not _api_block_valid(
+        "Return a dictionary.", "Retorna um ditado.", "pt",
+    )
+    assert not _api_block_valid(
+        "Return the value.", "Gibt den Wert > zurück.", "de",
+    )
+    assert not _api_block_valid(
+        "Map A -> B when x > 3.", "Mapeie A > B quando x > 3.", "pt",
+    )
+    assert not _api_block_valid(
+        "Return each well.", "Devuelve cada bien.", "es",
+    )
+    assert not _api_block_valid(
+        "Return the mapping keys.", "Devuelve las teclas del mapeo.", "es",
+    )
+    assert not _api_block_valid(
+        "Raises ValueError for invalid input.",
+        "Eleva ValueError para una entrada no válida.",
+        "es",
+    )
+
+
+def test_api_gate_removes_and_rejects_multilingual_model_control_tokens():
+    from build_documentation_i18n import (
+        _api_block_valid,
+        _model_artifact_reasons,
+    )
+    from build_i18n_catalogs import _contextualize
+
+    source = "Return the selected files."
+    examples = (
+        ("zh_CN", "ផ្ទាល់返回所选文件。"),
+        ("ko", "Vacuum 선택한 파일을 반환합니다."),
+        ("is", "vysi Skila völdum skrám."),
+    )
+    for language, contaminated in examples:
+        assert _model_artifact_reasons(source, contaminated, language)
+        assert not _api_block_valid(source, contaminated, language)
+        cleaned = _contextualize(contaminated, language, source)
+        assert cleaned == cleaned.strip()
+        assert not _model_artifact_reasons(source, cleaned, language)
+        assert _api_block_valid(source, cleaned, language)
+
+    # Source-conditioned words and protected literals remain valid when the
+    # English contract actually contains them.
+    vacuum_source = "Measure vacuum pressure."
+    vacuum_target = "Vacuum 압력을 측정합니다."
+    assert not _model_artifact_reasons(
+        vacuum_source, vacuum_target, "ko",
+    )
+    assert _api_block_valid(vacuum_source, vacuum_target, "ko")
+
+    # The same decoder marker has also appeared fused to invented class,
+    # function and adjective names. These are not the removable standalone
+    # filler above: reject the whole block so repair must translate it again.
+    for compound in (
+        "VacuumLogger 사용자가 진단 로거를 선택했습니다.",
+        "Vacuum() 는 False를 반환합니다.",
+        "빈 Vacuum-only 객체입니다.",
+        "VacOps 전체 전처리 작업을 실행합니다.",
+        "VacuumState — 빈 상태 패널입니다.",
+        "Vacuum이란 무엇인지 설명합니다.",
+    ):
+        assert _model_artifact_reasons(source, compound, "ko")
+        assert not _api_block_valid(source, compound, "ko")
+
+
+def test_contextualize_preserves_non_scientific_senses_across_locales():
+    from build_documentation_i18n import _api_block_valid
+    from build_i18n_catalogs import _contextualize
+
+    accepted = (
+        ("sv", "This works well.", "Detta fungerar bra."),
+        ("es", "This works well.", "Esto funciona bien."),
+        ("fr", "This works well.", "Cela fonctionne bien."),
+        ("es", "Press any key.", "Pulse cualquier tecla."),
+        (
+            "es", "Raise score cutoff to 0.8.",
+            "Eleve el umbral de puntuación a 0,8.",
+        ),
+    )
+    for language, source, target in accepted:
+        assert _contextualize(target, language, source) == target
+        assert _api_block_valid(source, target, language)
+
+
+def test_portuguese_context_repairs_only_unambiguous_semantic_families():
+    from build_i18n_catalogs import (
+        _contextualize,
+        _semantic_false_friends,
+        _syntax_preserved,
+    )
+
+    cases = (
+        ("Return the image plane.", "Retorna o avião da imagem."),
+        (
+            "The Annotate screen lets the caller raise or focus it.",
+            "A triagem Annotate permite aumentar ou focá-la.",
+        ),
+        ("Read the plate.", "Lê o prato."),
+        ("Merge image tiles.", "Mescla azulejos de imagem."),
+        ("Return the crop.", "Retorna a recorte."),
+        ("Run on a worker thread.", "Executa em um throw worker."),
+    )
+    for source, target in cases:
+        repaired = _contextualize(target, "pt", source)
+        assert not _semantic_false_friends(source, repaired, "pt")
+        assert _syntax_preserved(source, repaired), (source, repaired)
+
+
+def test_portuguese_installer_screen_is_a_window_not_a_scientific_screen(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    # Exercise candidate normalization before any reviewed override exists.
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = "The installer for {tools} is still running. Closing this screen now stops it."
+    target = "O instalador de {tools} ainda está em execução. Fechar esta tela agora interrompe a instalação."
+    assert builder._contextualize(target, "pt", source) == target
+    scientific = "Uma triagem CRISPR relata hits."
+    assert builder._contextualize(scientific, "pt", "A CRISPR screen reports hits.") == scientific
+
+
+def test_chinese_file_table_cell_keeps_its_gui_sense(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = (
+        "Rows are fields, columns are channels and mask types. Drop files anywhere "
+        "on this table, or double-click a cell to browse for the one file it wants."
+    )
+    target = "每行代表一个视野，每列代表一个通道或掩膜类型。双击单元格以选择文件。"
+    assert builder._contextualize(target, "zh_CN", source) == target
+    assert builder._contextualize(
+        "选择要显示的单元格。", "zh_CN", "Select which cells to show.",
+    ) == "选择要显示的细胞。"
+    assert builder._contextualize(
+        "检测电池。", "zh_CN", "Detect cells.",
+    ) == "检测细胞。"
+
+
+def test_reviewed_readmes_do_not_reintroduce_known_context_errors():
+    readme_root = ROOT / "docs" / "i18n" / "readme"
+    french = (readme_root / "README.fr.rst").read_text(encoding="utf-8")
+    swedish = (readme_root / "README.sv.rst").read_text(encoding="utf-8")
+    icelandic = (readme_root / "README.is.rst").read_text(encoding="utf-8")
+
+    assert "l'criblage" not in french and "l’criblage" not in french
+    assert "löpande ansökan" not in swedish
+    assert "spaCR → Stillingar → Tungumál" in icelandic
+
+
+def test_localized_readmes_do_not_leave_long_english_feature_copy():
+    """The concise GitHub overview must not fall back to English prose."""
+    readme_root = ROOT / "docs" / "i18n" / "readme"
+    localized = {
+        path.stem.removeprefix("README."): path.read_text(encoding="utf-8")
+        for path in readme_root.glob("README.*.rst")
+    }
+    assert set(localized) == {
+        "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
+    }
+
+    forbidden = {
+        "The interface supports ten languages",
+        "Settings with a visual explanation offer",
+        "Most screens follow six modules",
+        "The same project can also design plates",
+        "Choose the next page by what you want to do",
+        "Select a workflow module to open its API page",
+        "segments cells, nuclei, pathogens and organelles",
+        "writes morphology, intensity, texture, spatial and colocalization",
+        "labels crops in a keyboard-driven grid",
+        "trains image or measurement-based models",
+        "maps FASTQ reads to wells and gRNAs",
+        "estimates guide, gene, condition and control effects",
+        "On Linux, make the downloaded file executable",
+        "For a server, cluster or CI runner, omit Qt",
+        "When reporting a failure, include the spaCR version",
+        "Commercial use requires a separate license",
+        "contains narrated, captioned walkthroughs",
+        "If spaCR contributes to your research, cite",
+    }
+    for language, text in localized.items():
+        leftovers = sorted(fragment for fragment in forbidden if fragment in text)
+        assert not leftovers, f"{language} retains English README copy: {leftovers}"
+
+
+def test_localized_readmes_preserve_safety_meaning_and_language_names():
+    readme_root = ROOT / "docs" / "i18n" / "readme"
+    spanish = (readme_root / "README.es.rst").read_text(encoding="utf-8")
+    hindi = (readme_root / "README.hi.rst").read_text(encoding="utf-8")
+    korean = (readme_root / "README.ko.rst").read_text(encoding="utf-8")
+
+    # Hindi is a language, not the Hindu religion.
+    assert "हिन्दी" in hindi
+    assert "हिंदू" not in hindi and "हिन्दू" not in hindi
+    assert "힌두교" not in korean
+
+    # Common literal-translation failures in scientific/software context.
+    for false_friend in ("la antorcha", "el gasoducto", "cara de agarre", "Open Daughth"):
+        assert false_friend not in spanish
+
+
+def test_localized_readmes_keep_the_badge_row_structurally_intact():
+    # `|Preprint|` joined the row on 2026-09-02, next to the Zenodo DOI: one
+    # is the paper, the other the software archive. The preprint had been
+    # reachable only as a databank button further down the page.
+    #
+    # READ FROM README.rst, NOT RESTATED, since 2026-09-19. The row was
+    # written out here, so the maintainer's 2026-09-16 badge edits -- six
+    # new badges, |Tests| off the row, |Qt| retargeted -- could go into the
+    # English README and leave all nine translations behind them without
+    # this test noticing: it was still comparing the nine against each
+    # other. The row a reader sees is the English one, so that is what the
+    # nine are held to.
+    expected = readme_words().splitlines()[0]
+    # |Website| leads the row since N687 (2026-10-10); |Coverage| follows
+    # |Test counts| since N688.
+    assert expected.startswith("|Website|") and expected.endswith(
+        "|PyPI rank|"), expected
+    for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
+        assert path.read_text(encoding="utf-8").splitlines()[0] == expected, (
+            path.name)
+
+
+def test_localized_readme_images_have_reviewed_accessible_text():
+    from build_documentation_i18n import (
+        README_BADGE_SUBSTITUTIONS,
+        README_INSTALLER_SUBSTITUTIONS,
+        README_RESOURCE_SUBSTITUTIONS,
+        REVIEWED_README_EVIDENCE_BLOCKS,
+        REVIEWED_README_MODULE_ALT_TEMPLATES,
+        _readme_logo_alt_text,
+        _readme_substitution_alt_text,
+    )
+
+    canonical = readme_words()
+    # 20 since the maintainer's 2026-10-11 badge clean-up removed |Source|,
+    # |Release| (installers) and |Conda Downloads|.
+    # 23 since 2026-10-10: |Docker| joined, after |Website| (N687) and
+    # |Coverage| (N688) made it 22 the same day.
+    # 20 since the maintainer's 2026-09-16 badge edits: 19 badge alts plus
+    # the logo's. It was 14 -- 13 plus the logo -- from the bioRxiv preprint
+    # badge until conda-forge downloads and release date, PyPI downloads and
+    # rank, Platforms and Cite arrived together.
+    assert len(_readme_substitution_alt_text(
+        canonical, README_BADGE_SUBSTITUTIONS,
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 20
+    # 3 since 2026-10-12, when the maintainer removed the "Earlier spaCR
+    # installers" button; the archive page is no longer linked from here.
+    assert len(_readme_substitution_alt_text(
+        canonical, README_INSTALLER_SUBSTITUTIONS,
+    )) == 3
+    assert len(_readme_substitution_alt_text(
+        canonical, README_RESOURCE_SUBSTITUTIONS,
+    )) == 5
+    canonical_workflow = canonical.partition(
+        ".. spacr-workflow-begin"
+    )[2].partition(".. spacr-workflow-end")[0]
+    canonical_alt = [unescape(value) for value in re.findall(
+        r'\balt="([^"]+)"', canonical_workflow)]
+    module_names = [
+        match.group(1)
+        for alt in canonical_alt
+        if (match := re.fullmatch(r"Open the (.+) API", alt)) is not None
+    ]
+    # e86e25966 gates Plasmodium and Candida behind Show alpha species.
+    # The ordinary README grid therefore has 19 tiles, retaining Toxoplasma.
+    # Pin every visible identity and its order; alpha species stay excluded.
+    assert module_names == [
+        "Mask", "Measure", "Annotate", "Classify", "Map Barcodes", "Regression",
+        "Import", "Embeddings", "Run Compare", "Experiment Design",
+        "Power / Design", "Dose–Response", "QC", "Make Masks", "Align & Stitch",
+        "Image UMAP", "Gate Editor", "Graph Builder", "Toxoplasma",
+    ]
+    assert not any("Plasmodium" in alt or "Candida" in alt for alt in canonical_alt)
+    readme_root = ROOT / "docs" / "i18n" / "readme"
+    for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
+        text = readme_words(readme_root / f"README.{language}.rst")
+        alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
+        alt_text += [unescape(value) for value in re.findall(r'\balt="([^"]+)"', text)]
+        workflow = text.partition(
+            ".. spacr-workflow-begin"
+        )[2].partition(".. spacr-workflow-end")[0]
+        workflow_alt = [unescape(value) for value in re.findall(
+            r'\balt="([^"]+)"', workflow)]
+        assert len(workflow_alt) == len(module_names)
+        # Every canonical badge, Home tile, installer and resource image
+        # must also have an accessible label in each translated README.
+        assert len(alt_text) == len(
+            re.findall(r"(?m)^   :alt: (.+)$", canonical)
+        ) + len(canonical_alt) == (
+                20 + len(module_names) + 4 + 5)
+        assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
+        assert "logo_spacr_readme.png" not in text
+        assert all(
+            module in alt
+            for module, alt in zip(
+                (
+                    "Mask", "Measure", "Annotate", "Classify",
+                    "Map Barcodes", "Regression",
+                ),
+                workflow_alt[:6],
+            )
+        )
+        assert workflow_alt == [
+            REVIEWED_README_MODULE_ALT_TEMPLATES[language].format(
+                module=module,
+            )
+            for module in module_names
+        ]
+        assert "Interactive tutorials" not in alt_text
+        assert "Latest installers" not in alt_text
+
+        # The download icons carry the only text a screen reader gets for
+        # them, so it has to be this language's own, not English left behind.
+        installer_block = text.partition(
+            ".. spacr-installer-links-begin"
+        )[2].partition(".. spacr-installer-links-end")[0]
+        installers = re.findall(r"(?m)^   :alt: (.+)$", installer_block)
+        assert len(installers) == 4
+        for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
+            assert platform in alt, (
+                f"{language}: {alt!r} is not the {platform} download icon")
+        assert "spaCR" in installers[3]
+        assert not any(alt.startswith("Download spaCR") for alt in installers), (
+            f"{language} kept the canonical English download alt text")
+
+        resources = _readme_substitution_alt_text(text, README_RESOURCE_SUBSTITUTIONS)
+        assert all(any(name in alt for name in (
+            "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
+        )) for alt in resources)
+
+
+def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
+    """The image generator must not restore English headings or actions."""
+    import importlib.util
+
+    from readme_i18n import (
+        WORKFLOW_MODULE_ALT_TEMPLATES,
+        WORKFLOW_SECTION_LABELS,
+    )
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("readme_visuals", path)
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    sample = "\n\n".join([
+        *(f"**{section}**" for section in WORKFLOW_SECTION_LABELS["de"]),
+        ".. |App_map| image:: icons/map.png\n"
+        "   :alt: Open the Map Barcodes API",
+        '.. |Module_align| raw:: html\n\n'
+        '   <img src="icons/align.png" align="middle" '
+        'alt="Open the Align &amp; Stitch API">',
+    ])
+    monkeypatch.setattr(generator, "_readme_workflow", lambda _prefix: sample)
+
+    assert generator._workflow_markup_for_readme(
+        ROOT / "README.rst", "icons"
+    ) == sample
+    for language, section_labels in WORKFLOW_SECTION_LABELS.items():
+        localized = generator._workflow_markup_for_readme(
+            ROOT / "docs" / "i18n" / "readme"
+            / f"README.{language}.rst",
+            "icons",
+        )
+        for label in section_labels.values():
+            assert f"**{label}**" in localized
+        assert (
+            WORKFLOW_MODULE_ALT_TEMPLATES[language].format(
+                module="Map Barcodes"
+            ) in localized
+        )
+        assert "Open the Map Barcodes API" not in localized
+        assert WORKFLOW_MODULE_ALT_TEMPLATES[language].format(
+            module="Align & Stitch"
+        ) in unescape(localized)
+        assert 'src="icons/align.png" align="middle"' in localized
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
+    """The actual workflow producer uses the accepted live navigation text."""
+    import importlib.util
+    fixture = json.loads((ROOT / "tests/data/release_contracts"
+        / "readme_workflow_languages_2026_10_08.json").read_text())
+    spec = importlib.util.spec_from_file_location(
+        "readme_organism_visuals", ROOT / "packaging/generate_readme_visuals.py")
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    text = generator._workflow_markup_for_readme(
+        ROOT / "docs/i18n/readme" / f"README.{language}.rst", "icons")
+    expected = fixture["languages"][language]
+    assert re.search(rf"(?m)^{re.escape(expected['heading'])}\n\^{{2,}}$", text)
+    assert expected["note"] in text
+    assert fixture["source_note"] not in text
+    assert text.count("|Module_toxoplasma|") == 2
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_visual_regeneration_preserves_complete_native_hardware_block(language, monkeypatch, tmp_path):
+    """Regeneration is stable, and the drawn table keeps its native legend.
+
+    The hardware block is one image since 2026-10-12, drawn by
+    tools/build_readme_images.py; its alt text reads the table out with the
+    legend's three labels in the README's own language
+    (``readme_i18n.HARDWARE_LEGEND_LABELS``).
+    """
+    pytest.importorskip("uharfbuzz", reason="drawing the README images needs uharfbuzz")
+    import importlib.util
+    from readme_i18n import HARDWARE_LEGEND_LABELS
+
+    spec = importlib.util.spec_from_file_location(
+        "readme_hardware_visuals", ROOT / "packaging/generate_readme_visuals.py")
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    monkeypatch.setattr(generator.build_readme_images, "IMAGE_DIR",
+                        tmp_path / "images")
+    path = tmp_path / f"README.{language}.rst"
+    path.write_text("Before\n\n.. spacr-hardware-begin\n\n"
+                    ".. spacr-hardware-end\n\nAfter\n", encoding="utf-8")
+    assert generator._write_the_hardware_table(path)
+    first = path.read_text(encoding="utf-8")
+    assert generator._write_the_hardware_table(path)
+    assert path.read_text(encoding="utf-8") == first
+    assert first.startswith("Before\n") and first.endswith("After\n")
+    for label in HARDWARE_LEGEND_LABELS[language]:
+        assert label in first, label
+    committed = (ROOT / "docs/i18n/readme" / f"README.{language}.rst").read_text(
+        encoding="utf-8")
+    block = first.partition(".. spacr-hardware-begin")[2].partition(
+        ".. spacr-hardware-end")[0]
+    assert block in committed
+
+
+def test_readme_builder_reuses_the_same_source_bound_visual_targets():
+    """The translation builder and visual producer share accepted target authority."""
+    import build_documentation_i18n as builder
+    fixture = json.loads((ROOT / "tests/data/release_contracts"
+        / "readme_workflow_languages_2026_10_08.json").read_text())
+    sample = fixture["source_heading"] + "\n^^^^^^^^\n\n" + fixture["source_note"] + "\n\n" + fixture["source_hardware_legend"] + "\n"
+    for language, expected in fixture["languages"].items():
+        translated = builder._localize_workflow_alt_text(sample, language)
+        assert expected["heading"] in translated
+        assert expected["note"] in translated
+        from readme_i18n import HARDWARE_LEGEND_LABELS
+
+        for label in HARDWARE_LEGEND_LABELS[language]:
+            assert label in translated, (language, label)
+        assert builder.REVIEWED_README_BLOCKS[fixture["source_heading"]][language] == expected["heading"]
+        assert builder.REVIEWED_README_BLOCKS[fixture["source_note"]][language] == expected["note"]
+        assert builder.REVIEWED_README_BLOCKS[re.sub(r"\s+", " ", fixture["source_hardware_legend"])][language] == expected["hardware_legend"]
+
+
+def test_localized_readme_inline_markup_is_balanced_and_tight():
+    canonical = readme_words()
+    for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
+        text = path.read_text(encoding="utf-8")
+        for marker in ("**", "``"):
+            assert text.count(marker) == canonical.count(marker)
+            marked_text = text.split(marker)[1::2]
+            assert all(value and value == value.strip() for value in marked_text)
+
+        # A prior Portuguese translation added visible ``>`` characters after
+        # links and inline literals. Real link-target brackets are removed first.
+        without_link_targets = re.sub(r"<[^>\n]+>", "", text)
+        assert ">" not in without_link_targets
+
+
+def test_localized_readmes_preserve_module_names_and_technical_terms():
+    expected_modules = [
+        "Mask", "Measure", "Annotate", "Classify", "Map Barcodes", "Regression",
+    ]
+    # DERIVED FROM THE CANONICAL README, not asserted against a frozen list.
+    # This set is the vocabulary that must survive translation byte-for-byte;
+    # whether a given term is CURRENTLY in the README is the README's business.
+    # "AnnData" was in this list and stopped being in the document -- the
+    # sentence naming it was removed in the README rewrite -- so every
+    # localized README that faithfully reproduced the new source failed a test
+    # demanding a word the source no longer contains. Intersecting with the
+    # canonical text means a term dropped upstream stops being required
+    # automatically, while a term still present is still protected in all nine.
+    protected_vocabulary = {
+        "Cellpose", "SQLite", "FASTQ", "AnnData", "CUDA", "Hugging Face",
+        "torchvision",
+    }
+    canonical_readme = readme_words()
+    protected_terms = {
+        term for term in protected_vocabulary if term in canonical_readme
+    }
+    assert protected_terms, "no protected term is present in the canonical README"
+    known_context_errors = {
+        "de": {"Fackelvision"},
+        "es": {"Anotate", "la antorcha", "el gasoducto", "cara de agarre"},
+        "fr": {"Face de harnais", "Anotate"},
+        "hi": {"चेहरे को हिलाना", "**मैप बारकोड**", "**ग्रेसेज**"},
+        "is": {"kyndilssýn"},
+        "ko": {"전체 미생물", "전원 / 디자인", "그래프 건축가"},
+        "pt": {"pylibCZrw", "**Máscara**", "**Mapa códigos de barras**"},
+        "sv": {"Huggande ansikte", "**Mäta**", "**Karta Streckkoder**"},
+        "zh_CN": {"此分類上一篇", "印度语", "电源 / 设计", "图形建筑师"},
+    }
+    readme_root = ROOT / "docs" / "i18n" / "readme"
+    for language in known_context_errors:
+        text = readme_words(readme_root / f"README.{language}.rst")
+        # Paired with the English bullets by position: since 2026-10-10 the
+        # install routes are bold bullets too, and they are translated.
+        bullet = r"(?m)^- \*\*([^*\n]+)\*\*"
+        canonical_labels = re.findall(bullet, canonical_readme)
+        labels = re.findall(bullet, text)
+        assert len(labels) == len(canonical_labels), language
+        assert [label for label, source in zip(labels, canonical_labels)
+                if source in expected_modules] == expected_modules
+        missing_terms = sorted(term for term in protected_terms if term not in text)
+        assert not missing_terms, f"{language} changed protected terms: {missing_terms}"
+        assert not any(error in text for error in known_context_errors[language])
+
+
+def test_localized_readmes_preserve_urls_code_and_table_shape():
+    canonical = readme_words()
+    canonical_urls = sorted(re.findall(r"https?://[^\s>`]+", canonical))
+    code_pattern = re.compile(
+        r"(?m)^\.\. code-block:: [^\n]+\n\n((?: {3}[^\n]*(?:\n|$))+)",
+    )
+    canonical_code = code_pattern.findall(canonical)
+    for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
+        text = path.read_text(encoding="utf-8")
+        assert sorted(re.findall(r"https?://[^\s>`]+", text)) == canonical_urls
+        assert code_pattern.findall(text) == canonical_code
+        assert len(re.findall(r"(?m)^   \* - ", text)) == len(
+            re.findall(r"(?m)^   \* - ", canonical)
+        )
+        for target in re.findall(r"<((?:\.\.?/)[^>#]+)(?:#[^>]*)?>`_", text):
+            assert (path.parent / target).resolve().exists(), (path, target)
+
+
+def test_reviewed_readme_headings_match_the_canonical_source_and_locales():
+    from build_documentation_i18n import (
+        REVIEWED_README_HEADINGS,
+        translatable_blocks,
+    )
+
+    canonical = readme_words()
+    source_blocks, _ = translatable_blocks(canonical)
+    assert "Animated setting guidance" in REVIEWED_README_HEADINGS
+    assert "Animated settings guidance" not in REVIEWED_README_HEADINGS
+    for source, localized_headings in REVIEWED_README_HEADINGS.items():
+        assert source_blocks.count(source) == 1
+        for language, heading in localized_headings.items():
+            localized = readme_words(
+                ROOT / "docs" / "i18n" / "readme" / f"README.{language}.rst")
+            assert heading in localized, (source, language, heading)
+
+
+def test_localized_readmes_have_as_many_sections_as_the_english_one():
+    """A section the English README drops has to leave the nine as well.
+
+    The maintainer removed the Make Masks section from README.rst on
+    2026-09-16 (2db12a301). All nine translations kept it, in English, for
+    three days, and the only test that went red did so by counting ``**``
+    markers -- a symptom, reported as unbalanced markup.
+
+    Counting headings names the fault itself. It is also the precondition
+    ``readme_i18n.localize_internal_references`` depends on: it pairs
+    headings by position and silently leaves every reference unlocalized
+    when the counts differ.
+    """
+    from readme_i18n import _HEADING
+
+    canonical = readme_words()
+    expected = [m.group("title") for m in _HEADING.finditer(canonical)]
+    for path in sorted((ROOT / "docs" / "i18n" / "readme").glob(
+            "README.*.rst")):
+        titles = [m.group("title") for m in _HEADING.finditer(
+            path.read_text(encoding="utf-8"))]
+        assert len(titles) == len(expected), (
+            f"{path.name} has {len(titles)} sections and README.rst "
+            f"{len(expected)}; English titles still in it: "
+            f"{sorted(set(titles) & set(expected) - {'spaCR'})}")
+
+
+def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():
+    readme_root = ROOT / "docs" / "i18n" / "readme"
+    readmes = {
+        language: readme_words(readme_root / f"README.{language}.rst")
+        for language in ("de", "es", "hi", "ko", "pt", "sv", "zh_CN")
+    }
+
+    required = {
+        "de": {"Animierte Einstellungshilfe", "spaCR → Einstellungen → Sprache"},
+        "es": {"Guía animada de ajustes", "spaCR → Preferencias → Idioma"},
+        "hi": {"एनिमेटेड सेटिंग मार्गदर्शन", "spaCR → प्राथमिकताएँ → भाषा"},
+        "ko": {"애니메이션 설정 안내", "spaCR → 환경 설정 → 언어"},
+        "pt": {"Guia animado de configurações", "spaCR → Preferências → Idioma"},
+        "sv": {"Animerad hjälp för inställningar", "spaCR → Inställningar → Språk"},
+        "zh_CN": {"动画设置指南", "spaCR → 首选项 → 语言"},
+    }
+    forbidden = {
+        "es": {"interfaz Tk legado", "Orientación de ajuste animado"},
+        "hi": {"स्वाग योग्य", "हिंदू", "हिन्दू"},
+        "ko": {"Open Anyway", "합성 이미지 기반"},
+        "pt": {"Orientação de cenário animado"},
+        "zh_CN": {"印度语", "图形建筑师"},
+    }
+    for language, fragments in required.items():
+        assert all(fragment in readmes[language] for fragment in fragments)
+    for language, fragments in forbidden.items():
+        assert not any(fragment in readmes[language] for fragment in fragments)
+
+
+@pytest.mark.parametrize(
+    "language,display_text,screening_term",
+    [
+        ("sv", "20% av skärmens kortare kant.", "CRISPR-screening"),
+        ("de", "20% der kürzeren Bildschirmkante.", "CRISPR-Screening"),
+        ("es", "20% del lado más corto de la pantalla.", "cribado CRISPR"),
+        ("zh_CN", "屏幕较短边的 20%。", "CRISPR 筛选"),
+        ("pt", "20% do lado mais curto da tela.", "triagem CRISPR"),
+        ("hi", "स्क्रीन के छोटे किनारे का 20%।", "CRISPR स्क्रीनिंग"),
+        ("ko", "화면의 짧은 변의 20%입니다.", "CRISPR 스크리닝"),
+        ("is", "20% af styttri skjájaðrinum.", "CRISPR-skimun"),
+        ("fr", "20% du côté le plus court de l’écran.", "criblage CRISPR"),
+    ],
+)
+def test_display_edge_geometry_does_not_become_biological_screening(
+    language, display_text, screening_term, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+    from build_i18n_catalogs import _contextualize, _semantic_false_friends
+
+    monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
+    display_source = "20% of the shorter screen edge."
+    scientific_source = "A pooled CRISPR screen reports hits."
+    assert _contextualize(display_text, language, display_source) == display_text
+    assert not _semantic_false_friends(display_source, display_text, language)
+    assert _contextualize(screening_term, language, scientific_source) == screening_term
+    assert not _semantic_false_friends(scientific_source, screening_term, language)
+    if language in {"zh_CN", "pt", "hi", "ko", "is", "fr"}:
+        assert "gui-screen-as-scientific-screen" in _semantic_false_friends(
+            display_source, screening_term, language,
+        )
+        assert "scientific-screen-as-ui-screen" in _semantic_false_friends(
+            scientific_source, display_text, language,
+        )

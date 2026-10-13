@@ -1,0 +1,34 @@
+{
+  "lesson": "25_recruitment",
+  "status": "Real bounded GUI calculation independently verified; final readable capture and narration pending",
+  "app_commit": "79945decc8d1b1dd794a571f895d33b93980c78c",
+  "version": "1.5.0.4",
+  "capture": "refresh_2026-09-09/captures/recruitment_ranges",
+  "private_project": "refresh_2026-09-09/recruitment_runs/example-lzqks2il/project",
+  "source_table_rows": {"cell": 453, "cytoplasm": 453, "nucleus": 588, "pathogen": 998},
+  "retained_cell_rows": 223, "well_rows": 4, "figures": 5,
+  "filter_counts": {"source_cells": 453, "after_nucleus_count_join": 350, "after_nucleus_area": 331, "after_pathogen_area": 223},
+  "independent_check": {"exact_parent_identities": true, "child_aggregates": true, "ratio_columns": 16, "well_means_of_cell_ratios": true, "source_and_final_counts_separate": true, "max_absolute_numeric_difference": 1.1368683772161603e-13},
+  "nonrestrictive_intensity_ranges": {
+    "bounds": [-1, 65536], "all_source_values_proven_finite_within": [0, 65535],
+    "actual_nucleus_filter_channel": 3, "nucleus_source_values_checked": 588,
+    "actual_pathogen_filter_channel": 1, "pathogen_source_values_checked": 998,
+    "additional_rows_excluded": 0,
+    "reason": "Current nucleus/pathogen list controls turn None into [], not a disabled filter. No hidden-widget or pipeline bypass was used."
+  },
+  "source_database_and_four_arrays_hashes_unchanged_after_run": true,
+  "important_limits": [
+    "Results are host-cell aggregates despite the PV console/plot labels",
+    "The 103 cells excluded by the one-nucleus limit are not missing nuclei in the original database, despite the generic reader warning",
+    "Archived merged masks differ from processed masks behind measurements; recorded Measure settings provide mechanisms, not exact historical reconstruction",
+    "Mean-of-pathogen means is not pooled pixel weighting; well recruitment is mean-of-cell ratios",
+    "The four-field subset is small and unbalanced, not biological replication or effect validation",
+    "ER and control identities are recorded source annotations, not independently proven by this calculation",
+    "Ratio plots start at 1 and use SD bars, not confidence intervals",
+    "Cells per well counts selected-source cells before analysis filters",
+    "Slope columns are constants, not fitted slopes"
+  ],
+  "small_helper_tests": {"subset_copy": 39, "independent_results": 82, "settings_unchanged": 4, "real_guard_mutations_observed_red_then_restored_green": true},
+  "app_source_modified": false, "new_biology_invented": false,
+  "narration_frozen": false, "published": false
+}

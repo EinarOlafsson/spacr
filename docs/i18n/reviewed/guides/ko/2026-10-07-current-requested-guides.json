@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review against each complete English source message, current UI labels, mask undo/identity/overlap behavior and probability/flow definitions. Model draft meaning errors corrected before normal import. No native-speaker signoff.",
+  "original_model_drafts_sha256": "242748bfae22963edfd432545903c9dba2a8c14cc2e4a958fb73001a3b4aca7c",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order.",
+      "source_sha256": "6fb84bd480f9e89ef3b07883c746de76e6c0ee12656701877c6dd6b0359c9df3",
+      "original_model_translation": "애니메이션 메뉴는 **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** 및 **spaCR spinn**을 그 순서로 나열합니다.",
+      "target": "애니메이션 메뉴에는 **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, **spaCR spinn**이 이 순서로 표시됩니다."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen.",
+      "source_sha256": "d58dcef411de016b2e4ed40ee79814985354d7bfa195d086fd58ed61d24e9552",
+      "original_model_translation": "**spaCR growth** - 짧은 미셀리얼 세그먼트는 식민지 당 출발점에서 자라며 반복적으로 포크합니다. 각 포크는 계속되는 꼬리를 리디렉션하고 딸 꼬리가 시작되므로 꼬리 앞이 스크린을 통해 진행됩니다. 밀도는 라이브 꼬리의 수를 제어합니다. 새 식민지가 시작되면 오래된 트랙이 떨어집니다.",
+      "target": "**spaCR growth** — 짧은 균사 구간이 각 군집의 한 시작점에서 자라며 계속 분기합니다. 각 분기는 기존 성장 끝의 방향을 바꾸고 새로운 가지 끝을 만들어, 분기하는 선단이 화면을 가로질러 전진하게 합니다. 밀도는 활성 성장 끝의 수를 조절합니다. 새 군집이 시작되면 오래된 흔적이 사라지며, 보이는 무늬는 화면 면적의 4분의 1 이내로 제한됩니다."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius.",
+      "source_sha256": "6ae907186874ad1d8d67abe6cbc17d3c687afab0840db8dd2dc86dc61aaa17e4",
+      "original_model_translation": "**spaCR waves** - 라운드 포인트는 여행 파도를 운반하고 허용 라디오 내에서 마우스에서 멀리 이동합니다.",
+      "target": "**spaCR waves** — 둥근 점들이 이동하는 파동을 나타내며, 활성화된 영향 반경 안에서 마우스로부터 멀어집니다."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size.",
+      "source_sha256": "f6142a51583ab29ac1bbc90e0ddf4e45ec9e4c71ba2b53f73640ea16d9013181",
+      "original_model_translation": "**spaCR blobs** - 부드러운 색상 블로브, 크고 작은, 드리프트 및 천천히 크기를 변경합니다.",
+      "target": "**spaCR blobs** — 크고 작은 부드러운 색 덩어리가 천천히 이동하고 크기를 바꿉니다."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available.",
+      "source_sha256": "05fbec1af1efc5636715a6a358398d589e36be2f82319aeeb41ccf3b9033ed78",
+      "original_model_translation": "**spaCR aurora** - 불규칙한 얇은 광선의 벽돌은 밝은 플레드에서 일어나고, 팬은 하늘을 향해, 길이와 밝기를 독립적으로 변경합니다. spaCR 팔레트는이 주제에 핑크색 위 빛을 사용합니다; 다른 선택된 팔레이트는 여전히 사용할 수 있습니다.",
+      "target": "**spaCR aurora** — 가느다란 광선으로 이루어진 불규칙한 커튼이 밝은 주름에서 솟아올라 하늘을 향해 부채꼴로 펼쳐지며, 길이와 밝기가 각각 변합니다. 이 테마의 spaCR 팔레트는 녹색과 상단의 분홍색 빛을 사용합니다. 선택한 다른 팔레트도 계속 사용할 수 있습니다."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "source_sha256": "a1f74b899259cb37b049b1c165df96ef8c80b752d47dd238fc787f8ef3949fb6",
+      "original_model_translation": "**spaCR stratified** — 천천히 별 필드는 세 가지 깊이 층으로 이동; **spaCR stratified 방향**은 위, 아래 또는 우연한 여행을 선택합니다.",
+      "target": "**spaCR stratified** — 느린 별 무늬가 세 깊이 층에서 움직입니다. **spaCR stratified 방향**에서 위쪽, 아래쪽 또는 무작위 이동을 선택합니다."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.",
+      "source_sha256": "d6c57d8434371dbfd65e097e5dde3aab56fe6fbc246535bc005d7a1123a92480",
+      "original_model_translation": "**spaCR spinn** - 얇은 종이 측면이 부드럽게 움직이고 마우스에 대한 응답으로 현지적으로 회전합니다. 회전은 지표 옆에서 가장 빠르며 마우스의 중력 라디오에서 부드러움으로 0으로 떨어집니다; 라디오를 변경하면 영향을받는 영역을 변경합니다.",
+      "target": "**spaCR spinn** — 얇은 종이 조각 같은 면들이 부드럽게 움직이며 마우스 위치에 따라 국소적으로 회전합니다. 포인터에 가까울수록 회전이 빠르고, 마우스 중력 반경의 가장자리에서는 속도가 부드럽게 0으로 줄어듭니다. 반경을 바꾸면 영향을 받는 영역이 바뀝니다."
+    },
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset.",
+      "source_sha256": "f1d600d93414e2c79b01d468668f3b6245b9ebae12d8c49bb9b0d7a19a2aba1d",
+      "original_model_translation": "**마우스 중력 반경**은 영향을받는 영역을 더 짧은 화면 경계의 비율로 설정합니다. 그것의 기본은 **15%**입니다; **0**으로 설정하여 마우스 영향을 방지합니다. **애니메이션 밀도**은 **애니메이션 세부 사항**에 관계없이 요소의 수를 변경하며, 이로 인해 그림 해상도를 변경합니다. 밀도는 최소 **1%**을 가지고 있습니다. 점점 더 많은 세부 사항은 선택한 인구를 흔들지 않습니다. 렌더는 화면의 픽셀 예산 내에서 샘플링 작업을 제한합니다. **무작위**을 **애니메이션 팔레트**에서 선택하여 각 요소 색상을 선택합니다. 신선한 설치는 **어두움**, **spaCR field** 및 **spaCR** 애니메이션 팔레트를 사용하며, 밀도 **10%**, 중력 **15%**, 세부 사항, 속도 및 크기 **100%** 및 페이지 오파시티 **60%**를 제공합니다. **점 깜빡임**은 흰색이 빛나는 눈에 띄는 점의 비율을 제어합니다 : **0**은 그것을 스위치 (기본)하고 비자리 값은 0.00001%에서 10 % 사이입니다. 설정은 spaCR 필드, spaCR 경고, spaCR 파도 및 spaCR 스트리트에 적용됩니다. 필드 파드가 진행되고 있습니다. 파란색 림은 **17%**의 상대적인 범위 길이를 사용하고, **50%**의 체스, 중앙 조정, **Beat** 모드 및 **1.5 s** 사이클을 사용합니다. 기존 저장된 선호도는 변경되거나 재설정 될 때까지 유효합니다.",
+      "target": "**마우스 중력 반경**은 화면의 짧은 변 길이에 대한 백분율로 영향 영역을 설정합니다. 기본값은 **15%**이며, **0**으로 설정하면 마우스 영향을 끕니다. **애니메이션 밀도**는 요소 수를 바꾸며, 그리기 해상도를 바꾸는 **애니메이션 세부 사항**과 독립적입니다. 최소 밀도는 **1%**입니다. 세부 사항을 높여도 선택한 요소 수는 줄어들지 않습니다. 렌더러는 화면의 픽셀 예산 안에서 샘플링 작업을 제한합니다. **애니메이션 팔레트**에서 **무작위**를 선택하면 각 요소에 임의의 색을 사용합니다. 새 설치는 **어두움**, **spaCR field**, **spaCR** 애니메이션 팔레트를 사용하며, 밀도 **10%**, 중력 **15%**, 세부 사항·속도·크기 **100%**, 페이지 불투명도 **60%**가 기본입니다. **점 깜빡임**은 흰색으로 깜빡이는 보이는 점의 비율을 조절합니다. **0**은 깜빡임을 끄는 기본값이며, 0이 아닌 범위는 0.00001%부터 10%까지입니다. 이 설정은 spaCR field, spaCR advection, spaCR waves, spaCR stratified에 적용됩니다. 필드 페이드가 켜져 있습니다. 파란 테두리는 둘레 대비 길이 **17%**, 추적 **50%**, 포인터 중심 정렬, **Beat** 모드, **1.5 s** 주기를 사용합니다. 기존에 저장된 환경설정은 변경하거나 초기화할 때까지 유지됩니다."
+    },
+    {
+      "domain": "features",
+      "source": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "source_sha256": "bc4b37e953592d552059f66aac7427eb3308a93996586bfe4b7300ad4e93c80d",
+      "original_model_translation": "**팝업 파동 빈도**는 **spaCR field**에서 분당 자동 파도를 설정합니다. 기본은 **분당 5회**; **0**는 팝업 파도를 방지합니다. 활성화되면, 팝 업을 열면 즉시 첫 번째 파도가 중심에서 시작되고, 선택한 속도에서 파도가 이어집니다. 포 업을 움직이는 것은 새로운 파도의 출처를 이동합니다. 그것을 닫는 것은 기존 파도가 흐르는 동안 새로운 파도를 멈추게합니다.이 제어는 마우스 중력, 포트 블링, 밀도 및 그림 세부 사항에 독립적입니다.",
+      "target": "**팝업 파동 빈도**는 **spaCR field**에서 자동 파동이 시작되는 분당 횟수를 설정합니다. 기본값은 **분당 5회**이며, **0**은 팝업 파동을 끕니다. 활성화하면 팝업을 여는 즉시 중심에서 첫 파동이 시작되고, 이후 선택한 빈도로 파동이 발생합니다. 팝업을 이동하면 새 파동의 시작점이 이동합니다. 팝업을 닫으면 새 파동은 중단되고 기존 파동은 사라집니다. 이 제어는 마우스 중력, 점 깜빡임, 밀도, 그리기 세부 사항과 독립적입니다."
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_model_translation": "**Backdrop 설정**은 응용 및 저장 기간 동안 주요 애니메이션에서 독립적입니다. **없음**은 파란색 림을 유지하는 동안 팝업 움직임을 방해합니다. **설정 배경 어두움**은 **0%**에서 **100%** (기본 **85%**)까지, **페이지 불투명도**와 결합하여 설정 카드의 안정성을 제어합니다. Page opacity는 Settings backdrop이 **없음**인 경우에도 적용됩니다. 더 높은 어둠의 값은 더 많은 애니메이션을 커버하여 텍스트를 쉽게 읽을 수 있습니다. 팝업은 글로벌 항상 상단 깃발을 사용하지 않고 spaCR 창 위에 남아 있으므로 다른 응용 프로그램이 그들을 커버 할 수 있습니다.",
+      "target": "**Backdrop 설정**은 환경설정을 적용하거나 저장할 때 모두 주 창의 애니메이션과 독립적으로 유지됩니다. **없음**은 팝업 움직임을 끄면서 파란 테두리는 유지합니다. **설정 배경 어두움**은 애니메이션 위 설정 카드의 불투명도를 **0%**부터 **100%**까지 조절하며, 기본값은 **85%**입니다. 이 값은 **페이지 불투명도**와 함께 적용됩니다. 설정 배경이 **없음**이어도 페이지 불투명도는 적용됩니다. 어두움 값이 높을수록 애니메이션을 더 많이 가려 텍스트를 읽기 쉽게 합니다. 팝업은 자신이 속한 spaCR 창 앞에만 유지되며, 모든 창 위에 항상 표시하는 전역 플래그를 사용하지 않으므로 다른 앱이 덮을 수 있습니다."
+    },
+    {
+      "domain": "features",
+      "source": "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available.",
+      "source_sha256": "d5e22805593c3cde4e6d34ff9dd279e1d192c5a8bc36e1cff2d3b64b9b9bb511",
+      "original_model_translation": "**spaCR field**에서, 왼쪽으로 점령되지 않은 배경 영역을 끌어 들이는 포인트의 현지 패치. 버튼을 풀면 패턴을 다시 시작하지 않고 부드럽게 뒤로 날아갈 수 있습니다.이 배경 조건은 과학 캔버스와 제어 조건을 제공합니다.",
+      "target": "**spaCR field**의 비어 있는 배경 영역에서 마우스 왼쪽 버튼을 누른 채 드래그하면 국소적인 점 무리를 당길 수 있습니다. 버튼을 놓으면 전체 패턴을 다시 시작하지 않고 부드럽게 돌아갑니다. 이 배경 제스처는 과학 이미지 캔버스와 컨트롤의 조작 제스처를 계속 사용할 수 있게 합니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "source_sha256": "634a10eb8471b8a67bd4d81639c291ad3362d89ed1ce0990c72f3ea6f05cca7e",
+      "original_model_translation": "**돋보기** 또는 **M**를 눌러 지표 주위에 제안된 개체를 검사합니다. 그것의 바퀴는 상자 zoom을 변경; **Shift + wheel** 상자 크기를 변경합니다. **Ctrl+L+오른쪽 클릭** 상자를 잠그거나 열립니다.",
+      "target": "**돋보기**를 켜거나 **M**을 눌러 포인터 주변에 제안된 객체를 검사합니다. 마우스 휠은 상자 안의 확대 배율을 바꾸고, **Shift + wheel**은 상자 크기를 바꿉니다. **Ctrl+L+오른쪽 클릭**은 상자를 잠그거나 잠금 해제합니다. 객체를 수동 승인하기 전에 업데이트된 미리보기를 기다리십시오."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "source_sha256": "5a8bdbfe56a759b843b1b9637502650ca5d55525b059bb9540cb565cbacefcbc",
+      "original_model_translation": "**객체 검출** → **확대 설정** 아래에서 **제안된 객체 즉시 승인**를 눌러 클릭하지 않고 현재 제안을 받아들이십시오. 이것은 기본적으로 제거됩니다. 지역 모드는 **추가할 객체**을 따릅니다. 전체 이미지 모드는 지표 아래의 개체만 받아 들일 수 있습니다. 이미지 밖으로 이동하거나 확대기를 비활성화하면 자동 수락이 방지됩니다. 각각의 수락은 허용되지 않으며, UNO는 즉시 같은 제안을 다시 받아들이지 않습니다. **저장** 또는 **Save & Next**을 사용하여 받아 들여진 마스크를 작성합니다.",
+      "target": "**객체 검출** → **확대 설정**에서 **제안된 객체 즉시 승인**을 켜면 클릭하지 않고 현재 제안을 승인할 수 있습니다. 기본적으로 꺼져 있습니다. 영역 모드는 **추가할 객체** 설정을 따르며, 전체 이미지 모드는 포인터 아래의 객체만 승인합니다. 이미지 밖으로 이동하거나 돋보기를 끄면 자동 승인이 중단됩니다. 각 승인은 실행 취소할 수 있으며, 취소 직후 같은 제안을 다시 자동 승인하지 않습니다. **저장** 또는 **Save & Next**로 승인된 마스크를 디스크에 저장합니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "source_sha256": "af54d2452c6f782e2b8ed4d97939a0a37a5fb5bf50bb8ec2f089c664967203d9",
+      "original_model_translation": "**겹침** 제안이 기존 마스크를 덮을 때 무슨 일이 일어나는지 선택합니다.",
+      "target": "**겹침**은 제안이 기존 마스크와 겹칠 때의 동작을 선택합니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "source_sha256": "1f85feed35d5327911d4c26e71ad0211c01da0b25dacfeef4587ce720096d064",
+      "original_model_translation": "**기존 객체와 병합**은 제안을 기존 ID에 추가하고 오래된 개체의 픽셀을 보존합니다.이 상자 밖의 핀을 포함하여.이 제안은 여러 개체를 덮는 것이 가장 작은 ID에 연결됩니다.",
+      "target": "**기존 객체와 병합**은 제안을 기존 ID에 추가하고 상자 밖의 픽셀을 포함한 기존 객체 전체를 보존합니다. 제안이 여러 객체와 겹치면 가장 작은 기존 ID로 모두 병합합니다. 배경에만 있는 제안은 새 객체가 됩니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "source_sha256": "5c6740518691a9b115fac6f8c56f4f25206f0978e7d2615399ac3b1e426c82a9",
+      "original_model_translation": "**겹치지 않는 픽셀 추가**는 기존 개체를 보존하고 제안의 가장 큰 남아있는 연결된 조각을 새 개체로 추가합니다.",
+      "target": "**겹치지 않는 픽셀 추가**는 기존 객체를 보존하고 제안에서 남은 가장 큰 연결 부분을 새 객체로 추가합니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "source_sha256": "153e787e83bebe08d300e34f410af14ec52096d8c9e8eccc9e6d27ea26dafcd1",
+      "original_model_translation": "**겹치는 객체 교체** 제안을 추가하기 전에 오래된 물건을 완전히 덮는 것을 제거합니다.",
+      "target": "**겹치는 객체 교체**는 제안을 추가하기 전에 겹치는 기존 객체를 전체적으로 제거합니다. 거부된 작은 제안은 아무것도 제거하지 않습니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "source_sha256": "94c92b2fd888685cb2c6bfe40f217d3e9b9997b017e1c6c49cf9d35570618fa1",
+      "original_model_translation": "**겹치는 객체 건너뛰기** 기존 마스크를 덮는 제안을 무시합니다.",
+      "target": "**겹치는 객체 건너뛰기**는 기존 마스크와 겹치는 제안을 무시합니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step.",
+      "source_sha256": "f34e5e79f3c51a76c21475f5e6d2214e13b870ad02096d6b1a2a8a7e36891242",
+      "original_model_translation": "초기 모드는 기본 ID를 보존하고 융합 정체성을 허용하지 않습니다.Explicit click-and-drag 편집은 단일 undo 단계를 유지합니다.",
+      "target": "보조 모드는 기본 객체 ID를 보존하며 서로 다른 식별자의 병합을 허용하지 않습니다. 명시적인 클릭 후 드래그 편집은 한 번의 실행 취소 단계로 유지됩니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Saved segmentation diagnostics",
+      "source_sha256": "0638dcc7f961ff9681d512553184a84a0f4f7cc08c0d3434b71569b11878a011",
+      "original_model_translation": "구축된 분류 진단",
+      "target": "저장된 분할 진단 지표"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "source_sha256": "3822bf413fac16acc6f480cd9c20831605010b47254b8255401e416e3b461696",
+      "original_model_translation": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "target": "플라크 모드는 각 플라크의 이 열들을 ``<src>/masks/plaques_analysis.db``의 ``per_plaque`` 및 ``details`` 테이블에 기록하고 ``<src>/masks/per_plaque.csv``로 내보냅니다. 그림 모드는 같은 열들을 ``plaque_figures.db``의 ``plaques`` 테이블에 기록합니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Meaning",
+      "source_sha256": "1f5d64b92820f8238635b90ae69a38c12661a7b03c6d0d7f689711f12af7b7f9",
+      "original_model_translation": "의미",
+      "target": "의미"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages.",
+      "source_sha256": "e318e7b610960e98116b4586514c3d69a92460cc43942e3764ed67056e13513c",
+      "original_model_translation": "원료 Cellpose 셀 확률 점수를 플래크의 픽셀 위에 측정합니다. 이 점수는 기록되며, 부정적 일 수 있으며, 확률이나 신뢰 비율을 측정하지 않습니다.",
+      "target": "플라크 픽셀에 대한 Cellpose 원시 세포 확률 점수의 평균입니다. 이 점수는 logits이며 음수일 수 있고, 보정된 확률이나 신뢰도 백분율이 아닙니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask.",
+      "source_sha256": "40cfc84921155fb9be3bc65f2ef3374f3cefc80885504d58e6b713c1f32343ce",
+      "original_model_translation": "Cellpose의 두 구성 요소의 합계는 마스크로 인한 분산 흐름과 다섯으로 나누어진 예상 흐르는 사이의 쿼드 오류를 의미합니다.",
+      "target": "마스크에서 유도한 확산 흐름과 5로 나눈 예측 흐름 사이에서 Cellpose가 계산한 두 성분의 평균제곱오차 합입니다. 값이 낮을수록 저장된 마스크와 흐름이 더 잘 일치합니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation.",
+      "source_sha256": "e7829a710a5592ed2c033e1bbdbfbbdf0eb0bf491fa11adabddbb6131a300825",
+      "original_model_translation": "Cellpose의 마스크 흐름 스케일을 사용하기 위해 다섯 개로 나누어진 플래크 내에서 예상되는 흐르기 벡터 길이를 측정합니다.이것은 흐르는 강도를 설명합니다; 더 높은 값만으로는 더 나은 분열을 의미하지 않습니다.",
+      "target": "플라크 내부 예측 흐름 벡터 길이의 평균을 5로 나눈 값으로, Cellpose의 마스크 흐름 척도를 사용합니다. 흐름의 강도를 나타내며, 값이 높다는 이유만으로 분할이 더 좋다는 뜻은 아닙니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions.",
+      "source_sha256": "c34d264d5cb90ea679181fb6f3e17b30ef9b41f736415493a1750723e2e6fd32",
+      "original_model_translation": "예측 및 마스크 추출 흐름 사이의 방향 연관성을 측정합니다. 0 길이 벡터를 제외합니다. 값은 -1에서 1까지 다양합니다. 1은 일치하는 방향을 의미하며 -1은 반대 방향으로 나타납니다.",
+      "target": "예측 흐름과 마스크에서 유도한 흐름 사이 방향 코사인의 평균이며, 길이가 0인 벡터는 제외합니다. 범위는 -1부터 1까지입니다. 1은 같은 방향, -1은 반대 방향을 뜻합니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage.",
+      "source_sha256": "7a7509927cc78bf11411b43bb20d108ef905242b56cdde33a7dad3207afe35ad",
+      "original_model_translation": "최종 확률 점수 또는 최종 두 구성 요소 흐름 벡터를 가진 플래크 픽셀의 분열.이들은 출력 커버를 설명합니다.",
+      "target": "유한한 확률 점수 또는 유한한 두 성분 흐름 벡터가 있는 플라크 픽셀의 비율입니다. 모델 출력의 적용 범위를 나타냅니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation.",
+      "source_sha256": "deeb1d334a43acb08405a871ed67d62da48ee2e37d443352c172160ada75fc84",
+      "original_model_translation": "흐름 합의는 깃발 융합 또는 나쁘게 분할 된 플래크를 도울 수 있지만, 생물학적 정확성을 설정하지 않습니다; 이미지를 검사하고 마스크를 함께합니다. 실종 된 출력, 불합리한 출력 네트워크 및 사용할 수없는 비교는 0 대신 흰색 CSV 세포 또는 SQL NULL로 저장됩니다. 가능성과 흐르는 크기는 최종 픽셀을 사용하는 것을 의미합니다. 흐르기 오류와 조정은 전면 전체에 최종 예상 흐를 필요로합니다. 비교 실패는 그들을 흰게 남깁니다. 비교는 CPU에서 실행하고 모델의 분할을 변경하지 않습니다.",
+      "target": "흐름의 일치도는 병합되거나 잘못 나뉜 플라크를 표시하는 데 도움이 되지만 생물학적 정확성을 입증하지 않습니다. 이미지와 마스크를 함께 검사하십시오. 없는 출력, 호환되지 않는 출력 격자, 수행할 수 없는 비교는 0이 아닌 빈 CSV 셀 또는 SQL NULL로 저장됩니다. 확률과 흐름 크기의 평균은 유한한 값을 가진 픽셀을 사용합니다. 흐름 오차와 방향 정렬은 전경 전체에 유한한 예측 흐름이 있어야 하며, 비교가 실패하면 해당 필드는 비어 있습니다. 비교는 CPU에서 실행되고 모델의 분할 결과를 바꾸지 않습니다."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank.",
+      "source_sha256": "938ae04b654aac15980290073541a5f9355ce5fbd450c3c6fe60f8901729c027",
+      "original_model_translation": "각 생성 된 마스크는 또한 ``<image>.diagnostics.csv`` 측면을 가지고 원래 매 플래크 진단과 마스크 지문. ``masks=False``의 실행은 저장 마스크가 여전히 일치하는 경우에만 다시 사용합니다. 마스크를 편집하는 것은 이러한 모델 진단을 무효화합니다; 신선한 것을 얻기 위해 재생 마스크. 측면이없는 기존 마스크들은 측정을 유지하고 흰 진단 열을 가지고 있습니다.",
+      "target": "생성된 각 마스크에는 원래 플라크별 진단 지표와 마스크 지문을 담은 ``<image>.diagnostics.csv`` 보조 파일도 있습니다. ``masks=False`` 실행은 저장된 마스크가 여전히 일치할 때만 파일을 재사용합니다. 마스크를 편집하면 이 모델 진단 지표는 무효화되므로 새 지표를 얻으려면 마스크를 다시 생성하십시오. 보조 파일이 없는 기존 마스크는 측정값을 유지하고 진단 열은 비워 둡니다. 레이블만 반환하는 사용자 지정 콜백을 사용하는 그림 작업도 진단 열을 비워 둡니다."
+    }
+  ]
+}

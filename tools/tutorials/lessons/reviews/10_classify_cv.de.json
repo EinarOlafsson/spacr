@@ -1,0 +1,34 @@
+{
+  "lesson": "10_classify_cv",
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Classify: einen Bildklassifikator trainieren",
+  "description": "Bereiten Sie beschriftete Bildausschnitte vor, wählen Sie die Computer-Vision-Familie, trainieren Sie ein kleines Modell und finden Sie seine Vorhersagen.",
+  "objectives": [
+    "Das herunterladbare Beispiel zur Bildklassifikation vorbereiten.",
+    "Modell, Bildkanäle und Trainingseinstellungen wählen.",
+    "Wells getrennt halten und gespeicherte Modelle und Vorhersagen prüfen."
+  ],
+  "prerequisite": "Laden Sie das gemessene Beispiel über Annotate mit Load test data und dann Load herunter. Behalten Sie den Ordner plate1 mit measurements/measurements.db und den png-Ausschnitten. Laden Sie unten Classify_existing_split_example.zip herunter und entpacken Sie das Hilfsskript. Führen Sie in Ihrer spaCR-Umgebung prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split aus. Wählen Sie in Classify den Ordner new_split. Das Hilfsskript ist für dieses Beispiel mit vier Wells gedacht; es kopiert 64 beschriftete RGB-Ausschnitte in Trainings- und Testordner.",
+  "scenes": [
+    "Öffnen Sie von Home aus Classify und wählen Sie Computer Vision, Torch. Diese Familie lernt aus beschrifteten Objektausschnitten und speichert ein Modell, das andere Ausschnitte bewerten kann. Folgen Sie zuerst der Annotate-Lektion, um die Beispielbilder und ihre Labels herunterzuladen.",
+    "Wählen Sie in Annotate Load test data und dann Load. Behalten Sie den Plattenordner mit den Messwerten und den PNG-Ausschnitten. Für eigene Daten beginnen Sie mit Ausschnitten aus Measure und vergeben in Annotate die Klassen, die gelernt werden sollen.",
+    "Laden Sie das verlinkte Beispiel-ZIP herunter und entpacken Sie prepare_classify_split.py. Führen Sie es in Ihrer spaCR-Umgebung aus, mit der Quelle auf dem Beispiel-Plattenordner und dem Ziel auf einem neuen Ordner. Das Hilfsskript bereitet 64 beschriftete Bilder für diese Übung vor.",
+    "Öffnen Sie den neuen Ordner und sein Manifest. Die Trainings- und Testverzeichnisse enthalten jeweils zwei Klassenordner. Das Manifest listet jedes kopierte Bild und sein Well. Halten Sie ganze Wells auf einer Seite der Aufteilung, wenn Bilder aus demselben Well dieselben Versuchsbedingungen teilen.",
+    "Kehren Sie zu Classify zurück und wählen Sie den vorbereiteten Ordner als Source. Wählen Sie den übergeordneten Ordner mit train und test. Verwenden Sie diesen Ordner für den Rest der Lektion, damit Modell und Ausgabedateien zusammenbleiben.",
+    "Schalten Sie Generate training dataset aus, da das Hilfsskript die Aufteilung bereits vorbereitet hat. Aktivieren Sie Train und Test. Lassen Sie die Anwendung auf den gesamten Datensatz bei diesem ersten Lauf ausgeschaltet. Das Modell verwendet die Klassenindizes 0 und 1 für die beiden Klassenordner.",
+    "Wählen Sie ResNet18, Bildgröße 128, alle drei RGB-Kanäle, Batchgröße 8 und eine Epoche. Stellen Sie zwei Loader-Worker ein, mit vortrainierten Gewichten und Augmentierung ausgeschaltet für dieses kurze Beispiel. Die Epochenzahl bestimmt, wie oft das Training die Eingabebilder durchläuft.",
+    "Setzen Sie den Validierungsanteil auf 0,5, behalten Sie die Gruppierung nach Well bei und lassen Sie die Leakage-Prüfungen aktiviert. Die Validierung überwacht das Modell während des Trainings; der separate Testordner dient der abschließenden Bewertung. Prüfen Sie die gemeldete Well-Zuordnung, bevor Sie die Werte interpretieren.",
+    "Schalten Sie Plot ein, leeren Sie die Einstellungssuche und drücken Sie Run. Verfolgen Sie in der Konsole das Laden des Datensatzes, die ermittelte Aufteilung, den Trainingsfortschritt und die Ausgabepfade. Warten Sie, bis Training und Test abgeschlossen sind, bevor Sie die gespeicherten Ergebnisse öffnen.",
+    "Öffnen Sie Figures, um Verlust und Genauigkeit zu prüfen. Eine Epoche liefert einen schnellen ersten Durchgang. Vergleichen Sie die Testergebnisse der Klassen, bevor Sie die Trainingszeit erhöhen. Bevorzugen die Vorhersagen nur eine Klasse, prüfen Sie Labels, Klassenbalance und Eingabekanäle, bevor Sie das Modell auf einen größeren Datensatz anwenden.",
+    "Öffnen Sie model/resnet18/rgb/epochs_1 im vorbereiteten Ordner. Halten Sie Checkpoint, Model Card und Ergebnistabellen zusammen. Prüfen Sie Fehler anhand der gespeicherten Vorhersagen und fahren Sie dann mit Classifier Evaluation oder Activation Maps fort, um das Modell genauer zu untersuchen."
+  ]
+}

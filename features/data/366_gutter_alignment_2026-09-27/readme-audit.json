@@ -1,0 +1,17 @@
+{
+  "exit_code": 0,
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "scope": "Unmodified current canonical README branch and syntax helpers extracted by AST; unchanged API loop not repeated.",
+  "canonical_audit_sha256": "ecced4bac453b3fa9388c354fb2a82ecbcbafd0c19e5de71316a3e9d865d1d7c",
+  "english_readme_sha256": "aa0e6469013d8bdac78d95440dc3ee501da8bda527e6f701b9da3683add013b4"
+}

@@ -1,0 +1,1018 @@
+{
+  "lesson": "20_cellpose_masks",
+  "status": "Complete staged technical matrix: real batch and explicitly different live preview; not published",
+  "canonical_english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+  "scene_count": 11,
+  "narrated_words": 533,
+  "native_verification": {
+    "lesson": "20_cellpose_masks",
+    "status": "Corrected real batch and unobstructed native-filter recording; final replacement video checks pending",
+    "canonical_english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+    "scene_count": 11,
+    "narrated_words": 533,
+    "recorded_checks": {
+      "accepted": true,
+      "scope": "Verified batch demonstration and explicitly mismatching native preview; not accuracy or preview equivalence",
+      "native_observation": {
+        "lesson": "20_cellpose_masks",
+        "accepted": false,
+        "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu",
+        "original_inputs": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e"
+        },
+        "synthetic": false,
+        "accuracy_validated": false,
+        "ground_truth_used": false,
+        "app_source_modified": false,
+        "published": false,
+        "route": [
+          "make_masks",
+          "train_cellpose",
+          "Apply"
+        ],
+        "pipeline": {
+          "accepted": true,
+          "reasons": [],
+          "figure_count": 3,
+          "worker_finished": true,
+          "worker_ok": true
+        },
+        "outputs": [
+          {
+            "image": "cell_pair_01.tif",
+            "sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa",
+            "dtype": "uint16",
+            "shape": [
+              512,
+              512
+            ],
+            "objects": 9,
+            "foreground_pixels": 32783,
+            "label_areas": {
+              "1": 2421,
+              "2": 5506,
+              "3": 1145,
+              "4": 8313,
+              "5": 2929,
+              "6": 2047,
+              "7": 5948,
+              "8": 3998,
+              "9": 476
+            }
+          },
+          {
+            "image": "cell_pair_02.tif",
+            "sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8",
+            "dtype": "uint16",
+            "shape": [
+              512,
+              512
+            ],
+            "objects": 94,
+            "foreground_pixels": 190846,
+            "label_areas": {
+              "1": 651,
+              "2": 4111,
+              "3": 1093,
+              "4": 2834,
+              "5": 3243,
+              "6": 1141,
+              "7": 1751,
+              "8": 1231,
+              "9": 4324,
+              "10": 669,
+              "11": 779,
+              "12": 803,
+              "13": 1747,
+              "14": 2055,
+              "15": 908,
+              "16": 706,
+              "17": 1520,
+              "18": 2162,
+              "19": 1647,
+              "20": 960,
+              "21": 3205,
+              "22": 1734,
+              "23": 4971,
+              "24": 1189,
+              "25": 3526,
+              "26": 1224,
+              "27": 1143,
+              "28": 600,
+              "29": 1966,
+              "30": 3275,
+              "31": 2175,
+              "32": 881,
+              "33": 968,
+              "34": 3066,
+              "35": 2597,
+              "36": 914,
+              "37": 3987,
+              "38": 742,
+              "39": 2060,
+              "40": 743,
+              "41": 795,
+              "42": 1098,
+              "43": 4590,
+              "44": 1778,
+              "45": 2225,
+              "46": 1762,
+              "47": 761,
+              "48": 1926,
+              "49": 1844,
+              "50": 1252,
+              "51": 2088,
+              "52": 1134,
+              "53": 1043,
+              "54": 1251,
+              "55": 1542,
+              "56": 920,
+              "57": 2943,
+              "58": 603,
+              "59": 2022,
+              "60": 470,
+              "61": 890,
+              "62": 2829,
+              "63": 1373,
+              "64": 4339,
+              "65": 1847,
+              "66": 1315,
+              "67": 2544,
+              "68": 1068,
+              "69": 4265,
+              "70": 2681,
+              "71": 2773,
+              "72": 2445,
+              "73": 1114,
+              "74": 2929,
+              "75": 1399,
+              "76": 3505,
+              "77": 2477,
+              "78": 2881,
+              "79": 3426,
+              "80": 2425,
+              "81": 2332,
+              "82": 7737,
+              "83": 500,
+              "84": 2119,
+              "85": 2245,
+              "86": 3124,
+              "87": 2172,
+              "88": 2647,
+              "89": 2521,
+              "90": 3540,
+              "91": 3730,
+              "92": 1878,
+              "93": 236,
+              "94": 192
+            }
+          },
+          {
+            "image": "cell_pair_03.tif",
+            "sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89",
+            "dtype": "uint16",
+            "shape": [
+              512,
+              512
+            ],
+            "objects": 46,
+            "foreground_pixels": 174546,
+            "label_areas": {
+              "1": 4390,
+              "2": 3164,
+              "3": 3501,
+              "4": 379,
+              "5": 4903,
+              "6": 2078,
+              "7": 940,
+              "8": 5419,
+              "9": 6058,
+              "10": 6971,
+              "11": 1574,
+              "12": 2197,
+              "13": 4187,
+              "14": 5605,
+              "15": 3600,
+              "16": 5548,
+              "17": 3815,
+              "18": 4034,
+              "19": 7330,
+              "20": 7526,
+              "21": 4453,
+              "22": 636,
+              "23": 4637,
+              "24": 4175,
+              "25": 1799,
+              "26": 6595,
+              "27": 8122,
+              "28": 560,
+              "29": 6575,
+              "30": 7477,
+              "31": 154,
+              "32": 2601,
+              "33": 4418,
+              "34": 4434,
+              "35": 4441,
+              "36": 3472,
+              "37": 2241,
+              "38": 2774,
+              "39": 4752,
+              "40": 3006,
+              "41": 4161,
+              "42": 3024,
+              "43": 3437,
+              "44": 480,
+              "45": 2293,
+              "46": 610
+            }
+          }
+        ],
+        "figures": [
+          {
+            "path": "batch_figure_00.png",
+            "sha256": "1ea5b74360eb12e488584ff75155b4075d5ac1714c8cc99a853547c4a5170458"
+          },
+          {
+            "path": "batch_figure_01.png",
+            "sha256": "908c1ccaad6edf04e0fc3c3060f24a05b518019b0a0c2bfbca5e4b957b2fb4fa"
+          },
+          {
+            "path": "batch_figure_02.png",
+            "sha256": "8a2d065fdfdd8c4cfc8791f24a9eb33b58f99c9ee0d719d656bdf7b7a4cbcb98"
+          }
+        ],
+        "hold": "Native batch and preview recorded; independent reference/figure and narration checks remain.",
+        "preview_seed": {
+          "model": "cpsam",
+          "diameter": 30.0,
+          "flow_threshold": 0.4,
+          "cellprob": 0.0,
+          "object_types": [
+            "cell"
+          ],
+          "cell_channel": 0,
+          "nucleus_channel": 1,
+          "normalise": true,
+          "lo_pct": 2.0,
+          "hi_pct": 98.0,
+          "outline_thickness": 1,
+          "outline_colour": "color (random)",
+          "display_channel": null,
+          "fov": ""
+        },
+        "preview_explicit_controls": {
+          "model": "cpsam",
+          "diameter": 30.0,
+          "flow_threshold": 0.4,
+          "cellprob": 0.0,
+          "object_types": [
+            "cell"
+          ],
+          "cell_channel": 0,
+          "nucleus_channel": 1,
+          "normalise": true,
+          "lo_pct": 2.0,
+          "hi_pct": 99.0,
+          "outline_thickness": 1,
+          "outline_colour": "color (random)",
+          "display_channel": null,
+          "fov": "cell_pair_02.tif"
+        },
+        "preview": {
+          "status": "Found cell=95.",
+          "shape": [
+            512,
+            512
+          ],
+          "objects": 95,
+          "params": {
+            "model": "cpsam",
+            "diameter": 30.0,
+            "flow_threshold": 0.4,
+            "cellprob": 0.0,
+            "object_types": [
+              "cell"
+            ],
+            "cell_channel": 0,
+            "nucleus_channel": 1,
+            "normalise": true,
+            "lo_pct": 2.0,
+            "hi_pct": 99.0,
+            "outline_thickness": 1,
+            "outline_colour": "color (random)",
+            "display_channel": null,
+            "fov": "cell_pair_02.tif"
+          },
+          "batch_mask_equal": false
+        },
+        "native_zoom": [
+          {
+            "scene": "20a_actual_zoomed_preview",
+            "factor": 2.0736,
+            "viewport_height": 181,
+            "viewport_width": 1356,
+            "both_canvases_match": true
+          },
+          {
+            "scene": "22b_actual_zoomed_filtered_preview",
+            "factor": 2.0736,
+            "viewport_height": 181,
+            "viewport_width": 1356,
+            "both_canvases_match": true
+          },
+          {
+            "scene": "23b_actual_zoomed_restored_preview",
+            "factor": 2.0736,
+            "viewport_height": 181,
+            "viewport_width": 1356,
+            "both_canvases_match": true
+          }
+        ],
+        "filter": {
+          "before": 95,
+          "cutoff": 1838,
+          "after": 47,
+          "checked_pixels": 262144,
+          "raw_unchanged": true,
+          "restored": true
+        },
+        "original_inputs_preserved": true,
+        "private_inputs_preserved": true
+      },
+      "independent_reference": {
+        "accepted": true,
+        "scope": "input/output attribution, not segmentation accuracy",
+        "checkpoint": "/home/olafsson/.cellpose/models/cpsam",
+        "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+        "files": [
+          {
+            "name": "cell_pair_01.tif",
+            "checked_pixels": 262144,
+            "objects": 9,
+            "exact_mask_equal": true,
+            "source_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+            "saved_mask_sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa"
+          },
+          {
+            "name": "cell_pair_02.tif",
+            "checked_pixels": 262144,
+            "objects": 94,
+            "exact_mask_equal": true,
+            "source_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+            "saved_mask_sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8"
+          },
+          {
+            "name": "cell_pair_03.tif",
+            "checked_pixels": 262144,
+            "objects": 46,
+            "exact_mask_equal": true,
+            "source_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+            "saved_mask_sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89"
+          }
+        ],
+        "figures": [
+          {
+            "file": "batch_figure_00_arrays.npz",
+            "source_image": "cell_pair_03.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          },
+          {
+            "file": "batch_figure_01_arrays.npz",
+            "source_image": "cell_pair_01.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          },
+          {
+            "file": "batch_figure_02_arrays.npz",
+            "source_image": "cell_pair_02.tif",
+            "exact_values_checked": {
+              "original": 262144,
+              "overlay": 786432,
+              "flow": 262144
+            }
+          }
+        ],
+        "preview_default_reference": {
+          "checked_pixels": 262144,
+          "objects": 95,
+          "exact_mask_equal": true,
+          "differs_from_batch": true,
+          "meaning": "Matches raw-image Cellpose defaults, not the Apply preprocessing settings."
+        }
+      },
+      "source_hashes": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/scientific_acceptance.json": "54885058570777cf7de3b8beff1760a4f22b35ec712c67af92141a45b797ff23",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/independent_reference.json": "e93adf899ef10787e533669d71188a22b048afa278d69ee5f73aae6453e07174",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/masks/cell_pair_01.tif": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/masks/cell_pair_02.tif": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/masks/cell_pair_03.tif": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/preview_cell.npy": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/preview_cell_filtered.npy": "47f299a8a8563f0e6a4f9e51a85bff15092d240cd97222af5bacafc486046d15",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/preview_cell_restored.npy": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/batch_figure_01_arrays.npz": "f7a67c9d284b50a98fab9606b11127cb3236b0da0eab2156553943c4a0f3f33a",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/batch_figure_02_arrays.npz": "3b4b62b98f54055ee5356ca74a8dd90ece2c21abe44d6fb39631763a5a54bada",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/batch_figure_00_arrays.npz": "023e499c996c7a8e5805a774c1d2577cc2b2e503c87be84a6bc8a2dc4ebeb8a7",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/provenance.json": "a1d0177ef5b225f8d37db2ba2704e923045d7c07574976979816c485edec4e4a",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/frames.json": "87b7771d870942cbd181ac57601c19ba5a212c20e8cb94ca1467c82df0029c00",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/00_home.png": "ed14828a5a14ed50d6b8c933353abfd26e1f1ee482d20e7f3730b8301f50bac9",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/01_make_masks_host.png": "8646e41faf25b58fc60f74370333aa4a7f1430fee9401c78c299f8559ecb9bfd",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/02_actual_train_and_apply_tabs.png": "60681b79391482bdf58baff2d713c36930fd6ae08976e22880ce59c347bdaf2e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/03_actual_apply_form.png": "293fa169ffba90e0a1e7bf0f4c03071cf0a847521e55df546a47b4b5cba83ed4",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/04_setting_src.png": "125b9669455c086d6a8fc064c0a465a851bb87ea1cb78e7bef2da5cabdbf5b04",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/05_setting_model_name.png": "9b9b9204e3d6d5a8ce702148d35d65317ad1a9e6e35ac4500847b5756bf462e7",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/06_setting_channels.png": "0b237e04896f28e4accfcf2558f1276568ac4bd2d55c898ef2a167f13a44d40a",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/07_setting_normalize.png": "9379845819d79329a4b81097db1a20fb335fa2e3617e32b44f848a885d098087",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/08_setting_percentiles.png": "9c5c947e4a432000ccb5a16698ae65a02a020ca916fdf07f56773ca66b149c4e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/09_setting_diameter.png": "e507b997aa437729cb5373c322af512d9d412fd3b81c0ff3eea2d6806c2c204e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/10_setting_save.png": "dc458a033685930892d28246edf7d9a2bf0998d0ebb500ffe26549ed0fda524f",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/11_setting_verbose.png": "249118e2f258c3598f1e17e5655be6bbfbdc06383053834ba47b5ba258e3b9bd",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/12_ready_to_apply_stock_model.png": "12300ef7e8342cb5f2bf62cc8396cbd347fbd8e85da7fb401bbe784f7e16ab20",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/13_actual_inference_running.png": "cf71d39ef43f4ba032f0cabd5d47be69de0910aa4a363b8fdb993ddf7832251c",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/14_actual_inference_outcome.png": "aca03227797e0e335e11324e01a70a034982c8f5113d71f4b5866ca3a3d462f5",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/15_actual_mask_and_flow_figures.png": "932da81a1f88b98d2a1998ae7df1835c0e0530069fc0eba5478390df7533f5f1",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/16_native_preview_before_image.png": "878e37a2d6e0d22b199afa925a9b35a87ba092c7477e3f4725f64adb03a7472a",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/17_actual_preview_image_picker.png": "95a4896a4a7acce52fa02080f24d0f5329a3a112ba1a45fc39107fafb95f7944",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/18_real_preview_image.png": "2b183ecbcfb2fd48066f23ffd5a9a21daeb1cca7a3d39e885263a4142c767f3e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/19_explicit_preview_channel_and_percentiles.png": "2f095b79bc4b6c9626f5858ed1b4d246e4260949bbb29a36a54ecbf6c79f74af",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/20_actual_preview_result.png": "49c8836a0a298dcd798e25077ff267090ecd6584352dfc68987f36c7d7204e7f",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/20a_actual_zoomed_preview.png": "533aa046661fea8d44c0088be250c09ec3392e5fad5551902077724cf529263b",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/21_native_filter_before.png": "c9b3f8835d304e4c088a44e9e86c1241e79a1524181c1eb4a28dfe47c75ed693",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/22_native_filter_reduces_objects.png": "a183f7f917cbd8d7e17ff9f795f5b67410ba19cc85ac13b8f3acee8335d7620c",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/22a_filtered_preview_dialog_closed.png": "0375e88b5af99adccbdc71575c67b5554050f5dea1a538853e5ef2b3208b999e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/22b_actual_zoomed_filtered_preview.png": "5e1b224d6c701d6287309213dac1c884864c0e8f6177ec4e6b47963e81e1b71c",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/23_native_filter_restored.png": "65356dd598739768af9ca0e7eebf1c85e071dfb550a4d75408688cf1cbb2ade8",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/23a_restored_preview_dialog_closed.png": "c5d93f5ba9090930a5d84d4eb6cd1315703897918298588ffbf18fa13858c36d",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/23b_actual_zoomed_restored_preview.png": "4b160d9e57150405822e101ab263e15b284e867d970720ae83e4c4a7eba2682a"
+      },
+      "preview_equivalence_fixed": false,
+      "preview_card_height_fixed": false,
+      "accuracy_validated": false,
+      "app_source_modified": false,
+      "published": false
+    },
+    "tests": {
+      "focused_passed": 15,
+      "new_source_mutations_observed_red": 4,
+      "previous_arithmetic_mutations_observed_red": 7
+    },
+    "preview_equivalence_fixed": false,
+    "preview_card_height_fixed": false,
+    "accuracy_validated": false,
+    "application_source_modified": false,
+    "published": false,
+    "previous_dialog_failure_preserved": true,
+    "original_failed_dialog_capture_rejected_by_new_guard": true,
+    "bundle": {
+      "path": "docs/source/_extra/tutorials/examples/Apply_Cellpose_stock_example.zip",
+      "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db",
+      "recorded_settings_source": "cellpose_apply_native_zoom_v1/configured_settings.json",
+      "same_material_settings_as_v2": true
+    }
+  },
+  "final_artifact_checks": {
+    "lesson": "20_cellpose_masks",
+    "passed": true,
+    "canonical_english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+    "scene_count": 11,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "8e032a95d49b5a57c89d68460ea1b496964d113c6db0f90365d16b9df4fed2f3"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "98bcf04e06999bc7d9a2222b35b8b26d6b1252aa4640200d85f7ee532e470357"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "019211f20395e7d3f933fa9ab0817f1e0aaf6340cc0f6ba0c974bac1b8da2c47"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "5115014c6651a53308fa3555c63523a0d9cf07c974ef245b3587791acbbd570a"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "7cd7cc396094ae79fef1ed8d23dc98dd62653b42f7af922a77a7ecff5f463b41"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "ce65836c6ab1f99c73c76aa40647ec333b1b5ae78fff692618d047a6fa6dc931"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "35b4cb83cb1ba1f230d136e690c919dc23df3383d17ca6016b7cdd8fc0e8aa93"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "3c62a4d3aee345c4c7548390a56279e4ae5a084af41e5cf7f01cc2a8d7beddb5"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "85ea193d8f00e39d31c287c9778db630e758bbaa52bc904c8e4362938be6e7c0"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "abd9a594551d2559eb23505277d91e39df0c23bdd1c693aad79c0853b32c4aef"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "7a84b48969cd6e6275965d9b9b7ad7a4dafa5b8be9c8b5bb05a2d5da427fca98"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "f94b1f233dda9d993391e49f74f308e693f816523549d021e97a456011dfbb34"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "208304a15585d8ba3d79a66c9069947577443fec09aa11c86e5e87685cb86f13"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "a6dbc8d891d5bba53934abc4725b51251fb705f51b4ee96f418b70414e614499"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "8c1652a6eb1ea6e9a2810d0c0afba8acd7b291a0ce6e44a2be38acc325471183"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "20cd483208ec71a9c3db0c4d4b4260f2976ddba9e5a19c06ab4a7bfc2b708bf7"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "01a1923d060b21bd7f3b950fd4e5e7f1deff063d674faf2a294328fbe3499bbc"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "d99c0465ccf22adead16063eb4a685484bd84b1bc085fd306ff870c80e9a98e5"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "643e6473a1ec5dbc7912c6ed506c2f88523fd219c80a75ff95a852ebe9b8e66f"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "1530410ef6f7d54a2c5a1209e0e9502621cedbc02330df2c3cdca56a5cdd3a02"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "f535fc29c55603f1f4bd003317cf936789380b025ed52504bfce7f777ef9e4e6"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "80a900dfcee2da5d35e1c6afe0be11238a353ad8efae0735d3e5d77e9ec75121"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "42882beda76003cfeeff364831288e006bce6882f3d6c0997f9918be9177fcf6"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "46070279010c8f11f9bd6a9360ad39aa53a686ea69329000c931fe806c3dae54"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "77656ffd7177b91e055ae575d7405f7a5bc31f934b88a0b8d029246bf0802c6a"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "db19a59ff30cfe09c5de076a3d4105ec0e94091f64c58e2d33a9d7a396c586be"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "1f1f6ffc21c9db3d8eebcb0c208ca9e21777b4de6dda1bea2905a95ef8340780"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "c4fbd17cf67b41b14be1462d7f317c3d9f98379fe599fdf2f5877b795383fa9e"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "a42bf13907fca55b66effc4a7c747ea0a1d56d323fb3cbc4e268a7803e4a5563"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "ce0c84911673781fcbf1f5c76bce98923af4e942320a2826867ff5ac8e3dbbd8"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "c4e12b0351aeb70e1c367da08c4a2ef7167a0d290e16b6af776435b1a6732a50"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "1037ff526c1367504e338fe477716b3a06df55bcea7fb55797222fd7639620b0"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "f332d65e11330b877f29df5ad2db424d881afb0564fb9284df0c5fdb3e2b26dc"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "77b42c7fcc1fbb13079b264a63845291311422cea599c5b9adb31ff0bec56288"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "f7bb836b68c72e034b5696e400bc8fe123eb3b5a2d7ab79da138ae411e30bb86"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "039f6677c5c6118874a57f26c1b8aa62ff71ab3e849fc03599d2500ba97e4f92"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "62169b1d7d9991541bd44b2764c0752c0b40d451a60a47ec393af206eee80ba5"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "099a8c1e47aa3bc2ce132d0639813f58c1d7143faf959449ed9ff4ab362a2dc9"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "d4a5ae1de6d7ecc88b4b4bc94105d0fef6aa4c5cbbcf0feac58db3ece43a33ca"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "802b8dad9ecf72ef59608363653f8dcedac6b5db59edf1c815eb1e114bc7782a"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "c691d3295a3921707a7b9456c7852f7fe933bb6f671b228aa6ca0c3b56bbca04"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "7d5483967a7ed5e6e3fc51834cfd7c8b7c93bec634f4df0a360e94563bdccf4e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "4ccdc2404ea3f9535fcda3e69500044c7e657d4c6f2063b04a2462e79759a07c"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "db30a2e71d8e2482600ac322a7b907b9a8dcb4989602294e5d40a908d3a15d7e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "44a5a9064b1dd21c55eae662b37a82a98b3153df58f2c959fd9a759aa515da69"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "873ca1c3fcb76fede9bd926e873995bdd819ff480b51795fab71f7b1d924aca3"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "9d8e5d01fc45a408ba5beb83efc2355448819fb6b65a406f80d49e2af11265b5"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "58ae6ee66225a6db70eb35a40f800dd79a4d3422be2d25f8f2829d812332784c"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "781090e60244447e54f2720d0115c5a46be8c13d8ae5eaeba47c436cd14fcfd5"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "afd8c84ce7bd5b3cb63dee0617c5a878b1093e92c5c218b5f4d5554117e1ffa5"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "1e34ecc73efd12085655abf80b133b979afe5e34b4ef028fcb92c4090bb2f068"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "37e9f0754a4c67f5cdf757cf8acb1e5ede8afd12d98b46b9250534fab4760c6a"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "78a78747f607826fff65f4d8306c7fac9475e306dde90e52bf1fd31a7cccb8e6"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "4de0ad3439500f10a95b53e8c5b0ccaa57916bd71bdfc7a3b97d2563ef17f580"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "d2980f14ffa6b759bcab4cfe6e05341cd708d71246c0eeb0ddccf8f91d44df5b"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "3556bd29567a9fc421d2ed40864d772ff483682de2f01aad938d1783ed67ab58"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "5c07ed1bd19f1038ed6ba8c344679e59068e4bb88497903c6773a8abdb7e45de"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "5a2d97280c3783362d87b1238d346d1d9420dd40d4207a8cab5230e6e9303710"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "84268fd3a744dd9700d23facf4ca61c45b39a3c4002482c929871f7e942a88e6"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "e6b2f24b296b51a8b00340b5a7b3817d499cb1bf4ad43ea76e4722ea9033129f"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "ee612e88f4f8311456491924538ac952b4f66ac73fc7a281fd3f6ef20b1ee118"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "3b5b32cda0b906430ca4c2c0e87134e77e676730fcf46b468cf5b07cbe78743d"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "b63da073320d33def4708a95be8b8b0c93b5f6d731f15b722bd967911f86bde8"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "14b07cc9e30229f711ddc45092ebe0c255dd43c1366fd73e76e14e2279cb4b1e"
+      }
+    ],
+    "master_sha256": "0d6c4d13b9cb6e0ac37c6d467877c016a0298f84e3e33c7448731a069dcca5e0",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "6669"
+        }
+      ],
+      "format": {
+        "duration": "222.300000",
+        "size": "15271213"
+      }
+    },
+    "poster_sha256": "6456ce09f8b5ef2731013b7904ca7caf28272636eafbada59d5d102d321613a9",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "catalog_structure": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 75,
+    "scene_count": 911,
+    "refreshed_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "07_mask",
+      "08_measure",
+      "09_annotate",
+      "10_classify_cv",
+      "11_classify_ml",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "16_activation",
+      "17_timelapse",
+      "18_motility",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "37_batch",
+      "38_distributed_jobs",
+      "39_classifier_evaluation",
+      "40_run_history",
+      "41_classify",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "49_methods_results",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "53_prediction_profiler",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "57_layer_viewer",
+      "59_anndata_export",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "69_dose_response",
+      "70_explain_cv",
+      "73_parameter_sweep",
+      "74_import_images",
+      "75_regression_diagnostics"
+    ],
+    "retained_lesson_ids": [
+      "12_map_barcodes",
+      "21_model_compare",
+      "22_model_zoo",
+      "33_plate_viewer",
+      "42_curate",
+      "48_hit_list",
+      "50_run_compare",
+      "56_lineage",
+      "58_graph_builder",
+      "68_power_design",
+      "71_investigate_hit",
+      "72_volcano_explorer"
+    ],
+    "visual_only_lesson_ids": [
+      "34_database"
+    ],
+    "retained_count": 12,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "4ac1560034c5cfd7595c017e5aebd6a8a4cdb8f163eff1c79d945612461cea3b"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "d1063f6c622c6e2746a88e5a1ca39ede80973891762f30d962e8b36c7b908b14"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "376ab3924cda09bf947f5a9f9a03112edea1ae68e9800c22953ccb93768f29a1"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "a6fc7720f0e69403a86d9a202460a350d62301d917d2f191a104f0cc3ae94d4a"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "4d0f5537e9e100d903a0e0ef890a2bb4fad62b368dba2e868a8f7f0b57ebf5b7"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "e68714ffca8bf402f8887265a7003bfac9071054472be81658d50e2f25922fb8"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "ee20639800f675e1474626671011522ca8f15df6c348fb550fa13f8965e01a1d"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "c8139d9b3cf9a537a0cf6274f853ac69ba01dba3f415fc72da2427051fab158f"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "a5e7ef7207b289908cc1a8c8f86303d9f24d434f84f470befaed1da6cdff8144"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "70096e6b573440e176ff5d7e2162ba796c6911e31cd592e6c95f03c9c5eaab7e"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "0209a2857dabb7875f57f9791bcfd89a0d6366b1e76b01952e5677912377f851"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "8e0523ea152bd7629eafb354edaa9f53165581f0587e72a98105245f54d8f5ff"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "4994d921db337d2f698d307dde3e0b967b8ee0f9dfed6d97160330cdafeeb104"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 12,
+        "retained_content_sha256": "15de89a600e42c8bfa0dc5086942c329e54199f830d2337b528b2a777923056c"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "visual_verification": {
+    "full_master_decode": true,
+    "all_11_final_scene_midpoints_inspected": true,
+    "actual_reopened_dialog_closed": true,
+    "previous_failed_capture_preserved": true
+  },
+  "tests": {
+    "focused_passed": 15,
+    "new_source_mutations_observed_red": 4,
+    "previous_arithmetic_mutations_observed_red": 7
+  },
+  "overall_progress": {
+    "original_lessons_technically_complete": 64,
+    "original_lessons_total": 75,
+    "completed_lesson_voice_tracks": 3200,
+    "retained_tracks": 100,
+    "browser_cases": 896,
+    "original_lessons_remaining": 11,
+    "additional_ops_held": true
+  },
+  "preview_equivalence_fixed": false,
+  "preview_card_height_fixed": false,
+  "accuracy_validated": false,
+  "application_source_modified": false,
+  "human_listening_review": false,
+  "native_speaker_signoff": false,
+  "published": false
+}

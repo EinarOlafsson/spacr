@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.io.preprocess_img_data#1",
+      "source": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "source_sha256": "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
+      "context": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-image data channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "translation": "आमतौर पर :func:`spacr.core.preprocess_generate_masks` द्वारा आंतरिक रूप से कॉल किया जाता है, पर जब आपको केवल प्रीप्रोसेसिंग वाला आधा चाहिए तो इसे सीधे भी कॉल किया जा सकता है। डिफ़ॉल्ट रूप से यह z-स्टैक को MIP में बदलता है, फ़ाइलों का नाम Yokogawa/spacr लेआउट में बदलता है, प्रति-चैनल फ़ोल्डरों को वैकल्पिक पृष्ठभूमि घटाव और प्रतिशतक सामान्यीकरण के साथ स्टैक किए गए ``.npy`` ऐरे में मिलाता है, और (``test_mode`` में) उदाहरण प्लॉट बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#2",
+      "source": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each field/channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the field and channel; ambiguous axes, duplicate channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one field at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "source_sha256": "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
+      "context": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each microscope field of view/image data channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the microscope field of view and image data channel; ambiguous axes, duplicate image data channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one microscope field of view at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "translation": "``z_stack=True`` और ``z_segmentation_mode='volumetric'`` के साथ, कच्चे TIFF का एक अलग मार्ग Z को सुरक्षित रखता है। हर फ़ील्ड और चैनल एक पूरी TIFF शृंखला होनी चाहिए जिस पर स्पष्ट रूप से ``ZYX`` लेबल हो। फ़ाइल नाम का मेटाडेटा फ़ील्ड और चैनल पहचानता है; अस्पष्ट अक्ष, दोहराए गए चैनल और अनुपस्थित सहयोगी फ़ाइलें किसी भी स्टैक के लिखे जाने से पहले अस्वीकार की जाती हैं। यह मार्ग ``save_original_images`` असत्य होने पर भी मूल फ़ाइलें रखता है, पूर्णता रिकॉर्ड के साथ मानक ``ZYXC`` स्टैक प्रकाशित करता है, और एक बार में एक फ़ील्ड को सामान्यीकृत करता है। पुनः उपयोग स्रोत और स्टैक हैश तथा संबंधित प्रोसेसिंग सेटिंग्स की पुष्टि करता है। पुराने प्रक्षेपित स्टैक को आयतन के रूप में पुनः उपयोग नहीं किया जा सकता। अलग-अलग स्लाइस फ़ाइल लेआउट, समय-शृंखला, परीक्षण-मोड नमूनाकरण और प्रकाश या PSF प्रीप्रोसेसिंग इस कच्चे आयतनिक मार्ग द्वारा समर्थित नहीं हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#9",
+      "source": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-field/channel projection behavior.",
+      "source_sha256": "4482e2824d99fb361e767cfbc3bfaf8e2dab751d99920f89e95931613ad6c318",
+      "context": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-microscope field of view/image data channel projection behavior.",
+      "translation": "``z_stack`` और ``z_segmentation_mode`` ऊपर बताए गए स्पष्ट आयतनिक TIFF मार्ग को चुनते हैं। अन्य कच्चे लेआउट मौजूदा प्रति-फ़ील्ड/चैनल प्रक्षेपण व्यवहार बनाए रखते हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+Group	Key	Value
+Study	Study Title	spaCR example screen
+Study	Study Description	Private technical validation of two cached example wells. Not a submission.
+Study	Study Key Words	high-content screening; image-based profiling
+Biosample	Biosample Taxon	Homo sapiens
+Biosample	Biosample Cell Line	HeLa
+Library	Library File Name	spacr-example-screen-screenA-library.txt
+Library	Library Type	phenotypic screen
+Protocols	HCS Growth Protocol	
+Protocols	HCS Treatment Protocol	
+Protocols	HCS Data Analysis Protocol	Images were analysed with spaCR 1.5.1.1. Per-object morphology and intensity features were measured and stored in an SQLite database; objects were counted per well.

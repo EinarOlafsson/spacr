@@ -1,0 +1,37 @@
+{
+  "accepted": true,
+  "scope": "Actual Model Zoo inventory, scanning and provenance controls only",
+  "route": [
+    "make_masks",
+    "model_zoo"
+  ],
+  "model_path": "/home/olafsson/.cellpose/models/cpsam",
+  "selected_model_fingerprint": {
+    "stat": {
+      "st_dev": 66308,
+      "st_ino": 90975655,
+      "st_size": 1233587898,
+      "st_mtime_ns": 1751399282196356232,
+      "st_ctime_ns": 1751399282196356232,
+      "st_mode": 33152
+    },
+    "sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2"
+  },
+  "provenance": "cpsam  [cellpose · local · v1]\n  path       /home/olafsson/.cellpose/models/cpsam\n  size       1.1 GB\n  sha256     (none published) (none)\n  trained on unknown\n  trained by unknown\n  ! no settings snapshot found beside this model, so what it was trained on is unknown — treat it as untested on your images\n  ! this model does not say what it was trained on, so nothing here tells you whether it suits your images.",
+  "checksum_state": "none",
+  "trained_on": "unknown",
+  "trained_by": "unknown",
+  "displayed_rows": 8,
+  "checkpoint_provenance_independently_validated": false,
+  "original_checkpoint_unchanged": true,
+  "model_directory_unchanged": true,
+  "benchmark_completed": false,
+  "segmentation_performed": false,
+  "model_downloaded": false,
+  "training_performed": false,
+  "download_enabled_for_selected_checkpoint": false,
+  "test_enabled_without_fields": false,
+  "inference_overridden": false,
+  "app_source_modified": false,
+  "published": false
+}

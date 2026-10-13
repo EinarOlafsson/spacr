@@ -1,0 +1,114 @@
+dataset,check,value,verdict,detail
+ctc_dic_hela_timelapse/01_GT/TRA,frames,84,ok,frames in the stack
+ctc_dic_hela_timelapse/01_GT/TRA,objects,1120,ok,labelled objects summed over frames
+ctc_dic_hela_timelapse/01_GT/TRA,labels,38,ok,distinct labels in the stack
+ctc_dic_hela_timelapse/01_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_dic_hela_timelapse/01_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_dic_hela_timelapse/01_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_dic_hela_timelapse/01_GT/TRA,displacement_px,"median 0, p95 22",ok,per-frame displacement of objects that survive a frame
+ctc_dic_hela_timelapse/01_GT/TRA,displacement_over_diameter,p95 0.888,check,objects move a noticeable fraction of their own size; the head needs a receptive field wider than the object
+ctc_dic_hela_timelapse/02_GT/TRA,frames,84,ok,frames in the stack
+ctc_dic_hela_timelapse/02_GT/TRA,objects,1030,ok,labelled objects summed over frames
+ctc_dic_hela_timelapse/02_GT/TRA,labels,32,ok,distinct labels in the stack
+ctc_dic_hela_timelapse/02_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_dic_hela_timelapse/02_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_dic_hela_timelapse/02_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_dic_hela_timelapse/02_GT/TRA,displacement_px,"median 1, p95 18.9",ok,per-frame displacement of objects that survive a frame
+ctc_dic_hela_timelapse/02_GT/TRA,displacement_over_diameter,p95 1.08,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+Fluo-C2DL-Huh7/01_GT/TRA,frames,30,ok,frames in the stack
+Fluo-C2DL-Huh7/01_GT/TRA,objects,951,ok,labelled objects summed over frames
+Fluo-C2DL-Huh7/01_GT/TRA,labels,34,ok,distinct labels in the stack
+Fluo-C2DL-Huh7/01_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+Fluo-C2DL-Huh7/01_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+Fluo-C2DL-Huh7/01_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+Fluo-C2DL-Huh7/01_GT/TRA,displacement_px,"median 0, p95 10.3",ok,per-frame displacement of objects that survive a frame
+Fluo-C2DL-Huh7/01_GT/TRA,displacement_over_diameter,p95 1.1,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+Fluo-C2DL-Huh7/02_GT/TRA,frames,30,ok,frames in the stack
+Fluo-C2DL-Huh7/02_GT/TRA,objects,1618,ok,labelled objects summed over frames
+Fluo-C2DL-Huh7/02_GT/TRA,labels,69,ok,distinct labels in the stack
+Fluo-C2DL-Huh7/02_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+Fluo-C2DL-Huh7/02_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+Fluo-C2DL-Huh7/02_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+Fluo-C2DL-Huh7/02_GT/TRA,displacement_px,"median 1.41, p95 9.22",ok,per-frame displacement of objects that survive a frame
+Fluo-C2DL-Huh7/02_GT/TRA,displacement_over_diameter,p95 0.984,check,objects move a noticeable fraction of their own size; the head needs a receptive field wider than the object
+ctc_phc_u373_timelapse/01_GT/TRA,frames,115,ok,frames in the stack
+ctc_phc_u373_timelapse/01_GT/TRA,objects,765,ok,labelled objects summed over frames
+ctc_phc_u373_timelapse/01_GT/TRA,labels,8,ok,distinct labels in the stack
+ctc_phc_u373_timelapse/01_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_phc_u373_timelapse/01_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_phc_u373_timelapse/01_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_phc_u373_timelapse/01_GT/TRA,displacement_px,"median 3.16, p95 14.6",ok,per-frame displacement of objects that survive a frame
+ctc_phc_u373_timelapse/01_GT/TRA,displacement_over_diameter,p95 1.23,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+ctc_phc_u373_timelapse/02_GT/TRA,frames,115,ok,frames in the stack
+ctc_phc_u373_timelapse/02_GT/TRA,objects,692,ok,labelled objects summed over frames
+ctc_phc_u373_timelapse/02_GT/TRA,labels,12,ok,distinct labels in the stack
+ctc_phc_u373_timelapse/02_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_phc_u373_timelapse/02_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_phc_u373_timelapse/02_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_phc_u373_timelapse/02_GT/TRA,displacement_px,"median 2.24, p95 12",ok,per-frame displacement of objects that survive a frame
+ctc_phc_u373_timelapse/02_GT/TRA,displacement_over_diameter,p95 2.16,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+Fluo-N2DH-GOWT1/01_GT/TRA,frames,92,ok,frames in the stack
+Fluo-N2DH-GOWT1/01_GT/TRA,objects,2058,ok,labelled objects summed over frames
+Fluo-N2DH-GOWT1/01_GT/TRA,labels,28,ok,distinct labels in the stack
+Fluo-N2DH-GOWT1/01_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+Fluo-N2DH-GOWT1/01_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+Fluo-N2DH-GOWT1/01_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+Fluo-N2DH-GOWT1/01_GT/TRA,displacement_px,"median 2, p95 7.67",ok,per-frame displacement of objects that survive a frame
+Fluo-N2DH-GOWT1/01_GT/TRA,displacement_over_diameter,p95 0.178,ok,"objects move much less than their own size, so the time head can see its own target"
+Fluo-N2DH-GOWT1/02_GT/TRA,frames,92,ok,frames in the stack
+Fluo-N2DH-GOWT1/02_GT/TRA,objects,2517,ok,labelled objects summed over frames
+Fluo-N2DH-GOWT1/02_GT/TRA,labels,58,ok,distinct labels in the stack
+Fluo-N2DH-GOWT1/02_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+Fluo-N2DH-GOWT1/02_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+Fluo-N2DH-GOWT1/02_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+Fluo-N2DH-GOWT1/02_GT/TRA,displacement_px,"median 2.97, p95 8.69",ok,per-frame displacement of objects that survive a frame
+Fluo-N2DH-GOWT1/02_GT/TRA,displacement_over_diameter,p95 0.235,ok,"objects move much less than their own size, so the time head can see its own target"
+ctc_bf_hsc_timelapse/01_GT/TRA,frames,1764,ok,frames in the stack
+ctc_bf_hsc_timelapse/01_GT/TRA,objects,8675,ok,labelled objects summed over frames
+ctc_bf_hsc_timelapse/01_GT/TRA,labels,23,ok,distinct labels in the stack
+ctc_bf_hsc_timelapse/01_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_bf_hsc_timelapse/01_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_bf_hsc_timelapse/01_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_bf_hsc_timelapse/01_GT/TRA,displacement_px,"median 5.39, p95 13.2",ok,per-frame displacement of objects that survive a frame
+ctc_bf_hsc_timelapse/01_GT/TRA,displacement_over_diameter,p95 1.39,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+ctc_bf_hsc_timelapse/02_GT/TRA,frames,1764,ok,frames in the stack
+ctc_bf_hsc_timelapse/02_GT/TRA,objects,64503,ok,labelled objects summed over frames
+ctc_bf_hsc_timelapse/02_GT/TRA,labels,317,ok,distinct labels in the stack
+ctc_bf_hsc_timelapse/02_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_bf_hsc_timelapse/02_GT/TRA,division_convention,children_are_new x7,ok,"one convention throughout, which is what the loss has to be told"
+ctc_bf_hsc_timelapse/02_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_bf_hsc_timelapse/02_GT/TRA,displacement_px,"median 3.61, p95 9.18",ok,per-frame displacement of objects that survive a frame
+ctc_bf_hsc_timelapse/02_GT/TRA,displacement_over_diameter,p95 1.19,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+ctc_bf_musc_timelapse/01_GT/TRA,frames,1376,ok,frames in the stack
+ctc_bf_musc_timelapse/01_GT/TRA,objects,5411,ok,labelled objects summed over frames
+ctc_bf_musc_timelapse/01_GT/TRA,labels,71,ok,distinct labels in the stack
+ctc_bf_musc_timelapse/01_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_bf_musc_timelapse/01_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_bf_musc_timelapse/01_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_bf_musc_timelapse/01_GT/TRA,displacement_px,"median 12.1, p95 35.4",ok,per-frame displacement of objects that survive a frame
+ctc_bf_musc_timelapse/01_GT/TRA,displacement_over_diameter,p95 3.47,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+ctc_bf_musc_timelapse/02_GT/TRA,frames,1376,ok,frames in the stack
+ctc_bf_musc_timelapse/02_GT/TRA,objects,7295,ok,labelled objects summed over frames
+ctc_bf_musc_timelapse/02_GT/TRA,labels,48,ok,distinct labels in the stack
+ctc_bf_musc_timelapse/02_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_bf_musc_timelapse/02_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_bf_musc_timelapse/02_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_bf_musc_timelapse/02_GT/TRA,displacement_px,"median 9.51, p95 36.6",ok,per-frame displacement of objects that survive a frame
+ctc_bf_musc_timelapse/02_GT/TRA,displacement_over_diameter,p95 4.18,fail,"objects move further than their own diameter, which is the plan's own stated failure mode: the vector has to point past what the head can see and several identical cells are candidates"
+ctc_phc_psc_timelapse/01_GT/TRA,frames,300,ok,frames in the stack
+ctc_phc_psc_timelapse/01_GT/TRA,objects,71403,ok,labelled objects summed over frames
+ctc_phc_psc_timelapse/01_GT/TRA,labels,1370,ok,distinct labels in the stack
+ctc_phc_psc_timelapse/01_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_phc_psc_timelapse/01_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_phc_psc_timelapse/01_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_phc_psc_timelapse/01_GT/TRA,displacement_px,"median 0.5, p95 3",ok,per-frame displacement of objects that survive a frame
+ctc_phc_psc_timelapse/01_GT/TRA,displacement_over_diameter,p95 0.652,check,objects move a noticeable fraction of their own size; the head needs a receptive field wider than the object
+ctc_phc_psc_timelapse/02_GT/TRA,frames,300,ok,frames in the stack
+ctc_phc_psc_timelapse/02_GT/TRA,objects,56804,ok,labelled objects summed over frames
+ctc_phc_psc_timelapse/02_GT/TRA,labels,1025,ok,distinct labels in the stack
+ctc_phc_psc_timelapse/02_GT/TRA,label_reuse,0 gaps,ok,"no label disappears and comes back, so no label can have been recycled"
+ctc_phc_psc_timelapse/02_GT/TRA,division_convention,no divisions found,unknown,"nothing in this stack splits into two children, so the convention cannot be read off it"
+ctc_phc_psc_timelapse/02_GT/TRA,frame_interval,unknown,unknown,"no timestamps and no stated interval, so nothing here says what a pixel of displacement means in time"
+ctc_phc_psc_timelapse/02_GT/TRA,displacement_px,"median 0, p95 3.04",ok,per-frame displacement of objects that survive a frame
+ctc_phc_psc_timelapse/02_GT/TRA,displacement_over_diameter,p95 0.661,check,objects move a noticeable fraction of their own size; the head needs a receptive field wider than the object
+all,frame_interval_across_datasets,0 of 14 known,unknown,"some datasets carry no interval, so they cannot be compared with the ones that do"

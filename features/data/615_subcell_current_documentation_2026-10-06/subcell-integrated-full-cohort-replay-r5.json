@@ -1,0 +1,471 @@
+{
+  "passed": true,
+  "comparisons": [
+    {
+      "backbone": "resnet18",
+      "cohort": "HEp2-expert-DAPI",
+      "normal_model_zoo_entry": {
+        "key": "encoder:resnet18/per_channel",
+        "name": "resnet18 (per_channel)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--timm--resnet18.a1_in1k/snapshots/491b427b45c94c7fb0e78b5474cc919aff584bbf/model.safetensors",
+        "uri": "timm:resnet18",
+        "version": "1",
+        "sha256": "80c49dee3da4822c009c5a7fe591e9223c5a2cfcf95a4067ca4dfb5a7b89c612",
+        "size_bytes": 46807446,
+        "trained_on": "unknown",
+        "trained_by": "timm / resnet18 pretrained weights",
+        "metrics": {
+          "knn_accuracy": 0.7149,
+          "map": 0.3498131057232301,
+          "precision_at_k": 0.6202,
+          "chance_map": 0.15690728486910627,
+          "chance_precision": 0.15616561656165617,
+          "n": 10000.0,
+          "classes": 7.0
+        },
+        "notes": [
+          "Channel policy: per_channel. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 7.934577904001344,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "9d099c32a302e94c5d052393632ab1c5c06bac09273a31d67dcf5581a5122001"
+    },
+    {
+      "backbone": "resnet18",
+      "cohort": "CycleNET-expert-native",
+      "normal_model_zoo_entry": {
+        "key": "encoder:resnet18/project",
+        "name": "resnet18 (project)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--timm--resnet18.a1_in1k/snapshots/491b427b45c94c7fb0e78b5474cc919aff584bbf/model.safetensors",
+        "uri": "timm:resnet18",
+        "version": "1",
+        "sha256": "80c49dee3da4822c009c5a7fe591e9223c5a2cfcf95a4067ca4dfb5a7b89c612",
+        "size_bytes": 46807446,
+        "trained_on": "unknown",
+        "trained_by": "timm / resnet18 pretrained weights",
+        "metrics": {
+          "knn_accuracy": 0.7326412039241833,
+          "map": 0.32615434591680137,
+          "precision_at_k": 0.6102295456710163,
+          "chance_map": 0.18432228781688328,
+          "chance_precision": 0.18363508515113008,
+          "n": 10499.0,
+          "classes": 9.0
+        },
+        "notes": [
+          "Channel policy: project. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 8.89122122398112,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "8638fcae6dadeda563b758445abc80dda3a7cc93f30cedd289a4668ef7ca7eaf"
+    },
+    {
+      "backbone": "resnet50",
+      "cohort": "HEp2-expert-DAPI",
+      "normal_model_zoo_entry": {
+        "key": "encoder:resnet50/per_channel",
+        "name": "resnet50 (per_channel)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--timm--resnet50.a1_in1k/snapshots/767268603ca0cb0bfe326fa87277f19c419566ef/model.safetensors",
+        "uri": "timm:resnet50",
+        "version": "1",
+        "sha256": "773525d5821de224f8f30c33377b7a795d7863e08522698200d3217d3f2a41bb",
+        "size_bytes": 102469840,
+        "trained_on": "unknown",
+        "trained_by": "timm / resnet50 pretrained weights",
+        "metrics": {
+          "knn_accuracy": 0.681,
+          "map": 0.31055605789105234,
+          "precision_at_k": 0.57265,
+          "chance_map": 0.15690728486910627,
+          "chance_precision": 0.15616561656165617,
+          "n": 10000.0,
+          "classes": 7.0
+        },
+        "notes": [
+          "Channel policy: per_channel. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 10.888908958993852,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "c627a966e63e347f23dcdcd42ab930db0b135cfc016ce628508baaa7dbbbc3f6"
+    },
+    {
+      "backbone": "resnet50",
+      "cohort": "CycleNET-expert-native",
+      "normal_model_zoo_entry": {
+        "key": "encoder:resnet50/project",
+        "name": "resnet50 (project)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--timm--resnet50.a1_in1k/snapshots/767268603ca0cb0bfe326fa87277f19c419566ef/model.safetensors",
+        "uri": "timm:resnet50",
+        "version": "1",
+        "sha256": "773525d5821de224f8f30c33377b7a795d7863e08522698200d3217d3f2a41bb",
+        "size_bytes": 102469840,
+        "trained_on": "unknown",
+        "trained_by": "timm / resnet50 pretrained weights",
+        "metrics": {
+          "knn_accuracy": 0.6914944280407658,
+          "map": 0.29916789781438796,
+          "precision_at_k": 0.5752738356033908,
+          "chance_map": 0.18432228781688328,
+          "chance_precision": 0.18363508515113008,
+          "n": 10499.0,
+          "classes": 9.0
+        },
+        "notes": [
+          "Channel policy: project. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 11.62527396803489,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "26c0c3dcb3aa856af1214ba922b05dce5718121f78d4f625958478480c3a3a01"
+    },
+    {
+      "backbone": "vit_small_patch14_dinov2.lvd142m",
+      "cohort": "HEp2-expert-DAPI",
+      "normal_model_zoo_entry": {
+        "key": "encoder:vit_small_patch14_dinov2.lvd142m/per_channel",
+        "name": "vit_small_patch14_dinov2.lvd142m (per_channel)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--timm--vit_small_patch14_dinov2.lvd142m/snapshots/4610ca143709d58a633b6397a74412c2c3842454/model.safetensors",
+        "uri": "timm:vit_small_patch14_dinov2.lvd142m",
+        "version": "1",
+        "sha256": "04d27f3400d059fc0cfd7d17dd1909a75bf3ea8fb3eeb48b97cb99e57ee20081",
+        "size_bytes": 88240510,
+        "trained_on": "unknown",
+        "trained_by": "timm / vit_small_patch14_dinov2.lvd142m pretrained weights",
+        "metrics": {
+          "knn_accuracy": 0.7798,
+          "map": 0.35249381964884313,
+          "precision_at_k": 0.67847,
+          "chance_map": 0.15690728486910627,
+          "chance_precision": 0.15616561656165617,
+          "n": 10000.0,
+          "classes": 7.0
+        },
+        "notes": [
+          "Channel policy: per_channel. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 7.551958333002403,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "72db1ed7d9dea943409d52bc2b2400ab90989862babcb281aad8abc2a6d24cb4"
+    },
+    {
+      "backbone": "vit_small_patch14_dinov2.lvd142m",
+      "cohort": "CycleNET-expert-native",
+      "normal_model_zoo_entry": {
+        "key": "encoder:vit_small_patch14_dinov2.lvd142m/project",
+        "name": "vit_small_patch14_dinov2.lvd142m (project)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--timm--vit_small_patch14_dinov2.lvd142m/snapshots/4610ca143709d58a633b6397a74412c2c3842454/model.safetensors",
+        "uri": "timm:vit_small_patch14_dinov2.lvd142m",
+        "version": "1",
+        "sha256": "04d27f3400d059fc0cfd7d17dd1909a75bf3ea8fb3eeb48b97cb99e57ee20081",
+        "size_bytes": 88240510,
+        "trained_on": "unknown",
+        "trained_by": "timm / vit_small_patch14_dinov2.lvd142m pretrained weights",
+        "metrics": {
+          "knn_accuracy": 0.8165539575197638,
+          "map": 0.46578550247003825,
+          "precision_at_k": 0.7256310124773787,
+          "chance_map": 0.18432228781688328,
+          "chance_precision": 0.18363508515113008,
+          "n": 10499.0,
+          "classes": 9.0
+        },
+        "notes": [
+          "Channel policy: project. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 8.507427901029587,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "41dfa16f59fd08980849b4f59e41e30148da746bf8b829445a8d6617c901acd8"
+    },
+    {
+      "backbone": "openphenom",
+      "cohort": "HEp2-expert-DAPI",
+      "normal_model_zoo_entry": {
+        "key": "encoder:openphenom/per_channel",
+        "name": "openphenom (per_channel)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/model.safetensors",
+        "uri": "https://huggingface.co/recursionpharma/OpenPhenom/resolve/0f92333685f6e9f031b804c70fe246f9b05ae90d/model.safetensors",
+        "version": "1",
+        "sha256": "f6e5f1c97101331b1574c9e4b99623260191c55eea5d98e40460849c0e4c4d47",
+        "size_bytes": 712434294,
+        "trained_on": "unknown",
+        "trained_by": "recursionpharma/OpenPhenom",
+        "metrics": {
+          "knn_accuracy": 0.5902,
+          "map": 0.23734350571845747,
+          "precision_at_k": 0.47813999999999995,
+          "chance_map": 0.15690728486910627,
+          "chance_precision": 0.15616561656165617,
+          "n": 10000.0,
+          "classes": 7.0
+        },
+        "notes": [
+          "Channel policy: per_channel. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 7.880258740973659,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "2ff2af06d289a7c903d6def6288b70d64a1859964a3bee767040f7c0612b2cb0"
+    },
+    {
+      "backbone": "openphenom",
+      "cohort": "CycleNET-expert-native",
+      "normal_model_zoo_entry": {
+        "key": "encoder:openphenom/project",
+        "name": "openphenom (project)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/model.safetensors",
+        "uri": "https://huggingface.co/recursionpharma/OpenPhenom/resolve/0f92333685f6e9f031b804c70fe246f9b05ae90d/model.safetensors",
+        "version": "1",
+        "sha256": "f6e5f1c97101331b1574c9e4b99623260191c55eea5d98e40460849c0e4c4d47",
+        "size_bytes": 712434294,
+        "trained_on": "unknown",
+        "trained_by": "recursionpharma/OpenPhenom",
+        "metrics": {
+          "knn_accuracy": 0.5933898466520621,
+          "map": 0.261899033602719,
+          "precision_at_k": 0.4789218020763883,
+          "chance_map": 0.18432228781688328,
+          "chance_precision": 0.18363508515113008,
+          "n": 10499.0,
+          "classes": 9.0
+        },
+        "notes": [
+          "Channel policy: project. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 8.914506359025836,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "88b88e4dd84242af0e5b64cc56d9640db2dda3469871e170b9bf67faa3f5ae08"
+    },
+    {
+      "backbone": "chada_vit",
+      "cohort": "HEp2-expert-DAPI",
+      "normal_model_zoo_entry": {
+        "key": "encoder:chada_vit/per_channel",
+        "name": "chada_vit (per_channel)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--nicoboou--chadavit16-moyen/snapshots/91a41123650ccff12f590364fec95d76af36cc93/model.safetensors",
+        "uri": "https://huggingface.co/nicoboou/chadavit16-moyen/resolve/91a41123650ccff12f590364fec95d76af36cc93/model.safetensors",
+        "version": "1",
+        "sha256": "0e3abb79d96d8a15785470441cb68bd8ff8dca2cc04e976e567fb58f7b542f8a",
+        "size_bytes": 45380728,
+        "trained_on": "unknown",
+        "trained_by": "nicoboou/chadavit16-moyen",
+        "metrics": {
+          "knn_accuracy": 0.5292,
+          "map": 0.2505959829682316,
+          "precision_at_k": 0.44115,
+          "chance_map": 0.15690728486910627,
+          "chance_precision": 0.15616561656165617,
+          "n": 10000.0,
+          "classes": 7.0
+        },
+        "notes": [
+          "Channel policy: per_channel. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 7.284156500012614,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "ad937e685cc134f428056066f8bd42916796ee89cbcce506faf53ec745f7ae4c"
+    },
+    {
+      "backbone": "chada_vit",
+      "cohort": "CycleNET-expert-native",
+      "normal_model_zoo_entry": {
+        "key": "encoder:chada_vit/project",
+        "name": "chada_vit (project)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/huggingface/hub/models--nicoboou--chadavit16-moyen/snapshots/91a41123650ccff12f590364fec95d76af36cc93/model.safetensors",
+        "uri": "https://huggingface.co/nicoboou/chadavit16-moyen/resolve/91a41123650ccff12f590364fec95d76af36cc93/model.safetensors",
+        "version": "1",
+        "sha256": "0e3abb79d96d8a15785470441cb68bd8ff8dca2cc04e976e567fb58f7b542f8a",
+        "size_bytes": 45380728,
+        "trained_on": "unknown",
+        "trained_by": "nicoboou/chadavit16-moyen",
+        "metrics": {
+          "knn_accuracy": 0.6582531669682827,
+          "map": 0.28923614044677776,
+          "precision_at_k": 0.5419849509477094,
+          "chance_map": 0.18432228781688328,
+          "chance_precision": 0.18363508515113008,
+          "n": 10499.0,
+          "classes": 9.0
+        },
+        "notes": [
+          "Channel policy: project. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 8.260224504978396,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "23de3bac9a78c0f7f25473f2961274ddb356e8a2488f14e3e1ca1b945db2985c"
+    },
+    {
+      "backbone": "subcell",
+      "cohort": "HEp2-expert-DAPI",
+      "normal_model_zoo_entry": {
+        "key": "encoder:subcell/project",
+        "name": "subcell (project)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/torch/hub/checkpoints/DNA-Protein_ViT-ProtS-Pool.pth",
+        "uri": "https://czi-subcell-public.s3.amazonaws.com/models/DNA-Protein_ViT-ProtS-Pool.pth",
+        "version": "1",
+        "sha256": "fbd47422a750f28bc76f4f2258f9fdc232e261bb43713039297016a0d026c71d",
+        "size_bytes": 347436154,
+        "trained_on": "unknown",
+        "trained_by": "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)",
+        "metrics": {
+          "knn_accuracy": 0.6573,
+          "map": 0.26558412601440606,
+          "precision_at_k": 0.5462100000000001,
+          "chance_map": 0.15690728486910627,
+          "chance_precision": 0.15616561656165617,
+          "n": 10000.0,
+          "classes": 7.0
+        },
+        "notes": [
+          "Channel policy: project. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 9.504367191984784,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "b67bcc496ce7487b8c6c393c32468556cde6b2580b98735c32386ea362fa3599"
+    },
+    {
+      "backbone": "subcell",
+      "cohort": "CycleNET-expert-native",
+      "normal_model_zoo_entry": {
+        "key": "encoder:subcell/project",
+        "name": "subcell (project)",
+        "kind": "encoder",
+        "source": "local",
+        "path": "/home/carruthers/.cache/torch/hub/checkpoints/DNA-Protein_ViT-ProtS-Pool.pth",
+        "uri": "https://czi-subcell-public.s3.amazonaws.com/models/DNA-Protein_ViT-ProtS-Pool.pth",
+        "version": "1",
+        "sha256": "fbd47422a750f28bc76f4f2258f9fdc232e261bb43713039297016a0d026c71d",
+        "size_bytes": 347436154,
+        "trained_on": "unknown",
+        "trained_by": "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)",
+        "metrics": {
+          "knn_accuracy": 0.5841508715115725,
+          "map": 0.2150298521478029,
+          "precision_at_k": 0.431041051528717,
+          "chance_map": 0.18432228781688328,
+          "chance_precision": 0.18363508515113008,
+          "n": 10499.0,
+          "classes": 9.0
+        },
+        "notes": [
+          "Channel policy: project. Dimensions from different policies are not comparable."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      },
+      "elapsed_seconds": 10.87278678000439,
+      "every_original_metric_except_corrected_chance_map_exact_atol_1e_12": true,
+      "new_chance_map_matches_independent_original_exact_random_AP_atol_1e_12": true,
+      "actual_weight_bytes_match_frozen_GPU_plan": true,
+      "full_features_sha256": "4c4369f3297ffacf76241ae71f3d810e373fb3b1cc8261d22e31d388e511f2b4"
+    }
+  ],
+  "original_four_crop_diagnostic": {
+    "knn_accuracy": 0.0,
+    "map": 0.6666666666666667,
+    "precision_at_k": 0.3333333333333333,
+    "chance_map": 0.3333333333333333,
+    "chance_precision": 0.3333333333333333,
+    "n": 4.0,
+    "classes": 2.0
+  },
+  "fixed_four_crop_diagnostic": {
+    "knn_accuracy": 0.0,
+    "map": 0.6666666666666667,
+    "precision_at_k": 0.3333333333333333,
+    "chance_map": 0.611111111111111,
+    "chance_precision": 0.3333333333333333,
+    "n": 4.0,
+    "classes": 2.0
+  },
+  "source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "baseline_source_sha256": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+  "script_sha256": "9485d1fabf80a1f06836f1c8f625d7a4d69bd89b2557e8294295e81b52fc9848",
+  "no_new_GPU_inference_or_classifier_fit": true
+}

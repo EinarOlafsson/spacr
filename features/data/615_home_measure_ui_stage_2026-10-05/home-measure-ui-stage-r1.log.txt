@@ -1,0 +1,31 @@
+Validated 05_home: 22 real capture scenes; catalogs unchanged.
+Staged 05_home: 22 real capture scenes; not published.
+Validated 08_measure: 17 real capture scenes; catalogs unchanged.
+Staged 08_measure: 17 real capture scenes; not published.
+Staged editorial correction for da/05_home; not published or listening-reviewed.
+Staged editorial correction for da/08_measure; not published or listening-reviewed.
+Staged editorial correction for de/05_home; not published or listening-reviewed.
+Staged editorial correction for de/08_measure; not published or listening-reviewed.
+Staged editorial correction for es/05_home; not published or listening-reviewed.
+Staged editorial correction for es/08_measure; not published or listening-reviewed.
+Staged editorial correction for fr/05_home; not published or listening-reviewed.
+Staged editorial correction for fr/08_measure; not published or listening-reviewed.
+Staged editorial correction for hi/05_home; not published or listening-reviewed.
+Staged editorial correction for hi/08_measure; not published or listening-reviewed.
+Staged editorial correction for is/05_home; not published or listening-reviewed.
+Staged editorial correction for is/08_measure; not published or listening-reviewed.
+Staged editorial correction for it/05_home; not published or listening-reviewed.
+Staged editorial correction for it/08_measure; not published or listening-reviewed.
+Staged editorial correction for ja/05_home; not published or listening-reviewed.
+Staged editorial correction for ja/08_measure; not published or listening-reviewed.
+Staged editorial correction for ko/05_home; not published or listening-reviewed.
+Staged editorial correction for ko/08_measure; not published or listening-reviewed.
+Staged editorial correction for nb/05_home; not published or listening-reviewed.
+Staged editorial correction for nb/08_measure; not published or listening-reviewed.
+Staged editorial correction for pt-BR/05_home; not published or listening-reviewed.
+Staged editorial correction for pt-BR/08_measure; not published or listening-reviewed.
+Staged editorial correction for sv/05_home; not published or listening-reviewed.
+Staged editorial correction for sv/08_measure; not published or listening-reviewed.
+Staged editorial correction for zh-CN/05_home; not published or listening-reviewed.
+Staged editorial correction for zh-CN/08_measure; not published or listening-reviewed.
+Home and Measure staged: 39 scenes, 26 source-pinned reviews, 83 unrelated complete lesson objects retained in every catalog.

@@ -1,0 +1,102 @@
+{
+  "id": "22_model_zoo",
+  "number": 22,
+  "slug": "model_zoo",
+  "title": "Model Zoo: choose a model and try it on your images",
+  "series": 2,
+  "app_key": "model_zoo",
+  "host_app_key": "make_masks",
+  "section": "Segmentation models",
+  "description": "Open Model Zoo, find or download a checkpoint, inspect its details, try it on a small image set and measure object diameters for Mask.",
+  "objectives": [
+    "Open Model Zoo and scan a local model folder.",
+    "Choose a model family and version, then inspect its details.",
+    "Run a small image trial and inspect the resulting masks and quality summaries.",
+    "Measure object diameters from your own fields in the Model Zoo popup of Mask generation."
+  ],
+  "prerequisite": "Extract the linked example and use its images folder for the three-field trial. Choose an installed Cellpose segmentation model, or download a suitable checkpoint through Model Zoo. For your own trial, prepare a few representative TIFF, PNG, NPY or NPZ images.",
+  "scenes": [
+    {
+      "visual": "00_home",
+      "narration": "From Home, open Make Masks, then choose Model Zoo. Use this page to find a segmentation model and try it on a small image set.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "make_masks"
+      ]
+    },
+    {
+      "visual": "03_current_catalogue_and_local_models",
+      "narration": "Click Choose folder and select your model directory to scan it. If you type the path instead, click Scan. The headings above the table choose which sources are listed; cellposeSAM for the stock weights and spaCR for the models trained here are on at first.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03b_cellpose3_models",
+      "narration": "Turn on cellpose3 to list the Cellpose 3 models, such as cyto3 and nuclei. They run in a Cellpose 3 environment of their own, so a model whose backend is not installed says so, and choosing it offers the install.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03c_bioimageio_models",
+      "narration": "Turn on bioimage.io to list Cellpose models published on bioimage.io. Read what each was trained on before you choose one; its weights download when you ask for them.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_actual_cpsam_provenance",
+      "narration": "Select a model family and use its Version control to choose the checkpoint. Read the details for its image type, training information and local path. For a remote checkpoint, choose a Save to folder and click Download before trying it.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_three_verified_real_fields",
+      "narration": "Extract the linked example and choose its images folder under Test on fields. Set the field count to three. For your own images, start with a small set that includes typical fields and difficult cases.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_test_started",
+      "narration": "Select the local segmentation model and click Test on fields. Wait for the trial to finish. Larger images and models can take longer, especially on a CPU.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_actual_preview_02",
+      "narration": "Select a result row to inspect its mask preview. Check boundaries, touching objects and missed objects against the image. Use the object count and quality flags to help find fields that need closer inspection.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_benchmark_summary",
+      "narration": "Review the field summaries, then keep the chosen checkpoint path for your analysis module. To compare two different model families on the same images, select both rows and choose Compare the two selected. Use the version control to try another version of one family.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "21_model_compare",
+        "14_make_masks"
+      ]
+    },
+    {
+      "visual": "09b_mask_source_and_channels",
+      "narration": "The same catalogue opens inside Mask generation, where it can also measure your objects. Set Source to your images and fill in the cell, nucleus and pathogen channels; this example uses the Measure sample's raw images.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask"
+      ]
+    },
+    {
+      "visual": "10_mask_model_zoo_popup",
+      "narration": "Switch to All settings and click an object's Model name cell in the per-object table. The Model Zoo popup opens, and the model you choose is written into that object's settings.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_measure_diameters_popup",
+      "narration": "Click Measure diameters at the bottom left. Cellpose rescales each image by the diameter it is given, so a diameter measured on your own fields is safer than a guess.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_measured_diameters",
+      "narration": "Press Measure from my images. Each object type gets a measured diameter with its evidence and confidence. Use writes one into Mask's settings and Use all writes every one; nothing changes until you press them.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask",
+        "21_model_compare"
+      ]
+    }
+  ],
+  "example_files": [
+    "Apply_Cellpose_stock_example.zip"
+  ]
+}

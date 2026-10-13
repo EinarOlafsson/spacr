@@ -1,0 +1,7 @@
+{
+  "before_source_sha256": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+  "after_source_sha256": "ade8062fc41ba4b1f6798d54f5aa1fbcb24e7d6450bb1f27a4d250dce1c0e0ae",
+  "source_outside_two_overload_calls_exact": true,
+  "callable_docstrings_exact": true,
+  "previous_160_path_and_48_frame_proof_source_exact": true
+}

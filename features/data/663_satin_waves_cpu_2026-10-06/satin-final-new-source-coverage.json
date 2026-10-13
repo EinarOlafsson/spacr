@@ -1,0 +1,8 @@
+{
+  "base_commit": "10127e7af4947d4ca1cedf845f31cfb60a8efdc1",
+  "source_sha256": "9ea17982c07bcb3bbea6dd141da13f48e3cba67d1b8e26388754533edf258752",
+  "added_executable_statements": 145,
+  "missing_added_statements": [],
+  "touching_branch_arcs": 41,
+  "missing_touching_arcs": []
+}

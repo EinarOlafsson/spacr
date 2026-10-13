@@ -1,0 +1,2860 @@
+"""The spaceout fractal: a GPU shader when there is one, Numba otherwise.
+
+Ported from `fractal_travel.py` v2.1.0. Two renderers, not one engine with a
+switch:
+
+* **GPU** -- VisPy/gloo with a GLSL fragment shader, four spatial samples per
+  physical pixel, and a detail loop that adapts from sampled GPU time.
+* **CPU** -- a cheaper orbit-fold fractal in Numba, evaluated at animation
+  rate with a four-position temporal 2x2 jitter and a rolling four-frame
+  window. No keyframes and no crossfades: every displayed frame is new.
+
+THREE THINGS THIS FILE DOES THAT THE SCRIPT DID NOT.
+
+`vispy` is not installed in the shipped environment, so `backend='auto'`
+resolves to CPU today and to GPU the day it is. Nothing else changes.
+
+It is PySide6. The script was PyQt6, and importing that binding inside this
+application would put two Qt bindings in one process, which does not raise --
+it segfaults.
+
+And it WINDS DOWN. A backdrop eating cores while a segmentation runs is the
+opposite of what it is for, so `pause()` stops the render loop and leaves the
+last frame on screen. See :meth:`CpuFractalWidget.pause`.
+"""
+from __future__ import annotations
+
+import math
+import re
+import os
+import sys
+import time
+import logging
+from dataclasses import dataclass, replace
+from typing import Final, Literal, Optional
+
+import numpy as np
+
+try:
+    from numba import config as numba_config, njit, prange, set_num_threads
+except Exception:                                            # pragma: no cover
+    njit = None
+    prange = range
+    numba_config = None
+
+    def set_num_threads(_n: int) -> None:
+        """Do nothing: with no Numba there is no thread pool to size.
+
+        A NO-OP RATHER THAN AN ABSENT NAME. The caller sets the thread count
+        unconditionally, so leaving this undefined would turn a missing
+        optional dependency into an AttributeError at the call site -- far
+        from the import that actually failed.
+
+        :param _n: the thread count, ignored.
+        """
+        return None
+
+
+VERSION: Final[str] = "2.1.0"
+Backend = Literal["auto", "gpu", "cpu"]
+Quality = Literal["auto", "balanced", "high", "ultra"]
+BACKENDS: Final[tuple[str, ...]] = ("auto", "gpu", "cpu")
+QUALITIES: Final[tuple[str, ...]] = ("auto", "balanced", "high", "ultra")
+
+#: Reference defaults shared by both renderers. `auto` picks the GPU when
+#: vispy is importable and the CPU otherwise, which makes one set of numbers
+#: serve both.
+#: Which fractal. Two genuinely different families, not one with knobs:
+#: `orbit` is the orbit-fold of `fractal_travel.py` v2.1.0, whose CPU path
+#: antialiases by walking a sub-pixel grid ACROSS FOUR FRAMES; `cascade` is
+#: the fold-inversion of v1.0.0, which takes all four samples INSIDE one
+#: frame and is four times the work per pixel because of it.
+#: THIS MODULE HAD NO LOGGER. Every `LOG` call added to it raised
+#: NameError, and because those calls sit in the `except` blocks that report
+#: failures, each one replaced a real error with a NameError about the
+#: reporting -- so a widget that could not be built said nothing anyone
+#: could act on.
+LOG = logging.getLogger("spacr.qt.widgets.fractal_travel")
+
+from ..fractal_defaults import (GPU_ONLY_PATTERNS,  # noqa: E402
+                                PATTERNS)
+PATTERN_LABELS: Final[dict] = {
+    "orbit": "Orbit fold (temporal 2x2)",
+    "orbit_gpu": "Orbit fold (sharp, GPU 2x2)",
+    "cascade": "Fold-inversion cascade (spatial 2x2)",
+    "space": "Space (star field flight)",
+    "mandelbrot": "Mandelbrot (perturbation deep zoom)",
+}
+from ..fractal_defaults import (DEFAULT_MAGNIFIER_SIZE,  # noqa: E402
+                               DEFAULT_PATTERN, FALLBACK_PATTERN)
+
+DEFAULT_BACKEND: Final[str] = "auto"
+DEFAULT_QUALITY: Final[str] = "auto"
+DEFAULT_SCALE: Final[float] = 1.0
+DEFAULT_SPEED: Final[float] = 4.0
+DEFAULT_DREAM: Final[float] = 1.5
+DEFAULT_VARIABLE_SPEED: Final[bool] = False
+#: The pointer pulls the pattern toward it, and a click shoves
+#: it away. On by default: it is the thing that makes the
+#: backdrop feel answerable rather than merely present.
+DEFAULT_FOLLOW_POINTER: Final[bool] = True
+#: How far the pointer reaches by default: the widget's short edge.
+DEFAULT_POINTER_SIZE: Final[float] = 1.0
+#: How hard it pulls by default.
+DEFAULT_POINTER_STRENGTH: Final[float] = 1.0
+#: The bounds `variable_speed` sweeps between. They bracket DEFAULT_SPEED so
+#: turning it on changes the RANGE and not the average pace.
+DEFAULT_SPEED_MIN: Final[float] = 2.0
+DEFAULT_SPEED_MAX: Final[float] = 6.0
+#: SECONDS FOR ONE FULL SWEEP, slow to fast and back. This is the "how
+#: gradually" control: a larger number is a slower change, not a slower
+#: fractal. Below about ten seconds it stops reading as drift and starts
+#: reading as a pulse.
+DEFAULT_SPEED_PERIOD: Final[float] = 41.0
+
+#: Fallback sweep period, used when a caller supplies none.
+_VARIABLE_SPEED_PERIOD: Final[float] = DEFAULT_SPEED_PERIOD
+
+
+from .popup_state import a_popup_is_on_screen
+
+class Pointer:
+    """Where the pointer is, and whether it is pushing.
+
+    SAMPLED, NEVER RECEIVED. The backdrop sits behind every control; a
+    widget that accepted mouse events would eat the click meant for the
+    button on top of it. So nothing here is a mouse handler -- the position
+    is read from `QCursor.pos()` on the render tick, and the buttons from
+    `QApplication.mouseButtons()`, both of which are global state that costs
+    nothing and steals nothing.
+
+    Coordinates come back in the -1..1 space the fractals already work in,
+    with (0, 0) at the centre, so a kernel can use them without knowing
+    anything about widgets.
+    """
+
+    __slots__ = ("x", "y", "pull", "push", "inside", "drag_x", "drag_y",
+                 "_last_x", "_last_y", "_dragging")
+
+    def __init__(self) -> None:
+        """Create the pointer state the kernels read.
+
+        Drag movement accumulates rather than being sampled: a dropped frame
+        does not lose the movement, it arrives with the next one instead.
+        """
+        self.x = 0.0
+        self.y = 0.0
+        #: How strongly the pattern is drawn toward the pointer, 0..1.
+        self.pull = 0.0
+        #: How strongly it is pushed away. Negative pull, kept separate so a
+        #: kernel can shape the two differently -- a shove is not a tug
+        #: backwards.
+        self.push = 0.0
+        self.inside = False
+        #: How far the pointer moved while held down, since the last frame,
+        #: in the same -1..1 space. Consumed by the renderer and reset, so a
+        #: frame that is dropped does not lose the movement -- it arrives
+        #: with the next one instead.
+        self.drag_x = 0.0
+        self.drag_y = 0.0
+        self._last_x = 0.0
+        self._last_y = 0.0
+        self._dragging = False
+
+    def sample(self, widget, size: float = 1.0,
+               strength: float = 1.0) -> "Pointer":
+        """Read the pointer relative to ``widget``. Never raises.
+
+        :param widget: visible Qt widget whose global rectangle defines the
+            returned centred coordinates and inside/outside state. Coordinates
+            use the short edge as their scale, so that axis maps to -1..1 and
+            the long axis may extend beyond it.
+        :param size: how far the effect reaches in short-edge-normalised
+            coordinate units; 1.0 reaches the widget's short edge.
+        :param strength: how hard it pulls, 0 to 2.
+        """
+        try:
+            from PySide6.QtGui import QCursor
+            from PySide6.QtWidgets import QApplication
+
+            if widget is None or not widget.isVisible():
+                self.inside = False
+                return self
+            local = widget.mapFromGlobal(QCursor.pos())
+            width = max(1, widget.width())
+            height = max(1, widget.height())
+            denominator = float(min(width, height))
+            self.x = (2.0 * local.x() - width) / denominator
+            self.y = (height - 2.0 * local.y()) / denominator
+            self.inside = (0 <= local.x() < width and 0 <= local.y() < height)
+
+            buttons = QApplication.mouseButtons()
+            from PySide6.QtCore import Qt
+
+            left = bool(buttons & Qt.MouseButton.LeftButton)
+            right = bool(buttons & Qt.MouseButton.RightButton)
+            if not self.inside:
+                self.pull = max(0.0, self.pull - 0.08)
+                self.push = max(0.0, self.push - 0.15)
+                return self
+            distance = math.hypot(self.x, self.y)
+            reach = max(0.05, float(size))
+            within = clamp(1.0 - (distance / reach), 0.0, 1.0)
+            wanted_pull = 0.0 if (left or right) else within
+            wanted_push = within if left else (0.6 * within if right else 0.0)
+            self.pull += 0.06 * (wanted_pull * float(strength) - self.pull)
+            self.push += 0.25 * (wanted_push * float(strength) - self.push)
+
+            held = left or right
+            if held and self._dragging:
+                self.drag_x += self.x - self._last_x
+                self.drag_y += self.y - self._last_y
+            self._dragging = held
+            self._last_x = self.x
+            self._last_y = self.y
+        except Exception:                                    # noqa: BLE001
+            self.inside = False
+        return self
+
+
+def clamp(value: float, low: float, high: float) -> float:
+    """Return ``value`` limited to the inclusive ``low``/``high`` range.
+
+    :param value: the number to limit.
+    :param low: inclusive lower bound.
+    :param high: inclusive upper bound.
+    """
+    return low if value < low else high if value > high else value
+
+
+@dataclass(frozen=True)
+class Settings:
+    """What the picture is made of. Every field is a Preferences row.
+
+    `supersampling` is samples per pixel along each axis, the Fractal tab's
+    Supersampling row. Every renderer used a fixed 2x2 whatever it said;
+    now the shaders and the CPU kernels take an N x N grid from
+    it. Two is the published grid, so a `Settings()` nobody filled in draws
+    what it always drew.
+    """
+
+    pattern: str = DEFAULT_PATTERN
+    backend: str = DEFAULT_BACKEND
+    quality: str = DEFAULT_QUALITY
+    scale: float = DEFAULT_SCALE
+    fps: int = 60
+    cpu_threads: Optional[int] = None
+    supersampling: int = 2
+
+    def validated(self) -> "Settings":
+        """A copy with every field inside the range the renderers accept.
+
+        Clamped rather than refused: this is a backdrop, and a preferences
+        file with a silly number in it must not stop the application from
+        drawing one.
+        """
+        return Settings(
+            pattern=self.pattern if self.pattern in PATTERNS else DEFAULT_PATTERN,
+            backend=self.backend if self.backend in BACKENDS else DEFAULT_BACKEND,
+            quality=self.quality if self.quality in QUALITIES else DEFAULT_QUALITY,
+            scale=clamp(float(self.scale), 0.25, 2.0),
+            fps=int(clamp(float(self.fps), 15, 240)),
+            cpu_threads=(None if self.cpu_threads is None
+                         else max(1, int(self.cpu_threads))),
+            supersampling=_samples_a_side(self.supersampling),
+        )
+
+
+def _samples_a_side(value) -> int:
+    """The supersampling setting as a usable whole number of samples a side.
+
+    Below one cannot draw anything and is read as one; there is no upper
+    bound, because the Fractal tab leaves extravagant values to the user
+    and says what they cost. Anything unreadable is the published two.
+
+    :param value: the saved setting, possibly a float or a string.
+    :returns: at least 1.
+    """
+    try:
+        return max(1, int(round(float(value))))
+    except (TypeError, ValueError):
+        return 2
+
+
+def _sub_pixel_offsets(samples: int) -> tuple:
+    """The centres of an N x N sub-pixel grid, relative to the pixel centre.
+
+    ``(i + 0.5) / N - 0.5`` along each axis: one sample sits on the centre,
+    two give the published -0.25 / +0.25, three give -1/3, 0, +1/3.
+
+    :param samples: samples a side.
+    :returns: ``N * N`` ``(dx, dy)`` pairs, row by row.
+    """
+    count = _samples_a_side(samples)
+    steps = [(index + 0.5) / count - 0.5 for index in range(count)]
+    return tuple((dx, dy) for dy in steps for dx in steps)
+
+
+_SHADER_MAIN = re.compile(r"void\s+main\s*\(\s*\)\s*\{")
+_SHADER_SAMPLER = re.compile(r"(\w+)\s*\(\s*(?:gl_FragCoord\.xy|base)\s*\+\s*vec2")
+
+
+def _supersampled_shader(source: str, samples: int) -> str:
+    """``source`` with its fixed 2x2 ``main`` replaced by an N x N grid.
+
+    Every spaceout fragment shader ends in a ``main`` that averages four
+    calls of one per-sample function at a fixed 2x2 of sub-pixel offsets.
+    That ``main`` is rewritten to loop an N x N grid with constant bounds,
+    which GLSL 1.20 and GLSL ES both accept, so one rule serves all five
+    shaders and a new one only has to keep the same shape. Two returns
+    the source untouched: the published grid, byte for byte.
+
+    :param source: the fragment shader as its module publishes it.
+    :param samples: samples a side, from the Supersampling setting.
+    :returns: the shader to compile.
+    :raises ValueError: if the shader's ``main`` does not have that shape,
+        so a new shader that cannot follow the setting fails loudly in the
+        tests rather than silently keeping 2x2.
+    """
+    count = _samples_a_side(samples)
+    if count == 2:
+        return source
+    opening = _SHADER_MAIN.search(source)
+    if opening is None:
+        raise ValueError("the fragment shader has no main()")
+    body = source[opening.end():]
+    depth = 1
+    closing = -1
+    for index, character in enumerate(body):
+        if character == "{":
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                closing = index
+                break
+    sampler = _SHADER_SAMPLER.search(body, 0, max(0, closing))
+    if sampler is None or closing < 0:
+        raise ValueError("the fragment shader's main() is not a sample grid")
+    name = sampler.group(1)
+    grid = (
+        "void main() {\n"
+        "    vec3 total = vec3(0.0);\n"
+        f"    for (int sy = 0; sy < {count}; sy++) {{\n"
+        f"        for (int sx = 0; sx < {count}; sx++) {{\n"
+        "            vec2 offset = (vec2(float(sx), float(sy)) + 0.5)"
+        f" / {float(count)!r} - 0.5;\n"
+        f"            total += {name}(gl_FragCoord.xy + offset);\n"
+        "        }\n"
+        "    }\n"
+        f"    gl_FragColor = vec4(total / {float(count * count)!r}, 1.0);\n"
+        "}\n"
+    )
+    return source[:opening.start()] + grid + body[closing + 1:]
+
+
+@dataclass
+class RuntimeControls:
+    """What the user can move while it is running."""
+
+    speed: float = DEFAULT_SPEED
+    dream: float = DEFAULT_DREAM
+    variable_speed: bool = DEFAULT_VARIABLE_SPEED
+    #: Whether the pointer pulls the pattern about. Off leaves the kernels
+    #: taking a zero, which costs nothing measurable.
+    follow_pointer: bool = DEFAULT_FOLLOW_POINTER
+    #: How far the pointer's pull reaches, in the -1..1 coordinate space.
+    pointer_size: float = DEFAULT_POINTER_SIZE
+    #: How hard it pulls. 0 is off; above 1 exaggerates.
+    pointer_strength: float = DEFAULT_POINTER_STRENGTH
+    #: How big the magnifying glass under the pointer is, as a multiple of
+    #: its usual size. Read every frame, so a change shows at once.
+    magnifier_size: float = DEFAULT_MAGNIFIER_SIZE
+    #: A multiplier on the Mandelbrot descent, changed by Up and Down and
+    #: by the wheel while the backdrop is running -- as in the source this
+    #: pattern came from.
+    zoom_rate: float = 1.0
+    #: Bumped to ask the dive to start again from the surface. A COUNTER
+    #: rather than a flag, so the canvas can tell "asked again" from "still
+    #: asked" without anyone having to clear it -- and two changes made in
+    #: quick succession are two restarts, not one that may be missed.
+    restart_token: int = 0
+    speed_min: float = DEFAULT_SPEED_MIN
+    speed_max: float = DEFAULT_SPEED_MAX
+    speed_period: float = DEFAULT_SPEED_PERIOD
+
+    def speed_at(self, t: float) -> float:
+        """The speed to use at ``t`` seconds.
+
+        Constant `speed` unless `variable_speed` is on, in which case it
+        sweeps between `speed_min` and `speed_max` -- named bounds rather
+        than a hidden percentage, so what the travel will actually do is
+        readable from the settings instead of inferred from watching it.
+        `speed_period` is how long one full sweep takes, which is the "how
+        gradually" control: a larger number is a slower CHANGE, not a slower
+        fractal.
+
+        The bounds are used in whichever order they are given: a min above a
+        max is a swapped pair, not an empty range, and refusing to animate
+        would be a worse answer than animating between the two numbers.
+
+        :param t: elapsed time in seconds; it sets the point on the sine sweep
+            when variable speed is on and is ignored otherwise.
+        """
+        if not self.variable_speed:
+            return max(0.05, self.speed)
+        low = min(self.speed_min, self.speed_max)
+        high = max(self.speed_min, self.speed_max)
+        middle = 0.5 * (low + high)
+        half = 0.5 * (high - low)
+        period = max(1.0, float(self.speed_period or _VARIABLE_SPEED_PERIOD))
+        swept = middle + half * math.sin(2.0 * math.pi * t / period)
+        return max(0.05, swept)
+
+
+@dataclass(frozen=True)
+class HardwareProfile:
+    """CPU capacity used to choose a conservative automatic render quality.
+
+    :param logical_cpus: logical processors available to the application.
+    """
+
+    logical_cpus: int
+
+    @staticmethod
+    def detect() -> "HardwareProfile":
+        """Read what this machine can offer the renderer.
+
+        FLOORED AT ONE CPU. `os.cpu_count` returns None on some platforms,
+        and a worker pool sized from None is a crash rather than a slow
+        backdrop.
+
+        :returns: the profile.
+        """
+        return HardwareProfile(logical_cpus=max(1, os.cpu_count() or 1))
+
+
+def resolved_quality(requested: str, backend: str,
+                     hardware: HardwareProfile) -> str:
+    """Resolve ``auto`` to a quality the selected backend can sustain.
+
+    Explicit quality names pass through unchanged. GPU auto mode uses the
+    balanced profile because GPU capacity is otherwise unknown; CPU auto mode
+    uses high only when at least sixteen logical processors are available.
+
+    :param requested: ``auto``, ``balanced``, ``high``, or a future explicit
+        quality name.
+    :param backend: resolved renderer backend, normally ``gpu`` or ``cpu``.
+    :param hardware: detected logical-CPU capacity.
+    :returns: the explicit quality name to apply.
+    """
+    if requested != "auto":
+        return requested
+    if backend == "gpu":
+        return "balanced"
+    return "high" if hardware.logical_cpus >= 16 else "balanced"
+
+
+def resolved_cpu_threads(settings: Settings,
+                         hardware: HardwareProfile) -> int:
+    """How many Numba workers to take, leaving the application some.
+
+    Capped at 24 because beyond that the scheduling overhead grows for this
+    image size, and capped below the machine's count because a backdrop that
+    takes every core starves the run the user actually cares about.
+
+    :param settings: backdrop settings; a non-None ``cpu_threads`` is used,
+        clamped to the threads available, instead of the automatic choice.
+    :param hardware: CPU profile; its ``logical_cpus``, further capped by
+        Numba's thread limit and by 24, is the number of threads available.
+    """
+    numba_limit = hardware.logical_cpus
+    if numba_config is not None:
+        try:
+            numba_limit = min(numba_limit, int(numba_config.NUMBA_NUM_THREADS))
+        except Exception:                                    # noqa: BLE001
+            pass
+    available = max(1, min(hardware.logical_cpus, numba_limit, 24))
+    if settings.cpu_threads is not None:
+        return max(1, min(available, settings.cpu_threads))
+    if available <= 2:
+        return 1
+    if available <= 6:
+        return available - 1
+    return max(2, min(available - 2, round(available * 0.78)))
+
+
+def platform_can_do_opengl() -> bool:
+    """Whether this Qt platform can host a GL canvas at all.
+
+    CHECKED BEFORE THE GPU WIDGET IS BUILT, because getting it wrong does not
+    raise. On the `offscreen` platform Qt prints "QOpenGLWidget is not
+    supported on this platform" and the process DUMPS CORE -- which no
+    `except` around the constructor can catch, so the fallback in
+    `create_fractal_widget` would never run. Every test and every headless
+    launch is that platform.
+    """
+    if os.environ.get("SPACR_NO_GL"):
+        return False
+    platform = str(os.environ.get("QT_QPA_PLATFORM", "")).strip().lower()
+    if platform.startswith(("offscreen", "minimal", "vnc")):
+        return False
+    if platform in ("", "xcb", "wayland", "cocoa", "windows"):
+        if platform in ("cocoa", "windows"):
+            return True
+        if not platform and sys.platform in ("darwin", "win32"):
+            return True
+        return bool(os.environ.get("DISPLAY")
+                    or os.environ.get("WAYLAND_DISPLAY"))
+    return True
+
+
+def gpu_is_available() -> bool:
+    """Whether the GPU renderer can be built at all.
+
+    Asked rather than assumed, and asked WITHOUT importing vispy into the
+    application when the answer is no: `importlib.util.find_spec` looks the
+    module up without executing it, so a missing vispy costs nothing and a
+    present one is not initialised twice.
+
+    A platform that cannot host a GL canvas counts as no GPU, because the
+    alternative is a core dump rather than an exception.
+    """
+    import importlib.util
+
+    if not platform_can_do_opengl():
+        return False
+    try:
+        return importlib.util.find_spec("vispy") is not None
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def resolve_backend(requested: str) -> str:
+    """Which renderer will actually run, given what is installed.
+
+    :param requested: ``'auto'``, ``'gpu'`` or ``'cpu'``; any other value is
+        treated as :data:`DEFAULT_BACKEND`, and ``'auto'`` picks the GPU when
+        one is available.
+    :returns: ``'gpu'`` or ``'cpu'`` -- never ``'auto'``, because a caller
+        showing the user which one they are on cannot show them "auto".
+    """
+    wanted = requested if requested in BACKENDS else DEFAULT_BACKEND
+    if wanted == "cpu":
+        return "cpu"
+    if wanted == "gpu":
+        return "gpu"
+    return "gpu" if gpu_is_available() else "cpu"
+
+
+
+_FAST_PI: Final[float] = math.pi
+_FAST_TWO_PI: Final[float] = 2.0 * math.pi
+
+if njit is not None:
+
+    @njit(inline="always", fastmath=True)
+    def _fast_sin(value):
+        """Bounded sine approximation. Good enough for a picture, and the
+        kernel calls it a dozen times per pixel per iteration."""
+        value -= math.floor((value + _FAST_PI) / _FAST_TWO_PI) * _FAST_TWO_PI
+        result = (1.2732395447351627 * value
+                  - 0.4052847345693511 * value * abs(value))
+        return 0.225 * (result * abs(result) - result) + result
+
+    @njit(inline="always", fastmath=True)
+    def _fast_cos(value):
+        """Cosine by the quarter-turn identity, so there is one approximation.
+
+        Written as a shifted :func:`_fast_sin` rather than a second
+        polynomial: two independently fitted curves drift apart at the
+        joins, and a sine and cosine that disagree put a seam in the
+        picture where the orbit crosses an axis.
+        """
+        return _fast_sin(value + 0.5 * _FAST_PI)
+
+    @njit(inline="always", fastmath=True)
+    def _orbit_sample(px, py, width, height, t, speed, dream, iterations,
+                      pointer_x, pointer_y, pull, push, lens=1.0):
+        """The colour of one pixel, in the plane's own coordinates.
+
+        Divides by the SHORT side so the picture keeps its proportions on
+        any window shape -- dividing by width alone stretches the orbit
+        when the dock is open and squashes it when it is not.
+
+        Returns the three channels as 0-255 integers rather than floats
+        because the caller writes them straight into a uint8 buffer, and
+        rounding once here is cheaper than rounding three times there.
+
+        ``lens`` is the Magnifier size: the pointer's warp is measured in
+        lens radii and scaled back, so the magnifying glass grows or shrinks
+        whole.
+        """
+        denominator = float(min(width, height))
+        x = (2.0 * px - width) / denominator
+        y = (height - 2.0 * py) / denominator
+
+        if pull > 0.0 or push > 0.0:
+            radius = lens if lens > 0.05 else 0.05
+            to_x = (pointer_x - x) / radius
+            to_y = (pointer_y - y) / radius
+            distance2 = to_x * to_x + to_y * to_y + 0.05
+            strength = (0.55 * pull - 0.95 * push) / distance2
+            if strength > 0.9:
+                strength = 0.9
+            elif strength < -1.4:
+                strength = -1.4
+            x += strength * to_x * radius
+            y += strength * to_y * radius
+
+        rotation = (0.24 * _fast_sin(0.17 * t)
+                    + 0.11 * _fast_sin(0.043 * t + 1.2))
+        cs = _fast_cos(rotation)
+        sn = _fast_sin(rotation)
+        tx = cs * x - sn * y
+        ty = sn * x + cs * y
+
+        drift_x = dream * (0.10 * _fast_sin(0.071 * t)
+                           + 0.04 * _fast_sin(0.019 * t + 1.3))
+        drift_y = dream * (0.09 * _fast_cos(0.063 * t + 0.4)
+                           + 0.04 * _fast_sin(0.023 * t + 2.1))
+        stretch_x = math.exp(0.10 * dream * _fast_sin(0.041 * t))
+        stretch_y = math.exp(0.09 * dream * _fast_cos(0.037 * t + 0.8))
+        shear_x = 0.12 * dream * _fast_sin(0.052 * t + 0.6)
+        shear_y = 0.07 * dream * _fast_cos(0.047 * t)
+
+        old_x = tx
+        tx = stretch_x * tx + shear_x * ty + drift_x
+        ty = stretch_y * ty + shear_y * old_x + drift_y
+
+        radius_squared = tx * tx + ty * ty + 1e-4
+        inverse_radius = 1.0 / math.sqrt(radius_squared)
+        radial_phase = 0.80 * _fast_sin(
+            5.5 * math.log(radius_squared + 0.03) + 0.42 * t * speed)
+        tx += 0.10 * dream * radial_phase * tx * inverse_radius
+        ty += 0.10 * dream * radial_phase * ty * inverse_radius
+
+        constant_x = (0.73 + 0.08 * _fast_sin(0.11 * t)
+                      + 0.05 * _fast_sin(0.031 * t + 2.0))
+        constant_y = (0.48 + 0.10 * _fast_cos(0.13 * t + 0.7)
+                      + 0.04 * _fast_sin(0.037 * t))
+
+        orbit_a = 0.0
+        orbit_b = 0.0
+        orbit_c = 0.0
+        previous_radius = 1e9
+        ox = tx
+        oy = ty
+
+        for iteration in range(iterations):
+            ox = abs(ox)
+            oy = abs(oy)
+            if ox < oy:
+                ox, oy = oy, ox
+            ox = abs(ox - 0.45 * oy)
+            current_radius = ox * ox + oy * oy + 0.055
+            ox = ox / current_radius - constant_x
+            oy = oy / current_radius - constant_y
+
+            radius_change = abs(current_radius - previous_radius)
+            previous_radius = current_radius
+            orbit_a += 1.0 / (1.0 + 12.0 * abs(current_radius - 0.42))
+            orbit_b += 1.0 / (1.0 + 9.0 * abs(ox - oy))
+            orbit_c += 1.0 / (1.0 + 18.0 * radius_change)
+
+            next_x = ox + 0.035 * dream * _fast_sin(
+                1.7 * oy + 0.19 * t + iteration)
+            next_y = oy + 0.035 * dream * _fast_cos(
+                1.5 * ox - 0.17 * t - iteration)
+            ox = next_x
+            oy = next_y
+
+        inverse_iterations = 1.0 / iterations
+        orbit_a *= inverse_iterations
+        orbit_b *= inverse_iterations
+        orbit_c *= inverse_iterations
+
+        palette_phase = (5.2 * orbit_a + 3.7 * orbit_b + 2.3 * orbit_c
+                         + 0.075 * t)
+        red = 0.50 + 0.43 * _fast_cos(palette_phase + 0.15) + 0.12 * orbit_c
+        green = 0.48 + 0.42 * _fast_cos(palette_phase + 2.25) + 0.11 * orbit_a
+        blue = 0.50 + 0.45 * _fast_cos(palette_phase + 4.35) + 0.13 * orbit_b
+
+        glow = max(0.0, min(1.0, 1.4 * orbit_a * orbit_b))
+        red += 0.15 * glow
+        green += 0.10 * glow
+        blue += 0.24 * glow
+
+        screen_radius = math.sqrt(x * x + y * y)
+        vignette = 1.0 - max(0.0, min(1.0, (screen_radius - 0.55) / 1.30))
+        brightness = 0.78 + 0.22 * vignette
+
+        red = max(0.0, min(1.0, red)) * brightness
+        green = max(0.0, min(1.0, green)) * brightness
+        blue = max(0.0, min(1.0, blue)) * brightness
+        return int(255.0 * red), int(255.0 * green), int(255.0 * blue)
+
+    @njit(cache=True, parallel=True, fastmath=True, nogil=True)
+    def _render_into(output, t, speed, dream, iterations, jitter_x, jitter_y,
+                     pointer_x, pointer_y, pull, push, lens=1.0):
+        """Fill one whole frame, one row per worker thread.
+
+        WRITES INTO A BUFFER THE CALLER OWNS rather than returning an
+        array, because this runs every frame: allocating a new image per
+        frame is what the ring in :class:`_Canvas` exists to avoid, and
+        `nogil` lets the GIL go while it does, so the interface stays live
+        while a frame is drawn.
+
+        The jitter offsets arrive as scalars rather than being looked up
+        from :data:`JITTERS` in here, so the kernel has no Python object
+        to touch and stays compilable.
+        """
+        height, width, _channels = output.shape
+        for y in prange(height):
+            for x in range(width):
+                red, green, blue = _orbit_sample(
+                    x + jitter_x, y + jitter_y, width, height,
+                    t, speed, dream, iterations,
+                    pointer_x, pointer_y, pull, push, lens)
+                output[y, x, 0] = red
+                output[y, x, 1] = green
+                output[y, x, 2] = blue
+
+    @njit(cache=True, parallel=True, fastmath=True, nogil=True)
+    def _blend_temporal(ring, output, newest):
+        """Combine the four jitter phases with a short temporal weighting."""
+        height, width, _channels = output.shape
+        previous_1 = (newest - 1) % 4
+        previous_2 = (newest - 2) % 4
+        previous_3 = (newest - 3) % 4
+        for y in prange(height):
+            for x in range(width):
+                for channel in range(3):
+                    value = (0.62 * ring[newest, y, x, channel]
+                             + 0.22 * ring[previous_1, y, x, channel]
+                             + 0.10 * ring[previous_2, y, x, channel]
+                             + 0.06 * ring[previous_3, y, x, channel])
+                    output[y, x, channel] = int(value)
+
+    @njit(cache=True, parallel=True, fastmath=True, nogil=True)
+    def _blend_weighted(ring, output, newest, weights):
+        """Combine a ring of any length, newest first, with ``weights``.
+
+        The published 2x2 keeps :func:`_blend_temporal` and its four fixed
+        weights; this is the same blend for the N x N grids item 531 lets the
+        Supersampling setting ask for, where the ring holds N * N phases.
+        """
+        height, width, _channels = output.shape
+        length = ring.shape[0]
+        for y in prange(height):
+            for x in range(width):
+                for channel in range(3):
+                    value = 0.0
+                    for age in range(length):
+                        value += (weights[age]
+                                  * ring[(newest - age) % length, y, x,
+                                         channel])
+                    output[y, x, channel] = int(value)
+
+else:                                                        # pragma: no cover
+
+    def _render_into(*_args, **_kwargs):
+        """Refuse clearly when numba is absent.
+
+        A stub that raised nothing and returned None would leave the
+        canvas showing an unexplained black rectangle; the backend chooser
+        catches this and falls back, so the message is for the developer
+        who bypassed it.
+        """
+        raise RuntimeError("numba is required for the CPU fractal backend")
+
+    def _blend_temporal(*_args, **_kwargs):
+        """Refuse clearly when numba is absent. See :func:`_render_into`."""
+        raise RuntimeError("numba is required for the CPU fractal backend")
+
+    def _blend_weighted(*_args, **_kwargs):
+        """Refuse clearly when numba is absent. See :func:`_render_into`."""
+        raise RuntimeError("numba is required for the CPU fractal backend")
+
+
+#: The four 2x2 sub-pixel positions, walked one per frame.
+JITTERS: Final[tuple[tuple[float, float], ...]] = (
+    (0.25, 0.25), (0.75, 0.25), (0.25, 0.75), (0.75, 0.75),
+)
+
+
+def _orbit_jitters(samples: int) -> tuple:
+    """The sub-pixel positions the CPU orbit walks for ``samples`` a side.
+
+    From the pixel's corner, as :data:`JITTERS` is: two a side IS
+    :data:`JITTERS`, one a side is the pixel centre alone.
+
+    :param samples: samples a side, from the Supersampling setting.
+    :returns: ``N * N`` ``(x, y)`` offsets in ``[0, 1)``.
+    """
+    return tuple((0.5 + dx, 0.5 + dy) for dx, dy in _sub_pixel_offsets(samples))
+
+
+def _orbit_blend_weights(phases: int) -> np.ndarray:
+    """Weights for a ring of ``phases`` frames, newest first, summing to 1.
+
+    Falling with the square of how many frames remain, so the newest frame
+    dominates as the published 0.62 / 0.22 / 0.10 / 0.06 does and a moving
+    picture does not ghost across nine or sixteen frames.
+
+    :param phases: the ring length, ``N * N``.
+    :returns: a float64 array of length ``phases``.
+    """
+    raw = np.array([(phases - age) ** 2 for age in range(max(1, phases))],
+                   dtype=np.float64)
+    return raw / raw.sum()
+
+
+class OrbitEngine:
+    """The four-frame temporal window, and nothing else.
+
+    Holds no keyframes: the only state is the ring of the last four jitter
+    phases, which is what the antialiasing needs and all it needs.
+
+    Four is the published 2x2. `samples`, set by the widget from the
+    Supersampling setting, makes it N x N phases walked over
+    N * N frames; one a side keeps no history at all.
+
+    :param thread_count: worker threads to render with. Clamped to at least
+        one, so a caller that computed zero from an unavailable CPU count
+        still renders.
+    """
+
+    def __init__(self, thread_count: int) -> None:
+        """Create the orbit engine without allocating its buffers yet.
+
+        :param thread_count: worker threads to render with; clamped to at
+            least one.
+        """
+        self.thread_count = max(1, int(thread_count))
+        self.width = 0
+        self.height = 0
+        self.ring: Optional[np.ndarray] = None
+        self.output: Optional[np.ndarray] = None
+        self.slot = 0
+        self.frames = 0
+        self.samples = 2
+        self._ring_samples = 2
+        self.lens = DEFAULT_MAGNIFIER_SIZE
+
+    def _ensure_size(self, width: int, height: int) -> None:
+        """Allocate the ring and output buffers for a new frame size.
+
+        Reallocating resets the ring and the frame counter, since the frames
+        already in it are of a different shape and averaging across the change
+        would smear one size into the other.
+
+        :param width: frame width in pixels.
+        :param height: frame height in pixels.
+        """
+        samples = _samples_a_side(self.samples)
+        if (width == self.width and height == self.height
+                and self.ring is not None and samples == self._ring_samples):
+            return
+        self.width = width
+        self.height = height
+        self._ring_samples = samples
+        self.ring = np.empty((samples * samples, height, width, 3),
+                             dtype=np.uint8)
+        self.output = np.empty((height, width, 3), dtype=np.uint8)
+        self.slot = 0
+        self.frames = 0
+
+    def render(self, width: int, height: int, t: float, speed: float,
+               dream: float, iterations: int, pointer_x: float = 0.0,
+               pointer_y: float = 0.0, pull: float = 0.0,
+               push: float = 0.0) -> np.ndarray:
+        """Render one frame of the orbit.
+
+        :param width: the frame's width in pixels.
+        :param height: its height in pixels.
+        :param t: the time to render at.
+        :param speed: the travel-speed multiplier.
+        :param dream: how far the orbit wanders.
+        :param iterations: the iteration budget per pixel.
+        :param pointer_x: horizontal pointer influence, 0 for none.
+        :returns: the rendered frame.
+        """
+        set_num_threads(self.thread_count)
+        self._ensure_size(width, height)
+        samples = self._ring_samples
+        phases = samples * samples
+        jitters = JITTERS if samples == 2 else _orbit_jitters(samples)
+        jitter_x, jitter_y = jitters[self.slot]
+        _render_into(self.ring[self.slot], t, speed, dream, iterations,
+                     jitter_x, jitter_y, pointer_x, pointer_y, pull, push,
+                     float(self.lens))
+        if self.frames == 0:
+            for index in range(phases):
+                if index != self.slot:
+                    self.ring[index, :, :, :] = self.ring[self.slot, :, :, :]
+        if phases == 1:
+            self.output[:, :, :] = self.ring[0]
+        elif samples == 2:
+            _blend_temporal(self.ring, self.output, self.slot)
+        else:
+            _blend_weighted(self.ring, self.output, self.slot,
+                            _orbit_blend_weights(phases))
+        self.slot = (self.slot + 1) % phases
+        self.frames += 1
+        return self.output.copy()
+
+
+
+def _quit_and_join_thread(thread) -> None:
+    """Stop ``thread`` and do not return while its worker can still run.
+
+    Five seconds is the normal shutdown budget.  The CPU renderer's first
+    frame can spend longer compiling a Numba kernel, though, and destroying a
+    live ``QThread`` is a process-fatal Qt error.  Once the soft deadline is
+    missed there is no safe detached state: wait for that finite render to
+    finish before allowing the native wrapper to be freed.
+    """
+    try:
+        thread.quit()
+        if not thread.wait(5000):
+            LOG.warning("fractal renderer exceeded the shutdown deadline")
+            thread.wait()
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
+def _join_on_destroy(widget, thread, quit_hook=None) -> None:
+    """Quit and wait for ``thread`` when Qt frees ``widget``.
+
+    The handler closes over the THREAD only. `destroyed` is emitted while the
+    widget is being torn down, so anything that touched the widget from here
+    would be reaching into a half-freed object -- which is a second crash on
+    top of the one this prevents.
+    """
+    def _join(*_args):
+        """Stop and join the render thread. Closes over the thread ONLY."""
+        try:
+            _quit_and_join_thread(thread)
+        except Exception:                                    # noqa: BLE001
+            pass
+        if quit_hook is None:
+            return
+        try:
+            import warnings
+
+            from PySide6.QtWidgets import QApplication
+
+            application = QApplication.instance()
+            if application is not None:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", RuntimeWarning)
+                    application.aboutToQuit.disconnect(quit_hook)
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    try:
+        widget.destroyed.connect(_join)
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
+def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
+                     hardware: HardwareProfile):
+    """Build the numba-backed CPU fractal backdrop.
+
+    The render thread is created UNPARENTED and joined through a
+    ``destroyed`` handler that closes over the thread only: a ``QThread``
+    whose parent dies while it runs prints "Destroyed while thread is still
+    running" and takes the process with it, and the backdrop is reparented
+    and deleted with its screen, so that is the ordinary path rather than a
+    corner case.
+
+    :param settings: the backdrop settings.
+    :param controls: the live runtime controls the panel drives.
+    :param hardware: the resolved hardware profile, which decides the
+        quality this machine renders at.
+    :returns: the widget.
+    :raises RuntimeError: if numba is not installed -- this backend is
+        compiled, and there is no interpreted fallback worth the frames.
+    """
+    if njit is None:
+        raise RuntimeError("numba is required for the CPU fractal backend")
+
+    from PySide6.QtCore import QObject, QThread, QTimer, Qt, Signal, Slot
+    from PySide6.QtGui import QColor, QImage, QPainter
+    from PySide6.QtWidgets import QApplication, QWidget
+
+    quality = resolved_quality(settings.quality, "cpu", hardware)
+    thread_count = resolved_cpu_threads(settings, hardware)
+    cascade = settings.pattern == "cascade"
+
+    if settings.pattern == "space":
+        from .fractal_space import SpaceEngine
+
+        engine_factory = SpaceEngine
+        iterations = 0
+        target_fps = max(15, min(settings.fps, 30 if quality == "balanced" else 26))
+        base_pixels = 300_000.0 if quality == "balanced" else 460_000.0
+    elif cascade:
+        from .fractal_cascade import CascadeEngine
+
+        engine_factory = CascadeEngine
+        iterations = 4 if quality == "balanced" else 5
+        target_fps = max(15, min(settings.fps, 24 if quality == "balanced" else 20))
+        base_pixels = 115_000.0 if quality == "balanced" else 190_000.0
+    else:
+        engine_factory = OrbitEngine
+        iterations = 5 if quality == "balanced" else 6
+        target_fps = max(15, min(settings.fps, 30))
+        base_pixels = 460_000.0 if quality == "balanced" else 680_000.0
+
+    target_period = 1.0 / target_fps
+    base_pixels *= settings.scale * settings.scale
+    samples = _samples_a_side(settings.supersampling)
+
+    class _Worker(QObject):
+        """Shades frames off the GUI thread and hands them over as arrays.
+
+        A QObject moved onto a QThread rather than a QThread subclass: the
+        moved-object form keeps `run` out of the thread's own `run()`, so
+        an exception here reaches a Python handler instead of escaping
+        `QThread::run` and aborting the process -- the crash shape that
+        took spaCR down from the SRA picker.
+
+        `frame_ready` carries the array by reference and the caller must
+        not hold it: the buffer is reused, and the ring in
+        :class:`_Canvas` is what makes reuse safe.
+        """
+
+        frame_ready = Signal(object, float)
+        failed = Signal(str)
+
+        def __init__(self) -> None:
+            """Build the engine this thread will shade with."""
+            super().__init__()
+            self.engine = engine_factory(thread_count)
+            self.engine.samples = samples
+
+        @Slot(object)
+        def render(self, request: object) -> None:
+            """Shade one frame and hand it back, if anyone is still there.
+
+            A FRAME CAN FINISH AFTER ITS WIDGET IS GONE. The shading runs on
+            this thread while the GUI thread may be closing the window or
+            swapping the pattern, and Qt deletes the worker's C++ side with
+            it -- so `emit` raises "Signal source has been deleted". The
+            except below then emitted the FAILURE signal, which raised the
+            same way, and an exception escaping a slot on a QThread takes
+            the process down: "Aborted (core dumped)".
+            """
+            try:
+                started = time.perf_counter()
+                self.engine.lens = float(request.get(
+                    "lens", DEFAULT_MAGNIFIER_SIZE))
+                frame = self.engine.render(
+                    request["width"], request["height"], request["t"],
+                    request["speed"], request["dream"], request["iterations"],
+                    request.get("pointer_x", 0.0),
+                    request.get("pointer_y", 0.0),
+                    request.get("pull", 0.0), request.get("push", 0.0))
+            except Exception as error:                       # noqa: BLE001
+                self._say_something(self.failed,
+                                    f"{type(error).__name__}: {error}")
+                return
+            self._say_something(self.frame_ready, frame,
+                                time.perf_counter() - started)
+
+        @staticmethod
+        def _say_something(signal, *args) -> None:
+            """Emit, unless the object that owns the signal has been freed.
+
+            The last thing this thread does with a widget that is being
+            destroyed, so it must never raise: nothing is listening, and an
+            exception here ends the process rather than the frame.
+            """
+            try:
+                signal.emit(*args)
+            except RuntimeError:
+                pass
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not deliver a frame", exc_info=True)
+
+    class CpuFractalWidget(QWidget):
+        """The orbit-fold fractal, rendered off the GUI thread.
+
+        `paintEvent` only blits: every fractal evaluation happens on the
+        worker thread, so a slow frame makes the picture late and never makes
+        the interface late.
+
+        :param parent: parent widget.
+        """
+
+        backend_name: Final[str] = "cpu"
+        render_requested = Signal(object)
+
+        def __init__(self, parent=None) -> None:
+            """Build the CPU canvas, painting its own background."""
+            super().__init__(parent)
+            self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
+            self.setAutoFillBackground(False)
+
+            self._thread = QThread()
+            self._worker = _Worker()
+            self._worker.moveToThread(self._thread)
+            self.render_requested.connect(
+                self._worker.render, Qt.ConnectionType.QueuedConnection)
+            self._worker.frame_ready.connect(self._accept_frame)
+            self._worker.failed.connect(self._on_failure)
+            self._thread.finished.connect(self._worker.deleteLater)
+            self._thread.start()
+            self._app_quit_join = (
+                lambda thread=self._thread: _quit_and_join_thread(thread))
+            _join_on_destroy(self, self._thread, quit_hook=self._app_quit_join)
+            application = QApplication.instance()
+            if application is not None:
+                application.aboutToQuit.connect(self._app_quit_join)
+
+            self._timer = QTimer(self)
+            self._timer.setSingleShot(True)
+            self._timer.setTimerType(Qt.TimerType.PreciseTimer)
+            self._timer.timeout.connect(self._request_frame)
+
+            self._busy = False
+            self._stopped = False
+            self._paused = False
+            self._sim_time = 0.0
+            self._adaptive_scale = 1.0
+            self._render_ema: Optional[float] = None
+            self._last_render_seconds: Optional[float] = None
+            self._actual_fps = 0.0
+            self._last_arrival = 0.0
+            self._frames = 0
+            self._render_size = (1, 1)
+            self._image = None
+            self._image_array = None
+            self._error: Optional[str] = None
+            #: Read on the GUI thread each tick. The widget never becomes a
+            #: mouse target -- see `Pointer`.
+            self._pointer = Pointer()
+            self._depth_phase = DepthPhase()
+            self._timer.start(30)
+
+
+        def pause(self) -> bool:
+            """Stop rendering and leave the last frame on screen.
+
+            Called when a RUN STARTS. A backdrop taking nineteen cores while
+            a segmentation is queued is the opposite of what it is for, and
+            stopping is better than thinning: a slower fractal still holds
+            the threads.
+
+            :returns: True when this call did the stopping, False when it was
+                already paused -- so a caller can tell whether to resume.
+            """
+            if self._paused:
+                return False
+            self._paused = True
+            self._timer.stop()
+            return True
+
+        def resume(self) -> bool:
+            """Start rendering again from where the clock left off."""
+            if not self._paused or self._stopped:
+                return False
+            self._paused = False
+            self._timer.start(10)
+            return True
+
+        def is_paused(self) -> bool:
+            """Whether the animation is currently held."""
+            return self._paused
+
+        def set_animating(self, on: bool) -> bool:
+            """`AmbientWidget`'s verb for the same thing.
+
+            The ambient backdrop this replaces is stopped and started with
+            `set_animating`, and its callers -- the Home screen's teardown
+            among them -- reach for that name. Answering to it makes this a
+            drop-in rather than something every call site has to learn.
+            """
+            return self.resume() if on else self.pause()
+
+
+
+        def _target_size(self) -> tuple[int, int]:
+            """The pixel size to shade at, from the render scale and the window.
+
+            RENDER SCALE is the fraction of the window's own pixels to shade: 1.0 is
+            native and anything less trades sharpness for speed. It was a setting
+            nobody read, and it is the direct answer to "how do I get the image
+            sharper".
+
+            ON THIS PATH ONLY, AND THAT IS WORTH SAYING WHERE THE CLAIM IS MADE.
+            `_render_scale()` is read here and nowhere else: the GPU canvas shades
+            its physical size at every one of its three uses and never calls
+            `target_render_size`. So on a machine with a working GPU -- which is
+            the default, `backend='auto'` -- this setting has no effect whatever,
+            and a reader who came here from the sentence above would otherwise go
+            looking for the code that applies it.
+
+            IT IS NOT A VISIBLE CONTROL, which is why this is a comment rather
+            than a tooltip: `spaceout/fractal_render_scale` is a bare QSettings
+            key with no row in Preferences, so nobody can move a slider and watch
+            nothing happen. Making the GPU honour it would mean render-to-texture,
+            which was measured and rejected: every shader runs 7x to 25x inside
+            its frame budget at 4K, so there is no headroom to buy back.
+            """
+            try:
+                render_scale = float(_render_scale())
+            except Exception:                                # noqa: BLE001
+                render_scale = 1.0
+            return target_render_size(
+                self.width(), self.height(), self.devicePixelRatioF(),
+                render_scale, base_pixels, self._adaptive_scale)
+
+        @Slot()
+        def _request_frame(self) -> None:
+            """Ask the worker for the next frame, unless stopped or paused."""
+            if self._stopped or self._paused:
+                return
+            if self._busy or not self.isVisible():
+                self._timer.start(50)
+                return
+            width, height = self._target_size()
+            self._render_size = (width, height)
+            self._busy = True
+            pointer = self._pointer.sample(
+                self, controls.pointer_size, controls.pointer_strength)
+            speed = controls.speed_at(self._sim_time)
+            self.render_requested.emit({
+                "width": width, "height": height,
+                "t": self._depth_phase.advance(self._sim_time, speed),
+                "speed": 1.0,
+                "dream": controls.dream, "iterations": iterations,
+                "pointer_x": pointer.x, "pointer_y": pointer.y,
+                "pull": pointer.pull if controls.follow_pointer else 0.0,
+                "push": pointer.push if controls.follow_pointer else 0.0,
+                "lens": controls.magnifier_size,
+            })
+            self._sim_time += target_period
+
+        def _adapt_resolution(self) -> None:
+            """Trade resolution for frame rate, from the measured render time.
+
+            WAITS FOR TWELVE FRAMES and then only reconsiders every twenty-fourth,
+            so the scale settles instead of oscillating on a single slow frame. The
+            budget is 78% of the period rather than all of it, because Qt's own
+            conversion and the rest of the application have to fit in the remainder.
+
+            Both directions are damped and clamped -- down no further than 0.58, up
+            no further than 1.35 -- so a stall cannot drive the picture to nothing
+            and a fast machine cannot drive it past what the window can show.
+            """
+            if self._render_ema is None or self._frames < 12:
+                return
+            if self._frames % 24 != 0:
+                return
+            budget = 0.78 * target_period
+            ratio = budget / max(1e-6, self._render_ema)
+            if ratio < 0.92:
+                factor = max(0.82, math.sqrt(ratio) * 0.98)
+                self._adaptive_scale = max(0.58, self._adaptive_scale * factor)
+            elif ratio > 1.65:
+                factor = min(1.055, ratio ** 0.16)
+                self._adaptive_scale = min(1.35, self._adaptive_scale * factor)
+
+        @Slot(object, float)
+        def _accept_frame(self, frame, render_seconds: float) -> None:
+            """Take a rendered frame, note how long it took, and repaint."""
+            if self._stopped:
+                return
+            from PySide6.QtGui import QImage
+
+            height, width, _channels = frame.shape
+            self._image_array = frame
+            self._image = QImage(frame.data, width, height, frame.strides[0],
+                                 QImage.Format.Format_RGB888)
+            self._last_render_seconds = max(1e-6, render_seconds)
+            self._render_ema = (
+                self._last_render_seconds if self._render_ema is None
+                else 0.82 * self._render_ema + 0.18 * self._last_render_seconds)
+            self._busy = False
+            self._frames += 1
+
+            now = time.perf_counter()
+            if self._last_arrival > 0.0:
+                rate = 1.0 / max(1e-5, now - self._last_arrival)
+                self._actual_fps = (rate if self._actual_fps <= 0.0
+                                    else 0.88 * self._actual_fps + 0.12 * rate)
+            self._last_arrival = now
+            self._adapt_resolution()
+            self.update()
+            if self._paused or self._stopped:
+                return
+            delay = max(0.0, target_period - self._last_render_seconds)
+            self._timer.start(max(1, round(1000.0 * delay)))
+
+        @Slot(str)
+        def _on_failure(self, message: str) -> None:
+            """Record the worker's error and stop treating a frame as pending."""
+            self._error = message
+            self._busy = False
+            self.update()
+            if not (self._paused or self._stopped):
+                self._timer.start(750)
+
+        def paintEvent(self, _event) -> None:
+            """Draw the last frame, or the ground colour before there is one."""
+            painter = QPainter(self)
+            painter.fillRect(self.rect(), QColor(5, 5, 10))
+            if self._image is not None:
+                painter.setRenderHint(
+                    QPainter.RenderHint.SmoothPixmapTransform, True)
+                painter.drawImage(self.rect(), self._image)
+            painter.end()
+
+        def resizeEvent(self, event) -> None:
+            """Ask for a frame at the new size, unless one is already in flight.
+
+            Guarded so a drag-resize does not queue a render per pixel of travel --
+            the worker would then be shading sizes the window has already left.
+            """
+            super().resizeEvent(event)
+            if not (self._busy or self._stopped or self._paused):
+                self._timer.start(10)
+
+        def stats_text(self) -> str:
+            """The render size, rate and state, for the overlay."""
+            width, height = self._render_size
+            if self._paused:
+                timing = "paused for a run"
+            elif self._last_render_seconds is None:
+                timing = "compiling"
+            else:
+                timing = f"{1000.0 * self._last_render_seconds:.1f} ms frame"
+            error = "" if self._error is None else f"\n{self._error}"
+            aa = (f"spatial {samples}x{samples}"
+                  if engine_factory is not OrbitEngine
+                  else f"temporal {samples}x{samples}")
+            return (f"v{VERSION} · CPU/{quality} · {settings.pattern} · {aa}\n"
+                    f"{width}×{height} · {self._actual_fps:.1f} fps · "
+                    f"{thread_count} threads\n{timing}{error}")
+
+        def shutdown(self) -> None:
+            """Stop for good and join the thread. Safe to call twice."""
+            if self._stopped:
+                return
+            self._stopped = True
+            self._timer.stop()
+            application = QApplication.instance()
+            if application is not None and self._app_quit_join is not None:
+                try:
+                    application.aboutToQuit.disconnect(self._app_quit_join)
+                except (RuntimeError, TypeError):
+                    pass
+            _quit_and_join_thread(self._thread)
+
+        def closeEvent(self, event) -> None:
+            """Shut the render thread down before the widget goes."""
+            self.shutdown()
+            super().closeEvent(event)
+
+    return CpuFractalWidget()
+
+
+
+VERTEX_SHADER: Final[str] = """
+attribute vec2 a_position;
+void main() {
+    gl_Position = vec4(a_position, 0.0, 1.0);
+}
+"""
+
+FRAGMENT_SHADER: Final[str] = """
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform float u_speed;
+uniform float u_dream;
+uniform float u_palette_phase;
+uniform float u_pointer_x;
+uniform float u_pointer_y;
+uniform float u_pull;
+uniform float u_push;
+uniform float u_lens;
+uniform float u_tx;
+uniform float u_ty;
+uniform float u_rotation;
+uniform float u_shear_x;
+uniform float u_shear_y;
+uniform float u_stretch_x;
+uniform float u_stretch_y;
+uniform int u_detail;
+
+const float LN10 = 2.302585092994046;
+
+vec3 palette(float x) {
+    vec3 a = vec3(0.56, 0.50, 0.45);
+    vec3 b = vec3(0.44, 0.46, 0.55);
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.05, 0.37, 0.70)
+        + vec3(0.17, 0.13, 0.09) * sin(0.1 * u_time);
+    return a + b * cos(6.28318 * (c * x + d));
+}
+
+vec2 rotate2(vec2 p, float a) {
+    float cs = cos(a);
+    float sn = sin(a);
+    return vec2(cs * p.x - sn * p.y, sn * p.x + cs * p.y);
+}
+
+float field(vec2 uv) {
+    float t = u_time;
+    float depth = t * u_speed / 12.0;
+    float log_shift = depth * LN10;
+
+    vec2 p = rotate2(uv, u_rotation);
+    p = mat2(u_stretch_x, u_shear_x, u_shear_y, u_stretch_y) * p;
+    p += vec2(u_tx, u_ty);
+
+    float total = 0.0;
+    float amplitude = 1.0;
+    vec2 q = p;
+
+    for (int i = 0; i < 10; ++i) {
+        if (i >= u_detail) {
+            break;
+        }
+        float radius = length(q) + 1e-5;
+        float angle = atan(q.y, q.x);
+        float log_radius = log(radius)
+            + log_shift * (0.86 + 0.12 * sin(0.17 * t));
+        float petals = sin(
+            5.0 * angle + 2.8 * log_radius
+            + 0.65 * sin(0.43 * t + 1.8 * q.x));
+        float folds = cos(
+            7.5 * angle - 2.3 * log_radius
+            + 0.50 * cos(0.39 * t - 1.6 * q.y));
+        float eyes = sin(
+            3.0 * log_radius - 2.0 * angle + 0.7 * sin(t * 0.29));
+        float bloom = sin(
+            2.5 * q.x + 1.7 * q.y + 0.35 * t + 1.2 * petals);
+        float lace = cos(
+            4.0 * q.y - 1.5 * q.x - 0.28 * t + 1.3 * folds);
+        total += amplitude * (
+            0.38 * petals + 0.28 * folds + 0.20 * eyes
+            + 0.10 * bloom + 0.04 * lace);
+        vec2 warp = vec2(
+            sin(1.7 * angle + 1.3 * log_radius + 0.17 * t + 0.8 * folds),
+            cos(1.3 * angle - 1.5 * log_radius - 0.19 * t + 0.8 * petals));
+        q = rotate2(
+            q * 1.55 + 0.35 * u_dream * warp,
+            0.42 + 0.08 * sin(0.07 * t));
+        amplitude *= 0.58;
+    }
+    return total;
+}
+
+
+// THE POINTER BENDS THE PLANE, IT DOES NOT MOVE THE CAMERA.
+//
+// This used to translate the whole plane: `uv - target * pull` shifts
+// EVERY pixel by the same amount, which is towing the viewport. Two
+// things follow from that, and both were reported. The shift grows with
+// the pointer's distance from centre, so near an edge the whole picture
+// is dragged; and when the pointer leaves the widget the pull decays to
+// zero, so the picture springs back -- "if the mouse is to close to the
+// sides of the screen the camera snapps back".
+//
+// The CPU orbit fold never had either problem, and the user says so:
+// "the orbit fold cpu effect is like a magnigying glass, which looks
+// cool". This is that same warp, transliterated, so the two renderers
+// bend the picture identically:
+//
+//   * the displacement is TOWARD the pointer and falls off as 1/r^2, so
+//     it is firm under the cursor and gone by the far corner;
+//   * distant pixels are left where they were, so there is no global
+//     shift to spring back from;
+//   * a click reverses it, pushing the structure away instead.
+//
+// The 0.05 floor keeps the divide finite at the pointer itself, and the
+// clamps stop a pixel being thrown past it. `u_lens` is the Magnifier
+// size: distances are measured in lens radii and the displacement scaled
+// back, so the whole lens grows or shrinks without changing its shape.
+vec2 toward_pointer(vec2 uv) {
+    float lens = u_lens > 0.0 ? max(u_lens, 0.05) : 1.0;
+    vec2 target = vec2(u_pointer_x, u_pointer_y);
+    vec2 to_pointer = (target - uv) / lens;
+    float distance2 = dot(to_pointer, to_pointer) + 0.05;
+    float strength = (0.55 * u_pull - 0.95 * u_push) / distance2;
+    strength = clamp(strength, -1.4, 0.9);
+    return uv + strength * to_pointer * lens;
+}
+
+vec3 render_sample(vec2 fragment_position) {
+    float denominator = min(u_resolution.x, u_resolution.y);
+    vec2 uv = (2.0 * fragment_position - u_resolution) / denominator;
+    uv *= 1.10;
+    uv = toward_pointer(uv);
+    uv += 0.06 * u_dream * vec2(
+        sin(0.23 * u_time + 1.1 * uv.y),
+        cos(0.21 * u_time - 1.1 * uv.x));
+    float value = field(uv);
+    float glow = 0.5 + 0.5 * sin(
+        1.3 * value + u_palette_phase + 0.11 * u_time);
+    float rim = exp(-1.5 * dot(uv, uv));
+    float palette_index = 0.20 * value + 0.22 * glow + 0.23 * rim
+        + 0.07 * sin(0.11 * u_time);
+    vec3 color = palette(palette_index);
+    float neon = smoothstep(0.45, 0.95, 0.5 + 0.5 * sin(2.7 * value));
+    color += vec3(0.25, 0.18, 0.34) * neon * (0.35 + 0.65 * rim);
+    color = pow(max(color, vec3(0.0)), vec3(0.85));
+    float vignette = 1.0 - smoothstep(0.55, 1.75, length(uv));
+    color *= 0.72 + 0.28 * vignette;
+    return clamp(color, 0.0, 1.0);
+}
+
+void main() {
+    vec3 color = vec3(0.0);
+    color += render_sample(gl_FragCoord.xy + vec2(-0.25, -0.25));
+    color += render_sample(gl_FragCoord.xy + vec2( 0.25, -0.25));
+    color += render_sample(gl_FragCoord.xy + vec2(-0.25,  0.25));
+    color += render_sample(gl_FragCoord.xy + vec2( 0.25,  0.25));
+    gl_FragColor = vec4(0.25 * color, 1.0);
+}
+"""
+
+
+@dataclass(frozen=True)
+class CameraState:
+    """Where the GPU field is looking, at one instant.
+
+    :param t: the time the state was computed for, in seconds.
+    :param depth: distance travelled along the trajectory, divided by 12.
+    :param tx: horizontal drift offset in shader coordinates, scaled by the
+        dream amount.
+    :param ty: vertical drift offset in shader coordinates, scaled by the dream
+        amount.
+    :param rotation: rotation of the view in radians.
+    :param shear_x: upper off-diagonal term of the 2 × 2 stretch-and-shear
+        matrix applied after the rotation.
+    :param shear_y: lower off-diagonal term of that matrix.
+    :param stretch_x: horizontal diagonal term of that matrix; 1.0 leaves the
+        axis unstretched.
+    :param stretch_y: vertical diagonal term of that matrix; 1.0 leaves the
+        axis unstretched.
+    :param palette_phase: offset added to the colour palette's phase.
+    """
+
+    t: float
+    depth: float
+    tx: float
+    ty: float
+    rotation: float
+    shear_x: float
+    shear_y: float
+    stretch_x: float
+    stretch_y: float
+    palette_phase: float
+
+
+def target_render_size(logical_width: int, logical_height: int,
+                       device_scale: float, render_scale: float,
+                       base_pixels: float = 0.0,
+                       adaptive_scale: float = 1.0) -> tuple:
+    """How many pixels to shade for a widget of this size.
+
+    LIFTED OUT OF THE CANVAS so it can be measured. The backdrop asks
+    which of four candidates makes fullscreen choppy while the backdrop
+    is smooth, and says to answer with numbers before writing a fix --
+    which is not possible while the arithmetic only exists inside a
+    nested method on a class that needs a GL context.
+
+    The rule itself is unchanged: shade ``render_scale`` squared of the
+    widget's own physical pixels, never more than the widget has and
+    never fewer than 180,000, keeping the aspect ratio and an even
+    width and height.
+
+    :param logical_width: widget width in logical pixels, floored at 320.
+    :param logical_height: widget height in logical pixels, floored at 180.
+    :param device_scale: device pixel ratio, floored at 1.0.
+    :param render_scale: linear fraction of the physical pixels to shade; 0 or
+        less uses ``base_pixels`` instead.
+    :returns: ``(width, height)`` in physical pixels.
+    """
+    logical_width = max(320, int(logical_width))
+    logical_height = max(180, int(logical_height))
+    device_scale = max(1.0, float(device_scale))
+    physical_width = max(320, round(logical_width * device_scale))
+    physical_height = max(180, round(logical_height * device_scale))
+    aspect = physical_width / physical_height
+
+    adaptive_scale = max(0.0, float(adaptive_scale))
+    requested = float(base_pixels) * adaptive_scale ** 2
+    native = float(physical_width) * float(physical_height)
+    if render_scale > 0.0:
+        requested = native * render_scale * render_scale * adaptive_scale ** 2
+
+    requested = max(180_000.0, min(native, requested))
+    width = int(round(math.sqrt(requested * aspect)))
+    height = int(round(width / aspect))
+    width = min(physical_width, max(320, width))
+    height = min(physical_height, max(180, height))
+    width -= width % 2
+    height -= height % 2
+    return max(320, width), max(180, height)
+
+
+class DepthPhase:
+    """How far along the trajectory the camera is, as a number that only grows.
+
+    SPEED MUST CHANGE THE RATE, NOT THE POSITION. Depth used to be
+    ``t * speed``, so a scroll that doubled the speed doubled the depth
+    in the same instant: measured at t=60s, speed 1 -> 2 moved the camera
+    5.0 units, which is 3,600 frames of ordinary travel arriving in one.
+    That is the jump reported as "it ruins the immersion when it jumps".
+
+    Integrating instead -- ``phase += dt * speed`` -- makes a speed change
+    continuous by construction. The camera is exactly where it was; only
+    how fast it leaves matters.
+
+    Kept as a small object rather than two floats on the widget because
+    the invariant is worth naming: `value` never decreases.
+    """
+
+    __slots__ = ("value", "_last_t")
+
+    def __init__(self) -> None:
+        """Create the depth phase at rest, with no previous timestamp."""
+        self.value = 0.0
+        self._last_t: Optional[float] = None
+
+    def advance(self, t: float, speed: float) -> float:
+        """Move the phase to wall-clock ``t`` at ``speed``, and return it.
+
+        A t that goes BACKWARDS -- a restart, a clock reset -- re-bases
+        rather than rewinding: the phase is the distance travelled, and
+        travel does not un-happen.
+
+        :param t: wall-clock time in seconds; the first call, or a time earlier
+            than the last one, only re-bases.
+        :param speed: travel rate in phase units per second; negative values
+            count as 0.
+        """
+        last = self._last_t
+        self._last_t = t
+        if last is None or t < last:
+            return self.value
+        self.value += (t - last) * max(0.0, float(speed))
+        return self.value
+
+
+class RegionTour:
+    """Floats the camera between the coordinates worth looking at.
+
+    Around twenty regions are chosen on the image and the camera floats
+    automatically towards them.
+
+    SMOOTHLY IS THE WHOLE REQUIREMENT, so the interpolation is a
+    smoothstep rather than a straight line: it leaves one region and
+    arrives at the next with zero velocity, which is what stops the
+    arrival reading as a stop. A linear blend is continuous in position
+    and not in velocity, and the eye sees the corner.
+
+    DRIFT IS OFF THE MOMENT THE USER TAKES THE CAMERA. Dragging is a
+    statement about where they want to be, and a tour that resumes over
+    it is the application arguing. :meth:`take_over` stops it for good;
+    :meth:`restart` is what Ctrl+R calls.
+
+    :param regions: ``(name, x, y, half_width, score)`` rows, usually
+        :data:`spacr.qt.widgets.fractal_regions.REGIONS`.
+    :param dwell: seconds spent at a region before leaving.
+    :param travel: seconds spent moving between two regions.
+    """
+
+    __slots__ = ("regions", "dwell", "travel", "_taken")
+
+    def __init__(self, regions, dwell: float = 18.0,
+                 travel: float = 9.0) -> None:
+        """Set up a tour that dwells on each region and travels between them.
+
+        :param regions: the regions to visit, in order.
+        :param dwell: seconds spent on a region; floored just above zero, so a
+            tour cannot be configured to skip its own stops.
+        :param travel: seconds spent moving between them, floored the same way.
+        """
+        self.regions = tuple(regions or ())
+        self.dwell = max(0.1, float(dwell))
+        self.travel = max(0.1, float(travel))
+        self._taken = False
+
+    @property
+    def active(self) -> bool:
+        """Whether the tour is still steering."""
+        return bool(self.regions) and not self._taken
+
+    def take_over(self) -> None:
+        """The user moved the camera. The tour does not argue."""
+        self._taken = True
+
+    def restart(self) -> None:
+        """Ctrl+R: hand the camera back to the tour."""
+        self._taken = False
+
+    def period(self) -> float:
+        """Seconds for one full circuit of every region."""
+        return len(self.regions) * (self.dwell + self.travel)
+
+    def target_at(self, seconds: float) -> Optional[tuple]:
+        """Where the camera should be heading at ``seconds``.
+
+        ``None`` when the tour is not steering, so a caller can leave the
+        camera exactly where the user put it rather than being handed a
+        coordinate it has to ignore.
+
+        :param seconds: time along the tour in seconds; it wraps after one full
+            circuit of the regions.
+        """
+        if not self.active:
+            return None
+        leg = self.dwell + self.travel
+        total = len(self.regions) * leg
+        position = float(seconds) % total
+        index = int(position // leg)
+        into = position - index * leg
+        here = self.regions[index]
+        if into <= self.dwell:
+            return float(here[1]), float(here[2])
+        there = self.regions[(index + 1) % len(self.regions)]
+        fraction = (into - self.dwell) / self.travel
+        eased = fraction * fraction * (3.0 - 2.0 * fraction)
+        return (float(here[1]) + (float(there[1]) - float(here[1])) * eased,
+                float(here[2]) + (float(there[2]) - float(here[2])) * eased)
+
+
+def default_region_tour(**kwargs) -> RegionTour:
+    """A tour over the committed regions, or an empty one without them."""
+    try:
+        from .fractal_regions import REGIONS
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("no fractal regions to tour", exc_info=True)
+        REGIONS = ()
+    return RegionTour(REGIONS, **kwargs)
+
+
+class _TourPilot:
+    """Points a steering camera at the twenty regions, frame by frame.
+
+    It joins :class:`RegionTour` to the camera, and it is a PLAIN OBJECT
+    ON PURPOSE -- the same reason
+    :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` is one.
+    The GPU canvas needs a GL context to exist, so logic left inside it
+    can only be argued about; here the motion can be driven frame by
+    frame and measured.
+
+    IT SETS THE TARGET AND NOTHING ELSE. The camera's own exponential
+    follow is what moves it, so the tour's smoothstep between regions and
+    the camera's approach to wherever the target currently is compose
+    into one motion with no start and no stop -- which is what keeps the
+    camera floating between the regions rather than cutting to them.
+
+    :param tour: the tour to fly, or None for the committed regions.
+    """
+
+    __slots__ = ("tour", "_floor_px")
+
+    def __init__(self, tour: Optional[RegionTour] = None) -> None:
+        """Fly `tour`, or the committed regions when none is given."""
+        self.tour = default_region_tour() if tour is None else tour
+        self._floor_px = self._measure_the_floor()
+
+    @property
+    def flying(self) -> bool:
+        """Whether the tour is still steering."""
+        return bool(self.tour.active)
+
+    def dragged(self) -> None:
+        """The user took the camera. The tour does not argue."""
+        self.tour.take_over()
+
+    def restarted(self) -> None:
+        """Ctrl+R sent the dive back to the surface; fly again."""
+        self.tour.restart()
+
+    def steer(self, camera, seconds: float, span: float) -> bool:
+        """Aim `camera` at wherever the tour is at `seconds`.
+
+        :param camera: a :class:`SteeringCamera`; only its ``target`` is
+            written.
+        :param seconds: the simulation clock.
+        :param span: the viewport half-height, in the complex plane. The
+            tour is a SURFACE itinerary -- every region carries the
+            half-width it stays interesting down to -- so once the view is
+            narrower than the region it arrived at, steering off toward
+            the next one would fly the picture past at a scale where
+            nothing is recognisable. Below that the camera keeps what it
+            has.
+        :returns: True when a target was written.
+
+        Never raises: this is on the frame path of a backdrop, and a tour
+        that cannot answer must cost a frame's decision rather than the
+        picture.
+        """
+        try:
+            if not self.tour.active:
+                return False
+            here = self.tour.target_at(seconds)
+            if here is None:
+                return False
+            if float(span) < self._floor():
+                return False
+            camera.target = (float(here[0]), float(here[1]))
+            return True
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not steer by the region tour", exc_info=True)
+            return False
+
+    def _floor(self) -> float:
+        """The narrowest view the itinerary is still about.
+
+        The widest of the regions' own ``deepest_useful_half_width``
+        column, so the tour stops steering when the view has passed the
+        point where its coordinates were measured to hold up -- rather
+        than at a constant somebody would have to keep in step with the
+        generated data.
+
+        Answered from the value measured in ``__init__``: see there for
+        why it is not recomputed.
+        """
+        return self._floor_px
+
+    def _measure_the_floor(self) -> float:
+        """Read the floor out of the itinerary. Called once, at build."""
+        widths = [float(row[3]) for row in self.tour.regions
+                  if len(row) > 3]
+        return max(widths) if widths else 0.0
+
+
+def state_at_seconds(t: float, speed: float, dream: float,
+                     depth_phase: Optional[float] = None) -> CameraState:
+    """The camera at ``t``. Pure, so a test can assert it moves.
+
+    :param t: time in seconds; it drives every oscillation of the camera.
+    :param speed: travel rate, used only when ``depth_phase`` is None.
+    :param dream: amount of drift, shear and stretch; 0 keeps the camera
+        centred and unskewed, though it still rotates.
+    :param depth_phase: the integrated distance travelled. When given it
+        is what positions the camera along the trajectory, and ``speed``
+        no longer does -- which is what stops a scroll teleporting it.
+        ``None`` reproduces the old ``t * speed``, for callers that have
+        no phase to keep.
+    """
+    travelled = t * speed if depth_phase is None else float(depth_phase)
+    depth = travelled / 12.0
+    tx = dream * (0.090 * math.sin(2.0 * math.pi * t / 47.0)
+                  + 0.035 * math.sin(2.0 * math.pi * t / 131.0 + 1.1)
+                  + 0.025 * math.cos(2.0 * math.pi * t / 307.0 + 0.6))
+    ty = dream * (0.080 * math.cos(2.0 * math.pi * t / 53.0 + 0.5)
+                  + 0.040 * math.sin(2.0 * math.pi * t / 149.0 + 0.2)
+                  + 0.025 * math.sin(2.0 * math.pi * t / 283.0 + 1.8))
+    rotation = (0.26 * math.sin(2.0 * math.pi * t / 59.0)
+                + 0.11 * math.sin(2.0 * math.pi * t / 211.0 + 0.7)
+                ) * (0.55 + 0.75 * dream)
+    shear_x = 0.18 * dream * math.sin(2.0 * math.pi * t / 73.0 + 0.2)
+    shear_y = 0.16 * dream * math.cos(2.0 * math.pi * t / 89.0 + 0.8)
+    stretch_x = math.exp(0.17 * dream * math.sin(2.0 * math.pi * t / 97.0 + 0.2))
+    stretch_y = math.exp(0.15 * dream * math.cos(2.0 * math.pi * t / 107.0 + 1.4))
+    palette_phase = (0.38 * math.sin(2.0 * math.pi * t / 173.0)
+                     + 0.22 * math.cos(2.0 * math.pi * t / 337.0 + 0.3))
+    return CameraState(t=t, depth=depth, tx=tx, ty=ty, rotation=rotation,
+                       shear_x=shear_x, shear_y=shear_y,
+                       stretch_x=stretch_x, stretch_y=stretch_y,
+                       palette_phase=palette_phase)
+
+
+class GpuBackendError(RuntimeError):
+    """The GPU renderer could not be built. Always caught by `auto`."""
+
+
+class _HeavyImportInProgress(RuntimeError):
+    """The heavy-import lock was busy, so no GL context was built yet.
+
+    Deliberately NOT a :class:`GpuBackendError`, and deliberately not
+    caught by the ``auto`` fallback: this machine's GPU is fine and the
+    shaders would compile. Treating it as a GPU failure would answer a
+    two-second wait with the CPU renderer -- the one that saturates twenty
+    cores -- instead of the backdrop that was asked for.
+
+    The caller is expected to come back on a timer. It is decoration:
+    arriving a fraction of a second late costs nothing, and blocking the
+    GUI thread to be punctual is what this exception exists to stop.
+    """
+
+
+#: How long :class:`GpuFractalWidget` will wait for the heavy-import lock
+#: before giving up and raising :class:`_HeavyImportInProgress`.
+#:
+#: SHORT ON PURPOSE. The preloader holds the lock for a whole module
+#: import -- 2.3 s for each of the two that pull torch -- and this
+#: constructor runs on the GUI thread, so an unbounded wait is a freeze
+#: the compositor offers to force-quit. A tenth of a second is under any
+#: compositor's threshold and under the eye's, while still being long
+#: enough to ride out the brief holds that are not an import at all.
+_HEAVY_LOCK_WAIT: Final[float] = 0.1
+
+
+def _heavy_import_lock():
+    """The lock the module preloader holds while importing, or None.
+
+    Imported lazily and defensively: this widget is also usable on its own,
+    with no application around it, and a backdrop must not fail to build
+    because the lock could not be found.
+    """
+    try:
+        from ..app import HEAVY_IMPORT_LOCK
+
+        return HEAVY_IMPORT_LOCK
+    except Exception:                                        # noqa: BLE001
+        return None
+
+
+def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
+                     hardware: HardwareProfile):
+    """Build the OpenGL fractal backdrop.
+
+    :param settings: the backdrop settings.
+    :param controls: the live runtime controls the panel drives.
+    :param hardware: the resolved hardware profile.
+    :returns: the widget.
+    :raises RuntimeError: if no usable GL context can be created, so the
+        caller can fall back to the CPU backend rather than showing nothing.
+    """
+    try:
+        from PySide6.QtWidgets import QVBoxLayout, QWidget
+        from vispy import app as vispy_app, gloo
+
+        vispy_app.use_app("pyside6")
+        from vispy.app import Canvas
+    except Exception as error:                               # noqa: BLE001
+        raise GpuBackendError(str(error)) from error
+
+    quality = resolved_quality(settings.quality, "gpu", hardware)
+    if settings.pattern == "mandelbrot":
+        from .fractal_mandelbrot import FRAGMENT_SHADER as _FRAGMENT
+
+        base_detail = 6
+        detail_floor = 5
+    elif settings.pattern == "space":
+        from .fractal_space import FRAGMENT_SHADER as _FRAGMENT
+
+        base_detail = 4
+        detail_floor = 4
+    elif settings.pattern == "cascade":
+        from .fractal_cascade import FRAGMENT_SHADER as _FRAGMENT
+
+        base_detail = 5 if quality == "balanced" else 6
+        detail_floor = 4
+    elif settings.pattern == "orbit_gpu":
+        from .fractal_orbit_gpu import FRAGMENT_SHADER as _FRAGMENT
+
+        base_detail = 4
+        detail_floor = 4
+    else:
+        _FRAGMENT = FRAGMENT_SHADER
+        base_detail = 6 if quality == "balanced" else 8
+        detail_floor = 5
+    samples = _samples_a_side(settings.supersampling)
+    _FRAGMENT = _supersampled_shader(_FRAGMENT, samples)
+
+    _DECLARED = frozenset(
+        match.group(1) for match in
+        re.finditer(r"uniform\s+\w+\s+(u_\w+)\s*;", _FRAGMENT))
+
+    #: The saved Mandelbrot numbers, read once when the backdrop is built.
+    #:
+    #: THE RENDERER READ THE MODULE'S DEFAULTS. Every one of the twelve
+    #: settings the panel offers was collected, stored and then ignored --
+    #: "changing render scale changes nothing", and the same was true of all
+    #: of them. The published defaults are the FALLBACK now, not the answer.
+    def _mandel_setting(name, fallback=None):
+        """One Mandelbrot setting, falling back to the published default."""
+        from .fractal_mandelbrot import DEFAULTS as _PUBLISHED
+
+        try:
+            from ..preferences import get_fractal_settings
+
+            saved = get_fractal_settings()
+        except Exception:                                    # noqa: BLE001
+            saved = {}
+        if name in saved and saved[name] is not None:
+            return saved[name]
+        if fallback is not None:
+            return fallback
+        return _PUBLISHED[name]
+
+    class _Canvas(Canvas):
+        """The vispy canvas the GPU backend draws into.
+
+        Defined inside the `if` that imported vispy, so the name simply
+        does not exist when the GPU path is unavailable -- a module-level
+        class would need vispy at import time and make a missing optional
+        dependency an ImportError for the whole widget.
+        """
+
+        def __init__(self) -> None:
+            """Build the GL canvas, hidden until it is placed."""
+            super().__init__(keys=None, size=(1200, 760), show=False)
+            self._pointer = Pointer()
+            self._depth_phase = DepthPhase()
+            self._orbit = None
+            self._orbit_thread = None
+            if settings.pattern == "mandelbrot":
+                self._start_the_reference_orbit()
+            self._started = time.perf_counter()
+            self._last_sample = 0.0
+            self._render_ema: Optional[float] = None
+            self._detail = base_detail
+            self._paused = False
+            #: Set once Qt has freed the C++ side. The timer checks it so a
+            #: single late tick does not become an endless retry.
+            self._dead = False
+            self._program = gloo.Program(VERTEX_SHADER, _FRAGMENT)
+            self._program["a_position"] = np.asarray(
+                [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)],
+                dtype=np.float32)
+            if settings.pattern == "mandelbrot":
+                try:
+                    self._program["u_orbit"] = gloo.Texture2D(
+                        np.zeros((1, 1, 4), dtype=np.float32),
+                        interpolation="nearest",
+                        wrapping="clamp_to_edge")
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not seed the orbit texture",
+                              exc_info=True)
+            if settings.pattern == "space":
+                try:
+                    from .fractal_space import _galaxy_texture
+
+                    self._program["u_galaxies"] = gloo.Texture2D(
+                        _galaxy_texture(), interpolation="linear",
+                        wrapping="clamp_to_edge")
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not upload the galaxy pictures",
+                              exc_info=True)
+            gloo.set_state(depth_test=False, blend=False)
+            self._update_uniforms(0.0)
+            self._timer = vispy_app.Timer(interval=1.0 / settings.fps,
+                                          connect=self._on_timer, start=True)
+            self.native.destroyed.connect(self._on_native_destroyed)
+
+        def _update_uniforms(self, elapsed: float) -> None:
+            """Push this frame's camera and time into the shader.
+
+            The size is floored at one pixel: a canvas mid-resize can report zero, and
+            a zero dimension reaches the shader as a division by nothing.
+            """
+            width, height = self.physical_size
+            width = max(1, int(width))
+            height = max(1, int(height))
+            speed = controls.speed_at(elapsed)
+            phase = self._depth_phase.advance(elapsed, speed)
+            state = state_at_seconds(phase, 1.0, controls.dream,
+                                     depth_phase=phase)
+            pointer_x, pointer_y, pull, push = self._pointer_state()
+            for name, value in (
+                    ("u_resolution", (width, height)),
+                    ("u_time", np.float32(phase)),
+                    ("u_speed", np.float32(1.0)),
+                    ("u_dream", np.float32(controls.dream)),
+                    ("u_palette_phase", np.float32(state.palette_phase)),
+                    ("u_tx", np.float32(state.tx)),
+                    ("u_ty", np.float32(state.ty)),
+                    ("u_rotation", np.float32(state.rotation)),
+                    ("u_shear_x", np.float32(state.shear_x)),
+                    ("u_shear_y", np.float32(state.shear_y)),
+                    ("u_stretch_x", np.float32(state.stretch_x)),
+                    ("u_stretch_y", np.float32(state.stretch_y)),
+                    ("u_detail", np.int32(self._detail)),
+                    ("u_pointer_x", np.float32(pointer_x)),
+                    ("u_pointer_y", np.float32(pointer_y)),
+                    ("u_pull", np.float32(pull)),
+                    ("u_push", np.float32(push)),
+                    ("u_lens", np.float32(controls.magnifier_size)),
+            ) + tuple(self._mandelbrot_uniforms(elapsed).items()) \
+                    + tuple(self._galaxy_uniforms(phase).items()):
+                if name in _DECLARED:
+                    self._program[name] = value
+            self._upload_the_orbit_if_it_arrived()
+
+        def _galaxy_uniforms(self, phase: float) -> dict:
+            """Where the passing galaxies are, for the space pattern.
+
+            :param phase: the flight's clock, the shader's ``u_time``.
+            :returns: ``{}`` for every other pattern.
+            """
+            if settings.pattern != "space":
+                return {}
+            from .fractal_space import _galaxies_at, _galaxy_uniforms
+
+            return _galaxy_uniforms(_galaxies_at(phase, 1.0))
+
+        def _start_the_reference_orbit(self) -> None:
+            """Iterate Z off the GUI thread and upload it when it is ready."""
+            import threading
+
+            from .fractal_mandelbrot import DEFAULTS, ReferenceOrbit
+
+            def _work():
+                """Compute the reference orbit. Off the GUI thread.
+
+                It is the expensive part of deep zooming -- high-precision iteration of
+                one point that every pixel is then perturbed from -- so it must not run
+                where it would stall the frame it is for.
+                """
+                try:
+                    orbit = ReferenceOrbit(
+                        max_iter=int(_mandel_setting("max_iterations")),
+                        digits=int(_mandel_setting("precision_digits")))
+                except Exception:                            # noqa: BLE001
+                    LOG.exception("could not build the reference orbit")
+                    return
+                self._orbit = orbit
+
+            self._orbit_thread = threading.Thread(
+                target=_work, name="spacr-mandelbrot-orbit", daemon=True)
+            self._orbit_thread.start()
+
+        def _mandelbrot_uniforms(self, elapsed: float) -> dict:
+            """The zoom's own uniforms for this instant.
+
+            :returns: ``{}`` for every other pattern, so the shared update
+                can splice it in unconditionally.
+            """
+            if settings.pattern != "mandelbrot":
+                return {}
+            from .fractal_mandelbrot import depth_after_restart
+
+            now = time.perf_counter()
+            previous = getattr(self, "_zoom_clock", None)
+            self._zoom_clock = now
+            gliding = str(_mandel_setting("path", "tour")) == "tour"
+            if previous is not None and not gliding:
+                step = (now - previous) * controls.speed * controls.zoom_rate \
+                    / max(0.1, float(_mandel_setting("seconds_per_decade")))
+                self._depth = max(0.0,
+                                  getattr(self, "_depth", 0.0) + step)
+            token = getattr(controls, "restart_token", 0)
+            if token != getattr(self, "_restart_token", None):
+                self._restart_token = token
+                self._depth = 0.0
+                self._zoom_clock = None
+                camera = getattr(self, "_camera", None)
+                if camera is not None:
+                    camera.restart()
+                glide = getattr(self, "_glide", None)
+                if glide is not None:
+                    glide.restart()
+                    self._depth = glide.depth
+                self._refine_due = None
+                self._refined = None
+                self._glide_survey = None
+
+                self._plan = None
+                self._steer_step = 0
+                self._next_steer = 0.0
+            orbit = self._orbit
+            if gliding:
+                try:
+                    centre, depth = self._glide_frame(
+                        orbit, 0.0 if previous is None else now - previous)
+                except Exception:                            # noqa: BLE001
+                    LOG.exception("could not steer the dive")
+                    glide = getattr(self, "_glide", None)
+                    centre = (glide.centre if glide is not None
+                              else (0.0, 0.0))
+                    depth = getattr(self, "_depth", 0.0)
+                self._depth = depth
+                return self._dive_uniforms(depth, centre, orbit)
+            depth = depth_after_restart(
+                getattr(self, "_depth", 0.0),
+                float(_mandel_setting("max_depth", 34.0)))
+            self._depth = depth
+            budget = self._budget_at(depth, orbit)
+            try:
+                centre = self._steer(depth, budget, orbit,
+                                     float(elapsed))
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not steer the dive")
+                camera = getattr(self, "_camera", None)
+                centre = camera.centre if camera is not None else (0.0, 0.0)
+            return self._dive_uniforms(depth, centre, orbit)
+
+        def _budget_at(self, depth: float, orbit) -> int:
+            """The iteration budget at ``depth``, capped by the reference.
+
+            :param depth: the depth in decades.
+            :param orbit: the reference orbit, or None while it is built.
+            """
+            from .fractal_mandelbrot import iteration_budget
+
+            budget = iteration_budget(
+                depth, int(_mandel_setting("base_iterations")),
+                float(_mandel_setting("iterations_per_decade")),
+                int(_mandel_setting("max_iterations")))
+            if orbit is not None:
+                budget = min(budget, orbit.max_iter)
+            return budget
+
+        def _dive_uniforms(self, depth: float, centre, orbit) -> dict:
+            """The zoom's uniforms for a depth and a centre.
+
+            :param depth: the depth in decades.
+            :param centre: ``(re, im)`` offset from the reference orbit.
+            :param orbit: the reference orbit, or None while it is built.
+            """
+            from .fractal_mandelbrot import scale_at
+
+            length = float(orbit.max_iter + 1) if orbit is not None else 1.0
+            budget = self._budget_at(depth, orbit)
+            return {
+                "u_scale": np.float32(
+                    scale_at(depth, float(_mandel_setting("initial_scale")))),
+                "u_center_offset": (np.float32(centre[0]),
+                                    np.float32(centre[1])),
+                "u_depth": np.float32(depth),
+                "u_orbit_length": np.float32(length),
+                "u_max_iter": np.int32(max(1, int(budget))),
+            }
+
+        def _glide_frame(self, orbit, seconds: float) -> tuple:
+            """One frame of the glide toward the busiest part of the view.
+
+            :param orbit: the reference orbit, or None while it is built.
+            :param seconds: time since the previous frame.
+            :returns: ``(centre, depth)``.
+
+            THE DECIDING IS IN `_GlideCamera`, which has no Qt in it. This
+            is the part that cannot be: reading the settings, handing it the
+            drag, and surveying the view on a worker thread so an escape map
+            never stalls a frame. A survey that lands after the reference
+            moved describes a different frame and is dropped.
+            """
+            import threading
+
+            from .fractal_mandelbrot import (MAX_USEFUL_DEPTH, _GlideCamera,
+                                             _survey, scale_at)
+
+            maximum = max(0.1, float(_mandel_setting("max_depth",
+                                                     MAX_USEFUL_DEPTH)))
+            glide = getattr(self, "_glide", None)
+            if glide is None:
+                glide = _GlideCamera(max_depth=maximum)
+                self._glide = glide
+            glide.max_depth = maximum
+            initial = float(_mandel_setting("initial_scale"))
+            rate = controls.speed * controls.zoom_rate / max(
+                0.1, float(_mandel_setting("seconds_per_decade")))
+
+            pointer = getattr(self, "_pointer", None)
+            if pointer is not None and (pointer.drag_x or pointer.drag_y):
+                glide.drag(pointer.drag_x, pointer.drag_y,
+                           glide.scale(initial))
+                pointer.drag_x = 0.0
+                pointer.drag_y = 0.0
+                self._refine_due = 0.0
+
+            landed = getattr(self, "_glide_survey", None)
+            if landed is not None and landed["done"]:
+                self._glide_survey = None
+                if (landed["survey"] is not None
+                        and landed["orbit"] is self._orbit):
+                    glide.consider(landed["survey"], initial)
+
+            centre, depth = glide.advance(seconds, rate, initial)
+            if orbit is None:
+                return centre, depth
+            span = scale_at(depth, initial)
+            budget = self._budget_at(depth, orbit)
+            self._refine_the_reference(glide, orbit, budget, depth, span)
+            if (glide.wants_survey()
+                    and getattr(self, "_glide_survey", None) is None):
+                width, height = self.physical_size
+                aspect = max(1, int(width)) / max(1, int(height))
+                slot = {"done": False, "survey": None, "orbit": orbit}
+                self._glide_survey = slot
+                glide.surveyed()
+                here = glide.centre
+
+                def _look():
+                    """Score the current view for structure. Off the GUI thread."""
+                    try:
+                        slot["survey"] = _survey(orbit, here, span, budget,
+                                                 aspect)
+                    except Exception:                        # noqa: BLE001
+                        LOG.debug("could not survey the view", exc_info=True)
+                    finally:
+                        slot["done"] = True
+
+                threading.Thread(target=_look, daemon=True,
+                                 name="spacr-mandelbrot-survey").start()
+            return glide.centre, glide.depth
+
+        def _steer(self, depth: float, budget: int, orbit,
+                   seconds: float = 0.0):
+            """Where the dive is heading, in the reference orbit's frame.
+
+            :param seconds: the simulation clock; unused by the fixed and
+                guided paths, and kept so every caller passes the same
+                arguments. The tour path is :meth:`_glide_frame`.
+            :returns: ``(offset_re, offset_im)`` for ``u_center_offset``.
+
+            THE DECIDING IS IN `SteeringCamera`, which has no Qt in it and
+            can be driven frame by frame in a test. This method is the part
+            that cannot be: reading the settings, and running the search on
+            a worker thread so a 96x54 escape map does not stall the frame.
+
+            Every claim about how smooth the motion is used to come from a
+            simulation written beside the code rather than from the code,
+            because this logic lived inside a canvas that needs a GL
+            context to exist. That is why three fixes in a row were wrong.
+            """
+            import threading
+
+            from .fractal_mandelbrot import (SteeringCamera, plan_guided_step,
+                                             scale_at)
+
+            if orbit is None:
+                return (0.0, 0.0)
+
+            camera = getattr(self, "_camera", None)
+            if camera is None:
+                camera = SteeringCamera()
+                self._camera = camera
+            camera.configure(
+                strength=float(_mandel_setting("steering_strength")),
+                interval=float(_mandel_setting("steering_interval_decades")),
+                duration=float(_mandel_setting("steering_duration")),
+                seconds_per_decade=float(
+                    _mandel_setting("seconds_per_decade")))
+
+            span = scale_at(depth, float(_mandel_setting("initial_scale")))
+            pointer = getattr(self, "_pointer", None)
+            if pointer is not None and (pointer.drag_x or pointer.drag_y):
+                here = camera.drag(pointer.drag_x, pointer.drag_y, span,
+                                   depth)
+                pointer.drag_x = 0.0
+                pointer.drag_y = 0.0
+                pilot = getattr(self, "_pilot", None)
+                if pilot is not None:
+                    pilot.dragged()
+                self._refine_due = 0.0
+                return here
+
+            self._refine_the_reference(camera, orbit, budget, depth, span)
+
+            path = str(_mandel_setting("path", "tour"))
+            if path != "guided":
+                return camera.centre
+            if not camera.steering:
+                return camera.centre
+
+            plan = getattr(self, "_plan", None)
+            if plan is not None and plan.get("done"):
+                self._plan = None
+                camera.aim_at(plan.get("target"), depth, span)
+            elif plan is None and camera.wants_a_target(depth):
+                slot = {"done": False, "target": None}
+                self._plan = slot
+                step = camera.step
+                strength = camera.strength
+                here = camera.centre
+
+                def _look():
+                    """Plan the next guided step. Off the GUI thread."""
+                    try:
+                        found = plan_guided_step(
+                            orbit, span, budget, strength=strength,
+                            candidates=int(
+                                _mandel_setting("candidate_count")),
+                            step_index=step,
+                            offset_re=here[0], offset_im=here[1])
+                    except Exception:                        # noqa: BLE001
+                        LOG.debug("could not plan a steering step",
+                                  exc_info=True)
+                        found = None
+                    slot["target"] = None if found is None else found[:2]
+                    slot["done"] = True
+
+                threading.Thread(target=_look, daemon=True,
+                                 name="spacr-mandelbrot-steer").start()
+
+            return camera.advance(time.perf_counter())
+
+        def _refine_the_reference(self, camera, orbit, budget, depth, span):
+            """Move the reference back onto the boundary, now and then.
+
+            Surveyed and rebuilt on a worker thread: the survey is a 96x54
+            escape map and the rebuild iterates the orbit at full precision,
+            neither of which belongs in a frame. When the new reference
+            lands, the camera's centre and target move by the opposite of
+            the reference's move, so the picture stays exactly where it was.
+            """
+            import threading
+
+            from .fractal_mandelbrot import (REFINE_EVERY,
+                                             best_reference_in_view,
+                                             rebased_orbit)
+
+            landed = getattr(self, "_refined", None)
+            if landed is not None:
+                self._refined = None
+                _centre, fresh, moved = landed
+                if fresh is not None:
+                    self._orbit = fresh
+                    dx, dy = moved
+                    camera.centre = (camera.centre[0] - dx,
+                                     camera.centre[1] - dy)
+                    if camera.target is not None:
+                        camera.target = (camera.target[0] - dx,
+                                         camera.target[1] - dy)
+                self._refine_due = depth + REFINE_EVERY
+                return
+
+            if getattr(self, "_refine_thread_running", False):
+                return
+            due = getattr(self, "_refine_due", None)
+            if due is None or due > depth + REFINE_EVERY:
+                self._refine_due = depth + REFINE_EVERY
+                return
+            if depth < due:
+                return
+
+            here = camera.centre
+            digits = int(_mandel_setting("precision_digits"))
+            ceiling = int(_mandel_setting("max_iterations"))
+            self._refine_thread_running = True
+
+            def _work():
+                """Find a better reference point for the current view. Off the GUI thread."""
+                try:
+                    offset = best_reference_in_view(
+                        orbit, here[0], here[1], span, int(budget))
+                    centre, fresh = rebased_orbit(
+                        orbit, offset[0], offset[1], digits, ceiling)
+                    self._refined = (centre, fresh,
+                                     (float(offset[0]), float(offset[1])))
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not refine the reference",
+                              exc_info=True)
+                    self._refined = (None, None, None)
+                finally:
+                    self._refine_thread_running = False
+
+            threading.Thread(target=_work, daemon=True,
+                             name="spacr-mandelbrot-refine").start()
+
+        def _upload_the_orbit_if_it_arrived(self) -> None:
+            """Put the finished orbit into the shader's texture.
+
+            ON THE GUI THREAD, from inside the draw, because that is where
+            the GL context lives. Uploaded once: `_orbit_uploaded` is the
+            orbit object itself, so a rebuilt one would be noticed.
+            """
+            orbit = self._orbit
+            if orbit is None or getattr(self, "_orbit_uploaded", None) is orbit:
+                return
+            try:
+                self._program["u_orbit"] = gloo.Texture2D(
+                    orbit.packed, interpolation="nearest",
+                    wrapping="clamp_to_edge", internalformat="rgba32f")
+                self._orbit_uploaded = orbit
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not upload the reference orbit")
+                self._orbit_uploaded = orbit
+
+        def _pointer_state(self):
+            """``(x, y, pull, push)`` for the shader, in -1..1 space.
+
+            :returns: zeros when the pointer is not being followed, so a
+                shader can multiply by them unconditionally.
+
+            THE MANDELBROT IS DRAGGED, NOT ATTRACTED. Mouse interaction moves
+            it only through drag input; the pointer's stationary position does
+            not pull the view about.
+            
+            The other three patterns are fields that can be warped toward a
+            point and look right doing it. A deep zoom is a camera: pulling
+            its coordinates toward wherever the mouse happens to rest slides
+            the picture continuously, which reads as the image drifting away
+            from you rather than as anything you did.
+
+            The pointer is still SAMPLED, because that is what accumulates
+            the drag -- `_steer` consumes it. Only `pull` and `push`, which
+            are the position-driven terms, are withheld.
+            """
+            if not controls.follow_pointer:
+                return 0.0, 0.0, 0.0, 0.0
+            try:
+                pointer = self._pointer.sample(
+                    self.native, controls.pointer_size,
+                    controls.pointer_strength)
+            except Exception:                                # noqa: BLE001
+                return 0.0, 0.0, 0.0, 0.0
+            if settings.pattern == "mandelbrot":
+                return pointer.x, pointer.y, 0.0, 0.0
+            return pointer.x, pointer.y, pointer.pull, pointer.push
+
+        def on_resize(self, _event) -> None:
+            """Resize the GL viewport, never to zero.
+
+            A canvas mid-resize reports zero, and a zero viewport is a GL error
+            rather than a small picture.
+            """
+            width, height = self.physical_size
+            gloo.set_viewport(0, 0, max(1, int(width)), max(1, int(height)))
+
+        def on_draw(self, _event) -> None:
+            """Draw one frame, unless the canvas is already torn down."""
+            if self._dead:
+                return
+            benchmark = time.perf_counter() - self._last_sample >= 2.0
+            started = time.perf_counter()
+            try:
+                self._program.draw("triangle_strip")
+            except Exception:                                # noqa: BLE001
+                self._dead = True
+                self.stop_timer()
+                LOG.warning("the GPU backdrop cannot draw on this GL context "
+                            "and has been stopped", exc_info=True)
+                return
+            if not benchmark:
+                return
+            try:
+                gloo.gl.glFinish()
+                duration = max(1e-5, time.perf_counter() - started)
+                self._render_ema = (
+                    duration if self._render_ema is None
+                    else 0.75 * self._render_ema + 0.25 * duration)
+                self._last_sample = time.perf_counter()
+                target_period = 1.0 / settings.fps
+                if self._render_ema > 1.05 * target_period:
+                    self._detail = max(detail_floor, self._detail - 1)
+                elif self._render_ema < 0.52 * target_period:
+                    self._detail = min(base_detail + 1, self._detail + 1)
+            except Exception:                                # noqa: BLE001
+                self._last_sample = time.perf_counter()
+
+        def _on_timer(self, _event) -> None:
+            """Advance one frame, unless paused or already torn down."""
+            if self._paused or self._dead:
+                return
+            if a_popup_is_on_screen():
+                return
+            try:
+                self._update_uniforms(time.perf_counter() - self._started)
+                self.update()
+            except RuntimeError:
+                self._dead = True
+                self.stop_timer()
+
+        def stop_timer(self) -> None:
+            """Stop the vispy timer. Safe to call twice, and after deletion."""
+            try:
+                self._timer.stop()
+            except Exception:                                # noqa: BLE001
+                pass
+
+        def _on_native_destroyed(self, *_args) -> None:
+            """Mark the canvas dead and stop its timer.
+
+            The native window can go before Python does, and a timer that fires after
+            it draws into an object that is not there.
+            """
+            self._dead = True
+            self.stop_timer()
+
+        def stats_text(self) -> str:
+            """The render size, rate and state, for the overlay."""
+            width, height = self.physical_size
+            if self._paused:
+                timing = "paused for a run"
+            elif self._render_ema is None:
+                timing = "measuring"
+            else:
+                timing = f"{1000.0 * self._render_ema:.1f} ms GPU"
+            return (f"v{VERSION} · GPU/{quality} · {settings.pattern} · "
+                    f"spatial {samples}x{samples}\n"
+                    f"{int(width)}×{int(height)} · target {settings.fps} fps · "
+                    f"detail {self._detail}\n{timing}")
+
+    class GpuFractalWidget(QWidget):
+        """The GLSL fractal. The GPU does the work; Qt only hosts it.
+
+        :param parent: parent widget.
+        """
+
+        backend_name: Final[str] = "gpu"
+
+        def __init__(self, parent=None) -> None:
+            """Build the GL widget under the heavy-import lock."""
+            super().__init__(parent)
+            lock = _heavy_import_lock()
+            if lock is None:
+                self._canvas = _Canvas()
+            elif not lock.acquire(timeout=_HEAVY_LOCK_WAIT):
+                raise _HeavyImportInProgress(
+                    "the heavy-import lock is held; the backdrop will be "
+                    "built when it frees")
+            else:
+                try:
+                    self._canvas = _Canvas()
+                finally:
+                    lock.release()
+            layout = QVBoxLayout(self)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(0)
+            layout.addWidget(self._canvas.native)
+
+        def pause(self) -> bool:
+            """Stop drawing while a run is on. The last frame stays up."""
+            if self._canvas._paused:
+                return False
+            self._canvas._paused = True
+            return True
+
+        def resume(self) -> bool:
+            """Restart the animation. Returns whether it was paused."""
+            if not self._canvas._paused:
+                return False
+            self._canvas._paused = False
+            return True
+
+        def is_paused(self) -> bool:
+            """Whether the canvas is currently held."""
+            return bool(self._canvas._paused)
+
+        def set_animating(self, on: bool) -> bool:
+            """`AmbientWidget`'s verb for the same thing.
+
+            The ambient backdrop this replaces is stopped and started with
+            `set_animating`, and its callers -- the Home screen's teardown
+            among them -- reach for that name. Answering to it makes this a
+            drop-in rather than something every call site has to learn.
+            """
+            return self.resume() if on else self.pause()
+
+
+        def stats_text(self) -> str:
+            """The render size, rate and state, for the overlay."""
+            return self._canvas.stats_text()
+
+        def shutdown(self) -> None:
+            """Stop for good. Safe to call twice and after Qt has freed it."""
+            try:
+                self._canvas._dead = True
+                self._canvas.stop_timer()
+                self._canvas.close()
+            except Exception:                                # noqa: BLE001
+                pass
+
+        def closeEvent(self, event) -> None:
+            """Shut the canvas down before the widget goes."""
+            self.shutdown()
+            super().closeEvent(event)
+
+    return GpuFractalWidget()
+
+
+#: Every RuntimeControls a live backdrop is reading, so a key press can
+#: reach the one on screen without the backdrop having to accept events.
+#:
+#: THE BACKDROP MUST NOT TAKE EVENTS. It sits behind every control, and a
+#: widget that accepted the mouse would eat the click meant for the button
+#: on top of it -- which is why the pointer is SAMPLED rather than received.
+#: The same reasoning applies to the keyboard, so Up and Down are handled by
+#: the window and applied here.
+_LIVE_CONTROLS: list = []
+
+#: What one press of Up or Down, or one notch of the wheel, multiplies the
+#: zoom rate by. From the source this pattern came from.
+ZOOM_STEP: Final[float] = 1.12
+
+#: The range a nudge will move within.
+MIN_ZOOM_RATE: Final[float] = 0.05
+MAX_ZOOM_RATE: Final[float] = 20.0
+
+
+def apply_saved_controls() -> int:
+    """Push the saved settings into every running backdrop.
+
+    :returns: how many were updated.
+
+    THE BACKDROP KEEPS THE CONTROLS IT WAS BUILT WITH. Saving Preferences
+    writes new values to the store, but an existing `RuntimeControls` object
+    otherwise continues holding its old values. This function synchronises
+    every live object so changes take effect immediately.
+
+    Everything that can change while a backdrop is on screen is pushed here.
+    What cannot -- the pattern, the backend, the quality, the scale and the
+    Mandelbrot reference orbit -- needs the backdrop rebuilding, which
+    :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does
+    when Preferences is saved.
+    """
+    try:
+        from ..preferences import get_fractal_settings
+
+        values = get_fractal_settings()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the fractal settings", exc_info=True)
+        return 0
+
+    updated = 0
+    for controls in list(_LIVE_CONTROLS):
+        try:
+            controls.speed = float(values["speed"])
+            controls.dream = float(values["dream"])
+            controls.variable_speed = bool(values["variable_speed"])
+            controls.speed_min = float(values["speed_min"])
+            controls.speed_max = float(values["speed_max"])
+            controls.speed_period = float(values["speed_period"])
+            controls.follow_pointer = bool(values["pointer_gravity"])
+            controls.pointer_size = float(values["pointer_size"])
+            controls.pointer_strength = float(values["pointer_strength"])
+            controls.magnifier_size = float(values.get(
+                "magnifier_size", DEFAULT_MAGNIFIER_SIZE))
+            controls.zoom_rate = float(values["zoom_rate"])
+            updated += 1
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not update a live backdrop", exc_info=True)
+    return updated
+
+
+def restart_the_dive() -> None:
+    """Send every running backdrop back to the surface.
+
+    Called when the fractal settings change. A dive that resumed at the
+    depth it had reached would apply the new numbers to a viewport thirty
+    decades down, where a changed starting scale or iteration count has
+    nothing recognisable to act on -- so the change looks as though it did
+    nothing.
+    """
+    for controls in list(_LIVE_CONTROLS):
+        try:
+            controls.restart_token += 1
+        except Exception:                                    # noqa: BLE001
+            continue
+
+
+def nudge_zoom_rate(steps: int) -> float:
+    """Speed the descent up or slow it down.
+
+    :param steps: how many notches; positive is faster.
+    :returns: the resulting rate, or 0.0 when no backdrop is running.
+
+    Clamped, unlike the settings fields: this is a key held down rather than
+    a number somebody typed, so there is nothing to tell them about and a
+    rate of 10^12 from leaning on an arrow key is not a request.
+    """
+    if not _LIVE_CONTROLS:
+        return 0.0
+    rate = 0.0
+    for controls in list(_LIVE_CONTROLS):
+        try:
+            rate = float(controls.zoom_rate)
+            for _ in range(abs(int(steps))):
+                going_up = int(steps) > 0
+                if (rate > 0) == going_up:
+                    rate = rate * ZOOM_STEP if rate > 0 else rate * ZOOM_STEP
+                else:
+                    shrunk = rate / ZOOM_STEP
+                    if abs(shrunk) < MIN_ZOOM_RATE:
+                        rate = MIN_ZOOM_RATE if going_up else -MIN_ZOOM_RATE
+                    else:
+                        rate = shrunk
+                magnitude = clamp(abs(rate), MIN_ZOOM_RATE, MAX_ZOOM_RATE)
+                rate = magnitude if rate >= 0 else -magnitude
+            controls.zoom_rate = rate
+        except Exception:                                    # noqa: BLE001
+            continue
+    return rate
+
+
+def _render_scale() -> float:
+    """The saved render scale, or 1.0 -- native resolution.
+
+    MODULE LEVEL, because both builders need it: it was defined inside the
+    GPU one and read from the CPU one, which is a NameError at the moment a
+    frame is sized.
+    """
+    try:
+        from ..preferences import get_fractal_settings
+
+        return float(get_fractal_settings().get("render_scale", 1.0))
+    except Exception:                                        # noqa: BLE001
+        return 1.0
+
+
+def pattern_for_this_machine(pattern: str, backend: str = "auto") -> str:
+    """The pattern that can actually be drawn here.
+
+    :param pattern: what the user asked for.
+    :param backend: the resolved backend, or ``"auto"``.
+    :returns: ``pattern``, or the fallback when it cannot be drawn.
+
+    TWO PATTERNS ARE GPU-ONLY. Mandelbrot needs a texture of the reference
+    orbit and a shader to perturb around it, and `orbit_gpu` is a fragment
+    shader with no numba twin -- the CPU orbit fold is a DIFFERENT picture,
+    four samples across four frames rather than four of one instant, which
+    is why the two are separate entries at all.
+
+    So a machine with no usable GL context gets the orbit fold instead --
+    it has a CPU renderer and is the cheapest of the ones that do -- rather
+    than a backdrop that draws nothing.
+
+    Silent, and deliberately: the backdrop is decoration, and a dialog
+    explaining that a machine cannot run one of five ornaments is worth
+    less than the interruption costs.
+    """
+    if str(pattern) not in GPU_ONLY_PATTERNS:
+        return str(pattern)
+    if str(backend) == "cpu":
+        return FALLBACK_PATTERN
+    if not platform_can_do_opengl() or not gpu_is_available():
+        return FALLBACK_PATTERN
+    return str(pattern)
+
+
+def create_fractal_widget(settings: Optional[Settings] = None,
+                          controls: Optional[RuntimeControls] = None,
+                          hardware: Optional[HardwareProfile] = None):
+    """Build the fractal backdrop, GPU when there is one.
+
+    :returns: a QWidget carrying `backend_name`, `stats_text()`, `pause()`,
+        `resume()` and `shutdown()`. Never raises for a missing GPU: an
+        explicit ``backend='gpu'`` that cannot be built still falls back,
+        because a backdrop is not worth refusing to start the application
+        over.
+    """
+    settings = (settings or Settings()).validated()
+    controls = controls or RuntimeControls()
+    settings = replace(
+        settings,
+        pattern=pattern_for_this_machine(settings.pattern, settings.backend))
+    if not any(existing is controls for existing in _LIVE_CONTROLS):
+        _LIVE_CONTROLS.append(controls)
+    del _LIVE_CONTROLS[:-8]
+    hardware = hardware or HardwareProfile.detect()
+
+    if settings.backend in ("auto", "gpu") and gpu_is_available():
+        try:
+            return _make_gpu_widget(settings, controls, hardware)
+        except _HeavyImportInProgress:
+            raise
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("the GPU backdrop could not be built; falling back "
+                        "to the CPU renderer", exc_info=True)
+    if settings.pattern == "mandelbrot":
+        LOG.warning("the Mandelbrot pattern needs the GPU renderer; "
+                    "drawing %s instead", FALLBACK_PATTERN)
+        settings = replace(settings, pattern=FALLBACK_PATTERN)
+    return _make_cpu_widget(settings, controls, hardware)

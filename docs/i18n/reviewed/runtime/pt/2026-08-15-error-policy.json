@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "on_error",
+      "source_sha256": "817fc01c9fd571ac01adbeb12e441ef40344ce8f3a4dae71c6452a4273d6696c",
+      "source": "On error",
+      "translation": "Em caso de erro"
+    },
+    {
+      "table": "setting_labels",
+      "key": "on_error_attempts",
+      "source_sha256": "ba95e61c90fac521e3dd328f58961e6b0f8b3a85131dbf50157fe9a05409a3b4",
+      "source": "On error attempts",
+      "translation": "Tentativas após erro"
+    },
+    {
+      "table": "setting_labels",
+      "key": "on_error_backoff",
+      "source_sha256": "cebf88a647593635c6d73bff9306beecf740854e54da285790fd61c550615309",
+      "source": "On error backoff",
+      "translation": "Espera entre tentativas"
+    }
+  ]
+}

@@ -1,0 +1,1470 @@
+{
+  "source_commit": "2f88b67601ef24b776fead0a1178b662f01ac017",
+  "scope": "Original historical nineteen-scene inputs for the unchanged N601 non-Japanese/non-Chinese fingerprint pin. Current editorial changes are tested against current lessons separately.",
+  "lessons": {
+    "en": {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "objectives": [
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Arrange the Home column and module panels to suit your screen.",
+        "Load an example, find help with search or Control-K, and set Preferences."
+      ],
+      "prerequisite": "Install spaCR and open the desktop application.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_core  (6)",
+          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "mask",
+            "measure",
+            "annotate",
+            "classify_merged",
+            "map_barcodes",
+            "regression"
+          ],
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "02_data  (7)",
+          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "foreign",
+            "embeddings",
+            "run_compare",
+            "experiment_design",
+            "power",
+            "dose_response",
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "03_tools  (5)",
+          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "make_masks",
+            "align",
+            "umap",
+            "gate_editor",
+            "graph_builder"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "32_align_stitch",
+            "15_image_umap",
+            "64_gate_editor",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "04_assays  (1)",
+          "narration": "Open Assays for organism-specific workflows. Toxoplasma opens its assay menu: for example, plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "24_plaque",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "10_classify_cv",
+            "11_classify_ml"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "70_explain_cv",
+            "16_activation",
+            "28_training_runs",
+            "65_feature_explorer"
+          ]
+        },
+        {
+          "visual": "06_mask_host",
+          "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "17_timelapse"
+          ]
+        },
+        {
+          "visual": "14_resize_panels",
+          "narration": "Every module screen can be arranged to suit your screen. Drag the handle between the settings and the right-hand panels to give either side more room, or click its arrow to fold the settings away. Hold Control and scroll over the right-hand panels to make their text larger or smaller, and press Control-0 to reset it.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Back on Home, the column on the right keeps track of your work. Recent runs lists what you ran, Totals counts runs, masks and measurements, and System shows the load on your computer. While a run is going or waiting, it appears here too. The Text size slider under the lowest panel makes this column's text larger or smaller.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "The arrow handle on the column's left edge works like the module handles. Drag it to make the column wider or narrower, or click it to fold the column away so the tiles get the whole width. Click the arrow again to bring the column back.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
+          "visual": "08_help_search",
+          "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_command_palette",
+          "narration": "Press Control-K anywhere to open the command palette. Start typing a name, such as Measure, and the list narrows as you type. Press Enter to jump to the highlighted module, recent run or menu action without reaching for the mouse.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
+          "visual": "09_performance",
+          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "The General tab of Preferences sets the interface language, the font and GUI scale, whether the app dock stays open, and a palette for plots that suits colour vision deficiency. The Figures tab chooses the format and resolution of saved figures, and Appearance controls when tooltips appear.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance decides how help appears as you work. Tooltip delay is how long the pointer rests on a control before its tip appears: two seconds by default, and zero shows tips at once. Show tooltips turns them off entirely, and the Theme and Animation sections fold open below for the window's look.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme and Animation are folded sections of Appearance. Click Theme to open it: it sets the interface theme and page opacity, whether fields fade towards the right, and the window rim, with its length, how closely it follows the pointer, its alignment, mode and cycle.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Click Animation to open it instead. It chooses the animated backdrop and its palette, with sliders for detail, blur, speed, size and density, whether setting tooltips animate, and the backdrop shown behind settings.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "00_home",
+          "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
+          ],
+          "focus": [
+            3150,
+            205,
+            666,
+            46
+          ]
+        }
+      ]
+    },
+    "es": {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "objectives": [
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Arrange the Home column and module panels to suit your screen.",
+        "Load an example, find help with search or Control-K, and set Preferences."
+      ],
+      "prerequisite": "Install spaCR and open the desktop application.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Home es tu punto de partida. Haz clic en un mosaico para abrir un módulo, o usa la barra lateral de la izquierda. Haz clic en Home en la barra lateral para volver aquí. Las pestañas Core, Data, Tools y Assays te ayudan a encontrar la tarea que quieres hacer.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_core  (6)",
+          "narration": "Para imágenes de microscopio, empieza con Mask para delimitar los objetos y sigue con Measure para extraer sus características y recortes. Annotate te permite etiquetar objetos de ejemplo, y Classify aprende de esas etiquetas para puntuar más objetos. Map Barcodes lee datos de secuenciación. Regression combina las puntuaciones de fenotipo resultantes con los recuentos de guías para encontrar asociaciones.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "mask",
+            "measure",
+            "annotate",
+            "classify_merged",
+            "map_barcodes",
+            "regression"
+          ],
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "02_data  (7)",
+          "narration": "En Data entran los archivos y se revisan los resultados. Si ya tienes imágenes, máscaras o tablas de mediciones, Import las incorpora a un proyecto que los demás módulos pueden leer. Antes de un experimento, Experiment Design organiza tus placas; después, QC muestra los controles de calidad registrados y Run Compare pone dos ejecuciones una al lado de la otra.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "foreign",
+            "embeddings",
+            "run_compare",
+            "experiment_design",
+            "power",
+            "dose_response",
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "03_tools  (5)",
+          "narration": "Tools reúne los editores y exploradores prácticos. En Make Masks corriges máscaras, y desde ahí también se abre Cellpose Workbench. Align and Stitch une mosaicos de imagen superpuestos en una sola imagen. Cuando tienes mediciones, Image UMAP, Gate Editor y Graph Builder te permiten explorarlas y representarlas. La barra de herramientas de cada módulo abre sus herramientas relacionadas.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "make_masks",
+            "align",
+            "umap",
+            "gate_editor",
+            "graph_builder"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "32_align_stitch",
+            "15_image_umap",
+            "64_gate_editor",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "04_assays  (1)",
+          "narration": "Abra Assays para flujos de trabajo específicos de un organismo. Toxoplasma abre su menú de ensayos, por ejemplo el análisis de placas o las mediciones huésped–patógeno. Siga el tutorial del ensayo elegido para preparar sus imágenes, máscaras y datos de medición.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "24_plaque",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Abre Classify y usa Classifier family para elegir tu entrada. Selecciona Computer Vision para imágenes de objetos, o Tabular Machine Learning para columnas de características medidas. Los tutoriales enlazados te guían por el entrenamiento, la evaluación y la puntuación de cada familia.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "10_classify_cv",
+            "11_classify_ml"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Cuando un modelo está entrenado, la barra de herramientas de Classify te ayuda a examinarlo. Classifier Evaluation muestra su rendimiento con datos reservados, Explain CV Model y Activation muestran qué determina sus decisiones, Training Runs compara historiales de entrenamiento y Feature Explorer ordena las características que separan tus grupos. Pasa el cursor sobre un icono para ver su nombre.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "70_explain_cv",
+            "16_activation",
+            "28_training_runs",
+            "65_feature_explorer"
+          ]
+        },
+        {
+          "visual": "06_mask_host",
+          "narration": "Para probar un módulo, haz clic en Load test data cuando esté disponible. Espera a que termine la descarga y revisa las entradas y los ajustes rellenados. En Mask, haz clic en Live para inspeccionar un campo antes de pulsar Run. Activa Time para una serie temporal o 3D para una imagen volumétrica.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "17_timelapse"
+          ]
+        },
+        {
+          "visual": "14_resize_panels",
+          "narration": "Cada pantalla de módulo se puede ajustar a su pantalla. Arrastre el asa entre los ajustes y los paneles de la derecha para dar más espacio a un lado, o haga clic en su flecha para plegar los ajustes. Mantenga pulsado Control y desplace la rueda sobre los paneles de la derecha para agrandar o reducir su texto, y pulse Control-0 para restablecerlo.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "De vuelta en Home, la columna de la derecha sigue su trabajo. Recent runs lista lo que ejecutó, Totals cuenta ejecuciones, máscaras y mediciones, y System muestra la carga de su ordenador. Una ejecución en curso o en espera también aparece aquí. El control deslizante Text size, bajo el último panel, agranda o reduce el texto de esta columna.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "El asa con flecha del borde izquierdo de la columna funciona como las asas de los módulos. Arrástrela para ensanchar o estrechar la columna, o haga clic en ella para plegar la columna y dar a los mosaicos todo el ancho. Haga clic de nuevo en la flecha para recuperar la columna.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
+          "visual": "08_help_search",
+          "narration": "Escribe el nombre de un módulo, un ajuste o una función en el campo de búsqueda junto a Help. Aquí, al buscar Performance aparece la página de Preferences correspondiente. Haz clic en un resultado para abrir su destino. Los resultados de API abren la documentación de la función seleccionada.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_command_palette",
+          "narration": "Pulse Control-K en cualquier lugar para abrir la paleta de comandos. Empiece a escribir un nombre, como Measure, y la lista se acorta mientras escribe. Pulse Enter para ir al módulo, la ejecución reciente o la acción de menú resaltada sin tocar el ratón.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
+          "visual": "09_performance",
+          "narration": "En Preferences, elige un perfil de Performance para tu ordenador. Laptop usa menos recursos; los perfiles más altos permiten más caché y más trabajo en segundo plano. Empieza con un perfil modesto si la memoria es limitada. Los ajustes de tus análisis siguen bajo tu control en cada módulo.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "La pestaña General de Preferences fija el idioma de la interfaz, la escala de fuente y de la interfaz, si el dock de aplicaciones permanece abierto y una paleta apta para daltónicos en los gráficos. La pestaña Figures elige el formato y la resolución de las figuras guardadas, y Appearance controla cuándo aparecen las descripciones emergentes.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance decide cómo aparece la ayuda mientras trabaja. Tooltip delay es el tiempo que el puntero descansa sobre un control antes de que aparezca su descripción: dos segundos por defecto, y cero las muestra al instante. Show tooltips las desactiva por completo, y las secciones Theme y Animation se despliegan debajo para el aspecto de la ventana.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme y Animation son secciones plegadas de Appearance. Haga clic en Theme para abrirla: fija el tema de la interfaz y la opacidad de la página, si los campos se desvanecen hacia la derecha y el borde de la ventana, con su longitud, cuánto sigue al puntero, su alineación, su modo y su ciclo.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Haga clic en Animation para abrirla en su lugar. Elige el fondo animado y su paleta, con controles deslizantes de detalle, desenfoque, velocidad, tamaño y densidad, si las descripciones de los ajustes se animan y el fondo que aparece detrás de los ajustes.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "00_home",
+          "narration": "Vuelve a Home y haz clic en Pipeline overviews para elegir un flujo de trabajo. Empieza con spaCR screens para un cribado agrupado basado en imágenes, o elige una ruta de análisis de imágenes o de secuenciación para tus datos. Los siguientes tutoriales muestran cómo se conectan esos módulos, y las lecciones de cada módulo recorren después cada tarea.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
+          ],
+          "focus": [
+            3150,
+            205,
+            666,
+            46
+          ]
+        }
+      ]
+    },
+    "fr": {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "objectives": [
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Arrange the Home column and module panels to suit your screen.",
+        "Load an example, find help with search or Control-K, and set Preferences."
+      ],
+      "prerequisite": "Install spaCR and open the desktop application.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Home est votre point de départ. Cliquez sur une tuile pour ouvrir un module, ou utilisez la barre latérale à gauche. Cliquez sur Home dans la barre latérale pour revenir ici. Les onglets Core, Data, Tools et Assays vous aident à trouver la tâche que vous voulez accomplir.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_core  (6)",
+          "narration": "Pour des images de microscopie, commencez par Mask pour délimiter les objets, puis Measure pour extraire leurs caractéristiques et leurs vignettes. Annotate vous permet d’étiqueter des objets d’exemple, et Classify apprend de ces étiquettes pour attribuer un score à davantage d’objets. Map Barcodes lit les données de séquençage. Regression combine les scores de phénotype obtenus et les comptages de guides pour trouver des associations.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "mask",
+            "measure",
+            "annotate",
+            "classify_merged",
+            "map_barcodes",
+            "regression"
+          ],
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "02_data  (7)",
+          "narration": "Data est l’endroit où les fichiers arrivent et où les résultats sont vérifiés. Si vous avez déjà des images, des masques ou des tables de mesures, Import les intègre à un projet que les autres modules peuvent lire. Avant une expérience, Experiment Design organise vos plaques ; ensuite, QC affiche les contrôles de qualité enregistrés et Run Compare place deux exécutions côte à côte.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "foreign",
+            "embeddings",
+            "run_compare",
+            "experiment_design",
+            "power",
+            "dose_response",
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "03_tools  (5)",
+          "narration": "Tools regroupe les éditeurs et explorateurs interactifs. Make Masks sert à corriger les masques et ouvre aussi Cellpose Workbench. Align and Stitch assemble des tuiles d’image qui se chevauchent en une seule image. Une fois vos mesures obtenues, Image UMAP, Gate Editor et Graph Builder vous permettent de les explorer et de les représenter. La barre d’outils de chaque module ouvre ses outils associés.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "make_masks",
+            "align",
+            "umap",
+            "gate_editor",
+            "graph_builder"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "32_align_stitch",
+            "15_image_umap",
+            "64_gate_editor",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "04_assays  (1)",
+          "narration": "Ouvrez Assays pour les workflows propres à un organisme. Toxoplasma ouvre son menu d’essais, par exemple l’analyse des plages ou les mesures hôte–pathogène. Suivez le tutoriel de l’essai choisi pour préparer ses images, masques et entrées de mesure.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "24_plaque",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Ouvrez Classify et utilisez Classifier family pour choisir votre entrée. Sélectionnez Computer Vision pour des images d’objets, ou Tabular Machine Learning pour des colonnes de caractéristiques mesurées. Les tutoriels liés vous guident dans l’entraînement, l’évaluation et le calcul des scores pour chaque famille.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "10_classify_cv",
+            "11_classify_ml"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Une fois un modèle entraîné, la barre d’outils de Classify vous aide à l’examiner. Classifier Evaluation montre ses performances sur des données mises de côté, Explain CV Model et Activation montrent ce qui guide ses décisions, Training Runs compare les historiques d’entraînement, et Feature Explorer classe les caractéristiques qui séparent vos groupes. Survolez une icône pour voir son nom.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "70_explain_cv",
+            "16_activation",
+            "28_training_runs",
+            "65_feature_explorer"
+          ]
+        },
+        {
+          "visual": "06_mask_host",
+          "narration": "Pour essayer un module, cliquez sur Load test data lorsqu’il est disponible. Attendez la fin du téléchargement, puis vérifiez les entrées et les paramètres remplis. Dans Mask, cliquez sur Live pour inspecter un champ avant d’appuyer sur Run. Activez Time pour une série temporelle ou 3D pour une image volumique.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "17_timelapse"
+          ]
+        },
+        {
+          "visual": "14_resize_panels",
+          "narration": "Chaque écran de module s’adapte à votre écran. Faites glisser la poignée entre les réglages et les panneaux de droite pour donner plus de place à un côté, ou cliquez sur sa flèche pour replier les réglages. Maintenez Control et faites défiler la molette sur les panneaux de droite pour agrandir ou réduire leur texte, puis appuyez sur Control-0 pour le rétablir.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "De retour sur Home, la colonne de droite suit votre travail. Recent runs liste ce que vous avez exécuté, Totals compte les exécutions, les masques et les mesures, et System montre la charge de votre ordinateur. Une exécution en cours ou en attente apparaît aussi ici. Le curseur Text size, sous le dernier panneau, agrandit ou réduit le texte de cette colonne.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "La poignée fléchée du bord gauche de la colonne fonctionne comme celles des modules. Faites-la glisser pour élargir ou rétrécir la colonne, ou cliquez dessus pour replier la colonne et donner toute la largeur aux tuiles. Cliquez de nouveau sur la flèche pour faire revenir la colonne.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
+          "visual": "08_help_search",
+          "narration": "Tapez le nom d’un module, d’un paramètre ou d’une fonction dans le champ de recherche à côté de Help. Ici, la recherche de Performance trouve la page correspondante de Preferences. Cliquez sur un résultat pour ouvrir sa destination. Les résultats API ouvrent la documentation de la fonction sélectionnée.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_command_palette",
+          "narration": "Appuyez sur Control-K n’importe où pour ouvrir la palette de commandes. Commencez à taper un nom, comme Measure, et la liste se réduit au fil de la saisie. Appuyez sur Entrée pour aller au module, à l’exécution récente ou à l’action de menu surlignée sans prendre la souris.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
+          "visual": "09_performance",
+          "narration": "Dans Preferences, choisissez un profil Performance adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils plus élevés permettent davantage de cache et de travail en arrière-plan. Commencez par un profil modeste si la mémoire est limitée. Les paramètres de vos analyses restent sous votre contrôle dans chaque module.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "L’onglet General de Preferences règle la langue de l’interface, l’échelle de police et de l’interface, le maintien ouvert du dock d’applications et une palette adaptée au daltonisme pour les graphiques. L’onglet Figures choisit le format et la résolution des figures enregistrées, et Appearance détermine quand les infobulles apparaissent.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance détermine comment l’aide apparaît pendant votre travail. Tooltip delay est le temps pendant lequel le pointeur reste sur un contrôle avant que son info-bulle n’apparaisse : deux secondes par défaut, et zéro les affiche aussitôt. Show tooltips les désactive complètement, et les sections Theme et Animation se déplient en dessous pour l’apparence de la fenêtre.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme et Animation sont des sections repliées d’Appearance. Cliquez sur Theme pour l’ouvrir : elle règle le thème de l’interface et l’opacité de la page, l’estompage des champs vers la droite et le contour de la fenêtre, avec sa longueur, la façon dont il suit le pointeur, son alignement, son mode et son cycle.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Cliquez plutôt sur Animation pour l’ouvrir. Elle choisit l’arrière-plan animé et sa palette, avec des curseurs pour le détail, le flou, la vitesse, la taille et la densité, l’animation des infobulles des réglages et l’arrière-plan affiché derrière les réglages.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "00_home",
+          "narration": "Revenez à Home et cliquez sur Pipeline overviews pour choisir un flux de travail. Commencez par spaCR screens pour un criblage groupé basé sur l’image, ou choisissez un parcours d’analyse d’images ou de séquençage adapté à vos données. Les tutoriels suivants montrent comment ces modules s’enchaînent, puis les leçons de chaque module détaillent chaque tâche.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
+          ],
+          "focus": [
+            3150,
+            205,
+            666,
+            46
+          ]
+        }
+      ]
+    },
+    "hi": {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "objectives": [
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Arrange the Home column and module panels to suit your screen.",
+        "Load an example, find help with search or Control-K, and set Preferences."
+      ],
+      "prerequisite": "Install spaCR and open the desktop application.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Home आपका शुरुआती बिंदु है। कोई मॉड्यूल खोलने के लिए किसी टाइल पर क्लिक करें, या बाईं ओर की साइडबार इस्तेमाल करें। यहाँ लौटने के लिए साइडबार में Home पर क्लिक करें। Core, Data, Tools और Assays टैब आपको वह काम खोजने में मदद करते हैं जो आप करना चाहते हैं।",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_core  (6)",
+          "narration": "माइक्रोस्कोप इमेज के लिए पहले Mask से वस्तुओं की रूपरेखा बनाएँ, फिर Measure से उनकी विशेषताएँ और क्रॉप निकालें। Annotate से आप उदाहरण वस्तुओं पर लेबल लगा सकते हैं, और Classify उन लेबल से सीखकर और वस्तुओं को स्कोर देता है। Map Barcodes सीक्वेंसिंग डेटा पढ़ता है। Regression मिलने वाले फ़ीनोटाइप स्कोर और गाइड गिनती को मिलाकर संबंध खोजता है।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "mask",
+            "measure",
+            "annotate",
+            "classify_merged",
+            "map_barcodes",
+            "regression"
+          ],
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "02_data  (7)",
+          "narration": "Data में फ़ाइलें आती हैं और परिणाम जाँचे जाते हैं। अगर आपके पास पहले से इमेज, मास्क या माप की तालिकाएँ हैं, तो Import उन्हें ऐसे प्रोजेक्ट में लाता है जिसे बाकी मॉड्यूल पढ़ सकें। प्रयोग से पहले Experiment Design आपकी प्लेटों की रूपरेखा बनाता है; बाद में QC दर्ज की गई गुणवत्ता जाँच दिखाता है और Run Compare दो रन को साथ-साथ रखता है।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "foreign",
+            "embeddings",
+            "run_compare",
+            "experiment_design",
+            "power",
+            "dose_response",
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "03_tools  (5)",
+          "narration": "Tools में काम करने वाले एडिटर और एक्सप्लोरर हैं। Make Masks में आप मास्क सुधारते हैं, और वहीं से Cellpose Workbench भी खुलता है। Align and Stitch एक-दूसरे पर चढ़ी इमेज टाइलों को जोड़कर एक चित्र बनाता है। माप मिल जाने के बाद Image UMAP, Gate Editor और Graph Builder से आप उन्हें खोज और प्लॉट कर सकते हैं। हर मॉड्यूल का टूलबार उसके संबंधित टूल खोलता है।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "make_masks",
+            "align",
+            "umap",
+            "gate_editor",
+            "graph_builder"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "32_align_stitch",
+            "15_image_umap",
+            "64_gate_editor",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "04_assays  (1)",
+          "narration": "जीव-विशेष वर्कफ़्लो के लिए Assays खोलें। Toxoplasma अपना परीक्षण मेन्यू खोलता है, जैसे प्लाक विश्लेषण या मेज़बान–रोगाणु माप। चुने गए परीक्षण के ट्यूटोरियल का पालन करके उसकी इमेज, मास्क और माप इनपुट तैयार करें।",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "24_plaque",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Classify खोलें और अपना इनपुट चुनने के लिए Classifier family इस्तेमाल करें। वस्तुओं की इमेज के लिए Computer Vision चुनें, या मापी गई विशेषताओं के कॉलम के लिए Tabular Machine Learning चुनें। लिंक किए गए ट्यूटोरियल हर परिवार के लिए प्रशिक्षण, मूल्यांकन और स्कोरिंग समझाते हैं।",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "10_classify_cv",
+            "11_classify_ml"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "मॉडल प्रशिक्षित हो जाने के बाद Classify का टूलबार उसे परखने में मदद करता है। Classifier Evaluation दिखाता है कि अलग रखे गए डेटा पर उसने कैसा किया, Explain CV Model और Activation दिखाते हैं कि उसके फ़ैसले किन बातों से तय होते हैं, Training Runs प्रशिक्षण के इतिहास की तुलना करता है, और Feature Explorer उन विशेषताओं को क्रम देता है जो आपके समूहों को अलग करती हैं। किसी आइकन का नाम देखने के लिए उस पर माउस रखें।",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "70_explain_cv",
+            "16_activation",
+            "28_training_runs",
+            "65_feature_explorer"
+          ]
+        },
+        {
+          "visual": "06_mask_host",
+          "narration": "किसी मॉड्यूल को आज़माने के लिए, उपलब्ध होने पर Load test data पर क्लिक करें। डाउनलोड पूरा होने तक प्रतीक्षा करें, फिर भरे गए इनपुट और सेटिंग देखें। Mask में Run दबाने से पहले किसी फ़ील्ड को देखने के लिए Live पर क्लिक करें। टाइम सीरीज़ के लिए Time, या वॉल्यूमेट्रिक इमेज के लिए 3D चालू करें।",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "17_timelapse"
+          ]
+        },
+        {
+          "visual": "14_resize_panels",
+          "narration": "हर मॉड्यूल स्क्रीन को अपनी स्क्रीन के हिसाब से सजाया जा सकता है। किसी एक तरफ़ ज़्यादा जगह देने के लिए सेटिंग और दाईं ओर के पैनल के बीच का हैंडल खींचें, या सेटिंग को मोड़कर हटाने के लिए उसके तीर पर क्लिक करें। दाईं ओर के पैनल का टेक्स्ट बड़ा या छोटा करने के लिए Control दबाए रखें और उन पर स्क्रॉल करें, और उसे वापस करने के लिए Control-0 दबाएँ।",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Home पर लौटने पर दाईं ओर का कॉलम आपके काम का हिसाब रखता है। Recent runs आपके चलाए गए काम दिखाता है, Totals रन, मास्क और माप गिनता है, और System आपके कंप्यूटर पर भार दिखाता है। चल रहा या प्रतीक्षा में खड़ा रन भी यहीं दिखता है। सबसे नीचे वाले पैनल के नीचे का Text size स्लाइडर इस कॉलम का टेक्स्ट बड़ा या छोटा करता है।",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "कॉलम के बाएँ किनारे का तीर वाला हैंडल मॉड्यूल के हैंडल की तरह काम करता है। कॉलम को चौड़ा या पतला करने के लिए उसे खींचें, या कॉलम को मोड़कर हटाने के लिए उस पर क्लिक करें ताकि टाइलों को पूरी चौड़ाई मिले। कॉलम वापस लाने के लिए तीर पर फिर से क्लिक करें।",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
+          "visual": "08_help_search",
+          "narration": "Help के पास वाले खोज फ़ील्ड में किसी मॉड्यूल, सेटिंग या फ़ंक्शन का नाम लिखें। यहाँ Performance खोजने पर Preferences का मिलता-जुलता पेज मिलता है। किसी परिणाम पर क्लिक करके उसका गंतव्य खोलें। API परिणाम चुने गए फ़ंक्शन का दस्तावेज़ खोलते हैं।",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_command_palette",
+          "narration": "कमांड पैलेट खोलने के लिए कहीं भी Control-K दबाएँ। Measure जैसा कोई नाम लिखना शुरू करें, और लिखते-लिखते सूची छोटी होती जाती है। माउस छुए बिना चुने गए मॉड्यूल, हाल के रन या मेन्यू क्रिया पर जाने के लिए Enter दबाएँ।",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
+          "visual": "09_performance",
+          "narration": "Preferences में अपने कंप्यूटर के लिए कोई Performance प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल ज़्यादा कैशिंग और पृष्ठभूमि का काम करने देती हैं। अगर मेमोरी सीमित है, तो साधारण प्रोफ़ाइल से शुरू करें। हर मॉड्यूल में आपकी विश्लेषण सेटिंग आपके ही नियंत्रण में रहती हैं।",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "Preferences का General टैब इंटरफ़ेस की भाषा, फ़ॉन्ट और GUI का पैमाना, ऐप डॉक खुला रहे या नहीं, और प्लॉट के लिए रंग-अंधता के अनुकूल पैलेट तय करता है। Figures टैब सहेजी गई आकृतियों का फ़ॉर्मैट और रिज़ॉल्यूशन चुनता है, और Appearance तय करता है कि टूलटिप कब दिखें।",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance तय करता है कि काम करते समय मदद कैसे दिखे। Tooltip delay वह समय है जितनी देर पॉइंटर किसी नियंत्रण पर रुके, उसके बाद उसका संकेत दिखता है: डिफ़ॉल्ट रूप से दो सेकंड, और शून्य पर संकेत तुरंत दिखते हैं। Show tooltips उन्हें पूरी तरह बंद करता है, और खिड़की के रूप के लिए नीचे Theme और Animation खंड खुलते हैं।",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme और Animation, Appearance के मुड़े हुए खंड हैं। Theme खोलने के लिए उस पर क्लिक करें: यह इंटरफ़ेस की थीम और पेज की अपारदर्शिता, फ़ील्ड का दाईं ओर धुँधला होना, और खिड़की का किनारा तय करता है, उसकी लंबाई, वह पॉइंटर के कितना पीछे चलता है, उसका संरेखण, मोड और चक्र।",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "इसके बजाय Animation खोलने के लिए उस पर क्लिक करें। यह एनिमेटेड पृष्ठभूमि और उसका पैलेट चुनता है, विवरण, धुंधलापन, गति, आकार और घनत्व के स्लाइडर के साथ, सेटिंग के टूलटिप एनिमेट हों या नहीं, और सेटिंग के पीछे दिखने वाली पृष्ठभूमि।",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "00_home",
+          "narration": "Home पर लौटें और कोई वर्कफ़्लो चुनने के लिए Pipeline overviews पर क्लिक करें। पूल की गई, इमेज पर आधारित स्क्रीन के लिए spaCR screens से शुरू करें, या अपने डेटा के लिए इमेज विश्लेषण या सीक्वेंसिंग का रास्ता चुनें। अगले ट्यूटोरियल दिखाते हैं कि ये मॉड्यूल कैसे जुड़ते हैं, और फिर मॉड्यूल के पाठ हर काम को चरण-दर-चरण समझाते हैं।",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
+          ],
+          "focus": [
+            3150,
+            205,
+            666,
+            46
+          ]
+        }
+      ]
+    },
+    "it": {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "objectives": [
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Arrange the Home column and module panels to suit your screen.",
+        "Load an example, find help with search or Control-K, and set Preferences."
+      ],
+      "prerequisite": "Install spaCR and open the desktop application.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "Home è il tuo punto di partenza. Fai clic su un riquadro per aprire un modulo, oppure usa la barra laterale a sinistra. Fai clic su Home nella barra laterale per tornare qui. Le schede Core, Data, Tools e Assays ti aiutano a trovare l’attività che vuoi svolgere.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_core  (6)",
+          "narration": "Per le immagini al microscopio, inizia con Mask per delineare gli oggetti, poi usa Measure per estrarne caratteristiche e ritagli. Annotate ti permette di etichettare oggetti di esempio, e Classify impara da quelle etichette per assegnare un punteggio ad altri oggetti. Map Barcodes legge i dati di sequenziamento. Regression combina i punteggi di fenotipo ottenuti con i conteggi delle guide per trovare associazioni.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "mask",
+            "measure",
+            "annotate",
+            "classify_merged",
+            "map_barcodes",
+            "regression"
+          ],
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "02_data  (7)",
+          "narration": "Data è dove arrivano i file e si controllano i risultati. Se hai già immagini, maschere o tabelle di misure, Import le porta in un progetto che gli altri moduli possono leggere. Prima di un esperimento, Experiment Design organizza le piastre; dopo, QC mostra i controlli di qualità registrati e Run Compare mette due esecuzioni una accanto all’altra.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "foreign",
+            "embeddings",
+            "run_compare",
+            "experiment_design",
+            "power",
+            "dose_response",
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "03_tools  (5)",
+          "narration": "Tools raccoglie gli editor e gli strumenti di esplorazione interattivi. In Make Masks correggi le maschere, e da lì si apre anche Cellpose Workbench. Align and Stitch unisce riquadri di immagine sovrapposti in un’unica immagine. Quando hai le misure, Image UMAP, Gate Editor e Graph Builder ti permettono di esplorarle e rappresentarle. La barra degli strumenti di ogni modulo apre gli strumenti collegati.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "make_masks",
+            "align",
+            "umap",
+            "gate_editor",
+            "graph_builder"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "32_align_stitch",
+            "15_image_umap",
+            "64_gate_editor",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "04_assays  (1)",
+          "narration": "Apri Assays per i flussi di lavoro specifici di un organismo. Toxoplasma apre il suo menu di saggi, ad esempio l’analisi delle placche o le misure ospite–patogeno. Segui il tutorial del saggio scelto per preparare immagini, maschere e dati di misura.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "24_plaque",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Apri Classify e usa Classifier family per scegliere l’input. Seleziona Computer Vision per le immagini degli oggetti, oppure Tabular Machine Learning per le colonne di caratteristiche misurate. I tutorial collegati ti guidano nell’addestramento, nella valutazione e nel calcolo dei punteggi per ciascuna famiglia.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "10_classify_cv",
+            "11_classify_ml"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Quando un modello è addestrato, la barra degli strumenti di Classify ti aiuta a esaminarlo. Classifier Evaluation mostra come si è comportato sui dati tenuti da parte, Explain CV Model e Activation mostrano cosa guida le sue decisioni, Training Runs confronta le cronologie di addestramento e Feature Explorer ordina le caratteristiche che separano i tuoi gruppi. Passa il puntatore su un’icona per vederne il nome.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "70_explain_cv",
+            "16_activation",
+            "28_training_runs",
+            "65_feature_explorer"
+          ]
+        },
+        {
+          "visual": "06_mask_host",
+          "narration": "Per provare un modulo, fai clic su Load test data quando è disponibile. Attendi la fine del download, poi controlla gli input e le impostazioni compilati. In Mask, fai clic su Live per esaminare un campo prima di premere Run. Attiva Time per una serie temporale o 3D per un’immagine volumetrica.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "17_timelapse"
+          ]
+        },
+        {
+          "visual": "14_resize_panels",
+          "narration": "Ogni schermata di modulo si adatta al tuo schermo. Trascina la maniglia tra le impostazioni e i pannelli di destra per dare più spazio a un lato, oppure fai clic sulla sua freccia per ripiegare le impostazioni. Tieni premuto Control e scorri sui pannelli di destra per ingrandirne o ridurne il testo, poi premi Control-0 per ripristinarlo.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Tornando a Home, la colonna di destra tiene traccia del tuo lavoro. Recent runs elenca ciò che hai eseguito, Totals conta esecuzioni, maschere e misurazioni, e System mostra il carico del computer. Anche un’esecuzione in corso o in attesa compare qui. Il cursore Text size, sotto l’ultimo pannello, ingrandisce o riduce il testo di questa colonna.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "La maniglia con la freccia sul bordo sinistro della colonna funziona come quelle dei moduli. Trascinala per allargare o restringere la colonna, oppure fai clic per ripiegarla e dare alle tessere tutta la larghezza. Fai di nuovo clic sulla freccia per riportare la colonna.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
+          "visual": "08_help_search",
+          "narration": "Scrivi il nome di un modulo, di un’impostazione o di una funzione nel campo di ricerca accanto a Help. Qui la ricerca di Performance trova la pagina corrispondente di Preferences. Fai clic su un risultato per aprirne la destinazione. I risultati API aprono la documentazione della funzione selezionata.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_command_palette",
+          "narration": "Premi Control-K ovunque per aprire la tavolozza dei comandi. Inizia a digitare un nome, come Measure, e l’elenco si restringe mentre scrivi. Premi Invio per passare al modulo, all’esecuzione recente o all’azione di menu evidenziata senza usare il mouse.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
+          "visual": "09_performance",
+          "narration": "In Preferences, scegli un profilo Performance per il tuo computer. Laptop usa meno risorse; i profili più alti consentono più cache e più lavoro in background. Parti da un profilo modesto se la memoria è limitata. Le impostazioni delle analisi restano sotto il tuo controllo in ciascun modulo.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "La scheda General di Preferences imposta la lingua dell’interfaccia, la scala del carattere e dell’interfaccia, se il dock delle app resta aperto e una tavolozza adatta ai daltonici per i grafici. La scheda Figures sceglie formato e risoluzione delle figure salvate, e Appearance stabilisce quando compaiono i suggerimenti.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance decide come compare l’aiuto mentre lavori. Tooltip delay è il tempo per cui il puntatore resta su un controllo prima che compaia il suggerimento: due secondi per impostazione predefinita, e zero li mostra subito. Show tooltips li disattiva del tutto, e le sezioni Theme e Animation si aprono sotto per l’aspetto della finestra.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme e Animation sono sezioni ripiegate di Appearance. Fai clic su Theme per aprirla: imposta il tema dell’interfaccia e l’opacità della pagina, se i campi sfumano verso destra e il bordo della finestra, con la sua lunghezza, quanto segue il puntatore, l’allineamento, la modalità e il ciclo.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Fai clic invece su Animation per aprirla. Sceglie lo sfondo animato e la sua tavolozza, con cursori per dettaglio, sfocatura, velocità, dimensione e densità, se i suggerimenti delle impostazioni sono animati e lo sfondo mostrato dietro le impostazioni.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "00_home",
+          "narration": "Torna a Home e fai clic su Pipeline overviews per scegliere un flusso di lavoro. Inizia con spaCR screens per uno screening in pool basato sulle immagini, oppure scegli un percorso di analisi delle immagini o di sequenziamento per i tuoi dati. I tutorial successivi mostrano come si collegano quei moduli, e le lezioni dei moduli guidano poi in ciascuna attività.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
+          ],
+          "focus": [
+            3150,
+            205,
+            666,
+            46
+          ]
+        }
+      ]
+    },
+    "pt-BR": {
+      "id": "05_home",
+      "number": 5,
+      "slug": "home",
+      "title": "Home screen and navigation",
+      "series": 1,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Open a module from Home, find its related tools and example data, then choose a pipeline to follow.",
+      "objectives": [
+        "Choose a starting module for images, measurements or sequencing reads.",
+        "Find related tools and organism-specific assays.",
+        "Arrange the Home column and module panels to suit your screen.",
+        "Load an example, find help with search or Control-K, and set Preferences."
+      ],
+      "prerequisite": "Install spaCR and open the desktop application.",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "narration": "A tela Home é o seu ponto de partida. Clique em um bloco para abrir um módulo ou use a barra lateral à esquerda. Clique em Home na barra lateral para voltar aqui. As abas Core, Data, Tools e Assays ajudam você a encontrar a tarefa que quer fazer.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_core  (6)",
+          "narration": "Para imagens de microscópio, comece com Mask para contornar os objetos e depois use Measure para extrair suas características e recortes. Annotate permite rotular objetos de exemplo, e Classify aprende com esses rótulos para pontuar mais objetos. Map Barcodes lê dados de sequenciamento. Regression combina as pontuações de fenótipo resultantes com as contagens de guias para encontrar associações.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "mask",
+            "measure",
+            "annotate",
+            "classify_merged",
+            "map_barcodes",
+            "regression"
+          ],
+          "related_lessons": [
+            "07_mask",
+            "08_measure",
+            "09_annotate",
+            "41_classify",
+            "12_map_barcodes",
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "02_data  (7)",
+          "narration": "Data é onde os arquivos entram e os resultados são conferidos. Se você já tem imagens, máscaras ou tabelas de medições, Import as traz para um projeto que os outros módulos conseguem ler. Antes de um experimento, Experiment Design organiza suas placas; depois, QC mostra as verificações de qualidade registradas e Run Compare coloca duas execuções lado a lado.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "foreign",
+            "embeddings",
+            "run_compare",
+            "experiment_design",
+            "power",
+            "dose_response",
+            "qc_dashboard"
+          ],
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks",
+            "77_embeddings"
+          ]
+        },
+        {
+          "visual": "03_tools  (5)",
+          "narration": "Tools reúne os editores e exploradores práticos. Em Make Masks você corrige máscaras, e por ali também se abre o Cellpose Workbench. Align and Stitch junta blocos de imagem sobrepostos em uma única imagem. Quando você tem medições, Image UMAP, Gate Editor e Graph Builder permitem explorá-las e representá-las em gráficos. A barra de ferramentas de cada módulo abre suas ferramentas relacionadas.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "make_masks",
+            "align",
+            "umap",
+            "gate_editor",
+            "graph_builder"
+          ],
+          "related_lessons": [
+            "14_make_masks",
+            "32_align_stitch",
+            "15_image_umap",
+            "64_gate_editor",
+            "58_graph_builder"
+          ]
+        },
+        {
+          "visual": "04_assays  (1)",
+          "narration": "Abra Assays para fluxos de trabalho específicos de um organismo. Toxoplasma abre seu menu de ensaios, por exemplo a análise de placas ou as medições hospedeiro–patógeno. Siga o tutorial do ensaio escolhido para preparar suas imagens, máscaras e dados de medição.",
+          "hold_after": 0.7,
+          "focus_modules": [
+            "toxoplasma"
+          ],
+          "related_lessons": [
+            "24_plaque",
+            "25_recruitment",
+            "26_invasion",
+            "27_replication"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Abra Classify e use Classifier family para escolher sua entrada. Selecione Computer Vision para imagens de objetos, ou Tabular Machine Learning para colunas de características medidas. Os tutoriais vinculados conduzem você pelo treinamento, pela avaliação e pela pontuação de cada família.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "41_classify",
+            "10_classify_cv",
+            "11_classify_ml"
+          ]
+        },
+        {
+          "visual": "05_classify_host",
+          "narration": "Depois que um modelo é treinado, a barra de ferramentas de Classify ajuda você a examiná-lo. Classifier Evaluation mostra como ele se saiu com dados reservados, Explain CV Model e Activation mostram o que orienta as decisões, Training Runs compara históricos de treinamento e Feature Explorer ordena as características que separam seus grupos. Passe o cursor sobre um ícone para ver o nome.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "39_classifier_evaluation",
+            "70_explain_cv",
+            "16_activation",
+            "28_training_runs",
+            "65_feature_explorer"
+          ]
+        },
+        {
+          "visual": "06_mask_host",
+          "narration": "Para experimentar um módulo, clique em Load test data quando estiver disponível. Aguarde o download terminar e confira as entradas e as configurações preenchidas. Em Mask, clique em Live para inspecionar um campo antes de apertar Run. Ative Time para uma série temporal ou 3D para uma imagem volumétrica.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "17_timelapse"
+          ]
+        },
+        {
+          "visual": "14_resize_panels",
+          "narration": "Cada tela de módulo pode ser ajustada à sua tela. Arraste a alça entre as configurações e os painéis da direita para dar mais espaço a um dos lados, ou clique na seta dela para recolher as configurações. Segure Control e role sobre os painéis da direita para aumentar ou diminuir o texto deles, e pressione Control-0 para restaurá-lo.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "De volta à Home, a coluna da direita acompanha o seu trabalho. Recent runs lista o que você executou, Totals conta execuções, máscaras e medições, e System mostra a carga do computador. Uma execução em andamento ou na fila também aparece aqui. O controle deslizante Text size, abaixo do último painel, aumenta ou diminui o texto desta coluna.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "A alça com seta na borda esquerda da coluna funciona como as alças dos módulos. Arraste-a para alargar ou estreitar a coluna, ou clique nela para recolher a coluna e dar aos blocos toda a largura. Clique de novo na seta para trazer a coluna de volta.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
+          "visual": "08_help_search",
+          "narration": "Digite o nome de um módulo, de uma configuração ou de uma função no campo de busca ao lado de Help. Aqui, a busca por Performance encontra a página correspondente de Preferences. Clique em um resultado para abrir o destino. Os resultados de API abrem a documentação da função selecionada.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_command_palette",
+          "narration": "Pressione Control-K em qualquer lugar para abrir a paleta de comandos. Comece a digitar um nome, como Measure, e a lista diminui enquanto você digita. Pressione Enter para ir ao módulo, à execução recente ou à ação de menu destacada sem usar o mouse.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
+          "visual": "09_performance",
+          "narration": "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "A aba General de Preferences define o idioma da interface, a escala da fonte e da interface, se o dock de aplicativos fica aberto e uma paleta adequada para daltônicos nos gráficos. A aba Figures escolhe o formato e a resolução das figuras salvas, e Appearance controla quando as dicas aparecem.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance define como a ajuda aparece enquanto você trabalha. Tooltip delay é o tempo que o ponteiro fica sobre um controle antes de a dica aparecer: dois segundos por padrão, e zero mostra as dicas na hora. Show tooltips as desliga por completo, e as seções Theme e Animation se abrem abaixo para a aparência da janela.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme e Animation são seções recolhidas de Appearance. Clique em Theme para abri-la: ela define o tema da interface e a opacidade da página, se os campos esmaecem para a direita e a borda da janela, com seu comprimento, o quanto ela segue o ponteiro, seu alinhamento, modo e ciclo.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Clique em Animation para abri-la no lugar. Ela escolhe o fundo animado e sua paleta, com controles deslizantes de detalhe, desfoque, velocidade, tamanho e densidade, se as dicas das configurações são animadas e o fundo exibido atrás das configurações.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "00_home",
+          "narration": "Volte à tela Home e clique em Pipeline overviews para escolher um fluxo de trabalho. Comece com spaCR screens para uma triagem agrupada baseada em imagens, ou escolha um caminho de análise de imagens ou de sequenciamento para os seus dados. Os próximos tutoriais mostram como esses módulos se conectam, e as lições de cada módulo percorrem depois cada tarefa.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "78_spacr_screens",
+            "80_image_analysis_pathways",
+            "81_sequencing_pathways"
+          ],
+          "focus": [
+            3150,
+            205,
+            666,
+            46
+          ]
+        }
+      ]
+    }
+  }
+}

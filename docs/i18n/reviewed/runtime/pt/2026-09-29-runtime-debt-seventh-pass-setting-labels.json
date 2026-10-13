@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "n2v_denoise",
+      "source": "N2v denoise",
+      "source_sha256": "317f29790f73305a93aa4c15b675001a0d163dc4cb268e00d44c261f08b486bc",
+      "translation": "Remoção de ruído N2V"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n2v_epochs",
+      "source": "N2v epochs",
+      "source_sha256": "78423f08551c8f74c12b9b6f34307dec9a45c96b845333134f9081b68787e0f1",
+      "translation": "Épocas N2V"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n2v_model",
+      "source": "N2v model",
+      "source_sha256": "56da77b225479c9bab95953e589f021631473e490c8d1b5ff90571387ae0ba84",
+      "translation": "Modelo N2V"
+    }
+  ]
+}

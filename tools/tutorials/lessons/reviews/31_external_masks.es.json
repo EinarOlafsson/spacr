@@ -1,0 +1,38 @@
+{
+  "lesson": "31_external_masks",
+  "english_sha256": "5c94fdec0708e9848478d70a90be12722fd91c5c955c5a4090d82ebed3684bb3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "External Masks: medir imágenes con etiquetas de objetos proporcionadas",
+  "description": "Asigna los archivos de imagen y de máscara, previsualiza su emparejamiento y crea un proyecto de spaCR medido con tablas de objetos y recortes.",
+  "objectives": [
+    "Asignar las imágenes de intensidad y las máscaras de etiquetas a sus funciones correctas.",
+    "Elegir los canales, la ubicación de salida y las opciones de medición.",
+    "Previsualizar el emparejamiento, ejecutar Measure y revisar el proyecto de salida."
+  ],
+  "prerequisite": "Prepara imágenes de intensidad y máscaras etiquetadas con enteros que se correspondan y tengan las mismas dimensiones espaciales. Cada objeto necesita su propia etiqueta entera positiva; el cero es el fondo. El ejemplo reutiliza dos pares de imagen y máscara de célula del tutorial Import Project.",
+  "scenes": [
+    "Desde Home, abre Import Project y luego elige External Masks. Usa esta herramienta cuando ya tengas etiquetas de segmentación y quieras que spaCR mida las imágenes correspondientes.",
+    "Prepara imágenes de intensidad y máscaras etiquetadas que se correspondan. Este ejemplo usa dos pares de imagen y máscara de célula. Mantén alineado cada par y usa nombres de archivo o metadatos que permitan al importador emparejar el campo correcto.",
+    "Haz clic en Add folder para la carpeta de imágenes y otra vez para las máscaras. Revisa Use as: elige Image para los archivos de intensidad y Mask para las etiquetas. Pon en Mask type el compartimento que representa cada máscara, por ejemplo Cell.",
+    "Pon Use as en Ignore para cualquier grupo que quieras dejar fuera. Sus archivos siguen en el disco. Mantén incluidos el grupo de imágenes y las máscaras que necesita tu análisis.",
+    "Vuelve a poner Image en el grupo de intensidad del ejemplo. Comprueba las asignaciones de Image y de máscara de célula antes de elegir el destino.",
+    "Pon en Dst una carpeta de proyecto nueva. Elige Layout, Z handling y Plate naming según tus archivos. Este ejemplo usa la disposición plana, el primer plano Z y nombres de placa basados en índices. Usa los metadatos de adquisición cuando haya que conservar la identidad original de los pozos.",
+    "Elige los canales de intensidad que quieres medir en Channels. Cada TIFF de este ejemplo contiene un solo plano de intensidad, así que selecciona el canal cero y deja Normalize desactivado. Los números de canal se refieren a los archivos que importas.",
+    "Elige si quieres medir el citoplasma. Con solo máscaras de célula, la región derivada cubre toda la célula. Proporciona las máscaras de los compartimentos internos cuando necesites excluirlos de esa región.",
+    "En Object Crops, activa Save PNG y elige cell en Crop mode. Pon PNG size en doscientos veinticuatro por doscientos veinticuatro. Selecciona el canal cero para la asignación de PNG de este ejemplo de un solo canal.",
+    "Elige las características de medición que necesitas y luego activa Save measurements. Usa N jobs para fijar la concurrencia. Empieza con un conjunto de entrada pequeño mientras aprendes los ajustes y revisas los recortes resultantes.",
+    "Activa Preview only y pulsa Run. Comprueba en el plan los emparejamientos propuestos entre imagen y máscara, el número de campos y la disposición de canales. Corrige cualquier asignación antes de escribir el proyecto.",
+    "Desactiva Preview only y vuelve a pulsar Run. La herramienta prepara las imágenes y las máscaras del proyecto y luego ejecuta Measure para calcular las características de los objetos y crear los recortes solicitados.",
+    "Revisa la imagen de intensidad junto a las etiquetas proporcionadas. Comprueba los bordes de los objetos, los objetos que faltan y la alineación entre imagen y máscara antes de interpretar las mediciones.",
+    "Recorre el mosaico de objetos para revisar los recortes extraídos. Usa el visor de figuras para moverte entre campos y comprobar que los canales y el tamaño de recorte elegidos muestran bien los objetos.",
+    "Abre measurements/measurements.db para las tablas de objetos, y data para los recortes de anotación. Guarda conversion_map.csv y el manifiesto de origen con el proyecto para que los campos importados sigan siendo rastreables. Continúa en Annotate para etiquetar los recortes, o usa las tablas de mediciones en un análisis posterior."
+  ]
+}

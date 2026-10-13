@@ -1,0 +1,198 @@
+{
+  "lesson": "19_train_cellpose",
+  "status": "Corrected private preparation verified; training and media not yet complete",
+  "source_manifest": {
+    "source_root": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged",
+    "image_channel": 1,
+    "mask_plane": 4,
+    "recorded_settings_sha256": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/settings/measure_crop_settings.csv": "8c832a379abcbfc1b22c6476bed23542be6f5d98e954dff0267dd62fb50252a8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/settings/gen_mask_settings.csv": "888e59ae5c79d7cb7fd044256bb3df06b29558e86d084812816b9a005a281c38"
+    },
+    "crop_size": 512,
+    "pairs": [
+      {
+        "file": "cell_pair_01.tif",
+        "source": "plate1_B01_1_1.npy",
+        "source_sha256": "b1f99edb2de42868e236b3ebf5dad5439c724639c53d62bcdc89d13f84ea40ba",
+        "image_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+        "mask_sha256": "de6f73949e30d51891fe042723f5dfbbb0fc85f32dc1df589b00485e498e93f4",
+        "origin_yx": [
+          120,
+          180
+        ],
+        "objects": 11,
+        "image_range": [
+          92,
+          3101
+        ]
+      },
+      {
+        "file": "cell_pair_02.tif",
+        "source": "plate1_B01_2_1.npy",
+        "source_sha256": "16563ba733b38e7ac7fcb39602620cdcbf3f1bb920921db0f5d436a3fb4fff5d",
+        "image_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+        "mask_sha256": "27d3dafd8e912f8df0ace809d47747f8c024343e62e729437672cb7619cfd6f9",
+        "origin_yx": [
+          520,
+          240
+        ],
+        "objects": 95,
+        "image_range": [
+          103,
+          4847
+        ]
+      },
+      {
+        "file": "cell_pair_03.tif",
+        "source": "plate1_B01_3_1.npy",
+        "source_sha256": "a528034c4fc4bed387323770c4f555eb94ff9360e4acc17d910c548637ed6672",
+        "image_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+        "mask_sha256": "9f00b0b29390fc1f80c19b1cf6084ce62c35f9ac711df438c60203ccbeba66e4",
+        "origin_yx": [
+          940,
+          520
+        ],
+        "objects": 51,
+        "image_range": [
+          98,
+          4866
+        ]
+      },
+      {
+        "file": "cell_pair_04.tif",
+        "source": "plate1_B02_1_1.npy",
+        "source_sha256": "c517aa5525f075df0778a41767761604c94e4257204cb53c13a4f0243e760005",
+        "image_sha256": "96e40ea70ae40729e3b9245a94a44491224a6036fe2d2e51be782e32bf29458a",
+        "mask_sha256": "9664ca40297f8ead006c52e4cf5c4999c67a7a727215db51c52b2caa6262e190",
+        "origin_yx": [
+          180,
+          980
+        ],
+        "objects": 84,
+        "image_range": [
+          97,
+          4737
+        ]
+      },
+      {
+        "file": "cell_pair_05.tif",
+        "source": "plate1_B02_2_1.npy",
+        "source_sha256": "446e44430fab93e5f67e28acd53b7f15e1df587dc91d8063332cccc3571ceae5",
+        "image_sha256": "a5f92c58f2c703ff6e5e8c38d8fca9990eae8bf24de3fcff98da6500abb15f6b",
+        "mask_sha256": "c025e06b794f4b183442112ede4ff52debe3a65b9483cfa4ecdc138c96b39aa6",
+        "origin_yx": [
+          700,
+          1080
+        ],
+        "objects": 52,
+        "image_range": [
+          97,
+          7106
+        ]
+      },
+      {
+        "file": "cell_pair_06.tif",
+        "source": "plate1_B02_3_1.npy",
+        "source_sha256": "fe92ac46a6905bdb282d93569805847b6f1f40e5e6b3ddb9e8b6bc4cf418a92c",
+        "image_sha256": "14f9d1bef4be77841e08a5cacb46b6c19de57230e0ee9018141764532c23bdeb",
+        "mask_sha256": "d520ab0e604bd29429b71122313ff4a4fca474b5fbfdf6b7ff9f21adeeb64711",
+        "origin_yx": [
+          1120,
+          900
+        ],
+        "objects": 46,
+        "image_range": [
+          97,
+          4195
+        ]
+      }
+    ],
+    "target_compartment": "cell, according to original recorded settings",
+    "independent_annotation_review": false,
+    "held_out_accuracy_validated": false,
+    "edge_cut_instances_present": "possible; source labels are preserved exactly",
+    "purpose": "workflow demonstration; independently review labels before production training"
+  },
+  "pairs": [
+    {
+      "file": "cell_pair_01.tif",
+      "image_pixels_checked": 262144,
+      "mask_pixels_checked": 262144,
+      "different_from_pathogen_plane_pixels": 35736,
+      "positive_cell_labels": 11,
+      "source_unchanged": true
+    },
+    {
+      "file": "cell_pair_02.tif",
+      "image_pixels_checked": 262144,
+      "mask_pixels_checked": 262144,
+      "different_from_pathogen_plane_pixels": 232062,
+      "positive_cell_labels": 95,
+      "source_unchanged": true
+    },
+    {
+      "file": "cell_pair_03.tif",
+      "image_pixels_checked": 262144,
+      "mask_pixels_checked": 262144,
+      "different_from_pathogen_plane_pixels": 196679,
+      "positive_cell_labels": 51,
+      "source_unchanged": true
+    },
+    {
+      "file": "cell_pair_04.tif",
+      "image_pixels_checked": 262144,
+      "mask_pixels_checked": 262144,
+      "different_from_pathogen_plane_pixels": 199391,
+      "positive_cell_labels": 84,
+      "source_unchanged": true
+    },
+    {
+      "file": "cell_pair_05.tif",
+      "image_pixels_checked": 262144,
+      "mask_pixels_checked": 262144,
+      "different_from_pathogen_plane_pixels": 201822,
+      "positive_cell_labels": 52,
+      "source_unchanged": true
+    },
+    {
+      "file": "cell_pair_06.tif",
+      "image_pixels_checked": 262144,
+      "mask_pixels_checked": 262144,
+      "different_from_pathogen_plane_pixels": 164519,
+      "positive_cell_labels": 46,
+      "source_unchanged": true
+    }
+  ],
+  "checked_pixels": 3145728,
+  "historical_inputs_unchanged": {
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/source_manifest.json": "58dad761b3748013410b59ec551c3334cfeb73b8ded09649db701586c46f72e8",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_04.tif": "96e40ea70ae40729e3b9245a94a44491224a6036fe2d2e51be782e32bf29458a",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_05.tif": "a5f92c58f2c703ff6e5e8c38d8fca9990eae8bf24de3fcff98da6500abb15f6b",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_06.tif": "14f9d1bef4be77841e08a5cacb46b6c19de57230e0ee9018141764532c23bdeb",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_01.tif": "707b099603c86a60814a0988095914644c88ea731fb65d3200c1541f63be550e",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_02.tif": "3bc97a181c00f6f3e7d3306dd67f014281bad49b9afa66a91133b7304cbb3cc8",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_03.tif": "63c1298bad6f7dc2fed50e0b0a0f71453665dd3ea339d5131232b6af79dc3601",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_04.tif": "88fc01b737d2a91bb1d38b13730baddcee9642beac2af5365946944b94484073",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_05.tif": "57c864f098f4883ddfb8a073fc8f68cad6e739f5d8e1c9603169ddf8c1d2b64b",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_06.tif": "d5f602eb613e3732e2c135a58edfa9a379398fbb0281703a930a7449a2853f60",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/tutorial_settings.json": "780fd19827bc7d96c6d232ebe7c6fd83900fd12327cb2c6d48d9fb426c1f90a0"
+  },
+  "recorded_settings_unchanged": true,
+  "focused_tests_passed": 5,
+  "red_mutations": [
+    "wrong_compartment",
+    "overwrite_existing",
+    "ignore_recorded_mapping",
+    "accept_wrong_dtype",
+    "accept_incomplete_crop"
+  ],
+  "independent_annotation_review": false,
+  "held_out_accuracy_validated": false,
+  "training_run_performed": false,
+  "application_modified": false,
+  "published": false
+}

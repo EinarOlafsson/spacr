@@ -1,0 +1,130 @@
+{
+  "item": 615,
+  "linux_capture_r3_terminal_returncode": 0,
+  "linux_gui_normal_close_returncode": 0,
+  "public_installed_identity": {
+    "version": "1.5.1.3",
+    "package": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+    "prefix": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv"
+  },
+  "previous_r2_outer_returncode_143_retained_as_historical_failed_attempt": true,
+  "current_ui_reference_capture_terminal_returncode": 0,
+  "current_ui_reference_source_frozen_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "source_hashes": {
+    "spacr/qt/widgets/home.py": "be97bb71c230852c08a5bb1944a14da56138354e64cff4445f460c1eeda3e934",
+    "spacr/qt/preferences.py": "02b6b194b56552ea3bbcb50fad5866bad7b0837865ed574601558499534c939d",
+    "spacr/qt/app.py": "4a74bedf391e3f2666bcd73dbfabb4e29d619258c36254f33511d64128a45a05"
+  },
+  "current_ui_visible_modules": [
+    "align",
+    "annotate",
+    "classify_merged",
+    "dose_response",
+    "embeddings",
+    "experiment_design",
+    "foreign",
+    "gate_editor",
+    "graph_builder",
+    "make_masks",
+    "map_barcodes",
+    "mask",
+    "measure",
+    "power",
+    "qc_dashboard",
+    "regression",
+    "run_compare",
+    "toxoplasma",
+    "umap"
+  ],
+  "current_home_and_performance_original_frames_visually_reviewed": true,
+  "public_release_home_21_tiles_not_admitted_to_current_standard_lessons": true,
+  "current_nightly_ui_19_tile_reference_is_separate_from_public_installation": true,
+  "narration_must_identify_current_nightly_reference_and_released_build_layout_difference": true,
+  "windows_macos_native_capture_claimed": false,
+  "installation_media_publication_pending": true,
+  "Mask_07_and_Conda_02_unchanged": true,
+  "captures": {
+    "linux-public-1513-r3": {
+      "frames": 12,
+      "provenance_sha256": "e0c2d2541d0be0da5afaf64e1fb38f4b918da2bb92a1152d1d9c838e1fe6ef00",
+      "frame_sha256": {
+        "01_python_version": "3d5f9a738c21bd631fdf45212d69b485a18d54cd1ec9bdd9e5c418d1f9b02a9b",
+        "02_installer_backend": "73d08e6d0976be6aaac96356531ae96ef7ca6d9d351095da242df604c05d1cf9",
+        "03_installed_versions": "bf56ef733510ce0d945636175c3bf26975f9d79d759b5bd38f13c1b3b21dd123",
+        "04_installed_launcher": "dc068cedfd44d71584f98c89da7dd74b7bac83dd97defcf2497f608841f72459",
+        "05_doctor": "6444384300ba42f79e0d14bcf519284bbdced5be225271cde68d2c47070ea26d",
+        "07_privacy_keep_off": "0759aa40a142a1dbda0446f49a85a8e02560f6869fdbc87a3594d5ca9d2603f0",
+        "06_installed_home": "6ad05599ad80b4e8b472363d6f86dc62bc8222c0738beb72ff143474b09d6276",
+        "08_official_release": "c2622185a637a9a6019a9be2811bc79315538f1745ce8559cf91ca217657a5cb",
+        "09_windows_guidance": "96530a58c74af586e2ecb3c0e0a326e05d5175a17e574ac5a8b21c402a3b8988",
+        "10_macos_guidance": "376d015d8e36bf9ce5ebee82a20e55ddceae5c6520f022b02aa4762208cd0b85",
+        "11_linux_commands": "97a22c7ec40dff722da063d4f30b679ab7f704842dd7fde74f79da76c7702c4c",
+        "12_logs_and_versions": "e61219d320a7927b23aa239ae0d44218529b17e575f5fa1cca3be96b84062409"
+      }
+    },
+    "current-nightly-ui-reference-r2": {
+      "frames": 16,
+      "provenance_sha256": "abb15c42c4d12dd55156a440a2f8c0acf027f8c68f9d4c13a35af2802901d250",
+      "frame_sha256": {
+        "00_home": "ca91d9f46245e663d5a5d250699f0c3ea18edda89d2a1cb8cfd82a490a53d29d",
+        "01_help_report": "b0f1b7f708aa2ac41a2b5f8e28855de9c32ea5f7d19c723615a829bfdfc0f3a4",
+        "01_help_batch": "d7f27071fa845a2506ee0d18295f5d087ce4678dd9d2239c147819f56bb0be31",
+        "01_help_distributed": "15b6b891b709695daa08b4fb3488c9e2930ee4e46c78964540d2e13622d6af5b",
+        "01_help_data_manager": "3ae1c4af95cfff0867b043a6b86fc03e3ed1e6c282d0f6ed8e364e6b9d0d2dbd",
+        "01_help_project_browser": "13c011880fc57eed588621c832513af71d56e382f630fdd6f77dca7b293a1b97",
+        "01_help_pipeline_graph": "7f3fb6e0914b2ce54921fbc91d1ff0b42184158182992ba219eeeca83c86b36f",
+        "01_help_dictionary": "a0da0a93911abd70c24498d746617733b1a1b6db115bd0c20781afd66c181db5",
+        "01_help_history": "5a2a7050c96bca58f08ed2b1dfb5d97df6905dcb19a33c31f6bbe8cbd8775810",
+        "01_measure_host": "eb50856eaa42d3799ab18d80bf1ae2b45c7a2ed1eb34c652af38060b2644abdf",
+        "01_classify_host": "7240015d7a421cd8c6ca3a27806c6f87cc9b5ab5cf84c7d671b95e73ebfad511",
+        "01_image_umap_host": "2304983000c8e2632af2296b505e1a3baa080e368fc75ee12489c778d28778dd",
+        "09_performance": "1c627c0749b63fd26e54ababa3e46df01cc56d267b3bb254e2c1cf072b52a601",
+        "10_appearance_categories": "25ddb8d26c54c73a0891c8c1673dd3236ef28dcc18213234e4770c2fe10fc1fc",
+        "11_appearance_theme": "4f0a535e400fca6dc8438839cd1b6a83b1737bf43df51cba086a47c8b849fec4",
+        "12_appearance_animation": "390d25272eed2efd26aa64891f9b32fd1e29913c16e0b145a7611231f9eb4d8a"
+      }
+    }
+  },
+  "artifacts": {
+    "features/data/615_installation_capture_followup_2026-10-06/archive_installation_capture_followup.py": {
+      "sha256": "3a9f0375ea5125191c0fbdd96f3266213123ad917cbc9d7f0458a280888222f8",
+      "bytes": 5740
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/capture_current_install_openings.py": {
+      "sha256": "f03df62c51d5ca8846f1b12dd9f54fe10f9c6cb07c16a5936260c403f09e9b30",
+      "bytes": 2156
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/current-installation-ui-openings-r1.log.gz": {
+      "sha256": "2d94d0bd4dba67058c48432678407a426a6284237acbd4a0fc238b23685cecf3",
+      "bytes": 837
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/current-installation-ui-openings-r2.log.gz": {
+      "sha256": "6cf69f7e9618b6ec16ee1c4ff176c597fea3371e5b8dbbff223a684a54141c96",
+      "bytes": 368
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/current-neutral-public-linux-capture-r3.log.gz": {
+      "sha256": "58a58c4f7907589cd5f12f5badf1d56db77425a072606e1462ed2af2b7774352",
+      "bytes": 688
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/current-public-linux-cards-r3.log.gz": {
+      "sha256": "a6f3fc01935e49a9b3abb24a552983bfbdda5df84595566f35b95563b30bed85",
+      "bytes": 93
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/installation-capture-followup-archive-r1.log.gz": {
+      "sha256": "4431976cfacedcaa48e62a5a1d39aa8ca21038baf9997ad05795f22d26eb5eff",
+      "bytes": 354
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/installation-capture-followup-archive-r2.log.gz": {
+      "sha256": "24671520d71ff3ecdd09add82ea270446aad5eb014d460332d19ca5577e80bb2",
+      "bytes": 506
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/original-captures.zip": {
+      "sha256": "b0ee55fa2cc676eae94369a173a68ae135a54c14fcb001d945ab9092df63096b",
+      "bytes": 8793285
+    },
+    "features/data/615_installation_capture_followup_2026-10-06/run_installation_namespace.sh": {
+      "sha256": "f7cf627e38963f5932292dffb3c5c73dab8d443b8b90e1c0f15da92d88fe4c6d",
+      "bytes": 1132
+    }
+  }
+}

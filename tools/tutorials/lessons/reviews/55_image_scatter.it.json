@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Image Scatter: esaminare le misure e i relativi ritagli",
+  "description": "Traccia due colonne di misure, visualizza in anteprima i ritagli degli oggetti e invia un oggetto selezionato ad Annotate.",
+  "objectives": [
+    "Caricare le misure e scegliere gli assi.",
+    "Esaminare il ritaglio dietro un punto.",
+    "Inviare un oggetto selezionato ad Annotate."
+  ],
+  "prerequisite": "Usa un database delle misure di spaCR con i ritagli degli oggetti e i file di formato dei ritagli corrispondenti. L’esempio scaricabile di Annotate fornisce questi input.",
+  "scenes": [
+    "Apri Image UMAP e poi Image Scatter per tracciare due misure esistenti. Esercitati con il database dell’esempio di Annotate e i relativi ritagli di cellule.",
+    "Fai clic su Browse e apri measurements.db. Tieni la cartella data del progetto e i file di formato dei ritagli insieme al database, così le miniature si trovano.",
+    "Seleziona cell nel selettore delle tabelle e fai clic su Plot. Se passi a un’altra tabella, fai di nuovo clic su Plot per caricarne le righe.",
+    "Imposta x sull’area cellulare e y sull’intensità media del canale uno della cellula. La scelta degli assi ridisegna subito le righe caricate.",
+    "Passa il puntatore su un punto per vedere il ritaglio salvato e l’identità completa dell’oggetto. Usa l’immagine per capire la misura dietro il punto.",
+    "Allontana il puntatore per togliere l’anteprima temporanea, poi passalo su un altro punto per esaminarlo.",
+    "Scambia le misure di x e y per esplorare la relazione da un altro punto di vista. Scegli caratteristiche significative e controlla le unità.",
+    "Seleziona un’altra misura, per esempio la caratteristica di omogeneità. Le righe senza coordinate vengono omesse dal grafico, quindi il numero di punti può differire da quello delle righe caricate.",
+    "Una colonna costante, come la dimensione della misura in questo esempio, dispone i punti su una linea. Torna a una caratteristica con una variabilità utile per esaminare gli oggetti.",
+    "Per esaminare un ritaglio selezionato in Annotate, apri prima Annotate e carica lo stesso progetto. Poi torna alla vista Image Scatter esistente.",
+    "Fai clic sul punto stesso per inviare l’identità del suo oggetto ad Annotate, poi passa a quella pagina. Passare il puntatore mostra solo l’anteprima del ritaglio.",
+    "Esamina l’oggetto selezionato in Annotate prima di assegnargli un’etichetta. Usa Database Browser per esportare tabelle, oppure PCA per l’analisi delle componenti."
+  ]
+}

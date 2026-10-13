@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Sonnet 5.5), no native-speaker signoff",
+  "note": "Reviewed API translations (AI review, same method as delta6c-6e) for item 695: the borderless window preference, the startup replay, the container opacity and the four-second blow-away docstrings.",
+  "records": [
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#0",
+      "source": "Whether the main window is borderless, filling its screen's work area.",
+      "source_sha256": "6696d9463f84d759bd511101da97bcc98e37e471d0c8148b568a544fb80c0559",
+      "context": "Whether the main window is borderless, filling its screen's work area.",
+      "translation": "Se a janela principal não tem bordas e preenche a área de trabalho de sua tela.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#1",
+      "source": "The Borderless window switch in the spaCR menu and in Help > Window. Off gives the platform's own framed window, opened at the measured width.",
+      "source_sha256": "7babea5116d9784edfa61dc59be402dc6fe7a70e5975897d19b56e15f69a99f9",
+      "context": "The Borderless window switch in the spaCR menu and in Help > Window. Off gives the platform's own framed window, opened at the measured width.",
+      "translation": "O interruptor Janela sem bordas no menu do spaCR e em Help > Window. Desligado dá a janela com moldura própria da plataforma, aberta na largura medida.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.get_borderless_window#2",
+      "source": "``True`` unless the switch was turned off; on by default.",
+      "source_sha256": "a41cb17ecc7dfa570962e92ccddd54b127ec24026d930393e9bddbed6ca02857",
+      "context": "``True`` unless the switch was turned off; on by default.",
+      "translation": "``True`` a menos que o interruptor tenha sido desligado; ligado por padrão.",
+      "review_basis": "reused from an existing reviewed record of the identical source block"
+    },
+    {
+      "label": "spacr.qt.preferences.set_borderless_window#0",
+      "source": "Choose a borderless or a framed main window.",
+      "source_sha256": "dd37fe43655dda8492c04f5e5075f2e7f4f0cb93bb72fef976c86fb2053998e4",
+      "context": "Choose a borderless or a framed main window.",
+      "translation": "Escolher uma janela principal sem bordas ou com moldura.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.preferences.set_borderless_window#1",
+      "source": "``True`` for borderless.",
+      "source_sha256": "fa862288b574333fb21abcd51bc0c637fe970e7015c40064f1024b2b5f34c179",
+      "context": "``True`` for borderless.",
+      "translation": "``True`` para sem bordas.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#10",
+      "source": "how many times slower than the 694 flight each tile flies (lift, flip, spin, travel and fade are stretched alike).",
+      "source_sha256": "c85ce426df60be8aa7904bd784bde2d80f61d256000226a99fcd63aa78e97bbb",
+      "context": "how many times slower than the 694 flight each tile flies (lift, flip, spin, travel and fade are stretched alike).",
+      "translation": "quantas vezes mais lento que o voo de 694 cada ladrilho voa (a subida, a virada, o giro, o trajeto e o desvanecimento são esticados por igual).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.BlowAway#11",
+      "source": "when given, the last tile has gone by then: lives are cut to end there and :attr:`duration` is ``end``.",
+      "source_sha256": "5584f91e8ebc8f359f1bcd8d5c35599d5ecb2e2d69ada108dc89d9b0982eaf40",
+      "context": "when given, the last tile has gone by then: lives are cut to end there and :attr:`duration` is ``end``.",
+      "translation": "quando dado, o último ladrilho já se foi até lá: as vidas são cortadas ali e :attr:`duration` é ``end``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#1",
+      "source": "The logo holds until two seconds after the cover first painted (at once when called later than that), then blows away over four seconds: the black container fades from one to three seconds in and the last tile has gone at four. The cover deletes itself then.",
+      "source_sha256": "6efefcdf4e85f61d1f97a90af92af73062ad47bb2158659a803945de350a2ce3",
+      "context": "The logo holds until two seconds after the cover first painted (at once when called later than that), then blows away over four seconds: the black container fades from one to three seconds in and the last tile has gone at four. The cover deletes itself then.",
+      "translation": "O logotipo fica parado até dois segundos depois de a cobertura ser pintada pela primeira vez (imediatamente se chamado depois disso) e então se dispersa ao longo de quatro segundos: o contêiner preto desvanece do primeiro ao terceiro segundo e o último ladrilho se foi aos quatro. A cobertura se apaga sozinha então.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#3",
+      "source": "play even where :func:`startup_animation_allowed` says no; for the Help replay, tests and previews.",
+      "source_sha256": "ec5380f74a5384036fd4b2782649ecf274594c3e1ff229bdb93f7f21cfd73461",
+      "context": "play even where :func:`startup_animation_allowed` says no; for the Help replay, tests and previews.",
+      "translation": "reproduzir mesmo onde :func:`startup_animation_allowed` diz não; para a repetição em Help, testes e pré-visualizações.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.blow_away#4",
+      "source": "hold the logo, then cross-fade it and the container away in one second instead of blowing it away (Reduce motion).",
+      "source_sha256": "5a3404365eb8f1412ef14154c877341c9d2e76b7bb168aa59c816ffd70d94386",
+      "context": "hold the logo, then cross-fade it and the container away in one second instead of blowing it away (Reduce motion).",
+      "translation": "manter o logotipo e então desvanecer ele e o contêiner em um segundo em vez de dispersá-los (Reduzir movimento).",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.container_opacity#0",
+      "source": "How opaque the black container behind the logo is now.",
+      "source_sha256": "e91e6b0da79dde9b6329bc20ec7b2dfea7b2985138efe7b1b1b70d45fb8954b2",
+      "context": "How opaque the black container behind the logo is now.",
+      "translation": "Quão opaco é agora o contêiner preto atrás do logotipo.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.container_opacity#1",
+      "source": "1.0 until a second into the blow-away, then falling monotonically to 0.0 three seconds in (over the one second of the plain cross-fade under Reduce motion); 0.0 once the cover is done.",
+      "source_sha256": "783ca45f2efa090faad6ff940369432be46f4b9971c46a28423261cbeb5bc6cf",
+      "context": "1.0 until a second into the blow-away, then falling monotonically to 0.0 three seconds in (over the one second of the plain cross-fade under Reduce motion); 0.0 once the cover is done.",
+      "translation": "1.0 até um segundo depois do início da dispersão, depois decrescendo monotonicamente até 0.0 aos três segundos (durante o segundo da simples transição sob Reduzir movimento); 0.0 quando a cobertura termina.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#0",
+      "source": "Keep covering the window as it resizes.",
+      "source_sha256": "e3908476e0189f8e05c8b2a3fe72cef3b2c461f2d85f5795ba1027d24df8861a",
+      "context": "Keep covering the window as it resizes.",
+      "translation": "Continuar cobrindo a janela quando ela é redimensionada.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#1",
+      "source": "A window that opens maximised is resized after the cover is put over it, and by then the window may have handed the cover to the blow-away and stopped sizing it.",
+      "source_sha256": "928fa536d3b3e02ccb3f9ccfba87e5df30f3e450f4370529a84429b3a24a768b",
+      "context": "A window that opens maximised is resized after the cover is put over it, and by then the window may have handed the cover to the blow-away and stopped sizing it.",
+      "translation": "Uma janela que abre maximizada é redimensionada depois que a cobertura é colocada sobre ela, e até lá a janela pode ter entregado a cobertura à dispersão e parado de dimensioná-la.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#2",
+      "source": "the window this covers.",
+      "source_sha256": "d8b4c87947dc5706b037fe6d478e3b06c816b8f51263600de99985df02d04d1c",
+      "context": "the window this covers.",
+      "translation": "a janela que ela cobre.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#3",
+      "source": "the event; only a resize is acted on.",
+      "source_sha256": "784c858a3afe115edea340cceee5f0650707ec7a7ceef26311eef17c89574d34",
+      "context": "the event; only a resize is acted on.",
+      "translation": "o evento; só um redimensionamento é tratado.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.LoadingScreen.eventFilter#4",
+      "source": "``False``, so the window still sees every event.",
+      "source_sha256": "f875ef6e96d7862b203196a9897f64ba5ac6f59bc4fd81d94f0cd3ed628ae6df",
+      "context": "``False``, so the window still sees every event.",
+      "translation": "``False``, para que a janela ainda veja todo evento.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#0",
+      "source": "Whether a blow-away is drawing its frames.",
+      "source_sha256": "4f147dc3159d9379023f03408fc94b1c007df2f2a4e12af5afeb62e5fb65f0ec",
+      "context": "Whether a blow-away is drawing its frames.",
+      "translation": "Se uma dispersão está desenhando seus quadros.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#1",
+      "source": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the four seconds it runs. While the logo only holds, the window keeps loading underneath it.",
+      "source_sha256": "1d44a287cb158f90eff57bac59c06d910b7126dc6e13ed09117420892ea04bc6",
+      "context": "Idle-time warming asks this and waits, so its slices do not take frames from the animation in the four seconds it runs. While the logo only holds, the window keeps loading underneath it.",
+      "translation": "O aquecimento em tempo ocioso pergunta isto e espera, para que suas fatias não tirem quadros da animação nos quatro segundos em que ela dura. Enquanto o logotipo apenas fica parado, a janela continua carregando por baixo.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.blow_away_running#2",
+      "source": "``True`` while any cover that still exists is past its hold and drawing; a cover deleted mid-way, with its window, no longer counts.",
+      "source_sha256": "dcd0b4a50b13145cede04bd05c397d960d9c795f87a8116c3644e117793ac1c0",
+      "context": "``True`` while any cover that still exists is past its hold and drawing; a cover deleted mid-way, with its window, no longer counts.",
+      "translation": "``True`` enquanto qualquer cobertura que ainda existe já passou de sua espera e está desenhando; uma cobertura apagada no meio, com sua janela, não conta mais.",
+      "review_basis": "reviewed from the current catalog draft"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#0",
+      "source": "Play the startup sequence again inside ``window``.",
+      "source_sha256": "b3f3091c0f092a29eda04742a58c4e54a25c2d3861fb35815db9ff5eeebeb59e",
+      "context": "Play the startup sequence again inside ``window``.",
+      "translation": "Reproduzir de novo a sequência de inicialização dentro de ``window``.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#1",
+      "source": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "source_sha256": "0350ef88141c735ace8678c421e2e361c469611ae549bcccd338f51bbe0a8cc7",
+      "context": "Help > Show startup animation. The black container with the logo comes back over the window, holds for two seconds and blows away as it does at startup. It plays even when Preferences > Animation > Startup animation is off; under Accessibility > Reduce motion the logo holds and then cross-fades away in one second. A click or a key skips it. The window's size, state and keyboard focus are left as they were.",
+      "translation": "Help > Show startup animation. O contêiner preto com o logotipo volta sobre a janela, fica dois segundos e se dispersa como na inicialização. Ela é reproduzida mesmo quando Preferences > Animação > Animação de inicialização está desligada; sob Acessibilidade > Reduzir movimento o logotipo fica parado e depois desvanece em um segundo. Um clique ou uma tecla a pula. O tamanho, o estado e o foco do teclado da janela ficam como estavam.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#2",
+      "source": "the window to play it in.",
+      "source_sha256": "152efb5b5401382d36f20a888c053df26ef069aef9653fa0c92148cf28094c29",
+      "context": "the window to play it in.",
+      "translation": "a janela em que ela é reproduzida.",
+      "review_basis": "written from the English"
+    },
+    {
+      "label": "spacr.qt.widgets.loading_screen.replay_startup_animation#3",
+      "source": "the cover now playing, or ``None`` when the logo cannot be read or a cover is already over the window.",
+      "source_sha256": "9e29f201cf930607d9e4c06d28289c973eed643fe6a3c71a71ff4561235c16b2",
+      "context": "the cover now playing, or ``None`` when the logo cannot be read or a cover is already over the window.",
+      "translation": "a cobertura que está sendo reproduzida agora, ou ``None`` quando o logotipo não pode ser lido ou já há uma cobertura sobre a janela.",
+      "review_basis": "written from the English"
+    }
+  ]
+}

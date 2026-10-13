@@ -1,0 +1,35 @@
+{
+  "lesson": "85_host_pathogen",
+  "english_sha256": "e744c3949f480b452dc13cdc04ea44b00e1872b977979c44f5e21d1c9fff7b18",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Host–Pathogen: ligar marcadores de vacúolos e contagens de parasitas",
+  "description": "Carregue o exemplo de microscopia, escolha as entradas de marcadores e contagens, inspecione a pré-visualização e exporte resumos ligados de vacúolos, células hospedeiras e poços.",
+  "objectives": [
+    "Carregar o projeto de exemplo e identificar as medições de hospedeiro e de vacúolo.",
+    "Escolher os canais de marcadores e inspecionar o recrutamento por vacúolo na pré-visualização Live.",
+    "Executar a análise e ler as tabelas de saída com os denominadores corretos."
+  ],
+  "prerequisite": "Use Load test data para o exemplo de microscopia THP-1 fornecido, ou selecione um projeto medido com células hospedeiras, vacúolos e intensidades de referência do hospedeiro. Mantenha as células hospedeiras não infectadas durante Measure quando precisar de um denominador de infecção. Contagens individuais de parasitas exigem uma tabela de parasitas vinculada ou uma coluna de contagem medida.",
+  "scenes": [
+    "Host–Pathogen liga os marcadores e a contagem de parasitas de cada vacúolo à sua célula hospedeira e ao seu poço. Para chegar lá, abra Toxoplasma na tela Home e escolha Host–Pathogen.",
+    "O jeito mais fácil de começar é o exemplo. Load test data baixa um pequeno projeto de microscopia e preenche as configurações: dois campos com imagens, máscaras de hospedeiro e de vacúolo e tabelas de medições. Pratique aqui antes de passar para o seu próprio projeto medido.",
+    "Tudo o que o módulo lê entra por Source, que deve apontar para o projeto com measurements/measurements.db. Ele também pode ler um banco de dados diretamente, ou combinar vários projetos mantendo separada a identidade de cada um.",
+    "Agora diga onde ficam os vacúolos e os hospedeiros nesse banco de dados: a tabela de vacúolos e o prefixo das colunas de intensidade, depois a tabela de referência do hospedeiro e o prefixo dela. O exemplo usa pathogen e cytoplasm. Os vínculos entre objetos conectam cada vacúolo à sua célula hospedeira, então confira se estão corretos.",
+    "Marker channels diz quais intensidades comparar, contando a partir de zero. O exemplo escolhe o canal um, o marcador RNF213. O canal escolhido precisa ter medições de intensidade tanto no vacúolo quanto no compartimento de referência, porque a razão é calculada a partir dos dois.",
+    "No início, deixe Marker thresholds vazio e apenas observe as razões de recrutamento. Quando seus controles mostrarem onde começa o positivo, informe o número do canal e esse limiar de razão; tudo o que ficar nele ou acima conta como positivo. Se uma medição de referência estiver ausente ou for inválida, o estado fica desconhecido em vez de ser presumido.",
+    "As contagens de parasitas vêm de um de dois lugares: uma tabela de parasitas cujas linhas apontam para o vacúolo de origem, ou uma coluna de contagem medida em cada vacúolo. O exemplo de microscopia não tem nenhuma das duas, então deixe ambas vazias aqui; as contagens de parasitas e as leituras de replicação ficam desconhecidas.",
+    "Antes de executar tudo, teste um campo. Ative Live, escolha um campo e clique em Run preview. A tabela de vacúolos aparece ao lado da imagem; selecione uma linha, ou clique em um vacúolo, para ver as medições dos marcadores e a contagem de parasitas, se houver.",
+    "Quando a pré-visualização estiver boa, desative Live e expanda Actions se estiver recolhido. Mantenha Save ativado e aperte Run. Ao terminar, o console mostra o caminho de saída, e os resultados ficam em results/host_pathogen dentro do primeiro projeto selecionado.",
+    "Os resultados vão do menor para o maior. vacuoles.csv tem uma linha por vacúolo: o vínculo com o hospedeiro, as razões dos marcadores, o estado do marcador e a contagem de parasitas, se houver. cells.csv agrupa essas linhas em infecção e número de vacúolos por célula hospedeira, e wells.csv as resume por poço.",
+    "Mais duas tabelas respondem à pergunta biológica. marker_states.csv mostra os estados combinados dos marcadores, e replication_distribution.csv as contagens de parasitas por vacúolo contado. Parasitas sem um vínculo de origem utilizável vão para orphan_parasites.csv. Guarde settings.json junto com elas para que suas escolhas de canais e limiares as acompanhem.",
+    "Uma última verificação antes de comparar condições: os denominadores. As frações de infecção usam as células hospedeiras medidas que foram mantidas, então hospedeiros não infectados só contam se Measure os manteve. As distribuições de contagens usam apenas vacúolos com contagem de parasitas conhecida, e o desconhecido nunca vira zero sem aviso."
+  ]
+}

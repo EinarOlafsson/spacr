@@ -1,0 +1,1112 @@
+{
+  "matrix": {
+    "apps": [
+      "measure",
+      "regression",
+      "classify_merged",
+      "foreign",
+      "annotate",
+      "qc_dashboard",
+      "power",
+      "experiment_design",
+      "data_manager",
+      "pipeline_graph",
+      "profiler",
+      "lineage",
+      "layer_viewer",
+      "graph_builder",
+      "run_compare",
+      "tabulate",
+      "investigate_hit",
+      "trellis",
+      "gate_editor",
+      "feature_explorer",
+      "outliers",
+      "dose_response",
+      "control_chart",
+      "project_browser"
+    ],
+    "height": 850,
+    "locales": [
+      "en",
+      "de",
+      "is",
+      "pt"
+    ],
+    "scales": [
+      1.0,
+      2.0
+    ],
+    "widths": [
+      400,
+      500,
+      600,
+      700,
+      800,
+      900,
+      1000,
+      1100,
+      1200,
+      1300,
+      1400,
+      1600,
+      1800,
+      2100,
+      2560
+    ]
+  },
+  "measured_seconds": 780.2,
+  "minimum_width": {
+    "1.0": 2100,
+    "2.0": 2560
+  },
+  "rows": {
+    "annotate|de|1.0": {
+      "probes": 2,
+      "width": 500,
+      "worst": []
+    },
+    "annotate|de|2.0": {
+      "probes": 6,
+      "width": 900,
+      "worst": []
+    },
+    "annotate|en|1.0": {
+      "probes": 2,
+      "width": 500,
+      "worst": []
+    },
+    "annotate|en|2.0": {
+      "probes": 4,
+      "width": 700,
+      "worst": []
+    },
+    "annotate|is|1.0": {
+      "probes": 2,
+      "width": 500,
+      "worst": []
+    },
+    "annotate|is|2.0": {
+      "probes": 5,
+      "width": 800,
+      "worst": []
+    },
+    "annotate|pt|1.0": {
+      "probes": 2,
+      "width": 500,
+      "worst": []
+    },
+    "annotate|pt|2.0": {
+      "probes": 5,
+      "width": 800,
+      "worst": []
+    },
+    "classify_merged|de|1.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 872 px of content in a 832 px viewport"
+      ]
+    },
+    "classify_merged|de|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 989 px of content in a 832 px viewport"
+      ]
+    },
+    "classify_merged|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "classify_merged|en|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 854 px of content in a 832 px viewport"
+      ]
+    },
+    "classify_merged|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "classify_merged|is|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "classify_merged|pt|1.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 925 px of content in a 832 px viewport"
+      ]
+    },
+    "classify_merged|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1119 px of content in a 832 px viewport"
+      ]
+    },
+    "control_chart|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "control_chart|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "control_chart|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "control_chart|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "control_chart|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "control_chart|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "control_chart|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "control_chart|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 885 px of content in a 842 px viewport"
+      ]
+    },
+    "data_manager|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "data_manager|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "data_manager|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "data_manager|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "data_manager|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "data_manager|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "data_manager|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "data_manager|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1058 px of content in a 842 px viewport"
+      ]
+    },
+    "dose_response|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "dose_response|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "dose_response|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "dose_response|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "dose_response|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "dose_response|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "dose_response|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "dose_response|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 913 px of content in a 842 px viewport"
+      ]
+    },
+    "experiment_design|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "experiment_design|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "experiment_design|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "experiment_design|en|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 845 px of content in a 842 px viewport"
+      ]
+    },
+    "experiment_design|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "experiment_design|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "experiment_design|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "experiment_design|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1129 px of content in a 842 px viewport"
+      ]
+    },
+    "feature_explorer|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "feature_explorer|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "feature_explorer|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "feature_explorer|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "feature_explorer|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "feature_explorer|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "feature_explorer|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "feature_explorer|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 954 px of content in a 842 px viewport"
+      ]
+    },
+    "foreign|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "foreign|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "foreign|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "foreign|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "foreign|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "foreign|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "foreign|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "foreign|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 955 px of content in a 842 px viewport"
+      ]
+    },
+    "gate_editor|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "gate_editor|de|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "gate_editor|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "gate_editor|en|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "gate_editor|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "gate_editor|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "gate_editor|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "gate_editor|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 920 px of content in a 842 px viewport"
+      ]
+    },
+    "graph_builder|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "graph_builder|de|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 873 px of content in a 842 px viewport"
+      ]
+    },
+    "graph_builder|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "graph_builder|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "graph_builder|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "graph_builder|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "graph_builder|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "graph_builder|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1063 px of content in a 842 px viewport"
+      ]
+    },
+    "investigate_hit|de|1.0": {
+      "probes": 7,
+      "width": 1000,
+      "worst": []
+    },
+    "investigate_hit|de|2.0": {
+      "probes": 12,
+      "width": 1600,
+      "worst": []
+    },
+    "investigate_hit|en|1.0": {
+      "probes": 7,
+      "width": 1000,
+      "worst": []
+    },
+    "investigate_hit|en|2.0": {
+      "probes": 12,
+      "width": 1600,
+      "worst": []
+    },
+    "investigate_hit|is|1.0": {
+      "probes": 7,
+      "width": 1000,
+      "worst": []
+    },
+    "investigate_hit|is|2.0": {
+      "probes": 12,
+      "width": 1600,
+      "worst": []
+    },
+    "investigate_hit|pt|1.0": {
+      "probes": 6,
+      "width": 900,
+      "worst": []
+    },
+    "investigate_hit|pt|2.0": {
+      "probes": 12,
+      "width": 1600,
+      "worst": []
+    },
+    "layer_viewer|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "layer_viewer|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "layer_viewer|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "layer_viewer|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "layer_viewer|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "layer_viewer|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "layer_viewer|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "layer_viewer|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1113 px of content in a 842 px viewport"
+      ]
+    },
+    "lineage|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "lineage|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "lineage|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "lineage|en|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "lineage|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "lineage|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "lineage|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "lineage|pt|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "measure|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "measure|de|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "measure|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "measure|en|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "measure|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "measure|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "measure|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "measure|pt|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "outliers|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "outliers|de|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "outliers|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "outliers|en|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "outliers|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "outliers|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "outliers|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "outliers|pt|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "pipeline_graph|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "pipeline_graph|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "pipeline_graph|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "pipeline_graph|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "pipeline_graph|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "pipeline_graph|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "pipeline_graph|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "pipeline_graph|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 960 px of content in a 842 px viewport"
+      ]
+    },
+    "power|de|1.0": {
+      "probes": 6,
+      "width": 900,
+      "worst": []
+    },
+    "power|de|2.0": {
+      "probes": 12,
+      "width": 1600,
+      "worst": []
+    },
+    "power|en|1.0": {
+      "probes": 6,
+      "width": 900,
+      "worst": []
+    },
+    "power|en|2.0": {
+      "probes": 12,
+      "width": 1600,
+      "worst": []
+    },
+    "power|is|1.0": {
+      "probes": 6,
+      "width": 900,
+      "worst": []
+    },
+    "power|is|2.0": {
+      "probes": 11,
+      "width": 1400,
+      "worst": []
+    },
+    "power|pt|1.0": {
+      "probes": 9,
+      "width": 1200,
+      "worst": []
+    },
+    "power|pt|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "profiler|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "profiler|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "profiler|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "profiler|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "profiler|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "profiler|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "profiler|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "profiler|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1097 px of content in a 842 px viewport"
+      ]
+    },
+    "project_browser|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "project_browser|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "project_browser|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "project_browser|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "project_browser|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "project_browser|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "project_browser|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "project_browser|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1074 px of content in a 842 px viewport"
+      ]
+    },
+    "qc_dashboard|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "qc_dashboard|de|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "qc_dashboard|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "qc_dashboard|en|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "qc_dashboard|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "qc_dashboard|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "qc_dashboard|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "qc_dashboard|pt|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "regression|de|1.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1190 px of content in a 832 px viewport"
+      ]
+    },
+    "regression|de|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 2111 px of content in a 832 px viewport"
+      ]
+    },
+    "regression|en|1.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 970 px of content in a 832 px viewport"
+      ]
+    },
+    "regression|en|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1667 px of content in a 832 px viewport"
+      ]
+    },
+    "regression|is|1.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1102 px of content in a 832 px viewport"
+      ]
+    },
+    "regression|is|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1933 px of content in a 832 px viewport"
+      ]
+    },
+    "regression|pt|1.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1125 px of content in a 832 px viewport"
+      ]
+    },
+    "regression|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1976 px of content in a 832 px viewport"
+      ]
+    },
+    "run_compare|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "run_compare|de|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "run_compare|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "run_compare|en|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "run_compare|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "run_compare|is|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "run_compare|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "run_compare|pt|2.0": {
+      "probes": 15,
+      "width": null,
+      "worst": [
+        "the settings column holds 1038 px of content in a 842 px viewport"
+      ]
+    },
+    "tabulate|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "tabulate|de|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "tabulate|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "tabulate|en|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "tabulate|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "tabulate|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "tabulate|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "tabulate|pt|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    },
+    "trellis|de|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "trellis|de|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "trellis|en|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "trellis|en|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "trellis|is|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "trellis|is|2.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "trellis|pt|1.0": {
+      "probes": 14,
+      "width": 2100,
+      "worst": []
+    },
+    "trellis|pt|2.0": {
+      "probes": 15,
+      "width": 2560,
+      "worst": []
+    }
+  },
+  "schema": 1,
+  "unfixable": [
+    "classify_merged|de|1.0",
+    "classify_merged|de|2.0",
+    "classify_merged|en|2.0",
+    "classify_merged|pt|1.0",
+    "classify_merged|pt|2.0",
+    "control_chart|pt|2.0",
+    "data_manager|pt|2.0",
+    "dose_response|pt|2.0",
+    "experiment_design|en|2.0",
+    "experiment_design|pt|2.0",
+    "feature_explorer|pt|2.0",
+    "foreign|pt|2.0",
+    "gate_editor|pt|2.0",
+    "graph_builder|de|2.0",
+    "graph_builder|pt|2.0",
+    "layer_viewer|pt|2.0",
+    "pipeline_graph|pt|2.0",
+    "profiler|pt|2.0",
+    "project_browser|pt|2.0",
+    "regression|de|1.0",
+    "regression|de|2.0",
+    "regression|en|1.0",
+    "regression|en|2.0",
+    "regression|is|1.0",
+    "regression|is|2.0",
+    "regression|pt|1.0",
+    "regression|pt|2.0",
+    "run_compare|pt|2.0"
+  ]
+}

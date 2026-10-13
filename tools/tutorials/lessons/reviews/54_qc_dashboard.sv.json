@@ -1,0 +1,35 @@
+{
+  "lesson": "54_qc_dashboard",
+  "english_sha256": "8d73de741cc8b5d38c497eac960c0dfe562312ed73b07d6f02e536ba8ec4c174",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "QC: granska ett projekts kvalitetsrapporter",
+  "description": "Välj ett projekt, läs tillgängliga kvalitetsrapporter, undersök varningar och uppdatera instrumentpanelen.",
+  "objectives": [
+    "Välja det projekt eller den körning som ska granskas.",
+    "Läsa tillgängliga, saknade och inaktuella rapporter.",
+    "Undersöka fynd och uppdatera vyn."
+  ],
+  "prerequisite": "Använd ett projekt med sparade kvalitetsrapporter. De hämtade exemplen från Mask och Annotate ger olika uppsättningar rapporter; välj det specifika projekt eller den körmapp du vill granska.",
+  "scenes": [
+    "Öppna QC från kategorin Data på Home för att granska kvalitetsrapporter som sparats med ett projekt.",
+    "Sidhuvudet öppnar Layer Viewer, Control Charts och Outliers. Använd deras handledningar när ett fynd på instrumentpanelen behöver undersökas vidare.",
+    "Klicka på Browse och välj projektmappen. Välj mappen som innehåller rapporterna för den körning du vill bedöma.",
+    "Tolka Missing som en rapport som saknas för den kontrollen. Följ anvisningarna för att ta fram den rapport som behövs innan du drar slutsatser.",
+    "Välj en körningsundermapp när dess utdata är åtskilda från det överordnade projektet. Kontrollera att det visade omfånget motsvarar de data du vill granska.",
+    "Läs segmenteringsvarningarna och granska motsvarande synfält. Vid en varning om storleksfördelningen jämför du bilderna och objektgränserna för att förstå orsaken.",
+    "Granska enhetskortet tillsammans med de övriga kategorierna. En konsekvent enhetsrapport uppfyller den kontrollen; saknade rapporter behöver fortfarande åtgärdas.",
+    "Läs alla fem kategorier och deras anvisningar. För läckage kontrollerar du att providentiteter och gruppering motsvarar de avsedda oberoende valideringsenheterna.",
+    "Öppna detaljerna för fel eller varningar för att hitta berörda synfält och källrapporter. Använd rätt analysverktyg för att undersöka dem.",
+    "Klicka på Refresh när rapporter har ändrats på disken. Instrumentpanelen läser om tillgängligt underlag; ta fram uppdaterade rapporter via den analys som skapar dem.",
+    "Undersök en inaktuell rapport mot dess indata och inställningar. Låt olösta fynd vara synliga i din projektgranskning.",
+    "Behåll kvalitetsrapporterna med projektet. Fortsätt i de länkade specialverktygen eller i den aktuella modulens handledning för att hantera varje fynd."
+  ]
+}

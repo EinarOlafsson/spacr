@@ -1,0 +1,28 @@
+{
+  "reviewer": "Codex AI / shared_ui, independent of root author",
+  "kind": "AI technical/idiom review, no human/native-speaker signoff",
+  "source_sha256": "8dacbb58ba5d168418c1ecb8f7bee3604ce30db608d9a05bc4af92ed233de54d",
+  "draft_sha256": "d807ab1fc521d314386fc889f970736028ed782f723783321dfae5bd18629f8d",
+  "accepted_sources": [
+    "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+    "Barcode column",
+    "CSV files (*.csv)",
+    "Choose CSV…",
+    "Column name in the CSV that contains the plate barcode.",
+    "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.",
+    "Output plate barcodes",
+    "Plate barcode linkage (Alpha)",
+    "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}",
+    "Sample records CSV",
+    "Select sample records CSV",
+    "Showing {shown} of {total} mismatches; the CSV contains all rows."
+  ],
+  "corrections": [],
+  "notes": [
+    "Plate barcode assignment and output/source-folder naming distinction are preserved.",
+    "Optional local CSV, preserved source/maps and destination folder identifier retained.",
+    "Count-neutral Swedish summary preserves well/mismatch counts and paths.",
+    "CSV filter, literal assignment example and all placeholders retained."
+  ],
+  "draft_modified": false
+}

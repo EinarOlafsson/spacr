@@ -1,0 +1,159 @@
+{
+  "id": "37_batch",
+  "number": 37,
+  "slug": "batch",
+  "series": 5,
+  "app_key": "batch",
+  "section": "Data and batch runs",
+  "title": "Batch Runner: configure and run a queue",
+  "description": "Add module settings, arrange dependencies, run jobs, and inspect their separate logs.",
+  "objectives": [
+    "Add jobs with their settings and dependencies.",
+    "Save, run and continue the queue.",
+    "Inspect each job’s log and outputs."
+  ],
+  "prerequisite": "Prepare the input data and exported settings JSON for each job. The example runs three image conversions into separate output folders.",
+  "scenes": [
+    {
+      "visual": "01_help_batch",
+      "narration": "Open Help, then Batch Runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "30_plate_queue"
+      ]
+    },
+    {
+      "visual": "03_choose_settings_1",
+      "narration": "Choose the module and click Choose settings. For this example, select convert and the JSON settings for the first microscopy field.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "35_converter"
+      ]
+    },
+    {
+      "visual": "04_configure_job_1",
+      "narration": "Check the source and destination in the settings, add a descriptive label, then click Add job. Use a separate output folder for each conversion.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        235,
+        3370,
+        255
+      ]
+    },
+    {
+      "visual": "04_configure_job_2",
+      "narration": "For the second job, enter convert one in After to make it depend on the first. Add a setting override when this job needs a different value. Set any input paths explicitly; a dependency controls order.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        235,
+        3370,
+        255
+      ]
+    },
+    {
+      "visual": "05_added_job_3",
+      "narration": "Add further jobs and review their identifiers, labels and dependencies. Select a row to load its configuration into the editor.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        530,
+        3360,
+        235
+      ]
+    },
+    {
+      "visual": "06b_dependency_error_scrolled",
+      "narration": "Use the move controls to arrange jobs. A dependency must appear before the job that needs it; read any validation message and correct the order.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        1225,
+        3350,
+        180
+      ]
+    },
+    {
+      "visual": "07_valid_reordered_queue",
+      "narration": "Click Validate after arranging the queue. Resolve the listed problems until Run queue becomes available.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        530,
+        3360,
+        235
+      ]
+    },
+    {
+      "visual": "09_continue_policy",
+      "narration": "Choose On failure to continue with independent jobs or stop at the first failure. Set Stop after to limit consecutive failures.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        440,
+        1760,
+        95
+      ]
+    },
+    {
+      "visual": "10_save_queue_picker",
+      "narration": "Click Save queue to store the plan as JSON. Use Load queue to reopen it later, keeping the referenced settings files and inputs available.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13b_jobs_dock",
+      "narration": "Before starting, open Help, then Window, then Jobs. Once the queue runs, the Jobs dock on the right shows it with its progress, elapsed time and a Cancel button. It lists running jobs from every screen, so you can follow a long run while you work elsewhere.",
+      "focus": [
+        3200,
+        30,
+        640,
+        200
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_stopped_between_jobs",
+      "narration": "Click Run queue. To pause between jobs, press Stop; the current job finishes and the remaining jobs stay unrun.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        530,
+        3360,
+        235
+      ]
+    },
+    {
+      "visual": "15_completed_real_queue",
+      "narration": "Click Run queue again to continue with the remaining jobs. Watch each row’s status as the queue progresses.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        530,
+        3360,
+        235
+      ]
+    },
+    {
+      "visual": "16_log_convert-2",
+      "narration": "Select a row to read its log and inspect errors or output paths. For the conversion example, check the reported field and channel identifiers.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        1380,
+        3350,
+        705
+      ]
+    },
+    {
+      "visual": "16_log_convert-1",
+      "narration": "Open each output folder and inspect the converted images and conversion record. Keep the queue JSON, settings and logs with the results.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "35_converter",
+        "30_plate_queue"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "date_America_Detroit": "2026-10-06",
+  "hosted_source": "392ca4d6a2319fd88c2d352b1a0b021682123d6b",
+  "hosted_run": 37550980965,
+  "hosted_aggregate_job": 112592627920,
+  "source_sha256": {
+    "spacr/convert.py": "3646ee0163bb8fe093f7cd2b1588bb3e0a9feaae6a28555877c4e0b953e38011",
+    "spacr/io.py": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+    "spacr/qt/timing.py": "21de43993d1f34469df0971771823f58dd0b74b747e37537539fcc3e35a5d426"
+  },
+  "test_sha256": {
+    "tests/test_scn_reader.py": "e63fa46f7fb0aa1ecea7264649353c2ed609bad582ea918742ef264ec9eb140a",
+    "tests/test_native_tzyx_portable_reservation_f548.py": "0158d08bbf09d1fab69dfd95cf8adb88eb44d171b90f2099f46bfc9ce78eeec1",
+    "tests/test_timing_missing_sysconfig.py": "7bd7973cbeb37c96fe9dfdfc219c779d55a78789d2d8545de7146ca46e357a95"
+  },
+  "focused_passed": 42,
+  "focused_seconds": 10.06,
+  "hard_memory_cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "comparison": {
+    "spacr/convert.py": {
+      "old_missing_statements": [
+        1261,
+        1265,
+        1293,
+        1294,
+        1308,
+        1309,
+        1310,
+        1311,
+        1312,
+        1314,
+        1322,
+        1324,
+        1356,
+        1379,
+        1391,
+        1393,
+        1475,
+        1480,
+        1498
+      ],
+      "old_missing_branches": [
+        [
+          1254,
+          1278
+        ],
+        [
+          1260,
+          1261
+        ],
+        [
+          1262,
+          1265
+        ],
+        [
+          1305,
+          1308
+        ],
+        [
+          1310,
+          1311
+        ],
+        [
+          1310,
+          1312
+        ],
+        [
+          1319,
+          1322
+        ],
+        [
+          1355,
+          1356
+        ],
+        [
+          1364,
+          1360
+        ],
+        [
+          1366,
+          1350
+        ],
+        [
+          1378,
+          1379
+        ],
+        [
+          1390,
+          1391
+        ],
+        [
+          1392,
+          1393
+        ],
+        [
+          1422,
+          1424
+        ],
+        [
+          1474,
+          1475
+        ],
+        [
+          1479,
+          1480
+        ],
+        [
+          1497,
+          1498
+        ]
+      ],
+      "remaining_old_missing_statements": [],
+      "remaining_old_missing_branches": []
+    },
+    "spacr/io.py": {
+      "old_missing_statements": [
+        1939,
+        1970,
+        1971,
+        1973
+      ],
+      "old_missing_branches": [
+        [
+          1935,
+          1939
+        ],
+        [
+          1955,
+          1962
+        ],
+        [
+          1967,
+          1970
+        ],
+        [
+          1972,
+          1973
+        ],
+        [
+          9660,
+          9665
+        ]
+      ],
+      "remaining_old_missing_statements": [],
+      "remaining_old_missing_branches": [
+        [
+          9660,
+          9665
+        ]
+      ]
+    },
+    "spacr/qt/timing.py": {
+      "old_missing_statements": [
+        280,
+        281
+      ],
+      "old_missing_branches": [
+        [
+          282,
+          277
+        ],
+        [
+          393,
+          404
+        ],
+        [
+          695,
+          697
+        ]
+      ],
+      "remaining_old_missing_statements": [],
+      "remaining_old_missing_branches": [
+        [
+          393,
+          404
+        ],
+        [
+          695,
+          697
+        ]
+      ]
+    }
+  },
+  "scope": "Exact unchanged-source union of hosted392 coverage and focused behavior tests. Not a new full-suite or hosted gate verdict.",
+  "production_changed": false,
+  "coverage_limits_changed": false
+}

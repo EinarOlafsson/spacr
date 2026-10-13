@@ -1,0 +1,27 @@
+{
+  "source_revision": "68a73a0aad1e63bed5b0f2aad4946681b83cdd22",
+  "result": "20 root-release and133APIproof payloads verified;669current and669historical source bindings checked; current Organism cohort59PASS1report-onlyXFAIL",
+  "limits": "Translation incompatibility remains; no compact full-guard/currentGitHub green claim. API historical io.py mismatch accepted by independent full normal no-delta proof.",
+  "payloads": {
+    "root-current-artifact-readback-20261008.py.gz": {
+      "sha256": "e8ccea66e753002839dec2dca218698f60f7b8a360d4fe72219f4b89beee885a",
+      "raw_sha256": "20f79dd1630e5f2342321a6d451896c8d314904033b0698ff240a3c17f2cc977"
+    },
+    "root-current-artifact-readback-20261008.log.gz": {
+      "sha256": "9a93a1b6df5c7d3ca2776d5da5d58fd744f2ffa9c9592f96ec190810d243154c",
+      "raw_sha256": "83b6ae69dfdd481b209d7ccf6b873f9af87b5d4143019943159c2497ed6b4356"
+    },
+    "root-current-artifact-readback-20261008.json.gz": {
+      "sha256": "9a93a1b6df5c7d3ca2776d5da5d58fd744f2ffa9c9592f96ec190810d243154c",
+      "raw_sha256": "83b6ae69dfdd481b209d7ccf6b873f9af87b5d4143019943159c2497ed6b4356"
+    },
+    "root-n677-current-compact-owning-20261008.log.gz": {
+      "sha256": "5ea9157400505058a534d91d9dc4ba970f31f833887e3ca08eccaa00560b213a",
+      "raw_sha256": "32cfe00fde93acbda5506cbebfcde84fad706002e0027fa6e2353101f95cab8d"
+    },
+    "compact-caption-diagnostic.json": {
+      "sha256": "321c59af88374fedf1217e354d2cb4c862753ae32fc2246ee063ed2b236f09c5",
+      "raw_sha256": "321c59af88374fedf1217e354d2cb4c862753ae32fc2246ee063ed2b236f09c5"
+    }
+  }
+}

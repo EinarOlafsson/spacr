@@ -1,0 +1,23 @@
+{
+  "theme": "dark",
+  "source_sha256": {
+    "/tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/samples.csv": "610a17848d5571589bb5e111611a1121c9ac5a50cf87bce12192d291da36b3b0",
+    "/tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/raw/barcode.txt": "24d9b35c727e6c78676c2ad378a8c3c47cfb539f3583d3cd9e1eafee51d5679d",
+    "/tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/raw/A02/field01_C1.tif": "f2595bcb0bb839066d1b2603e2d53ca20362d5d9ba21b455bbf9221e3e52985a",
+    "/tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/raw/A01/field01_C1.tif": "f2595bcb0bb839066d1b2603e2d53ca20362d5d9ba21b455bbf9221e3e52985a"
+  },
+  "source_unchanged": true,
+  "worker_calls": 2,
+  "all_work_off_gui_thread": true,
+  "explicit_assignments": "",
+  "converted_tiffs": 2,
+  "pixels_preserved": true,
+  "summary": "Converted 2 file(s) into /tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/converted.\nMap file: /tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/converted/conversion_map.csv\nCheckpoint: /tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/converted/.spacr_conversion.checkpoint.json\n\nPlate barcode linkage: 1 well(s), 1 mismatch(es).\nPlate map: /tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/converted/plate_barcode_linkage/plate_map_lims.csv\nMismatches: /tmp/pytest-of-carruthers/pytest-284/test_threaded_buttons_discover0/converted/plate_barcode_linkage/plate_barcode_mismatches.csv\n\nplateID barcode well             kind                       detail\n plate1    0001  A02 well_not_in_lims imaged, but no sample record",
+  "output_sha256": {
+    "plate1_A01_T0001F001L01A01Z01C01.tif": "f2595bcb0bb839066d1b2603e2d53ca20362d5d9ba21b455bbf9221e3e52985a",
+    "plate1_A02_T0001F001L01A01Z01C01.tif": "f2595bcb0bb839066d1b2603e2d53ca20362d5d9ba21b455bbf9221e3e52985a",
+    "plate_map_lims.csv": "b4d39868f47440d34b98dd954f581c50761af956b083db7bbaf9da9194bbd7ab",
+    "complete.json": "4dadf23a6e2475adc12bbd2e607cc507b99fc4700f4763ce7259b16cc902eeff",
+    "plate_barcode_mismatches.csv": "ae471ebe84981cbc443376557973d21cf649c31ff8de7b7855bc7a224e005e7d"
+  }
+}

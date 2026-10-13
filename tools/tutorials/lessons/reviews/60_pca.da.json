@@ -1,0 +1,39 @@
+{
+  "lesson": "60_pca",
+  "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "PCA: udforsk målinger, og eksportér komponenter",
+  "description": "Indlæs målte objekter, vælg egenskaber, sammenlign hovedkomponenter, og eksportér scorer, ladninger og forklaret varians.",
+  "objectives": [
+    "Indlæse en måledatabase eller en CSV og vælge egenskaber.",
+    "Vælge skalering, håndtering af manglende værdier og filtre.",
+    "Undersøge komponentscorer og ladninger og derefter eksportere tre resultattabeller."
+  ],
+  "prerequisite": "Hent eksemplet fra Annotate-vejledningen, og arbejd med en kopi af measurements.db. Gennemgangen bruger dets tabel cell med 2.341 målte objekter fra fire brønde. Behold den oprindelige database, og notér din egenskabsliste, dine filtre, din skalering og din politik for manglende værdier.",
+  "scenes": [
+    "Fra Home åbner du Image UMAP og vælger derefter PCA. Brug PCA til at opsummere flere målekolonner som hovedkomponenter. Begynd med måledatabasen fra det linkede Annotate-eksempel.",
+    "Klik på Load table ved siden af overskriften PCA. Åbn measurements.db, og vælg cell. Kontrollér den viste tabel og antallet af objekter. Du kan også indlæse en CSV med målekolonner.",
+    "Ryd egenskabssøgningen, og klik på None for at fravælge alle synlige egenskaber. Vælg cell_area, cell_channel_1_mean_intensity og cell_perimeter. Ryd søgningen igen, sæt Components til 3, og klik derefter på Run PCA.",
+    "Lad Scale stå på Standardise for at centrere hver egenskab og dividere med dens stikprøvestandardafvigelse. Læs scree-plottet: de to første komponenter forklarer omkring 65,7 % og 31,7 % af variansen i de valgte egenskaber.",
+    "Vælg rowID i Colour, PC 3 på X og PC 1 på Y. Disse kontroller tegner det tilpassede resultat igen. Hvert punkt repræsenterer en celle; i dette eksempel angiver rowID en rumlig række.",
+    "Vend tilbage til PC 1 og PC 2. Slå Loadings biplot til og fra for at vise eller skjule egenskabspilene. Pilene viser korrelationer med de viste komponenter; brug deres retninger og den stiplede referencecirkel til at sammenligne egenskaber.",
+    "Vælg Centre only for at tilpasse med de oprindelige måleskalaer. Den første komponent forklarer nu omkring 90,1 %. Skaleringen ændrer det spørgsmål, der opsummeres. Sæt Standardise tilbage for at sammenligne egenskaber på en fælles skala.",
+    "I filteret til højre tilføjer du cell_area og sætter minimum til 21.925. Panelet tilpasser PCA igen på de resterende 1.171 celler, så både populationen og komponenternes retninger ændres.",
+    "Klik på Clear all i filteret for at gendanne hele populationen. Kontrollér antallet af objekter efter filtreringen. Kildedatabasen er uændret; det viste resultat genberegnes for den valgte population.",
+    "Vælg cell_channel_0_homogeneity_distance_32 som fjerde egenskab. Klik på Run PCA for at medtage den i resultatet. Eksemplet har syv manglende målinger i den kolonne; brug NaN til at vælge, hvordan tilpasningen håndterer dem.",
+    "Med Auto fjernes egenskaber, der mangler i mere end 2 % af rækkerne, og derefter udelades ufuldstændige rækker. Her bevares alle fire egenskaber, og syv celler udelukkes. Læs rapporten for at se, hvilke egenskaber og objekter der faktisk blev analyseret.",
+    "Vælg Drop features for at fjerne alle valgte egenskaber, der indeholder manglende værdier. I dette eksempel fjernes teksturegenskaben, og alle celler bevares. Resultatmeddelelsen viser, hvilke egenskaber der blev udelukket, selvom deres afkrydsningsfelter stadig er markeret.",
+    "Vælg Mean-impute for at bevare alle celler og egenskaber ved at erstatte manglende værdier med egenskabens observerede gennemsnit under beregningen. Her erstattes syv værdier. Notér dette valg, når du præsenterer resultatet; erstatningerne er skøn.",
+    "Vælg Complete cases for at bevare de valgte egenskaber og udelukke ufuldstændige rækker. For at vende tilbage til det oprindelige eksempel vælger du Auto, fravælger teksturegenskaben, rydder søgningen, klikker på Run PCA og sætter Colour til none.",
+    "Klik på Export, og vælg et basisnavn som pca_example. Panelet skriver tre CSV-filer: scorer for analyserede objekter, ladninger og korrelationer for egenskaber samt forklaret varians for komponenter. Scoretabellen indeholder også kildens målekolonner.",
+    "Åbn de eksporterede tabeller, og behold dem sammen med din egenskabsliste, dine filtre og analyseindstillinger. Behandl cellerne som observationer inden for deres brønde, når du fortolker en adskillelse. Til en reproducerbar Python-analyse bruger du pca og PCASpec fra spacr.qt.widgets.pca_model."
+  ]
+}

@@ -1,0 +1,55 @@
+{
+    "schema": 1,
+    "language": "hi",
+    "review_method": "N678 factual-language revision 2026-10-10: English blocks rewritten to match the implementation (fold counts per model, publish_model returns the row, safe-mode preferences persist, metric definitions); translations written and checked by Claude against the revised meaning, preserving literals, numbers and markup. No native-speaker signoff.",
+    "records": [
+        {
+            "label": "clone-size-without-lazy-fetch-claim",
+            "source_sha256": "f4badfffeb2ab569b1d3adb28ec01c06a1b06c60df773764b7db86ba8db29bb7",
+            "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not reduce the checkout: its object store is still 2032 MB. Git does not report lazy blob fetches, so no download total was measured. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch.",
+            "translation": "nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none`` जोड़ने से चेकआउट छोटा नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। Git आवश्यकता पड़ने पर बाद में लाए गए ऑब्जेक्ट की सूचना नहीं देता, इसलिए कुल डाउनलोड नहीं मापा गया। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 3416 MB लेती हैं (2026-10-08 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"
+        },
+        {
+            "label": "precision-recall-definitions",
+            "source_sha256": "89a9bbd3eb1eb0d9a49db7e669a771f8e15cc40664a0d0e5d97eef0387c13768",
+            "source": "**Precision** is how many of the objects a model reported are real; **recall** is how many of the real objects it found. Low precision means false detections; low recall means missed objects.",
+            "translation": "**Precision** (परिशुद्धता) बताती है कि मॉडल द्वारा बताई गई वस्तुओं में से कितनी वास्तविक हैं; **recall** (संवेदनशीलता) बताती है कि वास्तविक वस्तुओं में से कितनी उसने खोजीं। कम परिशुद्धता का अर्थ है गलत पहचान; कम संवेदनशीलता का अर्थ है छूटी हुई वस्तुएँ।"
+        },
+        {
+            "label": "f1-harmonic-mean",
+            "source_sha256": "c492936dc0d2fca2e2e266ae65ee4d2608a0cf8e6ea6d5007c2010cea53c62f9",
+            "source": "**F1** is their harmonic mean. Either alone can be near-perfect: precision for a model that reports one unmistakable plaque, recall for one that reports every dark blob. Which error matters more depends on the assay: the plaque model was accepted at precision 0.858 with recall 0.811 over an earlier round at 0.939 and 0.631.",
+            "translation": "**F1** इन दोनों का हार्मोनिक माध्य है। इनमें से कोई भी अकेले लगभग पूर्ण हो सकता है: एक ही स्पष्ट प्लाक बताने वाले मॉडल की परिशुद्धता, और हर गहरे धब्बे को बताने वाले मॉडल की संवेदनशीलता। कौन-सी त्रुटि अधिक मायने रखती है, यह परख पर निर्भर करता है: प्लाक मॉडल को परिशुद्धता 0.858 और संवेदनशीलता 0.811 पर, 0.939 और 0.631 वाले पिछले दौर के स्थान पर स्वीकार किया गया।"
+        },
+        {
+            "label": "map-iou-definitions",
+            "source_sha256": "15df5f74dd4eaac903950e3cd255456a643f9902fa43240a8526942ff2243712",
+            "source": "**mAP50** and **mAP50-95** score the well detector: mean average precision at IoU 0.5, and its average over ten IoU thresholds from 0.5 to 0.95, which also penalizes loosely placed boxes.",
+            "translation": "**mAP50** और **mAP50-95** वेल डिटेक्टर का मूल्यांकन करते हैं: IoU 0.5 पर माध्य औसत परिशुद्धता (mean average precision), और 0.5 से 0.95 तक की दस IoU सीमाओं पर उसका औसत, जो ढीले ढंग से रखे गए बॉक्स को भी दंडित करता है।"
+        },
+        {
+            "label": "cross-validation-folds-per-model",
+            "source_sha256": "23ded58c491de0d5d4a9c6effdf637e665d84a9bc0b97d2bae28dc7f4276f1a3",
+            "source": "**Cross-validated**, with an **SD**, gives the mean and standard deviation over folds: three for ``toxoplasma_plaque_v1``, five for ``toxoplasma_pv_v2``. One split can mislead: the literature figure of ``toxoplasma_plaque_v1`` is 0.834 on a single 19-well split and 0.806 across all three.",
+            "translation": "**Cross-validated** (क्रॉस-वैलिडेटेड), एक **SD** के साथ, फ़ोल्ड पर माध्य और मानक विचलन देता है: ``toxoplasma_plaque_v1`` के लिए तीन और ``toxoplasma_pv_v2`` के लिए पाँच। एक अकेला विभाजन भ्रामक हो सकता है: ``toxoplasma_plaque_v1`` का प्रकाशित मान 19 वेल के एक विभाजन पर 0.834 और तीनों पर 0.806 है।"
+        },
+        {
+            "label": "publish-model-returns-row",
+            "source_sha256": "b63375e80f0eecd4d0bc16b833c801062a6f3061bde49f352e88b4511a0dcaaf",
+            "source": "Models are hosted on each author's own Hugging Face account; ``spacr.model_zoo.publish_model`` uploads one and returns the catalogue row to add.",
+            "translation": "मॉडल हर लेखक के अपने Hugging Face खाते पर होस्ट किए जाते हैं; ``spacr.model_zoo.publish_model`` मॉडल अपलोड करता है और कैटलॉग में जोड़ने वाली पंक्ति लौटाता है।"
+        },
+        {
+            "label": "safespacr-preferences-persist",
+            "source_sha256": "1a199f5d29b78cac2ed874be9d25af4f6662792442901bc233c95c4cfe906d01",
+            "source": "``safespacr`` reads every preference as its default and forces the backdrop, animations, verbose logging and preloading off. Use it when a saved preference breaks the launch. Preferences saved in safe mode are written normally and persist.",
+            "translation": "``safespacr`` हर प्राथमिकता को उसके डिफ़ॉल्ट मान से पढ़ता है और पृष्ठभूमि, एनिमेशन, विस्तृत लॉगिंग और प्रीलोडिंग बंद कर देता है। जब कोई सहेजी गई प्राथमिकता प्रोग्राम को शुरू होने से रोके, तब इसका उपयोग करें। सुरक्षित मोड में सहेजी गई प्राथमिकताएँ सामान्य रूप से लिखी जाती हैं और बनी रहती हैं।"
+        },
+        {
+            "label": "validate-lists-problems",
+            "source_sha256": "406586010b7cc46feedc5b38ecd925f5911ebf5981187e718e8625c94fd4d4af",
+            "source": "``validate`` reads the same settings the run would and lists each problem, such as a missing setting or a path that does not exist, with a fix.",
+            "translation": "``validate`` वही सेटिंग्स पढ़ता है जो रन पढ़ता, और हर समस्या को, जैसे कोई छूटी हुई सेटिंग या ऐसा पथ जो मौजूद नहीं है, सुधार के साथ सूचीबद्ध करता है।"
+        }
+    ]
+}

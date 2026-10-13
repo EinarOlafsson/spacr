@@ -1,0 +1,2186 @@
+"""Focused contracts for the source-only AutoAPI localization extractor."""
+
+from __future__ import annotations
+
+# 2026-09-22: measured public growth and the three object helpers are
+# accounted separately in features/data/411_object_helpers_2026-09-22.json.
+
+import ast
+import hashlib
+import importlib
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
+
+builder = importlib.import_module("build_documentation_i18n")
+
+
+# Review-set fingerprints make the coverage contract independent of the
+# investigator's /tmp report while still proving that all exact audited ids
+# remain represented.  A source/API change requires regenerating and reviewing
+# that report before deliberately updating either digest.
+# Moved 2026-09-13 for Map Barcodes and proved by subtraction rather than
+# regenerated blind: the digest recomputed without the five admitted dunders
+# (BarcodeTable.__post_init__, BarcodeEntry.__post_init__, and BarcodeSet's
+# __post_init__, __iter__ and __len__) returns 1a6e99e4..., the previous pin,
+# byte for byte. The 16 constant attributes did not move at all.
+# Moved 2026-09-15 for `spacr.barcode_search.SearchThresholds.__post_init__`
+# and proved by subtraction on top of origin/nightly df1216b3f: the digest recomputed
+# without that one dunder returns 8b07b969..., the previous pin, byte for
+# byte. The 16 constant attributes did not move.
+# Moved 2026-09-25 for the nine documented constants below, which arrived with
+# the implementation session's preview/segmentation work (items 502-513). The
+# digest without them returns f1da16e8..., the previous pin; no dunder moved.
+# With the two mask_engine constants of 03a02c3b8 it moved 3f293714 -> bc6cd219.
+# With live_preview.BOUND_ROWS (2026-09-26) it moved bc6cd219 -> c894d34b; the
+# previous-surface digest below, without the added set, is unchanged.
+_NEW_VISIBLE_DIGEST = (
+    "283580f3b6bd6b66c98e6aa26c44c37d49696e9940d7ce39cac7e0ca2cb5cda7"
+)
+_PREVIOUS_VISIBLE_DIGEST = (
+    "d756bd8ed64b13f473eee9905cdee6a394866efc00b09cd2725f8ead4e4a4195"
+)
+_LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION",
+                         "spacr.qt.widgets.live_preview.FILTER_DEBOUNCE_MS"}
+_ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
+    "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT",
+    "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS",
+    "spacr.qt.widgets.plaque_preview.IMAGE_TABS",
+    "spacr.qt.widgets.plaque_preview.OVERLAY_STYLE_KEY",
+    "spacr.qt.widgets.segmentation_views.CELLPROB_COLORMAP",
+    "spacr.qt.widgets.segmentation_views.DEFAULT_COLOURS",
+    "spacr.qt.widgets.segmentation_views.SegmentationViews.view_changed",
+    "spacr.qt.widgets.segmentation_views.VIEWS",
+    "spacr.qt.widgets.segmentation_views.VIEW_HINTS",
+    # Item 511's object-filter vocabulary, on nightly 03a02c3b8.
+    "spacr.qt.mask_engine.FILTER_BOUNDS",
+    "spacr.qt.mask_engine.FILTER_KEYS",
+    # Item 511's Mask bound-row map, on nightly 88a0ee002 (2026-09-26).
+    "spacr.qt.widgets.live_preview.BOUND_ROWS",
+})
+def _spatial_arrivals() -> dict[str, str]:
+    """F534's 22 documented symbols, one named contract (2026-10-11).
+
+    run_spatial_masks / run_spatial_map, the ops_settings registration and
+    default helpers, the shared PageFold surface of map_barcodes and the two
+    Spatial switches. Six are documented constants, so the assignment checks
+    subtract them exactly as the historical digests require.
+    """
+    return json.loads((ROOT / "tests" / "data" / "release_contracts"
+        / "534_spatial_api_arrivals_2026-10-11.json").read_text(
+            encoding="utf-8"))
+
+
+def _sha256_lines(lines) -> str:
+    return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
+
+
+def _source_nodes():
+    """Yield public source nodes using the same package-name convention."""
+    for path in sorted((ROOT / "spacr").rglob("*.py")):
+        module = builder._module_name(path)
+        if not builder._is_rendered_autoapi_entry(path, module):
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except (SyntaxError, UnicodeDecodeError):
+            continue
+        yield path, module, tree
+
+
+def _conf_assignment(name: str):
+    """Return one literal assignment from the Sphinx configuration."""
+    tree = ast.parse((ROOT / "docs" / "source" / "conf.py").read_text(
+        encoding="utf-8",
+    ))
+    for node in tree.body:
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        if any(
+            isinstance(target, ast.Name) and target.id == name
+            for target in targets
+        ):
+            return ast.literal_eval(node.value)
+    raise AssertionError(f"docs/source/conf.py has no {name}")
+
+
+def _visible_special_members() -> set[str]:
+    keys: set[str] = set()
+    for path, module, tree in _source_nodes():
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if (
+                    builder._is_visible_function_name(
+                        node.name, module_is_package=path.name == "__init__.py",
+                    )
+                    and builder._clean_doc(node)
+                    and node.name.startswith("__")
+                ):
+                    keys.add(f"{module}.{node.name}")
+                continue
+            if not isinstance(node, ast.ClassDef) or node.name.startswith("_"):
+                continue
+            for child in node.body:
+                if not isinstance(
+                    child, (ast.FunctionDef, ast.AsyncFunctionDef),
+                ):
+                    continue
+                if (
+                    child.name.startswith("__")
+                    and builder._is_visible_function_name(
+                        child.name, module_is_package=False,
+                    )
+                    and builder._clean_doc(child)
+                ):
+                    keys.add(f"{module}.{node.name}.{child.name}")
+    return keys
+
+
+def _visible_assignment_docs() -> set[str]:
+    keys: set[str] = set()
+    for _path, module, tree in _source_nodes():
+        keys.update(builder._additional_assignment_docs(tree.body, module))
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef) and not node.name.startswith("_"):
+                owner = f"{module}.{node.name}"
+                keys.update(builder._additional_assignment_docs(node.body, owner))
+    return keys
+
+
+def test_documented_parameter_names_match_the_source_signatures():
+    """Every Sphinx ``:param:`` field names a real Python parameter."""
+    field = re.compile(r":param\s+(?:[^:\s]+\s+)?([*\w]+)\s*:")
+    checked = 0
+    mismatches = []
+    for path, _module, tree in _source_nodes():
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            docstring = ast.get_docstring(node, clean=False) or ""
+            parameters = {
+                item.arg
+                for item in (
+                    *node.args.posonlyargs,
+                    *node.args.args,
+                    *node.args.kwonlyargs,
+                )
+            }
+            if node.args.vararg is not None:
+                parameters.add(node.args.vararg.arg)
+            if node.args.kwarg is not None:
+                parameters.add(node.args.kwarg.arg)
+            for match in field.finditer(docstring):
+                checked += 1
+                name = match.group(1).lstrip("*")
+                if name not in parameters:
+                    mismatches.append(
+                        f"{path.relative_to(ROOT)}:{node.lineno} "
+                        f"{node.name} documents {name!r} but accepts "
+                        f"{sorted(parameters)!r}"
+                    )
+    assert checked >= 6_000
+    assert not mismatches, "\n".join(mismatches)
+
+
+def test_public_docstrings_matches_reviewed_visible_coverage():
+    docs = builder.public_docstrings()
+    dunders = _visible_special_members()
+    assignments = _visible_assignment_docs()
+
+    # The omissions in the audited pages are precisely the documented special
+    # members and PEP-258/value attributes discovered from source.
+    #
+    # 69 -> 202 on 2026-09-05, when 368's PRIVATE half finished. A dunder is
+    # a private method on a public class by this extractor's reckoning, so
+    # documenting every one of them -- __post_init__ validators, __len__,
+    # __contains__, __iter__, __repr__, __str__, __lt__, __call__, __new__,
+    # __del__ -- moved 133 of them from invisible to rendered surface. That
+    # is the point of the instruction rather than a side effect of it: a
+    # dataclass whose __post_init__ raises is a contract, and a reader meets
+    # it on the API page or not at all.
+    #
+    # 18 -> 16, and this one is a FIX. At 2190f6ac2 the GraphCanvas and
+    # GateCanvas class docstrings sat BELOW `RESCALE_ON_FILTER = True`, so
+    # the PEP-258 rule read the class's own prose as the constant's value
+    # doc -- "The chart itself: a spec in, a faceted figure out" filed under
+    # a boolean about axis rescaling. The docstrings are back at the top of
+    # their classes and the constants carry `#:` comments, so the two bogus
+    # entries are gone. Nothing was undocumented by the change.
+    # 202 -> 203 on 2026-09-11, ONE entry:
+    # `spacr.qt.widgets.dose_response.PlateSpec.__post_init__`, from
+    # 387(3, 4) at 60166dcc4 -- the validator that refuses a plate whose
+    # control wells it cannot find. A `__post_init__` that raises is a
+    # contract and belongs on the page, which is 368's rule, so this is an
+    # admission rather than a leak. Named rather than counted: a ratchet
+    # moved without saying what it admitted is a rubber stamp.
+    # 203 -> 208 on 2026-09-13, FIVE entries, all Map Barcodes (c753b7de7) and all named
+    # because this file's own rule is that a ratchet moved without saying
+    # what it admitted is a rubber stamp:
+    #
+    #     spacr.barcode_search.BarcodeTable.__post_init__
+    #     spacr.settings.BarcodeEntry.__post_init__
+    #     spacr.settings.BarcodeSet.__post_init__
+    #     spacr.settings.BarcodeSet.__iter__
+    #     spacr.settings.BarcodeSet.__len__
+    #
+    # Three `__post_init__` and the two that make a BarcodeSet iterable.
+    # Admissions rather than leaks, by 368's rule: a documented dunder on a
+    # public class is rendered surface, and a `__post_init__` that validates
+    # is a contract a reader meets on the API page or nowhere.
+    # 2026-09-14: +2, item 368's docstring sweep. The two are
+    # spacr.embeddings.EmbeddingSpec.__post_init__ and
+    # spacr.ops_store.Readiness.__bool__ -- both dunders that already
+    # EXISTED and were undocumented; documenting them is what admits them
+    # to the rendered surface. Set-differenced against origin/nightly:
+    # +2 / -0, and those are the two.
+    # 2026-09-15: 210 -> 211, ONE entry,
+    # `spacr.barcode_search.SearchThresholds.__post_init__` -- the validator
+    # that refuses a min_enrichment of 1.0, which would report every table
+    # PRESENT. A `__post_init__` that raises is a contract and belongs on the
+    # page, so this is an admission. Set-differenced against
+    # origin/nightly df1216b3f: +1 / -0.
+    # 2026-09-20: 211 -> 212, ONE entry,
+    # `spacr.crop_loader.CropPlan.__post_init__` -- item 366's crop loader.
+    # Unlike the five before it this one does not raise: it defaults
+    # `selected` to the number of rows for a plan built without a join, which
+    # is why a plan can report a `selected` the caller never passed. A reader
+    # who does not know that reads the field wrong, so it is a contract by
+    # 368's rule and belongs on the page. Set-differenced against
+    # origin/nightly df1216b3f, the baseline the 211 line above used: +2 / -0,
+    # and the other of the two is `SearchThresholds.__post_init__`, already
+    # named above.
+    # 2026-09-21: 212 -> 213, ONE entry,
+    # `spacr.timeflows_model.CellposeSamFeatures.__call__` -- the feature
+    # extractor's forward pass, which casts the batch to the encoder's own
+    # dtype and hands back float32 neck features. A callable object's
+    # __call__ IS its interface, so it belongs on the page. Set-differenced
+    # against 6ae5e1b36: +1 / -0.
+    # ViewGate.__post_init__ is the one new documented special method.
+    # PSF validates its immutable kernel in one further documented member.
+    # 215 -> 216 on 2026-10-10: EditableVolumeGate.__post_init__ (item 672),
+    # the validator that refuses an open, self-intersecting or degenerate
+    # mesh -- a contract a reader meets on the API page.
+    assert "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__" in dunders
+    assert len(dunders) == 216
+    # The historical digests below describe the surface without it.
+    dunders = dunders - {
+        "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__"}
+    psf_validator = "spacr.point_spread.PSF.__post_init__"
+    assert psf_validator in dunders
+    # The exact Make Masks animation registry is one new documented value.
+    # Removing it reproduces the previous visible-member digest exactly.
+    # ParaScape's package identity is the only further assignment. Removing
+    # it recovers the previous fingerprint, independently of the count.
+    # 23 -> 32 on 2026-09-25: exactly _ASSIGNMENTS_ADDED_2026_09_25 (+9 / -0
+    # by set difference against af6d77376). The historical digests below are
+    # checked on the surface without them.
+    # 32 -> 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS (03a02c3b8).
+    # 34 -> 35 on 2026-09-26 with live_preview.BOUND_ROWS (+1 / -0 against
+    # 4f6c58418). _parascape.MINIMUM_VERSION (2026-10-12) is subtracted with its contract.
+    spatial_arrivals = _spatial_arrivals()
+    assert len(spatial_arrivals) == 22
+    assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
+    assert not spatial_arrivals.keys() & dunders
+    assignments = assignments - spatial_arrivals.keys() - _LAUNCHER_ASSIGNMENTS
+    assert len(assignments) == 35
+    assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
+    new_assignments = assignments
+    assignments = assignments - _ASSIGNMENTS_ADDED_2026_09_25
+    assert "spacr._parascape.PYPI_PACKAGE" in assignments
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
+         *(f"new_constant_attribute\0{key}" for key in assignments)]
+    ) == "417e53d93cd6259149951890b9ea9a00b163952790abdfbaff605f2f01785d3d"
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
+         *(f"new_constant_attribute\0{key}" for key in assignments
+           if key != "spacr._parascape.PYPI_PACKAGE")]
+    ) == "3383032ca618a1a6039eb4eaf1960968479acc2aa770fe65c328babba5a2e96e"
+    assert "spacr.qt.widgets.make_masks_help.ANIMATIONS" in assignments
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
+         *(f"new_constant_attribute\0{key}" for key in assignments
+           if key not in {"spacr.qt.widgets.make_masks_help.ANIMATIONS",
+                          "spacr._parascape.PYPI_PACKAGE"})]
+    ) == "aa7adc1a4f67f506b55961f8e83c8bf091e98bda0a605a2a9fc8c3cfca141f13"
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders),
+         *(f"new_constant_attribute\0{key}" for key in assignments)]
+    ) == _PREVIOUS_VISIBLE_DIGEST
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders),
+         *(f"new_constant_attribute\0{key}" for key in new_assignments)]
+    ) == _NEW_VISIBLE_DIGEST
+    assert dunders | new_assignments <= docs.keys()
+
+    # Freeze the complete public API surface together with its exact aliases.
+    # Any intentional public docstring addition must update this count and
+    # regenerate all target catalogs in the same change; otherwise localized
+    # API pages would silently omit the new contract.
+    # +40: the regression workbench — spacr.multiple_testing (every offered
+    # correction), spacr.regression_diagnostics (design/residual/inference
+    # panels), spacr.volcano_style (the shared renderer and its style object)
+    # and the two Qt widgets plus the screen that host them. Their localized
+    # catalogs are regenerated by tools/build_documentation_i18n.py.
+    # +14: the shared metadata resolver and the two desktop picker surfaces.
+    # +5: explicit regression input pairing, generated setting-applicability
+    # rules, and the paired-file table/pairing proposal helpers.
+    # +12/-5: the regression settings sweep moved from the non-visual
+    # spacr.regression_search helper into the complete spacr.parameter_sweep
+    # engine and its desktop screen. The admitted public entries are the
+    # module, SweepSpace, be_polite, build_trials, memory_is_low,
+    # recommended_workers, run_sweep, run_sweep_parallel, summarise_sweep,
+    # the Qt screen module, and its register function. The retired entries are
+    # regression_search.SearchSpace, build_trials, run_search and
+    # summarise_search; the regression_search module itself remains as a
+    # compatibility explanation. Enumerated rather than merely counted: this
+    # ratchet is only useful if a bump names what it admitted and retired.
+    # +73/-0 on the 2026-08-16 merge of the two concurrent sessions. Both
+    # sides added public surface and neither retired any, so this is a pure
+    # admission. Enumerated by module, because a ratchet moved without saying
+    # what it admitted is a rubber stamp:
+    #   47  spacr.qt.widgets     -- the figure/live-preview widgets, plus
+    #                               spacr.qt.widgets.flash (the shared 650 ms
+    #                               mark the console copy glyph and the new
+    #                               clear-figures control both use)
+    #    8  spacr.multi_database -- describe_merge / read_merged and their
+    #                               MergePlan, SourceSummary and MergeRefused
+    #    5  spacr.guide_concordance
+    #    4  spacr.qt.preferences
+    #    4  spacr.qt.screens
+    #    3  spacr.parameter_sweep
+    #    2  spacr.qt.ai          -- get_console_aware / set_console_aware
+    #
+    # +47/-0 on 2026-08-16, the regression figure/sweep surface. Enumerated
+    # against ab503cc6, which is the commit the 6728 above was measured on --
+    # not guessed from the diff, computed by running public_docstrings() in a
+    # worktree at that commit and subtracting:
+    #   22  spacr.qt.widgets     -- figure_grid_view (the whole module, its
+    #                               FigureGridView and the cell_span /
+    #                               cells_across layout helpers), the
+    #                               fast_plots key/restyle API, three
+    #                               FigureQueue accessors,
+    #                               figure_settings.save_figure_as,
+    #                               sweep_runs, and file_list.side_for_header
+    #   10  spacr.trial_metrics  -- the per-trial scalar diagnostics
+    #    5  spacr.qt.preferences -- get/set figure style, general and
+    #                               per-graph, plus apply_figure_style
+    #    4  spacr.figure_style   -- the module and its apply / rc_params /
+    #                               resolve
+    #    3  spacr.parameter_sweep
+    #    1  spacr.hits
+    #    1  spacr.qt.dnd_handlers -- SweepInputsDropHandler
+    #    1  spacr.sweep_child
+    #
+    # +1 more while this very bump was being written: the count went 6656 ->
+    # 6657 between measuring the delta above and running the test, because
+    # several sessions are landing public surface concurrently. Worth knowing
+    # when reading a failure here -- a one- or two-symbol drift is far more
+    # likely to be a sibling session than a mistake, and the fix is to
+    # re-measure and name it, never to relax the assertion into an inequality.
+    #
+    # THE CATALOGS FOR THESE 48 HAVE NOT BEEN REGENERATED. That is the debt
+    # this bump takes on, recorded here rather than left implicit: the
+    # reviewed API batches under docs/i18n/reviewed/api/<lang>/ are produced
+    # by tools/build_documentation_i18n.py behind a translation model, which
+    # is a separate job from this test. Until it runs, the localized API
+    # pages omit these contracts.
+    # +182/-0 on 2026-08-17, the finished regression module (instruction 124)
+    # and the coverage push around it. Enumerated against 613218ee -- the
+    # commit the 6657 above was measured on -- by running public_docstrings()
+    # in a worktree at that commit and taking the set difference, not by
+    # reading the diff. The before count came back at exactly 6657, so the
+    # two ends of this bump are measured on the same definition.
+    #
+    #   20  spacr.gene_tile          -- the UniProt/ToxoDB link surface
+    #   17  spacr.figures.panels     -- the seven house-style panels and the
+    #                                   Panel record they return
+    #   17  spacr.qt.widgets.fast_plots -- the key join, the restyle menu,
+    #                                   offer_refit / offer_baselines /
+    #                                   offer_compartments, build_style_menu
+    #   13  spacr.figures.style      -- figure_style, Palette, ROLES, and the
+    #                                   annotate / legend / reference-line
+    #                                   helpers every panel draws through
+    #   12  spacr.figures.distributions
+    #   10  spacr.figures.plates     -- the small-multiple layout
+    #   10  spacr.measurement_scan
+    #   10  spacr.qt.widgets.regression_results
+    #    9  spacr.figures.stats      -- automatic test selection
+    #    8  spacr.qt.widgets.gene_tile
+    #    7  spacr.qt.widgets.measurement_scan_panel
+    #    6  spacr.baseline           -- what an effect is measured FROM
+    #    6  spacr.figures.sheet
+    #    6  spacr.refit              -- re-fitting from the plot
+    #    5  spacr.localisation       -- one LOPIT compartment against grey
+    #    5  spacr.qt.widgets.refit_dialog
+    #    4  spacr.multi_database
+    #    2  spacr.figures.summary, spacr.qt.widgets.figure_queue,
+    #       spacr.qt.widgets.file_list, spacr.schema (2 each)
+    #    1  spacr.figures, spacr.hits, spacr.ml, spacr.parameter_sweep,
+    #       spacr.qt.widgets.figure_grid_view, .figure_settings, .gate_spec,
+    #       spacr.regression_spec, spacr.sweep_child (1 each)
+    #
+    # NOTHING RETIRED. `regression_spec` is a re-export of tables that were
+    # already public on `spacr.ml`, so ml keeps every one of its names and
+    # this is an addition rather than a move -- checked, the removed set is
+    # empty.
+    #
+    # THE TRANSLATIONS FOR THESE 182 ARE NOT REGENERATED, and that debt is
+    # recorded here rather than left implicit, exactly as the previous bump
+    # recorded its 48. The English catalog IS regenerated and audits clean
+    # (`tools/build_documentation_i18n.py --audit` reports no `en/` entry);
+    # the nine target languages need the translation model, which is a
+    # separate job. Until it runs the localized API pages omit these
+    # contracts -- the English pages do not.
+    # +1 on 2026-08-17: `spacr.io.migrate_unescaped_plate_names`, renamed
+    # from `_migrate_unescaped_plate_names`. It moves `stack/`,
+    # `norm_channel_stack/`, `merged/` and `masks/` for a plate folder whose
+    # name holds an underscore, so a plate that could not be measured becomes
+    # measurable WITHOUT re-segmenting -- hours to days of work. The person
+    # who needs it is a user with an `exp_1` folder full of masks, and a
+    # recovery tool they have to reach past a leading underscore to call is
+    # one most people will not find.
+    # +5 on 2026-08-17: the collapsible figure sections and the Runs tab
+    # (instruction 125 C). Named PUBLIC rather than left private, which is
+    # the fix for a real smell -- they were written as `_toggle_section`,
+    # `_record_run` and so on ONLY to avoid moving this counter, and
+    # app_screen was reaching through two wrappers into another widget's
+    # private surface as a result. A ratchet that makes people hide API is a
+    # ratchet being gamed, and the answer is to move it, not to route around
+    # it.
+    #
+    #   3  spacr.qt.widgets.figure_grid_view -- toggle_section,
+    #      is_section_collapsed, set_section_collapsed
+    #   2  spacr.qt.widgets.sweep_runs       -- record_run, update_run
+    # +25 on 2026-08-17: instruction 128 D/E/F -- the live graph as a grid
+    # tile, the residual diagnostics as tabs, and the mark type on the
+    # right-click menu. Enumerated by the agent that wrote them and checked
+    # against a HEAD worktree, where the ratchet passed, so all 25 are from
+    # that one commit (16f32ce9).
+    #
+    #   spacr.qt.widgets.fast_plots       GroupedPlot, ScaleLocationPlot,
+    #                                     InfluencePlot, mark_advice,
+    #                                     context_from_model, FastPlot.snapshot,
+    #                                     .offer_marks, .add_group_mark,
+    #                                     GroupedPlot.mark / set_mark / redraw /
+    #                                     group_sizes / mark_note and the two
+    #                                     subclass overrides of each
+    #   spacr.qt.widgets.regression_results
+    #                                     results_frame, diagnostic_plots,
+    #                                     set_diagnostics, clear_diagnostics
+    #   plus the documented constants beside them.
+    #
+    # NOTHING WAS MADE PRIVATE TO DODGE THIS COUNTER, which is the failure
+    # mode from the bump before last. `results_frame()` in fact REMOVES a
+    # private reach: `_show_publication_sheet` was doing
+    # `getattr(panel, "_frame")` into another widget's internals.
+    # +59 on 2026-08-17, from four concurrent workstreams, set ONCE at the
+    # end as the standing rule requires -- bumping it mid-flight was wrong
+    # twice today because another agent was still landing surface.
+    #
+    #   instruction 130, the measurements database per plate:
+    #     spacr.qt.widgets.file_list        is_database_path,
+    #                                       attach_database, missing_databases
+    #     spacr.qt.dnd_handlers             MeasurementsDropHandler.database_file
+    #     spacr.qt.widgets.measurement_scan_panel
+    #                                       DatabaseMergePanel and its surface,
+    #                                       set_database_provider,
+    #                                       refresh_databases, attached_databases
+    #     spacr.plate_measurements          the headless merge composition
+    #
+    #   instruction 127's cleanups and 126's backdrop work, in the modules the
+    #   other workflow owned.
+    #
+    #   spacr.gene_tile.uniprot_accessions  the bundled ToxoDB -> UniProt map.
+    #
+    # NOTHING WAS MADE PRIVATE TO DODGE THIS COUNTER. One agent reported
+    # dropping a fifth candidate (`attached_databases` on the table widget)
+    # not to avoid the ratchet but because the panel already read its rows
+    # directly -- one vocabulary rather than two, which is the right reason.
+    # +2 on 2026-08-17: the statsmodels summary tab --
+    # `regression_results.summary_text` and
+    # `RegressionResultsPanel.set_summary`. Both public because a caller
+    # outside the widget renders one: `summary_text` is pure and is what the
+    # tests drive, so it is not a widget method pretending to be one.
+    # +7 on 2026-08-17: the effect-size cut moved onto the plot.
+    #   spacr.thresholds        the module, METHODS, canonical, describe,
+    #                           coefficient_threshold -- seven ways of
+    #                           measuring the control spread, in ONE place so
+    #                           the run and the right-click menu cannot offer
+    #                           different ones. It was two methods inline in
+    #                           ml.py.
+    #   spacr.qt.widgets.fast_plots.FastPlot.offer_thresholds
+    #   spacr.qt.widgets.regression_results  set_threshold_method,
+    #                                        set_threshold_multiplier
+    # +38 on 2026-08-17, the last regression-module sweep: the full restyle
+    # menu (axis limits, aspect ratio, dimensions, font colour, line colour
+    # and width, cmap-by-column, shape-by-column), the gene/guide filter
+    # reaching every tab, the homogeneity verdict, the permutation run's
+    # effect-size cut, Runs-before-Results and the run-follows-selection
+    # binding, and the figure-queue caption fix. Set once, after all four
+    # slices committed and with the tree clean.
+    # +44 on 2026-08-17, the regression endgame: the two missing pyqtgraph
+    # panels and their tabs (EffectRankPlot, BinnedPlot), the grid's live-tile
+    # set (set_live_tiles, live_tile_keys, is_live_section_collapsed,
+    # live_tiles_from_panels), spacr.cell_montage for instruction 131's
+    # headless half, and the third test-selection engine in plot.py being
+    # routed through spacr.figures.stats.
+    #
+    # Set once at the end, with every agent stopped and the tree clean --
+    # which is the third time today that rule has been the difference between
+    # a correct number and a stale one.
+    #
+    # +62/-0 on 2026-08-18, the night that finished instructions 131, 133 and
+    # 135. A pure admission; nothing was retired, because the settings that
+    # went away (score_column, log_x, log_y, x_lim, y_lims, split_axis_lims,
+    # guide_permutation_plot, volcano, toxo) are dict keys and tooltip
+    # strings, not public docstrings. Enumerated by module, because a ratchet
+    # moved without saying what it admitted is a rubber stamp:
+    #   25  spacr.qt.widgets.cell_montage_view -- instruction 131's Cells
+    #                          tab: which objects a dot on the volcano is
+    #                          most consistent with, loaded off disk or out
+    #                          of the merged .npy stacks
+    #    8  spacr.columns    -- a column that is not there offers the ones
+    #                          that are: headers/available/missing/resolve/
+    #                          describe/suggest and ColumnNotFound
+    #    6  spacr.annotation -- the bundled Toxoplasma join: annotate,
+    #                          supplementary, columns, gene_number,
+    #                          clear_cache and SOURCES
+    #    6  spacr.group_lasso -- fit, gene_effects, stability_selection,
+    #                          max_lambda, describe and the module
+    #    3  spacr.rra        -- rank_aggregate, describe and the module
+    #   14  spread across spacr.ml, spacr.settings, spacr.parameter_sweep and
+    #                          spacr.qt.screens: _toxoplasma_is_on's public
+    #                          neighbours, the two new sweep `qc` parameters,
+    #                          Section.add_prose, and the section-explainer
+    #                          registry and its two helpers
+    #
+    # +35/-0 on 2026-08-18, the Gene tab and the figure restyle. Enumerated
+    # by module, for the reason above:
+    #   16  spacr.gene_facts -- everything known about ONE gene, gathered
+    #                          from the bundled annotation and the screen's
+    #                          own table: GeneFacts, Segment, facts,
+    #                          facts_for, available, unavailable_reason,
+    #                          warm, clear_cache
+    #   19  spacr.qt.widgets.gene_panel -- the panel that shows it, plus
+    #                          warm_annotation and the accessors the tests
+    #                          drive it through (warm_now, show_feature,
+    #                          save_topology, to_pixmap, is_warm)
+    #
+    # `spacr.plot`'s restyle added none: 45 figures moved inside the house
+    # style and one private helper (_montage_type_size) was added, which is
+    # private and therefore not surface.
+    # +68 on 2026-08-18, measured rather than counted off a diff: 7117 ->
+    # 7185. NINETEEN of them are the interactive plot widget's, from
+    # instructions 147, 148 and 108 -- enumerated below, each measured by
+    # taking the set difference against `a3944e21`, the commit that batch
+    # started from:
+    #
+    #   spacr.qt.widgets.fast_plots -- 19
+    #     the log transform being OURS rather than pyqtgraph's (148 A):
+    #       log_axes, set_log_axes, log_reason
+    #     grid and the canvas shape, off the checkbox strip and onto the
+    #     right-click menu (148 C, 147 B):
+    #       grid_shown, set_grid, canvas_shape, canvas_ratio,
+    #       set_canvas_shape, resizeEvent
+    #     reading a menu by what a user can REACH, which is what let the
+    #     categories land without rewriting sixty assertions (147 C):
+    #       menu_entries, menu_groups, menu_reading_order
+    #     the level a plot is drawing, said on the plot (147 A):
+    #       level_note
+    #     a restyle menu built from a style dataclass's own fields (108.3):
+    #       offer_style, add_style_entries, style_field_kind,
+    #       style_field_choices, style_field_group, style_field_label
+    #
+    # THE OTHER 49 ARE NOT THIS BATCH'S and are not enumerated here: several
+    # sessions land public surface concurrently, this count was already 7166
+    # with the plot widget at a3944e21, and attributing another session's
+    # symbols by guesswork would be a worse record than saying so. Whoever
+    # lands the next bump should name theirs the same way -- by set
+    # difference, not by reading a diff.
+    #
+    # +478/-1 through origin/nightly on 2026-08-20, measured against
+    # dad9195d with this extractor rather than inferred from diffs. The
+    # largest additions are 205 spacr.qt.widgets symbols, 26 in updater,
+    # 20 in gene_measurement_sweep, 15 each in regression_summary and
+    # qt.preferences, and the documented gene-measurement and lightweight
+    # png_list APIs. ``spacr.io.crop_rows_from_png_list`` is the one retired
+    # canonical body; the documented implementation now lives at
+    # ``spacr.png_list.crop_rows_from_png_list`` and remains re-exported for
+    # compatibility. The localized catalogs are regenerated with this bump.
+    # +96/-0 through the final nightly documentation sweep. Measured by
+    # comparing extractor output with the reviewed 7,662-symbol snapshot:
+    # 25 workspace, 15 regex inference, 9 restart state, 7 AppScreen,
+    # 5 each GIL priority and preferences, 4 each cell montage and fast
+    # plots, 3 ml, 2 each CLI workspace/database set/figure grid/regression
+    # results/sweep runs, and 9 single-symbol modules. The two documented
+    # workspace constants account for the assignment set growing 16 -> 18.
+    # Nothing retired, and all target catalogs are regenerated with this bump.
+    # +6 for the transform/link-family preflight: guide_attribution.Preflight
+    # (class, two documented attributes, and preflight), plus
+    # ml.fit_quality_note and ml.resolve_glm_transform_conflict. Nothing
+    # retired.
+    # +7/-0 for the control-name resolver: the module, ControlSpec, note,
+    # common_prefix, matches, resolve_control, and resolve_controls. Measured
+    # against 1e36a6f9 with this extractor; no existing symbol retired.
+    # +8/-0 for the measurement-comparison follow-up, measured against the
+    # 7,890-entry snapshot: effects_grid_from_results, write_effects_grid,
+    # ControlNotFound, rows_for, clear_picking_override,
+    # multivariate_shortfall, nothing_to_compare_against, and the public
+    # MeasurementScanPanel.sections accessor.
+    # +12/-0 for optional example-screen data and figure model identity:
+    # the example_data module, its error/result types, files/note,
+    # cache_folder, fetch, is_whole, missing and total_bytes; the
+    # example_data_manifest module; and regression_summary.model_identity_line.
+    # Target catalogs are regenerated with this admission.
+    # +2/-0 for the example-screen follow-up: AppScreen.load_the_example_screen
+    # is the public entry point that populates the GUI example, and
+    # MeasurementScanPanel.section_is_shown lets callers inspect the visible
+    # result sections without reaching into widget internals. Nothing retired.
+    # +6/-0 for the shared RGB channel picker: the channel_picker module,
+    # ChannelPicker, its value/set_value methods, and parse/to_text. The same
+    # typed channel vocabulary is now available to every image dialog.
+    # +23/-0 for the plate-map and opt-in attribution follow-ups: 9 symbols in
+    # well_spec, 7 in plate_map_picker, 5 in attribution_columns, the public
+    # AppScreen.pick_wells_for entry point, and annotate_engine's cache reset.
+    # These are callable headless contracts as well as GUI implementation.
+    # +4/-0 for sweep diagnostics and screen-state inspection:
+    # trial_metrics.qc_verdicts plus AppScreen.showing_the_figure_grid,
+    # showing_the_live_graph, and showing_the_results. Nothing retired.
+    # +13/-0 for measurement comparison and styled export. Seven headless
+    # helpers resolve wells, identities, contrasts, and measurement-table
+    # joins; five widget methods expose comparison rows, well selection, and
+    # the join action; SaveFigureDialog.preview exposes the detached preview.
+    # +59/-0 for the import preview, settings advisor, and shared figure
+    # style follow-up, measured against the 7,839-canonical snapshot:
+    #   17  spacr.settings_advisor
+    #   10  spacr.import_plan
+    #   11  spacr.qt.widgets.settings_advisor_dialog
+    #    9  spacr.qt.widgets.import_workbench
+    #    7  spacr.style_base
+    #    2  spacr.qt.screens.app_screen
+    #    2  spacr.gene_measurement_compare
+    #    1  spacr.figures.style
+    # The five advisor accessors documented during review are included in
+    # these counts. Nothing retired; all additions are translated with the
+    # catalog regeneration accompanying this ratchet.
+    # +80/-0 for annotation validation and the user-facing analysis helpers:
+    #    6  spacr.annotation_power
+    #    6  spacr.annotation_umap_qc
+    #   15  spacr.annotation_validation
+    #   17  spacr.classifier_quality
+    #   16  Qt dialog, plate-map, shortcut, and live-panel helpers
+    #    8  spacr.read_background
+    #    2  spacr.settings_advisor preflight helpers
+    #   10  spacr.sudoku
+    # Each public contract is present in the regenerated API catalogs.
+    # +2/-0 for ``requirements_for_unit`` and the shared control-block reader
+    # in the final advisor/design follow-up.
+    # +6/-0 for the shared bar-spread module, its three public helpers, its
+    # choice table, and ``GraphSpec.spread``.
+    # +26/-0 for permutation quality control and its desktop surfaces:
+    #    5  spacr.permutation_qc
+    #    8  spacr.qt.setup_screen
+    #    5  spacr.qt.widgets.annotation_umap_tab
+    #    4  spacr.qt.widgets.setup_card
+    #    4  spacr.run_recommendations
+    # Nothing retired; the localized API catalogs are regenerated with this
+    # admission.
+    # +10/-0 for coordinated multiselection across the volcano, results table,
+    # and cell montage:
+    #    3  spacr.qt.widgets.cell_montage_view
+    #    6  spacr.qt.widgets.fast_plots
+    #    1  spacr.qt.widgets.regression_results
+    # Nothing retired; these contracts are included in the same catalog pass.
+    # +1/-0 for ``ClassEditorWidget.attach_sql_picker``, which exposes the
+    # database-backed class-column chooser to settings panels.
+    # +10/-0 for persistent foldable-panel state and recent-run inspection:
+    #    7  spacr.qt.preferences and spacr.qt.widgets.foldable
+    #    2  spacr.settings_advisor completed-run readers
+    #    1  RegressionResultsPanel.colour_channels
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +14/-0 for response-transformation diagnostics and reproducible figure
+    # bundles:
+    #    6  spacr.response_distribution
+    #    4  FastPlot bundle and comparison accessors
+    #    4  spacr.figures.bundle
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +6/-0 for dependent-variable joins:
+    #    5  spacr.dependent_join
+    #    1  MeasurementComparePanel.set_dependent_frame
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +8/-0 for first-run configuration and provider persistence:
+    #    6  spacr.qt.widgets.setup_dialog
+    #    2  spacr.qt.preferences provider accessors
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +13/-0 for well-scoped plots and pre-annotation outlier filtering:
+    #    5  spacr.outlier_filter
+    #    4  MeasurementComparePanel scope accessors
+    #    4  spacr.well_scope
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +2/-0 for geometry-derived montage paging:
+    # ``fits_on_a_page`` and ``WellTab.per_page``. Nothing retired.
+    # +12/-0 for reproducible streamed datasets and figure geometry:
+    #   10  spacr.stream_dataset
+    #    2  spacr.figure_style chrome/page helpers
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +8/-0 for data-aware graph choices and queued coefficient montages:
+    #    7  spacr.graph_types
+    #    1  CellMontageView.build_every_selected
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +9/-0 for class-derived compatibility values and incremental training
+    # metrics:
+    #    3  spacr.classify_classes
+    #    6  spacr.qt.widgets.training_monitor
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +2/-0 for reaching the end of a console:
+    # ``ConsolePanel.jump_to_the_end`` and ``ConsolePanel.at_the_end``, which
+    # expose the tail-following control without requiring widget internals.
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +28/-0 for setup slides, data-backed graph retyping, and paged montage
+    # counts:
+    #   10  spacr.qt.widgets.setup_slides
+    #    5  SetupCard animation and perimeter accessors
+    #   10  spacr.qt.widgets.grouped_plot
+    #    1  CellMontageView.crop_count
+    #    1  FastPlot.graph_spec
+    #    1  figure_settings.save_figure_bundle
+    # Nothing retired; these contracts enter the regenerated API catalogs.
+    # +4/-0 for rendering a pyqtgraph figure from a run that has no window:
+    # `spacr.figures.headless` itself, `application`, `render_offscreen` and
+    # `render_bundle`. Nothing retired.
+    # +10/-0 for the setup screen's second pass:
+    # `spacr.qt.widgets.provider_marks` with its three drawn marks and
+    # `ProviderMark`, and `SetupCard.accent_span` / `accent_alpha`, which
+    # are the rim's shape and its fade. Nothing retired.
+    # +10/-0 for the three charts that kept a second renderer alive:
+    # `FastPlot.add_ranked_bars` / `ranked_frame`, `add_radar` /
+    # `radar_frame`, `add_beeswarm` / `beeswarm_frame`, `add_curve` /
+    # `curve_frame`, `response_distribution.fast_panel` and
+    # `ml.write_plot`. Nothing retired -- `ml.shap_analysis` still exists
+    # and still explains the same model; it hands back a scene instead of a
+    # matplotlib figure.
+    #
+    # THE TOTAL IS MEASURED, NOT ADDED UP. Both sides of the 2026-08-22
+    # merge admitted the first block in their own words and then went on
+    # separately, so neither side's number could be carried across: this one
+    # was taken from the merged tree.
+    # +2/-0 for the card following the pointer wherever it is:
+    # `SetupCard.showEvent` and `hideEvent`, which start and stop the frame
+    # timer -- the timer is what reads the cursor, so it has to run for the
+    # whole time the card is up rather than only while an easing is
+    # unfinished. Nothing retired; `perimeter_position` still answers the
+    # same question, from the ray through the pointer rather than from the
+    # nearest edge, and may now answer None for a point at the exact centre.
+    # +16/-0 for the card and the rim on every popup, and the three
+    # settings that shape it:
+    #    8  spacr.qt.widgets.glass -- the module, `wants_glass`,
+    #       `clear_the_containers`, `glass`, `install_glass_everywhere`
+    #       and the backdrop that keeps a card at its dialog's size
+    #    6  the rim preferences: get/set for length, lag and alignment
+    #    2  `SetupCard.accent_peak` and `accent_start`, which are where the
+    #       run sits on the pointer and where it is brightest -- one value
+    #       each, because the alignment setting moves both together
+    # Nothing retired.
+    # +43/-0 for the classify-and-regression audit of 2026-08-22
+    # (instruction 236) and the settings work beside it:
+    #    9  choosing what a model trains on -- `utils.feature_selection`,
+    #       `feature_columns`, `feature_folder_name`, `MORPHOLOGY`,
+    #       `MORPHOLOGY_FEATURES`, `FEATURE_GROUPS`, and the widened
+    #       `channel_of_interest` contract they serve
+    #    7  the group lasso choosing its own penalty --
+    #       `group_lasso.choose_lambda`, `penalty_path`, `PATH_POINTS`,
+    #       `PATH_DEPTH`, `PATH_FOLDS`, `PATH_EXTENSIONS`, and
+    #       `ml._left_blank`, which is what makes a blank box mean nothing
+    #    6  mixed precision -- `deep_spacr.resolve_mixed_precision`,
+    #       `autocasting`, `GPU_ROOM_MB`, `pick_device`, `cv_metric_keys`
+    #       and `CV_PER_CLASS_PREFIX`'s replacement by the module's own
+    #    5  the wrapping row lifted out of the settings panel so the
+    #       regression header can use it -- `qt.widgets.flow`, `FlowLayout`,
+    #       `FlowHost` and the two settings_model aliases that kept working
+    #    5  the card and the rim on every dialog -- `glass.make_frameless`,
+    #       `button_direction`, `spin_on_every_button`, `SPINS` and
+    #       `_paint_nothing_behind_the_card`
+    #    5  the first run deciding when to open -- `setup_screen.
+    #       skipped_on_purpose`, `take_the_setup_flags`, `SKIP_FLAGS`,
+    #       `SKIP_ENV` and `qt.run_without_setup`
+    #    4  the rim's modes -- `SetupCard.mode`, `period`, `animates` and
+    #       `ink_at`
+    #    2  `cell_montage.PICKING_NOTES`, which is where `sudoku` is
+    #       described now that its tooltip cannot carry a fifth sentence
+    #       without losing nine translations, and `ml._shap_explainers`'s
+    #       public partner `_shap_values`
+    # Nothing retired: every name above is new, and the four functions whose
+    # behaviour changed -- `choose_model`, `apply_model`, `shap_analysis`,
+    # `build_surrogate_frame` -- kept their signatures.
+    # +12/-0 on 2026-08-23 for the spatial distances and the grouped
+    # navigation: `spacr.object_distances` itself with `object_distances`,
+    # `between_object_types`, `maxima_distances`, `local_maxima`,
+    # `intensity_centre_offset`, `surface_distance_transform` and
+    # `interior_distance_transform`; `Sidebar.section_is_open`,
+    # `toggle_section` and `eventFilter`, which are how a dock section
+    # opens; and `SetupSlides.retranslate`, which is how the setup screen
+    # redraws itself in the language just chosen. Nothing retired.
+    #
+    # AND 32 THAT WERE ALREADY OWED. Measured on the commit before this
+    # pass, the surface was 8252 against a ratchet reading 8220: earlier
+    # commits admitted names in this comment and did not move the number.
+    # It is moved to the MEASURED total here rather than to 8220+12, so
+    # the count means what it says again.
+    # +2/-0 for the window chrome and the annotate screen's own language
+    # pass: `MainWindow.changeEvent`, which re-lays the menu bar so a menu
+    # opens under the word that was pressed, and
+    # `AnnotateScreen.retranslate_dynamic_content`, which recomposes the
+    # captions this screen builds from parts. Nothing retired.
+    # MOVED TO THE MEASURED TOTAL, and the drift is two separate events.
+    #
+    # +30/-1 since the fold work, all named: `CategoryFoldSet` and
+    # `CategoryFold` in `map_barcodes` with their six and four members --
+    # the mechanism by which a folded module becomes settings categories on
+    # its host rather than a window; four module-level names beside them;
+    # three on the new `qt.screens.mask`, which is where Timelapse folds;
+    # three on `SetupSlides` for the terms and the animation question; three
+    # on `VolcanoExplorer` and two in `volcano_style`; and one each way in
+    # `make_masks` as its fold strip changed shape.
+    #
+    # AND 105 THAT WERE ALREADY OWED, measured on the commit before this
+    # pass: the surface read 8161 against a ratchet of 8266. That gap is
+    # the Tkinter interface, whose deletion took eleven modules of public
+    # docstrings with it, and the ratchet was never moved to follow. It is
+    # moved to the MEASURED total rather than adjusted by an arithmetic
+    # nobody can check, so the count means what it says again.
+    # +282/-22 through the final 2026-08-27 consolidation and localization
+    # freeze, measured by subtracting the exact public-docstring inventory at
+    # bba9d681 from this source-stable tree:
+    #
+    #  224  spacr.qt -- 83 widgets, 59 screens, 20 theme, 14 mask_engine,
+    #       11 dialogs, 8 app_catalog, 7 wand_rescue, 5 annotate_engine,
+    #       5 hidpi, 2 each in app/spaceout/menus, and one each in ai, bridge,
+    #       i18n, preview_registry, curation_tool and chaining
+    #   38  spacr.regression_annotation
+    #   11  spacr.organelle_types
+    #    2  spacr.volcano_style
+    #    2  spacr.resources.home
+    #    1  each in spacr.hits, settings, ml, figure_style and
+    #       fraction_calibration
+    #
+    # The 22 retirements are the folded/removed registration surface:
+    # anndata_export.register_anndata_app; explain_cv and its register;
+    # hit_list/image_scatter/methods_export/pca/volcano register; the 13-name
+    # napari_bridge module/class surface; and
+    # settings_model.build_setting_link_widget.
+    # The complete 8,569-symbol inventory, including 119 aliases, is generated
+    # and source-hashed in every language catalog in this same change.
+    #
+    # +35/-0 for the post-consolidation public documentation surface, all
+    # accounted for by module: 11 in `nonparametric_fits`; nine each in
+    # `qt.ask_for_the_path` and `qt.laptop_mode`; three in `qt.preferences`;
+    # two methods on `qt.widgets.fast_plots.FastPlot`; and
+    # `stream_dataset.selection_from_objects`. The source text of
+    # `external_masks.register_settings` and `ml.regression_model` also
+    # changed, but those symbols were already in the inventory. The complete
+    # 8,604-symbol inventory is regenerated and source-hashed in every
+    # language catalog in this change.
+    # +2/-0 after rebasing the v2 mask-scoring work from `nightly`:
+    # `spacr._v1_v2_bridge.v2_mask_source` and
+    # `spacr.predictions.first_present`. Nothing retired; both contracts enter
+    # every regenerated language catalog in this change.
+    # +21/-0 after rebasing the Spaceout fractal and saved-run-state work:
+    # 14 in `qt.widgets.fractal_travel`; two in `qt.preferences`; two saved-state
+    # helpers in `qt.widgets.sweep_runs`; `qt.app.install_the_spaceout_fractal`;
+    # and `qt.fractal_defaults`. Nothing retired; every new contract enters the
+    # regenerated catalogs in this change.
+    # +2/-0 for the optional fold-inversion Spaceout pattern:
+    # `spacr.qt.widgets.fractal_cascade` and its `CascadeEngine`. Nothing
+    # retired; both contracts enter every regenerated language catalog.
+    # +11/-0 for the measured startup diagnostics and interface-weight work:
+    # seven names in `qt.timing`; the getter and setter in `qt.preferences`;
+    # and `Pointer` plus `Pointer.sample` in `qt.widgets.fractal_travel`.
+    # Every contract enters every regenerated language catalog in this change.
+    # AND 223 THAT WERE ALREADY OWED. The checked-in English catalog carried
+    # 8,744 non-alias symbols while this ratchet still read 8,521. Move to the
+    # measured inventory rather than preserving a number the catalog itself
+    # had already disproved.
+    # +25/-0 on the CI replay: 18 names in `resource_log`, six across Qt
+    # (`theme`, two screens and `recipes`), and the private FlowView Classify
+    # stage module's explanation. The callables in that FlowView module stay
+    # private; only the module contract enters the catalog.
+    # +5/-0 for instruction 312's independent resource accounting: the
+    # `qt.preferences` performance-logging getter and setter, `runctx`'s two
+    # persisted-resource readers, and `RunContext.register_worker`.
+    # +6/-0 for FlowView's lazily mounted Classify section, measured against
+    # the exact a1ca11f9 inventory this ratchet last pinned:
+    # `spacr.qt.screens.classify.LazyFlowViewSection`, its public
+    # `hideEvent`, `panel`, `showEvent` and `shutdown` contracts, plus
+    # `install_flowview`. Nothing retired; all six are present in every
+    # regenerated language catalog in this change.
+    # +25/-0 from following executable module-scope branches instead of only
+    # ``tree.body``: 18 conditional FlowView callable contracts, three
+    # no-numba fractal functions, and the four conditional FlowView properties
+    # ``source_running``, ``node_id``, ``zoom`` and ``graph``. The callable
+    # scanner/extractor cross-check independently proves its formerly missing
+    # FlowView/fractal 21 are now present with byte-equal source content.
+    # +7/-0 for public methods documented during the required-parameter
+    # sweep: external_masks.InputGroup.from_value; selection.RangeFilter.mask
+    # and CategoryFilter.mask; umap_search.UmapRecipe.from_dict and
+    # SearchTable.add; and volcano_style.VolcanoStyle.save and load. These
+    # methods already existed, but adding their first docstrings admits them
+    # to both the rendered and pre-filter API inventories. Nothing retired.
+    # +14/-0 for the dnd_handlers and ThresholdGate structured-doc batch:
+    # twelve formerly docless drop-handler methods plus ThresholdGate.mask
+    # and ThresholdGate.with_threshold. Their exact aliases stay aliases and
+    # do not enter the canonical inventory independently. Nothing retired.
+    # -107 non-rendered entries: 16 from the ignored Qt tutorial, 85 from
+    # ignored resource generators, one Qt launcher module, four compatibility
+    # bridge entries, and the CLI-only ``qt.run_without_setup`` function.
+    # +16/-0 canonical documents from the database-browser and gate sweep:
+    # nine PreviewModel/linked-filter methods, five RectGate methods and two
+    # ThresholdGate methods. Six of those methods previously borrowed generic
+    # inherited prose through exact aliases; their implementation-specific
+    # documents retire those aliases rather than duplicating them.
+    # +2/-0 for popup-state compositor coordination: the module contract
+    # and ``a_popup_is_on_screen``. Both enter every locale in this change.
+    # +11/-0 for formerly docless layer methods whose required parameters are
+    # now described. The other 78 documented layer symbols gain structured
+    # parameter blocks without changing this symbol count.
+    # +82/-0, the accumulated public surface of the modules added since that
+    # sweep. Nothing was retired. By owner: 21 spacr.accelerator (the hardware
+    # resolver module, its Accelerator class and the capability predicates the
+    # README's hardware table is built from), 12 spacr.plaque (well detection,
+    # Well, PlaqueScale and the millimetre scale helpers), 10
+    # qt.widgets.fractal_travel (DepthPhase, RegionTour and the two pure
+    # helpers lifted out of the canvas), 9 qt.widgets.model_zoo_picker, 5
+    # qt.settings_pack, 5 across the screens that gained install_folds plus
+    # map_barcodes.build_registered_screen, 3 qt.app fold/tile helpers, 3
+    # qt.module_hints, 3 regression.DiagnosticsOpener, 2 each for
+    # spacr.model_zoo, spacr.submodules and console_panel's warning channel,
+    # and one each for qt.theme.menu_bar_background,
+    # fold_strip.FoldButton.set_verdict, the two new fractal modules and
+    # run_journal.delete_runs.
+    # +1397 across 2026-09-04 and 2026-09-05, 8,830 -> 10,237. Two events,
+    # and neither of them is a module being added:
+    #
+    #   +1,329 before this session's first commit (measured at 35e3967e3,
+    #          where len(docs) is already 10,159). That is 368's PUBLIC half
+    #          and the doc-gate work that went with it -- every public method
+    #          in the package gained its own docstring, which is also what
+    #          emptied API_DOC_ALIASES from 113 to 0. The ratchet was not
+    #          re-recorded at the time; it is being re-recorded now rather
+    #          than left as a number nobody can account for.
+    #
+    #      +56 in this session: 368's PRIVATE half, finished 2026-09-05.
+    #          Zero undocumented private methods on public classes remain.
+    #          Most of those 795 methods are invisible to AutoAPI and so do
+    #          not appear here; what does appear is the dunders among them --
+    #          __post_init__, __len__, __contains__, __iter__, __repr__,
+    #          __str__, __lt__, __call__, __new__, __del__ -- which this
+    #          extractor counts as public surface. The dunder inventory in
+    #          test_public_docstrings_matches_reviewed_visible_coverage moved
+    #          69 -> 202 in the same change and names the same event.
+    #
+    # NOTHING HAD BEEN RETIRED up to this point. Every figure had moved up,
+    # which is the direction check: this ratchet exists to catch surface
+    # appearing without its localized catalog, not to freeze the package.
+    #
+    #  10,237 -> 10,242 on 2026-09-08, and it is the first move that is NOT
+    #          a straight addition: +12 admitted, -7 retired, net +5. A net
+    #          figure hides a retirement behind an addition, so both halves
+    #          are named.
+    #
+    #          ADMITTED (12):
+    #            spacr.infection and its four functions -- host_contrast,
+    #            infection_report, multiplicity_distribution,
+    #            parasites_per_cell.
+    #            spacr.suggest and its five -- Suggestions,
+    #            pending_suggestions, resolve_suggestions,
+    #            suggest_from_scores, write_suggestions.
+    #            spacr.qt.regex_editor.RegexEditorDialog.resizeEvent.
+    #
+    #          RETIRED (7):
+    #            spacr.seg_metrics and its six -- average_precision,
+    #            boundary_f1, iou_matrix, match_objects, pixel_scores,
+    #            scorecard. The segmentation-metrics work this ratchet was
+    #            last re-recorded for (6ba40e149) is gone from the public
+    #            surface again.
+    #
+    #          The catalogs are already in step: the checked-in symbol
+    #          manifest holds exactly these 10,242 keys, so the surface and
+    #          its localization agree and only the pin was stale.
+    #      +1 on 2026-09-08 (later): `spacr.qt.screens.settings_flow_index`,
+    #          the GENERATED frozenset 383 writes beside the settings-flow
+    #          page. It lives in the PACKAGE rather than under docs/, and it
+    #          carries a module docstring, so it is public API surface like
+    #          any other module. Worth knowing because it is the first
+    #          generated file to move this count: regenerating the flow page
+    #          can now change the API inventory as a side effect. No
+    #          callables came with it -- it is a frozenset -- so the callable
+    #          counts below are unmoved.
+    #          10,243 -> 10,237 (2026-09-09). SIX SYMBOLS REMOVED, not
+    #          added: `space_variants`, `get_space_variant`,
+    #          `set_space_variant`, `get_space_seed`, `set_space_seed` and
+    #          `space_background_path`, retired under instruction 364. They
+    #          served a theme nothing could select -- "space" is not in
+    #          VALID_THEMES, `set_theme` refuses it, and `theme_choices()`
+    #          offers no space token -- so the one caller,
+    #          `theme_background_path`'s `theme == "space"` branch, was
+    #          unreachable and went with them.
+    #          10,237 -> 10,278 (2026-09-09). +41/-0, and every one of them
+    #          is instruction 372's OPS work becoming modules instead of
+    #          scripts. THREE new modules from this session --
+    #          `spacr.ops_layout` (the round well's geometry: WellLayout
+    #          with span, heights, site_count, position, positions, site,
+    #          neighbours, pairs, micron_position, and round_well_layout),
+    #          `spacr.ops_register` (Registration and its shift, unwrap,
+    #          available_backends, phase_correlate, register_edge,
+    #          register_pairs) and `spacr.ops_accel` (the three array
+    #          primitives: accelerated_backends, matmul, maximum_filter,
+    #          nearest_neighbours) -- plus `spacr.ops_stitch` (the driver:
+    #          stitch_well, StitchedWell and its placed, accepted,
+    #          proposed, residuals, canvas, expected_canvas, summary,
+    #          canvas_agrees), `spacr.ops_solve.solve_placements` from the
+    #          other session, and the three the OPS button's move brought:
+    #          `mask.install_ops_switch`, `mask.ops_page` and
+    #          `map_barcodes.hide_as_page`.
+    #
+    #          THE CATALOGS ARE MID-REBUILD as this is written, which is
+    #          the honest state rather than a tidy one: the other session
+    #          is translating all nine locales in one pass against this
+    #          set, deliberately batched because a rebuild costs two hours
+    #          whether it carries one symbol or forty.
+    #          10,278 -> 10,279 the same day, +1/-0:
+    #          `spacr.qt.widgets.column_aligned_row.ColumnAlignedRow
+    #          .invalidate`, added by instruction 350's last fix. It is a
+    #          Qt override with a docstring, so it is public API surface
+    #          like any other method -- and it is a good example of how
+    #          this count moves without anybody intending to move it: the
+    #          change was about a clipped Portuguese caption, in a lane
+    #          nowhere near the catalogs, and it added a symbol nine
+    #          locales now owe a translation for.
+    #          10,279 -> 10,296 (2026-09-10). +17/-0, all of one night, and
+    #          the nine-language rebuild that pays for them ran with it:
+    #            4  `spacr.ops_cycles` -- the cycle registration that has no
+    #               Hoechst to work with: sbs_mean_target, register_cycles,
+    #               accepted_cycles, and the module.
+    #           10  `spacr.ops_phenotype` -- Phase A4: Alignment with apply
+    #               and degrees, align_phenotype_to_sbs, nuclear_points,
+    #               phenotype_site_map, refine_similarity,
+    #               seed_by_scaled_pairs, similarity_from_correspondences,
+    #               and the module.
+    #            1  `spacr.qt.i18n.ui_language_resolved_once`, from 380 --
+    #               the scope that stopped a Preferences build asking the
+    #               preference store 346 times what language it was in.
+    #            2  `spacr.qt.widgets.fractal_travel.tour_leg_seconds` and
+    #               `.tour_offset`, from 327(3), which finally gave
+    #               RegionTour a caller.
+    #          THE CATALOGS WERE REBUILT IN THE SAME CHANGE, in one pass
+    #          over all nine, which is what 288's batching rule now
+    #          requires: two of these symbols appeared mid-rebuild earlier
+    #          the same night and turned a green audit red.
+    #          10,296 -> 10,306 (2026-09-10, on merging origin/nightly).
+    #          +12/-2, and the two sessions moved it in opposite directions
+    #          at once:
+    #            5  `spacr.qt.layout_policy` -- 359's generated breakpoint
+    #               policy: read_policy, minimum_width_for,
+    #               recommended_window_size, why, and the module.
+    #            4  `spacr.qt.widgets.fractal_travel.TourPilot` with steer,
+    #               dragged, restarted and flying -- 327(3)'s wire.
+    #            2  `spacr.qt.app.the_missing_pip_escape` and
+    #               `.open_at_the_measured_width`, from 01 and 359.
+    #           -2  `fractal_travel.tour_leg_seconds` and `.tour_offset`,
+    #               removed: a SECOND wiring of 327(3) written here
+    #               overnight without seeing that TourPilot had shipped the
+    #               evening before. One implementation, not two.
+    #          THE REMOVAL IS THE PART WORTH NOTICING. This count normally
+    #          only rises, and a fall means a public name went away -- which
+    #          is a translation nine locales had already paid for. Cheap
+    #          here because they were hours old; it would not be if they had
+    #          shipped.
+    # 10,306 -> 10,299. THIS COMMENT'S OWN WARNING FIRED, and correctly:
+    # it says a FALL means a public name went away and that nine locales
+    # had already paid for its translation. Twelve did. They were hours
+    # old and had never shipped, which is the case the note calls cheap,
+    # and they were withdrawn because none of the four symbols behind
+    # them was API -- each has exactly one caller inside the package.
+    # 10,294 -> 10,339 on 2026-09-11, +45/-0. A RISE, which this comment's
+    # own warning says is the ordinary direction, and every one of the
+    # forty-five is a public symbol a named item added: 386's embedding
+    # engine, 372's composed OPS window, 388's bystanders and point
+    # patterns, 387's selectivity and synergy surfaces, 370's scorecard,
+    # 377's infection guard, and 380's two per-window stylesheet helpers.
+    # Four are new MODULES and bring their own module docstring with them.
+    # The nine catalogs were regenerated against this inventory first.
+    # 10,339 -> 10,394 on 2026-09-11, +55 and -0, measured against the
+    # surface at a99af39ec rather than inferred from the failure message.
+    # Enumerated by module, because a ratchet moved without saying what it
+    # admitted is a rubber stamp:
+    #
+    #    17  qt.widgets.dose_response  387   PlateSpec (+__post_init__,
+    #                                        from_json, to_json), PlateReport
+    #                                        (+usable, summary_row), PooledFit
+    #                                        (+reproducible, summary_row),
+    #                                        Checkerboard (+shape),
+    #                                        checkerboard_from_frame,
+    #                                        normalise_to_controls,
+    #                                        plate_reports, pool_across_plates,
+    #                                        pool_frame
+    #    10  spacr.ops_objects         372   the module, ObjectsError,
+    #                                        WindowObject, PlateObject (+row),
+    #                                        objects_in_window, segment_windows,
+    #                                        sew, number, objects_frame
+    #     9  qt.screens.embeddings     386   the module, EmbeddingsScreen
+    #                                        (+spec, set_crops, embed, is_busy,
+    #                                        closeEvent),
+    #                                        make_embeddings_screen, register
+    #     7  spacr.ops_sample          372   the module, SampleError,
+    #                                        sample_objects, decode_input,
+    #                                        average_over_cycles, reads_rows,
+    #                                        barcode_rows
+    #     7  spacr.ops_store           372   the module, StoreError, Readiness,
+    #                                        write_table, read_table, row_count,
+    #                                        objects_ready
+    #     2  spacr.embeddings          386   encoder_key, encoder_entry
+    #     1  spacr.scorecard           370   scorecard_figure
+    #     1  spacr.qt.app              380   MainWindow.stylesheet_roots
+    #     1  spacr.qt.theme            380   mark_as_a_sheet_target
+    #   ---
+    #    55
+    #
+    # THREE ARE NEW MODULES -- ops_objects, ops_sample, ops_store -- so each
+    # brings its own module docstring as well; they are counted in the rows
+    # above as "the module". Nothing was retired, so this is a pure
+    # admission. The nine catalogs were regenerated against this inventory
+    # before the number was touched, which is the order this file's own
+    # message asks for.
+    # 10,397 -> 10,398 on 2026-09-12, +1/-0: `border_rules_agree`, added
+    # by 377 after the catalogs were built. The nine catalogs were rebuilt
+    # and repaired against this inventory before the number was touched,
+    # which is the order this file's own message asks for.
+    # 10,398 -> 10,400 with 364's `split_role_setting` and
+    # `surviving_setting_name`, the two public resolvers its migration adds.
+    # 10,400 -> 10,401 with 391's `withdrawn_setting_reason`.
+    # 10,401 -> 10,478 on 2026-09-13, +77/-0, a pure admission for Map
+    # Barcodes (c753b7de7). By module, measured by diffing the doc-key set
+    # against 5a2825f67 rather than subtracting totals:
+    #
+    #     31  spacr.barcode_search   the new module, including its own
+    #                                module docstring
+    #     20  spacr.qt.screens       map_barcodes.BarcodeSearchPanel and its
+    #                                plan/card/install helpers
+    #     14  spacr.settings         BarcodeEntry, BarcodeSet and
+    #                                barcode_set_from_settings
+    #     12  spacr.qt.widgets       read_view.ReadView, ReadRow, BarcodeSpan
+    #
+    # THE NINE CATALOGS WERE REGENERATED AND REPAIRED BEFORE THIS NUMBER WAS
+    # TOUCHED, which is the order this file's own failure message asks for.
+    # Every locale went 10,401 -> 10,478 with +77/-0 and 7 entries refreshed
+    # in place; nothing was dropped in any language.
+    #
+    # AND THE BUILD WAS GREEN BEFORE THE AUDIT WAS. The rebuild wrote all ten
+    # catalogs cleanly and its closing audit then found the new prose
+    # untranslated in EIGHT of the nine languages. A repair pass fixed most of
+    # it. What remains is 16 blocks in four languages -- 13 Icelandic, one
+    # each in Chinese, Hindi and French -- where MADLAD's candidates damaged
+    # protected literals and the gates REFUSED them. Those stay English on
+    # purpose: English prose on an API page is a gap, and corrupted Icelandic
+    # that looks like a translation is worse.
+    # 10,478 -> 10,531 (+53, two new modules) and then -> 10,533 (+2, two
+    # dunders documented). Both by set difference; see the accounting in
+    # test_docstring_correctness and above.
+    # 10,533 -> 10,534 on 2026-09-15, +1/-0 by set difference:
+    # `spacr.graph_types.mark_to_start_on` (293), the one public function its
+    # batch adds; the `spacr.ml` sibling went private before the catalogs were
+    # built. The surface with that key dropped is 10,533, the previous value.
+    # The nine catalogs were rebuilt with a reviewed record for it in every
+    # language BEFORE this number was touched, and the API audit passes at
+    # `languages=9 symbols=10534`.
+    # 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M), +7/-0 by set
+    # difference against nightly 3f27b926a: spacr.ops_engine (a new module)
+    # and spacr.ops_engine.run_ops, spacr.ops_cycles.AlignedField and
+    # align_field, spacr.ops_sbs.attribute_reads and
+    # assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. The
+    # same seven took 10,533 to 10,540 before the rebase. Their blocks, and
+    # the reworded ones of the OPS symbols they joined, carry hand-written
+    # reviewed records in every locale
+    # (docs/i18n/reviewed/api/<lang>/2026-09-15-ops-switch.json).
+    # 10,541 -> 10,521 on 2026-09-15, +0/-20 by set difference against
+    # the switch commit: the old OPS engine was deleted, taking the 17 symbols of
+    # the old engine's module and the three stitcher defaults in `spacr.settings`
+    # (`set_default_stitch`, `set_default_multichannel`,
+    # `set_default_general`) that nothing called.
+    # 10,521 -> 10,523 on 2026-09-15, +2 / -0 by set difference against
+    # origin/nightly df1216b3f: `spacr.barcode_search.SearchThresholds` and its
+    # `__post_init__`. THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR THESE
+    # TWO. That is a recorded debt for the pre-release catalog rebuild, which
+    # the home session owns; test_documentation_i18n names the two missing
+    # symbols until it runs.
+    # 10,523 -> 10,539 on 2026-09-15, +16/-0 by set difference against
+    # nightly dca970671: spacr.qt.make_masks_demo and its seven public
+    # functions (412), spacr.install_cleanup with InstallRecord,
+    # RemovalReport, RemovalReport.ok, find_old_installs, remove_install,
+    # run_update_sequence and start_update_helper (416). The surface with
+    # those sixteen keys dropped is 10,523, the previous value. The nine
+    # catalogs were repaired with reviewed records for every one of their
+    # blocks BEFORE this number was touched
+    # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+    # 10,539 -> 10,931 on 2026-09-20, +392 / -0 against the reviewed value
+    # above, measured as a set difference and bucketed by module rather than
+    # named one by one, because 392 names would be a list nobody reads:
+    #
+    #     76  spacr.qt.widgets          20  spacr.qt.resonance (427)
+    #     38  spacr.qt.ai               20  spacr.crop_loader (366)
+    #     27  spacr.qt.sound            18  spacr.qt.mask_engine (419, 435)
+    #     24  spacr.qt.help_search      18  spacr.qt.sound_synth (427)
+    #     23  spacr.qt.model_install    14  spacr.measure (421)
+    #     23  spacr.qt.screens          14  spacr.timeflows_baseline (426)
+    #                                   14  spacr.qt.help_index
+    #                                   14  spacr.qt.preferences
+    #
+    # Against origin/nightly df1216b3f the whole surface is +412 / -2; the
+    # two that left are one entry each in spacr.cli_make_masks and
+    # spacr.qt.ai.
+    #
+    # THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR ANY OF THESE, and that
+    # is a recorded debt rather than an oversight -- the same shape as the
+    # 10,521 -> 10,523 entry above. The maintainer put translations at low
+    # priority on 2026-09-20 and the rebuild needs the GPU, which was busy.
+    # Until it runs the localized API pages omit these blocks, which is what
+    # this comment exists to say out loud.
+    # 10,931 -> 11,166 on 2026-09-21, +235 / -0, set-differenced and
+    # bucketed by module the same way. Sixteen of them (spacr.object_
+    # classifier and the infection report writer) landed on 2026-09-20
+    # between this pin and the docstring-correctness one, which is why
+    # that file moved from 10,947. The other 219 arrived after 6ae5e1b36:
+    #
+    #     71  spacr.qt.widgets.plaque_preview   16  spacr.timeflows_model
+    #     44  spacr.plaque_papers               13  qt.make_masks_datasets
+    #     10  spacr.qt.ai.pty_sign_in            8  qt.ops_stitch_demo
+    #      7  spacr.import_examples              6  qt.screens.foreign
+    #      5  spacr.qt.import_demo               4  qt.assay_examples
+    #      4  qt.widgets.measurements_example    and 31 across sixteen others
+    #
+    # THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR THESE EITHER; the
+    # debt recorded for the 392 above now covers 627 symbols, and
+    # test_documentation_i18n names them until the rebuild runs.
+    # 474 adds six module/class/method entries and four documented registries.
+    # All ten have source-bound records in the nine locale catalogs.
+    # Removing the four registry IDs reproduces the previous visible digest.
+    # ParaScape contributes fourteen entries; diagram interactions add two.
+    # All sixteen and the three changed entries have nine-language catalogs.
+    # Removing REPOSITORY restores the prior visible-member digest exactly;
+    # features/data/411_external_app_api_2026-09-22.json records the audit.
+    # 477 adds the shared ruler module, class and seven public methods.
+    # The source-derived callable subtraction and rendered anchors are
+    # recorded in features/data/411_shared_ruler_api_2026-09-22.json.
+    # +7 Timeflows nested helpers; removing those seven keys restores 11,402.
+    # The exact delta is recorded in 411_timeflows_guidance_2026-09-23.json.
+    # +9 held-out validation entries: one module, six public functions and
+    # two nested reporting helpers. All nine locale catalogs carry them.
+    # +12 inference/cursor/help/schema entries. The English manifest is
+    # current; strict locale freshness checks still report untranslated keys.
+    # Image-quality and Host–Pathogen add ten functions and two modules.
+    # Exact subtraction: 411_english_publication_2026-09-23.json.
+    # Current PSF, preview and navigation additions are accounted by exact
+    # source-key subtraction in 411_api_test_surface_2026-09-23.json.
+    # English publication remains independent of incomplete locale catalogs.
+    # SaveFigureDialog.eventFilter is the only final release addition.
+    # +1 restoration_controls module; its private widget remains excluded.
+    # Exact subtraction: 411_restoration_api_refresh_2026-09-24.json.
+    # +1 private worker module overview; callable counts are unchanged.
+    # Exact delta: 411_mask_batch_inventory_2026-09-24.json.
+    # 11,528 -> 11,651 on 2026-09-25, +124 / -1 by set difference against
+    # af6d77376, all from the implementation session (items 502-513): 109
+    # callables (named at the callable inventory in
+    # test_docstring_correctness), the tooltip_policy, mask_comparison,
+    # picture_export and segmentation_views module docstrings, and the eleven
+    # documented constants/attributes (the nine in
+    # _ASSIGNMENTS_ADDED_2026_09_25 plus HomePage.news_panel and
+    # NewsPanel.releases). -1: plaque_preview.render_cellprob, moved to
+    # segmentation_views. 11,651 -> 11,661 after rebasing on b84c3441c: ten
+    # callables from item 475 and the PSF/detect chain work, named at the
+    # callable inventory in test_docstring_correctness.
+    # 11,661 -> 11,710 on nightly 03a02c3b8, +49 / -0: 47 callables (named
+    # at the callable inventory) plus FILTER_BOUNDS and FILTER_KEYS.
+    # 11,710 -> 11,746 on 2026-09-25: item 523's community-contribution
+    # callables, classes and constants, measured after merging nightly
+    # b315c0342, whose 503/507/525/526 additions were unpinned there.
+    # 11,746 -> 11,758 on 2026-09-25: item 528's images-and-masks
+    # contribution from Make Masks (eleven callables, named at the callable
+    # inventory in test_docstring_correctness, and ContributeMasksDialog).
+    # 11,758 -> 11,816 on 2026-09-26, +60 / -2 by set difference against
+    # 4f6c58418 on nightly 88a0ee002: the 59 callables named as
+    # final_pass_callables in test_docstring_correctness (items 529, 18,
+    # 533, 523, 224, 511, 474, 356, 477) and live_preview.BOUND_ROWS, less
+    # prerun.diameter_panel and install_diameter_panel (533).
+    # 11,816 -> 11,834 on 2026-09-26, +18 / -0: item 545's ROI export and
+    # import callables, named at the callable inventory in
+    # test_docstring_correctness.
+    # 11,834 -> 11,860 on 2026-09-26, +26 / -0, item 570's hit scoring:
+    # spacr.sp_stats HitScoringError, mad, robust_z_scores,
+    # ssmd_unreplicated, ssmd_replicated, MedianPolish (and .fitted),
+    # median_polish, b_scores, call_hits, screen_wells, ArrayedHitResult (and
+    # .hits, .report), score_screen, treatment_ssmd, hit_table,
+    # score_arrayed_screen, hit_heatmap, write_hit_report;
+    # spacr.figures.plates.score_ramp; ControlChartScreen.hit_options,
+    # rescore_hits, choose_hit_export, export_hits, hit_result. The locale
+    # catalogs are not regenerated here (catalog lane).
+    # 11,860 -> 11,861 after merging nightly: item 588's
+    # spacr.qt.mask_engine.fill_label_holes.
+    # 11,861 -> 11,865 on 2026-09-26, +4 / -0, items 544 and 573 (blind
+    # scoring and the preregistered analysis lock): spacr.run_journal's start_blinding, unblind, lock_analysis and check_analysis_lock.
+    # 11,865 -> 11,929 on 2026-09-28, +64 / -0, item 593: the new modules
+    # spacr.folder_consolidation, spacr.channel_sorting and
+    # spacr.qt.widgets.channel_sort_dialog. English sources regenerated with
+    # --sources-only; the locale catalogs are not (catalog lane).
+    # 11,929 -> 11,942 on 2026-09-29, +13 / -0, item 600: spacr.drop_classification
+    # (module, DropClassification, classify_drop) and spacr.qt.widgets.
+    # organize_for_measure (module, OrganizeForMeasureDialog and eight methods).
+    # 2026-10-01: merge, uncertainty and condition APIs; exact source delta
+    # recorded in features/data/615_public_api_delta_2026-10-01.json.
+    # N625 adds annotation_columns; ConditionPreview documents three optional
+    # per-column diagnostics without adding another API symbol.
+    # 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
+    # all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
+    # strict audit: features/data/615_translation_acceptance_2026-10-02.json.
+    # 2026-10-02 F411: +2/-0, tabular._write_workbook._write and
+    # qt.command_palette.CommandPalette._collect_commands.app_is_visible.
+    # All 12,036 prior source keys/texts unchanged; nested private parents
+    # remain hidden. Exact subtraction is recorded in the F411 slice receipt.
+    # 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
+    # and spacr._lineage_measurements (the API docstring contract requires
+    # one per module); all 12,038 prior symbols unchanged.
+    # 2026-10-03 F411: +131/-0, documented nested helpers of 111 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
+    # 2026-10-03 F411: +46/-0, documented nested helpers of 23 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,171 prior symbols unchanged.
+    # 2026-10-03 F411: +136/-1 (the -1 is ConditionSourceTable.setModel, removed by nightly), documented nested helpers of 39 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,217 prior symbols unchanged.
+    # 2026-10-03 F411: +99/-0, documented nested helpers of 19 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,352 prior symbols unchanged.
+    # 2026-10-03 F411: +95/-0, documented nested helpers of 13 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,451 prior symbols unchanged.
+    # 2026-10-03 F411: +154/-0, documented nested helpers of 11 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,546 prior symbols unchanged.
+    # 2026-10-03 F411: +28/-0, documented nested helpers of 1 more module
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,700 prior symbols unchanged.
+    # 2026-10-03 F411: +159/-0, documented nested helpers of 11 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,728 prior symbols unchanged.
+    # 2026-10-03 F411: +103/-0, documented nested helpers of 3 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,887 prior symbols unchanged.
+    # 2026-10-03 F411: +81/-0, documented nested helpers of 2 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,990 prior symbols unchanged.
+    # 2026-10-03 F411: +104/-0, documented nested helpers of 2 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
+    # 2026-10-04 566 (a71b646a7): +1/-0, the documented nested helper
+    # spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
+    # Item 662: +4 public mask_engine YOLO helpers, no removals.
+    # All 13,177 prior English records preserved; 662_yolo_support receipt.
+    assert docs[
+        "spacr.qt.screens.embeddings.EmbeddingsScreen."
+        "_subcell_channels_dialog.accept_mapping"
+    ] == "Store only a complete four-index choice, then close."
+    # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+    # 2026-10-07: +17/-0, exactly the reviewed additions also pinned by
+    # test_documentation_i18n: convert.read_scn, convert.scn_to_rgb8,
+    # embeddings._cell_dino_model.forward,
+    # io._preprocess_mapped_volume_series.load_channel,
+    # qt.mask_engine.read_image,
+    # qt.preferences.PreferencesDialog._build_the_dialog.{_pick_ambient_color,
+    # _refresh_custom_colors,_sync_custom_colors},
+    # qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits,
+    # qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.{accept_mapping,
+    # choose_file,sync_width},
+    # qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.{finished,work},
+    # qt.screens.embeddings.EmbeddingsScreen.embed.finished,
+    # qt.widgets.ambient.AmbientWidget.{gravity_radius,set_gravity_radius}.
+    # 2026-10-07: +15/-0 for Apply/Keep/Revert, optional dot blinking,
+    # popup waves and current renderer dimensions. Exactly six Preferences
+    # helpers: _apply, _apply.{_answered,_network_bytes,_restore,_snapshot}
+    # and _blink_value_changed; AmbientEngine.{set_blink_percent,
+    # set_popup_wave_frequency}; AmbientWidget.{blink_percent,
+    # popup_wave_frequency,set_blink_percent,set_popup_wave_frequency};
+    # AuroraEngine.{buffer_scale,buffer_size}; DriftEngine.buffer_size.
+    # The normal all-nine API writer supplies these contracts to each catalog.
+    # 2026-10-07: +1/-0, the nested Preferences background picker:
+    # _build_the_dialog._pick_ambient_background. Exact source/prose delta
+    # retains every prior contract; all nine normal catalogs carry its review.
+    # 2026-10-10 item 684: +3/-0, MainWindow.snap_window,
+    # AmbientWidget.set_click_ripples and the nested Preferences helper
+    # _build_the_dialog._density_follows_theme; all nine API catalogs were
+    # regenerated with tools/build_documentation_i18n.py first.
+    expected = 13_218
+    import json
+    worker_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text())
+    assert len(worker_arrivals) == 8
+    assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
+    home_ui_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+    assert len(home_ui_arrivals) == 10
+    assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & worker_arrivals.keys()
+    hidden_close = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+    assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
+    assert {key: docs[key] for key in hidden_close} == hidden_close
+    assert hidden_close.keys() <= home_ui_arrivals.keys()
+    # 2026-10-10, items 672/673: the editable 3D gate volume and the native
+    # 3D Make Masks session arrive as one exact contract of 32 documented
+    # symbols (EditableVolumeGate and its members, VolumeAnchor,
+    # GateCanvas.volume_surface_at, VolumeMaskSession and its members,
+    # load_volume_image_and_mask, save_volume_mask,
+    # MakeMasksScreen.open_volume and three nested geometry helpers).
+    volume_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "672_673_editable_volume_api_arrivals_2026-10-10.json").read_text())
+    assert len(volume_arrivals) == 32
+    assert {key: docs[key] for key in volume_arrivals} == volume_arrivals
+    assert not volume_arrivals.keys() & (
+        worker_arrivals.keys() | home_ui_arrivals.keys())
+    # 2026-10-11 item 685: the four model-zoo helpers of 9d48eefa6
+    # (default_version_index, hf_repo_of, is_alternative, is_spacr_owned) are
+    # one named arrival contract; all nine API catalogs were regenerated first.
+    zoo_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "685_model_zoo_api_arrivals_2026-10-11.json").read_text())
+    assert len(zoo_arrivals) == 4
+    assert {key: docs[key] for key in zoo_arrivals} == zoo_arrivals
+    # 2026-10-11 item 690: the TEM readers and pixel size (spacr.io), the
+    # pixel_size_nm (mask_engine) and the TEM test data
+    # loaders (make_masks_demo) are one named arrival contract.
+    tem_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "690_tem_api_arrivals_2026-10-11.json").read_text())
+    assert len(tem_arrivals) == 10
+    assert {key: docs[key] for key in tem_arrivals} == tem_arrivals
+    assert not spatial_arrivals.keys() & (zoo_arrivals.keys() | tem_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **tem_arrivals, **spatial_arrivals}
+    # 2026-10-11 item 691: MitoNet's weights, post-processing and runner and
+    # the Third-party test in spacr.model_zoo are one named arrival contract.
+    mitonet_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "691_mitonet_api_arrivals_2026-10-11.json").read_text())
+    assert len(mitonet_arrivals) == 4
+    assert {key: docs[key] for key in mitonet_arrivals} == mitonet_arrivals
+    assert not mitonet_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **mitonet_arrivals}
+    drawing_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text())
+    assert len(drawing_arrivals) == 8
+    assert {key: docs[key] for key in drawing_arrivals} == drawing_arrivals
+    assert not drawing_arrivals.keys() & (zoo_arrivals.keys() | volume_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **drawing_arrivals}
+    apply_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "prefs_apply_api_arrivals_2026-10-12.json").read_text())
+    assert len(apply_arrivals) == 8
+    assert {key: docs[key] for key in apply_arrivals} == apply_arrivals
+    assert not apply_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **apply_arrivals}
+    a11y_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "655_accessibility_api_arrivals_2026-10-12.json").read_text())
+    assert len(a11y_arrivals) == 15
+    assert {key: docs[key] for key in a11y_arrivals} == a11y_arrivals
+    assert not a11y_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **a11y_arrivals}
+    in_container_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "673_volume_in_container_api_arrivals_2026-10-12.json").read_text())
+    assert len(in_container_arrivals) == 2
+    assert {key: docs[key] for key in in_container_arrivals} == in_container_arrivals
+    assert not in_container_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **in_container_arrivals}
+    export_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "693_export_settings_api_arrivals_2026-10-12.json").read_text())
+    assert len(export_arrivals) == 3
+    assert {key: docs[key] for key in export_arrivals} == export_arrivals
+    assert not export_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **export_arrivals}
+    response_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "144_regression_response_api_arrivals_2026-10-12.json").read_text())
+    assert len(response_arrivals) == 3
+    assert {key: docs[key] for key in response_arrivals} == response_arrivals
+    assert not response_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **response_arrivals}
+    splash_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "694_startup_splash_api_arrivals_2026-10-12.json").read_text())
+    assert len(splash_arrivals) == 21
+    assert {key: docs[key] for key in splash_arrivals} == splash_arrivals
+    assert not splash_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **splash_arrivals}
+    sequence_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "695_startup_sequence_api_arrivals_2026-10-12.json").read_text())
+    assert len(sequence_arrivals) == 5
+    assert {key: docs[key] for key in sequence_arrivals} == sequence_arrivals
+    assert not sequence_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **sequence_arrivals}
+    tutorial_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "tutorial_cli_api_changes_2026-10-12.json").read_text())["added"]
+    assert len(tutorial_arrivals) == 3
+    assert {key: docs[key] for key in tutorial_arrivals} == tutorial_arrivals
+    assert not tutorial_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **tutorial_arrivals}
+    # 2026-10-12: the model card viewer (WS) adds spacr.model_cards and spacr.qt.widgets.model_card_viewer; one named contract.
+    model_card_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "model_cards_api_arrivals_2026-10-12.json").read_text())
+    assert len(model_card_arrivals) == 27
+    assert {key: docs[key] for key in model_card_arrivals} == model_card_arrivals
+    assert not model_card_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **model_card_arrivals}
+    # 2026-10-13: Mask Live filter debounce adds three methods and one constant; one named contract.
+    debounce_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "mask_live_filter_debounce_api_arrivals_2026-10-13.json").read_text())
+    assert len(debounce_arrivals) == 4
+    assert {key: docs[key] for key in debounce_arrivals} == debounce_arrivals
+    assert not debounce_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **debounce_arrivals}
+    # 2026-10-13: ConsolePanel.warm_notice_glyphs (71a7563af) lays out the notice glyphs ahead of a first Run; one named contract.
+    warm_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "console_warm_notice_glyphs_api_arrival_2026-10-13.json").read_text())
+    assert len(warm_arrivals) == 1
+    assert {key: docs[key] for key in warm_arrivals} == warm_arrivals
+    assert not warm_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **warm_arrivals}
+    # 2026-10-13: Quitting with work in flight (retire_live_work) and the Preferences warm-up polish (_PreferencesWindow.event); one named contract.
+    quit_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "quit_and_warmup_api_arrivals_2026-10-13.json").read_text())
+    assert len(quit_arrivals) == 3
+    assert {key: docs[key] for key in quit_arrivals} == quit_arrivals
+    assert not quit_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **quit_arrivals}
+    # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
+    thread_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "thread_retire_api_arrivals_2026-10-13.json").read_text())
+    assert len(thread_arrivals) == 3
+    assert {key: docs[key] for key in thread_arrivals} == thread_arrivals
+    assert not thread_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **thread_arrivals}
+    # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
+    dna_rain_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
+    assert len(dna_rain_arrivals) == 1
+    assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
+    assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **dna_rain_arrivals}
+    # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
+    launcher_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text())
+    assert len(launcher_arrivals) == 3
+    assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
+    assert not launcher_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
+    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
+    assert actual == expected, (
+        f"the public API surface is {actual}, reviewed at {expected} "
+        f"({actual - expected:+d}). A public docstring addition must bump this "
+        "count, name what it admitted in the comment above, and regenerate "
+        "the target catalogs with tools/build_documentation_i18n.py -- "
+        "otherwise the localized API pages silently omit the new contract."
+    )
+    # The same surface WITH the aliases, which is what the catalog actually
+    # carries. It tracks `expected` by the current alias count --
+    # and moving one without the other means the aliases changed, which is a
+    # different event from the API growing and is worth failing separately.
+    # It was a bare number with no sentence beside it, which is how it came
+    # to be the second thing to update and the first thing forgotten.
+    # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
+    # rather than collapsed: the day an alias is legitimately added, this is
+    # what fails separately from the surface count and says so.
+    # 10,294 -> 10,339 on 2026-09-11, +45/-0, with the merge from main and
+    # one night's Qt work. Reviewed by building the inventory at
+    # `d9f02e709` -- where these numbers were last moved -- and at the
+    # merge, and diffing the SETS rather than trusting the arithmetic:
+    #
+    #     9  spacr.embeddings          386     3  spacr.model_zoo      370
+    #     9  spacr.ops_compose         372     2  spacr.scorecard      370
+    #     7  spacr.bystanders          388     2  spacr.qt.theme       380
+    #     7  qt.widgets.dose_response  387     1  spacr.infection      377
+    #     5  spacr.point_patterns      388
+    #
+    # Four of those are new MODULES, so each brings its own module
+    # docstring as well. The nine catalogs were regenerated against this
+    # inventory before the number was touched, which is the order this
+    # file's own message asks for.
+    # 10,533 -> 10,534 on 2026-09-15 with `expected` above, for the same one
+    # symbol; the aliases are still zero, so the two stay equal.
+    # 10,534 -> 10,541 with `expected` above, for 372's seven.
+    # 10,541 -> 10,521 with `expected` above, for the same twenty.
+    # 10,521 -> 10,523 with `expected` above, for the same two.
+    # 10,523 -> 10,539 with `expected` above, for 412's and 416's sixteen.
+    # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
+    # are still zero, so the two stay equal.
+    # 10,931 -> 11,166 with `expected` above, for the same 235.
+    # 11,528 -> 11,651 -> 11,661 with `expected` above, for the same moves.
+    # 11,758 -> 11,816 with `expected` above.
+    # 11,816 -> 11,834 with `expected` above.
+    # 11,865 -> 11,929 with `expected` above, for item 593's 64.
+    # 11,929 -> 11,942 with `expected` above, for item 600's 13.
+    # Item 662: +4 public mask_engine YOLO helpers, no removals.
+    # All 13,177 prior English records preserved; 662_yolo_support receipt.
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_218
+    assert set(builder.API_DOC_ALIASES) <= docs.keys()
+
+    # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
+    # excluded here because its text came from `logging.Filter.filter`, which
+    # is not spaCR's to document. It now carries its own docstring -- the
+    # gate is membership in an explicit level set rather than the threshold
+    # the base class implements, so borrowing the base class's sentence said
+    # the wrong thing. Pinned as present, with its first line, because "no
+    # longer excluded" is only meaningful if what replaced it is checked.
+    assert docs["spacr.logging_util.LevelSetFilter.filter"].startswith(
+        "Return whether *record* has one of the enabled exact levels."
+    )
+
+    # AND SO ARE THE TWO SPHINX MARKERS. `Gate.kind` and `Gate.columns` were
+    # source-less abstract markers with nothing to render. Both now carry the
+    # contract a subclass has to keep -- `kind` is part of the FILE FORMAT
+    # that `from_dict` dispatches on, and `columns` is what lets a saved gate
+    # be validated against a table before it is applied. There are no
+    # intentionally unresolved audit bodies left.
+    assert docs["spacr.qt.widgets.gate_spec.Gate.kind"].startswith(
+        "The shape's tag, as it appears in a saved gate set."
+    )
+    assert docs["spacr.qt.widgets.gate_spec.Gate.columns"].startswith(
+        "Which measured columns this gate reads."
+    )
+
+
+def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monkeypatch):
+    docs = builder.public_docstrings()
+
+    assert builder.AUTOAPI_IGNORE == tuple(_conf_assignment("autoapi_ignore"))
+    assert builder.AUTOAPI_NON_RENDERED_MODULES == {
+        "spacr.qt.__main__",
+        "spacr._v1_v2_bridge",
+        # ADDED 2026-09-10 with `spacr/qt/layout_policy.py` becoming
+        # private. AutoAPI hides a leading-underscore module because
+        # `conf.py` sets no `private-members`; this extractor does not,
+        # so the two are told separately and this frozenset is the
+        # hand-maintained mirror of what the site actually drops.
+        "spacr.qt._layout_policy",
+        # ADDED 2026-09-15 with items 404/405: the DINOCell/SAMCell seam,
+        # whose header comment became a module docstring. Measured with
+        # `_is_rendered_autoapi_entry` neutralised, both halves in one run,
+        # against 8f4171fd9: pre-filter 10,751 -> 10,752, post-filter
+        # 10,533 unchanged, boundary 218 -> 219 -- and the one new filtered
+        # entry is the key `spacr._segmentation_backends` itself. Every
+        # other bucket reports its old count, so the `10_696 - len(docs)`
+        # pin below does not move.
+        "spacr._segmentation_backends",
+        # 2026-09-15: the pandas-free data modules behind outlier_filter and
+        # stream_dataset. Private, re-exported, and never rendered.
+        "spacr._outlier_criteria",
+        "spacr._stream_selection",
+        "spacr.qt._magnifier_drag",
+    }
+    assert builder.AUTOAPI_NON_RENDERED_SYMBOLS == {
+        "spacr.qt.run_without_setup",
+    }
+
+    # THE DOT IS LOAD-BEARING. `spacr.qt.tutorial` is the ignored PACKAGE;
+    # `spacr.qt.tutorials` is a different, rendered module beside it -- the
+    # lookup a screen and spacr-tutorial use to find a lesson. A bare
+    # startswith("spacr.qt.tutorial") catches the sibling by prefix and
+    # reports a rendered public module as a boundary leak.
+    assert not any(
+        key == "spacr.qt.tutorial" or key.startswith("spacr.qt.tutorial.")
+        for key in docs
+    )
+    assert not any(
+        key.startswith("spacr.resources.home.versions._generators")
+        for key in docs
+    )
+    assert "spacr.qt.__main__" not in docs
+    assert not any(key.startswith("spacr._v1_v2_bridge") for key in docs)
+    assert not any(
+        key == "spacr._segmentation_backends"
+        or key.startswith("spacr._segmentation_backends.")
+        for key in docs
+    )
+    assert "spacr.qt.run_without_setup" not in docs
+
+    # RE-MEASURED 2026-09-08, the same way: 10,450 -> 10,455 pre-filter
+    # against 10,237 -> 10,242 post-filter, so both halves moved by the same
+    # net +5 and the 213 filtered entries did not move at all -- every
+    # bucket below still reports the count printed beside it. That is the
+    # check worth having: the surface change was in rendered modules, and
+    # nothing crossed the AutoAPI boundary in either direction.
+    #
+    # RE-MEASURED 2026-09-05. The audited pre-filter inventory is 10,428 and
+    # 213 of its entries are filtered out. Both halves moved together: 368
+    # documented every private method on a public class, which adds surface
+    # to the pre-filter and the post-filter inventory alike, and the
+    # generated-resource bucket grew again.
+    #
+    # Enumerated, because a difference nobody can decompose is a difference
+    # nobody can check. Measured by running ``public_docstrings`` with the
+    # AutoAPI filter neutralised and bucketing what only the unfiltered run
+    # produced. The inventory moved 10,428 -> 10,450 across the same-day merges
+    # with the other session; the 213 filtered entries did not move:
+    #
+    #   116  spacr.resources.home.versions._generators
+    #    59  spacr.resources.icons.backup_icons._generators
+    #    16  spacr.qt.i18n_catalogs        (generated per-language catalogs)
+    #    16  spacr.qt.tutorial
+    #     4  spacr._v1_v2_bridge
+    #     1  spacr.qt.__main__
+    #     1  spacr.qt.run_without_setup
+    #   ---
+    #   213
+    # 10,456 -> 10,450 with the six retired space accessors. The BOUNDARY
+    # stays 213: they were rendered symbols, so both totals fall together.
+    # Moving only one would silently reattribute six removals to the
+    # non-rendered pile.
+    # 10,450 -> 10,491 with the forty-one OPS symbols, for the same reason
+    # in the other direction: they are all rendered, so both totals rise
+    # together and the boundary is unmoved. None of the four new modules is
+    # generated, none is a per-language catalog, and none is a bridge --
+    # so nothing about them belongs in the 213.
+    # 10,509 -> 10,519 on merging origin/nightly, +12/-2, and re-measured
+    # the same way: pre-filter 10,519, post-filter 10,306, boundary 213, and
+    # every bucket reporting its printed count. Both sides' symbols are
+    # rendered, so both totals move together and the boundary is unmoved --
+    # including the two that were REMOVED, which is the same argument in the
+    # direction this comment had not needed before.
+    # 10,492 -> 10,509 with the seventeen of 2026-09-10, and RE-MEASURED
+    # rather than inferred, because picking the number that makes the
+    # assertion pass is not a measurement. Run with the filter neutralised:
+    # pre-filter 10,509, post-filter 10,296, boundary 213 -- and every
+    # bucket below still reports the count printed beside it, which is the
+    # part that says nothing crossed.
+    # 213 -> 220. The boundary itself did not move; the SURFACE
+    # did, so the difference grows by the seven the filter now
+    # subtracts. 2026-09-10, second MOVE THAT DAY: four symbols added the night
+    # before came OFF the public surface. `open_at_the_measured_width`
+    # and `the_missing_pip_escape` have one caller each inside
+    # `qt/app.py`, `TourPilot` is instantiated once inside
+    # `fractal_travel`, and `layout_policy` is read by nothing but
+    # `app.py` -- none of the four was API, and twelve entries were
+    # about to be translated into nine languages for helpers nobody
+    # outside the package calls.
+    # 225 -> 180 with the same +45: the boundary itself did not move,
+    # so the difference shrinks by exactly what the surface gained.
+    # RE-MEASURED 2026-09-11, AND THE TWO NUMBERS HAD COME APART. This
+    # assertion is meant to read "pre-filter total minus surface equals the
+    # boundary", and by the previous entry it no longer did: that entry left
+    # the left-hand constant at 10,519 and let the DIFFERENCE absorb a +45
+    # surface gain, which is why it says 180 while the bucket list below it
+    # says the boundary is 213. Adjusting one side is the shortcut this
+    # comment chain warns against everywhere else, and it silently converts
+    # the assertion from a measurement into an accumulator.
+    #
+    # Measured the documented way -- `public_docstrings()` with
+    # `_is_rendered_autoapi_entry` neutralised -- both halves in one run:
+    #
+    #     pre-filter   10,612
+    #     post-filter  10,394
+    #     boundary        218
+    #
+    # THE BOUNDARY DID MOVE, 213 -> 218, and by exactly one bucket:
+    #
+    #   116  spacr.resources.home.versions._generators   unchanged
+    #    59  spacr.resources.icons.backup_icons._gen...  unchanged
+    #    16  spacr.qt.i18n_catalogs                      unchanged
+    #    16  spacr.qt.tutorial                           unchanged
+    #     5  spacr.qt._layout_policy                     NEW
+    #     4  spacr._v1_v2_bridge                         unchanged
+    #     1  spacr.qt.__main__                           unchanged
+    #     1  spacr.qt.run_without_setup                  unchanged
+    #   ---
+    #   218
+    #
+    # `layout_policy` became `_layout_policy`, which is the follow-through
+    # on the 2026-09-10 finding recorded above: it is read by nothing but
+    # `app.py` and was never API. Its five entries did not disappear, they
+    # crossed from the rendered side to the filtered side -- so the surface
+    # falls by five and the boundary rises by five, and the pre-filter total
+    # is unmoved by this particular change. That is the one case where the
+    # two halves move in opposite directions, and the only way to see it is
+    # to measure both.
+    # 10,612 -> 10,613 with 380's `set_a_sheeted_widgets_own_rule`, merged
+    # after the measurement above. BOTH halves move together, which is the
+    # expected shape for a rendered symbol: the boundary stays 218.
+    # 10,615 -> 10,616 with 377's `border_rules_agree`, and BOTH halves were
+    # re-measured in one run with `_is_rendered_autoapi_entry` neutralised
+    # rather than either being inferred from the other:
+    #
+    #     pre-filter   10,616
+    #     post-filter  10,398
+    #     boundary        218
+    #
+    # Another rendered symbol, so again both halves move and the boundary
+    # does not. Measuring both is still the only way to know that, because
+    # the case where they move in OPPOSITE directions looks identical from
+    # either half alone.
+    # 10,616 -> 10,618 with 364's two, and BOTH halves re-measured in one
+    # run with the filter neutralised rather than either inferred from the
+    # other: pre-filter 10,618, post-filter 10,400, boundary 218 again.
+    # Two more rendered symbols, so again both move and the boundary does
+    # not.
+    # 10,618 -> 10,619, both halves re-measured in one run with the filter
+    # neutralised: pre-filter 10,619, post-filter 10,401, boundary 218.
+    # 10,619 -> 10,696 on 2026-09-13 for Map Barcodes (c753b7de7), BOTH halves re-measured
+    # in one run with `_is_rendered_autoapi_entry` neutralised rather than
+    # either inferred from the other:
+    #
+    #     pre-filter   10,696
+    #     post-filter  10,478
+    #     boundary        218
+    #
+    # +77 on both sides, so the boundary does not move: the whole of Map
+    # Barcodes' surface is rendered and none of it crossed the AutoAPI line
+    # in either direction. That is the shape a rendered addition should have,
+    # and the only way to know it is the shape this one has is to measure
+    # both halves -- the opposite-direction case looks identical from either
+    # half alone, which the `layout_policy` note above records.
+    # 218 -> 165 on 2026-09-14. The autoapi total is UNCHANGED at 10,696;
+    # what moved is the documented set, +53, so the excluded boundary shrinks
+    # by exactly that. A boundary that had grown instead would mean new
+    # symbols arriving OUTSIDE the documented surface, which is a different
+    # event and the one this subtraction exists to separate.
+    # 2026-09-14: +2, item 368's docstring sweep. The two are
+    # spacr.embeddings.EmbeddingSpec.__post_init__ and
+    # spacr.ops_store.Readiness.__bool__ -- both dunders that already
+    # EXISTED and were undocumented; documenting them is what admits them
+    # to the rendered surface. Set-differenced against origin/nightly:
+    # +2 / -0, and those are the two.
+    # The autoapi total is unchanged at 10,696, so the excluded boundary
+    # shrinks by exactly the 2 newly documented.
+    # RE-MEASURED 2026-09-15 for `mark_to_start_on`, AND THE LEFT-HAND CONSTANT
+    # HAD COME APART AGAIN. Both 2026-09-14 entries above say the autoapi total
+    # stayed at 10,696. It did not: those +53 and +2 are RENDERED symbols, so
+    # they grew the pre-filter inventory exactly as much as the documented one,
+    # and the boundary never moved. That is the accumulator failure the
+    # 2026-09-11 note above names, repeated. Both halves in one run with
+    # `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,752   (10,751 = 10,696 + 55 without the new symbol)
+    #     post-filter  10,534   (10,533 without it)
+    #     boundary        218   (218 without it)
+    #
+    # and every bucket the 2026-09-11 list prints still reports its count,
+    # 116 + 59 + 16 + 16 + 5 + 4 + 1 + 1 = 218, with nothing unbucketed and no
+    # post-filter key absent from the pre-filter run. So the constant is the
+    # measured pre-filter total again and the difference is the boundary
+    # again. Just as strict as before: it still pins `len(docs)` to exactly one
+    # value, now 10,534. With the new symbol subtracted the old form holds:
+    # 10,696 - 10,533 = 163, the previous pin.
+    # RE-MEASURED 2026-09-15 on the rebase of local nightly onto the work
+    # session's batch (5fce82971), because each parent moved a different half
+    # and neither pin describes the join. The side branch's
+    # `10_752 - len(docs) == 218` was measured without
+    # `spacr._segmentation_backends`; local nightly's 404/405 note above
+    # measured that key against a surface without `mark_to_start_on`, and
+    # left the stale `10_696` form in place because the difference still
+    # held. Both halves in one run with `_is_rendered_autoapi_entry`
+    # neutralised:
+    #
+    #     pre-filter   10,753
+    #     post-filter  10,534
+    #     boundary        219
+    #
+    # 116 + 59 + 16 + 16 + 5 + 1 + 4 + 1 + 1 = 219: the buckets the
+    # 2026-09-11 list prints, plus the one key `spacr._segmentation_backends`,
+    # nothing unbucketed and no post-filter key absent from the pre-filter
+    # run. PROVED BY SUBTRACTION FROM BOTH PARENTS, on the same run:
+    #
+    #     minus `spacr._segmentation_backends`   10,752 - 10,534 = 218
+    #         the side branch's pin, byte for byte
+    #     minus `mark_to_start_on`               10,752 - 10,533 = 219
+    #         local nightly's measurement (pre 10,752, post 10,533)
+    #     minus both                             10,751 - 10,533 = 218
+    #         b740c741d, the fork point
+    #
+    # It still pins `len(docs)` to exactly one value, 10,534, so nothing is
+    # loosened: the left-hand constant is the measured pre-filter total again
+    # and the difference is the measured boundary again.
+    # RE-MEASURED 2026-09-15 for 372's seven arrivals on nightly 3f27b926a,
+    # both halves in one run with `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,753 -> 10,760
+    #     post-filter  10,534 -> 10,541
+    #     boundary        219 -> 219
+    #
+    # The pre-filter key sets differ by exactly the seven post-filter
+    # arrivals, so every one is rendered and no bucket moved; the
+    # left-hand constant is the measured pre-filter total again.
+    # RE-MEASURED 2026-09-15 when the old OPS engine was deleted, both halves
+    # in one run with `_is_rendered_autoapi_entry` neutralised: pre-filter
+    # 10,760 -> 10,740 and post-filter 10,541 -> 10,521, and the twenty keys
+    # that left the pre-filter set are exactly the twenty that left the
+    # surface, so the boundary stays 219.
+    # 10,740 -> 10,746 on 2026-09-15, BOTH halves re-measured in one run on
+    # top of origin/nightly df1216b3f with `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,740 -> 10,746
+    #     post-filter  10,521 -> 10,523
+    #     boundary        219 -> 223
+    #
+    # THE BOUNDARY MOVED, and by the two pandas-free data modules made
+    # private and added to AUTOAPI_NON_RENDERED_MODULES --
+    #
+    #     spacr._stream_selection (module, coordinate_column,
+    #                              settings_for_method: 3 entries)
+    #     spacr._outlier_criteria (module: 1 entry)
+    #
+    # -- four entries. The surface side gained the two `SearchThresholds`
+    # entries. So 4 crossed to the filtered side and 2 were rendered: +6
+    # pre-filter, +2 post-filter, the case where the halves move by
+    # different amounts and only measuring both can tell.
+    # RE-MEASURED 2026-09-15 for 412's and 416's sixteen arrivals, both
+    # halves in one run with `_is_rendered_autoapi_entry` neutralised:
+    # pre-filter 10,746 -> 10,762 and post-filter 10,523 -> 10,539. The
+    # pre-filter key set gained exactly the sixteen post-filter arrivals
+    # (dropping them returns 10,746 and 10,523), so every one is rendered
+    # and the boundary stays 223.
+    # 417 adds one private module document, not a rendered API: before the
+    # mirror correction, pre=10,763 and post=10,540; after it, pre=10,763
+    # and post=10,539. The new boundary entry is exactly _magnifier_drag.
+    # A real Sphinx fixture checks the absence of its page and inventory key,
+    # alongside a visible positive control, in test_the_magnifier_drag_module_is_private.
+    # RE-MEASURED 2026-09-20, both halves in one run with
+    # `_is_rendered_autoapi_entry` neutralised:
+    #
+    #     pre-filter   10,763 -> 11,155
+    #     post-filter  10,539 -> 10,931
+    #     boundary        224 -> 224
+    #
+    # BOTH HALVES MOVED BY EXACTLY 392, which is what says the boundary did
+    # not move and no bucket changed sides: every arrival is rendered.
+    # Against origin/nightly df1216b3f the surface is +412 / -2, the five
+    # days of work between them -- 76 entries under spacr.qt.widgets, 38
+    # under spacr.qt.ai, 27 spacr.qt.sound, 24 help_search, 23 model_install,
+    # 23 screens, 20 resonance (427's ten night themes), 20 crop_loader
+    # (366), 18 mask_engine and 18 sound_synth (419, 435, 427), 14 each in
+    # measure (421), timeflows_baseline (426), help_index and preferences.
+    # The two that left are one entry each in spacr.cli_make_masks and
+    # spacr.qt.ai.
+    # RE-MEASURED 2026-09-21 the same way: pre-filter 11,155 -> 11,390,
+    # post-filter 10,931 -> 11,166, boundary 224 -> 224. Both halves moved
+    # by exactly 235, so every arrival is rendered.
+    # The sixteen ParaScape/diagram additions occur on both sides; the
+    # independently measured non-rendered boundary remains 224.
+    # The nine ruler entries are rendered; the excluded set is unchanged.
+    # Re-measured both sides on 2026-09-23: 11,740 before filtering and
+    # 11,516 after. The exact 224 excluded IDs are retained in the report.
+    # Re-measured after the two runtime repairs and SaveFigure.eventFilter;
+    # the exact excluded IDs still match the previous 224-member boundary.
+    # The restoration_controls module adds one visible and one raw entry;
+    # all 224 excluded identities were compared to the prior receipt.
+    # Measure both sides on this source; a historical raw total goes stale
+    # whenever a reviewed public entry is added. The visible-surface test
+    # separately pins those additions, while this pins the excluded boundary.
+    with monkeypatch.context() as unfiltered:
+        unfiltered.setattr(builder, '_is_rendered_autoapi_entry', lambda *args, **kwargs: True)
+        raw = builder.public_docstrings()
+    # 2026-10-12: 224 -> 211. The spacr.qt.tutorial bucket fell from 16 to
+    # 3 (the package, its __main__ and main) when the still-frame renderer
+    # was deleted; spacr-tutorial now opens the online lessons.
+    assert set(docs) <= set(raw)
+    assert len(set(raw) - set(docs)) == 211
+    assert sorted(key for key in set(raw) - set(docs)
+                  if key.startswith("spacr.qt.tutorial")) == [
+        "spacr.qt.tutorial", "spacr.qt.tutorial.__main__",
+        "spacr.qt.tutorial.__main__.main"]
+
+
+def test_documented_dunders_exclude_init_private_and_package_forwarders():
+    docs = builder.public_docstrings()
+
+    assert "spacr.version.__getattr__" in docs
+    assert "spacr.qt.theme.__getattr__" in docs
+    assert "spacr.active_learning.StoppingVerdict.__bool__" in docs
+    # The nested-helper directive explicitly renders this local constructor;
+    # ordinary class constructors are still merged into their class prose.
+    # See the seven exact admissions in 411_timeflows_guidance_2026-09-23.json.
+    # 2026-10-03 F411: twenty-two more local constructors rendered by the same
+    # directive once their modules joined nested_helper_docs.ENABLED_MODULES.
+    assert {key for key in docs if key.endswith(".__init__")} == {
+        "spacr.timeflows_model.TimeflowsNet._Net.__init__",
+        "spacr.image_quality._qc_network.QCNet.__init__",
+        "spacr.qt.screens.train_compare.panel_canvas_class.PanelCanvas.__init__",
+        "spacr.qt.widgets.umap_explorer.ImageUmapExplorer._build_ui."
+        "_OwnedTimerFigureCanvas.__init__",
+        "spacr.qt.screens.volcano._make_screen.VolcanoScreen.__init__",
+        "spacr.qt.dialogs._drag_class._DragTheWindowByTheForm.__init__",
+        "spacr.qt.dialogs.detach_all_dialogs._Filter.__init__",
+        "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.__init__",
+        "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.__init__",
+        "spacr.embeddings._dino_network.Head.__init__",
+        "spacr.embeddings._mil_fit._Attention.__init__",
+        "spacr.embeddings._subcell_model.Pooled.__init__",
+        "spacr.qt.timing.watch_interactive._InteractivePaintProbe.__init__",
+        "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.__init__",
+        "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.__init__",
+        "spacr.timelapse._event_network._EventNet.__init__",
+        "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.__init__",
+        "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.__init__",
+        "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker.__init__",
+        "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.__init__",
+        "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.__init__",
+        "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__",
+        "spacr.qt.preferences._preferences_window_class._PreferencesWindow.__init__",
+    }
+    assert "spacr.illumination._source_folders" not in docs
+    # Package-level lazy forwarding hooks are not emitted in AutoAPI pages.
+    assert "spacr.__getattr__" not in docs
+    assert "spacr.qt.widgets.__getattr__" not in docs
+
+
+def test_class_documents_match_autoapi_class_content_both_exactly():
+    node = ast.parse('''
+class Example:
+    """Class prose."""
+
+    def __init__(self, value):
+        """Constructor prose.
+
+        :param value: one value.
+        """
+''').body[0]
+
+    assert builder._autoapi_class_doc(node) == (
+        "Class prose.\nConstructor prose.\n\n:param value: one value."
+    )
+
+    fallback = ast.parse('''
+class FromNew:
+    def __init__(self):
+        pass
+
+    def __new__(cls):
+        """Construction prose from new."""
+''').body[0]
+    assert builder._autoapi_class_doc(fallback) == (
+        "\nConstruction prose from new."
+    )
+
+
+def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
+    docs = builder.public_docstrings()
+    # F534's six documented constants are the named arrival contract.
+    assignment_keys = (_visible_assignment_docs()
+                       - _spatial_arrivals().keys())
+
+    # Four organism registries, ParaScape's URL/package identity and the
+    # Make Masks animation registry add seven to the original sixteen; the
+    # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
+    # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
+    # live_preview.BOUND_ROWS (2026-09-26); 36 with _parascape.MINIMUM_VERSION
+    # (2026-10-12); 37 with live_preview.FILTER_DEBOUNCE_MS (2026-10-13).
+    assert len(assignment_keys) == 37
+    assert assignment_keys <= docs.keys()
+    assert all("Show Value" not in docs[key] for key in assignment_keys)
+    assert docs["spacr.batch_correction.METHODS"] == (
+        "Supported correction methods."
+    )
+    assert docs["spacr.anndata_export.ANNDATA_MISSING_MESSAGE"].startswith(
+        "Exporting to AnnData (.h5ad) needs the optional `anndata` extra"
+    )
+    # RESCALE_ON_FILTER IS DELIBERATELY NOT HERE. This used to assert that
+    # the constant's doc began "The chart itself: a spec in, a faceted figure
+    # out" -- which is GraphCanvas's own class docstring, read as the
+    # constant's only because the docstring had been displaced below the
+    # assignment. Asserting it pinned the displacement. The constant is
+    # documented with `#:` comments, which AutoAPI renders and this extractor
+    # deliberately does not collect.
+    assert (
+        "spacr.qt.widgets.graph_builder.GraphCanvas.RESCALE_ON_FILTER"
+        not in assignment_keys
+    )
+    assert docs["spacr.workspace.MODES"].startswith(
+        "Supported workspace persistence modes"
+    )
+    assert docs["spacr.workspace.SCHEMA_VERSION"].startswith(
+        "Schema version written to"
+    )
+
+
+def test_the_alias_map_is_empty_and_every_entry_would_be_a_signal():
+    """No alias is the END STATE, and a new one means a missing docstring.
+
+    An alias existed so an UNDOCUMENTED public override could borrow its base
+    class's text. Once every public method in the package carried its own
+    docstring, all 113 entries became lies: the borrowed generic text would
+    hide the specific answer the override actually gives. The map was emptied
+    deliberately, and `API_DOC_ALIASES` says so where it is defined.
+
+    This test asserted `len(aliases) == 113` and a digest of those entries,
+    which pinned the world as it was BEFORE that. It now pins the world as it
+    is, and the structural invariants are kept rather than deleted: they cost
+    nothing on an empty map and they are exactly the checks a future entry
+    would need.
+    """
+    docs = builder.public_docstrings()
+    aliases = builder.API_DOC_ALIASES
+
+    assert aliases == {}, (
+        "an alias means a public override was added without a docstring. The "
+        "fix is the docstring, not the alias -- see API_DOC_ALIASES."
+    )
+    # Kept for the day someone does add one, and vacuously true until then.
+    assert not (set(aliases) & set(aliases.values())), (
+        "an alias cannot itself be a canonical: the chain would not resolve"
+    )
+    assert all(docs[alias] == docs[canonical]
+               for alias, canonical in aliases.items())
+    assert "spacr.logging_util.LevelSetFilter.filter" not in aliases
+
+    english = builder._english_manifest(docs)["symbols"]
+    for alias, canonical in aliases.items():
+        assert english[alias]["alias_of"] == canonical
+        assert {
+            key: value for key, value in english[alias].items()
+            if key != "alias_of"
+        } == english[canonical]
+
+
+def test_localized_manifest_materializes_alias_translation(tmp_path, monkeypatch):
+    docs = dict(builder.public_docstrings())
+    canonical = "spacr.layers.Layer.ndim"
+    alias = "spacr.layers.ImageLayer.ndim"
+    # AN ALIAS IS ONLY VALID WHEN THE TWO TEXTS ARE IDENTICAL -- that is what
+    # an alias MEANS, and `write_language` refuses the pair otherwise. The
+    # test used to get that precondition free, because the registry only ever
+    # held pairs that already satisfied it. Both symbols now carry their own
+    # specific docstring, so the precondition has to be set up here.
+    docs[alias] = docs[canonical]
+    translations = {key: f"localized:{index}" for index, key in enumerate(docs)}
+    # Alias model output must never win: its record references the one
+    # canonical translation and all identical freshness hashes.
+    translations[canonical] = "localized canonical body"
+    translations[alias] = "incorrect duplicate decode"
+    monkeypatch.setattr(builder, "API_DIR", tmp_path)
+    # THE REGISTRY IS INJECTED, because it is empty by design -- see
+    # `test_the_alias_map_is_empty_and_every_entry_would_be_a_signal`. What is
+    # under test here is the MECHANISM that materializes an alias record, and
+    # that mechanism must keep working for the day an alias is legitimately
+    # added. Reading the live registry would make this test pass by doing
+    # nothing at all.
+    monkeypatch.setattr(builder, "API_DOC_ALIASES", {alias: canonical})
+
+    builder.write_language(docs, "de", translations)
+    payload = json.loads((tmp_path / "de.json").read_text(encoding="utf-8"))
+    symbols = payload["symbols"]
+    assert symbols[alias]["alias_of"] == canonical
+    assert symbols[alias]["text"] == "localized canonical body"
+    assert {
+        key: value for key, value in symbols[alias].items()
+        if key != "alias_of"
+    } == symbols[canonical]

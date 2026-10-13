@@ -1,0 +1,34 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Hit List: filtrer kandidater og eksporter en kortliste",
+  "description": "Last inn Regression-resultater, filtrer på q-verdi, antall guider og samsvar, og eksporter deretter de valgte kandidatene.",
+  "objectives": [
+    "Åpne eksemplets Regression-resultater med det medfølgende hjelpeskriptet.",
+    "Filtrere kandidater og lese effektene og guidesamsvaret.",
+    "Eksportere de valgte radene som CSV, Markdown eller HTML."
+  ],
+  "prerequisite": "Pakk ut Hit_List_real_results_companion.zip og aktiver spaCR-miljøet ditt. Den nåværende snarveien Hits i Regression viser ikke panelet; kjør i stedet python hit_list_companion.py og bruk Browse for å gå til den utpakkede resultatmappen. Hjelpeskriptet er ikke koblet til Investigate. Bruk wells_with_gene fra results_gene.csv for antall støttende brønner: den eksporterte n_obs=0 er ikke den faktiske støtten. Eksemplet inneholder ingen gener som oppfyller q <= 0.05.",
+  "scenes": [
+    "Fra Home åpner du Regression og velger Hits. Hvis panelet forblir skjult, bruker du hjelpeskriptet som følger med leksjonen for å åpne Hit List.",
+    "Pakk ut det lenkede eksemplet og aktiver spaCR-miljøet ditt. Kjør python hit_list_companion.py. I hjelpeskriptets vindu klikker du på Browse og velger den utpakkede resultatmappen.",
+    "Eksemplet laster inn 325 gener. Gjør kolonnene bredere for å lese effekt, P, q og guidesamsvar. Effektene er standardiserte marginale effekter. For antall støttende brønner leser du wells_with_gene i results_gene.csv; et eksportert observasjonsantall på 0 betyr at støtten ikke er tilgjengelig.",
+    "Sett Max q til 0,05. Ingen gener i eksemplet består, så tabellen blir tom. Sett Max q tilbake til 1 for å bla gjennom alle kandidatene.",
+    "Sett Minimum guides til 2. Det gjenstår 117 gener med minst to testede guiderader. Filteret beholder de opprinnelige q-verdiene.",
+    "Sett Minimum agreement til 1. Det gjenstår 57 kandidater der alle testede guider deler fortegnet til geneffekten. Les samsvaret sammen med q: disse kandidatene når fortsatt ikke signifikansgrensen.",
+    "Aktiver Hide controls for å fjerne kontrollraden fra visningen, slik at 56 kandidater gjenstår. Slå det av igjen for å ta med raden i den senere eksporten.",
+    "Fjern de andre filtrene, velg Direction up og sett Minimum absolute effect til 0,1. Det gjenstår 16 rader. Velg terskler for analysen din, og tilbakestill deretter disse kontrollene før neste trinn.",
+    "Skriv en identifikator i Search for å finne raden. Et søk uten treff tømmer tabellen. Tøm Search for å få tilbake det gjeldende filtrerte utvalget.",
+    "For eksport angir du to guider, fullt samsvar, kontroller inkludert og tomt søk. Eksporter de 57 valgte radene som CSV, Markdown eller HTML. CSV bevarer de numeriske detaljene. Lagre filtervalgene sammen med filene.",
+    "Fjern filtrene for å gå tilbake til alle 325 gener. Hold kortlisteeksporter atskilt fra de opprinnelige resultatene. I Python bruker du build_hit_list, deretter filter og skrivefunksjonene for CSV, Markdown eller HTML; kontroller radgrensen for hvert format."
+  ]
+}

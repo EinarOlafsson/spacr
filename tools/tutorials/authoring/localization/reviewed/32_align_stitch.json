@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "32_align_stitch",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Registre blocos de imagens e grave um mosaico unido usando uma quantidade limitada de memória.",
+      "prerequisite": "Prepare aquisições em blocos com ordem, sobreposição ou posições da mesa conhecidas e um canal adequado para o registro.",
+      "objectives": [
+        "Descrever a disposição dos blocos.",
+        "Revisar um plano de registro.",
+        "Gravar um mosaico rastreável com uso limitado de memória."
+      ],
+      "narrations": [
+        "Align and Stitch separa o planejamento do registro da gravação, permitindo revisar primeiro o posicionamento e as estimativas de recursos.",
+        "Selecione a pasta de imagens em mosaico e o destino, mantendo inalteradas as aquisições de origem.",
+        "Descreva a ordem da grade, a sobreposição, as informações da mesa e um canal de referência que contenha estruturas úteis.",
+        "Configure a confiança das correspondências, as restrições entre vizinhos, a fusão e o limite de memória das faixas de saída.",
+        "Plan estima os deslocamentos aos pares e resolve as restrições aceitas sem criar o mosaico.",
+        "Examine os blocos registrados e os que usaram o método alternativo, os resíduos, a confiança, o tamanho da tela de composição e a estimativa de gravação.",
+        "Selecione blocos com correspondência fraca ou isolados para compreender a posição resolvida antes de gerar a saída.",
+        "Grave somente depois que o plano for aceitável. O spaCR salva o mosaico, as transformações, as coordenadas e o relatório de registro."
+      ]
+    }
+  }
+}

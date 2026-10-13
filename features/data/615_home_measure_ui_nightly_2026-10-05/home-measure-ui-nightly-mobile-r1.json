@@ -1,0 +1,92 @@
+{
+  "scope": "Live Pages playback at a 390x844 phone viewport (touch, 3x DPR) against the deployed index and its pinned hosted media; not a listening review",
+  "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+  "index_sha256": "8a187bc40682a99c3188917767e759721e557c2e06211c34c6b21d34331a5a50",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27",
+  "synthetic_tap_timeout_ms": 1000,
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "is_mobile": true,
+    "has_touch": true,
+    "device_scale_factor": 3
+  },
+  "hosted_requests": 8,
+  "hosted_hosts": [
+    "huggingface.co",
+    "us.aws.cdn.hf.co"
+  ],
+  "cases": [
+    {
+      "lesson": "05_home",
+      "audio_sha256": "27b949c20219dbf19252e799dfa3ab2251273325ad2fa4975f747a6b39df3079",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27/05_home/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.004827,
+        "video": 1.109184,
+        "expected": 1.0048228346162134,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 36.741422,
+        "video": 36.899682,
+        "expected": 36.7412696930621,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27/05_home/web/05_home_silent.mp4",
+        "requested_audio_time": 35.42,
+        "seek_elapsed_seconds": 1.5051932309870608
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          395.4375,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    },
+    {
+      "lesson": "08_measure",
+      "audio_sha256": "10fe8d2a4c15d88a40e9b21d578e827cfc8c7ed56032dbbbb7f37420714dad91",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27/08_measure/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.013384,
+        "video": 1.160247,
+        "expected": 1.0134300011196786,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 49.830423,
+        "video": 49.988852,
+        "expected": 49.83268498089969,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27/08_measure/web/08_measure_silent.mp4",
+        "requested_audio_time": 48.52,
+        "seek_elapsed_seconds": 1.5055621669744141
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          416.4375,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

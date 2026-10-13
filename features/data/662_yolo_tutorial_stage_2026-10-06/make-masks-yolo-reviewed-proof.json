@@ -1,0 +1,72 @@
+{
+  "accepted": true,
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
+  "languages": {
+    "sv": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "de": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "es": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "fr": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "pt-BR": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "is": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "da": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "nb": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "it": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "zh-CN": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "ja": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "ko": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    },
+    "hi": {
+      "preserved_prior_scene_texts": 45,
+      "new_reviewed_scene_texts": 13,
+      "normal_source_pin_and_spoken_pronunciation_checks_passed": true
+    }
+  },
+  "narration_video_publication_complete": false
+}

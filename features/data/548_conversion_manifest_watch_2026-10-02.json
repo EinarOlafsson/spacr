@@ -1,0 +1,58 @@
+{
+  "item": "F548",
+  "date": "2026-10-02",
+  "status": "partial",
+  "source_base": "e3819f481da9931c38a5c9527a9e663f3f8c9a8d",
+  "scope": "Fixed default Convert-map exact companions and immutable resume binding",
+  "files": {
+    "spacr/core.py": "e292f019848e90127a1650237b500d05ce600548d83d4b0f3d60187306f68ec7",
+    "tests/test_watch_conversion_manifest_f548.py": "93d6c5f92bd4707bf351e2ec14966c07e5ec10ec20b549e6282f178f3959bf98"
+  },
+  "validation": {
+    "unique_passed": 47,
+    "initial": {
+      "passed": 46,
+      "failed": 0,
+      "seconds": 45.05
+    },
+    "affected_rerun": {
+      "passed": 20,
+      "failed": 0,
+      "seconds": 7.41
+    },
+    "logs": {
+      "/tmp/spacr-implementation-20261001/f548-manifest-tests.log": "e73fa6aed43f3f6eda423814eda6689128ab05d88a2265c0f14320ed4991ab13",
+      "/tmp/spacr-implementation-20261001/f548-manifest-affected-tests.log": "ab07b1172991553d13e399ada0349860260fd4383dbb7bd4bd2c314fb431209a"
+    },
+    "configured_memory_max_bytes": 4294967296,
+    "configured_memory_swap_max": 0,
+    "cpu_affinity": [
+      0
+    ],
+    "cuda_visible_devices": "",
+    "model_inference": false,
+    "real_convert_output": true,
+    "raw_map_and_converted_bytes_preserved": true,
+    "public_signature_or_docstring_changes": false,
+    "new_ui_captions": false
+  },
+  "coverage": [
+    "exact mapped channel companions versus matching legacy count",
+    "missing whole mapped field and unexpected actual field",
+    "late companion arrival and unchanged resume",
+    "map changed/removed/introduced resume preserves ledger/results",
+    "map change between ready fields stops next analysis",
+    "duplicate/conflicting map rows and metadata/filename disagreement",
+    "unsafe paths, bad schema, oversized maps, symlinks and symlink swap",
+    "unsupported time/z and incompatible filename settings refuse before outputs",
+    "cross-folder companion refusal",
+    "real Convert output acceptance and source byte preservation",
+    "existing watcher recursion, interruption/resume and synthetic preprocessing/Measure parity"
+  ],
+  "remaining": [
+    "Raw vendor selected-channel identities and acquisition completion markers",
+    "Custom map names and relocated/nested converted-map targets",
+    "Timelapse/z-stack acquisition",
+    "Real acquisition/GPU acceptance and other F548 ledger requirements"
+  ]
+}

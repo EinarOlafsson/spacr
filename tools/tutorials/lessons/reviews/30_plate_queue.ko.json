@@ -1,0 +1,33 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Plate Queue: 준비된 여러 프로젝트 실행",
+  "description": "현재 프로젝트를 추가하거나 준비된 폴더를 큐에 끌어다 놓고, 작업을 순서대로 실행한 뒤 제어된 중지 후에 이어서 진행합니다.",
+  "objectives": [
+    "저장된 모듈 설정과 함께 준비된 프로젝트를 추가합니다.",
+    "큐를 실행하고 작업 사이에 멈춥니다.",
+    "각 프로젝트의 결과를 찾고 완료된 큐 항목을 지웁니다."
+  ],
+  "prerequisite": "프로젝트와 저장된 모듈 설정을 준비하세요. 연습용으로 Recruitment 예제 사본 두 개를 서로 다른 폴더에 두고 쓰세요. 같은 데이터이므로 생물학적 반복이 아닙니다.",
+  "scenes": [
+    "첫 번째 프로젝트를 해당 분석 모듈에서 준비하세요. Recruitment에서 Import settings를 선택하고 프로젝트의 설정 CSV를 여세요. 이 예제는 여러 작업 실행을 연습하려고 같은 측정 데이터의 사본 두 개를 따로 씁니다.",
+    "Source, 채널 매핑, 조건 라벨을 확인하세요. 큐가 쓸 설정을 저장한 뒤 이 프로젝트를 열어 두세요.",
+    "Help를 연 뒤 Plate queue를 여세요. 큐는 목록 순서대로 한 번에 한 항목씩 실행합니다.",
+    "Add current plate를 선택하세요. 새 행에 현재 모듈과 설정이 저장됩니다. 큐를 시작하기 전에 그 행의 모듈, 소스, 라벨을 확인하세요.",
+    "준비된 다른 프로젝트 폴더를 큐로 끌어다 놓으세요. 저장된 설정으로 모듈이 정해지고, 끌어다 놓은 폴더가 소스가 됩니다. 작업마다 별도의 출력 파일이 필요하면 프로젝트 폴더를 따로 쓰세요.",
+    "Run queue를 선택하세요. 첫 번째 행은 running으로 바뀌고 나머지 항목은 queued로 남습니다. 상태와 경과 시간을 보며 진행 상황을 확인하세요.",
+    "현재 항목을 마치고 다음 항목 전에 멈추게 하려면 Stop을 누르세요. 실행 중인 작업이 끝날 때까지 기다리세요.",
+    "완료된 행에는 이제 success가 표시되고 다음 행은 queued로 남습니다. 남은 항목을 계속하려면 Run queue를 다시 선택하세요.",
+    "두 작업이 모두 끝나면 각 프로젝트의 출력 폴더를 여세요. Recruitment에서는 세포와 웰의 CSV 결과를 확인하세요. 그림 작업 흐름이 필요하면 Recruitment를 직접 쓰세요. 이 큐는 그 그래프를 표시하거나 저장하지 않습니다.",
+    "Clear finished를 선택해 완료된 항목을 목록에서 지우세요. 프로젝트 폴더와 저장된 결과는 그대로 남습니다."
+  ]
+}

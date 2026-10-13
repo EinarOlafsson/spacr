@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "12_map_barcodes",
+    "scene_count": 9,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete sequencing-to-barcode workflow, exact FASTQ and interface identifiers, library-derived parsing semantics, chunked execution, and reproducible quality-control outputs."
+  },
+  "languages": {
+    "es": {
+      "description": "Decodifique las lecturas de secuenciación para obtener las posiciones de la placa y las identidades de las guías, con referencias explícitas y resultados de control de calidad.",
+      "prerequisite": "Proporcione lecturas FASTQ y tablas de correspondencia verificadas que coincidan con el diseño de la biblioteca de secuenciación.",
+      "objectives": [
+        "Configurar la dirección de lectura, las referencias de códigos de barras y el análisis sintáctico a partir del diseño de la biblioteca.",
+        "Validar el mapeo con un pequeño bloque de prueba.",
+        "Interpretar el progreso del mapeo y los resultados de control de calidad."
+      ],
+      "narrations": [
+        "Map Barcodes decodifica las lecturas de secuenciación para obtener las posiciones de la placa y las identidades de las guías. La consola informa sobre la detección de muestras, la validación del analizador sintáctico, el progreso de las lecturas, las rutas de salida y los fallos.",
+        "Sequencing Input permite seleccionar la carpeta FASTQ y decidir si se combinan las lecturas emparejadas o se procesa una sola dirección de lectura. Confirme el patrón de nombres antes de iniciar una ejecución grande.",
+        "Essentials contiene las entradas y los controles de análisis necesarios para una primera ejecución. Utilice Modified para revisar los cambios específicos de la biblioteca, All para acceder a los controles avanzados y Recipes para guardar una disposición reutilizable.",
+        "Barcode References apunta a las tablas de correspondencia de las guías, las filas de la placa y las columnas de la placa. Cada tabla debe asociar un nombre único con la secuencia prevista.",
+        "Read Parsing localiza una secuencia de anclaje conocida, extrae la ventana del código de barras y asigna grupos con nombre a la fila, la columna y la guía. Derive este patrón del diseño de la biblioteca y verifíquelo con lecturas de ejemplo.",
+        "Runtime and Reliability establece el tamaño de los bloques, el número de procesos de trabajo y el modo de prueba. Comience con un bloque de prueba pequeño; reduzca el tamaño del bloque o el número de procesos cuando la memoria sea limitada.",
+        "Run valida las rutas y las referencias, detecta las muestras, cuenta las lecturas e inicia el mapeo por bloques. Stop solicita una interrupción ordenada después del punto seguro actual.",
+        "Observe la muestra activa, el número de lotes, la fracción de coincidencias y las advertencias en el indicador de progreso y en la consola. Investigue un mapeo deficiente antes de aceptar la ejecución completa.",
+        "Una ejecución correcta guarda las combinaciones únicas de códigos de barras con la fila, la columna, la guía y el recuento, además de una tabla de control de calidad, los ajustes y un manifiesto que permiten reproducir el mapeo."
+      ]
+    },
+    "fr": {
+      "description": "Décodez les lectures de séquençage afin d’obtenir les positions sur la plaque et l’identité des guides, avec des références explicites et des résultats de contrôle qualité.",
+      "prerequisite": "Fournissez des lectures FASTQ et des tables de correspondance vérifiées qui concordent avec la conception de la bibliothèque de séquençage.",
+      "objectives": [
+        "Configurer le sens de lecture, les références des codes-barres et l’analyse syntaxique à partir de la conception de la bibliothèque.",
+        "Valider la cartographie sur un petit bloc d’essai.",
+        "Interpréter la progression de la cartographie et les résultats de contrôle qualité."
+      ],
+      "narrations": [
+        "Map Barcodes décode les lectures de séquençage afin d’obtenir les positions sur la plaque et l’identité des guides. La console indique la détection des échantillons, la validation de l’analyseur syntaxique, la progression des lectures, les chemins de sortie et les échecs.",
+        "Sequencing Input permet de sélectionner le dossier FASTQ et de choisir de combiner les lectures appariées ou de traiter un seul sens de lecture. Vérifiez le modèle de nommage avant de lancer une exécution importante.",
+        "Essentials contient les entrées et les commandes d’analyse nécessaires à une première exécution. Utilisez Modified pour contrôler les changements propres à la bibliothèque, All pour accéder aux commandes avancées et Recipes pour enregistrer une disposition réutilisable.",
+        "Barcode References pointe vers les tables de correspondance des guides, des lignes de la plaque et de ses colonnes. Chaque table doit associer un nom unique à la séquence attendue.",
+        "Read Parsing repère une séquence d’ancrage connue, extrait la fenêtre du code-barres et attribue des groupes nommés à la ligne, à la colonne et au guide. Déduisez ce modèle de la conception de la bibliothèque et vérifiez-le sur des lectures d’exemple.",
+        "Runtime and Reliability définit la taille des blocs, le nombre de processus de travail et le mode d’essai. Commencez par un petit bloc d’essai ; réduisez la taille des blocs ou le nombre de processus lorsque la mémoire est limitée.",
+        "Run valide les chemins et les références, détecte les échantillons, compte les lectures et lance la cartographie par blocs. Stop demande une interruption ordonnée après le point sûr en cours.",
+        "Surveillez l’échantillon actif, le nombre de lots, la fraction de correspondances et les avertissements dans l’indicateur de progression et la console. Examinez toute cartographie insuffisante avant d’accepter l’exécution complète.",
+        "Une exécution réussie enregistre les combinaisons uniques de codes-barres avec la ligne, la colonne, le guide et le comptage, ainsi qu’un tableau de contrôle qualité, les paramètres et un manifeste qui rendent la cartographie reproductible."
+      ]
+    },
+    "it": {
+      "description": "Decodifica le letture di sequenziamento per ottenere le posizioni sulla piastra e le identità delle guide, con riferimenti espliciti e risultati del controllo qualità.",
+      "prerequisite": "Fornisci letture FASTQ e tabelle di corrispondenza verificate che coincidano con il disegno della libreria di sequenziamento.",
+      "objectives": [
+        "Configurare la direzione di lettura, i riferimenti dei codici a barre e l’analisi sintattica in base al disegno della libreria.",
+        "Convalidare la mappatura su un piccolo blocco di prova.",
+        "Interpretare l’avanzamento della mappatura e i risultati del controllo qualità."
+      ],
+      "narrations": [
+        "Map Barcodes decodifica le letture di sequenziamento per ottenere le posizioni sulla piastra e le identità delle guide. La console riporta il rilevamento dei campioni, la convalida dell’analizzatore sintattico, l’avanzamento delle letture, i percorsi di output e gli errori.",
+        "Sequencing Input consente di selezionare la cartella FASTQ e di scegliere se combinare le letture appaiate o elaborare una sola direzione di lettura. Verifica lo schema dei nomi prima di avviare un’esecuzione di grandi dimensioni.",
+        "Essentials contiene gli input e i controlli di analisi necessari per una prima esecuzione. Usa Modified per verificare le modifiche specifiche della libreria, All per accedere ai controlli avanzati e Recipes per salvare una disposizione riutilizzabile.",
+        "Barcode References punta alle tabelle di corrispondenza delle guide, delle righe della piastra e delle colonne della piastra. Ogni tabella deve associare un nome univoco alla sequenza prevista.",
+        "Read Parsing individua una sequenza di ancoraggio nota, estrae la finestra del codice a barre e assegna gruppi denominati alla riga, alla colonna e alla guida. Deriva questo schema dal disegno della libreria e verificalo su letture di esempio.",
+        "Runtime and Reliability imposta la dimensione dei blocchi, il numero di processi di lavoro e la modalità di prova. Inizia con un piccolo blocco di prova; riduci la dimensione dei blocchi o il numero di processi quando la memoria è limitata.",
+        "Run convalida i percorsi e i riferimenti, rileva i campioni, conta le letture e avvia la mappatura a blocchi. Stop richiede un’interruzione ordinata dopo il punto sicuro corrente.",
+        "Controlla il campione attivo, il numero di batch, la frazione di corrispondenze e gli avvisi nell’indicatore di avanzamento e nella console. Esamina una mappatura insufficiente prima di accettare l’esecuzione completa.",
+        "Un’esecuzione riuscita salva le combinazioni univoche di codici a barre con riga, colonna, guida e conteggio, insieme a una tabella di controllo qualità, alle impostazioni e a un manifesto che rendono riproducibile la mappatura."
+      ]
+    }
+  }
+}

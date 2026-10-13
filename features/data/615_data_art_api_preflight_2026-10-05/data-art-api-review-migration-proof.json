@@ -1,0 +1,1071 @@
+{
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "languages": {
+    "sv": [
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "dec541700d6fcd7c056a33b49ae0b5a88c276d037db85483be0d61a87b2736f8"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "0ca6c0d479b1865974c5b74fabeb827c4d7c9eee63251d23aae1ec28122555e8"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "0700e73f937025654202db7d077e7bd4fc0b7224ecc8290b9350ce81e9547d15"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "a998f61628f8f85c14b283815ec2d2e7c79d561ff21bc1b19da1508b1e787583"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "0e3217a476f4e241395c294b96c012df9c13f646945e129e81cd89f4fa780e7c"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "2bc3d13bc5b0500d45779816e8a41da386b205426e974b3d57c036f6942cde2f"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "5a4736e4a265eb06ced01f220646225481c96e10433d62c36f9692bb15ccb5b3"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "8472e166126a7a9a059423f86297fd3a12dff656aed24f758bd707d35d22c9fc"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "7f2b29a07a4fa8ddc000cff608cfd1a8a44d04f8dbd5503f366da3b2c47b8aa4"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "c7f0bac60e8d885974841faa796cdec1acf0ccf2caef057c8bfe2aa5eff15d66"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "f01e54cea2968d857fc9ba2e1cfcdf351b584fa61730c301ad02b78dc0cca7c9"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-005.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "29f62fb51461b41ba996d57946e02aba9b2b665af4e8f8da25061d80e25de55a"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "1d60dafe27ebaf067e1f68bcd2fae844cbcaf12e704169e15aec54718824a944"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/sv/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "e7ef68d92fd47e35e4c3179aa9dd4a8fdc54bd234b027e3f017f9d105bad8810"
+      }
+    ],
+    "de": [
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "474e0251ca55b05d29ba77ece8ca2084f02fa40010c3bc57bd997a9a5b9e9e28"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json",
+        "old_label": "spacr.qt.night_themes.sound_for#1",
+        "current_label": "spacr.qt.night_themes.sound_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "474e0251ca55b05d29ba77ece8ca2084f02fa40010c3bc57bd997a9a5b9e9e28"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json",
+        "old_label": "spacr.qt.night_themes.theme_for#1",
+        "current_label": "spacr.qt.night_themes.theme_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "474e0251ca55b05d29ba77ece8ca2084f02fa40010c3bc57bd997a9a5b9e9e28"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "708cf99c7610f400b515c1ffd489c1bc6479d2ba2abbc21cc6102a4e429df122"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json",
+        "old_label": "spacr.qt.night_themes.sound_for#3",
+        "current_label": "spacr.qt.night_themes.sound_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "708cf99c7610f400b515c1ffd489c1bc6479d2ba2abbc21cc6102a4e429df122"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json",
+        "old_label": "spacr.qt.night_themes.theme_for#3",
+        "current_label": "spacr.qt.night_themes.theme_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "708cf99c7610f400b515c1ffd489c1bc6479d2ba2abbc21cc6102a4e429df122"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#6",
+        "current_label": "spacr.qt.preferences.apply_night_theme#6",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "708cf99c7610f400b515c1ffd489c1bc6479d2ba2abbc21cc6102a4e429df122"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-23-short-api-refresh.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "f43a235de4fa96d4a1114cf5c9d5d5b259961341abf70ab01e4040ff1b431e73"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "37cc1d9d0a8a90b979049e4983ecd01c5db899162601c0e3a78246ad053b876a"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "42da63e1d03da35fcd8ee5521db47fa5e8e8bf83664bc5088eda2b42184f8ccf"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "363dccf921db0e1d00b320f37ca587b6f4286fc91f8d60822fbbe357f95b6db2"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "6979c10c2099d305bb5b790902babf2f318b6fa2b713174f18cfc56c1ac709e0"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "a7ba0ac469b1c097f1e50ae17464f9eef45dfbf9467a7b8241bafb82981cf6b4"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "0e26719ea69895864e02d0868101a3216de8e00005a96066b58357360c9f59da"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "16fc86cbf140931a98142b16f3adb0f5d556b899a7af54f3e3a66412e853c12c"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "8111342a5456db588b0a6c5c7b187025d43952329aee221665058d29728c7991"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-003.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "ce5e87b605b9f401750caa2e96b6c5a80a686fb09f0a720be78e852b65dd4e46"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "852fcda5a2bf4b5b41f416b441efdd4e0bc1f090bade24904602bec6a94a850d"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/de/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "755d3cea3ee15da3e979ecf915ba139994936b989129cde4c498e394eb52a5f2"
+      }
+    ],
+    "es": [
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-23-short-api-refresh.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "eabed151cb1d0e4600f8228f579c72084c80ee8f2da602499bdc2f2515207e2d"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "d7369b2a85ef7073189023b5ef612013e379d04522181b4c24f393c8f3670c54"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "d8be4c096dedfc9e7258778999c656935a9a3d90e0ab21be71e1dac2e1ae04a3"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "5a505a0cb9a948ed3efb7edc74fc4c8df5cd95fc3397873a1fdd97b951e2da65"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "9cf9ff7d6c91c591bdd4a4696d25c9dab6097b21a81d3c91fcf0cce3e8c7b7b3"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "f4fb3e7f7aa12f0aec1c0d714703a7fe644d744949c993c6fc821ea94a94191c"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "c18b49128a88ffb9bafd3da276975d38c8550fecd4f6859d9cefa18ef9060a97"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "4b02c95b071bdf636155c9ec3def597ce2e6323be4ccee02cc150a61180347fe"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "0a6a67628f1fd29aced4d8d1f23112e39c8d34b3cc2e54f06e6152c939db9492"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "47bdf981674c0610793dffae126539d29084934d47ae5116f18969d954aa5eda"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "d49c0177d8eeaecda24571e9f8669f6ab536270f51ad01b03f40e80d1edad155"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "b4825818388f95b782773b9962a210459173fa5f32e4cb0297d782ba84cbb92f"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "a8ac427f474739d24c9c8b5e3f7c2e196191977e87cb1c8355aaafcb9a4884cc"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/es/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "877b480f1af337cb3a03d273602e2104363cacd1085f25c70973debb73ea8ff5"
+      }
+    ],
+    "zh_CN": [
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "3781e67b2b32f657d8e2296fe968ad3e83c4242375459ba2f494c455ce0d2f8e"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "d457c9892d31609cf183f755e288e96556260ca27693c98a4cea47c5a3deae0d"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "520f95cba403c34ab2a44c7504d9864b1ce3ef26a2da4ed1a151a946d2b130d4"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "f8e19cb50c3e6d529f82119008b5537578467b7ebf00fce9dbe1a113d83d3a60"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "d3418e6b5dd7937d09098f3d59d9290b23b6240350a31d4df4a61827d0f3d06a"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "467a8df5c7fa354c06aa3b107d5ff55e5e39195a66258caea34913e064ec41c2"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "01b362ad43a3412b74cb3daadfc85fc9bbfc4babccf3a716b1d9b33d89822611"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "635a87a3080d9ef6d47a6e333fec8113e70c226cb1c82719a1895fb8fbe97f44"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "00274569755061e740b55796f03c688969a5d205403c1a0a789854e716574c24"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "c9790d7231bf7e4f389840ed61e7cd4309d7e5624e5ae6a1b9816d83e24e3da0"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "b52f8c1c80fcb6f5475ec4a761841931d943303a53167b4f63dee32f9da43605"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-009.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "aebfcbbb47103a7a2349c4241bb75b361244df513e02eb376ab1f7d32abb199e"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "e1edecb88c4fd4bb03d5b645e5a72282c13b5d4870664deb5d07b7dd6843999a"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/zh_CN/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "48cfba93e5a026240e3744608246ba80cb1c911f048a1f7457f8a6e622b86214"
+      }
+    ],
+    "pt": [
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "c1f829894c693f07fb37202bfb10a6cd51b71ee14beea6518239de507f02aecb"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "43cea309a9ceda60afb590b6bd3c0f6f2345c9ce790ad89e0ed29cf33b952e63"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "fcb7676cb0071eef92ec3885649dea68221b26c694886c05cf991fc757200adb"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "0d9b884e675785be93b63c92c6727d5c2640e2fcf8b1465da5c662603beaf97e"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "87695123b79f8143cfa38402281d3b51af7a4084a8943474a1e4a7ad483a6f38"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "2ebc162dd579e532c12bb5e64ae15d9705915fe63c96d4e707d8fdf26d5dcfff"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "11d22e624ff11dc9f74ff7ca26ce29616708f0b5758a0c0272f867c275ab95e7"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "bd34a6988ad2201649970c11ec64f24ffd0ab9b729bdea611912e4406985befb"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "59e1105d9f95cb6fccfc121816fc598fc01e46d50161cf2f1dc6835e9c9dca97"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "c9900f18d12eb0a2537dae13affd77be67e04e672dd0e67e04d482cddb2a8d3f"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "70bbb6811ffe15a1f3222a6671084d8a176d178edf78f9e5f37a0e121b65cc7e"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "ba6c7672a4a82ad4d1f9614fd7b4c9194a0a5095a7116e6dcd1dc51ab85c1dcd"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "6ecd03885388e90aae5f2a80203742d6a25d01bc67a655e63a0d3076a886bb61"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/pt/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "2ee5371356637d22208c74557320dd50d103b90eb01af6e7c9a33a9db5603e4e"
+      }
+    ],
+    "hi": [
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "733852da4d3f0f827fa70cdfa1d89ceba486c41f4f2062020d797240d2b33144"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "e8ef047279724c767e0a6699420a20bd02260cdee73029533e6cdd66d666a72c"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "37320960829dbd69419e258d657d13aa2fd8de98717dcf71744bf64b932193a2"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "2677b2e2101e0ee9c73949c456f73a0a6fe90d8cdd0ce60c62e61bc3ff7b41c3"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "6cad8fbf1d307cad0cf7acef6048142f5741fe567f1560572a0482a7164072dc"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "da2284d87c648754e74cdcab6eabcaa3197b98f1bf2ee122cfc1f83cb9723b28"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "3db7b3471e1eb1bc89d7582a471cd49706631155610bb7cb1957cec5c558178d"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "52b6b1c8c26a2972453dc39efee0e1e21c1acce60d35582efea0d2158a94dd36"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "ecb6d474cfc88c71bf26f0eee5b06e35e1619f94fa9a33bed15bf1b74cd3633c"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "4e8225c72ec61aa1bfc95afb1aeee9f245c704571cf2f2dc81cc97b0b842b5c1"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "454db9befc861b5926eea39c4c79c830f65e8e4dc8aba6808c5eb6fb1dea30ea"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "bff9dee97d7e6d4e431898c48b00041cb708643687d624b4c8bccad7f5db79af"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "55892506721db3f06724973e3bb235b9972fbc4589437e4a2c04f60248b4a17d"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/hi/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "01f05fff6e90258c1c8fe4134c9e68d11d1644aa4155a70f158e2a005c268299"
+      }
+    ],
+    "ko": [
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-006.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "1c65bc1daf9651e91d0d967d30e82aae3b161a40a670e1d994c85c3b34b41da1"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-006.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "a9edf72c91c03208d7a7dc3aaaa2731f4fa6e45d5b036ded6359252b6d2ac2cd"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-006.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "ca23a8ef5f71812d7922edea824acb376b56b59ef54ccd95efb708fe7df164ad"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-006.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "2ff4264c7e9bbcaae905a129bd5b9cb972aeb53f4fd281c21575961364bbba48"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-006.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "525c7fe95968ab93169ca49530bcbb0a4f5d068d57952d55dab6345997da5128"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-006.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "f35ff8a4557c86ce3625d5c6c8e4a196fac6c36c51c8e9ed95e752dc17837ea3"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-006.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "d2b4f13615009cb27430765b004d1ee1b13579b1d592fb08f661f9172d58352d"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "4104fbbcf1ba327a747811bf1fc48fc39f137ca59fe7d0a465b9e3e3538b7136"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "42f9c8a5b5ae72d5fcad808147b578e4de9e77576ecef8f62c96cd2c4c50ebc6"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "d7ae373868eaf06d317364757dfa130b288579128cf2f1d7724764f3bcdb34c1"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "a1cd0d2c36e7ff6534380e72852793239146c01fbf2cd4d806cb90d34252ec78"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-007.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "d1414a487618c1ef66b44bce7d39d01187c95efc7c0f95e52730292e9966af14"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "f688d1d17dd365d6cdbe2b5870dfce4dea42c12d4df13c45a72c747527332273"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/ko/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "9e99d08b63b2feef8253b094521d554bdda68a7ea5fe953dd0b4c086a8ae8e9b"
+      }
+    ],
+    "is": [
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "d48103f70ae041a89848a09323f85bf38cda3ac3bf8c200db52da84cd6afdb51"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "3ea87e6343290947e33bb078f750cfa311edbc1b81858a7c90d3155c883335ca"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "5d67ebf23c2c3e43a961a1c7faf120d6a7b98aff112606593d513f78e3cf956d"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "e3c29aedaa9f1831936eeee0a28ffbd8d0ac43bdb0c3a1241d9de8f8a66a5247"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "fbaa11591381c6ad14ecc2f391c9492c77ac63dc09b934094caef85a202b2417"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "8d36b724bd097da192a8c51331fc0b14ed1eee96b65050df80dbc8892aceab15"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "758631d86bea53bc79f749847222db1ce18113da3cd74cda11ccac8a02ba5aa0"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "4d129c9d797eeb96fcd99424c48ec54a89a9bab963d6be0fefc4d9e1b804795a"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "8ab471f97de64511feffebaac2c6599bdf154d39d7e97151ebcf6d52bad48654"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "caf52678dcd06d0f3995be86d6a69c6e950171e01494701c8ee0e12b616da2ae"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "a0fa4014f2a713d65026bfa89d37d1727df4bba38f122947c6af9576eabbe613"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "5b26f58ee3e04bd633a4c577b25b33db6b99e6dac733803378d657550dc81e5f"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "899477bbf31c1fa537b510707514a6ef74228d4765aeaf887a38a430db2c7986"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/is/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "45fa6f5f4bf7178a45742a87fa0eee7a8e2478e334a5a79683125af5fcbf10a9"
+      }
+    ],
+    "fr": [
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes#0",
+        "current_label": "spacr.qt.night_themes#0",
+        "action": "retired_changed_source",
+        "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "original_translation_sha256": "50c70e168c5092296b7249d33a492f46efbc727af8a3eda40e87f933ef067908"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#0",
+        "current_label": "spacr.qt.night_themes.NightTheme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
+        "original_translation_sha256": "7b22166c64331ac25fa3b6e21f2e232f39dc8352c25172e2ac73155f6e254a99"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme#1",
+        "current_label": "spacr.qt.night_themes.NightTheme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "original_translation_sha256": "cb4008ce06cbf27011e982873bb66f3d813c4b2ec4830aa6260a5329e3bf1bf7"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "current_label": "spacr.qt.night_themes.NightTheme.sound#0",
+        "action": "retired_changed_source",
+        "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
+        "original_translation_sha256": "f71d97d8f19894211247f27dd5431cf7211cde1aab34688e5143d69a7b9c785c"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#1",
+        "current_label": "spacr.qt.night_themes.ambient_for#1",
+        "action": "retired_changed_source",
+        "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "original_translation_sha256": "0973bf3aa2a252072226dafd028fa2b061f0cbeb23d5d6d49f792ac4d09f3eb1"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.ambient_for#3",
+        "current_label": "spacr.qt.night_themes.ambient_for#3",
+        "action": "retired_changed_source",
+        "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
+        "original_translation_sha256": "a7678783da277e1e52d7e871adb2c2cededa984104f203ba25c593d773a8ab6b"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.night_themes.theme_for#0",
+        "current_label": "spacr.qt.night_themes.theme_for#0",
+        "action": "retired_changed_source",
+        "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
+        "original_translation_sha256": "1621d6cd870356ebf2ab476346488dc4803feed4a4f9bcd96850ba2c28ea3768"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#0",
+        "current_label": "spacr.qt.preferences.apply_night_theme#0",
+        "action": "retired_changed_source",
+        "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "original_translation_sha256": "0a0480529f5c25bda27a99088a11355382627132dc6186d2970ca9787ad79685"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.apply_night_theme#5",
+        "current_label": "spacr.qt.preferences.apply_night_theme#5",
+        "action": "retired_changed_source",
+        "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
+        "original_translation_sha256": "58fe09c8ef7dcc525aaa7eb9854a6b6efaf4364e10fb0287093c8069dad3273f"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.set_theme_choice#1",
+        "current_label": "spacr.qt.preferences.set_theme_choice#1",
+        "action": "retired_changed_source",
+        "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "original_translation_sha256": "9f224389069b82b2173114b5e36c28981ba55eca851f5fd41e492c047d149435"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_choices#2",
+        "current_label": "spacr.qt.preferences.theme_choices#2",
+        "action": "retired_changed_source",
+        "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
+        "original_translation_sha256": "98c2edbd00d9ccc100b8044a0f4bf087e4da3913165ab6bfcbd744a2f6716803"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-004.json",
+        "old_label": "spacr.qt.preferences.theme_description#1",
+        "current_label": "spacr.qt.preferences.theme_description#1",
+        "action": "retired_changed_source",
+        "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "original_translation_sha256": "3c35598c31cdb662a001378c48db43b39558c72a6d8be05f437397cb67976488"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.preferences#7",
+        "current_label": "spacr.qt.preferences#7",
+        "action": "retired_changed_source",
+        "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "original_translation_sha256": "5261c5da96c9c7e53896b835948d19631e20b40f81b4ee464af7af4f7e03db0c"
+      },
+      {
+        "path": "docs/i18n/reviewed/api/fr/2026-10-05-current-api-prose.json",
+        "old_label": "spacr.qt.theme#1",
+        "current_label": "spacr.qt.theme#1",
+        "action": "retired_changed_source",
+        "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "original_translation_sha256": "3f7d3e1382c46e7dcae858604b2c7850da9ff5f3ac7d5f278e14d7335cb9c3a0"
+      }
+    ]
+  }
+}

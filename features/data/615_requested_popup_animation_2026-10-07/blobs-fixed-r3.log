@@ -1,0 +1,6 @@
+Command: ['tools/run_capped.sh', '2G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/blobs-fixed-r3-tool.log', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/reproduce-blobs-clock-r2.py']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+{'source': '/media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007', 'ambient_sha256': 'ba9cc93c3e5a752311035fe9a7df0666ca97143d5b588088008df39b50551784', 'before': 0.162, 'after': 0.192, 'GUI_timer_running': False}
+
+Terminal exit status: 0

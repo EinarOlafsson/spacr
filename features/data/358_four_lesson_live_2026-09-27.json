@@ -1,0 +1,500 @@
+{
+  "source_commit": "4014dbdef10966e90d89df0c26cf304dc0e052fc",
+  "workflow": 36379281659,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "4014dbdef10966e90d89df0c26cf304dc0e052fc",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 814406109,
+    "media_files": 116
+  },
+  "candidate": "release-candidate-append-lcunb10r",
+  "media_revision": "73373db53118be2bc8bb6236a7eab635eb0a04a7",
+  "cache_key": "four-lessons-20260927-lcunb10r",
+  "refreshed_lessons": [
+    "01_pypi_github",
+    "04_platform_installers",
+    "06_api",
+    "56_lineage"
+  ],
+  "narration_voices": {
+    "01_pypi_github": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "04_platform_installers": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "06_api": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "56_lineage": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    }
+  },
+  "hosted_web_lessons": [
+    "01_pypi_github",
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "05_home",
+    "06_api",
+    "07_mask",
+    "08_measure",
+    "09_annotate",
+    "10_classify_cv",
+    "11_classify_ml",
+    "12_map_barcodes",
+    "13_regression",
+    "14_make_masks",
+    "15_image_umap",
+    "16_activation",
+    "17_timelapse",
+    "18_motility",
+    "19_train_cellpose",
+    "20_cellpose_masks",
+    "21_model_compare",
+    "22_model_zoo",
+    "23_agreement",
+    "24_plaque",
+    "25_recruitment",
+    "26_invasion",
+    "27_replication",
+    "28_training_runs",
+    "29_report",
+    "30_plate_queue",
+    "31_external_masks",
+    "32_align_stitch",
+    "33_plate_viewer",
+    "34_database",
+    "35_converter",
+    "36_import",
+    "37_batch",
+    "38_distributed_jobs",
+    "39_classifier_evaluation",
+    "40_run_history",
+    "41_classify",
+    "42_curate",
+    "43_illumination",
+    "44_data_manager",
+    "45_project_browser",
+    "46_napari_bridge",
+    "47_barcode_qc",
+    "48_hit_list",
+    "49_methods_results",
+    "50_run_compare",
+    "51_control_charts",
+    "52_pipeline_graph",
+    "53_prediction_profiler",
+    "54_qc_dashboard",
+    "55_image_scatter",
+    "56_lineage",
+    "57_layer_viewer",
+    "58_graph_builder",
+    "59_anndata_export",
+    "60_pca",
+    "61_tabulate",
+    "62_feature_dictionary",
+    "63_small_multiples",
+    "64_gate_editor",
+    "65_feature_explorer",
+    "66_outliers",
+    "67_experiment_design",
+    "68_power_design",
+    "69_dose_response",
+    "70_explain_cv",
+    "71_investigate_hit",
+    "72_volcano_explorer",
+    "73_parameter_sweep",
+    "74_import_images",
+    "75_regression_diagnostics",
+    "76_ops",
+    "77_embeddings",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways",
+    "82_toxoplasma",
+    "83_plasmodium",
+    "84_candida",
+    "85_host_pathogen"
+  ],
+  "hosted_web_bytes": {
+    "01_pypi_github": 1314763,
+    "02_conda_install": 3743210,
+    "03_pip_install": 5405952,
+    "04_platform_installers": 6941837,
+    "05_home": 6051800,
+    "06_api": 1491154,
+    "07_mask": 9041031,
+    "08_measure": 3472378,
+    "09_annotate": 6693480,
+    "10_classify_cv": 2190031,
+    "11_classify_ml": 2203371,
+    "12_map_barcodes": 3336475,
+    "13_regression": 4980181,
+    "14_make_masks": 24818797,
+    "15_image_umap": 3729809,
+    "16_activation": 7779023,
+    "17_timelapse": 7322576,
+    "18_motility": 2331902,
+    "19_train_cellpose": 9804449,
+    "20_cellpose_masks": 8311114,
+    "21_model_compare": 1476423,
+    "22_model_zoo": 8513282,
+    "23_agreement": 5046523,
+    "24_plaque": 6902285,
+    "25_recruitment": 8888554,
+    "26_invasion": 6265766,
+    "27_replication": 5078077,
+    "28_training_runs": 10548525,
+    "29_report": 5646171,
+    "30_plate_queue": 3007650,
+    "31_external_masks": 10781005,
+    "32_align_stitch": 5989281,
+    "33_plate_viewer": 6861968,
+    "34_database": 4805512,
+    "35_converter": 8699538,
+    "36_import": 8146722,
+    "37_batch": 6019490,
+    "38_distributed_jobs": 3847580,
+    "39_classifier_evaluation": 8564824,
+    "40_run_history": 4220203,
+    "41_classify": 1937285,
+    "42_curate": 4051044,
+    "43_illumination": 5154020,
+    "44_data_manager": 7568628,
+    "45_project_browser": 3081873,
+    "46_napari_bridge": 2598971,
+    "47_barcode_qc": 5276594,
+    "48_hit_list": 8717386,
+    "49_methods_results": 6043856,
+    "50_run_compare": 2238649,
+    "51_control_charts": 4870588,
+    "52_pipeline_graph": 2738650,
+    "53_prediction_profiler": 2609036,
+    "54_qc_dashboard": 7674585,
+    "55_image_scatter": 4329308,
+    "56_lineage": 7546930,
+    "57_layer_viewer": 8078333,
+    "58_graph_builder": 5976557,
+    "59_anndata_export": 10736405,
+    "60_pca": 12828163,
+    "61_tabulate": 9437853,
+    "62_feature_dictionary": 13179316,
+    "63_small_multiples": 14693788,
+    "64_gate_editor": 13712603,
+    "65_feature_explorer": 10124410,
+    "66_outliers": 13567995,
+    "67_experiment_design": 6686889,
+    "68_power_design": 12620522,
+    "69_dose_response": 6900570,
+    "70_explain_cv": 6223947,
+    "71_investigate_hit": 13708815,
+    "72_volcano_explorer": 4795613,
+    "73_parameter_sweep": 8013276,
+    "74_import_images": 7243076,
+    "75_regression_diagnostics": 4974087,
+    "76_ops": 7204723,
+    "77_embeddings": 5250103,
+    "78_spacr_screens": 6552139,
+    "79_module_inputs_outputs": 84732830,
+    "80_image_analysis_pathways": 16210344,
+    "81_sequencing_pathways": 8567417,
+    "82_toxoplasma": 5723551,
+    "83_plasmodium": 3622826,
+    "84_candida": 3781933,
+    "85_host_pathogen": 8038135
+  },
+  "pages_copies_absent": true,
+  "live_catalog_sha256": "c16c9039f23dec1cb11a72d6c85776cec04bb853b0436b5f548828c6f5e0b99c",
+  "catalog_matches_candidate": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "e466bb8ee5e2de3e2357fba25c785bc4e4eff9dd89e4304874910e7b3bf8a9da"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "nightly/",
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/01_pypi_github/web/01_pypi_github_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/799f0dbe-3d6f-49f9-b748-2a536d8176da",
+      "width": 2560,
+      "time": 28.293649,
+      "expected": 28.277833450245513,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/04_platform_installers/web/04_platform_installers_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/40369687-16d6-44b1-b9d9-e47d991254a0",
+      "width": 2560,
+      "time": 34.948405,
+      "expected": 34.93354015390697,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "06_api",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/06_api/web/06_api_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/362d83e0-3a72-40e0-93ca-3de4c77cb2eb",
+      "width": 2560,
+      "time": 31.081182,
+      "expected": 31.073090382630706,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "56_lineage",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/56_lineage/web/56_lineage_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/0ba4a59e-ad1e-4e51-9b21-48bff04a8674",
+      "width": 2560,
+      "time": 21.322697,
+      "expected": 21.315455607612392,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "01_pypi_github",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/01_pypi_github/web/01_pypi_github_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/31272408-678a-43b7-8384-e0120c59ff24",
+      "width": 2560,
+      "time": 28.290993,
+      "expected": 28.28344354208194,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/04_platform_installers/web/04_platform_installers_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/36ee0625-2e2a-4065-8bd0-7d32eff91cef",
+      "width": 2560,
+      "time": 34.947237,
+      "expected": 34.93561148997753,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "06_api",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/06_api/web/06_api_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/add101d1-3329-4d38-b9bc-1d8b4f7ec8e3",
+      "width": 2560,
+      "time": 31.077364,
+      "expected": 31.06697395900888,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "56_lineage",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/73373db53118be2bc8bb6236a7eab635eb0a04a7/56_lineage/web/56_lineage_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/2089c49d-5722-4ff3-ae74-b972f8762982",
+      "width": 2560,
+      "time": 21.328937,
+      "expected": 21.31750624630619,
+      "error": null
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,593 @@
+{
+  "passed": true,
+  "checked": [
+    {
+      "module": "mask",
+      "page": "api/spacr/core/index.html",
+      "lesson": "07_mask",
+      "links": [
+        "../../../tutorials/#lesson=07_mask"
+      ]
+    },
+    {
+      "module": "measure",
+      "page": "api/spacr/measure/index.html",
+      "lesson": "08_measure",
+      "links": [
+        "../../../tutorials/#lesson=08_measure"
+      ]
+    },
+    {
+      "module": "annotate",
+      "page": "api/spacr/qt/screens/annotate/index.html",
+      "lesson": "09_annotate",
+      "links": [
+        "../../../../../tutorials/#lesson=09_annotate"
+      ]
+    },
+    {
+      "module": "classify_merged",
+      "page": "api/spacr/classify/index.html",
+      "lesson": "41_classify",
+      "links": [
+        "../../../tutorials/#lesson=41_classify"
+      ]
+    },
+    {
+      "module": "map_barcodes",
+      "page": "api/spacr/sequencing/index.html",
+      "lesson": "12_map_barcodes",
+      "links": [
+        "../../../tutorials/#lesson=12_map_barcodes"
+      ]
+    },
+    {
+      "module": "regression",
+      "page": "api/spacr/ml/index.html",
+      "lesson": "13_regression",
+      "links": [
+        "../../../tutorials/#lesson=13_regression"
+      ]
+    },
+    {
+      "module": "feature_explorer",
+      "page": "api/spacr/qt/screens/feature_explorer/index.html",
+      "lesson": "65_feature_explorer",
+      "links": [
+        "../../../../../tutorials/#lesson=65_feature_explorer"
+      ]
+    },
+    {
+      "module": "convert",
+      "page": "api/spacr/convert/index.html",
+      "lesson": "35_converter",
+      "links": [
+        "../../../tutorials/#lesson=35_converter"
+      ]
+    },
+    {
+      "module": "foreign",
+      "page": "api/spacr/foreign/index.html",
+      "lesson": "36_import",
+      "links": [
+        "../../../tutorials/#lesson=36_import"
+      ]
+    },
+    {
+      "module": "external_masks",
+      "page": "api/spacr/external_masks/index.html",
+      "lesson": "31_external_masks",
+      "links": [
+        "../../../tutorials/#lesson=31_external_masks"
+      ]
+    },
+    {
+      "module": "queue",
+      "page": "api/spacr/qt/plate_queue/index.html",
+      "lesson": "30_plate_queue",
+      "links": [
+        "../../../../tutorials/#lesson=30_plate_queue"
+      ]
+    },
+    {
+      "module": "batch",
+      "page": "api/spacr/batch/index.html",
+      "lesson": "37_batch",
+      "links": [
+        "../../../tutorials/#lesson=37_batch"
+      ]
+    },
+    {
+      "module": "distributed_jobs",
+      "page": "api/spacr/remote_execution/index.html",
+      "lesson": "38_distributed_jobs",
+      "links": [
+        "../../../tutorials/#lesson=38_distributed_jobs"
+      ]
+    },
+    {
+      "module": "db_browser",
+      "page": "api/spacr/qt/screens/db_browser/index.html",
+      "lesson": "34_database",
+      "links": [
+        "../../../../../tutorials/#lesson=34_database"
+      ]
+    },
+    {
+      "module": "run_history",
+      "page": "api/spacr/run_journal/index.html",
+      "lesson": "40_run_history",
+      "links": [
+        "../../../tutorials/#lesson=40_run_history"
+      ]
+    },
+    {
+      "module": "report",
+      "page": "api/spacr/report/index.html",
+      "lesson": "29_report",
+      "links": [
+        "../../../tutorials/#lesson=29_report"
+      ]
+    },
+    {
+      "module": "data_manager",
+      "page": "api/spacr/data_manager/index.html",
+      "lesson": "44_data_manager",
+      "links": [
+        "../../../tutorials/#lesson=44_data_manager"
+      ]
+    },
+    {
+      "module": "pipeline_graph",
+      "page": "api/spacr/qt/screens/pipeline_graph/index.html",
+      "lesson": "52_pipeline_graph",
+      "links": [
+        "../../../../../tutorials/#lesson=52_pipeline_graph"
+      ]
+    },
+    {
+      "module": "qc_dashboard",
+      "page": "api/spacr/qt/screens/qc_dashboard/index.html",
+      "lesson": "54_qc_dashboard",
+      "links": [
+        "../../../../../tutorials/#lesson=54_qc_dashboard"
+      ]
+    },
+    {
+      "module": "lineage",
+      "page": "api/spacr/qt/screens/lineage/index.html",
+      "lesson": "56_lineage",
+      "links": [
+        "../../../../../tutorials/#lesson=56_lineage"
+      ]
+    },
+    {
+      "module": "experiment_design",
+      "page": "api/spacr/qt/screens/experiment_design/index.html",
+      "lesson": "67_experiment_design",
+      "links": [
+        "../../../../../tutorials/#lesson=67_experiment_design"
+      ]
+    },
+    {
+      "module": "layer_viewer",
+      "page": "api/spacr/qt/layer_viewer/index.html",
+      "lesson": "57_layer_viewer",
+      "links": [
+        "../../../../tutorials/#lesson=57_layer_viewer"
+      ]
+    },
+    {
+      "module": "power",
+      "page": "api/spacr/qt/screens/power/index.html",
+      "lesson": "68_power_design",
+      "links": [
+        "../../../../../tutorials/#lesson=68_power_design"
+      ]
+    },
+    {
+      "module": "run_compare",
+      "page": "api/spacr/qt/screens/run_compare/index.html",
+      "lesson": "50_run_compare",
+      "links": [
+        "../../../../../tutorials/#lesson=50_run_compare"
+      ]
+    },
+    {
+      "module": "tabulate",
+      "page": "api/spacr/qt/screens/tabulate/index.html",
+      "lesson": "61_tabulate",
+      "links": [
+        "../../../../../tutorials/#lesson=61_tabulate"
+      ]
+    },
+    {
+      "module": "dose_response",
+      "page": "api/spacr/qt/screens/dose_response/index.html",
+      "lesson": "69_dose_response",
+      "links": [
+        "../../../../../tutorials/#lesson=69_dose_response"
+      ]
+    },
+    {
+      "module": "project_browser",
+      "page": "api/spacr/qt/screens/project_browser/index.html",
+      "lesson": "45_project_browser",
+      "links": [
+        "../../../../../tutorials/#lesson=45_project_browser"
+      ]
+    },
+    {
+      "module": "outliers",
+      "page": "api/spacr/qt/screens/outliers/index.html",
+      "lesson": "66_outliers",
+      "links": [
+        "../../../../../tutorials/#lesson=66_outliers"
+      ]
+    },
+    {
+      "module": "embeddings",
+      "page": "api/spacr/qt/screens/embeddings/index.html",
+      "lesson": "77_embeddings",
+      "links": [
+        "../../../../../tutorials/#lesson=77_embeddings"
+      ]
+    },
+    {
+      "module": "control_chart",
+      "page": "api/spacr/qt/screens/control_chart/index.html",
+      "lesson": "51_control_charts",
+      "links": [
+        "../../../../../tutorials/#lesson=51_control_charts"
+      ]
+    },
+    {
+      "module": "train_compare",
+      "page": "api/spacr/train_compare/index.html",
+      "lesson": "28_training_runs",
+      "links": [
+        "../../../tutorials/#lesson=28_training_runs"
+      ]
+    },
+    {
+      "module": "align",
+      "page": "api/spacr/align/index.html",
+      "lesson": "32_align_stitch",
+      "links": [
+        "../../../tutorials/#lesson=32_align_stitch"
+      ]
+    },
+    {
+      "module": "make_masks",
+      "page": "api/spacr/qt/screens/make_masks/index.html",
+      "lesson": "14_make_masks",
+      "links": [
+        "../../../../../tutorials/#lesson=14_make_masks"
+      ]
+    },
+    {
+      "module": "umap",
+      "page": "api/spacr/core/index.html",
+      "lesson": "15_image_umap",
+      "links": [
+        "../../../tutorials/#lesson=15_image_umap"
+      ]
+    },
+    {
+      "module": "profiler",
+      "page": "api/spacr/qt/screens/profiler/index.html",
+      "lesson": "53_prediction_profiler",
+      "links": [
+        "../../../../../tutorials/#lesson=53_prediction_profiler"
+      ]
+    },
+    {
+      "module": "graph_builder",
+      "page": "api/spacr/qt/screens/graph_builder/index.html",
+      "lesson": "58_graph_builder",
+      "links": [
+        "../../../../../tutorials/#lesson=58_graph_builder"
+      ]
+    },
+    {
+      "module": "gate_editor",
+      "page": "api/spacr/qt/screens/gate_editor/index.html",
+      "lesson": "64_gate_editor",
+      "links": [
+        "../../../../../tutorials/#lesson=64_gate_editor"
+      ]
+    },
+    {
+      "module": "feature_dict",
+      "page": "api/spacr/feature_dict/index.html",
+      "lesson": "62_feature_dictionary",
+      "links": [
+        "../../../tutorials/#lesson=62_feature_dictionary"
+      ]
+    },
+    {
+      "module": "trellis",
+      "page": "api/spacr/qt/screens/trellis/index.html",
+      "lesson": "63_small_multiples",
+      "links": [
+        "../../../../../tutorials/#lesson=63_small_multiples"
+      ]
+    },
+    {
+      "module": "analyze_plaques",
+      "page": "api/spacr/submodules/index.html",
+      "lesson": "24_plaque",
+      "links": [
+        "../../../tutorials/#lesson=24_plaque"
+      ]
+    },
+    {
+      "module": "recruitment",
+      "page": "api/spacr/submodules/index.html",
+      "lesson": "25_recruitment",
+      "links": [
+        "../../../tutorials/#lesson=25_recruitment"
+      ]
+    },
+    {
+      "module": "invasion",
+      "page": "api/spacr/submodules/index.html",
+      "lesson": "26_invasion",
+      "links": [
+        "../../../tutorials/#lesson=26_invasion"
+      ]
+    },
+    {
+      "module": "replication",
+      "page": "api/spacr/submodules/index.html",
+      "lesson": "27_replication",
+      "links": [
+        "../../../tutorials/#lesson=27_replication"
+      ]
+    },
+    {
+      "module": "train_cellpose",
+      "page": "api/spacr/submodules/index.html",
+      "lesson": "19_train_cellpose",
+      "links": [
+        "../../../tutorials/#lesson=19_train_cellpose"
+      ]
+    },
+    {
+      "module": "cellpose_all",
+      "page": "api/spacr/spacr_cellpose/index.html",
+      "lesson": "20_cellpose_masks",
+      "links": [
+        "../../../tutorials/#lesson=20_cellpose_masks"
+      ]
+    },
+    {
+      "module": "model_compare",
+      "page": "api/spacr/model_compare/index.html",
+      "lesson": "21_model_compare",
+      "links": [
+        "../../../tutorials/#lesson=21_model_compare"
+      ]
+    },
+    {
+      "module": "model_zoo",
+      "page": "api/spacr/model_zoo/index.html",
+      "lesson": "22_model_zoo",
+      "links": [
+        "../../../tutorials/#lesson=22_model_zoo"
+      ]
+    },
+    {
+      "module": "curate",
+      "page": "api/spacr/qt/screens/curate/index.html",
+      "lesson": "42_curate",
+      "links": [
+        "../../../../../tutorials/#lesson=42_curate"
+      ]
+    },
+    {
+      "module": "napari_bridge",
+      "page": "api/spacr/napari_bridge/index.html",
+      "lesson": "46_napari_bridge",
+      "links": [
+        "../../../tutorials/#lesson=46_napari_bridge"
+      ]
+    },
+    {
+      "module": "import_images",
+      "page": "api/spacr/image_import/index.html",
+      "lesson": "74_import_images",
+      "links": [
+        "../../../tutorials/#lesson=74_import_images"
+      ]
+    },
+    {
+      "module": "barcode_qc",
+      "page": "api/spacr/sequencing_qc/index.html",
+      "lesson": "47_barcode_qc",
+      "links": [
+        "../../../tutorials/#lesson=47_barcode_qc"
+      ]
+    },
+    {
+      "module": "image_scatter",
+      "page": "api/spacr/qt/screens/image_scatter/index.html",
+      "lesson": "55_image_scatter",
+      "links": [
+        "../../../../../tutorials/#lesson=55_image_scatter"
+      ]
+    },
+    {
+      "module": "pca",
+      "page": "api/spacr/qt/screens/pca/index.html",
+      "lesson": "60_pca",
+      "links": [
+        "../../../../../tutorials/#lesson=60_pca"
+      ]
+    },
+    {
+      "module": "volcano_explorer",
+      "page": "api/spacr/volcano_style/index.html",
+      "lesson": "72_volcano_explorer",
+      "links": [
+        "../../../tutorials/#lesson=72_volcano_explorer"
+      ]
+    },
+    {
+      "module": "hit_list",
+      "page": "api/spacr/qt/screens/hit_list/index.html",
+      "lesson": "48_hit_list",
+      "links": [
+        "../../../../../tutorials/#lesson=48_hit_list"
+      ]
+    },
+    {
+      "module": "methods_export",
+      "page": "api/spacr/methods_export/index.html",
+      "lesson": "49_methods_results",
+      "links": [
+        "../../../tutorials/#lesson=49_methods_results"
+      ]
+    },
+    {
+      "module": "regression_diagnostics",
+      "page": "api/spacr/qt/screens/regression/index.html",
+      "lesson": "75_regression_diagnostics",
+      "links": [
+        "../../../../../tutorials/#lesson=75_regression_diagnostics"
+      ]
+    },
+    {
+      "module": "illumination",
+      "page": "api/spacr/illumination/index.html",
+      "lesson": "43_illumination",
+      "links": [
+        "../../../tutorials/#lesson=43_illumination"
+      ]
+    },
+    {
+      "module": "anndata_export",
+      "page": "api/spacr/anndata_export/index.html",
+      "lesson": "59_anndata_export",
+      "links": [
+        "../../../tutorials/#lesson=59_anndata_export"
+      ]
+    },
+    {
+      "module": "motility",
+      "page": "api/spacr/timelapse/index.html",
+      "lesson": "18_motility",
+      "links": [
+        "../../../tutorials/#lesson=18_motility"
+      ]
+    },
+    {
+      "module": "timelapse",
+      "page": "api/spacr/core/index.html",
+      "lesson": "17_timelapse",
+      "links": [
+        "../../../tutorials/#lesson=17_timelapse"
+      ]
+    },
+    {
+      "module": "ops",
+      "page": "api/spacr/ops_engine/index.html",
+      "lesson": "76_ops",
+      "links": [
+        "../../../tutorials/#lesson=76_ops"
+      ]
+    },
+    {
+      "module": "classifier_evaluation",
+      "page": "api/spacr/classifier_evaluation/index.html",
+      "lesson": "39_classifier_evaluation",
+      "links": [
+        "../../../tutorials/#lesson=39_classifier_evaluation"
+      ]
+    },
+    {
+      "module": "explain_cv",
+      "page": "api/spacr/surrogate/index.html",
+      "lesson": "70_explain_cv",
+      "links": [
+        "../../../tutorials/#lesson=70_explain_cv"
+      ]
+    },
+    {
+      "module": "activation",
+      "page": "api/spacr/deep_spacr/index.html",
+      "lesson": "16_activation",
+      "links": [
+        "../../../tutorials/#lesson=16_activation"
+      ]
+    },
+    {
+      "module": "agreement",
+      "page": "api/spacr/agreement/index.html",
+      "lesson": "23_agreement",
+      "links": [
+        "../../../tutorials/#lesson=23_agreement"
+      ]
+    },
+    {
+      "module": "classify",
+      "page": "api/spacr/deep_spacr/index.html",
+      "lesson": "10_classify_cv",
+      "links": [
+        "../../../tutorials/#lesson=10_classify_cv"
+      ]
+    },
+    {
+      "module": "ml_analyze",
+      "page": "api/spacr/ml/index.html",
+      "lesson": "11_classify_ml",
+      "links": [
+        "../../../tutorials/#lesson=11_classify_ml"
+      ]
+    },
+    {
+      "module": "parameter_sweep",
+      "page": "api/spacr/parameter_sweep/index.html",
+      "lesson": "73_parameter_sweep",
+      "links": [
+        "../../../tutorials/#lesson=73_parameter_sweep"
+      ]
+    },
+    {
+      "module": "toxoplasma",
+      "page": "api/spacr/qt/screens/organism_screen/index.html",
+      "lesson": "82_toxoplasma",
+      "links": [
+        "../../../../../tutorials/#lesson=82_toxoplasma"
+      ]
+    },
+    {
+      "module": "plasmodium",
+      "page": "api/spacr/qt/screens/organism_screen/index.html",
+      "lesson": "83_plasmodium",
+      "links": [
+        "../../../../../tutorials/#lesson=83_plasmodium"
+      ]
+    },
+    {
+      "module": "candida",
+      "page": "api/spacr/qt/screens/organism_screen/index.html",
+      "lesson": "84_candida",
+      "links": [
+        "../../../../../tutorials/#lesson=84_candida"
+      ]
+    },
+    {
+      "module": "host_pathogen",
+      "page": "api/spacr/host_pathogen/index.html",
+      "lesson": "85_host_pathogen",
+      "links": [
+        "../../../tutorials/#lesson=85_host_pathogen"
+      ]
+    }
+  ],
+  "source_commit": "efbd35a3326dbb6376ea47498f05ce801b7fcbca",
+  "strict_sphinx_build": "passed",
+  "html_root": "/mnt/firecuda2/codex/workflow-authoring-20260922/organism-link-html",
+  "scope": "Rendered API module links resolve within both main and nightly channels."
+}

@@ -1,0 +1,120 @@
+{
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "normal_all_four_real_remote_clone_forms_measured": true,
+  "normal_localized_readme_rebuild_passed": true,
+  "current_tracked_checkout_MiB": 1029,
+  "readme_and_measurement_tests_passed": 17,
+  "slow_installation_tests_deselected": 2,
+  "download_reporting_fixed": [
+    "ignore repeated intermediate 100% progress updates",
+    "retain transfers larger than 32-bit integer limits",
+    "report incomplete filtered lazy-fetch totals as unavailable"
+  ],
+  "historically_dated_download_claims_preserved": true,
+  "features_exclusion_named_in_all_ten_readmes": true,
+  "languages": {
+    "sv": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "57bbf6e75d8eca209eab33c29fb9a2592f11ca91bd1d39ea0bfb834561d99995"
+    },
+    "de": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "adcef674891610fb3bcebe15a8d062026937ab9b9ccb649e70bd04b653565eaa"
+    },
+    "es": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "b1278dd3d8d91ca277a434055bd726cd54eff01aa1c8ff58e91e19ed7a1ffad9"
+    },
+    "zh_CN": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "2f21dff88c74bef0a8070a9f2add370e223a8a3f48d9bd81482c2fcbd656afe1"
+    },
+    "pt": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "232100946d367f66c0cf105af3a3f1da54780f3d80ae0c062cb0706f3530b4bc"
+    },
+    "hi": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "edc6d963c3656d3920396e48d0d5ec9c7d0f3e9ed62e3464da8cf4ef5d03374d"
+    },
+    "ko": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "1d289bfaf502123cc66af3156efd7bdd09f29dad4b26573e6cc85df873328d51"
+    },
+    "is": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "503860b4a37e265015f595da00089fa30c031b5846eda09c8e5e6ab19486746c"
+    },
+    "fr": {
+      "all_other_readme_bytes_preserved": true,
+      "new_numeric_source_bound_review_rendered": true,
+      "readme_sha256": "420707c4decd78c62d00cc6a8dc10c59602c4ccfcc63448deed273f15bc0391c"
+    }
+  },
+  "artifacts": {
+    "features/data/615_readme_checkout_size_2026-10-05/clone-measure-20261005-corrected-r1.log.gz": {
+      "sha256": "611e9d45a4fd805a91c3158f69c1823388ea1a76be6efc1604a8901aa2a8550b",
+      "bytes": 149
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/clone-measure-20261005-r1.log.gz": {
+      "sha256": "4b00810f75a7a99b9ecf8661f69caaf9e100f56b911f0b9d51cc2b56a4758ae1",
+      "bytes": 164
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/clone-measurement-tests-r1.log.gz": {
+      "sha256": "59413cfffcac8699eda7dddb0698233024caee2b330991bb04ab7e3488edd36b",
+      "bytes": 50
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/clone_measure_readback.sh": {
+      "sha256": "e62e034edc4aaea9f83a69c8fe353a63376a36e0298a608892a2791bafec751f",
+      "bytes": 834
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/data-art-api-delta-r1.json": {
+      "sha256": "2b9d5cf981237c9976a1bc2b57208756eab9fda70f54cbf3bd916f190eed06a1",
+      "bytes": 19091
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/data-art-api-new-blocks-r1.json": {
+      "sha256": "26e7cc46077c747ae916d168f216dc54c7bbf81effb9a8378525ccc0e120ab48",
+      "bytes": 7857
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/depth1-filter.err.gz": {
+      "sha256": "09efd1e4c1b2b2e7708fcab3c3482ba1d4894c8764ed6519e8493d10753c4477",
+      "bytes": 2539
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/depth1.err.gz": {
+      "sha256": "6547e3d0e9d15ff0003ad00a731cf823fbba4b9f34dba9bda09d41b782c6f457",
+      "bytes": 3379
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/full.err.gz": {
+      "sha256": "f106911877bb047bf2588c7c6e85a13f991d7a71d5a51258cd19f03c6081a55e",
+      "bytes": 4889
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/light.err.gz": {
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "bytes": 20
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/readme-checkout-size-build-r1.log.gz": {
+      "sha256": "a49d5b5df385f1e8c2162d35731b51f2feeb3ce817bdca57a11fcd49a868cde0",
+      "bytes": 281
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/readme-checkout-size-source-proof.json": {
+      "sha256": "d47c3179b0d2ba7740bbed0214b6b4a21aef55c5412538ba9ffbc0a4c72c519f",
+      "bytes": 635
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/readme-checkout-size-tests-r1.log.gz": {
+      "sha256": "2be525ca80642d6e1a11165b104eb6cd0060f23ae1d654f1235ce24b3c1b0bd7",
+      "bytes": 66
+    },
+    "features/data/615_readme_checkout_size_2026-10-05/refresh_readme_checkout_size.py": {
+      "sha256": "4a6343a70c9948da047876da4d5836cb788c516436b54e07db49828889ac9299",
+      "bytes": 2926
+    }
+  }
+}

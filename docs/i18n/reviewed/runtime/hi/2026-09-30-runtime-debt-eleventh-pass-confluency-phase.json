@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: the confluency_channel, confluency_source and confluency_window tooltips that item 536's phase confluency source rewrote, re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7578bb1f6d42093da1b5b6e361d10e7890278a20b883516e0dcd7bd6deb80adf",
+      "translation": "मर्ज किए गए ऐरे का वह चैनल जिसे बनावट, तीव्रता और फ़ेज़ वाले कॉन्फ़्लुएंसी स्रोत पढ़ते हैं, channels की तरह गिना जाता है। खाली होने पर channels की पहली प्रविष्टि उपयोग होती है। बनावट या फ़ेज़ के लिए ब्राइटफ़ील्ड या फ़ेज़ तल चुनें, तीव्रता के लिए साइटोप्लाज़्म या झिल्ली स्टेन। जब confluency_source मास्क पर तय होता है तो इसे अनदेखा किया जाता है। डिफ़ॉल्ट None।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "1ad7c53391ca65eafe218c43afc1b78b597ef9635c7d5c63fed1de29970f4436",
+      "translation": "कॉन्फ़्लुएंसी कैसे तय होती है। auto रन में कोशिका मास्क होने पर उनका, अन्यथा बनावट का उपयोग करता है। masks, Measure के आकार फ़िल्टर से पहले, हर सेगमेंट की गई कोशिका का संघ है। texture confluency_channel की स्थानीय भिन्नता को स्वचालित सीमा से पढ़ता है। phase आठ कोशिका लाइनों की फ़ेज़-कॉन्ट्रास्ट छवियों पर प्रशिक्षित एक छोटे मॉडल से confluency_channel के हर पिक्सेल को वर्गीकृत करता है, फ़ेज़ कॉन्ट्रास्ट और ब्राइटफ़ील्ड के लिए। intensity फ़्लोरोसेंट साइटोप्लाज़्म या झिल्ली स्टेन के लिए confluency_channel पर स्वचालित सीमा लगाता है। डिफ़ॉल्ट auto।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "b67b9aee3ea6ab1b6d9cfa65b4f72c2567c5d6d012d87cbce7c7b17169830eed",
+      "translation": "वर्गाकार विंडो की भुजा, पिक्सेल में, जिस पर बनावट वाला कॉन्फ़्लुएंसी स्रोत स्थानीय भिन्नता मापता है। लगभग उस सबसे पतले कोशिका प्रवर्ध की चौड़ाई जिसे ढका हुआ गिना जाना चाहिए: छोटी विंडो किनारों का अधिक बारीकी से अनुसरण करती है पर कोशिकाओं के चिकने भीतरी भाग को छेद के रूप में छोड़ देती है, बड़ी विंडो संकरे अंतराल पाट देती है। फ़ेज़ के लिए फ़ील्ड को पहले 15/विंडो से पुनः आकारित किया जाता है, इसलिए जब कोशिकाएँ वर्गीकरणकर्ता की प्रशिक्षण छवियों से अधिक पिक्सेल चौड़ी हों तो मान को उसी अनुपात में बढ़ाएँ। मास्क और तीव्रता स्रोत इसे अनदेखा करते हैं। डिफ़ॉल्ट 15।"
+    }
+  ]
+}

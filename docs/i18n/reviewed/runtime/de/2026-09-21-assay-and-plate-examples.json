@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Download about 150 MB of test data: twelve control wells of the THP-1 RNF213 screen, measured, with two fields to look at and the settings the screen was analysed with. Run is the next step. Cached after the first download.",
+      "source": "Download about 150 MB of test data: twelve control wells of the THP-1 RNF213 screen, measured, with two fields to look at and the settings the screen was analysed with. Run is the next step. Cached after the first download.",
+      "source_sha256": "cabba12abac571cd9b3dafc5496ee1a02fefdf6f690061142b01951e94c25c1c",
+      "translation": "Etwa 150 MB Testdaten herunterladen: zwölf Kontrollwells des THP-1-RNF213-Screens mit Messwerten, zwei Bildfeldern zur Ansicht und den Einstellungen der Screenanalyse. Danach können Sie Run starten. Nach dem ersten Download werden die Daten lokal zwischengespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Download about 170 MB of test data: every parasite of twelve control wells of the Toxoplasma MTOC screen, measured, with two fields to look at. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source": "Download about 170 MB of test data: every parasite of twelve control wells of the Toxoplasma MTOC screen, measured, with two fields to look at. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source_sha256": "f081d3f8a5b1ad15af768699e8ae44b8c11e223c0e802846064b13a27d538db3",
+      "translation": "Etwa 170 MB Testdaten herunterladen: Messwerte aller Parasiten aus zwölf Kontrollwells des Toxoplasma-MTOC-Screens, mit zwei Bildfeldern zur Ansicht. Die Einstellungen sind bereits ausgefüllt; als Nächstes können Sie Run starten. Nach dem ersten Download werden die Daten lokal zwischengespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the Recruitment test data",
+      "source": "Downloading the Recruitment test data",
+      "source_sha256": "170d548b84106c14281c39d173fa888104dc63ec977cc59d03d78d96a8ebaa01",
+      "translation": "Testdaten für Recruitment werden heruntergeladen"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the Replication Assay test data",
+      "source": "Downloading the Replication Assay test data",
+      "source_sha256": "5ebda4d8e0af08e18a18939e7abbbcf3b4896c6249453b2e48d0851e3d5fff30",
+      "translation": "Testdaten für Replication Assay werden heruntergeladen"
+    },
+    {
+      "table": "ui",
+      "key": "Load template…",
+      "source": "Load template…",
+      "source_sha256": "708c06d466d3c28629d600685c8d64d44d56ab1c69ad40313a3ffda57a03e6c0",
+      "translation": "Vorlage laden…"
+    },
+    {
+      "table": "ui",
+      "key": "Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.",
+      "source": "Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.",
+      "source_sha256": "e9b43591c54516c1be29298f3ec736e47b508e5f12e7eb25fa47c32cd95494a0",
+      "translation": "Mit einer fertigen Plattenbelegung beginnen: Kontrollen in den äußeren Spalten, eine Konzentrationsreihe oder ein arraybasierter CRISPR-Screen auf 96 oder 384 Wells. Ersetzt Format, Belegung, Rand, Zufallsstartwert und Bedingungen; der Plattenname bleibt erhalten."
+    },
+    {
+      "table": "ui",
+      "key": "[example] the test data was not downloaded: {detail}",
+      "source": "[example] the test data was not downloaded: {detail}",
+      "source_sha256": "c3fa924eb731f65b7754e5878fdae5f466b4ef2a818dc350c01a21440db2887b",
+      "translation": "[example] Die Testdaten wurden nicht heruntergeladen: {detail}"
+    }
+  ]
+}

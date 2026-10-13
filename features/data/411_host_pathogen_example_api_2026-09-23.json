@@ -1,0 +1,71 @@
+{
+  "source_commit": "f01c83764614d9157512bb7c815786c1fe17f1d0",
+  "before": {
+    "callables": 9478,
+    "categories": {
+      "function": 4224,
+      "dataclass_constructor": 503,
+      "constructor": 437,
+      "method": 4090,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9473,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9485,
+    "variant_counts": {
+      "1": 9471,
+      "2": 7
+    },
+    "parameters": 18826,
+    "required_parameters": 9697,
+    "digest": "d8b7654d4092c6b4023e3985a640aaa65c3b48875d981c972d2372b8a47c381b"
+  },
+  "after": {
+    "callables": 9482,
+    "categories": {
+      "function": 4228,
+      "dataclass_constructor": 503,
+      "constructor": 437,
+      "method": 4090,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9477,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9489,
+    "variant_counts": {
+      "1": 9475,
+      "2": 7
+    },
+    "parameters": 18831,
+    "required_parameters": 9699,
+    "digest": "99126a21d6877906f88be3a0f034dfa8a5350a091856a69ec481a774ef37576f"
+  },
+  "subtraction_verified": true,
+  "api_before": 11460,
+  "api_after": 11465,
+  "api_added": [
+    "spacr.host_pathogen_example",
+    "spacr.host_pathogen_example.build_example",
+    "spacr.host_pathogen_example.example_folder",
+    "spacr.host_pathogen_example.is_present",
+    "spacr.host_pathogen_example.main"
+  ],
+  "api_removed": [],
+  "added_rows": {
+    "spacr.host_pathogen_example.build_example": "spacr.host_pathogen_example.build_example\u0000function\u0000autoapi\u0000cancelled,destination,progress\u0000destination\u0000cancelled,destination,progress\u00000\u00001\u00000\u00000",
+    "spacr.host_pathogen_example.example_folder": "spacr.host_pathogen_example.example_folder\u0000function\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+    "spacr.host_pathogen_example.is_present": "spacr.host_pathogen_example.is_present\u0000function\u0000autoapi\u0000folder\u0000folder\u0000folder\u00000\u00001\u00000\u00000",
+    "spacr.host_pathogen_example.main": "spacr.host_pathogen_example.main\u0000function\u0000autoapi\u0000argv\u0000\u0000argv\u00000\u00001\u00000\u00000"
+  },
+  "required_parameter_omissions": 2292
+}

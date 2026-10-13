@@ -1,0 +1,46 @@
+{
+  "lesson": "82_toxoplasma",
+  "english_sha256": "dcc70fed94df66f7694d0d07128c5d22b869a518d284d5ba5cd9f4ca911c7be9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scenes 3 and 5 revised for N678 (interactive diagram; Plaque Assay tutorial title); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      3,
+      5
+    ],
+    "previous_english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+    "previous_review_sha256": "6137bf2c05fd1df71117a7cf6a72b25777a6a366adeabf5aac2b695113d3eee8",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  },
+  "language": "pt-BR",
+  "title": "Organismo Toxoplasma: guia, diagrama e ensaios",
+  "description": "Abra a página do organismo, explore o diagrama celular e escolha um ensaio disponível.",
+  "objectives": [
+    "Abrir a página pela tela Home e encontrar os controles principais.",
+    "Identificar as entradas, ações e saídas disponíveis.",
+    "Escolher a próxima análise ou referência disponível."
+  ],
+  "prerequisite": "Abra a tela Home do spaCR. O guia do organismo não precisa de arquivos de entrada. Cada ensaio tem suas próprias entradas e seu passo a passo vinculado.",
+  "scenes": [
+    "Em Home, escolha a categoria Organism e depois Toxoplasma. Essa página combina um guia do organismo, um diagrama celular interativo e as rotas de ensaios Toxoplasma disponíveis. Explore-a antes de escolher uma análise.",
+    "Comece pela introdução no painel de informações. Cada painel rola de forma independente, e arrastar o divisor dá mais espaço ao guia ou aos blocos dos ensaios.",
+    "O diagrama é interativo. Passe o cursor sobre um componente celular e a descrição aparece. Selecione vários para mantê-los destacados, e Clear components restaura a imagem.",
+    "Plaque Assay conta as placas de lise e mede suas áreas. Recruitment mede o enriquecimento do marcador na vacúola que contém o parasita, e Replication Assay conta os parasitas por vacúola. Selecione um ensaio de acordo com a grandeza que precisa medir e os dados de entrada necessários.",
+    "Clique em Plaque Assay para abrir a tela de análise. O painel de configurações especifica a origem das imagens, as máscaras e as opções de detecção. Load test data fornece um exemplo. Confira os dados de entrada e a prévia antes de iniciar Run; o tutorial Plaque Assay descreve o fluxo de trabalho completo.",
+    "Volte ao guia Toxoplasma e role o painel de informações até as referências. ToxoDB, o atlas hyperLOPIT de Toxoplasma, UniProt e NCBI Taxonomy oferecem links para recursos sobre o organismo. Esses links abrem no navegador; o guia não pesquisa em bancos de dados nem prevê a localização de proteínas.",
+    "O guia do organismo não produz tabelas de análise. Volte a Home para preparar imagens, segmentá-las ou medi-las e depois escolha o ensaio adequado às entradas preparadas. Cada ensaio tem seus próprios requisitos e um passo a passo vinculado."
+  ]
+}

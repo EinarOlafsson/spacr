@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_denoise",
+      "source": "Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
+      "source_sha256": "efc3b7b0dc720a3935d90ad2379074396b6ebc091ebc11480954a3a10c59cc45",
+      "translation": "自监督去噪：在本次运行自身的含噪视野上为每个分割通道训练一个 Noise2Void（N2V2）网络，无需干净图像，并在照明校正之后、PSF 和增强流程之前用它为每个视野去噪。需要模型库中的 CAREamics 后端；训练需要 GPU。模型的哈希值和训练损失随运行记录。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_epochs",
+      "source": "Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
+      "source_sha256": "8f357aff7eee3f55efe583a9c8da3e25f4d88a4a74b8f77080465b96229c23ca",
+      "translation": "在 Noise2Void 图块上的训练轮数，至少为 1。在一定范围内，轮数越多去噪越好，耗时也越长：在 CPU 上，对十个 512 x 512 裁剪图训练 30 轮不到四分钟，而八个完整的 2000 x 2000 视野每轮耗时约为其十二倍，因此请在 GPU 上训练。更改此值会训练新模型。当 n2v_model 指定已训练模型时忽略。默认值 20。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_model",
+      "source": "Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
+      "source_sha256": "52a63c9477812252033191ae738f531aab048877758f24e624baf39c5bd01e8a",
+      "translation": "已训练 Noise2Void 模型的文件夹，每个分割通道一个 channel_<c>.ckpt，例如同一台显微镜上早先运行的 n2v 文件夹。留空则在本次运行最多八个视野上训练新模型，保存到其自己的 n2v 文件夹，并在运行恢复时复用。除非开启 n2v_denoise，否则忽略。默认值为空。"
+    }
+  ]
+}

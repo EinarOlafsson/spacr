@@ -1,0 +1,19 @@
+{
+  "scope": "Real GUI capture and bounded import only; not a completed multilingual lesson",
+  "application_commit": "13ef866bb3dc61335b0f6b34b77bc28b3375ae2c",
+  "application_modified": false,
+  "capture": "refresh_2026-09-09/captures/import_images",
+  "accepted_run": "refresh_2026-09-09/import_images/example-ognj9hq3",
+  "route": ["foreign", "import_images"],
+  "real_downloaded_images": 8,
+  "well_field_pairs": [["E01", 1], ["L01", 9]],
+  "channels_per_field": 4,
+  "raw_filename_scan": "Refused: varying A acquisition token unresolved. No destination written.",
+  "prepared_copies": "Only the A token immediately before Z was omitted; original pixels, C channel, well and field retained.",
+  "prepared_proposal": "Eight rows; all well, field and channel identities checked against the source manifest.",
+  "saved_and_reloaded_plan": true,
+  "plan_sha256": "63ae7d2ec355768c2a77e37ee0a38a1e89dbfb4ee324d2f0233428292813a489",
+  "import": "Eight independent copies, no skips or unverified stitches, all input/output pixel-file hashes match.",
+  "test_result": "3 input-preparation tests passed; both absence guards failed on their deliberately removed conditions.",
+  "media_published": false
+}

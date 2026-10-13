@@ -1,0 +1,23 @@
+HOME READY {"at": 1.952413725986844, "started_at": 0.0, "duration_s": 1.952413725986844, "name": "interactive Home", "detail": "__home__", "budget_s": 5.0, "within_budget": true, "event_loop_started_at": 1.933330413987278, "root_painted": true, "screen_tree_painted": true, "painted_usable_controls": 16, "usable_controls": 28, "controls": ["PrimaryButton", "QScrollBar", "GhostButton", "HomePanelAction", "HomePanelAction", "QScrollBar", "AppTile", "AppTile"], "thread": "MainThread"} scipy_present False
+FIRST SCIPY spacr-grain-compile 1.9789149719872512 home_ready True
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py", line 1032, in _bootstrap
+    self._bootstrap_inner()
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/widgets/ambient.py", line 4601, in _warm_packed_scatter
+    from numba import njit
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/numba/__init__.py", line 59, in <module>
+    _ensure_critical_deps()
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/numba/__init__.py", line 48, in _ensure_critical_deps
+    import scipy
+  File "/mnt/wd4tb/scratch/home-scipy-second-boundary-20261006/trace.py", line 12, in audit
+    traceback.print_stack(file=sys.stdout)
+another spaCR window is already running (pid 1712789)
+spaCR timing report written to /mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr-timing.log

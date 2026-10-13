@@ -1,0 +1,32 @@
+{
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Feature Dictionary: trovare definizioni e unità",
+  "description": "Cerca per nome della misura o per concetto, leggi la definizione e le unità e copia il testo di riferimento utile.",
+  "objectives": [
+    "Trovare una definizione per nome o per concetto.",
+    "Restringere i risultati con i filtri di concetto e di oggetto.",
+    "Leggere unità e note, poi copiare la definizione."
+  ],
+  "prerequisite": "Tieni pronto il nome di una colonna di misura, oppure parti da un’idea come dimensione o intensità. Il dizionario integrato si apre senza caricare un progetto.",
+  "scenes": [
+    "Apri Help, poi Feature Dictionary. Usa questa finestra quando vuoi capire una colonna di misura in una tabella di risultati o in un grafico.",
+    "Digita size nel campo di ricerca e seleziona Area tra i risultati. La definizione compare a destra e l’elenco delle corrispondenze si aggiorna mentre digiti.",
+    "Scegli un concetto e un tipo di oggetto per restringere le definizioni. Prova intensity e cell. Riporta i selettori su Any concept e Any object per una ricerca più ampia.",
+    "Cerca cell_channel_1_mean_intensity e seleziona Mean intensity. Leggi la statistica e le unità per capire che cosa descrive la colonna.",
+    "Scorri fino a Channel, Module e Computed by per altri dettagli. Usa la funzione di calcolo indicata come punto di partenza nel riferimento dell’API.",
+    "Cerca cell_area e leggi Unit. Nelle misure bidimensionali rappresenta un’area; in quelle tridimensionali un volume. Controlla le unità di misura registrate nel progetto prima di convertire i valori.",
+    "Leggi Note per le precisazioni, per esempio valori già espressi in unità fisiche. Per un dizionario delle colonne effettivamente presenti in un database, usa describe_database ed export_dictionary da Python.",
+    "Se nessuna definizione corrisponde, azzera i filtri e prova un termine più ampio o il nome esatto della colonna. Le caratteristiche personalizzate possono richiedere la documentazione del flusso di lavoro che le ha create.",
+    "Seleziona il testo della definizione e copialo nelle tue note. Usa le funzioni di esportazione di Python quando ti serve un file di dizionario specifico del progetto, poi torna alla tabella o al grafico."
+  ]
+}

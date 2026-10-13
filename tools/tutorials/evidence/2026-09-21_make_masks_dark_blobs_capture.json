@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "module": "make_masks",
+  "artifact_root": "/tmp/spacr-masks-current/captures/readouts-05",
+  "capture_tools_modified": true,
+  "provenance": {
+    "commit": "296dd060705fab705b521577badbf1a3337e784f",
+    "version": "1.5.0.8",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-masks-current/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "acceptance": {
+    "accepted": true,
+    "mode": "otsu",
+    "scope": "region",
+    "model_inference_on_gpu": false,
+    "features_rows": 0,
+    "features_files": 2,
+    "features_unassigned_files": 2,
+    "features_scope": "Folder handoff; assign these ER images and browse for companion masks before running",
+    "features_measurement_run": false,
+    "image_and_labels_unchanged": true,
+    "magnifier_result_type": "_MagnifierResult",
+    "magnifier_objects": 1
+  },
+  "frames": [
+    {
+      "name": "00_home",
+      "image": "00_home.png",
+      "sha256": "2751e2343e58edf24beb2f966df6539b4ba4c9680ca33cadce7368f80c8043b3",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 25
+      }
+    },
+    {
+      "name": "01_module",
+      "image": "01_module.png",
+      "sha256": "df3dd0e5c9b1a4304fc74626974288975c0d416ee4b46d3b966090b221779b7d",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 117
+      }
+    },
+    {
+      "name": "02_folder_picker",
+      "image": "02_folder_picker.png",
+      "sha256": "bff2ef0759d9e3f2ba342a3a0a83b94d1792e7817dc433eea86e6224d272a8d3",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 135
+      }
+    },
+    {
+      "name": "03_real_labels",
+      "image": "03_real_labels.png",
+      "sha256": "9332b63fd156f4d9dd6631b69fd442e3dce3783b56de8bc6e516556fd90fc011",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 155
+      }
+    },
+    {
+      "name": "04_otsu_magnifier_settings",
+      "image": "04_otsu_magnifier_settings.png",
+      "sha256": "7d040435586b2ae49c616403679f6bbd496888038c02edbfab47f1cf6ebfdb9f",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 173
+      }
+    },
+    {
+      "name": "05_live_otsu_magnifier",
+      "image": "05_live_otsu_magnifier.png",
+      "sha256": "a41dfb95b2356a925aafb52f1b3203dcbf4eca452db62ee7bd4c999b1b400245",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 201
+      }
+    },
+    {
+      "name": "06_features_real_files",
+      "image": "06_features_real_files.png",
+      "sha256": "e06c4c006451c1b2f17d5d689f0a5441d3af10cdf8c93cf541c69382c6d798d2",
+      "dimensions": [
+        3840,
+        2160
+      ],
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 255
+      }
+    }
+  ],
+  "input_arrays": [
+    {
+      "source": "/tmp/spacr-masks-current/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "image": "/tmp/spacr-masks-current/make_masks_runs/example-j2aeeqtq/plate1_E01_10_1_ER.tif",
+      "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+      "mask": "/tmp/spacr-masks-current/make_masks_runs/example-j2aeeqtq/masks/plate1_E01_10_1_ER.tif",
+      "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+      "image_plane": 1,
+      "cell_mask_plane": 4,
+      "objects": 63,
+      "shape": [
+        1994,
+        1994
+      ]
+    },
+    {
+      "source": "/tmp/spacr-masks-current/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "image": "/tmp/spacr-masks-current/make_masks_runs/example-j2aeeqtq/plate1_E01_11_1_ER.tif",
+      "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+      "mask": "/tmp/spacr-masks-current/make_masks_runs/example-j2aeeqtq/masks/plate1_E01_11_1_ER.tif",
+      "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+      "image_plane": 1,
+      "cell_mask_plane": 4,
+      "objects": 51,
+      "shape": [
+        1994,
+        1994
+      ]
+    }
+  ],
+  "original_and_copied_arrays_match": true,
+  "scope": "Current keyframes only; FEATURES handoff is unassigned, no measurement, new narration, or final video."
+}

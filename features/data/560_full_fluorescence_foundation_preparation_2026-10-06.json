@@ -1,0 +1,306 @@
+{
+  "item": 560,
+  "preparation_only_no_new_GPU_inference_or_scorecard_claim": true,
+  "actual_all_10000_expert_epithelial_original_files_and_pixels_verified": true,
+  "actual_all_12717_original_yeast_stored_crops_verified_and_preserved": true,
+  "preinference_yeast_unique_unambiguous_crop_count": 10499,
+  "same_label_identical_blank_yeast_crops_original_count": 2176,
+  "yeast_cross_label_identical_pixel_group_count": 1,
+  "yeast_cross_label_identical_pixel_rows_excluded": 2,
+  "provided_yeast_split_is_not_plate_or_field_independent": true,
+  "native_yeast_actual_channel_and_label_mapping_confirmed_in_pinned_SubCell_authors_loader": true,
+  "six_normal_CPU_factories_loaded_and_all_actual_weight_and_parameter_hashes_frozen": true,
+  "private_environment": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-foundation-env-py313-r1",
+  "private_compatibility_versions": {
+    "timm": "1.0.30",
+    "transformers": "4.48.3",
+    "tokenizers": "0.21.4",
+    "einops": "0.8.2"
+  },
+  "inherited_dinocell_package_pins_conflict_recorded_no_global_pip_check_or_production_environment_repair_claim": true,
+  "frozen_plan_sha256": "cf7321646d184fb475c243349c87066cb2ec16bb244242d7700288964e409746",
+  "all_twelve_normal_model_dataset_comparisons_planned": true,
+  "SubCell_DAPI_missing_protein_is_explicit_zero_padded_DNA_only_ablation": true,
+  "SubCell_yeast_has_real_nuclear_reference_and_GFP_protein_planes": true,
+  "original_archives_and_full_pixel_arrays_retained_at": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1",
+  "no_manual_mask_clinical_plate_holdout_Cell_DINO_or_native_speaker_claim": true,
+  "original_failed_wrong_path_HTTP404_preserved_not_claimed_as_primary_evidence": true,
+  "extended_raw_primary_source_records": {
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/LICENSE.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/LICENSE",
+      "original_sha256": "774810eca8a101d9ec119ba3fd634a17e22f8ae5c02858eb4da75603922c5455",
+      "original_bytes": 1503,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/README.md.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/README.md",
+      "original_sha256": "20fbcb9cee6c6e6810fcc546f3422bf41713cfc8241c05124a9967bee86b2d00",
+      "original_bytes": 10266,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/example/training_dataset/singlecelltool_input_labels_list_cellcycle.txt.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/example/training_dataset/singlecelltool_input_labels_list_cellcycle.txt",
+      "original_sha256": "0f145d3a7cddd5361bdd2b894e2f1d010f7a1310e244086de12344e283b36eb3",
+      "original_bytes": 85,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/compile_single_cells.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/src/compile_single_cells.py",
+      "original_sha256": "48d0c82cac1c6c2e3e19e05c487f39abee75985ef3eeef03111462857f801387",
+      "original_bytes": 6722,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/generate_new_training_data.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/src/generate_new_training_data.py",
+      "original_sha256": "227966224577f4e6d0715a1c670694bfb231cc5b2a13e33c6eba6a93d609e3fe",
+      "original_bytes": 8956,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/input_queue_cellcycle.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/src/input_queue_cellcycle.py",
+      "original_sha256": "d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed",
+      "original_bytes": 14,
+      "original_download_was_HTTP404": true
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/input_queue_whole_screen.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/src/input_queue_whole_screen.py",
+      "original_sha256": "d6e0794584fdfb0d5e12155d13f7aa8eece668f605dc2cb731561ab69cc9eb48",
+      "original_bytes": 11415,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/preprocess_images.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/src/preprocess_images.py",
+      "original_sha256": "28c8bbb9892d233d0a917cbe30b582f650da996025b53d48b41c90d4e520b1f1",
+      "original_bytes": 5331,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/training_script_cellcycle.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/BooneAndrewsLab/CycleNET/4a5d72f475b774b157c2ed7bb96a5d37d339ccbe/src/training_script_cellcycle.py",
+      "original_sha256": "29f6e7e5eb97e52793ed3a77dd24975b3a2385cc2708b7cfcecd43cffd9b2228",
+      "original_bytes": 11809,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/configs/config_subcell_mae_yeast.yaml.gz": {
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/subcell-analysis/91b1e151c739eb23fb32fe99e1685903cf9915f2/configs/config_subcell_mae_yeast.yaml",
+      "original_sha256": "1501b8b1ed6a205ba5f4dae72377f3d547a853d486417886314cee1130fcc611",
+      "original_bytes": 3155,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/configs/config_subcell_vit_yeast.yaml.gz": {
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/subcell-analysis/91b1e151c739eb23fb32fe99e1685903cf9915f2/configs/config_subcell_vit_yeast.yaml",
+      "original_sha256": "7622b6dbc7b4e7db3a9b34cb2ca0e8fc979ae46315fa21ac26bc4b9571531948",
+      "original_bytes": 3138,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/inference.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/subcell-analysis/91b1e151c739eb23fb32fe99e1685903cf9915f2/inference.py",
+      "original_sha256": "e59af76026ee26a18d70658f7188e141cf8de7d054aba5d5c8aaa108637d64a4",
+      "original_bytes": 4636,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/plot_cellcycle.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/subcell-analysis/91b1e151c739eb23fb32fe99e1685903cf9915f2/plot_cellcycle.py",
+      "original_sha256": "c1c5473042938b22d903ccfbad42b436ea710c68d49212ea098b2d830759bf1b",
+      "original_bytes": 14705,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/utils/dataset.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/subcell-analysis/91b1e151c739eb23fb32fe99e1685903cf9915f2/utils/dataset.py",
+      "original_sha256": "30901af6ba5da602c3c2457cb126334d099bdd4d9d827b8b888bc760cc5e9a6c",
+      "original_bytes": 11696,
+      "original_download_was_HTTP404": false
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/utils/preprocess.py.gz": {
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/subcell-analysis/91b1e151c739eb23fb32fe99e1685903cf9915f2/utils/preprocess.py",
+      "original_sha256": "25bddfc3122ef09b67d93630282f2a656492241c0bc0514bdec4c98376a3324f",
+      "original_bytes": 4787,
+      "original_download_was_HTTP404": false
+    }
+  },
+  "artifacts": {
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-HDF5-original-inventory.json.gz": {
+      "sha256": "2ab3ba73e1be7adef4b1a6bb0528035eb37d32f15d7e1fb9e19b60de43d5aff4",
+      "bytes": 335
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-author-download-availability.json.gz": {
+      "sha256": "c18fbd3e2cffc3b8a37614b5cefa7643a97c5a3b62220b4e640332f52cc3f880",
+      "bytes": 264
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-original-archive-download.json.gz": {
+      "sha256": "656532a0280758ceaf9442792816909d0e3332049e2a0b7fe962ec16f0b765ec",
+      "bytes": 332
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-original-archive-members.json.gz": {
+      "sha256": "74ed919505d55a49c2ff85ee292b1960c2f5b8b12c5f95f67dcbfbe5cd330f37",
+      "bytes": 115
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-original-cohort-inventory.json.gz": {
+      "sha256": "cae33a68d21e9a3710d6adacba5de65b7dd9110b90d9e5e32a22df6f09d1de3b",
+      "bytes": 2561664
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/LICENSE.gz": {
+      "sha256": "b47266e4b04b686578735ac621797c88b59eb2ffca0bb63b1a8e434e769a8c1a",
+      "bytes": 807
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/README.md.gz": {
+      "sha256": "03d8ff54e00a875516eff685f1814f8552a258e49a0b9b7ec808163d0645215a",
+      "bytes": 2926
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/example/training_dataset/singlecelltool_input_labels_list_cellcycle.txt.gz": {
+      "sha256": "2716fd30b80f57f9b26379e94f8d200c0ebd5f3a54057f2aef8b60a6a58330e5",
+      "bytes": 85
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/compile_single_cells.py.gz": {
+      "sha256": "ab1db92a54c6bde0ef06cc28e0479a3aeaf513e956b9f7d48a10b1904ae8087e",
+      "bytes": 2000
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/generate_new_training_data.py.gz": {
+      "sha256": "9b5db05884f97f37485e5f2ca01b7db45c5dc1ce6373b1b08493ae364fdfceae",
+      "bytes": 2653
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/input_queue_cellcycle.py.gz": {
+      "sha256": "31678b1a3bd22f5f3095c4681e61e9058f7c79aa8eea8813a0d0b4ff72004275",
+      "bytes": 34
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/input_queue_whole_screen.py.gz": {
+      "sha256": "b1d16f30dc4fc238b06d93a379ebef84f34700444b26a1bf464b11558bfcbf84",
+      "bytes": 2927
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/preprocess_images.py.gz": {
+      "sha256": "59afe65ad2a5d9031ccbb080bc36c4c7bea07a99c58c3f7cda10c6ceea9e19fb",
+      "bytes": 1103
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source/src/training_script_cellcycle.py.gz": {
+      "sha256": "307d3004c573832e901bf85fd750c2367f9d03241f52a796fd012465ccf6b6c8",
+      "bytes": 3080
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/CycleNET-primary-source-manifest.json.gz": {
+      "sha256": "af38ce3ed714cd3c2b0f6f6f3e45b181bb230d807472f78fe247f978d0b60f32",
+      "bytes": 709
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/configs/config_subcell_mae_yeast.yaml.gz": {
+      "sha256": "b3d5e987256c7c024df0a6ce5521adaf92cb97437393a08523d5965baa81dd69",
+      "bytes": 436
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/configs/config_subcell_vit_yeast.yaml.gz": {
+      "sha256": "35d06fd987d8c1c8583c0408b161574764a44d4704e677d8a7b67b3cff902fe0",
+      "bytes": 435
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/inference.py.gz": {
+      "sha256": "a3fec009353bbc374218d6da688b8cfc3e91e7164832b08b39329add5ca2cebf",
+      "bytes": 1447
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/plot_cellcycle.py.gz": {
+      "sha256": "5b9748f377acde54f2b3598a0730593796b13b6bab8fa14ad7484587691afc84",
+      "bytes": 3058
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/utils/dataset.py.gz": {
+      "sha256": "d647717ebc4be4ef57581473955a4a6f6e7435bca311295f3e577c95d06df9fb",
+      "bytes": 2663
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-primary-source/utils/preprocess.py.gz": {
+      "sha256": "a5aaacf036ca9e7302b1d73f003547bdbea7b9c8a998b9a1f98b6e5013aab3f9",
+      "bytes": 1344
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/SubCell-analysis-source-tree.json.gz": {
+      "sha256": "df18743d202d15c14121a8a607858474f85d8c39a4a5f9e1f342f760557c0dcc",
+      "bytes": 4726
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/archive-download.json.gz": {
+      "sha256": "3d11b7f156066a8b6dd6b3948adee8d2887059a58ac1189c9f0590a87b173a82",
+      "bytes": 441
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/archive_fluorescence_foundation_preparation_r1.py": {
+      "sha256": "ce405502c4468b0deea100622e431fedb410a448adea11e8fc503679507c889e",
+      "bytes": 5384
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/chada_vit-CPU-weight-preparation.json.gz": {
+      "sha256": "fc5a1723b920113af9855d73ccd1c2ec8a7e008e7a1ad50a66d1fe408fb2f10d",
+      "bytes": 905
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/cyclenet-original-cohort-preparation-r1.log.gz": {
+      "sha256": "da223ec590efaa93eac7489f9b33fe605700fbcf0b230a924c1870ca3ef0e5c7",
+      "bytes": 402
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/download_hep2_expert_archive_r1.py": {
+      "sha256": "2195365a47ac66479fff343b970b3375a1712fbd52646218aa7c00b66d3b1ae7",
+      "bytes": 1852
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/epithelial-paper.xml.gz": {
+      "sha256": "46d6adf73275bef19c6bc8389194da3c196ed5a81f512e143ca0175586cef912",
+      "bytes": 13539
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/epithelial-record.json.gz": {
+      "sha256": "0cc256b1074705536593abc19db7851a097bc2bc97be1bb0e376846dc2975acb",
+      "bytes": 2609
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/foundation-normal-CPU-weight-preparation-r1.log.gz": {
+      "sha256": "badfc872ac6c277fac2d6bc563bbdd44758f9e16a41ccf96cb95a4b5e8e8bc7b",
+      "bytes": 1931
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/foundation-private-environment-r1.log.gz": {
+      "sha256": "312e1b486c83995150f3eb386dfcc9e1efa56d29e473dcd56db81c0f0c7322f0",
+      "bytes": 1588
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/freeze_fluorescence_foundation_plan_r1.py": {
+      "sha256": "64046fd641a482e1008f9e040db28a28a5b6daacaf974aa09f55d15ea7be2184",
+      "bytes": 6203
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/frozen-full-fluorescence-foundation-plan-r1.json.gz": {
+      "sha256": "f4532f33305b19bee0a7c1e213145959630bcba363cdc735613376142308aeb6",
+      "bytes": 184002
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/hep2-expert-archive-download-r1.log.gz": {
+      "sha256": "2ba4890ac45026b5838bdd709fa243a15452fc81838cd0ff1ca6ff06ab1e46b0",
+      "bytes": 140
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/hep2-expert-image-preparation-r1.log.gz": {
+      "sha256": "8d20a947396d3c84a6c279058b9e0683d47c33164dfff93bb759c4b6ec43ee63",
+      "bytes": 137
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/openphenom-CPU-weight-preparation.json.gz": {
+      "sha256": "595bf1855401909ad806ffe50b16d2f0a68fbeca097f32036390710104dca379",
+      "bytes": 1179
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/original-image-inventory.json.gz": {
+      "sha256": "683ac276e97dc8c06edeaddbc378f37a78b7fbc1ea79bff327b216c50aa5cd0b",
+      "bytes": 1839667
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/prepare_cyclenet_original_cohort_r1.py": {
+      "sha256": "453a60bdfd2382aff445608a0e22b17d750fc180b9f95240b1873638d30e9363",
+      "bytes": 5585
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/prepare_foundation_encoder_weights_r1.py": {
+      "sha256": "6e41ced023453ddc495ff2ad855b4b5b3a904832df68eaa9319954fdcdcc972e",
+      "bytes": 3960
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/prepare_hep2_expert_images_r1.py": {
+      "sha256": "414434a36f0bba0324484801ac4b3c120e4aff8dce74d124d08e2f048939dfd2",
+      "bytes": 4374
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/resnet18-CPU-weight-preparation.json.gz": {
+      "sha256": "7c1d7ebac7a919a5c1ca0f83c634e7ef800fa0eb2c0e5fa1d7c2816f79b4faea",
+      "bytes": 637
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/resnet50-CPU-weight-preparation.json.gz": {
+      "sha256": "444ee43c3ef1ae94f59b7743fedee7a41e48b7037c7e1e35f565b52f69b6c2c0",
+      "bytes": 637
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/run_full_fluorescence_foundation_CUDA_r1.py": {
+      "sha256": "0c29c3021eb5fe47230bff32ef0d81f33bc8401d3bcfbe328ea76e37f07eb0e4",
+      "bytes": 9676
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/subcell-CPU-weight-preparation.json.gz": {
+      "sha256": "7351a106f17135564b05880bf004d9508d8976c8bb1baeafe200ce138f83fda1",
+      "bytes": 633
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/subcell-paper.xml.gz": {
+      "sha256": "bc55d4d869e5833083137232a64b4cf284386c486bf713264307caa78d7413e3",
+      "bytes": 50892
+    },
+    "features/data/560_full_fluorescence_foundation_preparation_2026-10-06/vit_small_patch14_dinov2.lvd142m-CPU-weight-preparation.json.gz": {
+      "sha256": "3f3b4f2cc02efe52b8b3c300d5e3a28e1ccec9fb9501916500eeae87ff0e988b",
+      "bytes": 647
+    }
+  }
+}

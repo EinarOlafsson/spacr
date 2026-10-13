@@ -1,0 +1,261 @@
+IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
+
+Status: DONE 2026-10-11 (alpha-gated). Real Opera Phenix Foreground+
+        Background profiles found in the JUMP Cell Painting Gallery (CC0)
+        and supported. Residual, not blocking: no public Harmony-corrected
+        export of a Foreground profile, so the Foreground convention is
+        inferred, not pixel-verified; CZI/ND2/Olympus never embed shading.
+
+Previous status (superseded 2026-10-11): BLOCKED 2026-10-02 — vendor sample
+        files (Harmony profile with a Foreground polynomial, CZI shading
+        attachment, ND2/Olympus shading). Built and alpha-gated.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external point left: vendor sample files (Harmony profile with a Foreground polynomial, CZI shading attachment, ND2/Olympus shading).
+Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
+ask for in other applications).
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: A1 a classefication torch, xgboost, and
+    measurements version A2, A4, A5,A6, A8,A9(just confluence in general in
+    measure, not just bright field),A10,A11,A12, A13,A14,A15,A17 (live watch
+    a folder and analyze incoming images), A18, A19 (general access to cloud
+    like was storage loading into spacr),"
+
+EVIDENCE
+    https://forum.image.sc/t/how-to-use-illumination-correction-file-from-perkin-elmer-operetta-microscope-outside-of-harmony-in-imagej-or-cellprofiler-instead/31650
+
+WHAT TO BUILD
+    Read the illumination/flat-field correction files vendors write
+    (PerkinElmer Harmony/Operetta FFC profiles, Zeiss ZEN shading
+    references, Nikon/Olympus where documented) and use them in spaCR's
+    illumination correction instead of estimating one.
+
+DONE WHEN
+    An Operetta export's FFC profile is applied and matches Harmony's
+    corrected output on the same field.
+
+ALPHA: 2026-09-27. One new setting, illumination_vendor_profile (registered
+    in ALPHA_FEATURES[543]; hidden unless Preferences -> Show alpha features
+    is on, and a saved value still reaches the run). It sits under
+    every Illumination Correction heading (Measure, External Masks) and under
+    Correction Model on the Illumination screen.
+
+WHAT WAS BUILT (2026-09-27, CPU only)
+    spacr/illumination.py: a non-empty illumination_vendor_profile replaces
+    the estimate in prepare_illumination_model (illumination_model still
+    wins over both). Read by _vendor_illumination:
+      * Harmony XML (Operetta / Opera Phenix Index.idx.xml, Index.xml or a
+        saved FFC profile): every *FlatfieldProfile element, JSON or the
+        bare-key spelling. Foreground polynomial = gain, Background
+        polynomial = spatial offset, both at Harmony's own scale, so
+        corrected = (raw - background) / foreground. Merged channel c takes
+        Harmony channel c + 1. Polynomial convention: x = (col - Origin[0]) *
+        Scale[0], y = (row - Origin[1]) * Scale[1], sum_i sum_j C[i][j] *
+        x**(i-j) * y**j (as described in the image.sc thread).
+      * Shading reference image (.tif/.tiff/.czi/.npy; ZEN, Nikon, Olympus):
+        plane c = channel c, one plane serves all; illumination_dark
+        subtracted, normalised to mean 1.
+    IlluminationField gained an optional spatial darkfield, saved/loaded in
+    the .npz, so the Harmony background survives into worker processes and
+    segmentation-input correction.
+    Tests: tests/test_vendor_flat_field_profiles.py (synthetic Operetta
+    export; spaCR's corrected field equals an independently computed
+    Harmony output, JSON and bare-key forms, npz round trip, TIFF reference)
+    and tests/qt/test_vendor_flat_field_alpha_gate.py.
+
+WHAT IS LEFT
+    * The "done when" check on REAL data: an Operetta export plus Harmony's
+      own flat-field-corrected export of the same field, to confirm the
+      polynomial convention (x/y order, Origin/Scale) and that Harmony adds
+      no further rescaling. Only synthetic data was available.
+    * Shading references embedded as CZI attachments (not exported images)
+      and Nikon ND2 / Olympus vendor-specific shading files are not read.
+    * The subset/reordered-channel mapping gap is resolved by the
+      2026-10-01 implementation below; real Harmony validation remains open.
+
+
+2026-10-01 — EXPLICIT VENDOR CHANNEL ASSIGNMENTS
+    illumination_vendor_channel_map is an optional string, default empty.
+    For example, 0:2,1:1 maps persisted intensity-axis position 0 to Harmony
+    channel 2 and position 1 to Harmony channel 1. Persisted intensity
+    positions are zero-based; Harmony IDs and reference-image planes are
+    one-based. This supports subsets, reordered acquisitions and noncontiguous
+    Harmony IDs without assuming that current array order is vendor order.
+
+    Every corrected intensity channel needs an assignment when the setting
+    is nonempty. Extra assignments may remain when selecting a subset.
+    Malformed pairs, duplicate intensity keys, missing assignments, zero
+    vendor IDs and unavailable profiles/planes fail clearly. Explicit maps
+    never fall back to another profile or a single reference plane. A blank
+    mapping preserves legacy c -> c+1 behavior and single-plane broadcasting.
+    Both the gain and spatial background follow the assigned Harmony channel;
+    image reference planes retain the existing dark subtraction/normalization.
+
+    The setting reaches prepare_illumination_model and is used only when a
+    vendor profile is selected. A saved illumination_model still wins. Model
+    metadata records the resolved vendor_channel_map plus whether it was
+    explicit; both survive NPZ save/load. The existing model digest therefore
+    binds channel assignments in segmentation application provenance.
+
+    Validation: 34 focused CPU tests passed under a 4 GiB cap, hidden CUDA
+    and at most two numerical threads. Independent synthetic gain/background
+    equations confirm reordered correction; tests cover subset/noncontiguous
+    channels, shading references, invalid mappings, unchanged blank defaults,
+    saved-model priority, NPZ provenance and raw-field preservation. No
+    acquisition images were changed and no GPU jobs were run.
+
+    This closes the channel-assignment implementation gap. Comparing a real
+    Operetta/Harmony original and its corrected export, and reading proprietary
+    embedded CZI/ND2/Olympus shading formats, remain open. Status stays alpha.
+
+    Settings integration: the new string key is registered with a blank
+    default, alpha visibility, help and all four existing illumination
+    settings groups. The API-consumer and settings-flow artifacts were
+    regenerated from source. The mapping field is inactive unless correction
+    is on and a vendor profile is selected without an overriding saved
+    model; disabling or hiding it retains its saved value. Thirteen focused
+    alpha, real-form visibility, value-retention and dependency/layout
+    checks passed under the same 4 GiB CPU/offscreen cap.
+
+2026-10-01 — VENDOR PROFILE PREFLIGHT GUARDS (partial item)
+The profile loader now rejects nonfinite gain/background, shape mismatch,
+and conflicting duplicate channels before a model can be applied. Identical
+repeated profiles remain valid. The combined relevant suite passed 66 tests
+under a 4 GiB no-swap, single-core scope; the standalone vendor suite passed
+50 tests. Input and saved model remain unchanged on preflight failure. Real
+Harmony original/corrected image-pair acceptance and embedded proprietary
+reference formats remain open. See
+features/data/543_vendor_profile_validation_2026-10-01.json.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: subset/reordered channel mapping (2026-10-01 note).
+    BLOCKED / open: real Operetta plus Harmony-corrected export; CZI-attachment and ND2/Olympus shading sample files (external data).
+
+2026-10-03 — REAL-DATA CHECK (lane 2, CPU)
+    Data: scPortrait example parsing dataset, Harmony 5.2 export of one
+    Operetta well (16 fields, 2 channels, 1080x1080), with and without
+    Harmony flat-field correction: zenodo.org/records/14193689 (raw) and
+    zenodo.org/records/14973295 (corrected), both CC-BY-4.0. Scripts:
+    /mnt/wd4tb/scratch/543/work/cmp.py, fit.py.
+    Result: FAILS on real data. Both channels' FlatfieldProfile carry ONLY a
+    Background polynomial (no Foreground), so _vendor_illumination raises
+    "contains no Harmony FlatfieldProfile with a foreground polynomial".
+    The polynomial convention itself is confirmed: x = column, y = row,
+    Origin/Scale as implemented (transposed surface fits worse).
+    Harmony's actual correction for a Background-only profile is additive:
+        corrected = raw - Mean * (B(x, y) - 1)
+    with Mean the profile's Background.Mean. Against Harmony's own output
+    over 16 fields: median |error| 0.41 / 0.37 counts, p95 1.8 / 1.8 counts
+    (ch1 Hoechst / ch2 Alexa 488; uint16 rounding). The multiplicative
+    reading raw / B gives median 0.40 / 13.7 counts, p95 31 / 257 counts.
+    Harmony adds no further rescaling (corrected mean = raw mean to 0.01%).
+    LEFT (code): accept Background-only profiles and apply them additively
+    with Mean as above; real Foreground+Background profiles still unseen.
+
+2026-10-03 — BACKGROUND-ONLY HARMONY PROFILES SUPPORTED (CPU)
+    _harmony_profiles now accepts a profile with only a Background
+    polynomial plus its Mean: unit gain and spatial offset Mean*(B-1), so
+    the correction is raw - Mean*(B-1). A background polynomial without a
+    Mean is still skipped. Re-run through IlluminationCorrector on the
+    scPortrait export (16 fields, uint16 rounded both sides):
+      ch1 Hoechst: median |err| 0 counts, mean 0.53, p95 2, max 19
+      ch2 Alexa 488: median |err| 0 counts, mean 0.48, p95 2, max 25
+    Script: /mnt/wd4tb/scratch/543/work/validate_rd3.py.
+    Tests: tests/test_vendor_flat_field_profiles.py (background-only
+    additive, background-only without Mean refused).
+    LEFT: a real Foreground+Background profile; CZI/ND2/Olympus formats.
+
+2026-10-03 — BLOCKED RECHECK
+    (b) real Operetta + Harmony-corrected export: done 2026-10-03 (scPortrait
+    Zenodo set; Background-only profiles now supported, median error 0).
+    (c) a Harmony export carrying a Foreground polynomial, and CZI/ND2/Olympus
+    files with embedded shading: none public. Unblocks: one sample of each.
+
+2026-10-03 — VENDOR SAMPLE HUNT (OME sample repository + Zenodo, CPU)
+    Files in /mnt/wd4tb/scratch/543/{ome,czi,nd2,olympus,vendor};
+    scripts work/ome_import.py, czi_probe.py, import_run.py.
+    Harmony (downloads.openmicroscopy.org/images/PerkinElmer-Operetta):
+      omer/006P_M3 Index.idx.xml: 12 FlatfieldProfiles, 6 channels, 1080x1080
+      idr0034 HipSci Index.idx.xml: 8 profiles, 3 channels, Dims [1360, 1024]
+      59549 (Index.ref.xml) and zenodo-7841360 (Sonata): no profiles.
+      All profiles are Background-only (Acapella:2013); none carries a
+      Foreground polynomial. _vendor_illumination loads both: unit gain,
+      darkfield (6,1080,1080) range -70..33 and (3,1024,1360) range -30..10;
+      non-square Dims map to (rows=1024, cols=1360) as expected. No
+      Harmony-corrected export exists for these, so no pixel comparison.
+    Zeiss CZI: 3 OME CZIs plus 42 Zenodo CZIs probed by HTTP range reads
+      of the attachment directory and metadata (LSM 710/780/880/800,
+      Celldiscoverer 7, Axio Observer/Imager/Scan, Lightsheet Z.1, lattice).
+      No attachment holds a shading reference image (only EventList,
+      TimeStamps, Label, SlidePreview, Thumbnail, LookupTables, Profile, SLM).
+      One Axio Scan.Z1 file (zenodo 7149674) has ShadingReference=true:
+      ZEN applied shading at acquisition, the pixels are already corrected
+      and the reference itself is not stored (its gzip Profile attachment
+      holds only settings). spaCR import of idr0011 CZI: scan/describe OK
+      (BCZYX 3x21x512x672); as a vendor reference it is correctly refused
+      (not a single plane per channel).
+    Nikon ND2: 10 files (OME ND2/ and zenodo 21162526). Only shading
+      metadata anywhere is the flag bLiveShadingCorrection=false; no
+      reference image. spaCR import describes 9/10 (Exception_2.nd2 is a
+      deliberately broken test file: "No axes"); the vendor loader refuses
+      .nd2 with a clear message.
+    Olympus: OIR (Map_A01, venus stack), OIB, cellSens VSI, omp2info: no
+      shading or flat-field metadata. spaCR import does not read
+      .oir/.oib/.vsi at all (ConfigurationError, unsupported format).
+    CONCLUSION: public CZI/ND2/Olympus samples never embed a shading
+    reference; ZEN and NIS apply it at acquisition and record only a flag.
+    The existing shading-reference-image path (ZEN/NIS exported reference
+    .tif/.czi) is the only route. Possible follow-up (not done): warn when a
+    CZI's metadata says ShadingReference=true, since applying a second
+    correction would double-correct. Still unseen: a Harmony profile with
+    a Foreground polynomial.
+
+2026-10-11 — PUBLIC-DATA UNBLOCK ATTEMPT (CPU)
+    Searched: s3://cellpainting-gallery (HTTPS ListObjectsV2, no sign),
+    first plate of every cpg0016-jump source. Harmony exports (Images/
+    Index.idx.xml) in sources 1, 3, 4, 11; sources 1, 4, 11 also carry
+    FFC_Profile/FFC_Profile_Measurement*.xml (7 KB). IDR/BIA not needed.
+    Found (licence CC0, Cell Painting Gallery), in
+    /mnt/firecuda2/Claude/scratch/unblock/F543/data/:
+      src4 BR00117035 (Opera Phenix, 20x, 1080x1080, 2021_04_26_Batch1),
+        FFC_Profile_Measurement1.xml + Maps excerpt of its 47 MB
+        Index.idx.xml (identical profiles); src1 UL000109 and src11
+        EC000001 FFC_Profile files. Prefix: cpg0016-jump/source_4/images/
+        2021_04_26_Batch1/images/BR00117035__2021-05-02T16_02_51-
+        Measurement1/{FFC_Profile,Images}/.
+      Every fluorescence channel (5 per plate) has a NonFlat Foreground
+      AND Background degree-4 polynomial; Background carries Mean (e.g.
+      652 Hoechst .. 1641 Alexa 647); both surfaces are normalised to
+      mean 1.000 (F min 0.22-0.57, max 1.09-1.58). Brightfield channels
+      are Type: Identity (no Coefficients).
+      Raw: 360 fields (40 wells x 9) x ch1/ch2/ch5, 2.4 GB, in
+      data/src4_BR00117035_raw/. No Harmony-corrected export exists for
+      JUMP (CellProfiler illum only), so no pixel comparison.
+    Convention: no public code applies the Foreground polynomial. BIOP
+    Acapella script calls the opaque FlatField::ApplyCorrection;
+    PyPhenix, maestro, Operetta_FFC, ai4ab read Background only.
+    Bugs found and fixed in spacr/illumination.py:
+      1. _lenient_profile_json failed on a bare value starting with a
+         digit ("ChannelName: 488 long"): all of src4 was unreadable.
+         Bare values are now quoted unless they are JSON numbers.
+      2. With a Foreground, the unit-normalised Background surface was
+         subtracted as raw counts (~1 count), so spaCR applied raw/F only.
+         Now offset = Mean*(B - F), i.e. (raw - Mean*B)/F + Mean, which
+         reduces exactly to the Harmony-verified background-only formula
+         raw - Mean*(B-1) when F = 1. Without Mean, B stays raw counts.
+    Run (work/evalffc.py, 40x40 blocks of 27 px, 360 fields): background
+    = block p5 median, signal = block mean - background.
+      ch            raw bg sd/sig CV   raw/F (old)   new spaCR
+      Alexa 647     248.5 / 0.187      83.3 / 0.100  72.8 / 0.099
+      Alexa 568     186.4 / 0.173      54.5 / 0.078  40.8 / 0.078
+      Hoechst       137.6 / 0.218      44.2 / 0.134  16.0 / 0.134
+    Background-only additive gives bg sd 64/43/20 but leaves signal CV
+    at 0.19/0.17/0.22. New spaCR output equals (raw - Mean*B)/F + Mean to
+    0.1 counts via IlluminationCorrector. The dropped "+ Mean" variant
+    flattens identically but puts the background near 0-200 counts.
+    Test: tests/test_vendor_flat_field_profiles.py
+    test_a_real_phenix_foreground_and_background_profile (verbatim src4
+    ch3 blob + Identity brightfield blob). Vendor test files: 122 passed,
+    7 skipped.
+    Status: DONE (alpha). Residual: a Harmony-exported corrected image of
+    a Foreground profile would pin the additive "+ Mean" constant.

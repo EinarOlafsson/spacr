@@ -1,0 +1,248 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex context review of table-merge and annotation controls during guide drafting, independently peer-reviewed by a second Codex agent. Corrects concrete relational/table, action and Boolean-operator mistranslations. Existing candidate gates and normal generator remain unchanged. Original proposals and replaced generated targets retained here.",
+  "author": "mask_editor",
+  "peer_reviewer": "root",
+  "original_proposals": {
+    "Aggregation": "집계",
+    "Annotate conditions": "조건 주석 추가",
+    "Child keys": "하위 키",
+    "Clear manual rows": "수동 행 지우기",
+    "Copy regex": "정규식 복사",
+    "Create merged table": "병합 테이블 만들기",
+    "Customize merging": "병합 사용자 지정",
+    "Exact values": "정확한 값",
+    "Export table…": "테이블 내보내기…",
+    "Filter source metadata or preview conditions": "원본 메타데이터 또는 미리보기 조건 필터링",
+    "I understand the warning and will check the merge preview.": "경고를 이해했으며 병합 미리보기를 확인하겠습니다.",
+    "Load chart": "차트 불러오기",
+    "Merge original filenames…": "원본 파일명 병합…",
+    "Merge tables": "테이블 병합",
+    "New table name (existing tables are preserved)": "새 테이블 이름 (기존 테이블은 보존됩니다)",
+    "Output column": "출력 열",
+    "Preview assignments": "할당 미리보기",
+    "Regular expression": "정규식",
+    "Remove filename mapping": "파일명 매핑 제거",
+    "Remove selected manual rows": "선택한 수동 행 제거",
+    "Reset to spaCR defaults": "spaCR 기본값으로 재설정",
+    "Save annotated table…": "주석이 있는 테이블 저장…",
+    "Save chart": "차트 저장",
+    "Validate and preview": "검증 및 미리보기",
+    "any": "하나 이상",
+    "Merge original filenames": "원본 파일명 병합"
+  },
+  "replaced_generated_targets": {
+    "Aggregation": "합성",
+    "Annotate conditions": "명시된 조건",
+    "Child keys": "어린이 열쇠",
+    "Clear manual rows": "명확한 매뉴얼 라인",
+    "Copy regex": "레지크스 복사본",
+    "Create merged table": "혼합 테이블 만들기",
+    "Customize merging": "융합을 만드는 방법",
+    "Exact values": "정확한 가치",
+    "Export table…": "수출 테이블 ...",
+    "Filter source metadata or preview conditions": "필터 출처 메타 데이터 또는 예보 조건",
+    "I understand the warning and will check the merge preview.": "나는 경고를 이해하고 조합 예보를 확인합니다.",
+    "Load chart": "카드 충전",
+    "Merge original filenames…": "원래 필리핀을 만들기 위해...",
+    "Merge tables": "혼합 테이블",
+    "New table name (existing tables are preserved)": "새로운 테이블 이름 (존재하는 테이브가 보존됩니다)",
+    "Output column": "출력 컬러",
+    "Preview assignments": "사전 임무",
+    "Regular expression": "정기적 표현",
+    "Remove filename mapping": "Filename Mapping 삭제",
+    "Remove selected manual rows": "선택한 매뉴얼 라인을 제거합니다.",
+    "Reset to spaCR defaults": "spaCR 가짜로 다시 설정",
+    "Save annotated table…": "녹음된 테이블을 저장합니다.",
+    "Save chart": "그래픽을 저장하세요",
+    "Validate and preview": "인증 및 사전 검토",
+    "any": "어떠한",
+    "Merge original filenames": "원래 필리핀을 공유하기"
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Aggregation",
+      "source": "Aggregation",
+      "source_sha256": "749cfaf9af6c41d33a9d565aa0616344a23dddf7d48cafde3af484d1fc54160a",
+      "translation": "집계"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate conditions",
+      "source": "Annotate conditions",
+      "source_sha256": "538773c6959c7b3faa4c56aa2a08afff47813434d18932033ef3e5ae25758f09",
+      "translation": "조건 주석 추가"
+    },
+    {
+      "table": "ui",
+      "key": "Child keys",
+      "source": "Child keys",
+      "source_sha256": "742a9fafde02f1bf710c88966a21e45c5f9f02358f15b2035501d6a81f06ea3d",
+      "translation": "하위 키"
+    },
+    {
+      "table": "ui",
+      "key": "Clear manual rows",
+      "source": "Clear manual rows",
+      "source_sha256": "9ab2d650792a9361f45deb853b8c5f60f2f4a4a6090cc437091ba6fd5bb0b03a",
+      "translation": "수동 행 지우기"
+    },
+    {
+      "table": "ui",
+      "key": "Copy regex",
+      "source": "Copy regex",
+      "source_sha256": "e1712d4bd0c2e55d3b2baf118a7e643acc6b85ae9562fb289a4b9541c5c2b62c",
+      "translation": "정규식 복사"
+    },
+    {
+      "table": "ui",
+      "key": "Create merged table",
+      "source": "Create merged table",
+      "source_sha256": "011b542e8aa4ef934cc8eb4860a6dfb145be45a180353796bdc15d5d4d979937",
+      "translation": "병합 테이블 만들기"
+    },
+    {
+      "table": "ui",
+      "key": "Customize merging",
+      "source": "Customize merging",
+      "source_sha256": "fecd40d1c6b3b1467257348d4ee8b007d36d927c2f85b5b30239dc013526a1ac",
+      "translation": "병합 사용자 지정"
+    },
+    {
+      "table": "ui",
+      "key": "Exact values",
+      "source": "Exact values",
+      "source_sha256": "29bdd943d168e1c4c3000a50edbc73359f281c70cb067e795c4481edd3988eb6",
+      "translation": "정확한 값"
+    },
+    {
+      "table": "ui",
+      "key": "Export table…",
+      "source": "Export table…",
+      "source_sha256": "49f983b685f5f2feaf2080a3934869130c3c7afeceba0472dc5165725f90271b",
+      "translation": "테이블 내보내기…"
+    },
+    {
+      "table": "ui",
+      "key": "Filter source metadata or preview conditions",
+      "source": "Filter source metadata or preview conditions",
+      "source_sha256": "418177badab7ffd82d6357a95ee1feb0133a443a4f1095e7dda87b15903cd2f2",
+      "translation": "원본 메타데이터 또는 미리보기 조건 필터링"
+    },
+    {
+      "table": "ui",
+      "key": "I understand the warning and will check the merge preview.",
+      "source": "I understand the warning and will check the merge preview.",
+      "source_sha256": "8b0b3a37740a409ea6fbe5cd9895d8a26b85aaa751d07009b37acf12468e5583",
+      "translation": "경고를 이해했으며 병합 미리보기를 확인하겠습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Load chart",
+      "source": "Load chart",
+      "source_sha256": "57f075809c4e9fcf268f2967808bd6566fc0027d91816d595f52f1f0c0137c0c",
+      "translation": "차트 불러오기"
+    },
+    {
+      "table": "ui",
+      "key": "Merge original filenames…",
+      "source": "Merge original filenames…",
+      "source_sha256": "ff4fe363aaf41264399bf5f73b6b24c46ab7208daf1ba2c799dd0316c7d42cc1",
+      "translation": "원본 파일명 병합…"
+    },
+    {
+      "table": "ui",
+      "key": "Merge tables",
+      "source": "Merge tables",
+      "source_sha256": "2a4d352c34441e00d035d99dade8f9a672456ebcb1a9e2b943aadc320ed75234",
+      "translation": "테이블 병합"
+    },
+    {
+      "table": "ui",
+      "key": "New table name (existing tables are preserved)",
+      "source": "New table name (existing tables are preserved)",
+      "source_sha256": "caa2831c6a4f751d96d2b76b71596954dbf725e5d3827fb0291bc2ba44da03c9",
+      "translation": "새 테이블 이름 (기존 테이블은 보존됩니다)"
+    },
+    {
+      "table": "ui",
+      "key": "Output column",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "translation": "출력 열"
+    },
+    {
+      "table": "ui",
+      "key": "Preview assignments",
+      "source": "Preview assignments",
+      "source_sha256": "6538e0a531066450e2c69cf12f718ffff6b80885ebf199428f4cc1a928c6cff5",
+      "translation": "할당 미리보기"
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression",
+      "source": "Regular expression",
+      "source_sha256": "9f896c35a09d443080762f21b0a427136d3303910de9d5a5db695851044491ff",
+      "translation": "정규식"
+    },
+    {
+      "table": "ui",
+      "key": "Remove filename mapping",
+      "source": "Remove filename mapping",
+      "source_sha256": "fd6cb2334e5ac6b94598fa1fa32c42f2046cbdd2a2068748a880a9667561e3f5",
+      "translation": "파일명 매핑 제거"
+    },
+    {
+      "table": "ui",
+      "key": "Remove selected manual rows",
+      "source": "Remove selected manual rows",
+      "source_sha256": "6178a56a82f7cb614681cbbbb76b2ef2eaa6b46b82eae0b9af1eebba03599fc9",
+      "translation": "선택한 수동 행 제거"
+    },
+    {
+      "table": "ui",
+      "key": "Reset to spaCR defaults",
+      "source": "Reset to spaCR defaults",
+      "source_sha256": "4ec44250d46d7a7c31d9d8e7acbceee09ededa9cb91b5631ec1f271a44f2267c",
+      "translation": "spaCR 기본값으로 재설정"
+    },
+    {
+      "table": "ui",
+      "key": "Save annotated table…",
+      "source": "Save annotated table…",
+      "source_sha256": "2a93d8121bf2812a6c0c918e981a90d297c691e976daefcd5177da8e4cf306d6",
+      "translation": "주석이 있는 테이블 저장…"
+    },
+    {
+      "table": "ui",
+      "key": "Save chart",
+      "source": "Save chart",
+      "source_sha256": "df8c7bbf6bf550bcd3e4f6beca83160086fe922224cba73ae0832ada0bcf7116",
+      "translation": "차트 저장"
+    },
+    {
+      "table": "ui",
+      "key": "Validate and preview",
+      "source": "Validate and preview",
+      "source_sha256": "921b2401b795f72bb95fd540e38cfe063447e69ad1d249dc6ab6f4e5048af579",
+      "translation": "검증 및 미리보기"
+    },
+    {
+      "table": "ui",
+      "key": "any",
+      "source": "any",
+      "source_sha256": "d6a7cd2a7371b1a15d543196979ff74fdb027023ebf187d5d329be11055c77fd",
+      "translation": "하나 이상"
+    },
+    {
+      "table": "ui",
+      "key": "Merge original filenames",
+      "source": "Merge original filenames",
+      "source_sha256": "652dc91d148d5c23899608f9b1cc83d7bf8df5c00d010d5246c95440c8b8e894",
+      "translation": "원본 파일명 병합"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "review_commit": "110920c706f941712ebb7a3488a969ae176eb228",
+  "coverage": "7.16.0",
+  "python": "3.12",
+  "command": "PYTHONPATH=/path/to/scratch/coverage716-overlay CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen tools/run_capped.sh 2G /path/to/python3.12 features/data/664_665_lifecycle_independent_readback_2026-10-08/verify_readback.py --repo /path/to/repo --git 110920c706f941712ebb7a3488a969ae176eb228 --output /path/to/scratch/readback.json",
+  "prior_verified_denominators": "features/data/664_665_independent_readback_2026-10-08/readback.json",
+  "coverage_overlay_provenance": "features/data/664_665_independent_readback_2026-10-08/reproduction.json",
+  "no_spacr_imports": true,
+  "no_tests_run": true,
+  "no_product_integration": true
+}

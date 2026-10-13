@@ -1,0 +1,36 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "e442156c3d5154963bc72ce01be337bb0f19806767d7ebe8eae9e9572eef06ff",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Data Manager: revisar el uso, limpiar y archivar",
+  "description": "Revisa el almacenamiento del proyecto, previsualiza un plan de limpieza y mueve un proyecto a un destino de archivo.",
+  "objectives": [
+    "Revisar el uso de disco del proyecto.",
+    "Revisar y aplicar un plan de limpieza.",
+    "Mover un proyecto archivado y volver a analizarlo."
+  ],
+  "prerequisite": "Usa un proyecto de spaCR terminado y guarda una copia de seguridad independiente antes de la limpieza. El ejemplo usa una copia del proyecto generado por External Masks.",
+  "scenes": [
+    "Abre Help y luego Data manager. Elige un proyecto terminado para revisar su almacenamiento y planificar la limpieza o el archivado.",
+    "Haz clic en Choose project y selecciona la raíz del proyecto. Lee Usage para ver sus archivos, el espacio en disco y los artefactos registrados.",
+    "Abre Prune y selecciona los tipos de artefacto que quieres considerar. Deja sin marcar las bases de datos de mediciones y los pesos de modelos si quieres conservarlos, y haz clic en Show what can be deleted.",
+    "Revisa los archivos propuestos, el espacio que se ahorra y la información de recuperación. El ejemplo selecciona la carpeta de recortes de objetos. Conserva las entradas y los ajustes necesarios para regenerar todo lo que elimines.",
+    "Haz clic en Delete para revisar la lista final de archivos. El borrado no se puede deshacer, así que comprueba las rutas y tu copia de seguridad antes de confirmar el plan.",
+    "Usa Cancel si quieres conservar los archivos o cambiar la selección. Al confirmar la lista se habilita la acción final Delete.",
+    "Confirma Delete cuando el plan sea correcto. Lee en el resultado el número de archivos eliminados y el espacio recuperado.",
+    "Revisa el análisis de Usage actualizado. Los artefactos eliminados pueden seguir listados como ausentes junto con su receta registrada; regenéralos con el módulo correspondiente cuando haga falta.",
+    "Abre Archive y elige un destino vacío fuera del proyecto de origen. Haz clic en Show what would move y revisa las dos rutas.",
+    "Haz clic en Move para revisar la confirmación. Archive mueve el proyecto, así que guarda antes cualquier copia de seguridad aparte que necesites.",
+    "Confirma Yes para mover el proyecto. Conserva el manifiesto en el destino y el registro de archivado que queda en la ubicación original.",
+    "Selecciona el destino como proyecto y vuelve a analizarlo. Comprueba los archivos movidos y actualiza cualquier referencia externa que siga apuntando a la ubicación antigua.",
+    "Usa Database Browser para revisar tablas de mediciones, Report para hacer un resumen del proyecto y Data Manager para el mantenimiento del almacenamiento. Guarda los registros de archivado con la documentación de tu proyecto."
+  ]
+}

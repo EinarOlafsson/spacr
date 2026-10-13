@@ -1,0 +1,21 @@
+{
+  "scope": "Real example run and Diagnostics capture; multilingual lessons not yet complete",
+  "run_application_commit": "d879a8352",
+  "diagnostics_application_commit": "5be1084fb",
+  "application_modified": false,
+  "project": "refresh_2026-09-09/regression_runs/example-oxxx3xqj",
+  "captures": ["refresh_2026-09-09/captures/regression", "refresh_2026-09-09/captures/regression_diagnostics"],
+  "input": "Four score/count pairs obtained through Load test data; no generated scientific data",
+  "analysis": {"inference": "nonparametric", "permutations": 199, "minimum_wells": 2, "level": "both", "guide_results": 434, "gene_results": 325, "empirical_p_floor": 0.005},
+  "main_run_success": true,
+  "late_worker_errors": false,
+  "gui_figures": 5,
+  "saved_diagnostic_panels": ["design_identifiability.png", "design_diagnostics.png", "inference_diagnostics.png"],
+  "design": {"wells": 606, "guides": 789, "parameters": 793, "rank": 599, "identifiable": false, "guides_in_one_well": 355},
+  "guide_inference": {"tests": 434, "discoveries_at_displayed_alpha": 0, "genomic_inflation_rounded": 1.2},
+  "diagnostics_button": "Opened the actual newest diagnostics folder; did not fit a model",
+  "residual_panel": "Not applicable to this permutation run; no fitted simultaneous regression values",
+  "viewer": "Actual system file manager and image viewer on isolated X11/session-bus/XDG directories",
+  "ai": "Controls and an unsent question only; no provider request or response",
+  "published": false
+}

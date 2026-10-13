@@ -1,0 +1,229 @@
+{
+  "actual_normal_FAISS_GPU_execution_complete": true,
+  "FAISS_GPUs": 1,
+  "human_class_retrieval": {
+    "backend": "faiss-gpu",
+    "actual_faiss_index_type": "GpuIndexFlat",
+    "build_seconds": 0.25457307300530374,
+    "rows": 17074,
+    "class_agreement": [
+      {
+        "class": "basophil",
+        "n": 1212,
+        "precision_at_k": 0.8132838283828382,
+        "chance": 0.07093070930709307,
+        "lift": 11.465891661420477
+      },
+      {
+        "class": "eosinophil",
+        "n": 3110,
+        "precision_at_k": 0.8380385852090033,
+        "chance": 0.18210039243249576,
+        "lift": 4.602069078569738
+      },
+      {
+        "class": "erythroblast",
+        "n": 1551,
+        "precision_at_k": 0.8837524177949708,
+        "chance": 0.09078662215193581,
+        "lift": 9.734390341299056
+      },
+      {
+        "class": "ig",
+        "n": 2892,
+        "precision_at_k": 0.8130013831258646,
+        "chance": 0.16933169331693318,
+        "lift": 4.801235771050807
+      },
+      {
+        "class": "lymphocyte",
+        "n": 1214,
+        "precision_at_k": 0.8498352553542008,
+        "chance": 0.07104785333567622,
+        "lift": 11.961448734264032
+      },
+      {
+        "class": "monocyte",
+        "n": 1419,
+        "precision_at_k": 0.7196617336152219,
+        "chance": 0.08305511626544837,
+        "lift": 8.664869378006124
+      },
+      {
+        "class": "neutrophil",
+        "n": 3328,
+        "precision_at_k": 0.8877704326923077,
+        "chance": 0.19486909154805834,
+        "lift": 4.555727261002636
+      },
+      {
+        "class": "platelet",
+        "n": 2348,
+        "precision_at_k": 0.9834752981260647,
+        "chance": 0.13746851754231829,
+        "lift": 7.1541856688991485
+      },
+      {
+        "class": "all",
+        "n": 17074,
+        "precision_at_k": 0.8568876654562493,
+        "chance": 0.14397477263482286,
+        "lift": 5.95165145792351
+      }
+    ],
+    "independent_normal_numpy_agreement_max_absolute_delta": 0.0,
+    "independent_64_query_neighbour_index_match_fraction": 1.0,
+    "predeclared_high_retrieval_overall_precision_0_75_met": true,
+    "every_class_precision_above_its_chance": true
+  },
+  "synthetic_million_timing": {
+    "backend": "faiss-gpu",
+    "actual_faiss_index_type": "GpuIndexFlat",
+    "rows": 1200000,
+    "dimensions": 128,
+    "seed": 0,
+    "fixture": "Explicit random float32 timing data, not acquired cell embeddings or biological validation",
+    "queries": 20,
+    "neighbors": 100,
+    "build_seconds": 3.2430790819926187,
+    "query_timings": [
+      {
+        "query_row": 0,
+        "seconds": 0.0029395740129984915,
+        "under_one_second": true
+      },
+      {
+        "query_row": 63157,
+        "seconds": 0.003543542989064008,
+        "under_one_second": true
+      },
+      {
+        "query_row": 126315,
+        "seconds": 0.0037287650047801435,
+        "under_one_second": true
+      },
+      {
+        "query_row": 189473,
+        "seconds": 0.0037843119935132563,
+        "under_one_second": true
+      },
+      {
+        "query_row": 252631,
+        "seconds": 0.0029143349966034293,
+        "under_one_second": true
+      },
+      {
+        "query_row": 315789,
+        "seconds": 0.002915188029874116,
+        "under_one_second": true
+      },
+      {
+        "query_row": 378947,
+        "seconds": 0.003496353980153799,
+        "under_one_second": true
+      },
+      {
+        "query_row": 442104,
+        "seconds": 0.0030157389701344073,
+        "under_one_second": true
+      },
+      {
+        "query_row": 505262,
+        "seconds": 0.003670595004223287,
+        "under_one_second": true
+      },
+      {
+        "query_row": 568420,
+        "seconds": 0.002906119974795729,
+        "under_one_second": true
+      },
+      {
+        "query_row": 631578,
+        "seconds": 0.0029141860431991518,
+        "under_one_second": true
+      },
+      {
+        "query_row": 694736,
+        "seconds": 0.003548090986441821,
+        "under_one_second": true
+      },
+      {
+        "query_row": 757894,
+        "seconds": 0.0035068129654973745,
+        "under_one_second": true
+      },
+      {
+        "query_row": 821051,
+        "seconds": 0.003685372998006642,
+        "under_one_second": true
+      },
+      {
+        "query_row": 884209,
+        "seconds": 0.0028940070187672973,
+        "under_one_second": true
+      },
+      {
+        "query_row": 947367,
+        "seconds": 0.0029005500255152583,
+        "under_one_second": true
+      },
+      {
+        "query_row": 1010525,
+        "seconds": 0.002913673990406096,
+        "under_one_second": true
+      },
+      {
+        "query_row": 1073683,
+        "seconds": 0.003925749973859638,
+        "under_one_second": true
+      },
+      {
+        "query_row": 1136841,
+        "seconds": 0.003706101968418807,
+        "under_one_second": true
+      },
+      {
+        "query_row": 1199999,
+        "seconds": 0.0029108989983797073,
+        "under_one_second": true
+      }
+    ],
+    "all_queries_under_one_second": true,
+    "synchronous_FAISS_returned_scores_verified_against_actual_normalized_index_vectors": true
+  },
+  "FAISS_version": "1.15.1",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1"
+  },
+  "script_sha256": "4ef3b1af8f0c86b5588ba29f2ea14944674503f82a3be6eeb00179f8a664df59",
+  "source_plan_sha256": "9f525358ea5f6ca371a538dc93b3821a6a45bb3e7a9a4bcfab36568f988d4e64",
+  "normal_spacr_source_sha256": {
+    "spacr/active_learning.py": "35dd9381516b716452a90c6f4efdbb868194694b4465517d3c5b5ba143d495a8",
+    "spacr/embeddings.py": "563d49e5a21d21b710c6597a6b9925cec0ce06adc97e8f6b7867a35e71d334d5",
+    "spacr/schema.py": "871286bfe67b903a9704894435e45d90203de8e819997a2c896aa7bf903801f5",
+    "spacr/agreement.py": "08759db61daa1b610c37e1c5f073b7adaf789c75d61fdfceea13880a663e89a0"
+  },
+  "embedding_acceptance_sha256": "7824036a6140bcf7bfb22874b4c866dad2ac9d91a66d9cfc3586c4a8874a8ca4",
+  "no_patient_split_medical_diagnosis_screen_wide_GUI_or_million_acquired_cells_claim": true,
+  "independent_saved_neighbour_rescoring_pending": true,
+  "artifacts": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-faiss-r1/FAISS-human-class-agreement.csv": {
+      "sha256": "aacf44ff00aea43e5857833aa7db77b40cce3dba5a9a8ee3375ffee9919ee1ab",
+      "bytes": 676
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-faiss-r1/all-human-labelled-FAISS-neighbors.npz": {
+      "sha256": "358733c9ce986c475009134faf851a932630d83a11577f57a2e68ae7db260b18",
+      "bytes": 945769
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-faiss-r1/normal-independent-NumPy-human-class-agreement.csv": {
+      "sha256": "aacf44ff00aea43e5857833aa7db77b40cce3dba5a9a8ee3375ffee9919ee1ab",
+      "bytes": 676
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-faiss-r1/synthetic-million-FAISS-timing-neighbors.npz": {
+      "sha256": "d3a1a337b293a900f26cc020dd3084313cfa24d3cfdb67d29410e83fcc2aef0e",
+      "bytes": 14268
+    }
+  }
+}

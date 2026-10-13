@@ -1,0 +1,342 @@
+{
+  "passed": true,
+  "application_source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "languages": [
+    {
+      "language": "sv",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "18e2925b88a4116b87fa7fe30e80b82352cecf0193e5c558f9dfcb2abebafe45"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "d848d4e64417a5551ef479a180bff96b6449b1eeaffe389a429b8a47cbda679a"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "378de4237047c20f8cbf3f9bf05fb1d31bac5fedf9a2674c932eb595970aced3"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "54d654af23928e28ec371edc06c3cf4caa3d279ca725f3c1c76cec405a4e41b8"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "32e688326e19a1dc9df63461c537d323ee6e773c7432cc92a331037e6ff02a53"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "d768691d4ef86dfa7a8624679baa33f76dc88f61b2503b7c4b69b3cf2d4456e3"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "0d5e663425eb49810504a13e5ce4aa0da826c29f4937813bbbb20e3845916b6a"
+    },
+    {
+      "language": "de",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "83b3fd18bd7da41d6c85b9c8a3fed7ce497e567e7fa3e8100b91ac00f15fd4a0"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "26f376b4eef680b966ce2e908ecb262c3334bc7dbdb893bab8a0aa773554f7fc"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "b736ad59f097619769fe467c80f258dbd9c24ac2d0d4d49c16c7bfd18ece144b"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "1c200266b60357851efc3e4383d00a24d2d9dd7fd88b4f280279325afe13add6"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "e5bbf600af4f898d0dd5ed5613d5e078a706132a987e1fe1bd2fc3dd4b2b6a1f"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "21e91c0d5c83473d352306cf5599d4045218d27526eec0bcbf51cb21f253d66e"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "08587465b8990052cb8293ef3ec1eb7b7deadf94f007626c582ba4b43e94f434"
+    },
+    {
+      "language": "es",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "9d50fa37c1c090e8a25adf46981c2ce7d6f502c040784a4636d239bf3b0bd5b9"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "832e3ba0da996669ad25be0acf3094d2e592365c3e745bdd1c1df2d2903abd23"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "12d50596d795f0f5748e1c9c07194e9a394d75ab386e406118efb7cbfbbb01a1"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "60676e05484f29c1030ba014ae624d9b952686edb17fef7ad80ba141aa14b9d6"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "ffe4c0d6a196d2642878b51112dae392bce3aaf650a777ac20e28b8390e30ceb"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "1135e350c3dfa398b0e872583af1e182038c7cc62761b57d5e090808c120b0fa"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "cef35141d88dbe5e21ecdf1eaea57f59b1bee9e7b41a6360e3e106b3ccf7d333"
+    },
+    {
+      "language": "zh_CN",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "c1456acaaa01c4d543348b7a7529515b3fb7baa218b4241be6e92ba12dee7002"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "f1972f569ac25372ed67b227c2863ca188168385d761db813dabd78f21e7d3e8"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "86d94fb438959c8a55b5d22b0eb1540efd6755a100f57c141e9a7434978be44a"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "a5b659156bd899aa8e735c64637c46f7780075c9575a2eabcb005c31db8be445"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "bebf17cacc4800147131bdfcb512b185901ec20e9572d5ca6e77dae82f443731"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "1dcfc428f5a4761f219e07f994a3830c49f171f61f29ca3548c320a6a8d5ffe6"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "83af4988c1b2bd26ef72aa2ff6e0650afa36dc5599c464a1fe7df69b376176c2"
+    },
+    {
+      "language": "pt",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "f3c6d2308f2eca3b0aefda9530a77c32e6c33f6ea8da38df04573aa5a7ed84ae"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "b4e0f6f9408eb70ecc69043e4e7de13bba25ecc1c0e9182efe13736eafc7ecce"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "11f8437cd4166738bbfd56a997c9fee8312cadc4c9b8d57d83e63063595ffe5a"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "919e06ef9fbbf383c62dddcece16ae16c0b8991d3840f100746abdb1d0e5973a"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "2cc5ec05aa8ec1b8504a1ac38461529df23ee6aa50eeb787e71423a22354c2a4"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "bbe808b675baea634e6c683b1ba31eb573bc67190a29d8253bc104302cf7f09b"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "d0a86c57e95480636758d7acda9b57271d65740cef8cf031d9d2fa8fc119f078"
+    },
+    {
+      "language": "hi",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "6013e0051267871ff07d5302838bcd71d20c855a30f256ab1383afab44edb0a0"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "83d719d2cfdee511dc8491814706bc065d26d4445052c55922c70d9f73b8ed8c"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "8106a9113faad16ccd1d10ce85dc0c69a814d6c4d3616c16122eeaeacd23daf7"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "041dffa58529301b4d36aa8501d002cdf2b9f41d0a305eac42df37cbb97241ac"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "8dea79e18b98b01d3942f5a85a4741dce4541355d1c2baa691c9e24f2022a190"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "a9dbe1775f3c2f6f209b1dc144671daf4f2deecf7c1416b8ab44cf54c9b005c4"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "4eb4fa505ff8ad834cf6910e048a23cfd1fc4485e1e2840b8344881d165cdb9f"
+    },
+    {
+      "language": "ko",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "be6f4aa103cf61adcbd1c0c1539edfc16f35d843f2358b430df4c6676917fffe"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "60ef911533919e2aa605b12086d70789ada5e22fa74af1a770afaa48e032d316"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "dce3db7f32ff853446f34a0be30e25777856da3391a31a9f117d719040d5c286"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "c232c685cb9a1d325c7f3c5c19b4006397c195e36184c8041d150279ab180fd8"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "ce3fdca32a01c1af7f8154e207ef5fdbff71127659457c3b94c752b064959e17"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "164eeb4afbf54b1f75a52c86ce2d683f3511d4527eb1bb484ac1ca83c022dc7d"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "a52eb153ac9b049b05e2a1f5f73c334d7cf38bf4129179e8851f324d534db468"
+    },
+    {
+      "language": "is",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "673d11bc8ad42bcd2f32a066cd8de448bf3b32d4dd25877024a37014edf96761"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "8b550cb5767828395b719daf99b3fc48398b4ae9cb68ee640d804ae0c7a74cad"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "21197f043bf21197923abad7cabbb120a8b46a1c27ac1fb4fe051b3d4a272cda"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "e639bb66a9ac3ce39342ea3d77f07c08905e42ff420d0a01f1df94cd7df7584d"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "943f5c8170d2c46a8c24c5cf07d1e173acf33940864bbf275fc0d7f1ed7f8a1e"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "1b844222840c691cb15666f8f6966e45229363c9c6d7a9d390a9e44fdfae8a0c"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "1afc93127da89e2517a9220b3b6fd45631f26f44f302807c00ea17f89eba2d2c"
+    },
+    {
+      "language": "fr",
+      "reviewed_panels": [
+        {
+          "symbol": "spacr.embeddings.EmbeddingSpec",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "d28d5931a364498dfd19193aacdd06ff5ea5871c0b5b0814f3aa381286a19025"
+        },
+        {
+          "symbol": "spacr.embeddings._foundation_encoder.run",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "b1e5de6e44902198372d4c8577364a18a37ef7dd372cc9bc44f5a382c9b48e20"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.Pooled.forward",
+          "exact_reviewed_blocks_visible": 2,
+          "visible_sha256": "0fcde45e4daee566f22c638fc8c1c16379b18d0263141d213983f527935292e7"
+        },
+        {
+          "symbol": "spacr.embeddings._subcell_model.forward",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "c3b958f593025496e462b3aaeea659db7eb8b4814606374fa56faffad0e41a2f"
+        },
+        {
+          "symbol": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping",
+          "exact_reviewed_blocks_visible": 1,
+          "visible_sha256": "b0f82319c90fef8d9d00fdb1e00a7d05cd44c0960b22af893182fc5bcf1f7d4f"
+        },
+        {
+          "symbol": "spacr.embeddings.encoder_entry",
+          "exact_reviewed_blocks_visible": 7,
+          "visible_sha256": "4e39fa132aa7ca9b88b2f349f4e5ca2d486ded05749958c9e254ba8cb1265f52"
+        }
+      ],
+      "new_callback_visible": true,
+      "catalog_sha256": "485152cd6004ead4f96c4de488fb57dc234234137b92deffa44edbe8e72c5ea6"
+    }
+  ],
+  "eight_new_and_seven_prior_reviewed_blocks_rendered": true,
+  "no_deployment_claim": true,
+  "script_sha256": "f0e145239421b3127653c509c891f8aa9758f315cc682fd5c7fb54f5386344c6"
+}

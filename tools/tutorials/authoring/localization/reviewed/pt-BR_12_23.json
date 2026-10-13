@@ -1,0 +1,253 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-28",
+    "review_scope": "Complete Brazilian Portuguese review of the remaining core, segmentation-model, and annotation-quality lessons. Exact interface labels, model names, commands, and scientific meaning are preserved."
+  },
+  "lessons": {
+    "12_map_barcodes": {
+      "languages": {
+        "pt-BR": {
+          "description": "Decodifique leituras de sequenciamento em posições de placa e identidades de guias, usando referências explícitas e saídas de controle de qualidade.",
+          "prerequisite": "Forneça leituras FASTQ e tabelas de referência verificadas que correspondam ao desenho da biblioteca de sequenciamento.",
+          "objectives": [
+            "Configurar a direção de leitura, as referências de códigos de barras e a análise com base no desenho da biblioteca.",
+            "Validar o mapeamento em um pequeno bloco de teste.",
+            "Interpretar o progresso do mapeamento e as saídas de controle de qualidade."
+          ],
+          "narrations": {
+            "1": "Map Barcodes decodifica leituras de sequenciamento em posições de placa e identidades de guias. O console informa a descoberta das amostras, a validação do analisador, o progresso das leituras, os caminhos de saída e as falhas.",
+            "2": "Sequencing Input seleciona a pasta de arquivos FASTQ e determina se as leituras pareadas serão combinadas ou se apenas uma direção será processada. Confirme o padrão dos nomes antes de uma execução extensa.",
+            "3": "Essentials reúne as entradas e os controles de análise necessários para uma primeira execução. Use Modified para revisar as alterações específicas da biblioteca, All para os controles avançados e Recipes para uma configuração reutilizável.",
+            "4": "Barcode References aponta para as tabelas de referência dos guias, das linhas e das colunas da placa. Cada tabela deve associar um nome único à sequência esperada.",
+            "5": "Read Parsing localiza uma âncora conhecida, extrai a janela do código de barras e atribui grupos nomeados de linha, coluna e guia. Derive esse padrão do desenho da biblioteca e confirme-o em leituras de exemplo.",
+            "6": "Runtime and Reliability define o tamanho dos blocos, o número de processos e o modo de teste. Comece com um pequeno bloco de teste; reduza o tamanho do bloco ou o número de processos quando a memória for limitada.",
+            "7": "Run valida caminhos e referências, descobre amostras, conta leituras e inicia o mapeamento em blocos. Stop solicita uma interrupção ordenada após o ponto seguro atual.",
+            "8": "Acompanhe a amostra ativa, a contagem de lotes, a fração mapeada e os avisos no painel de progresso e no console. Investigue um mapeamento insatisfatório antes de aceitar a execução completa.",
+            "9": "Uma execução bem-sucedida grava combinações únicas de códigos de barras com linha, coluna, guia e contagem, além de uma tabela de controle de qualidade, das configurações e de um manifesto que tornam o mapeamento reproduzível."
+          }
+        }
+      }
+    },
+    "14_make_masks": {
+      "languages": {
+        "pt-BR": {
+          "description": "Crie e corrija rótulos de segmentação interativamente para controle de qualidade ou para produzir pares de treinamento do Cellpose.",
+          "prerequisite": "Prepare imagens representativas de microscopia e, quando disponíveis, as máscaras correspondentes em uma cópia de trabalho isolada.",
+          "objectives": [
+            "Selecionar a ferramenta de edição adequada a cada erro da máscara.",
+            "Usar controles de contraste e filtros de objetos sem copiar valores específicos de outro conjunto de dados.",
+            "Salvar pares imagem-máscara revisados de forma consistente."
+          ],
+          "narrations": {
+            "1": "Abra uma pasta com imagens representativas de microscopia. Os rótulos correspondentes são carregados da pasta masks como sobreposições coloridas; imagens sem uma máscara associada começam sem rótulos.",
+            "2": "O cartão Tools reúne os modos de pintura, apagamento, seleção por intensidade e ampliação. Escolha a menor operação capaz de corrigir o erro observado na máscara.",
+            "3": "Brush adiciona primeiro plano com raio ajustável. Use traços curtos para reparar limites ou objetos ausentes sem pintar sobre estruturas vizinhas.",
+            "4": "Erase remove somente os pixels pintados, enquanto Erase object remove um rótulo completo. Use Undo imediatamente se a região selecionada for válida.",
+            "5": "Wand plus e Wand minus acompanham intensidades conectadas na imagem. Comece com uma tolerância e um limite de pixels conservadores e examine a região selecionada antes de prosseguir.",
+            "6": "Amplie limites difíceis e ajuste a normalização da exibição somente quando isso melhorar a visibilidade. Os controles de contraste não alteram os dados da imagem nem a geometria da máscara; defina-os com base no campo atual, e não em percentis fixos do tutorial.",
+            "7": "Undo e Redo percorrem as edições da máscara independentemente da ampliação e do contraste, permitindo comparar com segurança uma correção com o rótulo anterior.",
+            "8": "Object operations pode preencher lacunas, renumerar componentes conectados do primeiro plano, inverter rótulos ou limpar a máscara. Use o filtro de área apenas com um limiar justificado pela escala da imagem e pelo tamanho esperado dos objetos.",
+            "9": "Save mask renumera os componentes conectados e grava a imagem rotulada usando o nome-base do arquivo de origem. Percorra a pasta sistematicamente para que todos os campos de treinamento sejam revisados.",
+            "10": "Em uma imagem sem rótulos, crie objetos com Brush ou Wand plus, corrija os limites e salve o novo par imagem-máscara para o treinamento do modelo."
+          }
+        }
+      }
+    },
+    "16_activation": {
+      "languages": {
+        "pt-BR": {
+          "description": "Examine quais regiões das imagens influenciam um classificador de visão computacional treinado e avalie se essas explicações são confiáveis.",
+          "prerequisite": "Treine e valide um classificador de visão computacional e preserve os metadados exatos dos recortes, canais, arquitetura e pré-processamento.",
+          "objectives": [
+            "Fazer a execução de atribuição corresponder ao modelo treinado e às entradas.",
+            "Selecionar um método de atribuição com controles de validação adequados.",
+            "Interpretar os mapas em exemplos representativos de acertos e erros."
+          ],
+          "narrations": {
+            "1": "Activation Maps identifica quais regiões da imagem influenciam a previsão de um modelo de visão computacional. O console registra o carregamento de artefatos, os lotes de atribuição, o progresso, as saídas e as informações de reprodutibilidade.",
+            "2": "Model and Data seleciona o arquivo de recortes, o artefato treinado, a arquitetura, o tamanho da entrada, o tipo de objeto e a ordem dos canais. Esses elementos devem corresponder aos usados no treinamento; caso contrário, todas as atribuições serão inválidas.",
+            "3": "Essentials reúne os controles necessários para uma primeira execução. Use Modified para revisar as alterações, All para os controles de validação e quantificação e Recipes para comparações reproduzíveis.",
+            "4": "Attribution Method seleciona Grad-CAM, saliência, gradientes integrados, oclusão ou outro método registrado, além de qualquer camada ou controle de amostragem compatível.",
+            "5": "Attribution Validation oferece verificações de deleção, inserção, linha de base e aleatorização do modelo. Um mapa visualmente atraente não é útil se permanecer inalterado depois que a informação do modelo for destruída.",
+            "6": "Map Display aplica o pré-processamento compatível com o treinamento e controla sobreposições e grades. Alterar o contraste de exibição modifica apenas a apresentação; não demonstra que o modelo aprendeu uma relação biológica válida.",
+            "7": "Map Quantification pode comparar os canais de entrada com a intensidade de atribuição e salvar esses resumos. Ative-a apenas quando a estatística responder a uma pergunta definida.",
+            "8": "Hyperparameter Search compara um conjunto pequeno e explícito de métodos de atribuição e configurações de validação. Classifique os ensaios concluídos considerando conjuntamente as evidências de deleção, inserção, pointing game e testes de sanidade; nenhuma pontuação isolada demonstra que uma explicação é biologicamente correta.",
+            "9": "Run valida o modelo e os recortes, reproduz o pré-processamento do treinamento, calcula as previsões e os mapas, renderiza as grades solicitadas e registra as configurações.",
+            "10": "Examine mapas de exemplos corretos, incorretos, de alta confiança e de baixa confiança, juntamente com as verificações de validação. Tire conclusões biológicas apenas a partir de um classificador treinado e validado."
+          }
+        }
+      }
+    },
+    "17_timelapse": {
+      "languages": {
+        "pt-BR": {
+          "description": "Segmente imagens resolvidas no tempo, associe os objetos selecionados em trajetórias e valide os filmes e as trajetórias resultantes.",
+          "prerequisite": "Prepare uma série temporal com identificadores confiáveis de tempo, campo, profundidade e canal e com intervalo conhecido entre quadros.",
+          "objectives": [
+            "Mapear os eixos de aquisição e segmentar de forma consistente quadros representativos.",
+            "Selecionar e validar visualmente um método de rastreamento adequado.",
+            "Executar um pequeno teste antes de produzir todas as trajetórias e os filmes."
+          ],
+          "narrations": {
+            "1": "Timelapse segmenta cada quadro e associa os objetos selecionados em trajetórias estáveis. O console registra pré-processamento, máscaras, tentativas de rastreamento, controle de qualidade, filmes e arquivos de reprodutibilidade.",
+            "2": "Input and Metadata seleciona a pasta de imagens, associa os canais adquiridos aos tipos de objetos e define como serão interpretados os identificadores de placa, poço, campo, tempo, profundidade e canal.",
+            "3": "Essentials reúne os controles necessários para uma primeira sequência. Use Modified para revisar as alterações, All para eixos e métodos opcionais e Recipes para um desenho de aquisição repetida.",
+            "4": "Image Preprocessing aplica normalização, tratamento de fundo, redução de ruído e redimensionamento. Use a mesma transformação em todos os quadros para que o pré-processamento não introduza movimento artificial.",
+            "5": "Configure a seção de segmentação de cada objeto que precisará ser mascarado ou rastreado. Valide o modelo, o canal, a escala e os filtros principais em quadros representativos do início, do meio e do final.",
+            "6": "Quality Control verifica contagens, tamanhos, bordas, cobertura do primeiro plano, divisões e a tolerância a falhas de campos. Comece no modo de relatório para que os quadros suspeitos permaneçam visíveis.",
+            "7": "Tracking Setup seleciona os tipos de objetos, o intervalo de quadros, os filtros de duração das trajetórias e a taxa do filme. Durante a validação, preserve trajetórias curtas para não ocultar falhas.",
+            "8": "Tracking Backends oferece vários métodos de associação com controles distintos de deslocamento, lacunas, divisões e processos. Escolha o método mais simples compatível com o movimento e verifique visualmente as identidades.",
+            "9": "Visualization and Diagnostics cria exemplos para verificar a segmentação e a continuidade das trajetórias, enquanto Output and Storage seleciona máscaras, matrizes combinadas, filmes e arquivos intermediários preservados.",
+            "10": "Abra Track Preview em uma sequência representativa antes da execução completa. Examine conjuntamente os quadros iniciais, intermediários e finais e verifique as máscaras, as identidades, as lacunas, as divisões e os saltos implausíveis antes de propagar as configurações ajustadas.",
+            "11": "Run valida nomes de arquivos e canais, segmenta os objetos solicitados, associa as máscaras, calcula métricas de controle de qualidade e grava filmes e matrizes. Antes da análise, examine as trajetórias concluídas em busca de trocas de identidade, lacunas e saltos implausíveis.",
+            "12": "Um projeto bem-sucedido contém máscaras indexadas no tempo, identidades estáveis das trajetórias, registros de controle de qualidade, filmes, matrizes combinadas, configurações salvas e um manifesto que permite repetir a execução."
+          }
+        }
+      }
+    },
+    "18_motility": {
+      "languages": {
+        "pt-BR": {
+          "description": "Meça o movimento calibrado em imagens rastreadas e compare as trajetórias por estado de infecção ou grupo experimental.",
+          "prerequisite": "Conclua Timelapse com trajetórias revisadas e conheça o intervalo entre quadros, a calibração de pixels, os canais e os controles de infecção.",
+          "objectives": [
+            "Mapear corretamente os objetos rastreados e a calibração.",
+            "Filtrar movimentos implausíveis sem ocultar trajetórias reais.",
+            "Validar os rótulos de infecção e interpretar as saídas calibradas de motilidade."
+          ],
+          "narrations": {
+            "1": "Motility Assay reconstrói as medições a partir de matrizes de rastreamento e calcula deslocamento, velocidade, comprimento da trajetória e linearidade. O console registra tabelas derivadas, verificações de qualidade e figuras.",
+            "2": "Objects and Channels seleciona a origem rastreada, o objeto em movimento e os canais que contêm os sinais de célula, núcleo e patógeno. Um mapeamento incorreto invalida os resultados de intensidade e de infecção.",
+            "3": "Essentials reúne os controles necessários para um primeiro ensaio. Use Modified para revisar as alterações, All para classificadores e projeções opcionais e Recipes para aquisições repetidas.",
+            "4": "Spatial and Temporal Calibration fornece o intervalo entre quadros e a escala dos pixels. Confirme ambos nos metadados de aquisição, pois qualquer erro afeta todos os deslocamentos físicos e todas as velocidades.",
+            "5": "Motion Filtering remove saltos implausíveis, trajetórias interrompidas e, opcionalmente, valores atípicos de características ou velocidade. Examine as trajetórias excluídas para evitar o descarte de movimento rápido verdadeiro.",
+            "6": "Infection Classification pode começar pela sobreposição entre as máscaras do patógeno e do objeto e, opcionalmente, refinar trajetórias incertas usando evidências de intensidade. Use a regra mais simples sustentada pelos controles.",
+            "7": "As seções opcionais XGBoost, clustering e embedding oferecem classificadores alternativos de infecção quando as máscaras diretas são insuficientes. Valide qualquer regra aprendida em trajetórias rotuladas reservadas para teste.",
+            "8": "Abra Track Preview antes de executar o ensaio completo. A amostra limitada sobrepõe trajetórias reais e informa deslocamento, velocidade, comprimento da trajetória, linearidade, lacunas e calibração, permitindo detectar um rastreador ou uma escala incorretos antes da geração dos gráficos de resumo.",
+            "9": "Run mede os quadros, suaviza e filtra as trajetórias, atribui o estado de infecção, calcula resumos e correlações calibrados e salva tabelas e figuras.",
+            "10": "Examine conjuntamente as tabelas por quadro e por trajetória e as figuras de trajetórias e controle de qualidade. Confirme a continuidade das trajetórias, as unidades de calibração e os rótulos dos grupos antes de comparar condições."
+          }
+        }
+      }
+    },
+    "19_train_cellpose": {
+      "languages": {
+        "pt-BR": {
+          "description": "Faça o ajuste fino de um modelo compatível com Cellpose ou CPSAM usando pares revisados de imagens e máscaras de instâncias.",
+          "prerequisite": "Crie pares imagem-máscara diversos e revisados de forma independente e reserve campos para a avaliação.",
+          "objectives": [
+            "Validar os dados de treinamento pareados e selecionar um ponto de verificação inicial adequado.",
+            "Configurar controles reproduzíveis de geometria, pré-processamento e cronograma.",
+            "Avaliar os pontos de verificação salvos em imagens reservadas."
+          ],
+          "narrations": {
+            "1": "Train Cellpose ajusta um modelo de segmentação a partir de imagens microscópicas pareadas com máscaras de rótulos de instâncias. O console informa a validação dos dados, o progresso, o caminho do ponto de verificação e os registros de reprodutibilidade.",
+            "2": "Selecione a raiz do conjunto de dados que contém as imagens de treinamento e as máscaras correspondentes. Examine a qualidade dos rótulos e reserve campos representativos que não serão usados para ajustar o modelo.",
+            "3": "Essentials contém os controles necessários para uma primeira calibração. Use Modified para revisar as alterações, All para as opções de pré-processamento e execução, e Recipes para definir um protocolo de treinamento reproduzível.",
+            "4": "Starting Point seleciona a família do modelo, o ponto de verificação pré-treinado, o ajuste fino ou o treinamento do zero e o nome da saída. Em geral, o ajuste fino requer menos imagens revisadas do que a inicialização aleatória.",
+            "5": "Training Schedule define a taxa de aprendizado, a regularização, os lotes, o aumento de dados e o número de épocas. Aumente o treinamento somente depois de verificar os pares imagem-máscara e a avaliação em campos reservados.",
+            "6": "Image Geometry registra os tamanhos de origem e de destino, a escala esperada dos objetos e o redimensionamento. As imagens e as máscaras devem receber a mesma transformação espacial, preservando as identidades dos rótulos.",
+            "7": "Background and Denoising aplica uma correção opcional de intensidade antes do treinamento. Use-a somente se o mesmo pré-processamento puder ser reproduzido durante a aplicação do modelo.",
+            "8": "Run valida os nomes de arquivos correspondentes, mostra uma prévia dos campos pareados e inicia o treinamento. Examine a imagem sobreposta à respectiva máscara no painel de figuras antes de confiar em um ajuste demorado.",
+            "9": "Após o treinamento, teste os pontos de verificação candidatos em campos reservados e examine as falhas, não apenas a função de perda. O spaCR salva conjuntamente o ponto de verificação, as configurações, o manifesto da execução e as prévias dos campos pareados."
+          }
+        }
+      }
+    },
+    "20_cellpose_masks": {
+      "languages": {
+        "pt-BR": {
+          "description": "Aplique um modelo Cellpose distribuído com o programa ou personalizado, examine as máscaras e os fluxos e salve uma máscara de instâncias por campo.",
+          "prerequisite": "Prepare imagens representativas de microscopia e selecione um modelo treinado para o tipo de objeto, os canais e a escala dessas imagens.",
+          "objectives": [
+            "Fazer as imagens, os canais, a escala dos objetos e o ponto de verificação corresponderem.",
+            "Ajustar o pré-processamento e os limiares a partir das prévias de diagnóstico.",
+            "Salvar máscaras de instâncias revisadas para os fluxos de trabalho subsequentes."
+          ],
+          "narrations": {
+            "1": "Cellpose Masks aplica um modelo distribuído com o programa ou um ponto de verificação personalizado a imagens de microscopia. O console registra a resolução do modelo, o pré-processamento, o progresso, os diagnósticos e os caminhos de saída.",
+            "2": "Input and Channels seleciona a pasta de imagens, os planos, o uso de tons de cinza ou inversão e a normalização opcional. Verifique primeiro o canal; use o pré-processamento somente quando as imagens representativas o exigirem.",
+            "3": "Essentials reúne os controles necessários para uma primeira aplicação. Use Modified para revisar o modelo e o pré-processamento atuais, All para a geometria e a execução e Recipes para uma inferência reproduzível.",
+            "4": "Model seleciona pesos distribuídos com o programa ou um ponto de verificação personalizado e registra a escala esperada dos objetos. O ponto de verificação e a disposição dos canais devem corresponder às imagens usadas durante o treinamento.",
+            "5": "Detection Thresholds controla a probabilidade, a concordância do fluxo, o redimensionamento, a reamostragem e o preenchimento de lacunas. Ajuste esses parâmetros somente depois de confirmar a imagem, o canal, o modelo e a escala.",
+            "6": "Image Geometry pode redimensionar os campos para a inferência e restaurar as máscaras às dimensões originais. Preserve a proporção da imagem e mantenha a escala de pixels compatível com o treinamento.",
+            "7": "Output and Runtime controla as máscaras salvas, o tamanho do lote e as figuras de diagnóstico. Reduza o lote quando a memória do acelerador for limitada.",
+            "8": "Run carrega o ponto de verificação, aplica o pré-processamento configurado, prevê as máscaras e os fluxos, executa a limpeza selecionada e salva cada imagem de rótulos.",
+            "9": "Examine imagens originais representativas, contornos de máscaras e campos de fluxo no painel de figuras antes da medição subsequente. Defina a normalização e os limiares a partir dessas prévias, em vez de copiar valores do tutorial."
+          }
+        }
+      }
+    },
+    "21_model_compare": {
+      "languages": {
+        "pt-BR": {
+          "description": "Execute duas configurações do Cellpose nos mesmos campos representativos e compare as máscaras sem pressupor que qualquer uma delas seja a referência correta.",
+          "prerequisite": "Selecione dois modelos ou configurações compatíveis e um conjunto limitado de imagens representativas.",
+          "objectives": [
+            "Construir uma comparação controlada entre dois modelos.",
+            "Verificar quais parâmetros foram realmente recebidos por cada modelo.",
+            "Interpretar as métricas de concordância juntamente com as máscaras lado a lado."
+          ],
+          "narrations": {
+            "1": "Model Compare combina contagens de objetos, concordância do primeiro plano, correspondência, fragmentação e sobreposições lado a lado para avaliar dois candidatos de segmentação nos mesmos campos.",
+            "2": "Selecione uma pasta pequena, porém representativa, de imagens e limite o número de campos para a comparação interativa. Inclua exemplos simples e difíceis, não apenas campos sem problemas.",
+            "3": "Configure Model A e Model B. Mantenha iguais os canais, a escala, o pré-processamento e os limiares compartilhados, a menos que uma dessas configurações seja a diferença que se pretende avaliar.",
+            "4": "Compare segmenta cada campo selecionado usando as duas configurações resolvidas. Os argumentos avançados são registrados, e os parâmetros incompatíveis são informados em vez de serem tratados silenciosamente como efetivos.",
+            "5": "Parameters that reached each model distingue os valores efetivamente usados dos controles obsoletos ou ignorados. Confirme que a comparação realmente difere da maneira pretendida.",
+            "6": "A tabela de campos informa contagens, concordância do primeiro plano, sobreposição de objetos correspondentes, divisões, fusões, objetos sem correspondência e verificações independentes da qualidade das máscaras. Nenhuma métrica isolada representa todos os modos de falha.",
+            "7": "Selecione uma linha para examinar as duas prévias. Procure novas detecções, omissões, alterações de limites, divisões e fusões e repita a análise em campos representativos.",
+            "8": "Escolha um modelo somente quando as diferenças visuais e as métricas reduzirem os erros relevantes para a análise subsequente. Resultados equivalentes são informativos e não demonstram melhoria."
+          }
+        }
+      }
+    },
+    "22_model_zoo": {
+      "languages": {
+        "pt-BR": {
+          "description": "Explore, verifique, baixe e avalie modelos reutilizáveis de segmentação e classificação.",
+          "prerequisite": "Prepare alguns campos representativos e conheça seus canais, o tipo de objeto e a escala aproximada.",
+          "objectives": [
+            "Examinar a compatibilidade e a proveniência do modelo.",
+            "Avaliar um modelo em campos representativos.",
+            "Encaminhar dois candidatos ao Model Compare."
+          ],
+          "narrations": {
+            "1": "Model Zoo lista modelos reutilizáveis disponíveis em fontes incluídas no programa, locais ou declaradas no catálogo. Comece identificando a tarefa, os canais, a escala dos objetos e o pré-processamento esperado.",
+            "2": "Selecione uma pasta de modelos e faça a varredura. O catálogo mantém juntos os caminhos locais e os metadados remotos e evita entradas duplicadas.",
+            "3": "Selecione um modelo para examinar sua proveniência, licença, soma de verificação, contexto de treinamento e geometria esperada. O fato de um modelo ser carregado sem erros não significa que ele seja adequado às suas imagens.",
+            "4": "Selecione um pequeno conjunto de campos representativos para uma avaliação limitada, incluindo exemplos difíceis.",
+            "5": "Teste um modelo instalado. A avaliação informa velocidade, contagens de objetos, indicadores de qualidade e prévias, sem tratar essas verificações como medidas de exatidão em relação à referência.",
+            "6": "Examine conjuntamente a tabela e a prévia das máscaras. Investigue os avisos no contexto das imagens antes de aceitar ou rejeitar um modelo.",
+            "7": "Selecione dois modelos locais compatíveis quando precisar de uma avaliação controlada lado a lado.",
+            "8": "Model Compare recebe os dois pontos de verificação e os mesmos campos, permitindo avaliar as diferenças entre máscaras e métricas de qualidade usando entradas idênticas."
+          }
+        }
+      }
+    },
+    "23_agreement": {
+      "languages": {
+        "pt-BR": {
+          "description": "Meça a concordância entre colunas de anotação e examine os objetos responsáveis pelas discordâncias.",
+          "prerequisite": "Crie duas ou mais colunas categóricas referentes aos mesmos objetos.",
+          "objectives": [
+            "Configurar uma comparação justa entre rótulos.",
+            "Interpretar conjuntamente a concordância e o desequilíbrio entre classes.",
+            "Examinar os objetos que originaram as discordâncias."
+          ],
+          "narrations": {
+            "1": "Annotator Agreement compara colunas de rótulos categóricos sem modificar o banco de dados. Use-o para comparar revisores, rodadas de anotação ou um revisor com um modelo.",
+            "2": "Abra um banco de dados de medições ou uma pasta de execução. O spaCR identifica as colunas de anotação e de previsão referentes aos mesmos objetos.",
+            "3": "Selecione pelo menos duas colunas. Colunas adicionais permitem comparações aos pares e um resumo de vários avaliadores.",
+            "4": "Compute Agreement alinha os rótulos por objeto. Rótulos ausentes são informados como abstenções, em vez de serem contabilizados silenciosamente como discordâncias.",
+            "5": "Interprete conjuntamente a concordância bruta, o equilíbrio entre classes, as abstenções e o kappa. O kappa pode ser indefinido quando uma coluna contém apenas uma classe; isso é um aviso de prevalência, não concordância igual a zero.",
+            "6": "Use a matriz de confusão para identificar quais classes são confundidas e se o desequilíbrio domina o resumo.",
+            "7": "A tabela de discordâncias identifica os objetos exatos que precisam ser revisados.",
+            "8": "Examine recortes representativos antes de alterar rótulos ou definições de classes. Estatísticas agregadas não explicam por que os revisores discordaram."
+          }
+        }
+      }
+    }
+  }
+}

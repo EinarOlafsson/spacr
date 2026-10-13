@@ -1,0 +1,11 @@
+{
+  "reviewer": "Codex AI shared_ui, independent of root author",
+  "accepted_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "draft_sha256": "923bc6df0c0ed7fbf69b42b6ae727391403a54162b0af820840466c26ab127b9",
+  "meaning": "Preserves source/output plate names, one/multiple plate barcode syntax, leading zeroes and conflict guards, CSV mapping and mismatches, completion receipt last, source preservation and local-versus-HTTP service route. Exact runtime captions and RST/literal gates pass. No native/human signoff."
+}

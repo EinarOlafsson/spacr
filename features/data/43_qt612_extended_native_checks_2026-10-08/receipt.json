@@ -1,0 +1,133 @@
+{
+  "recorded_utc": "2026-10-08T11:21:50.954905+00:00",
+  "gdb23": {
+    "passed": 23,
+    "elapsed_seconds": 14.59,
+    "inferior_exit": "normal",
+    "gdb_exit": 0,
+    "original_source": "abeb46577b00cacb60bf884883d8c782e795f298",
+    "source_sha256": {
+      "spacr/qt/bridge.py": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a",
+      "spacr/qt/screens/make_masks.py": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+      "spacr/qt/widgets/primary_mask_selector.py": "38a79dea542ff89b96264d00878f73349f9b1fc58bfe288ae5579d611ecc481b",
+      "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+      "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+      "tests/qt/test_live_preview_remove_background.py": "c2179ffaef96d0c40a269fdb7f647a4801673c1cb3fd3bb3fbd53bab526e6dd5",
+      "tests/qt/test_make_masks_parent_source_race_guards.py": "5dc81d71d91ae5f4b4b63a8b0009d33748527ebfb88ccde2973c62d0629799d7",
+      "tests/qt/test_magnifier_lock.py": "7ea1f06faae92000ca1ffea2fc30d7b2d9d15410fc99bdad8054b904b799c880"
+    }
+  },
+  "valgrind": {
+    "version": "3.22.0",
+    "installation": "downloaded and extracted only in scratch",
+    "ram_cap": "8G",
+    "timeout_seconds": 300,
+    "thread_caps": {
+      "OMP_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1
+    },
+    "selected_options": [
+      "--leak-check=no",
+      "--undef-value-errors=no",
+      "--num-callers=28",
+      "--error-limit=yes",
+      "--error-exitcode=97"
+    ],
+    "expanded_cohort": {
+      "exit": 124,
+      "completed_tests": 15,
+      "timed_out": true,
+      "errors": 402,
+      "contexts": 11
+    },
+    "focused_hosted_node": {
+      "node": "tests/qt/test_make_masks_parent_source_race_guards.py::test_parent_invalidation_during_magnifier_teardown_updates_the_report",
+      "pytest_passed": 1,
+      "elapsed_seconds": 217.59,
+      "memcheck_exit": 97,
+      "errors": 827,
+      "contexts": 11
+    },
+    "reported_accesses": "16-byte invalid reads in Qt metaobject/string/CSS code; no invalid write/free context found in these logs",
+    "limitations": [
+      "Exact original Valgrind launcher script was not retained; raw logs and known options/exits are preserved.",
+      "Memcheck exit97 is not memory-check acceptance; expanded exit124 is incomplete, not a passed cohort.",
+      "No corruption origin, native fix, hosted acceptance or thread-cap cure established."
+    ]
+  },
+  "payloads": {
+    "gdb23/gdb.log.gz": {
+      "bytes": 1549,
+      "sha256": "74b47e2874cc158e6437131d5610c89c317c87158a68459452239daa72a70006",
+      "raw_bytes": 5705,
+      "raw_sha256": "87937083d65ed3bee4f54dd70af9e12a8430a9ffcaba4fc8d7bc84a7b15840a4"
+    },
+    "gdb23/launcher.log.gz": {
+      "bytes": 1217,
+      "sha256": "652ed13c41250059cc5d73fe4090a5a3386c29321033a3c8dbd11d6e54372d0e",
+      "raw_bytes": 2235,
+      "raw_sha256": "e07dcf1e0afd2632848ba8fd1486574f9f02428906a4086788a6a4842057a7c0"
+    },
+    "gdb23/gdb.commands.gz": {
+      "bytes": 233,
+      "sha256": "c8f7531c5cc9943c7aed6605495344d57f36a52b9e9aa82f9342b6462988fa9e",
+      "raw_bytes": 326,
+      "raw_sha256": "5ced19081a8ca17a7690c2268d37515a486bdc759fc77d94497002bf8884fbac"
+    },
+    "gdb23/replay.py.gz": {
+      "bytes": 1387,
+      "sha256": "c7ccdf86c4429180adc6b903dbd60e5f773c362e9d431080d4ae879737311a6a",
+      "raw_bytes": 3000,
+      "raw_sha256": "80fc99b43ca5d5c52e660fdc7ea9554c15cd50b100d789de47b7b3c1b61fca42"
+    },
+    "gdb23/original-receipt.json.gz": {
+      "bytes": 1241,
+      "sha256": "2b6c1dba85d0fc71da9a4c4e0b3e78a5a774f51f2f3b3842fecf9fc1b9257203",
+      "raw_bytes": 2435,
+      "raw_sha256": "31f564edb0571759700ece21f8c7a3bbc55a1ad12adecdcc87670b736ef44794"
+    },
+    "valgrind/memcheck.log.gz": {
+      "bytes": 3820,
+      "sha256": "14343fcb3763b4c0a90e2943eeb072bab7c6941678528e5008e8793cb55a485e",
+      "raw_bytes": 78806,
+      "raw_sha256": "0041a58613211fc3643bba8b6e154f91849ca277181203c3a918930d115d6b3c"
+    },
+    "valgrind/pytest.log.gz": {
+      "bytes": 862,
+      "sha256": "d6c3acee62ba35779739bec615a8d161733375107641ad81a1d194032ca4459b",
+      "raw_bytes": 2322,
+      "raw_sha256": "bcc5f37d4297ddeaf1039ac70ed3231d5609d67a60d6f2c421d90cf7024d4af3"
+    },
+    "valgrind/memcheck.exit.gz": {
+      "bytes": 24,
+      "sha256": "b2fa73c59e09261649cb68f6f52a189d661372adfa9d73dbbb31e03585771f97",
+      "raw_bytes": 4,
+      "raw_sha256": "ca2ebdf97d7469496b1f4b78958f9dc8447efdcb623953fee7b6996b762f6fff"
+    },
+    "valgrind/memcheck-focused.log.gz": {
+      "bytes": 3299,
+      "sha256": "b106bb7907d37f71ac9f488d6226e1679d2c7eb40c703cbe7cfeee0e91daa938",
+      "raw_bytes": 76326,
+      "raw_sha256": "e40e7ac4e8c974f188b5458f6d0fbe7957f57bd07618d5a6c2d35606991a64fa"
+    },
+    "valgrind/pytest-focused.log.gz": {
+      "bytes": 459,
+      "sha256": "6fd0358cf355305f8fd74b577f41e8c4d6ba3c22bd8fe32af31f4c13f574beff",
+      "raw_bytes": 745,
+      "raw_sha256": "418c8d12137693ce1e7faa7476dd4dc403de78c978dc6bcd1b1ccbddbb2d05ea"
+    },
+    "valgrind/memcheck-focused.exit.gz": {
+      "bytes": 23,
+      "sha256": "23ac4ca7ea496962a5bca3e33b2f598bb3a55d99021ea87e07ef2cf01bf4b207",
+      "raw_bytes": 3,
+      "raw_sha256": "969eeff1eaac226a228cc61503effa46ea87d872ef3174365befc7c36ffa3c48"
+    },
+    "valgrind/install.log.gz": {
+      "bytes": 136,
+      "sha256": "788c0d879495e448b9cba2978cb337fa5c3ee7ac7619618936f41c4265140d8b",
+      "raw_bytes": 136,
+      "raw_sha256": "16081f420e5d0a87086b2cd138f537b27f1aa177a35d1bd7007713440c7452e2"
+    }
+  }
+}

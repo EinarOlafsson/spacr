@@ -1,0 +1,29 @@
+{
+  "verified_utc": "2026-10-08T11:16:53.778525+00:00",
+  "read_at_commit": "2cff55c19f548022058609f5842ae910050f068a",
+  "archives": [
+    {
+      "archive": "features/data/43_preview_dialog_lifetime_reproduction_2026-10-08",
+      "payloads_verified": 11,
+      "scope": "Read-only actual Close/Escape plus deliberate normal Qt deletion of that closed dialog while original panel stays alive. Strong Python references do not preserve dialog-owned C++ controls. No source edit."
+    },
+    {
+      "archive": "features/data/43_preview_lifetime_readonly_continuation_2026-10-08",
+      "payloads_verified": 7,
+      "scope": "Original four-file bounded preview/tooltip cohort under actual Qt6.12 overlay. Additional actual dialog close/reopen propagation observer exposes a retained connection while new switch is unchecked."
+    },
+    {
+      "archive": "features/data/43_preview_dialog_regression_negative_2026-10-08",
+      "payloads_verified": 4,
+      "scope": "Strict new behavior guards fail on unchanged original app for native control survival and disconnected propagation across Close/Escape/accept/reject. Test-only private commit; no xfail or production fix applied."
+    },
+    {
+      "archive": "features/data/43_preview_dialog_scratch_candidate_2026-10-08",
+      "payloads_verified": 12,
+      "scope": "Runtime replacements in isolated scratch process only: include organelle controls, restore on done, disconnect propagation and old visibility subscriptions. No application file edit."
+    }
+  ],
+  "total_payloads": 34,
+  "native_cause_proven": false,
+  "production_fix_adopted": false
+}

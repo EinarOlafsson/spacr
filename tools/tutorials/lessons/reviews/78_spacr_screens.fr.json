@@ -1,0 +1,36 @@
+{
+  "language": "fr",
+  "lesson": "78_spacr_screens",
+  "english_sha256": "9c69d3bd6bce92b72feef865100a92f462356235781349735280c3f6dbacb4f5",
+  "title": "spaCR screens",
+  "section": "Parcours de travail",
+  "description": "Suivez un criblage groupé fondé sur l’image depuis Home, en passant par les mesures d’images, la classification des phénotypes et les comptages de codes-barres, jusqu’à la régression.",
+  "objectives": [
+    "Choisissez un module de départ selon les données dont vous disposez déjà.",
+    "Identifiez ce que chaque module lit et écrit.",
+    "Suivez les leçons des modules et les contrats d’API associés pour l’étape suivante."
+  ],
+  "prerequisite": "Installez spaCR et ouvrez Home. Choisissez les données de départ de votre flux de travail, puis suivez les leçons de modules liées pour les commandes et les données d’exemple.",
+  "scenes": [
+    "Un criblage groupé raconte son histoire deux fois, une fois en images et une fois en lectures de séquençage, et spaCR réunit les deux à la fin. Côté images, Mask et Measure transforment vos champs de microscopie en cellules mesurées, puis Annotate et Classify transforment ces cellules en scores de phénotype. Côté séquençage, Map Barcodes transforme les lectures en comptages de guides. Regression relie les deux par plaque et par puits. Entrez là où commencent vos résultats.",
+    "Tout commence par vos images de microscopie. Ouvrez Mask depuis Home, choisissez les canaux et un modèle de segmentation, et vérifiez l’aperçu avant de lancer. Mask trouve les objets de chaque champ et enregistre chaque champ sous forme de tableau fusionné, les canaux d’image empilés avec leurs masques d’étiquettes. Ces tableaux fusionnés sont ce que Measure ouvre ensuite. La petite base de comptages que laisse Mask n’est qu’un décompte, pas encore une table de caractéristiques.",
+    "Ouvrez ensuite Measure depuis Home et dirigez-le vers le même projet, avec les indices de canaux d’image et de masque correctement réglés. Measure lit chaque tableau fusionné, images et plans d’étiquettes ensemble, et écrit chaque cellule, noyau ou parasite comme une ligne de measurements.db. Activez l’enregistrement des recadrages et il découpe aussi un petit PNG autour de chaque objet, indexé dans png_list. À partir d’ici, l’histoire bifurque. Annotate affiche ces recadrages pour que vous étiquetiez des exemples, et Classify apprend soit des recadrages soit des caractéristiques mesurées ; gardez donc des identités d’objets stables.",
+    "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home : il vous montre les recadrages d’objets que Measure a enregistrés ou qu’il fournit à la demande. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite.",
+    "Ouvrez Classify depuis Home : c’est ici que vos étiquettes deviennent des scores. Classify propose deux familles, et vos données tranchent entre elles. Computer Vision apprend des recadrages d’objets eux-mêmes, tandis que Tabular Machine Learning apprend des colonnes de caractéristiques mesurées. Dans les deux cas, il s’entraîne sur les étiquettes créées dans Annotate, s’évalue sur les objets mis de côté et enregistre le modèle entraîné, un lot d’évaluation et les scores, sous forme de fichiers CSV et, après fusion, dans png_list. Choisissez la colonne de score CV ou ML que vous voulez tester, gardez intacte l’identité de plaque et de puits, et transmettez-la à Regression.",
+    "Pendant que les images suivent une voie, les lectures de séquençage en suivent une autre. Ouvrez Map Barcodes depuis Home, donnez-lui vos fichiers FASTQ et les références de codes-barres qui encodent votre criblage, et il compte les guides présents dans chaque puits. Vérifiez les comptages alignés et le contrôle qualité des codes-barres avant de leur faire confiance. Le fichier unique_combinations.csv qu’il écrit est la table de comptages de guides que Regression associe à vos scores de phénotype, puits par puits.",
+    "C’est ici que les deux moitiés du criblage se rejoignent. Ouvrez Regression depuis Home et donnez-lui les deux : les scores de phénotype de Classify et les comptages de guides de Map Barcodes. Regression les associe par plaque et par puits ; ces clés doivent donc concorder dans les deux fichiers. Choisissez la colonne de réponse et vos témoins, lancez l’ajustement et ouvrez les diagnostics avant de croire au moindre hit. Si vos codes-barres ont été lus optiquement avec OPS, reliez et agrégez d’abord les objets décodés à vos données de phénotype et de guides ; OPS ne fournit pas de table de comptages toute prête. Regression peut aussi modéliser une réponse mesurée directement. Il écrit un dossier de résultats avec coefficients, tables de hits, paramètres et figures de diagnostic.",
+    "Un criblage groupé avance donc en deux courants qui se rejoignent dans Regression. Avant de l’ouvrir, vérifiez que les identifiants de plaque et de puits concordent entre vos scores, vos comptages de guides et votre plan de plaque, et conservez avec l’exécution la colonne d’annotation, les paramètres du classificateur et les références de codes-barres. Les leçons de modules liées détaillent chaque étape ; vous pouvez aussi choisir le parcours du criblage groupé sur Home."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "e8f38c9d076f01551f51f3d98c15c9e15cfc96e6b77a83b2754693695d246890",
+    "corrections": [
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
+  }
+}

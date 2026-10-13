@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/mnt/wd4tb/scratch/ci-4133-fast-min-20261008/signature-probe.py", line 9, in <module>
+    from tests.cellpose_api_contract import assert_declares_installed_eval_signature
+ModuleNotFoundError: No module named 'tests.cellpose_api_contract'

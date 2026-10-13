@@ -1,0 +1,35 @@
+{
+  "lesson": "54_qc_dashboard",
+  "english_sha256": "8d73de741cc8b5d38c497eac960c0dfe562312ed73b07d6f02e536ba8ec4c174",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "QC: undersøg et projekts kvalitetsrapporter",
+  "description": "Vælg et projekt, læs de tilgængelige kvalitetsrapporter, undersøg advarsler, og opdatér dashboardet.",
+  "objectives": [
+    "Vælge det tilsigtede projekt eller den tilsigtede kørsel.",
+    "Læse tilgængelige, manglende og forældede rapporter.",
+    "Undersøge fund og opdatere visningen."
+  ],
+  "prerequisite": "Brug et projekt med gemte kvalitetsrapporter. De hentede eksempler fra Mask og Annotate giver forskellige rapportsæt; vælg det bestemte projekt eller den kørselsmappe, du vil undersøge.",
+  "scenes": [
+    "Åbn QC fra kategorien Data på Home for at gennemgå de kvalitetsrapporter, der er gemt med et projekt.",
+    "Overskriften åbner Layer Viewer, Control Charts og Outliers. Brug deres vejledninger, når et fund på dashboardet kræver nærmere undersøgelse.",
+    "Klik på Browse, og vælg projektmappen. Vælg den mappe, der indeholder rapporterne for den kørsel, du vil vurdere.",
+    "Forstå Missing som en rapport, der ikke er tilgængelig for den kontrol. Følg vejledningen for at skaffe den nødvendige rapport, før du drager konklusioner.",
+    "Vælg en kørselsundermappe, når dens output er adskilt fra det overordnede projekt. Kontrollér, at det viste omfang svarer til de data, du vil gennemgå.",
+    "Læs segmenteringsadvarslerne, og undersøg de tilsvarende synsfelter. Ved en advarsel om størrelsesfordelingen sammenligner du billederne og objektgrænserne for at forstå årsagen.",
+    "Gennemgå enhedskortet sammen med de øvrige kategorier. En konsistent enhedsrapport opfylder den kontrol; manglende rapporter kræver stadig opmærksomhed.",
+    "Læs alle fem kategorier og deres vejledning. For lækage kontrollerer du, at prøveidentiteter og gruppering afspejler de tilsigtede uafhængige valideringsenheder.",
+    "Åbn detaljerne for fejl eller advarsler for at finde berørte synsfelter og kilderapporter. Brug det relevante analyseværktøj til at undersøge dem.",
+    "Klik på Refresh, når rapporterne ændres på disken. Dashboardet genindlæser det tilgængelige grundlag; dan opdaterede rapporter via den analyse, der producerer dem.",
+    "Undersøg en forældet rapport i forhold til dens inputdata og indstillinger. Lad uløste fund være synlige i din projektgennemgang.",
+    "Behold kvalitetsrapporterne sammen med projektet. Fortsæt i de linkede specialværktøjer eller i vejledningen til det relevante modul for at håndtere hvert fund."
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "accepted": true,
+  "published": false,
+  "reason": "Actual bounded benchmark and original preservation verified",
+  "lesson": "22_model_zoo",
+  "held_out_validation": false,
+  "mask_accuracy_validated": false,
+  "training_performed": false,
+  "weights_downloaded": false,
+  "inference_overridden": false,
+  "checkpoint_origin_or_training_data_validated": false,
+  "device": null,
+  "device_note": "No actual inference device is exposed by BenchmarkResult",
+  "resource_guard": "Caller-owned host-RAM guard and two-thread environment",
+  "private_artifacts": "/tmp/spacr-tutorials-model-zoo.GVMwPH/model_zoo_runs/example-tygca4cr",
+  "inputs": [
+    {
+      "field": "cell_pair_01",
+      "image": "/tmp/spacr-tutorials-model-zoo.GVMwPH/fields/cell_pair_01.tif",
+      "training_image": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_01.tif",
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_1_1.npy",
+      "origin_yx": [
+        120,
+        180
+      ],
+      "image_channel_index": 1,
+      "shape": [
+        512,
+        512
+      ],
+      "dtype": "uint16",
+      "tiff_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "all_pixels_equal_to_source_crop": true,
+      "reused_training_example": true
+    },
+    {
+      "field": "cell_pair_02",
+      "image": "/tmp/spacr-tutorials-model-zoo.GVMwPH/fields/cell_pair_02.tif",
+      "training_image": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_02.tif",
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_2_1.npy",
+      "origin_yx": [
+        520,
+        240
+      ],
+      "image_channel_index": 1,
+      "shape": [
+        512,
+        512
+      ],
+      "dtype": "uint16",
+      "tiff_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "all_pixels_equal_to_source_crop": true,
+      "reused_training_example": true
+    },
+    {
+      "field": "cell_pair_03",
+      "image": "/tmp/spacr-tutorials-model-zoo.GVMwPH/fields/cell_pair_03.tif",
+      "training_image": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_03.tif",
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_3_1.npy",
+      "origin_yx": [
+        940,
+        520
+      ],
+      "image_channel_index": 1,
+      "shape": [
+        512,
+        512
+      ],
+      "dtype": "uint16",
+      "tiff_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "all_pixels_equal_to_source_crop": true,
+      "reused_training_example": true
+    }
+  ],
+  "originals_before": {
+    "/tmp/spacr-tutorials-model-zoo.GVMwPH/profile/.cellpose/models/cpsam": {
+      "stat": {
+        "st_dev": 66308,
+        "st_ino": 87455809,
+        "st_size": 1233587898,
+        "st_mtime_ns": 1790212512983286128,
+        "st_ctime_ns": 1790212512983286128,
+        "st_mode": 33152
+      },
+      "sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2"
+    },
+    "/tmp/spacr-tutorials-model-zoo.GVMwPH/profile/.cellpose/models/cpsam_v2": {
+      "stat": {
+        "st_dev": 66308,
+        "st_ino": 87455813,
+        "st_size": 1233586851,
+        "st_mtime_ns": 1790212513751308226,
+        "st_ctime_ns": 1790212513751308226,
+        "st_mode": 33152
+      },
+      "sha256": "0f1cc3f7ecdd8a037a57c6c48d9d8921391be4cbce3fa9f13c3e3a2e1253c667"
+    },
+    "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_1_1.npy": {
+      "stat": {
+        "st_dev": 66306,
+        "st_ino": 33169487,
+        "st_size": 56000128,
+        "st_mtime_ns": 1779413701467896000,
+        "st_ctime_ns": 1785891980467928423,
+        "st_mode": 33204
+      },
+      "sha256": "b1f99edb2de42868e236b3ebf5dad5439c724639c53d62bcdc89d13f84ea40ba"
+    },
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_01.tif": {
+      "stat": {
+        "st_dev": 66306,
+        "st_ino": 33723102,
+        "st_size": 524544,
+        "st_mtime_ns": 1785907813928216000,
+        "st_ctime_ns": 1786209853161458388,
+        "st_mode": 33204
+      },
+      "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50"
+    },
+    "/tmp/spacr-tutorials-model-zoo.GVMwPH/fields/cell_pair_01.tif": {
+      "stat": {
+        "st_dev": 66308,
+        "st_ino": 87456382,
+        "st_size": 524544,
+        "st_mtime_ns": 1790211822895296305,
+        "st_ctime_ns": 1790211822895296305,
+        "st_mode": 33204
+      },
+      "sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50"
+    },
+    "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_2_1.npy": {
+      "stat": {
+        "st_dev": 66306,
+        "st_ino": 33168271,
+        "st_size": 56000128,
+        "st_mtime_ns": 1779413662888895000,
+        "st_ctime_ns": 1785891560912363899,
+        "st_mode": 33204
+      },
+      "sha256": "16563ba733b38e7ac7fcb39602620cdcbf3f1bb920921db0f5d436a3fb4fff5d"
+    },
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_02.tif": {
+      "stat": {
+        "st_dev": 66306,
+        "st_ino": 33730619,
+        "st_size": 524544,
+        "st_mtime_ns": 1785907813947216000,
+        "st_ctime_ns": 1786210106806760739,
+        "st_mode": 33204
+      },
+      "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138"
+    },
+    "/tmp/spacr-tutorials-model-zoo.GVMwPH/fields/cell_pair_02.tif": {
+      "stat": {
+        "st_dev": 66308,
+        "st_ino": 87456384,
+        "st_size": 524544,
+        "st_mtime_ns": 1790211822897296379,
+        "st_ctime_ns": 1790211822897296379,
+        "st_mode": 33204
+      },
+      "sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138"
+    },
+    "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_3_1.npy": {
+      "stat": {
+        "st_dev": 66306,
+        "st_ino": 33169292,
+        "st_size": 56000128,
+        "st_mtime_ns": 1779413279794889000,
+        "st_ctime_ns": 1785891921144524255,
+        "st_mode": 33204
+      },
+      "sha256": "a528034c4fc4bed387323770c4f555eb94ff9360e4acc17d910c548637ed6672"
+    },
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/images/cell_pair_03.tif": {
+      "stat": {
+        "st_dev": 66306,
+        "st_ino": 33702620,
+        "st_size": 524544,
+        "st_mtime_ns": 1785907813965216000,
+        "st_ctime_ns": 1786209281839636934,
+        "st_mode": 33204
+      },
+      "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e"
+    },
+    "/tmp/spacr-tutorials-model-zoo.GVMwPH/fields/cell_pair_03.tif": {
+      "stat": {
+        "st_dev": 66308,
+        "st_ino": 87456387,
+        "st_size": 524544,
+        "st_mtime_ns": 1790211822898824371,
+        "st_ctime_ns": 1790211822898824371,
+        "st_mode": 33204
+      },
+      "sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e"
+    }
+  },
+  "model": {
+    "path": "/tmp/spacr-tutorials-model-zoo.GVMwPH/profile/.cellpose/models/cpsam",
+    "kind": "cellpose",
+    "checksum_state": "none",
+    "trained_on": "Cellpose-SAM v1, the original SAM-based generalist. Superseded by cpsam_v2 but kept for reproducing older runs.",
+    "trained_by": "Cellpose",
+    "provenance": "cpsam  [cellpose · stock · v1]\n  path       /tmp/spacr-tutorials-model-zoo.GVMwPH/profile/.cellpose/models/cpsam\n  size       1.1 GB\n  sha256     (none published) (none)\n  trained on Cellpose-SAM v1, the original SAM-based generalist. Superseded by cpsam_v2 but kept for reproducing older runs.\n  trained by Cellpose"
+  },
+  "benchmark": {
+    "fields": [
+      "cell_pair_01",
+      "cell_pair_02",
+      "cell_pair_03"
+    ],
+    "field_count": 3,
+    "fieldset": "8bacecce600c06b5",
+    "fieldset_label": "3 field(s) from /tmp/spacr-tutorials-model-zoo.GVMwPH/fields: cell_pair_01, cell_pair_02, cell_pair_03",
+    "segmentation_seconds": 399.4728800180019,
+    "total_objects": 149,
+    "summary": "cpsam: 149 cell(s) over 3 field(s) (49.7/field) in 399.5s; seg_qc scored 2/3 field(s) ok (67%), 1 fail.",
+    "visible_summary": "cpsam: 149 cell(s) over 3 field(s) (49.7/field) in 399.5s; seg_qc scored 2/3 field(s) ok (67%), 1 fail.  Field set 8bacecce600c06b5 — 3 field(s) from /tmp/spacr-tutorials-model-zoo.GVMwPH/fields: cell_pair_01, cell_pair_02, cell_pair_03. seg_qc is a quality-control verdict on this model's own masks, not an accuracy: there is no ground truth here.",
+    "status": "cpsam: 149 cell(s) over 3 field(s) (49.7/field) in 399.5s; seg_qc scored 2/3 field(s) ok (67%), 1 fail.",
+    "rows": [
+      {
+        "field": "cell_pair_01",
+        "objects": 9,
+        "severity": "fail",
+        "flags": [
+          "near_empty_field",
+          "low_object_count",
+          "high_border_fraction"
+        ],
+        "note": "9 cell(s), median diameter 60.1 px, 56% on the border, foreground 10.5%. 56% of objects touch the field edge, so their crops will be truncated; only 9 object(s), below the 10 needed for per-field statistics, so the size checks above were not run. 9 objects where the plate median is 46 (0.20x).",
+        "shape": [
+          512,
+          512
+        ],
+        "dtype": "int32",
+        "mask_evidence": "/tmp/spacr-tutorials-model-zoo.GVMwPH/model_zoo_runs/example-tygca4cr/cell_pair_01_cpsam_labels.npy",
+        "mask_sha256": "bcfe25b469dcf6e2142796115226203b3c8941fcdb206d86d4ecd47dba79abef"
+      },
+      {
+        "field": "cell_pair_02",
+        "objects": 94,
+        "severity": "ok",
+        "flags": [],
+        "note": "94 cell(s), median diameter 49.0 px, 14% on the border, foreground 73.3%. Nothing wrong with this field.",
+        "shape": [
+          512,
+          512
+        ],
+        "dtype": "int32",
+        "mask_evidence": "/tmp/spacr-tutorials-model-zoo.GVMwPH/model_zoo_runs/example-tygca4cr/cell_pair_02_cpsam_labels.npy",
+        "mask_sha256": "c36fc9dfca54a9f9101c1ffe311854ae3fe3f58d2b17a38d853fe44833ed2428"
+      },
+      {
+        "field": "cell_pair_03",
+        "objects": 46,
+        "severity": "ok",
+        "flags": [],
+        "note": "46 cell(s), median diameter 72.5 px, 17% on the border, foreground 65.5%. Nothing wrong with this field.",
+        "shape": [
+          512,
+          512
+        ],
+        "dtype": "int32",
+        "mask_evidence": "/tmp/spacr-tutorials-model-zoo.GVMwPH/model_zoo_runs/example-tygca4cr/cell_pair_03_cpsam_labels.npy",
+        "mask_sha256": "19d5a6e086332d65bdd46efbc254c88687bcc000aca46544a21faba075d4b784"
+      }
+    ],
+    "honoured_parameters": {
+      "model": "/tmp/spacr-tutorials-model-zoo.GVMwPH/profile/.cellpose/models/cpsam",
+      "diameter": 30.0,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "normalize": true,
+      "invert": false,
+      "resample": true,
+      "min_size": 15,
+      "niter": null,
+      "augment": false,
+      "batch_size": 8
+    },
+    "ignored_parameters": {},
+    "notes": [],
+    "progress_messages": [
+      {
+        "seconds": 8.021029999974417,
+        "message": "Segmenting 3 field(s) with cpsam…"
+      },
+      {
+        "seconds": 407.0521047899965,
+        "message": "Scoring masks…"
+      },
+      {
+        "seconds": 407.2206925589999,
+        "message": "Done"
+      }
+    ],
+    "device": null,
+    "ground_truth_accuracy": false
+  },
+  "comparison_handoff": {
+    "performed": false,
+    "comparison_run": false,
+    "reason": "Both checkpoints belong to one model family; the current table selects one version per family."
+  },
+  "originals_unchanged": true,
+  "directories_unchanged": true,
+  "active_jobs_after": [
+    0
+  ],
+  "elapsed_seconds": 416.6372129849915
+}

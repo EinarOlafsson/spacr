@@ -1,0 +1,195 @@
+{
+  "item": 560,
+  "all_twelve_normal_full_cohort_scorecards_complete": true,
+  "all_twelve_independent_all_row_full_rank_AP_and_neighbour_vote_replays_match_normal_at_1e_minus12": true,
+  "all_twelve_normal_five_fold_stratified_crop_classifier_diagnostics_complete_without_warnings": true,
+  "actual_class_scorecard_rows": 96,
+  "all_twelve_aggregate_MAP_values_above_exact_random_ranking_expectation": true,
+  "original_source_application_sha256": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+  "frozen_plan_sha256": "cf7321646d184fb475c243349c87066cb2ec16bb244242d7700288964e409746",
+  "normal_tabular_and_figure_style_exports_used": true,
+  "final_figure_r3_visually_reviewed": true,
+  "plot_definitions": "Full-rank self-excluded mAP with exact random-ranking expectation; five-fold crop classifier accuracy with majority-class baseline.",
+  "comparison_scope": "Model-specific frozen spaCR pipelines, including three native yeast channels for other encoders and two for SubCell; not architecture-only.",
+  "SubCell_epithelial_is_DNA_only_zero_protein_ablation": true,
+  "provided_native_yeast_split_not_plate_or_field_independent": true,
+  "original_failed_private_C_order_replay_and_corrected_F_order_replay_retained_without_guard_weakening": true,
+  "model_zoo_provenance_and_exact_random_AP_chance_API_repairs_remain_open": true,
+  "Cell_DINO_four_channel_SubCell_and_remaining_Home_source_integration_remain_open": true,
+  "no_patient_plate_gene_holdout_clinical_or_manual_mask_accuracy_claim": true,
+  "artifacts": {
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/all-original-class-scorecards.csv": {
+      "sha256": "a26f77f12b6cabe3507b888ac9eea1c36e7f4532ce24b1f6bd3948222d67022e",
+      "bytes": 11313
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/all-twelve-full-cohort-scorecards.csv": {
+      "sha256": "85aeeaef1411dbe1e7de703fd458876fbe60c2b9d4d6fb5ea847dfb0954ad17c",
+      "bytes": 2910
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/archive_full_fluorescence_foundation_scorecards_r2.py": {
+      "sha256": "2cf112c1189f1f5120dd48cd6544897f7eaac6612da54f6c0fe8156b1d86540a",
+      "bytes": 6584
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/chada_vit-CycleNET-expert-native-all-query-retrieval-replay.npz": {
+      "sha256": "7e8eb42630abac487231d97c15cca0dbcbbd0ad8a615759aaa12a9d21a2a555e",
+      "bytes": 1133576
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/chada_vit-CycleNET-expert-native-scorecard.json.gz": {
+      "sha256": "2b5a6c77ee2c53dadb1aabc7455c537e6fd34a9c0c66bb7e7adf034ce35059a8",
+      "bytes": 1567
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/chada_vit-HEp2-expert-DAPI-all-query-retrieval-replay.npz": {
+      "sha256": "bbbf7639a90ea0c14926689894e7991b7e458665479643250e8f4e2f414f8358",
+      "bytes": 1034788
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/chada_vit-HEp2-expert-DAPI-scorecard.json.gz": {
+      "sha256": "e3ebbf6ab8597f31f830f180c8e60aec546164624826a2bf647c8ca9b34d09db",
+      "bytes": 1222
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/complete-scorecards.json.gz": {
+      "sha256": "7ff9f5fd8eeedca0caa762c69cc8982db0ec08be4b3aeec2c4611c206ae8b4ac",
+      "bytes": 7306
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-fluorescence-foundation-CPU-scorecards-r1.log.gz": {
+      "sha256": "01e8c448f5f6b73ea891447725086681f10c40529511dbcb39e78fe4857f58e0",
+      "bytes": 726
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-fluorescence-foundation-CPU-scorecards-r2.log.gz": {
+      "sha256": "7e877b8e61cd7d606dbd3fbc1062a74c419db44d2b2419565b2603064b434517",
+      "bytes": 1385
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-fluorescence-foundation-normal-figure-r2.log.gz": {
+      "sha256": "5ccecd7c28f2e154ab68922349890930d5ff3272eaf81250c06e30df1488e3fd",
+      "bytes": 192
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-fluorescence-foundation-normal-figure-r3.log.gz": {
+      "sha256": "ff9771edb564308a8b3461105c8bdb150c70e336e2c4fae2381c7ded997cbb58",
+      "bytes": 192
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-human-fluorescence-foundation-comparison-r3.pdf": {
+      "sha256": "1c9055af3d462731cfb6a54c30e2d64b27624e96b39b41edfc9966f85811e1e1",
+      "bytes": 18425
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-human-fluorescence-foundation-comparison-r3.png": {
+      "sha256": "0cdf1ba2d93d30ef39dbd809d45542080f8c45e4c9d7b7c68cb5d3a8add4fa9d",
+      "bytes": 184406
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-human-fluorescence-foundation-comparison.pdf": {
+      "sha256": "50ba50b7414562bb251adaf7035138585e18915a5d9c51bd0358d375975e7cd1",
+      "bytes": 18337
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-human-fluorescence-foundation-comparison.png": {
+      "sha256": "4aaf9254f92ad18ab5ad758d12e3adc647f1d1fd50215740c0314e9fa46d6e15",
+      "bytes": 174105
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/normal-scorecard-figure-artifacts-r3.json.gz": {
+      "sha256": "68901c0a46696a43d0fdfda61d8b0d64fc23f00fdcb1029e2540ac546b2b24a8",
+      "bytes": 397
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/normal-scorecard-figure-artifacts.json.gz": {
+      "sha256": "734f24780146b22f40069a99cb49973e066793a8cc6cf5004b21e019d8498ec4",
+      "bytes": 396
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/openphenom-CycleNET-expert-native-all-query-retrieval-replay.npz": {
+      "sha256": "6dbcf9a4022b4c75547ed481d9f88ed236bcde9ae739b8e94cea98fcf97d2444",
+      "bytes": 1134669
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/openphenom-CycleNET-expert-native-scorecard.json.gz": {
+      "sha256": "f41078ddf819904022a18b38155c8470f07da2c2acb639604cb7701a957dd2fd",
+      "bytes": 1571
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/openphenom-HEp2-expert-DAPI-all-query-retrieval-replay.npz": {
+      "sha256": "9c105e57e45c4253ae66e1307052b9cc4555521d8b8015c053fcce712fba6474",
+      "bytes": 1016991
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/openphenom-HEp2-expert-DAPI-scorecard.json.gz": {
+      "sha256": "75a83e6a6e20c23a9fbb4f0af59fca46981f576749ca67b6abc264e8c2a845a4",
+      "bytes": 1236
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/plot_full_fluorescence_foundation_scorecards_r2.py": {
+      "sha256": "1bdda7decd7050a292c5a19ce20a86202c90d060989b41de3381a8590ce614dc",
+      "bytes": 3925
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/plot_full_fluorescence_foundation_scorecards_r3.py": {
+      "sha256": "7e936b47ecabe8a9ed7409b16d63b364566b62e51b7152bc2fe1cb0a701d9588",
+      "bytes": 3996
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet18-CycleNET-expert-native-all-query-retrieval-replay.npz": {
+      "sha256": "db97f4cc9467097d516e9147a9b946ebd1a36c3c1b3c131b018c3ec5718e6e48",
+      "bytes": 1138868
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet18-CycleNET-expert-native-scorecard.json.gz": {
+      "sha256": "782e4ed45c8885aa2448fa50a80ddbd29b32a86e9e1ac8710413cd5d92e8bf06",
+      "bytes": 1609
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet18-HEp2-expert-DAPI-all-query-retrieval-replay.npz": {
+      "sha256": "f217e33e57f85715c979477d2c3320cef384a161dff5b0026a6f93013172e89e",
+      "bytes": 1014013
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet18-HEp2-expert-DAPI-scorecard.json.gz": {
+      "sha256": "0d224347bb36a1e1f8417673e8b2737822225d21b9ed696861dc953acc85a45f",
+      "bytes": 1278
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet50-CycleNET-expert-native-all-query-retrieval-replay.npz": {
+      "sha256": "4dee1b0c4e322a25c90c60b9426afd015c1402d2210e4873372650ec6551f905",
+      "bytes": 1143995
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet50-CycleNET-expert-native-scorecard.json.gz": {
+      "sha256": "93fa2cb90e9a464b732bd8413152fa86e3ecbb5a26637118c757faf2f5213f51",
+      "bytes": 1622
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet50-HEp2-expert-DAPI-all-query-retrieval-replay.npz": {
+      "sha256": "c20275dae782604890a8c2a1de8a4f8d76b97e2253e81eedba9c248d3b5c5a1b",
+      "bytes": 1028693
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/resnet50-HEp2-expert-DAPI-scorecard.json.gz": {
+      "sha256": "cee57336a912f16ab14e8e83bd492737eed9a13b122804fa0c0968e13180d083",
+      "bytes": 1285
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/score_full_fluorescence_foundations_CPU_r1.py": {
+      "sha256": "cc8fdb3a4de752459bae8f88ad99b6ae217513ad979216d4d6689a4d88cbbe33",
+      "bytes": 10203
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/score_full_fluorescence_foundations_CPU_r2.py": {
+      "sha256": "3aad9534c23d8c874883197791c218b27bbc2aa3771940629f3c02cc6b9389c3",
+      "bytes": 10720
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/subcell-CycleNET-expert-native-all-query-retrieval-replay.npz": {
+      "sha256": "3aa12f82fc22cc2bca5de8ebf360940df65a4fbabbdf52082a4222c91675c08e",
+      "bytes": 1139778
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/subcell-CycleNET-expert-native-scorecard.json.gz": {
+      "sha256": "632d417c5a337f9a4f215aa1bf9923caa409d975e84a87304c088049520a7c1c",
+      "bytes": 1562
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/subcell-HEp2-expert-DAPI-all-query-retrieval-replay.npz": {
+      "sha256": "6cc665a1826201561d8ba914f279040a21c0e60513cf6658dd708ea9845496a0",
+      "bytes": 1005500
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/subcell-HEp2-expert-DAPI-scorecard.json.gz": {
+      "sha256": "c2e128073888957edbe3fc9520a047b0b10e87f6c5673d8a3946d7a7f5dba967",
+      "bytes": 1240
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-all-query-retrieval-replay.npz": {
+      "sha256": "0dbaeee6de5fc87b0d121be32def94de49083619d1bf2d65a284bbee3e0d7105",
+      "bytes": 1137495
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-scorecard.json.gz": {
+      "sha256": "b4f8cb587682c7d3cc8a53324e1472d361ae2c235de15fe0ee4ec8553f405093",
+      "bytes": 1638
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-all-query-retrieval-replay.npz": {
+      "sha256": "3faa679a7589505f0a71370f3d0a965a002e35057a997ed642cccf30df1c3b88",
+      "bytes": 999993
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-scorecard.json.gz": {
+      "sha256": "a8f16db1afcbcbce0e8725555cd00a3d19628992a8ab4bca11803be11b93b584",
+      "bytes": 1292
+    },
+    "features/data/560_full_human_fluorescence_scorecards_2026-10-06/full-fluorescence-foundation-scorecards-archive-r2.log.gz": {
+      "sha256": "c21389aec4f680b44e5423b1a4f52a9d99912a021c299a9cdef8c6cee0b9d9be",
+      "bytes": 298
+    }
+  },
+  "visual_review_scope": "Direct Codex inspection of exported r3 raster: axes explicitly name mAP and logistic-regression accuracy; exact chance baselines, all twelve actual values, unequal yeast input policies, DNA-only ablation and crop-only validation scope are legible. No native speaker or independent human claim."
+}

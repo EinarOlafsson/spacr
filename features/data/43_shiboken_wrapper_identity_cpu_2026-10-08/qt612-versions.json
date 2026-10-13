@@ -1,0 +1,9 @@
+{
+  "python": "3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]",
+  "pytest": "8.4.2",
+  "PySide6": "6.12.0",
+  "shiboken6": "6.12.0",
+  "qt": "6.12.0",
+  "PySide6_path": "/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay/PySide6/__init__.py",
+  "pytest_path": "/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay/pytest/__init__.py"
+}

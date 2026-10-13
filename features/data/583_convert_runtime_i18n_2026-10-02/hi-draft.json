@@ -1,0 +1,14 @@
+{
+  "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.": "पूर्वावलोकन में दिखाई गई हर आउटपुट प्लेट को बारकोड दें, जैसे plate1=BC001; plate2=BC002। आउटपुट प्लेट के नाम स्रोत फ़ोल्डरों के नामों से अलग हो सकते हैं।",
+  "Barcode column": "बारकोड कॉलम",
+  "CSV files (*.csv)": "CSV फ़ाइलें (*.csv)",
+  "Choose CSV…": "CSV चुनें…",
+  "Column name in the CSV that contains the plate barcode.": "CSV में प्लेट का बारकोड रखने वाले कॉलम का नाम।",
+  "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.": "सैंपल मेटाडेटा की वैकल्पिक स्थानीय CSV फ़ाइल। बारकोड लिंकिंग छोड़ने के लिए खाली छोड़ें। गंतव्य पर नया plate_barcode_linkage फ़ोल्डर बनाया जाता है; स्रोत फ़ाइलें और मौजूदा प्लेट मैप सुरक्षित रहते हैं।",
+  "Output plate barcodes": "आउटपुट प्लेट के बारकोड",
+  "Plate barcode linkage (Alpha)": "प्लेट बारकोड लिंकिंग (अल्फ़ा)",
+  "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}": "प्लेट बारकोड लिंकिंग: वेल की संख्या {wells}, बेमेल प्रविष्टियों की संख्या {mismatches}।\nप्लेट मैप: {map_path}\nबेमेल प्रविष्टियाँ: {mismatch_path}",
+  "Sample records CSV": "सैंपल रिकॉर्ड CSV",
+  "Select sample records CSV": "सैंपल रिकॉर्ड CSV चुनें",
+  "Showing {shown} of {total} mismatches; the CSV contains all rows.": "{shown} बेमेल प्रविष्टियाँ दिखाई जा रही हैं, कुल {total}; CSV में सभी पंक्तियाँ हैं।"
+}

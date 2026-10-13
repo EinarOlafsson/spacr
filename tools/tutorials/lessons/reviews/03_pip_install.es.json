@@ -1,0 +1,35 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
+  "review": {
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+  },
+  "language": "es",
+  "title": "Instalar spaCR con pip",
+  "description": "Crea un entorno de Python aislado, instala el paquete público, verifica sus dependencias y abre la aplicación Qt instalada.",
+  "objectives": [
+    "Crear y activar un entorno virtual de Python.",
+    "Instalar spaCR y comprobar sus dependencias.",
+    "Abrir la aplicación y actualizar el entorno previsto."
+  ],
+  "prerequisite": "Instala Python 3.12 y abre una terminal. Usa el comando de activación de tu sistema operativo y tu shell.",
+  "scenes": [
+    "Abre una terminal y comprueba tu versión de Python. Este recorrido usa Python tres punto doce. Mantén spaCR en un entorno virtual dedicado para que sus paquetes sean fáciles de gestionar.",
+    "Crea un entorno virtual llamado punto venv con el comando de tu sistema operativo. Así se crea una carpeta que contiene el entorno de Python que usarás para spaCR.",
+    "Activa punto venv con el comando de tu shell. PowerShell y el Símbolo del sistema de Windows usan comandos de activación distintos; macOS y Linux suelen usar el comando de shell que se muestra aquí.",
+    "Ejecuta python guion m pip guion guion version. Comprueba que la ruta mostrada pertenece a punto venv. Usa python guion m pip en los comandos de instalación para que pip use este intérprete.",
+    "Actualiza pip y después instala spacr. Espera a que los paquetes científicos terminen de descargarse e instalarse. El paquete actual incluye los componentes de escritorio necesarios para abrir la aplicación.",
+    "Comprueba la versión instalada de spaCR y la ubicación del paquete con el comando que se muestra. Guarda la versión junto con tus notas de análisis.",
+    "Ejecuta python guion m pip check. Si informa de requisitos en conflicto, resuélvelos antes de usar el entorno.",
+    "Ejecuta spacr-doctor para revisar la instalación y ver si falta alguna función opcional. Aplica la reparación sugerida solo para los formatos o las capacidades que necesites.",
+    "Abre spacr desde el entorno activado. En el primer inicio, sigue las indicaciones de configuración y elige tus preferencias.",
+    "Esta grabación instala spaCR versión uno punto cinco punto uno punto tres. Las versiones publicadas pueden mostrar una distribución anterior de Home. Aquí se muestra Home en la versión nightly actual, con Core, Data, Tools y Assays. Continúa con Home screen and navigation para conocer los módulos actuales.",
+    "Para actualizar, cierra spaCR y activa este entorno. Actualiza el paquete y vuelve a comprobar su versión y sus dependencias. Conserva el entorno anterior si lo necesitas para un análisis en curso."
+  ]
+}

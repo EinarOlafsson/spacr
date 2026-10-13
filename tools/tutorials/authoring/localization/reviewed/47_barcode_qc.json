@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "47_barcode_qc",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Verifique profundidade de mapeamento, cobertura, colisões, efeitos posicionais e um limiar de abundância fundamentado em evidências.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Barcode QC.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Barcode QC. Verifique profundidade de mapeamento, cobertura, colisões, efeitos posicionais e um limiar de abundância fundamentado em evidências.",
+        "Abra uma execução concluída do mapeamento de códigos de barras que inclua metadados da placa e da biblioteca.",
+        "Na área principal de configuração, examine a representação esperada dos guias, os controles, o agrupamento e as opções da varredura de limiares.",
+        "Gere as visualizações de controle de qualidade e examine conjuntamente os poços com pouca evidência, as leituras não mapeadas e a cobertura da biblioteca.",
+        "Ao término do fluxo de trabalho, o relatório registra o limiar de abundância selecionado, os diagnósticos que o fundamentam e os poços afetados."
+      ]
+    }
+  }
+}

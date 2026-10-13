@@ -1,0 +1,47 @@
+{
+  "lesson": "28_training_runs",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "38b9651086f9d5987277949a9411fad70caa86a367a30069abb9954d0652539f",
+  "scene_count_per_catalog": 17,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 10184,
+    "duration_seconds": 339.466667, "audio_streams": 0, "bytes": 18149104,
+    "sha256": "dcf0b1937a64393277bed730a45e807e5e8c2f90cc044004d76bfa4d0b47324b",
+    "poster_sha256": "65e3ae5f2057ed1ee64b8383aff40303c864fb3e1b0931b698d077c640d3693e",
+    "encoded_sample_visually_inspected_seconds": 124,
+    "sample_observation": "Actual four-series accuracy plot with the retained focus treatment; no empty overview substituted for the curves"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "all_final_reports_match_final_audio_hashes": true,
+    "checks": ["Actual fetched narration bytes", "Chapter seek and scene-clock mapping", "Current Classify submodule route", "Scene links", "Desktop and390px mobile layout", "No JavaScript errors", "Independent captions match all17 scenes and produce WebVTT without switching voice"],
+    "retry_disclosure": "First Chinese check stopped because its selected staged audio file had not finished rendering; no acceptance was written. It passed when rerun after that file completed. No other browser result was replaced or counted twice."
+  },
+  "capture": {
+    "directory": "refresh_2026-09-09/captures/training_runs_readable",
+    "app_commit": "4ad8072d95873f840d9088f48d49e0eeda0e9be2",
+    "version": "1.5.0.4",
+    "receipt": "2026-09-09_training_runs_capture_receipt.json",
+    "actual_native_list_pane_width": 920,
+    "actual_list_content_viewport_width": 918,
+    "actual_plot_pane_width": 2413,
+    "original_inputs_unchanged": true
+  },
+  "evidence_scope": "Existing explicitly synthetic progress logs. All curves, settings differences and sample-SD bands match the original CSVs; no training, checkpoint evaluation, held-out performance or biological validation is claimed.",
+  "synthesis": "All50 preserved voices; one CUDA writer with10% allocator cap,110GiB host memory guard and two threads. Existing pronunciation rules unchanged.",
+  "translation_review": "All13 translations checked independently against frozen English, including synthetic-data and uncertainty limitations; not native-speaker certification",
+  "catalog_preservation_at_completion": {"catalogs": 14, "lessons": 75, "scenes": 646, "refreshed": 16, "unselected_unchanged": 59},
+  "completed_staged_matrices_at_checkpoint": 16,
+  "total_completed_voice_tracks_at_checkpoint": 800,
+  "total_completed_browser_checks_at_checkpoint": 224,
+  "evidence_directory": "refresh_2026-09-09/production/28_training_runs and refresh_2026-09-09/browser/28_training_runs in the tutorial workspace",
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

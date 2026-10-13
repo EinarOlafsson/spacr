@@ -1,0 +1,38 @@
+{
+  "lesson": "15_image_umap",
+  "english_sha256": "7bac1430804e1ef0a549c246acc0af1c62b3992281f9cf5213013b4f800890e9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Image UMAP: Messwerte mit Bildausschnitten erkunden",
+  "description": "Wählen Sie Messtabellen, erstellen Sie eine UMAP-Einbettung und klicken Sie auf Punkte, um die zugehörigen Objekte zu prüfen.",
+  "objectives": [
+    "Ein gemessenes Projekt laden und seine Merkmalstabellen wählen.",
+    "Nachbarschaftsgröße, Punktabstand und Anzahl der Stichprobenzeilen steuern.",
+    "Die Einbettung ausführen, Ausschnitte prüfen und gespeicherte Ergebnisse finden."
+  ],
+  "prerequisite": "Folgen Sie Annotate und wählen Sie Load test data und dann Load, um das gemessene Beispiel und seine Bildausschnitte zu erhalten. Behalten Sie den heruntergeladenen Plattenordner. Für eigene Daten schließen Sie Measure mit gespeicherten Ausschnitten ab, bevor Sie Image UMAP öffnen.",
+  "scenes": [
+    "Öffnen Sie von Home aus Image UMAP. Damit erkunden Sie Ähnlichkeiten zwischen gemessenen Objekten und sehen dabei ihre Bildausschnitte. Beginnen Sie mit einem Projekt, das eine Messdatenbank und die von Measure gespeicherten Ausschnitte enthält.",
+    "Wählen Sie unter Source Add project folders und dann den über Annotate heruntergeladenen Beispiel-Plattenordner. Prüfen Sie die verfügbaren Datenbanken, Zeilen und gemeinsamen Spalten. Sie können weitere Projektordner hinzufügen, wenn Sie mehrere Datensätze vergleichen möchten.",
+    "Wählen Sie die Tabellen, deren Merkmale Sie vergleichen möchten. Wählen Sie für dieses Beispiel die Messwerte cell, cytoplasm, nucleus und pathogen. Lassen Sie Resnet features ausgeschaltet, um die vorhandenen Messwerte zu verwenden. Prüfen Sie vor dem Start die Einstellungen für fehlende Daten und korrelierte Merkmale.",
+    "Setzen Sie Row limit für einen schnellen ersten Eindruck auf 400 und verwenden Sie zwei Worker. Row limit bestimmt, wie viele Objekte in die Einbettung eingehen. Erhöhen Sie den Wert, wenn Sie einen größeren Teil des Datensatzes erkunden möchten.",
+    "Wählen Sie UMAP als Reduktionsmethode. Jeder Punkt stellt ein Objekt mit zwei Koordinaten dar. Über das verknüpfte Werkzeug können Sie PCA erkunden, wenn Sie eine lineare Projektion und Merkmalsladungen möchten.",
+    "Setzen Sie Neighbours auf 15 und Minimum distance auf 0,1. Neighbours bestimmt die Größe der Nachbarschaft, mit der die Karte aufgebaut wird. Minimum distance bestimmt, wie dicht Punkte in der angezeigten Einbettung zusammenrücken können.",
+    "Setzen Sie Random seed auf 42, damit wiederholte Läufe mit denselben Eingaben und Einstellungen leichter vergleichbar sind. Speichern Sie die gewählten Merkmalstabellen und Vorverarbeitungseinstellungen zusammen mit dem Seed.",
+    "Das Clustering vergibt nach dem Aufbau der Einbettung Labels an Gruppen. Dieses Beispiel verwendet DBSCAN mit ausgeschalteter Rauschentfernung. Prüfen Sie die Ausschnitte einer Gruppe, bevor Sie deren Label in einer späteren Analyse verwenden.",
+    "Aktivieren Sie Plot images und Plot points. Verwenden Sie zwölf kleine Ausschnittbilder, damit die Übersicht lesbar bleibt. Nach der Anpassung können Sie einzelne Objekte in der interaktiven Ansicht genauer prüfen.",
+    "Drücken Sie Run und verfolgen Sie in der Konsole die Merkmalsvorbereitung und den Fortschritt der Einbettung. Warten Sie auf das fertige Ergebnis. Wenn Sie Eingabetabellen oder Reduktionseinstellungen ändern, führen Sie den Lauf erneut aus, um eine neue Karte zu erhalten.",
+    "Prüfen Sie die Einbettung in Figures und öffnen Sie den in der Konsole gemeldeten Ergebnisordner. Halten Sie gespeicherte Abbildung, ausgewählte Messzeilen, Metadaten und Cluster-Labels zusammen, damit Sie eine interessante Gruppe bis zu ihren Objekten zurückverfolgen können.",
+    "Aktivieren Sie Interactive, um die angepasste Karte zu erkunden. Zoomen Sie in einen Bereich und klicken Sie auf seine Punkte. Die Ansicht verwendet die fertige Einbettung, sodass Sie verschiedene Objekte ohne erneute Anpassung prüfen können.",
+    "Klicken Sie auf einen Punkt, um seinen Ausschnitt im Seitenbereich anzuzeigen. Verknüpfen Sie das Bild über den angezeigten Objektpfad mit seinem Quelldatensatz. Vergleichen Sie die Morphologie benachbarter Punkte und weit entfernter Bereiche der Karte.",
+    "Klicken Sie auf einen weiteren Punkt, um seinen Ausschnitt zu vergleichen. Die Seitenleiste bietet außerdem das Beschriften einer Auswahl und das Übertragen von Cluster-Labels. Diese Steuerelemente speichern Annotationen; wählen Sie daher das gewünschte Label und die gewünschte Auswahl, bevor Sie sie anwenden.",
+    "Öffnen Sie Image Scatter in der Kopfzeile von Image UMAP, um ausgewählte Merkmale direkt zu vergleichen, oder öffnen Sie PCA für eine lineare Projektion. Fahren Sie mit den verknüpften Tutorials fort, um deren Eingabeeinstellungen und gespeicherte Ausgaben kennenzulernen."
+  ]
+}

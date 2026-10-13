@@ -1,0 +1,39 @@
+{
+  "lesson": "54_qc_dashboard",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "6d392cd91316120b850599122e922009dda2919f8085ccbc9908a473d69f377d",
+  "scene_count_per_catalog": 12,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 6253,
+    "duration_seconds": 208.433333, "audio_streams": 0, "bytes": 16632514,
+    "sha256": "4eea2bd7a8d1a5599b516245e283f57a490ad1eda70b52f6d2560ed139788ebe"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match the staged track", "Chapter seek and video/audio synchronization", "Retained specialist links", "Current parent-module navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent captions match every staged scene and generate WebVTT without switching voice"]
+  },
+  "recording": {
+    "application_commit": "38ee7433b44bd34b6f7d68f7a0cc4ec15abd00f8",
+    "package_version": "1.5.0.4", "actual_font_scale": 2,
+    "capture_directory": "refresh_2026-09-09/captures/qc_readable",
+    "sources": ["Downloaded Annotate measurement database", "Genuine bounded Mask/Measure output in plate1/test", "Downloaded full-plate segmentation scorecards"],
+    "checks": ["Actual folder pickers", "All five cards inspected", "Missing segmentation evidence on the annotation example", "Warning and consistent units on the bounded subset", "Failure reported on the distinct full-plate example", "Actual Refresh reuses unchanged evidence", "Source report and database hashes unchanged"],
+    "folds": ["layer_viewer", "control_chart", "outliers"],
+    "source_verdicts_all_pass": false,
+    "new_scoring_or_analysis_performed": false,
+    "controlled_before_after_improvement_demonstrated": false,
+    "app_source_modified": false
+  },
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 589, "refreshed": 10, "unselected_lessons_unchanged": 65, "unselected_media_replaced": false},
+  "synthesis": "One CUDA process at a time, 10% video-memory cap, two CPU threads and 110 GiB host-memory guard",
+  "evidence_directory": "refresh_2026-09-09/production/54_qc_dashboard and refresh_2026-09-09/browser/54_qc_dashboard in the tutorial workspace",
+  "translation_review": "Editorial checks against English and actual results; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

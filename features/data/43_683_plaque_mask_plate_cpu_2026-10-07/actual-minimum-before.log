@@ -1,0 +1,23 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_flow_error_detects_a_merge_and_preserves_original_ids __________
+
+    def test_flow_error_detects_a_merge_and_preserves_original_ids():
+        output = _prediction()
+        correct = plaque._plaque_segmentation_metrics(output[0], output)
+        merged = plaque._plaque_segmentation_metrics((output[0] > 0).astype(np.int32), output)
+        assert set(correct) == {3, 41}
+        assert correct[3]['cell_probability_mean'] == 2.0
+        assert correct[41]['cell_probability_mean'] == -1.0
+        for row in correct.values():
+>           assert row['flow_error'] == pytest.approx(0, abs=1e-12)
+E           assert None == 0 ± 1.0e-12
+E             
+E             comparison failed
+E             Obtained: None
+E             Expected: 0 ± 1.0e-12
+
+tests/test_plaque_segmentation_diagnostics.py:58: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_plaque_segmentation_diagnostics.py::test_flow_error_detects_a_merge_and_preserves_original_ids
+1 failed in 6.42s

@@ -1,0 +1,105 @@
+{
+  "id": "74_import_images",
+  "number": 74,
+  "slug": "import_images",
+  "title": "Import Images: map image identities and create a project",
+  "series": 2,
+  "app_key": "import_images",
+  "host_app_key": "foreign",
+  "section": "spaCR",
+  "description": "Scan image names and metadata, review the proposed well/field/channel mapping, save a plan and import copies into a project.",
+  "objectives": [
+    "Scan microscope images and resolve naming questions.",
+    "Choose a destination, plate name and copy or link behavior.",
+    "Save a reusable plan and import images for Mask."
+  ],
+  "prerequisite": "Download the Mask example first. This walkthrough uses copies of fields E01/F001 and L01/F009, with four channels each. Its prepared copies omit the redundant A token immediately before Z while preserving well, field and channel identities. Keep the originals and use acquisition records when resolving unfamiliar tokens.",
+  "scenes": [
+    {
+      "visual": "02_import_fold",
+      "narration": "From Home, open Data, choose Import, then Import Images. Start with the microscope image files you want to organize into a project.",
+      "hold_after": 0.7,
+      "focus_buttons": "FoldButton",
+      "related_lessons": [
+        "36_import",
+        "35_converter",
+        "31_external_masks"
+      ]
+    },
+    {
+      "visual": "org_organize_popup",
+      "narration": "When you also have masks, click Organize images and masks beside the image folder. Drop each channel folder and the mask folder into their columns, set the mask's role, and under Write for choose Mask Generation or Measure. Files with several channels can be split into one column per channel first; Apply moves everything into that module's layout and records each move in a manifest.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_source_options",
+      "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask"
+      ]
+    },
+    {
+      "visual": "04a_unresolved_acquisition_token",
+      "narration": "Click Scan. If it asks what a filename token means, check the acquisition records before assigning it. Continue only when the proposed identities distinguish the fields and channels unambiguously.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_scan_proposal",
+      "narration": "Scan the prepared example copies. Their redundant acquisition token has been removed, while the well, field and channel tokens remain. Check that the proposal lists eight images, two wells, two field numbers and four channels.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_check_filename",
+      "narration": "Compare the proposal with the filenames. Enable Read inside each file when you need embedded axis metadata. Set Sample large enough to inspect the files you intend to import.",
+      "hold_after": 0.7,
+      "focus": [
+        350,
+        665,
+        1770,
+        675
+      ]
+    },
+    {
+      "visual": "07_copy_destination",
+      "narration": "Choose a destination outside the input folder and enter the plate name. Turn Link instead of copy off for independent copies. Links save disk space but require the original files to remain accessible.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        1600,
+        3420,
+        210
+      ]
+    },
+    {
+      "visual": "07_copy_destination",
+      "narration": "For tiled acquisitions, choose whether to stitch, retain separate tiles or skip them. Review the resulting field organization before measuring. These example images are separate fields, so they do not need stitching.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "32_align_stitch"
+      ]
+    },
+    {
+      "visual": "09_saved_plan",
+      "narration": "Click Save plan to retain the source and mapping choices as JSON. Keep the plan with the acquisition notes and original images.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api"
+      ]
+    },
+    {
+      "visual": "11_reloaded_plan",
+      "narration": "Click Load plan to reload the source and saved answers. Review the new proposal before importing, especially when the source files have changed.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_import_complete",
+      "narration": "Click Import and read the summary. This example produces eight image copies with no skipped files. Open the resulting project in Mask and inspect Live preview before starting segmentation.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask",
+        "08_measure"
+      ]
+    }
+  ]
+}

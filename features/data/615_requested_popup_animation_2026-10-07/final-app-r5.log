@@ -1,0 +1,12 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/final-app-r5-tool.log', 'pytest', '-q', 'tests/qt/test_popup_backdrop_apply.py', 'tests/qt/test_aurora_borealis_curtains.py', 'tests/qt/test_aurora_rays.py', 'tests/qt/test_data_art_clock_handoff.py', 'tests/qt/test_waves_and_local_facet_spin.py', 'tests/qt/test_popups_stay_above_main_window.py', 'tests/qt/test_every_popup_has_the_card_and_the_rim.py', 'tests/qt/test_the_glass_filters_survive_teardown.py', 'tests/qt/test_a_backdrop_outlives_nothing_it_watches.py', 'tests/qt/test_the_backdrop_survives_a_run.py', 'tests/qt/test_preferences_apply.py', 'tests/qt/test_dot_blinking_preference.py', 'tests/qt/test_field_popup_waves.py', 'tests/qt/test_magnifier_instant_accept_and_fuse.py', 'tests/qt/test_make_masks_offers_every_detection_method.py', 'tests/qt/test_the_live_magnifier_segments_under_the_mouse.py', 'tests/qt/test_the_magnifier_round_two_settings.py', 'tests/qt/test_requested_appearance_defaults.py', '-m', 'not heavy']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+........................................................................ [ 18%]
+........................................................................ [ 37%]
+........................................................................ [ 55%]
+........................................................................ [ 74%]
+........................................................................ [ 93%]
+..........................                                               [100%]
+386 passed, 1 deselected in 200.18s (0:03:20)
+
+Terminal exit status: 0

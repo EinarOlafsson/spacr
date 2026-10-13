@@ -1,0 +1,32 @@
+{
+  "item": 576,
+  "status": "private alpha migration UI child complete; broader F576 open",
+  "baseline_commit": "b0879b0fa57f42adaccd9c17619643c46d380d32",
+  "source_commit": "21201570446b79309292074e68b4ce1a40aaf816",
+  "changed_files": {
+    "spacr/settings.py": {
+      "baseline_sha256": "60a907dc8e7687a67df633c18a8009596af4e1670f2450f759b80ac29cd2c0f8",
+      "final_sha256": "963d2a1032416e4f08370c5ad8d4210dce5f8c13d21811a2128ef7706179b8d7"
+    },
+    "spacr/qt/screens/settings_model.py": {
+      "baseline_sha256": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+      "final_sha256": "172425ad692dc09215ad8aafe8e5878bffc7f857241f6781eb96b3dbecfb5e8b"
+    },
+    "tests/qt/test_measurement_backend_alpha_gate.py": {
+      "baseline_sha256": "c731263422cb9de832404fd3837898419314bf2effc5f9045bf4454a53cee9e4",
+      "final_sha256": "9a4c1759f56157e181341282dddcaf9a31634393947631dfaa37ff552c07e3e3"
+    }
+  },
+  "test_receipts": {
+    "final_owning": "12 passed, 2.73 s, 4 GiB, source commit",
+    "existing_real_postgres": "2 passed, 5.44 s, dedicated database, source commit",
+    "real_postgres_ui_probe": "SQLite→PostgreSQL→SQLite, 2 tables including empty, source SHA unchanged; occupied destination refused",
+    "public_callable_guards": "4 passed, 35.95 s, source candidate",
+    "adjacent_pre_final": "41 passed, 2 skipped, 32.30 s; prior candidate before final Parquet safety tests"
+  },
+  "limits": [
+    "Only the migration UI/action child is complete; classifier/regression write routing and full per-backend acceptance remain open.",
+    "Local staging is verified before publication and refuses existing destinations. PostgreSQL writes directly into a confirmed-empty destination and may retain partial tables after failure.",
+    "No generated API/runtime translations were edited; the 22 new UI sources require owner regeneration before application publication."
+  ]
+}

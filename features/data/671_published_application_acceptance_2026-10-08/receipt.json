@@ -1,0 +1,27 @@
+{
+  "source": "4d09944509a331ee8ac0f94a7856c1c980970bc3",
+  "accepted_home_source_sha256": "327515830ae3fabfb45405725df35faf8e36c2e781f3c0af166045e391257071",
+  "published_source_sha256": "29732f8891ca0a624dd4e1b74bc51fec80fa2b92abe8280d55689423c6a0663a",
+  "only_source_difference": "Explicit event parameter and None return documentation; implementation byte-exact.",
+  "test_result": "4 passed in 9.46 seconds; normal coverage and Qt6.12 offscreen",
+  "API_records": 13232,
+  "native_API_locales": 9,
+  "payloads": [
+    {
+      "path": "n671-published-check-r1.log.gz",
+      "sha256": "347da716a4cd326252c833e869cdd4723d64f0f2db31b53cf52a68138c44e068",
+      "raw_sha256": "51dbe5a87ff4b3b1a8ae9f427798b965ea1a21ddec2ed81ed6630f1e6ba972c6"
+    },
+    {
+      "path": "n671-published-check-r1-tool.log.gz",
+      "sha256": "98c13d7eb809d1c43570d2b35e5b9ff0cec91c36aa485013d21b22b1d8345499",
+      "raw_sha256": "c3dec54027852c3ec4e1de748dbc3d6d22b1315598499e72abeba8b6267591e9"
+    },
+    {
+      "path": "published-N671-paintEvent-API-binding-r1.json.gz",
+      "sha256": "e4af74300c6ba8b67a278348ec11c690740b43e5cc2a97432414d77731e05b3e",
+      "raw_sha256": "2cfbc3e111967dd713fc6fd047b31ba3f935ced45b7e7a2af935c16b1aeeff39"
+    }
+  ],
+  "scope": "Opaque rounded 2D/3D backing, resize and painter cleanup; no whole-suite or native compositor claim."
+}

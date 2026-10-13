@@ -1,0 +1,22 @@
+[
+  {
+    "case": "object_dtype",
+    "error": "ValueError",
+    "private_workspace_removed": true
+  },
+  {
+    "case": "truncated_payload",
+    "error": "ValueError",
+    "private_workspace_removed": true
+  },
+  {
+    "case": "crc_corruption",
+    "error": "BadZipFile",
+    "private_workspace_removed": true
+  },
+  {
+    "case": "consumer_error",
+    "error": "RuntimeError",
+    "private_workspace_removed": true
+  }
+]

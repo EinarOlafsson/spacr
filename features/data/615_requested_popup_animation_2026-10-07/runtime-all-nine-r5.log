@@ -1,0 +1,42 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/runtime-all-nine-r5-tool.log', 'tools/build_i18n_catalogs.py', '--repair-invalid-only', '--device', 'cpu', '--threads', '2']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/en.py: settings=1243 categories=237 ui=7239
+sv: runtime repairs=18
+/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/transformers/models/marian/tokenization_marian.py:175: UserWarning: Recommended: pip install sacremoses.
+  warnings.warn("Recommended: pip install sacremoses.")
+sv: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/sv.py
+de: runtime repairs=18
+de: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/de.py
+es: runtime repairs=18
+es: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/es.py
+zh_CN: runtime repairs=18
+zh_CN: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/zh_CN.py
+pt: runtime repairs=18
+/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/transformers/models/marian/tokenization_marian.py:175: UserWarning: Recommended: pip install sacremoses.
+  warnings.warn("Recommended: pip install sacremoses.")
+pt: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/pt.py
+hi: runtime repairs=18
+hi: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/hi.py
+ko: runtime repairs=18
+ko: 7/7
+ko: sentence retry accepted=0/1
+ko: clause retry accepted=0/1 pieces=2
+ko: fragment pieces=4/4 finalized=1/1
+ko: fragment retry accepted=1/1 rejected={}
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/ko.py
+is: runtime repairs=18
+is: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/is.py
+fr: runtime repairs=18
+fr: 7/7
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/fr.py
+verified external runtime catalogs: languages=9 settings=1243 categories=237 ui=7239 modules=77
+
+Terminal exit status: 0

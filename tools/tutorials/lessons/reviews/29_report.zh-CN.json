@@ -1,0 +1,35 @@
+{
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Report：根据项目结果生成文档",
+  "description": "选择已完成的项目，选择输出格式和图数量上限，然后生成并阅读报告。",
+  "objectives": [
+    "选择已完成的项目，并查看可用的报告章节。",
+    "设置格式、图数量上限和输出文件名。",
+    "生成报告，并检查其中的结果、设置和来源信息。"
+  ],
+  "prerequisite": "从一个已完成的spaCR项目开始，其中应包含保存的设置、测量数据和图。可以重用External Masks教程中的项目。Report只收集项目中已有的文件。",
+  "scenes": [
+    "打开Help，然后打开Report。用这个工具把已完成项目的结果、图和设置汇集到一个文档中。",
+    "点击Choose run folder并选择您的项目。本例使用External Masks中包含两个视野的项目，并把其测量数据、设置和图放在一起。",
+    "扫描完成后，阅读处理状态。Complete表示记录的处理步骤都已完成。评估分析时，请另外查看可用的质控结果。",
+    "查看章节列表，了解项目中有哪些内容可用。缺失的章节在报告中仍会标出。如果需要该章节，请把相应的分析输出添加到项目中。",
+    "在Format下选择HTML、PDF或Both。HTML在浏览器中打开；PDF提供文档版本。本例使用HTML。",
+    "设置Embed at most，限制文档中嵌入的栅格图数量。矢量PDF会作为源文件列出，而不是嵌入预览。想要紧凑的报告，请设置较小的上限。",
+    "点击Choose output并输入目标文件名。检查所选格式与扩展名是否一致。共享报告之前，请检查其中包含的项目路径和元数据。",
+    "按Generate report，等待文件写入完成的确认。在浏览器中打开保存的HTML文件查看结果。",
+    "使用目录链接在各章节之间跳转。先看处理摘要，然后查看图、结果表和保存的设置。",
+    "打开Key figures查找项目的图。对于矢量PDF，请按列出的文件位置查找；如有嵌入的栅格预览，可直接查看。",
+    "查看Statistics and result tables，了解可用的对象表及其行数。这个仅含细胞的示例中，细胞区域和细胞质区域相同，因此应把它们视为同一批细胞的测量值。",
+    "展开Saved settings，查看随项目保存的配置。共享引用外部图的分析时，请把报告与项目文件放在一起。"
+  ]
+}

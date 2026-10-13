@@ -1,0 +1,18 @@
+[run]
+branch = True
+parallel = True
+relative_files = True
+source = spacr
+patch = subprocess
+sigterm = True
+
+[report]
+precision = 2
+show_missing = True
+skip_covered = False
+# coverage.py normally excludes pragmas, TYPE_CHECKING blocks, and bare
+# ellipses before it calculates the denominator. The ratchet forbids hidden
+# lines, so the default exclusion and partial-branch lists are deliberately
+# replaced with empty lists.
+exclude_lines =
+partial_branches =

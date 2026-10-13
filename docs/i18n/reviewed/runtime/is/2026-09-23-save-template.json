@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted source-context review of the dialog saving reusable settings templates. Replaces the retired Save recipe caption. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Save template",
+      "source": "Save template",
+      "source_sha256": "47f72a2f3e91d32d2b5a6444a009e133b8b5233a0d6aff0655a36b450c1308ba",
+      "translation": "Vista sniðmát"
+    }
+  ]
+}

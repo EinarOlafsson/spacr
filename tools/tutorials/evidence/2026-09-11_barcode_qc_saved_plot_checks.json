@@ -1,0 +1,300 @@
+{
+  "lesson": "47_barcode_qc",
+  "native_scope": "Successful worker and verified saved plots opened in actual system viewer; not a repaired GUI",
+  "provenance": {
+    "commit": "c46b7d6b793066b8e55ffe436a63b99906956a12",
+    "version": "1.5.0.6",
+    "module": "barcode_qc",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "workflow": {
+    "lesson": "47_barcode_qc",
+    "accepted": true,
+    "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq",
+    "inputs": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate_1_unique_combinations.csv": {
+        "bytes": 4325565,
+        "mtime_ns": 1788965780086229830,
+        "sha256": "9bbfd6de409ec501b94abd2f20230611a695b142228892f5c3b8b2b564ba1f13"
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/plate_1_unique_combinations.csv": {
+        "bytes": 4325565,
+        "mtime_ns": 1788965780086229830,
+        "sha256": "9bbfd6de409ec501b94abd2f20230611a695b142228892f5c3b8b2b564ba1f13"
+      }
+    },
+    "input_rows": 172756,
+    "app_source_modified": false,
+    "target_is_demonstration_not_experiment_design": true,
+    "omitted_optional_inputs": [
+      "qc_data",
+      "grna_csv",
+      "row_csv",
+      "column_csv"
+    ],
+    "provider_contacted": false,
+    "published": false,
+    "defaults": {
+      "count_data": [
+        "/mnt/firecuda2/codex/repo/spacr/path to unique_combinations.csv"
+      ],
+      "qc_data": null,
+      "grna_csv": "",
+      "row_csv": "",
+      "column_csv": "",
+      "target_grnas_per_well": 5,
+      "target_statistic": "median",
+      "min_reads_per_well": 0,
+      "starved_read_fraction": 0.1,
+      "exclude_starved_wells": true,
+      "position_effect_ratio": 2.0,
+      "collision_max_distance": 1,
+      "sweep_span": 4.0,
+      "sweep_points": 25,
+      "dst": null,
+      "plot": true,
+      "save": true,
+      "verbose": true
+    },
+    "settings": {
+      "count_data": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/plate_1_unique_combinations.csv"
+      ],
+      "qc_data": null,
+      "grna_csv": "",
+      "row_csv": "",
+      "column_csv": "",
+      "target_grnas_per_well": 5,
+      "target_statistic": "median",
+      "min_reads_per_well": 0,
+      "starved_read_fraction": 0.1,
+      "exclude_starved_wells": true,
+      "position_effect_ratio": 2.0,
+      "collision_max_distance": 1,
+      "sweep_span": 4.0,
+      "sweep_points": 25,
+      "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/results",
+      "plot": true,
+      "save": true,
+      "verbose": true
+    },
+    "live_preview_control_present": false,
+    "run": {
+      "outcome": {
+        "finished": true,
+        "ok": true,
+        "errors": []
+      },
+      "console": [
+        "Recording reproducibility input hashes…\n",
+        "Reproducibility manifest: /home/olafsson/.spacr/runs/2026-09-11_044535_29d58e9a__barcode_qc\n",
+        "[settings] ERROR [src]: src is missing from the settings.\n",
+        "[settings]     Set src to the folder holding the images (or, for measure, the merged folder).\n",
+        "Target: 5 gRNAs per well (median). Derived abundance threshold: 0.0121 (1.21% of a well's reads).\n",
+        "At 0.0121 the median well carries 5.0 gRNAs and 100% of wells are retained (384 of 384); 40% of wells hold more than 5 gRNAs and so cannot have a phenotype attributed to a single guide. 58% of mapped reads survive.\n",
+        "Every cutoff from 0.0112 to 0.0132 gives the same median of 5.0; 0.0121 is the geometric middle of that range and so the point least sensitive to a re-run. The collision rate does still vary across the range — see the sweep — which is why the middle is the number to quote and not either edge.\n",
+        "Relaxing to 0.0086 takes the median to 8.0 gRNAs per well and the collision rate to 72%, for +0 percentage points of well retention.\n",
+        "Tightening to 0.0172 drops the median to 4.0 gRNAs per well and retention to 100%.\n",
+        "Below 0.0121 the collision rate rises sharply: 40% at 0.0121 becomes 72% at 0.0086. That is the floor worth defending.\n"
+      ],
+      "gui_figure_count": 0,
+      "figures_card_visible": false,
+      "figures": [],
+      "settings_errors": [
+        "[settings] ERROR [src]: src is missing from the settings.\n"
+      ]
+    },
+    "independent_csv_check": {
+      "checks": {
+        "per_well": {
+          "rows": 384,
+          "fields_checked": 2304,
+          "maximum_numeric_error": 0.0
+        },
+        "positions": {
+          "rows": 40,
+          "fields_checked": 320,
+          "maximum_numeric_error": 0.0
+        },
+        "starved": {
+          "rows": 0,
+          "fields_checked": 0,
+          "maximum_numeric_error": 0.0
+        },
+        "sweep": {
+          "rows": 26,
+          "fields_checked": 260,
+          "maximum_numeric_error": 0.0
+        }
+      },
+      "total_reads": 49464341,
+      "wells": 384,
+      "observed_guides": 1379,
+      "starved_wells": 0,
+      "starvation_cutoff": 12574.45,
+      "source_unchanged": true
+    },
+    "saved_files": {
+      "results/barcode_qc.png": {
+        "bytes": 256208,
+        "mtime_ns": 1789101942015170892,
+        "sha256": "e4de0233924a6e42122e2f40266dfee6c83563153e96a5d4d393ff172917230a"
+      },
+      "results/position_effects.csv": {
+        "bytes": 2563,
+        "mtime_ns": 1789101936327565354,
+        "sha256": "18427f1e9f6ba1f661cf78cd7f423fa260fcdc77b53111cddf5a1333b7076cb4"
+      },
+      "results/reads_per_well.csv": {
+        "bytes": 15051,
+        "mtime_ns": 1789101936326906974,
+        "sha256": "571d2d4eeb086a5a156129b5a891b3621ee5f39adf1b776bbe19ca1e3b0ab6f3"
+      },
+      "results/starved_wells.csv": {
+        "bytes": 41,
+        "mtime_ns": 1789101936327200175,
+        "sha256": "1599e72b4fb30612fc2a5a42e5d8283c4c80150ff5cf456524cd346bfe216725"
+      },
+      "results/threshold_recommendation.txt": {
+        "bytes": 946,
+        "mtime_ns": 1789101936328087308,
+        "sha256": "eaeca9b1f8a9c2efdba1f847d48976f79d4bc5868f70a96631fe85e739ac2eeb"
+      },
+      "results/threshold_sweep.csv": {
+        "bytes": 2486,
+        "mtime_ns": 1789101936326353191,
+        "sha256": "e7da7f93e2655157fd1079a67bef22bfe59211b5aac6a57ffcf6b42bd70fc70f"
+      },
+      "results/threshold_sweep.png": {
+        "bytes": 164253,
+        "mtime_ns": 1789101941148145189,
+        "sha256": "a319b9416f33cec2fd565c54676611c3a03a595db2b87c0df2eebcf53abf79f7"
+      }
+    },
+    "saved_plot_viewer": {
+      "accepted": true,
+      "saved_plots": [
+        {
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/results/barcode_qc.png",
+          "sha256": "e4de0233924a6e42122e2f40266dfee6c83563153e96a5d4d393ff172917230a",
+          "dimensions": [
+            3903,
+            2704
+          ],
+          "window_title": "barcode_qc.png",
+          "viewer": "eog",
+          "actual_desktop_capture": true
+        },
+        {
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/results/threshold_sweep.png",
+          "sha256": "a319b9416f33cec2fd565c54676611c3a03a595db2b87c0df2eebcf53abf79f7",
+          "dimensions": [
+            2279,
+            1850
+          ],
+          "window_title": "threshold_sweep.png",
+          "viewer": "eog",
+          "actual_desktop_capture": true
+        }
+      ],
+      "saved_files_unchanged": true,
+      "application_figures_fixed": false,
+      "scope": "External system viewer, not spaCR Figures"
+    },
+    "scope": "Verified CSV outputs and real external plot viewer; GUI defects remain",
+    "gui_figure_workflow_accepted": false,
+    "settings_preflight_fixed": false,
+    "inputs_unchanged": true,
+    "active_jobs_after_close": 0
+  },
+  "frames": {
+    "00_home": {
+      "image": "00_home.png",
+      "capture_surface": "application_window",
+      "sha256": "848d98c4a96ae525e22aac03de90513290d3406994f34cb49baf42370df9d1da"
+    },
+    "01_map_barcodes_host": {
+      "image": "01_map_barcodes_host.png",
+      "capture_surface": "application_window",
+      "sha256": "87b962354d78d5b9d61fb1c80c3c04dfd9bdb208f7427113d982a23d020a5a76"
+    },
+    "02_barcode_qc_fold": {
+      "image": "02_barcode_qc_fold.png",
+      "capture_surface": "application_window",
+      "sha256": "528d48e933679f2bde69e080e87f64ea19bd8014dc87964d583c1cb010418f93"
+    },
+    "03_choose_published_plate1": {
+      "image": "03_choose_published_plate1.png",
+      "capture_surface": "application_window",
+      "sha256": "651bb4afa8b66fb9704ee9e7afe0c92880f5501d4d186fdcb27e4b7ad70f4c49"
+    },
+    "04_actual_count_input": {
+      "image": "04_actual_count_input.png",
+      "capture_surface": "application_window",
+      "sha256": "e4df114e91f93dc206f249a3e4e0184572f18fb040f3c7f35e53b0d79a2df142"
+    },
+    "05_00_dst": {
+      "image": "05_00_dst.png",
+      "capture_surface": "application_window",
+      "sha256": "7f16fb3da11051d848648b5eab2bb4f6c048d746ceb0c09010e51eff869c3b4e"
+    },
+    "05_01_target_grnas_per_well": {
+      "image": "05_01_target_grnas_per_well.png",
+      "capture_surface": "application_window",
+      "sha256": "1ad61b1db1bf829132789171e00d6403db2b2dc4171dd67c6b6480725298e23f"
+    },
+    "05_04_starved_read_fraction": {
+      "image": "05_04_starved_read_fraction.png",
+      "capture_surface": "application_window",
+      "sha256": "05d69f574c30dc21f327476471056287d6d9e9e6a6c8b7930288d8259b61f048"
+    },
+    "05_09_plot": {
+      "image": "05_09_plot.png",
+      "capture_surface": "application_window",
+      "sha256": "a77f71dcd4f2b7ee66bdcf61fe3a823c271bf3383158bbe287bc73b6a82442b6"
+    },
+    "06_running": {
+      "image": "06_running.png",
+      "capture_surface": "application_window",
+      "sha256": "c679eef49c20fd73d8317cd71c075226c7c6f44077bf8873ca15bcc8e9dc4a75"
+    },
+    "07_finished_console": {
+      "image": "07_finished_console.png",
+      "capture_surface": "application_window",
+      "sha256": "41d3b26bb0029e8db1b8cf13b81019c45f36eab9d6a54f51385524b481a3a9e3"
+    },
+    "08_actual_figures_state": {
+      "image": "08_actual_figures_state.png",
+      "capture_surface": "application_window",
+      "sha256": "e1b0db0504267b976d7c30e20de4afc74bd5c80b051c1aa1d7bbfaf2b9804765"
+    },
+    "09_saved_barcode_qc": {
+      "image": "09_saved_barcode_qc.png",
+      "capture_surface": "private_desktop",
+      "sha256": "4754c221f483d23d71f52b9cb45dc20d329e41dd9c3830a54dd23f13e8d9955d"
+    },
+    "10_saved_threshold_sweep": {
+      "image": "10_saved_threshold_sweep.png",
+      "capture_surface": "private_desktop",
+      "sha256": "edd3f2ad12c0617245a79cf0c040780eb8c1efd3b7ca4b733b97c8e38c59e96e"
+    },
+    "11_back_to_actual_gui": {
+      "image": "11_back_to_actual_gui.png",
+      "capture_surface": "application_window",
+      "sha256": "9a29feaa9b0093fd637762f6922cffdf3fb24b6e8c9ead1a6125c15325397cd0"
+    }
+  },
+  "guard_tests_passed": 6,
+  "guard_mutations_observed_red": 2,
+  "visual_inspection": [
+    "07_finished_console",
+    "09_saved_barcode_qc",
+    "10_saved_threshold_sweep"
+  ],
+  "published": false,
+  "lesson_technical_matrix_complete": false
+}

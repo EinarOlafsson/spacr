@@ -1,0 +1,35 @@
+{
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Report: 프로젝트 결과로 문서 만들기",
+  "description": "완료된 프로젝트를 고르고, 출력 형식과 그림 한도를 선택한 뒤 보고서를 만들어 읽습니다.",
+  "objectives": [
+    "완료된 프로젝트를 고르고 사용할 수 있는 보고서 섹션을 확인합니다.",
+    "형식, 그림 한도, 출력 파일 이름을 정합니다.",
+    "보고서를 만들고 결과, 설정, 출처 정보를 확인합니다."
+  ],
+  "prerequisite": "저장된 설정, 측정값, 그림이 있는 완료된 spaCR 프로젝트로 시작하세요. External Masks 튜토리얼의 프로젝트를 다시 써도 됩니다. Report는 프로젝트에 이미 있는 파일을 모읍니다.",
+  "scenes": [
+    "Help를 연 뒤 Report를 여세요. 이 도구로 완료된 프로젝트의 결과, 그림, 설정을 하나의 문서로 모읍니다.",
+    "Choose run folder를 클릭하고 프로젝트를 선택하세요. 이 예제에서는 External Masks의 시야 2개짜리 프로젝트를 쓰고, 측정값, 설정, 그림을 함께 두세요.",
+    "스캔이 끝나면 처리 상태를 읽으세요. Complete는 기록된 처리 단계가 모두 끝났다는 뜻입니다. 분석을 평가할 때는 사용할 수 있는 품질 관리 결과를 따로 검토하세요.",
+    "섹션 목록에서 어떤 프로젝트 산출물을 쓸 수 있는지 확인하세요. 빠진 섹션도 보고서에 제목은 표시됩니다. 그 섹션이 필요하면 해당 분석 출력을 프로젝트에 추가하세요.",
+    "Format에서 HTML, PDF, Both 중 하나를 고르세요. HTML은 브라우저에서 열리고, PDF는 문서 버전을 제공합니다. 이 예제는 HTML을 씁니다.",
+    "Embed at most로 문서에 넣을 래스터 그림 수를 제한하세요. 벡터 PDF는 삽입된 미리 보기가 아니라 원본 파일로 목록에 나옵니다. 간결한 보고서를 원하면 한도를 작게 두세요.",
+    "Choose output을 클릭하고 대상 파일 이름을 입력하세요. 선택한 형식과 확장자가 맞는지 확인하세요. 보고서를 공유하기 전에 포함된 프로젝트 경로와 메타데이터를 검토하세요.",
+    "Generate report를 누르고 파일이 저장되었다는 확인을 기다리세요. 저장된 HTML 파일을 브라우저에서 열어 결과를 확인하세요.",
+    "목차 링크로 섹션 사이를 이동하세요. 처리 요약부터 시작해 그림, 결과 표, 저장된 설정을 검토하세요.",
+    "Key figures를 열어 프로젝트의 그림을 찾으세요. 벡터 PDF는 표시된 파일 위치를 따라가고, 삽입된 래스터 미리 보기가 있으면 그것을 확인하세요.",
+    "Statistics and result tables에서 사용할 수 있는 객체 표와 행 수를 검토하세요. 세포만 있는 이 예제는 세포 영역과 세포질 영역이 같으므로, 같은 세포의 측정값으로 다루세요.",
+    "Saved settings를 펼쳐 프로젝트와 함께 보관된 구성을 확인하세요. 외부 그림을 참조하는 분석을 공유할 때는 보고서를 프로젝트 파일과 함께 두세요."
+  ]
+}

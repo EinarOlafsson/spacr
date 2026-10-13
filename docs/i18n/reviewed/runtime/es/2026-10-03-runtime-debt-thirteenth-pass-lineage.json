@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: the timelapse_lineage_min_division_h setting label and help, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "timelapse_lineage_min_division_h",
+      "source": "Timelapse lineage min division h",
+      "source_sha256": "8ec21f465c6bc6de90f78d1472f3f519f408dbbde0c72ac7a256c9b17eff749a",
+      "translation": "Linaje en serie temporal: tiempo mínimo de división h"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_min_division_h",
+      "source": "Shortest plausible time in hours between two divisions of one cell; 6 suits Toxoplasma endodyogeny. With a frame time (time_s or frame_interval_s), no division is inferred in a movie shorter than half of it, nor from a cell born less than this long before. Inferred daughters must also persist for 3 frames, and a track ending at the field edge or after a gap counts as leaving the field. Blank turns the time limit off. Ignored unless timelapse_lineage. Default 6.0.",
+      "source_sha256": "a452d8021f274d4c933985b82388a409968f653c79d65865285e37dd0b736857",
+      "translation": "Tiempo plausible más corto, en horas, entre dos divisiones de una célula; 6 se ajusta a la endodiogenia de Toxoplasma. Con un tiempo por fotograma (time_s o frame_interval_s), no se infiere ninguna división en una película más corta que la mitad de ese valor, ni a partir de una célula nacida hace menos de ese tiempo. Las células hijas inferidas también deben persistir 3 fotogramas, y una trayectoria que termina en el borde del campo o tras un hueco cuenta como salida del campo. En blanco desactiva el límite de tiempo. Se ignora salvo con timelapse_lineage. Valor predeterminado: 6.0."
+    }
+  ]
+}

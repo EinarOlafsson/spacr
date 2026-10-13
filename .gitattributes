@@ -1,0 +1,14 @@
+
+# THE INSTRUCTION INDEX IS GENERATED, SO IT IS REBUILT ON MERGE RATHER THAN
+# TEXT-MERGED. `tools/build_instruction_index.py` writes it from the folders
+# themselves, so the two sides of any merge are two RENDERINGS of state git
+# has already merged correctly in instructions/open/ and instructions/done/.
+# Choosing between those renderings by hand is the one resolution that can be
+# wrong without anyone noticing -- and it conflicted three times in one day
+# with two sessions working the same branch.
+#
+# A merge driver has to be declared in each clone; git does not honour one
+# defined in a committed file, deliberately. See instructions/open/
+# 325_two_sessions_one_repo_working_protocol.txt for the one-line
+# `git config` that installs it.
+instructions/00_INDEX.txt merge=spacr-index

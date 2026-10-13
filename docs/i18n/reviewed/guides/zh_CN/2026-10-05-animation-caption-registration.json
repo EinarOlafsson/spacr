@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Only the displayed Animation caption is changed to the actual first-run-owned runtime row; all surrounding reviewed wording is retained. Previous target text is retained as historical evidence.",
+  "records": [
+    {
+      "domain": "localization",
+      "source": "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping.",
+      "source_sha256": "8f1f5b591f96f5a7ee5f6786f3305f5237cb0deaeb67185b8e156b6cbadaa64e",
+      "previous_translation": "每个设置工具提示底部的 **API** 链接在所有语言中都保留确切的文档 URL。其文字和无障碍名称跟随所选语言，更改语言会刷新已打开的设置窗口。在有可视化帮助的地方，工具提示底部还提供一个 **Animation** 词，点击后会在文字旁显示图示。科学图示本身与语言无关。所有确切的映射请参阅 :doc:`设置动画库 <setting_animations>`。",
+      "target": "每个设置工具提示底部的 **API** 链接在所有语言中都保留确切的文档 URL。其文字和无障碍名称跟随所选语言，更改语言会刷新已打开的设置窗口。在有可视化帮助的地方，工具提示底部还提供一个 **动画** 词，点击后会在文字旁显示图示。科学图示本身与语言无关。所有确切的映射请参阅 :doc:`设置动画库 <setting_animations>`。",
+      "displayed_animation_caption": "动画"
+    },
+    {
+      "domain": "setting_animations",
+      "source": "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking.",
+      "source_sha256": "460fc0515db2637d3cb746082c5a9ab630257dd9444cdffbacf13cde30acad85",
+      "previous_translation": "spaCR 为那些通过视觉更容易理解其效果的设置提供了简短、确定性的 GIF 动画。在桌面界面中，将鼠标悬停在某个设置上会显示其说明；按下该工具提示底部青色的 **Animation** 一词，会在文字右侧显示对应的动画。它只对该设置显示——下一个设置仍显示文字，直到按下其自己的 **Animation**，在此之前不会解码任何内容。在“偏好”中开启 *设置项动画*，即可无需询问直接显示动画。",
+      "target": "spaCR 为那些通过视觉更容易理解其效果的设置提供了简短、确定性的 GIF 动画。在桌面界面中，将鼠标悬停在某个设置上会显示其说明；按下该工具提示底部青色的 **动画** 一词，会在文字右侧显示对应的动画。它只对该设置显示——下一个设置仍显示文字，直到按下其自己的 **动画**，在此之前不会解码任何内容。在“偏好”中开启 *设置项动画*，即可无需询问直接显示动画。",
+      "displayed_animation_caption": "动画"
+    }
+  ]
+}

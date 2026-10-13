@@ -1,0 +1,151 @@
+{
+  "private_test_source": "a6e1a47287c61c349154660512d40dfb679ad676",
+  "application_base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "source_sha256": {
+    "spacr/plot.py": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+    "spacr/figures/bundle.py": "d255333e75a576cb69f6803d5b1add13ddac30585891893936b7a09e947edbc7",
+    "spacr/figures/stats.py": "be35785c20de5dde46e8e25b3d2d8d42699bdb14c98b46f3b652b2768970d505",
+    "spacr/qt/widgets/figure_settings.py": "746dc64a2cc7319c70d913add4cf8cfaa949d4a0a65c197e3456a8f04e5f8b34"
+  },
+  "terminal_statuses": {
+    "recruitment-multipanel-negative-r1": 1,
+    "recruitment-multipanel-negative-r2": 1,
+    "recruitment-multipanel-candidate-r1": 0,
+    "recruitment-multipanel-candidate-extended-r1": 1,
+    "recruitment-multipanel-candidate-r2": 0,
+    "recruitment-multipanel-existing-cohort-r1": 0
+  },
+  "original_current_source_negatives": {
+    "failed": 8,
+    "seconds": 10.01
+  },
+  "scratch_candidate_cohort": {
+    "passed": 69,
+    "warnings": 29,
+    "seconds": 56.61,
+    "new_cases": 8,
+    "original_cases": 61
+  },
+  "payloads": {
+    "logs/recruitment-multipanel-negative-r1.log.gz": {
+      "raw_bytes": 2635,
+      "raw_sha256": "d2d774535017618de20130307700369ca07dd08c29143687c33f243423e54016",
+      "gzip_sha256": "ba10563d04005cc898f7e6e6355273a8674264a4fc692196915f4cdcf4d0e40e"
+    },
+    "logs/recruitment-multipanel-negative-r1-tool.log.gz": {
+      "raw_bytes": 2144,
+      "raw_sha256": "9413b21b0fcc312ced0f426373f5912963b3f6de656e193d580c7beff7e49bd3",
+      "gzip_sha256": "e2cf426d63766deac11a0d40af5c5ee7e1d3ac5f05677df48a3826fc0dc9b972"
+    },
+    "logs/recruitment-multipanel-negative-r2.log.gz": {
+      "raw_bytes": 10736,
+      "raw_sha256": "7fed8632994380a25f45c21fbe70ad4c059cf1d89f5c3ccd6288ab8d27d0533f",
+      "gzip_sha256": "b426a58b52427a96c391104e9fbbd4703f3d374323da9068388e28763bc0a894"
+    },
+    "logs/recruitment-multipanel-negative-r2-tool.log.gz": {
+      "raw_bytes": 10245,
+      "raw_sha256": "6ddf86e8afacbd9b540039da146604ccfd6af52d446d9cba3a11618b6b2f55bb",
+      "gzip_sha256": "81c893a948f7d5707d1de44fbe1399cb2f3dccd24d0590cb6912fcf1baa22d78"
+    },
+    "logs/recruitment-multipanel-candidate-r1.log.gz": {
+      "raw_bytes": 823,
+      "raw_sha256": "f9e3efa6382f8b43047f60c73d8f675706781a6b8e7b5f74f63cb81580ffa8eb",
+      "gzip_sha256": "c78a164219b8c494fe1db289f944cb6dc4066233ff40f03baeb9fad52c3eb7e5"
+    },
+    "logs/recruitment-multipanel-candidate-r1-tool.log.gz": {
+      "raw_bytes": 312,
+      "raw_sha256": "79e88dba693c78717a783277951694da9b978b1f4c7ec131bf714d58978cddce",
+      "gzip_sha256": "a1b96b69129cae5aaed84e88dec54143d6b43455305c42091b5a8df7769965bd"
+    },
+    "logs/recruitment-multipanel-candidate-extended-r1.log.gz": {
+      "raw_bytes": 5552,
+      "raw_sha256": "ec3bca8f2f1bc188e9a414513f9068079310566eba4af5423d169807e939d31f",
+      "gzip_sha256": "6deb27c5c0cea5f932effe1a743ccb893e680f0068b3631454aa5d3efc6045d3"
+    },
+    "logs/recruitment-multipanel-candidate-extended-r1-tool.log.gz": {
+      "raw_bytes": 5032,
+      "raw_sha256": "8756af0a626544da44118ddaa4cc68bb811139d67a625cec27223047b51c5946",
+      "gzip_sha256": "84b15524b4b1fcc9b511e7271ab8f43df97bb7096279e4fb7688993a6e0fdbde"
+    },
+    "logs/recruitment-multipanel-candidate-r2.log.gz": {
+      "raw_bytes": 1339,
+      "raw_sha256": "64a69cc1a725961fa1306ebe206ef1d7abbe6395f4afcf756af06bddf7ed568a",
+      "gzip_sha256": "8f1d5e082fb6e3b06282aa8ee82a00bdeedfd3a1b0bc904ab11074cd4cff6436"
+    },
+    "logs/recruitment-multipanel-candidate-r2-tool.log.gz": {
+      "raw_bytes": 828,
+      "raw_sha256": "6044db013ca4e475e5db1054d4d5290f6ead9ce15305eb6225b077ba36c99864",
+      "gzip_sha256": "97b66e80390cfc435c15c9e898c812caaf19d70cfc4c89816521a5fd272d3f51"
+    },
+    "logs/recruitment-multipanel-existing-cohort-r1.log.gz": {
+      "raw_bytes": 2710,
+      "raw_sha256": "38cfc5e19f97bac8d1ec1a79a314cca9c927726688f66f5a90a343fc8cbc63e3",
+      "gzip_sha256": "cc4f07dd2ebf8a26bec85c963a9d9de8053343934804919117feaa6f6fe23247"
+    },
+    "logs/recruitment-multipanel-existing-cohort-r1-tool.log.gz": {
+      "raw_bytes": 1837,
+      "raw_sha256": "304ea9a670ef6211ed903d08d769d311663334bfc812f1dca6781ffc1635a538",
+      "gzip_sha256": "bf0c917da1d0d9613b34e9cd485f46a91f3760212c93a7c41079a6058841cd58"
+    },
+    "scripts/recruitment_recipe_candidate_r1.py.gz": {
+      "raw_bytes": 3004,
+      "raw_sha256": "734b15f0644cb6e0a9f16395268508319dd7cf156250185daad2ce9312f629d3",
+      "gzip_sha256": "ec60d4e53d58ed5b3db4e410a2e74bf1bd3acc72c803163e417fbd80e1b40211"
+    },
+    "scripts/recruitment_recipe_candidate_r2.py.gz": {
+      "raw_bytes": 5358,
+      "raw_sha256": "a7aa7103998b19ea682f1ead67146bc048a77e826cae97d901049258e2ff911b",
+      "gzip_sha256": "d40ad6b70ba44450a67ea4e55c8da17b785f7673d6de50d0920be61e0a1c2c0d"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 5446,
+      "raw_sha256": "3397c7e0e2bf0f7ec0d27dfd7f66e708b0cb9ba3876fd067fab57702c97df0da",
+      "gzip_sha256": "f39e9e6f5051421291353fe506ed0ad01cca0aa7ff4ccd625f98699adc5c297e"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 342416,
+      "raw_sha256": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+      "gzip_sha256": "70b3f587ca77998e643f5a522fb8d10f4608a6d39ad17b74f7ee033c338ef914"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 31880,
+      "raw_sha256": "d255333e75a576cb69f6803d5b1add13ddac30585891893936b7a09e947edbc7",
+      "gzip_sha256": "a5fae0d8be6cb4c21068428b205e0884105c8f627d6328c5bace8f31a2b117e5"
+    },
+    "source/spacr/figures/stats.py.gz": {
+      "raw_bytes": 49309,
+      "raw_sha256": "be35785c20de5dde46e8e25b3d2d8d42699bdb14c98b46f3b652b2768970d505",
+      "gzip_sha256": "42ec1e5203448a83544dbc805e0ab614f16e02a5a30e7b0ff87840b770ba0ad0"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 117395,
+      "raw_sha256": "746dc64a2cc7319c70d913add4cf8cfaa949d4a0a65c197e3456a8f04e5f8b34",
+      "gzip_sha256": "0d3e05f6fdd09d6fd9acd9a13513d6bdf525a46daee553651d28c5fa6426678e"
+    },
+    "source/9ba9eb825051762b5d513078526a0806414e7cae-tests.py.gz": {
+      "raw_bytes": 2620,
+      "raw_sha256": "9aebf149f645daed44f3329f32f1c512936ade8e00c81aac5271f637bd09af91",
+      "gzip_sha256": "79ca91cbd3c074e6162a7b2b65a1fff7094cb314bb1fe0b7fac0b74163163f8a"
+    },
+    "source/ca75fae7c1b89ba3c8a0afe72436bac7d1ec29f1-tests.py.gz": {
+      "raw_bytes": 4095,
+      "raw_sha256": "9a2a48347cb51faca73f64868a7701de7e6a5d4b0827ecdf0d196552201fb68b",
+      "gzip_sha256": "74b1ca49e223468c0dc5b523c8a7f2e9fa227bd5373f142ccf5e7ed5172adecd"
+    },
+    "patch/strict-test-only.patch.gz": {
+      "raw_bytes": 5808,
+      "raw_sha256": "0c85e515fc378e5b3512d6e77f685de6089363e8bf8b98bc32b6b5e1c08c4959",
+      "gzip_sha256": "b03d18e0542730f446b8c6bd92731d5f2f920d5c4b4cd632cf989e722c68b3e5"
+    }
+  },
+  "application_source_modified": false,
+  "scope": "Eight strict actual recruitment/ratio checks: standalone exported recipes restore every displayed measurement, changing graph type changes each panel, statistics CSV identifies all measurements, user Welch overrides numerically match independent scipy t-tests. Scratch runtime candidate passes along with61 unchanged figure/menu/preferences/source-registration tests. PRIVATE tests and public proof only; no adopted source repair.",
+  "limitations": [
+    "Earlier minimal2-case source negative and2PASS candidate retained; expanded firstcandidate4FAIL/2PASS proves graph-type/statistics omissions. Final8-case source negatives allfail.",
+    "Prototype inherits top-level graph kind and uses existing automatic statistics engine per measurement; correction scope explicitly within measurement, no across-measurement family correction or biological validity claim.",
+    "Warnings retained, no filtering. ActualPy3.12/pytest8.4.2; broad69 cohort Qt6.12, earlier narrower runs default6.11.2. No cross-platform/native or global acceptance.",
+    "Prototype registers only actual _plot_recruitment recipes via runtime caller observation; proposed production migration should use explicit producer recipes. Other legacy producers remain unmigrated.",
+    "Test fixture presently requires optional PySide6; portability/optional-dependency placement needs review before integration. No existing gate or test weakened.",
+    "Source-path review/adoption and normal API/docs translations remain required; broad publication hold retained."
+  ]
+}

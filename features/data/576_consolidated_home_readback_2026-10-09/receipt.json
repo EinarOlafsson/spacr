@@ -1,0 +1,32 @@
+{
+  "payloads_verified": 5,
+  "frozen_source_bindings_verified": 10,
+  "patch_reconstructs_all_source": true,
+  "baseline_spacr_tools_packaging_equal_f800": true,
+  "complete_api_maps": 13233,
+  "api_prose_changed": [
+    "spacr.ml.generate_ml_scores",
+    "spacr.ml.interpret_vision_model",
+    "spacr.ml.load_regression_input_pairs",
+    "spacr.predictions.merge_prediction_results",
+    "spacr.predictions.migrate_prediction_columns",
+    "spacr.qt.screens.settings_model.regression_design_scan",
+    "spacr.qt.widgets.file_list.PairedFileTableWidget",
+    "spacr.refit.destination"
+  ],
+  "runtime_ui_added": 40,
+  "runtime_ui_removed": 5,
+  "runtime_other_five_equal": true,
+  "foreign_imports": 0,
+  "missing_extractor_source": [
+    "A local regression output directory is required for PostgreSQL counts."
+  ],
+  "product_source_private": true,
+  "real_postgres_addendum": {
+    "source_code_commit": "6727c694a16a9b47171be3834eebe0dda6014b07",
+    "source_bindings_verified": 8,
+    "compressed_and_raw_log_sha_verified": true,
+    "result": "140 passed in 20.00s",
+    "honest_session_note": "Same eight-file cohort and unchanged source as prior 136 pass/4 skip receipt, now with root-owned real PostgreSQL18.4 scratch server. Pytest session hygiene printed a non-failing SpawnProcess-1 child-alive-at-exit note; process exited0. This does not claim an unrelated whole-suite or GPU result."
+  }
+}

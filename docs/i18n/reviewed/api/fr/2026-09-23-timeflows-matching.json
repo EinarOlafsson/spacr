@@ -1,0 +1,84 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Which object in ``t+1`` each object in ``t`` becomes, from the model.",
+      "label": "spacr.timeflows_model.link_by_timeflows#0",
+      "source": "Which object in ``t+1`` each object in ``t`` becomes, from the model.",
+      "source_sha256": "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+      "translation": "À quel objet de ``t+1`` correspond chaque objet de ``t``, selon le modèle."
+    },
+    {
+      "context": "Each object's pixels vote, through the predicted vectors, for its next centre. Their mean predictions are assigned jointly to object centres in ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with no allowed assignment remain unlinked. Distances are measured in source object diameters, with a minimum diameter of one pixel.",
+      "label": "spacr.timeflows_model.link_by_timeflows#1",
+      "source": "Each object's pixels vote, through the predicted vectors, for its next centre. Their mean predictions are assigned jointly to object centres in ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with no allowed assignment remain unlinked. Distances are measured in source object diameters, with a minimum diameter of one pixel.",
+      "source_sha256": "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+      "translation": "Les pixels de chaque objet votent, au moyen des vecteurs prédits, pour son prochain centre. Leurs prédictions moyennes sont affectées conjointement aux centres des objets de ``t+1`` par la méthode hongroise. Les objets sous ``min_successor`` ou sans affectation autorisée restent non reliés. Les distances sont mesurées en diamètres de l'objet source, avec un diamètre minimal d'un pixel."
+    },
+    {
+      "context": "The distance data-selection boundary is applied before assignment. Allowed distances are scaled to at most one; an unmatched choice costs just above one. A zero distance limit permits only exact centre matches, with zero cost. Thus an impossible edge cannot displace a valid link. The objective minimizes distance plus unmatched costs; it does not maximize the number of links.",
+      "label": "spacr.timeflows_model.link_by_timeflows#2",
+      "source": "The distance gate is applied before assignment. Allowed distances are scaled to at most one; an unmatched choice costs just above one. A zero distance limit permits only exact centre matches, with zero cost. Thus an impossible edge cannot displace a valid link. The objective minimizes distance plus unmatched costs; it does not maximize the number of links.",
+      "source_sha256": "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+      "translation": "Le seuil de distance est appliqué avant l'affectation. Les distances autorisées sont ramenées à une valeur maximale de un ; une absence d'affectation coûte légèrement plus de un. Un seuil de distance nul n'autorise que des correspondances exactes des centres, de coût nul. Une arête impossible ne peut donc pas évincer un lien valide. L'objectif minimise la distance et les coûts d'absence d'affectation ; il ne maximise pas le nombre de liens."
+    },
+    {
+      "context": "Thresholds must be finite, with ``min_successor`` in ``[0, 1]`` and ``max_distance`` non-negative. If either frame has no objects, the result is empty without inspecting predictions. Otherwise prediction shapes must match the source frame, foreground vectors must be finite and foreground successor probabilities must lie in ``[0, 1]``. Background values are ignored. Derived object centres must also be finite.",
+      "label": "spacr.timeflows_model.link_by_timeflows#3",
+      "source": "Thresholds must be finite, with ``min_successor`` in ``[0, 1]`` and ``max_distance`` non-negative. If either frame has no objects, the result is empty without inspecting predictions. Otherwise prediction shapes must match the source frame, foreground vectors must be finite and foreground successor probabilities must lie in ``[0, 1]``. Background values are ignored. Derived object centres must also be finite.",
+      "source_sha256": "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+      "translation": "Les seuils doivent être finis, avec ``min_successor`` dans ``[0, 1]`` et ``max_distance`` positif ou nul. Si l'une des images ne contient aucun objet, le résultat est vide sans examen des prédictions. Sinon, les formes des prédictions doivent correspondre à l'image source, les vecteurs du premier plan doivent être finis et les probabilités de successeur du premier plan doivent appartenir à ``[0, 1]``. Les valeurs de l'arrière-plan sont ignorées. Les centres d'objets calculés doivent également être finis."
+    },
+    {
+      "context": "frame ``t``'s objects, any ids.",
+      "label": "spacr.timeflows_model.link_by_timeflows#4",
+      "source": "frame ``t``'s objects, any ids.",
+      "source_sha256": "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+      "translation": "Les objets de l'image ``t``, avec des identifiants quelconques."
+    },
+    {
+      "context": "frame ``t+1``'s objects, any ids.",
+      "label": "spacr.timeflows_model.link_by_timeflows#5",
+      "source": "frame ``t+1``'s objects, any ids.",
+      "source_sha256": "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+      "translation": "Les objets de l'image ``t+1``, avec des identifiants quelconques."
+    },
+    {
+      "context": "from :func:`predict_pair`.",
+      "label": "spacr.timeflows_model.link_by_timeflows#6",
+      "source": "from :func:`predict_pair`.",
+      "source_sha256": "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+      "translation": "Issu de :func:`predict_pair`."
+    },
+    {
+      "context": "the successor probability an object needs.",
+      "label": "spacr.timeflows_model.link_by_timeflows#7",
+      "source": "the successor probability an object needs.",
+      "source_sha256": "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+      "translation": "La probabilité de successeur requise pour un objet."
+    },
+    {
+      "context": "the furthest link, in the object's diameters.",
+      "label": "spacr.timeflows_model.link_by_timeflows#8",
+      "source": "the furthest link, in the object's diameters.",
+      "source_sha256": "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+      "translation": "La distance maximale d'un lien, en diamètres de l'objet."
+    },
+    {
+      "context": "``{id in t: id in t+1}``.",
+      "label": "spacr.timeflows_model.link_by_timeflows#9",
+      "source": "``{id in t: id in t+1}``.",
+      "source_sha256": "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+      "translation": "``{id in t: id in t+1}``."
+    },
+    {
+      "context": "invalid thresholds, prediction shapes, foreground values or derived object centres.",
+      "label": "spacr.timeflows_model.link_by_timeflows#10",
+      "source": "invalid thresholds, prediction shapes, foreground values or derived object centres.",
+      "source_sha256": "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1",
+      "translation": "Seuils, formes des prédictions, valeurs du premier plan ou centres d'objets calculés non valides."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review of gated temporal assignment, unmatched costs and prediction validation; no native-speaker or accuracy sign-off",
+  "schema": 1
+}

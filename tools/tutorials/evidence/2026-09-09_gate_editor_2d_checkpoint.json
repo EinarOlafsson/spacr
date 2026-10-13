@@ -1,0 +1,17 @@
+{
+  "lesson": "64_gate_editor",
+  "status": "Real 2D chapter verified; whole lesson and media not complete",
+  "capture_directory": "refresh_2026-09-09/captures/gates_real_v2",
+  "application_commit": "e74f21152",
+  "package_version": "1.5.0.4",
+  "data": "Private SQLite backup of the genuine downloaded Annotate cell measurements",
+  "original_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "rows": 2341,
+  "gate_rows": 655,
+  "checks": ["Actual Load table file picker", "Actual feature-axis selection", "Actual rectangle gesture and naming dialog", "Membership checked against displayed feature bounds", "Checkbox hide/show preserves membership", "Save strategy through actual dialog", "Delete gate really removes it", "Load saved strategy restores exact geometry and counts", "Original measurement database unchanged"],
+  "needs_before_media_generation": ["Readable panel widths through genuine splitter gestures", "Remaining hierarchy, 3D and projection controls", "Current Search workflow and real export behavior", "English and all translated catalogs"],
+  "invented_measurements_or_gates": false,
+  "hidden_ui_panels": false,
+  "application_source_modified": false,
+  "published": false
+}

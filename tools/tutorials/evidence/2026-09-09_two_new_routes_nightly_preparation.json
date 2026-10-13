@@ -1,0 +1,85 @@
+{
+  "status": "Source-only nightly preparation; not published or release-approved",
+  "baseline_commit": "4ad8072d95873f840d9088f48d49e0eeda0e9be2",
+  "lessons": ["74_import_images", "75_regression_diagnostics"],
+  "existing_lessons_preserved": 73,
+  "catalogs": 14,
+  "lesson_count_per_catalog": 75,
+  "english_scene_count": 528,
+  "javascript_scene_count": 528,
+  "new_scenes_per_catalog": 20,
+  "explicit_folded_hosts": 25,
+  "preservation": {
+    "original_json_and_javascript_lesson_objects_unchanged": true,
+    "original_catalog_metadata_unchanged": true,
+    "original_tracked_media_files_rehashed_unchanged": 686,
+    "original_media_set_sha256": "c3239d8321194389e76a725995f36e5f5de8548d90c70d9900ad04aec70c656a",
+    "media_set_hash_method": "SHA256 of compact sorted JSON mapping repository-relative path to file SHA256",
+    "tutorial_index_original_67_routes_unchanged": true,
+    "tutorial_index_added_routes": ["import_images", "regression_diagnostics"],
+    "other_staged_refreshes_copied": false,
+    "existing_audio_deleted": false
+  },
+  "derived_media": [
+    {
+      "lesson": "74_import_images",
+      "master_sha256": "359a4107b4a36b4e0c2735216a58d624ee4b1c9fcad4002b9805a9b32a7853ee",
+      "derived_sha256": "d0fee3b4e4e1fe84172a605ba8ac4058968b7f729c1be0e59b9a79dbfc91132c",
+      "derived_bytes": 3091682,
+      "poster_sha256": "97ea6e2029ab31988a36922da3c5b2fdf7a8f0118821fcf61d57dfc644911264",
+      "frames_preserved": 4674,
+      "duration_preserved_seconds": 155.8
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "master_sha256": "a8ad544dc406b1fbed528d8e59b7c01bea38889d7890ae46e107ecf2b77b5ffa",
+      "derived_sha256": "d1c4ff45f9507f0efc0988f04020c9bc0094f8f070162a45e31f16943d3e0dcd",
+      "derived_bytes": 2470147,
+      "poster_sha256": "9ee07cf0dfb681c61591a1c26c25332d210c632c51461a5cd3b6eff579f8e7da",
+      "frames_preserved": 5620,
+      "duration_preserved_seconds": 187.333333
+    }
+  ],
+  "encoding": {
+    "resolution": [2560, 1440],
+    "fps": 30,
+    "audio_streams": 0,
+    "frame_preserving_downscale_only": true,
+    "both_derived_videos_fully_decoded_without_errors": true,
+    "original_4k_masters_unchanged": true
+  },
+  "checks": {
+    "selective_appender_tests_passed": 45,
+    "shape_guard_source_mutation": "Wrong-focus negative test failed while original-object preservation positive passed; restored full45 passed",
+    "catalog_i18n_tests_passed": 4,
+    "release_audit_passed": 8,
+    "release_audit_failed": 1,
+    "missing_routes_before": ["import_images", "regression_diagnostics", "ops"],
+    "missing_routes_after": ["ops"],
+    "complete_route_equality_guard_unchanged": true,
+    "generated_tutorial_index_check": "69 routes; up to date",
+    "prospective_pages_payload_bytes": 105927207,
+    "media_ceiling_bytes_unchanged": 734003200
+  },
+  "baseline_media_tests": {
+    "passed": 18,
+    "failed": 2,
+    "failures_before_changes": [
+      "Retained legacy audio makes old one-third reduction assertion fail: 95.4MiB of213.3MiB",
+      "Mobile-clock test pins20260825 cache key; current index already uses20260909"
+    ],
+    "neither_failure_silently_excluded_or_assertion_relaxed": true
+  },
+  "publication_hold": {
+    "ordinary_nightly_push_builds_but_does_not_deploy_pages": true,
+    "no_docs_workflow_dispatch": true,
+    "no_remote_media_upload": true,
+    "no_main_push_or_version_change": true,
+    "live_verifier_still_describes_existing_published_inventory": true,
+    "new_remote_media_must_be_uploaded_before_any_public_catalog_deployment": true,
+    "ops_deferred_until_current_host_and_real_workflow_validated": true,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  }
+}

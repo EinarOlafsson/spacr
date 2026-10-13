@@ -1,0 +1,84 @@
+{
+  "independent_all_saved_human_neighbour_scores_labels_class_counts_and_normal_CSV_verified": true,
+  "all_170740_human_neighbour_cosine_scores_recomputed_from_original_features": true,
+  "64_query_independent_normal_numpy_neighbor_match_fraction": 1.0,
+  "synthetic_million_fixture_seed_matrix_normalization_and_20_top100_searches_recreated_on_CPU": true,
+  "million_normal_numpy_neighbor_match_fraction": 1.0,
+  "human_class_agreement": [
+    {
+      "class": "basophil",
+      "n": 1212,
+      "precision_at_k": 0.8132838283828382,
+      "chance": 0.07093070930709307,
+      "lift": 11.465891661420477
+    },
+    {
+      "class": "eosinophil",
+      "n": 3110,
+      "precision_at_k": 0.8380385852090033,
+      "chance": 0.18210039243249576,
+      "lift": 4.602069078569738
+    },
+    {
+      "class": "erythroblast",
+      "n": 1551,
+      "precision_at_k": 0.8837524177949708,
+      "chance": 0.09078662215193581,
+      "lift": 9.734390341299056
+    },
+    {
+      "class": "ig",
+      "n": 2892,
+      "precision_at_k": 0.8130013831258646,
+      "chance": 0.16933169331693318,
+      "lift": 4.801235771050807
+    },
+    {
+      "class": "lymphocyte",
+      "n": 1214,
+      "precision_at_k": 0.8498352553542008,
+      "chance": 0.07104785333567622,
+      "lift": 11.961448734264032
+    },
+    {
+      "class": "monocyte",
+      "n": 1419,
+      "precision_at_k": 0.7196617336152219,
+      "chance": 0.08305511626544837,
+      "lift": 8.664869378006124
+    },
+    {
+      "class": "neutrophil",
+      "n": 3328,
+      "precision_at_k": 0.8877704326923077,
+      "chance": 0.19486909154805834,
+      "lift": 4.555727261002636
+    },
+    {
+      "class": "platelet",
+      "n": 2348,
+      "precision_at_k": 0.9834752981260647,
+      "chance": 0.13746851754231829,
+      "lift": 7.1541856688991485
+    },
+    {
+      "class": "all",
+      "n": 17074,
+      "precision_at_k": 0.8568876654562493,
+      "chance": 0.14397477263482286,
+      "lift": 5.95165145792351
+    }
+  ],
+  "predeclared_human_precision_0_75_passed": true,
+  "each_class_above_chance_passed": true,
+  "twenty_actual_GPU_queries_under_one_second_passed": true,
+  "actual_GPU_timing_min_max_seconds": [
+    0.0028940070187672973,
+    0.003925749973859638
+  ],
+  "all_required_GPU_retrieval_and_timing_criteria_met": true,
+  "source_plan_embeddings_FAISS_artifact_hashes_exact": true,
+  "actual_GPU_acceptance_sha256": "2140ed8111e12f168fcb3a03ef3d578f86d2a78eaaf0d453e484a2c6e551e3f8",
+  "verifier_sha256": "e1f4820d99ccf144fbc60ec06e970c3e7f56ea6c64a8f5e3e262872fe38ee05a",
+  "no_million_acquired_cells_patient_split_or_GUI_screen_integration_claim": true
+}

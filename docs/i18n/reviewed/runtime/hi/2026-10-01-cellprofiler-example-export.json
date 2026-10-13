@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Independent AI technical review: merge_interfaces de/es/fr/pt; mask_editor hi/ko/is; shared_ui sv/zh_CN and all module bindings. Root accepted corrections; removed Chinese label-surrounding spaces.",
+  "draft_author": "root",
+  "original_proposals": {
+    "Export example CellProfiler pipeline…": "CellProfiler का उदाहरण पाइपलाइन निर्यात करें…",
+    "CellProfiler pipelines (*.cppipe)": "CellProfiler पाइपलाइन (*.cppipe)",
+    "Could not export pipeline": "पाइपलाइन निर्यात नहीं हो सकी",
+    "The example pipeline could not be saved: {error}": "उदाहरण पाइपलाइन सहेजी नहीं जा सकी: {error}",
+    "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.": "दो चैनलों के लिए उदाहरण पाइपलाइन निर्यात करें: _ch0.tif (DNA) और _ch1.tif (Actin), साथ में _nucleus_mask.tif (Nuclei) और _cell_mask.tif (Cells)। Measure चलाने से पहले पाइपलाइन को अपनी छवियों और मास्क के अनुसार बदलें।"
+  },
+  "review_evidence": {
+    "de-es-fr-pt-peer-review.json": {
+      "reviewer": "Codex AI technical peer review (merge_interfaces); no native or human signoff",
+      "draft_sha256": "a8d2809809f18187bd31d5ac3044677ce286c0b112ce5cef7f9b88a8c57fc467",
+      "locales": {
+        "de": {
+          "accepted_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "corrections": [],
+          "notes": "All five targets preserve export/save distinction, error placeholder, pipeline file filter, exact DNA/Actin and Nuclei/Cells names and mask filenames, and requirement to adapt before running Measure."
+        },
+        "es": {
+          "accepted_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "corrections": [],
+          "notes": "All five targets preserve export/save distinction, error placeholder, pipeline file filter, exact DNA/Actin and Nuclei/Cells names and mask filenames, and requirement to adapt before running Measure."
+        },
+        "fr": {
+          "accepted_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "corrections": [],
+          "notes": "All five targets preserve export/save distinction, error placeholder, pipeline file filter, exact DNA/Actin and Nuclei/Cells names and mask filenames, and requirement to adapt before running Measure."
+        },
+        "pt": {
+          "accepted_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "corrections": [],
+          "notes": "All five targets preserve export/save distinction, error placeholder, pipeline file filter, exact DNA/Actin and Nuclei/Cells names and mask filenames, and requirement to adapt before running Measure."
+        }
+      }
+    },
+    "hi-ko-is-peer-review.json": {
+      "reviewer": "Codex independent AI technical review",
+      "human_native_review": false,
+      "draft_sha256": "a8d2809809f18187bd31d5ac3044677ce286c0b112ce5cef7f9b88a8c57fc467",
+      "records": [
+        {
+          "language": "hi",
+          "accepted_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "corrections": [
+            {
+              "index": 4,
+              "source": "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.",
+              "original": "दो चैनलों के लिए उदाहरण पाइपलाइन निर्यात करें: _ch0.tif (DNA) और _ch1.tif (Actin), साथ में _nucleus_mask.tif (Nuclei) और _cell_mask.tif (Cells)। Measure चलाने से पहले पाइपलाइन को अपनी छवियों और मास्क के अनुसार बदलें।",
+              "proposed": "दो चैनलों के लिए उदाहरण पाइपलाइन निर्यात करें: _ch0.tif (DNA) और _ch1.tif (Actin), साथ में _nucleus_mask.tif (Nuclei) और _cell_mask.tif (Cells)। मापन मॉड्यूल चलाने से पहले पाइपलाइन को अपनी छवियों और मास्क के अनुसार बदलें।",
+              "reason": "Use actual localized Measure module label 'मापन'; preserve filenames and pipeline object identifiers verbatim."
+            }
+          ]
+        },
+        {
+          "language": "ko",
+          "accepted_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "corrections": [
+            {
+              "index": 4,
+              "source": "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.",
+              "original": "두 채널 _ch0.tif (DNA)와 _ch1.tif (Actin), 그리고 _nucleus_mask.tif (Nuclei)와 _cell_mask.tif (Cells)를 사용하는 예제 파이프라인을 내보냅니다. Measure를 실행하기 전에 이미지와 마스크에 맞게 파이프라인을 수정하세요.",
+              "proposed": "두 채널 _ch0.tif (DNA)와 _ch1.tif (Actin), 그리고 _nucleus_mask.tif (Nuclei)와 _cell_mask.tif (Cells)를 사용하는 예제 파이프라인을 내보냅니다. 측정 모듈을 실행하기 전에 이미지와 마스크에 맞게 파이프라인을 수정하세요.",
+              "reason": "Use actual localized Measure module label '측정'; preserve filenames and pipeline object identifiers verbatim."
+            }
+          ]
+        },
+        {
+          "language": "is",
+          "accepted_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "corrections": [
+            {
+              "index": 4,
+              "source": "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.",
+              "original": "Flyttu út dæmi um vinnsluferli fyrir tvær rásir: _ch0.tif (DNA) og _ch1.tif (Actin), með _nucleus_mask.tif (Nuclei) og _cell_mask.tif (Cells). Lagaðu vinnsluferlið að myndunum þínum og grímum áður en þú keyrir Measure.",
+              "proposed": "Flyttu út dæmi um vinnsluferli fyrir tvær rásir: _ch0.tif (DNA) og _ch1.tif (Actin), með _nucleus_mask.tif (Nuclei) og _cell_mask.tif (Cells). Lagaðu vinnsluferlið að myndunum þínum og grímum áður en þú keyrir eininguna Mæling.",
+              "reason": "Use actual localized Measure module label 'Mæling'; preserve filenames and pipeline object identifiers verbatim."
+            }
+          ]
+        }
+      ],
+      "checks": "All 15 pairs checked. DNA/Actin/Nuclei/Cells, four TIFF suffixes, *.cppipe, {error}, pre-run adaptation and error meaning preserved. Only module-name localization needs correction."
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Export example CellProfiler pipeline…",
+      "source": "Export example CellProfiler pipeline…",
+      "source_sha256": "abb46f6703618237a052fad697a67e5be8bde5459871b9f5f288b968c71647a4",
+      "translation": "CellProfiler का उदाहरण पाइपलाइन निर्यात करें…"
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler pipelines (*.cppipe)",
+      "source": "CellProfiler pipelines (*.cppipe)",
+      "source_sha256": "78a765c94b7cada4e68df4345fb547ea28d0f9421034d6bb2d762ca2e10a47c4",
+      "translation": "CellProfiler पाइपलाइन (*.cppipe)"
+    },
+    {
+      "table": "ui",
+      "key": "Could not export pipeline",
+      "source": "Could not export pipeline",
+      "source_sha256": "ee2fa4efad7689a0cf7d0e3d0d6550acb67080c841c0e011580c46070304962b",
+      "translation": "पाइपलाइन निर्यात नहीं हो सकी"
+    },
+    {
+      "table": "ui",
+      "key": "The example pipeline could not be saved: {error}",
+      "source": "The example pipeline could not be saved: {error}",
+      "source_sha256": "05173039fa11176c93c1014100d6d81f6b9d09c8f606b9262d32b912ba14b720",
+      "translation": "उदाहरण पाइपलाइन सहेजी नहीं जा सकी: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.",
+      "source": "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.",
+      "source_sha256": "ba7003b619c0500849f39d2dda31a2988640ac07e4933108f85b43bd05b448ca",
+      "translation": "दो चैनलों के लिए उदाहरण पाइपलाइन निर्यात करें: _ch0.tif (DNA) और _ch1.tif (Actin), साथ में _nucleus_mask.tif (Nuclei) और _cell_mask.tif (Cells)। मापन मॉड्यूल चलाने से पहले पाइपलाइन को अपनी छवियों और मास्क के अनुसार बदलें।"
+    }
+  ]
+}

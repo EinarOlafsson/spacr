@@ -1,0 +1,62 @@
+[
+  {
+    "file": "spacr/qt/i18n_catalogs/sv.py",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/spacr/qt/i18n_catalogs/sv.py",
+    "source_sha256": "2cf330dcb2619d0e4e4fda863554cd9e2b0d1b6df83209aae24210c1621e7cd7",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/sv/2026-10-07-theme-caption-meaning-fixes.json",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/docs/i18n/reviewed/runtime/sv/2026-10-07-theme-caption-meaning-fixes.json",
+    "source_sha256": "7c217a1035e23a571b49ec6277643d1139e5ea06bbe3de4e1b6030d9b519f33a",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "spacr/qt/i18n_catalogs/is.py",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/spacr/qt/i18n_catalogs/is.py",
+    "source_sha256": "f4a2c0d075b40dcd905f06bb994d16b508d748b96607690b27a25e067ef10bf7",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/is/2026-10-07-theme-caption-meaning-fixes.json",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/docs/i18n/reviewed/runtime/is/2026-10-07-theme-caption-meaning-fixes.json",
+    "source_sha256": "771c527cf6355cccacbfc7affde085e82698724ab5b5db10c78db2355847f7bc",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "spacr/qt/i18n_catalogs/zh_CN.py",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/spacr/qt/i18n_catalogs/zh_CN.py",
+    "source_sha256": "d8415c5e5b5aaa4d1339768d4b506bd1ef00bc2d1c11dd0cba9ab36a7d9b69cc",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/zh_CN/2026-10-07-theme-caption-meaning-fixes.json",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/docs/i18n/reviewed/runtime/zh_CN/2026-10-07-theme-caption-meaning-fixes.json",
+    "source_sha256": "981471aef339e6f682a9e9df182d85b833ea1fdd5725cada91f59f7490caa456",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "spacr/qt/i18n_catalogs/ko.py",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/spacr/qt/i18n_catalogs/ko.py",
+    "source_sha256": "20b277244dd81e4fc962fa0c4a16bc603803f5cbe91ebca0b2992a1898dfc5e4",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/ko/2026-10-07-theme-caption-meaning-fixes.json",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/docs/i18n/reviewed/runtime/ko/2026-10-07-theme-caption-meaning-fixes.json",
+    "source_sha256": "af95ab3952bf60f253ef3a430180b390ee18ad8d47c65c100214ca206d4eab08",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "spacr/qt/i18n_catalogs/hi.py",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/spacr/qt/i18n_catalogs/hi.py",
+    "source_sha256": "1b7aeb9499523fb5ad6b20e45c275f74709ee06a0869fcb87f2d16c16d039438",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/hi/2026-10-07-theme-caption-meaning-fixes.json",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/preferences-apply-20261007/docs/i18n/reviewed/runtime/hi/2026-10-07-theme-caption-meaning-fixes.json",
+    "source_sha256": "b5cff1be90cfa5182bd87f031150cc262a9b693ab7c4ecdcf8b215295f65766d",
+    "operation": "whole accepted source-bound artifact seed; normal current builder runs next"
+  }
+]

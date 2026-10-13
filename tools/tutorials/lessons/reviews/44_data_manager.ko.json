@@ -1,0 +1,36 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "e442156c3d5154963bc72ce01be337bb0f19806767d7ebe8eae9e9572eef06ff",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Data Manager: 사용량 확인, 정리, 보관",
+  "description": "프로젝트 저장 공간을 검토하고, 정리 계획을 미리 본 뒤 프로젝트를 보관 위치로 옮깁니다.",
+  "objectives": [
+    "프로젝트의 디스크 사용량을 확인합니다.",
+    "정리 계획을 검토하고 적용합니다.",
+    "보관한 프로젝트를 옮기고 다시 스캔합니다."
+  ],
+  "prerequisite": "완료된 spaCR 프로젝트를 쓰고, 정리하기 전에 독립적인 백업을 만들어 두세요. 예제는 External Masks가 만든 프로젝트의 사본을 씁니다.",
+  "scenes": [
+    "Help를 연 뒤 Data manager를 여세요. 완료된 프로젝트를 골라 저장 공간을 확인하고 정리나 보관을 계획하세요.",
+    "Choose project를 클릭하고 프로젝트 루트를 선택하세요. Usage에서 파일, 디스크 공간, 등록된 산출물을 확인하세요.",
+    "Prune을 열고 고려할 산출물 유형을 고르세요. 측정 데이터베이스와 모델 가중치를 남기려면 체크하지 않은 채로 두고 Show what can be deleted를 클릭하세요.",
+    "제안된 파일, 절약되는 공간, 복구 정보를 검토하세요. 예제는 객체 크롭 폴더를 선택합니다. 지운 것을 다시 만들 수 있도록 필요한 입력과 설정은 남겨 두세요.",
+    "Delete를 클릭해 최종 파일 목록을 검토하세요. 삭제는 되돌릴 수 없으니, 계획을 승인하기 전에 경로와 백업을 확인하세요.",
+    "파일을 남기거나 선택을 바꾸려면 Cancel을 쓰세요. 목록을 승인하면 최종 Delete 동작이 활성화됩니다.",
+    "계획이 맞으면 Delete를 확인하세요. 결과에서 삭제된 파일 수와 확보된 공간을 확인하세요.",
+    "갱신된 Usage 스캔을 검토하세요. 삭제된 산출물은 기록된 생성 방법과 함께 누락으로 목록에 남을 수 있으며, 필요하면 해당 모듈로 다시 만드세요.",
+    "Archive를 열고 원본 프로젝트 밖의 빈 대상 위치를 고르세요. Show what would move를 클릭하고 두 경로를 모두 확인하세요.",
+    "Move를 클릭해 확인 내용을 검토하세요. Archive는 프로젝트를 옮기므로, 필요한 별도 백업은 먼저 만들어 두세요.",
+    "Yes로 확인해 프로젝트를 옮기세요. 대상 위치의 매니페스트와 원래 위치에 남는 보관 로그를 보관하세요.",
+    "대상 위치를 프로젝트로 선택하고 다시 스캔하세요. 옮겨진 파일을 확인하고, 아직 이전 위치를 가리키는 외부 참조를 갱신하세요.",
+    "측정 표는 Database Browser로, 프로젝트 요약은 Report로, 저장 공간 관리는 Data Manager로 하세요. 보관 기록은 프로젝트 문서와 함께 두세요."
+  ]
+}

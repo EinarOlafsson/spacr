@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review": "AI-assisted editorial and technical review: unavailable physical scale remains pixels; PDF text is distinct from OCR; label/legend conflict needs condition review before approval. Format fields and px/mm retained. No native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "No scale bar or whole well was found: plaque sizes are in pixels.",
+      "source": "No scale bar or whole well was found: plaque sizes are in pixels.",
+      "source_sha256": "3eb11a2352cdc106f082717e75d1239670bfea3aff04733a93636b86d6b25e8c",
+      "translation": "未找到比例尺或完整孔：噬斑大小以像素为单位。"
+    },
+    {
+      "table": "ui",
+      "key": "The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.",
+      "source": "The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.",
+      "source_sha256": "297137ac88ae9fa6891635d186dedad52ac3cd667101c047a82076d9b08aa1a2",
+      "translation": "分图 {panel} 的图注提到了 {terms}，但此图旁的标签没有：两种读取结果中有一种是错误的。请先核对实验条件，再用 OK 确认。"
+    },
+    {
+      "table": "ui",
+      "key": "The words were read from the PDF's own text.",
+      "source": "The words were read from the PDF's own text.",
+      "source_sha256": "c47c2be3e2827ba4ef51afc74f2851b5b74d62c3ca413fc7a5cc58c474ff7f78",
+      "translation": "这些文字读取自 PDF 自身的文本。"
+    },
+    {
+      "table": "ui",
+      "key": "pixels (no scale bar or whole well)",
+      "source": "pixels (no scale bar or whole well)",
+      "source_sha256": "49e741b3d353e72338bec503dbfa4d2c272fe1d4349e558fa5a61e68d156613f",
+      "translation": "像素（无比例尺或完整孔）"
+    },
+    {
+      "table": "ui",
+      "key": "{n} well(s): the label and the legend disagree (marked conflict in Source).",
+      "source": "{n} well(s): the label and the legend disagree (marked conflict in Source).",
+      "source_sha256": "7c6e83438616dfcf9626c7a82e250cee0b061d853e6b0fd8f724d74c1964dba0",
+      "translation": "{n} 个孔：标签与图注不一致（在 Source 中标记为冲突）。"
+    },
+    {
+      "table": "ui",
+      "key": "{source} / conflict",
+      "source": "{source} / conflict",
+      "source_sha256": "1d45f4580144c5e5ef1e1bd1b23c95d42c445a7e0316f93cd36360fe7d0a2235",
+      "translation": "{source} / 冲突"
+    },
+    {
+      "table": "ui",
+      "key": "{source}: {ppm} px/mm",
+      "source": "{source}: {ppm} px/mm",
+      "source_sha256": "4c1e51c1b4b41e936cf6fedf733afe187381c5a79b24172c662c1e7902104933",
+      "translation": "{source}: {ppm} px/mm"
+    }
+  ]
+}

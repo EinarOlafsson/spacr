@@ -1,0 +1,27 @@
+{
+  "lesson": "74_import_images",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "scene_count_per_catalog": 10,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 4674,
+    "duration_seconds": 155.8, "audio_streams": 0, "bytes": 11429971,
+    "sha256": "359a4107b4a36b4e0c2735216a58d624ee4b1c9fcad4002b9805a9b32a7853ee"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Scene links", "Placement under Import in the Submodules section", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "real_data": "Eight unchanged image files from the downloaded Mask example; copied output bytes match every prepared input",
+  "scope_caveat": "Original acquisition tokens are refused by the importer. The lesson explicitly demonstrates that refusal and discloses removing only the redundant A acquisition token from prepared copies; it does not claim automatic import of untouched original filenames.",
+  "evidence_directory": "refresh_2026-09-09/production/74_import_images and refresh_2026-09-09/browser/74_import_images in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and real capture; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

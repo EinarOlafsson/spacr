@@ -1,0 +1,35 @@
+{
+  "lesson": "41_classify",
+  "english_sha256": "4485df04c4ce5e1db32e2d619de962f72cd60ad1d2c8391358d33540c552f7c6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Classify: velg en modell og utforsk resultatene",
+  "description": "Velg bilde- eller egenskapsklassifisering, last inn eksempeldata, undersøk prediksjonsresultatene og åpne de tilhørende verktøyene i Classify.",
+  "objectives": [
+    "Velge Computer Vision for bilder eller Tabular Machine Learning for målinger.",
+    "Begynne med testdata og følge den tilhørende treningsgjennomgangen.",
+    "Undersøke prediksjoner og åpne verktøy for evaluering, egenskaper og trening."
+  ],
+  "prerequisite": "Åpne Classify fra Home. Bruk Load test data for et eksempelprosjekt. For ditt eget prosjekt forbereder du objektutsnitt eller målte egenskaper og klassemerkelapper fra annoteringer eller eksperimentelle metadata.",
+  "scenes": [
+    "Åpne Classify fra Home. Begynn med å velge klassifikatorfamilie. Leksjonene om bilder og tabelldata som er lenket her, går hver gjennom et fullstendig eksempel.",
+    "Velg Computer Vision for å lære fra objektbilder. Velg Tabular Machine Learning for å lære fra kolonner med målte egenskaper. Measure gir disse inndataene, og i Annotate kan du legge til objektmerkelapper.",
+    "Visningen Essentials samler innstillingene begge familiene trenger for trening. Når du bytter til Tabular Machine Learning, blir Computer Vision-innstillingene grå, slik at du bare fyller ut det den valgte familien bruker.",
+    "For tabelleksemplet klikker du på Load test data og velger Load. Velg klassemerkelapper og egenskapsinnstillinger, og følg deretter tabelleksjonen for å trene modellen og lagre prediksjonene.",
+    "Etter tabellkjøringen undersøker du prediksjonsvarmekartet og de lagrede objektpoengene. Objekter som mangler nødvendige målinger, kan stå uten poeng. Se gjennom evalueringsresultatene for å avgjøre om du bør endre merkelapper, egenskaper eller modellinnstillinger.",
+    "For bildeklassifisering følger du Computer Vision-leksjonen for å klargjøre merkede utsnitt, velge en modell og angi inndelingen i trening, validering og test. Etter treningen sjekker du tap- og nøyaktighetskurvene og ser deretter på evalueringsfigurene og de lagrede prediksjonene.",
+    "Åpne Classifier Evaluation fra verktøyene øverst til høyre. Velg en lagret evalueringspakke for å undersøke prediksjoner, mål og dataoppdeling.",
+    "Åpne Explain CV for å knytte en bildeklassifikators prediksjoner til målte egenskaper. Oppgi bildeprediksjonene og de tilhørende målingene, og undersøk deretter hvilke egenskaper som forklarer poengene.",
+    "Åpne Activation for å se hvilke bildeområder som påvirker modellens svar. Velg det trente sjekkpunktet, og bruk de samme bildekanalene og samme forbehandling som under treningen.",
+    "Åpne Training Runs for å sammenligne lagret treningshistorikk. Velg kjøringer med kompatible mål og dataoppdelinger, og undersøk deretter læringskurvene og innstillingene.",
+    "Åpne Feature Explorer for å sammenligne målte egenskaper mellom valgte grupper. Velg grupper og filtre, og undersøk deretter rangeringen av egenskaper og plottene.",
+    "Behold den trente modellen, prediksjonene og evalueringsresultatene i kjøremappen. Du kan bruke objektpoeng i Regression sammen med tilhørende guidetellinger. De lenkede modulleksjonene viser de neste trinnene."
+  ]
+}

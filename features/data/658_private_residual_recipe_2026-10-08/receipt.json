@@ -1,0 +1,202 @@
+{
+  "source": "0d1aeac83dc4fe45d556cab3b76ad76126027eec",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "ed26f5e5d4673cf20f1a6f2e267ab837d86fcaf1",
+  "integrated_source": "5f86de80e9417f632ee18522ddede447cd55c9a4",
+  "application_source_pushed": false,
+  "patch_cleanly_applies": true,
+  "original_tests_unchanged": true,
+  "original_negative": {
+    "failed": 3,
+    "seconds": 5.83
+  },
+  "intermediate": {
+    "failed": 1,
+    "passed": 6,
+    "seconds": 15.22
+  },
+  "final": {
+    "passed": 199,
+    "seconds": 152.52,
+    "warnings": 135
+  },
+  "callable_signatures_and_prose_exact_to_lorenz_source": {
+    "spacr/plot.py": 188,
+    "spacr/figures/bundle.py": 26
+  },
+  "scope": "Native residual diagnostics preserve the thirty-bin histogram, fitted-and-normalized QQ calculation and both lines, scatter sizing/colors and zero reference. Independent NumPy histogram counts/edges and SciPy theoretical quantiles plus independently standardized residuals match; all three real standalone PNG/SVG CLI processes reject spaCR imports. QQ uses the original statsmodels renderer, honestly listed as its dependency.",
+  "limitations": [
+    "First candidate used nonexistent axyline for horizontal reference; original1FAIL/6PASS retained, corrected to native axhline/axvline lookup without altering tests.",
+    "Source-current API/runtime/tutorial refresh, coherent application adoption, latest GitHub/fullserial/native acceptance and live documentation remain open. Further legacy figure recipes remain under audit."
+  ],
+  "payloads": {
+    "logs/residual-negative-r1.log.gz": {
+      "raw_bytes": 3315,
+      "raw_sha256": "a147276aac7f865c9b0bc71c5f33b6a0cd80fcfa061c0bced177115eba899119",
+      "gzip_bytes": 991,
+      "gzip_sha256": "23a3dc4a677d3ed27a28ba637a4d70be84baef401d0fca56ac18e8b92eef53a6"
+    },
+    "logs/residual-negative-r1-tool.log.gz": {
+      "raw_bytes": 2841,
+      "raw_sha256": "dd3e1f2b8b1b761e331d2aa018ae9a1c4ab59defbc4bd72ecdcaa3ccd7403e47",
+      "gzip_bytes": 804,
+      "gzip_sha256": "5438cde65f289a4b399c5a62528b7bdbc65b3ca97bdfd8b1a0e25b053cb5eaaa"
+    },
+    "logs/residual-focused-r1.log.gz": {
+      "raw_bytes": 1586,
+      "raw_sha256": "e47dec3cacfd79ae471bb2a5675a005702c96a7a993066cb1648bd09497a9a5d",
+      "gzip_bytes": 677,
+      "gzip_sha256": "5a7639a73ea5a3c1bfb987f1b43c563cce130fe8e2fc4a355aad6ee38eef054b"
+    },
+    "logs/residual-focused-r1-tool.log.gz": {
+      "raw_bytes": 1076,
+      "raw_sha256": "d47299787a9734a0de54615c1e34bc4768c853dcb4b5adb4085cb5ad7fbe057d",
+      "gzip_bytes": 478,
+      "gzip_sha256": "d78d1628780dc675feb1ce5e1096ad879b096057609844f5762b3bcae46cab3d"
+    },
+    "logs/residual-final-r1.log.gz": {
+      "raw_bytes": 13574,
+      "raw_sha256": "7dcfc8bcfc6e3b1d39ead0092f934995f0396d4589fcb280a25274c3df081abd",
+      "gzip_bytes": 2158,
+      "gzip_sha256": "4c75e3716ec3ab19defe176d68a5e778292b5311e6216023d4896cc5b37a75c4"
+    },
+    "logs/residual-final-r1-tool.log.gz": {
+      "raw_bytes": 12186,
+      "raw_sha256": "56e6c7d0b2ddabbdf3fe4d3f668c46001ac8d82ef1977ac338eb204e0cb4bb7e",
+      "gzip_bytes": 1831,
+      "gzip_sha256": "3d403d67d7e2fedd9a4a3c70784847749b8b0c9d29fda0c34061e6da15917a96"
+    },
+    "coverage/residual-final-coverage-r1.data.carruthers.pid100047.XNKwJIjx.HOxIpSylJcIh.gz": {
+      "raw_bytes": 2433024,
+      "raw_sha256": "d686088e6dc334f180018d14c5b35d29d2fdcd179c3948c594ff2b7ce104e33c",
+      "gzip_bytes": 1013292,
+      "gzip_sha256": "e40cfd722119af5f956d57e95e0dd433432b10e4d793da8274db07b2c66de461"
+    },
+    "replacement-source-and-tests.patch.gz": {
+      "raw_bytes": 112696,
+      "raw_sha256": "9ce5f5cd037402e1aeb918b925aa8341a37856984899863dca74d0b8cde41b86",
+      "gzip_bytes": 23979,
+      "gzip_sha256": "62bef579424cfb81d1a01f6877667b8676804fdae92eb99a14f273564e646d8f"
+    },
+    "delta-from-lorenz-candidate.patch.gz": {
+      "raw_bytes": 11004,
+      "raw_sha256": "9f3ffe3916ce289851a25eddebcc75aaf85480a68b02729a3e8c651abf0108fb",
+      "gzip_bytes": 3364,
+      "gzip_sha256": "356fe88d453c559486988e8110bafa16651e56924ac6f99a1a96ad735d9edab4"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 50591,
+      "raw_sha256": "dfd3e3593d56e9156565765b885107e74b23adb1dd56653abb3572c52335b945",
+      "gzip_bytes": 14956,
+      "gzip_sha256": "eca0135014b8f5ef97edddc0ee20ae60c52b16e83b1dd4cbcefe7636f8e43107"
+    },
+    "source/spacr/figures/plates.py.gz": {
+      "raw_bytes": 30577,
+      "raw_sha256": "7d9a39e03fa926c7e1d8022e1f09aff18b3b566c4877e606222245df2448a626",
+      "gzip_bytes": 10190,
+      "gzip_sha256": "013b8f54f93fe913a85938f443e883ad60a0ae2f1e344db39ce22425701c6990"
+    },
+    "source/spacr/figures/sheet.py.gz": {
+      "raw_bytes": 9556,
+      "raw_sha256": "200ba4b523cf13f784743a574205a56cbb47d3f44d8c6859959f81665338de25",
+      "gzip_bytes": 3517,
+      "gzip_sha256": "2f80b3656591109954116473c3d6a62458e6c787e7bcf4a7006aee6e3c56f6d0"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 346280,
+      "raw_sha256": "fbecaafc438b52f1ef2ce26a41652ffb04765c743039d3d25c2ec6334bfdd5a5",
+      "gzip_bytes": 87105,
+      "gzip_sha256": "07d06e96fb4c4328e2b824fcc18547c69677d9f71aea01ad2db9d6bcc07088ae"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119440,
+      "raw_sha256": "fb34dbd8212ff4384255623c4f0c343e441484a9e3d73bb8c6b7cb1f4aa05b78",
+      "gzip_bytes": 32088,
+      "gzip_sha256": "b2534dc6371a0badfbd5f243119d6e30ecf924e9fea39622f0329395a02db87b"
+    },
+    "source/tests/qt/test_panel_statistics_dialog.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "851e4d0bb1d04c8ecd30c2858fa9b2e8dae04e081c5891b27c68025eb7c13bd3",
+      "gzip_bytes": 1869,
+      "gzip_sha256": "4a2783b34f3cf9e1d718a7ba8e45469a9ba3d13e36f52ee7467cad24150729d9"
+    },
+    "source/tests/qt/test_panel_view_statistics_limits.py.gz": {
+      "raw_bytes": 3519,
+      "raw_sha256": "526c4b92806e93ad57740b989ed858a99cbd254c56f682a87653bd8c8b1b7cd1",
+      "gzip_bytes": 1050,
+      "gzip_sha256": "f694019049a9e30dad2e81a15674ca55b2de090d64cc8789e9742e5cb64bcb7f"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "source/tests/test_lorenz_curve_recipe.py.gz": {
+      "raw_bytes": 7191,
+      "raw_sha256": "25aa104bf293f3143f486008f6e56c2b05afb7699b8459b04d78241008b1d492",
+      "gzip_bytes": 2380,
+      "gzip_sha256": "82d17ae4e709998ea5464b5d519841ae3bbf34b5bc282b7d28699bbe75e18475"
+    },
+    "source/tests/test_plate_heatmap_recipe.py.gz": {
+      "raw_bytes": 5905,
+      "raw_sha256": "a0fcee6c5941088f624d5fba02d1585adee4e0643d62fc4add62c1d6efcdc57f",
+      "gzip_bytes": 1893,
+      "gzip_sha256": "5c2dedc4fad048f3e60f45d8982f20215f7902fb1ee547a01fe735dd385a8234"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "source/tests/test_regression_panel_recipe.py.gz": {
+      "raw_bytes": 5374,
+      "raw_sha256": "bf22afefe09c961d242b4dc420643dbfc6740625a8c0ffd145b224a7ba630795",
+      "gzip_bytes": 1923,
+      "gzip_sha256": "ae2904a3da4a6c666a422af2e669c72ca5e8d1086fea11dbb2d653da8a5185b8"
+    },
+    "source/tests/test_regression_sheet_recipe.py.gz": {
+      "raw_bytes": 5127,
+      "raw_sha256": "6cf8303aa5b151523b359021dd55b44bd4e2c95ba9fe4300b96eda2086df8f9c",
+      "gzip_bytes": 1848,
+      "gzip_sha256": "2db42df8b7f9c21981bc7bf3c40e14eeb39e96ebaac2b51b503c240065abe5af"
+    },
+    "source/tests/test_residual_diagnostic_recipe.py.gz": {
+      "raw_bytes": 5112,
+      "raw_sha256": "2e82825299cdf143562e9619a045cb64b3d708c19dd0755268584aa1fab48616",
+      "gzip_bytes": 1789,
+      "gzip_sha256": "9d1e8266c555ba1a5fdb311c4b712c949430ceb55606544b51c2016187bbb848"
+    },
+    "original-source/spacr/plot.py.gz": {
+      "raw_bytes": 345585,
+      "raw_sha256": "c2c3f2810978655985bb6007f1c167eacfabc7bf9f5e9f541da2fef792a5c438",
+      "gzip_bytes": 86975,
+      "gzip_sha256": "db639df70ea8068add57e2417e41f241b44e6ff03639991dc6a63add4a1cb3f3"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 49372,
+      "raw_sha256": "c860b9f032d8d23b25656655e22c5e862317eca3389803451fe2b0637ec98965",
+      "gzip_bytes": 14624,
+      "gzip_sha256": "93bf19c89235dad1e83f15bfa5a34b1a9ca9ad0425bb5ee9656c97e3c4fd1114"
+    },
+    "test-revisions/original-three-failures.py.gz": {
+      "raw_bytes": 5112,
+      "raw_sha256": "2e82825299cdf143562e9619a045cb64b3d708c19dd0755268584aa1fab48616",
+      "gzip_bytes": 1789,
+      "gzip_sha256": "9d1e8266c555ba1a5fdb311c4b712c949430ceb55606544b51c2016187bbb848"
+    },
+    "scripts/archive_residual_recipe_r1.py.gz": {
+      "raw_bytes": 7307,
+      "raw_sha256": "0913379b1438c40ba1d3b9355e118cd8198c320e8e94a29e528960bd5e7a895d",
+      "gzip_bytes": 3273,
+      "gzip_sha256": "9ef2f31e596a5730ac917c62f7cd29c40a582a33df137395c52bdcaf094e6a54"
+    }
+  }
+}

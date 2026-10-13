@@ -1,0 +1,10 @@
+{
+  "unchanged_pre_repair_and_current_source_fail_the_same_parameter_pin": true,
+  "actual_parameters_excluding_four_named_YOLO_helpers": 19860,
+  "existing_pin": 19859,
+  "exact_failing_test": "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+  "exact_failing_line": 2705,
+  "all_complete_callable_signature_and_boundary_rows_unchanged": 9995,
+  "complete_boundary_sha256": "d8eed377aea271da4fd2dcc5c3500fc62cf4d3caa0b51bbe58f8f93c8085c0ae",
+  "no_pin_or_guard_changed": true
+}

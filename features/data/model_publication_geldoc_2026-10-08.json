@@ -1,0 +1,213 @@
+{
+  "date": "2026-10-08",
+  "authorization": "Maintainer requested spaCR and Hugging Face publication with scorecards.",
+  "publications": [
+    {
+      "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc",
+      "commit": "4af2d3d346d260500a370b5ee708e685babf76a9",
+      "url": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc",
+      "verified_files": 20
+    },
+    {
+      "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc",
+      "commit": "a31e978758b7f8f4d98b6007d3d6e52e874cd618",
+      "url": "https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc",
+      "verified_files": 18
+    },
+    {
+      "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r7",
+      "commit": "555ef917ef02cd6b7561545f4b9d1fa62bd8c54a",
+      "url": "https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7",
+      "verified_files": 16,
+      "vector_and_web_scorecards": true
+    },
+    {
+      "repo_id": "einarolafsson/models",
+      "repo_type": "dataset",
+      "commit": "d559f7c48c281b605c29b6f125c68fda4fc43f10",
+      "preserved_foreign_entries": 0,
+      "registered_keys": [
+        "toxoplasma_plaque_v3",
+        "toxoplasma_pv_v4",
+        "toxoplasma_well_detector_v3"
+      ]
+    }
+  ],
+  "models": [
+    {
+      "key": "toxoplasma_plaque_v3",
+      "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc",
+      "weight_sha256": "8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c",
+      "metrics": {
+        "f1": {
+          "finetuned": 0.6418703506907545,
+          "vanilla": null,
+          "delta": null
+        },
+        "precision": {
+          "finetuned": 0.6942528735632184,
+          "vanilla": null,
+          "delta": null
+        },
+        "recall": {
+          "finetuned": 0.5968379446640316,
+          "vanilla": null,
+          "delta": null
+        },
+        "ap": {
+          "finetuned": 0.4726134585289515,
+          "vanilla": null,
+          "delta": null
+        },
+        "true_positives": {
+          "finetuned": 302,
+          "vanilla": null,
+          "delta": null
+        },
+        "false_positives": {
+          "finetuned": 133,
+          "vanilla": null,
+          "delta": null
+        },
+        "false_negatives": {
+          "finetuned": 204,
+          "vanilla": null,
+          "delta": null
+        },
+        "holdout": "geldoc_heldout_min_size_0",
+        "holdout_version": "20261007T205603",
+        "n_fields": 18,
+        "n_objects": 506,
+        "n_train": "496 fields; 34 reviewed empty",
+        "train_objects": "25794",
+        "n_test": "18 Gel Doc wells, 3 plate groups",
+        "test_objects": "506",
+        "cv": "no",
+        "aji": "not recorded",
+        "dice": "not recorded",
+        "stock_f1": "not measured",
+        "stock_aji": "not measured",
+        "stock_dice": "not measured",
+        "train_loss": "0.18370248939254452",
+        "val_loss": "see monitored NAS history; final epoch not measured",
+        "best_epoch": "final checkpoint, 100 epochs; no best-epoch selection"
+      }
+    },
+    {
+      "key": "toxoplasma_well_detector_v3",
+      "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc",
+      "weight_sha256": "046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18",
+      "metrics": {
+        "mAP50": {
+          "finetuned": 0.9940094439993655,
+          "vanilla": null,
+          "delta": null
+        },
+        "mAP50_95": {
+          "finetuned": 0.884212663807534,
+          "vanilla": null,
+          "delta": null
+        },
+        "precision": {
+          "finetuned": 0.96981851739557,
+          "vanilla": null,
+          "delta": null
+        },
+        "recall": {
+          "finetuned": 0.9979244614467876,
+          "vanilla": null,
+          "delta": null
+        },
+        "holdout": "detector_v3_validation_figure_clean",
+        "holdout_version": "20261007T205603",
+        "n_fields": 73,
+        "n_objects": 191,
+        "n_train": "452 images",
+        "train_objects": "1679",
+        "n_test": "73 clean incumbent-validation images; 3 Gel Doc validation plates separately",
+        "test_objects": "see training/fields.csv",
+        "cv": "no",
+        "f1": "not an object-F1 score; mAP50 0.9940",
+        "aji": "not applicable to box detection",
+        "dice": "not applicable to box detection",
+        "stock_f1": "no stock YOLO plaque_well class; incumbent v3 baseline",
+        "stock_aji": "not applicable",
+        "stock_dice": "not applicable",
+        "train_loss": "box/class/DFL losses in epoch_history.csv",
+        "val_loss": "box/class/DFL losses in epoch_history.csv",
+        "best_epoch": "validation-selected best.pt; see training checkpoint metadata"
+      }
+    },
+    {
+      "key": "toxoplasma_pv_v4",
+      "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r7",
+      "weight_sha256": "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
+      "metrics": {
+        "n_train": "502 fields",
+        "train_objects": "23,340",
+        "n_test": "11 anchor wells; 10 nonempty scored",
+        "test_objects": "683",
+        "cv": "5-fold, grouped by source",
+        "f1": {
+          "finetuned": 0.8536,
+          "vanilla": 0.7648,
+          "delta": 0.08879999999999999
+        },
+        "aji": {
+          "finetuned": 0.7755,
+          "vanilla": 0.505,
+          "delta": 0.27049999999999996
+        },
+        "dice": {
+          "finetuned": 0.8905,
+          "vanilla": 0.6431,
+          "delta": 0.24739999999999995
+        },
+        "stock_f1": "0.7648",
+        "stock_aji": "0.5050",
+        "stock_dice": "0.6431",
+        "train_loss": "0.0424",
+        "val_loss": "0.0796",
+        "best_epoch": "55 / 100",
+        "precision": {
+          "finetuned": 0.8493,
+          "vanilla": 0.7539,
+          "delta": 0.09540000000000004
+        },
+        "recall": {
+          "finetuned": 0.858,
+          "vanilla": 0.776,
+          "delta": 0.08199999999999996
+        },
+        "pixel_iou": {
+          "finetuned": 0.8055,
+          "vanilla": 0.5239,
+          "delta": 0.28159999999999996
+        },
+        "mAP": {
+          "finetuned": 0.4921,
+          "vanilla": 0.362,
+          "delta": 0.1301
+        },
+        "holdout": "pv_r7_test",
+        "holdout_version": "r7-published-truth",
+        "n_fields": 10,
+        "n_objects": 683
+      }
+    }
+  ],
+  "verification": {
+    "model_zoo_and_scorecard_tests": "133 passed in 6.27s",
+    "model_documentation_tests": "9 passed, 14 deselected in 0.66s",
+    "remote_verification": "Source manifest file sizes plus remote LFS SHA256; full SHA256 of downloaded non-LFS files. Added PV PNGs separately downloaded and verified.",
+    "pv_checkpoint_unchanged": true,
+    "existing_defaults_unchanged": true
+  },
+  "limitations": [
+    "No newer PV checkpoint found; added scorecards to already-published r7.",
+    "Gel Doc candidates failed promotion gates; no defaults replaced.",
+    "Stock models were not scored for either Gel Doc candidate.",
+    "Detector Gel Doc validation plates selected best.pt; NAS segmentation fields were monitored for validation loss.",
+    "Older F370 maintainer curation queues remain outside this publication."
+  ]
+}

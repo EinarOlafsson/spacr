@@ -1,0 +1,59 @@
+{
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff",
+  "languages": {
+    "sv": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "En modell tränad på mikroskopibilder i stället för fotografier. OpenPhenom och ChAda-ViT tar valfritt antal färgningar; SubCell tar två, först DNA och sedan den färgning som ska undersökas, i den ordning kanalerna är kodade. Vikterna laddas ned en gång. Cell-DINO kräver en officiell kontrollpunkt och stöds ännu inte av denna version. Standard: None (använd basnätverket)."
+    },
+    "de": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "Ein auf Mikroskopiebildern statt Fotografien trainiertes Modell. OpenPhenom und ChAda-ViT verarbeiten beliebig viele Färbungen; SubCell verwendet zwei: DNA und danach die interessierende Färbung, in der Reihenfolge der kodierten Kanäle. Die Gewichte werden einmal heruntergeladen. Cell-DINO benötigt einen offiziellen Checkpoint und wird von dieser Version noch nicht unterstützt. Standard None (Backbone verwenden)."
+    },
+    "es": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "Un modelo entrenado con imágenes de microscopía en vez de fotografías. OpenPhenom y ChAda-ViT admiten cualquier número de tinciones; SubCell admite dos, primero DNA y después la tinción de interés, en el orden en que están codificados los canales. Los pesos se descargan una sola vez. Cell-DINO requiere un punto de control oficial y esta versión aún no lo admite. Valor predeterminado: None (usar la red base)."
+    },
+    "zh_CN": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "使用显微图像而非普通照片训练的模型。OpenPhenom 和 ChAda-ViT 可接受任意数量的染色通道；SubCell 接受两个通道，依次为 DNA 和目标染色，顺序与通道编码一致。权重只需下载一次。Cell-DINO 需要官方检查点，此版本尚不支持。默认：None（使用骨干网络）。"
+    },
+    "pt": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "Um modelo treinado com imagens de microscopia em vez de fotografias. OpenPhenom e ChAda-ViT aceitam qualquer número de marcações; SubCell aceita duas, primeiro DNA e depois a marcação de interesse, na ordem em que os canais são codificados. Os pesos são baixados uma única vez. Cell-DINO requer um checkpoint oficial e ainda não é suportado por esta versão. Padrão: None (usar a rede base)."
+    },
+    "hi": {
+      "unrelated_reviewed_records_preserved": 165,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "साधारण तस्वीरों के बजाय माइक्रोस्कोपी चित्रों पर प्रशिक्षित मॉडल। OpenPhenom और ChAda-ViT किसी भी संख्या में रंगाई चैनल लेते हैं; SubCell दो लेता है, पहले DNA और फिर रुचि की रंगाई, उसी क्रम में जिसमें चैनल एन्कोड किए गए हैं। वज़न एक बार डाउनलोड होते हैं। Cell-DINO के लिए आधिकारिक चेकपॉइंट आवश्यक है और इस संस्करण में अभी इसका समर्थन नहीं है। डिफ़ॉल्ट: None (आधार नेटवर्क का उपयोग करें)।"
+    },
+    "ko": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "일반 사진 대신 현미경 이미지로 학습한 모델입니다. OpenPhenom과 ChAda-ViT는 염색 채널 수에 제한이 없으며, SubCell은 채널이 인코딩된 순서대로 DNA와 관심 염색의 두 채널을 사용합니다. 가중치는 한 번만 다운로드합니다. Cell-DINO에는 공식 체크포인트가 필요하며 이 버전에서는 아직 지원되지 않습니다. 기본값: None(백본 사용)."
+    },
+    "is": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "Líkan þjálfað á smásjármyndum fremur en ljósmyndum. OpenPhenom og ChAda-ViT taka við hvaða fjölda litana sem er; SubCell tekur tvær, DNA fyrst og síðan litunina sem á að skoða, í þeirri röð sem rásirnar eru kóðaðar. Vægi eru sótt einu sinni. Cell-DINO þarf opinbera vistun af líkaninu og er ekki enn stutt í þessari útgáfu. Sjálfgefið: None (nota grunnnetið)."
+    },
+    "fr": {
+      "unrelated_reviewed_records_preserved": 130,
+      "one_source_bound_caption_replaced": true,
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "translation": "Un modèle entraîné sur des images de microscopie plutôt que sur des photographies. OpenPhenom et ChAda-ViT acceptent un nombre quelconque de marquages ; SubCell en prend deux, l'DNA puis le marquage d'intérêt, dans l'ordre d'encodage des canaux. Les poids ne sont téléchargés qu'une fois. Cell-DINO nécessite un point de contrôle officiel et n’est pas encore pris en charge par cette version. Par défaut : None (utiliser le réseau de base)."
+    }
+  }
+}

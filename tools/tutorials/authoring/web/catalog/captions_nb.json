@@ -1,0 +1,1899 @@
+{
+  "schema": 1,
+  "language": "nb",
+  "source_language": "en",
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "scenes": [
+        {
+          "narration": "Velg en offisiell distribusjonsmåte før du installerer spaCR. PyPI og conda-forge tilbyr publiserte pakker, mens GitHub tilbyr kildekode, installasjonsprogrammer for skrivebordet og utgivelseshistorikk."
+        },
+        {
+          "narration": "På PyPI viser utgivelsesoverskriften den gjeldende stabile versjonen og kommandoen pip install spacr."
+        },
+        {
+          "narration": "Delen Project links åpner dokumentasjonen, hjemmesiden, feilsporingen og kildekodedepotet."
+        },
+        {
+          "narration": "På GitHub er main den publiserte kildekodelinjen, mens nightly inneholder nyere endringer som fortsatt testes. Bruk nightly bare når du uttrykkelig trenger en endring som enn ikke er utgitt."
+        },
+        {
+          "narration": "I en GitHub Release utvider du Assets for å laste ned installasjonsprogrammet for Windows, macOS eller Linux, Python-pakkefilene eller kontrollsumlisten."
+        },
+        {
+          "narration": "Den offisielle conda-forge-pakken installerer spaCR og skrivebordsavhengighetene i det aktive Conda-miljøet. Bruk nøyaktig kommandoen conda install conda-forge::spacr."
+        },
+        {
+          "narration": "Bruk conda-forge eller PyPI for et administrert Python-miljø, GitHub Releases for et installasjonsprogram til skrivebordet og nightly bare når du trenger endringer som ennå ikke er utgitt. Velg deretter installasjonsveiledningen for din metode."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "scenes": [
+        {
+          "narration": "Installer spaCR fra conda-forge i et eget Conda-miljø. Pakken inkluderer skrivebordsgrensesnittet og deklarerer avhengighetene til spaCR."
+        },
+        {
+          "narration": "Åpne en terminal med Conda og opprett et miljø som heter spacr med Python 3.12."
+        },
+        {
+          "narration": "Aktiver miljøet. Bekreft at Python tilhører spacr-miljøet før du installerer noe."
+        },
+        {
+          "narration": "Installer den offisielle pakken med conda install conda-forge::spacr. Kommandoen angir kanalen og velger dermed conda-forge-bygget uttrykkelig."
+        },
+        {
+          "narration": "Bekreft at Conda viser spaCR i miljøet; importer deretter pakken og skriv ut den installerte versjonen."
+        },
+        {
+          "narration": "Kjør spacr-doctor før første oppstart. Diagnoseverktøyet kontrollerer den aktive installasjonen, Qt, PyTorch, valgfrie komponenter og maskinvarestøtte og foreslår en løsning for hver kontroll som mislykkes."
+        },
+        {
+          "narration": "Når spacr-doctor har bestått alle kontrollene, starter du spaCR med kommandoen spacr. Behold miljøet aktivert hver gang du kjører spaCR."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "scenes": [
+        {
+          "narration": "Installasjon med pip fungerer på Windows, macOS og Linux. Bruk alltid et isolert virtuelt miljø i stedet for å endre operativsystemets Python-installasjon."
+        },
+        {
+          "narration": "På macOS eller Linux oppretter du miljøet med Python 3.12 og aktiverer det deretter fra bin-mappen."
+        },
+        {
+          "narration": "På Windows bruker du Python-startprogrammet til å opprette miljøet og aktiverer det fra Scripts-mappen."
+        },
+        {
+          "narration": "Oppgrader pip i det aktive miljøet. Kommandoen python -m pip knytter installasjonen til Python-versjonen du nettopp aktiverte."
+        },
+        {
+          "narration": "Installer den vanlige spacr-pakken for bruk uten grafisk grensesnitt, eller spacr med qt-tillegget for skrivebordsgrensesnittet."
+        },
+        {
+          "narration": "Kontroller den importerte versjonen og kjør spacr-doctor. Løs alle mislykkede kontroller før du åpner eksperimentdata."
+        },
+        {
+          "narration": "Miljøet er nå klart. Hold det aktivert når du bruker spaCR, og bruk python -m pip install --upgrade spacr når du bevisst vil oppdatere programmet."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "scenes": [
+        {
+          "narration": "De lette, plattformtilpassede installasjonsprogrammene oppretter et privat Python 3.12-kjøremiljø og laster deretter ned Qt, PyTorch, spaCR og avhengighetene."
+        },
+        {
+          "narration": "Last bare ned installasjonsprogrammer fra den nyeste spaCR-utgivelsen på GitHub. Velg filen for operativsystemet ditt, og bruk den publiserte SHA-256-filen når du trenger å kontrollere nedlastingen."
+        },
+        {
+          "narration": "I Windows 10 eller 11 åpner du den nettbaserte installasjonsfilen. Automatisk maskinvareakselerasjon er valgt som standard og installerer CUDA-støtte på kompatibel NVIDIA-maskinvare. Fjern valget bare hvis du trenger en mindre installasjon som bare bruker CPU."
+        },
+        {
+          "narration": "På macOS 11 eller nyere åpner du universalpakken for Intel- og Apple Silicon-maskiner. Hvis Gatekeeper blokkerer den unotariserte pakken, velger du Privacy & Security, deretter Open Anyway, og kjører pakken på nytt."
+        },
+        {
+          "narration": "I 64-biters Linux gjør du den nedlastede .run-filen kjørbar og starter den fra en terminal. Automatisk backend-valg er standard og installerer CUDA-støtte når kompatibel NVIDIA-maskinvare er tilgjengelig."
+        },
+        {
+          "narration": "Hvis du må ha en mindre Linux-installasjon som bare bruker CPU, angir du --torch-backend cpu. Ellers beholder du det automatiske standardvalget slik at CUDA-akselerasjon brukes når det støttes."
+        },
+        {
+          "narration": "Hvert installasjonsprogram validerer den nye installasjonen før det bytter til den. En avbrutt oppdatering lar det forrige miljøet være intakt, og install.log beholdes i den private installasjonsmappen for spaCR."
+        },
+        {
+          "narration": "I Preferences finnes én velger for Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressursrekkefølge. Velg profilen for denne datamaskinen; den endrer hurtigbuffer, arbeidergrenser, opprydding og animasjonsdetaljer, men ikke vitenskapelige innstillinger eller resultater."
+        },
+        {
+          "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "scenes": [
+        {
+          "narration": "Når alle modenhetsnivåer er synlige, viser Home alle førtifire registrerte spaCR-moduler. Fanen Home grupperer dem under Core, Data, Results & QC, Explore, Assays og Design; hver kategorifane filtrerer det samme registeret."
+        },
+        {
+          "narration": "I venstre sidefelt er Home og de synlige Core-modulene direkte tilgjengelige. Når alle modenhetsnivåer er aktivert, er dette Core-sekvensens seks trinn. Velg en kategorioverskrift for å utvide de resterende synlige modulene."
+        },
+        {
+          "narration": "Core-båndet følger arbeidsflytrekkefølgen: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Hold pekeren over en flis for å vise modulbeskrivelsen og modenhetsfargen Alpha, Beta eller Stable. I Preferences kan Alpha- eller Beta-moduler skjules fra Home og navigasjonen; Stable-moduler forblir synlige."
+        },
+        {
+          "narration": "I Preferences finnes én velger for Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressursrekkefølge. Velg profilen for denne datamaskinen; den endrer hurtigbuffer, arbeidergrenser, opprydding og animasjonsdetaljer, men ikke vitenskapelige innstillinger eller resultater."
+        },
+        {
+          "narration": "Velg en modulflis for å åpne innstillingsskjermen. Modulnavnet og beskrivelsen øverst bekrefter hvilken arbeidsflyt som er aktiv."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "scenes": [
+        {
+          "narration": "Import spaCR og trykke ut versjonen for å bekrefte at det aktive Python-miljøet kan bruke pakken."
+        },
+        {
+          "narration": "Kjør spacr-run med listen for å se de tilgjengelige rørledningsinngangspunktene, inkludert mask, måling, annotering, klassifisering og rapportering."
+        },
+        {
+          "narration": "Start en modul med spacr-run, modulnavnet og en eksportert innstillingsfil. spaCR validerer veier, kanaler, arbeidere og maskinvarealternativer før arbeidet begynner."
+        },
+        {
+          "narration": "Legg til prøvingsalternativet for å behandle et lite representativt underoppsett først. Se over forhåndsvisning og lagret logg før du sender en fullstendig ubesvart run."
+        },
+        {
+          "narration": "Fjern prøvingsalternativet for full drift. Hodeløse jobber lagrer de samme utgangene, innstillingene, versjonsregistret og logger som skrivebordets arbeidsflyt."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "scenes": [
+        {
+          "narration": "Masken plasserer innstillingene til venstre og kjøretidskonsollen til høyre. Konsollen rapporterer validering, fremgang, advarsler og lagre utgang."
+        },
+        {
+          "narration": "Slip kildekappen i Mask. Bekreft det oppdaget filenavn mønster og metadata, deretter kartlegge hver oppkjøpskanal til sitt biologiske signal. I dette eksemplet inneholder de fire kanalene kjerner, endoplasmatisk retikulum, lipiddråper og parasitter."
+        },
+        {
+          "narration": "Essentials viser de kontroller som trengs for en typisk løp. Bruk All bare når du trenger avanserte alternativer, Modified for å gjennomgå endret verdier, og Recipes for å lagre en konfigurasjon du vil bruke igjen."
+        },
+        {
+          "narration": "I Input og Metadata, verifisere opprinnelsesmappen, kanal tildeling, forstørrelse og filnavn metadata før du konfigurerer segmentering."
+        },
+        {
+          "narration": "Workflow og Test Run kontrollerer hvilke masker som opprettes, om eksisterende arbeid gjenopptas, og hvor mange representative felt som brukes for en test."
+        },
+        {
+          "narration": "Cellen, kjernen, patogenen og organellen deler hver gruppe modell, kanal, kjernegrenser og objektfilter for det rommet. Endre bare innstillinger som trengs for nåværende bilder."
+        },
+        {
+          "narration": "Aktiver Live Preview, laste inn et representativt felt, og velg det objektet du justerer. Dette eksemplet forutsetter cellesignalet."
+        },
+        {
+          "narration": "I Live-innstillinger, bekreft objektet og kanalen først. Justere diameter, strømningsgrænse eller celle sannsynlighet bare når forhåndsvisning gir deg en grunn."
+        },
+        {
+          "narration": "Slå på Spread-innstillingene slik at verdiene du validerer her blir innstillingene som brukes av full run."
+        },
+        {
+          "narration": "Gjør forhåndsvisning og sjekk overlegg ved siden av kilden. Grensene bør følge de synlige cellene uten å slutte seg til naboer eller savne klare gjenstander."
+        },
+        {
+          "narration": "Skip til Flow for å sjekke retningsfeltet som brukes av Cellpose. Irregulære strømningsmønstre kan bidra til å forklare masker som deler seg eller smelter sammen feil."
+        },
+        {
+          "narration": "Masker isolerer de endelige etikettene mot en svart bakgrunn. Bruk den for å sjekke objektsdekning og separasjon uten kildebildet under."
+        },
+        {
+          "narration": "Objektfiltre oppdaterer forhåndsvisningen umiddelbart. Løft bare det minste området nok til å fjerne åpenbare fragmenter; riktig avskæring avhenger av bildskala."
+        },
+        {
+          "narration": "Sammenlign den filtrerte overlappen med den opprinnelige forhåndsvisningen. De opprinnelige cellene bør forbli; hvis de forsvinner, reduserer du det minste området."
+        },
+        {
+          "narration": "Velg maskene og mellomfilene du trenger i Utgang og Lagring. Gjør en liten test først, deretter behandle hele kilden etter forhåndsvisning og konsolkontroll passerer."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "scenes": [
+        {
+          "narration": "Måle plasseringsinstillingene til venstre og løpkonsoliten til høyre. Konsolen rapporterer kilde validering, fremgang, advarsler og lagret måling utgang."
+        },
+        {
+          "narration": "Velg den sammensatte prosjektmappen som er produsert av Mask. Måling leser lagret bilde, mask og prosjekt metadata direkte."
+        },
+        {
+          "narration": "Begynn med Essentials. Bruk All for avanserte kontroller, Modifisert for å revidere endret verdier, og oppskrifter når samme målestyring vil bli brukt på nytt."
+        },
+        {
+          "narration": "I Mask and Channel Mapping, verifisere bildekanalet og etikettplanene for celler, kjerner, patogener, organeller og eventuelle avledte kompartemer."
+        },
+        {
+          "narration": "Målfunksjoner velger intensiteten, morfologien, teksturen, kolokalizeringen og de romlige oppsummeringene som trengs for analysen. La ubrukte funksjonsfamilier være ute."
+        },
+        {
+          "narration": "Objektfiltering fjerner kjente artefakter, mens Crop Output kontrollerer om representative objektbilder blir lagret for annotering eller klassifisering. Velg filter og skala fra eksperimentet i stedet for å kopiere faste verdier."
+        },
+        {
+          "narration": "Forutsetning og diagnostikk definerer en liten testprøve. Bruk den før du måler hele eksperimentet."
+        },
+        {
+          "narration": "Aktiver Live Preview og last et fullført sammensatt matrix. Galeriene grupperer ekte objekt avlinger slik at du kan sjekke masker tildeling, kanalinnhold og avlinger ramming."
+        },
+        {
+          "narration": "Veksle galleri kanaler for å inspisere hvert biologisk signal. Dette skjermvalgets formål er å kontrollere kvaliteten og ikke begrense hvilke konfigurerte kanaler som måles."
+        },
+        {
+          "narration": "Etter at testen er vellykket, kjøre hele kilden. Måling lagrer sporbare objektlinjer i målinger dot db og eventuelle forespurte avlinger ved siden av prosjektutstedelsene."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "scenes": [
+        {
+          "narration": "Annotate prioriterer avgrøddet. Åpne konsollen bare når du trenger database meldinger, lagre status, advarsler eller lokal hjelp, og skjule den for å returnere plass til bildene."
+        },
+        {
+          "narration": "Åpne et målt prosjekt, velg eller opprett en annotering kolonne, og bekreft at det forventede objektet løper belastning. Definer hva hver klasse betyr før merking begynner."
+        },
+        {
+          "narration": "Settinger styrer de viste kanalene, høst utseende, objektfiltre, og valgfri usikkerhet kø. Hold synet konsekvent for alle som bidrar med etiketter."
+        },
+        {
+          "narration": "Åpne tastaturreferansen for det lille settet av handlinger som brukes gjentatte ganger: tildele en klasse, flytte fokus, hoppe, avbryte og lagre eller fremme."
+        },
+        {
+          "narration": "Tildele etiketter med nummernøkkel eller musen. Den klassekleurde ringen bekrefter det lagre etiketten, og fokuset fremover så mange objekter kan vurderes effektivt."
+        },
+        {
+          "narration": "Bruk navigasjon og tilbakekalle for å korrigere et nylig valg uten å rydde andre lagret arbeid. Lagre før du flytter til en annen side eller avslutter sesjonen."
+        },
+        {
+          "narration": "Dekkingen viser om etiketter omfatter klasser, tallerkener, brønner, kilder og aktive læringsrunder. Legg til eksempler fra manglende grupper før trening."
+        },
+        {
+          "narration": "Når det finnes nok representative etiketter, kan Retrain score de resterende avgrøder og prioritere usikre eksempler. Behandle dette som en valgfri revisjonsstøtte, ikke en erstatning for dekning."
+        },
+        {
+          "narration": "Train CV sender bildekorps og denne annotasjonskolonnen til visjonsklassifikatoren. Train XG sender de samme etikettene til den funksjonbaserte klassifikatoren; begge åpner en konfigurert modul uten å starte opplæringen automatisk."
+        },
+        {
+          "narration": "Annotasjoner forblir intakte i målinger dot db med objektidentifikatorer og opprinnelse. Fortsette inntil dekningen er tilstrekkelig for den planlagte modellen eller kvalitetskontrollbeslutningen."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "scenes": [
+        {
+          "narration": "Klassifisere CV-bildebilder på annoterte objektgrøtter. Konsolen rapporterer dataset kontroller, opplæring fremskritt, holdt ut metrisker, konklusjon, advarsler og utgangspåer."
+        },
+        {
+          "narration": "Plate Sources and Workflow velger de målte prosjektene og stadiene å kjøre: bygge en splittelse, trene, evaluere eller anvende et eksisterende kontrollpunkt."
+        },
+        {
+          "narration": "Start med Essentials, bruk Modified for å revidere forsettlige endringer, og åpne All bare for kontroller som kreves av eksperimentet. Lagre en oppskrift når innstillingen gjentales."
+        },
+        {
+          "narration": "Etiketter og klasser velger annotering eller metadata feltet som brukes som grunn sannhet og kartlegger sine lagre verdier til dokumenterte klassenammer. Verifisere kartlegging før trening."
+        },
+        {
+          "narration": "Crops and Dataset Split velger objektbilder, kanaler, balansering og utholdt brøkdel. Grupper relaterte bilder etter plate eller brønn, så nesten dupliserte bilder ikke kan lekkasje mellom opplæring og evaluering."
+        },
+        {
+          "narration": "Model Arkitektur velger nettverket, inngangskanaler og størrelse, forhåndsutdannede vekt og normalisering som forventes av bildene. Begynn med en rimelig baseline."
+        },
+        {
+          "narration": "Optimalisering og tap inneholder læringsrate, utvidelse, partier, epoker og tidlig stopp. Endre et lite antall kontroller på en gang og døm dem på validering oppførsel."
+        },
+        {
+          "narration": "Evaluering Arbeidsplass legger til grupperte eller gjestede evalueringer, kalibrering og strenge identitet- og innholdslekksjekker. Hold de endelige utleverte dataene adskilt fra modellutvalget."
+        },
+        {
+          "narration": "Full Dataset and Inference bruker det valgte kontrollpunktet, skriver sannsynligheter og klassekall og lagrer representative eksempler med høy tillit til gjennomgang."
+        },
+        {
+          "narration": "Aktiver Hyperparameter Search når flere plausible konfigurasjoner trenger sammenligning. Den mini-arbeidsbordet kjører grupperte tester og viser hver poengsum, foldvariasjon, parametre og status."
+        },
+        {
+          "narration": "Søkinnstillinger definerer et fokusert kandidatrom, rangering metrik, grupperte fold og prøvebudsjett. Unngå brede søk som bruker beregning på valg eksperimentet ikke kan skille."
+        },
+        {
+          "narration": "Run validerer først etiketter og splits, og deretter trener og evaluerer den konfigurerte modellen. Sjekk utholdte metrisker og eksempler før du bruker den bredt; spaCR lagrer kontrollpunktet, forutsetninger, innstillinger og kjøreopptak."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "scenes": [
+        {
+          "narration": "Klassifisere ML-treninger er en klassisk modell på målinger per objekt. Konsolen rapporterer databaseladning, funksjonsberedning, validering, betydning, forutsetninger og feil."
+        },
+        {
+          "narration": "Data and Controls velger måleprojektet, etikettfelt, positive og negative verdier og eksperimentell gruppering. Verifisere den biologiske betydningen av kartlegging før du monterer en modell."
+        },
+        {
+          "narration": "Start med Essentials og revisjon endringer i Modified. Åpne All bare for kontroller analysen trenger, og lagre en oppskrift for gjentatte kjøre."
+        },
+        {
+          "narration": "Figur Forberedelse velger interessekanalen og fjerner ekskluderte, ugyldige, lavvarianter, svært korrelerte eller dårlig støttet målinger før trening."
+        },
+        {
+          "narration": "Plate og Batch Korreksjon kan normalisere hver plate mot sine kontroller. Bruk en korrigering som bevarer den biologiske kontrasten og kan brukes konsekvent på fremtidige data."
+        },
+        {
+          "narration": "Klassifikator og validering velger estimator, kompleksitet, hold-out split og kryss validering oppførsel. Grupper relaterte gjenstander etter plate eller brønn for å unngå lekkasje."
+        },
+        {
+          "narration": "Merkerseløsing og viktighet beskjærer det endelige trekksettet og estimater som målinger støtter klassifikatoren. Interprete viktighet først etter at en utfyllt prestasjon er akseptabelt."
+        },
+        {
+          "narration": "Utgang og databaser kontrollerer om sannsynlighet, klassekall, modellfiler og utvalgte funksjoner blir lagret eller skrevet tilbake til måleprojektet."
+        },
+        {
+          "narration": "Hyperparameter Search er en mini-arbeidsbekk for å sammenligne et fokusert sett med modellvalg med grupperte fold. Resultattabellen rangerer fullførte studier og viser variasjonene."
+        },
+        {
+          "narration": "Søkinnstillinger definerer kandidatverdi, prøvebudsjett, fold, frø og rangering metrik. Hold søksplassen liten nok til å forklare og reprodusere."
+        },
+        {
+          "narration": "Run validerer kontroller, forbereder funksjoner, bruker enhver plate korrigering, vurderer klassifikatoren, beregner viktighet og lagrer aktiverte utgang. Undersøk ut- og per-plate atferd før du bruker prognoser biologisk."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "scenes": [
+        {
+          "narration": "Kart Barkoder dekoder sekvensering leses inn i plate posisjoner og guide identiteter. Konsolen rapporterer prøveoppdagelse, analyseringsvalidering, lese fremgang, utgangsveier og feil."
+        },
+        {
+          "narration": "Sequencing Input velger FASTQ-mappen og om parret lesninger kombineres eller en lesning retning behandles alene. Bekreft navngivingsmønsteret før et stort løp."
+        },
+        {
+          "narration": "Essentials inneholder de inngangene og analyseringskontrollene som trengs for en første run. Bruk Modifisert for å gjennomgå bibliotek-spesifikke endringer, Alt for avanserte kontroller, og Resepter for en gjenbrukbar layout."
+        },
+        {
+          "narration": "Barcode Referenser peker på søktabeller for guider, plate rader og plate kolonne. Hver tabell må kombinere et unikt navn med den forventede sekvensen."
+        },
+        {
+          "narration": "Lesing Parsing finner en kjent anker, trekker ut barkodevinduet og tildeler navngitte rad, kolonne og guidergrupper. Avled dette mønsteret fra bibliotekets design og verifisere det på eksempelleser."
+        },
+        {
+          "narration": "Løpetid og pålitelighet setter stykket størrelse, arbeidere, og testmodus. Begynn med en liten teststykke; redusere stykket eller arbeidstakernes antall når minnet er begrenset."
+        },
+        {
+          "narration": "Run validerer veier og referanser, oppdager prøver, teller leser, og starter delkarting. Stopp anmoder om en ordentlig avbrudd etter det nåværende sikre punktet."
+        },
+        {
+          "narration": "Se på den aktive prøven, partial antall, matcherte brøkdel, og advarsler i framgangskjøretøy og konsol. Undersøk dårlig kartlegging før du aksepterer den komplette løpet."
+        },
+        {
+          "narration": "En vellykket run skriver unike stregkode kombinasjoner med rad, kolonne, guide og tall, pluss en kvalitetskontrollbord, innstillinger og en manifest som gjør kartlegging reproducerbar."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "scenes": [
+        {
+          "narration": "Regression relaterer fenotyppoeng til guideforekomst utledet fra sekvensering. Konsollen rapporterer tabelljustering, filtrering, valgt inferensprosedyre, diagnostikk, resultater og sporbarhetsdata for reproduksjon."
+        },
+        {
+          "narration": "Input Tables velger fenotyppoeng, sekvenseringstellinger, valgfrie genmetadata og målmappe for resultatene. La målmappen stå tom for å skrive ved siden av den første tellingstabellen; bekreft samsvarende plate- og brønnidentifikatorer før analysen."
+        },
+        {
+          "narration": "Essentials inneholder inndataene og inferensinnstillingene som kreves for en første analyse. Bruk Modified for å kontrollere bevisste endringer, All for avanserte innstillinger og Recipes for å lagre et gjenbrukbart analysedesign."
+        },
+        {
+          "narration": "Controls and Filters identifiserer positive, negative og nøytrale kontroller, utelukker angitte guider, brønner eller tabellrader og angir evidens- og normaliseringsreglene som bestemmer hvilke observasjoner som inngår i analysen."
+        },
+        {
+          "narration": "Plate and Batch Correction kan fjerne tekniske forskyvninger ved sentrering, robust skalering, referansekontroller eller batchmodeller. Bruk korreksjon bare når forsøksdesignet gir grunnlag for det."
+        },
+        {
+          "narration": "Response velger fenotypekolonne, analyseenhet, aggregering, valgfri fortegnsvending og transformasjon. Disse valgene definerer størrelsen som skal relateres til guideforekomsten."
+        },
+        {
+          "narration": "Model and Inference velger ikke-parametrisk testing per guide, parametrisk samtidig regresjon eller automatisk valg. Her angis også rapporteringsnivå, modellfamilie når det er relevant, korreksjon for multippel testing og signifikansregel."
+        },
+        {
+          "narration": "Estimator Tuning inneholder innstillinger for kovarians, regularisering, robust tilpasning, kvantiler, bootstrap og rangaggregering. Bare innstillingene som den valgte estimatoren bruker, påvirker analysen."
+        },
+        {
+          "narration": "Permutation Test konfigurerer guidestatistikk, minste brønnstøtte, antall permutasjoner og tilfeldig startverdi, utbyttbarhetsblokk, forstyrrende variabler, tilstedeværelsesterskel og en batchstørrelse begrenset av minnet."
+        },
+        {
+          "narration": "Run validerer skjemaer og brønnøkler, bruker eksklusjoner og korreksjon, aggregerer responsen og kjører den valgte inferensprosedyren. Standardprosedyren er ikke-parametrisk, bruker plateblokkerte Freedman–Lane-permutasjoner og tilpasser ingen regresjonsmodell."
+        },
+        {
+          "narration": "Det fullførte prosjektet inneholder justerte analysedata, effektestimater på guide- og gennivå, empiriske eller modellbaserte signifikanstabeller, diagnostiske figurer, lagrede innstillinger og et manifest som kan kjøres på nytt."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "scenes": [
+        {
+          "narration": "Åpne en mappe med representative mikroskopiske bilder. Møttende etiketter laster fra masken sin mappe som fargede overlapp, mens bilder uten en følgesvend maske begynner tom."
+        },
+        {
+          "narration": "Verktøyskortene grupperer maling, slette, intensitetsbevisst stav og zoom-modus. Velg den minste operasjonen som korrigerer den observerte maskefeilen."
+        },
+        {
+          "narration": "Pinsel legger til forgrunn med en justerbar radius. Bruk korte trekk for å reparere manglende grenser eller gjenstander uten å male over naboler."
+        },
+        {
+          "narration": "Slett bare fjerner de malte pixlene, mens Slett objekt fjerner et komplett etikett. Avbryt umiddelbart hvis den valgte regionen var gyldig."
+        },
+        {
+          "narration": "Wand plus og Wand minus følger tilknyttede billedintensiteter. Begynn med en konservativ tolerans og pikselgrens, og sjekk deretter den valgte regionen før du fortsetter."
+        },
+        {
+          "narration": "Zoom inn i vanskelige grenser og justere skjerm normalisering bare når det bidrar til synlighet. Kontrastkontrollene endrer ikke billeddata eller maskegeometri, så velg dem fra det aktuelle feltet i stedet for faste tutorial-percentiler."
+        },
+        {
+          "narration": "Undo og Redo går gjennom maskereediter uavhengig av zoom og kontrast, noe som gjør det trygt å sammenligne en korrigering med den tidligere etiketten."
+        },
+        {
+          "narration": "Objektoperasjoner kan fylle hull, relabelle tilkoblet foregående, omvende etiketter, eller rydde masken. Bruk bare overflatefiltrering med en trekk som er rettferdiggjort av bildskala og forventet objektstørrelse."
+        },
+        {
+          "narration": "Save mask ommerker tilkoblede komponenter og skriver merkebildet under kildestammen. Flyt gjennom mappen systematisk slik at hvert treningsfelt blir gjennomgått."
+        },
+        {
+          "narration": "For et bilde uten etiketter, opprett objekter med Børste eller Wand plus, rengjør grensene, og spare det nye billedmask paret for modell trening."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "scenes": [
+        {
+          "narration": "Bild UMAP reduserer høydimensjonelle objektmålinger til to koordinater og plasserer mikroskopiske avlinger på kartet. Konsolen registrerer seg, forarbeider, integrerer, grupperer og gir utgang."
+        },
+        {
+          "narration": "Paths velger det målte prosjektet. Bild UMAP lokaliserer målinger dot db og bruker eksisterende avgrødebilder eller bygger avgrøder fra sammensatte matriser når det støttes."
+        },
+        {
+          "narration": "Målinger velger de tilkoblede objekttabellene og funksjonsfamiliene, fjerner eksplisitte ekskluderinger, og kan slippe overflødige korrelerte funksjoner. Disse valgene definerer kartens geometri."
+        },
+        {
+          "narration": "Plate Layout and Controls ekskluderer mislykkede brønner, kontroller eller metadatagrupper som ikke bør forme denne eksplorative innbyggingen."
+        },
+        {
+          "narration": "Computer Vision Data Source velger om bildeavledte funksjoner supplerer de målede funksjonene og hvor avgrøderne kommer fra. Bruk dem bare når bildeutseende er en del av spørsmålet."
+        },
+        {
+          "narration": "Embedding and Clustering velger UMAP eller t-SNE, nabolagets atferd, avstandsmetrik, kompartment og valgfri klynger. Sammenlign reproducerbare innstillinger og ikke behandle en layout som grunn sannhet."
+        },
+        {
+          "narration": "UMAP Display kontrollerer punktstil, høstglyf tall og zoom, bakgrunn og lagre figurer. Hold kornglyfer bare litt større enn punktene slik at innbyggingen forblir synlig; disse visningsvalgene endrer ikke monterte koordinater."
+        },
+        {
+          "narration": "Før full run, bruke Hyperparameter Søk for å sammenligne et fokusert sett av UMAP valg. Dess små-multiple resultater avslører layouter som er ustabile eller skjule nyttig struktur."
+        },
+        {
+          "narration": "Velg et gjennomgått søkeresultat, og velg deretter Spred innstillinger. Dette kopierer nabolagets størrelse, minste avstand og metrik i hovedbildet UMAP-formularen før full løp."
+        },
+        {
+          "narration": "Run validerer databasen og høstkilden, tilslutter og filtrerer numeriske funksjoner, prøver rader, passer reduseren og valgfrie klynger, og skriver deretter justerte resultatregister."
+        },
+        {
+          "narration": "Det fullførte kartet holder UMAP-punktsskyet synlig og overlaper små gjennomsiktige mikroskopiske avlinger på representative posisjoner. Lagre utgang inkluderer koordinater, clusteretiketter, figur, innstillinger og en reproduserbar manifest."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "scenes": [
+        {
+          "narration": "Aktivering Maps spør hvilke billedregioner som påvirker en visjonsmodellens forutsetning. Konsollen registrerer artefaktlasting, tilskrivningsparter, fremgang, utgang og gjenopprettabilitetsinformasjon."
+        },
+        {
+          "narration": "Model og Data velger avgrødearkivet, trent artefakt, arkitektur, inngangsstørrelse, objekttype og kanalord. Disse må matche opplæring eller alle tilskrivninger er ugyldige."
+        },
+        {
+          "narration": "Essentials inneholder de kontroller som trengs for en første run. Bruk Modifisert til å revidere endringer, Alle for validering og kvantitativ kontroll, og oppskrifter for gjentatte sammenligninger."
+        },
+        {
+          "narration": "Tilskrivningsmetoden velger Grad-CAM, fremtredning, integrerte gradienter, okklusjon eller annen registrert metode pluss eventuelle kompatible lag eller prøvetakningskontroller."
+        },
+        {
+          "narration": "Tilskrivningsvalidering gir sletting, innstilling, baseline og modell-randomiseringskontroll. Et visuelt behagelig kart er ikke nyttig hvis det forblir uendret etter at modellinformasjonen er ødelagt."
+        },
+        {
+          "narration": "Kart Display bruker opplæring-kompatibel input forbehandling og kontrollerer overlapp og netter. Display kontrast endrer presentasjonen, ikke bevis for at modellen lærte gyldig biologi."
+        },
+        {
+          "narration": "Kartkvantisering kan sammenligne inngangskanaler med tilskrivelsesintensitet og lagre disse oppsummeringene. Kun aktivere det når statistikken svarer på et bestemt spørsmål."
+        },
+        {
+          "narration": "Utgang og Runtime kontroller sparket kart, ordre, partier, og arbeidere. Redusere partistørrelsen når akseleratormemoriet er begrenset og hold deterministisk ordenering for sammenligninger."
+        },
+        {
+          "narration": "Run validerer modellen og avlinger, gjentar trening forbehandling, beregner forutsigelser og kart, gir forespurte netter og registrerer innstillingene."
+        },
+        {
+          "narration": "Gjen gjennomgå kart over korrekte, feil, høytillit og lavtillit eksempler, sammen med validering kontroller. Ta biologiske konklusjoner bare fra en valideret utdannet klassifikator."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "scenes": [
+        {
+          "narration": "Timelapse segmenterer hvert ramme og kobler utvalgte objekter til stabile spor. Konsolen registrerer forhåndsbehandling, masker, sporingsforsøk, kvalitetskontroll, filmer og gjenopprettable filer."
+        },
+        {
+          "narration": "Input og Metadata velger billedmappen, tildeler oppkjøpte kanaler til objekttyper, og definerer hvordan plate, brønn, felt, tid, dybde og kanalidentifikatorer analyseres."
+        },
+        {
+          "narration": "Essentials inneholder de kontroller som trengs for en første sekvens. Bruk Modifisert for å revidere endringer, Alt for valgfrie aksler og baksiden, og Resepter for en gjentatte oppkjøpsdesign."
+        },
+        {
+          "narration": "Bildet forarbeidet gjelder normalisering, bakgrunnshåndtering, nedskjæring og omstørring. Bruk en konsekvent transformasjon over alle rammer slik at forhåndsbehandling ikke skaper kunstig bevegelse."
+        },
+        {
+          "narration": "Konfigurere segmentering for hvert objekt som skal maskeres eller spores. Validerer modell, kanal, skala og kjernfilter på representative tidlige, mellom og sene rammer."
+        },
+        {
+          "narration": "Kvalitetskontroll kontrollerer tall, størrelser, grenser, foregående dekning, splittinger og akseptabelle feltfeil. Begynn i rapportmodus slik at mistenkelige rammer forblir synlige."
+        },
+        {
+          "narration": "Tracking Setup velger objekttyper, rammerområde, livstidfilter og filmrate. Hold kortspor under validering slik at feil ikke er skjult."
+        },
+        {
+          "narration": "Tracking Backends tilbyr flere linkere med forskjellige forflytning, hull, divisjon og arbeidstakere kontroller. Velg den enkleste bakgrunnen som matcher bevegelsen og verifisere identitetene visuelt."
+        },
+        {
+          "narration": "Visualization and Diagnostics skaper eksempler for å sjekke segmentering og spor kontinuitet, mens Output and Storage velger masker, sammensatte matriser, filmer og beholdt mellommidler."
+        },
+        {
+          "narration": "Løpetid og pålitelighet inkluderer testmodus, arbeidere, gjenopprettelig ordre, CV, tørr løp og feilpolitikk. Prosess en representativ felt før skalering til full tidsserien."
+        },
+        {
+          "narration": "Run validerer filenavn og kanaler, segmenterer forespurte objekter, kobler masker, beregner kvalitetskontroll og skriver filmer og arrayer. Inspiserer fullførte spor for swaps, hull og usannsynlige hopper før analyse."
+        },
+        {
+          "narration": "Et vellykket prosjekt inneholder tidsindekserte masker, stabile sporidentiteter, kvalitetskontrollrekorder, filmer, sammensatte arrays, lagre innstillinger og en gjenløpelig manifest."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "scenes": [
+        {
+          "narration": "Motility Assay gjenoppbygger målinger fra sporede matriser og beregner forflytelse, hastighet, veilengde og retthet. Konsolen registrerte tabeller, kvalitetskontroller og tall."
+        },
+        {
+          "narration": "Objekter og kanaler velger sporet kilde, bevegelig objekt og kanaler som bærer celle, kjernekjerne og patogensignaler. Feil kartlegging invaliderer intensitet og infeksjonsresultater."
+        },
+        {
+          "narration": "Essentials inneholder de kontroller som trengs for en første test. Bruk Modifisert for å revidere endringer, Alt for valgfrie klassifikatorer og innbygging, og Resepter for gjentatte oppkjøp."
+        },
+        {
+          "narration": "Rettlig og tidslig kalibrering gir rammeintervall og pikselskala. Verifisere begge fra oppkjøp metadata fordi feil skalere hver fysisk forflytelse og hastighet."
+        },
+        {
+          "narration": "Motion Filtering fjerner usannsynlige hopper, ødelagte spor og valgfrie funksjons- eller hastighetsutvikler. Inspiserer ekskluderte bane så ekte rask bevegelse ikke blir kastet."
+        },
+        {
+          "narration": "Infeksjonsklassifisering kan starte fra patogen-maskeoverlapper og alternativt raffinere usikre spor med intensitetsbevis. Bruk den enkleste regelen støttet av kontroller."
+        },
+        {
+          "narration": "De valgfrie XGBoost, clustering og innlejring av seksjoner gir alternative infeksjonsklassifikatorer når direkte masker er utilstrekkelige. Validerer alle lærde regler på utholdt merket spor."
+        },
+        {
+          "narration": "Motility Plots og QC velger bane, intensitet, posisjon, hastighet og infeksjonspaneler. Planbegrensninger endrer presentasjonen, men ikke underliggende målinger."
+        },
+        {
+          "narration": "Kjør målinger, glatter og filtrerer spor, tildeler infeksjonsstatus, beregner kalibrerte oppsummeringer og korrelationer, og lagrer tabeller og tall."
+        },
+        {
+          "narration": "Gjen gjennomgå tabeller per ramme og per spor sammen med trajektori- og kvalitetskontrolldata. Kontroller sporets kontinuitet, kalibreringsenheter og gruppemerkjeder før du sammenligner forholdene."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "scenes": [
+        {
+          "narration": "Train Cellpose passer en segmenteringsmodell fra parret mikroskopisk bilde og instans-etikettmasker. Konsolen rapporterer data validering, fremgang, kontrollpunkt vei og reproduserbarhetsregister."
+        },
+        {
+          "narration": "Velg dataset rot som inneholder matchende treningsbilder og masker. Gjen gjennomgå merknadskvaliteten og reserver representative felt som ikke vil bli brukt for å passe til modellen."
+        },
+        {
+          "narration": "Essentials inneholder de kontroller som trengs for en første kalibrering. Bruk Modifisert til å revidere endringer, Alt for forhåndsbehandling og løpetid alternativer, og oppskrifter for en gjentatte opplæring design."
+        },
+        {
+          "narration": "Startpunkt velger modellfamilien, forhåndsutdannet kontrollpunkt, finjustering eller trening fra bunden, og utgangsnavnet. Finjustering krever vanligvis færre gjennomgåte bilder enn en tilfeldig start."
+        },
+        {
+          "narration": "Treningsplanen setter læringsrate, regulering, partier, utvidelse og epoker. Øke opplæringen bare etter at bilde-masker par og gjennomført evaluering er riktig."
+        },
+        {
+          "narration": "Bildgeometri registrerer kilde og målstørrelse, forventet objektskala og omstørring. Bildene og masker må motta samme romlige transformasjoner samtidig som etikettidentitetene bevares."
+        },
+        {
+          "narration": "Bakgrunn og Denoising gjelder valgfri intensitetsrensing før trening. Bruk den bare når den samme forarbeidet kan gjengives under modellinnføring."
+        },
+        {
+          "narration": "Run validerer matchende filenavn, forhåndsviser parede felt, og begynner trening. Sjekk bildet over masken i tallpanelet før du stoler på en lang passform."
+        },
+        {
+          "narration": "Etter opplæring skal de teste kontrollplassene på utblandet felt og inspisere feil, ikke bare tap. spaCR lagrer kontrollpunktet, innstillingene, kjøre manifest og parede felt forhåndsvisning sammen."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "scenes": [
+        {
+          "narration": "Cellpose Masker bruker en pakket modell eller et tilpasset kontrollpunkt på mikroskopiske bilder. Konsolen registrerer modelloppløsning, forhåndsbehandling, fremgang, diagnostikk og utgangspåer."
+        },
+        {
+          "narration": "Input and Channels velger billedmappen, planene, gråskales eller inversionsadferd, og valgfri normalisering. Kontroller kanalen først; bruk forhåndsbehandling bare når de representative bildene krever det."
+        },
+        {
+          "narration": "Essentials inneholder de kontroller som trengs for en første applikasjon. Bruk Modified for å revidere den aktuelle modellen og forbehandling, All for geometri og løptid, og Resepter for gjentatte konklusjoner."
+        },
+        {
+          "narration": "Modellen velger pakket vekt eller et tilpasset kontrollpunkt og registrerer forventet objektskala. Kontrollpunktet og kanalordningen skal være i samsvar med bildene som brukes under opplæringen."
+        },
+        {
+          "narration": "Detektionsgrensene kontrollerer sannsynlighet, strømningsavtale, omskaling, omprøving og hullfyling. Juster dem bare etter at du har bekreftet bildet, kanal, modell og skala."
+        },
+        {
+          "narration": "Bildegyometri kan endre størrelsen på felt for konklusjon og gjenopprette masker til opprinnelige dimensjoner. Bevar aspektforholdet og hold pikselskalaen i samsvar med treningen."
+        },
+        {
+          "narration": "Utgang og Runtime kontroller sparer masker, parti størrelse og diagnostiske tall. Redusere partiet når akseleratorens minne er begrenset."
+        },
+        {
+          "narration": "Løp laster kontrollpunktet, bruker den konfigurerte forhåndsbehandlingen, forutsier masker og strømninger, utfører valgt rensing og lagrer hvert bilde på etiketten."
+        },
+        {
+          "narration": "Inspeksjon av representative originaler, masken omdrifter og strømningsfelt i figurpanelen før nedstrømsmåling. Velg normalisering og tærskler fra disse forhåndsvisningene i stedet for å kopiere tutorial verdier."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "scenes": [
+        {
+          "narration": "Modell sammenligne kombinerer objekttall, foregående avtale, matching, fragmentering og side-by-side overlays slik at to segmenteringskandidater kan evalueres på de samme feltene."
+        },
+        {
+          "narration": "Velg en liten, men representativ bilde mappe og begrense feltantallet for interaktiv sammenligning. Inkluderer enkle og vanskelige eksempler i stedet for bare rene felt."
+        },
+        {
+          "narration": "Konfigurere modell A og modell B. Hold kanaler, skala, forhåndsbehandling og delt trekkegler likestilte, med mindre denne innstillingen er den tiltenkte forskjellen."
+        },
+        {
+          "narration": "Sammenlign segmenter i hvert valgt felt med begge oppløsede konfigurasjoner. Avancerte argumenter registreres, og ikke-støttede parametre rapporteres i stedet for stille å behandles som effektive."
+        },
+        {
+          "narration": "Parametre som nådde hver modell skiller ærede verdier fra forfalskede eller ignorerte kontroller. Bekreft at sammenligningen faktisk er forskjellig på den planlagte måten."
+        },
+        {
+          "narration": "Feltet tabell rapporter teller, foregående avtale, matchet overlap, splittinger, fusjoner, ulignende objekter, og uavhengige maskekvalitet kontroller. Ingen enkel metriker tar alle feilmodus."
+        },
+        {
+          "narration": "Velg en rad for å sjekke begge forhåndsvisninger. Se etter nye oppdagelser, misser, grenseskift, splittinger og sammenslåinger, og gjenta deretter over representative felt."
+        },
+        {
+          "narration": "Velg en modell bare når visuelle forskjeller og metrisker forbedrer feil som er viktige for nedstrømsanalyse. Likestillende resultater er informative og viser ingen forbedring."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "scenes": [
+        {
+          "narration": "Model Zoo lister gjenbrukbare modeller tilgjengelig fra bundlede, lokale eller deklarerte katalogkilder. Begynn med å matche oppgaven, kanaler, objekt skala, og forventet forhåndsbehandling."
+        },
+        {
+          "narration": "Velg en modell mappe og skanne den. Kataloget holder lokale veier og fjernmetadata sammen samtidig som man unngår dupliserte innlegg."
+        },
+        {
+          "narration": "Velg en modell for å gjennomgå dens opprinnelse, lisens, sjekksum, opplæringssituasjon og forventet geometri. En modell som laster seg med suksess er ikke automatisk egnet for bildene dine."
+        },
+        {
+          "narration": "Velg et lite sett av representative felt for et begrenset referansepunkt, inkludert vanskelige eksempler."
+        },
+        {
+          "narration": "Test en installert modell. Referensmålen rapporterer hastighet, objekttall, kvalitetsflagger og forhåndsvisninger uten å behandle disse kontrollene som grundig sannhet."
+        },
+        {
+          "narration": "Se over bordet og maskens forhåndsvisning sammen. Undersøk advarsler i bildekonteksten før du aksepterer eller avviser en modell."
+        },
+        {
+          "narration": "Velg to kompatible lokale modeller når du trenger en kontrolleret side-by-side evaluering."
+        },
+        {
+          "narration": "Model Compare mottar både kontrollpunkter og de samme feltene, slik at forskjeller i masker og kvalitetsmetriske kan vurderes på samme innganger."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "scenes": [
+        {
+          "narration": "Annotator Agreement sammenligner kategori etikettkolonne uten å endre databasen. Bruk den for revisorer, annoteringskort, eller revisor-versus-modell-kontroll."
+        },
+        {
+          "narration": "Åpne en måledatabase eller kjøre mappe. spaCR oppdager annotering og forutsetning kolonner som refererer til de samme objektene."
+        },
+        {
+          "narration": "Velg minst to kolonner. Ytterligere kolonner gjør det mulig å sammenligne i par og en multi-rater oppsummering."
+        },
+        {
+          "narration": "Computing Agreement justerer etiketter etter objekt. Fraværende etiketter rapporteres som avhengelser i stedet for stille å telle som uenighet."
+        },
+        {
+          "narration": "Les rå avtale, klasse balanse, avstand og kappa sammen. Kappa kan være udefinert når en kolonne inneholder bare en klasse; det er en prevalensvarsel, ikke null-avtale."
+        },
+        {
+          "narration": "Bruk forvirring matriks for å se hvilke klasser som er forvirret og om ubalanse dominerer oppsummeringen."
+        },
+        {
+          "narration": "Tabellen med uenighet identifiserer de nøyaktige objektene som må revideres."
+        },
+        {
+          "narration": "Inspisjon av representative avlinger før du endrer etiketter eller klasseklassifikasjoner. Samlet statistikk kan ikke forklare hvorfor revisorer var uenige."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "scenes": [
+        {
+          "narration": "Plaque Assay måler renset områder i platebilder. Konsolen registrerer løst innstillinger, fremgang, advarsler og utgangspåer."
+        },
+        {
+          "narration": "Velg plakkbilde-mappen og avgjøre om du skal segmentere kildebilder eller gjenbruke riktig navngitte etikettmasker."
+        },
+        {
+          "narration": "Essentials inneholder de kontroller som trengs for en første run. Modifiserte revisjoner gjør bevisst endringer, mens All avslører avanserte feilutredningskontroller."
+        },
+        {
+          "narration": "Matche modell og forventet plakk skala til representative bilder i stedet for å kopiere en tutorial verdi."
+        },
+        {
+          "narration": "Detekteringsinstillingene påvirker kandidatregioner, formkonsistens, omprøving og rengjøring. Tøkk dem fra flere kontroll- og behandlingsbrønner."
+        },
+        {
+          "narration": "Bruk bakgrunn korrigering eller nedskrivning bare når forhåndsvisninger viser at oppkjøpet krever det."
+        },
+        {
+          "narration": "Løp etter å ha sjekket kilde, modell, skala og utgangsdrift. Begynn med et lite valideringssett når segmentering blir recalibrert."
+        },
+        {
+          "narration": "Undersøk overlappninger og fordelinger av plakker før du sammenligner forholdene. Databasen, oppsummene, statistikken og kvalitetskontrollen er fortsatt knyttet til løpet."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "scenes": [
+        {
+          "narration": "Rekruttering leser eksisterende målinger og beregner markørrikning i parasittassocierte regioner. Det segmenterer ikke bilder igjen."
+        },
+        {
+          "narration": "Velg eksperimentroten som inneholder målestatabasen og sammensatte felt."
+        },
+        {
+          "narration": "Essentials inneholder kilde, kanal kartlegging, filtre, plate etiketter og diagnostiske kontroller. Modified gir en kompakt forhåndsrevision."
+        },
+        {
+          "narration": "Kartlegge hver intensitet og maske flyet nøye, og velg deretter kanal av interesse. En gyldig men feil kanalindeks kan fortsatt gi troverdige forhold."
+        },
+        {
+          "narration": "Objektfiltre fjerner usannsynlige celler, kjerner og parasitter. Velg porter fra distribusjoner og overlays i stedet for faste tutorial verdier."
+        },
+        {
+          "narration": "Kartleggingsforhold og kontroller til de riktige plateidentifikatorene før du tolker gruppeforskjeller."
+        },
+        {
+          "narration": "Run samler målinger, bruker de gjennomgåtte portene, beregner rekruttering, grupperer brønner og produserer diagnostikk."
+        },
+        {
+          "narration": "Kontroller segmentering overlappinger og kontroll fordelinger før du stoler på tilstand oppsummeringer. Objekt- og velnivåutgangene beholder kildekennene sine."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "scenes": [
+        {
+          "narration": "Invasion Assay scorer målt parasitter fra et tofarget farge design. Konsolen registrerer innstillinger, kvalitetskontroll og utgang."
+        },
+        {
+          "narration": "Velg et eksperiment som inneholder parasittmålinger, flekkkanaler, kontroller og plate metadata."
+        },
+        {
+          "narration": "Essentials viser de inngangene, kanalkartlegging, tærskel, kontroller, filtre og utgang som trengs for en første analyse."
+        },
+        {
+          "narration": "Kartlegge den eksterne flekken og den totale parasitt flekken i riktig rekkefølge. Å bytte dem om, vender den biologiske tolkningen om uten nødvendigvis å forårsake en feil."
+        },
+        {
+          "narration": "Avlede klassifikasjonsgrensværdier fra passende kontroller og inspeksjon av følsomhet rundt den valgte grensen."
+        },
+        {
+          "narration": "Definere fargekontroll og minimumsbevis for felt og brønner slik at svake grupper rapporteres i stedet for å bli overfortalt."
+        },
+        {
+          "narration": "Kjør etter å ha verifisert flekkkartlegging, kontroller, objektfiltre og tilstand metadata."
+        },
+        {
+          "narration": "Se på vedlegg, invaderte og usikre eksempler sammen med godt nivå oppsummeringer. Eksporterte resultater beholder analyseringsinnstillingene og kildekennene."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "scenes": [
+        {
+          "narration": "Replikasjon Assess scores parasitt tenner per vakuol fra eksisterende relasjoner og målinger. Konsolen registrerer innstillinger, filtrering og utgang."
+        },
+        {
+          "narration": "Velg eksperimentet rot og bekreft at vertsceller, vakuoler og parasitter har stabile identifikatorer."
+        },
+        {
+          "narration": "Essentials presenterer oppdrag, tilstand, filtrering, poengføring og utgangskontroll. Bruk Modified for å kontrollere forsettlige endringer."
+        },
+        {
+          "narration": "Velg hvordan parasitter er tildelt vakuoler og hvordan tvetydige eller fjerne relasjoner håndteres."
+        },
+        {
+          "narration": "Filter segmenteringsfeil fra gjennomgåtte distribusjoner og bilder, uten å slette uvanlige, men gyldige vakuoler."
+        },
+        {
+          "narration": "Definere parasittantalgrupper og oppsummeringer som svarer på det biologiske spørsmålet før du utfører statistikk."
+        },
+        {
+          "narration": "Løp etter å ha sjekket oppgaver, betingelser, filtre og poengdefinisjoner."
+        },
+        {
+          "narration": "Inspisjon av vakuoler over tølområdet og gjennomgå sammensatte eller fragmenterte masker. De lagrede distribusjonene og statistikkene er fortsatt knyttet til objektsnivå bevis."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "scenes": [
+        {
+          "narration": "Training Runs sammenligner flere fittinger uten å redusere modellvalg til en tapverdi."
+        },
+        {
+          "narration": "Velg en mappe eller register som inneholder kompatible opplæringstrinn og skann den."
+        },
+        {
+          "narration": "Gjen gjennomgå oppdaget løp, tilgjengelige metrisker, ufullstendige poster og advarsler før du velger kandidater."
+        },
+        {
+          "narration": "Velg metrikken, glattering, folding display og innstillinger felt som skal sammenlignes."
+        },
+        {
+          "narration": "Overlapp validering atferd for å sammenligne konvergens, stabilitet og overpassning på de samme aksene."
+        },
+        {
+          "narration": "Sammenlign det beste kontrollpunktet med det endelige kontrollpunktet når sent trening kan ha nedgradert generalisering."
+        },
+        {
+          "narration": "Foldet oppsummeringer avslører variasjon skjult av en enkelt aggregatkurve."
+        },
+        {
+          "narration": "Bruk perfold kurver og innstillinger som er forskjellig med utholdt ytelse for å velge en gjenopprettelig run."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "scenes": [
+        {
+          "narration": "Rapport samler en sporbar prosjekt oppsummering i stedet for å be deg kopiere tall og innstillinger manuelt."
+        },
+        {
+          "narration": "Velg et ferdig prosjekt eller kjøre mappe og skann det tilgjengelige beviset."
+        },
+        {
+          "narration": "Undersøk den oppdaget kvalitetsdommen og manglende inngang før du velger rapport sektioner."
+        },
+        {
+          "narration": "Inkludere bare de kvalitetskontrollene, tallene, statistikkene, innstillingene og opprinnelsen som publikum trenger."
+        },
+        {
+          "narration": "Sett tittelen, forfatterskapet, utgangsformatet, tallgrensene og eventuelle privatlivssensitive ekskluderinger."
+        },
+        {
+          "narration": "Generere etter å ha løst manglende filer og mislykkede kvalitetskontroller som ville gjøre dokumentet villedende."
+        },
+        {
+          "narration": "Se ferdigrapporten forut og verifisere konklusjoner, versjoner og lenker før du deler den."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "scenes": [
+        {
+          "narration": "Plate Queue bruker en validert arbeidsflyt over flere plater samtidig som hver plattes tilstand holdes separat."
+        },
+        {
+          "narration": "Legg til modulen som er konfigurert i nå eller en forberedt plate kilde i køen."
+        },
+        {
+          "narration": "Legg til flere plakater og se over opprinnelsen, destinasjonen, innstillingene og rekkefølgen i tabellen."
+        },
+        {
+          "narration": "Velg arbeidsgrenser, slutte atferd, og gjenoppta politikken. Lånetilstanden er vedvarende, slik at en avbrudd ikke sletter planen."
+        },
+        {
+          "narration": "Test arbeidsflyten på en begrenset plate eller felt før du starter den resterende køen."
+        },
+        {
+          "narration": "Under utførelsen, følg progresjonen per plate og åpne logger når et element advarer eller mislykkes."
+        },
+        {
+          "narration": "Ferdige plate beholder isolerte utganger og kjøreregister; stoppet eller mislykkede elementer forblir identifiserbare og gjenbrukbare."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "scenes": [
+        {
+          "narration": "External Masks importerer kildebilder og etiketter generert eksternt, og forbereder deretter prosjektet for vanlig måling og annotering av spaCR."
+        },
+        {
+          "narration": "Legg til bilder og maske kilder, og kontroller deretter at spaCR har oppdaget de ønskede rollene."
+        },
+        {
+          "narration": "Kart alle innganger til objektklassen. Sjekk filnavn, dimensjoner og feltparing i stedet for å stole på en utledt oppgave."
+        },
+        {
+          "narration": "Input Mapping kontrollerer kanal og mask-plan bestilling, navn og bestemmelses layout."
+        },
+        {
+          "narration": "Målingsinstillingene definerer hvilke gjenstander og egenskaper som skal produseres etter import."
+        },
+        {
+          "narration": "Hold forhåndsvisning aktivert for første run og velg et nytt destinasjon."
+        },
+        {
+          "narration": "Se på paring, kanal tøl, objekt klasser, advarsler og blokkering feil før du skriver noe."
+        },
+        {
+          "narration": "Kjør den reviderte importen. Bildene, masker, målinger og opprinnelse er klar til nedstrøms annotering."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "scenes": [
+        {
+          "narration": "Align og Stitch skiller registreringsplanlegging fra skriving slik at plassering og ressursskatt kan vurderes først."
+        },
+        {
+          "narration": "Velg flismappen og destinasjonen, og hold opprinnelsesinntak uendret."
+        },
+        {
+          "narration": "Beskriv nettverksord, overlapning, stadieninformasjon og en referanse kanal som inneholder nyttig struktur."
+        },
+        {
+          "narration": "Konfigurere match tillit, nabolandring begrensninger, blanding, og minne budsjett for utgang bånd."
+        },
+        {
+          "narration": "Planen vurderer parvis avvik og løser aksepterte begrensninger uten å skape mosaikken."
+        },
+        {
+          "narration": "Sjekk registrerte og fallback fliser, restprodukter, tillit, kanvasstørrelse og skriv estimat."
+        },
+        {
+          "narration": "Velg svake eller isolerte fliser for å forstå løsnet posisjon før utgang."
+        },
+        {
+          "narration": "Skriv først etter at planen er akseptabelt. spaCR lagrer mosaikken, transformerer, koordinater og registreringsrapporten."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "scenes": [
+        {
+          "narration": "Plate Viewer forvandler objektsmålinger til velnivå varme kart med rumslige kvalitet kontroller ved siden av dem."
+        },
+        {
+          "narration": "Åpne en måledatabase eller kjøre mappe. Kildekoden er bare for lest."
+        },
+        {
+          "narration": "Velg objekttabel, numerisk funksjon og plate som skal vises."
+        },
+        {
+          "narration": "Velg aggregering, fargeskalare, og det minste beviset som kreves for en brønn. Tall er nyttig for å spotte segmentering eller å sette forskjeller."
+        },
+        {
+          "narration": "Gi visningen, deretter sammenlign varmekartet med rad, kolonne, ring og kant diagnostikk."
+        },
+        {
+          "narration": "Velg en brønn for å sjekke identifikatoren, objektantallet, den viste verdien og posisjonen."
+        },
+        {
+          "narration": "Brønner under bevistrøskelen blir eksplisitte tomme i stedet for villedende noler."
+        },
+        {
+          "narration": "Eksporter nåværende ordnet brønnett med tall og rumslige annoteringer for revisjon eller omplanlegging."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "scenes": [
+        {
+          "narration": "Database Browser sjekker store spaCR-databaser i en begrenset, bare-les-visning."
+        },
+        {
+          "narration": "Velg en målestata eller den run-mappen og åpne den."
+        },
+        {
+          "narration": "Velg en tabell etter å ha undersøkt hensikten og statusen for bare-les."
+        },
+        {
+          "narration": "Forutsetningen laster en begrenset side mens den rapporterer den totale rad og kolonne teller separat."
+        },
+        {
+          "narration": "Søk i kolonner for å gjøre brede funksjonstabeller lesbare uten å endre de underliggende radene."
+        },
+        {
+          "narration": "Lag et strukturert filter. Kolonnenavnene og operatørene er validerte, og verdiene er bundet trygt."
+        },
+        {
+          "narration": "Den nøyaktige filtrerte tall beskriver hele forespørselen selv om bare en side er tegnet."
+        },
+        {
+          "narration": "Eksporter hele strømfilteret og synlig kolonneutvalg. Kildedatabasen forblir uendret."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "scenes": [
+        {
+          "narration": "Format Converter bruker en forhåndsvisning-første arbeidsflyt så navn og dimensjonell kartlegging er synlig før filer er skrevet."
+        },
+        {
+          "narration": "Velg kildedata og en separat destinasjon."
+        },
+        {
+          "narration": "Beskriv mapplayout, serie, tid, dybde, plate navn og gjenoppta atferd. Projekteringsvalg kaster ut informasjon, så velg dem bevisst."
+        },
+        {
+          "narration": "Forutsikt skanner overskrifter og bygger konverteringsplanen uten å skrive bilder."
+        },
+        {
+          "narration": "Undersøk hver kilde ved siden av målplaten, brønnen, feltet, kanal, tid og dybde identifikatorer."
+        },
+        {
+          "narration": "Omdannes bare når kartleggingen er riktig og kollisjonskontrollen går. Kildene blir aldri omdøpt eller erstattet."
+        },
+        {
+          "narration": "Resultatet inkluderer standardiserte TIFF og et kart over opprinnelsen tilbake til hver opprinnelig fil og identifikator."
+        },
+        {
+          "narration": "Resumé validerer ferdig feltkontrollpunkter før du hopper over dem, så manglende eller skadet utgang er gjenoppbygget."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "scenes": [
+        {
+          "narration": "Import Project skiller utledte kartlegg fra gjennomgåte beslutninger før du oppretter et spaCR-prosjekt."
+        },
+        {
+          "narration": "Velg eksterne bilder og et nytt destinasjon, beholde originale filer."
+        },
+        {
+          "narration": "Legg til hver maskeklasse og sjekk at hvert felt har de forventede matchende etikettene."
+        },
+        {
+          "narration": "Legg til målinger, kalibrering, identifikatorer og en konfliktpolitikk for utenlandske kolonnenavner."
+        },
+        {
+          "narration": "Forutsetning sjekker overskrifter, feltparing, etiketter, sammenkoblinger, enheter og navngryter uten å skrive prosjektdata."
+        },
+        {
+          "narration": "Les hver foreslått målkolonne, transformere, enhet og legge til advarselen."
+        },
+        {
+          "narration": "Korrigere utledte kartlegg direkte og gjenfør validering til planen gjenspeiler kildeeksperimentet."
+        },
+        {
+          "narration": "Import bare den reviderte planen. spaCR skriver kanoniske bilder, masker, målinger og opprinnelse mens det beholder eksterne identifikatorer."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "scenes": [
+        {
+          "narration": "Batch Runner stapler vilkårlige spaCR moduler og innstillinger i en uovervakte kø. I motsetning til Plate Queue, som bruker en rørledning til mange plater, kan Batch Runner blande moduler, innganger, overrides og avhengigheter. Jobber kjører strengt en etter en så de konkurrerer ikke om en GPU."
+        },
+        {
+          "narration": "Velg en hovedløs modul og den nøyaktige innstillingsfilen som jobben skal motta. Legg til et beskrivende merknad, valgfrie forutsetningsfunksjonskennere og valgfrie nøkkel-lignende-verdieroverrides. Dette første arbeidet utfører en reell tapfri konvertering av et fire-kanalfelt. Klikk på Legg til jobb."
+        },
+        {
+          "narration": "Jobben mottar den stabile identifikatoren konvertert-1 og kontrolleres umiddelbart. Batch Runner løser modulforstyrrelser, analyserer innstillingsfilen og overrider, validerer veier og verdier, og nekter en ugyldig jobb nå i stedet for å oppdage den under en overnattende run."
+        },
+        {
+          "narration": "Den andre virkelige konverteringsnavn konverterer-1 i After, så den kjører bare hvis det forutsetningen lykkes. Dess plate_naming er lik navn override er lagret over de lagre innstillingene uten å kopiere filen. Hvis konverter-1 mislykkes, er denne jobben merket hoppet i stedet for å kjøre på ufullstendig oppstrøm utgang. Klikk på Legg til jobb."
+        },
+        {
+          "narration": "Den tredje reelle omdannelsen har ingen forutsetning og kan fortsatt løpe når en ukjent jobb mislykkes under \"continu-on-error\" -politikken. Legg det til som en uavhengig jobb. Denne leksjonen bruker tre overførte mikroskopfelt kopiert byte-for-byte i isolerte mapper; hver køprosess vil utføre en ekte konvertering."
+        },
+        {
+          "narration": "Tabellen viser nå kjøreorden, stabile jobbidentifikatorer, moduler, etiketter, avhengigheter, ventende status, forløpet tid, og hver jobb egen logg. Velg en rad for å sjekke innstillingene og loggen. Duplikere, fjerne og flytte kontroller bygge og reordne en større natt av arbeid."
+        },
+        {
+          "narration": "Velg den uavhengige tredje jobben og klikk på Flyt opp. Omordning er trygt her fordi den avhengige konverteringen forblir under konverter-1. Hvis en forutsetning flyttes under den avhengig av den, vil det føre til en synlig valideringseffekt og inaktivere løpet."
+        },
+        {
+          "narration": "Klikk Validerer etter å ha redigert eller lastet en kø. Validering rapporterer alle feil og advarsler sammen: manglende innstillinger, ukjente moduler, ugyldige veier eller verdier, dupliserte identifikatorer, senere forutsetninger og avhengighetscykler. Løsningsknappet er fortsatt inaktivert mens det er et blokkeringsproblem."
+        },
+        {
+          "narration": "Alle tre jobber er gyldige. Fortsatt på feil tillater selvstendige jobber å fortsette mens avhengige blir hoppet; Stop i første fall stopper alt senere. Trøskel for påfølgende feil stopper en kø som gjentatte ganger faller av samme systematiske grunn. Sluta vente på at jobben blir ferdig i sikkerhet i stedet for å drepe den midt på skriving."
+        },
+        {
+          "narration": "Klikk på Lagre kø før du forlater den uovervakte. Den lesbare JSON lagrer rekkefølge, avhengigheter, overrides og status. Batch Runner oppdaterer den automatisk etter hver overgang, slik at en gjenstart kan gjenoppta ventende eller ikke-løpende jobber uten å duplisere ferdig arbeid. Lastekjær gjenoppretter samme hovedbok senere."
+        },
+        {
+          "narration": "Når den reviderte køen er lagret, klikk på Kjør kø. Hver jobb starter som sin egen spacr-run-prosess ved hjelp av dette spaCR-miljøet. En segmentering krasj ville avslutte jobben i stedet for grensesnittet eller senere uavhengig arbeid, og standard utgang pluss feil går inn i den jobben egen log."
+        },
+        {
+          "narration": "Alle tre virkelige underprosessjobber fullføres med suksess. Progressbalken når tre av tre, tabellen bevarer hver status og varighet, oppsummingen skiller mellom suksess, feil, hoppe, ikke kjøre og delvis resultater, og den valgte jobben logg inneholder dens nøyaktige kommando og konvertering rapport. Hver bestemmelsessted har fire TIFF og et kart over opprinnelsen; alle kildehascher forblir uendret."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Distribuerte jobber. Send og overvåk spaCR-arbeidet på SSH-arbeidsstasjoner, Slurm-klynger eller sky- og HPC-kommandoer."
+        },
+        {
+          "narration": "Konfigurere en fjernprofil, tilkoblingsmetode, arbeidsdirektori, miljø og dataveier."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet definerer du planleggerressurser, kommando-maller, filsynkronisering, legitimasjoner og statusundersøkelser."
+        },
+        {
+          "narration": "Send inn et lite valideringsarbeid før du skalerer til dyre analyser."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lokalregister sporer fjernt jobb identifikatorer, logger, tilstand, overført artefakter, og feil."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker klassifikatorvurdering. Revisjon av utfyllte forutsigelser, gjestet kryssvalidering, kalibrering, lekkasje og ytelse per plate."
+        },
+        {
+          "narration": "Velg forutsagn med grunn sannhet, delt metadata, plate identifiserings, sannsynligheter og modell-drevet poster."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere klasseord, trøskel, kalibreringsbåser, gruppering, bootstrap usikkerhet og lekkasjekontroll."
+        },
+        {
+          "narration": "Evaluere utholden og perplate atferd før du bruker en klassifikator for biologiske konklusjoner."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, produserer spaCR diskriminering, kalibrering, forvirring, lekkasje og robusthet rapporter."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Run History. Søk etter innstillinger, filer, advarsler, feil og ytelse på hvert jobb fra ett sted."
+        },
+        {
+          "narration": "Åpne kjørregistret for det aktuelle arbeidsrommet eller de valgte prosjektrootene."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet filtreres etter modul, status, dato, prosjekt, versjon, advarsel, varighet eller ressursbruk."
+        },
+        {
+          "narration": "Åpne et kjøretøy for å inspisere dens uforanderlige innstillinger, logger, utganger og feil kontekst."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan du gjenskape, sammenligne, gjenoppta eller rapportere tidligere arbeid uten å gjette hvordan det ble utført."
+        }
+      ]
+    },
+    {
+      "id": "41_classify",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Classify. Velg en klassifisering arbeidsflyt for bildekulturer eller målede funksjoner og evaluere den uten å lekkasje relaterte objekter over splits."
+        },
+        {
+          "narration": "Velg prosjektet, etiketter og enten bildet eller funksjonsarbeidet."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, gjennomgå grupperte splits, klassebalans, modellkontroll og metrisker som samsvarer med beslutningen du trenger å ta."
+        },
+        {
+          "narration": "Utfør en liten gruppe validering før du forplikter deg til dyr trening; de dedikerte Classify CV og Classify ML-lekjonene viser deres begrensede Hyperparameter Search arbeidsbord."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, blir modellen, forutsetningene, delt poster, metrisker og innstillinger knyttet til løpet."
+        }
+      ]
+    },
+    {
+      "id": "42_curate",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Curate. Korrekte segmenteringsmasker og spor ved hånd, samtidig som det bevares en reviderbar opptegnelse av hver redigering."
+        },
+        {
+          "narration": "Åpne et prosjekt og velg felt, mask klasse eller spor som trenger gjennomgå."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du redigeringskjøret, etikettadferd, navigering og gjennomgangsskuep før du endrer data."
+        },
+        {
+          "narration": "Gjør en liten rettelse, sjekk nærliggende rammer eller gjenstander, og spare bare når redigering er riktig."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, lagres korrigerte etiketter og sporendringer med opprinnelse slik at nedstrømsmålingene kan oppdateres."
+        }
+      ]
+    },
+    {
+      "id": "43_illumination",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Illumination. For å kunne beregne og validere flatfeltet korrigering før intensitetsfunksjoner måles."
+        },
+        {
+          "narration": "Velg representative sammensatte felt og kanaler som trenger korrigering."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du gjennomgå prøveuttagning, glatning, ekskludering og kvalitetskontroll for hver kanal."
+        },
+        {
+          "narration": "Forhåndsvisning av de anslåtte lysfeltene og avvisning av korrigeringer som følger biologisk struktur."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, blir godkjent korrigeringsfelt og diagnostikk lagret for gjenopprettelig forhåndsbehandling."
+        }
+      ]
+    },
+    {
+      "id": "44_data_manager",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Data Manager. Inspisjon av prosjektlagring og gjeninnvinning av avledte filer uten å berøre opprinnelige oppkjøp."
+        },
+        {
+          "narration": "Velg et prosjekt eller et arbeidsområde og la spaCR oppbevare artefakterne."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, gjennomgå artefakttype, størrelse, opprinnelse, gjenoppbyggbarhet og avhengighet varsler før du velger noe."
+        },
+        {
+          "narration": "Se rengjøringsplanen i forbilde og fjern bare avledte gjenstander du er forberedt på å bygge på nytt."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, viser den oppdaterte oppbevarings- og rengjøringsregistret hva som gjenstår og hva som kan gjenopprettes."
+        }
+      ]
+    },
+    {
+      "id": "45_project_browser",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Project Browser. Finn spaCR prosjekter og se deres stadium, størrelse, siste run og gamle utgang i ett bord."
+        },
+        {
+          "narration": "Velg røttene som inneholder prosjektene dine og skann dem."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet filtreres og sorteres etter stadium, størrelse, alder, modulstatus eller gamle gjenstander."
+        },
+        {
+          "narration": "Åpne et valgt prosjekt eller den siste utløpet etter å ha sjekket status oppsummingen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kobler nettleseren deg til de relevante filene og modulene uten å endre prosjektdata."
+        }
+      ]
+    },
+    {
+      "id": "46_napari_bridge",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Napari Bridge. Sjekk en mask i napari og returnerer korrigerte etiketter til spaCR med opprinnelse."
+        },
+        {
+          "narration": "Velg et prosjekt, felt og maskefly å inspisere."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet bekrefte etikettklasse, kildebildslag, destinasjon og overskrive sikkerhetstiltak."
+        },
+        {
+          "narration": "Redigere etiketter i napari, returnere dem til spaCR, og se over endringen før godta."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, forblir korrigerte masker og kureringspost forbundet med det opprinnelige feltet."
+        }
+      ]
+    },
+    {
+      "id": "47_barcode_qc",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker barkodekviks. Sjekk kartlegging dybde, dekning, kollisjoner, posisjonseffekter, og en evidensbasert overflodstærskel."
+        },
+        {
+          "narration": "Åpne et fullført stregekode kartlegging run med plate og bibliotek metadata."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal det vurderes hva som er planlagt for å representere guiden, kontroller, gruppering og trekksving."
+        },
+        {
+          "narration": "Generere kvalitetskontroll visninger og inspisere svake brøler, ukartede lesninger, og bibliotek dekning sammen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, registrerer rapporten den valgte overflodsgrensen, støttende diagnostikk og berørte brønner."
+        }
+      ]
+    },
+    {
+      "id": "48_hit_list",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Hit List. Rank og gjennomgå skjermskjærmer ved hjelp av effektstørrelse, usikkerhet, falsk oppdagelsesrate og guideavtale."
+        },
+        {
+          "narration": "Velg en fullført analyse og resultatkolonne som definerer skjermresultatet."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere kontroller, retning, betydning, effektstørrelse, annotering og avtalefiltre."
+        },
+        {
+          "narration": "Se forhandsrapporten i rangert tabelje og inspisere individuelle kandidater før du eksporterer et endelig underopplag."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, beholder den filtrerte trefflisten poeng, bevis, annotasjoner og kildekennere."
+        }
+      ]
+    },
+    {
+      "id": "49_methods_results",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker metoder og resultater. Utarbeide sporbare metoder og resultater tekst fra registrerte kjøre i stedet for å rekonstruere innstillinger fra minne."
+        },
+        {
+          "narration": "Velg prosjektene og fullførte løp som skal støtte dokumentet."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du seksjoner, sammenligninger, tall, statistikk, sitasjonsstil og felt som er følsomme for personvern."
+        },
+        {
+          "narration": "Generere et utkast og følg hver uttalelse tilbake til innstillingen, filen, eller beregnet resultat."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, eksporteres redigerbare metoder og resultatdokumenter med en opprinnelsesoversikt."
+        }
+      ]
+    },
+    {
+      "id": "50_run_compare",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Run Compare. Sett to løp side om side for å forstå endringer i innstillinger, tall, utgang og treffer."
+        },
+        {
+          "narration": "Velg to kompatible kjøreoptegnelser."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du hvilke innstillinger, artefakter, tall og resultattabeller som skal sammenlignes."
+        },
+        {
+          "narration": "Beregn sammenligningen og sjekk forskjellene i materialet før du bestemmer at en run forbedret analysen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kobler sammenligningsrapporten hver forskjell tilbake til begge kildekjøringer."
+        }
+      ]
+    },
+    {
+      "id": "51_control_charts",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker kontroll diagrammer. Følg styringen over plater og oppdage drift mot en angitt baseline."
+        },
+        {
+          "narration": "Velg gjentatte kontrollmålinger med plateord og basisinformasjon."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet definerer du baseline, gruppering, sentrelinje, grenser og varslingspolitikk."
+        },
+        {
+          "narration": "Gi diagrammet og undersøk skift, trender eller utstyrte plater i sammenheng."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan diagrammet, varslene og baseline definisjonen eksporteres for kampanjeovervåkning."
+        }
+      ]
+    },
+    {
+      "id": "52_pipeline_graph",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Pipeline Graph. Se hvilke gjenstander som produserte hvert resultat og hvilke nedstrømsutgang er forældet eller mangler."
+        },
+        {
+          "narration": "Åpne et spaCR-prosjekt eller registrert run-kolleksjon."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet filtrere grafen etter modul, artefakttype, status eller arbeidsflytgren."
+        },
+        {
+          "narration": "Velg noder og kanter for å sjekke innstillingene, filene, avhengighetene og gamle årsaker."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, identifiserer grafen den nøyaktige modulen som skal gjenlastes for å gjenopprette konsistens."
+        }
+      ]
+    },
+    {
+      "id": "53_prediction_profiler",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Prognose profiler. Variere en modellinngang og observere hvordan en passende forutsielse reagerer."
+        },
+        {
+          "narration": "Velg en passende modell, en representativ rad, og funksjonen variere."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du sette inn en forsvarlig funksjonsområde mens du bevisst holder eller prøver andre innganger."
+        },
+        {
+          "narration": "Generere profilen og sammenligne den i ulike relevante klasser eller referanseobjekter."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, beskriver responskurven modellbete som ikke er årsaksbiologisk effekt, og kan eksporteres med innstillingene."
+        }
+      ]
+    },
+    {
+      "id": "54_qc_dashboard",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker QC Dashboard. Kombiner segmentering, enhet, lekkasje, plate-effekt og annoteringskontroll i en undersøkelsesoverflate."
+        },
+        {
+          "narration": "Velg prosjektet og gjennomfør hvilke kvalitetsbevis som bør oppsummeres."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal det undersøkes hvilke kontroller som er tilgjengelige, omfanget av dem og kriteriene bak hver dom."
+        },
+        {
+          "narration": "Oppfrisk instrumentpanelet og åpne advarselskortene for å sjekke underliggende bevis."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan den kombinerte dommen bli spores etter til individuelle rapporter i stedet for å erstatte dem."
+        }
+      ]
+    },
+    {
+      "id": "55_image_scatter",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Image Scatter. Ta billedmålinger og inspiserer bildet bak ethvert punkt."
+        },
+        {
+          "narration": "Velg en måleplass, x og y-funksjoner, og kolonnen av avgrøde eller feltbilde."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurerer farge, gruppering, filtre, prøveutfangelse og aksetransformer uten å skjule utelukkede rader."
+        },
+        {
+          "narration": "Gi scatter, sving for bildekontekst, og klikk på representative eller uvanlige punkter."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan utvalgte objekter og plottet eksporteres med stabile kildekennere."
+        }
+      ]
+    },
+    {
+      "id": "56_lineage",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Lineage. Undersøk containment relasjoner som celle, kjernekjerne, patogen og organelle oppdrag."
+        },
+        {
+          "narration": "Åpne målede objekter med forholdsidentifikatorer."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du foreldrelær og barne klasser, filtre, felt og relasjonsattributter som skal vises."
+        },
+        {
+          "narration": "Undersøk uventede manglende, dupliserte eller grensekontrakte relasjoner på representative bilder."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, hjelper den reviderte relasjonstabellen å skille biologisk struktur fra oppdragsfeil."
+        }
+      ]
+    },
+    {
+      "id": "57_layer_viewer",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Layer Viewer. Sjekk bilder, masker, punkter og områder av interesse som justerte lag."
+        },
+        {
+          "narration": "Åpne et prosjekt eller kompatible bilde- og annotasjonslag."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du lagsibilitet, kanaler, farger, uklarhet, kontrast og navigering."
+        },
+        {
+          "narration": "Vennligst ta i bruk lag og sjekk grenser og koordinater før du trekker konklusjoner fra et overlegg."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan visningen og de valgte regionene eksporteres uten å endre kilder, med mindre en redigering er eksplisitt lagret."
+        }
+      ]
+    },
+    {
+      "id": "58_graph_builder",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Graph Builder. Lag utforskningsdiagrammer ved å tildele tabellkolonne til visuelle roller."
+        },
+        {
+          "narration": "Velg et måltall og drag funksjoner på x, y, farge, størrelse eller facett roller."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du geometri, aggregering, filtrering, transformering og gruppering som passer til spørsmålet."
+        },
+        {
+          "narration": "Gi kartet og sjekk tallene, manglende verdier og kilde rader bak mønstre."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan diagrammet og datavalget gjenbrukes eller eksporteres."
+        }
+      ]
+    },
+    {
+      "id": "59_anndata_export",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker AnnData Export. Skriv spaCR målinger som en AnnData-fil for scanpy eller scvi-verktøy."
+        },
+        {
+          "narration": "Velg målestolen, objekttypen, funksjonene, observasjonene og metadata-kolumnene."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, oversikt kombinerer, mangler verdier, funksjonsskaling, sparsom lagring og stabile identifikatorer."
+        },
+        {
+          "narration": "Forhåndsvisning av dimensjoner og metadata før du skriver filen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, bevarer h5ad-filen den valgte matrisen, annotasjonene og opprinnelsen for nedstrømsanalyse."
+        }
+      ]
+    },
+    {
+      "id": "60_pca",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker PCA. Sammendra korrelerte målinger med hovedkomponenter og sjekk de egenskaper som driver dem."
+        },
+        {
+          "narration": "Velg en måltall, numeriske funksjoner og valgfrie etiketter eller grupper."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere filtrering, håndtering av manglende verdier, skalering, komponenter og prøvetakning."
+        },
+        {
+          "narration": "Pass PCA og inspeksjon score, forklart varians, belastninger og bilde-linked outliers sammen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan poeng, belastninger, innstillinger og plottesystemer eksporteres til gjenopprettelig utforskning."
+        }
+      ]
+    },
+    {
+      "id": "61_tabulate",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Tabulate. Pivotmålinger i grupperte oppsummeringer samtidig som bidraget blir synlig."
+        },
+        {
+          "narration": "Velg en tabell og tildele gruppering felt, verdier kolonne og aggregasjoner."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, se over filter, manglende verdier, kategoriord, totalt og antall bak hver celle."
+        },
+        {
+          "narration": "Bygge bordet og inspiserer sjeldne eller uventet tomme grupper før eksport."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, forblir den roterte tabellen og dens spesifikasjon knyttet til kildekellet."
+        }
+      ]
+    },
+    {
+      "id": "62_feature_dictionary",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Feature Dictionary. Finn ut hva et målte element betyr ved navn eller begrep."
+        },
+        {
+          "narration": "Søk etter et trekknavn, måling familie, objekt type, eller biologisk idé."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet filtreres etter rom, kanal, enhet, beregning eller tilgjengelighet i det nåværende prosjektet."
+        },
+        {
+          "narration": "Åpne en innføring for å gjennomgå definisjonen, forventede enheter, avhengigheter og advarsler."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan de valgte definisjonene kopieres eller eksporteres sammen med en analyse."
+        }
+      ]
+    },
+    {
+      "id": "63_small_multiples",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker små ganger. Sammenlign det samme diagrammet på tverr med ærlige deler."
+        },
+        {
+          "narration": "Velg en tabell, diagramvariabler og feltet som definerer hvert panel."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet konfigurere layout, delt eller uavhengig skala, aggregering, filtrering og panellorden."
+        },
+        {
+          "narration": "Gjenfør ruten og sjekk utprøvingsstørrelser og skalavalg før du sammenligner paneler."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan trellis-spesifikasjonen og figuren eksporteres med de valgte dataene."
+        }
+      ]
+    },
+    {
+      "id": "64_gate_editor",
+      "scenes": [
+        {
+          "narration": "Gate Editor forvandler regioner i et måltall til navngitte, gjenbrukbare befolkningsportaler. Arbeidsrommet holder funksjonsaksene, tegning verktøy, full datavisning og gate hierarki sammen."
+        },
+        {
+          "narration": "I 2D velger du X og Y for en spredning, eller la Y tom for et histogram. Velg et trøskel eller et formverktøy og tegne rundt den tiltenkte befolkningen. Den fulde skyen er synlig mens de inkluderte objektene er fremhevet."
+        },
+        {
+          "narration": "Velg 3D- og Z-målinger for å inspisere en roterende volum. Akseknappene styrer spinnretningen, og Box gate registrerer grenser på alle tre viserte målinger."
+        },
+        {
+          "narration": "Velg xD for å projisere de støtteberettigede målingene i hovedkomponenter. Kilde etiketten rapporter forklarte varians, og PC1, PC2 og PC3 blir vanlige aksler for de samme gating verktøy."
+        },
+        {
+          "narration": "Gate hierarkiet rapporterer objektet antall, prosent av sin foreldre, og prosent av alle rader. Venn en portens sjekkbokse for å vise eller skjule den, og velg en port før du tegner når den neste befolkningen skal være gjestet inne i den."
+        },
+        {
+          "narration": "Gi hver befolkning et meningsfullt navn, så spar gate strategien. Last den på en kompatibel tabell for å gjenbruke de samme funksjonnavnene, grensene og hierarkiet, og verifisere de nye tallene før du fortsetter."
+        },
+        {
+          "narration": "Cluster Walk søker etter en begrenset sekvens av DBSCAN-radier på de viste målingene og rapporterer den valgte radius, befolkningsantallet og ekskluderte brøkdel. Inspisjon av de resulterende portene, deretter annotere eller eksportere bare etter at populasjonene samsvarer med de synlige dataene."
+        }
+      ]
+    },
+    {
+      "id": "65_feature_explorer",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Feature Explorer. Rangfunksjoner etter hvor godt de skiller utvalgte klasser og inspiserer bevisene bak rangeringen."
+        },
+        {
+          "narration": "Velg en tabell, klasse kolonne, sammenligne grupper, og kandidat numeriske funksjoner."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal det være kontroll av vurderingspoeng, validering, filtrering, prøvetakning og flere sammenligninger."
+        },
+        {
+          "narration": "Beregn rangeringen og sjekk distribusjoner og billedlinkede eksempler for ledende funksjoner."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, beskriver rangerte tabeller og plott tilknytning til klasser, ikke årsaksvikt."
+        }
+      ]
+    },
+    {
+      "id": "66_outliers",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Outliers. Flagg uvanlige gjenstander eller brønner med robuste regler mens du bevarer hver rad."
+        },
+        {
+          "narration": "Velg tabellen, analysenivået, grupperingen og funksjonene du vil vurdere."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du velge en robust metode, retning, tærskel, håndtering av manglende verdier og referansegrupper."
+        },
+        {
+          "narration": "Forhåndsvisning av markerte rader og inspeksjon av målinger og bilder før du aksepterer regelen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, skriver spaCR et uvanlig flagg og diagnostikk i stedet for stille å slette observasjoner."
+        }
+      ]
+    },
+    {
+      "id": "67_experiment_design",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker eksperimentdesign. Lag vilkår, kontroller og repliker før oppkjøpet."
+        },
+        {
+          "narration": "Velg plateformat, forhold, kontroller, replikeringsplan og begrensninger."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet, se over randomisering, blokkering, kanthåndtering, balanse, reserverte brønner og metadata etiketter."
+        },
+        {
+          "narration": "Generere og inspisere det foreslåtte layouten, og deretter revidere konflikter eller ubalancer."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, kan det validerte plattekortet og metadata eksporteres til oppkjøp og senere analyse av spaCR."
+        }
+      ]
+    },
+    {
+      "id": "68_power_design",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker Power / Design. For å oppdage en effekt under fastsatte antagelser, er det nødvendig å beregne celler og brønner."
+        },
+        {
+          "narration": "Skriv utfallstypen, forventet effekt, variabilitet, gruppering og planlagt analyse."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal vurderes betydningen, målstyrken, klyngeringen, attrisjon og usikkerhetsområdene."
+        },
+        {
+          "narration": "Beregne design og bruk følsomhetsvisninger for å se hvilke antagelser som driver prøvestørrelsen."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, registrerer rapporten antagelser og anbefalt prøveuttagning i stedet for å presentere et tall uten sammenheng."
+        }
+      ]
+    },
+    {
+      "id": "69_dose_response",
+      "scenes": [
+        {
+          "narration": "Denne opplæringen dekker DoseResponse. Pass dose-responskurver samtidig som du rapporterer usikkerhet og nekter ikke-støttede EC50-skatt."
+        },
+        {
+          "narration": "Velg konsentrasjon, respons, replikere, tilstand og kontroll kolonne."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet skal du se på normalisering, retning, grenser, vektlegging, gruppering og minimumskrav til bevis."
+        },
+        {
+          "narration": "Fyll og inspisj kurven, restene, konfidensintervallet og eventuelle avslag eller ensidige grensene."
+        },
+        {
+          "narration": "Når arbeidsflyten er ferdig, kan kurvparametre, usikkerhet, diagnostikk og kildedata eksporteres sammen."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Explain CV Model. Gjenskap prediksjoner fra datasyn basert på målte egenskaper, og kontroller om de resulterende forklaringene er pålitelige og uten datalekkasje."
+        },
+        {
+          "narration": "Velg prediksjonsfilen per objekt, den tilhørende målingsdatabasen, den predikerte klassen eller skåren og grupperingen etter mikroplatebrønn eller plate som må holdes samlet."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du bakenden for surrogatmodellen, reserverte valideringsgrupper, egenskaper som skal utelates, antall permutasjonsrepetisjoner og det avgrensede SHAP-budsjettet."
+        },
+        {
+          "narration": "Kontroller utelatelsene som skal hindre datalekkasje, og den grupperte datadelingen. Tilpass deretter surrogatmodellen, og sammenlign samsvaret på valideringsdata med majoritetsgrunnlinjen før du tolker egenskapenes betydning."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, registreres samsvar, permutasjonsbetydning i valideringssettet, SHAP-sammendrag, utelatte kolonner, gruppering, bakende og proveniens. Lavt samsvar rapporteres i stedet for å skjules."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Investigate Hit. Spor et valgt regresjonsfunn tilbake til kandidatceller og kvantitativ evidens fra mikroplatebrønner uten å overskrive gjennomgåtte annotasjoner."
+        },
+        {
+          "narration": "Velg regresjonskjøringen, det valgte funnet på gen- eller guide-nivå, fenotyperetningen, terskelen for falske funn, guide-støtten og den samsvarende målingsdatabasen."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet gjennomgår du objekttabellen, skårkolonnen, grupperingen etter mikroplatebrønn, evidenstersklene, kovariatene og den valgfrie krysstilpassede hierarkiske blandingsmodellen."
+        },
+        {
+          "narration": "Forhåndsvis kandidatcellene rangert etter skår og sammendragene for mikroplatebrønnene. Kjør den krysstilpassede modellen bare når det valgte funnet og evidenskravene er riktige."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, lagrer spaCR rangerte kandidatceller, sammenligninger mellom uavhengige brønner, valgfrie sannsynligheter for at hver celle samsvarer med den valgte fenotypen, usikkerhet og en versjonert avgjørelse som aldri erstatter manuelle annotasjoner."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Volcano Explorer. Åpne en fullført regresjon, undersøk hvert punkt, juster diagrammets utforming og eksporter en vektorfigur i publikasjonsstørrelse uten å kjøre analysen på nytt."
+        },
+        {
+          "narration": "Velg en mappe med en fullført regresjon eller en resultat-CSV, og bekreft utfallet, tabellen på guide-nivå, støttefamilien, effektkolonnen og kolonnen med justerte P-verdier."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet gjennomgår du signifikans- og effektterskler, aksetransformasjoner, etiketter, farger, former, annotasjoner, aksebrudd, skrifttyper og utdataformat."
+        },
+        {
+          "narration": "Klikk på representative punkter for å undersøke hele raden, slå sammen valgfrie annotasjoner, og kontroller at endringer i utformingen bevarer de underliggende verdiene og tersklene."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, gjengis PDF- og PNG-eksportene på nytt fra de registrerte dataene og den registrerte utformingen i ønsket størrelse, mens de opprinnelige regresjonsresultatene forblir uendret."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Denne veiledningen omhandler Parameter Sweep. Kjør et avgrenset søk gjennom regresjonsinnstillinger, og sammenlign hvilke konklusjoner som består på tvers av faglig forsvarlige analysevalg."
+        },
+        {
+          "narration": "Koble CSV-filene med skår per objekt og guide-antall for hver plate, velg responskolonnen, og angi en separat utdatamappe."
+        },
+        {
+          "narration": "I hovedkonfigurasjonsområdet velger du hvilke akser som skal variere, låser alle andre verdier, velger rutenett- eller tilfeldig utvalg, begrenser antall forsøk, registrerer startverdien og godtar den minnebegrensede grensen for parallelle arbeidere."
+        },
+        {
+          "narration": "Bruk Estimate først for å undersøke størrelsen og kostnaden til det gyldige søkerommet. Start deretter et lite, avgrenset søk, og overvåk vellykkede, avviste og mislykkede forsøk."
+        },
+        {
+          "narration": "Når arbeidsflyten er fullført, registrerer den gjenopptakbare resultattabellen innstillinger, status, antall funn, rangering av positiv kontroll, varighet, utdatamappe og feilårsak for hvert forsøk."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "lesson": "06_api",
+  "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "API Python e comandi batch",
+  "description": "Trova una funzione di analisi, carica le impostazioni salvate, controlla gli input ed esegui spaCR da un terminale.",
+  "objectives": [
+    "Trovare i comandi batch installati e le relative funzioni Python.",
+    "Esaminare la firma di una funzione e il suo riferimento API.",
+    "Controllare le impostazioni salvate prima di eseguire un’analisi."
+  ],
+  "prerequisite": "Installa spaCR e attiva il suo ambiente Python. Segui il tutorial di Regression per preparare tabelle appaiate di punteggi e conteggi e salvare le impostazioni dell’analisi. Usa i tuoi percorsi dei file nei comandi.",
+  "scenes": [
+    "Attiva l’ambiente Python in cui hai installato spaCR. Importa spacr e stampa la sua versione con il comando mostrato. Conserva la versione con le note di analisi, così potrai riprodurre la stessa esecuzione in seguito.",
+    "Esegui spacr-run con trattino trattino list per trovare i comandi batch disponibili. L’elenco mostra la chiave di ogni comando e la sua funzione Python. Scegli il comando adatto al tuo compito, come mask, measure o regression. Usa l’applicazione desktop per le attività interattive, come etichettare immagini in Annotate.",
+    "Esegui spacr-run con trattino trattino describe seguito da regression. Leggi gli input obbligatori, i valori predefiniti e il nome della funzione. Qui il comando batch chiama perform_regression in spacr.ml. Apri quella funzione nel riferimento API per leggerne i parametri e i risultati restituiti.",
+    "In Python, importa la funzione che ti serve ed esaminane la firma. Questo esempio importa build_report da spacr.report. Cerca lo stesso nome nel riferimento API, prepara gli argomenti obbligatori e chiama la funzione dal tuo script o notebook.",
+    "Salva le impostazioni del flusso di lavoro del modulo, poi passa il file con trattino trattino settings. Aggiungi trattino trattino dry-run per controllare la configurazione e i percorsi di input. In questo esempio di Regression, le impostazioni abbinano i punteggi di fenotipo ai conteggi delle guide per ogni piastra. Leggi i messaggi e correggi gli input mancanti prima di continuare.",
+    "Per eseguire l’analisi, lancia lo stesso comando senza trattino trattino dry-run. Segui la console fino al termine del comando, poi esamina gli output descritti nel tutorial e nella pagina API di quel modulo. Conserva con i risultati il file delle impostazioni, le tabelle di input, la versione del pacchetto e il log della console."
+  ]
+}

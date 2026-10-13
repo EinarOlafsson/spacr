@@ -1,0 +1,35 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Activation Maps: revisar los mapas de saliencia de un clasificador de imágenes",
+  "description": "Selecciona un clasificador entrenado y recortes de imagen compatibles, compara la saliencia por canal y por imagen, y abre los mapas guardados.",
+  "objectives": [
+    "Hacer coincidir el archivo de recortes, el modelo y los ajustes de preprocesamiento.",
+    "Ejecutar la saliencia por canal con una superposición sobre la imagen.",
+    "Comparar la saliencia por imagen y localizar las cuadrículas guardadas."
+  ],
+  "prerequisite": "Usa un punto de control de clasificación de imágenes entrenado y un archivo TAR de recortes de imagen compatibles. Conserva el marcador de formato de recorte si existe y sigue el orden de canales, el tamaño de imagen y la normalización de la ficha del modelo. El ejemplo usa cuatro recortes RGB de Annotate y un modelo ResNet18 de Classify. Entrena u obtén un modelo cuyo preprocesamiento conozcas antes de empezar.",
+  "scenes": [
+    "Desde Home, abre Classify y luego Activation Maps. Esta herramienta muestra en qué píxeles de entrada es sensible la predicción de un clasificador de imágenes entrenado. Empieza con el modelo y un archivo de recortes preparados de la misma forma que sus datos de entrenamiento.",
+    "Selecciona el archivo de recortes en Dataset. Este ejemplo contiene cuatro recortes RGB de células de Annotate. Incluye el marcador de formato de recorte al empaquetar las imágenes y conserva sus nombres de archivo para poder relacionar cada mapa con su objeto original.",
+    "Selecciona el modelo entrenado y elige su tipo de modelo. Aquí el modelo es ResNet dieciocho. Lee su ficha del modelo y pon Image size en ciento veintiocho para que coincida con la entrada del entrenamiento.",
+    "Ajusta Channels al orden que espera el modelo. En este ejemplo el selector usa uno, dos y tres para la entrada RGB. Mantén ese orden al comparar mapas de imágenes distintas.",
+    "Ajusta Normalize input para que coincida con el entrenamiento. La normalización de visualización, que es aparte, controla cómo se ve la imagen en la superposición guardada. Mantén ambos ajustes iguales al comparar ejecuciones.",
+    "Elige saliency channel y activa Overlay, Plot y Save. Así se generan mapas separados por canal sobre las imágenes. Para el ejemplo de cuatro recortes, usa un tamaño de lote de cuatro y un proceso de trabajo, y haz clic en Run.",
+    "Sigue la consola hasta que termine el procesamiento. Si el panel Figures está vacío, abre la carpeta de salida y revisa las cuadrículas de lote guardadas. Revisa los mensajes de error y los resultados guardados antes de continuar.",
+    "Abre batch_0_grid.png en la carpeta batch_grids del método. Relaciona cada casilla ocupada con su recorte de origen; las casillas sin usar pueden quedar en blanco. Las etiquetas de las esquinas son predicciones del modelo. Compara las regiones salientes con la imagen original y con los bordes conocidos de los objetos.",
+    "Para comparar un mapa combinado, selecciona saliency image y desactiva Overlay. Vuelve a ejecutar las mismas imágenes con el mismo preprocesamiento. Mantén las salidas de los dos métodos en sus carpetas respectivas.",
+    "Abre la segunda cuadrícula guardada. La saliencia por imagen combina las sensibilidades de los canales en un solo mapa para cada recorte. Compara las regiones resaltadas con los mapas por canal. Los colores indican la escala del mapa; para interpretarlos hay que tener en cuenta el modelo y el contexto de la imagen.",
+    "Deja Correlation desactivado en este primer recorrido. Revisa ejemplos de distintas clases, incluidos los errores de predicción, antes de interpretar patrones. Usa Classifier Evaluation para evaluar el rendimiento con datos reservados de forma independiente.",
+    "Mantén juntos el archivo de entrada, el modelo y su ficha, los ajustes, los mapas y la base de datos de salida. Vuelve a los recortes originales para investigar regiones inesperadas, o compara otro método con las mismas entradas."
+  ]
+}

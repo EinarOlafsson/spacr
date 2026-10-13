@@ -1,0 +1,54 @@
+# environment.yaml is NOT the source of truth for spaCR's dependencies.
+#
+# setup.py's `dependencies` list is, and `pyproject.toml`'s `requires-python`
+# owns the interpreter range. This file exists only so that `conda env create
+# -f environment.yaml` gives you a working spaCR, and it earns its place only
+# by agreeing with those two.
+#
+# It had stopped agreeing, and `spacr doctor`'s `declared pins` check is what
+# caught it. It was a `conda env export` dump taken before the Cellpose 4
+# migration — 170 lines, 140 exact `==` pins — and three of them made the
+# file actively harmful:
+#
+#   1. `cellpose==3.0.11` against setup.py's `cellpose>=4.0,<5.0`. spaCR's
+#      segmentation code is written entirely against the Cellpose 4 / SAM API
+#      (`cpsam`, `pretrained_model=`, `parse_cellpose4_output`), so anyone who
+#      ran `conda env create -f environment.yaml` got a spaCR that could not
+#      segment — the single most central thing it does.
+#   2. `python=3.9.19` and `torch==2.4.0`, which current spaCR cannot use.
+#   3. `huggingface-hub==0.24.6` (setup.py: `>=0.25`) and `umap-learn==0.5.6`
+#      (setup.py: `>=0.5.11`), both below their declared floors.
+#
+# The 140 pins were a lie in a subtler way too: they were one machine's
+# resolved environment on one day, not a specification. Re-synchronising them
+# by hand would only have reset the clock on the same rot.
+#
+# So this file now delegates, exactly as requirements.txt already does. conda
+# supplies the interpreter and pip; pip installs spaCR from setup.py. The two
+# cannot drift apart, because there is only one list.
+#
+# The Python floor is >=3.10 rather than the >=3.9 that `requires-python`
+# still permits: 3.10 is what CI runs and what all three packaging scripts
+# declare (`packaging/build_debian.sh:59`, `build_macos.sh:10`,
+# `build_windows.ps1:4`). Pip still enforces the real range at install time,
+# so this narrows the conda path without contradicting the package.
+#
+# tests/test_packaging_metadata.py::test_environment_yaml_does_not_contradict_setup_py
+# reads this file, so a hand-written dependency list reappearing here fails
+# CI rather than silently shipping a spaCR that cannot mask.
+#
+#   conda env create -f environment.yaml
+#   conda activate spacr
+#
+# For a non-conda install see requirements.txt, or:
+#   pip install spacr            # users; desktop + pipelines
+#   pip install "spacr[all]"     # every optional feature
+
+name: spacr
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10,<3.14
+  - pip
+  - pip:
+      - -e .[dev]

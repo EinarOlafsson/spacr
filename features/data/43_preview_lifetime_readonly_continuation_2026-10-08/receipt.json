@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "qt": "6.12.0",
+  "python": "3.12.14",
+  "pytest": "8.4.2",
+  "passed_tests": 66,
+  "elapsed_seconds": 25.44,
+  "ram_cap": "8G",
+  "thread_caps": {
+    "OMP_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1
+  },
+  "payloads": {
+    "preview-lifetime-qt612-cohort-r1.log.gz": {
+      "sha256": "363efe6215d687d2799a0c4d82063f31a5bb02b0ade174800b65751346c3e8cc",
+      "bytes": 2084,
+      "raw_sha256": "7ae910426bb48326699c31314567e2f0d86a2bcee55b296b74d57f60436268ce",
+      "raw_bytes": 4528
+    },
+    "preview-lifetime-qt612-cohort-r1-tool.log.gz": {
+      "sha256": "1c0b193d3fdebb6f923283c1752ea53c63b11682c9b15e307a23084b716e5023",
+      "bytes": 1684,
+      "raw_sha256": "b32acfc8ee56a3f810632ebbd42f3834e8c1dd4dd43378286af7f8b2a7624872",
+      "raw_bytes": 3627
+    },
+    "closed-preview-propagation-qt612-r1.log.gz": {
+      "sha256": "b52ac99ba74677635695c0e18eca4a6d7914bee912c35e542908157f8a394adb",
+      "bytes": 535,
+      "raw_sha256": "5ec9c098983c4360a2c9e298f4de86f48ca3f65162768311b10f41dc2d1e8026",
+      "raw_bytes": 1164
+    },
+    "closed-preview-propagation-qt612-r1-tool.log.gz": {
+      "sha256": "70e387a914adb2625850e30726f3f241d4e6b478639db1f8996086e67383187e",
+      "bytes": 304,
+      "raw_sha256": "66a19d9af397a95165a6636aff2fa2618f40c29ddbcac355e55b62836a94fd8c",
+      "raw_bytes": 441
+    },
+    "closed-preview-propagation-qt612-r1.json.gz": {
+      "sha256": "b33c192fb5e40079502724c7c24a062fb8c8c668e1c7a9ce2afabfe5765c020b",
+      "bytes": 235,
+      "raw_sha256": "64608edc77580a8520bcd293430e4a0c226a7a2f3660e852ae6c62e8f0d7526c",
+      "raw_bytes": 353
+    },
+    "check_closed_preview_propagation_r1.py.gz": {
+      "sha256": "098474f01570d80de08f93a148e283d0ba7565de143c0b2d4caabc88b11b01b4",
+      "bytes": 686,
+      "raw_sha256": "2abf9367c537eb1dec62abe8b08c1e4e777e4ae05315dc88e635a76c6170d8d6",
+      "raw_bytes": 1500
+    },
+    "preview-lifetime-qt612-cohort-r1.data.gz": {
+      "sha256": "94fc3584b884e1d64c20f1351d24f42dc0504b544351efce65a93834228b70b1",
+      "bytes": 47203,
+      "raw_sha256": "9eebb368127f18d65d9187b383c5c4f3595c6d9c05597b8c153a1e623673a7d0",
+      "raw_bytes": 167936
+    }
+  },
+  "propagation": {
+    "qt": "6.12.0",
+    "calls_after_closed_dialog": [
+      "propagated"
+    ],
+    "calls_with_new_dialog_propagation_unchecked": [
+      "propagated"
+    ],
+    "closed_dialogs_still_parented": 2,
+    "scope": "Actual production open/close/control-edit paths. Only propagation method observed via a Python spy; no widget ownership or native pointer modification."
+  },
+  "scope": "Original four-file bounded preview/tooltip cohort under actual Qt6.12 overlay. Additional actual dialog close/reopen propagation observer exposes a retained connection while new switch is unchecked.",
+  "limitations": [
+    "No application/test/assertion/order source changed. Small-cohort coverage is not numerical ratchet acceptance.",
+    "No native fault reproduced by this cohort or probe; original hosted abort remains open.",
+    "Observers do not identify heap corruption origin."
+  ]
+}

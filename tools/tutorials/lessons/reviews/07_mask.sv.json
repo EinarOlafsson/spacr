@@ -1,0 +1,36 @@
+{
+  "lesson": "07_mask",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Mask: segmentera bilder och granska resultaten",
+  "description": "Läs in mikroskopbilder, välj segmenteringsinställningar, förhandsgranska objekt och spara masker för mätning.",
+  "objectives": [
+    "Läsa in mikroskopiexemplet och identifiera dess intensitetskanaler.",
+    "Jämföra modellinställningar och storleksfilter i Live-förhandsvisningen.",
+    "Köra segmentering, granska dess figurer och hitta de sammanslagna utdata."
+  ],
+  "prerequisite": "Öppna Mask och välj Load test data. För egna bilder förbereder du en källmapp med konsekventa filnamn och kända kanaler. Exemplet använder kärnkanal 0, cellkanal 1 och patogenkanal 2, samt en extra intensitetskanal 3.",
+  "scenes": [
+    "Från Home öppnar du Mask. Använd modulen för att avgränsa celler, kärnor och patogener i mikroskopbilder. Den här genomgången bearbetar tvådimensionella bilder. Arbetsflödena för Time, 3D och OPS har egna handledningar.",
+    "Om dina bilder ligger utspridda i flera mappar eller har namn som Mask inte kan läsa klickar du på Ordna bilder högst upp i Input & Metadata. Ge varje kanal en kolumn, genom att släppa dess mapp eller med en regex, och kontrollera att varje rad är ett komplett synfält. Apply flyttar bilderna till en mapp med Yokogawa-namn och pekar Source dit, med kanalerna redan ifyllda.",
+    "Klicka på Load test data och vänta tills mikroskopiexemplet har lästs in. Kontrollera Source innan du fortsätter. För egna bilder väljer du deras mapp och kontrollerar att filnamnen anger platta, brunn, synfält och kanal.",
+    "Kontrollera kanaltilldelningarna mot bilderna. I exemplet är kärnintensiteten kanal 0, cellintensiteten kanal 1 och patogenintensiteten kanal 2. Kanal 3 är en extra intensitetsbild. Välj bara de objekttyper som finns i ditt experiment.",
+    "Under indata samlar tabellen med inställningar per objekt det du väljer för varje objekt. Varje objekt är en kolumn, här cell, kärna och patogen, och varje rad ställer en fråga: om bakgrunden ska tas bort, objektets diameter, segmenteringsmodellen, bakgrundsnivån och gränsen för signal-brus-förhållandet. Add a filter lägger till en rad som tar bort objekt efter en mätt egenskap som yta, och Add an organelle lägger till ytterligare en objektkolumn.",
+    "Slå på Live och välj ett synfält. Granska bilden och de föreslagna maskerna tillsammans innan du bearbetar hela mappen. Prova flera synfält som representerar spännvidden i bildkvalitet i ditt experiment.",
+    "Öppna Live settings och välj modellen för objektet du vill segmentera. Ange ungefärlig objektdiameter och klicka sedan på Run preview.",
+    "När förhandsvisningen är klar jämför du konturerna med bilden. Leta efter missade objekt och närliggande objekt som slagits ihop till ett. Statusraden visar hur många objekt som hittades.",
+    "Använd filtret för minsta area för att dölja objekt som är mindre än det valda antalet pixlar. Om du höjer det försvinner små etiketter från förhandsvisningen. Filtret uppdaterar ett befintligt maskresultat, så du kan snabbt jämföra storleksgränser.",
+    "Sätt minsta ytan till noll igen för att få tillbaka alla objekt. Om modellen delar eller slår ihop objekt i fel skala ändrar du Diameter och kör förhandsvisningen igen, och kontrollerar både gränserna och antalet. Återställ de inställningar du vill använda före batchkörningen.",
+    "För en snabb första körning pekar den här inspelningen Source mot centrerade utsnitt av två exempelfält; med dina egna data slår du i stället på Test mode och väljer några testbilder. Låt Plot vara på, kontrollera diametrar och flödeströsklar per objekt, låt Save under Quality Control vara på och klicka sedan på Run.",
+    "När körningen är klar fylls figurlistan med dess diagram. Den sista figuren ritar varje objekts konturer på dess egen kanal, kärnor, celler och patogener, och de kombinerade objekten till höger. Kontrollera små objekt, celler som rör varandra och missade områden i varje figur.",
+    "De övriga figurerna visar varje kanal och de mask- och flödesarrayer som modellen skapade. Körningen skriver en merged-mapp med bildintensiteterna och de slutliga objektetiketterna, och lägger metadata om planlayouten bredvid arrayerna så att Measure kan identifiera varje kanal och mask. Håll indata, inställningar, masker och kvalitetsrapporter samlade och fortsätt sedan till Measure för att extrahera objektegenskaper och utsnitt."
+  ]
+}

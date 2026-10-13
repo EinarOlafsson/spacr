@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review against each complete English source message, current UI labels, mask undo/identity/overlap behavior and probability/flow definitions. Model draft meaning errors corrected before normal import. No native-speaker signoff.",
+  "original_model_drafts_sha256": "41219acf075519aa6aff44075516189443d081fe9bdb5753ade710b51e6b10e9",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order.",
+      "source_sha256": "6fb84bd480f9e89ef3b07883c746de76e6c0ee12656701877c6dd6b0359c9df3",
+      "original_model_translation": "动画菜单列出 **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**,和 **spaCR spinn**。",
+      "target": "动画菜单依次列出 **spaCR field**、**spaCR advection**、**spaCR growth**、**spaCR waves**、**spaCR blobs**、**spaCR aurora**、**spaCR stratified** 和 **spaCR spinn**。"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen.",
+      "source_sha256": "d58dcef411de016b2e4ed40ee79814985354d7bfa195d086fd58ed61d24e9552",
+      "original_model_translation": "**spaCR growth** - 短微部分从一个起点每个殖民地生长,并重复发芽。 每个发芽转向持续的点,开始一个女儿点,所以分支的前面在筛选上进展。 密度控制了现场提示的数量。",
+      "target": "**spaCR growth** — 每个菌落的短菌丝段从一个起点生长，并不断分叉。每次分叉都会改变原有生长尖端的方向，并产生一个新的子尖端，使分支前沿向屏幕其他区域推进。密度控制活跃尖端的数量。随着新菌落出现，旧轨迹逐渐消退；可见图案始终限制在屏幕面积的四分之一以内。"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius.",
+      "source_sha256": "6ae907186874ad1d8d67abe6cbc17d3c687afab0840db8dd2dc86dc61aaa17e4",
+      "original_model_translation": "**spaCR waves** - 圆点携带旅行波,并在其允许的射线内从鼠标中移动。",
+      "target": "**spaCR waves** — 圆点承载传播的波纹，并在已启用的鼠标影响半径内远离鼠标。"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size.",
+      "source_sha256": "f6142a51583ab29ac1bbc90e0ddf4e45ec9e4c71ba2b53f73640ea16d9013181",
+      "original_model_translation": "**spaCR blobs** - 柔软的颜色泡沫,大和小,旋转和慢慢改变尺寸。",
+      "target": "**spaCR blobs** — 大小不同的柔和色块缓慢漂移，并逐渐改变大小。"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available.",
+      "source_sha256": "05fbec1af1efc5636715a6a358398d589e36be2f82319aeeb41ccf3b9033ed78",
+      "original_model_translation": "**spaCR aurora** - 不规则的薄光的窗帘从明亮的板上升起,风向天空,并独立改变长度和亮度。 spaCR 板使用绿色与粉红色的顶光为这个主题;其他选择的板仍然可用。",
+      "target": "**spaCR aurora** — 细光束组成不规则的帘幕，从明亮的褶皱处升起，朝天空呈扇形展开，并各自改变长度和亮度。此主题的 spaCR 调色板使用绿色和顶部的粉色光；也可以继续使用其他选定的调色板。"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "source_sha256": "a1f74b899259cb37b049b1c165df96ef8c80b752d47dd238fc787f8ef3949fb6",
+      "original_model_translation": "**spaCR stratified** - 一个慢的星球场在三个深层移动; **spaCR stratified 方向**选择上,下或随机旅行。",
+      "target": "**spaCR stratified** — 缓慢的星点场在三个深度层中移动；**spaCR stratified 方向**选择向上、向下或随机方向的运动。"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.",
+      "source_sha256": "d6c57d8434371dbfd65e097e5dde3aab56fe6fbc246535bc005d7a1123a92480",
+      "original_model_translation": "**spaCR spinn** - 微妙的纸面轻轻地移动,并在对鼠标的反应中旋转。 旋转是指示器旁边最快的,在鼠标重力射线上顺利滑到零; 改变射线改变受影响的区域。",
+      "target": "**spaCR spinn** — 细薄的纸片状面片轻柔移动，并根据鼠标位置局部旋转。越靠近指针，旋转越快；速度在鼠标引力半径的边缘平滑降至零。改变半径会改变受影响的区域。"
+    },
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset.",
+      "source_sha256": "f1d600d93414e2c79b01d468668f3b6245b9ebae12d8c49bb9b0d7a19a2aba1d",
+      "original_model_translation": "**鼠标引力半径** 将受影响的区域定为更短的屏幕边缘的百分比。 其默认值为 **15%**; 将其设置为 **0** 以禁用鼠标影响。 **动画密度** 改变元素的数量,独立于 **动画细节**,从而改变绘图分辨率。 密度最小为**1%**; 增加的细节不会切断所选择的人口。 显示器将其样品工作限制在屏幕的像素预算内。 选择 **随机** 在 **动画调色板** 为每个元素的颜色。 新安装使用**深色**,**spaCR field**和**spaCR**动画板,与密度**10%**,重力**15%**,细节,速度和尺寸**100%**,和页面不透明度**60%**。 **点闪烁**控制了白色闪光的可见点的百分比: **0**将其切断(默认),而非零值从0.00001%到10%。 设置适用于 spaCR 字段, spaCR 警告, spaCR 波和 spaCR 序列。 字符串在上。 蓝色条纹使用相对周边长度为 **17%**, Chase **50%**, 中心调整, 模式 **Beat** 和一个 **1.5 s** 周期。",
+      "target": "**鼠标引力半径**以屏幕较短边长的百分比设置影响区域。默认值为 **15%**；设为 **0** 可禁用鼠标影响。**动画密度**控制元素数量，与改变绘制分辨率的 **动画细节**相互独立。密度最低为 **1%**；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板**中选择 **随机**可为每个元素使用随机颜色。新安装默认使用 **深色**、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%**，引力为 **15%**，细节、速度和大小均为 **100%**，页面不透明度为 **60%**。**点闪烁**控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%**，以指针为中心对齐，模式为 **Beat**，周期为 **1.5 s**。已有的已保存偏好设置会保留，直到用户更改或重置。"
+    },
+    {
+      "domain": "features",
+      "source": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "source_sha256": "bc4b37e953592d552059f66aac7427eb3308a93996586bfe4b7300ad4e93c80d",
+      "original_model_translation": "**弹窗波纹频率** 设置自动波每分钟在 **spaCR field**. 默认情况是 **5 波/分钟**; **0** 阻止跳跃波. 启动时,打开一个跳跃即时从其中心开始的第一个波,随后波在所选择的速度。 移动跳跃将移动新波的起源; 关闭它停止新的波,而现有波消失. 这种控制是独立于鼠标重力,点闪烁,密度和绘图细节。",
+      "target": "**弹窗波纹频率**设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟**；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。"
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_model_translation": "**设置 Backdrop** 在应用和保存期间保持独立于主要动画。 **无** 阻止跳动,同时保持蓝色带。 **设置背景暗度** 控制设置卡对其动画的无效性,从 **0%** 到 **100%** (默认 **85%**) 与 **页面不透明度** 相结合。 页面不安全性也适用于设置背景为 **无** 时。 更高的黑暗值覆盖更多的动画,使文本更容易阅读。 Popups 保持在其拥有 spaCR 窗口的顶部,而无需使用全球常在顶部的旗帜,所以其他应用程序可以覆盖它们。",
+      "target": "**设置 Backdrop**在应用或保存偏好设置时均与主窗口动画保持独立。**无**关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度**控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%**（默认 **85%**），并与 **页面不透明度**共同作用。当设置背景为 **无**时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
+    },
+    {
+      "domain": "features",
+      "source": "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available.",
+      "source_sha256": "d5e22805593c3cde4e6d34ff9dd279e1d192c5a8bc36e1cff2d3b64b9b9bb511",
+      "original_model_translation": "在 **spaCR field** 中,左拖着一个未占用的背景区域,以拖动一个地方点的折叠。 释放按钮允许它顺利返回,而无需重新启动模式。",
+      "target": "在 **spaCR field** 中，按住鼠标左键并在空白背景区域拖动，可拉动一小片局部点阵。松开鼠标后，点阵会平滑回弹，而不会重新启动整个图案。这个背景手势不会占用科学图像画布及控件的操作手势。"
+    },
+    {
+      "domain": "make_masks",
+      "source": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "source_sha256": "634a10eb8471b8a67bd4d81639c291ad3362d89ed1ce0990c72f3ea6f05cca7e",
+      "original_model_translation": "点击 **放大镜** 或按一下 **M** 查看指示器周围的提议物品. 其轮子更改盒子振动; **Shift + wheel** 更改箱子大小. **Ctrl+L+右键单击** 锁定或打开盒子. 等待更新预览之前手动接受其物品。",
+      "target": "启用 **放大镜**或按 **M**，查看指针周围建议的对象。鼠标滚轮改变框内放大倍数；**Shift + wheel**改变框的大小。**Ctrl+L+右键单击**锁定或解锁框。手动接受对象前，请等待预览更新。"
+    },
+    {
+      "domain": "make_masks",
+      "source": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "source_sha256": "5a8bdbfe56a759b843b1b9637502650ca5d55525b059bb9540cb565cbacefcbc",
+      "original_model_translation": "在 **对象检测** → **放大设置** 中,点击 **立即接受建议对象** 以接受当前的提议,而无需点击。 此按默认方式关闭. 区域模式跟随 **添加的对象**; 全图像模式只接受指示器下方的对象. 移动图像或禁用扩展器阻止自动接受。 每个接受是不可接受的,而一个 undo 不会立即再次接受相同的建议. 使用 **保存** 或 **Save & Next** 写入已接受的掩膜。",
+      "target": "在 **对象检测** → **放大设置**中启用 **立即接受建议对象**，即可无需点击而接受当前建议。此选项默认关闭。区域模式遵循 **添加的对象**设置；整幅图像模式仅接受指针下方的对象。移出图像或关闭放大镜会停止自动接受。每次接受都可以撤销，撤销后不会立即重新接受同一建议。使用 **保存**或 **Save & Next**将已接受的掩膜写入磁盘。"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "source_sha256": "af54d2452c6f782e2b8ed4d97939a0a37a5fb5bf50bb8ec2f089c664967203d9",
+      "original_model_translation": "**重叠** 选择当一个提议覆盖现有掩膜时会发生什么:",
+      "target": "**重叠**决定建议对象与现有掩膜重叠时的处理方式："
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "source_sha256": "1f85feed35d5327911d4c26e71ad0211c01da0b25dacfeef4587ce720096d064",
+      "original_model_translation": "**与现有对象合并** 将提议添加到现有 ID 并保留旧对象的像素,包括在盒子外面的像素。",
+      "target": "**与现有对象合并**将建议区域添加到现有 ID，并保留原对象的全部像素，包括框外像素。如果建议区域与多个对象重叠，则将它们合并到最小的原有 ID 下。只位于背景上的建议会成为一个新对象。"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "source_sha256": "5c6740518691a9b115fac6f8c56f4f25206f0978e7d2615399ac3b1e426c82a9",
+      "original_model_translation": "**添加不重叠的像素** 保留现有对象,并将提案的最大剩余连接部分添加为新对象。",
+      "target": "**添加不重叠的像素**保留现有对象，并将建议区域中剩余的最大连通部分作为一个新对象添加。"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "source_sha256": "153e787e83bebe08d300e34f410af14ec52096d8c9e8eccc9e6d27ea26dafcd1",
+      "original_model_translation": "**替换重叠对象** 提议提交前将旧物品填写完整,拒绝的小提议不会删除任何东西。",
+      "target": "**替换重叠对象**先完整移除所有重叠的原对象，再添加建议对象。被拒绝的小建议不会移除任何对象。"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "source_sha256": "94c92b2fd888685cb2c6bfe40f217d3e9b9997b017e1c6c49cf9d35570618fa1",
+      "original_model_translation": "**跳过重叠对象**忽略了超越现有掩膜的建议。",
+      "target": "**跳过重叠对象**忽略与现有掩膜重叠的建议。"
+    },
+    {
+      "domain": "make_masks",
+      "source": "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step.",
+      "source_sha256": "f34e5e79f3c51a76c21475f5e6d2214e13b870ad02096d6b1a2a8a7e36891242",
+      "original_model_translation": "二级模式保留了主要 ID 并且不允许合并身份。 明确点击和拖动编辑保留其单一的 undo 步骤。",
+      "target": "次级模式保留主对象 ID，不允许合并不同身份。显式点击并拖动的编辑操作仍作为一个撤销步骤。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Saved segmentation diagnostics",
+      "source_sha256": "0638dcc7f961ff9681d512553184a84a0f4f7cc08c0d3434b71569b11878a011",
+      "original_model_translation": "存储分区诊断",
+      "target": "已保存的分割诊断指标"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "source_sha256": "3822bf413fac16acc6f480cd9c20831605010b47254b8255401e416e3b461696",
+      "original_model_translation": "板模式为每个板写下这些列为 ``per_plaque`` 和 ``details`` 在 ``<src>/masks/plaques_analysis.db``,并出口 ``<src>/masks/per_plaque.csv``. 图模式写下相同的列在 ``plaques`` 表中的 ``plaque_figures.db``。",
+      "target": "斑块模式将每个斑块的这些列写入 ``<src>/masks/plaques_analysis.db`` 的 ``per_plaque`` 和 ``details`` 表，并导出 ``<src>/masks/per_plaque.csv``。图表模式将相同列写入 ``plaque_figures.db`` 的 ``plaques`` 表。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Meaning",
+      "source_sha256": "1f5d64b92820f8238635b90ae69a38c12661a7b03c6d0d7f689711f12af7b7f9",
+      "original_model_translation": "意思",
+      "target": "含义"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages.",
+      "source_sha256": "e318e7b610960e98116b4586514c3d69a92460cc43942e3764ed67056e13513c",
+      "original_model_translation": "基于板块的像素中的原始Cellpose细胞可行性分数,这些分数是记录的,可以是负面的,并且没有定义的概率或信任百分比。",
+      "target": "斑块像素上 Cellpose 原始细胞概率评分的平均值。这些评分是 logits，可为负值，不是经过校准的概率或置信百分比。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask.",
+      "source_sha256": "40cfc84921155fb9be3bc65f2ef3374f3cefc80885504d58e6b713c1f32343ce",
+      "original_model_translation": "Cellpose的两个组件的总值是由掩膜产生的分散流和预测流之间的平方错误,分为五。",
+      "target": "Cellpose 计算的两个分量的均方误差之和，比较由掩膜生成的扩散流与除以五的预测流。数值越低，表示流与已保存掩膜的一致性越好。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation.",
+      "source_sha256": "e7829a710a5592ed2c033e1bbdbfbbdf0eb0bf491fa11adabddbb6131a300825",
+      "original_model_translation": "测量板内预测的流量 vector 长度,分为五个用于使用 Cellpose 的掩膜流量规模,这描述了流量强度;只有更高的值并不意味着更好的分区。",
+      "target": "斑块内预测流向量长度的平均值，除以五以使用 Cellpose 的掩膜流尺度。它描述流的强度；仅有较高数值并不代表分割更好。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions.",
+      "source_sha256": "c34d264d5cb90ea679181fb6f3e17b30ef9b41f736415493a1750723e2e6fd32",
+      "original_model_translation": "测量预测和掩膜衍生流之间的方向同行,排除零长度 vectors. 值从 -1 到 1 范围; 1 意味着匹配方向, -1 意味着相反方向。",
+      "target": "预测流与掩膜生成的流之间方向余弦的平均值，不计入零长度向量。取值范围为 -1 至 1；1 表示同向，-1 表示反向。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage.",
+      "source_sha256": "7a7509927cc78bf11411b43bb20d108ef905242b56cdde33a7dad3207afe35ad",
+      "original_model_translation": "平板像素的分裂与终端概率分数或终端两组流 vectors. 这些描述输出覆盖。",
+      "target": "斑块像素中具有有限概率评分或有限双分量流向量的比例。这些指标描述模型输出的覆盖率。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation.",
+      "source_sha256": "deeb1d334a43acb08405a871ed67d62da48ee2e37d443352c172160ada75fc84",
+      "original_model_translation": "流协议可以帮助旗帜合并或分裂不良的板块,但不确定生物准确性; 检查图像和掩膜一起。 失去的输出、不兼容的输入网络和无法使用的比较,存储为白色 CSV 细胞或 SQL NULL,而不是零。 概率和流量大小意味着使用终点像素。 流错误和调整需要在整个前沿完成预测的流量; 比较失败使他们白色。 比较在 CPU 上运行,并且不会改变模型的分区。",
+      "target": "流的一致性可帮助标记被合并或分割不佳的斑块，但不能证明生物学准确性；应同时检查图像和掩膜。缺失输出、不兼容的输出网格以及无法进行的比较保存为空白 CSV 单元格或 SQL NULL，而不是零。概率和流幅值的平均值使用具有有限数值的像素。流误差和方向一致性要求整个前景内的预测流均为有限值；比较失败时，这些字段留空。比较在 CPU 上运行，不改变模型的分割结果。"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank.",
+      "source_sha256": "938ae04b654aac15980290073541a5f9355ce5fbd450c3c6fe60f8901729c027",
+      "original_model_translation": "生成的每个掩码还有一个``<image>.diagnostics.csv``副车载有原始的每块斑块诊断和一个掩码指纹。  ``masks=False`` 的运行只有在保存的掩码仍然匹配时才会重复使用它。 编辑模板会使这些模型诊断无效;  再生掩膜以获得新的掩膜。 现有掩模保留其测量值并具有空白诊断列。 视图工作流程使用自定义回调仅返回标签也会将诊断列留为空白。",
+      "target": "每个生成的掩膜还附带 ``<image>.diagnostics.csv`` 文件，保存原始逐斑块诊断指标和掩膜指纹。使用 ``masks=False`` 运行时，只有已保存掩膜仍与指纹匹配才会复用该文件。编辑掩膜会使这些模型诊断指标失效；需重新生成掩膜才能得到新指标。没有附带文件的现有掩膜保留原测量值，诊断列为空。图表流程若使用仅返回标签的自定义回调函数，诊断列也会留空。"
+    }
+  ]
+}

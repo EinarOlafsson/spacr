@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Cache ceiling",
+      "source": "Cache ceiling",
+      "source_sha256": "a9670681dc7298f828bb5e94b1b5c21c34c6cfe6b5b54afdc8bd87c2d6c943d8",
+      "table": "ui",
+      "translation": "캐시 상한"
+    }
+  ],
+  "schema": 1
+}

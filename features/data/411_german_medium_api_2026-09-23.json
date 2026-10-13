@@ -1,0 +1,23 @@
+{
+  "catalog_sha256": "57d963e10f127dd1c30c9df31535e251410b607c37e469395f0efcd546af521f",
+  "date": "2026-09-23",
+  "documents": [
+    "spacr.crop_loader.plates",
+    "spacr.measure.TableAssignment",
+    "spacr.object_classifier.ParasiteCountHead",
+    "spacr.object_classifier.ParasiteCountHead.predict",
+    "spacr.object_classifier.merge_halves",
+    "spacr.organelle_types.method_guidance",
+    "spacr.organelle_types.morphologies_for_method",
+    "spacr.plaque.plaque_flow_outputs",
+    "spacr.plaque_papers.Figure",
+    "spacr.plaque_papers.Paper",
+    "spacr.plaque_papers.Region",
+    "spacr.plaque_papers.Word"
+  ],
+  "language": "de",
+  "native_speaker_signoff": false,
+  "reviewed_records": 56,
+  "schema": 1,
+  "unrelated_entries_unchanged": true
+}

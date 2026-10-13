@@ -1,0 +1,1175 @@
+"""Score segmentations and classifiers against ground-truth labels.
+
+Every published model carries a table comparing the finetuned model with the
+vanilla one on a held-out set, with all the common metrics for that model
+type. Two related modules measure something else:
+
+* :mod:`spacr.model_compare` compares two models to EACH OTHER and says so
+  in its own docstring -- "neither model is ground truth". It answers "do
+  these two disagree", which is a different and also useful question.
+* :mod:`spacr.seg_qc` scores a field with NO labels at all: it flags splits,
+  merges and implausible diameters from the mask alone.
+
+Neither computes Dice or any other score against a hand-drawn truth mask.
+This module does, so a published number can state whether a model is more
+accurate, not only whether it differs from another model.
+
+Matching predicted objects to labelled ones
+===========================================
+
+Every number here rests on one choice: when is a predicted object THE SAME
+object as a labelled one? The literature's answer is an IoU threshold, and
+the threshold is not a detail -- a model that finds every cell and outlines
+them loosely scores well at 0.5 and badly at 0.9, and a model that finds
+half of them perfectly does the opposite. That is why :func:`average_precision`
+reports the whole sweep from 0.5 to 0.9 rather than one number, and why
+every precision/recall figure states the threshold it was matched at.
+
+Matching is one-to-one and optimal, not greedy. A greedy pass down the IoU
+matrix is cheaper and gives a different answer when one prediction overlaps
+two truths: it takes the first pair it sees rather than the assignment that
+maximises total overlap, so the score depends on label ORDER, which is an
+implementation detail of whoever wrote the mask. :func:`match_objects` uses
+``scipy.optimize.linear_sum_assignment``, so relabelling either mask cannot
+change the result.
+
+Dependencies and scope
+======================
+
+The module does not import torch or anything that imports it. The Model Zoo
+imports without torch and a test asserts it, so reading a scorecard does not
+load a GPU stack. At module scope only numpy is imported; scipy, tifffile and
+matplotlib are imported inside the functions that need them.
+
+Nothing here uploads or reads a model catalogue. The functions turn label
+arrays and scores into numbers and CSV text; :func:`scorecard_figure` is the
+only one that writes a file, and publishing the results is left to the caller.
+"""
+
+from __future__ import annotations
+
+import pathlib
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+
+import numpy as np
+
+#: The IoU sweep every segmentation paper quotes, and the one the Cellpose
+#: paper reports against. 0.5 to 0.9 in steps of 0.05.
+#:
+#: THE SWEEP IS THE POINT. One number at 0.5 says whether the objects were
+#: FOUND; one at 0.9 says whether they were OUTLINED. A model can be good at
+#: either and bad at the other, and averaging them into a single figure is
+#: how a table stops answering the question a reader has.
+DEFAULT_IOU_THRESHOLDS: Tuple[float, ...] = tuple(
+    round(0.5 + 0.05 * step, 2) for step in range(9)
+)
+
+#: Boundary tolerances in pixels, for :func:`boundary_f1`.
+#:
+#: Dice barely moves when an outline is a pixel loose -- a 30 px cell has
+#: about 900 interior pixels and 95 boundary ones -- so a model that traces
+#: ragged edges scores almost the same as one that traces clean ones. The
+#: boundary measure is the one that separates them, and it needs a tolerance
+#: because no two people draw the same edge pixel.
+DEFAULT_BOUNDARY_TOLERANCES: Tuple[int, ...] = (1, 2, 3)
+
+
+def _labels(mask: np.ndarray) -> np.ndarray:
+    """The object ids in a label mask, background excluded."""
+    values = np.unique(np.asarray(mask))
+    return values[values != 0]
+
+
+def _overlap_matrix(truth: np.ndarray, pred: np.ndarray
+                    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """``(intersection, truth ids, pred ids)`` counted in ONE pass.
+
+    A per-pair loop is the obvious implementation and is quadratic in the
+    object count: a confluent field of 3,000 cells against 3,000 predictions
+    is nine million array comparisons. The pairs that actually overlap are a
+    tiny fraction of that, and ``np.bincount`` over the flattened pair index
+    finds exactly those in one pass over the pixels.
+    """
+    truth = np.asarray(truth)
+    pred = np.asarray(pred)
+    if truth.shape != pred.shape:
+        raise ValueError(
+            f"truth {truth.shape} and prediction {pred.shape} are different "
+            f"shapes; a score between them would be meaningless")
+    t_ids, p_ids = _labels(truth), _labels(pred)
+    if t_ids.size == 0 or p_ids.size == 0:
+        return np.zeros((t_ids.size, p_ids.size), dtype=np.int64), t_ids, p_ids
+
+    t_index = np.zeros(int(truth.max()) + 1, dtype=np.int64)
+    t_index[t_ids] = np.arange(t_ids.size)
+    p_index = np.zeros(int(pred.max()) + 1, dtype=np.int64)
+    p_index[p_ids] = np.arange(p_ids.size)
+
+    both = (truth > 0) & (pred > 0)
+    if not both.any():
+        return np.zeros((t_ids.size, p_ids.size), dtype=np.int64), t_ids, p_ids
+    flat = (t_index[truth[both]] * p_ids.size) + p_index[pred[both]]
+    counts = np.bincount(flat, minlength=t_ids.size * p_ids.size)
+    return counts.reshape(t_ids.size, p_ids.size), t_ids, p_ids
+
+
+def iou_matrix(truth: np.ndarray, pred: np.ndarray
+               ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """``(iou, truth ids, pred ids)``. IoU of every overlapping pair.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    """
+    inter, t_ids, p_ids = _overlap_matrix(truth, pred)
+    if inter.size == 0:
+        return inter.astype(float), t_ids, p_ids
+    t_area = np.array([(truth == i).sum() for i in t_ids], dtype=np.int64)
+    p_area = np.array([(pred == i).sum() for i in p_ids], dtype=np.int64)
+    union = t_area[:, None] + p_area[None, :] - inter
+    with np.errstate(divide="ignore", invalid="ignore"):
+        out = np.where(union > 0, inter / union, 0.0)
+    return out, t_ids, p_ids
+
+
+@dataclass(frozen=True)
+class Match:
+    """One IoU threshold's worth of matching, and what it implies.
+
+    :param threshold: the IoU at which a pair counted as the same object.
+    :param pairs: ``(truth index, pred index)`` for each matched pair, into
+        the id arrays :func:`iou_matrix` returns.
+    :param ious: the IoU of each matched pair, in the same order.
+    :param n_truth: labelled objects present.
+    :param n_pred: predicted objects present.
+    """
+
+    threshold: float
+    pairs: Tuple[Tuple[int, int], ...]
+    ious: Tuple[float, ...]
+    n_truth: int
+    n_pred: int
+
+    @property
+    def true_positives(self) -> int:
+        """Predicted objects that matched a truth object at this threshold.
+
+        :returns: the count.
+        """
+        return len(self.pairs)
+
+    @property
+    def false_positives(self) -> int:
+        """Predicted objects with no truth object to match.
+
+        :returns: the count.
+        """
+        return self.n_pred - self.true_positives
+
+    @property
+    def false_negatives(self) -> int:
+        """Truth objects the model did not find.
+
+        :returns: the count.
+        """
+        return self.n_truth - self.true_positives
+
+    @property
+    def precision(self) -> float:
+        """Fraction of predicted objects that matched a truth object.
+
+        :returns: ``TP / n_pred``, or 0 when the model predicted nothing.
+        """
+        return _ratio(self.true_positives, self.n_pred)
+
+    @property
+    def recall(self) -> float:
+        """Fraction of truth objects that a predicted object matched.
+
+        :returns: ``TP / n_truth``, or 0 when there was nothing to find.
+        """
+        return _ratio(self.true_positives, self.n_truth)
+
+    @property
+    def f1(self) -> float:
+        """Harmonic mean of precision and recall, 0.0 when both are 0."""
+        p, r = self.precision, self.recall
+        return _ratio(2 * p * r, p + r)
+
+    @property
+    def average_precision(self) -> float:
+        """``TP / (TP + FP + FN)`` -- the segmentation-benchmark convention.
+
+        NOT the area under a precision-recall curve, despite the name. The
+        segmentation literature uses this quantity and calls it AP, and
+        reporting the other thing under the same label is how two papers'
+        numbers stop being comparable. Named explicitly here for that
+        reason.
+        """
+        denominator = (self.true_positives + self.false_positives
+                       + self.false_negatives)
+        return _ratio(self.true_positives, denominator)
+
+
+def _ratio(numerator: float, denominator: float) -> float:
+    """``numerator / denominator``, or 0.0 when there is nothing to divide.
+
+    0.0 rather than NaN, deliberately: these numbers end up in a published
+    table and in a tooltip, and one NaN in a column is enough for a reader
+    to distrust the column. An empty field scores zero, which is the honest
+    reading of "found none of the objects that were not there".
+    """
+    denominator = float(denominator)
+    return float(numerator) / denominator if denominator else 0.0
+
+
+def match_objects(truth: np.ndarray, pred: np.ndarray,
+                  threshold: float = 0.5) -> Match:
+    """Match predicted objects to labelled ones, one to one and optimally.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    :param threshold: minimum IoU for a pair to count as the same object.
+
+    Uses ``linear_sum_assignment`` rather than a greedy pass so the result
+    cannot depend on label order -- see this module's docstring.
+    """
+    from scipy.optimize import linear_sum_assignment
+
+    ious, t_ids, p_ids = iou_matrix(truth, pred)
+    n_truth, n_pred = int(t_ids.size), int(p_ids.size)
+    if ious.size == 0:
+        return Match(float(threshold), (), (), n_truth, n_pred)
+
+    rows, cols = linear_sum_assignment(-ious)
+    keep = [(int(r), int(c)) for r, c in zip(rows, cols)
+            if ious[r, c] >= threshold]
+    return Match(float(threshold), tuple(keep),
+                 tuple(float(ious[r, c]) for r, c in keep), n_truth, n_pred)
+
+
+def dice(truth: np.ndarray, pred: np.ndarray,
+         threshold: float = 0.5) -> Dict[str, float]:
+    """Per-object Dice, averaged over matched pairs, plus the pixel-wise one.
+
+    The two numbers measure different things and are often confused. The
+    per-object mean says how well a typical matched object is outlined; the
+    pixel-wise figure ignores object identity and is dominated by the
+    largest objects, so a model that misses ten small cells and outlines one
+    large cell accurately scores well on the pixel-wise figure and badly on
+    the per-object mean.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    """
+    matched = match_objects(truth, pred, threshold)
+    per_object = [2 * i / (1 + i) for i in matched.ious]
+    t_fg, p_fg = np.asarray(truth) > 0, np.asarray(pred) > 0
+    pixel = _ratio(2 * float((t_fg & p_fg).sum()),
+                   float(t_fg.sum() + p_fg.sum()))
+    return {
+        "dice_per_object": float(np.mean(per_object)) if per_object else 0.0,
+        "dice_pixel": pixel,
+        "n_matched": len(per_object),
+    }
+
+
+def average_precision(truth: np.ndarray, pred: np.ndarray,
+                      thresholds: Sequence[float] = DEFAULT_IOU_THRESHOLDS
+                      ) -> Dict[str, float]:
+    """AP at each IoU in the sweep, and the mean across it.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    """
+    per = {}
+    for threshold in thresholds:
+        per[f"ap_{threshold:g}"] = match_objects(
+            truth, pred, threshold).average_precision
+    per["ap_mean"] = float(np.mean(list(per.values()))) if per else 0.0
+    return per
+
+
+def _boundary(mask: np.ndarray) -> np.ndarray:
+    """Pixels of a label mask that touch a different label or background."""
+    from scipy.ndimage import grey_dilation, grey_erosion
+
+    mask = np.asarray(mask)
+    return (grey_dilation(mask, size=3) != grey_erosion(mask, size=3)) & (mask > 0)
+
+
+def boundary_f1(truth: np.ndarray, pred: np.ndarray,
+                tolerances: Sequence[int] = DEFAULT_BOUNDARY_TOLERANCES
+                ) -> Dict[str, float]:
+    """Boundary precision, recall and F1 at each pixel tolerance.
+
+    A predicted boundary pixel counts as correct when a true boundary pixel
+    lies within ``tolerance`` pixels of it, and vice versa. A tolerance is
+    used because two people labelling the same cell disagree by a pixel or
+    two, so a zero-tolerance boundary score measures the annotator as much
+    as the model.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    """
+    from scipy.ndimage import binary_dilation
+
+    t_edge, p_edge = _boundary(truth), _boundary(pred)
+    out: Dict[str, float] = {}
+    for tol in tolerances:
+        size = 2 * int(tol) + 1
+        footprint = np.ones((size,) * t_edge.ndim, dtype=bool)
+        t_near = binary_dilation(t_edge, structure=footprint)
+        p_near = binary_dilation(p_edge, structure=footprint)
+        precision = _ratio(float((p_edge & t_near).sum()), float(p_edge.sum()))
+        recall = _ratio(float((t_edge & p_near).sum()), float(t_edge.sum()))
+        out[f"boundary_precision_{tol}px"] = precision
+        out[f"boundary_recall_{tol}px"] = recall
+        out[f"boundary_f1_{tol}px"] = _ratio(2 * precision * recall,
+                                             precision + recall)
+    return out
+
+
+def splits_and_merges(truth: np.ndarray, pred: np.ndarray,
+                      minimum_overlap: float = 0.1) -> Dict[str, int]:
+    """How many labelled objects were split, and how many were merged.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    :param minimum_overlap: fraction of the truth object a prediction must
+        cover to count as overlapping it, so a one-pixel graze is not a
+        split.
+
+    The two failures affect measurements differently. A split inflates
+    the object count and halves the areas; a merge deletes an object and
+    doubles one. Both are invisible to Dice at the field level, which is why
+    they are counted separately rather than folded into it.
+    """
+    inter, t_ids, p_ids = _overlap_matrix(truth, pred)
+    if inter.size == 0:
+        return {"splits": 0, "merges": 0}
+    t_area = np.array([(np.asarray(truth) == i).sum() for i in t_ids])
+    p_area = np.array([(np.asarray(pred) == i).sum() for i in p_ids])
+    with np.errstate(divide="ignore", invalid="ignore"):
+        of_truth = np.where(t_area[:, None] > 0, inter / t_area[:, None], 0.0)
+        of_pred = np.where(p_area[None, :] > 0, inter / p_area[None, :], 0.0)
+    splits = int(((of_truth >= minimum_overlap).sum(axis=1) > 1).sum())
+    merges = int(((of_pred >= minimum_overlap).sum(axis=0) > 1).sum())
+    return {"splits": splits, "merges": merges}
+
+
+def counts_and_areas(truth: np.ndarray, pred: np.ndarray,
+                     threshold: float = 0.5) -> Dict[str, float]:
+    """Object-count error (signed) and the area error a measurement inherits.
+
+    ``count_error`` is ``n_pred - n_truth`` and is signed because its
+    direction distinguishes the failure: a model that finds too many objects
+    is over-segmenting and one that finds too few is merging or missing, and
+    an absolute count error does not show which.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    """
+    matched = match_objects(truth, pred, threshold)
+    errors: List[float] = []
+    t_arr, p_arr = np.asarray(truth), np.asarray(pred)
+    _, t_ids, p_ids = iou_matrix(truth, pred)
+    for t_i, p_i in matched.pairs:
+        t_area = float((t_arr == t_ids[t_i]).sum())
+        p_area = float((p_arr == p_ids[p_i]).sum())
+        if t_area:
+            errors.append((p_area - t_area) / t_area)
+    return {
+        "n_truth": matched.n_truth,
+        "n_pred": matched.n_pred,
+        "count_error": matched.n_pred - matched.n_truth,
+        "area_error_mean": float(np.mean(errors)) if errors else 0.0,
+        "area_error_abs_mean": (float(np.mean(np.abs(errors)))
+                                if errors else 0.0),
+    }
+
+
+def score_segmentation(truth: np.ndarray, pred: np.ndarray, *,
+                       threshold: float = 0.5,
+                       iou_thresholds: Sequence[float] = DEFAULT_IOU_THRESHOLDS,
+                       boundary_tolerances: Sequence[int]
+                       = DEFAULT_BOUNDARY_TOLERANCES) -> Dict[str, float]:
+    """Compute every segmentation metric of the published table for one field.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param pred: the predicted label image, the same shape as ``truth``.
+    :param threshold: the IoU at which precision, recall, F1, Dice and the
+        area error are matched. Reported in the result as ``match_iou`` so a
+        published number can never be read without it.
+
+    The result always includes `n_truth` and `n_pred`, because a score such
+    as a Dice of 0.91 cannot be interpreted without the number of objects it
+    was computed on.
+    """
+    matched = match_objects(truth, pred, threshold)
+    out: Dict[str, float] = {
+        "match_iou": float(threshold),
+        "precision": matched.precision,
+        "recall": matched.recall,
+        "f1": matched.f1,
+        "true_positives": matched.true_positives,
+        "false_positives": matched.false_positives,
+        "false_negatives": matched.false_negatives,
+        "iou_mean": float(np.mean(matched.ious)) if matched.ious else 0.0,
+    }
+    out.update(dice(truth, pred, threshold))
+    out.update(average_precision(truth, pred, iou_thresholds))
+    out.update(boundary_f1(truth, pred, boundary_tolerances))
+    out.update(splits_and_merges(truth, pred))
+    out.update(counts_and_areas(truth, pred, threshold))
+    return out
+
+
+def compare_against_baseline(truth: np.ndarray, finetuned: np.ndarray,
+                             vanilla: np.ndarray, **kwargs
+                             ) -> Dict[str, Dict[str, float]]:
+    """Score two models on the same truth and report the difference.
+
+    :param truth: the ground-truth label image, 0 for background and one
+        integer id per object.
+    :param finetuned: the finetuned model's label image for the same field.
+    :param vanilla: the vanilla model's label image for the same field.
+    :returns: ``{"finetuned": ..., "vanilla": ..., "delta": ...}``.
+
+    ``delta`` holds ``finetuned - vanilla`` for every numeric metric except
+    ``match_iou``, so the published comparison does not depend on a reader
+    subtracting two columns by eye.
+
+    Both models are scored on the SAME array with the SAME settings, which
+    is the only thing that makes the subtraction meaningful -- and is why
+    this takes three masks rather than two scorecards.
+    """
+    a = score_segmentation(truth, finetuned, **kwargs)
+    b = score_segmentation(truth, vanilla, **kwargs)
+    delta = {key: a[key] - b[key] for key in a
+             if isinstance(a.get(key), (int, float))
+             and isinstance(b.get(key), (int, float))}
+    delta.pop("match_iou", None)
+    return {"finetuned": a, "vanilla": b, "delta": delta}
+
+
+
+
+def _auroc(labels: np.ndarray, scores: np.ndarray) -> float:
+    """Area under the ROC curve, by rank, ties averaged.
+
+    Computed here rather than imported so a scorecard can be read without
+    sklearn present -- the zoo has to browse on a machine that never trained
+    anything. The rank form is exact, not an approximation of the curve.
+    """
+    positive, negative = int(labels.sum()), int((1 - labels).sum())
+    if not positive or not negative:
+        return 0.0
+    order = np.argsort(scores, kind="mergesort")
+    ranks = np.empty(len(scores), dtype=float)
+    ranks[order] = np.arange(1, len(scores) + 1, dtype=float)
+    values = np.asarray(scores)[order]
+    start = 0
+    for index in range(1, len(values) + 1):
+        if index == len(values) or values[index] != values[start]:
+            if index - start > 1:
+                ranks[order[start:index]] = ranks[order[start:index]].mean()
+            start = index
+    return float((ranks[labels == 1].sum()
+                  - positive * (positive + 1) / 2) / (positive * negative))
+
+
+def _auprc(labels: np.ndarray, scores: np.ndarray) -> float:
+    """Average precision: the step-wise area under precision-recall.
+
+    THE STEP FORM, not the trapezoid. Interpolating between operating points
+    on a PR curve reports a precision no threshold achieves, which is the
+    number people quote and cannot reproduce.
+    """
+    positive = int(labels.sum())
+    if not positive:
+        return 0.0
+    order = np.argsort(-np.asarray(scores), kind="mergesort")
+    hits = labels[order].astype(float)
+    tp = np.cumsum(hits)
+    precision = tp / np.arange(1, len(hits) + 1)
+    return float((precision * hits).sum() / positive)
+
+
+def _ece(labels: np.ndarray, scores: np.ndarray, bins: int = 10) -> float:
+    """Expected calibration error: |confidence - accuracy| by bin, weighted.
+
+    Calibration decides whether a threshold means anything. A model at 0.9
+    that is right 60% of the time is not "90% confident"; it is wrong about
+    its own confidence, and every downstream cutoff inherits that.
+    """
+    edges = np.linspace(0.0, 1.0, int(bins) + 1)
+    total = 0.0
+    for low, high in zip(edges[:-1], edges[1:]):
+        inside = (scores > low) & (scores <= high) if low > 0 else (
+            (scores >= low) & (scores <= high))
+        if not inside.any():
+            continue
+        weight = inside.mean()
+        total += weight * abs(float(scores[inside].mean())
+                              - float(labels[inside].mean()))
+    return float(total)
+
+
+def score_classifier(labels: Sequence[int], scores: Sequence[float], *,
+                     threshold: float = 0.5,
+                     calibration_bins: int = 10) -> Dict[str, float]:
+    """Compute every classifier metric of the published table at a given threshold.
+
+    :param labels: ground truth, 0 or 1.
+    :param scores: predicted probability of the positive class.
+    :param threshold: where a score becomes a positive call. Reported back in
+        the result, because "precision 0.94" without it is not a claim
+        anybody can check or reproduce.
+
+    AUROC, AUPRC, Brier and ECE are threshold-FREE and are the numbers that
+    survive a reader disagreeing with the cutoff; everything else moves when
+    the threshold does. Both kinds are here, and the result says which is
+    which by carrying `threshold` beside them.
+    """
+    labels = np.asarray(labels).astype(int).ravel()
+    scores = np.asarray(scores, dtype=float).ravel()
+    if labels.shape != scores.shape:
+        raise ValueError(
+            f"{labels.size} labels against {scores.size} scores; a metric "
+            f"between them would be meaningless")
+    if labels.size == 0:
+        raise ValueError("no predictions to score")
+
+    called = (scores >= threshold).astype(int)
+    tp = int(((called == 1) & (labels == 1)).sum())
+    fp = int(((called == 1) & (labels == 0)).sum())
+    fn = int(((called == 0) & (labels == 1)).sum())
+    tn = int(((called == 0) & (labels == 0)).sum())
+
+    precision = _ratio(tp, tp + fp)
+    recall = _ratio(tp, tp + fn)
+    specificity = _ratio(tn, tn + fp)
+    negative_precision = _ratio(tn, tn + fn)
+    negative_recall = specificity
+
+    denominator = float((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    mcc = ((tp * tn - fp * fn) / np.sqrt(denominator)) if denominator else 0.0
+
+    return {
+        "threshold": float(threshold),
+        "n": int(labels.size),
+        "n_positive": int(labels.sum()),
+        "prevalence": _ratio(int(labels.sum()), labels.size),
+        "true_positives": tp, "false_positives": fp,
+        "true_negatives": tn, "false_negatives": fn,
+        "accuracy": _ratio(tp + tn, labels.size),
+        "balanced_accuracy": (recall + specificity) / 2.0,
+        "precision": precision,
+        "recall": recall,
+        "specificity": specificity,
+        "f1": _ratio(2 * precision * recall, precision + recall),
+        "precision_negative": negative_precision,
+        "recall_negative": negative_recall,
+        "f1_macro": (
+            _ratio(2 * precision * recall, precision + recall)
+            + _ratio(2 * negative_precision * negative_recall,
+                     negative_precision + negative_recall)) / 2.0,
+        "mcc": float(mcc),
+        "auroc": _auroc(labels, scores),
+        "auprc": _auprc(labels, scores),
+        "brier": float(np.mean((scores - labels) ** 2)),
+        "ece": _ece(labels, scores, calibration_bins),
+    }
+
+
+def compare_classifier_against_baseline(labels: Sequence[int],
+                                        finetuned: Sequence[float],
+                                        vanilla: Sequence[float],
+                                        **kwargs
+                                        ) -> Dict[str, Dict[str, float]]:
+    """Two classifiers on the same labels, and the difference.
+
+    The same shape as :func:`compare_against_baseline`, and for the same
+    reason: the delta is what the published table is for. `threshold` and
+    the counts are dropped from it -- a difference in `n` is not a result,
+    it is a sign the two were scored on different data, which this signature
+    makes impossible.
+
+    :param labels: ground truth per object, 0 or 1.
+    :param finetuned: the finetuned classifier's predicted probability of the
+        positive class, one per label.
+    :param vanilla: the vanilla classifier's predicted probability of the
+        positive class, one per label.
+    """
+    a = score_classifier(labels, finetuned, **kwargs)
+    b = score_classifier(labels, vanilla, **kwargs)
+    delta = {key: a[key] - b[key] for key in a}
+    for setting in ("threshold", "n", "n_positive", "prevalence"):
+        delta.pop(setting, None)
+    return {"finetuned": a, "vanilla": b, "delta": delta}
+
+
+
+
+@dataclass(frozen=True)
+class HoldoutScore:
+    """One model's result on one named, versioned held-out set.
+
+    :param name: the set's name, e.g. ``toxo_pv_holdout``.
+    :param version: the set's version. Two numbers are comparable only when
+        this matches, and it is carried into every published row for that
+        reason rather than being assumed from context.
+    :param metrics: the pooled scorecard.
+    :param per_field: one scorecard per field, in the order they were given.
+    """
+
+    name: str
+    version: str
+    metrics: Dict[str, float]
+    per_field: Tuple[Dict[str, float], ...] = ()
+
+    @property
+    def n_fields(self) -> int:
+        """How many labelled fields this score was computed over.
+
+        :returns: the field count.
+        """
+        return len(self.per_field)
+
+
+def score_holdout(pairs: Sequence[Tuple[np.ndarray, np.ndarray]], *,
+                  name: str, version: str, **kwargs) -> HoldoutScore:
+    """Score a model over a whole held-out set.
+
+    :param pairs: ``(truth, prediction)`` per field.
+    :param name: the held-out set's name, carried into the result.
+    :param version: the held-out set's version, carried into the result.
+
+    Pooled from the counts, not averaged from the ratios. A field with three
+    objects and a field with three hundred are not equal evidence, and a mean
+    of per-field precisions treats them as though they were -- so a model
+    that fails on one sparse field is punished as hard as one that fails on a
+    confluent one. Precision, recall and F1 are recomputed from the summed
+    true and false positives; only the per-object means (IoU, Dice, area
+    error) are averaged, weighted by each field's matched-object count.
+    """
+    scored = [score_segmentation(truth, pred, **kwargs) for truth, pred in pairs]
+    if not scored:
+        raise ValueError("a held-out set with no fields cannot be scored")
+
+    tp = sum(int(s["true_positives"]) for s in scored)
+    fp = sum(int(s["false_positives"]) for s in scored)
+    fn = sum(int(s["false_negatives"]) for s in scored)
+    precision, recall = _ratio(tp, tp + fp), _ratio(tp, tp + fn)
+
+    def weighted(key: str, weight_key: str = "n_matched") -> float:
+        """Average ``key`` across fields, weighted by how much each holds.
+
+        A plain mean would let a field with four objects count as much as one
+        with four hundred, so a sparse corner of the plate could move the
+        published number more than the plate does.
+        """
+        weights = [float(s.get(weight_key, 0)) for s in scored]
+        total = sum(weights)
+        if not total:
+            return 0.0
+        return sum(float(s[key]) * w for s, w in zip(scored, weights)) / total
+
+    pooled: Dict[str, float] = {
+        "n_fields": len(scored),
+        "n_truth": sum(int(s["n_truth"]) for s in scored),
+        "n_pred": sum(int(s["n_pred"]) for s in scored),
+        "true_positives": tp, "false_positives": fp, "false_negatives": fn,
+        "match_iou": scored[0]["match_iou"],
+        "precision": precision,
+        "recall": recall,
+        "f1": _ratio(2 * precision * recall, precision + recall),
+        "splits": sum(int(s["splits"]) for s in scored),
+        "merges": sum(int(s["merges"]) for s in scored),
+        "count_error": sum(int(s["count_error"]) for s in scored),
+        "dice_per_object": weighted("dice_per_object"),
+        "iou_mean": weighted("iou_mean"),
+        "area_error_mean": weighted("area_error_mean"),
+        "area_error_abs_mean": weighted("area_error_abs_mean"),
+    }
+    for key in scored[0]:
+        if key.startswith(("ap_", "boundary_", "dice_pixel")):
+            pooled[key] = weighted(key, "n_truth")
+    return HoldoutScore(str(name), str(version), pooled, tuple(scored))
+
+
+def scorecard_rows(finetuned: HoldoutScore, vanilla: HoldoutScore
+                   ) -> List[Dict[str, object]]:
+    """Return the published comparison table, one row per metric.
+
+    The table has four renderings -- the CSV on Hugging Face, the tooltip,
+    the API section and the zoo screen. This is the one place a difference
+    is computed; the other renderings format these rows, so they cannot
+    disagree.
+
+    :param finetuned: the finetuned model's score.
+    :param vanilla: the vanilla model's score, on the same set name and
+        version.
+    :raises ValueError: when the two were scored on different sets (name or
+        version differ). A table whose two columns came from different data
+        looks the same as a valid one, so the mismatch is refused here.
+    """
+    if (finetuned.name, finetuned.version) != (vanilla.name, vanilla.version):
+        raise ValueError(
+            f"scored on different held-out sets -- {finetuned.name}"
+            f"@{finetuned.version} against {vanilla.name}@{vanilla.version}; "
+            f"the difference between them would mean nothing")
+
+    rows: List[Dict[str, object]] = []
+    for key in finetuned.metrics:
+        if key not in vanilla.metrics:
+            continue
+        a, b = finetuned.metrics[key], vanilla.metrics[key]
+        rows.append({
+            "metric": key,
+            "finetuned": a,
+            "vanilla": b,
+            "delta": (a - b) if key not in _NOT_A_SCORE else None,
+            "n_fields": finetuned.metrics.get("n_fields"),
+            "n_objects": finetuned.metrics.get("n_truth"),
+            "holdout": finetuned.name,
+            "holdout_version": finetuned.version,
+        })
+    return rows
+
+
+#: Keys that describe the DATA or the settings, not the model's performance.
+#: They appear in the table -- a reader needs the n -- but they have no
+#: meaningful difference, and printing one invites somebody to plot it.
+_NOT_A_SCORE = frozenset({
+    "match_iou", "n_fields", "n_truth", "n_pred", "count_error",
+})
+
+
+def scorecard_csv(rows: Sequence[Dict[str, object]]) -> str:
+    """Return the rows as CSV text; the caller decides where to write it.
+
+    :param rows: the table rows, as from :func:`scorecard_rows`; the first
+        row's keys are the CSV columns, and no rows gives ``""``.
+    """
+    import csv
+    import io
+
+    if not rows:
+        return ""
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=list(rows[0]))
+    writer.writeheader()
+    writer.writerows(rows)
+    return buffer.getvalue()
+
+
+
+
+@dataclass(frozen=True)
+class HoldoutField:
+    """One labelled field: the image a model reads, and the truth it is
+    scored against.
+
+    :param image: path to the field, relative to the manifest.
+    :param truth: path to the label mask, relative to the manifest.
+    :param sha256: digest of the TRUTH mask, or ``""``.
+    """
+
+    image: str
+    truth: str
+    sha256: str = ""
+
+
+@dataclass(frozen=True)
+class HoldoutSet:
+    """A named, versioned set of labelled fields, as declared by a manifest.
+
+    :param name: stable name, e.g. ``toxo_pv_holdout``.
+    :param version: the version two numbers must share to be comparable.
+    :param fields: the labelled fields, in manifest order.
+    :param root: directory the relative paths resolve against.
+    """
+
+    name: str
+    version: str
+    fields: Tuple[HoldoutField, ...]
+    root: "pathlib.Path"
+
+    def path_to(self, relative: str) -> "pathlib.Path":
+        """Resolve a manifest-relative path against this set's root.
+
+        Manifest paths are relative so that a held-out set can be moved or
+        shared without rewriting the manifest, and the versioned name refers
+        to the same files on every machine.
+
+        :param relative: the path as the manifest spells it.
+        :returns: the absolute path.
+        """
+        return self.root / relative
+
+
+def load_holdout(manifest_path) -> HoldoutSet:
+    """Read a hold-out manifest.
+
+    :param manifest_path: path to the hold-out manifest JSON, which must
+        declare ``name``, ``version`` and ``fields``.
+    :raises ValueError: when the manifest lacks a name, a version or any
+        field. All three are refusals rather than defaults, and the version
+        most of all: a set that does not say which version it is cannot be
+        compared against anything, and a default would let one be published
+        as though it could.
+    """
+    import json
+    import pathlib
+
+    path = pathlib.Path(manifest_path)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    name = str(data.get("name") or "").strip()
+    version = str(data.get("version") or "").strip()
+    if not name:
+        raise ValueError(f"{path} declares no name")
+    if not version:
+        raise ValueError(
+            f"{path} declares no version; a hold-out set that cannot say "
+            f"which version it is cannot be compared against anything")
+    raw_fields = data.get("fields") or []
+    if not raw_fields:
+        raise ValueError(f"{path} declares no fields")
+
+    fields = []
+    for entry in raw_fields:
+        image = str(entry.get("image") or "").strip()
+        truth = str(entry.get("truth") or "").strip()
+        if not image or not truth:
+            raise ValueError(
+                f"{path}: a field needs both an image and a truth mask; "
+                f"got {entry!r}")
+        fields.append(HoldoutField(image, truth,
+                                   str(entry.get("sha256") or "").strip()))
+    return HoldoutSet(name, version, tuple(fields), path.parent)
+
+
+def verify_holdout(holdout: HoldoutSet) -> List[str]:
+    """Check every truth mask is present and matches its digest.
+
+    :param holdout: the hold-out set whose truth masks are checked on disk.
+    :returns: one line per problem; empty when the set is intact.
+
+    A digest is optional, but a missing one is reported as a problem. A set
+    published without digests can still be scored, but nobody can then tell
+    whether two people scored the same masks, which is what naming and
+    versioning the set are for.
+    """
+    import hashlib
+
+    problems: List[str] = []
+    for field in holdout.fields:
+        target = holdout.path_to(field.truth)
+        if not target.is_file():
+            problems.append(f"missing truth mask: {field.truth}")
+            continue
+        if not field.sha256:
+            problems.append(f"no digest published for {field.truth}")
+            continue
+        digest = hashlib.sha256(target.read_bytes()).hexdigest()
+        if digest != field.sha256:
+            problems.append(
+                f"{field.truth} does not match its digest "
+                f"(published {field.sha256[:12]}..., found {digest[:12]}...)")
+    return problems
+
+
+def score_model_on_holdout(holdout: HoldoutSet, predict, *,
+                           read_mask=None, **kwargs) -> HoldoutScore:
+    """Run ``predict`` over a hold-out set and score it against the truth.
+
+    :param holdout: the hold-out set whose fields' images are predicted and
+        whose truth masks are read.
+    :param predict: ``image path -> label array``. Injected rather than
+        imported: this module must keep importing without torch, and a
+        segmentation model is the one thing that cannot.
+    :param read_mask: ``path -> label array``. Defaults to tifffile, which
+        the package already depends on.
+
+    The returned :class:`HoldoutScore` carries the set's name and version,
+    so a published number always states what it was measured on.
+    """
+    if read_mask is None:
+        def read_mask(path):                     # noqa: WPS440 - local default
+            """Read a label image off disk.
+
+            The default, used when the caller passes none. Imported here
+            rather than at module scope so scoring an already-loaded pair of
+            arrays needs no tifffile.
+            """
+            import tifffile
+
+            return np.asarray(tifffile.imread(str(path)))
+
+    pairs = [(read_mask(holdout.path_to(f.truth)),
+              predict(holdout.path_to(f.image)))
+             for f in holdout.fields]
+    return score_holdout(pairs, name=holdout.name, version=holdout.version,
+                         **kwargs)
+
+
+#: The numbers a reader choosing between two models actually needs, in the
+#: order they decide it. Everything else is in the table.
+#:
+#: THE TOOLTIP IS THE SURFACE WITH THE LEAST ROOM -- 370 says so -- and a
+#: scorecard is 37 rows. Dumping all of them into a hover is the same mistake
+#: as the model-zoo table before it was cut to three columns: technically
+#: complete and unreadable, which is not a kindness.
+_HEADLINE_ORDER: Tuple[Tuple[str, str], ...] = (
+    ("f1", "F1"),
+    ("dice_per_object", "Dice"),
+    ("ap_mean", "AP 0.5-0.9"),
+    ("boundary_f1_1px", "Boundary F1"),
+    ("auprc", "AUPRC"),
+    ("balanced_accuracy", "Balanced acc"),
+)
+
+
+def headline(metrics: Mapping[str, object], *,
+             baseline: Optional[Mapping[str, object]] = None,
+             limit: int = 3) -> List[str]:
+    """Return the headline metric lines for a tooltip, then a count line.
+
+    :param metrics: a scorecard, or any mapping; unknown keys are ignored.
+    :param baseline: the vanilla model's scorecard, to show the difference.
+    :param limit: how many metric lines to return before the count line
+        (``on N objects, N fields``).
+
+    :returns: lines, or ``[]`` when the mapping holds no scorecard at all --
+        an entry with free-form metrics is left exactly as it was, because
+        this must not turn somebody's two-line note into a truncated table.
+    """
+    lines: List[str] = []
+    for key, label in _HEADLINE_ORDER:
+        if key not in metrics:
+            continue
+        try:
+            value = float(metrics[key])                      # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            continue
+        text = f"{label} {value:.3f}"
+        if baseline and key in baseline:
+            try:
+                delta = value - float(baseline[key])         # type: ignore[arg-type]
+                text += f" ({delta:+.3f} vs stock)"
+            except (TypeError, ValueError):
+                pass
+        lines.append(text)
+        if len(lines) >= limit:
+            break
+    if not lines:
+        return []
+
+    counted = []
+    for key, label in (("n_truth", "objects"), ("n_fields", "fields"),
+                       ("n", "predictions")):
+        if key in metrics:
+            counted.append(f"{metrics[key]} {label}")
+    if counted:
+        lines.append("on " + ", ".join(counted))
+    return lines
+
+
+def read_scorecard_csv(text: str) -> Dict[str, Any]:
+    """Parse a published scorecard CSV back into an entry's ``metrics``.
+
+    The CSV is the source that the other surfaces render: the Hugging Face
+    artifact, the tooltip, the API page and the Zoo screen all read numbers
+    parsed by this function, so they cannot disagree.
+
+    It uses only the standard library ``csv`` module, not pandas. The Model
+    Zoo imports without torch and a test asserts it, so browsing models and
+    reading a scorecard work on a machine with neither torch nor cellpose;
+    only re-running an evaluation needs them.
+
+    :param text: the CSV as written by :func:`scorecard_csv`.
+    :returns: ``{metric: {"finetuned": ..., "vanilla": ..., "delta": ...}}``
+        plus ``holdout`` and ``holdout_version`` when the rows carry them.
+        Empty when the text has no rows.
+    """
+    import csv
+    import io
+
+    rows = list(csv.DictReader(io.StringIO(str(text))))
+    if not rows:
+        return {}
+
+    def number(value):
+        """A cell as a number, or the raw string when it is not one.
+
+        A whole number is returned as an ``int`` and an empty cell as
+        ``None``. The CSV cannot distinguish a count from a measurement, and
+        reading everything as float would render "on 12517.0 objects" in a
+        tooltip.
+        """
+        text = str(value).strip()
+        if not text:
+            return None
+        try:
+            parsed = float(text)
+        except ValueError:
+            return text
+        return int(parsed) if parsed.is_integer() else parsed
+
+    metrics: Dict[str, Any] = {}
+    for row in rows:
+        name = str(row.get("metric") or "").strip()
+        if not name:
+            continue
+        metrics[name] = {
+            "finetuned": number(row.get("finetuned")),
+            "vanilla": number(row.get("vanilla")),
+            "delta": number(row.get("delta")),
+        }
+    first = rows[0]
+    for carried in ("holdout", "holdout_version", "n_fields", "n_objects"):
+        value = str(first.get(carried) or "").strip()
+        if value:
+            metrics[carried] = number(value)
+    return metrics
+
+
+def scorecard_is_present(metrics: Mapping[str, Any]) -> bool:
+    """Whether ``metrics`` actually carries a scorecard.
+
+    True when at least one value is a mapping with a non-``None``
+    ``"finetuned"`` entry. Callers use it to show :data:`NO_SCORECARD`
+    instead of blank cells, as `ModelEntry.provenance_known` does for
+    training provenance: a model with no numbers is not a model that scored
+    zero.
+
+    :param metrics: an entry's metrics mapping.
+    """
+    if not metrics:
+        return False
+    return any(isinstance(value, Mapping) and value.get("finetuned") is not None
+               for value in metrics.values())
+
+
+#: What to say when there is no scorecard. The sentence 370 asks for, in the
+#: voice `provenance_known` already uses for the training set.
+NO_SCORECARD = ("This model does not carry a scorecard, so nothing here "
+                "tells you how accurate it is on data it was not trained on.")
+
+
+#: The metrics the published chart shows, in the order it shows them. A
+#: scorecard carries forty numbers and a chart that drew all of them would be
+#: unreadable; these are the ones that answer "is this model better, and where".
+#: Names checked against the real round-3 scorecard rather than guessed --
+#: an earlier draft asked for "dice" and "ap_50_90", which that file does not
+#: carry, so the chart silently drew three bars instead of six.
+CHART_METRICS: Tuple[str, ...] = ("f1", "precision", "recall",
+                                  "dice_per_object", "iou_mean", "ap_mean")
+
+
+def scorecard_figure(metrics: Mapping[str, object], path, *,
+                     title: str = "", dpi: Optional[int] = None):
+    """Draw finetuned against stock as paired bars, and write it to ``path``.
+
+    The scorecard in graph form, for Hugging Face and for the API page,
+    beside the CSV and the table. It reads the same parsed metrics the
+    tooltip and the zoo screen read, so the picture cannot disagree with the
+    numbers printed next to it.
+
+    Matplotlib is imported inside the function. The Model Zoo must be able to
+    import this module with neither torch nor cellpose present -- a test
+    asserts it -- and a drawing dependency at module scope would add
+    matplotlib to every caller that only reads a scorecard.
+
+    Only a subset of metrics is drawn, because a scorecard holds about forty
+    numbers and a chart of forty bars is hard to read. The ones in
+    :data:`CHART_METRICS` that the scorecard actually carries are drawn, in
+    that order, and anything absent is skipped rather than drawn as zero --
+    a missing metric and a metric that scored nothing look identical at a
+    glance and mean opposite things.
+
+    :param metrics: as :func:`read_scorecard_csv` returns.
+    :param path: where to write the PNG.
+    :param title: heading; the model's name is the useful thing to pass.
+    :returns: the path written.
+    :raises ValueError: when none of the chart metrics are present, since an
+        empty chart published beside a model would imply it scored zero.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    names, fine, stock = [], [], []
+    for key in CHART_METRICS:
+        row = metrics.get(key)
+        if not isinstance(row, Mapping):
+            continue
+        a, b = row.get("finetuned"), row.get("vanilla")
+        if a is None or b is None:
+            continue
+        names.append(key.replace("_", " "))
+        fine.append(float(a))
+        stock.append(float(b))
+
+    if not names:
+        raise ValueError(
+            "this scorecard carries none of the metrics the chart draws "
+            f"({', '.join(CHART_METRICS)}), so there is nothing to plot. An "
+            f"empty chart published beside a model would read as a model that "
+            f"scored zero.")
+
+    from .figures.style import figure_style
+
+    with figure_style():
+        positions = np.arange(len(names), dtype=float)
+        width = 0.38
+        figure, axes = plt.subplots(figsize=(1.6 * len(names) + 2.0, 4.2))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: {"metric": names * 2, "model": ["stock"] * len(names) + ["finetuned"] * len(names), "value": stock + fine}, x="metric", y="value", hue="model", kind="bar", title=str(title))
+        axes.bar(positions - width / 2, stock, width, label="stock",
+                 color="#b0b7c3")
+        axes.bar(positions + width / 2, fine, width, label="finetuned",
+                 color="#2f6df6")
+
+        for x, value in zip(positions - width / 2, stock):
+            axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8)
+        for x, value in zip(positions + width / 2, fine):
+            axes.text(x, value + 0.015, f"{value:.3f}", ha="center", fontsize=8,
+                      fontweight="bold")
+
+        axes.set_xticks(positions)
+        axes.set_xticklabels(names)
+        axes.set_ylim(0.0, 1.08)
+        axes.set_ylabel("score")
+        axes.legend(frameon=False, loc="upper center", ncol=2,
+                    bbox_to_anchor=(0.5, -0.12))
+        axes.spines[["top", "right"]].set_visible(False)
+
+        holdout = metrics.get("holdout")
+        version = metrics.get("holdout_version")
+        objects = metrics.get("n_objects")
+        caption = []
+        if title:
+            caption.append(str(title))
+        if holdout:
+            caption.append(f"hold-out {holdout}"
+                           + (f" @ {version}" if version else ""))
+        if isinstance(objects, (int, float)):
+            caption.append(f"{int(objects)} objects")
+        if caption:
+            axes.set_title("  -  ".join(caption), fontsize=10)
+
+        figure.tight_layout()
+        from .plot import save_figure
+
+        return save_figure(figure, path, dpi=dpi, close=True)

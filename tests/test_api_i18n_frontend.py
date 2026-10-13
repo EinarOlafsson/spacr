@@ -1,0 +1,812 @@
+"""Focused browser/static contracts for the external API translation UI."""
+
+from __future__ import annotations
+
+# 2026-09-22: measured public growth and the three object helpers are
+# accounted separately in features/data/411_object_helpers_2026-09-22.json.
+
+import ast
+import contextlib
+import fnmatch
+import html
+import json
+import shutil
+import subprocess
+import tempfile
+import threading
+import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from urllib.parse import urlsplit
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "docs" / "source" / "_static" / "api_i18n.js"
+CONF = ROOT / "docs" / "source" / "conf.py"
+ENGLISH_CATALOG = (
+    ROOT / "docs" / "source" / "_static" / "i18n" / "api" / "en.json"
+)
+REAL_CATALOG_ROOT = ENGLISH_CATALOG.parent
+REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
+#: Symbols in the shipped English API catalog, which every locale must
+#: match exactly. 8,861 until 2026-09-08; the gap to 10,242 is not one
+#: change but every public-docstring addition since the number was last
+#: touched -- chiefly 368, which gave every public method in the package
+#: its own docstring. It was a bare number with no sentence beside it,
+#: which is how it came to be a year of growth behind while the catalog
+#: it describes was regenerated repeatedly. The surface count and its
+#: accounting live in tests/test_api_i18n_extractor.py; this one exists
+#: to assert the BROWSER renders all of them, so it tracks the catalog
+#: file rather than the extractor.
+#:
+#: 10,243 -> 10,296 on 2026-09-10, from one night's public docstrings: the
+#: OPS modules `ops_cycles`, `ops_solve` and `ops_phenotype`, plus
+#: `i18n.ui_language_resolved_once` and the `fractal_travel` region-tour
+#: helpers. Every one of those cost a nine-language rebuild, which is why
+#: 288 now carries a rule about batching them.
+#:
+#: 10,296 -> 10,306 on merging origin/nightly the same night: the other
+#: session's `layout_policy`, `TourPilot` and two `qt.app` helpers, less the
+#: two tour helpers written here that TourPilot replaced.
+#: 10,306 -> 10,339 on 2026-09-11 with the merge from main, +45/-0,
+#: decomposed in tests/test_api_i18n_extractor.py beside the same move.
+#: 10,397 -> 10,478 on 2026-09-13, +81, and this one lagged by four behind
+#: the extractor's +77 because it was already four short before Map Barcodes
+#: landed -- it sat at 10,397 while the extractor sat at 10,401. So this is
+#: two moves in one: a +4 that had been outstanding, and Map Barcodes' +77.
+#: Nothing needed rebuilding for it. The catalogs and the live source agreed
+#: with each other symbol for symbol when this failed, which is the third
+#: case the assertion below distinguishes: the constant was the stale thing,
+#: not the catalog. A two-way message would have sent the reader to rebuild
+#: something already correct.
+# 10,531 -> 10,533 on 2026-09-14: +2 / -0 by set difference --
+# spacr.embeddings.EmbeddingSpec.__post_init__ and
+# spacr.ops_store.Readiness.__bool__, two dunders that already existed
+# and were undocumented. Documenting them is what admits them.
+#
+# THIS NUMBER LIVES IN FOUR FILES: here, test_documentation_i18n,
+# test_api_i18n_extractor (twice) and test_docstring_correctness. It has
+# now been moved twice and BOTH TIMES some siblings were missed and found
+# a day later by a sweep. Grep the literal before believing one edit was
+# enough.
+# 10,533 -> 10,534 on 2026-09-15: +1 / -0 by set difference --
+# spacr.graph_types.mark_to_start_on, and nothing else. The live surface
+# with that one key dropped is 10,533, the previous value. Moved in all four
+# files in one commit, per the note above.
+# 10,534 -> 10,541 on 2026-09-15 (372 PART 14-M): +7 / -0 by set difference
+# against nightly 3f27b926a (the same seven moved c3f562c4f's 10,533 to
+# 10,540 before the rebase) -- spacr.ops_engine and spacr.ops_engine.run_ops,
+# spacr.ops_cycles.AlignedField and align_field, spacr.ops_sbs.attribute_reads
+# and assign_reads_to_objects, spacr.ops_phenotype.phenotype_centres. Their
+# blocks carry reviewed records in all nine locales.
+# 10,541 -> 10,521 on 2026-09-15, +0 / -20 by set difference against
+# the switch commit when the old OPS engine was deleted: the 17 symbols of
+# the old engine's module and `spacr.settings.set_default_stitch`,
+# `set_default_multichannel` and `set_default_general`, the old
+# stitcher's defaults, which nothing called.
+# 10,521 -> 10,523 on 2026-09-15, +2 / -0 by set difference against
+# origin/nightly df1216b3f: spacr.barcode_search.SearchThresholds and its __post_init__.
+# Moved in all four files in one commit. THE ENGLISH CATALOG DOES NOT CARRY
+# THESE TWO -- it is not regenerated for them -- so the catalog gate below
+# reports exactly those two as "in the source but NOT in the catalog" until
+# the pre-release catalog rebuild runs. That message is the recorded debt,
+# and it is the accurate one: the source is right and the catalog is stale.
+# 10,523 -> 10,539 on 2026-09-15, +16 / -0 by set difference against
+# nightly dca970671:
+# spacr.qt.make_masks_demo and its seven public functions (412), and
+# spacr.install_cleanup with InstallRecord, RemovalReport,
+# RemovalReport.ok, find_old_installs, remove_install,
+# run_update_sequence and start_update_helper (416). 413 rewrote two
+# existing docstrings and added none. The live surface with those sixteen
+# keys dropped is 10,523, the previous value. Their blocks carry reviewed
+# records in all nine locales
+# (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
+# 10,539 -> 11,280 on 2026-09-22: +743 / -2 against e23a6ad9a; exact keys
+# are in features/data/411_api_manifest_refresh_2026-09-22.json. English is
+# current. The complete-catalog browser gate still checks every locale; this
+# pin change does not exempt its missing or stale translations.
+# 474's ten additional entries have reviewed records in every locale.
+# +27 / -0 since 1d5a80f78: 14 ParaScape, 9 ruler and 4 diagram entries.
+# Subtraction is recorded in 411_api_prose_cleanup_2026-09-22.json.
+# +22 / -0 for the flowchart and secondary-object APIs; exact delta in
+# 411_flowchart_secondary_inventory_2026-09-23.json.
+# +7 source-bound Timeflows nested helpers; subtraction and nine-language
+# review evidence: features/data/411_timeflows_guidance_2026-09-23.json.
+# +9 held-out validation entries, with exact source-bound locale records.
+# +7 pipeline entries, then +12 inference/cursor/help/schema entries. English
+# is current; the complete-catalog browser gate still reports locale debt.
+# +12 image-quality/Host–Pathogen entries; translation completion is separate.
+# Exact additions/removals and the unchanged rendered boundary are recorded
+# in features/data/411_api_test_surface_2026-09-23.json. Locale debt remains
+# checked separately by the complete-catalog browser test.
+# 11,528 -> 11,651 on 2026-09-25, +124 / -1 against af6d77376 (items
+# 502-513), then 11,661 with ten more after rebasing on b84c3441c; the set
+# differences are named in test_api_i18n_extractor.
+# 11,710 on nightly 03a02c3b8: +47 callables and two mask_engine constants.
+# 11,758 with item 528's twelve, named in test_api_i18n_extractor.
+# 11,816 on 2026-09-26, +60 / -2 against 4f6c58418, named there too.
+# 11,834 on 2026-09-26: item 545's eighteen ROI callables.
+# 11,860 with item 570's hit scoring, +26, named in test_api_i18n_extractor.
+# 11,861 with item 588's mask_engine.fill_label_holes.
+# 11,865 with items 544 and 573's four spacr.run_journal callables.
+# 11,929: +67 (spacr.channel_sorting, spacr.folder_consolidation,
+# qt.widgets.channel_sort_dialog, three ObjectSettingsGrid filter methods),
+# -3 object-grid preference helpers; named in test_api_i18n_extractor.
+# 11,942: +13 (spacr.drop_classification, qt.widgets.organize_for_measure,
+# item 600); named in test_api_i18n_extractor.
+# 2026-10-01: merge, uncertainty and condition APIs; exact source delta
+# recorded in features/data/615_public_api_delta_2026-10-01.json.
+# 2026-10-02 F580: +1/-0, the calibration_preview module overview only;
+# all 12,035 previous symbols unchanged. Exact subtraction and nine-locale
+# strict audit: features/data/615_translation_acceptance_2026-10-02.json.
+# 2026-10-02 F411: +2/-0, tabular._write_workbook._write and
+# qt.command_palette.CommandPalette._collect_commands.app_is_visible.
+# All 12,036 prior source keys/texts unchanged; nested private parents
+# remain hidden. Exact subtraction is recorded in the F411 slice receipt.
+# 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
+# and spacr._lineage_measurements (the API docstring contract requires
+# one per module); all 12,038 prior symbols unchanged.
+# 2026-10-03 F411: +131/-0, documented nested helpers of 111 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
+# 2026-10-03 F411: +46/-0, documented nested helpers of 23 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,171 prior symbols unchanged.
+# 2026-10-03 F411: +136/-1 (the -1 is ConditionSourceTable.setModel, removed by nightly), documented nested helpers of 39 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,217 prior symbols unchanged.
+# 2026-10-03 F411: +99/-0, documented nested helpers of 19 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,352 prior symbols unchanged.
+# 2026-10-03 F411: +95/-0, documented nested helpers of 13 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,451 prior symbols unchanged.
+# 2026-10-03 F411: +154/-0, documented nested helpers of 11 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,546 prior symbols unchanged.
+# 2026-10-03 F411: +28/-0, documented nested helpers of 1 more module
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,700 prior symbols unchanged.
+# 2026-10-03 F411: +159/-0, documented nested helpers of 11 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,728 prior symbols unchanged.
+# 2026-10-03 F411: +103/-0, documented nested helpers of 3 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,887 prior symbols unchanged.
+# 2026-10-03 F411: +81/-0, documented nested helpers of 2 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,990 prior symbols unchanged.
+# 2026-10-03 F411: +104/-0, documented nested helpers of 2 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
+# 2026-10-04 566 (a71b646a7): +1/-0, the documented nested helper
+# spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
+# Item 662: +4 public mask_engine YOLO helpers, no removals.
+# All 13,177 prior English records preserved; 662_yolo_support receipt.
+# 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+REAL_SYMBOL_COUNT = 13_182
+CHROME = shutil.which("google-chrome") or shutil.which("chromium")
+HEX_A = "a" * 64
+HEX_B = "b" * 64
+HEX_C = "c" * 64
+
+
+def _conf_assignment(name: str):
+    tree = ast.parse(CONF.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if any(isinstance(target, ast.Name) and target.id == name
+               for target in node.targets):
+            return ast.literal_eval(node.value)
+    raise AssertionError(f"Sphinx configuration assignment not found: {name}")
+
+
+def _record(text: str, source_hash: str, block_hash: str, *, english=False):
+    record = {
+        "text": text,
+        "source_sha256": source_hash,
+        "source_blocks_sha256": [block_hash],
+    }
+    if not english:
+        record["translation_source_blocks_sha256"] = [HEX_C]
+    return record
+
+
+def _catalog(language: str, module_text: str, member_text: str, *, stale=False):
+    localized = language != "en"
+    return {
+        "schema": 2,
+        "language": language,
+        "symbols": {
+            "spacr.demo": _record(
+                module_text,
+                HEX_C if stale else HEX_A,
+                HEX_B,
+                english=not localized,
+            ),
+            "spacr.demo.run": _record(
+                member_text,
+                HEX_B,
+                HEX_A,
+                english=not localized,
+            ),
+        },
+    }
+
+
+ENGLISH = _catalog("en", "English module.", "English member.")
+
+
+def _page(harness: str, *, before_script: str = "") -> bytes:
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>API frontend fixture</title>
+<script>{before_script}</script>
+<script src="/api/api_i18n.js" data-api-catalog-version="unit-content-v1"></script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {{ {harness} }});
+</script></head><body>
+<main><article role="main" id="furo-main-content">
+<section id="module-spacr.demo"><span id="spacr-demo"></span>
+<h1>spacr.demo<a class="headerlink">¶</a></h1><p>English module body</p>
+<section id="module-contents"><h2>Module Contents</h2>
+<dl class="py function"><dt id="spacr.demo.run">run()</dt><dd>English body</dd></dl>
+</section></section>
+</article></main></body></html>""".encode()
+
+
+def _complete_catalog_page(
+    symbols: tuple[str, ...], harness: str, *, before_script: str = "",
+) -> bytes:
+    """One browser page whose AutoAPI-shaped definitions expose every key."""
+    definitions = "".join(
+        '<dl class="py"><dt id="{}"></dt><dd></dd></dl>'.format(
+            html.escape(symbol, quote=True),
+        )
+        for symbol in symbols
+    )
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"><title>Complete API frontend fixture</title>
+<script>{before_script}</script>
+<script src="/api/api_i18n.js" data-api-catalog-version="unit-content-v1"></script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {{ {harness} }});
+</script></head><body>
+<main><article role="main" id="furo-main-content">{definitions}</article></main>
+</body></html>""".encode()
+
+
+@contextlib.contextmanager
+def _server(files, *, delays=None, statuses=None):
+    requests = []
+    delays = delays or {}
+    statuses = statuses or {}
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802 - BaseHTTPRequestHandler API
+            parsed = urlsplit(self.path)
+            requests.append((parsed.path, parsed.query))
+            if delays.get(parsed.path):
+                time.sleep(delays[parsed.path])
+            status = statuses.get(parsed.path, 200 if parsed.path in files else 404)
+            body = files.get(parsed.path, b"not found")
+            if isinstance(body, str):
+                body = body.encode()
+            self.send_response(status)
+            self.send_header(
+                "Content-Type",
+                "application/json" if parsed.path.endswith(".json")
+                else "text/html; charset=utf-8",
+            )
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            try:
+                self.wfile.write(body)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+
+        def log_message(self, _format, *_args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server.daemon_threads = True
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_port}", requests
+    finally:
+        server.shutdown()
+        thread.join(timeout=2)
+        server.server_close()
+
+
+def _browser_files(page: bytes, **catalogs):
+    files = {
+        "/api/page.html": page,
+        "/api/api_i18n.js": SCRIPT.read_bytes(),
+        "/api/i18n/api/en.json": json.dumps(ENGLISH).encode(),
+    }
+    for language, catalog in catalogs.items():
+        files[f"/api/i18n/api/{language}.json"] = json.dumps(catalog).encode()
+    return files
+
+
+def _real_browser_files(page: bytes):
+    """Serve the complete checked-in catalogs, not reduced fixtures."""
+    files = {
+        "/api/page.html": page,
+        "/api/api_i18n.js": SCRIPT.read_bytes(),
+    }
+    for language in ("en", *REAL_LANGUAGES):
+        files[f"/api/i18n/api/{language}.json"] = (
+            REAL_CATALOG_ROOT / f"{language}.json"
+        ).read_bytes()
+    return files
+
+
+def _dump_dom(url: str, *, budget=1800, wall_timeout=60) -> str:
+    if not CHROME:
+        pytest.skip("Chrome/Chromium is required for the focused browser test")
+    with tempfile.TemporaryDirectory(prefix="spacr-api-i18n-chrome-") as profile:
+        completed = subprocess.run(
+            [
+                CHROME,
+                "--headless=new",
+                "--no-sandbox",
+                "--disable-gpu",
+                "--disable-extensions",
+                "--disable-background-networking",
+                "--disable-component-update",
+                "--disable-default-apps",
+                "--disable-sync",
+                "--metrics-recording-only",
+                "--no-first-run",
+                "--renderer-process-limit=1",
+                f"--user-data-dir={profile}",
+                f"--virtual-time-budget={budget}",
+                "--dump-dom",
+                url,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            # Six fast-suite Python cells can launch Chrome concurrently on
+            # hosted runners.  Startup alone exceeded 20 seconds once under
+            # that contention even though the page's virtual-time budget is
+            # only 1.8 seconds.  Keep every DOM assertion and allow the
+            # external process enough wall time to start deterministically.
+            timeout=wall_timeout,
+        )
+    assert completed.returncode == 0, completed.stderr[-2000:]
+    return completed.stdout
+
+
+def test_frontend_source_has_failure_and_freshness_guards():
+    script = SCRIPT.read_text(encoding="utf-8")
+    conf = CONF.read_text(encoding="utf-8")
+
+    assert 'document.querySelector(\'article[role="main"]\')' in script
+    assert "apiArticle.prepend(wrapper)" in script
+    assert "navigator.languages" in script
+    assert 'if (base === "zh") return null' in script
+    assert "safeStorageGet" in script and "safeStorageSet" in script
+    assert "requestSerial" in script and "AbortController" in script
+    assert "validateAgainstEnglish" in script
+    assert "payload.schema !== 2" in script
+    assert "translation_source_blocks_sha256" in script
+    assert 'window.addEventListener("popstate"' in script
+    assert "failureHistoryMode" in script
+    assert "void selectLanguage" in script
+    assert "data-api-catalog-version" in conf
+    assert "_api_catalog_hasher" in conf
+    assert ':scope > section[id^="module-spacr"] > h1' in script
+    assert "localizedFieldName" in script and "RST_TERMS" in script
+
+
+def test_autoapi_emits_only_canonical_module_members():
+    options = _conf_assignment("autoapi_options")
+    ignored = _conf_assignment("autoapi_ignore")
+    assert "members" in options
+    # Undocumented objects are implementation surface, not a usable API.
+    # The API catalog contains source-bound public docstrings, so publishing
+    # undoc-members would also create visible objects that cannot be localized.
+    assert "undoc-members" not in options
+    # Imported members are duplicate aliases. Their generated ids can be
+    # noncanonical and therefore cannot be joined exactly to `spacr.*` catalog
+    # keys without ambiguous suffix matching.
+    assert "imported-members" not in options
+    # Resource generator scripts otherwise become non-package top-level API
+    # modules (`render`, `parts`, etc.) that cannot match the `spacr.*` catalog.
+    assert "*/resources/*/_generators/*" in ignored
+    generators = list((ROOT / "spacr" / "resources").glob("**/_generators/*.py"))
+    assert generators
+    assert all(any(fnmatch.fnmatch(str(path), pattern) for pattern in ignored)
+               for path in generators)
+
+
+def test_english_catalog_keys_are_exactly_joinable():
+    payload = json.loads(ENGLISH_CATALOG.read_text(encoding="utf-8"))
+    symbols = payload["symbols"]
+
+    assert payload["schema"] == 2 and payload["language"] == "en"
+    assert symbols
+    assert all(key == "spacr" or key.startswith("spacr.") for key in symbols)
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_furo_placement_catalog_version_safe_rst_and_persistence():
+    translated = (
+        "Resumen :func:`spacr.demo.run`.\n\n"
+        ".. warning::\n\n   <img src=x onerror=alert(1)> Nunca.\n\n"
+        "* Uno\n* Dos\n\n:param value: Valor\n:returns: Resultado\n\n"
+        "Ejemplo::\n\n   >>> print(\"<unsafe>\")"
+    )
+    es = _catalog("es", translated, "Miembro traducido.")
+    harness = """
+setTimeout(() => {
+  const article = document.querySelector('article[role="main"]');
+  const panels = article.querySelectorAll('.spacr-api-translation');
+  const moduleHeading = article.querySelector(
+    ':scope > section[id^="module-spacr"] > h1');
+  const modulePanel = moduleHeading.nextElementSibling;
+  const ok = article.firstElementChild.classList.contains('spacr-api-language') &&
+    article.children[1].id === 'module-spacr.demo' && panels.length === 2 &&
+    modulePanel.classList.contains('spacr-api-translation') &&
+    modulePanel.querySelector('.admonition.warning') &&
+    modulePanel.querySelector('.admonition-title').textContent === 'Advertencia' &&
+    modulePanel.querySelector('code.rst-role-func') &&
+    modulePanel.querySelector('ul li') &&
+    modulePanel.querySelector('dl.field-list') &&
+    modulePanel.querySelector('dl.field-list dt').textContent === 'Parámetro value' &&
+    [...modulePanel.querySelectorAll('dl.field-list dt')]
+      .some((node) => node.textContent === 'Devuelve') &&
+    modulePanel.querySelector('pre code') && !modulePanel.querySelector('img') &&
+    modulePanel.textContent.includes('<img src=x') &&
+    document.querySelector('.spacr-api-language select').value === 'es' &&
+    localStorage.getItem('spacr-doc-language') === 'es' &&
+    window.unhandled === 0;
+  document.body.dataset.result = ok ? 'pass' : 'fail';
+}, 600);
+"""
+    before = """
+window.unhandled = 0;
+window.addEventListener('unhandledrejection', (event) => {
+  window.unhandled += 1; event.preventDefault();
+});
+"""
+    files = _browser_files(_page(harness, before_script=before), es=es)
+    with _server(files) as (base, requests):
+        dom = _dump_dom(f"{base}/api/page.html?lang=es")
+
+    assert 'data-result="pass"' in dom
+    catalog_requests = [item for item in requests if item[0].endswith(".json")]
+    assert {path for path, _query in catalog_requests} == {
+        "/api/i18n/api/en.json",
+        "/api/i18n/api/es.json",
+    }
+    assert all("v=unit-content-v1" in query for _path, query in catalog_requests)
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_english_publication_keeps_current_content_without_loading_translations():
+    harness = """
+setTimeout(() => {
+  const article = document.querySelector('article[role="main"]');
+  const ok = article.querySelector('.spacr-api-publication-note') &&
+    article.textContent.includes('Translations are being updated.') &&
+    article.textContent.includes('English body') &&
+    !article.querySelector('.spacr-api-language') &&
+    !article.querySelector('.spacr-api-translation') &&
+    localStorage.getItem('spacr-doc-language') === 'es' &&
+    new URL(location.href).searchParams.get('lang') === 'en';
+  document.body.dataset.result = ok ? 'pass' : 'fail';
+}, 300);
+"""
+    before = "localStorage.setItem('spacr-doc-language', 'es');"
+    page = _page(harness, before_script=before).replace(
+        b'data-api-catalog-version="unit-content-v1"',
+        b'data-api-catalog-version="unit-content-v1" data-api-language="english"',
+    )
+    files = _browser_files(page, es=_catalog("es", "Old module.", "Old member.", stale=True))
+    with _server(files) as (base, requests):
+        dom = _dump_dom(f"{base}/api/page.html?lang=es")
+    assert 'data-result="pass"' in dom
+    assert not any(path.endswith('.json') for path, _query in requests)
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_chinese_renderer_labels_are_localized():
+    translated = (
+        "摘要。\n\n.. note::\n\n   请仔细检查。\n\n"
+        ":param value: 输入值\n:returns: 结果"
+    )
+    zh = _catalog("zh_CN", translated, "已翻译的成员。")
+    harness = """
+setTimeout(() => {
+  const heading = document.querySelector(
+    'article[role="main"] > section[id^="module-spacr"] > h1');
+  const panel = heading.nextElementSibling;
+  const terms = [...panel.querySelectorAll('dl.field-list dt')]
+    .map((node) => node.textContent);
+  const ok = panel.classList.contains('spacr-api-translation') &&
+    panel.lang === 'zh-CN' &&
+    panel.querySelector('.admonition-title').textContent === '备注' &&
+    terms.includes('参数 value') && terms.includes('返回') &&
+    document.querySelector('.spacr-api-language__label').textContent === 'API 语言';
+  document.body.dataset.result = ok ? 'pass' : 'fail';
+}, 500);
+"""
+    files = _browser_files(_page(harness), zh_CN=zh)
+    with _server(files) as (base, _requests):
+        dom = _dump_dom(f"{base}/api/page.html?lang=zh_CN")
+
+    assert 'data-result="pass"' in dom
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_latest_request_wins_and_only_successful_locale_updates_state():
+    de = _catalog("de", "Deutsches Modul.", "Deutsches Mitglied.")
+    es = _catalog("es", "Módulo español.", "Miembro español.")
+    harness = """
+const select = document.querySelector('.spacr-api-language select');
+select.value = 'de'; select.dispatchEvent(new Event('change'));
+setTimeout(() => {
+  select.value = 'es'; select.dispatchEvent(new Event('change'));
+}, 20);
+setTimeout(() => {
+  const text = document.querySelector('article[role="main"]').textContent;
+  const ok = select.value === 'es' && text.includes('Módulo español') &&
+    !text.includes('Deutsches Modul') &&
+    new URL(location.href).searchParams.get('lang') === 'es' &&
+    localStorage.getItem('spacr-doc-language') === 'es' &&
+    window.unhandled === 0;
+  document.body.dataset.result = ok ? 'pass' : 'fail';
+}, 700);
+"""
+    before = """
+window.unhandled = 0;
+window.addEventListener('unhandledrejection', (event) => {
+  window.unhandled += 1; event.preventDefault();
+});
+"""
+    files = _browser_files(_page(harness, before_script=before), de=de, es=es)
+    with _server(
+        files, delays={"/api/i18n/api/de.json": 0.3},
+    ) as (base, _requests):
+        dom = _dump_dom(f"{base}/api/page.html")
+
+    assert 'data-result="pass"' in dom
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_popstate_restores_prior_successful_language():
+    de = _catalog("de", "Deutsches Modul.", "Deutsches Mitglied.")
+    es = _catalog("es", "Módulo español.", "Miembro español.")
+    harness = """
+const select = document.querySelector('.spacr-api-language select');
+const observations = [];
+select.value = 'de'; select.dispatchEvent(new Event('change'));
+setTimeout(() => {
+  observations.push(select.value === 'de' && location.search.includes('lang=de'));
+  select.value = 'es'; select.dispatchEvent(new Event('change'));
+}, 220);
+setTimeout(() => {
+  observations.push(select.value === 'es' && location.search.includes('lang=es'));
+  history.back();
+}, 430);
+setTimeout(() => {
+  observations.push(select.value === 'de' && location.search.includes('lang=de'));
+  history.back();
+}, 700);
+setTimeout(() => {
+  observations.push(select.value === 'en' && !location.search);
+  document.body.dataset.result = observations.every(Boolean) ? 'pass' : 'fail';
+}, 900);
+"""
+    files = _browser_files(_page(harness), de=de, es=es)
+    with _server(files) as (base, _requests):
+        dom = _dump_dom(f"{base}/api/page.html", budget=2200)
+
+    assert 'data-result="pass"' in dom
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_malformed_and_http_failures_roll_back_without_persisting_locale():
+    stale_fr = _catalog("fr", "Module français.", "Membre français.", stale=True)
+    harness = """
+const select = document.querySelector('.spacr-api-language select');
+const checks = [];
+select.value = 'fr'; select.dispatchEvent(new Event('change'));
+setTimeout(() => {
+  checks.push(select.value === 'en' &&
+    !document.querySelector('.spacr-api-translation') &&
+    localStorage.getItem('spacr-doc-language') === 'en' &&
+    new URL(location.href).searchParams.get('lang') === 'en');
+  select.value = 'hi'; select.dispatchEvent(new Event('change'));
+}, 260);
+setTimeout(() => {
+  checks.push(select.value === 'en' &&
+    !document.querySelector('.spacr-api-translation') &&
+    localStorage.getItem('spacr-doc-language') === 'en' &&
+    new URL(location.href).searchParams.get('lang') === 'en' &&
+    window.unhandled === 0);
+  document.body.dataset.result = checks.every(Boolean) ? 'pass' : 'fail';
+}, 600);
+"""
+    before = """
+window.unhandled = 0;
+window.addEventListener('unhandledrejection', (event) => {
+  window.unhandled += 1; event.preventDefault();
+});
+"""
+    files = _browser_files(_page(harness, before_script=before), fr=stale_fr)
+    files["/api/i18n/api/hi.json"] = b"service unavailable"
+    with _server(
+        files, statuses={"/api/i18n/api/hi.json": 503},
+    ) as (base, _requests):
+        dom = _dump_dom(f"{base}/api/page.html")
+
+    assert 'data-result="pass"' in dom
+
+
+@pytest.mark.skipif(not CHROME, reason="Chrome/Chromium not installed")
+def test_storage_exceptions_and_zh_tw_do_not_block_next_browser_locale():
+    de = _catalog("de", "Deutsches Modul.", "Deutsches Mitglied.")
+    before = """
+Object.defineProperty(navigator, 'languages', {value: ['zh-TW', 'de-DE']});
+Object.defineProperty(navigator, 'language', {value: 'zh-TW'});
+Storage.prototype.getItem = function () { throw new Error('storage denied'); };
+Storage.prototype.setItem = function () { throw new Error('storage denied'); };
+window.unhandled = 0;
+window.addEventListener('unhandledrejection', (event) => {
+  window.unhandled += 1; event.preventDefault();
+});
+"""
+    harness = """
+setTimeout(() => {
+  const select = document.querySelector('.spacr-api-language select');
+  const text = document.querySelector('article[role="main"]').textContent;
+  document.body.dataset.result = select.value === 'de' &&
+    text.includes('Deutsches Modul') && window.unhandled === 0 ? 'pass' : 'fail';
+}, 500);
+"""
+    files = _browser_files(_page(harness, before_script=before), de=de)
+    with _server(files) as (base, requests):
+        dom = _dump_dom(f"{base}/api/page.html")
+
+    assert 'data-result="pass"' in dom
+    assert not any(path.endswith("zh_CN.json") for path, _query in requests)
+
+
+def test_every_complete_real_catalog_renders_through_the_browser_selector():
+    """Render the full source union, accounting for named reviewed arrivals."""
+    assert CHROME, (
+        "Chrome/Chromium is required for the exhaustive API-catalog gate; "
+        "this required-CI assertion must not be skipped"
+    )
+    english = json.loads(ENGLISH_CATALOG.read_text(encoding="utf-8"))
+    symbols = tuple(english["symbols"])
+    # SAY WHICH OF THE TWO IT IS. A bare count comparison cannot tell "the
+    # catalog was built before a symbol was added" from "a symbol that used
+    # to be documented has gone", and those need opposite responses: the
+    # first is `tools/build_documentation_i18n.py`, the second is a
+    # regression in the source. Naming the difference costs one set
+    # operation against the live surface and saves the reader the reasoning.
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "tools"))
+    from build_documentation_i18n import public_docstrings
+
+    docs = public_docstrings()
+    live = set(docs)
+    catalog = set(symbols)
+    stale = sorted(live - catalog)[:8]
+    vanished = sorted(catalog - live)[:8]
+    if stale or vanished:
+        raise AssertionError(
+            f"the English catalog carries {len(symbols)} symbols and the "
+            f"source carries {len(live)}.\n"
+            f"  in the source but NOT in the catalog ({len(live - catalog)}): "
+            f"{stale} -- the catalog is stale; rebuild it with "
+            f"tools/build_documentation_i18n.py\n"
+            f"  in the catalog but NOT in the source "
+            f"({len(catalog - live)}): {vanished} -- a documented symbol "
+            f"was removed or made private; that is a source change, not a "
+            f"build one")
+    arrivals = json.loads((ROOT / "tests/data/release_contracts"
+                          / "615_api_browser_arrivals_2026-10-07.json").read_text())
+    assert len(arrivals) == 33
+    assert {key: docs[key] for key in arrivals} == arrivals
+    assert {key: english["symbols"][key]["text"] for key in arrivals} == arrivals
+    worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+    assert len(worker_arrivals) == 8
+    assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
+    assert not worker_arrivals.keys() & arrivals.keys()
+    assert {key: english["symbols"][key]["text"] for key in worker_arrivals} == worker_arrivals
+    home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+    assert len(home_ui_arrivals) == 10  # + LiveSettingsDialog.close (39bfe8e19)
+    assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & worker_arrivals.keys()
+    assert {key: english["symbols"][key]["text"] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & arrivals.keys()
+    assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == REAL_SYMBOL_COUNT
+    assert len(catalog) == len(symbols)
+    expected_count = len(symbols)
+
+    harness = f"""
+const languages = ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'];
+const expectedCount = {expected_count};
+const signatures = [...document.querySelectorAll('dl.py dt[id]')];
+const expectedKeys = new Set(signatures.map((signature) => signature.id));
+const seen = [];
+const select = document.querySelector('.spacr-api-language select');
+let position = 0;
+let polls = 0;
+
+function finish(result, reason = '') {{
+  document.body.dataset.result = result;
+  document.body.dataset.reason = reason;
+  document.body.dataset.rendered = seen.join(',');
+  document.querySelector('article[role="main"]').replaceChildren();
+}}
+
+function completePanels(language) {{
+  const panels = [...document.querySelectorAll('.spacr-api-translation')];
+  const renderedLanguage = language.replace('_', '-');
+  if (panels.length !== expectedCount ||
+      panels.some((panel) => panel.lang !== renderedLanguage)) return false;
+  const renderedKeys = new Set(panels.map((panel) => {{
+    const definition = panel.parentElement && panel.parentElement.previousElementSibling;
+    return definition ? definition.id : '';
+  }}));
+  return renderedKeys.size === expectedCount &&
+    [...expectedKeys].every((key) => renderedKeys.has(key));
+}}
+
+function chooseNext() {{
+  if (position === languages.length) {{
+    const wanted = languages.map((language) =>
+      `${{language}}:${{expectedCount}}`).join(',');
+    finish(seen.join(',') === wanted && window.unhandled === 0 ? 'pass' : 'fail',
+      window.unhandled === 0 ? '' : 'unhandled-rejection');
+    return;
+  }}
+  const language = languages[position];
+  select.value = language;
+  select.dispatchEvent(new Event('change'));
+  polls = 0;
+  const poll = setInterval(() => {{
+    polls += 1;
+    if (select.value === language && completePanels(language)) {{
+      clearInterval(poll);
+      seen.push(`${{language}}:${{expectedCount}}`);
+      position += 1;
+      chooseNext();
+    }} else if (select.value === 'en' || polls >= 600) {{
+      clearInterval(poll);
+      finish('fail', `${{language}}:${{select.value}}:${{polls}}`);
+    }}
+  }}, 100);
+}}
+if (signatures.length !== expectedCount || expectedKeys.size !== expectedCount) {{
+  finish('fail', `fixture:${{signatures.length}}:${{expectedKeys.size}}`);
+}} else {{
+  chooseNext();
+}}
+"""
+    before = """
+window.unhandled = 0;
+window.addEventListener('unhandledrejection', (event) => {
+  window.unhandled += 1; event.preventDefault();
+});
+"""
+    page = _complete_catalog_page(symbols, harness, before_script=before)
+    files = _real_browser_files(page)
+    with _server(files) as (base, requests):
+        dom = _dump_dom(
+            f"{base}/api/page.html",
+            budget=30_000,
+            wall_timeout=180,
+        )
+
+    assert 'data-result="pass"' in dom
+    rendered = ",".join(
+        f"{language}:{expected_count}" for language in REAL_LANGUAGES
+    )
+    assert f'data-rendered="{rendered}"' in dom
+    requested = {path for path, _query in requests if path.endswith(".json")}
+    assert {
+        f"/api/i18n/api/{language}.json"
+        for language in ("en", *REAL_LANGUAGES)
+    } <= requested

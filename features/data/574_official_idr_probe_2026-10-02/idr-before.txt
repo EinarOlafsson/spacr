@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 660, in <module>
+    parser = main(sys.argv[1:])
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 633, in main
+    p = StudyParser(s)
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 118, in __init__
+    self.study = self.parse("Study")
+                 ~~~~~~~~~~^^^^^^^^^
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 178, in parse
+    d[key] = self.get_value(key, lines=lines)
+             ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/tmp/spacr-implementation-20261001/f574-official/idr-utils/pyidr/study_parser.py", line 169, in get_value
+    raise Exception("Could not find value for key %s " % key)
+Exception: Could not find value for key Study Publication Title 

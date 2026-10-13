@@ -1,0 +1,144 @@
+{
+  "source_commit": "Current scalar ambient ade8062f vs density-domain-only private candidate",
+  "source_sha256": "ade8062fc41ba4b1f6798d54f5aa1fbcb24e7d6450bb1f27a4d250dce1c0e0ae",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/fungal-density-guard-20261007/before.py",
+  "variant": "before",
+  "theme": "data_art_fungal_growth",
+  "label": "spaCR growth",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 1.0,
+    "density": 2.0,
+    "size": 2.5,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "random",
+    "colors": [
+      "#e17247",
+      "#46e29e",
+      "#cb45e3",
+      "#cfe445",
+      "#44a2e5",
+      "#e64474",
+      "#46e743",
+      "#6f42e8",
+      "#e99e42",
+      "#41eace",
+      "#eb41d7",
+      "#a7ec40",
+      "#3f76ed",
+      "#ee3f44",
+      "#3eef6a",
+      "#9d3df0",
+      "#f1d03c",
+      "#3ce0f2",
+      "#f33bac",
+      "#78f43a",
+      "#3a43f5",
+      "#f66539",
+      "#38f79b",
+      "#d137f8",
+      "#e9f937",
+      "#36b2fa",
+      "#fb357a",
+      "#42fc34",
+      "#5f34fd",
+      "#fe9833",
+      "#2ce1ba",
+      "#e22bd6"
+    ]
+  },
+  "qt_platform": "xcb",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 210056,
+    "widget_show_ms": 49.08379598055035,
+    "post_show_seconds": 2.0004418739990797,
+    "post_show_published_frames": 48,
+    "post_show_published_fps": 23.994698683268055,
+    "worker_shade": {
+      "median_ms": 3.1694445060566068,
+      "p95_ms": 5.442155001219362,
+      "max_ms": 14.876156026730314,
+      "samples": 48
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.065465510706417,
+      "p95_ms": 14.636351988883689,
+      "max_ms": 26.034050999442115,
+      "samples": 196
+    },
+    "compile_ready": false,
+    "compile_failed": false,
+    "rss_peak_kib": 207108
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.066514071018901,
+      "published_frames": 71,
+      "published_fps": 14.013579949600643,
+      "distinct_published_clocks": 70,
+      "first_clock": 97.28199999999998,
+      "clock_advance": 5.025000000000006,
+      "painted_fps": 15.00045177703731,
+      "repeated_frame_objects": 5,
+      "worker_shade": {
+        "median_ms": 70.2087510144338,
+        "p95_ms": 78.93710499047302,
+        "max_ms": 84.71640798961744,
+        "samples": 71
+      },
+      "gui_paint": {
+        "median_ms": 26.0080489970278,
+        "p95_ms": 65.52036499488167,
+        "max_ms": 67.518650990678,
+        "samples": 76
+      },
+      "heartbeat_10ms": {
+        "median_ms": 69.99352999264374,
+        "p95_ms": 77.12711897329427,
+        "max_ms": 79.48363400646485,
+        "samples": 75
+      },
+      "publication_intervals": {
+        "median_ms": 70.42798001202755,
+        "p95_ms": 78.96694602095522,
+        "max_ms": 84.7473090107087,
+        "samples": 70
+      },
+      "lightning_worker_shades": null,
+      "load_average": [
+        3.828125,
+        3.0791015625,
+        2.48974609375
+      ],
+      "current_rss_kib": 309988
+    }
+  ],
+  "frame_sha256": "fc73808edaf5c94ec9590d2fcb790a524eb82ccff0e5dd66756d40d208707580",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 339268,
+  "owned_cache_array_bytes": 0,
+  "cache_entries": 0,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

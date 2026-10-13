@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "workflow": 35951320497,
+  "workflow_result": "success",
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "79d71a92f7204c8b839b7b8c7aff5de7302394ef",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "8b8458b14856d6834ac84f96cc4978749402ae5a",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 557330910,
+    "media_files": 133
+  },
+  "live_readback": {
+    "api": {
+      "sha256": "ff7aada778f298da88bc61f6157861e4f1e0b5e56d7f6e7efaedb919180560eb",
+      "matches_committed_bytes": true,
+      "symbols": 11520
+    },
+    "tutorials": {
+      "sha256": "42a6d3379c097f5968d87488b5c897061b603a00f589ddaf1f85ed403a985cc8",
+      "matches_committed_bytes": true,
+      "routes": 85,
+      "ready": 84
+    }
+  },
+  "browser": {
+    "passed": true,
+    "cases": [
+      {
+        "channel": "main",
+        "lesson": "07_mask",
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617/07_mask/video/07_mask_silent.mp4",
+        "width": 3840,
+        "height": 2160,
+        "time": 45.047337,
+        "expected": 45.253138990213984,
+        "error": null
+      },
+      {
+        "channel": "nightly/",
+        "lesson": "32_align_stitch",
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/948fd55c6d13ee107b8bce22c26957178e7415dd/32_align_stitch/video/32_align_stitch_silent.mp4",
+        "width": 3840,
+        "height": 2160,
+        "time": 23.617811,
+        "expected": 23.821372705544636,
+        "error": null
+      },
+      {
+        "channel": "nightly/",
+        "lesson": "85_host_pathogen",
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/948fd55c6d13ee107b8bce22c26957178e7415dd/85_host_pathogen/video/85_host_pathogen_silent.mp4",
+        "width": 3840,
+        "height": 2160,
+        "time": 26.482589,
+        "expected": 26.62147308960641,
+        "error": null
+      }
+    ]
+  },
+  "scope": "Public main/nightly HTTP readback and three real browser playback/chapter-seek checks. Full candidate playback is recorded separately."
+}

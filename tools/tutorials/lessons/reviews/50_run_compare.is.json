@@ -1,0 +1,32 @@
+{
+  "lesson": "50_run_compare",
+  "english_sha256": "60f9898197011e045f8be2667a3fa097b07841cc559845331e098f5e4de0a5cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Run Compare: berðu saman vistaðar keyrslur",
+  "description": "Veldu tvær vistaðar keyrslur, skoðaðu mun á stillingum og fjölda og athugaðu tiltækan samanburð niðurstaðna.",
+  "objectives": [
+    "Velja grunnkeyrslu og samanburðarkeyrslu.",
+    "Skoða mun á stillingum og fjölda.",
+    "Finna tiltækan samanburð niðurstaðna."
+  ],
+  "prerequisite": "Sæktu og afþjappaðu tengdu skyndimyndirnar. Fylgdu README-skránni til að keyra prepare_run_compare_download.py í spaCR-umhverfinu með nýja áfangamöppu. Fyrir eigin samanburð vistarðu úttak hverrar keyrslu áður en skrifað er yfir það.",
+  "scenes": [
+    "Í flokknum Data á Home opnarðu Run Compare til að skoða skráð úttak tveggja keyrslna.",
+    "Sæktu og afþjappaðu skyndimyndadæmið. Fylgdu README-skránni til að keyra undirbúningsskriftuna með nýja áfangamöppu.",
+    "Smelltu á Browse og veldu undirbúnu samanburðarmöppuna. Hafðu upprunalegu verkefnin og keyrsluskyndimyndir þeirra tiltæk fyrir eigin samanburð.",
+    "Veldu grunnkeyrslu sem A og samanburðarkeyrsluna sem B og smelltu svo á Compare. Athugaðu heiti eininga þeirra og skráðar útgáfur.",
+    "Virkjaðu Show unchanged settings til að taka með gildi sem eru eins. Opnaðu færslurnar til að skoða stillingarnar sem hvor keyrsla notaði.",
+    "Opnaðu Counts til að bera saman heildarfjölda hluta. Delta er B mínus A. Í dæminu er fjöldinn eins; skoðaðu viðeigandi myndir og mælingar þegar þú þarft að skilja mun.",
+    "Opnaðu Hits þegar báðar keyrslur hafa skráðar aðhvarfsniðurstöður. Dæmið inniheldur Measure-skyndimyndir, svo enginn samanburður á hits er tiltækur.",
+    "Veldu tvær ólíkar keyrslur. Ef sama keyrsla er valin báðum megin notarðu viðvörunina til að leiðrétta valið.",
+    "Geymdu báðar úttaksskyndimyndirnar og stillingarnar sem skýra muninn á þeim. Notaðu Run History fyrir einstaka annála og Regression fyrir undirliggjandi hits-niðurstöður."
+  ]
+}

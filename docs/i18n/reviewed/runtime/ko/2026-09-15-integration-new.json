@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source": "Choose a regression results folder — the one holding results_gene.csv.",
+      "source_sha256": "a9116f396c14b68e881fbd1f127d614fff52d06e5aa42f8718cdc36ced84afff",
+      "table": "ui",
+      "translation": "regression 결과 폴더를 선택합니다 — results_gene.csv 파일이 들어 있는 폴더입니다."
+    }
+  ],
+  "schema": 1
+}

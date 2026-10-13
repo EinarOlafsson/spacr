@@ -1,0 +1,106 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/growth-r4-tool.log', 'pytest', '-q', 'tests/qt/test_fungal_growth_engine.py', 'tests/qt/test_fungal_scalar_path_overloads.py', 'tests/qt/test_fungal_mature_raster_cache.py', 'tests/qt/test_magnifier_instant_accept_and_fuse.py', 'tests/qt/test_a_second_magnifier_press_keeps_the_pending_stroke.py', 'tests/qt/test_magnifier_request_provenance.py']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+.............................F..F....F.F................................ [ 96%]
+...                                                                      [100%]
+=================================== FAILURES ===================================
+___ test_visible_front_has_more_connected_forks_later_and_at_higher_density ____
+
+    def test_visible_front_has_more_connected_forks_later_and_at_higher_density():
+        """Density prunes children while leaving primary paths and their parents."""
+        counts = []
+        for density in (1.0, 3.0):
+            engine = _engine(density=density)
+            engine.set_time(31.0)
+            lineage = engine._lineage(0, 960, 540)
+            by_path = {edge[1:7]: edge for edge in lineage}
+            visible = {edge[:6] for edge in engine.geometry(960, 540)
+                       if edge[:6] in by_path}
+            endpoints = {edge[5:7] for edge in lineage}
+            origins = {edge[1:3] for edge in lineage if edge[1:3] not in endpoints}
+            parent_ends = {path[4:6] for path in visible}
+            assert all(path[:2] in parent_ends or path[:2] in origins for path in visible)
+            children = {}
+            for path in visible:
+                children[path[:2]] = children.get(path[:2], 0) + 1
+            forks = [by_path[path] for path in visible if path in by_path
+                     and children.get(path[4:6], 0) > 1]
+            assert forks
+            counts.append(len(forks))
+>       assert counts[0] < counts[1]
+E       assert 328 < 198
+
+tests/qt/test_fungal_growth_engine.py:233: AssertionError
+________ test_first_front_actually_advances_across_the_rendered_screen _________
+
+    def test_first_front_actually_advances_across_the_rendered_screen():
+        """Later frames paint new distant growth rather than recolouring old ink."""
+        engine = _engine(density=2.0, size=1.25)
+        farthest = []
+        for second in (7.0, 21.0):
+            engine.set_time(second)
+            image = engine.shade(640, 360)
+            pixels = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(360, 640, 4)
+            _, columns = np.nonzero(np.any(pixels[:, :, :3] != 0, axis=2))
+            farthest.append(int(np.quantile(columns, 0.99)))
+>       assert farthest[1] > farthest[0] + 200
+E       assert 387 > (197 + 200)
+
+tests/qt/test_fungal_growth_engine.py:198: AssertionError
+_______ test_native_4k_uses_the_physical_pixel_budget_and_remains_sparse _______
+
+    def test_native_4k_uses_the_physical_pixel_budget_and_remains_sparse():
+        """High detail keeps fine lines native without exceeding screen memory."""
+        width, height = 3840, 2160
+        engine = _engine("#f0f1ed", density=3.0, size=2.5, blur=3.0)
+        engine.set_max_pixels(width * height)
+        assert engine.buffer_size(width, height) == (width, height)
+        for second in (47.5, 3600.33):
+            engine.set_time(second)
+            image = _frame(engine, width, height)
+>           assert _occupancy(image, "#f0f1ed") <= 0.25
+E           AssertionError: assert 0.25524763695987657 <= 0.25
+E            +  where 0.25524763695987657 = _occupancy(<PySide6.QtGui.QImage(QSize(3840, 2160),format=QImage::Format_RGB32,depth=32,devicePixelRatio=1,bytesPerLine=15360,sizeInBytes=33177600) at 0x767ab55e43c0>, '#f0f1ed')
+
+tests/qt/test_fungal_growth_engine.py:84: AssertionError
+________ test_wandering_tips_fork_recursively_more_often_near_the_front ________
+
+    def test_wandering_tips_fork_recursively_more_often_near_the_front():
+        """Three nearby roots explore and their offspring fork in turn."""
+        engine = _engine()
+        width, height = 960, 540
+        for block in range(4):
+            colony = engine._lineage(block, width, height)
+            endpoints = {edge[5:7] for edge in colony}
+            roots = [edge for edge in colony if edge[1:3] not in endpoints]
+            assert len(roots) == 3
+            assert len({edge[1:3] for edge in roots}) == 1
+            assert all(edge[1:3] in endpoints or edge in roots for edge in colony)
+            assert max(edge[10] for edge in colony) >= 3
+            starts = {}
+            for edge in colony:
+                starts[edge[1:3]] = starts.get(edge[1:3], 0) + 1
+            forks = [edge for edge in colony
+                     if starts.get(edge[5:7], 0) > 1
+                     and block * 30 <= edge[7] < block * 30 + 30]
+            thirds = [sum(block * 30 + start <= edge[7] < block * 30 + start + 10
+                          for edge in forks) for start in (0, 10, 20)]
+            assert thirds[0] < thirds[1] < thirds[2]
+            early = [edge for edge in colony if block * 30 <= edge[7] < block * 30 + 5]
+            late = [edge for edge in colony if block * 30 + 18 <= edge[7] < block * 30 + 25]
+            primary = [edge for edge in colony if edge[0] == -1]
+            if block < 2:
+                shift = (sum(edge[5] for edge in late) / len(late)
+                         - sum(edge[1] for edge in early) / len(early))
+>               assert (shift if block == 0 else -shift) > width * 0.4
+E               assert 327.5602882121535 > (960 * 0.4)
+
+tests/qt/test_fungal_growth_engine.py:173: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qt/test_fungal_growth_engine.py::test_visible_front_has_more_connected_forks_later_and_at_higher_density
+FAILED tests/qt/test_fungal_growth_engine.py::test_first_front_actually_advances_across_the_rendered_screen
+FAILED tests/qt/test_fungal_growth_engine.py::test_native_4k_uses_the_physical_pixel_budget_and_remains_sparse
+FAILED tests/qt/test_fungal_growth_engine.py::test_wandering_tips_fork_recursively_more_often_near_the_front
+4 failed, 71 passed in 193.36s (0:03:13)
+
+Terminal exit status: 1

@@ -1,0 +1,21 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Image enhancement failed: {error}",
+      "source": "Image enhancement failed: {error}",
+      "source_sha256": "43fae524db45a47a402dab1fcd3ba37178514f6a500187129375f8e4ef83ce26",
+      "table": "ui",
+      "translation": "Error al mejorar la imagen: {error}"
+    },
+    {
+      "key": "Image enhancement is updating. Try the Wand again when it finishes.",
+      "source": "Image enhancement is updating. Try the Wand again when it finishes.",
+      "source_sha256": "c024f8a9f04fb5e699ca21bcd1704dd4d495ee0f67815d171ef64844b5c8e7ea",
+      "table": "ui",
+      "translation": "Se está actualizando la mejora de imagen. Vuelva a usar la varita cuando termine."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of pending/failed applied-image status, preserving the exception placeholder; no native-speaker sign-off.",
+  "schema": 1
+}

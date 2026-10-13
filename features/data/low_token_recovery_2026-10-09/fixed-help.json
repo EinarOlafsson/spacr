@@ -1,0 +1,20 @@
+{
+  "status": "completed",
+  "exit_code": 0,
+  "seconds": 83.44,
+  "files": [
+    "tests/qt/test_n667_stable_action_help.py",
+    "tests/qt/test_setting_tooltip_layout.py",
+    "tests/qt/test_setting_tooltip_footer.py",
+    "tests/qt/test_setting_help_goes_to_the_bottom_only.py",
+    "tests/qt/test_the_two_help_surfaces.py"
+  ],
+  "counts": {
+    "tests": 117,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "updated_utc": "2026-10-09T13:06:10Z"
+}

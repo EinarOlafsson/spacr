@@ -1,0 +1,329 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex context review of table-merge and annotation controls during guide drafting, independently peer-reviewed by a second Codex agent. Corrects concrete relational/table, action and Boolean-operator mistranslations. Existing candidate gates and normal generator remain unchanged. Original proposals and replaced generated targets retained here.",
+  "author": "mask_editor",
+  "peer_reviewer": "root",
+  "original_proposals": {
+    "Add column": "Bæta við dálki",
+    "Add condition": "Bæta við skilyrði",
+    "Aggregation": "Samantekt",
+    "Annotate conditions": "Merkja tilraunaskilyrði",
+    "Base keys": "Grunnlyklar",
+    "Base observation keys": "Lyklar grunnathugana",
+    "Child keys": "Lyklar undirtöflu",
+    "Clear manual rows": "Hreinsa handvirkar raðir",
+    "Copy regex": "Afrita reglulega segð",
+    "Create merged table": "Búa til sameinaða töflu",
+    "Customize merging": "Sérsníða sameiningu",
+    "Exact values": "Nákvæm gildi",
+    "Examples for column": "Dæmi fyrir dálk",
+    "Export table…": "Flytja út töflu…",
+    "Filter source metadata or preview conditions": "Sía lýsigögn uppruna eða forskoðuð skilyrði",
+    "I understand the warning and will check the merge preview.": "Ég skil viðvörunina og mun skoða forskoðun sameiningarinnar.",
+    "Identifiers": "Auðkenni",
+    "Include": "Taka með",
+    "Load chart": "Hlaða grafi",
+    "Merge original filenames…": "Sameina upprunaleg skráarnöfn…",
+    "Merge tables": "Sameina töflur",
+    "New table name (existing tables are preserved)": "Nýtt töflunafn (fyrirliggjandi töflur haldast)",
+    "Output column": "Úttaksdálkur",
+    "Output observation table": "Tafla úttaksathugana",
+    "Preview assignments": "Forskoða úthlutanir",
+    "Regular expression": "Regluleg segð",
+    "Remove condition": "Fjarlægja skilyrði",
+    "Remove filename mapping": "Fjarlægja vörpun skráarnafna",
+    "Remove selected manual rows": "Fjarlægja valdar handvirkar raðir",
+    "Reset to spaCR defaults": "Endurstilla á sjálfgefin gildi spaCR",
+    "Result name": "Heiti niðurstöðu",
+    "Save annotated table…": "Vista merkta töflu…",
+    "Save chart": "Vista graf",
+    "Validate and preview": "Sannprófa og forskoða",
+    "Merge original filenames": "Sameina upprunaleg skráarnöfn"
+  },
+  "replaced_generated_targets": {
+    "Add column": "Að bæta kolóni",
+    "Add condition": "Að bæta tilviljun",
+    "Aggregation": "Sjúkdómur",
+    "Annotate conditions": "Tilkynnt aðstæður",
+    "Base keys": "Keyfögn",
+    "Base observation keys": "Básamálið eftirlitshlut",
+    "Child keys": "Barnið keyfi",
+    "Clear manual rows": "Klár handbók",
+    "Copy regex": "Sjálfsögn regex",
+    "Create merged table": "Að búa til sameiginlegra borð",
+    "Customize merging": "Customize samskipti",
+    "Exact values": "nákvæmur verðlaun",
+    "Examples for column": "Ástæður fyrir kolumn",
+    "Export table…": "Tölur útlendingar...",
+    "Filter source metadata or preview conditions": "Filter upphæð meta gögnum eða fyrirmyndarverkefni",
+    "I understand the warning and will check the merge preview.": "Ég skil varninn og ég mun athuga samningarnar.",
+    "Identifiers": "Uppgötvaður",
+    "Include": "Inniheldur",
+    "Load chart": "Load gráður",
+    "Merge original filenames…": "Sameinuðu upphaflega filename ...",
+    "Merge tables": "Sameinuðu borðum",
+    "New table name (existing tables are preserved)": "Nýtt nafnið á borðinu (efir borðir eru geymdir)",
+    "Output column": "Útflutningstólinn",
+    "Output observation table": "Tölur eftirliti útflutning",
+    "Preview assignments": "Prófa verkefni",
+    "Regular expression": "Reglulega útskýringu",
+    "Remove condition": "Að fjarlægja aðstæður",
+    "Remove filename mapping": "Að fjarlægja filename mapping",
+    "Remove selected manual rows": "Að fjarlægja valið handbók",
+    "Reset to spaCR defaults": "Til baka á spaCR skammtur",
+    "Result name": "Nafn á árangri",
+    "Save annotated table…": "Sparaðu notuð borð...",
+    "Save chart": "Sparað gráður",
+    "Validate and preview": "Sjálf og fyrirmynd",
+    "Merge original filenames": "Sameinuðu upprunalega filenamínum"
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add column",
+      "source": "Add column",
+      "source_sha256": "98be79c6ebd053a9ad02ce3fe5c4600351cabb39d6b50588c64afa7b81250559",
+      "translation": "Bæta við dálki"
+    },
+    {
+      "table": "ui",
+      "key": "Add condition",
+      "source": "Add condition",
+      "source_sha256": "60a0d83510ea99a149507fc5f9d9780e504e40bf7d8fa2d90f7db36f17252514",
+      "translation": "Bæta við skilyrði"
+    },
+    {
+      "table": "ui",
+      "key": "Aggregation",
+      "source": "Aggregation",
+      "source_sha256": "749cfaf9af6c41d33a9d565aa0616344a23dddf7d48cafde3af484d1fc54160a",
+      "translation": "Samantekt"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate conditions",
+      "source": "Annotate conditions",
+      "source_sha256": "538773c6959c7b3faa4c56aa2a08afff47813434d18932033ef3e5ae25758f09",
+      "translation": "Merkja tilraunaskilyrði"
+    },
+    {
+      "table": "ui",
+      "key": "Base keys",
+      "source": "Base keys",
+      "source_sha256": "46ae4c7e8b2b4a13059e9b34357fbb18678470497edc92a3d111f660ed9ac0b8",
+      "translation": "Grunnlyklar"
+    },
+    {
+      "table": "ui",
+      "key": "Base observation keys",
+      "source": "Base observation keys",
+      "source_sha256": "d470d25343c9d4034038489028978c76c740d23288d4a4a46b8de0195c032db5",
+      "translation": "Lyklar grunnathugana"
+    },
+    {
+      "table": "ui",
+      "key": "Child keys",
+      "source": "Child keys",
+      "source_sha256": "742a9fafde02f1bf710c88966a21e45c5f9f02358f15b2035501d6a81f06ea3d",
+      "translation": "Lyklar undirtöflu"
+    },
+    {
+      "table": "ui",
+      "key": "Clear manual rows",
+      "source": "Clear manual rows",
+      "source_sha256": "9ab2d650792a9361f45deb853b8c5f60f2f4a4a6090cc437091ba6fd5bb0b03a",
+      "translation": "Hreinsa handvirkar raðir"
+    },
+    {
+      "table": "ui",
+      "key": "Copy regex",
+      "source": "Copy regex",
+      "source_sha256": "e1712d4bd0c2e55d3b2baf118a7e643acc6b85ae9562fb289a4b9541c5c2b62c",
+      "translation": "Afrita reglulega segð"
+    },
+    {
+      "table": "ui",
+      "key": "Create merged table",
+      "source": "Create merged table",
+      "source_sha256": "011b542e8aa4ef934cc8eb4860a6dfb145be45a180353796bdc15d5d4d979937",
+      "translation": "Búa til sameinaða töflu"
+    },
+    {
+      "table": "ui",
+      "key": "Customize merging",
+      "source": "Customize merging",
+      "source_sha256": "fecd40d1c6b3b1467257348d4ee8b007d36d927c2f85b5b30239dc013526a1ac",
+      "translation": "Sérsníða sameiningu"
+    },
+    {
+      "table": "ui",
+      "key": "Exact values",
+      "source": "Exact values",
+      "source_sha256": "29bdd943d168e1c4c3000a50edbc73359f281c70cb067e795c4481edd3988eb6",
+      "translation": "Nákvæm gildi"
+    },
+    {
+      "table": "ui",
+      "key": "Examples for column",
+      "source": "Examples for column",
+      "source_sha256": "e47e788e9c5dc6e02a3d81dc2f21299cf3c617378d93cba5caa2a51babaedfae",
+      "translation": "Dæmi fyrir dálk"
+    },
+    {
+      "table": "ui",
+      "key": "Export table…",
+      "source": "Export table…",
+      "source_sha256": "49f983b685f5f2feaf2080a3934869130c3c7afeceba0472dc5165725f90271b",
+      "translation": "Flytja út töflu…"
+    },
+    {
+      "table": "ui",
+      "key": "Filter source metadata or preview conditions",
+      "source": "Filter source metadata or preview conditions",
+      "source_sha256": "418177badab7ffd82d6357a95ee1feb0133a443a4f1095e7dda87b15903cd2f2",
+      "translation": "Sía lýsigögn uppruna eða forskoðuð skilyrði"
+    },
+    {
+      "table": "ui",
+      "key": "I understand the warning and will check the merge preview.",
+      "source": "I understand the warning and will check the merge preview.",
+      "source_sha256": "8b0b3a37740a409ea6fbe5cd9895d8a26b85aaa751d07009b37acf12468e5583",
+      "translation": "Ég skil viðvörunina og mun skoða forskoðun sameiningarinnar."
+    },
+    {
+      "table": "ui",
+      "key": "Identifiers",
+      "source": "Identifiers",
+      "source_sha256": "8d6b1f41b51aaeea2c17b386ec89b98efd073af339b30b22cd003debc979e984",
+      "translation": "Auðkenni"
+    },
+    {
+      "table": "ui",
+      "key": "Include",
+      "source": "Include",
+      "source_sha256": "7285576bdacf86fe37274d3d0d399c29b4be2959005f60ac0729615d8fca9186",
+      "translation": "Taka með"
+    },
+    {
+      "table": "ui",
+      "key": "Load chart",
+      "source": "Load chart",
+      "source_sha256": "57f075809c4e9fcf268f2967808bd6566fc0027d91816d595f52f1f0c0137c0c",
+      "translation": "Hlaða grafi"
+    },
+    {
+      "table": "ui",
+      "key": "Merge original filenames…",
+      "source": "Merge original filenames…",
+      "source_sha256": "ff4fe363aaf41264399bf5f73b6b24c46ab7208daf1ba2c799dd0316c7d42cc1",
+      "translation": "Sameina upprunaleg skráarnöfn…"
+    },
+    {
+      "table": "ui",
+      "key": "Merge tables",
+      "source": "Merge tables",
+      "source_sha256": "2a4d352c34441e00d035d99dade8f9a672456ebcb1a9e2b943aadc320ed75234",
+      "translation": "Sameina töflur"
+    },
+    {
+      "table": "ui",
+      "key": "New table name (existing tables are preserved)",
+      "source": "New table name (existing tables are preserved)",
+      "source_sha256": "caa2831c6a4f751d96d2b76b71596954dbf725e5d3827fb0291bc2ba44da03c9",
+      "translation": "Nýtt töflunafn (fyrirliggjandi töflur haldast)"
+    },
+    {
+      "table": "ui",
+      "key": "Output column",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "translation": "Úttaksdálkur"
+    },
+    {
+      "table": "ui",
+      "key": "Output observation table",
+      "source": "Output observation table",
+      "source_sha256": "e2f9375f50bc8b387a4730f9216fe79e7274a88626429442ba59f6b890951036",
+      "translation": "Tafla úttaksathugana"
+    },
+    {
+      "table": "ui",
+      "key": "Preview assignments",
+      "source": "Preview assignments",
+      "source_sha256": "6538e0a531066450e2c69cf12f718ffff6b80885ebf199428f4cc1a928c6cff5",
+      "translation": "Forskoða úthlutanir"
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression",
+      "source": "Regular expression",
+      "source_sha256": "9f896c35a09d443080762f21b0a427136d3303910de9d5a5db695851044491ff",
+      "translation": "Regluleg segð"
+    },
+    {
+      "table": "ui",
+      "key": "Remove condition",
+      "source": "Remove condition",
+      "source_sha256": "5ac0b06fc9f0d038a09cc4dd62fb7a69d62ee1f1c0d84646ff519d6025d6e766",
+      "translation": "Fjarlægja skilyrði"
+    },
+    {
+      "table": "ui",
+      "key": "Remove filename mapping",
+      "source": "Remove filename mapping",
+      "source_sha256": "fd6cb2334e5ac6b94598fa1fa32c42f2046cbdd2a2068748a880a9667561e3f5",
+      "translation": "Fjarlægja vörpun skráarnafna"
+    },
+    {
+      "table": "ui",
+      "key": "Remove selected manual rows",
+      "source": "Remove selected manual rows",
+      "source_sha256": "6178a56a82f7cb614681cbbbb76b2ef2eaa6b46b82eae0b9af1eebba03599fc9",
+      "translation": "Fjarlægja valdar handvirkar raðir"
+    },
+    {
+      "table": "ui",
+      "key": "Reset to spaCR defaults",
+      "source": "Reset to spaCR defaults",
+      "source_sha256": "4ec44250d46d7a7c31d9d8e7acbceee09ededa9cb91b5631ec1f271a44f2267c",
+      "translation": "Endurstilla á sjálfgefin gildi spaCR"
+    },
+    {
+      "table": "ui",
+      "key": "Result name",
+      "source": "Result name",
+      "source_sha256": "9a5699ad44dda360573c56708730bd46dbecc9d29b4c7b5d71c38e0297bb41f7",
+      "translation": "Heiti niðurstöðu"
+    },
+    {
+      "table": "ui",
+      "key": "Save annotated table…",
+      "source": "Save annotated table…",
+      "source_sha256": "2a93d8121bf2812a6c0c918e981a90d297c691e976daefcd5177da8e4cf306d6",
+      "translation": "Vista merkta töflu…"
+    },
+    {
+      "table": "ui",
+      "key": "Save chart",
+      "source": "Save chart",
+      "source_sha256": "df8c7bbf6bf550bcd3e4f6beca83160086fe922224cba73ae0832ada0bcf7116",
+      "translation": "Vista graf"
+    },
+    {
+      "table": "ui",
+      "key": "Validate and preview",
+      "source": "Validate and preview",
+      "source_sha256": "921b2401b795f72bb95fd540e38cfe063447e69ad1d249dc6ab6f4e5048af579",
+      "translation": "Sannprófa og forskoða"
+    },
+    {
+      "table": "ui",
+      "key": "Merge original filenames",
+      "source": "Merge original filenames",
+      "source_sha256": "652dc91d148d5c23899608f9b1cc83d7bf8df5c00d010d5246c95440c8b8e894",
+      "translation": "Sameina upprunaleg skráarnöfn"
+    }
+  ]
+}

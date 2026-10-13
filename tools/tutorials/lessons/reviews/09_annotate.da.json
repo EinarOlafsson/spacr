@@ -1,0 +1,46 @@
+{
+  "lesson": "09_annotate",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Annotate: mærk objekter, og gem dine annoteringer",
+  "description": "Indlæs eksempeludsnit, vælg en annoteringskolonne, mærk objekter, justér visningen, og gør dine labels klar til klassifikation.",
+  "objectives": [
+    "Indlæse gemte udsnit eller læse udsnit direkte fra sammenlagte billeder.",
+    "Vælge en annoteringskolonne, tildele og fjerne labels og gemme ændringerne.",
+    "Justere kanalfarver og gennemgå antal pr. klasse og dækning.",
+    "Finde Agreement og vejene til billedbaseret og egenskabsbaseret træning."
+  ],
+  "prerequisite": "Åbn Annotate fra Home. Brug Load test data, og vælg Load for eksempeludsnittene og måledatabasen. Til dit eget projekt bruger du mappen, der indeholder dets måledatabase og udsnittene eller de sammenlagte billeder.",
+  "scenes": [
+    "Åbn Annotate fra Home. Gitteret viser enkelte objekter fra dit projekt. Du skal mærke disse objekter og gemme dine labels i måledatabasen.",
+    "Klik på Load test data, og vælg Load. Så hentes eksempeludsnittene og deres måledatabase og åbnes i Annotate.",
+    "Vælg Stream, når du vil læse udsnit direkte fra sammenlagte billeder. Vælg Load til udsnit, der allerede er eksporteret. I denne gennemgang bruger vi Load.",
+    "For at åbne dine egne data klikker du på Open source og vælger plademappen, der indeholder målingerne og billeddataene. Gitteret indlæser så objekterne fra det projekt.",
+    "Undersøg gitteret med udsnit. Brug sidekontrollerne til at bladre gennem objekterne. Justér udsnitsstørrelsen, hvis du har brug for at se tættere på eller vil have flere objekter på hver side.",
+    "Åbn Settings, og vælg en annoteringskolonne. Opret en ny kolonne for at holde denne mærkningsopgave adskilt fra eksisterende annoteringer. Beslut, hvad hver klasse står for, før du begynder.",
+    "Venstreklik på et udsnit for at tildele klasse 1. Højreklik tildeler klasse 2. Klik på samme klasse igen for at fjerne den. Den farvede ring viser labelen, og den hvide ring markerer det valgte udsnit.",
+    "Tryk på Next for at gå til næste side og sende dine labels til lagring. Vent, til lagringen er færdig, før du lukker programmet.",
+    "Tryk på Back for at gå tilbage til forrige side og kontrollere dine labels. Du kan også bruge tasterne 1 til 9 til at tildele klasser og 0 til at fjerne en label. Forklaringen på skærmen viser genvejene til navigation og fortryd.",
+    "Åbn Class counts for at se, hvor mange objekter du har mærket i hver klasse. Brug det til at finde klasser, der har brug for flere eksempler.",
+    "Åbn Coverage for at se, hvordan dine annoteringer fordeler sig i projektet. Medtag eksempler fra de betingelser og billedgrupper, som klassifikatoren skal genkende.",
+    "For at fjerne en label klikker du på samme klasse igen. Gå til næste side for at gemme ændringen, og gå derefter tilbage for at kontrollere det rensede udsnit.",
+    "I Settings vælger Channel colours visningspaletten. Display order tildeler kildekanalerne til farvepladserne. Vælg en visning, hvor dine klasser er lette at skelne fra hinanden.",
+    "Her er CMY-paletten. Du kan vende tilbage til RGB via de samme indstillinger. Hold visningen ens, mens du sammenligner og mærker objekter.",
+    "Åbn Annotator Agreement fra ikonet øverst til højre for at sammenligne annoteringskolonner. Brug det til at finde objekter, hvor bedømmere har tildelt forskellige labels.",
+    "Når dine labels er klar, åbner du Train. Vælg billeder til en billedklassifikator eller målte egenskaber til en tabelklassifikator. De tilknyttede Classify-lektioner forklarer træningsindstillingerne.",
+    "Suggest foreslår mærker til de udsnit, du endnu ikke har besvaret, så giv den først eksempler på begge klasser fra flere brønde. Her mærkes nogle få udsnit af hver klasse i fire brønde, og Next gemmer dem.",
+    "Åbn Suggest, og vælg Suggest for the images on this page. Runden tager nogle sekunder, og hvert udsnit på siden får nu et spørgsmålstegn. Bjælken over gitteret tæller, hvor mange forslag der mangler at blive bedømt.",
+    "Klik på et foreslået udsnit eller tryk Y for at bekræfte det, og højreklik eller tryk N for at afvise det. Begge svar bliver registreret, afvisninger træner næste runde, og Confirm the rest of the page afgør resten, når du har tjekket dem.",
+    "Generate annotation database opretter et sæt udsnit ud fra egnede kildedata. Brug det, når du forbereder et nyt annoteringsprojekt; det hentede eksempel indeholder allerede de udsnit og den database, der skal bruges her.",
+    "Åbn Console for at kontrollere meddelelser om indlæsning af kilden og lagring. Din annoteringskolonne gemmes i projektdatabasen og kan vælges, når du forbereder træningsdata i Classify.",
+    "For hjælp til en indstilling åbner du spaCR AI i Console efter at have konfigureret en udbyder i Preferences. Når du er færdig med mærkningen, fortsætter du til Classify med dit projekt og den valgte annoteringskolonne."
+  ]
+}

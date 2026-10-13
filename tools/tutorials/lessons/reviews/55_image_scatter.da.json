@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Image Scatter: undersøg målinger og deres udsnit",
+  "description": "Plot to målekolonner, forhåndsvis objektudsnit, og send et valgt objekt til Annotate.",
+  "objectives": [
+    "Indlæse målinger og vælge akser.",
+    "Undersøge udsnittet bag et punkt.",
+    "Sende et valgt objekt til Annotate."
+  ],
+  "prerequisite": "Brug en spaCR-måledatabase med tilsvarende objektudsnit og udsnitsformatfiler. Det downloadbare Annotate-eksempel indeholder disse input.",
+  "scenes": [
+    "Åbn Image UMAP og derefter Image Scatter for at plotte to eksisterende målinger. Øv dig med databasen fra Annotate-eksemplet og de tilsvarende celleudsnit.",
+    "Klik på Browse, og åbn measurements.db. Hold projektets mappe data og udsnitsformatfilerne sammen med databasen, så miniaturerne kan findes.",
+    "Vælg cell i tabelvælgeren, og klik på Plot. Når du skifter til en anden tabel, klikker du på Plot igen for at indlæse dens rækker.",
+    "Sæt x til celleareal og y til cellens gennemsnitlige intensitet i kanal 1. Valg af akser tegner de indlæste rækker igen med det samme.",
+    "Hold markøren over et punkt for at se dets gemte udsnit og fulde objektidentitet. Brug billedet til at forstå målingen bag punktet.",
+    "Flyt markøren væk for at fjerne den midlertidige forhåndsvisning, og hold den derefter over et andet punkt for at undersøge det.",
+    "Byt om på x- og y-målingerne for at udforske sammenhængen fra en anden vinkel. Vælg meningsfulde egenskaber, og kontrollér deres enheder.",
+    "Vælg en anden måling, for eksempel homogenitetsegenskaben. Rækker uden koordinater udelades fra plottet, så antallet af plottede punkter kan afvige fra antallet af indlæste rækker.",
+    "En konstant kolonne, som måledimensionen i dette eksempel, lægger punkterne på en linje. Gå tilbage til en egenskab med brugbar variation for at undersøge objekter.",
+    "For at undersøge et valgt udsnit i Annotate åbner du først Annotate og indlæser det samme projekt. Vend derefter tilbage til den eksisterende Image Scatter-visning.",
+    "Klik på selve punktet for at sende dets objektidentitet til Annotate, og skift derefter til den side. Når du blot holder markøren over, vises kun en forhåndsvisning af udsnittet.",
+    "Undersøg det valgte objekt i Annotate, før du tildeler en label. Brug Database Browser til tabeleksport eller PCA til komponentanalyse."
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "lesson": "01_pypi_github",
+  "scope": "hi/hf_alpha playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "04bdb8e18845e279891df783638439a9091e4b92595240ee9bd9f4a131223c10",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 8,
+  "seek_playback_clocks": {
+    "audio": 80.039432,
+    "video": 68.224927,
+    "expectedVideo": 68.16517421600524,
+    "audioDuration": 117.61,
+    "videoDuration": 99.8,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "336c92dd9404d94441e58d2931203889b8ff1f84c36e83e94ec5f14b0b24c571",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}

@@ -1,0 +1,546 @@
+{
+  "returncode": 0,
+  "ambient_counts": {},
+  "reports": [
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_curve_is_a_cubic_ease_in_on_transparency",
+      "phase": "setup",
+      "duration": 2.1964972830028273,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_curve_is_a_cubic_ease_in_on_transparency",
+      "phase": "call",
+      "duration": 0.0014565919991582632,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_curve_is_a_cubic_ease_in_on_transparency",
+      "phase": "teardown",
+      "duration": 0.011587067972868681,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_sampled_profile_reaches_both_ends_and_only_falls",
+      "phase": "setup",
+      "duration": 0.039331754960585386,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_sampled_profile_reaches_both_ends_and_only_falls",
+      "phase": "call",
+      "duration": 0.00037303799763321877,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_sampled_profile_reaches_both_ends_and_only_falls",
+      "phase": "teardown",
+      "duration": 0.006001532019581646,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_rendered_field_follows_the_cubic_across_its_width",
+      "phase": "setup",
+      "duration": 0.028558729973156005,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_rendered_field_follows_the_cubic_across_its_width",
+      "phase": "call",
+      "duration": 0.11144845199305564,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_rendered_field_follows_the_cubic_across_its_width",
+      "phase": "teardown",
+      "duration": 0.004400264995638281,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_outline_fades_on_the_same_ramp_as_the_fill",
+      "phase": "setup",
+      "duration": 0.01949045801302418,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_outline_fades_on_the_same_ramp_as_the_fill",
+      "phase": "call",
+      "duration": 0.015636765048839152,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_outline_fades_on_the_same_ramp_as_the_fill",
+      "phase": "teardown",
+      "duration": 0.004161652992479503,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_text_stays_fully_opaque_all_the_way_across",
+      "phase": "setup",
+      "duration": 0.014967406983487308,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_text_stays_fully_opaque_all_the_way_across",
+      "phase": "call",
+      "duration": 0.055040757986716926,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_text_stays_fully_opaque_all_the_way_across",
+      "phase": "teardown",
+      "duration": 0.00882727897260338,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.0]",
+      "phase": "setup",
+      "duration": 0.014602949027903378,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.0]",
+      "phase": "call",
+      "duration": 0.03547586302738637,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.0]",
+      "phase": "teardown",
+      "duration": 0.004867430019658059,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.25]",
+      "phase": "setup",
+      "duration": 0.014955477032344788,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.25]",
+      "phase": "call",
+      "duration": 0.028633438050746918,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.25]",
+      "phase": "teardown",
+      "duration": 0.004220830975100398,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.6]",
+      "phase": "setup",
+      "duration": 0.016988301009405404,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.6]",
+      "phase": "call",
+      "duration": 0.02856289001647383,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[0.6]",
+      "phase": "teardown",
+      "duration": 0.0056844730279408395,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[1.0]",
+      "phase": "setup",
+      "duration": 0.014659476990345865,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[1.0]",
+      "phase": "call",
+      "duration": 0.026272565010003746,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_page_opacity_does_not_reach_a_field[1.0]",
+      "phase": "teardown",
+      "duration": 0.004333907039836049,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_it_is_on_by_default_and_round_trips",
+      "phase": "setup",
+      "duration": 0.015106253034900874,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_it_is_on_by_default_and_round_trips",
+      "phase": "call",
+      "duration": 0.0044376240111887455,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_it_is_on_by_default_and_round_trips",
+      "phase": "teardown",
+      "duration": 0.004144584003370255,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_turning_it_off_restores_the_plain_field",
+      "phase": "setup",
+      "duration": 0.013086709019262344,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_turning_it_off_restores_the_plain_field",
+      "phase": "call",
+      "duration": 0.04159932100446895,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_turning_it_off_restores_the_plain_field",
+      "phase": "teardown",
+      "duration": 0.0040371480281464756,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_preferences_dialog_carries_the_toggle",
+      "phase": "setup",
+      "duration": 0.013815355021506548,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_preferences_dialog_carries_the_toggle",
+      "phase": "call",
+      "duration": 0.9130020189913921,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_preferences_dialog_carries_the_toggle",
+      "phase": "teardown",
+      "duration": 0.1848915250157006,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QLineEdit]",
+      "phase": "setup",
+      "duration": 0.034240333014167845,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QLineEdit]",
+      "phase": "call",
+      "duration": 0.017600759980268776,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QLineEdit]",
+      "phase": "teardown",
+      "duration": 0.004163732985034585,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QComboBox]",
+      "phase": "setup",
+      "duration": 0.012637353967875242,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QComboBox]",
+      "phase": "call",
+      "duration": 0.025469611049629748,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QComboBox]",
+      "phase": "teardown",
+      "duration": 0.0042359300423413515,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QSpinBox]",
+      "phase": "setup",
+      "duration": 0.014843281998764724,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QSpinBox]",
+      "phase": "call",
+      "duration": 0.01732645003357902,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QSpinBox]",
+      "phase": "teardown",
+      "duration": 0.004098366014659405,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QDoubleSpinBox]",
+      "phase": "setup",
+      "duration": 0.014721735031343997,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QDoubleSpinBox]",
+      "phase": "call",
+      "duration": 0.022175899997819215,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_every_single_line_field_type_fades[QDoubleSpinBox]",
+      "phase": "teardown",
+      "duration": 0.0046058789594098926,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_editor_inside_a_spin_box_does_not_fade_twice",
+      "phase": "setup",
+      "duration": 0.013692879001609981,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_editor_inside_a_spin_box_does_not_fade_twice",
+      "phase": "call",
+      "duration": 0.0054295919835567474,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_editor_inside_a_spin_box_does_not_fade_twice",
+      "phase": "teardown",
+      "duration": 0.004947706998791546,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_widget_can_opt_out",
+      "phase": "setup",
+      "duration": 0.015967793995514512,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_widget_can_opt_out",
+      "phase": "call",
+      "duration": 0.01636496197897941,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_widget_can_opt_out",
+      "phase": "teardown",
+      "duration": 0.006786286015994847,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_an_item_views_cell_editor_is_not_a_field",
+      "phase": "setup",
+      "duration": 0.01626692496938631,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_an_item_views_cell_editor_is_not_a_field",
+      "phase": "call",
+      "duration": 0.003614831017330289,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_an_item_views_cell_editor_is_not_a_field",
+      "phase": "teardown",
+      "duration": 0.0052243180107325315,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_multi_line_editors_are_not_fields",
+      "phase": "setup",
+      "duration": 0.013273573014885187,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_multi_line_editors_are_not_fields",
+      "phase": "call",
+      "duration": 0.0019868939998559654,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_multi_line_editors_are_not_fields",
+      "phase": "teardown",
+      "duration": 0.004100766032934189,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[dark-dark]",
+      "phase": "setup",
+      "duration": 0.016847174963913858,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[dark-dark]",
+      "phase": "call",
+      "duration": 0.01803255605045706,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[dark-dark]",
+      "phase": "teardown",
+      "duration": 0.0042866290314123034,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[light-light]",
+      "phase": "setup",
+      "duration": 0.0208827430033125,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[light-light]",
+      "phase": "call",
+      "duration": 0.020334679982624948,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[light-light]",
+      "phase": "teardown",
+      "duration": 0.003921771014574915,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[cell:filopodia-cell]",
+      "phase": "setup",
+      "duration": 0.01467830699402839,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[cell:filopodia-cell]",
+      "phase": "call",
+      "duration": 0.06591025099623948,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[cell:filopodia-cell]",
+      "phase": "teardown",
+      "duration": 0.004073555988725275,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[glass-glass]",
+      "phase": "setup",
+      "duration": 0.014721926010679454,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[glass-glass]",
+      "phase": "call",
+      "duration": 0.02220281003974378,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_fade_survives_a_theme_switch[glass-glass]",
+      "phase": "teardown",
+      "duration": 0.004326958034653217,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_glass_keeps_its_translucent_rim_and_still_reaches_zero",
+      "phase": "setup",
+      "duration": 0.009486907976679504,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_glass_keeps_its_translucent_rim_and_still_reaches_zero",
+      "phase": "call",
+      "duration": 0.00039519701385870576,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_glass_keeps_its_translucent_rim_and_still_reaches_zero",
+      "phase": "teardown",
+      "duration": 0.00788897997699678,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_applying_preferences_installs_the_hook_and_the_block",
+      "phase": "setup",
+      "duration": 0.014768933993764222,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_applying_preferences_installs_the_hook_and_the_block",
+      "phase": "call",
+      "duration": 0.009508866991382092,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_applying_preferences_installs_the_hook_and_the_block",
+      "phase": "teardown",
+      "duration": 0.003993077960330993,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_hook_is_a_no_op_without_a_qapplication",
+      "phase": "setup",
+      "duration": 0.008639865962322801,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_hook_is_a_no_op_without_a_qapplication",
+      "phase": "call",
+      "duration": 0.00036088802153244615,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_hook_is_a_no_op_without_a_qapplication",
+      "phase": "teardown",
+      "duration": 0.007731374993454665,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_broken_palette_does_not_stop_a_field_drawing",
+      "phase": "setup",
+      "duration": 0.014581240015104413,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_broken_palette_does_not_stop_a_field_drawing",
+      "phase": "call",
+      "duration": 0.018901818024460226,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_a_broken_palette_does_not_stop_a_field_drawing",
+      "phase": "teardown",
+      "duration": 0.009648091974668205,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_field_owner_outlives_its_native_painter",
+      "phase": "setup",
+      "duration": 0.011585617961827666,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_field_owner_outlives_its_native_painter",
+      "phase": "call",
+      "duration": 0.0007411249680444598,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_the_field_owner_outlives_its_native_painter",
+      "phase": "teardown",
+      "duration": 0.00613719696411863,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_repaint_fields_reaches_every_live_field",
+      "phase": "setup",
+      "duration": 0.013175595959182829,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_repaint_fields_reaches_every_live_field",
+      "phase": "call",
+      "duration": 0.058199874009005725,
+      "outcome": "passed"
+    },
+    {
+      "nodeid": "tests/qt/test_field_fade.py::test_repaint_fields_reaches_every_live_field",
+      "phase": "teardown",
+      "duration": 0.0072341219638474286,
+      "outcome": "passed"
+    }
+  ]
+}

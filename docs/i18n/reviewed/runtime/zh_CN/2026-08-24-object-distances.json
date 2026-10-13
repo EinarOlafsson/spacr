@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "reviewed_at": "2026-08-24",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "object_distance_maxima",
+      "source_sha256": "31e1a1e23a564b2f0ed57b726072efc711c7c32ff74327391959180092568827",
+      "source": "Also find the intensity maxima inside each object and measure where they are: how many, how spread out, and how far each is from the object's own boundary, its centre, and the nearest surface of every other object type. The most expensive part of object_distances, and ignored when that is off. Default True.",
+      "translation": "同时在每个对象内部寻找强度极大值并测量它们的位置：数量、离散程度，以及每个极大值距离该对象自身边界、其中心和其他每种对象类型最近表面的距离。这是 object_distances 中开销最大的部分，当其关闭时会被忽略。默认为 True。"
+    }
+  ]
+}

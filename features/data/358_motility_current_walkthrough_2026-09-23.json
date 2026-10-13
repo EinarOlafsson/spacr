@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "runtime_commit": "b077129b741d7339f0418a4407da5cb0e72ea450",
+  "version": "1.5.0.9",
+  "source": "/tmp/spacr-tutorials-motility.x2oynvnt/motility_runs/SYNTHETIC-verified-tracks-7m0t7lg4",
+  "capture": "/tmp/spacr-tutorials-motility.x2oynvnt/captures/motility_current_walkthrough_v4",
+  "input_origin": "Public SYNTHETIC_motility_tracks.zip; byte-identical private copy of previously accepted tracked arrays.",
+  "batch": {
+    "passed": true,
+    "objects": 128,
+    "centroid_coordinates": 256,
+    "raw_channel_means": 256,
+    "well_summary_fields": 7,
+    "hypothetical_mean_velocity": 0.7000720821077643,
+    "biological_validation": false
+  },
+  "previews": {
+    "10_actual_uncalibrated_preview": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "11_actual_all_short": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 0,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "12_actual_length_restored": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "13_actual_straightness_filter": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 1,
+      "used_tracks": 1,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "14_actual_filter_restored": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "15_actual_one_unit_unknown": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "16_actual_hypothetical_calibration": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "µm/min",
+      "hypothetical_calibration": true,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "17_actual_unknown_units_restored": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    }
+  },
+  "source_preserved": true,
+  "synthetic": true,
+  "acquired_calibration": false,
+  "native_capture_complete": true,
+  "source_reviewed": true,
+  "published": false
+}

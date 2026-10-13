@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Methods & Results: skriv og eksporter en kjørerapport",
+  "description": "Velg en fullført kjøring, lag rapporten, gå gjennom registrerte innstillinger og resultater, og eksporter Markdown.",
+  "objectives": [
+    "Velge prosjektet, kjørejournalen og den tilhørende resultatmappen.",
+    "Lage et sammendrag og gå gjennom fanene Methods, Results og Caveats.",
+    "Kopiere rapportteksten eller eksportere Markdown med kjøresammendraget."
+  ],
+  "prerequisite": "Fullfør Regression-eksemplet først. Hold prosjektmappen, kjørejournalen og guide_permutation-resultatene samlet. Gå gjennom utledede innstillinger, analyseversjoner og statistiske terskler før du bruker den genererte teksten i en rapport.",
+  "scenes": [
+    "Fra Home åpner du Regression og deretter Methods and Results. Bruk verktøyet til å lage et rapportutkast fra en fullført analyse. Gjennomgangen fortsetter med den lagrede kjøringen fra Regression-eksemplet.",
+    "Velg prosjektmappen, kjørejournalen og den tilhørende mappen med regresjonsresultater. La Classifier stå tomt i dette regresjonseksemplet. Bekreft at alle valgte filer hører til kjøringen du vil beskrive.",
+    "Klikk på Build digest, og les deretter fanene Methods og Results. Sammenlign analyseversjonen med det lagrede kjøremiljøet; eksportørens versjon kan avvike fra versjonen som utførte analysen.",
+    "Les Caveats og sammenlign frøoppføringene etter navn med de lagrede innstillingene. Et permutasjonsfrø og et globalt frø viser til ulike generatorer. La et uregistrert historisk frø stå som ukjent når du redigerer rapporten.",
+    "Åpne Run digest for å undersøke de strukturerte innstillingene og kildeoppføringene. Sammenlign dem med teksten, og gå gjennom advarsler om manglende rapporter eller utledede standardverdier før du deler utkastet.",
+    "I Results undersøker du effektstørrelser og korrigerte q-verdier sammen. Eksemplet har ingen gener under q-verdigrensen 0,05. Beskriv radene som rangerte kandidater når du redigerer en overskrift som kaller dem hits.",
+    "Klikk på Copy sections for å kopiere de viste Methods og Results. Kontroller den kopierte teksten mot kildeoppføringene. Bruk Export Markdown når du også trenger det strukturerte kjøresammendraget.",
+    "Klikk på Export Markdown og velg et nytt filnavn. Filen inneholder begge rapportdelene og kjøresammendraget som vedlegg. Behold et originalt utkast og lagre de gjennomgåtte revisjonene separat.",
+    "Draft with AI er valgfritt og sender sammendraget til den konfigurerte leverandøren. Gå gjennom innholdet før du bruker dette valget, og kontroller deretter all generert tekst mot den lagrede analysen. Du kan også bruke build_digest, render_methods og render_results fra Python."
+  ]
+}

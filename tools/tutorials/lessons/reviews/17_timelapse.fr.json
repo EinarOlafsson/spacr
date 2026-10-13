@@ -1,0 +1,35 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Timelapse",
+  "description": "Reliez des objets au fil d’une série temporelle, inspectez leurs trajectoires et préparez les images suivies pour la mesure.",
+  "objectives": [
+    "Charger les images et masques d’exemple dans Track preview.",
+    "Régler le chevauchement et inspecter l’identité des objets d’une image à l’autre.",
+    "Configurer une exécution Mask sur une série temporelle et trouver ses sorties de suivi."
+  ],
+  "prerequisite": "Téléchargez et extrayez SYNTHETIC_timelapse_preview.zip. L’exemple pédagogique contient huit images de cellules et les images d’étiquettes correspondantes. Pour une exécution Mask complète sur vos propres données, préparez des images de microscopie ordonnées dans le temps et notez l’intervalle d’acquisition.",
+  "scenes": [
+    "Depuis Home, ouvrez Mask, activez Time dans la rangée Actions puis Timelapse pour activer le suivi. Timelapse relie les objets d’une image à la suivante. Nous essaierons d’abord l’exemple lié dans Track preview, puis nous passerons en revue les réglages pour traiter votre propre séquence d’images.",
+    "Téléchargez et extrayez l’archive d’exemple ci-dessous, puis cliquez sur Track preview à droite de l’en-tête Actions. L’archive contient une séquence d’images et la séquence de masques correspondante, sur huit images. Gardez les deux dossiers ensemble pour pouvoir sélectionner les images et étiquettes qui se correspondent.",
+    "Choisissez image_sequences, puis field_A01, comme dossier d’images. Sélectionnez le canal zéro : chaque image d’exemple contient un seul canal d’intensité cellulaire. Réglez Frames previewed sur huit et Fields sur un.",
+    "Cliquez sur Masks et sélectionnez label_sequences, puis field_A01. Chaque étiquette identifie un objet dans l’image correspondante. Laissez d’abord Keep only full-length tracks désactivé afin d’inspecter les trajectoires qui commencent ou se terminent au cours de la séquence.",
+    "Réglez le seuil de chevauchement sur zéro virgule un et cliquez sur Run preview. Ce seuil détermine à quel point des masques voisins doivent se chevaucher pour être reliés. Inspectez les identités d’objets colorées et le résumé des longueurs de trajectoire. L’exemple produit seize trajectoires qui couvrent les huit images.",
+    "Ajustez le seuil de chevauchement si les objets se fragmentent en trajectoires courtes ou se relient aux mauvais voisins. Un seuil plus élevé exige davantage de chevauchement. Après l’avoir modifié, attendez la fin de l’aperçu et cliquez sur Re-link pour inspecter la valeur finale. Parcourez plusieurs images avant d’accepter le résultat.",
+    "Utilisez le curseur des images pour suivre le même objet tout au long de la séquence. Play modifie la vitesse de défilement des images. Notez à part l’intervalle d’acquisition réel pour les mesures de vitesse ultérieures.",
+    "Pour une exécution complète sur vos propres images, réglez Source et les canaux d’intensité dans Mask. Cet enregistrement importe les paramètres d’une petite séquence synthétique de huit images. Gardez les points temporels de chaque champ dans l’ordre. Les limites d’images utilisent un début et une fin exclue : de zéro à huit sélectionne les huit premières images.",
+    "Choisissez l’objet à suivre et le mode de suivi. Le mode de chevauchement, iou, relie les objets à partir de leurs masques dans des images voisines. Inspectez d’abord une courte séquence et choisissez un mode adapté à la distance parcourue par vos objets entre deux images.",
+    "Activez Keep original images pour conserver les images d’entrée lors du nettoyage du pipeline. Réglez le modèle de segmentation et les canaux pour vos données, et vérifiez l’aperçu avant de traiter la séquence complète.",
+    "Activez Plot pour inspecter les figures générées, puis cliquez sur Run. Suivez la progression dans la console et attendez la fin. Commencez par une courte séquence afin de vérifier les masques et les identités des trajectoires avant de traiter une expérience plus grande.",
+    "Inspectez les plans d’intensité et d’étiquettes dans les figures de sortie. L’exécution enregistre les tableaux suivis dans merged et les tables de trajectoires dans tracks, dans le dossier du projet. Poursuivez avec Measure, puis Motility, pour calculer les caractéristiques des objets et leurs déplacements à partir de ces trajectoires."
+  ]
+}

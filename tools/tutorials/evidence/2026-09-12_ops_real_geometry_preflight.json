@@ -1,0 +1,177 @@
+{
+  "accepted": true,
+  "scope": "Four-tile geometry/composition API example only",
+  "app_version": "1.5.0.7",
+  "source_folder": "/nas_mnt/data/ops/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A/sequencing/images/input/c1",
+  "sources": [
+    {
+      "site": 0,
+      "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif",
+      "sha256": "10a83404e7c4acbe6692de973298a53562852791881763da3f346e5cc99f0114",
+      "shape": [
+        5,
+        1480,
+        1480
+      ],
+      "plane": 0,
+      "dtype": "uint16"
+    },
+    {
+      "site": 1,
+      "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-1.tif",
+      "sha256": "494a0b96d72d32daab426fb266d5b4ea6d3ca6b4aa5847025621a00e23a61a4e",
+      "shape": [
+        5,
+        1480,
+        1480
+      ],
+      "plane": 0,
+      "dtype": "uint16"
+    },
+    {
+      "site": 10,
+      "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-10.tif",
+      "sha256": "f01d41e427dce01b0f09747201956b1a06a31c6e4f7ccd1b7cf350785693f3b7",
+      "shape": [
+        5,
+        1480,
+        1480
+      ],
+      "plane": 0,
+      "dtype": "uint16"
+    },
+    {
+      "site": 11,
+      "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-11.tif",
+      "sha256": "edbd78838bc4d7c4eff852721ac919a80d52a8033f6efd0725a847a8263c3945",
+      "shape": [
+        5,
+        1480,
+        1480
+      ],
+      "plane": 0,
+      "dtype": "uint16"
+    }
+  ],
+  "helper_sha256": "c348cf00559d30b77617fba2a44e878c3b218f1f9afc089b410548279f3dc8d6",
+  "source_unchanged": true,
+  "sites": [
+    0,
+    1,
+    10,
+    11
+  ],
+  "full_well_sites": 333,
+  "canvas": [
+    2756,
+    2756
+  ],
+  "placed": 4,
+  "accepted_edges": 4,
+  "residuals": [
+    0.2500000000002309,
+    0.25000000000045475,
+    0.24999999999954525,
+    0.24999999999977263
+  ],
+  "independent_overlap_checks": [
+    {
+      "sites": [
+        0,
+        1
+      ],
+      "shift": [
+        1267,
+        9
+      ],
+      "aligned_pearson": 0.8434978419826764,
+      "offset_17px_controls": [
+        0.12139433431756123,
+        0.12047732359463535
+      ]
+    },
+    {
+      "sites": [
+        0,
+        11
+      ],
+      "shift": [
+        -9,
+        1268
+      ],
+      "aligned_pearson": 0.8832324630697752,
+      "offset_17px_controls": [
+        0.22253885371338003,
+        0.2024804776201072
+      ]
+    },
+    {
+      "sites": [
+        1,
+        10
+      ],
+      "shift": [
+        -9,
+        1267
+      ],
+      "aligned_pearson": 0.8058697011039221,
+      "offset_17px_controls": [
+        0.10574857150836063,
+        0.1087516028792661
+      ]
+    },
+    {
+      "sites": [
+        11,
+        10
+      ],
+      "shift": [
+        1267,
+        9
+      ],
+      "aligned_pearson": 0.8528621044222785,
+      "offset_17px_controls": [
+        0.14884094961758368,
+        0.11966589546945142
+      ]
+    }
+  ],
+  "placements": {
+    "0": [
+      8.999999999999128,
+      0.0
+    ],
+    "1": [
+      1275.9999999999986,
+      9.250000000000231
+    ],
+    "10": [
+      1267.0,
+      1276.4999999999998
+    ],
+    "11": [
+      0.0,
+      1267.7499999999995
+    ]
+  },
+  "backends": [
+    "numpy"
+  ],
+  "coverage_counts": {
+    "0": 44354,
+    "1": 6431136,
+    "2": 1071290,
+    "3": 7140,
+    "4": 41616
+  },
+  "elapsed_seconds": 2.022856128984131,
+  "full_pipeline_completed": false,
+  "gui_pipeline_completed": false,
+  "segmentation_or_decoding_performed": false,
+  "published": false,
+  "artifacts": {
+    "composed_dapi.npy": "d5e9eb5619ec243dca1256b249669ccbb456faf3c488d355344aa75fb9e8734c",
+    "coverage.npy": "05b40313ff3d2f472d4912cdc960592ceee7494093ea097a0294b4eb0b22e334",
+    "geometry_and_coverage.png": "8d2fbbc7afd38e4f774ba15d721218025f8c9fcce7576ec396c2d577b3f76ee1"
+  }
+}

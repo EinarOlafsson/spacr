@@ -1,0 +1,114 @@
+DIM-SENSITIVE CENTRE-PIXEL PUNCTA MASKS INSIDE PARENT OBJECTS
+Status: DONE 2026-10-05 — visible Make Masks detector and native centre tables.
+Requested: 2026-10-05 by the maintainer, forwarding the cyst/puncta analysis.
+Owner: workstation Codex API/docs/tutorial/translation/GPU session.
+
+The maintainer asks whether Make Masks can generate the puncta objects used
+in the external analysis and, if necessary, to implement that detector before
+providing a paste-ready methods message to the analysis session. Existing
+organelle LoG/DoG and Spotiflow support establishes generic puncta detection,
+not equivalence to the dim-sensitive centre-pixel analysis.
+
+Authoritative reference:
+/home/carruthers/Documents/progress_report_2026-10-01/puncta_center_reanalysis/
+center_puncta_detector.py and 02_figure1_publication.ipynb.
+Input images and unchanged cyst masks: puncta_publication/source_data/
+channel1 and cyst_masks under the same progress-report root.
+Reference tables: Puncta_Figure1_Publication/source_data/
+all_detection_candidates_including_below_threshold.csv and
+puncta_centre_measurements_all_variants.csv.
+Forwarded specification:
+/home/carruthers/.codex/attachments/27b7f15a-6dad-4696-919c-9566e5e128f9/Pasted text.txt.
+
+Make Masks must offer parent-constrained scale-normalised LoG centres at
+sigma 1.5, 2, 3, 4 and 6 pixels, pixel-noise MAD normalisation, candidate
+k=2.5, nonmaximum suppression, three-pixel parent-edge exclusion, subpixel
+centres and the N nearest centre pixels (default 20). Inclusion uses the
+centre mean minus a same-parent annulus median, default >=3 native AU.
+No display normalisation, inversion, enhancement or grown watershed support
+may change these scientific inputs. Parent masks stay read-only. Shared
+pixels need an explicit deterministic label policy; the original overlapping
+centre measurements must remain available independently of mask ownership.
+
+Implement in existing modules; no new spacr module. Reuse the uncommitted
+Documents checkout's parent-selector/UI ideas without editing that checkout
+or publishing its older watershed detector. Coordinate through nightly.
+Tests must exercise the real mode, raw pixels, missing/changed parents,
+save/undo and reference equivalence on the supplied scientific images.
+
+The pasted Figure-final specification also contains noise-null estimation,
+hierarchical tables, Games-Howell, R-by-C Monte Carlo Fisher, outlier variants
+and a composed publication figure. They are separate downstream requirements,
+not proven by implementing puncta masks or by generic figure controls. The
+methods message must state exactly what was run and may not attribute the
+existing external results to spaCR without rerunning them.
+
+2026-10-05 — IMPLEMENTED AND REPLAYED ON THE ACTUAL SCIENTIFIC INPUTS
+Make Masks now offers “Centre-pixel puncta within parent masks”, with the
+separate read-only parent selector, LoG scales, noise threshold, centre-pixel
+count, corrected-intensity floor, peak spacing and edge margin. Whole-image
+Replace preserves individual punctum IDs; Save writes the mask, all-candidate
+.puncta.csv and .puncta.json receipt. Image, parent, mask and CSV checksums
+bind the measurements to their scientific inputs. Changed inputs, edited or
+combined labels cannot silently acquire old centre measurements. A failed
+table export reports that the mask was saved and preserves the prior table.
+
+The reference detector and publication tables were independently compared
+using tools/verify_center_pixel_puncta.py: 39 fields, 62,317 candidates,
+24,145 included centres, 58 parents with included centres from 59 input
+metadata rows. Counts by condition are ME49 12,757, ATG2 KO 10,085 and
+ATG2' KO 1,303. Candidate positions and inclusion flags match exactly;
+18 numeric columns match the published precision. A01's complete reference
+columns are additionally bit-exact against the original Python detector.
+Original input hashes remain unchanged. CPU replay took about 26 seconds.
+
+The genuine Make Masks GUI, with display normalization and inversion enabled,
+was separately driven through whole-image Detect/Replace/Save for all 39
+fields in an isolated profile with a read-only root and no network. It saved
+the same candidates and included counts, and verified mask/CSV receipts and
+unchanged images/parents, in about 39 seconds with no warnings. Evidence:
+features/data/661_center_pixel_puncta_acceptance_2026-10-05.json.
+
+Centre measurements retain the original overlapping N-pixel samples.
+Mask pixels have one deterministic owner (nearest centre, reserved integer
+peak, stronger-first ties); mask area can therefore be smaller than N.
+Use center_corrected for selected N, or corrected20 for the 20-pixel variant.
+The legacy corrected column means the reference's three-by-three result.
+Ordinary Measure mask means do not replace these exact overlapping samples.
+Noise-null estimates, full hierarchical statistics and Figure final were
+not rerun or attributed to spaCR by this implementation.
+
+Focused native/scientific/save/provenance tests: 14 passed. Related CPU,
+secondary and source-pairing cohort: 82 passed on the recorded direct replay.
+Source/docstring/reader/tooltip contracts: 174 passed. Earlier randomized
+mixed Qt runs intermittently crashed while waiting for a parent selector;
+two gdb runs and the recorded direct seed replay passed. No Qt lifetime fix
+is claimed; the observation is retained for the CPU/Qt owner in item 325.
+
+All 26 new controls/notices are source-bound in nine runtime languages;
+strict runtime audit passes with 7,032 UI sources. All 9,774 previous catalog
+rows per language are preserved. Review is AI technical review without
+native-speaker signoff. API inventory adds only cpu_modes.puncta and six
+optional CpuParams fields; the old inventory digest is reproduced exactly
+before changing the source-derived pins. English API and Make Masks guide
+are current. Guide/API translations and the new tutorial scene remain part
+of the workstation's open items 615/358, not claimed complete here.
+
+2026-10-05 — FINAL NIGHTLY INTEGRATION
+Rebased the implementation to 963fc9963 on the CPU session's 268925a43.
+Final source/API/caption/scientific/secondary/threshold cohort: 228 passed,
+no expected failures. The three scientific implementation hashes still
+equal the actual 39-field replay receipt; English API remains 13,177 entries.
+Strict runtime source, ownership, count and identity contract also passes
+as a direct assertion call, independent of advisory translation reporting.
+The verified methods message is features/data/661_claude_methods_message.txt.
+
+2026-10-08 — COMPLETION AUDIT: 100% of the requested Make Masks detector and
+paste-ready methods message is published. The 39-field reference replay,
+all-candidate tables, unchanged parent/image checksums and actual GUI
+Detect/Replace/Save proof above are the scientific acceptance for N661.
+docs/source/make_masks.rst describes the mode; all nine runtime catalogs
+contain its source-bound caption. A tutorial storyboard names this mode,
+but finished video production remains the separate tutorial lane. External
+noise-null/statistics/Figure-final analysis remains separately scoped; N47
+native Qt lifetime diagnosis is not a detector result.

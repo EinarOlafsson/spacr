@@ -1,0 +1,35 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Timelapse",
+  "description": "Tengdu hluti yfir tímaröð, skoðaðu ferla þeirra og undirbúðu raktar myndir fyrir mælingu.",
+  "objectives": [
+    "Hlaða dæmamyndunum og grímunum inn í Track preview.",
+    "Stilla skörun og skoða auðkenni hluta milli ramma.",
+    "Setja upp Mask-keyrslu fyrir tímaraðir og finna úttak hennar með rakningu."
+  ],
+  "prerequisite": "Sæktu og afþjappaðu SYNTHETIC_timelapse_preview.zip. Kennsludæmið inniheldur átta ramma af frumumyndum og samsvarandi merkingamyndir. Fyrir fulla Mask-keyrslu á eigin gögnum útbýrðu smásjármyndir í tímaröð og skráir tímabilið milli mynda.",
+  "scenes": [
+    "Opnaðu Mask frá Home, kveiktu á Time í Actions-röðinni og kveiktu á Timelapse til að virkja rakningu. Timelapse tengir hluti milli samliggjandi mynda. Fyrst prófum við tengda dæmið í Track preview og förum svo yfir stillingarnar fyrir þína eigin myndaröð.",
+    "Sæktu og afþjappaðu dæmasafnið hér fyrir neðan og smelltu svo á Track preview hægra megin við fyrirsögnina Actions. Safnið inniheldur myndaröð og samsvarandi grímuröð með átta römmum. Hafðu báðar möppurnar saman svo þú getir valið myndir og merkingar sem eiga saman.",
+    "Veldu image_sequences og síðan field_A01 sem myndamöppu. Veldu rás 0: hver dæmamynd inniheldur eina rás fyrir styrk frumna. Stilltu Frames previewed á 8 og Fields á 1.",
+    "Smelltu á Masks og veldu label_sequences og síðan field_A01. Hver merking auðkennir hlut í samsvarandi mynd. Hafðu slökkt á Keep only full-length tracks í fyrstu svo þú getir skoðað ferla sem byrja eða enda innan raðarinnar.",
+    "Stilltu skörunarþröskuldinn á 0,1 og smelltu á Run preview. Þröskuldurinn ræður því hversu mikið aðliggjandi grímur þurfa að skarast til að tengjast. Skoðaðu lituðu auðkenni hlutanna og yfirlitið yfir lengd ferla. Dæmið gefur sextán ferla sem ná yfir alla átta rammana.",
+    "Stilltu skörunarþröskuldinn ef hlutir brotna upp í stutta ferla eða tengjast röngum nágrönnum. Hærri þröskuldur krefst meiri skörunar. Eftir breytinguna bíðurðu þar til forskoðuninni lýkur og smellir á Re-link til að skoða lokagildið. Flettu í gegnum nokkra ramma áður en þú samþykkir niðurstöðuna.",
+    "Notaðu rammasleðann til að fylgja sama hlut í gegnum röðina. Play breytir því hversu hratt rammarnir birtast. Skráðu raunverulegt tímabil milli mynda sérstaklega fyrir hraðamælingar síðar.",
+    "Fyrir fulla keyrslu á eigin myndum stillirðu Source og styrkleikarásirnar í Mask. Þessi upptaka flytur inn stillingar lítillar gervimyndaraðar með átta römmum. Haltu tímapunktum hvers sjónsviðs í réttri röð. Rammamörk nota upphaf og útilokaðan endi: 0 til 8 velur fyrstu átta rammana.",
+    "Veldu hlutinn sem á að rekja og rakningarháttinn. Skörunarhátturinn iou tengir hluti með grímum þeirra í aðliggjandi römmum. Skoðaðu fyrst stutta röð og veldu hátt sem hentar því hversu langt hlutirnir færast milli ramma.",
+    "Kveiktu á Keep original images til að halda inntaksmyndunum meðan greiningarferlið hreinsar til. Stilltu aðgreiningarlíkanið og rásirnar fyrir gögnin þín og athugaðu forskoðunina áður en þú vinnur úr allri röðinni.",
+    "Kveiktu á Plot til að skoða myndritin sem verða til og smelltu svo á Run. Fylgstu með framvindunni í stjórnborðinu og bíddu þar til keyrslunni lýkur. Byrjaðu á stuttri röð svo þú getir athugað grímur og auðkenni ferla áður en þú vinnur úr stærri tilraun.",
+    "Skoðaðu styrk- og merkingalögin í úttaksmyndunum. Keyrslan vistar röktu fylkin í merged og ferlatöflurnar í tracks undir verkefnismöppunni. Haltu áfram í Measure og svo Motility til að reikna eiginleika hluta og hreyfingu út frá ferlunum."
+  ]
+}

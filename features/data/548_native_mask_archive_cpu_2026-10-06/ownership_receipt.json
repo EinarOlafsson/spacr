@@ -1,0 +1,83 @@
+{
+  "source_sha256": {
+    "object.py": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+    "zstack.py": "4986dc01353c18e3a67a59e4ce26e2657934293087b4fed99937e4197e55cb09",
+    "utils.py": "2fad5d4550b23e99f2067c81f5a8adb5f66536430f182b7314fba67aa58f6a8c",
+    "io.py": "6ef38e31d93111a805626da5d31516d1544967ab045269f85a15b0aafe560a76"
+  },
+  "source_commit": "711999b77d1da51ca189fdf43f470021d1048037",
+  "cases": [
+    {
+      "dtype": "<f4",
+      "order": "C",
+      "t_axis": 0,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    },
+    {
+      "dtype": "<f4",
+      "order": "C",
+      "t_axis": 1,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    },
+    {
+      "dtype": "<f4",
+      "order": "F",
+      "t_axis": 0,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    },
+    {
+      "dtype": "<f4",
+      "order": "F",
+      "t_axis": 1,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    },
+    {
+      "dtype": ">u2",
+      "order": "C",
+      "t_axis": 0,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    },
+    {
+      "dtype": ">u2",
+      "order": "C",
+      "t_axis": 1,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    },
+    {
+      "dtype": ">u2",
+      "order": "F",
+      "t_axis": 0,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    },
+    {
+      "dtype": ">u2",
+      "order": "F",
+      "t_axis": 1,
+      "exact_array_channels_normalized_labels_notes": true,
+      "borrowed_readonly_view_and_owned_writable_copy": true
+    }
+  ],
+  "cleanup": [
+    {
+      "injected": {
+        "cancel_after": 2097152
+      },
+      "private_workspace_removed": true
+    },
+    {
+      "injected": {
+        "fail_reserve": true
+      },
+      "private_workspace_removed": true
+    }
+  ],
+  "production_change": false,
+  "scope": "scratch extraction/owned preprocessing and synthetic CPU segmenter; no real model or pipeline claim"
+}

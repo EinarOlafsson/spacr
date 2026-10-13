@@ -1,0 +1,32 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Napari Bridge: redigér og hent en labelmaske tilbage",
+  "description": "Åbn et billede og dets maske i napari, redigér labels, og gem den rettede maske tilbage i spaCR.",
+  "objectives": [
+    "Åbne tilsvarende billed- og labelfiler.",
+    "Redigere og fortryde ændringer i napari.",
+    "Hente den gemte maske tilbage og undersøge den."
+  ],
+  "prerequisite": "Installér den valgfri napari-afhængighed, og udpak det syntetiske eksempel i en ny mappe. Behold en urørt sikkerhedskopi: Take the mask back overskriver den valgte arbejdsmaske. Luk og genåbn fremviseren mellem gemte redigeringsrunder.",
+  "scenes": [
+    "Åbn Make Masks og derefter Napari Bridge. Brug den til at redigere en eksisterende labelmaske med dens intensitetsbillede som reference. Behold en urørt sikkerhedskopi af masken.",
+    "Hent og udpak det syntetiske eksempel. Vælg mask.tif til Mask og image.tif til Image, og tryk derefter på Open in napari.",
+    "Vælg maskens Labels-lag i napari. Label 0 er baggrund; hver objektlabel har en visningsfarve. Foretag ændringerne i labellaget.",
+    "Vend tilbage til spaCR, og brug Take the mask back til at importere fremviserens aktuelle labels. Hvis du ikke har ændret noget, viser status, at masken er uændret.",
+    "For at øve vælger du label 18, vælger Fill og klikker på objektet med label 2. Undersøg den ændrede label, før du importerer den.",
+    "Brug Undo til at fortryde den seneste ændring i fremviseren. Gentag Fill, når du vil beholde ændringen.",
+    "Klik på Take the mask back i spaCR. Gennemgå antallet af ændrede pixel, og undersøg derefter den gemte maske og dens sidefil med rettelseshistorik.",
+    "Klik på Close viewer, og genåbn masken før næste redigeringsrunde. Så bliver den gemte maske udgangspunkt for senere rettelser.",
+    "Efter næste redigering henter du masken tilbage og undersøger resultatet igen. Luk fremviseren, når du er færdig, behold rettelseshistorikken, og kør målinger, der påvirkes af de ændrede labels, igen."
+  ]
+}

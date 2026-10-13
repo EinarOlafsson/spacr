@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "source_commit": "",
+  "method": "Claude Opus 5.5 AI technical translation of the N649/N656/N672/N673/N680 user-guide paragraphs; runtime glossary alignment, no native-speaker signoff.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo.",
+      "source_sha256": "077470804c448faf65cbd5ed51394f860f6d9204076ec5e8fecb435e8902e27a",
+      "target": "**संपादित करें** मेनू में स्क्रीन पर मौजूद संपादक के लिए **पूर्ववत करें** और **फिर से करें** होते हैं। ये पहले फ़ोकस वाले टेक्स्ट फ़ील्ड पर लागू होते हैं, अन्यथा स्क्रीन के अपने इतिहास पर, और जब पूर्ववत करने या फिर से करने के लिए कुछ न हो तो धूसर दिखते हैं।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask.",
+      "source_sha256": "4524949580ab17c8d1a64bc0dc9b4f3fe227a4d5935958d5eaefa9726846504a",
+      "target": "**अगली छवि** के बाद स्थित **नेविगेट करते समय सहेजें**, **रखें**, **त्यागें**, **अगली छवि** या **पिछली छवि** के आगे बढ़ने से पहले संपादित मास्क को सहेजता है। यह डिफ़ॉल्ट रूप से बंद रहता है और सत्रों के बीच याद रखा जाता है। यदि सहेजना विफल हो, तो छवि खुली रहती है और कोई निर्णय दर्ज नहीं होता। **छोड़ें** कभी मास्क नहीं लिखता।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged.",
+      "source_sha256": "cb4470d40e1764921ea8a3bfe13fb389df68aa6b671414c61308ae907d567d50",
+      "target": "**3D छवि खोलें…** तीन स्थानिक अक्षों वाली TIFF को 3D मास्क संपादक में खोलता है; समय, चैनल और RGB स्टैक अस्वीकार किए जाते हैं। दृश्य घुमाएँ, कोई ऑब्जेक्ट बनाएँ, फिर उसके एंकर खींचें, या सतहें चुनें (कई के लिए Ctrl-click) और उन्हें खींचें या माउस व्हील घुमाएँ। **एंकर घनत्व** तय करता है कि हर किनारे और सतह को कितने एंकर मिलें, और **एंकर दिखाएँ** से उन्हें छिपाया जा सकता है। संपादन मास्क के वॉक्सेल को ही बदलते हैं, छवि का अक्ष क्रम और वॉक्सेल अंतराल बनाए रखते हैं, और किसी दूसरे ऑब्जेक्ट को कभी अधिलेखित नहीं करते। **3D मास्क सहेजें** लेबल और उनकी संपादन योग्य सीमा लिखता है; 2D छवि और मास्क अपरिवर्तित रहते हैं।"
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key.",
+      "source_sha256": "8bf4d2be4a40dedfe4a84839bb9a13f867aff18aaf88de235f17c608853297c7",
+      "target": "कोई कुंजी बदलने के लिए शॉर्टकट सूची में **शॉर्टकट बदलें…** चुनें। **शॉर्टकट बदलें** विंडो में हर क्रिया की एक पंक्ति होती है, जिसमें उसकी **डिफ़ॉल्ट** कुंजी और उपयोग में **शॉर्टकट** होता है। किसी शॉर्टकट पर क्लिक करके नई कुंजी दबाएँ, या क्रिया को बिना कुंजी के छोड़ने के लिए उसे साफ़ करें। **डिफ़ॉल्ट पुनर्स्थापित करें** हर पंक्ति को उसकी डिफ़ॉल्ट कुंजी पर लौटाता है।"
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "If a key is already used by another action that is active at the same time, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows.",
+      "source_sha256": "a1d529819091548f6df5fa73b71be396fdc2826d4aa84a3a64b6cde165c7b0e5",
+      "target": "यदि कोई कुंजी पहले से किसी ऐसी दूसरी क्रिया द्वारा उपयोग में है जो उसी समय सक्रिय रहती है, तो तालिका के नीचे की पंक्ति उसे साझा करने वाली क्रियाओं के नाम बताती है, और टकराव हल होने तक **सहेजें** अनुपलब्ध रहता है। सहेजी गई कुंजियाँ तुरंत लागू होती हैं, संबंधित मेनू आइटम पर भी, और शॉर्टकट सूची उन्हें दिखाती है। ये आपकी प्राथमिकताओं के साथ रखी जाती हैं और Linux, macOS और Windows पर एक जैसी पढ़ी जाती हैं।"
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "Keys that belong to one screen, such as Annotate's labelling keys, the Make Masks editing keys and the field browser's keys, have their own rows, with the screen named in the **Scope** column. A screen key may match a key of another screen, but not a window-wide key or another key on the same screen. Changed screen keys apply at once to screens that are open and to screens opened later, and the screen's key legend shows them.",
+      "source_sha256": "feb905403228e3bfa138101b001a37be98ebb035243a4fd61fdfce88f26d8cc9",
+      "target": "किसी एक स्क्रीन से जुड़ी कुंजियों, जैसे Annotate की लेबलिंग कुंजियों, Make Masks की संपादन कुंजियों और फ़ील्ड ब्राउज़र की कुंजियों, की अपनी पंक्तियाँ होती हैं, और स्क्रीन का नाम **दायरा** कॉलम में दिया जाता है। किसी स्क्रीन की कुंजी किसी दूसरी स्क्रीन की कुंजी से मेल खा सकती है, लेकिन किसी विंडो-व्यापी कुंजी या उसी स्क्रीन की किसी दूसरी कुंजी से नहीं। बदली गई स्क्रीन कुंजियाँ खुली स्क्रीनों और बाद में खोली जाने वाली स्क्रीनों पर तुरंत लागू होती हैं, और स्क्रीन की कुंजी सूची उन्हें दिखाती है।"
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits.",
+      "source_sha256": "ef20d1ba9299391fec30b0d48f2355a04457b160abaefe87eea7f586839d5aee",
+      "target": "बनाए गए 3D गेट का आकार बदलने के लिए **घुमाएँ** और **बनाएँ** के पास **संपादित करें** चुनें। हर किनारे और सतह पर समान दूरी पर एंकर होते हैं, गहराई अक्ष के साथ भी। किसी एंकर को खींचें, या किसी सतह पर क्लिक करें (कई के लिए Ctrl-click) और चुनी गई सतहों को एक साथ खिसकाने के लिए खींचें या माउस व्हील घुमाएँ। **संपादित करें** के पास की अक्ष सूची गति को X, Y, Z या दृश्य तल तक सीमित करती है। गेट सेटिंग्स में **एंकर घनत्व** और **गेट एंकर दिखाएँ** तय करते हैं कि कितने एंकर दिखें और वे दिखें या नहीं; इनमें से कोई भी गेट को नहीं बदलता। घुमावदार गेट पहले संपादन पर खंडशः रैखिक सीमा बन जाता है, और गणनाएँ तथा निर्यात उसी संपादित सीमा का उपयोग करते हैं। संपादित गेट, गेट फ़ाइल के साथ सहेजे और लोड किए जाते हैं, और **पूर्ववत करें** तथा **फिर से करें** से संपादनों में एक-एक चरण आगे-पीछे जाया जा सकता है।"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "head_sha": "711999b77d1da51ca189fdf43f470021d1048037",
+  "run_id": 37525317682,
+  "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37525317682",
+  "conclusion": "success",
+  "completed_jobs": 17,
+  "mandatory_platform_cells": 8,
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/io.py": "6ef38e31d93111a805626da5d31516d1544967ab045269f85a15b0aafe560a76"
+  },
+  "files": {
+    "711-compat-run-latest.json": "82b2647f1796fd7c6ee597688b853c5c4a7343da61aa3346787b678ee6076925",
+    "711-compat-jobs-latest.json": "fdfefba4ea06ee7b9ff6568eb0b0064fcd100344ad1fb6f4e2e3f38d8a430ada",
+    "711-lint-success.json": "3af8929ad47323ade5130f40d442aa7113936e0a9c968db24a1e05dee954fcca"
+  },
+  "limits": "Ordinary, numerical coverage and Qt are not accepted by these successful packaging checks."
+}

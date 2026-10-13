@@ -1,0 +1,50 @@
+find_newest: searching '/home/olafsson/Fiji.app/java' for 'jre/lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/jre/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64' for 'jre/lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/jre/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64' for 'jre/lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/jre/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64' for 'lib/amd64/server/libjvm.so'
+find_newest: rejected older candidate: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/man' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/man/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/bin' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/bin/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/lib' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/lib/lib/amd64/server/libjvm.so'
+Detected ImageJ2
+JRE not found in '/home/olafsson/Fiji.app/jre'
+JAVA_HOME appears to be a JRE: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64'
+Re-executing with correct library lookup path (/home/olafsson/Fiji.app/lib/linux64:/home/olafsson/Fiji.app/mm/linux64)
+find_newest: searching '/home/olafsson/Fiji.app/java' for 'jre/lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/jre/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64' for 'jre/lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/jre/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64' for 'jre/lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/jre/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64' for 'lib/amd64/server/libjvm.so'
+find_newest: rejected older candidate: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/man' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/man/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/bin' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/bin/lib/amd64/server/libjvm.so'
+find_newest: searching '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/lib' for 'lib/amd64/server/libjvm.so'
+find_newest: file not found: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/lib/lib/amd64/server/libjvm.so'
+Detected ImageJ2
+JRE not found in '/home/olafsson/Fiji.app/jre'
+JAVA_HOME appears to be a JRE: '/home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64'
+Using JAVA_HOME /home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64
+Opening Java library /home/olafsson/Fiji.app/java/linux-amd64/zulu8.86.0.25-ca-fx-jre8.0.452-linux_x64/lib/amd64/server/libjvm.so
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: Using incremental CMS is deprecated and will likely be removed in a future release
+Launching main class ij.ImageJ with parameters [-port0, -macro, /mnt/wd4tb/scratch/spacr-completion/545-native-interop-preparation/imagej-interop.ijm]
+Class loader = sun.misc.Launcher$AppClassLoader@764c12b6
+java -Dpython.cachedir.skip=true -Dplugins.dir=/home/olafsson/Fiji.app -Xmx512m -Xincgc -XX:PermSize=128m -Dsun.java.command=ImageJ -Duser.home=/mnt/wd4tb/scratch/spacr-completion/545-native-interop-preparation/home -Djava.util.prefs.userRoot=/mnt/wd4tb/scratch/spacr-completion/545-native-interop-preparation/home/java-prefs -Dsun.java2d.opengl=false -Dsun.java2d.xrender=false -Dprism.order=sw -XX:ActiveProcessorCount=2 -Djava.class.path=/home/olafsson/Fiji.app/jars/imagej-launcher-6.0.2.jar -Dimagej.dir=/home/olafsson/Fiji.app -Dij.dir=/home/olafsson/Fiji.app -Dfiji.dir=/home/olafsson/Fiji.app -Dfiji.defaultLibPath=lib/amd64/server/libjvm.so -Dfiji.executable=/home/olafsson/Fiji.app/ImageJ-linux64 -Dij.executable=/home/olafsson/Fiji.app/ImageJ-linux64 -Djava.library.path=/home/olafsson/Fiji.app/lib/linux64:/home/olafsson/Fiji.app/mm/linux64 -Dij.debug=true -Dscijava.log.level=debug net.imagej.launcher.ClassLauncher -classpath /home/olafsson/Fiji.app/jars/ij-1.54p.jar ij.ImageJ -port0 -macro /mnt/wd4tb/scratch/spacr-completion/545-native-interop-preparation/imagej-interop.ijm

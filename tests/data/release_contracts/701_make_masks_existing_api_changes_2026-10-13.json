@@ -1,0 +1,172 @@
+{
+  "changes": {
+    "spacr.curation_queue.CurationQueue": {
+      "added_optional_parameters": [
+        "exclude_verdicts",
+        "excluded_by_verdict"
+      ],
+      "after": {
+        "accepted_documented_parameters": [
+          "effective_order",
+          "exclude_verdicts",
+          "excluded_by_verdict",
+          "items",
+          "layout",
+          "limit",
+          "notices",
+          "order",
+          "status",
+          "summary"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "dataclass_constructor",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "effective_order",
+          "exclude_verdicts",
+          "excluded_by_verdict",
+          "items",
+          "layout",
+          "limit",
+          "notices",
+          "order",
+          "status",
+          "summary"
+        ],
+        "required_parameters": [
+          "effective_order",
+          "items",
+          "layout",
+          "limit",
+          "order",
+          "status",
+          "summary"
+        ],
+        "symbol": "spacr.curation_queue.CurationQueue",
+        "variant_count": 1
+      },
+      "before": {
+        "accepted_documented_parameters": [
+          "effective_order",
+          "items",
+          "layout",
+          "limit",
+          "notices",
+          "order",
+          "status",
+          "summary"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "dataclass_constructor",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "effective_order",
+          "items",
+          "layout",
+          "limit",
+          "notices",
+          "order",
+          "status",
+          "summary"
+        ],
+        "required_parameters": [
+          "effective_order",
+          "items",
+          "layout",
+          "limit",
+          "order",
+          "status",
+          "summary"
+        ],
+        "symbol": "spacr.curation_queue.CurationQueue",
+        "variant_count": 1
+      }
+    },
+    "spacr.curation_queue.build_queue": {
+      "added_optional_parameters": [
+        "exclude_verdicts"
+      ],
+      "after": {
+        "accepted_documented_parameters": [
+          "announce",
+          "cache_counts",
+          "counts",
+          "exclude_verdicts",
+          "folder",
+          "include_reviewed",
+          "limit",
+          "min_diameter",
+          "min_objects",
+          "order",
+          "probs"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "function",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "announce",
+          "cache_counts",
+          "counts",
+          "exclude_verdicts",
+          "folder",
+          "include_reviewed",
+          "limit",
+          "min_diameter",
+          "min_objects",
+          "order",
+          "probs"
+        ],
+        "required_parameters": [
+          "folder"
+        ],
+        "symbol": "spacr.curation_queue.build_queue",
+        "variant_count": 1
+      },
+      "before": {
+        "accepted_documented_parameters": [
+          "announce",
+          "cache_counts",
+          "counts",
+          "folder",
+          "include_reviewed",
+          "limit",
+          "min_diameter",
+          "min_objects",
+          "order",
+          "probs"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "category": "function",
+        "constructor_prose_variant_count": 0,
+        "docless_variant_count": 0,
+        "exposure": "autoapi",
+        "parameters": [
+          "announce",
+          "cache_counts",
+          "counts",
+          "folder",
+          "include_reviewed",
+          "limit",
+          "min_diameter",
+          "min_objects",
+          "order",
+          "probs"
+        ],
+        "required_parameters": [
+          "folder"
+        ],
+        "symbol": "spacr.curation_queue.build_queue",
+        "variant_count": 1
+      }
+    }
+  },
+  "item": 701,
+  "kind": "existing_callable_optional_parameter_changes",
+  "schema": 1
+}

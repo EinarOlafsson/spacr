@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Alpha: 生物種モジュール",
+  "description": "Show alpha species をオンにして、未完成の生物種ページを見て回ります: Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells。",
+  "objectives": [
+    "Preferences で Show alpha species をオン・オフする。",
+    "生物種ページを読む: 紹介、細胞図、アッセイタイル。",
+    "使えるアッセイタイルと計画中のタイルを見分け、これらのページが alpha であることを理解する。"
+  ],
+  "prerequisite": "spaCR の Home を開きます。入力ファイルは不要です。これらの生物種ページは alpha であり、未完成で変更される可能性があります。",
+  "scenes": [
+    "これは spaCR の alpha 生物種モジュールを紹介する唯一のチュートリアルです。通常のインストールでは、Home の Assays タブにある生物種は Toxoplasma だけです。ほかの生物種ページは、求めるまでオフのままです。",
+    "spaCR メニューから Preferences を開き、Modules タブに移ります。Module visibility の最後のスイッチが Show alpha species です。初期設定ではオフになっています。",
+    "これをオンにします。表示されるものはすべて alpha として扱ってください。ページは未完成で、アッセイタイルの多くはまだ計画中です。名前、レイアウト、解析は公開までに変わる可能性があります。探索に使い、結果の報告には使わないでください。",
+    "Save を押します。設定はすぐに反映され、次のセッションにも引き継がれるので、一度行えば十分です。",
+    "Home に戻ると、Assays タブには八つの生物種が並びます。Toxoplasma に続いて Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells です。どのタイルも同じ構成のページを開くので、一つ覚えればすべて読めます。",
+    "まずマラリア原虫の Plasmodium から始めます。左側の短い紹介では、この生物種でイメージングが測定できることを説明しています。感染頻度、血液ステージの発達、肝臓感染、運動性、化合物への応答です。その下の各セクションは、生物学的な問いを右側のアッセイタイルに結び付けています。",
+    "細胞図は UniProt に基づくコンパートメントの対話型マップです。細胞にカーソルを合わせると構造が分かり、リストで複数のコンパートメントにチェックを入れると同時に強調表示されたままになります。Clear components で図が元に戻ります。",
+    "作業はアッセイタイルから始まります。明るいタイルはすでに動作するモジュールを開きます。Parasitaemia は Host–Pathogen Analysis を、Sporozoite motility は Motility Assay を開きます。暗いタイルは計画中で、まだ開けません。このルールはどの生物種ページでも同じです。",
+    "Candida は、出芽細胞、発芽管、菌糸の間を行き来できる酵母を扱います。使えるタイルは、接着、上皮への侵入、貪食、抗真菌薬への応答に既存のモジュールを再利用します。計画中のタイルでは、菌糸形成、発芽管、バイオフィルム、形態を測定する予定です。",
+    "Trypanosoma は二つの寄生虫を一つのページにまとめています。血中を泳ぐ Trypanosoma brucei と、宿主細胞内で増殖する Trypanosoma cruzi です。Flagellar motility、Host-cell invasion、Amastigote infection、Drug response はすでに実際のモジュールを開きます。",
+    "Leishmania はマクロファージの中で増殖します。Macrophage infection は感染した割合とマクロファージあたりのアマスチゴート数を示し、Promastigote motility は遊泳を測定します。計画中のタイルでは、メタサイクロジェネシス、アマスチゴートへの変換、液胞の大きさを追跡する予定です。",
+    "Giardia duodenalis は腹側吸着円盤で腸の壁に付着します。ここでは上皮細胞上の栄養型を数え、その遊泳を追い、薬剤への応答を測定できます。シスト形成、脱シスト、円盤の形態はまだ計画中です。",
+    "Virus infection は寄生虫ではなく宿主細胞のためのページです。Infection rate はウイルス陽性細胞を数え、Plaque Assay はプラークを測定し、Recruitment は複製部位に集まる宿主タンパク質を測定します。陽性の基準は模擬感染ウェルから決めてください。",
+    "Mammalian cells は病原体を含まないスクリーニングを扱います。使えるタイルからは Mask、Measure、Motility Assay、貪食、細胞毒性へ直接進めるので、中核のパイプラインは生物種ページからワンクリックです。",
+    "見終わったら Preferences に戻り、Show alpha species を再びオフにして Save を押します。生物種ページは消えますが、測定したデータは何も変わりません。",
+    "Home には再び Toxoplasma だけが表示されます。各生物種は成熟すると alpha を外れ、専用のチュートリアルが用意されます。それまでは、完全なアッセイの例には Toxoplasma のレッスンを、これらのタイルが開く各ワークフローにはモジュールのレッスンを使ってください。"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "item": 53,
+  "date": "2026-09-27",
+  "scope": "Pinned build prerequisite acquisition; native application and frozen replacement acceptance remain separate",
+  "failed_run": 36362303533,
+  "failed_job": 108741749558,
+  "failed_source": "f57b4ab9bce140fb016eaf2499d9aa5a834a5618",
+  "failure": "Chocolatey reported nsis not found at its v2 feed before packaging; no HTTP status or detailed Chocolatey log was retained",
+  "failure_log_sha256": "5c5ec3f7aad42406c37b2c6f7bd2acf63d807ae77ee6f3167d3e0987cab7deca",
+  "prior_success": {
+    "run": 36358947318,
+    "job": 108732527807,
+    "source": "6194b0184c38aaa6ebd03386cecf7baf3acfc71c",
+    "installed_nsis": "3.13.0",
+    "log_sha256": "80b51ef054a487168264d51cb7aff18152d7bd29668ac50b299e51f77ae6c583"
+  },
+  "interpretation": "Transient discovery failure is supported by prior successful installation and current exact-package HTTP200 responses; the failing HTTP request and precise cause are unknown",
+  "pinned_prerequisite": {
+    "version": "3.13",
+    "url": "https://sourceforge.net/projects/nsis/files/NSIS%203/3.13/nsis-3.13-setup.exe/download",
+    "sha256": "db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3",
+    "independently_downloaded_upstream_and_embedded_bytes_match": true,
+    "package_url": "https://community.chocolatey.org/api/v2/package/nsis.install/3.13.0",
+    "package_sha256": "cefd57d4ebbc56d3ab104034044f54d61918642d51f6fcc44ff8d6c960533f91",
+    "package_verification_document_matches": true
+  },
+  "validation": {
+    "yaml_parse_exit": 0,
+    "git_apply_check_exit": 0,
+    "installer_executed_locally": false,
+    "python_cap": "4G CPU",
+    "native_ci_acceptance": "pending"
+  },
+  "behavior": {
+    "checksum_before_execution": true,
+    "compiler_version_check": "v3.13",
+    "compiler_sha256_recorded": true,
+    "installer_deadline_seconds": 120,
+    "version_fallback": false,
+    "receipt": "acceptance/nsis-acquisition.json"
+  },
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/nsis-acquisition",
+  "full_item_complete": false
+}

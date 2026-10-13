@@ -1,0 +1,29 @@
+{
+  "lesson": "06_api",
+  "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Python-API och batchkommandon",
+  "description": "Hitta en analysfunktion, läs in sparade inställningar, kontrollera indata och kör spaCR från en terminal.",
+  "objectives": [
+    "Hitta de installerade batchkommandona och deras Python-funktioner.",
+    "Granska en funktions signatur och dess API-referens.",
+    "Kontrollera sparade inställningar innan en analys körs."
+  ],
+  "prerequisite": "Installera spaCR och aktivera dess Python-miljö. Följ Regression-handledningen för att förbereda parade tabeller med poäng och antal och spara analysinställningarna. Använd dina egna filsökvägar i kommandona.",
+  "scenes": [
+    "Aktivera Python-miljön där du installerade spaCR. Importera spacr och skriv ut versionen med det visade kommandot. Spara versionen med dina analysanteckningar så att du kan återskapa samma körning senare.",
+    "Kör spacr-run --list för att hitta de tillgängliga batchkommandona. Listan visar varje kommandos nyckel och dess Python-funktion. Välj kommandot för din uppgift, till exempel mask, measure eller regression. Använd skrivbordsprogrammet för interaktiva uppgifter som att märka bilder i Annotate.",
+    "Kör spacr-run --describe regression. Läs de obligatoriska indata, standardvärdena och funktionsnamnet. Här anropar batchkommandot perform_regression i spacr.ml. Öppna funktionen i API-referensen för att läsa dess parametrar och returvärden.",
+    "I Python importerar du den funktion du behöver och granskar dess signatur. Det här exemplet importerar build_report från spacr.report. Sök upp samma namn i API-referensen, förbered de obligatoriska argumenten och anropa funktionen från ditt skript eller din notebook.",
+    "Spara inställningarna från modulens arbetsflöde och skicka sedan filen med --settings. Lägg till --dry-run för att kontrollera konfigurationen och indatasökvägarna. I det här Regression-exemplet parar inställningarna fenotyppoäng med guideantal för varje platta. Läs meddelandena och rätta saknade indata innan du fortsätter.",
+    "För att köra analysen kör du samma kommando utan --dry-run. Följ konsolen tills kommandot är klart och granska sedan de utdata som beskrivs i modulens handledning och API-sida. Spara inställningsfilen, indatatabellerna, paketversionen och konsolloggen tillsammans med resultaten."
+  ]
+}

@@ -1,0 +1,6 @@
+Decompress payloads into an isolated scratch directory. Preserve before.py/after.py names.
+Run CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python profile-pen_reuse_probe.py
+(the fixed-shader script refers to profile after.py and generates pen-candidate.py; rename frozen before.py as after.py in a separate profile folder).
+Live: CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=xcb PYTHONDONTWRITEBYTECODE=1 SPACR_PROOF_REPO=<nightly-worktree> xvfb-run -a -s '-screen 0 3840x2160x24' tools/run_capped.sh 4G python worker_probe.py data_art_fungal_growth before --palette spacr --density 3 --run-id before-A
+Repeat serial ABBA(before-A,after-B,after-C,before-D) for spacr and random; do not overlap timing with CPU tests.
+Focused: CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python -m pytest -q -p no:randomly tests/qt/test_fungal_mature_raster_cache.py::test_local_pen_reuse_preserves_native_strokes_and_retained_frames tests/qt/test_fungal_mature_raster_cache.py::test_partial_optional_failure_repaints_once_and_keeps_traceback_pixels_alive tests/qt/test_fungal_mature_raster_cache.py::test_unsupported_context_keeps_original_qt_paths --cov=spacr.qt.widgets.ambient --cov-branch --cov-report=json:focused-coverage.json

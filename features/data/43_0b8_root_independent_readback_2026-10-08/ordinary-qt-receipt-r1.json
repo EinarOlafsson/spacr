@@ -1,0 +1,68 @@
+{
+  "verdict": "PASS",
+  "source_sha": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "source_tree": "63139d681affb7eae89a264ed8a7f74d0604f253",
+  "archive_manifest_sha256": "cb44fbbf0cb24cc96ff3334a0522d9d0d90e620ecbc424370d1cae8072f447d1",
+  "payloads": [
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/job-113194680507.json",
+      "bytes": 3280,
+      "sha256": "02ad76173cafbab6f0f271e5388ced6edbefaf0dfce91e080bbe1858e1d78b7c"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/job-113194680698.json",
+      "bytes": 3280,
+      "sha256": "279acf8e94281394d74bb7942982241f4787d5a4cb1630cf04aff81d90875d92"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/job-113194680886.json",
+      "bytes": 3280,
+      "sha256": "6b86b7699546f76573e121f46012601297a2115339e4fb4980be7c394ef8823e"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/qt0-113194680886.log.gz",
+      "bytes": 525443,
+      "sha256": "32e676f888c4f625cec9ae2e0d05562f6c7ffc1b0f28d5bf9481b21ee07f5a0a"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/qt0-memory-11539351732.zip",
+      "bytes": 31808,
+      "sha256": "ba7c1be4e3b5edd474bd69ce8649003a8dc0d0465c41faee1a57aed3ab1da00d"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/qt1-113194680698.log.gz",
+      "bytes": 578422,
+      "sha256": "cc5a035e9abaca751b4c00fa0f886e05711639929694ce6fd36e8ae5c14f4221"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/qt1-memory-11540800937.zip",
+      "bytes": 29057,
+      "sha256": "46457991bd6972259477f6b12eb1cc540dab7cc2610b82871ff6c1d25248a9fd"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/qt2-113194680507.log.gz",
+      "bytes": 536369,
+      "sha256": "60e251662b8f4fb518a3548fae36ded852f2e99608ed5de90a060c23fec77e8c"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/qt2-memory-11539236745.zip",
+      "bytes": 32519,
+      "sha256": "e0225f9f3d10b92cdee299fed1b7bdf22217edd2fc0b1c7c551e2546092c8839"
+    },
+    {
+      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/run.json",
+      "bytes": 278,
+      "sha256": "b1ba403a0af757b80a1e144cf7238f91030ed2dee92f7b438c4eb547dcadd596"
+    }
+  ],
+  "ordinary_qt_shards": 3,
+  "selected_passed": 32569,
+  "selected_skipped": 92,
+  "expected_xfailed": 11,
+  "scope": "Completed exact-source ordinary Qt shard archives only; overlapping selected cohorts are not a unique full-suite count.",
+  "limitations": [
+    "Required workflow failed on the known profile assertions.",
+    "Original-order serial and corrected successor acceptance remain separate.",
+    "Successful shards do not establish native crash causality."
+  ]
+}

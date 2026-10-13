@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Independent AI technical review: merge_interfaces de/es/fr/pt; mask_editor hi/ko/is; shared_ui sv/zh_CN and all module bindings. Root accepted corrections; removed Chinese label-surrounding spaces.",
+  "draft_author": "root",
+  "original_proposals": {
+    "Export example CellProfiler pipeline…": "导出 CellProfiler 示例流程…",
+    "CellProfiler pipelines (*.cppipe)": "CellProfiler 流程 (*.cppipe)",
+    "Could not export pipeline": "无法导出流程",
+    "The example pipeline could not be saved: {error}": "无法保存示例流程：{error}",
+    "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.": "导出用于两个通道的示例流程：_ch0.tif (DNA) 和 _ch1.tif (Actin)，以及 _nucleus_mask.tif (Nuclei) 和 _cell_mask.tif (Cells)。运行 Measure 前，请根据您的图像和掩膜调整流程。"
+  },
+  "review_evidence": {
+    "shared-ui-review.json": {
+      "reviewer": "Codex agent shared_ui; independent AI technical review, no human/native signoff",
+      "draft_sha256": "a8d2809809f18187bd31d5ac3044677ce286c0b112ce5cef7f9b88a8c57fc467",
+      "reviewed_prose_locales": [
+        "sv",
+        "zh_CN"
+      ],
+      "accepted_prose_indices": {
+        "sv": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "zh_CN": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "prose_findings": "Swedish and Simplified Chinese preserve example/export action, two-channel input, image and mask IDs, adaptation prerequisite, failure semantics and {error}; no prose correction needed beyond exact current Measure UI binding.",
+      "measure_binding_corrections": [
+        {
+          "language": "de",
+          "source": "Measure",
+          "actual_ui_target": "Messen",
+          "original_target": "Exportieren Sie eine Beispielpipeline für zwei Kanäle: _ch0.tif (DNA) und _ch1.tif (Actin), mit _nucleus_mask.tif (Nuclei) und _cell_mask.tif (Cells). Passen Sie die Pipeline an Ihre Bilder und Masken an, bevor Sie Measure ausführen.",
+          "proposed_target": "Exportieren Sie eine Beispielpipeline für zwei Kanäle: _ch0.tif (DNA) und _ch1.tif (Actin), mit _nucleus_mask.tif (Nuclei) und _cell_mask.tif (Cells). Passen Sie die Pipeline an Ihre Bilder und Masken an, bevor Sie Messen ausführen.",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "es",
+          "source": "Measure",
+          "actual_ui_target": "Medición",
+          "original_target": "Exporte una canalización de ejemplo para dos canales: _ch0.tif (DNA) y _ch1.tif (Actin), con _nucleus_mask.tif (Nuclei) y _cell_mask.tif (Cells). Adapte la canalización a sus imágenes y máscaras antes de ejecutar Measure.",
+          "proposed_target": "Exporte una canalización de ejemplo para dos canales: _ch0.tif (DNA) y _ch1.tif (Actin), con _nucleus_mask.tif (Nuclei) y _cell_mask.tif (Cells). Adapte la canalización a sus imágenes y máscaras antes de ejecutar Medición.",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "fr",
+          "source": "Measure",
+          "actual_ui_target": "Mesure",
+          "original_target": "Exportez un pipeline d’exemple pour deux canaux : _ch0.tif (DNA) et _ch1.tif (Actin), avec _nucleus_mask.tif (Nuclei) et _cell_mask.tif (Cells). Adaptez le pipeline à vos images et masques avant d’exécuter Measure.",
+          "proposed_target": "Exportez un pipeline d’exemple pour deux canaux : _ch0.tif (DNA) et _ch1.tif (Actin), avec _nucleus_mask.tif (Nuclei) et _cell_mask.tif (Cells). Adaptez le pipeline à vos images et masques avant d’exécuter Mesure.",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "pt",
+          "source": "Measure",
+          "actual_ui_target": "Medição",
+          "original_target": "Exporte um pipeline de exemplo para dois canais: _ch0.tif (DNA) e _ch1.tif (Actin), com _nucleus_mask.tif (Nuclei) e _cell_mask.tif (Cells). Adapte o pipeline às suas imagens e máscaras antes de executar Measure.",
+          "proposed_target": "Exporte um pipeline de exemplo para dois canais: _ch0.tif (DNA) e _ch1.tif (Actin), com _nucleus_mask.tif (Nuclei) e _cell_mask.tif (Cells). Adapte o pipeline às suas imagens e máscaras antes de executar Medição.",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "sv",
+          "source": "Measure",
+          "actual_ui_target": "Mätning",
+          "original_target": "Exportera en exempelpipeline för två kanaler: _ch0.tif (DNA) och _ch1.tif (Actin), med _nucleus_mask.tif (Nuclei) och _cell_mask.tif (Cells). Anpassa pipelinen till dina bilder och masker innan du kör Measure.",
+          "proposed_target": "Exportera en exempelpipeline för två kanaler: _ch0.tif (DNA) och _ch1.tif (Actin), med _nucleus_mask.tif (Nuclei) och _cell_mask.tif (Cells). Anpassa pipelinen till dina bilder och masker innan du kör Mätning.",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "is",
+          "source": "Measure",
+          "actual_ui_target": "Mæling",
+          "original_target": "Flyttu út dæmi um vinnsluferli fyrir tvær rásir: _ch0.tif (DNA) og _ch1.tif (Actin), með _nucleus_mask.tif (Nuclei) og _cell_mask.tif (Cells). Lagaðu vinnsluferlið að myndunum þínum og grímum áður en þú keyrir Measure.",
+          "proposed_target": "Flyttu út dæmi um vinnsluferli fyrir tvær rásir: _ch0.tif (DNA) og _ch1.tif (Actin), með _nucleus_mask.tif (Nuclei) og _cell_mask.tif (Cells). Lagaðu vinnsluferlið að myndunum þínum og grímum áður en þú keyrir Mæling.",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "zh_CN",
+          "source": "Measure",
+          "actual_ui_target": "测量",
+          "original_target": "导出用于两个通道的示例流程：_ch0.tif (DNA) 和 _ch1.tif (Actin)，以及 _nucleus_mask.tif (Nuclei) 和 _cell_mask.tif (Cells)。运行 Measure 前，请根据您的图像和掩膜调整流程。",
+          "proposed_target": "导出用于两个通道的示例流程：_ch0.tif (DNA) 和 _ch1.tif (Actin)，以及 _nucleus_mask.tif (Nuclei) 和 _cell_mask.tif (Cells)。运行 测量 前，请根据您的图像和掩膜调整流程。",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "ko",
+          "source": "Measure",
+          "actual_ui_target": "측정",
+          "original_target": "두 채널 _ch0.tif (DNA)와 _ch1.tif (Actin), 그리고 _nucleus_mask.tif (Nuclei)와 _cell_mask.tif (Cells)를 사용하는 예제 파이프라인을 내보냅니다. Measure를 실행하기 전에 이미지와 마스크에 맞게 파이프라인을 수정하세요.",
+          "proposed_target": "두 채널 _ch0.tif (DNA)와 _ch1.tif (Actin), 그리고 _nucleus_mask.tif (Nuclei)와 _cell_mask.tif (Cells)를 사용하는 예제 파이프라인을 내보냅니다. 측정을 실행하기 전에 이미지와 마스크에 맞게 파이프라인을 수정하세요.",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        },
+        {
+          "language": "hi",
+          "source": "Measure",
+          "actual_ui_target": "मापन",
+          "original_target": "दो चैनलों के लिए उदाहरण पाइपलाइन निर्यात करें: _ch0.tif (DNA) और _ch1.tif (Actin), साथ में _nucleus_mask.tif (Nuclei) और _cell_mask.tif (Cells)। Measure चलाने से पहले पाइपलाइन को अपनी छवियों और मास्क के अनुसार बदलें।",
+          "proposed_target": "दो चैनलों के लिए उदाहरण पाइपलाइन निर्यात करें: _ch0.tif (DNA) और _ch1.tif (Actin), साथ में _nucleus_mask.tif (Nuclei) और _cell_mask.tif (Cells)। मापन चलाने से पहले पाइपलाइन को अपनी छवियों और मास्क के अनुसार बदलें।",
+          "reason": "Refer to the exact existing runtime module label; Korean object particle follows the corrected noun.",
+          "preserved_pipeline_literals": true
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Export example CellProfiler pipeline…",
+      "source": "Export example CellProfiler pipeline…",
+      "source_sha256": "abb46f6703618237a052fad697a67e5be8bde5459871b9f5f288b968c71647a4",
+      "translation": "导出 CellProfiler 示例流程…"
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler pipelines (*.cppipe)",
+      "source": "CellProfiler pipelines (*.cppipe)",
+      "source_sha256": "78a765c94b7cada4e68df4345fb547ea28d0f9421034d6bb2d762ca2e10a47c4",
+      "translation": "CellProfiler 流程 (*.cppipe)"
+    },
+    {
+      "table": "ui",
+      "key": "Could not export pipeline",
+      "source": "Could not export pipeline",
+      "source_sha256": "ee2fa4efad7689a0cf7d0e3d0d6550acb67080c841c0e011580c46070304962b",
+      "translation": "无法导出流程"
+    },
+    {
+      "table": "ui",
+      "key": "The example pipeline could not be saved: {error}",
+      "source": "The example pipeline could not be saved: {error}",
+      "source_sha256": "05173039fa11176c93c1014100d6d81f6b9d09c8f606b9262d32b912ba14b720",
+      "translation": "无法保存示例流程：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.",
+      "source": "Export an example pipeline for two channels: _ch0.tif (DNA) and _ch1.tif (Actin), with _nucleus_mask.tif (Nuclei) and _cell_mask.tif (Cells). Adapt the pipeline to your images and masks before running Measure.",
+      "source_sha256": "ba7003b619c0500849f39d2dda31a2988640ac07e4933108f85b43bd05b448ca",
+      "translation": "导出用于两个通道的示例流程：_ch0.tif (DNA) 和 _ch1.tif (Actin)，以及 _nucleus_mask.tif (Nuclei) 和 _cell_mask.tif (Cells)。运行测量前，请根据您的图像和掩膜调整流程。"
+    }
+  ]
+}

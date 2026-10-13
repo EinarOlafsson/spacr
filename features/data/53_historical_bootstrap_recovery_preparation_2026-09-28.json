@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "item": 53,
+  "date": "2026-09-28",
+  "scope": "Explicit historical Windows bootstrap recovery implementation and verifier-only tests; native execution remains unaccepted",
+  "source_base_commit": "8d0dfa4cfee8ea16ceba50ebfae0c45fb4253410",
+  "source_sha256": {
+    ".github/workflows/historical-upgrade.yml": "f665b5133105fadc9f0a285a4098f8867c70a7f8566efb005bc880ff576d12d6",
+    "tools/accept_historical_upgrade.py": "e09f0d5b42438356aecd4a683fce3fbdd91fcce1047a45d21dffc4bb6e508ae1",
+    "tools/recover_historical_windows_bootstrap.ps1": "467fa43859930bed19b1fef8549356bc19c8e3c4abff66cbbf490bb7e040b0c8",
+    "tests/test_historical_windows_recovery_verifier.py": "33b7a9f64815d66c2538427718baa8e02c9d44dc6c83c32888b50b7484f005ac"
+  },
+  "checks": {
+    "result": {
+      "tests": 91,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest_recorded_exit": 0,
+    "pytest_log": "/mnt/wd4tb/scratch/spacr-completion/item53-recovery-checks-20260928/pytest.log",
+    "junit_sha256": "235948cba0846ec7c551245a60dd02aa8e66129b5836853a2a276acad6aaf161",
+    "workflow_yaml_parsed": true,
+    "windows_failed_original_recovery_guard_checked": true
+  },
+  "observer_note": "Tool session reported outer exit1 despite shell-recorded pytest exit0 and passing terminal JUnit; retained without claiming native acceptance.",
+  "original_wrapper_failure_preserved": true,
+  "bootstrap_completion_does_not_accept_gui_update": true,
+  "synthetic_fixtures_are_native_acceptance": false,
+  "powershell51_parser_executed_locally": false,
+  "native_gui_recovery_accepted": false,
+  "whole_item_complete": false
+}

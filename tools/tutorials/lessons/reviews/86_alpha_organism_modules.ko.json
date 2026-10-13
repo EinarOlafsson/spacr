@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Alpha: 생물종 모듈",
+  "description": "Show alpha species를 켜고 아직 완성되지 않은 생물종 페이지를 둘러봅니다: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection, Mammalian cells.",
+  "objectives": [
+    "Preferences에서 Show alpha species를 켜고 끕니다.",
+    "생물종 페이지를 읽습니다: 소개, 세포 도식, 분석 타일.",
+    "열 수 있는 분석 타일과 계획된 타일을 구분하고 이 페이지들이 alpha임을 압니다."
+  ],
+  "prerequisite": "spaCR의 Home을 엽니다. 입력 파일은 필요하지 않습니다. 이 생물종 페이지는 alpha로, 미완성이며 바뀔 수 있습니다.",
+  "scenes": [
+    "이 튜토리얼은 spaCR의 alpha 생물종 모듈을 보여 주는 유일한 강의입니다. 일반 설치에서는 Home의 Assays 탭에 생물종이 Toxoplasma 하나뿐입니다. 다른 생물종 페이지는 요청하기 전까지 꺼져 있습니다.",
+    "spaCR 메뉴에서 Preferences를 열고 Modules 탭으로 이동합니다. Module visibility 아래 마지막 스위치가 Show alpha species입니다. 기본값은 꺼짐입니다.",
+    "이 스위치를 켭니다. 이것으로 보이는 모든 것은 alpha로 여기세요. 페이지는 미완성이고, 분석 타일 대부분은 아직 계획 단계이며, 이름과 레이아웃, 분석은 출시 전에 바뀔 수 있습니다. 탐색용으로만 쓰고 결과 보고에는 쓰지 마세요.",
+    "Save를 누릅니다. 설정은 바로 적용되고 다음 세션에도 유지되므로 한 번만 하면 됩니다.",
+    "Home으로 돌아오면 Assays 탭에 이제 여덟 개의 생물종이 보입니다. Toxoplasma 다음으로 Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection, Mammalian cells입니다. 각 타일은 같은 구조의 페이지를 열기 때문에 하나를 알면 모두 읽을 수 있습니다.",
+    "말라리아 원충인 Plasmodium부터 시작합니다. 왼쪽의 짧은 소개는 이 생물종에서 이미징으로 무엇을 측정할 수 있는지 설명합니다. 감염 빈도, 혈액 단계 발달, 간 감염, 운동성, 화합물 반응입니다. 그 아래 각 섹션은 생물학적 질문을 오른쪽의 분석 타일과 연결합니다.",
+    "세포 도식은 UniProt에서 가져온 구획을 보여 주는 대화형 지도입니다. 세포 위에 포인터를 올리면 구조를 확인할 수 있고, 목록에서 여러 구획을 체크하면 함께 강조된 상태로 유지됩니다. Clear components는 그림을 초기화합니다.",
+    "작업은 분석 타일에서 시작됩니다. 밝은 타일은 이미 작동하는 모듈을 엽니다. Parasitaemia는 Host–Pathogen Analysis를, Sporozoite motility는 Motility Assay를 엽니다. 흐린 타일은 계획된 것으로 아직 열 수 없습니다. 이 규칙은 모든 생물종 페이지에 똑같이 적용됩니다.",
+    "Candida는 출아 세포, 발아관, 균사 사이를 오갈 수 있는 효모를 다룹니다. 열 수 있는 타일은 부착, 상피 침입, 식세포 작용, 항진균제 반응에 기존 모듈을 다시 사용하고, 계획된 타일은 균사 형성, 발아관, 바이오필름, 형태를 측정할 예정입니다.",
+    "Trypanosoma는 두 기생충을 한 페이지에 모읍니다. 혈액 속을 헤엄치는 Trypanosoma brucei와 숙주 세포 안에서 증식하는 Trypanosoma cruzi입니다. Flagellar motility, Host-cell invasion, Amastigote infection, Drug response는 이미 실제 모듈을 엽니다.",
+    "Leishmania 기생충은 대식세포 안에서 증식합니다. Macrophage infection은 감염된 비율과 대식세포당 무편모충 수를 보고하고, Promastigote motility는 유영을 측정합니다. 계획된 타일은 메타사이클로제네시스, 무편모충 전환, 공포 크기를 추적할 예정입니다.",
+    "Giardia duodenalis는 복측 흡착판으로 장벽에 붙습니다. 여기서는 상피 세포 위의 영양형을 세고, 유영을 추적하고, 약물 반응을 측정할 수 있습니다. 낭포 형성, 탈낭, 흡착판 형태는 아직 계획 단계입니다.",
+    "Virus infection은 기생충이 아니라 숙주 세포를 위한 페이지입니다. Infection rate는 바이러스 양성 세포를 세고, Plaque Assay는 플라크를 측정하며, Recruitment는 복제 부위에 모이는 숙주 단백질을 측정합니다. 양성 기준은 모의 감염 웰로 정하세요.",
+    "Mammalian cells는 병원체가 전혀 없는 스크리닝을 다룹니다. 열 수 있는 타일은 Mask, Measure, Motility Assay, 식세포 작용, 세포 독성으로 바로 이어지므로 핵심 파이프라인이 생물종 페이지에서 한 번의 클릭 거리입니다.",
+    "둘러보기를 마쳤으면 Preferences로 돌아가 Show alpha species를 다시 끄고 Save를 누릅니다. 생물종 페이지는 사라지지만 측정한 내용은 아무것도 바뀌지 않습니다.",
+    "Home에는 다시 Toxoplasma만 표시됩니다. 각 생물종은 성숙하면 alpha에서 벗어나 자체 안내를 갖게 됩니다. 그때까지는 전체 분석 예시로 Toxoplasma 강의를, 이 타일들이 여는 각 워크플로에는 모듈 강의를 활용하세요."
+  ]
+}

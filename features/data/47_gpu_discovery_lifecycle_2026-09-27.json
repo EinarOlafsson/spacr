@@ -1,0 +1,29 @@
+{
+  "date": "2026-09-27",
+  "item": 47,
+  "reviewed_commit": "05e68154b89a48778b7948595f3ee21f0ed7840c",
+  "defect": "Discovery cleanup depended on a control-owned timer; closing the panel could cancel timeout handling. Immediate terminate/join(0) also discarded a child before its exit was confirmed.",
+  "repair": "An application-owned Qt timer continues discovery timeout and nonblocking reaping after panel destruction. The process remains owned until confirmed exited and closed; termination escalates to kill after one second. Application exit performs bounded terminate/kill cleanup. Existing captions and saved control values are unchanged.",
+  "validation": {
+    "passed": 20,
+    "elapsed_seconds": 11.59,
+    "log": "/mnt/wd4tb/scratch/spacr-completion/gpu-probe-lifecycle-tests.log",
+    "memory_cap": "4G",
+    "gpu_visibility": "CUDA, HIP and ROCr devices hidden",
+    "test_targets": [
+      "tests/qt/test_mask_parallel_controls.py",
+      "tests/qt/test_gui_responsiveness.py::test_opening_a_module_does_not_import_the_heavy_stack",
+      "tests/test_every_callable_in_the_package_is_documented.py"
+    ],
+    "essential_cases": [
+      "Panel destruction does not cancel discovery timeout and cleanup.",
+      "Delayed termination retains ownership, escalates once, and closes only after exit.",
+      "The application exit signal terminates, escalates and reaps pending discovery.",
+      "A real spawned CPU-only child completes and is reaped while Torch remains absent in the GUI process."
+    ]
+  },
+  "limitations": [
+    "No physical-GPU or frozen-platform acceptance claimed.",
+    "Shutdown waits at most 0.2 seconds after terminate and 0.2 seconds after kill; a process still alive remains retained for interpreter shutdown."
+  ]
+}

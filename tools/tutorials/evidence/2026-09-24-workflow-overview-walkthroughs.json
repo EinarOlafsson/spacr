@@ -1,0 +1,39 @@
+{
+  "scope": "Practical starting data, module choices and next steps; retain shared module/artifact contracts and all module chapters.",
+  "lessons": [
+    {
+      "lesson": "78_spacr_screens",
+      "old_intro": "Start on Home with the material you already have. A pooled image-based screen has two data branches: images describe the phenotype, while sequencing identifies the perturbations represented in each well. Mask, Measure, Annotate and Classify build the image branch. Map Barcodes builds the sequencing branch. Regression brings compatible scores and guide counts together. These are connected data products, not six buttons that must always be run in a fixed order.",
+      "old_conclusion": "Before Regression, check that the image scores, sequencing counts and experimental layout use matching plate and well identities. Preserve the object identifiers, annotation column, classifier settings and barcode references with the run. Use the linked module lessons for a worked example of each step; choose the pooled-screen walkthrough when you want Home to guide the navigation.",
+      "module_contracts_unchanged": true
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "old_intro": "Choose a module by the data you have and the result you need. Home shows the main modules; related tools can open inside a parent. This chapter-by-chapter reference covers every current route. Inputs and outputs can be conditional: an image classifier and a feature classifier need different data, and a viewer does not automatically save everything it displays. The notes for each module explain those differences. Keep the original files and use the recorded object, plate and well identities when passing results between modules.",
+      "old_conclusion": "Return to the chapter matching your next data product rather than repeating work you already completed. A count table is not a measured feature table, a projection is not a trained classifier, and a comparison is not a new experiment. The linked API pages carry the same file, table and column contracts, and the specialist lessons demonstrate the individual controls.",
+      "module_contracts_unchanged": true
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "old_intro": "Begin on Home by deciding whether you have raw images, existing masks or measured objects. Mask creates segmentation outputs; Make Masks curates individual fields; Measure turns compatible images and labels into object measurements and optional crops. From there, the scientific question determines whether to classify, explore a projection, define a gate or run an assay. Align tiled images before the analysis that needs a common coordinate system. The routes here are alternatives and branches, not a requirement to run every module.",
+      "old_conclusion": "For high-content analysis, follow Mask into Measure and then choose the method that answers your question. For segmentation training, curate image-mask pairs in Make Masks before Train Cellpose and test the saved model in Mask. Existing compatible masks or measurements let you enter later. Preserve channel identities, units, object keys and the settings used to create each result; follow the dedicated walkthrough for the route you choose.",
+      "module_contracts_unchanged": true
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "old_intro": "Start on Home with the question and the type of barcode data. Map Barcodes reads sequencing files; optical pooled screening reads registered image cycles through OPS. Both need an explicit mapping from barcode identities to the experiment. Regression relates compatible perturbation counts and phenotype scores; it does not replace barcode decoding. Experiment Design and Power belong before acquisition when you are planning the screen, while Dose-Response and Run Compare inspect suitable results afterwards.",
+      "old_conclusion": "Keep sequencing references and plate layouts with the counts, and check the join to image-derived scores before interpreting a regression. Optical assignments require their own object join and aggregation; they are not automatically a drop-in sequencing count file. Treat planning assumptions, fitted effects and comparisons between completed runs as distinct results. The linked lessons and Home walkthroughs show the route for each kind of experiment.",
+      "module_contracts_unchanged": true
+    }
+  ],
+  "new_capture": false,
+  "media_status": "Source rewrites; matching narration and publication pending",
+  "retained_capture_stage": "/tmp/spacr-tutorials-sequencing-desktop.wc6Fqc",
+  "retained_frames": 118,
+  "retained_capture_verification": "All scene content matches the prior published source after removing speech_text and documented related_lesson additions; each retained image verified by SHA256 and 3840x2160 dimensions.",
+  "tests": {
+    "tests/test_module_workflow_map.py": 33,
+    "workflow_translation_reviews_and_narration_availability_and_translation_review": 32
+  },
+  "runtime_catalog_effect": "Tutorial introductions and conclusions are not runtime UI sources; module/pathway/artifact text is unchanged."
+}

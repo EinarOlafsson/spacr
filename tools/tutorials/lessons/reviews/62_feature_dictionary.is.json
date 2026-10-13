@@ -1,0 +1,32 @@
+{
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Feature Dictionary: finndu skilgreiningar og einingar",
+  "description": "Leitaðu eftir heiti mælingar eða hugtaki, lestu skilgreininguna og einingarnar og afritaðu gagnlegan tilvísunartexta.",
+  "objectives": [
+    "Finna skilgreiningu eftir heiti eða hugtaki.",
+    "Þrengja niðurstöður með hugtaka- og hlutasíum.",
+    "Lesa einingar og athugasemdir og afrita svo skilgreininguna."
+  ],
+  "prerequisite": "Hafðu heiti mælingadálks tilbúið, eða byrjaðu á hugmynd eins og stærð eða styrk. Innbyggðu orðabókina má opna án þess að hlaða inn verkefni.",
+  "scenes": [
+    "Opnaðu Help og svo Feature Dictionary. Notaðu gluggann þegar þú vilt skilja mælingadálk í niðurstöðutöflu eða grafi.",
+    "Skrifaðu size í leitarreitinn og veldu Area úr niðurstöðunum. Skilgreiningin birtist til hægri og listinn yfir samsvaranir uppfærist meðan þú skrifar.",
+    "Veldu hugtak og gerð hlutar til að þrengja skilgreiningarnar. Prófaðu intensity og cell. Settu valreitina aftur á Any concept og Any object fyrir víðtækari leit.",
+    "Leitaðu að cell_channel_1_mean_intensity og veldu Mean intensity. Lestu tölfræðina og einingarnar til að skilja hverju dálkurinn lýsir.",
+    "Skrunaðu niður að Channel, Module og Computed by til að fá meiri upplýsingar. Notaðu tilgreint reikniföll sem upphafspunkt í API-tilvísuninni.",
+    "Flettu upp cell_area og lestu Unit. Í tvívíðum mælingum táknar það flatarmál; í þrívíðum mælingum rúmmál. Athugaðu mælieiningarnar sem skráðar eru í verkefninu áður en þú umreiknar gildi.",
+    "Lestu Note um fyrirvara, til dæmis gildi sem þegar eru gefin í efnislegum einingum. Fyrir orðabók yfir dálkana sem raunverulega eru í gagnagrunni notarðu describe_database og export_dictionary úr Python.",
+    "Ef engin skilgreining passar skaltu hreinsa síurnar og prófa víðara orð eða nákvæmt heiti dálksins. Sérsniðnir eiginleikar geta þurft skjölun frá verkflæðinu sem bjó þá til.",
+    "Veldu texta skilgreiningarinnar og afritaðu hann í minnispunktana þína. Notaðu útflutningsföll Python þegar þú þarft orðabókarskrá fyrir verkefnið og farðu svo aftur í töfluna eða grafið."
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "date": "2026-09-27",
+  "items": [23, 53],
+  "run": "https://github.com/EinarOlafsson/spacr/actions/runs/36358947318",
+  "source_commit": "6194b0184c38aaa6ebd03386cecf7baf3acfc71c",
+  "artifact": "legacy-smoke-macos",
+  "directory": "/mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/ci-36358947318/macos",
+  "platform": "macOS-15.7.9-arm64-arm-64bit",
+  "qt_platform": "cocoa",
+  "frozen": true,
+  "menu": {
+    "mode": "in-window-on-cocoa",
+    "preferences_opened": true,
+    "dialog_class": "_PreferencesWindow",
+    "preferences_closed": true,
+    "quit_dispatched": true,
+    "quit_observed": true,
+    "visible_window_controls": ["MinimiseWindow", "FullScreenToggle", "CloseWindow"],
+    "review": "AI visual inspection confirms Preferences and Quit in the spaCR menu and the real Preferences window. The menu is deliberately in-window on Cocoa, matching the current frameless-window requirement; no system-strip menu placement claim."
+  },
+  "measure": {
+    "device": "cpu",
+    "fixture": "Synthetic installed-artifact fixture, not biological accuracy acceptance",
+    "real_run_clicked": true,
+    "worker_finished": true,
+    "run_status": ["complete", 1, 0],
+    "cells": 16,
+    "downloaded_database_integrity_check": "ok",
+    "downloaded_database_cell_count": 16,
+    "reachable_control_and_document_observations": 47,
+    "scroll_origin_restored": true,
+    "document_cursors_restored": true,
+    "window_size_unchanged": true,
+    "raw_viewport_status": "failed",
+    "acceptance_scope": "Actual scroll reachability; raw clipping is retained in the artifact"
+  },
+  "helper": {
+    "passed": true,
+    "original_removed": true,
+    "path_empty": true,
+    "environment_reset": true,
+    "help_exit": 0,
+    "run_plan_help_exit": 0,
+    "sha256": "f7ba6264c2bd2cd26280bd79f0709f511f6175dd131b208e3453962a59853ea7",
+    "scope": "Copied helper CLI after original app removal; not frozen replacement execution"
+  },
+  "sha256": {
+    "smoke.json": "23c9f8cc49ace1a72eb0f6d09bcd62e42e2b9bcbc935580deb43218537c7e860",
+    "helper-survival.json": "1ffb33f024a5426276beeb176451934508f9f69a5a8b23c31d8d192f932ff174",
+    "native-menu-preferences.png": "586c493afe3342164c2d3843ee961d158e730422e8766f140b8097d75f8bec3d",
+    "native-preferences.png": "19847acaf4ca96745bc0530e3d66557043683fb878b92fd60b38d42aad13eab4",
+    "native-menu-quit.png": "586c493afe3342164c2d3843ee961d158e730422e8766f140b8097d75f8bec3d",
+    "measurements.db": "e4868d8505d95e1b61d7ceed955010d5a7d44eb1a8bad1659a075bc192018736"
+  },
+  "item_23": "closed against current in-window menu behavior on real macOS",
+  "item_53": "open; historical update recovery and frozen replacement transactions remain"
+}

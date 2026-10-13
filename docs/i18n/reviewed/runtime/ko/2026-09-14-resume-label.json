@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "resume",
+      "source": "Resume",
+      "source_sha256": "d640c7421da066618a39daf4266da5f61f66a9b1afcd626481b831a17064965d",
+      "table": "setting_labels",
+      "translation": "재개"
+    }
+  ],
+  "schema": 1
+}

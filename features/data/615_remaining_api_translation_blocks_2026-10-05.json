@@ -1,0 +1,1269 @@
+{
+  "source_commit": "debb00e80d80ad68d3716a12bf083cca491b2a39",
+  "symbols": 13177,
+  "changed_symbols": {
+    "sv": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "de": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "es": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "zh_CN": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "pt": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "hi": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "ko": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "is": [
+      "spacr.condition_annotations.apply_conditions",
+      "spacr.condition_annotations.save_annotated_table",
+      "spacr.condition_annotations.table_identity",
+      "spacr.core.preprocess_generate_masks",
+      "spacr.derived_tables.execute",
+      "spacr.drop_classification.classify_drop",
+      "spacr.install_cleanup",
+      "spacr.measure._cellprofiler_tables.lookup",
+      "spacr.merge_tables.roll_up",
+      "spacr.original_filenames.enrich",
+      "spacr.plot.figure_output_preferences",
+      "spacr.plot.save_figure",
+      "spacr.plugins",
+      "spacr.qt.bridge.RunRegistry.cancel_all",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.puncta",
+      "spacr.qt.crash_recovery.note_a_clean_shutdown",
+      "spacr.qt.crash_recovery.note_that_a_launch_began",
+      "spacr.qt.mask_thumbnail_quality.quality_combo",
+      "spacr.qt.plate_queue.PlateQueue.save",
+      "spacr.qt.preferences",
+      "spacr.qt.preferences.theme_description",
+      "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table",
+      "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed",
+      "spacr.qt.screens.settings_model.categories_for_app",
+      "spacr.qt.screens.settings_model.object_of_setting",
+      "spacr.qt.settings_search.SettingsSearchBar.reveal",
+      "spacr.qt.shortcuts",
+      "spacr.qt.theme",
+      "spacr.qt.theme.close_mark_side",
+      "spacr.qt.widgets.calibration_preview._attach_preview.open_preview",
+      "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work",
+      "spacr.qt.widgets.condition_annotation_dialog.ConditionBox",
+      "spacr.qt.widgets.graph_spec.GraphSpec.binding_error",
+      "spacr.qt.widgets.home.RecentRunsPanel",
+      "spacr.qt.widgets.home.TotalsPanel",
+      "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh",
+      "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle",
+      "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle",
+      "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog",
+      "spacr.qt.widgets.usage_bar.UsageBar",
+      "spacr.restart_state",
+      "spacr.schema.is_provenance_column",
+      "spacr.segmentation_uncertainty.compute_queue_uncertainty",
+      "spacr.segmentation_uncertainty.save_uncertainty_map",
+      "spacr.sp_stats.b_scores",
+      "spacr.suggest.write_suggestions",
+      "spacr.timelapse.automated_motility_assay",
+      "spacr.utils.augment_images"
+    ],
+    "fr": []
+  },
+  "review_errors": {},
+  "unique_sources": 49,
+  "words": 1580,
+  "rows": [
+    {
+      "source": "Values are assigned by position, never by Series index alignment: duplicated pandas indices are legal input and play no role in condition identity.",
+      "context": "Values are assigned by position, never by Series index alignment: duplicated pandas indices are legal input and play no role in condition identity.",
+      "labels": [
+        "spacr.condition_annotations.apply_conditions#5"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Reserved metadata is validated before the user table is created, so a conflicting unrelated table is never silently repurposed as the receipt store. Reopening and editing are bound to what SQLite actually stored, including dtype normalization, rather than assuming a pandas to SQL round trip is lossless.",
+      "context": "Reserved metadata is validated before the user table is created, so a conflicting unrelated table is never silently repurposed as the receipt store. Reopening and editing are bound to what SQLite actually stored, including dtype normalization, rather than assuming a pandas to SQL round trip is lossless.",
+      "labels": [
+        "spacr.condition_annotations.save_annotated_table#8"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Hashing is vectorized so large measurement tables stay practical; the final digest binds every row, in order, to the schema and the source definition.",
+      "context": "Hashing is vectorized so large measurement tables stay practical; the final digest binds every row, in order, to the schema and the source definition.",
+      "labels": [
+        "spacr.condition_annotations.table_identity#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Mask writes which object sits in which as its own table in measurements.db. That table is built from Measure's object tables, so before Measure has run there are none, and that is not a failure.",
+      "context": "Mask writes which object sits in which as its own table in measurements.db. That table is built from Measure's object tables, so before Measure has run there are none, and that is not a failure.",
+      "labels": [
+        "spacr.core.preprocess_generate_masks#23"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Gate and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
+      "context": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Data-selection boundary and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
+      "labels": [
+        "spacr.derived_tables.execute#5"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "spaCR's own output counts only when it is the whole drop. Files named as masks are masks; beside images, label TIFFs are too, but only when a dropped image claims them by name, since a clean synthetic image can look like labels. Masks dropped alone open the images they belong to, when those are present.",
+      "context": "spaCR's own output counts only when it is the whole drop. Files named as masks are masks; beside images, label TIFFs are too, but only when a dropped image claims them by name, since a clean synthetic image can look like labels. Masks dropped alone open the images they belong to, when those are present.",
+      "labels": [
+        "spacr.drop_classification.classify_drop#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
+      "context": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
+      "labels": [
+        "spacr.install_cleanup#8"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "A centre outside the image cannot identify an edge object; the check comes before rounding so negative subpixel positions stay unmatched.",
+      "context": "A centre outside the image cannot identify an edge object; the check comes before rounding so negative subpixel positions stay unmatched.",
+      "labels": [
+        "spacr.measure._cellprofiler_tables.lookup#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "An unmeasured group is missing, never a measured zero. Regression and both interactive merge consumers use this same rule.",
+      "context": "An unmeasured group is missing, never a measured zero. Regression and both interactive merge consumers use this same rule.",
+      "labels": [
+        "spacr.merge_tables.roll_up#7"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Unparseable legacy names can still be restored by their exact target, and a timed filename refines an untimed prcf without merging timepoints.",
+      "context": "Unparseable legacy names can still be restored by their exact target, and a timed filename refines an untimed prcf without merging timepoints.",
+      "labels": [
+        "spacr.original_filenames.enrich#8"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "A format or DPI changed in the Preferences figure settings wins over the \"Figure format\" and \"Resolution\" preferences. Degrades to :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI` rather than raising: the preference store is Qt's, and the pipelines that call this run headless from the CLI and from notebooks, where importing PySide6 to decide a file extension would be absurd.",
+      "context": "A format or DPI changed in the Preferences figure settings wins over the \"Figure format\" and \"Resolution\" preferences. Degrades to :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI` rather than throwing: the preference store is Qt's, and the pipelines that call this execute headless from the CLI and from notebooks, where importing PySide6 to decide a file extension would be absurd.",
+      "labels": [
+        "spacr.plot.figure_output_preferences#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "The figure first takes the settings changed in the Preferences figure settings (:func:`spacr.figures.style._apply_user_style`), and a second copy is written when \"Also save\" names another format.",
+      "context": "The figure first takes the settings changed in the Preferences figure settings (:func:`spacr.figures.style._apply_user_style`), and a second copy is written when \"Also save\" names another format.",
+      "labels": [
+        "spacr.plot.save_figure#7"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads.",
+      "context": "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads.",
+      "labels": [
+        "spacr.plugins#5"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "A handle whose ``stop_on_quit`` is false (an install that must not be killed half way) is left running and is not waited for.",
+      "context": "A handle whose ``stop_on_quit`` is false (an install that must not be killed half way) is left running and is not waited for.",
+      "labels": [
+        "spacr.qt.bridge.RunRegistry.cancel_all#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "THE COUNT RESETS RATHER THAN DECREMENTS. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
+      "context": "The count resets rather than decrements. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
+      "labels": [
+        "spacr.qt.crash_recovery.note_a_clean_shutdown#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Call once, early, before the backdrop is built. It also takes the per-instance lock: a marker left by a window that is still running is not a crash, so a second window neither counts it nor overwrites it.",
+      "context": "Call once, early, before the backdrop is built. It also takes the per-instance lock: a marker left by a window that is still running is not a crash, so a second window neither counts it nor overwrites it.",
+      "labels": [
+        "spacr.qt.crash_recovery.note_that_a_launch_began#2"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "The slot is connected with a context QObject, so it disconnects automatically when that object is destroyed.",
+      "context": "The slot is connected with a context QObject, so it disconnects automatically when that object is destroyed.",
+      "labels": [
+        "spacr.qt.mask_thumbnail_quality.quality_combo#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Write the queue to disk, unless it was opened read-only.",
+      "context": "Write the work list to disk, unless it was opened read-only.",
+      "labels": [
+        "spacr.qt.plate_queue.PlateQueue.save#0"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "labels": [
+        "spacr.qt.preferences#7"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "the theme's sentence (the high-contrast theme has one too), or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
+      "context": "the theme's sentence (the high-contrast theme has one too), or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
+      "labels": [
+        "spacr.qt.preferences.theme_description#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Both files are prepared before either destination is replaced, so a failed CSV conversion never leaves a receipt describing an export that did not run.",
+      "context": "Both files are prepared before either destination is replaced, so a failed CSV conversion never leaves a receipt describing an export that did not execute.",
+      "labels": [
+        "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Destruction may follow a reopen, after the initial token retired; this state stays usable without touching the destroyed widget.",
+      "context": "Destruction may follow a reopen, after the initial token retired; this state stays usable without touching the destroyed widget.",
+      "labels": [
+        "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Memoised per module against the shape of ``categories`` (each title and how many keys it holds) and the plugin registry's answer, and returned as a fresh copy each time: a module's first open asks this five or six times and each expansion walks every setting key spaCR has.",
+      "context": "Memoised per module against the shape of ``categories`` (each title and how many structured-data names it holds) and the plugin registry's answer, and returned as a fresh copy each time: a module's first open asks this five or six times and each expansion walks every setting name spaCR has.",
+      "labels": [
+        "spacr.qt.screens.settings_model.categories_for_app#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "remove_background_organelle_7 is slot 7's switch: its last token is a number, not a slot prefix.",
+      "context": "remove_background_organelle_7 is slot 7's switch: its last token is a number, not a slot prefix.",
+      "labels": [
+        "spacr.qt.screens.settings_model.object_of_setting#4"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "A nested heading is reachable only with every containing heading open, and logical ancestry also crosses bodies parked off the widget tree.",
+      "context": "A nested heading is reachable only with every containing heading open, and logical ancestry also crosses bodies parked off the widget tree.",
+      "labels": [
+        "spacr.qt.settings_search.SettingsSearchBar.reveal#6"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
+      "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
+      "labels": [
+        "spacr.qt.shortcuts#14"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "labels": [
+        "spacr.qt.theme#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "The result accounts for the rendered glyph, current interface scale, and :data:`CLOSE_MARK_HIT_PX` minimum. The glyph's ink box is measured once per font: ``tightBoundingRect`` rasterises the glyph, and a module screen re-measures each of its close marks at every style change.",
+      "context": "The result accounts for the rendered glyph, current interface scale, and :data:`CLOSE_MARK_HIT_PX` minimum. The glyph's ink box is measured once per font: ``tightBoundingRect`` rasterises the glyph, and a module application view re-measures each of its close marks at every style change.",
+      "labels": [
+        "spacr.qt.theme.close_mark_side#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Closing detaches safely, and a second dialog never duplicates a still-running scan parked by the first.",
+      "context": "Closing detaches safely, and a second dialog never duplicates a still-running scan parked by the first.",
+      "labels": [
+        "spacr.qt.widgets.calibration_preview._attach_preview.open_preview#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",
+      "context": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",
+      "labels": [
+        "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#7"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Failures travel through the generation-guarded result channel too, so a slow invalid draft cannot disable a newer valid preview.",
+      "context": "Failures travel through the generation-guarded result channel too, so a slow invalid draft cannot disable a newer valid preview.",
+      "labels": [
+        "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Old recipe and API editing is preserved: entering a legacy regex explicitly switches to its editor rather than silently ignoring the expression.",
+      "context": "Old recipe and API editing is preserved: entering a legacy regex explicitly switches to its editor rather than silently ignoring the expression.",
+      "labels": [
+        "spacr.qt.widgets.condition_annotation_dialog.ConditionBox#8"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Explicit bars also support a low-cardinality numeric Y (classified as categorical) and fall back to counts when Y has no numeric values.",
+      "context": "Explicit bars also support a low-cardinality numeric Y (classified as categorical) and fall back to counts when Y has no numeric values.",
+      "labels": [
+        "spacr.qt.widgets.graph_spec.GraphSpec.binding_error#4"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "read the journal on the calling thread now. Home passes ``False`` and fills the panel from its worker read, so the window is not held up by the journal.",
+      "context": "read the journal on the calling independent execution path now. Home passes ``False`` and fills the panel from its worker read, so the window is not held up by the journal.",
+      "labels": [
+        "spacr.qt.widgets.home.RecentRunsPanel#8"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "read the journal on the calling thread now. Home passes ``False`` and fills the panel from its worker read.",
+      "context": "read the journal on the calling independent execution path now. Home passes ``False`` and fills the panel from its worker read.",
+      "labels": [
+        "spacr.qt.widgets.home.TotalsPanel#4"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Spinbox drags call refresh repeatedly in one event-loop turn, so the old grid is cleared once for the latest token and only its result is drawn.",
+      "context": "Spinbox drags call refresh repeatedly in one event-loop turn, so the old grid is cleared once for the latest token and only its result is drawn.",
+      "labels": [
+        "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Columns hidden because their channel is unset are still claimed, so their rows stay off the flat form; their channels are not claimed, because a hidden object's channel on the form is how it is brought back.",
+      "context": "Columns hidden because their channel is unset are still claimed, so their rows stay off the flat form; their channels are not claimed, because a hidden object's channel on the form is how it is brought back.",
+      "labels": [
+        "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys#2"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "A slot whose channel is unset is hidden.",
+      "context": "A slot whose channel is unset is hidden.",
+      "labels": [
+        "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle#2"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Hidden slots count as in use too.",
+      "context": "Hidden slots count as in use too.",
+      "labels": [
+        "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "The layout puts the fields on aligned rows at the top, every action button on one line below them, then the view controls over the table.",
+      "context": "The layout puts the fields on aligned rows at the top, every action button on one line below them, then the view controls over the table.",
+      "labels": [
+        "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#9"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "The row itself must paint nothing: the application sheet's blanket background rule would otherwise put an opaque rectangle behind the bar, whatever is behind the page. The theme sheet's ``UsageBarRow`` rule says so for every row at once, so a row carries no sheet of its own.",
+      "context": "The row itself must paint nothing: the application sheet's blanket background rule would otherwise put an opaque rectangle behind the bar, whatever is behind the page. The theme sheet's ``UsageBarRow`` rule says so for every row at once, so a row carries no sheet of its own.",
+      "labels": [
+        "spacr.qt.widgets.usage_bar.UsageBar#5"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Two further records live in the preference store rather than in a file. The last session (module, its settings and its folder) is written while spaCR runs and when it closes, so an ordinary start can reopen where the user left off after any exit or crash. Settings drafts hold the unsaved settings of every open module; they are cleared on a clean exit, so a draft found at start-up means the previous run ended without closing.",
+      "context": "Two further records live in the preference store rather than in a file. The last session (module, its settings and its folder) is written while spaCR runs and when it closes, so an ordinary start can reopen where the user left off after any exit or crash. Settings drafts hold the unsaved settings of every open module; they are cleared on a clean exit, so a draft found at start-up means the previous processing session ended without closing.",
+      "labels": [
+        "spacr.restart_state#3"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "``original_*`` columns, the names a plate had before conversion, count as provenance and never as measured features.",
+      "context": "``original_*`` columns, the names a laboratory microplate had before conversion, count as provenance and never as measured features.",
+      "labels": [
+        "spacr.schema.is_provenance_column#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "This is pure image I/O: mask_engine imports no PySide6 and creates no Qt objects. Each completed field is saved as it finishes, so it is recoverable if a later field or model fails.",
+      "context": "This is pure image I/O: mask_engine imports no PySide6 and creates no Qt objects. Each completed microscope field of view is saved as it finishes, so it is recoverable if a later microscope field of view or model fails.",
+      "labels": [
+        "spacr.segmentation_uncertainty.compute_queue_uncertainty#11"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Metadata is validated before any file is opened; integer-keyed object scores are JSON-safe.",
+      "context": "Metadata is validated before any file is opened; integer-keyed object scores are JSON-safe.",
+      "labels": [
+        "spacr.segmentation_uncertainty.save_uncertainty_map#7"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "The cellHTS2 Bscore settings override the looser stats::medpolish defaults.",
+      "context": "The cellHTS2 Bscore settings override the looser stats::medpolish defaults.",
+      "labels": [
+        "spacr.sp_stats.b_scores#6"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Shared connections are in autocommit mode, so the connection context alone would not make these updates one atomic batch.",
+      "context": "Shared connections are in autocommit mode, so the connection context alone would not make these updates one atomic batch.",
+      "labels": [
+        "spacr.suggest.write_suggestions#7"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Pre-QC corrected values are persisted separately; the cached originals stay raw.",
+      "context": "Pre-QC corrected values are persisted separately; the cached originals stay raw.",
+      "labels": [
+        "spacr.timelapse.automated_motility_assay#5"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    },
+    {
+      "source": "Spawn workers so they inherit no locks held by other threads in this process. Close and join the pool after mapping; terminating forked workers can hang while their exit handlers wait on inherited locks.",
+      "context": "Spawn workers so they inherit no locks held by other independent execution paths in this process. Close and join the pool after mapping; terminating forked workers can hang while their exit handlers wait on inherited locks.",
+      "labels": [
+        "spacr.utils.augment_images#1"
+      ],
+      "languages": [
+        "sv",
+        "de",
+        "es",
+        "zh_CN",
+        "pt",
+        "hi",
+        "ko",
+        "is"
+      ]
+    }
+  ]
+}

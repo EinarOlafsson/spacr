@@ -1,0 +1,64 @@
+{
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "normal_nine_language_generation_and_audit_passed": true,
+  "source_bound_reviewed_languages": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ],
+  "total_rows_each_language": 9833,
+  "other_complete_rows_and_source_hashes_preserved_each_language": 9832,
+  "exact_source_replacements_each_language": 1,
+  "runtime_tests_passed": 35,
+  "API_tests_excluded": 12,
+  "API_followup_separate": true,
+  "new_theme_refresh_deferred_until_CPU_replacement_checkpoint": true,
+  "artifacts": {
+    "features/data/615_standard_installation_runtime_2026-10-05/check_core_gui_runtime_preservation.py": {
+      "sha256": "dfd3ad8ecd30b5243a35561a41990c047ce6e2cbda120730bfab00646411d44c",
+      "bytes": 2423
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-audit-r1.log.gz": {
+      "sha256": "c79193a25c1e63aa0a3a531cacfe6d771f34d3cca296d150adc208e178558638",
+      "bytes": 104
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-preservation-proof.json": {
+      "sha256": "b5065b43f96a5aab4e94155921b9963e247115860624fa0d2ea41844a13155c9",
+      "bytes": 9211
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-preservation-r1.log.gz": {
+      "sha256": "f933bef984175c6a83f40b5e1d6f9412ca2f0fb5e4b456015acb5550c2c2d9af",
+      "bytes": 438
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-preservation-r2.log.gz": {
+      "sha256": "955e99b773b7d3d1ab48e2d36aa3ea2c3d42370588085f0781f5d37c442b442d",
+      "bytes": 133
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-refresh-r1.log.gz": {
+      "sha256": "4a234af1b3291b9153f13c254e4753706becfdeef89931830ce075330865ec3b",
+      "bytes": 500
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-refresh-r2.log.gz": {
+      "sha256": "97aa88c805a1697b0b8ba2929af5da92f421f04ea691691c10761e9cad86b0e9",
+      "bytes": 200
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-refresh-r3.log.gz": {
+      "sha256": "a6321081c26b96c1f0f975699a19d6a0889f43acf2b80dc41dcdb8ab5850b34d",
+      "bytes": 267
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-review-r1.log.gz": {
+      "sha256": "fba81eb5fb3abfb5a6173da6cb0ff7d91f613ee6aa3836bde8e15c92e3423a3e",
+      "bytes": 120
+    },
+    "features/data/615_standard_installation_runtime_2026-10-05/core-gui-runtime-tests-r1.log.gz": {
+      "sha256": "84e707d977ed09490e03d962fa4504a5ab6ad53bfc1c2b8561d1778d548d4125",
+      "bytes": 79
+    }
+  }
+}

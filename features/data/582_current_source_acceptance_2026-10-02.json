@@ -1,0 +1,17 @@
+{
+  "item": 582,
+  "date": "2026-10-02",
+  "acceptance": "The original DONE WHEN is met by a local test catalogue: plugin and recipe rows list, and a real offline wheel installs, loads and uninstalls cleanly.",
+  "existing_functional_evidence": {
+    "source": "tests/test_plugin_catalogue.py and features/future/582_plugin_and_recipe_catalogue.txt",
+    "coverage": "Real wheel built for the test and installed offline, plugin registration/load, update, uninstall, rollback after failed update, recipe Open action and asynchronous Preferences list/install/uninstall paths"
+  },
+  "current_source_check": {
+    "command": "QT_QPA_PLATFORM=offscreen OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' tools/run_capped.sh 4G taskset -c 0 /home/carruthers/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_plugin_catalogue.py tests/test_plugin_catalogue_worker_f582.py tests/qt/test_plugin_catalogue_alpha_gate.py tests/qt/test_plugin_catalogue_dialog_worker_f582.py -p no:randomly",
+    "passed": 51,
+    "failed": 0,
+    "seconds": 15.64,
+    "resources": "4 GiB memory cap, one CPU, zero swap, CUDA hidden"
+  },
+  "limits": "The accepted original test-catalogue workflow does not provide a hosted community catalogue. Plugins with dependency versions conflicting with spaCR still need process-level environment isolation; catalogue signing policy is undecided."
+}

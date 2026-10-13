@@ -1,0 +1,32 @@
+{
+  "source_root": "/mnt/wd4tb/spacr-worktrees/codex-readme-opening-20261008",
+  "source_head": "6d48a0ae837ff77c23f14746916db3c1111a12d6",
+  "source_sha256": {
+    "spacr/qt/app.py": "840411dd5c5fa5b9972e0db2c1340204d5c35739a46d5a27df097a93afd4b824",
+    "spacr/qt/preferences.py": "450e2e7aa1366ba703a4e54284dffc4fe236284ff65f8fc377f7501347b81283",
+    "spacr/qt/screens/app_screen.py": "79a7077c71a38039a93ba1d16221df002a362e9ada0ac9f97a928246e96d1b32",
+    "spacr/qt/widgets/ambient.py": "e6233af0b47e8ffec9a67a0be7027535b3710e0b11c596e25e31c2148663178f"
+  },
+  "baseline_sha256": "ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f",
+  "full_equal": true,
+  "api_entries": 13232,
+  "runtime_counts": {
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "categories": 237,
+    "ui": 7288,
+    "installer": 65,
+    "module_summaries": 77
+  },
+  "changed_api": [],
+  "changed_runtime": {
+    "setting_labels": [],
+    "setting_tooltips": [],
+    "categories": [],
+    "ui": [],
+    "installer": [],
+    "module_summaries": []
+  },
+  "loaded_spacr_modules": 193,
+  "foreign_spacr_modules": {}
+}

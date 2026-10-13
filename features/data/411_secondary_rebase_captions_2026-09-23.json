@@ -1,0 +1,218 @@
+{
+  "all_api_review_loaders": true,
+  "api_count": 11402,
+  "failures": [],
+  "languages": [
+    {
+      "language": "sv",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "de",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "es",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "zh_CN",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "pt",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "hi",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "ko",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "is",
+      "records": 38,
+      "review_loader": true
+    },
+    {
+      "language": "fr",
+      "records": 38,
+      "review_loader": true
+    }
+  ],
+  "retired": {
+    "de": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "Distanzbasiertes Wachstum innerhalb des Schwellenwertbereichs"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "Die Intensitätsmethode folgt hellen Strukturen. Die Distanzmethode breitet sich von primären Pixeln durch den zulässigen Vordergrund aus und kann Zellen mit ungleichmäßiger Helligkeit im Inneren besser trennen. Keine der beiden Methoden ist CellProfiler Propagation."
+      }
+    ],
+    "es": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "Crecimiento por distancia dentro del umbral"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "La intensidad sigue estructuras brillantes. La distancia se extiende desde los píxeles primarios por el primer plano permitido y puede ayudar a separar células con brillo interno desigual. Ninguna es CellProfiler Propagation."
+      }
+    ],
+    "fr": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "Croissance par distance dans la zone définie par le seuil"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "La méthode par intensité suit les structures brillantes. La méthode par distance s’étend depuis les pixels primaires dans le premier plan autorisé ; elle peut aider à séparer les cellules dont la luminosité interne est inégale. Aucune des deux n’est CellProfiler Propagation."
+      }
+    ],
+    "hi": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "थ्रेशोल्ड क्षेत्र के भीतर दूरी-आधारित वृद्धि"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "तीव्रता विधि चमकीली संरचनाओं का अनुसरण करती है। दूरी विधि प्राथमिक पिक्सेल से अनुमत अग्रभूमि में फैलती है; इससे अंदर असमान चमक वाली कोशिकाएँ अलग करने में मदद मिल सकती है। दोनों में से कोई भी CellProfiler Propagation नहीं है।"
+      }
+    ],
+    "is": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "Fjarlægðarvöxtur innan þröskuldssvæðis"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "Styrkleikaaðferðin fylgir björtum byggingum. Fjarlægðaraðferðin dreifist frá frumpixlum um leyfðan forgrunn og getur hjálpað til við að aðgreina frumur með ójafna birtu að innan. Hvorug er CellProfiler Propagation."
+      }
+    ],
+    "ko": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "임계값 영역 내 거리 기반 성장"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "강도 방식은 밝은 구조를 따릅니다. 거리 방식은 1차 픽셀에서 허용된 전경으로 확장되므로 내부 밝기가 고르지 않은 세포를 분리하는 데 도움이 될 수 있습니다. 두 방식 모두 CellProfiler Propagation은 아닙니다."
+      }
+    ],
+    "pt": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "Crescimento por distância dentro do limiar"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "A intensidade segue estruturas brilhantes. A distância se espalha a partir dos pixels primários pelo primeiro plano permitido e pode ajudar a separar células com brilho interno desigual. Nenhuma das duas é CellProfiler Propagation."
+      }
+    ],
+    "sv": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "Avståndsbaserad tillväxt inom tröskelområdet"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "Intensitetsmetoden följer ljusa strukturer. Avståndsmetoden sprider sig från primära pixlar genom tillåten förgrund och kan hjälpa till att skilja celler med ojämn inre ljusstyrka. Ingen av metoderna är CellProfiler Propagation."
+      }
+    ],
+    "zh_CN": [
+      {
+        "key": "Distance growth within threshold",
+        "source": "Distance growth within threshold",
+        "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
+        "table": "ui",
+        "translation": "阈值范围内的距离生长"
+      },
+      {
+        "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+        "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
+        "table": "ui",
+        "translation": "强度方法沿明亮结构生长。距离方法从初级像素向允许的前景区域扩展，有助于分离内部亮度不均的细胞。两者都不是 CellProfiler Propagation。"
+      }
+    ]
+  },
+  "ui_count": 4976,
+  "source_base_commit": "568d58c3e3c5af3a52d1ed59658bcf3d3c7e875a",
+  "source_sha256": {
+    "spacr/qt/screens/make_masks.py": "1d440dbfd9a5dcde851e0ebc55486a6ebaa5493cac628310c8886bc88febd795",
+    "spacr/qt/mask_engine.py": "f2e7b15085b957a23ff2b8728c7e36d60d6277f0104e8094ed2293a15fc82ae9",
+    "spacr/qt/widgets/workflow_diagram.py": "b610803a0451cd95b6f2eff50809ccb5d77a8ccc8bb7822c123d6ed88c5311d9",
+    "spacr/_segmentation_backends.py": "bd7befa4d36eecbb7645bb52ca1b4cf766dd30afd1f35a628fb9655b779a75d2"
+  },
+  "validation": {
+    "named_secondary_tests": 45,
+    "api_inventory": 11402,
+    "callable_inventory": 9441,
+    "required_omissions": 2292,
+    "full_catalog_acceptance": false
+  },
+  "log_sha256": {
+    "secondary-rebase-final-tests.log": "141c0afbf0a10766f528b4d98532b5d45daf8c512f6d37b0a19f96454060e86b",
+    "secondary-rebase-publication.log": "8b2c97af8ea9ebe1aec4cb27e9fd4c2d17e3285bfe28ddd2451fcca6d27281b4",
+    "secondary-rebase-help.log": "fd96b95a290abfd31fa70759eb6ffd4d3f8691bb55403b46651c8e01b869c3e3"
+  }
+}

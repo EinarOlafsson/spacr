@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (GPT-6), no native-speaker signoff",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier",
+      "source": "Image QC classifier",
+      "source_sha256": "531a47394a1d7c49b9cd589d10df4f7057d5bdbd4a6f8f82690cde75f3a02092",
+      "translation": "图像质量（QC）分类器"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_model",
+      "source": "Image QC classifier model",
+      "source_sha256": "f165ac20974fa6d98a9f6c6e93b63854f45f78207322a8829cb41964d3d65c8b",
+      "translation": "图像质量（QC）分类器模型"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_labels",
+      "source": "Image QC classifier labels",
+      "source_sha256": "943c322ed4a5b86e28ad37c5598759f48ad71da1e5a868238becc5eefd8a86ea",
+      "translation": "图像质量（QC）分类器标签"
+    },
+    {
+      "table": "setting_labels",
+      "key": "image_qc_classifier_threshold",
+      "source": "Image QC classifier threshold",
+      "source_sha256": "69b945ee7598e93b26c4d41ebcbbfff0942284494920042e630c7025a7d10aa8",
+      "translation": "图像质量（QC）分类器阈值"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier",
+      "source": "Also screen each field with a small neural network that flags out-of-focus, saturated, debris-covered, bubble and empty fields, alongside the focus and saturation rules. Flags go into the image-quality report with a probability per class; in exclude mode a flagged field is kept out of segmentation like any other. Runs on the CPU. The built-in model is trained once on synthetic fields with planted defects and cached. Ignored when image_qc_mode is off. Default False.",
+      "source_sha256": "a4278479156447351631aebe25cd9eb4f3ce12479723607300c85da00364afb8",
+      "translation": "除对焦和饱和度规则外，还使用一个小型神经网络筛查每个视野，标记失焦、饱和、被碎屑覆盖、有气泡以及空白的视野。标记及每个类别的概率会写入图像质量报告；在 exclude 模式下，被标记的视野与其他被标记的视野一样，不参与分割。在 CPU 上运行。内置模型使用人为植入缺陷的合成视野训练一次，然后缓存。image_qc_mode 为 off 时忽略此设置。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_model",
+      "source": "A classifier saved by an earlier run (qc/image_qc_model.pt) to use instead of the built-in one. It is read as tensors only. Blank uses the built-in model. Default None.",
+      "source_sha256": "bf40849d0c7891c8abb3ad319f807c7113eac5fbdb5dedd2d85c6d22f3817056",
+      "translation": "使用先前运行保存的分类器（qc/image_qc_model.pt）替代内置分类器。仅以张量形式读取。留空时使用内置模型。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_labels",
+      "source": "Table of hand-labelled fields to fine-tune the classifier on, with a field column (the raw file name) and a label column: good, or out_of_focus, saturated, debris, bubble or empty, several separated by semicolons; an optional channel column picks the channel. With 10 or more fields, cross-validated precision and recall against the rule metrics go to qc/image_qc_benchmark.csv; the tuned model is saved as qc/image_qc_model.pt. Default None.",
+      "source_sha256": "70d32bc87f65993cdc22720a190b3cd911a7e423c594db0a3d113799e6ab4a32",
+      "translation": "用于微调分类器的人工标注视野表，包含 field 列（原始文件名）和 label 列：good，或 out_of_focus、saturated、debris、bubble、empty；多个标签用分号分隔。可选的 channel 列用于选择通道。当视野数达到 10 个或更多时，通过交叉验证获得的精确率和召回率以及与规则指标的比较会写入 qc/image_qc_benchmark.csv；微调后的模型保存为 qc/image_qc_model.pt。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "image_qc_classifier_threshold",
+      "source": "Smallest class probability, from 0 to 1, at which the classifier flags a field. Raise it to flag fewer fields, lower it to miss fewer defects. Default 0.5.",
+      "source_sha256": "72435294f7c4860f3dbd890c3f06dce9befa3f0fe732a61595ec4bc2676609d8",
+      "translation": "分类器标记视野所需的最低类别概率，范围为 0 到 1。提高该值可减少标记的视野，降低该值可减少漏检的缺陷。默认值 0.5。"
+    }
+  ]
+}

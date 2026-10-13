@@ -1,0 +1,31 @@
+{
+  "item": 560,
+  "normal_API_chance_map_gap_exhaustively_reproduced": true,
+  "source_fix_not_yet_started": true,
+  "normal_chance_precision_remains_correct": true,
+  "pending_full_cohort_CPU_runner_and_actual_normal_plot_script_frozen_before_execution": true,
+  "original_normal_metrics_preserved_plus_additional_exact_random_AP_baseline": true,
+  "no_GPU_model_performance_or_new_source_claim": true,
+  "artifacts": {
+    "features/data/560_finite_random_AP_gap_2026-10-06/normal-scorecard-finite-rank-chance-gap-r1.json": {
+      "sha256": "9a200460084bad4954fc4451dd50e8a2fbc8f8f6530e8c9995d9f1e03b5f0fcd",
+      "bytes": 603
+    },
+    "features/data/560_finite_random_AP_gap_2026-10-06/normal-scorecard-finite-rank-chance-gap-r2.json": {
+      "sha256": "2fdc61343dfdd329c2d0ec2cd82ae888e339d06363f63e4c89042c3fe05ac38f",
+      "bytes": 798
+    },
+    "features/data/560_finite_random_AP_gap_2026-10-06/plot_full_fluorescence_foundation_scorecards_r1.py": {
+      "sha256": "fc3431624e71c7e8278c93ba0851191e1cc59e4c84febce6082c1977e3f81a05",
+      "bytes": 3925
+    },
+    "features/data/560_finite_random_AP_gap_2026-10-06/score_full_fluorescence_foundations_CPU_r1.py": {
+      "sha256": "cc8fdb3a4de752459bae8f88ad99b6ae217513ad979216d4d6689a4d88cbbe33",
+      "bytes": 10203
+    },
+    "features/data/560_finite_random_AP_gap_2026-10-06/verify_finite_rank_AP_chance_r1.py": {
+      "sha256": "67e02d3bc534d53c1e3aa5327fbc27ec60759b9a23eab5ead1eca11a84a99f2a",
+      "bytes": 2939
+    }
+  }
+}

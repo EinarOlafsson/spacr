@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "source_published": false,
+  "private_baseline_commit": "b0347c648fa29c4c868530ad64a49b18570cca85",
+  "actual_native_engine_cases": 24,
+  "exact_moving_frames": 192,
+  "distinct_moving_hashes_per_case": 8,
+  "qt": "6.12.0",
+  "platform": "xcb",
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "eb2855a186c3736f46d209baa417e8e3b1626469ef277e6cbb7795f8bf4c1b45",
+    "spacr/qt/preferences.py": "98926bd5e5b55091068ba0092ee06d296f18fd953da186de9084b5eaabcf5fdf",
+    "setup.py": "4884446b38fe98e1dc139b7be5c843dfdf8d1f86be7b6115d2dc8ed08dc7227d"
+  },
+  "proofs": {
+    "payloads/check_application_flow_gpu_r6.py.gz": {
+      "bytes": 1954,
+      "sha256": "5eef2efd877adde5aca7705d2e30accc5e5f5c374d99e318fed4d72ae8ee7f83",
+      "raw_bytes": 6000,
+      "raw_sha256": "321542f907507cee6faf7d5a167e8b99ae64efe597ae4f2b003f0f623131b6ad"
+    },
+    "payloads/application-flow-gpu-r6.log.gz": {
+      "bytes": 1102,
+      "sha256": "a884548d764636258449cdef92d99a0b6a6ad178127c42ebd486f2dae8ae568f",
+      "raw_bytes": 8272,
+      "raw_sha256": "706b43ad0a3fc663dbbd0c5e53e66818ae82185031c8c81e1057244adf7519ce"
+    },
+    "payloads/application-flow-gpu-r6-tool.log.gz": {
+      "bytes": 1296,
+      "sha256": "2194a6b973cd2428cd877105e58249402c0c36a9fb4ecccdbe1bedd476946a49",
+      "raw_bytes": 8855,
+      "raw_sha256": "ba787fc96c0b032cd3cd136140ab40a5961bb3173138b7d9039e1360c72e6bfd"
+    },
+    "payloads/application-flow-gpu-r6/receipt.json.gz": {
+      "bytes": 11150,
+      "sha256": "8d38f2ab39c00359e0df97eeee909f7f65c30b0f05cfe0cd6f60fdf2b2200d31",
+      "raw_bytes": 39188,
+      "raw_sha256": "b49dd14d22fb941580c80e4bfb76f14a60684bb549dc71964d8de82af5612ad6"
+    },
+    "payloads/candidate/spacr/qt/widgets/ambient.py.gz": {
+      "bytes": 117682,
+      "sha256": "ff7716bdc1e97f177de3ccf07787b82afe033f0426cd77b63001cc48955f5f45",
+      "raw_bytes": 427718,
+      "raw_sha256": "eb2855a186c3736f46d209baa417e8e3b1626469ef277e6cbb7795f8bf4c1b45"
+    },
+    "payloads/candidate/spacr/qt/preferences.py.gz": {
+      "bytes": 133511,
+      "sha256": "43ed4e5b20e62630d603f3f084852f719803dc7de35d7c03e3b8874400e57bc9",
+      "raw_bytes": 493779,
+      "raw_sha256": "98926bd5e5b55091068ba0092ee06d296f18fd953da186de9084b5eaabcf5fdf"
+    },
+    "payloads/candidate/setup.py.gz": {
+      "bytes": 4610,
+      "sha256": "97041812aff54099e0c1d79136b44771977b39fb8c73676b8c0ea1d7c4a4099f",
+      "raw_bytes": 13374,
+      "raw_sha256": "4884446b38fe98e1dc139b7be5c843dfdf8d1f86be7b6115d2dc8ed08dc7227d"
+    },
+    "payloads/candidate/tests/qt/test_flow_graphics_backend_fallback_and_ownership.py.gz": {
+      "bytes": 1784,
+      "sha256": "68cca69a0cffd9a1b9260529d32474e937f42314147013ada26d11296eefc399",
+      "raw_bytes": 6525,
+      "raw_sha256": "021385e774fca3d7f3117300eb110421cf7c86ce790ee062a4d4768d7dd485e4"
+    },
+    "payloads/candidate/source.patch.gz": {
+      "bytes": 6039,
+      "sha256": "e20e07198a358c48a6e685b708113248ad3fe0ae4626dd46c1afb9c295c60277",
+      "raw_bytes": 20355,
+      "raw_sha256": "a1fbf8442228b4e3cc59977293fcedf9553f32d7d48341935010991306a208ac"
+    }
+  },
+  "qualification": "Native current private application engine and optional EGL renderer; timings include advance and complete shade. No displayed frame-rate, other-platform, original segfault, arbitrary-palette GPU or scientific analysis claim. The candidate source is a source-hashed uncommitted private patch on its recorded baseline, not that baseline alone. Producer thread-name eligibility and actual EGL resources are exercised; actual QWidget/Preferences lifecycle and later full-edge integration remain separate.",
+  "performance": "Complete engine medians favor dense4Kfields; sparse/default fields often slower. Automatic remains dense4Kfield only; explicitGPU does not guarantee a speedup."
+}

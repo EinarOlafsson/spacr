@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "language": "de",
+  "symbols": [
+    "spacr.batch.resolve_job_settings",
+    "spacr.cli.resolve_settings",
+    "spacr.curation_queue.external_record",
+    "spacr.curation_queue.load_draft_counts",
+    "spacr.curation_queue.load_probabilities",
+    "spacr.curation_queue.scores_path",
+    "spacr.curation_queue.status_path"
+  ],
+  "source_commit": "21a100b5583d709d8be228836750f507dbf19e58",
+  "accepted_symbols": 7,
+  "exact_source_review_records": 37,
+  "draft_model": "Helsinki-NLP/opus-mt-en-de",
+  "device": "cpu",
+  "threads": 2,
+  "memory_cap": "6G",
+  "secondary_model_used": false,
+  "raw_draft_sha256": "e1e7ceffb624874e26e0a50b5b09da9efafaefd1b3096d195942b6779b8fa5e2",
+  "review_file": "docs/i18n/reviewed/api/de/2026-09-22-queue-status-and-settings.json",
+  "review_sha256": "27c28722147afbc1a17353edd21dafc1ad71c2e18acc21b5d2c9a11e9d90b379",
+  "all_reviewed_targets_regenerate_verbatim_without_model": true,
+  "all_source_and_context_hashes_current": true,
+  "raw_model_output_published": false,
+  "native_speaker_signoff": false,
+  "english_manifest_updated": false,
+  "extractor_debt_baseline_changed": false,
+  "full_catalog_audit_passed": false
+}

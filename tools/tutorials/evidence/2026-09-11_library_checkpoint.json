@@ -1,0 +1,774 @@
+{
+  "scope": "Cross-library source and final-byte reconciliation only",
+  "checked_lessons": 71,
+  "catalog_lessons": 75,
+  "checked_tracks": 3550,
+  "browser_cases": 994,
+  "held_lesson_ids": [
+    "12_map_barcodes",
+    "21_model_compare",
+    "22_model_zoo",
+    "71_investigate_hit"
+  ],
+  "catalog_preservation": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 75,
+    "scene_count": 957,
+    "refreshed_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "07_mask",
+      "08_measure",
+      "09_annotate",
+      "10_classify_cv",
+      "11_classify_ml",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "16_activation",
+      "17_timelapse",
+      "18_motility",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "37_batch",
+      "38_distributed_jobs",
+      "39_classifier_evaluation",
+      "40_run_history",
+      "41_classify",
+      "42_curate",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "48_hit_list",
+      "49_methods_results",
+      "50_run_compare",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "53_prediction_profiler",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "56_lineage",
+      "57_layer_viewer",
+      "58_graph_builder",
+      "59_anndata_export",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response",
+      "70_explain_cv",
+      "72_volcano_explorer",
+      "73_parameter_sweep",
+      "74_import_images",
+      "75_regression_diagnostics"
+    ],
+    "retained_lesson_ids": [
+      "12_map_barcodes",
+      "21_model_compare",
+      "22_model_zoo",
+      "33_plate_viewer",
+      "71_investigate_hit"
+    ],
+    "visual_only_lesson_ids": [
+      "34_database"
+    ],
+    "retained_count": 5,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "a212673752c1055a3a745f83bb8e119fa89ec73b61a6c20c9edef2554b0b1fcf"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "fa325cfea96095402e5ef3a0f4999dd031bcfd31cb25b489331cb0dc4c665248"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "35e10c83a82be9296459696733832b6665a43d35f4689a94ad7857a30c88448d"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "8dee6ea955e7c50bac96aa18a6317ea1977b07224939e47425b02aacb69fb701"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "5c1aae8d6da518646b533fd16bca5fa923c426c858aaedfb1c9bb1c301d81f0d"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "c94e8cec7be71e3e8c795968a7280c66d855f95f0ca9a77fb8d40c1a3693e6a1"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "898cdb0aba3f783f1a41de563e1de2eecb56761308d01d08871feaf60b717863"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "c0004b628cbd6bef2707b3d002e44a21b4324af51abd80f3ef43457084a9ea31"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "9a16ea93958bd183473934285661570dccb090f543d90341049bf97d6c9d5f11"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "066a81b6e1db158f44d0df6c06990756d4371c7def43a5f150463cc79f2b0912"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "bcedcf3c815d93dcb0c49d07ac17ebd81658b6272212ff4bdafb8f106aa3f4c7"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "54ca9631263b05eef8d07653dff8098ffcf4c02f2c3ce3d019e95ce9b5071b92"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "4dcdde92bde27146521912287acaada7b399336f10a4c65e11856d37fa7faa18"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 5,
+        "retained_content_sha256": "986f163c9617ce32c524ba4497c41056248ef82206015890bf698222e6a9d110"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "checked_subset_passed": true,
+  "whole_library_complete": false,
+  "new_decode_performed": false,
+  "current_gui_revalidated": false,
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "publication_approved": false,
+  "published": false,
+  "missing_registered_routes": [
+    {
+      "app_key": "ops",
+      "title": "OPS",
+      "host_app_key": "mask",
+      "status": "deferred_unvalidated_workflow"
+    }
+  ],
+  "navigation_source_commit": "a47139c9fdc5a07d3a8990d051dc4461600deda1",
+  "lessons": [
+    {
+      "lesson": "01_pypi_github",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "98bbd86c1f54a93264330be1cb36af22cdfa4f7f143396321f427b6c62a25644",
+      "full_lesson_reconciliation_sha256": "8c704311f10abef380639a2b8b8d17517241ea251c33900b1aae42a3acd78957"
+    },
+    {
+      "lesson": "02_conda_install",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "1b3c1b9932ebd1eb1d6ef2f7cdf3d6af35b1bbe41050a3f397a81f15e725ceec",
+      "full_lesson_reconciliation_sha256": "3ee8eaaaa49056d2a31c8566720cdc1ebfd448ecba7a308b622e5c8b63b50cc1"
+    },
+    {
+      "lesson": "03_pip_install",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "9bed191a9f06e633c0ac7bdf56766011d6337bd941c2501d0e85bc83582e95f4",
+      "full_lesson_reconciliation_sha256": "28dc7e26e38c4211cc9cf57cd4bc322b25d83b6bf995f17baf4b550c3cd0b17d"
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "2a73f31f9fd76fdaf0295dba0d80314c7ba6de1bd81cfe41e730525932fb36b8",
+      "full_lesson_reconciliation_sha256": "7676017d963869a851824e51bbb136f935ed8b4334eb463840fa7facb5a1be7b"
+    },
+    {
+      "lesson": "05_home",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "30b970efc04d1acf2f8e606637d29421f7a852ed1932708ef526363fb76ef667",
+      "full_lesson_reconciliation_sha256": "306fbf24476f2a36969e620bd0a1f611cbc64f4f5c291c2d6217da87adaca32a"
+    },
+    {
+      "lesson": "06_api",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "f2eb31b7271a7ac06f3764f496a6fb04dd65e2d73f7ff94f181a3943c432f417",
+      "full_lesson_reconciliation_sha256": "486703c4351a948223a5fe59ebd4db54e99e3289e2b488dadd821324082d60e1"
+    },
+    {
+      "lesson": "07_mask",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "3c34e9f79b55ce73e088fdbfe6703b1e4c1ea2c2ba5e8cabae5f1a836f8354e5",
+      "full_lesson_reconciliation_sha256": "57175503dfd69402f383be2eb2a66010fbd2b2e953510045ef2f98db117b3846"
+    },
+    {
+      "lesson": "08_measure",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "c8caba6f564e554a3a02ed6cdefa6f9638d42a282b7f392423d4148b17958cbf",
+      "full_lesson_reconciliation_sha256": "a37897b2dfd38e4c9795ead8f2d2a2420dd597e8527f402439c424c0b307f5b8"
+    },
+    {
+      "lesson": "09_annotate",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "66f9bc1834493f6821e89756d0e94b9cd8858b82ae74bafb91ba94091faf72c1",
+      "full_lesson_reconciliation_sha256": "547f9cbe0f64a14f1a73562f7b77c8d7f2ea52fc55e8159d94bfd6d4a02f0ddd"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "efdb0ea784a2cea7ceb9c5f6473266ee1bde2b51fa7438a2b7a814ea318a53cc",
+      "full_lesson_reconciliation_sha256": "72b70ef93346846c1f7f8e66db90706086242aa542c77aded3b87d4756aec2fb"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "cc663d5997af0497c63e901cba5bbd2968562cd6ceee6c4cd72d2796cae6584d",
+      "full_lesson_reconciliation_sha256": "b0d61809a155b38862d5c2c06618597e062f5c2dd0bf48866e1e2b48037c1147"
+    },
+    {
+      "lesson": "13_regression",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "397034da07680429f5ce0d4eef55acba10feb5ec6ab364ce989de09c5a166467",
+      "full_lesson_reconciliation_sha256": "bbc4a2b2f857ea773cacc5b581c7e5f748031ea0a6b8a7a07b5d7b8e61c87a43"
+    },
+    {
+      "lesson": "14_make_masks",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "c50467601de1de2cd6041dc9d271c11420b90016f430586ab6834c3b82da6245",
+      "full_lesson_reconciliation_sha256": "08bbab81742fff5f1cf48b968b58379b2f6e8178e0f751340f8edb22ead509fe"
+    },
+    {
+      "lesson": "15_image_umap",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "4f4b1e718d8042bf92e93c37172234062d4355094fb02cd84ee170bc795660c6",
+      "full_lesson_reconciliation_sha256": "ce06d36c567babe7570ff8e1a7470a3cac3e9f45aed57992629f41df09580bf0"
+    },
+    {
+      "lesson": "16_activation",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "f77b696efb1b82dd8cc96ed0a7321551ead61d08187fb7f2ab5319098f705c91",
+      "full_lesson_reconciliation_sha256": "164d36d3e5111eea693524d6d0ab59579556d1f1accc1b702bd497b014fb5814"
+    },
+    {
+      "lesson": "17_timelapse",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "aa1a14e1a673df6b3be62ee92511861bdfe18acb673e6635e4ea303449779990",
+      "full_lesson_reconciliation_sha256": "4627ef5d827ea6232152d369e1e89334f2aaffb1c4d763130b1895cb12a6c3f2"
+    },
+    {
+      "lesson": "18_motility",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "9246e51b2d5b153d870b9a8c83317add572b75f6a11d19677d0979277c9d423a",
+      "full_lesson_reconciliation_sha256": "8ab8230c71e0e9e2f066a12127b0e90d7eb8e71d2fe1fd6cf4ce7703d05bb424"
+    },
+    {
+      "lesson": "19_train_cellpose",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "ce7634160a45268811b865803aa60928e1e3b30f0807b03b29ef69a492be06eb",
+      "full_lesson_reconciliation_sha256": "02df35cde36ac7aeb7dee1d53b8e8945436328deba2453371824ed0055d547a0"
+    },
+    {
+      "lesson": "20_cellpose_masks",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "0d6c4d13b9cb6e0ac37c6d467877c016a0298f84e3e33c7448731a069dcca5e0",
+      "full_lesson_reconciliation_sha256": "757957d2f02bde6f11172637ae5f8ad68709724abd9f4c715fc43af8b6288ff9"
+    },
+    {
+      "lesson": "23_agreement",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "62f8926733a03335da452e3d0494b8392d992d48389ab2a5f39ae3b695c447ac",
+      "full_lesson_reconciliation_sha256": "a120eba06f067e18ef54af60ef1ac0a614a427c24ae1cc107a0b42cc573fe3a0"
+    },
+    {
+      "lesson": "24_plaque",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "12ae62f1bc144eb9b8338c4a89512523a285719b05c87cbe7d1d5eb717fde343",
+      "full_lesson_reconciliation_sha256": "56c9f87679d2aa44bbd94e5b9432d34c0310f118205d8eb9b8457d7e35cb763f"
+    },
+    {
+      "lesson": "25_recruitment",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "821dc7739fa3f6cd428ccabc9e04334bf36a40153ad9b75cef7f6d1520a223fa",
+      "full_lesson_reconciliation_sha256": "7f54f322abc10430eb893d5ff82fa4d305740ce3cadad5b8f4fe3d74758dd23a"
+    },
+    {
+      "lesson": "26_invasion",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "603e3a4a5acb63e02866556c265e150a70af73c8d08adc6887de85abbbff8f02",
+      "full_lesson_reconciliation_sha256": "d393acb584b3cb872550aeed74b4d68c2736220c42f83b421d6361d22204d281"
+    },
+    {
+      "lesson": "27_replication",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "fb2073f9350c9159f56ad4843c5fd786c0e2091991e0b4dc97f92be69fe2320e",
+      "full_lesson_reconciliation_sha256": "b4d039a1fef58afbcc754296e74a98754c055dc37c843dbf80d7beac85979c0e"
+    },
+    {
+      "lesson": "28_training_runs",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "dcf0b1937a64393277bed730a45e807e5e8c2f90cc044004d76bfa4d0b47324b",
+      "full_lesson_reconciliation_sha256": "cff51f5ac7055ab46585063fd0509805ec4705c36c8fd89234ae779e94a4b683"
+    },
+    {
+      "lesson": "29_report",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "c5f989e8791c3a5365f14e351a979073fbf3f546249ac56b77f0351445d2ecf2",
+      "full_lesson_reconciliation_sha256": "00783701b077b2366a22cc347700caff7606bbe4cd6c40baa0338e52dc9019f0"
+    },
+    {
+      "lesson": "30_plate_queue",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "928519c3135108e141affdf3f176018874e6a10eb4246b9586b27aaaf708aa3d",
+      "full_lesson_reconciliation_sha256": "fb20208bb6e630e0f7fe6a5b997447250f8659e9d0a67053ef142106930064c5"
+    },
+    {
+      "lesson": "31_external_masks",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "d6be51180ff31d9891063c98ff0c9f4139077b6b40612428e308f4b8377a21a5",
+      "full_lesson_reconciliation_sha256": "022c8d6a7ffe20092d3b0f0e364661b38b9a27d75e7c9d03fbc32d2d90ed17e3"
+    },
+    {
+      "lesson": "32_align_stitch",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "1f19cc955d7ee6fbf7ef0be980d4e144605a37273936562f661aff040f247880",
+      "full_lesson_reconciliation_sha256": "69bb7d4bed0991ad5f45f6fd226322083ed81e4571ea6384480e5ee2f06b6f3e"
+    },
+    {
+      "lesson": "34_database",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "58ebf130880b1ee61dd209c3728ed33001475ab51bf9a7a10e5dc1968c3261da",
+      "full_lesson_reconciliation_sha256": "e9e9458a64616cdf5d88e9a24979ebd91863256f9fe654c24944f6809c6ad8da"
+    },
+    {
+      "lesson": "35_converter",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "4b122a528a72208904de14f37c46483fffbb88558a27a2852ac71e82245543b8",
+      "full_lesson_reconciliation_sha256": "8cfcf01058da2912e2e6428635a92ab8f50d01e3b309163717fdd3a09822737c"
+    },
+    {
+      "lesson": "36_import",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "5f9cee3a80f45281ed088e93eccd87e5f12f315eea16004090d0c79cce7bd26e",
+      "full_lesson_reconciliation_sha256": "5a5d5cac9640abf5dce0b59a10fc6f68de0e0583e62b6beaf035d46e3299f584"
+    },
+    {
+      "lesson": "37_batch",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "a890b80e4478a14e754e814a01a54a671705165f3db52f461cb90a04cfae8062",
+      "full_lesson_reconciliation_sha256": "fe1bc60eeed8883a1babf9c39c9078ca78210eed3589d2ce8e9ed224dce13429"
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "5fce4e5d2daef6fcbd8a5821299657bec23f23f44aa2d27dc20a464719ff90d6",
+      "full_lesson_reconciliation_sha256": "fceaab367d5c5328d2946500e497a2f9197b5d9a3fb0359072f7070206217300"
+    },
+    {
+      "lesson": "39_classifier_evaluation",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "0158df1d1a628dc12b3f8c8e0a03ce1ac363cd9c5eb46537d2c854efa5cc6909",
+      "full_lesson_reconciliation_sha256": "2070d72b967dfa497a92432df7cab4e32d7d4a0d36d0026e098bd5669e7d1789"
+    },
+    {
+      "lesson": "40_run_history",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "d31fc41c744253d482eccdf24de8eef9c3444bd473f07ea84914c64adda54240",
+      "full_lesson_reconciliation_sha256": "e1fa1089e366b40d231a315728f6d33d9e0ffe2d134fe7c8e0243a732584e41b"
+    },
+    {
+      "lesson": "41_classify",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "d30f18ee5858ed78fedf8a28223221fc9c50fd9be530fa1ca7e177e284ecc3fc",
+      "full_lesson_reconciliation_sha256": "9a781cd9bd0f87ae0c0af9ce78656121066bbf6d69de160136766664a45fcced"
+    },
+    {
+      "lesson": "42_curate",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "2638f329c84827cf02046c30439e9a0b25eff7ecdf7a87c4a1ecee42d2bc5e35",
+      "full_lesson_reconciliation_sha256": "16eea89d9ebb6ed8e2634d33e5c6a82e7b8ed24ec493a95bed7571599e261bc4"
+    },
+    {
+      "lesson": "43_illumination",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "111aca42e2b85810b2cc10044ab0bd8a50efd30039c05ff8d9ab3b0028e91273",
+      "full_lesson_reconciliation_sha256": "74a09d4489a17b644bec8251c87225d24bd98b382bf2c90602c1e17ec258a852"
+    },
+    {
+      "lesson": "44_data_manager",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "e97801111a1f9c2ec56709ca34cc40e166fa4a8c00284a06bca5c9e8ab125891",
+      "full_lesson_reconciliation_sha256": "d20c776ca64aca1d30fde956ad3eb736a34ab93051dd46a05b779e8f7850549f"
+    },
+    {
+      "lesson": "45_project_browser",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "bd825286577c1d818d9d528bb36103d2abcf354367f9eb061c53de9c5fddca5b",
+      "full_lesson_reconciliation_sha256": "c1da446cc6e3783ec55e66b111419149b7ef84caef71b25cc62db36dca7007ef"
+    },
+    {
+      "lesson": "46_napari_bridge",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "bf8e846450a6e3f2e2735820680bd453783de7a73858bf2545876acd2f04aac9",
+      "full_lesson_reconciliation_sha256": "5e85294a7d8af9bd8782cc719e64db32f2799e778aa71a68e8789bc88b250f3d"
+    },
+    {
+      "lesson": "47_barcode_qc",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "9899e509124d36845c668e794c37b57b644124c678cb0cd50c71d9fad2940b89",
+      "full_lesson_reconciliation_sha256": "e7a473af4944db3677113521aeb1868ade19f4662f5b075afb559c422711b9cc"
+    },
+    {
+      "lesson": "48_hit_list",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "9dab27e36d9d07864a40095871f6f0479248b1912774a5c3f2cd3fb7b67cdb36",
+      "full_lesson_reconciliation_sha256": "a01e0ab9a2e71c6546d330e22068d9cc223e3682675874e29d3419535d3a35ba"
+    },
+    {
+      "lesson": "49_methods_results",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "85002c6ffb52beefb7673a34fe481378c86f9adfb6eb53efb50bb34736da98cf",
+      "full_lesson_reconciliation_sha256": "2a106645e8acff70b089a578f7d0ff5ed7790554c0154cf7e9be9120ae6a55e2"
+    },
+    {
+      "lesson": "50_run_compare",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "c54199f972597d5b3c5845c63d36e908ef0e26e2f055b1c10aaded8b9461ac0f",
+      "full_lesson_reconciliation_sha256": "e4bd8186b044a4f11cb34f654aba8d82f6b0b1d59213f726b6939a7f4ff78831"
+    },
+    {
+      "lesson": "51_control_charts",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "760e1a0e06f9368e54eeef3a3d1b117b6772e8b5daa16756d6332b8d83a06bf8",
+      "full_lesson_reconciliation_sha256": "31f3668b33af6d2edd8830814ab0a3fe3781751e8c236e733c057e515f660099"
+    },
+    {
+      "lesson": "52_pipeline_graph",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "9d1364e806c0797858ac69b49157916924a94010fcc25458d008dfc9d088bd19",
+      "full_lesson_reconciliation_sha256": "3b87f5364f730ae97b35a44ea1f43b814cfe56e346fc7997f542389c96fcb2ea"
+    },
+    {
+      "lesson": "53_prediction_profiler",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "d48c115f2e75014fd0a4a78f160432e6540e1d4cee9b0b80b5225adf59951f58",
+      "full_lesson_reconciliation_sha256": "ac41014db80f35781fde4bab2d38fc190e4d644ebd58a28a02c4021204427226"
+    },
+    {
+      "lesson": "54_qc_dashboard",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "4eea2bd7a8d1a5599b516245e283f57a490ad1eda70b52f6d2560ed139788ebe",
+      "full_lesson_reconciliation_sha256": "5878004cb46376cc5a8e9a0b376259d16e548395d8c975b552d36ceca69277bd"
+    },
+    {
+      "lesson": "55_image_scatter",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "dd209175cdca1e5a3ef2a6d3e9135066ed2bafc1eb1595ba4f038006ae6a7206",
+      "full_lesson_reconciliation_sha256": "3e8cf04dc6e94b40e3a91b4b28206e40723f24354dc3bac96538a98de2b26aca"
+    },
+    {
+      "lesson": "56_lineage",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "30b9235870e5e075ff26bf6c3ccd4304c3a430cc579089495a6a0dcb38628d33",
+      "full_lesson_reconciliation_sha256": "7c76cabf9142b461c8fdf82757f9cccdeaa1d76fa30b79861d625f989c6ca793"
+    },
+    {
+      "lesson": "57_layer_viewer",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "cfbb5dacf61d35e3ec73b05a95edee704b162773eebe8b13b1b46aa87801010a",
+      "full_lesson_reconciliation_sha256": "3fdc19deddcc650f9114a43d36d006c282d5eeef9c9dc263b3e8da0b1069bbfd"
+    },
+    {
+      "lesson": "58_graph_builder",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "e23ca3fd72b002b986be5c273ea558d20a129b29cbb644b322bf476303ec9510",
+      "full_lesson_reconciliation_sha256": "b466a32fd92a4805a4ff91254af0f2feb2488ba3e7eac9ef61f0e60ab3ddea90"
+    },
+    {
+      "lesson": "59_anndata_export",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "320608d3a4f37a762ddd5dab8d03a633d8d936ead13749765d6fdb86e58836e9",
+      "full_lesson_reconciliation_sha256": "64141d134b07af5c12f0149cad37d2fe50a31da9e2287d2ea574f92649003aa9"
+    },
+    {
+      "lesson": "60_pca",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "c0b372d8daedcca5ab938d2471b67c63ad024bccb38a09076b41d3acc3f8287f",
+      "full_lesson_reconciliation_sha256": "6875a4730a829a3aba195d672181ba220b973966d9e9611ef9d25d0afdd2b39e"
+    },
+    {
+      "lesson": "61_tabulate",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "d7129c1c1f77bb5e3d826d1ab5550a49afffafabb08520ad9cb5f49a962c4e13",
+      "full_lesson_reconciliation_sha256": "dbb551990b71898e6d718dcc6ac48793ddb9c1c15b2dd91c5e726215c22adee7"
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "19a4480160b74bc211099c7c58a793c3fe1d53f9f928c1aa901faa344f787be5",
+      "full_lesson_reconciliation_sha256": "a732dd0a0563f06067876f186c4deb609e9b2d0fa9913d7e684032f354ba3896"
+    },
+    {
+      "lesson": "63_small_multiples",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "d4fc0dc67e385851dc90c95b6da28011d763c03b836142683227902d487ac140",
+      "full_lesson_reconciliation_sha256": "cab49c3b2588ccee81eb9d45037a9e30f267eb7ff1c0d9074a1af12027aac570"
+    },
+    {
+      "lesson": "64_gate_editor",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "0663f7b4a760bec99a306e30d6c617062bd3a7b6a3e70daed47745e88a0a400a",
+      "full_lesson_reconciliation_sha256": "ea034df0fed90f27dc040086edce2dda498e3206292fb481e17ecc29e7770561"
+    },
+    {
+      "lesson": "65_feature_explorer",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "eed33ecc8884d06a0576c5b77b1cc308e8933a1115b76b05163946a95da4462a",
+      "full_lesson_reconciliation_sha256": "766d68dad061920384fc35feca73c7a226b3d4f81cfb87f644b9e66f16ab62c5"
+    },
+    {
+      "lesson": "66_outliers",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "d18025ecc66f9dee089af1c91308f72621b6f6683d13ef8c954f1354cddb6cd7",
+      "full_lesson_reconciliation_sha256": "e2e63db40b776c74a6c33c6d1d8ac1103719763b363e6eb8a2d17fb4881058cb"
+    },
+    {
+      "lesson": "67_experiment_design",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "e5d14294bece5efb934342a92f71368e13ec138c6ff984709a1867dd34be89df",
+      "full_lesson_reconciliation_sha256": "529ada1883e3822338bd2f5629c0ea7e08473909ba5d0b317451dec1fdb0914a"
+    },
+    {
+      "lesson": "68_power_design",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "7f2610862a844c46836b5818a76cd04c8b5e0d0ede84397c183b0fd95d092642",
+      "full_lesson_reconciliation_sha256": "7800143cf8f1e2657376f9940e3e278469df86a488dacc353889d19cb2e3d83e"
+    },
+    {
+      "lesson": "69_dose_response",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "1d3b1ad056a59273b83d92193a9da8c25fc2d48ec10016f4ed093f9d953145a8",
+      "full_lesson_reconciliation_sha256": "4a7ce1a758ac54a1bbc1f207a2ed934cdcb919ac46cdee91ee625f71c2458c10"
+    },
+    {
+      "lesson": "70_explain_cv",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "ccce468ba1530b76879081392c5b05fd18304249a2b18835a6803a3f6a45f417",
+      "full_lesson_reconciliation_sha256": "2b5975573478cead05b4acd5f35b773f465b39bad67ac1839e1aa43ce7c4ecb5"
+    },
+    {
+      "lesson": "72_volcano_explorer",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "47652eedb2a681e1a5f52e35f367f0ff7ae1949e39f43fccfa0cd0c91da2b496",
+      "full_lesson_reconciliation_sha256": "5b4e25a4c4752cbcb3e144e9b139c5645dbe804741c611fdaf3eb9d0f4881330"
+    },
+    {
+      "lesson": "73_parameter_sweep",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "a601d8fb20f7086d9dca914be215436348b09bf92ee8c4bb655ef5c5e81e246d",
+      "full_lesson_reconciliation_sha256": "455b02a7210d11f78dd86c132cac32cea6dc9ba6c72e9cf75cbb713401a18a3b"
+    },
+    {
+      "lesson": "74_import_images",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "359a4107b4a36b4e0c2735216a58d624ee4b1c9fcad4002b9805a9b32a7853ee",
+      "full_lesson_reconciliation_sha256": "e6f5447f7440668abcf3b6e4aa6375063bdd5f71726f862bb35c50a8391139d3"
+    },
+    {
+      "lesson": "75_regression_diagnostics",
+      "scope": "staged final bytes",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "a8ad544dc406b1fbed528d8e59b7c01bea38889d7890ae46e107ecf2b77b5ffa",
+      "full_lesson_reconciliation_sha256": "c6f7cf1f0ae544ce1b256fa06d52d5f4183160e90a6b9fc698a579754a3204c2"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "scope": "unchanged original media",
+      "tracks": 50,
+      "browser_cases": 14,
+      "master_sha256": "408590ceaa1af8bd140b8979a35f4a2f6a766a4ad632c300f637d17c14a32e41",
+      "full_lesson_reconciliation_sha256": "29a8179ecb9f5feea4bb33dd0b4f75e419f76b80ad4c0b3058f193960428b45f"
+    }
+  ],
+  "full_report": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/library-checkpoint-2026-09-11.json",
+  "full_report_sha256": "dbbfad5f316a21c205ff366069f408cb1877cc68c8df5e56c09cd7367c9f4259",
+  "focused_tests_passed": 16,
+  "source_guard_mutations_observed_red": 4,
+  "notes": [
+    "All seventy refreshed/visual-only lessons and the one unchanged retained lesson checked against final bytes.",
+    "Fifteen early lessons reconciled under the newer uniform checker; Home browser reports re-run for all fourteen cases.",
+    "The first snapshot comparison flagged Training Runs and External Masks solely because the optional retained_narration=null field was absent from their older reports. Their media, captions and other fields were unchanged.",
+    "OPS is a separately missing registered route, not an omitted lesson silently counted as complete."
+  ]
+}

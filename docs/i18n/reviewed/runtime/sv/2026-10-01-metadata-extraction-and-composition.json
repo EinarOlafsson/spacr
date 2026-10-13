@@ -1,0 +1,365 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 59 new local-model UI drafts in each locale. Incorrect technical meanings and omitted instructions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair. The two named-group instructions are explicitly AI-authored translations of previously uncatalogued prose, with literal examples retained as placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "4ce6d66d97adfb1e41c65387e14f51b8497b03418ff5551e57cc1c8e645f3c12",
+  "original_local_model_drafts": [
+    {
+      "source": "Add another metadata comparison to this condition box.",
+      "translation": "Lägg till en annan metadata jämförelse till denna villkorsruta."
+    },
+    {
+      "source": "Add column token",
+      "translation": "Lägg till kolumnsymbol"
+    },
+    {
+      "source": "Add text token",
+      "translation": "Lägg till textsymbol"
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "translation": "Alla kräver alla kriterier; alla kräver minst ett kriterium."
+    },
+    {
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "translation": "Lägg till den här bokstavliga texten. Textpolletter kan redigeras eller flyttas självständigt."
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "translation": "Tilldela ett fast värde, extrahera text med hjälp av en fånga grupp, eller komponera ett värde från beställda kolumn och text tokens."
+    },
+    {
+      "source": "Capture group",
+      "translation": "Tillfångatagandegrupp"
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "translation": "Välj en namngiven fångst eller dess nummer. Grupp 0 håller hela regex-matchen."
+    },
+    {
+      "source": "Column value. Drag to reorder or select and remove this token.",
+      "translation": "Kolumnvärde. Dra för att ändra ordning eller välj och ta bort token."
+    },
+    {
+      "source": "Copy the shown example into the extraction regex field.",
+      "translation": "Kopiera exemplet som visas i fältet utdrag regex. @ info: whatsthis"
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "translation": "Dra en kolumn i kompositionen, eller dubbelklicka för att lägga till den. Endast källkod och tidigare genererade kolumner är tillgängliga."
+    },
+    {
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "translation": "Dra kolumnpolletter i önskad ordning och infoga fast text eller avskiljare. Tidigare genererade kolumner kan återanvändas."
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "translation": "Bokstavlig text att infoga, såsom en understrykning, utrymme, eller behandling prefix."
+    },
+    {
+      "source": "Move token down",
+      "translation": "Flytta ner token"
+    },
+    {
+      "source": "Move token up",
+      "translation": "Flytta token uppåt"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "translation": "Namnge värdet att tilldela, välj sedan vilka metadataregler som måste matcha. Du kan också dra källkodsrader i en ruta."
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "translation": "Endast regexoperatörerna tolkar mönster. Andra operatörer jämför bokstavlig text och är fallkänsliga."
+    },
+    {
+      "source": "Remove token",
+      "translation": "Ta bort token"
+    },
+    {
+      "source": "Source column",
+      "translation": "Källaskolumn"
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "translation": "Tokens är sammanfogade från vänster till höger. Bromsar identifierar kolumnvärden. Dra för att ändra eller dubbelklicka på fast text för att redigera den. Saknade kolumnvärden lämnar resultatet tomt."
+    },
+    {
+      "source": "all rules match",
+      "translation": "alla regler stämmer"
+    },
+    {
+      "source": "any rule matches",
+      "translation": "eventuella regelmatcher"
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Add another metadata comparison to this condition box.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Add column token",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Add text token",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture group",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Column value. Drag to reorder or select and remove this token.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Copy the shown example into the extraction regex field.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Move token down",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Move token up",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Remove token",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Source column",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "all rules match",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "any rule matches",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    },
+    {
+      "source": "Add named captures such as {example} before creating columns.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add another metadata comparison to this condition box.",
+      "source": "Add another metadata comparison to this condition box.",
+      "source_sha256": "adf45c6f83dc0a90b00dab62988cdc916001ebe011b619e3383a212a7832223c",
+      "translation": "Lägg till ytterligare en metadatajämförelse i denna villkorsruta."
+    },
+    {
+      "table": "ui",
+      "key": "Add column token",
+      "source": "Add column token",
+      "source_sha256": "b389c3aac0b7327a0ca10b9c701896adcfa04a4f8c86c8e38c4c4ca2f49e2d3b",
+      "translation": "Lägg till kolumnelement"
+    },
+    {
+      "table": "ui",
+      "key": "Add text token",
+      "source": "Add text token",
+      "source_sha256": "7aa5ed9861e376086db15862025cd6c206e21ee244f49369b40d4aabf7d485af",
+      "translation": "Lägg till textelement"
+    },
+    {
+      "table": "ui",
+      "key": "All requires every criterion; any requires at least one criterion.",
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "source_sha256": "d2fdbb0cf59573659db3efdc7314c1fa482f7ce8710e794e9ea8647ef000b6ea",
+      "translation": "Alla regler innebär att varje kriterium måste uppfyllas; minst en regel innebär att minst ett kriterium måste uppfyllas."
+    },
+    {
+      "table": "ui",
+      "key": "Append this literal text. Text tokens can be edited or moved independently.",
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "source_sha256": "2d2e3a231945eeb0775503a1ba2d015573fea54efb8fbc4acc5cb742de5ab5ec",
+      "translation": "Lägg till denna bokstavliga text. Textelement kan redigeras eller flyttas var för sig."
+    },
+    {
+      "table": "ui",
+      "key": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source_sha256": "30ac1e8d96173ac641dc9c5e30ceea9b0ac5855c0d515e4d83dccb53754a9742",
+      "translation": "Tilldela ett fast värde, extrahera text med en fångstgrupp eller sätt ihop ett värde av ordnade kolumn- och textelement."
+    },
+    {
+      "table": "ui",
+      "key": "Capture group",
+      "source": "Capture group",
+      "source_sha256": "934ff0c6bd2c54f1b286477125c638b9f895e3163900ed92f93ccf1ee7c86313",
+      "translation": "Fångstgrupp"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source_sha256": "20046c00a2f1979885f23be17f795e561451ce52a08cceec7c6f9df6ecbfdb95",
+      "translation": "Välj en namngiven fångstgrupp eller dess nummer. Grupp 0 behåller hela regex-matchningen."
+    },
+    {
+      "table": "ui",
+      "key": "Column value. Drag to reorder or select and remove this token.",
+      "source": "Column value. Drag to reorder or select and remove this token.",
+      "source_sha256": "df703f49a5878694dc48d4966365d8a7dfb6eee428db6f80812e7bbe521b1b6b",
+      "translation": "Kolumnvärde. Dra för att ändra ordning eller markera och ta bort detta element."
+    },
+    {
+      "table": "ui",
+      "key": "Copy the shown example into the extraction regex field.",
+      "source": "Copy the shown example into the extraction regex field.",
+      "source_sha256": "6e5a9a5a5242365bb058859bab1f6b1a7a07a2b8a075a3708340a584c700843c",
+      "translation": "Kopiera exemplet som visas till fältet för extraktionens regex."
+    },
+    {
+      "table": "ui",
+      "key": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source_sha256": "02cb54d7af4c3610a970f4e4baf06a5083f7dc71c6b5be2f3814dd7726a15fe4",
+      "translation": "Dra en kolumn till sammansättningen eller dubbelklicka för att lägga till den. Endast källkolumner och tidigare genererade kolumner är tillgängliga."
+    },
+    {
+      "table": "ui",
+      "key": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "source_sha256": "6fa31cbacdbdb3f663088dd1eef6080b51db3db53b3aa21eef440b8f9189cd74",
+      "translation": "Dra kolumnelement till önskad ordning och infoga fast text eller avskiljare. Tidigare genererade kolumner kan återanvändas."
+    },
+    {
+      "table": "ui",
+      "key": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source_sha256": "6a0e2fd434e83c6dff4583b11f8086befb08416f4c1a0cf2990a233a287ab99c",
+      "translation": "Bokstavlig text att infoga, till exempel ett understreck, ett mellanslag eller ett behandlingsprefix."
+    },
+    {
+      "table": "ui",
+      "key": "Move token down",
+      "source": "Move token down",
+      "source_sha256": "22ef233a546805afd8707458c7a6372730e5c2fec1f08567ae0157bc71ed3d64",
+      "translation": "Flytta element nedåt"
+    },
+    {
+      "table": "ui",
+      "key": "Move token up",
+      "source": "Move token up",
+      "source_sha256": "d9fd305fbf6039c44dcbdb70072a9867bded43f53db073c3692c741fd667fbc3",
+      "translation": "Flytta element uppåt"
+    },
+    {
+      "table": "ui",
+      "key": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source_sha256": "94aa4d9b77ebee37ee203f95d76151c88f150c4ce9093100c06a3363d6a82077",
+      "translation": "Ange värdet som ska tilldelas och välj sedan vilka metadataregler som måste matcha. Du kan också dra rader från källtabellen till en ruta."
+    },
+    {
+      "table": "ui",
+      "key": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source_sha256": "47e158a17ef7eba70e6982637ad9b17ca857ce47b225791c7f86d040a54b1a02",
+      "translation": "Endast regexoperatorerna tolkar mönster. Övriga operatorer jämför bokstavlig text och skiljer mellan stora och små bokstäver."
+    },
+    {
+      "table": "ui",
+      "key": "Remove token",
+      "source": "Remove token",
+      "source_sha256": "dc852fb88e4d61904dd741221772e15250bee2e789b141bca9ba923a1adb1cc3",
+      "translation": "Ta bort element"
+    },
+    {
+      "table": "ui",
+      "key": "Source column",
+      "source": "Source column",
+      "source_sha256": "3e17d20e048679b4acbfd5d2a97a57987fd8a62d4ad14cdf94ad9dcb9423478c",
+      "translation": "Källkolumn"
+    },
+    {
+      "table": "ui",
+      "key": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source_sha256": "5fae60cc2a8319762c87ae5ba555a771dbc38a9d3fbdf93580509b9f7586a8b3",
+      "translation": "Elementen fogas samman från vänster till höger. Klammerparenteser markerar kolumnvärden. Dra för att ändra ordning eller dubbelklicka på fast text för att redigera den. Saknade kolumnvärden ger ett tomt resultat."
+    },
+    {
+      "table": "ui",
+      "key": "all rules match",
+      "source": "all rules match",
+      "source_sha256": "4b311bf231e84dcfc1337dab5c782e8954938a13118817a01d682dfc5345cfb4",
+      "translation": "alla regler matchar"
+    },
+    {
+      "table": "ui",
+      "key": "any rule matches",
+      "source": "any rule matches",
+      "source_sha256": "63934bbadf2bd2daf4b9c197821c5299f127dc7aec3390821d8f712e8deb2cd3",
+      "translation": "minst en regel matchar"
+    },
+    {
+      "table": "ui",
+      "key": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source_sha256": "eb73bfa40caa774bc65f8c66af10fb5e29a1e49f807733260187d2d5d835c4fb",
+      "translation": "Använd parenteser för den text som ska fångas. Namnge fångstgrupper med {example} för att skapa flera utdatakolumner samtidigt."
+    },
+    {
+      "table": "ui",
+      "key": "Add named captures such as {example} before creating columns.",
+      "source": "Add named captures such as {example} before creating columns.",
+      "source_sha256": "2f7f5d075a67fe31f72c88b1aff3ef3e55a84493063fb3a80ab1c000a10cff86",
+      "translation": "Lägg till namngivna fångstgrupper som {example} innan du skapar kolumner."
+    }
+  ]
+}

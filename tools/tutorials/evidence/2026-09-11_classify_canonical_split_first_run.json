@@ -1,0 +1,75 @@
+{
+  "lessons": [
+    "10_classify_cv",
+    "41_classify"
+  ],
+  "status": "First explicit canonical-split native run verified; final readable recording and tutorial media pending",
+  "dataset": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_split",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_canonical_capture/captures/classify_canonical_existing",
+  "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "preparation": {
+    "original_objects": 2341,
+    "selected": 64,
+    "per_existing_label_per_well": 8,
+    "classes": {
+      "infected_1": 1,
+      "infected_2": 2
+    },
+    "selection": "SHA256 of 42:PRCFO before fitting",
+    "canonical_names_from_database": true,
+    "pixel_bytes_changed": false,
+    "source_changed": false,
+    "format_marker_semantics_checked": true,
+    "original_folder_timestamps_may_differ": true,
+    "filename_parser_fixed": false
+  },
+  "native_run": {
+    "model": "resnet18",
+    "epochs": 1,
+    "image_size": 128,
+    "n_jobs": 0,
+    "generate_training_dataset": false,
+    "plot": true,
+    "worker_ok": true,
+    "figures": 1,
+    "training_objects": 16,
+    "validation_objects": 16,
+    "test_objects": 32,
+    "native_train_validation_well_audit_passed": true,
+    "native_train_test_well_audit_passed": true,
+    "authoritative_database_test_wells_disjoint": true,
+    "all_leakage_guards_enabled": true
+  },
+  "independent_metrics": {
+    "test_objects_checked": 32,
+    "confusion_matrix": [
+      [
+        16,
+        0
+      ],
+      [
+        16,
+        0
+      ]
+    ],
+    "accuracy": 0.5,
+    "majority_accuracy": 0.5,
+    "f1_macro": 0.3333333333333333,
+    "all_metrics_validated": false
+  },
+  "tests": {
+    "preparation_passed": 8,
+    "output_checks_passed": 13,
+    "mutations_red": [
+      "canonical_metadata_well",
+      "saved_macro_f1"
+    ],
+    "initial_wrong_well_negative_test_fixed_after_mutation_survived": true
+  },
+  "next": "Record the explicit preparation command and use the actual Choose source data dialog before the final native capture; the first recorder set src programmatically, leaving the empty-state banner visible.",
+  "biological_validation": false,
+  "calibrated_probabilities": false,
+  "published": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false
+}

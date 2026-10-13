@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "22_model_zoo",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Model discovery, provenance and compatibility review, bounded representative benchmarking, exact module handoff labels, and explicit distinction between diagnostics and ground-truth accuracy."
+  },
+  "languages": {
+    "es": {
+      "description": "Explore, verifique, descargue y evalúe modelos reutilizables de segmentación y clasificación.",
+      "prerequisite": "Prepare algunos campos representativos y conozca sus canales, el tipo de objeto y la escala aproximada.",
+      "objectives": [
+        "Revisar la compatibilidad y la procedencia del modelo.",
+        "Evaluar un modelo en campos representativos.",
+        "Enviar dos candidatos a Model Compare."
+      ],
+      "narrations": [
+        "Model Zoo enumera los modelos reutilizables disponibles a partir de fuentes incluidas, locales o declaradas en el catálogo. Comience por comprobar la tarea, los canales, la escala de los objetos y el preprocesamiento previsto.",
+        "Seleccione una carpeta de modelos y analícela. El catálogo mantiene juntas las rutas locales y los metadatos remotos, al tiempo que evita entradas duplicadas.",
+        "Seleccione un modelo para revisar su procedencia, licencia, suma de comprobación, contexto de entrenamiento y geometría prevista. El hecho de que un modelo se cargue correctamente no significa que sea adecuado para sus imágenes.",
+        "Seleccione un pequeño conjunto de campos representativos, incluidos ejemplos difíciles, para realizar una evaluación acotada.",
+        "Pruebe un modelo instalado. La evaluación informa de la velocidad, los recuentos de objetos, los indicadores de calidad y las vistas previas sin presentar estas comprobaciones como una medida de exactitud respecto a una referencia verdadera.",
+        "Examine conjuntamente la tabla y la vista previa de las máscaras. Investigue las advertencias en el contexto de las imágenes antes de aceptar o rechazar un modelo.",
+        "Seleccione dos modelos locales compatibles cuando necesite una evaluación controlada en paralelo.",
+        "Model Compare recibe ambos puntos de control y los mismos campos, de modo que las diferencias de las máscaras y las métricas de calidad puedan evaluarse con entradas idénticas."
+      ]
+    },
+    "fr": {
+      "description": "Parcourez, vérifiez, téléchargez et évaluez des modèles réutilisables de segmentation et de classification.",
+      "prerequisite": "Préparez quelques champs représentatifs et connaissez leurs canaux, le type d’objet et l’échelle approximative.",
+      "objectives": [
+        "Examiner la compatibilité et la provenance du modèle.",
+        "Évaluer un modèle sur des champs représentatifs.",
+        "Transmettre deux candidats à Model Compare."
+      ],
+      "narrations": [
+        "Model Zoo répertorie les modèles réutilisables provenant de sources intégrées, locales ou déclarées dans le catalogue. Commencez par vérifier la tâche, les canaux, l’échelle des objets et le prétraitement attendu.",
+        "Sélectionnez un dossier de modèles et analysez-le. Le catalogue conserve ensemble les chemins locaux et les métadonnées distantes tout en évitant les entrées en double.",
+        "Sélectionnez un modèle pour examiner sa provenance, sa licence, sa somme de contrôle, son contexte d’entraînement et la géométrie attendue. Le chargement réussi d’un modèle ne garantit pas qu’il convienne à vos images.",
+        "Sélectionnez un petit ensemble de champs représentatifs, y compris des exemples difficiles, pour réaliser une évaluation limitée.",
+        "Testez un modèle installé. L’évaluation indique la vitesse, les comptages d’objets, les indicateurs de qualité et les aperçus sans présenter ces contrôles comme une mesure de l’exactitude par rapport à une vérité de référence.",
+        "Examinez conjointement le tableau et l’aperçu des masques. Étudiez les avertissements dans le contexte des images avant d’accepter ou de rejeter un modèle.",
+        "Sélectionnez deux modèles locaux compatibles lorsqu’une évaluation contrôlée côte à côte est nécessaire.",
+        "Model Compare reçoit les deux points de contrôle et les mêmes champs, de sorte que les différences entre les masques et les métriques de qualité puissent être jugées sur des entrées identiques."
+      ]
+    },
+    "it": {
+      "description": "Esplora, verifica, scarica e valuta modelli riutilizzabili di segmentazione e classificazione.",
+      "prerequisite": "Prepara alcuni campi rappresentativi e conosci i relativi canali, il tipo di oggetto e la scala approssimativa.",
+      "objectives": [
+        "Esaminare la compatibilità e la provenienza del modello.",
+        "Valutare un modello su campi rappresentativi.",
+        "Passare due candidati a Model Compare."
+      ],
+      "narrations": [
+        "Model Zoo elenca i modelli riutilizzabili disponibili da fonti incluse, locali o dichiarate nel catalogo. Inizia verificando l’attività, i canali, la scala degli oggetti e la pre-elaborazione prevista.",
+        "Seleziona una cartella di modelli e analizzala. Il catalogo conserva insieme i percorsi locali e i metadati remoti evitando le voci duplicate.",
+        "Seleziona un modello per esaminarne la provenienza, la licenza, la somma di controllo, il contesto di addestramento e la geometria prevista. Il corretto caricamento di un modello non garantisce che sia adatto alle tue immagini.",
+        "Seleziona un piccolo insieme di campi rappresentativi, compresi esempi difficili, per eseguire una valutazione limitata.",
+        "Prova un modello installato. La valutazione riporta velocità, conteggi degli oggetti, indicatori di qualità e anteprime senza presentare questi controlli come una misura dell’accuratezza rispetto a un riferimento corretto.",
+        "Esamina insieme la tabella e l’anteprima delle maschere. Valuta gli avvisi nel contesto delle immagini prima di accettare o rifiutare un modello.",
+        "Seleziona due modelli locali compatibili quando è necessaria una valutazione controllata e affiancata.",
+        "Model Compare riceve entrambi i punti di controllo e gli stessi campi, quindi le differenze tra le maschere e le metriche di qualità possono essere valutate su input identici."
+      ]
+    }
+  }
+}

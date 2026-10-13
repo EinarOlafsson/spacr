@@ -1,0 +1,1095 @@
+{
+  "manual_annotation_primary_URL": "https://zenodo.org/records/3715492",
+  "DOI": "10.5281/zenodo.3715492",
+  "published_MD5_verified": true,
+  "MD5": "5b7490336e5c5b8035e43cd8302e80a3",
+  "sha256": "aec767afae76942b7c97e31c500284f8b5862150d8e81b57f513e66d7258c05e",
+  "bytes": 478266795,
+  "all_original_TIFF_inventory": [
+    {
+      "member": "Stardist/Test - Masks/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image76.tif",
+      "bytes": 1050272,
+      "sha256": "d679cf9ed4db76481cb16eabd24588095f19c7ef979fc9ec3327dbcc95e55884",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "7495940c5e00695b4bd93719f98781327bc503e58a421fb3525a8134f1d2903b"
+    },
+    {
+      "member": "Stardist/Test - Masks/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image86.tif",
+      "bytes": 1050272,
+      "sha256": "75b8b8c582df1ce302da68a243896ba9cc96e39bada2f8e12a7fb8c1e1ab1d7e",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "4f4902624667366a5afbe5c672f2d82ef7154c8b432046c1e87497097840f119"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image67.tif",
+      "bytes": 2097528,
+      "sha256": "86077554f24eb79b7c32edb563589e3d76b31d0f28090ff84a4989a2d8efa080",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "f1d8794f368a9d0058133100fbab7b53ee5b78bba8b8921621511e430c109ceb"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 14_XY1562769071_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "8f5e82dab9c6ba78ea061d270a7d275f1e9940d51d3301846f9a8454b8dd5891",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "d4b02bdffb131f9119b3c729fe8eb688948717c7e8103a788678ef48b43a745e"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 23_XY1562686119_Z0_T00_C1-1.tif",
+      "bytes": 2097529,
+      "sha256": "a453a4c5e2a14323b1d984fd72dcca6f36c2b0d995e6a6aafdd5740b6537f713",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "9a7f6992102448d8902e7634e334ab9b5c86083f2b46c1d9739012ab0eceae12"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 26_XY1562686122_Z0_T00_C1-1.tif",
+      "bytes": 2097529,
+      "sha256": "a729096fa72e51025558a9e35d4e4be9d1b467cc7fc125031ed355982a0a94e6",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "cedf2ca435ce7ffb1bc136846d7e8dae81d9dbd6d01a30d6c27dfcd158229c64"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image59.tif",
+      "bytes": 2097528,
+      "sha256": "a8d63e39ca30fd7f2fe5441523aad4147a2f941a455d7af43653372a4a13374c",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "d3bc88fb9ca9099b98be66cd01fca2ffa0431f778e3249ffeb097e7cdd892912"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image64.tif",
+      "bytes": 2097528,
+      "sha256": "7a471892690ff04d7b0a9cce25e5b7b364be42dff35fa0053e1e93850400fce8",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "ee34efdb96e7265817d821c33b5a4b1a7a4810b4e016336d1af18cdb8ddfbeea"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 40_XY1562769097_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "961bb2a44c4808fd82249872eebbd52dd62117d57bd5b08191236e53b129f96e",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "0319fe28c09ebaeccbf232b34eb8c532d41c22b45d31e3e4577986a46992ef21"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image48.tif",
+      "bytes": 2097528,
+      "sha256": "4a025831fa2c447615adff9b4a16fd2bb53142e4d696b39e4f9c2fc4473c5529",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "94cb8e35eb287c30a3892dadc1cce5be66fb425cfeb73e19b0a8ea5e8cccf20a"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image16.tif",
+      "bytes": 2097528,
+      "sha256": "693dd9ca2b945fef8eec89d4b337ce1f901292aa2192670c7f80ba6c39dbb958",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "91136843cdd05272b08828c423c66734b925136db18b7c14864d0dd1d06a6f89"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image75.tif",
+      "bytes": 2097528,
+      "sha256": "b762e76027dfb1b85388602fb17fb295eccf5c4fef1f77a0955d411b93b6ba85",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "048c197576572b0201713ec463438059524507cd73f59c104ad52f3cbf1e75c1"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage47.tif",
+      "bytes": 2097408,
+      "sha256": "76c3310c8df80d9e76da17a6955b0078f3a1fdcc5250744ae811249bfe632796",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "d793bab4eb7a99361abfa74d4e5eda55427d93e4ca7a5f83d3da9dbd6ed244c5"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image66.tif",
+      "bytes": 2097528,
+      "sha256": "410449293f410e72f3df4217990ad62db2b70d80808c7899c864b23623c00b63",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "ab83dab99c6f48f9c8251225193d09f84e0e74dda63779f4252431f37f2e5ced"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image1.tif",
+      "bytes": 2097798,
+      "sha256": "1fa02f5fe6f183d7216283bad443ab0c2b5d70b8a23fb3d0d237b8d268489b2e",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "1df549d5fa6a76f091ea0fdc2a52d7d9d694f0a5ef845be259246a7d909dd9e0"
+    },
+    {
+      "member": "Stardist/Training - Images/migration - Position 52_XY1562944062_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "d990f232dea796b22acb4641f4e7c562c494767bba56753b0b953e37015b24a0",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "c4d0bcf09da260c2eb15bae3cb6eeb6c58d47a9c1c4c4a23df6121d5e6635b4f"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1_SubBackimage86.tif",
+      "bytes": 2097408,
+      "sha256": "ef98144eb4519c792a523e40df010b018f8d327a764a3287923035ea47f1610c",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "31c48078e6693753e79b297fae9d907ddf2ecb3de5e57c429e2b2282d821ffda"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image17.tif",
+      "bytes": 2097528,
+      "sha256": "2838be8740798fc570448c4bd1b88c393714cb0f2e3a3fa6f0355d0edca70e58",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "5704de41d0b0798769cbd7307e401ea2cc87cf4efaac5396d35d8e1e0040674c"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image7.tif",
+      "bytes": 2097528,
+      "sha256": "4a8c9ddafe7058484a54d9058af8bf2f75819f1caac193dd5951175ce84310a6",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "727d838bf997d477539ecf6e80ba8ddc8a403284d4bb19b1cd2b9ff26ab99c79"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image14.tif",
+      "bytes": 2097528,
+      "sha256": "9b19edd57354ca1e8677b159f47fddee19abdd01a3120c9c193e5260d7469bad",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "cd7e7494f66d751e3572901f5eaf59e38429f5aec3b200ad4c1bc6c5ef8458f9"
+    },
+    {
+      "member": "Stardist/Training - Images/migration - Position 47_XY1562944057_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "7994768f2d2217e3615cc691788398799d0854660aebff2b6fa5c454532ca8b0",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "7443cb7da72f4223a7045a764dc05f81edc8ec837d034f0e101af8ca0b4a3003"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image29.tif",
+      "bytes": 2097528,
+      "sha256": "cb9bba803dbafc6711a75e52b65c940da80e144af0327319bd50e1b64de786f7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "7976ccbe7c6129dfe9df227428901e150274db8bbaeaf51b28e6d1b91e17454a"
+    },
+    {
+      "member": "Stardist/Training - Images/migration - Position 34_XY1562944044_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "245970b760de4089d4a56cf4a8f287b373348e3faa800605e064197a8404ee8d",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "f11a14afb808072c6d166e696ce4c1694ff286a3803beefd69fd6c9c52eb807f"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 25_XY1562769082_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "5fcf6d3026f2ab48893ed991010308ee2502a44dd89852aecfec6dd86345c125",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "51cad02c0fb95227649be3112434081b4020c7f0327faa283ffb241d3ea02270"
+    },
+    {
+      "member": "Stardist/Training - Images/migration - Position 72_XY1562944082_Z0_T00_C1-1.tif",
+      "bytes": 2097531,
+      "sha256": "924f69322361e55ddb0230ff6d43d4ae6e76b809231b08e88bf712a05beedaa8",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "1f6f635a3aceb878b2ebf6f3847d9d76852af35fcfbee75ee94bd8e27e74b639"
+    },
+    {
+      "member": "Stardist/Training - Images/migration - Position 36_XY1562944046_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "e617de225189a6e83f2d630a04ff915f3e4c05644f0635bd7a23c2e9f44cb84b",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "c44deca909a51df196c9b7e6cb897a96324a7ca785c4bde1837698e7bc7a893c"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 47_XY1562769104_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "24e512154e28324abbe1977716948e12c15cb28c932665db30f549fba821f88b",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "6178ac8e35ebdee1b78623baf80030b990b6987dae8fe985a71d682b3f1d4568"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage12.tif",
+      "bytes": 2097408,
+      "sha256": "ff12e93975975f498091d1ca576d6014b97f0715001f5586a5c3035097b98cf3",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "48fe6d5a76431da597b519b36cf0e3c9ec8a1059e71e78477cfdd896362b5a2f"
+    },
+    {
+      "member": "Stardist/Training - Images/migration - Position 27_XY1562944037_Z0_T00_C1-1.tif",
+      "bytes": 2097531,
+      "sha256": "9cf1d11d59c5dae7d3dce8205e1958f7353d705a74757852a4c82a418b3e28f7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "fdb5609908f456f813b45184b3a77114845ca5197eaa3fd79a31fd2a1794984b"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 53_XY1562769110_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "5315d7be460bd05a6b572345aa76a4f07ae5b7aea661d2902475b482250435ec",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "96bbed5610078293a5b6433416e08acaa87e970195679277e11cc055eda50c29"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image37.tif",
+      "bytes": 2097528,
+      "sha256": "70986eb78289406273146fdcc175341c6635c55726376839a6e0a9122fefa401",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "876181fe7030ca6e12671fb27ee8eceffba6f0420ccf1d3a7ffd81f40b525f60"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image21.tif",
+      "bytes": 2097528,
+      "sha256": "bf0a26e2763afc49b0ed8e3afecc2c89f63d24407a14a4db748435585a22a063",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "9408bdb15243cf7f409d3d75707996f534ff755bfd0baa21cd33f0cd1a1cbc92"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image56.tif",
+      "bytes": 2097528,
+      "sha256": "314fd6eba7aaf0a2a17eee5d613befa9f713a2d7e71b40e0d877b401d385a359",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "4c59d7fc849058a47c768d0b0d4005a79b355d5f1ccd715ba741fe4465e91d5f"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 61_XY1562769118_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "bc25e78dbbc128838e38ab9025812ee5425e0d491dd7f683e33cd56c950b94de",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "5af5eb6bd3cbdd0bf380489667079c1f33f7414d6030434135fdd0c152600a15"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 42_XY1562769099_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "7c39d50e33f3a98df789c1fd66b9695f7b6e47bd28619f80b28cc5dc9cbbb8f0",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "28b681b808819d02c4f5ca5ab5bd4cf92a6edd58a6c0c5ec860e29cbe9704a57"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image34.tif",
+      "bytes": 2097528,
+      "sha256": "1739efbb5ead8cc23f8adf989b2a872f07e602cc421f222064688bd5cc8b4eee",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "bf7e9ae5677cdebdc2d018d8195764cb87ea8260d7a7188ecba5a076a9ebf36e"
+    },
+    {
+      "member": "Stardist/Training - Images/migration r2 - Position 43_XY1562769100_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "8545f8e1919d104b0c7c2f3deb0962302f4bc8798bbf88a76fa3b4b9dfe2b330",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "39a8610997a349b4824b0dd31976493ae94b9d01a423c2bbe89a6fa132fb53d7"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage63.tif",
+      "bytes": 2097408,
+      "sha256": "92efc285b2f500e7a8d61ad32dd4ef951ff54e915de5edbad79562fbbb696e7e",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "8fd5f5abb08670a4c21aed5456a312914a15a8b4e38386a675773763b3deec57"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image44.tif",
+      "bytes": 2097528,
+      "sha256": "5102a52130a88bdb4a637b08777846684b9298589ac071371eceea351bc60ec3",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "4327211f3737c5aa4b6657ab46ff8ce93a45ce130d86d60be0cef48c921b5379"
+    },
+    {
+      "member": "Stardist/Training - Images/migration - Position 53_XY1562944063_Z0_T00_C1-1.tif",
+      "bytes": 2097530,
+      "sha256": "dceb8c067da6afe950a8b090ba5c646df7d4187470826e6097134b8cb4ac66e1",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "ba316a652c16c289070abb509d402ffe0f438f6d104efe2269004b9b3f53b250"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage74.tif",
+      "bytes": 2097408,
+      "sha256": "a8668e5d4a04d6cecbce706ddacdf66fafd47d49a8586a03cc6a5efe3886b5c3",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "d4af2c4be8d1b644375e526c73b64e320a4705e483b39d15a58e5a0fcc2805b2"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image51.tif",
+      "bytes": 2097528,
+      "sha256": "c35c55ccf70a55342fce9c978b76984c6fb8dbd817853fbdc9b811d0eb2adbe9",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "1330e4243353444876949452e272cb0a5c9c730b548b043aaea01734b0667a29"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image79.tif",
+      "bytes": 2097528,
+      "sha256": "d49bbd8dac035c7839e6b96a0175a6d77eeb83c387fb6f64d18eb33fa555cd5f",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "52d93e71d5f4939969026b3d4f9294c74334bdb2cd7f382859904bc448ccf5c1"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image86.tif",
+      "bytes": 2097528,
+      "sha256": "a1fa8541881290f9d61d82d8c2ea195b0c24a4df705fd4e1e453fbb9f982115d",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "9bbcb320447d6423184589f0837adf1e0eba6d1f193cf606c34604177623eb64"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image82.tif",
+      "bytes": 2097528,
+      "sha256": "1efd98fba193a1063d372bd71e443411abad626abfb19b3edbc6e7e2a2c62d04",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "9b8de2296301bb1d30a4b5f8ea36d40372c79ffc9ec515820251cac304a69783"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image55.tif",
+      "bytes": 2097528,
+      "sha256": "1811c093126b96e4d60589a89e97c94223d1afa7706094fbb0b96c1220545381",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "68ffda557453592d1c00870d2822c097e3f82e7573f0be03167cea567a6b63e9"
+    },
+    {
+      "member": "Stardist/Training - Images/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image68.tif",
+      "bytes": 2097528,
+      "sha256": "e32312715dd877c4fa79b7350c314706ac9366e550f39cabc823a7f117b9851a",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "37669a020cc42757bf9ac81d1abdead3817e4ce8b6fc920b01538b29a9cea358"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image67.tif",
+      "bytes": 1050272,
+      "sha256": "a8c547eaa6fa1d7aed16617ba845132ce51d7192fbf028756b82174821e42050",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "84f5eb341ea1472efc74db5164664d3c71f43887866b7c68bfd18cb66f61f4b5"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 14_XY1562769071_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "932279ac1babd9e4e32090d8f51b17ec9170850cdac3b9c41f13c9918e80d3f6",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "b241b37d0a6014f2f7d2cb0e541d31a044d145028287fedbb75a053b8aa9b7f2"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 23_XY1562686119_Z0_T00_C1-1.tif",
+      "bytes": 1050272,
+      "sha256": "5947706aba45d9ca953e612fd4842a47d7ef3d4f309b07521f644217d91b1742",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "b3b79c98ba943cd354140675baa49c081a76ca608265a130a49fb4ec7a8e4189"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 26_XY1562686122_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "647e06a6a0dcf0ec9b78c68611073cce0d781c118b10f564e4c905867b39729c",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "5fa00f42eea2f6d41e938d7d7f970a14650a86c0151abca3ae031db2cac0728f"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image59.tif",
+      "bytes": 1050272,
+      "sha256": "9234ade9101e3e1f3adf95c3820f2021afe0eac33daaf2560906ef60afd76df2",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "796f4dc8f1116e220154e294d723f268b0631927b9b894b527271cd1632b4798"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image64.tif",
+      "bytes": 1050272,
+      "sha256": "b49801db277f4164d5e3888c1acb43109fac796f549c41537f396f3c522c460c",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "83b889b48ee5ba99c5f0742198f224a583aaa3e0ad2cf2507058c57eac413a44"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 40_XY1562769097_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "7a7d5d94ea3bba61ab32668c39b6223a76f3f52b78c05f041431a1d8809f47fd",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "58bb7095327e5f625ae2a49d885780c0fa57cd0537bac19857c4ce83c8b5849a"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image48.tif",
+      "bytes": 1050272,
+      "sha256": "ee3c1ab19ba57309ca0624bed2c4d4da6c401535f9beb1078921aca01b05362e",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "9cac51659d19aa9617fed9079e24053212eebc9cbd08fe085f825b62e46b97ea"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image16.tif",
+      "bytes": 1050272,
+      "sha256": "18a9a62d5d90c132119af408069c44ced72f2d30324bc3dd0634d168194827a1",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "e28c3ca680a13a6bba1f49190798853d3c97d664c6e44bfd433fcb4eeaefd921"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image75.tif",
+      "bytes": 1050272,
+      "sha256": "437c1f4341a08a40175c48a739ac0de8aeaf2ce7d5740fb56e58778e378e07fa",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "6a306bdfe59ab8cb796a6a0c9ef4100ed73ad1e1e85626d3515e08a710927ba8"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage47.tif",
+      "bytes": 1050272,
+      "sha256": "82131b3c7061c8c391eb14e910a63f59f198f7269fb8fd936251d461602de88d",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "a6cb5eecd3eccd093fe5536d09738469dcdb276502c6c015b08a7eb6986d490c"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image66.tif",
+      "bytes": 1050272,
+      "sha256": "5c2a62b0d6d6e8d1fd851a4bfda203d9921a92bb9728508e08ed7e4b0aed8097",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "cd329be633cfa8fa455d98ee3a0a7e613b71d62b78eed8f46cd5f4780ba6da66"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image1.tif",
+      "bytes": 1050272,
+      "sha256": "edd4686e1baa97f41d8a09459d1b19b781c86c2357a1595cfd750a2068efb2cf",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "85ec5f21ffc1c7422cfc38dc8dafec11f20bd3fe726c5bf2149ef4aef5c6f9b3"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration - Position 52_XY1562944062_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "e012728ac22262eca3e816596f6263fab3865c1f17883fbac9e7fd2aa1908045",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "53374f72c7a7e8ef98e91601fca9a036113f94931a42ef3fefe121fb797af8b7"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1_SubBackimage86.tif",
+      "bytes": 2097318,
+      "sha256": "07c53773d57257ae8a4880c446b252747782b8b633dba703d93d0101b0aaad30",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "030548a0805459b2dfa33e3719458600ada5703ace06a8349034ea41a138dac9"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image17.tif",
+      "bytes": 1050272,
+      "sha256": "18cc00ae866c76de7e7dd7f9af47fc4d4ed6a482e6b866b80d4f1ce3a929692b",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "c1a0b07e45f4662785f49bc388f4d44307bf2d8c98641cb8a8316649a8c6f74e"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image7.tif",
+      "bytes": 1050272,
+      "sha256": "edd4686e1baa97f41d8a09459d1b19b781c86c2357a1595cfd750a2068efb2cf",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "85ec5f21ffc1c7422cfc38dc8dafec11f20bd3fe726c5bf2149ef4aef5c6f9b3"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image14.tif",
+      "bytes": 1050272,
+      "sha256": "edd4686e1baa97f41d8a09459d1b19b781c86c2357a1595cfd750a2068efb2cf",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "85ec5f21ffc1c7422cfc38dc8dafec11f20bd3fe726c5bf2149ef4aef5c6f9b3"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration - Position 47_XY1562944057_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "8a875e3cd5c3612103485b0d0db42af4abf2dbc6ef5b52f7f403e733c35450b6",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "4dc77a803e88593439c0b62afc4fcd618ff22ef7e4a567760de7fd4225b750d0"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image29.tif",
+      "bytes": 1050272,
+      "sha256": "97bac24355e8281e299524f7d2852db1174f661ebaf129e4bd9194ef677cf324",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "f867495b9373f66f5556bc795d3d1a73687a416e0f2ede473250d2cd31bf29a1"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration - Position 34_XY1562944044_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "17a593fe0e2fcec5087529b98060ba37cc1841cdc00b0705f2bf2ae3d550d3e0",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "dfc8798bd17ec8c5166767f6053fa53d5d62ae6653bb98cc271b9a9eab72eaf0"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 25_XY1562769082_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "0048c2193c7932958730a3fbf9674b6b946b6e2588a609e20c772836620f889a",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "d7096e7db5fa38702949ed911937afaa494c618b1ac0dc3950807f0b1dc4c02a"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration - Position 72_XY1562944082_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "91ff7afb9e168197640c8732f3d741095b4f7d556e0a64d86d012ff689d13bd9",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "186d01e67cd246f87e6f9938041f611c951dd2aa82860b9f465039d2baecd534"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration - Position 36_XY1562944046_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "a7e399223bbf57d045d8671ee77e18b2713d730b236b1d908ff3aa8c8941c7d1",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "7e24589cd9205de2ce4e206db7ef37446498e826a4f4c16ba0e4a5581ab27193"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 47_XY1562769104_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "e19f8ead67c6d963cec724fe8f96a5b8ea818af8faaa8c646c4c7ab5d878686f",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "ad07041a1fdc57f0d52c85ca7a8d03dcd614c3268da7d7d989c342b6adfe8bfa"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage12.tif",
+      "bytes": 1050272,
+      "sha256": "e799ee020b58c51e398d565c73f40b7c2db0422d7b7eb1e5bc7a0988fe468dc0",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "17f628eb8c8ed2fbadf07fb5a260955c6242a3f0dc39d6789f2e26fa1a1533c9"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration - Position 27_XY1562944037_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "766d0bb4f9486800aa97b40dae807f2aaa6308cac05533c2a5cc2e2c1813d7e6",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "16282e5c68e3e107770f80dd87cd3e8def2b3e0f47df779c743037e68019c83c"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 53_XY1562769110_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "81f859941b0524fb66968e5ec7b2352af9e040048eb7d192a0037075e77fc1c3",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "241f64c45e3f5baa9f52f65b5304e4d01f63ded3bca2f74efa4461ba5a2d3dba"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image37.tif",
+      "bytes": 1050272,
+      "sha256": "9ac07cdf3818128204de3bb1d5ab2ceafb5a650acacd94dbe8f85bd3fc764fdf",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "9caa3c46a3aa9381ceb0deb247ab77f07b5db38a39845cd90034048a0d2efed8"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image21.tif",
+      "bytes": 1050272,
+      "sha256": "3dbbcea51f73a6764caf487edc187a65adeb0e63b95acba0392d64098990d10b",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "a459d3220dcd7ebfda5f59d066c6ea69860bc6c580af0586d8beec985d44d927"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image56.tif",
+      "bytes": 1050272,
+      "sha256": "fe128950d41799b91c58d0297920ae2ef413993e26c84bce0de26599b8b03862",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "8fec1449abc263a057db06e77430371519e7d9202042353334594afbefa203da"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 61_XY1562769118_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "deb3b9e38bf98adeb2f0144caacf15af1597e6e3ecd3d71846212c4cabe16a1a",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "bca417b472f081bda2d456f20aa938a97a7d1d2fb36bc4c8d88e31a03720bc1c"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 42_XY1562769099_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "f9d743c34c73e7fc9fc8660b3f3cd78e799ad40e7961b4047984a71f98c0e4a1",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "ada5fbe0711a4cc9694bfccb6703ce8dec9bd0377a033413b65f8160af271e84"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image34.tif",
+      "bytes": 1050272,
+      "sha256": "3a472c45399fd750123ee0255448689b557b5a233692db3163eb7b1c903a0ecb",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "48c688ba1461991a5186191eb3b9211fd44db8fdf944ab1fbb85d4d977b90466"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration r2 - Position 43_XY1562769100_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "9cf4ff66cd387999437b54ead945b2d6e3d1a4deb313f31fcfbfe119675b290e",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "5c2bdf7fc8a50ebe8715f549cfbaf58f9706e203fb8cabd98edaee04540da13b"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage63.tif",
+      "bytes": 2097318,
+      "sha256": "886b5106e4633fdae4afe7b37830138ddc10b8c8df59ed574b771867e8be1771",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "a1eafb04b230ef0c18bab2950807b9415a8c04e5e09c98c6595eab5b1d3b6b68"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image44.tif",
+      "bytes": 1050272,
+      "sha256": "0f64833415c712f38375c0800a3a751f387ff0fb0b09670e4a5b6c79c2d18bc4",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "5f5324e4a40d6163cd79b070c05e4d31a5389c2ea8d8ee84f6f6a86c1652cf4c"
+    },
+    {
+      "member": "Stardist/Training - Masks/migration - Position 53_XY1562944063_Z0_T00_C1-1.tif",
+      "bytes": 2097318,
+      "sha256": "3ea2a0eeca30698dbaf3aebef9641423114ce646f6ebee0ce996e93c47ef165c",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "d6b0e567a84cd4597831bd98fa1edad03fac4c0eac646f02fbcbfae4251e9a70"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 1_XY1562686097_Z0_T00_C1-SubBackimage74.tif",
+      "bytes": 2097318,
+      "sha256": "c98100f102bbbe7718a67e0189be18d3538cfc4fa69f027178c51d489dba2c74",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "11b6ccc8bc4073bbc3da60fcd73ac239c61d0928df1530e4d3cbbaac5fd17521"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image51.tif",
+      "bytes": 1050272,
+      "sha256": "8e113f76398d7c38f1354271845c57c7c95f67ea767ad0a54ca5b84c1bd583a7",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "87c1dfedcebcfa9f0b3f49531619baa24aec7b37163ab990e83305e6abee843c"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image79.tif",
+      "bytes": 1050272,
+      "sha256": "af03b5587e475b21e0ab3a4dd073c9ae2cb14586a4cd38fd886c425874a58db3",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "b803725e7584946360d3ee59a924e4d30a2d143613ce62b6a5afe30207d5cc70"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image86.tif",
+      "bytes": 1050272,
+      "sha256": "9664161712851b364ef4a7d0fc838cb1cb3c4043ca02c17a6885c04bed252fed",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "1a1a0762d60bdca97ba5d094245d079eb63bfb4fe8a0b8e0fef72c01dd0a0206"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image82.tif",
+      "bytes": 1050272,
+      "sha256": "aa3aa947f2e45499cffc96c7c39e2508141ec91f3039349b324dde2f02fee341",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "0283bc4f1645c1b27474b6ba29e15bc02746555a70582cd04d1ab8e26ab8b6d4"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image55.tif",
+      "bytes": 1050272,
+      "sha256": "2713c569e7f5b734bc028fb263ccc151d87ec25d9d81a86bf549ef01203c6e1a",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "0c4eccdbc9414117306a90786042a0ba3589f5acf0636f3674cbf77f6924f042"
+    },
+    {
+      "member": "Stardist/Training - Masks/cell migration R1 - Position 0_XY1562686096_Z0_T00_C1-1-image68.tif",
+      "bytes": 1050272,
+      "sha256": "1cce38e25abf30551433be2422f24213cdef9ba42b917ff55de94d1d8b389ac1",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint8",
+      "original_pixels_sha256": "94660d8c8c8f9277a48bac18638c4a444c540ce16f8aa1b9df84c15e87e53340"
+    },
+    {
+      "member": "Stardist/Test - Stacks/cell migration R1 - Position 53_XY1562686149_Z0_T00_C1.tif",
+      "bytes": 180409259,
+      "sha256": "1beda25fad24894b2e24a8a26d7110b3f9a1cf53ace96e1224808c862581cda4",
+      "shape": [
+        86,
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "11ada41bdc9ef5614b1daeedbc211fb5851afa7f3640a83acdd04090f6f6be28"
+    },
+    {
+      "member": "Stardist/Test - Stacks/cell migration R1 - Position 31_XY1562686127_Z0_T00_C1.tif",
+      "bytes": 180409259,
+      "sha256": "40e608846a034baa746ecc93ce2f570c5557a0f9555bd586a4e1be8d59ce923f",
+      "shape": [
+        86,
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "b51bc4f1dfdf4c319b56cee84898562b0f190c1d00f43670eebb664c96c55859"
+    },
+    {
+      "member": "Stardist/Test - Stacks/cell migration R1 - Position 69_XY1562686165_Z0_T00_C1.tif",
+      "bytes": 180409259,
+      "sha256": "c906062701511c01b664df9a72e00b024ff51932381913823287c8e48e8d9afe",
+      "shape": [
+        86,
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "022ad348d9c47544433539ea9b88ae05d5804ecf7bd4e7ca13a1120006264190"
+    },
+    {
+      "member": "Stardist/Test - Stacks/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1.tif",
+      "bytes": 180409259,
+      "sha256": "044fdde241dea1741dba4911c077d8d3c06bd4c1333434f300cf558fb76f99b1",
+      "shape": [
+        86,
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "4c419138cc0cd78c9b37e5f3551e144d78ea91fe2ba9ad1378bb5f7abf1fbb39"
+    },
+    {
+      "member": "Stardist/Test - Images/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image76.tif",
+      "bytes": 2097528,
+      "sha256": "ff48004dcf6236a6bdc16e92d978064cdfd2dcdab8412feab638614343f77fd3",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "621ab81f2bc108b48fb4d6f55526eeb0790ae575e99f56ff3ebbee6e19284588"
+    },
+    {
+      "member": "Stardist/Test - Images/cell migration R1 - Position 58_XY1562686154_Z0_T00_C1-image86.tif",
+      "bytes": 2097528,
+      "sha256": "beaa1aacb13162e92dae3cb21633cc4aafd77b82c68caca49f1fb590a42f0910",
+      "shape": [
+        1024,
+        1024
+      ],
+      "dtype": "uint16",
+      "original_pixels_sha256": "7d46df8d64355dc701f73e5e8df265c32c7cefece459274d3d4bc55535ac3ab6"
+    }
+  ],
+  "exact_original_pixel_matches_with_noisy_or_high_signal_pairs": [],
+  "same_species_and_microscope_are_insufficient_to_transfer_masks": true,
+  "no_inferred_image_registration_or_manual_labels_assigned_to_unmatched_pairs": true
+}

@@ -1,0 +1,32 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Napari Bridge: rediger og hent tilbake en etikettmaske",
+  "description": "Åpne et bilde og masken i napari, rediger etikettene og lagre den korrigerte masken tilbake i spaCR.",
+  "objectives": [
+    "Åpne tilhørende bilde- og etikettfiler.",
+    "Redigere og angre endringer i napari.",
+    "Hente tilbake og undersøke den lagrede masken."
+  ],
+  "prerequisite": "Installer den valgfrie napari-avhengigheten og pakk ut det syntetiske eksemplet i en ny mappe. Behold en urørt sikkerhetskopi: Take the mask back overskriver den valgte arbeidsmasken. Lukk og åpne visningen igjen mellom lagrede redigeringsrunder.",
+  "scenes": [
+    "Åpne Make Masks og deretter Napari Bridge. Bruk den til å redigere en eksisterende etikettmaske med intensitetsbildet som referanse. Behold en urørt sikkerhetskopi av masken.",
+    "Last ned og pakk ut det syntetiske eksemplet. Velg mask.tif for Mask og image.tif for Image, og trykk deretter på Open in napari.",
+    "Velg maskens Labels-lag i napari. Etikett 0 er bakgrunn; hver objektetikett har en visningsfarge. Gjør endringene i etikettlaget.",
+    "Gå tilbake til spaCR og bruk Take the mask back for å importere visningens gjeldende etiketter. Hvis du ikke har gjort endringer, viser statusen at masken er uendret.",
+    "For å øve velger du etikett 18, velger Fill og klikker på objektet med etikett 2. Undersøk den endrede etiketten før du importerer den.",
+    "Bruk Undo for å angre den siste endringen i visningen. Gjenta Fill når du vil beholde endringen.",
+    "Klikk på Take the mask back i spaCR. Se gjennom antallet endrede piksler, og undersøk deretter den lagrede masken og sidefilen med korreksjonshistorikk.",
+    "Klikk på Close viewer og åpne masken på nytt før neste redigeringsrunde. Da blir den lagrede masken utgangspunktet for senere korreksjoner.",
+    "Etter neste endring henter du tilbake masken og undersøker resultatet igjen. Lukk visningen når du er ferdig, behold korreksjonshistorikken, og kjør på nytt målinger som påvirkes av de endrede etikettene."
+  ]
+}

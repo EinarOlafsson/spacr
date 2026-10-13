@@ -1,0 +1,262 @@
+{
+  "source": "334f81a1064129d7999bb42a4026b4f42f108aec",
+  "behavior_test_source": "609f02728f19ee6f45f0d9b75b68f2789a679c6b",
+  "final_only_delta_is_documentation": true,
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "0e032c9b65a20b3c336ef20363090c6fc5c1ca53",
+  "integrated_source": "cb3a87b565b3d5cef23d096ad1f81d1eeccb33f7",
+  "application_source_pushed": false,
+  "patch_cleanly_applies": true,
+  "original_tests_unchanged": true,
+  "original_negative": {
+    "failed": 4,
+    "seconds": 3.53
+  },
+  "focused": {
+    "passed": 4,
+    "seconds": 5.91
+  },
+  "final": {
+    "passed": 196,
+    "seconds": 96.03,
+    "warnings": 135
+  },
+  "canonical_api": {
+    "source": "334f81a1064129d7999bb42a4026b4f42f108aec",
+    "private_helper_documented": true,
+    "symbols": 13215,
+    "accepted_english_symbols": 13215,
+    "arrivals": {},
+    "changed": {
+      "spacr.plot.plot_lorenz_curves": "Overlay Lorenz curves from multiple gRNA count CSVs with per-plate Gini coefficients.\n\n:param csv_files: Paths to per-plate CSVs, each with columns\n    ``name_column`` and ``value_column``.\n:param name_column: Identifier column used for outlier filtering.\n    Default ``'grna_name'``.\n:param value_column: Column whose distribution is analysed.\n    Default ``'count'``.\n:param remove_keys: Names to exclude before analysis. Default ``[]``\n    (exclude nothing).\n:param x_lim: X-axis limits ``[lo, hi]``. Default ``[0.0, 1]``.\n:param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0, 1]``.\n:param remove_outliers: If True, drop names whose number of observations\n    falls outside a fence extending 1.5 times the 5th-to-95th-percentile\n    spread of group sizes. Count values do not enter this filter.\n    Default ``False``.\n:param save: If True, save the figure alongside the first CSV under\n    ``results/lorenz_curve_with_gini.pdf``. Default ``True``.\n:returns: None"
+    },
+    "removed": [],
+    "unchanged_symbols": 13214,
+    "english_catalog_sha256": "cbb4ca8fbce60abc86c7acb9839de504edb5484413e77c86229b71765b95d8ad",
+    "scope": "Private standalone helper is excluded from the public inventory and its AST/docstring is checked separately. One accurate existing outlier parameter block changed. Nine-language reviewed refresh remains separately assigned; original numerical helpers unchanged."
+  },
+  "scope": "Complete per-file source rows, metadata and excluded rows survive, with collision-safe plate and row identity. Native and standalone Lorenz/Gini helpers are copied from the original producer. Independent absolute-pair-difference Gini and cumulative shares match both plates and combined curves; changed CSV values recompute Gini, and two true PNG/SVG CLI processes block every spaCR import.",
+  "limitations": [
+    "The first archival attempt wrongly expected15 changed paths; actual fourteen-path guard now verified, incomplete original packet retained separately. First API check wrongly expected the private helper in public inventory; original failure retained. Second invocation omitted the wrapper log argument and ran no API check; failure retained. Correct actual final source check has zero public arrivals, one accurate existing parameter prose change, no removals and separate private AST documentation check.",
+    "All behavioral tests are source-bound to609; final334 differs only in the inaccurate IQR parameter prose correction, independently compared by complete docstring-free AST. Final integrated current source coverage remains separate.",
+    "Nine-language Lorenz API prose refresh, coherent app adoption, current GitHub acceptance and live documentation publication remain open. Other figure producers remain under audit."
+  ],
+  "payloads": {
+    "logs/lorenz-negative-r1.log.gz": {
+      "raw_bytes": 5203,
+      "raw_sha256": "64786275c5a5b5a9b6df6d10e675aa955e48f2eca99f894eddb945f3317eaf62",
+      "gzip_bytes": 1107,
+      "gzip_sha256": "868406f832eb9c9cbaf42191a6a81b8a9b1105ae6610dfab9c83a720ec81fb22"
+    },
+    "logs/lorenz-negative-r1-tool.log.gz": {
+      "raw_bytes": 4738,
+      "raw_sha256": "14750fc6f6ec140a2ad36f4553c1e31e93d62ac0002a13e23ec6436cdfe660dc",
+      "gzip_bytes": 923,
+      "gzip_sha256": "89bc7471a57dce110286c1aa34d974b653265f9475fcc3fc5f33be2c7ab25510"
+    },
+    "logs/lorenz-focused-r1.log.gz": {
+      "raw_bytes": 678,
+      "raw_sha256": "c461c7701bdb93c14ce0e30ccff042ff7f01f42d336ac2854b27183a13a548f5",
+      "gzip_bytes": 350,
+      "gzip_sha256": "0c16c6641dce485c64559b8e09cef79a6779167b744d3e6f6c45cda84c521dff"
+    },
+    "logs/lorenz-focused-r1-tool.log.gz": {
+      "raw_bytes": 214,
+      "raw_sha256": "b71e943dfe8df567ec57885c736a26c92459bb539d80d8fc80c36cb661c31030",
+      "gzip_bytes": 148,
+      "gzip_sha256": "812bbdbc02f0e6e550e28d5eba6f0499707872b2eab1938e42e661606585a2b5"
+    },
+    "logs/lorenz-final-r1.log.gz": {
+      "raw_bytes": 13366,
+      "raw_sha256": "d8c1f29b94950b121d4c0472d33a667afecfc57e87cd666f7da82e67b6a6b5ea",
+      "gzip_bytes": 2155,
+      "gzip_sha256": "ae433447ec9dc614b0c2b2480a17ec0ee1dbd439ea192ee7fa7f0119f53a6457"
+    },
+    "logs/lorenz-final-r1-tool.log.gz": {
+      "raw_bytes": 12024,
+      "raw_sha256": "d2a23b8bd762dd10406a9359ff764bab35bce8483e7c13f63d5840c2bfc02a53",
+      "gzip_bytes": 1835,
+      "gzip_sha256": "886eda0525db3013693c089c82c29953e23cc7dee8a87d327628ab10030f3d76"
+    },
+    "logs/lorenz-api-source-r1.log.gz": {
+      "raw_bytes": 1252,
+      "raw_sha256": "e24acba693eafcb68406c738366dea2f65f6cd9e2f5a5d3ff1d38fb9ca943667",
+      "gzip_bytes": 517,
+      "gzip_sha256": "5e1a488ef5c94c6a41493f54b398034dc7fbf615db37529ad564a798f57d5608"
+    },
+    "logs/lorenz-api-source-r1-tool.log.gz": {
+      "raw_bytes": 116,
+      "raw_sha256": "d57d3d7a41625cfed59e86ce6d357301f8d4395f57f568054335360e67e1a968",
+      "gzip_bytes": 120,
+      "gzip_sha256": "0388d09b9ff846da16b57ac322739353c38662c3f7963b01b9a8ceaceed10d4f"
+    },
+    "logs/lorenz-api-source-r2.log.gz": {
+      "raw_bytes": 686,
+      "raw_sha256": "b1bdcfd763ab3e24a119df83a7dbc3170ee40333ea89ef1dc0ea8d779eda99cd",
+      "gzip_bytes": 345,
+      "gzip_sha256": "f571120ce04dbc387a69779c0eead552ea123f5643f12e4695e2d17c6d23b66a"
+    },
+    "logs/lorenz-api-source-r3.log.gz": {
+      "raw_bytes": 693,
+      "raw_sha256": "11df6b100973f504426ee9411fd4797cd34620220bbe7ccaa675c89774769f51",
+      "gzip_bytes": 399,
+      "gzip_sha256": "1bb0b4e27a5fb740c168dd73fa3e3753449baff01c1bb71bd7f2f862769acba4"
+    },
+    "logs/lorenz-api-source-r3-tool.log.gz": {
+      "raw_bytes": 239,
+      "raw_sha256": "adf398e7c9c30ddf86e1ecc7c6226f06bf15adf5639b9d2cf4901245db6136ab",
+      "gzip_bytes": 201,
+      "gzip_sha256": "c12d5608b940f0f8b415c64743eb3c9d0c1c30eb3df7098bfa2463af4133dc8f"
+    },
+    "coverage/lorenz-final-coverage-r1.data.carruthers.pid92029.XUSaSxrx.HVr1c10GaUOh.gz": {
+      "raw_bytes": 2441216,
+      "raw_sha256": "aaf2af1e82dbfc855cd24ffb9564134b2082b5ceb02e6195cbeafb7178fbb14d",
+      "gzip_bytes": 1018148,
+      "gzip_sha256": "e37c646d764dc69358b70e0c4cb5872b4a8e25812f8c5ed05b5c48af2e4516a5"
+    },
+    "results-and-scripts/lorenz-api-source-r2.json.gz": {
+      "raw_bytes": 1635,
+      "raw_sha256": "972793ba43eefd515ee15c2249bfd31d2f99bdb6860a41c9dfb218eb7dbb1818",
+      "gzip_bytes": 889,
+      "gzip_sha256": "83bd8097e3138410d25fe132c48356598ebdde9dfb6735d1775124e145c99da6"
+    },
+    "results-and-scripts/check_lorenz_api_source_r1.py.gz": {
+      "raw_bytes": 1720,
+      "raw_sha256": "fc10db87b0b088c9220777aeabe051e768c556b2660f29473d25c602b904152f",
+      "gzip_bytes": 822,
+      "gzip_sha256": "083d3101f1539bf4ae00cdc0cc39f496cb9b29881a6b2b98f5ce639caab4f158"
+    },
+    "results-and-scripts/check_lorenz_api_source_r2.py.gz": {
+      "raw_bytes": 2116,
+      "raw_sha256": "4c566f25c95102fe9bd84fcadea4214eefa46bce7790d7e604ea5f9d9e213be2",
+      "gzip_bytes": 991,
+      "gzip_sha256": "1028c481cb676e865a2396a43d056b9c22f677dbd085bac2b7a21f8269492f4c"
+    },
+    "results-and-scripts/archive_lorenz_recipe_r1.py.gz": {
+      "raw_bytes": 7692,
+      "raw_sha256": "1ea4aabd869a85d848eca696cca73fff3b551449182e4e0718605e2458a60c46",
+      "gzip_bytes": 3371,
+      "gzip_sha256": "123a09bbeb393ece690c1646ad4ac012812ee2c59f25bb9916d992ced3faab4d"
+    },
+    "results-and-scripts/archive_lorenz_recipe_r2.py.gz": {
+      "raw_bytes": 7871,
+      "raw_sha256": "74305a94b7f9ff92dd8ddfafbd24b0c40db379aef385109cb0f2027c2d93100a",
+      "gzip_bytes": 3431,
+      "gzip_sha256": "8997ba6baa488a3b09ae87baea997ef7e7b15bcc44ad76e11e0c887c72b3c1d0"
+    },
+    "replacement-source-and-tests.patch.gz": {
+      "raw_bytes": 102471,
+      "raw_sha256": "4d1c18cde90f4fe7811888707d08fb1e79138295b3e9cc36860172d5c827cff5",
+      "gzip_bytes": 22246,
+      "gzip_sha256": "12796b405939015209c93c2c71dcd43f673576a1703bbe93749fec986eabd026"
+    },
+    "delta-from-individual-panel-candidate.patch.gz": {
+      "raw_bytes": 14893,
+      "raw_sha256": "099eeda963aac9a7ed372e01269e62094e7f3e20a21c6dea72bb27c2b701fcc8",
+      "gzip_bytes": 4606,
+      "gzip_sha256": "f3a61f93cd6d6bd92e4f1d9eed01aed395b545cda7c9a94debe772fed1bd006d"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 49372,
+      "raw_sha256": "c860b9f032d8d23b25656655e22c5e862317eca3389803451fe2b0637ec98965",
+      "gzip_bytes": 14624,
+      "gzip_sha256": "93bf19c89235dad1e83f15bfa5a34b1a9ca9ad0425bb5ee9656c97e3c4fd1114"
+    },
+    "source/spacr/figures/plates.py.gz": {
+      "raw_bytes": 30577,
+      "raw_sha256": "7d9a39e03fa926c7e1d8022e1f09aff18b3b566c4877e606222245df2448a626",
+      "gzip_bytes": 10190,
+      "gzip_sha256": "013b8f54f93fe913a85938f443e883ad60a0ae2f1e344db39ce22425701c6990"
+    },
+    "source/spacr/figures/sheet.py.gz": {
+      "raw_bytes": 9556,
+      "raw_sha256": "200ba4b523cf13f784743a574205a56cbb47d3f44d8c6859959f81665338de25",
+      "gzip_bytes": 3517,
+      "gzip_sha256": "2f80b3656591109954116473c3d6a62458e6c787e7bcf4a7006aee6e3c56f6d0"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 345585,
+      "raw_sha256": "c2c3f2810978655985bb6007f1c167eacfabc7bf9f5e9f541da2fef792a5c438",
+      "gzip_bytes": 86975,
+      "gzip_sha256": "db639df70ea8068add57e2417e41f241b44e6ff03639991dc6a63add4a1cb3f3"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119440,
+      "raw_sha256": "fb34dbd8212ff4384255623c4f0c343e441484a9e3d73bb8c6b7cb1f4aa05b78",
+      "gzip_bytes": 32088,
+      "gzip_sha256": "b2534dc6371a0badfbd5f243119d6e30ecf924e9fea39622f0329395a02db87b"
+    },
+    "source/tests/qt/test_panel_statistics_dialog.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "851e4d0bb1d04c8ecd30c2858fa9b2e8dae04e081c5891b27c68025eb7c13bd3",
+      "gzip_bytes": 1869,
+      "gzip_sha256": "4a2783b34f3cf9e1d718a7ba8e45469a9ba3d13e36f52ee7467cad24150729d9"
+    },
+    "source/tests/qt/test_panel_view_statistics_limits.py.gz": {
+      "raw_bytes": 3519,
+      "raw_sha256": "526c4b92806e93ad57740b989ed858a99cbd254c56f682a87653bd8c8b1b7cd1",
+      "gzip_bytes": 1050,
+      "gzip_sha256": "f694019049a9e30dad2e81a15674ca55b2de090d64cc8789e9742e5cb64bcb7f"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "source/tests/test_lorenz_curve_recipe.py.gz": {
+      "raw_bytes": 7191,
+      "raw_sha256": "25aa104bf293f3143f486008f6e56c2b05afb7699b8459b04d78241008b1d492",
+      "gzip_bytes": 2380,
+      "gzip_sha256": "82d17ae4e709998ea5464b5d519841ae3bbf34b5bc282b7d28699bbe75e18475"
+    },
+    "source/tests/test_plate_heatmap_recipe.py.gz": {
+      "raw_bytes": 5905,
+      "raw_sha256": "a0fcee6c5941088f624d5fba02d1585adee4e0643d62fc4add62c1d6efcdc57f",
+      "gzip_bytes": 1893,
+      "gzip_sha256": "5c2dedc4fad048f3e60f45d8982f20215f7902fb1ee547a01fe735dd385a8234"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "source/tests/test_regression_panel_recipe.py.gz": {
+      "raw_bytes": 5374,
+      "raw_sha256": "bf22afefe09c961d242b4dc420643dbfc6740625a8c0ffd145b224a7ba630795",
+      "gzip_bytes": 1923,
+      "gzip_sha256": "ae2904a3da4a6c666a422af2e669c72ca5e8d1086fea11dbb2d653da8a5185b8"
+    },
+    "source/tests/test_regression_sheet_recipe.py.gz": {
+      "raw_bytes": 5127,
+      "raw_sha256": "6cf8303aa5b151523b359021dd55b44bd4e2c95ba9fe4300b96eda2086df8f9c",
+      "gzip_bytes": 1848,
+      "gzip_sha256": "2db42df8b7f9c21981bc7bf3c40e14eeb39e96ebaac2b51b503c240065abe5af"
+    },
+    "test-revisions/original-four-failures.py.gz": {
+      "raw_bytes": 6228,
+      "raw_sha256": "3c63b16c2b27ce73155f32260efc799b64eb1077bf035f83c776bff1a119b656",
+      "gzip_bytes": 2185,
+      "gzip_sha256": "a27363f5896888a8dc8e23b9137826a22b72c09c73fb6f4525daf564765a8ccd"
+    },
+    "original-source/spacr/plot.py.gz": {
+      "raw_bytes": 344160,
+      "raw_sha256": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+      "gzip_bytes": 86664,
+      "gzip_sha256": "64df1c0d3c9ff4de31c1ce4535ba4ce2c113e37d227663c0d8e9e3ea90e58ceb"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 47007,
+      "raw_sha256": "60d9b057daf1650af9cb8beb25f6037eed789b88b5a29144ca78855686d4244a",
+      "gzip_bytes": 14018,
+      "gzip_sha256": "062dc271137ab2c199ad7237418289c2c7c208e943fb05f1a329b35b1c6e8067"
+    }
+  }
+}

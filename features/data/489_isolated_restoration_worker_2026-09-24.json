@@ -1,0 +1,80 @@
+{
+  "hello": {
+    "backend": "cellpose3",
+    "python": "3.12.4",
+    "packages": {
+      "cellpose": "3.1.1.3",
+      "torch": "2.14.0",
+      "numpy": "2.0.2"
+    },
+    "device": "cpu",
+    "models": [
+      "cyto3",
+      "cyto2",
+      "cyto",
+      "nuclei"
+    ],
+    "protocol": 1,
+    "id": 1,
+    "ok": true
+  },
+  "runs": [
+    {
+      "seconds": 0.8116958150058053,
+      "reply": {
+        "output": "/mnt/firecuda2/Claude/implementation-20260922/restoration-489/worker_0.npy",
+        "provenance": {
+          "backend": "cellpose3",
+          "model": "denoise_nuclei",
+          "cellpose_version": "3.1.1.3",
+          "weights_sha256": "da6dacca6c44367cb9180e4251f7f25273559e7dfb68884a608b62b9cca41d0e",
+          "device": "cpu",
+          "diameter_px": 25.0,
+          "normalization": "Cellpose 1st/99th percentile",
+          "intensity_units": "normalized model output",
+          "dtype": "float32",
+          "shape": [
+            128,
+            128
+          ]
+        },
+        "protocol": 1,
+        "id": 2,
+        "ok": true
+      },
+      "matches_direct_model": true,
+      "source_unchanged": true
+    },
+    {
+      "seconds": 0.0942525319987908,
+      "reply": {
+        "output": "/mnt/firecuda2/Claude/implementation-20260922/restoration-489/worker_1.npy",
+        "provenance": {
+          "backend": "cellpose3",
+          "model": "denoise_nuclei",
+          "cellpose_version": "3.1.1.3",
+          "weights_sha256": "da6dacca6c44367cb9180e4251f7f25273559e7dfb68884a608b62b9cca41d0e",
+          "device": "cpu",
+          "diameter_px": 25.0,
+          "normalization": "Cellpose 1st/99th percentile",
+          "intensity_units": "normalized model output",
+          "dtype": "float32",
+          "shape": [
+            128,
+            128
+          ]
+        },
+        "protocol": 1,
+        "id": 3,
+        "ok": true
+      },
+      "matches_direct_model": true,
+      "source_unchanged": true
+    }
+  ],
+  "cancellation": {
+    "seconds": 0.3649279839883093,
+    "worker_alive": false
+  },
+  "source_sha256": "1b0d28658b084f9a6f11c81fb6007052d6016477cd78570fc1b3b95b6e99ea42"
+}

@@ -1,0 +1,1119 @@
+{
+  "schema": 1,
+  "source_commit": "bd22c05bd2733ad1e81c11e289e2962ad765af8a",
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "4fef91516ae7296eb2703daa20af44504c3d10d3e556d942190446b836b35e31",
+    "spacr/qt/preferences.py": "dbe586469411d08af46f29474e4a8e86b755c5b9e9f6b2c0df22337c57c6d174",
+    "setup.py": "f7f7ad403cb3ce22ff5f0635b2ea01c476628056c768744433f6c088f367cc04"
+  },
+  "qt": "6.11.1",
+  "platform": "xcb",
+  "cases": [
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "65356b9291efde71b15ded6e8f01896a0a64ee48e7a7b04dc48288364f68bc9a",
+        "6fd0f5b7e8f7679d3ab6c95c87600664be4a4f874ef6a4e5da8897bc2d1774d3",
+        "8d05a421289bcc0535c68a81c55f9f2729cb75b7720591f9eb991564547b3328",
+        "681209e026428e3e698e438ca6f2f9dbe7e08d3a707b019d49fe022a78b53c47",
+        "516fa9c7c72ec03601ac5526aad7ed39a62f1cca579adbff089e000a6e929ae7",
+        "160356b6ba16b7a3de4f0bd1e90b7042ff2afef0fa5fef4de3548df0bb469fa5",
+        "01467a9acbf66dfe6f0d5806e1f5862280197dc7cd04f153286668103bfc34c6",
+        "254dee4514243890acdf8bed95e84326e52bf4b7e6016890e18016920b1fab02"
+      ],
+      "cpu_complete_samples_ms": [
+        0.5488130263984203,
+        2.962621976621449,
+        0.630769063718617,
+        0.47807907685637474,
+        0.7902530487626791,
+        0.4529510624706745,
+        0.6664469838142395,
+        0.5251290276646614
+      ],
+      "gpu_complete_samples_ms": [
+        0.8464200654998422,
+        3.6032400093972683,
+        1.0802639881148934,
+        1.1742719216272235,
+        1.1199190048500896,
+        1.084000919945538,
+        1.0895720915868878,
+        1.2682409724220634
+      ],
+      "cpu_complete_median_ms": 0.5779490456916392,
+      "gpu_complete_median_ms": 1.1047455482184887,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "195f344e73dd718696155cd595b6840f225bd416ace59e4b0797d14d0d2a0515",
+        "2f1596ffecbdf1c1a42a4d39f574888777038d9d7d72d2dc0df055c97f802075",
+        "db88746e9f01e78cc4d4309019f9051cc09f247d6dc433453ce3036725f65b69",
+        "13a1e25575dfac4a036dc04ab6009bddd9a33bf3088e96a732235c5eb675d19a",
+        "734c2002e484224ae74d2ee8ca698df4e49587a2802d2e12c18f82a2ee14976f",
+        "d85415643209e7ec4eab62da33dd9148a12bda9941d7a088b2bf17607f23ded0",
+        "d885fc582104476c81408d88dd2fbae63d79db2f03635f408256e794c67b9553",
+        "014470df799c5e7f55de83e3d7e018e79d34a9b3186fac10e0d27548ea1c9516"
+      ],
+      "cpu_complete_samples_ms": [
+        0.5545649910345674,
+        0.48658496234565973,
+        0.6290660239756107,
+        0.3961030161008239,
+        0.6809940095990896,
+        0.41680200956761837,
+        0.6753240013495088,
+        2.5788130005821586
+      ],
+      "gpu_complete_samples_ms": [
+        1.2476720148697495,
+        1.0637319646775723,
+        1.0286859469488263,
+        1.163962995633483,
+        1.0884900111705065,
+        1.1841710656881332,
+        1.0626199655234814,
+        1.3085680548101664
+      ],
+      "cpu_complete_median_ms": 0.6521950126625597,
+      "gpu_complete_median_ms": 1.1262265034019947,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "ceea6968a2cc2c4cc15e22545e2265cfd61efffbded9c328c20ee9cbe50f4b4e",
+        "17fc6226df742cb404249019ce16285961e854ca6992711a6a77dbe779337cc6",
+        "f4b748f9cea71d865a0ecd25d36a728cbc2e4383cd399800ac56fc4688b5880e",
+        "34254626f4957a9a212206c2c6454e672fe2656e3d9de43b6c5f55bb7808db71",
+        "a40dd2cc8577ecc12f2a63beb3cdb9bb314102eca947146ebecdef3fb0b447c1",
+        "8f2409a4e176ae94dd984d95c77d23db67964faac9db48b52c7cebd347bc26f2",
+        "d220f81f8a53771bf9de26e2800a2c1c0b87f1e40b10d3b83836187175e5acf7",
+        "aaf200c4a144b5ad555bf662f3cc8dcbe9ea359cbb1a9e791b8b4e001f4baf13"
+      ],
+      "cpu_complete_samples_ms": [
+        1.2140179751440883,
+        1.3464000076055527,
+        1.4608369674533606,
+        1.2470199726521969,
+        1.5827789902687073,
+        3.396467072889209,
+        1.4211810193955898,
+        1.1296679731458426
+      ],
+      "gpu_complete_samples_ms": [
+        1.3700550189241767,
+        1.790735055692494,
+        1.7365620005875826,
+        1.8369830213487148,
+        1.760957995429635,
+        1.8253399757668376,
+        1.619027927517891,
+        1.7027169233188033
+      ],
+      "cpu_complete_median_ms": 1.4410089934244752,
+      "gpu_complete_median_ms": 1.7487599980086088,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "8a5e922e712200a1cba4c45d48f424a151fcd07066be485a17b0a748d687ac22",
+        "808aba8f1a792822ffbf6194700507293660f2ba0e8d6de90eba2d64a1404944",
+        "af750bdd336d796cbe68b2eab55363e1b6abc40e9899a58ed5f4a0c5b335b383",
+        "93a250b9ca983c85f54e0a6ed686e15e867c297b92fd8a2fe9a73d3588170f3a",
+        "111abe16c62c5320ffcb8a12c7491c14bf8a7d0e7d11b14c068dd301b969d291",
+        "de028746a9339ba1d42ee58fdc00b6d5f94309aff8e87e93e6883f127054db1f",
+        "0fe2f5b5016c75b76b7c7f300399aef6a8e1c61a34db8c871ccc18cbbfac01e1",
+        "1d9218d5272e80727ef691366852b3d21f1a86de35e11ff93959b5fb383c801d"
+      ],
+      "cpu_complete_samples_ms": [
+        1.5026270411908627,
+        1.4135969104245305,
+        1.678560976870358,
+        2.4361020186915994,
+        1.7332249553874135,
+        1.3706660829484463,
+        1.6461099730804563,
+        1.4074560021981597
+      ],
+      "gpu_complete_samples_ms": [
+        1.5962050529196858,
+        1.9103920785710216,
+        1.792417955584824,
+        1.834237016737461,
+        1.8327949801459908,
+        1.9313320517539978,
+        1.806464046239853,
+        1.9703860161826015
+      ],
+      "cpu_complete_median_ms": 1.6623354749754071,
+      "gpu_complete_median_ms": 1.833515998441726,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "3f5691230a9a931eb22f31054643447cc75a73669f5d47bf6140b4f27f0e8ae6",
+        "a73095df1d60e87ac68987019e81bca1d71b4b4703e610643fa6a5c9b953c566",
+        "2f58cf979eb096db73bb5ac0c1904ea083e6a0e1bcee0fca3c2cd2e047bd9e2e",
+        "f16212aca2299a991b31b12319c697a667b00e313dd0e76ba4cba8f02322b770",
+        "a17030da28a9bb9e4d5635ce6517a0abbf93e90396df6412ea5e45ecee9373ba",
+        "7dadd84ae4082a24435a3e52c1742a1b1f8bf76a87c3653a184b3dd3131d4237",
+        "5cbab69eaf558e9547c8e1958f4156c39347483e1b77425ba40017cf924c199b",
+        "954496a3325e2c372e45813ea8155b7a9fc38fa86a78231a24b7a5103997b0f4"
+      ],
+      "cpu_complete_samples_ms": [
+        2.0664880285039544,
+        11.854617041535676,
+        7.248059962876141,
+        2.115802955813706,
+        2.551519894041121,
+        2.1689629647880793,
+        2.508528996258974,
+        2.2905539954081178
+      ],
+      "gpu_complete_samples_ms": [
+        3.116255044005811,
+        13.685847981832922,
+        3.22649406734854,
+        3.283312078565359,
+        3.2803870271891356,
+        3.352012950927019,
+        3.227675915695727,
+        3.528157016262412
+      ],
+      "cpu_complete_median_ms": 2.399541495833546,
+      "gpu_complete_median_ms": 3.2818495528772473,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "017bb98a8d45286c4419f4720cc344fe356a5ebda6ed99eb1ef7e81426645972",
+        "a286e2aadf58efac7520a584ce858cd991fe2a0bdf48c7c5fceb8090ef4d0cc5",
+        "cd7805b3fe11a884db98cc898e11699c31ba5f99ea28c5c8c36a32d1bfeb9853",
+        "e35bfa4a5a734aec1ee56e89ad30396f6c52597af82c919c7d9db7b3d1065476",
+        "31bc5e6545fae2e9a125f55915fdef548885e9d5ae63b5e0e2b232d5970f5342",
+        "ef44213beefd935cd45ad92f816d1dd789ec7aa9a6fefd9fcdb021788d7ebfea",
+        "6d3af7649c7e9e1da06dd02b6b2f6ac3f39236bcb6dcc2593714b73fd4548c24",
+        "acc3b3bd8647796ce191003cad444f59703ee1e31670505836c7ddab34219668"
+      ],
+      "cpu_complete_samples_ms": [
+        1.6989200375974178,
+        1.5981789911165833,
+        2.8953140135854483,
+        2.4750649463385344,
+        2.830460900440812,
+        2.2166139679029584,
+        2.364936051890254,
+        3.78455501049757
+      ],
+      "gpu_complete_samples_ms": [
+        4.100315039977431,
+        2.891366952098906,
+        3.6491169594228268,
+        3.4845740301534534,
+        3.3840929390862584,
+        3.366320044733584,
+        3.2542969565838575,
+        3.2343389466404915
+      ],
+      "cpu_complete_median_ms": 2.6527629233896732,
+      "gpu_complete_median_ms": 3.375206491909921,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "6d4e8cf44c804263f3d83983142e63c12e75105f2b4cde84a4414b0e474563b5",
+        "7dbe23bf0c04f0d72b416e8bff9d929d75bd713698c39209858f6aaf57f5f701",
+        "de236644f342a96efaae2add6a77b7c3f43107cec9542a56abd1efd276293304",
+        "f033c09505955e57d51d4d8daa57ffbd654e451f8fe6fc7285f799d70c8c69b1",
+        "e0e45fab6eb4f890c080aefbbc8e8c9abb04a68da8510c6c7b56162e69ac6929",
+        "4470853b1fe5ee22457cd12b2eb0ac63a401b39c74ec2c9a7a071f00cb92d956",
+        "3eecea75bd1c6eef45a2fe805d3f6bae1e031a4943eb89dd5d221d41ed8c12a2",
+        "8ac246723636d7ac3a486ea1bbdb0fe4118ed53ad6f1241e04734e1a48ddfa04"
+      ],
+      "cpu_complete_samples_ms": [
+        7.279620040208101,
+        16.605669050477445,
+        11.62107300478965,
+        6.747637991793454,
+        7.229694980196655,
+        14.513723086565733,
+        7.5171609641984105,
+        6.463457946665585
+      ],
+      "gpu_complete_samples_ms": [
+        5.753839039243758,
+        6.522601004689932,
+        5.994185921736062,
+        5.796610028482974,
+        5.86042192298919,
+        5.4962990107014775,
+        5.671121994964778,
+        5.454258993268013
+      ],
+      "cpu_complete_median_ms": 7.373427972197533,
+      "gpu_complete_median_ms": 5.733866011723876,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "54485a7220146359716427bf5a2cc131788ce82deb6c554504a6fa3afe595c0b",
+        "5f3968eb57d10760f04674d5385793b1cb644c02c8b7425b76b559a68ffe3795",
+        "ced20921767e6755cd7516c6e8c079e72f49057abb65fd14c096ca0ae1789ff5",
+        "5f5d26f308602a882f1136b8c844ee1160d143651a5d8918baf3cba49d15c02a",
+        "994325f569b06c36808ebf938982dd51b2f10e334ef69a29cec2ff030bd772d3",
+        "ba0d0a9cf8728a2b88bf516581de7c6da18978f233544b4097598d5b20dbfa25",
+        "e07cf0637f27dd70b21a5394e4ca84daeb2d7ec18165b4aca840fae06f3625c8",
+        "d780c1635fe9abd93acd138aeb345437a6f82babf10c8802b1833fba9c98d969"
+      ],
+      "cpu_complete_samples_ms": [
+        7.261745980940759,
+        6.693045026622713,
+        7.127650897018611,
+        6.754731992259622,
+        7.585090002976358,
+        6.721468991599977,
+        7.560052094049752,
+        6.546335062012076
+      ],
+      "gpu_complete_samples_ms": [
+        7.442849921062589,
+        5.562153994105756,
+        5.691199912689626,
+        5.722889909520745,
+        5.816146964207292,
+        5.743037909269333,
+        5.642917938530445,
+        5.984255927614868
+      ],
+      "cpu_complete_median_ms": 6.9411914446391165,
+      "gpu_complete_median_ms": 5.732963909395039,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "e3a4e52ffb2ba85e91b4f7fd823363795598e004d4f2f50cb489aeede2764ede",
+        "7a6c388161dd64be676ee46997dd4318fc4f3ea6261cb0a0ab8e239eec0db1cd",
+        "c84baca3f42183b96e3237e23cc5bd3e6156dd4057f1dcaf44898059e2dac3e2",
+        "1068f7c76186b72445189b4c6644febd3e540f4b9695e5333500864652b62781",
+        "aa5ce3891307cb6b8e29f0e46c2a4b516baf110ca7cb313a7ab4f10199d411ef",
+        "592a186ec8c2ce665eec647162628e5c0fd3690c72e52ad0589dd8b351147f05",
+        "7c14cbd798a99b85af72256175ef57f488984b4dcedd3974ffddceefa8e86c58",
+        "698b6daba86d8cd69e0b268f5636608fdcfd8afc9709a51ad1cb5327a9a6ae1d"
+      ],
+      "cpu_complete_samples_ms": [
+        1.2207309482619166,
+        1.321541960351169,
+        2.449285937473178,
+        1.9075269810855389,
+        1.7284558853134513,
+        1.2838899856433272,
+        1.3891810085624456,
+        1.2779600219801068
+      ],
+      "gpu_complete_samples_ms": [
+        1.6035889275372028,
+        1.7728699604049325,
+        1.9627319416031241,
+        2.0676610292866826,
+        1.9203110132366419,
+        1.9404590129852295,
+        1.8732310272753239,
+        2.107967040501535
+      ],
+      "cpu_complete_median_ms": 1.5588184469379485,
+      "gpu_complete_median_ms": 1.9515954772941768,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "1ac1ac44ee4d0475a65b3bf080291a9fdbab58226195d55cb4418cc83da53b82",
+        "bbc0338b41b19f495259c3fb2972461daaa766eda73f0da3a45f7d47c79bb944",
+        "b197161a9cb35fb514aa8e7f91c0e1a83d41b663f1349417d27e738edd7a6a48",
+        "e08fef539088db8edd5fd231dd35cc3ac93234eea1b7a539a253711e1ca7c835",
+        "39c21768814799ece83cf1971a4f07d6ec3ec573828859f26fc32d83c9e7ba26",
+        "7d68b1367ae276382a0c98135fb712362daa7d568de8cb53ae196ab52c21517a",
+        "a9d3c27f781e5db029ec16b712904dd21e2b5e1988493944b8ddb100f49baecf",
+        "84454ec5dd494c6f2de9d99515fc26236b76a3f79d2523d81b19436237e78635"
+      ],
+      "cpu_complete_samples_ms": [
+        1.2712170137092471,
+        1.3482230715453625,
+        1.4994610100984573,
+        1.4220740413293242,
+        1.745077082887292,
+        1.4237260911613703,
+        1.6307400073856115,
+        1.2036990374326706
+      ],
+      "gpu_complete_samples_ms": [
+        1.552692032419145,
+        2.025822061114013,
+        1.9461601041257381,
+        2.124137943610549,
+        1.983391004614532,
+        2.1840620320290327,
+        1.827394007705152,
+        1.9220440881326795
+      ],
+      "cpu_complete_median_ms": 1.4615935506299138,
+      "gpu_complete_median_ms": 1.964775554370135,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "1dc086aa6e3326de6bffae38bf00b05f47a650cc31db9ac45beac47a734a202a",
+        "2ea34edc590764f57368ccf2031117d2f84d76b70c252d6b5e0fd5ef9eb5e2ca",
+        "473a21deec16e9b72a7753e02e07b37611e6e386cacdfe55af7a36ee0dedd019",
+        "dbe222594c5a46283a73869052efed3ab6139d0f07992b9bc7fe536fb681ca67",
+        "9e42c8b52b59a3cc2e9091e86707c52a3f3cb1ae371fd203649107f7eed9b037",
+        "705dad20a66aca20f1a59ac204427bd84967f124ffe5c9acc21e8308093768f9",
+        "11a978ea954a4c190600d007fceebe9fd093f15665a878efcf794b688fbc7e00",
+        "9dd7f8659d2a82719a099642ea0cb5997fc83ed6361b35546a281a907edb74f6"
+      ],
+      "cpu_complete_samples_ms": [
+        11.818377999588847,
+        11.037623975425959,
+        10.991627001203597,
+        10.534267988987267,
+        10.941240936517715,
+        11.223768000490963,
+        10.881606955081224,
+        11.086947983130813
+      ],
+      "gpu_complete_samples_ms": [
+        10.73948701377958,
+        10.613127029500902,
+        10.507105034776032,
+        10.767570929601789,
+        10.305242030881345,
+        10.53785311523825,
+        10.040629073046148,
+        10.198718984611332
+      ],
+      "cpu_complete_median_ms": 10.966433968860656,
+      "gpu_complete_median_ms": 10.406173532828689,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "ed25ccff92ff43e7abf309a6b57992a88a8b32ce32fe20e1ca95f1e06a6ce6e6",
+        "da49c8c738b973e35039a7bf5aff8a400aff3b17fb40ec03abe483ff9a5c2a2a",
+        "18b6d123851e169022aa23157fbc87643672c70d85256013581c319506b1bebc",
+        "a955d4e282db658c6d0a3dbed7eaf2761f64306a5ecc96a2bec2621678ce75c7",
+        "b422dd71738a08b0a5971cf2a9192ff84a47339a8ae4a2d7dcf4bcf2303fc6cc",
+        "6c00d53f17f56bc63811ebc729f2ff11025e4261fc348b5cf73089197813b3fd",
+        "45fa180492f02274a99826e2a671f08554cc296fcc32c8dd16695ce641b0c43b",
+        "a3f6c6f59021d315c3011d5ad03624512bab829f613f0c40c2e3ce00a7dc3199"
+      ],
+      "cpu_complete_samples_ms": [
+        11.16827200166881,
+        11.302788043394685,
+        11.344907921738923,
+        11.200232896953821,
+        11.190223973244429,
+        11.047833017073572,
+        11.048092972487211,
+        10.80810697749257
+      ],
+      "gpu_complete_samples_ms": [
+        10.741471080109477,
+        10.635399026796222,
+        12.584254029206932,
+        12.495464994572103,
+        12.706988025456667,
+        12.463024002499878,
+        12.362332083284855,
+        13.13455100171268
+      ],
+      "cpu_complete_median_ms": 11.11915847286582,
+      "gpu_complete_median_ms": 12.539859511889517,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "ccb6802635d4f27b2742fd02eb01ce54cad61008553e4223f0b2cf363c99018c",
+        "6bed45a8c5b87d58e589abd506e2db7e7d0e01b88eb4a76d65dba28b922f7706",
+        "fbf488bc1d26e30d4aad528c2a7406438d9b574d70ce812d3ccae590b64e8e60",
+        "1a868aedee4636cd1e5402efa0ddd7c3b69355217b75e3ec8d36a643c088658c",
+        "fb706750f1844f8f8f2885704a3b9adcbc71b2b112bf78dbf206fc42911074fa",
+        "9355587588d4df667f87800de91494e271c43d61b4e73ff61cdf5f84a0777a93",
+        "6e305d5fa24ecee02330642fed21204563683030a5d2544ad336cd718219de2b",
+        "e006a1040af19db42ea84d052c97f7bef07397365f9a070c5e1e2e3dbe77f691"
+      ],
+      "cpu_complete_samples_ms": [
+        3.660369082354009,
+        3.6874900106340647,
+        5.066281999461353,
+        3.505804925225675,
+        3.3028089674189687,
+        2.8345389291644096,
+        3.2768399687483907,
+        2.848175005055964
+      ],
+      "gpu_complete_samples_ms": [
+        7.225255947560072,
+        7.341276970691979,
+        7.292715017683804,
+        7.305169012397528,
+        7.113564061000943,
+        7.51967600081116,
+        7.071233005262911,
+        7.52838293556124
+      ],
+      "cpu_complete_median_ms": 3.2898244680836797,
+      "gpu_complete_median_ms": 7.298942015040666,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "ea444624b319594a6c3d41b595c8431beb7d93da54f13fd2b794cfdf10e609d6",
+        "dd055d2f1c784965660325b0d25ad8152eb3c6c0d9db87ed43db69a86ca92338",
+        "72840aa495288b728f27fa101c5b8ba25d7bf6c62753482ffd210956e166f0de",
+        "ef2283c3f766df4351e0ae40611411e065aaa9b0627027b07839a77489bdd758",
+        "eb3c82b741dc343f689cec4f7e7df6fce012b1be1963e3d2ff3833bf277d3531",
+        "f5a46e8a3cf799dfcfef00b60cffbdd9f289b7912864688a7b7c7767b795a115",
+        "14391e62579ad31c8a54538293163280c630d237ce17a4fe1a347547960534aa",
+        "de10b627af2fc5d6dc9042131ded9d9c7f52b4834deb65936bb277a743dc62ed"
+      ],
+      "cpu_complete_samples_ms": [
+        2.5279149413108826,
+        2.751369960606098,
+        2.8757669497281313,
+        2.7027790201827884,
+        3.089384059421718,
+        2.4799149250611663,
+        2.6021170197054744,
+        2.713879104703665
+      ],
+      "gpu_complete_samples_ms": [
+        6.986011052504182,
+        7.24228797480464,
+        7.02864199411124,
+        7.2882360545918345,
+        7.040644995868206,
+        7.219556020572782,
+        7.017871947027743,
+        7.204276043921709
+      ],
+      "cpu_complete_median_ms": 2.7083290624432266,
+      "gpu_complete_median_ms": 7.1224605198949575,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "108fe50c1ea99eb145d0b1350538a6d88376425111a484aca58ecdf01e9dcb16",
+        "ee81d830441009c28a0de1304dd0b3cdf9039a5524499c040b2492108de1ddaf",
+        "70536e2cde2bbb30d6a9f87d1d8e269998ab251f1714d56bc4bfdc0483b3f417",
+        "4393ae4a90e818cf09abca0c80e921123aacecbd609b64725693968a52b9b9a9",
+        "0ef3ab72ff3a87b24d3eb90a79da23376f1328b2e55a829bac4172a554b73c4f",
+        "de7a40d6b7ceee8b7ff140fc471d3c41377fd05b4e10af335b7c873ed09f956a",
+        "ccedc2c105855aeb6fe42cbf25bc9c0698cdec4a3ba5f1ecaed4edb204014058",
+        "d522b5c0447f736cd840c8e861998b30a4e4a8baf0d8e5c0126701d64c19c221"
+      ],
+      "cpu_complete_samples_ms": [
+        12.830803054384887,
+        14.18866403400898,
+        14.394855941645801,
+        14.242536039091647,
+        14.728920999914408,
+        14.715346042066813,
+        13.994836015626788,
+        14.268585946410894
+      ],
+      "gpu_complete_samples_ms": [
+        17.616541008464992,
+        18.139153951779008,
+        17.9306180216372,
+        24.78568092919886,
+        24.31883302051574,
+        24.818212958052754,
+        25.09511902462691,
+        24.581031990237534
+      ],
+      "cpu_complete_median_ms": 14.331720944028348,
+      "gpu_complete_median_ms": 24.683356459718198,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "331f1ea51e6a7263f7205afe51ad0f5a1a51cca3a078f2872d53c3b82d07aa83",
+        "dfa40430fb3b4fe03d5ae0bd8639a8604e70f1f05b1b545ac1a20bd323028869",
+        "e8d698c58252ebaf4d87d39c5191628de068075f12a4d2a2db09a6c29f03da6b",
+        "b43a38f94a82e71525372b1e764294f348fb7a36d7ac167435f6ea587a8ff862",
+        "7e1eb8dfea0cce6500a292df4174069827debf9a2a938ba5060003e015b72506",
+        "4e346a1f03860f8324c01845a5d42bc8455ba7c49df171e734123dd3bba2d2d3",
+        "52f92e996cdad16be1435d562d62d32763c299275d996db59b5e816073d7b9a8",
+        "3fffe2dad7bae3be53b3fa3bca27dbcd0111e0e5b9258bbb53dec7b35ac90b34"
+      ],
+      "cpu_complete_samples_ms": [
+        13.430071994662285,
+        13.387492042966187,
+        12.342534959316254,
+        13.079726952128112,
+        13.672502944245934,
+        13.345642015337944,
+        13.738558976911008,
+        20.603929995559156
+      ],
+      "gpu_complete_samples_ms": [
+        23.94147589802742,
+        23.90795201063156,
+        24.036866961978376,
+        23.860541987232864,
+        24.86965002026409,
+        24.071762920357287,
+        24.167725001461804,
+        24.101980961859226
+      ],
+      "cpu_complete_median_ms": 13.50907247979194,
+      "gpu_complete_median_ms": 24.086871941108257,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "65356b9291efde71b15ded6e8f01896a0a64ee48e7a7b04dc48288364f68bc9a",
+        "6fd0f5b7e8f7679d3ab6c95c87600664be4a4f874ef6a4e5da8897bc2d1774d3",
+        "8d05a421289bcc0535c68a81c55f9f2729cb75b7720591f9eb991564547b3328",
+        "681209e026428e3e698e438ca6f2f9dbe7e08d3a707b019d49fe022a78b53c47",
+        "516fa9c7c72ec03601ac5526aad7ed39a62f1cca579adbff089e000a6e929ae7",
+        "160356b6ba16b7a3de4f0bd1e90b7042ff2afef0fa5fef4de3548df0bb469fa5",
+        "01467a9acbf66dfe6f0d5806e1f5862280197dc7cd04f153286668103bfc34c6",
+        "254dee4514243890acdf8bed95e84326e52bf4b7e6016890e18016920b1fab02"
+      ],
+      "cpu_complete_samples_ms": [
+        0.42829406447708607,
+        0.44779106974601746,
+        0.4495050525292754,
+        0.39258692413568497,
+        0.4815659485757351,
+        0.40899706073105335,
+        0.4379730671644211,
+        1.271737040951848
+      ],
+      "gpu_complete_samples_ms": [
+        5.257955985143781,
+        3.359967959113419,
+        3.3707580296322703,
+        2.910554059781134,
+        3.4314129734411836,
+        3.64732404705137,
+        2.9287379002198577,
+        3.828598069958389
+      ],
+      "cpu_complete_median_ms": 0.44373905984684825,
+      "gpu_complete_median_ms": 3.401085501536727,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 0.1,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "195f344e73dd718696155cd595b6840f225bd416ace59e4b0797d14d0d2a0515",
+        "2f1596ffecbdf1c1a42a4d39f574888777038d9d7d72d2dc0df055c97f802075",
+        "db88746e9f01e78cc4d4309019f9051cc09f247d6dc433453ce3036725f65b69",
+        "13a1e25575dfac4a036dc04ab6009bddd9a33bf3088e96a732235c5eb675d19a",
+        "734c2002e484224ae74d2ee8ca698df4e49587a2802d2e12c18f82a2ee14976f",
+        "d85415643209e7ec4eab62da33dd9148a12bda9941d7a088b2bf17607f23ded0",
+        "d885fc582104476c81408d88dd2fbae63d79db2f03635f408256e794c67b9553",
+        "014470df799c5e7f55de83e3d7e018e79d34a9b3186fac10e0d27548ea1c9516"
+      ],
+      "cpu_complete_samples_ms": [
+        0.5940789123997092,
+        0.5720480112358928,
+        0.6850829813629389,
+        0.5394350737333298,
+        0.777076929807663,
+        0.5462479311972857,
+        0.6708449218422174,
+        0.5842510145157576
+      ],
+      "gpu_complete_samples_ms": [
+        2.9795739101246,
+        3.581948927603662,
+        3.5001339856535196,
+        3.660728922113776,
+        3.558485070243478,
+        3.234909032471478,
+        3.503720974549651,
+        3.844499005936086
+      ],
+      "cpu_complete_median_ms": 0.6275479681789875,
+      "gpu_complete_median_ms": 3.5311030223965645,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "ceea6968a2cc2c4cc15e22545e2265cfd61efffbded9c328c20ee9cbe50f4b4e",
+        "17fc6226df742cb404249019ce16285961e854ca6992711a6a77dbe779337cc6",
+        "f4b748f9cea71d865a0ecd25d36a728cbc2e4383cd399800ac56fc4688b5880e",
+        "34254626f4957a9a212206c2c6454e672fe2656e3d9de43b6c5f55bb7808db71",
+        "a40dd2cc8577ecc12f2a63beb3cdb9bb314102eca947146ebecdef3fb0b447c1",
+        "8f2409a4e176ae94dd984d95c77d23db67964faac9db48b52c7cebd347bc26f2",
+        "d220f81f8a53771bf9de26e2800a2c1c0b87f1e40b10d3b83836187175e5acf7",
+        "aaf200c4a144b5ad555bf662f3cc8dcbe9ea359cbb1a9e791b8b4e001f4baf13"
+      ],
+      "cpu_complete_samples_ms": [
+        1.1293370043858886,
+        1.1135069653391838,
+        1.1677100555971265,
+        1.1097099632024765,
+        2.6785829104483128,
+        1.9862549379467964,
+        1.559815020300448,
+        1.3713669031858444
+      ],
+      "gpu_complete_samples_ms": [
+        3.704192000441253,
+        4.031374002806842,
+        4.26236295606941,
+        4.080608021467924,
+        4.539771005511284,
+        4.607278970070183,
+        4.433589056134224,
+        4.083061940036714
+      ],
+      "cpu_complete_median_ms": 1.4655909617431462,
+      "gpu_complete_median_ms": 4.347976006101817,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        1920,
+        1080
+      ],
+      "density": 1.0,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "8a5e922e712200a1cba4c45d48f424a151fcd07066be485a17b0a748d687ac22",
+        "808aba8f1a792822ffbf6194700507293660f2ba0e8d6de90eba2d64a1404944",
+        "af750bdd336d796cbe68b2eab55363e1b6abc40e9899a58ed5f4a0c5b335b383",
+        "93a250b9ca983c85f54e0a6ed686e15e867c297b92fd8a2fe9a73d3588170f3a",
+        "111abe16c62c5320ffcb8a12c7491c14bf8a7d0e7d11b14c068dd301b969d291",
+        "de028746a9339ba1d42ee58fdc00b6d5f94309aff8e87e93e6883f127054db1f",
+        "0fe2f5b5016c75b76b7c7f300399aef6a8e1c61a34db8c871ccc18cbbfac01e1",
+        "1d9218d5272e80727ef691366852b3d21f1a86de35e11ff93959b5fb383c801d"
+      ],
+      "cpu_complete_samples_ms": [
+        1.6714480007067323,
+        1.472609001211822,
+        1.64131005294621,
+        1.402576919645071,
+        1.7485140124335885,
+        1.4043489936739206,
+        1.672027981840074,
+        1.457671052776277
+      ],
+      "gpu_complete_samples_ms": [
+        4.368104040622711,
+        4.643648047931492,
+        4.837476997636259,
+        4.5275769662112,
+        4.4824209762737155,
+        4.604763933457434,
+        4.431243985891342,
+        4.602439934387803
+      ],
+      "cpu_complete_median_ms": 1.5494905528612435,
+      "gpu_complete_median_ms": 4.565008450299501,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "3f5691230a9a931eb22f31054643447cc75a73669f5d47bf6140b4f27f0e8ae6",
+        "a73095df1d60e87ac68987019e81bca1d71b4b4703e610643fa6a5c9b953c566",
+        "2f58cf979eb096db73bb5ac0c1904ea083e6a0e1bcee0fca3c2cd2e047bd9e2e",
+        "f16212aca2299a991b31b12319c697a667b00e313dd0e76ba4cba8f02322b770",
+        "a17030da28a9bb9e4d5635ce6517a0abbf93e90396df6412ea5e45ecee9373ba",
+        "7dadd84ae4082a24435a3e52c1742a1b1f8bf76a87c3653a184b3dd3131d4237",
+        "5cbab69eaf558e9547c8e1958f4156c39347483e1b77425ba40017cf924c199b",
+        "954496a3325e2c372e45813ea8155b7a9fc38fa86a78231a24b7a5103997b0f4"
+      ],
+      "cpu_complete_samples_ms": [
+        2.6551680639386177,
+        2.5464120553806424,
+        2.622605999931693,
+        2.2140799555927515,
+        2.5092200376093388,
+        2.21142394002527,
+        2.3073169868439436,
+        2.4483950110152364
+      ],
+      "gpu_complete_samples_ms": [
+        11.921884957700968,
+        11.7504489608109,
+        11.625801911577582,
+        12.052563019096851,
+        11.76206092350185,
+        11.906594969332218,
+        11.653966037556529,
+        12.066840077750385
+      ],
+      "cpu_complete_median_ms": 2.37785599892959,
+      "gpu_complete_median_ms": 11.834327946417034,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 0.1,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "017bb98a8d45286c4419f4720cc344fe356a5ebda6ed99eb1ef7e81426645972",
+        "a286e2aadf58efac7520a584ce858cd991fe2a0bdf48c7c5fceb8090ef4d0cc5",
+        "cd7805b3fe11a884db98cc898e11699c31ba5f99ea28c5c8c36a32d1bfeb9853",
+        "e35bfa4a5a734aec1ee56e89ad30396f6c52597af82c919c7d9db7b3d1065476",
+        "31bc5e6545fae2e9a125f55915fdef548885e9d5ae63b5e0e2b232d5970f5342",
+        "ef44213beefd935cd45ad92f816d1dd789ec7aa9a6fefd9fcdb021788d7ebfea",
+        "6d3af7649c7e9e1da06dd02b6b2f6ac3f39236bcb6dcc2593714b73fd4548c24",
+        "acc3b3bd8647796ce191003cad444f59703ee1e31670505836c7ddab34219668"
+      ],
+      "cpu_complete_samples_ms": [
+        2.2168350405991077,
+        2.445799997076392,
+        2.365857013501227,
+        2.2065850207582116,
+        2.4992009857669473,
+        2.247862983494997,
+        2.472029998898506,
+        10.362379951402545
+      ],
+      "gpu_complete_samples_ms": [
+        11.53983804397285,
+        11.820651940070093,
+        11.800643987953663,
+        11.772781028412282,
+        11.710833059623837,
+        12.162632076069713,
+        11.769033968448639,
+        12.087409966625273
+      ],
+      "cpu_complete_median_ms": 2.4189435061998665,
+      "gpu_complete_median_ms": 11.786712508182973,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "dark": true,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "6d4e8cf44c804263f3d83983142e63c12e75105f2b4cde84a4414b0e474563b5",
+        "7dbe23bf0c04f0d72b416e8bff9d929d75bd713698c39209858f6aaf57f5f701",
+        "de236644f342a96efaae2add6a77b7c3f43107cec9542a56abd1efd276293304",
+        "f033c09505955e57d51d4d8daa57ffbd654e451f8fe6fc7285f799d70c8c69b1",
+        "e0e45fab6eb4f890c080aefbbc8e8c9abb04a68da8510c6c7b56162e69ac6929",
+        "4470853b1fe5ee22457cd12b2eb0ac63a401b39c74ec2c9a7a071f00cb92d956",
+        "3eecea75bd1c6eef45a2fe805d3f6bae1e031a4943eb89dd5d221d41ed8c12a2",
+        "8ac246723636d7ac3a486ea1bbdb0fe4118ed53ad6f1241e04734e1a48ddfa04"
+      ],
+      "cpu_complete_samples_ms": [
+        10.48936101142317,
+        6.6718439338728786,
+        7.286733016371727,
+        6.658778991550207,
+        7.435425999574363,
+        7.117752102203667,
+        7.185671012848616,
+        6.892833975143731
+      ],
+      "gpu_complete_samples_ms": [
+        15.246705967001617,
+        15.62283094972372,
+        15.543129062280059,
+        15.677785035222769,
+        16.896763001568615,
+        15.99967700894922,
+        16.325166914612055,
+        16.012973035685718
+      ],
+      "cpu_complete_median_ms": 7.151711557526141,
+      "gpu_complete_median_ms": 16.00632502231747,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    },
+    {
+      "theme": "data_art_spaceout_field",
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1.0,
+      "dark": false,
+      "gpu_frames": 8,
+      "exact_pixel_frames": 8,
+      "distinct_frame_hashes": 8,
+      "frame_sha256": [
+        "54485a7220146359716427bf5a2cc131788ce82deb6c554504a6fa3afe595c0b",
+        "5f3968eb57d10760f04674d5385793b1cb644c02c8b7425b76b559a68ffe3795",
+        "ced20921767e6755cd7516c6e8c079e72f49057abb65fd14c096ca0ae1789ff5",
+        "5f5d26f308602a882f1136b8c844ee1160d143651a5d8918baf3cba49d15c02a",
+        "994325f569b06c36808ebf938982dd51b2f10e334ef69a29cec2ff030bd772d3",
+        "ba0d0a9cf8728a2b88bf516581de7c6da18978f233544b4097598d5b20dbfa25",
+        "e07cf0637f27dd70b21a5394e4ca84daeb2d7ec18165b4aca840fae06f3625c8",
+        "d780c1635fe9abd93acd138aeb345437a6f82babf10c8802b1833fba9c98d969"
+      ],
+      "cpu_complete_samples_ms": [
+        7.733843056485057,
+        7.484066998586059,
+        7.170822937041521,
+        6.587674026377499,
+        7.891693036071956,
+        7.000549114309251,
+        7.546776905655861,
+        6.879930035211146
+      ],
+      "gpu_complete_samples_ms": [
+        15.574107994325459,
+        14.807341038249433,
+        15.11731999926269,
+        15.502030961215496,
+        15.860292012803257,
+        15.208933968096972,
+        15.58481901884079,
+        14.916567946784198
+      ],
+      "cpu_complete_median_ms": 7.085686025675386,
+      "gpu_complete_median_ms": 15.355482464656234,
+      "renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+      "owner_thread": 130200151844416
+    }
+  ],
+  "qualification": "Native current private application engine and optional EGL renderer; timings include advance and complete shade. No displayed frame-rate, other-platform, original segfault, arbitrary-palette GPU or scientific analysis claim.",
+  "result": "PASS"
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.openmp_guard.single_threaded_openmp#0",
+      "source_sha256": "3a008eb3ce054bf6c8c40672c1f69f8994d55d6ba01a8d3e47119e7eeb122047",
+      "source": "Serialize this thread's OpenMP regions while several runtimes are mapped.",
+      "context": "Serialize this thread's OpenMP regions while several runtimes are mapped.",
+      "translation": "Exécuter en série les régions OpenMP de ce fil d’exécution lorsque plusieurs bibliothèques d’exécution sont chargées."
+    }
+  ]
+}

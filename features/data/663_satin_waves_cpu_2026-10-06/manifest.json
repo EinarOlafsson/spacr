@@ -1,0 +1,165 @@
+{
+  "archive": "accepted satin CPU renderer evidence2026-10-06",
+  "files": [
+    {
+      "file": "REPRODUCE.txt",
+      "size_bytes": 3487,
+      "sha256": "2f2b961f4fadb3a120577c213440328908a984b723476670d1a8364b97ebe96d"
+    },
+    {
+      "file": "accepted_coverage.json.gz",
+      "size_bytes": 39036,
+      "sha256": "0beff765c81ba8aa962fda8a5548a0a06223cc437db5d0f69b61be0d3521610a"
+    },
+    {
+      "file": "accepted_coverage.sqlite.gz",
+      "size_bytes": 668221,
+      "sha256": "29b05837299383e033a702bb4404efe9db7e155ebf627469ba1ece976bab6407"
+    },
+    {
+      "file": "accepted_renderer.py.gz",
+      "size_bytes": 95151,
+      "sha256": "ca7502453af30b34b94cce3fd9833c6268f4243b193f53e01468e907ec8f35b8"
+    },
+    {
+      "file": "accepted_source.diff.gz",
+      "size_bytes": 2995,
+      "sha256": "4dad7279e53527392eb703792f0880b9bfb39d9f74b6450d466e34b979f776ca"
+    },
+    {
+      "file": "accepted_worker_gui_perf.json",
+      "size_bytes": 7190,
+      "sha256": "4bf45e77df675571d2cf9948c0133d5abf179ce146bb739902bd781ceff91e39"
+    },
+    {
+      "file": "baseline_renderer.py.gz",
+      "size_bytes": 92754,
+      "sha256": "0627bd1c8e31a5a879f088892ce8e18deee963d911f369c92522cf3236da8504"
+    },
+    {
+      "file": "independent_memory_review.json",
+      "size_bytes": 1018,
+      "sha256": "c7d3f58d5655ac989349f0a0ee2bcea1d1105dc7d40f351edb934eb3b099ba23"
+    },
+    {
+      "file": "integrated-satin-source-parity.json",
+      "size_bytes": 1897,
+      "sha256": "8ba0e63e28f6c10b6d42724126fd167a50bca9418b495e55a734c76bd792346c"
+    },
+    {
+      "file": "integrated_renderer.py.gz",
+      "size_bytes": 96967,
+      "sha256": "726bdb1f73a4d42213e2b0d1d2c1402e0f6e31c2a69def0b161215ddbd9111af"
+    },
+    {
+      "file": "integrated_test_nodes.json",
+      "size_bytes": 999,
+      "sha256": "e08f6773283b2afdd79e3f37968170a23fddb641378f87b399bc8a9a70f66b0a"
+    },
+    {
+      "file": "original_native_proof.py.gz",
+      "size_bytes": 1415,
+      "sha256": "e554e2224631280883fabfff2ff4c6de8493fb534f2d05978c46113f7dbc1f11"
+    },
+    {
+      "file": "original_worker_probe.py.gz",
+      "size_bytes": 2933,
+      "sha256": "b648bbbb78d244f8a03d4cb50029d34698c0ac8042224dd072440ee7f91d3095"
+    },
+    {
+      "file": "portable_native_replay.log",
+      "size_bytes": 436,
+      "sha256": "3e6a3d7ee184efc1f8330cb1fd3c6fe64050e0dc0935fc04ea7e739cf02a7108"
+    },
+    {
+      "file": "portable_replay_receipt.json",
+      "size_bytes": 471,
+      "sha256": "313e8f3b2dcd736072336b55743254802542fa203591a2bc44ecf74aeef2f361"
+    },
+    {
+      "file": "pytest-integrated-satin-review.log",
+      "size_bytes": 99,
+      "sha256": "431aeb87e8924b4fffd56990c9d498b86e527f66bfc52d8f66f5d2a22fa05409"
+    },
+    {
+      "file": "pytest-satin-strip-cohort.log",
+      "size_bytes": 261,
+      "sha256": "a5726628f9a093d03474ffb30e37c89e4d36869c139439a2c3ea0842dda3f53a"
+    },
+    {
+      "file": "rejected_experiments.json",
+      "size_bytes": 778,
+      "sha256": "d1930424d7e43415eac044395db13904b4a879912654d3b17ef753d8fff974ec"
+    },
+    {
+      "file": "rejected_full_target_worker_perf.json",
+      "size_bytes": 7186,
+      "sha256": "08378ec0fb873dfbaf1d9105273770b89cc984cf89df9874fd7ebf8f627159e3"
+    },
+    {
+      "file": "reproduce.py",
+      "size_bytes": 1947,
+      "sha256": "f648be9eaa6803278f1925b0d8b2b59aad9f118b893c3cea1fcd069d943799f5"
+    },
+    {
+      "file": "satin-final-native-parity.json",
+      "size_bytes": 6664,
+      "sha256": "99ef16394f6f0b01ddcf60c8190b7c9c87bf97960531fd64a4ac27876e3ff0d5"
+    },
+    {
+      "file": "satin-final-native-render-perf.json",
+      "size_bytes": 743,
+      "sha256": "c05beb5f989691512f3615ecd02a20bec9b9ac4118fdea4b2620900e3cb96be3"
+    },
+    {
+      "file": "satin-final-new-source-coverage.json",
+      "size_bytes": 284,
+      "sha256": "55209f70efe2c02a4aa3abb4b282d21b647f9acf906356538dadc4c8f61be178"
+    },
+    {
+      "file": "summary.json",
+      "size_bytes": 1541,
+      "sha256": "063e822dbad685f9776a5c63f9b7725aef13785e1f52cfb887819f36bc510c83"
+    },
+    {
+      "file": "test_data_art_advection_evolution.py.gz",
+      "size_bytes": 587,
+      "sha256": "29b6db220fb31a87fc8b44e4dfc17c0db95eaae547fc9fdf25d42e152a574a57"
+    },
+    {
+      "file": "test_data_art_clock_handoff.py.gz",
+      "size_bytes": 2505,
+      "sha256": "6cb17aa4491c2ab3351b43fc02f806fd78aa87dadc431d200f138ba397b86673"
+    },
+    {
+      "file": "test_data_art_filter_boundaries.py.gz",
+      "size_bytes": 860,
+      "sha256": "ae06081341dfca16c7a8acc14dd21748c5e375d3ddbd8cfebf965c3de113d1b5"
+    },
+    {
+      "file": "test_data_art_gravity_and_geometry.py.gz",
+      "size_bytes": 2871,
+      "sha256": "c9eb86c26e8c64b18fbc62f91d0e6c601f8b199a072725846efffc616a0d54ff"
+    },
+    {
+      "file": "test_data_art_gravity_radius.py.gz",
+      "size_bytes": 1669,
+      "sha256": "3a5ee771d16d26544f4fa87dc5ff4e2b04d53f3786d03884807fbbf2cf87fcc7"
+    },
+    {
+      "file": "test_data_art_renderer.py.gz",
+      "size_bytes": 3744,
+      "sha256": "02efb19665d736ec04ff22faff2c3a6bf661c4eb24eaa938f0ce17440497453e"
+    },
+    {
+      "file": "test_data_art_waves_and_vortices.py.gz",
+      "size_bytes": 4539,
+      "sha256": "d78979dfc81fa6516fbfe369e1a9e5974df2bc336e9dda4bcc8b91e2bb743180"
+    },
+    {
+      "file": "verify_integrated_source.py",
+      "size_bytes": 1980,
+      "sha256": "a891933897dd355e349f3dd3bf5a24aa23548575f3f20673ca4c432548877c70"
+    }
+  ]
+}

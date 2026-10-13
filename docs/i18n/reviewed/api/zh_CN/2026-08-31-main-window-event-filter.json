@@ -1,0 +1,41 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Handle frameless-window menu-bar drag and double-click gestures.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#0",
+      "source": "Handle frameless-window menu-bar drag and double-click gestures.",
+      "source_sha256": "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+      "translation": "处理无边框窗口的菜单栏拖动和双击手势。"
+    },
+    {
+      "context": "Teardown can invalidate the Qt menu bar while events are still queued. This filter returns ``False`` instead of allowing that condition to escape through PySide's callback boundary.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#1",
+      "source": "Teardown can invalidate the Qt menu bar while events are still queued. This filter returns ``False`` instead of allowing that condition to escape through PySide's callback boundary.",
+      "source_sha256": "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+      "translation": "销毁期间，即使事件仍在队列中，Qt 菜单栏也可能失效。此过滤器会返回 ``False``，而不是让这种情况以异常形式越过 PySide 的回调边界。"
+    },
+    {
+      "context": "Qt object receiving the event.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#2",
+      "source": "Qt object receiving the event.",
+      "source_sha256": "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+      "translation": "接收事件的 Qt 对象。"
+    },
+    {
+      "context": "Qt event delivered to the main window's filter.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#3",
+      "source": "Qt event delivered to the main window's filter.",
+      "source_sha256": "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+      "translation": "传递给主窗口过滤器的 Qt 事件。"
+    },
+    {
+      "context": "``True`` when a menu-bar mouse gesture is consumed; otherwise ``False``.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#4",
+      "source": "``True`` when a menu-bar mouse gesture is consumed; otherwise ``False``.",
+      "source_sha256": "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a",
+      "translation": "菜单栏鼠标手势被处理时返回 ``True``；否则返回 ``False``。"
+    }
+  ],
+  "schema": 1
+}

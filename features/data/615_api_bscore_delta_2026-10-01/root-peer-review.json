@@ -1,0 +1,65 @@
+[
+  {
+    "language": "sv",
+    "draft_sha256": "da5092a02940fa349d80d5a188cc6bc1bf5efe0f7c701fdd6a71979acde464f1",
+    "final_sha256": "da5092a02940fa349d80d5a188cc6bc1bf5efe0f7c701fdd6a71979acde464f1",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "de",
+    "draft_sha256": "5f09be6306ef0d37eee34b35be0e521371273f31fb62e643815e39827ba43db9",
+    "final_sha256": "5f09be6306ef0d37eee34b35be0e521371273f31fb62e643815e39827ba43db9",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "es",
+    "draft_sha256": "a3fabcd63e39a0385898432d8091b40b123d5dfd40e3dedcd15cc89cf9441bbf",
+    "final_sha256": "a3fabcd63e39a0385898432d8091b40b123d5dfd40e3dedcd15cc89cf9441bbf",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "zh_CN",
+    "draft_sha256": "7cfd5fc27b5b6ace2b62dc01f07016b71faef3b7ab561f201fa14c50f3ecf27b",
+    "final_sha256": "7cfd5fc27b5b6ace2b62dc01f07016b71faef3b7ab561f201fa14c50f3ecf27b",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "pt",
+    "draft_sha256": "d663b8d7bbb121468d0de11df08d32b062df2701b4f38a74db9908446e909a43",
+    "final_sha256": "d663b8d7bbb121468d0de11df08d32b062df2701b4f38a74db9908446e909a43",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "hi",
+    "draft_sha256": "6a252c614f72c7212e2f4bc9ff3ed5b038b076bc442aa106380857f750a19a75",
+    "final_sha256": "c37a773638edb6203185097f31977151a0cfad2878de00de1633d8b4376d6fd3",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "ko",
+    "draft_sha256": "ffe2cdfeb24e8e233fe2bb04fd903ad35ca5a2e8e50166dc69752b1dd29b8dae",
+    "final_sha256": "ffe2cdfeb24e8e233fe2bb04fd903ad35ca5a2e8e50166dc69752b1dd29b8dae",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "is",
+    "draft_sha256": "b1060bc358065bd0a9fdc81e8022f17c8442fbaaa700bc93fd4dc26252359a7b",
+    "final_sha256": "b1060bc358065bd0a9fdc81e8022f17c8442fbaaa700bc93fd4dc26252359a7b",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  },
+  {
+    "language": "fr",
+    "draft_sha256": "958c00f430c5fec23259a7728edaf9ee34873306fe6e66d0b29f358cfe4f3353",
+    "final_sha256": "958c00f430c5fec23259a7728edaf9ee34873306fe6e66d0b29f358cfe4f3353",
+    "root_independent_technical_review": "accepted; numeric1.4826, general10/0.01 versus B-score200/1e-5, protected identifiers",
+    "native_speaker_signoff": false
+  }
+]

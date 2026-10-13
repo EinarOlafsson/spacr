@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "lesson": "41_classify",
+  "language": "en",
+  "stage": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current",
+  "tracks": [
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/af_heart.m4a",
+      "sha256": "8a163e247385b16c620d4bd5a2e76ed3cc06fa59bbc6e6cbf67194eb1632ab49",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/af_aoede.m4a",
+      "sha256": "b3041339a28dc18348abb7ac5921af1de6bde53101a061691d811b2c2ebd3db5",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.5
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/af_bella.m4a",
+      "sha256": "82d3f1d25febcd8944808ffacd7f3246cbad24dbf4dffb068d62d78da70fc6bd",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/af_jessica.m4a",
+      "sha256": "c5296785992c48f5afda49124c4c7e58661875d6358fc5db92327f434150da9f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/af_river.m4a",
+      "sha256": "c2f0ca835c0a4addbe59aabd2586567503756008145877596437dc27605b8303",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -3.6
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/af_sarah.m4a",
+      "sha256": "cd1c71b42d21a5626e4e4b1b954f7e5089c301cd2e82c00f5984d94e5082d03f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.7
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/af_sky.m4a",
+      "sha256": "c84669a93af5e37062a871f992230fcaf3203c1ecb1b2e6056c87e4eb7946d31",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.3
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_adam.m4a",
+      "sha256": "252994c4329fc1ae08769132932e1be3a817305b7ffd1017f3d3dba1105b65a7",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_echo.m4a",
+      "sha256": "54a5e98fbd1786d6b5a64966d932a3daa75aabe68695c017164a4f6fad855593",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.3
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_eric.m4a",
+      "sha256": "b5b2879454ce4b1466b116da5d4aef4f72eb0b89581ce9923bd294f89dce3092",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.5
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_fenrir.m4a",
+      "sha256": "caadcf11be665318e60f1e6a39296654dc4c751430b7a50258e4c46d48c51c0f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_liam.m4a",
+      "sha256": "27d5b13a1e126b1bc63491155eefec118f72b87f01cd6682962127386786bd4f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_michael.m4a",
+      "sha256": "df03c776818fdfa238de9e1ccd00a30af1fa29480fb8e62f66f4ab23b3570088",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.4
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_onyx.m4a",
+      "sha256": "47603facd4c1d8ca5ae6cac5013b15945927474733f0f04c93a645800f3edabd",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.2
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_puck.m4a",
+      "sha256": "8f8478f42854841672b46c47269dc6286971cd45ca339d35d89dfa5ac61d8769",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/am_santa.m4a",
+      "sha256": "a23adea9bb7640297faaf6838866e9e0f2daceaa1e60891d51c5179be0d29dc4",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.9
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bf_alice.m4a",
+      "sha256": "1c264ab223e832972ec85a0c8ca28feffb69cafe996e4961e7e8d2205669d3b1",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -3.9
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bf_emma.m4a",
+      "sha256": "54155899995469439cc184846c4ba6112ff56c5717c2ab55ef6e39dfebe53d51",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bf_isabella.m4a",
+      "sha256": "ba7e336acc1200d1633ac750a64d9b9316281432da5d44b14cf1043817ef927b",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bf_lily.m4a",
+      "sha256": "4d11c98fc2d3e3cb41563a154838cce197bd09da762ab6ef38b459b504b725a0",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.9
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bm_daniel.m4a",
+      "sha256": "82452420922ef9706fe3ccd56c6169e7712100efeb0d6deed211650158c3a526",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bm_fable.m4a",
+      "sha256": "e9f3b64d01e38b471a27e00e9cb8dc0ba83bf49b123bd3e044ee4ac1b4ff3bf9",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bm_george.m4a",
+      "sha256": "10bb534b0c06bfe81a1753ba0c59db4678e07e2a45934300366c66644d90eeff",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/production/41_classify/audio/en/bm_lewis.m4a",
+      "sha256": "4cfb838c4807253bb4906a0566d33433596ca560e67cc8c271c076ebbec4628b",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    }
+  ],
+  "verified_tracks": 24,
+  "required_tracks": 24,
+  "maximum_decoded_true_peak_dbfs": -1.0,
+  "published": false,
+  "remaining": [
+    "Other supported spoken languages",
+    "Caption/localized-player acceptance",
+    "Audible narration acceptance",
+    "Complete-set publication"
+  ]
+}

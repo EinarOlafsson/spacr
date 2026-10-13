@@ -1,0 +1,156 @@
+{
+  "schema": "spacr.local-ci-batch/v1",
+  "scope": "one batch; not a full-suite or coverage-gate verdict",
+  "suite": "qt",
+  "shard": 0,
+  "shard_count": 3,
+  "batch": 60,
+  "batches_total": 241,
+  "marker": "qt and not slow and not heavy and not gpu and not network and not nas and not gui",
+  "runner_options": [
+    "tests/",
+    "--marker",
+    "qt and not slow and not heavy and not gpu and not network and not nas and not gui",
+    "--batch-size",
+    "16",
+    "--workers",
+    "2",
+    "--per-test-timeout",
+    "1200",
+    "--faulthandler-timeout",
+    "900",
+    "--batch-timeout",
+    "2700",
+    "--ignore=tests/test_perf_guard.py",
+    "--ignore=tests/qt/test_gui_responsiveness.py",
+    "--ignore=tests/qt/test_home_stage_and_dock.py",
+    "--ignore=tests/qt/test_figure_queue.py",
+    "--ignore=tests/qt/test_pca.py",
+    "--ignore=tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py",
+    "--ignore=tests/qt/test_the_backdrop_survives_a_run.py"
+  ],
+  "source": {
+    "sha": "e1f54c80650f60942ba6c98d4e999b36a3fa2846",
+    "working_tree": "",
+    "untracked_sources": {},
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "files": [
+      {
+        "path": "tests/qt/test_make_masks_filters_are_any_regionprop.py",
+        "sha256": "57931d29715499a9ca2869bddf46cd68268fe99c40e7296c0e18f5ac4e22c588"
+      },
+      {
+        "path": "tests/qt/test_make_masks_filters_splits_and_inverts.py",
+        "sha256": "1fdae2585e37d48d800b0842d464b1a3270c8ee036beb2dfa03e6b8623941763"
+      },
+      {
+        "path": "tests/qt/test_make_masks_inversion_help_translations.py",
+        "sha256": "4c5613af03edc51662bdc160aca3eecf94158621b9937a6be36936b0aec62db4"
+      },
+      {
+        "path": "tests/qt/test_make_masks_inverts_the_picture_and_otsu_grew_options.py",
+        "sha256": "1b90fc41f2019edc816da4a3e1bee9b5347ca73701efa12659ec5aa3024e47c4"
+      },
+      {
+        "path": "tests/qt/test_make_masks_is_a_tool_and_no_section_is_empty.py",
+        "sha256": "aa538444bc7afc7359168a2a8bf2fc4c9b2c2313016730df0d147e5ffd779662"
+      },
+      {
+        "path": "tests/qt/test_make_masks_levels.py",
+        "sha256": "d2b21e967b8b946604ff8b40a3291e5b1e3861d03652c260296c60dce9b4ad7c"
+      },
+      {
+        "path": "tests/qt/test_make_masks_levels_histogram_and_compare_windows_hold_their_ground.py",
+        "sha256": "1650954bbd035eb7529b36cf45253b153afd8b758e1b892b81f0a0475bbc3ded"
+      },
+      {
+        "path": "tests/qt/test_make_masks_linked_help.py",
+        "sha256": "6da922154b5c07759c0a2f5450ad83dd719337ebd124e1a46655202a3c56046d"
+      },
+      {
+        "path": "tests/qt/test_make_masks_magnifier_answers_at_its_edges.py",
+        "sha256": "397f5f505875cb5d6838bd07324db6f1c04e54a016e49150aed1e6a56c853567"
+      },
+      {
+        "path": "tests/qt/test_make_masks_model_box_downloads_and_late_results.py",
+        "sha256": "085d9acb88d7147eea5909dd672c89d114455784545cd67f035ccfbfd6e50e33"
+      },
+      {
+        "path": "tests/qt/test_make_masks_module_helpers_answer_every_input.py",
+        "sha256": "46a69cef50b322f513674edf15cfa45cd405db0425fc473db7bbdb616b884d3e"
+      },
+      {
+        "path": "tests/qt/test_make_masks_offers_a_sample_of_every_training_dataset.py",
+        "sha256": "35204f9126904eaad10dbeb1d2ca4fd225059e1c84bdab6be06f9729152eb34a"
+      },
+      {
+        "path": "tests/qt/test_make_masks_offers_every_detection_method.py",
+        "sha256": "a7a44e84d0de058aa3f5a9ef1524f45022d0a07e29717217c47bb0739f9d2538"
+      },
+      {
+        "path": "tests/qt/test_make_masks_opens_its_test_data.py",
+        "sha256": "abd3093f0fc8a5b9660aa4d42924d576a317517725bb227445a5475cd92573e9"
+      },
+      {
+        "path": "tests/qt/test_make_masks_parent_source_race_guards.py",
+        "sha256": "5dc81d71d91ae5f4b4b63a8b0009d33748527ebfb88ccde2973c62d0629799d7"
+      },
+      {
+        "path": "tests/qt/test_make_masks_ported_tools.py",
+        "sha256": "21e183b921a4e65da303c0e63920345fb5f8ee7bf602ce6c74ed0792e84a4499"
+      }
+    ],
+    "configuration": {
+      ".github/workflows/tests.yml": "63c04fa16ccb2f1a90000a05aa03b672d8924977ba2caf3de59cf2c5ab16d046",
+      ".github/workflows/_pytest-suite.yml": "f607b75a0ac1499843f1760f43ade46f68b531d8330d904bbf8b5151ce8166db",
+      "tools/run_pytest_batches.py": "f92f97e0071a30801fb4483d58b2fb91f9ee4e2da294be4333a1fc28cee9449b",
+      "tools/run_coverage_batches.py": "79f0fc211466eb275c45485f28754875ffea7e859080c3cc77ac3605f7596575",
+      "tools/pytest_plugins/xdist_coverage_ledger.py": "8966a1c17a12cf4f81390d4c2fca2ce24577024dcb39c0275e9276978bfd738f",
+      "tools/run_capped.sh": "875c64c77a75e9caa15b0366e1fde38ce5ac2917c58dee7916eba94185d8846a",
+      "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+      "pytest.ini": "caf6e3e410306f81e370605a4282dc997cafd8ed51aed76a49ca4af23de5a26c",
+      ".coveragerc": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79"
+    }
+  },
+  "helper_sha256": "26bb7b3b4a7d7473041738813b22c381244a9d0298d9bdf1d7383a2dc700b961",
+  "python": "3.12.13",
+  "python_executable": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "workflow_python": "3.12",
+  "packages": {
+    "pytest": "9.1.1",
+    "pytest-xdist": "3.8.0",
+    "pytest-timeout": "2.4.0",
+    "pytest-cov": "7.1.0",
+    "coverage": "7.15.4",
+    "pytest-qt": "4.5.0",
+    "pytest-randomly": "4.1.0",
+    "PySide6": "6.11.2",
+    "shiboken6": "6.11.2",
+    "numpy": "2.5.2",
+    "matplotlib": "3.11.1",
+    "torch": "2.13.0",
+    "cellpose": "4.2.1.1"
+  },
+  "environment_parity": "not established; compare versions with the hosted job",
+  "memory_cap": "8G",
+  "per_worker_memory_guard_gb": 6,
+  "qt_serial_tail": "excluded",
+  "disabled_plugins": [
+    "randomly"
+  ],
+  "ci_environment": {
+    "CI": "true",
+    "GITHUB_ACTIONS": "true"
+  },
+  "pytest_plugin_entry_points": {
+    "hypothesispytest": "_hypothesis_pytestplugin",
+    "pytest_cov": "pytest_cov.plugin",
+    "zarr": "zarr.testing",
+    "xdist": "xdist.plugin",
+    "xdist.looponfail": "xdist.looponfail",
+    "anyio": "anyio.pytest_plugin",
+    "timeout": "pytest_timeout",
+    "randomly": "pytest_randomly",
+    "pytest-qt": "pytestqt.plugin"
+  }
+}

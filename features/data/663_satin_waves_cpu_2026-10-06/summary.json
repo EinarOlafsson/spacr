@@ -1,0 +1,25 @@
+{
+  "item": "N663",
+  "state": "OPEN",
+  "accepted_commit": "4160916fa6",
+  "integrated_commit": "9ad69bab29d9a4f1b2188dbe823cc52860793adf",
+  "accepted_renderer_sha256": "9ea17982c07bcb3bbea6dd141da13f48e3cba67d1b8e26388754533edf258752",
+  "integrated_renderer_sha256": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5",
+  "accepted_tests": 152,
+  "integrated_focused_tests": 31,
+  "added_statements": 145,
+  "touching_arcs": 41,
+  "missing_statements": 0,
+  "missing_arcs": 0,
+  "native4k_numpy_compiled_pairs": 32,
+  "full_layer_vs_cropped_strip_pairs": 16,
+  "retained_owned_wave_metadata_bytes": 374724,
+  "metadata_measurement": "independent coverage_gate report against accepted source9ea17982",
+  "scope": "CPU only, CUDA hidden, Qt offscreen, 4GiB per Python process, native area override; accepted live receipt measures isolated satin checkpoint, integrated AST/test receipt proves composition with independently owned point frames",
+  "limitations": [
+    "Observed native4K average23.87FPS is near requested24; six repeated frames and max shade45.33ms remain. This is not all-theme24FPS acceptance.",
+    "Cold background CPU compilation took1.14s and cold heartbeat max64.56ms; first native show528.25ms includes native fold creation. No no-stall claim.",
+    "Reported user Save SIGSEGV remains OPEN; focused worker lifecycle passing is not a crash reproduction or fix.",
+    "Large lossless review images and offline72-frame clip remain in scratch, not repository. Offline sampled24Hz is not live FPS."
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "83281540b3f2c54a296abafea757b7287a704ffd",
+  "review_kind": "AI-assisted linguistic and technical review of each source and target",
+  "native_speaker_signoff": false,
+  "languages": [
+    {
+      "language": "sv",
+      "records": 27,
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-22-shared-controls.json",
+      "review_sha256": "68ef0f0963819c03cc3469001a5e16482ae20632367329bef03c291bcefea472",
+      "real_tr_checks": 27
+    },
+    {
+      "language": "de",
+      "records": 27,
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-22-shared-controls.json",
+      "review_sha256": "6be851edf6d2cd0809804c74652e10c30c15f663f9d7d70b6390552c534ee475",
+      "real_tr_checks": 27
+    },
+    {
+      "language": "es",
+      "records": 27,
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-22-shared-controls.json",
+      "review_sha256": "982794339001a8539f4af16ec362c04426cc039d4da9a8fcac0366dbecdbe827",
+      "real_tr_checks": 27
+    },
+    {
+      "language": "zh_CN",
+      "records": 26,
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-shared-controls.json",
+      "review_sha256": "de4473f782056f4bb2a554df0e039402dd01fd753a6419a51d8c7bad9567f40c",
+      "real_tr_checks": 26
+    },
+    {
+      "language": "pt",
+      "records": 27,
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-22-shared-controls.json",
+      "review_sha256": "02bc9fd64e96a38bfdc9561769cd7e88279d7be38e24a36c0b3426b0a0f4076e",
+      "real_tr_checks": 27
+    },
+    {
+      "language": "hi",
+      "records": 28,
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-22-shared-controls.json",
+      "review_sha256": "758f81d6b8c5338bcac4d90b8ad4f577020b20e2234bed530f6a7eab7d9b1e54",
+      "real_tr_checks": 28
+    },
+    {
+      "language": "ko",
+      "records": 28,
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-22-shared-controls.json",
+      "review_sha256": "0027ea6f48066fdc0f1ca6bfa8d7218baf1bf2cadd6dce9c6297c6591cc2b45b",
+      "real_tr_checks": 28
+    },
+    {
+      "language": "is",
+      "records": 28,
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-22-shared-controls.json",
+      "review_sha256": "6ebd5c265abb325887914fd937b347a6e4027da9c3cf82cca9c4b25e6eb8bf11",
+      "real_tr_checks": 28
+    },
+    {
+      "language": "fr",
+      "records": 27,
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-22-shared-controls.json",
+      "review_sha256": "f43ce1736f2235f74129a2082e26d4de520b26b19d9a66696ddbf825b90c983d",
+      "real_tr_checks": 27
+    }
+  ],
+  "source_bound_records": 245,
+  "missing_catalog_rows_filled": 245,
+  "backend_instructions_match_translated_module_and_mode_labels": true,
+  "unrelated_catalog_rows_unchanged": true,
+  "full_catalog_audit_passed": false
+}

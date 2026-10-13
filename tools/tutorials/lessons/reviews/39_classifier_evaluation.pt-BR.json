@@ -1,0 +1,37 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "c9422e3e62380aac367c30389de6533c519bd2e7212353f5650aae238e314280",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Classifier Evaluation: inspecionar previsões e erros",
+  "description": "Carregue um pacote de avaliação salvo, inspecione o vazamento e as contagens de confusão e filtre as previsões para revisão.",
+  "objectives": [
+    "Carregar um pacote e revisar o vazamento de dados.",
+    "Inspecionar as contagens de confusão e os grupos de confiança.",
+    "Filtrar previsões e localizar as figuras salvas."
+  ],
+  "prerequisite": "Baixe e descompacte o exemplo de resultados salvos indicado. Ele contém previsões, tabelas e figuras; os recortes exigem o seu experimento correspondente no Annotate. O exemplo compartilha poços entre os dados de treinamento e de teste; use-o para aprender o inspetor, não para estimar a acurácia com poços independentes.",
+  "scenes": [
+    "Abra Classify e depois Classifier Evaluation. Use este inspetor para explorar um pacote de avaliação salvo depois de gerar previsões.",
+    "Baixe e descompacte o exemplo abaixo. Clique em Browse e escolha a pasta que contém evaluation manifest ponto json.",
+    "Leia Summary para ver o número de previsões e os nomes de classe registrados. O exemplo contém duzentas e trinta e quatro previsões em duas classes.",
+    "Abra Leakage audit antes de interpretar a acurácia. Este exemplo sinaliza poços compartilhados entre os dados de treinamento e de teste. Para uma avaliação com poços independentes, prepare uma divisão com poços separados e execute de novo o treinamento e a avaliação.",
+    "Abra Confusion matrix. As linhas são as classes registradas e as colunas são as previsões. A diagonal mostra as concordâncias; as células fora da diagonal indicam discordâncias a revisar.",
+    "Clique numa célula de discordância para listar os exemplos dela. A célula selecionada contém onze discordâncias, agrupadas por confiança.",
+    "Mude Confidence threshold para escolher quais discordâncias entram na lista de alta confiança. Ao aumentá-lo de zero vírgula sete cinco para zero vírgula nove cinco, ficam duas na lista alta e nove na baixa.",
+    "Revise os exemplos selecionados junto com as imagens e as anotações. Use as explicações exibidas como pistas para investigar, e confira as evidências antes de mudar rótulos.",
+    "Abra Per-plate metrics para comparar os resultados por placa. Este exemplo tem uma placa; um pacote com várias placas traz linhas separadas para comparação.",
+    "Abra Calibration para comparar a probabilidade prevista com a frequência observada da classe. Confira a contagem de cada faixa ao interpretar as diferenças.",
+    "Abra Predictions e digite um identificador de amostra ou de poço para filtrar os registros. No exemplo, r cinco sublinhado c dois seleciona as previsões de um poço.",
+    "Limpe o filtro para restaurar todos os registros. Para abrir recortes no seu próprio projeto, carregue antes o experimento correspondente no Annotate; o exemplo de resultados para download não contém recortes.",
+    "Encontre as figuras de calibração e de confusão salvas na pasta do pacote. Confira os rótulos e a legibilidade antes de usá-las num relatório.",
+    "Mantenha a auditoria de vazamento junto com as métricas relatadas. Use Training Runs para comparar o progresso de treinamento salvo e volte ao Annotate quando precisar revisar imagens ou rótulos."
+  ]
+}

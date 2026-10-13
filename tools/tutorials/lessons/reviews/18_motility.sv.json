@@ -1,0 +1,34 @@
+{
+  "lesson": "18_motility",
+  "english_sha256": "fd729b5ee7ddf2a66468231a860d549a59b4c972fc409b9cf15d583aaf66bb13",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Motilitetsanalys",
+  "description": "Mät rörelse från spårade objekt, granska spårfilter och spara resultat per bildruta och per brunn.",
+  "objectives": [
+    "Läsa in ett projekt med spårade sammanslagna arrayer.",
+    "Välja maskplan, spårfilter och förvärvsenheter.",
+    "Köra analysen och hitta rörelsetabellerna och diagrammen."
+  ],
+  "prerequisite": "Slutför en Timelapse-körning, eller hämta och packa upp SYNTHETIC_motility_tracks.zip. Välj mappen som innehåller merged. Exemplet har åtta bildrutor, kärnintensitet i kanal 0, cellintensitet i kanal 1, spårade cellmasker i plan 2 och kärnmasker i plan 3. Det saknar patogenmask och fysisk kalibrering.",
+  "scenes": [
+    "Från Home öppnar du Measure och väljer sedan Motility Assay uppe till höger. Börja med spårade bilder från Timelapse, eller hämta exempelarkivet nedan för att följa med.",
+    "Packa upp exemplet och ställ Source på mappen som innehåller merged. Välj cells som spårade objekt, kärnkanal 0 och cellkanal 1. Låt patogenkanalen vara oinställd i det här exemplet.",
+    "Slå på Live för att öppna Motility preview och välj samma projektmapp. Använd förhandsvisningen för att granska spår och prova filter innan du kör hela analysen. Låt Propagate settings vara avstängt medan du provar tillfälliga val.",
+    "Ställ in två intensitetskanaler, spårat maskplan 2 och patogenmaskplan −1, vilket betyder inget. Förhandsgranska alla åtta bildrutor. I förhandsvisningen ställer du båda kalibreringsvärdena på 0 för det här okalibrerade exemplet och klickar sedan på Run preview.",
+    "Med minsta spårlängd 3 har exemplet sexton användbara spår. Granska banorna, längdfördelningen och hastighetssammanfattningen. Hastigheten är ungefär 1,4 pixlar per bildruta eftersom exemplet saknar förvärvsskala och intervall.",
+    "Min track length anger hur många bildrutor ett objekt måste sträcka sig över för att ingå i sammanfattningen. Öka värdet för att utesluta korta spår och se hur många som finns kvar. Behåll 3 för det här exemplet med åtta bildrutor.",
+    "Drop over-straight tracks utesluter spår över det valda tröskelvärdet för rakhet. Rakhet är nettoförflyttningen delad med hela banans längd. Jämför kvarvarande spår och diagram innan du väljer ett tröskelvärde; låt filtret vara avstängt när rak rörelse är en del av ditt experiment.",
+    "För förvärvade data anger du pixlar per mikrometer och sekunder per bildruta från mikroskopets och förvärvets metadata. Med båda värdena kan förhandsvisningen uttrycka hastigheten i mikrometer per minut. För att prova omräkningen på det här undervisningsexemplet ändrar två pixlar per mikrometer och 60 sekunder per bildruta medelvärdet till ungefär 0,7. Det är exempelvärden, inte en uppmätt kalibrering.",
+    "Ställ även in pixelskala och bildrutsintervall i formuläret för hela analysen; ändringar i förhandsvisningen är separata tills du för över dem. Kontrollera valt objekt, kanaler och filter innan du startar körningen. Spara förvärvsvärdena tillsammans med resultaten.",
+    "Låt Reuse existing measurements vara avstängt i den första körningen och aktivera kvalitetskontrollens diagram. Utan patogenkanal låter du infektionens kvalitetskontroll vara avaktiverad. Klicka på Run och följ förloppet i konsolen.",
+    "När körningen är klar öppnar du measurements och sedan measurements.db i projektmappen. Den valda tabellen innehåller observationer per bildruta; den tillhörande tabellen well_motility sammanfattar rörelsen per brunn. Granska de sparade diagrammen och deras enheter innan du jämför förhållanden eller exporterar figurer."
+  ]
+}

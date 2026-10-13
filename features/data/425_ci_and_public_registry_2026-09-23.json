@@ -1,0 +1,639 @@
+{
+  "recorded_at_utc": "2026-09-23T05:32:54.152314+00:00",
+  "scope": "Completed non-publishing CI at exact nightly source, plus anonymous read-only verification of images already published by the 1.5.0.9 release.",
+  "validation_run": {
+    "conclusion": "success",
+    "headSha": "318c17d1e8322a35e7bc98b0c14341cf14a3a7ed",
+    "jobs": [
+      {
+        "completedAt": "2026-09-23T05:24:36Z",
+        "conclusion": "success",
+        "databaseId": 107056408568,
+        "name": "Plan",
+        "startedAt": "2026-09-23T05:24:11Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-23T05:24:12Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-23T05:24:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:24:35Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v7",
+            "number": 2,
+            "startedAt": "2026-09-23T05:24:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:24:35Z",
+            "conclusion": "success",
+            "name": "Work out the version, the image name and the variants",
+            "number": 3,
+            "startedAt": "2026-09-23T05:24:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:24:35Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v7",
+            "number": 6,
+            "startedAt": "2026-09-23T05:24:35Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:24:35Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 7,
+            "startedAt": "2026-09-23T05:24:35Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35822253091/job/107056408568"
+      },
+      {
+        "completedAt": "2026-09-23T05:30:33Z",
+        "conclusion": "success",
+        "databaseId": 107056507490,
+        "name": "cuda image",
+        "startedAt": "2026-09-23T05:24:38Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-23T05:24:40Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-23T05:24:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:24:58Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v7",
+            "number": 2,
+            "startedAt": "2026-09-23T05:24:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:25:32Z",
+            "conclusion": "success",
+            "name": "Make room for a multi-gigabyte image",
+            "number": 3,
+            "startedAt": "2026-09-23T05:24:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:25:32Z",
+            "conclusion": "success",
+            "name": "Work out this variant's tags",
+            "number": 4,
+            "startedAt": "2026-09-23T05:25:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:23Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 5,
+            "startedAt": "2026-09-23T05:25:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:23Z",
+            "conclusion": "success",
+            "name": "Smoke \u2014 the image reports the version it is tagged with",
+            "number": 6,
+            "startedAt": "2026-09-23T05:30:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:24Z",
+            "conclusion": "success",
+            "name": "Smoke \u2014 the image does not run as root",
+            "number": 7,
+            "startedAt": "2026-09-23T05:30:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:31Z",
+            "conclusion": "success",
+            "name": "Smoke \u2014 one small pipeline run",
+            "number": 8,
+            "startedAt": "2026-09-23T05:30:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:31Z",
+            "conclusion": "skipped",
+            "name": "Log in to GHCR",
+            "number": 9,
+            "startedAt": "2026-09-23T05:30:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:31Z",
+            "conclusion": "skipped",
+            "name": "Push",
+            "number": 10,
+            "startedAt": "2026-09-23T05:30:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:31Z",
+            "conclusion": "success",
+            "name": "Summary",
+            "number": 11,
+            "startedAt": "2026-09-23T05:30:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:31Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v7",
+            "number": 22,
+            "startedAt": "2026-09-23T05:30:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:30:31Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-09-23T05:30:31Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35822253091/job/107056507490"
+      },
+      {
+        "completedAt": "2026-09-23T05:29:04Z",
+        "conclusion": "success",
+        "databaseId": 107056507499,
+        "name": "cpu image",
+        "startedAt": "2026-09-23T05:24:38Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-23T05:24:39Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-23T05:24:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:25:01Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v7",
+            "number": 2,
+            "startedAt": "2026-09-23T05:24:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:26:22Z",
+            "conclusion": "success",
+            "name": "Make room for a multi-gigabyte image",
+            "number": 3,
+            "startedAt": "2026-09-23T05:25:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:26:22Z",
+            "conclusion": "success",
+            "name": "Work out this variant's tags",
+            "number": 4,
+            "startedAt": "2026-09-23T05:26:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:28:53Z",
+            "conclusion": "success",
+            "name": "Build",
+            "number": 5,
+            "startedAt": "2026-09-23T05:26:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:28:54Z",
+            "conclusion": "success",
+            "name": "Smoke \u2014 the image reports the version it is tagged with",
+            "number": 6,
+            "startedAt": "2026-09-23T05:28:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:28:55Z",
+            "conclusion": "success",
+            "name": "Smoke \u2014 the image does not run as root",
+            "number": 7,
+            "startedAt": "2026-09-23T05:28:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:29:02Z",
+            "conclusion": "success",
+            "name": "Smoke \u2014 one small pipeline run",
+            "number": 8,
+            "startedAt": "2026-09-23T05:28:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:29:02Z",
+            "conclusion": "skipped",
+            "name": "Log in to GHCR",
+            "number": 9,
+            "startedAt": "2026-09-23T05:29:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:29:02Z",
+            "conclusion": "skipped",
+            "name": "Push",
+            "number": 10,
+            "startedAt": "2026-09-23T05:29:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:29:02Z",
+            "conclusion": "success",
+            "name": "Summary",
+            "number": 11,
+            "startedAt": "2026-09-23T05:29:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:29:02Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v7",
+            "number": 22,
+            "startedAt": "2026-09-23T05:29:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-23T05:29:02Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-09-23T05:29:02Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35822253091/job/107056507499"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35822253091"
+  },
+  "existing_release_run": {
+    "conclusion": "success",
+    "headSha": "53b0e63d5526a84ff99287ec09c47919d9c542ab",
+    "status": "completed",
+    "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35688066187"
+  },
+  "existing_release_container_jobs": [
+    {
+      "completedAt": "2026-09-22T05:32:44Z",
+      "conclusion": "success",
+      "databaseId": 106627562147,
+      "name": "Build and publish container images / Plan",
+      "startedAt": "2026-09-22T05:32:19Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T05:32:21Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T05:32:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:32:42Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-09-22T05:32:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:32:42Z",
+          "conclusion": "success",
+          "name": "Work out the version, the image name and the variants",
+          "number": 3,
+          "startedAt": "2026-09-22T05:32:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:32:42Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 6,
+          "startedAt": "2026-09-22T05:32:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:32:42Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-09-22T05:32:42Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35688066187/job/106627562147"
+    },
+    {
+      "completedAt": "2026-09-22T05:44:23Z",
+      "conclusion": "success",
+      "databaseId": 106628135506,
+      "name": "Build and publish container images / cpu image",
+      "startedAt": "2026-09-22T05:37:27Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T05:37:28Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T05:37:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:37:49Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-09-22T05:37:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:39:02Z",
+          "conclusion": "success",
+          "name": "Make room for a multi-gigabyte image",
+          "number": 3,
+          "startedAt": "2026-09-22T05:37:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:39:02Z",
+          "conclusion": "success",
+          "name": "Work out this variant's tags",
+          "number": 4,
+          "startedAt": "2026-09-22T05:39:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:41:46Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 5,
+          "startedAt": "2026-09-22T05:39:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:41:47Z",
+          "conclusion": "success",
+          "name": "Smoke \u2014 the image reports the version it is tagged with",
+          "number": 6,
+          "startedAt": "2026-09-22T05:41:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:41:48Z",
+          "conclusion": "success",
+          "name": "Smoke \u2014 the image does not run as root",
+          "number": 7,
+          "startedAt": "2026-09-22T05:41:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:41:58Z",
+          "conclusion": "success",
+          "name": "Smoke \u2014 one small pipeline run",
+          "number": 8,
+          "startedAt": "2026-09-22T05:41:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:41:58Z",
+          "conclusion": "success",
+          "name": "Log in to GHCR",
+          "number": 9,
+          "startedAt": "2026-09-22T05:41:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:21Z",
+          "conclusion": "success",
+          "name": "Push",
+          "number": 10,
+          "startedAt": "2026-09-22T05:41:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:21Z",
+          "conclusion": "success",
+          "name": "Summary",
+          "number": 11,
+          "startedAt": "2026-09-22T05:44:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:21Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 22,
+          "startedAt": "2026-09-22T05:44:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:21Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-09-22T05:44:21Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35688066187/job/106628135506"
+    },
+    {
+      "completedAt": "2026-09-22T05:50:08Z",
+      "conclusion": "success",
+      "databaseId": 106628135574,
+      "name": "Build and publish container images / cuda image",
+      "startedAt": "2026-09-22T05:37:50Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T05:37:52Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T05:37:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:38:17Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-09-22T05:37:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:39:40Z",
+          "conclusion": "success",
+          "name": "Make room for a multi-gigabyte image",
+          "number": 3,
+          "startedAt": "2026-09-22T05:38:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:39:40Z",
+          "conclusion": "success",
+          "name": "Work out this variant's tags",
+          "number": 4,
+          "startedAt": "2026-09-22T05:39:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:51Z",
+          "conclusion": "success",
+          "name": "Build",
+          "number": 5,
+          "startedAt": "2026-09-22T05:39:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:52Z",
+          "conclusion": "success",
+          "name": "Smoke \u2014 the image reports the version it is tagged with",
+          "number": 6,
+          "startedAt": "2026-09-22T05:44:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:52Z",
+          "conclusion": "success",
+          "name": "Smoke \u2014 the image does not run as root",
+          "number": 7,
+          "startedAt": "2026-09-22T05:44:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:59Z",
+          "conclusion": "success",
+          "name": "Smoke \u2014 one small pipeline run",
+          "number": 8,
+          "startedAt": "2026-09-22T05:44:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:44:59Z",
+          "conclusion": "success",
+          "name": "Log in to GHCR",
+          "number": 9,
+          "startedAt": "2026-09-22T05:44:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:50:04Z",
+          "conclusion": "success",
+          "name": "Push",
+          "number": 10,
+          "startedAt": "2026-09-22T05:44:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:50:04Z",
+          "conclusion": "success",
+          "name": "Summary",
+          "number": 11,
+          "startedAt": "2026-09-22T05:50:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:50:05Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 22,
+          "startedAt": "2026-09-22T05:50:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T05:50:05Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-09-22T05:50:05Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/35688066187/job/106628135574"
+    }
+  ],
+  "public_images": [
+    {
+      "tag": "1.5.0.9",
+      "manifest_digest": "sha256:d46b480658f5dc5f3bc92b2281595da4eed78d0dffc12531917dde638db28139",
+      "config_digest": "sha256:8343f5ee1447c23b226022f787364a59e12c33c64102bc086e8b58089fa70a00",
+      "anonymous_manifest_and_config_access": true,
+      "architecture": "amd64",
+      "os": "linux",
+      "user": "spacr",
+      "labels": {
+        "org.opencontainers.image.description": "Spatial phenotype analysis of CRISPR screens \u2014 CLI and pipelines, CPU only",
+        "org.opencontainers.image.documentation": "https://einarolafsson.github.io/spacr/installer_guide.html",
+        "org.opencontainers.image.licenses": "MIT",
+        "org.opencontainers.image.revision": "53b0e63d5526a84ff99287ec09c47919d9c542ab",
+        "org.opencontainers.image.source": "https://github.com/EinarOlafsson/spacr",
+        "org.opencontainers.image.title": "spaCR",
+        "org.opencontainers.image.version": "1.5.0.9"
+      },
+      "compressed_layer_bytes": 1522752339,
+      "digest_matches_successful_release_push_log": true
+    },
+    {
+      "tag": "1.5.0.9-cuda12.4",
+      "manifest_digest": "sha256:80f47a470526f182626dd25194266f06ec31695efa0598c148cc15d810a67da2",
+      "config_digest": "sha256:6dfff0568d0ba46d1508a6b5702e238cd1998a6330bfbd10038d4afb7991cfbd",
+      "anonymous_manifest_and_config_access": true,
+      "architecture": "amd64",
+      "os": "linux",
+      "user": "spacr",
+      "labels": {
+        "com.nvidia.cudnn.version": "9.1.0.70-1",
+        "maintainer": "NVIDIA CORPORATION <cudatools@nvidia.com>",
+        "org.opencontainers.image.description": "Spatial phenotype analysis of CRISPR screens \u2014 CLI and pipelines, CUDA 12.4, host driver 550+",
+        "org.opencontainers.image.documentation": "https://einarolafsson.github.io/spacr/installer_guide.html",
+        "org.opencontainers.image.licenses": "MIT",
+        "org.opencontainers.image.ref.name": "ubuntu",
+        "org.opencontainers.image.revision": "53b0e63d5526a84ff99287ec09c47919d9c542ab",
+        "org.opencontainers.image.source": "https://github.com/EinarOlafsson/spacr",
+        "org.opencontainers.image.title": "spaCR (CUDA 12.4)",
+        "org.opencontainers.image.version": "1.5.0.9"
+      },
+      "compressed_layer_bytes": 6230744436,
+      "digest_matches_successful_release_push_log": true
+    }
+  ],
+  "log_sha256": {
+    "ci-cpu.log": "0094f69a8caca3547bd2cb247af36e15c24b439a8cb641ae665af91242fe4e4d",
+    "ci-cuda.log": "68079b18c9733e2ef80f8f485c676ddff43501b81c6a91e88388c8d346b6bbb9",
+    "release-cpu.log": "5de1619238c32710736370564f4b65429a1ec8acfee0b1c85def537ac33a416a",
+    "release-cuda.log": "f102f397f6da05bd7ee4f268ed95d3139ecb6fae47e0492c8e131c6faed47325"
+  },
+  "limitations": [
+    "No GPU execution: both hosted runners exercised CPU pipelines.",
+    "Registry blobs fetched only for the small image configs, not all image layers.",
+    "Published images precede 318c17d1e revision-label repair; their revision label identifies the release caller rather than the installer checkout.",
+    "No release, registry push or visibility change performed by this validation."
+  ]
+}

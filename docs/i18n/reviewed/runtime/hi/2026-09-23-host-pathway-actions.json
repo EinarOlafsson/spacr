@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted linguistic and implementation-context review of the Host–Pathogen pathway action, preserving vacuole identity, measured host denominators, optional counts and unknown measurements. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
+      "translation": "पूरी रिक्तिकाओं और मेज़बान संदर्भ कंपार्टमेंट का मापन करें तथा संक्रमण अनुपात के हर में असंक्रमित मेज़बान कोशिकाओं को बनाए रखें। मार्कर चैनल और नियंत्रणों से अंशांकित अनुपात की सीमाएँ चुनें। वैकल्पिक रूप से, स्पष्ट रिक्तिका संबंधों या मापी गई गणना के स्तंभ से अलग-अलग विभाजित परजीवियों की गिनती करें। रिक्तिकाओं, मेज़बान कोशिकाओं और वेल की तालिकाओं, संयुक्त मार्कर अवस्थाओं, प्रतिकृति वितरणों और बेमेल परजीवी संबंधों की समीक्षा करें; अज्ञात माप अज्ञात ही रहते हैं।"
+    }
+  ]
+}

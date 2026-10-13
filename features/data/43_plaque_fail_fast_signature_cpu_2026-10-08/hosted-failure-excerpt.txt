@@ -1,0 +1,37 @@
+2026-10-08T04:59:28.9235878Z =================================== FAILURES ===================================
+2026-10-08T04:59:28.9236268Z _________ test_every_converted_double_declares_the_installed_signature _________
+2026-10-08T04:59:28.9236755Z [gw1] linux -- Python 3.12.15 /opt/hostedtoolcache/Python/3.12.15/x64/bin/python
+2026-10-08T04:59:28.9237519Z tests/test_cellpose_api_contract.py:404: in test_every_converted_double_declares_the_installed_signature
+2026-10-08T04:59:28.9237919Z     assert not wrong, (
+2026-10-08T04:59:28.9238265Z E   AssertionError: these Cellpose doubles do not declare the installed cellpose 4.2.1.1 eval signature:
+2026-10-08T04:59:28.9238718Z E       test_plaque_segmentation_diagnostics.py:258 Model.eval
+2026-10-08T04:59:28.9238986Z E     
+2026-10-08T04:59:28.9239514Z E     Write the parameters out with their real defaults and drop **kwargs -- see CELLPOSE_EVAL_PARAMETERS in tests/cellpose_api_contract.py. A double that accepts everything cannot fail when spaCR passes an argument cellpose removed.
+2026-10-08T04:59:28.9240056Z E   assert not ['test_plaque_segmentation_diagnostics.py:258 Model.eval']
+2026-10-08T04:59:28.9240289Z =============================== warnings summary ===============================
+2026-10-08T04:59:28.9240557Z tests/test_cellpose_dataset_balance.py::test_every_folder_contributes_the_same_number[sizes0]
+2026-10-08T04:59:28.9240881Z tests/test_cellpose_dataset_balance.py::test_every_folder_contributes_the_same_number[sizes1]
+2026-10-08T04:59:28.9241201Z tests/test_cellpose_dataset_balance.py::test_every_folder_contributes_the_same_number[sizes2]
+2026-10-08T04:59:28.9241530Z tests/test_cellpose_dataset_balance.py::test_without_augmentation_every_folder_is_cut_to_the_smallest
+2026-10-08T04:59:28.9241865Z tests/test_cellpose_dataset_balance.py::test_a_pair_is_re_augmented_before_a_combination_repeats
+2026-10-08T04:59:28.9242738Z   /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=6182) is multi-threaded, use of fork() may lead to deadlocks in the child.
+2026-10-08T04:59:28.9243164Z     self.pid = os.fork()
+2026-10-08T04:59:28.9243248Z 
+2026-10-08T04:59:28.9243392Z tests/test_cellpose_api_contract.py::test_the_double_sweep_finds_the_doubles_it_is_supposed_to
+2026-10-08T04:59:28.9243720Z tests/test_cellpose_api_contract.py::test_every_converted_double_declares_the_installed_signature
+2026-10-08T04:59:28.9244036Z tests/test_cellpose_api_contract.py::test_the_partial_signature_ratchet_only_shrinks
+2026-10-08T04:59:28.9244292Z   <unknown>:38: SyntaxWarning: invalid escape sequence '\d'
+2026-10-08T04:59:28.9244426Z 
+2026-10-08T04:59:28.9244554Z -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2026-10-08T04:59:28.9244792Z =========================== short test summary info ============================
+2026-10-08T04:59:28.9245253Z FAILED tests/test_cellpose_api_contract.py::test_every_converted_double_declares_the_installed_signature - AssertionError: these Cellpose doubles do not declare the installed cellpose 4.2.1.1 eval signature:
+2026-10-08T04:59:28.9245715Z     test_plaque_segmentation_diagnostics.py:258 Model.eval
+2026-10-08T04:59:28.9245888Z   
+2026-10-08T04:59:28.9246310Z   Write the parameters out with their real defaults and drop **kwargs -- see CELLPOSE_EVAL_PARAMETERS in tests/cellpose_api_contract.py. A double that accepts everything cannot fail when spaCR passes an argument cellpose removed.
+2026-10-08T04:59:28.9246815Z assert not ['test_plaque_segmentation_diagnostics.py:258 Model.eval']
+2026-10-08T04:59:28.9247053Z ================== 1 failed, 122 passed, 8 warnings in 50.60s ==================
+2026-10-08T04:59:29.0779696Z pytest batch 63/122: 32 files
+2026-10-08T04:59:44.0804154Z ============================= test session starts ==============================
+2026-10-08T04:59:44.0804774Z platform linux -- Python 3.12.15, pytest-8.4.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.15/x64/bin/python
+2026-10-08T04:59:44.0805229Z cachedir: .pytest_cache
+2026-10-08T04:59:44.0805781Z hypothesis profile 'ci' -> database=None, deadline=None, print_blob=True, derandomize=True, suppress_health_check=(HealthCheck.too_slow,)

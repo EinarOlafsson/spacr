@@ -1,0 +1,1079 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "lessons": [
+    "01_pypi_github",
+    "04_platform_installers",
+    "05_home"
+  ],
+  "tracks_checked": 150,
+  "passed": true,
+  "full_aac_decode": true,
+  "exact_source_model_voice_and_runtime_freshness": true,
+  "human_listening_review": false,
+  "publication": false,
+  "catalog_sha256": {
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_en.json": "d4cd668f2f143556f6e2165337ab93d11fe133d7c7c70c503b4a7854940562bf",
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_es.json": "24b39fa4cdba17559467721c2895147e5b5d0a1ebc52c2dfb6855dc29cae0dd1",
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_fr.json": "277ad5e8204eeac36d09873486b9963658b44b07579d8a279614e23d0a6521b6",
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_hi.json": "5cf0f1465559d05455f619299ff0a9c637977c7c2b69e72e12936b88e595e383",
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_it.json": "42eb1113b7c6232d2ecb95a1fb46542c1ce8c51c4a38e38a44bd710eb134aa85",
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_pt-BR.json": "7e7556117c6c22146bf63f6b8b5fdd8ae2c67c95062cfdc70df95e0372124fb9",
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_ja.json": "0dafa7a0c80a23d0aef7473d919bf3d5cf7a1277cefa967d7a144ce658a22728",
+    "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration/catalog/lessons_zh-CN.json": "2d59b0bafe56938a0b2b2ce324ef1b498d882cabbb4bef2fcff039bb63d887a8"
+  },
+  "tracks": [
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_heart",
+      "audio_sha256": "c1791264b23d8cc6cc5eff8d8980b489fe0ad1b43becaf0b39de75361af8e5a4",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_aoede",
+      "audio_sha256": "3dd34ee1c7e18922e578abb61e06ad68a5a783ee63f6e4a93293cadbdbf21500",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_bella",
+      "audio_sha256": "aff1136fccf87f57a70fad0adde1268450fa8df7352b169eaf51e9de38c99a57",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_jessica",
+      "audio_sha256": "4bd3e41032a80203c2c25ba793a22699584b9ec952a74969effdf5f7a91580f9",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_river",
+      "audio_sha256": "8506e7e6e220c600889a941b24ef56d0cdf1c2372e845722b9b3f92e6785ffa5",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_sarah",
+      "audio_sha256": "9f952386e5766362a58f87fe61498e21063d4f0996ad964adc028bedd39b2191",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_sky",
+      "audio_sha256": "c640ade044e7637e68a3c61d083d0244db949d4ddb0b393a7278a94245ce01ec",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_adam",
+      "audio_sha256": "36d122fc8cfbf98dedda85472e5264a4a9dc9e0d8d3df226d0c6a2ad4947751e",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_echo",
+      "audio_sha256": "0118e95c8f10f7fae142d0b55addea8f4390f686fb0c921dec3cd128d5d89597",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_eric",
+      "audio_sha256": "460555c2a5e42b9f2f023db12446830e8dfee27c2291d0208f81921200801e05",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_fenrir",
+      "audio_sha256": "7506024df5f1f241190329820645aaaca0674b377e6216dd37720e91881835e3",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_liam",
+      "audio_sha256": "21f21ef5a42aa0597106501359c467e3370c07afaf3180d384a34ef47c724de8",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_michael",
+      "audio_sha256": "f93ca5ca5d380bca928acb422bc9cb48fe07d631e3b5a52a82ebd8db3a6fe0ae",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_onyx",
+      "audio_sha256": "dbe02aef475f9e6b638d188d4d56057156952844e81a9e1a9b3b712ceca03864",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_puck",
+      "audio_sha256": "2b11a9122449fcc1a2c514249c17edddf2ac368bb156649e44452e2e64baf689",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "am_santa",
+      "audio_sha256": "57ad405c1c1e4de80b915b349a55accd3943c902d7e872a98495c6309f64e896",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bf_alice",
+      "audio_sha256": "5769e222d7731d3bc32b8244bf187875da618631229e9b77ccd6ba01a692c889",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bf_emma",
+      "audio_sha256": "25b338bed983ecc823c62e917385ccd54766f5e5987d1e125a2deb7ffffad59b",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bf_isabella",
+      "audio_sha256": "a4d9b4130043f39eedb851d15ce1eb0ba460efeec58934e4788e6e5428348373",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bf_lily",
+      "audio_sha256": "4e745be2f5653ccd99f4fd94ba6f7c7131d0a8b819d7eed528915b727a37fdea",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bm_daniel",
+      "audio_sha256": "5ffe51040b7ade7c6cd8de9873d3ab453dcfd5faf8853efc2e9d86a175ea0784",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bm_fable",
+      "audio_sha256": "e191e9e1db1e3071ce0702d66f48c7f9c4e8a12ff530533220e52a1457ef0724",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bm_george",
+      "audio_sha256": "9f3dce7ecec25b47b28b9c3205f5184b4095154bb384be7635c9c59174d2a239",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "bm_lewis",
+      "audio_sha256": "6c918ec74d1c0afa21168b00cc8d1f0316da3240ceb2fbdbc57c27057b597c97",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "es",
+      "voice": "ef_dora",
+      "audio_sha256": "73963eb2b0528742e776fee5ab6ee4b7817364846ad47492c2ecd781b4e7628b",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "es",
+      "voice": "em_alex",
+      "audio_sha256": "c33652fac962a311e3c20ed3a68431a4d0d783b7b748a69652c5a1e889ef8563",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "es",
+      "voice": "em_santa",
+      "audio_sha256": "3736d336e7b51e3dd78c2ec2a3d86154965b96edf8d0182ac4a3344dd2c0efc2",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "fr",
+      "voice": "ff_siwis",
+      "audio_sha256": "6eb67daf1efe8f1557418c0618671dde85f9e8b8152a7d4d9964f514170a51a8",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "hi",
+      "voice": "hf_alpha",
+      "audio_sha256": "5c8e1b241804fbfe7cb74c25d8588d3500dba9cba4faa8ff5bdfb2091703acca",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "hi",
+      "voice": "hf_beta",
+      "audio_sha256": "c27e08d55364bb8871409d6c988a15d4596b2c0282792b67686cd68e7b8c6543",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "hi",
+      "voice": "hm_omega",
+      "audio_sha256": "31e9d047d19ba8517a3c088e5bb884c6d97e67c1dd7bf345c21d53f290b72c56",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "hi",
+      "voice": "hm_psi",
+      "audio_sha256": "023b52ec4269fdc461cbd654c13de32d191590337ac5e29a43b31f4db47706d4",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "it",
+      "voice": "if_sara",
+      "audio_sha256": "d69673bbbd2020d5c6283f376d20ba970b52bbd3a857112c61979e87c6dbaf08",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "it",
+      "voice": "im_nicola",
+      "audio_sha256": "357fdda07bacbff72d84e630a9e2519d0105533cd6f96f2941fafb51afb6eb3e",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "audio_sha256": "fdee8f807f4a9aa91087629392b8ba47e589ae6b1928db1a2f644a8791e31d1e",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "audio_sha256": "304f7493a520564572a306e59442bb0521f9109f59ed9b0a321967e3463ce6c1",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "audio_sha256": "79dbdcfe9a49bde15255a35c4c3224c2b913fc84f9913b9266f072bca24f2256",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ja",
+      "voice": "jf_alpha",
+      "audio_sha256": "155151bab21601b6f76350ece899c764b5df76dbd9c1321ac56e0a579bfc0d26",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ja",
+      "voice": "jf_gongitsune",
+      "audio_sha256": "ac3bdfe30e2c7f99f34b76d2640f29a6ff52d6d2e5af62b6999eaf64db8cc5c3",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "audio_sha256": "6ddae30d432c41226e8ab34b3da50e68f9cace6ce510129a2c4e7fe57707e5a8",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ja",
+      "voice": "jf_tebukuro",
+      "audio_sha256": "e538be1e6d9e0302cdf0aa86a24d6b2d5a9a74e47eabf43260fe21ad5a5b3440",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "ja",
+      "voice": "jm_kumo",
+      "audio_sha256": "a6411cbbe6518a9c1da72b012ea035cc3c6c3410692d9b9abc53fd4184b21274",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zf_xiaobei",
+      "audio_sha256": "7140eedfe73caeeaccb298d73c7923488bb427fd73e9e7fbc8a9a2a54a6bc7c6",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zf_xiaoni",
+      "audio_sha256": "892cb8d8143f329450317c0cacc284e6f65307cbd284fb82de59fbcc672473ab",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zf_xiaoxiao",
+      "audio_sha256": "356d0c95c393d5049500ad86f60f96087af5d0a119c438d0490d79eb85b1a667",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zf_xiaoyi",
+      "audio_sha256": "bb2dd301b1b9d8e54a81894dbc8053801d347baf56d68d1f306d5d8d8f7b167f",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zm_yunjian",
+      "audio_sha256": "e12ec68446e35efa3aee6b5bb52eb97d5369688584552addb447361f2b55483c",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zm_yunxi",
+      "audio_sha256": "e6921f41fa8b6ecefa3659adde19ace5b812049945556041104d1bb9f6be1828",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zm_yunxia",
+      "audio_sha256": "69b80c018dbc0c45d70b9cab9449d131aa41ee92e10da5e8171b772e7c79be18",
+      "errors": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "language": "zh-CN",
+      "voice": "zm_yunyang",
+      "audio_sha256": "6717e923c99daa6f923d4af1f50394fd4f9abd89134b8c7ef5124ca46038bf23",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_heart",
+      "audio_sha256": "ed7d1a01a302889ec7c1f7d9f3a51785454079072c78c1a2222e8910c13940af",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_aoede",
+      "audio_sha256": "d7c64b123661d09b242c3d9f855aa4f47122bdab618be28d34893c13d0020be2",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_bella",
+      "audio_sha256": "60904b0ad69fe9de7f940849fa7fb0b99c1f2b5358189e1ca1bc1eb5fe2e0a1c",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_jessica",
+      "audio_sha256": "0ef3778928968459fa19dec725cfcf7b57c34726ff6c057cd52f57afe95295d4",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_river",
+      "audio_sha256": "0d87b807f678f9a9a2de62f9766b4814985a8562b01c4ef8ba809ab21a48088e",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_sarah",
+      "audio_sha256": "ffdefcdf3554a38ca2f8dcfeef3f491279ac608196cf1c9dc89d8a7d6981e939",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_sky",
+      "audio_sha256": "989c5e0f812d1808f0c2ed99a9368ced23f29451416d9593e66c538911535ca1",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_adam",
+      "audio_sha256": "745aba90426570167f2b3b5faaf55ae25c765b3404cf2f176865b8b1331edad9",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_echo",
+      "audio_sha256": "c3d10bf5dbf69ef853ca7d7e1ff8531df64f4f7c251bbbe3ac02d9b94d8a1b8a",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_eric",
+      "audio_sha256": "080f76a064322419655203651ca698aae60b4e09300e9c4d423d942e371e6747",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_fenrir",
+      "audio_sha256": "a55cc09c797ba5e46fbc385fc44e0ccc083eefb13c5072d90efd2e2f7c3fb405",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_liam",
+      "audio_sha256": "9b4203b0bc9521ab06e59e16fa76e4ff56c5d16eab0a552f8ec0cbed27cfdbcd",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_michael",
+      "audio_sha256": "0ecc380bc9e3bbfad7c1c449ecf0b6bcb0ca57c391df4d7b59222bb8634fad41",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_onyx",
+      "audio_sha256": "9ecbfab8f74a952f54993f607f961f7cf5a9e6e0901ab70ad77d7483814b6629",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_puck",
+      "audio_sha256": "3067fb8d1a4e3dd665c2505c53569dd7f2317a5af911e37dbe1abb5ac82bf471",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "am_santa",
+      "audio_sha256": "0395de15a70937ae4251b07ad95c3ca2b215a9e15d8faf71fdb7917ccb50c161",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bf_alice",
+      "audio_sha256": "a410b56550a2daf17cf527ac30804e4934a59bcef0b90a8af548287773841bfe",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bf_emma",
+      "audio_sha256": "054ffc4bfcc26bfe1db91ce18bb454fac7e502bd34a28fbe505de9249b59bc6b",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bf_isabella",
+      "audio_sha256": "abb2426a3a3a1e174bf2875908a99821542a9a76acfb0b0d0eda4e549529ca72",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bf_lily",
+      "audio_sha256": "d8332030c2dd119d77234b8fb5821a788832273f0ff9acb5b628d220ff995a26",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bm_daniel",
+      "audio_sha256": "30e7b228a017b59aa99fd13bfc070b8b5759a6d662602a7b3b4abdfb35070e11",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bm_fable",
+      "audio_sha256": "4a8397769cf356b79742766ad68f1e44b613cd766a8f6f7f4caad42f94e40148",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bm_george",
+      "audio_sha256": "5c95e4d3d65cce3f52b82c96bc6c952951df6769fba43aa1e0eb6df808868179",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "bm_lewis",
+      "audio_sha256": "293f041066460b02e545f1e83ecb9f0eec87aff935dfd1c2ef25d37d6c71c838",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "voice": "ef_dora",
+      "audio_sha256": "f6399c49955fbd6a8ef883e8d824c4f7fa9b22eacc31f26a51f2b2634ea5e9b8",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "voice": "em_alex",
+      "audio_sha256": "f732d6c348b0200ca627703a196ecd8c631f294ebafd0723311fc66b264ba5c2",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "voice": "em_santa",
+      "audio_sha256": "0bcb6cc8091b927462115fe87aa44d39b749c99f51b06e8c38115f978afcb6ff",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "fr",
+      "voice": "ff_siwis",
+      "audio_sha256": "c38b7a091c5d75701ce90d3193998518262948515a8589d59999785597bbda0d",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "hi",
+      "voice": "hf_alpha",
+      "audio_sha256": "35ffd2ae95a4a0e42b14d256f6b93d278cf12c4c322034ad2b9797ec9eea01b0",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "hi",
+      "voice": "hf_beta",
+      "audio_sha256": "165ae288eb5fe29b05b3fae4e51f2774fdc2ce6011e4707e563cb030434e230a",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "hi",
+      "voice": "hm_omega",
+      "audio_sha256": "1324183c9e06b7e5c69f91e5578983c6174e86f767d143418bfccfb5d9ad0dff",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "hi",
+      "voice": "hm_psi",
+      "audio_sha256": "2c8b6a51ff5b2ed906a55b85155574728c17f88a68b40e48710ec31c38da201f",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "it",
+      "voice": "if_sara",
+      "audio_sha256": "88a60f990d24f31268996f299faa7288af3384a4678721842a8b7a9fce09e57d",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "it",
+      "voice": "im_nicola",
+      "audio_sha256": "dca33bfd5bcbefb099d054aaf02abf80da01884d623a1f70deb6d26ac519a356",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "audio_sha256": "a84731e68eb0dccd198a4b11875f453af6bf701d381b0f6ad1fdae88cda5d3ed",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "audio_sha256": "d1cfe80021153f115eddac44dd937fc0d7d94ccdd4ec8991c976246eb0998830",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "audio_sha256": "ec17966637312bbe16d87eb8c69e4466ed491d4a2f130f659d98281f875bf566",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "voice": "jf_alpha",
+      "audio_sha256": "10e51281243661a88344a45b5e2f1189570aef058398acd32914f8d54fbae93f",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "voice": "jf_gongitsune",
+      "audio_sha256": "ebb38b97ee1458998f0f9eea231f2fda2546f1cb65cbac16b278451574054342",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "audio_sha256": "3b831b40c0a9636953869aa7767a9aec085e54facb2906d9bae875f46bfa0f78",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "voice": "jf_tebukuro",
+      "audio_sha256": "a0090bdc5746a75c065846cd144686b12dfbfbb0c3b3497ecc9994a9fc6ef0ee",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "ja",
+      "voice": "jm_kumo",
+      "audio_sha256": "f47bcb121dc93a5098e2022dc576fef260c651cc858718468a42eff5ae684529",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zf_xiaobei",
+      "audio_sha256": "5f63bdde43f6e68a07ad027847e2f48f14da69660feb7cb0e76d7d17dbe541b3",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zf_xiaoni",
+      "audio_sha256": "34c64740dba49a196b068e06b681e6dbea7249b05bcf535eb6b2d7e89812323f",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zf_xiaoxiao",
+      "audio_sha256": "6671c2e47cfaa2ba4a6ab369c328921354bc78366148318ccfb6121254021cbf",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zf_xiaoyi",
+      "audio_sha256": "e7db9a0f90d319540cf2972b083a63db68ba5ac9559890e58e8599d58534a161",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zm_yunjian",
+      "audio_sha256": "bbe681e7ea56660ef2b21ae12c158900425746889057f994a59660b981f8cd7a",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zm_yunxi",
+      "audio_sha256": "11c4f23df379940ab4f2e6f86dcb22c507f34d4a7cf1662a2441f00177fdab01",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zm_yunxia",
+      "audio_sha256": "ac8c45fede10b9460a45aebd46190f8dd4575af073d5fb2c70378cdc630ae66f",
+      "errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "zh-CN",
+      "voice": "zm_yunyang",
+      "audio_sha256": "ccf24623be802a95bbe0a6621d1c0fd5e761aa08d21f3719aed4752c9de023a0",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_heart",
+      "audio_sha256": "d9e9804557ff6f28ce1a619c8fdff1b68eb3af3238bcde188333066fa8e3260e",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_aoede",
+      "audio_sha256": "2c875a643cb413f002fc6ad359560bcd218e1a220928e041232f90b409848b1c",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_bella",
+      "audio_sha256": "68df571dde1a08c51ea773d02d54a30449b1c9c08406a99ac09fdf0ee9818f61",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_jessica",
+      "audio_sha256": "62e0cd8bc96ff3a9d792dce38b3f64c4c702d0ecdcc257b050bc8b5df90ff573",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_river",
+      "audio_sha256": "3f9e603d9e913f24a08077948718fadab7cb4701ca7c4faf0bf79660f5689fe5",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_sarah",
+      "audio_sha256": "b26367bb6ce7c4ce06602964c16d2a658b808f13d38d9d9c4165721e10e78c1b",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_sky",
+      "audio_sha256": "e62c6ef4c1fe5f72d3a670789c22f3c3165a8a685bdddf202df15304a82f8542",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_adam",
+      "audio_sha256": "da46ac79b80b62faada88df0912482a73db6490cc437b23c4b2f163d9e4f0dff",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_echo",
+      "audio_sha256": "aa5d5015129c83bf2830bf23b1941bbd9c50800d644422851f7164a05fee04ad",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_eric",
+      "audio_sha256": "14982055be3565096cdb5c5467d704d325eb6c1446fa297c09d5dcb34928aabd",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_fenrir",
+      "audio_sha256": "d2601244ef46e82d39203ef328afe5137d24deb0e79871d4f5ec6b8df7995c0c",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_liam",
+      "audio_sha256": "71581258ec5b326b9fd9111cfe0b4788d1333750aa312e9efd001ca3459cab5f",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_michael",
+      "audio_sha256": "d8f5a976c42d6017f60ca27a5d9abfdd909b60904c3102b42a00a36025d08a27",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_onyx",
+      "audio_sha256": "183ec6171871703428606e5801458c887fc85a6c814d677d5a66cd18f001eb10",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_puck",
+      "audio_sha256": "8c84164c0e9acc912b8306a4b82a557a5bab866db378100798d91023fade3647",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_santa",
+      "audio_sha256": "7503020bccfee63af4780c59dd11c27bb275c71394d24d4fbbe854654f63f195",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_alice",
+      "audio_sha256": "c3a2e7231d95c82188060c321aa8e855c8198848f619044f631df050cc5d07b8",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_emma",
+      "audio_sha256": "31bd0e697f003ff6d91e37c93290c34a9ac2d3d10f78943dc9d3145a0885381b",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_isabella",
+      "audio_sha256": "8218db63cc3404f59f9bef626ec91b7a42b897301801f3bdba2bc5e6a3a9f879",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_lily",
+      "audio_sha256": "dc332f7c1a51bcd98ab0976d516b80744fa06c99ed78f12063e3c8ab38d57d04",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_daniel",
+      "audio_sha256": "1218be9fcf48a8f22105a8bb010e39a2120d92a34c3bc91ee3bd2e9133c35110",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_fable",
+      "audio_sha256": "fff99ec178f0a67467915383082e77ed5c8c8115c24ef7d06a765b15389fa21b",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_george",
+      "audio_sha256": "e57b52ceb26e2bb6e30ff5ac30cd18822465f2a0200aae7bea7652b6d7839840",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_lewis",
+      "audio_sha256": "4f897d4cd89e10db9f65e7dc76359b7e95ab4cdb73a0c3188b8ceaf52c326b6c",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "es",
+      "voice": "ef_dora",
+      "audio_sha256": "a8403708718b78b6e6e621d064d57a624b665a7299e9b5a4f426ecaed9d87a5f",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "es",
+      "voice": "em_alex",
+      "audio_sha256": "668c8132e30c9ad8ccb5a5c195fd4b2ece61dbb4dce0d8eb4f294fa8c1135fb1",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "es",
+      "voice": "em_santa",
+      "audio_sha256": "64ac80f03b708dbce5a99ceefef3578ce38a2d5429ce5fdc653b1220aa91bb17",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "fr",
+      "voice": "ff_siwis",
+      "audio_sha256": "64fbad9b53e84d63ad22ddfa296b4fa35a9e3ee5c1fe8904b11469884d2cbc8a",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hf_alpha",
+      "audio_sha256": "45fd3da1aef451b2042774f22b1ac1fb1709d2614ea98e7d9fd53041c41bc8e5",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hf_beta",
+      "audio_sha256": "9ccb9008056ced76bf720caa01e165014420ea348b392233363c5bc83cb31a75",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hm_omega",
+      "audio_sha256": "2a192d758cb75d350cb3ab95dd12429c9b2b25aff7102079a09e2ee0e2608cad",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hm_psi",
+      "audio_sha256": "908b0023918513e4e9331a64ddb512642bea7003628029de34e85cef752e7ec5",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "it",
+      "voice": "if_sara",
+      "audio_sha256": "765ea9b2e0862920144cf46bd924611542cdda7ac5c3dcfa3a9c8eab1fd01323",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "it",
+      "voice": "im_nicola",
+      "audio_sha256": "2416fbd1c941cfa26ca20c27394eb504d9ea71ad825ca20948c5e6c854597c20",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "audio_sha256": "68bf0d351a270386fe9d7f2fa7da3b764f56ae8e8401876fa3ded750cbae0281",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "audio_sha256": "c0d5f32514da8fa66dfb6b682ec06da22a52533fbd9657d7af0b1a733abe2072",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "audio_sha256": "6691b4d994bbc8c0ec5a5626bc98d0c4bb868397d9d5a7c7bf8ecba063f5cc01",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "ja",
+      "voice": "jf_alpha",
+      "audio_sha256": "8200f81eac13f9b75ad9eb428c4ced3a02c286e769252b7fb16ff432fe2f2145",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "ja",
+      "voice": "jf_gongitsune",
+      "audio_sha256": "1aa49382aa8980242e9b58ab09e8ea60d288e7426796051155f46b47966bb5a7",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "audio_sha256": "89b17a8ed841f7eb9f620e4b8c403ae95c1385b7b5779b4f6e7292195caa9b14",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "ja",
+      "voice": "jf_tebukuro",
+      "audio_sha256": "3134d62a7e8fcbb2d93b9b501209df251f38b27d6474f7171f897fe7c314dacd",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "ja",
+      "voice": "jm_kumo",
+      "audio_sha256": "89f73e560f1072b526fc5b70de5c92b80030ac6899ac3b2f6bac3835239f1ff7",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zf_xiaobei",
+      "audio_sha256": "df761b00983f6ad2802c9f9aa6258af96c55971fd727b9de2571371ad617947f",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zf_xiaoni",
+      "audio_sha256": "4379056038dd05031fb1ead16700159db6830cf245cbee23145c5ae8f459cae1",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zf_xiaoxiao",
+      "audio_sha256": "f4932117342949a9f42622ed9f28ea7298c24af0ebb22032c101eb250225e8ff",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zf_xiaoyi",
+      "audio_sha256": "cbe47f38a8a7f788919c441001fd7e2ca96ae4bccb52e7592f189c6f82c78c2f",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zm_yunjian",
+      "audio_sha256": "4793e6141caab9b9e097da3aa245884756878d9b9c5218845f515e1ec5a7698c",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zm_yunxi",
+      "audio_sha256": "4c06a3fee4ccc7f3ae4402b5e337d7ea33878008b65c51b3c5ea9b1701338be8",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zm_yunxia",
+      "audio_sha256": "5fd3367e568b5ef07bf973f425aadc0fc20eae8b35748327ef2fde6cb605c1f7",
+      "errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "zh-CN",
+      "voice": "zm_yunyang",
+      "audio_sha256": "6902cae0d6c07c9b08a331f01f418fcad20b1f64d683a96649ffac9df073da65",
+      "errors": []
+    }
+  ],
+  "artifact_root": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/narration",
+  "verification_sha256": "94522f9394ce5f250c8418f5171a0318d395a815c71fb07b81ff02331da2e9f3"
+}

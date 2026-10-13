@@ -1,0 +1,110 @@
+{
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "run_id": 37698599898,
+  "jobs": [
+    {
+      "lane": "fast0",
+      "job_id": 113058129154,
+      "path": "/mnt/wd4tb/scratch/ci-683-fast-min-20261007/fast0.log",
+      "sha256": "c24e310eb09f7e6bdd35b91ab3d2c595bb0dfed3ec070ca568f0e3f344c35488",
+      "failed_summaries": [
+        "tests/test_runtime_i18n_syntax.py::test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean - assert [{'key': 'How...i', ...}, ...] == [{'key': 'How...i', ...}, ...]",
+        "tests/test_runtime_i18n_syntax.py::test_french_reviewed_runtime_text_is_source_bound_and_gate_clean - AssertionError: assert (70 + 0) == 71"
+      ],
+      "archive": "fast0.log.gz",
+      "raw_bytes": 6985723,
+      "job_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37698599898/job/113058129154",
+      "native_cause_established": false
+    },
+    {
+      "lane": "fast1",
+      "job_id": 113058129147,
+      "path": "/mnt/wd4tb/scratch/ci-683-fast-min-20261007/fast1.log",
+      "sha256": "d8857effe340f157fa5ef827582b74c02347b54277467091768d62001c3593a7",
+      "failed_summaries": [
+        "tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage - AssertionError: the public API surface is 13214, reviewed at 13199 (+15). A public docstring addition must bump this count, name what it admitted in the comment above, and regenerate the target catalogs with tools/build_documentation_i18n.py -- otherwise the localized API pages silently omit the new contract.",
+        "tests/test_coverage_ratchet_rules.py::test_the_gate_reads_the_records_where_the_combine_job_downloads_them - AssertionError: assert '${{ runner.t...coverage-data' == '${{ runner.t...-route.json\\n'",
+        "tests/test_module_coverage_ratchet.py::test_coverage_workflow_is_sharded_artifact_safe_and_blocking - KeyError: 'include-hidden-files'"
+      ],
+      "archive": "fast1.log.gz",
+      "raw_bytes": 4005440,
+      "job_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37698599898/job/113058129147",
+      "native_cause_established": false
+    },
+    {
+      "lane": "fast2",
+      "job_id": 113058128860,
+      "path": "/mnt/wd4tb/scratch/ci-683-fast-min-20261007/fast2.log",
+      "sha256": "8d58a2b1f76572c75512eaa6c295071c6acfcb4f6232075da583dc4842242cb1",
+      "failed_summaries": [
+        "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived - AssertionError: assert frozenset({'b...ensity', ...}) == {'backdrop', ...rection', ...}",
+        "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor - AssertionError: assert frozenset({'b...ensity', ...}) == {'backdrop', ...rection', ...}",
+        "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current[en] - AssertionError: The public documentation inventory changed. Regenerate every API catalog, review the diff, and update DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change.",
+        "tests/test_guide_i18n.py::test_glossary_matches_the_runtime_catalogs - AssertionError: ('sv', 'Animation detail')"
+      ],
+      "archive": "fast2.log.gz",
+      "raw_bytes": 4838697,
+      "job_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37698599898/job/113058128860",
+      "native_cause_established": false
+    },
+    {
+      "lane": "min0",
+      "job_id": 113058129217,
+      "path": "/mnt/wd4tb/scratch/ci-683-fast-min-20261007/min0.log",
+      "sha256": "789950ed3fda5ad540151a686a7b026afb039fbab42485945b40aaf9079f4f86",
+      "failed_summaries": [
+        "tests/test_runtime_i18n_syntax.py::test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean - assert [{'key': 'How...i', ...}, ...] == [{'key': 'How...i', ...}, ...]",
+        "tests/test_runtime_i18n_syntax.py::test_french_reviewed_runtime_text_is_source_bound_and_gate_clean - AssertionError: assert (70 + 0) == 71"
+      ],
+      "archive": "min0.log.gz",
+      "raw_bytes": 7238930,
+      "job_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37698599898/job/113058129217",
+      "native_cause_established": false
+    },
+    {
+      "lane": "min1",
+      "job_id": 113058129342,
+      "path": "/mnt/wd4tb/scratch/ci-683-fast-min-20261007/min1.log",
+      "sha256": "2899681daa8204fbbfd21a404982ee56682e91ef6c677a25ccaedf4cb12e0b06",
+      "failed_summaries": [
+        "tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage - AssertionError: the public API surface is 13214, reviewed at 13199 (+15). A public docstring addition must bump this count, name what it admitted in the comment above, and regenerate the target catalogs with tools/build_documentation_i18n.py -- otherwise the localized API pages silently omit the new contract.",
+        "tests/test_coverage_ratchet_rules.py::test_the_gate_reads_the_records_where_the_combine_job_downloads_them - AssertionError: assert '${{ runner.t...coverage-data' == '${{ runner.t...-route.json\\n'",
+        "tests/test_module_coverage_ratchet.py::test_coverage_workflow_is_sharded_artifact_safe_and_blocking - KeyError: 'include-hidden-files'",
+        "tests/test_plaque_segmentation_diagnostics.py::test_flow_error_detects_a_merge_and_preserves_original_ids - assert None == 0 \u00b1 1.0e-12",
+        "tests/test_plaque_segmentation_diagnostics.py::test_partial_nonfinite_outputs_report_coverage_without_false_flow_error - IndexError: too many indices for array: array is 2-dimensional, but 3 were indexed",
+        "tests/test_plaque_segmentation_diagnostics.py::test_database_csv_and_mask_only_rerun_keep_same_diagnostics - TypeError: ufunc 'isfinite' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''",
+        "tests/test_plaque_segmentation_diagnostics.py::test_failed_flow_comparison_retains_probability_and_magnitude - TypeError: '>' not supported between instances of 'NoneType' and 'int'",
+        "tests/test_plaque_segmentation_diagnostics.py::test_figure_workflow_saves_metrics_and_upgrades_old_database - TypeError: ufunc 'isfinite' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''"
+      ],
+      "archive": "min1.log.gz",
+      "raw_bytes": 4269886,
+      "job_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37698599898/job/113058129342",
+      "native_cause_established": false
+    },
+    {
+      "lane": "min2",
+      "job_id": 113058129401,
+      "path": "/mnt/wd4tb/scratch/ci-683-fast-min-20261007/min2.log",
+      "sha256": "d70eb893fd843f052f06445af0055693e91490e9e3d9401122e3bb78252649a3",
+      "failed_summaries": [
+        "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived - AssertionError: assert frozenset({'b...ensity', ...}) == {'backdrop', ...rection', ...}",
+        "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor - AssertionError: assert frozenset({'b...ensity', ...}) == {'backdrop', ...rection', ...}",
+        "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current[en] - AssertionError: The public documentation inventory changed. Regenerate every API catalog, review the diff, and update DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change.",
+        "tests/test_guide_i18n.py::test_glossary_matches_the_runtime_catalogs - AssertionError: ('sv', 'Animation detail')"
+      ],
+      "archive": "min2.log.gz",
+      "raw_bytes": 5118207,
+      "job_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37698599898/job/113058129401",
+      "native_cause_established": false
+    }
+  ],
+  "scope": "Six terminal full raw hosted job logs. Repeated failures across matrix cells are not unique tests or summed acceptance.",
+  "triage": {
+    "runtime_sv_fr": "Workstation-owned reviewed-runtime evidence/publication; no local waiver.",
+    "public_api_inventory_and_english_catalog": "Workstation-owned normal API/catalog regeneration; no manual generated edits.",
+    "constructor_pins": "Already corrected by c771b4627caaeda21ea473452a91a63a30d87828; current test file checked byte-identical.",
+    "coverage_artifact_selectors": "Root d4f5fca308 selects the coverage upload specifically after adding native-failure upload.",
+    "glossary_sv": "Workstation-owned Animation detail glossary publication.",
+    "cellpose_mindeps_fixture": "Test-only tuple/array normalization 942bba2b37c; integrated/published 11229945a6e. Complete plaque file21pass with official4.0.7 extracted wheel and21pass installed4.2.1.1; not complete Python3.9 matrix acceptance."
+  }
+}

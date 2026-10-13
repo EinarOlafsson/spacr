@@ -1,0 +1,538 @@
+{
+  "accepted": true,
+  "scope": "Every unique native source scene image in the four staged lessons; normal full-frame and overlapping lifted-tile CPU OCR detects zero personal-path regions",
+  "unique_source_images": 82,
+  "scene_references": 85,
+  "original_pixels_unchanged": true,
+  "lessons": [
+    {
+      "lesson": "08_measure",
+      "unique_images": 17,
+      "scene_references": 17,
+      "report_sha256": "ec19b812b3157a54247f309b618e0927fb874ba7fcabb7f48387d8f62d714997",
+      "frames": [
+        {
+          "sha256": "cb0e0eaf409a3b284a04dd8f359488bf828214d35cacedfd67e83055cc87e650",
+          "scenes": [
+            0
+          ]
+        },
+        {
+          "sha256": "b99fd0ce444a3551aa61513adaa3fa073aea80c29a44f09ef1ce2f0207a3bc91",
+          "scenes": [
+            1
+          ]
+        },
+        {
+          "sha256": "6f5d2736f5b3a9eead6de7e97826248aabc4e8d11139be1104b946df717bd5a2",
+          "scenes": [
+            2
+          ]
+        },
+        {
+          "sha256": "e50585a1321ab756eefef3aa39a80a3a275b9ab6b46eb150e637d91d676ec151",
+          "scenes": [
+            3
+          ]
+        },
+        {
+          "sha256": "e4cd8a8c28fe3320c90f4603fda169549f98a5c4ef0993ce89e3a5f2080915aa",
+          "scenes": [
+            4
+          ]
+        },
+        {
+          "sha256": "5de8dd7ab5b00d2cdb1872977d18dafa6c540a3826f456acd8690e2b76c6be09",
+          "scenes": [
+            5
+          ]
+        },
+        {
+          "sha256": "deb878daa36ef13ccb01f864e77fc7db2d39b611a84a5e1493ee4655ef3250d4",
+          "scenes": [
+            6
+          ]
+        },
+        {
+          "sha256": "fe91faedf6e643b944f6907858f71019e82b724371d3ae37e9d5933f9f8d995f",
+          "scenes": [
+            7
+          ]
+        },
+        {
+          "sha256": "e4d23ccdd564189edfb0a7e3ef024529e6910e55745283305663ac2f4f614d05",
+          "scenes": [
+            8
+          ]
+        },
+        {
+          "sha256": "c882fd1d7f232ff2c29cf459799ddc91e21ef20df7906ee88ef51071f8e76429",
+          "scenes": [
+            9
+          ]
+        },
+        {
+          "sha256": "725e85cf737145b0f345f2b11ff348d030bfe69a978f46440e43b5be0c312a2b",
+          "scenes": [
+            10
+          ]
+        },
+        {
+          "sha256": "181549f06e0599c8b52473b62376415b96e1a21e9b3668d27772b1e7c41e62d7",
+          "scenes": [
+            11
+          ]
+        },
+        {
+          "sha256": "6ddadb7e9dccbe9d6fd0e3633d81ff710410d734c8a5dcf2189f4af744765e22",
+          "scenes": [
+            12
+          ]
+        },
+        {
+          "sha256": "6fa7a9d17ebf66e757d9bbc517f9be6d95e306925e0587ec0b101b6d4f3c11db",
+          "scenes": [
+            13
+          ]
+        },
+        {
+          "sha256": "8d4bbee68d1c89a1f907fe2dbab2c0e62afd7c2c9f7aaae1e3cb2d32fba18363",
+          "scenes": [
+            14
+          ]
+        },
+        {
+          "sha256": "f6aeb02f58bfbc7ac3ad467ccaf7103397def3daa88232e0e7896e4bb8abd3f0",
+          "scenes": [
+            15
+          ]
+        },
+        {
+          "sha256": "45053304fe16ebe706a5b2a8989d38ac9d52a93074622edb0d6b5390e0b50362",
+          "scenes": [
+            16
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "14_make_masks",
+      "unique_images": 43,
+      "scene_references": 45,
+      "report_sha256": "fd930bebb92463d67ef9cfb84030e59cc5ac05f47af099990d9a1d886919d4a3",
+      "frames": [
+        {
+          "sha256": "5c0b19aa4f9107df21e9c677d5585b17ae464a508f08dde9ffe699201589bd46",
+          "scenes": [
+            0
+          ]
+        },
+        {
+          "sha256": "206f9de6c912376266c1f6ed64e2107dd1ec52a2cb60394ec7b0f53872abe88b",
+          "scenes": [
+            1
+          ]
+        },
+        {
+          "sha256": "12434a7c8bc509b5f2a27dd5927a6d8a89ff26b835433d0b46da81aa282d24db",
+          "scenes": [
+            2
+          ]
+        },
+        {
+          "sha256": "4eed6887ae4ce8c032dec0739a8577badc29a48de2008891d3f2481e0eff25df",
+          "scenes": [
+            3,
+            6,
+            44
+          ]
+        },
+        {
+          "sha256": "e9311316c974df0184e54fb9aaa606fc1c2bfcdceb207fc1c3b9a882c350d6e2",
+          "scenes": [
+            4
+          ]
+        },
+        {
+          "sha256": "903811f04947e8ba9dd5c1fa195b63b41ea589ade9d02d1e6bd2aabddaf90b50",
+          "scenes": [
+            5
+          ]
+        },
+        {
+          "sha256": "a709d5ba7673f72f93c2caecdf7e3998bfb66a8eb08ff7f07386852c8189364b",
+          "scenes": [
+            7
+          ]
+        },
+        {
+          "sha256": "a27d75fda572aefe940400e7fda3218953fc54f47a6dc342b8fbe7909852c0ef",
+          "scenes": [
+            8
+          ]
+        },
+        {
+          "sha256": "d38f7859a0fc2fa9a62d9b5a8737a61f2e2fe94d773f12d1315a0e7d325cca1c",
+          "scenes": [
+            9
+          ]
+        },
+        {
+          "sha256": "deda8466976a4fe076b6ff8124c5e3a22c3099ea89dfcfd016f04f5573759843",
+          "scenes": [
+            10
+          ]
+        },
+        {
+          "sha256": "2917d0f2c305ac5080fb4fdeeb014bd60f8d31b8cdec4c41ae427f4e530284c5",
+          "scenes": [
+            11
+          ]
+        },
+        {
+          "sha256": "63618d12f835b694b577f2fcc50cfc96867f66dd9098b7d1bdbaa68f9e8b0160",
+          "scenes": [
+            12
+          ]
+        },
+        {
+          "sha256": "bde1073bf1aeb664984751ea34efc47ac02e1d66f79df74e71f5deae9cf350b7",
+          "scenes": [
+            13
+          ]
+        },
+        {
+          "sha256": "74ff10e791b32092232d1ba8c161b17b9458bf3b45f033372ee4831a8b143d7d",
+          "scenes": [
+            14
+          ]
+        },
+        {
+          "sha256": "b556d8806b68a3c37ae6ac782d020b8554fa5afe71f441a1b9e78b048e70d8d8",
+          "scenes": [
+            15
+          ]
+        },
+        {
+          "sha256": "d13d5507a4158740961e05250d039bd0daed9afb3653a33d468920024e51e2f4",
+          "scenes": [
+            16
+          ]
+        },
+        {
+          "sha256": "941e07a3f0cb37a2575fcff85eaf62851e3c27c89137c406d6ab3918dcc412a3",
+          "scenes": [
+            17
+          ]
+        },
+        {
+          "sha256": "8b106882d8f0f9c1b67fc7c8c6f4ff8a4c5d989a3e14fe6890a161108b9a9c8d",
+          "scenes": [
+            18
+          ]
+        },
+        {
+          "sha256": "62368fef6bce20854da891f5927789b0aa94ba2be5df7c0fddcec7a7d15f21ed",
+          "scenes": [
+            19
+          ]
+        },
+        {
+          "sha256": "55b0816079c70be116c680742ac497e9bd84b045563b79f9aac08be35fbeccd0",
+          "scenes": [
+            20
+          ]
+        },
+        {
+          "sha256": "2ce8ca0fab0ec10262bc05aec091837d6141cbabceb2fbd0675f314016b3b096",
+          "scenes": [
+            21
+          ]
+        },
+        {
+          "sha256": "f8cdce4724a5f2e328f1cfec2b63b122c982b37b2bf7e681843253b7512d0236",
+          "scenes": [
+            22
+          ]
+        },
+        {
+          "sha256": "3c73343352396246e69beae4433151cfd28f492a158f11f24d355962fb7e6183",
+          "scenes": [
+            23
+          ]
+        },
+        {
+          "sha256": "ad3a43767d2b963ad8496f97c5d95b8ba123264a6a8980d1b103e42e5e9cc8e8",
+          "scenes": [
+            24
+          ]
+        },
+        {
+          "sha256": "fc581ff5b96cf153d452428b700a29862b156000b69bb743fb152fb029b16ce2",
+          "scenes": [
+            25
+          ]
+        },
+        {
+          "sha256": "016fe787849b9329497ebecdbc0e856b7898eac9f630c354200bc040b8d12a63",
+          "scenes": [
+            26
+          ]
+        },
+        {
+          "sha256": "d770bd7bda89fffece2c9269d4bc7459d8b372eec375a01b26af19233d2313aa",
+          "scenes": [
+            27
+          ]
+        },
+        {
+          "sha256": "8fa3bc3490a56919227b148cfedf3d71972d0e500be4e8cb773427c727e9df52",
+          "scenes": [
+            28
+          ]
+        },
+        {
+          "sha256": "a00d0861bf3da98fd346a180b4525305f071081048d3bee447ddf01fed5888bf",
+          "scenes": [
+            29
+          ]
+        },
+        {
+          "sha256": "6204305ad679386288f03bb11af7166731021df0ce3f785cae9da1c4cd0a97f1",
+          "scenes": [
+            30
+          ]
+        },
+        {
+          "sha256": "92931b542552e1ab98882a51c87e8570b8b80f2c1ed4f9252a9513448cc3a9bf",
+          "scenes": [
+            31
+          ]
+        },
+        {
+          "sha256": "02aa28be6528e945b55cc70e22337cd307bab8019121db4a8e65bdcef813fc43",
+          "scenes": [
+            32
+          ]
+        },
+        {
+          "sha256": "8518c2bb725f0110ea6cf9656c73b475e5eff94390ed15a3ff3a6b19726d2058",
+          "scenes": [
+            33
+          ]
+        },
+        {
+          "sha256": "1796f3567ba9eb36fa3730ea90bb25dd616c4405bb2dab54c80c5ddd86eff3d1",
+          "scenes": [
+            34
+          ]
+        },
+        {
+          "sha256": "f91cc28c535f3c08f3c465ea01faaa36197dc47e6c4b06f16e757db023ea22c9",
+          "scenes": [
+            35
+          ]
+        },
+        {
+          "sha256": "f680933be16f37b3fad801e9670039056839e9a37a85b98c7e87e7e21f12914b",
+          "scenes": [
+            36
+          ]
+        },
+        {
+          "sha256": "0b3cd6604886bc74e26ddf43bfc09f735f280d5858b8c6cff5e04236ce3b976f",
+          "scenes": [
+            37
+          ]
+        },
+        {
+          "sha256": "dcf8d927324fa87a932d0f0e11d729a05c187a70ca12db50efc2ff6b4d529404",
+          "scenes": [
+            38
+          ]
+        },
+        {
+          "sha256": "df5d1743fe534d7737b43aeaf3b68aab93be382b094fb380c04c579fa49e5327",
+          "scenes": [
+            39
+          ]
+        },
+        {
+          "sha256": "d61af58a82c7778698d72c15c6e041cd88ab2f462760ad60dd7658d4a47e4460",
+          "scenes": [
+            40
+          ]
+        },
+        {
+          "sha256": "048626769c7c31748562fb002120c5775df9758cad907b36651c68b791f83596",
+          "scenes": [
+            41
+          ]
+        },
+        {
+          "sha256": "0198f582b8676d2e960c78730b429709c814c42aea3588fb044f98c8b4c21312",
+          "scenes": [
+            42
+          ]
+        },
+        {
+          "sha256": "e579b6ed56ccbd7bcb7c3fe6eb761caae96575a75ab1b5ab4db2e84ae91fc056",
+          "scenes": [
+            43
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "37_batch",
+      "unique_images": 14,
+      "scene_references": 14,
+      "report_sha256": "24ab8e142567dad848970d3f784d47c67d83aa83ca5b9d40ead899fb1aa9b35a",
+      "frames": [
+        {
+          "sha256": "be8d04f2e0827bb7dc4e8ddf3336c09c6c18de918f114bcc7a024b7305d73320",
+          "scenes": [
+            0
+          ]
+        },
+        {
+          "sha256": "89b090d4e1c07e634fe3c059a8780ac80490808a32f6702d35ed377e1fc53368",
+          "scenes": [
+            1
+          ]
+        },
+        {
+          "sha256": "a654bef11a8c9357f0f54ef253ac7b06f5eed456c3d4c69e935475691886f89e",
+          "scenes": [
+            2
+          ]
+        },
+        {
+          "sha256": "73d53e73da7bb0ef86c687971d5945de0b2df2dba7a44b0ef7e7f31c6d871f99",
+          "scenes": [
+            3
+          ]
+        },
+        {
+          "sha256": "110383e57b0924bbf726e5a3d12ba9acf232da71e1eb4cbf97805362fa45c35e",
+          "scenes": [
+            4
+          ]
+        },
+        {
+          "sha256": "90f4c78ed4678088220ce2f5b001a9bc5eec8284fe37b8aa9aa1e1c7b249846f",
+          "scenes": [
+            5
+          ]
+        },
+        {
+          "sha256": "f41e9fec0975790017f57aef118838cb13c5aaa99645b4d0f9aedb75a790a80e",
+          "scenes": [
+            6
+          ]
+        },
+        {
+          "sha256": "08c94c0b2d72de009a9ad088267280830fd0a101f0061e7a93d094d28f568455",
+          "scenes": [
+            7
+          ]
+        },
+        {
+          "sha256": "cb7d8c990f9edc2e565205f8f3d76bd361fbe6f9af353684f64ffdbd8cbaf0b5",
+          "scenes": [
+            8
+          ]
+        },
+        {
+          "sha256": "4435560f8a502ee0ceb316a42169c9f20da681e66a60a86d8bb6999867102885",
+          "scenes": [
+            9
+          ]
+        },
+        {
+          "sha256": "2f9d91f562e24b62f2bdbd281663ac24110d458d5325bf8ad7b2757512888728",
+          "scenes": [
+            10
+          ]
+        },
+        {
+          "sha256": "07bd4492cc88910fbfdfce9bc14a7ed99d7e6be71c8886ddce9e0bba0538c879",
+          "scenes": [
+            11
+          ]
+        },
+        {
+          "sha256": "2ec70d766bb428a84943214ada59fe0c5430a96aa6058ae1b533a38052034c74",
+          "scenes": [
+            12
+          ]
+        },
+        {
+          "sha256": "b9f385c00870398f7b33f5c862d22f4ac2c6146aa6fbabdea75f62997b519cc0",
+          "scenes": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "unique_images": 8,
+      "scene_references": 9,
+      "report_sha256": "46aebba8d9a1fd6ad93ff1307f9f6214e1c29b41e4baefdece4dcae6a381402a",
+      "frames": [
+        {
+          "sha256": "bb79656bfb8ed1a8bac20cf3fc9a128db804987c9cb5ad5745e42595a449a317",
+          "scenes": [
+            0
+          ]
+        },
+        {
+          "sha256": "a5370b827ab4e1cf378e4b6f704c722ecffd685608eddebc600ee3c358980073",
+          "scenes": [
+            1
+          ]
+        },
+        {
+          "sha256": "9aa7c0e05ce7ad2df1f0646f33ea8c6cc830b7f60c6dcd11cf6b80f9d15538d6",
+          "scenes": [
+            2
+          ]
+        },
+        {
+          "sha256": "1cdbb9a3a4056517b130b46977c8246e34418d8bda7c7bd6200ede0c5fa01300",
+          "scenes": [
+            3,
+            4
+          ]
+        },
+        {
+          "sha256": "1f8dffd064b4af5173ca03a5b263367f116da4f84c1c5d732e949a5b4bd3ca42",
+          "scenes": [
+            5
+          ]
+        },
+        {
+          "sha256": "f0272488ca16414ecad2bf63a160bc5376860409ccc96288f8148a05c66a4edc",
+          "scenes": [
+            6
+          ]
+        },
+        {
+          "sha256": "c7ae81e0af380c9e597a1db22a0ac2375e7d7e416e7d2a1e5f5ae99d7dd77514",
+          "scenes": [
+            7
+          ]
+        },
+        {
+          "sha256": "f135ef9fad50338966867435ed020c857f1fc544ff6ad32e04ee7ba5d0436755",
+          "scenes": [
+            8
+          ]
+        }
+      ]
+    }
+  ],
+  "rendered_media_acceptance_complete": false,
+  "published": false
+}

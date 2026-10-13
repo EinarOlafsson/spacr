@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "date": "2026-10-08",
+  "owner": "Root/workstation",
+  "hosted_source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "hosted_run": 37720484173,
+  "terminal_jobs": [
+    113126751793,
+    113126751654,
+    113126751737,
+    113126751583
+  ],
+  "ownership": {
+    "Root": [
+      "Exact background picker API-arrival fixture in test_docstring_correctness",
+      "Explicit plaque rejection mock channel_axis contract",
+      "Current source API projection/browser reachability"
+    ],
+    "Home": [
+      "Case-fold collision in Home before-cancel evidence archive",
+      "Overall current CI/serial acceptance"
+    ]
+  },
+  "pending": true,
+  "artifacts": {
+    "github-55-coverage9-terminal-r2.log.gz": {
+      "raw_sha256": "01a4fa51a008743af618520d0bc2b903f5d2c423a968de4f03a3cd3dad5246c9",
+      "raw_bytes": 2261617,
+      "gzip_sha256": "cc44ac88341d41bb758bc8a8db3fcd351f3e80c6270a5eafd8bd7bb1ff12d99c"
+    },
+    "github-55-minimum0-terminal-r2.log.gz": {
+      "raw_sha256": "df09143b4466c7da83c73dc9211aed6037959b3fc590a777b61e3a7fd537fc57",
+      "raw_bytes": 6730944,
+      "gzip_sha256": "7f38a97f6dcde9eabecd1b59cc6ad077fe6672f3b4315aec0ac5c5309310c59d"
+    },
+    "github-55-minimum1-terminal-r1.log.gz": {
+      "raw_sha256": "100eb0b05e7ac117c2110b06246f1eb470ba028a7a7e23d55e072cf17eb32379",
+      "raw_bytes": 4210096,
+      "gzip_sha256": "db9ff122710310219fac1f12f622711a62f8d84fb2fea5f8277c2fa6ab91e95b"
+    },
+    "github-55-minimum2-terminal-r1.log.gz": {
+      "raw_sha256": "31b56970feac442d0397895a03e2a2845906c0db55c9e8dddd545edaccb6e8f7",
+      "raw_bytes": 5050000,
+      "gzip_sha256": "bf391ad2849a6e5971690c2df1a5f4cc12397451f7c1abcd44107aacf47b2a4c"
+    },
+    "inline-spacing-current-local-browsers-r1.log.gz": {
+      "raw_sha256": "c6d10cd3dd30ae8816777787c284fc79b7c7c2b4f733d2617f0ffada9bed3d60",
+      "raw_bytes": 1217,
+      "gzip_sha256": "57dce7e987cb545bf7428e72c1c92d99aa6464769e62794353c95135045180f5"
+    },
+    "inline-spacing-current-local-browsers-r2.log.gz": {
+      "raw_sha256": "fbb752242554bb053763e740a7838bd65e15a99e05d938c1066e44b2bf0a15b6",
+      "raw_bytes": 1980,
+      "gzip_sha256": "13f0202b7cc5d17577f817dc34ee24f839a9e14e2a44ec815582fd1918686099"
+    },
+    "current-api-rendered-inventory-findings-r1.json.gz": {
+      "raw_sha256": "4a942b188400e72563a6d6b120108ca0e7aad8da1fdc8f77a2d1553da419f5cd",
+      "raw_bytes": 28344,
+      "gzip_sha256": "c92cf7ce3b74eb2d2d15049fa9cf54ffdbf482e1fbb5df4cd0a74340322147c4"
+    }
+  }
+}

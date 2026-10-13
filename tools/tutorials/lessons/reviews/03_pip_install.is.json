@@ -1,0 +1,35 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
+  "review": {
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+  },
+  "language": "is",
+  "title": "Settu upp spaCR með pip",
+  "description": "Búðu til einangrað Python-umhverfi, settu upp opinbera pakkann, athugaðu hvaða pökkum hann er háður og ræstu uppsetta Qt-forritið.",
+  "objectives": [
+    "Búa til og virkja sýndarumhverfi fyrir Python.",
+    "Setja upp spaCR og athuga pakkana sem það þarfnast.",
+    "Ræsa forritið og uppfæra rétta umhverfið."
+  ],
+  "prerequisite": "Settu upp Python 3.12 og opnaðu skipanaglugga. Notaðu virkjunarskipunina fyrir stýrikerfið þitt og skelina.",
+  "scenes": [
+    "Opnaðu skipanaglugga og athugaðu Python-útgáfuna. Þessi yfirferð notar Python 3.12. Hafðu spaCR í sérstöku sýndarumhverfi svo auðvelt sé að halda utan um pakkana.",
+    "Búðu til sýndarumhverfi sem heitir .venv með skipuninni fyrir stýrikerfið þitt. Þá verður til mappa með Python-umhverfinu sem þú notar fyrir spaCR.",
+    "Virkjaðu .venv með skipuninni fyrir skelina þína. Windows PowerShell og skipanalínan í Windows nota ólíkar virkjunarskipanir; macOS og Linux nota yfirleitt skeljarskipunina sem sést hér.",
+    "Keyrðu python -m pip --version. Athugaðu að slóðin sem birtist tilheyri .venv. Notaðu python -m pip í uppsetningarskipunum svo pip noti þennan túlk.",
+    "Uppfærðu pip og settu síðan upp spacr. Bíddu þar til vísindapakkarnir hafa hlaðist niður og verið settir upp. Núverandi pakki inniheldur skjáborðshlutana sem þarf til að opna forritið.",
+    "Athugaðu uppsettu spaCR-útgáfuna og staðsetningu pakkans með skipuninni sem birtist. Vistaðu útgáfuna með greiningarglósunum þínum.",
+    "Keyrðu python -m pip check. Ef það tilkynnir um kröfur sem stangast á skaltu leysa þá árekstra áður en þú notar umhverfið.",
+    "Keyrðu spacr-doctor til að skoða uppsetninguna og sjá hvort valfrjálsa eiginleika vanti. Fylgdu ráðlagðri lagfæringu aðeins fyrir þau snið eða eiginleika sem þú þarft.",
+    "Ræstu spacr úr virka umhverfinu. Við fyrstu ræsingu fylgirðu uppsetningarleiðbeiningunum og velur stillingarnar þínar.",
+    "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
+    "Til að uppfæra lokarðu spaCR og virkjar þetta umhverfi. Uppfærðu pakkann og athugaðu svo útgáfuna og pakkana sem hann þarfnast aftur. Haltu fyrra umhverfinu ef þú þarft það fyrir greiningu sem er í gangi."
+  ]
+}

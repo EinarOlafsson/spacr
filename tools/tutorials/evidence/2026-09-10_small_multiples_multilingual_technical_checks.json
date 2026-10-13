@@ -1,0 +1,165 @@
+{
+  "lesson": "63_small_multiples",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_small_multiples_current_workflow.json",
+  "canonical_english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "scene_count": 17,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "089f4274e45c0a1bc9119d7ce1433290bbbf558e",
+    "version": "1.5.0.4",
+    "module": "trellis",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "63_small_multiples.da.json": "e561432ae0a6009afb0feccb02ab4e8eed3b9e93da4e5dadd34e845e21f7977f",
+    "63_small_multiples.de.json": "44d0e3e9614ea7f02366020c30521eeedd6fc17c2b4f6a9a5d2ca7cb1606ccc0",
+    "63_small_multiples.es.json": "ba99224a5804ceb5a2669644e1386eba66e4dabbe29d6444c7e6a65dca5f7ca4",
+    "63_small_multiples.fr.json": "b36c0e6ede5011f44c9107661a32bd6370be94eeacf26c9d0a46538d4721505b",
+    "63_small_multiples.hi.json": "d818cebe1281f54738b76f979dd55de607e93b4a2ec31058bc0c7da72c058e3a",
+    "63_small_multiples.is.json": "82d2c0bd1b841e4b859f0c23ef65b1ddae0be0ffe433062eef4143c65db34385",
+    "63_small_multiples.it.json": "e616f11e777dabc8dddaa842703275044d62b62ad48eb5f01c7a1c7a28d6b6de",
+    "63_small_multiples.ja.json": "24e02dbc877a21387a926a9bb646cac582ad24f30362afa80d105f7a05e1ea88",
+    "63_small_multiples.ko.json": "cbe8c1ed640491c0e264f4956156d53f893842c9c84c5841b765fd50887c9748",
+    "63_small_multiples.nb.json": "fbf5656835d2db783c2d9c537ea109a4c09d0a7acfbb8aded869132215b29a65",
+    "63_small_multiples.pt-BR.json": "a531e88320144c795b2383aa1b819eb198bdc0c07f924511637abcb344044fd3",
+    "63_small_multiples.sv.json": "1bafedf257188ddd6d6fc7ce604b416bc1cc18f9c86805fc861e0c18cddab9c6",
+    "63_small_multiples.zh-CN.json": "98f4aa06ed828e915166562171004f0b3bdaaf02291e7bcd716b625b48001f39"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently checked real scatter points, groups, scales and live controls; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "d4fc0dc67e385851dc90c95b6da28011d763c03b836142683227902d487ac140",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "10171"
+        }
+      ],
+      "format": {
+        "duration": "339.033333",
+        "size": "21907512"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 45.188,
+        "content": "Actual scatter and facet assignments highlighted at native 4K, no replacement controls"
+      },
+      {
+        "seconds": 177.745,
+        "content": "Actual174-cell grid, r5/f20 genuine empty group with n=0, other three groups67/61/46"
+      },
+      {
+        "seconds": 236.505,
+        "content": "Twelve displayed fields, last-row unused padding and actual264-row outside-levels notice highlighted"
+      },
+      {
+        "seconds": 257.968,
+        "content": "Actual area_k formula, Add column and explicit first2000rows preview message"
+      }
+    ]
+  },
+  "poster_sha256": "7b25ff4f63891fae5b4a07e9085180589639470cda9636e40f4d86ae38a339e6",
+  "final_artifact_checks_sha256": "b6b7f5a5a910f5cbfe375d537f178e5cf763b32ec77e30de43f9243c4650176f",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "a1469c6fd356efd36de24e5cb8259936948e3b90991879d445cd7efde76126f9"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "805c9ba79822dd15ec92d453d7396affbd4f94918a44d076a96995a5ec57a0dc"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "e7a4b96a0c7a48bcbd1257559122df7b84cb9d6eb5a2a11d76198d674a6fb869"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "57d21e6de4334383a3791ace29d07ece6a3577b8025c049dbd728a298c5d60ed"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "27ec108abf0920c0d23392ec172952e29e18f083173d5868df6c6e9335be44d5"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "c7170e5b3ada588f17b5578a05d3b29e7d5e771bbe1872d016436e50c860d467"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "8c958599e85b04b71f31188cacefdc0e20f0696154981179d47dc61a6a122937"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "8a7c743003d5c3af3e378905103297483313128a7f9525016bb1ec2f153948c0"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "3d16677088d0c448c78b4645b96192fc0094fd002d4968ee32d520a8e967c95c"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "108b6a66c2ad17861986f6601d39fd7e3489a89d5ca40c5e82c66929354d4eac"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "8596fffc02d3740e800946433cf5dc23479cae984c573f14870c7953b709f6ea"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "6d85c841fa218dc38126f1f8100728d8fd8d16d821db8a9774620afbfcf7eea4"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "80fccd5606750b8eb1beabe0175df9ac784d135a8d04530fa4eeae0a920fbe6b"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "0786431c40896c57451835d0bd0c5460dd6391a4c625ba0e303e4ce1aed2ebca"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "6652aa5ffa51538fb537d59ce5f777d77cae6b4436893873476a2e012eb9483d"
+    }
+  ],
+  "max_observed_browser_clock_error_seconds": 0.04151084589950926,
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "09_annotate",
+    "58_graph_builder",
+    "61_tabulate"
+  ],
+  "catalog_preservation_sha256": "dc4a37bd697946d97f3cef5af31f07761e44a79318eddbd2ae254b15226ee137",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 758,
+    "selected_refreshed_lessons": 31,
+    "unselected_lessons_unchanged": 44
+  },
+  "scope_limits": [
+    "Real 2341-object downloaded Annotate database, byte-identical private copy; original and sidecars unchanged, private DB unchanged, 45 actual render events and zero remaining workers.",
+    "Four well counts615/525/700/501; shared/free/per-row/per-column axes and exact plotted points checked independently; maximum axis-limit error0.",
+    "Area>=21925 changes2341 to1171; clearing restores exact source membership and scales. Shared means common within current grid, not fixed through filtering.",
+    "Actual columnID=c2 and fieldID in f20/f21 yields174 rows. Grid r5/r12 by f20/f21 counts0/67/61/46; real missing r5/f20 group has axes and zero points, not a measured zero.",
+    "Wrap5 ignored for two-way2x2grid. Single field facet has13levels capped to12:3x5slots,12realgroups,3unusedhidden slots,2077drawnpoints,264f21objects outside drawn levels.",
+    "Actual computed area_k=cell_area/1e3 uses first2000rows for preview, then all2341values independently checked; changing X rescales points/limits, restoring X and Remove restores source. Not physical-unit calibration.",
+    "Small Multiples is Graph Builder's fold; surrounding host controls are not this screen's Load table. No dedicated download/export/Run-level Plot/image preview/GPU pipeline/AI console. Linked selection not demonstrated or validated; no training or biological inference."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

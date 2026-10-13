@@ -1,0 +1,300 @@
+{
+  "source": "58193c12bc2a8c9e34ae971541ec64cdd926330b",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "791fa74e0d4cae5bff3be446a53e8b02a1f308a4",
+  "integrated_source": "4643229e53061e66690441debb4950edfa5c3a7c",
+  "application_source_pushed": false,
+  "patch_cleanly_applies": true,
+  "original_tests_unchanged": true,
+  "original_negative": {
+    "failed": 12,
+    "seconds": 7.86
+  },
+  "intermediate": {
+    "failed": 1,
+    "passed": 47,
+    "seconds": 17.24
+  },
+  "focused": {
+    "passed": 48,
+    "seconds": 16.8
+  },
+  "final": {
+    "passed": 250,
+    "seconds": 102.2,
+    "warnings": 172
+  },
+  "home_followup": {
+    "source": "cac70bd38",
+    "passed": 214,
+    "seconds": 83.1
+  },
+  "canonical_api": {
+    "source": "58193c12bc2a8c9e34ae971541ec64cdd926330b",
+    "symbols": 13215,
+    "canonical_public_prose_exactly_matches_accepted_english": true,
+    "english_catalog_sha256": "cbb4ca8fbce60abc86c7acb9839de504edb5484413e77c86229b71765b95d8ad",
+    "scope": "Final individual regression-panel recipe repair leaves every public API text unchanged from the accepted nine-language audit; exact Home UI follow-up/catalog refresh remains separately in progress."
+  },
+  "scope": "All seven individual regression panels recreate from complete original CSV and actual native numerical renderers with custom thresholds/top/bin counts, axes/artist arrays/text, baseline and compartment options. Independent control-median shifts and known compartment counts match. Four true volcano CLI processes produce PNG/SVG with spaCR imports blocked. Compartment lookup preserved in recipe; copied alias explicitly resolves global function despite renderer-local mask names.",
+  "limitations": [
+    "First API probe mistakenly used integrated worker/lifetime tree count13223 on this isolated figure tree; corrected to the matching frozen catalog count13215, exact source/key/text equality passes. Failed original probe retained.",
+    "Final Home follow-up214 accepted on cac source before exact panel bytes integrated privately464; combined final source/catalog/strict docs acceptance remains pending.",
+    "Home source-current API/runtime/tutorial refresh active in three agents; application/sourcecurrentGitHub/serial/native acceptance not claimed.",
+    "Other figure producers remain under audit; image exports deliberately use pixel arrays/metadata rather than statistical graph scripts."
+  ],
+  "payloads": {
+    "logs/regression-panel-negative-r1.log.gz": {
+      "raw_bytes": 11708,
+      "raw_sha256": "a7e8adc712fcd497d8c1c3888e7ea0e306e9936f7a6ad3284015dea659419a69",
+      "gzip_bytes": 1328,
+      "gzip_sha256": "6a260806b9ac640fdd54292bffb711f8e0cc2c17a740d0af9c8b5b25d8ba2e8e"
+    },
+    "logs/regression-panel-negative-r1-tool.log.gz": {
+      "raw_bytes": 11229,
+      "raw_sha256": "d6906ea68a7f67ecd0689fd63aa4e400fcac87f7dc568762531c15544b8ef4f2",
+      "gzip_bytes": 1147,
+      "gzip_sha256": "e8c99f4e289f788b7b1f77585c66f50b0e4818bbd1d14360f40152f3519350aa"
+    },
+    "logs/regression-panel-focused-r1.log.gz": {
+      "raw_bytes": 2421,
+      "raw_sha256": "3b3b554b8288f606dfc209f1f28c7a3f03b78e1d6c071f80a0c0293537a8d917",
+      "gzip_bytes": 829,
+      "gzip_sha256": "755f721726ac86470226104b3cdf0895993257d63ef8eface7f89b821b8d146b"
+    },
+    "logs/regression-panel-focused-r1-tool.log.gz": {
+      "raw_bytes": 1794,
+      "raw_sha256": "ccc13e2a293179db96f8d6932a285f339329d75a483d8d4b8c08152588cad68f",
+      "gzip_bytes": 608,
+      "gzip_sha256": "3b2e8f8ca34c8206a969c52faea11b88e29aa269e97dc75dd8cb248019d6cb1b"
+    },
+    "logs/regression-panel-focused-r2.log.gz": {
+      "raw_bytes": 1673,
+      "raw_sha256": "1a10b563e38971d7e09b138d63f758f04d349411ef7ce939538bd4c9e47809c2",
+      "gzip_bytes": 573,
+      "gzip_sha256": "7412310368381820ba0994b2b85703491d2e7530b9140c1e82040f7298dee09d"
+    },
+    "logs/regression-panel-focused-r2-tool.log.gz": {
+      "raw_bytes": 1046,
+      "raw_sha256": "d7159ae520e59eccdbe7784372fdc2efe06ed31f2ff508933120487f4a724258",
+      "gzip_bytes": 334,
+      "gzip_sha256": "cdf2f12477f759766fc0553238f31b0aaa0a77b4898c24a06e115388ed90f80d"
+    },
+    "logs/regression-panel-final-r1.log.gz": {
+      "raw_bytes": 10253,
+      "raw_sha256": "975413af3693b10181e6df36528069bb1f91e6e492312e992d5eb76d0382907b",
+      "gzip_bytes": 1988,
+      "gzip_sha256": "5d2339e989d3a48088b98b7336c89e730af5727fa2a61e36a7f65d215a99b199"
+    },
+    "logs/regression-panel-final-r1-tool.log.gz": {
+      "raw_bytes": 8891,
+      "raw_sha256": "75b53c368aa86978510d605fdb6e5351575949c0241165f94f96947ff9835cfd",
+      "gzip_bytes": 1691,
+      "gzip_sha256": "c01ce4ed4a994fd32278bb65826bf189343028ce97ee3f803e3ce304f5783c77"
+    },
+    "logs/regression-panel-api-source-r1.log.gz": {
+      "raw_bytes": 1216,
+      "raw_sha256": "a4ef8c2b45c2011410e9eaae96af418ac52b740c52797a945bdd15f57e299923",
+      "gzip_bytes": 501,
+      "gzip_sha256": "074406d5d429da0025875f50fb528616a9213f5e8615c6702df12e5b722e6a70"
+    },
+    "logs/regression-panel-api-source-r1-tool.log.gz": {
+      "raw_bytes": 120,
+      "raw_sha256": "9d369ceff785c7b4032a57016b2addce07d9378b6cc4db87f961ba052e2057dd",
+      "gzip_bytes": 121,
+      "gzip_sha256": "05e70f7e49742f303c995e34fd1c6810d2d10e69969bb715219ba1a8247d5d71"
+    },
+    "logs/regression-panel-api-source-r2.log.gz": {
+      "raw_bytes": 667,
+      "raw_sha256": "9170a482d9824a727af5b1b4ce688c1d042fad8b9516f7b707909528ab1ccca8",
+      "gzip_bytes": 362,
+      "gzip_sha256": "63b9698250e7584336ba0b3539f0dab54814754d691e12a7a7425e7c851f7d55"
+    },
+    "logs/regression-panel-api-source-r2-tool.log.gz": {
+      "raw_bytes": 193,
+      "raw_sha256": "1742ede46c55ea65cd131a3b39316fe2d179b6d265c09334f6ae5856e6c70a34",
+      "gzip_bytes": 169,
+      "gzip_sha256": "8423cebe416e0fe6b4a415843da4270ba4314e9a81e6774e28473f70eda5cc8c"
+    },
+    "logs/final-home-followup-r1.log.gz": {
+      "raw_bytes": 2279,
+      "raw_sha256": "f7c558ce00d8e392d58c9f7191153e7a624c6b810fc3808870b8995abcb6ee1f",
+      "gzip_bytes": 753,
+      "gzip_sha256": "c29e358cd9ab180b3b8014e36f45b68d360d495ed3636c6e36e788f28fa67c38"
+    },
+    "logs/final-home-followup-r1-tool.log.gz": {
+      "raw_bytes": 1208,
+      "raw_sha256": "95b9a8a298cf808c211156da0c6b16fce0a379188c4f9f9f1d4e96755ba18143",
+      "gzip_bytes": 351,
+      "gzip_sha256": "df60cb6733edbad0ca87f662c741001cd3803d9c3aae9b12326f86ef08230e54"
+    },
+    "coverage/regression-panel-final-coverage-r1.data.carruthers.pid79939.XxrIhcux.HZ2pySmhHmIh.gz": {
+      "raw_bytes": 2383872,
+      "raw_sha256": "57b773d8eef921291f264a6c1b7ce29271f589f9d1347a5d3f444aed1ed19de9",
+      "gzip_bytes": 994564,
+      "gzip_sha256": "ce3a8bf7a1b13d18cff436b89fd0109973a1b8f1279d7b6acb7988b9a87d1f7d"
+    },
+    "coverage/regression-panel-focused-coverage-r1.data.carruthers.pid77041.XDHaj54x.HdivqlGIPX6h.gz": {
+      "raw_bytes": 634880,
+      "raw_sha256": "966e7f91b589fe53f1964bc868a2c7cecef52bb55184da6970a72845b443eede",
+      "gzip_bytes": 271774,
+      "gzip_sha256": "679ff96a10087c22fac237a0a3a276ab6061df5cc0f02374ca75b3aa75468330"
+    },
+    "coverage/regression-panel-focused-coverage-r2.data.carruthers.pid78664.Xt6ZYXAx.HKtQyd0LX37h.gz": {
+      "raw_bytes": 634880,
+      "raw_sha256": "081ff43a5282987c275445cf8eda24c331ee4ff04bc2ac7e461ae87114cf0f97",
+      "gzip_bytes": 270988,
+      "gzip_sha256": "ce6401e3c240cde5dfde14b370a59aa5d78bbd41d5772e1cb2fbf9a58af5ca94"
+    },
+    "coverage/final-home-followup-coverage-r1.data.carruthers.pid81206.XyKiAqDx.HRKBOQOAgF6h.gz": {
+      "raw_bytes": 5558272,
+      "raw_sha256": "73976db7e81ef175ead4c58d5a08d9f199700f15a86622b72ab4e6300bf40ce7",
+      "gzip_bytes": 2180318,
+      "gzip_sha256": "b69dc1f21a4881b61a204017088d621813ad887b34d1a51590d96770a3a3645c"
+    },
+    "results/regression-panel-api-source-r2.json.gz": {
+      "raw_bytes": 454,
+      "raw_sha256": "6896f3b8ca2bf23ec1e24ab6ed6398ed56e651764e22162fa5459a1b37de6072",
+      "gzip_bytes": 334,
+      "gzip_sha256": "967be0b6b556376280ed53c697c808c18838b58ab453672d47ac04522b228a89"
+    },
+    "results/final-home-followup-integration-r1.json.gz": {
+      "raw_bytes": 552,
+      "raw_sha256": "0056ea4454db48d49161fac535b2b74a7e2a4c6666c5a7441f629d9e0ac16dc0",
+      "gzip_bytes": 303,
+      "gzip_sha256": "f4796987df495dfb2d18892b201f8520a670e8af28af01f3626fd3666cb29388"
+    },
+    "scripts/archive_regression_panel_r1.py.gz": {
+      "raw_bytes": 7389,
+      "raw_sha256": "11b5e7dc189dc210f8c091c1f44205017aa43480d9a468530d13263ea9ea6f39",
+      "gzip_bytes": 3112,
+      "gzip_sha256": "7a4a468859c9c00a1cda0826b8e26384ecdd6c48de759f698d07321f785faffc"
+    },
+    "scripts/check_regression_panel_api_source_r1.py.gz": {
+      "raw_bytes": 1272,
+      "raw_sha256": "ff735960993c6a8a9bcf127c349c7ff9029630f81211f96735bbf0243b550568",
+      "gzip_bytes": 699,
+      "gzip_sha256": "a623d8106e8da86c09e1722592cdf032d0b23deee448eb7af8fd84a68b4b6690"
+    },
+    "scripts/check_regression_panel_api_source_r2.py.gz": {
+      "raw_bytes": 1288,
+      "raw_sha256": "cc772438d1a578c8892676df95c7d74a859a811f2643644a2c058bce7d5d8949",
+      "gzip_bytes": 704,
+      "gzip_sha256": "30c273821d5991a2f8fcf92098f755e880a3087f2ebe14b99946054dc2aec455"
+    },
+    "scripts/run_final_home_followup_r1.py.gz": {
+      "raw_bytes": 1793,
+      "raw_sha256": "756db0427b8615f6bc01f8c62f7ec64b6999b460c9e38bfe4f52e668831ffd13",
+      "gzip_bytes": 882,
+      "gzip_sha256": "8f145982b7cea0f0720f4e842f9ac9086f546e6e915d1d9a41cab370e16716d7"
+    },
+    "replacement-source-and-tests.patch.gz": {
+      "raw_bytes": 88942,
+      "raw_sha256": "91a67da132e82b986b8cfae96ee08b29d7e331463fea966ec5cde5658497e3ba",
+      "gzip_bytes": 19406,
+      "gzip_sha256": "ce5e877ed4d979b5ef1026d97f4ef8b3d89fe03512c1621ccdb3f4c73677995a"
+    },
+    "delta-from-prior-sheet-candidate.patch.gz": {
+      "raw_bytes": 10000,
+      "raw_sha256": "2ecadc1f01e6657806b9e4ead4b268a1949f09027e8b1a75a7a65e57c738342e",
+      "gzip_bytes": 3512,
+      "gzip_sha256": "7888d04bf5c23bfa2382074938e9729551c89283982e18b90bae6e761a67b411"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 47007,
+      "raw_sha256": "60d9b057daf1650af9cb8beb25f6037eed789b88b5a29144ca78855686d4244a",
+      "gzip_bytes": 14018,
+      "gzip_sha256": "062dc271137ab2c199ad7237418289c2c7c208e943fb05f1a329b35b1c6e8067"
+    },
+    "source/spacr/figures/plates.py.gz": {
+      "raw_bytes": 30577,
+      "raw_sha256": "7d9a39e03fa926c7e1d8022e1f09aff18b3b566c4877e606222245df2448a626",
+      "gzip_bytes": 10190,
+      "gzip_sha256": "013b8f54f93fe913a85938f443e883ad60a0ae2f1e344db39ce22425701c6990"
+    },
+    "source/spacr/figures/sheet.py.gz": {
+      "raw_bytes": 9556,
+      "raw_sha256": "200ba4b523cf13f784743a574205a56cbb47d3f44d8c6859959f81665338de25",
+      "gzip_bytes": 3517,
+      "gzip_sha256": "2f80b3656591109954116473c3d6a62458e6c787e7bcf4a7006aee6e3c56f6d0"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 344160,
+      "raw_sha256": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+      "gzip_bytes": 86664,
+      "gzip_sha256": "64df1c0d3c9ff4de31c1ce4535ba4ce2c113e37d227663c0d8e9e3ea90e58ceb"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119440,
+      "raw_sha256": "fb34dbd8212ff4384255623c4f0c343e441484a9e3d73bb8c6b7cb1f4aa05b78",
+      "gzip_bytes": 32088,
+      "gzip_sha256": "b2534dc6371a0badfbd5f243119d6e30ecf924e9fea39622f0329395a02db87b"
+    },
+    "source/tests/qt/test_panel_statistics_dialog.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "851e4d0bb1d04c8ecd30c2858fa9b2e8dae04e081c5891b27c68025eb7c13bd3",
+      "gzip_bytes": 1869,
+      "gzip_sha256": "4a2783b34f3cf9e1d718a7ba8e45469a9ba3d13e36f52ee7467cad24150729d9"
+    },
+    "source/tests/qt/test_panel_view_statistics_limits.py.gz": {
+      "raw_bytes": 3519,
+      "raw_sha256": "526c4b92806e93ad57740b989ed858a99cbd254c56f682a87653bd8c8b1b7cd1",
+      "gzip_bytes": 1050,
+      "gzip_sha256": "f694019049a9e30dad2e81a15674ca55b2de090d64cc8789e9742e5cb64bcb7f"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "source/tests/test_plate_heatmap_recipe.py.gz": {
+      "raw_bytes": 5905,
+      "raw_sha256": "a0fcee6c5941088f624d5fba02d1585adee4e0643d62fc4add62c1d6efcdc57f",
+      "gzip_bytes": 1893,
+      "gzip_sha256": "5c2dedc4fad048f3e60f45d8982f20215f7902fb1ee547a01fe735dd385a8234"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "source/tests/test_regression_panel_recipe.py.gz": {
+      "raw_bytes": 5374,
+      "raw_sha256": "bf22afefe09c961d242b4dc420643dbfc6740625a8c0ffd145b224a7ba630795",
+      "gzip_bytes": 1923,
+      "gzip_sha256": "ae2904a3da4a6c666a422af2e669c72ca5e8d1086fea11dbb2d653da8a5185b8"
+    },
+    "source/tests/test_regression_sheet_recipe.py.gz": {
+      "raw_bytes": 5127,
+      "raw_sha256": "6cf8303aa5b151523b359021dd55b44bd4e2c95ba9fe4300b96eda2086df8f9c",
+      "gzip_bytes": 1848,
+      "gzip_sha256": "2db42df8b7f9c21981bc7bf3c40e14eeb39e96ebaac2b51b503c240065abe5af"
+    },
+    "test-revisions/original-twelve-panel-tests.py.gz": {
+      "raw_bytes": 3583,
+      "raw_sha256": "da5fa96c6516b88ffd4945418f39a0c6cc10d4323ff14ee8913b5bc68680c10b",
+      "gzip_bytes": 1301,
+      "gzip_sha256": "7d80185ca3edb3886a6ac7c7c5c161d0e189d53cac31b5ea3d3d4912a2ba1a95"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 46545,
+      "raw_sha256": "8bfbc73ce1c4336fa7afcd03cae04b30ea9dbf72d3aa5e41d296c09d8f73405d",
+      "gzip_bytes": 13873,
+      "gzip_sha256": "82dab88492c86ce32c68cfb5908e3fd537a485b0ce77f7a1a6f918a3256b98e4"
+    },
+    "original-source/spacr/figures/sheet.py.gz": {
+      "raw_bytes": 9385,
+      "raw_sha256": "6011c2c02f71aa425207dd1136c3ff7543b4724c13c915e4b324fae1b4fbeb4d",
+      "gzip_bytes": 3477,
+      "gzip_sha256": "d5c95a2978fd2ffcbe35cca0d9b7b0824b2183bdb86c691151dea7d35119723b"
+    }
+  }
+}

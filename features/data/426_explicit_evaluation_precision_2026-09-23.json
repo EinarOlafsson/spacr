@@ -1,0 +1,120 @@
+{
+  "checkpoint": "/mnt/wd4tb/af3/projects/live_cell/timeflows/timeflows_v1.pt",
+  "checkpoint_sha256": "e9060390f1a5b13a587dbd5bee434ef2a6e41373c52ceecb884c38a833a851fc",
+  "checkpoint_metadata": {
+    "base": "cpsam",
+    "movies": [
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa"
+    ],
+    "pairs": 694,
+    "max_pairs_per_sequence": 60,
+    "head_steps": 2000,
+    "full_steps": 2000,
+    "final_loss": 0.050018150359392166
+  },
+  "metadata_sha256": "7567329a3c22cfbddec7fab255504280241c0247b21b0cde502bcc1f57461b47",
+  "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+",
+  "data_kind": "synthetic",
+  "segmentation_source": "GT",
+  "device": "cpu",
+  "seed": 0,
+  "requested_precision": "float32",
+  "selected_pairs": 9,
+  "pairs_per_gap": 3,
+  "gaps_frames": [
+    1,
+    12,
+    24
+  ],
+  "software": {
+    "numpy": "1.26.4",
+    "scipy": "1.13.1",
+    "torch": "2.6.0",
+    "cellpose": "4.2.1.1",
+    "tifffile": "2023.4.12"
+  },
+  "evaluator_sha256": "acf021bd0a76a9d2f8b087ad4db9aed7b085c61d5e69b786c9cc5c76d2cc8f6d",
+  "model_code_sha256": "dbc80a62c236f1160940a9cea4018e94267726d93b455822f162ace93d194aba",
+  "scope": "Linking given supplied full segmentation, not end-to-end segmentation/tracking accuracy.",
+  "holdout_check": "Resolved movie paths and aliases; not a content comparison against all training images.",
+  "controls": "IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.",
+  "precision": {
+    "requested": "float32",
+    "checkpoint_encoder": "torch.bfloat16",
+    "effective_encoder": "torch.float32",
+    "checkpoint_floating_dtypes": [
+      "torch.bfloat16",
+      "torch.float32"
+    ],
+    "effective_floating_dtypes": [
+      "torch.float32"
+    ]
+  },
+  "feature": 426,
+  "status": "Explicit precision implemented and tested; nine-pair float32 CPU scoring remains active.",
+  "tests": "27 passed in 6.83s",
+  "fatal_ruff": "passed",
+  "cpu_probe": {
+    "matrix_shape": [
+      1024,
+      1024
+    ],
+    "threads": 2,
+    "samples": [
+      {
+        "dtype": "torch.float32",
+        "seconds": 0.02614405201165937
+      },
+      {
+        "dtype": "torch.bfloat16",
+        "seconds": 1.778516967984615
+      },
+      {
+        "dtype": "torch.float32",
+        "seconds": 0.01221146501484327
+      },
+      {
+        "dtype": "torch.bfloat16",
+        "seconds": 1.8023012090125121
+      },
+      {
+        "dtype": "torch.float32",
+        "seconds": 0.012927320989547297
+      },
+      {
+        "dtype": "torch.bfloat16",
+        "seconds": 1.705981156002963
+      }
+    ],
+    "relative_mean_absolute_difference": 0.0014099256368353963
+  },
+  "cpu_model": "AMD Ryzen 9 5950X",
+  "launch_session": 34317,
+  "launch_pid": 3826949,
+  "limits": {
+    "memory_bytes": 8589934592,
+    "swap_bytes": 0,
+    "threads": 2,
+    "gpu": false
+  },
+  "superseded_run": {
+    "session": 27511,
+    "pid": 3803647,
+    "exit_code": 143,
+    "termination": "Deliberate SIGTERM after measured bfloat16 CPU arithmetic bottleneck; terminal confirmed before new launch.",
+    "directory": "/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/sim-v1-evaluation-2",
+    "complete_pairs": 0,
+    "summary_exists": false
+  },
+  "test_sha256": "678ff98b5f7df1831545f4ff899e824522ead2bc02b4ffbba1ba758b2ad7cbf0",
+  "limitations": [
+    "Float32 expands saved bfloat16 values exactly but changes arithmetic; output/score parity is not claimed.",
+    "Matmul timing is not an inference speed benchmark or accuracy comparison.",
+    "No checkpoint, runtime model, training, or GUI tracking default changed."
+  ]
+}

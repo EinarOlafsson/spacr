@@ -1,0 +1,91 @@
+{
+  "hosted_run": 37698599898,
+  "hosted_source": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "source_commit": "11229945a6e803f5fa1d5ed6683d446a2b068132",
+  "root_test_commit": "71a9251b5153dc2ecc0623b7f4a3c5d7ca026409",
+  "fungal_source_commit": "89c76f2ab58a3fb4efb71591c629be5f4731f97e",
+  "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=. tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest tests/qt/test_aurora_rays.py tests/qt/test_requested_appearance_defaults.py tests/qt/test_field_popup_waves.py tests/qt/test_ambient_cache_and_cleanup_refusals.py tests/qt/test_make_masks_center_pixel_puncta.py tests/qt/test_ambient_motion.py::test_density_moves_the_starfield_too tests/qt/test_fungal_growth_engine.py --cov=spacr.qt.widgets.ambient --cov=spacr.qt.preferences --cov=spacr.qt.screens.make_masks --cov-branch --cov-report=json:/mnt/wd4tb/scratch/ci-683-aggregate-20261007/root-three-integrated.json -q",
+  "accepted": {
+    "passed": 83,
+    "seconds": 176.32,
+    "warnings": 1,
+    "rss_cap_gib": 4
+  },
+  "earlier_overlapping_cohort": {
+    "passed": 65,
+    "seconds": 26.28,
+    "source": "71a9251b5153dc2ecc0623b7f4a3c5d7ca026409"
+  },
+  "rejected_setup": "Initial combined command named nonexistent test_fungal_growth.py; exit4, no tests ran. Retained, not counted as application failure or acceptance.",
+  "assertions": [
+    "Retained texture pixels and alpha profile under cache reuse and tiny dimensions",
+    "Detail changes sampling while Drift density and geometry remain unchanged",
+    "Popup origin publication race does not consume a future origin on an old tick",
+    "Rewinding and expiring popup waves removes stale material while retained pixels remain owned",
+    "Busy legacy worker lock does not block stop or preserve queued elapsed time",
+    "Invalid and changing native puncta sources refuse caching; singleton native source remains read-only and revision-bound",
+    "Stale secondary parent and Fuse refusal preserve exact mask IDs",
+    "Nonfinite appearance controls and safe-mode idle prewarm fail safely",
+    "Narrow and tiny fungal viewports preserve bounds/connectivity"
+  ],
+  "source_files": [
+    {
+      "path": "tests/qt/test_ambient_cache_and_cleanup_refusals.py",
+      "git_blob": "972a97530ec524b6d6829b8d036ac8db5c1e7e56",
+      "sha256": "5785d507dfebf5848d5c95b2fe314a20ff0b4fe6486197ddaee2933cb84d619e"
+    },
+    {
+      "path": "tests/qt/test_ambient_motion.py",
+      "git_blob": "1440c2e6da4dbf16e10a469c505570587f4bdd80",
+      "sha256": "7b6b1bafe3b2abc451aef9697d6d40ab9f47e5e5cbbb85135f0efce8a259e169"
+    },
+    {
+      "path": "tests/qt/test_aurora_rays.py",
+      "git_blob": "be01804e8e5f02766856a5825ede6e577b0d726c",
+      "sha256": "7f8a209b8bb21bf535a41cb08de30ca7c5749bac5d383c88d534507d51a2de2b"
+    },
+    {
+      "path": "tests/qt/test_field_popup_waves.py",
+      "git_blob": "a46d7dffb9ab4e14a5aa1c355b09da6273317015",
+      "sha256": "c04cc8e0373424d6fa8cd59477a6311b178f5f3c25961401d1e840cb844c2fe4"
+    },
+    {
+      "path": "tests/qt/test_make_masks_center_pixel_puncta.py",
+      "git_blob": "7dd35ce2d33118b8f5d6cf8b209f665d2a111c98",
+      "sha256": "afb6ac1b7507606c919d6650b8774af65c64252f7415ac5c2997e2b62cd159cb"
+    },
+    {
+      "path": "tests/qt/test_requested_appearance_defaults.py",
+      "git_blob": "fab3e095e3c8e724ce73098131d35d7e84c94040",
+      "sha256": "c4a0b8ad01bae2c4e236fc739efae26d5a39e16933ca608b3bb174cd7b0ce48d"
+    },
+    {
+      "path": "tests/qt/test_fungal_growth_engine.py",
+      "git_blob": "3be88f4a86bedc026515d18b1da2bb11cb8bebd5",
+      "sha256": "6a6a446dd5502e17d3b1e7a85838ec1db126ba4fb40dddde8fffe78bba25b8ce"
+    },
+    {
+      "path": "spacr/qt/widgets/ambient.py",
+      "git_blob": "782f9677a4357a6d258c9721ceb68742e9816c73",
+      "sha256": "2f017b232ae9647df99e59f65a1f5b1ec803cf28d1f9a3995cb23da9eceb5d72"
+    },
+    {
+      "path": "spacr/qt/preferences.py",
+      "git_blob": "852d37be23271b07f54eb1911c4eab39e4363d35",
+      "sha256": "c4d6b8b7ffdee6c000454bf32579a74ba4c7c9e76af5ddcf007978d89f455f84"
+    },
+    {
+      "path": "spacr/qt/screens/make_masks.py",
+      "git_blob": "88c3d1e4f91f33d4780827932150ed220e4839da",
+      "sha256": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc"
+    }
+  ],
+  "limitations": [
+    "No whole local suite, full Python3.9 minimum environment, GPU workload or hosted-green acceptance.",
+    "83 and65 phases overlap and are not summed.",
+    "Original coverage baselines unchanged. Combined numerical proof is separate and source-mapped.",
+    "Tifffile channel-storage deprecation warning retained; no warning suppression."
+  ],
+  "run_start_commit": "04d31ab64a2",
+  "source_commit_note": "112299 changes only HANDOFF metadata; all measured application and test blobs are unchanged from run start."
+}

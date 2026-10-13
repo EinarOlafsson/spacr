@@ -1,0 +1,116 @@
+{
+  "source_commit": "frame-invariant-alpha-private-proof / frozenf36 vs one alpha hoist",
+  "source_sha256": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4",
+  "source_path": "/mnt/wd4tb/scratch/fungal-frame-invariants-20261007/after.py",
+  "variant": "after",
+  "theme": "data_art_fungal_growth",
+  "label": "spaCR growth",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 3.0,
+    "size": 2.5,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "spacr",
+    "colors": [
+      "#3b82f6",
+      "#ff00ff",
+      "#00cec8"
+    ]
+  },
+  "qt_platform": "xcb",
+  "profile_enabled": false,
+  "profile_scope": "inclusive wrappers overlap and introduce overhead; timing is diagnostic, not an uninstrumented performance acceptance",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 227168,
+    "widget_show_ms": 84.89510798244737,
+    "post_show_seconds": 2.001057297020452,
+    "post_show_published_frames": 48,
+    "post_show_published_fps": 23.9873191394726,
+    "worker_shade": {
+      "median_ms": 2.609598494018428,
+      "p95_ms": 3.743696986930445,
+      "max_ms": 14.11185399047099,
+      "samples": 48
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.064603993669152,
+      "p95_ms": 13.790483004413545,
+      "max_ms": 25.180250988341868,
+      "samples": 197
+    },
+    "compile_ready": false,
+    "compile_failed": false,
+    "rss_peak_kib": 225240
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.004172608983936,
+      "published_frames": 98,
+      "published_fps": 19.583657011363215,
+      "distinct_published_clocks": 98,
+      "first_clock": 97.25899999999997,
+      "clock_advance": 4.930000000000078,
+      "painted_fps": 24.57948788160893,
+      "repeated_frame_objects": 24,
+      "worker_shade": {
+        "median_ms": 50.054662511684,
+        "p95_ms": 63.20427299942821,
+        "max_ms": 65.78487300430425,
+        "samples": 98
+      },
+      "gui_paint": {
+        "median_ms": 5.467081005917862,
+        "p95_ms": 6.2832080002408475,
+        "max_ms": 7.131174992537126,
+        "samples": 123
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.086474503623322,
+        "p95_ms": 34.07595900353044,
+        "max_ms": 43.231208983343095,
+        "samples": 396
+      },
+      "publication_intervals": {
+        "median_ms": 49.89839700283483,
+        "p95_ms": 63.2218930113595,
+        "max_ms": 65.80336199840531,
+        "samples": 97
+      },
+      "lightning_worker_shades": null,
+      "inclusive_profile_stages": {},
+      "load_average": [
+        3.623046875,
+        2.82373046875,
+        2.2978515625
+      ],
+      "current_rss_kib": 326564
+    }
+  ],
+  "frame_sha256": "1b7592ab437b9ed6ed23a7c7d13f1fbdbd07002e0ad2b56be943a0b15cbd8738",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 356940,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

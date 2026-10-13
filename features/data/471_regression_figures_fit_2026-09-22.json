@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-22",
+  "feature": 471,
+  "problem": "Regression Figures minimum height 560 painted over Console beginning at 469 in a 579px runtime splitter",
+  "change": "Frameless scrollable Regression body; outer Figures card has no fixed minimum; scroll area folds as a unit; lazy build and fallback preserved",
+  "before": {"window": [1366, 768], "figures_height": 560, "console_top": 469},
+  "after": {"window": [1366, 768], "figures_height": 463, "console_top": 469},
+  "validation": {
+    "tests": ["tests/qt/test_regression_figures_fit_laptop.py", "tests/qt/test_471c_figures_sections_fold.py", "tests/qt/test_the_shell_collapses_and_resizes.py", "tests/qt/test_a_hidden_panel_is_built_when_it_is_first_shown.py"],
+    "behavior": ["Actual MainWindow at 1366x600 and 1366x768", "No sibling overlap", "Content reachable at both scroll endpoints", "Console reopening", "Figures fold/reopen", "Deferred construction", "Missing-dependency fallback"],
+    "artifacts": "/mnt/firecuda2/Claude/implementation-20260922/regression-layout/"
+  },
+  "scope": "Repairs the known Regression exception; does not claim all modules tested at every scale"
+}

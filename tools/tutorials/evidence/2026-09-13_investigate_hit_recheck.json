@@ -1,0 +1,16 @@
+{
+  "lesson": "71_investigate_hit",
+  "application_commit": "49c652073",
+  "scope": "Read-only recheck of the previously matched real predictions and measurements",
+  "reader_passed": false,
+  "error_type": "KeyError",
+  "error": "'prcfo'",
+  "input_sha256": {
+    "measurements.db": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "recorded_predictions.csv": "47ba4d843d764cc59cd211768da1b173cf39dbf6d40d18c6f5cab9807102115a"
+  },
+  "inputs_unchanged": true,
+  "application_modified": false,
+  "complete_matched_workflow_established": false,
+  "published": false
+}

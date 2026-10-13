@@ -1,0 +1,28 @@
+{
+  "lesson": "13_regression",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
+  "scene_count_per_catalog": 21,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 11680,
+    "duration_seconds": 389.333333, "audio_streams": 0, "bytes": 32531618,
+    "sha256": "397034da07680429f5ce0d4eef55acba10feb5ec6ab364ce989de09c5a166467"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Scene links", "Placement in Main modules", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "real_data": "Actual downloadable four-pair score/count example, 199 permutations, 434 guide and 325 gene results, five figures and visible console",
+  "interpretation": "Explains testing families, 0.005 empirical p-value floor, design limitations, guide-only table selection, absent measurement database, fitted-model requirements and the unsent AI question",
+  "synthesis": "49 tracks generated on one capped CUDA process at a time; one Spanish track completed on CPU while another session used the GPU. Both recorded runtime identities passed freshness checks.",
+  "evidence_directory": "refresh_2026-09-09/production/13_regression and refresh_2026-09-09/browser/13_regression in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and real capture; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

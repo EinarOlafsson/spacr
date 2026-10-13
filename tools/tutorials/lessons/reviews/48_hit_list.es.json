@@ -1,0 +1,34 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Hit List: filtrar candidatos y exportar una lista corta",
+  "description": "Carga resultados de Regression, filtra por valor q, número de guías y concordancia, y exporta los candidatos seleccionados.",
+  "objectives": [
+    "Abrir los resultados de Regression de ejemplo con el script complementario proporcionado.",
+    "Filtrar candidatos y leer sus efectos y la concordancia entre guías.",
+    "Exportar las filas seleccionadas como CSV, Markdown o HTML."
+  ],
+  "prerequisite": "Extrae Hit_List_real_results_companion.zip y activa tu entorno de spaCR. El acceso directo Hits actual de Regression no muestra el panel; ejecuta python hit_list_companion.py y usa Browse para ir a la carpeta de resultados extraída. El complemento no conecta con Investigate. Usa wells_with_gene de results_gene.csv para el número de pozos de soporte: el n_obs=0 exportado no es el soporte real. El ejemplo no contiene genes que cumplan q <= 0.05.",
+  "scenes": [
+    "Desde Home, abre Regression y elige Hits. Si el panel sigue oculto, usa el script complementario incluido en esta lección para abrir Hit List.",
+    "Extrae el ejemplo enlazado y activa tu entorno de spaCR. Ejecuta python hit_list_companion.py. En la ventana del complemento, haz clic en Browse y selecciona la carpeta de resultados extraída.",
+    "El ejemplo carga trescientos veinticinco genes. Ensancha las columnas para leer el efecto, P, q y la concordancia entre guías. Los efectos son efectos marginales estandarizados. Para el número de pozos de soporte, lee wells_with_gene en results_gene.csv; el recuento de observaciones cero exportado indica que el soporte no está disponible.",
+    "Pon Max q en cero coma cero cinco. Este ejemplo no tiene genes que lo cumplan, así que la tabla queda vacía. Devuelve Max q a uno para ver todos los candidatos.",
+    "Pon Minimum guides en dos. Quedan ciento diecisiete genes con al menos dos filas de guías probadas. Este filtro conserva los valores q originales.",
+    "Pon Minimum agreement en uno. Quedan cincuenta y siete candidatos cuyas guías probadas comparten todas el signo del efecto del gen. Lee la concordancia junto con q: estos candidatos siguen sin superar el umbral de significación.",
+    "Activa Hide controls para quitar la fila de control de esta vista, con lo que quedan cincuenta y seis candidatos. Desactívalo de nuevo para incluir esa fila en la exportación posterior.",
+    "Borra los demás filtros, elige Direction up y pon Minimum absolute effect en cero coma uno. Quedan dieciséis filas. Elige los umbrales para tu análisis y luego restaura estos controles antes del siguiente paso.",
+    "Escribe un identificador en Search para encontrar su fila. Una búsqueda sin coincidencias deja la tabla vacía. Borra Search para recuperar la población filtrada actual.",
+    "Para exportar, pon dos guías, concordancia completa, controles incluidos y la búsqueda vacía. Exporta las cincuenta y siete filas seleccionadas como CSV, Markdown o HTML. El CSV conserva el detalle numérico. Guarda las opciones de filtro junto con tus archivos.",
+    "Borra los filtros para volver a los trescientos veinticinco genes. Mantén las exportaciones de listas cortas separadas de los resultados originales. En Python, usa build_hit_list, luego filter y los escritores de CSV, Markdown o HTML; comprueba el límite de filas de cada formato."
+  ]
+}

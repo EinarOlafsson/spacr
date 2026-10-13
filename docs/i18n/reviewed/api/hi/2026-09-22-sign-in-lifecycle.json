@@ -1,0 +1,21 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Reap the command, stop its process group and close the terminal.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#0",
+      "source": "Reap the command, stop its process group and close the terminal.",
+      "source_sha256": "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+      "translation": "कमांड के समाप्त होने की प्रतीक्षा करके उसकी निकास स्थिति प्राप्त करें, उसके प्रक्रिया समूह को रोकें और टर्मिनल बंद करें।"
+    },
+    {
+      "context": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#1",
+      "source": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "source_sha256": "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad",
+      "translation": "लॉन्चर समाप्त होने के बाद ऐसी चाइल्ड प्रक्रिया छोड़ सकते हैं जो टर्मिनल खुला रखती है। यह समूह इस सत्र का है, इसलिए रद्द करने पर वे चाइल्ड प्रक्रियाएँ भी समाप्त होती हैं। सफ़ाई दोहराने से दोबारा उपयोग किए जा चुके फ़ाइल डिस्क्रिप्टर को बंद नहीं किया जा सकता।"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and process-lifecycle review; no native-speaker sign-off",
+  "schema": 1
+}

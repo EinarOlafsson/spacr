@@ -1,0 +1,27 @@
+{
+  "source_revision": "6d48a0ae837ff77c23f14746916db3c1111a12d6",
+  "result": "120 passed in 46.60s",
+  "scope": "Four full Qt owning files, Qt6.12 overlay/offscreen, CPU4G/CUDA hidden. One later screen marker catch narrowed to RuntimeError/AttributeError; private exact inventory confirms complete unchanged API/runtime. Native user crash and complete hosted CI not certified.",
+  "files": {
+    "combined-qt.log.gz": {
+      "sha256": "096c88f5b6bf9e5051073e67e0a010b4dc24717586c96bfb1fce3b253af1bae9",
+      "uncompressed_sha256": "12180fbaae1bbe86c34342de35766372482468a378aa5a8073aaad00ce531045"
+    },
+    "final-retirement.log.gz": {
+      "sha256": "b6bcb198bfb5a069bcd632fb3866bb38a7ef3354f93c50a9196929b42ce5e1d3",
+      "uncompressed_sha256": "53522556da78aad6a49345addbc7d9051569113b4eacf11e82b021d4b56e9479"
+    }
+  },
+  "source_sha256": {
+    "spacr/_mask_workers.py": "738350b8041f341df1cbe29f045c03dc74f7f80204e773933a683571f5195a06",
+    "spacr/database_concurrency.py": "831f8b0dcd226769613580cc38b5e1b88e35f299c3c31bd412396ef8c7c442f5",
+    "spacr/qt/app.py": "840411dd5c5fa5b9972e0db2c1340204d5c35739a46d5a27df097a93afd4b824",
+    "spacr/qt/preferences.py": "450e2e7aa1366ba703a4e54284dffc4fe236284ff65f8fc377f7501347b81283",
+    "spacr/qt/screens/app_screen.py": "79a7077c71a38039a93ba1d16221df002a362e9ada0ac9f97a928246e96d1b32",
+    "spacr/qt/widgets/ambient.py": "e6233af0b47e8ffec9a67a0be7027535b3710e0b11c596e25e31c2148663178f",
+    "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py": "5fbff39eaec345e5a038096936e4abc99724dc86e312bfce85e5cb1e8cdf03d7",
+    "tests/test_item60_measure_coverage.py": "41b24c31150e4a86ff680e625193c56504046d735053d0f7b1488fb8a9df456f",
+    "tests/test_parallel_overload_queue.py": "a35070160e8ae4757174c6428b10be67b60b086188e1587aebd53f18ff232515"
+  },
+  "final_narrow_catch_regression": "3 passed, 24 deselected in 2.73s"
+}

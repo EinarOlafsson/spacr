@@ -1,0 +1,144 @@
+{
+  "lesson": "45_project_browser",
+  "status": "Current workflow verified; multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/project_browser_actual_row_selection",
+  "capture_provenance": {
+    "commit": "5c41c2997594c7bbd788f62010fd5d55fce80391",
+    "version": "1.5.0.4",
+    "module": "project_browser",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "capture_count": 19,
+  "evidence_sha256": {
+    "project_browser_acceptance.json": "e6f77a17080715cb18cfa096a00ab4b176575da05126667d73c866e332694ceb",
+    "frames.json": "353bd538533711f17f3ed793ba8d397501dcb64229f29837f6cc03768c92fd9a"
+  },
+  "canonical_english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "scenes": 11,
+  "narration_words": 517,
+  "independent_checks": {
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/data_manager_runs/real-project-l_n_ck_l/search/converted_images": {
+      "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/data_manager_runs/real-project-l_n_ck_l/search/converted_images",
+      "files": 7,
+      "bytes": 32005122,
+      "known": false,
+      "artifact_rows": 0,
+      "last_run_source": "",
+      "last_run_utc": "",
+      "stage_displayed_not_independently_rederived": "nothing run",
+      "state_displayed": "unknown — nothing recorded"
+    },
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project": {
+      "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project",
+      "files": 129,
+      "bytes": 91113254,
+      "known": true,
+      "artifact_rows": 3,
+      "last_run_source": "registry",
+      "last_run_utc": "2026-09-09T21:37:14+00:00",
+      "stage_displayed_not_independently_rederived": "measure",
+      "state_displayed": "current"
+    }
+  },
+  "verification_boundary": "Project identity, file counts, byte totals and known/unknown provenance checked independently against disk and original SQL rows; registered timestamp compared against maximum original created_ns. Stage/completeness and current staleness labels inspected but not independently reimplemented. No claim that recorded stages prove which app ran.",
+  "source_preservation": {
+    "registered_original": {
+      "files": 131,
+      "byte_identical": true
+    },
+    "unregistered_original_and_copy_files": 7,
+    "conversion_bytes_unchanged": true
+  },
+  "original_files_checked_outside_namespace": {
+    "measured_project": 131,
+    "conversion": 7
+  },
+  "private_sqlite_sidecar_changes": [
+    {
+      "path": "artifacts.db-shm",
+      "change": "removed",
+      "before": {
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      },
+      "after": null
+    },
+    {
+      "path": "artifacts.db-wal",
+      "change": "removed",
+      "before": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "after": null
+    }
+  ],
+  "scan_counts": [
+    0,
+    0,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2
+  ],
+  "numeric_size_sorts": [
+    {
+      "descending": false,
+      "roots": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/data_manager_runs/real-project-l_n_ck_l/search/converted_images",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project"
+      ],
+      "bytes": [
+        32005122,
+        91113254
+      ]
+    },
+    {
+      "descending": true,
+      "roots": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/data_manager_runs/real-project-l_n_ck_l/search/converted_images"
+      ],
+      "bytes": [
+        91113254,
+        32005122
+      ]
+    }
+  ],
+  "double_click_project_chosen": [
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project"
+  ],
+  "double_click_browser_still_visible": true,
+  "rescan_selected_row_empty_detail": [
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project"
+  ],
+  "selected_row_workaround": "Actual click on other row then original row; no direct show_detail call or application edit.",
+  "remaining_workers": 0,
+  "guard_tests": {
+    "passed": 19,
+    "deliberately_bypassed_comparisons_failed": 19,
+    "restored_passed": 19
+  },
+  "earlier_attempts": [
+    "Initial preparation rejected seven files because the first inventory omitted the hidden conversion checkpoint; all seven were copied and guard corrected, no input deletion.",
+    "project_browser_real_discovery stopped on a verifier assumption that raw conversion must have a filesystem run timestamp. Actual output has no declared-output timestamp and no registry; corrected source-pinned expectation.",
+    "project_browser_verified_provenance stopped on recent roots inherited from the preceding isolated attempt. Project Browser now gets a fresh per-capture XDG config, preserving earlier config.",
+    "project_browser_native_inventory found actual retained table selection with blank details after rescan; accepted recording uses real alternate-row selection and discloses it."
+  ],
+  "visual_review": "Parent viewed unregistered detail, both project rows, expanded registered detail and complete stage/next-step list at native 4K; no clipped field content in selected narration focuses.",
+  "real_dataset_notes": [
+    "Converted example is four acquired channel TIFFs plus conversion map, run status and hidden checkpoint. Its actual successful conversion is demonstrated in Batch Runner37, despite this browser saying nothing run/never.",
+    "Measured example comes from External Masks31; mask outputs being present does not mean segmentation was executed in Mask.",
+    "Different genuine examples, not a before/after experiment or comparison of scientific performance."
+  ],
+  "app_source_modified": false,
+  "analysis_run": false,
+  "published": false
+}

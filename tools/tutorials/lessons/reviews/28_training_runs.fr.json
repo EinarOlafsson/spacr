@@ -1,0 +1,40 @@
+{
+  "lesson": "28_training_runs",
+  "english_sha256": "bfd4577f24cda15426fb3ce671f5fed9b5d30194aad42e78bfe98ffb932b88b6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Training Runs : comparer courbes et paramètres",
+  "description": "Chargez des journaux d’entraînement, superposez des métriques, comparez les paramètres et explorez les plis de validation croisée.",
+  "objectives": [
+    "Trouver les exécutions enregistrées et sélectionner celles à comparer.",
+    "Superposer les métriques d’entraînement et de validation et examiner les différences de paramètres.",
+    "Passer des plis individuels à leur moyenne et écart type."
+  ],
+  "prerequisite": "Téléchargez et extrayez l’exemple synthétique Training Runs lié. Ses courbes sont des données d’exercice. Pour votre propre analyse, sélectionnez un dossier parent contenant les fichiers train.csv et validation.csv enregistrés avec les paramètres de chaque exécution. Conservez des résultats d’évaluation indépendants avec votre modèle pour juger ses performances.",
+  "scenes": [
+    "Depuis Home, ouvrez Classify, puis Training Runs. Utilisez cet outil pour comparer les journaux de progression et les paramètres d’entraînements enregistrés. L’échantillon lié contient des courbes synthétiques pour vous exercer aux commandes.",
+    "Parcourez l’écran dans l’ordre : choisissez un dossier pour trouver les exécutions, cochez-les dans la liste, puis choisissez Metric et Folds et cliquez sur Overlay selected. Commencez par le dossier parent qui contient vos exécutions.",
+    "Extrayez l’échantillon lié et cliquez sur Choose folder. Sélectionnez son dossier training_runs, puis confirmez. Pour vos propres projets, sélectionnez un dossier parent contenant les dossiers d’exécution et leurs journaux CSV enregistrés.",
+    "Analysez le dossier et inspectez les exécutions trouvées. L’échantillon contient les exemples baseline, tuned et cross_validated, ainsi qu’une entrée incomplète. Sélectionnez les exécutions utilisables que vous voulez comparer.",
+    "Lisez les avertissements sur les entrées incomplètes. L’absence de train.csv, de validation.csv ou des paramètres peut empêcher l’affichage des courbes ou des paramètres. Retrouvez le dossier d’exécution complet avant de l’ajouter à une comparaison.",
+    "Cochez baseline et tuned, puis choisissez accuracy dans Metric. Le menu liste les colonnes numériques disponibles dans les journaux sélectionnés. Choisissez loss ou une autre métrique enregistrée lorsqu’elle répond à votre question de comparaison.",
+    "Cliquez sur Overlay selected. Les courbes d’entraînement sont en pointillés et les courbes de validation en traits pleins. Repérez chaque exécution et chaque partition dans la légende. Chaque courbe s’arrête à sa propre dernière époque enregistrée.",
+    "Examinez la comparaison des paramètres sous le graphique. Elle met en évidence les différences, comme la taille de lot, le nombre d’époques et le taux d’apprentissage. Servez-vous-en pour repérer ce qui a changé entre les exécutions avant d’interpréter leurs courbes.",
+    "La ligne de l’environnement distingue les paramètres d’exécution, comme le nombre de processus, de la configuration d’entraînement. Lisez-la avec les différences de configuration lorsque vous comparez des exécutions réalisées sur des machines différentes.",
+    "Cliquez sur une courbe de validation pour voir ses dernières et meilleures valeurs enregistrées et leurs époques. Appliquez la même règle de sélection pour comparer les exécutions. Évaluez un point de contrôle sélectionné sur des données indépendantes pour juger ses performances.",
+    "Choisissez loss dans Metric pour mettre à jour l’axe vertical et la superposition. Comparez les trajectoires d’entraînement et de validation, y compris leur direction vers la fin de l’entraînement.",
+    "Sélectionnez tuned et cross_validated, choisissez accuracy, puis cliquez sur Overlay selected. Ouvrez Folds et choisissez d’afficher les plis individuels, leur moyenne et leur écart type, ou les deux.",
+    "Choisissez la moyenne plus ou moins l’écart type pour résumer les courbes des plis. Chaque bande montre un écart type d’échantillon entre les plis disponibles à cette époque. Lisez la bande comme la variation entre les plis.",
+    "Choisissez les deux pour afficher les courbes des plis individuels avec leur moyenne. Comparez les plis pour voir si un résumé masque une exécution à la trajectoire différente.",
+    "Choisissez l’affichage par pli pour ne montrer que les courbes individuelles. La comparaison des paramètres se met à jour avec les exécutions sélectionnées. Tenez compte de la plage d’époques de chaque courbe lorsque vous comparez le moment où l’entraînement s’est arrêté.",
+    "Revenez à Metric pour comparer une autre grandeur enregistrée, ou changez les exécutions sélectionnées pour resserrer la comparaison. Gardez ensemble les journaux CSV d’origine et les paramètres pour pouvoir rouvrir la même comparaison.",
+    "Pour une analyse par script, utilisez find_runs et load_run dans spacr.train_compare, puis compare_runs et plot_curves. Conservez la comparaison avec votre modèle et des résultats d’évaluation indépendants lorsque vous choisissez la configuration d’entraînement suivante."
+  ]
+}

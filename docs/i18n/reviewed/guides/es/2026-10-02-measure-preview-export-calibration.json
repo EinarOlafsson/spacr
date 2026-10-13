@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "language": "es",
+  "method": "Direct Codex AI technical translation with independent Codex AI technical peer review; no human or native-speaker signoff. Standard guide import and gates unchanged.",
+  "draft_author": "merge_interfaces",
+  "independent_reviewer": "root",
+  "draft_sha256": "a7090e4a29e168979a90ebe304f7d98f56dbc7b8cb641b7ddc85ec5c07a4a29c",
+  "reviewed_sha256": "a7090e4a29e168979a90ebe304f7d98f56dbc7b8cb641b7ddc85ec5c07a4a29c",
+  "source_files": {
+    "docs/source/measure_live.rst": "156035ba6d69fe076dadf0066521eb689b05581cbe25a223b3047da79718f9e8"
+  },
+  "runtime_catalog_sha256": "ed57b8de0225263736bbecddc228372557709ecde7083d4021eeffed838ffa44",
+  "records": [
+    {
+      "index": 0,
+      "domain": "measure_live",
+      "source": "Preview and export unmixed crops",
+      "source_sha256": "f9f0a86e7889a7ab6c5b9108cb6c72b5dbc1d137626264db2696cd1ec5f58aff",
+      "original_draft": "Previsualizar y exportar recortes con separación espectral",
+      "target": "Previsualizar y exportar recortes con separación espectral",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged.",
+      "source_sha256": "9cc2e0f7d40c882fe3777428d84c09fe27a13b1d150450bb2bd620267111553b",
+      "original_draft": "Con **Mostrar funciones alfa** activado, establezca ``unmix=True`` y configure ``unmix_controls`` en el formulario **Medición**. Alterne **Vista con separación espectral** para usar esos controles de tinción única en la vista previa de los recortes. La visualización predeterminada no aplica separación espectral. Se informa de los controles no válidos o ausentes. Este interruptor solo cambia la visualización; deja intactos la configuración de la ejecución, las matrices de origen y los PNG de salida del procesamiento por lotes.",
+      "target": "Con **Mostrar funciones alfa** activado, establezca ``unmix=True`` y configure ``unmix_controls`` en el formulario **Medición**. Alterne **Vista con separación espectral** para usar esos controles de tinción única en la vista previa de los recortes. La visualización predeterminada no aplica separación espectral. Se informa de los controles no válidos o ausentes. Este interruptor solo cambia la visualización; deja intactos la configuración de la ejecución, las matrices de origen y los PNG de salida del procesamiento por lotes.",
+      "ui": {
+        "Show alpha features": "Mostrar funciones alfa",
+        "Measure": "Medición",
+        "Unmixed display": "Vista con separación espectral"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "measure_live",
+      "source": "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged.",
+      "source_sha256": "0137b941fdfda25b2abe2d543b2fe916f0dbffbd8b685be8ee2043142c10f03f",
+      "original_draft": "Cuando termine la vista previa, elija **Exportar recortes mostrados…**, seleccione una carpeta contenedora e introduzca el nombre de una carpeta nueva. Solo se exportan los recortes de la vista previa completada, con los colores mostrados y sus píxeles sin separación espectral o con ella. ``provenance.json`` registra las rutas de origen, las identidades de los objetos, la configuración de visualización y la información de separación espectral. Se rechazan las carpetas ya existentes. Cancelar o cambiar la vista previa descarta una exportación incompleta; los archivos de origen y las salidas por lotes permanecen intactos.",
+      "target": "Cuando termine la vista previa, elija **Exportar recortes mostrados…**, seleccione una carpeta contenedora e introduzca el nombre de una carpeta nueva. Solo se exportan los recortes de la vista previa completada, con los colores mostrados y sus píxeles sin separación espectral o con ella. ``provenance.json`` registra las rutas de origen, las identidades de los objetos, la configuración de visualización y la información de separación espectral. Se rechazan las carpetas ya existentes. Cancelar o cambiar la vista previa descarta una exportación incompleta; los archivos de origen y las salidas por lotes permanecen intactos.",
+      "ui": {
+        "Export displayed crops…": "Exportar recortes mostrados…"
+      }
+    },
+    {
+      "index": 3,
+      "domain": "measure_live",
+      "source": "Preview reference-well calibration",
+      "source_sha256": "bae1cd22994d228c8e96460b42666421695b498ef6e9230b6811e44d04922963",
+      "original_draft": "Previsualizar la calibración con pocillos de referencia",
+      "target": "Previsualizar la calibración con pocillos de referencia",
+      "ui": {}
+    },
+    {
+      "index": 4,
+      "domain": "measure_live",
+      "source": "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings.",
+      "source_sha256": "596b4f770967b84a76d6e345ea4c2ac650410c13028421c4a19dd6be062e4574",
+      "original_draft": "Con **Mostrar funciones alfa** activado, active ``intensity_calibration`` y configure los pocillos de referencia, el offset de la cámara y el estadístico en el formulario **Medición**. Desactive **Modo de prueba** y elija **Vista previa** junto a **Pocillos de calibración de intensidad**. Use una carpeta de ejecución local o su carpeta ``merged``. La vista previa lee la configuración actual sin ejecutar **Medición** ni escribir imágenes, mediciones o ajustes.",
+      "target": "Con **Mostrar funciones alfa** activado, active ``intensity_calibration`` y configure los pocillos de referencia, el offset de la cámara y el estadístico en el formulario **Medición**. Desactive **Modo de prueba** y elija **Vista previa** junto a **Pocillos de calibración de intensidad**. Use una carpeta de ejecución local o su carpeta ``merged``. La vista previa lee la configuración actual sin ejecutar **Medición** ni escribir imágenes, mediciones o ajustes.",
+      "ui": {
+        "Show alpha features": "Mostrar funciones alfa",
+        "Measure": "Medición",
+        "Test mode": "Modo de prueba",
+        "Preview": "Vista previa",
+        "Intensity calibration wells": "Pocillos de calibración de intensidad"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "measure_live",
+      "source": "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop.",
+      "source_sha256": "6e93ba2104a5a978e7bc128eab0fb5c08c9ead258ea906d6d60ca8008d97ca1f",
+      "original_draft": "Cada carpeta de origen se planifica por separado. La primera placa por orden de nombre es la referencia. La tabla muestra el factor de ganancia multiplicativo, el estadístico de referencia y el número de campos de imagen de referencia de cada placa y canal. Cambiar la configuración invalida el resultado. **Cancelar** descarta la vista previa mientras cualquier exploración de archivos de origen ya iniciada termina de forma segura; al volver a abrirla se espera a que termine esa exploración.",
+      "target": "Cada carpeta de origen se planifica por separado. La primera placa por orden de nombre es la referencia. La tabla muestra el factor de ganancia multiplicativo, el estadístico de referencia y el número de campos de imagen de referencia de cada placa y canal. Cambiar la configuración invalida el resultado. **Cancelar** descarta la vista previa mientras cualquier exploración de archivos de origen ya iniciada termina de forma segura; al volver a abrirla se espera a que termine esa exploración.",
+      "ui": {
+        "Cancel": "Cancelar"
+      }
+    }
+  ],
+  "peer_review": {
+    "reviewer": "root",
+    "accepted_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "draft_sha256": "a7090e4a29e168979a90ebe304f7d98f56dbc7b8cb641b7ddc85ec5c07a4a29c",
+    "decision": "Accepted technical meanings, exact UI labels, literals and safeguards; no native-speaker signoff."
+  },
+  "peer_review_receipt_sha256": "f1c4acd71d31595309432444106a3407d74132dc49f734e901b1de0a548f3feb"
+}

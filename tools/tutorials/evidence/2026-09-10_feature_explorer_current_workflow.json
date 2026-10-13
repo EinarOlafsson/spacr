@@ -1,0 +1,397 @@
+{
+  "lesson": "65_feature_explorer",
+  "scope": "Verified real GUI workflow and English script; multilingual media still pending",
+  "capture": "feature_explorer_verified_scope_switch",
+  "provenance": {
+    "commit": "738b4ff7240ae7101e304ce592b9309f5cc3f9a8",
+    "version": "1.5.0.4",
+    "module": "feature_explorer",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "scenes": 14,
+  "spoken_words": 682,
+  "source": {
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+    "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/feature_explorer_runs/real-measurements-yuy3q50t/measurements.db",
+    "source_bundle": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+        "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+        "signature": [
+          66306,
+          33957043,
+          30629888,
+          1788972666110587305,
+          1788972666110587305
+        ]
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "signature": [
+          66306,
+          33962636,
+          0,
+          1788973501772441799,
+          1788973501772441799
+        ]
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "signature": [
+          66306,
+          33962707,
+          32768,
+          1788982325621416451,
+          1788982325621416451
+        ]
+      }
+    },
+    "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "copy_is_byte_identical": true,
+    "source_opened_in_gui": false
+  },
+  "source_bytes": 30629888,
+  "ranking_checks": {
+    "initial": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 20,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "top4": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 4,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "all": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 261,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "ks": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 261,
+      "statistic": "ks",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "restored_auc": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 261,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "area_filtered": {
+      "rows": 1171,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 255,
+      "returned": 255,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_cv_intensity",
+        "cell_channel_3_percentile_75"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "cleared_area": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 261,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "restored_classes": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 261,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "derived_area": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 262,
+      "returned": 262,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    },
+    "formula_removed": {
+      "rows": 2341,
+      "label": "rowID",
+      "classes": [
+        "r12",
+        "r5"
+      ],
+      "considered": 261,
+      "returned": 261,
+      "statistic": "auc",
+      "max_numeric_error": 0.0,
+      "top_features": [
+        "cell_channel_3_std_intensity",
+        "cell_channel_3_percentile_95",
+        "cell_channel_3_gini_intensity",
+        "cell_channel_3_percentile_85",
+        "cell_channel_3_entropy_intensity",
+        "cell_channel_3_iqr_intensity",
+        "cell_channel_3_percentile_75",
+        "cell_channel_3_cv_intensity"
+      ],
+      "no_independent_well_level_or_causal_inference_claimed": true
+    }
+  },
+  "exports": {
+    "06_top_four_ranking": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/feature_explorer_runs/real-measurements-yuy3q50t/06_top_four_ranking.csv",
+      "rows": 4,
+      "columns": [
+        "feature",
+        "rank",
+        "separation",
+        "statistic",
+        "auc",
+        "cohen_d",
+        "ks",
+        "mutual_info",
+        "higher_in",
+        "against",
+        "min_n",
+        "shape_not_shift"
+      ],
+      "sha256": "71adf56bf013e566d886299bfb808ae28ee00a9f67fbc7b8633c4f26bf4d9f30",
+      "all_cells_match_current_ranking": true
+    },
+    "08_full_ranking": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/feature_explorer_runs/real-measurements-yuy3q50t/08_full_ranking.csv",
+      "rows": 261,
+      "columns": [
+        "feature",
+        "rank",
+        "separation",
+        "statistic",
+        "auc",
+        "cohen_d",
+        "ks",
+        "mutual_info",
+        "higher_in",
+        "against",
+        "min_n",
+        "shape_not_shift"
+      ],
+      "sha256": "07ecee74990b3b7df807d1f0b590d2a70fd0efdc3edfffeecf4639ecfc44891c",
+      "all_cells_match_current_ranking": true
+    },
+    "16_ranking_with_derived_area": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/feature_explorer_runs/real-measurements-yuy3q50t/16_ranking_with_derived_area.csv",
+      "rows": 262,
+      "columns": [
+        "feature",
+        "rank",
+        "separation",
+        "statistic",
+        "auc",
+        "cohen_d",
+        "ks",
+        "mutual_info",
+        "higher_in",
+        "against",
+        "min_n",
+        "shape_not_shift"
+      ],
+      "sha256": "921e5e8a5db77f7f28a1be94b8c0b06b78b63043cbffc34c559c6d46b8215282",
+      "all_cells_match_current_ranking": true
+    }
+  },
+  "one_class_filter_observation": {
+    "selected_label": "cell_channel_0_maxima_count",
+    "summary": "254 features over 1,201 objects, split by cell_channel_0_maxima_count into 8 classes \u00b7 8 could not be scored \u00b7 ranking 254 features means 254 comparisons with one read; turn on the label-shuffling null to see what the best of them reaches by chance \u00b7 the smallest class has 1 object(s); a separation over that is an anecdote with a number on it",
+    "result_label": "cell_channel_0_maxima_count",
+    "independently_counted_classes": {
+      "20": 1188,
+      "14": 2,
+      "19": 2,
+      "9": 3,
+      "17": 1,
+      "15": 3,
+      "3": 1,
+      "12": 1
+    },
+    "multiclass_scores_not_independently_validated": true,
+    "not_presented_as_evidence_of_biological_separation": true
+  },
+  "label_after_clear": "cell_channel_2_maxima_count",
+  "area_threshold": 21925.0,
+  "ranking_events": 18,
+  "remaining_workers": 0,
+  "acceptance_sha256": "9cd0350ff3d4ac47aac1a0a139932b3bb5cdfe9c16304ed09a8144fb4fb44315",
+  "tests": {
+    "passed": 20,
+    "actual_three_guard_bypass_failed": 16,
+    "bypass_unaffected_positive_tests_passed": 4,
+    "restored_passed": 20,
+    "guard_raise_lines_measured_executed": [
+      52,
+      57,
+      61
+    ]
+  },
+  "notes": [
+    "Actual Home Classify tile then real Feature Explorer fold, actual file pickers and controls. No application source modified.",
+    "Actual 2341 cell rows and276 columns from downloaded Annotate example, two spatial rowID classes r12/r5, not asserted treatments or independent experiments.",
+    "Independent two-class AUC via bisect pair counting, KS via empirical CDFs, exact feature order, finite class counts, Top/population counts; max error0 throughout. Cohen d and mutual information exported values match GUI ranking but are not independently reimplemented. Histogram geometry inspected visually; shared-bin implementation read, not separately numerically reimplemented.",
+    "263 numeric candidate columns yield261 scorable features; Top4 export4, Top500 export261. Area>=21925 retains1171 rows and255 features; clearing restores2341/261.",
+    "Filtering rowID to r12 automatically switches to cell_channel_0_maxima_count,8 classes among1201 rows, smallest1. Counts independently checked; multiclass scores not independently validated or represented as biological separation. Clearing switches again to cell_channel_2_maxima_count; actual rowID selector restores intended comparison.",
+    "Computed area_k=cell_area/1e3, replace off, every2341 derived value verified;262 ranked/exported features; AUC/KS exactly preserved; removing formula restores261. Native preview first2000 only, full add uses2341.",
+    "20 tests pass; all16 negative assertions fail under actual guard bypass; restored green and raise lines measured. No concurrent full coverage.",
+    "Two earlier captures deliberately stopped at the unanticipated one-class comparison switch; neither is staged. The first expected a refusal, the second incorrectly predicted columnID; accepted third names the actual maxima-count groups.",
+    "Header boundaries double-clicked through native input for readable statistic names; short formula name chosen to fit existing fixed-width Columns pane. Original and private DB hashes unchanged; no source deletion, classifier training, Shuffle test, AI request or image-analysis run."
+  ],
+  "published": false
+}

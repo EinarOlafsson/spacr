@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source": "Settings read only when an object is segmented by a legacy Cellpose 3 model -- cyto, cyto2, cyto3, nuclei or a Cellpose 3 weights file -- chosen from the model zoo's cellpose3 heading, which writes cellpose3:<model> into the object's model setting. They stay hidden until one is chosen. The object's diameter, flow and cell probability thresholds still apply.",
+      "source_sha256": "bb16dfc3cce467afa5bc2d1399699e182c9ce11869a5c80ef7b58161748b27a8",
+      "translation": "仅当对象由旧版 Cellpose 3 模型分割时才读取的设置 -- cyto、cyto2、cyto3、nuclei 或 Cellpose 3 权重文件 -- 这些模型从模型库的 cellpose3 标题下选择，选择后会将 cellpose3:<model> 写入该对象的模型设置。在选中此类模型之前，这些设置保持隐藏。对象的直径、流阈值和细胞概率阈值仍然适用。"
+    },
+    {
+      "table": "categories",
+      "key": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source": "The image enhancement chain Make Masks tunes, applied unchanged to every selected segmentation channel after illumination correction and before normalization: background subtraction, the PSF, denoising, the contrast curves and sharpening, in that fixed order. Every step is off by default. Raw images and measurement intensities remain unchanged; the mask provenance records which steps ran, and a resumed run refuses inputs made with a different chain.",
+      "source_sha256": "18ed875c964abc8cb6f32f6e27fc59d69e6117b66baf69cf124a8c94ea6fd514",
+      "translation": "由创建掩膜 (Make Masks) 调整的图像增强链，在光照校正之后、归一化之前原样应用于每个所选分割通道：背景扣除、PSF、降噪、对比度曲线和锐化，按此固定顺序执行。每个步骤默认关闭。原始图像和测量强度保持不变；掩膜溯源信息会记录运行了哪些步骤，恢复的运行会拒绝使用不同增强链生成的输入。"
+    }
+  ]
+}

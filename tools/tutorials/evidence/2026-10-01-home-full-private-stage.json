@@ -1,0 +1,610 @@
+{
+  "accepted_stage": true,
+  "published": false,
+  "scene_count": 14,
+  "source_commit": "556001760cd93708d2e37684098e67d0032a26f2",
+  "source_sha256": {
+    "tools/tutorials/lessons/05_home.json": "6afb98b447553e15b869f94b63cd3eccda408d2d9d787e24609da80c1a39bd17",
+    "tools/tutorials/capture_home_lesson.py": "49cde9475e0960a556c63c8859fc7f0ff58b966f24562ab476eb2ccb5c047696",
+    "tools/tutorials/capture_refresh.py": "5a060684c88515c1b6102e9d17420574343879089ea76cee0021de015711eada",
+    "tools/tutorials/capture_home.py": "69f93a1c06d4a3a5c8f1ed83d1a4ca00b1d3fe6bc3870bc13aba74bd164d14c2"
+  },
+  "platform": "offscreen",
+  "user_files": "read-only namespace; writable private application paths only",
+  "duration": 247.8,
+  "timeline": [
+    {
+      "scene": 1,
+      "visual": "00_home",
+      "start": 0.0,
+      "duration": 17.9,
+      "narration": "Home is your starting point. Click a tile to open a module, or use the sidebar on the left. Click Home in the sidebar to return here. The Core, Data, Tools and Assays tabs help you find the task you want to do.",
+      "source_sha256": "be2df7e8265df5cdcec656e732a0a525ebe5c4aae7b41024ad33527b005a024f",
+      "review_frame_sha256": "5ed52fda14ede5251c38b14aa5561d8bffc3a2989dd59f298acc94795c222042",
+      "focus": null
+    },
+    {
+      "scene": 2,
+      "visual": "01_core  (6)",
+      "start": 17.9,
+      "duration": 20.7,
+      "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+      "source_sha256": "081700e968a73cbacb811f7f02a77ec5fd106abaf8c4bf4b12a5fa53215f6f93",
+      "review_frame_sha256": "59eeb376e2996c551ef616ca30f0f1960af666a970abd94c0ae98b30c4371d50",
+      "focus": [
+        378,
+        318,
+        1738,
+        186
+      ]
+    },
+    {
+      "scene": 3,
+      "visual": "02_data  (7)",
+      "start": 38.6,
+      "duration": 22.7,
+      "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+      "source_sha256": "6358ff1ede442ec2a82ccac9fd889675f507b705e03cfc4609c878bca63f54af",
+      "review_frame_sha256": "af558c64f30d1241ebd5aac1399797b5f89235b30f24750a6093b3475c5f58db",
+      "focus": [
+        378,
+        318,
+        2026,
+        186
+      ]
+    },
+    {
+      "scene": 4,
+      "visual": "03_tools  (5)",
+      "start": 61.3,
+      "duration": 22.7,
+      "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+      "source_sha256": "ddf9c9f4b88ee1812db451dd284d100f316e464b6b3e706b37177075b916c337",
+      "review_frame_sha256": "ebbcd1a4f39b41ea49f54c05e2c01fae139851b3775472a3c72acfdcdeb20fd0",
+      "focus": [
+        378,
+        318,
+        1450,
+        186
+      ]
+    },
+    {
+      "scene": 5,
+      "visual": "04_assays  (3)",
+      "start": 84.0,
+      "duration": 17.1,
+      "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+      "source_sha256": "bffb65d658561dd905ab4010e7d1fd34ed496e2722a50ffd64849f14280ffd66",
+      "review_frame_sha256": "fc4bb6dcc04283b9666010d48bd0275789c66dc4e939edf65e56324fd1c551f8",
+      "focus": [
+        378,
+        318,
+        871,
+        186
+      ]
+    },
+    {
+      "scene": 6,
+      "visual": "05_classify_host",
+      "start": 101.1,
+      "duration": 15.5,
+      "narration": "Open Classify and use Classifier family to choose your input. Select Computer Vision for object images, or Tabular Machine Learning for measured feature columns. The linked tutorials take you through training, evaluation and scoring for each family.",
+      "source_sha256": "ce292d462f7383af0210bf1361795757e41fa64ecfe834cd5c86cbf5f4b41f71",
+      "review_frame_sha256": "a9c66e674ad5fefe6ac7eb58001d1763ec21b9c34c98d964585052dd12906b9e",
+      "focus": null
+    },
+    {
+      "scene": 7,
+      "visual": "05_classify_host",
+      "start": 116.6,
+      "duration": 21.9,
+      "narration": "Once a model is trained, Classify's toolbar helps you question it. Classifier Evaluation shows how it did on held-out data, Explain CV Model and Activation show what drives its calls, Training Runs compares training histories, and Feature Explorer ranks the features that separate your groups. Hover over an icon to see its name.",
+      "source_sha256": "ce292d462f7383af0210bf1361795757e41fa64ecfe834cd5c86cbf5f4b41f71",
+      "review_frame_sha256": "ad769a67d0f27a5e033780ffa0b5c006bed89d7e8be4c494ed7a99242c370b89",
+      "focus": [
+        3388,
+        76,
+        436,
+        76
+      ]
+    },
+    {
+      "scene": 8,
+      "visual": "06_mask_host",
+      "start": 138.5,
+      "duration": 20.3,
+      "narration": "To try a module, click Load test data when it is available. Wait for the download to finish, then review the filled inputs and settings. In Mask, click Live to inspect a field before pressing Run. Turn on Time for a time series or three-D for a volumetric image.",
+      "source_sha256": "c6d940e7f053d5f0cb814ffffd48d16ce0f20308e10effc576e0a8db4d60e6b7",
+      "review_frame_sha256": "69741e3fa7a53584fb86a770bba160a16acea135e0bc82d607d0df4e96dc7233",
+      "focus": null
+    },
+    {
+      "scene": 9,
+      "visual": "08_help_search",
+      "start": 158.8,
+      "duration": 15.9,
+      "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
+      "source_sha256": "c9c471869d9eb22ba62e795092a58cec45a670efe057f66b2b57e75090d40026",
+      "review_frame_sha256": "e6ac5b3f080558bca63f49597f3b72cc68d22c7d8e6ff9d7a0b23b7dd97a2b00",
+      "focus": null
+    },
+    {
+      "scene": 10,
+      "visual": "09_performance",
+      "start": 174.7,
+      "duration": 17.1,
+      "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+      "source_sha256": "a83a91e65b9cfaf0e4fed27c8746bcb9dcffbd2e5faf2b2f365e828aed91a2fb",
+      "review_frame_sha256": "a96e43c890e10bcc84d6a294cacb740def70d71f6f9fbc1ba843d0715c3da970",
+      "focus": [
+        1322,
+        482,
+        1200,
+        1200
+      ]
+    },
+    {
+      "scene": 11,
+      "visual": "10_appearance_categories",
+      "start": 191.8,
+      "duration": 12.3,
+      "narration": "Open Appearance in Preferences to adjust the interface. Theme and Animation are collapsible sections on this page. Click a section heading to open its controls or fold them away.",
+      "source_sha256": "22ff1633312a984df56618b586fc67d07ba4187e0da1126545a4143aeec9a466",
+      "review_frame_sha256": "a68749cce5d8d2222f418824ae6d2ae9af2cbe221f4768c30d09de9ea355635a",
+      "focus": [
+        1322,
+        482,
+        1200,
+        1200
+      ]
+    },
+    {
+      "scene": 12,
+      "visual": "11_appearance_theme",
+      "start": 204.1,
+      "duration": 10.7,
+      "narration": "Open Theme to choose the interface theme and page opacity. The same section holds the window rim controls, including its length, alignment and glow mode.",
+      "source_sha256": "fb105ccbff23324ab9176526d5536d891800a686571ec9a415cb0f47387b2b2a",
+      "review_frame_sha256": "ca2d7bdb3985d35bd6c961c81dce5179bb90a4eb70ccfab7b358279a18904da5",
+      "focus": [
+        1322,
+        482,
+        1200,
+        1200
+      ]
+    },
+    {
+      "scene": 13,
+      "visual": "12_appearance_animation",
+      "start": 214.8,
+      "duration": 13.5,
+      "narration": "Open Animation to choose the animated backdrop and its palette. Adjust its detail, blur, speed, size and density here. You can also choose whether setting tooltips animate and select a settings backdrop.",
+      "source_sha256": "3139fcbb28af8e500bd01446f90f9a87c896e192f6e4aa41ff04cff7aa8b1072",
+      "review_frame_sha256": "04274df3456f6b6618a9c63c6c283f1f8c17c1ea61c9a7036b845c53ed24f395",
+      "focus": [
+        1322,
+        482,
+        1200,
+        1200
+      ]
+    },
+    {
+      "scene": 14,
+      "visual": "00_home",
+      "start": 228.3,
+      "duration": 19.5,
+      "narration": "Return to Home and click Pipeline overviews to choose a workflow. Start with spaCR screens for a pooled image-based screen, or choose an image-analysis or sequencing pathway for your data. The next tutorials show how those modules connect, and the module lessons then walk through each task.",
+      "source_sha256": "be2df7e8265df5cdcec656e732a0a525ebe5c4aae7b41024ad33527b005a024f",
+      "review_frame_sha256": "1b69614f8a8e7604773944bb23e94a93279ee07b7d9f9b7dc0a20ebaf0b6eb68",
+      "focus": [
+        3341,
+        180,
+        499,
+        96
+      ]
+    }
+  ],
+  "video_sha256": "b6a23da48959c65b3f0110b13230a6f936bef94877552a314123d186c5cadbf0",
+  "captions_sha256": "320b87126914c6d59fc88c9a75bbc924a3a1eab2aa01cd9a41ee660bb0fd37eb",
+  "probe": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "width": 1920,
+        "height": 1080,
+        "coded_width": 1920,
+        "coded_height": 1080,
+        "closed_captions": 0,
+        "has_b_frames": 2,
+        "pix_fmt": "yuv420p",
+        "level": 40,
+        "chroma_location": "left",
+        "refs": 1,
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "r_frame_rate": "10/1",
+        "avg_frame_rate": "10/1",
+        "time_base": "1/10240",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 2537472,
+        "duration": "247.800000",
+        "bit_rate": "38793",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "2478",
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "vendor_id": "[0][0][0][0]"
+        }
+      }
+    ],
+    "format": {
+      "filename": "/tmp/spacr-ui-evidence/601/home-full-run2/review/home-silent.mp4",
+      "nb_streams": 1,
+      "nb_programs": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "247.800000",
+      "size": "1232255",
+      "bit_rate": "39782",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf58.76.100"
+      }
+    }
+  },
+  "remaining": [
+    "Translate new narration",
+    "Render and review matching narration for supported voices",
+    "Align captions to actual speech and verify player/media matrix",
+    "Publish paired catalog and media",
+    "Resolve recorded publication observations before treating this as a production master",
+    "Update platform-installer lesson consumers if their current masters still show the old Preferences layout"
+  ],
+  "date": "2026-10-01",
+  "item": 601,
+  "status": "complete_private_capture_partial_publication",
+  "private_stage": "/tmp/spacr-ui-evidence/601/home-full-run2",
+  "source_capture_size": [
+    3840,
+    2160
+  ],
+  "frames": {
+    "00_home": {
+      "image": "00_home.png",
+      "sha256": "be2df7e8265df5cdcec656e732a0a525ebe5c4aae7b41024ad33527b005a024f",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 24
+      }
+    },
+    "01_core  (6)": {
+      "image": "01_core  (6).png",
+      "sha256": "081700e968a73cbacb811f7f02a77ec5fd106abaf8c4bf4b12a5fa53215f6f93",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 33
+      }
+    },
+    "02_data  (7)": {
+      "image": "02_data  (7).png",
+      "sha256": "6358ff1ede442ec2a82ccac9fd889675f507b705e03cfc4609c878bca63f54af",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 42
+      }
+    },
+    "03_tools  (5)": {
+      "image": "03_tools  (5).png",
+      "sha256": "ddf9c9f4b88ee1812db451dd284d100f316e464b6b3e706b37177075b916c337",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 51
+      }
+    },
+    "04_assays  (3)": {
+      "image": "04_assays  (3).png",
+      "sha256": "bffb65d658561dd905ab4010e7d1fd34ed496e2722a50ffd64849f14280ffd66",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 60
+      }
+    },
+    "05_classify_host": {
+      "image": "05_classify_host.png",
+      "sha256": "ce292d462f7383af0210bf1361795757e41fa64ecfe834cd5c86cbf5f4b41f71",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 105
+      }
+    },
+    "06_mask_host": {
+      "image": "06_mask_host.png",
+      "sha256": "c6d940e7f053d5f0cb814ffffd48d16ce0f20308e10effc576e0a8db4d60e6b7",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 168
+      }
+    },
+    "07_help": {
+      "image": "07_help.png",
+      "sha256": "be0cc82c8510e6b4a96164883786325aca18c9888aea84484e31f3027aed95c3",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 186
+      }
+    },
+    "08_help_search": {
+      "image": "08_help_search.png",
+      "sha256": "c9c471869d9eb22ba62e795092a58cec45a670efe057f66b2b57e75090d40026",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 201
+      }
+    },
+    "09_performance": {
+      "image": "09_performance.png",
+      "sha256": "a83a91e65b9cfaf0e4fed27c8746bcb9dcffbd2e5faf2b2f365e828aed91a2fb",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 217
+      }
+    },
+    "10_appearance_categories": {
+      "image": "10_appearance_categories.png",
+      "sha256": "22ff1633312a984df56618b586fc67d07ba4187e0da1126545a4143aeec9a466",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 233
+      }
+    },
+    "11_appearance_theme": {
+      "image": "11_appearance_theme.png",
+      "sha256": "fb105ccbff23324ab9176526d5536d891800a686571ec9a415cb0f47387b2b2a",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 249
+      }
+    },
+    "12_appearance_animation": {
+      "image": "12_appearance_animation.png",
+      "sha256": "3139fcbb28af8e500bd01446f90f9a87c896e192f6e4aa41ff04cff7aa8b1072",
+      "capture_surface": "application_window",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 274
+      }
+    }
+  },
+  "resources": {
+    "command": [
+      "/home/carruthers/anaconda3/envs/spacr/bin/python",
+      "tools/tutorials/capture_home_lesson.py",
+      "--stage",
+      "/tmp/spacr-ui-evidence/601/home-full-run2"
+    ],
+    "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-red722612585f486fa831fbeeeab3cac1.scope",
+    "limits": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0",
+      "cpu_affinity": [
+        0
+      ],
+      "cpu.max": null,
+      "systemd_properties": [
+        "CPUQuotaPerSecUSec=1s",
+        "MemoryMax=4294967296",
+        "MemorySwapMax=0"
+      ]
+    }
+  },
+  "decoded_checks": {
+    "accepted": true,
+    "all_14_scene_midpoints_match_render_inputs": [
+      {
+        "scene": 1,
+        "per_channel_mean_absolute_error": [
+          1.181838348765432,
+          1.4413628472222222,
+          1.074513888888889
+        ],
+        "decoded_sha256": "4f57a20694b857aa7ac264a3c2277cc50a87ba054ff269f0030d643fe067d9ec"
+      },
+      {
+        "scene": 2,
+        "per_channel_mean_absolute_error": [
+          1.0552936921296296,
+          1.0403804976851851,
+          0.14856770833333333
+        ],
+        "decoded_sha256": "a0db622b0a6cae6a82310a4de732fbec4e88d823b3a9c4847f80b12578207742"
+      },
+      {
+        "scene": 3,
+        "per_channel_mean_absolute_error": [
+          1.0456221064814815,
+          1.0504865933641976,
+          0.1616753472222222
+        ],
+        "decoded_sha256": "2b6e2d722f4bdbd7dfdd66395028029910549dca3a663f5c1bd8ba80cff2baa6"
+      },
+      {
+        "scene": 4,
+        "per_channel_mean_absolute_error": [
+          1.0551075424382717,
+          1.0402594521604938,
+          0.13779658564814815
+        ],
+        "decoded_sha256": "eaf3b0979d1e6014d2db34ef9207e8d437fa9610ed0227842747186133ce0e67"
+      },
+      {
+        "scene": 5,
+        "per_channel_mean_absolute_error": [
+          1.0301523919753086,
+          1.030805362654321,
+          0.07644241898148148
+        ],
+        "decoded_sha256": "83b2efd1ece73ad525d7395bcd7f37d9468810c98e23fdcbf31690553965dc85"
+      },
+      {
+        "scene": 6,
+        "per_channel_mean_absolute_error": [
+          1.5395924961419754,
+          1.5695896026234568,
+          1.207710262345679
+        ],
+        "decoded_sha256": "57b6516c4e58f814b191e853fb7d16bd1b3887a9f281de0b91f1e71616c8a1fd"
+      },
+      {
+        "scene": 7,
+        "per_channel_mean_absolute_error": [
+          0.9882643711419753,
+          1.0038749035493828,
+          0.01714747299382716
+        ],
+        "decoded_sha256": "ef6d168f86aab2bee02f669475f64a7f79dfa3d639c542d5bc40debaf8038d60"
+      },
+      {
+        "scene": 8,
+        "per_channel_mean_absolute_error": [
+          1.3409538966049384,
+          1.4028370949074074,
+          1.2030598958333334
+        ],
+        "decoded_sha256": "6cce310d61068949f2219b211acf90d23d3914540d884fb412818b0a19486235"
+      },
+      {
+        "scene": 9,
+        "per_channel_mean_absolute_error": [
+          1.1877888695987655,
+          1.4000419560185184,
+          0.9624985532407407
+        ],
+        "decoded_sha256": "30da5209d5cfe2f363898b73625b64b7c25aa9c1ded92c1cd84923d94a580861"
+      },
+      {
+        "scene": 10,
+        "per_channel_mean_absolute_error": [
+          1.7991329089506174,
+          1.1807807677469135,
+          0.9928187692901235
+        ],
+        "decoded_sha256": "2ae16345248bc7a22f62a6c963e405456a38d607e91a49185f9c0c2b27fcf8b4"
+      },
+      {
+        "scene": 11,
+        "per_channel_mean_absolute_error": [
+          1.4953486689814814,
+          1.0371132330246913,
+          0.9929711612654321
+        ],
+        "decoded_sha256": "9869a5da4ac503bd1ab0c8ad3122787a026e0a20dfdcfc7c374560b9e01eaff4"
+      },
+      {
+        "scene": 12,
+        "per_channel_mean_absolute_error": [
+          1.4409201388888888,
+          1.1691526813271604,
+          0.8507677469135803
+        ],
+        "decoded_sha256": "50bb7867b02a330f047c8b25a6474a46f744b240aa2ab3fdf7cfec99b53dc3dd"
+      },
+      {
+        "scene": 13,
+        "per_channel_mean_absolute_error": [
+          1.45399112654321,
+          1.2156114969135803,
+          0.8519487847222222
+        ],
+        "decoded_sha256": "c4eaefd9d1fce07afa36107d2539acfc496ca15beaa6b77833e11e713bfba19e"
+      },
+      {
+        "scene": 14,
+        "per_channel_mean_absolute_error": [
+          1.0474011381172839,
+          1.0201128472222223,
+          0.10634837962962963
+        ],
+        "decoded_sha256": "c094b586f34c8668506ff27ae4402eee47cfe82c1e8c48e5459fb8aa60c4a14b"
+      }
+    ],
+    "caption_words_match_source_exactly": true,
+    "video_frames": "2478",
+    "audio_streams": 0
+  },
+  "profile_guard": {
+    "path": "/tmp/spacr-ui-evidence/601/home-full-run2/config/home/spacr/qt.conf",
+    "inside_private_stage": true
+  },
+  "visual_review": {
+    "all_14_review_stills_inspected": true,
+    "decoded_theme_scene_inspected": true,
+    "theme_animation_controls_readable": true,
+    "publication_observations": [
+      "Existing Classify screen has alpha-marked group headings even though capture policy verified Show alpha features is false; resolve tutorial policy treatment before publication.",
+      "Full-window Home/module scenes and small toolbar focus retain existing composition; publication player/zoom/readability still needs review.",
+      "The empty-source introduction on Classify/Mask is partly clipped in the real GUI; no screenshot pixels or application behavior were altered to hide this."
+    ]
+  },
+  "evidence_files": {
+    "/tmp/spacr-implementation-20261001/review/n601-home-full-run2.log": "4dff6c8da0c46bc22f0cc72f4e6f762cb5fcc03c3bd7f8ac131d4c4f685ca0ec",
+    "/tmp/spacr-ui-evidence/601/home-full-run2/home-focus.json": "e5deaff3393aedc060b138aef826694dd63c161abae71750c0bbd0fed7a429af",
+    "/tmp/spacr-ui-evidence/601/home-full-run2/captures/home/provenance.json": "d1182924ab8fedc9de5960e1a56825102393fa47b9f9428926a8045cca3a63d5",
+    "/tmp/spacr-ui-evidence/601/home-full-run2/review/decoded-review.json": "7869bdb11437c6b725d792b842f981b900fb60b340759f48b1ac46258e612c02",
+    "/tmp/spacr-ui-evidence/601/home-full-run2/captures/home/frames.json": "8d462e7b64e7765ca0ae1d6e9aee9367606b44589b37ff872630e6aa25b69d15"
+  },
+  "first_attempt": {
+    "log": "/tmp/spacr-implementation-20261001/review/n601-home-full.log",
+    "reason": "Read-only namespace had no writable temporary directory; exited before GUI. Added private TMPDIR, reran in fresh stage with unchanged4GiB/CPU0/zero-swap limits."
+  }
+}

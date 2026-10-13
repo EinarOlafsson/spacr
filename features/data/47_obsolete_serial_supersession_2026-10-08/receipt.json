@@ -1,0 +1,31 @@
+{
+  "artifact_id": 11530071440,
+  "artifact_name": "n47-qt-serial-37720605434-1",
+  "artifact_source_revision": "55badc57ff25ef6a7e14721561773a412b515318",
+  "begun_file_records": 757,
+  "completed_file_records": 756,
+  "conclusion": "cancelled",
+  "corrected_serial_job_id": 113161465305,
+  "corrected_serial_run_id": 37728434064,
+  "corrected_source_sha": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "last_completed_file": "tests/qt/test_every_picture_is_drawn_for_the_screen_it_is_on.py",
+  "last_file_begin": "tests/qt/test_every_popup_has_the_card_and_the_rim.py",
+  "limitations": "This is a cancelled 43% prefix, not a terminal pytest verdict or whole-suite memory acceptance. The partial artifact has no fatal Python log. No native cause is established.",
+  "max_recorded_hwm_bytes": 4410544128,
+  "max_recorded_rss_bytes": 4221161472,
+  "raw_job_log_sha256": "3ad03ae827e4b2857f9ac90ddc7a4c1b599516fc2898bcd22d0b467108cdb40c",
+  "recorded_failures": [
+    {
+      "nodeid": "tests/qt/test_distribution_smoke.py::test_source_ui_integration_runs_real_measurement",
+      "when": "call"
+    },
+    {
+      "nodeid": "tests/qt/test_dna_rain.py::test_a_broken_theme_lookup_does_not_break_the_switch",
+      "when": "call"
+    }
+  ],
+  "serial_job_id": 113127133917,
+  "serial_run_id": 37720605434,
+  "source_sha": "55badc57ff25ef6a7e14721561773a412b515318",
+  "status": "completed"
+}

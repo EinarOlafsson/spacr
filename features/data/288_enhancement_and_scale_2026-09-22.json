@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "source_commit": "8ad5d6fda034b9cc06b92fd15bb24fc7d7280483",
+  "languages": [
+    {
+      "language": "sv",
+      "new_rows": 10,
+      "source_bound_reviews": 10,
+      "live_caption_checks": 15,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "de",
+      "new_rows": 10,
+      "source_bound_reviews": 10,
+      "live_caption_checks": 15,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "new_rows": 10,
+      "source_bound_reviews": 10,
+      "live_caption_checks": 15,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "new_rows": 10,
+      "source_bound_reviews": 10,
+      "live_caption_checks": 15,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "new_rows": 10,
+      "source_bound_reviews": 10,
+      "live_caption_checks": 15,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "new_rows": 29,
+      "source_bound_reviews": 29,
+      "live_caption_checks": 34,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "new_rows": 26,
+      "source_bound_reviews": 26,
+      "live_caption_checks": 31,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "new_rows": 29,
+      "source_bound_reviews": 29,
+      "live_caption_checks": 34,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "new_rows": 10,
+      "source_bound_reviews": 10,
+      "live_caption_checks": 15,
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "enhancement_and_scale_sources": 10,
+  "additional_indirect_sources": 19,
+  "new_translation_rows": 144,
+  "existing_keep_revert_rows_verified": 45,
+  "english_inventory_changed": false,
+  "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off",
+  "full_catalog_acceptance": false,
+  "remaining": "Other form and detector guidance captions, full API locales, Make Masks reference coverage, tutorial translation/recording and media acceptance remain open."
+}

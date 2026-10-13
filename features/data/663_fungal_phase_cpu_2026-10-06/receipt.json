@@ -1,0 +1,20 @@
+{
+  "source_commit": "81c102068bbccb5f3569fa61a73ae684986aa9bc",
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "08815be8f5e01de4ae87517290197d3c1747eff65b4e39afbd5f2f0e1d3b8a28",
+    "tests/qt/test_ambient.py": "30bc9ee673b7cc681b4d25cead4c3723a46c5e5823cd318d62998e3b8c52e1ac",
+    "tests/qt/test_fungal_growth_engine.py": "dcf3734ef084e4c9dd64a26cc61d5e8f9d8e3dd667a56b8968ed8c56257a4f8c"
+  },
+  "result": "59 passed in 9.23s; CUDA hidden, offscreen Qt, 4GiB cap",
+  "renderer_changed": false,
+  "reason": "The old fixed minimum ink census predates connected fine common-origin filaments and measured only the young-growth phase.",
+  "checks": [
+    "nonempty, expanding, upward and widening early growth at2/9/30s",
+    "substantial mature and hour-later motion at90/97s and3600.33/3607.33s",
+    "at most30percent screen ink at all observed phases",
+    "dark/light at320x200 and960x600",
+    "empty, frozen-clock, mature-only-frozen and overfilled injected defects rejected",
+    "existing linked-parent/fork/bright-tip/density guards preserved"
+  ],
+  "remaining": "Final hosted acceptance and native4K hard24FPS remain open"
+}

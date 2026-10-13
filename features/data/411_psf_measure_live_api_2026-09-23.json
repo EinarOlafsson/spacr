@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "runtime_commits": [
+    "910a9673e4465f3a6894e907bbf6c01f78da1113",
+    "3196a95ef"
+  ],
+  "scope": "Current English API, UI source manifest, Help search, and practical PSF Measure/Live guide. Localized API debt remains registered with English fallback.",
+  "symbols": 11516,
+  "added": [
+    "spacr.psf_measurement",
+    "spacr.psf_measurement.measurement_psf_record",
+    "spacr.psf_measurement.measurement_psf_signature",
+    "spacr.psf_measurement.measurement_resume_settings",
+    "spacr.psf_measurement.prepare_measurement_psf",
+    "spacr.psf_measurement.validate_measurement_psf_history",
+    "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview"
+  ],
+  "changed": [
+    "spacr.measure.measure_crop",
+    "spacr.psf_pipeline.PSFPlan.apply"
+  ],
+  "removed": [],
+  "runtime_inventory": {
+    "SETTING_LABELS": 1046,
+    "SETTING_TOOLTIPS": 1068,
+    "CATEGORY_SOURCES": 207,
+    "UI_SOURCES": 5201
+  },
+  "api_sha256": "4abee386fd2fff36e6eb9421754f018f720c580badbc52805499d6a6f8744ded"
+}

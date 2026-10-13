@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "note": "Two public API contract updates: bounded numeric preview loading and shared photobleach correction semantics. Original direct AI drafts retained separately from accepted targets.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#0",
+      "source": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "source_sha256": "4dd0dd18ae912ee6a28b586176283a031a7b577c58d78d7c5562120c447d346a",
+      "context": "Read *path* into a nonempty (H, W) or (H, W, C) numeric array.",
+      "translation": "*path*\\ 를 비어 있지 않은 (H, W) 또는 (H, W, C) 형태의 숫자 배열로 읽습니다.",
+      "draft_translation": "*path*를 비어 있지 않은 (H, W) 또는 (H, W, C) 형태의 숫자 배열로 읽습니다.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by mask_editor Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#1",
+      "source": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Raises :class:`FileNotFoundError` if the path is bad.",
+      "source_sha256": "a41631004f919cb477bc21ba4078d0379b902ec2061d7dafdb90837fde29db81",
+      "context": "Tifffile preserves TIFF bit depth; PNG/JPEG use PIL. NumPy ``.npy`` stacks are memory mapped without loading pickled objects. Throws :class:`FileNotFoundError` if the path is bad.",
+      "translation": "Tifffile은 TIFF 비트 깊이를 보존하며 PNG/JPEG는 PIL을 사용합니다. NumPy ``.npy`` 스택은 pickle로 직렬화된 객체를 불러오지 않고 메모리 매핑됩니다. 경로가 올바르지 않으면 :class:`FileNotFoundError`\\ 가 발생합니다.",
+      "draft_translation": "Tifffile은 TIFF 비트 깊이를 보존하며 PNG/JPEG는 PIL을 사용합니다. NumPy ``.npy`` 스택은 pickle로 직렬화된 객체를 불러오지 않고 메모리 매핑됩니다. 경로가 올바르지 않으면 :class:`FileNotFoundError`가 발생합니다.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by mask_editor Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_preview_image#2",
+      "source": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "source_sha256": "2bbb0e62ebddaff8a2485199e427b65298b65bd8db902854bee5812d3a73f318",
+      "context": "image file path (``str`` or :class:`~pathlib.Path`); ``.tif``/``.tiff`` selects tifffile and ``.npy`` selects NumPy.",
+      "translation": "이미지 파일 경로(``str`` 또는 :class:`~pathlib.Path`); ``.tif``/``.tiff``\\ 는 tifffile을 선택하고 ``.npy``\\ 는 NumPy를 선택합니다.",
+      "draft_translation": "이미지 파일 경로(``str`` 또는 :class:`~pathlib.Path`); ``.tif``/``.tiff``는 tifffile을 선택하고 ``.npy``는 NumPy를 선택합니다.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by mask_editor Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#13",
+      "source": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "source_sha256": "7bab1ec425722eed4dcb6d85016ffdf2972b8cd521e9b8bcec449dc3fcb66c47",
+      "context": "``legacy`` preserves the original global decay fit. Opt-in ``ratio``, ``exponential`` or ``histogram`` uses Measure's per-field correction once on the original table. Raw intensities remain unchanged; ``bleach_corrected_<measurement>`` stores absolute corrected levels. ``corrected_<measurement>`` is dimensionless: corrected signal above the measured outside ring divided by that field's positive, finite initial median signal. Integrated levels subtract ring times area. Missing background or an invalid initial baseline remains NaN; missing intervals are not bridged for peak detection. The actual method, background and baseline accompany traces; ``bleach_correction_fits.csv`` records field fits. Histogram matching can erase population changes.",
+      "translation": "``legacy``\\ 는 기존의 전역 감쇠 피팅을 유지합니다. ``ratio``, ``exponential`` 또는 ``histogram``\\ 을 명시적으로 선택하면 원본 테이블에 Measure의 시야별 보정이 한 번 적용됩니다. 원시 강도는 변경되지 않으며 ``bleach_corrected_<measurement>``\\ 는 보정된 절대 수준을 저장합니다. ``corrected_<measurement>``\\ 는 무차원 값입니다. 측정한 바깥쪽 고리의 배경값을 뺀 보정 신호를 해당 시야의 양수이며 유한한 초기 신호 중앙값으로 나눕니다. 적분 수준에서는 고리 강도와 면적의 곱을 뺍니다. 배경이 없거나 초기 기준선이 유효하지 않으면 NaN으로 남으며, 피크 검출 시 누락된 구간을 이어 붙이지 않습니다. 실제 사용한 방법, 배경 및 기준선이 시간 추적값과 함께 제공되며 ``bleach_correction_fits.csv``\\ 는 시야별 피팅을 기록합니다. 히스토그램 매칭은 집단의 변화를 지울 수 있습니다.",
+      "draft_translation": "``legacy``는 기존의 전역 감쇠 피팅을 유지합니다. ``ratio``, ``exponential`` 또는 ``histogram``을 명시적으로 선택하면 원본 테이블에 Measure의 시야별 보정이 한 번 적용됩니다. 원시 강도는 변경되지 않으며 ``bleach_corrected_<measurement>``는 보정된 절대 수준을 저장합니다. ``corrected_<measurement>``는 무차원 값입니다. 측정한 바깥쪽 고리보다 높은 보정 신호를 해당 시야의 양수이며 유한한 초기 신호 중앙값으로 나눕니다. 적분 수준에서는 고리 강도와 면적의 곱을 뺍니다. 배경이 없거나 초기 기준선이 유효하지 않으면 NaN으로 남으며, 피크 검출 시 누락된 구간을 이어 붙이지 않습니다. 실제 사용한 방법, 배경 및 기준선이 시간 추적값과 함께 제공되며 ``bleach_correction_fits.csv``는 시야별 피팅을 기록합니다. 히스토그램 매칭은 집단의 변화를 지울 수 있습니다.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by mask_editor Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#14",
+      "source": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-well summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "source_sha256": "dd5af1c9a3f498adbf1671019be464b1f7648645c84f140cde311ed7168c0284",
+      "context": "tuple ``(result_df, peak_details_df, fig)`` -- the photobleach-corrected per-cell traces, the per-peak details and the summary matplotlib Figure. The per-microplate sample position summaries are only written to CSV. Returns ``None`` when the database has no time axis, the decay legacy fit fails, or no cells pass the filters.",
+      "translation": "튜플 ``(result_df, peak_details_df, fig)`` -- 광표백 보정을 거친 세포별 시간 추적값, 피크별 세부 정보 및 요약 matplotlib Figure입니다. 웰별 요약은 CSV로만 기록됩니다. 데이터베이스에 시간 축이 없거나 legacy 모드의 기존 감쇠 피팅이 실패하거나 필터를 통과한 세포가 없으면 ``None``을 반환합니다.",
+      "draft_translation": "튜플 ``(result_df, peak_details_df, fig)`` -- 광표백 보정을 거친 세포별 시간 추적값, 피크별 세부 정보 및 요약 matplotlib Figure입니다. 웰별 요약은 CSV로만 기록됩니다. 데이터베이스에 시간 축이 없거나 legacy 모드의 기존 감쇠 피팅이 실패하거나 필터를 통과한 세포가 없으면 ``None``을 반환합니다.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by mask_editor Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#15",
+      "source": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous field/time/object identities.",
+      "source_sha256": "9a01bb3ec604c1d82af88984f6631a13931cd5de8c2791b21ad83445fe95a3ed",
+      "context": "an unknown correction method, an unsupported intensity column for an explicit shared method, or ambiguous microscope field of view/time/object identities.",
+      "translation": "알 수 없는 보정 방법, 명시적으로 선택한 공통 방법에서 지원하지 않는 강도 열 또는 모호한 시야/시간/객체 식별 정보입니다.",
+      "draft_translation": "알 수 없는 보정 방법, 명시적으로 선택한 공통 방법에서 지원하지 않는 강도 열 또는 모호한 시야/시간/객체 식별 정보입니다.",
+      "review_basis": "Direct Codex AI technical translation of the current English contract; independently reviewed by mask_editor Codex AI. Accepted peer refinements applied. No human or native-speaker signoff."
+    }
+  ]
+}

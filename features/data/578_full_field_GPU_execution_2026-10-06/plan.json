@@ -1,0 +1,275 @@
+{
+  "prepared": true,
+  "inputs": [
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "original_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E01_T01F10L01A01Z01C00.tif",
+      "export_sha256": "035ca7473f036b39d8c5f7766dbc597b5dd56457dfd57517d50c8625ad9a1844",
+      "selected_intensity_channel": 0,
+      "well": "E01",
+      "field": 10,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E01_T01F10L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "original_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E01_T01F11L01A01Z01C00.tif",
+      "export_sha256": "f8735af08183cf6128db39e2945721577a8b16cc6896d12e11dc025b4946ddce",
+      "selected_intensity_channel": 0,
+      "well": "E01",
+      "field": 11,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E01_T01F11L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_1_1.npy",
+      "original_sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E01_T01F01L01A01Z01C00.tif",
+      "export_sha256": "da0f703c30ea264a9b251fc5b799f354b994b8104dd58fb0e5d00d49fe96f6b9",
+      "selected_intensity_channel": 0,
+      "well": "E01",
+      "field": 1,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E01_T01F01L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_9_1.npy",
+      "original_sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E01_T01F09L01A01Z01C00.tif",
+      "export_sha256": "d33554ba72ffb4f11f64eecd8d1d598a4ef7b340d2cd9e3f5f0e3be9c8add437",
+      "selected_intensity_channel": 0,
+      "well": "E01",
+      "field": 9,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E01_T01F09L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_10_1.npy",
+      "original_sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E02_T01F10L01A01Z01C00.tif",
+      "export_sha256": "9f1135b4374058ba62225179eb9037046459568b837640e28339233a0f0cba4e",
+      "selected_intensity_channel": 0,
+      "well": "E02",
+      "field": 10,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E02_T01F10L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_11_1.npy",
+      "original_sha256": "8a317cda286571afc0d8645dd3b14a124c77752452cd7320ca6547714246ae9d",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E02_T01F11L01A01Z01C00.tif",
+      "export_sha256": "24be041a0456539c352fb86244b99c3dadaad3e8b06f5e774bcd338bdc0f2fb6",
+      "selected_intensity_channel": 0,
+      "well": "E02",
+      "field": 11,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E02_T01F11L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_1_1.npy",
+      "original_sha256": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E02_T01F01L01A01Z01C00.tif",
+      "export_sha256": "3845e68b65bdcf0976beb29f4d81ddabb361d13d0399be29f49ac65a1b6e8da6",
+      "selected_intensity_channel": 0,
+      "well": "E02",
+      "field": 1,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E02_T01F01L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_9_1.npy",
+      "original_sha256": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_E02_T01F09L01A01Z01C00.tif",
+      "export_sha256": "8f9482f8a21ba36c59beadfdab4ef27d3270215f7014a026946375ced7182d44",
+      "selected_intensity_channel": 0,
+      "well": "E02",
+      "field": 9,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_E02_T01F09L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_10_1.npy",
+      "original_sha256": "0293af80914ce0c8798aa008d8d1810aa98dd8d386e12711b1911e64c04d2a80",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L01_T01F10L01A01Z01C00.tif",
+      "export_sha256": "a1e6d993ee91d78abf4905560f6d73dafb17897138a7a8f8be1662dcc554f6f4",
+      "selected_intensity_channel": 0,
+      "well": "L01",
+      "field": 10,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L01_T01F10L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_11_1.npy",
+      "original_sha256": "cdcf36ea2ea9dad988e54b7c206c4e3d87ed41d1330c8ce3603c955b4532cff0",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L01_T01F11L01A01Z01C00.tif",
+      "export_sha256": "ea3dd0af93daaba10dce2c53e39ec2bab91549fe5c7fd8140235e1a5020855db",
+      "selected_intensity_channel": 0,
+      "well": "L01",
+      "field": 11,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L01_T01F11L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_1_1.npy",
+      "original_sha256": "0275196bf4dd62fdaa31688675ec712b96fd85a6a9cf7d9049e977f5f163c34e",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L01_T01F01L01A01Z01C00.tif",
+      "export_sha256": "af56762f0593b421b8dd46ff3d66bff8110f6e5b2b8dbafef8e180c2091dd3dc",
+      "selected_intensity_channel": 0,
+      "well": "L01",
+      "field": 1,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L01_T01F01L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_9_1.npy",
+      "original_sha256": "84ad93b608a2bb6c27c550b27ba755ff922df76b6559fb688da2b7015b3ab8f6",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L01_T01F09L01A01Z01C00.tif",
+      "export_sha256": "78e01eb90343f83bb956c0c6f480049d569710c7231467aa9d9faff4d911c3bd",
+      "selected_intensity_channel": 0,
+      "well": "L01",
+      "field": 9,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L01_T01F09L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_10_1.npy",
+      "original_sha256": "72282abba9c0cad776621c5c676e7f90d4e8d2bf5ad79350e82a19f193faf1b6",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L02_T01F10L01A01Z01C00.tif",
+      "export_sha256": "eb9179e4042f3dc2a7ecb55a6422756ae6fff262690ad396740307fc1ed20350",
+      "selected_intensity_channel": 0,
+      "well": "L02",
+      "field": 10,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L02_T01F10L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_11_1.npy",
+      "original_sha256": "1cfe960e9b0249fc0c2186421dde8eb66ebfb4e81df4de6b8cc87e797b5e3507",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L02_T01F11L01A01Z01C00.tif",
+      "export_sha256": "91965daf3a0d397679de9e602411b96d9ad379899c8abe26589202e2e579823f",
+      "selected_intensity_channel": 0,
+      "well": "L02",
+      "field": 11,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L02_T01F11L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_1_1.npy",
+      "original_sha256": "7143ca727ab080716353d059d87635b1305cba956cf94ae4e5d3add2672ec672",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L02_T01F01L01A01Z01C00.tif",
+      "export_sha256": "aa60b029a5b828cfbdcf39e8f534218495c9ee822d6e158bfc72dbfd0f685550",
+      "selected_intensity_channel": 0,
+      "well": "L02",
+      "field": 1,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L02_T01F01L01A01Z01C00.tif"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_9_1.npy",
+      "original_sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+      "export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/orig/plate1_L02_T01F09L01A01Z01C00.tif",
+      "export_sha256": "04795d813d5a11637beb673e620d977997ae02dc9829df1d406ef24d0232830e",
+      "selected_intensity_channel": 0,
+      "well": "L02",
+      "field": 9,
+      "generated_reference_mask_planes_excluded": true,
+      "pre_ingest_export_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/plate1_L02_T01F09L01A01Z01C00.tif"
+    }
+  ],
+  "field_count": 16,
+  "wells": [
+    "E01",
+    "E02",
+    "L01",
+    "L02"
+  ],
+  "whole_1994_by_1994_fields_no_crop_or_simulated_pixels": true,
+  "scope": "All sixteen fields of the acquired four-well example plate, not a complete production screen",
+  "normal_preprocess_and_independent_normalized_pixel_readback_passed": true,
+  "grid": [
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "baseline",
+      "value": "run settings"
+    },
+    {
+      "diameter": 22.5,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "diameter",
+      "value": "x0.75"
+    },
+    {
+      "diameter": 37.5,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "diameter",
+      "value": "x1.25"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.2,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "flow_threshold",
+      "value": "0.2"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.6,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "flow_threshold",
+      "value": "0.6"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": -2.0,
+      "enhance": false,
+      "parameter": "cellprob_threshold",
+      "value": "-2"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 6.0,
+      "enhance": false,
+      "parameter": "cellprob_threshold",
+      "value": "6"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": true,
+      "parameter": "enhancement",
+      "value": "CLAHE"
+    }
+  ],
+  "planned_real_GPU_calls": 128,
+  "recipe_sha256": "73935d0c7a380cdb1187d1e0c142f0f74ad03b48a849e6233e8c47c904e526ee",
+  "source_sha256": {
+    "spacr/core.py": "cc1ccacea893d5ff0ff6c8f66f5af1cc1c2ab645c0c123ebcb9c48d8069e1491",
+    "spacr/object.py": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+    "spacr/seg_qc.py": "01e0db24fbe25454e856660398586847754f367d04c8d736a131bb4c96412eeb",
+    "spacr/settings.py": "94c92993a70b4e85e1cc926823edd5db852f1e960f91958d0dcdfd1ffefda749",
+    "spacr/utils.py": "2fad5d4550b23e99f2067c81f5a8adb5f66536430f182b7314fba67aa58f6a8c",
+    "spacr/accelerator.py": "3dd82388149d9a22dfb863aef7cba30cb8a56539a9d106f7959ebc706f4bdd9e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/figures/style.py": "0132bd360a5d90caafe51925baa6cee249d688c2d515db344a56fcce3eca96ff",
+    "spacr/plot.py": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+    "spacr/tabular.py": "af731073ce639a0c65a44eea28b97ca43541744f58eacfb74c85fb8febac92b2"
+  },
+  "prepared_script_sha256": "61acfcd52db04233e488304d95695b54c15cf06bc781c2bb1cb7daebdc0806d1",
+  "GPU_execution_or_fragility_result_claimed": false,
+  "normal_ingest_relocated_original_TIFFs_to_orig_verified_byte_and_pixel_exact": true,
+  "prior_GPU_attempt_failed_before_model_loading_or_inference": true
+}

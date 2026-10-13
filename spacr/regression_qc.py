@@ -1,0 +1,4112 @@
+"""Quality-control figures for the regression step of a pooled CRISPR screen.
+
+Why this exists
+---------------
+:func:`spacr.ml.regression` fits a model to one row per well and emits a
+volcano plot. A volcano plot shows which coefficients are large and small-*p*;
+it shows nothing at all about whether the fit those numbers came out of is
+trustworthy. Every failure mode that has actually cost this project a screen is
+invisible on a volcano:
+
+* a handful of 20-cell wells with leverage 0.4 each, dragging a gene's
+  coefficient wherever they like;
+* a plate whose column 1 and column 24 are systematically dim, so the "hits"
+  are the genes that happened to be plated on the edge;
+* a design matrix in which ``gene`` and ``grna`` are nearly aliased, so the
+  standard errors are 30x too small and *every* p-value is spuriously tiny;
+* a Poisson fit on data whose variance is six times its mean, which makes every
+  interval too narrow by a factor of 2.5;
+* a logistic fit that is badly calibrated, so the predicted fractions are
+  systematically wrong even though the ranking is fine.
+
+Each of those is obvious in one glance at the right panel, and each of them
+produces a *believable* volcano plot. Plausible but wrong output is the documented failure mode of this pipeline,
+so the diagnostics are a required part of the report: they show when a run
+should not be trusted.
+
+What this module does not do
+----------------------------
+It does not duplicate the volcano plot (:func:`spacr.plot.volcano_plot` and
+:func:`spacr.toxo.custom_volcano_plot` already draw it, and a second
+implementation would drift). The report carries a panel that names where the
+volcano was written instead. It also never *changes* a fit: nothing here drops
+a well, refits, or reweights. It reports; the user decides.
+
+Degrading by model type
+-----------------------
+``spacr.ml.regression_model`` can return a statsmodels ``OLS``, ``WLS``,
+``RLM``, ``QuantReg``, a ``GLM`` in any of six families, a ``MixedLM``, a
+``BetaModel``, a sklearn ``Lasso``/``Ridge``/``ElasticNet`` or a ``LinearSVC``.
+Those objects agree on almost nothing: a sklearn ``Lasso`` has no p-values, no
+covariance matrix and no ``fittedvalues``; a ``MixedLM`` has no hat matrix; a
+Gaussian model has no calibration curve worth drawing. Every panel therefore
+either draws or raises :class:`PanelUnavailable` carrying the *reason*, and the
+reason is printed on the combined report page and returned in the manifest. A
+panel is never silently omitted, and never faked with a substitute statistic
+that does not mean what the axis label says.
+
+The trap here is ``model.scale``. Every statsmodels results object has one, and
+it means a *different thing* on each of them — see
+:func:`resolve_residual_standardisation`:
+
+* ``OLS`` / ``MixedLM``: the error variance, in the metric of ``y - fitted``;
+* ``WLS``: the error variance in the metric of ``sqrt(w) * (y - fitted)``,
+  which for cell-count weights is hundreds of times larger than the unweighted
+  residual variance;
+* ``RLM`` (``rlm``/``huber``): a robust estimate of the standard deviation, so
+  the variance is its *square*;
+* ``QuantReg``: the constant ``1.0``, a placeholder — quantile regression has
+  no error-variance parameter at all;
+* ``BetaModel``: the constant ``1.0``, which is correct only against the
+  *Pearson* residual, never against ``y - fitted``;
+* sklearn estimators: absent.
+
+Treating all of those as "the error variance of ``y - fitted``" is how a QC
+panel reports the wrong wells as outliers, in a direction that depends on the
+units of the response. Standardisation therefore goes through one registry
+keyed on the fitted model's class, and where no correct scale exists the six
+panels that need one are skipped with that stated on the report.
+
+Reading the output
+------------------
+``regression_qc_report(...)`` writes into ``<dst>/regression_qc/``:
+
+* one file per panel (``residuals_vs_fitted`` and friends),
+* ``regression_qc_report`` — every panel on one page, skipped panels shown
+  as a grey box stating why,
+* ``regression_qc_report.txt`` — the same thing as text, with the numbers,
+  so it can be grepped or pasted into a lab notebook,
+
+and returns a manifest dict listing every panel, its status, its path and the
+statistics it computed. The manifest is what a
+caller (or a test) reads to find out that Cook's distance flagged well
+``plate1_r3_c11``, not just that a file exists.
+
+The figure extensions are omitted above because they follow the user's
+figure-format preference; a fixed ``.pdf`` would name
+``residuals_vs_fitted.pdf`` in the manifest for a file that is
+``residuals_vs_fitted.png`` on disk.
+
+Figures are built through ``matplotlib.figure.Figure`` directly rather than
+through ``pyplot``. That is deliberate: a Figure that pyplot never sees cannot
+be leaked into pyplot's global registry, cannot be picked up by a later
+``plt.savefig()`` in another module, and needs no ``plt.close()`` discipline to
+stay out of the way. This module therefore cannot leak a figure.
+"""
+from __future__ import annotations
+
+import os
+import re
+import textwrap
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
+
+import numpy as np
+import pandas as pd
+from matplotlib.figure import Figure
+from matplotlib.patches import Rectangle
+
+from . import schema
+from .figures.style import (
+    ROLES,
+    TRANSPARENT,
+    TYPE_SCALE,
+    WEIGHTS,
+    annotate,
+    descriptor,
+    figure_style,
+    reference_line,
+    resolve_ink,
+    resolve_label_ground,
+    rotate_ticks,
+    text_legend,
+    theme_target,
+)
+
+__all__ = [
+    "OLS_ASSUMPTION_PANELS",
+    "PANEL_ORDER",
+    "PanelUnavailable",
+    "PanelVerdict",
+    "QCPanelResult",
+    "RegressionQCContext",
+    "ResidualStandardisation",
+    "build_context",
+    "calibration_curve",
+    "condition_number",
+    "condition_verdict",
+    "context_from_model",
+    "cooks_distance",
+    "dffits",
+    "VERDICT_LEVELS",
+    "VERDICT_WORDS",
+    "diagnose_p_value_histogram",
+    "draw_panel",
+    "draw_verdict",
+    "format_qc_report",
+    "leverage_from_design",
+    "overdispersion_statistic",
+    "panel_names",
+    "regression_qc_report",
+    "residual_normality",
+    "resolve_residual_standardisation",
+    "score_panel",
+    "variance_inflation_factors",
+    "worst_verdict",
+]
+
+#: Sub-directory of the run's results folder that the report is written to.
+QC_DIRNAME = "regression_qc"
+
+#: Colours. Deliberately not seaborn: seaborn styling is global state and this
+#: module runs inside a pipeline that also draws with the caller's rcParams.
+_POINT = "#1f6f8b"
+_ACCENT = "#d1495b"
+_GUIDE = "#8d99ae"
+_TREND = "#e07a3f"
+_OK = "#2a9d8f"
+
+#: Cook's-distance cut-off drawn on the figure. 4/n is the conventional
+#: screening rule (Bollen & Jackman); the stricter D > 1 rule almost never
+#: fires on well-level screen data, where n is a few hundred, so 4/n is the one
+#: that actually separates "this well is influential" from "this well is not".
+_COOKS_RULE = 4.0
+
+#: Leverage guides: 2p/n is the standard "high leverage" rule of thumb, 3p/n
+#: the "definitely look at this" one.
+_LEVERAGE_RULES = (2.0, 3.0)
+
+#: Condition-number interpretation bands (Belsley, Kuh & Welsch), keyed on the
+#: column-scaled condition number of the design matrix.
+_CONDITION_BANDS = (
+    (10.0, "no collinearity problem"),
+    (30.0, "weak dependency between predictors"),
+    (100.0, "moderate to strong collinearity — standard errors are inflated"),
+    (1000.0, "severe collinearity — coefficients are not separately identified"),
+)
+
+
+class PanelUnavailable(Exception):
+    """A panel cannot be computed from this model, for a stated reason.
+
+    Raised by panel drawing functions and caught by
+    :func:`regression_qc_report`, which records the reason on the report rather
+    than dropping the panel. The message is user-facing prose: it must say what
+    was missing and, where there is one, what to do instead.
+
+    :param reason: Why the panel cannot be drawn.
+    """
+
+
+@dataclass
+class QCPanelResult:
+    """One panel's outcome.
+
+    :param name: Stable machine name (also the file stem).
+    :param title: Human-readable panel title.
+    :param group: Report section: ``'fit'``, ``'influence'``, ``'design'``,
+        ``'response'`` or ``'screen'``.
+    :param status: ``'written'`` (drawn, nothing missing), ``'partial'``
+        (drawn, but with a stated limitation — e.g. a coefficient plot with no
+        confidence intervals), ``'skipped'`` (not computable, see ``reason``)
+        or ``'failed'`` (raised unexpectedly, see ``reason``).
+    :param path: Absolute path of the per-panel figure, or ``None``.
+    :param reason: Why the panel was skipped, or what limits it.
+    :param stats: Numbers the panel computed, for callers and tests.
+    :param verdict: What the panel concluded -- a :class:`PanelVerdict`, or
+        None for a panel that never drew. A diagnostic that reports a number
+        without a judgement leaves the interpretation to the reader, so the
+        verdict travels with the panel into the
+        report, into the manifest and onto the picture itself.
+    """
+
+    name: str
+    title: str
+    group: str
+    status: str
+    path: Optional[str] = None
+    reason: Optional[str] = None
+    stats: Dict[str, Any] = field(default_factory=dict)
+    verdict: Optional["PanelVerdict"] = None
+
+
+@dataclass
+class RegressionQCContext:
+    """Model outputs normalised across model types for the QC panels.
+
+    Built by :func:`build_context`; panels only ever read it. Holding the
+    normalisation in one place is what keeps twenty panels from each having
+    their own opinion about where the residuals of a ``MixedLM`` live.
+
+    :param model: The fitted model object (statsmodels results or sklearn
+        estimator).
+    :param X: Design matrix as a DataFrame, one row per well.
+    :param y: Response, 1-D, aligned to ``X``.
+    :param fitted: Fitted values on the response scale.
+    :param resid: ``y - fitted`` (response-scale residuals).
+    :param std_resid: Internally studentised residuals, or all-``NaN`` when
+        this model class has no error scale (see
+        :func:`resolve_residual_standardisation`). Panels must ask
+        ``standardisation.available`` rather than test for ``NaN``.
+    :param leverage: Diagonal of the hat matrix, one entry per well.
+    :param leverage_source: How ``leverage`` was obtained, so a panel can say
+        so on the axis.
+    :param scale: Error variance used to standardise the residuals, in the
+        metric of ``standardisation.base`` — which is not always ``y -
+        fitted``. ``NaN`` when no correct scale exists for this model class.
+    :param standardisation: The :class:`ResidualStandardisation` that produced
+        ``std_resid``: what was standardised, where the variance came from, or
+        the reason there is none.
+    :param prediction_note: Set when the fitted values are not a conditional
+        mean of ``y`` — a hinge/SVM classifier predicts class labels — so the
+        response-scale panels can state that on the report instead of quoting
+        an R² that means nothing.
+    :param decision_score: The continuous score wells are ranked by, which is
+        not always ``fitted``: a hinge/SVM's ``fitted`` is the hard 0/1 label,
+        and an ROC computed on hard labels has exactly two operating points and
+        understates the model. ``build_context`` sets this to
+        ``decision_function(X)`` for a classifier and to ``fitted`` for
+        everything else, oriented so that larger means more likely positive for
+        both.
+    :param labels: Per-well labels (``prc`` where available), used to name
+        outliers on the influence panels.
+    :param weights: Per-well weights passed to the fit (cell counts, for the
+        GLM-binomial path), or ``None``.
+    :param metadata: Per-well metadata (``plateID``/``rowID``/``columnID``/
+        ``cell_count``/``prc``), or ``None``.
+    :param coef_df: The coefficient table built by
+        :func:`spacr.ml.process_model_coefficients`, or ``None``.
+    :param regression_type: The spaCR regression type string, if known.
+    :param family: Name of the GLM family, or ``'Gaussian (least squares)'``.
+    :param link: Name of the link function, when there is one.
+    :param volcano_path: Where the volcano plot for this run was written.
+    :param notes: Free-text notes accumulated while building the context.
+    """
+
+    model: Any
+    X: pd.DataFrame
+    y: np.ndarray
+    fitted: np.ndarray
+    resid: np.ndarray
+    std_resid: np.ndarray
+    leverage: np.ndarray
+    leverage_source: str
+    scale: float
+    labels: np.ndarray
+    standardisation: Optional["ResidualStandardisation"] = None
+    prediction_note: Optional[str] = None
+    decision_score: Optional[np.ndarray] = None
+    weights: Optional[np.ndarray] = None
+    metadata: Optional[pd.DataFrame] = None
+    coef_df: Optional[pd.DataFrame] = None
+    regression_type: Optional[str] = None
+    family: str = "unknown"
+    link: Optional[str] = None
+    volcano_path: Optional[str] = None
+    notes: List[str] = field(default_factory=list)
+
+    @property
+    def n(self) -> int:
+        """Number of fitted design rows (one per well in ordinary designs)."""
+        return int(self.X.shape[0])
+
+    @property
+    def n_unique_wells(self) -> int:
+        """Independent well identifiers represented by the fitted rows.
+
+        Historical long-format screen OLS has one design row per well-guide
+        pair, so ``n`` and the number of wells are not interchangeable.  The
+        metadata is the only trustworthy place to make that distinction.
+        """
+        if (self.metadata is not None
+                and schema.PRC_KEY in self.metadata.columns):
+            return int(self.metadata[schema.PRC_KEY].astype(str).nunique())
+        return self.n
+
+    @property
+    def sample_description(self) -> str:
+        """Human-readable fitted-row count without calling duplicates wells."""
+        if self.n_unique_wells < self.n:
+            return (f"{self.n:,} fitted rows / "
+                    f"{self.n_unique_wells:,} unique wells")
+        return f"{self.n:,} wells"
+
+    @property
+    def fit_unit(self) -> str:
+        """Singular name for one row to which influence is attributed."""
+        return "fitted row" if self.n_unique_wells < self.n else "well"
+
+    @property
+    def p(self) -> int:
+        """Number of columns in the design matrix, intercept included."""
+        return int(self.X.shape[1])
+
+    @property
+    def standardisation_available(self) -> bool:
+        """True when ``std_resid`` means what its name says for this model."""
+        return bool(self.standardisation is not None
+                    and self.standardisation.available)
+
+    @property
+    def is_binomial(self) -> bool:
+        """True when the response is a probability/fraction under a binomial family."""
+        return (self.family in ("Binomial", "QuasiBinomial")
+                or (self.regression_type or "") in ("logit", "probit",
+                                                    "quasi_binomial"))
+
+    @property
+    def is_count(self) -> bool:
+        """True when the response is modelled as a count (Poisson / negative binomial)."""
+        return (self.family in ("Poisson", "NegativeBinomial")
+                or (self.regression_type or "") == "poisson")
+
+    @property
+    def is_classifier(self) -> bool:
+        """True when the fit is a discriminative classifier (``hinge``).
+
+        Separate from :attr:`is_binomial`, which asks whether a *binomial
+        likelihood* was fitted. A hinge/SVM has no likelihood at all, so it is
+        not binomial — but it is the one model spaCR offers whose whole output
+        is a discrimination, which is what ROC and precision-recall measure.
+        Excluding it from those two panels, which is what asking only
+        :attr:`is_binomial` did, left the classifier as the single model type
+        with no discrimination QC.
+        """
+        return ((self.regression_type or "") == "hinge"
+                or hasattr(self.model, "decision_function"))
+
+    @property
+    def is_binary_response(self) -> bool:
+        """True when every response value is exactly 0 or 1.
+
+        spaCR routes ``logit``/``probit`` through GLM-Binomial with a
+        *continuous* fraction response weighted by cell count, so a binomial
+        family does **not** imply binary labels — and ROC/PR are undefined
+        without them. This is the distinction that decides it.
+        """
+        finite = self.y[np.isfinite(self.y)]
+        return finite.size > 0 and bool(np.all((finite == 0) | (finite == 1)))
+
+    @property
+    def ranking_score(self) -> np.ndarray:
+        """The score ROC and precision-recall rank wells by.
+
+        :attr:`decision_score` when the context carries one, otherwise
+        :attr:`fitted`. Larger is more likely positive in both cases; see
+        :attr:`decision_score`.
+        """
+        return self.fitted if self.decision_score is None else self.decision_score
+
+
+
+
+def leverage_from_design(X, weights=None):
+    """Return the hat-matrix diagonal computed from a design matrix.
+
+    ``h_i = x_i' (X' W X)^+ x_i * w_i``. The pseudo-inverse is used rather than
+    the inverse because screen design matrices are routinely rank deficient
+    (a gRNA present in exactly one well produces a column that is a multiple of
+    another); a ``LinAlgError`` there would take the whole QC report down for a
+    property of the data that the report exists to show.
+
+    :param X: Design matrix, ``(n, p)``, array-like.
+    :param weights: Optional per-observation weights (IRLS weights, or the
+        ``var_weights`` spaCR passes for the cell-count-weighted binomial fit).
+    :returns: 1-D array of length ``n``, each entry in ``[0, 1]``.
+
+    Example:
+        >>> import numpy as np
+        >>> X = np.column_stack([np.ones(4), [0., 0., 0., 10.]])
+        >>> h = leverage_from_design(X)
+        >>> bool(h[3] > h[0])          # the far-out point has high leverage
+        True
+        >>> bool(abs(h.sum() - 2) < 1e-9)   # trace(H) == p for a full-rank X
+        True
+    """
+    Xm = np.asarray(X, dtype=float)
+    if Xm.ndim != 2:
+        raise ValueError(f"design matrix must be 2-D, got shape {Xm.shape}")
+    if weights is None:
+        gram = Xm.T @ Xm
+        hat = np.einsum("ij,jk,ik->i", Xm, np.linalg.pinv(gram), Xm)
+    else:
+        w = np.asarray(weights, dtype=float).ravel()
+        if w.size != Xm.shape[0]:
+            raise ValueError(
+                f"weights has {w.size} entries but the design matrix has "
+                f"{Xm.shape[0]} rows")
+        gram = Xm.T @ (Xm * w[:, None])
+        hat = w * np.einsum("ij,jk,ik->i", Xm, np.linalg.pinv(gram), Xm)
+    if np.any(hat < -1e-6) or np.any(hat > 1 + 1e-6):
+        raise ValueError(
+            "hat-matrix diagonal outside [0, 1]; the design matrix or the "
+            "weights are not what they claim to be")
+    return np.clip(hat, 0.0, 1.0)
+
+
+def cooks_distance(std_resid, leverage, n_params):
+    """Return Cook's distance per observation.
+
+    Uses the identity ``D_i = r_i^2 / p * h_i / (1 - h_i)`` where ``r_i`` is the
+    *internally studentised* residual. Written this way it needs no second pass
+    over the data and works for any model for which a studentised residual and
+    a leverage exist — including the GLM families, where the textbook
+    ``e_i^2`` form would be on the wrong scale.
+
+    :param std_resid: Internally studentised residuals, length ``n``.
+    :param leverage: Hat-matrix diagonal, length ``n``.
+    :param n_params: Number of estimated parameters ``p`` (intercept included).
+    :returns: 1-D array of length ``n``; ``inf`` where ``h_i == 1`` (an
+        observation the model fits exactly, which is maximally influential by
+        construction).
+
+    Example:
+        >>> import numpy as np
+        >>> d = cooks_distance(np.array([0.1, 4.0]), np.array([0.2, 0.2]), 2)
+        >>> bool(d[1] > 100 * d[0])
+        True
+    """
+    r = np.asarray(std_resid, dtype=float)
+    h = np.asarray(leverage, dtype=float)
+    if r.shape != h.shape:
+        raise ValueError(
+            f"std_resid has shape {r.shape} but leverage has shape {h.shape}")
+    if n_params <= 0:
+        raise ValueError(f"n_params must be positive, got {n_params}")
+    with np.errstate(divide="ignore", invalid="ignore"):
+        d = (r ** 2 / float(n_params)) * (h / (1.0 - h))
+    return np.where(np.isclose(h, 1.0), np.inf, d)
+
+
+def dffits(std_resid, leverage, n_obs, n_params):
+    """Return DFFITS per observation, the change in that observation's own fit.
+
+    ``DFFITS_i = t_i * sqrt(h_i / (1 - h_i))`` with ``t_i`` the *externally*
+    studentised residual, obtained from the internally studentised one by
+    ``t_i = r_i * sqrt((n - p - 1) / (n - p - r_i^2))``. The conventional
+    threshold is ``2 * sqrt(p / n)``.
+
+    :param std_resid: Internally studentised residuals.
+    :param leverage: Hat-matrix diagonal.
+    :param n_obs: Number of observations.
+    :param n_params: Number of estimated parameters.
+    :returns: ``(dffits, threshold)`` — the per-observation values (``nan``
+        where the external studentisation is undefined) and the threshold.
+    """
+    r = np.asarray(std_resid, dtype=float)
+    h = np.asarray(leverage, dtype=float)
+    dof = float(n_obs - n_params - 1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        denom = float(n_obs - n_params) - r ** 2
+        t = np.where(denom > 0, r * np.sqrt(np.maximum(dof, 0.0) / denom), np.nan)
+        value = t * np.sqrt(h / (1.0 - h))
+    threshold = 2.0 * np.sqrt(float(n_params) / float(n_obs)) if n_obs else np.nan
+    return value, threshold
+
+
+def variance_inflation_factors(X, tol=1e-10):
+    """Return the VIF of every non-constant column of a design matrix.
+
+    Computed from the inverse of the predictor *correlation* matrix — the
+    identity ``VIF_j = (R^-1)_jj`` — rather than by running ``p`` auxiliary
+    regressions. On a screen design with 1,200 gRNA columns the auxiliary-
+    regression route is ``O(p^4)`` and is impractical; the correlation
+    route is one ``O(p^3)`` decomposition. The two agree exactly when the
+    design contains an intercept (see the test that pins this against
+    ``statsmodels.stats.outliers_influence.variance_inflation_factor``).
+
+    Constant columns (the intercept, and any predictor that is constant on the
+    rows that survived cleaning) have no VIF — a variance of zero cannot be
+    inflated — and are reported as ``NaN`` rather than dropped, so the caller
+    can see that they were there.
+
+    Exactly collinear columns get ``inf``: they are identified by the near-null
+    eigenvectors of the correlation matrix, so *which* columns are aliased is
+    reported rather than the whole matrix being declared unusable.
+
+    :param X: Design matrix; DataFrame or array-like.
+    :param tol: Relative eigenvalue below which a direction counts as null.
+    :returns: ``pandas.Series`` of VIFs indexed by column name.
+
+    Example:
+        >>> import numpy as np, pandas as pd
+        >>> rng = np.random.default_rng(0)
+        >>> a = rng.normal(size=200)
+        >>> df = pd.DataFrame({'a': a, 'b': a + 0.01 * rng.normal(size=200),
+        ...                    'c': rng.normal(size=200)})
+        >>> vif = variance_inflation_factors(df)
+        >>> bool(vif['a'] > 100), bool(vif['c'] < 2)
+        (True, True)
+    """
+    frame = X if isinstance(X, pd.DataFrame) else pd.DataFrame(
+        np.asarray(X, dtype=float),
+        columns=[f"x{i}" for i in range(np.asarray(X).shape[1])])
+    frame = frame.astype(float)
+    out = pd.Series(np.nan, index=frame.columns, dtype=float)
+
+    std = frame.std(ddof=1)
+    varying = [c for c in frame.columns if np.isfinite(std[c]) and std[c] > 0]
+    if len(varying) < 2:
+        for col in varying:
+            out[col] = 1.0
+        return out
+
+    corr = np.corrcoef(frame[varying].to_numpy(dtype=float), rowvar=False)
+    corr = np.nan_to_num(corr, nan=0.0)
+    eigvals, eigvecs = np.linalg.eigh(corr)
+    largest = float(np.max(eigvals))
+    null_mask = eigvals <= tol * max(largest, 1.0)
+
+    values = np.diag(np.linalg.pinv(corr)).astype(float).copy()
+    if np.any(null_mask):
+        loading = np.abs(eigvecs[:, null_mask]).max(axis=1)
+        values[loading > 1e-6] = np.inf
+    for col, value in zip(varying, values):
+        out[col] = float(value)
+    return out
+
+
+def condition_number(X):
+    """Return the condition number of a design matrix, scaled and unscaled.
+
+    Two numbers, because they answer different questions. The *unscaled*
+    condition number is what ``statsmodels`` prints in a summary, and it is
+    dominated by the units of the columns: a predictor measured in cells rather
+    than thousands of cells changes it by 1000 with no change in the science.
+    The *scaled* one (each column normalised to unit length first, the
+    Belsley-Kuh-Welsch definition) is unit-free and is the one whose thresholds
+    — 30, 100, 1000 — mean anything.
+
+    :param X: Design matrix, array-like ``(n, p)``.
+    :returns: ``(scaled, unscaled, singular_values)`` where ``singular_values``
+        are those of the column-scaled matrix, largest first.
+
+    Example:
+        >>> import numpy as np
+        >>> ortho = np.eye(3)
+        >>> round(condition_number(ortho)[0], 6)
+        1.0
+    """
+    Xm = np.asarray(X, dtype=float)
+    if Xm.ndim != 2 or Xm.size == 0:
+        raise ValueError(f"design matrix must be a non-empty 2-D array, got {Xm.shape}")
+    norms = np.linalg.norm(Xm, axis=0)
+    norms = np.where(norms > 0, norms, 1.0)
+    scaled_sv = np.linalg.svd(Xm / norms, compute_uv=False)
+    raw_sv = np.linalg.svd(Xm, compute_uv=False)
+
+    def _ratio(sv):
+        """Convert descending singular values to a stable condition number.
+
+        :param sv: non-empty descending singular-value array from the design.
+        :returns: largest divided by smallest as a float, or infinity when the
+            smallest is at or below NumPy's numerical-rank tolerance computed
+            from its dtype and the captured design shape.
+        """
+        tolerance = np.finfo(sv.dtype).eps * max(Xm.shape) * float(sv[0])
+        if sv[-1] <= tolerance:
+            return np.inf
+        return float(sv[0] / sv[-1])
+
+    return _ratio(scaled_sv), _ratio(raw_sv), scaled_sv
+
+
+def condition_verdict(scaled_condition_number):
+    """Return the plain-English reading of a scaled condition number.
+
+    :param scaled_condition_number: Output of :func:`condition_number`.
+    :returns: A short sentence naming the severity band.
+    """
+    if not np.isfinite(scaled_condition_number):
+        return "design matrix is singular — at least one predictor is an exact combination of others"
+    for bound, text in _CONDITION_BANDS:
+        if scaled_condition_number < bound:
+            return text
+    return _CONDITION_BANDS[-1][1]
+
+
+def calibration_curve(y_true, y_pred, n_bins=10, weights=None, strategy="quantile"):
+    """Bin predictions and return the observed frequency in each bin.
+
+    Works for a binary response *and* for the continuous per-well fraction that
+    spaCR's ``logit``/``probit`` path actually fits: in both cases the question
+    is "of the wells where the model said 0.3, what fraction were positive?".
+    With ``weights`` (cell counts) the observed value is the weighted mean, so a
+    2,000-cell well is not given the same say as a 20-cell one.
+
+    :param y_true: Observed response in ``[0, 1]``.
+    :param y_pred: Predicted probability in ``[0, 1]``.
+    :param n_bins: Number of bins. Default 10.
+    :param weights: Optional per-observation weights.
+    :param strategy: ``'quantile'`` (equal counts per bin, the default, which
+        avoids sparsely populated bins) or ``'uniform'`` (equal width).
+    :returns: dict with ``pred_mean``, ``obs_mean``, ``counts``, ``weight``,
+        ``ece`` (weighted mean absolute gap), ``max_gap`` and ``brier``.
+    :raises ValueError: if the inputs disagree in length or ``n_bins < 2``.
+
+    Example:
+        >>> import numpy as np
+        >>> p = np.linspace(0.02, 0.98, 500)
+        >>> rng = np.random.default_rng(0)
+        >>> y = (rng.uniform(size=500) < p).astype(float)
+        >>> out = calibration_curve(y, p, n_bins=5)
+        >>> bool(out['ece'] < 0.1)          # a calibrated model hugs y = x
+        True
+    """
+    yt = np.asarray(y_true, dtype=float).ravel()
+    yp = np.asarray(y_pred, dtype=float).ravel()
+    if yt.size != yp.size:
+        raise ValueError(f"y_true has {yt.size} entries, y_pred has {yp.size}")
+    if n_bins < 2:
+        raise ValueError(f"n_bins must be at least 2, got {n_bins}")
+    w = (np.ones_like(yt) if weights is None
+         else np.asarray(weights, dtype=float).ravel())
+    if w.size != yt.size:
+        raise ValueError(f"weights has {w.size} entries, expected {yt.size}")
+
+    keep = np.isfinite(yt) & np.isfinite(yp) & np.isfinite(w) & (w > 0)
+    yt, yp, w = yt[keep], yp[keep], w[keep]
+    if yt.size == 0:
+        raise ValueError("no finite observations left to calibrate")
+
+    if strategy == "quantile":
+        edges = np.quantile(yp, np.linspace(0.0, 1.0, n_bins + 1))
+        edges = np.unique(edges)
+        if edges.size < 3:
+            edges = np.linspace(yp.min(), yp.max() + 1e-12, n_bins + 1)
+    elif strategy == "uniform":
+        edges = np.linspace(0.0, 1.0, n_bins + 1)
+    else:
+        raise ValueError(f"strategy must be 'quantile' or 'uniform', got {strategy!r}")
+
+    idx = np.clip(np.searchsorted(edges, yp, side="right") - 1, 0, edges.size - 2)
+    pred_mean, obs_mean, counts, weight = [], [], [], []
+    for b in range(edges.size - 1):
+        sel = idx == b
+        if not np.any(sel):
+            continue
+        wb = w[sel]
+        pred_mean.append(float(np.average(yp[sel], weights=wb)))
+        obs_mean.append(float(np.average(yt[sel], weights=wb)))
+        counts.append(int(sel.sum()))
+        weight.append(float(wb.sum()))
+
+    pred_mean = np.asarray(pred_mean)
+    obs_mean = np.asarray(obs_mean)
+    weight = np.asarray(weight)
+    gaps = np.abs(obs_mean - pred_mean)
+    ece = float(np.average(gaps, weights=weight)) if gaps.size else float("nan")
+    return {
+        "pred_mean": pred_mean,
+        "obs_mean": obs_mean,
+        "counts": np.asarray(counts),
+        "weight": weight,
+        "ece": ece,
+        "max_gap": float(gaps.max()) if gaps.size else float("nan"),
+        "brier": float(np.average((yp - yt) ** 2, weights=w)),
+        "n_bins": int(pred_mean.size),
+    }
+
+
+def overdispersion_statistic(y, mu, df_resid, variance=None, weights=None):
+    """Return the Pearson dispersion of a count fit and its verdict.
+
+    ``phi = sum((y - mu)^2 / V(mu)) / df_resid``. Under a correctly specified
+    Poisson model ``phi == 1``. ``phi`` well above 1 means the standard errors
+    are too small by ``sqrt(phi)`` — at ``phi = 6``, a 2.4-fold inflation, which
+    turns noise into a screen full of hits. That is why this number is on the
+    report as a number and not as a shape to eyeball.
+
+    :param y: Observed counts.
+    :param mu: Fitted means.
+    :param df_resid: Residual degrees of freedom (``n - p``).
+    :param variance: Callable ``V(mu)``; defaults to the Poisson ``V(mu) = mu``.
+    :param weights: Optional per-observation weights.
+    :returns: dict with ``dispersion``, ``pearson_chi2``, ``df_resid`` and
+        ``verdict``.
+
+    Example:
+        >>> import numpy as np
+        >>> rng = np.random.default_rng(0)
+        >>> mu = np.full(500, 5.0)
+        >>> y = rng.poisson(5.0, size=500).astype(float)
+        >>> out = overdispersion_statistic(y, mu, 499)
+        >>> bool(0.7 < out['dispersion'] < 1.4)
+        True
+    """
+    yv = np.asarray(y, dtype=float).ravel()
+    mv = np.asarray(mu, dtype=float).ravel()
+    if yv.size != mv.size:
+        raise ValueError(f"y has {yv.size} entries, mu has {mv.size}")
+    if df_resid is None or df_resid <= 0:
+        raise ValueError(
+            f"df_resid must be positive to form a dispersion, got {df_resid!r}")
+    var = mv if variance is None else np.asarray(variance(mv), dtype=float).ravel()
+    w = (np.ones_like(yv) if weights is None
+         else np.asarray(weights, dtype=float).ravel())
+    good = np.isfinite(yv) & np.isfinite(mv) & np.isfinite(var) & (var > 0)
+    if not np.any(good):
+        raise ValueError("no observation has a positive fitted variance")
+    chi2 = float(np.sum(w[good] * (yv[good] - mv[good]) ** 2 / var[good]))
+    phi = chi2 / float(df_resid)
+    if phi > 2.0:
+        verdict = ("strongly over-dispersed — refit with negative binomial or "
+                   "quasi-Poisson; every interval here is too narrow by "
+                   f"{np.sqrt(phi):.1f}x")
+    elif phi > 1.5:
+        verdict = ("over-dispersed — intervals are too narrow by "
+                   f"{np.sqrt(phi):.1f}x")
+    elif phi < 0.5:
+        verdict = "under-dispersed — intervals are conservative; check for aggregation"
+    else:
+        verdict = "consistent with the assumed mean-variance relationship"
+    return {"dispersion": phi, "pearson_chi2": chi2,
+            "df_resid": float(df_resid), "verdict": verdict}
+
+
+#: Below this many residuals D'Agostino's K-squared test has no useful null
+#: distribution, so it is refused rather than reported. scipy raises outright
+#: below 8; saying WHY costs a sentence and stops a summary from carrying a
+#: blank where a verdict belongs.
+NORMALITY_MIN_N = 8
+
+#: What :func:`residual_normality` calls the test it could not run. The
+#: summary prints this string as the verdict, so it has to read as a
+#: sentence rather than as a missing value.
+NORMALITY_TOO_FEW = f"normality test needs n >= {NORMALITY_MIN_N}"
+
+
+def residual_normality(resid, *, min_n=NORMALITY_MIN_N):
+    """Skew, excess kurtosis and a normality P value for one residual vector.
+
+    Below ``min_n`` residuals, the K-squared test is not run. In that case
+    ``normality_p`` is ``NaN`` and ``test`` contains
+    :data:`NORMALITY_TOO_FEW`; callers should display both fields.
+
+    :param resid: residuals; non-finite entries are dropped first.
+    :param min_n: fewest residuals the test will run on. Default
+        :data:`NORMALITY_MIN_N`.
+    :returns: ``{'skew', 'excess_kurtosis', 'normality_statistic',
+        'normality_p', 'test', 'n'}``.
+        ``excess_kurtosis`` is Fisher's, so 0 is normal.
+
+    ::
+
+        >>> import numpy as np
+        >>> out = residual_normality(np.arange(4.0))
+        >>> out["test"]
+        'normality test needs n >= 8'
+    """
+    from scipy import stats as sps
+
+    values = np.asarray(resid, dtype=float).ravel()
+    values = values[np.isfinite(values)]
+    n = int(values.size)
+    if n < 3:
+        return {"skew": float("nan"), "excess_kurtosis": float("nan"),
+                "normality_statistic": float("nan"),
+                "normality_p": float("nan"),
+                "test": f"only {n} finite residual(s); a shape needs at least 3",
+                "n": n}
+    skew = float(sps.skew(values))
+    kurt = float(sps.kurtosis(values))
+    if n >= int(min_n):
+        statistic, pval = sps.normaltest(values)
+        test = "D'Agostino K\u00b2"
+    else:
+        statistic = float("nan")
+        pval = float("nan")
+        test = NORMALITY_TOO_FEW
+    return {"skew": skew, "excess_kurtosis": kurt,
+            "normality_statistic": float(statistic),
+            "normality_p": float(pval),
+            "test": test, "n": n}
+
+
+def diagnose_p_value_histogram(p_values, n_bins=20):
+    """Classify the shape of a screen's p-value distribution.
+
+    A screen in which most genes do nothing should give p-values that are
+    uniform on ``[0, 1]`` with a spike in the first bin (the real hits). Two
+    other shapes are diagnostic of a broken fit and are the reason this panel
+    exists:
+
+    * a **spike near 1** means the test is conservative — usually a
+      variance component soaking up the signal, or duplicated rows inflating n;
+    * a **U shape** (both ends enriched) means the null is mis-specified —
+      typically unmodelled plate structure, which pushes half the genes one way
+      and half the other.
+
+    :param p_values: Iterable of p-values; non-finite entries are dropped.
+        Every remaining value must lie in the closed interval ``[0, 1]``.
+    :param n_bins: Histogram resolution. Default 20 (bins of width 0.05).
+    :returns: dict with ``verdict`` (one of ``'uniform-with-spike'``,
+        ``'uniform'``, ``'excess-large'``, ``'u-shaped'``, ``'anti-uniform'``,
+        ``'too-few'``), ``message``, ``counts``, ``expected``,
+        ``first_bin_ratio``, ``last_bin_ratio`` and ``frac_below_0.05``.
+    :raises ValueError: if a finite value lies outside ``[0, 1]``.
+
+    Example:
+        >>> import numpy as np
+        >>> rng = np.random.default_rng(1)
+        >>> diagnose_p_value_histogram(rng.uniform(size=2000))['verdict']
+        'uniform'
+        >>> spiky = np.concatenate([rng.uniform(0.9, 1.0, 800),
+        ...                         rng.uniform(size=200)])
+        >>> diagnose_p_value_histogram(spiky)['verdict']
+        'excess-large'
+    """
+    p = np.asarray(list(p_values), dtype=float).ravel()
+    p = p[np.isfinite(p)]
+    outside = (p < 0.0) | (p > 1.0)
+    if np.any(outside):
+        raise ValueError(
+            f"{int(np.count_nonzero(outside))} finite p-value(s) outside "
+            f"[0, 1]; observed range [{p.min():.3g}, {p.max():.3g}]")
+    counts, edges = np.histogram(p, bins=n_bins, range=(0.0, 1.0))
+    n = int(counts.sum())
+    expected = n / float(n_bins) if n else float("nan")
+    out = {
+        "counts": counts,
+        "edges": edges,
+        "n": n,
+        "expected": expected,
+        "frac_below_0.05": float(np.mean(p <= 0.05)) if n else float("nan"),
+    }
+    if n < 20:
+        out.update(verdict="too-few", message=(
+            f"only {n} p-value(s): the shape of this histogram means nothing "
+            f"below ~20 coefficients"), first_bin_ratio=float("nan"),
+            last_bin_ratio=float("nan"))
+        return out
+
+    first = counts[0] / expected
+    last = counts[-1] / expected
+    middle = counts[1:-1]
+    middle_ratio = float(np.mean(middle) / expected) if middle.size else 1.0
+    out["first_bin_ratio"] = float(first)
+    out["last_bin_ratio"] = float(last)
+    out["middle_ratio"] = middle_ratio
+
+    if last > 1.5 and first > 1.5:
+        verdict = "u-shaped"
+        message = ("U-shaped: both tails are enriched. The null is "
+                   "mis-specified — usually unmodelled plate/row structure. "
+                   "Do not read the hit list before fixing the model.")
+    elif last > 1.5:
+        verdict = "excess-large"
+        message = (f"spike near p = 1 ({last:.1f}x uniform): the test is "
+                   f"conservative. Check for duplicated wells inflating n, or "
+                   f"a random effect absorbing the signal.")
+    elif first > 1.5:
+        verdict = "uniform-with-spike"
+        message = (f"uniform with a spike near 0 ({first:.1f}x uniform): the "
+                   f"expected shape for a screen with real hits.")
+    elif first < 0.5:
+        verdict = "anti-uniform"
+        message = ("depleted near p = 0 and flat elsewhere: no signal, and the "
+                   "test may be over-conservative.")
+    else:
+        verdict = "uniform"
+        message = ("flat: consistent with no coefficient differing from the "
+                   "null. A screen with hits should show a spike in the first "
+                   "bin.")
+    out["verdict"] = verdict
+    out["message"] = message
+    return out
+
+
+
+
+@dataclass
+class ResidualStandardisation:
+    """How a fit's residuals are put on a comparable scale, or why they are not.
+
+    ``std_resid = base / sqrt(variance * (1 - h))``. Both halves of that matter
+    and both are model-class-dependent: ``base`` is a Pearson residual for a
+    GLM and for beta regression, ``sqrt(w) * (y - fitted)`` for WLS and
+    ``y - fitted`` for OLS; ``variance`` is ``model.scale`` for OLS, its
+    *square* for RLM, and does not exist at all for quantile regression.
+
+    :param available: True when a correct error scale exists for this fit.
+        When it is False, ``base`` and ``variance`` are ``None``/``NaN`` and
+        ``reason`` says why — the panels that need a standardised residual
+        skip with that reason rather than standardise by a number that
+        happens to be there.
+    :param metric: What ``base`` is, in words, for the axis and the report.
+    :param source: Where ``variance`` came from, in words.
+    :param base: The residual that is standardised, length ``n``.
+    :param variance: The error variance in the metric of ``base``.
+    :param reason: Why no standardisation exists, when ``available`` is False.
+    """
+
+    available: bool
+    metric: str
+    source: str
+    base: Optional[np.ndarray] = None
+    variance: float = float("nan")
+    reason: Optional[str] = None
+
+
+def _positive_float(value):
+    """Return ``value`` as a finite positive float, or ``None``."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if np.isfinite(number) and number > 0 else None
+
+
+def _residual_variance(resid, n, p):
+    """``RSS / (n - p)``, and whether it came out usable.
+
+    Returns ``(variance, exact_fit)``. ``exact_fit`` is True when the residual
+    sum of squares is zero (or the degrees of freedom are gone), in which case
+    a unit variance is substituted so the influence panels can report the
+    saturation instead of dividing by zero.
+    """
+    dof = max(int(n) - int(p), 1)
+    rss = float(np.sum(np.asarray(resid, dtype=float) ** 2))
+    variance = _positive_float(rss / dof)
+    if variance is None:
+        return 1.0, True
+    return variance, False
+
+
+def _fit_weights(model, n):
+    """The weights a weighted fit was actually given, or ``None``.
+
+    Taken from the model rather than from the caller: they are what
+    ``model.scale`` was formed with, so they are the only weights that make
+    ``scale`` and the hat matrix agree with each other.
+    """
+    inner = getattr(model, "model", None)
+    weights = getattr(inner, "weights", None)
+    if weights is None:
+        return None
+    array = np.asarray(weights, dtype=float).ravel()
+    if array.size != int(n) or not np.all(np.isfinite(array)) or np.any(array <= 0):
+        return None
+    return array
+
+
+def _pearson_base(model, n):
+    """``resid_pearson`` as a length-``n`` array, or ``None``."""
+    pearson = getattr(model, "resid_pearson", None)
+    if pearson is None:
+        return None
+    array = np.asarray(pearson, dtype=float).ravel()
+    return array if array.size == int(n) else None
+
+
+def _unavailable(reason, metric="none"):
+    """Describe why residual standardisation cannot be computed."""
+    return ResidualStandardisation(available=False, metric=metric,
+                                   source="not available", reason=reason)
+
+
+def _scale_ols(model, resid, n, p):
+    """OLS: ``model.scale`` is ``RSS / (n - p)``, the error variance itself."""
+    variance = _positive_float(getattr(model, "scale", None))
+    source = "OLS error variance (model.scale = RSS / (n - p))"
+    if variance is None:
+        variance, exact = _residual_variance(resid, n, p)
+        source = ("residual variance RSS / (n - p) recomputed here; the fit "
+                  "reports no usable model.scale")
+        if exact:
+            source = ("unit variance: the fit reproduces every observation "
+                      "exactly, so there is no residual variance to divide by")
+    return ResidualStandardisation(
+        available=True, metric="response-scale residual (y - fitted)",
+        source=source, base=np.asarray(resid, dtype=float), variance=variance)
+
+
+def _scale_wls(model, resid, n, p):
+    """WLS: ``model.scale`` is in the metric of ``sqrt(w) * (y - fitted)``.
+
+    ``RegressionResults.scale`` is ``wresid' wresid / df_resid``, and for a WLS
+    fit ``wresid`` is ``sqrt(w) * resid``. With spaCR's per-well cell counts
+    for ``w`` that is two to three orders of magnitude larger than the
+    unweighted residual variance, so the residual has to be weighted to match
+    it — not the scale unweighted to match the residual, which would throw
+    away the whole point of weighting the fit.
+    """
+    weights = _fit_weights(model, n)
+    if weights is None:
+        return _unavailable(
+            "this WLS fit does not expose the per-observation weights it was "
+            "fitted with, and its model.scale is the error variance of "
+            "sqrt(w) * (y - fitted), not of (y - fitted). Standardising "
+            "without the weights would rescale every residual by an arbitrary "
+            "factor. Refit with spacr.ml.regression_model, which always passes "
+            "the cell counts through.")
+    variance = _positive_float(getattr(model, "scale", None))
+    source = ("WLS error variance (model.scale = sum(w e^2) / (n - p), in the "
+              "metric of sqrt(w) * residual)")
+    if variance is None:
+        dof = max(int(n) - int(p), 1)
+        variance = _positive_float(
+            float(np.sum(weights * np.asarray(resid, dtype=float) ** 2)) / dof)
+        source = "weighted residual variance sum(w e^2) / (n - p) recomputed here"
+        if variance is None:
+            variance, source = 1.0, (
+                "unit variance: the weighted fit reproduces every observation "
+                "exactly")
+    return ResidualStandardisation(
+        available=True,
+        metric="weighted residual sqrt(w) * (y - fitted)",
+        source=source,
+        base=np.sqrt(weights) * np.asarray(resid, dtype=float),
+        variance=variance)
+
+
+def _scale_gls(model, resid, n, p):
+    """GLS/GLSAR: ``scale`` lives in a whitened metric this module cannot rebuild.
+
+    ``RegressionResults.scale`` for a GLS fit is the variance of the *whitened*
+    residual ``cholsigmainv @ (y - fitted)``, which needs the error covariance
+    the caller supplied and which the results object does not hand back in a
+    per-observation form. spaCR refuses ``regression_type='gls'`` outright, so
+    this branch exists to stop a hand-built GLS fit from being standardised as
+    though it were OLS.
+    """
+    return _unavailable(
+        f"{type(getattr(model, 'model', model)).__name__} is a generalised "
+        f"least-squares fit: its model.scale is the variance of the WHITENED "
+        f"residual, in a metric set by the error covariance passed to the fit, "
+        f"and (y - fitted) is not in that metric. spaCR does not fit GLS "
+        f"(spacr.ml.UNSUPPORTED_REGRESSION_TYPES says why); use 'ols' with "
+        f"cov_type='HC3', 'wls', or 'mixed'.")
+
+
+def _scale_rlm(model, resid, n, p):
+    """RLM / Huber: ``model.scale`` is a standard DEVIATION, not a variance.
+
+    ``RLMResults.scale`` is the robust (MAD by default) estimate of sigma, and
+    ``RLMResults.sresid`` is ``resid / scale`` — no square root anywhere.
+    Dividing by ``sqrt(scale)`` instead is wrong by a factor of
+    ``sqrt(scale)``, which is unit-dependent: it *shrinks* every |z| when the
+    response is a fraction and *inflates* every |z| when the response is a
+    per-well count.
+    """
+    sigma = _positive_float(getattr(model, "scale", None))
+    if sigma is None:
+        return _unavailable(
+            "this robust fit reports no usable scale estimate "
+            f"(model.scale = {getattr(model, 'scale', None)!r}). RLM's scale "
+            "is the robust standard deviation of the residuals; with more "
+            "than half the wells fitted exactly the MAD collapses to zero and "
+            "there is nothing to standardise by.")
+    return ResidualStandardisation(
+        available=True, metric="response-scale residual (y - fitted)",
+        source=(f"robust scale estimate: RLMResults.scale = {sigma:.6g} is a "
+                f"standard deviation, so the variance is its square "
+                f"({sigma ** 2:.6g})"),
+        base=np.asarray(resid, dtype=float), variance=sigma ** 2)
+
+
+def _scale_quantreg(model, resid, n, p):
+    """Quantile regression: there is no error scale, and ``scale`` is a stub."""
+    q = getattr(model, "q", None)
+    where = f"the {q:g} quantile" if isinstance(q, float) else "a quantile"
+    return _unavailable(
+        f"quantile regression estimates {where} of the response, not its "
+        f"mean, so it has no error-variance parameter: statsmodels' "
+        f"QuantRegResults.scale is hard-coded to 1.0 as a placeholder and is "
+        f"not a variance of anything. Its residuals are also asymmetric by "
+        f"construction (a fixed fraction of them are negative), so the "
+        f"Gaussian-theory studentised residual, Cook's distance and DFFITS "
+        f"are undefined here. The residual-vs-fitted, response and design "
+        f"panels are unaffected; refit with 'ols' or 'rlm' if you need "
+        f"influence diagnostics.")
+
+
+def _scale_glm(model, resid, n, p):
+    """GLM: standardise the Pearson residual by the family's dispersion."""
+    base = _pearson_base(model, n)
+    if base is None:
+        return _unavailable(
+            f"{type(model).__name__} reports a GLM family but no per-"
+            f"observation Pearson residual, so (y - mu) cannot be put on the "
+            f"family's variance scale; standardising on the response scale "
+            f"instead would make every well near mu = 0.5 look like an outlier.")
+    variance = _positive_float(getattr(model, "scale", None))
+    family = type(getattr(model, "family", None)).__name__
+    if variance is None:
+        return _unavailable(
+            f"this {family} GLM reports a non-positive dispersion "
+            f"(model.scale = {getattr(model, 'scale', None)!r}), so the "
+            f"Pearson residual cannot be standardised.")
+    return ResidualStandardisation(
+        available=True, metric="Pearson residual (y - mu) / sqrt(V(mu))",
+        source=(f"GLM dispersion model.scale = {variance:.6g} "
+                f"({family} family; fixed at 1 for Binomial and Poisson, "
+                f"estimated otherwise)"),
+        base=base, variance=variance)
+
+
+def _scale_beta(model, resid, n, p):
+    """Beta regression: ``scale`` is 1, and it belongs to the Pearson residual.
+
+    ``BetaResults.scale`` is the generic likelihood-model default of ``1.0``.
+    That is the right number, but only against
+    ``(y - mu) / sqrt(mu (1 - mu) / (1 + phi))`` — never against ``y - mu``,
+    whose spread on a fraction response is an order of magnitude smaller.
+    """
+    base = _pearson_base(model, n)
+    if base is None:
+        return _unavailable(
+            "this statsmodels build's beta-regression results expose no "
+            "resid_pearson, and the beta variance mu(1 - mu)/(1 + phi) cannot "
+            "be recovered from the results object alone. model.scale is the "
+            "generic likelihood default of 1.0 and is not the variance of "
+            "(y - mu).")
+    return ResidualStandardisation(
+        available=True,
+        metric="Pearson residual (y - mu) / sqrt(mu(1-mu)/(1+phi))",
+        source="beta-regression unit dispersion (the precision phi is already "
+               "in the Pearson denominator)",
+        base=base, variance=1.0)
+
+
+def _scale_mixedlm(model, resid, n, p):
+    """MixedLM: ``scale`` is the residual variance, and the residuals match it.
+
+    ``MixedLMResults.fittedvalues`` includes the predicted random effects, so
+    ``y - fitted`` is the *conditional* residual and ``scale`` is exactly its
+    variance. The shrinkage in the BLUPs makes the conditional residual a few
+    percent tighter than sigma, which is conservative; the marginal residual
+    would be far too wide for this scale, and the report says which one it is.
+    """
+    variance = _positive_float(getattr(model, "scale", None))
+    source = ("MixedLM residual variance (model.scale), matched to residuals "
+              "that are CONDITIONAL on the estimated random effects")
+    if variance is None:
+        variance, exact = _residual_variance(resid, n, p)
+        source = "residual variance RSS / (n - p) recomputed here"
+        if exact:
+            source = "unit variance: the mixed fit reproduces every observation exactly"
+    return ResidualStandardisation(
+        available=True,
+        metric="conditional residual (y - fitted, random effects included)",
+        source=source, base=np.asarray(resid, dtype=float), variance=variance)
+
+
+def _scale_classifier(model, resid, n, p):
+    """A classifier predicts labels: there is no error variance to divide by."""
+    return _unavailable(
+        f"{type(model).__name__} is a classifier: it predicts a class label, "
+        f"not a conditional mean, so it has no error variance, no likelihood "
+        f"and therefore no standardised residual. Cook's distance and DFFITS "
+        f"are least-squares influence measures and do not carry over to a "
+        f"hinge loss. spaCR reports the hinge fit's coefficient stability "
+        f"through the bootstrap standard errors in the coefficient table "
+        f"instead.")
+
+
+def _scale_estimated(model, resid, n, p):
+    """Anything else: estimate the residual variance and say that is what it is."""
+    variance, exact = _residual_variance(resid, n, p)
+    source = (f"residual variance RSS / (n - p) estimated here; "
+              f"{type(model).__name__} reports no dispersion this module "
+              f"recognises")
+    if exact:
+        source = ("unit variance: the fit reproduces every observation "
+                  "exactly, so there is no residual variance to divide by")
+    return ResidualStandardisation(
+        available=True, metric="response-scale residual (y - fitted)",
+        source=source, base=np.asarray(resid, dtype=float), variance=variance)
+
+
+#: Residual standardisation, per fitted-model class. Keyed on a class name
+#: looked up along the MRO of the *model* a results object came from (so a
+#: subclass resolves to its base, and ``OLS`` — which subclasses ``WLS`` in
+#: statsmodels — resolves to ``OLS`` because its own name is found first).
+#:
+#: A model class that is not in here is not assumed to be least squares: it
+#: falls through to :func:`_scale_estimated`, which recomputes the residual
+#: variance rather than trusting a ``scale`` attribute whose meaning is unknown.
+_SCALE_RESOLVERS: Dict[str, Callable[[Any, np.ndarray, int, int],
+                                     ResidualStandardisation]] = {
+    "OLS": _scale_ols,
+    "WLS": _scale_wls,
+    "GLS": _scale_gls,
+    "GLSAR": _scale_gls,
+    "RLM": _scale_rlm,
+    "QuantReg": _scale_quantreg,
+    "GLM": _scale_glm,
+    "BetaModel": _scale_beta,
+    "MixedLM": _scale_mixedlm,
+    "ClassifierMixin": _scale_classifier,
+}
+
+
+def _model_kind(model):
+    """Return the :data:`_SCALE_RESOLVERS` key for a fitted object.
+
+    statsmodels hands back a *results* object whose class is often shared
+    across model types — ``sm.OLS(...).fit()`` and ``sm.WLS(...).fit()`` are
+    both a ``RegressionResultsWrapper`` — so the results class cannot tell them
+    apart. ``results.model`` can: it is the ``OLS``/``WLS``/``QuantReg``/
+    ``RLM``/``GLM``/``MixedLM``/``BetaModel`` instance that was fitted. sklearn
+    estimators are their own model, and are matched on their own MRO (which is
+    where ``ClassifierMixin`` shows up).
+
+    The MRO is searched against both registries that are keyed this way —
+    :data:`_SCALE_RESOLVERS` and :data:`_FAMILY_BY_KIND` — so a class only one
+    of them knows about (``Lasso`` has a family name but no scale rule of its
+    own) still resolves to its own key rather than to ``None``.
+
+    :param model: Fitted results object or sklearn estimator.
+    :returns: ``(key, class_name)`` — the registry key (``None`` when nothing
+        matched) and the model class's own name, for messages.
+
+    Example:
+        >>> import numpy as np, statsmodels.api as sm
+        >>> y = np.array([1.0, 2.0, 3.1, 3.9])
+        >>> X = np.column_stack([np.ones(4), [0.0, 1.0, 2.0, 3.0]])
+        >>> _model_kind(sm.OLS(y, X).fit())[0]
+        'OLS'
+        >>> _model_kind(sm.WLS(y, X, weights=np.arange(1, 5.0)).fit())[0]
+        'WLS'
+    """
+    inner = getattr(model, "model", None)
+    target = model if inner is None else inner
+    for cls in type(target).__mro__:
+        if cls.__name__ in _SCALE_RESOLVERS or cls.__name__ in _FAMILY_BY_KIND:
+            return cls.__name__, type(target).__name__
+    return None, type(target).__name__
+
+
+def resolve_residual_standardisation(model, resid, n_obs, n_params):
+    """Return how this fit's residuals can be standardised, or why they cannot.
+
+    This is the single place that defines what ``model.scale`` means, per
+    model class rather than per attribute: an attribute that exists may not
+    mean what the caller expects. See
+    :data:`_SCALE_RESOLVERS` for the table and the module docstring for why it
+    is not one formula.
+
+    :param model: Fitted statsmodels results object or sklearn estimator.
+    :param resid: Response-scale residuals ``y - fitted``, length ``n_obs``.
+    :param n_obs: Number of observations.
+    :param n_params: Number of columns in the design matrix.
+    :returns: :class:`ResidualStandardisation`. Check ``.available`` before
+        reading ``.base`` / ``.variance``.
+
+    Example:
+        >>> import numpy as np, statsmodels.api as sm
+        >>> rng = np.random.default_rng(0)
+        >>> X = np.column_stack([np.ones(60), rng.normal(size=60)])
+        >>> y = X @ [1.0, 2.0] + rng.normal(size=60)
+        >>> fit = sm.RLM(y, X).fit()
+        >>> std = resolve_residual_standardisation(fit, y - fit.fittedvalues, 60, 2)
+        >>> bool(np.isclose(std.variance, fit.scale ** 2))   # a variance, not an SD
+        True
+        >>> resolve_residual_standardisation(
+        ...     sm.QuantReg(y, X).fit(q=0.5), np.zeros(60), 60, 2).available
+        False
+    """
+    residuals = np.asarray(resid, dtype=float).ravel()
+    key, _ = _model_kind(model)
+    resolver = _SCALE_RESOLVERS.get(key, _scale_estimated)
+    result = resolver(model, residuals, int(n_obs), int(n_params))
+    if result.available and result.base is not None:
+        base = np.asarray(result.base, dtype=float).ravel()
+        if base.size != residuals.size:
+            return _unavailable(
+                f"the standardisation for {type(model).__name__} produced "
+                f"{base.size} residuals for {residuals.size} observations; "
+                f"the model and the data handed to the QC report are not the "
+                f"same rows.")
+        result.base = base
+    return result
+
+
+
+
+def _as_frame(X):
+    """Coerce a design matrix to a DataFrame with usable column names."""
+    if isinstance(X, pd.DataFrame):
+        return X
+    arr = np.asarray(X)
+    if arr.ndim == 1:
+        arr = arr[:, None]
+    return pd.DataFrame(arr, columns=[f"x{i}" for i in range(arr.shape[1])])
+
+
+def _as_vector(y, name="y"):
+    """Coerce a response to a 1-D float array, refusing anything ambiguous."""
+    if isinstance(y, pd.DataFrame):
+        if y.shape[1] != 1:
+            raise ValueError(
+                f"{name} has {y.shape[1]} columns; a single response column is "
+                f"required")
+        y = y.iloc[:, 0]
+    arr = np.asarray(y, dtype=float)
+    arr = arr.ravel() if arr.ndim > 1 else arr
+    return arr
+
+
+def _model_fitted_values(model, X):
+    """Fitted values on the response scale, for statsmodels or sklearn."""
+    fitted = getattr(model, "fittedvalues", None)
+    if fitted is not None:
+        return np.asarray(fitted, dtype=float).ravel()
+    predict = getattr(model, "predict", None)
+    if predict is None:
+        raise ValueError(
+            f"{type(model).__name__} exposes neither fittedvalues nor "
+            f"predict(); it cannot be QC'd")
+    return np.asarray(predict(X), dtype=float).ravel()
+
+
+def _decision_score(model, X, y):
+    """The continuous score a classifier ranks by, oriented positive-is-higher.
+
+    Returns ``None`` for anything that is not a two-class discriminative
+    classifier, in which case the panels fall back to the fitted values.
+
+    **The orientation is the entire point of this function.** scikit-learn's
+    contract is that ``decision_function(x) > 0`` predicts ``classes_[1]``, and
+    ``roc_auc_score`` treats the LARGER label as the event. Those two agree
+    whenever ``classes_`` is ascending, which sklearn guarantees for its own
+    estimators — but the agreement is an assumption, and an ROC computed on a
+    score with the opposite convention returns ``1 - AUC``: 0.94 becomes 0.06,
+    0.62 becomes 0.38, and neither reads as an error on the plot. This is the
+    same trap R's ``yardstick`` sets by treating the FIRST factor level as the
+    event, which this project has already been bitten by.
+
+    So the orientation is derived from ``classes_`` rather than assumed, and
+    the score is negated when ``classes_[1]`` is the *smaller* label. It is
+    never derived from the data: choosing the sign that makes the AUC exceed
+    0.5 would guarantee a flattering answer on noise, which is precisely the
+    failure the panel exists to reveal.
+
+    :param model: Fitted estimator.
+    :param X: Design matrix the fit saw.
+    :param y: Response, used only for the length check.
+    :returns: 1-D float array aligned with ``y``, or ``None``.
+    """
+    decision = getattr(model, "decision_function", None)
+    if not callable(decision):
+        return None
+    try:
+        score = np.asarray(decision(X), dtype=float)
+    except Exception:                               # noqa: BLE001
+        return None
+    if score.ndim != 1 or score.size != np.size(y):
+        return None
+
+    classes = getattr(model, "classes_", None)
+    if classes is not None and len(classes) == 2:
+        try:
+            low, high = float(classes[0]), float(classes[1])
+        except (TypeError, ValueError):
+            return score
+        if high < low:
+            return -score
+    return score
+
+
+#: Family/link wording per model class, for the axis labels and the report
+#: header. Only the GLM branch feeds :attr:`RegressionQCContext.is_binomial`
+#: and :attr:`~RegressionQCContext.is_count`; these names are prose. They exist
+#: because "Gaussian (least squares)" printed over a robust, quantile or beta
+#: fit is a false statement about what was fitted.
+_FAMILY_BY_KIND = {
+    "OLS": ("Gaussian (least squares)", "Identity"),
+    "WLS": ("Gaussian (weighted least squares)", "Identity"),
+    "GLS": ("Gaussian (generalised least squares)", "Identity"),
+    "GLSAR": ("Gaussian (generalised least squares, AR errors)", "Identity"),
+    "RLM": ("Huber M-estimate (robust regression)", "Identity"),
+    "QuantReg": ("quantile regression (no error distribution)", None),
+    "MixedLM": ("Gaussian (linear mixed effects)", "Identity"),
+    "ClassifierMixin": ("hinge loss (linear classifier)", None),
+    "Lasso": ("Gaussian (penalised least squares)", "Identity"),
+    "Ridge": ("Gaussian (penalised least squares)", "Identity"),
+    "ElasticNet": ("Gaussian (penalised least squares)", "Identity"),
+}
+
+
+def _family_and_link(model, regression_type):
+    """Name the family and link that were actually fitted.
+
+    A GLM says so itself. Everything else is named from its model class, not
+    guessed from the spaCR type string and not defaulted to least squares: a
+    ``BetaModel`` reported as "Gaussian (least squares) / Identity" — which is
+    what a name check against the *wrapper* class produced — is a caption that
+    contradicts the fit it sits under.
+    """
+    family = getattr(model, "family", None)
+    if family is not None:
+        link = getattr(family, "link", None)
+        return (type(family).__name__,
+                None if link is None else type(link).__name__)
+    key, _ = _model_kind(model)
+    if key == "BetaModel":
+        link = getattr(getattr(model, "model", None), "link", None)
+        return "Beta", ("Logit" if link is None else type(link).__name__)
+    if key in _FAMILY_BY_KIND:
+        return _FAMILY_BY_KIND[key]
+    if regression_type in ("lasso", "ridge", "elasticnet"):
+        return "Gaussian (penalised least squares)", "Identity"
+    return "Gaussian (least squares)", "Identity"
+
+
+def _well_labels(index, metadata, n):
+    """Per-well labels: ``prc`` when we have it, otherwise the row index.
+
+    Naming the outliers is the entire point of the influence panels — "well 47"
+    sends nobody to a microscope, ``plate1_r3_c11`` does.
+    """
+    if metadata is not None:
+        if schema.PRC_KEY in metadata.columns:
+            return np.asarray([str(value)
+                               for value in metadata[schema.PRC_KEY]])
+        parts = [c for c in schema.WELL_KEY_COLUMNS if c in metadata.columns]
+        if len(parts) == len(schema.WELL_KEY_COLUMNS):
+            values = metadata[list(parts)].to_numpy(dtype=object)
+            return np.asarray([
+                schema.KEY_SEPARATOR.join(str(value) for value in row)
+                for row in values
+            ])
+    if index is not None and len(index) == n:
+        return np.asarray([str(v) for v in index])
+    return np.asarray([str(i) for i in range(n)])
+
+
+def _align_metadata(metadata, index, n):
+    """Return metadata aligned to the fitted rows, or raise.
+
+    ``spacr.ml.regression`` drops rows in ``check_and_clean_data`` and patsy
+    drops more, so a metadata frame handed in whole will be *longer* than the
+    fit. Aligning on the index is correct when it survived; a length match is
+    the only other thing that can be trusted. Anything else is a silent
+    row-misalignment, which would attribute an outlier to the wrong well — the
+    single worst thing this report could do.
+    """
+    if metadata is None:
+        return None
+    if not isinstance(metadata, pd.DataFrame):
+        metadata = pd.DataFrame(metadata)
+    covered = 0
+    if index is not None and metadata.index.is_unique:
+        found = pd.Index(index).isin(metadata.index)
+        covered = int(found.sum())
+        if covered == len(index):
+            return metadata.loc[list(index)].reset_index(drop=True)
+    if len(metadata) == n:
+        return metadata.reset_index(drop=True)
+    raise ValueError(
+        f"metadata has {len(metadata)} rows and does not cover the {n} rows "
+        f"that were fitted (index overlap {covered}). Pass the metadata for "
+        f"exactly the rows the model saw, or pass None; guessing the alignment "
+        f"would label the wrong well as an outlier.")
+
+
+def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
+                  regression_type=None, volcano_path=None):
+    """Normalise a fitted model into the view the QC panels read.
+
+    The residual standardisation is resolved per model class by
+    :func:`resolve_residual_standardisation`::
+
+        std_resid = base / sqrt(variance * (1 - h))
+
+    where ``base`` and ``variance`` come from that registry — the Pearson
+    residual and the GLM dispersion for a GLM or a beta fit, ``sqrt(w) *
+    (y - fitted)`` and the weighted error variance for WLS, ``y - fitted`` and
+    ``scale ** 2`` for a robust fit, and nothing at all for quantile regression
+    or a classifier. When the registry reports that no correct scale exists,
+    ``std_resid`` is all-``NaN``, ``standardisation.reason`` says why, and the
+    six panels built on a standardised residual skip with that reason.
+
+    :param model: Fitted statsmodels results object or sklearn estimator.
+    :param X: Design matrix used for the fit (DataFrame preferred).
+    :param y: Response used for the fit.
+    :param weights: Per-observation weights passed to the fit, if any.
+    :param metadata: Per-well metadata frame; aligned by index, else by length.
+    :param coef_df: Coefficient table from
+        :func:`spacr.ml.process_model_coefficients`.
+    :param regression_type: The spaCR regression type string.
+    :param volcano_path: Where the run's volcano plot was written.
+    :returns: :class:`RegressionQCContext`.
+    :raises ValueError: if ``X`` and ``y`` disagree in length, or if
+        ``metadata`` cannot be aligned to the fitted rows.
+    """
+    frame = _as_frame(X)
+    response = _as_vector(y)
+    if response.size != frame.shape[0]:
+        raise ValueError(
+            f"y has {response.size} observations but the design matrix has "
+            f"{frame.shape[0]} rows; they must be the rows of the same fit")
+
+    fitted = _model_fitted_values(model, frame)
+    if fitted.size != response.size:
+        raise ValueError(
+            f"the model produced {fitted.size} fitted values for "
+            f"{response.size} observations")
+    resid = response - fitted
+
+    n, p = frame.shape
+    w = None if weights is None else np.asarray(weights, dtype=float).ravel()
+    if w is not None and w.size != n:
+        raise ValueError(
+            f"weights has {w.size} entries but the fit has {n} observations")
+
+    kind, model_class = _model_kind(model)
+    fitted_weights = _fit_weights(model, n) if kind in ("WLS", "GLS") else None
+
+    leverage, source = None, ""
+    getter = getattr(model, "get_hat_matrix_diag", None)
+    if callable(getter):
+        try:
+            leverage = np.asarray(getter(), dtype=float).ravel()
+            source = "model.get_hat_matrix_diag()"
+        except Exception:                       # noqa: BLE001 - see below
+            leverage = None
+    if leverage is None:
+        influence = getattr(model, "get_influence", None)
+        if callable(influence):
+            try:
+                leverage = np.asarray(
+                    influence().hat_matrix_diag, dtype=float).ravel()
+                source = "model.get_influence().hat_matrix_diag"
+            except Exception:                   # noqa: BLE001
+                leverage = None
+    if leverage is None or leverage.size != n:
+        hat_weights = w if fitted_weights is None else fitted_weights
+        leverage = leverage_from_design(frame.to_numpy(dtype=float),
+                                        weights=hat_weights)
+        if hat_weights is None:
+            source = "design matrix"
+        elif fitted_weights is not None:
+            source = f"design matrix ({model_class} fit weights)"
+        else:
+            source = "design matrix (weighted)"
+
+    family, link = _family_and_link(model, regression_type)
+
+    standardisation = resolve_residual_standardisation(model, resid, n, p)
+    if standardisation.available:
+        scale = float(standardisation.variance)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            std_resid = standardisation.base / np.sqrt(
+                scale * np.clip(1.0 - leverage, 1e-12, None))
+    else:
+        scale = float("nan")
+        std_resid = np.full(n, np.nan)
+
+    index = frame.index if isinstance(X, pd.DataFrame) else None
+    aligned_meta = _align_metadata(metadata, index, n)
+    labels = _well_labels(index, aligned_meta, n)
+
+    prediction_note = None
+    if kind == "ClassifierMixin":
+        prediction_note = (
+            f"{model_class} predicts a class label, not a conditional mean of "
+            f"the response: 'fitted' takes only the values in "
+            f"{list(np.unique(fitted))[:4]}, so the residual, its R² and its "
+            f"RMSE describe the distance from a decision, not the error of a "
+            f"regression")
+
+    decision_score = _decision_score(model, frame, response)
+
+    notes = []
+    if source.startswith("design matrix"):
+        notes.append(
+            f"leverage computed from the design matrix ({type(model).__name__} "
+            f"exposes no hat matrix)")
+    if fitted_weights is not None and source.endswith("fit weights)"):
+        notes.append(
+            f"leverage uses the {fitted_weights.size} per-observation weights "
+            f"the {model_class} fit was given — the hat matrix of a weighted "
+            f"fit carries its weights"
+            + (", not the 'weights' argument" if w is not None else ""))
+    if standardisation.available:
+        notes.append(f"residual scale: {standardisation.source}; standardised "
+                     f"quantity is the {standardisation.metric}")
+    else:
+        notes.append(f"no standardised residual: {standardisation.reason}")
+    if prediction_note:
+        notes.append(prediction_note)
+
+    return RegressionQCContext(
+        model=model, X=frame, y=response, fitted=fitted, resid=resid,
+        std_resid=std_resid, leverage=leverage, leverage_source=source,
+        scale=scale, labels=labels, standardisation=standardisation,
+        prediction_note=prediction_note, weights=w, metadata=aligned_meta,
+        coef_df=coef_df, regression_type=regression_type, family=family,
+        link=link, volcano_path=volcano_path, notes=notes,
+        decision_score=decision_score)
+
+
+def context_from_model(model, *, coef_df=None, regression_type=None,
+                       metadata=None, weights=None, volcano_path=None):
+    """Build a context from a fitted model that still carries its own design.
+
+    :func:`build_context` needs ``X`` and ``y`` because the pipeline has them:
+    :func:`spacr.ml.regression` is the only scope where the fitted design
+    exists, which is why the report is written from there. A caller who
+    receives only the fitted model — the Qt results panel gets one on
+    ``perform_regression``'s return payload, and nothing else — has no design
+    matrix to hand over, and had no way to compute a residual at all.
+
+    A statsmodels results object does carry it: ``results.model.exog`` is the
+    matrix that was fitted and ``results.model.exog_names`` names its columns,
+    so the design does not have to be reconstructed or guessed. This recovers
+    it and defers everything statistical to :func:`build_context`.
+
+    :param model: a fitted statsmodels results object.
+    :returns: :class:`RegressionQCContext`.
+    :raises PanelUnavailable: when the model does not carry its own design, so
+        the caller can put the reason on screen. sklearn's ``Lasso``,
+        ``Ridge`` and ``ElasticNet`` — spaCR's penalised backends — keep
+        neither the design nor the response, and a diagnostics tab that went
+        blank without saying so would look like a broken tab rather than a
+        model that cannot answer.
+    """
+    inner = getattr(model, "model", None)
+    exog = getattr(inner, "exog", None)
+    endog = getattr(inner, "endog", None)
+    if inner is None or exog is None or endog is None:
+        raise PanelUnavailable(
+            f"{type(model).__name__} does not keep the design matrix it was "
+            f"fitted with, so residuals, leverage and influence cannot be "
+            f"recomputed from it")
+    names = list(getattr(inner, "exog_names", None)
+                 or [f"x{i}" for i in range(np.asarray(exog).shape[1])])
+    design = pd.DataFrame(np.asarray(exog, dtype=float), columns=names)
+    return build_context(model, design, np.asarray(endog, dtype=float),
+                         weights=weights, metadata=metadata, coef_df=coef_df,
+                         regression_type=regression_type,
+                         volcano_path=volcano_path)
+
+
+
+
+def _finish(ax, title, xlabel, ylabel, n=None, unit="wells"):
+    """Label an axes so the panel can be read with no other context."""
+    if n is not None:
+        title = f"{title}\n(n = {n:,} {unit})"
+    ax.set_title(title, fontsize=9)
+    ax.set_xlabel(xlabel, fontsize=8)
+    ax.set_ylabel(ylabel, fontsize=8)
+    ax.tick_params(labelsize=7)
+    for spine in ("top", "right"):
+        ax.spines[spine].set_visible(False)
+
+
+def _note(ax, text, loc="upper left", color="#222222"):
+    """Stamp a short statistics block onto an axes."""
+    x, y, ha, va = {
+        "upper left": (0.02, 0.98, "left", "top"),
+        "upper right": (0.98, 0.98, "right", "top"),
+        "lower right": (0.98, 0.02, "right", "bottom"),
+        "lower left": (0.02, 0.02, "left", "bottom"),
+    }[loc]
+    ax.text(x, y, text, transform=ax.transAxes, ha=ha, va=va, fontsize=7,
+            color=color, linespacing=1.35,
+            bbox=dict(boxstyle="round,pad=0.3",
+                      facecolor=resolve_label_ground(theme_target()),
+                      edgecolor="#cccccc", alpha=0.85))
+
+
+def _trend(ax, x, y, color=None, label=None):
+    """Overlay a smoothed trend, returning its maximum absolute value.
+
+    LOWESS when there is enough data for it to mean anything, a binned median
+    otherwise. The returned number is what makes the panel testable: a flat
+    residual cloud has a small trend, a curved one does not.
+
+    The curve wears ``ROLES['highlight']`` because on both panels that draw
+    one — residuals-vs-fitted and scale-location — the smoother IS the
+    sentence; everything else on those axes is the data it was fitted to.
+    """
+    color = color or ROLES["highlight"]
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    good = np.isfinite(x) & np.isfinite(y)
+    x, y = x[good], y[good]
+    if x.size < 5 or np.ptp(x) == 0:
+        return float("nan")
+    if x.size >= 15:
+        from statsmodels.nonparametric.smoothers_lowess import lowess
+        smoothed = lowess(y, x, frac=min(0.8, max(0.3, 30.0 / x.size)),
+                          return_sorted=True)
+        sx, sy = smoothed[:, 0], smoothed[:, 1]
+    else:
+        order = np.argsort(x)
+        sx, sy = x[order], y[order]
+    ax.plot(sx, sy, color=color, lw=WEIGHTS["data"], zorder=4,
+            label=label)
+
+    return float(_trend_off_the_ties(sx, sy))
+
+
+#: A neighbourhood narrower than this fraction of the x range is a tie, not a
+#: neighbourhood. Deliberately generous: the failure it guards against is a
+#: smoother reporting a number from a vertical stack, and that stack is
+#: always far narrower than a percent of the span.
+_TIE_SPAN = 1e-4
+
+
+def _trend_off_the_ties(sx, sy) -> float:
+    """``max |sy|`` over the parts of the curve where x genuinely varies.
+
+    :param sx: smoothed x, ascending.
+    :param sy: smoothed y.
+    :returns: the largest absolute smoothed value outside any tied block, or
+        the plain maximum when there are no ties to exclude.
+    """
+    sx = np.asarray(sx, dtype=float)
+    sy = np.asarray(sy, dtype=float)
+    if sx.size < 3:
+        return float(np.nanmax(np.abs(sy))) if sy.size else float("nan")
+    span = float(np.ptp(sx))
+    if span <= 0:
+        return float("nan")
+    gap_before = np.diff(sx, prepend=sx[0] - span)
+    gap_after = np.diff(sx, append=sx[-1] + span)
+    trustworthy = (np.maximum(gap_before, gap_after) / span) > _TIE_SPAN
+    if not trustworthy.any():
+        return float(np.nanmax(np.abs(sy)))
+    return float(np.nanmax(np.abs(sy[trustworthy])))
+
+
+def _natural_key(value):
+    """Sort ``r2`` before ``r10`` — plate rows are not lexicographic."""
+    text = str(value)
+    match = re.match(r"^([A-Za-z]*)0*(\d+)$", text)
+    if match:
+        return (0, match.group(1).lower(), int(match.group(2)), "")
+    return (1, "", 0, text.lower())
+
+
+def _require_standardisation(ctx, what):
+    """Raise unless a correct standardised residual exists for this fit.
+
+    The reason carried by :class:`ResidualStandardisation` is the panel's skip
+    reason verbatim: it already names the model class and what is missing, and
+    a panel restating it in its own words would drift from the registry that
+    decided it.
+
+    :param ctx: The QC context.
+    :param what: What needs the standardised residual, e.g. ``"Cook's distance"``.
+    :raises PanelUnavailable: with the registry's reason.
+    """
+    if ctx.standardisation_available:
+        return
+    reason = (ctx.standardisation.reason if ctx.standardisation is not None
+              else "no residual standardisation was resolved for this fit")
+    raise PanelUnavailable(f"{what} needs a standardised residual, and {reason}")
+
+
+def _skip_box(ax, title, reason):
+    """Draw the "this panel could not be computed, and here is why" tile."""
+    ax.set_axis_off()
+    ax.set_facecolor("#ececec")
+    ax.patch.set_visible(True)
+    ax.add_patch(Rectangle((0.02, 0.02), 0.96, 0.96, transform=ax.transAxes,
+                           facecolor="none", edgecolor="#b0b0b0", lw=1.0,
+                           ls="--", zorder=2))
+    ax.text(0.5, 0.72, title, ha="center", va="center", fontsize=9,
+            fontweight="bold", color="#555555", transform=ax.transAxes)
+    ax.text(0.5, 0.45, textwrap.fill(f"SKIPPED: {reason}", 46), ha="center",
+            va="center", fontsize=7.5, color="#7a2020", transform=ax.transAxes)
+
+
+
+
+def _wells(n, unit="wells"):
+    """Format the sample size for a diagnostic panel annotation.
+
+    Keeping the count inside the panel lets an exported panel be interpreted
+    without relying on a surrounding report title.
+    """
+    return f"n = {n:,} {unit}"
+
+
+def _fit_sample(ctx):
+    """Count fitted rows and independent wells without conflating the two."""
+    if ctx.n_unique_wells < ctx.n:
+        return (f"n = {ctx.n:,} fitted rows\n"
+                f"{ctx.n_unique_wells:,} unique wells")
+    return _wells(ctx.n)
+
+
+def _panel_residuals_vs_fitted(ctx, ax):
+    """Residual vs fitted: the single most informative regression diagnostic."""
+    with figure_style(_REPORT_TARGET):
+        ax.scatter(ctx.fitted, ctx.resid, s=18, color=ROLES["data"],
+                   edgecolors="none", zorder=3)
+        reference_line(ax, y=0.0)
+        trend = _trend(ax, ctx.fitted, ctx.resid)
+        spread = float(np.nanstd(ctx.resid))
+        ink = _house_axes(ax, "residuals vs fitted",
+                          "fitted value (response scale)",
+                          "residual (observed - fitted)")
+        text = (f"{_fit_sample(ctx)}\nfamily: {ctx.family}\n"
+                f"resid SD = {spread:.4g}\n"
+                f"mean = {np.nanmean(ctx.resid):+.3g}\n"
+                f"|trend| max = {trend:.3g}")
+        if ctx.prediction_note:
+            text += "\n" + textwrap.fill(ctx.prediction_note, 40)
+        annotate(ax, text, colour=ink)
+    return {"n_points": int(np.sum(np.isfinite(ctx.resid))),
+            "resid_sd": spread, "resid_mean": float(np.nanmean(ctx.resid)),
+            "max_abs_trend": trend,
+            "max_abs_resid": float(np.nanmax(np.abs(ctx.resid))),
+            "limitation": ctx.prediction_note}
+
+
+def _panel_residual_distribution(ctx, ax):
+    """Residual histogram with a KDE and the matching normal density."""
+    from scipy import stats as sps
+
+    resid = ctx.resid[np.isfinite(ctx.resid)]
+    if resid.size < 3:
+        raise PanelUnavailable(
+            f"only {resid.size} finite residual(s); a distribution needs at least 3")
+    bins = int(np.clip(np.sqrt(resid.size), 10, 60))
+    with figure_style(_REPORT_TARGET):
+        ax.hist(resid, bins=bins, density=True, color=ROLES["fill"],
+                edgecolor="none")
+        grid = np.linspace(resid.min(), resid.max(), 256)
+        drew_kde = np.ptp(resid) > 0
+        if drew_kde:
+            ax.plot(grid, sps.gaussian_kde(resid)(grid),
+                    color=ROLES["highlight"], lw=WEIGHTS["data"], zorder=4)
+        ax.plot(grid, sps.norm.pdf(grid, resid.mean(), resid.std(ddof=1) or 1e-12),
+                color=ROLES["reference"], lw=WEIGHTS["reference"],
+                ls=(0, (4, 3)), zorder=1)
+        entries = [("normal fit", ROLES["reference"])]
+        if drew_kde:
+            entries.insert(0, ("KDE", ROLES["highlight"]))
+        text_legend(ax, entries)
+
+        shape = residual_normality(resid)
+        skew = shape["skew"]
+        kurt = shape["excess_kurtosis"]
+        statistic = shape["normality_statistic"]
+        pval = shape["normality_p"]
+        test = shape["test"]
+        ink = _house_axes(ax, "residual distribution", "residual", "density")
+        annotate(ax, f"{_wells(resid.size)}\nskew = {skew:+.2f}\n"
+                     f"excess kurtosis = {kurt:+.2f}\n"
+                     f"{test} = {statistic:.3g}, p = {pval:.3g}"
+                     if np.isfinite(pval) else
+                 f"{_wells(resid.size)}\nskew = {skew:+.2f}\n"
+                 f"excess kurtosis = {kurt:+.2f}\n{test}",
+                 x=0.98, ha="right", colour=ink)
+    return {"skew": skew, "excess_kurtosis": kurt,
+            "normality_statistic": float(statistic),
+            "normality_p": float(pval),
+            "normality_test": test,
+            "n_bins": bins, "n_points": int(resid.size),
+            "limitation": ctx.prediction_note}
+
+
+def _panel_scale_location(ctx, ax):
+    """sqrt|standardised residual| vs fitted — the heteroscedasticity panel.
+
+    Two statistics, because one is not enough. Spearman's rho catches the
+    *monotone* megaphone (spread grows with the fit) and is what most
+    implementations stop at — but it is exactly zero for a symmetric funnel,
+    where the spread is large at both ends and small in the middle. That shape
+    is what a mis-specified link or an unmodelled quadratic produces, it is
+    common in this pipeline, and a panel that printed "no trend in spread"
+    over it would be handing back a confident wrong answer. A Brown-Forsythe
+    test across quartiles of the fitted value sees both.
+    """
+    from scipy import stats as sps
+
+    _require_standardisation(ctx, "the scale-location panel")
+    root = np.sqrt(np.abs(ctx.std_resid))
+    good = np.isfinite(root) & np.isfinite(ctx.fitted)
+    if good.sum() < 3:
+        raise PanelUnavailable("fewer than 3 finite standardised residuals")
+    fitted, root = ctx.fitted[good], root[good]
+    rho, rho_p = sps.spearmanr(fitted, root)
+
+    levene_p, sd_ratio = float("nan"), float("nan")
+    resid = ctx.resid[good]
+    if good.sum() >= 20 and np.ptp(fitted) > 0:
+        edges = np.unique(np.quantile(fitted, [0.0, 0.25, 0.5, 0.75, 1.0]))
+        if edges.size >= 3:
+            bucket = np.clip(np.searchsorted(edges, fitted, side="right") - 1,
+                             0, edges.size - 2)
+            groups = [resid[bucket == b] for b in range(edges.size - 1)]
+            groups = [g for g in groups if g.size >= 2]
+            if len(groups) >= 2:
+                sds = np.array([np.std(g, ddof=1) for g in groups])
+                sd_ratio = float(sds.max() / sds.min()) if sds.min() > 0 else np.inf
+                try:
+                    levene_p = float(sps.levene(*groups, center="median")[1])
+                except ValueError:
+                    levene_p = float("nan")
+
+    unequal = np.isfinite(levene_p) and levene_p < 0.01
+    if unequal and rho > 0.3:
+        verdict = "variance grows with the fit"
+    elif unequal and rho < -0.3:
+        verdict = "variance shrinks with the fit"
+    elif unequal:
+        verdict = "spread differs across the fit, but not monotonically"
+    elif abs(rho) > 0.3:
+        verdict = ("variance grows with the fit" if rho > 0
+                   else "variance shrinks with the fit")
+    else:
+        verdict = "no detectable trend in spread"
+    with figure_style(_REPORT_TARGET):
+        ax.scatter(fitted, root, s=18, color=ROLES["data"], edgecolors="none")
+        _trend(ax, fitted, root)
+        ink = _house_axes(
+            ax, "scale-location", "fitted value",
+            r"$\sqrt{|\mathrm{standardised\ residual}|}$")
+        sample_text = (_fit_sample(ctx) if int(good.sum()) == ctx.n
+                       else _wells(int(good.sum()), "finite fitted rows"))
+        annotate(ax, f"{sample_text}\n"
+                     f"Spearman rho = {rho:+.2f} (p = {rho_p:.2g})\n"
+                     f"Brown-Forsythe p = {levene_p:.2g}\n"
+                     f"max/min quartile SD = {sd_ratio:.2f}", colour=ink)
+        flat = verdict == "no detectable trend in spread"
+        annotate(ax, verdict, y=0.78,
+                 colour=ink if flat else ROLES["down"])
+    return {"spearman_rho": float(rho), "spearman_p": float(rho_p),
+            "levene_p": levene_p, "quartile_sd_ratio": sd_ratio,
+            "verdict": verdict, "n_points": int(good.sum())}
+
+
+def _panel_qq_residuals(ctx, ax):
+    """Normal Q-Q of the standardised residuals with an R-style reference line."""
+    from scipy import stats as sps
+
+    _require_standardisation(ctx, "a Q-Q plot of standardised residuals")
+    sample = np.sort(ctx.std_resid[np.isfinite(ctx.std_resid)])
+    if sample.size < 5:
+        raise PanelUnavailable(
+            f"only {sample.size} finite standardised residual(s); a Q-Q plot "
+            f"needs at least 5")
+    quantiles = sps.norm.ppf((np.arange(1, sample.size + 1) - 0.375)
+                             / (sample.size + 0.25))
+    q1_t, q3_t = sps.norm.ppf([0.25, 0.75])
+    q1_s, q3_s = np.quantile(sample, [0.25, 0.75])
+    slope = (q3_s - q1_s) / (q3_t - q1_t)
+    intercept = q1_s - slope * q1_t
+    xs = np.array([quantiles[0], quantiles[-1]])
+    corr = float(np.corrcoef(quantiles, sample)[0, 1])
+    shape = residual_normality(ctx.resid)
+    skew = shape["skew"]
+    kurt = shape["excess_kurtosis"]
+    statistic = shape["normality_statistic"]
+    pval = shape["normality_p"]
+    test = shape["test"]
+    with figure_style(_REPORT_TARGET):
+        ax.scatter(quantiles, sample, s=16, color=ROLES["data"],
+                   edgecolors="none")
+        ax.plot(xs, intercept + slope * xs, color=ROLES["reference"],
+                lw=WEIGHTS["reference"], ls=(0, (4, 3)), zorder=0)
+        ink = _house_axes(ax, "normal q-q", "theoretical normal quantile",
+                          "observed quantile")
+        text_legend(ax, [("quartile reference", ROLES["reference"])])
+        normality = (f"{test} = {statistic:.3g}, p = {pval:.3g}"
+                     if np.isfinite(pval) else test)
+        sample_text = (_fit_sample(ctx) if int(sample.size) == ctx.n
+                       else _wells(int(sample.size), "finite fitted rows"))
+        annotate(ax, f"{sample_text}\n"
+                     f"skew = {skew:+.2f}; excess kurtosis = {kurt:+.2f}\n"
+                     f"{normality}\n"
+                     f"quantile correlation = {corr:.4f}",
+                 x=0.98, y=0.02, ha="right", va="bottom", colour=ink)
+    return {"slope": float(slope), "intercept": float(intercept),
+            "quantile_correlation": corr, "skew": skew,
+            "excess_kurtosis": kurt,
+            "normality_statistic": float(statistic),
+            "normality_p": float(pval), "normality_test": test,
+            "n_points": int(sample.size)}
+
+
+def _panel_observed_vs_predicted(ctx, ax):
+    """Observed vs predicted with the identity line, R² and RMSE."""
+    good = np.isfinite(ctx.y) & np.isfinite(ctx.fitted)
+    if good.sum() < 3:
+        raise PanelUnavailable("fewer than 3 observations with a finite fit")
+    obs, pred = ctx.y[good], ctx.fitted[good]
+    lo = float(min(obs.min(), pred.min()))
+    hi = float(max(obs.max(), pred.max()))
+    pad = 0.02 * (hi - lo or 1.0)
+
+    rss = float(np.sum((obs - pred) ** 2))
+    tss = float(np.sum((obs - obs.mean()) ** 2))
+    r2 = 1.0 - rss / tss if tss > 0 else float("nan")
+    rmse = float(np.sqrt(rss / obs.size))
+    mae = float(np.mean(np.abs(obs - pred)))
+    pearson = float(np.corrcoef(obs, pred)[0, 1]) if np.ptp(pred) > 0 else float("nan")
+    with figure_style(_REPORT_TARGET):
+        ax.scatter(pred, obs, s=18, color=ROLES["data"], edgecolors="none")
+        ax.plot([lo - pad, hi + pad], [lo - pad, hi + pad],
+                color=ROLES["reference"], lw=WEIGHTS["reference"],
+                ls=(0, (1, 2)), zorder=0)
+        ink = _house_axes(ax, "observed vs predicted", "predicted",
+                          "observed")
+        text_legend(ax, [("1:1", ROLES["reference"])], x=0.74, y=0.86)
+        text = (f"{_wells(int(good.sum()))}\n"
+                f"R² (response scale) = {r2:.3f}\nRMSE = {rmse:.4g}\n"
+                f"MAE = {mae:.4g}\nPearson r = {pearson:.3f}")
+        if ctx.prediction_note:
+            text += "\n" + textwrap.fill(ctx.prediction_note, 40)
+        annotate(ax, text, colour=ink)
+    return {"r2": float(r2), "rmse": rmse, "mae": mae,
+            "pearson_r": pearson, "n_points": int(good.sum()),
+            "limitation": ctx.prediction_note}
+
+
+
+
+def _panel_cooks_distance(ctx, ax):
+    """Cook's distance per well with the 4/n rule drawn and the top wells named."""
+    _require_standardisation(ctx, "Cook's distance")
+    d = cooks_distance(ctx.std_resid, ctx.leverage, ctx.p)
+    if not np.any(np.isfinite(d)):
+        raise PanelUnavailable("Cook's distance is undefined for every well "
+                               "(the fit is saturated: leverage == 1)")
+    threshold = _COOKS_RULE / ctx.n
+    finite = np.where(np.isfinite(d), d, np.nan)
+    heights = np.nan_to_num(finite, nan=0.0)
+    above = np.where(finite > threshold)[0]
+    below = np.setdiff1d(np.arange(ctx.n), above)
+    order = above[np.argsort(-np.nan_to_num(finite[above], nan=0.0))][:5]
+    worst = int(np.nanargmax(finite)) if np.any(np.isfinite(finite)) else -1
+    with figure_style(_REPORT_TARGET):
+        ax.vlines(below, 0, heights[below], color=ROLES["data"],
+                  lw=WEIGHTS["reference"])
+        ax.vlines(above, 0, heights[above], color=ROLES["down"],
+                  lw=WEIGHTS["data"])
+        reference_line(ax, y=threshold, label=f"4/n = {threshold:.3g}")
+        for i in order:
+            ax.annotate(str(ctx.labels[i]), (i, finite[i]),
+                        fontsize=TYPE_SCALE["annotation"],
+                        textcoords="offset points", xytext=(2, 2),
+                        color=ROLES["down"])
+        ink = _house_axes(ax, "cook's distance per well", "well (fit order)",
+                          "cook's distance")
+        side = "left" if worst >= ctx.n / 2 else "right"
+        edge = 0.02 if side == "left" else 0.98
+        annotate(ax, f"{above.size} {ctx.fit_unit}(s) above 4/n",
+                 x=edge, ha=side,
+                 colour=ROLES["down"] if above.size else ink)
+        annotate(ax, f"{_fit_sample(ctx)}\n"
+                     f"max = {np.nanmax(finite):.3g} ({ctx.labels[worst]})",
+                 x=edge, y=0.91, ha=side, colour=ink)
+    return {"threshold": float(threshold), "n_above": int(above.size),
+            "max_cooks": float(np.nanmax(finite)),
+            "max_label": str(ctx.labels[worst]),
+            "max_index": worst,
+            "labelled": [str(ctx.labels[i]) for i in order],
+            "flagged": [str(ctx.labels[i]) for i in above]}
+
+
+def _panel_influence(ctx, ax):
+    """Leverage vs standardised residual, bubble area proportional to Cook's D."""
+    _require_standardisation(ctx, "the leverage-vs-residual panel")
+    d = cooks_distance(ctx.std_resid, ctx.leverage, ctx.p)
+    finite_d = np.nan_to_num(np.where(np.isfinite(d), d, np.nan), nan=0.0)
+    scale = finite_d.max() or 1.0
+    sizes = 12.0 + 180.0 * finite_d / scale
+    order = np.argsort(-finite_d)[:5]
+    named = np.zeros(int(ctx.n), dtype=bool)
+    named[order] = True
+    guides = [float(mult * ctx.p / ctx.n) for mult in _LEVERAGE_RULES]
+    high = int(np.sum(ctx.leverage > guides[0]))
+    with figure_style(_REPORT_TARGET):
+        ax.scatter(ctx.leverage[~named], ctx.std_resid[~named],
+                   s=sizes[~named], color=ROLES["data"], edgecolors="none")
+        ax.scatter(ctx.leverage[named], ctx.std_resid[named], s=sizes[named],
+                   color=ROLES["down"], edgecolors="none", zorder=4)
+        reference_line(ax, y=0.0)
+        for k in (-2.0, 2.0):
+            reference_line(ax, y=k)
+        for mult, guide in zip(_LEVERAGE_RULES, guides):
+            reference_line(ax, x=guide, label=f"{mult:.0f}p/n")
+        for i in order:
+            ax.annotate(str(ctx.labels[i]),
+                        (ctx.leverage[i], ctx.std_resid[i]),
+                        fontsize=TYPE_SCALE["annotation"],
+                        textcoords="offset points", xytext=(3, 3),
+                        color=ROLES["down"])
+        ink = _house_axes(ax, "leverage vs residual",
+                          "leverage (hat diagonal)",
+                          "standardised residual")
+        annotate(ax, f"{_fit_sample(ctx)}\n"
+                     f"{high} {ctx.fit_unit}(s) above 2p/n = "
+                     f"{guides[0]:.3g}\n"
+                     f"max leverage = {ctx.leverage.max():.3g}\n"
+                     f"bubble area ∝ cook's D\n"
+                     + textwrap.fill(f"hat from {ctx.leverage_source}", 44,
+                                     break_long_words=False),
+                 x=0.98, ha="right", colour=ink)
+    return {"n_high_leverage": high, "leverage_guides": guides,
+            "max_leverage": float(ctx.leverage.max()),
+            "labelled": [str(ctx.labels[i]) for i in order],
+            "n_points": int(ctx.n)}
+
+
+def _panel_dffits(ctx, ax):
+    """|DFFITS| per well against the 2*sqrt(p/n) rule."""
+    _require_standardisation(ctx, "DFFITS")
+    values, threshold = dffits(ctx.std_resid, ctx.leverage, ctx.n, ctx.p)
+    if not np.any(np.isfinite(values)):
+        raise PanelUnavailable(
+            f"DFFITS needs n > p + 1; this fit has n = {ctx.n}, p = {ctx.p}")
+    magnitude = np.abs(values)
+    above = np.where(magnitude > threshold)[0]
+    below = np.setdiff1d(np.arange(ctx.n), above)
+
+    finite = magnitude[np.isfinite(magnitude)]
+    ceiling = float(finite.max()) if finite.size else 0.0
+    ceiling = max(ceiling, float(threshold), 1e-12)
+    heights = np.nan_to_num(magnitude, nan=0.0, posinf=ceiling)
+
+    with figure_style(_REPORT_TARGET):
+        ax.vlines(below, 0, heights[below], color=ROLES["data"],
+                  lw=WEIGHTS["reference"])
+        ax.vlines(above, 0, heights[above], color=ROLES["down"],
+                  lw=WEIGHTS["data"])
+        reference_line(ax, y=threshold,
+                       label=f"2·sqrt(p/n) = {threshold:.3g}")
+        for i in above[np.argsort(-heights[above])][:5]:
+            ax.annotate(str(ctx.labels[i]), (i, heights[i]),
+                        fontsize=TYPE_SCALE["annotation"],
+                        textcoords="offset points", xytext=(2, 2),
+                        color=ROLES["down"])
+        ax.set_ylim(0.0, ceiling * 1.08)
+        ink = _house_axes(ax, "dffits per well", "well (fit order)",
+                          "|dffits| (fitted-value shift, in standard errors)")
+        side = "left" if int(np.argmax(heights)) >= ctx.n / 2 else "right"
+        edge = 0.02 if side == "left" else 0.98
+        annotate(ax, f"{above.size} well(s) above threshold", x=edge, ha=side,
+                 colour=ROLES["down"] if above.size else ink)
+        annotate(ax, f"{_wells(ctx.n)}\n"
+                     f"max = {np.nanmax(magnitude):.3g}",
+                 x=edge, y=0.91, ha=side, colour=ink)
+    return {"threshold": float(threshold), "n_above": int(above.size),
+            "n_points": int(ctx.n),
+            "max_abs_dffits": float(np.nanmax(magnitude)),
+            "flagged": [str(ctx.labels[i]) for i in above]}
+
+
+
+
+#: Where the panels in this module are going, and therefore which ink they get.
+#:
+#: ``'print'``, deliberately, and NOT :func:`theme_target`. Every panel here is
+#: written to ``<results>/regression_qc/`` as a PDF by
+#: :func:`regression_qc_report`; :func:`spacr.ml._write_regression_qc` is its
+#: only production caller and no spaCR screen draws these axes. A file is read
+#: on a page, and the page this report driver produces is white: the ``Figure``
+#: is built before any style context is entered, so it keeps matplotlib's white
+#: facecolor and ``_save`` writes that white into the PDF.
+#:
+#: ``theme_target()`` answers a different question — "what is the GUI theme
+#: doing?" — and returns ``'screen'`` for every user who has not explicitly set
+#: a white figure background, which resolves to ``INK_SCREEN`` (#E8EDEE).
+#: #E8EDEE text on a white PDF page is invisible. Checked, not assumed.
+_REPORT_TARGET = "print"
+
+
+def _house_axes(ax, text, xlabel, ylabel, target=None):
+    """Ink, type and L-framing for a panel, and the resolved ink back.
+
+    Use a short descriptor and the shared type scale rather than inheriting
+    matplotlib's default title and label sizes.
+
+    Apply ink directly because the report driver creates each axes before its
+    style context begins. An ``rc_context`` affects newly created artists but
+    does not recolour existing spines, tick labels, or axis-label objects.
+
+    :param ax: The axes the panel is drawing into.
+    :param text: The descriptor — 2-4 lower-case words, never a sentence.
+    :param xlabel: Lower-case x-axis label; ``""`` for none.
+    :param ylabel: Lower-case y-axis label; ``""`` for none.
+    :param target: ``'print'`` or ``'screen'``; ``None`` (the default) reads
+        :data:`_REPORT_TARGET` **at call time**.
+    :returns: The resolved ink, for annotations that are not a warning.
+
+    ``target`` defaults to ``None`` so :data:`_REPORT_TARGET` is resolved at
+    call time. Using the module value as a default argument would freeze the
+    import-time target and could style an axes differently from the active
+    report context.
+    """
+    ink = resolve_ink(_REPORT_TARGET if target is None else target)
+    descriptor(ax, text)
+    ax.title.set_color(ink)
+    ax.set_xlabel(xlabel, fontsize=TYPE_SCALE["label"], color=ink)
+    ax.set_ylabel(ylabel, fontsize=TYPE_SCALE["label"], color=ink)
+    ax.tick_params(colors=ink, labelsize=TYPE_SCALE["tick"],
+                   width=WEIGHTS["spine"], length=2.6)
+    ax.tick_params(which="minor", colors=ink, labelsize=TYPE_SCALE["tick"],
+                   width=WEIGHTS["spine"], length=1.4)
+    for side, spine in ax.spines.items():
+        spine.set_visible(side in ("left", "bottom"))
+        spine.set_color(ink)
+        spine.set_linewidth(WEIGHTS["spine"])
+    ax.set_facecolor(TRANSPARENT)
+    ax.grid(False, which="both")
+    return ink
+
+
+def _readable_number(value):
+    """A large number a panel can actually print.
+
+    ``f"{1.3583e16:,.1f}"`` is ``13,583,837,847,143,152.0`` — nineteen
+    characters that overflow the axes and that nobody reads to the end. A
+    scaled condition number of 1e16 is a real result on a design carrying the
+    dummy-variable trap, so the panel has to be able to say so. Only the
+    rendering changes; the manifest still carries the float.
+    """
+    if not np.isfinite(value):
+        return str(value)
+    return f"{value:,.1f}" if abs(value) < 1e6 else f"{value:.3g}"
+
+
+def _panel_vif(ctx, ax):
+    """VIF per predictor with the conventional 5 and 10 guides."""
+    vif = variance_inflation_factors(ctx.X)
+    usable = vif.dropna()
+    if usable.empty:
+        raise PanelUnavailable(
+            "every predictor is constant on the fitted rows, so no variance "
+            "can be inflated")
+    ordered = usable.sort_values(ascending=False)
+    shown = ordered.head(30)
+    finite = shown[np.isfinite(shown)]
+    ceiling = float(finite.max()) if not finite.empty else 10.0
+    plot_values = shown.replace(np.inf, max(ceiling * 1.6, 20.0))
+    positions = np.arange(len(shown))
+    n_inf = int(np.sum(~np.isfinite(usable)))
+    with figure_style(_REPORT_TARGET):
+        colors = [ROLES["down"] if v > 10 else ROLES["data"] for v in shown]
+        ax.barh(positions, plot_values.to_numpy(), color=colors, zorder=1)
+        ax.set_yticks(positions)
+        ax.set_yticklabels([str(s)[:28] for s in shown.index],
+                           fontsize=TYPE_SCALE["annotation"])
+        ax.invert_yaxis()
+        for guide in (5.0, 10.0):
+            reference_line(ax, x=guide).set_zorder(2)
+        for pos, value in zip(positions, shown):
+            if not np.isfinite(value):
+                ax.text(plot_values.iloc[pos], pos, "  inf (aliased)",
+                        fontsize=TYPE_SCALE["annotation"],
+                        color=ROLES["down"], va="center", zorder=3)
+        ax.set_xlim(0.0, max(float(np.nanmax(plot_values)) * 1.45, 11.5))
+        ax.set_ylim(len(shown) + 4.5, -0.5)
+        ink = _house_axes(ax, "variance inflation",
+                          "variance inflation factor", "")
+        annotate(ax, f"{len(shown)} of {len(ordered)} predictors, largest "
+                     f"first\n{int(np.sum(usable > 10))} above 10, "
+                     f"{int(np.sum(usable > 5))} above 5\n"
+                     f"{n_inf} exactly aliased\n"
+                     f"{int(vif.isna().sum())} constant (no VIF)",
+                 x=0.98, y=0.02, ha="right", va="bottom", colour=ink)
+    return {"max_vif": float(np.nanmax(usable.replace(np.inf, np.nan)))
+                       if np.any(np.isfinite(usable)) else float("inf"),
+            "n_above_10": int(np.sum(usable > 10)),
+            "n_above_5": int(np.sum(usable > 5)),
+            "n_aliased": n_inf,
+            "n_constant": int(vif.isna().sum()),
+            "vif": {str(k): float(v) for k, v in ordered.head(30).items()}}
+
+
+def _panel_condition_number(ctx, ax):
+    """The design's condition number, as a number, with its interpretation."""
+    scaled, unscaled, singular = condition_number(ctx.X.to_numpy(dtype=float))
+    verdict = condition_verdict(scaled)
+    positions = np.arange(singular.size)
+    rank = int(np.sum(singular > (singular.max() * 1e-12
+                                  if singular.size else 0)))
+    severe = scaled >= 30
+    with figure_style(_REPORT_TARGET):
+        ax.bar(positions, np.where(singular > 0, singular, np.nan),
+               color=ROLES["data"])
+        ax.set_yscale("log")
+        positive = singular[singular > 0]
+        if positive.size:
+            top, bottom = float(positive.max()), float(positive.min())
+            span = max(top / bottom, 1.0)
+            ax.set_ylim(bottom / 2.0, top * max(span ** 0.55, 3.0))
+        ink = _house_axes(ax, "design conditioning",
+                          "singular value, largest first",
+                          "singular value of the column-scaled X")
+        warning = ROLES["down"] if severe else ink
+        ax.text(0.02, 0.98,
+                f"scaled condition number = {_readable_number(scaled)}",
+                transform=ax.transAxes, ha="left", va="top",
+                fontsize=TYPE_SCALE["label"], color=warning)
+        wrapped = textwrap.fill(verdict, 40)
+        annotate(ax, wrapped, x=0.02, y=0.90, colour=warning)
+        annotate(ax, f"unscaled = {_readable_number(unscaled)}\n"
+                     f"{ctx.p} predictor(s)\nrank = {rank}",
+                 x=0.02, y=0.90 - 0.055 * (wrapped.count("\n") + 1),
+                 colour=ink)
+    return {"condition_number": float(scaled),
+            "condition_number_unscaled": float(unscaled),
+            "verdict": verdict,
+            "n_singular_values": int(singular.size),
+            "rank": rank}
+
+
+def _panel_predictor_correlation(ctx, ax):
+    """Correlation heatmap of the predictors."""
+    varying = ctx.X.loc[:, ctx.X.std(ddof=1) > 0]
+    if varying.shape[1] < 2:
+        raise PanelUnavailable(
+            f"only {varying.shape[1]} non-constant predictor(s); a correlation "
+            f"matrix needs at least 2")
+    limit = 40
+    truncated = varying.shape[1] > limit
+    if truncated:
+        keep = varying.std(ddof=1).sort_values(ascending=False).head(limit).index
+        varying = varying[keep]
+    corr = np.corrcoef(varying.to_numpy(dtype=float), rowvar=False)
+    corr = np.nan_to_num(corr, nan=0.0)
+    off = corr - np.eye(corr.shape[0])
+    flat = np.abs(off)
+    worst = np.unravel_index(int(np.argmax(flat)), flat.shape)
+    with figure_style(_REPORT_TARGET):
+        image = ax.imshow(corr, cmap="RdBu_r", vmin=-1, vmax=1)
+        bar = ax.figure.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+        named = varying.shape[1] <= 25
+        ink = _house_axes(ax, "predictor correlation",
+                          "" if named else "predictor",
+                          "" if named else "predictor")
+        bar.ax.tick_params(colors=ink, labelsize=TYPE_SCALE["tick"],
+                           width=WEIGHTS["spine"], length=2.6)
+        bar.outline.set_edgecolor(ink)
+        bar.outline.set_linewidth(WEIGHTS["spine"])
+        bar.set_label("Pearson r", fontsize=TYPE_SCALE["label"], color=ink)
+        if named:
+            ax.set_xticks(range(varying.shape[1]))
+            ax.set_yticks(range(varying.shape[1]))
+            ax.set_xticklabels([str(c)[:20] for c in varying.columns],
+                               fontsize=TYPE_SCALE["legend"])
+            ax.set_yticklabels([str(c)[:20] for c in varying.columns],
+                               fontsize=TYPE_SCALE["legend"])
+            rotate_ticks(ax, 45)
+        else:
+            ax.set_xticks([])
+            ax.set_yticks([])
+        caption = (f"largest |r| = {flat.max():.2f} between "
+                   f"{str(varying.columns[worst[0]])[:28]} and "
+                   f"{str(varying.columns[worst[1]])[:28]}")
+        if truncated:
+            caption += f"\ntop {limit} of {ctx.X.shape[1]} predictors by spread"
+        annotate(ax, caption, x=0.5, y=-0.34 if named else -0.16,
+                 ha="center", va="top", colour=ink)
+    return {"n_predictors": int(varying.shape[1]),
+            "max_abs_offdiagonal": float(flat.max()),
+            "max_pair": [str(varying.columns[worst[0]]),
+                         str(varying.columns[worst[1]])],
+            "truncated": bool(truncated)}
+
+
+
+
+def _coefficient_table(ctx):
+    """``(DataFrame, note)`` of coefficients with intervals where they exist.
+
+    The note is what the forest panel prints when it has to degrade: a sklearn
+    ``Lasso`` genuinely has no covariance matrix, so it genuinely has no
+    intervals, and drawing an error bar there would be a fabrication.
+    """
+    params = getattr(ctx.model, "params", None)
+    if params is not None:
+        series = pd.Series(np.asarray(params, dtype=float).ravel(),
+                           index=getattr(params, "index", ctx.X.columns[:len(params)]))
+        conf = getattr(ctx.model, "conf_int", None)
+        table = pd.DataFrame({"coefficient": series})
+        if callable(conf):
+            try:
+                intervals = conf()
+                table["lower"] = np.asarray(intervals)[:, 0]
+                table["upper"] = np.asarray(intervals)[:, 1]
+            except Exception as exc:            # noqa: BLE001
+                return table, (f"no confidence intervals: conf_int() raised "
+                               f"{type(exc).__name__}")
+            return table, None
+        return table, (f"{type(ctx.model).__name__} exposes no conf_int(); "
+                       f"coefficients are shown without intervals")
+    coefs = getattr(ctx.model, "coef_", None)
+    if coefs is None:
+        raise PanelUnavailable(
+            f"{type(ctx.model).__name__} exposes neither params nor coef_")
+    flat = np.asarray(coefs, dtype=float).ravel()
+    names = ctx.X.columns[:flat.size]
+    return (pd.DataFrame({"coefficient": flat}, index=names),
+            f"{type(ctx.model).__name__} is a penalised point estimator: it has "
+            f"no covariance matrix, so no confidence interval exists to draw")
+
+
+def _panel_coefficient_forest(ctx, ax, top_n=25):
+    """Coefficient forest plot, sorted by effect size, with intervals if any."""
+    table, note = _coefficient_table(ctx)
+    table = table[np.isfinite(table["coefficient"])]
+    if table.empty:
+        raise PanelUnavailable("every coefficient is non-finite")
+    ordered = table.reindex(table["coefficient"].abs()
+                            .sort_values(ascending=False).index)
+    shown = ordered.head(top_n).iloc[::-1]
+    positions = np.arange(len(shown))
+    has_ci = {"lower", "upper"}.issubset(shown.columns)
+    with figure_style(_REPORT_TARGET):
+        if has_ci:
+            crosses_zero = ((shown["lower"] <= 0) & (shown["upper"] >= 0))
+            colours = np.where(
+                crosses_zero.to_numpy(), ROLES["data"],
+                np.where(shown["coefficient"].to_numpy() > 0,
+                         ROLES["up"], ROLES["down"]))
+            ax.hlines(positions, shown["lower"].to_numpy(),
+                      shown["upper"].to_numpy(), colors=colours,
+                      linewidth=1.0, zorder=1)
+        else:
+            crosses_zero = pd.Series(False, index=shown.index)
+            colours = np.full(len(shown), ROLES["data"])
+        ax.scatter(shown["coefficient"], positions, s=14, c=colours,
+                   linewidths=0, zorder=2)
+        reference_line(ax, x=0.0)
+        ax.set_yticks(positions)
+        ax.set_yticklabels([str(s)[:30] for s in shown.index],
+                           fontsize=TYPE_SCALE["annotation"])
+        ink = _house_axes(ax, "strongest coefficients",
+                          f"coefficient ({ctx.family}"
+                          + (f" / {ctx.link} link)" if ctx.link else ")"), "")
+        text = (f"top {len(shown)} of {len(ordered)} term(s) by |effect|")
+        if has_ci:
+            text += f"\n{int(crosses_zero.sum())} of {len(shown)} cross zero"
+        if note:
+            text += "\n" + textwrap.fill(note, 40)
+        annotate(ax, text, x=0.98, y=0.02, ha="right", va="bottom", colour=ink)
+    return {"n_shown": int(len(shown)), "n_total": int(len(ordered)),
+            "has_intervals": bool(has_ci),
+            "limitation": note,
+            "largest_term": str(ordered.index[0]),
+            "largest_coefficient": float(ordered["coefficient"].iloc[0])}
+
+
+def _p_values(ctx):
+    """The p-values to histogram: the screen's coefficient table if we have it."""
+    if ctx.coef_df is not None and "p_value" in getattr(ctx.coef_df, "columns", []):
+        return np.asarray(ctx.coef_df["p_value"], dtype=float), "coefficient table"
+    pvalues = getattr(ctx.model, "pvalues", None)
+    if pvalues is not None:
+        return np.asarray(pvalues, dtype=float).ravel(), "model.pvalues"
+    raise PanelUnavailable(
+        f"{type(ctx.model).__name__} produces no p-values and no coefficient "
+        f"table was supplied; a penalised fit has no null distribution to test "
+        f"against")
+
+
+def _panel_p_value_histogram(ctx, ax):
+    """p-value histogram with the uniform expectation and a stated diagnosis."""
+    values, source = _p_values(ctx)
+    finite = values[np.isfinite(values)]
+    if finite.size == 0:
+        raise PanelUnavailable("every p-value is non-finite")
+    try:
+        diag = diagnose_p_value_histogram(finite)
+    except ValueError as exc:
+        raise PanelUnavailable(str(exc)) from exc
+    counts, edges = diag["counts"], diag["edges"]
+    bad = diag["verdict"] in ("excess-large", "u-shaped", "anti-uniform")
+    with figure_style(_REPORT_TARGET):
+        ax.bar(edges[:-1], counts, width=np.diff(edges), align="edge",
+               color=ROLES["fill"], edgecolor="none")
+        reference_line(ax, y=diag["expected"], label="uniform")
+        ink = _house_axes(ax, "p-value distribution", "p-value",
+                          "number of coefficients")
+        annotate(ax, f"{_wells(diag['n'], 'coefficients')}\nsource: {source}",
+                 x=0.98, ha="right", colour=ink)
+        ax.text(0.5, -0.22, textwrap.fill(diag["message"], 64),
+                transform=ax.transAxes, ha="center", va="top",
+                fontsize=TYPE_SCALE["annotation"],
+                color=ROLES["down"] if bad else ink)
+    return {"verdict": diag["verdict"], "message": diag["message"],
+            "n": int(diag["n"]), "source": source,
+            "frac_below_0.05": diag["frac_below_0.05"],
+            "first_bin_ratio": diag["first_bin_ratio"],
+            "last_bin_ratio": diag["last_bin_ratio"],
+            "limitation": (diag["message"] if diag["verdict"] == "too-few"
+                           else None)}
+
+
+def _panel_response_distribution(ctx, ax):
+    """The response itself, with the family that was fitted to it named."""
+    finite = ctx.y[np.isfinite(ctx.y)]
+    if finite.size < 3:
+        raise PanelUnavailable("fewer than 3 finite response values")
+    bins = int(np.clip(np.sqrt(finite.size), 10, 60))
+    family = ctx.family + (f" / {ctx.link} link" if ctx.link else "")
+    with figure_style(_REPORT_TARGET):
+        ax.hist(finite, bins=bins, color=ROLES["fill"], edgecolor="none")
+        ink = _house_axes(ax, "response distribution", "response value",
+                          "wells")
+        annotate(ax, f"{_wells(finite.size)}\nfamily fitted: {family}\n"
+                     f"range = [{finite.min():.3g}, {finite.max():.3g}]\n"
+                     f"mean = {finite.mean():.3g}, "
+                     f"SD = {finite.std(ddof=1):.3g}",
+                 x=0.98, ha="right", colour=ink)
+    return {"n": int(finite.size), "mean": float(finite.mean()),
+            "sd": float(finite.std(ddof=1)), "min": float(finite.min()),
+            "max": float(finite.max()), "family": family}
+
+
+def _panel_calibration(ctx, ax):
+    """Calibration curve: does a predicted 0.3 actually happen 30% of the time?"""
+    if not ctx.is_binomial:
+        raise PanelUnavailable(
+            f"calibration is defined for a probability response; this fit uses "
+            f"the {ctx.family} family")
+    if ctx.n < 15:
+        raise PanelUnavailable(
+            f"only {ctx.n} wells; a calibration curve needs at least 15 to fill "
+            f"three bins")
+    n_bins = int(np.clip(ctx.n // 5, 3, 10))
+    curve = calibration_curve(ctx.y, ctx.fitted, n_bins=n_bins,
+                              weights=ctx.weights)
+    ax.plot([0, 1], [0, 1], color=_ACCENT, ls="--", lw=1.2, label="perfect")
+    sizes = 20.0 + 120.0 * curve["weight"] / (curve["weight"].max() or 1.0)
+    ax.plot(curve["pred_mean"], curve["obs_mean"], color=_POINT, lw=1.4,
+            zorder=3)
+    ax.scatter(curve["pred_mean"], curve["obs_mean"], s=sizes, color=_POINT,
+               zorder=4, label="observed")
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(-0.02, 1.02)
+    ax.legend(fontsize=7, frameon=False, loc="upper left")
+    weighted = ctx.weights is not None
+    _finish(ax, "Calibration", "mean predicted value in bin",
+            "mean observed value in bin", n=ctx.n)
+    _note(ax, f"ECE = {curve['ece']:.3f}\nmax gap = {curve['max_gap']:.3f}\n"
+              f"Brier = {curve['brier']:.4f}\n"
+              f"{curve['n_bins']} bins, "
+              f"{'cell-count weighted' if weighted else 'unweighted'}",
+          loc="lower right")
+    return {"ece": curve["ece"], "max_gap": curve["max_gap"],
+            "brier": curve["brier"], "n_bins": int(curve["n_bins"]),
+            "weighted": bool(weighted),
+            "pred_mean": [float(v) for v in curve["pred_mean"]],
+            "obs_mean": [float(v) for v in curve["obs_mean"]]}
+
+
+def _require_binary(ctx, what):
+    """Raise unless the response is binary labels, which ``what`` needs."""
+    if not (ctx.is_binomial or ctx.is_classifier):
+        raise PanelUnavailable(
+            f"{what} is defined for a binary response; this fit uses the "
+            f"{ctx.family} family")
+    if ctx.is_classifier and not ctx.is_binary_response:
+        raise PanelUnavailable(
+            f"{what} needs 0/1 labels and this classifier was fitted on a "
+            f"response that is not binary; spaCR binarises it before the fit "
+            f"(binarise_response), so pass the binarised response to "
+            f"build_context if you want this panel")
+    if not ctx.is_binary_response:
+        raise PanelUnavailable(
+            f"{what} needs 0/1 labels, but the response is a continuous "
+            f"per-well fraction (spaCR fits logit/probit on fractions weighted "
+            f"by cell count). The calibration panel covers this fit instead")
+    if ctx.y.min() == ctx.y.max():
+        raise PanelUnavailable(
+            f"{what} needs both classes; every well has y = {ctx.y[0]:g}")
+
+
+def _panel_roc(ctx, ax):
+    """ROC curve with AUC, for a genuinely binary response.
+
+    Ranked by :attr:`~RegressionQCContext.ranking_score`, whose orientation is
+    fixed in :func:`build_context`: larger means more likely positive. That is
+    the whole content of this panel and it is the easy thing to get backwards —
+    a score built with the opposite convention reports ``1 - AUC``, which for a
+    good model lands near 0.05 and for a mediocre one near 0.4, neither of which
+    looks obviously wrong on a plot. ``tests/test_regression_orientation.py``
+    pins it from both ends.
+    """
+    _require_binary(ctx, "an ROC curve")
+    from sklearn.metrics import roc_auc_score, roc_curve
+
+    score = ctx.ranking_score
+    fpr, tpr, _ = roc_curve(ctx.y, score, sample_weight=ctx.weights)
+    auc = float(roc_auc_score(ctx.y, score, sample_weight=ctx.weights))
+    ax.plot(fpr, tpr, color=_POINT, lw=1.6)
+    ax.plot([0, 1], [0, 1], color=_GUIDE, ls="--", lw=1.0, label="chance")
+    ax.legend(fontsize=7, frameon=False, loc="lower right")
+    n_pos = int(np.sum(ctx.y == 1))
+    _finish(ax, "ROC", "false positive rate", "true positive rate", n=ctx.n)
+    ranked_by = ("decision function" if ctx.decision_score is not None
+                 else "fitted value")
+    _note(ax, f"AUC = {auc:.3f}\n{n_pos} positive / {ctx.n - n_pos} negative\n"
+              f"ranked by {ranked_by}")
+    return {"auc": auc, "n_positive": n_pos, "n_negative": int(ctx.n - n_pos),
+            "ranked_by": ranked_by}
+
+
+def _panel_precision_recall(ctx, ax):
+    """Precision-recall curve with average precision and the prevalence baseline.
+
+    Ranked by the same oriented score as :func:`_panel_roc`.
+    """
+    _require_binary(ctx, "a precision-recall curve")
+    from sklearn.metrics import average_precision_score, precision_recall_curve
+
+    score = ctx.ranking_score
+    precision, recall, _ = precision_recall_curve(ctx.y, score,
+                                                  sample_weight=ctx.weights)
+    ap = float(average_precision_score(ctx.y, score,
+                                       sample_weight=ctx.weights))
+    prevalence = float(np.mean(ctx.y == 1))
+    ax.plot(recall, precision, color=_POINT, lw=1.6)
+    ax.axhline(prevalence, color=_GUIDE, ls="--", lw=1.0,
+               label=f"prevalence = {prevalence:.2f}")
+    ax.set_ylim(-0.02, 1.02)
+    ax.legend(fontsize=7, frameon=False, loc="lower left")
+    _finish(ax, "Precision-recall", "recall", "precision", n=ctx.n)
+    _note(ax, f"average precision = {ap:.3f}\nbaseline = {prevalence:.3f}",
+          loc="upper right")
+    return {"average_precision": ap, "prevalence": prevalence}
+
+
+def _panel_count_fit(ctx, ax):
+    """Observed vs predicted counts, annotated with the Pearson dispersion."""
+    if not ctx.is_count:
+        raise PanelUnavailable(
+            f"over-dispersion is a property of a count fit; this model uses "
+            f"the {ctx.family} family")
+    family = getattr(ctx.model, "family", None)
+    variance = getattr(family, "variance", None) if family is not None else None
+    df_resid = getattr(ctx.model, "df_resid", None)
+    if df_resid is None or not np.isfinite(float(df_resid)) or float(df_resid) <= 0:
+        df_resid = max(ctx.n - ctx.p, 1)
+    stats = overdispersion_statistic(ctx.y, ctx.fitted, float(df_resid),
+                                     variance=variance, weights=ctx.weights)
+    ax.scatter(ctx.fitted, ctx.y, s=18, alpha=0.6, color=_POINT,
+               edgecolors="none")
+    hi = float(max(np.nanmax(ctx.fitted), np.nanmax(ctx.y)))
+    ax.plot([0, hi], [0, hi], color=_ACCENT, ls="--", lw=1.2, label="identity")
+    grid = np.linspace(0, hi, 128)
+    ax.fill_between(grid, np.maximum(grid - 2 * np.sqrt(grid), 0),
+                    grid + 2 * np.sqrt(grid), color=_GUIDE, alpha=0.18,
+                    label="±2 SD under the assumed variance")
+    ax.legend(fontsize=7, frameon=False, loc="upper left")
+    outside = int(np.sum(np.abs(ctx.y - ctx.fitted)
+                         > 2 * np.sqrt(np.maximum(ctx.fitted, 1e-12))))
+    _finish(ax, "Count fit and dispersion", "predicted count",
+            "observed count", n=ctx.n)
+    _note(ax, f"Pearson dispersion = {stats['dispersion']:.2f}\n"
+              + textwrap.fill(stats["verdict"], 34)
+              + f"\n{outside} well(s) outside ±2 SD", loc="lower right")
+    return {"dispersion": stats["dispersion"],
+            "pearson_chi2": stats["pearson_chi2"],
+            "df_resid": stats["df_resid"], "verdict": stats["verdict"],
+            "n_outside_2sd": outside}
+
+
+
+
+def _grouped_residuals(ctx, column):
+    """``(groups, values)`` of residuals grouped by a metadata column."""
+    if ctx.metadata is None:
+        raise PanelUnavailable(
+            "no per-well metadata was supplied, so plate position is unknown")
+    if column not in ctx.metadata.columns:
+        raise PanelUnavailable(
+            f"metadata has no {column!r} column (present: "
+            f"{', '.join(map(str, ctx.metadata.columns[:8]))})")
+    keys = np.asarray([
+        "<missing>" if pd.isna(value) else str(value)
+        for value in ctx.metadata[column].to_numpy(dtype=object)
+    ])
+    groups = sorted(pd.unique(keys), key=_natural_key)
+    if len(groups) < 2:
+        raise PanelUnavailable(
+            f"every well has {column} = {groups[0] if groups else 'nothing'}; "
+            f"there is no between-{column} effect to see")
+    values = [ctx.resid[keys == g] for g in groups]
+    return groups, values
+
+
+#: How strongly the group medians have to disagree before the positional
+#: panels spend a colour on one of them. NOT a new statistic: a display
+#: threshold on the Kruskal-Wallis p the panel already computes and prints.
+_POSITION_ALPHA = 0.05
+
+
+def _positional_effect_panel(ctx, ax, column, label, mark_edges):
+    """Boxplot of residuals by plate/row/column, with an edge-effect statistic.
+
+    Draw all groups in grey unless a computed statistic identifies a feature
+    to emphasize. Highlight the group with the largest absolute median in
+    blue when Kruskal–Wallis rejects at :data:`_POSITION_ALPHA`. Mark the two
+    outer groups in rust when their combined median differs from the interior
+    median by more than half a residual standard deviation.
+
+    Compute the statistics before drawing so the colours and annotations use
+    the same decisions. Apply the figure style through a context and re-ink
+    the existing axes with :func:`_house_axes`; the report driver creates the
+    axes before this function begins.
+    """
+    from scipy import stats as sps
+
+    groups, values = _grouped_residuals(ctx, column)
+
+    medians = np.array([np.median(v) if v.size else np.nan for v in values])
+    worst = int(np.nanargmax(np.abs(medians)))
+    try:
+        _, kruskal_p = sps.kruskal(*[v for v in values if v.size])
+    except ValueError:
+        kruskal_p = float("nan")
+
+    edge_delta = float("nan")
+    if mark_edges and len(groups) >= 4:
+        edge = np.concatenate([values[0], values[-1]])
+        interior = np.concatenate(values[1:-1])
+        edge_delta = float(np.median(edge) - np.median(interior))
+    edge_artefact = bool(np.isfinite(edge_delta)
+                         and abs(edge_delta) > 0.5 * np.nanstd(ctx.resid))
+
+    marks = [ROLES["data"]] * len(groups)
+    summaries = [ROLES["control_negative"]] * len(groups)
+    if np.isfinite(kruskal_p) and kruskal_p < _POSITION_ALPHA:
+        marks[worst] = summaries[worst] = ROLES["highlight"]
+    if edge_artefact:
+        for index in (0, len(groups) - 1):
+            marks[index] = summaries[index] = ROLES["down"]
+    highlighted = [str(g) for g, colour in zip(groups, marks)
+                   if colour != ROLES["data"]]
+
+    with figure_style(_REPORT_TARGET):
+        box = ax.boxplot(values, positions=np.arange(len(groups)), widths=0.65,
+                         showfliers=False)
+        for index, colour in enumerate(summaries):
+            box["boxes"][index].set(color=colour, lw=WEIGHTS["spine"])
+            box["medians"][index].set(color=colour, lw=WEIGHTS["data"])
+            for part in ("whiskers", "caps"):
+                for artist in box[part][2 * index:2 * index + 2]:
+                    artist.set(color=colour, lw=WEIGHTS["spine"])
+        for i, v in enumerate(values):
+            jitter = (np.random.default_rng(i).uniform(-0.16, 0.16, v.size)
+                      if v.size > 1 else np.zeros(1))
+            ax.scatter(i + jitter, v, s=4.5, alpha=0.5, color=marks[i],
+                       edgecolors="none",
+                       zorder=4 if marks[i] != ROLES["data"] else 3)
+        reference_line(ax, y=0.0)
+
+        ax.set_xticks(np.arange(len(groups)))
+        names = [str(g)[:10] for g in groups]
+        ax.set_xticklabels(names)
+        ink = _house_axes(ax, f"residuals by {label}", label, "residual")
+        if max(len(name) for name in names) > 3:
+            rotate_ticks(ax, 45)
+
+        text = (f"{len(groups)} {label}s, n = {ctx.n:,} observations\n"
+                f"Kruskal-Wallis p = {kruskal_p:.2g}\n"
+                f"largest |median| = {medians[worst]:+.3g} ({groups[worst]})")
+        if np.isfinite(edge_delta):
+            text += f"\nedge - interior median = {edge_delta:+.3g}"
+        annotate(ax, text, x=0.98, y=0.97, ha="right", colour=ink)
+
+        entries = []
+        if marks[worst] == ROLES["highlight"]:
+            entries.append((f"{groups[worst]}: largest |median|",
+                            ROLES["highlight"]))
+        if edge_artefact:
+            entries.append((f"edge {label}s: edge artefact", ROLES["down"]))
+        if entries:
+            text_legend(ax, entries)
+
+    return {"n_groups": len(groups), "groups": [str(g) for g in groups],
+            "medians": [float(m) for m in medians],
+            "kruskal_p": float(kruskal_p),
+            "worst_group": str(groups[worst]),
+            "worst_median": float(medians[worst]),
+            "edge_minus_interior_median": edge_delta,
+            "highlighted_groups": highlighted}
+
+
+def _panel_plate_effects(ctx, ax):
+    """Residuals by plate — a plate that fit differently is a batch effect."""
+    return _positional_effect_panel(ctx, ax, schema.PLATE_KEY, "plate",
+                                    mark_edges=False)
+
+
+def _panel_row_effects(ctx, ax):
+    """Residuals by plate row, with the outer rows shaded (edge artefacts)."""
+    return _positional_effect_panel(ctx, ax, schema.ROW_KEY, "row",
+                                    mark_edges=True)
+
+
+def _panel_column_effects(ctx, ax):
+    """Residuals by plate column, with the outer columns shaded."""
+    return _positional_effect_panel(ctx, ax, schema.COLUMN_KEY, "column",
+                                    mark_edges=True)
+
+
+def _panel_cell_count_vs_effect(ctx, ax):
+    """Cell count vs |standardised residual| — do low-n wells drive the tails?"""
+    from scipy import stats as sps
+
+    _require_standardisation(ctx, "the cell-count-vs-residual panel")
+    counts = None
+    if ctx.metadata is not None and "cell_count" in ctx.metadata.columns:
+        counts = np.asarray(ctx.metadata["cell_count"], dtype=float)
+    elif ctx.weights is not None:
+        counts = ctx.weights
+    if counts is None:
+        raise PanelUnavailable(
+            "no per-well cell count available (metadata has no 'cell_count' "
+            "column and the fit carried no weights)")
+    magnitude = np.abs(ctx.std_resid)
+    good = np.isfinite(counts) & np.isfinite(magnitude) & (counts > 0)
+    if good.sum() < 5:
+        raise PanelUnavailable(
+            f"only {int(good.sum())} well(s) have both a positive cell count "
+            f"and a finite residual")
+    x, mag = counts[good], magnitude[good]
+    rho, pval = sps.spearmanr(x, mag)
+    low_cut = float(np.quantile(x, 0.1))
+    extreme = mag > 2.0
+    frac_low = (float(np.mean(x[extreme] <= low_cut)) if np.any(extreme)
+                else float("nan"))
+    driving = extreme & (x <= low_cut)
+    with figure_style(_REPORT_TARGET):
+        ax.scatter(x[~driving], mag[~driving], s=18, color=ROLES["data"],
+                   edgecolors="none")
+        ax.scatter(x[driving], mag[driving], s=18, color=ROLES["down"],
+                   edgecolors="none", zorder=4)
+        ax.set_xscale("log")
+        reference_line(ax, y=2.0, label="|z| = 2")
+        reference_line(ax, x=low_cut, label="10th pct")
+        ink = _house_axes(ax, "cell count vs residual",
+                          "cells in well (log scale)",
+                          "|standardised residual|")
+        annotate(ax, f"{_wells(int(good.sum()))}\n"
+                     f"Spearman rho = {rho:+.2f} (p = {pval:.2g})\n"
+                     f"10th pct count = {low_cut:.0f} cells\n"
+                     f"{int(extreme.sum())} well(s) with |z| > 2; "
+                     f"{'n/a' if not np.isfinite(frac_low) else f'{100 * frac_low:.0f}%'} "
+                     f"of them are in the smallest decile",
+                 x=0.98, ha="right", colour=ink)
+    return {"spearman_rho": float(rho), "spearman_p": float(pval),
+            "low_count_threshold": low_cut,
+            "n_extreme": int(extreme.sum()),
+            "frac_extreme_in_low_decile": frac_low,
+            "min_cell_count": float(x.min()), "n_points": int(good.sum())}
+
+
+def _panel_volcano_reference(ctx, ax):
+    """Point at the volcano plot rather than drawing a second one.
+
+    A signpost, not a panel: no data, no axes, no marks. So the house style
+    has almost nothing to say about it beyond the two things that were
+    actually wrong — the ink and the type.
+
+    THE INK. Hard-coded ``#333333`` body text on a page whose colour this
+    panel does not own: the only panel in the suite whose entire content is
+    text was also the only one that could vanish completely. It now resolves
+    against :data:`_REPORT_TARGET` like every other panel here, so the whole
+    report is inked from one decision instead of twenty-three.
+
+    THE TYPE. A 10 pt bold heading made this signpost the loudest thing on the
+    combined page, louder than any real panel's axis labels at 7 pt. It now
+    sits on :data:`~spacr.figures.style.TYPE_SCALE`, so a card that says "the
+    figure is elsewhere" is quieter than the figures that are here.
+
+    Nothing else is restyled: giving it a palette, a reference line or a panel
+    letter would add ink to a signpost.
+    """
+    ax.set_axis_off()
+    if ctx.volcano_path:
+        body = (textwrap.fill("The volcano plot for this run was written by "
+                              "spacr.plot.volcano_plot to", 52)
+                + f"\n\n{os.path.basename(ctx.volcano_path)}\n\n"
+                + textwrap.fill(f"in {os.path.dirname(ctx.volcano_path) or '.'}",
+                                52))
+        state = "referenced"
+    else:
+        body = (textwrap.fill("The volcano plot is drawn by "
+                              "spacr.plot.volcano_plot / "
+                              "spacr.toxo.custom_volcano_plot in the "
+                              "regression step.", 52)
+                + "\n\n"
+                + textwrap.fill("No path was passed to this report, so it "
+                                "cannot be named here.", 52))
+        state = "unlocated"
+
+    with figure_style(_REPORT_TARGET):
+        ink = resolve_ink(_REPORT_TARGET)
+        ax.text(0.5, 0.66, "volcano plot", ha="center", va="center",
+                fontsize=TYPE_SCALE["label"], fontweight="bold", color=ink,
+                transform=ax.transAxes)
+        annotate(ax, body, x=0.5, y=0.42, ha="center", va="center", colour=ink)
+        ax.text(0.5, 0.06, "not duplicated here on purpose — one implementation",
+                ha="center", va="center", fontsize=TYPE_SCALE["legend"],
+                style="italic", transform=ax.transAxes,
+                color=ROLES["reference"])
+    return {"state": state, "volcano_path": ctx.volcano_path}
+
+
+
+_PANELS: Tuple[Tuple[str, str, str, Callable[[Any, Any], Dict[str, Any]]], ...] = (
+    ("residuals_vs_fitted", "Residuals vs fitted", "fit", _panel_residuals_vs_fitted),
+    ("residual_distribution", "Residual distribution", "fit", _panel_residual_distribution),
+    ("scale_location", "Scale-location", "fit", _panel_scale_location),
+    ("qq_residuals", "Normal Q-Q", "fit", _panel_qq_residuals),
+    ("observed_vs_predicted", "Observed vs predicted", "fit", _panel_observed_vs_predicted),
+    ("cooks_distance", "Cook's distance", "influence", _panel_cooks_distance),
+    ("influence", "Leverage vs standardised residual", "influence", _panel_influence),
+    ("dffits", "DFFITS", "influence", _panel_dffits),
+    ("vif", "Variance inflation", "design", _panel_vif),
+    ("condition_number", "Design conditioning", "design", _panel_condition_number),
+    ("predictor_correlation", "Predictor correlation", "design", _panel_predictor_correlation),
+    ("response_distribution", "Response distribution", "response", _panel_response_distribution),
+    ("coefficient_forest", "Coefficient forest", "response", _panel_coefficient_forest),
+    ("p_value_histogram", "p-value distribution", "response", _panel_p_value_histogram),
+    ("calibration", "Calibration", "response", _panel_calibration),
+    ("roc", "ROC", "response", _panel_roc),
+    ("precision_recall", "Precision-recall", "response", _panel_precision_recall),
+    ("count_fit", "Count fit and dispersion", "response", _panel_count_fit),
+    ("plate_effects", "Residuals by plate", "screen", _panel_plate_effects),
+    ("row_effects", "Residuals by row", "screen", _panel_row_effects),
+    ("column_effects", "Residuals by column", "screen", _panel_column_effects),
+    ("cell_count_vs_effect", "Cell count vs residual", "screen", _panel_cell_count_vs_effect),
+    ("volcano_reference", "Volcano plot", "response", _panel_volcano_reference),
+)
+
+#: Panel names in report order. Stable: these are file stems on disk.
+PANEL_ORDER: Tuple[str, ...] = tuple(name for name, _, _, _ in _PANELS)
+
+#: The publication-sized OLS diagnostic sheet.  These are the assumption,
+#: influence and screen-structure checks requested together most often; the
+#: full :data:`PANEL_ORDER` report is still written alongside it.  Keeping the
+#: selection here makes a manuscript panel a normal spaCR output rather than a
+#: one-off figure-building script.
+OLS_ASSUMPTION_PANELS: Tuple[str, ...] = (
+    "qq_residuals",
+    "residuals_vs_fitted",
+    "scale_location",
+    "cooks_distance",
+    "influence",
+    "plate_effects",
+    "row_effects",
+    "column_effects",
+)
+
+_PANEL_BY_NAME = {name: (title, group, fn) for name, title, group, fn in _PANELS}
+
+#: Report section headings, in order.
+_GROUP_TITLES = (
+    ("fit", "Model fit"),
+    ("influence", "Influence and leverage"),
+    ("design", "Design and collinearity"),
+    ("response", "Response and coefficients"),
+    ("screen", "Screen-level structure"),
+)
+
+
+
+#: What a diagnostic can conclude, worst last.
+VERDICT_LEVELS = ("unknown", "pass", "check", "fail")
+
+#: Ranked so a suite can be summarised by its worst panel.
+_LEVEL_RANK = {"unknown": 0, "pass": 1, "check": 2, "fail": 3}
+
+#: The word a reader sees, per level. Short enough for a badge on a 5.6-inch
+#: panel and unambiguous out of context -- "OK" beside a Q-Q could be read as
+#: "this panel drew successfully", which is the status and not the verdict.
+VERDICT_WORDS = {"pass": "PASS", "check": "CHECK", "fail": "FAIL",
+                 "unknown": "NOT SCORED"}
+
+
+class PanelVerdict(NamedTuple):
+    """What one diagnostic concluded, and what the number behind it was.
+
+    :param level: one of :data:`VERDICT_LEVELS`.
+    :param headline: the phrase drawn on the panel. A statement, not a label --
+        "variance is stable across the fit", never "homoscedasticity".
+    :param detail: one sentence saying what the score means and which rule
+        produced it, for the text report and for a caption.
+    :param score: the number the verdict was read off, or None where the
+        verdict came from a categorical result.
+    :param statistic: what that number is, so the report can name it.
+    """
+
+    level: str
+    headline: str
+    detail: str = ""
+    score: Optional[float] = None
+    statistic: str = ""
+
+    @property
+    def word(self) -> str:
+        """The badge text."""
+        return VERDICT_WORDS.get(self.level, self.level.upper())
+
+    def worse_than(self, other) -> bool:
+        """Whether this verdict is the one a summary should report.
+
+        :param other: verdict whose severity is compared with this one.
+        """
+        return _LEVEL_RANK.get(self.level, 0) > _LEVEL_RANK.get(
+            getattr(other, "level", "unknown"), 0)
+
+
+def _number(stats, key):
+    """``stats[key]`` as a float, or None when it is missing or not finite."""
+    if not isinstance(stats, dict) or key not in stats:
+        return None
+    try:
+        value = float(stats[key])
+    except (TypeError, ValueError):
+        return None
+    return value if np.isfinite(value) else None
+
+
+def _band(value, warn, fail, *, above_is_bad=True):
+    """``'pass'``/``'check'``/``'fail'`` for a value against two thresholds."""
+    if value is None:
+        return "unknown"
+    if above_is_bad:
+        if value >= fail:
+            return "fail"
+        return "check" if value >= warn else "pass"
+    if value <= fail:
+        return "fail"
+    return "check" if value <= warn else "pass"
+
+
+def _diagnostic_p(value):
+    """A diagnostic test's p, read in the direction that is easy to invert.
+
+    LARGE p is the GOOD outcome here: the null of every test these panels run
+    is that the assumption holds, so a small p is evidence AGAINST the model.
+    """
+    return _band(value, 0.05, 1e-4, above_is_bad=False)
+
+
+def _score_residuals_vs_fitted(stats):
+    """Judge fitted-value trend relative to the residual standard deviation."""
+    trend = _number(stats, "max_abs_trend")
+    spread = _number(stats, "resid_sd")
+    if trend is None or not spread:
+        return PanelVerdict("unknown", "no trend could be measured")
+    ratio = trend / spread
+    level = _band(ratio, 0.5, 1.0)
+    good = level == "pass"
+    return PanelVerdict(
+        level,
+        "the residuals are flat across the fit" if good
+        else "the residuals bend with the fitted value",
+        ("The smoother's largest excursion is "
+         f"{ratio:.2f} residual SDs from zero. Under a correctly specified "
+         "mean it should wander near zero; a systematic bend is missing "
+         "curvature or a missing term, not noise."),
+        ratio, "largest |trend| / residual SD")
+
+
+def _score_residual_distribution(stats):
+    """Judge residual normality from its diagnostic p-value and kurtosis."""
+    p = _number(stats, "normality_p")
+    test = str(stats.get("normality_test", "the normality test"))
+    kurtosis = _number(stats, "excess_kurtosis")
+    level = _diagnostic_p(p)
+    if level == "unknown":
+        return PanelVerdict("unknown", "normality was not tested")
+    tail = ("" if kurtosis is None else
+            f" Excess kurtosis is {kurtosis:+.2f}.")
+    return PanelVerdict(
+        level,
+        "the residuals look normal" if level == "pass"
+        else "the residuals are not normal",
+        (f"{test} p = {p:.3g}. The null is that the residuals ARE normal, so "
+         "a LARGE p is the good outcome; a small one puts the t and F "
+         "intervals in doubt, though with this many observations the "
+         "coefficients themselves are still asymptotically fine." + tail),
+        p, f"{test} p")
+
+
+def _score_scale_location(stats):
+    """Judge variance homogeneity from Brown-Forsythe and rank correlation."""
+    levene = _number(stats, "levene_p")
+    rho = _number(stats, "spearman_rho")
+    level = _diagnostic_p(levene)
+    if level == "unknown":
+        return PanelVerdict("unknown", "variance homogeneity was not tested")
+    return PanelVerdict(
+        level,
+        "the variance is stable across the fit" if level == "pass"
+        else str(stats.get("verdict") or "the variance moves with the fit"),
+        (f"Brown-Forsythe across quartiles of the fit: p = {levene:.3g}"
+         + ("" if rho is None else f", Spearman rho = {rho:+.2f}")
+         + ". The null is EQUAL variance, so a large p is the good outcome. "
+           "Heteroscedasticity does not bias the coefficients; it biases "
+           "their standard errors, which is what every p-value in the run "
+           "rests on."),
+        levene, "Brown-Forsythe p")
+
+
+def _score_qq(stats):
+    """Judge Q-Q agreement from ordered-residual quantile correlation."""
+    correlation = _number(stats, "quantile_correlation")
+    slope = _number(stats, "slope")
+    level = _band(correlation, 0.99, 0.97, above_is_bad=False)
+    if level == "unknown":
+        return PanelVerdict("unknown", "the Q-Q could not be scored")
+    return PanelVerdict(
+        level,
+        "the residuals track the normal line" if level == "pass"
+        else "the residual tails leave the normal line",
+        (f"Correlation between the ordered residuals and their normal "
+         f"quantiles is {correlation:.4f}"
+         + ("" if slope is None else f", on a line of slope {slope:.3g}")
+         + ". This is the number a reader is otherwise asked to eyeball off "
+           "the picture."),
+        correlation, "quantile correlation")
+
+
+def _score_observed_vs_predicted(stats):
+    """Report explanatory power from R-squared without treating it as validity."""
+    r2 = _number(stats, "r2")
+    if r2 is None:
+        return PanelVerdict("unknown", "no R² was computed")
+    level = "pass" if r2 >= 0.1 else "check"
+    return PanelVerdict(
+        level,
+        f"the fit accounts for {r2 * 100:.0f}% of the variance",
+        ("R² is reported rather than scored: a pooled screen's fit routinely "
+         "explains a small share of well-to-well variation and is still the "
+         "right model. Below 10% is flagged so it is noticed, not because it "
+         "is wrong."),
+        r2, "R²")
+
+
+def _score_cooks(stats):
+    """Judge whether an observation dominates the fit using Cook's distance."""
+    largest = _number(stats, "max_cooks")
+    above = _number(stats, "n_above")
+    if largest is None:
+        return PanelVerdict("unknown", "no Cook's distance was computed")
+    level = _band(largest, 0.5, 1.0)
+    label = stats.get("max_label")
+    return PanelVerdict(
+        level,
+        "no observation dominates the fit" if level == "pass"
+        else f"one observation moves the fit ({label})" if label
+        else "an observation moves the fit",
+        (f"Largest Cook's distance {largest:.3g}"
+         + ("" if above is None else f", with {int(above)} above the 4/n "
+                                     "screening line")
+         + ". Cook's D of 0.5 is the conventional 'look at it' and 1.0 the "
+           "conventional 'this point is the result'."),
+        largest, "max Cook's D")
+
+
+def _score_influence(stats):
+    """Judge whether individual wells carry excessive design leverage."""
+    high = _number(stats, "n_high_leverage")
+    largest = _number(stats, "max_leverage")
+    if largest is None:
+        return PanelVerdict("unknown", "no leverage was computed")
+    level = _band(largest, 0.2, 0.5)
+    return PanelVerdict(
+        level,
+        "no well carries the design on its own" if level == "pass"
+        else "a few wells carry an outsized share of the design",
+        (f"Largest hat value {largest:.3g}"
+         + ("" if high is None else f"; {int(high)} above the 2p/n line")
+         + ". A hat value of 0.5 means that one observation determines half "
+           "of its own fitted value, so its coefficient is about it rather "
+           "than about the screen."),
+        largest, "max leverage")
+
+
+def _score_dffits(stats):
+    """THE FRACTION ABOVE THE LINE, NOT THE MAXIMUM.
+
+    2*sqrt(p/n) is a SCREENING threshold, and a correctly specified model is
+    expected to exceed it for a few percent of its observations. Scoring the
+    maximum therefore flags a clean fit: measured on a 400-well Gaussian fit
+    with no defect at all, the largest |DFFITS| was over twice the threshold.
+    A warning that fires on a clean fit is a warning nobody reads.
+    """
+    above = _number(stats, "n_above")
+    total = _number(stats, "n_points")
+    largest = _number(stats, "max_abs_dffits")
+    threshold = _number(stats, "threshold")
+    if above is None or not total:
+        return PanelVerdict("unknown", "no DFFITS were computed")
+    fraction = above / total
+    level = _band(fraction, 0.10, 0.20)
+    return PanelVerdict(
+        level,
+        "no more wells are influential than chance expects" if level == "pass"
+        else f"{int(above)} of {int(total)} wells move their own fit",
+        (f"{int(above)} of {int(total)} wells ({fraction * 100:.1f}%) exceed "
+         f"the 2*sqrt(p/n) screening threshold of {threshold:.3g}"
+         + ("" if largest is None else f"; the largest is {largest:.3g}")
+         + ". A few percent above the line is what a correct model looks "
+           "like; a tenth of the screen above it is a design where many wells "
+           "are each deciding their own fitted value."),
+        fraction, "fraction above 2*sqrt(p/n)")
+
+
+def _score_vif(stats):
+    """Judge aliased or collinear predictors using variance inflation factors."""
+    aliased = _number(stats, "n_aliased")
+    if aliased:
+        return PanelVerdict(
+            "fail", f"{int(aliased)} predictor(s) are exact linear combinations",
+            ("An aliased predictor has no VIF because it has no independent "
+             "variation at all: its coefficient is one of infinitely many "
+             "solutions and the fit reports it without saying so."),
+            None, "aliased predictors")
+    largest = _number(stats, "max_vif")
+    above10 = _number(stats, "n_above_10")
+    if largest is None:
+        return PanelVerdict("unknown", "no VIF could be computed")
+    level = _band(largest, 5.0, 10.0)
+    return PanelVerdict(
+        level,
+        "the predictors are separable" if level == "pass"
+        else "predictors share variance with each other",
+        (f"Largest VIF {largest:.3g}"
+         + ("" if above10 is None else f"; {int(above10)} above 10")
+         + ". VIF 10 means the standard error of that coefficient is "
+           "sqrt(10) = 3.2x what an orthogonal design would give, so the "
+           "effect is not distinguished from its collinear partners."),
+        largest, "max VIF")
+
+
+def _score_condition_number(stats):
+    """Judge scaled design conditioning against Belsley's conventional bands."""
+    scaled = _number(stats, "condition_number")
+    if scaled is None:
+        return PanelVerdict("unknown", "the design was not conditioned")
+    level = _band(scaled, 30.0, 100.0)
+    return PanelVerdict(
+        level,
+        "the design is well conditioned" if level == "pass"
+        else str(stats.get("verdict") or "the design is ill conditioned"),
+        (f"Scaled condition number {scaled:.4g}. Belsley's conventional bands "
+         "are 30 for moderate and 100 for severe collinearity; SCALED, "
+         "because the unscaled number mostly measures the units the "
+         "predictors happen to be in."),
+        scaled, "scaled condition number")
+
+
+def _score_predictor_correlation(stats):
+    """Judge the largest absolute pairwise predictor correlation."""
+    largest = _number(stats, "max_abs_offdiagonal")
+    if largest is None:
+        return PanelVerdict("unknown", "no predictor correlation was computed")
+    level = _band(largest, 0.7, 0.9)
+    pair = stats.get("max_pair")
+    return PanelVerdict(
+        level,
+        "no two predictors are near-duplicates" if level == "pass"
+        else (f"two predictors move together ({', '.join(map(str, pair))})"
+              if isinstance(pair, (list, tuple)) and len(pair) == 2
+              else "two predictors move together"),
+        (f"Largest absolute off-diagonal correlation {largest:.3f}. This is "
+         "the pairwise view; VIF above is the multi-way one, and a design can "
+         "pass this and fail that."),
+        largest, "max |r| between predictors")
+
+
+def _score_response_distribution(stats):
+    """Require response variation while leaving family-specific shape unscored."""
+    spread = _number(stats, "sd")
+    if spread is None:
+        return PanelVerdict("unknown", "the response was not summarised")
+    if spread <= 0:
+        return PanelVerdict(
+            "fail", "the response is constant",
+            "A response with no variance cannot be regressed on anything.",
+            spread, "response SD")
+    return PanelVerdict(
+        "pass", "the response varies", "Shown for shape rather than scored: "
+        "what a response SHOULD look like is a property of the family, and "
+        "the family-specific panels below test that.", spread, "response SD")
+
+
+def _score_coefficient_forest(stats):
+    """Report whether coefficient effects include uncertainty intervals."""
+    if not stats.get("has_intervals", True):
+        return PanelVerdict(
+            "check", "the effects are shown without their uncertainty",
+            ("This backend reports no standard errors, so the panel is a "
+             "ranking rather than a set of intervals. A ranking read as "
+             "intervals is read with more confidence than the fit supports."),
+            None, "confidence intervals")
+    shown = _number(stats, "n_shown")
+    total = _number(stats, "n_total")
+    return PanelVerdict(
+        "pass", "the effects are shown with their intervals",
+        (f"{int(shown or 0)} of {int(total or 0)} coefficients drawn, largest "
+         "first. Not scored: the SIZE of an effect is the result, not a "
+         "diagnostic of it."),
+        None, "")
+
+
+#: What each p-value-histogram shape means for a screen, and whether it is a
+#: problem. A SPIKE AT ZERO IS THE GOOD OUTCOME and is the one most easily
+#: mistaken for a fault: it is what real hits look like.
+_HISTOGRAM_LEVELS = {
+    "uniform": ("pass", "the p-values are uniform, as a null screen should be"),
+    "uniform-with-spike": ("pass", "uniform with a spike at zero — real hits"),
+    "excess-large": ("check", "too many large p-values — the test may be "
+                              "conservative"),
+    "anti-uniform": ("fail", "the p-values pile up near one"),
+    "u-shaped": ("fail", "p-values pile up at BOTH ends"),
+    "too-few": ("unknown", "too few p-values to judge the shape"),
+}
+
+
+def _score_p_value_histogram(stats):
+    """Interpret the screen's named p-value histogram shape."""
+    shape = str(stats.get("verdict") or "")
+    level, headline = _HISTOGRAM_LEVELS.get(shape, ("unknown",
+                                                    "the shape was not judged"))
+    first = _number(stats, "first_bin_ratio")
+    return PanelVerdict(
+        level, headline,
+        (str(stats.get("message") or "")
+         + ("" if first is None else
+            f" The first bin holds {first:.2f}x the uniform expectation.")
+         + " A correction applied to a distribution that is not uniform under "
+           "the null does not control what it claims to control.").strip(),
+        first, "first-bin excess")
+
+
+def _score_calibration(stats):
+    """Judge probability calibration using expected calibration error."""
+    ece = _number(stats, "ece")
+    if ece is None:
+        return PanelVerdict("unknown", "calibration was not computed")
+    level = _band(ece, 0.05, 0.10)
+    brier = _number(stats, "brier")
+    return PanelVerdict(
+        level,
+        "the predicted probabilities are calibrated" if level == "pass"
+        else "the predicted probabilities are off",
+        (f"Expected calibration error {ece:.3f}"
+         + ("" if brier is None else f", Brier score {brier:.3f}")
+         + ". ECE is the average gap between the predicted probability and "
+           "the observed rate, so 0.05 is five percentage points out."),
+        ece, "expected calibration error")
+
+
+def _score_roc(stats):
+    """Judge in-sample class separation using area under the ROC curve."""
+    auc = _number(stats, "auc")
+    if auc is None:
+        return PanelVerdict("unknown", "no AUC was computed")
+    level = _band(auc, 0.7, 0.6, above_is_bad=False)
+    return PanelVerdict(
+        level,
+        "the fit separates the two classes" if level == "pass"
+        else "the fit barely separates the two classes",
+        (f"AUC {auc:.3f}. 0.5 is a coin toss and is the number a fit with no "
+         "signal returns; this is measured on the DATA THE MODEL WAS FITTED "
+         "TO, so it is an upper bound rather than an estimate of new-data "
+         "performance."),
+        auc, "AUC")
+
+
+def _score_precision_recall(stats):
+    """Judge average-precision lift relative to outcome prevalence."""
+    average = _number(stats, "average_precision")
+    prevalence = _number(stats, "prevalence")
+    if average is None or prevalence is None:
+        return PanelVerdict("unknown", "no average precision was computed")
+    lift = average / prevalence if prevalence else None
+    level = _band(lift, 1.5, 1.1, above_is_bad=False)
+    return PanelVerdict(
+        level,
+        "precision beats the base rate" if level == "pass"
+        else "precision is close to the base rate",
+        (f"Average precision {average:.3f} against a prevalence of "
+         f"{prevalence:.3f}"
+         + ("" if lift is None else f", a lift of {lift:.2f}x")
+         + ". Average precision is compared with the prevalence rather than "
+           "with 0.5: on an imbalanced response the baseline IS the "
+           "prevalence."),
+        lift, "average precision / prevalence")
+
+
+def _score_count_fit(stats):
+    """Judge a count model by its distance from unit Pearson dispersion."""
+    dispersion = _number(stats, "dispersion")
+    if dispersion is None:
+        return PanelVerdict("unknown", "dispersion was not computed")
+    distance = abs(dispersion - 1.0)
+    level = _band(distance, 0.5, 2.0)
+    return PanelVerdict(
+        level,
+        "the counts fit the assumed mean-variance relation" if level == "pass"
+        else str(stats.get("verdict") or "the counts are over-dispersed"),
+        (f"Pearson dispersion {dispersion:.3g}; 1.0 is the assumed "
+         "relationship. Over-dispersion narrows every interval by roughly "
+         f"sqrt({dispersion:.3g}), so the p-values are too small by a factor "
+         "nothing in the output otherwise reveals."),
+        dispersion, "Pearson dispersion")
+
+
+def _score_positional(stats, what):
+    """Judge unmodeled row or column effects with a Kruskal-Wallis test."""
+    p = _number(stats, "kruskal_p")
+    level = _diagnostic_p(p)
+    if level == "unknown":
+        return PanelVerdict("unknown", f"{what} effects were not tested")
+    worst = stats.get("worst_group")
+    edge = _number(stats, "edge_minus_interior_median")
+    detail = (f"Kruskal-Wallis across {what}s: p = {p:.3g}. The null is that "
+              f"every {what} has the same residual distribution, so a LARGE p "
+              f"is the good outcome. A {what} effect in the RESIDUALS is "
+              "variation the model did not account for, which is what a batch "
+              "effect is.")
+    if edge is not None and np.isfinite(edge):
+        detail += f" Edge minus interior median: {edge:+.3g}."
+    return PanelVerdict(
+        level,
+        f"no {what} fits differently" if level == "pass"
+        else (f"{what} {worst} fits differently" if worst
+              else f"{what}s fit differently"),
+        detail, p, "Kruskal-Wallis p")
+
+
+def _score_cell_count(stats):
+    """Judge association between cell count and absolute residual size."""
+    p = _number(stats, "spearman_p")
+    rho = _number(stats, "spearman_rho")
+    level = _diagnostic_p(p)
+    if level == "unknown":
+        return PanelVerdict("unknown", "cell count against residual was not "
+                                       "tested")
+    return PanelVerdict(
+        level,
+        "residual size does not track cell count" if level == "pass"
+        else "the extreme residuals are the small wells",
+        (f"Spearman rho = {rho:+.3f}, p = {p:.3g} between cell count and "
+         "|standardised residual|. The null is NO relationship, so a large p "
+         "is the good outcome. A negative rho means the low-count wells carry "
+         "the tails, and weighting or a minimum cell count is the fix rather "
+         "than dropping the outliers."),
+        p, "Spearman p")
+
+
+def _score_volcano_reference(stats):
+    """Report whether the run's unscored reference volcano was found."""
+    state = str(stats.get("state") or "")
+    if state == "found":
+        return PanelVerdict("unknown", "the run's volcano, for reference",
+                            "Named rather than scored: the volcano is the "
+                            "result, and this suite is about whether the fit "
+                            "was entitled to it.")
+    return PanelVerdict("unknown", "no volcano was written for this run",
+                        "The reference is a pointer, not a diagnostic.")
+
+
+#: Panel name -> the function that reads its statistics. One entry per panel
+#: in :data:`PANEL_ORDER`; a test asserts that, because a panel added without
+#: a scorer would silently go back to being a picture with a number on it.
+_SCORERS: Dict[str, Callable[[Dict[str, Any]], "PanelVerdict"]] = {
+    "residuals_vs_fitted": _score_residuals_vs_fitted,
+    "residual_distribution": _score_residual_distribution,
+    "scale_location": _score_scale_location,
+    "qq_residuals": _score_qq,
+    "observed_vs_predicted": _score_observed_vs_predicted,
+    "cooks_distance": _score_cooks,
+    "influence": _score_influence,
+    "dffits": _score_dffits,
+    "vif": _score_vif,
+    "condition_number": _score_condition_number,
+    "predictor_correlation": _score_predictor_correlation,
+    "response_distribution": _score_response_distribution,
+    "coefficient_forest": _score_coefficient_forest,
+    "p_value_histogram": _score_p_value_histogram,
+    "calibration": _score_calibration,
+    "roc": _score_roc,
+    "precision_recall": _score_precision_recall,
+    "count_fit": _score_count_fit,
+    "plate_effects": lambda stats: _score_positional(stats, "plate"),
+    "row_effects": lambda stats: _score_positional(stats, "row"),
+    "column_effects": lambda stats: _score_positional(stats, "column"),
+    "cell_count_vs_effect": _score_cell_count,
+    "volcano_reference": _score_volcano_reference,
+}
+
+#: Badge ink per level, from the house palette so a report reads as one
+#: document. `check` and `fail` are the two colours the style already spends
+#: on "this is the thing the sentence is about".
+_VERDICT_INK = {
+    "pass": ROLES["control_negative"],
+    "check": ROLES["highlight"],
+    "fail": ROLES["down"],
+    "unknown": ROLES["data"],
+}
+
+
+def score_panel(name, stats) -> PanelVerdict:
+    """Return the verdict for one panel's statistics; never raises.
+
+    :param name: a name from :data:`PANEL_ORDER`.
+    :param stats: the dict :func:`draw_panel` returned.
+    :returns: a :class:`PanelVerdict`. An unknown panel, absent statistics or
+        a scorer that trips over an unexpected value all come back as
+        ``'unknown'`` rather than raising -- a diagnostic that crashes while
+        judging a diagnostic would take down a fit that already succeeded, for
+        the sake of a sentence.
+    """
+    scorer = _SCORERS.get(str(name))
+    if scorer is None:
+        return PanelVerdict("unknown", "this panel is not scored")
+    try:
+        verdict = scorer(stats if isinstance(stats, dict) else {})
+    except Exception as exc:                    # noqa: BLE001 - see docstring
+        return PanelVerdict("unknown", "the verdict could not be computed",
+                            f"{type(exc).__name__}: {exc}")
+    if verdict.level not in VERDICT_LEVELS:
+        return PanelVerdict("unknown", verdict.headline, verdict.detail)
+    return verdict
+
+
+def draw_verdict(ax, verdict) -> None:
+    """Stamp a verdict onto the panel it belongs to.
+
+    :param ax: Matplotlib axes containing the diagnostic panel.
+    :param verdict: panel verdict to stamp; None or an unknown verdict leaves
+        the panel unchanged.
+
+    The verdict is drawn bottom left, in a box, because every panel in this
+    module already uses its top corners for the statistics block and its own
+    annotations, and a verdict over a data point would hide the data. The
+    box distinguishes the suite's assessment of the panel from the panel's
+    own annotation of the data.
+    """
+    if verdict is None or verdict.level == "unknown":
+        return
+    ink = _VERDICT_INK.get(verdict.level, ROLES["data"])
+    ax.text(0.02, 0.02, f"{verdict.word}  {verdict.headline}",
+            transform=ax.transAxes, ha="left", va="bottom",
+            fontsize=TYPE_SCALE["annotation"], color=ink, zorder=6,
+            bbox=dict(boxstyle="round,pad=0.28",
+                      facecolor=resolve_label_ground(theme_target()),
+                      edgecolor=ink, linewidth=WEIGHTS["spine"], alpha=0.9))
+
+
+def worst_verdict(verdicts):
+    """Return the verdict that summarises a suite, or None when there is none.
+
+    :param verdicts: iterable of panel verdicts or None entries to compare.
+
+    The most severe verdict is returned, not the most common one or an
+    average. Nineteen panels passing and one saying the design is rank deficient is a run whose
+    coefficients are one of infinitely many solutions, and a summary that
+    reports "95% passed" is a summary that hides exactly the panel the suite
+    was run for.
+    """
+    chosen = None
+    for verdict in verdicts:
+        if verdict is None:
+            continue
+        if chosen is None or verdict.worse_than(chosen):
+            chosen = verdict
+    return chosen
+
+
+def panel_names(group=None):
+    """Return the panel names, optionally restricted to one report section.
+
+    :param group: ``'fit'``, ``'influence'``, ``'design'``, ``'response'``,
+        ``'screen'`` or ``None`` for all.
+    :returns: Tuple of panel names in report order.
+    :raises ValueError: on an unknown group.
+    """
+    if group is None:
+        return PANEL_ORDER
+    known = {g for g, _ in _GROUP_TITLES}
+    if group not in known:
+        raise ValueError(f"unknown panel group {group!r}; expected one of {sorted(known)}")
+    return tuple(name for name, _, g, _ in _PANELS if g == group)
+
+
+def draw_panel(name, ctx, ax):
+    """Draw one panel onto an axes and return the statistics it computed.
+
+    This is the unit the tests drive: it takes an axes the caller owns, so the
+    contents (how many points the scatter has, what the annotation says) can be
+    asserted directly rather than inferred from a PDF's existence.
+
+    :param name: A name from :data:`PANEL_ORDER`.
+    :param ctx: :class:`RegressionQCContext` from :func:`build_context`.
+    :param ax: A matplotlib ``Axes`` to draw into.
+    :returns: dict of statistics; the exact keys are per panel.
+    :raises KeyError: if ``name`` is not a known panel.
+    :raises PanelUnavailable: if the panel cannot be computed for this model,
+        with the reason as the message.
+    """
+    if name not in _PANEL_BY_NAME:
+        raise KeyError(
+            f"unknown QC panel {name!r}; known panels: {', '.join(PANEL_ORDER)}")
+    _, _, fn = _PANEL_BY_NAME[name]
+    return fn(ctx, ax)
+
+
+
+
+def _save(fig, path, fmt=None, renderer=None, title=None):
+    """Write, publish, and clear a QC figure with the selected renderer.
+
+    :param renderer: one of :data:`spacr.figures.scene.RENDERERS`, decided
+        once for the whole report rather than per panel.
+    :returns: ``(path, renderer, reason)`` -- the path actually written, the
+        library that drew it, and, when that is not pyqtgraph, why not.
+
+    :func:`spacr.figures.scene.write_figure` translates the completed artists
+    without recomputing panel statistics and falls back to matplotlib when the
+    scene cannot represent the figure completely. The publication route does
+    not depend on pyplot's global figure registry. ``fmt`` overrides the
+    configured format, while the returned path always names the file written.
+    """
+    from .figures.scene import write_figure
+
+    written, drew, why = write_figure(fig, path, fmt=fmt, renderer=renderer,
+                                      title=title, bbox_inches="tight")
+    fig.clf()
+    return (written or path), drew, why
+
+
+def format_qc_report(manifest):
+    """Render a manifest as the plain-text report that is written next to the PDFs.
+
+    :param manifest: The dict returned by :func:`regression_qc_report`.
+    :returns: A multi-line string, one block per report section.
+
+    The text form exists because the PDF cannot be grepped and because the
+    numbers — dispersion, condition number, the p-value verdict — are the part
+    a reviewer quotes.
+    """
+    lines = ["spaCR regression QC report", "=" * 60,
+             f"model            : {manifest.get('model')}",
+             f"regression type  : {manifest.get('regression_type')}",
+             f"family / link    : {manifest.get('family')}"
+             + (f" / {manifest['link']}" if manifest.get("link") else ""),
+             f"fitted rows      : {manifest.get('n_observations')}",
+             f"unique wells     : {manifest.get('n_unique_wells')}",
+             f"predictors       : {manifest.get('n_predictors')}",
+             f"leverage source  : {manifest.get('leverage_source')}",
+             f"standardised by  : {manifest.get('residual_scale')}",
+             f"standardised what: {manifest.get('standardised_quantity')}",
+             f"output directory : {manifest.get('directory')}", ""]
+    for note in manifest.get("notes", ()):
+        lines.append(f"note: {note}")
+    if manifest.get("notes"):
+        lines.append("")
+
+    by_group: Dict[str, List[QCPanelResult]] = {}
+    for panel in manifest["panels"]:
+        by_group.setdefault(panel.group, []).append(panel)
+
+    for group, title in _GROUP_TITLES:
+        panels = by_group.get(group)
+        if not panels:
+            continue
+        lines.append(title)
+        lines.append("-" * len(title))
+        for panel in panels:
+            head = f"  [{panel.status.upper():<7}] {panel.title}"
+            lines.append(head)
+            if panel.verdict is not None and panel.verdict.level != "unknown":
+                lines.append(f"      verdict: {panel.verdict.word} — "
+                             f"{panel.verdict.headline}")
+                if panel.verdict.statistic and panel.verdict.score is not None:
+                    lines.append(f"      {panel.verdict.statistic}: "
+                                 f"{panel.verdict.score:.6g}")
+                if panel.verdict.detail:
+                    lines.append(textwrap.fill(
+                        panel.verdict.detail, 72,
+                        initial_indent="      means: ",
+                        subsequent_indent="             "))
+            if panel.reason:
+                lines.append(textwrap.fill(panel.reason, 72,
+                                           initial_indent="      reason: ",
+                                           subsequent_indent="              "))
+            for key, value in panel.stats.items():
+                if value is None:
+                    continue
+                if isinstance(value, float):
+                    rendered = f"{value:.6g}"
+                elif isinstance(value, (list, tuple)):
+                    if len(value) > 8:
+                        rendered = f"[{len(value)} values]"
+                    else:
+                        rendered = ", ".join(str(v) for v in value)
+                elif isinstance(value, dict):
+                    rendered = f"[{len(value)} entries]"
+                else:
+                    rendered = str(value)
+                lines.append(f"      {key}: {rendered}")
+            if panel.path:
+                lines.append(f"      file: {os.path.basename(panel.path)}")
+        lines.append("")
+
+    written = sum(1 for p in manifest["panels"] if p.status in ("written", "partial"))
+    skipped = [p for p in manifest["panels"] if p.status == "skipped"]
+    failed = [p for p in manifest["panels"] if p.status == "failed"]
+    lines.append("=" * 60)
+    lines.append(f"{written} panel(s) drawn, {len(skipped)} skipped, "
+                 f"{len(failed)} failed")
+    counts = manifest.get("verdict_counts") or {}
+    if counts:
+        lines.append("verdicts: " + ", ".join(
+            f"{count} {VERDICT_WORDS.get(level, level)}"
+            for level, count in sorted(
+                counts.items(), key=lambda item: -_LEVEL_RANK.get(item[0], 0))
+            if count))
+    for level in ("fail", "check"):
+        for panel in manifest["panels"]:
+            if panel.verdict is not None and panel.verdict.level == level:
+                lines.append(f"  {panel.verdict.word:<5}: {panel.name} — "
+                             f"{panel.verdict.headline}")
+    for panel in skipped:
+        lines.append(f"  skipped: {panel.name} — {panel.reason}")
+    for panel in failed:
+        lines.append(f"  FAILED : {panel.name} — {panel.reason}")
+    return "\n".join(lines) + "\n"
+
+
+def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
+                         coef_df=None, regression_type=None, volcano_path=None,
+                         panels=None, fmt=None, combined=True, strict=False,
+                         verbose=True, renderer=None):
+    """Write the full regression QC suite and return a manifest of what was written.
+
+    Every panel is attempted. A panel that cannot be computed for this model —
+    no p-values from a Lasso, no plate column in the metadata, no calibration
+    for a Gaussian fit — is recorded as ``skipped`` with the reason, shown as a
+    grey tile on the combined page and listed in the text report. It is never
+    dropped in silence, because "the panel is not there" and "the panel is
+    fine" must not look the same.
+
+    :param model: Fitted model, as returned by
+        :func:`spacr.ml.regression_model`.
+    :param X: The design matrix that was fitted (DataFrame preferred, so the
+        panels can name the predictors).
+    :param y: The response that was fitted.
+    :param dst: Results folder for the run. The report goes into
+        ``<dst>/regression_qc/``.
+    :param weights: Per-observation weights passed to the fit (spaCR passes
+        cell counts for the GLM-binomial path).
+    :param metadata: Per-well frame carrying ``plateID`` / ``rowID`` /
+        ``columnID`` / ``prc`` / ``cell_count``. Aligned to the fitted rows by
+        index, or by length; anything else raises rather than risk labelling
+        the wrong well.
+    :param coef_df: The coefficient table from
+        :func:`spacr.ml.process_model_coefficients`, used for the p-value
+        histogram so it shows the *screen's* p-values.
+    :param regression_type: The spaCR regression type string, used to pick the
+        family-specific panels when the model object does not say.
+    :param volcano_path: Path of the volcano plot for this run, named on the
+        report instead of drawing a second volcano.
+    :param panels: Optional subset of :data:`PANEL_ORDER`.
+    :param fmt: force a figure format for the individual panels. ``None``,
+        the default, lets the user's figure-format preference decide. An
+        explicit format still wins, for a caller that needs one.
+    :param combined: Also write the single-page multi-panel report.
+    :param strict: Re-raise a panel's unexpected exception instead of recording
+        it as ``failed``. Tests use this; the pipeline should not, because a
+        broken diagnostic must not take down a fit that already succeeded.
+    :param verbose: Print the destination and any failure.
+    :param renderer: force ``'pyqtgraph'`` or ``'matplotlib'``. ``None`` asks
+        :func:`spacr.figures.scene.scene_renderer`, which prefers the screen's
+        renderer and falls back where Qt is not available -- and the choice is
+        made once here rather than per panel, so a suite cannot come out half
+        in one library and half in the other over an environment that changed
+        while it ran.
+    :returns: dict manifest with ``directory``, ``combined``, ``report``,
+        ``panels`` (list of :class:`QCPanelResult`), ``written``, ``skipped``,
+        ``failed``, ``renderer`` and the model description.
+    :raises ValueError: if ``dst`` is falsy, because the report needs a
+        destination.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.regression_qc import regression_qc_report
+            manifest = regression_qc_report(
+                model, X, y, dst=res_folder,
+                metadata=merged_df.loc[X.index,
+                                       ['plateID', 'rowID', 'columnID',
+                                        'prc', 'cell_count']],
+                coef_df=coef_df, regression_type='ols')
+            print(len(manifest['written']), 'panels written')
+    """
+    if not dst:
+        raise ValueError(
+            "regression_qc_report needs a destination folder; pass the run's "
+            "results directory. Writing diagnostics nowhere is the same as not "
+            "computing them.")
+    out_dir = os.path.join(str(dst), QC_DIRNAME)
+    os.makedirs(out_dir, exist_ok=True)
+
+    ctx = build_context(model, X, y, weights=weights, metadata=metadata,
+                        coef_df=coef_df, regression_type=regression_type,
+                        volcano_path=volcano_path)
+    selected = tuple(panels) if panels is not None else PANEL_ORDER
+    unknown = [name for name in selected if name not in _PANEL_BY_NAME]
+    if unknown:
+        raise ValueError(f"unknown QC panel(s): {unknown}; known: {list(PANEL_ORDER)}")
+
+    from .figures.scene import scene_renderer
+
+    renderer, renderer_reason = scene_renderer(renderer)
+    drawn_by: Dict[str, int] = {}
+    fell_back: List[Tuple[str, str]] = []
+
+    results: List[QCPanelResult] = []
+    for name in selected:
+        title, group, fn = _PANEL_BY_NAME[name]
+        fig = Figure(figsize=(5.6, 4.4), dpi=140)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: {"fitted": np.asarray(ctx.fitted, dtype=float), "residual": np.asarray(ctx.resid, dtype=float)}, x="fitted", y="residual", kind="scatter", title=str(title))
+        ax = fig.subplots()
+        try:
+            stats = fn(ctx, ax)
+        except PanelUnavailable as exc:
+            fig.clf()
+            results.append(QCPanelResult(name=name, title=title, group=group,
+                                         status="skipped", reason=str(exc)))
+            continue
+        except Exception as exc:                # noqa: BLE001 - reported, see below
+            fig.clf()
+            if strict:
+                raise
+            message = f"{type(exc).__name__}: {exc}"
+            if verbose:
+                print(f"[regression_qc] panel {name!r} failed: {message}")
+            results.append(QCPanelResult(name=name, title=title, group=group,
+                                         status="failed", reason=message))
+            continue
+        limitation = stats.get("limitation") if isinstance(stats, dict) else None
+        verdict = score_panel(name, stats)
+        draw_verdict(ax, verdict)
+        path = os.path.join(out_dir, name if not fmt else f"{name}.{fmt}")
+        fig.tight_layout()
+        path, drew, why = _save(fig, path, fmt=fmt, renderer=renderer,
+                                title=title)
+        drawn_by[drew] = drawn_by.get(drew, 0) + 1
+        if renderer == "pyqtgraph" and drew != renderer and why:
+            fell_back.append((name, why))
+        results.append(QCPanelResult(
+            name=name, title=title, group=group,
+            status="partial" if limitation else "written",
+            path=path, reason=limitation, stats=dict(stats),
+            verdict=verdict))
+
+    combined_path = None
+    assumptions_path = None
+    if combined:
+        combined_path, drew, why = _write_combined_page(
+            ctx, results, out_dir, selected, fmt=fmt, renderer=renderer)
+        drawn_by[drew] = drawn_by.get(drew, 0) + 1
+        if renderer == "pyqtgraph" and drew != renderer and why:
+            fell_back.append(("regression_qc_report", why))
+
+        if (str(regression_type or "").strip().lower() == "ols"
+                and set(OLS_ASSUMPTION_PANELS).issubset(selected)):
+            assumptions_path, drew, why = _write_combined_page(
+                ctx, results, out_dir, OLS_ASSUMPTION_PANELS, fmt=fmt,
+                renderer=renderer, stem="ols_assumption_diagnostics",
+                title="OLS assumption, influence and batch diagnostics",
+                n_cols=2, show_verdicts=False)
+            drawn_by[drew] = drawn_by.get(drew, 0) + 1
+            if renderer == "pyqtgraph" and drew != renderer and why:
+                fell_back.append(("ols_assumption_diagnostics", why))
+
+    manifest = {
+        "directory": out_dir,
+        "combined": combined_path,
+        "assumptions": assumptions_path,
+        "report": None,
+        "panels": results,
+        "written": [r.path for r in results if r.path],
+        "skipped": [(r.name, r.reason) for r in results if r.status == "skipped"],
+        "failed": [(r.name, r.reason) for r in results if r.status == "failed"],
+        "model": type(model).__name__,
+        "regression_type": regression_type,
+        "family": ctx.family,
+        "link": ctx.link,
+        "n_observations": ctx.n,
+        "n_unique_wells": ctx.n_unique_wells,
+        "n_predictors": ctx.p,
+        "leverage_source": ctx.leverage_source,
+        "residual_scale": (ctx.standardisation.source
+                           if ctx.standardisation is not None else "unknown"),
+        "standardised_quantity": (ctx.standardisation.metric
+                                  if ctx.standardisation is not None else "unknown"),
+        "residual_scale_available": ctx.standardisation_available,
+        "residual_scale_reason": (ctx.standardisation.reason
+                                  if ctx.standardisation is not None else None),
+        "notes": list(ctx.notes),
+        "renderer": renderer,
+        "renderer_counts": dict(drawn_by),
+        "renderer_fallbacks": list(fell_back),
+    }
+    verdicts = [r.verdict for r in results if r.verdict is not None]
+    manifest["verdicts"] = {r.name: r.verdict for r in results
+                            if r.verdict is not None}
+    manifest["verdict_counts"] = {
+        level: sum(1 for v in verdicts if v.level == level)
+        for level in VERDICT_LEVELS}
+    worst = worst_verdict(verdicts)
+    manifest["verdict"] = worst
+    manifest["verdict_level"] = worst.level if worst else "unknown"
+    report_path = os.path.join(out_dir, "regression_qc_report.txt")
+    with open(report_path, "w", encoding="utf-8") as handle:
+        handle.write(format_qc_report(manifest))
+    manifest["report"] = report_path
+    if verbose:
+        drawn = sum(1 for r in results if r.status in ("written", "partial"))
+        by = ", ".join(f"{count} by {name}"
+                       for name, count in sorted(drawn_by.items()))
+        print(f"[regression_qc] {drawn}/{len(results)} panel(s) written to "
+              f"{out_dir}" + (f" ({by})" if by else ""))
+        if renderer != "pyqtgraph" and renderer_reason:
+            print(f"[regression_qc]   drawn by matplotlib: {renderer_reason}")
+        for name, why in fell_back:
+            print(f"[regression_qc]   {name} fell back to matplotlib: {why}")
+        for level in ("fail", "check"):
+            for panel in results:
+                if panel.verdict is not None and panel.verdict.level == level:
+                    print(f"[regression_qc]   {panel.verdict.word} "
+                          f"{panel.name}: {panel.verdict.headline}")
+        for panel in results:
+            if panel.status == "skipped":
+                print(f"[regression_qc]   skipped {panel.name}: {panel.reason}")
+    _write_qc_numbers(out_dir, manifest, results)
+    return manifest
+
+
+#: The file the numbers land in, beside the report they are printed on.
+QC_NUMBERS_FILE = "regression_qc_numbers.json"
+
+
+def _write_qc_numbers(out_dir, manifest, results) -> Optional[str]:
+    """Persist panel statistics as JSON beside the quality-control report.
+
+    Values are serialized from the completed diagnostic pass rather than
+    recomputed. The settings advisor can therefore use the same statistics
+    that were displayed in the report.
+
+    :param out_dir: the ``regression_qc`` folder.
+    :param manifest: the manifest about to be returned.
+    :param results: the per-panel results, for their ``stats``.
+    :returns: the path written, or ``None``.
+    """
+    import json
+    import os
+
+    def _plain(value):
+        """Return ``value`` as a JSON-serializable value, or as a string."""
+        if value is None or isinstance(value, (bool, int, str)):
+            return value
+        if isinstance(value, float):
+            return value if np.isfinite(value) else None
+        if isinstance(value, (np.integer,)):
+            return int(value)
+        if isinstance(value, (np.floating,)):
+            value = float(value)
+            return value if np.isfinite(value) else None
+        if isinstance(value, (list, tuple)):
+            return [_plain(v) for v in value]
+        if isinstance(value, Mapping):
+            return {str(k): _plain(v) for k, v in value.items()}
+        return str(value)
+
+    payload = {
+        "model": manifest.get("model"),
+        "regression_type": manifest.get("regression_type"),
+        "family": manifest.get("family"),
+        "n_observations": manifest.get("n_observations"),
+        "n_unique_wells": manifest.get("n_unique_wells"),
+        "n_predictors": manifest.get("n_predictors"),
+        "panels": {r.name: _plain(dict(r.stats or {})) for r in results},
+        "verdicts": {
+            name: _plain({"level": v.level, "word": v.word,
+                          "headline": v.headline})
+            for name, v in (manifest.get("verdicts") or {}).items()},
+    }
+    flat = {}
+    for one in results:
+        for key, value in (one.stats or {}).items():
+            flat.setdefault(str(key), _plain(value))
+    payload["numbers"] = flat
+    try:
+        path = os.path.join(str(out_dir), QC_NUMBERS_FILE)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, allow_nan=False)
+        manifest["numbers"] = path
+        return path
+    except Exception as error:                                   # noqa: BLE001
+        print(f"[regression_qc] could not write {QC_NUMBERS_FILE}: "
+              f"{type(error).__name__}: {error}")
+        return None
+
+
+def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
+                         renderer=None, *, stem="regression_qc_report",
+                         title=None, n_cols=4, show_verdicts=True):
+    """Draw every panel again onto one page, skipped ones as grey tiles.
+
+    Redrawing rather than re-parenting the individual axes is deliberate:
+    matplotlib artists belong to exactly one figure, and moving them is
+    unsupported and silently lossy. The panels are cheap (a few hundred wells),
+    so a second pass costs nothing worth optimising.
+    """
+    by_name = {r.name: r for r in results}
+    order = [name for name in selected if name in by_name]
+    n_cols = max(1, min(int(n_cols), max(len(order), 1)))
+    n_rows = int(np.ceil(len(order) / n_cols))
+    fig = Figure(figsize=(4.6 * n_cols, 3.7 * n_rows), dpi=110)
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, lambda: {"fitted": np.asarray(ctx.fitted, dtype=float), "residual": np.asarray(ctx.resid, dtype=float)}, x="fitted", y="residual", kind="scatter")
+    axes = fig.subplots(n_rows, n_cols, squeeze=False)
+    for slot, name in enumerate(order):
+        ax = axes[slot // n_cols][slot % n_cols]
+        result = by_name[name]
+        panel_title, _, fn = _PANEL_BY_NAME[name]
+        if result.status in ("skipped", "failed"):
+            _skip_box(ax, panel_title, result.reason or "no reason recorded")
+            continue
+        try:
+            fn(ctx, ax)
+            if show_verdicts:
+                draw_verdict(ax, result.verdict)
+        except Exception as exc:                # noqa: BLE001
+            ax.clear()
+            _skip_box(ax, title, f"redraw failed: {type(exc).__name__}: {exc}")
+    for slot in range(len(order), n_rows * n_cols):
+        axes[slot // n_cols][slot % n_cols].set_axis_off()
+
+    drawn = sum(1 for name in order
+                if by_name[name].status in ("written", "partial"))
+    heading = (title or "spaCR regression QC")
+    fig.suptitle(
+        f"{heading} — {ctx.family}"
+        + (f" / {ctx.link} link" if ctx.link else "")
+        + f" — {ctx.sample_description}, {ctx.p} predictors — "
+          f"{drawn}/{len(order)} panels available",
+        fontsize=13, y=0.995)
+    fig.tight_layout(rect=(0, 0, 1, 0.985))
+    path = os.path.join(out_dir, stem if not fmt else f"{stem}.{fmt}")
+    return _save(fig, path, fmt=fmt, renderer=renderer,
+                 title=title or "regression QC report")

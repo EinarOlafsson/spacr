@@ -1,0 +1,15 @@
+{
+  "sha256": {
+    "baseline-inventory.json.gz": "79fe6aeb6d8d3d8b21f2dfe86d6c3170255d1060a5d56382a834dfdb0dd2f655",
+    "candidate-inventory.json.gz": "8c821d96d737bc1c0e48d08f65ae04462585f5af8ee822bca57de605a5a3ef4f",
+    "final-owning.log.gz": "8b826aca6d2250254dc8dff3f1941b14c6300e430dbe0926b9b49488a32efeae",
+    "inventory-delta.json.gz": "534ffcc93945a8d1622c6241196f5d0731fe884604efa423e39f29aa25b83870",
+    "overlay-baseline.log.gz": "02561a007370160e82bf94a1a34a17e4d6b169ea97692d8818b9b8d5cc4afcff",
+    "overlay-candidate.log.gz": "02561a007370160e82bf94a1a34a17e4d6b169ea97692d8818b9b8d5cc4afcff",
+    "overlay_parity.py.gz": "993ce99a84f7f5a3e05542fbbbb27fdd9c20b1c6756ecb00d2c41f1c1191799c",
+    "receipt.json": "738cf811683730932caf4b25a5d9f6bbb17dd860ab18c3958a7a85a244288e02",
+    "ruff-EF.json.gz": "323d2a58a570e6572f091c2ba24de4bc035455648a82a44d6ccced696c5a50cd",
+    "source-and-tests.patch": "40e09853cc407d6c22a5f4c707695e24bfa2a1a5fef0b7bf32916d5cac82af52",
+    "verify.py": "e147b88a945b9d6b683896e43d50896a0d7690c07a3087147cf5fd35d557fd9d"
+  }
+}

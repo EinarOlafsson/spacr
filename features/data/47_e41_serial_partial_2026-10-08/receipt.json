@@ -1,0 +1,103 @@
+{
+  "artifact": {
+    "file": "hosted-artifact.zip",
+    "id": 11580513670,
+    "members": {
+      "fatal-python.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      },
+      "file-rss.jsonl": {
+        "sha256": "fb32b0626c25d2e5779bbf44ecf714020c7aeedd966aa3109bc20dea9caf9ec5",
+        "size_bytes": 174991
+      },
+      "host-memory.log": {
+        "sha256": "1b37cc9655557120bc2497638a1fff28e3ddf6a49151ab893534598cda5abf8e",
+        "size_bytes": 70585
+      },
+      "pytest.log": {
+        "sha256": "9f396fa553002578b8b55333f1fe23533692fb56d2a0f7022c900e508c4390a9",
+        "size_bytes": 385168
+      },
+      "source-provenance.json": {
+        "sha256": "425ddfc80ac9b70fab7a559d195865b7685761fcb3a34e5545ad771a5266e7f9",
+        "size_bytes": 275452
+      }
+    },
+    "sha256": "6f82e9689ce9784492693b99a72a7c620a070d9e8aa1716e68fb7f3c1035134e",
+    "size_bytes": 200531
+  },
+  "github_job_log": {
+    "file": "github-job.log.gz",
+    "gzip_sha256": "d1b56887d3ee1d355aa8f704514c8933a1fc3a1df9f2f23864e5238b647fe1b9",
+    "raw_sha256": "3cc7edfccfee4ab5e9d97e41bc19b6d180f2fa0be0ab6508bf0fc39277bcfc82",
+    "raw_size_bytes": 671139
+  },
+  "interpretation": "This cancelled prefix is not a pass, completion, or current-source acceptance. The ambient fake-module ImportError is a test-double incompatibility; the journal preserves every observed failure without assuming that later source has repaired it.",
+  "job": {
+    "completed_at": "2026-10-08T21:52:17Z",
+    "conclusion": "cancelled",
+    "id": 113548733148,
+    "name": "Uninterrupted serial tests/qt (10.8 GiB guard)",
+    "started_at": "2026-10-08T21:24:30Z",
+    "status": "completed"
+  },
+  "kind": "partial_cancelled_serial_observation",
+  "observed_prefix": {
+    "failed_nodes": 33,
+    "failure_nodeids": [
+      "tests/qt/test_529_the_dock_and_right_column_resize.py::TestTheDockWidth::test_ctrl_0_resets_the_column_text_before_it_goes_home",
+      "tests/qt/test_544_573_blind_scoring_and_lock_on_screen.py::test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation",
+      "tests/qt/test_593_channel_sort_dialog_paths.py::test_detected_sets_are_kept_only_when_confirmed",
+      "tests/qt/test_593_channel_sort_dialog_paths.py::test_the_regex_window_hands_back_a_regex_or_detected_sets",
+      "tests/qt/test_593_make_masks_consolidate_and_sort.py::test_a_headless_drop_opens_the_folder_as_it_is",
+      "tests/qt/test_593_make_masks_consolidate_and_sort.py::test_the_sort_dialog_lists_proposes_and_plans",
+      "tests/qt/test_593_make_masks_consolidate_and_sort.py::test_selection_strategy_assigns_channels_and_bad_sets_ask_for_a_regex",
+      "tests/qt/test_600_make_masks_drops.py::test_cancelling_the_popup_opens_the_folders_as_a_queue",
+      "tests/qt/test_600_make_masks_drops.py::test_channel_like_subfolders_open_the_popup_prefilled",
+      "tests/qt/test_600_make_masks_drops.py::test_other_nested_folders_still_get_the_consolidation_question",
+      "tests/qt/test_600_make_masks_drops.py::test_merged_arrays_alone_open_nothing_and_say_why",
+      "tests/qt/test_600_make_masks_drops.py::test_unrecognised_items_are_listed_in_the_console",
+      "tests/qt/test_600_organize_for_measure.py::test_teach_me_regex_is_reused_by_sort_by_regex",
+      "tests/qt/test_600_organize_for_measure.py::test_teach_me_with_nothing_to_teach",
+      "tests/qt/test_603_all_hover_surfaces_wait.py::test_fixed_hint_bar_is_immediate_despite_popup_delay",
+      "tests/qt/test_a_settings_lookup_reveals_what_it_can_and_declines_the_rest.py::test_a_revealed_row_is_shown_even_when_a_category_will_not_shut",
+      "tests/qt/test_ambient_motion.py::test_the_direction_row_is_only_there_for_the_starfield",
+      "tests/qt/test_ambient_wiring.py::test_every_non_sequencing_screen_gets_the_ambient_backdrop[mask]",
+      "tests/qt/test_ambient_wiring.py::test_every_non_sequencing_screen_gets_the_ambient_backdrop[measure]",
+      "tests/qt/test_ambient_wiring.py::test_every_non_sequencing_screen_gets_the_ambient_backdrop[classify]",
+      "tests/qt/test_ambient_wiring.py::test_every_non_sequencing_screen_gets_the_ambient_backdrop[regression]",
+      "tests/qt/test_ambient_wiring.py::test_every_non_sequencing_screen_gets_the_ambient_backdrop[umap]",
+      "tests/qt/test_ambient_wiring.py::test_every_non_sequencing_screen_gets_the_ambient_backdrop[replication]",
+      "tests/qt/test_ambient_wiring.py::test_sequencing_keeps_its_own_animation_and_gains_nothing",
+      "tests/qt/test_ambient_wiring.py::test_no_screen_ever_carries_both_backdrops[mask]",
+      "tests/qt/test_ambient_wiring.py::test_no_screen_ever_carries_both_backdrops[measure]",
+      "tests/qt/test_ambient_wiring.py::test_no_screen_ever_carries_both_backdrops[classify]",
+      "tests/qt/test_ambient_wiring.py::test_no_screen_ever_carries_both_backdrops[regression]",
+      "tests/qt/test_ambient_wiring.py::test_no_screen_ever_carries_both_backdrops[umap]",
+      "tests/qt/test_ambient_wiring.py::test_no_screen_ever_carries_both_backdrops[replication]",
+      "tests/qt/test_ambient_wiring.py::test_no_screen_ever_carries_both_backdrops[map_barcodes]",
+      "tests/qt/test_ambient_wiring.py::test_sequencing_cannot_acquire_one_through_the_refresh_path",
+      "tests/qt/test_ambient_wiring.py::test_the_backdrop_is_behind_every_sibling_and_ignores_input"
+    ],
+    "fatal_python_log_empty": true,
+    "file_begin": 214,
+    "file_end": 213,
+    "last_printed_percent": 10,
+    "printed_status_counts": {
+      "failed": 33,
+      "passed": 3113,
+      "skipped": 10
+    }
+  },
+  "run": {
+    "attempt": 1,
+    "conclusion": "cancelled",
+    "created_at": "2026-10-08T21:23:04Z",
+    "id": 37846383359,
+    "status": "completed",
+    "updated_at": "2026-10-08T21:52:18Z",
+    "workflow_id": 376342994
+  },
+  "source_sha": "e41df27e0a37303cbbc81687d21f74738cc05e0b"
+}

@@ -1,0 +1,33 @@
+{
+  "lesson": "70_explain_cv",
+  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Explain CV Model：比较预测与测量的特征",
+  "description": "加载匹配的预测和测量数据，拟合替代模型，并在使用特征解释之前阅读保真度。",
+  "objectives": [
+    "把测量数据库与保存的分类器预测对应起来。",
+    "选择预测列、计算后端和留出的分组。",
+    "阅读保真度、混淆矩阵和保存的特征汇总。"
+  ],
+  "prerequisite": "使用Annotate和Classify示例中同一批对象的measurements.db和预测CSV。选择保存模型的类别判定作为目标。本例中替代模型的保真度有限，因此其特征归因不应用于解释视觉模型。请用独立数据另行评估原始分类器。",
+  "scenes": [
+    "从Home打开Classify，然后在右上角选择Explain CV Model。为同一批裁剪对象准备测量数据库和保存的预测。",
+    "选择measurements.db和对应的预测CSV。继续之前，请检查文件名和对象身份。本例使用两百三十四条保存的预测。",
+    "如果列选项没有刷新，请按Enter确认预测路径。裁剪路径选择filename，模型的类别判定选择predicted_label。选择Random Forest、按孔分组以及一个新的输出文件夹。",
+    "点击Explain model。替代模型用测量的特征来重现保存的类别判定。在此表单中选择后端和分组；如需更多拟合选项，请使用Python API。",
+    "先阅读Fidelity。这里有八十九行特征完整，其中六十八行用于拟合，来自另一个孔的二十一行被留出。把一致率与基线比较，并检查哪些行被排除。",
+    "打开Importance。本例中，保真度检查阻止了排名的显示。也请检查被排除的特征名称：基于名称的泄漏警告需要对照测量值实际包含的内容来核实。",
+    "打开Confusion，比较替代模型与视觉模型的判定。这里所有留出的对象都被判为类别一，得到十七个一致和四个不一致。请检查各类别的表现，而不要只依赖总体一致率。",
+    "Per-cell SHAP描述的是拟合的替代模型。保真度不足时，这些值无法可靠地解释视觉模型。请在任何导出的归因表中注明这一局限。",
+    "打开Correlations和Feature distributions查看测量值。界面中的这些表最多显示一千行。要查看完整汇总，请使用保存的CSV文件。",
+    "打开Held-out cells查看对象身份和两种预测。请把输出文件、设置和保真度报告放在一起。需要评估原始分类器时，请继续学习Evaluation教程。"
+  ]
+}

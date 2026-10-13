@@ -1,0 +1,64 @@
+{
+  "item": "F583",
+  "acceptance": "A plate imported with a barcode gets its plate map filled from CSV; a mismatch is reported.",
+  "status": "Stated functional acceptance passes; guide localization remains a separate checkpoint before parent closes the whole item.",
+  "source_commit": "e31f90547a97d47303317ff644d809b3507e39e1",
+  "test": {
+    "passed": 2,
+    "seconds": 4.0,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "fixture": "Two generated8x8uint16 TIFF files in A01/A02; actual production conversion runs, not mocked output. Plain barcode.txt=0001 and local CSV annotating A01 with RH/DMSO.",
+    "interaction": "Actual Preview/Convert button clicks with threaded JobRunner; explicit assignment editor left blank.",
+    "worker_observation": "Wrapper records thread affinity then delegates unchanged to real preflight; both preview/conversion calls are off GUI thread.",
+    "assertions": [
+      "Preview writes no destination",
+      "Sidecar discovery preserves leading zeroes and records original raw source plate plus output plate1",
+      "CSV fields populate generated plate_map_lims.csv",
+      "A02 well_not_in_lims appears in mismatch CSV and visible GUI summary",
+      "Both output CSV paths and counts are visible",
+      "Input TIFF/barcode/CSV SHA256 values unchanged",
+      "Converted TIFF pixel arrays equal the source arrays"
+    ],
+    "resources": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0",
+      "cpu_affinity": [
+        0
+      ],
+      "cpu.max": null,
+      "systemd_properties": [
+        "CPUQuotaPerSecUSec=1s",
+        "MemoryMax=4294967296",
+        "MemorySwapMax=0"
+      ]
+    }
+  },
+  "visual_review": "shared_ui and root independently viewed actual light/dark captures; barcode controls, plan, one linked well, A02 mismatch and output paths are legible. Offscreen Linux Qt technical acceptance; no native Windows/macOS or human/native-language signoff.",
+  "source_sha256": {
+    "spacr/convert.py": "ceb6f1a76e71140d0d78d8730c80e2f30f87229294db413136b2cde5b44fa1a3",
+    "spacr/plate_qc.py": "3c721b5e10197a8c9d6dfc9df360171d3ec4d3cf0cc2afedde997f9505bb837b",
+    "spacr/qt/screens/convert.py": "3e8911dee1d04d9039bd00720b67b71e99e0ad518b1354d4b122b524bb716fb8",
+    "tests/qt/test_convert_sidecar_acceptance_f583.py": "cefd71ace0a5e8c56f21f1ff4e472a9bb30800207c9c51cba7d7f66c832b18a8"
+  },
+  "evidence_sha256": {
+    "features/data/583_threaded_gui_acceptance_2026-10-02/limits.json": "dab7e8e167d2266a88a251b6436191eea6a3d7e29c9494880575903299345727",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/test-output.txt": "b59a4daef991771cc829c9e046af8bf8d20718e039f0befbc6c288e97a5fb636",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/light/plate_map_lims.csv": "b4d39868f47440d34b98dd954f581c50761af956b083db7bbaf9da9194bbd7ab",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/light/acceptance.json": "b84ad7fc17c4359130f0650986389d6069b109a27dfc2d29c7a745e61b11feec",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/light/convert-sidecar.png": "bbac505dc7c53b07dd1000f68ad9584246f9853034285b859a497d96556876c0",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/light/complete.json": "b86db8edf2289bc5d4c07bd5b2b29c2915fc7be676f98ab28f21e652621b9b5f",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/light/plate_barcode_mismatches.csv": "ae471ebe84981cbc443376557973d21cf649c31ff8de7b7855bc7a224e005e7d",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/dark/plate_map_lims.csv": "b4d39868f47440d34b98dd954f581c50761af956b083db7bbaf9da9194bbd7ab",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/dark/acceptance.json": "e07636d8670ccbe48faa6e11b3971ff8bb0b44b98ed8029ed522e6af7db79287",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/dark/convert-sidecar.png": "43bbcf1c8e6634e61d385718218c5140e71cca738c7215fbd62b90b862cf8a2b",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/dark/complete.json": "4dadf23a6e2475adc12bbd2e607cc507b99fc4700f4763ce7259b16cc902eeff",
+    "features/data/583_threaded_gui_acceptance_2026-10-02/dark/plate_barcode_mismatches.csv": "ae471ebe84981cbc443376557973d21cf649c31ff8de7b7855bc7a224e005e7d"
+  },
+  "limitations": [
+    "Local CSV/barcode.txt path; no vendor-specific LIMS adapter acceptance claimed.",
+    "Small generated TIFF fixture exercises real conversion and GUI; not a biological assay-quality claim."
+  ]
+}

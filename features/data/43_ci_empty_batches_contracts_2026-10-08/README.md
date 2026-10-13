@@ -1,0 +1,1 @@
+Source-bound local CI runner and workflow acceptance. See receipt.json for phase identities and SHA-256 digests. Decompress each payload to verify its raw digest. Runner cohorts overlap. Original batch ordering, marker partition, nonempty invocation arguments, timeouts and worker recycling are retained. No numerical ratchet is raised.

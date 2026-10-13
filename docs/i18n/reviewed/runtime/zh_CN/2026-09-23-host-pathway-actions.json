@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted linguistic and implementation-context review of the Host–Pathogen pathway action, preserving vacuole identity, measured host denominators, optional counts and unknown measurements. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
+      "translation": "测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。"
+    }
+  ]
+}

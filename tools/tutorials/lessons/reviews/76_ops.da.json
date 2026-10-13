@@ -1,0 +1,35 @@
+{
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "OPS: fra sekventeringsbilleder til cellestregkoder",
+  "description": "Indlæs OPS-testdataene, vælg billed- og afkodningsindstillinger, kør analysen, og find stregkodetildelingerne i outputdatabasen.",
+  "objectives": [
+    "Åbne OPS i Mask og indlæse eksempelbillederne og stregkodebiblioteket.",
+    "Vælge input- og outputmapper og forstå de vigtigste indstillinger for justering og afkodning.",
+    "Køre OPS og undersøge cellekernernes stregkodetildelinger i outputdatabasen."
+  ],
+  "prerequisite": "Åbn spaCR. Brug Load test data i OPS til eksemplets sekventeringsbilleder og guidebibliotek. Til dit eget eksperiment forbereder du TIFF-filer fra sekventeringscyklusserne med deres optagelsesfilnavne og en tilsvarende CSV-fil med stregkodebiblioteket.",
+  "scenes": [
+    "Fra Home åbner du Mask og slår derefter OPS til. Denne side modtager billeder fra sekventeringscyklusser og tildeler afkodede stregkoder til cellekerner.",
+    "Klik på Load test data. Eksemplet indeholder to billedpositioner over elleve sekventeringscyklusser og et tilsvarende stregkodebibliotek. Når indlæsningen er færdig, udfylder spaCR felterne for input, bibliotek, plade og output.",
+    "Under OPS input kontrollerer du mappen med sekventeringsbilleder og CSV-filen med stregkodebiblioteket. Vælg en destination til resultaterne. Eksemplet skriver til mappen ops_output i det downloadede projekt.",
+    "Lad mappen til fænotypebilleder være tom i dette eksempel. Når du har en tilsvarende fænotypeoptagelse, vælger du dens mappe her for at registrere, hvordan dens synsfelter passer til sekventeringsbillederne.",
+    "Under OPS alignment vælger du modellen til kernesegmentering. Diameter angiver den forventede kernestørrelse i pixels. Raster overlap beskriver overlappet mellem nabofliser i optagelsen; brug værdien fra din optagelse. Behold eksemplets indstillinger i denne første kørsel.",
+    "Window overlap styrer, hvor meget nabovinduer i segmenteringen deler. Værdien skal være større end den største kerne, så objekter ved vindueskanterne kan medtages hele. En højere værdi forlænger behandlingstiden.",
+    "Under OPS decoding angiver du de fire basekanaler i rækkefølgen G, T, A, C. Eksemplet bruger CY3, A594, CY5 og CY7. Til dine egne billeder skal navnene svare til kanalnavnene i TIFF-filnavnene.",
+    "Read threshold styrer, hvor lys en plet skal være for at tælle som en læsning. En højere værdi vælger stærkere pletter; en lavere tager svagere pletter og mere baggrund med. Footprint styrer, hvor langt uden for en kerne en læsning kan ligge og stadig bidrage til kernens stregkode.",
+    "Slå Store reads til, hvis du vil undersøge de enkelte læsninger senere. Det gemmer en ekstra tabel og bruger mere diskplads. Lad det være slået fra ved en kompakt første kørsel.",
+    "Kontrollér OPS performance, og tryk derefter på Run. GPU aktiverer acceleration, hvor den er tilgængelig. Workers styrer, hvor mange synsfelter der afkodes ad gangen; sænk værdien, hvis hukommelsen er begrænset. Følg forløbet i Console.",
+    "Når Console viser Finished, åbner du Help, derefter Database Browser, og vælger measurements.db i den valgte outputmappe. Ved siden af har hver brønd en mappe, her A1, med sin OPS-rapport, der indeholder afkodningsoversigten og eventuelle advarsler.",
+    "Tabellen ops_barcodes giver hver kerne dens stregkode, læsestøtte og tilsvarende guide; ops_objects indeholder de samme kerneidentifikatorer med deres billedkoordinater. Disse identifikatorer er broen til resten af din screening: forbind stregkoderne med dine fænotypemålinger gennem dem, og aggregér derefter til Regression. Opbevar databasen, rapporterne og indstillingerne samlet."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Distributed Jobs: 실행 대상 구성",
+  "description": "실행 프로필을 만들고 다른 워크스테이션이나 클러스터에서 돌릴 모듈 작업을 준비합니다.",
+  "objectives": [
+    "실행 대상에 맞는 프로필을 만듭니다.",
+    "경로와 백엔드 옵션을 구성합니다.",
+    "제출을 준비하고 작업 상태를 확인합니다."
+  ],
+  "prerequisite": "spaCR, 그 의존성, 입력 데이터가 갖춰진 대상에 접근할 수 있도록 준비하세요. 실행할 모듈 설정을 내보내세요. 여기 표시된 예시 호스트와 경로는 자신의 것으로 바꾸세요.",
+  "scenes": [
+    "Help를 연 뒤 Distributed Jobs를 여세요. 먼저 사용할 워크스테이션이나 클러스터에 맞는 실행 프로필을 만드세요.",
+    "대상에 호환되는 spaCR 의존성을 설치하고 입력 데이터를 그곳에서 쓸 수 있게 하세요. SSH 키나 제공자의 명령줄 인증은 spaCR 밖에서 설정하세요.",
+    "New profile을 선택하세요. 설명이 되는 이름을 입력하고 백엔드를 고르세요. 양식에 표시된 필수 항목을 채우세요.",
+    "SSH라면 호스트, 원격 작업 디렉터리, spaCR 실행기를 입력하세요. 프로필을 저장하고, 이 설정을 바꿔야 할 때마다 다시 여세요.",
+    "같은 데이터가 두 컴퓨터에서 서로 다른 절대 경로를 가진다면 로컬과 원격 데이터셋 루트를 설정하세요. 그러면 설정 안의 경로가 다시 쓰입니다. 공유 저장소를 마련하거나 파일을 따로 복사하세요.",
+    "Slurm이라면 클러스터가 지원하는 파티션, 시간 제한, 가속기 요청을 고르세요. 호스트와 디렉터리 설정은 그 로그인 환경에 맞게 두세요.",
+    "클라우드나 사용자 지정 명령이라면 제출, 상태 확인, 취소용 인수 템플릿을 입력하고, 필요하면 로그 가져오기 템플릿도 입력하세요. 컨트롤에 표시된 설정과 외부 ID 자리표시자를 포함하세요.",
+    "유지할 변경 사항은 저장하고, 프로필을 바꾸지 않으려면 Cancel을 쓰세요. Poll interval은 작업 상태를 얼마나 자주 확인할지 정합니다.",
+    "프로필, 모듈, 내보낸 설정을 고른 뒤 대상이 준비되면 Submit을 쓰세요. 작업 표에서 상태와 로그를 확인하세요. 선택한 작업을 멈추려면 Cancel job을 쓰고, 결과는 설정한 출력 위치에서 확인하세요."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "item": "N43",
+  "status": "partial",
+  "date": "2026-10-02",
+  "failed_run": 36977354516,
+  "failed_jobs": [110744169771, 110744169846, 110744169936, 110744170014],
+  "source_media_repair_commit": "7e683bced",
+  "local_validation": [
+    {"scope": "sorting/dialog/widget-QSS/watch-manifest", "passed": 41, "failed": 0},
+    {"scope": "Measure preview responsiveness, including one repeated targeted case", "passed": 52, "failed": 0},
+    {"scope": "field-versus-label tooltip placement", "passed": 8, "failed": 0},
+    {"scope": "lineage frame-source and label-stack handoff", "passed": 1, "failed": 0}
+  ],
+  "limits": [
+    "Further hover-delay regressions from the same run remain open",
+    "Final-source CI has not passed"
+  ]
+}

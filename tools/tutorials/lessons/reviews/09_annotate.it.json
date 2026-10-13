@@ -1,0 +1,46 @@
+{
+  "lesson": "09_annotate",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Annotate: etichettare gli oggetti e salvare le annotazioni",
+  "description": "Carica ritagli di esempio, scegli una colonna di annotazione, etichetta gli oggetti, regola la visualizzazione e prepara le etichette per la classificazione.",
+  "objectives": [
+    "Caricare ritagli salvati o leggere ritagli direttamente dalle immagini unite.",
+    "Scegliere una colonna di annotazione, assegnare e cancellare etichette e salvare le modifiche.",
+    "Regolare i colori dei canali ed esaminare i conteggi per classe e la copertura.",
+    "Trovare Agreement e i percorsi di addestramento basati su immagini e su caratteristiche."
+  ],
+  "prerequisite": "Apri Annotate da Home. Usa Load test data e scegli Load per i ritagli di esempio e il database delle misure. Per un tuo progetto, usa la cartella che contiene il suo database delle misure e i ritagli o le immagini unite.",
+  "scenes": [
+    "Apri Annotate da Home. La griglia mostra i singoli oggetti del tuo progetto. Etichetterai questi oggetti e salverai le etichette nel database delle misure.",
+    "Fai clic su Load test data e scegli Load. Vengono scaricati i ritagli di immagine di esempio e il relativo database delle misure, che poi si aprono in Annotate.",
+    "Scegli Stream quando vuoi leggere i ritagli direttamente dalle immagini unite. Scegli Load per ritagli già esportati. In questa guida useremo Load.",
+    "Per aprire i tuoi dati, fai clic su Open source e seleziona la cartella della piastra che contiene le misure e i dati delle immagini. La griglia carica quindi gli oggetti di quel progetto.",
+    "Esamina la griglia dei ritagli. Usa i controlli di pagina per scorrere gli oggetti. Regola la dimensione dei ritagli se ti serve una vista più ravvicinata o vuoi più oggetti per pagina.",
+    "Apri Settings e scegli una colonna di annotazione. Crea una nuova colonna per tenere questo lavoro di etichettatura separato dalle annotazioni esistenti. Decidi che cosa rappresenta ogni classe prima di iniziare.",
+    "Fai clic sinistro su un ritaglio per assegnare la classe uno. Il clic destro assegna la classe due. Fai di nuovo clic sulla stessa classe per cancellarla. L’anello colorato mostra l’etichetta e l’anello bianco indica il ritaglio selezionato.",
+    "Premi Next per passare alla pagina successiva e inviare le etichette al salvataggio. Attendi la fine del salvataggio prima di chiudere l’applicazione.",
+    "Premi Back per tornare alla pagina precedente e controllare le etichette. Puoi anche usare i tasti da uno a nove per assegnare le classi e lo zero per cancellare un’etichetta. La legenda sullo schermo elenca le scorciatoie di navigazione e di annullamento.",
+    "Apri Class counts per vedere quanti oggetti hai etichettato in ogni classe. Usalo per trovare le classi che hanno bisogno di più esempi.",
+    "Apri Coverage per vedere come sono distribuite le annotazioni nel progetto. Includi esempi delle condizioni e dei gruppi di immagini che vuoi far riconoscere al classificatore.",
+    "Per cancellare un’etichetta, fai di nuovo clic sulla stessa classe. Passa alla pagina successiva per salvare la modifica, poi torna indietro a controllare il ritaglio cancellato.",
+    "In Settings, Channel colours seleziona la tavolozza di visualizzazione. Display order assegna i canali di origine alle posizioni di colore. Scegli una vista in cui le classi siano facili da distinguere.",
+    "Ecco la tavolozza CMY. Puoi tornare a RGB dalle stesse impostazioni. Mantieni la stessa vista mentre confronti ed etichetti gli oggetti.",
+    "Apri Annotator Agreement dall’icona in alto a destra per confrontare le colonne di annotazione. Usalo per trovare gli oggetti a cui diversi revisori hanno assegnato etichette diverse.",
+    "Quando le etichette sono pronte, apri Train. Scegli le immagini per un classificatore di immagini, oppure le caratteristiche misurate per un classificatore tabellare. Le lezioni collegate su Classify spiegano le impostazioni di addestramento.",
+    "Suggest propone etichette per i ritagli a cui non ha ancora risposto, quindi gli dia prima esempi di entrambe le classi da più pozzetti. Qui alcuni ritagli di ciascuna classe vengono etichettati in quattro pozzetti e Next li salva.",
+    "Apra Suggest e scelga Suggest for the images on this page. Il turno richiede pochi secondi e ora ogni ritaglio della pagina porta un punto interrogativo. La barra sopra la griglia conta quanti suggerimenti restano da giudicare.",
+    "Clicchi su un ritaglio suggerito o prema Y per confermarlo, faccia clic destro o prema N per rifiutarlo. Entrambe le risposte vengono registrate, i rifiuti addestrano il turno successivo e Confirm the rest of the page sistema il resto dopo averlo controllato.",
+    "Generate annotation database crea un insieme di ritagli da dati di origine adatti. Usalo quando prepari un nuovo progetto di annotazione; l’esempio scaricato include già i ritagli e il database necessari qui.",
+    "Apri Console per controllare i messaggi di caricamento dell’origine e di salvataggio. La tua colonna di annotazione è salvata nel database del progetto e si può selezionare quando prepari i dati di addestramento in Classify.",
+    "Per un aiuto su un’impostazione, apri spaCR AI in Console dopo aver configurato un fornitore in Preferences. Quando hai finito di etichettare, prosegui con Classify usando il tuo progetto e la colonna di annotazione scelta."
+  ]
+}

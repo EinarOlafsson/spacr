@@ -1,0 +1,25 @@
+source hashes {"ambient": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20", "app": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7", "preferences": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee"}
+source paths {"ambient": "/mnt/wd4tb/spacr-worktrees/codex-random-save-alpha-final-20261006/spacr/qt/widgets/ambient.py", "app": "/mnt/wd4tb/spacr-worktrees/codex-random-save-alpha-final-20261006/spacr/qt/app.py", "preferences": "/mnt/wd4tb/spacr-worktrees/codex-random-save-alpha-final-20261006/spacr/qt/preferences.py"}
+source commit 9ed9688b0b714993b9954c584664e49df9adf5eb
+source /mnt/wd4tb/spacr-worktrees/codex-random-save-alpha-final-20261006/spacr/qt/widgets/ambient.py ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20
+qt.text.font.db: OpenType support missing for "Ubuntu Sans", script 11
+home 453 {"VmHWM": 586724, "VmRSS": 541360, "RssAnon": 347548, "RssFile": 161160}
+screen mask 1073 3 [(640, 480, False), (3840, 2114, True), (640, 480, False)]
+screen measure 1523 4 [(640, 480, False), (3840, 2114, True), (640, 480, False), (640, 480, False)]
+screen annotate 1660 5 [(3840, 2114, True), (640, 480, False), (3840, 2114, True), (640, 480, False), (640, 480, False)]
+qt.text.font.db: OpenType support missing for "Ubuntu Sans", script 11
+save start 0 200 0 random
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+save done 0 {"widgets": 2911, "ambient": 3, "workers": 2, "gravity": 0.0, "palette": "random", "cursor_poll": [0.4998697916666667, 0.4997623574144487], "engine_pointer": null, "engine_radius": 0.0, "frame_size": [3840, 2104], "frame_format": 4, "non_opaque_frame_words": 0, "cursor_preconditions": {"animating": true, "visible": true, "interactive": true, "active_main": true, "hovered_main": true, "inside": true}, "cursor_global": [1919, 1084], "memory_kib": {"VmHWM": 1103796, "VmRSS": 1088880, "RssAnon": 840540, "RssFile": 215688}}
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+save start 1 100 65 spacr
+save done 1 {"widgets": 3891, "ambient": 3, "workers": 1, "gravity": 0.65, "palette": "spacr", "cursor_poll": [0.4998697916666667, 0.4997623574144487], "engine_pointer": [0.4998697916666667, 0.4997623574144487], "engine_radius": 0.65, "frame_size": [3840, 2104], "frame_format": 4, "non_opaque_frame_words": 0, "cursor_preconditions": {"animating": true, "visible": true, "interactive": true, "active_main": true, "hovered_main": true, "inside": true}, "cursor_global": [1919, 1084], "memory_kib": {"VmHWM": 1164772, "VmRSS": 1164772, "RssAnon": 914608, "RssFile": 217512}}
+save start 2 200 0 random
+save done 2 {"widgets": 4818, "ambient": 3, "workers": 1, "gravity": 0.0, "palette": "random", "cursor_poll": [0.49984375, 0.4997133027522936], "engine_pointer": null, "engine_radius": 0.0, "frame_size": [3200, 1744], "frame_format": 4, "non_opaque_frame_words": 0, "cursor_preconditions": {"animating": true, "visible": true, "interactive": true, "active_main": true, "hovered_main": true, "inside": true}, "cursor_global": [1599, 904], "memory_kib": {"VmHWM": 1215688, "VmRSS": 1200640, "RssAnon": 949440, "RssFile": 218548}}
+after close {"widgets": 0, "ambient": 0, "workers": 0, "memory_kib": {"VmHWM": 1323672, "VmRSS": 1244056, "RssAnon": 1026144, "RssFile": 217660}}
+gui gc {"collections": 7, "all_gui": true, "generations": [0, 0, 0, 0, 0, 0, 0]}
+done
+source hashes after {"ambient": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20", "app": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7", "preferences": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee"}

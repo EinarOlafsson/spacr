@@ -1,0 +1,2002 @@
+{
+  "conclusion": "cancelled",
+  "headSha": "3ca2bff5366ac30fdabb783698a3e2664b35423e",
+  "jobs": [
+    {
+      "completedAt": "2026-10-06T18:30:16Z",
+      "conclusion": "success",
+      "databaseId": 112434530075,
+      "name": "Upstream wheel availability (informational)",
+      "startedAt": "2026-10-06T18:30:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:30:12Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:30:14Z",
+          "conclusion": "success",
+          "name": "Query PyPI",
+          "number": 3,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:30:14Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 6,
+          "startedAt": "2026-10-06T18:30:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:30:14Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-10-06T18:30:14Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530075"
+    },
+    {
+      "completedAt": "2026-10-06T18:33:06Z",
+      "conclusion": "success",
+      "databaseId": 112434530390,
+      "name": "3.12 installs, from wheels only",
+      "startedAt": "2026-10-06T18:30:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:12Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:05Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:14Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:19Z",
+          "conclusion": "success",
+          "name": "pip must accept spacr on Python 3.12",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:34Z",
+          "conclusion": "success",
+          "name": "no COMPILED dependency may build from source",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:34Z",
+          "conclusion": "success",
+          "name": "optional native features must NOT be in the core resolve",
+          "number": 6,
+          "startedAt": "2026-10-06T18:31:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:05Z",
+          "conclusion": "success",
+          "name": "Install the core graph and import spaCR",
+          "number": 7,
+          "startedAt": "2026-10-06T18:31:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:05Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-06T18:33:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:05Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-06T18:33:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:05Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T18:33:05Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530390"
+    },
+    {
+      "completedAt": "2026-10-06T18:33:37Z",
+      "conclusion": "success",
+      "databaseId": 112434530502,
+      "name": "Fractal extra constructs the default renderer",
+      "startedAt": "2026-10-06T18:30:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:14Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:04Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:22Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:36Z",
+          "conclusion": "success",
+          "name": "Install a software OpenGL display",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:30Z",
+          "conclusion": "success",
+          "name": "Install the advertised fractal extra",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:30Z",
+          "conclusion": "success",
+          "name": "Verify Qt xcb plugin dependencies resolve",
+          "number": 6,
+          "startedAt": "2026-10-06T18:33:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:34Z",
+          "conclusion": "success",
+          "name": "Construct and paint the default renderer",
+          "number": 7,
+          "startedAt": "2026-10-06T18:33:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:34Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-06T18:33:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:34Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-06T18:33:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T18:33:34Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530502"
+    },
+    {
+      "completedAt": "2026-10-06T18:33:18Z",
+      "conclusion": "success",
+      "databaseId": 112434530510,
+      "name": "3.13 installs, from wheels only",
+      "startedAt": "2026-10-06T18:30:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:13Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:09Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:21Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:24Z",
+          "conclusion": "success",
+          "name": "pip must accept spacr on Python 3.13",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:41Z",
+          "conclusion": "success",
+          "name": "no COMPILED dependency may build from source",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:41Z",
+          "conclusion": "success",
+          "name": "optional native features must NOT be in the core resolve",
+          "number": 6,
+          "startedAt": "2026-10-06T18:31:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:16Z",
+          "conclusion": "success",
+          "name": "Install the core graph and import spaCR",
+          "number": 7,
+          "startedAt": "2026-10-06T18:31:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:16Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-06T18:33:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:17Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-06T18:33:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:17Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T18:33:17Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530510"
+    },
+    {
+      "completedAt": "2026-10-06T18:32:22Z",
+      "conclusion": "success",
+      "databaseId": 112434530527,
+      "name": "Packaging metadata",
+      "startedAt": "2026-10-06T18:30:12Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:13Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:05Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:10Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:17Z",
+          "conclusion": "success",
+          "name": "Install packaging tooling only",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:40Z",
+          "conclusion": "success",
+          "name": "Build sdist and wheel",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:42Z",
+          "conclusion": "success",
+          "name": "twine check",
+          "number": 6,
+          "startedAt": "2026-10-06T18:31:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:43Z",
+          "conclusion": "success",
+          "name": "Audit built artifact inventories",
+          "number": 7,
+          "startedAt": "2026-10-06T18:31:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:43Z",
+          "conclusion": "success",
+          "name": "Name this immutable distribution bundle",
+          "number": 8,
+          "startedAt": "2026-10-06T18:31:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:47Z",
+          "conclusion": "success",
+          "name": "Upload the exact distributions for the platform grid",
+          "number": 9,
+          "startedAt": "2026-10-06T18:31:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:32:18Z",
+          "conclusion": "success",
+          "name": "Install and run the built wheel and sdist",
+          "number": 10,
+          "startedAt": "2026-10-06T18:31:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:32:18Z",
+          "conclusion": "success",
+          "name": "Assert the built metadata carries Requires-Python",
+          "number": 11,
+          "startedAt": "2026-10-06T18:32:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:32:20Z",
+          "conclusion": "success",
+          "name": "Packaging self-consistency tests",
+          "number": 12,
+          "startedAt": "2026-10-06T18:32:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:32:20Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 23,
+          "startedAt": "2026-10-06T18:32:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:32:21Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 24,
+          "startedAt": "2026-10-06T18:32:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:32:21Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-10-06T18:32:21Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530527"
+    },
+    {
+      "completedAt": "2026-10-06T18:33:29Z",
+      "conclusion": "success",
+      "databaseId": 112434530528,
+      "name": "3.11 installs, from wheels only",
+      "startedAt": "2026-10-06T18:30:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:13Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:03Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:21Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:27Z",
+          "conclusion": "success",
+          "name": "pip must accept spacr on Python 3.11",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:57Z",
+          "conclusion": "success",
+          "name": "no COMPILED dependency may build from source",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:57Z",
+          "conclusion": "success",
+          "name": "optional native features must NOT be in the core resolve",
+          "number": 6,
+          "startedAt": "2026-10-06T18:31:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:26Z",
+          "conclusion": "success",
+          "name": "Install the core graph and import spaCR",
+          "number": 7,
+          "startedAt": "2026-10-06T18:31:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:27Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-06T18:33:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:27Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-06T18:33:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:27Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T18:33:27Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530528"
+    },
+    {
+      "completedAt": "2026-10-06T18:34:11Z",
+      "conclusion": "success",
+      "databaseId": 112434530664,
+      "name": "3.14 installs, from wheels only",
+      "startedAt": "2026-10-06T18:30:12Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:13Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:08Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:22Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:26Z",
+          "conclusion": "success",
+          "name": "pip must accept spacr on Python 3.14",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:59Z",
+          "conclusion": "success",
+          "name": "no COMPILED dependency may build from source",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:59Z",
+          "conclusion": "success",
+          "name": "optional native features must NOT be in the core resolve",
+          "number": 6,
+          "startedAt": "2026-10-06T18:31:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:08Z",
+          "conclusion": "success",
+          "name": "Install the core graph and import spaCR",
+          "number": 7,
+          "startedAt": "2026-10-06T18:31:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:08Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-06T18:34:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:08Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-06T18:34:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:08Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T18:34:08Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530664"
+    },
+    {
+      "completedAt": "2026-10-06T18:33:48Z",
+      "conclusion": "success",
+      "databaseId": 112434530771,
+      "name": "3.10 installs, from wheels only",
+      "startedAt": "2026-10-06T18:30:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:13Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:02Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:05Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:09Z",
+          "conclusion": "success",
+          "name": "pip must accept spacr on Python 3.10",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:44Z",
+          "conclusion": "success",
+          "name": "no COMPILED dependency may build from source",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:44Z",
+          "conclusion": "success",
+          "name": "optional native features must NOT be in the core resolve",
+          "number": 6,
+          "startedAt": "2026-10-06T18:31:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:39Z",
+          "conclusion": "success",
+          "name": "Install the core graph and import spaCR",
+          "number": 7,
+          "startedAt": "2026-10-06T18:31:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:45Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-06T18:33:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:46Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-06T18:33:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:46Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T18:33:46Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530771"
+    },
+    {
+      "completedAt": "2026-10-06T18:33:19Z",
+      "conclusion": "success",
+      "databaseId": 112434530780,
+      "name": "3.9 installs, from wheels only",
+      "startedAt": "2026-10-06T18:30:11Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:30:13Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:02Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:30:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:25Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:31:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:28Z",
+          "conclusion": "success",
+          "name": "pip must accept spacr on Python 3.9",
+          "number": 4,
+          "startedAt": "2026-10-06T18:31:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:49Z",
+          "conclusion": "success",
+          "name": "no COMPILED dependency may build from source",
+          "number": 5,
+          "startedAt": "2026-10-06T18:31:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:31:49Z",
+          "conclusion": "success",
+          "name": "optional native features must NOT be in the core resolve",
+          "number": 6,
+          "startedAt": "2026-10-06T18:31:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:15Z",
+          "conclusion": "success",
+          "name": "Install the core graph and import spaCR",
+          "number": 7,
+          "startedAt": "2026-10-06T18:31:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:15Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-06T18:33:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:16Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-06T18:33:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:16Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-06T18:33:16Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112434530780"
+    },
+    {
+      "completedAt": "2026-10-06T18:36:52Z",
+      "conclusion": "success",
+      "databaseId": 112435537650,
+      "name": "Linux x86-64 / py3.12 (control)",
+      "startedAt": "2026-10-06T18:32:25Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:32:27Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:32:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:24Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:32:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:40Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:33:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:45Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:33:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:42Z",
+          "conclusion": "success",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:33:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:42Z",
+          "conclusion": "skipped",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:59Z",
+          "conclusion": "success",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:34:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:59Z",
+          "conclusion": "skipped",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:34:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:28Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:34:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:29Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:36:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:30Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:36:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:34Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:36:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:50Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:36:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:50Z",
+          "conclusion": "skipped",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:36:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:50Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:36:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:50Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:36:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:50Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:36:50Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537650"
+    },
+    {
+      "completedAt": "2026-10-06T18:37:27Z",
+      "conclusion": "success",
+      "databaseId": 112435537662,
+      "name": "Linux x86-64 / py3.9 (floor)",
+      "startedAt": "2026-10-06T18:32:25Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:32:28Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:32:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:36Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:32:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:03Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:33:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:07Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:34:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:57Z",
+          "conclusion": "success",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:34:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:57Z",
+          "conclusion": "skipped",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:34:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:15Z",
+          "conclusion": "success",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:34:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:15Z",
+          "conclusion": "skipped",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:35:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:01Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:35:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:03Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:37:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:03Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:37:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:08Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:37:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:24Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:37:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:24Z",
+          "conclusion": "skipped",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:37:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:24Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:37:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:24Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:37:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:24Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:37:24Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537662"
+    },
+    {
+      "completedAt": "2026-10-06T18:38:22Z",
+      "conclusion": "success",
+      "databaseId": 112435537700,
+      "name": "Linux x86-64 / py3.10",
+      "startedAt": "2026-10-06T18:32:25Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:32:28Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:32:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:28Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:32:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:50Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:34:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:57Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:34:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:53Z",
+          "conclusion": "success",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:34:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:53Z",
+          "conclusion": "skipped",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:35:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:13Z",
+          "conclusion": "success",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:35:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:36:13Z",
+          "conclusion": "skipped",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:36:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:55Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:36:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:56Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:37:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:57Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:37:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:01Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:37:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:20Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:38:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:20Z",
+          "conclusion": "skipped",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:38:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:20Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:38:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:20Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:38:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:20Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:38:20Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537700"
+    },
+    {
+      "completedAt": "2026-10-06T18:59:13Z",
+      "conclusion": "cancelled",
+      "databaseId": 112435537725,
+      "name": "macOS arm64 / py3.11",
+      "startedAt": "2026-10-06T18:32:31Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:32:35Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:32:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:43Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:32:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:47Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:33:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:57Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:33:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:57Z",
+          "conclusion": "skipped",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:33:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:03Z",
+          "conclusion": "success",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:33:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:03Z",
+          "conclusion": "skipped",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:34:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:38Z",
+          "conclusion": "success",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:34:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:35Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:34:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:37Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:37:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:38Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:37:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:05Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:37:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:27Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:38:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:59:04Z",
+          "conclusion": "cancelled",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:38:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:59:04Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:59:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:59:07Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:59:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:59:11Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:59:07Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537725"
+    },
+    {
+      "completedAt": "2026-10-06T18:38:51Z",
+      "conclusion": "success",
+      "databaseId": 112435537788,
+      "name": "Linux x86-64 / py3.14",
+      "startedAt": "2026-10-06T18:33:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:33:23Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:33:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:08Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:33:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:23Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:34:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:30Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:34:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:25Z",
+          "conclusion": "success",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:34:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:25Z",
+          "conclusion": "skipped",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:35:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:58Z",
+          "conclusion": "success",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:35:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:58Z",
+          "conclusion": "skipped",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:35:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:17Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:35:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:18Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:38:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:18Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:38:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:25Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:38:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:48Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:38:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:48Z",
+          "conclusion": "skipped",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:38:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:48Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:38:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:48Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:38:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:48Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:38:48Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537788"
+    },
+    {
+      "completedAt": "2026-10-06T18:38:41Z",
+      "conclusion": "success",
+      "databaseId": 112435537795,
+      "name": "Linux ARM64 / py3.11",
+      "startedAt": "2026-10-06T18:33:14Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:33:16Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:33:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:04Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:33:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:13Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:34:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:15Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:34:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:35Z",
+          "conclusion": "success",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:34:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:35Z",
+          "conclusion": "skipped",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:35:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:58Z",
+          "conclusion": "success",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:35:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:58Z",
+          "conclusion": "skipped",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:35:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:09Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:35:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:10Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:38:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:11Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:38:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:15Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:38:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:34Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:38:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:34Z",
+          "conclusion": "skipped",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:38:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:39Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:38:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:39Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:38:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:38:39Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:38:39Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537795"
+    },
+    {
+      "completedAt": "2026-10-06T18:58:31Z",
+      "conclusion": "cancelled",
+      "databaseId": 112435537825,
+      "name": "Windows x86-64 / py3.11",
+      "startedAt": "2026-10-06T18:33:19Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:33:21Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:33:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:10Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:33:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:15Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:34:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:17Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:34:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:17Z",
+          "conclusion": "skipped",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:34:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:17Z",
+          "conclusion": "skipped",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:34:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:17Z",
+          "conclusion": "success",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:34:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:17Z",
+          "conclusion": "skipped",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:35:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:39:07Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:35:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:39:08Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:39:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:39:08Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:39:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:39:16Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:39:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:39:40Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:39:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:58:28Z",
+          "conclusion": "cancelled",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:39:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:58:28Z",
+          "conclusion": "skipped",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:58:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:58:30Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:58:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:58:30Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:58:30Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537825"
+    },
+    {
+      "completedAt": "2026-10-06T18:37:29Z",
+      "conclusion": "success",
+      "databaseId": 112435537941,
+      "name": "Linux x86-64 / py3.13",
+      "startedAt": "2026-10-06T18:33:08Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-06T18:33:11Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-06T18:33:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:38Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-06T18:33:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:52Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-06T18:33:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:33:57Z",
+          "conclusion": "success",
+          "name": "Download the exact wheel and sdist built by metadata",
+          "number": 4,
+          "startedAt": "2026-10-06T18:33:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:54Z",
+          "conclusion": "success",
+          "name": "Install system libraries (Linux only)",
+          "number": 5,
+          "startedAt": "2026-10-06T18:33:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:34:54Z",
+          "conclusion": "skipped",
+          "name": "Install OpenMP runtime (macOS only)",
+          "number": 6,
+          "startedAt": "2026-10-06T18:34:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:17Z",
+          "conclusion": "success",
+          "name": "Install CPU-only torch (Linux, Windows)",
+          "number": 7,
+          "startedAt": "2026-10-06T18:34:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:35:17Z",
+          "conclusion": "skipped",
+          "name": "Install torch (macOS)",
+          "number": 8,
+          "startedAt": "2026-10-06T18:35:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:03Z",
+          "conclusion": "success",
+          "name": "Install and smoke the exact wheel and sdist",
+          "number": 9,
+          "startedAt": "2026-10-06T18:35:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:04Z",
+          "conclusion": "success",
+          "name": "Upload installed-artifact smoke evidence",
+          "number": 10,
+          "startedAt": "2026-10-06T18:37:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:04Z",
+          "conclusion": "success",
+          "name": "Show the pins that gate this cell",
+          "number": 11,
+          "startedAt": "2026-10-06T18:37:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:09Z",
+          "conclusion": "success",
+          "name": "Recheck the final sdist install in isolated Python",
+          "number": 12,
+          "startedAt": "2026-10-06T18:37:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:26Z",
+          "conclusion": "success",
+          "name": "Packaging + smoke subset (decides this cell)",
+          "number": 13,
+          "startedAt": "2026-10-06T18:37:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:26Z",
+          "conclusion": "skipped",
+          "name": "Full suite (informational, never decides)",
+          "number": 14,
+          "startedAt": "2026-10-06T18:37:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:26Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 27,
+          "startedAt": "2026-10-06T18:37:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:27Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 28,
+          "startedAt": "2026-10-06T18:37:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-06T18:37:27Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-10-06T18:37:27Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37511791550/job/112435537941"
+    }
+  ],
+  "status": "completed"
+}

@@ -1,0 +1,95 @@
+{
+  "baseline_commit": "7401ce3c5485f5a34854c6a12b9df3684d99be37",
+  "before": {
+    "callables": 9482,
+    "categories": {
+      "function": 4228,
+      "dataclass_constructor": 503,
+      "constructor": 437,
+      "method": 4090,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9477,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9489,
+    "variant_counts": {
+      "1": 9475,
+      "2": 7
+    },
+    "parameters": 18831,
+    "required_parameters": 9699,
+    "digest": "99126a21d6877906f88be3a0f034dfa8a5350a091856a69ec481a774ef37576f"
+  },
+  "after": {
+    "callables": 9494,
+    "categories": {
+      "function": 4232,
+      "dataclass_constructor": 503,
+      "constructor": 438,
+      "method": 4097,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9489,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9501,
+    "variant_counts": {
+      "1": 9487,
+      "2": 7
+    },
+    "parameters": 18850,
+    "required_parameters": 9708,
+    "digest": "ab8c17d3f7772de42f96c05c5d41cd463bcf82c92b14b6f2d48ab5961682f7cd"
+  },
+  "subtraction_verified": true,
+  "added_rows": {
+    "spacr.host_pathogen_preview.preview_field": "spacr.host_pathogen_preview.preview_field\u0000function\u0000autoapi\u0000field,image_channel,planes,row_limit,settings\u0000field,settings\u0000field,image_channel,planes,row_limit,settings\u00000\u00001\u00000\u00000",
+    "spacr.host_pathogen_preview.preview_fields": "spacr.host_pathogen_preview.preview_fields\u0000function\u0000autoapi\u0000limit,settings\u0000settings\u0000limit,settings\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading": "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel\u0000constructor\u0000autoapi\u0000parent,settings_reader,threaded\u0000\u0000parent,settings_reader,threaded\u00000\u00001\u00000\u00001",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.apply_settings": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.apply_settings\u0000method\u0000autoapi\u0000settings\u0000settings\u0000settings\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.closeEvent": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.closeEvent\u0000method\u0000autoapi\u0000event\u0000event\u0000event\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async\u0000method\u0000autoapi\u0000source\u0000source\u0000source\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.preview_running": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.preview_running\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.shutdown": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.shutdown\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card": "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card\u0000function\u0000autoapi\u0000host,panel_later\u0000host\u0000host,panel_later\u00000\u00001\u00000\u00000",
+    "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card": "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card\u0000function\u0000autoapi\u0000card,host\u0000card,host\u0000card,host\u00000\u00001\u00000\u00000"
+  },
+  "removed_rows": {},
+  "changed_rows": {
+    "spacr.qt.widgets.cell_montage_view.load": {
+      "before": "spacr.qt.widgets.cell_montage_view.load\u0000function\u0000autoapi\u0000request\u0000request\u0000request\u00000\u00001\u00000\u00000",
+      "after": "spacr.qt.widgets.cell_montage_view.load\u0000function\u0000autoapi\u0000cancelled,progress,request\u0000request\u0000cancelled,progress,request\u00000\u00001\u00000\u00000"
+    }
+  },
+  "required_parameter_omissions": 2292,
+  "api_before": 11465,
+  "api_after": 11479,
+  "api_added": [
+    "spacr.host_pathogen_preview",
+    "spacr.host_pathogen_preview.preview_field",
+    "spacr.host_pathogen_preview.preview_fields",
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading",
+    "spacr.qt.widgets.host_pathogen_preview",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.apply_settings",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.closeEvent",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.preview_running",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview",
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.shutdown",
+    "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card",
+    "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card"
+  ],
+  "api_removed": []
+}

@@ -1,0 +1,84 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "Which object in ``t+1`` each object in ``t`` becomes, from the model.",
+      "label": "spacr.timeflows_model.link_by_timeflows#0",
+      "source": "Which object in ``t+1`` each object in ``t`` becomes, from the model.",
+      "source_sha256": "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+      "translation": "Vilket objekt i ``t+1`` varje objekt i ``t`` motsvarar enligt modellen."
+    },
+    {
+      "context": "Each object's pixels vote, through the predicted vectors, for its next centre. Their mean predictions are assigned jointly to object centres in ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with no allowed assignment remain unlinked. Distances are measured in source object diameters, with a minimum diameter of one pixel.",
+      "label": "spacr.timeflows_model.link_by_timeflows#1",
+      "source": "Each object's pixels vote, through the predicted vectors, for its next centre. Their mean predictions are assigned jointly to object centres in ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with no allowed assignment remain unlinked. Distances are measured in source object diameters, with a minimum diameter of one pixel.",
+      "source_sha256": "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+      "translation": "Varje objekts pixlar röstar genom de predikterade vektorerna på dess nästa centrum. Deras medelprediktioner tilldelas gemensamt till objektcentrum i ``t+1`` med den ungerska metoden. Objekt under ``min_successor`` eller utan en tillåten tilldelning förblir olänkade. Avstånd mäts i källobjektets diametrar, med en minsta diameter på en pixel."
+    },
+    {
+      "context": "The distance data-selection boundary is applied before assignment. Allowed distances are scaled to at most one; an unmatched choice costs just above one. A zero distance limit permits only exact centre matches, with zero cost. Thus an impossible edge cannot displace a valid link. The objective minimizes distance plus unmatched costs; it does not maximize the number of links.",
+      "label": "spacr.timeflows_model.link_by_timeflows#2",
+      "source": "The distance gate is applied before assignment. Allowed distances are scaled to at most one; an unmatched choice costs just above one. A zero distance limit permits only exact centre matches, with zero cost. Thus an impossible edge cannot displace a valid link. The objective minimizes distance plus unmatched costs; it does not maximize the number of links.",
+      "source_sha256": "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+      "translation": "Avståndsgränsen tillämpas före tilldelningen. Tillåtna avstånd skalas till högst ett; ett alternativ utan matchning kostar strax över ett. En avståndsgräns på noll tillåter endast exakta centrummatchningar, med kostnaden noll. Därmed kan en omöjlig kant inte tränga undan en giltig länk. Målet minimerar avstånd plus kostnader för uteblivna matchningar; det maximerar inte antalet länkar."
+    },
+    {
+      "context": "Thresholds must be finite, with ``min_successor`` in ``[0, 1]`` and ``max_distance`` non-negative. If either frame has no objects, the result is empty without inspecting predictions. Otherwise prediction shapes must match the source frame, foreground vectors must be finite and foreground successor probabilities must lie in ``[0, 1]``. Background values are ignored. Derived object centres must also be finite.",
+      "label": "spacr.timeflows_model.link_by_timeflows#3",
+      "source": "Thresholds must be finite, with ``min_successor`` in ``[0, 1]`` and ``max_distance`` non-negative. If either frame has no objects, the result is empty without inspecting predictions. Otherwise prediction shapes must match the source frame, foreground vectors must be finite and foreground successor probabilities must lie in ``[0, 1]``. Background values are ignored. Derived object centres must also be finite.",
+      "source_sha256": "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+      "translation": "Tröskelvärden måste vara ändliga, med ``min_successor`` i ``[0, 1]`` och ``max_distance`` icke-negativt. Om någon av bildrutorna saknar objekt är resultatet tomt utan att prediktionerna granskas. Annars måste prediktionernas former motsvara källbildrutan, förgrundsvektorerna vara ändliga och förgrundens sannolikheter för en efterföljare ligga i ``[0, 1]``. Bakgrundsvärden ignoreras. Beräknade objektcentrum måste också vara ändliga."
+    },
+    {
+      "context": "frame ``t``'s objects, any ids.",
+      "label": "spacr.timeflows_model.link_by_timeflows#4",
+      "source": "frame ``t``'s objects, any ids.",
+      "source_sha256": "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+      "translation": "Objekten i bildruta ``t``, med valfria ID:n."
+    },
+    {
+      "context": "frame ``t+1``'s objects, any ids.",
+      "label": "spacr.timeflows_model.link_by_timeflows#5",
+      "source": "frame ``t+1``'s objects, any ids.",
+      "source_sha256": "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+      "translation": "Objekten i bildruta ``t+1``, med valfria ID:n."
+    },
+    {
+      "context": "from :func:`predict_pair`.",
+      "label": "spacr.timeflows_model.link_by_timeflows#6",
+      "source": "from :func:`predict_pair`.",
+      "source_sha256": "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+      "translation": "Från :func:`predict_pair`."
+    },
+    {
+      "context": "the successor probability an object needs.",
+      "label": "spacr.timeflows_model.link_by_timeflows#7",
+      "source": "the successor probability an object needs.",
+      "source_sha256": "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+      "translation": "Den sannolikhet för en efterföljare som ett objekt behöver."
+    },
+    {
+      "context": "the furthest link, in the object's diameters.",
+      "label": "spacr.timeflows_model.link_by_timeflows#8",
+      "source": "the furthest link, in the object's diameters.",
+      "source_sha256": "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+      "translation": "Det längsta länkavståndet, i objektets diametrar."
+    },
+    {
+      "context": "``{id in t: id in t+1}``.",
+      "label": "spacr.timeflows_model.link_by_timeflows#9",
+      "source": "``{id in t: id in t+1}``.",
+      "source_sha256": "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+      "translation": "``{id in t: id in t+1}``."
+    },
+    {
+      "context": "invalid thresholds, prediction shapes, foreground values or derived object centres.",
+      "label": "spacr.timeflows_model.link_by_timeflows#10",
+      "source": "invalid thresholds, prediction shapes, foreground values or derived object centres.",
+      "source_sha256": "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1",
+      "translation": "Ogiltiga tröskelvärden, prediktionsformer, förgrundsvärden eller beräknade objektcentrum."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review of gated temporal assignment, unmatched costs and prediction validation; no native-speaker or accuracy sign-off",
+  "schema": 1
+}

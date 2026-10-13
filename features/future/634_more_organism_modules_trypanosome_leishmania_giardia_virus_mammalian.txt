@@ -1,0 +1,127 @@
+================================================================================
+MORE ORGANISM MODULES: TRYPANOSOME, LEISHMANIA, GIARDIA, VIRUS, MAMMALIAN
+================================================================================
+
+Status:    DONE (alpha) 2026-10-03 (evidence e86e25966) — (filed 2026-10-03).
+Requested: 2026-10-03, by the maintainer, verbatim:
+
+  "Also add to future features list to add in addition to candida, toxo and
+   plasmodium, to add trypanosome, leishmania, giardia, virus, and mammalian
+   modals with the same setup as toxo, candida and plasmodium. All of these
+   modular should be under the alpha flag in preferences (so not visible
+   unless alpha is toggled, with no tutorials etcetera) and with the same
+   internal structure as the toxo, plas, and candida moduals, with uniprot
+   schematics with organelles and so on."
+
+WHAT TO BUILD
+  Five new organism modules -- Trypanosoma, Leishmania, Giardia, Virus and
+  Mammalian -- each mirroring the existing Toxoplasma, Plasmodium and Candida
+  modules: same internal structure, settings, workflows and API (see item 474),
+  and a UniProt-backed schematic of the organism with its organelles and
+  subcellular locations.
+
+CONSTRAINTS
+  * ALPHA: every module, setting and widget registered in
+    ALPHA_FEATURES[634] (spacr/settings.py); hidden unless Preferences ->
+    Show alpha features is on.
+  * No tutorials or lessons (alpha rule).
+  * Schematic organelle lists come from UniProt subcellular-location
+    vocabulary for each organism; cite the UniProt release used.
+
+DONE WHEN
+  Each of the five modules opens from the home screen with alpha on, matches
+  the Toxoplasma/Plasmodium/Candida structure (same tabs, settings
+  categories, workflows), shows its UniProt organelle schematic, and is
+  absent with alpha off; tests pin both states.
+
+ALPHA: 2026-10-03. Five organism pages ship behind Preferences -> Show alpha
+  features, registered as ALPHA_FEATURES[634]: apps trypanosoma, leishmania,
+  giardia, virus, mammalian (Home tile, dock, spaCR menu, palette) and the
+  page widgets TrypanosomaOrganismPage, LeishmaniaOrganismPage,
+  GiardiaOrganismPage, VirusOrganismPage, MammalianOrganismPage. No
+  tutorials or lessons.
+
+WHAT WAS BUILT (2026-10-03)
+  * spacr/qt/organisms.py: five records with the Toxoplasma/Plasmodium/
+    Candida shape -- description, CDC/ViralZone/UniProt biology source,
+    diagram + note, four sections, links, eight tiles and workflows. Live
+    tiles open existing modules with a preset (Motility with infection QC
+    off, Invasion, Host-Pathogen, Dose-Response, Plaque Assay, Recruitment,
+    Mask, Measure); the rest are Coming soon.
+  * spacr/qt/app.py: five SECTION_ASSAYS rows on the OrganismScreen factory,
+    tile order after Candida; icons borrowed from existing organism art.
+  * spacr.qt.app.tiled_apps now leaves out alpha-gated apps while the gate
+    is off (the first 'apps' entry in ALPHA_FEATURES), so Home, the dock,
+    README/docs grids, Home variants and the workflow map describe the
+    default Home; tutorial/lesson/reachability guards exempt alpha apps.
+  * spacr/qt/widgets/organism_diagram.py: per-organism UniProt label sets
+    (_ORGANISM_LABELS / _compartment_labels); new pages drawn landscape.
+  * Artwork (SwissBioPics, CC BY 4.0, Philippe Le Mercier / SIB), recorded
+    with sha256 in organism_sources.json: Trypanosoma.svg (Trypanosoma and
+    Leishmania), Eukaryota_cells.svg (Giardia; SwissBioPics has no Giardia
+    cell), HostAnimal_cell.svg (virus), Animal_cells.svg (mammalian).
+
+UNIPROT VOCABULARY AND RELEASE
+  UniProt release 2026_03 (02-September-2026), rest.uniprot.org. Location
+  vocabulary: the locations endpoint (locations.tsv, Cellular component).
+  Per taxon, the subcellular-location comments of reviewed entries
+  (Trypanosoma 5690: 458; Leishmania 5658: 258; Viruses 10239: 17,529;
+  Mammalia 40674: 67,992) and, for Giardia 5740 (96 reviewed), all 2,045
+  entries with a location comment, were counted per location term. Labels
+  are the attested terms drawn in the artwork, 10-14 per page. Giardia
+  omits Mitochondrion and Golgi apparatus (mitosomes, no stacked Golgi).
+  Counts and queries: features/data/634_uniprot_organism_locations_2026-10-03.json.
+
+TESTS
+  tests/qt/test_634_organism_alpha_pages.py: registry entry; each page
+  absent from Home/menu with alpha off and opening with it on; the page
+  widget hides and returns with the switch; same record structure, four
+  sections and eight tiles as Candida; labels equal the UniProt names of
+  drawn SVG groups; every compartment highlights. tests/qt/
+  test_organism_pages.py covers the five pages in its parametrized checks.
+  There are no settings, so there is no "saved while hidden" value.
+
+LEFT
+  * Catalog lane: the new captions wait in _AWAITING_CATALOG_REBUILD
+    (nine-locale rows and the external caption pin).
+  * Coming soon tiles (17) need their own pipelines; organism-specific
+    Home icons would replace the borrowed ones.
+
+FOLLOW-UP (2026-10-03, maintainer): own switch and recognisable drawings
+  Request: "the new speceas modulas should be under their own alpha speceas
+  preference and the icons need to actually look like the organisms ...
+  fix this !"; later: Plasmodium and Candida also go under it, Toxoplasma
+  stays visible; Trypanosoma's icon and model stay as they are.
+  * ALPHA: Preferences -> "Show alpha species (Plasmodium, Candida,
+    Trypanosoma, Leishmania, Giardia, Virus, Mammalian)" (object name
+    ShowAlphaSpecies, key prefs/show_alpha_species, default off), next to
+    Show alpha features and independent of it. Registry: ALPHA_SPECIES[634]
+    in spacr/settings.py (apps plasmodium, candida, trypanosoma, leishmania,
+    giardia, virus, mammalian; widgets <Name>OrganismPage). _alpha_names
+    counts it with ALPHA_FEATURES; _is_alpha_visible and
+    _apply_alpha_widgets read the species switch for these names.
+  * Drawn for spaCR (BSD 3-Clause, recorded in organism_sources.json):
+    organism_leishmania.svg (promastigote with free anterior flagellum,
+    flagellar pocket, kinetoplast, central nucleus, plus a round
+    amastigote; shown upright), organism_giardia.svg (pear-shaped
+    trophozoite, two nuclei, ventral disc, median bodies, eight basal
+    bodies, four flagellar pairs), organism_virus.svg (enveloped
+    icosahedral capsid with tegument and spikes beside an infected host
+    cell), organism_mammalian.svg (adherent polarised cell on ECM with
+    nucleus, nucleoli, speckles, ER, Golgi, centrosome, primary cilium,
+    mitochondria, endosomes, lysosomes, stress fibres and microtubules).
+    Group ids and names are the UniProt locations; descriptions unchanged.
+    The three SwissBioPics files they replace were removed.
+  * Home icons: icons/organism_leishmania.svg, organism_giardia.svg,
+    organism_virus.svg, organism_mammalian.svg.
+  * README/docs module grids regenerated (Plasmodium and Candida tiles
+    leave the default Home).
+  LEFT
+  * Plasmodium and Candida have published lessons; until the tutorial lane
+    retires them, settings._SPECIES_WITH_PUBLISHED_LESSONS keeps them in
+    tutorial navigation, the module workflow map and the tutorial guards.
+    tools/tutorials/capture_policy.py does not yet force Show alpha
+    species off.
+  * Catalog lane: the new captions wait in _AWAITING_CATALOG_REBUILD.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the later commit e86e25966 moved the registration to ALPHA_SPECIES[634] (which also gates Plasmodium and Candida) behind the separate species switch, and that later version wins.

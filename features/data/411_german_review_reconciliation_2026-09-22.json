@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "source_commit": "c5a4f71ea",
+  "status": "review evidence repaired; complete translated catalogs and browser acceptance remain open",
+  "german": {
+    "new_records": 39,
+    "new_unique_blocks": 38,
+    "retired_source_changed_records": 8,
+    "review_files": [
+      "docs/i18n/reviewed/api/de/2026-09-22-object-classifier-current-contract.json",
+      "docs/i18n/reviewed/api/de/2026-09-22-source-meaning-sample.json"
+    ],
+    "review_method": "AI-assisted linguistic and implementation review; no native-speaker sign-off",
+    "corrections": [
+      "Match the current count regressor, validation, merge exclusions and returned object evidence.",
+      "Correct primary-model mistakes about excluded reviewed fields, CSS declarations, UI Folder controls and output locations.",
+      "Preserve older source-bound reviews with explicit retirement reasons and retain existing unchanged translations."
+    ]
+  },
+  "validation": {
+    "reviewed_api_block_translations": {
+      "result": "passed for every locale against the full current source inventory",
+      "unique_blocks": {"sv": 722, "de": 1097, "es": 582, "zh_CN": 865, "pt": 810, "hi": 759, "ko": 832, "is": 1328, "fr": 746},
+      "checks": ["symbol/block binding", "canonical source hash", "current model context", "syntax and semantic gates", "conflicting targets"]
+    },
+    "full_sphinx": {
+      "command": "python -m sphinx -W -E -b html --keep-going docs/source docs/_build/html",
+      "result": "passed",
+      "elapsed_seconds": 368.74,
+      "environment": "capped 6G, isolated HOME and XDG_CONFIG_HOME, no GPU"
+    },
+    "built_helper_anchors": {
+      "test": "tests/test_built_nested_helper_api.py::test_enabled_helpers_exist_in_the_full_built_site",
+      "result": "1 passed; all three enabled helpers present exactly once",
+      "elapsed_seconds": 8.30
+    }
+  },
+  "limitations": [
+    "These new reviews are rebuild inputs; this commit does not claim complete German catalog publication.",
+    "Full-catalog language-switch acceptance remains red on the remaining catalog backlog.",
+    "The separate CPU reconstruction uses a private cache and produces unpublished drafts for further review."
+  ]
+}

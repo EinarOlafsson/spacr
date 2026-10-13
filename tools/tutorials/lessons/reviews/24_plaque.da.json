@@ -1,0 +1,43 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "0f0ef06e2658e60f9275cb5cc7b28aaf68a3ff44013b494cbc367509321b7693",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Plaque Assay: tæl plaques, og mål deres arealer",
+  "description": "Åbn det syntetiske eksempel, vælg gemte masker eller modelsegmentering, undersøg en forhåndsvisning, og læs resultaterne pr. billede og pr. plaque.",
+  "objectives": [
+    "Åbne Plaque Assay fra Toxoplasma og vælge billedmappen.",
+    "Vælge en model, undersøge en forhåndsvisning og indstille arealfiltre.",
+    "Køre analysen og undersøge antal, arealer og kalibrering i outputdatabasen.",
+    "Læse plaque-brønde og deres betingelser fra en publiceret figur i Figure-tilstand."
+  ],
+  "prerequisite": "Hent og udpak SYNTHETIC_plaque_example.zip. Det indeholder fire TIFF-billeder i gråtoner og deres gemte labelmasker. Brug en arbejdskopi, når du afprøver ny segmentering. Hav et lokalt plaque-checkpoint klar, eller hent et via Model Zoo. Det syntetiske eksempel har ingen fysisk kalibrering.",
+  "scenes": [
+    "Fra Home åbner du Toxoplasma og vælger derefter Plaque Assay. Begynd med en mappe med plaquebilleder. Gennemgangen bruger det linkede syntetiske eksempel, så du kan øve dig i at vælge masker, justere forhåndsvisningen og åbne resultaterne.",
+    "Hent og udpak eksemplet. Sæt Source til SYNTHETIC_plaque, mappen med TIFF-billederne og undermappen masks. Behold en arbejdskopi, hvis du vil lave erstatningsmasker.",
+    "Lad Masks være slået fra for at analysere de medfølgende labelmasker. Slå Masks til, når den valgte model først skal segmentere billederne. Til ny segmentering vælger du en plaquemodel og gennemgår dens diameter og detektionstærskler på et repræsentativt billede.",
+    "Lad brønddetektion være slået fra i dette eksempel. For billeder af en hel plade bruger du brønddetektion til at adskille brøndene. Hvis du kender billedskalaen, indtaster du pixel pr. mikrometer; en kendt fysisk brønddiameter kan også give kalibrering. Registrér dannelsestiden i timer, når den er kendt. Lad ukendte kalibreringsværdier være tomme.",
+    "Sæt Plaque model til et lokalt checkpoint. Hvis du har brug for et, åbner du Model Zoo, henter en plaquemodel og indtaster dens lokale sti. Analysen opløser denne modelindstilling, også når den genbruger gemte masker.",
+    "Åbn Live preview og Live settings. Kontrollér den valgte model og det valgte billede, før du kører forhåndsvisningen. Brug den samme model i forhåndsvisningen, som du vil bruge i hele analysen.",
+    "I Model Zoo vælger du plaquemodellen, vælger en mappe i Save to og klikker på Download. Vent, til modellen er tilgængelig lokalt, og vælg derefter det checkpoint til forhåndsvisningen. Gem stien til senere kørsler.",
+    "Vælg et eksempelbillede og klik på Run preview. Højreklik på billedet og åbn Overlay settings, hvor Display skifter mellem konturer og en udfyldt overlejring, for at kontrollere, om de forudsagte områder følger plaquernes kanter. Undersøg flere repræsentative billeder, før du kører en plade.",
+    "Hæv Min area for at skjule små forudsagte områder. Se, hvilke objekter der forsvinder, og tilpas tærsklen til den mindste plaque, du vil måle. Ændr én indstilling ad gangen, så effekten er tydelig.",
+    "Sænk Min area for at få mindre områder tilbage; 0 fjerner denne nedre arealgrænse. Kontrollér den endelige forhåndsvisning og batchindstillingerne før Run. Forhåndsvisningen viser det valgte billede; Run danner analysens output.",
+    "Tryk på Run, og følg konsollen, indtil analysen er færdig. Med Masks slået fra læser eksemplet de medfølgende labels og skriver masks/plaques_analysis.db. Databasen indeholder antal og arealer for billederne i Source.",
+    "Åbn Help og derefter Database browser. Vælg plaques_analysis.db i mappen masks. Lad Edit mode være slået fra, mens du undersøger outputtet, og vælg en tabel på tabellisten.",
+    "Åbn summary for en oversigt pr. billede. Match rækkerne via filnavnene. De medfølgende syntetiske masker indeholder fire, tre, to og ét objekt. Gennemsnitsstørrelsen angiver deres gennemsnitlige areal i pixel.",
+    "Åbn stats for at sammenligne hvert billedes antal plaques, gennemsnitlige areal og arealspredning. Standardafvigelsen beskriver spændet af plaquestørrelser i billedet. Brug uafhængige eksperimentelle replikater, når du sammenligner biologiske betingelser.",
+    "Åbn details for at undersøge arealet af hver enkelt plaque. Kolonner med fysisk areal er tomme, når kalibrering mangler. Gem databasen sammen med billederne, maskerne og indstillingerne.",
+    "Plaque Assay læser også publicerede figurer. Skift Mode i forhåndsvisningen fra Plaque til Figure. I Figure-tilstand finder kørslen plaque-brøndene i hver figur, læser teksten omkring dem for at navngive hver betingelse og segmenterer derefter plaquerne. Træk PDF'er eller figurbilleder hvor som helst ind på skærmen, eller hent en artikel.",
+    "Klik på From a paper og indtast en DOI, PubMed- eller PMC-id. spaCR henter artiklens figurer og deres figurtekster fra Europe PMC til en ny mappe, noterer licensen og peger forhåndsvisningen på dem. Dette eksempel bruger en frit tilgængelig artikel.",
+    "Vælg en figur og klik på Run preview. Hver fundet brønd markeres med en ramme på figuren og vises i tabellen med den etikettekst, der er læst ved siden af; her blev otte brønde fundet, hver navngivet efter stamme og stofkoncentration. Kontroller hver betingelse, ret den om nødvendigt, og klik på Save annotations før Run, så målingerne får de rigtige navne.",
+    "Klik på Find plaques in all wells. Hver brønd segmenteres med standardmodellen for plaques, og fanen Plaques viser hver fundet plaque. Her blev der fundet seksogtres plaques i de otte brønde, sytten af dem i vildtypebrønden uden stof. Sammenlign tallene med figuren, før du stoler på dem."
+  ]
+}

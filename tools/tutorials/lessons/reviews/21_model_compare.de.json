@@ -1,0 +1,29 @@
+{
+  "lesson": "21_model_compare",
+  "english_sha256": "2e2af2044db01642db76b3e444c2b4d0c162c8d05b4fb245e8af6def09705a54",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Model Compare: gespeicherte Segmentierungsmasken vergleichen",
+  "description": "Laden Sie zwei Masken desselben Bildes, führen Sie das herunterladbare Vergleichsskript aus und prüfen Sie Überlappungswerte und Überlagerungen.",
+  "objectives": [
+    "Masken desselben Bildfelds mit übereinstimmender Pixelgeometrie wählen.",
+    "Das Beispiel zum Vergleich gespeicherter Masken ausführen.",
+    "Die Übereinstimmungstabelle lesen und Grenzunterschiede prüfen."
+  ],
+  "prerequisite": "Laden Sie das verlinkte Model-Compare-Beispiel herunter und entpacken Sie es. Es enthält ein Bild, zwei gespeicherte Masken und ein Python-Hilfsskript. Verwenden Sie eine Umgebung mit installiertem spaCR und wählen Sie einen neuen Ausgabeordner außerhalb der entpackten Eingaben. Das Beispiel vergleicht zwei Vorverarbeitungsvarianten mit denselben cpsam-Gewichten; für eine Bewertung der Genauigkeit sind geprüfte Referenzlabels nötig.",
+  "scenes": [
+    "Öffnen Sie von Home aus Make Masks und wählen Sie Model Compare. Mit diesem Ablauf prüfen Sie Segmentierungsunterschiede auf demselben Bild. Diese Anleitung verwendet das verlinkte Beispiel mit gespeicherten Masken und sein Python-Hilfsskript.",
+    "Bewahren Sie Modellgewichte und Vorverarbeitungseinstellungen zu jedem Maskensatz auf. Verwenden Sie für einen eigenen Vergleich dieselben Bildfelder und dieselbe Pixelgeometrie, damit sich Objektüberlappungen auf entsprechende Bildpositionen beziehen.",
+    "Entpacken Sie das verlinkte Beispiel. Die Eingaben sind image.tif, batch.tif und preview.npy. Beide Masken beschreiben dasselbe Bildfeld; sie wurden mit demselben Modell und unterschiedlichen Vorverarbeitungseinstellungen erzeugt. Behalten Sie die ursprünglichen Dateinamen für das mitgelieferte Skript bei.",
+    "Führen Sie das mitgelieferte Hilfsskript in Ihrer spaCR-Python-Umgebung aus. Setzen Sie die Quelle auf den Eingabeordner des Beispiels und die Ausgabe auf einen neuen Ergebnisordner. Die ausgegebene Zusammenfassung nennt Objektzahlen, zugeordnete Objekte, mittlere Überlappung der zugeordneten Objekte und den adjustierten Rand-Index. Höhere Übereinstimmung bedeutet ähnlichere Masken; sie allein zeigt nicht, welche Maske korrekt ist.",
+    "Öffnen Sie comparison.png. Vergleichen Sie die beiden Maskenüberlagerungen mit dem Bild und prüfen Sie Aufspaltungen, Verschmelzungen und verschobene Grenzen. Das rechte Panel hebt Pixel hervor, deren Zugehörigkeit zum Vordergrund sich unterscheidet. Prüfen Sie in den Überlagerungen auch die Grenzen zwischen sich berührenden Objekten.",
+    "Öffnen Sie comparison.csv für die numerischen Ergebnisse und bewahren Sie die Datei zusammen mit comparison.png, den Eingaben und den aufgezeichneten Einstellungen auf. Verwenden Sie geprüfte Referenzmasken und repräsentative Bildfelder, wenn Sie die Segmentierungsgenauigkeit vergleichen oder ein Modell für Ihr Experiment wählen."
+  ]
+}

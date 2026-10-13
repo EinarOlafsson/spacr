@@ -1,0 +1,86 @@
+{
+  "feature": 288,
+  "related_github_issues": [
+    118,
+    124
+  ],
+  "date": "2026-09-23",
+  "base_commit": "532cc6425c281366093c9c60d2da528ab9203384",
+  "source_sha256": "ccb0c18c3924b7a7f5ce7a693165cc1a7c286f4a0d55e0ba94ffe35c51d54982",
+  "reproduced": "10 failed, 4 passed in 5.94s on the unchanged runtime",
+  "initial_fixed": "37 passed in 33.91s",
+  "final": [
+    "100 passed in 64.11s: archive regressions, real killed-run recovery, normalization, stacks, Z slices and MIP merges",
+    "10 additional boundary checks passed in 9.98s; 21 already-run cases deselected"
+  ],
+  "distinct_final_checks": 110,
+  "new_cases": 31,
+  "execution": "8 GiB/no swap; CPU with CUDA hidden; two BLAS/OpenMP threads; isolated HOME/config; no NAS/network/model downloads",
+  "changes": [
+    "Numeric data.npy payload byte extent must satisfy the declared shape and dtype before reuse",
+    "Object pixel arrays are refused without unpickling; legacy object filename arrays remain explicitly unlisted",
+    "Readable filenames must form a one-dimensional vector matching the batch image count",
+    "Preprocessing-off reruns retain earlier quarantine failures until a valid same-name replacement or complete readable coverage of existing stack fields resolves them",
+    "Quarantined bytes remain available and valid archives are not rewritten"
+  ],
+  "integration_evidence": [
+    "Real TIFF preprocessing produces four fields; a short-pixel archive is quarantined and rebuilt with every field restored",
+    "An archive with missing filename entries is likewise rebuilt with every field restored",
+    "Both integration cases verify intact archive bytes and damaged evidence bytes are unchanged",
+    "After rebuilding, preprocessing-off validation succeeds even while the old damaged archive remains"
+  ],
+  "target_function_coverage": {
+    "_inspect_normalized_archive": {
+      "summary": {
+        "covered_lines": 44,
+        "num_statements": 44,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 20,
+        "num_partial_branches": 0,
+        "covered_branches": 20,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "_check_archives_without_preprocessing": {
+      "summary": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 12,
+        "num_partial_branches": 0,
+        "covered_branches": 12,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  },
+  "validation": {
+    "fatal_ruff": "passed",
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "This is not full io.py coverage or a whole-tree coverage/CI pass",
+    "Header/ZIP metadata validation does not scan every pixel byte for CRC corruption",
+    "Recovery coverage is assessed against the existing stack field inventory; it cannot infer a field removed from both raw data and stacks",
+    "Pixel-object arrays cannot be used without unsafe unpickling; legacy object names are left unlisted under the existing policy",
+    "No public API signature, setting or catalog changed; method behavior details were handed to the documentation lane"
+  ],
+  "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/archive-recovery"
+}

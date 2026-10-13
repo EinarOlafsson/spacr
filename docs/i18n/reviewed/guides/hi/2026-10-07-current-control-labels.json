@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review of exact guide control names against the current runtime glossary. Existing surrounding prose retained; no native-speaker signoff.",
+  "runtime_catalog_sha256": "03d648b1d997687cae0b10ea2d2a502bf247e73b3e7453269f5582a50f869de8",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes.",
+      "source_sha256": "720f6259f87dbb0f24309cd0a5b2aec96ecfe078f0b2e41d309ea314073c1aa8",
+      "original_translation": "**माउस गुरुत्व की त्रिज्या** प्रभावित क्षेत्र को स्क्रीन के छोटे किनारे के प्रतिशत के रूप में सेट करता है। डिफ़ॉल्ट **0** माउस का प्रभाव बंद करता है। तत्वों की संख्या बदलने के लिए **गति घनत्व** और चित्रण का रिज़ॉल्यूशन बदलने के लिए **एनीमेशन विवरण** का उपयोग करें। घनत्व और विस्तार रेंडरर का कार्य बजट साझा करते हैं। प्राथमिकताओं के बदलाव बनाए रखने के लिए **सहेजें** दबाएँ।",
+      "target": "**माउस गुरुत्व की त्रिज्या** प्रभावित क्षेत्र को स्क्रीन के छोटे किनारे के प्रतिशत के रूप में सेट करता है। डिफ़ॉल्ट **0** माउस का प्रभाव बंद करता है। तत्वों की संख्या बदलने के लिए **एनिमेशन घनत्व** और चित्रण का रिज़ॉल्यूशन बदलने के लिए **एनीमेशन विवरण** का उपयोग करें। घनत्व और विस्तार रेंडरर का कार्य बजट साझा करते हैं। प्राथमिकताओं के बदलाव बनाए रखने के लिए **सहेजें** दबाएँ।",
+      "ui_replacements": {
+        "गति घनत्व": "एनिमेशन घनत्व"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels.",
+      "source_sha256": "60d112d175fb6e3e270b795429caa5e63e83ef498efec25e69c53940ec8ef9f7",
+      "original_translation": "Draw एक मुक्त आकार की रूपरेखा बनाता है जो बंद होकर एक वस्तु के रूप में भर जाती है -- ब्रश पथ के साथ गोल चकत्ते बनाता है, इसलिए किनारे पर रेखा खींचने से केवल किनारा लेबल होता है और बीच का भाग पृष्ठभूमि बना रहता है। **Divide / Merge** बाएँ बटन से खींची गई रेखा द्वारा वस्तु को विभाजित करता है: बड़ा भाग अपना ID रखता है और छोटे भाग को नया ID मिलता है। दाएँ बटन से वस्तुओं के ऊपर रेखा खींचकर उन्हें पहले पार किए गए ID के अंतर्गत मिलाएँ; बीच की पृष्ठभूमि पर रंग नहीं भरता। अन्य वस्तुएँ अपने लेबल रखती हैं।",
+      "target": "Draw एक मुक्त आकार की रूपरेखा बनाता है जो बंद होकर एक वस्तु के रूप में भर जाती है -- ब्रश पथ के साथ गोल चकत्ते बनाता है, इसलिए किनारे पर रेखा खींचने से केवल किनारा लेबल होता है और बीच का भाग पृष्ठभूमि बना रहता है। **विभाजित करें / मिलाएँ** बाएँ बटन से खींची गई रेखा द्वारा वस्तु को विभाजित करता है: बड़ा भाग अपना ID रखता है और छोटे भाग को नया ID मिलता है। दाएँ बटन से वस्तुओं के ऊपर रेखा खींचकर उन्हें पहले पार किए गए ID के अंतर्गत मिलाएँ; बीच की पृष्ठभूमि पर रंग नहीं भरता। अन्य वस्तुएँ अपने लेबल रखती हैं।",
+      "ui_replacements": {
+        "Divide / Merge": "विभाजित करें / मिलाएँ"
+      }
+    }
+  ]
+}

@@ -1,0 +1,625 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "lesson": "37_batch",
+  "source_checkpoint": "d160c130b71b3ba3e7cb283e68478ce61f151578",
+  "scope": "Fresh native Batch Runner recording with three real conversion subprocesses; current Batch and Distributed translations staged. Narration/video/publication remain open.",
+  "capture_proof_sha256": "cc9be990a287adbab8dceabb6f48b5326bdd19bcff9b5c1d4830a53b6a75f702",
+  "capture_frames": [
+    {
+      "name": "00_home.png",
+      "sha256": "f9b86db35e2eee10b175f6a84d4ba521b085c48011cf28705ad3b74ef03c2949"
+    },
+    {
+      "name": "01_help_batch.png",
+      "sha256": "be8d04f2e0827bb7dc4e8ddf3336c09c6c18de918f114bcc7a024b7305d73320"
+    },
+    {
+      "name": "02_empty_batch.png",
+      "sha256": "51d294a165304c8329fcc78a200fb3ad43b05936256f8dd5c72a5e84faf53200"
+    },
+    {
+      "name": "03_choose_settings_1.png",
+      "sha256": "89b090d4e1c07e634fe3c059a8780ac80490808a32f6702d35ed377e1fc53368"
+    },
+    {
+      "name": "03_choose_settings_2.png",
+      "sha256": "235f39d08cb3172003f4f98c01f6cf7bd1e5f38b9265f19061baa1d901514dfa"
+    },
+    {
+      "name": "03_choose_settings_3.png",
+      "sha256": "04fbfb3e5a3c7e9478d306888a419495aa8733635ae71c572e94ad1c2b434788"
+    },
+    {
+      "name": "04_configure_job_1.png",
+      "sha256": "a654bef11a8c9357f0f54ef253ac7b06f5eed456c3d4c69e935475691886f89e"
+    },
+    {
+      "name": "04_configure_job_2.png",
+      "sha256": "73d53e73da7bb0ef86c687971d5945de0b2df2dba7a44b0ef7e7f31c6d871f99"
+    },
+    {
+      "name": "04_configure_job_3.png",
+      "sha256": "ee6faff206fc402cafa21d3fad84fc30b9d7be38699c266c157db634a861a51d"
+    },
+    {
+      "name": "05_added_job_1.png",
+      "sha256": "5f1c43a731768055661800a7574f67667abd3ac39927d7144e7ddc8ef9e4cfcd"
+    },
+    {
+      "name": "05_added_job_2.png",
+      "sha256": "91eed78f01baf117c07d3e2d564e26a880afca85ec996c5beaec1f51a7b7f906"
+    },
+    {
+      "name": "05_added_job_3.png",
+      "sha256": "110383e57b0924bbf726e5a3d12ba9acf232da71e1eb4cbf97805362fa45c35e"
+    },
+    {
+      "name": "06_invalid_dependency_order.png",
+      "sha256": "081a29979f18a1aacca67ec4fced4f2bd9e277d7c4ddb4e2c05b3c9236996516"
+    },
+    {
+      "name": "06b_dependency_error_scrolled.png",
+      "sha256": "90f4c78ed4678088220ce2f5b001a9bc5eec8284fe37b8aa9aa1e1c7b249846f"
+    },
+    {
+      "name": "07_valid_reordered_queue.png",
+      "sha256": "f41e9fec0975790017f57aef118838cb13c5aaa99645b4d0f9aedb75a790a80e"
+    },
+    {
+      "name": "08_stop_policy.png",
+      "sha256": "c66e067adad93f05c41ddac320c1552aff4cfe041e8d6e46358043f91fae36cb"
+    },
+    {
+      "name": "09_continue_policy.png",
+      "sha256": "08c94c0b2d72de009a9ad088267280830fd0a101f0061e7a93d094d28f568455"
+    },
+    {
+      "name": "10_save_queue_picker.png",
+      "sha256": "cb7d8c990f9edc2e565205f8f3d76bd361fbe6f9af353684f64ffdbd8cbaf0b5"
+    },
+    {
+      "name": "11_load_queue_picker.png",
+      "sha256": "dc160b37cdc3bbf48d1873607f949ca8498ec5082f610f714602e390b79281f7"
+    },
+    {
+      "name": "12_restored_queue.png",
+      "sha256": "1eba72226f0fe8fef763ec78d3ba97b7da050ee877d8782e5d850fe1ed40fd79"
+    },
+    {
+      "name": "13_real_subprocess_running.png",
+      "sha256": "4435560f8a502ee0ceb316a42169c9f20da681e66a60a86d8bb6999867102885"
+    },
+    {
+      "name": "13a_help_window_jobs.png",
+      "sha256": "c26788a71071662e17ffb4c3029d045dcb235c95e4bcc5c9ddaa9bc05594a8ea"
+    },
+    {
+      "name": "13b_jobs_dock.png",
+      "sha256": "4435560f8a502ee0ceb316a42169c9f20da681e66a60a86d8bb6999867102885"
+    },
+    {
+      "name": "14_stopped_between_jobs.png",
+      "sha256": "2f9d91f562e24b62f2bdbd281663ac24110d458d5325bf8ad7b2757512888728"
+    },
+    {
+      "name": "15_completed_real_queue.png",
+      "sha256": "07bd4492cc88910fbfdfce9bc14a7ed99d7e6be71c8886ddce9e0bba0538c879"
+    },
+    {
+      "name": "16_log_convert-1.png",
+      "sha256": "b9f385c00870398f7b33f5c862d22f4ac2c6146aa6fbabdea75f62997b519cc0"
+    },
+    {
+      "name": "16_log_convert-2.png",
+      "sha256": "2ec70d766bb428a84943214ada59fe0c5430a96aa6058ae1b533a38052034c74"
+    },
+    {
+      "name": "16_log_convert-3.png",
+      "sha256": "1dba099a463dc575dea4b16f44837e4c625ec0bd7d21f101767881c97046fe4e"
+    }
+  ],
+  "input_fields": 3,
+  "channels_per_field": 4,
+  "originals_unchanged": true,
+  "independent_exact_copies": true,
+  "acquired_pixels": true,
+  "synthetic_pixels": false,
+  "demonstration_well": "A01",
+  "original_acquisition_well_metadata_preserved": false,
+  "inputs": [
+    {
+      "name": "W0127F0004T0001Z000C1.tif",
+      "sha256": "e36c8a2b491377314a364b40dd8bdf0cdb75eb3345ca63fe38c4b8d612e13c1e",
+      "channel": 1,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0127F0004T0001Z000C2.tif",
+      "sha256": "8781e00609227930c79d0af29a34fd4ec5f8869872446dd7201286ae53ca54e6",
+      "channel": 2,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0127F0004T0001Z000C3.tif",
+      "sha256": "2ee6d6019490f8a3086152aa5762f529c01a7ed4d71c99f489e53aead5c4010b",
+      "channel": 3,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0127F0004T0001Z000C4.tif",
+      "sha256": "066de0cafa7b08c6edb7ae0657475c8f15f6d401e5457c035fd3b2b6a757dff9",
+      "channel": 4,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0315F0003T0001Z000C1.tif",
+      "sha256": "cc44a34552a793ab9901c08722f1385a86b7dc75d65af034294e840de7289b7d",
+      "channel": 1,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0315F0003T0001Z000C2.tif",
+      "sha256": "5dee5444b5ef79cda23a7fd741032a80f60973fa9998eba2c3f71a5f09c42457",
+      "channel": 2,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0315F0003T0001Z000C3.tif",
+      "sha256": "0f466603c63cef9cb409413aa9b6a6efbc19092b5545382aa5cbfe2755f8f2ce",
+      "channel": 3,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0315F0003T0001Z000C4.tif",
+      "sha256": "6981ecf41255370801a9318903fcbf737c7d26ec8b726d95d1658fad5c70babf",
+      "channel": 4,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0025F0001T0001Z000C1.tif",
+      "sha256": "4f64328be50c95a1e4158aa37d9e57ad9ffdcd3e47f9e1ede3df5751eb4f508f",
+      "channel": 1,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0025F0001T0001Z000C2.tif",
+      "sha256": "bad167c2e7b0431cd168fcf3512f0e8e4d495c359f16167cee28fc27b4fd0ca6",
+      "channel": 2,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0025F0001T0001Z000C3.tif",
+      "sha256": "ccc187624bab87775620eff8a0a2f88ca5a07362432377acd93e19473d45a5f5",
+      "channel": 3,
+      "shape": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "name": "W0025F0001T0001Z000C4.tif",
+      "sha256": "421b2a0547d4edf5d9699e6325e02653d79aaf51989faa919edbc4a36543df5b",
+      "channel": 4,
+      "shape": [
+        2000,
+        2000
+      ]
+    }
+  ],
+  "output_checks": [
+    {
+      "accepted": true,
+      "fields": 1,
+      "channels": 4,
+      "outputs": [
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C01.tif",
+          "sha256": "396d5ec9a2006f7d2eb8d8606726f51532ae2b41fa62f6fe72f9b42066f8141e",
+          "channel": 1,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C02.tif",
+          "sha256": "a22dfb8c07a4620f4d6de270db5f5daba37644379f5788d56d3e7b3caf59ec7f",
+          "channel": 2,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C03.tif",
+          "sha256": "568c2accbe5bf2ca0073caf3b3210ffa0428b920f64720c651e22a401f67902f",
+          "channel": 3,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C04.tif",
+          "sha256": "8afb56743e67687a4cd434bc2bebcb91f8d8cd94269f7c912da0e2ec287105ad",
+          "channel": 4,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        }
+      ],
+      "map_sha256": "8219ae2343896b92844f21b846dc4c0c5f19098f857714948f76f073d04e10a2",
+      "original_unchanged": true,
+      "ledger_check": {
+        "operation": "convert",
+        "run_id": "825e8c698970",
+        "ledger_status": "complete",
+        "ledger_entries": 1,
+        "independently_verified_outputs": 4
+      },
+      "run_status_sha256": "6c148d18eaf935ce5296a6744ee9221d6ece0faf0d021ea34bb2fc269d0c4314"
+    },
+    {
+      "accepted": true,
+      "fields": 1,
+      "channels": 4,
+      "outputs": [
+        {
+          "target": "source-02_A01_T0001F001L01A01Z01C01.tif",
+          "sha256": "db884316bbb4780ad9027ee0567499cbbdc07561d6af40da963fe5a6e8b4291e",
+          "channel": 1,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "source-02_A01_T0001F001L01A01Z01C02.tif",
+          "sha256": "f8b134efd6625784c4ab5cc3447fab6b889eb961aa8679041b98c6d7eafcc940",
+          "channel": 2,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "source-02_A01_T0001F001L01A01Z01C03.tif",
+          "sha256": "0823f4f75200add8fdd97570c4caf01694bb43ee28e9c9ffe755845b3f462d3c",
+          "channel": 3,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "source-02_A01_T0001F001L01A01Z01C04.tif",
+          "sha256": "5a595e61e3f82620dfd579c3a48fe1068f7884c13a6c690cade3b9fc5af4a05b",
+          "channel": 4,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        }
+      ],
+      "map_sha256": "8708bc1686698dd6936c093a789e8353d2d25d6332c3545147ab614806cf8c70",
+      "original_unchanged": true,
+      "ledger_check": {
+        "operation": "convert",
+        "run_id": "77d96df97dd4",
+        "ledger_status": "complete",
+        "ledger_entries": 1,
+        "independently_verified_outputs": 4
+      },
+      "run_status_sha256": "4f2fb72597aee2458c065dcf0b692fcb36d248921ffd9530ddf9937fd706dcd6"
+    },
+    {
+      "accepted": true,
+      "fields": 1,
+      "channels": 4,
+      "outputs": [
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C01.tif",
+          "sha256": "9e963ea605af07693f6dfa1d1a3af43f2ebdf11b0836327c7b7ae62029c887f5",
+          "channel": 1,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C02.tif",
+          "sha256": "49c1004a6cbc5b2a089c1bb9214a9d8c093519d0bf286989d10ad47d72753e4e",
+          "channel": 2,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C03.tif",
+          "sha256": "69bae7f139d1a377096b01c59ab96d8507982742f4f0a543c6ad6a2804e5d010",
+          "channel": 3,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        },
+        {
+          "target": "plate1_A01_T0001F001L01A01Z01C04.tif",
+          "sha256": "b31ec3ab5fb454f91138cd1e6cb8eeb89cddf6e5a9f2f7ee5b056ef171b5701b",
+          "channel": 4,
+          "shape": [
+            2000,
+            2000
+          ],
+          "all_pixels_exact": true,
+          "map_fields_checked": 23
+        }
+      ],
+      "map_sha256": "384e79bf679f14d76a1cec8f242f92507a0a32fd05c5ff4dcd72b01e5e2053d2",
+      "original_unchanged": true,
+      "ledger_check": {
+        "operation": "convert",
+        "run_id": "0a5c6eeb2b91",
+        "ledger_status": "complete",
+        "ledger_entries": 1,
+        "independently_verified_outputs": 4
+      },
+      "run_status_sha256": "78fd7e83bf42c0b281b5835aa44170e0d24b36514a60d03fc5a12e31fe70e575"
+    }
+  ],
+  "first_successful_job_not_repeated_on_resume": true,
+  "finished_job_statuses": [
+    "success",
+    "success",
+    "success"
+  ],
+  "interpreter_readonly_neutral_alias": true,
+  "same_interpreter_sha256": "4c757db1c505503154bc764377b38ac3c16406934dff759057cf7d0a444744b8",
+  "private_supported_spacr_home": true,
+  "personal_path_capture_guard_unchanged": true,
+  "application_source_modified": false,
+  "capturer_sources": {
+    "tools/tutorials/batch_data.py": "43c8d30ac3ede2de810e8f81a18593e696a3d566ef4c6c1b8473aa11ed80e634",
+    "tools/tutorials/capture_batch_runner.py": "05c6b0e540103ec529736bcce9d81bf6df0319c624fcf6cc4a5551b72b81b081",
+    "tools/tutorials/capture_refresh.py": "b8607dd0c3ef744156ff529aa4804e16abdac7cff41e6ecfd9295464f8e1d39f"
+  },
+  "channel_cli_guard_tests": {
+    "passed": 21,
+    "log_sha256": "66cc078cc8ebf35e386cbc2ca44f5876ce414a6eabfa3961da7f1d18d9263f06"
+  },
+  "current_two_lesson_catalog_preservation": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 85,
+    "scene_count": 1193,
+    "refreshed_lesson_ids": [
+      "37_batch",
+      "38_distributed_jobs"
+    ],
+    "retained_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "07_mask",
+      "08_measure",
+      "09_annotate",
+      "10_classify_cv",
+      "11_classify_ml",
+      "12_map_barcodes",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "16_activation",
+      "17_timelapse",
+      "18_motility",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "21_model_compare",
+      "22_model_zoo",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "33_plate_viewer",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "39_classifier_evaluation",
+      "40_run_history",
+      "41_classify",
+      "42_curate",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "48_hit_list",
+      "49_methods_results",
+      "50_run_compare",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "53_prediction_profiler",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "56_lineage",
+      "57_layer_viewer",
+      "58_graph_builder",
+      "59_anndata_export",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response",
+      "70_explain_cv",
+      "71_investigate_hit",
+      "72_volcano_explorer",
+      "73_parameter_sweep",
+      "74_import_images",
+      "75_regression_diagnostics",
+      "77_embeddings",
+      "76_ops",
+      "78_spacr_screens",
+      "79_module_inputs_outputs",
+      "80_image_analysis_pathways",
+      "81_sequencing_pathways",
+      "82_toxoplasma",
+      "85_host_pathogen",
+      "86_alpha_organism_modules",
+      "87_alpha_features"
+    ],
+    "visual_only_lesson_ids": [],
+    "retained_count": 83,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "c922e7b5f5d37a3c830cdfe8254d59d1f9442bc1b757484fd8302cfdae5b1543"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "9eb9ea9a10ce12b5b7def7aaec88f4fb9de1a61f71f26d16dd3ab3b0fc44cb35"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "2065b2125d572a3539642ab5986214a30dc275eb357bc3d0f8ad135c2f5812bf"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "a492feea305569fd38e74408f4e927f4c928adb09e124520ede9da3099a57a13"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "f10d0c0eaafe24b2ec20d42a84ee6c4ebc2e6d25ba667582e93959d200c6915d"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "6dc6f97a65c99d3068502e10dcf9e642996bc1943bdb5385ced8438882925890"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "5c4007ed61067d28de4b61e2a248ec2032b6340b5261b83f4707e081407c1bd0"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "99928b125a56a73d8b68ae654a34cb2da3d7b1b5dbd2a716af3a16f791c7805d"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "635cfd4ef732a7bc9d68c345b1cb8ac3e1d6edc7b32a9e70c2c0671fefebf6e3"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "dfdf49f7e9ba1442a452dd3006a1d4aa4163a2b5f7d69f8cbe113e582e620a53"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "4fed35028b40155c5673f0c7f961412136e0178acbd95cdabc5c2c6ef2f070e5"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "88de8c7df4636a71c7394ea0600724a0c7eb1b29868eb4ce4c2063d5f1e5f840"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "eb0548c719de0b79aafc2dcf21bbd028b8c3db61380294c0f7320a46ea6740cd"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 83,
+        "retained_content_sha256": "d691519b7d65f1e0dffe9989cef6db3d58a279c58cf453f370668c1ccd1cbcce"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "remaining": [
+    "27 Batch narration tracks",
+    "4K master/web rendition",
+    "frame/audio/browser acceptance",
+    "hosted publication and deployed readback"
+  ],
+  "published": false,
+  "native_speaker_signoff": false
+}

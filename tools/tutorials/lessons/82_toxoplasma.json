@@ -1,0 +1,53 @@
+{
+  "id": "82_toxoplasma",
+  "number": 82,
+  "slug": "toxoplasma",
+  "title": "Toxoplasma organism: guide, diagram and assays",
+  "series": 3,
+  "app_key": "toxoplasma",
+  "section": "Organisms and assays",
+  "description": "Open the organism page, explore the cell diagram and choose an available assay.",
+  "objectives": [
+    "Open the page from Home and find its main controls.",
+    "Identify the available inputs, actions and outputs.",
+    "Choose the next available analysis or reference."
+  ],
+  "prerequisite": "Open spaCR Home. The organism guide requires no input files. Each assay has its own inputs and linked walkthrough.",
+  "scenes": [
+    {
+      "visual": "00_home",
+      "narration": "From Home, choose the Organism category, then Toxoplasma. This page combines an organism guide, an interactive cell diagram and the available Toxoplasma assay routes. Explore it before choosing an analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01_organism",
+      "narration": "Begin with the introduction in the information pane. Each pane scrolls on its own, and dragging the divider gives the guide or the assay tiles more room.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_diagram",
+      "narration": "The diagram is interactive. Hover over a cell component and its description appears. Select several to keep them highlighted, and Clear components resets the picture.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_assays",
+      "narration": "Plaque Assay counts plaques and measures their areas. Recruitment measures marker enrichment at the parasite-containing vacuole, and Replication Assay counts parasites per vacuole. Select an assay according to the quantity you need to measure and its required input.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_plaque_assay",
+      "narration": "Click Plaque Assay to open its analysis screen. The settings panel specifies the image source, masks and detection options. Load test data provides an example. Review the inputs and preview before starting Run; the Plaque Assay tutorial describes the complete workflow.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_references",
+      "narration": "Return to the Toxoplasma guide and scroll the information pane to its references. ToxoDB, the Toxoplasma hyperLOPIT atlas, UniProt and NCBI Taxonomy link to organism resources. These links open in your browser; the guide does not perform a database search or predict protein localization.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_home_return",
+      "narration": "The organism guide does not produce analysis tables. Return Home for image preparation, segmentation or measurement, then choose the assay that matches your prepared input. Each assay has its own requirements and linked walkthrough.",
+      "hold_after": 0.7
+    }
+  ]
+}

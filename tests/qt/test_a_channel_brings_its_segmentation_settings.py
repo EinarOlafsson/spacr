@@ -1,0 +1,275 @@
+"""Typing an object's channel puts that object's segmentation settings up.
+
+GitHub issue #120, jak18015, spaCR 1.5.0.8 on macOS: "when defining a
+channel number for pathogen, no pathogen segmentation list appears in the
+settings." Steps: open Mask generation, add a pathogen channel number, the
+pathogen segmentation settings section does not appear.
+
+Measured on nightly 5b9207b21 and on v1.5.0.8 alike, driving the channel
+field the way a user does (type, press Enter): under "All settings" the
+section appeared; under "Essentials", which is where every module opens
+until the user changes it, it never did. Essentials was a fixed list --
+the inputs and the workflow switches -- so no object's segmentation was in
+it, and the object rule's own pass then undid the level filter for rows it
+put back. Two more faces of the same thing were found on the way:
+
+* with the per-object table switched on, Essentials hid the table itself,
+  and the table is the only place the channels are then shown -- no channel
+  could be set at all;
+* clearing a channel left its heading on the form over no rows.
+
+Timelapse segments the same four objects under the same four headings and
+also opens at Essentials, so it had the same defect; found in review of the
+Mask fix and held here by running the reported steps on both modules.
+
+Everything below presses the control the user presses and asks the built
+form what it shows.
+"""
+from __future__ import annotations
+
+import pytest
+
+pytest.importorskip("PySide6")
+
+pytestmark = pytest.mark.qt
+
+
+@pytest.fixture(autouse=True)
+def _fresh_disclosure():
+    """Every test starts where a first visit starts: Essentials."""
+    from spacr.qt.settings_search import forget_disclosure
+
+    forget_disclosure()
+    yield
+    forget_disclosure()
+
+
+@pytest.fixture
+def grid_preference():
+    """The preferences module; the per-object table has no preference of its
+    own since item 592 made it Mask generation's only layout."""
+    from spacr.qt import preferences as prefs
+
+    yield prefs
+
+
+def _open_mask(qtbot, level=None, app="mask"):
+    """Open a module (Mask generation unless told) the way navigation does."""
+    from PySide6.QtWidgets import QApplication
+
+    import spacr.qt.app as app_module
+    from spacr.qt.settings_search import remember_disclosure
+
+    if level is not None:
+        remember_disclosure(app, level)
+    window = app_module.MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1400, 900)
+    window.show()
+    window._on_nav_selected(app)
+    for _ in range(10):
+        QApplication.processEvents()
+    return window
+
+
+def _screen(window, app="mask"):
+    """The module's screen on show now; a bulk load may have replaced it."""
+    return window._screens[app]
+
+
+def _commit(qtbot, screen, key, text):
+    """Type ``text`` into ``key``'s field and press Enter."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QApplication
+
+    field = screen._settings_model._widgets[key]
+    field.setFocus()
+    field.clear()
+    if text:
+        qtbot.keyClicks(field, text)
+    qtbot.keyClick(field, Qt.Key_Return)
+    for _ in range(5):
+        QApplication.processEvents()
+
+
+def _heading(screen, title):
+    """The top-level settings heading called ``title``."""
+    for section in screen.rendered_settings_sections():
+        if section.property("settingsCategorySource") == title:
+            return section
+    return None
+
+
+def _heading_shown(screen, title) -> bool:
+    """Whether the heading is on the form, not held back by any rule."""
+    section = _heading(screen, title)
+    return section is not None and not section.isHidden()
+
+
+def _grid_shown(screen) -> bool:
+    """Whether the per-object table's section is on the form."""
+    section = _grid_section(screen)
+    return section is not None and not section.isHidden()
+
+
+@pytest.mark.parametrize("app", ["mask", "timelapse"])
+def test_a_pathogen_channel_is_answered_in_the_per_object_table(
+        qtbot, app):
+    """The reported steps, at the level a new user is on.
+
+    The per-object table is the only layout of these questions, so the
+    pathogen's segmentation settings are its column, not a heading.
+    """
+    from spacr.qt.settings_search import ESSENTIALS
+
+    window = _open_mask(qtbot, app=app)
+    screen = _screen(window, app)
+    assert screen._settings_search.level() == ESSENTIALS
+
+    _commit(qtbot, screen, "pathogen_channel", "2")
+
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert _grid_shown(screen)
+    assert "pathogen" in screen._object_grid.objects()
+
+
+def test_essentials_still_hides_what_it_hid(qtbot):
+    """A channel commit re-applies the level; it does not lift it."""
+    window = _open_mask(qtbot)
+    screen = _screen(window)
+    before = set(screen._settings_search.visible_keys())
+
+    _commit(qtbot, screen, "pathogen_channel", "2")
+
+    after = set(screen._settings_search.visible_keys())
+    assert not screen.setting_row_is_visible("dry_run")
+    assert not screen.setting_row_is_visible("resume")
+    assert not {key for key in after - before if "pathogen" not in key}
+
+
+@pytest.mark.parametrize("app", ["mask", "timelapse"])
+@pytest.mark.parametrize("level", ["essentials", "all"])
+def test_clearing_the_channel_keeps_the_table(qtbot, level, app):
+    """On, off and on again, at either level: no heading over no rows."""
+    window = _open_mask(qtbot, level, app=app)
+    screen = _screen(window, app)
+
+    _commit(qtbot, screen, "pathogen_channel", "2")
+    assert _grid_shown(screen)
+
+    _commit(qtbot, screen, "pathogen_channel", "")
+    assert screen._settings_model.collect()["pathogen_channel"] is None
+    assert not _heading_shown(screen, "Pathogen Segmentation"), (
+        "a heading over no rows is left on the form")
+    # 2026-09-29 (item 592, "hide unset objects"): with no channel
+    # set only the cell column is drawn, and under Essentials none of its
+    # questions is essential, so the table's section goes the way any
+    # heading over no essential rows goes. All settings keeps it.
+    assert _grid_shown(screen) is (level == "all")
+    assert "pathogen" not in screen._object_grid.objects()
+
+    _commit(qtbot, screen, "pathogen_channel", "2")
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert _grid_shown(screen)
+
+
+def test_a_settings_file_naming_a_pathogen_channel_reaches_the_table(qtbot):
+    """Loading settings is the other way a channel arrives."""
+    window = _open_mask(qtbot)
+    _screen(window).apply_settings_dict({"pathogen_channel": 2})
+    screen = _screen(window)
+
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert _grid_shown(screen)
+
+
+def _grid_section(screen):
+    """The section the per-object table sits in."""
+    node = screen._object_grid.parentWidget()
+    while node is not None and not hasattr(node, "add_prose_row"):
+        node = node.parentWidget()
+    return node
+
+
+def test_the_per_object_table_stays_on_screen_under_essentials(
+        qtbot, grid_preference):
+    """The channel stays reachable under Essentials, and brings the table.
+
+    2026-09-29 (item 592, "hide unset objects"): a hidden object has
+    no column, so its channel is a row of the ordinary form, never a table
+    cell; Essentials must not hide that row.
+    """
+    window = _open_mask(qtbot)
+    screen = _screen(window)
+    assert getattr(screen, "_object_grid", None) is not None
+    assert screen.setting_row_is_visible("pathogen_channel"), (
+        "Essentials hid the only control that shows the pathogen column")
+    assert "channel" not in screen._object_grid.questions()
+
+    _commit(qtbot, screen, "pathogen_channel", "2")
+
+    assert screen._settings_model.collect()["pathogen_channel"] == 2
+    assert "pathogen" in screen._object_grid.objects()
+    assert not _grid_section(screen).isHidden()
+
+
+def test_the_search_strip_decides_the_tables_section(
+        qtbot, grid_preference):
+    """The strip hides and restores the table's section like any other.
+
+    2026-09-29 (item 592, "hide unset objects"): measured under All
+    settings, since under Essentials a form with no channel set has no
+    essential question in the table and the section starts hidden.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    window = _open_mask(qtbot, "all")
+    screen = _screen(window)
+    assert getattr(screen, "_object_grid", None) is not None
+    QApplication.processEvents()
+    section = _grid_section(screen)
+    assert not section.isHidden()
+
+    bar = screen._settings_search
+    bar.set_query("illumination")
+    assert section.isHidden(), "the strip is not deciding the table's section"
+    bar.set_query("")
+    assert not section.isHidden()
+
+
+def test_a_section_the_user_shut_stays_shut(qtbot):
+    """Re-applying Essentials after the object rule opens only what it adds.
+
+    Found in review: every object pass re-applies the search, and under
+    Essentials that opened every section on the form, so shutting the
+    sections and then changing ``metadata_type`` opened all of them again.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    window = _open_mask(qtbot)
+    screen = _screen(window)
+    shut = [section for section in screen.rendered_settings_sections()
+            if not section.isHidden() and hasattr(section, "set_expanded")]
+    assert shut
+    for section in shut:
+        section.set_expanded(False)
+
+    naming = screen._settings_model._widgets["metadata_type"]
+    combo = naming.combo
+    previous = naming.get_value()
+    other = next(index for index in range(combo.count())
+                 if combo.itemData(index) is not None
+                 and combo.itemData(index) != previous
+                 and combo.model().item(index).isEnabled())
+    combo.setCurrentIndex(other)
+    assert naming.get_value() == combo.itemData(other)
+    assert naming.get_value() != previous
+    for _ in range(5):
+        QApplication.processEvents()
+    assert [s.property("settingsCategorySource") for s in shut
+            if s.is_expanded()] == []
+
+    _commit(qtbot, screen, "pathogen_channel", "2")
+    assert [s.property("settingsCategorySource") for s in shut
+            if s.is_expanded()] == []
+    assert _grid_shown(screen)

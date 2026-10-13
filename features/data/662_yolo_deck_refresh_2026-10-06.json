@@ -1,0 +1,85 @@
+{
+  "accepted": true,
+  "slide_count": 57,
+  "refreshed_pages": [
+    32
+  ],
+  "unchanged_slide_assets": 56,
+  "unchanged_vector_page_content_and_text": 56,
+  "all_slide_and_thumbnail_dimensions_verified": true,
+  "all_57_navigation_pages_verified": true,
+  "animation_files_and_placement_unchanged": true,
+  "visual_reviewed_pages": [
+    32
+  ],
+  "native_pixels_preserved": true,
+  "alpha_page_retained_exactly": true,
+  "published": false,
+  "published_repository_artifacts": true,
+  "source_refresh": {
+    "source_sha256": "5b835ce5fb55fb85032dfcd6e90b974c3630d36a33e3be18e4af02fc49a0f308",
+    "output_sha256": "d01a31b48a3272adaebdd5b83bca74fbe463dca15379ee299b22506012143726",
+    "slide_count": 57,
+    "changed_members": [
+      "ppt/media/image-32-2.png",
+      "ppt/slides/slide32.xml"
+    ],
+    "untouched_members_verified": 429,
+    "captures": [
+      {
+        "slide": 32,
+        "frame": "yolo_18_reloaded_boxes",
+        "sha256": "9bab68ed1a9459835243497e80d9f795695e181f201ee71e75caeb692431a245",
+        "member": "ppt/media/image-32-2.png",
+        "fit_preserves_aspect": true
+      }
+    ],
+    "original_unchanged": true,
+    "capture_pixels_unchanged": true,
+    "published": false
+  },
+  "artifacts": {
+    "features/data/662_yolo_deck_refresh_2026-10-06/accept_yolo_deck.py": {
+      "sha256": "28c9b3c53ac459785b829fc6543266e89b64ac36ce810a1b3f6cba67b76e6f19",
+      "bytes": 4942
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/preservation.json": {
+      "sha256": "cc7e217c6ee60df396dd4c2fa9583ce104bfed4eded68a47324b8fa68bbabd8e",
+      "bytes": 446
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/refresh-spec.json": {
+      "sha256": "ad9ec418686a37448aa7e938933b8bf007ddfc6099f9d58b91bfb9b94ad64bf1",
+      "bytes": 1537
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/refresh_yolo_deck.py": {
+      "sha256": "cf0b2ab36d920d35c1f3bef6a0c64be8b937f9e9f1689af8cea75f017d300698",
+      "bytes": 2492
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/source-delta.zip": {
+      "sha256": "142702d9af8cd3e47d0176ef00efc12b0e1059b088f15cecfbccc9b2320cec5f",
+      "bytes": 1875737
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/spacr_overview.refresh.json": {
+      "sha256": "a320d8b6ee582ef6224cd3eac0668af79fd96258ecf98fa7ba6864c562041bcd",
+      "bytes": 668
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/yolo-deck-alpha-r1.log.gz": {
+      "sha256": "bdcae3e1fa5f7abde4282262685cced44215cb3cc4924eeb0ca38cf6b36517d1",
+      "bytes": 63
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/yolo-deck-bounded-r2.log.gz": {
+      "sha256": "ec9b134669b409746b2291ddefb3d5c28fd4215e41acc270a5f877067331ced1",
+      "bytes": 118
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/yolo-deck-refresh-r1.log.gz": {
+      "sha256": "f42af7ef495acdf19d8bc29e2fd75bc33666d51aac5276dee788dbe6655d21be",
+      "bytes": 662
+    },
+    "features/data/662_yolo_deck_refresh_2026-10-06/yolo-deck-tests-r1.log.gz": {
+      "sha256": "379003bd4019aa72435b6d70144687e0b32cf47656b7a316f7d20aeb8c32f40f",
+      "bytes": 192
+    }
+  },
+  "scoped_deck_tests_passed": 12,
+  "optional_animation_library_test_skipped": 1
+}

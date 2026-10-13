@@ -1,0 +1,61 @@
+{
+  "date": "2026-09-22",
+  "base_commit": "be6c6e7a8",
+  "scope": "284/380 defer the hidden UMAP explorer; both items remain open",
+  "probe": "/mnt/firecuda2/Claude/implementation-20260922/umap_open_probe.py",
+  "method": "Six alternating fresh processes, full Home-to-UMAP navigation, offscreen Qt, bundled fonts, fixed private preferences, sources byte-compiled. Before loads the exact baseline app_screen module via a meta-path loader; after uses the changed module. Other source files were identical between arms. No concurrent test run from this session.",
+  "measurements": [
+    {
+      "arm": "before",
+      "open_ms": 1688.3470049942844,
+      "widgets": 364,
+      "explorer_built": true,
+      "explorer_imported": true
+    },
+    {
+      "arm": "after",
+      "open_ms": 1263.7905480078189,
+      "widgets": 318,
+      "explorer_built": false,
+      "explorer_imported": false
+    },
+    {
+      "arm": "before",
+      "open_ms": 1594.155936007155,
+      "widgets": 364,
+      "explorer_built": true,
+      "explorer_imported": true
+    },
+    {
+      "arm": "after",
+      "open_ms": 1285.639176989207,
+      "widgets": 318,
+      "explorer_built": false,
+      "explorer_imported": false
+    },
+    {
+      "arm": "before",
+      "open_ms": 1626.8958410073537,
+      "widgets": 364,
+      "explorer_built": true,
+      "explorer_imported": true
+    },
+    {
+      "arm": "after",
+      "open_ms": 1241.6545629967004,
+      "widgets": 318,
+      "explorer_built": false,
+      "explorer_imported": false
+    }
+  ],
+  "before_median_ms": 1626.8958410073537,
+  "after_median_ms": 1263.7905480078189,
+  "reduction_percent": 22.31890228293316,
+  "widgets_removed_at_open": 46,
+  "validation": "115 focused tests passed before an external checkout reset. Restored implementation also passed all 115 tests on d63dd13d5 in 39.17s; fatal-error Ruff passes.",
+  "limitations": [
+    "Offscreen measurements on this loaded machine, not cross-platform acceptance.",
+    "First payload or direct explorer access still pays construction cost.",
+    "Broader module-opening and stall budgets remain unmet."
+  ]
+}

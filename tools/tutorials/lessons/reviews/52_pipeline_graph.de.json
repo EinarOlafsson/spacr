@@ -1,0 +1,34 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "bf0c6dac571bc3ffd103198c0eaa0c23ba38b289ef5090da9df64295ed67932f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Pipeline Graph: Ausgaben und Abhängigkeiten prüfen",
+  "description": "Öffnen Sie den Artefaktgraphen eines Projekts, prüfen Sie fehlende Ausgaben und kopieren Sie sein Abhängigkeitsdiagramm.",
+  "objectives": [
+    "Den Artefaktgraphen eines Projekts öffnen.",
+    "Pfade, Zustände und Abhängigkeiten prüfen.",
+    "Das Diagramm kopieren und seine Einträge aktualisieren."
+  ],
+  "prerequisite": "Wählen Sie ein spaCR-Projekt mit registrierten Ausgaben. Das Beispiel aus External Masks liefert Messwerte und Ausschnitte; die Lektion zu Data Manager zeigt, wie ein entferntes Artefakt erscheint.",
+  "scenes": [
+    "Öffnen Sie Help und dann Pipeline graph, um die erfassten Ausgaben und Abhängigkeiten eines Projekts zu prüfen.",
+    "Navigieren Sie mit Browse zum Projektordner. Ist der Graph leer, prüfen Sie, ob der Ordner registrierte Artefakte hat; Dateien können auch ohne Registereinträge vorhanden sein.",
+    "Wählen Sie das gemessene Projekt, um seine Artefaktkästen anzuzeigen. Das Beispiel enthält Messwerte, Ausschnitte und ein Ressourcenprotokoll sowie einen entfernten Ausschnittordner, der als fehlend markiert ist.",
+    "Klicken Sie auf ein Artefakt und verbreitern Sie die Details mit dem Trenner. Prüfen Sie Pfad, Rolle, Laufkennung, Erzeugungszeit und Softwareversion.",
+    "Wählen Sie ein Missing-Artefakt, um seinen erfassten Pfad zu finden. Die angezeigte Größe beschreibt den gespeicherten Eintrag; prüfen Sie daher den tatsächlichen Ort, wenn Sie fehlende Dateien untersuchen.",
+    "Prüfen Sie Eingabe- und nachgelagerte Verknüpfungen, sofern sie erfasst sind. Manche Artefakte, etwa Ressourcenprotokolle, können außerhalb des Projektordners liegen.",
+    "Legen Sie mit Current, Stale und Missing fest, welche Artefaktzustände sichtbar sind. Blenden Sie zum Beispiel Current aus, um sich auf fehlende Ausgaben zu konzentrieren.",
+    "Sind keine Kästen sichtbar, prüfen Sie die Anzeigefilter und die Gesamtzahl der Artefakte. Stellen Sie die Zustände wieder her, die Sie prüfen möchten.",
+    "Klicken Sie auf Copy Graphviz, um das vollständige Diagramm als DOT-Text zu kopieren, einschließlich der durch Filter ausgeblendeten Knoten. Fügen Sie es in ein Graphviz-Werkzeug ein, um es darzustellen oder zu speichern.",
+    "Stellen Sie die gewünschten Filter wieder her und wählen Sie erneut ein Artefakt, um seine Details zu prüfen. Entscheiden Sie anhand des erfassten Pfads und des vorgelagerten Ablaufs, was Aufmerksamkeit braucht.",
+    "Klicken Sie nach Projektänderungen auf Redraw, um das Register neu einzulesen. Öffnen Sie Run History für gespeicherte Einstellungen und Logs oder Data Manager für Bereinigung und Archivierung."
+  ]
+}

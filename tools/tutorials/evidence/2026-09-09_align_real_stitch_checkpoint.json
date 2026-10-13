@@ -1,0 +1,22 @@
+{
+  "lesson": "32_align_stitch",
+  "status": "Real current-app stitch verified; refreshed narration not yet frozen",
+  "app_commit": "5b55a380be189075f54c85b662c37a4418a32a8a",
+  "capture": "refresh_2026-09-09/captures/align_actual",
+  "source_sha256": "89671005f62f0b7b9cf73b644b887b28bdf427404c9e47cfe40c224f9cfa1ded",
+  "data_disclosure": "Nine preserved exact 800x800x4 crops from ONE acquired field emulate a 3x3 acquisition; not independent fields or OPS validation",
+  "pixel_source_and_all_nine_tile_hashes_unchanged": true,
+  "actual_gui_plan_registered": 9,
+  "actual_gui_plan_nominal_fallback": 0,
+  "solved_origins_match_known_source_within_pixels": 0.01,
+  "actual_gui_output_shape": [2000, 2000, 4],
+  "actual_gui_output_dtype": "uint16",
+  "all_pixels_all_channels_maximum_difference_from_source": 0,
+  "all_nine_coordinate_source_paths_identities_positions_and_stack_paths_checked": true,
+  "peak_band_buffer_bytes": 67088000,
+  "band_rows": 1198,
+  "buffer_is_not_total_process_ram": true,
+  "small_metadata_tests": {"passed": 10, "identity_guard_mutant_failed": 4, "restored_passed": 10},
+  "published": false,
+  "whole_lesson_complete": false
+}

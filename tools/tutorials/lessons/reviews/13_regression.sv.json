@@ -1,0 +1,38 @@
+{
+  "lesson": "13_regression",
+  "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Regression: från parade tabeller till resultat",
+  "description": "Para ihop fenotyppoäng med guideräkningar, välj en inferensmetod, kör exemplet och utforska resultat per guide och per gen.",
+  "objectives": [
+    "Läsa in parade poäng- och räkningstabeller och välja en utdatamapp.",
+    "Ställa in inferensmetod, rapportnivå och analysenhet.",
+    "Köra exemplet och granska resultaten tillsammans med tillhörande diagnostik."
+  ],
+  "prerequisite": "Öppna Regression och välj Load test data för att få fyra parade poäng- och räkningstabeller. Använd en ny utdatamapp. En mätdatabas är valfri för den här analysen av poäng och räkningar; vyer på objektnivå kräver motsvarande mätdata och bilder.",
+  "scenes": [
+    "Från Home öppnar du Regression. Modulen relaterar fenotyppoäng till guidernas förekomst. Börja med en poängtabell och en räkningstabell per platta och välj sedan hur samband ska testas och rapporteras.",
+    "I Input Tables klickar du på Load test data och väntar tills exemplet har lästs in. Det innehåller fyra poängtabeller och fyra räkningstabeller, parade per platta.",
+    "Granska varje parad rad och kontrollera plattans namn, poängfilen och räkningsfilen. Lämna den valfria kolumnen för mätdatabas tom i det här exemplet. Välj en ny utdatamapp för analysen.",
+    "Byt till All settings och använd sökrutan för att hitta Inference. Välj nonparametric för det här exemplet med guidepermutation. Använd en parametrisk metod när din fråga och din design kräver att flera prediktorer anpassas tillsammans.",
+    "Level väljer vilka resultat som rapporteras. Välj both för att få resultat både per guide och per gen. Håll de här testfamiljerna åtskilda när du granskar justerad signifikans.",
+    "Välj well som analysenhet i det här exemplet. Granska svarskolumnen, transformationerna, kontrollerna och de uteslutna brunnarna. Anpassa inställningarna till designen av din egen screen innan du kör nya data.",
+    "Minsta guidestöd styr i hur många brunnar en guide måste finnas innan den testas. Ställ in det på 2 för att följa det här lilla exemplet. Välj ett lämpligt stödkrav för ditt experiment.",
+    "Ställ in 199 permutationer för en snabb första körning. Fler permutationer ger finare upplösning av det empiriska p-värdet men tar längre tid. Välj ett större antal när din slutliga analys kräver det.",
+    "Ställ permutationsfröet på 0 för att upprepa samma randomisering. Behåll exemplets plattblock och stördtermerna för rad och kolumn. För egna data väljer du block som tar hänsyn till vilka observationer som kan bytas ut enligt försöksdesignen.",
+    "Välj none i Annotation source för att köra exemplet utan uppslag av genannoteringar. För en annan screen väljer du annoteringar som passar dess organism och identifierarsystem.",
+    "Rensa sökningen, kontrollera de parade indata och utdatamappen och klicka sedan på Run. Följ konsolen medan modulen passar ihop tabellerna, filtrerar guider och beräknar resultaten. Diagnostikfigurerna skapas tillsammans med analysen.",
+    "När körningen är klar öppnar du Runs och väljer den sparade analysen. Bekräfta mappen och inställningarna innan du jämför den med en annan körning. Kör analysen igen efter att ha ändrat inställningarna om du vill ha nya resultat.",
+    "Öppna Results och växla mellan guide- och genresultat med Level. Granska resultattabellen och de interaktiva vyerna. De sparade filerna results_grna.csv och results_gene.csv innehåller motsvarande tabeller för vidare analys.",
+    "Öppna vyn för p-värden och verktyget Diagnostics. Granska resultatfördelningen tillsammans med permutationsupplösningen, testfamiljen och designvarningarna. Åtgärda viktiga diagnostiska problem innan du tolkar samband.",
+    "Använd verktygsfältet för att öppna Volcano Explorer, Hit List eller Investigate Hit som nästa steg. Deras handledningar visar hur du granskar valda resultat. Håll ihop indatatabeller, sparade inställningar, resultatfiler och diagnostikrapporter när du delar analysen."
+  ]
+}

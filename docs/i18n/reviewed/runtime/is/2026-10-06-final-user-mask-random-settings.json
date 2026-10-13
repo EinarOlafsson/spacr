@@ -1,0 +1,90 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Clear mask",
+      "source": "Clear mask",
+      "source_sha256": "8e7db4bb2caa311cef6863013656032331bae6875dc30de10b3e6e191479596a",
+      "table": "ui",
+      "translation": "Hreinsa grímu"
+    },
+    {
+      "key": "Click to add an intensity region. Hold Ctrl and click to remove it.",
+      "source": "Click to add an intensity region. Hold Ctrl and click to remove it.",
+      "source_sha256": "f2feae522817a2d77d94b655ac48aa18fd90acd660a0f68feb4ffad4dc371780",
+      "table": "ui",
+      "translation": "Smelltu til að bæta við styrkleikasvæði. Haltu Ctrl inni og smelltu til að fjarlægja það."
+    },
+    {
+      "key": "Divide / Merge",
+      "source": "Divide / Merge",
+      "source_sha256": "bd79a0d0585d36092131d7a63e1c46633ccfcbd73aca020c2a888456090cef7b",
+      "table": "ui",
+      "translation": "Skipta / Sameina"
+    },
+    {
+      "key": "Drag a line across objects to merge them",
+      "source": "Drag a line across objects to merge them",
+      "source_sha256": "0cbe674569ff2ee31c80465dbfa9996972826374efc8567f55961b99d45a70c2",
+      "table": "ui",
+      "translation": "Dragðu línu yfir hluti til að sameina þá"
+    },
+    {
+      "key": "Left-drag to divide an object. Right-drag across objects to merge them.",
+      "source": "Left-drag to divide an object. Right-drag across objects to merge them.",
+      "source_sha256": "3c0905dea4f4a9a07c46e95d2c9d81e015e238705f8676b7673ef728672c6fab",
+      "table": "ui",
+      "translation": "Dragðu með vinstri músarhnappi til að skipta hlut. Dragðu yfir hluti með hægri músarhnappi til að sameina þá."
+    },
+    {
+      "key": "Merged objects retain their shared IDs. Undo the merge before relabeling objects.",
+      "source": "Merged objects retain their shared IDs. Undo the merge before relabeling objects.",
+      "source_sha256": "d657e1962649adbc6dc9904cd9636853d232eff4c20f319d258b86e980f9f4cc",
+      "table": "ui",
+      "translation": "Sameinaðir hlutir halda sameiginlegum auðkennum sínum. Afturkallaðu sameininguna áður en hlutirnir eru endurnúmeraðir."
+    },
+    {
+      "key": "Random colours",
+      "source": "Random colours",
+      "source_sha256": "3d7fae87115162ea80c1a9109f6c65d2d43e55ef4b7138781355c10c13e53ff8",
+      "table": "ui",
+      "translation": "Handahófskenndir litir"
+    },
+    {
+      "key": "Remove all {count} object(s) from this field? The field itself is untouched, and Undo brings the objects back.",
+      "source": "Remove all {count} object(s) from this field? The field itself is untouched, and Undo brings the objects back.",
+      "source_sha256": "e5af2ccc7390db2a536213f398af40e873978c77508d87c066d2235619021c5f",
+      "table": "ui",
+      "translation": "Fjarlægja alla {count} hluti úr þessu myndsviði? Myndin sjálf helst óbreytt og Afturkalla færir hlutina aftur."
+    },
+    {
+      "key": "Remove the intensity region",
+      "source": "Remove the intensity region",
+      "source_sha256": "dbd457f237256ecf66a76c49fb71d130a670024288ca1208affc57de3758bddb",
+      "table": "ui",
+      "translation": "Fjarlægja styrkleikasvæðið"
+    },
+    {
+      "key": "Saved to: {path}",
+      "source": "Saved to: {path}",
+      "source_sha256": "6759cf1b9ff7acc02d88358add7480246059e4b2ead9464d94ef78297b96cebc",
+      "table": "ui",
+      "translation": "Vistað í: {path}"
+    },
+    {
+      "key": "Stable varied colours for individual elements.",
+      "source": "Stable varied colours for individual elements.",
+      "source_sha256": "f513bb14af0c1d4abc99bdfd1a91314f701e289cd7edfffeb7da3d8eca8ce71a",
+      "table": "ui",
+      "translation": "Stöðugir og fjölbreyttir litir fyrir einstaka þætti."
+    },
+    {
+      "key": "Wand",
+      "source": "Wand",
+      "source_sha256": "3e7962d21cc549dd9538eeb86fdc93b032f350a92ab7bb9dc0639e73b900db4b",
+      "table": "ui",
+      "translation": "Galdrastafur"
+    }
+  ],
+  "schema": 1
+}

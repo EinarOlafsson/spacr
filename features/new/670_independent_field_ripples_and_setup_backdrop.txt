@@ -1,0 +1,67 @@
+================================================================================
+INDEPENDENT FIELD RIPPLES AND FIELD SETUP BACKDROP
+================================================================================
+
+Status:    in progress — software scope done; native/user visual acceptance open
+Requested: 2026-10-08
+Owner:     Home/root and delegated CPU UI lanes
+
+WHAT THE STATE IS
+
+Mouse gravity currently suppresses click ripples. Setup hardcodes Aurora and live preference updates can replace its backdrop.
+
+WHAT TO DO
+
+Provide a persisted Field ripples switch independent of mouse gravity. Enabled clicks create field waves even at zero gravity; the switch gates click, container open/close, resize/move, popup and window-edge waves. Maximize/fullscreen emits from the top; left/right/bottom snapping emits from the corresponding side. Disabling removes active waves and does not replay discarded events when reenabled. Preserve mouse gravity and field drag physics. Setup uses spaCR field with the spaCR palette and remains field through ordinary and Spaceout preference updates.
+
+HOW TO KNOW IT WORKED
+
+Actual Qt clicks at zero gravity visibly change the rendered field. Toggle/cancel/save/rebuild tests check persistence and live application; bounded queues and off/on tests prohibit stale waves. Existing container/window tests exercise both open and close and state-change origins. Actual Setup engine and palette stay field/spacr after live preference changes.
+
+2026-10-08 — Registered the explicit user request. Implementation is in isolated worktrees; registration is not a completion claim. Workstation retains API/docs/translations/tutorials and GPU ownership.
+
+2026-10-08 13:10 EDT — Private integrated source e31e19543a passes the final 313-case capped CPU/Qt interaction cohort. Source patch and exact bindings are transferred in data/666_671_ui_source_handoff_2026-10-08 for workstation normal catalog/inventory refresh. App publication and current-source CI are pending; this is not a 100% or native compositor acceptance claim. N674 is a separate follow-up, not included in this checkpoint.
+
+2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-08 22:56 EDT — Container-specific final line waves and background-only circular clicks implemented. Intensity0–200% default100 saves/reloads/cancels and survives theme changes independently of gravity. Actual header click/pixel/geometry/settings cohort84PASS plus17field-grabPASS. Full runtime source maps unchanged. Native/user visual acceptance and hosted current-source acceptance remain pending.
+
+2026-10-10 — N684 turns the Field ripples switch into the existing
+intensity slider (0 = off, saved "off" migrated once), adds a Click ripples
+switch, and drops a click's own ripple when the same click produced a
+container, edge or popup ripple. Gravity bursts from clicks keep their
+pull without a second wave. Native/user visual acceptance remains open.
+
+2026-10-10 — Maintainer feedback: ripples were a void at a window's centre
+and too strong. Ripples are now a low-amplitude refraction with a still
+source, eased in and out, and no dark centre or hard ring (details and
+measurements in N684's 2026-10-10 ripple note). Category open/close sends a
+vertical column wave only; Preferences ripples only on open and on Apply,
+Cancel and Save. The workstation must re-run GPU parity (command in N684);
+Mesa llvmpipe pairs are exact. Native/user visual acceptance remains open.
+
+2026-10-12 — Maintainer test: a shape appeared in the middle of where a
+closed window had been, and Field ripples looked the same at 100 and 200 %.
+Cause 1: a closed dialog's wave starts on its four edges (popup close and
+Preferences Apply/Cancel/Save) and also ran inward; the waves from opposite
+edges met on the outline's centre lines as a shrinking box and collapsed on
+the old centre (offscreen 960x600, 0.4x0.4 outline: mean change in the
+centre 0.49/0.69/0.25 grey at 0.3/0.6/1.0 s, more than at the edges).
+An outline's wave now runs outward only (_outside_outline in
+spacr/qt/widgets/ambient.py); the centre change is 0 at every age, also for
+a real QDialog closed over the field. The backdrop's own window (an outline
+that is the whole canvas, e.g. move/resize) keeps its inward wave, faded out
+halfway to the centre; one window edge (snapping) is unchanged.
+Cause 2: section-fold rings clamped their gathering (min 0.94) and their
+glow saturated at 100 %, so 150 % and 200 % gave identical frames (29 ->
+32 px, glow 72.9 -> 73.3 %). Other waves were linear but tiny (1.5 px and
++/-7.7 % dot brightness at 100 %). Now: ripple amplitude 0.0095 at
+wavenumber 30 (slope 0.29, dots never cross even at 200 %), glow 0.15,
+brightness floor 0.25 instead of 0.48 so troughs scale; fold rings widen
+with sqrt(intensity) above 100 % and their glow scales without a clamp.
+Click ripple, 960x600: 100 % 2.9 px / 16.6 %, 200 % 5.8 px / 33.1 %;
+fold rings 29 -> 55 px. The slider value was already reaching the shading
+thread's engine (same object, set under the engine lock); a test now pins
+that. Tests: tests/qt/test_n670_close_ripples_and_intensity_20261012.py.
+The workstation should re-run GPU parity (N684 command). Native/user visual
+acceptance remains open.

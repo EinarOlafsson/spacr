@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Image Scatter: inspecionar medições e seus recortes",
+  "description": "Plote duas colunas de medições, pré-visualize recortes de objetos e envie um objeto selecionado para o Annotate.",
+  "objectives": [
+    "Carregar medições e escolher os eixos.",
+    "Inspecionar o recorte por trás de um ponto.",
+    "Enviar um objeto selecionado para o Annotate."
+  ],
+  "prerequisite": "Use um banco de dados de medições do spaCR com os recortes de objetos e os arquivos de formato de recorte correspondentes. O exemplo para download do Annotate fornece essas entradas.",
+  "scenes": [
+    "Abra o Image UMAP e depois o Image Scatter para plotar duas medições existentes. Pratique com o banco de dados do exemplo do Annotate e os recortes de células correspondentes.",
+    "Clique em Browse e abra measurements.db. Mantenha a pasta data do projeto e os arquivos de formato de recorte junto com o banco de dados para que as miniaturas sejam encontradas.",
+    "Selecione cell no seletor de tabelas e clique em Plot. Ao trocar para outra tabela, clique em Plot de novo para carregar as linhas dela.",
+    "Defina x como a área celular e y como a intensidade média do canal um da célula. A escolha dos eixos redesenha na hora as linhas carregadas.",
+    "Passe o ponteiro sobre um ponto para ver o recorte salvo e a identidade completa do objeto. Use a imagem para entender a medição por trás do ponto.",
+    "Afaste o ponteiro para limpar a pré-visualização temporária e depois passe sobre outro ponto para inspecioná-lo.",
+    "Troque as medições de x e y para explorar a relação por outro ângulo. Escolha características que façam sentido e confira as unidades.",
+    "Selecione outra medição, como a característica de homogeneidade. Linhas sem coordenadas ficam fora do gráfico, então a contagem plotada pode ser diferente da contagem da tabela carregada.",
+    "Uma coluna constante, como a dimensão da medição neste exemplo, coloca os pontos numa linha. Volte para uma característica com variação útil para inspecionar objetos.",
+    "Para inspecionar um recorte selecionado no Annotate, abra antes o Annotate e carregue o mesmo projeto. Depois volte à visualização existente do Image Scatter.",
+    "Clique no próprio ponto para enviar a identidade do objeto para o Annotate e depois mude para essa página. Passar o ponteiro só pré-visualiza o recorte.",
+    "Inspecione o objeto selecionado no Annotate antes de atribuir um rótulo. Use o Database Browser para exportar tabelas, ou o PCA para análise de componentes."
+  ]
+}

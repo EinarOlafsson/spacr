@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "item": 559,
+  "scope": "Static consumer/API-link and settings-flow documentation correction only",
+  "base_commit": "677ec1cabf8fefbb5640f98295bb2659700b34d1",
+  "worktree": "/mnt/wd4tb/scratch/spacr-completion/559-docs-consumers",
+  "patch": "559-defaults-projection-consumers.patch",
+  "patch_sha256": "0c47a2ae46402462896d028d3894344e1adb8f15674d1b131ce8425550d61778",
+  "patch_files": [
+    "docs/setting_consumers.json",
+    "docs/source/_generated/settings_flow.rst",
+    "spacr/qt/screens/setting_api_targets.py",
+    "spacr/qt/screens/settings_flow_index.py",
+    "tools/build_setting_consumer_map.py",
+    "tools/settings_flow.py",
+    "tests/test_settings_defaults_projection_analysis.py"
+  ],
+  "source_bindings": [
+    {
+      "sha256": "4f9897e374bca571e8024cafef78ee8c2aeb296904e12cb7f5742af1fe1897d9",
+      "path": "tools/build_setting_consumer_map.py"
+    },
+    {
+      "sha256": "1343a21e306cfe612c0ba855d9cceb96f91289f9301b20ddbbdcb27792727a52",
+      "path": "tools/settings_flow.py"
+    },
+    {
+      "sha256": "3409d802037c2c3b71f737a395a833cd650843e88a9e68397578e9b9297a2672",
+      "path": "tests/test_settings_defaults_projection_analysis.py"
+    },
+    {
+      "sha256": "9a2dba7dd44574a286bfb58daef9a06b9f0c1b5fc1e9936f9fac7fa803b930e6",
+      "path": "tests/test_the_settings_flow_analyser.py"
+    },
+    {
+      "sha256": "acec07f2eb45de690734baf1b8ff83447c4cb27d28da4f48dd08117be236135d",
+      "path": "tests/test_the_settings_flow_artefacts_are_current.py"
+    },
+    {
+      "sha256": "f355533746d84f3bf3116d5ff52e0e44282e8d129ca67e4b0f418a812ab03c6d",
+      "path": "spacr/image_quality.py"
+    },
+    {
+      "sha256": "367253ce544ad5c7d105549630f2312eb5c1ba8273af3c246fc2537d211b3774",
+      "path": "spacr/settings.py"
+    },
+    {
+      "sha256": "562e554a3090f881a173537581a748a47410eae39beb2a516cbc982c4b64ee86",
+      "path": "docs/setting_consumers.json"
+    },
+    {
+      "sha256": "7c1054ff13453cbaf10196cf5e155a201893199eac5a473d6d1e06534201e56b",
+      "path": "spacr/qt/screens/setting_api_targets.py"
+    },
+    {
+      "sha256": "64502ec95e2627ec723fd5b948738336971a16db39c9793dcfd95cf57613bf4e",
+      "path": "docs/settings_flow.json"
+    },
+    {
+      "sha256": "098e476e1718286fd0fc2294630f5465e6664ae8ce05cfb6d48cf0a28ece775f",
+      "path": "docs/source/_generated/settings_flow.rst"
+    },
+    {
+      "sha256": "3754a5eb3bfe4ea2928dd935ff8884cb90c2f50f1d0d5dfce48a6f8850963fe9",
+      "path": "spacr/qt/screens/settings_flow_index.py"
+    }
+  ],
+  "acceptance_artifact_hashes": "ef24f321e89e5a0be7b7a4f679ea849f3856b7c33045ad1270e93855f8ff0537  /mnt/wd4tb/scratch/spacr-completion/559-docs-consumers-validation/final/analyser-junit.xml\nc9136002a2c0638fb526567a3b4906fdb5b9728792f2149842820b8b0ca13384  /mnt/wd4tb/scratch/spacr-completion/559-docs-consumers-validation/final-artifact/artifact-junit.xml\n0c47a2ae46402462896d028d3894344e1adb8f15674d1b131ce8425550d61778  /mnt/wd4tb/scratch/spacr-completion/559-docs-consumers-validation/559-defaults-projection-consumers.patch\n",
+  "cap_proof": "cgroup=/user.slice/user-1000.slice/user@1000.service/app.slice/run-r3edabcec4db240ceb374420c66cbb6a7.scope\nmemory.max=4294967296\nmemory.swap.max=0\n",
+  "tests": {
+    "passed": 42,
+    "analyser": {
+      "passed": 38,
+      "seconds": 138.27,
+      "log": "final/analyser.log",
+      "junit": "final/analyser-junit.xml",
+      "files": [
+        "tests/test_settings_defaults_projection_analysis.py",
+        "tests/test_the_settings_flow_analyser.py"
+      ]
+    },
+    "freshness": {
+      "passed": 4,
+      "seconds": 69.15,
+      "exit": 0,
+      "log": "final-artifact/artifact.log",
+      "junit": "final-artifact/artifact-junit.xml",
+      "file": "tests/test_the_settings_flow_artefacts_are_current.py"
+    }
+  },
+  "interrupted_batch": {
+    "exit": 124,
+    "directory": "final/",
+    "reason": "300-second aggregate watchdog expired during artifact-test setup; completed analyzer proof and generator outputs retained; only unresolved freshness checks rerun"
+  },
+  "draft": {
+    "directory": "./",
+    "status": "First draft passed 42 checks but broadened unrelated alias analysis; superseded by narrowed final source"
+  },
+  "qc_targets": {
+    "image_qc_classifier": {
+      "exact": true,
+      "module": "spacr.image_quality",
+      "symbol": "quality_policy"
+    },
+    "image_qc_classifier_labels": {
+      "exact": true,
+      "module": "spacr.image_quality",
+      "symbol": "quality_policy"
+    },
+    "image_qc_classifier_model": {
+      "exact": true,
+      "module": "spacr.image_quality",
+      "symbol": "quality_policy"
+    },
+    "image_qc_classifier_threshold": {
+      "exact": true,
+      "module": "spacr.image_quality",
+      "symbol": "quality_policy"
+    }
+  },
+  "flow": {
+    "sections": 1282,
+    "settings_read": 1307,
+    "cross_references": 5851,
+    "indexed_new_qc_settings": 9,
+    "json": "docs/settings_flow.json",
+    "json_tracked": false
+  },
+  "checks": {
+    "source_bindings_unchanged": true,
+    "reverse_patch_apply_check": true,
+    "git_diff_check": true,
+    "analyser_fixtures_only": true
+  },
+  "limitations": [
+    "No native GUI or classifier-performance acceptance is claimed.",
+    "Item559 remains alpha; original public-QC pretraining/Annotate/precision-recall requirements remain unproven.",
+    "Runtime localization catalogs, public API docstrings and feature ledger were not edited.",
+    "AST inference retains its existing limits; no scientific modules are imported by either analyzer."
+  ]
+}

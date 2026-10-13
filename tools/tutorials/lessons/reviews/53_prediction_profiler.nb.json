@@ -1,0 +1,33 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Prediction Profiler: utforsk en tilpasset modell",
+  "description": "Last inn modellkoeffisienter, varier én inndata mens de andre holdes faste, og undersøk de predikerte responsene.",
+  "objectives": [
+    "Laste inn koeffisienter med riktig lenkefunksjon.",
+    "Sveipe én inndata og justere de faste verdiene.",
+    "Undersøke responskurver og følsomhet."
+  ],
+  "prerequisite": "Last ned det syntetiske koeffisienteksemplet, eller bruk koeffisienter fra en egnet tilpasset modell. Samkjør lenkefunksjonen og kodingen av inndata. Veien via koeffisientfil forutsetter inndataområder fra 0 til 1; separate marginale effekter erstatter ikke en felles tilpasset prediksjonsmodell.",
+  "scenes": [
+    "Åpne Regression og deretter Prediction Profiler for å utforske predikerte responser fra en tilpasset modell. Det lenkede eksemplet bruker syntetiske data.",
+    "Last ned og pakk ut eksemplet, og bruk deretter Browse for å gå til den syntetiske CSV-filen med OLS-koeffisienter. Ta med konstantleddet når du oppgir egne tilpassede koeffisienter.",
+    "Sett Link til funksjonen den tilpassede modellen bruker. Behold identity i dette eksemplet med vanlige minste kvadraters metode.",
+    "Kontroller områdeinformasjonen etter innlasting. Veien via koeffisientfil forutsetter at hver inndata går fra 0 til 1. Bekreft at dette passer den tiltenkte bruken før du tolker kurvene.",
+    "Velg Input A for sveipet. Flytt glidebryteren for det faste Input B til 1 og undersøk responskurven som oppstår.",
+    "Flytt B til 0 og sammenlign responsverdiene. Følg med på akseskalaen i tillegg til linjen, fordi plottet kan skaleres om.",
+    "Klikk på Reset held values for å sette glidebryterne tilbake til midtpunktet av de antatte områdene, 0,5 i dette eksemplet.",
+    "Velg Input B i den rangerte listen for å sveipe B mens A holdes fast. Rangeringen oppsummerer modellens følsomhet over de konfigurerte inndataområdene.",
+    "Endre Points for å velge hvor mange posisjoner langs kurven som beregnes. Elleve gir et grovere rutenett enn sekstien uten å endre den tilpassede modellen.",
+    "Juster de faste verdiene for å utforske flere scenarier, og tilbakestill dem når du er ferdig. Tolk kurvene som modellprediksjoner, og vurder faktiske eksperimentelle effekter med egnede data."
+  ]
+}

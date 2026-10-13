@@ -1,0 +1,183 @@
+source hashes {"ambient": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855", "app": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7", "preferences": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee"}
+source paths {"ambient": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/widgets/ambient.py", "app": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/app.py", "preferences": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/preferences.py"}
+source commit 1534cf84185c9877a872e7772773f3d7e561fbee
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.262: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.274: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.275: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.276: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:06.277: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+source /mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/widgets/ambient.py b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855
+qt.text.font.db: OpenType support missing for "Ubuntu Sans", script 11
+home 453 {"VmHWM": 414044, "VmRSS": 386196, "RssAnon": 263484, "RssFile": 90060}
+screen mask 1073 3 [(640, 480, False), (3840, 2114, True), (640, 480, False)]
+screen measure 1523 4 [(640, 480, False), (640, 480, False), (3840, 2114, True), (640, 480, False)]
+screen annotate 1677 5 [(640, 480, False), (640, 480, False), (3840, 2114, True), (640, 480, False), (3840, 2114, True)]
+qt.text.font.db: OpenType support missing for "Ubuntu Sans", script 11
+save start 0 200 0 random
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+save done 0 {"widgets": 2928, "ambient": 3, "workers": 2, "gravity": 0.0, "palette": "random", "cursor_poll": null, "engine_pointer": null, "engine_radius": null, "frame_size": [3840, 2104], "frame_format": 4, "non_opaque_frame_words": 0, "cursor_preconditions": {"animating": true, "visible": true, "interactive": false, "active_main": true, "hovered_main": true, "inside": true}, "cursor_global": [1919, 1084], "memory_kib": {"VmHWM": 965824, "VmRSS": 965824, "RssAnon": 782148, "RssFile": 151024}}
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+save start 1 100 65 spacr
+save done 1 {"widgets": 3898, "ambient": 3, "workers": 1, "gravity": 0.65, "palette": "spacr", "cursor_poll": null, "engine_pointer": null, "engine_radius": null, "frame_size": [3840, 2104], "frame_format": 4, "non_opaque_frame_words": 0, "cursor_preconditions": {"animating": true, "visible": true, "interactive": false, "active_main": true, "hovered_main": true, "inside": true}, "cursor_global": [1919, 1084], "memory_kib": {"VmHWM": 1116968, "VmRSS": 1116968, "RssAnon": 930444, "RssFile": 153872}}
+save start 2 200 0 random
+save done 2 {"widgets": 4913, "ambient": 3, "workers": 1, "gravity": 0.0, "palette": "random", "cursor_poll": null, "engine_pointer": null, "engine_radius": null, "frame_size": [3200, 1744], "frame_format": 4, "non_opaque_frame_words": 0, "cursor_preconditions": {"animating": true, "visible": true, "interactive": false, "active_main": true, "hovered_main": true, "inside": true}, "cursor_global": [1599, 904], "memory_kib": {"VmHWM": 1173352, "VmRSS": 1173352, "RssAnon": 986808, "RssFile": 153892}}
+after close {"widgets": 0, "ambient": 0, "workers": 0, "memory_kib": {"VmHWM": 1264156, "VmRSS": 1130688, "RssAnon": 976416, "RssFile": 154020}}
+gui gc {"collections": 11, "all_gui": true, "generations": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
+done
+source hashes after {"ambient": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855", "app": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7", "preferences": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee"}
+
+(python:2027816): Gdk-CRITICAL **: 20:31:27.578: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:27.579: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:27.579: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:27.579: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:2027816): Gdk-CRITICAL **: 20:31:27.579: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed

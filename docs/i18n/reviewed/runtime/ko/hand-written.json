@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "resume",
+      "source": "Continue an interrupted run from its last validated boundary. Mask revalidates existing mask and merged arrays; Measure accepts only fields complete in every owned table and clears partial rows before retrying; and Format Converter reopens each checkpointed TIFF. These validations reduce the risk of reusing partial output and require additional reads during resumption. Default False.",
+      "source_sha256": "246fa39ef533cbe0af01080ace766c97523daa51a5b6b9895717c34d19bd0bb0",
+      "table": "setting_tooltips",
+      "translation": "중단된 실행을 마지막으로 검증된 지점부터 이어서 진행합니다. Mask 모듈은 기존 마스크 배열과 병합된 배열을 다시 검증하고, Measure 모듈은 소유한 모든 테이블에서 완전한 필드만 받아들이며 재시도 전에 부분 행을 지웁니다. 그리고 Format Converter는 체크포인트가 기록된 각 TIFF를 다시 엽니다. 이러한 검증은 부분 출력을 재사용할 위험을 줄이지만, 재개하는 동안 추가 읽기가 필요합니다. 기본값 False."
+    }
+  ],
+  "schema": 1
+}

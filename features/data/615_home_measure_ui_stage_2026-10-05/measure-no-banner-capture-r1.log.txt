@@ -1,0 +1,22 @@
+alpha features off: /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-no-banner-current-r1/profile/.config/spacr/qt.conf
+no remembered session or drafts: /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-no-banner-current-r1/profile/.config/spacr/qt.conf
+qt.qpa.theme.dbus: Session DBus not running.
+qt.qpa.theme.dbus: Application will not react to setting changes.
+ Check your DBus installation.
+qt.qpa.theme.gnome: dbus connection failed. Last error:  QDBusError("org.freedesktop.DBus.Error.NoReply", "Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.")
+qt.qpa.theme.dbus: Session DBus not running.
+qt.qpa.theme.dbus: Application will not react to setting changes.
+ Check your DBus installation.
+qt.qpa.theme.gnome: dbus connection failed. Last error:  QDBusError("org.freedesktop.DBus.Error.NoReply", "Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.")
+captured measure/00_home
+captured measure/01_module
+captured measure/03_data_ready
+captured measure/09a_qc_popup
+captured measure/09b_image_preprocessing
+captured measure/04_preview_normalization_setup
+captured measure/05_live_all_channels
+captured measure/06_live_channel_zero
+captured measure/07_live_second_field
+captured measure/07b_checked_images_menu
+captured measure/07c_checked_two_fields
+captured measure/08_saved_normalization_restored

@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "4b1a0803f59faa8bfc8c7aed1d08917b92bee556",
+  "scope": "Targeted statement and branch coverage; not a whole-suite verdict.",
+  "source_path": "spacr/qt/screens/image_import.py",
+  "source_sha256": "23861bed1a20ed5454349a3793b3debd3260ffb5d4fd268c33c25931e693b3de",
+  "coverage_json_sha256": "c33d0240c4ebfb0d73b3dc38c9cd9969a4d74562b4639e13f6050d99f5844888",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 547,
+    "num_statements": 569,
+    "percent_covered": 94.5985401459854,
+    "percent_covered_display": "94.60",
+    "missing_lines": 22,
+    "excluded_lines": 0,
+    "percent_statements_covered": 96.13356766256591,
+    "percent_statements_covered_display": "96.13",
+    "num_branches": 116,
+    "num_partial_branches": 13,
+    "covered_branches": 101,
+    "missing_branches": 15,
+    "percent_branches_covered": 87.06896551724138,
+    "percent_branches_covered_display": "87.07"
+  },
+  "missing_lines": [
+    200,
+    204,
+    205,
+    221,
+    316,
+    317,
+    318,
+    319,
+    329,
+    333,
+    334,
+    348,
+    371,
+    823,
+    874,
+    886,
+    1023,
+    1027,
+    1028,
+    1036,
+    1037,
+    1038
+  ],
+  "missing_branches": [
+    [
+      199,
+      200
+    ],
+    [
+      203,
+      204
+    ],
+    [
+      219,
+      221
+    ],
+    [
+      317,
+      318
+    ],
+    [
+      317,
+      319
+    ],
+    [
+      328,
+      329
+    ],
+    [
+      332,
+      333
+    ],
+    [
+      347,
+      348
+    ],
+    [
+      369,
+      371
+    ],
+    [
+      822,
+      823
+    ],
+    [
+      873,
+      874
+    ],
+    [
+      1022,
+      1023
+    ],
+    [
+      1035,
+      1036
+    ],
+    [
+      1186,
+      1185
+    ],
+    [
+      1192,
+      -1189
+    ]
+  ],
+  "validation": {
+    "passed": 49,
+    "skipped": 0,
+    "seconds": 39.8,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/qt/test_the_import_images_screen_shows_before_it_writes.py"
+    ],
+    "log_sha256": "63b77cedc1f8da9d1dcc222a308315b03b4ec884cdc1abc7f29e33634959487c",
+    "test_sha256": {
+      "tests/qt/test_the_import_images_screen_shows_before_it_writes.py": "4f8ccbf788485f7cf8ea15d909b690606ce57b7505dc66b7deed5492495f110b"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Uses the existing synthetic microscope acquisition corpus and temporary files. Dialog choices are simulated; real scan/import/plan paths remain exercised."
+  ]
+}

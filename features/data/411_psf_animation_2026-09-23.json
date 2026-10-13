@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "scope": "Gaussian-convolution width illustration, not deconvolution or microscope calibration.",
+  "animation": {
+    "category": "Point spread function",
+    "file": "gifs/psf_fwhm_um.gif",
+    "params": {
+      "description": "White: fixed input. Teal: convolved output. Blue: Gaussian kernel FWHM. Increasing kernel width spreads the signal while preserving its integrated intensity.",
+      "operation": "convolve",
+      "source": "gaussian"
+    },
+    "scene": "psf",
+    "settings": [
+      "psf_fwhm_um"
+    ],
+    "slug": "psf_fwhm_um",
+    "title": "PSF — Gaussian convolution width",
+    "validation": {
+      "bytes": 73472,
+      "frames": 18,
+      "sha256": "545a4ac71309b71d34658519129dcdaa85b400ce8a003588c394f8078069a7e1",
+      "unique_frames": 17
+    }
+  },
+  "existing_assets_preserved": 86,
+  "focused_tests_passed": 40,
+  "contact_sheet_visually_reviewed": true,
+  "quantitative_invariants": [
+    "fixed source profile",
+    "nonnegative samples",
+    "unit integrated intensity",
+    "fixed centroid",
+    "larger width increases variance and lowers peak"
+  ]
+}

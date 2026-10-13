@@ -1,0 +1,127 @@
+{
+  "id": "42_curate",
+  "number": 42,
+  "slug": "curate",
+  "title": "Curate: edit masks and tracks",
+  "series": 5,
+  "app_key": "curate",
+  "host_app_key": "make_masks",
+  "section": "Make Masks",
+  "example_files": [
+    "Curate_SYNTHETIC_practice.zip"
+  ],
+  "description": "Practise brush edits, track splitting and joining, and save the corrected files.",
+  "objectives": [
+    "Edit a label mask with the brush and undo controls.",
+    "Split, join and save tracks.",
+    "Preserve source files and curation history."
+  ],
+  "prerequisite": "Download the synthetic practice archive and work on copies. Keep separate backups of masks and their .curation.json sidecars before reopening: saving a reopened mask currently replaces its earlier edit log.",
+  "scenes": [
+    {
+      "visual": "02_actual_curate_page",
+      "narration": "Open Make Masks, then Curate to edit label masks and tracks. Download the synthetic practice example below and keep an untouched copy.",
+      "related_lessons": [
+        "14_make_masks",
+        "17_timelapse"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_original_sixteen_label_mask",
+      "narration": "Browse to the example’s integer-label TIFF. Each object has its own label, with zero reserved for background. Use the TIFF example for this walkthrough.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_practice_disk_not_a_real_object",
+      "narration": "Set Brush radius to eight and click New to select a new label. Click an empty part of the practice image to paint a small region.",
+      "focus": [
+        355,
+        470,
+        3450,
+        660
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_undo_restores_every_original_pixel",
+      "narration": "Click Undo stroke to remove the last brush edit. Paint again and inspect the result before saving.",
+      "focus": [
+        3380,
+        480,
+        425,
+        710
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_saved_mask_and_ledger",
+      "narration": "Click Save mask to write the working TIFF and its curation sidecar. Before reopening, preserve both files in a new backup folder; the download includes a checkpoint script for this step.",
+      "focus": [
+        3380,
+        480,
+        425,
+        710
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_second_session_saved_history",
+      "narration": "Keep each session’s backup and edit notes. Reopening a mask starts a new in-memory log, and another save replaces its sidecar with that session’s history.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_overlapping_tracks_cannot_join",
+      "narration": "Browse to the tracks CSV and select tracks to review. Join accepts tracks with non-overlapping frame ranges; an overlap produces a message to resolve first.",
+      "focus": [
+        3380,
+        480,
+        425,
+        1250
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_split_tail_starts_at_frame_four",
+      "narration": "Select track two, set Split at frame to four, and click Split. The later frames move to a new track while the earlier frames retain the original identifier.",
+      "focus": [
+        3380,
+        480,
+        425,
+        1250
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_saved_tracks_and_history",
+      "narration": "Select the two non-overlapping halves and click Join to combine them. Click Save tracks to write the CSV and its separate curation sidecar.",
+      "focus": [
+        3380,
+        480,
+        425,
+        1250
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_unsaved_delete_removes_eight_rows",
+      "narration": "Use Delete only for tracks you intend to remove. To discard an unsaved change, reopen the last saved CSV.",
+      "focus": [
+        3380,
+        480,
+        425,
+        1250
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_saved_tracks_and_two_actions_return",
+      "narration": "Inspect the reopened tracks and saved history. Keep originals and reasons for edits, and rerun any downstream analysis affected by corrected masks or trajectories.",
+      "related_lessons": [
+        "06_api",
+        "17_timelapse"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

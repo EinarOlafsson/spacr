@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "regression_panel_manifest",
+      "source": "Publication panels built after the regression CSVs are written. None skips them. Supply a mapping, or a path to JSON/YAML, declaring each panel's result source, phenotype, gene/gRNA level and plot kind; the packages land under publication_panels/. Structured rather than a one-line field, so it is set from a script or a saved settings file rather than in the GUI. Default None.",
+      "source_sha256": "a56fd9034478bbde3fbb64babff621b7916c98e4a6146d4e3573293fcb014bb3",
+      "table": "setting_tooltips",
+      "translation": "회귀 CSV 파일이 기록된 뒤에 만들어지는 출판용 패널입니다. None 값이면 건너뜁니다. 각 패널의 결과 출처, 표현형, 유전자/gRNA 수준, 그림 종류를 선언하는 매핑이나 JSON/YAML 파일 경로를 지정하십시오. 패키지는 publication_panels/ 아래에 놓입니다. 한 줄짜리 필드가 아니라 구조화된 항목이므로 GUI 화면이 아니라 스크립트나 저장된 설정 파일에서 지정합니다. 기본값 None."
+    }
+  ],
+  "schema": 1
+}

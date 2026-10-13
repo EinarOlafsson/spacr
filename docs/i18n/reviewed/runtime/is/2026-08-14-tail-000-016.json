@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anisotropy",
+      "source_sha256": "d2edabd04ac000b3b16eae6ccf139ee927e07929b0c8d3ae383af0b86e878e61",
+      "source": "Ratio of z step to xy pixel size (dz / dxy), used by volumetric mode to represent inter-plane distance. A value of 1.0 on a confocal stack whose z step is 3-10 times the xy pixel size can fuse objects along z. Leave this None and set voxel_size_z_um / voxel_size_xy_um to derive it; if neither is available, volumetric mode raises an error rather than assuming 1.0. Measure also uses it for 3-D region properties and distance transforms. Default None.",
+      "translation": "Hlutfall z-skrefs og xy-pixlastærðar (dz / dxy), notað í rúmmálsham til að lýsa fjarlægð milli myndlaga. Gildið 1.0 fyrir confocal-stafla þar sem z-skrefið er 3–10 sinnum xy-pixlastærðin getur sameinað hluti eftir z-ásnum. Hafið þetta None og stillið voxel_size_z_um / voxel_size_xy_um til að leiða hlutfallið út; ef hvorugt er tiltækt veldur rúmmálshamur villu í stað þess að gera ráð fyrir 1.0. Measure notar hlutfallið einnig fyrir 3-D svæðiseiginleika og fjarlægðarvörpun. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_plate_metadata",
+      "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
+      "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
+      "translation": "Brunnar sem hver færsla í cell_types nær yfir, með einum innri lista fyrir hverja frumugerð í sömu röð, til dæmis [['c2','c3'],['c4']]. Sérhvert auðkenni verður að byrja á 'c' fyrir dálk eða 'r' fyrir röð; ógildum auðkennum er sleppt án undantekningar og þeir brunnar fá ekkert host_cells-merki. Þar sem 'condition' sameinar þau merki sem eru til breytir innsláttarvilla samanburðinum án þess að valda villu. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_types",
+      "source_sha256": "0e492a9791016485f993f749dd1833acb2942798fa299b6d9606b11ebd302aaa",
+      "source": "Names of the host cell lines in the experiment, e.g. ['HeLa']. Each name is written into the host_cells column and folded into the combined condition label used for grouping and plotting; the list is positionally paired with cell_plate_metadata, which says which wells hold each one. Default ['HeLa'].",
+      "translation": "Heiti hýsilfrumulína í tilrauninni, til dæmis ['HeLa']. Hvert heiti er skrifað í host_cells dálkinn og tekið inn í sameinaða condition merkið sem notað er við flokkun og teiknun. Listinn er paraður eftir röð við cell_plate_metadata, sem segir hvaða sýnisstöður innihalda hverja frumulínu. Sjálfgefið ['HeLa']."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "class_folder_names",
+      "source_sha256": "87e1fecfc9c201ba193d606e8be7be04efde3c7be62d33212ee48adfbe91ab1d",
+      "source": "Ordered training folder names. Each must exactly match a subfolder under src/train and src/test; its position becomes the integer label, and the list length sets the classifier-head width. Training raises FileNotFoundError with missing and available folders when a name is absent. Generate Training Dataset replaces this list with the folders it wrote. This setting identifies crop locations; 'classes' defines their semantic labels. Default ['nc','pc'].",
+      "translation": "Röðuð heiti þjálfunarmappa. Hvert heiti verður að samsvara nákvæmlega undirmöppu undir src/train og src/test; staða þess verður heiltölumerkið og lengd listans ákvarðar breidd flokkunarhaussins. Ef heiti vantar veldur þjálfun FileNotFoundError sem sýnir möppur sem vantar og tiltækar möppur. Generate Training Dataset skiptir listanum út fyrir möppurnar sem það skrifaði. Þessi stilling tilgreinir staðsetningu myndskurða; 'classes' skilgreinir merkingar þeirra. Sjálfgefið ['nc','pc']."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "control_quantile",
+      "source_sha256": "d2e572aca8b49963d6102e5482cfcf899a2c7a92f40e25ba4670ef8ccd4c4296",
+      "source": "Quantile of the control wells' outside-stain distribution used as the threshold. A value of 0.99 classifies approximately one percent of genuinely unstained parasites as attached. Lowering it toward 0.95 reduces false invaded classifications while increasing false attached classifications; raising it has the opposite effect. Default 0.99.",
+      "translation": "Hundraðshlutamark dreifingar ytri litunar í viðmiðunarbrunnum sem notað er sem þröskuldur. Gildið 0,99 flokkar um eitt prósent raunverulega ólitaðra sníkjudýra sem föst. Lækkun í átt að 0,95 dregur úr röngum flokkunum sem innrás en eykur rangar flokkanir sem föst; hækkun hefur öfug áhrif. Sjálfgefið 0,99."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "outline_color",
+      "source_sha256": "00ba83dbff3bb32979bc172922d2f3396d0df220a9e4b3d8f96bea2b85665c3b",
+      "source": "Three-letter code choosing the RGB colours for cell, nucleus and pathogen outlines, in that order: 'rgb', 'bgr', 'gbr' or 'rbg'. The default 'gbr' draws cells green, nuclei blue and pathogens red. An unrecognised string falls back to 'rbg' without warning, so a typo changes your figure colours rather than raising. Change it when an outline clashes with a channel. Default 'gbr'.",
+      "translation": "Þriggja stafa kóði sem velur RGB-liti útlína frumu, kjarna og sýkils, í þeirri röð: 'rgb', 'bgr', 'gbr' eða 'rbg'. Sjálfgefna 'gbr' teiknar frumur grænar, kjarna bláa og sýkla rauða. Óþekktur strengur fellur aftur á 'rbg' án viðvörunar, svo innsláttarvilla breytir litum myndarinnar í stað þess að valda undantekningu. Breyttu gildinu þegar útlína rennur saman við myndrás. Sjálfgefið 'gbr'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "stitch_threshold",
+      "source_sha256": "ffd90b5571918bcc2daed4a69a95d2127fd7726a8edc45ed887d609fc15f776d",
+      "source": "Minimum overlap, as an intersection-over-union between 0 and 1, for a label in one plane to be treated as the same object as a label in the plane below when z_segmentation_mode is 'stitch'. Raising it splits objects that drift or change shape between planes into several shorter ones; lowering it fuses neighbouring objects that merely overlap in projection. Matching is one-to-one, so when two objects both overlap the same object below only the better match inherits its label and the other starts a new one. Ignored by the other two modes. Default 0.25.",
+      "translation": "Lágmarksskörun, gefin sem intersection-over-union milli 0 og 1, til að merki í einu myndlagi teljist sami hlutur og merki í myndlaginu fyrir neðan þegar z_segmentation_mode er 'stitch'. Hærra gildi skiptir hlutum sem færast eða breyta lögun milli myndlaga í nokkra styttri; lægra gildi sameinar nálæga hluti sem skarast aðeins í vörpun. Pörun er einn á móti einum, svo ef tveir hlutir skarast báðir við sama hlut fyrir neðan erfir aðeins betri samsvörunin merkið og hinn byrjar nýtt. Hinar tvær aðferðirnar hunsa gildið. Sjálfgefið 0.25."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "t_axis_order",
+      "source_sha256": "8b558a8bb15c625c8b4351f677db7c53a6636caafea5d603ec12c7d187e81562",
+      "source": "Which of the two leading axes is time and which is z: 'TZYX' for a stack per timepoint, 'ZTYX' for a time series per plane. Real microscopes write both and the array shape cannot distinguish them, so spaCR raises an error until the axis order is specified. An incorrect value does not raise an exception; it links objects at corresponding lateral positions in adjacent z planes and interprets those displacements as temporal motion, producing invalid velocity estimates. Verify the setting against the acquisition axis order. Default None.",
+      "translation": "Hvor tveggja fremstu ásanna er tími og hvor er z: 'TZYX' fyrir einn stafla á hvern tímapunkt, 'ZTYX' fyrir eina tímaröð á hvert myndlag. Raunverulegar smásjár skrifa bæði sniðin og lögun fylkisins getur ekki greint þau að, svo spaCR skilar villu þar til ásaröðin er tilgreind. Rangt gildi veldur ekki undantekningu; það tengir hluti á samsvarandi hliðarstöðum í aðliggjandi z-myndlögum og túlkar færslurnar sem hreyfingu í tíma, sem leiðir til ógildra hraðamælinga. Staðfestu stillinguna út frá ásaröð myndatökunnar. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "t_link_threshold",
+      "source_sha256": "ba27e696675216da8ac56b2d42e6e5d3cfcc78cc189aaee98f666978dc1be0e5",
+      "source": "Minimum intersection-over-union, between 0 and 1, required to assign an object at one timepoint to the same track at the next when t_track_backend is 'iou'. Increasing it can divide moving or growing objects into short tracks; decreasing it can join neighbouring objects whose volumes overlap. This parameter is separate from stitch_threshold because overlap distributions differ between consecutive z planes and consecutive timepoints. Matching is one-to-one. Default 0.25.",
+      "translation": "Lágmarks intersection-over-union milli 0 og 1 sem þarf til að tengja hlut á einum tímapunkti við sama feril á þeim næsta þegar t_track_backend er 'iou'. Hækkun gildisins getur skipt hlutum sem hreyfast eða vaxa í stutta ferla; lækkun þess getur tengt saman nálæga hluti með skarandi rúmmál. Þessi færibreyta er aðskilin frá stitch_threshold þar sem dreifing skörunar er ólík milli samliggjandi z-myndlaga og samliggjandi tímapunkta. Pörun er einn á móti einum. Sjálfgefið 0.25."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "voxel_size_z_um",
+      "source_sha256": "a4cab815c31149a39bf7fe83b66e775fbc5750507f569905be7f93ab94a829a9",
+      "source": "Spacing between consecutive z planes in micrometres, obtained from the acquisition metadata. Together with voxel_size_xy_um it determines anisotropy and converts object volumes from voxel counts into cubic micrometres. Changing it rescales every physical z quantity and the anisotropy used for segmentation; it has no effect on a 'project' run. Measure uses the pair to report 3-D morphology in physical units and records the units in measurement_units. Default None.",
+      "translation": "Bil milli samliggjandi z-myndlaga í míkrómetrum, fengið úr lýsigögnum myndatökunnar. Ásamt voxel_size_xy_um ákvarðar það anisotropy og umbreytir rúmmáli hluta úr voxel-fjölda í rúmmíkrómetra. Breyting endurkvarðar allar eðlisfræðilegar z-stærðir og anisotropy sem hlutunin notar; hún hefur engin áhrif á 'project' keyrslu. Measure notar parið til að birta 3-D lögunarmælingar í eðlisfræðilegum einingum og skráir einingarnar í measurement_units. Sjálfgefið None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_projection",
+      "source_sha256": "d69e0b1b82c30a50e5c09f4cd7bc1581bee5810c7ecf64b679bba447e8d80770",
+      "source": "Method used to collapse z when z_segmentation_mode is 'project'. 'max' retains the brightest value along the stack and is appropriate for sparse fluorescent objects; 'mean' suppresses noise but dilutes signal present in few planes; 'sum' preserves total signal; and 'best_focus' retains only the sharpest plane, which is preferable when one plane is in focus and a maximum-intensity projection would include substantial out-of-focus signal. Ignored by the other modes. Default 'max'.",
+      "translation": "Aðferðin sem er notuð til að fella saman z þegar z_segmentation_mode er 'project'. 'max' varðveitir bjartasta gildið eftir staflanum og hentar dreifðum flúrhlutum; 'mean' dregur úr suði en veikir merki sem er aðeins í fáum myndlögum; 'sum' varðveitir heildarmerkið; og 'best_focus' varðveitir aðeins skarpasta myndlagið, sem hentar þegar eitt myndlag er í fókus og hámarksstyrksvörpun myndi taka með verulegt ófókuserað merki. Aðrar aðferðir hunsa gildið. Sjálfgefið 'max'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "z_segmentation_mode",
+      "source_sha256": "158136a43a3da38b52eaf95eac81920131bdf51202a1600428316a8339f3198a",
+      "source": "How the z dimension is handled. The three modes answer different questions and their masks are not comparable, so the choice is recorded alongside them. 'project' collapses the stack with z_projection and segments one plane; it is the only mode the Measure module can consume. 'stitch' segments each plane in 2-D and links labels through the stack. 'volumetric' segments the 3-D volume directly and requires anisotropy or voxel sizes. Default 'project'.",
+      "translation": "Hvernig z-víddin er meðhöndluð. Aðferðirnar þrjár svara ólíkum spurningum og grímur þeirra eru ekki samanburðarhæfar, svo valið er skráð. 'project' fellir staflann saman með z_projection og hlutar eitt myndlag; það er eina aðferðin sem Measure getur notað. 'stitch' hlutar hvert myndlag í 2-D og tengir merki í gegnum staflann. 'volumetric' hlutar 3-D rúmmálið beint og krefst anisotropy eða voxel-stærða. Sjálfgefið 'project'."
+    }
+  ]
+}

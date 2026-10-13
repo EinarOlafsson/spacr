@@ -1,0 +1,40 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Small Multiples：共通の軸または別々の軸でグループを比べる",
+  "description": "測定値を読み込み、グループごとの散布図を並べ、軸の尺度とフィルターを選び、派生列を追加します。",
+  "objectives": [
+    "測定値を読み込み、軸とファセットを割り当てる。",
+    "共通、個別、グループ単位の軸範囲を選ぶ。",
+    "フィルターと表示されたグループを確認し、派生列を追加または削除する。"
+  ],
+  "prerequisite": "Annotateのチュートリアルから測定値の例をダウンロードし、measurements.dbのコピーで作業します。このチュートリアルでは、四つのウェルにわたる2341個の物体を含むcellの表を使います。Small Multiplesはプロットを表示します。グループごとのCSVの要約を書き出すにはTabulateを使います。",
+  "scenes": [
+    "HomeからGraph Builderを開き、Small Multiplesを選びます。この画面で、同じ測定値をグループ間で比べます。この例では、リンク先のAnnotateのチュートリアルで入手できる測定データベースを使います。",
+    "Small Multiplesの見出しの横にあるLoad tableをクリックします。measurements.dbのコピーを開き、cellを選びます。プロットのチャンネルを割り当てる前に、表と二千三百四十一個の物体を確認します。",
+    "cell_areaをXに、cell_channel_1_mean_intensityをYにドラッグし、Scatterを選びます。rowIDをFacet downに、columnIDをFacet acrossに置きます。検索で列名を探せます。各点は測定された一つの細胞を表します。",
+    "両方の尺度でsharedを選ぶと、四つのパネルが同じ軸範囲を使います。グループの見出しと物体の数を読みます。この例では、ファセットのラベルが空間上の行と列を示します。",
+    "X scaleとY scaleでfreeを選ぶと、パネルごとに範囲が決まります。グループ内のパターンが見やすくなります。パネルごとに範囲が違うので、目盛りのラベルを注意して比べます。",
+    "両方の尺度でper rowを選ぶと、グリッドの各行のパネルで範囲を共有します。行が違えば範囲も違うことがあります。行の中での比較を重視するときに使います。",
+    "per columnを選ぶと、グリッドの各列の中で範囲を共有します。XとYは別々に設定できます。四つのウェルを共通の尺度で比べたいときは、両方の軸をsharedに戻します。",
+    "Filterでcell_areaを追加し、最小値を二万千九百二十五にします。グリッドは、残った千百七十一個の物体ですぐに更新されます。パネルごとの新しい件数を確認します。",
+    "FilterのClear allをクリックすると、すべての物体に戻ります。グラフへの割り当てを外したいときは、左側のClear all channelsを使います。どちらの操作でも、元のデータベースは変わりません。",
+    "columnIDをc二に、fieldIDをf二十とf二十一に絞り込みます。fieldIDをFacet acrossに置き、rowIDはFacet downのままにします。行五、視野二十のパネルには物体がありません。この空のパネルは、欠けているグループを表します。",
+    "フィルターを解除し、columnIDをFacet acrossに戻します。Wrap atを五にします。折り返しは一つのファセットのチャンネルだけに適用されるので、今の二方向のグリッドは二かける二のままです。",
+    "Facet downを空にし、fieldIDをFacet acrossに置きます。Wrap atが五なので、表示される視野は一行に最大五つのパネルで並びます。最後の使われない枠は表示されません。",
+    "グループを比べる前に、グリッドの下のお知らせを読みます。この画面には十二の視野の水準が表示され、視野二十一はパネルから除かれています。読み込んだ行数にはこの視野も含まれるので、実際に表示されているグループを確認します。",
+    "折り返しをオフにし、rowIDとcolumnIDを二つのファセットに戻します。Columnsで派生列の名前をarea_kとし、cell_areaを千で割る式を入力します。プレビューを確認し、Add columnをクリックして表全体で計算します。",
+    "area_kをXにドラッグすると、面積が元の単位の千単位で表示されます。縦の座標とグループは変わりません。これは数値の尺度を変えるだけです。物理的な面積に換算するには、正しい画像の較正が必要です。",
+    "cell_areaをXに戻します。Columnsでarea_kを選び、Removeをクリックして、この画面から派生列を削除します。変数、ファセット、フィルター、尺度の選択を記録しておきます。",
+    "CSVの要約を書き出す必要があるときはTabulateを使います。スクリプトで小さなプロットを並べるには、spacr.qt.widgets.trellis_specのtrellisとTrellisSpecを使い、グラフのチャンネルにはGraphSpecを使います。グループは、適切な実験の反復の単位で解釈します。"
+  ]
+}

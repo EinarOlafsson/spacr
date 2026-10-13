@@ -1,0 +1,234 @@
+{
+  "source": "/mnt/wd4tb/spacr-worktrees/codex-theme-integration-audit-20261007/spacr/qt/widgets/ambient.py",
+  "source_sha256": "95d55c192d6d7bde70fa671666d3a2138fe30e5cb7e9bb0805c526c85b57f0e2",
+  "rows": [
+    {
+      "width": 1280,
+      "height": 720,
+      "density": 1,
+      "size": 1,
+      "resolution": 1,
+      "warm_median_ms": 11.22,
+      "warm_max_ms": 12.54,
+      "cache_after_warm": [
+        [
+          7,
+          11
+        ],
+        [
+          7,
+          14
+        ],
+        [
+          8,
+          17
+        ],
+        [
+          9,
+          20
+        ],
+        [
+          10,
+          22
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          13,
+          28
+        ]
+      ],
+      "instrumented_components_all_10_frames": {
+        "geometry": {
+          "calls": 10,
+          "sum_ms": 0.97,
+          "median_ms": 0.093
+        },
+        "_sheet": {
+          "calls": 60,
+          "sum_ms": 1.01,
+          "median_ms": 0.014
+        },
+        "_tile": {
+          "calls": 30,
+          "sum_ms": 5.61,
+          "median_ms": 0.013
+        },
+        "drawPath": {
+          "calls": 150,
+          "sum_ms": 80.82,
+          "median_ms": 0.564
+        },
+        "_surge": {
+          "calls": 30,
+          "sum_ms": 3.74,
+          "median_ms": 0.119
+        },
+        "field": {
+          "calls": 10,
+          "sum_ms": 100.53,
+          "median_ms": 10.428
+        },
+        "_soften": {
+          "calls": 10,
+          "sum_ms": 0.02,
+          "median_ms": 0.002
+        }
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "density": 1,
+      "size": 1,
+      "resolution": 1,
+      "warm_median_ms": 59.18,
+      "warm_max_ms": 67.88,
+      "cache_after_warm": [
+        [
+          7,
+          11
+        ],
+        [
+          7,
+          14
+        ],
+        [
+          8,
+          17
+        ],
+        [
+          9,
+          20
+        ],
+        [
+          10,
+          22
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          13,
+          28
+        ]
+      ],
+      "instrumented_components_all_10_frames": {
+        "geometry": {
+          "calls": 10,
+          "sum_ms": 1.14,
+          "median_ms": 0.116
+        },
+        "_sheet": {
+          "calls": 60,
+          "sum_ms": 1.42,
+          "median_ms": 0.021
+        },
+        "_tile": {
+          "calls": 30,
+          "sum_ms": 20.6,
+          "median_ms": 0.014
+        },
+        "drawPath": {
+          "calls": 150,
+          "sum_ms": 488.76,
+          "median_ms": 1.923
+        },
+        "_surge": {
+          "calls": 30,
+          "sum_ms": 5.93,
+          "median_ms": 0.194
+        },
+        "field": {
+          "calls": 10,
+          "sum_ms": 536.78,
+          "median_ms": 54.076
+        },
+        "_soften": {
+          "calls": 10,
+          "sum_ms": 0.02,
+          "median_ms": 0.002
+        }
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "density": 3,
+      "size": 3,
+      "resolution": 2,
+      "warm_median_ms": 292.62,
+      "warm_max_ms": 336.38,
+      "cache_after_warm": [
+        [
+          17,
+          33
+        ],
+        [
+          21,
+          42
+        ],
+        [
+          23,
+          51
+        ],
+        [
+          27,
+          59
+        ],
+        [
+          30,
+          66
+        ],
+        [
+          35,
+          75
+        ],
+        [
+          38,
+          84
+        ]
+      ],
+      "instrumented_components_all_10_frames": {
+        "geometry": {
+          "calls": 10,
+          "sum_ms": 2.71,
+          "median_ms": 0.259
+        },
+        "_sheet": {
+          "calls": 180,
+          "sum_ms": 5.08,
+          "median_ms": 0.025
+        },
+        "_tile": {
+          "calls": 90,
+          "sum_ms": 366.34,
+          "median_ms": 0.02
+        },
+        "drawPath": {
+          "calls": 450,
+          "sum_ms": 2421.83,
+          "median_ms": 2.616
+        },
+        "_surge": {
+          "calls": 90,
+          "sum_ms": 24.19,
+          "median_ms": 0.259
+        },
+        "field": {
+          "calls": 10,
+          "sum_ms": 2888.09,
+          "median_ms": 288.557
+        },
+        "_soften": {
+          "calls": 10,
+          "sum_ms": 0.02,
+          "median_ms": 0.002
+        }
+      }
+    }
+  ]
+}

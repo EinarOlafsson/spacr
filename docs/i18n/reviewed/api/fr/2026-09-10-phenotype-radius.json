@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.ops_phenotype.refine_similarity#4",
+      "source_sha256": "b361c77cabccce70c132eec6687ceae62785c247991b9bda50c6543add6951ab",
+      "source": "how close a moved point must land to count as a match.",
+      "context": "how close a moved point must land to count as a match.",
+      "translation": "à quelle distance un point déplacé doit se poser pour être compté comme une correspondance."
+    }
+  ]
+}

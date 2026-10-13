@@ -1,0 +1,36 @@
+{
+  "lesson": "40_run_history",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Run History: revisar trabajos anteriores y restaurar ajustes",
+  "description": "Encuentra ejecuciones guardadas, revisa sus ajustes y registros, y carga una configuración anterior en su módulo.",
+  "objectives": [
+    "Encontrar ejecuciones con filtros y búsqueda.",
+    "Revisar los ajustes guardados, los archivos y los problemas.",
+    "Restaurar los ajustes para una ejecución nueva."
+  ],
+  "prerequisite": "Completa un trabajo de spaCR para crear un registro de ejecución local. El ejemplo recorre registros de ejecuciones de conversión, de Recruitment y de Regression.",
+  "scenes": [
+    "Abre Help y luego Run History para recorrer los registros de ejecución guardados en este equipo.",
+    "Haz clic en Refresh para cargar los registros disponibles. Selecciona una ejecución para revisar sus detalles y arrastra el divisor si necesitas más espacio.",
+    "Elige un módulo y un estado, y escribe un término de búsqueda para acotar la lista. Por ejemplo, selecciona convert y Success para encontrar las conversiones terminadas.",
+    "Abre Files and models para ver los detalles registrados de entradas y salidas. Las ejecuciones que omitieron el cálculo de hashes de archivos pueden tener un inventario vacío; usa las rutas de salida de los ajustes o de los registros para encontrar sus resultados.",
+    "Borra o ajusta los filtros si la tabla está vacía. Los términos de búsqueda y la selección de estado se combinan.",
+    "Selecciona una ejecución de Recruitment y lee Overview para ver su tiempo transcurrido y el número de archivos registrados. Estos datos resumen esa ejecución guardada.",
+    "Abre Settings para revisar su carpeta de origen, sus canales y sus filtros de objetos. Recorre la configuración guardada antes de decidir reutilizarla.",
+    "Abre Files and models para revisar las rutas, los tamaños y los hashes registrados. Mantén disponibles los archivos del proyecto a los que hace referencia cuando necesites volver al análisis.",
+    "Abre Environment para ver las versiones de software y las semillas registradas. Usa Copy path para localizar la carpeta del diario de la ejecución.",
+    "Abre Warnings and failure para leer los avisos asociados a una ejecución terminada. Investiga los avisos relevantes antes de usar sus resultados.",
+    "Elige Failed para encontrar los trabajos que no terminaron bien. Lee la traza de error y las versiones de software cuando diagnostiques un problema o prepares un informe de error.",
+    "Vuelve a la ejecución deseada y elige Load settings in module. Revisa los controles restaurados y las rutas de entrada actuales antes de pulsar Run.",
+    "Guarda los diarios que necesites con los registros de tu proyecto. Usa Clear all solo cuando quieras borrar registros de ejecución. Abre Report para crear un resumen del proyecto."
+  ]
+}

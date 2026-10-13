@@ -1,0 +1,53 @@
+{
+  "checkpoint_bytes": 349009018,
+  "checkpoint_sha256": "6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845",
+  "commit": "71cd1d296c8da485fd4b6e77f5c83f07a6dad34e",
+  "comparisons": {
+    "512": {
+      "feature_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 1.9073486328125e-06,
+      "mean_abs_difference": 1.7217924153101194e-07,
+      "official_model_input_shape": [
+        1,
+        4,
+        512,
+        512
+      ],
+      "original_shape": [
+        1,
+        512,
+        512,
+        4
+      ]
+    },
+    "64": {
+      "feature_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 1.430511474609375e-06,
+      "mean_abs_difference": 8.092555248140343e-08,
+      "official_model_input_shape": [
+        1,
+        4,
+        64,
+        64
+      ],
+      "original_shape": [
+        1,
+        64,
+        64,
+        4
+      ]
+    }
+  },
+  "cuda_visible_devices": "",
+  "official_dataset_sha256": "c3eaaa5df1b44b38c8cfeafe1cb0e9c1c83a9dceb5b4d255518094550b4a1c3c",
+  "official_model_config_sha256": "4af4ce5fd3cfee73c70435e9c62d73e19fd55b64ecb72f95bd9a9f8c148bdf5d",
+  "official_model_source_sha256": "2b18c329d0f1b6d959b900b01c354ebb5dd4b2b2f6f9968ce77875fba3199267",
+  "peak_rss_kib": 1768556,
+  "spacr_source_sha256": "991a52c41d70ed8141ee8c8db996af14819c7e0e063bb3cb33e263d01af6caba"
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "recursive",
+      "source_sha256": "ee370df5c2ad2897860a7bfec0d84b1ff30e698db8746220dc0810b406ab58b6",
+      "source": "Search inside subfolders of every input folder. Turn this off when only files directly inside each selected folder belong to the import. Default True.",
+      "translation": "हर इनपुट फ़ोल्डर के सबफ़ोल्डरों के अंदर भी खोजता है। इसे बंद करें जब केवल हर चुने गए फ़ोल्डर में सीधे रखी फ़ाइलें ही इम्पोर्ट का हिस्सा हों। डिफ़ॉल्ट True।"
+    }
+  ]
+}

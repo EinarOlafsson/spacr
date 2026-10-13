@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_method": "Technical meaning and terminology reviewed against the current English definition; native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "iou-definition-and-threshold",
+      "source": "**IoU**, intersection over union, divides the overlap between predicted and reference objects by their combined area. Read scores with their threshold: \"F1 0.864 at IoU 0.5\" counts a vacuole as found when that overlap reaches half the combined area.",
+      "source_sha256": "12e926d2e3780c37078d042fb17a81202f12e57bd5bfd00ab55f9aff41f17f4e",
+      "translation": "**IoU**(교집합 대 합집합 비율)는 예측 객체와 참조 객체가 겹치는 면적을 두 객체의 합집합 면적으로 나눈 값입니다. 점수는 임계값과 함께 해석하세요. “IoU 0.5에서 F1 0.864”는 겹치는 면적이 합집합 면적의 절반 이상이면 해당 액포를 검출한 것으로 센다는 뜻입니다."
+    }
+  ]
+}

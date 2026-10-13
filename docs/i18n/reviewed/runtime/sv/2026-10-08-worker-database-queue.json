@@ -1,0 +1,21 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Database write queue RAM",
+      "source": "Database write queue RAM",
+      "source_sha256": "85b28eaf240f37b4c0967e1c8ffac25102314ca918aae759ad69db6cf073bb44",
+      "table": "ui",
+      "translation": "RAM för databasens skrivkö"
+    },
+    {
+      "key": "RAM allowed for serialized data waiting for Measure's single database writer. Overflow is stored in a private temporary folder inside measurements. Zero uses disk-only buffering. This limits queued data, not total process memory. Applies to new runs.",
+      "source": "RAM allowed for serialized data waiting for Measure's single database writer. Overflow is stored in a private temporary folder inside measurements. Zero uses disk-only buffering. This limits queued data, not total process memory. Applies to new runs.",
+      "source_sha256": "7dde58b60bacdcf39a33da98e324c139aae2b8d4d3e5942dd0c1fb53e26ca5d5",
+      "table": "ui",
+      "translation": "RAM tillgängligt för serialiserade data som väntar på Measures enda databasskrivare. Överskott lagras i en privat tillfällig mapp i measurements. Noll använder enbart diskbuffring. Detta begränsar köade data, inte processens totala minne. Gäller nya körningar."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff. The unit remains a protected format argument.",
+  "schema": 1
+}

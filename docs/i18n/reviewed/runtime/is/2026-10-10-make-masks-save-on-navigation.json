@@ -1,0 +1,21 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Save an edited mask before Keep, Discard, Next or Previous. If saving fails, stay on this image without recording a verdict. Off by default; Skip still writes no mask.",
+      "source": "Save an edited mask before Keep, Discard, Next or Previous. If saving fails, stay on this image without recording a verdict. Off by default; Skip still writes no mask.",
+      "source_sha256": "4fb3bd4be6353ec733de2503cdf874558feb772535eeb335f284a338d0bf0047",
+      "table": "ui",
+      "translation": "Vistar breytta grímu áður en Halda, Henda, Áfram eða Til baka er valið. Ef vistun mistekst er verið áfram á þessari mynd án þess að skrá úrskurð. Slökkt sjálfgefið; Sleppa skrifar enn enga grímu."
+    },
+    {
+      "key": "Save on navigation",
+      "source": "Save on navigation",
+      "source_sha256": "4c723d1597efa09b2c3b35a50b1aba9c907f9c15bae613443bb84905b4d99e3d",
+      "table": "ui",
+      "translation": "Vista við flakk"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

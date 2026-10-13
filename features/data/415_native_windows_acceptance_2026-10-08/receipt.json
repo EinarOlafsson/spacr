@@ -1,0 +1,135 @@
+{
+  "conclusion": "success",
+  "databaseId": 37846367381,
+  "headSha": "e41df27e0a37303cbbc81687d21f74738cc05e0b",
+  "jobs": [
+    {
+      "completedAt": "2026-10-08T21:27:14Z",
+      "conclusion": "success",
+      "databaseId": 113548136920,
+      "name": "startup",
+      "startedAt": "2026-10-08T21:23:38Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T21:23:41Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T21:23:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:25:20Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-08T21:23:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:25:20Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-08T21:25:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:26:22Z",
+          "conclusion": "success",
+          "name": "Install the native GUI dependencies",
+          "number": 4,
+          "startedAt": "2026-10-08T21:25:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:26:26Z",
+          "conclusion": "success",
+          "name": "Give the native windows room on the hosted desktop",
+          "number": 5,
+          "startedAt": "2026-10-08T21:26:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:27:07Z",
+          "conclusion": "success",
+          "name": "Measure real OS and application theme combinations",
+          "number": 6,
+          "startedAt": "2026-10-08T21:26:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:27:09Z",
+          "conclusion": "success",
+          "name": "Keep native captures and exact platform evidence, including failures",
+          "number": 7,
+          "startedAt": "2026-10-08T21:27:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:27:09Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 13,
+          "startedAt": "2026-10-08T21:27:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:27:12Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 14,
+          "startedAt": "2026-10-08T21:27:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T21:27:12Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-08T21:27:12Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37846367381/job/113548136920"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37846367381",
+  "cases": [
+    {
+      "case": "os-light-spacr-light",
+      "passed": true,
+      "error": null
+    },
+    {
+      "case": "os-light-spacr-dark",
+      "passed": true,
+      "error": null
+    },
+    {
+      "case": "os-light-spacr-system",
+      "passed": true,
+      "error": null
+    },
+    {
+      "case": "os-dark-spacr-light",
+      "passed": true,
+      "error": null
+    },
+    {
+      "case": "os-dark-spacr-dark",
+      "passed": true,
+      "error": null
+    },
+    {
+      "case": "os-dark-spacr-system",
+      "passed": true,
+      "error": null
+    }
+  ],
+  "log_sha256": "6ba0c6bdb3bfdc29e397178a793f7eae0b2dffb9d204be5689360290f8b47a9b",
+  "payload_sha256": "7d39f92c5c6c784650a051b569ba761daa5e7c52d4ade0288fdcf8b2c99c4b25",
+  "limits": "All six actual native Windows theme combinations pass. Guards unchanged; not a whole repository CI or native GPU/Spaceout acceptance claim."
+}

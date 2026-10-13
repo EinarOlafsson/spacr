@@ -1,0 +1,33 @@
+{
+  "lesson": "64_gate_editor",
+  "status": "Staged technical checks passed; publication remains held",
+  "canonical_english_sha256": "83fdeb4bcb4990344599ab38d5a7ef5fa94a8a8a3b1af663be53d09bdbe66bb7",
+  "scene_count_per_catalog": 22,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "all_track_hashes_rechecked_after_verification": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 12027,
+    "duration_seconds": 400.9, "audio_streams": 0, "bytes": 25317831,
+    "sha256": "0663f7b4a760bec99a306e30d6c617062bd3a7b6a3e70daed47745e88a0a400a"
+  },
+  "browser_checks": {
+    "spoken_languages": 8, "independent_caption_languages": 6, "all_passed": true,
+    "checks": ["Actual fetched audio bytes", "Chapter seeking and mapped audio/video clocks", "Retained scene links", "Current parent-module navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "All caption scenes and generated WebVTT without switching voice"]
+  },
+  "recording": {
+    "app_commit": "a9fa9bdd814722ca8af0f8dfde7795379a2163bd", "version": "1.5.0.4", "font_scale": 2,
+    "capture": "refresh_2026-09-09/captures/gates_release",
+    "original_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "checks": ["2341 real downloaded cell rows", "Actual rectangle drawing and naming", "655 exported identities match plate/row/column/field/label/type", "Source database and private raw measurements unchanged", "Actual save-delete-load restores exact boundaries and membership", "Second gate is top-level, not automatically nested", "Three-measurement volume and real rotation", "Projection independent of view dimensions and component columns retained when switched off", "Real bounded Walk and fixed-radius clustering", "Actual live filter 2341 to 1171 to 2341 without changing gates", "Real console len(df) returns 2341", "Unsent chat draft with no fabricated AI answer"],
+    "new_gate_geometry_injected": false, "biological_classes_invented": false, "app_source_modified": false
+  },
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 616, "refreshed_scripts": 13, "unselected_unchanged": 62, "unselected_media_replaced": false},
+  "technical_matrices_completed_so_far": 12,
+  "align_script_is_staged_but_its_media_checks_are_still_running": true,
+  "caption_preflight": {"names_mismatched_other_lesson_before_browser": true, "small_tests_passed": 7, "target_only_mutant_failed": 6, "restored_passed": 7},
+  "synthesis": "One CUDA job, 10% VRAM cap, two CPU threads, 110 GiB host-memory guard",
+  "translation_review": "Editorial translation plus independent cross-check; not native-speaker sign-off",
+  "human_listening_review": false, "published": false, "whole_refresh_complete": false
+}

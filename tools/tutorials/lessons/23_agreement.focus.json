@@ -1,0 +1,67 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "96e5428fb8b5497679b75ab680d877326ced9f3446ad3c38615c7c6cf0ac1617",
+  "scope": "Existing measured native 3840x2160 scene spotlights retained for the current practical narration; source image pixels unchanged.",
+  "scenes": {
+    "02_agreement_fold": [
+      3749,
+      44,
+      87,
+      99
+    ],
+    "04_demo_database": [
+      346,
+      455,
+      3470,
+      80
+    ],
+    "05_one_column_not_a_comparison": [
+      354,
+      528,
+      272,
+      653
+    ],
+    "06_two_columns": [
+      354,
+      528,
+      272,
+      653
+    ],
+    "07_pairwise_results": [
+      354,
+      528,
+      3458,
+      770
+    ],
+    "08_confusion_matrix": [
+      624,
+      850,
+      3188,
+      170
+    ],
+    "09_disagreement_crop_1": [
+      354,
+      1292,
+      3458,
+      720
+    ],
+    "10_three_columns": [
+      354,
+      528,
+      272,
+      653
+    ],
+    "11_three_pass_results": [
+      354,
+      528,
+      3458,
+      1484
+    ],
+    "12_pairwise_restored": [
+      354,
+      528,
+      3458,
+      770
+    ]
+  }
+}

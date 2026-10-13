@@ -1,0 +1,583 @@
+{
+  "before_sha256": "dfa2ef65f69598560b5d9a9e8aa6a334d5dfc55c9e7708c2ca2834b22733cf97",
+  "after_sha256": "f71d253586ad9959d678214ee416bd4162e2f1d51172fb857be29ddc513b1e97",
+  "actual_import": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/widgets/ambient.py",
+  "records": [
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "genetic_advection",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#101418",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 7,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 1.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 0.0,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    },
+    {
+      "family": "impulse_lens",
+      "background": "#f6f7f9",
+      "seed": 42,
+      "detail": 2.0,
+      "clock": 3.2,
+      "size": [
+        3840,
+        2160
+      ],
+      "byte_identical": true
+    }
+  ]
+}

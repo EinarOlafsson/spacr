@@ -1,0 +1,40 @@
+{
+  "lesson": "28_training_runs",
+  "english_sha256": "bfd4577f24cda15426fb3ce671f5fed9b5d30194aad42e78bfe98ffb932b88b6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Training Runs: berðu saman ferla og stillingar",
+  "description": "Hlaðu inn þjálfunarannálum, leggðu mælikvarða hvern ofan á annan, berðu saman stillingar og skoðaðu brot krossprófunar.",
+  "objectives": [
+    "Finna vistaðar keyrslur og velja þær sem á að bera saman.",
+    "Leggja saman þjálfunar- og prófunarmælikvarða og skoða mun á stillingum.",
+    "Skipta á milli einstakra brota og meðaltals þeirra og staðalfráviks."
+  ],
+  "prerequisite": "Sæktu og afþjappaðu tengda tilbúna Training Runs-dæmið. Ferlarnir í því eru æfingagögn. Fyrir eigin greiningu velurðu yfirmöppu sem inniheldur vistaðar train.csv- og validation.csv-skrár með stillingum hverrar keyrslu. Geymdu óháðar matsniðurstöður með líkaninu þegar þú metur frammistöðu þess.",
+  "scenes": [
+    "Frá Home opnarðu Classify og síðan Training Runs. Notaðu þetta tól til að bera saman framvinduannála og stillingar vistaðra þjálfunarkeyrslna. Tengda sýnið inniheldur tilbúna ferla til að æfa stýringarnar.",
+    "Farðu í gegnum skjáinn í röð: veldu möppu til að finna keyrslur, merktu við þær á listanum, veldu svo Metric og Folds og smelltu á Overlay selected. Byrjaðu á yfirmöppunni sem geymir keyrslurnar þínar.",
+    "Afþjappaðu tengda sýnið og smelltu á Choose folder. Veldu möppuna training_runs og staðfestu valið. Fyrir eigin verkefni velurðu yfirmöppu sem inniheldur keyrslumöppurnar og vistaða CSV-annála þeirra.",
+    "Leitaðu í möppunni og skoðaðu keyrslurnar sem finnast. Sýnið inniheldur dæmin baseline, tuned og cross_validated, auk einnar ófullgerðrar færslu. Veldu nothæfu keyrslurnar sem þú vilt bera saman.",
+    "Athugaðu viðvaranir um ófullgerðar færslur. Ef train.csv, validation.csv eða stillingar vantar geta ferlar eða stillingar vantað í birtinguna. Finndu fullgerðu keyrslumöppuna áður en þú bætir henni við samanburð.",
+    "Merktu við baseline og tuned og veldu svo accuracy undir Metric. Valmyndin sýnir tölulegu dálkana sem eru í völdum annálum. Veldu loss eða annan skráðan mælikvarða þegar hann svarar spurningunni sem samanburðurinn á að svara.",
+    "Smelltu á Overlay selected. Þjálfunarferlar eru strikaðir og prófunarferlar heildregnir. Lestu hverja keyrslu og hverja gagnaskiptingu úr skýringunum. Hver ferill endar á sinni síðustu skráðu lotu.",
+    "Skoðaðu samanburð stillinga fyrir neðan grafið. Hann dregur fram mun eins og stærð runu, fjölda lotna og námshraða. Notaðu hann til að sjá hvað breyttist milli keyrslna áður en þú túlkar ferlana.",
+    "Umhverfislínan greinir keyrslustillingar, eins og fjölda vinnsluferla, frá þjálfunarstillingunum. Lestu hana samhliða mun á stillingum þegar þú berð saman keyrslur sem voru gerðar á ólíkum tölvum.",
+    "Smelltu á prófunarferil til að sjá síðustu og bestu skráðu gildi hans og lotur. Notaðu sömu valreglu þegar þú berð saman keyrslur. Mettu valinn vistunarpunkt á óháðum gögnum til að meta frammistöðu hans.",
+    "Veldu loss undir Metric til að uppfæra lóðrétta ásinn og samsettu myndina. Berðu saman feril þjálfunar og prófunar, þar á meðal stefnu þeirra undir lok þjálfunar.",
+    "Veldu tuned og cross_validated, veldu accuracy og smelltu svo á Overlay selected. Opnaðu Folds og veldu hvort sýna eigi einstök brot, meðaltal þeirra og staðalfrávik, eða hvort tveggja.",
+    "Veldu meðaltal plús eða mínus staðalfrávik til að taka saman ferla brotanna. Hvert band sýnir eitt staðalfrávik úrtaks yfir tiltæk brot í þeirri lotu. Lestu bandið sem breytileika milli brota.",
+    "Veldu hvort tveggja til að sýna ferla einstakra brota ásamt meðaltali þeirra. Berðu brotin saman til að sjá hvort samantekt feli keyrslu með annan feril.",
+    "Veldu birtingu eftir brotum til að sýna aðeins einstaka ferla. Samanburður stillinga uppfærist með völdum keyrslum. Hafðu lotubil hvers ferils í huga þegar þú berð saman hvar þjálfun lauk.",
+    "Farðu aftur í Metric til að bera saman aðra skráða stærð, eða breyttu völdum keyrslum til að þrengja samanburðinn. Haltu upprunalegu CSV-annálunum og stillingunum saman svo hægt sé að opna sama samanburð aftur.",
+    "Fyrir greiningu með skriftu notarðu find_runs og load_run í spacr.train_compare, og síðan compare_runs og plot_curves. Geymdu samanburðinn með líkaninu og óháðum matsniðurstöðum þegar þú velur næstu þjálfunarstillingar."
+  ]
+}

@@ -1,0 +1,17 @@
+Key,Value
+src,path
+dataset_mode,metadata
+test_split,0.1
+metadata_type_by,col
+class_metadata,"[['c1'], ['c2']]"
+png_type,cell_png
+include_multinucleated,True
+include_multiinfected,3
+include_noninfected,False
+size,
+annotation_column,test
+annotated_classes,"[1, 2]"
+classes,"['nc', 'pc']"
+channel_of_interest,3
+custom_measurement,
+tables,

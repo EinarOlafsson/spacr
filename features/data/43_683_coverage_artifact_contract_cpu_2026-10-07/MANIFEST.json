@@ -1,0 +1,18 @@
+{
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "job_id": 113058129349,
+  "files": [
+    {
+      "path": "coverage1-113058129349.log.gz",
+      "raw_bytes": 2066273,
+      "raw_sha256": "1c8640a29547485e651c716f1b43bcdeacdd68f1d3e139f0c9fbc1cc5ad8eafa",
+      "gzip_bytes": 288097,
+      "gzip_sha256": "3929734d86cd885611d9279a9def5f868a49df4c35c13f98635ba8b76829ae0e"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 3162,
+      "sha256": "8a404c8816cbee1e87251bbcf33265146e4203287763a2746783d7fe6c012bf6"
+    }
+  ]
+}

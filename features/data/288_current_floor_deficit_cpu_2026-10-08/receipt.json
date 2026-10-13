@@ -1,0 +1,21 @@
+{
+  "current_file_git_blob": {
+    "spacr/ops_accel.py": "68fd34916dd8a556ec3e335596b0acc67aa0a21f",
+    "tests/test_the_ops_primitives_agree_on_every_backend.py": "5c17e62585dccf3904bfc780d053d9b9016e0e93"
+  },
+  "current_file_sha256": {
+    "spacr/ops_accel.py": "2c7d2c7b984d927cb3a9a6ab3d5e206125474013b9fbbdbda15b01958e4639c3",
+    "tests/test_the_ops_primitives_agree_on_every_backend.py": "82521146c3536b9651ad7835e12bb48e05307eabf9c0fdebd22b4806886e50dd"
+  },
+  "date": "2026-10-08",
+  "hosted_report": "features/data/43_5636_coverage_phase_2026-10-08/module-report.zip",
+  "hosted_report_sha256": "9092505c42442ed3a950a1e80aedd788cead95e178968670036aa3cae8b49f42",
+  "hosted_source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "item": "F288 literal 90 percent floor audit and meaningful torch selector test",
+  "limits": "No production change, ratchet change, exemption change, real GPU kernel claim or full-hosted acceptance claim.",
+  "local_source_test_commit": "b00d1fe8555e49665db742117d5bc07437798da1",
+  "prior_test_matches_hosted": true,
+  "source_matches_hosted": true,
+  "test_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_the_ops_primitives_agree_on_every_backend.py",
+  "test_result": "22 passed, 3 skipped (unavailable CuPy), 2.29s"
+}

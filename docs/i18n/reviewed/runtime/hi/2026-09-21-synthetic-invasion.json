@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Downloading the synthetic Invasion Assay test data",
+      "source": "Downloading the synthetic Invasion Assay test data",
+      "source_sha256": "f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e",
+      "translation": "Invasion Assay का कृत्रिम परीक्षण डेटा डाउनलोड हो रहा है"
+    }
+  ]
+}

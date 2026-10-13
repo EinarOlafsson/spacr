@@ -1,0 +1,22 @@
+{
+  "Calculate reference-well gains without running Measure or changing files.": "Calcular os fatores de ganho dos poços de referência sem executar Measure nem alterar arquivos.",
+  "Calculating calibration gains…": "Calculando os fatores de calibração…",
+  "Calibration gains": "Fatores de calibração",
+  "Choose a local source folder containing merged arrays.": "Selecione uma pasta de origem local que contenha matrizes combinadas.",
+  "Discard this preview. Any source scan already running will finish safely.": "Descartar esta prévia. Qualquer varredura de arquivos de origem já iniciada será concluída com segurança.",
+  "Enable intensity calibration before previewing gains.": "Ative a calibração de intensidade antes de visualizar os fatores de ganho.",
+  "Finish valid settings before previewing gains.": "Conclua uma configuração válida antes de visualizar os fatores de ganho.",
+  "Gain": "Fator de ganho",
+  "Gains use the camera offset and reference wells; images and measurements are unchanged.": "Os fatores de ganho usam o offset da câmera e os poços de referência; as imagens e as medições permanecem inalteradas.",
+  "No eligible merged arrays were found.": "Nenhuma matriz combinada elegível foi encontrada.",
+  "Preview complete. No images or measurements were changed.": "Prévia concluída. Nenhuma imagem ou medição foi alterada.",
+  "Preview gains": "Pré-visualizar fatores de ganho",
+  "Preview only: each source folder is planned separately.": "Somente prévia: cada pasta de origem é planejada separadamente.",
+  "Reference fields": "Campos de imagem de referência",
+  "Reference plate": "Placa de referência",
+  "Reference statistic": "Estatística de referência",
+  "Settings changed. Preview the gains again.": "As configurações mudaram. Visualize novamente os fatores de ganho.",
+  "Some merged arrays could not be read. Check the source files.": "Não foi possível ler algumas matrizes combinadas. Verifique os arquivos de origem.",
+  "The first plate by name is the reference.": "A primeira placa por nome é a referência.",
+  "Turn off Test mode to preview gains for all source fields.": "Desative Modo de teste para visualizar os fatores de ganho de todos os campos de imagem de origem."
+}

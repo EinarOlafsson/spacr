@@ -1,0 +1,15 @@
+.....................                                                    [100%]
+=============================== warnings summary ===============================
+tests/test_plaque_segmentation_diagnostics.py::test_database_csv_and_mask_only_rerun_keep_same_diagnostics
+tests/test_plaque_segmentation_diagnostics.py::test_database_csv_and_mask_only_rerun_keep_same_diagnostics
+tests/test_plaque_segmentation_diagnostics.py::test_changed_mask_rejects_stale_metrics
+tests/test_plaque_segmentation_diagnostics.py::test_changed_mask_rejects_stale_metrics
+tests/test_plaque_segmentation_diagnostics.py::test_old_masks_without_diagnostics_have_null_columns
+tests/test_plaque_segmentation_diagnostics.py::test_unreadable_saved_diagnostics_keep_mask_analysis_but_clear_metrics[ValueError]
+tests/test_plaque_segmentation_diagnostics.py::test_unreadable_saved_diagnostics_keep_mask_analysis_but_clear_metrics[KeyError]
+tests/test_plaque_segmentation_diagnostics.py::test_unreadable_saved_diagnostics_keep_mask_analysis_but_clear_metrics[OSError]
+  /mnt/wd4tb/spacr-worktrees/codex-683-four-module-coverage-20261007/spacr/submodules.py:1743: FutureWarning: `RegionProperties.equivalent_diameter` is deprecated starting in version 0.26 and will be removed in version 2.0. Use `RegionProperties.equivalent_diameter_area` instead. 
+    'equivalent_diameter_px': float(region.equivalent_diameter),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+21 passed, 8 warnings in 7.90s

@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Semantic review of all six current translatable blocks of spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with. Preserves module scope, Run, shared-reader migration/reporting, pack-supplied values only, unchanged other form values, local path reanchoring with subfolders, explicit pack-folder priority, and all zero-return conditions.",
+    "limitations": "AI-assisted semantic review against exact current English sources and API contexts; not human native-speaker review or approval. Generated catalog publication is a separate step."
+  },
+  "records": [
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#0",
+      "source": "Load the settings a downloaded example shipped, for THIS module.",
+      "source_sha256": "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
+      "context": "Load the settings a downloaded example shipped, for THIS module.",
+      "translation": "加载下载的示例随附的、适用于当前模块的设置。"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#1",
+      "source": "The point of shipping settings beside data: a user who has to work out which column holds the labels, what the mask dimensions are and which channels were measured has done most of the work the example was meant to save. With them applied, Run is the next action.",
+      "source_sha256": "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
+      "context": "The point of shipping settings beside data: a user who has to work out which column holds the labels, what the mask dimensions are and which image data channels were measured has done most of the work the example was meant to save. With them applied, Run is the next action.",
+      "translation": "将设置与数据一起提供，是为了避免用户还要自行查明标签位于哪一列、掩膜的维度是多少，以及测量了哪些图像通道；否则，用户就已经完成了示例本应替其省去的大部分工作。应用这些设置后，下一步就是点击 Run。"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#2",
+      "source": "Use the shared settings-pack reader to migrate old names and report renamed, dropped, and unreadable rows in the console. Apply only values supplied by the pack, leaving other form values alone. Re-anchor the publisher's paths onto the local dataset while preserving subfolders.",
+      "source_sha256": "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
+      "context": "Use the shared settings-pack reader to migrate old names and report renamed, dropped, and unreadable rows in the console. Apply only values supplied by the pack, leaving other form values alone. Re-anchor the publisher's paths onto the local dataset while preserving subfolders.",
+      "translation": "使用共享的设置包读取器迁移旧设置名称，并在控制台中报告重命名、丢弃及无法读取的行。仅应用设置包提供的值，不改动表单中的其他值。将发布者提供的路径重新指向本地数据集，同时保留子文件夹结构。"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#3",
+      "source": "the unpacked dataset folder.",
+      "source_sha256": "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
+      "context": "the unpacked dataset folder.",
+      "translation": "已解压的数据集文件夹。"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#4",
+      "source": "optional folder of shipped settings CSVs, preferred over the dataset's own ``settings`` subfolder.",
+      "source_sha256": "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+      "context": "optional folder of shipped settings CSVs, preferred over the dataset's own ``settings`` subfolder.",
+      "translation": "可选的随附设置 CSV 文件所在文件夹；优先于数据集自身的 ``settings`` 子文件夹。"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#5",
+      "source": "how many settings were applied; 0 when no file was found, no supplied settings apply to this form, or applying them failed.",
+      "source_sha256": "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee",
+      "context": "how many settings were applied; 0 when no file was found, no supplied settings apply to this form, or applying them failed.",
+      "translation": "已应用的设置数量；若未找到文件、提供的设置均不适用于此表单，或应用设置失败，则返回 0。"
+    }
+  ]
+}

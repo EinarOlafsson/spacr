@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "cellpose_diameter",
+      "source_sha256": "7199e17566c08e45c1549dda7e33dff871b07d5263bafa0ac244be1f2a7a5f3b",
+      "source": "Cellpose diameter",
+      "translation": "Cellpose-diameter"
+    }
+  ]
+}

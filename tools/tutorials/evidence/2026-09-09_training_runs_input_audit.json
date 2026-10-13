@@ -1,0 +1,252 @@
+{
+  "schema": 1,
+  "audit_date": "2026-09-09",
+  "lesson": "28_training_runs",
+  "status": "Input provenance and current-source audit only; whole lesson not complete or approved",
+  "source_commit": "13e196e34b91f8789247a578c10ab10da7292c55",
+  "scope": {
+    "read": "Selected published English lesson, original lesson 28 manifests and exact preparation/capture recipes, their directly referenced small log files, current Training Runs/Classify consumers, and the already-completed private Classify run's logs and recorded acceptance evidence.",
+    "not_performed": [
+      "Broad filesystem or raw-microscopy search",
+      "New training, inference, app execution, parser execution, log regeneration or input modification",
+      "Current runtime or encoded-video verification",
+      "Lesson, translation or media edits, promotion, staging or commits"
+    ],
+    "only_write": "This audit file",
+    "whole_lesson_complete": false,
+    "current_gui_runtime_verified": false,
+    "existing_encoded_media_approved": false,
+    "native_speaker_signoff": false
+  },
+  "roots": {
+    "repository": "/mnt/firecuda2/codex/repo/spacr",
+    "author": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials",
+    "synthetic_logs": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/training_runs",
+    "private_classify_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/captures/classify_column_values",
+    "private_classify_run": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/datasets/training_1/model/resnet18/rgb/epochs_1"
+  },
+  "published_english": {
+    "path_relative_to_repository": "docs/source/_extra/tutorials/catalog/lessons_en.json",
+    "selected_id": "28_training_runs",
+    "scene_count": 8,
+    "canonical_sha256": "f662cbc1dd801ce1c1dd8e4fa749b2bbf1d4d56d51f01d0d993bb5349722b6ac",
+    "canonical_method": "sha256(json.dumps(selected_lesson, sort_keys=True, ensure_ascii=False).encode())",
+    "synthetic_disclosure_in_selected_narration": false
+  },
+  "source_files": [
+    {
+      "path_relative_to_repository": "spacr/qt/screens/train_compare.py",
+      "sha256": "e1d4976a2391ff706d6099b771d36f486d558f3b6646ea194386641979a9f020"
+    },
+    {
+      "path_relative_to_repository": "spacr/train_compare.py",
+      "sha256": "399525b64ba386de7970760e787b5a700cc76fc4d2ae6d8424427306fb37b2ab"
+    },
+    {
+      "path_relative_to_repository": "spacr/qt/screens/classify.py",
+      "sha256": "915d75d02fcad9c6783a51377ca2b350c71bf5771b3f1ff9ed2d816582160b25"
+    },
+    {
+      "path_relative_to_repository": "spacr/deep_spacr.py",
+      "sha256": "e15282ed21e8c29b149e9010e31ab147d7cbffa6dbae8d0a4691433849a55e75"
+    },
+    {
+      "path_relative_to_repository": "tools/tutorials/authoring/catalog/28_training_runs_override.json",
+      "sha256": "7ce0e4c386a02bd1968882964bf129c937fb829a5fc871a82d82de241a5a0987",
+      "note": "This separate 16-scene authoring override explicitly discloses synthetic logs; it is not the published eight-scene English lesson inspected above."
+    }
+  ],
+  "original_capture_provenance": {
+    "classification": "Generated synthetic demonstration CSVs; not trained-model measurements",
+    "production_manifest": {
+      "path_relative_to_author": "production/28_training_runs/source_manifest.json",
+      "sha256": "8f718eb2aa8264cb0e46e506ba14669a5f770adb2b30140887093229aab45173",
+      "recorded_source": "/media/carruthers/mnt3/claude/tutorials/synthetic/training_runs",
+      "disclosure": "Synthetic progress CSVs; real spaCR parser and UI."
+    },
+    "production_scenes": {
+      "path_relative_to_author": "production/28_training_runs/scenes.json",
+      "sha256": "ffb6ba949f7449ffa998484a81e1060349bf5ffc9ac68b815ee8a55534b65de3",
+      "scene_count": 8,
+      "note": "The selected production narration omits the synthetic disclosure. No encoded video or image was inspected in this audit."
+    },
+    "input_manifest": {
+      "path_relative_to_author": "synthetic/training_runs/manifest.json",
+      "sha256": "0fb6b5be3dfda9469020dce803eaec904872c7d47e8b27681e7b02cecb952515",
+      "disclosure": "Synthetic progress logs; no model was trained."
+    },
+    "preparation_recipe": {
+      "path_relative_to_author": "tools/prepare_training_runs_tutorial_data.py",
+      "sha256": "a58354bafbda3b3ab1cdb2771a876af8d3e24664b0a38eaa349209816edd574c",
+      "read_completely": true,
+      "executed": false,
+      "evidence": [
+        "The module docstring says transferred microscopy tutorial data contained no saved classifier training curves.",
+        "_write_curve constructs accuracy-derived neg_accuracy, pos_accuracy and prauc plus a sinusoidal threshold; these are generated numbers, not model evaluations.",
+        "main constructs 20-epoch baseline and 25-epoch tuned trajectories with NumPy linspace/exp and manually inserted late validation declines.",
+        "_cv_run constructs three 18-epoch folds using fixed offsets -0.018, 0.006 and 0.022; no models are fitted.",
+        "Settings including model names, learning rates, classes, worker counts and device=cuda are fabricated example configuration, not evidence of training or hardware use.",
+        "The incomplete .pth is a 40-byte text placeholder, not a loadable trained checkpoint."
+      ]
+    },
+    "capture_recipe": {
+      "path_relative_to_author": "tools/capture_training_runs_experiment.py",
+      "sha256": "a759a17445a023fd251b7fb5f2989f805254875dccae3bb88fc895344244e678",
+      "read_completely": true,
+      "executed": false,
+      "evidence": "SOURCE points only to ROOT/synthetic/training_runs. The recipe uses the real Scan and Overlay selected consumers on those fixtures, programmatically selects runs/metrics/fold modes and calls identify_series; it performs no training and references no genuine multi-epoch run. This is source evidence, not independent runtime verification."
+    },
+    "directly_referenced_genuine_multi_epoch_runs_found": 0,
+    "search_limit": "This finding applies only to the original lesson's exact preparation/capture recipes and their manifests, not to every file on the machine."
+  },
+  "original_log_files": [
+    {
+      "path_relative_to_synthetic_logs": "baseline/model/maxvit_t/0_1/epochs_20/train.csv",
+      "sha256": "86bd53471a1d0f6002f179b35a804b42b3ec7661c37496004eb39089866eee54",
+      "rows": 20
+    },
+    {
+      "path_relative_to_synthetic_logs": "baseline/model/maxvit_t/0_1/epochs_20/validation.csv",
+      "sha256": "815e92b6032f3074140717b41ccadca9ecc42ff760d93b2c82be4da6bc92e177",
+      "rows": 20
+    },
+    {
+      "path_relative_to_synthetic_logs": "tuned/model/maxvit_t/0_1/epochs_25/train.csv",
+      "sha256": "07c47b9174fca1722ff3bbf97d34c717133df1228b3951fe6627be5c7ac24d21",
+      "rows": 25
+    },
+    {
+      "path_relative_to_synthetic_logs": "tuned/model/maxvit_t/0_1/epochs_25/validation.csv",
+      "sha256": "fe0d071c4171ae3124f237a01d3ba047228dac5d826c8e4c0dcf3159a969b8d8",
+      "rows": 25
+    },
+    {
+      "path_relative_to_synthetic_logs": "cross_validated/model/resnet50/0_1/epochs_18/fold_1/train.csv",
+      "sha256": "d2baa266f8339f6369df0ed7056220c2427004c3ad932dbbb94768a02e408406",
+      "rows": 18
+    },
+    {
+      "path_relative_to_synthetic_logs": "cross_validated/model/resnet50/0_1/epochs_18/fold_1/validation.csv",
+      "sha256": "93e65b0e7c07dcfc4e3fb21e44f9f098aa7e0a6d100097332ec8a95286e9a211",
+      "rows": 18
+    },
+    {
+      "path_relative_to_synthetic_logs": "cross_validated/model/resnet50/0_1/epochs_18/fold_2/train.csv",
+      "sha256": "1f298d925ece4ff4d77742c2643e7ea0607b7a2c401e6d4f6e4b7ce6ee7e932e",
+      "rows": 18
+    },
+    {
+      "path_relative_to_synthetic_logs": "cross_validated/model/resnet50/0_1/epochs_18/fold_2/validation.csv",
+      "sha256": "2246a16aa4756cc7455a0bf4b45bc4bac3fe47ba61e1d27fafbac8e0fd7de48d",
+      "rows": 18
+    },
+    {
+      "path_relative_to_synthetic_logs": "cross_validated/model/resnet50/0_1/epochs_18/fold_3/train.csv",
+      "sha256": "b4382875a7c2c076e4ead091097aec3b22c328ce324d40c7cfac0a8794dfa05f",
+      "rows": 18
+    },
+    {
+      "path_relative_to_synthetic_logs": "cross_validated/model/resnet50/0_1/epochs_18/fold_3/validation.csv",
+      "sha256": "b14973c157bf870442d3e45ff294c223f1cf06acfc8f1a64ac0f74245ca80dab",
+      "rows": 18
+    },
+    {
+      "path_relative_to_synthetic_logs": "incomplete/model/maxvit_t/0_1/epochs_8/maxvit_t_epoch_8_channels_0_1.pth",
+      "sha256": "3344e4754144763ccbaa373956254e4d3348fe04dfa4b7859306b788803faac0",
+      "decoded_entire_content": "synthetic tutorial checkpoint placeholder"
+    }
+  ],
+  "available_real_training_output": {
+    "classification": "Actual completed private Classify training output from the downloaded example crop dataset; not a synthetic log fixture and not scientifically accepted held-out validation",
+    "capture_provenance_relative_to_private_classify_capture": "provenance.json",
+    "capture_provenance_sha256": "8b37d54f6c20cffe64fbf8dff3882b584beba0b94c0960e3938b87284c871bf7",
+    "scientific_acceptance_relative_to_private_classify_capture": "scientific_acceptance.json",
+    "scientific_acceptance_sha256": "50550d17eafec67d051d9525b8d0742dbf54a3fb3e6675e48a42e7b305b4fc00",
+    "held_evidence_relative_to_repository": "tools/tutorials/evidence/2026-09-09_classify_recording_held.json",
+    "held_evidence_sha256": "9cd883cd8bc185c850e2469b071864c9ee1508abc74885e32e29a46ef3008476",
+    "run_count_with_progress_logs_in_the_inspected_private_dataset": 1,
+    "model": "resnet18",
+    "epochs": 1,
+    "fold_directories": [],
+    "settings_cross_validation_folds": 0,
+    "settings_cross_validation_enabled": false,
+    "files": [
+      {
+        "path_relative_to_private_classify_run": "train.csv",
+        "sha256": "a15b5083793926470876d06b5c79d0cf99a038628e1598004e38d7dcbd22ec5d",
+        "rows": 1,
+        "epoch": 1,
+        "accuracy": 0.9233615221987315,
+        "loss": 0.22144765386960408,
+        "f1_macro": 0.9233181436137072,
+        "prauc": 0.9625417757253232,
+        "class_support": [951, 941]
+      },
+      {
+        "path_relative_to_private_classify_run": "validation.csv",
+        "sha256": "f361ea2019c01f937758cbac10f82df247f4d8534962af756e69cb51d433b120",
+        "rows": 1,
+        "epoch": 1,
+        "accuracy": 0.9095238095238095,
+        "loss": 0.24684977719471568,
+        "f1_macro": 0.9093573229741703,
+        "prauc": 0.9506656348519695,
+        "class_support": [102, 108]
+      },
+      {
+        "path_relative_to_private_classify_run": "settings.csv",
+        "sha256": "899bb757d554ea21062cfb892905507cb25abf42a61212867dc7dabe72b96940"
+      }
+    ],
+    "metric_interpretation": "prauc is macro average precision in this two-output multiclass consumer. Both logs also record per-class accuracies/supports and num_classes; train additionally records lr and train_time. Empty neg_accuracy, pos_accuracy and optimal_threshold columns are not offered as usable metrics. The duplicate Accuracy column is normalized away; list-valued columns are not numeric curves.",
+    "separate_test_result_not_read_by_training_runs": "resnet18_time_260909_test_result.csv",
+    "scientific_limit": "The prior independent database-identity audit found actual wells plate1/r12/c1, plate1/r12/c2 and plate1/r5/c2 in both train and test, despite the software leakage report saying PASS. These logs cannot establish independent well-held-out performance.",
+    "sibling_incomplete_folder": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/datasets/training/model/resnet18/rgb/epochs_1",
+      "observed_files": ["settings.csv", "train_test_leakage_audit.json"],
+      "normal_scan_discovers_it_source_based": false,
+      "reason": "_looks_like_run requires a progress CSV, a .pth file, a *_per_fold.csv file, or a fold directory holding curves. Settings plus an audit alone do not qualify. Do not create placeholder files to manufacture a second run."
+    }
+  },
+  "narration_corrections": [
+    {"scene": 1, "decision": "Keep comparison purpose as a capability; do not imply this single genuine run demonstrates several fits."},
+    {"scene": 2, "decision": "Remove registry input. GUI accepts a folder. Original synthetic capture provenance must not be presented as genuine trained-model evidence."},
+    {"scene": 3, "decision": "Keep discovery, available metrics and warnings as capabilities. Scan does not validate scientific comparability; no naturally discoverable second/incomplete private run is available here."},
+    {"scene": 4, "decision": "Remove smoothing and selectable settings fields. Actual controls are Metric, Folds and Overlay selected; the settings diff is automatic."},
+    {"scene": 5, "decision": "Do not claim convergence, stability or overfitting has been demonstrated from one recorded epoch."},
+    {"scene": 6, "decision": "Say best/last recorded epoch, not separately evaluated best/final checkpoint. The best point is selected on the same curve and can be optimistic; neither point proves generalization."},
+    {"scene": 7, "decision": "Fold mean plus/minus sample SD is a supported capability, not an observed result of this non-fold run."},
+    {"scene": 8, "decision": "Keep settings/provenance review as part of a wider evaluation; do not claim reproducibility or independent held-out performance from these inputs."}
+  ],
+  "current_source_limits_and_capture_recipe": {
+    "entrypoint": "Classify (classify_merged) -> visible Training Runs fold (train_compare), built by spacr.qt.screens.classify._build_train_compare",
+    "input_controls": ["Choose folder…", "Scan", "Metric", "Folds", "Overlay selected"],
+    "read_only_consumers": ["spacr.train_compare.find_runs", "spacr.train_compare.load_run", "spacr.train_compare.compare_runs", "spacr.train_compare.plot_curves"],
+    "source_references": [
+      "spacr/qt/screens/classify.py:188",
+      "spacr/qt/screens/train_compare.py:290",
+      "spacr/qt/screens/train_compare.py:451",
+      "spacr/qt/screens/train_compare.py:699",
+      "spacr/qt/screens/train_compare.py:803",
+      "spacr/qt/screens/train_compare.py:903",
+      "spacr/train_compare.py:161",
+      "spacr/train_compare.py:924",
+      "spacr/train_compare.py:1077",
+      "spacr/train_compare.py:1377",
+      "spacr/deep_spacr.py:680"
+    ],
+    "bounded_plan_not_executed": [
+      "Use the visible Classify fold and actual folder picker to scan only the exact private completed run folder.",
+      "Wait for job_finished, is_busy()==False and active_jobs()==0; validate exact discovered path, one run, two split rows at epoch 1, existing settings and no folds.",
+      "Select that run, inspect actual recorded Metric choices and use Overlay selected. Describe one run with two split series, not two independently fitted candidates.",
+      "If showing Folds choices, explain that no fold observations are present and selecting a mode does not create them.",
+      "Preserve and hash original logs/settings before and after any eventual capture; do not retrain, duplicate logs, add fake folds or alter the user registry."
+    ],
+    "presentation_pitfalls_source_only": [
+      "plot_curves uses markerless dashed/solid lines, and Qt does not request mark_best. A one-epoch series provides no visible trajectory; runtime rendering has not been checked here.",
+      "The fewer-than-two-settings-runs branch appends 'these runs had none' even when the sole selected run has settings. Do not narrate missing provenance from this misleading message."
+    ],
+    "decision": "A genuine multi-run, multi-epoch comparison and fold-variability demonstration remains unsupported by the traced real outputs. The original fixtures cannot establish trained-model results. After this finding, the parent explicitly authorized using these existing, unmodified and clearly disclosed synthetic fixtures for a submodule comparison-controls demonstration only. The core Classify scientific hold remains separate; no assertion is made about unsearched locations.",
+    "authorized_followup": "Create a bounded recorder in tools/tutorials/capture_training_runs.py, without running it: actual current Classify fold, folder picker, Scan, Overlay selected, Metric, Folds, settings diff and series click if supported; verify actual parsed synthetic CSV contents and source preservation, identify the .pth as a text placeholder never loaded, and make no training, inference or biological-validation claim."
+  }
+}

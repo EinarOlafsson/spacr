@@ -1,0 +1,43 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Layer Viewer：查看图像和标签叠加",
+  "description": "加载匹配的图像和掩膜，调整叠加效果，并放大检查对象边界。",
+  "objectives": [
+    "打开图像及其对应的掩膜。",
+    "调整可见性、不透明度、混合方式和图层顺序。",
+    "通过缩放和平移检查标签。"
+  ],
+  "prerequisite": "下载并解压Layer_Viewer_real_image_mask.zip。使用其中的强度图像和对应的整数标签掩膜。本例没有像素的物理标定。",
+  "scenes": [
+    "从Home打开QC，然后打开Layer Viewer。下载并解压链接中的图像和掩膜示例。查看器为这两个输入提供了自己的文件控件。",
+    "点击加号Image，打开fov01_C1点tif。灰度图像会以百分位对比度拉伸的方式显示在画布中。",
+    "点击Fit让图像填满面板。在较宽的面板中，Fit可能会拉伸正方形图像；检查形状时，请调整分隔条让面板大致呈正方形。",
+    "点击加号Mask，打开fov01_cell_mask点tif。四十四个带标签的对象显示在图像上方。零是背景，保持透明。",
+    "更改控件之前，先在图层列表中选择mask。切换其复选框，把边界与下方的图像进行比较。",
+    "把mask的Opacity调到零，在保留图层的同时隐藏其颜色。调整其他图层之前，请确认所选的行。",
+    "把Opacity调到百分之百，检查标签的形状。颜色会覆盖每个带标签对象内部的图像。",
+    "把Opacity恢复到百分之五十，并选择translucent混合，透过掩膜看到图像纹理。把对象边界与下方的信号进行比较。",
+    "选择additive混合，把掩膜颜色叠加到图像上。在这种显示中，明亮区域可能会饱和，因此需要更清晰的比较时请回到translucent。",
+    "尝试multiply和minimum混合，比较较暗的叠加效果。这些选项只改变显示的合成图像，原始强度值仍保留在源图像中。",
+    "选择opaque，并调节Opacity滑块比较其外观。对于这个整数掩膜，百分之五十的opaque混合看起来与百分之五十的translucent混合相同。请恢复translucent继续操作。",
+    "选择image，在色彩映射选择器中选择cyan。强度图像的颜色会改变，而掩膜保留其标签颜色。选择gray恢复灰度视图。",
+    "选择mask，按向下箭头把它移到图像后面。上层图层显示在前面。再把掩膜移上来以检查其标签。",
+    "点击一个可见的带标签对象，在状态栏中读取其位置和标签编号。需要确定该对象所在的视野、板或孔时，请使用项目元数据。",
+    "在对象上滚动鼠标滚轮，以指针为中心放大。放大到边界易于检查为止。",
+    "按住Shift并用鼠标左键拖动以平移。也可以用鼠标中键拖动。在保持当前缩放的同时浏览整个视野。",
+    "点击Fit返回整个视野。如果适配后的图像看起来被拉伸，请调整面板形状。",
+    "加号Points和加号Shapes会添加空的辅助图层。要绘制或编辑分割掩膜，请转到Make Masks；这个查看器没有为这些空图层提供绘图控件。",
+    "选择一个图层并使用Remove把它从视图中移除。其原始文件仍保留在磁盘上，可以再次加载。",
+    "这样就得到了一个检查过的图层视图。要导出合成图像，请在Python中使用stack_from_paths和LayerStack.render_uint8。要保存掩膜编辑，请继续使用Make Masks；要进行对象测量，请使用Measure。"
+  ]
+}

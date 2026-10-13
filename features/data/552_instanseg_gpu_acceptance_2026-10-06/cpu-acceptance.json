@@ -1,0 +1,280 @@
+{
+  "accepted_execution": true,
+  "device": "cpu",
+  "profiles": [
+    {
+      "request": 1,
+      "requested_device": "cpu",
+      "actual_worker_reply_device": "cpu",
+      "cuda_events": 0,
+      "cuda_kernel_events": 0,
+      "cuda_kernel_names": [],
+      "torch_version": "2.11.0+cu128",
+      "cuda_runtime": "12.8",
+      "model": "fluorescence_nuclei_and_cells",
+      "params": {
+        "channel_axis": -1,
+        "normalize": false,
+        "diameter": 95.59,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "min_size": 0,
+        "resample": true,
+        "batch_size": 1
+      },
+      "input_file_sha256": [
+        "c3ee25a78be9f6d897d9aae6844d1d25302eb603194ee12026040321840e53bf"
+      ],
+      "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+      "output_file_sha256": [
+        "4458e48f01a59492f9b2d39d3e5379a350df285d6f5d252dbc0d98f40f307554"
+      ]
+    },
+    {
+      "request": 2,
+      "requested_device": "cpu",
+      "actual_worker_reply_device": "cpu",
+      "cuda_events": 0,
+      "cuda_kernel_events": 0,
+      "cuda_kernel_names": [],
+      "torch_version": "2.11.0+cu128",
+      "cuda_runtime": "12.8",
+      "model": "fluorescence_nuclei_and_cells",
+      "params": {
+        "channel_axis": -1,
+        "normalize": false,
+        "diameter": 100.31,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "min_size": 0,
+        "resample": true,
+        "batch_size": 1
+      },
+      "input_file_sha256": [
+        "4e7bfc200724ddc3bc745a23ce5011efc3a8390eafe5cdf1875f11b383cd604b"
+      ],
+      "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+      "output_file_sha256": [
+        "129acf227ff429cc53ce573a7df6947549723be66497fb8faf2f66b6cdd6bdce"
+      ]
+    },
+    {
+      "request": 3,
+      "requested_device": "cpu",
+      "actual_worker_reply_device": "cpu",
+      "cuda_events": 0,
+      "cuda_kernel_events": 0,
+      "cuda_kernel_names": [],
+      "torch_version": "2.11.0+cu128",
+      "cuda_runtime": "12.8",
+      "model": "fluorescence_nuclei_and_cells",
+      "params": {
+        "channel_axis": -1,
+        "normalize": false,
+        "diameter": 98.62,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "min_size": 0,
+        "resample": true,
+        "batch_size": 1
+      },
+      "input_file_sha256": [
+        "553185eee563dee60668cae977bf7cd853dbbdd23106a8213d76236fdfda1968"
+      ],
+      "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+      "output_file_sha256": [
+        "deeafb045496b2764b121fa894c258adf47ddd79f73abe503f8c7d3093179516"
+      ]
+    },
+    {
+      "request": 4,
+      "requested_device": "cpu",
+      "actual_worker_reply_device": "cpu",
+      "cuda_events": 0,
+      "cuda_kernel_events": 0,
+      "cuda_kernel_names": [],
+      "torch_version": "2.11.0+cu128",
+      "cuda_runtime": "12.8",
+      "model": "fluorescence_nuclei_and_cells",
+      "params": {
+        "channel_axis": -1,
+        "normalize": false,
+        "diameter": 93.68,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "min_size": 0,
+        "resample": true,
+        "batch_size": 1
+      },
+      "input_file_sha256": [
+        "6f01d971753d66f38423ba636258199872443c3bf6a9c9b525fa3b715795530a"
+      ],
+      "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+      "output_file_sha256": [
+        "53832018715221e8378614bb0dbc87ed0e0ce35a403520a6ed7f1c97babcecfa"
+      ]
+    }
+  ],
+  "pooled": {
+    "fields": 4,
+    "tp50": 198,
+    "fp50": 11,
+    "fn50": 25,
+    "precision50": 0.9474,
+    "recall50": 0.8879,
+    "f1_50": 0.9167,
+    "tp75": 187,
+    "fp75": 22,
+    "fn75": 36,
+    "precision75": 0.8947,
+    "recall75": 0.8386,
+    "f1_75": 0.8657,
+    "mean_field_f1_50": 0.9091,
+    "n_truth": 223,
+    "n_pred": 209,
+    "negative_field_fp": 0,
+    "iou_mean": 0.8717,
+    "eval_s_median": 2.54,
+    "eval_s_mean": 2.76,
+    "prep_s_mean": 1.05
+  },
+  "inputs": [
+    {
+      "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "labels": 65
+    },
+    {
+      "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "labels": 48
+    },
+    {
+      "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_9_1.npy",
+      "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+      "labels": 64
+    },
+    {
+      "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E02_10_1.npy",
+      "sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+      "labels": 46
+    }
+  ],
+  "models": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/cover.png": "5516689c2e8e403d7ea7f7ac4f694ee6019905ff91f5ade55bcade10dae8f8c5",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/fluorescence_nuclei_and_cells_README.md": "4e75c20db5d273d8849dc5a9793e509c00adb098905b9145d3a865b9951a2f21",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/instanseg.pt": "636833d26b5afcc03bde1357b3e669cf015e91dd1edda863aa51c19eee986562",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/instanseg_postprocess.ijm": "0886f52737326dba0c6d53528909d746e75e0dce7a0cb41e855a648f8133ba88",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/instanseg_preprocess.ijm": "53376aec6738fb19eab1ace9308c383ee04e46af2a3acf7e70b5862919dca86c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/rdf.yaml": "d2b741585fb88cda1bfb552f2829cbdeeed1e814638ea45bbb111bfd6a326281",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/test-input.npy": "2c65ea28d752e79281f530ef5292b06fb221e9b314908d7e9092efaba02168ff",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/test-output_instance_segmentation.npy": "c723b2b160a1803dbe1933757334416ae8c0b29e561175a145d27669bd9f2924"
+  },
+  "wrapper_sha256": "e9c8fbd0b7c1a39716a236993daafafbbc635428851e85490ceb09160634c5f6",
+  "scored_fields": [
+    {
+      "prediction": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-01-prediction.npy",
+      "prediction_sha256": "b4b1060b2ffe8e3e886362b8f8cd07af31533779a119ea277f1acb2ec1473cff",
+      "reference": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-01-reference.npy",
+      "reference_sha256": "a20e71527b1ac3ce0f821d187971bf0dafc7ecd38610d4d5ce8247f68d90fdaf",
+      "scores": {
+        "tp50": 61,
+        "fp50": 4,
+        "fn50": 4,
+        "f1_50": 0.9385,
+        "precision50": 0.9385,
+        "recall50": 0.9385,
+        "iou_sum": 53.445758020980875,
+        "iou_mean": 0.8762,
+        "n_truth": 65,
+        "n_pred": 65,
+        "tp75": 57,
+        "fp75": 8,
+        "fn75": 8,
+        "f1_75": 0.8769,
+        "precision75": 0.8769,
+        "recall75": 0.8769
+      }
+    },
+    {
+      "prediction": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-02-prediction.npy",
+      "prediction_sha256": "80e734835887ea1b7d11c25b98100ce9f2c7cd43dd3b91d36cfac00dce62b3f8",
+      "reference": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-02-reference.npy",
+      "reference_sha256": "947c460145a10d75c880fe0715eb758e3325380c950bb2c6b087e5109d0177a1",
+      "scores": {
+        "tp50": 45,
+        "fp50": 3,
+        "fn50": 3,
+        "f1_50": 0.9375,
+        "precision50": 0.9375,
+        "recall50": 0.9375,
+        "iou_sum": 39.21868873521246,
+        "iou_mean": 0.8715,
+        "n_truth": 48,
+        "n_pred": 48,
+        "tp75": 43,
+        "fp75": 5,
+        "fn75": 5,
+        "f1_75": 0.8958,
+        "precision75": 0.8958,
+        "recall75": 0.8958
+      }
+    },
+    {
+      "prediction": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-03-prediction.npy",
+      "prediction_sha256": "b04cf8db744b49fff85e1e032306c4bd4ad18867aac0b298139ba19f5f5a7f24",
+      "reference": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-03-reference.npy",
+      "reference_sha256": "c6080dcc1e79e4ed6bc5dde02a06362c923da2d9b0cfb63883e8b5ae4f221555",
+      "scores": {
+        "tp50": 58,
+        "fp50": 0,
+        "fn50": 6,
+        "f1_50": 0.9508,
+        "precision50": 1.0,
+        "recall50": 0.9062,
+        "iou_sum": 50.07367797354667,
+        "iou_mean": 0.8633,
+        "n_truth": 64,
+        "n_pred": 58,
+        "tp75": 54,
+        "fp75": 4,
+        "fn75": 10,
+        "f1_75": 0.8852,
+        "precision75": 0.931,
+        "recall75": 0.8438
+      }
+    },
+    {
+      "prediction": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-04-prediction.npy",
+      "prediction_sha256": "da9600646c2ba517d5ceeaf4e862408bdcc1099191fa8b8a4a3be70b17fe263f",
+      "reference": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/cpu-r2/scored-labels/field-04-reference.npy",
+      "reference_sha256": "a595b1288f0d32710a73b919f6056d57abc0266eb71ff91f1243a3eada0bdf46",
+      "scores": {
+        "tp50": 34,
+        "fp50": 4,
+        "fn50": 12,
+        "f1_50": 0.8095,
+        "precision50": 0.8947,
+        "recall50": 0.7391,
+        "iou_sum": 29.849051171952475,
+        "iou_mean": 0.8779,
+        "n_truth": 46,
+        "n_pred": 38,
+        "tp75": 33,
+        "fp75": 5,
+        "fn75": 13,
+        "f1_75": 0.7857,
+        "precision75": 0.8684,
+        "recall75": 0.7174
+      }
+    }
+  ],
+  "benchmark_script_sha256": "3d7506c29bed77cb4df8159dea1faa01ce037ab17ebf4af7d7c3cf92a397bd89",
+  "application_backend_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+  "benchmark_driver_sha256": "ada815b4ae9c0da1516c20307e51b8e4c4566fba28b31d2af8ec6cfb9d53754d",
+  "reference_labels_from_Cellpose_SAM_not_independent_human_truth": true,
+  "diameter_derived_from_reference_labels_for_reproducible_execution": true,
+  "cpu_gpu_label_parity_verified": false,
+  "brightfield_model_validated": false,
+  "multiplex_gpu_validated": false
+}

@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "item": 43,
+  "date": "2026-10-01",
+  "base_commit": "d9944892b",
+  "scope": "Repair reproduced tutorial wrapper contract test; final-source green CI remains open",
+  "current_failed_ci": {
+    "run": 36856217586,
+    "head": "52ddec096c470e15e88abaf755fdcbf666fe7892",
+    "jobs": [110402180480, 110402180721],
+    "failed_test": "tests/qt/test_tutorial_capture_alpha_guard.py::test_the_neutral_wrapper_turns_alpha_off_before_it_launches_spacr",
+    "cause": "Source regex rejects valid host interpreter override for preflight outside recording namespace"
+  },
+  "historical_compat": {
+    "requested_failed_run": 34596992887,
+    "failures": ["Missing yaml in tooling-only packaging job", "No compatible pandas wheel for Python 3.15"],
+    "current_source": "Already repaired; PyYAML validation is optional in packaging-only job and supported matrix is Python 3.9 through 3.14",
+    "latest_completed_success": 36512024533,
+    "successful_jobs": 17,
+    "head": "2d0bf5af6f973d3cad5913c223fb56963a4434e5"
+  },
+  "current_push_observation": {
+    "head": "a458ea4adcc97e6f1dc77ea8c5ca31f0d0e3c872",
+    "created_at": "2026-10-01T17:23:24Z",
+    "actions_enabled": true,
+    "tests": {"run": 36899011123, "status": "pending"},
+    "compat": {"run": 36899010564, "status": "queued"},
+    "docs": {"run": 36899010518, "status": "pending"}
+  },
+  "validation": {
+    "reproduced_before": {"failed": 1},
+    "tutorial_alpha_guard_and_preferences_capture": {"passed": 13, "failed": 0},
+    "packaging_metadata": {"passed": 50, "skipped": 2, "reason": "Current version not yet released"},
+    "cap": "4G",
+    "device": "cpu",
+    "qt": "offscreen",
+    "threads": 2,
+    "wrapper_cases": ["default interpreter succeeds", "host override succeeds", "default interpreter refuses capture after policy failure", "host override refuses capture after policy failure"]
+  },
+  "source_sha256": {
+    "tools/tutorials/run_neutral_capture.sh": "9f4e8bebdf81ec1c0ef8f311b3847f8d96f022945a7af9d6e0e14c60417c7e87",
+    "tests/qt/test_tutorial_capture_alpha_guard.py": "96f900f32cdc53e8795ab2b5c6a30e0ee1ff1e4014bcd257448160a5b725d339"
+  },
+  "log_sha256": {
+    "qt_job_110402180721": "8928d6854c194eb98859a6e2cf98d43b4c0d73c109026035a51ea7255e4b438b",
+    "coverage_job_110402180480": "a9871b68ed1f602f3d7315bc04f4a503f20fd949e1204e7a1e7ca5daaba2b94a",
+    "ratchet_job_110432205996": "ce3139481c2ee5c6305e5901a33c3ae121fec83f6785ad67cb98aea1d5cd6d69"
+  },
+  "limitations": [
+    "No complete final-source green workflow evidence",
+    "Coverage ratchet failures remain and baseline is unchanged",
+    "No application, dependency or workflow changes",
+    "Shell command interception does not claim an actual namespace capture; real alpha profile and refusal behavior remains separately tested"
+  ]
+}

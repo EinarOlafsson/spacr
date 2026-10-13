@@ -1,0 +1,36 @@
+{
+  "lesson": "40_run_history",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Run History: 지난 작업을 확인하고 설정 복원",
+  "description": "저장된 실행을 찾고, 설정과 로그를 확인한 뒤 이전 구성을 해당 모듈에 불러옵니다.",
+  "objectives": [
+    "필터와 검색으로 실행을 찾습니다.",
+    "저장된 설정, 파일, 문제를 확인합니다.",
+    "새 실행을 위해 설정을 복원합니다."
+  ],
+  "prerequisite": "spaCR 작업을 하나 완료해 로컬 실행 기록을 만드세요. 예제는 변환, Recruitment, Regression 실행 기록을 살펴봅니다.",
+  "scenes": [
+    "Help를 연 뒤 Run History를 열어 이 컴퓨터에 저장된 실행 기록을 살펴보세요.",
+    "Refresh를 클릭해 사용 가능한 기록을 불러오세요. 실행을 선택해 세부 정보를 확인하고, 공간이 더 필요하면 구분선을 드래그하세요.",
+    "모듈과 상태를 고른 뒤 검색어를 입력해 목록을 좁히세요. 예를 들어 완료된 변환을 찾으려면 convert와 Success를 선택하세요.",
+    "Files and models를 열어 기록된 입력과 출력 세부 정보를 확인하세요. 파일 해시 계산을 건너뛴 실행은 목록이 비어 있을 수 있으니, 설정이나 로그의 출력 경로로 결과를 찾으세요.",
+    "표가 비어 있으면 필터를 지우거나 조정하세요. 검색어와 상태 선택은 함께 적용됩니다.",
+    "Recruitment 실행을 선택하고 Overview에서 경과 시간과 기록된 파일 수를 읽으세요. 이것이 그 저장된 실행의 요약입니다.",
+    "Settings를 열어 소스 폴더, 채널, 객체 필터를 확인하세요. 다시 쓸지 정하기 전에 저장된 구성을 끝까지 살펴보세요.",
+    "Files and models를 열어 기록된 경로, 크기, 해시를 확인하세요. 분석을 다시 볼 때를 대비해 참조된 프로젝트 파일을 계속 쓸 수 있게 두세요.",
+    "Environment를 열어 기록된 소프트웨어 버전과 시드를 확인하세요. Copy path로 실행의 저널 폴더를 찾으세요.",
+    "Warnings and failure를 열어 완료된 실행에 붙은 경고를 읽으세요. 결과를 쓰기 전에 관련 경고를 조사하세요.",
+    "Failed를 선택하면 실패한 작업을 찾을 수 있습니다. 문제를 진단하거나 버그 보고서를 준비할 때는 트레이스백과 소프트웨어 버전을 읽으세요.",
+    "원하는 실행으로 돌아가 Load settings in module을 선택하세요. Run을 누르기 전에 복원된 컨트롤과 현재 입력 경로를 확인하세요.",
+    "필요한 저널은 프로젝트 기록과 함께 보관하세요. Clear all은 실행 기록을 지울 생각일 때만 쓰세요. 프로젝트 요약을 만들려면 Report를 여세요."
+  ]
+}

@@ -1,0 +1,1071 @@
+{
+  "schema": 1,
+  "language": "en",
+  "lang_code": "a",
+  "dialect": "us",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "total_duration": 204.9,
+  "media_sha256": "61d4b04497fbfa06b5afcdf53104fd69ac8a4f26527c49373a6afa704873517e",
+  "media_bytes": 1355317,
+  "render_fingerprint": "b7583060e8bf982450d9d037a3d348050faadf606137572681ad2c54dad781d6",
+  "render_inputs": {
+    "renderer": "render_all_voices-v4",
+    "lesson": "12_map_barcodes",
+    "language": "en",
+    "lang_code": "a",
+    "dialect": "us",
+    "voice": "af_heart",
+    "speed": 1.0,
+    "scenes": [
+      {
+        "narration": "Open Map Barcodes from Home. This module turns sequencing reads into named barcode counts. Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
+        "speech_text": [
+          "Open Map Barcodes from Home.",
+          "This module turns sequencing reads into named barcode counts.",
+          "Barcode QC is its nested quality-control workflow; its separate lesson remains available."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Choose Load test data and select both mates of the first archive run. Limit each file to ten thousand reads. This downloads a real paired sample, not the entire sequencing archive.",
+        "speech_text": [
+          "Choose Load test data and select both mates of the first archive run.",
+          "Limit each file to ten thousand reads.",
+          "This downloads a real paired sample, not the entire sequencing archive."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Choose reference tables that belong to this library. Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults. We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
+        "speech_text": [
+          "Choose reference tables that belong to this library.",
+          "Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults.",
+          "We deliberately start with a window length of one hundred twenty to show the proposal changing it."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Open Find barcodes and start the search. Counts update while real reads are sampled in both mates and both orientations. The form remains unchanged during this live refinement.",
+        "speech_text": [
+          "Open Find barcodes and start the search.",
+          "Counts update while real reads are sampled in both mates and both orientations.",
+          "The form remains unchanged during this live refinement."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Compare Observed with By chance, then inspect the orientation, offset and verdict. A match rate alone does not establish a barcode. Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
+        "speech_text": [
+          "Compare Observed with By chance, then inspect the orientation, offset and verdict.",
+          "A match rate alone does not establish a barcode.",
+          "Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The read viewer shows one actual read per row. The legend identifies the column, guide, row and anchor colours. Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
+        "speech_text": [
+          "The read viewer shows one actual read per row.",
+          "The legend identifies the column, guide, row and anchor colours.",
+          "Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Review the proposal. This sample places the extraction window at eighty-nine bases. Only pressing Apply these settings writes the proposed change into the form. Automatic discovery is not automatic permission to replace your settings.",
+        "speech_text": [
+          "Review the proposal.",
+          "This sample places the extraction window at eighty-nine bases.",
+          "Only pressing Apply these settings writes the proposed change into the form.",
+          "Automatic discovery is not automatic permission to replace your settings."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The notes also require reverse-complemented row and guide references. Apply does not create those files. Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
+        "speech_text": [
+          "The notes also require reverse-complemented row and guide references.",
+          "Apply does not create those files.",
+          "Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled. Keep missing assignments missing. This mapping workflow uses the CPU; a GPU is not required.",
+        "speech_text": [
+          "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled.",
+          "Keep missing assignments missing.",
+          "This mapping workflow uses the CPU; a GPU is not required."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows. Unmatched and ambiguous references remain unassigned. Completion is checked against saved files, not just the console's finished message.",
+        "speech_text": [
+          "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows.",
+          "Unmatched and ambiguous references remain unassigned.",
+          "Completion is checked against saved files, not just the console's finished message."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor. Here a real second calculation selects only column and guide on one thousand paired reads. Every entry needs a matching named pattern group. Omitting row identity produces counts by column and guide, not by well.",
+        "speech_text": [
+          "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor.",
+          "Here a real second calculation selects only column and guide on one thousand paired reads.",
+          "Every entry needs a matching named pattern group.",
+          "Omitting row identity produces counts by column and guide, not by well."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "This Python verification figure displays read depth from the saved three-barcode GUI run. Every count was independently reconciled with the annotated reads and reference names. Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
+        "speech_text": [
+          "This Python verification figure displays [read](/ɹˈid/) depth from the saved three-barcode GUI run.",
+          "Every count was independently reconciled with the annotated reads and reference names.",
+          "Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The spaCR AI controls can help explain a run when you configure a provider. This recording shows an unsent question and contains no AI response. Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
+        "speech_text": [
+          "The spacer AI controls can help explain a run when you configure a provider.",
+          "This recording shows an unsent question and contains no AI response.",
+          "Check reference identity, orientation, warnings and saved counts yourself before scaling up."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      }
+    ],
+    "assembly": {
+      "version": "2026-08-11-natural-sentences-v1",
+      "sample_rate": 24000,
+      "lead_silence_seconds": 0.1,
+      "tail_silence_seconds": 0.18,
+      "sentence_pause_seconds": 0.12,
+      "scene_hold_min_seconds": 0.32,
+      "scene_hold_max_seconds": 0.52,
+      "default_scene_hold_seconds": 0.42,
+      "vad_frame_seconds": 0.005,
+      "vad_peak_ratio": 0.002,
+      "vad_absolute_floor": 2e-05
+    },
+    "cadence_profile": {
+      "version": "2026-08-11-af-heart-scene-cadence-v6",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008,
+      "enabled": false,
+      "targets": {
+        "slow_wpm": 125.0,
+        "fast_wpm": 145.0,
+        "calibration_wpm": 150.0
+      },
+      "safe_multiplier_bounds": {
+        "minimum": 0.68,
+        "maximum": 1.18
+      }
+    },
+    "mastering": {
+      "filters": [
+        "loudnorm=I=-16:TP=-3:LRA=11",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.7:attack=5:release=50:level=disabled",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.5:attack=5:release=50:level=disabled"
+      ],
+      "codec": "aac",
+      "bitrate": "48k",
+      "channels": 1,
+      "maximum_decoded_true_peak_dbfs": -1.0
+    },
+    "pronunciation": {
+      "role": "pronunciation_profile",
+      "version": "2026-08-28-pype-v11",
+      "sha256": "8789f5eb4444a0ec85a592dcf3160a0ba521d8b356e83814b88aac7742e11423",
+      "bytes": 15302
+    },
+    "synthesis_runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    }
+  },
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.255,
+      "scene_end": 12.775,
+      "duration": 12.775,
+      "text": "Open Map Barcodes from Home. This module turns sequencing reads into named barcode counts. Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
+      "speech_text": "Open Map Barcodes from Home. This module turns sequencing reads into named barcode counts. Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
+      "phonemes": "ˈOpᵊn mˈæp bˈɑɹkˌOdz fɹʌm hˈOm. ðˌɪs mˈɑʤul tˈɜɹnz sˈikwənsɪŋ ɹˈidz ˈɪntu nˈAmd bˈɑɹkˌOd kˈWnts. bˈɑɹkˌOd kjˌusˈi ɪz ɪts nˈɛstᵻd kwˌɑləTikəntɹˈOl wˈɜɹkflˌO; ɪts sˈɛpəɹət lˈɛsən ɹəmˈAnz əvˈAləbᵊl.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 0.0,
+          "speech_end": 1.88,
+          "audible_start": 0.1,
+          "audible_end": 1.7,
+          "duration": 1.88,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.25,
+          "text": "Open Map Barcodes from Home.",
+          "speech_text": "Open Map Barcodes from Home.",
+          "phonemes": "ˈOpᵊn mˈæp bˈɑɹkˌOdz fɹʌm hˈOm."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 2.0,
+          "speech_end": 5.905,
+          "audible_start": 2.1,
+          "audible_end": 5.725,
+          "duration": 3.905,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.275,
+          "text": "This module turns sequencing reads into named barcode counts.",
+          "speech_text": "This module turns sequencing reads into named barcode counts.",
+          "phonemes": "ðˌɪs mˈɑʤul tˈɜɹnz sˈikwənsɪŋ ɹˈidz ˈɪntu nˈAmd bˈɑɹkˌOd kˈWnts."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 6.025,
+          "speech_end": 12.255,
+          "audible_start": 6.125,
+          "audible_end": 12.075,
+          "duration": 6.23,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.285,
+          "text": "Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
+          "speech_text": "Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
+          "phonemes": "bˈɑɹkˌOd kjˌusˈi ɪz ɪts nˈɛstᵻd kwˌɑləTikəntɹˈOl wˈɜɹkflˌO; ɪts sˈɛpəɹət lˈɛsən ɹəmˈAnz əvˈAləbᵊl."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 12.775,
+      "speech_end": 24.005000000000003,
+      "scene_end": 24.525000000000002,
+      "duration": 11.750000000000002,
+      "text": "Choose Load test data and select both mates of the first archive run. Limit each file to ten thousand reads. This downloads a real paired sample, not the entire sequencing archive.",
+      "speech_text": "Choose Load test data and select both mates of the first archive run. Limit each file to ten thousand reads. This downloads a real paired sample, not the entire sequencing archive.",
+      "phonemes": "ʧˈuz lˈOd tˈɛst dˈATə ænd səlˈɛkt bˈOθ mˈAts ʌv ðə fˈɜɹst ˈɑɹkˌIv ɹˈʌn. lˈɪmət ˈiʧ fˈIl tə tˈɛn θˈWzᵊnd ɹˈidz. ðˌɪs dˈWnlˌOdz ɐ ɹˈiᵊl pˈɛɹd sˈæmpᵊl, nˌɑt ði əntˈIəɹ sˈikwənsɪŋ ˈɑɹkˌIv.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 12.775,
+          "speech_end": 17.045,
+          "audible_start": 12.875,
+          "audible_end": 16.865000000000002,
+          "duration": 4.27,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.285,
+          "text": "Choose Load test data and select both mates of the first archive run.",
+          "speech_text": "Choose Load test data and select both mates of the first archive run.",
+          "phonemes": "ʧˈuz lˈOd tˈɛst dˈATə ænd səlˈɛkt bˈOθ mˈAts ʌv ðə fˈɜɹst ˈɑɹkˌIv ɹˈʌn."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 17.165,
+          "speech_end": 19.5,
+          "audible_start": 17.265,
+          "audible_end": 19.32,
+          "duration": 2.335,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.255,
+          "text": "Limit each file to ten thousand reads.",
+          "speech_text": "Limit each file to ten thousand reads.",
+          "phonemes": "lˈɪmət ˈiʧ fˈIl tə tˈɛn θˈWzᵊnd ɹˈidz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 19.62,
+          "speech_end": 24.005000000000003,
+          "audible_start": 19.72,
+          "audible_end": 23.825000000000003,
+          "duration": 4.385,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.245,
+          "text": "This downloads a real paired sample, not the entire sequencing archive.",
+          "speech_text": "This downloads a real paired sample, not the entire sequencing archive.",
+          "phonemes": "ðˌɪs dˈWnlˌOdz ɐ ɹˈiᵊl pˈɛɹd sˈæmpᵊl, nˌɑt ði əntˈIəɹ sˈikwənsɪŋ ˈɑɹkˌIv."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.525000000000002,
+      "speech_end": 39.935,
+      "scene_end": 40.455000000000005,
+      "duration": 15.930000000000003,
+      "text": "Choose reference tables that belong to this library. Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults. We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
+      "speech_text": "Choose reference tables that belong to this library. Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults. We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
+      "phonemes": "ʧˈuz ɹˈɛfəɹəns tˈAbᵊlz ðæt bəlˈɔŋ tə ðɪs lˈIbɹˌɛɹi. hˈɪɹ wi jˈuz ðə mˈæʧɪŋ pɹˈIməɹz θɹˈi kˈɑləm ænd ɹˈO tˈAbᵊlz ænd ðə ɡˈId tˈAbᵊl, nˌɑt ði ˈOldəɹ bˈʌndᵊld dəfˈɔlts. wˌi dəlˈɪbəɹətli stˈɑɹt wɪð ɐ wˈɪndO lˈɛŋθ ʌv wˈʌn hˈʌndɹəd twˈɛnti tə ʃˈO ðə pɹəpˈOzᵊl ʧˈAnʤɪŋ ɪt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 24.525000000000002,
+          "speech_end": 27.655,
+          "audible_start": 24.625000000000004,
+          "audible_end": 27.475,
+          "duration": 3.13,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.29,
+          "text": "Choose reference tables that belong to this library.",
+          "speech_text": "Choose reference tables that belong to this library.",
+          "phonemes": "ʧˈuz ɹˈɛfəɹəns tˈAbᵊlz ðæt bəlˈɔŋ tə ðɪs lˈIbɹˌɛɹi."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 27.775000000000002,
+          "speech_end": 34.565,
+          "audible_start": 27.875000000000004,
+          "audible_end": 34.385000000000005,
+          "duration": 6.79,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.175,
+          "trimmed_tail": 0.26,
+          "text": "Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults.",
+          "speech_text": "Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults.",
+          "phonemes": "hˈɪɹ wi jˈuz ðə mˈæʧɪŋ pɹˈIməɹz θɹˈi kˈɑləm ænd ɹˈO tˈAbᵊlz ænd ðə ɡˈId tˈAbᵊl, nˌɑt ði ˈOldəɹ bˈʌndᵊld dəfˈɔlts."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 34.685,
+          "speech_end": 39.935,
+          "audible_start": 34.785000000000004,
+          "audible_end": 39.755,
+          "duration": 5.25,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.29,
+          "text": "We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
+          "speech_text": "We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
+          "phonemes": "wˌi dəlˈɪbəɹətli stˈɑɹt wɪð ɐ wˈɪndO lˈɛŋθ ʌv wˈʌn hˈʌndɹəd twˈɛnti tə ʃˈO ðə pɹəpˈOzᵊl ʧˈAnʤɪŋ ɪt."
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 40.455000000000005,
+      "speech_end": 51.51500000000001,
+      "scene_end": 52.03500000000001,
+      "duration": 11.580000000000005,
+      "text": "Open Find barcodes and start the search. Counts update while real reads are sampled in both mates and both orientations. The form remains unchanged during this live refinement.",
+      "speech_text": "Open Find barcodes and start the search. Counts update while real reads are sampled in both mates and both orientations. The form remains unchanged during this live refinement.",
+      "phonemes": "ˈOpᵊn fˈInd bˈɑɹkˌOdz ænd stˈɑɹt ðə sˈɜɹʧ. kˈWnts ˈʌpdˌAt wˌIl ɹˈiᵊl ɹˈidz ɑɹ sˈæmpᵊld ɪn bˈOθ mˈAts ænd bˈOθ ˌɔɹiəntˈAʃənz. ðə fˈɔɹm ɹəmˈAnz ˌʌnʧˈAnʤd dˈʊɹɪŋ ðɪs lˈIv ɹəfˈInmᵊnt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 40.455000000000005,
+          "speech_end": 42.86000000000001,
+          "audible_start": 40.55500000000001,
+          "audible_end": 42.68000000000001,
+          "duration": 2.405,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.26,
+          "text": "Open Find barcodes and start the search.",
+          "speech_text": "Open Find barcodes and start the search.",
+          "phonemes": "ˈOpᵊn fˈInd bˈɑɹkˌOdz ænd stˈɑɹt ðə sˈɜɹʧ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 42.980000000000004,
+          "speech_end": 48.05500000000001,
+          "audible_start": 43.080000000000005,
+          "audible_end": 47.87500000000001,
+          "duration": 5.075,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.275,
+          "text": "Counts update while real reads are sampled in both mates and both orientations.",
+          "speech_text": "Counts update while real reads are sampled in both mates and both orientations.",
+          "phonemes": "kˈWnts ˈʌpdˌAt wˌIl ɹˈiᵊl ɹˈidz ɑɹ sˈæmpᵊld ɪn bˈOθ mˈAts ænd bˈOθ ˌɔɹiəntˈAʃənz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 48.175000000000004,
+          "speech_end": 51.51500000000001,
+          "audible_start": 48.275000000000006,
+          "audible_end": 51.33500000000001,
+          "duration": 3.34,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.26,
+          "text": "The form remains unchanged during this live refinement.",
+          "speech_text": "The form remains unchanged during this live refinement.",
+          "phonemes": "ðə fˈɔɹm ɹəmˈAnz ˌʌnʧˈAnʤd dˈʊɹɪŋ ðɪs lˈIv ɹəfˈInmᵊnt."
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "speech_start": 52.03500000000001,
+      "speech_end": 69.775,
+      "scene_end": 70.295,
+      "duration": 18.25999999999999,
+      "text": "Compare Observed with By chance, then inspect the orientation, offset and verdict. A match rate alone does not establish a barcode. Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
+      "speech_text": "Compare Observed with By chance, then inspect the orientation, offset and verdict. A match rate alone does not establish a barcode. Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
+      "phonemes": "kəmpˈɛɹ əbzˈɜɹvd wɪð bˌI ʧˈæns, ðˈɛn ɪnspˈɛkt ði ˌɔɹiəntˈAʃən, ˌɔfsˈɛt ænd vˈɜɹdɪkt. ɐ mˈæʧ ɹˈAt əlˈOn dˈʌz nˌɑt əstˈæblɪʃ ɐ bˈɑɹkˌOd. pəzˈɪʃᵊnᵊl kˌɑnsəntɹˈAʃən ænd ðə dəstˈɪŋkt ɹˈɛfəɹənsᵻz sˈin ˈɔlsO ɪnfˈɔɹm ðə sˈɜɹʧ; ɹˈid ðə vˈɜɹdɪkt ˌɛksplənˈAʃənz bəfˈɔɹ əplˈIɪŋ ˈɛniθˌɪŋ.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 52.03500000000001,
+          "speech_end": 57.30000000000001,
+          "audible_start": 52.13500000000001,
+          "audible_end": 57.12000000000001,
+          "duration": 5.265,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.25,
+          "text": "Compare Observed with By chance, then inspect the orientation, offset and verdict.",
+          "speech_text": "Compare Observed with By chance, then inspect the orientation, offset and verdict.",
+          "phonemes": "kəmpˈɛɹ əbzˈɜɹvd wɪð bˌI ʧˈæns, ðˈɛn ɪnspˈɛkt ði ˌɔɹiəntˈAʃən, ˌɔfsˈɛt ænd vˈɜɹdɪkt."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 57.42000000000001,
+          "speech_end": 60.500000000000014,
+          "audible_start": 57.52000000000001,
+          "audible_end": 60.32000000000001,
+          "duration": 3.08,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.26,
+          "text": "A match rate alone does not establish a barcode.",
+          "speech_text": "A match rate alone does not establish a barcode.",
+          "phonemes": "ɐ mˈæʧ ɹˈAt əlˈOn dˈʌz nˌɑt əstˈæblɪʃ ɐ bˈɑɹkˌOd."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 60.62000000000001,
+          "speech_end": 69.775,
+          "audible_start": 60.72000000000001,
+          "audible_end": 69.59500000000001,
+          "duration": 9.155,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.3,
+          "text": "Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
+          "speech_text": "Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
+          "phonemes": "pəzˈɪʃᵊnᵊl kˌɑnsəntɹˈAʃən ænd ðə dəstˈɪŋkt ɹˈɛfəɹənsᵻz sˈin ˈɔlsO ɪnfˈɔɹm ðə sˈɜɹʧ; ɹˈid ðə vˈɜɹdɪkt ˌɛksplənˈAʃənz bəfˈɔɹ əplˈIɪŋ ˈɛniθˌɪŋ."
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "speech_start": 70.295,
+      "speech_end": 85.185,
+      "scene_end": 85.705,
+      "duration": 15.409999999999997,
+      "text": "The read viewer shows one actual read per row. The legend identifies the column, guide, row and anchor colours. Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
+      "speech_text": "The read viewer shows one actual read per row. The legend identifies the column, guide, row and anchor colours. Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
+      "phonemes": "ðə ɹˈid vjˈuəɹ ʃˈOz wˈʌn ˈækʧəwəl ɹˈid pɜɹ ɹˈO. ðə lˈɛʤənd IdˈɛntəfˌIz ðə kˈɑləm, ɡˈId, ɹˈO ænd ˈæŋkəɹ kˈʌləɹz. kˈʌləɹd mˈæʧᵻz hˈɛlp ju ɪnspˈɛkt ði ˈɛvədᵊns, bˌʌt ɐn ˈIsəlˌATᵻd kˈʌləɹd mˈæʧ ɪz nˌɑt pɹˈuf ðæt ɐ ɹˈɛfəɹəns tˈAbᵊl ɪz kəɹˈɛkt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 70.295,
+          "speech_end": 72.985,
+          "audible_start": 70.395,
+          "audible_end": 72.805,
+          "duration": 2.69,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.29,
+          "text": "The read viewer shows one actual read per row.",
+          "speech_text": "The read viewer shows one actual read per row.",
+          "phonemes": "ðə ɹˈid vjˈuəɹ ʃˈOz wˈʌn ˈækʧəwəl ɹˈid pɜɹ ɹˈO."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 73.105,
+          "speech_end": 77.29,
+          "audible_start": 73.205,
+          "audible_end": 77.11,
+          "duration": 4.185,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.25,
+          "text": "The legend identifies the column, guide, row and anchor colours.",
+          "speech_text": "The legend identifies the column, guide, row and anchor colours.",
+          "phonemes": "ðə lˈɛʤənd IdˈɛntəfˌIz ðə kˈɑləm, ɡˈId, ɹˈO ænd ˈæŋkəɹ kˈʌləɹz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 77.41,
+          "speech_end": 85.185,
+          "audible_start": 77.51,
+          "audible_end": 85.005,
+          "duration": 7.775,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.275,
+          "text": "Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
+          "speech_text": "Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
+          "phonemes": "kˈʌləɹd mˈæʧᵻz hˈɛlp ju ɪnspˈɛkt ði ˈɛvədᵊns, bˌʌt ɐn ˈIsəlˌATᵻd kˈʌləɹd mˈæʧ ɪz nˌɑt pɹˈuf ðæt ɐ ɹˈɛfəɹəns tˈAbᵊl ɪz kəɹˈɛkt."
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "speech_start": 85.705,
+      "speech_end": 100.30499999999999,
+      "scene_end": 100.82499999999999,
+      "duration": 15.11999999999999,
+      "text": "Review the proposal. This sample places the extraction window at eighty-nine bases. Only pressing Apply these settings writes the proposed change into the form. Automatic discovery is not automatic permission to replace your settings.",
+      "speech_text": "Review the proposal. This sample places the extraction window at eighty-nine bases. Only pressing Apply these settings writes the proposed change into the form. Automatic discovery is not automatic permission to replace your settings.",
+      "phonemes": "ɹəvjˈu ðə pɹəpˈOzᵊl. ðˌɪs sˈæmpᵊl plˈAsᵻz ði ɪkstɹˈækʃən wˈɪndO æt ˌATinˈIn bˈAsiz. ˈOnli pɹˈɛsɪŋ əplˈI ðiz sˈɛTɪŋz ɹˈIts ðə pɹəpˈOzd ʧˈAnʤ ˈɪntu ðə fˈɔɹm. ˌɔTəmˈæTɪk dəskˈʌvəɹi ɪz nˌɑt ˌɔTəmˈæTɪk pəɹmˈɪʃən tə ɹəplˈAs jʊɹ sˈɛTɪŋz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 85.705,
+          "speech_end": 87.13,
+          "audible_start": 85.80499999999999,
+          "audible_end": 86.95,
+          "duration": 1.425,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.265,
+          "text": "Review the proposal.",
+          "speech_text": "Review the proposal.",
+          "phonemes": "ɹəvjˈu ðə pɹəpˈOzᵊl."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 87.25,
+          "speech_end": 91.03999999999999,
+          "audible_start": 87.35,
+          "audible_end": 90.86,
+          "duration": 3.79,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.265,
+          "text": "This sample places the extraction window at eighty-nine bases.",
+          "speech_text": "This sample places the extraction window at eighty-nine bases.",
+          "phonemes": "ðˌɪs sˈæmpᵊl plˈAsᵻz ði ɪkstɹˈækʃən wˈɪndO æt ˌATinˈIn bˈAsiz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 91.16,
+          "speech_end": 95.41,
+          "audible_start": 91.25999999999999,
+          "audible_end": 95.23,
+          "duration": 4.25,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.28,
+          "text": "Only pressing Apply these settings writes the proposed change into the form.",
+          "speech_text": "Only pressing Apply these settings writes the proposed change into the form.",
+          "phonemes": "ˈOnli pɹˈɛsɪŋ əplˈI ðiz sˈɛTɪŋz ɹˈIts ðə pɹəpˈOzd ʧˈAnʤ ˈɪntu ðə fˈɔɹm."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 95.53,
+          "speech_end": 100.30499999999999,
+          "audible_start": 95.63,
+          "audible_end": 100.125,
+          "duration": 4.775,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.265,
+          "text": "Automatic discovery is not automatic permission to replace your settings.",
+          "speech_text": "Automatic discovery is not automatic permission to replace your settings.",
+          "phonemes": "ˌɔTəmˈæTɪk dəskˈʌvəɹi ɪz nˌɑt ˌɔTəmˈæTɪk pəɹmˈɪʃən tə ɹəplˈAs jʊɹ sˈɛTɪŋz."
+        }
+      ]
+    },
+    {
+      "scene": 8,
+      "speech_start": 100.82499999999999,
+      "speech_end": 114.75999999999999,
+      "scene_end": 115.27999999999999,
+      "duration": 14.454999999999998,
+      "text": "The notes also require reverse-complemented row and guide references. Apply does not create those files. Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
+      "speech_text": "The notes also require reverse-complemented row and guide references. Apply does not create those files. Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
+      "phonemes": "ðə nˈOts ˈɔlsO ɹəkwˈIəɹ ɹəvˌɜɹskˈɑmpləmˌɛntᵻd ɹˈO ænd ɡˈId ɹˈɛfəɹənsᵻz. əplˈI dˈʌz nˌɑt kɹiˈAt ðOz fˈIlz. səlˈɛkt sˈɛpəɹətli vˈɛɹᵻfˌId ɹəvˈɜɹst kˈɑpiz, ɹətˈAnɪŋ ˈɛvəɹi əɹˈɪʤənᵊl bˈɑɹkˌOd nˈAm; kˈip ðə kˈɑləm tˈAbᵊl æz stˈɔɹd.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 100.82499999999999,
+          "speech_end": 105.28999999999999,
+          "audible_start": 100.92499999999998,
+          "audible_end": 105.10999999999999,
+          "duration": 4.465,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.265,
+          "text": "The notes also require reverse-complemented row and guide references.",
+          "speech_text": "The notes also require reverse-complemented row and guide references.",
+          "phonemes": "ðə nˈOts ˈɔlsO ɹəkwˈIəɹ ɹəvˌɜɹskˈɑmpləmˌɛntᵻd ɹˈO ænd ɡˈId ɹˈɛfəɹənsᵻz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 105.40999999999998,
+          "speech_end": 107.42999999999999,
+          "audible_start": 105.50999999999999,
+          "audible_end": 107.24999999999999,
+          "duration": 2.02,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.235,
+          "text": "Apply does not create those files.",
+          "speech_text": "Apply does not create those files.",
+          "phonemes": "əplˈI dˈʌz nˌɑt kɹiˈAt ðOz fˈIlz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 107.54999999999998,
+          "speech_end": 114.75999999999999,
+          "audible_start": 107.64999999999999,
+          "audible_end": 114.57999999999998,
+          "duration": 7.21,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.18,
+          "trimmed_tail": 0.26,
+          "text": "Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
+          "speech_text": "Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
+          "phonemes": "səlˈɛkt sˈɛpəɹətli vˈɛɹᵻfˌId ɹəvˈɜɹst kˈɑpiz, ɹətˈAnɪŋ ˈɛvəɹi əɹˈɪʤənᵊl bˈɑɹkˌOd nˈAm; kˈip ðə kˈɑləm tˈAbᵊl æz stˈɔɹd."
+        }
+      ]
+    },
+    {
+      "scene": 9,
+      "speech_start": 115.27999999999999,
+      "speech_end": 127.83499999999998,
+      "scene_end": 128.355,
+      "duration": 13.075000000000003,
+      "text": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled. Keep missing assignments missing. This mapping workflow uses the CPU; a GPU is not required.",
+      "speech_text": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled. Keep missing assignments missing. This mapping workflow uses the CPU; a GPU is not required.",
+      "phonemes": "ɹˈʌn ðə dˈWnlˌOdᵻd pˈɛɹ wɪð tˈu wˈɜɹkəɹz, ʧˈʌŋks ʌv wˈʌn θˈWzᵊnd ænd ˈænətˌATᵻdɹˌid sˈAvɪŋ ɪnˈAbᵊld. kˈip mˈɪsɪŋ əsˈInmənts mˈɪsɪŋ. ðˌɪs mˈæpɪŋ wˈɜɹkflˌO jˈuzᵻz ðə sˌipˌijˈu; ɐ ʤˌipˌijˈu ɪz nˌɑt ɹəkwˈIəɹd.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 115.27999999999999,
+          "speech_end": 121.32999999999998,
+          "audible_start": 115.37999999999998,
+          "audible_end": 121.14999999999999,
+          "duration": 6.05,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.26,
+          "text": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled.",
+          "speech_text": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled.",
+          "phonemes": "ɹˈʌn ðə dˈWnlˌOdᵻd pˈɛɹ wɪð tˈu wˈɜɹkəɹz, ʧˈʌŋks ʌv wˈʌn θˈWzᵊnd ænd ˈænətˌATᵻdɹˌid sˈAvɪŋ ɪnˈAbᵊld."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 121.44999999999999,
+          "speech_end": 123.21999999999998,
+          "audible_start": 121.54999999999998,
+          "audible_end": 123.03999999999999,
+          "duration": 1.77,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.25,
+          "text": "Keep missing assignments missing.",
+          "speech_text": "Keep missing assignments missing.",
+          "phonemes": "kˈip mˈɪsɪŋ əsˈInmənts mˈɪsɪŋ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 123.33999999999999,
+          "speech_end": 127.83499999999998,
+          "audible_start": 123.43999999999998,
+          "audible_end": 127.65499999999999,
+          "duration": 4.495,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.26,
+          "text": "This mapping workflow uses the CPU; a GPU is not required.",
+          "speech_text": "This mapping workflow uses the CPU; a GPU is not required.",
+          "phonemes": "ðˌɪs mˈæpɪŋ wˈɜɹkflˌO jˈuzᵻz ðə sˌipˌijˈu; ɐ ʤˌipˌijˈu ɪz nˌɑt ɹəkwˈIəɹd."
+        }
+      ]
+    },
+    {
+      "scene": 10,
+      "speech_start": 128.355,
+      "speech_end": 147.29999999999998,
+      "scene_end": 147.82,
+      "duration": 19.465000000000003,
+      "text": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows. Unmatched and ambiguous references remain unassigned. Completion is checked against saved files, not just the console's finished message.",
+      "speech_text": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows. Unmatched and ambiguous references remain unassigned. Completion is checked against saved files, not just the console's finished message.",
+      "phonemes": "ði ˈækʧəwəl ɹˈʌn ɪkstɹˈæktᵻd ˈAt θˈWzᵊnd sˈɪks hˈʌndɹəd əlˈɛvᵊn wˈɪndOz ænd mˈæpt sˈɛvən θˈWzᵊnd sˈɪks hˈʌndɹəd fˌɪftisˈɛvən ɹˈidz ˈɪntu fˈɔɹ θˈWzᵊnd nˈIndinˌIn kˈWnt ɹˈOz. ˌʌnmˈæʧt ænd æmbˈɪɡjəwəs ɹˈɛfəɹənsᵻz ɹəmˈAn ˌʌnəsˈInd. kəmplˈiʃən ɪz ʧˈɛkt əɡˈɛnst sˈAvd fˈIlz, nˌɑt ʤˈʌst ðə kˈɑnsˌOlz fˈɪnəʃt mˈɛsɪʤ.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 128.355,
+          "speech_end": 138.77499999999998,
+          "audible_start": 128.45499999999998,
+          "audible_end": 138.595,
+          "duration": 10.42,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.295,
+          "text": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows.",
+          "speech_text": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows.",
+          "phonemes": "ði ˈækʧəwəl ɹˈʌn ɪkstɹˈæktᵻd ˈAt θˈWzᵊnd sˈɪks hˈʌndɹəd əlˈɛvᵊn wˈɪndOz ænd mˈæpt sˈɛvən θˈWzᵊnd sˈɪks hˈʌndɹəd fˌɪftisˈɛvən ɹˈidz ˈɪntu fˈɔɹ θˈWzᵊnd nˈIndinˌIn kˈWnt ɹˈOz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 138.89499999999998,
+          "speech_end": 142.37,
+          "audible_start": 138.995,
+          "audible_end": 142.19,
+          "duration": 3.475,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.26,
+          "text": "Unmatched and ambiguous references remain unassigned.",
+          "speech_text": "Unmatched and ambiguous references remain unassigned.",
+          "phonemes": "ˌʌnmˈæʧt ænd æmbˈɪɡjəwəs ɹˈɛfəɹənsᵻz ɹəmˈAn ˌʌnəsˈInd."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 142.48999999999998,
+          "speech_end": 147.29999999999998,
+          "audible_start": 142.58999999999997,
+          "audible_end": 147.12,
+          "duration": 4.81,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.275,
+          "text": "Completion is checked against saved files, not just the console's finished message.",
+          "speech_text": "Completion is checked against saved files, not just the console's finished message.",
+          "phonemes": "kəmplˈiʃən ɪz ʧˈɛkt əɡˈɛnst sˈAvd fˈIlz, nˌɑt ʤˈʌst ðə kˈɑnsˌOlz fˈɪnəʃt mˈɛsɪʤ."
+        }
+      ]
+    },
+    {
+      "scene": 11,
+      "speech_start": 147.82,
+      "speech_end": 168.055,
+      "scene_end": 168.57500000000002,
+      "duration": 20.755000000000024,
+      "text": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor. Here a real second calculation selects only column and guide on one thousand paired reads. Every entry needs a matching named pattern group. Omitting row identity produces counts by column and guide, not by well.",
+      "speech_text": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor. Here a real second calculation selects only column and guide on one thousand paired reads. Every entry needs a matching named pattern group. Omitting row identity produces counts by column and guide, not by well.",
+      "phonemes": "ðə kˈɜɹənt pˈIθˌɑn ˌApˌiˈI əksˈɛpts ɐ bˈɑɹkˌOd sˈɛt ʌv ˈɛni sˈIz, ɔlðˈO ðɪs fˈɔɹm hæz nˈO bˈɑɹkˌOdsˌɛt ˈɛdəTəɹ. hˈɪɹ ɐ ɹˈiᵊl sˈɛkənd kˌælkjəlˈAʃən səlˈɛkts ˈOnli kˈɑləm ænd ɡˈId ˌɔn wˈʌn θˈWzᵊnd pˈɛɹd ɹˈidz. ˈɛvəɹi ˈɛntɹi nˈidz ɐ mˈæʧɪŋ nˈAmd pˈæTəɹn ɡɹˈup. OmˈɪTɪŋ ɹˈO IdˈɛntəTi pɹədˈusᵻz kˈWnts bI kˈɑləm ænd ɡˈId, nˌɑt bI wˈɛl.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 147.82,
+          "speech_end": 154.665,
+          "audible_start": 147.92,
+          "audible_end": 154.48499999999999,
+          "duration": 6.845,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.31,
+          "text": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor.",
+          "speech_text": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor.",
+          "phonemes": "ðə kˈɜɹənt pˈIθˌɑn ˌApˌiˈI əksˈɛpts ɐ bˈɑɹkˌOd sˈɛt ʌv ˈɛni sˈIz, ɔlðˈO ðɪs fˈɔɹm hæz nˈO bˈɑɹkˌOdsˌɛt ˈɛdəTəɹ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 154.785,
+          "speech_end": 160.495,
+          "audible_start": 154.885,
+          "audible_end": 160.315,
+          "duration": 5.71,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.18,
+          "trimmed_tail": 0.26,
+          "text": "Here a real second calculation selects only column and guide on one thousand paired reads.",
+          "speech_text": "Here a real second calculation selects only column and guide on one thousand paired reads.",
+          "phonemes": "hˈɪɹ ɐ ɹˈiᵊl sˈɛkənd kˌælkjəlˈAʃən səlˈɛkts ˈOnli kˈɑləm ænd ɡˈId ˌɔn wˈʌn θˈWzᵊnd pˈɛɹd ɹˈidz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 160.61499999999998,
+          "speech_end": 163.51999999999998,
+          "audible_start": 160.715,
+          "audible_end": 163.34,
+          "duration": 2.905,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.255,
+          "text": "Every entry needs a matching named pattern group.",
+          "speech_text": "Every entry needs a matching named pattern group.",
+          "phonemes": "ˈɛvəɹi ˈɛntɹi nˈidz ɐ mˈæʧɪŋ nˈAmd pˈæTəɹn ɡɹˈup."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 163.64,
+          "speech_end": 168.055,
+          "audible_start": 163.73999999999998,
+          "audible_end": 167.875,
+          "duration": 4.415,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.275,
+          "text": "Omitting row identity produces counts by column and guide, not by well.",
+          "speech_text": "Omitting row identity produces counts by column and guide, not by well.",
+          "phonemes": "OmˈɪTɪŋ ɹˈO IdˈɛntəTi pɹədˈusᵻz kˈWnts bI kˈɑləm ænd ɡˈId, nˌɑt bI wˈɛl."
+        }
+      ]
+    },
+    {
+      "scene": 12,
+      "speech_start": 168.57500000000002,
+      "speech_end": 188.28000000000003,
+      "scene_end": 188.80000000000004,
+      "duration": 20.225000000000023,
+      "text": "This Python verification figure displays read depth from the saved three-barcode GUI run. Every count was independently reconciled with the annotated reads and reference names. Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
+      "speech_text": "This Python verification figure displays [read](/ɹˈid/) depth from the saved three-barcode GUI run. Every count was independently reconciled with the annotated reads and reference names. Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
+      "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn. ˈɛvəɹi kˈWnt wʌz ˌɪndəpˈɛndəntli ɹˈɛkənsˌIld wɪð ði ˈænətˌATᵻd ɹˈidz ænd ɹˈɛfəɹəns nˈAmz. ˌʌnˈivən dˈɛpθ ɪz ɐ kwˌɑləTikəntɹˈOl ˌɑbzəɹvˈAʃən, nˌɑt ɐ bˌIəlˈɑʤəkᵊl əfˈɛkt; ɹəvjˈu bˈɑɹkˌOd kjˌusˈi bəfˈɔɹ dˌWnstɹˈim ɹəɡɹˈɛʃən.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 168.57500000000002,
+          "speech_end": 174.32000000000002,
+          "audible_start": 168.675,
+          "audible_end": 174.14000000000001,
+          "duration": 5.745,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.285,
+          "text": "This Python verification figure displays read depth from the saved three-barcode GUI run.",
+          "speech_text": "This Python verification figure displays [read](/ɹˈid/) depth from the saved three-barcode GUI run.",
+          "phonemes": "ðˌɪs pˈIθˌɑn vˌɛɹəfəkˈAʃən fˈɪɡjəɹ dəsplˈAz ɹˈid dˈɛpθ fɹʌm ðə sˈAvd θɹˌibˈɑɹkˌOd ɡˈui ɹˈʌn."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 174.44000000000003,
+          "speech_end": 179.74,
+          "audible_start": 174.54000000000002,
+          "audible_end": 179.56,
+          "duration": 5.3,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.265,
+          "text": "Every count was independently reconciled with the annotated reads and reference names.",
+          "speech_text": "Every count was independently reconciled with the annotated reads and reference names.",
+          "phonemes": "ˈɛvəɹi kˈWnt wʌz ˌɪndəpˈɛndəntli ɹˈɛkənsˌIld wɪð ði ˈænətˌATᵻd ɹˈidz ænd ɹˈɛfəɹəns nˈAmz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 179.86,
+          "speech_end": 188.28000000000003,
+          "audible_start": 179.96,
+          "audible_end": 188.10000000000002,
+          "duration": 8.42,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.29,
+          "text": "Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
+          "speech_text": "Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
+          "phonemes": "ˌʌnˈivən dˈɛpθ ɪz ɐ kwˌɑləTikəntɹˈOl ˌɑbzəɹvˈAʃən, nˌɑt ɐ bˌIəlˈɑʤəkᵊl əfˈɛkt; ɹəvjˈu bˈɑɹkˌOd kjˌusˈi bəfˈɔɹ dˌWnstɹˈim ɹəɡɹˈɛʃən."
+        }
+      ]
+    },
+    {
+      "scene": 13,
+      "speech_start": 188.80000000000004,
+      "speech_end": 204.38000000000005,
+      "scene_end": 204.90000000000006,
+      "duration": 16.100000000000023,
+      "text": "The spaCR AI controls can help explain a run when you configure a provider. This recording shows an unsent question and contains no AI response. Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
+      "speech_text": "The spacer AI controls can help explain a run when you configure a provider. This recording shows an unsent question and contains no AI response. Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
+      "phonemes": "ðə spˈAsəɹ ˈAˌI kəntɹˈOlz kæn hˈɛlp ɪksplˈAn ɐ ɹˈʌn wˌɛn ju kənfˈɪɡjəɹ ɐ pɹəvˈIdəɹ. ðˌɪs ɹəkˈɔɹdɪŋ ʃˈOz ɐn ʌnsˈɛnt kwˈɛsʧᵊn ænd kəntˈAnz nˈO ˈAˌI ɹəspˈɑns. ʧˈɛk ɹˈɛfəɹəns IdˈɛntəTi, ˌɔɹiəntˈAʃən, wˈɔɹnɪŋz ænd sˈAvd kˈWnts jəɹsˈɛlf bəfˈɔɹ skˈAlɪŋ ˌʌp.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 188.80000000000004,
+          "speech_end": 193.64500000000004,
+          "audible_start": 188.90000000000003,
+          "audible_end": 193.46500000000003,
+          "duration": 4.845,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.31,
+          "text": "The spaCR AI controls can help explain a run when you configure a provider.",
+          "speech_text": "The spacer AI controls can help explain a run when you configure a provider.",
+          "phonemes": "ðə spˈAsəɹ ˈAˌI kəntɹˈOlz kæn hˈɛlp ɪksplˈAn ɐ ɹˈʌn wˌɛn ju kənfˈɪɡjəɹ ɐ pɹəvˈIdəɹ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 193.76500000000004,
+          "speech_end": 198.35500000000005,
+          "audible_start": 193.86500000000004,
+          "audible_end": 198.17500000000004,
+          "duration": 4.59,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.24,
+          "text": "This recording shows an unsent question and contains no AI response.",
+          "speech_text": "This recording shows an unsent question and contains no AI response.",
+          "phonemes": "ðˌɪs ɹəkˈɔɹdɪŋ ʃˈOz ɐn ʌnsˈɛnt kwˈɛsʧᵊn ænd kəntˈAnz nˈO ˈAˌI ɹəspˈɑns."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 198.47500000000005,
+          "speech_end": 204.38000000000005,
+          "audible_start": 198.57500000000005,
+          "audible_end": 204.20000000000005,
+          "duration": 5.905,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.25,
+          "text": "Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
+          "speech_text": "Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
+          "phonemes": "ʧˈɛk ɹˈɛfəɹəns IdˈɛntəTi, ˌɔɹiəntˈAʃən, wˈɔɹnɪŋz ænd sˈAvd kˈWnts jəɹsˈɛlf bəfˈɔɹ skˈAlɪŋ ˌʌp."
+        }
+      ]
+    }
+  ]
+}

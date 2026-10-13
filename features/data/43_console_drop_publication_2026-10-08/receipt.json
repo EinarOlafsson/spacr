@@ -1,0 +1,82 @@
+{
+  "source_commit": "03b34869222e5db37f882f384ee5ba9214050911",
+  "source_blobs": {
+    "spacr/qt/widgets/console_panel.py": "de19b0a302207f377f4d75e3f581bc6f1788be3d",
+    "tests/qt/test_cov_w3_7_console_panel.py": "cd62b62c21391df333889d8a6f57bb36de2f6635",
+    "tests/qt/test_dnd_handlers_full.py": "5a086ae9bffaca866188ca14c0501ec007a94d6e"
+  },
+  "payloads": {
+    "console-offscreen.log.gz": {
+      "sha256": "53e8375178601aa77c384d33f48fac925c98733314009965536bca6d133225a3",
+      "raw_sha256": "382e33fab3d4ca6f72a049b75008e1a95bf123c3133652191b33dcb6ffa2e3a2",
+      "bytes": 474
+    },
+    "console-xvfb.log.gz": {
+      "sha256": "ad807f234282ac1ea068e1027b9fe2f27f9423cf379440424c41118c08220b4f",
+      "raw_sha256": "fcd84ff839d7f73f7667201d1113c9f6d7269705ceba2ee51e6256ee01241b0b",
+      "bytes": 346
+    },
+    "console-inventory-diff.json.gz": {
+      "sha256": "b24f1dfe732274f9d2a8be52f0e586965ffbd5ed9c4ec5345601beae5f82c7f4",
+      "raw_sha256": "046c95026f5066f54c4f09c2158e05ce94bf081d0bb239990a4ddad7f768f2ee",
+      "bytes": 32104
+    },
+    "hosted-coverage5-failure.log.gz": {
+      "sha256": "67929d7cb90b85b8c98c7fa7618af59b454560c04990c15d68ede072ced655d3",
+      "raw_sha256": "70a3e6f1e45c928f349d1b3eddb3aac3b018c4c657b98490664cfa893adc81e7",
+      "bytes": 286953
+    },
+    "hosted-numerical-gate.log.gz": {
+      "sha256": "d738610b3d49e922f2d78cb844c779eff7c1e3e0b1057ab74a7fd798487ea98c",
+      "raw_sha256": "250c3db9040b81375da97eae46754290a18dd757f8aae5c54777e8ea5f2340b0",
+      "bytes": 38730
+    },
+    "drop-positive.log.gz": {
+      "sha256": "ec853619c16c0cb1c52de2ea77fc9cd081d90755ac9c0b366168b9bb4dc2f2cb",
+      "raw_sha256": "5c3f584e31991b98760f7cc6951a7d9d59e148beb7bae25d33107366c5ff988a",
+      "bytes": 840
+    },
+    "drop-inline-negative-plugin.py.gz": {
+      "sha256": "f37db0a79c51a51bb38b12cae5906bb3ea9775ccc45eaacb6fc383a031b422f6",
+      "raw_sha256": "64d963bd845284154f8aa54d9eb8677d406d2ee4303aa986f70e37b650fdf815",
+      "bytes": 257
+    },
+    "drop-inline-negative.log.gz": {
+      "sha256": "dddba73c3c8826d72e8c45f7edbc14b7320fee03f13641762b25bf68e5acb683",
+      "raw_sha256": "d1040c11e69012a09a23b35910ef417b071fa511ffa5ed57c8890a6f718bd4e1",
+      "bytes": 1384
+    },
+    "drop-stage-timing.txt.gz": {
+      "sha256": "8d79a911d5f7c7bfc9623fa1864738d57fb2bccf018a0d88ba024904ec8c5f22",
+      "raw_sha256": "89a2b482c888c696aaca247fca23d6473611dec668e4d69325ab7f40da935a13",
+      "bytes": 52
+    }
+  },
+  "console_acceptance": {
+    "offscreen": "51 passed in 44.45s",
+    "qt612_xvfb_software_gl": "51 passed in 40.07s",
+    "memory_cap": "4G",
+    "cuda_visible_devices": "",
+    "api_count": 13215,
+    "api_inventory_delta": 0,
+    "runtime_inventory_delta": 0
+  },
+  "drop_acceptance": {
+    "positive_committed_node": "1 passed in 9.97s",
+    "related_nodes": "3 passed before wording-only follow-up",
+    "inline_negative": "expected failure at classification thread assertion; 1 failed in 7.34s",
+    "delivery_budget_seconds": 0.1,
+    "event_loop_watchdog_seconds": 0.7,
+    "folder_fixture_files": 100000,
+    "related_nodes_final": "3 passed in 11.89s on final wording source",
+    "inline_negative_final": "expected 1 failed at GUI thread classification assertion in 7.02s"
+  },
+  "old_exact_run": {
+    "id": 37819913875,
+    "attempt": 2,
+    "sha": "2e6238c481b7668e58828b37c4a2e8fc6cc29355",
+    "numeric_gate": "664/664 modules and 12/12 integrity records PASS; no ratchet regressions",
+    "selected_tests": "Coverage5 failed: synthetic gesture total104.524565ms, >100ms; no new source repair in that immutable run"
+  },
+  "qualification": "This publishes actual Console source and an accurately scoped test guard. It does not close N43/N47 or certify current-source hosted CI. Phase counts overlap; do not sum."
+}

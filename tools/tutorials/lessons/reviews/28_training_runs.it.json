@@ -1,0 +1,40 @@
+{
+  "lesson": "28_training_runs",
+  "english_sha256": "bfd4577f24cda15426fb3ce671f5fed9b5d30194aad42e78bfe98ffb932b88b6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Training Runs: confrontare curve e impostazioni",
+  "description": "Carica i log di addestramento, sovrapponi le metriche, confronta le impostazioni ed esplora le fold della validazione incrociata.",
+  "objectives": [
+    "Trovare le esecuzioni salvate e selezionare quelle da confrontare.",
+    "Sovrapporre metriche di addestramento e validazione ed esaminare le differenze di impostazioni.",
+    "Passare dalle singole fold alla loro media e deviazione standard."
+  ],
+  "prerequisite": "Scarica ed estrai l’esempio sintetico di Training Runs collegato. Le sue curve sono dati di esercitazione. Per la tua analisi, seleziona una cartella principale che contenga i file train.csv e validation.csv salvati insieme alle impostazioni di ogni esecuzione. Conserva risultati di valutazione indipendenti con il modello quando ne valuti le prestazioni.",
+  "scenes": [
+    "Da Home, apri Classify, poi Training Runs. Usa questo strumento per confrontare i log di avanzamento e le impostazioni di addestramenti salvati. Il campione collegato contiene curve sintetiche per esercitarti con i comandi.",
+    "Procedi nella schermata in ordine: scegli una cartella per trovare le esecuzioni, selezionale nell’elenco, poi scegli Metric e Folds e fai clic su Overlay selected. Parti dalla cartella principale che contiene le tue esecuzioni.",
+    "Estrai il campione collegato e fai clic su Choose folder. Seleziona la sua cartella training_runs, poi conferma la scelta. Per i tuoi progetti, seleziona una cartella principale che contenga le cartelle delle esecuzioni e i relativi log CSV salvati.",
+    "Analizza la cartella ed esamina le esecuzioni trovate. Il campione contiene gli esempi baseline, tuned e cross_validated, più una voce incompleta. Seleziona le esecuzioni utilizzabili che vuoi confrontare.",
+    "Leggi gli avvisi sulle voci incomplete. La mancanza di train.csv, validation.csv o delle impostazioni può impedire la visualizzazione di curve o impostazioni. Individua la cartella completa dell’esecuzione prima di aggiungerla a un confronto.",
+    "Seleziona baseline e tuned, poi scegli accuracy in Metric. Il menu elenca le colonne numeriche disponibili nei log selezionati. Scegli loss o un’altra metrica registrata quando risponde alla domanda del tuo confronto.",
+    "Fai clic su Overlay selected. Le curve di addestramento sono tratteggiate e quelle di validazione continue. Leggi ogni esecuzione e ogni suddivisione nella legenda. Ogni curva termina alla propria ultima epoca registrata.",
+    "Esamina il confronto delle impostazioni sotto il grafico. Evidenzia differenze come dimensione del batch, numero di epoche e tasso di apprendimento. Usalo per capire cosa è cambiato tra le esecuzioni prima di interpretarne le curve.",
+    "La riga dell’ambiente separa le impostazioni di esecuzione, come il numero di processi, dalla configurazione dell’addestramento. Leggila insieme alle differenze di configurazione quando confronti esecuzioni fatte su macchine diverse.",
+    "Fai clic su una curva di validazione per vederne l’ultimo e il miglior valore registrato, con le relative epoche. Usa la stessa regola di selezione quando confronti le esecuzioni. Valuta il checkpoint selezionato su dati indipendenti per stimarne le prestazioni.",
+    "Scegli loss in Metric per aggiornare l’asse verticale e la sovrapposizione. Confronta le traiettorie di addestramento e di validazione, compresa la loro direzione verso la fine dell’addestramento.",
+    "Seleziona tuned e cross_validated, scegli accuracy, poi fai clic su Overlay selected. Apri Folds e scegli se mostrare le singole fold, la loro media e deviazione standard, oppure entrambe.",
+    "Scegli la media più o meno la deviazione standard per riassumere le curve delle fold. Ogni banda mostra una deviazione standard campionaria tra le fold disponibili in quell’epoca. Leggi la banda come variazione tra le fold.",
+    "Scegli entrambe per mostrare le curve delle singole fold insieme alla loro media. Confronta le fold per vedere se un riepilogo nasconde un’esecuzione con una traiettoria diversa.",
+    "Scegli la vista per fold per mostrare solo le curve individuali. Il confronto delle impostazioni si aggiorna con le esecuzioni selezionate. Tieni presente l’intervallo di epoche di ogni curva quando confronti dove si è fermato l’addestramento.",
+    "Torna a Metric per confrontare un’altra grandezza registrata, oppure cambia le esecuzioni selezionate per restringere il confronto. Tieni insieme i log CSV originali e le impostazioni, così potrai riaprire lo stesso confronto.",
+    "Per un’analisi tramite script, usa find_runs e load_run in spacr.train_compare, poi compare_runs e plot_curves. Conserva il confronto insieme al modello e ai risultati di valutazione indipendenti quando scegli la successiva configurazione di addestramento."
+  ]
+}

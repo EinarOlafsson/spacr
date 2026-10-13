@@ -1,0 +1,30 @@
+tree ff87e75e97acd3263fa7f4fa0da965abddefe756
+parent baa22ca82b081aa61d3fdb28b69ee178aaf2198e
+author olafsson <einar.olafsson@gmail.com> 1784610415 -0400
+committer olafsson <einar.olafsson@gmail.com> 1784610415 -0400
+
+test(qt): 46 pytest-qt tests covering theme, widgets, screens, bridge
+
+* tests/qt/conftest.py    — offscreen QT platform, importorskip for
+                             PySide6 + pytest-qt, session fixture
+                             qt_theme_applied applying palette + QSS
+* tests/qt/test_theme.py  — palette key set, hex color format, monotonic
+                             spacing scale, stylesheet length + selector
+                             coverage, apply_qpalette() ↔ PALETTE
+* tests/qt/test_widgets.py — Card/Divider/Section/Tile/Toggle/UsageBar
+                             construction, tile.clicked signal, toggle
+                             on/off, UsageBar object name thresholds
+* tests/qt/test_main_window.py — MainWindow constructs, navigation
+                                  registers screens, Home returns to
+                                  StartupPage; Sidebar and StartupPage
+                                  emit their signals on click
+* tests/qt/test_app_screen.py  — AppScreen builds for every runnable
+                                  key, settings_model populates widgets,
+                                  runnable-vs-interactive mapping
+* tests/qt/test_bridge.py — StreamRedirector line-splitting, worker
+                             success/exception flow, make_thread shape
+
+Runs cleanly under QT_QPA_PLATFORM=offscreen; skips gracefully if
+PySide6 or pytest-qt is not installed.
+
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>

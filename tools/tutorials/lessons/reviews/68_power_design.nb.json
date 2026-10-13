@@ -1,0 +1,34 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Power & Design: utforsk simulerte deteksjonskurver",
+  "description": "Angi antakelser om bibliotek og design, kjør simuleringer og undersøk deteksjonsandeler, mislykkede tilpasninger og forbehold.",
+  "objectives": [
+    "Angi bibliotek, vurderingsenhet og designantakelser.",
+    "Kjøre skanninger av celleantall og brønnantall med registrerte innstillinger.",
+    "Lese deteksjonsandeler og forbehold før et design tolkes."
+  ],
+  "prerequisite": "Forbered antakelser om bibliotekstørrelse, guider per gen, bakgrunn, effekt og prevalens. Modulen simulerer data. Det lenkede eksemplet bruker bare to replikater per punkt for å vise kontrollene; bruk nok gjentakelser og passende antakelser til planlegging. I denne versjonen bør du undersøke tabellen i stedet for å stole på en overskrift som kan anbefale uendret utgangsantall brønner.",
+  "scenes": [
+    "Fra Home åpner du Power & Design. Begynn med antakelsene du vil utforske, og bruk deretter simulerte deteksjonskurver til å sammenligne de viste valgene for celleantall og brønnantall.",
+    "Angi bibliotekstørrelse og guider per gen, og velg deretter vurderingsenhet. Med 40 gener og 4 guider per gen bruker guidevurdering 160 enheter; genvurdering slår sammen guideinformasjonen.",
+    "Gå gjennom kontrollene for plate, bakgrunn, effekt og prevalens samlet. Andelen positive kall er en antatt klassifiseringssannsynlighet. Velg verdier som beskriver den planlagte analysen.",
+    "Hvis en effekt under 1 deaktiverer Run, leser du advarselen om retning som ikke støttes. Gjenopprett en støttet verdi for å fortsette; simulatoren dekker ikke alle mulige effektretninger.",
+    "Angi gjentakelser, frø, beregningsmotor og deteksjonsterskel. Terskelen bruker arealet under ROC-kurven. Eksemplet bruker to replikater per punkt for en kort kjøring; velg flere gjentakelser når du anslår deteksjonssannsynlighet.",
+    "Klikk på Run og følg fremdriften. Simulatoren skanner celleantall og brønnantall separat. Ta vare på innstillingene sammen med de ferdige resultatene.",
+    "Les antall deteksjoner sammen med nevnerne. Mislykkede eller ikke-konvergerte tilpasninger regnes som ikke-deteksjoner. Med to ønskede replikater betyr 100 % bare to deteksjoner av to.",
+    "Bruk resultattabellen til å undersøke deteksjonsandeler, gjennomsnittlig ytelse blant brukbare tilpasninger og manglende konvergens. Gjennomsnitt som ikke er tilgjengelige, er manglende resultater. Tolk average precision i forhold til den antatte prevalensen.",
+    "Sammenlign de ønskede designverdiene direkte. Denne versjonen kan anbefale å øke til samme utgangsantall brønner fordi de to skanningene bruker ulike tilfeldige trekninger. Se bort fra overskriften og bruk tabellen og usikkerheten til å vurdere sammenligningen.",
+    "Utvid forbeholdene og undersøk mislykkede tilpasninger eller avkuttede sannsynligheter. Juster antakelsene når de gir utfall som ikke stemmer med eksperimentet du vil modellere.",
+    "Hold innstillinger og replikatresultater samlet. Det lenkede arkivet inneholder eksempelkjøringen for gjennomgang. For programmatisk utdata bruker du designadapteren og simulerings-API-ene; vurder antakelser og usikkerhet før du velger et eksperimentelt design."
+  ]
+}

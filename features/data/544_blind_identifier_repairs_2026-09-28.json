@@ -1,0 +1,27 @@
+{
+  "item": 544,
+  "scope": "Blinded settings/history/status/dialog identity exposure repairs",
+  "passed": true,
+  "tests": 9,
+  "seconds": 9.21,
+  "source_sha256": {
+    "annotate": "d3d2aeb01c6749c1757e0f719a7849172e9c3ebb0ad429548231c0e473b6597f",
+    "make_masks": "737eb18316e806ec7246d6469ab696f96f9c2c9c1335b48445bc6a072708e50f"
+  },
+  "tests_sha256": "945741cc80897e4bf3a20f1db753c8c0b44d49c69edd2ee1a3cc883082354ed3",
+  "junit_sha256": "947b78017d79f81bd149422c5a11a6fac5465b751507679744e2ee9d0b4c91cc",
+  "log_sha256": "cd67da17934f624dc802591e42fb2a03674c59779d48ff88e56c347f3791ef50",
+  "checks": [
+    "settings disabled and direct opening refused while blinded",
+    "console history hidden and cannot be reopened while blinded",
+    "clipboard copy refused while blinded",
+    "real corrupt-image read message anonymized",
+    "actual native Qt folder-confirmation and warning text inspected",
+    "underlying paths and console history restored on unblinding",
+    "blinding key and unblinding recorded",
+    "alpha workflow gate"
+  ],
+  "original_two_modal_guard_failures_retained": true,
+  "gpu_used": false,
+  "whole_item_complete": false
+}

@@ -1,0 +1,183 @@
+"""Tests for the threshold-filter fetch in annotate_engine."""
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+from PIL import Image
+
+from spacr.qt import annotate_engine as engine
+
+
+@pytest.fixture
+def db_with_measurements(tmp_path: Path) -> tuple[str, list[str]]:
+    """A `measurements/measurements.db` where png_list + cell tables
+    share a `prcfo` join key. Some rows have cell_area > 500, some < 500;
+    the threshold filter should split them cleanly.
+    """
+    src = tmp_path / "expt"
+    (src / "measurements").mkdir(parents=True)
+    (src / "images").mkdir(parents=True)
+    png_paths = []
+    rng = np.random.default_rng(0)
+    for i in range(6):
+        p = src / "images" / f"cell_{i:02d}.png"
+        arr = rng.integers(0, 255, (16, 16, 3), dtype=np.uint8)
+        Image.fromarray(arr).save(p)
+        png_paths.append(str(p))
+    prcfos = [f"plate1_A01_{i}_{i}" for i in range(6)]
+    db = src / "measurements" / "measurements.db"
+    conn = sqlite3.connect(db)
+    try:
+        # png_list — prcfo + png_path
+        pd.DataFrame({"prcfo": prcfos, "png_path": png_paths}) \
+            .to_sql("png_list", conn, index=False)
+        # cell — prcfo + cell_area
+        cell = pd.DataFrame({
+            "prcfo": prcfos,
+            "cell_area": [100, 200, 800, 1500, 300, 900],
+        })
+        cell.to_sql("cell", conn, index=False)
+    finally:
+        conn.close()
+    return str(db), png_paths
+
+
+def test_apply_threshold_higher_and_lower():
+    df = pd.DataFrame({"x": [1, 5, 10]})
+    assert list(engine._apply_threshold(df, "x", 5, "higher")["x"]) == [10]
+    assert list(engine._apply_threshold(df, "x", 5, "lower")["x"]) == [1]
+    # No-op branches
+    assert engine._apply_threshold(df, "missing", 5, "higher").equals(df)
+    assert engine._apply_threshold(df, "x", None, "higher").equals(df)
+
+
+def test_fetch_filtered_paths_higher_threshold(db_with_measurements, monkeypatch):
+    """fetch_filtered_paths delegates the DB join to spacr.io helpers.
+    We monkey-patch those helpers to return a compact DataFrame so this
+    test doesn't need the full spacr measurement schema."""
+    db, all_paths = db_with_measurements
+    engine.ensure_annotation_column(db, "annotate")
+
+    def _fake_read_and_join_tables(_db):
+        return pd.DataFrame({
+            "prcfo": [f"plate1_A01_{i}_{i}" for i in range(6)],
+            "png_path": all_paths,
+            "cell_area": [100, 200, 800, 1500, 300, 900],
+        })
+
+    def _fake_read_db(_db, tables=None):
+        return [pd.DataFrame({
+            "prcfo": [f"plate1_A01_{i}_{i}" for i in range(6)],
+            "png_path": all_paths,
+        })]
+
+    import spacr.io as spacr_io
+    monkeypatch.setattr(spacr_io, "_read_and_join_tables", _fake_read_and_join_tables)
+    monkeypatch.setattr(spacr_io, "_read_db", _fake_read_db)
+
+    rows = engine.fetch_filtered_paths(
+        db_path=db,
+        annotation_column="annotate",
+        measurements=["cell_area"],
+        thresholds=[500.0],
+        directions=["higher"],
+    )
+    kept_paths = {r[0] for r in rows}
+    # cell_area values [100, 200, 800, 1500, 300, 900] — indices 2,3,5 > 500
+    expected = {all_paths[2], all_paths[3], all_paths[5]}
+    assert kept_paths == expected
+
+
+def test_fetch_filtered_paths_empty_when_no_filter(db_with_measurements):
+    db, _ = db_with_measurements
+    rows = engine.fetch_filtered_paths(
+        db_path=db,
+        annotation_column="annotate",
+        measurements=[],
+        thresholds=[],
+        directions=[],
+    )
+    assert rows == []
+
+
+def test_fetch_filtered_paths_missing_db_returns_empty(tmp_path: Path):
+    rows = engine.fetch_filtered_paths(
+        db_path=str(tmp_path / "does-not-exist.db"),
+        annotation_column="annotate",
+        measurements=["cell_area"],
+        thresholds=[500.0],
+        directions=["higher"],
+    )
+    assert rows == []
+
+
+def test_default_channels_are_rgb_and_normalized():
+    """Object crops must be visible out of the box: show + normalise R,G,B by
+    default so a dim/unnormalised crop doesn't render as a grey square."""
+    import numpy as np
+    from PIL import Image
+    from spacr.qt.annotate_engine import (
+        AnnotateSettings, normalize_pil, filter_channels_pil)
+    s = AnnotateSettings()
+    assert s.channels == ["r", "g", "b"]
+    assert s.normalize_channels == ["r", "g", "b"]
+    assert s.stored_channel_order == "rgb"
+    dim = Image.fromarray(
+        np.random.RandomState(0).randint(0, 30, (16, 16, 3)).astype("uint8"))
+    out = filter_channels_pil(
+        normalize_pil(dim, s.percentiles, s.normalize_channels), s.channels)
+    assert np.array(out).max() > 200   # stretched to a visible range
+
+
+def test_explicit_rgb_order_does_not_reverse_an_unmarked_standard_png(
+        tmp_path):
+    """Annotate defaults to standard RGB instead of guessing unmarked=BGR."""
+    from spacr.qt.annotate_engine import load_crop_image
+
+    path = tmp_path / "standard.png"
+    rgb = np.zeros((4, 5, 3), dtype=np.uint8)
+    rgb[:, :, 0] = 231
+    rgb[:, :, 2] = 17
+    Image.fromarray(rgb, "RGB").save(path)
+
+    shown = np.asarray(load_crop_image(
+        str(path), stored_channel_order="rgb"))
+    assert np.array_equal(shown, rgb)
+
+
+def test_explicit_legacy_order_is_corrected_to_an_rgb_array(tmp_path):
+    """"legacy_bgr" is the ANNOTATOR's word for "the slots are the other
+    way round", and it is the only setting that reverses on load.
+
+    Do not re-point this at ``crops.CROP_FORMAT_LEGACY_BGR``. The 2026-08-06
+    three-format redesign (2cab81f7) established that reversal is decided by
+    whether a format's slots already hold the declared colours, not by its
+    number: formats 1 and 3 agree pixel-for-pixel, so only format 2 -- the
+    eleven-day window written 2026-07-26..08-06 -- is out of step. The
+    annotator maps its "legacy_bgr" onto that format, which 8f09987f fixed
+    after the flag flip left both channel-order choices doing the opposite
+    of what they claimed.
+    """
+    from spacr.qt.annotate_engine import load_crop_image
+
+    path = tmp_path / "legacy.png"
+    intended_rgb = np.zeros((4, 5, 3), dtype=np.uint8)
+    intended_rgb[:, :, 0] = 211
+    intended_rgb[:, :, 2] = 23
+    on_disk = intended_rgb[:, :, ::-1]
+    Image.fromarray(on_disk, "RGB").save(path)
+
+    shown = np.asarray(load_crop_image(
+        str(path), stored_channel_order="legacy_bgr"))
+    assert np.array_equal(shown, intended_rgb)
+
+    # The reversal is the SETTING's doing, not a property of the file: the
+    # same bytes read as "rgb" come back untouched. Asserting both from one
+    # file is what makes this a test of the choice rather than of the decoder.
+    assert np.array_equal(
+        np.asarray(load_crop_image(str(path), stored_channel_order="rgb")),
+        on_disk)

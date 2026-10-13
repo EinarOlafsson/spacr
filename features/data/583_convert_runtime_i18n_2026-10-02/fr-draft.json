@@ -1,0 +1,14 @@
+{
+  "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.": "Attribuez un code-barres à chaque plaque de sortie affichée dans l’aperçu, par exemple plate1=BC001; plate2=BC002. Les noms des plaques de sortie peuvent différer des noms des dossiers sources.",
+  "Barcode column": "Colonne du code-barres",
+  "CSV files (*.csv)": "Fichiers CSV (*.csv)",
+  "Choose CSV…": "Choisir un CSV…",
+  "Column name in the CSV that contains the plate barcode.": "Nom de la colonne du CSV contenant le code-barres de la plaque.",
+  "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.": "CSV local facultatif contenant les métadonnées des échantillons. Laissez ce champ vide pour ignorer l’association par code-barres. Un nouveau dossier plate_barcode_linkage est créé dans la destination ; les fichiers sources et les plans de plaque existants sont conservés.",
+  "Output plate barcodes": "Codes-barres des plaques de sortie",
+  "Plate barcode linkage (Alpha)": "Association des plaques par code-barres (Alpha)",
+  "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}": "Association des plaques par code-barres : {wells} puits, {mismatches} incohérence(s).\nPlan de plaque : {map_path}\nIncohérences : {mismatch_path}",
+  "Sample records CSV": "CSV des données d’échantillons",
+  "Select sample records CSV": "Sélectionner le CSV des données d’échantillons",
+  "Showing {shown} of {total} mismatches; the CSV contains all rows.": "Affichage de {shown} incohérences sur {total} ; le CSV contient toutes les lignes."
+}

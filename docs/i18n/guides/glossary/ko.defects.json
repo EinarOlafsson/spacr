@@ -1,0 +1,7 @@
+{
+ "schema": 1,
+ "language": "ko",
+ "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
+ "defects": {},
+ "snapshot": {}
+}

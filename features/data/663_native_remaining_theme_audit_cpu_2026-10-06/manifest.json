@@ -1,0 +1,100 @@
+{
+  "source_sha256": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5",
+  "files": [
+    {
+      "file": "REPRODUCE.txt",
+      "size_bytes": 2435,
+      "sha256": "17919aa6f49327123f481b79d8290a9257c9410a76cde67f470bb9fd5a572abd"
+    },
+    {
+      "file": "aurora.json",
+      "size_bytes": 3284,
+      "sha256": "b2e31335002dbf23d082773dc40ed0942d5a885319392c98f2c382dbdb114aba"
+    },
+    {
+      "file": "aurora.log.gz",
+      "size_bytes": 644,
+      "sha256": "0f3dcc0b81faba86246ee82016085f3249dec9e23c67c019c243c1b7854cb076"
+    },
+    {
+      "file": "data_art_fungal_growth.json",
+      "size_bytes": 3302,
+      "sha256": "c2ac3bbb49a444685719e24d2ea3d66d4b8ee5f843d11c2d29d8371191787910"
+    },
+    {
+      "file": "data_art_fungal_growth.log.gz",
+      "size_bytes": 640,
+      "sha256": "43283f28a4527a01c333cdb6d5be2e814595aaace4211b489eaae009e238a93d"
+    },
+    {
+      "file": "data_art_point_atlas.json",
+      "size_bytes": 5660,
+      "sha256": "eab17102e285e0c722b485db8de8c9c424fa9aac050420b3a830a780cd573010"
+    },
+    {
+      "file": "data_art_point_atlas.log.gz",
+      "size_bytes": 1114,
+      "sha256": "9f550df78a17a47a212db29240ace601dd7178f625464cad964cf16c531d1b56"
+    },
+    {
+      "file": "data_art_thore.json",
+      "size_bytes": 3421,
+      "sha256": "31ba56409099956a53b120d8d90c28c2b53adf45dcfca852551016a568773c2e"
+    },
+    {
+      "file": "data_art_thore.log.gz",
+      "size_bytes": 654,
+      "sha256": "de2852f6c5fe05b57f16fb122c80779ca2135993df0559b05a25889edc0290b4"
+    },
+    {
+      "file": "probe.py.gz",
+      "size_bytes": 3075,
+      "sha256": "bbad597defe35fdbc2584c0af096fa417cba62d369f51ea483a9636d3d3bbffa"
+    },
+    {
+      "file": "reproduce.py",
+      "size_bytes": 1255,
+      "sha256": "d58b917d95e79f1a8bf18d2b504c6a8e6a0c90c9aa293534dd7522d4b04d4a65"
+    },
+    {
+      "file": "run.py.gz",
+      "size_bytes": 516,
+      "sha256": "c492b41ec173b79ce7225c42869331bf2fd7a1987d00780ac11e185d9ad58a7c"
+    },
+    {
+      "file": "stills/aurora-3840.png",
+      "size_bytes": 445870,
+      "sha256": "a569dbee8ffb9e8b8c755195bd52ae3508eb3ea5e62adad05ebb509ac2750f20"
+    },
+    {
+      "file": "stills/data_art_fungal_growth-3840.png",
+      "size_bytes": 251377,
+      "sha256": "c1aa3e70c10ae44edfef0b278db8354b874f782709c22badb45997822d9c8963"
+    },
+    {
+      "file": "stills/data_art_point_atlas-3840.png",
+      "size_bytes": 2636722,
+      "sha256": "af4fe2b08e4e7a63ac011e3b1084b9b14b41e28ceeb901c8c2ee00bf9da6e5ab"
+    },
+    {
+      "file": "stills/data_art_thore-3840.png",
+      "size_bytes": 64429,
+      "sha256": "1ecd7898e7a37533131a617a7416c8aa4be4d304774a6b8308b4e6a909deb12f"
+    },
+    {
+      "file": "stills/data_art_thore-lightning-3840.png",
+      "size_bytes": 122122,
+      "sha256": "b77d62b03bfc1a0af9ec6c12889367709b323f1fa2fabbfac6876f2cf6e62ce4"
+    },
+    {
+      "file": "summary.json",
+      "size_bytes": 1878,
+      "sha256": "086509c0fdb5a593801bb6962d36b7db7df71456986e55abefc84fe6615b4db2"
+    },
+    {
+      "file": "visual_review.json",
+      "size_bytes": 1856,
+      "sha256": "a1ebeb3e1f3dc468e4e3fea416b6fd87d254503b8b30b02a2271158151987752"
+    }
+  ]
+}

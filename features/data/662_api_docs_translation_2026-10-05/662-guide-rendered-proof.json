@@ -1,0 +1,90 @@
+{
+  "accepted": true,
+  "scope": "Actual strict-built current YOLO Make Masks guide pages in all nine locales.",
+  "languages": {
+    "sv": {
+      "html_sha256": "d98b6804cb54347c0dabbf877dcb685f47eb6edd70959e2a838e0d7c126bc3cf",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "de": {
+      "html_sha256": "a7179cdc5390c43db31a844bcef02681d7c6918a71bd73f2f677afdb6d1cf270",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "es": {
+      "html_sha256": "26357eb2434222947e64e3b62a5aba0baa158b4ef1dd2fd8c292eeaf5d085584",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "zh_CN": {
+      "html_sha256": "da56010cd16612b2e7db84c18c335190d83c4081938a21de2bc95be9b130ae01",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "pt": {
+      "html_sha256": "12a62259a7e6612af6f66d3b395c9ca8853b4e5f56f05541f050c2b35e787e6a",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "hi": {
+      "html_sha256": "4822f4aad232fa6e45c510c714c98ba3934a871b41cd259bc1c19e5aeb98635b",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "ko": {
+      "html_sha256": "62d4adabab4a180a99fbfcda494cc3e887b609b82e8069be72165cc7cb8010b2",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "is": {
+      "html_sha256": "7c13f46c2fc881963c3eebe85fed7e70ef22bb2f62ec455d114f142a3808828b",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    },
+    "fr": {
+      "html_sha256": "782cf5ffedac8967cfcc7df8003e87ae38971e4bed167bdf5ef881054187b6c9",
+      "reviewed_passages_rendered": 7,
+      "required_file_literals": 4,
+      "runtime_controls_rendered": 8,
+      "workflow_steps": 4,
+      "english_fallbacks": 0,
+      "passed": true
+    }
+  },
+  "initial_korean_build_failed": true,
+  "korean_corrected_new_messages": 6,
+  "final_all_nine_strict_builds_passed": true
+}

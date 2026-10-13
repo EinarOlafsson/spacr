@@ -1,0 +1,146 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Exclude objects touching the box border",
+      "source": "Exclude objects touching the box border",
+      "source_sha256": "03bb8f4fd736ec938c23ab4d7817750a0a60e04a625b3d2ac3969bb1641b5659",
+      "table": "ui",
+      "translation": "Uteslut objekt som rör rutans kant"
+    },
+    {
+      "key": "Magnifier added {n} object(s) — Ctrl+Z to undo",
+      "source": "Magnifier added {n} object(s) — Ctrl+Z to undo",
+      "source_sha256": "9c3a2c9b5b058197132a18eb5977bc0d38890fcd1ec702429086422cf1da9403",
+      "table": "ui",
+      "translation": "Förstoringsglaset lade till {n} objekt — Ctrl+Z för att ångra"
+    },
+    {
+      "key": "Magnifier could not segment the whole image: {error}",
+      "source": "Magnifier could not segment the whole image: {error}",
+      "source_sha256": "03c3c396ca5c571747290a3e64c25c66f7a273d2bbe3aeed79c0ee4ccc8468d4",
+      "table": "ui",
+      "translation": "Förstoringsglaset kunde inte segmentera hela bilden: {error}"
+    },
+    {
+      "key": "Magnifier on: a click adds the object under it and a right-click removes the mask object under it; the mouse wheel changes its zoom.",
+      "source": "Magnifier on: a click adds the object under it and a right-click removes the mask object under it; the mouse wheel changes its zoom.",
+      "source_sha256": "1f6d5c5ffffe854f28342359003a6dd787ac114a15487b0cdb6b9000dd2fa4c5",
+      "table": "ui",
+      "translation": "Förstoringsglaset på: ett klick lägger till objektet under det och ett högerklick tar bort maskobjektet under det; mushjulet ändrar förstoringen."
+    },
+    {
+      "key": "Magnifier removed object {label} — Ctrl+Z to undo",
+      "source": "Magnifier removed object {label} — Ctrl+Z to undo",
+      "source_sha256": "069fee658e51ecfd73558dce2987f1be32556ccf1778fa3856614b9ba451fce2",
+      "table": "ui",
+      "translation": "Förstoringsglaset tog bort objekt {label} — Ctrl+Z för att ångra"
+    },
+    {
+      "key": "Magnifier: nothing was added — the Overlap rule or Min area leaves nothing of the object under the click.",
+      "source": "Magnifier: nothing was added — the Overlap rule or Min area leaves nothing of the object under the click.",
+      "source_sha256": "50a7df9fb220f2f28663092861fd13785cadcbbdc53bc55333baebe3b379b817",
+      "table": "ui",
+      "translation": "Förstoringsglas: inget lades till — regeln under Överlappning eller Min area lämnar inget kvar av objektet under klicket."
+    },
+    {
+      "key": "Magnifier: segmenting the whole image…",
+      "source": "Magnifier: segmenting the whole image…",
+      "source_sha256": "7ee95d1161b68b04d363b452c92352573eaf2ccf73c4458089795630ca155b7f",
+      "table": "ui",
+      "translation": "Förstoringsglas: segmenterar hela bilden…"
+    },
+    {
+      "key": "Magnifier: the settings changed, so the whole-image objects were discarded. Segmenting the whole image again…",
+      "source": "Magnifier: the settings changed, so the whole-image objects were discarded. Segmenting the whole image again…",
+      "source_sha256": "dca2a0d70887cd5e10c051c7f3b034832776e4422322fa36779ec4f7e2e572fb",
+      "table": "ui",
+      "translation": "Förstoringsglas: inställningarna ändrades, så objekten från hela bilden kastades. Segmenterar hela bilden igen…"
+    },
+    {
+      "key": "Magnifier: the whole image is still being segmented — nothing was added.",
+      "source": "Magnifier: the whole image is still being segmented — nothing was added.",
+      "source_sha256": "1e63c00283d7ac637b35d42b845825e952afdb7d4fdca0a6f9039e72d5ae2230",
+      "table": "ui",
+      "translation": "Förstoringsglas: hela bilden segmenteras fortfarande — inget lades till."
+    },
+    {
+      "key": "Magnifier: there is no mask object under the click — nothing was removed.",
+      "source": "Magnifier: there is no mask object under the click — nothing was removed.",
+      "source_sha256": "ed84f5d3610e78a512d1392d494504ca8433a4c850b3d60cb86a761e7a4c5d05",
+      "table": "ui",
+      "translation": "Förstoringsglas: det finns inget maskobjekt under klicket — inget togs bort."
+    },
+    {
+      "key": "Magnifier: there is no object under the click — nothing was added.",
+      "source": "Magnifier: there is no object under the click — nothing was added.",
+      "source_sha256": "0829cb8a51727da6556e97143c6a285152c47ad2bdce4f6243eff3944875b158",
+      "table": "ui",
+      "translation": "Förstoringsglas: det finns inget objekt under klicket — inget lades till."
+    },
+    {
+      "key": "Magnifier: whole-image segmentation cancelled. Click the image to start it again.",
+      "source": "Magnifier: whole-image segmentation cancelled. Click the image to start it again.",
+      "source_sha256": "ecbc07077466bfc5ba51ce5fbeb57a9f4d72da6e324d84279888e22c16ed2989",
+      "table": "ui",
+      "translation": "Förstoringsglas: segmenteringen av hela bilden avbröts. Klicka på bilden för att starta den igen."
+    },
+    {
+      "key": "Magnifier: {n} object(s) found in the whole image. Click one to add it; right-click an object in the mask to remove it.",
+      "source": "Magnifier: {n} object(s) found in the whole image. Click one to add it; right-click an object in the mask to remove it.",
+      "source_sha256": "7d981517e126b57b34d875680482291fd0bb8e79d331b8e99b524f33c62a432f",
+      "table": "ui",
+      "translation": "Förstoringsglas: {n} objekt hittades i hela bilden. Klicka på ett för att lägga till det; högerklicka på ett objekt i masken för att ta bort det."
+    },
+    {
+      "key": "Region under the mouse",
+      "source": "Region under the mouse",
+      "source_sha256": "c3f6da21b7160833a34a097f59e265209a2676b79bf37f073424edf25023f3df",
+      "table": "ui",
+      "translation": "Området under muspekaren"
+    },
+    {
+      "key": "Segment",
+      "source": "Segment",
+      "source_sha256": "29ee089ccecadf9d4eaccb22512a3eece8cb15230412bda3b5d648c92abe154e",
+      "table": "ui",
+      "translation": "Segmentera"
+    },
+    {
+      "key": "Segments the region under the mouse, or the whole image once, and shows its objects magnified. A click adds objects to the mask.",
+      "source": "Segments the region under the mouse, or the whole image once, and shows its objects magnified. A click adds objects to the mask.",
+      "source_sha256": "305ef8dbbae81aa47d7372285d0d122ae200668b667ae3aaef6c8ba53a3f9463",
+      "table": "ui",
+      "translation": "Segmenterar området under muspekaren, eller hela bilden en gång, och visar dess objekt förstorade. Ett klick lägger till objekt i masken."
+    },
+    {
+      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined. A click adds them to the mask as new objects — under Whole image, only the object clicked — one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined. A click adds them to the mask as new objects — under Whole image, only the object clicked — one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source_sha256": "0cf8a38d7718560fe01ac862c439cf51776cbbe84a5d07b3f25bfc63b5955076",
+      "table": "ui",
+      "translation": "Visa en ruta under muspekaren med området runt den förstorat och de objekt en modell hittar där markerade. Ett klick lägger till dem i masken som nya objekt — med Hela bilden bara det klickade objektet — ett ångra-steg per klick. Medan den är på ändrar mushjulet rutans förstoring i stället för vyns."
+    },
+    {
+      "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
+      "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
+      "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",
+      "table": "ui",
+      "translation": "Vad modellen segmenterar. Området under muspekaren kör den på rutan medan musen rör sig, och ett klick lägger till varje objekt som rutan markerar. Hela bilden kör den en gång på hela bilden i bakgrunden; rutan visar sedan de objekten, ett klick lägger till objektet under den, och ett högerklick tar bort maskobjektet under den. Att ändra en inställning som modellen läser kastar objekten från hela bilden och segmenterar bilden igen."
+    },
+    {
+      "key": "When ticked, an object that touches an edge of the box inside the image is not offered, because the box may have cut it off. Untick it to offer and add such objects too, as far as the box sees them. Objects at the image border are offered either way. It applies to Region under the mouse; Whole image never cuts an object.",
+      "source": "When ticked, an object that touches an edge of the box inside the image is not offered, because the box may have cut it off. Untick it to offer and add such objects too, as far as the box sees them. Objects at the image border are offered either way. It applies to Region under the mouse; Whole image never cuts an object.",
+      "source_sha256": "4908e03ee7d3a4857a3a7dc2dde24d286abbb071bf688a8063494ef6eb0ca87c",
+      "table": "ui",
+      "translation": "När den är ikryssad erbjuds inte ett objekt som rör en kant av rutan inuti bilden, eftersom rutan kan ha skurit av det. Kryssa ur den för att erbjuda och lägga till sådana objekt också, så långt rutan ser dem. Objekt vid bildens kant erbjuds i båda fallen. Det gäller Området under muspekaren; Hela bilden skär aldrig av ett objekt."
+    },
+    {
+      "key": "Whole image",
+      "source": "Whole image",
+      "source_sha256": "7b823236b6caba32faa641d11967fc10592879baa2dde60d077dca08ee57c3d3",
+      "table": "ui",
+      "translation": "Hela bilden"
+    }
+  ],
+  "schema": 1
+}

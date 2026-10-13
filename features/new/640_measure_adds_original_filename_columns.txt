@@ -1,0 +1,43 @@
+640. Measure adds original_* filename columns from the conversion manifest
+
+Requested 2026-10-04, verbatim:
+"the measure modual should look for the filename metadata converter manifest
+file and import the data into the metadata (into any table with the data to
+translate back to the Origional file names. This should generate new columns
+with the original_ prefix"
+
+Status: DONE 2026-10-04
+
+Done when:
+1. Measure looks for the manifest the converter writes (conversion_map.csv,
+   legacy rename_log.csv, channel_sorting_manifest.csv, or an embedded
+   conversion_map table) beside src, the plate/experiment folder and parents.
+2. Every measurement table with field identity (prcf, file_name or
+   plate/row/column/field/time) gets original_filename, original_path and one
+   original_<name> per source_<name> field the manifest carries
+   (original_relpath, original_plate, original_well, original_field,
+   original_channel, original_z, original_t).
+3. Without a manifest nothing changes and no columns are added.
+4. original_* columns are provenance, never model features; object-table
+   validation already allows extra columns.
+5. Tests: manifest plate fills every table; no-manifest plate unchanged; a
+   resumed run fills old and new rows.
+
+2026-10-04 -- IMPLEMENTATION
+spacr.measure._add_original_filename_columns runs after every Measure run
+(fresh or resumed, including a resume with nothing left to measure). It reads
+the distinct identity columns of each table, resolves them with
+spacr.original_filenames._original_columns (built on item 623's enrich), and
+joins the values back through a temporary keyed table, adding TEXT columns as
+needed. Several values for one field (channels, z planes) are sorted and
+joined with "; ". Rows the manifest does not cover stay NULL. Re-runs
+recompute the columns. Tables where the manifest matches nothing, or matches
+ambiguously, are left alone. Merge tables' "Merge original filenames" now
+recomputes measured original_filename/original_path from its chosen map
+instead of rejecting them as collisions. schema.is_provenance_column treats
+original_* as provenance.
+
+Tests: tests/test_measure_original_filenames.py (full CPU Measure runs on a
+synthetic three-field plate) plus tests/test_original_filenames.py.
+
+Left: nothing.

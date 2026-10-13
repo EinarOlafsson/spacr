@@ -1,0 +1,6 @@
+2026-10-08T21:41:08.1063843Z tests/qt/test_i18n.py::test_every_registered_module_and_section_has_an_exact_translation 
+2026-10-08T21:41:08.1120257Z [gw0] [ 69%] FAILED tests/qt/test_i18n.py::test_every_registered_module_and_section_has_an_exact_translation 
+2026-10-08T21:49:35.1232276Z ______ test_every_registered_module_and_section_has_an_exact_translation _______
+2026-10-08T21:49:35.1233302Z tests/qt/test_i18n.py:46: in test_every_registered_module_and_section_has_an_exact_translation
+2026-10-08T21:49:35.1234253Z E   AssertionError: sv missing registry phrases: ['Organism']
+2026-10-08T21:49:35.1249393Z FAILED tests/qt/test_i18n.py::test_every_registered_module_and_section_has_an_exact_translation - AssertionError: sv missing registry phrases: ['Organism']

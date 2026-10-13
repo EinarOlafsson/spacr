@@ -1,0 +1,34 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Hit List：筛选候选并导出候选短名单",
+  "description": "加载Regression结果，按q值、向导序列数量和一致性筛选，然后导出所选候选。",
+  "objectives": [
+    "用提供的配套脚本打开示例Regression结果。",
+    "筛选候选，并阅读其效应和向导序列一致性。",
+    "把所选行导出为CSV、Markdown或HTML。"
+  ],
+  "prerequisite": "解压Hit_List_real_results_companion.zip并激活spaCR环境。当前Regression中的Hits快捷方式不会显示面板；请改为运行python hit_list_companion.py，并用Browse选择解压出的结果文件夹。配套脚本不连接Investigate。支持孔数请使用results_gene.csv中的wells_with_gene：导出的n_obs=0并不是实际支持数。该示例中没有满足q <= 0.05的基因。",
+  "scenes": [
+    "从Home打开Regression，选择Hits。如果面板仍未显示，请使用本课程附带的配套脚本打开Hit List。",
+    "解压链接中的示例并激活spaCR环境。运行python hit_list_companion.py。在配套脚本窗口中点击Browse，选择解压出的结果文件夹。",
+    "示例加载三百二十五个基因。加宽列以阅读效应、P、q和向导序列一致性。效应是标准化的边际效应。支持孔数请查看results_gene.csv中的wells_with_gene；导出的观测数为零表示支持数不可用。",
+    "把Max q设为零点零五。本例中没有基因通过，因此表格变为空。把Max q恢复为一即可浏览全部候选。",
+    "把Minimum guides设为二。剩下一百一十七个至少有两行已检验向导序列的基因。此过滤会保留原始q值。",
+    "把Minimum agreement设为一。剩下五十七个候选，它们所有已检验的向导序列都与基因效应符号一致。请结合q阅读一致性：这些候选仍未达到显著性阈值。",
+    "开启Hide controls，从此视图中移除对照行，剩下五十六个候选。再次关闭它，以便在之后的导出中包含该行。",
+    "清除其他过滤条件，选择Direction up，并把Minimum absolute effect设为零点一。剩下十六行。请为您的分析选择阈值，然后在下一步之前恢复这些控件。",
+    "在Search中输入标识以查找对应行。没有匹配的搜索会使表格为空。清空Search即可恢复当前的筛选结果。",
+    "导出时，设置两个向导序列、完全一致、包含对照并保持搜索为空。把所选的五十七行导出为CSV、Markdown或HTML。CSV保留数值细节。请把筛选选项与文件一起保存。",
+    "清除过滤条件即可回到全部三百二十五个基因。把候选短名单导出与原始结果分开保存。在Python中，使用build_hit_list，然后使用filter以及CSV、Markdown或HTML写出函数；请检查各格式的行数上限。"
+  ]
+}

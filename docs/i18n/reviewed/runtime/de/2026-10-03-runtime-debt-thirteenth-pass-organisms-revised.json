@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: the runtime strings nightly added in items 633-634 (test data on Convert, Layer Viewer and External Masks; the alpha organism pages for Trypanosoma, Leishmania, Giardia, viruses and mammalian cells) and the real-object classifier settings, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Further screens",
+      "source": "Further screens",
+      "source_sha256": "05f82c4453a09deecdfba8dd61a30b786ee9858e860c5e3892d0c35cddbffc22",
+      "translation": "Weitere Screens"
+    },
+    {
+      "table": "ui",
+      "key": "A schematic enveloped virus with an icosahedral capsid, tegument and spiked envelope, beside an infected host cell with nascent capsids in the nucleus, an internalised virion and budding particles. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins. Virion structure and replication sites differ between virus families.",
+      "source": "A schematic enveloped virus with an icosahedral capsid, tegument and spiked envelope, beside an infected host cell with nascent capsids in the nucleus, an internalised virion and budding particles. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins. Virion structure and replication sites differ between virus families.",
+      "source_sha256": "0dc8f51211266a670dd150c0d5f3fc2cdf3f3d962f5a6a2c476734f5b985739b",
+      "translation": "Ein schematisches behülltes Virus mit ikosaedrischem Kapsid, Tegument und Hülle mit Spikes, neben einer infizierten Wirtszelle mit neu gebildeten Kapsiden im Zellkern, einem internalisierten Virion und knospenden Partikeln. Bewegen Sie den Mauszeiger darüber, um eine UniProt-Beschreibung der Lokalisation zu sehen, und aktivieren Sie mehrere Kompartimente, damit sie hervorgehoben bleiben. Die Beschriftungen sind die Lokalisationen in Virion und Wirtszelle, die UniProt für virale Proteine annotiert. Virionstruktur und Replikationsorte unterscheiden sich zwischen Virusfamilien."
+    },
+    {
+      "table": "ui",
+      "key": "Tables or measurements.db (*.csv *.tsv *.parquet *.feather *.xlsx *.db)",
+      "source": "Tables or measurements.db (*.csv *.tsv *.parquet *.feather *.xlsx *.db)",
+      "source_sha256": "9b6ea46c7d08a22f2102ebab71619c22eb923328cbdfc73adf5cf91e6894118c",
+      "translation": "Tabellen oder measurements.db (*.csv *.tsv *.parquet *.feather *.xlsx *.db)"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub: this run stopped on a path in its settings, not on a fault in spaCR. Correct the path and run again. To send a report anyway, press File as issue.",
+      "source": "[issue] Nothing was sent to GitHub: this run stopped on a path in its settings, not on a fault in spaCR. Correct the path and run again. To send a report anyway, press File as issue.",
+      "source_sha256": "039b602095b86c79d193857cd754c2c0a452c6a2d6ab8c76201bd4ac8c71add3",
+      "translation": "[issue] Es wurde nichts an GitHub gesendet: Dieser Lauf wurde durch einen Pfad in seinen Einstellungen angehalten, nicht durch einen Fehler in spaCR. Korrigieren Sie den Pfad und starten Sie den Lauf erneut. Um trotzdem einen Bericht zu senden, klicken Sie auf Als Issue melden."
+    },
+    {
+      "table": "ui",
+      "key": "Show the organism pages that are not yet released: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus and Mammalian cells. Separate from Show alpha features. Toxoplasma is always shown. Default off.",
+      "source": "Show the organism pages that are not yet released: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus and Mammalian cells. Separate from Show alpha features. Toxoplasma is always shown. Default off.",
+      "source_sha256": "7c89beb6be4ebac32b09e633f5cc465ff4a40c32edef3bd739a98f32bd78f783",
+      "translation": "Zeigt die noch nicht veröffentlichten Organismusseiten an: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus und Säugerzellen. Unabhängig von Alpha-Funktionen anzeigen. Toxoplasma wird immer angezeigt. Standard: aus."
+    },
+    {
+      "table": "ui",
+      "key": "A schematic Leishmania promastigote, with its free anterior flagellum leaving the flagellar pocket, the kinetoplast just behind it and a central nucleus, above the rounded amastigote. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins.",
+      "source": "A schematic Leishmania promastigote, with its free anterior flagellum leaving the flagellar pocket, the kinetoplast just behind it and a central nucleus, above the rounded amastigote. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins.",
+      "source_sha256": "23f825b40033cebf89d0a2a649c39a3409291f6fe7f92a4c23ab324cc262175c",
+      "translation": "Ein schematischer Leishmania-Promastigot, dessen freies vorderes Flagellum die Geißeltasche verlässt, mit dem Kinetoplasten direkt dahinter und einem zentralen Zellkern, über dem abgerundeten Amastigoten. Bewegen Sie den Mauszeiger darüber, um eine UniProt-Beschreibung der Lokalisation zu sehen, und aktivieren Sie mehrere Kompartimente, damit sie hervorgehoben bleiben. Die Beschriftungen sind die subzellulären UniProt-Lokalisationen, die für Leishmania-Proteine annotiert sind."
+    },
+    {
+      "table": "ui",
+      "key": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram shows UniProt vocabulary, not the measured location of a Leishmania protein.",
+      "source": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram shows UniProt vocabulary, not the measured location of a Leishmania protein.",
+      "source_sha256": "b140600cf48cbb859f253835896b62571c9fcfe973a0b1ad3c86d0b55c369626",
+      "translation": "Makrophageninfektion, Makrophagenbindung, Promastigotenmotilität und Bildanalyse der Arzneimittelreaktion öffnen bestehende spaCR-Module; die anderen vier Kacheln sind geplant und als Demnächst verfügbar markiert. TriTrypDB liefert den Genomkontext und UniProt die Proteinannotationen. Das Diagramm zeigt UniProt-Vokabular, nicht die gemessene Lokalisation eines Leishmania-Proteins."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the well-label table for the stored embeddings",
+      "source": "Choose the well-label table for the stored embeddings",
+      "source_sha256": "5833baf39bbdf389bfb0d769b8a69737556497205e999dc7d7b437d2ddd78cae",
+      "translation": "Well-Label-Tabelle für die gespeicherten Einbettungen auswählen"
+    },
+    {
+      "table": "ui",
+      "key": "A schematic adherent mammalian cell spread on extracellular matrix, with its nucleus and nucleoli, endoplasmic reticulum, Golgi apparatus beside the centrosome and primary cilium, mitochondria and cytoskeleton. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins. Cell shape and organelle arrangement vary between cell types.",
+      "source": "A schematic adherent mammalian cell spread on extracellular matrix, with its nucleus and nucleoli, endoplasmic reticulum, Golgi apparatus beside the centrosome and primary cilium, mitochondria and cytoskeleton. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins. Cell shape and organelle arrangement vary between cell types.",
+      "source_sha256": "ed2613e51e501b94d8f22ef4722754ae892b3b83f2146a32213b54e06e54f740",
+      "translation": "Eine schematische adhärente Säugerzelle, ausgebreitet auf extrazellulärer Matrix, mit Zellkern und Nukleoli, endoplasmatischem Retikulum, Golgi-Apparat neben dem Zentrosom und dem primären Zilium, Mitochondrien und Zytoskelett. Bewegen Sie den Mauszeiger darüber, um eine UniProt-Beschreibung der Lokalisation zu sehen, und aktivieren Sie mehrere Kompartimente, damit sie hervorgehoben bleiben. Die Beschriftungen sind subzelluläre UniProt-Lokalisationen, die für Säugerproteine annotiert sind. Zellform und Anordnung der Organellen variieren zwischen Zelltypen."
+    },
+    {
+      "table": "ui",
+      "key": "A schematic Giardia trophozoite seen from above: a pear-shaped cell with two nuclei, the ventral adhesive disc, the median bodies and four pairs of flagella. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins. Giardia has mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
+      "source": "A schematic Giardia trophozoite seen from above: a pear-shaped cell with two nuclei, the ventral adhesive disc, the median bodies and four pairs of flagella. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins. Giardia has mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
+      "source_sha256": "71304410cc1bfd6bfb1657b4b45ebbd7c6bfd207b82592892a7fb9151bc470c7",
+      "translation": "Ein schematischer Giardia-Trophozoit in Aufsicht: eine birnenförmige Zelle mit zwei Zellkernen, der ventralen Haftscheibe, den Medianekörpern und vier Geißelpaaren. Bewegen Sie den Mauszeiger darüber, um eine UniProt-Beschreibung der Lokalisation zu sehen, und aktivieren Sie mehrere Kompartimente, damit sie hervorgehoben bleiben. Die Beschriftungen sind UniProt-Lokalisationen, die für Giardia-Proteine annotiert sind. Giardia hat Mitosomen statt Mitochondrien und keinen gestapelten Golgi-Apparat, daher werden diese nicht angeboten."
+    },
+    {
+      "table": "ui",
+      "key": "Show alpha species (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus, Mammalian)",
+      "source": "Show alpha species (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus, Mammalian)",
+      "source_sha256": "773f7b1b9e5fed9dd545da004131628c6a4481cc7478e153069bab2b2229837d",
+      "translation": "Alpha-Arten anzeigen (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus, Säuger)"
+    },
+    {
+      "table": "ui",
+      "key": "Optional: further run folders, one per line, each becoming another screen of the same study.",
+      "source": "Optional: further run folders, one per line, each becoming another screen of the same study.",
+      "source_sha256": "b15694075c5eb31463ac0e8ad3ddcd93f440083b31db8d6b473312be2c069b8b",
+      "translation": "Optional: weitere Laufordner, einer pro Zeile, die jeweils zu einem weiteren Screen derselben Studie werden."
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_target",
+      "source": "Counterfactual target",
+      "source_sha256": "74a5f869b63ce148daa6259996dfd760608fa5fa00abd16b13a4197d4f86e35b",
+      "translation": "Kontrafaktisches Ziel"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_vendor_channel_map",
+      "source": "Illumination vendor channel map",
+      "source_sha256": "28f0828a4ef5a9893b0703c928a498e4735a14486c2a1ec821b525ae3f50000e",
+      "translation": "Kanalzuordnung des Herstellers für die Beleuchtung"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_target",
+      "source": "Which class or condition every counterfactual morphs toward: a class index such as 1 when counterfactual_condition is 'class', otherwise a condition name as read from the crop file names, such as a well. Cells already in the target are left out. Empty morphs each cell to the next class or condition in sorted order. Ignored unless counterfactuals is on. Default ''.",
+      "source_sha256": "a1a2533447136ecaa6417436c3aa0f6feb132b41d7f2f2a3790b25242063badf",
+      "translation": "Zu welcher Klasse oder Bedingung jedes kontrafaktische Beispiel umgeformt wird: ein Klassenindex wie 1, wenn counterfactual_condition 'class' ist, sonst ein Bedingungsname, wie er aus den Dateinamen der Ausschnitte gelesen wird, etwa ein Well. Zellen, die bereits zum Ziel gehören, werden ausgelassen. Leer formt jede Zelle zur nächsten Klasse oder Bedingung in sortierter Reihenfolge um. Wird ignoriert, sofern counterfactuals nicht aktiviert ist. Standard: ''."
+    }
+  ]
+}

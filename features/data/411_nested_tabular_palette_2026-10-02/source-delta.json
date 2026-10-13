@@ -1,0 +1,10 @@
+{
+  "before": 12036,
+  "after": 12038,
+  "added": [
+    "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+    "spacr.tabular._write_workbook._write"
+  ],
+  "removed": [],
+  "changed": []
+}

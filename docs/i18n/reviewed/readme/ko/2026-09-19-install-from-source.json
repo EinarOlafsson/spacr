@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "install-from-source-heading",
+      "source_sha256": "74f849ea06bc4af046e55ff72afed2aa1f6290a1b88ae4083d5e689b9610481f",
+      "source": "Install from source",
+      "translation": "소스 코드에서 설치"
+    },
+    {
+      "label": "install-from-source-editable",
+      "source_sha256": "c33148b097195c22362ad078ff092a56da2155fb1b1d4fb5a34b72f9864132f6",
+      "source": "Clone the repository and install it in editable mode, so your working copy *is* the installed package and edits take effect without reinstalling",
+      "translation": "저장소를 클론한 뒤 편집 가능 모드로 설치하십시오. 그러면 작업 사본 *자체가* 설치된 패키지가 되어, 수정 사항이 재설치 없이 반영됩니다"
+    },
+    {
+      "label": "install-from-source-default-branch",
+      "source_sha256": "4956451e514a2ca0f97fc7162d565dbe06a73f7a566f8ef3e8ab613b8ff5a7e2",
+      "source": "This clones ``main``, the default branch, which carries the latest release. Development happens on ``nightly``; add ``--branch nightly`` to clone it instead. For a specific release",
+      "translation": "이 명령은 최신 릴리스가 담긴 기본 브랜치인 ``main`` 브랜치를 클론합니다. 개발은 ``nightly`` 브랜치에서 이루어지며, 대신 이 브랜치를 클론하려면 ``--branch nightly`` 옵션을 추가하십시오. 특정 릴리스를 클론하려면"
+    },
+    {
+      "label": "install-from-source-pull",
+      "source_sha256": "928dc99e5ff827fcb9449a9bd5a98ca4d74f5a7a055ca83f6edd8311ecaaacd3",
+      "source": "To pull later changes, from inside the clone",
+      "translation": "이후 변경 사항을 가져오려면 클론한 디렉터리 안에서 다음을 실행하십시오"
+    },
+    {
+      "label": "install-from-source-reinstall",
+      "source_sha256": "15799ef765ff328d379f7f2d140fa0bc1d5cdbf70aeb35afde6aa3b6af3fe6e5",
+      "source": "The second line is only needed when dependencies or entry points changed; Python code is picked up without it. If a command still runs old code after pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path, which is the usual cause.",
+      "translation": "두 번째 줄은 의존성이나 진입점이 바뀐 경우에만 필요하며, Python 코드는 이 줄 없이도 반영됩니다. pull 후에도 명령이 이전 코드를 실행한다면, ``spacr-doctor`` 명령이 경로에서 실제로 사용되는 ``spacr`` 실행 파일이 어느 것인지 알려 줍니다. 대개 이것이 원인입니다."
+    },
+    {
+      "label": "light-install-heading",
+      "source_sha256": "bddf4cc2bac1aa1045594fb75afab7315be1db8c810130d3b0b40254dd98da38",
+      "source": "Install from source (light)",
+      "translation": "소스 코드에서 설치 (경량)"
+    },
+    {
+      "label": "light-install-choice",
+      "source_sha256": "d83fd36e15eb8dca6f5c7ad97eaca34612e5a243e25cec6a699ce90e790199e7",
+      "source": "Contributors need the history; to only run spaCR, take one of these, measured 2026-09-15 by ``packaging/measure_clone_forms.sh``",
+      "translation": "기여자에게는 전체 이력이 필요합니다. spaCR를 실행만 하려면 다음 중 하나를 사용하십시오. 수치는 2026-09-15에 ``packaging/measure_clone_forms.sh`` 스크립트로 측정했습니다"
+    },
+    {
+      "label": "light-install-full-clone",
+      "source_sha256": "2b7071e96e84c65a77c1231869bc65253be18e25dbf90d6163ae41810316b7de",
+      "source": "The full clone downloads 5.8 GB for a 1186 MB checkout. Adding ``--filter=blob:none`` to that clone saves nothing: the checkout fetches the blobs anyway.",
+      "translation": "전체 클론은 1186 MB 크기의 체크아웃을 위해 5.8 GB를 내려받습니다. 이 클론에 ``--filter=blob:none`` 옵션을 추가해도 절약되는 것은 없습니다. 체크아웃 과정에서 어차피 blob을 모두 가져오기 때문입니다."
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "13_regression",
+  "selection": "other",
+  "stage": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2",
+  "tracks": [
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/es/ef_dora.m4a",
+      "sha256": "f9e485188cb73a55ba70370b615e3e3e00813578efd390a47d9cdba13cb9c0fe",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/es/em_alex.m4a",
+      "sha256": "cf01b7a21a44e07292f5d04a1d8b552ece86eb0c8d28bd3e5f93abb20dae186f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.2
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/es/em_santa.m4a",
+      "sha256": "3a985011ec891d211ee4f01633dd7c50dd04e0ce9f2c902a088a52392290b8c4",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/fr/ff_siwis.m4a",
+      "sha256": "458e2ada8b40dba6f85826cf2c1bf07cc19c91881c0c73974bb05bc1f551064b",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/hi/hf_alpha.m4a",
+      "sha256": "0c85739c83720b57172297d0292e2f5a57812e44daba5a3ffd8ab993c7be0c89",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.4
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/hi/hf_beta.m4a",
+      "sha256": "c41d706b2e4deca4e7a544277018599fccf1e1a8cdf4e47ae3f0fe912eb118ea",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.6
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/hi/hm_omega.m4a",
+      "sha256": "3bed9f12930b85aeb24fd9b26544a9a322de17ca30f426b21fd7760b1705e08f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.8
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/hi/hm_psi.m4a",
+      "sha256": "e2d516a83a9ea0106e30fc654972528010a98dee591c85d27b776a6d9f202487",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.7
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/it/if_sara.m4a",
+      "sha256": "57676db3a172a3a78c6b41c7eb4b1ecaf57ada32e5d876addea0af81c75688b7",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.9
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/it/im_nicola.m4a",
+      "sha256": "f2612a271d52744f3a6ec4613e9e1d86843aafbf8e6def582588c2451470a3a3",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.1
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/pt-BR/pf_dora.m4a",
+      "sha256": "5d49c46551b5cf00fd0684dce2b1e52b7ff53f98172125cab3c22e91bfc8f9d1",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.6
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/pt-BR/pm_alex.m4a",
+      "sha256": "1c88e646a47b466069c95d12960d0cd0e73932cba5547205fa1d77dc7b0b2038",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/pt-BR/pm_santa.m4a",
+      "sha256": "eb4d681c9a399d5367407a84d1c2eb32aa43a7f0f4eb653f5c22f2acd9ec6651",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/ja/jf_alpha.m4a",
+      "sha256": "8bd186eb6452858fb349cb90ea60a00cd132ca5cb9ebeade1e9678a5df8b8f25",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.5
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/ja/jf_gongitsune.m4a",
+      "sha256": "b8aefe406930b481d245fbe197fc222e6f56418f86f6d5edbdc3c336cd38114f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.3
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/ja/jf_nezumi.m4a",
+      "sha256": "cee80aa6f581632bb22a3e17c5fef0cfc87b92614c3bb77d6f6856c498d717f6",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -4.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/ja/jf_tebukuro.m4a",
+      "sha256": "c62472d2da60ff9bb0903a23acef56ba164786f8a845e174b6e7b0b65af56b4d",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.5
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/ja/jm_kumo.m4a",
+      "sha256": "5ea13a085dcb37ef384a284279b6cb11b43be5440dda0b5489402119af2a1f4e",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.2
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zf_xiaobei.m4a",
+      "sha256": "0c919e5192fc80888e461a62ec3b4d63560c825e96b3e2b894c24381feff5c1f",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.4
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zf_xiaoni.m4a",
+      "sha256": "f38ba172d951f5500bdbd7d0b1c760198463fa0b0cfb372e493da02874fc734a",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.3
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zf_xiaoxiao.m4a",
+      "sha256": "a96505b02bb9d90f2574f8794e3abeed328db6076ed2425ccdebf44bc7881504",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.9
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zf_xiaoyi.m4a",
+      "sha256": "5057a99cef54d44c0dea91dfe54f40b7b690d302ed188518aed5891ed826a4a5",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.0
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zm_yunjian.m4a",
+      "sha256": "880bc9b67120f6306e95f6827f681931a5a60bdb31d51ae6ca0b8c1e9fa8c2d0",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.4
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zm_yunxi.m4a",
+      "sha256": "bf5e8bb04a1a79031efb6d448dffa4e5a57562c275a36fb84c704c4758761a69",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.6
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zm_yunxia.m4a",
+      "sha256": "54705ccc1b69574ca1e8b28ddd4949ba10094368442cfae2df02a3b8974e0243",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -2.2
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2/production/13_regression/audio/zh-CN/zm_yunyang.m4a",
+      "sha256": "a436be3649a27b229736aaa0b880d19330594b90d8542320794b45a8db647cd6",
+      "full_decode_freshness_timing_activity_peak": "passed",
+      "decoded_true_peak_dbfs": -1.7
+    }
+  ],
+  "verified_tracks": 26,
+  "required_tracks": 26,
+  "maximum_decoded_true_peak_dbfs": -1.0,
+  "published": false,
+  "human_listening_signoff": false,
+  "remaining": [
+    "Complete language/voice/caption acceptance",
+    "Audible narration acceptance",
+    "Complete-set publication"
+  ]
+}

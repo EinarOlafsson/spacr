@@ -1,0 +1,218 @@
+{
+  "accepted": true,
+  "scope": "Normal four-root native composition and all source-bound reviews staged; no narration/video/publication acceptance",
+  "native_visuals": 56,
+  "scenes": 58,
+  "new_yolo_scenes": 13,
+  "all_previous_scene_objects_preserved": 45,
+  "reviewed_languages": 13,
+  "catalog_preservation": [
+    {
+      "catalog": "captions_da.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_de.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_is.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_ko.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_nb.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_sv.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_en.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_es.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_fr.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_hi.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_it.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_ja.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_pt-BR.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_zh-CN.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    }
+  ],
+  "Mask_07_unchanged": true,
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
+  "narration_video_publication_complete": false,
+  "artifacts": {
+    "features/data/662_yolo_tutorial_stage_2026-10-06/662-yolo-native-desktop-r5.log.gz": {
+      "sha256": "584689c821f9bfd90b99c73a20875855f83109cbfb972e3407d1986726980362",
+      "bytes": 601
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/662-yolo-native-desktop-repaint-r6.log.gz": {
+      "sha256": "002222d77b86743f26783a62ce14924079c18d1cf6d54cc729b4e63f046036e7",
+      "bytes": 615
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/author_yolo_lesson.py": {
+      "sha256": "0bb2d01d456a872731ffc8fc207e68ec7efca4a698ca127cfc712f841b592014",
+      "bytes": 5588
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/composed-focus.json.gz": {
+      "sha256": "1ee51719828c462d4d4484134747c04a3b43335bb41a165cb30f5ad021744be2",
+      "bytes": 3425
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/composed-frames.json.gz": {
+      "sha256": "de1ee1ca6218bc084a2b82169443b4c429a929bba12bcb4f40860949bcd0d6a9",
+      "bytes": 75389
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/composed-provenance.json.gz": {
+      "sha256": "322e4e2a0515e8da9253119c9545d1b00df776dcbd8779d445c804b4b159c1ee",
+      "bytes": 360
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/composed-scientific_acceptance.json.gz": {
+      "sha256": "17c797fcb63a0ec9eaa84435a64babb4ae04a12999083b8c99613e7b9761339d",
+      "bytes": 13677
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/finish_yolo_tutorial_reviews.py": {
+      "sha256": "ba3a487379b05505e12bcd6aba5d88549af117159122add4fec03b776f88854a",
+      "bytes": 3446
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/make-masks-before-yolo-lesson.json": {
+      "sha256": "0fc3108cdc0defff7e3238df831f7409e95d6773ec1d8f8050b99d0094c2165f",
+      "bytes": 16444
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/make-masks-yolo-authoring-proof.json": {
+      "sha256": "e0f51c575dfac2432c761b2911c5d8dc44009df4e3d4600e2cc9f7feb1a383a9",
+      "bytes": 655
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/make-masks-yolo-reviewed-proof.json": {
+      "sha256": "28b0a47654aaf6a0ff88aa2e69ad4f78e95942e0b88e0ed7057c284830ed3d4d",
+      "bytes": 2384
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/make-masks-yolo-stage-proof.json": {
+      "sha256": "72caa12d5ef1915235d1680346b123fc24d341eb8c9c162e4009285a0f34d4ab",
+      "bytes": 1985
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/stage_yolo_tutorial.py": {
+      "sha256": "e0d5fa442932ac199acca043364f79792ea3aabc16a9d4f0db2188e51865f6e8",
+      "bytes": 2435
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-captions_da.json.gz": {
+      "sha256": "13a72b4a1a637a37190679521aabf5d904439668da9c6bc11dcfd9cd7774936d",
+      "bytes": 144238
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-captions_de.json.gz": {
+      "sha256": "f211013a9bf2f9f160f61b3561ca0754e170649bc7f97b82a90f74dac2990bf9",
+      "bytes": 155586
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-captions_is.json.gz": {
+      "sha256": "291383c7d9708a75ceb3517d22f7f30201af947d6fad141709fe1916fb9ba4f3",
+      "bytes": 149030
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-captions_ko.json.gz": {
+      "sha256": "4fdb2ffc608dab0971355c7d9dcdcca977175858dc381448362ab33f93591413",
+      "bytes": 149646
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-captions_nb.json.gz": {
+      "sha256": "81c2241a663b7e42728678232b7eafaa5b1a0d3b68cf44fb313426e05ddbc938",
+      "bytes": 142447
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-captions_sv.json.gz": {
+      "sha256": "bf8accc6505f129b342431acf4d9bf1cb6ca19c669ec414a6dd5ede0417ab1da",
+      "bytes": 143808
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_en.json.gz": {
+      "sha256": "e2f7cc972fe015f1024387438eed48d7b79a9c4dea7d04f53b1b17dd4232ac36",
+      "bytes": 135226
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_es.json.gz": {
+      "sha256": "25567370a20bb69fdd163868c0c9c39c530c026e38ace38904360ab390549bdb",
+      "bytes": 166059
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_fr.json.gz": {
+      "sha256": "026c614fdf2605d061e9ebaf28257a7b91109c0834803550caf590228574392c",
+      "bytes": 172381
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_hi.json.gz": {
+      "sha256": "b0fe6b7c77e299eff1e408b9518643fdec7132db7b520c321e486316defa3f76",
+      "bytes": 197744
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_it.json.gz": {
+      "sha256": "b8260f0110b5d001f1ccd9c451d6ae1421cd4ea88bb7ac1f6db6cfc5003e34b7",
+      "bytes": 165196
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_ja.json.gz": {
+      "sha256": "50808ca376f96e473c82746e18e1a284a668d460806e026b37dbb73256bab309",
+      "bytes": 176773
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_pt-BR.json.gz": {
+      "sha256": "7723ee24eff955d24bbf862fb1854d9caa9b8b0a0f0d5684062a6378ef17024e",
+      "bytes": 164892
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/staged-lessons_zh-CN.json.gz": {
+      "sha256": "08016088b2b037fff6ee74e3066ac5efc2e3ea72f44005020ad5a911ba9baafe",
+      "bytes": 164479
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo-authoring-tests-r1.log.gz": {
+      "sha256": "4393eec26a7333ec0aaa86c111ae9f31d2ad5691a7684ab49e0b72401e3c2241",
+      "bytes": 52
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo-composition-r1.log.gz": {
+      "sha256": "b7b9572bd327ae080ca451f07fbf72f003bdbca1a7634d38bc1713a865a98f6c",
+      "bytes": 97
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo-r2-native-acceptance-r1.log.gz": {
+      "sha256": "0ee28cef82bdb11ab0bdbb8495112ea8ca009f9fab47a08672a627129e7e0649",
+      "bytes": 102
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo-reviewed-additions-r1.log.gz": {
+      "sha256": "d573ca284c040e957e52906a31678fbfd7578e82ab805029701bf4391b84462b",
+      "bytes": 112
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo-tutorial-stage-r1.log.gz": {
+      "sha256": "07b088bedeb55eb5bc92aaaaf177d71f3e9c254d8f5f32d066ce9b215f17f707",
+      "bytes": 270
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo_tutorial_reviewed_targets.py": {
+      "sha256": "f0ccd7345b6bd024c74c061c650a2f866cb6624e4af1ed77ac119907400c1b35",
+      "bytes": 20423
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo_tutorial_reviewed_targets_asia.py": {
+      "sha256": "4d3a5272afd6c6fcf25b9e5d1bee4a76d586724dc4491a8a51a32733f08cc8a6",
+      "bytes": 17631
+    },
+    "features/data/662_yolo_tutorial_stage_2026-10-06/yolo_tutorial_reviewed_targets_eu2.py": {
+      "sha256": "39b926925bbb9797feee41c05d84a3f25301de9e0b38235cc767caf8100b620c",
+      "bytes": 10031
+    }
+  },
+  "source_application_checkpoint": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "baseline_catalog_checkpoint": "dca19131a",
+  "native_yolo_receipt": "features/data/662_yolo_native_capture_r2_2026-10-05.json",
+  "scoped_tests_passed": 27,
+  "review_method": "Direct Codex AI technical review; no native-speaker or listening signoff",
+  "source_recorder_changes_remaining": false
+}

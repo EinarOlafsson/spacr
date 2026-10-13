@@ -1,0 +1,34 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "189d9466d15df859444f28e70fed0f6ef73597559efd8b96ef17b7e7e2930940",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Barcode QC : examiner la profondeur de lecture et choisir un seuil",
+  "description": "Chargez des comptages assignés, examinez la couverture des puits et des guides, et comparez des seuils d’abondance.",
+  "objectives": [
+    "Choisir les entrées de comptage et les paramètres de contrôle qualité.",
+    "Examiner la couverture et les effets de position.",
+    "Comparer des seuils et conserver les tables et graphiques obtenus."
+  ],
+  "prerequisite": "Utilisez plate_1_unique_combinations.csv issu des données du criblage d’exemple téléchargées dans le tutoriel Regression, ou votre propre table de comptages assignés. Choisissez un nouveau dossier de sortie. Fournissez les fichiers de contrôle qualité de l’assignation et de référence des codes-barres lorsque vous avez besoin de vérifications qui dépendent des lectures non assignées ou de la banque attendue.",
+  "scenes": [
+    "Ouvrez Map Barcodes, puis Barcode QC. Partez d’une table de comptages assignés ; l’exemple Regression associé en fournit une pour vous exercer.",
+    "Réglez Count data sur votre table de comptages et choisissez une nouvelle destination de sortie. L’exemple contient des lectures assignées sur trois cent quatre-vingt-quatre puits.",
+    "Réglez Target gRNAs per well d’après votre plan d’expérience et choisissez la méthode de synthèse utilisée pour dériver le seuil. L’exemple utilise cinq et median.",
+    "Réglez Starved read fraction pour signaler les puits ayant peu de lectures par rapport à la médiane de la plaque. L’exemple utilise zéro virgule un. Examinez les puits signalés avant de les exclure.",
+    "Activez Plot et Save, puis appuyez sur Run. Ajoutez les entrées de contrôle qualité de l’assignation ou de référence si vous voulez les vérifications correspondantes ; la table de comptages seule décrit les lectures assignées observées.",
+    "Lisez le journal de fin et les chemins de sortie enregistrés. Examinez les erreurs au regard des entrées sélectionnées avant d’utiliser les résultats.",
+    "Ouvrez barcode QC point PNG et threshold sweep point PNG dans le dossier de sortie. Utilisez une visionneuse d’images si le panneau Figures est vide.",
+    "Examinez la profondeur de lecture, les effets de ligne et de colonne et la représentation des guides. Comparez avec une banque de référence lorsque vous devez repérer des guides attendus totalement absents.",
+    "Examinez le balayage des seuils. Dans cet exemple, un seuil proche de un virgule deux un pour cent des lectures de chaque puits donne une médiane de cinq guides tout en conservant environ cinquante-huit pour cent des lectures assignées.",
+    "Comparez les lectures conservées, les puits conservés et les puits au-dessus de l’objectif de guides à mesure que le seuil change. Choisissez un seuil adapté à votre plan ; l’objectif de guides ne garantit pas l’attribution à un seul guide.",
+    "Conservez la recommandation, la table de balayage, les graphiques et les paramètres avec les comptages d’origine. Appliquez le seuil choisi de façon cohérente dans l’analyse en aval et consignez la raison de votre choix."
+  ]
+}

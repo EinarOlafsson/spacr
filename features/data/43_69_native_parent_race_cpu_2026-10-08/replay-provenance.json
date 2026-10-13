@@ -1,0 +1,66 @@
+{
+  "argv": [
+    "/usr/bin/gdb",
+    "-nx",
+    "-nh",
+    "-batch",
+    "-x",
+    "/mnt/wd4tb/scratch/native-69-parent-race-20261008/gdb.commands",
+    "--args",
+    "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "--tb=short",
+    "-p",
+    "no:randomly",
+    "tests/qt/test_live_preview_remove_background.py",
+    "tests/qt/test_make_masks_parent_source_race_guards.py::test_puncta_requires_an_explicit_valid_parent",
+    "tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[image]",
+    "tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[parent]",
+    "--cov=spacr",
+    "--cov-branch",
+    "--cov-report=json:/mnt/wd4tb/scratch/native-69-parent-race-20261008/coverage.json"
+  ],
+  "cwd": "/mnt/wd4tb/spacr-worktrees/codex-fresh-home-contracts-20261008",
+  "source_sha256": {
+    "spacr/qt/screens/make_masks.py": {
+      "69ba4e462f2ea60924a977b192d006ce9b70f42c": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+      "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc"
+    },
+    "spacr/qt/widgets/primary_mask_selector.py": {
+      "69ba4e462f2ea60924a977b192d006ce9b70f42c": "38a79dea542ff89b96264d00878f73349f9b1fc58bfe288ae5579d611ecc481b",
+      "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3": "38a79dea542ff89b96264d00878f73349f9b1fc58bfe288ae5579d611ecc481b"
+    },
+    "spacr/qt/bridge.py": {
+      "69ba4e462f2ea60924a977b192d006ce9b70f42c": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a",
+      "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a"
+    },
+    "tests/qt/test_make_masks_parent_source_race_guards.py": {
+      "69ba4e462f2ea60924a977b192d006ce9b70f42c": "5dc81d71d91ae5f4b4b63a8b0009d33748527ebfb88ccde2973c62d0629799d7",
+      "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3": "5dc81d71d91ae5f4b4b63a8b0009d33748527ebfb88ccde2973c62d0629799d7"
+    },
+    "tests/qt/test_live_preview_remove_background.py": {
+      "69ba4e462f2ea60924a977b192d006ce9b70f42c": "c2179ffaef96d0c40a269fdb7f647a4801673c1cb3fd3bb3fbd53bab526e6dd5",
+      "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3": "c2179ffaef96d0c40a269fdb7f647a4801673c1cb3fd3bb3fbd53bab526e6dd5"
+    },
+    "tests/conftest.py": {
+      "69ba4e462f2ea60924a977b192d006ce9b70f42c": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+      "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9"
+    },
+    "tests/qt/conftest.py": {
+      "69ba4e462f2ea60924a977b192d006ce9b70f42c": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+      "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf"
+    }
+  },
+  "started_utc": "2026-10-08T07:18:19.776665+00:00",
+  "launcher_pid": 3815186,
+  "core_limit": [
+    0,
+    0
+  ],
+  "scope": "One original-order serial two-file/13-node debug replay with branch tracing. Hosted gw1 came from two-worker xdist; this bounded replay does not reproduce that complete long-order/parallel context.",
+  "gdb_pid": 3815208,
+  "gdb_exit_code": 1,
+  "ended_utc": "2026-10-08T07:19:41.209507+00:00"
+}

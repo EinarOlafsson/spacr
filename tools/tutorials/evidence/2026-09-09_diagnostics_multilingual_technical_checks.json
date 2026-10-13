@@ -1,0 +1,28 @@
+{
+  "lesson": "75_regression_diagnostics",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "636adada0750d87b67747ee847c26351442e9bb4bd9d98063728b6c302af4b33",
+  "scene_count_per_catalog": 10,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 5620,
+    "duration_seconds": 187.333333, "audio_streams": 0, "bytes": 7117197,
+    "sha256": "a8ad544dc406b1fbed528d8e59b7c01bea38889d7890ae46e107ecf2b77b5ffa"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Scene links", "Placement under Regression in the Submodules section", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "real_data": "Saved diagnostic panels and tables from the downloaded four-pair example, opened by the actual Diagnostics button and viewed in actual system windows",
+  "interpretation": "The script distinguishes rank-deficient design warnings, 434 guide permutation tests, the 0.005 empirical p-value floor, missing fitted residuals and software completion",
+  "synthesis": "Finished CPU tracks preserved; remaining 13 English, 2 Japanese and 8 Chinese voices generated on CUDA with a 10% allocator cap. Verifiers accept the recorded CPU/CUDA runtime identity for each actual track.",
+  "evidence_directory": "refresh_2026-09-09/production/75_regression_diagnostics and refresh_2026-09-09/browser/75_regression_diagnostics in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and real capture; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

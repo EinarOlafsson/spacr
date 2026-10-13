@@ -1,0 +1,32 @@
+{
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Feature Dictionary: finn definisjoner og enheter",
+  "description": "Søk etter målingsnavn eller begrep, les definisjonen og enhetene, og kopier nyttig referansetekst.",
+  "objectives": [
+    "Finne en definisjon etter navn eller begrep.",
+    "Snevre inn resultatene med begreps- og objektfiltre.",
+    "Lese enheter og merknader og deretter kopiere definisjonen."
+  ],
+  "prerequisite": "Ha et målekolonnenavn klart, eller begynn med en idé som størrelse eller intensitet. Den innebygde ordboken kan åpnes uten at et prosjekt er lastet inn.",
+  "scenes": [
+    "Åpne Help og deretter Feature Dictionary. Bruk vinduet når du vil forstå en målekolonne i en resultattabell eller et diagram.",
+    "Skriv size i søkefeltet og velg Area blant resultatene. Definisjonen vises til høyre, og trefflisten oppdateres mens du skriver.",
+    "Velg et begrep og en objekttype for å snevre inn definisjonene. Prøv intensity og cell. Sett velgerne tilbake til Any concept og Any object for et bredere søk.",
+    "Søk etter cell_channel_1_mean_intensity og velg Mean intensity. Les statistikken og enhetene for å forstå hva kolonnen beskriver.",
+    "Rull ned til Channel, Module og Computed by for flere detaljer. Bruk den oppgitte beregningsfunksjonen som utgangspunkt i API-referansen.",
+    "Slå opp cell_area og les Unit. I todimensjonale målinger angir den et areal, i tredimensjonale et volum. Kontroller måleenhetene som er registrert i prosjektet, før du regner om verdier.",
+    "Les Note for forbehold, for eksempel verdier som allerede er oppgitt i fysiske enheter. For en ordbok over kolonnene som faktisk finnes i en database, bruker du describe_database og export_dictionary fra Python.",
+    "Hvis ingen definisjon passer, tømmer du filtrene og prøver et bredere ord eller det nøyaktige kolonnenavnet. Egendefinerte egenskaper kan trenge dokumentasjon fra arbeidsflyten som laget dem.",
+    "Merk definisjonsteksten og kopier den til notatene dine. Bruk Pythons eksportfunksjoner når du trenger en prosjektspesifikk ordbokfil, og gå deretter tilbake til tabellen eller diagrammet."
+  ]
+}

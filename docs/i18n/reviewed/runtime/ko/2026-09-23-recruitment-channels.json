@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted linguistic and implementation-context review: merged image-channel indices, overlays, explicit auxiliary-ratio channel identity and independent channel measurements. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "channel_dims",
+      "source": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, each auxiliary recruitment ratio records its channel explicitly, so measurements from different channels remain separate. Default [0, 1, 2, 3].",
+      "source_sha256": "bfd2a8078abfa2e4fa88833b0b7b379c5d351d366a45ba51b803b3f73a8f8bef",
+      "translation": "모집 분석에만 사용: 병합된 배열의 이미지 채널 인덱스입니다. 오버레이와 모집 측정에 사용할 채널을 결정합니다. 각 보조 모집 비율에 해당 채널이 명시적으로 기록되므로 서로 다른 채널의 측정값이 분리되어 유지됩니다. 기본값 [0, 1, 2, 3]."
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "source": "8664b4158c3840c912c442720ac2fe9408b803a2",
+  "full_cohort_source": "2f35139fd57d527ed5981a1026a1c5e58911aa2c",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "6f2b552085ee9052448c9157916290f11bc6d5b4",
+  "patch_cleanly_applies": true,
+  "application_source_pushed": false,
+  "application_bytes_identical_between_accepted_cohorts": true,
+  "source_sha256": {
+    "spacr/figures/bundle.py": "fb240ef855aea5cba0e0461236107601f58816181002d2f0681a256f809a3dc5",
+    "spacr/plot.py": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+    "tests/test_recruitment_multipanel_recipe.py": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+    "tests/test_comparison_multipanel_recipe.py": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+    "tests/test_controls_multipanel_recipe.py": "4d7e143c2dae3773c71128a2c075d8d5a28d61246cafa45f53942aa9d072d473"
+  },
+  "original_negative": {
+    "failed": 3,
+    "seconds": 4.59,
+    "source": "c4bbfb755d7669def6c25dba08e1a140ed157bf3"
+  },
+  "full_cohort": {
+    "passed": 109,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 67.08,
+    "warnings": 84
+  },
+  "boundary_cohort": {
+    "passed": 7,
+    "failed": 0,
+    "deselected": 3,
+    "seconds": 7.04,
+    "scope": "Seven additional single-condition/incomplete-data/destructive-slot cases; no full116-case rerun claimed."
+  },
+  "scope": "Actual PRIVATE N658 two-file repair. All four table multi-panel registrations discovered in plot.py now have explicit recipes: recruitment means, recruitment ratios, controls and metric comparisons. Shared filter/melt transform preserves full registered source and CSV; explicit slots retain blank grid cells and per-panel edited views. Standalone copies normal helper and draw functions without spaCR dependency. Source statistics use the same selected/melted rows, with condition/channel identities and raw n. Existing original test files unchanged.",
+  "limitations": [
+    "Static plot.py inventory does not prove every producer elsewhere migrated or every image/montage source recoverable.",
+    "No biological-replication/global-family statistics acceptance, source publication hold release, required-green/full serial/native-cause claim.",
+    "Raw normal branch coverage retained; no added-line/global-module audit conclusion yet. Already-imported package-init/version warnings kept.",
+    "Original negative final n assertion assumed numeric CSV type; mixed statistic n column corrected through numeric parsing before repair acceptance, with original4-observation requirement preserved.",
+    "First attempted patch had a script-template whitespace mismatch and atomically made no changes; tool output only, no standalone log.",
+    "Fatal Ruff and diff checks passed; terminal tool output not retained in a standalone lint log."
+  ],
+  "payloads": {
+    "logs/controls-panel-negative-r1.log.gz": {
+      "raw_bytes": 4383,
+      "raw_sha256": "db4d19ce3afad3c08d1ac3d7d15aed088a53653652ca7cf7037d26ee52aafac3",
+      "gzip_bytes": 1462,
+      "gzip_sha256": "293340667eb5c5878d692221749a86f935d075f2fb93780cac12dcc882eefa50"
+    },
+    "logs/controls-panel-negative-r1-tool.log.gz": {
+      "raw_bytes": 3903,
+      "raw_sha256": "33774116286ebf8fe71d4c90edb5951e9052117e4fcaa54185734b6f63055dd8",
+      "gzip_bytes": 1273,
+      "gzip_sha256": "544adb3ecf6265f0408243e40d81cb2dc10e1bf97eadcd0e0da8818815481496"
+    },
+    "logs/controls-panel-positive-r1.log.gz": {
+      "raw_bytes": 6443,
+      "raw_sha256": "1a64fe2c2761166165e2fd7239a3e5a01c0fb469af17dc34e8c2da9da55dc1a2",
+      "gzip_bytes": 1605,
+      "gzip_sha256": "489f38bdfb17ab53289f53430d7a66c0079224220da3c48d0a329d38de66a14d"
+    },
+    "logs/controls-panel-positive-r1-tool.log.gz": {
+      "raw_bytes": 5475,
+      "raw_sha256": "0b459856f938bcbec68e31b2f0a9ec32534f96c779ed19b7ac3043b96f9d5a51",
+      "gzip_bytes": 1357,
+      "gzip_sha256": "690b23ff9406bb7c9dcafd653e4bf62656f9da97652964f6747046b63d2a3866"
+    },
+    "logs/controls-panel-boundaries-r2.log.gz": {
+      "raw_bytes": 1660,
+      "raw_sha256": "d2f1d5132d95ccac7646ce4b4e061e15abd04bb11c80e69b749fa7c0f94d7a54",
+      "gzip_bytes": 591,
+      "gzip_sha256": "ed6eeb124840635cdec1caedcebfa535e4f194905c7942f48c8da3cc6b93ff6d"
+    },
+    "logs/controls-panel-boundaries-r2-tool.log.gz": {
+      "raw_bytes": 1046,
+      "raw_sha256": "a8af29b541d6fec92125d4011437b7a401cacaa1a2122de2c717001622b50915",
+      "gzip_bytes": 339,
+      "gzip_sha256": "800b0c5d5d507cb2f553b862db8fc5f15bc0aff0788eb9d0d1d7dc9f7f82ce43"
+    },
+    "coverage/original/controls-panel-coverage-r1.data.carruthers.pid17120.XHpz5V4x.HxQT962HQeeh.gz": {
+      "raw_bytes": 2314240,
+      "raw_sha256": "7bb1e728351c34356f80eafe461a75cfc32205c64ea41875bd82937053bee49b",
+      "gzip_bytes": 967578,
+      "gzip_sha256": "545949d87dab07a014715ff8b39f8f84ca0d017e75cb01e21ca8261cbd6894b9"
+    },
+    "coverage/original/controls-panel-boundaries-coverage-r2.data.carruthers.pid17558.XiVLU0Hx.H1Fqsb50xyvh.gz": {
+      "raw_bytes": 614400,
+      "raw_sha256": "b7118d77956f81f13282c766bfa4a3eb0a4cfeb00ebdbf71d80dd13e1cda3185",
+      "gzip_bytes": 261592,
+      "gzip_sha256": "d1583380ecc87e0e9e9874632af1a15bd248c3dbba29510bff2bbd36b6938dd8"
+    },
+    "source-and-tests.patch.gz": {
+      "raw_bytes": 35047,
+      "raw_sha256": "fc25bddc786b05927c2c5233ecbbbef1ee2c1119d213454e9b12b560eb612012",
+      "gzip_bytes": 7793,
+      "gzip_sha256": "f1d267e47d21237294c59a52e1b3bd4daaf6466e94dc07f9b2165f5bc4bb3d4d"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 37196,
+      "raw_sha256": "fb240ef855aea5cba0e0461236107601f58816181002d2f0681a256f809a3dc5",
+      "gzip_bytes": 10965,
+      "gzip_sha256": "29969e402fbed65e03ac3785e6b0fa30cf08fba0e803bd48a99f1327b9564f3a"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 31880,
+      "raw_sha256": "d255333e75a576cb69f6803d5b1add13ddac30585891893936b7a09e947edbc7",
+      "gzip_bytes": 9594,
+      "gzip_sha256": "a5fae0d8be6cb4c21068428b205e0884105c8f627d6328c5bace8f31a2b117e5"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 344160,
+      "raw_sha256": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+      "gzip_bytes": 86664,
+      "gzip_sha256": "64df1c0d3c9ff4de31c1ce4535ba4ce2c113e37d227663c0d8e9e3ea90e58ceb"
+    },
+    "original-source/spacr/plot.py.gz": {
+      "raw_bytes": 342416,
+      "raw_sha256": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+      "gzip_bytes": 86247,
+      "gzip_sha256": "70b3f587ca77998e643f5a522fb8d10f4608a6d39ad17b74f7ee033c338ef914"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 7053,
+      "raw_sha256": "4d7e143c2dae3773c71128a2c075d8d5a28d61246cafa45f53942aa9d072d473",
+      "gzip_bytes": 1923,
+      "gzip_sha256": "f336704196d248fcd6c42dc4f0070a8f3b8c66c7fe5e53c97808aa4b812463cf"
+    },
+    "test-revisions/controls-at-full-cohort.py.gz": {
+      "raw_bytes": 4317,
+      "raw_sha256": "80c6e7ea3b22454df3701c9aad4660cdc450efd7d7e13451587325c3009894c2",
+      "gzip_bytes": 1458,
+      "gzip_sha256": "d9206b0faa0cfe4885612ebfe12a7baf9a12546b7fd48d2969956a1af059b617"
+    },
+    "scripts/archive_controls_panel_repair_r1.py.gz": {
+      "raw_bytes": 8137,
+      "raw_sha256": "982346f77fd8877387848b12c7df222b1512d053ba1e0c746f90c9f133d5301e",
+      "gzip_bytes": 3514,
+      "gzip_sha256": "a333d88395dd41025c9d0d2760de0f9684ade354dd5274d9c2281427859e9e52"
+    },
+    "coverage/config.coveragerc.gz": {
+      "raw_bytes": 460,
+      "raw_sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "gzip_bytes": 306,
+      "gzip_sha256": "a5db457b70fb70766f84295c3ad5e3ec6e43d90340cace9c09ea6b74dae308bb"
+    }
+  }
+}

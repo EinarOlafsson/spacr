@@ -1,0 +1,14 @@
+{
+  "Barcode column": "Streckkodskolumn",
+  "CSV files (*.csv)": "CSV-filer (*.csv)",
+  "Choose CSV…": "Välj CSV…",
+  "Column name in the CSV that contains the plate barcode.": "Namnet på den kolumn i CSV-filen som innehåller plattans streckkod.",
+  "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.": "Valfri lokal CSV-fil med provmetadata. Lämna tomt för att hoppa över streckkodskoppling. En ny mapp med namnet plate_barcode_linkage skapas i målmappen; källfiler och befintliga plattkartor bevaras.",
+  "Output plate barcodes": "Utmatningsplattornas streckkoder",
+  "Plate barcode linkage (Alpha)": "Koppling av plattstreckkoder (alfa)",
+  "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}": "Koppling av plattstreckkoder: antal brunnar {wells}, antal avvikelser {mismatches}.\nPlattkarta: {map_path}\nAvvikelser: {mismatch_path}",
+  "Sample records CSV": "CSV med provuppgifter",
+  "Select sample records CSV": "Välj CSV-fil med provuppgifter",
+  "Showing {shown} of {total} mismatches; the CSV contains all rows.": "Visar {shown} av {total} avvikelser; CSV-filen innehåller alla rader.",
+  "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.": "Streckkoder kan läsas från barcode.txt i källans rotmapp eller i en källplattas mapp. Använd enbart streckkoden för en källplatta, eller poster av typen source_plate=barcode för flera källplattor. Ange här streckkoder för återstående utdataplattor, till exempel plate1=BC001; plate2=BC002. Utdataplattornas namn kan skilja sig från källmapparnas namn."
+}

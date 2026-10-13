@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted source-context review. Reviews the five restoration tooltips and the Compare action in their enhancement-panel context. Preserves processing order, separate environment, model limitations, coordinate alignment, calibration caveats and unchanged measurement intensities. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+      "source": "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+      "source_sha256": "ebbdf850b1826b6071eacc35e4f25501575ce5def1ccf2756fb1fb658c15759d",
+      "translation": "चुनी गई कोशिकाओं या केंद्रकों का अनुमानित व्यास, पिक्सेल में। यह मॉडल का स्केल बदलने को नियंत्रित करता है; आउटपुट के आयाम अपरिवर्तित रहते हैं। इससे सूक्ष्मदर्शी के अंशांकन का अनुमान नहीं लगाया जाता।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+      "source": "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+      "source_sha256": "fcd09a8798008e5d7ccc591230c3dad97693639b2da12b21a44771faa4031253",
+      "translation": "कोशिकाओं या केंद्रकों के लिए प्रशिक्षित वज़न चुनें। ये मॉडल हर कोशिकांग या चित्र-अधिग्रहण स्थिति के लिए सत्यापित नहीं हैं। पुनर्स्थापित मान मॉडल के सामान्यीकृत आउटपुट हैं, अंशांकित प्रतिदीप्ति नहीं। नए मास्क स्वीकार करने से पहले तुलना देखें। अपसैंपलिंग नहीं की जाती, ताकि छवि और मास्क के निर्देशांक संरेखित रहें।"
+    },
+    {
+      "table": "ui",
+      "key": "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source": "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source_sha256": "bac44e9e5928fd308a143b2fc85aa7b932aa3df290834c7ceabbc2953912eac9",
+      "translation": "चुने गए Cellpose 3 पुनर्स्थापन वज़न CPU पर लोड करें। पहली बार उपयोग करते समय वज़न डाउनलोड करने पड़ सकते हैं। दर्ज पैकेज संस्करण, चेकपॉइंट हैश और व्यास लागू किए गए छवि सुधार के साथ सहेजे जाते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+      "source": "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+      "source_sha256": "980e13dc86dead0a8467e79a67df5334ca7a343ea1b6fb1a2cca66490d1087fe",
+      "translation": "Cellpose 3 के अलग वातावरण के लिए Model Zoo इंस्टॉलर खोलें। spaCR द्वारा उपयोग किया जाने वाला Cellpose संस्करण अपरिवर्तित रहता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.",
+      "source": "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.",
+      "source_sha256": "56680507b5109ea4bc78fa2b45b700db9977b17ff268775098ad2a0b960aabdd",
+      "translation": "चुने गए तीव्रता चैनल को अलग वातावरण में Cellpose 3 से पुनर्स्थापित करें। यह PSF प्रसंस्करण के बाद और पारंपरिक शोर हटाने से पहले चलता है। तुलना करें से परिणाम का पूर्वावलोकन दिखता है; लागू करें इसे आगे की पहचान के लिए सक्रिय करता है। मूल पिक्सेल और मापन तीव्रताएँ अपरिवर्तित रहती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Compare",
+      "source": "Compare",
+      "source_sha256": "e888155d8c7d2e3c3f9eb1bf57e8d81ba1a3c182b5e94b01e09de2cb2cca81f9",
+      "translation": "तुलना करें"
+    }
+  ]
+}

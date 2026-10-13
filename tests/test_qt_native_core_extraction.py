@@ -1,0 +1,740 @@
+"""Real zstd diagnostics preserve process identity and bounded scratch files."""
+
+import json
+import os
+import shutil
+import struct
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+import pytest
+
+pytest.importorskip('resource', reason='systemd core diagnostics require POSIX resource limits')
+
+from tools import collect_qt_native_backtrace as collector
+
+
+@pytest.mark.parametrize('workflow,job,run_name,recover_name,upload_name,condition', [
+    ('.github/workflows/tests.yml', 'coverage-shards',
+     'Run coverage shard in bounded batches',
+     'Recover a coverage worker native backtrace',
+     'Upload coverage native failure evidence',
+     'failure() || cancelled()'),
+    ('.github/workflows/_pytest-suite.yml', 'pytest',
+     'Run ${{ inputs.suite_name }} tests',
+     'Recover an ordinary Qt worker native backtrace',
+     'Upload ordinary Qt native failure evidence',
+     "(failure() || cancelled()) && startsWith(inputs.suite_name, 'Qt')"),
+])
+def test_cancelled_qt_or_coverage_run_preserves_only_bounded_native_evidence(
+    workflow, job, run_name, recover_name, upload_name, condition,
+):
+    yaml = pytest.importorskip('yaml')
+    steps = yaml.safe_load((Path(__file__).resolve().parents[1] / workflow).read_text())[
+        'jobs'][job]['steps']
+    by_name = {step['name']: (index, step) for index, step in enumerate(steps)
+               if 'name' in step}
+    run_index, _ = by_name[run_name]
+    recover_index, recover = by_name[recover_name]
+    upload_index, upload = by_name[upload_name]
+
+    assert run_index < recover_index < upload_index
+    assert recover['if'] == upload['if'] == condition
+    assert recover['continue-on-error'] is True
+    assert recover['timeout-minutes'] == 3
+    assert '--ordinary' in recover['run']
+    assert upload['uses'] == 'actions/upload-artifact@v7'
+    assert upload['with']['if-no-files-found'] == 'ignore'
+    assert upload['with']['retention-days'] == 3
+    assert upload['with']['path'].splitlines() == [
+        '${{ runner.temp }}/spacr-qt-native/process-*.jsonl',
+        '${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt',
+        '${{ runner.temp }}/spacr-qt-native/core-route.json',
+    ]
+    name = upload['with']['name']
+    assert '${{ github.run_id }}' in name
+    assert '${{ github.run_attempt }}' in name
+    assert ('${{ matrix.shard }}' if job == 'coverage-shards'
+            else '${{ inputs.file_shard_index }}') in name
+    assert collector.GDB_TIMEOUT_SECONDS == 90
+    assert collector.CORE_EXTRACT_TIMEOUT_SECONDS == 60
+    assert collector.MAX_BACKTRACE_BYTES == 4 * 1024 * 1024
+
+
+@pytest.mark.parametrize('blocking_results,expect_success', [
+    ({'coverage-combine': 'success', 'qt': 'success'}, True),
+    ({'coverage-combine': 'failure', 'qt': 'success'}, False),
+    ({'coverage-combine': 'skipped', 'qt': 'success'}, False),
+    ({'coverage-combine': 'success', 'qt': 'cancelled'}, False),
+])
+def test_intentional_cancel_skips_aggregates_without_waiving_real_failures(
+    blocking_results, expect_success,
+):
+    yaml = pytest.importorskip('yaml')
+    jobs = yaml.safe_load((Path(__file__).resolve().parents[1] /
+                           '.github/workflows/tests.yml').read_text())['jobs']
+    combine = jobs['coverage-combine']
+    release = jobs['release-gate']
+    assert combine['if'] == release['if'] == 'always() && !cancelled()'
+    assert combine['needs'] == 'coverage-shards'
+    assert set(blocking_results) <= set(release['needs'])
+
+    shard_gate = next(step for step in combine['steps']
+                      if step.get('name') == 'Require every coverage shard to have passed its tests')
+    for shard_result in ('success', 'failure', 'cancelled'):
+        env = {**os.environ, 'SPACR_COVERAGE_SHARDS_RESULT': shard_result}
+        result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', shard_gate['run']],
+                                env=env, capture_output=True, text=True, check=False)
+        assert (result.returncode == 0) is (shard_result == 'success')
+
+    release_gate = next(step for step in release['steps']
+                        if step.get('name') == 'Require every blocking job to succeed')
+    context = {name: {'result': result} for name, result in blocking_results.items()}
+    env = {**os.environ, 'NEEDS_CONTEXT': json.dumps(context)}
+    result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', release_gate['run']],
+                            env=env, capture_output=True, text=True, check=False)
+    assert (result.returncode == 0) is expect_success
+
+
+@pytest.fixture
+def compressed_core(tmp_path):
+    decoder = shutil.which('zstd')
+    if decoder is None:
+        pytest.skip('zstd is not installed on this host')
+    reports = tmp_path / 'reports'
+    scratch = tmp_path / 'scratch'
+    reports.mkdir()
+    scratch.mkdir()
+    header = bytearray(64)
+    header[:6] = b'\x7fELF\x02\x01'
+    header[16:18] = struct.pack('<H', 4)
+    raw = bytes(header) + os.urandom(256 * 1024)
+    packed = subprocess.run([decoder, '--compress', '--stdout', '--quiet'],
+                            input=raw, capture_output=True, check=True).stdout
+    path = reports / 'core.python.1001.bootid.3456.1791382744.zst'
+    path.write_bytes(packed)
+    return reports, scratch, path, raw
+
+
+def test_real_systemd_core_is_extracted_without_changing_original(compressed_core):
+    reports, scratch, path, raw = compressed_core
+    before = path.read_bytes()
+    lines = []
+    extracted = collector._extract_systemd_core(reports, scratch, 3456, time.time_ns(), lines)
+    try:
+        assert extracted is not None
+        assert extracted.read_bytes() == raw
+        assert path.read_bytes() == before
+        assert any('exit=0' in line for line in lines)
+    finally:
+        if extracted is not None:
+            extracted.unlink()
+    assert not list(scratch.iterdir())
+
+
+@pytest.mark.parametrize('defect', ['wrong_pid', 'uid_matches_pid', 'stale', 'symlink',
+                                   'bad_frame', 'not_elf_core', 'oversize_output'])
+def test_unrelated_or_invalid_core_never_survives_in_scratch(compressed_core, monkeypatch, defect):
+    reports, scratch, path, raw = compressed_core
+    pid = 3456
+    if defect == 'wrong_pid':
+        pid = 7890
+    elif defect == 'uid_matches_pid':
+        pid = 1001
+    elif defect == 'stale':
+        stamp = time.time() - 3600
+        os.utime(path, (stamp, stamp))
+    elif defect == 'symlink':
+        target = reports / 'hidden.zst'
+        path.rename(target)
+        path.symlink_to(target)
+    elif defect == 'bad_frame':
+        path.write_bytes(b'not a zstd frame')
+    elif defect == 'not_elf_core':
+        packed = subprocess.run([shutil.which('zstd'), '-cq'], input=b'plain text',
+                                capture_output=True, check=True).stdout
+        path.write_bytes(packed)
+    elif defect == 'oversize_output':
+        packed = subprocess.run([shutil.which('zstd'), '-cq'], input=raw[:64] + bytes(512 * 1024),
+                                capture_output=True, check=True).stdout
+        path.write_bytes(packed)
+        monkeypatch.setattr(collector, 'MAX_CORE_BYTES', 128 * 1024)
+    lines = []
+    assert collector._extract_systemd_core(reports, scratch, pid, time.time_ns(), lines) is None
+    assert not list(scratch.iterdir())
+
+
+def _native_note_core(pid, executable, *, wide=True, order='<', leader_pid=None):
+    """Build PRSTATUS/PRPSINFO/NT_FILE layouts without a large process core."""
+    def note(kind, payload):
+        name = b'CORE\0'
+        return (struct.pack(order + 'III', len(name), len(payload), kind) + name
+                + bytes((-len(name)) % 4) + payload + bytes((-len(payload)) % 4))
+
+    word = 'Q' if wide else 'I'
+    status = bytearray(112 if wide else 72)
+    struct.pack_into(order + 'i', status, 32 if wide else 24, pid)
+    mappings = (struct.pack(order + word * 5, 1, 4096, 4096, 8192, 0)
+                + os.fsencode(executable) + b'\0')
+    process = bytearray(136 if wide else 124)
+    struct.pack_into(order + 'i', process, 24 if wide else 12,
+                     pid if leader_pid is None else leader_pid)
+    notes = note(1, status) + note(3, process) + note(0x46494C45, mappings)
+    header = bytearray(64)
+    header[:6] = b'\x7fELF' + bytes([2 if wide else 1, 1 if order == '<' else 2])
+    struct.pack_into(order + 'H', header, 16, 4)
+    struct.pack_into(order + 'H', header, 18, 62 if wide else 3)
+    struct.pack_into(order + word, header, 32 if wide else 28, 64)
+    stride = 56 if wide else 32
+    struct.pack_into(order + 'HH', header, 54 if wide else 42, stride, 1)
+    entry = bytearray(stride)
+    struct.pack_into(order + 'I', entry, 0, 4)
+    struct.pack_into(order + word, entry, 8 if wide else 4, 64 + stride)
+    struct.pack_into(order + word, entry, 32 if wide else 16, len(notes))
+    return bytes(header + entry) + notes
+
+
+def _native_many_header_core(pid, executable, count):
+    """Put one real PT_NOTE after a large table of bounded PT_NULL entries."""
+    original = _native_note_core(pid, executable)
+    table = bytearray(56 * count)
+    table[:56] = original[64:120]
+    struct.pack_into('<Q', table, 8, 64 + len(table))
+    header = bytearray(original[:64])
+    struct.pack_into('<H', header, 56, count)
+    return bytes(header + table) + original[120:]
+
+
+def test_realistic_1091_header_core_keeps_exact_pid_and_executable_guard(tmp_path):
+    """The observed 7a Qt batch needs more than 1,024 small ELF headers."""
+    assert collector.MAX_PROGRAM_HEADER_TABLE_BYTES == 1024 * 256
+    executable = tmp_path / 'python'
+    core = tmp_path / 'core'
+    core.write_bytes(_native_many_header_core(3456, executable, 1091))
+    diagnostics = []
+    assert collector._core_process_ids(core, executable, diagnostics) == {3456}
+    detail = json.loads(diagnostics[0].removeprefix('elf_identity='))
+    assert detail['reason'] == 'accepted'
+    assert detail['program_header_table_bytes'] == 1091 * 56
+    assert not collector._core_process_ids(core, tmp_path / 'wrong-python')
+
+
+@pytest.mark.parametrize('wide,order', [(True, '<'), (False, '<'), (True, '>'), (False, '>')])
+def test_elf_notes_bind_actual_process_leader_and_executable(tmp_path, wide, order):
+    executable = tmp_path / 'python'
+    core = tmp_path / 'core'
+    core.write_bytes(_native_note_core(3456, executable, wide=wide, order=order))
+    assert collector._core_process_ids(core, executable) == {3456}
+    assert not collector._core_process_ids(core, tmp_path / 'different-python')
+
+
+@pytest.mark.parametrize('defect', ['truncated', 'huge_notes', 'bad_class', 'not_core',
+                                   'huge_program_table', 'truncated_program_table',
+                                   'out_of_file_table', 'invalid_stride', 'wrong_owner'])
+def test_malformed_native_notes_never_bind_a_worker(tmp_path, defect):
+    executable = tmp_path / 'python'
+    raw = bytearray(_native_note_core(3456, executable))
+    if defect == 'truncated':
+        del raw[-10:]
+    elif defect == 'huge_notes':
+        struct.pack_into('<Q', raw, 64 + 32, 5 * 1024 * 1024)
+    elif defect == 'bad_class':
+        raw[4] = 3
+    elif defect == 'not_core':
+        struct.pack_into('<H', raw, 16, 2)
+    elif defect == 'huge_program_table':
+        struct.pack_into('<H', raw, 56, 5000)
+    elif defect == 'truncated_program_table':
+        struct.pack_into('<H', raw, 56, 1091)
+    elif defect == 'out_of_file_table':
+        struct.pack_into('<Q', raw, 32, len(raw) + 1)
+    elif defect == 'invalid_stride':
+        struct.pack_into('<H', raw, 54, 257)
+    elif defect == 'wrong_owner':
+        raw = bytearray(raw.replace(b'CORE\0', b'BAD!\0'))
+    core = tmp_path / 'core'
+    core.write_bytes(raw)
+    assert not collector._core_process_ids(core, executable)
+
+
+@pytest.mark.parametrize('defect,reason', [
+    ('program_headers', 'program_header_table_byte_ceiling'),
+    ('truncated_program_headers', 'truncated_program_headers'),
+    ('note_bytes', 'note_byte_ceiling'),
+    ('missing_pid', 'missing_process_pid'),
+    ('conflicting_pid', 'conflicting_process_pids'),
+    ('executable', 'absent_executable_path'),
+])
+def test_rejected_native_identity_reports_the_bounded_reason_without_accepting_it(
+    tmp_path, defect, reason,
+):
+    executable = tmp_path / 'python'
+    raw = bytearray(_native_note_core(3456, executable))
+    notes_start = 64 + 56
+    if defect == 'program_headers':
+        struct.pack_into('<H', raw, 56, 5000)
+    elif defect == 'truncated_program_headers':
+        struct.pack_into('<H', raw, 56, 1091)
+    elif defect == 'note_bytes':
+        struct.pack_into('<Q', raw, 64 + 32, 5 * 1024 * 1024)
+    elif defect in ('missing_pid', 'conflicting_pid'):
+        cursor = notes_start
+        while cursor < len(raw):
+            names, length, kind = struct.unpack_from('<III', raw, cursor)
+            payload = cursor + 12 + ((names + 3) & ~3)
+            following = payload + ((length + 3) & ~3)
+            if kind == 3:
+                if defect == 'missing_pid':
+                    struct.pack_into('<I', raw, cursor + 8, 77)
+                else:
+                    second = bytearray(raw[cursor:following])
+                    struct.pack_into('<i', second, payload - cursor + 24, 7890)
+                    raw.extend(second)
+                    struct.pack_into('<Q', raw, 64 + 32, len(raw) - notes_start)
+                break
+            cursor = following
+        else:
+            pytest.fail('synthetic ELF lacks PRPSINFO')
+    core = tmp_path / 'core'
+    core.write_bytes(raw)
+    diagnostics = []
+    expected = tmp_path / 'other-python' if defect == 'executable' else executable
+    assert collector._core_process_ids(core, expected, diagnostics) == set()
+    assert len(diagnostics) == 1
+    assert len(diagnostics[0]) < 512
+    detail = json.loads(diagnostics[0].removeprefix('elf_identity='))
+    assert detail['reason'] == reason
+    assert detail['elf_class'] == 64
+    assert detail['program_headers'] == (
+        5000 if defect == 'program_headers' else
+        1091 if defect == 'truncated_program_headers' else 1)
+    if defect == 'conflicting_pid':
+        assert detail['process_pids'] == [3456, 7890]
+        assert detail['executable_path_present'] is True
+    elif defect == 'executable':
+        assert detail['process_pids'] == [3456]
+        assert detail['executable_path_present'] is False
+    elif defect == 'missing_pid':
+        assert detail['process_pid_count'] == 0
+
+
+def _identity(tmp_path):
+    if sys.platform != 'linux':
+        pytest.skip('ordinary worker provenance uses Linux process identity')
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    executable = tmp_path / 'python'
+    executable.write_bytes(b'owned executable')
+    evidence = tmp_path / 'evidence'
+    evidence.mkdir()
+    return executable, evidence, {
+        'event': 'session_start', 'mode': 'identity_only', 'pid': 3456,
+        'time_ns': time.time_ns() - 1_000_000, 'source_sha': 'source',
+        'root': str(tmp_path), 'executable': str(executable),
+        'executable_sha256': collector._sha256(executable),
+        'boot_id': collector.Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+        'process_start_ticks': '123',
+    }
+
+
+@pytest.mark.parametrize('defect', ['none', 'finished', 'source', 'root', 'executable',
+                                   'hash', 'boot', 'pid', 'start', 'malformed', 'symlink'])
+def test_only_current_unfinished_owned_sessions_are_eligible(tmp_path, defect):
+    import json
+
+    executable, evidence, record = _identity(tmp_path)
+    if defect in {'source', 'root', 'executable', 'hash', 'boot'}:
+        field = {'source': 'source_sha', 'hash': 'executable_sha256', 'boot': 'boot_id'}.get(
+            defect, defect)
+        record[field] = 'different'
+    elif defect == 'pid':
+        record['pid'] = -1
+    elif defect == 'start':
+        record['process_start_ticks'] = '0'
+    text = json.dumps(record) + '\n'
+    if defect == 'finished':
+        text += json.dumps({'event': 'session_finish', 'exitstatus': 1}) + '\n'
+    elif defect == 'malformed':
+        text = 'partial invalid json'
+    journal = evidence / 'process-3456-123.jsonl'
+    journal.write_text(text)
+    if defect == 'symlink':
+        target = tmp_path / 'external.jsonl'
+        journal.rename(target)
+        journal.symlink_to(target)
+    sessions = collector._ordinary_sessions(evidence, tmp_path, 'source', 'source', executable, [])
+    assert bool(sessions) is (defect == 'none')
+    assert not collector._ordinary_sessions(evidence, tmp_path, 'other', 'source', executable, [])
+
+
+@pytest.mark.parametrize('defect', ['none', 'pid', 'executable', 'stale'])
+def test_ordinary_raw_core_requires_elf_owner_even_when_filename_matches(tmp_path, monkeypatch, defect):
+    executable, evidence, session = _identity(tmp_path)
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(7890 if defect == 'pid' else 3456,
+                                      tmp_path / 'other-python' if defect == 'executable' else executable))
+    timestamp = session['time_ns'] - 1 if defect == 'stale' else session['time_ns'] + 1
+    os.utime(core, ns=(timestamp, timestamp))
+    monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
+    selected, temporary = collector._ordinary_core(tmp_path, evidence, [session], executable, [])
+    assert selected == (core if defect == 'none' else None)
+    assert temporary is None
+
+
+@pytest.mark.parametrize('second_finished', [False, True])
+def test_reused_pid_is_refused_even_when_newer_session_matches(tmp_path, second_finished):
+    import json
+
+    executable, evidence, first = _identity(tmp_path)
+    second = {**first, 'time_ns': first['time_ns'] + 1, 'process_start_ticks': '456'}
+    (evidence / 'process-first.jsonl').write_text(json.dumps(first) + '\n')
+    text = json.dumps(second) + '\n'
+    if second_finished:
+        text += json.dumps({'event': 'session_finish', 'exitstatus': 0}) + '\n'
+    (evidence / 'process-second.jsonl').write_text(text)
+    lines = []
+    assert not collector._ordinary_sessions(evidence, tmp_path, 'source', 'source', executable, lines)
+    assert 'ambiguous_process_pids_refused=[3456]' in lines
+
+
+def test_empty_ordinary_session_does_not_enumerate_foreign_reports(tmp_path, monkeypatch):
+    executable, evidence, _ = _identity(tmp_path)
+    monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
+    monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
+    monkeypatch.setenv('GITHUB_SHA', 'source')
+    monkeypatch.setattr(collector.sys, 'executable', str(executable))
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError('ordinary collector scanned unrelated reports')
+
+    def git_only(argv, **kwargs):
+        assert argv[:2] == ['git', '-C']
+        return subprocess.CompletedProcess(argv, 0, stdout='source\n')
+
+    monkeypatch.setattr(collector.subprocess, 'run', git_only)
+    monkeypatch.setattr(collector, '_apport_reports', forbidden)
+    monkeypatch.setattr(collector, '_candidate_files', forbidden)
+    assert collector.main(['--ordinary', '--evidence-dir', str(evidence)]) == 0
+    report = (evidence / 'native-core-backtrace.txt').read_text()
+    assert 'unfinished_owned_processes=0' in report
+    assert 'No regular ELF core was available' in report
+
+
+@pytest.mark.parametrize('timeout', [False, True])
+def test_extracted_core_is_removed_after_gdb_success_or_timeout(tmp_path, monkeypatch, timeout):
+    import json
+
+    executable, evidence, session = _identity(tmp_path)
+    temporary = tmp_path / 'qt-native-owned.elf'
+    temporary.write_bytes(_native_note_core(3456, executable))
+    (evidence / 'process-3456.jsonl').write_text(json.dumps(session) + '\n')
+    monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
+    monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
+    monkeypatch.setenv('GITHUB_SHA', 'source')
+    monkeypatch.setattr(collector.sys, 'executable', str(executable))
+    monkeypatch.setattr(collector.shutil, 'which', lambda name: '/usr/bin/' + name)
+    monkeypatch.setattr(collector, '_ordinary_core', lambda *args: (temporary, temporary))
+
+    def command(argv, **kwargs):
+        if argv[0] == 'git':
+            return subprocess.CompletedProcess(argv, 0, stdout='source\n')
+        assert argv[:6] == ['gdb', '-q', '-nx', '-nh', '-batch', '-iex']
+        assert argv[-2:] == [str(executable), str(temporary)]
+        assert kwargs['timeout'] == collector.GDB_TIMEOUT_SECONDS
+        assert kwargs['preexec_fn'] is collector._cap_backtrace_file
+        kwargs['stdout'].write(b'owned C++ trace\n')
+        if timeout:
+            raise subprocess.TimeoutExpired(argv, kwargs['timeout'])
+        return subprocess.CompletedProcess(argv, 0)
+
+    monkeypatch.setattr(collector.subprocess, 'run', command)
+    assert collector.main(['--ordinary', '--evidence-dir', str(evidence)]) == 0
+    assert not temporary.exists()
+    report = (evidence / 'native-core-backtrace.txt').read_text()
+    assert ('gdb_timeout=90s' if timeout else 'gdb_exit=0') in report
+    assert 'owned C++ trace' in report
+    assert len(report.encode()) <= collector.MAX_BACKTRACE_BYTES
+
+
+@pytest.mark.parametrize('pattern,soft,expected', [('core.%p', 0, False),
+                                                  ('core.%p', 1024, True),
+                                                  ('|/missing/apport %p', 1024, False)])
+def test_core_route_records_disabled_or_unsupported_production_without_claiming_capture(
+    tmp_path, monkeypatch, pattern, soft, expected,
+):
+    import json
+    from pathlib import Path
+
+    evidence = tmp_path / 'evidence'
+    evidence.mkdir()
+    original = Path.read_text
+
+    def read(path, *args, **kwargs):
+        if str(path) == '/proc/sys/kernel/core_pattern':
+            return pattern
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'read_text', read)
+    monkeypatch.setattr(collector.resource, 'getrlimit', lambda kind: (soft, 1024))
+    collector._record_core_route(tmp_path, evidence)
+    receipt = json.loads((evidence / 'core-route.json').read_text())
+    assert receipt['core_pattern'] == pattern
+    assert receipt['core_limit_soft_bytes'] == soft
+    assert receipt['route_verified'] is expected
+    assert receipt['capture_guaranteed'] is False
+
+
+@pytest.mark.parametrize('defect', ['none', 'pid_note', 'executable_note', 'boot', 'timestamp'])
+def test_ordinary_systemd_core_requires_current_session_and_native_identity(
+    tmp_path, monkeypatch, compressed_core, defect,
+):
+    from pathlib import Path
+
+    reports, scratch, old, _ = compressed_core
+    executable, evidence, session = _identity(tmp_path / 'identity')
+    raw = _native_note_core(7890 if defect == 'pid_note' else 3456,
+                            tmp_path / 'foreign-python' if defect == 'executable_note' else executable)
+    old.unlink()
+    boot = 'foreignboot' if defect == 'boot' else session['boot_id'].replace('-', '')
+    stamp = session['time_ns'] // 1000 + (-100 if defect == 'timestamp' else 100)
+    source = reports / f'core.python.1001.{boot}.3456.{stamp}.zst'
+    packed = subprocess.run([shutil.which('zstd'), '-cq'], input=raw,
+                            capture_output=True, check=True).stdout
+    source.write_bytes(packed)
+    path_type = Path
+    monkeypatch.setattr(collector, 'Path', lambda value: reports if str(value) == (
+        '/var/lib/systemd/coredump') else path_type(value))
+    monkeypatch.setattr(collector, '_candidate_files', lambda *args: iter(()))
+    lines = []
+    selected, temporary = collector._ordinary_core(tmp_path, evidence, [session], executable, lines)
+    try:
+        assert bool(selected) is (defect == 'none')
+        if selected:
+            assert selected == temporary
+            assert selected.read_bytes() == raw
+        assert source.read_bytes() == packed
+    finally:
+        if temporary is not None:
+            temporary.unlink()
+    assert not list(evidence.parent.glob('qt-native-*.elf'))
+    if defect in ('none', 'pid_note', 'executable_note'):
+        assert f"elf_identity_expected_pid={session['pid']}" in lines
+        diagnostic = next(line for line in lines if line.startswith('elf_identity='))
+        details = json.loads(diagnostic.removeprefix('elf_identity='))
+        assert details['reason'] == ('absent_executable_path' if defect == 'executable_note'
+                                     else 'accepted')
+        assert details['process_pids'] == ([7890] if defect == 'pid_note' else [3456])
+        if defect != 'none':
+            assert 'ordinary extraction rejected: ELF PID or executable differs' in lines
+    else:
+        assert not any(line.startswith('elf_identity=') for line in lines)
+
+
+def test_foreign_process_leader_cannot_match_a_reused_thread_identifier(tmp_path, monkeypatch):
+    executable, evidence, session = _identity(tmp_path)
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(3456, executable, leader_pid=7890))
+    assert collector._core_process_ids(core, executable) == {7890}
+    monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
+    lines = []
+    assert collector._ordinary_core(tmp_path, evidence, [session], executable, lines) == (None, None)
+    assert not any(line.startswith('matched_process=') for line in lines)
+
+
+def test_owned_leader_matches_even_when_the_recorded_lwp_is_different(tmp_path, monkeypatch):
+    executable, evidence, session = _identity(tmp_path)
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(7890, executable, leader_pid=3456))
+    assert collector._core_process_ids(core, executable) == {3456}
+    monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
+    lines = []
+    assert collector._ordinary_core(tmp_path, evidence, [session], executable, lines) == (core, None)
+    assert any(line.startswith('matched_process=') for line in lines)
+
+
+@pytest.mark.parametrize('mode', ['signal', 'direct', 'bounded', 'unsupported', 'missing_original'])
+def test_original_fault_diagnostic_selects_restored_frame_with_bounded_fallback(monkeypatch, mode):
+    from types import SimpleNamespace
+
+    selected = []
+    commands = []
+    messages = []
+
+    class Frame:
+        def __init__(self, index, kind):
+            self.index, self.kind = index, kind
+            self.next = None
+
+        def type(self):
+            if mode == 'unsupported':
+                raise RuntimeError('unwinding unavailable')
+            return self.kind
+
+        def older(self):
+            return self.next
+
+        def select(self):
+            selected.append(self.index)
+
+        def level(self):
+            return self.index
+
+        def name(self):
+            return 'original_fault' if self.index == 2 else 'signal_raise'
+
+    frames = [Frame(index, 1 if index == (24 if mode == 'bounded' else 1) else 0)
+              for index in range(26 if mode == 'bounded' else 3)]
+    for first, second in zip(frames, frames[1:]):
+        first.next = second
+    if mode == 'direct':
+        frames[1].kind = 0
+    elif mode == 'missing_original':
+        frames[1].next = None
+
+    def execute(command):
+        commands.append(command)
+        if mode == 'unsupported' and command == 'p $_siginfo':
+            raise RuntimeError('siginfo unavailable')
+
+    gdb = SimpleNamespace(execute=execute, write=messages.append, newest_frame=lambda: frames[0],
+                          SIGTRAMP_FRAME=1)
+    monkeypatch.setitem(sys.modules, 'gdb', gdb)
+    exec(collector._ORDINARY_FAULT_SCRIPT, {})
+    assert commands[:4] == ['set print elements 32', 'set print max-depth 4',
+                            'p $_siginfo', 'bt full 24']
+    output = ''.join(messages)
+    if mode == 'signal':
+        assert selected == [2, 0]
+        assert 'selection=after_sigtramp level=2 name=original_fault' in output
+    elif mode in {'direct', 'bounded'}:
+        assert selected == [0, 0]
+        assert 'selection=current_fault_frame' in output
+    else:
+        assert 'unsupported' in output
+        assert not selected or selected == [0]
+    if mode in {'signal', 'direct', 'bounded'}:
+        assert commands[-2:] == ['info registers', 'x/16i $pc']
+
+
+@pytest.mark.parametrize('case,expected', [
+    ('source_worker', 'wrapper_type_diagnostic=_SourceWorker wrapper_ptr=0x10000'),
+    ('wrong_library', 'wrapper_type_diagnostic=unsupported_library_hash'),
+    ('wrong_python', 'wrapper_type_diagnostic=unsupported_python_abi'),
+    ('wrong_pc', 'wrapper_type_diagnostic=unsupported_fault_pc'),
+    ('wrong_architecture', 'wrapper_type_diagnostic=unsupported_architecture'),
+    ('unreadable_type', 'wrapper_type_diagnostic=unavailable'),
+])
+def test_qthread_fault_reports_only_a_bounded_python_wrapper_class(
+    tmp_path, monkeypatch, case, expected,
+):
+    """A matching 6.12 frame distinguishes workers without uploading core bytes."""
+    from types import SimpleNamespace
+
+    library = tmp_path / 'libshiboken6.abi3.so.6.12'
+    library.write_bytes(b'controlled library')
+    fingerprint = ('different' if case == 'wrong_library' else
+                   '2b3d9767d69da0afabe4a383dc241a110fac4c0bb63cdeb3d01314e9c702241e')
+    monkeypatch.setattr('hashlib.sha256',
+                        lambda _bytes: SimpleNamespace(hexdigest=lambda: fingerprint))
+    messages = []
+    memory = {
+        0x10008: struct.pack('<Q', 0x20000),
+        0x20018: struct.pack('<Q', 0x30000),
+        0x30000: b'_SourceWorker\0'.ljust(96, b'\0'),
+    }
+
+    def read_memory(address, size):
+        if case == 'unreadable_type' and address == 0x20018:
+            raise RuntimeError('unreadable target memory')
+        return memory[address][:size]
+
+    class Frame:
+        def __init__(self, kind, name, older=None):
+            self.kind, self.title, self.next = kind, name, older
+
+        def type(self):
+            return self.kind
+
+        def older(self):
+            return self.next
+
+        def select(self):
+            pass
+
+        def level(self):
+            return 1
+
+        def name(self):
+            return self.title
+
+        def pc(self):
+            return 0x12345
+
+        def architecture(self):
+            return SimpleNamespace(name=lambda: (
+                'aarch64' if case == 'wrong_architecture' else 'i386:x86-64'
+            ))
+
+    original = Frame(0, 'Shiboken::BindingManager::unregisterWrapper(SbkObject*)')
+    signal = Frame(1, 'signal_raise', original)
+
+    def execute(command, *, to_string=False):
+        if command.startswith('info symbol '):
+            offset = 64 if case == 'wrong_pc' else 80
+            return ('Shiboken::BindingManager::unregisterWrapper(SbkObject*) '
+                    f'+ {offset} in section .text of {library}\n')
+        assert not to_string
+
+    gdb = SimpleNamespace(
+        execute=execute,
+        write=messages.append,
+        newest_frame=lambda: signal,
+        SIGTRAMP_FRAME=1,
+        solib_name=lambda _pc: str(library),
+        parse_and_eval=lambda expression: (
+            0x30B0DF0 if case == 'wrong_python' else 0x30C0DF0
+        ) if expression == 'Py_Version' else 0x10000,
+        selected_inferior=lambda: SimpleNamespace(read_memory=read_memory),
+    )
+    monkeypatch.setitem(sys.modules, 'gdb', gdb)
+
+    exec(collector._ORDINARY_FAULT_SCRIPT, {})
+
+    assert expected in ''.join(messages)
+    assert 'controlled library' not in ''.join(messages)
+
+
+def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, monkeypatch):
+    import json
+
+    executable, evidence, session = _identity(tmp_path)
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(3456, executable))
+    (evidence / 'file-rss.jsonl').write_text(json.dumps(session) + '\n')
+    monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
+    monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
+    monkeypatch.setenv('GITHUB_SHA', 'source')
+    monkeypatch.setattr(collector.sys, 'executable', str(executable))
+    monkeypatch.setattr(collector.shutil, 'which', lambda name: '/usr/bin/' + name)
+    monkeypatch.setattr(collector, '_candidate_files', lambda *args: iter([(core, core.stat().st_size)]))
+    monkeypatch.setattr(collector, '_apport_reports', lambda *args: [])
+    expected = ['gdb', '-q', '-nx', '-nh', '-batch',
+                '-iex', 'set auto-load safe-path /dev/null',
+                '-iex', 'set debuginfod enabled off', '-ex', 'set pagination off',
+                '-ex', 'info proc', '-ex', 'info threads', '-ex', 'thread apply all bt 24',
+                str(executable), str(core)]
+
+    def command(argv, **kwargs):
+        if argv[0] == 'git':
+            return subprocess.CompletedProcess(argv, 0, stdout='source\n')
+        assert argv == expected
+        assert kwargs['timeout'] == 90
+        assert kwargs['preexec_fn'] is collector._cap_backtrace_file
+        kwargs['stdout'].write(b'unchanged serial trace\n')
+        return subprocess.CompletedProcess(argv, 0)
+
+    monkeypatch.setattr(collector.subprocess, 'run', command)
+    assert collector.main(['--evidence-dir', str(evidence)]) == 0
+    assert core.exists()
+    assert collector.MAX_BACKTRACE_BYTES == 4 * 1024 ** 2

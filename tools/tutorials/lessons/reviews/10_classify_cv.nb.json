@@ -1,0 +1,34 @@
+{
+  "lesson": "10_classify_cv",
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Classify: tren en bildeklassifikator",
+  "description": "Forbered merkede bildeutsnitt, velg familien for datasyn, tren en liten modell og finn prediksjonene.",
+  "objectives": [
+    "Forberede det nedlastbare eksemplet for bildeklassifisering.",
+    "Velge modell, bildekanaler og treningsinnstillinger.",
+    "Holde brønner atskilt og undersøke lagrede modeller og prediksjoner."
+  ],
+  "prerequisite": "Last ned det målte eksemplet via Annotate med Load test data og deretter Load. Behold mappen plate1 med measurements/measurements.db og png-utsnittene. Last ned Classify_existing_split_example.zip nedenfor og pakk ut hjelpeskriptet. Kjør prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split i spaCR-miljøet ditt. Velg mappen new_split i Classify. Hjelpeskriptet er laget for dette eksemplet med fire brønner; det kopierer 64 merkede RGB-utsnitt til trenings- og testmapper.",
+  "scenes": [
+    "Fra Home åpner du Classify og velger Computer Vision, Torch. Denne familien lærer av merkede objektutsnitt og lagrer en modell som kan gi poeng til andre utsnitt. Følg først Annotate-leksjonen for å laste ned eksempelbildene og merkelappene deres.",
+    "I Annotate velger du Load test data og deretter Load. Behold platemappen med målingene og PNG-utsnittene. For egne data begynner du med utsnitt fra Measure og setter i Annotate de klassene modellen skal lære.",
+    "Last ned den lenkede eksempel-ZIP-filen og pakk ut prepare_classify_split.py. Kjør det i spaCR-miljøet ditt med kilden pekende på eksemplets platemappe og målet på en ny mappe. Hjelpeskriptet forbereder 64 merkede bilder til denne øvelsen.",
+    "Åpne den nye mappen og manifestet. Trenings- og testkatalogene inneholder hver sine to klassemapper. Manifestet viser hvert kopierte bilde og brønnen det kommer fra. Hold hele brønner på samme side av oppdelingen når bilder fra samme brønn deler forsøksbetingelser.",
+    "Gå tilbake til Classify og velg den forberedte mappen som Source. Velg den overordnede mappen som inneholder train og test. Bruk denne mappen resten av leksjonen, slik at modellen og utdatafilene holdes samlet.",
+    "Slå av Generate training dataset, siden hjelpeskriptet allerede har forberedt oppdelingen. Aktiver Train og Test. La bruk på hele datasettet være av i denne første kjøringen. Modellen bruker klasseindeksene 0 og 1 for de to klassemappene.",
+    "Velg ResNet18, bildestørrelse 128, alle tre RGB-kanalene, batchstørrelse 8 og én epoke. Sett to innlastingsprosesser, med forhåndstrente vekter og augmentering av for dette korte eksemplet. Antall epoker styrer hvor mange ganger treningen går gjennom inndatabildene.",
+    "Sett valideringsandelen til 0,5, behold grupperingen etter brønn og la lekkasjekontrollene være på. Valideringen følger modellen under treningen; den separate testmappen brukes til den endelige vurderingen. Kontroller den rapporterte brønnfordelingen før du tolker poengene.",
+    "Slå på Plot, tøm innstillingssøket og trykk på Run. Følg i konsollen innlastingen av datasettet, den endelige oppdelingen, treningsfremdriften og utdatabanene. Vent til trening og test er ferdig før du åpner de lagrede resultatene.",
+    "Åpne Figures for å undersøke tap og nøyaktighet. Én epoke gir en rask første gjennomgang. Sammenlign testresultatene mellom klassene før du øker treningstiden. Hvis prediksjonene bare favoriserer én klasse, går du gjennom merkelappene, klassebalansen og inndatakanalene før du bruker modellen på et større datasett.",
+    "Åpne model/resnet18/rgb/epochs_1 i den forberedte mappen. Hold sjekkpunktet, modellkortet og resultattabellene samlet. Bruk de lagrede prediksjonene til å gå gjennom feil, og fortsett deretter til Classifier Evaluation eller Activation Maps for å undersøke modellen nærmere."
+  ]
+}

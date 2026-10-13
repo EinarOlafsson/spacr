@@ -1,0 +1,216 @@
+{
+  "id": "69_dose_response",
+  "number": 69,
+  "slug": "dose_response",
+  "series": 5,
+  "app_key": "dose_response",
+  "section": "Data",
+  "title": "Dose Response: fit concentration curves and read their intervals",
+  "description": "Load a concentration table, group series, fit logistic curves and keep estimates, intervals and fit warnings together.",
+  "objectives": [
+    "Load the synthetic example and choose concentration, response and grouping columns.",
+    "Fit curves and compare profile-likelihood and Wald intervals.",
+    "Read unbounded or refused results and save the report."
+  ],
+  "example_files": [
+    "SYNTHETIC_dose_response_examples.csv"
+  ],
+  "prerequisite": "Download the linked synthetic dose-response CSV. It contains four illustrative series, nine positive concentrations and a zero-dose vehicle, with three observations per concentration. Supply raw concentration values and prepare any normalization or unit conversion before loading your own data.",
+  "scenes": [
+    {
+      "visual": "01_home_data",
+      "narration": "From Home, open Data and choose Dose Response. Prepare a table with explicit concentration and response columns for each series you want to fit.",
+      "hold_after": 0.7,
+      "focus_modules": [
+        "dose_response"
+      ]
+    },
+    {
+      "visual": "03_choose_disclosed_synthetic_csv",
+      "narration": "Download the linked synthetic CSV, then click Load table and open it. The named synthetic series illustrate the controls and different fit outcomes.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_loaded_120_synthetic_rows",
+      "narration": "The table has one hundred twenty rows across four series. Each includes nine positive concentrations, a zero-dose vehicle and three observations at each concentration.",
+      "hold_after": 0.7,
+      "focus": [
+        285,
+        40,
+        2200,
+        170
+      ]
+    },
+    {
+      "visual": "05_explicit_columns_and_profile",
+      "narration": "Set the concentration column to concentration, the response column to response and One curve per to series. Use raw concentrations rather than their logarithms.",
+      "hold_after": 0.7,
+      "focus": [
+        285,
+        145,
+        1470,
+        75
+      ]
+    },
+    {
+      "visual": "05_explicit_columns_and_profile",
+      "narration": "Enter the concentration unit in Unit. For this example use micromolar. This field labels the values; convert the numbers upstream if you need a different unit.",
+      "hold_after": 0.7,
+      "focus": [
+        285,
+        145,
+        1470,
+        75
+      ],
+      "related_lessons": [
+        "61_tabulate"
+      ]
+    },
+    {
+      "visual": "06_profile_results",
+      "narration": "Choose Profile likelihood, leave Fit non-monotone data off and click Fit. Inspect the curve panel and results table together, including series with warnings or unavailable estimates.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        190,
+        1810,
+        210
+      ]
+    },
+    {
+      "visual": "07_inhibition_midpoint",
+      "narration": "Select synthetic inhibition. Its midpoint is one point five and its Hill slope is negative. Half-maximum lies halfway between the fitted plateaus, which are five and ninety-five here.",
+      "hold_after": 0.7,
+      "focus": [
+        285,
+        210,
+        1710,
+        1900
+      ]
+    },
+    {
+      "visual": "08_activation_midpoint",
+      "narration": "Select synthetic activation. Its midpoint is two and its Hill slope is positive. The selected curve is emphasized, and the report below follows the selected row.",
+      "hold_after": 0.7,
+      "focus": [
+        285,
+        210,
+        1710,
+        1900
+      ]
+    },
+    {
+      "visual": "09_unbounded_not_a_point_estimate",
+      "narration": "Select the beyond-range example. Its tested concentrations end at one hundred, leaving the midpoint unsupported. Read the reported bound; blank midpoint and interval cells indicate an unavailable estimate.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        1140,
+        1810,
+        450
+      ]
+    },
+    {
+      "visual": "10_refused_reversing_series",
+      "narration": "Select the reversing series and read why the fit is refused. Inspect the response shape and experimental context before deciding whether a monotonic logistic model is appropriate.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        1140,
+        1810,
+        450
+      ]
+    },
+    {
+      "visual": "07_inhibition_midpoint",
+      "narration": "Return to inhibition and read the observation counts. Twenty-seven positive-dose observations enter the fit. Three zero-dose controls are summarized separately because zero cannot enter the logarithmic fit.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        1140,
+        1810,
+        450
+      ]
+    },
+    {
+      "visual": "07_inhibition_midpoint",
+      "narration": "Read residual error and lack of fit alongside R squared. Keep the replicate structure of your experiment in mind when interpreting uncertainty; repeated rows alone do not establish independent experiments.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        1140,
+        1810,
+        450
+      ]
+    },
+    {
+      "visual": "13_choose_wald",
+      "narration": "Choose Wald and click Fit again to compare interval methods. Changing the selector requires another fit. The interval is calculated on the log midpoint and transformed back to concentration.",
+      "hold_after": 0.7,
+      "focus": [
+        285,
+        145,
+        1470,
+        75
+      ]
+    },
+    {
+      "visual": "14_wald_results",
+      "narration": "Compare the interval endpoints for the well-bracketed series. The midpoint estimates stay similar here; the beyond-range example still has no supported midpoint estimate.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        190,
+        1810,
+        210
+      ]
+    },
+    {
+      "visual": "15_profile_restored",
+      "narration": "Restore Profile likelihood and click Fit. Check the selected method and corresponding report before copying results.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        1140,
+        1810,
+        450
+      ]
+    },
+    {
+      "visual": "16_select_after_sorting",
+      "narration": "Sort the table only after completing the fitting comparisons. This build can misalign rows if you refit a sorted table. Select inhibition and confirm that the report names the same series.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        190,
+        1810,
+        210
+      ]
+    },
+    {
+      "visual": "17_copy_actual_report",
+      "narration": "Select the report text and copy it with the normal keyboard shortcut. Save the warnings, interval method and input concentrations alongside the result.",
+      "hold_after": 0.7,
+      "focus": [
+        2000,
+        1140,
+        1810,
+        500
+      ]
+    },
+    {
+      "visual": "15_profile_restored",
+      "narration": "For tabular output, use fit_frame and the dose-response result table in Python. This screen has no export button. Retain unbounded and refused rows in your output so every input series stays accounted for.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api"
+      ],
+      "focus": [
+        2000,
+        190,
+        1810,
+        210
+      ]
+    }
+  ]
+}

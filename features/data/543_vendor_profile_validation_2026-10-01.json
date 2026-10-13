@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "date": "2026-10-01",
+  "status": "partial",
+  "integrated_validation": {
+    "result": "66 passed, 3 warnings in 5.03s",
+    "scope": "MemoryMax4G, MemorySwapMax0, CPUQuota100%, CPU0 affinity, single-thread numerical libraries",
+    "log_sha256": "77ed750d3de2d6018573015027e8283cc12c4ae93eca9dd3962d3057d5e5b430"
+  },
+  "feature": "F543",
+  "implemented": [
+    "finite gain and background preflight",
+    "profile shape and duplicate-channel conflict validation"
+  ],
+  "limits": [
+    "real Harmony raw/profile/corrected trio not yet available",
+    "embedded proprietary reference formats pending"
+  ],
+  "source_sha256": {
+    "spacr/illumination.py": "b9ee87b6f3ab63591eaec1eacf2ec3c155d6e9c29a0dd222aeadd6a166cdc3b2",
+    "tests/test_vendor_profile_validation_f543.py": "a8fe3bb294a86aa5fbfcb8dab4b9029b7ca34c8b607a7ea57e34b6dbdd10ece3"
+  }
+}

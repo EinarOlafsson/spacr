@@ -1,0 +1,128 @@
+"""The tooltip contract across every registered settings module.
+
+Examples on Mask are not enough: registered modules can add defaults and
+special-purpose screens can build their rows by hand.  These guards inventory
+the live registry and prove that the generic and hand-built paths converge on
+the same label-only, sticky, single-surface tooltip.
+"""
+from __future__ import annotations
+
+from PySide6.QtCore import QEvent
+from PySide6.QtWidgets import QApplication, QFormLayout, QLabel, QLineEdit, QWidget
+
+
+def test_every_registered_displayed_setting_has_authored_help():
+    """All live defaults have prose, rather than the generated name fallback."""
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import (
+        _APP_HIDDEN_KEYS,
+        get_tooltips,
+        resolve_default_settings,
+    )
+
+    # Resolving first imports modules that contribute settings metadata
+    # through register_defaults. Reading the tooltip table before this step
+    # would make the result depend on whichever module another test imported.
+    inventories = {
+        app_key: resolve_default_settings(app_key)
+        for app_key, _name, _description, _section in APPS
+    }
+    descriptions = get_tooltips()
+    missing = []
+    checked = 0
+    for app_key, defaults in inventories.items():
+        shown = set(defaults) - set(_APP_HIDDEN_KEYS.get(app_key, set()))
+        checked += len(shown)
+        for key in sorted(shown):
+            if not str(descriptions.get(key, "")).strip():
+                missing.append(f"{app_key}.{key}")
+
+    # 418, measured against clean HEAD c29b56397 on 2026-09-15: the actual
+    # baseline was 758 occurrences across 39 apps, already four above the old
+    # floor of 754. Only Mask changes, from 180 to 168: remove five controls
+    # at four roles (20), add two absolute mean bounds at four roles (8).
+    # The other 38 apps' 578 occurrences are identical: 758 - 20 + 8 = 746.
+    # Keep scanning every displayed key; intentional retirement is not an
+    # exemption from authored help or a reason to skip any registered app.
+    assert checked >= 746, (
+        f"only {checked} setting occurrences were checked; the registry "
+        "inventory is no longer exhaustive")
+    assert not missing, (
+        "registered settings with no authored tooltip:\n  "
+        + "\n  ".join(missing))
+
+    mask_shown = set(inventories["mask"]) - set(_APP_HIDDEN_KEYS.get("mask", set()))
+    roles = ("cell", "nucleus", "pathogen", "organelle")
+    new_bounds = {f"organelle_{bound}_intensity" for bound in ("min", "max")}
+    new_bounds.add("object_filters")
+    retired_controls = {
+        f"{role}_{suffix}" for role in roles for suffix in (
+            "intensity_merge", "intensity_split", "intensity_threshold",
+            "min_watershed_distance", "minimum_area_to_split",
+        )
+    }
+    # The maintainer, 2026-09-25 (item 511): the per-object area and mean
+    # bounds of cell, nucleus and pathogen are object_filters rows now.
+    retired_controls |= {
+        f"{role}_{bound}" for role in ("cell", "nucleus", "pathogen")
+        for bound in ("min_area", "max_area", "min_intensity",
+                      "max_intensity")}
+    assert new_bounds <= mask_shown, (
+        f"Mask is missing displayed mean bounds: {sorted(new_bounds - mask_shown)}")
+    assert not (retired_controls & mask_shown), (
+        f"Mask displays retired controls: {sorted(retired_controls & mask_shown)}")
+
+
+def test_a_hand_built_setting_uses_the_shared_label_only_popup(qtbot, immediate_hover_help):
+    """The retargeting pass is a behaviour adapter, not only a text move."""
+    from spacr.qt.screens.settings_model import retarget_field_tooltips
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    form = QFormLayout(host)
+    field = QLineEdit()
+    field.setToolTip("Select the measured score column used for this analysis.")
+    form.addRow("Score column", field)
+    label = form.labelForField(field)
+    assert isinstance(label, QLabel)
+
+    assert retarget_field_tooltips(host) == 1
+    assert field.toolTip() == ""
+    assert label.property("apiTooltipHtml")
+
+    host.show()
+    qtbot.waitExposed(host)
+    popup = HoverTooltip.instance()
+    popup.cancel_hide()
+    popup.hide()
+    QApplication.sendEvent(field, QEvent(QEvent.Enter))
+    QApplication.processEvents()
+    assert not popup.isVisible(), "hovering the input field opened its help"
+
+    immediate_hover_help(label, popup.isVisible)
+    assert popup.isVisible(), "hovering the setting text opened no help"
+    assert popup._anchor is label
+    assert "measured score column" in popup.text_label().text()
+
+    # The same popup owns this path, so the hand-built setting inherits the
+    # rounded dark-grey frame and transparent inner containers instead of a
+    # native black tooltip nested inside it.
+    sheet = popup.styleSheet()
+    assert "QFrame#HoverTooltip" in sheet
+    assert "border-radius: 6px" in sheet
+    assert "QWidget#HoverTooltipTextColumn" in sheet
+    assert "background: transparent" in sheet
+
+    QApplication.sendEvent(label, QEvent(QEvent.Leave))
+    popup._anchor = None
+    popup._pointer_is_on_me = lambda: False
+    try:
+        popup._maybe_hide()
+        QApplication.processEvents()
+        assert not popup.isVisible(), (
+            "the tooltip stayed open after the pointer left its hover area")
+    finally:
+        del popup._pointer_is_on_me
+        popup.cancel_hide()
+        popup.hide()

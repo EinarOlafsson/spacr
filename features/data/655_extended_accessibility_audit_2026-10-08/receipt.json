@@ -1,0 +1,100 @@
+{
+  "source_commit": "82205d5e609d0ac5ebd11148ba8023693546a794",
+  "source_sha256": {
+    "spacr/qt/i18n.py": "0b03d5d8b90c4182640a7030ebcdc41863aedcd5e771feae439b118e1c110058",
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+    "tests/qt/test_accessibility_pass.py": "039947bb2c5421e8721cb1b8a05d3471a0b26b674c70c497bbddf2cb2c367503"
+  },
+  "original_cohort": {
+    "passed": 61,
+    "seconds": 17.9,
+    "observation_cohort_passed": 61,
+    "observation_seconds": 16.46
+  },
+  "main_preferences": {
+    "checked_native_widgets": 216,
+    "unnamed_storage_table": 1,
+    "unnamed_table_headers": 2
+  },
+  "module_views": {
+    "screens": 48,
+    "views": 67,
+    "unnamed_including_headers": 59,
+    "unnamed_non_header_views": 35,
+    "screens_with_unnamed_non_header_views": 23
+  },
+  "limitations": [
+    "r1 used Python wrapper identity; r2 uses native pointer identity and reproduces same216/3 counts. Current saved script is exact r2; first-script bytes not separately retained.",
+    "Header names require assessment in parent table context; not every blank header is declared a separate defect.",
+    "Offscreen QAccessible observation, not actual assistive-technology user or native-platform acceptance.",
+    "Application source unchanged by audit; broad accessibility follow-up remains open."
+  ],
+  "artifacts": {
+    "current-accessibility-cohort-r1.log.gz": {
+      "raw_bytes": 696,
+      "raw_sha256": "916de63d7ce748aceaccbe5eed5cbf27816610ac64df3d89f5210ab38e9435dd",
+      "gzip_sha256": "eb9b6b89a86ec84d1f5ed1ecbac262a09f946a584d153e13a0f90d8828c66e9a"
+    },
+    "current-accessibility-cohort-r1-tool.log.gz": {
+      "raw_bytes": 216,
+      "raw_sha256": "e8a34bcd25f16aefd27fc1973561b27ce12bd4e137c16e9417bfd5b20466dcf2",
+      "gzip_sha256": "6fdf1db6ae6cb9d03e373b1a0e6c7dcfd31556f08f4014e715e9a3550341d14d"
+    },
+    "extended-accessibility-r1.log.gz": {
+      "raw_bytes": 1341,
+      "raw_sha256": "d5619726cfe9e699d4ee3f66049927eeee6ca5620e3fa83fb7f46fed1b2b29ed",
+      "gzip_sha256": "29a6043f2b6801f878648a47c77e46966576d2dac92820ba0752bc9aff6a6f32"
+    },
+    "extended-accessibility-r1-tool.log.gz": {
+      "raw_bytes": 692,
+      "raw_sha256": "c6ea82b82f0819f6d9aee2afb1a054f293d1ab836aa457cc8688ba083a663d3a",
+      "gzip_sha256": "fde8f2d73e1e3a5648293754f56da959cbe4aad5328a149548f8bac1d6ed5dc5"
+    },
+    "extended-accessibility-r1.json.gz": {
+      "raw_bytes": 53926,
+      "raw_sha256": "179e5103266cb33a0873880b89b1284109d18f8b69f170fc78ff6f9ff47106b2",
+      "gzip_sha256": "b2030c5299f0ceb07d7d727d36aebaf23626849632e135b5cae2b52897a1d4cf"
+    },
+    "extended-accessibility-r2.log.gz": {
+      "raw_bytes": 1341,
+      "raw_sha256": "3d2d5c590f979b0dd4ead57e685ae2f76d3e40d65d507b80f93b7c048715fee4",
+      "gzip_sha256": "c0d0cce6f36b8770cf0966fe5d73c682f40cd87ec747303d7a330161520777e3"
+    },
+    "extended-accessibility-r2-tool.log.gz": {
+      "raw_bytes": 692,
+      "raw_sha256": "4b3359d425da8b5f58354e44d50028db21c45a28e3dce382904a22a22ad05290",
+      "gzip_sha256": "312964b1b714d34dbca0fe247642c38b64e250badf80a52de2160ab205e70cca"
+    },
+    "extended-accessibility-r2.json.gz": {
+      "raw_bytes": 53926,
+      "raw_sha256": "61b0af9eb8a0e89f56a6ef122120aa5de1f1df5a2def2a48c7f1408967f9f067",
+      "gzip_sha256": "80f011e7af43bf4bcf2f96ae5db6ab2311e9e3bf0c71dd7688038ef3be35d0ee"
+    },
+    "check_extended_accessibility_r1.py.gz": {
+      "raw_bytes": 3530,
+      "raw_sha256": "ee28166e848eb31425ed8a4d4c5f10b285c503b1740df80c4d12159323ae2fe4",
+      "gzip_sha256": "d47a0d62b0d6b4304e7458380fb91af533579a40b9b041d692aaa2c3ccd14c93"
+    },
+    "module-view-accessibility-r1.log.gz": {
+      "raw_bytes": 1173,
+      "raw_sha256": "d0144fb39db735da09c93bf6ce04c57ad0419c3f36912108791a870b6e1f7589",
+      "gzip_sha256": "3584670b3eb9c05880f4b100fc8765432984368290efc87c32f5f401d849a54b"
+    },
+    "module-view-accessibility-r1-tool.log.gz": {
+      "raw_bytes": 563,
+      "raw_sha256": "8b4c94d23709fd1ec88efa65ed1c18266331e6fc0f52ede3aa2d6b9dd4355893",
+      "gzip_sha256": "24ab47bc38ef7cfba54b72f6925817f7e114332106a5a5bdd07650eb56e8ec30"
+    },
+    "module-view-accessibility-r1.json.gz": {
+      "raw_bytes": 26089,
+      "raw_sha256": "a19773052991cfc6e02c28c77bf01048845d3933e1868bb4568c207e760c1ce0",
+      "gzip_sha256": "88df56b17d11616b7557348e66954f4db93fb4f030ff392ca9e01f1abf191981"
+    },
+    "check_module_view_accessibility_r1.py.gz": {
+      "raw_bytes": 2477,
+      "raw_sha256": "4d8a49dcb3b11cf704832851844d53f1a576807b1e50e561b012171887250dfd",
+      "gzip_sha256": "3eae30e8c193df45efec51a5b3821344641f792fb48eee9a3e4881ca9e4dfd1c"
+    }
+  }
+}

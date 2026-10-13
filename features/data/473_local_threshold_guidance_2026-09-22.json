@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-22",
+  "skimage_version": "0.23.2",
+  "implementation_changes": "Documentation and guidance only; no algorithm or default changes.",
+  "numeric_evidence": {
+    "niblack_bright": {
+      "-0.2": 428,
+      "0.2": 538
+    },
+    "niblack_dark": {
+      "-0.2": 533,
+      "0.2": 423
+    },
+    "sauvola_scale_1": {
+      "0.1": [
+        0.40407103300094604,
+        0.5317761898040771
+      ],
+      "0.3": [
+        0.3304261863231659,
+        0.4335670471191406
+      ]
+    },
+    "sauvola_scale_100": {
+      "0.1": [
+        105.93087768554688,
+        159.15606689453125
+      ],
+      "0.3": [
+        227.5955352783203,
+        371.6383972167969
+      ]
+    }
+  },
+  "new_runtime_sources": [
+    {
+      "source": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "sha256": "e924c7c449871b9e8e06735b38d58c6a16d4c255501803fb96211f2335337ea8"
+    },
+    {
+      "source": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "sha256": "5b68e468bb932052c654fd47ed0253554f685e9f89cd92fdf6092684c7265632"
+    },
+    {
+      "source": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "sha256": "5d06859f9f2e876e2669097b4ab2f168ccf73565eab91973e9a58a23f9ee03f4"
+    },
+    {
+      "source": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "sha256": "df20e4ff6040325eab80c7bba5240243086ecad441ad0f65a75168df8e7fe0ad"
+    },
+    {
+      "source": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "sha256": "f3c95763bc78580a1849b1c6a3666638e31397a3e345a1b884a9f02e6677ffcc"
+    }
+  ],
+  "source_references": [
+    "https://scikit-image.org/docs/0.23.x/api/skimage.filters.html#skimage.filters.threshold_sauvola",
+    "https://scikit-image.org/docs/0.23.x/api/skimage.filters.html#skimage.filters.threshold_niblack",
+    "https://scikit-image.org/docs/0.23.x/api/skimage.filters.html#skimage.filters.threshold_local"
+  ],
+  "validation": {
+    "tests": 90,
+    "new_numerical_tests": 9,
+    "remaining": "API/runtime translations require source reconciliation by the catalog lane."
+  }
+}

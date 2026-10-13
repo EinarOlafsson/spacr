@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "API delta 4, items 07/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.ml.perform_regression#3",
+      "source": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "source_sha256": "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
+      "context": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "translation": "Vörpun með úttaki aðhvarfsgreiningar. ``model_data`` er undirbúna inntakstaflan, ekki niðurstöður stuðlanna; ``fit_designs`` skráir mældar fjöldatölur í líkanshönnuninni sérstaklega fyrir hvert stig stikubundinnar líkanaðlögunar. Óskráðum fjöldatölum er sleppt og úttak umröðunarprófa heldur sínu eigin niðurstöðuskema.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start#3",
+      "source": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "source_sha256": "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c",
+      "context": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "translation": "stýrihlutur afkastaprófs einingaskrárinnar, eða stýrihlutur uppsetta forritsins þegar ``SPACR_DISTRIBUTION_SMOKE=1`` er sérstaklega valið; ``None`` þegar engin úttaksslóð er stillt.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#6",
+      "source": "the run folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "source_sha256": "2cbe0a85e31708dc3a545dc15d993f55aa2c38470c123db52949c411eda5b9cf",
+      "context": "the processing-session folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "translation": "mappa keyrslunnar. ``regression_data.csv`` gefur fjöldatölur fyrir undirbúin inntaksgögn; ``regression_fit_designs.json`` gefur mældar fjöldatölur fyrir líkanaðlögunina þegar engar færslur eru gefnar sérstaklega upp.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#7",
+      "source": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "source_sha256": "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
+      "context": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "translation": "valfrjálsar mældar fjöldatölur í líkanshönnuninni fyrir hvert stig. Fjöldatölur fyrir líkanaðlögunina sem vantar eru tilgreindar sem óþekktar og aldrei ályktað um þær út frá fjölda undirbúinna raða.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.write_run_summary#8",
+      "source": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "source_sha256": "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
+      "context": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "translation": "valfrjálsar mældar fjöldatölur í líkanshönnuninni fyrir hvert stig, einnig vistaðar sem ``regression_fit_designs.json`` svo upplýsingarnar haldist réttar þegar niðurstöður eru opnaðar aftur án líkans.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.trial_metrics.design_summary#1",
+      "source": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "source_sha256": "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587",
+      "context": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "translation": "vörpun með úttaki tilraunakeyrslu sem getur innihaldið undirbúin ``model_data`` og mæld ``fit_designs`` fyrir hvert stig. Fjöldatölur fyrir líkanaðlögun eru birtar fyrir hvert stig; fjöldatala án stigsmerkingar er aðeins gefin út þegar hver aðlögun skráir sama gildi. Eldra úttak án aðlögunarfærslna heldur fjöldatölum sínum sem byggjast á töflunni.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    }
+  ]
+}

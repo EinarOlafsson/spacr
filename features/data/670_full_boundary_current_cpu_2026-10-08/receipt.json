@@ -1,0 +1,322 @@
+{
+  "base_commit": "75c72e858a15c67768b503470773cb5db19e2e51",
+  "candidate_commit": "c797c6d33ab02b2e235082dbce722fe070ef2e47",
+  "source_paths": {
+    "spacr/qt/preferences.py": {
+      "before_sha256": "4dd82cf78e562952a4f3e04328dd63bf5640db0ee1eb9d4b532071580dd0e852",
+      "after_sha256": "df71ba480e40e5cec0bc7e8386ff778c9b906f61c0e4f2169909f9e96f4106f8",
+      "coverage_scope": "Not selected: only popup help strings changed in this file."
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "before_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+      "after_sha256": "9a46ae64db84f384f0318117eedf23cc75a3057b1951c0f3183528334a87d9a6",
+      "focused_changed_missing_lines": [],
+      "focused_changed_missing_arcs": []
+    },
+    "spacr/qt/widgets/collapsible_splitter.py": {
+      "before_sha256": "b873a4b999a0965cc69fba4cf574106113a93b73eda69c5c3eeb8c4cbb858a07",
+      "after_sha256": "e99aa12bd23af4099367167b3d52e8ced6a52d941e641863552dd149eebd4467",
+      "focused_changed_missing_lines": [],
+      "focused_changed_missing_arcs": []
+    },
+    "spacr/qt/widgets/dock.py": {
+      "before_sha256": "a0f741ff435378243ce2c0ab079ce92ba113c225ba57e3983de7d9c53c9fe995",
+      "after_sha256": "1a241d134fccf3c1f5a7371cadd62765dba8624b42e67d9aa89597064b01f939",
+      "focused_changed_missing_lines": [],
+      "focused_changed_missing_arcs": []
+    },
+    "spacr/qt/widgets/section.py": {
+      "before_sha256": "30240e9ec5e1f4fd6f94e2f5dc1a64d521a83bd51eb07c6dce8a7cf75dedd25f",
+      "after_sha256": "f069dd2fbd4cb41a5acd696e6e71b68de3dcac04dba7fdfe5cc57abda3a1e348",
+      "focused_changed_missing_lines": [],
+      "focused_changed_missing_arcs": []
+    },
+    "tests/qt/test_cov_collapsible_splitter.py": {
+      "before_sha256": "440387bfbf30433cc0ed612fd40162686b4ace20354b00330bd355217b86555d",
+      "after_sha256": "93531fc1ace1fc8bf8b618cbbfa01467243f532af3665d64cba6a6cc8d7a922a"
+    },
+    "tests/qt/test_field_popup_waves.py": {
+      "before_sha256": "f3a1084f7a4205c228fbb56ef1eab9253d3f6657f374798c5fc9672f52a94d0d",
+      "after_sha256": "48c6c4899308df43211fd15a2880efbca53ecbc25f23d408450eb0ceb2e82525"
+    },
+    "tests/qt/test_field_ripple_controls.py": {
+      "before_sha256": "0f3158f01ecb35a201ff15c62915feb49d8e05604b6f1c8dfbf5ecbd64783e6b",
+      "after_sha256": "f6dde8642421d593294f4dc058e82739a2d9f7d1a3d3fa475273238fcc4cddba"
+    },
+    "tests/qt/test_n668_spaceout_and_popup_motion.py": {
+      "before_sha256": "97ef5fbc8168841dd802193d31b183a768f7dd560d8410e2c65c026c0e163ff9",
+      "after_sha256": "30cf5115a764a5f6ce1f054e296d287e2264e8323139148caa82e728658a1148"
+    },
+    "tests/qt/test_window_snap_and_field_edges_n666.py": {
+      "before_sha256": "c73a6c568730bf0caf04641b4821902ce8ce5ea776d1b4451a37bab10bb6d864",
+      "after_sha256": "a768b054fcbb09bbf1e3368ff7431271866d98cc0ab26f9f83a08b73a6a01a8c"
+    }
+  },
+  "test_result": "171 passed, 1 pre-existing Qt warning in 71.73s; Qt6.12 offscreen, 4GiB cap",
+  "test_scope": [
+    "test_field_ripple_controls.py",
+    "test_field_popup_waves.py",
+    "test_n668_spaceout_and_popup_motion.py",
+    "test_window_snap_and_field_edges_n666.py",
+    "test_cov_collapsible_splitter.py",
+    "test_every_section_folds_to_the_bottom.py",
+    "test_cov_43_section_edges.py",
+    "test_cov_9_collapsible_section.py",
+    "test_two_teardown_guards_and_a_missing_section.py",
+    "test_529_dock_collapse_and_glyphs.py",
+    "test_the_dock_edge_drags_only_with_the_left_button.py",
+    "test_529_the_dock_and_right_column_resize.py"
+  ],
+  "performance": {
+    "method": "single sequential capped 4GiB CPU processes; native engine buffer explicitly set to requested pixel count; one cold and three steady fixed-time QImage shades per scenario",
+    "results": {
+      "1080": {
+        "old": {
+          "source_root": "/mnt/wd4tb/scratch/full-edge-current-20261008/baseline",
+          "mode": "old",
+          "width": 1920,
+          "height": 1080,
+          "density": 3,
+          "results": [
+            {
+              "case": "side",
+              "events": 6,
+              "buffer_size": [
+                1920,
+                1080
+              ],
+              "frame_size": [
+                1920,
+                1080
+              ],
+              "cold_ms": 101.45477001788095,
+              "steady_ms": [
+                76.46373799070716,
+                60.54329901235178,
+                37.314710032660514
+              ],
+              "steady_median_ms": 60.54329901235178,
+              "frame_sha256": "857a8582efe5c17addd0fd7ffeede6dbf15fc7ce00fc5d99aca9cae68a59f28f",
+              "rss_max_kib": 213520
+            },
+            {
+              "case": "popup",
+              "events": 1,
+              "buffer_size": [
+                1920,
+                1080
+              ],
+              "frame_size": [
+                1920,
+                1080
+              ],
+              "cold_ms": 49.98537397477776,
+              "steady_ms": [
+                30.649235006421804,
+                69.64912998955697,
+                174.44202298065647
+              ],
+              "steady_median_ms": 69.64912998955697,
+              "frame_sha256": "24f03f0a554754fcb206591263202f8b33bd2d9139cae437ef3dc2e3c81b8d07",
+              "rss_max_kib": 247876
+            }
+          ]
+        },
+        "new": {
+          "source_root": "/mnt/wd4tb/spacr-worktrees/codex-full-edge-current-20261008",
+          "mode": "new",
+          "width": 1920,
+          "height": 1080,
+          "density": 3,
+          "results": [
+            {
+              "case": "side",
+              "events": 2,
+              "buffer_size": [
+                1920,
+                1080
+              ],
+              "frame_size": [
+                1920,
+                1080
+              ],
+              "cold_ms": 114.97433198383078,
+              "steady_ms": [
+                66.08194700675085,
+                53.134682995732874,
+                36.8347080075182
+              ],
+              "steady_median_ms": 53.134682995732874,
+              "frame_sha256": "874acf2de5cd41cd6c2e9106a1b8489fc287a2ad32ebda07465c6d8f106129c2",
+              "rss_max_kib": 196272
+            },
+            {
+              "case": "popup",
+              "events": 1,
+              "buffer_size": [
+                1920,
+                1080
+              ],
+              "frame_size": [
+                1920,
+                1080
+              ],
+              "cold_ms": 36.88713599694893,
+              "steady_ms": [
+                37.50908200163394,
+                36.29203903255984,
+                90.46399203361943
+              ],
+              "steady_median_ms": 37.50908200163394,
+              "frame_sha256": "83783fbdb4685a84681af7d1d3949b8ea986e9bc0d7d55a4120045ab00353587",
+              "rss_max_kib": 242036
+            }
+          ]
+        }
+      },
+      "4k": {
+        "old": {
+          "source_root": "/mnt/wd4tb/scratch/full-edge-current-20261008/baseline",
+          "mode": "old",
+          "width": 3840,
+          "height": 2160,
+          "density": 3,
+          "results": [
+            {
+              "case": "side",
+              "events": 6,
+              "buffer_size": [
+                3840,
+                2160
+              ],
+              "frame_size": [
+                3840,
+                2160
+              ],
+              "cold_ms": 246.37090199394152,
+              "steady_ms": [
+                222.91144396876916,
+                310.05946901859716,
+                128.08937299996614
+              ],
+              "steady_median_ms": 222.91144396876916,
+              "frame_sha256": "b24c0048e9bf9bcc20bbd7dfd54f7875253b32fe11d0bf946d5786b8edcd63f3",
+              "rss_max_kib": 379884
+            },
+            {
+              "case": "popup",
+              "events": 1,
+              "buffer_size": [
+                3840,
+                2160
+              ],
+              "frame_size": [
+                3840,
+                2160
+              ],
+              "cold_ms": 144.68125702114776,
+              "steady_ms": [
+                23.661490995436907,
+                16.289844003040344,
+                17.26220699492842
+              ],
+              "steady_median_ms": 17.26220699492842,
+              "frame_sha256": "ffb5526689dd502cff5a01f9c4711f8248764722c7acf8184228e5f155b0a29c",
+              "rss_max_kib": 379884
+            }
+          ]
+        },
+        "new": {
+          "source_root": "/mnt/wd4tb/spacr-worktrees/codex-full-edge-current-20261008",
+          "mode": "new",
+          "width": 3840,
+          "height": 2160,
+          "density": 3,
+          "results": [
+            {
+              "case": "side",
+              "events": 2,
+              "buffer_size": [
+                3840,
+                2160
+              ],
+              "frame_size": [
+                3840,
+                2160
+              ],
+              "cold_ms": 220.98199900938198,
+              "steady_ms": [
+                181.8024529493414,
+                189.46110899560153,
+                257.6179429888725
+              ],
+              "steady_median_ms": 189.46110899560153,
+              "frame_sha256": "759d2d9ccc34c781215a172c1a20007862d89b1b8db68564b2416f201f8f5663",
+              "rss_max_kib": 359404
+            },
+            {
+              "case": "popup",
+              "events": 1,
+              "buffer_size": [
+                3840,
+                2160
+              ],
+              "frame_size": [
+                3840,
+                2160
+              ],
+              "cold_ms": 175.78245495678857,
+              "steady_ms": [
+                31.930434983223677,
+                18.922584014944732,
+                18.175992998294532
+              ],
+              "steady_median_ms": 18.922584014944732,
+              "frame_sha256": "1918a7c7012c90b026b2143ecb6e6013031771846615c5b8ec5ea5ab6c83eb65",
+              "rss_max_kib": 363072
+            }
+          ]
+        }
+      }
+    },
+    "limit": "Different old point and new full-edge pixels; CPU QImage only, not displayed FPS, GPU or 24 FPS acceptance."
+  },
+  "inventory": {
+    "api": 13232,
+    "runtime_counts": {
+      "setting_labels": {
+        "before": 1221,
+        "after": 1221
+      },
+      "setting_tooltips": {
+        "before": 1243,
+        "after": 1243
+      },
+      "categories": {
+        "before": 237,
+        "after": 237
+      },
+      "ui": {
+        "before": 7288,
+        "after": 7288
+      },
+      "installer": {
+        "before": 65,
+        "after": 65
+      },
+      "module_summaries": {
+        "before": 77,
+        "after": 77
+      }
+    },
+    "changed_api": [
+      "spacr.qt.widgets.ambient.field_ripple_for_widget"
+    ],
+    "ui_added": [
+      "Waves per minute spreading from the full visible perimeter of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent."
+    ],
+    "ui_removed": [
+      "Waves per minute spreading from the centre of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent."
+    ]
+  }
+}

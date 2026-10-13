@@ -1,0 +1,139 @@
+{
+  "API": {
+    "en": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "957811635c05d9411991b2066f0848e5dfb21ebda3fd2a9d465c0a509bbfe8d9"
+    },
+    "sv": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "c34e60bf62276dbc2cc9381a087d5b64fb00cd4390a2b4633d16e2ded1ae08e0"
+    },
+    "de": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "45bc0a4682603646144b0b34048e9ab6ad9caa8369b48765df88a58499425a25"
+    },
+    "es": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "de456cdd80921811b3090dd700741606ed32e831059b67c25b6a3adb44c72f08"
+    },
+    "zh_CN": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "2f60ea930993bbee13eac133bae7e0eb0edfbfbae14ab12d998509ef22f72a57"
+    },
+    "pt": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "4264e00261bb81fc64d4714c745802954173e3aec9693bb443b0a6b7ae0a4351"
+    },
+    "hi": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "87b20017a8825113d7385d6fa47a0a5a949feb6e3e9172a3d518dbdcda78fc24"
+    },
+    "ko": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "305f78f068891d34b64f984d5c24c187207896ab5d5eaee2467f77dc2c88aa4e"
+    },
+    "is": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "6015339fa346ae4a58f60e6f2a7506411dd38d89f0814ef35fac2f6708acfae3"
+    },
+    "fr": {
+      "unchanged_complete_records": 13180,
+      "current_complete_records": 13181,
+      "exact_changed_symbol": "spacr.embeddings.encoder_entry",
+      "catalog_sha256": "4ae861aee8a846ee75554cde0e3312ff56612ba4704ce5605acbe14e644798a5"
+    }
+  },
+  "runtime": {
+    "en": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "2c36a54b2dfd7a3cf82dd81383bfe92a6ad046999eb40e44c296a47186bbf3e1"
+    },
+    "sv": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "7ba9f266dab07a661700130056db078a317d7c472e4b99a739484dc68a1f6b78"
+    },
+    "de": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "04c6279b795147b4e66ab13661d03f132755ca21f9dfe474bc6296bdcce612bf"
+    },
+    "es": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "bd3faaa0468a68f9175f2147bc948b0532d8454bdc22872c3f16a660f55f291f"
+    },
+    "zh_CN": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "3a11ded090b57e655e2939422d1a44171c017b8de2176b9d670f89077bd2ea89"
+    },
+    "pt": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "b2c8bbed9904a943eb96837cf1c6534dda85dff794cd679a8ee0667174fb6421"
+    },
+    "hi": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "ccbd2a282f3057e70f085baf297296420c44fd635546e620a7f764d01d1aacf9"
+    },
+    "ko": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "8d1d176cc426311d3709c1b2927a9899f506427c37c853977fb4e96d1f8a5361"
+    },
+    "is": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "55224093aec51d27576c80bd81c7d0583bef34611a07b607e82ca915972d6957"
+    },
+    "fr": {
+      "all_prior_complete_rows_and_hashes_identical": 9857,
+      "new_source_bound_notes": 3,
+      "current_rows": 9860,
+      "catalog_sha256": "c8709c85f9ba86bc5059ef9161041bc71cc73840d7477271a06d62b4a1fa2b94"
+    }
+  },
+  "reviewed_files": {
+    "api": {
+      "all_prior_complete_files_and_order_byte_identical": 1033,
+      "new_direct_AI_review_files": 9
+    },
+    "runtime": {
+      "all_prior_complete_files_and_order_byte_identical": 1963,
+      "new_direct_AI_review_files": 9
+    }
+  },
+  "all_other_inference_functions_except_coordinated_Home_timm_resize_AST_exact": true,
+  "Home_timm_resize_AST_exact_to_df5b9bb7f": true,
+  "Mask_Measure_Home_Conda_and_all_other_tutorial_source_and_media_unchanged": true
+}

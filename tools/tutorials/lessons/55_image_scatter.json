@@ -1,0 +1,142 @@
+{
+  "id": "55_image_scatter",
+  "number": 55,
+  "slug": "image_scatter",
+  "series": 5,
+  "app_key": "image_scatter",
+  "host_app_key": "umap",
+  "section": "Explore",
+  "title": "Image Scatter: inspect measurements and their crops",
+  "description": "Plot two measurement columns, preview object crops, and send a selected object to Annotate.",
+  "objectives": [
+    "Load measurements and choose axes.",
+    "Inspect the crop behind a point.",
+    "Send a selected object to Annotate."
+  ],
+  "prerequisite": "Use a spaCR measurements database with matching object crops and crop-format files. The downloadable Annotate example provides these inputs.",
+  "scenes": [
+    {
+      "visual": "01_image_umap_host",
+      "narration": "Open Image UMAP, then Image Scatter to plot two existing measurements. Use the Annotate example database and its matching cell crops for practice.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "15_image_umap"
+      ]
+    },
+    {
+      "visual": "03_choose_real_measurements",
+      "narration": "Click Browse and open measurements.db. Keep the project’s data folder and crop-format files with the database so thumbnails can be found.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_choose_cell_not_children",
+      "narration": "Select cell in the table selector and click Plot. When switching to another table, click Plot again to load its rows.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_real_measurement_scatter",
+      "narration": "Set x to cell area and y to cell channel one mean intensity. Axis choices redraw the loaded rows immediately.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "62_feature_dictionary"
+      ],
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "06_genuine_large_cell_preview",
+      "narration": "Hover over a point to inspect its saved crop and full object identity. Use the image to understand the measurement behind the point.",
+      "hold_after": 0.7,
+      "focus": [
+        3500,
+        490,
+        330,
+        390
+      ]
+    },
+    {
+      "visual": "08_cached_same_cell",
+      "narration": "Move the pointer away to clear the temporary preview, then hover over another point to inspect it.",
+      "hold_after": 0.7,
+      "focus": [
+        3500,
+        490,
+        330,
+        390
+      ]
+    },
+    {
+      "visual": "09_swapped_raw_axes",
+      "narration": "Swap the x and y measurements to explore the relationship from another view. Choose meaningful features and check their units.",
+      "hold_after": 0.7,
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "11_missing_texture_not_plotted",
+      "narration": "Select another measurement, such as the homogeneity feature. Rows with missing coordinates are omitted from the plot, so the plotted count can differ from the loaded table count.",
+      "hold_after": 0.7,
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "12_constant_axis_is_centred",
+      "narration": "A constant column, such as measurement dimension in this example, puts the points on a line. Return to a feature with useful variation for object inspection.",
+      "hold_after": 0.7,
+      "focus": [
+        410,
+        405,
+        3410,
+        120
+      ]
+    },
+    {
+      "visual": "16_real_annotate_grid",
+      "narration": "To inspect a selected crop in Annotate, first open Annotate and load the same project. Then return to the existing Image Scatter view.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate"
+      ]
+    },
+    {
+      "visual": "17c_native_point_click_target",
+      "narration": "Click the point itself to send its object identity to Annotate, then switch to that page. Hovering only previews the crop.",
+      "hold_after": 0.7,
+      "focus": [
+        3500,
+        490,
+        330,
+        390
+      ]
+    },
+    {
+      "visual": "18_verified_clicked_cell_in_annotate",
+      "narration": "Inspect the selected object in Annotate before assigning a label. Use Database Browser for table exports, or PCA for component analysis.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "34_database",
+        "60_pca",
+        "09_annotate"
+      ],
+      "focus": [
+        410,
+        330,
+        550,
+        410
+      ]
+    }
+  ]
+}

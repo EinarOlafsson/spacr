@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: the wound_threshold setting label and help (wound-healing assay), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "wound_threshold",
+      "source": "Wound threshold",
+      "source_sha256": "409afe2cf64ce07ae1b98793428c1f701969d710d2ad8da03c2a1ccf34b97ebb",
+      "translation": "상처 임계값"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_threshold",
+      "source": "Sets the cut between open wound and monolayer by hand, on the scale of the wound_level column of the wound table: for texture the local variance over the field's median, for intensity a share of the frame's 95th percentile. Use it when the automatic cut misreads a series: run once, read wound_level, then set a value. Higher counts more of the field as open. Used on every frame, with no recalibration of later frames. Blank or 0 keeps the automatic cut. Ignored by the masks source. Default None.",
+      "source_sha256": "432e21916913adc355038e6fee1b0ffa7a2962cb487fda57830c2b9fc28e0f67",
+      "translation": "열린 상처와 단층 사이의 경계를 상처 테이블 wound_level 열의 척도로 직접 정합니다. 질감은 시야 중앙값 대비 국소 분산, 강도는 프레임 95번째 백분위수의 비율입니다. 자동 경계가 시리즈를 잘못 읽을 때 사용하세요. 한 번 실행하고 wound_level을 읽은 뒤 값을 정합니다. 높을수록 시야의 더 많은 부분을 열린 것으로 셉니다. 모든 프레임에 적용되며 이후 프레임은 다시 보정하지 않습니다. 비우거나 0이면 자동 경계를 유지합니다. masks 소스는 이 값을 무시합니다. 기본값 None."
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "id": "57_layer_viewer",
+  "number": 57,
+  "slug": "layer_viewer",
+  "series": 5,
+  "app_key": "layer_viewer",
+  "section": "Explore",
+  "title": "Layer Viewer: inspect images and label overlays",
+  "description": "Load a matching image and mask, adjust the overlay, and zoom in to inspect object boundaries.",
+  "objectives": [
+    "Open an image and its matching mask.",
+    "Adjust visibility, opacity, blending and layer order.",
+    "Inspect labels with zoom and pan."
+  ],
+  "prerequisite": "Download and extract Layer_Viewer_real_image_mask.zip. Use the included intensity image and matching integer-label mask. Physical pixel calibration is unavailable for this example.",
+  "scenes": [
+    {
+      "visual": "01_qc_host",
+      "narration": "From Home, open QC, then Layer Viewer. Download and extract the linked image-and-mask example. The viewer has its own file controls for these two inputs.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "31_external_masks",
+        "54_qc_dashboard"
+      ]
+    },
+    {
+      "visual": "04_raw_image_in_wide_pane",
+      "narration": "Click plus Image and open fov01_C1 dot tif. The grayscale image appears in the canvas with a percentile contrast stretch for display.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_fit_after_actual_splitter_resize",
+      "narration": "Click Fit to fill the image pane. Fit can stretch a square image in a wide pane; adjust the divider to make the pane approximately square when inspecting shape.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_real_44_label_overlay",
+      "narration": "Click plus Mask and open fov01_cell_mask dot tif. The forty-four labelled objects appear over the image. Zero is background and remains transparent.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_mask_visible_again",
+      "narration": "Select mask in the layer list before changing its controls. Toggle its checkbox to compare the boundaries with the image underneath.",
+      "hold_after": 0.7,
+      "focus": [
+        1970,
+        365,
+        1840,
+        100
+      ]
+    },
+    {
+      "visual": "10_opacity_zero_not_deleted",
+      "narration": "Move mask Opacity to zero to hide its colours while keeping the layer loaded. Check the selected row before adjusting another layer.",
+      "hold_after": 0.7,
+      "focus": [
+        1970,
+        1800,
+        1840,
+        250
+      ]
+    },
+    {
+      "visual": "11_full_label_colours",
+      "narration": "Move Opacity to one hundred percent to inspect the label shapes. The colours cover the image inside each labelled object.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_half_opacity_restored",
+      "narration": "Return Opacity to fifty percent and choose translucent blending to see the image texture through the mask. Compare object boundaries with the underlying signal.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_blend_additive",
+      "narration": "Choose additive blending to add the mask colours to the image. Bright areas can saturate in this display, so return to translucent when you need a clearer comparison.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_blend_minimum",
+      "narration": "Try multiply and minimum blending to compare darker overlays. These options change the displayed composite while the original intensity values remain available in the source image.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_blend_opaque",
+      "narration": "Choose opaque and adjust the Opacity slider to compare its appearance. With this integer mask, fifty-percent opaque blending looks like fifty-percent translucent blending. Restore translucent to continue.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_cyan_image_not_changed_measurements",
+      "narration": "Select image and choose cyan in the colour-map selector. The intensity image changes colour while the mask keeps its label colours. Choose gray to restore the grayscale view.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_mask_under_image",
+      "narration": "Select mask and press the down arrow to move it behind the image. The upper layer appears in front. Move the mask up again to inspect its labels.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_actual_label_no_field_identity",
+      "narration": "Click a visible labelled object to read its position and label number in the status line. Use your project metadata when you need to identify that object’s field, plate or well.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        1920,
+        3500,
+        165
+      ]
+    },
+    {
+      "visual": "22_native_wheel_zoom_keeps_world_anchor",
+      "narration": "Roll the mouse wheel over an object to zoom around the pointer. Move closer until its boundary is easy to inspect.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_native_pan",
+      "narration": "Hold Shift and drag with the left mouse button to pan. You can also drag with the middle button. Move across the field while keeping the current zoom.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "24_fit_restores_original_view",
+      "narration": "Click Fit to return to the whole field. Adjust the pane shape if the fitted image looks stretched.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "25_empty_shapes_layer",
+      "narration": "Plus Points and plus Shapes add empty auxiliary layers. For drawing or editing segmentation masks, continue in Make Masks; this viewer has no drawing controls for those empty layers.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "14_make_masks"
+      ]
+    },
+    {
+      "visual": "28_remove_mask_only_from_view",
+      "narration": "Select a layer and use Remove to take it out of the view. Its original file remains on disk, ready to load again.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "28_remove_mask_only_from_view",
+      "narration": "The result is an inspected layer view. For an exported composite, use stack_from_paths and LayerStack.render_uint8 from Python. Continue to Make Masks for saved mask edits or Measure for object measurements.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "14_make_masks",
+        "31_external_masks"
+      ]
+    }
+  ],
+  "example_files": [
+    "Layer_Viewer_real_image_mask.zip"
+  ],
+  "host_app_key": "qc_dashboard"
+}

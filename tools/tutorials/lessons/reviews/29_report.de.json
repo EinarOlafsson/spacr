@@ -1,0 +1,35 @@
+{
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Report: ein Dokument aus Projektergebnissen erstellen",
+  "description": "Wählen Sie ein abgeschlossenes Projekt, legen Sie Ausgabeformat und Abbildungslimit fest und erstellen und lesen Sie dann den Bericht.",
+  "objectives": [
+    "Ein abgeschlossenes Projekt wählen und die verfügbaren Berichtsabschnitte prüfen.",
+    "Format, Abbildungslimit und Ausgabedateiname festlegen.",
+    "Den Bericht erstellen und Ergebnisse, Einstellungen und Herkunft prüfen."
+  ],
+  "prerequisite": "Beginnen Sie mit einem abgeschlossenen spaCR-Projekt, das seine gespeicherten Einstellungen, Messwerte und Abbildungen enthält. Sie können das Projekt aus dem Tutorial External Masks wiederverwenden. Report sammelt Dateien, die bereits im Projekt vorhanden sind.",
+  "scenes": [
+    "Öffnen Sie Help und dann Report. Mit diesem Werkzeug fassen Sie Ergebnisse, Abbildungen und Einstellungen eines abgeschlossenen Projekts in einem Dokument zusammen.",
+    "Klicken Sie auf Choose run folder und wählen Sie Ihr Projekt. Verwenden Sie für dieses Beispiel das Projekt mit zwei Bildfeldern aus External Masks und halten Sie Messwerte, Einstellungen und Abbildungen zusammen.",
+    "Lesen Sie nach dem Durchsuchen den Verarbeitungsstatus. Complete bedeutet, dass die aufgezeichneten Verarbeitungsschritte abgeschlossen sind. Prüfen Sie die verfügbaren Qualitätskontrollergebnisse gesondert, wenn Sie die Analyse bewerten.",
+    "Sehen Sie in der Abschnittsliste nach, welche Projektbestandteile verfügbar sind. Ein fehlender Abschnitt bleibt im Bericht beschriftet. Fügen Sie dem Projekt die passenden Analyseausgaben hinzu, wenn Sie diesen Abschnitt benötigen.",
+    "Wählen Sie unter Format HTML, PDF oder Both. HTML öffnet sich im Browser; PDF liefert eine Dokumentfassung. Dieses Beispiel verwendet HTML.",
+    "Begrenzen Sie mit Embed at most die Zahl der eingebetteten Rasterabbildungen. Vektor-PDFs werden als Quelldateien statt als eingebettete Vorschauen aufgeführt. Wählen Sie ein kleineres Limit für einen kompakten Bericht.",
+    "Klicken Sie auf Choose output und geben Sie den Zieldateinamen ein. Prüfen Sie, ob gewähltes Format und Dateiendung übereinstimmen. Prüfen Sie vor dem Weitergeben des Berichts die enthaltenen Projektpfade und Metadaten.",
+    "Drücken Sie Generate report und warten Sie auf die Bestätigung, dass die Datei geschrieben wurde. Öffnen Sie die gespeicherte HTML-Datei im Browser, um das Ergebnis zu prüfen.",
+    "Springen Sie über die Links im Inhaltsverzeichnis zwischen den Abschnitten. Beginnen Sie mit der Verarbeitungsübersicht und prüfen Sie dann Abbildungen, Ergebnistabellen und gespeicherte Einstellungen.",
+    "Öffnen Sie Key figures, um die Abbildungen des Projekts zu finden. Folgen Sie bei Vektor-PDFs den angegebenen Dateipfaden oder prüfen Sie eingebettete Rastervorschauen, sofern vorhanden.",
+    "Prüfen Sie unter Statistics and result tables die verfügbaren Objekttabellen und ihre Zeilenzahlen. In diesem reinen Zellbeispiel stimmen Zell- und Zytoplasmabereiche überein; behandeln Sie sie daher als Messungen derselben Zellen.",
+    "Klappen Sie Saved settings auf, um die mit dem Projekt gespeicherte Konfiguration zu prüfen. Bewahren Sie den Bericht zusammen mit den Projektdateien auf, wenn Sie eine Analyse weitergeben, die auf externe Abbildungen verweist."
+  ]
+}

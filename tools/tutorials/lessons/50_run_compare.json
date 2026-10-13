@@ -1,0 +1,111 @@
+{
+  "id": "50_run_compare",
+  "number": 50,
+  "slug": "run_compare",
+  "title": "Run Compare: compare saved runs",
+  "series": 5,
+  "app_key": "run_compare",
+  "section": "Data",
+  "example_files": [
+    "Run_Compare_real_snapshots.zip"
+  ],
+  "description": "Choose two saved runs, inspect settings and count differences, and check available result comparisons.",
+  "objectives": [
+    "Select baseline and comparison runs.",
+    "Inspect settings and count differences.",
+    "Locate available result comparisons."
+  ],
+  "prerequisite": "Download and unzip the linked snapshots. Follow its README to run prepare_run_compare_download.py in your spaCR environment with a new destination folder. For your own comparisons, preserve each run’s outputs before they are overwritten.",
+  "scenes": [
+    {
+      "visual": "01_home_data",
+      "narration": "From Home’s Data category, open Run Compare to inspect outputs recorded for two runs.",
+      "focus_modules": [
+        "run_compare"
+      ],
+      "related_lessons": [
+        "08_measure",
+        "40_run_history"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_actual_empty_compare",
+      "narration": "Download and unzip the snapshot example. Follow its README to run the preparation script with a new destination folder.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_actual_snapshot_project_picker",
+      "narration": "Click Browse and select the prepared comparison folder. Keep original projects and their run snapshots available for your own comparisons.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_two_actual_runs_no_setting_change",
+      "narration": "Choose a baseline run as A and the comparison run as B, then click Compare. Check their module names and recorded versions.",
+      "focus": [
+        350,
+        235,
+        3450,
+        190
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_actual_unchanged_settings",
+      "narration": "Enable Show unchanged settings to include matching values. Expand entries to inspect the configuration used by each run.",
+      "focus": [
+        350,
+        360,
+        2300,
+        1400
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_equal_object_counts",
+      "narration": "Open Counts to compare object totals. Delta is B minus A. The example has matching counts; inspect the relevant images and measurements when you need to understand a difference.",
+      "focus": [
+        350,
+        425,
+        1250,
+        720
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_no_hit_list",
+      "narration": "Open Hits when both runs have registered regression results. The example contains Measure snapshots, so no hit comparison is available.",
+      "focus": [
+        350,
+        405,
+        2400,
+        330
+      ],
+      "related_lessons": [
+        "13_regression",
+        "40_run_history"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_actual_same_run_warning",
+      "narration": "Choose two distinct runs. If the same run is selected on both sides, use the warning to correct the selection.",
+      "focus": [
+        350,
+        235,
+        3450,
+        220
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_distinct_runs_restored",
+      "narration": "Keep both output snapshots and the settings that explain their differences. Use Run History for individual logs and Regression for the underlying hit results.",
+      "related_lessons": [
+        "06_api",
+        "08_measure"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

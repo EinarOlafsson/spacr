@@ -1,0 +1,136 @@
+================================================================================
+GPU ACCELERATION FOR DATA FLOW THEMES WITH CPU FALLBACK
+================================================================================
+
+Status:    COMPLETE 100% 2026-10-10 — GPU timing and CPU/GPU parity accepted on the workstation; interactive native checks moved to N684 step 5
+Requested: 2026-10-08
+Owner:     Workstation GPU lane; Home integration and CI
+Related:   N663 theme performance; N674 Spaceout field; N43 GitHub checks
+
+WHAT THE STATE IS
+
+The current data-art flow/advection and field themes compute with NumPy and
+render CPU-owned QImages through QPainter. Packed pixel kernels optionally
+use Numba CPU compilation. These themes do not require a CUDA or OpenGL
+compute backend. The separate Spaceout fractal renderer has GPU/CPU backend
+selection and construction fallback; it is not an accelerated flow renderer.
+
+WHAT TO DO
+
+Profile the actual existing flow and field renderers before choosing which
+calculation or drawing stage to accelerate. Add an optional graphics GPU
+backend in the existing modules, preserving the current CPU implementation.
+Use the existing Qt graphics stack where appropriate; avoid requiring CUDA
+or a particular GPU vendor for decorative animation. Provide explicit CPU
+selection and an automatic backend choice that refuses unsupported contexts
+and falls back without changing theme identity or losing its controls.
+
+Preserve density, detail, size, speed, palette/background, gravity, ripples,
+drag/release physics and Spaceout phenomenon controls. An unavailable or
+busy GPU must leave CPU animation usable. Respect existing performance
+preferences, resource caps and running analysis work; decoration must not
+consume the GPU capacity needed by image-analysis jobs. Hidden surfaces
+must release or pause their work; context/widget teardown must be safe.
+
+Compare actual frame timing, CPU load, GPU memory and interaction behavior
+on supported native displays. Validate numerical/visual agreement against
+the existing CPU implementation with fixed inputs. Exercise unavailable
+contexts, explicit CPU mode, constructor failure, hide/show, resizing,
+Preferences opening/closing and shutdown. Do not claim an exception handler
+can recover an in-process native driver crash; isolate risky capability
+probes or disable unsupported routes as justified by actual evidence.
+
+HOW TO KNOW IT WORKED
+
+A supported native GPU run is faster in the measured expensive stage and
+preserves the theme's appearance and interactions. CPU-only and failed GPU
+initialization paths remain usable and pass meaningful checks. Record the
+source, environment, timing and memory evidence; retain CPU as a selectable
+backend. GPU execution belongs to the workstation and uses tools/gpu_turn.sh.
+GitHub acceptance and the urgent Spaceout Preferences crash take priority.
+
+2026-10-08 15:10 EDT — Registered the user's acceleration request after
+reading the actual CPU flow renderer and separate fractal fallback. No GPU
+flow implementation or speedup is claimed. Workstation owns GPU execution;
+Home continues the Preferences crash and required GitHub tests first.
+
+2026-10-08 17:49 EDT — First actualgraphics GPUprototype24cases192pixel-exact samples PASS. Fullreadback often slower; no application GPUbackend/defaultswitch/speedup claimed. Pairedpersistent-buffer/QImage followup queued throughunchangedGPUguard.
+
+2026-10-08 17:59 EDT — Paired persistent-buffer and owned QImage prototype
+passes 24 cases/192 exact GPU outputs. GPU medians are slower in every
+case (1.09–5.45 times CPU). No production backend or default GPU switch
+is justified. Point-framebuffer followup queued through unchanged guards;
+portable evidence is data/679_paired_graphics_GPU_prototype_2026-10-08.
+
+2026-10-08 20:22 EDT — Native fullengine R6 192 moving frames exact; portable proof published. R7 negative random-advection blinking crash retained; sourcefix e91593c76/42 complete CPU checks PASS. Native R8 GUI/events acceptance queued through unchanged guard. Renderer source remains private, parent PARTIAL.
+
+2026-10-10 — The privately prepared renderer (payload in
+data/679_native_application_engine_GPU_2026-10-08) is integrated on nightly
+instead of redone. Changes on integration: preference renamed
+prefs/animation_gpu with CPU/Automatic/On (default On, per N684);
+Automatic covers every point family at dense 4K; moderngl absence is
+detected in-process (no child probe); Windows/macOS use their default
+standalone GL backend; NVML ignores this process and treats missing NVML
+as no external load; probe runs before the NVML query and outside the
+engine lock on start. 18 CPU/Qt fallback/ownership checks pass. The later
+private blink fix (e91593c76) was not reachable; the random-palette path
+still releases graphics and draws on CPU. Native GPU timing of this exact
+source, other vendors and platforms remain unmeasured.
+
+2026-10-10 — WORKSTATION GPU CHECKS (RTX 3090 Ti, Linux X11, source d1dca29cb)
+    Through tools/gpu_turn.sh; moderngl 5.13.0 installed in the WS spacr env
+    with the maintainer's OK (hardware EGL context on the 3090 Ti).
+    Audit: tools/audit_animation_performance.py --gpu --frames 24, 40 rows
+    (every theme at 1920x1080 and 3840x2160, shipped and full density),
+    peak RSS 443 MiB. Receipt: features/data/684_animation_gpu_audit_2026-10-10/.
+    GPU rendered every frame (gpu_frames 24/24) for impulse_lens,
+    genetic_advection, point_atlas and spaceout_field. fractal shows
+    gpu_frames=0 in all four rows: this backdrop is CPU by design (receipt:
+    'the native spaceout fractal has its own GPU backend'), so it is a label,
+    not a fallback. GPU is SLOWER than CPU for genetic_advection at every size
+    (4K full: 16.5 ms vs 9.8 ms) and for point_atlas except 1080p full.
+    aurora is the slowest theme and has no GPU path: 61 ms/frame at 4K full
+    (~16 fps). tissue_facets reports 0.00 ms in every row, i.e. it does not
+    render in this offscreen audit; worth a look.
+    Pixel parity (679 check_application_flow_gpu_r9, native X11): PASS, 24
+    native engine cases, 192/192 exact moving frames, owner-thread resource
+    release verified; 3 Automatic renderer cases PASS (sparse field CPU,
+    dense 4K hardware). In the native engine GPU complete time also exceeds
+    CPU at these sizes (spaceout 4K full 16 vs 7 ms), consistent with
+    Automatic choosing CPU for sparse scenes.
+    NOT DONE on WS: the interactive native checks (Preferences > Performance
+    GPU On/Automatic/Off with hide/show/resize and Measure/mask jobs; window
+    edge snapping, Window > Snap actions, F11 restore). They need a person at
+    the WS display: no xdotool/wmctrl here and installing system packages is
+    out of scope. Only X11 is available on WS (no Wayland/Windows/macOS).
+
+2026-10-10 — The renderer now also draws blobs, stratified, aurora, growth
+and spinn (N684 lane 2): one context per shading thread, theme programs
+compiled on first use, all released on that thread. Automatic follows the
+measured cost table from the workstation audit (GPU slower for advection
+everywhere and waves outside 1080p full, so those stay CPU). CPU output is
+unchanged; Mesa-software parity passes for all 8 themes. Native parity and
+timing of the five new paths remain for the workstation (steps in N684).
+
+2026-10-10 — CLOSED (COMPLETE 100%), agreed with Home. Evidence:
+    Timing: features/data/684_animation_gpu_audit_r2_2026-10-10/receipt.json
+    (source 6fc7353a1, RTX 3090 Ti, NVIDIA EGL, 40 rows, 24 frames each).
+    The GPU is faster in the expensive stage where a theme is expensive:
+    aurora 40.2 -> 3.0 ms (4K, full density), tissue_facets 27.6 -> 3.5 ms,
+    impulse_lens at its shipped density 8.1 -> 2.8 ms (4K) and 5.6 -> 0.7 ms
+    (1080p), point_atlas 5.1 -> 3.3 ms and spaceout_field 5.7 -> 3.6 ms (4K
+    full). Where the CPU is faster (genetic_advection, drift, sparse scenes)
+    Automatic keeps the CPU, from the measured cost table; CPU stays
+    selectable.
+    Parity: features/data/684_animation_gpu_parity_2026-10-10_ripples/
+    (source 63228d27a, 64 cases over eight themes with point, outline and
+    column ripples in flight, 0 refusals, all_passed) and
+    features/data/684_animation_gpu_parity_2026-10-10_growth/ (fungal growth
+    after the refusal fix, 8 cases, 0 refusals, all_passed).
+    Fallback, ownership and teardown: the CPU/Qt checks listed above and
+    tests/qt/test_flow_graphics_backend_fallback_and_ownership.py.
+    MOVED, not dropped: the interactive native checks this item asked for
+    (Preferences > Performance GPU On/Automatic/Off, hide/show, resize,
+    Preferences open/close, shutdown, Measure and mask jobs releasing the
+    GPU) need a person at a native display. They are now part of N684 step 5,
+    the maintainer's native checklist.

@@ -1,0 +1,142 @@
+"""
+Custom per-object feature functions.
+
+Users can drop Python files under ``~/.spacr/features/*.py`` that
+export functions::
+
+    def <name>(mask: np.ndarray, image: np.ndarray, **kwargs) -> float | dict
+
+:func:`discover_features` collects each such function — it has to be
+public, defined in the file itself and take at least two parameters —
+and :func:`call_feature` invokes one, coercing the result into a
+``{column_name: value}`` mapping (``<name>`` for a scalar,
+``<name>_<key>`` per key for a dict).
+
+.. note::
+
+   This is a standalone API. No part of the measure pipeline calls it
+   yet, so dropping a file into ``~/.spacr/features/`` does not on its
+   own add columns to the measurements DB — a caller has to run the
+   discovery and invocation loop itself.
+
+Example ``~/.spacr/features/asymmetry.py``::
+
+    import numpy as np
+    def asymmetry(mask, image, **_):
+        ys, xs = np.where(mask > 0)
+        if len(xs) < 5:
+            return 0.0
+        # Something the built-ins don't compute
+        return float(np.std(xs) / (np.std(ys) + 1e-9))
+
+Errors are logged and swallowed: a feature that raises yields
+an empty mapping, so one bad function cannot break the caller's loop.
+
+Public API::
+
+    from spacr.custom_features import (
+        features_dir, discover_features, call_feature,
+    )
+"""
+from __future__ import annotations
+
+import importlib.util
+import inspect
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable, Dict, List
+from .logging_util import _spacr_home
+
+LOG = logging.getLogger("spacr.custom_features")
+
+
+def features_dir() -> Path:
+    """Return ``~/.spacr/features/`` — created if it doesn't exist."""
+    p = _spacr_home() / "features"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+@dataclass
+class CustomFeature:
+    """One discovered feature function.
+
+    :param name: public function name discovered in the user module;
+        :func:`call_feature` uses it as the scalar output key or as the
+        prefix in ``<name>_<returned_key>``.
+    :param source: path of the user ``.py`` module that defined ``fn``,
+        retained as the feature's origin metadata.
+    :param fn: discovered callable invoked by :func:`call_feature` as
+        ``fn(mask, image, **kwargs)``. Exceptions are logged under ``name``
+        and produce an empty result.
+    """
+    name:   str
+    source: Path
+    fn:     Callable[..., Any]
+
+
+def discover_features() -> List[CustomFeature]:
+    """Walk :func:`features_dir` and return every public callable found.
+
+    Files whose names start with ``_`` are skipped. A file that fails to import
+    is skipped, and its path and the error are logged at INFO level.
+    """
+    hits: List[CustomFeature] = []
+    for py in sorted(features_dir().glob("*.py")):
+        if py.name.startswith("_"):
+            continue
+        try:
+            spec = importlib.util.spec_from_file_location(
+                f"spacr._userfeat_{py.stem}", py,
+            )
+            if spec is None or spec.loader is None:
+                continue
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+        except Exception as e:
+            LOG.info("skipping %s (import failed: %s)", py, e)
+            continue
+        for name in dir(mod):
+            if name.startswith("_"):
+                continue
+            fn = getattr(mod, name)
+            if not callable(fn):
+                continue
+            try:
+                if fn.__module__ != mod.__name__:
+                    continue
+            except Exception:
+                continue
+            try:
+                sig = inspect.signature(fn)
+                params = list(sig.parameters.values())
+                if len(params) < 2:
+                    continue
+            except Exception:
+                continue
+            hits.append(CustomFeature(name=name, source=py, fn=fn))
+    LOG.info("discovered %d custom feature(s) under %s",
+              len(hits), features_dir())
+    return hits
+
+
+def call_feature(cf: CustomFeature, mask, image,
+                    **kwargs) -> Dict[str, Any]:
+    """Invoke a custom feature safely, coercing the result to a
+    ``{column_name: value}`` dict.
+
+    :param cf: discovered feature.
+    :param mask: 2-D uint16 mask (background 0).
+    :param image: 2-D uint16 image aligned with ``mask``.
+    :returns: mapping of DB column name → scalar. Empty dict on
+        exception.
+    """
+    try:
+        result = cf.fn(mask, image, **kwargs)
+    except Exception as e:
+        LOG.info("custom feature %s raised: %s", cf.name, e)
+        return {}
+    if isinstance(result, dict):
+        return {f"{cf.name}_{k}": v for k, v in result.items()}
+    return {cf.name: result}

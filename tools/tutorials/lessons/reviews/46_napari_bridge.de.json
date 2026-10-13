@@ -1,0 +1,32 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Napari Bridge: eine Labelmaske bearbeiten und zurückholen",
+  "description": "Öffnen Sie ein Bild und seine Maske in napari, bearbeiten Sie die Labels und speichern Sie die korrigierte Maske zurück in spaCR.",
+  "objectives": [
+    "Zugehörige Bild- und Labeldateien öffnen.",
+    "Änderungen in napari vornehmen und rückgängig machen.",
+    "Die gespeicherte Maske zurückholen und prüfen."
+  ],
+  "prerequisite": "Installieren Sie die optionale napari-Abhängigkeit und entpacken Sie das synthetische Beispiel in einen neuen Ordner. Behalten Sie eine unveränderte Sicherung: Take the mask back überschreibt die ausgewählte Arbeitsmaske. Schließen und öffnen Sie den Viewer zwischen gespeicherten Bearbeitungsrunden neu.",
+  "scenes": [
+    "Öffnen Sie Make Masks und dann Napari Bridge. Damit bearbeiten Sie eine vorhandene Labelmaske mit ihrem Intensitätsbild als Referenz. Behalten Sie eine unveränderte Sicherung der Maske.",
+    "Laden Sie das synthetische Beispiel herunter und entpacken Sie es. Wählen Sie mask.tif für Mask und image.tif für Image und drücken Sie dann Open in napari.",
+    "Wählen Sie in napari die Labels-Ebene der Maske. Label 0 ist Hintergrund; jedes Objektlabel hat eine Anzeigefarbe. Bearbeiten Sie die Labels-Ebene.",
+    "Kehren Sie zu spaCR zurück und importieren Sie mit Take the mask back die aktuellen Labels des Viewers. Wenn Sie nichts geändert haben, meldet der Status, dass die Maske unverändert ist.",
+    "Wählen Sie zum Üben Label 18, dann Fill, und klicken Sie auf das Objekt mit Label 2. Prüfen Sie das geänderte Label, bevor Sie es importieren.",
+    "Machen Sie mit Undo die letzte Bearbeitung im Viewer rückgängig. Wiederholen Sie Fill, wenn Sie die Änderung behalten möchten.",
+    "Klicken Sie in spaCR auf Take the mask back. Prüfen Sie die Zahl der geänderten Pixel und dann die gespeicherte Maske und ihre Begleitdatei mit dem Korrekturverlauf.",
+    "Klicken Sie vor der nächsten Bearbeitungsrunde auf Close viewer und öffnen Sie die Maske erneut. So wird die gespeicherte Maske zum Ausgangspunkt für weitere Korrekturen.",
+    "Holen Sie die Maske nach der nächsten Bearbeitung zurück und prüfen Sie das Ergebnis erneut. Schließen Sie danach den Viewer, bewahren Sie den Korrekturverlauf auf und wiederholen Sie Messungen, die von geänderten Labels betroffen sind."
+  ]
+}

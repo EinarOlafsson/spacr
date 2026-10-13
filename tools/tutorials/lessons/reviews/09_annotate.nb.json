@@ -1,0 +1,46 @@
+{
+  "lesson": "09_annotate",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Annotate: merk objekter og lagre annoteringene",
+  "description": "Last inn eksempelutsnitt, velg en annoteringskolonne, merk objekter, juster visningen og gjør merkelappene klare for klassifisering.",
+  "objectives": [
+    "Laste inn lagrede utsnitt eller lese utsnitt direkte fra sammenslåtte bilder.",
+    "Velge en annoteringskolonne, sette og fjerne merkelapper og lagre endringene.",
+    "Justere kanalfarger og se gjennom antall per klasse og dekning.",
+    "Finne Agreement og veiene for bildebasert og egenskapsbasert trening."
+  ],
+  "prerequisite": "Åpne Annotate fra Home. Bruk Load test data og velg Load for eksempelutsnittene og måledatabasen. For ditt eget prosjekt bruker du mappen som inneholder måledatabasen og utsnittene eller de sammenslåtte bildene.",
+  "scenes": [
+    "Åpne Annotate fra Home. Rutenettet viser enkeltobjekter fra prosjektet ditt. Du skal merke disse objektene og lagre merkelappene i måledatabasen.",
+    "Klikk på Load test data og velg Load. Da lastes eksempelutsnittene og måledatabasen ned og åpnes i Annotate.",
+    "Velg Stream når du vil lese utsnitt direkte fra sammenslåtte bilder. Velg Load for utsnitt som allerede er eksportert. I denne gjennomgangen bruker vi Load.",
+    "For å åpne dine egne data klikker du på Open source og velger platemappen som inneholder målingene og bildedataene. Rutenettet laster da inn objektene fra det prosjektet.",
+    "Undersøk rutenettet med utsnitt. Bruk sidekontrollene for å bla gjennom objektene. Juster utsnittsstørrelsen hvis du trenger å se nærmere eller vil ha flere objekter per side.",
+    "Åpne Settings og velg en annoteringskolonne. Opprett en ny kolonne for å holde denne merkeoppgaven atskilt fra eksisterende annoteringer. Bestem hva hver klasse står for før du begynner.",
+    "Venstreklikk på et utsnitt for å sette klasse 1. Høyreklikk setter klasse 2. Klikk på samme klasse igjen for å fjerne den. Den fargede ringen viser merkelappen, og den hvite ringen markerer det valgte utsnittet.",
+    "Trykk på Next for å gå til neste side og sende merkelappene til lagring. Vent til lagringen er ferdig før du lukker programmet.",
+    "Trykk på Back for å gå tilbake til forrige side og kontrollere merkelappene. Du kan også bruke tastene 1 til 9 for å sette klasser og 0 for å fjerne en merkelapp. Forklaringen på skjermen viser snarveiene for navigering og angre.",
+    "Åpne Class counts for å se hvor mange objekter du har merket i hver klasse. Bruk det til å finne klasser som trenger flere eksempler.",
+    "Åpne Coverage for å se hvordan annoteringene er fordelt i prosjektet. Ta med eksempler fra de forholdene og bildegruppene klassifikatoren skal kjenne igjen.",
+    "For å fjerne en merkelapp klikker du på samme klasse igjen. Gå til neste side for å lagre endringen, og gå deretter tilbake for å kontrollere det tømte utsnittet.",
+    "I Settings velger Channel colours visningspaletten. Display order tilordner kildekanalene til fargeplassene. Velg en visning der klassene dine er lette å skille fra hverandre.",
+    "Her er CMY-paletten. Du kan gå tilbake til RGB via de samme innstillingene. Hold visningen lik mens du sammenligner og merker objekter.",
+    "Åpne Annotator Agreement fra ikonet øverst til høyre for å sammenligne annoteringskolonner. Bruk det til å finne objekter der kontrollører har satt ulike merkelapper.",
+    "Når merkelappene er klare, åpner du Train. Velg bilder for en bildeklassifikator eller målte egenskaper for en tabellklassifikator. De koblede Classify-leksjonene forklarer treningsinnstillingene.",
+    "Suggest foreslår merker for utsnittene du ikke har besvart ennå, så gi det først eksempler på begge klassene fra flere brønner. Her merkes noen få utsnitt av hver klasse i fire brønner, og Next lagrer dem.",
+    "Åpne Suggest og velg Suggest for the images on this page. Runden tar noen sekunder, og hvert utsnitt på siden får nå et spørsmålstegn. Linjen over rutenettet teller hvor mange forslag som gjenstår å vurdere.",
+    "Klikk på et foreslått utsnitt eller trykk Y for å bekrefte det, og høyreklikk eller trykk N for å avvise det. Begge svarene registreres, avvisninger trener neste runde, og Confirm the rest of the page avgjør resten når du har sjekket det.",
+    "Generate annotation database lager et sett med utsnitt fra egnede kildedata. Bruk det når du forbereder et nytt annoteringsprosjekt; det nedlastede eksemplet inneholder allerede utsnittene og databasen som trengs her.",
+    "Åpne Console for å kontrollere meldinger om innlasting av kilden og lagring. Annoteringskolonnen din lagres i prosjektdatabasen og kan velges når du forbereder treningsdata i Classify.",
+    "For hjelp med en innstilling åpner du spaCR AI i Console etter å ha satt opp en leverandør i Preferences. Når du er ferdig med merkingen, fortsetter du til Classify med prosjektet og den valgte annoteringskolonnen."
+  ]
+}

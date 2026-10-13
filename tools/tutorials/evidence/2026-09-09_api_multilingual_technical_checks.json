@@ -1,0 +1,35 @@
+{
+  "lesson": "06_api",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
+  "scene_count_per_catalog": 8,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_terminal_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 4475,
+    "duration_seconds": 149.166667, "audio_streams": 0, "bytes": 4252227,
+    "sha256": "f2eb31b7271a7ac06f3764f496a6fb04dd65e2d73f7ff94f181a3943c432f417"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Scene links", "Getting-started navigation placement", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "actual_commands": {
+    "source_commit": "f38e30942bf9ebb729d5341e15649f25b8d20b6c",
+    "package_version": "1.5.0.4",
+    "terminal": "GNOME Terminal on private 4K X11 desktop; real command output, not a painted terminal",
+    "checks": ["Import and version", "spacr-run --list", "spacr-run --describe regression", "spacr-run annotate intentionally refuses with exit code 2", "Inspect spacr.report.build_report signature without calling it", "Regression dry run with real saved paired-data settings explicitly does not call perform_regression"],
+    "capture_directory": "refresh_2026-09-09/captures/api_terminal",
+    "pipeline_or_report_executed": false
+  },
+  "boundaries": "A clean preflight is not scientific or end-to-end validation. The current generic plan's measurements-database description does not describe this paired-table regression's actual inputs; the narration states that limitation.",
+  "synthesis": "One CUDA synthesis process at a time, capped to 10% of video memory, two CPU threads and the 110 GiB host-memory guard",
+  "evidence_directory": "refresh_2026-09-09/production/06_api and refresh_2026-09-09/browser/06_api in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and actual commands; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

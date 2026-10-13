@@ -1,0 +1,36 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Invasion Assay：外部染色と全体染色をスコア化する",
+  "description": "二つの染色チャネルを割り当て、染色のベースラインを選び、解析を実行して、侵入の判定としきい値の感度を確認します。",
+  "objectives": [
+    "測定データベースを選び、外部染色と全体染色を割り当てる。",
+    "ベースラインのウェルとしきい値の設定を決め、解析を実行する。",
+    "分布、ウェルごとの分母、保存された結果の表を確認する。"
+  ],
+  "prerequisite": "リンク先の合成Invasion Assayの例を展開し、その設定リファレンスを使います。データベースには寄生虫の合成測定値が1,800件含まれています。条件名と結果は説明用です。自分のアッセイでは、透過処理の前に外部染色、後に全体染色を行う、検証済みの二色染色の設計を使い、代表的な画像を確認してください。",
+  "scenes": [
+    "HomeからToxoplasmaを開き、Invasion Assayを選びます。外部染色と全体染色それぞれについて、寄生虫の強度を含む測定データベースから始めます。リンク先の合成サンプルを使って、チャネルの割り当て、しきい値の選択、結果の確認を練習しましょう。",
+    "サンプルを展開し、Sourceをmeasurements/measurements.dbを含むinvasionフォルダーに設定します。付属の設定リファレンスを入力し、Sourceの仮の値を置き換えます。サンプルには、ベースラインのウェルと二つのアッセイ条件が含まれています。",
+    "Outside channelを一に、Total channelをゼロに設定します。外部染色は透過処理の前に、全体染色はその後に行います。外部染色が陽性の寄生虫は付着、外部のしきい値以下のものは侵入と分類されます。自分の測定値を使うときは、撮影チャネルの順番を確認してください。",
+    "例のデータベースの列に合わせて、Intensity statisticでmeanを選びます。自分のアッセイでは、染色に合った利用可能な統計量を選び、代表的な物体を確認します。このサンプルでは、Minimum total intensityを百のままにします。",
+    "c1を使って、Stain baseline wellsを一列目に設定します。これらの陰性染色の測定値が基準値を決め、アッセイの分母からは除外されます。Pathogen plate metadataで、vehicleを二列目に、inhibitorを三列目に割り当てます。",
+    "Control quantileを零点九九に設定し、固定のOutside thresholdは空欄のままにします。すると、ベースラインの測定値から基準値が決まり、この例ではおよそ二十二点八になります。分類を解釈する前に、出力で適用されたしきい値を確認してください。",
+    "Threshold sensitivityを零点二五に設定します。これにより、選んだしきい値より二十五パーセント低い値と高い値も評価されます。得られた侵入効率の幅を比べ、結果がしきい値の選び方にどれだけ左右されるかを確認します。",
+    "このサンプルでは、Extracellular classをclassifyに設定します。宿主細胞との関連がない物体について、classifyは染色を使い、attachedは付着として扱い、excludeはスコア対象の集団から除きます。この設定は、宿主細胞への割り当ての質を考えて選んでください。",
+    "Saveをオンのままにして、Runをクリックします。処理が終わったら、しきい値の図を開きます。ウェルごとの分布と適用された基準値が表示されます。実際の実験では、これらの分布を代表的な染色画像と比べ、弱い外部染色を調べてください。",
+    "凡例が図からはみ出す場合は、Figure settingsを開きます。axesタブでLegend positionをbestに設定し、確定します。画面上の図でも書き出した図でも、ラベルが見えることを確認します。",
+    "ウェルごとの図を開きます。各棒は付着と侵入の割合を示し、その上にスコア化された寄生虫の数が表示されます。ベースラインのウェルは除外されます。ウェルを比べるときは、割合と一緒に数も読み取ってください。",
+    "条件ごとの要約を開きます。まとめて計算した侵入の割合と、ウェル間の平均を比べます。この二つは重み付けが異なるためです。条件を比べる前に、ウェルごとの結果のばらつきを確認してください。",
+    "すべてはSourceの中のresults/analyze_invasionに保存されます。parasite_calls.csvには寄生虫ごとの判定、field_thresholds.csvにはその根拠となる基準値、well_invasion.csvにはウェルごとの割合、condition_summary.csvにはまとめた比較が入っています。図と設定も一緒に保管し、条件の比較は独立した反復実験の間で行います。"
+  ]
+}

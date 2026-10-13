@@ -1,0 +1,318 @@
+{
+  "lesson": "27_replication",
+  "status": "Native synthetic example, CSV values and actual plotted geometry passed; multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/replication_visible_dialog_console",
+  "provenance": {
+    "commit": "7b9a63af60d40ad2a96efd9ab687756cda06bb5f",
+    "version": "1.5.0.5",
+    "module": "replication",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "scene_count": 12,
+  "acceptance": {
+    "accepted": true,
+    "synthetic": true,
+    "biological_effect_claim": false,
+    "new_download_button": false,
+    "actual_gui_run": true,
+    "app_source_modified": false,
+    "published": false,
+    "pipeline": {
+      "accepted": true,
+      "reasons": [],
+      "figure_count": 2,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "output_checks": {
+      "vacuole_counts.csv": {
+        "rows": 480,
+        "fields_checked": 6216
+      },
+      "well_distribution.csv": {
+        "rows": 12,
+        "fields_checked": 324
+      },
+      "condition_summary.csv": {
+        "rows": 2,
+        "fields_checked": 48
+      }
+    },
+    "source_unchanged": true,
+    "private_database_unchanged": true,
+    "figures_visible": true,
+    "figure_checks": [
+      {
+        "index": 0,
+        "groups": [
+          "plate1_r1_c1",
+          "plate1_r1_c2",
+          "plate1_r2_c1",
+          "plate1_r2_c2",
+          "plate1_r3_c1",
+          "plate1_r3_c2",
+          "plate1_r4_c1",
+          "plate1_r4_c2",
+          "plate1_r5_c1",
+          "plate1_r5_c2",
+          "plate1_r6_c1",
+          "plate1_r6_c2"
+        ],
+        "geometry_fields_checked": 144,
+        "legend_inside_canvas": true,
+        "legend_bounds": [
+          1731.15,
+          358.1162109375,
+          167,
+          125.267578125
+        ],
+        "canvas_bounds": [
+          0,
+          0,
+          2116,
+          850
+        ],
+        "data_unchanged_after_native_legend_control": true,
+        "actual_geometry_file": "figure_data_00.json"
+      },
+      {
+        "index": 1,
+        "groups": [
+          "HeLa_inhibitor",
+          "HeLa_vehicle"
+        ],
+        "geometry_fields_checked": 24,
+        "legend_inside_canvas": true,
+        "legend_bounds": [
+          1702.9,
+          600.603515625,
+          194,
+          139.896484375
+        ],
+        "canvas_bounds": [
+          0,
+          0,
+          2116,
+          850
+        ],
+        "data_unchanged_after_native_legend_control": true,
+        "actual_geometry_file": "figure_data_01.json"
+      }
+    ],
+    "csv_data_unchanged_after_styling": true,
+    "statistical_inference_validated": false,
+    "image_or_biological_validation": false
+  },
+  "input_manifest": {
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/replication/measurements/measurements.db",
+    "source_sha256": "06e69382639ce037a0a5db657ef38107a67ca8a9bca73fa4cd7265eed8bd4d69",
+    "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/replication_runs/SYNTHETIC-explicit-vacuoles-jtbo58oa/measurements/measurements.db",
+    "database_sha256": "06e69382639ce037a0a5db657ef38107a67ca8a9bca73fa4cd7265eed8bd4d69",
+    "synthetic": true,
+    "images_available": false,
+    "biological_effect_claim": false,
+    "rows": 1992,
+    "vacuoles": 480,
+    "wells": 12,
+    "host_groups": 240,
+    "independent_expectations_sha256": "7604f385f045e21205370c12612cc4653f272b5926cdfa14f1412c6324b8dc19"
+  },
+  "tests": {
+    "passed": 16,
+    "executed_figure_verifier_lines": [
+      136,
+      138,
+      139,
+      140,
+      141,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+    ],
+    "mutations": [
+      "figure groups: 1 failed, 15 passed in 0.17s",
+      "figure buckets: 2 failed, 14 passed in 0.18s",
+      "figure bar count: 1 failed, 15 passed in 0.18s",
+      "figure height: 1 failed, 15 passed in 0.17s",
+      "figure base: 2 failed, 14 passed in 0.17s",
+      "zero placeholder premise: 1 failed, 15 passed in 0.18s"
+    ]
+  },
+  "visual_checks": [
+    "Completion console shows the actual saved-figure contrast warning and Finished.",
+    "Both real Figure settings dialogs fit the native frame, including their OK buttons.",
+    "Legends moved inside through real controls, with all 168 bar height/base fields and CSV bytes unchanged."
+  ],
+  "limitations": [
+    "Invented teaching rows; no acquired images, real treatment effect, inferential or biological validation.",
+    "The on-screen legend demonstration does not certify the exported light-page palette.",
+    "No application code modified, no native/listening approval and no publication."
+  ],
+  "artifacts": [
+    {
+      "file": "00_home.png",
+      "sha256": "27cd1a0352c979fa65af33797673d0a4b5c6379405982646ae0ae837ecd95abd",
+      "bytes": 489530
+    },
+    {
+      "file": "01_module.png",
+      "sha256": "b0b03135a86b6d38f695e07a7c65d7fa5e222eb5547bc4bc6c356bbb25816850",
+      "bytes": 382004
+    },
+    {
+      "file": "02_synthetic_inputs.png",
+      "sha256": "37bd607dd928031df1ff0eab6d0dc135526626459b9cd4492cb99cf20d44b5d2",
+      "bytes": 383158
+    },
+    {
+      "file": "03_setting_src.png",
+      "sha256": "4672371f9e46b298e6d1e85fb19fb4209371a096ae8a59e1ee15defd9ff8dfb0",
+      "bytes": 319828
+    },
+    {
+      "file": "04_setting_vacuole_key.png",
+      "sha256": "f1dfc6459f39131ee33a34c31e7173f3e03c2ae4b162dc664663d5a7878b1bae",
+      "bytes": 315153
+    },
+    {
+      "file": "05_setting_require_host_cell.png",
+      "sha256": "c2f87909a22a4e78fd5d5a5818e93c71145d39d0dc771790a1321d29ebb7dced",
+      "bytes": 313581
+    },
+    {
+      "file": "06_setting_min_parasite_area.png",
+      "sha256": "22a6ac9a98b55f2ba7df6f77723a6c284331955927c999c4e26e1b5aee992ba0",
+      "bytes": 297088
+    },
+    {
+      "file": "07_setting_max_parasites_per_vacuole.png",
+      "sha256": "8039b35f6d7858df564bb51db0497d71cfd2573df7d7d626d3a6c6640d7940f5",
+      "bytes": 322371
+    },
+    {
+      "file": "08_setting_non_power_of_two_warn.png",
+      "sha256": "a3f68ee30e7667c3c7aa2f620f5f39c6bef4fdf756cabc8fca6e188d2bf6b66f",
+      "bytes": 325099
+    },
+    {
+      "file": "09_setting_pathogen_plate_metadata.png",
+      "sha256": "4a8f637c339c4dce78386144159cd35c97fed22a9bf6bc34170d254e8e185ff3",
+      "bytes": 325568
+    },
+    {
+      "file": "10_setting_save.png",
+      "sha256": "b82a3354d5a5a22b18e1b5e85cf6e1e33ceb081eb802ed31da7900b784aae8dd",
+      "bytes": 296977
+    },
+    {
+      "file": "11_actual_run.png",
+      "sha256": "f91214041c02bc1e3ffe3269179b1b4fd57dabf28a467dc1a21565b702f37598",
+      "bytes": 455889
+    },
+    {
+      "file": "12_actual_completion.png",
+      "sha256": "f4dc2a406cf6282e10f7cac559bc7625cb0aebf2f93a4be2cafe4d7d655d28ac",
+      "bytes": 554209
+    },
+    {
+      "file": "13_figure_00.png",
+      "sha256": "af44f5b945ae2aacb962e573e45442716194b06e59f44f6ffc4fbc0d7087add3",
+      "bytes": 572362
+    },
+    {
+      "file": "13_figure_01.png",
+      "sha256": "7e7fecbd13489939ab66179ab7c3c7ffbe1228c6c79aa3d74f0c3008c614534c",
+      "bytes": 560021
+    },
+    {
+      "file": "14_legend_settings_00.png",
+      "sha256": "53e412814d62eeafe049335e349b35728ebe462cc336a4a30b715ddb1eec0d69",
+      "bytes": 544425
+    },
+    {
+      "file": "14_legend_settings_01.png",
+      "sha256": "58105feaeb9ec611f429621dde337990759e9bfb6e356d43294c2540442fbe26",
+      "bytes": 539802
+    },
+    {
+      "file": "15_readable_legend_00.png",
+      "sha256": "231861b3a3ac3173b8cb6b916256c8813555d1578c8747ab9aa962a6c83deb72",
+      "bytes": 575987
+    },
+    {
+      "file": "15_readable_legend_01.png",
+      "sha256": "79ae46cafeed6148773fbb9338d09ab9058ef01e3a9288133c5a579a478eb6b3",
+      "bytes": 560808
+    },
+    {
+      "file": "batch_console.json",
+      "sha256": "a7ae27b400fddca44abf07eecbbada9c417017a09f5837baef3d555a5a6b7b19",
+      "bytes": 4960
+    },
+    {
+      "file": "batch_outcome.json",
+      "sha256": "50cb9aecafe0ed6db134bc1271889eb9a2f38bea56c2a26939330041e632f8d2",
+      "bytes": 53
+    },
+    {
+      "file": "configured_settings.json",
+      "sha256": "4f8fa1d79fd51dbcad5d80166552116e28fd62098392dae27ef0e7931ef0048a",
+      "bytes": 914
+    },
+    {
+      "file": "figure_00.png",
+      "sha256": "0dbbc9485e1fa20636d6fb1c40794472fe79f4b2a0c2f6bd4577a90fefe7a6b0",
+      "bytes": 88261
+    },
+    {
+      "file": "figure_01.png",
+      "sha256": "977d416a74c10ba51c3b6208483073a6764dad87ab6a45955f16f487d2bd07ee",
+      "bytes": 72107
+    },
+    {
+      "file": "figure_data_00.json",
+      "sha256": "048e719fef27f55c35c4cac4c619dff3246c33af88a06f84cfc55d0c98266eff",
+      "bytes": 6421
+    },
+    {
+      "file": "figure_data_01.json",
+      "sha256": "2b38bcd0c303f2c99ee1f34986a2091bebeb6117723286db13707a892aa01c1d",
+      "bytes": 1433
+    },
+    {
+      "file": "frames.json",
+      "sha256": "bf3bc0cd34a45c73475916b043f503724471abd881c0e8ad1c0b4b0729630571",
+      "bytes": 176526
+    },
+    {
+      "file": "provenance.json",
+      "sha256": "4b14c4be85082f761b81c7a926f47ba25c80ab415bae3c1b54470c6896aa59fa",
+      "bytes": 350
+    },
+    {
+      "file": "scientific_acceptance.json",
+      "sha256": "e8fa7cc5df393c69c4414dc720f33f86090840eee90f6277e66f0c47a12012fd",
+      "bytes": 267462
+    }
+  ],
+  "verifier_correction": "The first actual-figure take disproved an assumption in the tutorial verifier: pandas zero-height placeholders start at zero. Corrected the verifier and pinned that empirically observed premise. A draft duplicate-group test also hit a different numeric guard; revised its positive counterpart and exact error expectation before confirming the identity mutation fails."
+}

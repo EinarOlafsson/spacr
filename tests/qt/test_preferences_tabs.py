@@ -1,0 +1,639 @@
+"""Preferences is tabbed, and every control is still reachable.
+
+The dialog had grown to one scrollable column of thirty-odd rows: Module
+visibility and the figure format sat below five animation sliders, and the
+only way to find out whether a setting existed was to scroll past
+everything else. Tabs are not decoration here — they are what makes "does
+spaCR have a setting for this?" a question with an answer.
+
+The risk a rewrite like this carries is a control that quietly stops being
+built, which no screenshot catches and no other test notices until somebody
+looks for the setting. So the inventory below is explicit: every named
+control, and which tab it must be on.
+"""
+from __future__ import annotations
+
+import pytest
+
+pytest.importorskip("PySide6")
+
+from PySide6.QtCore import QSettings
+from PySide6.QtWidgets import (QComboBox, QDialogButtonBox, QLabel,
+                               QPushButton, QScrollArea, QSlider, QTabWidget,
+                               QWidget)
+
+
+#: object name -> the tab it belongs on. Everything the dialog builds with
+#: a name, because a name is what the rest of the suite finds it by.
+CONTROLS = {
+    "LanguagePreference": "General",
+    # APPEARANCE WAS SPLIT INTO THREE on 2026-09-03 and this map was not
+    # moved with it, so eighteen of these have been failing since -- the
+    # inventory said Appearance and the controls were on Theme and Animation.
+    # Corrected by MEASURING where each one actually is rather than by
+    # reasoning about where it ought to be. On 2026-09-30 (item 601) Theme
+    # and Animation became folded categories of Appearance, so every one
+    # of them is on Appearance again.
+    "AmbientTheme": "Appearance",
+    "AmbientPalette": "Appearance",
+    "AmbientDriftDirection": "Appearance",
+    "AmbientResolution": "Appearance",
+    "AmbientSpeed": "Appearance",
+    "AmbientSize": "Appearance",
+    "AmbientDensity": "Appearance",
+    "AmbientGravityRadius": "Appearance",
+    "AccessibilityHighContrast": "Appearance",
+    "AccessibilityTextSize": "Appearance",
+    "AccessibilityReduceMotion": "Appearance",
+    "AccessibilityStrongFocus": "Appearance",
+    "AccessibilityShortcuts": "Appearance",
+    "AmbientBlinkPercent": "Appearance",
+    "FieldPopupWaveFrequency": "Appearance",
+    "PopupBackdrop": "Appearance",
+    "PopupBackdropDarkness": "Appearance",
+    "SpinnerDelay": "Appearance",
+    "PaneOpacity": "Appearance",
+    "FieldFadeEnabled": "Appearance",
+    "FontScale": "General",
+    "PerformanceLevel": "Performance",
+    "PerformanceLevelNote": "Performance",  # the note under the level selector
+    "ClearRamButton": "Performance",
+    "ClearVramButton": "Performance",
+    "ClearCpuButton": "Performance",
+    "CheckDiskButton": "Performance",
+    "ShowAlphaFeatures": "Modules",
+    "ShowBetaFeatures": "Modules",
+    # Force quit joined the Performance tab on 2026-08-05 (35a05890): it is
+    # the last of the "this machine is not behaving" tools, deliberately
+    # placed beside the four that free what a wedged run is holding rather
+    # than with Save/Cancel.
+    "QuitSpacrButton": "Performance",
+    # The Logging tab arrived on 2026-08-05 (f1183805), replacing two
+    # severity thresholds with a switch per level per destination. Ten
+    # switches, and the inventory names all ten: a threshold could not
+    # express "record DEBUG but not INFO", and a control that silently
+    # stopped being built would take that expressiveness with it.
+    "LoggingTabHelp": "Logging",
+    "LogFileLevelDebug": "Logging",
+    "LogFileLevelInfo": "Logging",
+    "LogFileLevelWarning": "Logging",
+    "LogFileLevelError": "Logging",
+    "LogFileLevelCritical": "Logging",
+    "LogConsoleLevelDebug": "Logging",
+    "LogConsoleLevelInfo": "Logging",
+    "LogConsoleLevelWarning": "Logging",
+    "LogConsoleLevelError": "Logging",
+    "LogConsoleLevelCritical": "Logging",
+    # The AI tab arrived on 2026-09-04. It replaced a "▾" chevron beside the
+    # AI switch on the actions row of EVERY module -- which put a preference
+    # where per-run choices are made, repeated it per screen, and did not
+    # persist: `get_preferred_provider` existed and was read by nothing.
+    # The Providers button opens the dialog that carries the rest of the AI
+    # settings (response speed, system prompt, console-awareness), so those
+    # moved with it rather than being left unreachable.
+    "AiProvider": "AI",
+    "AiProvidersButton": "AI",
+}
+
+#: The Sound tab arrived on 2026-09-19 (item 427), LAST and off by default:
+#: "the tab is last because it is the least important thing in
+#: Preferences". A master switch, a volume, a sound set, and one switch and
+#: one Preview per event. SINCE 2026-09-21 IT IS BUILT ONLY IN SPACEOUT MODE
+#: ("transfer the sound tab in preferences to only be visible in spaceout
+#: mode"), so these are checked against a dialog built with spaceout on.
+SPACEOUT_CONTROLS = {
+    "SoundTabHelp": "Sound",
+    "SoundEnabled": "Sound",
+    "SoundVolume": "Sound",
+    "SoundTheme": "Sound",
+    "SoundClick": "Sound",
+    "SoundClickPreview": "Sound",
+    "SoundHover": "Sound",
+    "SoundHoverPreview": "Sound",
+    "SoundRunFinished": "Sound",
+    "SoundRunFinishedPreview": "Sound",
+    "SoundRunFailed": "Sound",
+    "SoundRunFailedPreview": "Sound",
+    "SoundMusicBed": "Sound",
+    "SoundMusicBedPreview": "Sound",
+}
+
+#: Tab order, not just tab membership: General must stay first (see below),
+#: and the rest are ordered by how often a user goes looking for them.
+#: "Logging" was appended on 2026-08-05 by f1183805, and "Sound" on
+#: 2026-09-19 by item 427 -- last, and it must stay last. Sound and Fractal
+#: exist only in spaceout mode (:data:`EXPECTED_SPACEOUT_TABS`).
+EXPECTED_TABS = ("General", "Appearance", "Performance",
+                 "Modules", "Figures", "Logging", "AI", "Storage")
+EXPECTED_SPACEOUT_TABS = EXPECTED_TABS + ("Fractal", "Sound")
+
+
+@pytest.fixture(autouse=True)
+def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
+    from spacr.qt import preferences as prefs
+    store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(prefs, "_settings", lambda: store)
+    return store
+
+
+@pytest.fixture
+def dialog(qtbot, qt_theme_applied):
+    from spacr.qt.preferences import PreferencesDialog
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    return dlg
+
+
+@pytest.fixture
+def spaceout_dialog(qtbot, qt_theme_applied, monkeypatch):
+    """The dialog as the ``spaceout`` launcher builds it."""
+    from spacr.qt import theme
+    from spacr.qt.preferences import PreferencesDialog
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    return dlg
+
+
+def _tabs(dialog) -> QTabWidget:
+    widget = dialog.findChild(QTabWidget, "PreferencesTabs")
+    assert widget is not None, "Preferences is not tabbed"
+    return widget
+
+
+def _tab_of(dialog, object_name):
+    """Which tab holds the control called ``object_name``."""
+    tabs = _tabs(dialog)
+    control = dialog.findChild(QWidget, object_name)
+    assert control is not None, f"no control named {object_name}"
+    for index in range(tabs.count()):
+        page = tabs.widget(index)
+        if control is page or page.isAncestorOf(control):
+            return tabs.tabText(index)
+    raise AssertionError(f"{object_name} is not on any tab")
+
+
+def test_the_dialog_has_the_expected_subject_tabs_in_order(dialog):
+    """Was "the five subject tabs" until 2026-08-05, when f1183805 added
+    Logging as a sixth. Named for the invariant rather than the count now,
+    so the next subject tab does not require renaming the test as well as
+    the list: what is being defended is that the tabs are exactly these and
+    in this order, whatever the count happens to be."""
+    tabs = _tabs(dialog)
+    assert tuple(tabs.tabText(i) for i in range(tabs.count())) == EXPECTED_TABS
+
+
+def test_spaceout_adds_fractal_and_sound_last(spaceout_dialog):
+    """In spaceout mode Sound is back, and still the last tab."""
+    tabs = _tabs(spaceout_dialog)
+    assert (tuple(tabs.tabText(i) for i in range(tabs.count()))
+            == EXPECTED_SPACEOUT_TABS)
+
+
+@pytest.mark.parametrize("object_name,tab", sorted(SPACEOUT_CONTROLS.items()))
+def test_every_sound_control_is_there_in_spaceout(spaceout_dialog,
+                                                  object_name, tab):
+    assert _tab_of(spaceout_dialog, object_name) == tab
+
+
+@pytest.mark.parametrize("object_name", sorted(SPACEOUT_CONTROLS))
+def test_no_sound_control_is_built_outside_spaceout(dialog, object_name):
+    assert dialog.findChild(QWidget, object_name) is None, (
+        f"{object_name} is built in ordinary spaCR, which has no Sound tab")
+
+
+def test_general_is_first_because_language_is_in_it(dialog):
+    """A reader who cannot read the interface must find that one first."""
+    tabs = _tabs(dialog)
+    assert tabs.tabText(0) == "General"
+    assert tabs.currentIndex() == 0
+    assert _tab_of(dialog, "LanguagePreference") == "General"
+
+
+@pytest.mark.parametrize("object_name,tab", sorted(CONTROLS.items()))
+def test_every_control_is_still_there_and_on_the_right_tab(
+        dialog, object_name, tab):
+    assert _tab_of(dialog, object_name) == tab
+
+
+def test_no_control_is_on_two_tabs(dialog):
+    tabs = _tabs(dialog)
+    for object_name in CONTROLS:
+        control = dialog.findChild(QWidget, object_name)
+        holders = [tabs.tabText(i) for i in range(tabs.count())
+                   if tabs.widget(i).isAncestorOf(control)]
+        assert len(holders) == 1, f"{object_name} appears on {holders}"
+
+
+def test_the_unnamed_controls_survived_the_split(dialog):
+    """Theme, dock, colour-blind mode, figure format and DPI have no object
+    names of their own; they are found by what they offer."""
+    values = set()
+    for combo in dialog.findChildren(QComboBox):
+        for index in range(combo.count()):
+            values.add(combo.itemData(index))
+    for expected in ("system", "glass", "locked", "deuteranopia", "png",
+                     "pdf", 300):
+        assert expected in values, f"the {expected!r} choice is gone"
+
+
+def test_every_tab_scrolls_on_its_own(dialog):
+    """A small screen shortens the tallest tab, not the whole dialog."""
+    tabs = _tabs(dialog)
+    for index in range(tabs.count()):
+        assert isinstance(tabs.widget(index), QScrollArea)
+
+
+def test_save_and_cancel_are_outside_the_tabs(dialog):
+    """They act on the whole dialog, so they must not look like one tab's."""
+    tabs = _tabs(dialog)
+    buttons = dialog.findChild(QDialogButtonBox)
+    assert buttons is not None
+    for index in range(tabs.count()):
+        assert not tabs.widget(index).isAncestorOf(buttons)
+
+
+def test_saving_from_one_tab_still_writes_the_others(dialog, qtbot):
+    """The rows moved; the single Save that writes all of them did not."""
+    from spacr.qt import preferences as prefs
+
+    tabs = _tabs(dialog)
+    tabs.setCurrentIndex(EXPECTED_TABS.index("Modules"))
+    dialog.findChild(QWidget, "ShowAlphaFeatures").setChecked(False)
+    dialog.findChild(QSlider, "FontScale").setValue(125)
+    dialog.findChild(QSlider, "AmbientSpeed").setValue(150)
+
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+
+    assert prefs.get_show_alpha() is False
+    assert prefs.get_font_scale() == pytest.approx(1.25)
+    assert prefs.get_ambient_speed() == pytest.approx(1.5)
+
+
+def test_the_performance_tab_reads_as_one_subject(dialog):
+    """The mode and the recovery buttons are together on purpose: a mode
+    that says "cleanup runs at launch" is only readable next to the buttons
+    that say what a cleanup is.
+
+    Force quit joined them on 2026-08-05 (35a05890) as a fifth, so the
+    expected set grew by one. Its placement is the assertion, not an
+    accident of where there was room: it is the last of the "this machine
+    is not behaving" tools, the one to reach for when freeing memory was
+    not enough, and it must stay on this tab and out of the Save/Cancel
+    box — somebody reaching for it has a window that will not close, and
+    making them save preferences on the way out is one more thing between
+    them and leaving.
+    """
+    tab = EXPECTED_TABS.index("Performance")
+    page = _tabs(dialog).widget(tab)
+    buttons = [b.objectName() for b in page.findChildren(QPushButton)
+               if b.objectName()]
+    assert set(buttons) == {"ClearRamButton", "ClearVramButton",
+                            "ClearCpuButton", "CheckDiskButton",
+                            "QuitSpacrButton"}
+    quit_button = page.findChild(QPushButton, "QuitSpacrButton")
+    button_box = dialog.findChild(QDialogButtonBox)
+    assert not button_box.isAncestorOf(quit_button), (
+        "force quit was moved in with Save/Cancel")
+    assert page.findChild(QComboBox, "PerformanceLevel") is not None
+    note = page.findChild(QLabel, "PerformanceLevelNote")
+    assert note is not None and note.wordWrap()
+
+
+def test_the_dialog_still_fits_a_small_screen(dialog):
+    """The point of the split: no tab is taller than a laptop panel."""
+    dialog.resize(dialog.minimumWidth(), 600)
+    assert dialog.sizeHint().height() <= 900, (
+        f"the dialog wants {dialog.sizeHint().height()} px of height")
+
+
+# --------------------------------------------------------------------------
+# 284: a tab nobody is looking at keeps its page out of the first show
+# --------------------------------------------------------------------------
+
+def _open(dialog, qtbot):
+    from PySide6.QtWidgets import QApplication
+
+    dialog.show()
+    qtbot.waitExposed(dialog)
+    QApplication.processEvents()
+    return dialog
+
+
+def _category_of(widget):
+    """The settings category that folds ``widget`` away, or ``None``."""
+    from spacr.qt.widgets.section import Section
+
+    holder = widget.parentWidget()
+    while holder is not None and not isinstance(holder, Section):
+        holder = holder.parentWidget()
+    return holder
+
+
+def _tabs_with_their_page(dialog) -> set:
+    """The tabs whose page is in the window rather than waiting outside it."""
+    tabs = _tabs(dialog)
+    return {tabs.tabText(i) for i in range(tabs.count())
+            if tabs.widget(i).widget().objectName().startswith(
+                "PreferencesTab")}
+
+
+def test_the_first_show_carries_only_the_open_tabs_page(dialog, qtbot):
+    """The other pages are why the show took 400-550 ms under load."""
+    from PySide6.QtWidgets import QDialog
+
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    _open(dialog, qtbot)
+    assert _tabs_with_their_page(dialog) == {"General"}
+    assert QDialog.findChild(dialog, QSlider, "AmbientSpeed") is None
+    assert not dialog.isAncestorOf(speed)
+    assert speed.value() > 0, "the waiting control is gone, not waiting"
+
+
+def test_a_control_asked_for_by_name_brings_its_page_back(dialog, qtbot):
+    """What finds a control by name -- item 569's switch, a test -- finds
+    it in the window, whichever tabs have been chosen."""
+    _open(dialog, qtbot)
+    switch = dialog.findChild(QWidget, "ShowAlphaFeatures")
+    assert switch is not None
+    assert dialog.isAncestorOf(switch)
+    assert _tabs_with_their_page(dialog) == {"General", "Modules"}
+    assert _tabs(dialog).currentIndex() == 0
+
+
+def test_the_alpha_features_switch_saves_and_resets_unopened(
+        qtbot, qt_theme_applied, _isolated_qsettings):
+    """Item 569's switch is on Modules; Save and Reset reach it there
+    without bringing the page back."""
+    from spacr.qt import preferences as prefs
+
+    prefs._set_show_alpha_features(True)
+    dlg = prefs.PreferencesDialog()
+    qtbot.addWidget(dlg)
+    switch = dlg.findChild(QWidget, "ShowAlphaFutureFeatures")
+    assert switch.isChecked()
+    _open(dlg, qtbot)
+    dlg.findChild(QPushButton, "PreferencesReset").click()
+    assert not switch.isChecked()
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert prefs._get_show_alpha_features() is False
+    assert _tabs_with_their_page(dlg) == {"General"}
+
+
+def test_a_walk_of_the_dialog_sees_every_page(dialog, qtbot):
+    _open(dialog, qtbot)
+    names = {w.objectName() for w in dialog.findChildren(QWidget)}
+    assert set(CONTROLS) <= names
+    assert _tabs_with_their_page(dialog) == set(EXPECTED_TABS)
+
+
+def test_choosing_a_tab_brings_its_page_back(dialog, qtbot):
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    _open(dialog, qtbot)
+    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Appearance"))
+    assert _tabs_with_their_page(dialog) == {"General", "Appearance"}
+    assert dialog.findChild(QSlider, "AmbientSpeed") is speed
+    assert _tab_of(dialog, "AmbientSpeed") == "Appearance"
+    _category_of(speed).set_expanded(True)
+    assert speed.isVisible()
+
+
+def test_it_opens_with_the_page_of_the_tab_it_was_opened_on(dialog, qtbot):
+    """The help search opens Preferences on a named tab before showing it."""
+    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Figures"))
+    _open(dialog, qtbot)
+    assert _tabs_with_their_page(dialog) == {"Figures"}
+
+
+def test_a_waiting_tab_asks_for_all_the_room_a_tab_is_given(dialog, qtbot):
+    """So the window opens no narrower or shorter than the pages allow."""
+    _open(dialog, qtbot)
+    scroll = _tabs(dialog).widget(EXPECTED_TABS.index("Figures"))
+    line = scroll.fontMetrics().height()
+    hint = scroll.sizeHint()
+    assert (hint.width(), hint.height()) == (36 * line, 24 * line)
+
+
+def test_save_writes_what_a_never_opened_tab_holds(
+        dialog, qtbot, _isolated_qsettings):
+    """Changed and unchanged controls on pages that never came back."""
+    from spacr.qt import preferences as prefs
+
+    blur_before = prefs.get_ambient_blur()
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    alpha = dialog.findChild(QWidget, "ShowAlphaFeatures")
+    _open(dialog, qtbot)
+    speed.setValue(150)
+    alpha.setChecked(not alpha.isChecked())
+    wanted_alpha = alpha.isChecked()
+
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+
+    assert _tabs_with_their_page(dialog) == {"General"}
+    assert prefs.get_ambient_speed() == pytest.approx(1.5)
+    assert prefs.get_show_alpha() is wanted_alpha
+    assert prefs.get_ambient_blur() == pytest.approx(blur_before)
+
+
+def test_reset_reaches_a_never_opened_tab(qtbot, qt_theme_applied,
+                                          _isolated_qsettings):
+    from spacr.qt import preferences as prefs
+
+    prefs.set_ambient_speed(1.5)
+    dlg = prefs.PreferencesDialog()
+    qtbot.addWidget(dlg)
+    speed = dlg.findChild(QSlider, "AmbientSpeed")
+    assert speed.value() == 150
+    _open(dlg, qtbot)
+    dlg.findChild(QPushButton, "PreferencesReset").click()
+    default = speed.value()
+    assert default != 150
+    dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert prefs.get_ambient_speed() == pytest.approx(default / 100.0)
+
+
+def test_cancel_keeps_a_change_on_a_never_opened_tab_out(
+        dialog, qtbot, _isolated_qsettings):
+    from spacr.qt import preferences as prefs
+
+    before = prefs.get_ambient_speed()
+    speed = dialog.findChild(QSlider, "AmbientSpeed")
+    _open(dialog, qtbot)
+    speed.setValue(170)
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Cancel).click()
+    assert prefs.get_ambient_speed() == pytest.approx(before)
+
+
+def test_a_page_coming_back_is_translated(dialog, qtbot, monkeypatch):
+    """The first-show language pass walked the window without it."""
+    from spacr.qt import i18n
+
+    seen = []
+    real = i18n.retranslate_widget_tree
+
+    def _record(root, *args, **kwargs):
+        seen.append(root)
+        return real(root, *args, **kwargs)
+
+    monkeypatch.setattr(i18n, "retranslate_widget_tree", _record)
+    _open(dialog, qtbot)
+    tabs = _tabs(dialog)
+    tabs.setCurrentIndex(EXPECTED_TABS.index("Logging"))
+    assert tabs.widget(tabs.currentIndex()).widget() in seen
+
+
+def test_a_page_still_waiting_goes_with_the_dialog(qtbot, qt_theme_applied):
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from PySide6.QtWidgets import QApplication
+    from shiboken6 import isValid
+
+    from spacr.qt.preferences import PreferencesDialog
+
+    dlg = PreferencesDialog()
+    page = dlg.findChild(QWidget, "PreferencesTabFigures")
+    _open(dlg, qtbot)
+    assert page.parentWidget() is None
+    dlg.hide()
+    dlg.deleteLater()
+    for _ in range(3):
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        QApplication.processEvents()
+    assert not isValid(page)
+
+
+def test_a_late_part_of_a_glassed_dialog_is_glassed_too(qtbot):
+    from PySide6.QtWidgets import QDialog, QFrame, QVBoxLayout
+
+    from spacr.qt.theme import TRANSPARENT_PROPERTY
+    from spacr.qt.widgets import glass
+    from spacr.qt.widgets.setup_card import SetupCard
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    SetupCard(dialog)
+    part = QWidget()
+    column = QVBoxLayout(part)
+    holder = QFrame()
+    button = QPushButton("Cancel")
+    column.addWidget(holder)
+    column.addWidget(button)
+
+    assert glass._glass_a_part_that_came_later(dialog, part) == 0
+    assert part.property(TRANSPARENT_PROPERTY) is None
+
+    dialog.setProperty(glass.GLASSED, True)
+    QVBoxLayout(dialog).addWidget(part)
+    assert glass._glass_a_part_that_came_later(dialog, part) >= 2
+    assert part.property(TRANSPARENT_PROPERTY) is True
+    assert holder.property(TRANSPARENT_PROPERTY) is True
+    assert button.property(TRANSPARENT_PROPERTY) is None
+    assert button.property(glass.SPINS) is True
+
+
+def test_a_late_opaque_part_keeps_its_paint_and_no_card_means_no_spin(qtbot):
+    """A control that paints itself (a line edit) is not made transparent,
+    and a glassed dialog with no setup card has no rim to send round."""
+    from PySide6.QtWidgets import QDialog, QLineEdit, QVBoxLayout
+
+    from spacr.qt.theme import TRANSPARENT_PROPERTY
+    from spacr.qt.widgets import glass
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    dialog.setProperty(glass.GLASSED, True)
+    line = QLineEdit()
+    QVBoxLayout(dialog).addWidget(line)
+    assert glass._glass_a_part_that_came_later(dialog, line) == 0
+    assert line.property(TRANSPARENT_PROPERTY) is None
+    assert line.property(glass.SPINS) is None
+
+
+def test_a_late_part_that_will_not_go_transparent_is_only_logged(
+        qtbot, monkeypatch, caplog):
+    """Neither a theme that refuses nor a card search that fails costs the
+    dialog its new part; each is a DEBUG line."""
+    import logging
+
+    from PySide6.QtWidgets import QDialog, QVBoxLayout
+
+    from spacr.qt import theme
+    from spacr.qt.widgets import glass
+
+    def refuse(*widgets):
+        raise RuntimeError("no transparency here")
+
+    dialog = QDialog()
+    qtbot.addWidget(dialog)
+    dialog.setProperty(glass.GLASSED, True)
+    part = QWidget()
+    QVBoxLayout(dialog).addWidget(part)
+    monkeypatch.setattr(theme, "make_transparent", refuse)
+
+    def no_children(*args, **kwargs):
+        raise RuntimeError("the dialog is being torn down")
+
+    monkeypatch.setattr(dialog, "findChildren", no_children)
+    with caplog.at_level(logging.DEBUG, logger=glass.LOG.name):
+        assert glass._glass_a_part_that_came_later(dialog, part) == 0
+    assert "a late part would not go transparent" in caplog.text
+
+
+#: The categories of the Appearance tab, in order, and a control in each.
+#: Accessibility joined them on 2026-10-12 (item 655).
+APPEARANCE_CATEGORIES = (("Theme", "PaneOpacity"),
+                         ("Animation", "AmbientSpeed"),
+                         ("Accessibility", "AccessibilityReduceMotion"))
+
+
+def test_theme_and_animation_are_categories_of_appearance(dialog):
+    """Asked for on 2026-09-30: "in preferences theme and animation can be
+    categories in appearence instead of their own tabs". Each is a folded
+    settings category on the Appearance tab, under the tab's own rows."""
+    from spacr.qt.widgets.section import Section
+
+    tabs = _tabs(dialog)
+    for title, _control in APPEARANCE_CATEGORIES:
+        assert title not in [tabs.tabText(i) for i in range(tabs.count())]
+    page = dialog.findChild(QWidget, "PreferencesTabAppearance")
+    categories = [c for c in page.findChildren(Section)]
+    assert [c._title_source for c in categories] == [
+        title for title, _control in APPEARANCE_CATEGORIES]
+    for (title, control), category in zip(APPEARANCE_CATEGORIES, categories):
+        widget = dialog.findChild(QWidget, control)
+        assert _category_of(widget) is category
+        assert category.objectName() == "SectionCard"
+        assert not category.is_expanded()
+    tooltips = dialog.findChild(QWidget, "TooltipsEnabled")
+    assert _category_of(tooltips) is None
+
+
+def test_a_category_folds_and_unfolds_its_settings(dialog, qtbot):
+    """Opening a category shows its rows; closing it hides them again."""
+    _open(dialog, qtbot)
+    _tabs(dialog).setCurrentIndex(EXPECTED_TABS.index("Appearance"))
+    for _title, control in APPEARANCE_CATEGORIES:
+        widget = dialog.findChild(QWidget, control)
+        category = _category_of(widget)
+        assert not widget.isVisible()
+        category.header().click()
+        assert category.is_expanded() and widget.isVisible()
+        category.header().click()
+        assert not category.is_expanded() and not widget.isVisible()
+
+
+@pytest.mark.parametrize("page,label,control", [
+    ("PreferencesTabTheme", "Page opacity", "PaneOpacity"),
+    ("PreferencesTabAnimation", "Animation speed", "AmbientSpeed"),
+])
+def test_the_help_search_lands_inside_a_folded_category(
+        dialog, qtbot, page, label, control):
+    """A preference result opens Appearance, unfolds the category and marks
+    the row, as it did when the category was a tab of its own."""
+    from spacr.qt.preferences_navigation import reveal_row, show_tab
+
+    assert show_tab(dialog, page, label)
+    assert _tabs(dialog).tabText(_tabs(dialog).currentIndex()) == "Appearance"
+    widget = dialog.findChild(QWidget, control)
+    assert _category_of(widget).is_expanded()
+    assert reveal_row(dialog.findChild(QWidget, page), label)

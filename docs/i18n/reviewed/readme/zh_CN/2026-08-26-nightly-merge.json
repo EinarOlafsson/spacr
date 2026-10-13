@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "headless-module-list",
+      "source_sha256": "ba692202a90d45cc9c603ecd4496cc0dc0ab15e50cb585983e67a3e4c576dee3",
+      "source": "``spacr-run --list`` lists modules with headless command-line entry points. GUI-only annotation, curation, comparison and exploration modules are omitted.",
+      "translation": "``spacr-run --list`` 会列出具有无界面命令行入口的模块。仅在 GUI 中提供的标注、数据整理、比较和探索模块不会列出。"
+    },
+    {
+      "label": "host-modules-heading",
+      "source_sha256": "8974e5e3d47e0eecbbbc6339f970a9f05e5c855e0bc0aa42bfa6e25a5577b722",
+      "source": "Modules available from host screens",
+      "translation": "可从宿主界面使用的模块"
+    },
+    {
+      "label": "host-modules-introduction",
+      "source_sha256": "12a5d01d329b5b5525d7816855f4e3f214c4e91a729b3173a6c5d734097bf4b9",
+      "source": "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+      "translation": "20 个模块集成在相关宿主界面中，而不是作为单独的 Home 磁贴显示。每个模块都从其宿主界面的顶部标题栏打开，并使用当前项目。Mask、Measure、Annotate、Classify、Map Barcodes、Regression、Image UMAP 和 Make Masks 提供这些集成模块。它们的帮助和 API 文档仍可访问；具有流程入口的模块仍可在无界面模式下运行。`功能指南 <docs/source/features.rst>`_ 列出了每个集成模块及其宿主界面。"
+    },
+    {
+      "label": "make-masks-heading",
+      "source_sha256": "3b6b87a84692b587aa2299fc27a05cbe60c36d7c0c53f37d68e9e3e7e3d780e3",
+      "source": "Make Masks",
+      "translation": "Make Masks"
+    },
+    {
+      "label": "make-masks-tools",
+      "source_sha256": "cf42b5d15a73956955227f308b7278340d7169c0dcd43c4b8b782ce04b030ded",
+      "source": "Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.",
+      "translation": "Make Masks 位于 **Data** 下，用于手动校正分割掩膜。其顶部标题栏还提供 Cellpose 工作流程的入口。画布包含九种工具：**Brush**、**Erase**、**Erase object**、**Wand +**、**Wand −**、**Draw**、**Divide**、**Zoom** 和 **Recrop**。Draw 根据任意形状的闭合轮廓创建一个填充标签。Divide 沿用户指定的线分离合并对象，同时保留其他所有对象标签。"
+    },
+    {
+      "label": "make-masks-recrop",
+      "source_sha256": "c5dc0f507fac105cec72a090640d29182dcb99677f21a2d3f4e0d5f43e659d83",
+      "source": "Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.",
+      "translation": "Recrop 可从待整理的多对象图像中提取单对象视野。在一个对象周围绘制边界框后，相应的图像和掩膜区域会写入一个新视野；该视野会安排在当前视野之后处理，同时原始多对象视野会从数据整理队列中移除。Recrop 改变的是当前视野，而不是标签像素。"
+    },
+    {
+      "label": "make-masks-cellpose-sam",
+      "source_sha256": "0a66d7dfcafc418b8d544c33f766ee40df8a6dcb12ec4aa855c992c64beba969",
+      "source": "Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.",
+      "translation": "在 Make Masks 中运行 Cellpose-SAM 时，掩膜旁会显示两项中间输出：**细胞概率图**和**流场**。掩膜由概率图上的阈值确定；流一致性检查可以排除推导流与预测流场不一致的对象。评估错误或不完整的掩膜时，请检查这些输出，以区分细胞概率偏低和流不一致。"
+    },
+    {
+      "label": "objects-settings-heading",
+      "source_sha256": "5320cf91af838c922615828f8276df4446d13c513c12bfa245d9b3f09de909fd",
+      "source": "Objects and settings",
+      "translation": "对象和设置"
+    },
+    {
+      "label": "objects-settings-inventory",
+      "source_sha256": "24b939c6e8e38f0b312c7f55263277e8dca9da0d4405aa2cc83722f6e7628e9c",
+      "source": "spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.",
+      "translation": "spaCR 支持细胞、细胞核和病原体对象、由这些对象的掩膜推导出的细胞质，以及 0 至 26 个细胞器槽位。每个细胞器槽位都有独立的通道、直径、形态预设和检测方法。"
+    },
+    {
+      "label": "objects-settings-visibility",
+      "source_sha256": "2e03aefa953cc86eac19f424339cca26dc2e704c5ef13485a756f95018e8fd63",
+      "source": "The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.",
+      "translation": "设置面板仅在控件适用时显示控件。超过已配置数量的细胞器槽位会被隐藏，未分配通道的对象不会参与运行，形态特异性控件仅在所选方法需要时显示。**3D** 和 **Time** 开关定义数据维度：``z_stack`` 启用体积设置，``timelapse`` 启用跟踪设置，同时启用两者时会显示四维设置。"
+    },
+    {
+      "label": "performance-heading",
+      "source_sha256": "3cca4da3c2a1c9529adaa3e2b0e38b7a94d84eb65fc08e0429484abc75276b3a",
+      "source": "Diagnosing performance",
+      "translation": "性能诊断"
+    },
+    {
+      "label": "performance-report-heading",
+      "source_sha256": "f84f94d824bd95e3df7b1c4c3dff1fc57dff13079e145c43b00e83f6fd35786e",
+      "source": "Generate a hardware report and attach it to a performance-related issue",
+      "translation": "生成硬件报告并将其附到性能相关问题中"
+    },
+    {
+      "label": "performance-report-location",
+      "source_sha256": "ea84a760589415ed93d0dd9086ecdd13b5d2e32e0c2d75c6aa019c15b3e1b021",
+      "source": "The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.",
+      "translation": "该命令会输出报告，并在 ``~/.spacr/reports`` 下保存一份副本；最后一行会标明保存路径。``--quick`` 会省略耗时较长的基准测试，``--out PATH`` 可指定其他输出位置。"
+    },
+    {
+      "label": "performance-report-scope",
+      "source_sha256": "f7a25b53879a3d74d166fbc6eeeeb3a83608aaf21e42749381eca6467ff1c0a1",
+      "source": "The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.",
+      "translation": "该报告不会打开项目，也不会读取项目数据。它记录导入与数值库计时、显示缩放、当前首选项、主窗口和模块界面的构建过程以及动画性能。它创建的唯一输出是报告文件。"
+    },
+    {
+      "label": "performance-report-platform",
+      "source_sha256": "c9d044f42e7b846be8dc37dbc88d2b39a7a7b0dd86044e4b2545ed5bb33fc49d",
+      "source": "It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.",
+      "translation": "该报告还会识别处理器架构模拟（例如在 Apple Silicon 上运行的 x86_64 Python 构建）以及 NumPy 使用的 BLAS 实现。二者均可能显著影响性能。"
+    },
+    {
+      "label": "support-performance-context",
+      "source_sha256": "75d5a4b6f9960ae3ac303786f491da789e21b9b4eafe434645aa44d1a542e3ba",
+      "source": "Submit bug reports and focused feature requests through `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting a failure, include the spaCR version, operating system, Python version, module settings and the relevant log excerpt. ``spacr-doctor`` collects most of this information; include the hardware report when reporting performance problems.",
+      "translation": "请通过 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ 提交错误报告和范围明确的功能请求。报告故障时，请提供 spaCR 版本、操作系统、Python 版本、模块设置和相关日志片段。``spacr-doctor`` 会收集其中的大部分信息；报告性能问题时还应附上硬件报告。"
+    },
+    {
+      "label": "debug-log-location",
+      "source_sha256": "0de8a1be0b0750ef6a744a16c65c099aa9518fc71609d05bfcf6174668b9ca87",
+      "source": "Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written to ``~/.spacr/logs/spacr.log``.",
+      "translation": "排查问题时，请设置 ``SPACR_LOG_LEVEL=DEBUG``。轮转日志写入 ``~/.spacr/logs/spacr.log``。"
+    },
+    {
+      "label": "primary-workflow-introduction",
+      "source_sha256": "7316054874b435fb4973b106b8f88d2d3c5aab456a43e2db41954aafb6d94a26",
+      "source": "The primary workflow comprises six modules:",
+      "translation": "主要工作流程由六个模块组成："
+    },
+    {
+      "label": "additional-project-capabilities",
+      "source_sha256": "8c884d15546a2332066e175a59b258b23bf0af33a09dcd833eda7e15f1ff13fd",
+      "source": "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.",
+      "translation": "同一项目还可以设计实验孔板、估算统计功效、校正批次效应、检查分割质量、浏览关联图表和图像裁剪、导出 AnnData、继续中断的工作，并记录生成各项结果时使用的设置。"
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+"""The recording policy checks live widgets before a frame is saved."""
+import sys
+from pathlib import Path
+
+import pytest
+from PySide6.QtCore import QSettings
+from PySide6.QtGui import QColor, QPalette
+from PySide6.QtWidgets import QLabel, QListWidget, QTableWidget, QTableWidgetItem, QWidget
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "tutorials"))
+from capture_policy import (CAPTURE_BACKDROP, configure_appearance, exclude_special_backdrops,
+                            verify_appearance, verify_visible_paths)
+
+
+@pytest.fixture
+def recording(qtbot, monkeypatch, tmp_path):
+    from spacr.qt import preferences as prefs
+    from spacr.qt.widgets.ambient import AmbientWidget
+
+    store = QSettings(str(tmp_path / "capture.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(prefs, "_settings", lambda: store)
+    monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)
+    configure_appearance()
+    window = QWidget()
+    qtbot.addWidget(window)
+    window.resize(400, 300)
+    palette = window.palette()
+    palette.setColor(QPalette.Window, QColor("#121212"))
+    window.setPalette(palette)
+    backdrop = AmbientWidget(window, theme=CAPTURE_BACKDROP)
+    backdrop.setGeometry(window.rect())
+    window.show()
+    backdrop.show()
+    qtbot.waitUntil(lambda: backdrop.frames_painted > 0)
+    yield window, backdrop, prefs
+    backdrop.hide()
+
+
+def test_a_real_dark_window_with_the_painted_field_is_accepted(recording):
+    """Since 59b211757 every lesson records the spaCR field, not Blobs."""
+    window, backdrop, _ = recording
+    receipt = verify_appearance(window)
+    assert receipt == {"theme": "dark", "backdrop": "data_art_impulse_lens",
+                       "painted_frames": backdrop.frames_painted}
+
+
+def test_home_preferences_explicitly_records_field_and_default_policy_stays_strict(recording, qtbot):
+    window, backdrop, _prefs = recording
+    with pytest.raises(ValueError):
+        configure_appearance("dark", "blobs")
+    with pytest.raises(ValueError):
+        configure_appearance("dark", "blobs", home_preferences=True)
+    configure_appearance("dark", "data_art_impulse_lens", home_preferences=True)
+    qtbot.waitUntil(lambda: backdrop.frames_painted > 0)
+    assert verify_appearance(window, home_preferences=True)["backdrop"] == "data_art_impulse_lens"
+    assert verify_appearance(window)["backdrop"] == "data_art_impulse_lens"
+    backdrop.set_theme("blobs")
+    with pytest.raises(RuntimeError):
+        verify_appearance(window, home_preferences=True)
+    with pytest.raises(RuntimeError):
+        verify_appearance(window)
+
+
+def test_a_module_specific_animation_cannot_hide_behind_the_global_backdrop_check(recording):
+    from spacr.qt.widgets.dna_rain import DnaRainWidget
+
+    window, backdrop, _ = recording
+    rain = DnaRainWidget(window)
+    rain.setGeometry(window.rect())
+    rain.show()
+    with pytest.raises(RuntimeError, match="DNA rain"):
+        verify_appearance(window)
+    assert exclude_special_backdrops(window) == ['DnaRainWidget']
+    assert not rain.isVisible() and backdrop.isVisible()
+    assert verify_appearance(window)['backdrop'] == CAPTURE_BACKDROP
+    assert exclude_special_backdrops(window) == []
+
+
+@pytest.mark.parametrize("drift", ["saved_theme", "painted_palette", "backdrop", "hidden", "disabled"])
+def test_drift_is_refused_even_when_the_capture_command_requested_the_field(recording, drift):
+    window, backdrop, prefs = recording
+    if drift == "saved_theme":
+        prefs.set_theme("light")
+    elif drift == "painted_palette":
+        palette = window.palette()
+        palette.setColor(QPalette.Window, QColor("white"))
+        window.setPalette(palette)
+    elif drift == "backdrop":
+        backdrop.set_theme("aurora")
+    elif drift == "hidden":
+        backdrop.hide()
+    else:
+        prefs.set_ambient_enabled(False)
+    with pytest.raises(RuntimeError, match="Capture refused"):
+        verify_appearance(window)
+
+
+def test_the_capture_does_not_silently_accept_another_named_appearance():
+    with pytest.raises(ValueError, match="does not match its declared recording profile"):
+        configure_appearance("light", "blobs")
+
+
+@pytest.mark.parametrize("root", ["/mnt/firecuda2/alice/tutorials", "/media/alice/disk/tutorials", "/run/media/alice/disk/tutorials"])
+def test_a_personal_capture_root_is_not_an_exception_to_the_path_rule(root):
+    with pytest.raises(ValueError, match="neutral prepared capture directory"):
+        verify_visible_paths([], root)
+
+
+@pytest.mark.parametrize("path", ["/home/alice/data/plate.tif", "/Users/alice/data", r"C:\Users\Alice\data", "/mnt/firecuda2/private/plate.tif", "/media/alice/disk/plate.tif", "/run/media/alice/disk/plate.tif", "/nas_mnt/plate"])
+def test_visible_personal_paths_are_refused_but_hidden_text_is_not(qtbot, path):
+    window = QWidget()
+    qtbot.addWidget(window)
+    label = QLabel(path, window)
+    window.show()
+    with pytest.raises(RuntimeError, match="visible text"):
+        verify_visible_paths([window], "/tmp/tutorial")
+    label.hide()
+    verify_visible_paths([window], "/tmp/tutorial")
+
+
+def test_neutral_prepared_paths_are_accepted_and_table_paths_are_checked(qtbot):
+    table = QTableWidget(1, 1)
+    qtbot.addWidget(table)
+    table.setItem(0, 0, QTableWidgetItem("/tmp/tutorial/example/plate.tif"))
+    table.show()
+    verify_visible_paths([table], "/tmp/tutorial")
+    table.item(0, 0).setText("/home/alice/private/plate.tif")
+    with pytest.raises(RuntimeError, match="visible text"):
+        verify_visible_paths([table], "/tmp/tutorial")
+
+
+def test_search_results_use_the_real_list_model_without_private_virtual_calls(qtbot):
+    results = QListWidget()
+    qtbot.addWidget(results)
+    results.addItem("Performance — Preferences")
+    results.show()
+    verify_visible_paths([results], "/tmp/tutorial")
+    results.item(0).setText("/home/alice/private/result")
+    with pytest.raises(RuntimeError, match="visible text"):
+        verify_visible_paths([results], "/tmp/tutorial")
+
+
+@pytest.mark.parametrize("text", [
+    "spaCR 0.0.0.1 release notes",
+    "<b>spaCR</b> <span>0.0.0.1</span> release notes",
+    "spaCR-0.0.0.1-Linux-x86_64-Online.run",
+])
+def test_visible_other_releases_are_refused_but_hidden_history_is_not(qtbot, text):
+    window = QWidget()
+    qtbot.addWidget(window)
+    label = QLabel(text, window)
+    window.show()
+    with pytest.raises(RuntimeError, match="another spaCR release"):
+        verify_visible_paths([window], "/tmp/tutorial")
+    label.hide()
+    verify_visible_paths([window], "/tmp/tutorial")
+
+
+def test_current_release_and_other_software_versions_are_accepted(qtbot):
+    from spacr import __version__
+
+    label = QLabel(f"spaCR {__version__}; Python 3.12; Qt 6.11.2")
+    qtbot.addWidget(label)
+    label.show()
+    verify_visible_paths([label], "/tmp/tutorial")
+    label.setText("spaCR 0.0.0.1; Python 3.12; Qt 6.11.2")
+    with pytest.raises(RuntimeError, match="another spaCR release"):
+        verify_visible_paths([label], "/tmp/tutorial")

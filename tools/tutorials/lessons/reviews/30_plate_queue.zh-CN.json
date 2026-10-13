@@ -1,0 +1,33 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Plate Queue：运行多个已准备好的项目",
+  "description": "添加当前项目，或把准备好的文件夹拖入队列，按顺序运行任务，并在受控停止后继续。",
+  "objectives": [
+    "添加已准备好的项目及其保存的模块设置。",
+    "运行队列，并在任务之间停止。",
+    "找到每个项目的结果，并清除已完成的队列条目。"
+  ],
+  "prerequisite": "准备一个项目及其保存的模块设置。练习时，请把Recruitment示例的两份副本放在不同的文件夹中；它们包含相同的数据，不是生物学重复。",
+  "scenes": [
+    "在分析模块中准备第一个项目。在Recruitment中选择Import settings，打开项目的设置CSV。本例使用同一份测量数据的两份独立副本，用来练习运行多个任务。",
+    "检查Source、通道映射和条件标签。保存希望队列使用的设置，然后保持这个项目打开。",
+    "打开Help，然后打开Plate queue。队列按列表顺序一次运行一个条目。",
+    "选择Add current plate。新的一行会保存当前的模块和设置。启动队列之前，请检查该行的模块、源和标签。",
+    "把另一个准备好的项目文件夹拖到队列上。其保存的设置决定模块，拖入的文件夹成为它的源。当每个任务都需要单独的输出文件时，请使用不同的项目文件夹。",
+    "选择Run queue。第一行变为running，后面的条目仍为queued。通过状态和已用时间跟踪进度。",
+    "如果希望队列完成当前条目后在下一个条目之前暂停，请按Stop。等待正在运行的任务完成。",
+    "已完成的行现在显示success，下一行仍为queued。再次选择Run queue，继续运行剩下的条目。",
+    "两个任务都完成后，打开每个项目的输出文件夹。对于Recruitment，请检查细胞和孔的CSV结果。如果需要其出图流程，请直接使用Recruitment；这个队列既不显示也不保存这些图。",
+    "选择Clear finished，把已完成的条目从列表中移除。它们的项目文件夹和保存的结果仍然保留。"
+  ]
+}

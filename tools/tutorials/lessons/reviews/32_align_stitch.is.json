@@ -1,0 +1,33 @@
+{
+  "lesson": "32_align_stitch",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Align & Stitch: skipuleggðu og skrifaðu myndmósaík",
+  "description": "Veldu myndreiti, stilltu uppsetningu myndatöku þeirra, skoðaðu samskráningaráætlunina og skrifaðu mósaíkið með hnitum þess.",
+  "objectives": [
+    "Velja reiti og stilla hnitanet, skörun og samskráningarrás.",
+    "Skoða áætlaðar staðsetningar og gæði samskráningar.",
+    "Skrifa mósaíkið og geyma hnitagagnagrunn þess."
+  ],
+  "prerequisite": "Sæktu og afþjappaðu dæmið með níu reitum hér fyrir neðan, eða útbúðu myndreiti með þekktri myndatökuröð, þekktri skörun og nothæfri samskráningarrás. Dæmið notar skarandi úrklipp úr einu smásjársviði sem æfingauppsetningu.",
+  "scenes": [
+    "Í flokknum Tools á Home opnarðu Align and Stitch. Veldu reitina, skoðaðu uppsetningu þeirra með Plan og notaðu svo Write stack til að búa til mósaíkið.",
+    "Sæktu og afþjappaðu dæmið hér fyrir neðan og veldu svo möppuna tiles. Hún inniheldur níu skarandi úrklipp í 3 × 3 hnitaneti. Fyrir eigin myndatöku skaltu hafa upprunalega röð reitanna og lýsigögn borðsins tiltæk.",
+    "Til að æfa þig frekar á birtum gögnum ýtirðu á Load test data. spaCR sækir níu skarandi reiti úr sjónrænni samsafnaðri skimun og fyllir út reitamöppuna, hnitanetið, röðina, skörunina og úttaksmöppuna, svo þú getur strax ýtt á Plan. Næstu skref nota stillingar dæmisins sem hægt er að sækja.",
+    "Stilltu hnitanetið á 3 × 3, línuröð og skörun 0,25 fyrir þetta dæmi. Samræmdu stillingarnar við myndatökuna; notaðu slönguröð þegar aðra hverja línu var tekið í gagnstæða átt.",
+    "Stilltu Reference channel á myndlagið sem notað er til samskráningar. Dæmið notar rás 1, annað lagið þegar talið er frá 0. Veldu rás með sýnilegri byggingu á skörunarsvæðum; staðsetningin sem fæst gildir fyrir allar rásir myndarinnar.",
+    "Stilltu Minimum confidence til að samþykkja samskráningu og Neighbour radius fyrir nálæga reiti sem bornir eru saman. Dæmið notar 0,3 og 1, með mjúkri blöndun á skörunarsvæðum. Fjárheimild bandabiðminnisins stýrir minninu sem myndskrifarinn notar.",
+    "Ýttu á Plan. Skoðaðu fjölda samskráðra reita, reita á nafnstöðu og óstaðsettra reita, og tillögu að stærð strigans. Uppsetningin sýnir staðsetningar reitanna. Farðu yfir reiti sem féllu aftur á nafnstöðu eða eru óstaðsettir áður en þú skrifar mósaíkið.",
+    "Smelltu á reit til að skoða hnit hans, öryggi, leif og pörin sem stuðla að staðsetningunni. Notaðu þessar upplýsingar til að rannsaka óvæntar staðsetningar og stilltu svo samskráninguna og skipuleggðu aftur ef þörf er á.",
+    "Veldu úttaksmöppu og slóð fyrir hnitagagnagrunninn. Hafðu slökkt á Overwrite þegar þú býrð til nýja niðurstöðu. Þegar áætlun og áfangastaður eru tilbúin ýtirðu á Write stack.",
+    "Bíddu eftir lokasamantektinni og opnaðu úttaksstafla. Skoðaðu skörunarsvæði og mörk hluta í mósaíkinu. Geymdu hnitagagnagrunninn og upprunareitina með því svo hægt sé að rekja síðari staðsetningar aftur til myndatökunnar."
+  ]
+}

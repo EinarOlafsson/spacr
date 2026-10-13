@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review against each complete English source message, current UI labels, mask undo/identity/overlap behavior and probability/flow definitions. Model draft meaning errors corrected before normal import. No native-speaker signoff.",
+  "original_model_drafts_sha256": "c8f76977c6425ea9949aae9a4b97d763246cdccd4e0db1bb42dca932be50e96e",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order.",
+      "source_sha256": "6fb84bd480f9e89ef3b07883c746de76e6c0ee12656701877c6dd6b0359c9df3",
+      "original_model_translation": "एनीमेशन मेनू इस क्रम में **spaCR field**, **spaCR advection** , **spaCR growth** , **spaCR waves**, **spaCR blobs** , **spaCR aurora**, **spaCR stratified** और **spaCR spinn** को सूचीबद्ध करता है।",
+      "target": "एनिमेशन मेनू में **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** और **spaCR spinn** इसी क्रम में दिखते हैं।"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen.",
+      "source_sha256": "d58dcef411de016b2e4ed40ee79814985354d7bfa195d086fd58ed61d24e9552",
+      "original_model_translation": "**spaCR growth** — संक्षिप्त माइसेल सेगमेंट एक प्रारंभिक बिंदु से बढ़ते हैं और प्रत्येक औपनिवेश और फोर्क बार-बार होता है. प्रत्येक फोर्क निरंतर टॉप को फिर से निर्देशित करता है और एक बेटी टॉप शुरू होता है, इसलिए शाखाएं सामने स्क्रीनिंग के माध्यम से आगे बढ़ती हैं. घनत्व लाइव टॉप की संख्या को नियंत्रित करती है. पुराने ट्रैक नए औनिवेश की शुरुआत के रूप में खराब हो जाते हैं; दिखाई देने वाली इनक एक चौथाई के भीतर रहती है।",
+      "target": "**spaCR growth** — प्रत्येक कॉलोनी में छोटे कवक-तंतु एक शुरुआती बिंदु से बढ़ते हैं और बार-बार शाखाएँ बनाते हैं। हर विभाजन आगे बढ़ रहे सिरे की दिशा बदलता है और एक नया शाखा-सिरा बनाता है, जिससे शाखित अग्रभाग स्क्रीन पर आगे बढ़ता है। घनत्व सक्रिय सिरों की संख्या नियंत्रित करता है। नई कॉलोनियाँ शुरू होने पर पुराने निशान मिटते जाते हैं; दिखाई देने वाला पैटर्न स्क्रीन के एक चौथाई क्षेत्र तक सीमित रहता है।"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius.",
+      "source_sha256": "6ae907186874ad1d8d67abe6cbc17d3c687afab0840db8dd2dc86dc61aaa17e4",
+      "original_model_translation": "**spaCR waves** - गोल बिंदु यात्रा की लहरों को ले जाते हैं और इसकी सक्षम रैडियम के भीतर माउस से दूर जाते हैं।",
+      "target": "**spaCR waves** — गोल बिंदु चलती तरंगें दिखाते हैं और माउस की सक्रिय प्रभाव-त्रिज्या के भीतर उससे दूर हटते हैं।"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size.",
+      "source_sha256": "f6142a51583ab29ac1bbc90e0ddf4e45ec9e4c71ba2b53f73640ea16d9013181",
+      "original_model_translation": "**spaCR blobs** - नरम रंग ब्लोब, बड़े और छोटे, ड्रिप और धीरे-धीरे आकार बदलते हैं।",
+      "target": "**spaCR blobs** — छोटे और बड़े मुलायम रंगीन आकार धीरे-धीरे खिसकते हैं और आकार बदलते हैं।"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available.",
+      "source_sha256": "05fbec1af1efc5636715a6a358398d589e36be2f82319aeeb41ccf3b9033ed78",
+      "original_model_translation": "**spaCR aurora** - अवांछित दीवारों की चमकदार किरणों से उगता है, प्रकाश के तारों, आकाश की ओर फैन, और लंबाई और उज्ज्वलता को स्वतंत्र रूप से बदलता है. spaCR पैलेट इस विषय के लिए गुलाबी ऊपरी रोशनी के साथ हरे रंग का उपयोग करता है; अन्य चुने हुए पैलेट उपलब्ध रहते हैं.",
+      "target": "**spaCR aurora** — महीन प्रकाश-किरणों के अनियमित पर्दे चमकदार सिलवटों से उठते हैं, आकाश की ओर पंखे की तरह फैलते हैं और अपनी लंबाई तथा चमक स्वतंत्र रूप से बदलते हैं। इस थीम के लिए spaCR पैलेट हरे रंग के साथ ऊपरी हिस्से में गुलाबी प्रकाश उपयोग करता है; चुने गए अन्य पैलेट भी उपलब्ध रहते हैं।"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "source_sha256": "a1f74b899259cb37b049b1c165df96ef8c80b752d47dd238fc787f8ef3949fb6",
+      "original_model_translation": "**spaCR stratified** — एक धीमी तारा क्षेत्र तीन गहराई परतों में चलता है; **spaCR stratified की दिशा** ऊपर, नीचे या यादृच्छिक यात्रा का चयन करता है।",
+      "target": "**spaCR stratified** — एक धीमा तारों का क्षेत्र गहराई की तीन परतों में चलता है; **spaCR stratified की दिशा** से ऊपर, नीचे या यादृच्छिक दिशा में गति चुनी जाती है।"
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.",
+      "source_sha256": "d6c57d8434371dbfd65e097e5dde3aab56fe6fbc246535bc005d7a1123a92480",
+      "original_model_translation": "**spaCR spinn** - पतली कागज के पक्ष धीरे-धीरे चलते हैं और माउस के जवाब में स्थानीय रूप से घुमाते हैं. घूर्णन संकेतक के बगल में सबसे तेज़ है और मूस के गुरुत्वाकर्षण रैडियम पर हल्के से शून्य तक झुकता है; रैंडियम को बदलने से प्रभावित क्षेत्र बदल जाता है.",
+      "target": "**spaCR spinn** — पतले कागज़ जैसे छोटे फलक सहजता से चलते हैं और माउस के अनुसार स्थानीय रूप से घूमते हैं। सूचक के निकट घूमने की गति सबसे तेज होती है और माउस की गुरुत्व-त्रिज्या के किनारे पर धीरे-धीरे शून्य हो जाती है; त्रिज्या बदलने से प्रभावित क्षेत्र बदलता है।"
+    },
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset.",
+      "source_sha256": "f1d600d93414e2c79b01d468668f3b6245b9ebae12d8c49bb9b0d7a19a2aba1d",
+      "original_model_translation": "**माउस गुरुत्व की त्रिज्या** प्रभावित क्षेत्र को छोटे स्क्रीन किनारे का एक प्रतिशत के रूप में निर्धारित करता है। इसकी डिफ़ॉल्ट संख्या **15%** है; माउस प्रभाव को अक्षम करने के लिए इसे **0** पर सेट करें। **एनिमेशन घनत्व** **एनीमेशन विवरण** के बावजूद तत्वों की संख्या को बदलता है, जिससे ड्राइंग रिज़ॉल्यूशन बदल जाता है। घनत्व की न्यूनतम मात्रा **1%** है; बढ़ते विवरण चुने हुए आबादी को छेड़छाड़ नहीं करता है। रेंडर स्क्रीन के पिक्सेल बजट के भीतर अपने नमूना कार्य को सीमित करता है। प्रत्येक तत्व के रंगों के लिए **यादृच्छिक** में **एनीमेशन पैलेट** का चयन करें। ताजा स्थापना **गहरा**, **spaCR field** और **spaCR** एनीमेशन पैलेट का उपयोग करती है, जिसमें तीव्रता **10%**, गुरुत्वाकर्षण **15%**, विवरण, गति और आकार **100%** और पृष्ठ अस्थिरता **60%** है। **बिंदुओं का झिलमिलाना** दृश्य बिंदुओं के प्रतिशत को नियंत्रित करता है जो फ्लैश सफेद है: **0** इसे बंद कर देता है (वैकल्पिक), और गैर-शून्य मूल्य 0.00001% से 10% के बीच होते हैं. सेटिंग spaCR फ़ील्ड, spaCR चेतावनी, spaCR तरंगों और spaCR स्ट्रेटेड के लिए लागू होती है. फ़ीड फ्रेड पर है. ब्लू रिम का उपयोग **17%**, Chase **50%**, केंद्रीय समायोजन, **Beat** मोड और एक **1.5 s** चक्र का एक सापेक्ष पारिस्थितिक लंबाई होता है. मौजूदा बचाए गए प्राथमिकताओं को बदलने या पुनर्स्थापित करने तक प्रभावी रहता है.",
+      "target": "**माउस गुरुत्व की त्रिज्या** प्रभावित क्षेत्र को स्क्रीन की छोटी भुजा के प्रतिशत के रूप में निर्धारित करती है। इसका डिफ़ॉल्ट **15%** है; माउस का प्रभाव बंद करने के लिए **0** रखें। **एनिमेशन घनत्व** तत्वों की संख्या बदलता है, जबकि उससे स्वतंत्र **एनीमेशन विवरण** चित्रण का रिज़ॉल्यूशन बदलता है। न्यूनतम घनत्व **1%** है; विवरण बढ़ाने से चुने गए तत्वों की संख्या कम नहीं होती। रेंडरर स्क्रीन के पिक्सेल बजट के भीतर अपने सैंपलिंग कार्य को सीमित करता है। हर तत्व के लिए यादृच्छिक रंग पाने हेतु **एनीमेशन पैलेट** में **यादृच्छिक** चुनें। नई स्थापना में **गहरा**, **spaCR field** और **spaCR** एनिमेशन पैलेट उपयोग होते हैं, जिसमें घनत्व **10%**, गुरुत्व **15%**, विवरण, गति और आकार **100%**, तथा पृष्ठ अपारदर्शिता **60%** रहती है। **बिंदुओं का झिलमिलाना** सफ़ेद झिलमिलाने वाले दिखाई देने वाले बिंदुओं का प्रतिशत नियंत्रित करता है: **0** इसे बंद करता है (डिफ़ॉल्ट), और गैर-शून्य मान 0.00001% से 10% तक हैं। यह सेटिंग spaCR field, spaCR advection, spaCR waves और spaCR stratified पर लागू होती है। फ़ील्ड का धीरे-धीरे फीका पड़ना चालू है। नीली परिधि की सापेक्ष लंबाई कुल परिमाप की **17%**, पीछा करने का मान **50%**, संरेखण सूचक के केंद्र पर, मोड **Beat**, और चक्र **1.5 s** है। पहले से सहेजी हुई प्राथमिकताएँ बदलने या रीसेट करने तक बनी रहती हैं।"
+    },
+    {
+      "domain": "features",
+      "source": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "source_sha256": "bc4b37e953592d552059f66aac7427eb3308a93996586bfe4b7300ad4e93c80d",
+      "original_model_translation": "**पॉपअप तरंग आवृत्ति** **spaCR field** में प्रति मिनट स्वचालित तरंगें सेट करता है. डिफ़ॉल्ट **5 तरंगें/मिनट** है; **0** पॉप-अप तरंगों को रोकता है. जब सक्षम हो जाता है, तो एक पॉप तुरंत अपने केंद्र से पहला तरंग शुरू होता है, जिसके बाद चुने हुए दर पर तरंग होते हैं. पॉप को स्थानांतरित करने से नए तरंग की उत्पत्ति होती है; इसे बंद करने से मौजूदा तरंग खराब होने के दौरान नई लहरें बंद हो जाती हैं. यह नियंत्रण माउस गुरुत्वाकर्षण, बिंदु ब्लिंग, घनत्व और ड्राइंग विवरण से स्वतंत्र है.",
+      "target": "**पॉपअप तरंग आवृत्ति** **spaCR field** में प्रति मिनट शुरू होने वाली स्वचालित तरंगों की संख्या निर्धारित करती है। डिफ़ॉल्ट **5 तरंगें/मिनट** है; **0** पॉपअप तरंगें बंद करता है। सक्षम होने पर पॉपअप खुलते ही पहली तरंग उसके केंद्र से शुरू होती है, और आगे की तरंगें चुनी गई आवृत्ति पर बनती हैं। पॉपअप को खिसकाने पर नई तरंगों का उद्गम स्थान बदलता है; उसे बंद करने पर नई तरंगें रुकती हैं जबकि मौजूदा तरंगें धीरे-धीरे मिटती हैं। यह नियंत्रण माउस गुरुत्व, बिंदुओं के झिलमिलाने, घनत्व और चित्रण के विवरण से स्वतंत्र है।"
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_model_translation": "**Backdrop सेटअप** दोनों अनुप्रयोग और सहेजने के दौरान मुख्य एनीमेशन से स्वतंत्र रहता है. **कोई नहीं** ब्लू रिम को बनाए रखते हुए पॉप-अप आंदोलन को अक्षम करता है . **सेटिंग्स पृष्ठभूमि का अँधेरापन** सेटिंग्स कार्ड की अवांछितता को अपने एनिमेशन के ऊपर नियंत्रित करता है, **0%** से **100%** (डिफ़ॉल्ट **85%**), **पृष्ठ अपारदर्शिता** के साथ संयोजन में. पृष्ठ अवाँछित भी लागू होता है जब सेटिंग बैकअप **कोई नहीं** है. उच्च अंधेरे मूल्य एनीमीेशन से अधिक कवर करते हैं ताकि पाठ को पढ़ने में आसान बनाया जा सके. पॉपअप एक वैश्विक हमेशा शीर्ष पर झंडा का उपयोग किए बिना उनके स्वामित्व वाले spaCR विंडो के ऊपर रहते हैं, इसलिए अन्य एप्लिकेशन उन्हें कवर कर सकते हैं.",
+      "target": "**Backdrop सेटअप** प्राथमिकताएँ लागू करने या सहेजने पर भी मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप केवल अपनी spaCR विंडो के सामने रहते हैं; वे सभी विंडो के ऊपर बने रहने वाला वैश्विक फ़्लैग उपयोग नहीं करते, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
+    },
+    {
+      "domain": "features",
+      "source": "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available.",
+      "source_sha256": "d5e22805593c3cde4e6d34ff9dd279e1d192c5a8bc36e1cff2d3b64b9b9bb511",
+      "original_model_translation": "**spaCR field** में, बटन को रिलीज करने से यह पैटर्न को पुनरारंभ किए बिना सुचारू रूप से वापस निकलता है. यह पृष्ठभूमि रीसेट वैज्ञानिक कैनवास और नियंत्रण री सेट उपलब्ध छोड़ देता है.",
+      "target": "**spaCR field** में खाली पृष्ठभूमि पर माउस का बायाँ बटन दबाकर खींचें ताकि बिंदुओं का एक स्थानीय समूह खिंचे। बटन छोड़ने पर वह पैटर्न को दोबारा शुरू किए बिना सहजता से लौटता है। यह पृष्ठभूमि क्रिया वैज्ञानिक कैनवस और नियंत्रणों के संचालन को उपलब्ध रखती है।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "source_sha256": "634a10eb8471b8a67bd4d81639c291ad3362d89ed1ce0990c72f3ea6f05cca7e",
+      "original_model_translation": "संकेतक के चारों ओर प्रस्तावित वस्तुओं की जांच करने के लिए **आवर्धक** या **M** दबाएं. इसके पहिया बॉक्स ज़ूम को बदलता है; **Shift + wheel** बॉक्स का आकार बदल जाता है. **Ctrl+L+दायाँ क्लिक** लॉक करता है या बॉक्स को खोलता है. अपने वस्तुयों को मैन्युअल रूप से स्वीकार करने से पहले एक अद्यतन पूर्वावलोकन के लिए इंतजार करें.",
+      "target": "सूचक के आसपास प्रस्तावित वस्तुएँ देखने के लिए **आवर्धक** चालू करें या **M** दबाएँ। माउस का पहिया बॉक्स के भीतर ज़ूम बदलता है; **Shift + wheel** बॉक्स का आकार बदलता है। **Ctrl+L+दायाँ क्लिक** बॉक्स को लॉक या अनलॉक करता है। वस्तुओं को हाथ से स्वीकार करने से पहले अद्यतन पूर्वावलोकन की प्रतीक्षा करें।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "source_sha256": "5a8bdbfe56a759b843b1b9637502650ca5d55525b059bb9540cb565cbacefcbc",
+      "original_model_translation": "**ऑब्जेक्ट पहचान** → **आवर्धन सेटिंग्स** के तहत, क्लिक किए बिना वर्तमान प्रस्ताव को स्वीकार करने के लिए **प्रस्तावित वस्तुओं को तुरंत स्वीकार करें** पर स्विच करें। यह डिफ़ॉल्ट रूप से समाप्त हो जाता है। क्षेत्र मोड **जोड़े जाने वाले ऑब्जेक्ट** का अनुसरण करता है; पूर्ण छवि मोड केवल संकेतक के नीचे वस्तु को स्वीकार करता है। छवि के बाहर जाने या बड़े पैमाने पर अक्षम करने से स्वचालित स्वीकृति को रोकता है। प्रत्येक स्वीकृति अप्रत्याशित है, और एक एनडीओ तुरंत एक ही प्रस्ताव को फिर से स्वीकार नहीं करता है। अनुमोदित मास्क लिखने के लिए **सहेजें** या **Save & Next** का उपयोग करें।",
+      "target": "**ऑब्जेक्ट पहचान** → **आवर्धन सेटिंग्स** में **प्रस्तावित वस्तुओं को तुरंत स्वीकार करें** चालू करके मौजूदा प्रस्ताव को बिना क्लिक किए स्वीकार करें। यह डिफ़ॉल्ट रूप से बंद है। क्षेत्र मोड **जोड़े जाने वाले ऑब्जेक्ट** का पालन करता है; पूरी छवि का मोड केवल सूचक के नीचे की वस्तु स्वीकार करता है। छवि से बाहर जाने या आवर्धक बंद करने पर स्वचालित स्वीकृति रुक जाती है। हर स्वीकृति पूर्ववत की जा सकती है, और पूर्ववत करने पर वही प्रस्ताव तुरंत दोबारा स्वीकार नहीं होता। स्वीकार किए गए मास्क डिस्क पर लिखने के लिए **सहेजें** या **Save & Next** उपयोग करें।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "source_sha256": "af54d2452c6f782e2b8ed4d97939a0a37a5fb5bf50bb8ec2f089c664967203d9",
+      "original_model_translation": "**ओवरलैप** यह चुनता है कि जब एक प्रस्ताव एक मौजूदा मास्क को पार करता है तो क्या होता है:",
+      "target": "**ओवरलैप** तय करता है कि प्रस्ताव किसी मौजूदा मास्क से अतिव्यापित होने पर क्या होगा:"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "source_sha256": "1f85feed35d5327911d4c26e71ad0211c01da0b25dacfeef4587ce720096d064",
+      "original_model_translation": "**मौजूदा वस्तु के साथ मिलाएँ** मौजूदा आईडी में प्रस्ताव जोड़ता है और पुराने वस्तु के पिक्सेल को बनाए रखता है, जिसमें बॉक्स के बाहर पिक्के भी शामिल हैं. एक प्रस्ताव जो कई वस्तुओं को पार करता है, उन्हें सबसे छोटा पुराना आईडी के साथ जोड़ देता है. पृष्ठभूमि पर एक प्रस्ताव एक नया वस्तु बन जाता है.",
+      "target": "**मौजूदा वस्तु के साथ मिलाएँ** प्रस्ताव को मौजूदा ID में जोड़ता है और पुरानी वस्तु के पिक्सेल, बॉक्स के बाहर के पिक्सेल सहित, बनाए रखता है। कई वस्तुओं से अतिव्यापित प्रस्ताव उन्हें सबसे छोटे पुराने ID में मिलाता है। केवल पृष्ठभूमि पर स्थित प्रस्ताव नई वस्तु बनता है।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "source_sha256": "5c6740518691a9b115fac6f8c56f4f25206f0978e7d2615399ac3b1e426c82a9",
+      "original_model_translation": "**बिना अतिव्यापन वाले पिक्सेल जोड़ें** मौजूदा वस्तुओं को बनाए रखता है और प्रस्ताव के सबसे बड़े शेष कनेक्ट टुकड़े को एक नया वस्तु के रूप में जोड़ता है।",
+      "target": "**बिना अतिव्यापन वाले पिक्सेल जोड़ें** मौजूदा वस्तुएँ बनाए रखता है और प्रस्ताव के बचे हुए सबसे बड़े जुड़े हिस्से को नई वस्तु के रूप में जोड़ता है।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "source_sha256": "153e787e83bebe08d300e34f410af14ec52096d8c9e8eccc9e6d27ea26dafcd1",
+      "original_model_translation": "**अतिव्यापित वस्तु बदलें** प्रस्ताव को जोड़ने से पहले पुराने वस्तुओं को पूरी तरह से हटा देता है. छोटे प्रस्तावों को अस्वीकार कर दिया गया कुछ भी नहीं हटाता है.",
+      "target": "**अतिव्यापित वस्तु बदलें** प्रस्ताव जोड़ने से पहले सभी अतिव्यापित पुरानी वस्तुओं को पूरा हटाता है। अस्वीकार किए गए छोटे प्रस्ताव कुछ भी नहीं हटाते।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "source_sha256": "94c92b2fd888685cb2c6bfe40f217d3e9b9997b017e1c6c49cf9d35570618fa1",
+      "original_model_translation": "**अतिव्यापित वस्तुएँ छोड़ें** उन प्रस्तावों को अनदेखा करता है जो मौजूदा मास्क को पार करते हैं।",
+      "target": "**अतिव्यापित वस्तुएँ छोड़ें** मौजूदा मास्क से अतिव्यापित प्रस्तावों को अनदेखा करता है।"
+    },
+    {
+      "domain": "make_masks",
+      "source": "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step.",
+      "source_sha256": "f34e5e79f3c51a76c21475f5e6d2214e13b870ad02096d6b1a2a8a7e36891242",
+      "original_model_translation": "माध्यमिक मोड प्राथमिक आईडी को बनाए रखता है और पहचान को संयोजित करने की अनुमति नहीं देता है. स्पष्ट क्लिक-एंड-ट्रैग संपादन अपने एकमात्र undo चरण को बचाता है.",
+      "target": "द्वितीयक मोड प्राथमिक ID बनाए रखता है और अलग पहचानों को मिलाने की अनुमति नहीं देता। स्पष्ट क्लिक करके खींचने वाले संपादन का एक ही पूर्ववत चरण रहता है।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Saved segmentation diagnostics",
+      "source_sha256": "0638dcc7f961ff9681d512553184a84a0f4f7cc08c0d3434b71569b11878a011",
+      "original_model_translation": "बचाए गए विभाजन निदान",
+      "target": "सहेजे गए विभाजन निदान"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "source_sha256": "3822bf413fac16acc6f480cd9c20831605010b47254b8255401e416e3b461696",
+      "original_model_translation": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "target": "प्लाक मोड हर प्लाक के लिए ये कॉलम ``<src>/masks/plaques_analysis.db`` की ``per_plaque`` और ``details`` तालिकाओं में लिखता है और ``<src>/masks/per_plaque.csv`` निर्यात करता है। चित्र मोड यही कॉलम ``plaque_figures.db`` की ``plaques`` तालिका में लिखता है।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Meaning",
+      "source_sha256": "1f5d64b92820f8238635b90ae69a38c12661a7b03c6d0d7f689711f12af7b7f9",
+      "original_model_translation": "अर्थ",
+      "target": "अर्थ"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages.",
+      "source_sha256": "e318e7b610960e98116b4586514c3d69a92460cc43942e3764ed67056e13513c",
+      "original_model_translation": "प्लेक के पिक्सेल के माध्यम से कच्चे Cellpose सेल-संभावना स्कोर का मतलब. ये स्कोरि लॉगिट हैं, नकारात्मक हो सकते हैं और कैलिब्रेट किए गए संभावनाओं या आत्मविश्वास प्रतिशत नहीं हैं.",
+      "target": "प्लाक के पिक्सेल पर Cellpose के कच्चे सेल-प्रायिकता स्कोर का औसत। ये स्कोर logits हैं, ऋणात्मक हो सकते हैं और कैलिब्रेट की गई प्रायिकताएँ या विश्वास प्रतिशत नहीं हैं।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask.",
+      "source_sha256": "40cfc84921155fb9be3bc65f2ef3374f3cefc80885504d58e6b713c1f32343ce",
+      "original_model_translation": "Cellpose के दो घटकों का सारांश मास्क-आउत्तर प्रसारण प्रवाह और पांच में विभाजित भविष्यवाणी प्रवाह के बीच वर्ग त्रुटियों का आकार देता है. कम मूल्य बचाए गए मास्क के साथ बेहतर प्रवाह समझौते का मतलब है.",
+      "target": "मास्क से निकाले गए प्रसरण प्रवाह और पाँच से विभाजित अनुमानित प्रवाह के बीच दोनों घटकों की औसत वर्ग त्रुटियों का Cellpose द्वारा गणना किया गया योग। कम मान सहेजे गए मास्क के साथ प्रवाह की बेहतर सहमति दर्शाते हैं।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation.",
+      "source_sha256": "e7829a710a5592ed2c033e1bbdbfbbdf0eb0bf491fa11adabddbb6131a300825",
+      "original_model_translation": "प्लेक के भीतर प्रवाह-वेक्टर की भविष्यवाणी की लंबाई, Cellpose के मास्क-प्रवाह स्केल का उपयोग करने के लिए पांच से विभाजित. यह प्रवाह ताकत का वर्णन करता है; केवल उच्च मूल्य एक बेहतर विभाजन का मतलब नहीं है.",
+      "target": "प्लाक के भीतर अनुमानित प्रवाह-वेक्टर की औसत लंबाई, Cellpose के मास्क-प्रवाह पैमाने का उपयोग करने के लिए पाँच से विभाजित। यह प्रवाह की तीव्रता बताता है; केवल ऊँचा मान बेहतर विभाजन का संकेत नहीं है।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions.",
+      "source_sha256": "c34d264d5cb90ea679181fb6f3e17b30ef9b41f736415493a1750723e2e6fd32",
+      "original_model_translation": "अनुमानित और मास्क-उत्पादित प्रवाहों के बीच दिशा संतुलन, शून्य लंबाई के वेक्टरों को छोड़कर. मूल्य -1 से 1 तक होते हैं; 1 का मतलब फिट दिशाएं होती हैं और -1 विपरीत दिशाएँ होती हैं.",
+      "target": "अनुमानित और मास्क से निकाले गए प्रवाह के बीच दिशात्मक कोसाइन का औसत, शून्य लंबाई वाले वेक्टर छोड़कर। मान -1 से 1 तक हैं; 1 समान दिशाएँ और -1 विपरीत दिशाएँ दर्शाता है।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage.",
+      "source_sha256": "7a7509927cc78bf11411b43bb20d108ef905242b56cdde33a7dad3207afe35ad",
+      "original_model_translation": "अंतिम संभावना स्कोर के साथ प्लेट पिक्सेल का फ्रैक्शन या अंतिम दो-आधारित प्रवाह vectors. ये आउटपुट कवरेज का वर्णन करते हैं.",
+      "target": "प्लाक पिक्सेल का वह अनुपात जिसमें परिमित प्रायिकता स्कोर या दोनों घटकों वाला परिमित प्रवाह-वेक्टर है। ये मान आउटपुट की कवरेज दर्शाते हैं।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation.",
+      "source_sha256": "deeb1d334a43acb08405a871ed67d62da48ee2e37d443352c172160ada75fc84",
+      "original_model_translation": "प्रवाह समझौता फ्लैग या खराब रूप से विभाजित प्लेटों की मदद कर सकता है, लेकिन जैविक सटीकता स्थापित नहीं करता है; छवि की जांच करें और एक साथ मास्क करें. खोए हुए आउटपुट, असंगत उत्पादन नेटवर्क और उपलब्ध तुलनाओं को शून्य के बजाय सफेद CSV कोशिकाओं या SQL NULL के रूप में बचाया जाता है. संभावना और प्रवाह का आकार अंतिम पिक्सेल का उपयोग करने का मतलब है. प्रवाह त्रुटि और संरेखण सामने के चारों ओर अंतिम अनुमानित प्रवाहों की आवश्यकता होती है; एक तुलना विफलता उन्हें खाली छोड़ देती है. तुलनाएं CPU पर चलती हैं और मॉडल के विभाजन को नहीं बदलती हैं.",
+      "target": "प्रवाह की सहमति मिले हुए या ठीक से न बाँटे गए प्लाक को चिह्नित करने में मदद कर सकती है, लेकिन जैविक सटीकता सिद्ध नहीं करती; छवि और मास्क को साथ देखें। अनुपस्थित आउटपुट, असंगत आउटपुट ग्रिड और अनुपलब्ध तुलना शून्य के बजाय खाली CSV सेल या SQL NULL के रूप में सहेजे जाते हैं। प्रायिकता और प्रवाह परिमाण के औसत परिमित पिक्सेल उपयोग करते हैं। प्रवाह त्रुटि और दिशात्मक संरेखण के लिए पूरे अग्रभाग में परिमित अनुमानित प्रवाह आवश्यक है; तुलना विफल होने पर ये फ़ील्ड खाली रहते हैं। तुलना CPU पर चलती है और मॉडल का विभाजन नहीं बदलती।"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank.",
+      "source_sha256": "938ae04b654aac15980290073541a5f9355ce5fbd450c3c6fe60f8901729c027",
+      "original_model_translation": "प्रत्येक उत्पन्न मास्क में भी एक ``<image>.diagnostics.csv`` साइडर होता है जो मूल प्रति प्लेक निदान और एक मास्क उंगलियों के निशान को ले जाता है. ``masks=False`` के साथ एक रन इसे केवल तब दोहराती है जब बचाए गए मास्क अभी भी फिट होते हैं. मास्क को संपादित करना इन मॉडल निदान को अस्वीकार कर देता है; ताजा प्राप्त करने के लिए मस्तिष्क को पुनर्जीवित करता है. मौजूदा मास्क बिना एक साडर के अपने मापदंडों को बनाए रखते हैं और सफेद निदान स्तंभ होते हैं।",
+      "target": "हर बनाए गए मास्क के साथ ``<image>.diagnostics.csv`` सहायक फ़ाइल भी होती है, जिसमें मूल प्रति-प्लाक निदान और मास्क का फ़िंगरप्रिंट रहता है। ``masks=False`` वाली रन इसे केवल तब दोबारा उपयोग करती है जब सहेजा गया मास्क अभी भी मेल खाता हो। मास्क संपादित करने से ये मॉडल निदान अमान्य हो जाते हैं; नए निदान पाने के लिए मास्क दोबारा बनाएँ। सहायक फ़ाइल के बिना मौजूदा मास्क अपनी माप बनाए रखते हैं और निदान कॉलम खाली रखते हैं। केवल लेबल लौटाने वाले कस्टम कॉलबैक का उपयोग करने वाले चित्र कार्यप्रवाह भी निदान कॉलम खाली रखते हैं।"
+    }
+  ]
+}

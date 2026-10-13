@@ -1,0 +1,5 @@
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+
+no tests ran in 0.16s
+ERROR: file or directory not found: tests/qt/test_make_masks_a_pending_stroke_stays_owned.py
+

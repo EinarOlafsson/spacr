@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Direct Codex AI technical translation with independent Codex AI peer review; no human/native-speaker signoff",
+  "draft_author": "merge_interfaces",
+  "technical_reviewer": "root",
+  "draft_sha256": "485c8db90266ff4b9e6a02dfa9eeb474267136e7f71d3c8b5106cae434fd4b38",
+  "peer_review_sha256": "b0adec7b9d2792e66dd4bacb20ac13d98d3ac2c1149a6282ff5aef67f873ffea",
+  "review": "Reviewed all twelve source/target pairs for output-plate barcode assignment, sample-record CSV, optional/non-destructive behavior, mismatch counts and file paths. Root count-neutral summary proposals applied for de/es/fr/pt; independent shared_ui technical review confirms unchanged meaning. Original drafts remain immutable. Normal context and release gates preserved.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Barcode column",
+      "source": "Barcode column",
+      "source_sha256": "f3bf8e47eb7e7775e900e4de325da8ad5fabb33c3ad4964de9dde4c1cec26ad0",
+      "translation": "Colonne du code-barres"
+    },
+    {
+      "table": "ui",
+      "key": "CSV files (*.csv)",
+      "source": "CSV files (*.csv)",
+      "source_sha256": "29066b3f61ae7ae09727b017c386f9364d4219baf3c15049a3cd529ca8db827d",
+      "translation": "Fichiers CSV (*.csv)"
+    },
+    {
+      "table": "ui",
+      "key": "Choose CSV…",
+      "source": "Choose CSV…",
+      "source_sha256": "d0ac7ebdb20c83f4cd521c77fbac8b9773e5e58983807768784e9b1a899e6fe0",
+      "translation": "Choisir un CSV…"
+    },
+    {
+      "table": "ui",
+      "key": "Column name in the CSV that contains the plate barcode.",
+      "source": "Column name in the CSV that contains the plate barcode.",
+      "source_sha256": "11eded339a419892e9d472995112a09decb96bd3dd5938254227b6be7537429f",
+      "translation": "Nom de la colonne du CSV contenant le code-barres de la plaque."
+    },
+    {
+      "table": "ui",
+      "key": "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.",
+      "source": "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.",
+      "source_sha256": "aa3ddf671e56c37dc7d156f4254edaf20eab46bfd946da19e32319acd7ad9470",
+      "translation": "CSV local facultatif contenant les métadonnées des échantillons. Laissez ce champ vide pour ignorer l’association par code-barres. Un nouveau dossier plate_barcode_linkage est créé dans la destination ; les fichiers sources et les plans de plaque existants sont conservés."
+    },
+    {
+      "table": "ui",
+      "key": "Output plate barcodes",
+      "source": "Output plate barcodes",
+      "source_sha256": "4d23d976bb4464431d9665ebb9ce253c12474680deb45642e60dbd658d0487dd",
+      "translation": "Codes-barres des plaques de sortie"
+    },
+    {
+      "table": "ui",
+      "key": "Plate barcode linkage (Alpha)",
+      "source": "Plate barcode linkage (Alpha)",
+      "source_sha256": "8a735c27079fb8dbbd71c2a9d5e5b9031310d215a33c00bcf11ef3f32d03a08f",
+      "translation": "Association des plaques par code-barres (Alpha)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}",
+      "source": "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}",
+      "source_sha256": "60f916aba668ca25ec214eaad0975767bc2416b3565f6e52dc42dc0780222f87",
+      "translation": "Association des plaques par code-barres : nombre de puits {wells}, nombre d’incohérences {mismatches}.\nPlan de plaque : {map_path}\nIncohérences : {mismatch_path}"
+    },
+    {
+      "table": "ui",
+      "key": "Sample records CSV",
+      "source": "Sample records CSV",
+      "source_sha256": "d47731225028e022ef2ca3424fcd0f6699d68561bf616651631240423698d5ba",
+      "translation": "CSV des données d’échantillons"
+    },
+    {
+      "table": "ui",
+      "key": "Select sample records CSV",
+      "source": "Select sample records CSV",
+      "source_sha256": "b4b660b714d822e1821d511efdf4fc3578cc08753b9f8429c50fc382e9ca1e37",
+      "translation": "Sélectionner le CSV des données d’échantillons"
+    },
+    {
+      "table": "ui",
+      "key": "Showing {shown} of {total} mismatches; the CSV contains all rows.",
+      "source": "Showing {shown} of {total} mismatches; the CSV contains all rows.",
+      "source_sha256": "45cd400d4de566878fccf18ec74784d7316c96dafe14b4f5e7d1b1072e49e26a",
+      "translation": "Affichage de {shown} incohérences sur {total} ; le CSV contient toutes les lignes."
+    },
+    {
+      "table": "ui",
+      "key": "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source": "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source_sha256": "8a313df4bc5c22d2e4cc8cf2a1f6085781d7562bedb2aae4dbb0dbf302ec5bb4",
+      "translation": "Les codes-barres peuvent être lus dans barcode.txt à la racine des données sources ou dans un dossier de plaque source. Utilisez uniquement le code-barres pour une plaque source, ou des entrées source_plate=barcode pour plusieurs plaques sources. Renseignez ici les plaques de sortie restantes, par exemple plate1=BC001; plate2=BC002. Les noms des plaques de sortie peuvent différer de ceux des dossiers sources."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source": "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source_sha256": "bf55297c95f7ea100c29631cdf1b1cc7c28974387ee4ca60e9cfb53fd00f96cd",
+      "translation": "Attribuez un code-barres à chaque plaque de sortie affichée dans l’aperçu, par exemple plate1=BC001; plate2=BC002. Les noms des plaques de sortie peuvent différer des noms des dossiers sources."
+    }
+  ],
+  "retirement_reason": "Replaced inaccurate pre-discovery assignment guidance before first publication; original accepted AI target and source hash retained.",
+  "sidecar_guidance_review": {
+    "author": "Codex AI shared_ui",
+    "reviewer": "Codex AI root",
+    "draft_sha256": "cfd706f358216c2514f3b632b95300d7bb83a72d89abd53cf98e2813e0b29bd2",
+    "peer_review_sha256": "ef69d95d3426ce6faef9a55d5a567260ba2644b83b613974dc7a6ee4997df756",
+    "korean_identifier_boundary_review_sha256": "fc95d197348cf0d282e7ad491daba48c4eca1c013b5330e883a2dbdaf233816c",
+    "scope": "Replacement source-bound sidecar discovery tooltip; AI technical review, no human/native signoff."
+  }
+}

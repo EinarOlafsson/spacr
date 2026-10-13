@@ -1,0 +1,301 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted linguistic and source-context review of short controls for detection, morphology, sound preferences, paper retrieval and data entry. Correct scientific words shared with English are retained in explicitly reviewed language pairs. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add…",
+      "source": "Add…",
+      "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf",
+      "translation": "Bæta við…"
+    },
+    {
+      "table": "ui",
+      "key": "Into",
+      "source": "Into",
+      "source_sha256": "ae8252daa297bbaca3cc4725455c73fca514a9f61e7180c90c047ec700cc674f",
+      "translation": "Í möppu"
+    },
+    {
+      "table": "ui",
+      "key": "Mean",
+      "source": "Mean",
+      "source_sha256": "727a7d114f4d518ecf4bd4e9b7537c01ad29da3da8b18bdfd84dd539f841d992",
+      "translation": "Meðaltal"
+    },
+    {
+      "table": "ui",
+      "key": "Seed",
+      "source": "Seed",
+      "source_sha256": "367ef06b8fbf3aaaccd9cff1301628fae45901ccd9661b5a1b256c7cc5314d24",
+      "translation": "Slembifræ"
+    },
+    {
+      "table": "ui",
+      "key": "Click",
+      "source": "Click",
+      "source_sha256": "95ba4ed9329f4a2591e3bd89366e38cca9b26aeab3e72106ae60ad6757e05495",
+      "translation": "Smellur"
+    },
+    {
+      "table": "ui",
+      "key": "Curve",
+      "source": "Curve",
+      "source_sha256": "2a45c07314b2cd56907c7df9dfabdadd2ed17521161b53292cf146ea6c45dc85",
+      "translation": "Ferill"
+    },
+    {
+      "table": "ui",
+      "key": "Fetch",
+      "source": "Fetch",
+      "source_sha256": "cd7d61bf7e38c7c2280b4241c4e1211aa3965722a681077a471913801c0321a2",
+      "translation": "Sækja"
+    },
+    {
+      "table": "ui",
+      "key": "Hover",
+      "source": "Hover",
+      "source_sha256": "c76ae86ad3014c852af277f5be355d149bf02287b4a04a7911bbc1614ffec4db",
+      "translation": "Þegar bendill er yfir"
+    },
+    {
+      "table": "ui",
+      "key": "Paper",
+      "source": "Paper",
+      "source_sha256": "35045eff549e30b5bdf44abb9999f383d87bc54002b130fdcdd05315e188419e",
+      "translation": "Vísindagrein"
+    },
+    {
+      "table": "ui",
+      "key": "Rules",
+      "source": "Rules",
+      "source_sha256": "4228aeb07c410ffc9d15b458bf7c2bf8d9dfa7af632f2c339e69f8cb54654da3",
+      "translation": "Reglur"
+    },
+    {
+      "table": "ui",
+      "key": "Dilate",
+      "source": "Dilate",
+      "source_sha256": "2e3e332f6015c3f2a2fa376605346790d166fa3f452d817da819a1882d4ab136",
+      "translation": "Víkka"
+    },
+    {
+      "table": "ui",
+      "key": "Median",
+      "source": "Median",
+      "source_sha256": "daab7c435134742abeb8e1e42de999740f2362c3f58271edf32e627e97bf2130",
+      "translation": "Miðgildi"
+    },
+    {
+      "table": "ui",
+      "key": "Offset",
+      "source": "Offset",
+      "source_sha256": "b1a1e8e3cf7c522ed8606c3c3c3f35d3299eca78cb664fec00d9787da111f418",
+      "translation": "Hliðrun"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque",
+      "source": "Plaque",
+      "source_sha256": "03d088bb06c08a3b104e57c17d91da78400815f2e106221e9e978dfd4ac1c9b9",
+      "translation": "Skella"
+    },
+    {
+      "table": "ui",
+      "key": "Scales",
+      "source": "Scales",
+      "source_sha256": "42a0052bf1b6fb01cdb9ad24ed388a0f8d51ad9464f86c834d3b7f4a89830128",
+      "translation": "Kvarðar"
+    },
+    {
+      "table": "ui",
+      "key": "Shared",
+      "source": "Shared",
+      "source_sha256": "e3c4b39d6d5013477c98cd58236fed455f37aa7017b7168ce1980a449aaf438a",
+      "translation": "Deilt"
+    },
+    {
+      "table": "ui",
+      "key": "Shrink",
+      "source": "Shrink",
+      "source_sha256": "33435b9713584d37a9f446dba53b65844bbaaa56ca2a581b010dc272074bb1ca",
+      "translation": "Minnka"
+    },
+    {
+      "table": "ui",
+      "key": "Volume",
+      "source": "Volume",
+      "source_sha256": "b10fb966d72063f534774c7c6b404f4decca76ac283093ae65fef78d07c1b75e",
+      "translation": "Hljóðstyrkur"
+    },
+    {
+      "table": "ui",
+      "key": "Voxels",
+      "source": "Voxels",
+      "source_sha256": "2e6dd44c213570b531080cc634b25d63ecc84542f4db7f3930b2e17559598dae",
+      "translation": "Rúmpixlar"
+    },
+    {
+      "table": "ui",
+      "key": "Where:",
+      "source": "Where:",
+      "source_sha256": "02cc020f791cdbd49b1e6761ee41577461874e05441615f9c872ccbb119d2d87",
+      "translation": "Staðsetning:"
+    },
+    {
+      "table": "ui",
+      "key": "Discard",
+      "source": "Discard",
+      "source_sha256": "eb1a70e39274bb762b5d7c1adb5debeea2b05e12af28207f21a375b596853273",
+      "translation": "Henda"
+    },
+    {
+      "table": "ui",
+      "key": "Minimum",
+      "source": "Minimum",
+      "source_sha256": "735beee2e390c7979f936104c3cb5a30c752d73d68844eefc028c403aee8229b",
+      "translation": "Lágmark"
+    },
+    {
+      "table": "ui",
+      "key": "Object:",
+      "source": "Object:",
+      "source_sha256": "599fda49722612926873592c9db081c7a0379dc2c828989030ceb867f8c2eb41",
+      "translation": "Hlutur:"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in",
+      "source": "Sign in",
+      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+      "translation": "Skrá inn"
+    },
+    {
+      "table": "ui",
+      "key": "Stop at",
+      "source": "Stop at",
+      "source_sha256": "a9b4c0a4fc8148fdf6465ea5844258d520c91608a80ca7995b82f8c07a722649",
+      "translation": "Stöðva við"
+    },
+    {
+      "table": "ui",
+      "key": "Upper %",
+      "source": "Upper %",
+      "source_sha256": "d154ded41d219eb06d6ac4e611fe3cb121a8425041b01d651475585e7af3b5fd",
+      "translation": "Efri hundraðshlutamörk %"
+    },
+    {
+      "table": "ui",
+      "key": "Version",
+      "source": "Version",
+      "source_sha256": "dd167905de0defcaf72de673ee44c07431770d129ccffab286bd2edfdaf62396",
+      "translation": "Útgáfa"
+    },
+    {
+      "table": "ui",
+      "key": "Workers",
+      "source": "Workers",
+      "source_sha256": "7a1ec9fe6c3b483f5420a820892c4e29c5e76f6e1bbed4671e07de3371653e98",
+      "translation": "Vinnsluferli"
+    },
+    {
+      "table": "ui",
+      "key": "Zoom in",
+      "source": "Zoom in",
+      "source_sha256": "0e47f09a748fa1321dbaee5c8983f8e8f2880b1212956fb4f21ae9d60b88a8b2",
+      "translation": "Stækka"
+    },
+    {
+      "table": "ui",
+      "key": "Zoom out",
+      "source": "Zoom out",
+      "source_sha256": "bc7b631a689b45ca5c51923515d31eb3597b2d9b129d88d0dbee066ee5c35453",
+      "translation": "Minnka"
+    },
+    {
+      "table": "ui",
+      "key": "Adaptive",
+      "source": "Adaptive",
+      "source_sha256": "ceb6931ea57cc99912b7ece16f363cc3b42db89fd015d9937d7bb42997dcb663",
+      "translation": "Aðlagandi"
+    },
+    {
+      "table": "ui",
+      "key": "At most:",
+      "source": "At most:",
+      "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",
+      "translation": "Í mesta lagi:"
+    },
+    {
+      "table": "ui",
+      "key": "Detector",
+      "source": "Detector",
+      "source_sha256": "541ffce2fa4470ab15aee5bfeb7b19915d5f4e3cf8884beb1d96aa6736d4b917",
+      "translation": "Greinir"
+    },
+    {
+      "table": "ui",
+      "key": "Diameter",
+      "source": "Diameter",
+      "source_sha256": "54a7193484e02e82f1d920d53c32c5667c1cd449e532ab3405959a98817d347f",
+      "translation": "Þvermál"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian",
+      "source": "Gaussian",
+      "source_sha256": "ee9889f28a7c0ee34490de4bddb67bf916340f08558897fef432f8b3969e2a66",
+      "translation": "Gaussískt"
+    },
+    {
+      "table": "ui",
+      "key": "No crops",
+      "source": "No crops",
+      "source_sha256": "0abe50cdfc1d501b56ab95435a4df058cacff9af2759c4fd31936c52900279c8",
+      "translation": "Engir myndskurðir"
+    },
+    {
+      "table": "ui",
+      "key": "Sampling",
+      "source": "Sampling",
+      "source_sha256": "e41f08d35dd171fae766527304b84b79f457573cc418526128c3d861bc1c31e0",
+      "translation": "Úrtak"
+    },
+    {
+      "table": "ui",
+      "key": "Triangle",
+      "source": "Triangle",
+      "source_sha256": "a0252691b5dc54b1d67f9d35a120e8c49187f20f0735574a61713c6317df6f72",
+      "translation": "Þríhyrningur"
+    },
+    {
+      "table": "ui",
+      "key": "Add field",
+      "source": "Add field",
+      "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
+      "translation": "Bæta við myndsviði"
+    },
+    {
+      "table": "ui",
+      "key": "Settings…",
+      "source": "Settings…",
+      "source_sha256": "7a04083baf8daa20973e671fc0138a81a70c797ef1f28b77e78edbd1acbc57bc",
+      "translation": "Stillingar…"
+    },
+    {
+      "table": "ui",
+      "key": "Size (px)",
+      "source": "Size (px)",
+      "source_sha256": "2c1cb5c678172ab54740dc1dac9cef90006b4c168faa7359b348e116ef0d6790",
+      "translation": "Stærð (px)"
+    },
+    {
+      "table": "ui",
+      "key": "Text size",
+      "source": "Text size",
+      "source_sha256": "d68761cc1eb296478531e007ff1fda9252fb7be5d24429a97eb05765211dafe5",
+      "translation": "Textastærð"
+    }
+  ]
+}

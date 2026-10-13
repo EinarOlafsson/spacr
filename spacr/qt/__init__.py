@@ -1,0 +1,509 @@
+"""PySide6 (Qt 6) desktop interface for spaCR.
+
+Launch the application with ``spacr``, ``spacr-qt``,
+``python -m spacr.qt`` or ``python -m spacr``. The last command also accepts
+subcommands such as ``mask`` and ``measure`` to open a specific application
+tab.
+
+The interface uses ``theme.py`` for its palette and QSS stylesheet,
+``widgets/`` for reusable widgets, ``screens/`` for application screens,
+and ``app.py`` for the main window and QApplication bootstrap.
+"""
+from __future__ import annotations
+
+import os
+import re
+import sys
+
+__all__ = ["run"]
+
+_VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
+
+#: Launch noise the user cannot act on, matched against Qt's own log lines.
+#:
+#: These do NOT come through Python's warning system, so
+#: `warnings.filterwarnings` never sees them — they are written by Qt's
+#: categorised logging, which is why they survived every filter in
+#: `spacr/__init__.py`.
+#:
+#: * the OpenType line fires once per screen that lays out text in a script
+#:   "Open Sans" has no table for. Qt falls back to a font that does and the
+#:   text renders correctly; the message is a note, not a failure.
+#: Lines that say nothing a user or a maintainer can act on.
+#:
+#: `addMetaMethod` WAS the third entry and has been REMOVED, because the
+#: bug behind it is fixed rather than quiet. Recorded here because a line
+#: that once needed filtering tends to get filtered again:
+#:
+#: `QEvent.ChildAdded` is delivered synchronously from inside the child's
+#: C++ constructor, before Shiboken has registered the wrapper for the
+#: Python class being built. A `ChildAdded` filter that called
+#: `event.child()` there and KEPT the result minted a bare QWidget wrapper
+#: that displaced the real one permanently -- taking the child's whole
+#: dynamic metaobject with it, so its own signals became silent no-ops and
+#: `findChildren()` by type could not see it. `_LateCaptionTranslator` in
+#: `spacr/qt/screens/app_screen.py` did exactly that; it now defers on the
+#: host instead. See Part 5 of
+#: `tools/diagnose_pyside_slot_warning.py`, which reproduces both the
+#: breakage and the fix without any spaCR code.
+#:
+#: IF THIS LINE COMES BACK, something is calling `event.child()` during
+#: `ChildAdded` and holding it again. Find that, do not filter this.
+#:
+#: The FFmpeg line is Qt Multimedia introducing itself, once, the first time
+#: the audio thread of :mod:`spacr.qt.sound` builds a sound effect -- which
+#: only happens after the user has switched sound on. It names a library
+#: version and asks nothing of anybody.
+_QT_NOISE = re.compile(
+    r"OpenType support missing for|"
+    r"This plugin does not support (propagateSizeHints|raise)|"
+    r"Using Qt multimedia with FFmpeg version"
+)
+
+#: The inotify line, which is somebody else's problem and says so badly.
+#:
+#: Qt reports it as "No space left on device", which reads as a full disk and
+#: is not: ENOSPC from `inotify_add_watch` means the per-user WATCH limit is
+#: exhausted, not the filesystem. On the machine this was reported from,
+#: `fs.inotify.max_user_watches` was 65,536 with 65,434 already taken --
+#: 45,078 by syncthing and 20,019 by VS Code. spaCR held none of them.
+#:
+#: It fires twice at every start, so it is filtered; but it is explained
+#: once rather than dropped, because a user who sees inotify failures in one
+#: application is about to see them in others.
+_QT_INOTIFY = re.compile(r"inotify_add_watch.*No space left on device")
+
+_SAID_IT_ONCE = False
+
+
+
+def _after(msec: int, owner, callback):
+    """Call ``callback`` once after ``msec`` milliseconds unless ``owner`` is deleted first.
+
+    ``QTimer.singleShot(msec, owner, callable)`` is not accepted by the oldest
+    PySide6 spaCR supports (6.6), which only takes an owner with a slot name.
+    This builds the same behaviour from a single-shot timer parented to
+    ``owner``: deleting ``owner`` deletes the timer, so the call never runs
+    against a destroyed widget.
+
+    :param msec: delay in milliseconds.
+    :param owner: the ``QObject`` whose lifetime bounds the call.
+    :param callback: the function to call, with no arguments.
+    :returns: the started ``QTimer``.
+    """
+    from PySide6.QtCore import QTimer
+
+    timer = QTimer(owner)
+    timer.setSingleShot(True)
+    timer.timeout.connect(callback)
+    timer.timeout.connect(timer.deleteLater)
+    timer.start(int(msec))
+    return timer
+
+def _explain_the_inotify_line() -> None:
+    """Say what ENOSPC from inotify really means, once per process."""
+    global _SAID_IT_ONCE
+    if _SAID_IT_ONCE:
+        return
+    _SAID_IT_ONCE = True
+    print(
+        "Note: this machine has run out of inotify FILE WATCHES (not disk "
+        "space -- Qt reports the same error code for both). Applications "
+        "that watch files, spaCR included, may stop noticing changes. "
+        "Raising fs.inotify.max_user_watches is a system setting and spaCR "
+        "does not change it for you.",
+        file=sys.stderr)
+
+
+def _quiet_vispy_logging() -> None:
+    """Stop vispy narrating the backdrop into the terminal.
+
+    It logs a WARNING for every uniform a linked program has not been given
+    and for each shader it recompiles, once per DRAW -- sixty lines a second
+    behind a window nobody is debugging. The messages are about a decoration
+    and reach a user who did not ask for them.
+
+    ERROR is still let through: a shader that will not compile is a backdrop
+    that will not draw, and that is worth saying.
+    """
+    import logging
+
+    for name in ("vispy", "vispy.gloo", "vispy.app"):
+        try:
+            logging.getLogger(name).setLevel(logging.ERROR)
+        except Exception:                                    # noqa: BLE001
+            continue
+    try:
+        from vispy import set_log_level
+
+        set_log_level("error")
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
+def _install_quiet_qt_logging() -> None:
+    """Drop known-harmless Qt log lines, pass everything else through.
+
+    Deliberately a filter rather than a blanket mute: a Qt warning about a
+    real problem — a missing plugin, a failed shader, an invalid pixmap — is
+    often the only clue there is, and swallowing the category wholesale is how
+    that clue gets lost.
+    """
+    try:
+        from PySide6.QtCore import QtMsgType, qInstallMessageHandler
+    except Exception:
+        return
+
+    def handler(mode, context, message):
+        """Drop Qt's known-noisy messages and pass the rest through."""
+        if _QT_NOISE.search(message or ""):
+            return
+        if _QT_INOTIFY.search(message or ""):
+            _explain_the_inotify_line()
+            return
+        stream = sys.stderr
+        label = {
+            QtMsgType.QtDebugMsg: "Qt debug",
+            QtMsgType.QtInfoMsg: "Qt info",
+            QtMsgType.QtWarningMsg: "Qt warning",
+            QtMsgType.QtCriticalMsg: "Qt critical",
+            QtMsgType.QtFatalMsg: "Qt fatal",
+        }.get(mode, "Qt")
+        print(f"{label}: {message}", file=stream)
+        if "cannot be started from another thread" in (message or "") or \
+                "cannot be stopped from another thread" in (message or "") or \
+                "Cannot create children for a parent" in (message or ""):
+            try:
+                import logging
+                import threading
+                import traceback
+
+                logging.getLogger("spacr.qt").warning(
+                    "The Python stack at that warning (thread %r):\n%s",
+                    threading.current_thread().name,
+                    "".join(traceback.format_stack()[:-1]))
+            except Exception:
+                pass
+        try:
+            import logging
+
+            logging.getLogger("spacr.qt").log(
+                {QtMsgType.QtDebugMsg: logging.DEBUG,
+                 QtMsgType.QtInfoMsg: logging.INFO,
+                 QtMsgType.QtWarningMsg: logging.WARNING,
+                 QtMsgType.QtCriticalMsg: logging.ERROR,
+                 QtMsgType.QtFatalMsg: logging.CRITICAL}.get(
+                     mode, logging.WARNING),
+                "%s: %s", label, message)
+        except Exception:
+            pass
+
+    qInstallMessageHandler(handler)
+
+
+#: Third-party warnings a spaCR user cannot act on, as
+#: ``(message regex, module regex)``. Unlike :data:`_QT_NOISE` these DO come
+#: through Python's warning system, so a filter is the right tool — but a
+#: filter written carelessly is how a real warning gets lost, so both halves
+#: of each entry are deliberate:
+#:
+#: * the message pattern is NOT anchored. ``warnings.filterwarnings``
+#:   matches ``message`` with ``re.match``, so a filter written against the
+#:   sentence a user quoted out of a traceback misses the same notice from a
+#:   build that prefixes it. Every pattern here begins with ``.*`` on
+#:   purpose.
+#: * the module pattern IS present, and it is the raising frame's DOTTED
+#:   ``__name__`` — ``warnings.warn`` reads ``globals()["__name__"]``, so a
+#:   pattern written against ``cellpose/dynamics.py`` (the path a traceback
+#:   shows) matches nothing at all. It is also matched with ``re.match``,
+#:   hence the explicit ``(\.|$)`` rather than a bare prefix that would also
+#:   catch a ``cellpose_something`` package. Scoping to the library keeps
+#:   "ignore this sentence" from also swallowing the same sentence raised by
+#:   spaCR's own code.
+#:
+#: The single entry: Cellpose 4 builds a sparse COO tensor in ``dynamics.py``
+#: for every mask it makes, and torch notes that invariant checking is off.
+#: It names a torch internal, it fires on the first mask of every run, and
+#: there is nothing a spaCR user can do about it.
+_LIBRARY_NOISE: tuple[tuple[str, str], ...] = (
+    (r".*[Ss]parse invariant checks are implicitly disabled",
+     r"cellpose(\.|$)"),
+)
+
+
+def _quiet_library_warnings() -> None:
+    """Ignore :data:`_LIBRARY_NOISE`, and nothing else, for this process.
+
+    ``spacr/__init__.py`` installs the same rule at import, which is what a
+    headless ``spacr-run`` or a spawned worker gets, so on a clean launch
+    this finds the filter already in place and does nothing. That is the
+    intended steady state. What it is for is the case where it is *not*
+    already in place: ``warnings.filters`` is process-global mutable state
+    and anything the launcher imports may reset it, and a screen that calls
+    ``warnings.resetwarnings()`` instead of ``catch_warnings()`` would
+    otherwise leave the rest of the session noisy. Re-asserting at launch
+    costs nothing and is the same shape as the two quieters beside it.
+
+    Idempotent, and it has to be: ``warnings.filterwarnings`` prepends
+    unconditionally, so a function called on every ``run()`` — which the
+    test suite drives repeatedly in one process — would otherwise grow
+    ``warnings.filters`` without bound.
+    """
+    import warnings
+
+    for message, module in _LIBRARY_NOISE:
+        if any(action == "ignore" and category is UserWarning
+               and getattr(msg_re, "pattern", None) == message
+               and getattr(mod_re, "pattern", None) == module
+               for action, msg_re, category, mod_re, _lineno
+               in warnings.filters):
+            continue
+        warnings.filterwarnings(
+            "ignore", message=message, category=UserWarning, module=module)
+
+
+def _quiet_gtk_accessibility() -> None:
+    """Stop GTK printing "Not loading module atk-bridge" on every window.
+
+    Qt's GTK platform theme pulls in GTK, which then reports that the AT-SPI
+    bridge is built in and need not be loaded as a module. It is written to
+    stderr by GTK itself in C, so neither Python's warning filters nor a Qt
+    message handler can reach it — the only lever is the environment variable
+    GTK reads before it decides, and it has to be set before GTK loads.
+
+    Only set when absent, so a user who deliberately wants the bridge (a
+    screen-reader setup) is not overridden.
+    """
+    os.environ.setdefault("NO_AT_BRIDGE", "1")
+
+_QT_EXTRA_MODULES = frozenset({"PySide6", "shiboken6", "qtawesome"})
+
+_QT_MISSING_MESSAGE = """\
+spaCR's graphical interface cannot import a required Qt dependency
+(missing module: {module}).
+
+Install it with:
+
+    python -m pip install spacr
+
+Then run `spacr` again.
+
+No display available? Run the pipelines without opening the desktop interface:
+
+    spacr-run --list\
+"""
+
+
+def _missing_qt_extra(exc: ImportError) -> str | None:
+    """Identify the known Qt module whose absence raised ``exc``.
+
+    PySide6 and qtawesome are core dependencies; shiboken6 is PySide6's
+    binding runtime. Only failures naming one of these modules count.
+    Anything else is a genuine bug inside the GUI package and must keep its
+    traceback rather than be reported as a missing install.
+
+    Args:
+        exc: The ``ImportError`` raised while importing :mod:`spacr.qt.app`.
+
+    Returns:
+        The top-level module name to name in the install hint, or ``None``
+        when ``exc`` is unrelated to these Qt dependencies.
+    """
+    root = (getattr(exc, "name", None) or "").split(".", 1)[0]
+    if root in _QT_EXTRA_MODULES:
+        return root
+    text = str(exc)
+    for module in sorted(_QT_EXTRA_MODULES):
+        if module in text:
+            return module
+    return None
+
+
+def _prefer_a_context_the_shaders_can_run_on() -> None:
+    """Ask for XWayland when the session is Wayland, before Qt starts.
+
+    MEASURED, and confirmed by the person running it. On a native Wayland
+    session Qt hands vispy an OpenGL ES context; vispy compiles the fractal
+    shaders as desktop GLSL 120, and ES answers "unsupported version 120",
+    so the backdrop never draws a frame. The identical code under ``xcb``
+    gets a GLX context and draws with no errors at all.
+
+    Nothing in spaCR changed when this started happening -- the session
+    did. So this is not a workaround for a bug in the backdrop; it is
+    asking for the context the backdrop has always needed.
+
+    Only when the caller has expressed no preference of their own. An
+    explicit QT_QPA_PLATFORM is always honoured, including a deliberate
+    ``wayland`` by someone who would rather have no backdrop than
+    XWayland, and the variable is left alone when there is no X server to
+    fall back to.
+    """
+    import os
+
+    if os.environ.get("QT_QPA_PLATFORM"):
+        return
+    if not (os.environ.get("WAYLAND_DISPLAY")
+            or os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland"):
+        return
+    if not os.environ.get("DISPLAY"):
+        return
+    os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+
+def run_without_setup(argv: list[str] | None = None) -> int:
+    """Launch the GUI without the first-run setup screen.
+
+    The `spacr-server` command. Identical to :func:`run` except that the
+    setup slides are never offered, which is what a launch with nobody in
+    front of it needs: the screen is modal and is now the first thing a
+    launch draws, so an unattended job on a profile that has never answered
+    would sit on an invisible dialog until it was killed.
+
+    The same thing can be said to `spacr` itself with ``--no-setup`` or
+    ``SPACR_NO_SETUP=1``; this exists so that a job script does not have to
+    remember either.
+    """
+    _prefer_a_context_the_shaders_can_run_on()
+    import sys as _sys
+
+    argv = list(_sys.argv[1:] if argv is None else argv)
+    return run(["--no-setup", *argv])
+
+
+def run(argv: list[str] | None = None) -> int:
+    """Launch the Qt GUI. Public entry point used by both `spacr-qt` and
+    `python -m spacr.qt`.
+
+    Args:
+        argv: Optional CLI arguments. The first positional element,
+              if present, opens directly into that app screen key
+              (e.g. `spacr-qt mask`).
+
+    Returns:
+        The exit code returned by `QApplication.exec()`, or ``1`` when the
+        required Qt dependency cannot be imported.
+    """
+    _prefer_a_context_the_shaders_can_run_on()
+    if argv is None:
+        argv = sys.argv[1:]
+
+    from . import timing as _timing
+
+    _timing.begin()
+
+    _quiet_gtk_accessibility()
+    _install_quiet_qt_logging()
+    _preferences = sys.modules.get(f"{__name__}.preferences")
+    if _preferences is None or not _preferences.in_safe_mode():
+        _quiet_vispy_logging()
+    _quiet_library_warnings()
+
+    if len(argv) == 1 and argv[0] in _VERSION_FLAGS:
+        from spacr.version import get_version
+
+        print(get_version())
+        return 0
+
+    try:
+        from .app import launch
+    except ImportError as exc:
+        module = _missing_qt_extra(exc)
+        if module is None:
+            raise
+        print(_QT_MISSING_MESSAGE.format(module=module), file=sys.stderr)
+        return 1
+
+    register_self_registering_modules()
+
+    preferences = sys.modules.get(f"{__name__}.preferences")
+    if preferences is not None and preferences.in_safe_mode():
+        return launch(argv)
+
+    from ..figure_font import _open_sans_is_the_default
+
+    with _open_sans_is_the_default():
+        return launch(argv)
+
+
+#: Modules that own an app and register it through
+#: :func:`spacr.qt.app.register_app` from their own file, rather than through
+#: a row written into ``app.py``. Each exposes a zero-argument, idempotent
+#: ``register()``.
+#:
+#: :func:`register_self_registering_modules` walks this list, and :func:`run`
+#: calls it between ``from .app import launch`` and the call to it — and that
+#: position is the whole point. ``app.py`` is fully executed by then, so
+#: ``register_app`` exists to be imported; and ``MainWindow.__init__`` has
+#: not run yet, so the menu bar, the sidebar and Home have not yet read the
+#: registry. A module registering any earlier — from ``widgets/__init__.py``,
+#: say, which ``app.py`` itself imports on its 39th line — finds
+#: ``spacr.qt.app`` half-initialised and can register nothing.
+#:
+#: MOST OF THESE ARE NOT IMPORTED AT LAUNCH ANY MORE, and the list is still
+#: the place a module asks to be registered. A module that declares its row
+#: in :data:`spacr.qt.app_catalog.DECLARED_APPS` is registered FROM THAT ROW:
+#: the registry gets the key, the name, the sentence, the section and the
+#: stage, and the module — with pandas, scipy and sklearn behind it — is
+#: imported the first time somebody opens the app. What is still imported
+#: here is the handful below that do real work at registration and cannot be
+#: reduced to a row: they wrap other screens' factories, install hooks, or
+#: reassess what is already in the registry.
+SELF_REGISTERING_MODULES = (
+    "spacr.qt.widgets.feature_dictionary",
+    "spacr.qt.chaining",
+    "spacr.qt.prerun",
+    "spacr.qt.screens.run_compare",
+    "spacr.qt.screens.investigate_hit",
+    "spacr.qt.screens.trellis",
+    "spacr.qt.screens.gate_editor",
+    "spacr.qt.screens.feature_explorer",
+    "spacr.qt.screens.outliers",
+    "spacr.qt.screens.dose_response",
+    "spacr.qt.screens.embeddings",
+    "spacr.qt.screens.control_chart",
+    "spacr.qt.screens.project_browser",
+    "spacr.qt.resource_cleanup",
+    "spacr.qt.maturity",
+)
+
+
+def register_self_registering_modules() -> tuple[str, ...]:
+    """Register every app in :data:`SELF_REGISTERING_MODULES`.
+
+    A row whose registration is pure metadata is taken from
+    :data:`spacr.qt.app_catalog.DECLARED_APPS` and its module is NOT imported:
+    the registry learns the key, the name, the sentence, the section and the
+    stage from the table, and the screen's own code — with pandas, scipy and
+    sklearn behind it — waits until somebody opens the app. Only a module that
+    does real work at registration is imported here, which is the handful that
+    wrap other screens' factories or reassess what is already registered.
+
+    Idempotent — every ``register()`` is written to be safe to call twice, so
+    a second launch in one process (the test suite does this) does not raise
+    on a duplicate app key.
+
+    One module's failure costs that module's app and nothing else: an
+    optional panel must never stop the GUI from starting.
+
+    :returns: the module names that registered without raising, declared and
+        imported alike. A declared row that was already in the registry counts
+        as registered — the caller asked for the app to exist, and it does.
+    """
+    import importlib
+    import logging
+
+    from .app_catalog import declared_for, register_declared
+
+    registered: list[str] = []
+    for name in SELF_REGISTERING_MODULES:
+        try:
+            if declared_for(name) is not None:
+                register_declared(name)
+            else:
+                importlib.import_module(name).register()
+        except Exception:
+            logging.getLogger("spacr.qt").exception(
+                "Could not register the app owned by %s", name)
+        else:
+            registered.append(name)
+    return tuple(registered)

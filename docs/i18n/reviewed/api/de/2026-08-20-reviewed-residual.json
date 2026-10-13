@@ -1,0 +1,36 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Test selection is delegated to :func:`spacr.figures.stats.compare`. Two-group comparisons may use Student's t, Welch's t, or Mann-Whitney U; larger comparisons may use one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis. Paired data use the paired t-test or Wilcoxon signed-rank test.",
+      "label": "spacr.plot.spacrGraph.perform_statistical_tests#6",
+      "source": "Test selection is delegated to :func:`spacr.figures.stats.compare`. Two-group comparisons may use Student's t, Welch's t, or Mann-Whitney U; larger comparisons may use one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis. Paired data use the paired t-test or Wilcoxon signed-rank test.",
+      "source_sha256": "43d65528eaa1b7c044a98a9e8579dceb4e6206070c0f70fb7090986ec5b7ad58",
+      "translation": "Die Testauswahl wird an :func:`spacr.figures.stats.compare` delegiert. Vergleiche zwischen zwei Gruppen verwenden je nach Voraussetzungen den Student-t-Test, Welch-t-Test oder Mann-Whitney-U-Test; Vergleiche mit mehr Gruppen verwenden die einfaktorielle ANOVA, Welch-ANOVA oder den Kruskal-Wallis-Test. Gepaarte Daten verwenden den gepaarten t-Test oder den Wilcoxon-Vorzeichen-Rang-Test."
+    },
+    {
+      "context": "objects : pandas.DataFrame Object rows available to the montage and reference contrasts. groups : dict of str to sequence Selected group names mapped to object-index values. parent : QWidget, optional Parent widget. settings : dict, optional Processing-session settings saved with exported comparison results. databases : sequence of path-like, optional Measurement databases available for widening the object table. counts : pandas.DataFrame, optional Per-microplate sample position counts used to resolve control microplate sample positions.",
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel#2",
+      "source": "objects : pandas.DataFrame Object rows available to the montage and reference contrasts. groups : dict of str to sequence Selected group names mapped to object-index values. parent : QWidget, optional Parent widget. settings : dict, optional Run settings saved with exported comparison results. databases : sequence of path-like, optional Measurement databases available for widening the object table. counts : pandas.DataFrame, optional Per-well counts used to resolve control wells.",
+      "source_sha256": "f6e151a2147f22be83dc403cf9a4ba9022f3158635a1f072d85f0b9d98559032",
+      "translation": "objects : pandas.DataFrame Objektzeilen für die Montage und die Referenzkontraste. groups : dict of str to sequence Ausgewählte Gruppennamen, die Werten des Objektindex zugeordnet sind. parent : QWidget, optional Übergeordnetes Widget. settings : dict, optional Einstellungen der Verarbeitungssitzung, die mit den exportierten Vergleichsergebnissen gespeichert werden. databases : sequence of path-like, optional Messdatenbanken, mit denen die Objekttabelle erweitert werden kann. counts : pandas.DataFrame, optional Zählwerte pro Mikrotiterplatten-Well zum Auflösen der Kontroll-Wells.",
+      "retired": "2026-09-06",
+      "retired_reason": "368 prepended a summary sentence to this block; the reviewed German covers the parameter list that follows it and would silently drop the new first sentence, so it stands for the earlier wording only"
+    },
+    {
+      "context": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "label": "spacr.sp_stats.perform_statistical_tests#6",
+      "source": ":func:`spacr.figures.stats.compare` selects Student's t, Welch's t, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the available groups and informative assumption checks.",
+      "source_sha256": "8df21500c6a54cee29ce6747fffee15ff25a726564a44ba58322d6e125aa96ca",
+      "translation": ":func:`spacr.figures.stats.compare` wählt anhand der verfügbaren Gruppen und aussagekräftigen Annahmeprüfungen den Student-t-Test, Welch-t-Test, Mann-Whitney-U-Test, die einfaktorielle ANOVA, Welch-ANOVA oder den Kruskal-Wallis-Test aus."
+    },
+    {
+      "context": "Enable tracing globally and optionally install a run collector.",
+      "label": "spacr.flowview.trace.enable#0",
+      "source": "Enable tracing globally and optionally install a run collector.",
+      "source_sha256": "b12d6e5d2a29b4b0fb51aa0a1c8d2e7728696af852ed00387ad1aa1c5237b252",
+      "translation": "Aktiviert die Ablaufverfolgung global und installiert optional einen Kollektor für Verarbeitungssitzungen."
+    }
+  ],
+  "schema": 1
+}

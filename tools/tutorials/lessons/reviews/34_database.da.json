@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Database Browser: filtrér og eksportér målinger",
+  "description": "Åbn en måledatabase, vælg kolonner og rækker, og eksportér resultatet.",
+  "objectives": [
+    "Åbne og gennemse en måletabel.",
+    "Vælge kolonner og filtrere rækker.",
+    "Eksportere de matchende poster."
+  ],
+  "prerequisite": "Hav en spaCR-fil measurements.db eller en kørselsmappe, der indeholder en. Measures eksempelprojekt giver en database efter målingen.",
+  "scenes": [
+    "Åbn Help og derefter Database Browser for at undersøge og eksportere måletabeller.",
+    "Vælg measurements.db, eller den kørselsmappe, der indeholder den, og åbn databasen.",
+    "Vælg den tabel, du har brug for. Vælg cell for cellemålinger, eller en anden objekttabel for det objekts egenskaber.",
+    "Læs det samlede antal rækker og kolonner, og undersøg derefter den viste side. Brug sidekontrollerne til at bladre gennem større tabeller.",
+    "Søg i kolonnenavnene for at finde en egenskab. Vælg de kolonner, du vil se og eksportere.",
+    "Opbyg et filter ved at vælge en kolonne, en operator og en værdi. Anvend det for at vælge matchende poster i hele tabellen.",
+    "Kontrollér antallet af filtrerede rækker, og undersøg de matchende poster. Justér eller ryd filteret for at ændre dit udvalg.",
+    "Vælg Export og en destinationsfil. Eksporten indeholder alle matchende rækker og dine valgte kolonner, mens kildedatabasen forbliver uændret."
+  ]
+}

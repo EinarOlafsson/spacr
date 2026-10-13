@@ -1,0 +1,932 @@
+{
+  "lesson": "56_lineage",
+  "status": "Complete staged technical matrix; incorrect child crop fallback remains unfixed",
+  "native_verification": {
+    "accepted": true,
+    "scope": "Verified containment and parent-only crop route; unsafe family-to-child substitution explicitly rejected",
+    "native_verification": {
+      "lesson": "56_lineage",
+      "accepted": true,
+      "source": {
+        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+        "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/lineage_runs/real-containment-027xeb_8/example_data/plate1/measurements/measurements.db",
+        "source_bundle": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+            "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+            "signature": [
+              66306,
+              33957043,
+              30629888,
+              1788972666110587305,
+              1788972666110587305
+            ]
+          },
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "signature": [
+              66306,
+              33975250,
+              0,
+              1789106361829423219,
+              1789106361829423219
+            ]
+          },
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+            "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+            "signature": [
+              66306,
+              33983353,
+              32768,
+              1789122680457129006,
+              1789122680457129006
+            ]
+          }
+        },
+        "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+        "copy_is_byte_identical": true,
+        "source_opened_in_gui": false
+      },
+      "private_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/lineage_runs/real-containment-027xeb_8/example_data",
+      "synthetic_measurements": false,
+      "app_source_modified": false,
+      "published": false,
+      "checks": {
+        "05_full_counts_capped_tree_and_zero_orphans": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "06_one_nucleus_no_pathogen": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "07_cell_with_nucleus_and_pathogen": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "08_one_child_is_not_its_family": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "09_publish_three_typed_objects": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "10_parent_plus_child_no_duplicate": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "11_large_family_not_biological_validation": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "12_actual_header_sort_preserves_containment": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        },
+        "24_rebuild_preserves_full_containment": {
+          "source_counts": {
+            "cell": 2341,
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "full_nodes": 7201,
+          "attached_counts": {
+            "nucleus": 2682,
+            "pathogen": 2178
+          },
+          "roots": 2341,
+          "orphans": 0,
+          "childless": 0,
+          "no_pathogens": 1168,
+          "displayed_roots": 2000,
+          "displayed_nodes": 6087,
+          "omitted_roots": 341,
+          "all_displayed_item_identities_and_parent_edges_checked": true,
+          "summary": "2341 cell(s) holding 2682 nucleus, 2178 pathogen. 0 of them (0%) have nothing inside.",
+          "status": "2000 of 2341 parent object(s) in the tree · every child has a parent",
+          "key_column_hidden": true
+        }
+      },
+      "family_selection": [
+        "plate1_r12_c1_f1_cell3",
+        "plate1_r12_c1_f1_nucleus5",
+        "plate1_r12_c1_f1_pathogen1"
+      ],
+      "deduplicated_family_selection": [
+        "plate1_r12_c1_f1_cell3",
+        "plate1_r12_c1_f1_nucleus5",
+        "plate1_r12_c1_f1_pathogen1"
+      ],
+      "largest_family": {
+        "key": "plate1_r12_c2_f13_cell32",
+        "keys": [
+          "plate1_r12_c2_f13_cell32",
+          "plate1_r12_c2_f13_nucleus27",
+          "plate1_r12_c2_f13_nucleus28",
+          "plate1_r12_c2_f13_nucleus29",
+          "plate1_r12_c2_f13_nucleus30",
+          "plate1_r12_c2_f13_nucleus31",
+          "plate1_r12_c2_f13_nucleus32",
+          "plate1_r12_c2_f13_nucleus33",
+          "plate1_r12_c2_f13_nucleus34",
+          "plate1_r12_c2_f13_nucleus35",
+          "plate1_r12_c2_f13_nucleus36",
+          "plate1_r12_c2_f13_nucleus37",
+          "plate1_r12_c2_f13_nucleus38",
+          "plate1_r12_c2_f13_nucleus39",
+          "plate1_r12_c2_f13_nucleus40",
+          "plate1_r12_c2_f13_nucleus41",
+          "plate1_r12_c2_f13_nucleus42",
+          "plate1_r12_c2_f13_nucleus43",
+          "plate1_r12_c2_f13_nucleus44",
+          "plate1_r12_c2_f13_nucleus45",
+          "plate1_r12_c2_f13_nucleus46",
+          "plate1_r12_c2_f13_nucleus47",
+          "plate1_r12_c2_f13_nucleus48",
+          "plate1_r12_c2_f13_nucleus49",
+          "plate1_r12_c2_f13_nucleus51",
+          "plate1_r12_c2_f13_nucleus52",
+          "plate1_r12_c2_f13_nucleus53",
+          "plate1_r12_c2_f13_nucleus54",
+          "plate1_r12_c2_f13_nucleus55",
+          "plate1_r12_c2_f13_nucleus56",
+          "plate1_r12_c2_f13_nucleus57",
+          "plate1_r12_c2_f13_pathogen25",
+          "plate1_r12_c2_f13_pathogen26"
+        ]
+      },
+      "crop_precondition": {
+        "opener_present": false,
+        "status": "Open the Annotate screen first — it is what shows crops.",
+        "crop_opened": false
+      },
+      "observed_crop_request": {
+        "keys": [
+          "plate1_r12_c1_f1_cell3",
+          "plate1_r12_c1_f1_nucleus5",
+          "plate1_r12_c1_f1_pathogen1"
+        ],
+        "total": 3,
+        "rows": 3,
+        "paths": [
+          [
+            "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png",
+            null
+          ],
+          [
+            "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_1_1_5.png",
+            null
+          ],
+          [
+            "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_1_1_1.png",
+            null
+          ]
+        ],
+        "note": "3 objects · selected in the lineage tree, parents first (from lineage)"
+      },
+      "unsafe_family_crop_handoff": {
+        "requested": [
+          "plate1_r12_c1_f1_cell3",
+          "plate1_r12_c1_f1_nucleus5",
+          "plate1_r12_c1_f1_pathogen1"
+        ],
+        "shown_paths": [
+          "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png",
+          "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_1_1_5.png",
+          "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_1_1_1.png"
+        ],
+        "source_object_types": [
+          "cell",
+          "cell",
+          "cell"
+        ],
+        "source_labels": [
+          3,
+          5,
+          1
+        ],
+        "note": "3 objects · selected in the lineage tree, parents first (from lineage)",
+        "scientifically_valid": false,
+        "recommended": false,
+        "cause": "Typed missing nucleus/pathogen keys fall back to untyped cell labels despite known cell-only identity columns"
+      },
+      "crop_handoff": {
+        "requested": [
+          "plate1_r12_c1_f1_cell3"
+        ],
+        "shown_paths": [
+          [
+            "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png",
+            null
+          ]
+        ],
+        "actual_crop_sha256": "38ade14a457846f6f428207d7e4c44dfb8107c1f5b942b9c8e420239f680c35d",
+        "note": "1 object · double-clicked in the lineage tree (from lineage)",
+        "shown": 1,
+        "missing": 0,
+        "cell_crop_loaded": true,
+        "child_crops_in_source": false,
+        "labels_edited": false,
+        "gesture": "double-click parent only"
+      },
+      "crop_zoom": {
+        "native_shift_click": true,
+        "slot": 0,
+        "same_thumbnail_preserved": true,
+        "escape_restored_grid": true,
+        "new_image_resolution_created": false
+      },
+      "api_export": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/lineage_runs/real-containment-027xeb_8/lineage_api_export.csv",
+        "sha256": "73b2635998b1eee8451ad9c4f8293a5bcf167170e2145e85829e772f5a5ed6a8",
+        "rows": 7201,
+        "function": "spacr.lineage.lineage_frame",
+        "written_by_gui": false,
+        "all_rows_independently_checked": true
+      },
+      "selection_events": [
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell1"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell3"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_nucleus5"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell3"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell3",
+            "plate1_r12_c1_f1_nucleus5",
+            "plate1_r12_c1_f1_pathogen1"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell3",
+            "plate1_r12_c1_f1_nucleus5"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell3",
+            "plate1_r12_c1_f1_nucleus5",
+            "plate1_r12_c1_f1_pathogen1"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c2_f13_cell32"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell3"
+          ]
+        },
+        {
+          "source": "lineage",
+          "keys": [
+            "plate1_r12_c1_f1_cell3"
+          ]
+        }
+      ],
+      "pipeline_run_requested": false,
+      "preservation": {
+        "original_database_and_sidecars_unchanged": true,
+        "all_original_and_private_crops_unchanged": true,
+        "crop_count": 2341,
+        "crop_bytes": 259627196,
+        "private_database_bytes_unchanged": true
+      },
+      "remaining_lineage_workers": 0
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/provenance.json": "bd6b931c6479c7deaf6af75e8d8fecad03ad3bddfc0c8c47f1f66b8fd9ec9e38",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/lineage_acceptance.json": "e016d7c6af0f53c2c3d7b4f88ec0017259241fd1cc068e730a97d055099c0ab9",
+      "/mnt/firecuda2/codex/repo/spacr/tools/tutorials/evidence/2026-09-10_lineage_crop_identity_hold.json": "97ef69190f9b71fb3edd71c133aa2694ad4e2c2aef7ea84bbc62e99ea3fe0830",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/lineage_runs/real-containment-027xeb_8/example_data/plate1/measurements/measurements.db": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/lineage_runs/real-containment-027xeb_8/lineage_api_export.csv": "73b2635998b1eee8451ad9c4f8293a5bcf167170e2145e85829e772f5a5ed6a8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/frames.json": "d91321e752701821224ba479fbcc5c05a935f29e0085fb5f82fc20ce9c2b3bee",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/00_home.png": "f782eba4c8ef1f35a0e103a6cfbccae705190408c010096e97bb78af60990be3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/01_help_database_route.png": "6200b4abbf5810d648a4e237b754f73b24f84de9a092df31059ff8b2a4aaffa6",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/02_database_host.png": "a109dcc43a81b01a477e818d14d60dea45bc2e052013994f006de8d822e8228e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/03_empty_containment_view.png": "dd5f53fdf95c530d8d3eb5b46da014f3ff15ee1beee4b29353c350a0787e76e5",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/04_choose_real_measurements.png": "2314ddf2dd1649e6aa4520ccc6ce5e191e5edc418c1205966ce2ddd38b9ad061",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/05_full_counts_capped_tree_and_zero_orphans.png": "e1df626e69ad7815fccd0bfbf492135a98d017c63ee98404af677b3ea4227092",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/06_one_nucleus_no_pathogen.png": "6d269cfd284f3bc73383acbae04dbe4b6f3742057c8d333df49bba7f69a8d83c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/07_cell_with_nucleus_and_pathogen.png": "f458eb57598d7955c8966c1c6e2c0ea939e1084fff82c3f4be80d0599899c349",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/08_one_child_is_not_its_family.png": "825f0c62396fa905e5df2e7f948a0fc858e0f223f8084140fd7be7afac472edd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/09_publish_three_typed_objects.png": "bd788e2ba921fc2248f1d1f758f72080ba8bd30ef26a64c1211cbd837460eabe",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/10_parent_plus_child_no_duplicate.png": "31c7661c3d648e4222b0c19764ff04e945347a5653f5adb2ba54afa7f8c2adb6",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/11_large_family_not_biological_validation.png": "2c3ff94a7f36b8ada69073d9709caea6c134372eaa3f8c60d67d38870e0620dc",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/12_actual_header_sort_preserves_containment.png": "117748136a195cb0728738c84988cc1d95b0bec0f7bfa0dc8068dec4752f3031",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/13_real_open_annotate_prerequisite.png": "1b6e060fe423b956ec91b97dd0793f5e482b9c1cd545f73c031ec721287070e4",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/14_annotate_before_source.png": "a60a00c7353e22918555e2effc17b70c9c09f5a6ebdfd54e79f75362553a1576",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/15_choose_private_crop_project.png": "ef5c31eb438cef86f5e1865f203b10dc6d04a1a070a191897e6852b210b80f22",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/16_real_downloaded_cell_crops.png": "d9b57d430a1638ad4761cbf814e8400d9d0bbe2a089bb786269cff6f4eb97a97",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/17_return_to_lineage.png": "a9a34c3460af87680bffbed2547c2cc54eaf6b58a83c1c006159e7740c2f8d18",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/18_actual_family_crop_request.png": "1c59a774db44eba3e16b68ee5b99b251e9b32faa995558aae44ac42b49ed94fc",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/19_actual_crop_request_result_before_acceptance.png": "be09e7b10fd281327357842ec9dfc7259c493fd1d2bb646ea6786d658ef1aaca",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/20_wrong_typed_children_are_unrelated_cell_crops.png": "d299bfd97e79aac2ed61ab8743b095aff8eb78cdf49af99597c5802303fe50fd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/21_return_for_parent_only.png": "550f493b5d1b85c82dea70cf9d1c61257bbbaaeee41e469823daf6daf93bfb41",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/22_verified_parent_only_real_cell_crop.png": "1ced5980b626238316a98b1b38d1dd6ec854b748e87048829179dfb589485e24",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/22a_zoom_parent_without_labelling.png": "0f263d4307dfd1025d66861c676960f2f56665f12436e7efaf1994c2cc1b7b21",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/22b_parent_grid_restored.png": "27a818f08bf171687d53ec08dbc9f64194fa3b7d3e955243cfa9e50baa88630e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/23_return_for_reload.png": "212aa8ce3900d883ccc353b2b33bf638bf7891f39b24530efd78a0107ba7b1b7",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/lineage_current_review_v2/24_rebuild_preserves_full_containment.png": "9569f8989298ea0161a6d25772a968dedfd3e63e031ed98c446e1739a784a43b"
+    },
+    "original_hold": {
+      "path": "/mnt/firecuda2/codex/repo/spacr/tools/tutorials/evidence/2026-09-10_lineage_crop_identity_hold.json",
+      "sha256": "97ef69190f9b71fb3edd71c133aa2694ad4e2c2aef7ea84bbc62e99ea3fe0830",
+      "unchanged": true
+    },
+    "child_crop_fallback_fixed": false,
+    "biological_validation": false,
+    "published": false
+  },
+  "final_reconciliation": {
+    "lesson": "56_lineage",
+    "passed": true,
+    "canonical_english_sha256": "5e8321bb39a3d97f13c9985bccdd5cdb7e21c17c56b975c191d92b6b01ede092",
+    "scene_count": 14,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "889429eb850d6fb2a8232375c437bf4dd8b55f3bfa2b0da5c93c304b284eb666"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "6cc7f7819c6670ef599c89e629132ec5a34d43f5e820d4cff9e4bb8c8fec4137"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "0bcea78150167f43fe72738cc8492b0330fb6641caf7b4a85aeaf31278e2ae30"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "13d49f47b76229fc73d2dde80ada87fc52a8b7a6db7408dba57028bde35484aa"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "de371a4391e1058a57ef719c7562bf808239f5e8c3eef86ec04be7cd57f96268"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "fd88c7850a02e9ba8f6f62b6897e5c18d4f44926af04c578d69bc9d66be7afad"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "f408f8690df7cf2e9550f1bee8807e56cd34b6d1ead204604866773c343f3247"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "c4bd9bc286b87c3153c91200616d7cc1ff194da3d0f84b43a41722b440bbc055"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "ead20e9da8fbd858824ab92abc665c3d9da71326a25a37406b1b0b8075fcfdc5"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "957f084fff18056da252c622917955ec39b89af9508166124c2901e05d47cb65"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "2817f7150f654bd9d7408e9427a501f6d287a60ddf6ee336ad37b58fca329141"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "746b821481ff6881ba752466dffd48be6eb29e8b9d88adbbc872be9facfef0d9"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "74cc745d935b41686743af55c6c1d1f572709b0bcc0bf7e8e331f071cb8dcfbd"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "664fe293b95489e48368baebd4743bfc9e5886501512893d508c8a48ed307875"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "42a69b973ab09e6f8e242c21b4f6ad2596cc88f45fdcee81e708918418a463cc"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "f992911ba7123810c5597a933c5e20b1f80dfc78fe0af7f1a8801b00251ec6d1"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "46fe48c6d41444be09036e807d6dd49c3e407c2427de85a3e00c2805cfcedf98"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "4d25c1f35e02aa83b5d3f9c27db6f0e95474d655c003f37e2a389ce4edcfb987"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "f33875e20960e43a03aec2e66fc43fc0c1cdb9358b306998a10d77bbab4042d4"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "77bfbcc285291877ce017ff06c5bcaffcab9bab8d4cd1cda82071fc0411dab22"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "50351cb5ed2bac5f4f8070f80778ed459a381ebe3a44b7893602b0359aa05191"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "040feed96e5033f888854e78ce0703821b7db949b3d738b534148d1c66b3caa6"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "2a6ff7e3a4bed9fd26e1a1ea43f4b9138acca36dff35af04f5d0ca960882486e"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "c1faf7fe8c40219836d70b5bccc275ddf5867767cb6972cf447ce2c8c4d96a28"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "9ce8af629a00e7d3c5d14f0cc1f65369e9326ab84394e9b239b3f49ed2351170"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "20fa8c096194aa4f01a50a5c452cd7c8fd467325a4603e923ae689243d674a25"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "6edb18604f259bdd50ea96f38d3c5a3ee646b02d09454f605913d7784bc14a5c"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "0159f8c41b1fae2885786670b78223fd01b95f552b9f4ea75acc697caaf7d3bb"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "1a56c8786e1ab8afc696bb9e25bc3068b00be49e428dd8fc4900484d5f3a3b84"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "85564a3e64e1dc3af6fb249fb368421960d705a093566aedba3e13d0ff970e05"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "2ec8b6a58cdb39b9644af0afd6c14b59c81185b46af44191c2c82c2cae33e6c9"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "0da36323073398d6295356982ce1612a9d9522d96333142266440f760bbb9331"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "5108d519e719a8819fa722b6d0d0b8b0ba94186b58e03e86d2fee3a15c94e078"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "9551dd7ccde380f451bde9c9affd46381b29c8d6c8ed703409a22b1d8ea20c59"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "9676dbffc008eb5ba4bcf50dbee95e551daa4e925f8df47a25029bdf41fb5172"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "431eb69ed0f9c5c4cdca236573bd2fe5a911d8b8fd2084ec4ada12be9111ef68"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "4a9b791d51359aee4592e9afbac753b02494932f2e0cf0a70f4ba2ed2b8e415e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "ad0196090a9433c899e53b10a1ee666cd75bb29657c4f6ce51dd9c7537e06312"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "5e5e2f46dd6d32692f0c61cf609ad91adc8664a8856a1a98c86e578069c7a391"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "3adc57c5b4117690f531acb8f5b1fe7534020f4e7d3e4eaaa626425c837ba32b"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "d9c0ad82c4ae6c5aee3a227ca33237d8e01bbb4bdabb24a3000b81db0cad5c6e"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "7b2db448ffdd56373edb57b4d9902d1ec54b0662ee39f7923ab9b05af2a589c6"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "8c6d662f07c983681623976afaaa243572f713f5cb910d421d0599da36a4de6c"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "8ae0f4a803439c1fab9229b14ba55c452b2bf05777fde30a5676903039692ef8"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "794110bbfefbda95f73cd5d09a827774a5123352fbce84ad34a4deb089d0427b"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "4c79406cc882d09c489f7b50c960cf71521aca7ed1b3442652851a88a2f5624e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "adc871642d075c4e84cd65e3544ca5dd61395454ec60aae13dd9b637441b5baf"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "b58a9861e02c6e8a648d43c77876d76ece42333a439fd93445bc9e0c3bfc2cd4"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "dc7f6538e3c3e0774557bffa020af27d9bd112d38977947ba7730f6518ac42e4"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "a3ddd86dae913f4a7adf3cff80887cf2efd990ebd003fc014d460371eddff368"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "8c7aea2dffa14361469ad98923297541db10138d2e092200fbf71c41b39ae1f3"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "c9feb45e43e59da0782f7517b3dfbc4e71afb68c0cd902ebc98a0fc3ce0646db"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "86a2161cef8afd8f1ba556b06a35132ea4f98fe7fb191470d80253c5edac960b"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "416d77e15ddae854a2983f00c6bbe56f034d2937a034f881f50205c1e14a0f05"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "b830c1598afe4342eb02a666bd3ac86406d0c1e5a5b9a7ce8e890d8663c75ad4"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "1e1b3203c423ecec2b8bf1db89e5797a9ce0918027106e25c8b88f995152c7ea"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "83bd5c43ecc05d2d4e0f2145f8c2eef81af8c5ad359fa82525e5db95404e9a16"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "c7bf56e8d1095f817afbaba7d11b48e94b1d6351599a4bcb8a30244c96cae7b7"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "f29bc0c1e375d2ad6abd4cdabe9aea8e3138d0a8c33b5018270829cafb0194fd"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "edf2d21ed90112abeceaf342a2c1a617cd55ff69839b5db71a7fb464090623e9"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "127a61958f47a9ebed6c878a55f91d2e4ac492d1fb47eedeeed585275474a34d"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "e50f44a32fa0d4f8ab6732ec7aeaf9549e6c425f2843324c6c6a4a1fdebadc53"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "d276ebbf1913bc3ce4fedc3e05e4f5155eddd5bde601cdbe8ee92322a450e5ed"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "deaaea3a4bd404c6d86ef75207fdb2ebda90e1179626fc93954aa957719fc3f0"
+      }
+    ],
+    "master_sha256": "30b9235870e5e075ff26bf6c3ccd4304c3a430cc579089495a6a0dcb38628d33",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "8020"
+        }
+      ],
+      "format": {
+        "duration": "267.333333",
+        "size": "14871444"
+      }
+    },
+    "poster_sha256": "2ac553ea3b5d5a705dac02b521f27b8cca4a9f74d2568d36674d87e590ea584a",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "final_scene_midpoints_visually_inspected": [
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/01.jpg",
+      "sha256": "2ac553ea3b5d5a705dac02b521f27b8cca4a9f74d2568d36674d87e590ea584a"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/02.jpg",
+      "sha256": "65cb0bde4d3324ef1f1740f4a28f41817bae06f6e8d98dc4b0b0bc6a7cb71437"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/03.jpg",
+      "sha256": "39d8e9006e5748201694586cf4914803a0c408b6be921b014a177cab28f6e913"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/04.jpg",
+      "sha256": "b22c5fa7910dd2321a0372abb12f692b80b6a90c5ac1f311e6010319a61a51e9"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/05.jpg",
+      "sha256": "cd0090104a7eac442397651287e7c8275e32592ff865132b99d80c9c5b44f531"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/06.jpg",
+      "sha256": "002739f4ae62b0c06a2fc08c767497092d1836caa089aae1b93377f164fec883"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/07.jpg",
+      "sha256": "9cf82540ae751832c35cb3975844a9eb1d645fd69a7b9390df32fcac67dc3f3b"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/08.jpg",
+      "sha256": "bd127c07fec5fa0984f228238ae0bcbfccddf05c4374296e72bac26db73cf161"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/09.jpg",
+      "sha256": "533e1a53985f2e455a20460c7a4a52f11836e075c72e5af11e32a9645ea488ec"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/10.jpg",
+      "sha256": "e37940280e830f560643b43266a51ca2c07b57bb1f99763c6fa92cca1b344eb4"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/11.jpg",
+      "sha256": "27fb49a24ee5b9055b684a97b1c29f092a919b462dfa7de90545e40af5bb100c"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/12.jpg",
+      "sha256": "9cc6e853822b1450bd492e6a8fda889dd87388bb23793ab843d306b8e962856d"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/13.jpg",
+      "sha256": "586e209a0ee723dde931369dced5666e9bf1f1c8ab206eef9c66257f300a6588"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/56_lineage/scene_samples/14.jpg",
+      "sha256": "92b7e013d6d822608303403f9a4e01137b9b89ac8f626d1ed48811f733127f71"
+    }
+  ],
+  "full_master_decode_passed": true,
+  "focused_tests_passed": 21,
+  "deliberate_source_mutations_observed_red": 6,
+  "editorial_translations": 13,
+  "child_crop_fallback_fixed": false,
+  "original_hold_preserved": true,
+  "visual_review_notes": [
+    "All fourteen final scene midpoints inspected, including actual three-image unsafe fallback and verified parent-only image.",
+    "Shift-click enlarges the existing parent preview; it does not create higher-resolution detail. Escape returns to the same image.",
+    "The hidden object-key column is not represented as visible; selected identities are independently checked against the source database."
+  ],
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "published": false
+}

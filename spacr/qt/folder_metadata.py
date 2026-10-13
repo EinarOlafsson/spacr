@@ -1,0 +1,274 @@
+"""
+Folder-structure metadata + auto-generated field ids.
+
+Some datasets don't carry metadata in the filename — instead the
+folder tree encodes it (``plate1/A01/field_01/ch1.tif``). This
+module handles both:
+
+* :func:`detect_folder_metadata` — walk the tree, propose a folder
+  template that captures plate / well / field / channel.
+* :func:`assign_missing_fields` — for datasets that have no filename
+  metadata AND no folder metadata, mint fresh ``wellID`` /
+  ``fieldID`` / ``chanID`` values in a stable order and emit a
+  ``filename_map.csv`` linking the original file paths to the
+  canonical spaCR names (``<plate>_<well>_F<field>_C<channel>.tif``).
+
+The mapping CSV format is intentionally compatible with the one
+:mod:`spacr.pipeline_v2` writes so the two flows share downstream
+tooling.
+"""
+from __future__ import annotations
+
+import csv
+import logging
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+
+LOG = logging.getLogger("spacr.qt.folder_metadata")
+
+#: Extensions :func:`iter_image_files` treats as images. Deliberately the
+#: plain-raster set: this is the walk that feeds folder-structure detection
+#: and the extraction plan, and a container (``.nd2``/``.czi``/``.lif``) is
+#: handled by :mod:`spacr.qt.multi_format` instead.
+IMAGE_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+
+#: How many synthetic wells :func:`_well_from_index` puts in a row before
+#: starting the next one. Only the *width* is a convention — the rows are
+#: not, because :func:`_well_from_index` keeps counting with
+#: :func:`spacr.schema.well_id` (``Q``, ``R`` … ``AA``) rather than stopping
+#: at ``P``. There used to be a companion ``WELL_ROWS = ascii_uppercase[:16]``
+#: here; nothing read it, and a stale "rows stop at P" list sitting next to
+#: code that deliberately counts past P is how the next 16-row bug gets
+#: written.
+WELL_COLS = list(range(1, 25))
+
+
+
+@dataclass
+class FolderTemplate:
+    """One inferred folder metadata layout.
+
+    :ivar depth_labels: e.g. ``("plate", "well", "field")`` — describes
+        which subfolder level maps to which spaCR field.
+    :ivar sample_paths: a few original files that fit the layout.
+    :ivar chan_from_filename: True if the LEAF filename carries the
+        channel id (e.g. ``ch1.tif``).
+    """
+    depth_labels:       Tuple[str, ...]
+    sample_paths:       Tuple[Path, ...]
+    chan_from_filename: bool
+
+
+_WELL_RX     = re.compile(r"^[A-Z]{1,2}\d{1,3}$", re.I)
+_FIELD_RX    = re.compile(r"^(?:F|field|fld|position)[_-]?(\d+)$", re.I)
+_CHANNEL_RX  = re.compile(r"^(?:C|ch|channel)[_-]?(\d+)$", re.I)
+_PLATE_RX    = re.compile(r"^plate[_-]?\d*$", re.I)
+
+
+def _classify(token: str) -> Optional[str]:
+    """Name the metadata axis a filename token belongs to.
+
+    ORDER MATTERS. The field, channel and plate recognisers name their axis
+    explicitly and are strictly more specific, so they are checked first --
+    ``F01``, ``C01``, ``ch1`` and ``plate2`` still classify as themselves.
+    What is left over (``Z01``, ``S01``, ``T01``) is genuinely ambiguous
+    from a single token and is read as a WELL, because on a plate that is
+    what it is: row Z, row S, row T. A dataset meaning a z slice, a site or
+    a timepoint should spell it with a prefix the specific recognisers know.
+
+    :param token: one filename token.
+    :returns: the axis name, or ``None`` when nothing recognises it.
+    """
+    if _FIELD_RX.match(token):   return "field"
+    if _CHANNEL_RX.match(token): return "channel"
+    if _PLATE_RX.match(token):   return "plate"
+    if _WELL_RX.match(token):    return "well"
+    return None
+
+
+def detect_folder_metadata(root: Path, max_probe: int = 30,
+                             files: Optional[Iterable[Path]] = None
+                             ) -> Optional[FolderTemplate]:
+    """Walk ``root``, try to recognise a folder-structured layout.
+
+    :param root: dropped folder.
+    :param max_probe: cap on files inspected — the layout should
+        repeat, so no need to walk millions.
+    :param files: image paths already collected from ``root``, used instead of
+        walking. This is how a caller that needs both a template *and* a full
+        file list gets them out of ONE traversal: it pulls a probe off
+        :func:`iter_image_files`, hands it here, and keeps draining the same
+        generator afterwards.
+    :returns: a :class:`FolderTemplate` describing the detected
+        layout, or None if we can't infer one.
+    """
+    root = Path(root)
+    if files is None and not root.is_dir():
+        return None
+
+    probe = iter_image_files(root, cap=max_probe) if files is None else files
+    matches: List[Tuple[Path, List[str]]] = []
+    for p in probe:
+        rel = p.relative_to(root)
+        parts = list(rel.parts[:-1])
+        labels = [_classify(part) for part in parts]
+        if any(labels):
+            matches.append((p, [l for l in labels if l is not None]))
+        if len(matches) >= max_probe:
+            break
+
+    if not matches:
+        return None
+
+    sequences: Dict[Tuple[str, ...], List[Path]] = {}
+    for path, labels in matches:
+        sequences.setdefault(tuple(labels), []).append(path)
+    best_seq, sample = max(sequences.items(), key=lambda kv: len(kv[1]))
+
+    chan_from_filename = any(
+        _CHANNEL_RX.match(p.stem) or "ch" in p.stem.lower()
+        for p in sample[:5]
+    )
+    return FolderTemplate(
+        depth_labels=best_seq,
+        sample_paths=tuple(sample[:5]),
+        chan_from_filename=chan_from_filename,
+    )
+
+
+def iter_image_files(root: Path, cap: Optional[int] = None):
+    """Yield the image files under ``root``, from a single recursive walk.
+
+    **Lazy.** The drop handlers need two things from a dropped folder — a small
+    probe to guess the layout from, and (only if the guess succeeds) the full
+    file list to plan an extraction. Pulling both off one generator means the
+    tree is traversed once; abandoning the generator after the probe means a
+    folder with no layout to detect is never fully walked.
+
+    :param root: folder to walk.
+    :param cap: stop after this many image files. ``None`` for no cap.
+    """
+    root = Path(root)
+    seen = 0
+    for p in root.rglob("*"):
+        if p.suffix.lower() in IMAGE_EXTS and p.is_file():
+            yield p
+            seen += 1
+            if cap is not None and seen >= cap:
+                return
+
+
+
+@dataclass
+class NameMapping:
+    """One row of the generated filename_map.csv.
+
+    :param original_path: path of the source image file, as a string.
+    :param canonical: canonical file name minted for it,
+        ``<plate>_<well>_F<field>_C<channel>.tif``.
+    :param plate: plate id used in the canonical name.
+    :param well: well name such as ``A01``.
+    :param field: field index within the well, starting at 1.
+    :param channel: channel index, starting at 1.
+    :param time: time-point index written to the ``time`` column.
+    """
+    original_path: str
+    canonical:     str
+    plate:         str
+    well:          str
+    field:         int
+    channel:       int
+    time:          int = 1
+
+
+def _well_from_index(idx: int) -> str:
+    """Return the 384-well-plate name for ``idx`` (0-based, row-major).
+
+    Past ``P24`` this used to fall through to ``f"E{idx + 1:03d}"``, which is
+    not a fallback at all: ``spacr.schema.parse_well('E001')`` reads it as
+    row E column 1, so the 385th folder was given the name of a well that
+    already exists. :func:`spacr.schema.well_id` just keeps counting rows
+    (``Q``, ``R`` … ``AA``), which stays unique and stays a real well name a
+    1536 plate can have.
+    """
+    from spacr import schema
+
+    row = idx // len(WELL_COLS)
+    col = idx % len(WELL_COLS) + 1
+    return schema.well_id(row + 1, col)
+
+
+def assign_missing_fields(
+    filenames: Sequence[Path],
+    plate: str = "plate1",
+    have_well: bool = False,
+    have_field: bool = False,
+    have_channel: bool = True,
+) -> List[NameMapping]:
+    """Mint synthetic ``wellID`` / ``fieldID`` / ``chanID`` values for
+    filenames that lack them.
+
+    Filenames are grouped into "sets" of (well × field) — one entry
+    per file. Ordering is stable (sorted alphabetically) so re-running
+    on the same folder yields the same canonical names.
+
+    :param filenames: absolute paths to the source images.
+    :param plate: plate id used in the canonical name.
+    :param have_well: True if the caller already knows well ids from
+        elsewhere (folder structure); False to auto-assign A01, A02, …
+    :param have_field: True if the caller knows field ids.
+    :param have_channel: True when we can extract channels from the
+        filename or the folder — otherwise every file is treated as
+        channel 1.
+    :returns: list of :class:`NameMapping`, in the same order as
+        ``filenames`` after sort.
+    """
+    files = sorted(filenames)
+    mappings: List[NameMapping] = []
+    well_idx = 0
+    field_idx = 1
+    for i, src in enumerate(files):
+        well = "A01" if have_well else _well_from_index(well_idx)
+        fld = 1 if have_field else field_idx
+        chan = 1 if not have_channel else 1
+        canonical = f"{plate}_{well}_F{fld:03d}_C{chan:02d}.tif"
+        mappings.append(NameMapping(
+            original_path=str(src),
+            canonical=canonical,
+            plate=plate, well=well, field=fld, channel=chan,
+        ))
+        if not have_field:
+            field_idx += 1
+            if field_idx > 999:
+                field_idx = 1
+                well_idx += 1
+        elif not have_well:
+            well_idx += 1
+    return mappings
+
+
+def save_filename_map(dst: Path,
+                        mappings: Sequence[NameMapping]) -> Path:
+    """Write ``mappings`` to ``dst`` as a CSV Excel opens cleanly.
+
+    Columns: ``original_path, canonical, plate, well, field, channel, time``.
+
+    :param dst: CSV file to write; missing parent folders are created and an
+        existing file is overwritten.
+    :param mappings: rows to write, one per :class:`NameMapping`, in the given
+        order after a header row.
+    """
+    dst = Path(dst)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    cols = ["original_path", "canonical", "plate", "well",
+            "field", "channel", "time"]
+    with open(dst, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(cols)
+        for m in mappings:
+            w.writerow([m.original_path, m.canonical, m.plate,
+                        m.well, m.field, m.channel, m.time])
+    LOG.info("wrote %d filename mappings → %s", len(mappings), dst)
+    return dst

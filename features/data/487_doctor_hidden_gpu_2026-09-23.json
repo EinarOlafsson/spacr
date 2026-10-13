@@ -1,0 +1,36 @@
+{
+  "torch_version": "2.6.0+cu124",
+  "cuda_build": "12.4",
+  "CUDA_VISIBLE_DEVICES": "",
+  "cuda_initialized_before": false,
+  "cuda_initialized_after": false,
+  "gpu_allocated": false,
+  "results": [
+    {
+      "check": "gpu",
+      "status": "SKIP",
+      "message": "CUDA/ROCm devices are deliberately hidden by CUDA_VISIBLE_DEVICES=''; no GPU probe was run.",
+      "fix": "Keep this restriction for CPU execution. Remove the visibility restriction before diagnosing those GPUs.",
+      "details": [
+        "Segmentation (Cellpose): CPU \u2014 CPU only \u2014 expect minutes per image",
+        "Model training: CPU \u2014 CPU only \u2014 slow but works",
+        "Model inference / classification: CPU \u2014 CPU only",
+        "Live backdrop and spaceout: CPU \u2014 CPU renderer",
+        "UMAP / t-SNE / clustering: CPU \u2014 CPU \u2014 cuML is built for CUDA only"
+      ]
+    },
+    {
+      "check": "gpu",
+      "status": "SKIP",
+      "message": "CUDA/ROCm devices are deliberately hidden by CUDA_VISIBLE_DEVICES=''; no GPU probe was run.",
+      "fix": "Keep this restriction for CPU execution. Remove the visibility restriction before diagnosing those GPUs.",
+      "details": [
+        "Segmentation (Cellpose): CPU \u2014 CPU only \u2014 expect minutes per image",
+        "Model training: CPU \u2014 CPU only \u2014 slow but works",
+        "Model inference / classification: CPU \u2014 CPU only",
+        "Live backdrop and spaceout: CPU \u2014 CPU renderer",
+        "UMAP / t-SNE / clustering: CPU \u2014 CPU \u2014 cuML is built for CUDA only"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex context review of table-merge and annotation controls during guide drafting, independently peer-reviewed by a second Codex agent. Corrects concrete relational/table, action and Boolean-operator mistranslations. Existing candidate gates and normal generator remain unchanged. Original proposals and replaced generated targets retained here.",
+  "author": "merge_interfaces",
+  "peer_reviewer": "root",
+  "original_proposals": {
+    "Output observation table": "Tabla de observaciones de salida",
+    "Base keys": "Claves de la tabla base",
+    "Child keys": "Claves de la tabla secundaria",
+    "Output column": "Columna de salida",
+    "Filter source metadata or preview conditions": "Filtrar metadatos de origen o condiciones de la vista previa",
+    "Export table": "Exportar tabla"
+  },
+  "replaced_generated_targets": {
+    "Output observation table": "Cuadro de observación de productos",
+    "Base keys": "Teclas básicas",
+    "Child keys": "Llaves para niños",
+    "Output column": "Columna de productos",
+    "Filter source metadata or preview conditions": "Metadatos de origen de filtro o condiciones de vista previa",
+    "Export table": "Cuadro de exportación"
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Output observation table",
+      "source": "Output observation table",
+      "source_sha256": "e2f9375f50bc8b387a4730f9216fe79e7274a88626429442ba59f6b890951036",
+      "translation": "Tabla de observaciones de salida"
+    },
+    {
+      "table": "ui",
+      "key": "Base keys",
+      "source": "Base keys",
+      "source_sha256": "46ae4c7e8b2b4a13059e9b34357fbb18678470497edc92a3d111f660ed9ac0b8",
+      "translation": "Claves de la tabla base"
+    },
+    {
+      "table": "ui",
+      "key": "Child keys",
+      "source": "Child keys",
+      "source_sha256": "742a9fafde02f1bf710c88966a21e45c5f9f02358f15b2035501d6a81f06ea3d",
+      "translation": "Claves de la tabla secundaria"
+    },
+    {
+      "table": "ui",
+      "key": "Output column",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "translation": "Columna de salida"
+    },
+    {
+      "table": "ui",
+      "key": "Filter source metadata or preview conditions",
+      "source": "Filter source metadata or preview conditions",
+      "source_sha256": "418177badab7ffd82d6357a95ee1feb0133a443a4f1095e7dda87b15903cd2f2",
+      "translation": "Filtrar metadatos de origen o condiciones de la vista previa"
+    },
+    {
+      "table": "ui",
+      "key": "Export table",
+      "source": "Export table",
+      "source_sha256": "e6249e8219c3648af58d4305db14d624153474640b98fbd482d6b9fc573a733a",
+      "translation": "Exportar tabla"
+    }
+  ]
+}

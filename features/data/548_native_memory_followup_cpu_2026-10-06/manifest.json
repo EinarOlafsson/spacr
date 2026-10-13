@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-06",
+  "before_commit": "fac1d5ef28",
+  "after_commit": "cb33158ba9",
+  "before_peak_rss_mib": 1792.76,
+  "after_peak_rss_mib": 1698.21,
+  "reduction_mib": 94.55,
+  "outputs": [
+    {
+      "path": "stack/plate1_A01_1_1.npy",
+      "sha256": "2f778ebf93b5b3e624112c650992a09d9fa3738bc0bf6e8d15774232acab3d7d",
+      "bytes": 33554560
+    },
+    {
+      "path": "stack/plate1_A01_1_2.npy",
+      "sha256": "be03ccd5409ecef6569eb8be3da811536d71510baff3d96b8db198804aa93d5e",
+      "bytes": 33554560
+    },
+    {
+      "path": "masks/plate1_A01_1_norm_timelapse.npz",
+      "sha256": "ae16d1ed6ed7cc5341e43daf467814f0379f70b6109d190527baf10f2c6c932c",
+      "bytes": 9923479
+    }
+  ],
+  "tests": "66 passed under 4 GiB CPU-only",
+  "limitations": [
+    "Same bounded 2T/2Z/2C/2048-square uint16 TIFF fixture; not arbitrary large-volume acceptance.",
+    "Whole-field raw and normalized arrays still scale with acquisition size.",
+    "Shared host timings are not speed acceptance."
+  ],
+  "files": {
+    "after-io.py.gz": {
+      "sha256": "b058f46aec7a919ca7b5f06e3cdde98a98226b48c6584c0911f6e834e876b785",
+      "bytes": 113941
+    },
+    "before-io.py.gz": {
+      "sha256": "80ac56932354e230a3af49b29f6be7910825a1659a6a379387218856c891e825",
+      "bytes": 113921
+    },
+    "change.diff": {
+      "sha256": "1502e6690ff5ef2c26f807c5e927355a2da54e1276fe85fc3ae1adc4f0f3c05d",
+      "bytes": 964
+    },
+    "measure.py": {
+      "sha256": "bf7515ebc398850a5177072726c853d0e177b8e65a977882e63668e2e68d5540",
+      "bytes": 1006
+    },
+    "native-transient-baseline-repeat.log.gz": {
+      "sha256": "06047b877917feebc0f05c9c30d1afc06e3463910308e763bb6a1a610e1d7c96",
+      "bytes": 422
+    },
+    "native-transient-release-measure.log.gz": {
+      "sha256": "741103b8c66905b92ac9d4c1d19c4901e2cdc0b45771426a04c00ffcd712ae40",
+      "bytes": 421
+    },
+    "native-transient-release-tests.log.gz": {
+      "sha256": "c43d12f50471591446bcd73c4b60f370d7d98ddae231587259393caa46f3657a",
+      "bytes": 53
+    }
+  }
+}

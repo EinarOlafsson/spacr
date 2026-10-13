@@ -1,0 +1,137 @@
+{
+  "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "database_bytes": 30629888,
+  "native_verification": {
+    "accepted": true,
+    "scope": "Actual native charts and reversible filters; annotation handoff explicitly BROKEN",
+    "original_handoff_hold_preserved": true,
+    "brush_review": {
+      "published_object_keys": 653,
+      "visible_selected_rows": 0,
+      "handoff_enabled": false,
+      "annotation_handoff_works": false
+    },
+    "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+    "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "rows": 2341,
+    "area_filter_cutoff": 21925.0,
+    "filtered_rows": 1171,
+    "filter_cleared": true,
+    "selection_publication_cleared": true,
+    "chart_checks": [
+      {
+        "scene": "05_area_histogram",
+        "actual_bar_counts": [
+          0,
+          27,
+          80,
+          164,
+          244,
+          327,
+          299,
+          266,
+          249,
+          203,
+          147,
+          109,
+          67,
+          56,
+          35,
+          19,
+          12,
+          12,
+          4,
+          4,
+          3,
+          6,
+          1,
+          1,
+          1,
+          1,
+          3,
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "scene": "06_real_scatter",
+        "panel_point_counts": [
+          2341
+        ],
+        "all_rendered_frame_values_match_source": true
+      },
+      {
+        "scene": "07_well_column_colour",
+        "panel_point_counts": [
+          2341
+        ],
+        "all_rendered_frame_values_match_source": true
+      },
+      {
+        "scene": "08_acquisition_row_facets",
+        "panel_point_counts": [
+          1140,
+          1201
+        ],
+        "all_rendered_frame_values_match_source": true
+      },
+      {
+        "scene": "09_live_area_filter",
+        "panel_point_counts": [
+          608,
+          563
+        ],
+        "all_rendered_frame_values_match_source": true
+      },
+      {
+        "scene": "10_filter_cleared",
+        "panel_point_counts": [
+          1140,
+          1201
+        ],
+        "all_rendered_frame_values_match_source": true
+      }
+    ],
+    "folds": [
+      "plate_view",
+      "trellis"
+    ],
+    "final_spec": {
+      "x": "cell_area",
+      "y": "cell_channel_1_mean_intensity",
+      "colour": "columnID",
+      "size": null,
+      "facet_row": null,
+      "facet_col": null,
+      "kind": null,
+      "roles": {},
+      "bins": 30,
+      "shared_x": true,
+      "shared_y": true,
+      "point_budget": 50000,
+      "seed": 0,
+      "spread": "none"
+    },
+    "source_database_unchanged": true,
+    "app_source_modified": false,
+    "annotation_handoff_fixed": false,
+    "chart_export_button_used": false,
+    "published": false
+  },
+  "provenance": {
+    "commit": "aa1ca806a25e15b2dc71a96740d5b4cc8e308e87",
+    "version": "1.5.0.6",
+    "module": "graph_builder",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_chart_export": false,
+  "synthetic_data": false,
+  "published": false,
+  "download_sha256": "f018566da4f53ce00e367f6c7dcf432be94c5dd0beda3fdd4569d0ab2281a3f8",
+  "download": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/examples/Graph_Builder_real_measurements.zip"
+}

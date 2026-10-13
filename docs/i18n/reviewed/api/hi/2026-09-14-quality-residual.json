@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping.",
+      "label": "spacr.batch#1",
+      "source": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* pipeline with *one* settings dict.",
+      "source_sha256": "a53d080370abfc15197e6d99be77c1bfd8586e0b7819aa231a951b28ceb15da1",
+      "translation": "Plate Queue (:mod:`spacr.qt.plate_queue`) *प्लेटों* को *एक ही* पाइपलाइन से होकर, *एक ही* सेटिंग्स डिक्शनरी के साथ, एक के बाद एक चलाता है।"
+    }
+  ],
+  "schema": 1
+}

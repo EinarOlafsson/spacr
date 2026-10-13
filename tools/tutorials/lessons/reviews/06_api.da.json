@@ -1,0 +1,29 @@
+{
+  "lesson": "06_api",
+  "english_sha256": "a48e16fce2492866cb7894a42976f612efa1239b793128a8ccfce2ef2d62fbc1",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Python-API og batchkommandoer",
+  "description": "Find en analysefunktion, indlæs gemte indstillinger, kontrollér inputtet, og kør spaCR fra en terminal.",
+  "objectives": [
+    "Finde de installerede batchkommandoer og deres Python-funktioner.",
+    "Undersøge en funktions signatur og dens API-reference.",
+    "Kontrollere gemte indstillinger, før en analyse køres."
+  ],
+  "prerequisite": "Installer spaCR, og aktivér dets Python-miljø. Følg Regression-vejledningen for at forberede parrede tabeller med scorer og tællinger og gemme analyseindstillingerne. Brug dine egne filstier i kommandoerne.",
+  "scenes": [
+    "Aktivér det Python-miljø, hvor du installerede spaCR. Importér spacr, og udskriv versionen med den viste kommando. Gem versionen sammen med dine analysenoter, så du senere kan genskabe den samme kørsel.",
+    "Kør spacr-run --list for at finde de tilgængelige batchkommandoer. Listen viser hver kommandos nøgle og dens Python-funktion. Vælg kommandoen til din opgave, for eksempel mask, measure eller regression. Brug skrivebordsprogrammet til interaktive opgaver som at mærke billeder i Annotate.",
+    "Kør spacr-run --describe regression. Læs de nødvendige input, standardværdierne og funktionsnavnet. Her kalder batchkommandoen perform_regression i spacr.ml. Åbn funktionen i API-referencen for at læse dens parametre og de resultater, den returnerer.",
+    "I Python importerer du den funktion, du har brug for, og undersøger dens signatur. Dette eksempel importerer build_report fra spacr.report. Slå det samme navn op i API-referencen, forbered de nødvendige argumenter, og kald funktionen fra dit script eller din notebook.",
+    "Gem indstillingerne fra modulets workflow, og send derefter filen med --settings. Tilføj --dry-run for at kontrollere konfigurationen og inputstierne. I dette Regression-eksempel parrer indstillingerne fænotypescorer med guideantal for hver plade. Læs meddelelserne, og ret manglende input, før du fortsætter.",
+    "For at udføre analysen kører du den samme kommando uden --dry-run. Følg konsollen, indtil kommandoen er færdig, og undersøg derefter det output, der er beskrevet i modulets vejledning og API-side. Opbevar indstillingsfilen, inputtabellerne, pakkeversionen og konsolloggen sammen med resultaterne."
+  ]
+}

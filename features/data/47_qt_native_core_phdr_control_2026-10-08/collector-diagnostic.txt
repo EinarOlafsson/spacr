@@ -1,0 +1,4 @@
+owned_pid=3952166
+python_executable=/home/olafsson/anaconda3/envs/spacr/bin/python3.12
+collector_process_ids=[3952166]
+elf_identity={"elf_class": 64, "executable_path_present": true, "machine": 62, "process_pid_count": 1, "process_pids": [3952166], "program_header_stride": 56, "program_headers": 599, "reason": "accepted"}

@@ -1,0 +1,39 @@
+{
+  "lesson": "25_recruitment",
+  "english_sha256": "a715d9ca58ce49398b497703e04145ed9542ac251e4ea8708650163b6d4478f8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Recruitment: mål markøranrikning omkring parasitter",
+  "description": "Vælg et målt projekt, knyt markørkanal og betingelser, indstil objektfiltre, og undersøg derefter rekrutteringsforhold pr. værtscelle og brønd.",
+  "objectives": [
+    "Vælge et projekt med sammenknyttede målinger af celler, kerner, patogener og cytoplasma.",
+    "Indstille markørkanal, pladebetingelser og objektfiltre.",
+    "Køre Recruitment og læse CSV-resultaterne for værtsceller og brønde."
+  ],
+  "prerequisite": "Begynd med et projekt fra Measure, der indeholder measurements/measurements.db og sammenknyttede tabeller for celler, kerner, patogener og cytoplasma. Medtag sammenlagte billeder for at vise billedoverlejringer. Eksemplet bruger en ER-markør på kanal 1; brug den kanaltilknytning og de betingelseslabels, der er registreret for dit eget projekt.",
+  "scenes": [
+    "Fra Home åbner du Toxoplasma og vælger derefter Recruitment. Brug analysen til at sammenligne markørintensiteten i parasitassocierede områder med værtscellens omgivende cytoplasma. Begynd med et projekt, hvis objekter og intensitetskanaler allerede er målt.",
+    "Sæt Source til projektmappen, der indeholder measurements/measurements.db. Hold tabellerne for celler, kerner, patogener og cytoplasma samlet. Medtag mappen med sammenlagte billeder, hvis du vil have billedoverlejringer.",
+    "Sæt Channel of interest til den markør, du vil måle. Kanalerne nummereres fra 0: 1 betyder det andet billedplan. Eksemplet bruger kanal 1 til ER-markøren. Vælg den kanal, der svarer til din optagelse.",
+    "Sæt Channel dims til de kanaler, der skal bruges til de supplerende rekrutteringsoversigter. I en første kørsel bruger du den samme enkeltkanal som i Channel of interest, så hovedforholdet og de ekstra intensitetsoversigter er lette at sammenligne.",
+    "Kontrollér kanaltilknytningen for celle, kerne og patogen mod det målte projekt. Eksemplet bruger celle 1, kerne 0 og patogen 3. Gem tilknytningen sammen med dine indstillinger, så overlejringer og filtre henviser til de tilsigtede signaler.",
+    "Indtast labels for celle, patogen og behandling, og knyt derefter hver label til dens rækker eller kolonner på pladen. Kun annoterede brønde indgår i analysen. Tilpas tildelingerne til dit pladelayout, inklusive positive og negative kontroller.",
+    "Brug størrelsesintervallerne til at udelukke objekter uden for de arealer, du vil analysere. Arealerne er i pixel, og grænserne er strenge. Patogenarealet summeres inden for hver værtscelle i denne analyse, så vælg intervallet ud fra totalen på celleniveau.",
+    "Indstil Nuclei limit og Pathogen limit for at styre, hvilke værtsceller der bevares. En kernegrænse på 1 bevarer celler med én kerne. Hæv en grænse for at medtage celler med flere tilknyttede objekter, og kontrollér derefter, hvor mange celler der er tilbage.",
+    "Begynd med brede intensitetsintervaller, så du kan undersøge de første resultater. Indsnævr et interval, når du har en klart defineret udvælgelsesregel baseret på intensitet. Mindste målintensitet lægger en ekstra grænse på markørens celleintensitet.",
+    "Kontrollér, hvilken kanal hvert intensitetsfilter bruger, før du indsnævrer dets grænser. Med eksemplets tilknytning bruger kerneintensitetsfilteret kanal 3 og patogenintensitetsfilteret kanal 1. Behold eksemplets brede intervaller, mens du lærer arbejdsgangen.",
+    "Sæt Cells per well til det mindste antal kildeceller, en brønd skal have for at blive i analysen. Indstillingen filtrerer brønde, mens objektfiltrene udvælger celler. Undersøg de endeligt bevarede antal og ikke kun tærsklen.",
+    "Slå Plot til for at vise tilgængelige billedoverlejringer, og brug Plot number til at begrænse, hvor mange der vises. Lad Plot control være slået til, hvis du vil have kontrollernes intensitetsfigurer. Brug plottene til at kontrollere kanalvalg og filtrering, før du fortolker forholdene.",
+    "Tryk på Run. Følg konsollen, mens modulet sammenkobler målingerne, anvender betingelser og filtre, beregner forhold og skriver resultaterne. Vent, til analysen er færdig, før du åbner outputtabellerne.",
+    "Undersøg rekrutteringsplottet. Hovedværdien dividerer værtscellens summerede gennemsnitlige patogenintensitet med den gennemsnitlige intensitet i dens cytoplasma i den valgte markørkanal. Værdier over 1 viser anrikning i forhold til den reference. Læs de numeriske eksporter for forhold under det plottede interval eller med ugyldige nævnere.",
+    "Undersøg brøndoversigten, og sammenlign kontrolbetingelserne. Hver brønd tager gennemsnittet af forholdene for sine bevarede celler; betingelsesplottene opsummerer disse brøndværdier. Fejllinjerne viser standardafvigelsen mellem brønde. Celletabellen repræsenterer værtsceller med summerede patogenmålinger.",
+    "Åbn results/cells.csv for målingerne af bevarede værtsceller og results/wells.csv for brøndoversigterne. Gem begge filer sammen med de gemte indstillinger. Kontrollér celletal, betingelseslabels og at forholdene er endelige, før du sammenligner forsøg, og brug uafhængige brønde som eksperimentelle replikater."
+  ]
+}

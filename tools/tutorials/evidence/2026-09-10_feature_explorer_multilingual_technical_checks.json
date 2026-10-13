@@ -1,0 +1,156 @@
+{
+  "lesson": "65_feature_explorer",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_feature_explorer_current_workflow.json",
+  "canonical_english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "scene_count": 14,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "738b4ff7240ae7101e304ce592b9309f5cc3f9a8",
+    "version": "1.5.0.4",
+    "module": "feature_explorer",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "65_feature_explorer.da.json": "43347b262d09bb6b7981c264698764a1254dcf3302281d8566c88d41f8b671c7",
+    "65_feature_explorer.de.json": "787c0cc701e4c82f484fa7ea70b39e2ef3e7128a2ec0cdf23f3d120c61c19706",
+    "65_feature_explorer.es.json": "f85e5f58f7cff7014183e3fc489afa530b82e93a6aa7d140397e81fb70557a89",
+    "65_feature_explorer.fr.json": "a0357317b77562a2ec174f42f0baa374c8794a74c0aae6dc4da1f7aa759eb00d",
+    "65_feature_explorer.hi.json": "695d5d193d2b9c66c47f997c84321a113c8e2b496d07bb3c2453c8701de7035d",
+    "65_feature_explorer.is.json": "871ff7dc9824be63db9cbdb1a0e7fc0f56f90dc88c0e5f4917578badbbc2595b",
+    "65_feature_explorer.it.json": "54330b4d9eb8646675bbd365b72b07eb5cae7a5c032875fa49b5b6f529148f1a",
+    "65_feature_explorer.ja.json": "62100e7936120ba14470779ce019d1ad53dacde03bb0851a184989e39d30206b",
+    "65_feature_explorer.ko.json": "32983576434e4e0252151505769637e6246bef7c6104e257024bbc006ce355ed",
+    "65_feature_explorer.nb.json": "791dcb316d72447bebb6a6eb107f0de0ccc0f95657ec7ca18cc6e3e5fbba4113",
+    "65_feature_explorer.pt-BR.json": "db6bc5874a94eecd039032a1a3c9639be7a294aecbf7358ef1cc25d886dc961c",
+    "65_feature_explorer.sv.json": "7c2708ceadd72ef22be514bb4981979372ee8e74d3fa7e6a163b0f2848209c95",
+    "65_feature_explorer.zh-CN.json": "e512b72dcb363f390f4b9f50f6baedaa780e569f018a94dbed72fff77dace015"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently checked actual two-class GUI comparisons; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "eed33ecc8884d06a0576c5b77b1cc308e8933a1115b76b05163946a95da4462a",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "8724"
+        }
+      ],
+      "format": {
+        "duration": "290.800000",
+        "size": "16282443"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 190,
+        "content": "Actual automatic switch from rowID to eight maxima-count classes, smallest n=1; not the original comparison"
+      },
+      {
+        "seconds": 235,
+        "content": "Actual area_k=cell_area/1e3 formula and finite-value preview limited to first 2000 rows"
+      }
+    ]
+  },
+  "poster_sha256": "a28f4c76a713dd7f131353f4959f06be45e05c1053de833a82ca5cf623eb48b5",
+  "final_artifact_checks_sha256": "87ba79d49a07f68db580ce09fbe7793adf68619f91d968bd6b41a8b83594bd1a",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "1df47fbc09cff59064e7e7290c16594fce6e6c05044b1961682d3a9fea61f930"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "2b91823ff5a3ce55bae8af9de184bfec80ad8bc3273bd0b65e702d35fe9bb0c3"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "407e0ae9732cd4c3df0a64a0d7e132916a1f88c36cf45e7b70232dd7cd614594"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "27b8793fa32c4df284f73564197d6863c19ac6339521538edfcdcb2875dcf91c"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "01c67894c80597f384561b97f3e2fd66a6b5fccc6bd40f8fc9c59dab2cb6294b"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "560af3754feb24af51ececc1665c5a6fa4d3190b01edcd579d356c310f3c8b56"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "4af88704bf069aedeb3269a5c3f7aa917b9ff3c8f12d75ea3a122b428a7d1ac4"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "79f52f5846ab8e3db8adb4913f95fb0ad32fb677ea7d15e8aa82bcbe7c81c893"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "28a8accf90e8eba484e46aa00a022077ebeb8f98eac4b3a32ce3edf5b7715a01"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "2d482670608eecd82ce60ba0ae73aa75e7096a522f298f086de4fe02994e1850"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "4b67e09b67ea8f7b67c3b35a6127a5b8418c14b5f7aec896b28c502bc34be95c"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "811548a8971ef5f69feff5387dd2a9f6e477407e8d358c2a962cef04173da0de"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "99fb12fbfc5cbf20682e222e8823568ac544dd2b61d5ba4c71a7d9b611900394"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "bda2e366a9d3e903b8d45e219d3ca29ef36067d7fc5e7d3cc0a210073b416ed1"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "b6ef50f12ba6c9f9dd4581cbb68d790c61b0485207d9c3b3849ae58d8f63e5e0"
+    }
+  ],
+  "max_observed_browser_clock_error_seconds": 0.04830019904662208,
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "09_annotate",
+    "34_database",
+    "58_graph_builder"
+  ],
+  "catalog_preservation_sha256": "62eff39c1586256907037809ea05f23437cd44bf174b8eae2e9dd423343c01ae",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 721,
+    "selected_refreshed_lessons": 28,
+    "unselected_lessons_unchanged": 47
+  },
+  "scope_limits": [
+    "Actual Classify fold and downloaded Annotate measurement database, 2341 cells and 276 columns. Spatial rowID r12/r5 is not an established treatment contrast; cells share fields and wells.",
+    "Independently checked intended two-class AUC, KS, feature ordering and finite class counts; all export values matched actual ranking. Multiclass numeric statistics and histogram bin heights not independently reimplemented.",
+    "Top4 exports four features; Top500 exports 261 baseline features. Only up to eight histogram panels are drawn. Whole-ranking wording does not override Top.",
+    "Area>=21925 leaves1171 cells and255 scorable features, clearing restores2341/261. Filtering to r12 silently changes comparison to eight maxima-count classes, min n1. Clearing can change it again; explicitly reselect rowID.",
+    "area_k=cell_area/1e3 is a positive rescaling, not physical calibration or a new measurement. All2341 derived values checked; preview only2000. Export262 then Remove restores261. Original and private measurement database SHA unchanged.",
+    "No Classify training, shuffled labels, GPU analysis, new image pipeline, dedicated download or AI request. No app/global i18n edit. Rankings are descriptive, not independent biological validation."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

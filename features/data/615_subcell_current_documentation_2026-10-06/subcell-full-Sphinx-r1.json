@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "application_source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "catalogs_sha256": {
+    "de.json": "08587465b8990052cb8293ef3ec1eb7b7deadf94f007626c582ba4b43e94f434",
+    "zh_CN.json": "83af4988c1b2bd26ef72aa2ff6e0650afa36dc5599c464a1fe7df69b376176c2",
+    "sv.json": "0d5e663425eb49810504a13e5ce4aa0da826c29f4937813bbbb20e3845916b6a",
+    "es.json": "cef35141d88dbe5e21ecdf1eaea57f59b1bee9e7b41a6360e3e106b3ccf7d333",
+    "ko.json": "a52eb153ac9b049b05e2a1f5f73c334d7cf38bf4129179e8851f324d534db468",
+    "pt.json": "d0a86c57e95480636758d7acda9b57271d65740cef8cf031d9d2fa8fc119f078",
+    "hi.json": "4eb4fa505ff8ad834cf6910e048a23cfd1fc4485e1e2840b8344881d165cdb9f",
+    "is.json": "1afc93127da89e2517a9220b3b6fd45631f26f44f302807c00ea17f89eba2d2c",
+    "en.json": "ca2995b5c7434e2016700ab96c13caf6df461dd6f94133ddace8fd99af75d78b",
+    "fr.json": "485152cd6004ead4f96c4de488fb57dc234234137b92deffa44edbe8e72c5ea6"
+  },
+  "normal_strict_complete_Sphinx": true,
+  "exit_code": 0
+}

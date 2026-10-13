@@ -1,0 +1,9 @@
+{
+  "phase": "before",
+  "seconds": 7.0262636879924685,
+  "exit_code": -6,
+  "source_sha256": "01f816ccf9f3fc93b3ee0fb5e3a80faf930c56de7e7e05db08130d0fed660a8d",
+  "core_limit_bytes": 0,
+  "blocked_reader": "controlled Python Event; actual source QThread and actual5000ms shutdown timeout",
+  "cause_scope": "Separate parented parked-QThread invariant; not reproduction of hosted80ms waitUntil SIGSEGV."
+}

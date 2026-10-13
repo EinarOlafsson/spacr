@@ -1,0 +1,13 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Overlap",
+      "source": "Overlap",
+      "source_sha256": "38b163f9be7c4f3be3d8ef89a23beff832e8dd9ed0a28308a47cefabca0e1c00",
+      "table": "ui",
+      "translation": "Chevauchement"
+    }
+  ],
+  "schema": 1
+}

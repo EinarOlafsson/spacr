@@ -1,0 +1,20 @@
+{
+  "source": "52ac5b7221",
+  "passed": 250,
+  "seconds": 32.88,
+  "memory_cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "source_sha256": {
+    "tests/qt/test_features_button_opens_the_measure_table.py": "4a63de255477e32fcc888c806812420101a1ae3e534974ccee141ab7b89156cb",
+    "tests/qt/test_the_settings_tree_is_drawn.py": "e2d80ff415ae29306ff43ffba5225bed0ae34996a21986398d75c9d81ac932d3",
+    "tests/qt/test_timelapse_always_on.py": "0e5183e5a1704a39ee3cbc0181d8110d8e026cb37b5391b2493a95052dee8bbe",
+    "tests/qt/test_the_panel_keeps_module_defaults.py": "4a69b15fad6933c5b35eeefb438ed134248e9f30eec43e09600331e6be8aab2b",
+    "tests/qt/test_regression_panel_is_one_page.py": "a53f06c2c1b9b54950b9a003b4e0dcc2c84d889c1c31281a64c8c5ca3de6545c",
+    "tests/qt/test_umap_reducer_settings.py": "66b3431e3442c91c40aa5ad17d2ee7dd596b128c5213f41ee5df100e8e377d69",
+    "tests/qt/test_umap_row_exclusion_settings.py": "fffd39eac1c8a9ac8232957b6bf17c231bf97712d4aa0841ad2b5e9f9d113099",
+    "tests/qt/test_field_fade.py": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15"
+  },
+  "warnings": "Four existing multi-threaded fork DeprecationWarnings from Measure/project tests; no failure. Not a fix or waiver of fork behavior.",
+  "scope": "Independent root same-process integration of seven repaired owner files plus one field-fade sentinel; bounded explicit cohort, not a whole local suite or full serial acceptance. Eighth working-set repair has separate17-case receipt."
+}

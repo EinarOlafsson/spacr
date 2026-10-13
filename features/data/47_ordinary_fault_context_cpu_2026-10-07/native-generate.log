@@ -1,0 +1,17 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Program received signal SIGSEGV, Segmentation fault.
+__strlen_avx2 () at ../sysdeps/x86_64/multiarch/strlen-avx2.S:76
+warning: 76	../sysdeps/x86_64/multiarch/strlen-avx2.S: No such file or directory
+Fatal Python error: Segmentation fault
+
+Current thread 0x00007ffff7ea2740 (most recent call first):
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/ctypes/__init__.py", line 525 in string_at
+  File "/mnt/wd4tb/scratch/ci-native-faults-20261007/ordinary-reraised-proof/probe.py", line 24 in <module>
+
+Program received signal SIGSEGV, Segmentation fault.
+__pthread_kill_implementation (no_tid=0, signo=11, threadid=<optimized out>) at ./nptl/pthread_kill.c:44
+warning: 44	./nptl/pthread_kill.c: No such file or directory
+warning: Memory read failed for corefile section, 4096 bytes at 0xffffffffff600000.
+Saved corefile /mnt/wd4tb/scratch/ci-native-faults-20261007/ordinary-reraised-proof/core.controlled

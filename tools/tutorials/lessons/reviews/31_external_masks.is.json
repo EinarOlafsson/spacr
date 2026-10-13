@@ -1,0 +1,38 @@
+{
+  "lesson": "31_external_masks",
+  "english_sha256": "5c94fdec0708e9848478d70a90be12722fd91c5c955c5a4090d82ebed3684bb3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "External Masks: mældu myndir með meðfylgjandi merkjum hluta",
+  "description": "Úthlutaðu mynd- og grímuskrám, forskoðaðu pörun þeirra og búðu svo til mælt spaCR-verkefni með töflum hluta og úrklippum.",
+  "objectives": [
+    "Úthluta styrkleikamyndum og merkjagrímum réttum hlutverkum.",
+    "Velja rásir, staðsetningu úttaks og valkosti mælinga.",
+    "Forskoða pörunina, keyra Measure og skoða úttaksverkefnið."
+  ],
+  "prerequisite": "Útbúðu samsvarandi styrkleikamyndir og grímur merktar með heiltölum sem hafa sömu rúmfræðilegu stærð. Hver hlutur þarf sitt eigið jákvæða heiltölumerki; 0 er bakgrunnur. Dæmið endurnýtir tvö pör af mynd og frumugrímu úr kennsluefninu Import Project.",
+  "scenes": [
+    "Frá Home opnarðu Import Project og velur svo External Masks. Notaðu þetta tól þegar þú ert þegar með aðgreiningarmerki og vilt að spaCR mæli samsvarandi myndir.",
+    "Útbúðu samsvarandi styrkleikamyndir og merktar grímur. Dæmið notar tvö pör af mynd og frumugrímu. Haltu hverju pari samstilltu og notaðu skráarheiti eða lýsigögn sem gera innflutningnum kleift að para rétt sjónsvið.",
+    "Smelltu á Add folder fyrir myndamöppuna og aftur fyrir grímurnar. Farðu yfir Use as: veldu Image fyrir styrkleikaskrár og Mask fyrir merki. Stilltu Mask type á hólfið sem hver gríma táknar, til dæmis Cell.",
+    "Stilltu Use as á Ignore fyrir hvern hóp sem þú vilt sleppa. Skrár hans eru áfram á diskinum. Hafðu myndahópinn og grímurnar sem greiningin þarf með.",
+    "Settu Image aftur á styrkleikahóp dæmisins. Athugaðu úthlutanir fyrir Image og frumugrímu áður en þú velur áfangastað.",
+    "Stilltu Dst á nýja verkefnismöppu. Veldu Layout, Z handling og Plate naming í samræmi við skrárnar þínar. Dæmið notar flata uppsetningu, fyrsta Z-lagið og plötuheiti byggð á vísi. Notaðu lýsigögn myndatöku þegar halda þarf upprunalegu auðkenni brunna.",
+    "Veldu undir Channels þær styrkleikarásir sem á að mæla. Hver TIFF-skrá í dæminu inniheldur eitt styrkleikalag, svo veldu rás 0 og hafðu slökkt á Normalize. Rásanúmer vísa til skránna sem þú flytur inn.",
+    "Veldu hvort mæla eigi umfrymi. Með frumugrímum eingöngu nær afleidda svæðið yfir alla frumuna. Leggðu fram grímur fyrir innri hólf þegar þú þarft að útiloka þau frá svæðinu.",
+    "Undir Object Crops virkjarðu Save PNG og velur cell í Crop mode. Stilltu PNG size á 224 × 224. Veldu rás 0 fyrir PNG-vörpun þessa einrása dæmis.",
+    "Veldu mælieiginleikana sem þú þarft og virkjaðu svo Save measurements. Notaðu N jobs til að stilla samhliða vinnslu. Byrjaðu á litlu inntakssafni meðan þú lærir á stillingarnar og skoðar úrklippin sem verða til.",
+    "Virkjaðu Preview only og ýttu á Run. Athugaðu í áætluninni tillögðu pörun mynda og grímna, fjölda sjónsviða og uppsetningu rása. Leiðréttu úthlutanir áður en verkefnið er skrifað.",
+    "Slökktu á Preview only og ýttu aftur á Run. Tólið undirbýr myndir og grímur verkefnisins og keyrir svo Measure til að reikna eiginleika hluta og búa til umbeðin úrklipp.",
+    "Skoðaðu styrkleikamyndina við hlið meðfylgjandi merkja. Athugaðu mörk hluta, hluti sem vantar og samstillingu myndar og grímu áður en þú túlkar mælingarnar.",
+    "Flettu í gegnum samsetta mynd hlutanna til að skoða útdregnu úrklippin. Notaðu myndskoðarann til að fara á milli sjónsviða og athuga hvort valdar rásir og úrklippastærð sýni hlutina skýrt.",
+    "Opnaðu measurements/measurements.db fyrir töflur hluta og data fyrir úrklipp til merkingar. Haltu conversion_map.csv og upprunaskránni með verkefninu svo hægt sé að rekja innflutt sjónsvið. Haltu áfram í Annotate til að merkja úrklippin, eða notaðu mælingatöflurnar í síðari greiningu."
+  ]
+}

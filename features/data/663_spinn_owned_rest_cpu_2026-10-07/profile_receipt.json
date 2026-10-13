@@ -1,0 +1,66 @@
+{
+  "source_sha256": "40e7f77b88febd8589c6cab2232c539194bf13d9019b53f7ee67e1663ecb9445",
+  "source_commit": "368e2cdf1d",
+  "import": "/mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py",
+  "size": [
+    3840,
+    2160
+  ],
+  "controls": {
+    "density": 3,
+    "detail": 2,
+    "size": 1,
+    "radius": 0.5
+  },
+  "records": [
+    {
+      "background": "#101418",
+      "cold_ms": 623.9445660030469,
+      "samples_ms": [
+        61.62546400446445,
+        65.58585600578226,
+        64.9050300125964,
+        62.271798989968374,
+        46.23240197543055,
+        50.12528598308563,
+        48.97331100073643,
+        52.8009379922878
+      ],
+      "median_ms": 57.213200998376124,
+      "p95_ms": 65.34756690816721,
+      "count": 2652,
+      "rotating": 1082,
+      "tile_bytes": 42081168,
+      "profile": "dark-profile.txt",
+      "frame_sha256": "babd900e7cfa4bbd36ccc206e0b6cf955a57f6d6d60e6fef53e3a709543c3d12"
+    },
+    {
+      "background": "#f4f4f0",
+      "cold_ms": 623.8998149929103,
+      "samples_ms": [
+        64.3415609956719,
+        67.16370899812318,
+        51.24046001583338,
+        49.46753801777959,
+        52.98966000555083,
+        52.45464199106209,
+        55.36221800139174,
+        58.171356009552255
+      ],
+      "median_ms": 54.175939003471285,
+      "p95_ms": 66.17595719726523,
+      "count": 2652,
+      "rotating": 1082,
+      "tile_bytes": 42081168,
+      "profile": "light-profile.txt",
+      "frame_sha256": "c154b358b22b81c4bc23f2b2ca39431e8ab7f21b6848a6a3b85152ca40fdf138"
+    }
+  ],
+  "load_average": [
+    2.6259765625,
+    2.55322265625,
+    3.556640625
+  ],
+  "peak_rss_kib": 328132,
+  "scope": "Direct shader/profile only, not live cadence or hard24FPS acceptance."
+}

@@ -1,0 +1,2950 @@
+"""Collect, navigate, and restyle figures emitted by a pipeline run.
+
+The panel combines a thumbnail strip, forward/back controls, a position label,
+and a zoomable full-resolution view. Every arriving figure is written to a
+temporary PNG. The newest 100 full-resolution ``QPixmap`` objects remain in
+memory; older entries reload their PNG on demand, while thumbnails stay in
+memory. Clearing the queue or destroying its owner removes the temporary
+directory.
+
+In PDF mode, the PNG preview appears immediately and a worker rasterizes the
+vector page at 2,200 pixels before replacing it. This keeps the GUI responsive
+during expensive vector rendering; the recorded nine-panel, 16-by-12-inch
+figure required about 815 ms to rasterize synchronously.
+"""
+from __future__ import annotations
+
+import functools
+import logging
+import shutil
+import sys
+import tempfile
+import threading
+import time
+import weakref
+from collections import OrderedDict
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
+
+from PySide6.QtCore import QEvent, QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QIcon, QImage, QPalette, QPixmap
+from PySide6.QtWidgets import (
+    QDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ..hidpi import device_ratio, scaled_for
+from ..i18n import tr
+from ..job_runner import JobRunner
+from ..theme import active_palette
+from .flash import FLASH_MS, Flash
+from .live_preview import _ZoomView
+
+LOG = logging.getLogger("spacr.qt.figure_queue")
+
+#: Longest edge, in pixels, of the crisp vector-page render swapped in behind
+#: the PNG. Enough for a figure filling a 4K panel; beyond it the extra pixels
+#: cost render time nobody can see.
+PDF_DISPLAY_MAX_PX = 2200
+
+#: Ceiling for a render the USER's zoom asked for.
+#:
+#: The first vector render is sized for a figure filling a panel. Zooming in
+#: then magnifies that raster, so past a point the user is looking at big
+#: pixels of a vector page -- which is the one thing a vector page exists to
+#: avoid. Zooming re-renders the page finer instead, up to here.
+#:
+#: 8000 px on the long side is ~256 MB as ARGB, which is the reason for a
+#: ceiling at all: it is a working buffer for ONE figure, held only while that
+#: figure is on screen.
+PDF_ZOOM_MAX_PX = 8000
+
+#: How much further in the user must zoom before the page is re-rendered.
+#:
+#: Not 1.0. Every wheel notch would otherwise start a render, and the renders
+#: would queue behind a user who is still turning the wheel.
+PDF_ZOOM_REFINE_RATIO = 1.6
+
+
+#: Where a figure remembers the text size a user chose for IT, as opposed to
+#: the size every figure gets from :func:`spacr.qt.preferences.get_figure_text_size`.
+#: An attribute on the Figure rather than a side table, so it survives the
+#: pickle that spills an evicted figure to the temp directory and comes back
+#: with it -- a per-figure choice that vanished when the figure left RAM would
+#: be worse than none.
+FIGURE_TEXT_SIZE_ATTR = "_spacr_text_size"
+
+
+PRINT_BACKGROUND = "#ffffff"
+PRINT_INK = "#000000"
+
+
+def figure_text_items(fig):
+    """Return every text object attached to a Matplotlib figure.
+
+    Includes axis titles and labels, tick labels, annotations, legends and
+    legend titles, the figure title, and text stored directly on the figure.
+    The function has no Qt dependency and is safe to call from the figure
+    rendering worker.
+
+    :param fig: Matplotlib figure to inspect.
+    :returns: Text objects in traversal order, with duplicate objects removed.
+    """
+    items = []
+    for ax in getattr(fig, "axes", ()):
+        items += [ax.title, ax.xaxis.label, ax.yaxis.label]
+        items += list(ax.get_xticklabels()) + list(ax.get_yticklabels())
+        items += list(getattr(ax, "texts", ()))
+        legend = ax.get_legend()
+        if legend is not None:
+            items += list(legend.get_texts())
+            title = legend.get_title()
+            if title is not None:
+                items.append(title)
+    items += list(getattr(fig, "texts", ()))
+    return [item for item in items if item is not None]
+
+
+def figure_text_size_override(fig) -> int:
+    """The text size the user set on THIS figure, or 0 for "no override".
+
+    :param fig: a Matplotlib figure; the size is read from an attribute set
+        by :func:`set_figure_text_size_override`, and a missing or unreadable
+        value gives 0.
+    """
+    try:
+        return max(0, int(getattr(fig, FIGURE_TEXT_SIZE_ATTR, 0) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def set_figure_text_size_override(fig, size: int) -> None:
+    """Remember a per-figure text size, or clear it with ``0``.
+
+    Written by the per-figure control in
+    :class:`spacr.qt.widgets.figure_settings.FigureSettingsDialog` and read by
+    :func:`render_figure_to_png`, which is the whole point: without it the
+    next full render puts the global preference straight back over the user's
+    choice, which is issue #108's "the font size has been returned to 10".
+
+    :param fig: the Matplotlib figure to tag; a figure that refuses the
+        attribute is logged and left alone.
+    :param size: text size in points; ``0`` (or a negative value) clears the
+        override.
+    """
+    try:
+        setattr(fig, FIGURE_TEXT_SIZE_ATTR, max(0, int(size or 0)))
+    except (AttributeError, TypeError, ValueError):
+        LOG.debug("could not remember a per-figure text size", exc_info=True)
+
+
+#: Serialises every touch of a matplotlib Figure. The worker
+#: thread renders figures while a run streams them (`bridge._capture_show` ->
+#: `render_figure_to_png`) and the GUI thread recolours them when the style
+#: dialog is accepted. matplotlib is NOT thread-safe, so the two together are a
+#: potential C-layer segfault rather than a recoverable Python exception.
+#:
+#: IT IS NOT ONLY THE RESTYLE ON THIS SIDE. The settings dialog also DRAWS the
+#: figure while a control moves -- `_render_preview` rasterises it and
+#: `_render_preview_async` pickles it to hand a copy to a worker -- and both
+#: run on the GUI thread over the very Figure a worker may be rendering: a
+#: figure marked `_spacr_live_update` is re-rendered by the run for as long as
+#: the fit lasts, and `_rerender_for_size` hands the current figure to a worker
+#: on every resize. A draw racing a draw is the same crash as a draw racing a
+#: recolour, so those two take the lock as well.
+#:
+#: RE-ENTRANT, because the render path styles before it renders; a plain Lock
+#: would deadlock the first time one call did both.
+FIGURE_LOCK = threading.RLock()
+
+
+_LIVE_QUEUES: "weakref.WeakSet[FigureQueue]" = weakref.WeakSet()
+
+
+def live_figure_queues():
+    """A snapshot of FigureQueues that still have a real owner."""
+    return tuple(_LIVE_QUEUES)
+
+
+def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
+                         line: str = "") -> None:
+    """Apply background, line, text color, and text size to a figure.
+
+    ``line`` colors axis spines and tick marks; ``fg`` colors every text item,
+    including tick labels. An empty line color reuses ``fg``. Data-series
+    lines and gridlines remain unchanged. A zero ``text_size`` preserves the
+    figure's existing size or its per-figure override.
+    """
+    with FIGURE_LOCK:
+        ink = str(line) if str(line).strip() else fg
+        if not text_size:
+            text_size = figure_text_size_override(fig)
+        try:
+            fig.patch.set_facecolor(bg)
+            for ax in fig.get_axes():
+                ax.set_facecolor(bg)
+                for sp in ax.spines.values():
+                    sp.set_color(ink)
+                ax.tick_params(color=ink, labelcolor=fg, which="both")
+            for t in figure_text_items(fig):
+                t.set_color(fg)
+                if text_size:
+                    t.set_fontsize(text_size)
+        except Exception:
+            pass
+
+
+def _sibling_pdf(png_path) -> Path:
+    """The ``.pdf`` that belongs beside ``png_path``.
+
+    Every place in this module that reaches for a figure's vector page comes
+    through here, because the *only* thing that pairs the two files is that
+    the writer and the readers derive the same name — nothing records it.
+    ``Path.with_suffix`` on its own does not guarantee that: it replaces
+    whatever follows the last dot, so a caller handing over a path with a
+    dotted name and no extension (``run_2.5``) gets ``run_2.pdf`` — and so
+    does ``run_2.6``, which is two figures rasterising one page. Only a
+    trailing ``.png`` is treated as an extension here; anything else keeps its
+    whole name and gains a suffix, which cannot collide.
+
+    Both real callers (:mod:`spacr.qt.bridge` and :class:`FigureQueue`) pass
+    ``*.png``, so this changes nothing for them. It is here so that the one
+    invariant the vector page depends on is stated once instead of being
+    re-derived, identically, at every place that writes, moves, deletes or
+    rasterises a page.
+    """
+    path = Path(png_path)
+    if path.suffix.lower() == ".png":
+        return path.with_suffix(".pdf")
+    return path.with_name(path.name + ".pdf")
+
+
+def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
+    """Write ``fig`` to ``pdf_path`` as an *editable* vector page.
+
+    Three things are decided here rather than left to matplotlib's defaults.
+
+    **Fonts are embedded as TrueType** (``pdf.fonttype = 42``) for the length
+    of the save. matplotlib's default is Type 3, which draws every glyph as
+    its own little content stream: the file is still vector, but Illustrator
+    and Inkscape open the text as unselectable outlines. The preference that
+    turns this whole path on is labelled "PDF (vector, editable)", and Type 3
+    delivers only the first half of that. The setting is scoped with
+    ``rc_context`` so a pipeline that has deliberately chosen fonttype 3 for
+    its own ``savefig`` calls is not changed underneath it.
+
+    **The requested DPI is passed in**, even though a PDF page is
+    resolution-independent. Vector art ignores it; an ``imshow`` panel does
+    not — and spaCR figures are full of them (cell montages, mask overlays,
+    plate heatmaps). Without it those panels are embedded at the figure's own
+    100 DPI while the user has asked for 300, so the "vector" export is a
+    vector frame around a blurry bitmap. Note this is the *uncapped*
+    preference value: the display cap in :func:`render_figure_to_png` exists
+    to keep a screen raster quick to decode, and this file is not a screen
+    raster. The cost is real and worth stating — a full-page montage at the
+    1200 DPI the preference offers is a big file — but it is the number the
+    user chose, and silently substituting a smaller one is the bug this
+    function is fixing.
+
+    **The background is whatever the caller passes.** A graph the user SAVES
+    does not come here: :func:`render_figure_to_png` with ``for_print=True``
+    restyles a detached copy white-on-dark-ink (:data:`PRINT_BACKGROUND`,
+    :data:`PRINT_INK`) and writes it through :func:`spacr.plot.save_figure`
+    (:func:`_write_print_file`), the one writer for a file a user keeps. The
+    gallery's own sibling page written here keeps the app theme's colours, i.e. black
+    under a dark theme. That looks wrong for an export and is nevertheless
+    right for THAT page, because it is not an export: it :meth:`FigureQueue._request_pdf_refinement`
+    rasterises this same file at 2200 px and swaps it in as the on-screen
+    pixmap, so a white page would make every figure flash from dark to light a
+    moment after it appeared. And a white page would not fix anything on its
+    own — :func:`_style_figure_colors` has already painted the axes black and
+    the labels white *on the Figure object*, so ``facecolor="white"`` alone
+    yields black panels and white-on-white text, which is worse than a
+    consistent dark page. That is why the print style works on a copy and
+    never on the figure the gallery or a canvas is showing: a print page is
+    written to the path the user chose, never beside a gallery PNG, so the pixmap
+    swap in :meth:`FigureQueue._request_pdf_refinement` can never pick one up.
+
+    Returns True if the page was written.
+    """
+    pdf_path = Path(pdf_path)
+    try:
+        from matplotlib import rc_context
+        with rc_context({"pdf.fonttype": 42}):
+            fig.savefig(str(pdf_path), dpi=dpi, bbox_inches="tight",
+                        facecolor=bg)
+        return True
+    except Exception as exc:
+        LOG.warning("vector PDF export failed for %s: %s", pdf_path, exc)
+        try:
+            pdf_path.unlink()
+        except OSError:
+            pass
+        return False
+
+
+def _retry_on_a_fresh_canvas(fig, png_path, dpi, bg) -> bool:
+    """Render ``fig`` through a new Agg canvas. ``True`` when it worked.
+
+    Split out so the reason is in one place: the figure survives its canvas,
+    and a canvas is what `savefig` needs rather than what the figure IS.
+    """
+    try:
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+        from ..preferences import figure_bg_is_transparent
+
+        FigureCanvasAgg(fig)
+        fig.savefig(png_path, dpi=dpi, bbox_inches="tight", facecolor=bg,
+                    transparent=figure_bg_is_transparent(bg))
+        return True
+    except Exception:                                            # noqa: BLE001
+        return False
+
+
+def _write_print_file(figure, path, fmt: str, dpi: int) -> str:
+    """Write one print-styled file through :func:`spacr.plot.save_figure`.
+
+    A graph the user saves is a file they keep, so it goes through the one
+    writer every kept figure goes through: TrueType fonts in a PDF, the DPI
+    passed even to a vector page, and the print mode that names a data
+    colour the white page has made illegible. The format and DPI are the
+    ones this save was asked for rather than the preference's, because the
+    save dialog has already chosen them. ``figure`` is already styled white
+    with dark ink, so the print repaint finds nothing to move.
+
+    :param figure: the detached, print-styled copy (or the figure itself
+        when it could not be copied).
+    :param path: destination; ``.png`` or ``.pdf``.
+    :param fmt: ``"png"`` or ``"pdf"``.
+    :param dpi: the resolution asked for, with no display cap.
+    :returns: the path written.
+    """
+    from ...plot import save_figure
+
+    return save_figure(figure, path, fmt=fmt, dpi=dpi, save_mode="print",
+                       announce_colours=False, bbox_inches="tight",
+                       facecolor=PRINT_BACKGROUND, transparent=False)
+
+
+def _render_print_copy(fig, png_path: str, dpi: int, text_size: int,
+                       write_pdf: bool, screen: tuple) -> bool:
+    """Write ``fig`` to ``png_path`` (and its sibling PDF) in the print style.
+
+    The styling happens on a detached copy (the same pickle round trip the
+    save-figure dialog uses), so the figure on screen is not touched at all.
+    A figure that cannot be copied is styled in place, written, and then put
+    back to ``screen`` -- the ``(bg, fg, line)`` the screen path would apply --
+    so the canvas is left as the screen path would leave it.
+
+    The PNG is written at the requested DPI with no display cap and an opaque
+    white page: the cap exists to keep a screen raster quick to decode, and
+    this file is not a screen raster.
+    """
+    from .save_figure_dialog import copy_figure
+
+    copy = copy_figure(fig)
+    target = copy if copy is not None else fig
+    try:
+        _style_figure_colors(target, PRINT_BACKGROUND, PRINT_INK, text_size,
+                             PRINT_INK)
+        try:
+            _write_print_file(target, png_path, "png", dpi)
+        except Exception as exc:
+            try:
+                from matplotlib.backends.backend_agg import FigureCanvasAgg
+                FigureCanvasAgg(target)
+                _write_print_file(target, png_path, "png", dpi)
+            except Exception:
+                LOG.info("print render failed: %s", exc)
+                return False
+        if write_pdf:
+            pdf_path = _sibling_pdf(png_path)
+            try:
+                _write_print_file(target, pdf_path, "pdf", dpi)
+            except Exception as exc:
+                LOG.warning("print PDF export failed for %s: %s",
+                            pdf_path, exc)
+                try:
+                    Path(pdf_path).unlink()
+                except OSError:
+                    pass
+        return True
+    finally:
+        if copy is None:
+            bg, fg, line = screen
+            _style_figure_colors(fig, bg, fg, text_size, line)
+
+
+#: Longest raster draw, in seconds, of a figure that still goes on the live
+#: canvas. :func:`render_figure_to_png` times the display raster it draws
+#: (usually on the run's worker thread) and :meth:`FigureQueue.show_live_canvas`
+#: reads it: the canvas draws the same figure again ON THE GUI THREAD, at the
+#: canvas size, on its first paint and on every resize. Measured on lesson 08's
+#: Measure run (2560x1440, canvas 2216x975): the three crop figures took
+#: 1.4-3.2 s as worker rasters and held the GUI thread 0.69-0.94 s each in the
+#: canvas. Such a figure is shown as the raster that is already on disk;
+#: everything at or under the limit (an ordinary plot draws in tens of ms)
+#: keeps the live canvas.
+_LIVE_CANVAS_MAX_RASTER_S = 0.2
+
+#: Attribute a figure carries with its last display-raster draw time.
+_RASTER_SECONDS_ATTR = "_spacr_raster_seconds"
+
+
+def _note_raster_seconds(fig, seconds: float) -> None:
+    """Remember how long ``fig``'s display raster took to draw.
+
+    :param fig: the figure just saved.
+    :param seconds: the wall time of that ``savefig``.
+    """
+    try:
+        setattr(fig, _RASTER_SECONDS_ATTR, float(seconds))
+    except (AttributeError, TypeError, ValueError):
+        LOG.debug("could not note a figure's raster time", exc_info=True)
+
+
+def _too_slow_for_the_live_canvas(fig) -> bool:
+    """Whether drawing ``fig`` live would hold the GUI thread too long.
+
+    Judged from its last display raster (:func:`_note_raster_seconds`); a
+    figure never rastered is not judged slow.
+
+    :param fig: the figure about to be shown.
+    """
+    try:
+        seconds = float(getattr(fig, _RASTER_SECONDS_ATTR, 0.0) or 0.0)
+    except (TypeError, ValueError):
+        return False
+    return seconds > _LIVE_CANVAS_MAX_RASTER_S
+
+
+def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
+                         write_pdf: Optional[bool] = None) -> bool:
+    """Style ``fig`` per the app theme and save it as a display-capped PNG —
+    plus, in PDF mode, a genuinely vector ``.pdf`` beside it
+    (:func:`_export_vector_pdf`). Pure matplotlib — no Qt — so it is
+    SAFE TO CALL FROM A WORKER THREAD, which is how the pipeline bridge keeps
+    the GUI responsive while lots of figures are produced.
+
+    Returns True once the PNG — the raster the GUI actually displays — is on
+    disk. A failed *sibling PDF* does not turn that into False, and the
+    asymmetry is deliberate rather than sloppy: the callers turn False into
+    "no pixmap, no thumbnail", so reporting a missing export that way would
+    delete the figure from the gallery over a file nothing has asked for yet.
+    It is logged at WARNING instead, and
+    :meth:`FigureQueue._request_pdf_refinement` notices the absent page,
+    says so, and stops waiting for a render that will never arrive.
+
+    Note what the DPI preference does and does not reach. It sets the PNG's
+    resolution (subject to the display cap below) and the resolution of any
+    raster *inside* the PDF. It does not reach the figures a pipeline saves to
+    its own results directory: those go through ``savefig`` calls in
+    :mod:`spacr.plot`, :mod:`spacr.submodules` and friends, which hard-code
+    their own format and DPI and never consult preferences at all.
+
+    :param fig: the Matplotlib figure; it is restyled in place with the
+        theme's colours and text size before saving.
+    :param png_path: destination PNG path; in PDF mode the ``.pdf`` is
+        written beside it with the same stem.
+    :param for_print: True for a graph the user is SAVING to a file. The
+        files get the white print style (:data:`PRINT_BACKGROUND`,
+        :data:`PRINT_INK`) whatever the screen theme, are written from a
+        detached copy so the figure on screen keeps its colours, and the PNG
+        is not display-capped. False (every gallery and canvas render) is
+        unchanged: theme colours, applied to ``fig`` itself. Decision
+        2026-09-25: "saved graphs (PDF/PNG) get a WHITE PRINT STYLE
+        (white background, dark text/axes/lines) whatever the screen theme";
+        a file is opened by a PDF reader, a printer or a journal, and white
+        text on a transparent page disappears on every one of them.
+    :param write_pdf: whether to write the sibling PDF. ``None`` follows the
+        figure-format preference; a save dialog passes the user's choice.
+    """
+    with FIGURE_LOCK:
+        from ...figures.style import _apply_user_style
+        _apply_user_style(fig)
+        try:
+            from ..preferences import (get_figure_png_dpi, get_figure_format,
+                                       get_figure_colors, get_figure_line_colour,
+                                       get_figure_text_size)
+            dpi = get_figure_png_dpi()
+            bg, fg = get_figure_colors()
+            line = get_figure_line_colour()
+            text_size = get_figure_text_size()
+            fmt = get_figure_format()
+        except Exception:
+            dpi, fmt = 200, "png"
+            bg, fg, text_size = "#ffffff", "#000000", 0
+            line = fg
+        text_size = figure_text_size_override(fig) or text_size
+        pdf_wanted = (fmt == "pdf") if write_pdf is None else bool(write_pdf)
+        if for_print:
+            return _render_print_copy(fig, png_path, dpi, text_size,
+                                      pdf_wanted, (bg, fg, line))
+        _style_figure_colors(fig, bg, fg, text_size, line)
+        try:
+            w_in, h_in = fig.get_size_inches()
+            longest_in = max(float(w_in), float(h_in)) or 1.0
+            display_dpi = min(dpi, max(72, int(4000 / longest_in)))
+        except Exception:
+            display_dpi = min(dpi, 200)
+        try:
+            from ..preferences import figure_bg_is_transparent
+            started = time.perf_counter()
+            fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
+                        facecolor=bg,
+                        transparent=figure_bg_is_transparent(bg))
+            _note_raster_seconds(fig, time.perf_counter() - started)
+        except Exception as e:
+            if not _retry_on_a_fresh_canvas(fig, png_path, display_dpi, bg):
+                LOG.info("figure render failed: %s", e)
+                return False
+        if pdf_wanted:
+            _export_vector_pdf(fig, _sibling_pdf(png_path), dpi, bg)
+        return True
+
+def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
+                        timeout_ms: int = 30000):
+    """Rasterise page 0 of ``pdf_path`` and return it as a ``QImage``.
+
+    The function touches no widget and builds no ``QPixmap``; the caller must
+    create any pixmap on the GUI thread. It uses
+    :class:`QPdfPageRenderer` in ``MultiThreaded`` mode and waits in a nested
+    event loop on the calling worker, allowing the GUI thread to remain
+    responsive.
+
+    The wait is bounded twice over: by ``timeout_ms``, and by
+    ``QThread.quit()`` — which exits *nested* event loops too, so
+    :meth:`FigureQueue._shutdown_jobs` can still stop a render in flight.
+
+    Every QObject created here is unparented so its ownership does not cross
+    thread-affinity boundaries.
+
+    Call this from a worker thread only. On the GUI thread the nested loop
+    would re-enter the application's own event loop and deliver user input in
+    the middle of a render — reentrancy, not a freeze, but no better.
+    :meth:`FigureQueue._request_pdf_refinement` always submits it to a
+    threaded :class:`~spacr.qt.job_runner.JobRunner`.
+
+    Returns ``None`` on any failure. A *missing* file is the most likely one
+    and is not an error: :class:`FigureQueue` deletes its temp directory when
+    it closes, and a render already in flight is expected to survive that
+    rather than raise on the worker thread.
+
+    :param pdf_path: path to the PDF; only its first page is rendered, scaled
+        so its longer side is ``max_px`` pixels.
+    """
+    try:
+        from PySide6.QtCore import QEventLoop, QSize as _QSize, QTimer
+        from PySide6.QtPdf import QPdfDocument, QPdfPageRenderer
+
+        if not Path(pdf_path).is_file():
+            return None
+        doc = QPdfDocument()
+        if doc.load(str(pdf_path)) != QPdfDocument.Error.None_:
+            return None
+        if doc.pageCount() < 1:
+            return None
+        sz = doc.pagePointSize(0)
+        longest = max(sz.width(), sz.height()) or 1.0
+        scale = max_px / longest
+        target = _QSize(max(1, int(sz.width() * scale)),
+                        max(1, int(sz.height() * scale)))
+
+        renderer = QPdfPageRenderer()
+        renderer.setRenderMode(QPdfPageRenderer.RenderMode.MultiThreaded)
+        renderer.setDocument(doc)
+        loop = QEventLoop()
+        box = {}
+
+        def _page_rendered(_page, _size, image, _options, _request_id):
+            """Take the rendered page. Queued back onto THIS thread.
+
+            Which is why it is a handful of lines: it is the only Python holding the
+            GIL while Qt's render thread is working.
+            """
+            box["image"] = image
+            loop.quit()
+
+        renderer.pageRendered.connect(_page_rendered)
+        guard = QTimer()
+        guard.setSingleShot(True)
+        guard.timeout.connect(loop.quit)
+        guard.start(max(1, int(timeout_ms)))
+        renderer.requestPage(0, target)
+        loop.exec()
+        guard.stop()
+
+        img = box.get("image")
+        return img if img is not None and not img.isNull() else None
+    except Exception:
+        LOG.debug("pdf page render failed for %s", pdf_path, exc_info=True)
+        return None
+
+
+RAM_CAP = 100
+
+
+#: How long a resize has to settle before the figure is redrawn. A drag
+#: emits a resize per frame, and re-rendering a figure carrying a few
+#: thousand thumbnails is not a per-frame cost -- so the raster is scaled
+#: during the drag and the true render lands when the user lets go.
+FIGURE_RESIZE_DEBOUNCE_MS = 220
+
+
+#: The strip thumbnail, in LOGICAL pixels. One definition: the list's icon
+#: size and the render handed to it have to agree, and when they drifted the
+#: strip either upscaled a small picture or threw away a large one.
+THUMB_SIZE = QSize(140, 90)
+
+#: Display rasters decoded on the thread that rendered them, by PNG path, as
+#: ``(image, thumbnail, thumbnail ratio)``; :func:`_decode_display_png` fills
+#: it and :meth:`FigureQueue.add_figure` takes from it. Only the newest
+#: :data:`_DECODED_KEEP` are kept, so a raster nobody adopts is not held.
+_DECODED: "OrderedDict[str, tuple]" = OrderedDict()
+_DECODED_LOCK = threading.Lock()
+_DECODED_KEEP = 3
+
+#: The device pixel ratio the gallery strip last drew thumbnails at, as the
+#: GUI thread last read it, for :func:`_decode_display_png`.
+_THUMB_RATIO = [0.0]
+
+
+class _Ratio:
+    """A stand-in paint device that answers one device pixel ratio."""
+
+    def __init__(self, ratio: float) -> None:
+        """Stand for ``ratio``.
+
+        :param ratio: the device pixel ratio to answer.
+        """
+        self._ratio = float(ratio)
+
+    def devicePixelRatioF(self) -> float:
+        """The ratio this stands for."""
+        return self._ratio
+
+
+def _as_pixmap_image(image: QImage) -> QImage:
+    """``image`` in the format a raster ``QPixmap`` of it holds.
+
+    ``QPixmap`` keeps an ARGB32 picture with no transparent pixel as RGB32
+    and any other ARGB32 picture premultiplied; converting here, off the GUI
+    thread, leaves ``QPixmap.fromImage`` nothing to convert. Other formats
+    are returned as they are and converted by ``fromImage`` as before.
+
+    :param image: a decoded picture.
+    """
+    if image.format() != QImage.Format_ARGB32:
+        return image
+    try:
+        import numpy as np
+
+        row = image.bytesPerLine()
+        pixels = np.frombuffer(image.constBits(), dtype=np.uint8,
+                               count=row * image.height())
+        pixels = pixels.reshape(image.height(), row)[:, :image.width() * 4]
+        alpha = pixels[:, 3::4] if sys.byteorder == "little" else pixels[:, 0::4]
+        opaque = bool((alpha == 255).all())
+    except Exception:                                        # noqa: BLE001
+        return image
+    return image.convertToFormat(QImage.Format_RGB32 if opaque
+                                 else QImage.Format_ARGB32_Premultiplied)
+
+
+def _decode_display_png(png_path: str) -> bool:
+    """Decode a display raster for the gallery, off the GUI thread.
+
+    THE GALLERY DECODED EVERY ARRIVING FIGURE ON THE GUI THREAD. On lesson
+    08's Measure run :meth:`FigureQueue.add_figure` held the GUI thread
+    98-269 ms per figure (23-33 ms with nothing else running), loading the
+    PNG (up to 4034 x 3591 px) and scaling it to the strip thumbnail while
+    the run's worker went on drawing. The bridge calls this on the worker
+    right after :func:`render_figure_to_png`; the GUI thread then only wraps
+    the result. The picture and thumbnail are those the GUI thread would
+    have made from the same file: the same decode, the conversion
+    ``QPixmap`` makes (:func:`_as_pixmap_image`), and the same smooth scale
+    at the ratio the strip last drew at.
+
+    :param png_path: the display raster just written.
+    :returns: True when the decoded picture is waiting for the gallery.
+    """
+    try:
+        image = QImage(str(png_path))
+        if image.isNull():
+            return False
+        image = _as_pixmap_image(image)
+        ratio = float(_THUMB_RATIO[0] or 0.0)
+        thumb = (scaled_for(image, _Ratio(ratio), THUMB_SIZE)
+                 if ratio > 0.0 else None)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not decode %s off the GUI thread", png_path,
+                  exc_info=True)
+        return False
+    with _DECODED_LOCK:
+        _DECODED[str(png_path)] = (image, thumb, ratio)
+        _DECODED.move_to_end(str(png_path))
+        while len(_DECODED) > _DECODED_KEEP:
+            _DECODED.popitem(last=False)
+    return True
+
+
+def _take_decoded(png_path) -> Optional[tuple]:
+    """The picture :func:`_decode_display_png` made of ``png_path``, once.
+
+    :param png_path: the raster's path when it was decoded.
+    :returns: ``(image, thumbnail, ratio)`` or ``None``.
+    """
+    if not png_path:
+        return None
+    with _DECODED_LOCK:
+        return _DECODED.pop(str(png_path), None)
+
+
+class _ClearFiguresLabel(QLabel):
+    """Provide a low-chrome destructive control for clearing figures.
+
+    The label uses the active theme's error color and a pointing-hand cursor.
+    A brief accent flash confirms every click, including when the queue was
+    already empty.
+
+    :param parent: parent widget; ownership only.
+    """
+
+    #: Emitted on a completed click or keyboard activation.
+    clicked = Signal()
+
+    def __init__(self, parent=None):
+        """Build the word as a focusable control, not a label."""
+        super().__init__(tr("Clear figures"), parent)
+        self.setObjectName("FigureQueueClear")
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self._flash = Flash(self)
+        self._restyle()
+
+    def _restyle(self) -> None:
+        """Paint at the resting or the flashing colour, from the palette.
+
+        Both colours are palette roles rather than literals, so the control
+        follows a theme switch -- a hex typed in here is a hex that stays dark
+        on the light theme.
+        """
+        try:
+            palette = active_palette()
+            colour = (palette["accent"] if self._flash.active
+                      else palette["error"])
+        except Exception:
+            colour = "#4A9EFF" if self._flash.active else "#f85149"
+        self.setStyleSheet(
+            f"QLabel#FigureQueueClear {{ color: {colour}; "
+            "background: transparent; }")
+
+    def flash(self) -> None:
+        """Light the text briefly, then return it to its resting colour."""
+        self._flash.trigger()
+        self._restyle()
+        QTimer.singleShot(FLASH_MS + 10, self._restyle_after_flash)
+
+    def _restyle_after_flash(self) -> None:
+        """Return to the resting colour once the flash has gone out.
+
+        Qt's coarse timers may fire this before the flash's own end timer,
+        which would repaint the accent again and leave it lit; until the
+        flash reports it is over, look again shortly.
+        """
+        if self._flash.active:
+            QTimer.singleShot(20, self._restyle_after_flash)
+            return
+        self._restyle()
+
+    def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
+        """Clear the figures on a click inside the label.
+
+        On release rather than press, so dragging off cancels -- this discards
+        work, and it is the one control here where a mis-click costs something.
+
+        :param event: the mouse event.
+        """
+        if (event.button() == Qt.LeftButton
+                and self.rect().contains(event.pos())):
+            self.flash()
+            self.clicked.emit()
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):            # noqa: N802 (Qt naming)
+        """Clear the figures on Return, Enter or Space.
+
+        :param event: the key event.
+        """
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self.flash()
+            self.clicked.emit()
+            return
+        super().keyPressEvent(event)
+
+
+def _close_pyplot_figures(figures) -> None:
+    """Release Figures from pyplot's registry, which otherwise keeps them.
+
+    ``plt.figure`` registers every Figure with pyplot, and pyplot holds it
+    until ``plt.close`` -- long after the queue that showed it is gone.
+
+    :param figures: the Figures to release; errors on any one are ignored.
+    """
+    figures = tuple(figures)
+    if not figures:
+        return
+    try:
+        import matplotlib.pyplot as plt
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not import pyplot to close queued figures",
+                  exc_info=True)
+        return
+    for figure in figures:
+        try:
+            with FIGURE_LOCK:
+                plt.close(figure)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not close a queued figure", exc_info=True)
+
+
+def _release_queue_figures(figures, *_args) -> None:
+    """Release every Figure a destroyed queue still held.
+
+    :param figures: the queue's own ``{index: Figure}`` mapping.
+    """
+    _close_pyplot_figures(figures.values())
+
+
+class FigureQueue(QWidget):
+    """Scrollable, RAM-bounded gallery of pipeline figures.
+
+    :param ram_cap: how many bytes of figures the gallery may hold. Older
+        figures are dropped to stay under it, which is what "RAM-bounded"
+        above means -- a pipeline emitting hundreds of figures must not grow
+        without limit.
+    :param parent: parent widget.
+    """
+
+    #: Where the thumbnail strip's width and collapse are remembered (item
+    #: 471): the strip collapses to the left by the handle beside it and
+    #: drags to any width.
+    SECTION_KEY = "figures"
+
+    #: The displayed figure was clicked (not dragged).
+    figure_clicked = Signal()
+
+    def __init__(self, ram_cap: int = RAM_CAP, parent=None):
+        """Build the figure queue.
+
+        :param ram_cap: how many bytes of full-resolution pixmaps to keep in
+            memory; older ones are evicted by least-recent use.
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self._ram_cap = int(ram_cap)
+        self._count = 0
+        self._fig_index: Dict[int, int] = {}
+        self._png_paths: Dict[int, str] = {}
+        self._figures: "OrderedDict[int, object]" = OrderedDict()
+        self.destroyed.connect(
+            functools.partial(_release_queue_figures, self._figures))
+        self._figure_last_used: Dict[int, float] = {}
+        self._figure_bytes: Dict[int, int] = {}
+        self._titles: Dict[int, str] = {}
+        self._runs: list = []
+        self._ram: "OrderedDict[int, QPixmap]" = OrderedDict()
+        self._ram_last_used: Dict[int, float] = {}
+        self._ram_bytes: Dict[int, int] = {}
+        self._tempdir: Optional[Path] = None
+        self._current = -1
+        #: The gallery's own renders (vector-page refinements, re-renders
+        #: for a new size): registered, so shutdown waits for them, but not
+        #: runs the user started. As user-visible runs each one built Home a
+        #: run banner on the GUI thread, 124 ms on a figure's arrival.
+        self._jobs = JobRunner(self, app_key="figures", user_visible=False)
+        #: index -> the in-flight render's token (an int), or ``"done"`` /
+        #: ``"failed"`` once settled. Absent means "may be refined". See
+        #: :meth:`_request_pdf_refinement`.
+        self._pdf_state: Dict[int, Any] = {}
+        self._pdf_seq = 0
+        #: Longest edge each slot's vector page was last rendered at, so a
+        #: zoom knows whether a finer render would show anything new.
+        self._pdf_render_px: Dict[int, int] = {}
+        #: Newest live-preview render; older results are dropped on arrival.
+        self._preview_seq = 0
+        #: A preview draw is on a worker right now.
+        self._preview_busy = False
+        #: A change landed mid-draw and still needs to reach the picture.
+        self._preview_pending = False
+        #: Set by the owning screen; see :meth:`set_propagate_callback`.
+        self._propagate_cb = None
+        _LIVE_QUEUES.add(self)
+        cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+        install = getattr(cleanup, "install_budget_sweep", None)
+        if callable(install):
+            install()
+        self._build_ui()
+
+
+    def _build_ui(self):
+        """Lay out the thumbnail strip, the raster view and the live canvas.
+
+        Nothing between the figure and the theme's wallpaper paints a background
+        of its own: this widget, the stack, the canvas host and the thumbnail
+        strip are all made transparent, and a ``QGraphicsView`` needs all three
+        of its surfaces cleared -- the widget, the viewport and the scene's own
+        background brush -- since clearing two of them looks exactly like
+        clearing none.
+        """
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(4)
+
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key=f"{self.SECTION_KEY}::body")
+        self._body_split = body
+
+        self._list = QListWidget()
+        self._list.setObjectName("FiguresList")
+        self._list.setMinimumWidth(80)
+        self._list.setIconSize(THUMB_SIZE)
+        _THUMB_RATIO[0] = device_ratio(self._list)
+        self._list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._list.customContextMenuRequested.connect(self._list_context_menu)
+        self._list.setSpacing(4)
+        self._list.currentRowChanged.connect(self._on_row_changed)
+        body.add_pane(self._list, "Figure list", mode=EDGE, stretch=0,
+                      extent=160, fold_key=f"{self.SECTION_KEY}/Figure list")
+
+        self._view = _ZoomView(self)
+        self._view.zoom_changed.connect(self._on_view_zoomed)
+        self._view.setFrameShape(QFrame.NoFrame)
+        self._view.setBackgroundBrush(Qt.NoBrush)
+        try:
+            self._view.scene().setBackgroundBrush(Qt.NoBrush)
+        except Exception:               # pragma: no cover - no scene yet
+            pass
+        self._view.viewport().setAutoFillBackground(False)
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(self._view, self._view.viewport())
+        except Exception:
+            pass
+        self._view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._view.customContextMenuRequested.connect(self._view_context_menu)
+        self._view.clicked.connect(self.figure_clicked)
+        self._resize_timer = QTimer(self)
+        self._resize_timer.setSingleShot(True)
+        self._resize_timer.setInterval(FIGURE_RESIZE_DEBOUNCE_MS)
+        self._resize_timer.timeout.connect(self._rerender_for_size)
+        self._view.installEventFilter(self)
+        self._view.setMinimumHeight(280)
+
+        self._stack = QStackedWidget(self)
+        self._stack.addWidget(self._view)
+        self._canvas_host = QWidget(self)
+        self._canvas_layout = QVBoxLayout(self._canvas_host)
+        self._canvas_layout.setContentsMargins(0, 0, 0, 0)
+        self._canvas_layout.setSpacing(0)
+        self._stack.addWidget(self._canvas_host)
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(self, self._stack, self._canvas_host, self._list,
+                             self._list.viewport())
+        except Exception:
+            pass
+        self._canvas = None
+        self._canvas_toolbar = None
+        #: Live figures go to the canvas. Turned off to exercise the raster
+        #: pipeline, which is still what a spilled or PDF-only figure uses.
+        self._live_canvas_enabled = True
+        self._stack.setMinimumHeight(280)
+        body.add_pane(self._stack, "Figure", stretch=1)
+        root.addWidget(body, 1)
+
+        nav = QHBoxLayout()
+        self._pos_label = QLabel("0 / 0", self)
+        self._pos_label.setAlignment(Qt.AlignCenter)
+        self._fig_settings_btn = QPushButton("Figure settings…", self)
+        self._fig_settings_btn.clicked.connect(self._open_figure_settings)
+        self._clear_label = _ClearFiguresLabel(self)
+        self._clear_label.clicked.connect(self.clear)
+        nav.addWidget(self._pos_label, 1)
+        nav.addWidget(self._clear_label)
+        nav.addWidget(self._fig_settings_btn)
+        root.addLayout(nav)
+        self._refresh_nav()
+
+    def eventFilter(self, obj, event):
+        """Debounce the view's resizes into one re-render.
+
+        :param obj: the watched object; only the figure view is acted on.
+        :param event: the filtered event; a ``Resize`` of the view restarts
+            the resize timer, and every event is passed on to the base class.
+        """
+        view = getattr(self, "_view", None)
+        if view is not None and obj is view and event.type() == QEvent.Resize:
+            timer = getattr(self, "_resize_timer", None)
+            if timer is not None:
+                timer.start()
+        return super().eventFilter(obj, event)
+
+    def _rerender_for_size(self) -> None:
+        """Redraw the current figure at the view's current size.
+
+        The EMBEDDING is untouched -- this only changes the canvas the same
+        points are drawn on. A resize that re-embeds is a resize that loses
+        the user's place, and on a UMAP that means every neighbour
+        relationship the user was reading moves.
+        """
+        fig = self._figures.get(self._current)
+        png = self._png_paths.get(self._current)
+        if fig is None or not png:
+            return
+        size = self._view.size()
+        if size.width() < 80 or size.height() < 80:
+            return
+        try:
+            dpi = float(fig.get_dpi()) or 100.0
+            want = (max(2.0, size.width() / dpi), max(2.0, size.height() / dpi))
+            if (abs(fig.get_size_inches()[0] - want[0]) < 0.05
+                    and abs(fig.get_size_inches()[1] - want[1]) < 0.05):
+                return
+            fig.set_size_inches(*want)
+        except Exception:
+            LOG.debug("could not resize the figure", exc_info=True)
+            return
+
+        idx = self._current
+        self._resize_seq = getattr(self, "_resize_seq", 0) + 1
+        token = self._resize_seq
+        self._jobs.submit(
+            lambda _i=idx, _t=token, _f=fig, _p=str(png): (
+                _i, _t, render_figure_to_png(_f, _p), _p),
+            self._on_resize_rendered)
+
+    def _on_resize_rendered(self, payload) -> None:
+        """Show a finished resize render. Always on the GUI thread.
+
+        Discarded when a later resize has already been dispatched, or when
+        the user has navigated to another figure since -- both are ordinary
+        during a drag, and showing a stale render is worse than showing the
+        scaled raster for another moment.
+        """
+        if not payload:
+            return
+        idx, token, ok, png = payload
+        if not ok or idx != self._current:
+            return
+        if token != getattr(self, "_resize_seq", 0):
+            return
+        pixmap = QPixmap(png)
+        if pixmap.isNull():
+            return
+        self._cache_pixmap(idx, pixmap)
+        self._pdf_state.pop(idx, None)
+        self._view.set_pixmap(self._display_pixmap(idx, pixmap))
+
+    def set_propagate_callback(self, callback) -> None:
+        """Register ``callback(dict)`` for the settings window's Propagate.
+
+        The same seam the Mask live preview and the UMAP explorer use
+        (``SettingsWidgets.set_value_for_key`` behind an owner method), so a
+        value tuned against a finished figure lands in the settings panel and
+        is saved with the run instead of living in a dialog that is about to
+        close. Optional: a queue built in a test has none, and the button
+        says so rather than doing nothing.
+
+        :param callback: called with a dict of setting key to value when the
+            figure settings window's Propagate is pressed; ``None`` (or any
+            non-callable) leaves Propagate with nothing to call.
+        """
+        self._propagate_cb = callback
+
+    def refresh_current_figure(self, preview: bool = False) -> bool:
+        """Re-rasterise the figure on screen after something restyled it.
+
+        Writes through :meth:`_render_figure`, so the PNG (at the preference
+        DPI) and its sibling vector page are both rewritten — the format the
+        user asked for is the format the view and the export agree on.
+
+        :param preview: render the raster only, skipping the vector page. A
+            full render writes the PNG *and* exports a PDF at the preference
+            DPI, which is the better part of a second on a large figure. That
+            is right once; it is ruinous while a control is moving, and doing
+            it per change is what made the settings dialog hang. The vector
+            page is rewritten when the dialog closes, so nothing stays stale.
+        :returns: True when the view was updated.
+        """
+        fig = self.figure_for(self._current)
+        png = self._png_paths.get(self._current)
+        if fig is None or not png:
+            return False
+        if self.show_live_canvas(fig):
+            if not preview:
+                self._render_figure(fig, Path(png))
+                self._pdf_state.pop(self._current, None)
+            return True
+        if preview and self._render_preview_async(fig):
+            return True
+        pixmap = (self._render_preview(fig, Path(png)) if preview
+                  else self._render_figure(fig, Path(png)))
+        if pixmap is None:
+            return False
+        self._cache_pixmap(self._current, pixmap)
+        self._pdf_state.pop(self._current, None)
+        shown = self._display_pixmap(self._current, pixmap)
+        self._view.set_pixmap(shown)
+        item = self._list.item(self._current)
+        if item is not None and not shown.isNull():
+            item.setIcon(self._thumb_icon(shown))
+        return True
+
+    def refresh_figure(self, index: int, preview: bool = False) -> bool:
+        """Re-rasterise a figure that is NOT the one on screen.
+
+        Restyling from a grid tile has to redraw that tile. Without this the
+        edit lands on the matplotlib object, the picture the grid is built
+        from stays as it was, and the user sees a menu that appears to do
+        nothing -- so they do it again, and again.
+
+        The view is deliberately not touched: the whole point of editing from
+        the grid is that the grid stays put.
+
+        :param index: zero-based figure index in the queue; the figure on
+            screen is refreshed through :meth:`refresh_current_figure`.
+        """
+        index = int(index)
+        if index == self._current:
+            return self.refresh_current_figure(preview)
+        fig = self.figure_for(index)
+        png = self._png_paths.get(index)
+        if fig is None or not png:
+            return False
+        pixmap = (self._render_preview(fig, Path(png)) if preview
+                  else self._render_figure(fig, Path(png)))
+        if pixmap is None:
+            return False
+        self._cache_pixmap(index, pixmap)
+        self._pdf_state.pop(index, None)
+        item = self._list.item(index)
+        if item is not None and not pixmap.isNull():
+            item.setIcon(self._thumb_icon(pixmap))
+        return True
+
+    def _open_figure_settings(self) -> None:
+        """Open the full settings dialog for the current figure.
+
+        ``figure_for`` rather than a dict lookup, so a figure past the live
+        window is restored from its spill and is editable too -- which is the
+        whole reason it is spilled as a Figure rather than only as a picture.
+        """
+        from .figure_settings import FigureSettingsDialog
+
+        figure = self.figure_for(self._current)
+        if figure is None:
+            return
+        FigureSettingsDialog(
+            figure, self, on_change=self.refresh_current_figure,
+            propagate_callback=self._propagate_cb).exec()
+
+    def show_figure_menu(self, position, idx: Optional[int] = None,
+                         navigate: bool = True) -> None:
+        """Right-click menu for a figure, from the view, a thumbnail or a tile.
+
+        The panel had one button offering three controls -- background, text
+        colour, text size -- and no context menu at all, so a figure could not
+        be restyled by clicking on it.
+
+        :param position: global screen position at which Qt opens the context
+            menu.
+        :param navigate: whether ``idx`` becomes the current figure first. The
+            thumbnail strip wants that; the figure grid does not, because a
+            grid is for comparing figures and jumping to one loses the
+            comparison the user was making.
+        """
+        from .figure_settings import build_figure_context_menu
+
+        index = self._current if idx is None else int(idx)
+        if navigate and index != self._current and 0 <= index < self._count:
+            self.show_index(index)
+        figure = self.figure_for(index)
+
+        def _redraw(preview=False, _i=index):
+            """Told a toggle happened, or handed a whole new Figure.
+
+            "Show as" produces a NEW figure (see `figure_settings._replot`),
+            so this doubles as the swap: anything that is not a bool is the
+            replacement, and everything holding the old one -- this queue,
+            the grid tile, the thumbnail -- is pointed at it together.
+            """
+            if preview is not None and not isinstance(preview, bool):
+                return self.replace_figure(_i, preview)
+            return self.refresh_figure(_i, bool(preview))
+
+        menu = build_figure_context_menu(
+            self, figure, on_change=_redraw,
+            open_settings=self._open_figure_settings)
+        menu.exec(position)
+        return menu
+
+    def _view_context_menu(self, point) -> None:
+        """Open the figure menu at a right-click on the picture.
+
+        :param point: the click, in view coordinates.
+        """
+        self.show_figure_menu(self._view.mapToGlobal(point))
+
+    def _list_context_menu(self, point) -> None:
+        """Open the figure menu at a right-click on the thumbnail strip.
+
+        The menu acts on the thumbnail under the cursor rather than on the
+        figure being shown -- the one a user wants to restyle is often not the
+        one on screen.
+
+        :param point: the click, in list coordinates.
+        """
+        item = self._list.itemAt(point)
+        row = self._list.row(item) if item is not None else self._current
+        self.show_figure_menu(self._list.mapToGlobal(point), row)
+
+
+    def _ensure_tempdir(self) -> Path:
+        """Return the queue's temporary directory, creating it on first use.
+
+        :returns: the directory every figure's PNG is written into.
+        """
+        if self._tempdir is None:
+            self._tempdir = Path(tempfile.mkdtemp(prefix="spacr_figq_"))
+        return self._tempdir
+
+
+    def add_figure(self, fig, prerendered_png: Optional[str] = None) -> int:
+        """Render + append ``fig`` (a matplotlib Figure). Returns its
+        index. Re-emitting the same figure object re-selects it instead
+        of duplicating.
+
+        ``prerendered_png`` is a PNG the pipeline bridge already rendered in a
+        WORKER thread — when supplied we just adopt it (a fast file move + a
+        cheap QPixmap load) instead of doing the expensive savefig on the GUI
+        thread, so the UI stays responsive while many figures stream in.
+
+        :param fig: the Matplotlib figure to append; recognised by object
+            identity, so the same object is never queued twice.
+        """
+        if id(fig) in self._fig_index:
+            idx = self._fig_index[id(fig)]
+            if idx in self._figures:
+                self._figure_last_used[idx] = time.time()
+                self._figure_bytes[idx] = self._measure_live_figure_bytes(fig)
+                self._figures.move_to_end(idx)
+            if prerendered_png and Path(prerendered_png).is_file():
+                self._refresh_live_figure(idx, prerendered_png)
+            self.show_index(idx)
+            return idx
+
+        idx = self._count
+        self._count += 1
+        self._fig_index[id(fig)] = idx
+        self._figures[idx] = fig
+        self._figure_last_used[idx] = time.time()
+        self._figure_bytes[idx] = self._measure_live_figure_bytes(fig)
+        name = self._figure_name(fig)
+        if name:
+            self._titles[idx] = name
+        self._trim_live_figures()
+
+        png_path = self._ensure_tempdir() / f"fig_{idx:05d}.png"
+        pixmap = None
+        decoded = _take_decoded(prerendered_png)
+        if prerendered_png and Path(prerendered_png).is_file():
+            try:
+                shutil.move(prerendered_png, str(png_path))
+                src_pdf = _sibling_pdf(prerendered_png)
+                if src_pdf.is_file():
+                    shutil.move(str(src_pdf), str(_sibling_pdf(png_path)))
+                pixmap = (QPixmap.fromImage(decoded[0]) if decoded is not None
+                          else QPixmap(str(png_path)))
+                if pixmap.isNull():
+                    pixmap = None
+            except Exception:
+                pixmap = None
+        if pixmap is None:
+            decoded = None
+            pixmap = self._render_figure(fig, png_path)
+        self._png_paths[idx] = str(png_path)
+        if pixmap is not None:
+            self._cache_pixmap(idx, pixmap)
+
+        item = QListWidgetItem(f"#{idx + 1}")
+        item.setTextAlignment(Qt.AlignCenter)
+        if pixmap is not None and not pixmap.isNull():
+            item.setIcon(self._thumb_icon(pixmap, decoded))
+        self._list.addItem(item)
+
+        if self._following_the_tail(idx):
+            self._list.setCurrentRow(idx)
+            self.show_index(idx)
+        else:
+            self._note_unseen_figure()
+        return idx
+
+    def _following_the_tail(self, new_index: int) -> bool:
+        """Whether the view should move to the figure that just arrived.
+
+        True when the view is on what was the newest figure before this one,
+        and for the very first figure of all -- an empty gallery has nothing
+        to be thrown off.
+        """
+        if new_index <= 0:
+            return True
+        current = getattr(self, "_current", None)
+        if current is None:
+            return True
+        return int(current) == new_index - 1
+
+    def _note_unseen_figure(self) -> None:
+        """Make it visible that figures are still arriving.
+
+        Without this the only sign of a new figure is a list that grows below
+        the fold, so a user who has navigated away could reasonably conclude
+        the run had stopped producing them.
+        """
+        try:
+            self._refresh_nav()
+        except Exception:                                    # noqa: BLE001
+            pass
+
+    def _refresh_live_figure(self, idx: int, prerendered_png: str) -> None:
+        """Replace one live figure's raster while preserving its gallery slot.
+
+        The vector page has to move with the raster, *including when there
+        isn't one*. A replacement that arrives without a sibling ``.pdf``
+        leaves the slot's previous page in place, and the refinement dispatched
+        a few lines below would then rasterise it and paint the figure this
+        call just superseded over the new one. That is not a corner case: the
+        training monitor re-emits a ``_spacr_live_update`` figure every epoch,
+        so the user would watch each new plot appear and then revert to the
+        first one. Deleting the orphan is what keeps the pairing honest.
+        """
+        target = Path(self._png_paths[idx])
+        decoded = _take_decoded(prerendered_png)
+        try:
+            shutil.move(prerendered_png, str(target))
+            src_pdf = _sibling_pdf(prerendered_png)
+            dst_pdf = _sibling_pdf(target)
+            if src_pdf.is_file():
+                shutil.move(str(src_pdf), str(dst_pdf))
+            elif dst_pdf.is_file():
+                try:
+                    dst_pdf.unlink()
+                except OSError:
+                    LOG.debug("could not drop stale vector page %s", dst_pdf)
+            pixmap = (QPixmap.fromImage(decoded[0]) if decoded is not None
+                      else QPixmap(str(target)))
+            if pixmap.isNull():
+                return
+            self._pdf_state.pop(idx, None)
+            self._cache_pixmap(idx, pixmap)
+            pixmap = self._display_pixmap(idx, pixmap)
+            item = self._list.item(idx)
+            if item is not None:
+                item.setIcon(self._thumb_icon(pixmap, decoded))
+            if self._current == idx:
+                self._view.set_pixmap(pixmap)
+        except Exception as exc:
+            LOG.info("live figure refresh failed: %s", exc)
+
+    def show_index(self, idx: int) -> None:
+        """Show one figure by position, ignoring an out-of-range index.
+
+        IGNORED RATHER THAN CLAMPED: an index past the end usually means the
+        caller is out of step with the queue, and silently showing the last
+        figure would hide that.
+
+        :param idx: the figure's position, from 0.
+        """
+        if not (0 <= idx < self._count):
+            return
+        self._current = idx
+        live = self._figures.get(idx) if self.has_live_figure(idx) else None
+        if live is not None:
+            self._figures.move_to_end(idx)
+            self._figure_last_used[idx] = time.time()
+        if live is not None and self.show_live_canvas(live):
+            if self._list.currentRow() != idx:
+                self._list.blockSignals(True)
+                self._list.setCurrentRow(idx)
+                self._list.blockSignals(False)
+            self._refresh_nav()
+            return
+        self._show_raster()
+        pixmap = self._pixmap_for(idx)
+        if pixmap is None:
+            pixmap = self._explanation_pixmap(self._why_not_shown(idx))
+        self._view.set_pixmap(pixmap)
+        if self._list.currentRow() != idx:
+            self._list.blockSignals(True)
+            self._list.setCurrentRow(idx)
+            self._list.blockSignals(False)
+        self._refresh_nav()
+
+    def show_prev(self) -> None:
+        """Show the previous figure."""
+        if self._current > 0:
+            self.show_index(self._current - 1)
+
+    def show_next(self) -> None:
+        """Show the next figure."""
+        if self._current < self._count - 1:
+            self.show_index(self._current + 1)
+
+    def all_pixmaps(self):
+        """Every figure the queue holds, in order, for the grid view.
+
+        Reads the PNG from disk for a figure whose pixmap has been evicted
+        rather than promoting it in the RAM cache: building a grid is a bulk
+        read of everything, and letting it reorder the cache would evict
+        exactly the figures the user is currently looking at.
+        """
+        from PySide6.QtGui import QPixmap
+
+        out = []
+        for index in range(self._count):
+            pixmap = self._ram.get(index)
+            if pixmap is None:
+                path = self._png_paths.get(index)
+                pixmap = QPixmap(path) if path else None
+            out.append(pixmap if pixmap is not None and not pixmap.isNull()
+                       else None)
+        return out
+
+    def mark_run(self, label: str = "") -> int:
+        """Record that a new run's figures start at the next index.
+
+        Called when a run STARTS rather than when its first figure arrives,
+        so a run that draws nothing still shows as a section that drew
+        nothing -- which is a fact worth seeing rather than a gap.
+
+        :returns: the index the run starts at.
+        """
+        start = self._count
+        if self._runs and self._runs[-1]["start"] == start:
+            self._runs[-1]["label"] = label or self._runs[-1]["label"]
+            return start
+        self._runs.append({"label": label or f"run {len(self._runs) + 1}",
+                           "start": start})
+        return start
+
+    def forget_run(self, label: str) -> int:
+        """Remove one run's figures and compact the queue indices.
+
+        :param label: the run's section label, as `run_sections` reports it.
+        :returns: how many figures were dropped. ``0`` for a label this queue
+            does not hold, which is not a failure -- a run that drew nothing
+            is a run with nothing to forget.
+
+        Figure state is stored in several maps keyed by a dense integer index.
+        Removing a middle section shifts all later figure indices and run
+        boundaries so navigation does not encounter gaps.
+        """
+        wanted = str(label or "")
+        span = next(((start, count) for name, start, count
+                     in self.run_sections() if name == wanted), None)
+        if span is None:
+            return 0
+        start, count = span
+        if count <= 0:
+            self._runs = [r for r in self._runs if r.get("label") != wanted]
+            return 0
+        end = start + count
+
+        def _shift(mapping):
+            """Reindex a mapping after a run is removed, keeping its type."""
+            out = type(mapping)()
+            for index, value in mapping.items():
+                if start <= index < end:
+                    continue
+                out[index - count if index >= end else index] = value
+            return out
+
+        dropped = [figure for index, figure in self._figures.items()
+                   if start <= index < end]
+        shifted = _shift(self._figures)
+        self._figures.clear()
+        self._figures.update(shifted)
+        _close_pyplot_figures(dropped)
+        self._titles = _shift(self._titles)
+        self._png_paths = _shift(self._png_paths)
+        self._ram = _shift(self._ram)
+        self._figure_last_used = _shift(self._figure_last_used)
+        self._figure_bytes = _shift(self._figure_bytes)
+        self._ram_last_used = _shift(self._ram_last_used)
+        self._ram_bytes = _shift(self._ram_bytes)
+        self._pdf_state = _shift(self._pdf_state)
+        self._fig_index = {
+            key: (value - count if value >= end else value)
+            for key, value in self._fig_index.items()
+            if not (start <= value < end)}
+
+        self._count = max(0, self._count - count)
+        kept = []
+        for mark in self._runs:
+            mark_start = int(mark.get("start", 0))
+            if mark.get("label") == wanted and mark_start == start:
+                continue
+            if mark_start >= end:
+                mark = dict(mark, start=mark_start - count)
+            kept.append(mark)
+        self._runs = kept
+
+        if self._current >= end:
+            self._current -= count
+        elif start <= self._current < end:
+            self._current = min(start, self._count - 1)
+        return count
+
+    def run_sections(self):
+        """``[(label, start, count)]`` over the figures held.
+
+        Figures that arrived before any run was marked -- a figure loaded
+        from disk, or a queue used outside a pipeline -- come back as one
+        leading section rather than being dropped.
+        """
+        if not self._count:
+            return []
+        marks = list(self._runs)
+        if not marks or marks[0]["start"] > 0:
+            marks.insert(0, {"label": "figures", "start": 0})
+        sections = []
+        for index, mark in enumerate(marks):
+            start = mark["start"]
+            end = (marks[index + 1]["start"] if index + 1 < len(marks)
+                   else self._count)
+            if end > start:
+                sections.append((mark["label"], start, end - start))
+        return sections
+
+    @staticmethod
+    def _figure_name(figure) -> str:
+        """What a figure calls itself, or ``""``.
+
+        The `_spacr_title` a caller attached first, then matplotlib's own
+        label. One place, because the name is now read at arrival and the
+        rule for reading it must not differ from the one it replaced.
+        """
+        if figure is None:
+            return ""
+        try:
+            return str(getattr(figure, "_spacr_title", "")
+                       or (figure.get_label() or ""))
+        except Exception:
+            return ""
+
+    def figure_titles(self):
+        """A short name per figure, for the grid captions.
+
+        THE FIGURE'S OWN NAME FIRST. A caption reading `fig_00003` tells a
+        reader nothing -- it is the temp file's stem, which is an
+        implementation detail of how the picture got to the screen. A figure
+        that knows what it is says so: matplotlib's own label, or the
+        `_spacr_title` a caller attached.
+
+        READ FROM THE NAME RECORDED AT ARRIVAL, not off the live Figure. See
+        `_titles` -- asking the Figure meant the caption vanished the moment
+        the figure was spilled past the live cap, which is every figure but
+        the last twenty on a screen that has done a few runs. The live Figure
+        is still consulted for a slot that has no recorded name, so a figure
+        that acquired one after it arrived is not ignored.
+
+        The filename stays as the last fallback, for the pictures that arrive
+        without a name at all.
+        """
+        import os as _os
+
+        titles = []
+        for index in range(self._count):
+            named = self._titles.get(index) or self._figure_name(
+                self._figures.get(index))
+            if named:
+                titles.append(str(named))
+                continue
+            path = self._png_paths.get(index)
+            titles.append(_os.path.splitext(_os.path.basename(path))[0]
+                          if path else f"figure {index + 1}")
+        return titles
+
+    def count(self) -> int:
+        """How many figures are queued.
+
+        :returns: the figure count.
+        """
+        return self._count
+
+    def ram_resident(self) -> int:
+        """How many full-res pixmaps are currently held in RAM."""
+        return len(self._ram)
+
+    def spilled_count(self) -> int:
+        """How many figures have been evicted from RAM to disk-only."""
+        return max(0, self._count - len(self._ram))
+
+    def active_jobs(self) -> int:
+        """How many crisp-render worker threads are still winding down."""
+        return self._jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a crisp vector-page render has not been delivered yet."""
+        return self._jobs.is_busy()
+
+    def clear(self) -> None:
+        """Drop everything and delete the temp dir."""
+        self._shutdown_jobs()
+        self._show_raster()
+        _close_pyplot_figures(self._figures.values())
+        self._list.clear()
+        self._ram.clear()
+        self._ram_last_used.clear()
+        self._ram_bytes.clear()
+        self._png_paths.clear()
+        self._fig_index.clear()
+        self._figures.clear()
+        self._figure_last_used.clear()
+        self._figure_bytes.clear()
+        self._titles.clear()
+        self._pdf_state.clear()
+        self._pdf_render_px.clear()
+        self._count = 0
+        self._current = -1
+        self._view.set_pixmap(QPixmap())
+        self._delete_tempdir()
+        self._refresh_nav()
+
+
+    @staticmethod
+    def _style_figure(fig, bg: str, fg: str, text_size: int = 0,
+                      line: str = "") -> None:
+        """Recolour a figure so it follows the app theme and the user's two
+        colours. ONE implementation: this was a character-for-character copy
+        of :func:`_style_figure_colors` and the two had already begun to
+        drift -- the module function grew the legend title and the tick-mark
+        split, and a figure restyled through the dialog would have missed
+        both."""
+        _style_figure_colors(fig, bg, fg, text_size, line)
+
+    @staticmethod
+    def _figure_format_is_pdf() -> bool:
+        """Report whether figures are currently rendered as vector pages.
+
+        :returns: ``True`` when the figure-format preference is PDF; ``False``
+            when it is not, and also when the preference cannot be read -- a
+            missing preference must not turn the raster path off.
+        """
+        try:
+            from ..preferences import get_figure_format
+            return get_figure_format() == "pdf"
+        except Exception:
+            return False
+
+    def _display_pixmap(self, idx: int,
+                        fallback: Optional[QPixmap]) -> Optional[QPixmap]:
+        """What to show for figure ``idx`` **right now**, plus a refinement.
+
+        Returns the cheap PNG-derived pixmap immediately and, in PDF mode,
+        dispatches the 2200 px vector-page render to a worker thread;
+        :meth:`_on_pdf_rendered` swaps the crisper result in when it lands.
+        The figure therefore appears at once and then sharpens, instead of the
+        window freezing until the crisp render is ready.
+        """
+        self._request_pdf_refinement(idx)
+        return fallback
+
+    def _request_pdf_refinement(self, idx: int) -> None:
+        """Start the crisp vector-page render for ``idx`` off the GUI thread.
+
+        Only for the figure actually on screen, and that is a decision rather
+        than a shortcut: a pipeline streams figures through
+        :meth:`add_figure` one after another, and refining every one at
+        2200 px would start a worker thread per figure to produce pixmaps
+        nobody ever looks at — a worse problem than the freeze this replaces.
+        Every other figure is refined the moment it is navigated to, which is
+        the first moment the result could be seen.
+
+        At most one render is in flight per slot: ``_pdf_state`` holds the
+        token while it runs and ``"done"`` / ``"failed"`` afterwards, so this
+        is a no-op on repeat visits.
+        """
+        if idx != self._current or idx in self._pdf_state:
+            return
+        png = self._png_paths.get(idx)
+        if not png:
+            return
+        if not self._figure_format_is_pdf():
+            if not (self.dynamic_figures_enabled()
+                    and not self.has_live_figure(idx)
+                    and _sibling_pdf(png).is_file()):
+                return
+        pdf = _sibling_pdf(png)
+        if not pdf.is_file():
+            LOG.warning(
+                "figure #%d has no vector page at %s — showing the raster; "
+                "the PDF export did not happen", idx + 1, pdf)
+            self._pdf_state[idx] = "failed"
+            return
+        self._pdf_seq += 1
+        token = self._pdf_seq
+        self._pdf_state[idx] = token
+        self._pdf_render_px[idx] = PDF_DISPLAY_MAX_PX
+        path = str(pdf)
+        self._jobs.submit(
+            lambda _i=idx, _t=token, _p=path: (_i, _t, render_pdf_to_image(_p)),
+            self._on_pdf_rendered)
+
+    def _on_view_zoomed(self, scale: float) -> None:
+        """Render the vector page finer when the user zooms into it.
+
+        THE POINT OF KEEPING A PDF AT ALL. Without this the page is rasterised
+        once at :data:`PDF_DISPLAY_MAX_PX` and zooming magnifies that raster,
+        so a user who zooms into a spilled figure is looking at big pixels of
+        a vector document -- reported as "I can zoom into the very old figures
+        ... that png should be higher resolution ... and I should be able to
+        zoom into the PDF version".
+
+        Re-rendering rather than raising the initial size is what keeps this
+        affordable: the fine render happens for the ONE figure being examined,
+        when it is examined, instead of for every figure a run produces.
+        """
+        idx = self._current
+        if idx < 0 or scale <= 1.0:
+            return
+        png = self._png_paths.get(idx)
+        if not png:
+            return
+        pdf = _sibling_pdf(png)
+        if not pdf.is_file():
+            return
+        try:
+            width = max(1, int(self._view.viewport().width()))
+        except Exception:                                    # noqa: BLE001
+            return
+        wanted = int(width * float(scale))
+        have = int(self._pdf_render_px.get(idx, 0))
+        if have and wanted < have * PDF_ZOOM_REFINE_RATIO:
+            return
+        target = min(max(wanted, PDF_DISPLAY_MAX_PX), PDF_ZOOM_MAX_PX)
+        if have >= target:
+            return
+        self._pdf_seq += 1
+        token = self._pdf_seq
+        self._pdf_state[idx] = token
+        self._pdf_render_px[idx] = target
+        path = str(pdf)
+        self._jobs.submit(
+            lambda _i=idx, _t=token, _p=path, _m=target: (
+                _i, _t, render_pdf_to_image(_p, max_px=_m)),
+            self._on_pdf_rendered)
+
+    def _on_pdf_rendered(self, payload: Optional[Tuple]) -> None:
+        """Swap in a finished crisp render. Always on the GUI thread.
+
+        Three separate things can have happened while the worker rendered, and
+        each is checked here rather than assumed away:
+
+        * the slot was re-pointed at a different figure by
+          :meth:`_refresh_live_figure`, or the queue was cleared — caught by
+          the token, which no longer matches;
+        * the user navigated away — caught by the index check. The result is
+          dropped rather than cached, so the RAM window stays exactly the
+          sliding window of what has been *viewed*, and the next visit renders
+          it again;
+        * the PDF would not render at all — remembered as ``"failed"`` so a
+          broken page is not retried on every single navigation.
+        """
+        if not isinstance(payload, tuple) or len(payload) != 3:
+            return
+        idx, token, image = payload
+        if self._pdf_state.get(idx) != token:
+            return
+        del self._pdf_state[idx]
+        if image is None or image.isNull():
+            self._pdf_state[idx] = "failed"
+            return
+        if idx != self._current or not (0 <= idx < self._count):
+            return
+        pixmap = QPixmap.fromImage(image)
+        if pixmap.isNull():
+            self._pdf_state[idx] = "failed"
+            return
+        self._pdf_state[idx] = "done"
+        self._cache_pixmap(idx, pixmap)
+        item = self._list.item(idx)
+        if item is not None:
+            item.setIcon(self._thumb_icon(pixmap))
+        self._view.set_pixmap(pixmap)
+
+    def _render_figure(self, fig, png_path: Path) -> Optional[QPixmap]:
+        """Save ``fig`` to ``png_path`` (raster, for display) and return a
+        QPixmap of it. The figure background + text follow the app theme
+        (dark → black bg + white text) unless overridden in figure settings."""
+        if not render_figure_to_png(fig, str(png_path)):
+            return None
+        pm = QPixmap(str(png_path))
+        return pm if not pm.isNull() else None
+
+    #: Longest edge of the throwaway raster drawn while a control is moving.
+    #: Small enough to be instant, large enough to judge a legend or a colour
+    #: by. The real render lands the moment the dialog closes.
+    PREVIEW_MAX_PX = 1100
+
+    def show_live_canvas(self, fig) -> bool:
+        """Show ``fig`` through matplotlib itself. True if the canvas is up.
+
+        This is what makes a figure crisp: the canvas redraws from the Figure
+        at the widget's device resolution every time it changes size or zoom,
+        so there is never a raster being stretched to fit. It is also what
+        makes it fast -- looking at a figure costs no render at all.
+
+        Except for a figure whose display raster took longer than
+        :data:`_LIVE_CANVAS_MAX_RASTER_S` to draw: the canvas would draw it
+        again on the GUI thread, for most of a second, so it stays the
+        raster already on disk, which the view zooms as any picture.
+
+        :param fig: the Matplotlib figure to embed in a Qt canvas with its
+            navigation toolbar; the canvas already showing it is just redrawn.
+        """
+        if not self._live_canvas_enabled:
+            return False
+        if _too_slow_for_the_live_canvas(fig):
+            if self._canvas is not None and self._canvas.figure is fig:
+                self._show_raster()
+            return False
+        try:
+            from matplotlib.backends.backend_qtagg import (
+                FigureCanvasQTAgg, NavigationToolbar2QT)
+        except Exception as error:
+            LOG.debug("no Qt matplotlib backend, staying on the raster: %s",
+                      error)
+            return False
+        try:
+            if self._canvas is not None and self._canvas.figure is fig:
+                self._canvas.draw_idle()
+                self._stack.setCurrentIndex(1)
+                return True
+            self._teardown_canvas()
+            from ...figures.style import _apply_user_style
+            _apply_user_style(fig)
+            canvas = FigureCanvasQTAgg(fig)
+            from ..gui_scale import follow_canvas
+            follow_canvas(canvas)
+            canvas.setStyleSheet("background: transparent;")
+            canvas.setAttribute(Qt.WA_TranslucentBackground, True)
+            canvas.setAutoFillBackground(False)
+            transparent = canvas.palette()
+            for role in (QPalette.Window, QPalette.Base):
+                transparent.setColor(role, QColor(0, 0, 0, 0))
+            canvas.setPalette(transparent)
+            canvas.setAttribute(Qt.WA_OpaquePaintEvent, False)
+            canvas.setAttribute(Qt.WA_NoSystemBackground, True)
+            canvas.setContextMenuPolicy(Qt.CustomContextMenu)
+            canvas.customContextMenuRequested.connect(self._view_context_menu)
+            from ..gui_scale import mend_matplotlib_icons
+            mend_matplotlib_icons()
+            toolbar = NavigationToolbar2QT(canvas, self._canvas_host)
+            self._canvas_layout.addWidget(toolbar)
+            self._canvas_layout.addWidget(canvas, 1)
+            canvas.mpl_connect("scroll_event", self._on_canvas_scroll)
+            self._canvas = canvas
+            self._canvas_toolbar = toolbar
+            self._stack.setCurrentIndex(1)
+            canvas.draw_idle()
+            return True
+        except Exception as error:  # noqa: BLE001 - fall back to the raster
+            LOG.debug("live canvas failed, staying on the raster: %s", error)
+            self._teardown_canvas()
+            return False
+
+    def set_live_canvas_enabled(self, enabled: bool) -> None:
+        """Turn the live canvas off to force the raster pipeline.
+
+        The raster path is not legacy -- a figure spilled past the live window
+        or loaded from a PDF has no Figure to draw and can only be a picture.
+        This makes that path reachable on demand, so the machinery that keeps
+        it off the GUI thread stays under test.
+
+        :param enabled: ``False`` switches the view to the raster at once;
+            ``True`` allows the live canvas for the next figure shown.
+        """
+        self._live_canvas_enabled = bool(enabled)
+        if not enabled:
+            self._show_raster()
+
+    #: Wheel zoom step. Matches `_ZoomView`, so the two views feel the same.
+    CANVAS_ZOOM_STEP = 1.2
+
+    def _on_canvas_scroll(self, event) -> None:
+        """Zoom the live canvas about the pointer.
+
+        Zooming ABOUT THE POINTER rather than the axes centre is what makes a
+        montage usable: the panel being examined stays under the cursor
+        instead of sliding away as the view narrows.
+
+        Silent when the pointer is outside the axes -- the margins of a figure
+        have no data coordinates to zoom about, and a wheel turn there should
+        do nothing rather than jump the view.
+        """
+        axes = getattr(event, "inaxes", None)
+        if axes is None:
+            return
+        x, y = getattr(event, "xdata", None), getattr(event, "ydata", None)
+        if x is None or y is None:
+            return
+        step = self.CANVAS_ZOOM_STEP
+        factor = (1.0 / step) if getattr(event, "button", "") == "up" else step
+        left, right = axes.get_xlim()
+        bottom, top = axes.get_ylim()
+        axes.set_xlim(x - (x - left) * factor, x + (right - x) * factor)
+        axes.set_ylim(y - (y - bottom) * factor, y + (top - y) * factor)
+        canvas = getattr(self, "_canvas", None)
+        if canvas is not None:
+            canvas.draw_idle()
+
+    def _teardown_canvas(self) -> None:
+        """Drop the current canvas. A Figure may only live on one canvas.
+
+        MATPLOTLIB'S EVENT WIRING MUST GO FIRST.
+
+        NavigationToolbar2QT connects BOUND METHODS of itself to the canvas --
+        mouse_move, the zoom/pan handlers -- and those live in the figure's
+        callback registry, which the Figure owns and which outlives both
+        widgets. deleteLater() destroys the C++ side while Python still holds
+        the wrapper, so the next mouse move over the panel calls
+        toolbar.mouse_move -> locLabel.setText on a dead QLabel and raises
+
+            RuntimeError: libshiboken: Internal C++ object
+            (PySide6.QtWidgets.QLabel) already deleted.
+
+        once per mouse event -- thousands of tracebacks, and the same again
+        for the canvas via set_cursor. Disconnecting before deleting leaves
+        nothing holding a pointer into freed memory.
+        """
+        canvas, toolbar = self._canvas, self._canvas_toolbar
+        if canvas is not None:
+            try:
+                canvas._draw_pending = False
+            except Exception:
+                pass
+            for attribute in ("_id_press", "_id_release", "_id_drag",
+                              "_id_zoom", "_id_pan"):
+                cid = getattr(toolbar, attribute, None)
+                if cid is not None:
+                    try:
+                        canvas.mpl_disconnect(cid)
+                    except Exception:
+                        pass
+            try:
+                doomed = {id(canvas), id(toolbar)}
+                for _signal, entries in list(canvas.callbacks.callbacks.items()):
+                    for cid, proxy in list(entries.items()):
+                        if isinstance(proxy, weakref.ReferenceType):
+                            target = proxy()
+                        else:
+                            target = getattr(proxy, "_obj", None)
+                        owner = getattr(target, "__self__", None)
+                        if owner is not None and id(owner) in doomed:
+                            canvas.mpl_disconnect(cid)
+            except Exception:
+                pass
+        for widget in (toolbar, canvas):
+            if widget is None or not isinstance(widget, QWidget):
+                continue
+            try:
+                self._canvas_layout.removeWidget(widget)
+                widget.setParent(None)
+                widget.deleteLater()
+            except Exception:
+                pass
+        self._canvas = None
+        self._canvas_toolbar = None
+
+    def _show_raster(self) -> None:
+        """Fall back to the pixmap view, for a figure that is only a picture."""
+        self._teardown_canvas()
+        self._stack.setCurrentIndex(0)
+
+    def _thumb_icon(self, pixmap, decoded: Optional[tuple] = None) -> QIcon:
+        """``pixmap`` as a strip thumbnail for the screen the list is on.
+
+        Rendered at the list's own icon size in real device pixels, so a
+        HiDPI panel shows the figure rather than a doubled-up 140 px render
+        of it. All six places that put a picture in the strip come here, so
+        the strip cannot drift from :data:`THUMB_SIZE`.
+
+        :param pixmap: the figure's full picture.
+        :param decoded: what :func:`_decode_display_png` made of the same
+            file, whose thumbnail is used when it was scaled at the ratio the
+            list has now.
+        """
+        ratio = device_ratio(self._list)
+        _THUMB_RATIO[0] = ratio
+        if decoded is not None:
+            thumb, scaled_ratio = decoded[1], decoded[2]
+            if thumb is not None and not thumb.isNull() \
+                    and scaled_ratio == ratio:
+                return QIcon(QPixmap.fromImage(thumb))
+        return QIcon(scaled_for(pixmap, self._list, THUMB_SIZE))
+
+    def _preview_target_px(self) -> float:
+        """Longest edge, in real device pixels, of the area showing the figure.
+
+        Rendering to a fixed cap and letting Qt scale the result up to the
+        view is what made a restyled figure look "super pixelated": the
+        preview was 1100 px, the view is larger than that on a normal screen,
+        and the difference was made up by interpolation. Rendering at the size
+        it will actually be displayed costs no more and is sharp.
+        """
+        try:
+            size = self._view.size()
+            ratio = float(self._view.devicePixelRatioF() or 1.0)
+            longest = max(size.width(), size.height()) * ratio
+            return float(min(max(longest, 600.0), 2400.0))
+        except Exception:
+            return float(self.PREVIEW_MAX_PX)
+
+    def _render_preview_async(self, fig) -> bool:
+        """Draw the live preview on a worker thread. True if it was started.
+
+        An Agg draw of the volcano is ~110 ms, of which the 27-entry legend
+        alone is ~63 ms, and none of that gets cheaper by lowering the
+        resolution -- the cost is text layout and marker-path geometry, not
+        pixels. Run on the GUI thread it is felt as lag on every single
+        control change no matter how it is debounced.
+
+        Agg releases the GIL while it draws, so the same work on a worker
+        thread stalls the GUI by ~1 ms over idle. The figure is copied first
+        because the user goes on moving controls while the worker draws, and
+        mutating a figure mid-draw is a crash rather than a glitch; the copy
+        costs ~14 ms, which is inside a frame.
+
+        :returns: False if the figure could not be copied, in which case the
+            caller should fall back to rendering synchronously.
+        """
+        import pickle
+
+        if self._preview_busy:
+            self._preview_pending = True
+            return True
+
+        try:
+            with FIGURE_LOCK:
+                blob = pickle.dumps(fig)
+        except Exception as error:  # noqa: BLE001 - artists may not pickle
+            LOG.debug("figure will not copy, rendering inline: %s", error)
+            return False
+
+        self._preview_busy = True
+        self._preview_seq += 1
+        token = self._preview_seq
+        target = self._preview_target_px()
+        facecolor = fig.get_facecolor()
+
+        def work(_blob=blob, _target=target, _token=token,
+                 _idx=self._current, _face=facecolor):
+            """Render one preview off the GUI thread.
+
+            Everything it needs is bound as a DEFAULT ARGUMENT rather than closed
+            over, so a preview that starts while the user is scrolling renders the
+            figure it was asked for rather than whichever one is current when it
+            runs.
+            """
+            from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+            copy = pickle.loads(_blob)
+            longest = max(copy.get_size_inches()) or 1.0
+            copy.set_dpi(max(min(_target / longest, 300.0), 30.0))
+            copy.patch.set_facecolor(_face)
+            canvas = FigureCanvasAgg(copy)
+            canvas.draw()
+            width, height = canvas.get_width_height()
+            image = QImage(canvas.buffer_rgba(), width, height,
+                           QImage.Format_RGBA8888).copy()
+            return (_idx, _token, image)
+
+        self._jobs.submit(work, self._on_preview_rendered)
+        return True
+
+    def _on_preview_rendered(self, payload) -> None:
+        """Show a finished preview. Always on the GUI thread.
+
+        Only the newest render is shown: the user keeps changing controls
+        while a draw is in flight, so earlier results are stale by the time
+        they land and painting them would make the figure flicker backwards.
+        """
+        self._preview_busy = False
+        self._paint_preview(payload)
+
+        if self._preview_pending:
+            self._preview_pending = False
+            pending = self.figure_for(self._current)
+            if pending is not None:
+                self._render_preview_async(pending)
+
+    def _paint_preview(self, payload) -> None:
+        """Put a finished preview on screen, if it is still the current one."""
+        if not isinstance(payload, tuple) or len(payload) != 3:
+            return
+        idx, token, image = payload
+        if token != self._preview_seq or idx != self._current:
+            return
+        if image is None or image.isNull():
+            return
+        pixmap = QPixmap.fromImage(image)
+        if pixmap.isNull():
+            return
+        self._cache_pixmap(idx, pixmap)
+        self._pdf_state.pop(idx, None)
+        self._view.set_pixmap(pixmap)
+        item = self._list.item(idx)
+        if item is not None:
+            item.setIcon(self._thumb_icon(pixmap))
+
+    def _render_preview(self, fig, png_path: Path) -> Optional[QPixmap]:
+        """A fast raster for live restyling: no vector page, capped size.
+
+        :func:`render_figure_to_png` also exports the sibling PDF at the
+        preference DPI, which is most of the cost of a render and pointless
+        twenty times a second while a slider moves. This draws straight to a
+        buffer at a modest size and does not touch the disk at all, so the
+        saved files keep the last FULL render until the dialog closes.
+        """
+        try:
+            from io import BytesIO
+
+            longest = max(fig.get_size_inches()) or 1.0
+            dpi = max(min(self.PREVIEW_MAX_PX / longest, 160.0), 40.0)
+            buffer = BytesIO()
+            with FIGURE_LOCK:
+                fig.savefig(buffer, format="png", dpi=dpi,
+                            facecolor=fig.get_facecolor())
+            pixmap = QPixmap()
+            if pixmap.loadFromData(buffer.getvalue(), "PNG"):
+                return pixmap
+        except Exception as error:  # noqa: BLE001 - a preview may always fail
+            LOG.debug("preview render failed: %s", error)
+        return None
+
+    @staticmethod
+    def _pixmap_bytes(pixmap: QPixmap) -> int:
+        """Storage represented by a Qt pixmap, without copying its pixels."""
+        if pixmap is None or pixmap.isNull():
+            return 0
+        try:
+            return max(0, int(pixmap.width()) * int(pixmap.height())
+                       * int(pixmap.depth()) // 8)
+        except (AttributeError, TypeError, ValueError):
+            return 0
+
+    @staticmethod
+    def _measure_live_figure_bytes(figure) -> int:
+        """Measure the Figure's retained plot arrays and canvas buffer.
+
+        Serialising a pathological Figure just to size it can itself block the
+        event loop.  The dominant owned allocations are directly measurable
+        without copying: line/image/collection arrays and the RGBA canvas.
+        The root object's shallow size is included, while array identities are
+        deduplicated because matplotlib may expose one buffer through several
+        artists.
+        """
+        total = sys.getsizeof(figure)
+        seen = set()
+        try:
+            width, height = figure.canvas.get_width_height()
+            total += max(0, int(width)) * max(0, int(height)) * 4
+        except Exception:                                      # noqa: BLE001
+            pass
+        for axis in getattr(figure, "axes", ()):
+            values = []
+            for line in getattr(axis, "lines", ()):
+                try:
+                    values.extend((line.get_xdata(), line.get_ydata()))
+                except Exception:                              # noqa: BLE001
+                    continue
+            for image in getattr(axis, "images", ()):
+                try:
+                    values.append(image.get_array())
+                except Exception:                              # noqa: BLE001
+                    continue
+            for collection in getattr(axis, "collections", ()):
+                for reader in ("get_array", "get_offsets"):
+                    try:
+                        values.append(getattr(collection, reader)())
+                    except Exception:                          # noqa: BLE001
+                        continue
+            for value in values:
+                if value is None or id(value) in seen:
+                    continue
+                seen.add(id(value))
+                try:
+                    total += max(0, int(value.nbytes))
+                except (AttributeError, TypeError, ValueError):
+                    continue
+        return max(0, int(total))
+
+    def _cache_pixmap(self, idx: int, pixmap: QPixmap) -> None:
+        """Insert into the LRU RAM cache, evicting the oldest beyond the
+        cap. The PNG on disk is untouched, so an evicted figure can be
+        reloaded on demand."""
+        self._ram[idx] = pixmap
+        self._ram.move_to_end(idx)
+        self._ram_last_used[idx] = time.time()
+        self._ram_bytes[idx] = self._pixmap_bytes(pixmap)
+        while len(self._ram) > self._ram_cap:
+            old_idx, _ = self._ram.popitem(last=False)
+            self._ram_last_used.pop(old_idx, None)
+            self._ram_bytes.pop(old_idx, None)
+            LOG.debug("spilled figure #%d from RAM (PNG kept)", old_idx)
+
+    def live_figure_cap(self) -> int:
+        """How many recent figures this machine profile keeps editable."""
+        try:
+            from ..preferences import live_figure_allowance
+
+            return int(live_figure_allowance())
+        except Exception:
+            return 20
+
+    def dynamic_figures_enabled(self) -> bool:
+        """Whether an evicted figure reloads from its vector page on demand."""
+        try:
+            from ..preferences import get_figure_dynamic
+            return bool(get_figure_dynamic())
+        except Exception:
+            return True
+
+    def live_figure_count(self) -> int:
+        """How many live Figures are currently retained."""
+        return len(self._figures)
+
+    def cache_budget_entries(self):
+        """Measured, timestamped entries for the process-wide RAM policy.
+
+        The selected item is the one a live canvas or zoom view is actively
+        presenting and is pinned.  While a preview/render worker is using
+        Figures, every editable Figure is pinned; spilling one concurrently
+        would close matplotlib state under that worker.  Full-resolution
+        pixmaps other than the selected one remain safe to reload from PNG.
+        """
+        now = time.time()
+        figures_busy = bool(self._preview_busy or self._jobs.is_busy())
+        rows = []
+        for idx, figure in list(self._figures.items()):
+            size = self._figure_bytes.get(idx)
+            if size is None:
+                size = self._measure_live_figure_bytes(figure)
+                self._figure_bytes[idx] = size
+            rows.append((("figure", idx), int(size),
+                         float(self._figure_last_used.get(idx, now)),
+                         figures_busy or idx == self._current))
+        for idx, pixmap in list(self._ram.items()):
+            size = self._ram_bytes.get(idx)
+            if size is None:
+                size = self._pixmap_bytes(pixmap)
+                self._ram_bytes[idx] = size
+            rows.append((("pixmap", idx), int(size),
+                         float(self._ram_last_used.get(idx, now)),
+                         idx == self._current))
+        return rows
+
+    def drop_cache_budget_entry(self, record_key) -> bool:
+        """Evict one policy-selected entry, rechecking its live-use pin.
+
+        :param record_key: ``(kind, index)`` pair, where kind is ``"figure"``
+            (a live Figure, spilled to disk) or ``"pixmap"`` (a cached
+            raster); the figure on screen, or a figure while a render is
+            running, is never evicted.
+        """
+        kind, idx = record_key
+        idx = int(idx)
+        if idx == self._current:
+            return False
+        if kind == "figure":
+            if self._preview_busy or self._jobs.is_busy():
+                return False
+            return self._evict_live_figure(idx)
+        if kind != "pixmap" or idx not in self._ram:
+            return False
+        self._ram.pop(idx, None)
+        self._ram_last_used.pop(idx, None)
+        self._ram_bytes.pop(idx, None)
+        LOG.debug("spilled figure #%d from RAM by memory policy", idx)
+        return True
+
+    def _trim_live_figures(self) -> None:
+        """Keep only the most recent N live Figures, SPILLING the rest.
+
+        A live Figure is what makes a figure restylable -- it still has a
+        legend to toggle and axes to rescale. A pixmap is a picture of one.
+        But each Figure holds its own data arrays, and a screen emits dozens,
+        so every one retained forever is a leak in all but name.
+
+        An evicted Figure is therefore pickled to the temp directory before it
+        is closed. That is the whole point: a pickled Figure restores as a
+        REAL Figure, with its artists, its data and its scales, so an old
+        figure is fully editable again rather than only recolourable.
+
+        The alternative considered was editing the saved vector page. A PDF
+        does allow a stroke to be recoloured, a width changed, a font resized
+        or grid paths deleted -- but not anything data-bound, because a log
+        axis has to recompute every position. Pickling costs disk instead of
+        RAM, which is exactly the trade the cap exists to make, and gives back
+        everything rather than a subset. Measured on a scatter-plus-imshow
+        figure: 1.55 MB, 4 ms to write, 3 ms to restore.
+
+        A figure that cannot be pickled -- a custom artist, a live callback --
+        is closed anyway and falls back to its rendered page. Failing to spill
+        must never cost the cap.
+        """
+        cap = max(int(self.live_figure_cap()), 1)
+        if len(self._figures) <= cap:
+            return
+        for old in list(self._figures)[:len(self._figures) - cap]:
+            self._evict_live_figure(old)
+
+    def _evict_live_figure(self, idx: int) -> bool:
+        """Spill and close one editable Figure while keeping its raster."""
+        if idx not in self._figures:
+            return False
+        figure = self._figures.pop(idx, None)
+        self._figure_last_used.pop(idx, None)
+        self._figure_bytes.pop(idx, None)
+        self._spill_figure(idx, figure)
+        try:
+            import matplotlib.pyplot as plt
+
+            with FIGURE_LOCK:
+                plt.close(figure)
+        except Exception:
+            pass
+        return True
+
+    def _spill_path(self, idx: int) -> Optional[Path]:
+        """Where ``idx``'s pickled Figure lives, if the temp dir exists."""
+        if self._tempdir is None:
+            return None
+        return self._tempdir / f"fig_{idx:05d}.pkl"
+
+    def _spill_figure(self, idx: int, figure) -> bool:
+        """Pickle ``figure`` beside its rendered page. True when written."""
+        if figure is None:
+            return False
+        path = self._spill_path(idx)
+        if path is None:
+            return False
+        import pickle
+
+        try:
+            with open(path, "wb") as handle:
+                pickle.dump(figure, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        except Exception as error:  # noqa: BLE001 - spilling is best effort
+            LOG.debug("figure %d could not be spilled: %s", idx, error)
+            try:
+                path.unlink()
+            except OSError:
+                pass
+            return False
+        return True
+
+    def has_live_figure(self, idx: int) -> bool:
+        """Whether ``idx``'s Figure is in memory right now.
+
+        A query, not a use: it does not promote the entry, so asking whether
+        something is live cannot change what gets evicted next.
+
+        :param idx: zero-based figure index in the queue.
+        """
+        return idx in self._figures
+
+    def is_restorable(self, idx: int) -> bool:
+        """Whether ``idx`` can be made editable again from its spill.
+
+        :param idx: zero-based figure index; true when it is live or its
+            pickled spill file exists.
+        """
+        if idx in self._figures:
+            return True
+        path = self._spill_path(idx)
+        return bool(path and path.is_file())
+
+    def replace_figure(self, idx: int, fig) -> bool:
+        """Put ``fig`` at ``idx``, replacing whatever was there.
+
+        For a redraw that cannot happen in place. `create_grouped_plot` builds
+        its own Figure -- spacrGraph makes one and draws into it -- so
+        "show this data as a violin instead" produces a NEW object, and
+        everything holding the old one (this queue, the grid tile, the
+        thumbnail) has to be pointed at the new one together or the menu
+        looks broken while the tile keeps the old picture.
+
+        :param idx: zero-based index of an existing figure in the queue;
+            out of range swaps nothing.
+        :param fig: the new Matplotlib figure; ``None`` swaps nothing.
+        :returns: whether the swap happened.
+        """
+        index = int(idx)
+        if fig is None or not (0 <= index < self._count):
+            return False
+        previous = self._figures.get(index)
+        if previous is not None:
+            self._fig_index.pop(id(previous), None)
+        self._figures[index] = fig
+        self._figures.move_to_end(index)
+        self._figure_last_used[index] = time.time()
+        self._figure_bytes[index] = self._measure_live_figure_bytes(fig)
+        self._fig_index[id(fig)] = index
+        try:
+            self._forget_spill(index)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not drop the spilled copy of figure %s", index,
+                      exc_info=True)
+        return bool(self.refresh_figure(index, False))
+
+    def _forget_spill(self, idx: int) -> None:
+        """Drop any spilled copy of ``idx``. Absent is the normal case."""
+        path = self._spill_path(int(idx))
+        if path is not None:
+            path.unlink(missing_ok=True)
+
+    def figure_for(self, idx: int):
+        """The live Figure for ``idx``, restoring it from spill if needed.
+
+        This is what a restyling menu asks for. A figure inside the live
+        window is returned directly; one past it is unpickled, put back into
+        the live set (so repeated edits do not re-read the disk) and the cap
+        re-applied. Returns ``None`` only when the figure was never spillable.
+
+        :param idx: zero-based figure index in the queue.
+        """
+        if idx in self._figures:
+            self._figures.move_to_end(idx)
+            self._figure_last_used[idx] = time.time()
+            return self._figures[idx]
+        if not self.dynamic_figures_enabled():
+            return None
+        path = self._spill_path(idx)
+        if not (path and path.is_file()):
+            return None
+        import pickle
+
+        try:
+            with open(path, "rb") as handle:
+                figure = pickle.load(handle)
+        except Exception as error:  # noqa: BLE001
+            LOG.debug("figure %d could not be restored: %s", idx, error)
+            return None
+        self._figures[idx] = figure
+        self._figure_last_used[idx] = time.time()
+        self._figure_bytes[idx] = self._measure_live_figure_bytes(figure)
+        self._trim_live_figures()
+        return self._figures.get(idx, figure)
+
+    def _why_not_shown(self, idx: int) -> str:
+        """Explain why figure ``idx`` cannot be displayed.
+
+        The message distinguishes an unsaved figure, a missing spill file,
+        and an unreadable file because each condition requires a different
+        recovery action.
+        """
+        number = idx + 1
+        path = self._png_paths.get(idx)
+        if not path:
+            return (f"Figure {number} has no saved image.\n\n"
+                    f"Its live copy was released past the figure cap and "
+                    f"nothing was written to disk, so there is nothing left "
+                    f"to draw. Raising 'live figures' in Preferences keeps "
+                    f"more of them.")
+        if not Path(path).is_file():
+            return (f"Figure {number}'s saved image is gone.\n\n{path}\n\n"
+                    f"The run wrote it and it is no longer there -- a cleared "
+                    f"temporary folder is the usual reason.")
+        return (f"Figure {number}'s saved image could not be read.\n\n"
+                f"{path}\n\nThe file is there but is not a picture Qt can "
+                f"open, which usually means it was written incompletely.")
+
+    def _explanation_pixmap(self, text: str) -> QPixmap:
+        """Render an unavailable-figure explanation as a themed pixmap.
+
+        Returning a pixmap preserves the interface used by zoom, export, and
+        peer mirroring. Colors come from the active application palette.
+        """
+        from PySide6.QtCore import QRect
+        from PySide6.QtGui import QColor, QPainter
+
+        from ..theme import active_palette
+
+        palette = active_palette()
+        pixmap = QPixmap(720, 360)
+        pixmap.fill(QColor(palette.get("surface", palette["bg"])))
+        painter = QPainter(pixmap)
+        try:
+            painter.setPen(QColor(palette["fg"]))
+            font = painter.font()
+            font.setPointSizeF(max(font.pointSizeF(), 10.0))
+            painter.setFont(font)
+            painter.drawText(QRect(36, 36, 648, 288),
+                             int(Qt.AlignLeft | Qt.AlignVCenter
+                                 | Qt.TextWordWrap),
+                             str(text))
+        finally:
+            painter.end()
+        return pixmap
+
+    def _pixmap_for(self, idx: int) -> Optional[QPixmap]:
+        """Return the full-res pixmap for ``idx`` — from RAM if resident,
+        otherwise reloaded from the temp PNG (and re-cached).
+
+        When the live Figure for ``idx`` has been released and *dynamic
+        figures* is on, the vector page is preferred over the display-capped
+        raster: navigating back to an old figure then shows the PDF rather
+        than a soft enlargement of a thumbnail-grade image.
+        """
+        if idx in self._ram:
+            self._ram.move_to_end(idx)
+            self._ram_last_used[idx] = time.time()
+            return self._display_pixmap(idx, self._ram[idx])
+        path = self._png_paths.get(idx)
+        if path and Path(path).is_file():
+            pm = QPixmap(path)
+            if not pm.isNull():
+                self._pdf_state.pop(idx, None)
+                self._cache_pixmap(idx, pm)
+                pixmap = self._display_pixmap(idx, pm)
+                if (not self.has_live_figure(idx)
+                        and self.dynamic_figures_enabled()
+                        and _sibling_pdf(path).is_file()):
+                    self._request_pdf_refinement(idx)
+                return pixmap
+        return None
+
+    def _on_row_changed(self, row: int) -> None:
+        """Show the figure whose thumbnail was selected.
+
+        :param row: the newly current row; one already shown, or out of range,
+            does nothing.
+        """
+        if 0 <= row < self._count and row != self._current:
+            self.show_index(row)
+
+    def _refresh_nav(self) -> None:
+        """Update the position label and show the settings button when it applies.
+
+        Figure settings restyle and re-render, so they apply in both raster and
+        vector mode -- the button is shown whenever there is a figure at all.
+        """
+        self._pos_label.setText(
+            f"{self._current + 1} / {self._count}" if self._count
+            else "0 / 0")
+        self._fig_settings_btn.setVisible(self._count > 0)
+
+    def _shutdown_jobs(self, timeout_ms: int = 2000) -> None:
+        """Stop every in-flight crisp render and wait briefly for its thread.
+
+        Must run **before** :meth:`_delete_tempdir`, and the ordering is not
+        cosmetic. A worker is reading its PDF out of that directory:
+        :func:`render_pdf_to_image` tolerates the file vanishing, but Qt
+        aborts the process if a running QThread is destroyed, and the runner
+        (and its threads) go with this widget. ``JobRunner.shutdown`` also
+        bumps the generation, so a result that arrives anyway is dropped
+        instead of being handed to a widget on its way out.
+
+        Bounded, never unbounded: a render that outlasts the budget is parked
+        by :func:`spacr.qt.bridge.drain_thread` rather than terminated, so
+        closing cannot hang.
+        """
+        jobs = getattr(self, "_jobs", None)
+        if jobs is None:
+            return
+        try:
+            jobs.shutdown(timeout_ms=timeout_ms)
+        except Exception:
+            LOG.debug("figure render shutdown failed", exc_info=True)
+
+    def _delete_tempdir(self) -> None:
+        """Remove the temporary directory and everything in it.
+
+        Errors are swallowed: this runs during teardown, where raising would
+        lose the shutdown rather than save the files.
+        """
+        if self._tempdir is not None:
+            try:
+                shutil.rmtree(self._tempdir, ignore_errors=True)
+            except Exception:
+                pass
+            self._tempdir = None
+
+
+    def closeEvent(self, event):
+        """Stop background rendering before going away.
+
+        :param event: the Qt close event.
+        """
+        self._teardown_canvas()
+        self._shutdown_jobs()
+        self._delete_tempdir()
+        _close_pyplot_figures(self._figures.values())
+        super().closeEvent(event)
+
+    def __del__(self):
+        """Best-effort cleanup if the widget is collected without being closed.
+
+        The canvas goes first, so its queued idle draw cannot run after Python
+        has released the owning widget; the workers follow, because they read
+        out of the directory about to be removed and a live ``QThread`` must not
+        be left holding a runner whose last reference is being dropped; the
+        temporary directory goes last. Every step is guarded -- the C++ half may
+        already be gone when Qt initiated the destruction.
+        """
+        try:
+            self._teardown_canvas()
+        except Exception:
+            pass
+        try:
+            self._shutdown_jobs()
+        except Exception:
+            pass
+        try:
+            self._delete_tempdir()
+        except Exception:
+            pass
+
+
+
+class _FigureSettingsDialog(QDialog):
+    """Edit vector-figure colors and text size, then render the result.
+
+    Image UMAP figures also expose live UMAP styling when the figure retains
+    its embedding payload. Setting labels carry the corresponding API links
+    in their hover help.
+    """
+
+    def __init__(self, fig, parent=None, propagate_callback=None,
+                 render_callback=None):
+        """Edit one figure's settings.
+
+        :param fig: the figure being restyled.
+        :param parent: parent widget.
+        :param propagate_callback: called to apply these settings to the
+            OTHER figures as well, or ``None`` when there is nothing to
+            propagate to. This is what makes "apply to all" possible without
+            this dialog knowing what all the others are.
+        :param render_callback: called to redraw after a change, or ``None``
+            to leave redrawing to the caller.
+        """
+        super().__init__(parent)
+        self._fig = fig
+        self._propagate_cb = propagate_callback
+        self._render_cb = render_callback
+        self.setWindowTitle("Figure settings")
+        from PySide6.QtWidgets import (
+            QFormLayout, QDialogButtonBox, QSpinBox, QPushButton as _QPB,
+            QVBoxLayout as _QVBox, QWidget as _QWidget)
+        outer = _QVBox(self)
+        holder = _QWidget(self)
+        form = QFormLayout(holder)
+        form.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(holder)
+
+        try:
+            from ..preferences import (get_figure_color_tokens,
+                                       get_figure_line_token,
+                                       get_figure_text_size)
+            self._bg, self._fg = get_figure_color_tokens()
+            self._line = get_figure_line_token()
+            self._stored_size = get_figure_text_size()
+            _init_size = self._stored_size or 10
+        except Exception:
+            self._bg, self._fg, _init_size = "auto", "auto", 10
+            self._line = "auto"
+            self._stored_size = 0
+        self._bg_btn = _QPB("Background…")
+        self._bg_btn.clicked.connect(lambda: self._pick("_bg", self._bg_btn))
+        self._fg_btn = _QPB("Font colour…")
+        self._fg_btn.clicked.connect(lambda: self._pick("_fg", self._fg_btn))
+        self._line_btn = _QPB("Line colour…")
+        self._line_btn.clicked.connect(
+            lambda: self._pick("_line", self._line_btn))
+        form.addRow("Background", self._bg_btn)
+        form.addRow("Line colour", self._line_btn)
+        form.addRow("Font colour", self._fg_btn)
+
+        self._auto_btn = _QPB("Follow the theme")
+        self._auto_btn.clicked.connect(self._follow_theme)
+        form.addRow("Automatic", self._auto_btn)
+
+        self._paint_colour_buttons()
+
+        self._size = QSpinBox()
+        self._size.setRange(4, 48)
+        self._size.setValue(int(_init_size))
+        #: Whether the user moved the box. Connected AFTER `setValue`, so
+        #: seeding does not count as choosing -- see `_stored_size` above.
+        self._size_touched = False
+        self._size.valueChanged.connect(self._on_size_changed)
+        self._size.setToolTip(
+            "The text size EVERY figure is drawn at. Leave it alone to keep "
+            "each figure the sizes it was drawn with. One figure on its own "
+            "is resized from its right-click menu, under Figure settings.")
+        form.addRow("Text size", self._size)
+
+        self._umap_settings = None
+        self._umap_payload = getattr(fig, "_spacr_umap_payload", None)
+        if isinstance(self._umap_payload, dict):
+            self._build_umap_section(outer)
+
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self._propagate_btn = _QPB("Propagate settings")
+        self._propagate_btn.setToolTip(
+            "Write these values into the module's settings panel, so the "
+            "next run starts from them and they are saved with it.")
+        self._propagate_btn.clicked.connect(self._propagate)
+        self._propagate_btn.setEnabled(callable(propagate_callback))
+        if not callable(propagate_callback):
+            self._propagate_btn.setToolTip(
+                "Available on a module screen, which is what owns the "
+                "settings panel these values would be written into.")
+        bb.addButton(self._propagate_btn, QDialogButtonBox.ActionRole)
+        bb.accepted.connect(self._apply_and_accept)
+        bb.rejected.connect(self.reject)
+        outer.addWidget(bb)
+        from ..screens.settings_model import install_api_tooltips
+        install_api_tooltips(self, "figure", {
+            self._bg_btn: "figure_background",
+            self._fg_btn: "figure_text_color",
+            self._size: "figure_text_size",
+        })
+        self._auto_btn.setToolTip(
+            "Put the background, line colour and font colour back to "
+            "following the app theme, so a light theme gives dark ink and a "
+            "dark theme gives light. Greyed out when they already do.")
+        self._line_btn.setToolTip(
+            "The colour of every LINE in the figure: the axis spines and the "
+            "tick marks. The numbers printed beside the ticks are text and "
+            "follow the font colour.")
+        if self._umap_settings is not None:
+            install_api_tooltips(self._umap_settings, "umap")
+
+
+    def _build_umap_section(self, outer) -> None:
+        """Add every Image UMAP setting, live against this figure."""
+        from PySide6.QtWidgets import QScrollArea
+        from .umap_figure_settings import UmapFigureSettings
+
+        values = dict(self._umap_payload.get("settings") or {})
+        self._umap_settings = UmapFigureSettings(values, self)
+        self._umap_settings.settings_changed.connect(self._on_umap_changed)
+        area = QScrollArea(self)
+        area.setWidgetResizable(True)
+        area.setWidget(self._umap_settings)
+        area.setMinimumHeight(320)
+        outer.addWidget(area, 1)
+        self._umap_applied = dict(self._umap_settings.values())
+
+    def _on_umap_changed(self, values: dict) -> None:
+        """Push a changed Image UMAP setting at the figure, now.
+
+        The embedding is read, never recomputed — see
+        :func:`spacr.qt.widgets.umap_figure_settings.redraw_umap_figure`.
+        """
+        from .umap_figure_settings import apply_to_figure
+
+        mode = apply_to_figure(self._fig, self._umap_payload, values,
+                               getattr(self, "_umap_applied", {}))
+        self._umap_applied = dict(values)
+        if mode and callable(self._render_cb):
+            try:
+                self._render_cb()
+            except Exception:
+                LOG.debug("could not re-render the figure", exc_info=True)
+
+    def umap_values(self) -> dict:
+        """Every Image UMAP setting the window holds, or ``{}``."""
+        if self._umap_settings is None:
+            return {}
+        return self._umap_settings.values()
+
+    def _on_size_changed(self, _value) -> None:
+        """The user moved the size box, so the number is now a choice."""
+        self._size_touched = True
+
+    def _propagate(self) -> None:
+        """Send the current values into the module's settings panel.
+
+        The colours go across as TOKENS, so a run saved with "auto" follows
+        whatever theme it is later opened under. Sending the resolution
+        instead would freeze it into the saved settings — the same bug as
+        section A, in a second store.
+        """
+        if not callable(self._propagate_cb):
+            return
+        values = dict(self.umap_values())
+        values.update({
+            "figure_background": self._bg,
+            "figure_text_color": self._fg,
+            "figure_line_color": self._line,
+            "figure_text_size": int(self._size.value()),
+        })
+        try:
+            self._propagate_cb(values)
+        except Exception:
+            LOG.debug("could not propagate the figure settings", exc_info=True)
+
+    def reject(self):
+        """Put the figure back the way the window found it, then close.
+
+        Live apply with no way out is a trap: the user drags a spin box to
+        see what it does and there is no longer an "as it was". Cancel is
+        that way out, and it costs one redraw.
+        """
+        settings = self._umap_settings
+        if settings is not None:
+            initial = settings.initial_values()
+            if initial != getattr(self, "_umap_applied", initial):
+                self._on_umap_changed(initial)
+        super().reject()
+
+
+    @staticmethod
+    def _is_auto(token) -> bool:
+        """Whether ``token`` means "follow the theme" rather than a colour."""
+        try:
+            from ..preferences import figure_color_is_auto
+            return figure_color_is_auto(token)
+        except Exception:
+            return str(token).strip().lower() == "auto"
+
+    @staticmethod
+    def _auto_preview() -> tuple:
+        """What "auto" resolves to on the live theme, for DISPLAY only."""
+        try:
+            from ..preferences import auto_figure_colors
+            return auto_figure_colors()
+        except Exception:
+            return "none", "#000000"
+
+    def _resolved_pair(self) -> tuple:
+        """The ``(bg, fg)`` to actually paint this figure with.
+
+        Resolved here and never stored: :meth:`_apply_and_accept` persists
+        ``self._bg``/``self._fg``, which are tokens.
+        """
+        auto_bg, auto_fg = self._auto_preview()
+        return (auto_bg if self._is_auto(self._bg) else self._bg,
+                auto_fg if self._is_auto(self._fg) else self._fg)
+
+    def _resolved_line(self) -> str:
+        """The line ink to paint with. Automatic means "the same as the
+        text", which is what a figure looked like before the split -- so a
+        store nobody has touched renders exactly as it did."""
+        if self._is_auto(self._line):
+            return self._resolved_pair()[1]
+        return self._line
+
+    @staticmethod
+    def _describe(value) -> str:
+        """How a colour value is spelled to a reader."""
+        if str(value).strip().lower() in ("none", "transparent", ""):
+            return "transparent"
+        return str(value)
+
+    def _paint_colour_buttons(self) -> None:
+        """Show each half as EITHER a chosen colour OR a labelled preview.
+
+        The label is what makes the difference visible: "Automatic
+        (#ffffff)" says the white came from the theme and will change with
+        it, where a plain white swatch says the user picked white. The
+        dialog cannot store the difference if it cannot show it.
+        """
+        from PySide6.QtGui import QColor
+        auto_bg, auto_fg = self._auto_preview()
+        auto_line = auto_fg if self._is_auto(self._fg) else self._fg
+        for token, btn, auto_value in ((self._bg, self._bg_btn, auto_bg),
+                                       (self._line, self._line_btn, auto_line),
+                                       (self._fg, self._fg_btn, auto_fg)):
+            automatic = self._is_auto(token)
+            shown = auto_value if automatic else token
+            text = self._describe(shown)
+            btn.setText(f"Automatic ({text})" if automatic else text)
+            colour = QColor(str(shown))
+            if colour.isValid() and self._describe(shown) != "transparent":
+                ink = "#000000" if colour.lightness() > 127 else "#ffffff"
+                btn.setStyleSheet(
+                    f"background-color: {colour.name()}; color: {ink};")
+            else:
+                btn.setStyleSheet("")
+        self._auto_btn.setEnabled(
+            not (self._is_auto(self._bg) and self._is_auto(self._fg)
+                 and self._is_auto(self._line)))
+
+    def _follow_theme(self) -> None:
+        """Un-set all three colours — back to the TOKEN, not to today's
+        answer. All three, because a "follow the theme" that left the line
+        colour frozen would be the trap it exists to be the way out of."""
+        self._bg = self._fg = self._line = "auto"
+        self._paint_colour_buttons()
+
+    def _pick(self, attr, btn):
+        """Choose one half explicitly. Only this makes a token a colour."""
+        from .colour_picker import pick_colour
+        auto_bg, auto_fg = self._auto_preview()
+        titles = {"_bg": "Background", "_fg": "Font colour",
+                  "_line": "Line colour"}
+        current = getattr(self, attr)
+        if self._is_auto(current):
+            current = (auto_bg if attr == "_bg"
+                       else self._resolved_line() if attr == "_line"
+                       else auto_fg)
+        c = pick_colour(self, current, titles.get(attr, "Colour"))
+        if c.isValid():
+            setattr(self, attr, c.name())
+            self._paint_colour_buttons()
+
+    def _apply_and_accept(self):
+        """Persist the chosen colour TOKENS/size (so every figure follows
+        them) and apply them to this figure, then accept — the caller
+        re-renders.
+
+        What is written back is ``self._bg``/``self._fg`` unchanged: "auto"
+        stays "auto". Pressing OK without touching anything must therefore
+        leave the store exactly as it was found, which is the regression this
+        method exists to not repeat.
+        """
+        size = int(self._size.value()) if self._size_touched \
+            else int(getattr(self, "_stored_size", 0) or 0)
+        bg, fg = self._resolved_pair()
+        line = self._resolved_line()
+        try:
+            from ..preferences import (set_figure_colors,
+                                       set_figure_line_colour,
+                                       set_figure_text_size)
+            set_figure_colors(self._bg, self._fg)
+            set_figure_line_colour(self._line)
+            set_figure_text_size(size)
+        except Exception:
+            pass
+        if self._size_touched:
+            set_figure_text_size_override(self._fig, 0)
+        if self._umap_settings is not None:
+            self._umap_settings.flush()
+        FigureQueue._style_figure(self._fig, bg, fg, size, line)
+        self.accept()

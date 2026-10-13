@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "40_run_history",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Pesquise em um único local as configurações, os arquivos, os avisos, as falhas e o desempenho de todos os trabalhos.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Run History.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Run History. Pesquise em um único local as configurações, os arquivos, os avisos, as falhas e o desempenho de todos os trabalhos.",
+        "Abra o registro de execuções do espaço de trabalho atual ou das raízes de projeto selecionadas.",
+        "Na área principal de configuração, filtre por módulo, estado, data, projeto, versão, aviso, duração ou uso de recursos.",
+        "Abra uma execução para examinar suas configurações imutáveis, os logs, as saídas e o contexto da falha.",
+        "Ao término do fluxo de trabalho, você poderá reproduzir, comparar, retomar ou documentar trabalhos anteriores sem precisar deduzir como foram executados."
+      ]
+    }
+  }
+}

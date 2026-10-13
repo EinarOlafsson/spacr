@@ -1,0 +1,684 @@
+  hf upload einarolafsson/spacr-tutorials /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-conda-home-current-r2/release-candidate-append-gcfljjp0/media_host . --repo-type dataset --revision tutorials-conda-current-home-20261005-r1 --commit-message Tutorial media for release candidate release-candidate-append-gcfljjp0 --commit-description release-manifest.json sha256 900dcfc739a183944d58a6eb21025cb5b082fa38dccd4b9be14b40d2dc47b2b9
+It seems you are trying to upload a large folder at once. This might take some time and then fail if the folder is too large. For such cases, it is recommended to upload in smaller batches or to use `HfApi().upload_large_folder(...)`/`hf upload-large-folder` instead. For more details, check out https://huggingface.co/docs/huggingface_hub/main/en/guides/upload#upload-a-large-folder.
+Start hashing 4760 files.
+Finished hashing 4760 files.
+Processing Files (0 / 0)      : |          |  0.00B /  0.00B            
+New Data Upload               : |          |  0.00B /  0.00B            [A
+
+  ...thub/audio/es/ef_dora.m4a: 100%|██████████|  647kB /  647kB            [A[A
+
+  ...thub/audio/es/ef_dora.m4a: 100%|██████████|  647kB /  647kB            [A[AProcessing Files (1 / 155)    :   0%|          |  647kB /  232MB,   ???B/s  
+
+
+  ...odes/audio/hi/hf_beta.m4a: 100%|██████████| 1.13MB / 1.13MB            [A[A[A
+
+
+
+  ...ml/audio/ja/jf_nezumi.m4a: 100%|██████████| 1.43MB / 1.43MB            [A[A[A[A
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████|  870kB /  870kB            [A[A[A[A[A
+
+
+
+
+
+  ...ure/audio/hi/hm_omega.m4a: 100%|██████████| 1.99MB / 1.99MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...y_ml/audio/es/ef_dora.m4a: 100%|██████████| 1.01MB / 1.01MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ll/audio/it/im_nicola.m4a: 100%|██████████|  797kB /  797kB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...sion/audio/hi/hf_beta.m4a: 100%|██████████| 1.34MB / 1.34MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ate/audio/es/em_santa.m4a: 100%|██████████| 1.67MB / 1.67MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...ers/audio/es/em_santa.m4a: 100%|██████████| 1.07MB / 1.07MB            [A[A[A[A[A[A[A[A[A[A[A
+
+  ...thub/audio/es/ef_dora.m4a: 100%|██████████|  647kB /  647kB            [A[A
+
+
+  ...odes/audio/hi/hf_beta.m4a: 100%|██████████| 1.13MB / 1.13MB            [A[A[A
+
+
+
+  ...ml/audio/ja/jf_nezumi.m4a: 100%|██████████| 1.43MB / 1.43MB            [A[A[A[A
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████|  870kB /  870kB            [A[A[A[A[A
+
+
+
+
+
+  ...ure/audio/hi/hm_omega.m4a: 100%|██████████| 1.99MB / 1.99MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...y_ml/audio/es/ef_dora.m4a: 100%|██████████| 1.01MB / 1.01MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...ll/audio/it/im_nicola.m4a: 100%|██████████|  797kB /  797kB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...sion/audio/hi/hf_beta.m4a: 100%|██████████| 1.34MB / 1.34MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...ate/audio/es/em_santa.m4a: 100%|██████████| 1.67MB / 1.67MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 365 files]               :  99%|█████████▉|  653MB /  657MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (373 / 2465) :  13%|█▎        |  659MB / 5.09GB,   ???B/s  
+
+  ..._conda_install_silent.mp4:  25%|██▌       |  946kB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4:  71%|███████▏  | 2.74MB / 3.84MB            [A[A[A
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████|  662kB /  662kB            [A[A[A[A
+
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a: 100%|██████████|  587kB /  587kB            [A[A[A[A[A
+
+
+
+
+
+  ...y_cv/audio/it/if_sara.m4a: 100%|██████████| 1.16MB / 1.16MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...y_ml/audio/ja/jm_kumo.m4a: 100%|██████████| 1.23MB / 1.23MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████| 1.22MB / 1.22MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  .../audio/pt-BR/pm_santa.m4a: 100%|██████████| 1.85MB / 1.85MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...dio/zh-CN/zf_xiaoxiao.m4a: 100%|██████████|  943kB /  943kB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 359 files]               : 100%|█████████▉|  850MB /  853MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (731 / 2465) :  30%|██▉       | 1.51GB / 5.09GB,   ???B/s  
+
+  ..._conda_install_silent.mp4:  25%|██▌       |  946kB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4:  71%|███████▏  | 2.74MB / 3.84MB            [A[A[A
+
+
+
+  ...25_recruitment_silent.mp4: 100%|██████████| 11.2MB / 11.2MB            [A[A[A[A
+
+
+
+
+  ...train_cellpose_silent.mp4: 100%|██████████| 9.66MB / 9.66MB            [A[A[A[A[A
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████|  879kB /  879kB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████|  957kB /  957kB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...mpare/audio/hi/hm_psi.m4a: 100%|██████████|  752kB /  752kB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...e/audio/pt-BR/pm_alex.m4a: 100%|██████████|  660kB /  660kB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████|  789kB /  789kB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 598 files]               : 100%|██████████|  807MB /  807MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (1330 / 2465):  46%|████▌     | 2.32GB / 5.09GB,  223MB/s  
+
+  ..._conda_install_silent.mp4:  25%|██▌       |  946kB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4:  71%|███████▏  | 2.74MB / 3.84MB            [A[A[A
+
+
+
+  .../audio/zh-CN/zm_yunxi.m4a: 100%|██████████|  773kB /  773kB            [A[A[A[A
+
+
+
+
+  ...audio/zh-CN/zf_xiaoyi.m4a: 100%|██████████|  969kB /  969kB            [A[A[A[A[A
+
+
+
+
+
+  ...jobs/audio/hi/hf_beta.m4a: 100%|██████████|  634kB /  634kB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...er/audio/it/im_nicola.m4a: 100%|██████████|  881kB /  881kB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...titch/audio/hi/hm_psi.m4a: 100%|██████████| 1.13MB / 1.13MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...40_run_history_silent.mp4: 100%|██████████| 4.22MB / 4.22MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunyang.m4a: 100%|██████████|  317kB /  317kB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 506 files]               :  98%|█████████▊|  848MB /  861MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (1834 / 2465):  62%|██████▏   | 3.16GB / 5.09GB,  299MB/s  
+
+  ..._conda_install_silent.mp4:  25%|██▌       |  946kB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4:  71%|███████▏  | 2.74MB / 3.84MB            [A[A[A
+
+
+
+  ...mall_multiples_silent.mp4: 100%|██████████| 14.7MB / 14.7MB            [A[A[A[A
+
+
+
+
+  ...mall_multiples_silent.mp4: 100%|██████████| 14.4MB / 14.4MB            [A[A[A[A[A
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████| 1.39MB / 1.39MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...ph/audio/it/im_nicola.m4a: 100%|██████████|  797kB /  797kB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...de_qc/audio/hi/hm_psi.m4a: 100%|██████████|  924kB /  924kB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...7_layer_viewer_silent.mp4: 100%|██████████| 15.0MB / 15.0MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...late/audio/es/ef_dora.m4a: 100%|██████████| 1.72MB / 1.72MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 430 files]               :  94%|█████████▎|  823MB /  880MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2261 / 2465):  78%|███████▊  | 3.98GB / 5.09GB,  371MB/s  
+
+  ..._conda_install_silent.mp4:  25%|██▌       |  946kB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4:  71%|███████▏  | 2.74MB / 3.84MB            [A[A[A
+
+
+
+  ...puts/audio/es/em_alex.m4a: 100%|██████████| 22.9MB / 22.9MB            [A[A[A[A
+
+
+
+
+  ...uts/audio/es/em_santa.m4a: 100%|██████████| 22.7MB / 22.7MB            [A[A[A[A[A
+
+
+
+
+
+  ...uts/audio/fr/ff_siwis.m4a: 100%|██████████| 22.3MB / 22.3MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...puts/audio/es/ef_dora.m4a: 100%|██████████| 22.9MB / 22.9MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...uts/audio/en/af_heart.m4a: 100%|██████████| 21.9MB / 21.9MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...hit/audio/ja/jf_alpha.m4a: 100%|██████████| 2.01MB / 2.01MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...er/audio/it/im_nicola.m4a: 100%|██████████| 1.19MB / 1.19MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 147 files]               :  86%|████████▌ |  770MB /  896MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2410 / 2465):  94%|█████████▍| 4.81GB / 5.09GB,  441MB/s  
+
+  ..._conda_install_silent.mp4:  25%|██▌       |  946kB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4:  71%|███████▏  | 2.74MB / 3.84MB            [A[A[A
+
+
+
+  ...inputs_outputs_silent.mp4:  95%|█████████▌|  164MB /  172MB            [A[A[A[A
+
+
+
+
+  ..._host_pathogen_silent.mp4: 100%|██████████| 12.6MB / 12.6MB            [A[A[A[A[A
+
+
+
+
+
+  ...inputs_outputs_silent.mp4: 100%|██████████| 86.1MB / 86.1MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...hways/audio/hi/hm_psi.m4a: 100%|██████████| 1.92MB / 1.92MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████| 1.42MB / 1.42MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...ays/audio/en/af_heart.m4a: 100%|██████████| 4.26MB / 4.26MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████| 1.16MB / 1.16MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  [+ 50 files]                : 100%|██████████|  154MB /  154MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2462 / 2465): 100%|█████████▉| 5.08GB / 5.09GB,  457MB/s  
+
+  ..._conda_install_silent.mp4:  99%|█████████▉| 3.69MB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4: 100%|█████████▉| 3.83MB / 3.84MB            [A[A[A
+
+
+
+  ...inputs_outputs_silent.mp4: 100%|█████████▉|  172MB /  172MB            [A[A[A[A
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████| 1.37MB / 1.37MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a: 100%|██████████| 2.19MB / 2.19MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████| 1.66MB / 1.66MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a: 100%|██████████| 2.18MB / 2.18MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...alpha_features_silent.mp4: 100%|██████████| 15.9MB / 15.9MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...tures/audio/hi/hm_psi.m4a: 100%|██████████| 2.43MB / 2.43MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...s/audio/pt-BR/pf_dora.m4a: 100%|██████████| 2.03MB / 2.03MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2462 / 2465): 100%|█████████▉| 5.09GB / 5.09GB,  447MB/s  
+New Data Upload               :  99%|█████████▉| 11.5MB / 11.6MB, 1.09MB/s  [A
+
+  ..._conda_install_silent.mp4: 100%|██████████| 3.72MB / 3.72MB            [A[A
+
+
+  ..._conda_install_silent.mp4: 100%|██████████| 3.84MB / 3.84MB            [A[A[A
+
+
+
+  ...inputs_outputs_silent.mp4: 100%|██████████|  172MB /  172MB            [A[A[A[A
+
+
+
+
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████| 1.37MB / 1.37MB            [A[A[A[A[A
+
+
+
+
+
+  .../audio/ja/jf_tebukuro.m4a: 100%|██████████| 2.19MB / 2.19MB            [A[A[A[A[A[A
+
+
+
+
+
+
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████| 1.66MB / 1.66MB            [A[A[A[A[A[A[A
+
+
+
+
+
+
+
+  ...udio/ja/jf_gongitsune.m4a: 100%|██████████| 2.18MB / 2.18MB            [A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+  ...alpha_features_silent.mp4: 100%|██████████| 15.9MB / 15.9MB            [A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+  ...tures/audio/hi/hm_psi.m4a: 100%|██████████| 2.43MB / 2.43MB            [A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+
+
+
+
+
+  ...s/audio/pt-BR/pf_dora.m4a: 100%|██████████| 2.03MB / 2.03MB            [A[A[A[A[A[A[A[A[A[A[AProcessing Files (2465 / 2465): 100%|██████████| 5.09GB / 5.09GB,  437MB/s  
+New Data Upload               : 100%|██████████| 11.6MB / 11.6MB, 1.07MB/s  [AProcessing Files (2465 / 2465): 100%|██████████| 5.09GB / 5.09GB,  437MB/s  
+New Data Upload               : 100%|██████████| 11.6MB / 11.6MB, 1.07MB/s  
+  ..._conda_install_silent.mp4: 100%|██████████| 3.72MB / 3.72MB            
+  ..._conda_install_silent.mp4: 100%|██████████| 3.84MB / 3.84MB            
+  ...inputs_outputs_silent.mp4: 100%|██████████|  172MB /  172MB            
+  ...audio/zh-CN/zf_xiaoni.m4a: 100%|██████████| 1.37MB / 1.37MB            
+  .../audio/ja/jf_tebukuro.m4a: 100%|██████████| 2.19MB / 2.19MB            
+  ...udio/zh-CN/zm_yunjian.m4a: 100%|██████████| 1.66MB / 1.66MB            
+  ...udio/ja/jf_gongitsune.m4a: 100%|██████████| 2.18MB / 2.18MB            
+  ...alpha_features_silent.mp4: 100%|██████████| 15.9MB / 15.9MB            
+  ...tures/audio/hi/hm_psi.m4a: 100%|██████████| 2.43MB / 2.43MB            
+  ...s/audio/pt-BR/pf_dora.m4a: 100%|██████████| 2.03MB / 2.03MB            
+https://huggingface.co/datasets/einarolafsson/spacr-tutorials/tree/tutorials-conda-current-home-20261005-r1/.
+  read back 500/4760 files, 0.44 GB
+  read back 1000/4760 files, 1.13 GB
+  read back 1500/4760 files, 1.62 GB
+  read back 2000/4760 files, 2.00 GB
+  read back 2500/4760 files, 2.35 GB
+  read back 3000/4760 files, 2.63 GB
+  read back 3500/4760 files, 3.18 GB
+  read back 4000/4760 files, 3.73 GB
+  read back 4500/4760 files, 4.71 GB
+  read back 4760/4760 files, 5.22 GB
+{"commit": "bf1cca988e0fa91683a2ca96d3acabe8cf39c60a", "files_expected": 4760, "metadata_matched": 4760, "metadata_failures": [], "bytes_read_back": 5219742352, "downloaded_sha256_matched": 4760, "download_failures": [], "seconds": 203.9, "passed": true}
+PUBLISHED MEDIA https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/bf1cca988e0fa91683a2ca96d3acabe8cf39c60a

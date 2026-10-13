@@ -1,0 +1,546 @@
+# spaCR user guide translation (pt).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Language: pt\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Capabilities"
+msgstr "Recursos"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "spaCR processes an image-based screen from raw microscopy files to a ranked hit list. This page lists its capabilities by area; the :doc:`Python API quickstart <python_api>` and interactive tutorials cover individual workflows."
+msgstr "O spaCR processa uma triagem baseada em imagens desde os arquivos brutos de microscopia até uma lista ordenada de candidatos. Esta página lista suas funcionalidades por área; o :doc:`início rápido da API Python <python_api>` e os tutoriais interativos cobrem cada fluxo de trabalho."
+
+msgid "Core screen workflow"
+msgstr "Fluxo de trabalho principal da triagem"
+
+msgid "Mask"
+msgstr "Máscaras"
+
+msgid "Mask prepares TIFF, OME-TIFF, LIF, CZI and ND2 acquisitions and segments cells, nuclei, pathogens and organelles with Cellpose. It supports 2-D, volumetric and time-series data, estimates object diameter, and can exchange mask corrections with the layer viewer or napari."
+msgstr "Máscaras prepara aquisições TIFF, OME-TIFF, LIF, CZI e ND2 e segmenta células, núcleos, patógenos e organelas com o Cellpose. Oferece suporte a dados 2D, volumétricos e de séries temporais, estima o diâmetro dos objetos e pode trocar correções de máscaras com o visualizador de camadas ou com o napari."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The objects are not a fixed set of four. A project has a cell, a nucleus and a pathogen, a cytoplasm derived from them, and as many organelle slots as ``number_of_organelles`` specifies -- from none up to twenty-six. Each slot is independent, with its own channel, diameter, detection method and morphology."
+msgstr "Os objetos não formam um conjunto fixo de quatro. Um projeto tem uma célula, um núcleo e um patógeno, um citoplasma derivado deles e tantos espaços de organelas quanto ``number_of_organelles`` especificar -- de nenhum até vinte e seis. Cada espaço é independente, com seu próprio canal, diâmetro, método de detecção e morfologia."
+
+msgid "A slot is given a morphology preset -- punctate, vesicular, spherical, filamentous, tubular, reticular, cisternal, toroidal, crescent, or custom -- and the preset chooses the detection strategy, one of spots, network, irregular or ring."
+msgstr "Cada espaço recebe uma predefinição de morfologia -- puntiforme, vesicular, esférica, filamentosa, tubular, reticular, cisternal, toroidal, em crescente ou personalizada --, e a predefinição escolhe a estratégia de detecção: pontos, rede, irregular ou anel."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Mask generation lays out the per-object settings as one table under **Per-object settings**, with a column for each object whose channel is set; the cell column is always shown. An object's channel is set on the ordinary form, and the values of a hidden object are kept for when its channel is set again. Every object has a **Remove background** check box, and the cell column also has **Adjust cells**. **Add a filter** adds a row that filters objects on any scikit-image regionprop, such as area or mean intensity; each object's cell takes ``200 – 5000``, a minimum alone (``200``), a maximum alone (``– 5000``) or a blank for no filter. These rows are the ``object_filters`` setting. Choosing a Cellpose 3 model for an object shows a **Cellpose 3** category with that backend's own settings. **Quality Control** holds the segmentation checks together with output, storage, runtime and reliability settings."
+msgstr "A geração de máscaras apresenta as configurações por objeto em uma única tabela em **Per-object settings**, com uma coluna para cada objeto cujo canal está definido; a coluna da célula é sempre exibida. O canal de um objeto é definido no formulário comum, e os valores de um objeto oculto são guardados para quando seu canal for definido de novo. Cada objeto tem uma caixa de seleção **Remover fundo**, e a coluna da célula tem também **Ajustar células**. **Adicionar um filtro** adiciona uma linha que filtra objetos por qualquer regionprop do scikit-image, como área ou intensidade média; a célula de cada objeto aceita ``200 – 5000``, apenas um mínimo (``200``), apenas um máximo (``– 5000``) ou vazio para nenhum filtro. Essas linhas formam a configuração ``object_filters``. Escolher um modelo do Cellpose 3 para um objeto exibe uma categoria **Cellpose 3** com as configurações próprias desse backend. **Controle de qualidade** reúne as verificações de segmentação junto com as configurações de saída, armazenamento, execução e confiabilidade."
+
+msgid "Mask's **Live** preview shows the result as **Overlay**, **Masks**, **Flows** or **Cell probability**. Right-click a picture to **Save as PNG…** or **Save as PDF…**. Once a session has produced more than one mask, **Compare masks…** lays the masks and images you tick over one another, each with its own opacity and stacking order, in a panel of its own."
+msgstr "A prévia **Ao vivo** de Máscaras mostra o resultado como **Sobreposição**, **Máscaras**, **Fluxos** ou **Probabilidade celular**. Clique com o botão direito em uma imagem para **Save as PNG…** ou **Save as PDF…**. Assim que uma sessão tiver produzido mais de uma máscara, **Comparar máscaras…** sobrepõe as máscaras e imagens que você marcar, cada uma com sua própria opacidade e ordem de empilhamento, em um painel próprio."
+
+msgid "Measure"
+msgstr "Medição"
+
+msgid "Measure writes per-object morphology, intensity, texture, radial, spatial and colocalization features to ``measurements.db``. It can save classifier-ready object crops, estimate illumination correction from a plate, restrict work to a region of interest and report segmentation quality before a run."
+msgstr "Medição grava em ``measurements.db`` características por objeto de morfologia, intensidade, textura, radiais, espaciais e de colocalização. Pode salvar recortes de objetos prontos para classificadores, estimar a correção de iluminação a partir de uma placa, restringir o trabalho a uma região de interesse e informar a qualidade da segmentação antes de uma execução."
+
+msgid "Measure's settings are grouped as **Input & Experiment**, **Mask & Channel Mapping**, **Image Preprocessing** (with **Image Deconvolution (PSF)** and **Illumination Correction**), **Features**, **Object Filtering**, **Crop Output**, **3D Calibration (Beta)** and **Postprocessing** (with **Runtime & Reliability**). The segmentation-quality verdict is opt-in: the **QC** switch beside **3D** and **Time** opens it in a popup, and closing the popup turns the switch off."
+msgstr "As configurações de Medição são agrupadas em **Entrada e experimento**, **Mapeamento de máscaras e canais**, **Pré-processamento de imagem** (com **Deconvolução de imagem (PSF)** e **Correção de iluminação**), **Características**, **Filtragem de objetos**, **Saída de recortes**, **Calibração 3D (Beta)** e **Postprocessing** (com **Execução e confiabilidade**). O veredito de qualidade da segmentação é opcional: a chave **QC** ao lado de **3D** e **Tempo** o abre em uma janela pop-up, e fechar a janela desativa a chave."
+
+msgid "Annotate and Classify"
+msgstr "Anotação e Classificar"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Annotate provides a keyboard-driven crop grid, records labels directly in the project database and can rank an active-learning queue by uncertainty. A page holds as many crops as fit and never scrolls; the rest are on the next page. After **Suggest…**, suggested crops carry a **?** badge: click one or press **Y** to confirm it, right-click or press **N** to reject it, and **U** undoes. **Confirm the rest of the page** and **Reject the rest of the page** judge every remaining suggestion at once. Rejections are stored; in a two-class column, the next training round uses a rejected suggestion as an example of the other class. Classify trains PyTorch image models or classical and boosted models from measurement tables. Checkpoints record their dataset, split rule, class balance and held-out metrics. The **Essentials** view of Classify holds what is needed to choose and train either family — an image model such as ResNet or MaxViT, or a tabular model such as XGBoost or a random forest — and greys the settings of the family not chosen."
+msgstr "Anotação oferece uma grade de recortes operada pelo teclado, registra os rótulos diretamente no banco de dados do projeto e pode ordenar uma fila de aprendizagem ativa por incerteza. Uma página contém tantos recortes quanto couberem e nunca rola; o restante fica na página seguinte. Após **Sugira...**, os recortes sugeridos exibem um selo **?**: clique em um ou pressione **Y** para confirmá-lo, clique com o botão direito ou pressione **N** para rejeitá-lo, e **U** desfaz. **Confirmar o restante da página** e **Rejeitar o restante da página** avaliam de uma vez todas as sugestões restantes. As rejeições são armazenadas; em uma coluna de duas classes, a próxima rodada de treinamento usa uma sugestão rejeitada como exemplo da outra classe. Classificar treina modelos de imagem PyTorch ou modelos clássicos e de boosting a partir de tabelas de medições. Os pontos de verificação registram o conjunto de dados, a regra de divisão, o balanceamento de classes e as métricas em dados reservados. A visualização **Essentials** de Classificar reúne o necessário para escolher e treinar qualquer uma das famílias — um modelo de imagem como ResNet ou MaxViT, ou um modelo tabular como XGBoost ou uma floresta aleatória — e acinzenta as configurações da família não escolhida."
+
+msgid "Classify CV also offers optional rotations and reflections at inference time. See :doc:`classifier_evaluation` for the aggregation methods, original and mean probabilities, and orientation-stability flags."
+msgstr "Classificar VC também oferece rotações e reflexões opcionais durante a inferência. Consulte :doc:`classifier_evaluation` para os métodos de agregação, as probabilidades originais e médias e os indicadores de estabilidade quanto à orientação."
+
+msgid "Map Barcodes"
+msgstr "Mapear códigos de barras"
+
+msgid "Barcode mapping decodes row, column and gRNA barcodes from FASTQ reads, joins them to imaged wells and reports abundance, collision, unmapped-read and library-coverage checks."
+msgstr "O mapeamento de códigos de barras decodifica os códigos de linha, de coluna e de gRNA a partir de leituras FASTQ, associa-os aos poços com imagens e informa verificações de abundância, colisões, leituras não mapeadas e cobertura da biblioteca."
+
+msgid "Regression"
+msgstr "Regressão"
+
+msgid "Regression estimates guide, gene, condition and control effects. Its model families cover continuous, fractional, binary and count responses, robust and quantile fits, penalised high-dimensional designs, mixed effects and guide permutation. Diagnostics and run summaries are written beside the result."
+msgstr "A regressão estima os efeitos de guias, genes, condições e controles. Suas famílias de modelos cobrem respostas contínuas, fracionárias, binárias e de contagem, ajustes robustos e por quantis, delineamentos penalizados de alta dimensão, efeitos mistos e permutação de guias. Os diagnósticos e os resumos da execução são gravados ao lado do resultado."
+
+msgid "Planning, quality control and exploration"
+msgstr "Planejamento, controle de qualidade e exploração"
+
+msgid "**Power and Design** estimate cell and well requirements and lay out plates, controls and replicates."
+msgstr "**Power and Design** estimam as necessidades de células e poços e dispõem placas, controles e réplicas."
+
+msgid "**QC Dashboard** combines segmentation, plate, annotation-agreement and leakage checks."
+msgstr "**QC Dashboard** combina verificações de segmentação, de placa, de concordância entre anotadores e de vazamento."
+
+msgid "**Batch correction** provides centering, z-scoring, robust z-scoring, control centering and ComBat with protected biological covariates."
+msgstr "**Correção de lote** oferece centralização, escore z, escore z robusto, centralização nos controles e ComBat com covariáveis biológicas protegidas."
+
+msgid "**Graph Builder, gates and linked views** connect summary plots to the object crops behind them."
+msgstr "**Graph Builder, gates and linked views** ligam os gráficos de resumo aos recortes de objetos por trás deles."
+
+msgid "**Feature, dose-response, control-chart and outlier views** inspect a result without an export/re-import cycle."
+msgstr "**Feature, dose-response, control-chart and outlier views** examinam um resultado sem um ciclo de exportação e reimportação."
+
+msgid "**Layer and lineage views** connect images, masks and the cell → nucleus → pathogen object hierarchy."
+msgstr "**Layer and lineage views** ligam imagens, máscaras e a hierarquia de objetos célula → núcleo → patógeno."
+
+msgid "In **Live Preview**, **QC** image views and the raw/enhanced comparison, wheel zoom keeps the image point beneath the pointer in place. This also works when the image is smaller than its viewport; **Fit** or opening a new image resets the extra navigation space. Linked comparison views update together after the zoom. Orthogonal image views zoom around the pointer without moving the crosshair's selected position."
+msgstr "Em **Live Preview**, nas visualizações de imagem de **QC** e na comparação bruta/realçada, o zoom com a roda mantém fixo o ponto da imagem sob o ponteiro. Isso também funciona quando a imagem é menor que sua área de exibição; **Ajustar** ou abrir uma nova imagem redefine o espaço extra de navegação. As visualizações de comparação vinculadas são atualizadas juntas após o zoom. As visualizações ortogonais aplicam zoom em torno do ponteiro sem mover a posição selecionada da mira."
+
+msgid "For Toxoplasma compartment-intensity comparisons, see :doc:`recruitment`."
+msgstr "Para comparações de intensidade entre compartimentos em Toxoplasma, consulte :doc:`recruitment`."
+
+msgid "Reproducibility and interoperability"
+msgstr "Reprodutibilidade e interoperabilidade"
+
+msgid "Every run can record its identifier, seed, resolved settings and outputs. Interrupted workflows can resume from checkpoints, and the run history can compare settings and artefacts. Measurements export to AnnData; optional integrations read or write OME-Zarr, connect to OMERO and send masks to napari."
+msgstr "Cada execução pode registrar seu identificador, sua semente, as configurações resolvidas e suas saídas. Fluxos de trabalho interrompidos podem ser retomados a partir de pontos de verificação, e o histórico de execuções pode comparar configurações e artefatos. As medições são exportadas para AnnData; integrações opcionais leem ou gravam OME-Zarr, conectam-se ao OMERO e enviam máscaras para o napari."
+
+msgid "How a module is reached"
+msgstr "Como um módulo é acessado"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and nineteen modules have a tile in one of them. Core holds the pipeline modules, run in order; Data holds import, embeddings, run comparison, design, dose–response and QC; Tools holds modules that operate on an existing project rather than pipeline steps; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "A tela inicial agrupa os módulos em quatro categorias -- **Principal**, **Dados**, **Ferramentas** e **Organismo** -- e dezenove módulos têm um bloco em uma delas. Principal reúne os módulos do pipeline, executados em ordem; Dados reúne importação, incorporações, comparação de execuções, delineamento, dose–resposta e controle de qualidade; Ferramentas reúne módulos que operam sobre um projeto existente, e não etapas do pipeline; Organismo abre o guia de Toxoplasma e seus ensaios disponíveis. As análises planejadas são marcadas como Em breve. Criar máscaras fica em **Ferramentas**."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Most modules do not have a tile; they inspect or extend work started in another module. They open from:"
+msgstr "A maioria dos módulos não tem bloco; eles inspecionam ou estendem o trabalho iniciado em outro módulo. Eles são abertos a partir de:"
+
+msgid "**a button on their host's masthead** -- as a page beside that host's settings, already pointed at the same project. Investigate Hit and Prediction Profiler open from Regression; Format Converter and External Masks from Import; Layer Viewer, Control Charts and Outliers from QC."
+msgstr "**um botão no cabeçalho do módulo anfitrião** -- como uma página ao lado das configurações desse anfitrião, já apontada para o mesmo projeto. Investigate Hit e Prediction Profiler são abertos a partir de Regressão; Conversor de formatos e Máscaras externas a partir de Importar; Layer Viewer, Control Charts e Outliers a partir de QC."
+
+msgid "**the Help menu**, for the ones that inspect or administer work that already exists rather than belonging behind any one module -- Run History, Pipeline Graph, Project Browser, Database Browser, Report, Data Manager, Plate Queue, Batch Runner and Distributed Jobs."
+msgstr "**o menu Ajuda**, para os que inspecionam ou administram trabalho já existente em vez de pertencerem a um módulo específico -- Histórico de execuções, Pipeline Graph, Project Browser, Navegador de banco de dados, Relatório, Gerenciador de dados, Fila de placas, Executor em lote e Trabalhos distribuídos."
+
+msgid "**the command palette** (Ctrl+K), which reaches EVERY module, tiled or not. It is the one route with no exceptions, and the keyboard user's navigation."
+msgstr "**a paleta de comandos** (Ctrl+K), que alcança TODOS os módulos, com ou sem bloco. É o único caminho sem exceções e a navegação de quem usa o teclado."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Modules without a tile are installed, translated and documented in the same way as tiled modules, and those that are pipelines also run headlessly under ``spacr-run``."
+msgstr "Os módulos sem bloco são instalados, traduzidos e documentados da mesma forma que os módulos com bloco, e os que são pipelines também são executados sem interface gráfica com ``spacr-run``."
+
+msgid "Host"
+msgstr "Hospedeiro"
+
+msgid "Opens from its masthead"
+msgstr "Aberto pelo seu cabeçalho"
+
+msgid "Timelapse"
+msgstr "Série temporal"
+
+msgid "Illumination Correction, AnnData Export, Motility Assay"
+msgstr "Correção de iluminação, Exportar para AnnData, Ensaio de motilidade"
+
+msgid "Annotate"
+msgstr "Anotação"
+
+msgid "Annotator Agreement"
+msgstr "Concordância de anotadores"
+
+msgid "Classify"
+msgstr "Classificar"
+
+msgid "Classifier Evaluation, Explain CV Model, Activation Maps"
+msgstr "Avaliação do classificador, Explicar modelo de VC, Mapas de Ativação"
+
+msgid "Barcode QC"
+msgstr "CQ de código de barras"
+
+msgid "Volcano Explorer, Hit List, Methods & Results"
+msgstr "Explorador de gráficos vulcão, Lista de candidatos, Métodos e resultados"
+
+msgid "Image UMAP"
+msgstr "UMAP de imagens"
+
+msgid "Image Scatter, PCA"
+msgstr "Dispersão de imagens, PCA"
+
+msgid "Make Masks"
+msgstr "Criar máscaras"
+
+msgid "Cellpose Workbench, Mask the whole folder, Model Compare, Model Zoo, Curate, Napari Bridge"
+msgstr "Bancada Cellpose, Gerar máscaras para toda a pasta, Comparar modelos, Biblioteca de modelos, Curadoria, Ponte para o napari"
+
+msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
+msgstr "Varredura de parâmetros é acessada por um terceiro caminho: é um painel da tela Regressão, aberto pela chave **Varredura de parâmetros** no formulário de configurações."
+
+msgid "Picking up where you left off"
+msgstr "Continuar de onde parou"
+
+msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
+msgstr "**Restauração da sessão**: cada início normal reabre o módulo que estava na tela quando o spaCR foi fechado ou travou pela última vez, com suas configurações e pasta de entrada. Nenhuma execução é iniciada. Enquanto a barra de status informa o que foi reaberto, o botão **Abrir do zero** restaura as configurações padrão desse módulo e vai para o Início; ``spacr-qt --fresh`` ignora a restauração em um início. Desative-a em **Preferências → Módulos → Sessão** (ativada por padrão). Um módulo indicado na linha de comando, ou um registro de Force restart, tem precedência."
+
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**Salvamento automático das configurações**: a cada 30 segundos, as configurações não salvas de cada módulo aberto são guardadas como rascunho no armazenamento de preferências; nada é gravado quando nada mudou. Um encerramento normal descarta os rascunhos. Se o spaCR terminou sem ser fechado, o próximo início pergunta uma vez se deve restaurá-los (rascunhos idênticos à sessão reaberta não geram pergunta). O mesmo comportamento vale para Linux, macOS e Windows, porque o armazenamento é o próprio armazenamento de configurações do Qt."
+
+msgid "Undo and redo"
+msgstr "Desfazer e refazer"
+
+msgid "**Ctrl+Z** undoes and **Ctrl+Shift+Z** or **Ctrl+Y** redoes in a module's settings panel, in the Gate Editor and in Annotate:"
+msgstr "**Ctrl+Z** desfaz e **Ctrl+Shift+Z** ou **Ctrl+Y** refaz no painel de configurações de um módulo, no Gate Editor e em Anotação:"
+
+msgid "in the **settings panel**, each changed setting is one step. Loading settings, applying a template or replaying a run does not add steps. While you are typing in a text field, Ctrl+Z undoes the typing first;"
+msgstr "no **settings panel**, cada configuração alterada é uma etapa. Carregar configurações, aplicar um modelo ou reproduzir uma execução não adiciona etapas. Enquanto você digita em um campo de texto, Ctrl+Z desfaz primeiro a digitação;"
+
+msgid "in the **Gate Editor**, each change to the gates (drawing, moving, renaming or deleting a gate) is one step;"
+msgstr "no **Gate Editor**, cada alteração nos gates (desenhar, mover, renomear ou excluir um gate) é uma etapa;"
+
+msgid "in **Annotate**, **U** and Ctrl+Z undo the last label and Ctrl+Shift+Z or Ctrl+Y puts it back;"
+msgstr "em **Anotação**, **U** e Ctrl+Z desfazem o último rótulo, e Ctrl+Shift+Z ou Ctrl+Y o restaura;"
+
+msgid "the **Make Masks** editor keeps its own **Undo** and **Redo**."
+msgstr "o editor de **Criar máscaras** mantém seus próprios **Desfazer** e **Refazer**."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo."
+msgstr "O menu **Editar** tem **Desfazer** e **Refazer** para o editor na tela. Eles atuam primeiro sobre um campo de texto em foco e, caso contrário, sobre o histórico próprio da tela, e ficam esmaecidos quando não há nada para desfazer ou refazer."
+
+msgid "Running jobs"
+msgstr "Trabalhos em execução"
+
+msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
+msgstr "**Ajuda → Janela → Tarefas** abre o painel **Tarefas** na borda direita da janela. Ele lista cada trabalho em execução com seu módulo, uma barra de progresso, o tempo decorrido e sua última linha de saída. **Cancelar** pede que esse trabalho pare. Quando nada está em execução, o painel informa **Nenhuma tarefa em execução.**"
+
+msgid "Two spaCR windows"
+msgstr "Duas janelas do spaCR"
+
+msgid "You can open more than one spaCR window. When a module runs, spaCR claims its source folder, which holds ``measurements.db`` and the results, and the Queue screen claims the plate queue. If another window already uses that folder or queue, **Project open in another window** names the other process and offers:"
+msgstr "Você pode abrir mais de uma janela do spaCR. Quando um módulo é executado, o spaCR reserva sua pasta de origem, que contém ``measurements.db`` e os resultados, e a tela Queue reserva a fila de placas. Se outra janela já usa essa pasta ou essa fila, **Projeto aberto em outra janela** indica o outro processo e oferece:"
+
+msgid "**Open read-only**: look without writing. This window then refuses to run a pipeline that writes there, and the Queue screen cannot change or run the queue;"
+msgstr "**Abrir somente leitura**: visualizar sem gravar. Esta janela passa a recusar a execução de um pipeline que grave ali, e a tela Queue não pode alterar nem executar a fila;"
+
+msgid "**Continue anyway**: write as well, when you are sure the other window is idle. Two windows writing the same queue, database or results folder can corrupt them;"
+msgstr "**Continuar mesmo assim**: gravar também, quando você tiver certeza de que a outra janela está ociosa. Duas janelas gravando na mesma fila, banco de dados ou pasta de resultados podem corrompê-los;"
+
+msgid "**Cancel**."
+msgstr "**Cancelar**."
+
+msgid "The answer is remembered for that folder until the window closes. A window that ended without closing does not keep its claims: the next window takes them over. The lock files are in ``~/.spacr/locks``; set ``SPACR_LOCK_DIR`` to keep them elsewhere."
+msgstr "A resposta é lembrada para essa pasta até que a janela seja fechada. Uma janela que terminou sem ser fechada não mantém suas reservas: a próxima janela as assume. Os arquivos de bloqueio ficam em ``~/.spacr/locks``; defina ``SPACR_LOCK_DIR`` para mantê-los em outro lugar."
+
+msgid "Accessibility"
+msgstr "Acessibilidade"
+
+msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
+msgstr "Todo controle tem um nome anunciado pelos leitores de tela, obtido de seu rótulo, sua dica de ferramenta ou seu texto de espaço reservado, e os nomes seguem o idioma da interface. **Tab** sai das caixas de texto e das tabelas para o próximo controle, em vez de inserir uma tabulação. **Preferências → Aparência → Tema** oferece **Alto contraste**, em que todo texto tem uma razão de contraste de pelo menos 7:1 em relação ao fundo."
+
+msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
+msgstr "**Preferências → Aparência → Acessibilidade** reúne as configurações que mais ajudam:"
+
+msgid "**High contrast** chooses the High contrast theme. Clear it to return to the theme you had before. The Theme control shows the same choice."
+msgstr "**Alto contraste** escolhe o tema Alto contraste. Desmarque para voltar ao tema que você tinha antes. O controle Tema mostra a mesma escolha."
+
+msgid "**Text size** makes all text larger or smaller. It is the same setting as **Font scale** on the General tab."
+msgstr "**Tamanho do texto** deixa todo o texto maior ou menor. É a mesma configuração que **Escala da fonte** na aba Geral."
+
+msgid "**Reduce motion** holds every animated backdrop still and turns off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back exactly."
+msgstr "**Reduzir movimento** mantém parados todos os planos de fundo animados e desliga as ondas, as ondas de clique, as ondas de pop-up e a gravidade do mouse. Desmarque para recuperar exatamente suas configurações de movimento anteriores."
+
+msgid "**Focus outlines** draws a thick outline round the control that has keyboard focus, in a colour that stands out in every theme."
+msgstr "**Contornos de foco** desenha um contorno grosso em volta do controle que tem o foco do teclado, em uma cor que se destaca em todos os temas."
+
+msgid "**Keyboard shortcuts…** opens the shortcut editor, where you can change the key for any action."
+msgstr "**Atalhos de teclado…** abre o editor de atalhos, onde você pode mudar a tecla de qualquer ação."
+
+msgid "Apply, Cancel and Save work as they do for every other preference."
+msgstr "Aplicar, Cancelar e Salvar funcionam como em qualquer outra preferência."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Data-art themes"
+msgstr "Temas de arte de dados"
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
+msgstr "Em **Preferências** → **Aparência**, **Tema** seleciona a paleta da interface; as dez paletas noturnas continuam disponíveis. **Animação** escolhe um fundo decorativo de forma independente, ou **Nenhuma** para interrompê-lo. Esses fundos não mostram medições do projeto. A janela principal usa **spaCR field** por padrão; o fundo das configurações usa **Nenhuma** por padrão."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr "O menu de animação lista **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** e **spaCR spinn**, nessa ordem."
+
+msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
+msgstr "**spaCR field** — Um campo gravitacional de pontos nítidos com influência local opcional do mouse e ondas circulares em expansão."
+
+msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
+msgstr "**spaCR advection** — Partículas finas formam vórtices em evolução e correntes ramificadas, com gravidade opcional do mouse."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen."
+msgstr "**spaCR growth** — Segmentos miceliais curtos crescem a partir de um único ponto inicial por colónia e ramificam-se repetidamente. Cada bifurcação muda a direção da ponta que continua a crescer e inicia uma ponta filha, fazendo a frente ramificada avançar pelo ecrã. A densidade controla o número de pontas ativas. Os rastos antigos desaparecem à medida que surgem novas colónias; a área visível permanece limitada a um quarto do ecrã."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius."
+msgstr "**spaCR waves** Os pontos redondos transportam ondas em movimento e afastam-se do rato dentro do seu raio ativado."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size."
+msgstr "**spaCR blobs** — Manchas de cor suaves, grandes e pequenas, deslocam-se e mudam lentamente de tamanho."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available."
+msgstr "**spaCR aurora** — Cortinas irregulares de raios finos emergem de dobras luminosas, abrem-se em leque em direção ao céu e variam de comprimento e brilho de forma independente. Neste tema, a paleta spaCR usa verde com luz rosa na parte superior; as outras paletas selecionadas continuam disponíveis."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel."
+msgstr "**spaCR stratified** Um campo estelar lento se move em três camadas de profundidade;  **Direção de spaCR stratified** seleciona para cima, para baixo ou viagem aleatória."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
+msgstr "**spaCR spinn** As facetas finas do papel movem-se suavemente e giram localmente em resposta ao mouse. A rotação é mais rápida ao lado do ponteiro e desaparece suavemente a zero no raio de gravidade do mouse; mudando o raio muda a área afetada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Raio da gravidade do mouse** define a área afetada como percentagem do lado mais curto do ecrã. O valor padrão é **15%**; defina **0** para desativar a influência do rato. **Densidade da animação** altera o número de elementos independentemente de **Detalhe da animação**, que altera a resolução do desenho. A densidade tem um mínimo de **1%**; aumentar o detalhe não reduz a população escolhida. O renderizador limita o trabalho de amostragem ao orçamento de píxeis do ecrã. Selecione **Aleatório** em **Paleta de animação** para atribuir cores a cada elemento. As novas instalações usam **Escuro**, **spaCR field** e a paleta **spaCR**, com densidade **10%**, gravidade **10%**, detalhe, velocidade e tamanho **100%**, e opacidade da página **60%**. **Piscar dos pontos** controla a percentagem de pontos visíveis que piscam a branco: **0** desativa o efeito (o padrão), e os valores não nulos variam de 0,00001% a 10%. Esta definição aplica-se a spaCR field, spaCR advection, spaCR waves e spaCR stratified. O desvanecimento do campo está ativado. A borda azul usa um comprimento relativo ao perímetro de **17%**, acompanhamento **50%**, alinhamento centrado, modo **Beat** e um ciclo de **1.5 s**. As preferências já guardadas mantêm-se até serem alteradas ou repostas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
+msgstr "**Cor de fundo da animação** define o fundo independentemente da paleta da animação. Até que você escolha uma cor, o fundo acompanha o tema da página; **Cor do tema** restaura esse comportamento. O brilho da cor escolhida permanece na faixa do tema escuro ou claro ativo. Ela se aplica à janela principal, às telas dos módulos e às caixas de diálogo de configurações animadas. Uma imagem de fundo em tela cheia pode cobrir a cor de fundo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."
+msgstr "**Frequência das ondas das janelas** define o número de ondas automáticas por minuto em **spaCR field**. O padrão é **5 ondas/minuto**; **0** desativa as ondas dos pop-ups. Quando o efeito está ativado, abrir um pop-up inicia imediatamente a primeira onda a partir do seu centro, seguida de ondas à frequência selecionada. Mover o pop-up desloca a origem das novas ondas; fechá-lo interrompe novas ondas enquanto as existentes desaparecem. Este controlo é independente da gravidade do rato, do piscar dos pontos, da densidade e do detalhe do desenho."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
+msgstr "Pressione **Aplicar** para experimentar as alterações enquanto Preferências permanece aberta. Uma pergunta separada oferece **Manter** ou **Reverter**. Ao reverter, as configurações salvas e ativas são restauradas; os controles editados continuam disponíveis para alterar ou aplicar novamente. Fechar a pergunta também reverte as alterações. **Salvar** mantém as alterações e fecha Preferências."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preferences** keeps four lines of help visible below the settings. Longer help scrolls within the strip without moving the dialog. Drag the strip’s narrow top edge to make it taller or shorter; Preferences remembers the chosen height. Moving from a control into the strip keeps its help available to read and scroll."
+msgstr "**Preferências** mantém quatro linhas de ajuda visíveis abaixo das definições. A ajuda mais longa é percorrida dentro da faixa sem mover a caixa de diálogo. Arraste a sua estreita borda superior para a tornar mais alta ou mais baixa; as Preferências recordam a altura escolhida. Ao mover o ponteiro de um controlo para a faixa, a ajuda continua disponível para leitura e deslocamento."
+
+# AI technical review (Codex), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Fundo das configurações** permanece independente da animação principal tanto ao Aplicar quanto ao Salvar. **Nenhuma** desativa o movimento do pop-up e mantém a borda azul. **Escurecimento do fundo das definições** controla a opacidade do cartão de configurações sobre sua animação, de **0%** a **100%** (padrão **85%**), em combinação com **Opacidade da página**. A opacidade da página também se aplica quando o fundo das configurações é **Nenhuma**. Valores mais altos de escurecimento cobrem mais a animação para facilitar a leitura do texto. Os pop-ups permanecem acima da janela spaCR a que pertencem sem usar uma opção global de sempre no topo, de modo que outros aplicativos podem cobri-los."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
+msgstr "Em **spaCR field**, mantenha o botão esquerdo do rato premido e arraste numa área de fundo desocupada para puxar um grupo local de pontos. Soltar o botão permite que o grupo regresse suavemente, sem reiniciar o padrão. Este gesto no fundo mantém disponíveis a área de trabalho científica e os gestos dos controlos."
+
+msgid "Arranging the window"
+msgstr "Organizar a janela"
+
+msgid "**Home** keeps its panels in a right-hand column. Drag the column's arrow handle to resize it, or click it to fold the column away and bring it back. The **Text size** slider below the lowest panel scales the text in those panels."
+msgstr "**Início** mantém seus painéis em uma coluna à direita. Arraste a alça com seta da coluna para redimensioná-la, ou clique nela para recolher a coluna e trazê-la de volta. O controle deslizante **Tamanho do texto** abaixo do painel mais baixo ajusta a escala do texto desses painéis."
+
+msgid "**The dock**: while it is shown, drag its edge to make it wider or narrower; double-click the edge to fit it to the module names again."
+msgstr "**O dock**: enquanto estiver visível, arraste sua borda para alargá-lo ou estreitá-lo; clique duas vezes na borda para ajustá-lo novamente aos nomes dos módulos."
+
+msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
+msgstr "**A coluna direita de um módulo** (console, ações e os outros painéis) é redimensionada como um todo arrastando sua borda esquerda. Mantenha **Ctrl** pressionada e role sobre ela para aumentar ou diminuir o texto; **Ctrl+0** sobre a coluna volta ao tamanho padrão."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to popup tooltips. Fixed hint text at the bottom of Home and Preferences appears immediately. Turn popup tooltips off with **Show tooltips** on the same page."
+msgstr "**Dicas de ferramenta** aparecem depois que o ponteiro permanece sobre um controle durante o **Atraso das dicas** definido em **Preferências → Aparência** (2.0 s por padrão; 0 exibe imediatamente), e permanecem enquanto o ponteiro estiver ali. O mesmo atraso se aplica às dicas em janelas flutuantes. O texto fixo de ajuda na parte inferior de Início e Preferências aparece imediatamente. Desative as dicas flutuantes com **Mostrar dicas de ferramenta** na mesma página."
+
+msgid "These sizes are remembered between sessions."
+msgstr "Esses tamanhos são lembrados entre sessões."
+
+msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
+msgstr "Para redimensionar uma janela pop-up, aponte para uma de suas bordas ou cantos. Uma fina linha-guia azul aparece ao longo da metade central de cada lado que pode ser arrastado. Arraste a partir de qualquer ponto dessa borda ou canto; a linha apenas marca o lado."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks corrige máscaras manualmente e mostra o ciclo do Cellpose no cabeçalho. Sua área de desenho tem dez ferramentas: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop e Ruler. Wand adiciona uma região por padrão; mantenha Ctrl pressionado ao clicar para removê-la. A :doc:`referência do Make Masks <make_masks>` descreve essas ferramentas, Levels, configurações de detecção, pareamento primário/secundário, salvamento e medição."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**Caixa** desenha retângulos independentes com rótulos de classe para anotação YOLO. Mova ou redimensione uma caixa, desfaça ou refaça edições e use **Salvar caixas** para preservar o projeto ou **Export YOLO…** para gravar rótulos normalizados e metadados de classe ordenados. As imagens de origem e as máscaras de segmentação permanecem inalteradas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
+msgstr "Draw traça um contorno livre que se fecha e é preenchido como um único objeto -- ao contrário de um pincel, que aplica discos ao longo do caminho: ao seguir uma borda, a borda é rotulada e o centro permanece como fundo. **Dividir / Unir** divide um objeto com uma linha arrastada com o botão esquerdo: a parte maior mantém seu ID e a menor recebe um novo. Arraste uma linha sobre os objetos com o botão direito para uni-los sob o primeiro ID cruzado, sem pintar o fundo entre eles. Os outros objetos mantêm seus rótulos."
+
+msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
+msgstr "Recrop é a única ferramenta que muda qual campo está na tela, em vez do que está pintado nele. Um recorte preparado com várias células não é um único exemplo de treinamento, e fazer a curadoria dele como tal ensina a uma rede que dois objetos são uma só imagem -- por isso, uma caixa em torno de um objeto grava essa região da imagem e da máscara como um campo próprio, enfileirado logo após o atual, e o original com vários objetos é retirado para ``recropped_originals/`` em vez de ser curado. Uma caixa menor que o lado mínimo, ou que repete um corte já feito, é recusada; os objetos que a caixa atravessa são descartados, porque um objeto cuja borda fica onde o mouse foi solto não é esse objeto; e os rótulos restantes são renumerados a partir de um."
+
+msgid "Running Cellpose-SAM from this screen shows its two intermediate outputs beside the mask: the cell-probability map and the flow field. A mask is a threshold applied to that probability map, and a candidate object is discarded when its flows disagree with the ones the network predicted by more than the flow-error threshold. When a mask is wrong, those two panes are where the reason is visible."
+msgstr "Executar o Cellpose-SAM a partir desta tela mostra suas duas saídas intermediárias ao lado da máscara: o mapa de probabilidade celular e o campo de fluxo. Uma máscara é um limiar aplicado a esse mapa de probabilidade, e um objeto candidato é descartado quando seus fluxos divergem dos previstos pela rede em mais do que o limiar de erro de fluxo. Quando uma máscara está errada, esses dois painéis mostram o motivo."
+
+msgid "Settings that apply"
+msgstr "Configurações aplicáveis"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The settings panel shows a control only when it applies to the run being set up:"
+msgstr "O painel de configurações exibe um controle somente quando ele se aplica à execução que está sendo preparada:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "the settings of a slot past ``number_of_organelles``, its channel included, are removed from the form;"
+msgstr "as configurações de um espaço além de ``number_of_organelles``, incluindo seu canal, são removidas do formulário;"
+
+msgid "an object whose channel names no plane is not in the run at all, so its settings are not on the form;"
+msgstr "um objeto cujo canal não designa nenhum plano não faz parte da execução, portanto suas configurações não aparecem no formulário;"
+
+msgid "a setting belonging to one morphology is dropped for a slot of another: a punctate organelle has no ridge filter."
+msgstr "uma configuração que pertence a uma morfologia é omitida para um espaço de outra: uma organela puntiforme não tem filtro de cristas."
+
+msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
+msgstr "As chaves 3D e Tempo declaram quais dimensões a placa tem. ``z_stack`` declara um eixo z e ativa as configurações volumétricas -- modo de segmentação, anisotropia e tamanho do voxel -- e para com um erro em vez de adivinhar qual eixo é o z. ``timelapse`` declara um eixo de tempo e exibe o rastreamento; uma placa com um único ponto temporal o ignora. As configurações 4D só se aplicam quando os dados são ao mesmo tempo uma pilha z e uma série temporal, e só então aparecem."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Timelapse event annotations and pretrained features (alpha)"
+msgstr "Anotações de eventos de Timelapse e características pré-treinadas (alfa)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
+msgstr "Ative **Mostrar recursos alfa** em Preferences para usar **Anotação de eventos...** no Timelapse. Escolha um CSV de trajetórias spaCR existente e a sequência de imagens correspondente, abra o campo rastreado e confirme a associação. Selecione uma trajetória observada e um quadro numerado a partir de zero, informe um nome de evento e pressione **Adicionar ou atualizar**. **Salvar** grava os rótulos preparados em um CSV de anotações e o seleciona para a detecção de eventos; fechar sem salvar mantém o arquivo inalterado. Uma trajetória em um quadro só pode ter um rótulo de evento. Arquivos de rastreamento ou anotação alterados devem ser reabertos antes de salvar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
+msgstr "A tabela de anotações contém ``field``, ``track_id``, ``frame`` e ``event``; uma coluna ``object`` identifica o tipo de objeto rastreado. Rotule todos os eventos nos campos usados para treinamento. O detector avalia campos anotados reservados fora do treinamento, relata precisão, revocação e erro temporal e depois treina e salva um modelo reutilizável. As classes de eventos vêm das anotações do experimento."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder uses pretrained video features from **VideoMAE event encoder** in Model Zoo, installed in its own environment. Supply the verified local official checkpoint folder and exactly three ordered source-channel indices; use ``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU. The checkpoint's Kinetics classes are not microscopy event labels, and pretrained features require held-out evaluation on the intended microscopy experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no weights. These controls remain alpha."
+msgstr "O codificador padrão ``small`` executa na CPU. O codificador opcional ``videomae`` usa características de vídeo pré-treinadas de **codificador de eventos VideoMAE** no Model Zoo, instalado em seu próprio ambiente. Forneça a pasta local verificada do checkpoint oficial e exatamente três índices ordenados de canais de origem; use ``[0,0,0]`` somente ao repetir deliberadamente um canal monocromático. O codificador congelado pode usar CUDA, Metal ou CPU; o pequeno classificador de eventos é treinado na CPU. As classes Kinetics do checkpoint não são rótulos de eventos de microscopia, e as características pré-treinadas exigem avaliação em dados reservados do experimento de microscopia pretendido. O checkpoint tem licença CC-BY-NC-4.0; a inferência não baixa pesos. Estes controles continuam alfa."
+
+msgid "Figure settings"
+msgstr "Configurações da figura"
+
+msgid "**Preferences → Figures** sets how every spaCR figure looks and how it is saved. The settings apply to figures drawn on screen and to the files the pipelines and the save buttons write; only the settings you change are applied, so a figure keeps its own look for everything else."
+msgstr "**Preferências → Figuras** define a aparência de cada figura do spaCR e como ela é salva. As configurações se aplicam às figuras desenhadas na tela e aos arquivos gravados pelos pipelines e pelos botões de salvar; apenas as configurações que você altera são aplicadas, de modo que uma figura mantém sua própria aparência em todo o resto."
+
+msgid "**Text and lines**: font, the sizes of titles, axis labels, tick labels and legend entries (**Legend size**), line width and marker size."
+msgstr "**Text and lines**: fonte, tamanhos de títulos, rótulos dos eixos, rótulos das marcas e entradas da legenda (**Legend size**), largura de linha e tamanho do marcador."
+
+msgid "**Colour**: the palette for categories and the **Colormap** for heat maps, images and density plots. ``viridis`` (the default) and ``cividis`` stay readable with colour-blindness and in greyscale."
+msgstr "**Cor**: a paleta de categorias e o **Mapa de cores** para mapas de calor, imagens e gráficos de densidade. ``viridis`` (o padrão) e ``cividis`` continuam legíveis com daltonismo e em escala de cinza."
+
+msgid "**Layout**: background, grid, axis lines and **Despine offset**, which moves the axis lines away from the data. **Figure width** and **Figure height**, in inches, set the size of new figures; the height applies when the page shape is custom."
+msgstr "**Layout**: fundo, grade, linhas dos eixos e **Despine offset**, que afasta as linhas dos eixos dos dados. **Figure width** e **Figure height**, em polegadas, definem o tamanho de novas figuras; a altura se aplica quando o formato da página é personalizado."
+
+msgid "**Saving**: **Format** is PDF, PNG, SVG or TIFF, with its resolution. **Also save** writes a second copy in another format beside each saved figure, for example a PNG next to a PDF. **Vector text** keeps text editable in PDF and SVG files instead of turning it into outlines."
+msgstr "**Saving**: **Formato** é PDF, PNG, SVG ou TIFF, com sua resolução. **Also save** grava uma segunda cópia em outro formato ao lado de cada figura salva, por exemplo um PNG ao lado de um PDF. **Vector text** mantém o texto editável em arquivos PDF e SVG em vez de convertê-lo em contornos."
+
+#, python-format
+msgid "**Bar and point graphs**: **Error bars** shows the standard error (``sem``, the default), the standard deviation (``sd``), a confidence interval at the **CI level** (``ci``), a 95% interval (``ci95``) or nothing. **Error-bar cap size** sets the cap width. **Point overlay** draws the individual points over bar and box graphs, spread by **Jitter width** and drawn with the opacity in **Point alpha**."
+msgstr "**Bar and point graphs**: **Barras de erro** mostra o erro padrão (``sem``, o padrão), o desvio padrão (``sd``), um intervalo de confiança no **CI level** (``ci``), um intervalo de 95% (``ci95``) ou nada. **Error-bar cap size** define a largura dos traços finais. **Point overlay** desenha os pontos individuais sobre gráficos de barras e de caixa, espalhados por **Largura do jitter** e desenhados com a opacidade de **Alfa dos pontos**."
+
+msgid "Settings can also differ per graph type. A figure is styled once, so a change you make with its right-click menu is kept when it is saved. Figures that are already drawn with several panels keep their size and resolution; the size and resolution settings apply to new figures and to saved files."
+msgstr "As configurações também podem variar por tipo de gráfico. Uma figura é estilizada uma vez, então uma alteração feita pelo menu de contexto é mantida quando ela é salva. Figuras já desenhadas com vários painéis mantêm seu tamanho e resolução; as configurações de tamanho e resolução se aplicam a novas figuras e a arquivos salvos."
+
+msgid "Working with figures"
+msgstr "Trabalhar com figuras"
+
+msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
+msgstr "Clique com o botão direito em qualquer figura do spaCR, na lista de figuras de um módulo ou em um gráfico incorporado como o Graph Builder, o explorador de UMAP ou uma comparação de treinamentos, para abrir o menu da figura. O explorador Volcano e o Gate Editor têm seus próprios menus de contexto e acrescentam estas entradas a eles."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
+msgstr "**Editar figura…** altera o título, os rótulos dos eixos, os limites, as escalas, as fontes, as cores, a legenda, o tamanho e a resolução desta figura. As alterações aparecem à medida que você as faz."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**."
+msgstr "**Alterar tipo de gráfico** redesenha a figura como outro gráfico adequado aos seus dados. Grupos podem ser mostrados como gráficos de caixa, violino, strip, swarm, barras, pontos ou boxen, como um gráfico de caixa ou de barras com pontos, ou como histograma, KDE ou ECDF; duas medidas como gráficos de dispersão, linhas, hexbin, KDE ou regressão; uma distribuição como histograma, KDE, ECDF, caixa, violino, strip ou boxen; contagens como gráfico de contagem ou mapa de calor; e uma matriz como mapa de calor ou mapa de calor agrupado. A figura é redesenhada a partir de seus dados e mantém suas **Configurações da figura**."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure."
+msgstr "**Estatísticas…** mostra o teste que o spaCR escolheu para os dados e permite substituir **Teste**, **Coluna de sujeitos**, **Dados pareados / medidas repetidas** e **Correção para comparações múltiplas**. **Mostrar no gráfico** desenha o teste e os colchetes de significância na figura."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR."
+msgstr "**Salvar figura (zip)…** grava um arquivo zip com a figura no seu formato de salvamento e como PNG, ``data.csv`` com os dados plotados, ``statistics.csv`` e ``statistics.txt``, ``spec.json`` com a receita completa da figura, e ``recreate_figure.py``, um script que desenha a mesma figura a partir dos arquivos CSV e JSON sem o spaCR."
+
+msgid "How the statistics are chosen"
+msgstr "Como a estatística é escolhida"
+
+msgid "The automatic choice follows the data:"
+msgstr "A escolha automática segue os dados:"
+
+msgid "**Groups**: each group is tested for normality (Shapiro–Wilk) and the groups for equal variance (Bartlett, or Levene when a group is not normal). Two groups are compared with Student's t, Welch's t or Mann–Whitney, and paired data with a paired t test or Wilcoxon. Three or more groups get a one-way ANOVA followed by Tukey HSD, Welch's ANOVA followed by Games–Howell, Kruskal–Wallis followed by Dunn, or Friedman followed by pairwise Wilcoxon tests, with pairwise p-values corrected for multiple comparisons."
+msgstr "**Grupos**: cada grupo é testado quanto à normalidade (Shapiro–Wilk) e os grupos quanto à igualdade de variâncias (Bartlett, ou Levene quando um grupo não é normal). Dois grupos são comparados com o t de Student, o t de Welch ou Mann–Whitney, e dados pareados com um teste t pareado ou Wilcoxon. Três ou mais grupos recebem uma ANOVA de um fator seguida de Tukey HSD, uma ANOVA de Welch seguida de Games–Howell, Kruskal–Wallis seguido de Dunn, ou Friedman seguido de testes de Wilcoxon pareados, com os p-valores por pares corrigidos para comparações múltiplas."
+
+msgid "**Two measurements**: Pearson or Spearman correlation, chosen by normality."
+msgstr "**Duas medidas**: correlação de Pearson ou de Spearman, escolhida pela normalidade."
+
+msgid "**Counts**: chi-square, or Fisher's exact test when an expected count is below 5; tables larger than 2×2 use the Fisher–Freeman–Halton test with a fixed-seed Monte Carlo p-value."
+msgstr "**Contagens**: qui-quadrado, ou o teste exato de Fisher quando uma contagem esperada é menor que 5; tabelas maiores que 2×2 usam o teste de Fisher–Freeman–Halton com um p-valor de Monte Carlo de semente fixa."
+
+msgid "**Proportions** (a 0/1 outcome): a two-proportion z test or Fisher's exact test; three or more groups get chi-square followed by corrected pairwise z tests."
+msgstr "**Proporções** (um desfecho 0/1): um teste z de duas proporções ou o teste exato de Fisher; três ou mais grupos recebem qui-quadrado seguido de testes z por pares corrigidos."
+
+msgid "``statistics.csv`` has one row per test, with the test name, groups, statistic, degrees of freedom, p-value, adjusted p-value and correction, effect size, number of observations, whether the test was chosen automatically or by you, and the reason for the choice."
+msgstr "``statistics.csv`` tem uma linha por teste, com o nome do teste, os grupos, a estatística, os graus de liberdade, o p-valor, o p-valor ajustado e a correção, o tamanho do efeito, o número de observações, se o teste foi escolhido automaticamente ou por você, e o motivo da escolha."
+
+msgid "Figures in Graph Builder and the Volcano explorer carry their data rows. For other figures, spaCR reads the plotted values back from the figure; box and violin plots drawn this way keep only their summary, not the individual rows. A new graph type replaces a faceted Graph Builder grid with a single plot until Graph Builder draws the chart again."
+msgstr "Figuras no Graph Builder e no explorador Volcano carregam suas linhas de dados. Para outras figuras, o spaCR lê de volta os valores plotados na figura; gráficos de caixa e de violino desenhados dessa forma mantêm apenas seu resumo, não as linhas individuais. Um novo tipo de gráfico substitui uma grade com facetas do Graph Builder por um único gráfico até que o Graph Builder desenhe o gráfico novamente."
+
+msgid "Workers and free memory"
+msgstr "Processos de trabalho e memória livre"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "Antes de um módulo iniciar seus processos de trabalho, o spaCR estima quanta memória cada processo precisa para uma entrada, como um campo, uma máscara, um lote de recortes ou uma tabela. Se o ``n_jobs`` que você definiu deixar menos de 12,5% da RAM do computador livre, uma janela pop-up mostra a estimativa, a memória livre e o número de processos que cabem. Escolha **Usar N processos de trabalho (recomendado)** para executar com esse número, ou mantenha o seu; a Medição então pausa novos campos sempre que a memória livre cai abaixo da reserva. **Liberar RAM fechando aplicativos…** lista seus próprios maiores programas. Nada vem marcado de início, e apenas os programas que você marcar são solicitados a fechar, após sua confirmação; normalmente eles podem salvar antes, mas trabalho não salvo neles ainda pode ser perdido."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Runs started without the GUI lower ``n_jobs`` to the number that keeps the reserve free and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Execuções iniciadas sem a interface gráfica reduzem ``n_jobs`` ao número que mantém a reserva livre e exibem um aviso. Desative ``ram_guard`` em **Avançado** para manter seu ``n_jobs`` inalterado; a Medição continua esperando enquanto a memória livre estiver abaixo da reserva."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Worker startup and final retries"
+msgstr "Inicialização dos trabalhadores e tentativas finais"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR starts the first application worker immediately, then spaces additional process and thread workers by ten seconds. This applies to spaCR's managed pools, executors, independent mask workers and data-loading workers. It staggers worker initialization, not every image or database operation. Numerical libraries may still manage their own internal threads."
+msgstr "O spaCR inicia o primeiro trabalhador da aplicação imediatamente e depois mantém dez segundos entre as inicializações dos trabalhadores adicionais de processos e linhas de execução. Isso se aplica aos grupos e executores gerenciados pelo spaCR, aos trabalhadores independentes de máscaras e aos trabalhadores de carregamento de dados. A inicialização dos trabalhadores é escalonada, não cada operação de imagem ou banco de dados. Bibliotecas numéricas ainda podem gerenciar suas próprias linhas de execução internas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When a task exhausts its normal attempts because of a recognized resource overload, spaCR keeps it for one final attempt in a separate serial queue. This queue starts only after the primary tasks finish. SQLite busy or locked errors, explicit memory exhaustion and exhausted operating-system resources qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A final failure remains an error with its original evidence; it is not retried again."
+msgstr "Quando uma tarefa esgota suas tentativas normais devido a uma sobrecarga de recursos reconhecida, o spaCR a mantém para uma tentativa final em uma fila sequencial separada. Essa fila começa somente após o término das tarefas primárias. Erros de banco de dados SQLite ocupado ou bloqueado, esgotamento explícito de memória e recursos esgotados do sistema operacional se qualificam. Entradas inválidas, cancelamentos e encerramentos inexplicados de trabalhadores não se qualificam. Uma falha final permanece um erro com suas evidências originais; não há outra tentativa."
+
+msgid "Maturity labels"
+msgstr "Rótulos de maturidade"
+
+msgid "The API uses these labels consistently:"
+msgstr "A API usa estes rótulos de forma consistente:"
+
+msgid "**Stable**"
+msgstr "**Estável**"
+
+msgid "Supported entry points used by the principal Mask, Measure, Classify, barcode and regression workflows. Backward-incompatible changes require a deprecation period."
+msgstr "Pontos de entrada compatíveis usados pelos principais fluxos de trabalho de Máscaras, Medição, Classificar, códigos de barras e regressão. Alterações incompatíveis com versões anteriores exigem um período de descontinuação."
+
+msgid "**Advanced**"
+msgstr "**Avançado**"
+
+msgid "Supported specialist functionality whose defaults or result schema may still evolve. Release notes describe material changes."
+msgstr "Funcionalidades especializadas compatíveis cujos padrões ou esquema de resultados ainda podem evoluir. As notas de versão descrevem as mudanças relevantes."
+
+msgid "**Experimental**"
+msgstr "**Experimental**"
+
+msgid "Early interfaces intended for evaluation. They may change between minor releases and should be pinned before use in an automated workflow."
+msgstr "Interfaces iniciais destinadas a avaliação. Podem mudar entre versões secundárias e devem ser fixadas antes do uso em um fluxo de trabalho automatizado."
+
+msgid "**Internal**"
+msgstr "**Internal**"
+
+msgid "GUI widgets, workers and implementation helpers. They are documented for contributors but are not a compatibility promise."
+msgstr "Widgets da interface, processos de trabalho e auxiliares de implementação. São documentados para colaboradores, mas não constituem uma promessa de compatibilidade."
+
+msgid "Optional dependencies"
+msgstr "Dependências opcionais"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "O pacote base contém a interface Qt para desktop e os pipelines sem interface gráfica. Os extras adicionam OME-Zarr, OMERO, napari, atribuição, rastreamento, medições de Zernike e leitores de fabricantes. A disponibilidade varia conforme a versão do Python; o :doc:`guia de instalação <installer_guide>` contém a tabela de compatibilidade de referência."
+

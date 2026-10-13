@@ -1,0 +1,205 @@
+{
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "languages": {
+    "en": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "b320a398d4141ac53ffff6b142b125bd89db2f3baf3dcebf7e22cada6067d026"
+    },
+    "sv": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "32b3184b8c1b0c2b66b5defbcca3e0b1a3276d4f3b27adf09dcc016df487c686"
+    },
+    "de": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "1c41eddc5541cfafa065a8c5906ada4bbe57a68db30274bf930510f849d897a4"
+    },
+    "es": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "d100843c3dc58a9280acb4901948095cfadd2a6de1fd630f18b0f59c0bee36a6"
+    },
+    "zh_CN": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "72e399336570b6c06d44cdb9d57fd8ad12c75f4effbc2a353d7b8208a2fb3323"
+    },
+    "pt": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "84591e37a7b4a3935b21d0edefe4db0905a5df4de013ab1bbb1c4830b6e577cd"
+    },
+    "hi": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "0ea891e2984a21d607b68e5e8276b8ef5b386d54693b1674ce95c8aee04b446f"
+    },
+    "ko": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "baaedfe33fc9c079aca2b220d4a78273f824c46c4283aed4471a46bb9e84e30b"
+    },
+    "is": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "72efeb0b44813ded93b36e93afdbdee9e215b8f3f4236d39426b5f6c8efda34e"
+    },
+    "fr": {
+      "current_symbols": 13181,
+      "changed_symbols": [
+        "spacr.qt.night_themes",
+        "spacr.qt.night_themes.NightTheme",
+        "spacr.qt.night_themes.NightTheme.sound",
+        "spacr.qt.night_themes.ambient_for",
+        "spacr.qt.night_themes.sound_for",
+        "spacr.qt.night_themes.theme_for",
+        "spacr.qt.preferences",
+        "spacr.qt.preferences.apply_night_theme",
+        "spacr.qt.preferences.set_theme_choice",
+        "spacr.qt.preferences.theme_choices",
+        "spacr.qt.preferences.theme_description",
+        "spacr.qt.theme"
+      ],
+      "complete_other_records_preserved": 13169,
+      "new_source_and_context_hashes_current": true,
+      "catalog_sha256": "b3ef81ed3fd68871294319192755f60ce89857e48a8cd19d5f5c63f8e5c3ae44"
+    }
+  }
+}

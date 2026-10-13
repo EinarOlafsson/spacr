@@ -1,0 +1,111 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Environments you made. Tick one to uninstall spaCR from it; the environment itself is kept.",
+      "source": "Environments you made. Tick one to uninstall spaCR from it; the environment itself is kept.",
+      "source_sha256": "0a602065e910b5e091525a033c41c3f3696fcbcd6980eacbf7d1f3fc4564f7c9",
+      "table": "ui",
+      "translation": "Miljöer som du har skapat. Markera en för att avinstallera spaCR från den; själva miljön behålls."
+    },
+    {
+      "key": "Remove and update",
+      "source": "Remove and update",
+      "source_sha256": "0aa61e5382f93d911d65be15e47a9755410adc254220edadcc0871ca95aeca02",
+      "table": "ui",
+      "translation": "Ta bort och uppdatera"
+    },
+    {
+      "key": "Remove older spaCR copies",
+      "source": "Remove older spaCR copies",
+      "source_sha256": "b82e9d1d389e289e9883107c5757f90841b646072518f204e3b3f23d633b0c8f",
+      "table": "ui",
+      "translation": "Ta bort äldre spaCR-kopior"
+    },
+    {
+      "key": "The update stopped before installing, because an older copy of spaCR could not be removed:",
+      "source": "The update stopped before installing, because an older copy of spaCR could not be removed:",
+      "source_sha256": "4cee03b4aab5260e81baeda72ca4cc0cc5454e6dd8657135b86ce389bea95a36",
+      "table": "ui",
+      "translation": "Uppdateringen stoppades innan något installerades, eftersom en äldre kopia av spaCR inte kunde tas bort:"
+    },
+    {
+      "key": "These older copies of spaCR will be removed before the new version is installed:",
+      "source": "These older copies of spaCR will be removed before the new version is installed:",
+      "source_sha256": "515fc7ea297aeb68932ea85845f82672875bfb84c464fbeb4bdc2c756bc9030a",
+      "table": "ui",
+      "translation": "Dessa äldre kopior av spaCR tas bort innan den nya versionen installeras:"
+    },
+    {
+      "key": "Upgrade unavailable: {error}",
+      "source": "Upgrade unavailable: {error}",
+      "source_sha256": "bb0b9d2dbe84dc79eb92d2bc8b4a1d8085f1e73830afa99f026747b18f0dfde7",
+      "table": "ui",
+      "translation": "Uppgraderingen är inte tillgänglig: {error}"
+    },
+    {
+      "key": "in use or not permitted; close anything using it and try again",
+      "source": "in use or not permitted; close anything using it and try again",
+      "source_sha256": "536f299cf154dac4a21de4a635fb73b033d3674678f1eefef842c25785e84ebf",
+      "table": "ui",
+      "translation": "används eller är inte tillåten; stäng allt som använder den och försök igen"
+    },
+    {
+      "key": "needs administrator rights; delete it as an administrator",
+      "source": "needs administrator rights; delete it as an administrator",
+      "source_sha256": "4cccacda0f3939d1838138b1ef11936375ec195ba61cdb75db5fd1b016ebba97",
+      "table": "ui",
+      "translation": "kräver administratörsbehörighet; ta bort den som administratör"
+    },
+    {
+      "key": "needs administrator rights; run: {command}",
+      "source": "needs administrator rights; run: {command}",
+      "source_sha256": "bae5d09c1dfc31fb18ddc79017950e3ef11ed9bcf476a563135611bc44ac2cc5",
+      "table": "ui",
+      "translation": "kräver administratörsbehörighet; kör: {command}"
+    },
+    {
+      "key": "no Python found in it; run pip uninstall spacr in that environment",
+      "source": "no Python found in it; run pip uninstall spacr in that environment",
+      "source_sha256": "b4809b3de17488f57a708d8ddb8096fb5cf1bb46101a457eca3bbeefffe58b65",
+      "table": "ui",
+      "translation": "ingen Python hittades i den; kör pip uninstall spacr i den miljön"
+    },
+    {
+      "key": "no Python outside the installation could be found to finish the update; run the new installer instead",
+      "source": "no Python outside the installation could be found to finish the update; run the new installer instead",
+      "source_sha256": "b784e6686e72315bd6fc56fb7419407148df8426c10b67bcfd7f2966d8a24f6c",
+      "table": "ui",
+      "translation": "ingen Python utanför installationen hittades för att slutföra uppdateringen; kör det nya installationsprogrammet i stället"
+    },
+    {
+      "key": "not permitted; delete this registry entry by hand",
+      "source": "not permitted; delete this registry entry by hand",
+      "source_sha256": "d1858f7c880ff99ec23c28d71fb16e3a2c83123921bf9a5a0049e10ee35c9668",
+      "table": "ui",
+      "translation": "inte tillåtet; ta bort den här registerposten manuellt"
+    },
+    {
+      "key": "refused: a shared folder, not a spaCR installation; remove spaCR from it by hand",
+      "source": "refused: a shared folder, not a spaCR installation; remove spaCR from it by hand",
+      "source_sha256": "93fe51ba96998ed54cd380c6719fc27ece3416f5ca0010a514c84e837be300d2",
+      "table": "ui",
+      "translation": "vägrades: en delad mapp, inte en spaCR-installation; ta bort spaCR från den manuellt"
+    },
+    {
+      "key": "refused: not recognisably a spaCR installation; delete it by hand if it is one",
+      "source": "refused: not recognisably a spaCR installation; delete it by hand if it is one",
+      "source_sha256": "602d85f0f9609220ee6ae6615b0f3b11f2a9abb50c608a3f4be7071ed140d59c",
+      "table": "ui",
+      "translation": "vägrades: ser inte ut som en spaCR-installation; ta bort den manuellt om den är det"
+    },
+    {
+      "key": "spaCR will close, remove the older copies, install {version} and start again.",
+      "source": "spaCR will close, remove the older copies, install {version} and start again.",
+      "source_sha256": "ad8df605d10cb920d15682ec33f04880f11d15b85304ec05a0edfb47f1a8193a",
+      "table": "ui",
+      "translation": "spaCR stängs, tar bort de äldre kopiorna, installerar {version} och startar igen."
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted linguistic and technical review against watershed, per-seed intensity ratio, shared threshold scope and cleanup order; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.",
+      "source": "Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.",
+      "source_sha256": "7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198",
+      "translation": "최댓값의 비율: 각 워터셰드 영역을 해당 시드 강도의 선택한 비율을 기준으로 잘라냅니다. 이는 강도의 비율이며 백분위수가 아닙니다. 배경 오프셋은 결과에 영향을 줍니다. 나머지 세 규칙은 처리된 시야 또는 영역에 공통 임곗값을 적용하여 워터셰드 분할을 제한합니다. 이후 구멍 채우기와 최소 면적 필터링을 수행합니다."
+    }
+  ]
+}

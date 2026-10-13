@@ -1,0 +1,41 @@
+{
+  "lesson": "61_tabulate",
+  "english_sha256": "1d22d1f5a170f7e6d1e63dc052ce2281278fe4068e9a27b1c7c90b3a8c60d2cb",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Tabulate: riassumere le misure per pozzetto e per campo",
+  "description": "Raggruppa gli oggetti misurati, seleziona statistiche di sintesi, esamina i gruppi vuoti ed esporta una tabella pivot o inviala a Graph Builder.",
+  "objectives": [
+    "Caricare le misure e raggrupparle per pozzetto o per campo.",
+    "Scegliere valori, statistiche e filtri controllando i conteggi che contribuiscono.",
+    "Esportare riepiloghi in CSV e aggiornarne i grafici in Graph Builder."
+  ],
+  "prerequisite": "Scarica l’esempio di misure del tutorial di Annotate e lavora su una copia di measurements.db. La sua tabella cell ha 2341 oggetti in quattro pozzetti. Tieni le etichette spaziali distinte da quelle dei trattamenti e scegli il livello di raggruppamento adatto al tuo esperimento.",
+  "scenes": [
+    "Da Home, apri Database Browser e poi scegli Tabulate. Usa questo strumento per riassumere colonne di misure per pozzetto, per campo o per un altro gruppo. Questa guida usa il database dell’esempio di Annotate collegato.",
+    "Dentro Tabulate, fai clic su Load table, apri measurements.db e scegli cell. Usa i comandi propri di Tabulate per scegliere l’input ed esportare. Controlla la tabella e i duemilatrecentoquarantuno oggetti caricati.",
+    "Scegli Plate barra row barra column per raggruppare per piastra e pozzetto. Lascia vuoto Values per contare le righe di origine. I quattro pozzetti contengono seicentoquindici, cinquecentoventicinque, settecento e cinquecentouno cellule.",
+    "Cerca fieldID e trascinalo in Columns. Si crea così una griglia pozzetti per campi. Passa il puntatore su una cella vuota per esaminarla: questo esempio ha una combinazione senza righe di origine. Tienila distinta da uno zero misurato.",
+    "Svuota Columns, poi trascina cell_area in Values. Il riepilogo predefinito mostra conteggio, media e deviazione standard campionaria. La ricerca trova i nomi delle colonne; cambiare assi o statistiche ricalcola il riepilogo.",
+    "Passa il puntatore su una cella di risultato per vederne tutte le statistiche e il conteggio che contribuisce, comprese le righe nascoste dall’altezza della riga. La deviazione standard descrive la variazione tra gli oggetti di quel gruppo.",
+    "Attiva median, sem e quantile per aggiungere queste statistiche. Imposta Quantile at su zero virgola sette cinque per il quartile superiore. Il SEM usa il numero di oggetti disponibili; scegli separatamente il livello di replica sperimentale quando stimi l’incertezza biologica.",
+    "Imposta Quantile at su zero virgola cinque per mostrare la mediana. Il primo pozzetto ora mostra ventiduemilaquattrocento per entrambe. Torna a zero virgola sette cinque e disattiva le statistiche aggiuntive per ritrovare il riepilogo semplice.",
+    "Sostituisci cell_area con cell_channel_0_homogeneity_distance_32. Questa caratteristica ha sette valori mancanti, quindi i suoi conteggi che contribuiscono sono inferiori a quelli delle righe di origine. Usa questi conteggi quando confronti i gruppi.",
+    "Ripristina cell_area e fai clic su Export CSV dentro Tabulate. Scegli un nuovo nome di file. Questo riepilogo per pozzetto contiene le tre chiavi di raggruppamento, conteggio, media e deviazione standard. Conserva le scelte di raggruppamento, statistiche e filtri accanto al file esportato.",
+    "Fai clic su Plot this table per inviare il riepilogo a Graph Builder. Trascina columnID su X, mean su Y e rowID su Colour. Controlla i tipi di colonna dedotti: in questo esempio Automatic tratta queste quattro medie distinte come categorie e mostra una mappa di calore.",
+    "Aggiungi un filtro cell_area con un minimo di ventunomilanovecentoventicinque. La tabella pivot si aggiorna subito per gli oggetti rimanenti. Fai di nuovo clic su Plot this table ogni volta che vuoi trasferire il riepilogo aggiornato al grafico.",
+    "Dopo aver fatto clic su Plot this table, esamina le medie aggiornate dei gruppi. Può comparire una nota sul filtro dell’area perché il riepilogo trasferito contiene mean e non cell_area. Il filtro sugli oggetti è già stato applicato a monte, in Tabulate.",
+    "Fai clic su Clear all nel filtro, poi di nuovo su Plot this table per ripristinare il riepilogo per pozzetto originale. Salva le esportazioni filtrate e non filtrate con nomi diversi quando ti servono entrambe.",
+    "Per un riepilogo per campo, trascina fieldID in Rows dopo le chiavi del pozzetto. Ogni riga con dati riassume ora un campo all’interno di un pozzetto. Esamina i conteggi che contribuiscono e mantieni coerente questo livello di raggruppamento quando confronti i risultati.",
+    "Fai clic su Plot this table, metti fieldID su X, lascia mean su Y e rowID su Colour, poi scegli Scatter in Plot. In questo esempio mean viene ora riconosciuta come continua. Conferma i tipi di colonna e le etichette degli assi mostrati.",
+    "Il grafico a dispersione mostra cinquantuno medie per campo. I colori identificano le righe spaziali e le etichette di campo ripetute possono appartenere a pozzetti diversi. Usa la tabella degli oggetti originale quando vuoi selezionare singole cellule ed esaminarne le immagini.",
+    "Esporta il riepilogo per campo come CSV separato. Contiene cinquantadue righe di griglia, con la combinazione vuota lasciata in bianco; il grafico contiene cinquantuno gruppi con dati. In Python, usa pivot e PivotSpec da spacr.qt.widgets.pivot_spec, poi to_csv per salvare il risultato."
+  ]
+}

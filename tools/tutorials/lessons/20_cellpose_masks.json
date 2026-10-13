@@ -1,0 +1,115 @@
+{
+  "id": "20_cellpose_masks",
+  "number": 20,
+  "slug": "cellpose_masks",
+  "series": 3,
+  "app_key": "cellpose_masks",
+  "host_app_key": "make_masks",
+  "section": "Tools",
+  "title": "Apply Cellpose: segment a folder and inspect masks",
+  "description": "Choose a segmentation model, process the supplied images and inspect saved masks and live size filters.",
+  "objectives": [
+    "Select images, model weights and segmentation settings.",
+    "Run Apply and locate the saved mask TIFFs.",
+    "Inspect live results and compare object-size filters."
+  ],
+  "example_files": [
+    "Apply_Cellpose_stock_example.zip"
+  ],
+  "prerequisite": "Extract the linked Apply Cellpose example into a new folder. It contains three single-channel cell images and a settings reference. Select its images folder as Source. This walkthrough uses the stock cpsam model; for a custom model, choose compatible weights and settings for your images.",
+  "scenes": [
+    {
+      "visual": "02_actual_train_and_apply_tabs",
+      "narration": "From Home, open Make Masks, then its Cellpose Workbench. Choose Apply to segment images with an existing model. Use Train when you want to learn new weights from curated image-mask pairs.",
+      "related_lessons": [
+        "14_make_masks",
+        "19_train_cellpose"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_setting_src",
+      "narration": "Extract the linked example and set Source to its images folder. It contains three single-channel cell images, each five hundred and twelve pixels square. If you use the recorded settings file as a reference, replace its source path with your extracted folder.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_setting_model_name",
+      "narration": "Select cpsam and leave Custom model empty for this example. Set Channels to zero, normalization percentiles to two and ninety-nine, Diameter to thirty, Flow threshold to zero point four and Cell probability to zero. Adjust these settings after inspecting a few representative fields from your own experiment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_actual_inference_outcome",
+      "narration": "Enable Save and Verbose, choose a batch size of one, and click Run in Apply. Follow the console as each image is processed. Review failures before proceeding to measurement.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_actual_mask_and_flow_figures",
+      "narration": "Open the masks subfolder inside Source. Each image has a same-stem mask TIFF. Inspect the figures beside the original images, paying attention to missed objects and joined cells. The flow panel shows model directions used for segmentation.",
+      "focus": [
+        1000,
+        450,
+        2780,
+        640
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_actual_preview_image_picker",
+      "narration": "Turn on Live preview and choose an image with the image picker. Open Live settings and check the channel and normalization controls. Collapse Console and System to give the preview more room if needed.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_actual_preview_result",
+      "narration": "Compare the preview with the saved batch mask. Preview and Apply use different processing paths in this example, so they can produce different boundaries and counts. Review the saved TIFFs when deciding whether the batch outputs are suitable for measurement.",
+      "focus": [
+        1000,
+        1160,
+        2780,
+        610
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20a_actual_zoomed_preview",
+      "narration": "Use the mouse wheel to enlarge an area on both preview canvases. Inspect touching objects and dim boundaries, then zoom back out to check the complete field.",
+      "focus": [
+        1010,
+        1280,
+        2750,
+        455
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_native_filter_reduces_objects",
+      "narration": "Open Live settings and increase Minimum cell area to remove small objects from the preview. The cutoff is in pixels; choose it according to your object sizes. Close the dialog to inspect the filtered result.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22b_actual_zoomed_filtered_preview",
+      "narration": "Compare the filtered outlines with the original image. Changing this live filter updates the preview without rewriting masks already saved by Apply. Rerun the batch with the intended settings when you need new saved outputs.",
+      "focus": [
+        1010,
+        1280,
+        2750,
+        455
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23b_actual_zoomed_restored_preview",
+      "narration": "Return Minimum cell area to zero to restore the unfiltered preview. Keep the input images, model identity, settings and saved masks together. Use Make Masks for corrections or Measure to extract object features from the reviewed masks.",
+      "focus": [
+        1010,
+        1280,
+        2750,
+        455
+      ],
+      "related_lessons": [
+        "07_mask",
+        "06_api"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

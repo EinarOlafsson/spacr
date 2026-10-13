@@ -1,0 +1,17 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/blobs-baseline-r2-tool.log', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/reproduce-blobs-clock-r2.py']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/plaque-diagnostics-20261007/spacr/__init__.py
+{'source': '/media/carruthers/mnt3/codex/spacr-worktrees/plaque-diagnostics-20261007', 'ambient_sha256': 'f18c0c0faf530c76cd3ff8eba9933f0f741fa5b95c79b5100fe6456a7eb6c2fc', 'before': 0.163, 'after': 0.163, 'GUI_timer_running': False}
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py", line 45, in <module>
+    runpy.run_path(script, run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/reproduce-blobs-clock-r2.py", line 44, in <module>
+    assert after > before, 'Blobs shaded frames without advancing after a contended GUI tick'
+           ^^^^^^^^^^^^^^
+AssertionError: Blobs shaded frames without advancing after a contended GUI tick
+
+Terminal exit status: 1

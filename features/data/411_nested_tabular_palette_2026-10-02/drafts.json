@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "key": "spacr.tabular._write_workbook._write",
+      "source": "Write every sheet into ``pending``."
+    },
+    {
+      "key": "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "source": "Fallback that treats every app as visible."
+    }
+  ],
+  "translations": {
+    "sv": [
+      "Skriv varje blad till ``pending``.",
+      "Reservlösning som behandlar varje app som synlig."
+    ],
+    "de": [
+      "Schreibe jedes Tabellenblatt nach ``pending``.",
+      "Ersatzverhalten, das jede App als sichtbar behandelt."
+    ],
+    "es": [
+      "Escribe cada hoja en ``pending``.",
+      "Comportamiento de respaldo que considera visibles todas las aplicaciones."
+    ],
+    "zh_CN": [
+      "将每个工作表写入 ``pending``。",
+      "将所有应用视为可见的回退处理。"
+    ],
+    "pt": [
+      "Escreve cada planilha em ``pending``.",
+      "Comportamento alternativo que considera todos os aplicativos visíveis."
+    ],
+    "hi": [
+      "हर शीट को ``pending`` में लिखें।",
+      "फ़ॉलबैक जो हर ऐप को दृश्यमान मानता है।"
+    ],
+    "ko": [
+      "각 시트를 ``pending`` 에 씁니다.",
+      "모든 앱을 표시되는 것으로 간주하는 대체 동작입니다."
+    ],
+    "is": [
+      "Skrifar hvert vinnublað í ``pending``.",
+      "Varaleið sem lítur á hvert forrit sem sýnilegt."
+    ],
+    "fr": [
+      "Écrit chaque feuille dans ``pending``.",
+      "Comportement de repli qui considère chaque application comme visible."
+    ]
+  },
+  "authorship": "Direct Codex AI technical translation by shared_ui; independent peer review pending, no native-speaker certification."
+}

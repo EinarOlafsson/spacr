@@ -1,0 +1,19 @@
+{
+  "schema": "spacr.coverage-shard-integrity/v1",
+  "shard_index": 0,
+  "shard_count": 1,
+  "batches_total": 1,
+  "batches_finished": 1,
+  "batches": [
+    {
+      "batch": 1,
+      "exit_code": 0,
+      "ledger": "spacr-xdist-ledger.shard-00.batch-001.json",
+      "lost": [],
+      "lost_files": [],
+      "recovered_files": [],
+      "unrecovered_files": [],
+      "discarded_data_files": []
+    }
+  ]
+}

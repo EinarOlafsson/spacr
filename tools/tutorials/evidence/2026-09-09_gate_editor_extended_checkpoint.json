@@ -1,0 +1,32 @@
+{
+  "lesson": "64_gate_editor",
+  "status": "real_extended_capture_verified_not_yet_a_finished_lesson",
+  "app_commit": "6b7767eeec53e7cb635cd88daf0d121d688765cd",
+  "capture": "refresh_2026-09-09/captures/gates_full",
+  "original_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "original_database_and_private_cell_measurements_unchanged": true,
+  "rows": 2341,
+  "drawn_gate_objects": 655,
+  "exported_objects_match_all_six_identity_axes": true,
+  "actual_save_delete_load_restores_exact_gate": true,
+  "second_gate_objects": 259,
+  "new_drawing_is_not_automatically_nested": true,
+  "actual_three_measurement_volume_objects": 2341,
+  "view_changes_do_not_modify_gate_bounds": true,
+  "projection_is_independent_of_2d_or_3d": true,
+  "projection_off_retains_component_columns": true,
+  "walk": {
+    "steps": 5,
+    "min_samples": 20,
+    "scale": true,
+    "reported_eps": 0.167,
+    "reported_excluded_percent": 33,
+    "saved_polygon_memberships": [1540, 25]
+  },
+  "fixed_radius": {"eps": 0.5, "min_samples": 20, "scale": true, "saved_polygon_memberships": [2239]},
+  "cluster_memberships_are_not_biological_labels": true,
+  "small_identity_tests": {"passed": 9, "equal_count_mutant_failed": 6, "restored_passed": 9},
+  "remaining_capture": ["readable search panel", "live filtering and recovery", "real console expression"],
+  "english_and_multilingual_media_frozen": false,
+  "published": false
+}

@@ -1,0 +1,22 @@
+{
+  "Calculate reference-well gains without running Measure or changing files.": "Calcular los factores de ganancia de los pocillos de referencia sin ejecutar Measure ni modificar archivos.",
+  "Calculating calibration gains…": "Calculando los factores de calibración…",
+  "Calibration gains": "Factores de calibración",
+  "Choose a local source folder containing merged arrays.": "Seleccione una carpeta de origen local que contenga matrices combinadas.",
+  "Discard this preview. Any source scan already running will finish safely.": "Descartar esta vista previa. Cualquier exploración de archivos de origen ya iniciada terminará de forma segura.",
+  "Enable intensity calibration before previewing gains.": "Active la calibración de intensidad antes de previsualizar los factores de ganancia.",
+  "Finish valid settings before previewing gains.": "Complete una configuración válida antes de previsualizar los factores de ganancia.",
+  "Gain": "Factor de ganancia",
+  "Gains use the camera offset and reference wells; images and measurements are unchanged.": "Los factores de ganancia usan el offset de la cámara y los pocillos de referencia; las imágenes y las mediciones no cambian.",
+  "No eligible merged arrays were found.": "No se encontraron matrices combinadas aptas.",
+  "Preview complete. No images or measurements were changed.": "Vista previa completada. No se modificaron imágenes ni mediciones.",
+  "Preview gains": "Previsualizar ganancias",
+  "Preview only: each source folder is planned separately.": "Solo vista previa: cada carpeta de origen se planifica por separado.",
+  "Reference fields": "Campos de imagen de referencia",
+  "Reference plate": "Placa de referencia",
+  "Reference statistic": "Estadístico de referencia",
+  "Settings changed. Preview the gains again.": "La configuración ha cambiado. Vuelva a previsualizar los factores de ganancia.",
+  "Some merged arrays could not be read. Check the source files.": "No se pudieron leer algunas matrices combinadas. Revise los archivos de origen.",
+  "The first plate by name is the reference.": "La primera placa por nombre es la referencia.",
+  "Turn off Test mode to preview gains for all source fields.": "Desactive Modo de prueba para previsualizar los factores de ganancia de todos los campos de imagen de origen."
+}

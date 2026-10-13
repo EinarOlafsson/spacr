@@ -1,0 +1,1264 @@
+{
+  "base": "0757b48ea",
+  "modules": 77,
+  "documented_edges": 52,
+  "method": "Pairs of documented cubic paths crossing transversely, excluding shared endpoints and collinear overlaps. Each path is sampled at 65 points; opposite signs of interpolated vertical separation count a crossing pair (0.01 scene-unit tolerance). Diagnostic estimate, not an exact graph optimum or perceptual metric.",
+  "layouts": {
+    "expanded": {
+      "before": {
+        "crossing_pairs": 56,
+        "positions": {
+          "align": [
+            0.0,
+            0.0
+          ],
+          "make_masks": [
+            0.0,
+            225.0
+          ],
+          "queue": [
+            0.0,
+            450.0
+          ],
+          "pipeline_graph": [
+            0.0,
+            675.0
+          ],
+          "feature_dict": [
+            0.0,
+            900.0
+          ],
+          "toxoplasma": [
+            0.0,
+            1125.0
+          ],
+          "analyze_plaques": [
+            325.0,
+            0.0
+          ],
+          "train_cellpose": [
+            325.0,
+            225.0
+          ],
+          "ops": [
+            325.0,
+            450.0
+          ],
+          "convert": [
+            325.0,
+            675.0
+          ],
+          "import_images": [
+            325.0,
+            900.0
+          ],
+          "curate": [
+            325.0,
+            1125.0
+          ],
+          "napari_bridge": [
+            325.0,
+            1350.0
+          ],
+          "mask": [
+            650.0,
+            0.0
+          ],
+          "cellpose_masks": [
+            650.0,
+            225.0
+          ],
+          "distributed_jobs": [
+            650.0,
+            450.0
+          ],
+          "layer_viewer": [
+            650.0,
+            675.0
+          ],
+          "cellpose_all": [
+            650.0,
+            900.0
+          ],
+          "model_zoo": [
+            650.0,
+            1125.0
+          ],
+          "illumination": [
+            650.0,
+            1350.0
+          ],
+          "external_masks": [
+            975.0,
+            0.0
+          ],
+          "timelapse": [
+            975.0,
+            225.0
+          ],
+          "run_history": [
+            975.0,
+            450.0
+          ],
+          "project_browser": [
+            975.0,
+            675.0
+          ],
+          "model_compare": [
+            975.0,
+            900.0
+          ],
+          "candida": [
+            975.0,
+            1125.0
+          ],
+          "measure": [
+            1300.0,
+            0.0
+          ],
+          "experiment_design": [
+            1300.0,
+            225.0
+          ],
+          "data_manager": [
+            1300.0,
+            450.0
+          ],
+          "outliers": [
+            1300.0,
+            675.0
+          ],
+          "control_chart": [
+            1300.0,
+            900.0
+          ],
+          "pca": [
+            1300.0,
+            1125.0
+          ],
+          "feature_explorer": [
+            1625.0,
+            0.0
+          ],
+          "db_browser": [
+            1625.0,
+            225.0
+          ],
+          "qc_dashboard": [
+            1625.0,
+            450.0
+          ],
+          "power": [
+            1625.0,
+            675.0
+          ],
+          "dose_response": [
+            1625.0,
+            900.0
+          ],
+          "embeddings": [
+            1625.0,
+            1125.0
+          ],
+          "graph_builder": [
+            1625.0,
+            1350.0
+          ],
+          "recruitment": [
+            1625.0,
+            1575.0
+          ],
+          "invasion": [
+            1625.0,
+            1800.0
+          ],
+          "replication": [
+            1625.0,
+            2025.0
+          ],
+          "anndata_export": [
+            1625.0,
+            2250.0
+          ],
+          "motility": [
+            1625.0,
+            2475.0
+          ],
+          "endodyogeny": [
+            1625.0,
+            2700.0
+          ],
+          "umap": [
+            1950.0,
+            0.0
+          ],
+          "batch": [
+            1950.0,
+            225.0
+          ],
+          "lineage": [
+            1950.0,
+            450.0
+          ],
+          "plate_view": [
+            1950.0,
+            675.0
+          ],
+          "image_scatter": [
+            1950.0,
+            900.0
+          ],
+          "gate_editor": [
+            2275.0,
+            0.0
+          ],
+          "foreign": [
+            2275.0,
+            225.0
+          ],
+          "tabulate": [
+            2275.0,
+            450.0
+          ],
+          "trellis": [
+            2275.0,
+            675.0
+          ],
+          "plasmodium": [
+            2275.0,
+            900.0
+          ],
+          "annotate": [
+            2600.0,
+            0.0
+          ],
+          "report": [
+            2600.0,
+            225.0
+          ],
+          "train_compare": [
+            2600.0,
+            450.0
+          ],
+          "classify": [
+            2600.0,
+            675.0
+          ],
+          "simulation": [
+            2600.0,
+            900.0
+          ],
+          "classify_merged": [
+            2925.0,
+            0.0
+          ],
+          "map_barcodes": [
+            2925.0,
+            225.0
+          ],
+          "agreement": [
+            2925.0,
+            450.0
+          ],
+          "ml_analyze": [
+            2925.0,
+            675.0
+          ],
+          "regression": [
+            3250.0,
+            0.0
+          ],
+          "barcode_qc": [
+            3250.0,
+            225.0
+          ],
+          "classifier_evaluation": [
+            3250.0,
+            450.0
+          ],
+          "explain_cv": [
+            3250.0,
+            675.0
+          ],
+          "activation": [
+            3250.0,
+            900.0
+          ],
+          "profiler": [
+            3250.0,
+            1125.0
+          ],
+          "parameter_sweep": [
+            3250.0,
+            1350.0
+          ],
+          "run_compare": [
+            3575.0,
+            0.0
+          ],
+          "investigate_hit": [
+            3575.0,
+            225.0
+          ],
+          "volcano_explorer": [
+            3575.0,
+            450.0
+          ],
+          "hit_list": [
+            3575.0,
+            675.0
+          ],
+          "methods_export": [
+            3575.0,
+            900.0
+          ],
+          "regression_diagnostics": [
+            3575.0,
+            1125.0
+          ]
+        }
+      },
+      "after": {
+        "crossing_pairs": 13,
+        "positions": {
+          "align": [
+            0.0,
+            0.0
+          ],
+          "make_masks": [
+            0.0,
+            225.0
+          ],
+          "queue": [
+            0.0,
+            450.0
+          ],
+          "pipeline_graph": [
+            0.0,
+            675.0
+          ],
+          "feature_dict": [
+            0.0,
+            900.0
+          ],
+          "toxoplasma": [
+            0.0,
+            1125.0
+          ],
+          "ops": [
+            325.0,
+            0.0
+          ],
+          "convert": [
+            325.0,
+            225.0
+          ],
+          "import_images": [
+            325.0,
+            450.0
+          ],
+          "train_cellpose": [
+            325.0,
+            675.0
+          ],
+          "analyze_plaques": [
+            325.0,
+            900.0
+          ],
+          "curate": [
+            325.0,
+            1125.0
+          ],
+          "napari_bridge": [
+            325.0,
+            1350.0
+          ],
+          "mask": [
+            650.0,
+            0.0
+          ],
+          "cellpose_masks": [
+            650.0,
+            225.0
+          ],
+          "distributed_jobs": [
+            650.0,
+            450.0
+          ],
+          "layer_viewer": [
+            650.0,
+            675.0
+          ],
+          "cellpose_all": [
+            650.0,
+            900.0
+          ],
+          "model_zoo": [
+            650.0,
+            1125.0
+          ],
+          "illumination": [
+            650.0,
+            1350.0
+          ],
+          "external_masks": [
+            975.0,
+            0.0
+          ],
+          "timelapse": [
+            975.0,
+            225.0
+          ],
+          "run_history": [
+            975.0,
+            450.0
+          ],
+          "project_browser": [
+            975.0,
+            675.0
+          ],
+          "model_compare": [
+            975.0,
+            900.0
+          ],
+          "candida": [
+            975.0,
+            1125.0
+          ],
+          "measure": [
+            1300.0,
+            0.0
+          ],
+          "experiment_design": [
+            1300.0,
+            225.0
+          ],
+          "data_manager": [
+            1300.0,
+            450.0
+          ],
+          "outliers": [
+            1300.0,
+            675.0
+          ],
+          "control_chart": [
+            1300.0,
+            900.0
+          ],
+          "pca": [
+            1300.0,
+            1125.0
+          ],
+          "embeddings": [
+            1625.0,
+            0.0
+          ],
+          "feature_explorer": [
+            1625.0,
+            225.0
+          ],
+          "db_browser": [
+            1625.0,
+            450.0
+          ],
+          "qc_dashboard": [
+            1625.0,
+            675.0
+          ],
+          "graph_builder": [
+            1625.0,
+            900.0
+          ],
+          "recruitment": [
+            1625.0,
+            1125.0
+          ],
+          "invasion": [
+            1625.0,
+            1350.0
+          ],
+          "replication": [
+            1625.0,
+            1575.0
+          ],
+          "anndata_export": [
+            1625.0,
+            1800.0
+          ],
+          "motility": [
+            1625.0,
+            2025.0
+          ],
+          "endodyogeny": [
+            1625.0,
+            2250.0
+          ],
+          "dose_response": [
+            1625.0,
+            2475.0
+          ],
+          "power": [
+            1625.0,
+            2700.0
+          ],
+          "umap": [
+            1950.0,
+            0.0
+          ],
+          "batch": [
+            1950.0,
+            225.0
+          ],
+          "lineage": [
+            1950.0,
+            450.0
+          ],
+          "plate_view": [
+            1950.0,
+            675.0
+          ],
+          "image_scatter": [
+            1950.0,
+            900.0
+          ],
+          "gate_editor": [
+            2275.0,
+            0.0
+          ],
+          "foreign": [
+            2275.0,
+            225.0
+          ],
+          "tabulate": [
+            2275.0,
+            450.0
+          ],
+          "trellis": [
+            2275.0,
+            675.0
+          ],
+          "plasmodium": [
+            2275.0,
+            900.0
+          ],
+          "annotate": [
+            2600.0,
+            0.0
+          ],
+          "report": [
+            2600.0,
+            225.0
+          ],
+          "train_compare": [
+            2600.0,
+            450.0
+          ],
+          "classify": [
+            2600.0,
+            675.0
+          ],
+          "simulation": [
+            2600.0,
+            900.0
+          ],
+          "classify_merged": [
+            2925.0,
+            0.0
+          ],
+          "map_barcodes": [
+            2925.0,
+            225.0
+          ],
+          "agreement": [
+            2925.0,
+            450.0
+          ],
+          "ml_analyze": [
+            2925.0,
+            675.0
+          ],
+          "regression": [
+            3250.0,
+            0.0
+          ],
+          "classifier_evaluation": [
+            3250.0,
+            225.0
+          ],
+          "explain_cv": [
+            3250.0,
+            450.0
+          ],
+          "activation": [
+            3250.0,
+            675.0
+          ],
+          "barcode_qc": [
+            3250.0,
+            900.0
+          ],
+          "profiler": [
+            3250.0,
+            1125.0
+          ],
+          "parameter_sweep": [
+            3250.0,
+            1350.0
+          ],
+          "run_compare": [
+            3575.0,
+            0.0
+          ],
+          "investigate_hit": [
+            3575.0,
+            225.0
+          ],
+          "volcano_explorer": [
+            3575.0,
+            450.0
+          ],
+          "hit_list": [
+            3575.0,
+            675.0
+          ],
+          "methods_export": [
+            3575.0,
+            900.0
+          ],
+          "regression_diagnostics": [
+            3575.0,
+            1125.0
+          ]
+        }
+      }
+    },
+    "compact": {
+      "before": {
+        "crossing_pairs": 62,
+        "positions": {
+          "align": [
+            0.0,
+            0.0
+          ],
+          "make_masks": [
+            0.0,
+            125.0
+          ],
+          "queue": [
+            0.0,
+            250.0
+          ],
+          "run_history": [
+            0.0,
+            375.0
+          ],
+          "project_browser": [
+            0.0,
+            500.0
+          ],
+          "toxoplasma": [
+            0.0,
+            625.0
+          ],
+          "candida": [
+            0.0,
+            750.0
+          ],
+          "train_cellpose": [
+            325.0,
+            0.0
+          ],
+          "ops": [
+            325.0,
+            125.0
+          ],
+          "convert": [
+            325.0,
+            250.0
+          ],
+          "import_images": [
+            325.0,
+            375.0
+          ],
+          "layer_viewer": [
+            325.0,
+            500.0
+          ],
+          "model_compare": [
+            325.0,
+            625.0
+          ],
+          "curate": [
+            325.0,
+            750.0
+          ],
+          "napari_bridge": [
+            325.0,
+            875.0
+          ],
+          "mask": [
+            650.0,
+            0.0
+          ],
+          "cellpose_masks": [
+            650.0,
+            125.0
+          ],
+          "analyze_plaques": [
+            650.0,
+            250.0
+          ],
+          "data_manager": [
+            650.0,
+            375.0
+          ],
+          "train_compare": [
+            650.0,
+            500.0
+          ],
+          "cellpose_all": [
+            650.0,
+            625.0
+          ],
+          "model_zoo": [
+            650.0,
+            750.0
+          ],
+          "illumination": [
+            650.0,
+            875.0
+          ],
+          "external_masks": [
+            975.0,
+            0.0
+          ],
+          "timelapse": [
+            975.0,
+            125.0
+          ],
+          "batch": [
+            975.0,
+            250.0
+          ],
+          "pipeline_graph": [
+            975.0,
+            375.0
+          ],
+          "feature_dict": [
+            975.0,
+            500.0
+          ],
+          "plasmodium": [
+            975.0,
+            625.0
+          ],
+          "measure": [
+            1300.0,
+            0.0
+          ],
+          "experiment_design": [
+            1300.0,
+            125.0
+          ],
+          "distributed_jobs": [
+            1300.0,
+            250.0
+          ],
+          "lineage": [
+            1300.0,
+            375.0
+          ],
+          "outliers": [
+            1300.0,
+            500.0
+          ],
+          "image_scatter": [
+            1300.0,
+            625.0
+          ],
+          "embeddings": [
+            1625.0,
+            0.0
+          ],
+          "feature_explorer": [
+            1625.0,
+            125.0
+          ],
+          "dose_response": [
+            1625.0,
+            250.0
+          ],
+          "anndata_export": [
+            1625.0,
+            375.0
+          ],
+          "control_chart": [
+            1625.0,
+            500.0
+          ],
+          "pca": [
+            1625.0,
+            625.0
+          ],
+          "umap": [
+            1950.0,
+            0.0
+          ],
+          "db_browser": [
+            1950.0,
+            125.0
+          ],
+          "graph_builder": [
+            1950.0,
+            250.0
+          ],
+          "endodyogeny": [
+            1950.0,
+            375.0
+          ],
+          "plate_view": [
+            1950.0,
+            500.0
+          ],
+          "simulation": [
+            1950.0,
+            625.0
+          ],
+          "gate_editor": [
+            2275.0,
+            0.0
+          ],
+          "foreign": [
+            2275.0,
+            125.0
+          ],
+          "invasion": [
+            2275.0,
+            250.0
+          ],
+          "report": [
+            2275.0,
+            375.0
+          ],
+          "trellis": [
+            2275.0,
+            500.0
+          ],
+          "annotate": [
+            2600.0,
+            0.0
+          ],
+          "power": [
+            2600.0,
+            125.0
+          ],
+          "replication": [
+            2600.0,
+            250.0
+          ],
+          "tabulate": [
+            2600.0,
+            375.0
+          ],
+          "classify": [
+            2600.0,
+            500.0
+          ],
+          "classify_merged": [
+            2925.0,
+            0.0
+          ],
+          "map_barcodes": [
+            2925.0,
+            125.0
+          ],
+          "motility": [
+            2925.0,
+            250.0
+          ],
+          "agreement": [
+            2925.0,
+            375.0
+          ],
+          "ml_analyze": [
+            2925.0,
+            500.0
+          ],
+          "regression": [
+            3250.0,
+            0.0
+          ],
+          "recruitment": [
+            3250.0,
+            125.0
+          ],
+          "barcode_qc": [
+            3250.0,
+            250.0
+          ],
+          "classifier_evaluation": [
+            3250.0,
+            375.0
+          ],
+          "explain_cv": [
+            3250.0,
+            500.0
+          ],
+          "activation": [
+            3250.0,
+            625.0
+          ],
+          "profiler": [
+            3250.0,
+            750.0
+          ],
+          "parameter_sweep": [
+            3250.0,
+            875.0
+          ],
+          "qc_dashboard": [
+            3575.0,
+            0.0
+          ],
+          "run_compare": [
+            3575.0,
+            125.0
+          ],
+          "investigate_hit": [
+            3575.0,
+            250.0
+          ],
+          "volcano_explorer": [
+            3575.0,
+            375.0
+          ],
+          "hit_list": [
+            3575.0,
+            500.0
+          ],
+          "methods_export": [
+            3575.0,
+            625.0
+          ],
+          "regression_diagnostics": [
+            3575.0,
+            750.0
+          ]
+        }
+      },
+      "after": {
+        "crossing_pairs": 33,
+        "positions": {
+          "align": [
+            0.0,
+            0.0
+          ],
+          "make_masks": [
+            0.0,
+            125.0
+          ],
+          "queue": [
+            0.0,
+            250.0
+          ],
+          "run_history": [
+            0.0,
+            375.0
+          ],
+          "project_browser": [
+            0.0,
+            500.0
+          ],
+          "toxoplasma": [
+            0.0,
+            625.0
+          ],
+          "candida": [
+            0.0,
+            750.0
+          ],
+          "ops": [
+            325.0,
+            0.0
+          ],
+          "convert": [
+            325.0,
+            125.0
+          ],
+          "import_images": [
+            325.0,
+            250.0
+          ],
+          "train_cellpose": [
+            325.0,
+            375.0
+          ],
+          "layer_viewer": [
+            325.0,
+            500.0
+          ],
+          "model_compare": [
+            325.0,
+            625.0
+          ],
+          "curate": [
+            325.0,
+            750.0
+          ],
+          "napari_bridge": [
+            325.0,
+            875.0
+          ],
+          "mask": [
+            650.0,
+            0.0
+          ],
+          "cellpose_masks": [
+            650.0,
+            125.0
+          ],
+          "analyze_plaques": [
+            650.0,
+            250.0
+          ],
+          "data_manager": [
+            650.0,
+            375.0
+          ],
+          "train_compare": [
+            650.0,
+            500.0
+          ],
+          "cellpose_all": [
+            650.0,
+            625.0
+          ],
+          "model_zoo": [
+            650.0,
+            750.0
+          ],
+          "illumination": [
+            650.0,
+            875.0
+          ],
+          "external_masks": [
+            975.0,
+            0.0
+          ],
+          "timelapse": [
+            975.0,
+            125.0
+          ],
+          "batch": [
+            975.0,
+            250.0
+          ],
+          "pipeline_graph": [
+            975.0,
+            375.0
+          ],
+          "feature_dict": [
+            975.0,
+            500.0
+          ],
+          "plasmodium": [
+            975.0,
+            625.0
+          ],
+          "measure": [
+            1300.0,
+            0.0
+          ],
+          "experiment_design": [
+            1300.0,
+            125.0
+          ],
+          "distributed_jobs": [
+            1300.0,
+            250.0
+          ],
+          "lineage": [
+            1300.0,
+            375.0
+          ],
+          "outliers": [
+            1300.0,
+            500.0
+          ],
+          "image_scatter": [
+            1300.0,
+            625.0
+          ],
+          "embeddings": [
+            1625.0,
+            0.0
+          ],
+          "feature_explorer": [
+            1625.0,
+            125.0
+          ],
+          "anndata_export": [
+            1625.0,
+            250.0
+          ],
+          "dose_response": [
+            1625.0,
+            375.0
+          ],
+          "control_chart": [
+            1625.0,
+            500.0
+          ],
+          "pca": [
+            1625.0,
+            625.0
+          ],
+          "umap": [
+            1950.0,
+            0.0
+          ],
+          "db_browser": [
+            1950.0,
+            125.0
+          ],
+          "graph_builder": [
+            1950.0,
+            250.0
+          ],
+          "endodyogeny": [
+            1950.0,
+            375.0
+          ],
+          "plate_view": [
+            1950.0,
+            500.0
+          ],
+          "simulation": [
+            1950.0,
+            625.0
+          ],
+          "gate_editor": [
+            2275.0,
+            0.0
+          ],
+          "foreign": [
+            2275.0,
+            125.0
+          ],
+          "invasion": [
+            2275.0,
+            250.0
+          ],
+          "report": [
+            2275.0,
+            375.0
+          ],
+          "trellis": [
+            2275.0,
+            500.0
+          ],
+          "annotate": [
+            2600.0,
+            0.0
+          ],
+          "replication": [
+            2600.0,
+            125.0
+          ],
+          "power": [
+            2600.0,
+            250.0
+          ],
+          "tabulate": [
+            2600.0,
+            375.0
+          ],
+          "classify": [
+            2600.0,
+            500.0
+          ],
+          "classify_merged": [
+            2925.0,
+            0.0
+          ],
+          "map_barcodes": [
+            2925.0,
+            125.0
+          ],
+          "motility": [
+            2925.0,
+            250.0
+          ],
+          "agreement": [
+            2925.0,
+            375.0
+          ],
+          "ml_analyze": [
+            2925.0,
+            500.0
+          ],
+          "regression": [
+            3250.0,
+            0.0
+          ],
+          "recruitment": [
+            3250.0,
+            125.0
+          ],
+          "classifier_evaluation": [
+            3250.0,
+            250.0
+          ],
+          "explain_cv": [
+            3250.0,
+            375.0
+          ],
+          "activation": [
+            3250.0,
+            500.0
+          ],
+          "barcode_qc": [
+            3250.0,
+            625.0
+          ],
+          "profiler": [
+            3250.0,
+            750.0
+          ],
+          "parameter_sweep": [
+            3250.0,
+            875.0
+          ],
+          "qc_dashboard": [
+            3575.0,
+            0.0
+          ],
+          "run_compare": [
+            3575.0,
+            125.0
+          ],
+          "investigate_hit": [
+            3575.0,
+            250.0
+          ],
+          "volcano_explorer": [
+            3575.0,
+            375.0
+          ],
+          "hit_list": [
+            3575.0,
+            500.0
+          ],
+          "methods_export": [
+            3575.0,
+            625.0
+          ],
+          "regression_diagnostics": [
+            3575.0,
+            750.0
+          ]
+        }
+      }
+    }
+  }
+}

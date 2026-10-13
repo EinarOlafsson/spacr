@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review": "AI-assisted translation and technical review; no native-speaker signoff claimed",
+  "records": [
+    {
+      "label": "deck-heading",
+      "source": "spaCR in slides",
+      "source_sha256": "ac15b019777eaf5866326f12193192b563cbc89bec8e41dc35ef3997e6e8b020",
+      "translation": "spaCR in Folien"
+    },
+    {
+      "label": "deck-cover-alt",
+      "source": "spaCR in slides: every module and the trained models, in 51 slides",
+      "source_sha256": "26ea26ff2abdb52d3969438975a9f78bffa83ce957eacf833a058b7f7da11618",
+      "translation": "spaCR in Folien: alle Module und die trainierten Modelle auf 51 Folien"
+    },
+    {
+      "label": "deck-introduction",
+      "source": "A tour of every module and the trained models in 51 slides. Flip through them in the `slide viewer <https://einarolafsson.github.io/spacr/_static/deck/>`_ (arrow keys or swipe), or page through the `PDF on GitHub <docs/source/_static/deck/spacr_deck.pdf>`_.",
+      "source_sha256": "c5557bc01ec18214de7c628f36f886f401e5659df943c05e705192c44697dc8f",
+      "translation": "Ein Überblick über alle Module und die trainierten Modelle auf 51 Folien. Blättern Sie im `Folienbetrachter <https://einarolafsson.github.io/spacr/_static/deck/>`_ mit den Pfeiltasten oder durch Wischen, oder lesen Sie das `PDF auf GitHub <docs/source/_static/deck/spacr_deck.pdf>`_."
+    },
+    {
+      "label": "deck-viewer-link",
+      "source": "slide viewer",
+      "source_sha256": "ed132c00e92e9c52d2b3c7008caf530fb5407d5a711e552935d8ec77627771a0",
+      "translation": "Folienbetrachter"
+    },
+    {
+      "label": "deck-pdf-link",
+      "source": "PDF on GitHub",
+      "source_sha256": "cc5ca0faf03c62177997c8e2a425e6d22f247b7c293fd56ab7850df2de622a3c",
+      "translation": "PDF auf GitHub"
+    }
+  ]
+}

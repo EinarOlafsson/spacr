@@ -1,0 +1,48 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density changes their population independently of detail; rendering stays within the screen's pixel budget.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density changes their population independently of detail; rendering stays within the screen's pixel budget.",
+      "source_sha256": "57dc3529427bfadb15b2f8362ba5572ecf3d555e588937e0f606cb883a5a5c8e",
+      "table": "ui",
+      "translation": "Cuántos elementos hay: manchas de color, cortinas de aurora, fuentes de ondulaciones, estrellas y células. La densidad modifica su cantidad independientemente del nivel de detalle; el renderizado se mantiene dentro del presupuesto de píxeles de la pantalla."
+    },
+    {
+      "key": "spaCR aurora",
+      "source": "spaCR aurora",
+      "source_sha256": "63034e15578adbf118ad252e7fead9c3ab605846a15beb577d591cbb41fd27d0",
+      "table": "ui",
+      "translation": "spaCR aurora"
+    },
+    {
+      "key": "spaCR blobs",
+      "source": "spaCR blobs",
+      "source_sha256": "c744a98c36d9be032ba2423cf804e0186bd8be984e4403e7e362f17c943e303f",
+      "table": "ui",
+      "translation": "spaCR blobs"
+    },
+    {
+      "key": "spaCR spinn",
+      "source": "spaCR spinn",
+      "source_sha256": "9a8644091c14b624090b6110751e65024a88273a2c3836971a351a5b2840ad47",
+      "table": "ui",
+      "translation": "spaCR spinn"
+    },
+    {
+      "key": "spaCR stratified",
+      "source": "spaCR stratified",
+      "source_sha256": "2a8c7861ca6d7d56c25d61ef7f8bada11ece0f4bbad395c30fd1617df58a7138",
+      "table": "ui",
+      "translation": "spaCR stratified"
+    },
+    {
+      "key": "spaCR stratified direction",
+      "source": "spaCR stratified direction",
+      "source_sha256": "7541fdaedfdc125383b13054143d700a2c2293c99ac5e044dac5f19cce9da211",
+      "table": "ui",
+      "translation": "Dirección de spaCR stratified"
+    }
+  ],
+  "schema": 1
+}

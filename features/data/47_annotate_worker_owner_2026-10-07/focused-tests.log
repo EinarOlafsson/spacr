@@ -1,0 +1,108 @@
+............                                                             [100%]
+=============================== warnings summary ===============================
+tests/qt/test_annotate_worker_owner_shutdown.py::test_parented_timeout_keeps_worker_owned_and_rejects_late_publication[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_progress of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb37d9779b0) at 0x7b32f0f3b100>>) from signal "progress(int,int,QString)".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_parented_timeout_keeps_worker_owned_and_rejects_late_publication[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_cancelled of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb37d9779b0) at 0x7b32f0f3b100>>) from signal "cancelled()".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_parented_timeout_keeps_worker_owned_and_rejects_late_publication[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_split_relaxed of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb37d9779b0) at 0x7b32f0f3b100>>) from signal "split_relaxed(QString)".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[similar]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7658: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_similar_done of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb38033dfb0) at 0x7b32def27f00>>) from signal "done(PyObject)".
+    similar.done.disconnect(self._on_similar_done)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[similar]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7659: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_similar_failed of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb38033dfb0) at 0x7b32def27f00>>) from signal "failed(QString)".
+    similar.failed.disconnect(self._on_similar_failed)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[similar]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7660: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_similar_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb38033dfb0) at 0x7b32def27f00>>) from signal "finished()".
+    similar.finished.disconnect(self._on_similar_finished)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[retrain]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7673: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_done of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380e18d30) at 0x7b32def09440>>) from signal "done(PyObject)".
+    retrain.done.disconnect(self._on_retrain_done)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[retrain]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7674: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_failed of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380e18d30) at 0x7b32def09440>>) from signal "failed(QString)".
+    retrain.failed.disconnect(self._on_retrain_failed)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[retrain]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7675: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380e18d30) at 0x7b32def09440>>) from signal "finished()".
+    retrain.finished.disconnect(self._on_retrain_finished)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_done of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb381883520) at 0x7b32de74bc40>>) from signal "done(PyObject)".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_failed of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb381883520) at 0x7b32de74bc40>>) from signal "failed(QString)".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb381883520) at 0x7b32de74bc40>>) from signal "finished()".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_progress of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb381883520) at 0x7b32de74bc40>>) from signal "progress(int,int,QString)".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_cancelled of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb381883520) at 0x7b32de74bc40>>) from signal "cancelled()".
+    signal.disconnect(slot)
+
+tests/qt/test_annotate_worker_owner_shutdown.py::test_stopped_worker_keeps_native_parent_until_normal_retirement[suggest]
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7693: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_suggest_split_relaxed of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb381883520) at 0x7b32de74bc40>>) from signal "split_relaxed(QString)".
+    signal.disconnect(slot)
+
+tests/qt/test_cov_annotate_screen.py::test_a_retrain_that_will_not_stop_is_parked_rather_than_deleted
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7673: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_done of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380707300) at 0x7b32def1efc0>>) from signal "done(PyObject)".
+    retrain.done.disconnect(self._on_retrain_done)
+
+tests/qt/test_cov_annotate_screen.py::test_a_retrain_that_will_not_stop_is_parked_rather_than_deleted
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7674: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_failed of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380707300) at 0x7b32def1efc0>>) from signal "failed(QString)".
+    retrain.failed.disconnect(self._on_retrain_failed)
+
+tests/qt/test_cov_annotate_screen.py::test_a_retrain_that_will_not_stop_is_parked_rather_than_deleted
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7675: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380707300) at 0x7b32def1efc0>>) from signal "finished()".
+    retrain.finished.disconnect(self._on_retrain_finished)
+
+tests/qt/test_cov_annotate_screen.py::test_closing_waits_for_a_running_retrain_then_lets_it_go
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7673: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_done of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb3806d14b0) at 0x7b32def27740>>) from signal "done(PyObject)".
+    retrain.done.disconnect(self._on_retrain_done)
+
+tests/qt/test_cov_annotate_screen.py::test_closing_waits_for_a_running_retrain_then_lets_it_go
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7674: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_failed of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb3806d14b0) at 0x7b32def27740>>) from signal "failed(QString)".
+    retrain.failed.disconnect(self._on_retrain_failed)
+
+tests/qt/test_cov_annotate_screen.py::test_closing_waits_for_a_running_retrain_then_lets_it_go
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7675: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb3806d14b0) at 0x7b32def27740>>) from signal "finished()".
+    retrain.finished.disconnect(self._on_retrain_finished)
+
+tests/qt/test_cov_annotate_screen.py::test_a_page_still_decoding_at_close_is_drained_not_dropped
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7710: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_page_loaded of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb3816c3320) at 0x7b32def0bbc0>>) from signal "done(int,PyObject)".
+    worker.done.disconnect(self._on_page_loaded)
+
+tests/qt/test_cov_annotate_screen.py::test_a_page_still_decoding_at_close_is_drained_not_dropped
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7711: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_page_worker_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb3816c3320) at 0x7b32def0bbc0>>) from signal "finished()".
+    worker.finished.disconnect(self._on_page_worker_finished)
+
+tests/qt/test_cov_annotate_screen.py::test_a_page_worker_that_will_not_stop_is_parked_rather_than_deleted
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7710: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_page_loaded of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380758f70) at 0x7b32de74a840>>) from signal "done(int,PyObject)".
+    worker.done.disconnect(self._on_page_loaded)
+
+tests/qt/test_cov_annotate_screen.py::test_a_page_worker_that_will_not_stop_is_parked_rather_than_deleted
+  /mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7711: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_page_worker_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5bb380758f70) at 0x7b32de74a840>>) from signal "finished()".
+    worker.finished.disconnect(self._on_page_worker_finished)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.13-final-0 _______________
+
+Coverage JSON written to file /mnt/wd4tb/scratch/annotate-worker-drain-20261007/coverage.json
+12 passed, 25 warnings in 5.67s

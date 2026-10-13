@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "83281540b",
+  "source_patch": "ambient.py timing-table alignment only",
+  "build": "Sphinx 9.1.0 html -W --keep-going -j 1",
+  "build_exit_code": 0,
+  "memory_cap": "8G",
+  "workflow_modules_checked": 71,
+  "api_pages_checked": 63,
+  "pathway_anchors_checked": 9,
+  "generated_guide_links_checked": true,
+  "build_log_sha256": "63dc7e150cf9fbbd81ca9f4f61cf4ddc43aa2a65e00bb8a2033fd2e2ac19e700",
+  "api_translation_audit_passed": false,
+  "new_tutorial_media_complete": false
+}

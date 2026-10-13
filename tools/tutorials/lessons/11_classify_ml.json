@@ -1,0 +1,137 @@
+{
+  "id": "11_classify_ml",
+  "number": 11,
+  "slug": "classify_ml",
+  "title": "Classify: learn from measured features",
+  "series": 1,
+  "app_key": "ml_analyze",
+  "host_app_key": "classify_merged",
+  "section": "Core",
+  "description": "Load measurements, define classes, train a tabular classifier and inspect object scores and plate summaries.",
+  "objectives": [
+    "Select the tabular family and a measured project.",
+    "Define classes and choose feature channels, model size and held-out wells.",
+    "Find model outputs, object predictions and summary figures."
+  ],
+  "prerequisite": "Use Load test data in Classify and choose Load, then confirm the downloaded plate folder with Choose source data. For your own project, run Measure first. The example uses columnID values c1 and c2 as two classes; use labels appropriate to your experiment when working with your own data.",
+  "scenes": [
+    {
+      "visual": "19_setting_classifier_family",
+      "narration": "From Home, open Classify and choose Tabular Machine Learning. This family uses the object measurements saved by Measure. It produces a fitted model and a score for each object with the required measurements.",
+      "focus": [
+        350,
+        190,
+        1730,
+        650
+      ],
+      "related_lessons": [
+        "41_classify",
+        "10_classify_cv"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_data_choice_load",
+      "narration": "Click Load test data and choose Load. Wait for the measured example to download. For your own data, select the project folder created by Measure, including its measurements database.",
+      "focus": [
+        1663,
+        914,
+        495,
+        365
+      ],
+      "related_lessons": [
+        "08_measure",
+        "09_annotate"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_source_folder_choice",
+      "narration": "Use Choose source data to confirm the downloaded plate folder. Select the folder containing measurements. This gives the classifier access to the object tables and the metadata used to define classes.",
+      "focus": [
+        1439,
+        390,
+        943,
+        1300
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_classes",
+      "narration": "Choose metadata as the class basis and define two Classes using column I D values c1 and c2. These labels distinguish the two plate columns in the example. To train from your own cell annotations, choose the annotation basis and the label column you created in Annotate.",
+      "focus": [
+        350,
+        190,
+        1730,
+        1190
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_channel_of_interest",
+      "narration": "Set Channel of interest to one for the example. This controls which channel-specific measurement features enter the model. For your own experiment, select the channel that contains the signal relevant to your classes.",
+      "focus": [
+        350,
+        190,
+        1730,
+        820
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_n_estimators",
+      "narration": "Choose Random Forest, sixteen estimators and two worker jobs. Estimators controls the number of trees. More trees increase fitting work. Leave feature pruning and cross-validation off for this first pass; you can compare those choices after you have a working baseline.",
+      "focus": [
+        350,
+        190,
+        1730,
+        820
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_test_size",
+      "narration": "Set Test size to one tenth and keep grouping by well. spaCR holds out complete wells, so the final fraction of objects can differ from the requested fraction. Read the resolved split in the console and make sure it suits your experiment.",
+      "focus": [
+        350,
+        190,
+        1730,
+        820
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_plot",
+      "narration": "Enable Plot, clear the search and press Run. The console shows feature filtering, the training and test split, model fitting and the saved output paths. Wait for the run to finish before comparing its scores.",
+      "focus": [
+        350,
+        190,
+        1730,
+        1640
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_batch_finished",
+      "narration": "Find the results under results, random_forest, channel underscore one. The database stores the predicted class in predictions and the class-one probability in ml_pred. Objects missing required measurements can remain unscored; inspect missing values when exporting a summary.",
+      "focus": [
+        2090,
+        950,
+        1720,
+        600
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "25_ml_figure_02",
+      "narration": "Browse the feature-importance figures and plate heatmap. With Predictions and mean grouping, a well value is the average of its binary predicted classes. Use the saved object scores for detailed review, and compare held-out performance before applying the classifier to another experiment.",
+      "focus": [
+        2090,
+        190,
+        1720,
+        1200
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

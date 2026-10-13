@@ -1,0 +1,189 @@
+{
+  "payloads": [
+    {
+      "path": "README.txt",
+      "bytes": 980,
+      "sha256": "3b8e22e0f0e0c9b210b085b88ab7a55b8d4619acd2b9bc9736d42dd3c4ad5552"
+    },
+    {
+      "path": "api-ui-delta.json",
+      "bytes": 11820,
+      "sha256": "eb038b771e54798c4375c6a251213a7384f124add7955b38767154f5c52f4eea"
+    },
+    {
+      "path": "coverage/checkpoint-focused-coverage.json.gz",
+      "bytes": 73069,
+      "sha256": "e0b544bdcf55342f91ef22d9aad042077fa645be2185e4b2a9f4db2d713253a0"
+    },
+    {
+      "path": "logs/checkpoint-focused.log.gz",
+      "bytes": 282,
+      "sha256": "c9871c0525ceb3a549e52a2c8eb0dacb747d4fe839d938a3c31c2ffce9f598ba"
+    },
+    {
+      "path": "logs/checkpoint-visual.log.gz",
+      "bytes": 131,
+      "sha256": "c0e63cb3ea477b751ea603e5a997b43d0a4bc013a66bf1e07fbcaad53ebc49ed"
+    },
+    {
+      "path": "logs/combined-affected-first.log.gz",
+      "bytes": 970,
+      "sha256": "2e54eab845c64d7f684d0be4e0e84e3c2913f075b0ff11686edf9e86f8da3ff1"
+    },
+    {
+      "path": "logs/extract-delta.log.gz",
+      "bytes": 81,
+      "sha256": "bfa0262ea618e7eae0833fbb36db7fe36ada2e2c994ba8c36c78222f798c1037"
+    },
+    {
+      "path": "logs/final-focused.log.gz",
+      "bytes": 1644,
+      "sha256": "6275f5a0210bb296a4fea7cad40718ffb1b3afc47f99ee2224e093f403217eda"
+    },
+    {
+      "path": "logs/final2-focused.log.gz",
+      "bytes": 292,
+      "sha256": "b8809815a9aa98eeea6ad8ed80b08b9ad3fb5bbc639c9636e7f40af62bf1ae8d"
+    },
+    {
+      "path": "logs/geometry-checkpoint.log.gz",
+      "bytes": 256,
+      "sha256": "ec113e013ddfdf3a846ff49de322201f8c0e5829693bc6f0af80de74c2d244b4"
+    },
+    {
+      "path": "logs/geometry.log.gz",
+      "bytes": 711,
+      "sha256": "7d8fc2e5df9a25f7a225ad4e3a683cae567764585929a43eb8fd2b33c77c4524"
+    },
+    {
+      "path": "logs/gui-anchors-first.log.gz",
+      "bytes": 2316,
+      "sha256": "50ec44141ccd31fb0ec19173f8817c18eadadfba00e78fd686053efa43d380bf"
+    },
+    {
+      "path": "logs/gui-anchors-second.log.gz",
+      "bytes": 1258,
+      "sha256": "cc51b682812152372496754f3ff783e7667f83eeecf9acbac0b7b731c32a3b27"
+    },
+    {
+      "path": "logs/gui-boundaries-final.log.gz",
+      "bytes": 904,
+      "sha256": "cf5ec497c241493d3c43ba3afb15ea9b1d5ee16730a447bd6053c6ed231fc6de"
+    },
+    {
+      "path": "logs/gui-boundaries-fixed.log.gz",
+      "bytes": 53,
+      "sha256": "0cd5bb252d3044705e0f4fd218f6fd48afa4ffc1b4d757f21a3bdb401cb4ace1"
+    },
+    {
+      "path": "logs/gui-model-expanded.log.gz",
+      "bytes": 2826,
+      "sha256": "4a1cccfaf656d0514c973f7bffd3db9db426df8133264c6b898932a907005f91"
+    },
+    {
+      "path": "logs/interaction-after.log.gz",
+      "bytes": 1253,
+      "sha256": "654e2fba621dffae90c900a9ea7575662019e0359deddf8bdb7227c977ef88e5"
+    },
+    {
+      "path": "logs/interaction-before.log.gz",
+      "bytes": 947,
+      "sha256": "01dd502da31ca14ff40c04f73c71a0d746f81725db1dca87267960cca1d0a3b8"
+    },
+    {
+      "path": "logs/interaction-settled.log.gz",
+      "bytes": 50,
+      "sha256": "a3835d5874d6098313c50c350a56c6c509954048599d9a9a7a9c94b61a02efb3"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 5325,
+      "sha256": "6588ed6c4106e3272631a58c0efd3e276f3f2f12b41ce9dd471142099115b1dc"
+    },
+    {
+      "path": "repro/checkpoint_visual.py",
+      "bytes": 2218,
+      "sha256": "e2eb162d9c99ed2a3d74bfb960e7e812e3131cc9ca7a63308d681a40c4966275"
+    },
+    {
+      "path": "repro/extract_checkpoint_delta.py",
+      "bytes": 2734,
+      "sha256": "202544ecd3bee6b66f48e7f33e3c34676272e5808338a69ad156390deffb62c7"
+    },
+    {
+      "path": "source/after/spacr/qt/screens/gate_editor.py.gz",
+      "bytes": 28943,
+      "sha256": "addf51477d999d2baadce2ee9c47fe66b701c49d35618582154309ffad9aab83"
+    },
+    {
+      "path": "source/after/spacr/qt/widgets/gate_editor.py.gz",
+      "bytes": 53746,
+      "sha256": "9eb358758535de9c0ce45b0af19a3c8fe6909f2e0c34604d06a0b212c033dede"
+    },
+    {
+      "path": "source/after/spacr/qt/widgets/gate_settings.py.gz",
+      "bytes": 12508,
+      "sha256": "a2ddfc60fd1f1f78243584f7d4b6d9bfd3da018889806e55b1d57bd0e6161b80"
+    },
+    {
+      "path": "source/after/spacr/qt/widgets/gate_spec.py.gz",
+      "bytes": 42776,
+      "sha256": "425c759e3b5429f3ec9d169d635ccc4abecb889e09df9790aafef270e9ad5d99"
+    },
+    {
+      "path": "source/after/tests/qt/test_gate_editable_anchors_and_surfaces.py.gz",
+      "bytes": 6189,
+      "sha256": "cf4519b902d23dd3a520e8d37b0ccbc942c746edfd4f0dbe9566acba04eb62b9"
+    },
+    {
+      "path": "source/after/tests/test_gate_editable_volume.py.gz",
+      "bytes": 4212,
+      "sha256": "5619243c9f9fa03b751cd2e8f31af4bb9db208269e763b2b621c185507b86ca1"
+    },
+    {
+      "path": "source/before/spacr/qt/screens/gate_editor.py.gz",
+      "bytes": 28584,
+      "sha256": "38e507cab0dc70d740e34107f5bca254cdbc4807e4fb16c1ce1b9024774ede72"
+    },
+    {
+      "path": "source/before/spacr/qt/widgets/gate_editor.py.gz",
+      "bytes": 49493,
+      "sha256": "f1f145f014837d1307ad54b2a1c2ec84d069ffd238edcc098cbf812b47c02098"
+    },
+    {
+      "path": "source/before/spacr/qt/widgets/gate_settings.py.gz",
+      "bytes": 12032,
+      "sha256": "ba997da5e349447e8a296e42ee3ae52fb3de27fad6ae2dfc37916c3dc56bfbdd"
+    },
+    {
+      "path": "source/before/spacr/qt/widgets/gate_spec.py.gz",
+      "bytes": 34918,
+      "sha256": "93908cf288b54e72d233525ba79b5b83bdf224d2d0b26281432afd15f7d6e7cd"
+    },
+    {
+      "path": "stills/box-anchors.png",
+      "bytes": 181485,
+      "sha256": "6da2e83805b4a817d9e3b21eed40051e7feb4d9f869589d9b915e3dcdec6c371"
+    },
+    {
+      "path": "stills/cylinder-depth-anchors.png",
+      "bytes": 175227,
+      "sha256": "28727d7b9b975f7acc8776e0b194c50d978a39da3f09692b1fd8c4bd2c5e965a"
+    },
+    {
+      "path": "stills/edited-adjacent-surfaces.png",
+      "bytes": 179483,
+      "sha256": "e4a2912aef008f2d7465eaad18ef1836372c98de9a4f3742804df8c742f172d6"
+    },
+    {
+      "path": "verify.py",
+      "bytes": 847,
+      "sha256": "7a6d1d8af752c48b7823ce32171a2b4dd67edf3d37282dc034086deadd1f5871"
+    },
+    {
+      "path": "visual-receipt.json",
+      "bytes": 2268,
+      "sha256": "7957008dacd87f65b67b948b5532fa7044ddcde4c7dcc60afbd66440a96ddc68"
+    }
+  ]
+}

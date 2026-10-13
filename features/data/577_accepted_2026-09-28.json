@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "item": 577,
+  "date": "2026-09-28",
+  "status": "DONE AS ALPHA",
+  "base_commit": "4014dbdef10966e90d89df0c26cf304dc0e052fc",
+  "source_sha256": {
+    "spacr/run_journal.py": "07da45e89daec6cba9a11d8c08da42217187bab717b2e29b0c4f6193ed5226a8",
+    "spacr/qt/preferences.py": "9ac13cb62d6da200e4bef8629cc07a6e02f5848f75d78e8b00d095931d3cb1be",
+    "spacr/settings.py": "e32579ef090ce5801e998c954a0e06de414ef42daf1426b6fa4a3f2b36af5c66",
+    "tests/test_run_finished_notifications.py": "1ee27c1df5180784155a631d24f5a464a403b31f1e34ea22ea244ac65b86fe88",
+    "tests/qt/test_run_finished_notifications_preferences.py": "169c3113c64b433663216ae463db6b2c99eb547178bb4356887b4f27ef8ee941"
+  },
+  "behavior": {
+    "channels": [
+      "desktop",
+      "email",
+      "Slack",
+      "ntfy",
+      "Microsoft Teams",
+      "webhook"
+    ],
+    "acceptance": "Finished and failed runs each send one summary against local receivers.",
+    "alpha": "Hidden and inactive until Show alpha features is enabled.",
+    "secrets": "Keyring or mode-600 fallback; blank saves and Reset retain secrets; Forget removes them.",
+    "teams": "Workflow AdaptiveCard 1.2; generated webhook must allow Anyone.",
+    "webhook": "JSON title/body/failed with optional Bearer token.",
+    "external_notifications_sent": false
+  },
+  "validation": {
+    "unique_passed": 268,
+    "runs": [
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/pytest-20260928T010421-2753826.log.xml",
+        "sha256": "cc9b0a86233f8e965ccdfd213fd1ab0c03924c6853d296f41192c5f1bcede386",
+        "cases": 268,
+        "failed": 3,
+        "exit": 1
+      },
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/recheck-20260928T012008-2828513.log.xml",
+        "sha256": "98220539d2c883c6b08019b4562cf7c556752af4978e32e5dcf1289d10a7a2c6",
+        "cases": 3,
+        "failed": 2,
+        "exit": 1
+      },
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/recheck-20260928T012823-2882946.log.xml",
+        "sha256": "cbf1d4ab965f40862c596224d0d85b6d422b9f0a72619738abe327a7f5e7716a",
+        "cases": 2,
+        "failed": 0,
+        "exit": 0
+      }
+    ],
+    "cap": "4G",
+    "private_home": true,
+    "qt": "offscreen",
+    "gpu_hidden": true,
+    "original_failures_retained": true,
+    "item_cases": [
+      "tests.test_run_finished_notifications::test_a_slow_channel_never_holds_up_the_run",
+      "tests.test_run_finished_notifications::test_a_secret_goes_to_the_os_keyring_when_there_is_one",
+      "tests.test_run_finished_notifications::test_new_webhooks_report_missing_or_non_http_addresses[-webhook-webhook_url]",
+      "tests.test_run_finished_notifications::test_a_failed_run_sends_one_notification_and_still_raises",
+      "tests.test_run_finished_notifications::test_new_webhooks_report_missing_or_non_http_addresses[file:///tmp/local-secret-teams-teams_webhook]",
+      "tests.test_run_finished_notifications::test_a_finished_run_sends_one_notification_with_its_summary",
+      "tests.test_run_finished_notifications::test_a_generic_webhook_can_receive_without_a_bearer_token",
+      "tests.test_run_finished_notifications::test_the_message_reads_as_a_short_summary",
+      "tests.test_run_finished_notifications::test_a_broken_new_webhook_does_not_stop_other_channels[teams]",
+      "tests.test_run_finished_notifications::test_a_broken_channel_fails_alone_and_logs_no_secret",
+      "tests.test_run_finished_notifications::test_a_secret_without_a_keyring_goes_to_a_mode_600_file",
+      "tests.test_run_finished_notifications::test_new_webhook_error_details_redact_addresses_and_tokens",
+      "tests.test_run_finished_notifications::test_runs_that_should_stay_quiet_send_nothing",
+      "tests.test_run_finished_notifications::test_nothing_the_notifier_does_can_fail_a_run",
+      "tests.test_run_finished_notifications::test_a_broken_new_webhook_does_not_stop_other_channels[webhook]",
+      "tests.test_run_finished_notifications::test_new_webhooks_report_missing_or_non_http_addresses[-teams-teams_webhook]",
+      "tests.test_run_finished_notifications::test_new_webhooks_report_missing_or_non_http_addresses[file:///tmp/local-secret-webhook-webhook_url]",
+      "tests.qt.test_run_finished_notifications_preferences::test_reopened_a_saved_secret_is_not_shown_and_reset_keeps_it",
+      "tests.qt.test_run_finished_notifications_preferences::test_the_desktop_relay_reaches_the_gui_thread",
+      "tests.qt.test_run_finished_notifications_preferences::test_send_a_test_reports_what_got_through",
+      "tests.qt.test_run_finished_notifications_preferences::test_notifications_are_off_on_a_fresh_install",
+      "tests.qt.test_run_finished_notifications_preferences::test_new_channels_save_reopen_reset_and_forget_without_changing_recipients",
+      "tests.qt.test_run_finished_notifications_preferences::test_shown_the_tab_saves_and_the_run_is_announced",
+      "tests.qt.test_run_finished_notifications_preferences::test_new_channels_require_saved_addresses_before_a_run_can_send",
+      "tests.qt.test_run_finished_notifications_preferences::test_hidden_the_tab_is_not_built_and_nothing_fires",
+      "tests.qt.test_run_finished_notifications_preferences::test_send_a_test_uses_the_new_webhooks_without_saving"
+    ]
+  }
+}

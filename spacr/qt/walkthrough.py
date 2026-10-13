@@ -1,0 +1,723 @@
+"""Per-module walkthroughs — the coach-marks, once per module, on demand.
+
+:mod:`spacr.qt.first_run` shows one tour, once, about the home screen. That
+answered "where am I?" and nothing else: a user who has seen it still opens
+Mask for the first time and meets 190 settings under thirteen headings with
+no idea which two of them matter, and there is no way to ask again.
+
+This module makes the tour per module and repeatable:
+
+* the first time a module is opened, its own short walkthrough runs;
+* every walkthrough is available afterwards from **Help → Walkthroughs**,
+  and from the command palette, for any module — not only the one on
+  screen;
+* "seen" is tracked per module, so a new module added to the shell next
+  release introduces itself to an existing user rather than staying silent
+  because the one global flag was set in 2026.
+
+A walkthrough is built from the module's own settings layout rather than
+hand-written per module, so it stays current: the steps name the
+module's first curated group and its essential settings, both of which come
+from :mod:`spacr.qt.screens.settings_model`, so a layout change updates the
+walkthrough with it. Modules that want more can register extra steps::
+
+    from spacr.qt.walkthrough import register_steps
+    register_steps("mask", [WalkStep("Test mode first", "...")])
+
+Reuses :class:`spacr.qt.first_run._TourOverlay` for the rendering, because a
+second dimmed-overlay-with-a-card would be a second thing to keep looking
+like the first one.
+"""
+from __future__ import annotations
+
+import logging
+from . import _after
+from dataclasses import dataclass
+from typing import Callable, Dict, List, Optional
+
+from PySide6.QtCore import QObject, Qt
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QMainWindow, QMenu, QWidget
+
+from .first_run import TourStep, _TourOverlay, find_menu
+from .i18n import tr
+from .prefs import _store_args
+
+LOG = logging.getLogger("spacr.qt.walkthrough")
+
+_ORG = "spacr"
+_APP = "qt"
+_KEY_SEEN = "onboarding/module_walkthrough_seen"
+
+#: The Help submenu label. Kept verbatim — ``spacr/qt/i18n.py`` keys its
+#: catalog on the English string.
+MENU_TITLE = "Walkthroughs"
+
+
+def _settings():
+    """Open spaCR's ``QSettings``.
+
+    Imported inside the call so this module can be read without Qt.
+
+    :returns: the settings store.
+    """
+    from PySide6.QtCore import QSettings
+    return QSettings(*_store_args(_ORG, _APP))
+
+
+
+def was_seen(app_key: str) -> bool:
+    """True once ``app_key``'s walkthrough has been finished or dismissed.
+
+    :param app_key: the module's registry key; its seen flag is read from
+        spaCR's ``QSettings``.
+    """
+    raw = _settings().value(f"{_KEY_SEEN}/{app_key}", False)
+    if isinstance(raw, bool):
+        return raw
+    return str(raw).lower() in ("true", "1", "yes")
+
+
+def mark_seen(app_key: str) -> None:
+    """Remember that ``app_key``'s walkthrough has been shown.
+
+    :param app_key: the module's registry key; its seen flag is set in
+        spaCR's ``QSettings``.
+    """
+    _settings().setValue(f"{_KEY_SEEN}/{app_key}", True)
+
+
+def reset(app_key: Optional[str] = None) -> None:
+    """Forget one module's walkthrough, or every module's.
+
+    :param app_key: the module to reset, or ``None`` for all of them.
+    """
+    store = _settings()
+    if app_key is None:
+        store.remove(_KEY_SEEN)
+    else:
+        store.remove(f"{_KEY_SEEN}/{app_key}")
+
+
+
+@dataclass
+class WalkStep:
+    """One narrated coach-mark in a module walkthrough.
+
+    :ivar title: short headline.
+    :ivar body: one or two sentences under it.
+    :ivar highlight: callable taking the live screen and returning the
+        widget to ring, or ``None`` to centre the card.
+    """
+    title: str
+    body: str
+    highlight: Optional[Callable[[QWidget], Optional[QWidget]]] = None
+
+
+#: Module-specific extra steps, appended after the derived ones.
+_EXTRA_STEPS: Dict[str, List[WalkStep]] = {}
+
+
+def register_steps(app_key: str, steps: List[WalkStep],
+                   *, replace: bool = False) -> None:
+    """Add module-specific steps to ``app_key``'s walkthrough.
+
+    The seam a module uses to say something the layout cannot — "run test
+    mode on three fields before committing a plate" is advice, not
+    structure, and no amount of reading the settings map produces it.
+
+    :param app_key: the module's app key.
+    :param steps: steps appended after the derived ones.
+    :param replace: overwrite an existing registration instead of raising.
+    :raises ValueError: on a second registration without ``replace``.
+    """
+    key = str(app_key)
+    if key in _EXTRA_STEPS and not replace:
+        raise ValueError(
+            f"walkthrough steps for {key!r} are already registered; pass "
+            "replace=True if that is really what you mean")
+    _EXTRA_STEPS[key] = list(steps)
+
+
+def unregister_steps(app_key: str) -> bool:
+    """Drop a module's registered steps. ``True`` if there were any.
+
+    :param app_key: the module's registry key, as passed to
+        :func:`register_steps`.
+    """
+    return _EXTRA_STEPS.pop(str(app_key), None) is not None
+
+
+def _module_name(app_key: str) -> str:
+    """Return a module's display name.
+
+    :param app_key: the registry key.
+    :returns: the name the registry gives it, falling back to the key --
+        a walkthrough that says ``map_barcodes`` is worse than one that says
+        nothing, but better than one that fails to build.
+    """
+    try:
+        from .app import APPS
+        for row in APPS:
+            if row[0] == app_key:
+                return str(row[1])
+    except Exception:
+        pass
+    return app_key
+
+
+def _sentence(names: List[str]) -> str:
+    """Join names into readable English.
+
+    :param names: the names to join.
+    :returns: ``""``, one name, or a comma list ending in "and" -- so a
+        sentence about three modules reads as prose rather than as a list.
+    """
+    if not names:
+        return ""
+    if len(names) == 1:
+        return names[0]
+    return ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def build_steps(app_key: str) -> List[WalkStep]:
+    """The walkthrough for one module, derived from its settings layout.
+
+    Four beats, in the order somebody actually works: what the module is,
+    where its inputs go, which settings matter out of how many, and how to
+    run it. Every fact in them is read from the registry or the layout, so
+    none of them can go stale the way a hand-written paragraph does.
+
+    :param app_key: the module's app key.
+    """
+    if app_key.startswith("pathway:"):
+        return _pathway_steps(app_key.partition(":")[2])
+    name = _module_name(app_key)
+    steps: List[WalkStep] = []
+
+    intro = ""
+    try:
+        from .app import APPS
+        for row in APPS:
+            if row[0] == app_key:
+                intro = str(row[2])
+                break
+    except Exception:
+        intro = ""
+    steps.append(WalkStep(
+        title=name,
+        body=(intro or f"This is the {name} module.")
+             + " Press Esc at any time to close this walkthrough; you can "
+               "reopen it from Help → Walkthroughs.",
+        highlight=None,
+    ))
+
+    groups: List[str] = []
+    essentials: List[str] = []
+    total = 0
+    try:
+        from .screens.settings_model import (
+            categories_for_app, essential_keys, get_categories,
+            resolve_default_settings,
+        )
+        cats = categories_for_app(app_key, get_categories())
+        defaults = resolve_default_settings(app_key)
+        groups = [name for name, keys in cats.items()
+                  if any(k in defaults for k in keys)]
+        essentials = [k for k in essential_keys(app_key, cats)
+                      if k in defaults]
+        total = len(defaults)
+    except Exception:
+        LOG.debug("could not read the layout for %r", app_key, exc_info=True)
+
+    if groups:
+        steps.append(WalkStep(
+            title="Start at the top",
+            body=(f"The settings are grouped into {len(groups)}: "
+                  f"{_sentence(groups[:4])}"
+                  + (", and more." if len(groups) > 4 else ".")
+                  + f" “{groups[0]}” is where you point the module at your "
+                    "data; everything below it assumes that is right."),
+            highlight=_first_section,
+        ))
+
+    if essentials and total:
+        steps.append(WalkStep(
+            title=f"{len(essentials)} settings, not {total}",
+            body=(f"The strip above the form opens on Essentials — the "
+                  f"{len(essentials)} settings this module cannot run "
+                  f"without. Switch it to All settings for the other "
+                  f"{total - len(essentials)}, or type in the search box to "
+                  "find one by name or by what its description says it "
+                  "does."),
+            highlight=_search_bar,
+        ))
+
+    steps.append(WalkStep(
+        title="Run it",
+        body=("Run starts the module and streams its log into the console "
+              "below. Once a set of settings works, save it as a recipe to "
+              "load it again for the next plate."),
+        highlight=_run_button,
+    ))
+
+    steps.extend(_EXTRA_STEPS.get(str(app_key), []))
+    return steps
+
+
+def _first_section(screen: QWidget) -> Optional[QWidget]:
+    """Find the settings category a walkthrough should point at.
+
+    :param screen: the module screen.
+    :returns: the first VISIBLE section, falling back to the first of any --
+        pointing at a section the user cannot see would highlight nothing.
+        ``None`` when the screen has no sections.
+    """
+    sections = getattr(screen, "_settings_sections", None) or []
+    for section in sections:
+        if section.isVisible():
+            return section
+    return sections[0] if sections else None
+
+
+def _search_bar(screen: QWidget) -> Optional[QWidget]:
+    """Find a screen's settings search strip.
+
+    :param screen: the module screen.
+    :returns: the strip, or ``None`` when the screen has none.
+    """
+    return getattr(screen, "_settings_search", None)
+
+
+def _run_button(screen: QWidget) -> Optional[QWidget]:
+    """Find a screen's Run button.
+
+    The known attribute names are tried first and a search by label second,
+    because screens that build themselves rather than being the generic
+    ``AppScreen`` name the button whatever suited them.
+
+    :param screen: the module screen.
+    :returns: the button, or ``None`` when the screen has none to point at.
+    """
+    for attr in ("_btn_run", "_run_btn", "_btn_start"):
+        widget = getattr(screen, attr, None)
+        if widget is not None:
+            return widget
+    from PySide6.QtWidgets import QPushButton
+    for button in screen.findChildren(QPushButton):
+        if button.text().strip().lower() == "run":
+            return button
+    return None
+
+
+
+def _already_current(window, app_key: str) -> bool:
+    """Whether ``app_key``'s screen is the one the window is already showing.
+
+    ``QStackedWidget.currentChanged`` fires AFTER the screen has been made
+    current, and the automatic walkthrough listens to it -- so navigating
+    unconditionally re-entered ``_on_nav_selected`` for the module already on
+    screen. That second trip ran BEFORE the outer call had installed its
+    readiness watcher, so the outer call then replaced the nested probe.
+
+    FAILS TOWARD NAVIGATING. A window that cannot say what it is showing gets
+    navigated to, which costs one redundant trip; skipping on a bad reading
+    would leave the walkthrough highlighting a screen nobody is looking at,
+    which is the more expensive mistake.
+
+    :param window: the live main window.
+    :param app_key: the module about to be walked through.
+    :returns: True only when the stack says that module is current.
+    """
+    try:
+        current = window._stack.currentWidget()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the current screen; navigating anyway",
+                  exc_info=True)
+        return False
+    return current is not None and getattr(current, "app_key", None) == app_key
+
+
+def show_walkthrough(window: QMainWindow, app_key: str,
+                     *, force: bool = True) -> Optional[_TourOverlay]:
+    """Run ``app_key``'s walkthrough over ``window``.
+
+    Navigates to the module first — a walkthrough that highlights a settings
+    group on a screen the user is not looking at highlights nothing.
+
+    :param window: the live main window.
+    :param app_key: the module to walk through.
+    :param force: show even when it has been seen before. The default, since
+        every route to this function except the automatic one is somebody
+        asking for it.
+    :returns: the overlay, or ``None`` when it was skipped.
+    """
+    if app_key.startswith("pathway:"):
+        return _show_pathway(window, app_key.partition(":")[2])
+    if not force and was_seen(app_key):
+        return None
+    screen = None
+    try:
+        nav = getattr(window, "_on_nav_selected", None)
+        if callable(nav) and not _already_current(window, app_key):
+            nav(app_key)
+        screen = window._screens.get(app_key)
+    except Exception:
+        LOG.debug("could not open %r for its walkthrough", app_key,
+                  exc_info=True)
+    steps = build_steps(app_key)
+    if not steps:
+        return None
+    target = screen if screen is not None else window
+    tour = [
+        TourStep(
+            title=step.title,
+            body=step.body,
+            highlight=_bind_highlight(step.highlight, target),
+        )
+        for step in steps
+    ]
+    overlay = _TourOverlay(window, tour, on_finish=_Seen(app_key).mark)
+    overlay.show()
+    overlay.raise_()
+    overlay.setFocus()
+    return overlay
+
+
+def _workflow_map():
+    """Read the bundled, source-checked module and pathway contracts."""
+    import json
+    from importlib.resources import files
+    return json.loads((files("spacr") / "resources" / "module_workflows.json")
+                      .read_text(encoding="utf-8"))
+
+
+def _pathway_steps(key):
+    """Use exactly the actions shared with the API and tutorial source map."""
+    data = _workflow_map()
+    route = data["pathways"][key]
+    first = data["modules"][route["home_app"]]["name"]
+    steps = [WalkStep(tr("Home"), tr(
+        "Start on Home with {module}. Next shows the route; it does not run the analysis. "
+        "Close the walkthrough whenever you are ready to work.", module=tr(first)))]
+    steps.extend(WalkStep(tr(data["modules"][step["module"]]["name"]),
+                          tr(step["action"])) for step in route["steps"])
+    if route.get("note"):
+        steps.append(WalkStep(tr(route["title"]), tr(route["note"])))
+    return steps
+
+
+class _PathwayOverlay(_TourOverlay):
+    """A guided route that opens screens without loading data or running jobs."""
+
+    def __init__(self, window, key, data):
+        """Keep the same pathway record used to build the displayed steps."""
+        self._route = data["pathways"][key]
+        self._modules = data["modules"]
+        super().__init__(window, [TourStep(step.title, step.body)
+                                 for step in _pathway_steps(key)],
+                         on_finish=self._release, translated=True)
+
+    def _release(self):
+        """Restore automatic module tours when this route ends."""
+        self._window._pathway_walkthrough_active = False
+
+    def _next(self):
+        """Open the next module's host, leaving nested actions for the user."""
+        next_index = self._idx
+        if next_index < len(self._route["steps"]):
+            module = self._modules[self._route["steps"][next_index]["module"]]
+            target = module["parent"] or module["home"]
+            if target:
+                self._window._on_nav_selected(target)
+        super()._next()
+        if self._idx < len(self._steps):
+            self.raise_()
+            self.setFocus()
+
+
+def _show_pathway(window, key):
+    """Begin a mapped pathway at Home and suppress overlapping module tours."""
+    data = _workflow_map()
+    if key not in data["pathways"]:
+        raise KeyError(key)
+    for previous in window.findChildren(_TourOverlay):
+        try:
+            previous._finish()
+        except RuntimeError:
+            pass
+    window._pathway_walkthrough_active = True
+    try:
+        window._on_nav_selected("__home__")
+        overlay = _PathwayOverlay(window, key, data)
+    except Exception:
+        window._pathway_walkthrough_active = False
+        raise
+    window._pathway_overlay = overlay
+    overlay.show()
+    overlay.raise_()
+    overlay.setFocus()
+    return overlay
+
+
+class _Seen:
+    """Bound-method callback marking one module's walkthrough seen.
+
+    A tiny object rather than a lambda so the overlay's finish callback is a
+    bound method — a closure over ``app_key`` would keep whatever else was
+    in that frame alive for as long as the overlay lived.
+
+    :param app_key: which module to mark. THE ONLY STATE THIS HOLDS, which
+        is the point -- a closure over it would keep the rest of the frame
+        alive for as long as the overlay.
+    """
+
+    def __init__(self, app_key: str):
+        """Hold the module key and nothing else."""
+        self._app_key = app_key
+
+    def mark(self) -> None:
+        """Record that this module's walkthrough has been shown."""
+        mark_seen(self._app_key)
+
+
+class _Highlight:
+    """Bound-method adapter from a step's screen-taking highlight to the
+    window-taking one :class:`spacr.qt.first_run.TourStep` expects.
+
+    :param fn: the step's highlight, which takes a screen.
+    :param target: the screen to hand it. Bound HERE rather than resolved
+        when called, so the step highlights the screen the tour was built
+        for even if another is on top by the time it runs.
+    """
+
+    def __init__(self, fn, target):
+        """Bind the step's highlight to the screen it was built for."""
+        self._fn = fn
+        self._target = target
+
+    def __call__(self, _window):
+        """Highlight the bound screen, swallowing any failure.
+
+        A decoration that raises would stop the tour, and a tour that cannot get
+        past a step is worse than one that misses a highlight.
+        """
+        try:
+            return self._fn(self._target)
+        except Exception:
+            return None
+
+
+def _bind_highlight(fn, target):
+    """Bind a highlight resolver to its target.
+
+    :param fn: the resolver, or ``None``.
+    :param target: what to resolve against.
+    :returns: the bound highlight, or ``None`` when there is no resolver --
+        so a step without one is a step that highlights nothing rather than
+        one that raises.
+    """
+    if fn is None:
+        return None
+    return _Highlight(fn, target)
+
+
+def maybe_show(window: QMainWindow, app_key: str) -> Optional[_TourOverlay]:
+    """Show ``app_key``'s walkthrough if this user has not seen it.
+
+    Called when a module is opened. Per module, so a module added next
+    release introduces itself instead of being silenced by a flag set the
+    first time the app ever ran.
+
+    :param window: the main window the walkthrough is shown over.
+    :param app_key: the module's registry key; nothing is shown when
+        :func:`was_seen` is already true for it.
+    """
+    if was_seen(app_key):
+        return None
+    return show_walkthrough(window, app_key, force=True)
+
+
+
+_OFFER_AFTER_MS = 30
+
+
+class _WalkthroughHandler(QObject):
+    """Bound-method targets for the menu entries and the screen stack."""
+
+    def __init__(self, window: QMainWindow):
+        """Watch a window's stack for the first visit to each module.
+
+        :param window: the main window. ALSO THE QOBJECT PARENT, so the
+            handler cannot outlive the window whose stack it reads -- a
+            ``currentChanged`` arriving after teardown would otherwise reach
+            a handler holding a deleted stack.
+        """
+        super().__init__(window)
+        self._window = window
+
+    def on_current_changed(self, _index: int) -> None:
+        """Offer the walkthrough the first time a module is opened."""
+        if getattr(self._window, "_pathway_walkthrough_active", False):
+            return
+        try:
+            screen = self._window._stack.currentWidget()
+            app_key = str(getattr(screen, "app_key", "") or "")
+        except Exception:
+            return
+        if not app_key or was_seen(app_key):
+            return
+        if getattr(screen, "_settings_model", None) is None:
+            return
+        from PySide6.QtCore import QTimer
+
+        _after(_OFFER_AFTER_MS, self, lambda: self._offer(app_key))
+
+    def _offer(self, app_key: str) -> None:
+        """Show ``app_key``'s walkthrough if its screen is still the one on show.
+
+        RUN A MOMENT AFTER THE SWITCH, NOT INSIDE IT. ``currentChanged`` is
+        emitted from inside the stack's switch, which is also where the new
+        screen is first shown and styled; building the overlay there added
+        its cost to that one freeze (80-150 ms of a first Mask or Analyze
+        Plaques open, measured). A timer lets the event loop turn and the
+        screen paint first. Everything the switch checked is checked again,
+        because the user may have moved on in between. The wait,
+        :data:`_OFFER_AFTER_MS`, is long enough for the loop to turn and
+        short enough to read as part of the opening.
+        """
+        if getattr(self._window, "_pathway_walkthrough_active", False):
+            return
+        try:
+            screen = self._window._stack.currentWidget()
+            if str(getattr(screen, "app_key", "") or "") != app_key:
+                return
+        except Exception:
+            return
+        if was_seen(app_key):
+            return
+        maybe_show(self._window, app_key)
+
+    def on_reset(self, _checked: bool = False) -> None:
+        """Clear every module's seen flag so the walkthroughs run again."""
+        reset()
+
+
+class _MenuTrigger(QObject):
+    """One module's Help-menu entry."""
+
+    def __init__(self, window: QMainWindow, app_key: str):
+        """Bind one Help-menu entry to one module's walkthrough.
+
+        :param window: the main window the walkthrough is shown over; also
+            the QObject parent.
+        :param app_key: which module's walkthrough this entry runs. Fixed at
+            construction, so the entry runs ITS module rather than whatever
+            happens to be on screen when it is chosen.
+        """
+        super().__init__(window)
+        self._window = window
+        self._app_key = app_key
+
+    def on_triggered(self, _checked: bool = False) -> None:
+        """Run this entry's walkthrough."""
+        show_walkthrough(self._window, self._app_key, force=True)
+
+
+def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
+    """Add a **Walkthroughs** submenu listing every module.
+
+    Every module, not only the one on screen: the question "how does
+    Measure work?" is usually asked from somewhere that is not Measure.
+
+    :param window: the main window; the submenu is inserted into its
+        menu-bar Help menu, before the first separator, and the window keeps
+        the submenu and the handler it creates.
+    :returns: the submenu, or ``None`` when there is no Help menu or one is
+        already installed.
+    """
+    help_menu = find_menu(window, "Help")
+    if help_menu is None:
+        return None
+    for act in help_menu.actions():
+        if act.text().replace("&", "") == MENU_TITLE:
+            return None
+    handler = getattr(window, "_walkthrough_handler", None)
+    if handler is None:
+        handler = _WalkthroughHandler(window)
+        window._walkthrough_handler = handler
+
+    submenu = QMenu(MENU_TITLE, window)
+    submenu.setToolTipsVisible(True)
+    for key, route in _workflow_map()["pathways"].items():
+        action = QAction(tr(route["title"]), submenu)
+        action.setProperty("workflowPathway", key)
+        trigger = _MenuTrigger(window, "pathway:" + key)
+        action.triggered.connect(trigger.on_triggered)
+        action._spacr_walkthrough_trigger = trigger
+        submenu.addAction(action)
+    submenu.addSeparator()
+    try:
+        from .app import APPS, app_is_visible
+        rows = [row for row in APPS if app_is_visible(row[0])]
+    except Exception:
+        rows = []
+    for key, name, desc, _section in rows:
+        action = QAction(str(name), submenu)
+        action.setStatusTip(str(desc))
+        action.setProperty("moduleAppKey", key)
+        action.setProperty("moduleNameSource", str(name))
+        action.setProperty("moduleSummarySource", str(desc))
+        trigger = _MenuTrigger(window, key)
+        action.triggered.connect(trigger.on_triggered)
+        action._spacr_walkthrough_trigger = trigger
+        submenu.addAction(action)
+    if rows:
+        submenu.addSeparator()
+    reset_action = QAction("Show all walkthroughs again", submenu)
+    reset_action.setStatusTip(
+        "Clear the record of which walkthroughs you have seen, so each "
+        "module introduces itself once more.")
+    reset_action.triggered.connect(handler.on_reset)
+    submenu.addAction(reset_action)
+
+    before = None
+    for act in help_menu.actions():
+        if act.isSeparator():
+            before = act
+            break
+    if before is not None:
+        help_menu.insertMenu(before, submenu)
+    else:
+        help_menu.addMenu(submenu)
+    from .menus import pin_menu_roles
+    pin_menu_roles(list(submenu.actions()) + [submenu.menuAction()])
+
+    window._walkthrough_menu = submenu
+    return submenu
+
+
+def install_window_hooks(window: QMainWindow) -> Optional[_WalkthroughHandler]:
+    """Wire the walkthroughs into a live main window.
+
+    Called once from :func:`spacr.qt.shortcuts.install`.
+
+    :param window: the main window; gets the Help-menu submenu, and its
+        ``_stack`` screen stack (when present) is followed so each module's
+        walkthrough is offered on the first visit. Wiring twice is a no-op.
+    """
+    install_help_menu(window)
+    handler = getattr(window, "_walkthrough_handler", None)
+    if handler is None:
+        handler = _WalkthroughHandler(window)
+        window._walkthrough_handler = handler
+    stack = getattr(window, "_stack", None)
+    if stack is None or getattr(window, "_walkthrough_wired", False):
+        return handler
+    try:
+        stack.currentChanged.connect(handler.on_current_changed)
+    except Exception:
+        LOG.debug("could not follow the screen stack", exc_info=True)
+        return handler
+    window._walkthrough_wired = True
+    return handler

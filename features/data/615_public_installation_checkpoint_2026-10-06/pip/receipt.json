@@ -1,0 +1,132 @@
+{
+  "route": "Public PyPI, clean Python venv, no system packages",
+  "folder": "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565",
+  "steps": [
+    {
+      "name": "01_create",
+      "command": [
+        "/tmp/conda/envs/spacr12/bin/python",
+        "-m",
+        "venv",
+        "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/venv"
+      ],
+      "log": "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/01_create.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 1.366,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "02_upgrade_pip",
+      "command": [
+        "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--index-url",
+        "https://pypi.org/simple",
+        "--upgrade",
+        "pip"
+      ],
+      "log": "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/02_upgrade_pip.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 0.865,
+      "log_sha256": "5ae6824b1e9543e2fc675987f7c2853790b027d4b181eccda7972c3841fbd8eb"
+    },
+    {
+      "name": "03_install",
+      "command": [
+        "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--index-url",
+        "https://pypi.org/simple",
+        "--report",
+        "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/install-report.json",
+        "spacr==1.5.1.3"
+      ],
+      "log": "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/03_install.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 82.547,
+      "log_sha256": "706c6e3d1649148930b2db9402bb035f9e460f203c88e3b46927b3bc05472bc8"
+    },
+    {
+      "name": "04_dependency_check",
+      "command": [
+        "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "log": "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/04_dependency_check.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 1.116,
+      "log_sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+    },
+    {
+      "name": "05_import",
+      "command": [
+        "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/venv/bin/python",
+        "-I",
+        "-c",
+        "import json,sys,pathlib,importlib.metadata as m,spacr,PySide6,torch; assert m.version(\"spacr\")=='1.5.1.3'; assert pathlib.Path(spacr.__file__).resolve().is_relative_to(pathlib.Path(sys.prefix)); print(json.dumps(dict(python=sys.executable,prefix=sys.prefix,spacr=spacr.__version__, location=spacr.__file__,qt=PySide6.__version__,torch=torch.__version__, cuda_available=torch.cuda.is_available()),indent=2))"
+      ],
+      "log": "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/05_import.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 4.221,
+      "log_sha256": "954359ffa61b1312a1627d520dd33a30766d720cd4d4fe7e06e6030de4b757dd"
+    },
+    {
+      "name": "06_doctor",
+      "command": [
+        "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/venv/bin/spacr-doctor",
+        "--json",
+        "--no-gpu-probe"
+      ],
+      "log": "/tmp/spacr-tutorials/installation_runs/public-pypi-1x7rw565/06_doctor.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 12.529,
+      "log_sha256": "2fb6ecfad46b6bb21e6c3a200907c1475e1051fe595a4e6da678f91309f2543f"
+    }
+  ],
+  "accepted": true,
+  "source_checkout_installed": false,
+  "published": false,
+  "pypi": {
+    "url": "https://pypi.org/pypi/spacr/json",
+    "response_sha256": "de8fb2cd6a55451283ac085a9c4e14f084a3cf3d7a6171d4c805993b25625da5",
+    "version": "1.5.1.3",
+    "requires_python": "!=3.14.1,<3.15,>=3.9",
+    "files": [
+      {
+        "filename": "spacr-1.5.1.3-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/a9/59/e2c755c83dac93aaa21b86328359b3f3926e687dbe4d262a685be0dacbe5/spacr-1.5.1.3-py3-none-any.whl",
+        "size": 41765991,
+        "digests": {
+          "blake2b_256": "a959e2c755c83dac93aaa21b86328359b3f3926e687dbe4d262a685be0dacbe5",
+          "md5": "2b71e491404657b9e86d36cdd9ae6107",
+          "sha256": "3d9ef2d0c85985582ee1ae05103b2376d397e7b5a0e19e92684a28decfd60a4b"
+        },
+        "upload_time_iso_8601": "2026-10-02T21:00:55.418053Z"
+      },
+      {
+        "filename": "spacr-1.5.1.3.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/1c/b8/a6b8fe0e7baf35acf5429e23712f683622833050356e193029fd4f49b153/spacr-1.5.1.3.tar.gz",
+        "size": 50180782,
+        "digests": {
+          "blake2b_256": "1cb8a6b8fe0e7baf35acf5429e23712f683622833050356e193029fd4f49b153",
+          "md5": "211572cc49bf5bf3290573bdd66bbee4",
+          "sha256": "104c0fcd80702e34c2f6b62fe11792a9eefdb8d2956d255bc297667af2cebc8c"
+        },
+        "upload_time_iso_8601": "2026-10-02T21:01:00.783854Z"
+      }
+    ]
+  },
+  "scope": "Linux installation, pip consistency, real package imports and doctor only; no GUI or other-platform success claimed"
+}

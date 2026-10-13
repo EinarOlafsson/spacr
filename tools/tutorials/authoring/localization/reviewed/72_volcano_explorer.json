@@ -1,0 +1,75 @@
+{
+  "_meta": {"schema": 1, "lesson_id": "72_volcano_explorer", "scene_count": 5, "source_language": "en", "reviewed_date": "2026-08-15", "review_scope": "Natural narration, scientific terminology, and exact workflow semantics."},
+  "languages": {
+    "es": {
+      "description": "Abra una regresión terminada, examine cada punto, cambie el estilo del gráfico y exporte una figura vectorial a tamaño de publicación sin repetir el análisis.",
+      "narrations": [
+        "Este tutorial presenta Volcano Explorer. Abra una regresión terminada, examine cada punto, cambie el estilo del gráfico y exporte una figura vectorial a tamaño de publicación sin repetir el análisis.",
+        "Elija una carpeta de regresión terminada o un archivo CSV de resultados. Confirme el resultado, la tabla a nivel de guía, la familia de soporte, la columna de efecto y la columna del valor P ajustado.",
+        "En el área principal de configuración, revise los umbrales de significación y efecto, las transformaciones de los ejes, las etiquetas, los colores, las formas, las anotaciones, las opciones de eje discontinuo, las fuentes y las dimensiones de salida.",
+        "Seleccione puntos representativos para examinar sus filas completas, combinar anotaciones opcionales y comprobar que los cambios de estilo conservan los valores y umbrales subyacentes.",
+        "Cuando finaliza el flujo de trabajo, las exportaciones PDF y PNG se vuelven a generar con el tamaño solicitado a partir de los datos y el estilo registrados, mientras los resultados originales de la regresión permanecen sin cambios."
+      ]
+    },
+    "fr": {
+      "description": "Ouvrez une régression terminée, examinez chaque point, modifiez le style du graphique et exportez une figure vectorielle au format de publication sans relancer l’analyse.",
+      "narrations": [
+        "Ce tutoriel présente Volcano Explorer. Ouvrez une régression terminée, examinez chaque point, modifiez le style du graphique et exportez une figure vectorielle au format de publication sans relancer l’analyse.",
+        "Choisissez un dossier de régression terminé ou un fichier CSV de résultats. Confirmez le résultat, la table au niveau des guides, la famille de support, la colonne d’effet et la colonne de valeur P ajustée.",
+        "Dans la zone de configuration principale, examinez les seuils de significativité et d’effet, les transformations des axes, les libellés, les couleurs, les formes, les annotations, les options d’axe discontinu, les polices et les dimensions de sortie.",
+        "Sélectionnez des points représentatifs pour examiner leurs lignes complètes, fusionner les annotations facultatives et vérifier que les changements de style conservent les valeurs et les seuils sous-jacents.",
+        "À la fin du flux de travail, les exports PDF et PNG sont recréés aux dimensions demandées à partir des données et du style enregistrés, tandis que les résultats de régression d’origine restent inchangés."
+      ]
+    },
+    "hi": {
+      "description": "पूर्ण रिग्रेशन खोलें, प्रत्येक बिंदु की जाँच करें, ग्राफ़ की शैली बदलें और विश्लेषण दोबारा चलाए बिना प्रकाशन आकार की वेक्टर आकृति निर्यात करें।",
+      "narrations": [
+        "यह ट्यूटोरियल Volcano Explorer का परिचय देता है। पूर्ण रिग्रेशन खोलें, प्रत्येक बिंदु की जाँच करें, ग्राफ़ की शैली बदलें और विश्लेषण दोबारा चलाए बिना प्रकाशन आकार की वेक्टर आकृति निर्यात करें।",
+        "पूर्ण रिग्रेशन फ़ोल्डर या परिणामों की CSV फ़ाइल चुनें। परिणाम, गाइड-स्तरीय तालिका, समर्थन परिवार, प्रभाव कॉलम और समायोजित P-मूल्य कॉलम की पुष्टि करें।",
+        "मुख्य कॉन्फ़िगरेशन क्षेत्र में सार्थकता और प्रभाव की सीमाएँ, अक्ष रूपांतरण, लेबल, रंग, आकार, टिप्पणियाँ, टूटी हुई अक्ष के विकल्प, फ़ॉन्ट और आउटपुट के आयाम देखें।",
+        "प्रतिनिधि बिंदुओं को चुनकर उनकी पूरी पंक्तियाँ देखें, वैकल्पिक टिप्पणियाँ जोड़ें और पुष्टि करें कि शैली में बदलाव से मूल मान और सीमाएँ नहीं बदलतीं।",
+        "कार्यप्रवाह पूरा होने पर दर्ज किए गए डेटा और शैली से माँगे गए आकार की PDF और PNG फ़ाइलें दोबारा बनाई जाती हैं, जबकि मूल रिग्रेशन परिणाम अपरिवर्तित रहते हैं।"
+      ]
+    },
+    "it": {
+      "description": "Apri una regressione completata, esamina ogni punto, modifica lo stile del grafico ed esporta una figura vettoriale in formato pubblicazione senza ripetere l’analisi.",
+      "narrations": [
+        "Questo tutorial presenta Volcano Explorer. Apri una regressione completata, esamina ogni punto, modifica lo stile del grafico ed esporta una figura vettoriale in formato pubblicazione senza ripetere l’analisi.",
+        "Scegli una cartella di regressione completata o un file CSV dei risultati. Conferma il risultato, la tabella a livello di guida, la famiglia di supporto, la colonna dell’effetto e la colonna del valore P corretto.",
+        "Nell’area di configurazione principale, esamina le soglie di significatività e di effetto, le trasformazioni degli assi, le etichette, i colori, le forme, le annotazioni, le opzioni per l’asse interrotto, i caratteri e le dimensioni di output.",
+        "Seleziona punti rappresentativi per esaminarne le righe complete, unire annotazioni facoltative e verificare che le modifiche di stile mantengano invariati i valori e le soglie sottostanti.",
+        "Al termine del flusso di lavoro, le esportazioni PDF e PNG vengono ricreate nelle dimensioni richieste a partire dai dati e dallo stile registrati, mentre i risultati originali della regressione rimangono invariati."
+      ]
+    },
+    "pt-BR": {
+      "description": "Abra uma regressão concluída, examine cada ponto, altere o estilo do gráfico e exporte uma figura vetorial em tamanho de publicação sem repetir a análise.",
+      "narrations": [
+        "Este tutorial apresenta o Volcano Explorer. Abra uma regressão concluída, examine cada ponto, altere o estilo do gráfico e exporte uma figura vetorial em tamanho de publicação sem repetir a análise.",
+        "Escolha uma pasta de regressão concluída ou um arquivo CSV de resultados. Confirme o resultado, a tabela no nível de guia, a família de suporte, a coluna de efeito e a coluna do valor P ajustado.",
+        "Na área principal de configuração, revise os limiares de significância e efeito, as transformações dos eixos, os rótulos, as cores, as formas, as anotações, as opções de eixo interrompido, as fontes e as dimensões de saída.",
+        "Selecione pontos representativos para examinar suas linhas completas, combinar anotações opcionais e verificar se as alterações de estilo preservam os valores e os limiares subjacentes.",
+        "Quando o fluxo de trabalho termina, as exportações PDF e PNG são recriadas no tamanho solicitado a partir dos dados e do estilo registrados, enquanto os resultados originais da regressão permanecem inalterados."
+      ]
+    },
+    "ja": {
+      "description": "完了した回帰結果を開き、各点を詳しく調べ、グラフの外観を調整し、解析を再実行せずに出版用サイズのベクター図を出力します。",
+      "narrations": [
+        "このチュートリアルでは Volcano Explorer を説明します。完了した回帰結果を開き、各点を詳しく調べ、グラフの外観を調整し、解析を再実行せずに出版用サイズのベクター図を出力します。",
+        "完了した回帰フォルダーまたは結果の CSV ファイルを選択します。解析結果、ガイド単位の表、サポートファミリー、効果量の列、調整済み P 値の列を確認します。",
+        "メインの設定領域で、有意性と効果量のしきい値、軸の変換、ラベル、色、形、注釈、軸の省略表示、フォント、出力サイズを確認します。",
+        "代表的な点を選択して行全体を確認し、任意の注釈を結合します。外観を変更しても元の値としきい値が変わらないことを確かめます。",
+        "ワークフローが完了すると、記録されたデータとスタイルから指定サイズの PDF と PNG が再生成されます。元の回帰結果は変更されません。"
+      ]
+    },
+    "zh-CN": {
+      "description": "打开已完成的回归结果，逐点检查并调整图形样式，无需重新运行分析即可导出出版尺寸的矢量图。",
+      "narrations": [
+        "本教程介绍 Volcano Explorer。打开已完成的回归结果，逐点检查并调整图形样式，无需重新运行分析即可导出出版尺寸的矢量图。",
+        "请选择已完成的回归文件夹或结果 CSV 文件，并确认分析结果、向导级表、支持度类别、效应列和调整后 P 值列。",
+        "在主配置区域中，检查显著性和效应阈值、坐标轴变换、标签、颜色、形状、注释、断轴选项、字体和输出尺寸。",
+        "选择有代表性的点以检查完整数据行、合并可选注释，并确认样式调整不会改变底层数值和阈值。",
+        "工作流程完成后，系统会根据已记录的数据和样式，以指定尺寸重新生成 PDF 和 PNG；原始回归结果保持不变。"
+      ]
+    }
+  }
+}

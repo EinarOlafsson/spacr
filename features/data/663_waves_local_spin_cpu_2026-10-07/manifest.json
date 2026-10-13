@@ -1,0 +1,97 @@
+{
+  "schema": "spacr-source-bound-payloads-v1",
+  "payloads": {
+    "README.md": {
+      "bytes": 4697,
+      "sha256": "cf0b59af5b8c490465283cc5ad79d2589643589d0d798eb9f84d3848f547f0ab"
+    },
+    "ambient.after.py.gz": {
+      "bytes": 101389,
+      "sha256": "8d323a13cd4ccc26a935b831063da699b75cc11eaf937b721cbf65081e72ac1c"
+    },
+    "ambient.before.py.gz": {
+      "bytes": 100957,
+      "sha256": "461c0ab5a2415b39a956763bfe1255c0d0cd13f496b40faabea46c9fc5c6bf98"
+    },
+    "coverage.json.gz": {
+      "bytes": 44126,
+      "sha256": "6f7a5db42907bcc15a254b924190f99f8db58e13a1815f02d77a536c3688c7ec"
+    },
+    "facet_cost.json": {
+      "bytes": 1445,
+      "sha256": "c168b1ea368001a95159d76bfea57679b5ddc1cf1aa17087c4c8e602ad9d2804"
+    },
+    "facet_cost.log.gz": {
+      "bytes": 697,
+      "sha256": "eaa8844dfa47d9c064488b1c5d2e69c5b7966796fdb8099c32613e1b95d96c1d"
+    },
+    "facet_cost.py": {
+      "bytes": 3921,
+      "sha256": "f4ac7261019dd32059ba8a89b143729e71b5972968c7cc9df9b3d945b0552eca"
+    },
+    "final_focused.log.gz": {
+      "bytes": 246,
+      "sha256": "06d393d9837da5b9a4369904bf14ffa67cd8c00fe22d7ac534811bd5b6d8ea61"
+    },
+    "method_coverage.json": {
+      "bytes": 464,
+      "sha256": "f26455ff6f21c1f6e91f99c07d3da317ebb3825c0aa60a4d79b4222300db4c0f"
+    },
+    "native_review.json": {
+      "bytes": 3145,
+      "sha256": "7843e6857fcf198cd1848d40a590e3af347b5065281c5aefa1bc780286f50716"
+    },
+    "native_review.log.gz": {
+      "bytes": 715,
+      "sha256": "9e1a9c916724de118b422ff2f22cbecbb72fa4effba7b49556b42c2e3427c29b"
+    },
+    "native_review.py": {
+      "bytes": 5296,
+      "sha256": "e826816e2778314a983489e79874c3ccb03454000c8e0f134cd23d99b80371fc"
+    },
+    "nearest.rejected.py.gz": {
+      "bytes": 101390,
+      "sha256": "e9dba4205f70ed8311ecc36675d13ffabcf5407c312ee2b7e8ecadb2e6b0b2cf"
+    },
+    "point_atlas-dark-native.png": {
+      "bytes": 2451578,
+      "sha256": "d66355c3f8a32063b061cec8da1e7d5d0a10a3bdc258a433512b4b7d7673642d"
+    },
+    "point_atlas-light-native.png": {
+      "bytes": 1817939,
+      "sha256": "8e9b0edf8d0b18d672da2f63154951ce9d0b0bb0554484310b017187f71a702e"
+    },
+    "receipt.json": {
+      "bytes": 1219,
+      "sha256": "5bbea19df40f79b892d7abefece6f3663545bbecf55145dc98c0c2b8389175a2"
+    },
+    "reproduce.py": {
+      "bytes": 2708,
+      "sha256": "5bcdd0c77b027726e92a2a7b2a797d102bbafcef4e452e3c0576fc50846562e1"
+    },
+    "source_guards.log.gz": {
+      "bytes": 449,
+      "sha256": "e2f6d8f17b8e116ae4eaaf7b2dcb395f00306774ac2cc1415f43f131d5971c9e"
+    },
+    "test_data_art_gravity_radius.py": {
+      "bytes": 5764,
+      "sha256": "5dfc2b751e241948d0d0a4e522024f4c3ea95c59df0b2076076b82daef1efc7e"
+    },
+    "test_waves_and_local_facet_spin.py": {
+      "bytes": 12077,
+      "sha256": "ff24083dab78367c6f1d20840ffff2acd23cdc091da63f7fbcccec7298c2c8be"
+    },
+    "tissue_facets-dark-native.png": {
+      "bytes": 2926732,
+      "sha256": "8dce605c0268d1f1c9a42cb980bcd4dae0d1639e2d4238707803fb70b97c9b1f"
+    },
+    "tissue_facets-light-native.png": {
+      "bytes": 2183953,
+      "sha256": "8dfb8d63d191aa7cdbaf3fb4b71fe8931b7a4acd91c33fd28531ba06f7a7e311"
+    },
+    "vector.rejected.py.gz": {
+      "bytes": 101411,
+      "sha256": "aa6d4be324a3d6db5e8c133e0cfa82c03072e18ab819aa457ff8d2ee364f11ea"
+    }
+  }
+}

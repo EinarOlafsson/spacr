@@ -1,0 +1,34 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "208c8a5dd5c9ccc6722844b31fe174655526038d88b386f7f231f2859b4cb0fa",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Project Browser：プロジェクトを探して確認する",
+  "description": "プロジェクトのフォルダーを検索し、記録された段階を確認して、次に開くツールを見極めます。",
+  "objectives": [
+    "検索のルートと深さを使ってプロジェクトを見つける。",
+    "成果物と記録された段階を確認する。",
+    "次に使う適切なツールを選ぶ。"
+  ],
+  "prerequisite": "spaCRのプロジェクトを含むフォルダーを選びます。練習には、完了したExternal MasksとFormat Converterの例を使えます。",
+  "scenes": [
+    "Helpを開き、続いてProject browserを開いて、プロジェクトのフォルダーを探し、記録された出力を確認します。",
+    "Add folderをクリックし、検索のルートを選びます。深さがゼロならそのフォルダーだけを調べます。プロジェクトがサブフォルダーにある場合は、深さを上げます。",
+    "Depthを一にしてScanをクリックすると、ルートのすぐ下にあるフォルダーも含まれます。見つかったプロジェクトの行を確認します。",
+    "StateとStageを、ディスク上で見つかったファイルと合わせて読みます。成果物の登録がないフォルダーは、変換済みの画像を含んでいてもunknownと表示されることがあります。",
+    "ほかのプロジェクトも含めるには、検索のルートを追加します。行を選ぶと、その内容を確認できます。再スキャン後に詳細が空白の場合は、別の行を選んでから戻ります。",
+    "区切り線をドラッグして、詳細の表示を広げます。登録された成果物、登録されていないファイル、最終実行のタイムスタンプの出どころを確認します。",
+    "Stagesを開いて、想定される出力のうちどれがあるかを確認します。What could run nextを使って適切な処理の流れを選び、そのモジュールに必要な入力を確認します。",
+    "Sizeなどの列見出しをクリックすると、プロジェクトが並べ替えられます。もう一度クリックすると、順序が逆になります。",
+    "検索を狭めたり広げたりしたいときは、Depthを調整して再スキャンします。直接選んだプロジェクトは、深さゼロでも見つかります。",
+    "ルートを選んでRemoveをクリックすると、そこでの検索をやめます。検索場所が一覧から消えるだけで、ファイルはディスクに残ります。",
+    "ジョブの記録はRun Historyで、測定値はDatabase Browserで、整理とアーカイブはData Managerで確認します。解析を続けるには、該当するモジュールのチュートリアルを使います。"
+  ]
+}

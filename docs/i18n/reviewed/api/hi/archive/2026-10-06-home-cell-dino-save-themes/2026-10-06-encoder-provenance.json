@@ -1,0 +1,56 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+      "label": "spacr.embeddings.encoder_entry#0",
+      "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+      "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+      "translation": "इस एन्कोडर का वर्णन :class:`spacr.model_zoo.ModelEntry` के रूप में करें।"
+    },
+    {
+      "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+      "label": "spacr.embeddings.encoder_entry#1",
+      "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+      "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+      "translation": "यह प्रविष्टि एन्कोडर कॉन्फ़िगरेशन, चेकपॉइंट की उपलब्ध स्रोत जानकारी और वैकल्पिक पुनर्प्राप्ति मेट्रिक्स को जोड़ती है। केवल संगत चैनल नीतियों वाली प्रविष्टियों की तुलना करें।"
+    },
+    {
+      "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "label": "spacr.embeddings.encoder_entry#2",
+      "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+      "translation": "यह प्रविष्टि मॉडल को डाउनलोड या लोड किए बिना बैकबोन, चैनल नीति और पढ़े जा सकने वाले स्थानीय चेकपॉइंट के बाइट का हैश दर्ज करती है। सार्वजनिक बैकबोन timm का कैश मेटाडेटा उपयोग करते हैं; OpenPhenom और ChAda-ViT निश्चित Hugging Face संशोधनों का उपयोग करते हैं; SubCell अपने आधिकारिक torch hub चेकपॉइंट का उपयोग करता है; स्थानीय DINO एन्कोडर अपने कॉन्फ़िगर किए गए चेकपॉइंट पथ का उपयोग करता है। फ़ाउंडेशन मॉडल की प्रविष्टियाँ मूल प्रदाता और चेकपॉइंट URL बताती हैं। केवल चेकसम से मॉडल सत्यापित नहीं होता और उसके प्रशिक्षण डेटा की उत्पत्ति स्थापित नहीं होती।"
+    },
+    {
+      "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+      "label": "spacr.embeddings.encoder_entry#3",
+      "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+      "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+      "translation": "यदि पढ़ने योग्य स्थानीय चेकपॉइंट नहीं मिलता है, तो प्रविष्टि खाली हैश रखती है और अपने नोट्स में इसका कारण बताती है। :func:`spacr.model_zoo.fetch` बिना हैश वाली प्रविष्टियों को अस्वीकार करता है।"
+    },
+    {
+      "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+      "label": "spacr.embeddings.encoder_entry#4",
+      "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+      "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+      "translation": "एन्कोडर कॉन्फ़िगरेशन; छोड़ने पर ``EmbeddingSpec()`` का उपयोग करता है।"
+    },
+    {
+      "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+      "label": "spacr.embeddings.encoder_entry#5",
+      "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+      "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+      "translation": "लेबल वाले नियंत्रणों पर मापे गए वैकल्पिक पुनर्प्राप्ति मेट्रिक्स, जिन्हें :attr:`ModelEntry.metrics` में संग्रहीत किया जाता है और ``scorecard_lines`` द्वारा दिखाया जाता है।"
+    },
+    {
+      "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+      "label": "spacr.embeddings.encoder_entry#6",
+      "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+      "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+      "translation": "एक ``ModelEntry`` जिसका प्रकार ``'encoder'`` है।"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

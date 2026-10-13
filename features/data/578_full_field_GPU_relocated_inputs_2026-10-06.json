@@ -1,0 +1,40 @@
+{
+  "item": 578,
+  "relocated_native_TIFF_paths_byte_and_pixel_verified": 16,
+  "normal_stack_pixels_original_exact": true,
+  "actual_GPU_execution_pending": true,
+  "prior_turn_terminal_returncode": 1,
+  "prior_turn_stopped_before_model_loading_or_inference": true,
+  "normal_GPU_retry_label": "578-full-field-robustness-20261006-r2",
+  "source_grid_inputs_and_model_scientific_parameters_preserved": true,
+  "artifacts": {
+    "features/data/578_full_field_GPU_relocated_inputs_2026-10-06/GPU-freeze.json": {
+      "sha256": "b09b58eb25467b4db208e8c347e10284077a6b7b45a912f1bad9024715d73d78",
+      "bytes": 323
+    },
+    "features/data/578_full_field_GPU_relocated_inputs_2026-10-06/benchmark_robustness_plate_gpu_r2.py": {
+      "sha256": "fd2504469b0c202f5205dc9d63b42e1fe7057d906dfcb1daf441c0af32d48a96",
+      "bytes": 6750
+    },
+    "features/data/578_full_field_GPU_relocated_inputs_2026-10-06/historical-pre-relocation-plan.json": {
+      "sha256": "851046d18e008f54001b11792457829b14e3f5448b8fd727c99014d171259912",
+      "bytes": 13092
+    },
+    "features/data/578_full_field_GPU_relocated_inputs_2026-10-06/historical-r1-GPU-freeze.json": {
+      "sha256": "349ad34f5b3632a40b2c50c33f929f3292a5a3d18700280f9462a07961d63291",
+      "bytes": 323
+    },
+    "features/data/578_full_field_GPU_relocated_inputs_2026-10-06/plan.json": {
+      "sha256": "5f399e02c4ded23bc37f828237ee38bb8d7749a0d86cea4e249c95e9cc091059",
+      "bytes": 15906
+    },
+    "features/data/578_full_field_GPU_relocated_inputs_2026-10-06/repair_robustness_input_locations.py": {
+      "sha256": "6e063c3039f42a04efcad6fcb948add23c09bae98c7b1e73d28e4548ea721d0b",
+      "bytes": 4562
+    },
+    "features/data/578_full_field_GPU_relocated_inputs_2026-10-06/robustness-plate-gpu-r1.log.gz": {
+      "sha256": "f4670d15d6d13df1179eb3f614e1fcb94cb28b0e8cda48ac72f788e7722485d6",
+      "bytes": 667
+    }
+  }
+}

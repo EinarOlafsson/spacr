@@ -1,0 +1,102 @@
+{
+  "accepted": true,
+  "scope": "Prepared unchanged acquired GOWT1 t021-t024 pixels in a derived flat TYX archive. Compare actual pretrained CPSAM CUDA calls through the original eager and current native mapped Mask generator at unchanged outer batch_size2. This is not a vendor-native T/Z acquisition, volumetric or biological accuracy benchmark.",
+  "exact_comparison_keys": [
+    "cpsam_sha256",
+    "torch_version",
+    "cuda_runtime",
+    "cuda_device",
+    "source_sha256",
+    "plan_sha256",
+    "batch_size",
+    "evaluations",
+    "masks",
+    "object_counts",
+    "database_rows",
+    "completion",
+    "private_workspace_clean"
+  ],
+  "before_actual_CUDA_kernels": 707,
+  "after_actual_CUDA_kernels": 707,
+  "exact_nonempty_mask_files": 4,
+  "unchanged_batch_size": 2,
+  "object_counts": {
+    "plate1_r1_c1_f1_t1.npy": 23,
+    "plate1_r1_c1_f1_t2.npy": 22,
+    "plate1_r1_c1_f1_t3.npy": 23,
+    "plate1_r1_c1_f1_t4.npy": 23
+  },
+  "model_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "source_sha256": {
+    "spacr/io.py": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+    "spacr/object.py": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+    "spacr/core.py": "7dd588247aa6c55d458eee90d90d7900989acc38cf0940b95a54c9a75fbe4ab2",
+    "spacr/utils.py": "01919bb86258f8b93a173aad846f500fe00ae010996aad8dd8e207ab26c0fac5",
+    "spacr/zstack.py": "4986dc01353c18e3a67a59e4ce26e2657934293087b4fed99937e4197e55cb09"
+  },
+  "native_vendor_TZ_volume": false,
+  "biological_accuracy": false,
+  "memory_or_speed_improvement_claim": false,
+  "script_sha256": "e9f376d5a25c531324276870e0ee15aa6557ac117cfa23fdc83275def4e3d0de",
+  "original_r2_exit": 137,
+  "original_r2_memory_cap_GiB": 12,
+  "accepted_r3_exit": 0,
+  "accepted_r3_memory_cap_GiB": 24,
+  "kernel_trace_scope": "First real pretrained model forward only; every full model evaluation/input/output/count/completion is independently compared.",
+  "original_failure_and_complete_accepted_run_preserved": true,
+  "source_frozen_latest_Home_integration_matches": true,
+  "artifacts": {
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/r2-complete-private-run.zip": {
+      "bytes": 2385457,
+      "sha256": "d9c5d981bc77ed4e15ad2738e3425e1a1fc68e719bdae24a70c466b6e4f0e445"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/r3-complete-private-run.zip": {
+      "bytes": 3587900,
+      "sha256": "9e61e9ae6f2d955a5123e010df143bf5c9ed6b6625282d5bdaa1aba2dbd1d0d8"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/run_final_native_tyx_gpu_pair_r2.py.gz": {
+      "bytes": 2510,
+      "sha256": "9a31442c3755dfcda64f5b0a0f63642393fe01b0b70696cb7109b52d18ed8579"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/run_final_native_tyx_gpu_r2.sh.gz": {
+      "bytes": 399,
+      "sha256": "cf630566e4c75804cfc325034b9092a58e6ba8fceb42912ba2c14e07b89c94fe"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/compare_final_native_tyx_gpu_r2.py.gz": {
+      "bytes": 805,
+      "sha256": "838fe4cf0cb7e690f82cde539fece51935a97b14453b29245b7c225bfc419007"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/run_final_native_tyx_gpu_pair_r3.py.gz": {
+      "bytes": 2709,
+      "sha256": "21c235897a47717bb592747e88f57ea77231ed2489de1e8fe2fe345ce2271796"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/run_final_native_tyx_gpu_r3.sh.gz": {
+      "bytes": 399,
+      "sha256": "188594256ac1694222dbc0ba4141d8243a9c147263d622fa63a7d9e6022d11f6"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/compare_final_native_tyx_gpu_r3.py.gz": {
+      "bytes": 805,
+      "sha256": "50402c8a00381d1110f33da096c234a4ca01c8e5e9fa6b4b219580099a20c031"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/spacr__io.py.gz": {
+      "bytes": 117706,
+      "sha256": "c600d020f3b382ee7b0d40c2c3227546473cff309c5ba1fad10a178677f93b7a"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/spacr__object.py.gz": {
+      "bytes": 31260,
+      "sha256": "5bc6338d75ac0167d1092ea8830d5197cdf87a0a3284c78ad8ffea0f039f58e1"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/spacr__core.py.gz": {
+      "bytes": 49283,
+      "sha256": "47d6a9bc226fd3658e674b8293a7d725f83e9d9ccbf32f821fe5852a8834b964"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/spacr__utils.py.gz": {
+      "bytes": 132575,
+      "sha256": "c9d34d3fa8d92b7d29192126d1bae64e45410290fd1caf24e36ab085e15cdfb6"
+    },
+    "features/data/548_final_acquired_TYX_CUDA_2026-10-07_r3/spacr__zstack.py.gz": {
+      "bytes": 36559,
+      "sha256": "7e16395a5b85ce567341d253fe44fb3f5324886408fa71bcf7faf095b07f8d8d"
+    }
+  }
+}

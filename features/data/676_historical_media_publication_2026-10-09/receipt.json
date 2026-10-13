@@ -1,0 +1,222 @@
+{
+  "source_commit": "69c89ed87140ff4682987cd429c4f3de7b2265d4",
+  "source_sha256": {
+    "tools/tutorials/authoring/web/app_v2.js": "34df699e2c36c317a6a126596b51fba95dcd3a011668dc6d30557f4241746fd4",
+    "tools/tutorials/build_audio_patch_candidate.py": "15e10e0560378d32f1bb13492dd670135da74e44d232a3224a8d5b28fa1cfb5a",
+    "tools/tutorials/publish_release_candidate.py": "4e6c2330947c635924989e964e5f463e0df78cf3d938a1455350d8b57c4f0967",
+    "tools/tutorials/verify_release_candidate.py": "df4a635f1afa065c1471a42bbb5d9fb03c9e7eaf1e961f46eaa62c16b478ff53",
+    "tools/docs_media_budget.py": "29a964f0e87c7771c6d428d49d207e0676734124e246da3a27be28e1e98f87c5",
+    "tools/publish_docs_channels.py": "4c4cbb4bc069418937c273f83565b525a7ce980b2d90f81b988bbc2eb39b089d",
+    "tools/tutorials/tests/test_audio_patch_candidate.py": "8de2e857eab7ef114ffc2e07cf1f503968bb1c7795928f0771d87fc91012a5dc",
+    "tools/tutorials/tests/test_player_legacy_visual_reference.py": "f1a81fd15ca2fda4d7c1fa63e8505d01594aa1244759cd3210e02250080b402c",
+    "tools/tutorials/tests/test_player_native_live_video.py": "c7e29f35bbedfc062a4135f6e865dbb77a2279195b6718217a222a237b135aed",
+    "tools/tutorials/tests/test_library_checkpoint.py": "19655b44bcbc08bdf207d16f340defd04c85abf701e614ffad65f937cd28d5c9",
+    "docs/source/_extra/tutorials/app_v2.js": "34df699e2c36c317a6a126596b51fba95dcd3a011668dc6d30557f4241746fd4",
+    "docs/source/_extra/tutorials/index.html": "f358d4d8b125fe4d6cf26a6be0afd223b923f4726e120c96190de3b326cabb8c",
+    "docs/source/_extra/tutorials/lesson_catalog.js": "10b0952ec0e8f9a1c2c793289c7bd8083b0186366863f70c629b68b8267a86c0",
+    "tools/tutorials/release_candidate/checkpoint.json": "93a74ac77b08f5e466fb2afaf457d0df466bdc1ad6fdd2f4abd6eb46df5c6b39"
+  },
+  "payloads": [
+    {
+      "path": "payload/00-historical-tv-hosted-publication-r1-tool.log.gz",
+      "raw_bytes": 37819,
+      "raw_sha256": "a21bd1c2f6e21a4cfa16dc4cff26ce15b7b3d496e612de9696d43a5b49d06f42",
+      "gzip_sha256": "0357b20938b3dcfa659ca51286d68c88d8507432cae80623006c5a97fdf9aafe"
+    },
+    {
+      "path": "payload/01-historical-tv-hosted-publication-r1.log.gz",
+      "raw_bytes": 1443,
+      "raw_sha256": "a8e4fc303baae7a4363ea2a3343aa3e2f1490c3558e4e9d4b3b690924d0ad080",
+      "gzip_sha256": "8ceede5afde834eabaeb2859e44887c942573fd4fd2bdcf10b62d7596954551c"
+    },
+    {
+      "path": "payload/02-historical-tv-pages-current-r1-tool.log.gz",
+      "raw_bytes": 1858,
+      "raw_sha256": "9d6e6392a58e9725b283c4141a9fb8a007b03776c2f19733541362ff67352dc5",
+      "gzip_sha256": "201aa1a81d2c1c23eb8f57465061c9d9d1216627a853489ea235f67b615d73ce"
+    },
+    {
+      "path": "payload/03-historical-tv-pages-current-r1.log.gz",
+      "raw_bytes": 1271,
+      "raw_sha256": "7ed6c1f4a35590f62d219fac991d2919610b5ec21a8b1fc101073ffdffa4c00f",
+      "gzip_sha256": "4b01c51fe050bfae1024351dbb9bda73683a3d931f326652a6f521153ce757d0"
+    },
+    {
+      "path": "payload/04-historical-tv-published-browser-current-r1-tool.log.gz",
+      "raw_bytes": 4099,
+      "raw_sha256": "c56569591fbcf4886619a0d1486d1b95bcf26f6ebb64d03dc77fd8f06a790559",
+      "gzip_sha256": "92f1a588e1a5f73f6fcbf39f0dd623e8c60d35654f5f356acdb88b3945a0e753"
+    },
+    {
+      "path": "payload/05-historical-tv-published-browser-current-r1.log.gz",
+      "raw_bytes": 3464,
+      "raw_sha256": "aecfb5af79709d42d5ae641d2949650aa94310bce7e24e78fb9c7601d2ff3f54",
+      "gzip_sha256": "d26e0f49dd995e22bb9d7d80a1e455f6b3c285a19a5dbbf5236a377aad7163cd"
+    },
+    {
+      "path": "payload/06-historical-tv-published-owning-current-r1-tool.log.gz",
+      "raw_bytes": 880,
+      "raw_sha256": "0cebb0cda50556dee7d457d1fb75b12fbc04d34a160183347cc66960f14b84e5",
+      "gzip_sha256": "d592a22e7ed338802369f8056dce9d9a38e619466729450f8d7fc0104f8c4327"
+    },
+    {
+      "path": "payload/07-historical-tv-published-owning-current-r1.log.gz",
+      "raw_bytes": 225,
+      "raw_sha256": "3a771572cf044ec382bf843b552e5bc66f10521c8161fe30359a8c1bc30cdd27",
+      "gzip_sha256": "65073cf2bf4b0502c1d664e911dd72bfbdeda32bce9bfc1162b2f7c5655f903c"
+    },
+    {
+      "path": "payload/08-historical-tv-published-canonical-current-r1-tool.log.gz",
+      "raw_bytes": 2145,
+      "raw_sha256": "6a7efee06035ba9d7fd3d53e38116eace54b57330d675fd509c76dd961374e20",
+      "gzip_sha256": "cd87cc497982ea9d4693abdc82e086aeca00330b927e2908a9852c595da44e48"
+    },
+    {
+      "path": "payload/09-historical-tv-published-canonical-current-r1.log.gz",
+      "raw_bytes": 1549,
+      "raw_sha256": "9257cb59c9e7a36dcf22d34cce264e95d33a0c7a53afbce3af570198f8877976",
+      "gzip_sha256": "327e68c534216c072845db1e9ca95f9b8f6440d7a030d159178de1b3fa8f1526"
+    },
+    {
+      "path": "payload/10-historical-tv-record-current-r1-tool.log.gz",
+      "raw_bytes": 824,
+      "raw_sha256": "a95c917d8232a3c08652584c46fe20e4ef992cb46f051685210a5597fbc8a16a",
+      "gzip_sha256": "09ae8dce6ba15d9b869e395df5b7f0744d499135ee082ddc594d61e4762ebd94"
+    },
+    {
+      "path": "payload/11-historical-tv-record-current-r1.log.gz",
+      "raw_bytes": 273,
+      "raw_sha256": "e90be15d7445dd6d589109157aea9943a8b739e1628021aea2dd660bdbd0813d",
+      "gzip_sha256": "b0630bed3f42ff5999dd66151e49474f3bc8357f3c0be85a4452060e03e74a5c"
+    },
+    {
+      "path": "payload/12-historical-tv-publication-compatibility-r1-tool.log.gz",
+      "raw_bytes": 860,
+      "raw_sha256": "489cbeb2853c7a420d08975101e97506fec7f50fe8b2222a4c03a935183b77b7",
+      "gzip_sha256": "08ec32b4d5c8ff927f47fbb6fc480e149a7ee408686c4502f69c7b062688e377"
+    },
+    {
+      "path": "payload/13-historical-tv-publication-compatibility-r1.log.gz",
+      "raw_bytes": 292,
+      "raw_sha256": "a1dac8164374ed38bd9ae21b68d36c78906365f32154c1b121e39f700ef4f738",
+      "gzip_sha256": "cb287715361adf3646ac0589a131a298b9371b742c344695582468380ef95f86"
+    },
+    {
+      "path": "payload/14-historical-tv-combined-pages-r1-tool.log.gz",
+      "raw_bytes": 1487,
+      "raw_sha256": "662160e91394dc48affb3d8c58e68dac78d7fc6a50acb5112b9ce026bf2323f5",
+      "gzip_sha256": "9dd7397707512b519eea33fd369a626ce291cf7b0407b9a80b560ad3b093b587"
+    },
+    {
+      "path": "payload/15-historical-tv-combined-pages-r1.log.gz",
+      "raw_bytes": 125,
+      "raw_sha256": "63584f3ecbb0807fe3c2b21f25dea68563c2e7137cda27b847aca9c1ba85e149",
+      "gzip_sha256": "d01f2c92afc98946f6b9776e51a9ef552a2e804a26901b55b49657e6d760c0ca"
+    },
+    {
+      "path": "payload/16-historical-tv-combined-pages-r2-tool.log.gz",
+      "raw_bytes": 1856,
+      "raw_sha256": "53dffca339b128fe177ec73ba164686cc5d4e8058cb203a7a0d2c0ac7f7c29ad",
+      "gzip_sha256": "07694e4bbf3a110b89900ae6b741021f5036d00dde6f068f9e4ef6abf62c6c2b"
+    },
+    {
+      "path": "payload/17-historical-tv-combined-pages-r2.log.gz",
+      "raw_bytes": 1392,
+      "raw_sha256": "6d5409ebb666cd1189b961a4947f921932b3c740851cc3790fe8e15e7f69281d",
+      "gzip_sha256": "b736098325d88d1c657400fe62f8d2275c1c63fd2fc97fffa61fdfc5e9e2eb97"
+    },
+    {
+      "path": "payload/18-publication-receipt.json.gz",
+      "raw_bytes": 153734,
+      "raw_sha256": "0598e8f647f59510b0643a4f23c3ecd018f6e154a51617022623463f27ea60a6",
+      "gzip_sha256": "d0510c5e6a3c6a99a9ffaa55078d26d8378aed2d8be19849b63c5d494705cb8a"
+    },
+    {
+      "path": "payload/19-release-manifest.json.gz",
+      "raw_bytes": 1156518,
+      "raw_sha256": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423",
+      "gzip_sha256": "ad35abc6c1d66bb1fe955ee0f79931be66f3df1a96da4571758c2b371be60bec"
+    },
+    {
+      "path": "payload/20-published-media-browser-checks.json.gz",
+      "raw_bytes": 134456,
+      "raw_sha256": "df43f8d24cfcf2eb89111cfe5ca23be2a60570e500df512fdaa4b5b78143f00e",
+      "gzip_sha256": "a68e81493ce270c849cab58cecf488011ee04b84e73b601a3f99ac14cbf47ce2"
+    },
+    {
+      "path": "payload/21-historical-tv-published-canonical-current-r1.json.gz",
+      "raw_bytes": 1424,
+      "raw_sha256": "911f99602ac40de60fad1ff8f3ab7c8bc0d21b928f84b56942be3c4d6cfc9788",
+      "gzip_sha256": "44cef9ad88bd4608f60496664b9dd891f109c8244d5db185ed9ec8e6a46b98ea"
+    },
+    {
+      "path": "payload/22-historical-tv-publication-compatibility-r1.json.gz",
+      "raw_bytes": 16023,
+      "raw_sha256": "40e692a77de924dd35c91351f7981792f5aef7d53d72c23c838f5ed9245ec8f4",
+      "gzip_sha256": "53f5fc552689ee769a02e1517b32efa45e93d4cb8e12a40d71cd483e0c2ebfde"
+    },
+    {
+      "path": "payload/23-receipt.json.gz",
+      "raw_bytes": 1267,
+      "raw_sha256": "111dd3cf2eb769c687311b429c2fc8048f225a93153a5893fd39e745131708a9",
+      "gzip_sha256": "bc14ee308d88db3f51f606535518171f663a3b4ad2ae885cabe375799d247dce"
+    },
+    {
+      "path": "payload/24-assemble_historical_tv_docs_r1.py.gz",
+      "raw_bytes": 3424,
+      "raw_sha256": "6abd46cf7c05897a8709e5101e5b498101b31ddc511875eeba781e9337062e57",
+      "gzip_sha256": "95f8886362d70774bd877630425df751faa4476cb3bd92bb7a51618d08911863"
+    },
+    {
+      "path": "payload/25-assemble_historical_tv_docs_r2.py.gz",
+      "raw_bytes": 3558,
+      "raw_sha256": "df35cd66f05ce9613cb072cce43f3b1498d69ff1052b0acf781c55d83e1cc9df",
+      "gzip_sha256": "6098639003dc2d5743197db7603d619e14e6217a01332cf0037403b5e7f110ad"
+    }
+  ],
+  "media_revision": "1b5880b95c72c49fd0085b800323e2254ff89727",
+  "manifest_sha256": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423",
+  "hosted_files_verified": 5087,
+  "hosted_bytes_verified": 6125467781,
+  "published_browser_cases": 84,
+  "owning_tests": {
+    "passed": 35,
+    "seconds": 40.59,
+    "source_commit": "237d05dd24b9783e555c52e78171b8fae76d93f0"
+  },
+  "candidate_preservation_proof": "features/data/676_historical_publication_preflight_2026-10-09/receipt.json",
+  "combined_site": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "91ab2b8ae7e9beed617b0c8ec9ec5cb7e9938ca1",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "69c89ed87140ff4682987cd429c4f3de7b2265d4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 977237479,
+    "media_files": 140,
+    "shared_deck_images": 90,
+    "passed": true,
+    "deployed": false,
+    "source_commit": "69c89ed87140ff4682987cd429c4f3de7b2265d4",
+    "immutable_media_commit": "1b5880b95c72c49fd0085b800323e2254ff89727",
+    "limit_bytes": 996147200,
+    "headroom_bytes": 18909721,
+    "reused_strict_documentation_source": "afa4376971a40c2562a90c4e8073845bd6d70780",
+    "verified_documentation_input_changes": [
+      "docs/source/_extra/tutorials/app_v2.js",
+      "docs/source/_extra/tutorials/index.html",
+      "docs/source/_extra/tutorials/lesson_catalog.js"
+    ],
+    "scope": "Normal combined publisher; unchanged strict-built documentation reused, three verified tutorial assets replaced. Fresh source compatibility and 84 hosted playback cases pass. Deployment remains pending."
+  },
+  "qualification": "56 corrected English pronunciation tracks; original historical visual timing is explicit. No new capture, synthesis, non-English review, full GitHub green or deployed-site claim. Unchanged prior strict-built documentation reused with normal media staging; original oversized assembly retained."
+}

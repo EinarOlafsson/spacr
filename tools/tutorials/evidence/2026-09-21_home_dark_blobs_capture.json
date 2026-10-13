@@ -1,0 +1,122 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "lesson": "05_home",
+  "source_base": "296dd060705fab705b521577badbf1a3337e784f",
+  "capture_tools_modified": true,
+  "artifact_root": "/tmp/spacr-tutorial-capture/production/05_home",
+  "geometry": {
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "blobs",
+      "painted_frames": 7
+    },
+    "version": "1.5.0.8",
+    "app_key": "__home__",
+    "host_app_key": null,
+    "frame_size": [
+      3840,
+      2160
+    ],
+    "device_pixel_ratio": 1.0,
+    "overview": [
+      220,
+      33,
+      3620,
+      2105
+    ],
+    "nav": [
+      7,
+      101,
+      206,
+      34
+    ],
+    "input": [
+      244,
+      194,
+      3256,
+      1888
+    ],
+    "settings": [
+      244,
+      194,
+      3256,
+      1888
+    ],
+    "run": [
+      3771,
+      364,
+      45,
+      22
+    ],
+    "output": [
+      220,
+      33,
+      3620,
+      2105
+    ],
+    "modules": [
+      244,
+      161,
+      3256,
+      1921
+    ],
+    "status": [
+      3516,
+      161,
+      300,
+      1921
+    ],
+    "search": [
+      122,
+      29,
+      840,
+      268
+    ],
+    "performance": [
+      1320,
+      486,
+      1200,
+      206
+    ],
+    "open_module": [
+      236,
+      49,
+      3588,
+      60
+    ]
+  },
+  "frames": [
+    {
+      "file": "keyframes/01_module.png",
+      "sha256": "5fbc9b63cdda740a241275552545e9bc0990e7d929e7293a0965447da7899124",
+      "bytes": 338306,
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "file": "keyframes/02_performance_4k.png",
+      "sha256": "c102eea417d02b72611be7dc76d691395efc1adc2655073f313e45dd6479ebfe",
+      "bytes": 383782,
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "file": "keyframes/03_mask_open_4k.png",
+      "sha256": "55fb868b9b11152ed137fff34286cfa59e9c6976e2df474e59afa50ca5093dd6",
+      "bytes": 418771,
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "file": "keyframes/04_help_search.png",
+      "sha256": "414558e97909e7b69a1cbf222bd5fbf68737ccacbdf0c485cd233890f3209cd6",
+      "bytes": 379791,
+      "width": 3840,
+      "height": 2160
+    }
+  ],
+  "scene_count": 6,
+  "review": "Overview, Help search and Performance frames visually inspected; all four frames passed live text path checks. This is keyframe evidence, not completed narration or a published video.",
+  "gpu_used": false
+}

@@ -1,0 +1,171 @@
+{
+  "source": "0b9c0d125492f39261c7402b2fdc8fd83bf51627",
+  "parent_source": "4d09944509a331ee8ac0f94a7856c1c980970bc3",
+  "application_delta": "One existing QUALITIES constant now accepts ultra, preserving the saved preference through normal validation.",
+  "passing": true,
+  "normal_coverage_selected_tests": 172,
+  "normal_coverage_seconds": 88.37,
+  "memory_cap": "8G",
+  "native_environment": {
+    "qt": "6.12.0",
+    "python": "3.12.14 | packaged by conda-forge | (main, Aug 21 2026, 22:48:28) [GCC 14.4.0]",
+    "platform": "xcb",
+    "display": ":0"
+  },
+  "unchanged_application_files_from_parent": 668,
+  "unchanged_during_native_probe": 669,
+  "native_scope": "Actual GPU/ultra renderer: startup and open/Apply/Keep/close for each off, drift and blobs Preferences backdrop; popup ownership and absence of global always-on-top flags, original renderer identity and orderly cleanup.",
+  "negative_scope": "Original CPU/high regression fails before repair. Native r1 fails because the probe omitted the normal dialog filters; this harness failure and its partial observations are retained.",
+  "limits": [
+    "This Qt 6.12 native Linux/X11 result does not certify the reported Qt 6.10 crash fixed, other native platforms, or scientific CUDA model parity.",
+    "No GPU flow backend implementation, speedup or frame-time improvement is claimed.",
+    "Existing renderer scaling limit remains 2.0; this change does not increase it.",
+    "The original 360-second GPU idle guard and 600-second gap were retained; protected livecell and cellposeTIME jobs were not changed."
+  ],
+  "payloads": {
+    "logs/ultra-saved-renderer-r1.log.gz": {
+      "raw_bytes": 2528,
+      "raw_sha256": "baca2cb8ad1728170508e6160c608cdd2c280f015a4079cb45713a4b7d115673",
+      "gzip_bytes": 847,
+      "gzip_sha256": "fcff25eca1036f9c6eccca1403092fc7a62d3eaf7a0c136cdf74e9eb8a8f6a13"
+    },
+    "logs/ultra-saved-renderer-r2.log.gz": {
+      "raw_bytes": 1901,
+      "raw_sha256": "93d9cf96efb3a034f7c0dd72361d24e74152a55f0f11bc8f235c635e9de3a962",
+      "gzip_bytes": 635,
+      "gzip_sha256": "33bc5d517407788e71cbb10676587497a65127f64b023b586fc850eef29ad787"
+    },
+    "logs/ultra-runtime-all-nine-r1.log.gz": {
+      "raw_bytes": 395,
+      "raw_sha256": "c889d5c170de66524755ed87ece0ccaf3bc4bea6cd28c54d4b598c7bd4f8063d",
+      "gzip_bytes": 294,
+      "gzip_sha256": "5985aa4aafff72a807d1405a6e3bd33c867f6cc7f8a83cead73af9e1b713bf7e"
+    },
+    "logs/ultra-api-all-nine-r1.log.gz": {
+      "raw_bytes": 353,
+      "raw_sha256": "1a41dca994253d293e48d04048eaae69133668ba82418e93c2092c2dbb36e4f8",
+      "gzip_bytes": 276,
+      "gzip_sha256": "82db8e2fde68a89b70598fe3ee0c3a23979eb350bfa9fba797002d0a5a2b0de6"
+    },
+    "native/r1/preferences-off.png.gz": {
+      "raw_bytes": 45685,
+      "raw_sha256": "c36fb8086840e6edd2f7bdb8d56aecc7e2d28c66e0222043015d274179973e0f",
+      "gzip_bytes": 43432,
+      "gzip_sha256": "e7769f2d450f0328a088c8ed2f148df426e4fdc5153f9d26adcc5a9802545f7a"
+    },
+    "native/r1/preferences.ini.gz": {
+      "raw_bytes": 2869,
+      "raw_sha256": "c2a521078d97474c4f5f2130662ad1a5658de2b467d17a8e80adf311efeffdd1",
+      "gzip_bytes": 1308,
+      "gzip_sha256": "da19f9d18f4cd34b6971217f83b9d5ee1355aee5e3df2e4980098ab06a19a964"
+    },
+    "native/r1/receipt.json.gz": {
+      "raw_bytes": 139906,
+      "raw_sha256": "372ac78773c094c2bee61ba94c1040be0298260dc01cb0d1c6d777e8659b9cae",
+      "gzip_bytes": 64186,
+      "gzip_sha256": "f98ca6253b793814620df856cc03bb722565991126f153396db2e08672c24e96"
+    },
+    "native/native-gpu-preferences-r1.log.gz": {
+      "raw_bytes": 4024,
+      "raw_sha256": "e535c19c3f331e2fe1de101d9c03649187f08fe255d545f51e305e53c5cb751f",
+      "gzip_bytes": 909,
+      "gzip_sha256": "13002e1be8d563aeda0b53b0ec39ba2b466b41b3e80668ee5dfbea89af8c4f75"
+    },
+    "native/native_gpu_preferences_r1.py.gz": {
+      "raw_bytes": 6838,
+      "raw_sha256": "4c5cf4d1e5dd297e9ad41724f1df941899561bb86ee77dca88046b643224f8f4",
+      "gzip_bytes": 2444,
+      "gzip_sha256": "7f0ab77b0d0665fdd0ed7be250faf045bccf8acc93cdb0e835f1923b9e765bad"
+    },
+    "native/r2/preferences-blobs.png.gz": {
+      "raw_bytes": 55945,
+      "raw_sha256": "682130a28971f449c36cfead743238f4eed2ac41c645b2221a01a07e16030e16",
+      "gzip_bytes": 53728,
+      "gzip_sha256": "e5a80dcac4ecb970798265eb3c4d682e88b75801aa8ce294fc37d56dd1fb3d75"
+    },
+    "native/r2/preferences-drift.png.gz": {
+      "raw_bytes": 54646,
+      "raw_sha256": "efa42613cb90e3e63cb217507c8c036f451f9552d6f93719ef6ce1f969642330",
+      "gzip_bytes": 52104,
+      "gzip_sha256": "0d6e42fe33768f853c1803651b59ef2013a2309acbf11b21b9096cb945ebb392"
+    },
+    "native/r2/preferences-off.png.gz": {
+      "raw_bytes": 61436,
+      "raw_sha256": "5213bcf6b1068eacc62cc767c0a7cbf375305ac6cf66d82e317946ba6365cc5a",
+      "gzip_bytes": 58454,
+      "gzip_sha256": "d3ff2e09f751fdd32d7b1ce17e9848613f148bed8e91236976574fb571b19761"
+    },
+    "native/r2/preferences.ini.gz": {
+      "raw_bytes": 2871,
+      "raw_sha256": "3a5c0bd2dd316c2c21b8f29b0355f980df325d8b25d8f10715f8958595505eac",
+      "gzip_bytes": 1310,
+      "gzip_sha256": "ce44527ab172baf85f66987be4eab488aca0ff7f5467fa6a7542e897b3d59da1"
+    },
+    "native/r2/receipt.json.gz": {
+      "raw_bytes": 142217,
+      "raw_sha256": "c049d020a642e0f393f7c7133fe5083b09e3e1a936488416b6408bd4ca654276",
+      "gzip_bytes": 64395,
+      "gzip_sha256": "916df7762f3bf82cd35556048246bacb66a618a8dfb7c515331c90980bdc85ab"
+    },
+    "native/native-gpu-preferences-r2.log.gz": {
+      "raw_bytes": 4192,
+      "raw_sha256": "fb6c2d78077b97c9a0558875e90edbe4ac8a2749297d1c2b8c1833b3653d03a3",
+      "gzip_bytes": 701,
+      "gzip_sha256": "365705bb7e163b28ecc1fe1ba82759a1c8a2ca726a83973304fb9b22567d3924"
+    },
+    "native/native_gpu_preferences_r2.py.gz": {
+      "raw_bytes": 7150,
+      "raw_sha256": "6e59586e231fce47eacf925e84f30d4f8de11354b69562438f7986f005170506",
+      "gzip_bytes": 2517,
+      "gzip_sha256": "44e408a76d240b45d9ed34ad521ae4a4c50ce9a830b736d6f87c8c68a7033b9e"
+    },
+    "coverage/ultra-saved-renderer-r1.data.carruthers.pid197495.Xsn7WkXx.HEEU2QdLxvZh.gz": {
+      "raw_bytes": 1617920,
+      "raw_sha256": "ac67242baabbbf395e1672e3d9ea249733e2f2452f3db1d93df30293d058c126",
+      "gzip_bytes": 679291,
+      "gzip_sha256": "eebb2c9573705338b11ca96eb3e1dbeb41b62810b35b99a188724f06ecf04846"
+    },
+    "coverage/ultra-saved-renderer-r2.data.carruthers.pid197931.X7Bgwowx.Hi21N1jIG1kh.gz": {
+      "raw_bytes": 2392064,
+      "raw_sha256": "b2f3c0de68a7ba49418dae25f789536517b660427c62aafe3192b41d7c8bb64e",
+      "gzip_bytes": 996677,
+      "gzip_sha256": "8756c32503ccbf591197030651b1b0a2b7e38a32b8437d44c846c328e5fba1d0"
+    },
+    "logs/ultra-saved-renderer-r1-tool.log.gz": {
+      "raw_bytes": 1917,
+      "raw_sha256": "7914d360b239a3dac334651e1cb00296d36659dfca161d85964428c012fbc3ee",
+      "gzip_bytes": 645,
+      "gzip_sha256": "036430d2a7a5596e5944ce09f458b51882734726b3922ef844143c19a6ae9387"
+    },
+    "logs/ultra-saved-renderer-r2-tool.log.gz": {
+      "raw_bytes": 1202,
+      "raw_sha256": "be6955d3d2f86c5f7108ef2eec96a764d20e7dd7a92d7f14517e9ab2c8c90404",
+      "gzip_bytes": 355,
+      "gzip_sha256": "3677e6bb014a4c947cb5b42767475ea15409eff11938c678c7dcd07f2dae8f05"
+    },
+    "source/spacr/qt/widgets/fractal_travel.py.gz": {
+      "raw_bytes": 122124,
+      "raw_sha256": "503d859fab9e96c82f01ea4c16252c24f7df512dbba225aa98e4a01263d29c40",
+      "gzip_bytes": 35597,
+      "gzip_sha256": "086b7743c3ca4d3748782c3f9dcb43ec1f177d42d0f8d6329642570e24e7c669"
+    },
+    "source/tests/qt/test_the_saved_fractal_settings_are_used.py.gz": {
+      "raw_bytes": 7705,
+      "raw_sha256": "f6b77eedd33ef01651852476bab5304b599d3c6a1a400402de3ae557b3c2165d",
+      "gzip_bytes": 2843,
+      "gzip_sha256": "b41cb5980209d9566316cc8285377c4ef47cea22c85bcb5fb98907687a180816"
+    },
+    "source.patch.gz": {
+      "raw_bytes": 1885,
+      "raw_sha256": "ae17a50a05f57a888af38e8c7ee370ec7ab0c471986d3c880cb0cd2ccca423a0",
+      "gzip_bytes": 861,
+      "gzip_sha256": "ce35cab9f2487061f656e153846c6d8407cf023ea7e7abc62bace3678e338b62"
+    },
+    "scripts/archive_ultra_native_preferences_r1.py.gz": {
+      "raw_bytes": 4994,
+      "raw_sha256": "4290bd3dd2ae973d7743dfcdd278e2d8b9293c9794df372a1caeb1d433beb42c",
+      "gzip_bytes": 2131,
+      "gzip_sha256": "95aebb4dbf8707a52434a7b56945a79aa231c38c7bee975cd585e2632d418194"
+    }
+  }
+}

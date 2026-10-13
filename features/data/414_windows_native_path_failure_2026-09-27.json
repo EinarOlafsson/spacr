@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "item": 414,
+  "date": "2026-09-27",
+  "status": "native_failure_reproduced_product_correction_prepared",
+  "run_id": 36348757658,
+  "source_commit": "2c9497c42ac84c19b9e1c5d8affbffd915a3ff15",
+  "cmd": {
+    "job_id": 108709191052,
+    "artifact_id": 10941953338,
+    "install_exit_code": 0,
+    "user_path_changed_by_installer": false,
+    "acceptance_status": "failed",
+    "acceptance_sha256": "a8072217eb20d7c07bcf484d7a087097068e7549177cda2dce3bca72f809ef4f",
+    "job_log_sha256": "6eb1a33ad50ad75b5c15ef10ca4db9f08457f496c3cb902960e04952695b7acd"
+  },
+  "powershell51": {
+    "job_id": 108709190905,
+    "artifact_id": 10942202388,
+    "powershell_version": "5.1.26100.33438",
+    "install_exit_code": 0,
+    "user_path_changed_by_installer": false,
+    "acceptance_status": "failed",
+    "acceptance_sha256": "672410ba51445f789bcbf3536105bfb8219ea9a37c9807bfb3d27a9c5187a81d",
+    "job_log_sha256": "cccc4063cc2283f25f98d33ccc4a52257cc7d7d5659bc829a08f1278c6f01a37"
+  },
+  "installed_claude_version_from_native_logs": "2.1.283",
+  "failure": "Native installation completed but its directory was absent from registered User PATH; fresh-terminal lookup failed.",
+  "correction": "Append idempotent actual-OS-profile User-PATH registration to the shared product command; retain strict unassisted fresh-terminal verification.",
+  "test_only_path_repair": false,
+  "public_api_docstring_or_signature_changed": false,
+  "runtime_translation_caption_changed": false,
+  "local_correction_tests": "63 focused menu/provider/historical/docstring checks passed in 29.37 seconds; actual Windows command execution still requires native CI",
+  "native_correction_acceptance": "not_run",
+  "node_scope": "Node/npm commands absent from installation and verification PATH; hosted image binaries elsewhere not claimed absent.",
+  "authenticated": false,
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/ci-36348757658",
+  "vendor_sources": [
+    "https://code.claude.com/docs/en/setup",
+    "https://code.claude.com/docs/en/troubleshoot-install#verify-your-path"
+  ]
+}

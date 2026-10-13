@@ -1,0 +1,35 @@
+{
+  "item": 53,
+  "date": "2026-09-27",
+  "status": "local_contracts_passed_native_acceptance_pending",
+  "implementation": "Bundle a stdlib-only PyInstaller helper, copy it outside installation roots, and give it an independent extraction directory and environment.",
+  "privilege_scope": "The copied onefile helper must not be elevated from user-controlled storage.",
+  "frozen_replacement_enabled": false,
+  "online_family_fallback_enabled_for_frozen_apps": false,
+  "local_validation": {
+    "passed": 216,
+    "skipped": 1,
+    "seconds": 3.01,
+    "files": [
+      "tests/test_frozen_update_helper.py",
+      "tests/test_frozen_update_boundaries.py",
+      "tests/test_install_cleanup.py",
+      "tests/test_pyinstaller_spec.py"
+    ],
+    "skip_reason": "Actual produced native helper binary is unavailable locally; artifact-only native jobs now exercise copied helpers after installation removal.",
+    "scope": "Isolated fixtures and actual YAML/POSIX shell syntax; no native artifact execution or privileged replacement."
+  },
+  "native_acceptance_prepared": [
+    "Windows copied helper after NSIS uninstall",
+    "macOS copied helper after removal of the job-created app",
+    "Debian and Ubuntu copied helper after package removal"
+  ],
+  "native_checks": "Bind copied bytes by SHA256; clear PATH and Python/loader overrides; reset PyInstaller state; run both CLI help commands with deadlines; preserve analysis data and explicit survival receipts.",
+  "remaining": [
+    "Build and execute the actual native helpers",
+    "Implement and verify each frozen-family replacement transaction",
+    "Verify normal-user relaunch, rollback, consent and backend requirements",
+    "Refresh the changed public API documentation block"
+  ],
+  "item_complete": false
+}

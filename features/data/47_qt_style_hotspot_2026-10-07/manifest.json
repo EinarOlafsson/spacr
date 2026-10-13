@@ -1,0 +1,32 @@
+{
+  "cuda_visible_devices": "",
+  "files": {
+    "README.md": "6d9fb05596d8bb0b0486f200d64f2fa78253c1fac8ce6ddf9e1eb007fcc18e68",
+    "benchmark-raw.json": "9cabf776d0e588649f598fef90aae260cee2b7102936b0cec0b4072b646cf69c",
+    "benchmark.py": "ae0b108b14d407ec13cd968fa9baa1a092e287c8f94ca3f4708ecbf6ad119110",
+    "field-fade-memory.jsonl.gz": "8e74fe2199a31f2fada7f1615ba62515c12dd84bbf0c0814b7fdeda11a7fff09",
+    "field-fade.pstats.gz": "51b9545d322273b10338a8ee2a535246f091528c684dfe59c83155299615e828",
+    "hosted-b779-file-rss.jsonl.gz": "466081d801120257c4569830478973c4e36b8ed14d81ec65a64eb8f0426b595e",
+    "hosted-b779-memory.log.gz": "dacc934034f9451b96eb81d1f0766c7a433e439719efa6d26187e612da6189b5",
+    "page-memory.jsonl.gz": "86779ab1c57692a2a0f5c5ebc262bbe7bf0b8ba0d344ca5b45c08b340221e323"
+  },
+  "hosted_45f_source": "45f3cb1ec0ec5df9e10bb6bcf788c5939d2cc1a3",
+  "hosted_b779_artifact_id": 11451486844,
+  "hosted_b779_source": "b77916cc94165439fabac6cc9c8e004ba7f944b5",
+  "local_cap": "4G",
+  "local_source_commit": "5f33859801fbfcb7df43f12251ab2c26b4cd9f26",
+  "protected_45f_job_id": 112556704860,
+  "protected_45f_status": "in_progress",
+  "protected_45f_status_checked_utc": "2026-10-07T00:31:24Z",
+  "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "qt_platform": "offscreen",
+  "source_sha256": {
+    "spacr/qt/gc_policy.py": "3700585a2f8f6dd394d54aaf79c58c789a0caf4f054fed7cb7035d115eb59fa1",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+    "tests/qt/test_field_fade.py": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15",
+    "tests/qt/test_page_is_never_black.py": "79b2f9ef14eeca92a3db0cadcfdfc3a15ea6d695f27aa3726a4e1b7a89f867ec"
+  }
+}

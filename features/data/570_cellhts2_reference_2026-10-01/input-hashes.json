@@ -1,0 +1,18 @@
+{
+  "BR00117010.csv.gz": {
+    "sha256": "72162df076e9a578073ca3f397fa21d1588f330516e3b7ddc8b64b7d5a490c92",
+    "bytes": 7064935
+  },
+  "BR00117011.csv.gz": {
+    "sha256": "de55e06cbaa51017f4edb9ecc058443f389183147b66e97b60e5ffbb52a0fc8f",
+    "bytes": 7066335
+  },
+  "BR00117012.csv.gz": {
+    "sha256": "6b5a87f6e2acaa3859df6d5a428f6220821440a757044852e77a71a3415bdcd3",
+    "bytes": 7067611
+  },
+  "BR00117013.csv.gz": {
+    "sha256": "ba7662782bb1975a225ce40331625258d4cdb9055066c9f6912f896a47b47bcf",
+    "bytes": 7065134
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "OPS: de las imágenes de secuenciación a los códigos de barras de las células",
+  "description": "Carga los datos de prueba de OPS, elige los ajustes de imagen y de decodificación, ejecuta el análisis y encuentra las asignaciones de códigos de barras en la base de datos de salida.",
+  "objectives": [
+    "Abrir OPS dentro de Mask y cargar sus imágenes de ejemplo y su biblioteca de códigos de barras.",
+    "Elegir las carpetas de entrada y salida y entender los principales ajustes de alineación y decodificación.",
+    "Ejecutar OPS y revisar las asignaciones de códigos de barras a los núcleos en la base de datos de salida."
+  ],
+  "prerequisite": "Abre spaCR. Usa Load test data dentro de OPS para obtener las imágenes de secuenciación de ejemplo y la biblioteca de guías. Para tu propio experimento, prepara los TIFF de los ciclos de secuenciación con sus nombres de archivo de adquisición y un CSV de la biblioteca de códigos de barras correspondiente.",
+  "scenes": [
+    "Desde Home, abre Mask y activa OPS. Esta página recibe imágenes de los ciclos de secuenciación y asigna códigos de barras decodificados a los núcleos.",
+    "Haz clic en Load test data. El ejemplo incluye dos posiciones de imagen a lo largo de once ciclos de secuenciación y una biblioteca de códigos de barras correspondiente. Cuando termina la carga, spaCR rellena los campos de entrada, biblioteca, placa y salida.",
+    "En OPS input, comprueba la carpeta de imágenes de secuenciación y el CSV de la biblioteca de códigos de barras. Elige un destino para los resultados. El ejemplo escribe en la carpeta ops_output dentro de su proyecto descargado.",
+    "Deja vacía la carpeta de imágenes de fenotipo en este ejemplo. Cuando tengas una adquisición de fenotipo correspondiente, selecciona aquí su carpeta para registrar cómo se alinean sus campos con las imágenes de secuenciación.",
+    "En OPS alignment, elige el modelo de segmentación de núcleos. Diameter fija el tamaño esperado del núcleo en píxeles. Raster overlap describe el solapamiento entre mosaicos adquiridos vecinos; usa el valor de tu adquisición. Mantén los ajustes del ejemplo en esta primera ejecución.",
+    "Window overlap controla cuánto comparten las ventanas de segmentación vecinas. Debe ser mayor que el núcleo más grande, para que los objetos en los bordes de las ventanas puedan incluirse enteros. Aumentarlo alarga el procesamiento.",
+    "En OPS decoding, define los cuatro canales de bases en el orden G, T, A, C. El ejemplo usa CY3, A594, CY5 y CY7. Para tus propias imágenes, haz coincidir estos nombres con los nombres de canal de los nombres de archivo TIFF.",
+    "Read threshold controla lo brillante que debe ser un punto para contar como lectura. Subirlo selecciona puntos más intensos; bajarlo incluye puntos más débiles y más fondo. Footprint controla a qué distancia de un núcleo puede estar una lectura y seguir contribuyendo a su código de barras.",
+    "Activa Store reads si quieres revisar después las lecturas individuales. Así se guarda una tabla adicional y se usa más espacio en disco. Déjalo desactivado para una primera ejecución compacta.",
+    "Revisa OPS performance y pulsa Run. GPU activa la aceleración cuando está disponible. Workers controla cuántos campos se decodifican a la vez; bájalo si la memoria es limitada. Sigue el progreso en Console.",
+    "Cuando Console muestre Finished, abre Help, después Database Browser, y elige measurements.db en la carpeta de salida seleccionada. A su lado, cada pocillo tiene una carpeta, aquí A1, con su informe de OPS que incluye el resumen de la decodificación y cualquier advertencia.",
+    "La tabla ops_barcodes asigna a cada núcleo su código de barras, el respaldo de lecturas y la guía correspondiente; ops_objects contiene los mismos identificadores de núcleo con sus coordenadas en la imagen. Esos identificadores son el puente con el resto de tu cribado: une a través de ellos los códigos de barras con tus mediciones de fenotipo y después agrega los datos para Regression. Guarda juntos la base de datos, los informes y los ajustes."
+  ]
+}

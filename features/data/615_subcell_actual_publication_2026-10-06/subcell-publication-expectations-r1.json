@@ -1,0 +1,118 @@
+{
+  "requested_nightly_commit": "e259c2d4ecfa34b8228a8e8eab4520ff06edcf04",
+  "observed_workflow_event_head": "e259c2d4ecfa34b8228a8e8eab4520ff06edcf04",
+  "workflow": 37478293839,
+  "status_at_freeze": "in_progress",
+  "source_resolution_job": 112319454200,
+  "source_resolution_job_log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-docs-workflow-pin-job-r2.log",
+  "actual_publisher_resolved_commit_must_be_verified_from_artifact_and_deployed_channels": true,
+  "expected_API_symbols": 13182,
+  "expected_files": {
+    "docs/source/_static/i18n/api/de.json": {
+      "bytes": 17948428,
+      "sha256": "08587465b8990052cb8293ef3ec1eb7b7deadf94f007626c582ba4b43e94f434"
+    },
+    "docs/source/_static/i18n/api/en.json": {
+      "bytes": 12557986,
+      "sha256": "ca2995b5c7434e2016700ab96c13caf6df461dd6f94133ddace8fd99af75d78b"
+    },
+    "docs/source/_static/i18n/api/es.json": {
+      "bytes": 17884173,
+      "sha256": "cef35141d88dbe5e21ecdf1eaea57f59b1bee9e7b41a6360e3e106b3ccf7d333"
+    },
+    "docs/source/_static/i18n/api/fr.json": {
+      "bytes": 18071312,
+      "sha256": "485152cd6004ead4f96c4de488fb57dc234234137b92deffa44edbe8e72c5ea6"
+    },
+    "docs/source/_static/i18n/api/hi.json": {
+      "bytes": 24595194,
+      "sha256": "4eb4fa505ff8ad834cf6910e048a23cfd1fc4485e1e2840b8344881d165cdb9f"
+    },
+    "docs/source/_static/i18n/api/is.json": {
+      "bytes": 17239111,
+      "sha256": "1afc93127da89e2517a9220b3b6fd45631f26f44f302807c00ea17f89eba2d2c"
+    },
+    "docs/source/_static/i18n/api/ko.json": {
+      "bytes": 18165292,
+      "sha256": "a52eb153ac9b049b05e2a1f5f73c334d7cf38bf4129179e8851f324d534db468"
+    },
+    "docs/source/_static/i18n/api/pt.json": {
+      "bytes": 17731074,
+      "sha256": "d0a86c57e95480636758d7acda9b57271d65740cef8cf031d9d2fa8fc119f078"
+    },
+    "docs/source/_static/i18n/api/sv.json": {
+      "bytes": 17409311,
+      "sha256": "0d5e663425eb49810504a13e5ce4aa0da826c29f4937813bbbb20e3845916b6a"
+    },
+    "docs/source/_static/i18n/api/zh_CN.json": {
+      "bytes": 16466213,
+      "sha256": "83af4988c1b2bd26ef72aa2ff6e0650afa36dc5599c464a1fe7df69b376176c2"
+    },
+    "docs/source/_extra/tutorials/catalog/captions_da.json": {
+      "bytes": 701703,
+      "sha256": "9235c375502a6307d5e4628243b5ff0ae5d99c6f4bedfc0f422611fc947f6fd0"
+    },
+    "docs/source/_extra/tutorials/catalog/captions_de.json": {
+      "bytes": 749067,
+      "sha256": "32ba79ca4f75bfe86091141a81aad779368f9b4df0014cfc68b0be5b3452c6a7"
+    },
+    "docs/source/_extra/tutorials/catalog/captions_is.json": {
+      "bytes": 706489,
+      "sha256": "b855ed7c1c2955d6ea8a24cc61d2a15cb06a9a0064e1112f949fb94d2992359f"
+    },
+    "docs/source/_extra/tutorials/catalog/captions_ko.json": {
+      "bytes": 743197,
+      "sha256": "c31d68929173991a2ad8d252080c73619ae23ee9e9aeaccaccfac62e2fecffbc"
+    },
+    "docs/source/_extra/tutorials/catalog/captions_nb.json": {
+      "bytes": 697486,
+      "sha256": "1846f5c10556512725bd7055e5c32cc6a43553d40abc107e867d4697773fccce"
+    },
+    "docs/source/_extra/tutorials/catalog/captions_sv.json": {
+      "bytes": 706644,
+      "sha256": "6b6e8ba4407d7caf624ca990ed0833ccbd70b6146786cef3f98b695b0127760b"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_en.json": {
+      "bytes": 677976,
+      "sha256": "3002b986248490a67d408d8a481666e7f6cd7f7f9df50239f1f6c06c1a01c731"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_es.json": {
+      "bytes": 1115292,
+      "sha256": "3e68c751d759a40a382de1571a1a230df376e64ca273b398e735a9d9ce3516dd"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_fr.json": {
+      "bytes": 1159633,
+      "sha256": "7204d093c78bddd4edab123ce44c22ddd150611528c2782e1f15f42cc1d2dda9"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_hi.json": {
+      "bytes": 1854585,
+      "sha256": "b8c5810b30e914922cef42e3f1973936be17e96196590eb274f908c89d5d0776"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_it.json": {
+      "bytes": 1103060,
+      "sha256": "66ad7fbfea9fee36ace3ef534afc93ebf3f6289a640651f478bda983158ddd23"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_ja.json": {
+      "bytes": 1235161,
+      "sha256": "f038df543a92d774107d5c36210f0d9b9a4f260273b1fc3c4ff213458b9081e2"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_pt-BR.json": {
+      "bytes": 1098441,
+      "sha256": "1e9ebc950dde198e5e90c4ff16491b3ca3c248b6ecf9c71b4e4d3fd5a16178ae"
+    },
+    "docs/source/_extra/tutorials/catalog/lessons_zh-CN.json": {
+      "bytes": 958467,
+      "sha256": "4aa7336344444fe95fb321e24314ac41ef202ce4ea4ba5875857402131715029"
+    }
+  },
+  "expected_audio_video4k_web_roots": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4",
+  "deployed_API_browser_required": "All eight new reviewed blocks and seven earlier encoder-entry blocks in every nine language panels, including screen callback on screen page.",
+  "deployed_guide_readback_required": "Nine accepted Make Masks pages retaining the twelve puncta reference messages.",
+  "protected_older_serial_Qt": {
+    "workflow": 37457998285,
+    "source": "23750631790924590490e356144c8da72ac805af",
+    "observed_status": "in_progress",
+    "must_not_cancel": true
+  },
+  "no_public_deployment_acceptance_yet": true
+}

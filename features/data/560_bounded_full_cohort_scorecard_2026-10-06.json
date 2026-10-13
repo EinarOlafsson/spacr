@@ -1,0 +1,150 @@
+{
+  "item": 560,
+  "coordinated_source_parent": "ad7ffb18c4292b25dbf960fa2c85fd60626d763b",
+  "normal_two_thread_full_17074_cell_scorecard_terminal_exit_code": 0,
+  "full_original_GPU_feature_cohort_and_human_labels_preserved": true,
+  "all_prior_full_dense_metrics_match_atol_1e_12": true,
+  "normal_model_zoo_encoder_entry": {
+    "key": "encoder:vit_small_patch14_dinov2.lvd142m/project",
+    "name": "vit_small_patch14_dinov2.lvd142m (project)",
+    "kind": "encoder",
+    "source": "local",
+    "path": "/home/carruthers/.cache/huggingface/hub/models--timm--vit_small_patch14_dinov2.lvd142m/snapshots/4610ca143709d58a633b6397a74412c2c3842454/model.safetensors",
+    "uri": "timm:vit_small_patch14_dinov2.lvd142m",
+    "version": "1",
+    "sha256": "04d27f3400d059fc0cfd7d17dd1909a75bf3ea8fb3eeb48b97cb99e57ee20081",
+    "size_bytes": 88240510,
+    "trained_on": "unknown",
+    "trained_by": "timm / vit_small_patch14_dinov2.lvd142m pretrained weights",
+    "metrics": {
+      "knn_accuracy": 0.9279020733278669,
+      "map": 0.4630365058482782,
+      "precision_at_k": 0.8568876654562493,
+      "chance_map": 0.14397477263482286,
+      "chance_precision": 0.14397477263482286,
+      "n": 17074.0,
+      "classes": 8.0
+    },
+    "notes": [
+      "Channel policy: project. Dimensions from one policy are not comparable with the other's."
+    ],
+    "verified": false,
+    "settings_path": "",
+    "licence": ""
+  },
+  "elapsed_seconds": 23.29649610898923,
+  "peak_process_RSS_KiB": 880100,
+  "hard_memory_cap_GiB": 4,
+  "scorecard_query_block_rows": 256,
+  "full_rankings_self_exclusion_stable_ties_singleton_handling_and_signatures_preserved": true,
+  "no_subsampled_cohort_or_top_k_mAP_approximation": true,
+  "bare_numpy_large_product_library_failure_not_claimed_fixed": true,
+  "focused_scorecard_foundation_and_zoo_tests_observed_terminal_exit_code": 0,
+  "focused_scorecard_foundation_and_zoo_tests_passed": 22,
+  "focused_zoo_weight_test_skipped": 1,
+  "skip_reason": "Existing test reports pretrained weights are not cached on this machine. Main environment lacks timm; the real full-cohort verifier checks actual cached weights in the private encoder environment.",
+  "focused_test_output_provenance": "Exact terminal tool handle 53583; no reconstructed raw log claimed",
+  "docstring_tests_passed": 11,
+  "foundation_picker_tests_passed": 3,
+  "current_Cell_DINO_unsupported_caption_in_nine_languages": true,
+  "no_Cell_DINO_checkpoint_loader_or_GPU_support_claim": true,
+  "Cell_DINO_primary_source_evidence": "560_Cell_DINO_upstream_availability_2026-10-06_r2.json",
+  "normal_nine_language_runtime_build_and_strict_API_audit_passed": true,
+  "complete_unchanged_API_records_each_ten_catalogs": 13181,
+  "all_other_runtime_rows_and_hashes_preserved_each_ten_catalogs": 9856,
+  "runtime_replaced_source_rows_each_catalog": 1,
+  "strict_full_all_language_Sphinx_build_passed": true,
+  "normal_consumer_map_and_settings_flow_regenerated": true,
+  "Mask_Measure_Home_Conda_media_unchanged": true,
+  "new_checkpoint_actual_nightly_deployment_verified": false,
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff",
+  "earlier_review_admission_failure_retained": "r1 used an unsupported helper keyword before changing any inputs; r2 succeeds",
+  "current_source_sha256": {
+    "spacr/embeddings.py": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+    "spacr/qt/screens/embeddings.py": "cdca449bf549907478af63c5c1a8f044a730931b8f99db49271a045a8e3e4597"
+  },
+  "no_new_GPU_job_dependency_environment_change_or_protected_job_interference": true,
+  "Home_retains_CPU_CI_Qt_and_remaining_embedding_feature_source_ownership": true,
+  "artifacts": {
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/archive_scorecard_api_repair_r1.py": {
+      "sha256": "316906369dca3b36a4e0cba55fb0941591644d4d9782aff2d8c219734602c6f3",
+      "bytes": 8677
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/cell-dino-foundation-picker-tests-r1.log.gz": {
+      "sha256": "ca56744aa7ddf1906099a25c60fe39060e0ad744b9a43058a04bf24df29cf82f",
+      "bytes": 51
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/cell-dino-runtime-normal-refresh-r1.log.gz": {
+      "sha256": "8ec5571c5b8962d1b54ae2e9c631cee50794d356dc84cac7e4377e07b4568f61",
+      "bytes": 262
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/cell-dino-runtime-review-admission-r1.log.gz": {
+      "sha256": "54ce625995695ff37a4aa4ae001d53e676301994dae9d5ab40df6c78218daf53",
+      "bytes": 269
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/cell-dino-runtime-review-admission-r2.log.gz": {
+      "sha256": "e5866da51f7430a06341e29f25c1b318c4a875d47428f1a6a84ff50b15a57ab5",
+      "bytes": 113
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/cell-dino-runtime-review-input-proof-r1.json": {
+      "sha256": "945e507f1374c1d24e229214e47c277ee7652be1301e84c81f2711f96ecdb828",
+      "bytes": 8748
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/check_scorecard_catalog_preservation_r1.py": {
+      "sha256": "5c44eb53f7d0f807590913495ed4d0f64f08111992e673c0293a9857e61ecab8",
+      "bytes": 2908
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/preserve_cell_dino_review_order_r1.py": {
+      "sha256": "f94855c81485a03f583fc635915183fcd11c2057d3eaaac30f8247dde34f8197",
+      "bytes": 1568
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/refresh_cell_dino_runtime_review_r1.py": {
+      "sha256": "8def3276c88362365f16cd9c8ae11ce019729e3e2fee698285c6f316e64b8818",
+      "bytes": 4163
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-api-repair-full-cohort-r1.json": {
+      "sha256": "f2d50f4e17835eaea49c3c94162371fdbe5ae4e2d5fdcfe7f8098fe6d2637ba4",
+      "bytes": 2320
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-api-repair-full-cohort-r1.log.gz": {
+      "sha256": "3d6e37dfd7c88ad3a2e402599e58d3dad9656f6ee3cd4bdf204da44a4a1af9f1",
+      "bytes": 153
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-api-runtime-source-delta-r1.json": {
+      "sha256": "d29cc84354141dd3926ed6fc9145368c9aca0b148b729d643e4ffc67c3cb6602",
+      "bytes": 720
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-api-strict-audit-r1.log.gz": {
+      "sha256": "b42070efae9594557e80dd9ebccb66c4b78b23a8755a2490f1f15eb580b9ca27",
+      "bytes": 69
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-catalog-preservation-proof-r1.json": {
+      "sha256": "c910f8dece7ae1dbbe2e2ca88cce3ea97f9b6e2a3d225000c4e1c7280f677418",
+      "bytes": 3973
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-catalog-preservation-r1.log.gz": {
+      "sha256": "f17b81e40cb294a25505c414e2fcd0b59c0c0d249392a753e0162997ee2ef45c",
+      "bytes": 135
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-consumer-map-r1.log.gz": {
+      "sha256": "bd25022cf66c1ed7afca6bc7d11ba23f94b8d2d72445f74114cf7f8c945dcaa1",
+      "bytes": 311
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-docs-all-r1.log.gz": {
+      "sha256": "0ddafb6b23a1b55c4f1c83b06a902d4971c843140bb0e2550b9a8a1874c6aa11",
+      "bytes": 32340
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-docstring-tests-r1.log.gz": {
+      "sha256": "aa0b1aa26acab6adbf0d5b520f7e66472773b646357fcfb04ad1c89fd50a38e8",
+      "bytes": 53
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/scorecard-settings-flow-r1.log.gz": {
+      "sha256": "be1139a73c1e64cd387a8d2cf23eafc6f3f190b52112c20a5c1ed3191f28274c",
+      "bytes": 192
+    },
+    "features/data/560_bounded_full_cohort_scorecard_2026-10-06/verify_repaired_full_cohort_scorecard_r1.py": {
+      "sha256": "5762116b387e59a0398fe7e7cc5895ba3cfc228f189d9f80fa9ea0b2399e900f",
+      "bytes": 3940
+    }
+  }
+}

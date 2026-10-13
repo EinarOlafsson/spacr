@@ -1,0 +1,110 @@
+{
+  "id": "46_napari_bridge",
+  "number": 46,
+  "slug": "napari_bridge",
+  "title": "Napari Bridge: edit and return a label mask",
+  "series": 5,
+  "app_key": "napari_bridge",
+  "host_app_key": "make_masks",
+  "section": "Mask correction",
+  "description": "Open an image and mask in napari, edit labels, and save the corrected mask back to spaCR.",
+  "objectives": [
+    "Open corresponding image and label files.",
+    "Edit and undo changes in napari.",
+    "Return and inspect the saved mask."
+  ],
+  "example_files": [
+    "SYNTHETIC_napari_example.zip"
+  ],
+  "prerequisite": "Install the optional napari dependency and unzip the synthetic example into a new folder. Keep an untouched backup: Take the mask back overwrites the selected working mask. Close and reopen the viewer between saved editing rounds.",
+  "scenes": [
+    {
+      "visual": "02_actual_bridge",
+      "narration": "Open Make Masks, then Napari Bridge. Use it to edit an existing label mask with its intensity image as a reference. Keep an untouched backup of the mask.",
+      "focus": [
+        460,
+        235,
+        3350,
+        510
+      ],
+      "related_lessons": [
+        "14_make_masks"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_ready_to_open",
+      "narration": "Download and unzip the synthetic example. Choose mask dot tif for Mask and image dot tif for Image, then press Open in napari.",
+      "focus": [
+        460,
+        365,
+        3350,
+        370
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_napari_layers",
+      "narration": "Select the mask Labels layer in napari. Label zero is background; each object label has a display colour. Make edits on the labels layer.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_unchanged_round_trip",
+      "narration": "Return to spaCR and use Take the mask back to import the viewer’s current labels. If you have made no changes, the status reports that the mask is unchanged.",
+      "focus": [
+        460,
+        445,
+        3350,
+        295
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_fill_one_synthetic_object",
+      "narration": "For practice, select label eighteen, choose Fill, and click the object labelled two. Inspect the changed label before importing it.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_napari_undo",
+      "narration": "Use Undo to reverse the last viewer edit. Repeat the Fill operation when you are ready to keep the change.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_imported_and_recorded",
+      "narration": "Click Take the mask back in spaCR. Review the changed-pixel count, then inspect the saved mask and its correction-history sidecar.",
+      "focus": [
+        460,
+        445,
+        3350,
+        295
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12d_closed_before_next_edit",
+      "narration": "Click Close viewer and reopen the mask before the next editing round. This makes the saved mask the starting point for subsequent corrections.",
+      "focus": [
+        460,
+        445,
+        3350,
+        295
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_history_preserved_after_reopen",
+      "narration": "After the next edit, take the mask back and inspect the result again. Close the viewer when finished, keep the correction history, and rerun measurements affected by the changed labels.",
+      "focus": [
+        460,
+        445,
+        3350,
+        295
+      ],
+      "related_lessons": [
+        "08_measure",
+        "06_api"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

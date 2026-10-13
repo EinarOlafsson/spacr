@@ -1,0 +1,182 @@
+{
+  "id": "60_pca",
+  "number": 60,
+  "slug": "pca",
+  "series": 5,
+  "app_key": "pca",
+  "host_app_key": "umap",
+  "section": "Explore",
+  "title": "PCA: explore measurements and export components",
+  "description": "Load measured objects, choose features, compare principal components and export scores, loadings and explained variance.",
+  "objectives": [
+    "Load a measurement database or CSV and select features.",
+    "Choose scaling, missing-value handling and filters.",
+    "Inspect component scores and loadings, then export three result tables."
+  ],
+  "prerequisite": "Download the example from the Annotate tutorial and work with a copy of measurements.db. This walkthrough uses its cell table, with 2,341 measured objects across four wells. Keep the original database and record your feature list, filters, scaling and missing-value policy.",
+  "scenes": [
+    {
+      "visual": "01_image_umap_host",
+      "narration": "From Home, open Image UMAP, then choose PCA. Use PCA to summarize several measurement columns as principal components. Start with the measurements database from the linked Annotate example.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "15_image_umap"
+      ]
+    },
+    {
+      "visual": "03_real_measurement_picker",
+      "narration": "Click Load table beside the PCA heading. Open measurements.db and select cell. Check the displayed table and object count. You can also load a CSV containing measurement columns.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_three_features_before_run",
+      "narration": "Clear the feature search and click None to untick all visible features. Select cell_area, cell_channel_1_mean_intensity and cell_perimeter. Clear the search again, set Components to three, then click Run PCA.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "62_feature_dictionary"
+      ],
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "05_standardised_three_features",
+      "narration": "Keep Scale on Standardise to center each feature and divide by its sample standard deviation. Read the scree plot: the first two components explain about sixty-five point seven and thirty-one point seven percent of the selected features’ variance.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "07_pc3_against_pc1",
+      "narration": "Choose rowID in Colour, PC three on X and PC one on Y. These controls redraw the fitted result. Each point represents a cell; rowID identifies a spatial row in this example.",
+      "hold_after": 0.7,
+      "focus": [
+        1420,
+        335,
+        2220,
+        1600
+      ]
+    },
+    {
+      "visual": "09_biplot_restored",
+      "narration": "Return to PC one and PC two. Toggle Loadings biplot to show or hide feature arrows. The arrows show correlations with the displayed components; use their directions and the dashed reference circle to compare features.",
+      "hold_after": 0.7,
+      "focus": [
+        1600,
+        500,
+        1660,
+        1070
+      ]
+    },
+    {
+      "visual": "11_raw_units_pca",
+      "narration": "Choose Centre only to fit using the original measurement scales. The first component now explains about ninety point one percent. Scaling changes the question being summarized. Restore Standardise to compare features on a common scale.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "13_live_filter_refits_basis",
+      "narration": "In the right-hand filter, add cell_area and set the minimum to twenty-one thousand nine hundred twenty-five. The panel refits PCA on the remaining one thousand one hundred seventy-one cells, so both the population and component directions change.",
+      "hold_after": 0.7,
+      "focus": [
+        3360,
+        325,
+        470,
+        620
+      ]
+    },
+    {
+      "visual": "14_clear_restores_full_basis",
+      "narration": "Click Clear all in the filter to restore the full population. Check the object count after filtering. The source database stays unchanged; the displayed result is recalculated for the chosen population.",
+      "hold_after": 0.7,
+      "focus": [
+        1410,
+        1890,
+        2400,
+        225
+      ]
+    },
+    {
+      "visual": "15_missing_feature_ticked_not_run",
+      "narration": "Select cell_channel_0_homogeneity_distance_32 as a fourth feature. Click Run PCA to include it in the result. This example has seven missing measurements in that column; use NaN to choose how the fit handles them.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "16_auto_seven_rows_removed",
+      "narration": "With Auto, features missing in more than two percent of rows are removed, then incomplete rows are dropped. Here all four features remain and seven cells are excluded. Read the report to see the features and objects actually analyzed.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "18_drop_feature_keeps_objects",
+      "narration": "Choose Drop features to remove any selected feature containing missing values. In this example the texture feature is removed and all cells remain. The result notice shows which features were excluded, even while their checkboxes remain ticked.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "19_mean_imputes_seven_values",
+      "narration": "Choose Mean-impute to retain all cells and features by replacing missing values with the observed feature mean during calculation. Here seven values are replaced. Record this choice when presenting the result; the replacements are estimates.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "20_complete_cases",
+      "narration": "Choose Complete cases to retain the selected features and exclude incomplete rows. To return to the original example, choose Auto, untick the texture feature, clear the search, click Run PCA and set Colour to none.",
+      "hold_after": 0.7,
+      "focus": [
+        300,
+        1490,
+        3350,
+        610
+      ]
+    },
+    {
+      "visual": "22_actual_three_file_export",
+      "narration": "Click Export and choose a base name such as pca_example. The panel writes three CSV files: scores for analyzed objects, loadings and correlations for features, and explained variance for components. The scores table also includes the source measurement columns.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_export_confirmation",
+      "narration": "Open the exported tables and keep them with your feature list, filters and analysis settings. Treat the cells as observations within their wells when interpreting separation. For a repeatable Python analysis, use pca and PCASpec from spacr.qt.widgets.pca_model.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "15_image_umap"
+      ]
+    }
+  ]
+}

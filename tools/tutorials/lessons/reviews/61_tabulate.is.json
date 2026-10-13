@@ -1,0 +1,41 @@
+{
+  "lesson": "61_tabulate",
+  "english_sha256": "1d22d1f5a170f7e6d1e63dc052ce2281278fe4068e9a27b1c7c90b3a8c60d2cb",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Tabulate: taktu saman mælingar eftir brunni og sjónsviði",
+  "description": "Flokkaðu mælda hluti, veldu samantektartölur, skoðaðu hópa sem vantar og fluttu út veltitöflu eða sendu hana til Graph Builder.",
+  "objectives": [
+    "Hlaða inn mælingum og flokka þær eftir brunni eða sjónsviði.",
+    "Velja gildi, tölfræði og síur og athuga um leið fjöldann sem leggur til.",
+    "Flytja út CSV-samantektir og endurnýja gröf þeirra í Graph Builder."
+  ],
+  "prerequisite": "Sæktu mælingadæmið úr Annotate-kennsluefninu og vinndu með afrit af measurements.db. Tafla þess cell hefur 2.341 hlut úr fjórum brunnum. Haltu rúmfræðilegum merkjum aðskildum frá meðferðarmerkjum og veldu flokkunarstig sem hentar tilrauninni.",
+  "scenes": [
+    "Frá Home opnarðu Database Browser og velur svo Tabulate. Notaðu tólið til að taka saman mælingadálka eftir brunni, sjónsviði eða öðrum hópi. Yfirferðin notar gagnagrunninn úr tengda Annotate-dæminu.",
+    "Í Tabulate smellirðu á Load table, opnar measurements.db og velur cell. Notaðu eigin stýringar Tabulate til að velja inntak og flytja út. Athugaðu töfluna og þá 2.341 hluti sem hlaðist hafa inn.",
+    "Veldu Plate/row/column til að flokka eftir plötu og brunni. Hafðu Values tómt til að telja upprunalínur. Brunnarnir fjórir innihalda 615, 525, 700 og 501 frumu.",
+    "Leitaðu að fieldID og dragðu það í Columns. Þá verður til hnitanet brunna og sjónsviða. Færðu bendilinn yfir auðan reit til að skoða hann: dæmið hefur eina samsetningu án upprunalína. Greindu hana frá mældu núlli.",
+    "Tæmdu Columns og dragðu svo cell_area í Values. Sjálfgefna samantektin sýnir fjölda, meðaltal og staðalfrávik úrtaks. Leitin finnur dálkaheiti; breyting á ásum eða tölfræði endurreiknar samantektina.",
+    "Færðu bendilinn yfir niðurstöðureit til að sjá alla tölfræði hans og fjöldann sem leggur til, þar á meðal línur sem línuhæðin felur. Staðalfrávikið lýsir breytileika milli hlutanna í hópnum.",
+    "Virkjaðu median, sem og quantile til að bæta þeirri tölfræði við. Stilltu Quantile at á 0,75 fyrir efri fjórðung. SEM notar fjölda tiltækra hluta; veldu stig tilraunaendurtekninga sérstaklega þegar þú metur líffræðilega óvissu.",
+    "Stilltu Quantile at á 0,5 til að sýna miðgildið. Fyrsti brunnurinn sýnir nú 22.400 fyrir bæði. Settu aftur 0,75 og slökktu á aukatölfræðinni til að fara aftur í einfaldari samantektina.",
+    "Settu cell_channel_0_homogeneity_distance_32 í stað cell_area. Í þessum eiginleika vantar sjö gildi, svo fjöldinn sem leggur til er minni en fjöldi upprunalína. Notaðu þann fjölda þegar þú berð saman hópa.",
+    "Settu cell_area aftur inn og smelltu á Export CSV í Tabulate. Veldu nýtt skráarheiti. Þessi samantekt eftir brunnum inniheldur flokkunarlyklana þrjá, fjölda, meðaltal og staðalfrávik. Geymdu val á flokkun, tölfræði og síum við hlið útfluttu skrárinnar.",
+    "Smelltu á Plot this table til að senda samantektina til Graph Builder. Dragðu columnID á X, mean á Y og rowID á Colour. Athugaðu ályktaðar dálkagerðir: í þessu dæmi fer Automatic með þessi fjögur ólíku meðaltöl sem flokka og sýnir hitakort.",
+    "Bættu við cell_area-síu með lágmarkinu 21.925. Veltitaflan uppfærist strax fyrir hlutina sem eftir eru. Smelltu aftur á Plot this table í hvert sinn sem þú vilt flytja uppfærðu samantektina í grafið.",
+    "Eftir að hafa smellt á Plot this table skoðarðu uppfærð meðaltöl hópanna. Athugasemd um flatarmálssíu getur birst því að flutta samantektin inniheldur mean en ekki cell_area. Hlutasían hefur þegar verið notuð fyrr, í Tabulate.",
+    "Smelltu á Clear all í síunni og svo aftur á Plot this table til að fá upprunalegu samantektina eftir brunnum aftur. Vistaðu síaðan og ósíaðan útflutning undir ólíkum heitum þegar þú þarft hvort tveggja.",
+    "Fyrir samantekt eftir sjónsviðum dregurðu fieldID í Rows á eftir brunnalyklunum. Hver lína með gögnum tekur nú saman eitt sjónsvið innan brunns. Skoðaðu fjöldann sem leggur til og haltu þessu flokkunarstigi samræmdu þegar þú berð saman niðurstöður.",
+    "Smelltu á Plot this table, settu fieldID á X, haltu mean á Y og rowID á Colour og veldu svo Scatter í Plot. Í þessu dæmi er mean nú greint sem samfellt. Staðfestu birtar dálkagerðir og merki ásanna.",
+    "Dreifiritið sýnir 51 meðaltal eftir sjónsviðum. Litirnir auðkenna rúmfræðilegar raðir og endurtekin sjónsviðsmerki geta tilheyrt ólíkum brunnum. Notaðu upprunalegu hlutatöfluna þegar þú vilt velja einstakar frumur og skoða myndir þeirra.",
+    "Fluttu samantektina eftir sjónsviðum út sem sérstaka CSV-skrá. Hún inniheldur 52 línur hnitanets þar sem tóma samsetningin er auð; grafið inniheldur 51 hóp með gögnum. Í Python notarðu pivot og PivotSpec úr spacr.qt.widgets.pivot_spec og svo to_csv til að vista niðurstöðuna."
+  ]
+}

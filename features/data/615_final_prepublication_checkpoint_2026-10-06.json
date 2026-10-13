@@ -1,0 +1,396 @@
+{
+  "schema": 1,
+  "scope": "Byte-preserved final prepublication evidence, draft inputs, normal guide checkpoint and native-frame packaging. The first normal runtime GPU owner failed137 with a kernel-confirmed8GiB cgroup OOM. Its partial locales are not accepted as an all-nine release. CPU runtime source/process were unchanged when its owned cap became36GiB. No live writer log or partial catalog was archived here.",
+  "source_commit": "d326d20a01fe6b4ecc1b40c435e98f078345f143",
+  "normal_runtime_GPU_retry": {
+    "label": "615-final-runtime-catalogs-20261006-r2",
+    "memory_cap_GiB": 24,
+    "accepted": false
+  },
+  "technical_native_packaging": {
+    "scenes": 61,
+    "exact_native_frames": 59,
+    "unrelated_lessons_preserved": 84,
+    "catalogs": 14
+  },
+  "guides_per_locale": {
+    "messages": 2999,
+    "translated_checkpoint": 2983,
+    "pending": 16
+  },
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "full50_audio_acceptance": false,
+  "current_source_publication": false,
+  "artifacts": [
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-runtime-normal-GPU-refresh-r1.log",
+      "original_sha256": "4b90faefbb152175e81773aa5a9cb32e274131d03cda5577f48e1ad7871d459f",
+      "original_bytes": 2506,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-runtime-normal-GPU-refresh-r1.log.gz",
+      "archive_sha256": "4e4d3a3c0b6833321b2363d07d8b2f9a5726c71d97dad4e5eb40034e10c8062b"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-runtime-GPU-r1-kernel-OOM-r1.txt",
+      "original_sha256": "40b9dbc700e81a335e212fcc7829445ad9d87cdd10ed3dcd197eab9d44c29f28",
+      "original_bytes": 986,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-runtime-GPU-r1-kernel-OOM-r1.txt.gz",
+      "archive_sha256": "0f94513e8f68e9cfcd59d4ee7885ebbafa14f7aba78377f324916c9e80b94a22"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-runtime-live-resource-adjustment-r1.txt",
+      "original_sha256": "81e1d10b45dd359ca050448c509b257bddf9079bf548ebea80d167dbe0b2314f",
+      "original_bytes": 64,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-runtime-live-resource-adjustment-r1.txt.gz",
+      "archive_sha256": "e51cbcb60483af0ba5d8d29b46fbafc105c4b7ed727546c4a741a32b7880b699"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/prepare_final_guide_checkpoint_r1.py",
+      "original_sha256": "f8b8ec1a35a0e3c378a1c41e51c5a8ecfa49f45a275fba4248c25b67756a21af",
+      "original_bytes": 1526,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/prepare_final_guide_checkpoint_r1.py.gz",
+      "archive_sha256": "4a27b9ca910dc0902c055499626eaba42c78b8574666f59ac8d0347b4bf4ebf5"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-checkpoint-preservation-r1.json",
+      "original_sha256": "baac1c8d0a682e43c7238d40301f9e265f1229a6c1195d2ed276c3c641874be5",
+      "original_bytes": 104192,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-checkpoint-preservation-r1.json.gz",
+      "archive_sha256": "421c2e305fe18c95ae631605fba9330d21788f2d0bfdf89ea744de45372a0a72"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-extract-r1.log",
+      "original_sha256": "265f526116c57f55de910844857ed1ae9de8e0e4c3faae29bbf670425c32ee56",
+      "original_bytes": 119,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-extract-r1.log.gz",
+      "archive_sha256": "4f721a02f104e25da86e854b022c7fdf7643c58bc2754652de3c3468cd65089d"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/update_final_guide_worklists_r1.py",
+      "original_sha256": "2d76a0cdb4e8b26087c4cadd2f87b9b20d2bd86d71b7a228f1671ba480b0522a",
+      "original_bytes": 879,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/update_final_guide_worklists_r1.py.gz",
+      "archive_sha256": "f7d3c75ac586adad5ec98e5948722f83d4bd32bec47ea836ebf6413db9540c29"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-normal-update-r1.log",
+      "original_sha256": "3c93f0588cd55226e8875b72b72bb8c9d27c00b79c00e13d038fbd0e5b2298ff",
+      "original_bytes": 608,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-normal-update-r1.log.gz",
+      "archive_sha256": "92d78fee04c20fee09b6e6c067af27a5a79a034d8f2c7ca2b3a2d33346945ff5"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/author_final_guide_drafts_r1.py",
+      "original_sha256": "b685e89b4c82fdc3d9bff087d832380d940a848ad8b5b3dcaf26db151eabf2b5",
+      "original_bytes": 18259,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/author_final_guide_drafts_r1.py.gz",
+      "archive_sha256": "13ee72b6013638498aa9c627662d57a13f099906a833321f2d3cb2eafca006b1"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-contained-composition-r2.log",
+      "original_sha256": "265f526116c57f55de910844857ed1ae9de8e0e4c3faae29bbf670425c32ee56",
+      "original_bytes": 119,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-contained-composition-r2.log.gz",
+      "archive_sha256": "6431827bdbe41bf44b21ab2892439c9a6a8df408e7ed494152179c682515e2ce"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-contained-composition-r3.log",
+      "original_sha256": "611d653fbcf7fa85c6a7ed35d6149c0b553b0ebbff877f242493531cc7ecbc02",
+      "original_bytes": 203,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-contained-composition-r3.log.gz",
+      "archive_sha256": "df94798e4b4f3259a9d28eca53addc2e2596408c6dc716f146a44e341288b5f1"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-contained-stage-r2.log",
+      "original_sha256": "28b557fd16dd177111ecb1ddef02f6fdf0325296399b120ef4308d0ac3af0fc7",
+      "original_bytes": 180,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-contained-stage-r2.log.gz",
+      "archive_sha256": "41c27e00f3aee3bc3911685858b8e93d428706ebf333cc87eea21d2a539c7029"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/check_final_contained_stage_r2.py",
+      "original_sha256": "f65b5001f1e957c69899f028c43990597e350888765e7c15814961b2f959a999",
+      "original_bytes": 3328,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/check_final_contained_stage_r2.py.gz",
+      "archive_sha256": "2adcecaf8aae63b64431c8fad967a0c7e41d2335b41ae0a9dba1d67cd13807d2"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-contained-stage-acceptance-r2.json",
+      "original_sha256": "236e9710114ce406df70b127cc0c51bb9f3b877df040d13e9dea0e356b39eb55",
+      "original_bytes": 650,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-contained-stage-acceptance-r2.json.gz",
+      "archive_sha256": "19be73e180e018f6e7089b84dc3f5f64d0e4851eb873c83dd71c5809fa1fc208"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/promote_final_reviews_r2.py",
+      "original_sha256": "da6e90cfdd12c8c97ca745aadba103fe921c080463723ff619a28762ad55ae9f",
+      "original_bytes": 2211,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/promote_final_reviews_r2.py.gz",
+      "archive_sha256": "98054870a8f1423051e3daccc4362966319c24c82edbf23661bba1f0d874efeb"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/make-masks-final-stage-proof-r2.json",
+      "original_sha256": "61b9b1c6617b6d82820ca4a4ab0ba0078f9c38224b026ba00bf593f9c20cf265",
+      "original_bytes": 2066,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/make-masks-final-stage-proof-r2.json.gz",
+      "archive_sha256": "245288853d413c1bd60a275015a72813c30db45b5f96c617d53f429a99c31273"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/finish_final_current_video_r1.py",
+      "original_sha256": "95631c06df87f8de0c323439122f62721fb042ce272d12ec4d6723b6d75134e5",
+      "original_bytes": 3367,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/finish_final_current_video_r1.py.gz",
+      "archive_sha256": "d0786f1b4a0362d52d81d90fc6f3ea7fa1c1b22670c4573ede9cd33898ee97d1"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_final_current_rendered_scenes_r1.py",
+      "original_sha256": "146c67e7ac3d29de47cddab307e4bdb6bcda37e78bbc6a3bc9e23725145de3c2",
+      "original_bytes": 3964,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/verify_final_current_rendered_scenes_r1.py.gz",
+      "archive_sha256": "7bc00a98bc7d7727f615bfd21a7806563a1e0f55232261fe171ee70d0df1822b"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_final_gpu_narration_r1.py",
+      "original_sha256": "083220d5650dcb96403afd16264e637add50ed1eb09e7d93b9b2215cfeb88b67",
+      "original_bytes": 8793,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/run_final_gpu_narration_r1.py.gz",
+      "archive_sha256": "1e20066b75c2a83f28b541df0a619637a4c6f558b4b97a15a387559f470b4355"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/complete_final_guide_reviews_r1.py",
+      "original_sha256": "0d358c6c0deb67d8e037ad9c91b3e63ef9c1a8dab468106d0c740e5edca65792",
+      "original_bytes": 4289,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/complete_final_guide_reviews_r1.py.gz",
+      "archive_sha256": "bc23f6acb48ece957fd45e893d0ef8a976e082385ce12c227108c4ec64a65d97"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-sv-r1.json",
+      "original_sha256": "b404ddae43dad8ead13b2e004b0bc1f32f23a1aab66b5825afc0ac5b5f990961",
+      "original_bytes": 4622,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-sv-r1.json.gz",
+      "archive_sha256": "2eab4963e6e2a43e32e31ab27631786e90744001532e7a7913f6b3ecec6a2091"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-sv-r1.json",
+      "original_sha256": "5d8948e5ed1f4d462f8b9d1798b52c93570161f19fdc593c907f4dc0b20db5c9",
+      "original_bytes": 8679,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-sv-r1.json.gz",
+      "archive_sha256": "9d7dbaff1cdefa6866996a76520cc37abad094879e860935745831fe2a81a763"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-sv-r1.json",
+      "original_sha256": "3c8ba646275a5496a8fab7c6fc5cad5e6353331618cfc34251e70c02cf2cc83a",
+      "original_bytes": 9731,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-sv-r1.json.gz",
+      "archive_sha256": "112456ff160f8b392b10f5367ef53c2c6e96f26ada999cfd220d12f69ea272ec"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-de-r1.json",
+      "original_sha256": "c7f09a45ee180c51ee8079a507b06b34e03d24c57e45d3768a2e6d0e571a4471",
+      "original_bytes": 4897,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-de-r1.json.gz",
+      "archive_sha256": "f700c5ca0a88b4340ed44baa4db9026f6b32d917dfa9b989b54e7d3bb63566ef"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-de-r1.json",
+      "original_sha256": "09d54c27ef1a0b93e673d970621661d9eb09858c31f04c96e099950207ee4910",
+      "original_bytes": 8862,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-de-r1.json.gz",
+      "archive_sha256": "a5a13d86c23363ef141f807571946271fc725d2da070503204e8e7c6aa7d7138"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-de-r1.json",
+      "original_sha256": "6343e19375a2084c838d243d30e1a9f5c8345cc53cbd56fbf810ae44fcb44acf",
+      "original_bytes": 10117,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-de-r1.json.gz",
+      "archive_sha256": "87376ddd621546e4d99eefe33ef6e013bf168825ca78c6d65d5e4152ecd1d007"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-es-r1.json",
+      "original_sha256": "861a753808942767af4374ae380f50e9212610bf5e5fb65ac6d41f3b51c2ab33",
+      "original_bytes": 4821,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-es-r1.json.gz",
+      "archive_sha256": "1447a3de299bcde584912639ea9636cfc68354d2819a0a155665673b0db2d186"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-es-r1.json",
+      "original_sha256": "10d154066816b2bc29c44669bfa372f47ad685f975e869d475e50b433c7cf1e3",
+      "original_bytes": 8780,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-es-r1.json.gz",
+      "archive_sha256": "3c727871f06eeb888fd7358db49413ae422e12da4f3d0ba6841b4039a0e3e7cd"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-es-r1.json",
+      "original_sha256": "836637f34d65c2222cf9a0ce7e9492319d8b2dfc7bc647b38c991b3d8bf9a91d",
+      "original_bytes": 9925,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-es-r1.json.gz",
+      "archive_sha256": "6438cd5e61c294eb4852566649ef6e10e9632d71bdd349455f6057ff20738a5b"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-zh_CN-r1.json",
+      "original_sha256": "14c0bd4a65c1813ff1977a186341d4a1f244ad2da1396f88210add54f3c409ae",
+      "original_bytes": 4429,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-zh_CN-r1.json.gz",
+      "archive_sha256": "762166dfc34687b68ffc064a2644f339a3f3f4e1ffde93d76301f8c53d4fb2e0"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-zh_CN-r1.json",
+      "original_sha256": "5156c463ab7c13a927ee9bdaea61dc4978a19d4dcd77c5a1c84057a42b6cdb28",
+      "original_bytes": 8468,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-zh_CN-r1.json.gz",
+      "archive_sha256": "dadef9cb3cba65e4dd9336a15fe990d53b31fb7800c789cda294db1ce961b2fd"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-zh_CN-r1.json",
+      "original_sha256": "427ac6a297c0242155cb77124f4c419191c217e514fccfd39382403c1d67722e",
+      "original_bytes": 9046,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-zh_CN-r1.json.gz",
+      "archive_sha256": "2f6d1bf8bcfb1ff9c97be0301c4d3750b585c9244aa03802ae0ec64cb518b004"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-pt-r1.json",
+      "original_sha256": "d2888cbf355530353c4194d0a56db425898904aba4b9acdd9cd2c43a490c5131",
+      "original_bytes": 4770,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-pt-r1.json.gz",
+      "archive_sha256": "295e4c6a72f2d5c017254ffc8b813b5db3a880597a065681cb2ec825137aed17"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-pt-r1.json",
+      "original_sha256": "6e990b2e297bc33f1190a2ac17fe42f7ec621e2d1b401b2755d9038907d425c2",
+      "original_bytes": 8744,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-pt-r1.json.gz",
+      "archive_sha256": "510040f1b0ce3af1a069668840279249921be83b86317f460c43a3caf0b134c7"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-pt-r1.json",
+      "original_sha256": "94317d043d2df7c098d377d53504116aafab73f85065c752cdf860a6b6e89d46",
+      "original_bytes": 9721,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-pt-r1.json.gz",
+      "archive_sha256": "92797fad835d7fa581ee29bf5e28249f938d37d0631bd2c88abe4d1ff0b1a4a0"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-fr-r1.json",
+      "original_sha256": "edac55530e5b1a45f0cd9e5a54e709959fae76c004b34b6f51b678cf4b1e0898",
+      "original_bytes": 4868,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-fr-r1.json.gz",
+      "archive_sha256": "71c07b6897013855aaf0cf962a2996feb7402adc252f218349b888a5aa3e3a41"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-fr-r1.json",
+      "original_sha256": "dd95eea2a6a6481171a5ab1ce718241660ff338cd80effc934ebe9712e8cf7d8",
+      "original_bytes": 8855,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-fr-r1.json.gz",
+      "archive_sha256": "7d32b4fff16d73093702566fa74043c4e2a3e3fcad904fdeb850516b111f71d8"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-fr-r1.json",
+      "original_sha256": "9b7a9adf6c7c158bca07ef0a1451a57b3f32d223ef1511ed33288ff57668430f",
+      "original_bytes": 10313,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-fr-r1.json.gz",
+      "archive_sha256": "05e1ae7ea67ada9c687f956001376d2d9b7ce490e8accbd40680d3143f49ea39"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-hi-r1.json",
+      "original_sha256": "a18aeeab4c86828231552e4a26bb5f1ef0209607cf838907ca6f991e01c08ba8",
+      "original_bytes": 7181,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-hi-r1.json.gz",
+      "archive_sha256": "412b47c39a7905a0e632eb6502edc1c8d6aeb713141a051b3e1d9dfa49c6a5d8"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-hi-r1.json",
+      "original_sha256": "e073951fc1eff39a764d3dd4ecb02de7de857bbad6a832ff1bc32fc219469913",
+      "original_bytes": 10713,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-hi-r1.json.gz",
+      "archive_sha256": "0c67e1ceb3f718729cbddc2f9b10b622ab797b4350cb9e3871cb7fdf696fdb8e"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-hi-r1.json",
+      "original_sha256": "6d4601532c509dba39df499e36c17f9d1e0fa8c892aebdcef540eed268038cb2",
+      "original_bytes": 15071,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-hi-r1.json.gz",
+      "archive_sha256": "004afff25eb666d8bf5707b7002fc334f6f913bb19c12ac2f8d5b8c837c1ce25"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-is-r1.json",
+      "original_sha256": "44ba163341f94ea1e025d73ef7168daceb50ce3c7eb0afcc0d906eac0f7b10cd",
+      "original_bytes": 4749,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-is-r1.json.gz",
+      "archive_sha256": "ca0aa5f70a641db21a943f89c680ac4df5d2111812c3948d46a80ddf8f87133f"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-is-r1.json",
+      "original_sha256": "0d9166ad9d7f476913d72b1c0b2de61991e8f95f29398c064d5c83e26e50a545",
+      "original_bytes": 8760,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-is-r1.json.gz",
+      "archive_sha256": "99106fd85f53cb7ab465652c98daa9f47a8372af2d4af30702f9610a3cd61cda"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-is-r1.json",
+      "original_sha256": "9777cf6809547cc5be22ffa3c219aa89443808ecc8b9dcca98bab1a9ea115cc6",
+      "original_bytes": 9836,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-is-r1.json.gz",
+      "archive_sha256": "cad0e4b78dc8bd6ad57233a875a36afaa37042eff6b303cff5c30a4389b52d78"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-new-drafts-ko-r1.json",
+      "original_sha256": "4d35f8d2aa7b93961aaa73a2d1c0e7f15e622befae1f58bab157bf5f3620109b",
+      "original_bytes": 5109,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-new-drafts-ko-r1.json.gz",
+      "archive_sha256": "5cb8c4800f047234239bcc3b6f4890ba499b73b8ae5891ddbbcfea56204c5cca"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-pending-ko-r1.json",
+      "original_sha256": "6bd25822371fb58a91f91a6557a3facae455e5d2ea78227c33dad642d021195f",
+      "original_bytes": 8923,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-pending-ko-r1.json.gz",
+      "archive_sha256": "45856c95135bfd70ef554e46e31c08836f3634d9c1072be59eec08285a2f5957"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-guide-drafts-ko-r1.json",
+      "original_sha256": "d44cadb1042b048ca883d6a7f3785b41cd3c012beb2c45fdbf11f796ac9b4f91",
+      "original_bytes": 10193,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/integrated-guide-drafts-ko-r1.json.gz",
+      "archive_sha256": "b576daaf14a7c195942c6fc14119610d422a8668676cfc55bccb654ae2f66875"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-current-r1/production/14_make_masks/visual.json",
+      "original_sha256": "eff27d115a3ba4764c2d4306cbc4dc97517deb7238e509e2c93524693b5e5212",
+      "original_bytes": 17330,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/current-stage-visual.json.gz",
+      "archive_sha256": "7f84d743c3640d7b07aee99cfa1871f306d00638641ee88e073b0cd9e3a99e26"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-current-r1/production/14_make_masks/lesson.en.json",
+      "original_sha256": "411ced7277df85e10cbb858ebd7ffb9babdae413989d6193cdc0df94f075d849",
+      "original_bytes": 22655,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/current-stage-lesson.en.json.gz",
+      "archive_sha256": "d2aa3a874319970a75fa5cc428497db7c30b965810c8b93dae8b0d4bc6b0c3af"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/tools/tutorials/compose_make_masks_capture.py",
+      "original_sha256": "3d3b53d1120ca72f9d4e69111e4a8bd81b107ce7627add2161b0be31b5e5dc58",
+      "original_bytes": 7594,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/compose_make_masks_capture.py.gz",
+      "archive_sha256": "67f45805d06debe396de736ada4eca05a657989558c12efb703c16c088fa639e"
+    },
+    {
+      "original_directory": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-guide-original-catalogs-r1",
+      "files": 325,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-guide-original-catalogs-r1.zip",
+      "archive_sha256": "bb4f607811e902bc44ca5348ae2ddecc02ed52acc3d556be51bb8d78af1f72ab"
+    },
+    {
+      "original_directory": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-contained-stage-before-r1",
+      "files": 3,
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/final-contained-stage-before-r1.zip",
+      "archive_sha256": "f30e942d434008245fe22ffb12e2f16dc732cf8da04a2f05d512870d9478e18c"
+    },
+    {
+      "original_directory": "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005",
+      "files": 60,
+      "scope": "Complete preceding untracked reviews preserved as historical source-bound inputs; no import into the current active store is claimed.",
+      "archive_path": "features/data/615_final_prepublication_checkpoint_2026-10-06/preceding-root-untracked-reviews.zip",
+      "archive_sha256": "0c6399c727e9b2083b3233398f10a4f43503029ba4e080054b4453118a66674f"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "source_application_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "reviewed_new_unique_blocks_each_language": 16,
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "pt",
+    "fr",
+    "is",
+    "zh_CN",
+    "ko",
+    "hi"
+  ],
+  "existing_exact_source_context_and_semantic_review_gates_passed": true,
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff",
+  "admitted_to_normal_reviewed_API_inputs": false,
+  "current_API_catalog_acceptance": false,
+  "remaining": "Wait for GPU r2 terminal status; admit these exact reviewed inputs, regenerate normally, verify all other complete records, run scoped tests and current full strict Sphinx builds",
+  "artifacts": {
+    "features/data/615_data_art_api_review_inputs_2026-10-05/check_data_art_api_review_inputs.py": {
+      "sha256": "995d4397c88f64c6c2f591892e9ddc765bd4d87aac9276e2dbd67e21dd52fcd4",
+      "bytes": 2224
+    },
+    "features/data/615_data_art_api_review_inputs_2026-10-05/data-art-api-review-input-proof.json": {
+      "sha256": "bd7f5ca1a4105f6e99852365369a1b9ab18aed90c8e72102f3eec5fb5c0593e9",
+      "bytes": 72
+    },
+    "features/data/615_data_art_api_review_inputs_2026-10-05/data-art-api-review-input-r1.log.gz": {
+      "sha256": "a562dd9bb230e992be949eb248f2bc2bf5e3fd0f67ebb06f240eff82558e8370",
+      "bytes": 146
+    },
+    "features/data/615_data_art_api_review_inputs_2026-10-05/data-art-api-review-input-r2.log.gz": {
+      "sha256": "a562dd9bb230e992be949eb248f2bc2bf5e3fd0f67ebb06f240eff82558e8370",
+      "bytes": 146
+    },
+    "features/data/615_data_art_api_review_inputs_2026-10-05/data-art-api-reviewed-targets-r1.json": {
+      "sha256": "f6dd900ed0de77ed14500a6e7f507b2e6ee8c2254363210e336647e23a142dba",
+      "bytes": 114664
+    },
+    "features/data/615_data_art_api_review_inputs_2026-10-05/data_art_api_reviewed_targets.py": {
+      "sha256": "d4b4b1b76c153aa7b3cf270112ddf8a0b7f7e340cd8871d1c775d772f9ccfd36",
+      "bytes": 39494
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Distributed Jobs: stilltu keyrsluáfangastað",
+  "description": "Búðu til keyrslusnið og undirbúðu verk einingar fyrir aðra vinnustöð eða klasa.",
+  "objectives": [
+    "Búa til snið fyrir keyrsluáfangastaðinn.",
+    "Stilla slóðir og valkosti bakenda.",
+    "Undirbúa sendingu og skoða stöðu verka."
+  ],
+  "prerequisite": "Tryggðu aðgang að áfangastað með spaCR, kvöðum þess og inntaksgögnunum þínum. Fluttu út stillingar einingarinnar sem þú ætlar að keyra. Skiptu dæmahýslinum og dæmaslóðunum sem sýnd eru hér út fyrir þín eigin.",
+  "scenes": [
+    "Opnaðu Help og svo Distributed Jobs. Byrjaðu á því að búa til keyrslusnið fyrir vinnustöðina eða klasann sem þú vilt nota.",
+    "Settu upp samhæfðar spaCR-kvaðir á áfangastaðnum og gerðu inntaksgögnin tiltæk þar. Settu upp SSH-lykla eða auðkenningu þjónustuaðilans í skipanalínu utan spaCR.",
+    "Veldu New profile. Sláðu inn lýsandi heiti og veldu bakenda. Fylltu út skyldureitina sem eyðublaðið sýnir.",
+    "Fyrir SSH slærðu inn hýsilinn, fjartengdu vinnumöppuna og spaCR-keyrsluforritið. Vistaðu sniðið og opnaðu það aftur þegar þú þarft að uppfæra þessar stillingar.",
+    "Stilltu staðbundna og fjartengda rót gagnasafna þegar sömu gögn hafa ólíkar algildar slóðir á vélunum tveimur. Þetta endurskrifar slóðir í stillingunum; komdu upp sameiginlegri geymslu eða afritaðu skrárnar sérstaklega.",
+    "Fyrir Slurm velurðu skiptingu, tímamörk og beiðni um hraðal sem klasinn þinn styður. Hafðu stillingar hýsils og möppu í samræmi við innskráningarumhverfi hans.",
+    "Fyrir skýjaskipun eða sérsniðna skipun slærðu inn sniðmát færibreyta fyrir sendingu, stöðu og hætt við, og fyrir sókn annála ef þörf er á. Taktu með staðgengla fyrir stillingar og ytra auðkenni sem stýringarnar sýna.",
+    "Vistaðu breytingarnar sem þú vilt halda, eða notaðu Cancel til að skilja sniðið eftir óbreytt. Poll interval ræður hversu oft staða verka er athuguð.",
+    "Veldu sniðið, eininguna og útfluttar stillingar hennar og notaðu svo Submit þegar áfangastaðurinn er tilbúinn. Fylgstu með stöðu og annálum í verkatöflunni. Notaðu Cancel job til að stöðva valið verk og skoðaðu niðurstöður þess á stilltri úttaksstaðsetningu."
+  ]
+}

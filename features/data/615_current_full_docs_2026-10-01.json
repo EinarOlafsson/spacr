@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "time_utc": "2026-10-01T22:57:24.085353+00:00",
+  "status": "full_strict_build_and_existing_rendered_checks_passed",
+  "source_fingerprint": "79553f0f021fb0567a07c8876129c8cf076ac8fac962bc83839374811a113077",
+  "source_file_count": 2563,
+  "source_fingerprints_unchanged": true,
+  "generated_api_rst_count": 634,
+  "generated_api_rst_hashes_and_mtimes_unchanged_between_phases": true,
+  "input_snapshot": "/tmp/spacr-implementation-20261001/docs-current-integration/source-before.json",
+  "phases": {
+    "dummy": {
+      "exit_code": 0,
+      "strict_warnings": true,
+      "log": "/tmp/spacr-implementation-20261001/docs-current-integration/dummy.log",
+      "log_sha256": "b9a888090d33c38acce9f708a3bdd3828e1f0940d3be5ebcd8f9f953e9c3293b",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "sphinx",
+        "-W",
+        "-E",
+        "-b",
+        "dummy",
+        "--keep-going",
+        "-j",
+        "1",
+        "-d",
+        "/tmp/spacr-implementation-20261001/docs-current-integration/doctrees",
+        "docs/source",
+        "/tmp/spacr-implementation-20261001/docs-current-integration/dummy"
+      ],
+      "limits": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r0666b2e1b5a24173b273c9b4b47a6bab.scope",
+        "limits": {
+          "memory.max": "4294967296",
+          "memory.swap.max": "0",
+          "cpu.max": null,
+          "cpu_affinity": [
+            0
+          ],
+          "systemd_requested_properties": [
+            "CPUQuotaPerSecUSec=1s",
+            "MemoryMax=4294967296",
+            "MemorySwapMax=0"
+          ]
+        }
+      },
+      "elapsed": "3:44.26",
+      "max_rss_kib": 4416772
+    },
+    "html": {
+      "exit_code": 0,
+      "strict_warnings": true,
+      "log": "/tmp/spacr-implementation-20261001/docs-current-integration/html.log",
+      "log_sha256": "2af7039841c3eefb889bcc97f1ad46e285ab1667218e5d500a6092834cc51bab",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "sphinx",
+        "-W",
+        "-a",
+        "-b",
+        "html",
+        "--keep-going",
+        "-j",
+        "1",
+        "-d",
+        "/tmp/spacr-implementation-20261001/docs-current-integration/doctrees",
+        "docs/source",
+        "/tmp/spacr-implementation-20261001/docs-current-integration/html"
+      ],
+      "limits": {
+        "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r356332cf1c2348c48f232538f01ffd3a.scope",
+        "limits": {
+          "memory.max": "4294967296",
+          "memory.swap.max": "0",
+          "cpu.max": null,
+          "cpu_affinity": [
+            0
+          ],
+          "systemd_requested_properties": [
+            "CPUQuotaPerSecUSec=1s",
+            "MemoryMax=4294967296",
+            "MemorySwapMax=0"
+          ]
+        }
+      },
+      "elapsed": "3:44.47",
+      "max_rss_kib": 871432
+    }
+  },
+  "output": {
+    "root": "/tmp/spacr-implementation-20261001/docs-current-integration/html",
+    "html_files": 1289,
+    "api_html_files": 634,
+    "source_viewcode_html_files": 615,
+    "all_expected_api_pages_present": true,
+    "key_output_hashes": {
+      "index.html": "e9c9585140a88665cc70aab068bb1178c9a7b029f32ede14f198482d1587b04a",
+      "objects.inv": "2e17784ce95c659d6083cd3acfd66f07aa5bd3bc2ab7dc27bdc0bd722578989a",
+      "searchindex.js": "3ea7c121f19ba585aba5b67762ea9c945831fddef5c06836b9fb806914e1e9ab",
+      "table_workflows.html": "96096778a844a7754640702ba2c62879d7a745db9a4aa570bef19d2587c85dba",
+      "installer_guide.html": "f822f86e0b483382875cbb406d02b63d11e935be42bf824baafd9d2c9115234c",
+      "plaque_assay.html": "8f77b1d716f120ba67b51b8e22c9ca78f7e58d7543612e6e63936a7731de6c5a"
+    }
+  },
+  "rendered_checks": {
+    "tests": [
+      "test_built_english_publication_declares_its_mode_and_current_api",
+      "test_no_built_page_shows_rest_markup_as_text"
+    ],
+    "passed": 2,
+    "seconds": 19.27,
+    "log": "/tmp/spacr-implementation-20261001/docs-current-integration/rendered-checks.log",
+    "configuration": "SPACR_DOCS_BUILT=1, SPACR_DOCS_API_LANGUAGE=english; private plugin changes only hardcoded BUILT_DOCS path to this exact output, with all original assertions intact.",
+    "plugin": "/tmp/spacr-implementation-20261001/review/docs_output_plugin.py"
+  },
+  "publication_mode": "English API mode; all full English API and guide documents, normal tutorial/media budget. No deployment was performed.",
+  "cpu_note": "Requested CPUQuota100% is recorded by systemd but user hierarchy does not delegate cpu controller (cpu.max absent). Both full phases pin the entire inherited process tree to one allowed CPU, independently enforcing the one-core ceiling; actual memory.max4GiB and swap.max0 checked before Sphinx starts.",
+  "historical_attempts_retained": [],
+  "mechanism": "Strict dummy phase creates complete current doctrees/environment; fresh strict HTML-a phase reads the serialized environment without accumulated parsed doctree cache. No-E on second phase, no page omission, no warning weakening, no product changes.",
+  "limits": "No browser visual inspection or fresh translated-guide build performed. API translations have a separate strict audit in the API lane. This accepts the exact hashed source snapshot; later source edits require appropriate incremental validation.",
+  "source_commit": "0f4d2abef451d5c171e0f9f4a67ac1e14953accb",
+  "english_api_audit": {
+    "symbols": 12035,
+    "passed": true,
+    "log": "/tmp/spacr-implementation-20261001/review/current-api-english-audit.log"
+  },
+  "prose_guard": {
+    "blocks": 47799,
+    "flags": 0,
+    "historical_advisories": 474,
+    "log": "/tmp/spacr-implementation-20261001/review/current-prose-guard.log"
+  }
+}

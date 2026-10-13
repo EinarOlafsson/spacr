@@ -1,0 +1,1426 @@
+"""
+Import Project — images, masks and measurements from another tool, with the
+column mapping reviewed before a spaCR database is written.
+
+:mod:`spacr.foreign` does the work; this screen is for the step that needs
+review. A foreign ``Area`` can be in µm² where spaCR's ``cell_area`` is in px²,
+so an unreviewed mapping can give values that look plausible and are wrong by a
+factor of several hundred. So the mapping table is the middle of the screen, it
+is **editable**, and every edit re-runs the conflict and unit checks in place.
+
+Layout::
+
+    ┌──────────────────────────────────────────────────────────────────┐
+    │ Images       /data/theirs/images                   [Choose…]     │
+    │ Masks   [cell ▾] /data/theirs/cell_masks   [Choose…]  [Add]      │
+    │   cell -> /data/theirs/cell_masks                     [Remove]   │
+    │ Table        /data/theirs/results.csv              [Choose…]     │
+    │ µm per pixel [0.65]   On conflict [Refuse ▾]      [Preview]      │
+    ├──────────────────────────────────────────────────────────────────┤
+    │ their column   →  target            transform unit_in unit_out   │
+    │ Area (um^2)       foreign_area_um2  area      um^2   px^2        │
+    │ MeanIntensity     foreign_meanint…  identity                     │
+    │ …                                     (target/transform/units    │
+    │                                        are editable in place)    │
+    ├──────────────────────────────────────────────────────────────────┤
+    │ NOT MAPPED (1): Notes                                            │
+    │ CONFLICTS (1): [shadows_spacr] 'cell_area' -> 'foreign_cell_area'│
+    ├──────────────────────────────────────────────────────────────────┤
+    │ /data/imported          [Save mapping…] [Load mapping…] [Import] │
+    └──────────────────────────────────────────────────────────────────┘
+
+Design notes:
+
+* **Preview writes nothing.** :func:`spacr.foreign.plan_import` scans,
+  pairs and verifies; ``Import`` is a separate press, and it stays
+  disabled while the plan has a blocking problem — a target that collides
+  with a spaCR feature name, a measurement table with no object-label
+  column, a field whose masks do not pair.
+* **Editing is instant and local.** A cell edit calls
+  :meth:`spacr.foreign.ImportPlan.with_column_maps`, which re-resolves the
+  columns without touching the disk, so the unmapped list, the conflict
+  list and the Import button update as you type.
+* **Off the GUI thread.** Scanning a plate of TIFFs and reading every
+  label image takes seconds; the import takes minutes. Both go through
+  :func:`spacr.qt.bridge.make_thread`, and the completion handler is
+  reached through a *bound method* (:attr:`ForeignScreen._job_settled`)
+  rather than a closure, because ``PipelineWorker.finished`` is emitted in
+  the worker thread and a closure connected to it would build widget
+  children there. Tests pass ``threaded=False``.
+* **No modal dialogs on any error path.** Everything lands in the inline
+  status label and the report pane. A QMessageBox would hang a headless
+  run.
+"""
+from __future__ import annotations
+
+import os
+from functools import partial
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
+
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QPlainTextEdit,
+    QPushButton,
+    QTableView,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ... import foreign as fgn
+from ...object_roles import organelle_label
+from ...schema import SEGMENTED_ROLES
+from ..bridge import make_thread
+from ..i18n import tr
+from ..theme import SPACING, active_palette
+from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.sortable_table import install_sorting
+
+__all__ = [
+    "NAMING_AUTO",
+    "naming_choices",
+    "ForeignScreen",
+    "object_label",
+    "organelle_slots_offered",
+    "ColumnMapModel",
+    "MAP_COLUMNS",
+    "OBJECT_CHOICES",
+    "CONFLICT_CHOICES",
+]
+
+
+#: The mapping table's columns: ``(ColumnMap field, header, editable)``.
+#: ``source`` is their column name and is never editable — renaming it
+#: would silently point the mapping at a column that does not exist.
+MAP_COLUMNS: Tuple[Tuple[str, str, bool], ...] = (
+    ("source", "Their column", False),
+    ("target", "spaCR column", True),
+    ("transform", "Transform", True),
+    ("unit_in", "Unit in", True),
+    ("unit_out", "Unit out", True),
+    ("note", "Note", True),
+)
+
+#: Mask classes, in the order their planes are appended to a merged array.
+#: The STORAGE spelling, which is what the backend takes and what a saved
+#: mapping carries. Never what the user is shown -- see :func:`object_label`.
+OBJECT_CHOICES: Tuple[str, ...] = tuple(SEGMENTED_ROLES)
+
+#: The naming choice that reads plate / well / field from the folders.
+NAMING_AUTO = "auto"
+
+
+def naming_choices() -> List[Tuple[str, str]]:
+    """Every filename convention Import can read, as ``(key, label)``.
+
+    The same list Mask's ``metadata_type`` offers, read from
+    :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can
+    parse is a plate Import can parse and the two lists cannot drift. Folders
+    come first because they are what Import did before it knew any convention;
+    the vendor conventions follow in Mask's vendor order, each labelled with
+    its vendor and marked when spaCR is guessing about it.
+
+    :returns: the choices, ``NAMING_AUTO`` first.
+    """
+    from ...regex_infer import _metadata_convention_menu
+
+    choices = [(NAMING_AUTO, "Folders and file tokens (auto)")]
+    for vendor, rows in _metadata_convention_menu():
+        for key, label, status in rows:
+            if key == NAMING_AUTO:
+                continue
+            text = label if vendor == "spaCR" else f"{vendor} — {label}"
+            if status == "provisional":
+                text += " (provisional)"
+            choices.append((key, text))
+    return choices
+
+
+def object_label(role: str) -> str:
+    """The display name of a mask class, as opposed to its storage key.
+
+    Organelle slots are shown as numbers, never letters. The slots are stored
+    lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role
+    name is the prefix of every settings key it owns and ``organelle2`` cannot
+    round-trip through a ``prcfo`` key without colliding with the object
+    LABELLED 2. That is a storage detail; on screen a slot is a number:
+    Organelle 1, Organelle 2.
+
+    :param role: a role from :data:`OBJECT_CHOICES`.
+    """
+    name = str(role)
+    if name.startswith("organelle"):
+        return organelle_label(name)
+    return name.capitalize()
+
+
+def organelle_slots_offered(added: Sequence[str]) -> int:
+    """How many organelle slots a form should show, given what is filled.
+
+    The count follows the organelles in use: the slots already mapped plus one,
+    so adding the first makes the second available, and so on for as many as
+    the mask planes can carry.
+
+    :param added: the roles already mapped.
+    :returns: how many organelle slots to list, at least one.
+    """
+    filled = [role for role in added if str(role).startswith("organelle")]
+    capacity = sum(1 for role in OBJECT_CHOICES
+                   if role.startswith("organelle"))
+    return max(1, min(len(filled) + 1, capacity))
+
+#: What to do about a target that collides with a spaCR name.
+CONFLICT_CHOICES: Tuple[Tuple[str, str], ...] = (
+    ("Refuse the import", "refuse"),
+    ("Rename to the foreign prefix", "rename"),
+)
+
+
+class ColumnMapModel(QAbstractTableModel):
+    """Editable table over a list of :class:`spacr.foreign.ColumnMap`.
+
+    A model rather than a QTableWidget because a CellProfiler export has
+    several hundred columns and building that many QTableWidgetItems
+    freezes the window.
+
+    An edit emits :attr:`mapping_edited` *as well as* ``dataChanged``, and
+    the screen listens to the former. Hanging the live re-resolve off
+    ``dataChanged`` looks equivalent and is not: re-resolving updates the
+    per-row status, updating the status refreshes the tooltips, and
+    refreshing tooltips emits ``dataChanged`` again — one keystroke
+    recursed until the interpreter ran out of stack.
+
+    :param parent: parent widget.
+    """
+
+    #: Emitted when a cell's value actually changed. Never on a tooltip
+    #: or status refresh, which is the whole point of it existing.
+    mapping_edited = Signal()
+
+    def __init__(self, parent=None):
+        """Build an empty column mapping.
+
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self._maps: List[fgn.ColumnMap] = []
+        self._status: Dict[str, str] = {}
+
+
+    def set_maps(self, maps: Optional[List[fgn.ColumnMap]]) -> None:
+        """Replace the whole mapping.
+
+        :param maps: the :class:`spacr.foreign.ColumnMap` rows to show, in
+            order; ``None`` empties the table.
+        """
+        self.beginResetModel()
+        self._maps = list(maps or [])
+        self.endResetModel()
+
+    def set_status(self, status: Optional[Dict[str, str]]) -> None:
+        """Attach a per-source status (``mapped`` / ``uncalibrated`` / …).
+
+        Shown as the row's tooltip, so a user can see *why* a column was
+        renamed without leaving the table.
+
+        :param status: mapping of source column name to status word; ``None``
+            clears every status.
+        """
+        self._status = dict(status or {})
+        if self._maps:
+            self.dataChanged.emit(
+                self.index(0, 0),
+                self.index(len(self._maps) - 1, len(MAP_COLUMNS) - 1),
+                [Qt.ToolTipRole])
+
+    def maps(self) -> List[fgn.ColumnMap]:
+        """The mapping as it currently stands, including every edit."""
+        return list(self._maps)
+
+    def map_at(self, row: int) -> Optional[fgn.ColumnMap]:
+        """One row's mapping, or None when ``row`` is out of range.
+
+        :param row: zero-based table row.
+        """
+        if 0 <= row < len(self._maps):
+            return self._maps[row]
+        return None
+
+    def row_of(self, source: str) -> int:
+        """The row index for a source column name, or -1.
+
+        :param source: the foreign table's column name, compared as a string
+            with each mapping's ``source``.
+        """
+        for index, mapping in enumerate(self._maps):
+            if mapping.source == str(source):
+                return index
+        return -1
+
+
+    def rowCount(self, parent=QModelIndex()) -> int:
+        """How many source columns are waiting to be mapped.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
+        return 0 if parent.isValid() else len(self._maps)
+
+    def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns the mapping table shows.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
+        return 0 if parent.isValid() else len(MAP_COLUMNS)
+
+    def flags(self, index):
+        """Which cells the user may edit.
+
+        Only the target column: the source name is what the foreign file
+        actually contains, and editing it would let a user rename their data
+        rather than map it.
+
+        :param index: the cell.
+        :returns: the Qt item flags.
+        """
+        base = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        if not index.isValid():
+            return base
+        if MAP_COLUMNS[index.column()][2]:
+            return base | Qt.ItemIsEditable
+        return base
+
+    def data(self, index, role=Qt.DisplayRole):
+        """One cell of the mapping table.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
+        if not index.isValid():
+            return None
+        mapping = self._maps[index.row()]
+        key = MAP_COLUMNS[index.column()][0]
+        if role in (Qt.DisplayRole, Qt.EditRole):
+            return str(getattr(mapping, key) or "")
+        if role == Qt.ToolTipRole:
+            status = self._status.get(mapping.source, "")
+            return (f"{mapping.source}  ->  {mapping.target or '(unmapped)'}"
+                    + (f"\n{status}" if status else ""))
+        return None
+
+    def setData(self, index, value, role=Qt.EditRole) -> bool:
+        """Record which spaCR column a source column maps to.
+
+        :param index: the cell.
+        :param value: what the user chose.
+        :param role: the Qt edit role.
+        :returns: True when the mapping was taken.
+        """
+        if not index.isValid() or role != Qt.EditRole:
+            return False
+        key, _label, editable = MAP_COLUMNS[index.column()]
+        if not editable:
+            return False
+        current = self._maps[index.row()]
+        text = "" if value is None else str(value).strip()
+        if str(getattr(current, key) or "") == text:
+            return False
+        fields = current.to_row()
+        fields[key] = text
+        self._maps[index.row()] = fgn.ColumnMap.from_row(fields)
+        self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.EditRole])
+        self.mapping_edited.emit()
+        return True
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
+        if role != Qt.DisplayRole:
+            return None
+        if orientation == Qt.Horizontal:
+            return MAP_COLUMNS[section][1]
+        return str(section + 1)
+
+
+class ForeignScreen(QWidget):
+    """Pick their files, review the mapping, import, read the summary.
+
+    :param parent: parent widget.
+    :param threaded: when False every job runs inline on the calling
+        thread. Tests use it so assertions are exact; the app leaves it
+        True so a long import does not freeze the window.
+    """
+
+    #: Emitted with True/False when a preview or an import settles.
+    job_finished = Signal(bool)
+    #: Internal relay so the completion handler runs on the GUI thread.
+    _job_settled = Signal(bool)
+    #: ``(done, total, item)`` — emitted from the worker thread.
+    _progress = Signal(int, int, str)
+
+    def __init__(self, parent=None, threaded: bool = True):
+        """Build the importer: images, masks, table and mapping.
+
+        :param parent: parent widget.
+        :param threaded: whether the import runs on a worker.
+        """
+        super().__init__(parent)
+        self._threaded = bool(threaded)
+        self._plan: Optional[fgn.ImportPlan] = None
+        self._result: Optional[fgn.ImportResult] = None
+        self._masks: Dict[str, str] = {}
+        self._busy = False
+        self._jobs: List[tuple] = []
+        self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
+        self._thread = None
+        self._worker = None
+        self.last_error: str = ""
+
+        self._job_settled.connect(self._on_job_settled)
+        self._progress.connect(self._on_progress)
+        self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("foreign"), self)
+        self._set_status(
+            "Choose their images, their mask folder(s) and their measurement "
+            "table, then Preview. Nothing is written until you press Import.")
+        self._update_controls()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+
+    def _build_ui(self) -> None:
+        """Lay out the input rows over the mapping table and the report."""
+        self.app_key = "foreign"
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
+                                 SPACING["lg"], SPACING["lg"])
+        outer.setSpacing(SPACING["md"])
+
+        header = ModuleHeader(
+            "Import",
+            description="Convert microscope formats, map somebody else's "
+                        "columns, or adopt masks made elsewhere",
+            app_key="foreign",
+        )
+        self._header = header
+        outer.addWidget(header)
+
+        subtitle = QLabel(
+            "Turn somebody else's images, label masks and measurement table "
+            "into a spaCR project: Yokogawa-named TIFFs, merged arrays, and a "
+            "measurements.db carrying their columns next to spaCR's "
+            "plateID/rowID/columnID/fieldID/object_label. Their column names "
+            "are mapped onto spaCR's here, in a table you edit — an inferred "
+            "mapping is shown for review and applied only by Import.")
+        subtitle.setObjectName("Muted")
+        subtitle.setWordWrap(True)
+        outer.addWidget(subtitle)
+
+        outer.addWidget(Divider())
+
+        img_row = QHBoxLayout()
+        img_row.setSpacing(SPACING["sm"])
+        self._images_edit = QLineEdit(self)
+        self._images_edit.setPlaceholderText(
+            "…/their_images  — the folder of their raw image files")
+        self._images_edit.setClearButtonEnabled(True)
+        self._images_edit.textChanged.connect(self._on_input_changed)
+        self._btn_pick_images = QPushButton("Choose…", self)
+        self._btn_pick_images.clicked.connect(self._pick_images)
+        self._btn_test_data = QPushButton(tr("Load test data…"), self)
+        self._btn_test_data.setToolTip(tr(
+            "Download the same fields written in every microscope format and "
+            "filename convention Import reads -- Zeiss CZI, Opera Phenix, "
+            "ArrayScan, Nikon ND2 and the rest -- and fill this screen with "
+            "the one you pick, so Preview shows it read back. One download of "
+            "about 285 MB covers every variant."))
+        self._btn_test_data.clicked.connect(self._open_test_data)
+        img_row.addWidget(QLabel("Images"))
+        img_row.addWidget(self._images_edit, 1)
+        img_row.addWidget(self._btn_pick_images)
+        img_row.addWidget(self._btn_test_data)
+        outer.addLayout(img_row)
+
+        naming_row = QHBoxLayout()
+        naming_row.setSpacing(SPACING["sm"])
+        self._naming_box = QComboBox(self)
+        for key, label in naming_choices():
+            self._naming_box.addItem(label, key)
+        self._naming_box.setToolTip(tr(
+            "How the image and mask FILE NAMES say which plate, well, field "
+            "and channel each file is -- the same conventions Mask offers as "
+            "its metadata type. Folders and file tokens reads the well from "
+            "the folder instead."))
+        self._naming_box.currentIndexChanged.connect(self._on_naming_changed)
+        self._regex_edit = QLineEdit(self)
+        self._regex_edit.setPlaceholderText(tr(
+            "Custom only: a pattern with named groups wellID, fieldID and "
+            "chanID"))
+        self._regex_edit.setClearButtonEnabled(True)
+        self._regex_edit.textChanged.connect(self._on_input_changed)
+        naming_row.addWidget(QLabel(tr("Naming")))
+        naming_row.addWidget(self._naming_box, 1)
+        naming_row.addWidget(self._regex_edit, 1)
+        outer.addLayout(naming_row)
+
+        mask_row = QHBoxLayout()
+        mask_row.setSpacing(SPACING["sm"])
+        self._object_box = QComboBox(self)
+        self._refill_object_box()
+        self._mask_edit = QLineEdit(self)
+        self._mask_edit.setPlaceholderText(
+            "…/their_cell_masks  — one folder of label images per class")
+        self._mask_edit.setClearButtonEnabled(True)
+        self._btn_pick_mask = QPushButton("Choose…", self)
+        self._btn_pick_mask.clicked.connect(self._pick_mask)
+        self._btn_add_mask = QPushButton("Add", self)
+        self._btn_add_mask.clicked.connect(self._add_from_fields)
+        self._btn_remove_mask = QPushButton("Remove", self)
+        self._btn_remove_mask.clicked.connect(self._remove_selected_mask)
+        mask_row.addWidget(QLabel("Masks"))
+        mask_row.addWidget(self._object_box)
+        mask_row.addWidget(self._mask_edit, 1)
+        mask_row.addWidget(self._btn_pick_mask)
+        mask_row.addWidget(self._btn_add_mask)
+        mask_row.addWidget(self._btn_remove_mask)
+        outer.addLayout(mask_row)
+
+        self._mask_list = QListWidget(self)
+        self._mask_list.setObjectName("Masks")
+        self._mask_list.setMaximumHeight(76)
+        outer.addWidget(self._mask_list)
+
+        table_row = QHBoxLayout()
+        table_row.setSpacing(SPACING["sm"])
+        self._table_edit = QLineEdit(self)
+        self._table_edit.setPlaceholderText(
+            "…/results.csv  — CSV, TSV, Excel, Parquet or SQLite")
+        self._table_edit.setClearButtonEnabled(True)
+        self._table_edit.textChanged.connect(self._on_input_changed)
+        self._btn_pick_table = QPushButton("Choose…", self)
+        self._btn_pick_table.clicked.connect(self._pick_table)
+        table_row.addWidget(QLabel("Measurements"))
+        table_row.addWidget(self._table_edit, 1)
+        table_row.addWidget(self._btn_pick_table)
+        outer.addLayout(table_row)
+
+        opt_row = QHBoxLayout()
+        opt_row.setSpacing(SPACING["sm"])
+        self._scale_edit = QLineEdit(self)
+        self._scale_edit.setPlaceholderText(
+            "µm per pixel — leave blank if unknown")
+        self._scale_edit.textChanged.connect(self._on_scale_changed)
+        self._conflict_box = QComboBox(self)
+        for label, value in CONFLICT_CHOICES:
+            self._conflict_box.addItem(label, value)
+        self._conflict_box.currentIndexChanged.connect(self._on_scale_changed)
+        self._btn_preview = QPushButton("Preview", self)
+        self._btn_preview.clicked.connect(self.preview)
+        opt_row.addWidget(QLabel("µm/pixel"))
+        opt_row.addWidget(self._scale_edit, 1)
+        opt_row.addWidget(QLabel("On name conflict"))
+        opt_row.addWidget(self._conflict_box, 1)
+        opt_row.addWidget(self._btn_preview)
+        outer.addLayout(opt_row)
+
+        self._model = ColumnMapModel(self)
+        self._model.mapping_edited.connect(self._on_mapping_edited)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="foreign::body")
+        self._table = QTableView()
+        self._table.setModel(self._model)
+        install_sorting(self._table)
+        self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._table.setAlternatingRowColors(True)
+        self._table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._table.verticalHeader().setVisible(False)
+        split.add_section(self._table, "Column mapping",
+                          persist_key="foreign/Column mapping")
+
+        self._report = QPlainTextEdit()
+        self._report.setReadOnly(True)
+        self._report.setPlaceholderText(
+            "The columns that could not be mapped, the ones that collide with "
+            "a spaCR name, the ones with no pixel size to convert them, and "
+            "how many measurement rows found an object in the masks.")
+        split.add_section(self._report, "Import report",
+                          persist_key="foreign/Import report", stretch=0,
+                          extent=190)
+        outer.addWidget(split, 1)
+        self._body_splitter = split
+
+        dst_row = QHBoxLayout()
+        dst_row.setSpacing(SPACING["sm"])
+        self._dst_edit = QLineEdit(self)
+        self._dst_edit.setPlaceholderText(
+            "…/imported  — a NEW folder; their originals are never touched")
+        self._dst_edit.setClearButtonEnabled(True)
+        self._btn_pick_dst = QPushButton("Choose…", self)
+        self._btn_pick_dst.clicked.connect(self._pick_destination)
+        self._btn_save_map = QPushButton("Save mapping…", self)
+        self._btn_save_map.clicked.connect(self._pick_save_mapping)
+        self._btn_load_map = QPushButton("Load mapping…", self)
+        self._btn_load_map.clicked.connect(self._pick_load_mapping)
+        self._btn_import = QPushButton("Import", self)
+        self._btn_import.setObjectName("PrimaryButton")
+        self._btn_import.clicked.connect(self.run_import)
+        dst_row.addWidget(QLabel("Destination"))
+        dst_row.addWidget(self._dst_edit, 1)
+        dst_row.addWidget(self._btn_pick_dst)
+        dst_row.addWidget(self._btn_save_map)
+        dst_row.addWidget(self._btn_load_map)
+        dst_row.addWidget(self._btn_import)
+        outer.addLayout(dst_row)
+
+        from ..widgets.eliding import ProgressLine
+
+        self._progress_bar = ProgressLine(self, detail=False)
+        self._progress_bar.setRange(0, 100)
+        self._progress_bar.setValue(0)
+        self._progress_bar.setVisible(False)
+        outer.addWidget(self._progress_bar)
+
+        self._status = QLabel("", self)
+        self._status.setObjectName("Muted")
+        self._status.setWordWrap(True)
+        outer.addWidget(self._status)
+
+
+    def _set_status(self, text: str, error: bool = False) -> None:
+        """Report inline. Deliberately never a QMessageBox — a modal dialog
+        would hang a headless run (and did, in MakeMasksScreen)."""
+        self.last_error = text if error else ""
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
+        self._status.setStyleSheet(f"color: {colour};")
+        self._status.setText(text)
+
+    def status_text(self) -> str:
+        """Current inline status message."""
+        return self._status.text()
+
+    def report_text(self) -> str:
+        """Whatever is in the report pane."""
+        return self._report.toPlainText()
+
+    def _set_report(self, text: str) -> None:
+        """Put the import report on screen.
+
+        :param text: the report.
+        """
+        self._report.setPlainText(text or "")
+
+
+    def set_images(self, path: str) -> None:
+        """Point the screen at their image folder without opening a dialog.
+
+        :param path: the foreign image folder. When the destination is still
+            empty it is filled with this path plus ``_spacr``.
+        """
+        self._images_edit.setText(str(path or ""))
+        if path and not self._dst_edit.text().strip():
+            normalised = os.path.normpath(str(path))
+            self._dst_edit.setText(normalised + "_spacr")
+
+    def images_path(self) -> str:
+        """The image folder currently typed in."""
+        return self._images_edit.text().strip()
+
+    def add_mask_folder(self, object_type: str, path: str) -> bool:
+        """Register a mask folder for one object class.
+
+        :param object_type: storage name of a mask class in
+            :data:`OBJECT_CHOICES`, e.g. ``"cell"``; surrounding whitespace is
+            ignored.
+        :param path: folder holding that class's masks; replaces any folder
+            already registered for the class.
+        :returns: False when the class is unknown or the path is blank,
+            with the reason inline — never an exception into a GUI slot.
+        """
+        name = str(object_type or "").strip()
+        folder = str(path or "").strip()
+        if name not in OBJECT_CHOICES:
+            self._set_status(
+                f"{name!r} is not a spaCR mask class; expected one of "
+                f"{', '.join(object_label(role) for role in OBJECT_CHOICES)}.",
+                error=True)
+            return False
+        if not folder:
+            self._set_status("Choose a mask folder before adding it.",
+                             error=True)
+            return False
+        self._masks[name] = folder
+        self._refresh_mask_list()
+        self._on_input_changed()
+        return True
+
+    def remove_mask_folder(self, object_type: str) -> bool:
+        """Forget one object class's mask folder.
+
+        :param object_type: storage name of the mask class; returns ``False``
+            when no folder is registered for it.
+        """
+        if str(object_type) not in self._masks:
+            return False
+        del self._masks[str(object_type)]
+        self._refresh_mask_list()
+        self._on_input_changed()
+        return True
+
+    def mask_folders(self) -> Dict[str, str]:
+        """``{object_type: folder}``, in spaCR's mask-plane order."""
+        return {name: self._masks[name] for name in OBJECT_CHOICES
+                if name in self._masks}
+
+    def _refresh_mask_list(self) -> None:
+        """Rebuild the list of mask sets added so far."""
+        self._mask_list.clear()
+        for name, folder in self.mask_folders().items():
+            item = QListWidgetItem(f"{object_label(name)}  →  {folder}")
+            item.setData(Qt.UserRole, name)
+            self._mask_list.addItem(item)
+        self._refill_object_box()
+
+    def _refill_object_box(self) -> None:
+        """List the classes worth offering, by name, keeping the selection.
+
+        Rebuilt as folders are added because the number of organelle slots
+        follows the organelles: one unfilled slot is on offer at a time, so
+        a user with one organelle is never asked about a second, third and
+        fourth they do not have.
+        """
+        wanted = [role for role in OBJECT_CHOICES
+                  if not role.startswith("organelle")]
+        slots = organelle_slots_offered(getattr(self, "_masks", {}))
+        wanted += [role for role in OBJECT_CHOICES
+                   if role.startswith("organelle")][:slots]
+        if [self._object_box.itemData(i)
+                for i in range(self._object_box.count())] == wanted:
+            return
+        chosen = self._object_box.currentData()
+        blocked = self._object_box.blockSignals(True)
+        self._object_box.clear()
+        for role in wanted:
+            self._object_box.addItem(object_label(role), role)
+        if chosen is not None:
+            index = self._object_box.findData(chosen)
+            if index >= 0:
+                self._object_box.setCurrentIndex(index)
+        self._object_box.blockSignals(blocked)
+
+    def _add_from_fields(self) -> None:
+        """Add the image and mask currently typed as one pair."""
+        self.add_mask_folder(str(self._object_box.currentData()),
+                             self._mask_edit.text().strip())
+
+    def _remove_selected_mask(self) -> None:
+        """Remove the selected mask set."""
+        item = self._mask_list.currentItem()
+        if item is None:
+            self._set_status("Select a mask folder in the list to remove it.",
+                             error=True)
+            return
+        self.remove_mask_folder(str(item.data(Qt.UserRole)))
+
+    def clear_mask_folders(self) -> None:
+        """Forget every mask folder, so a new set does not inherit the last."""
+        if not self._masks:
+            return
+        self._masks.clear()
+        self._refresh_mask_list()
+        self._on_input_changed()
+
+    def set_metadata_type(self, key: str) -> bool:
+        """Choose the filename convention the files are read by.
+
+        :param key: a key from :func:`naming_choices`; ``''`` means folders.
+        :returns: False, with the reason inline, for a key the list lacks.
+        """
+        index = self._naming_box.findData(str(key or NAMING_AUTO))
+        if index < 0:
+            self._set_status(tr("{key} is not a filename convention Import "
+                                "knows.", key=repr(key)), error=True)
+            return False
+        self._naming_box.setCurrentIndex(index)
+        return True
+
+    def metadata_type(self) -> str:
+        """The chosen convention's key; ``NAMING_AUTO`` for folders."""
+        return str(self._naming_box.currentData() or NAMING_AUTO)
+
+    def set_custom_regex(self, pattern: str) -> None:
+        """Set the pattern the Custom convention parses by.
+
+        :param pattern: a regular expression with named groups ``wellID``,
+            ``fieldID`` and ``chanID``; ``''`` clears it.
+        """
+        self._regex_edit.setText(str(pattern or ""))
+
+    def custom_regex(self) -> str:
+        """The pattern typed for the Custom convention."""
+        return self._regex_edit.text().strip()
+
+    def _on_naming_changed(self, *_args) -> None:
+        """A new convention invalidates the plan, and may need a pattern."""
+        self._on_input_changed()
+
+    def _open_test_data(self) -> None:
+        """Offer every test variant, then fetch and fill the chosen one."""
+        from ..import_demo import choose_import_test_data
+
+        choose_import_test_data(self)
+
+    def set_measurements(self, path: str) -> None:
+        """Point the screen at their measurement table.
+
+        :param path: the foreign measurement table file; ``None`` or empty
+            clears the field.
+        """
+        self._table_edit.setText(str(path or ""))
+
+    def measurements_path(self) -> str:
+        """The measurement table currently typed in."""
+        return self._table_edit.text().strip()
+
+    def set_destination(self, path: str) -> None:
+        """Set the destination project root.
+
+        :param path: folder the import is written to; ``None`` or empty
+            clears the field.
+        """
+        self._dst_edit.setText(str(path or ""))
+        self._update_controls()
+
+    def destination_path(self) -> str:
+        """The destination currently typed in."""
+        return self._dst_edit.text().strip()
+
+    def set_pixel_size(self, value: Any) -> None:
+        """Set the µm-per-pixel scale; None or '' means unknown.
+
+        :param value: micrometres per pixel, as a number or text; it is shown
+            as typed and parsed later by :meth:`pixel_size`.
+        """
+        self._scale_edit.setText("" if value in (None, "") else str(value))
+
+    def pixel_size(self) -> Optional[float]:
+        """The scale as a number, or None when blank or unparseable.
+
+        None is not an error: a column that needs a pixel size and does not
+        have one is reported uncalibrated rather than scaled by 1.0.
+        """
+        text = self._scale_edit.text().strip()
+        if not text:
+            return None
+        try:
+            return float(text)
+        except ValueError:
+            return None
+
+    def set_on_conflict(self, value: str) -> None:
+        """Choose refuse-or-rename for colliding targets.
+
+        :param value: ``"refuse"`` or ``"rename"``, as in
+            :data:`CONFLICT_CHOICES`; anything else raises ``ValueError``.
+        """
+        index = self._conflict_box.findData(value)
+        if index < 0:
+            raise ValueError(f"Unknown on_conflict: {value!r}")
+        self._conflict_box.setCurrentIndex(index)
+
+    def on_conflict(self) -> str:
+        """The selected collision policy."""
+        return str(self._conflict_box.currentData())
+
+    def _on_input_changed(self, *_args) -> None:
+        """Any input change invalidates the plan on screen.
+
+        A mapping table that no longer belongs to the files above it is
+        worse than an empty one: it is a table the user believes.
+        """
+        if self._plan is not None:
+            self._plan = None
+            self._model.set_maps(None)
+            self._set_report("")
+            self._set_status("Inputs changed — press Preview again.")
+        self._update_controls()
+
+    def _on_scale_changed(self, *_args) -> None:
+        """Re-resolve in place when the pixel size or the policy changes.
+
+        No folder is rescanned: :meth:`spacr.foreign.ImportPlan.with_column_maps`
+        redoes only the unit arithmetic and the collision checks, which is
+        exactly what a new pixel size can change.
+        """
+        if self._plan is None:
+            self._update_controls()
+            return
+        self._plan = self._plan.with_column_maps(
+            self._model.maps(), um_per_px=self.pixel_size(),
+            on_conflict=self.on_conflict())
+        self._refresh_report()
+
+
+    def _pick_images(self) -> None:
+        """Ask for a folder of images."""
+        path = QFileDialog.getExistingDirectory(self, "Choose their images")
+        if path:
+            self.set_images(path)
+
+    def _pick_mask(self) -> None:
+        """Ask for a folder of masks."""
+        path = QFileDialog.getExistingDirectory(self, "Choose a mask folder")
+        if path:
+            self._mask_edit.setText(path)
+
+    def _pick_table(self) -> None:
+        """Ask for the measurement table to import."""
+        path, _filter = QFileDialog.getOpenFileName(
+            self, "Choose their measurement table", "",
+            "Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet *.db *.sqlite);;"
+            "All files (*)")
+        if path:
+            self.set_measurements(path)
+
+    def _pick_destination(self) -> None:
+        """Ask where the imported project should be written."""
+        path = QFileDialog.getExistingDirectory(self, "Choose destination")
+        if path:
+            self.set_destination(path)
+
+    def _pick_save_mapping(self) -> None:
+        """Ask where to save the column mapping.
+
+        SAVED SEPARATELY because a lab's export format does not change between
+        experiments: the mapping is worked out once and reloaded, rather than
+        re-entered for every import.
+        """
+        path, _filter = QFileDialog.getSaveFileName(
+            self, "Save the column mapping", fgn.COLUMN_MAP_FILENAME,
+            "CSV (*.csv);;All files (*)")
+        if path:
+            self.save_mapping(path)
+
+    def _pick_load_mapping(self) -> None:
+        """Ask which saved column mapping to load."""
+        path, _filter = QFileDialog.getOpenFileName(
+            self, "Load a column mapping", "", "CSV (*.csv);;All files (*)")
+        if path:
+            self.load_mapping(path)
+
+
+    def preview(self) -> bool:
+        """Scan, pair and verify. Writes nothing.
+
+        :returns: True when the job was started (or, unthreaded,
+            completed); False when the inputs are unusable, with the
+            reason in the inline status label.
+        """
+        images = self.images_path()
+        if not images:
+            self._set_status("Choose their image folder first.", error=True)
+            return False
+        if not os.path.isdir(images):
+            self._set_status(f"Not a folder: {images}", error=True)
+            return False
+        masks = self.mask_folders()
+        if not masks:
+            self._set_status(
+                "Add at least one mask folder. A spaCR project without "
+                "object masks has nothing to measure and nothing to crop.",
+                error=True)
+            return False
+        missing = [f"{name}: {folder}" for name, folder in masks.items()
+                   if not os.path.isdir(folder)]
+        if missing:
+            self._set_status(f"Not a folder — {'; '.join(missing)}", error=True)
+            return False
+        table = self.measurements_path()
+        if not table:
+            self._set_status("Choose their measurement table first.",
+                             error=True)
+            return False
+        if not os.path.isfile(table):
+            self._set_status(f"Not a file: {table}", error=True)
+            return False
+
+        scale = self.pixel_size()
+        policy = self.on_conflict()
+        naming = self.metadata_type()
+        pattern = self.custom_regex()
+        if naming == "custom" and not pattern:
+            self._set_status(tr(
+                "The Custom naming needs a pattern: named groups wellID, "
+                "fieldID and chanID, e.g. (?P<wellID>[A-P]\\d{2})_s"
+                "(?P<fieldID>\\d+)_(?P<chanID>\\w+)"), error=True)
+            return False
+
+        def _job():
+            """Plan the foreign import. Off the GUI thread."""
+            return fgn.plan_import(images, masks, table, um_per_px=scale,
+                                   on_conflict=policy,
+                                   metadata_type=naming,
+                                   custom_regex=pattern or None)
+
+        self._set_status(f"Scanning {images} and reading the masks…")
+        return self._run_job(_job, self._on_plan_ready)
+
+    def _on_plan_ready(self, plan: Optional[fgn.ImportPlan]) -> None:
+        """Show the plan and its inferred mapping. Always on the GUI thread."""
+        self._plan = plan
+        if plan is None:
+            self._model.set_maps(None)
+            self._set_report("")
+            self._set_status("The preview produced no plan.", error=True)
+            self._update_controls()
+            return
+        self._model.set_maps(plan.column_maps)
+        self._refresh_report()
+
+    def _refresh_report(self) -> None:
+        """Redraw the report pane and the status line from the current plan."""
+        plan = self._plan
+        if plan is None:
+            self._set_report("")
+            self._update_controls()
+            return
+        self._model.set_status(
+            {r.source: f"{r.status}: {r.reason}" if r.reason else r.status
+             for r in plan.resolved})
+        self._set_report(fgn.format_plan(plan))
+        blocking = len(plan.blocking_conflicts)
+        if blocking or plan.errors or not plan.images.ok:
+            self._set_status(
+                f"{blocking} column conflict(s) and "
+                f"{len(plan.errors) + len(plan.images.errors)} other blocking "
+                f"problem(s) — nothing can be imported until they are fixed. "
+                f"See the report below.", error=True)
+        else:
+            self._set_status(
+                f"{len(plan.stems)} field(s) ready. "
+                f"{plan.join.rows_matched}/{plan.join.rows_total} measurement "
+                f"row(s) matched an object; {len(plan.unmapped)} column(s) "
+                f"unmapped, {len(plan.uncalibrated)} uncalibrated. Nothing "
+                f"has been written yet.")
+        self._update_controls()
+
+    def plan(self) -> Optional[fgn.ImportPlan]:
+        """The plan currently on screen, or None."""
+        return self._plan
+
+    def result(self) -> Optional[fgn.ImportResult]:
+        """The result of the last import, or None."""
+        return self._result
+
+    def column_maps(self) -> List[fgn.ColumnMap]:
+        """The mapping as edited — exactly what Import would apply."""
+        return self._model.maps()
+
+    def mapping_row_count(self) -> int:
+        """Rows in the mapping table."""
+        return self._model.rowCount()
+
+    def set_mapping_value(self, row: int, key: str, value: str) -> bool:
+        """Edit one cell the way the delegate would.
+
+        The screen's own edit path, exposed so a test drives the same code
+        an editor widget does rather than reaching into the model.
+
+        :param row: zero-based mapping row.
+        :param key: column name from :data:`MAP_COLUMNS`, e.g. ``"target"``;
+            an unknown or read-only column returns ``False``.
+        :param value: new cell text; surrounding whitespace is stripped.
+        """
+        columns = [name for name, _label, _editable in MAP_COLUMNS]
+        if key not in columns:
+            return False
+        return self._model.setData(self._model.index(row, columns.index(key)),
+                                   value, Qt.EditRole)
+
+    def unmapped_columns(self) -> List[str]:
+        """Their columns with no mapping, by name."""
+        return list(self._plan.unmapped) if self._plan is not None else []
+
+    def conflict_lines(self) -> List[str]:
+        """One line per conflict, blocking or not."""
+        if self._plan is None:
+            return []
+        return [str(c) for c in self._plan.conflicts]
+
+    def _on_mapping_edited(self, *_args) -> None:
+        """A cell changed: re-resolve without touching the disk."""
+        if self._plan is None:
+            return
+        self._plan = self._plan.with_column_maps(
+            self._model.maps(), um_per_px=self.pixel_size(),
+            on_conflict=self.on_conflict())
+        self._refresh_report()
+
+
+    def save_mapping(self, path: str) -> bool:
+        """Write the mapping on screen to a reviewable CSV.
+
+        :param path: destination CSV file, written by
+            :func:`spacr.foreign.save_column_map`. Returns ``False`` when there
+            is nothing to save or the write fails.
+        """
+        if not self._model.rowCount():
+            self._set_status("There is no mapping to save — press Preview "
+                             "first.", error=True)
+            return False
+        try:
+            written = fgn.save_column_map(self._model.maps(), str(path))
+        except Exception as exc:
+            self._set_status(f"Could not save the mapping: {exc}", error=True)
+            return False
+        self._set_status(f"Mapping saved to {written}. Edit it and load it "
+                         f"back, or hand it to someone else to check.")
+        return True
+
+    def load_mapping(self, path: str) -> bool:
+        """Read a mapping back and apply it to the plan on screen.
+
+        :param path: column-map CSV written by :meth:`save_mapping` or
+            :func:`spacr.foreign.save_column_map`, possibly edited. A read
+            error is shown in the status line and returns ``False``.
+        """
+        try:
+            maps = fgn.load_column_map(str(path))
+        except Exception as exc:
+            self._set_status(f"Could not load the mapping: {exc}", error=True)
+            return False
+        self._model.set_maps(maps)
+        if self._plan is not None:
+            self._plan = self._plan.with_column_maps(
+                maps, um_per_px=self.pixel_size(),
+                on_conflict=self.on_conflict())
+            self._refresh_report()
+        else:
+            self._set_status(f"Loaded {len(maps)} mapping row(s) from {path}. "
+                             f"Press Preview to check them against the data.")
+        self._update_controls()
+        return True
+
+
+    def run_import(self) -> bool:
+        """Build the project. Off the GUI thread unless ``threaded=False``.
+
+        :returns: True when the job was started, False when it was refused
+            — with the reason inline.
+        """
+        if self._plan is None:
+            self._set_status("Press Preview first — there is nothing to "
+                             "import yet.", error=True)
+            return False
+        if not self._plan.ok:
+            self._set_status(
+                "This plan has blocking problems; fix them and preview "
+                "again. Nothing was written.", error=True)
+            return False
+        dst = self.destination_path()
+        if not dst:
+            self._set_status("Choose a destination folder first.", error=True)
+            return False
+
+        plan = self._plan
+        emit = self._progress.emit
+
+        def _job():
+            """Run the foreign import. Off the GUI thread."""
+            return fgn.run_import(plan, dst, progress=emit)
+
+        self._progress_bar.setVisible(True)
+        self._progress_bar.setRange(0, 7)
+        self._progress_bar.setValue(0)
+        self._set_status(f"Importing {len(plan.stems)} field(s) into {dst}…")
+        return self._run_job(_job, self._on_result_ready)
+
+    def _on_progress(self, done: int, total: int, item: str) -> None:
+        """Progress from the worker thread. Always on the GUI thread."""
+        self._progress_bar.setRange(0, max(int(total), 1))
+        self._progress_bar.setValue(int(done))
+        self._set_status(f"Importing {done}/{total} — {item}")
+
+    def _on_result_ready(self, result: Optional[fgn.ImportResult]) -> None:
+        """Show the import summary. Always on the GUI thread."""
+        self._result = result
+        self._progress_bar.setVisible(False)
+        if result is None:
+            self._set_status("The import produced no result.", error=True)
+            self._update_controls()
+            return
+        self._set_report(result.summary())
+        if result.is_complete:
+            self._set_status(
+                f"Imported {result.n_fields} field(s) and {result.n_rows} "
+                f"measurement row(s) into {result.dst}.")
+        else:
+            self._set_status(
+                f"Imported {result.n_fields} field(s), but the run is "
+                f"INCOMPLETE — see the summary. The database is stamped.",
+                error=True)
+        self._update_controls()
+
+
+    def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
+        idle = not self._busy
+        for widget in (self._btn_pick_images, self._btn_pick_mask,
+                       self._btn_add_mask, self._btn_remove_mask,
+                       self._btn_pick_table, self._btn_pick_dst,
+                       self._btn_preview, self._images_edit, self._mask_edit,
+                       self._table_edit, self._dst_edit, self._scale_edit,
+                       self._object_box, self._conflict_box, self._table,
+                       self._mask_list, self._naming_box,
+                       self._btn_test_data):
+            widget.setEnabled(idle)
+        self._regex_edit.setEnabled(idle and self.metadata_type() == "custom")
+        has_map = self._model.rowCount() > 0
+        self._btn_save_map.setEnabled(idle and has_map)
+        self._btn_load_map.setEnabled(idle)
+        self._btn_import.setEnabled(
+            idle and self._plan is not None and self._plan.ok)
+
+    def can_import(self) -> bool:
+        """True when the Import button is live."""
+        return self._btn_import.isEnabled()
+
+
+    def _run_job(self, fn: Callable[[], Any],
+                 on_done: Callable[[Any], None]) -> bool:
+        """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
+
+        The same idiom as ``PlateViewScreen._run_job`` and
+        ``ConvertScreen._run_job``, and for the same reason:
+        ``PipelineWorker.finished`` is emitted *in the worker thread*, and
+        PySide6 invokes a plain closure connected to it directly, on that
+        thread. The completion handlers here reset a table model and fill
+        a QPlainTextEdit, and building a QTextDocument's children off the
+        GUI thread is undefined behaviour. So ``finished`` is chained
+        through :attr:`_job_settled` into a *bound method* of this widget,
+        which has GUI-thread affinity — Qt then queues the call.
+
+        With ``threaded=False`` the call runs inline and the same signals
+        fire, so both paths behave identically from outside.
+        """
+        if not self._threaded:
+            ok = True
+            try:
+                on_done(fn())
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+            self._update_controls()
+            self.job_finished.emit(ok)
+            return ok
+
+        box: Dict[str, Any] = {}
+        thread, worker = make_thread(partial(self._capture, fn), box)
+        self._jobs.append((thread, worker))
+        self._thread, self._worker = thread, worker
+        self._pending.append((box, on_done))
+        worker.error.connect(self._on_worker_error_text)
+        worker.finished.connect(self._job_settled)
+        thread.finished.connect(self._retire_finished_jobs)
+        self._busy = True
+        self._update_controls()
+        thread.start()
+        return True
+
+    @staticmethod
+    def _capture(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
+        """Run ``fn`` in the worker thread and stash its result in ``payload``.
+
+        A named method rather than a closure: this body executes on a
+        QThread, where coverage cannot see it, and a nested function would
+        be untestable except by running the thread. This one can be called
+        directly.
+        """
+        payload["result"] = fn()
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Finish the oldest in-flight job. Always on the GUI thread."""
+        self._busy = False
+        box, on_done = self._pending.pop(0) if self._pending else ({}, None)
+        ok = bool(ok)
+        if ok and on_done is not None:
+            try:
+                on_done(box.get("result"))
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
+
+    def _retire_job(self, thread) -> None:
+        """Release *this* job's refs once its own event loop has exited."""
+        self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
+        if self._thread is thread:
+            self._thread = None
+            self._worker = None
+
+    def active_jobs(self) -> int:
+        """How many worker threads are still winding down."""
+        return len(self._jobs)
+
+    def is_busy(self) -> bool:
+        """True while a preview or an import is in flight."""
+        return self._busy
+
+    def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed import.
+
+        :param exc: what went wrong.
+        """
+        self._busy = False
+        self._progress_bar.setVisible(False)
+        self._set_status(str(exc) or exc.__class__.__name__, error=True)
+
+    def _on_worker_error_text(self, text: str) -> None:
+        """Show a worker's traceback without closing the screen.
+
+        :param text: the traceback.
+        """
+        line = (text or "").strip().splitlines()[-1] if text else "unknown error"
+        self._busy = False
+        self._progress_bar.setVisible(False)
+        self._set_status(f"Import failed: {line}", error=True)
+
+
+
+from .app_screen import ModuleHeader
+from .map_barcodes import build_registered_screen
+
+HOST_KEY = "foreign"
+
+#: The other two ways data gets into a project, folded onto this one.
+#:
+#: Specified as one module called Import, carrying the format converter, import project (use import project as the icon),
+#: external masks". This screen IS Import Project, renamed to Import and
+#: keeping its icon, so the other two arrive as buttons on its masthead
+#: rather than as a third and fourth tile saying the same thing.
+#:
+#: They are genuinely one job seen three ways -- convert a microscope
+#: format, map somebody else's columns, or adopt masks made elsewhere --
+#: and which one a user needs depends on what they were handed, which is
+#: not a decision Home can help with.
+#: Import Images joined them on 2026-09-02, first because it is the one a
+#: new user needs first: this screen adopts somebody else's MASKS AND
+#: MEASUREMENTS, and that is the second thing anyone does. Reading a folder
+#: of raw images off a microscope is the first, and the cost of getting it wrong is blunt -- "a tool that cannot read your data has
+#: no features".
+FOLDED_APPS: Tuple[str, ...] = ("import_images", "convert", "external_masks")
+
+#: ``key -> (name, sentence, maturity)`` for what the registry cannot say.
+#:
+#: ONE ENTRY, because Import Images has no registry row and never had one:
+#: not `spacr.qt.app.APPS`, not the declared catalogue. Without it the button
+#: would be headed by the key title-cased, hover no sentence at all, and
+#: light up stable-blue -- the registry answers a key it has never heard of
+#: exactly as it answers a typo, and "stable" is the answer it gives.
+#:
+#: Format Converter and External Masks are NOT here, and that is not an
+#: omission: both still hold their registry rows, and
+#: `fold_strip.folded_modules` asks the registry for a fold that has one.
+#: Copying those two sentences here would be the same text written twice,
+#: with the copy free to go stale.
+FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
+    "import_images": (
+        "Import Images",
+        "Read a folder of images from any microscope into a spaCR project, "
+        "working the naming out from the folder rather than from a list of "
+        "conventions",
+        "beta"),
+}
+
+
+def _build_image_import(host_window: Optional[QWidget] = None) -> QWidget:
+    """Import Images: the screen over :mod:`spacr.image_import`.
+
+    BUILT DIRECTLY rather than through :func:`build_registered_screen`,
+    because there is no registry row to build from and no settings form
+    behind it. The other two folds are registered modules with catalogue
+    entries, and asking the window for those is what keeps the fold button
+    and the command palette on one screen; this module is reached only from
+    here, so there is nothing for the two routes to disagree about.
+    """
+    from .image_import import ImageImportScreen
+
+    screen = ImageImportScreen()
+    from .map_barcodes import connect_host
+
+    connect_host(screen, host_window)
+    return screen
+
+
+def _build_convert(host_window: Optional[QWidget] = None) -> QWidget:
+    """Format Converter, as the window builds it."""
+    return build_registered_screen("convert", host_window)
+
+
+def _build_external_masks(host_window: Optional[QWidget] = None) -> QWidget:
+    """External Masks, as the window builds it."""
+    return build_registered_screen("external_masks", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "import_images": _build_image_import,
+    "convert": _build_convert,
+    "external_masks": _build_external_masks,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put Import's fold strip on ``screen``'s masthead."""
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

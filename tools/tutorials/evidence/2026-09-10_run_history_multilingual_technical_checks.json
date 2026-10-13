@@ -1,0 +1,146 @@
+{
+  "lesson": "40_run_history",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_run_history_current_workflow.json",
+  "canonical_english_sha256": "95f7f8f67ce2fea87e24e2b3d1a69d607a49eb12df62bf662ca2fd0eb0b9e4d4",
+  "scene_count": 13,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "565481f72aba301e7387d55cbc6b89dc3b3a14b1",
+    "version": "1.5.0.4",
+    "module": "run_history",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "40_run_history.da.json": "9b8930f264eeb116dd3b2831e43540ce2630c5b7299df2d0e4514aa1fbea388a",
+    "40_run_history.de.json": "e97a625db6d6ed9654444dbe62a5127cfd9ab923807dc7c4c9e4a62c3201989b",
+    "40_run_history.es.json": "6f66124b6adfbc6ffa580ee777748d7f4e4a2cccb6212fafe97b0d42ba34c09e",
+    "40_run_history.fr.json": "2dd2b912eeb9336cd01c7099c6842a474599fd72c760554dfc12e11767cd3440",
+    "40_run_history.hi.json": "d3196615b8879509077d9559d4dd150863b6d51d1aee6364bd8127ec7d161362",
+    "40_run_history.is.json": "a2800f6081f988ea6b51637747793f7c273bd643e3ab17dfe017760b6e58355f",
+    "40_run_history.it.json": "f26a67fe953fda0bc7718a0cecb7fcc11f4afe0b3be1005a07cd0c236cafdc44",
+    "40_run_history.ja.json": "52c41a41ec3d78357cf9e6239822cbe720e49ae673145fa44643f91cbfa06a65",
+    "40_run_history.ko.json": "01caeb01caae31079a4ea5eaac772fb2cda81b82f531f4ff11c316d816f467bc",
+    "40_run_history.nb.json": "6b0f74555ee757b906f437f9f108c1bdba9794ff56f890dc7c8a9b2d11bc3590",
+    "40_run_history.pt-BR.json": "3c93f6796dcc4f24e0ab9af33dd32e370d15a73275718ef68d87fa4ee83480a3",
+    "40_run_history.sv.json": "b2c9dff8a82a1d484d07ac7ca7ceb0c5d843e1afca1df8b5bf6f2d6706e87aea",
+    "40_run_history.zh-CN.json": "a028889666b7ef99827b4699a5b97af2fc24718638573b4bc4ec9366a72ab06a"
+  },
+  "review_scope": "Parent editorial translation against frozen English and actual UI; independent peer and native-speaker review not claimed",
+  "master": {
+    "sha256": "d31fc41c744253d482eccdf24de8eef9c3444bd473f07ea84914c64adda54240",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "7581"
+        }
+      ],
+      "format": {
+        "duration": "252.700000",
+        "size": "13531481"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 100,
+        "content": "Recorded Recruitment identity, times, file counts and full overview highlight"
+      },
+      {
+        "seconds": 203,
+        "content": "Genuine earlier Model Zoo failure traceback and unsupported invert argument, not a segmentation result"
+      }
+    ]
+  },
+  "poster_sha256": "7cf437603b30b44944c9754c11a4c5ae87078145a778df3e8f318eb58977d767",
+  "final_artifact_checks_sha256": "087b1c4055c1662bd100d6c36b212995767f95fc18150ba8c2c68f81904fae9d",
+  "audio_reports": {
+    "audio-checks.en+es+fr.json": "3a4ba313448e554d820bd7eaf377d10b7fb6ab3a1bde474a455d96c02e9987be",
+    "audio-checks.it+pt-BR+hi+ja+zh-CN.json": "9b3944a72a4a2d13b7cd143702d30a180924687d16de48eee486f880a6a7772b"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "28ac87c3a1722657e8e42582950b05c883adbf779232feb54aa622c360355321"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "b593c3837f46cef6bb3556933f511a52719e5a443c99e62017ac7b3d5b46f3f9"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "d869741e6cdc6ef58b41ed96bbc05a07a2c652937ef45ffa5829ab629debd1ff"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "2613e9561a18c8c74cdf5b92b6e6bef1d45286574bed97b85f64187ddb5bc2f4"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "769675b31b70d0689fc51d6dc31d7921ce1292da38dc9ec855d2d2ae8618e08b"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "f74d58eb746649b60966775c66dcf030b295c08a8deb22cf162f9c73b7dc0cfc"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "23b2bf841fce5c26aa191832896a419834c4d5168c811f37d5f3e2c484b043b4"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "1fccabeeffb37a19e9509b74a01c15cfb18e9130828725ebfdd39ead7d349f05"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "4879542bee15c19e7c4de0ac4fb9a596a3e82e174ca420f6060903390c12f0b0"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "eb365d2c18e9670074eb591f119688678c835875b1b9c94e51670b1603a2b97f"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "3819a91c4aa7e3fa9787fa7bd95071792ecd7c787fa9308713221c429476faa5"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "f31871bf46158c4ddc579e1744661ae1b7c091b3293f2b6055b1b2b66122c515"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "c3b7bd62e39d6e0deb5c24b2cf428fdd867d2c9e10eda622faa9cc62dfed5638"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "ac60400892e9b32c1a00ccb0dfe3b8a488b5bf59d1842c0c61cd9b5c28082cd7"
+    }
+  ],
+  "catalog_preservation_sha256": "40c2b29bea88fcb4da7d3c19b0314c330306d1ca18a5e1dee2102cfbac30d8b5",
+  "shared_english_video_only": true,
+  "pronunciation_rules_version_unchanged": "v11",
+  "all_browser_checks_started_after_audio_writers_finished": true,
+  "journal_files_byte_identical": 496,
+  "overview_comparison_scope": "Raw-file comparison of identity, module, status, start/end times, file counts and bytes; displayed duration/CPU formatting was visually inspected rather than numerically reimplemented. The other four detail texts were compared in full.",
+  "restored_matching_available_settings": 27,
+  "unrepresented_recorded_setting": "hash_inputs",
+  "exact_replay_guaranteed": false,
+  "analysis_run": false,
+  "deletion_performed": false,
+  "external_file_manager_launched": false,
+  "ai_request_sent": false,
+  "independent_peer_review": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

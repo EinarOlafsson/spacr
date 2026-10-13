@@ -1,0 +1,46 @@
+{
+  "lesson": "09_annotate",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Annotate : étiqueter des objets et enregistrer vos annotations",
+  "description": "Chargez des vignettes d’exemple, choisissez une colonne d’annotation, étiquetez des objets, ajustez l’affichage et préparez vos étiquettes pour la classification.",
+  "objectives": [
+    "Charger des vignettes enregistrées ou lire des vignettes directement depuis les images fusionnées.",
+    "Choisir une colonne d’annotation, attribuer et effacer des étiquettes, et enregistrer vos modifications.",
+    "Ajuster les couleurs des canaux et consulter les effectifs par classe et la couverture.",
+    "Trouver Agreement et les parcours d’entraînement sur images et sur caractéristiques."
+  ],
+  "prerequisite": "Ouvrez Annotate depuis Home. Utilisez Load test data et choisissez Load pour les vignettes d’exemple et la base de données de mesures. Pour votre propre projet, utilisez le dossier qui contient sa base de données de mesures et les vignettes ou les images fusionnées.",
+  "scenes": [
+    "Ouvrez Annotate depuis Home. La grille montre les objets individuels de votre projet. Vous allez étiqueter ces objets et enregistrer les étiquettes dans la base de données de mesures.",
+    "Cliquez sur Load test data et choisissez Load. Cela télécharge les vignettes d’exemple et leur base de données de mesures, puis les ouvre dans Annotate.",
+    "Choisissez Stream si vous voulez lire les vignettes directement depuis les images fusionnées. Choisissez Load pour des vignettes déjà exportées. Nous utiliserons Load dans cette démonstration.",
+    "Pour ouvrir vos propres données, cliquez sur Open source et sélectionnez le dossier de plaque qui contient les mesures et les données d’image. La grille charge alors les objets de ce projet.",
+    "Examinez la grille de vignettes. Utilisez les contrôles de page pour parcourir les objets. Ajustez la taille des vignettes si vous avez besoin d’une vue plus rapprochée ou de plus d’objets par page.",
+    "Ouvrez Settings et choisissez une colonne d’annotation. Créez une nouvelle colonne pour séparer cette tâche d’étiquetage des annotations existantes. Décidez de ce que représente chaque classe avant de commencer.",
+    "Un clic gauche sur une vignette attribue la classe un. Un clic droit attribue la classe deux. Cliquez de nouveau sur la même classe pour l’effacer. L’anneau coloré indique l’étiquette et l’anneau blanc marque la vignette active.",
+    "Appuyez sur Next pour passer à la page suivante et envoyer vos étiquettes à l’enregistrement. Attendez la fin de l’enregistrement avant de fermer l’application.",
+    "Appuyez sur Back pour revenir à la page précédente et vérifier vos étiquettes. Vous pouvez aussi utiliser les touches un à neuf pour attribuer des classes, et zéro pour effacer une étiquette. La légende à l’écran indique les raccourcis de navigation et d’annulation.",
+    "Ouvrez Class counts pour voir combien d’objets vous avez étiquetés dans chaque classe. Servez-vous-en pour repérer les classes qui ont besoin de plus d’exemples.",
+    "Ouvrez Coverage pour voir comment vos annotations se répartissent dans le projet. Incluez des exemples des conditions et des groupes d’images que le classificateur doit reconnaître.",
+    "Pour effacer une étiquette, cliquez de nouveau sur la même classe. Passez à la page suivante pour enregistrer la modification, puis revenez vérifier la vignette effacée.",
+    "Dans Settings, Channel colours sélectionne la palette d’affichage. Display order attribue les canaux sources aux emplacements de couleur. Choisissez un affichage qui rend vos classes faciles à distinguer.",
+    "Voici la palette CMY. Vous pouvez revenir à RGB dans les mêmes paramètres. Gardez le même affichage pendant que vous comparez et étiquetez les objets.",
+    "Ouvrez Annotator Agreement depuis l’icône en haut à droite pour comparer des colonnes d’annotation. Utilisez-le pour trouver les objets auxquels des relecteurs ont attribué des étiquettes différentes.",
+    "Quand vos étiquettes sont prêtes, ouvrez Train. Choisissez des images pour un classificateur d’images, ou des caractéristiques mesurées pour un classificateur tabulaire. Les leçons Classify associées expliquent les paramètres d’entraînement.",
+    "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans quatre puits, puis Next les enregistre.",
+    "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis chaque découpe de la page porte un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger.",
+    "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses sont enregistrées, les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié.",
+    "Generate annotation database crée un ensemble de vignettes à partir de données sources adaptées. Utilisez-le pour préparer un nouveau projet d’annotation ; l’exemple téléchargé contient déjà les vignettes et la base de données nécessaires ici.",
+    "Ouvrez Console pour vérifier les messages de chargement de la source et d’enregistrement. Votre colonne d’annotation est stockée dans la base de données du projet et peut être sélectionnée lorsque vous préparez les données d’entraînement dans Classify.",
+    "Pour obtenir de l’aide sur un paramètre, ouvrez spaCR AI dans Console après avoir configuré un fournisseur dans Preferences. Une fois l’étiquetage terminé, passez à Classify avec votre projet et la colonne d’annotation choisie."
+  ]
+}

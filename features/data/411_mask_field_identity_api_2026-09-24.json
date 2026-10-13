@@ -1,0 +1,23 @@
+{
+  "source_commit": "67237fa895826efa4e6e9d2046abfb3345c691fa",
+  "english_api_entries": 11528,
+  "added": [],
+  "removed": [],
+  "changed": [
+    "spacr.utils.check_mask_folder"
+  ],
+  "private_module": "spacr._mask_workers",
+  "scope": "Mask completion now matches each expected field identity. Private ledger/coordinator additions do not add public API entries.",
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11528\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  }
+}

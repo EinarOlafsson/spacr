@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "spaCR: spatial phenotype analysis of CRISPR-Cas9 screens"
+abstract: "An open-source Python framework linking pooled CRISPR-Cas9 perturbations to single-cell spatial phenotypes by deep-learning image classification, well-level barcode genotyping and multiple linear regression."
+type: software
+authors:
+  - family-names: "Olafsson"
+    given-names: "Einar B."
+    orcid: "https://orcid.org/0000-0002-3388-061X"
+  - family-names: "Arnold"
+    given-names: "Christophe-Sebastien"
+  - family-names: "Kellermeier"
+    given-names: "Jacob A."
+  - family-names: "Rimple"
+    given-names: "Patrick A."
+  - family-names: "Kaur"
+    given-names: "Hargobinder"
+  - family-names: "Wang"
+    given-names: "Yifan"
+  - family-names: "Sexton"
+    given-names: "Jonathan Z."
+  - family-names: "Svärd"
+    given-names: "Staffan"
+  - family-names: "Carruthers"
+    given-names: "Vern B."
+  - family-names: "O'Meara"
+    given-names: "Matthew J."
+contact:
+  - family-names: "Olafsson"
+    given-names: "Einar B."
+    orcid: "https://orcid.org/0000-0002-3388-061X"
+version: "1.5.1.4"
+date-released: "2026-10-09"
+doi: "10.5281/zenodo.23266544"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23266544"
+    description: "Version DOI: this release, spaCR 1.5.1.4. Cite this to point at the exact code a result came from."
+  - type: doi
+    value: "10.5281/zenodo.21343316"
+    description: "Concept DOI: all versions of spaCR. Resolves to the most recent release."
+  - type: url
+    value: "https://pypi.org/project/spacr/"
+    description: "Released package on PyPI."
+license: BSD-3-Clause
+repository-code: "https://github.com/EinarOlafsson/spacr"
+url: "https://einarolafsson.github.io/spacr/"
+keywords:
+  - CRISPR screen
+  - image-based screening
+  - spatial phenotype
+  - deep learning
+  - Toxoplasma gondii

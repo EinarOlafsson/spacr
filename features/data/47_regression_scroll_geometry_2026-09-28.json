@@ -1,0 +1,66 @@
+{
+  "scope": "Test-only synchronization of regression figures and shell geometry",
+  "cause": "The test read maximum 103 at viewport height 477, then queued shell layout shrank the viewport to 316 or 364 and raised maximum to 264 or 216. Scroll value remained 103, correctly preserving position. The unchanged production scroll range reaches the bottom at the settled current maximum.",
+  "source_before_sha256": {
+    "spacr/qt/screens/app_screen.py": "dc442507cea82f40adfc48904c7c8139b1d091b64a41d16ff712dab4e67fd4dd",
+    "tests/qt/test_regression_figures_fit_laptop.py": "c186a8ac59589de6ac9dc67db056421c2c323a2eba0bdf5f1b030bd45bcbc577"
+  },
+  "source_after_sha256": {
+    "spacr/qt/screens/app_screen.py": "dc442507cea82f40adfc48904c7c8139b1d091b64a41d16ff712dab4e67fd4dd",
+    "tests/qt/test_regression_figures_fit_laptop.py": "b972d0cf2b1c7b2bbde01f9227942550e85be8acc32f64c4b9abcd49c47dcd13"
+  },
+  "original_assertions_preserved": true,
+  "original_height_parameters": [
+    600,
+    768
+  ],
+  "correction": {
+    "geometry": "Consecutive unchanged pane/window/content/viewport rectangles and scrollbar range/page step after already-posted layout requests are drained and queued floor/splitter work is absent",
+    "condition_bound_ms": 1000,
+    "production_timeouts_or_minima_changed": false,
+    "fixed_delays_increased": false,
+    "forced_gc": false,
+    "additional_check": "Repeat positive scroll range, bottom reachability and top reset after folding/reopening"
+  },
+  "resource_guards": {
+    "memory_max_bytes": 4294967296,
+    "swap_max_bytes": 0,
+    "cpu_only": true,
+    "private_home_xdg_tmp": true,
+    "concurrent_runtimes_in_qt_lane": 1,
+    "outer_timeout_seconds": 180,
+    "per_test_timeout_seconds": 60
+  },
+  "omissions": [
+    "This closes only the two regression-scroll measurement failures and focused related checks",
+    "The full frozen Qt run terminated exit 3 on its pre-existing memory guard; this receipt does not replace or reopen that full-suite acceptance",
+    "The 600-height parameter requests 600 but MainWindow minimum makes actual measured window height 720; original parameters and production minima remain unchanged",
+    "Diagnostic fixture/plugin is observational test evidence, not native installer or packaged-release acceptance"
+  ],
+  "passed": true,
+  "receipt_sha256": "e55fda1cf5ca776311033645da990e61b37ef235f55cbc80e7e182f7680c1e57",
+  "private_evidence": "/mnt/wd4tb/scratch/spacr-completion/regression-scroll-geometry-20260928",
+  "full_serial_qt_passed": false,
+  "production_screen_unchanged": true,
+  "gpu_used": false,
+  "baseline": {
+    "exit": 1,
+    "tests": 2,
+    "failures": 2,
+    "junit_sha256": "0b9f8490625eb4045a227a033b0304fd74ab0c3cca276f7ca5eaae9f0c19673d",
+    "log_sha256": "38569f3f02fbba0639e10956ea4c4b9054abc2c15f312bcd52c180723296c0cc",
+    "trace_sha256": "151445cb672aeb0cbbbdbfb4d9079fcaa7ac106985be90f143c7863f1be278af"
+  },
+  "corrected": {
+    "exit": 0,
+    "tests": 14,
+    "failures": 0,
+    "junit_sha256": "bcc6961f5e3a5bfa41324edcd0bc1e5097eb92e9fb7bf9bdb8a81e00191d9155",
+    "log_sha256": "34416854338650a2564cd0a1472a53aa5e6a76f85ae0035b1f0525f2f40b9d89",
+    "trace_sha256": "46307d85afc4aac798d5fdac251e3605f605ed06c009bf5c37ee5b21c6327179",
+    "passed": 14,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 21.76
+  }
+}

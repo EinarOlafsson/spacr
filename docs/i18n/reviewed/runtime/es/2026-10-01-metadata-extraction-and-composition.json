@@ -1,0 +1,395 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 59 new local-model UI drafts in each locale. Incorrect technical meanings and omitted instructions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair. The two named-group instructions are explicitly AI-authored translations of previously uncatalogued prose, with literal examples retained as placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "4ce6d66d97adfb1e41c65387e14f51b8497b03418ff5551e57cc1c8e645f3c12",
+  "original_local_model_drafts": [
+    {
+      "source": "Add another metadata comparison to this condition box.",
+      "translation": "Añadir otra comparación de metadatos a este cuadro de condiciones."
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "translation": "Todo requiere de todos los criterios; todo requiere al menos un criterio."
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "translation": "Asigne un valor fijo, extraiga texto usando un grupo de captura, o componga un valor de los tokens de columna y texto ordenados."
+    },
+    {
+      "source": "Choose a filename or another source or earlier generated column.",
+      "translation": "Elija un nombre de archivo u otra fuente o columna generada anteriormente."
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "translation": "Elija una captura con nombre o su número. El grupo 0 mantiene toda la coincidencia regex."
+    },
+    {
+      "source": "Copy this example and adapt the separators to your filenames.",
+      "translation": "Copia este ejemplo y adapta los separadores a tus nombres de archivo."
+    },
+    {
+      "source": "Create columns from named groups",
+      "translation": "Crear columnas desde grupos nombrados"
+    },
+    {
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "translation": "Crear una columna de salida para cada captura nombrada, en orden de patrón. Los nombres de columna de origen y de salida existentes están protegidos."
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "translation": "Arrastre una columna a la composición o haga doble clic para añadirla. Sólo están disponibles las columnas de origen y anteriores."
+    },
+    {
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "translation": "Introduzca el texto a probar. Iguales puede coincidir con una cadena vacía; los valores que faltan nunca coinciden."
+    },
+    {
+      "source": "Extraction regex",
+      "translation": "Extracción regex"
+    },
+    {
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "translation": "Texto corregido. Haga doble clic para editar; arrastre para reordenar."
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "translation": "Texto literal para insertar, como subrayado, espacio o prefijo de tratamiento."
+    },
+    {
+      "source": "Manual rows only",
+      "translation": "Únicamente filas manuales"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "translation": "Nombre el valor a asignar y luego elija qué reglas de metadatos deben coincidir. También puede arrastrar filas de origen en una caja."
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "translation": "Sólo los operadores regex interpretan patrones. Otros operadores comparan texto literal y son sensibles a casos."
+    },
+    {
+      "source": "Preview to see source and generated values.",
+      "translation": "Vista previa para ver el origen y los valores generados."
+    },
+    {
+      "source": "Remove this criterion from the condition box.",
+      "translation": "Eliminar este criterio de la caja de condiciones."
+    },
+    {
+      "source": "Source example: {value}",
+      "translation": "Ejemplo de fuente: {value}"
+    },
+    {
+      "source": "Text to match",
+      "translation": "Texto a combinar"
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "translation": "Los tokens se unen de izquierda a derecha. Braces identifican valores de columna. Arrastre para reordenar o haga doble clic en texto fijo para editarlo. Los valores de la columna que faltan dejan el resultado vacío."
+    },
+    {
+      "source": "Use example",
+      "translation": "Ejemplo de uso"
+    },
+    {
+      "source": "all rules match",
+      "translation": "todas las reglas coinciden"
+    },
+    {
+      "source": "any rule matches",
+      "translation": "cualquier regla coincide"
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Add another metadata comparison to this condition box.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a filename or another source or earlier generated column.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Copy this example and adapt the separators to your filenames.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Create columns from named groups",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Extraction regex",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Manual rows only",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Preview to see source and generated values.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Remove this criterion from the condition box.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Source example: {value}",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Text to match",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Use example",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "all rules match",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "any rule matches",
+      "method": "Codex root AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    },
+    {
+      "source": "Add named captures such as {example} before creating columns.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add another metadata comparison to this condition box.",
+      "source": "Add another metadata comparison to this condition box.",
+      "source_sha256": "adf45c6f83dc0a90b00dab62988cdc916001ebe011b619e3383a212a7832223c",
+      "translation": "Añada otra comparación de metadatos a este recuadro de condición."
+    },
+    {
+      "table": "ui",
+      "key": "All requires every criterion; any requires at least one criterion.",
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "source_sha256": "d2fdbb0cf59573659db3efdc7314c1fa482f7ce8710e794e9ea8647ef000b6ea",
+      "translation": "Con «todas las reglas» deben cumplirse todos los criterios; con «al menos una regla» basta con que se cumpla uno."
+    },
+    {
+      "table": "ui",
+      "key": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source_sha256": "30ac1e8d96173ac641dc9c5e30ceea9b0ac5855c0d515e4d83dccb53754a9742",
+      "translation": "Asigne un valor fijo, extraiga texto mediante un grupo de captura o componga un valor con elementos de columna y de texto en el orden elegido."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a filename or another source or earlier generated column.",
+      "source": "Choose a filename or another source or earlier generated column.",
+      "source_sha256": "f8a7c4746e714af344ee4ee181921742a55a61af329e3f21f00c7da11e6cb183",
+      "translation": "Elija la columna de nombres de archivo, otra columna de origen o una columna generada anteriormente."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source_sha256": "20046c00a2f1979885f23be17f795e561451ce52a08cceec7c6f9df6ecbfdb95",
+      "translation": "Elija un grupo de captura por su nombre o número. El grupo 0 conserva toda la coincidencia de la expresión regular."
+    },
+    {
+      "table": "ui",
+      "key": "Copy this example and adapt the separators to your filenames.",
+      "source": "Copy this example and adapt the separators to your filenames.",
+      "source_sha256": "bba3c86e1394f21fb92d6fabca9d750b9ff7ab6b3fb24784dbdc9a8a558b4906",
+      "translation": "Copie este ejemplo y adapte los separadores a sus nombres de archivo."
+    },
+    {
+      "table": "ui",
+      "key": "Create columns from named groups",
+      "source": "Create columns from named groups",
+      "source_sha256": "9338e731b7c3a11ea274b3add1a01d190fedafc60fdaba23dd25e7d817224a5f",
+      "translation": "Crear columnas a partir de grupos con nombre"
+    },
+    {
+      "table": "ui",
+      "key": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "source_sha256": "ee38604215d0f417217383991d66643b74ee48e1d92fb521802bf3baa945b193",
+      "translation": "Cree una columna de salida por cada grupo de captura con nombre, en el orden del patrón. Los nombres de las columnas de salida y de origen existentes están protegidos."
+    },
+    {
+      "table": "ui",
+      "key": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source_sha256": "02cb54d7af4c3610a970f4e4baf06a5083f7dc71c6b5be2f3814dd7726a15fe4",
+      "translation": "Arrastre una columna a la composición o haga doble clic para añadirla. Solo están disponibles las columnas de origen y las generadas anteriormente."
+    },
+    {
+      "table": "ui",
+      "key": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "source_sha256": "1377c1dd04a3d7a24d80ee825d677cc202660e77b79f5c67537a95c2d19c9df0",
+      "translation": "Introduzca el texto que desea comparar. «Igual a» permite seleccionar una cadena vacía; los valores ausentes nunca cumplen la condición."
+    },
+    {
+      "table": "ui",
+      "key": "Extraction regex",
+      "source": "Extraction regex",
+      "source_sha256": "2d81680cea3b7cf6c9af56c6ad1594cef84300112f43ff63d6bcd8a70170e048",
+      "translation": "Expresión regular de extracción"
+    },
+    {
+      "table": "ui",
+      "key": "Fixed text. Double-click to edit; drag to reorder.",
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "source_sha256": "a71b716f6ace949f4d14c3322e3e158d171910ad6de72cc9e1928fc6b910a9e3",
+      "translation": "Texto fijo. Haga doble clic para editarlo; arrástrelo para cambiar el orden."
+    },
+    {
+      "table": "ui",
+      "key": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source_sha256": "6a0e2fd434e83c6dff4583b11f8086befb08416f4c1a0cf2990a233a287ab99c",
+      "translation": "Texto literal que desea insertar, como un guion bajo, un espacio o un prefijo de tratamiento."
+    },
+    {
+      "table": "ui",
+      "key": "Manual rows only",
+      "source": "Manual rows only",
+      "source_sha256": "34f132193a9a222c16038235980dbfc9699b67f3015e33a7cf6cd97390078b0e",
+      "translation": "Solo filas asignadas manualmente"
+    },
+    {
+      "table": "ui",
+      "key": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source_sha256": "94aa4d9b77ebee37ee203f95d76151c88f150c4ce9093100c06a3363d6a82077",
+      "translation": "Escriba el valor que desea asignar y elija las reglas de metadatos que deben cumplirse. También puede arrastrar filas de origen a un recuadro."
+    },
+    {
+      "table": "ui",
+      "key": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source_sha256": "47e158a17ef7eba70e6982637ad9b17ca857ce47b225791c7f86d040a54b1a02",
+      "translation": "Solo los operadores de expresiones regulares interpretan patrones. Los demás comparan texto literal y distinguen entre mayúsculas y minúsculas."
+    },
+    {
+      "table": "ui",
+      "key": "Preview to see source and generated values.",
+      "source": "Preview to see source and generated values.",
+      "source_sha256": "9e8e8997fa0ec2e946f79125d285980e526fc4a6770e5c6d04e27988fc9c4228",
+      "translation": "Use la vista previa para ver los valores de origen y los generados."
+    },
+    {
+      "table": "ui",
+      "key": "Remove this criterion from the condition box.",
+      "source": "Remove this criterion from the condition box.",
+      "source_sha256": "aaea7ae510ee9a3fccce5666eb62e1df84ca31fc560c100cef5106771631a07a",
+      "translation": "Elimine este criterio del recuadro de condición."
+    },
+    {
+      "table": "ui",
+      "key": "Source example: {value}",
+      "source": "Source example: {value}",
+      "source_sha256": "874547d78c2e0e3730441747f1341ded2a1b485f9642d4b4d28aaeae3431459b",
+      "translation": "Ejemplo de la columna de origen: {value}"
+    },
+    {
+      "table": "ui",
+      "key": "Text to match",
+      "source": "Text to match",
+      "source_sha256": "19d4d1729415dd75a557707f3d2b51f210b3a01222be35927c445283bad4d315",
+      "translation": "Texto que se comparará"
+    },
+    {
+      "table": "ui",
+      "key": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source_sha256": "5fae60cc2a8319762c87ae5ba555a771dbc38a9d3fbdf93580509b9f7586a8b3",
+      "translation": "Los elementos se unen de izquierda a derecha. Las llaves identifican los valores de columna. Arrastre los elementos para cambiar el orden o haga doble clic en el texto fijo para editarlo. Si falta un valor de columna, el resultado queda vacío."
+    },
+    {
+      "table": "ui",
+      "key": "Use example",
+      "source": "Use example",
+      "source_sha256": "b7c4889649abe12e65a648658348a074b116e726ce066b328fccf351419bcde2",
+      "translation": "Usar ejemplo"
+    },
+    {
+      "table": "ui",
+      "key": "all rules match",
+      "source": "all rules match",
+      "source_sha256": "4b311bf231e84dcfc1337dab5c782e8954938a13118817a01d682dfc5345cfb4",
+      "translation": "se cumplen todas las reglas"
+    },
+    {
+      "table": "ui",
+      "key": "any rule matches",
+      "source": "any rule matches",
+      "source_sha256": "63934bbadf2bd2daf4b9c197821c5299f127dc7aec3390821d8f712e8deb2cd3",
+      "translation": "se cumple al menos una regla"
+    },
+    {
+      "table": "ui",
+      "key": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source_sha256": "eb73bfa40caa774bc65f8c66af10fb5e29a1e49f807733260187d2d5d835c4fb",
+      "translation": "Encierre entre paréntesis el texto que desea capturar. Nombre los grupos de captura con {example} para crear varias columnas de salida a la vez."
+    },
+    {
+      "table": "ui",
+      "key": "Add named captures such as {example} before creating columns.",
+      "source": "Add named captures such as {example} before creating columns.",
+      "source_sha256": "2f7f5d075a67fe31f72c88b1aff3ef3e55a84493063fb3a80ab1c000a10cff86",
+      "translation": "Añada grupos de captura con nombre, como {example}, antes de crear columnas."
+    }
+  ]
+}

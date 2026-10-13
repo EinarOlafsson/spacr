@@ -1,0 +1,181 @@
+GPU MEASUREMENT: cuCIM REGIONPROPS, HARALICK ON CuPy
+
+Status: DONE (alpha) 2026-09-27 (evidence a71b646a7)
+VERIFIED 2026-10-04: test_gpu_measurement (CPU fallback), qt/test_gpu_measurement_alpha_gate pass (nightly 85c3e41c2, CPU).
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    https://forum.image.sc/t/speed-of-cellprofiler/97573
+
+WHAT TO BUILD
+    Move the heavy per-object measurements (regionprops, intensity,
+    texture/Haralick, Zernike) to the GPU with cuCIM/CuPy when available,
+    falling back to CPU; identical numbers within float tolerance.
+
+DONE WHEN
+    Measure on a real plate gives the same values as CPU within tolerance
+    and is several times faster on the GPU.
+
+ALPHA: 2026-09-27
+    Setting measure_gpu (bool, default False) under "GPU Measurement
+    (Alpha)" on Measure, registered as ALPHA_FEATURES[566]; hidden until
+    Preferences -> Show alpha features. With it on, a visible CUDA device and
+    PyTorch installed, _intensity_measurements and _morphological_measurements
+    compute three blocks with vectorised PyTorch kernels in spacr/measure.py,
+    all objects of a field at once:
+      - _torch_intensity_table: the full _extended_regionprops_table (weighted
+        centroids, min/max/mean, integrated, std, median, skew, kurtosis,
+        mode, range, IQR, CV, Gini, frac_high90/low10, entropy, percentiles),
+        from one (label, intensity) sort plus segment sums;
+      - _torch_homogeneity: GLCM homogeneity without building matrices (mean
+        of 1/(1+(a-b)^2) over each bounding box's horizontal pairs, with
+        skimage's per-object 0-255 rescale reproduced);
+      - _torch_zernike: the Mahotas Zernike moments, with Mahotas' unit-disk
+        boundary decided exactly.
+    Anything else (3-D, voxel spacing, non-finite or negative intensities,
+    non-default intensity props, no torch, no CUDA) runs the unchanged
+    NumPy/scikit-image/Mahotas path, which stays the default.
+    Validation: the same kernels run on a CPU torch device in
+    tests/test_gpu_measurement.py against the CPU functions: homogeneity and
+    Zernike agree to 1e-12 absolute, the intensity table to float32 rounding
+    (rtol 1e-5), dtypes and column order identical. On a loaded 32-core
+    machine with torch limited to one thread, a 1024x1024 field with ~900
+    objects took 1.8-2.3 s (CPU table) vs 0.13-0.22 s, 2.4-3.8 s (homogeneity)
+    vs 0.66-0.81 s, 0.43 s (Zernike) vs 0.26 s, before any GPU.
+    GPU timing: queued 2026-09-27 as `tools/gpu_turn.sh 566-timing python
+    /mnt/wd4tb/scratch/566/gpu_timing.py` (2048x2048 field, ~3000 objects,
+    CPU vs CUDA with max relative error); output goes to
+    /mnt/wd4tb/scratch/566/gpu_timing.log. Not yet run: the GPU was held by
+    another session's training.
+    Optional dependency for the maintainer: PyTorch with CUDA (already used
+    by spaCR's deep-learning paths). CuPy/cuCIM were not installed here, so
+    the kernels are written in PyTorch rather than CuPy.
+
+WHAT IS LEFT
+    - Read the queued GPU timing log and confirm "several times faster";
+      then run Measure on a real plate with measure_gpu on and off and
+      compare the databases (the "done when").
+    - Still on the CPU: the morphology regionprops table (area, perimeter,
+      solidity...), blur, periphery/outside intensity, radial distribution
+      and correlation. cuCIM's regionprops_table could take the morphology
+      table once cuCIM is an optional dependency.
+    - Measure workers each open their own CUDA context (~300 MB each); with
+      many n_jobs a GPU run may want fewer workers.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: GPU timing and real plate on/off comparison (GPU, data). OPEN code over 1 h: cuCIM morphology table and remaining CPU features.
+
+2026-10-03 — cuCIM MORPHOLOGY TABLE (alpha, optional `gpu` extra)
+    The maintainer chose an optional extra: setup.py now declares
+    extras_require['gpu'] = cucim-cu12 + cupy-cuda12x (Linux); the import
+    map in tests/test_declared_dependencies_match_imports.py resolves
+    `cucim` -> cucim-cu12. With measure_gpu on, a CUDA device and a 2-D
+    unspaced mask, _morphological_measurements builds the morphology table
+    (area, perimeter, solidity, ... = MORPHOLOGICAL_PROPS) through
+    measure._cucim_morphology_table (cuCIM regionprops_table). cuCIM missing,
+    an error, or columns that differ from the requested ones -> the
+    scikit-image table, so the columns are always identical.
+    Tests (tests/test_gpu_measurement.py, CPU): the fallback without cuCIM
+    is frame-identical to the CPU run; a refused cuCIM table falls back; a
+    cuCIM-vs-skimage value test skips without cucim/CUDA (not run on the
+    GPU). Tooltip of measure_gpu not yet updated to mention cuCIM.
+    LEFT: GPU timing and real-plate on/off comparison (GPU, data); blur,
+    periphery/outside intensity, radial distribution, correlation on CPU.
+
+2026-10-03 — GPU ACCEPTANCE RUN SCRIPTED, NOT RUN (lane 3)
+    GPU card held by cellposetime-r1-train (another session; epoch 14/100 at
+    08:25, ~31 min/epoch, so ~44 h left). Queued with tools/gpu_turn.sh at
+    08:26 and withdrawn at 08:50; not run. Rerun by itself: tools/gpu_turn.sh
+    <label> timeout 30m /mnt/wd4tb/scratch/566/... (all eight turns in order:
+    /mnt/wd4tb/scratch/lane3_driver.sh). cuCIM: pip install cucim-cu12
+    cupy-cuda12x (the gpu extra) into the spacr env succeeded (cucim
+    26.08.00, cupy 14.2.0, 2026-10-03); import and regionprops_table load.
+    Side effect: pip moved the cuda-toolkit metadata package 13.0.3 -> 12.9.2
+    (torch 2.13+cu130 keeps its cu13 libs and still imports; torch CUDA not
+    rechecked on the card). Script: /mnt/wd4tb/scratch/566/timing2.py (torch
+    intensity/homogeneity and cuCIM morphology vs CPU, 2048 px, 3000 objects)
+    then run_plate.sh gpu, compare_db.py. Real-plate CPU reference done: 4
+    plate1 fields (1994 px, cell/nucleus/pathogen), measure_gpu off, n_jobs
+    2: 177 s wall, plate/cpu/measurements/measurements.db.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0 from the driver, but NOT passed)
+    Kernel timing (timing2.py, synthetic 2048 px field, 2996 objects, RTX 3090):
+      intensity    CPU 9.71 s  GPU 0.185 s  52.4x  max rel err 3.9e-06
+      homogeneity  CPU 9.93 s  GPU 0.241 s  41.2x  max rel err 9.7e-15
+      cuCIM morphology: GPU path returned None ("No coordinates to process"),
+      fell back to the CPU; no GPU morphology number.
+    Real plate (run_plate.sh gpu, 4 plate1 fields, measure_gpu on): FAILED,
+    spacr-run measure rc=1 after 287 s, PartialRunError "measure_crop: 4 of 4
+    items failed". Cause: measure_crop workers are forked after CUDA is
+    initialised in the parent -> "Cannot re-initialize CUDA in forked
+    subprocess" in _torch_label_segments (measure.py _torch_intensity_table),
+    and cuCIM "cudaErrorInitializationError". gpu/measurements.db holds no
+    object tables, so the GPU-vs-CPU database comparison (compare_db.py) could
+    not be made. CPU reference run (rc=0, 177 s) is intact in plate/cpu.
+    GPU point: NOT DONE. "Several times faster" holds for the kernels only.
+    LEFT: start measure workers with the 'spawn' context (or keep CUDA out of
+    the parent) when measure_gpu is on; fix the cuCIM morphology fallback on
+    labels with empty regions; rerun run_plate.sh gpu + compare_db.py.
+    Logs: /mnt/wd4tb/scratch/566/gpu_turn.log, plate/gpu.log.
+
+2026-10-04 — SPAWNED WORKERS; REAL-PLATE GPU RUN PASSES ON AGREEMENT, NOT ON SPEED
+    Fix: with measure_gpu on (and SPACR_START_METHOD unset) measure_crop
+    starts its pool with the 'spawn' context (measure._measure_pool_context),
+    so no worker inherits a forked CUDA state. An explicit
+    SPACR_START_METHOD still wins. CPU tests in tests/test_gpu_measurement.py.
+    Rerun: tools/gpu_turn.sh 566-plate-spawn timeout 30m run_plate.sh gpu
+    (copy pointing PYTHONPATH at the fix branch), RTX 3090, same 4 plate1
+    fields, n_jobs 2: rc=0, 148 s wall (measure 145 s) vs CPU reference
+    177 s -> 1.2x. compare_sorted.py (rows matched on plate/row/column/field
+    and label; spawned workers write rows in another order, so the
+    unsorted compare_db.py shows false differences): cell 190, nucleus 193,
+    pathogen 97, cytoplasm 190 rows, identical columns, max relative
+    difference 4.0e-10 (kurtosis), 0 columns over 1e-3.
+    Why only 1.2x: cuCIM morphology still fails on every object table
+    ("No coordinates to process", 16 times) and falls back to the CPU, cuCIM
+    distances fall back to SciPy (no cuVS), and blur, periphery, radial
+    distribution and correlation stay on the CPU; spawn adds interpreter
+    start-up per worker.
+    LEFT: fix the cuCIM morphology path on labels with empty regions; move
+    the remaining CPU features before "several times faster" can hold on a
+    plate. Logs: /mnt/wd4tb/scratch/566/gpu_turn_spawn.log, plate/gpu.log.
+
+2026-10-04 — cuCIM MORPHOLOGY RUNS ON THE GPU; PLATE 2.6x FASTER THAN THE OLD CPU RUN
+    Why cuCIM fell back: (1) cupy-cuda12x/cucim-cu12 sit beside PyTorch's
+    CUDA 13 wheels; the CUDA path finder hands CuPy NVRTC 13 and
+    nvidia/cu13/include headers, so every fresh kernel compile failed
+    (NVRTC_ERROR_COMPILATION in cuda_fp8.hpp). Earlier runs only got past
+    this through ~/.cupy/kernel_cache. (2) cuCIM's batch regionprops raise
+    "No coordinates to process" on label images with gaps (every filtered
+    mask). (3) cuCIM returns convex_area last, so the column-order check
+    rejected every table. (4) cuCIM's area_filled and feret_diameter_max
+    differ from scikit-image (up to 20x and 11 % on plate1).
+    Fixes (spacr/measure.py): _preload_matching_nvrtc loads the NVRTC of
+    CuPy's own CUDA major and pins the cudart header lookup to it, in-process
+    only; labels are made sequential for cuCIM and mapped back; columns are
+    reordered; area_filled and feret_diameter_max come from scikit-image
+    (_CUCIM_DIFFERS); a failure is reported once per process.
+    Proper environment fix for the maintainer (not done; shared env):
+    install cupy-cuda13x + cucim-cu13 to match torch 2.13 (CUDA 13); the
+    `gpu` extra and IMPORT_TO_DIST would then name the cu13 wheels.
+    Profile (one 1994^2 field, CPU): 51 s; object_distances.maxima_distances
+    23 s because local_maxima ran peak_local_max on the whole field per
+    object. Now searched in each object's bounding box with the whole-field
+    threshold (identical peaks): 31 s. scipy pearsonr per object replaced by
+    _pearson_r (same value to 1e-13). With measure_gpu on, the object-distance
+    EDTs run on CuPy (exact, 0.2 s -> 0.01 s per transform).
+    Plate (tools/gpu_turn.sh 566-plate-final, RTX 3090, 4 plate1 fields,
+    n_jobs 2): GPU 67 s wall vs CPU 99 s with this commit and 177 s before
+    it -> 1.5x over the new CPU path, 2.6x over the old. compare_sorted:
+    max relative difference 9.3e-08 (equivalent_diameter_area), 0 columns
+    over 1e-3 in cell/nucleus/pathogen/cytoplasm. New CPU vs old CPU: 1.5e-13.
+    LEFT: cuCIM morphology itself is no faster than scikit-image on these
+    fields (0.1-0.3 s per mask) and first-use NVRTC compiles cost ~20 s per
+    fresh worker without a kernel cache; remaining CPU time is intensity
+    (correlation medians, periphery/radial EDTs, blur). "Several times
+    faster" holds against the pre-566 CPU run only.

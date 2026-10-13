@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "baseline": "ba599995917c4c63a56b3cd8188b1418f03d4ac7",
+  "source_head": "d1ea6a8c8940ca70e41ca927023562e4fe8cb9ae",
+  "before": {
+    "callables": 9527,
+    "categories": {
+      "function": 4248,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4109,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9522,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9534,
+    "variant_buckets": {
+      "1": 9520,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18945,
+    "required": 9751,
+    "signature_sha256": "63b9cafe201fe1c9be793312c4b9412c3476dc71eff13f84f8bf2294392b3eeb"
+  },
+  "after": {
+    "callables": 9527,
+    "categories": {
+      "function": 4248,
+      "dataclass_constructor": 505,
+      "constructor": 439,
+      "method": 4109,
+      "exception_constructor": 148,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 20
+    },
+    "exposures": {
+      "autoapi": 9522,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9534,
+    "variant_buckets": {
+      "1": 9520,
+      "2": 7
+    },
+    "constructor_prose_variants": 439,
+    "constructors_with_prose": 439,
+    "parameters": 18948,
+    "required": 9751,
+    "signature_sha256": "641a73d4f3f35d394fa658ab3af9d9ae5751af3ab32993ce7749cdbef0ffc03c"
+  },
+  "added": [],
+  "removed": [],
+  "changed_signatures": {
+    "spacr.object.generate_cellpose_masks_sam": {
+      "before": "spacr.object.generate_cellpose_masks_sam\u0000function\u0000autoapi\u0000object_type,settings,src\u0000object_type,settings,src\u0000object_type,settings,src\u00000\u00001\u00000\u00000",
+      "after": "spacr.object.generate_cellpose_masks_sam\u0000function\u0000autoapi\u0000batch_paths,object_type,on_batch_done,run_qc,settings,src\u0000object_type,settings,src\u0000batch_paths,object_type,on_batch_done,run_qc,settings,src\u00000\u00001\u00000\u00000"
+    }
+  },
+  "exact_subtraction_restores_baseline": true,
+  "omissions_before": 2290,
+  "omissions_after": 2290,
+  "added_omissions": [],
+  "removed_omissions": [],
+  "english_api_delta": {
+    "before": 11527,
+    "after": 11528,
+    "added": [
+      "spacr._mask_workers"
+    ],
+    "changed": [
+      "spacr.object.generate_cellpose_masks_sam"
+    ],
+    "removed": []
+  },
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11528\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  },
+  "focused_inventory_guards": {
+    "passed": 4,
+    "log_sha256": "d37b969ffc86f5dbba0f1fb6deaea21c05fbf7487bfbdf586262d5dafe6ba21c"
+  }
+}

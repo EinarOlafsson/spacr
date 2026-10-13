@@ -1,0 +1,73 @@
+{
+  "schema": "spacr.n47-bounded-replay/v1",
+  "cohorts": [
+    {
+      "cohort": "final_tail",
+      "source_sha": "23750631790924590490e356144c8da72ac805af",
+      "original_run": 37457998285,
+      "files_in_original_order": [
+        "tests/qt/test_live_preview_view_sync.py",
+        "tests/qt/test_live_settings_keep_every_channel_on_reopen.py",
+        "tests/qt/test_live_zoom_endings.py",
+        "tests/qt/test_loaded_schema_rules_do_not_overlap_n637.py",
+        "tests/qt/test_loading_screen_palette.py",
+        "tests/qt/test_loading_screen_uncovered_paths.py",
+        "tests/qt/test_local_threshold_parameter_effects.py",
+        "tests/qt/test_lock_levels_installer_translations.py",
+        "tests/qt/test_logging.py",
+        "tests/qt/test_macro_gui.py",
+        "tests/qt/test_magnifier_lock.py",
+        "tests/qt/test_magnifier_request_provenance.py",
+        "tests/qt/test_main_window.py",
+        "tests/qt/test_make_masks.py",
+        "tests/qt/test_make_masks_apply_and_adaptive.py",
+        "tests/qt/test_make_masks_canvas.py",
+        "tests/qt/test_make_masks_center_pixel_puncta.py"
+      ],
+      "node_count": 268,
+      "stdout": "/mnt/wd4tb/scratch/theme-growth-thore-20261006/n47-tail17-pytest.log",
+      "stdout_sha256": "e3423ef4666f6713f84c76ada0d28d4ab51908275ee8f3fc605eb1bb247c1d26",
+      "rss_journal": "/mnt/wd4tb/scratch/theme-growth-thore-20261006/n47-tail17-rss.jsonl",
+      "rss_journal_sha256": "9d55572549f61714829c66c2b938e0d873b8e7c2fc46ae4079cdc70f11f8be02",
+      "target_start_rss_bytes": 1686573056,
+      "target_start_threads": 7,
+      "final_rss_bytes": 1690120192,
+      "final_threads": 6,
+      "exitstatus": 0
+    },
+    {
+      "cohort": "first_failure",
+      "source_sha": "23750631790924590490e356144c8da72ac805af",
+      "original_run": 37457998285,
+      "files_in_original_order": [
+        "tests/qt/test_cov_g2_gate_editor_volume_moves.py",
+        "tests/qt/test_cov_g2_graph_builder_screen.py",
+        "tests/qt/test_cov_g2_graph_canvas_draw_edges.py",
+        "tests/qt/test_cov_g2_i18n_portable_edges.py",
+        "tests/qt/test_cov_g2_import_test_data_button.py",
+        "tests/qt/test_cov_g2_make_masks_controls.py",
+        "tests/qt/test_cov_g2_make_masks_folder_jobs.py",
+        "tests/qt/test_cov_g2_make_masks_uncertainty_edges.py",
+        "tests/qt/test_cov_g2_mask_screen_edges.py",
+        "tests/qt/test_cov_g2_measure_preview_export.py",
+        "tests/qt/test_cov_g2_measure_preview_panel_edges.py",
+        "tests/qt/test_cov_g2_more_branches.py",
+        "tests/qt/test_cov_g2_notification_prefs_edges.py",
+        "tests/qt/test_cov_g2_screen_breaths.py",
+        "tests/qt/test_cov_g2_shortcuts_jobs_recipes.py",
+        "tests/qt/test_cov_g2_small_branches.py",
+        "tests/qt/test_cov_g2_tooltip_policy.py"
+      ],
+      "node_count": 159,
+      "stdout": "/mnt/wd4tb/scratch/theme-growth-thore-20261006/n47-first-failure17-pytest.log",
+      "stdout_sha256": "d73b01b0fd7a87d91c964bcfd8bad27845f0dff5f682c8f182f2645b4c058190",
+      "rss_journal": "/mnt/wd4tb/scratch/theme-growth-thore-20261006/n47-first-failure17-rss.jsonl",
+      "rss_journal_sha256": "993fcdb45823aeb02879fcac8b790f897978f6c3bee9b4a93f3eb6e9ef311b8e",
+      "target_start_rss_bytes": 1669312512,
+      "target_start_threads": 11,
+      "final_rss_bytes": 1669324800,
+      "final_threads": 10,
+      "exitstatus": 0
+    }
+  ]
+}

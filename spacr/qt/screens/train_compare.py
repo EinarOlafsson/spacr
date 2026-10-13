@@ -1,0 +1,1072 @@
+"""
+Training Runs — several runs' curves on one axis, with the settings diffed.
+
+The screen helps explain why one run scored better than another: it draws their
+curves on one axis and lists the settings that differ.
+
+Layout::
+
+    ┌──────────────────────────────────────────────────────────────────────┐
+    │ /data/screen1/model                     [Choose folder…]  [Scan]     │
+    ├──────────────────────┬───────────────────────────────────────────────┤
+    │ Runs found (4)       │            ┌───────────────────────────┐      │
+    │ ☑ maxvit_t/…/ep_25   │            │   accuracy, 5 series      │      │
+    │   25 epochs · tr+val │            │   ╱‾‾‾‾  B val            │      │
+    │ ☑ maxvit_t/…/ep_10   │            │  ╱ ─ ─   A val            │      │
+    │ ☐ resnet50/…/ep_8    │            └───────────────────────────┘      │
+    │   8 ep x 3 folds     ├───────────────────────────────────────────────┤
+    │ ☐ maxvit_t/…/ep_3 !  │ 2 settings changed · 1 env drift · 0 drift    │
+    │                      │ bucket   setting        A        B            │
+    │ Metric [accuracy ▾]  │ changed  learning_rate  1e-4     1e-3         │
+    │ Folds  [per fold ▾]  │ changed  batch_size     64       32           │
+    │ [Overlay selected]   │ env      n_jobs         30       8            │
+    ├──────────────────────┴───────────────────────────────────────────────┤
+    │ ! maxvit_t/…/epochs_3: no per-epoch curves in this folder            │
+    │ Clicked: maxvit_t/…/epochs_25 · val — best 0.87 @ 18, last 0.85 @ 25 │
+    └──────────────────────────────────────────────────────────────────────┘
+
+Design notes:
+
+* **Discovery runs off the GUI thread.** A scan walks a model tree and parses
+  every progress CSV under it, which on a real screen is hundreds of files. It
+  goes through :func:`spacr.qt.bridge.make_thread` like every other spaCR job;
+  tests pass ``threaded=False``, which runs the same code inline. Drawing stays
+  on the GUI thread — by then the data is already in memory.
+* **No modal dialogs on any error path.** A folder with no runs, a run with no
+  curves, a metric nothing logged — all of it lands in the inline status and
+  problem labels. A QMessageBox hangs a headless run.
+* **Broken runs are listed, not hidden.** A folder holding checkpoints but no
+  ``train.csv`` still appears, marked, with its note in the problem line.
+* **The diff is bucketed, never flat.** It renders
+  :func:`spacr.train_compare.diff_settings`, which reuses the provenance
+  bucketing from :mod:`spacr.run_journal`: environment drift (paths, hosts,
+  worker counts) is shown in its own bucket instead of being counted as
+  something the user changed, and schema drift is summarised. When two runs
+  match, the table says "no differences" in words rather than going blank.
+* **Every series says run · split · fold.** Clicking a line names its run,
+  folder and both its best and last epoch, because a legend that only carries
+  the run id invites reading a train curve as a held-out result.
+"""
+from __future__ import annotations
+
+import logging
+import os
+from typing import Any, Callable, Dict, List, Optional, Sequence
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QBrush, QColor, QPainter
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ... import train_compare as tc
+from ..bridge import make_thread
+from ..theme import (SPACING, active_palette, make_transparent,
+                     paint_panel, palette_for)
+from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.sortable_table import install_sorting, table_item
+
+LOG = logging.getLogger(__name__)
+
+__all__ = ["TrainCompareScreen", "APP_KEY", "APP_NAME", "APP_SECTION",
+           "APP_INTRO", "FOLD_MODE_LABELS"]
+
+#: Registration constants. ``spacr.qt.app.APPS`` and the title/intro tables in
+#: ``spacr.qt.screens.app_screen`` are the registry; these are kept here so the
+#: screen and the registry can be checked against each other.
+APP_KEY = "train_compare"
+APP_NAME = "Training Runs"
+#: The category: comparing training runs is reading a result. Checked
+#: against the app's ``APPS`` row by the suite. How finished this app is
+#: is a separate axis and lives in ``spacr.qt.app.APP_STAGE`` — it is
+#: alpha, and the Home tile says so in colour rather than by filing it
+#: somewhere else.
+#: TOOLS, with Prediction Profiler and Investigate Hit. Core is the pipeline and its order IS the
+#: pipeline; Training Runs compares FINISHED runs, which is a result rather
+#: than a step, and it is also a folded child of Classify, so it was on Home
+#: twice. `spacr.qt.app` was moved and this constant was not, so the two
+#: declarations of one fact disagreed --
+#: `test_registration_matches_the_app_registry_when_it_is_wired_up` exists
+#: for exactly that and is what caught it.
+APP_SECTION = "Tools"
+APP_INTRO = (
+    "Compare loss and accuracy curves from multiple training runs on shared "
+    "axes. The adjacent settings comparison separates model and training "
+    "changes from differences in the software environment.")
+
+#: Combo label -> ``spacr.train_compare.compare_runs(folds=…)`` value.
+FOLD_MODE_LABELS = (
+    ("per fold", "per_fold"),
+    ("mean ± sd", "mean"),
+    ("both", "both"),
+)
+
+_DIFF_BUCKETS = ("changed", "env", "drift")
+
+
+def _cell(text: str) -> QTableWidgetItem:
+    """A read-only table cell."""
+    item = table_item(text)
+    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+    return item
+
+
+#: Built once, on first use — see :func:`panel_canvas_class`.
+_PANEL_CANVAS = None
+
+
+def panel_canvas_class():
+    """The ``FigureCanvasQTAgg`` subclass that sits ON the page.
+
+    ``FigureCanvasQT.__init__`` sets ``WA_OpaquePaintEvent`` and a white
+    palette, and the figure carries a solid ``facecolor``. Three opaque
+    things stacked: the area right of "Runs found" was a flat dark
+    rectangle whatever the page-opacity slider said, with square corners
+    where every other container on the page has rounded ones.
+
+    QSS cannot fix that — a ``WA_OpaquePaintEvent`` widget never lets the
+    sheet's background through, and a stylesheet cannot round a canvas
+    matplotlib draws edge to edge. So the panel is drawn in
+    ``paintEvent``, underneath the figure, and the figure's own patch is
+    made fully transparent so the panel is what shows.
+
+    Built lazily and cached: no screen in this package imports matplotlib
+    at module scope, and subclassing its Qt backend would do exactly that.
+    """
+    global _PANEL_CANVAS
+    if _PANEL_CANVAS is not None:
+        return _PANEL_CANVAS
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+
+    class PanelCanvas(FigureCanvasQTAgg):
+        """A matplotlib canvas drawn on a rounded translucent panel.
+
+        :param figure: the matplotlib figure to draw. The canvas is made
+            translucent so the rounded panel below it is the visible surface,
+            which is why the figure's own patch is not the background.
+        """
+
+        def __init__(self, figure):
+            """Build the canvas non-opaque, so the panel shows through it."""
+            super().__init__(figure)
+            self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+            make_transparent(self)
+            figure.patch.set_alpha(0.0)
+            from ..widgets.figure_settings import _attach_figure_menu
+            _attach_figure_menu(self)
+
+        def paintEvent(self, event):  # noqa: N802 (Qt naming)
+            """Draw the panel, then let matplotlib draw over it."""
+            painter = QPainter(self)
+            paint_panel(painter, self, role="surface", inset=0.5)
+            painter.end()
+            super().paintEvent(event)
+
+    _PANEL_CANVAS = PanelCanvas
+    return PanelCanvas
+
+
+def _page_alpha() -> float:
+    """The page-opacity preference as a plain float for matplotlib.
+
+    Matplotlib takes alpha as a number, not as a QSS colour, so the QSS
+    accessors are no help here. Degrades to the theme's designed scrim.
+    """
+    from ..theme import panel_alpha
+    theme = "dark"
+    opacity = None
+    try:
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        theme = resolve_effective_theme()
+        opacity = get_pane_opacity()
+    except Exception:
+        pass
+    return float(panel_alpha(theme, "surface_alt", opacity))
+
+
+def _active_palette() -> dict:
+    """The palette the plot should be drawn in, defaulting to dark."""
+    theme = "dark"
+    try:
+        from ..preferences import get_theme
+        theme = get_theme()
+    except Exception:
+        pass
+    return palette_for("light" if theme == "light" else "dark")
+
+
+class TrainCompareScreen(QWidget):
+    """Compare training runs: overlaid curves plus the bucketed settings diff.
+
+    :param threaded: discover and load runs on a worker thread (the default).
+        Tests pass ``False`` for deterministic, synchronous behaviour.
+    :param parent: parent widget; ownership only.
+    :ivar last_error: text of the most recent failure, ``""`` when the last
+        operation succeeded. Errors are only ever reported here and in the
+        inline status label — never in a modal dialog.
+    """
+
+    #: emitted with the number of runs found after every scan
+    runs_discovered = Signal(int)
+    #: emitted with the series label whenever a curve is clicked
+    series_clicked = Signal(str)
+    #: emitted after every job settles (ok or not)
+    job_finished = Signal(bool)
+
+    def __init__(self, parent=None, threaded: bool = True):
+        """Build the run list, the curve plot and the settings diff.
+
+        :param parent: parent widget.
+        :param threaded: whether the scan runs on a worker.
+        """
+        super().__init__(parent)
+        self._threaded = bool(threaded)
+        self._root: str = ""
+        self._runs: List[tc.TrainingRun] = []
+        self._comparison: Optional[tc.Comparison] = None
+        self._busy = False
+        self._pending: Optional[tuple[Dict[str, Any],
+                                      Callable[[Any], None]]] = None
+        self._jobs: List[tuple] = []
+        self.last_error: str = ""
+
+        self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("train_compare"), self)
+        self._set_status(
+            "Choose the folder your models were trained into (a dataset's "
+            "model/ folder, or anything above it), then Scan.")
+        self._update_controls()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+
+    def _build_ui(self) -> None:
+        """Lay out the run list beside the plot, with the diff underneath.
+
+        Item 471: the run list ("Runs"), the curves ("Curves") and the
+        settings diff ("Settings diff") are sections of
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        panes -- each folds by its heading and every shared edge drags; the
+        run list opens at the old 300 px.
+        """
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
+                                 SPACING["lg"], SPACING["lg"])
+        outer.setSpacing(SPACING["md"])
+
+        title = QLabel(APP_NAME)
+        title.setObjectName("DisplayHeading")
+        outer.addWidget(title)
+
+        subtitle = QLabel(APP_INTRO)
+        subtitle.setObjectName("Muted")
+        subtitle.setWordWrap(True)
+        outer.addWidget(subtitle)
+
+        outer.addWidget(Divider())
+
+        src_row = QHBoxLayout()
+        src_row.setSpacing(SPACING["sm"])
+        self._path_edit = QLineEdit(self)
+        self._path_edit.setPlaceholderText(
+            "…/my_dataset/model  — or any folder above your run folders")
+        self._path_edit.setClearButtonEnabled(True)
+        self._path_edit.returnPressed.connect(self._on_scan_typed_path)
+        self._path_edit.textChanged.connect(lambda *_: self._update_controls())
+        self._btn_pick = QPushButton("Choose folder…", self)
+        self._btn_pick.clicked.connect(self._pick_folder)
+        self._btn_scan = QPushButton("Scan", self)
+        self._btn_scan.clicked.connect(self._on_scan_typed_path)
+        src_row.addWidget(self._path_edit, 1)
+        src_row.addWidget(self._btn_pick)
+        src_row.addWidget(self._btn_scan)
+        from ..widgets.measurements_example import (
+            _install_dose_test_data_button)
+        example = _install_dose_test_data_button(
+            self, src_row,
+            lambda folder: self.scan(os.path.join(str(folder), "training")),
+            say=lambda message: self._set_status(message, error=True))
+        example.setObjectName("TrainCompareTestDataButton")
+        outer.addLayout(src_row)
+
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="train_compare::body")
+
+        left = QWidget()
+        left_layout = QVBoxLayout(left)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(SPACING["xs"])
+        self._runs_header = QLabel("Runs found", left)
+        left_layout.addWidget(self._runs_header)
+        hint = QLabel("Tick two or more to overlay them. Runs marked ! are "
+                      "missing curves or settings — they still diff.", left)
+        hint.setObjectName("Caption")
+        hint.setWordWrap(True)
+        left_layout.addWidget(hint)
+        self._runs_list = QListWidget(left)
+        self._runs_list.setSelectionMode(QAbstractItemView.NoSelection)
+        self._runs_list.itemChanged.connect(lambda *_: self._update_controls())
+        left_layout.addWidget(self._runs_list, 1)
+
+        metric_row = QHBoxLayout()
+        metric_row.setSpacing(SPACING["sm"])
+        metric_row.addWidget(QLabel("Metric", left))
+        self._metric_combo = QComboBox(left)
+        self._metric_combo.setMinimumWidth(140)
+        self._metric_combo.currentIndexChanged.connect(self._on_metric_changed)
+        metric_row.addWidget(self._metric_combo, 1)
+        left_layout.addLayout(metric_row)
+
+        fold_row = QHBoxLayout()
+        fold_row.setSpacing(SPACING["sm"])
+        fold_row.addWidget(QLabel("Folds", left))
+        self._fold_combo = QComboBox(left)
+        for label, _value in FOLD_MODE_LABELS:
+            self._fold_combo.addItem(label)
+        self._fold_combo.setToolTip(
+            "How to draw a cross-validated run: every fold, the fold mean "
+            "with a ±1 sd band, or both. Drawing only the mean hides the "
+            "spread between folds.")
+        self._fold_combo.currentIndexChanged.connect(self._on_fold_changed)
+        fold_row.addWidget(self._fold_combo, 1)
+        left_layout.addLayout(fold_row)
+
+        self._btn_overlay = QPushButton("Overlay selected", left)
+        self._btn_overlay.clicked.connect(self.overlay)
+        left_layout.addWidget(self._btn_overlay)
+        split.add_section(left, "Runs", persist_key="train_compare/Runs",
+                          stretch=0, extent=300)
+
+        right = CollapsibleSplitter(Qt.Vertical,
+                                    persist_key="train_compare::curves")
+
+        from matplotlib.figure import Figure
+        self._figure = Figure(
+            figsize=(7.0, 4.2), tight_layout=True)
+        self._canvas = panel_canvas_class()(self._figure)
+        self._canvas.setMinimumHeight(240)
+        self._canvas.mpl_connect("pick_event", self._on_pick)
+        right.add_section(self._canvas, "Curves",
+                          persist_key="train_compare/Curves", stretch=3)
+
+        diff_panel = QWidget()
+        diff_layout = QVBoxLayout(diff_panel)
+        diff_layout.setContentsMargins(0, 0, 0, 0)
+        diff_layout.setSpacing(SPACING["xs"])
+        self._diff_summary = QLabel("", diff_panel)
+        self._diff_summary.setWordWrap(True)
+        self._diff_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        diff_layout.addWidget(self._diff_summary)
+        self._diff_table = QTableWidget(0, 0, diff_panel)
+        self._diff_table.setObjectName("SettingsDiff")
+        install_sorting(self._diff_table)
+        self._diff_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._diff_table.setAlternatingRowColors(True)
+        self._diff_table.verticalHeader().setVisible(False)
+        self._diff_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Interactive)
+        self._diff_table.horizontalHeader().setStretchLastSection(True)
+        diff_layout.addWidget(self._diff_table, 1)
+        right.add_section(diff_panel, "Settings diff",
+                          persist_key="train_compare/Settings diff", stretch=2)
+
+        split.add_pane(right, "Comparison", stretch=1, extent=820)
+        self._body_splitter = split
+        self._curves_splitter = right
+        outer.addWidget(split, 1)
+
+        self._problems = QLabel("", self)
+        self._problems.setWordWrap(True)
+        self._problems.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        outer.addWidget(self._problems)
+
+        self._picked = QLabel("", self)
+        self._picked.setObjectName("Caption")
+        self._picked.setWordWrap(True)
+        self._picked.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        outer.addWidget(self._picked)
+
+        self._status = QLabel("", self)
+        self._status.setObjectName("Muted")
+        self._status.setWordWrap(True)
+        self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        outer.addWidget(self._status)
+
+
+    def _set_status(self, text: str, error: bool = False) -> None:
+        """Report inline. Never a QMessageBox — a modal hangs a headless run."""
+        self.last_error = text if error else ""
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
+        self._status.setStyleSheet(f"color: {colour};")
+        self._status.setText(text)
+
+    def status_text(self) -> str:
+        """Whatever the status line is telling the user.
+
+        :returns: the status text.
+        """
+        return self._status.text()
+
+    def summary_text(self) -> str:
+        """The line above the diff table."""
+        return self._diff_summary.text()
+
+    def problem_text(self) -> str:
+        """Every note from every discovered run, one per line."""
+        return self._problems.text()
+
+    def picked_text(self) -> str:
+        """Description of the last clicked series."""
+        return self._picked.text()
+
+
+    def _pick_folder(self) -> None:
+        """Ask for the folder the runs were written to."""
+        path = QFileDialog.getExistingDirectory(
+            self, "Choose a folder to scan for training runs", "")
+        if path:
+            self.scan(path)
+
+    def _on_scan_typed_path(self) -> None:
+        """Scan whatever path the user typed."""
+        self.scan(self._path_edit.text().strip())
+
+    def scan(self, root: Any) -> bool:
+        """Discover training runs under ``root`` and list them.
+
+        Runs off the GUI thread unless the screen was built with
+        ``threaded=False``. Every failure is reported inline.
+
+        :param root: folder to walk.
+        :returns: True when the scan started (or, unthreaded, succeeded).
+        """
+        path = str(root or "").strip()
+        if not path:
+            self._set_status("Type or choose a folder to scan.", error=True)
+            return False
+        path = os.path.expanduser(path)
+        if not os.path.isdir(path):
+            self._set_status(f"Not a folder: {path}", error=True)
+            return False
+
+        self._root = path
+        self._path_edit.setText(path)
+        self._set_status(f"Scanning {path} …")
+
+        def _job():
+            """Find the training runs under a folder. Off the GUI thread."""
+            return tc.find_runs(path)
+
+        return self._run_job(_job, self._apply_runs)
+
+    def _apply_runs(self, runs: Any) -> None:
+        """Show the runs a finished scan found.
+
+        :param runs: the runs it returned.
+        """
+        next_runs = list(runs or [])
+        self._clear_plot()
+        self._runs = next_runs
+        self._comparison = None
+        self._fill_runs_list()
+        self._fill_problems()
+        self._clear_diff()
+        n = len(self._runs)
+        if n == 0:
+            self._set_status(
+                f"No training runs under {self._root}. A run folder is the "
+                f"one holding train.csv / validation.csv (or fold_1/, fold_2/ "
+                f"for a cross-validated run) — that is <dataset>/model/"
+                f"<model_type>/<channels>/epochs_<N>.")
+        else:
+            broken = sum(1 for r in self._runs if not r.has_curves)
+            extra = f" ({broken} with no curves)" if broken else ""
+            self._set_status(
+                f"Found {n} run{'s' if n != 1 else ''}{extra}. Tick two or "
+                f"more and press Overlay selected.")
+        self.runs_discovered.emit(n)
+
+    def _fill_runs_list(self) -> None:
+        """Rebuild the run list, keeping whatever was ticked."""
+        self._runs_list.blockSignals(True)
+        self._runs_list.clear()
+        for run in self._runs:
+            item = QListWidgetItem(run.summary_line())
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Unchecked)
+            item.setData(Qt.UserRole, run.run_id)
+            if run.notes:
+                item.setToolTip("\n".join(run.notes))
+            if not run.has_curves:
+                item.setForeground(
+                    QBrush(QColor(active_palette()["fg_dim"])))
+            self._runs_list.addItem(item)
+        self._runs_list.blockSignals(False)
+        self._runs_header.setText(f"Runs found ({len(self._runs)})")
+        self._fill_metric_combo(tc.available_metrics(self._runs))
+        self._update_controls()
+
+    def _fill_metric_combo(self, metrics: Sequence[str]) -> None:
+        """Offer only the metrics the loaded runs actually recorded.
+
+        OFFERING ALL OF THEM would let a user pick one that plots nothing, and
+        an empty axes reads as a broken screen rather than a missing metric.
+
+        :param metrics: the metrics present across the runs.
+        """
+        previous = self._metric_combo.currentText()
+        self._metric_combo.blockSignals(True)
+        self._metric_combo.clear()
+        self._metric_combo.addItems(list(metrics))
+        if previous in metrics:
+            self._metric_combo.setCurrentText(previous)
+        self._metric_combo.blockSignals(False)
+
+    def _fill_problems(self) -> None:
+        """List anything wrong with the scanned runs."""
+        lines = [f"! {r.run_id}: {n}" for r in self._runs for n in r.notes]
+        if lines:
+            self._problems.setStyleSheet(
+                f"color: {active_palette()['warning']};")
+            self._problems.setText("\n".join(lines))
+        else:
+            self._problems.setStyleSheet("")
+            self._problems.setText("")
+
+
+    def root(self) -> str:
+        """The folder being scanned for training runs.
+
+        :returns: the root path, as text.
+        """
+        return self._root
+
+    def runs(self) -> List[tc.TrainingRun]:
+        """Every run the last scan found.
+
+        A copy of the list, so a caller cannot reorder this screen's runs by
+        mutating what it was handed.
+
+        :returns: the runs.
+        """
+        return list(self._runs)
+
+    def run_ids(self) -> List[str]:
+        """The identifiers of every run found.
+
+        :returns: the run ids, in scan order.
+        """
+        return [r.run_id for r in self._runs]
+
+    def run_rows(self) -> List[str]:
+        """The run list exactly as it reads on screen.
+
+        Read off the WIDGET rather than rebuilt from the runs, so a test
+        checks what the user sees rather than what the data says.
+
+        :returns: one string per visible row.
+        """
+        return [self._runs_list.item(i).text()
+                for i in range(self._runs_list.count())]
+
+    def available_metrics(self) -> List[str]:
+        """Which metrics the picker is currently offering.
+
+        :returns: the metric names, in picker order.
+        """
+        return [self._metric_combo.itemText(i)
+                for i in range(self._metric_combo.count())]
+
+    def selected_metric(self) -> str:
+        """Return the metric selected for the comparison plot.
+
+        This deliberately must not be named ``metric``. ``QWidget`` inherits
+        ``QPaintDevice.metric(PaintDeviceMetric)``, which Qt calls while
+        laying out and painting the widget. A no-argument Python override here
+        used to raise during ``show()`` and could take the whole GUI down.
+        """
+        return self._metric_combo.currentText()
+
+    def set_metric(self, name: str) -> bool:
+        """Pick the metric to draw; re-draws when a comparison exists.
+
+        :param name: metric name; it must be one of :meth:`available_metrics`,
+            otherwise an error is shown and ``False`` returned.
+        """
+        if name not in self.available_metrics():
+            self._set_status(f"No run logged '{name}'.", error=True)
+            return False
+        self._metric_combo.setCurrentText(name)
+        return True
+
+    def fold_mode(self) -> str:
+        """How the cross-validation folds are being combined.
+
+        :returns: the mode's value.
+        """
+        idx = max(0, self._fold_combo.currentIndex())
+        return FOLD_MODE_LABELS[idx][1]
+
+    def set_fold_mode(self, mode: str) -> bool:
+        """Choose how folds are combined.
+
+        :param mode: the mode's value.
+        :returns: True when the mode exists and was selected.
+        """
+        for i, (_label, value) in enumerate(FOLD_MODE_LABELS):
+            if value == mode:
+                self._fold_combo.setCurrentIndex(i)
+                return True
+        self._set_status(f"Unknown fold mode {mode!r}.", error=True)
+        return False
+
+    def selected_run_ids(self) -> List[str]:
+        """The runs the user has ticked for comparison.
+
+        :returns: the selected run ids.
+        """
+        out = []
+        for i in range(self._runs_list.count()):
+            item = self._runs_list.item(i)
+            if item.checkState() == Qt.Checked:
+                out.append(item.data(Qt.UserRole))
+        return out
+
+    def select_runs(self, run_ids: Sequence[str]) -> bool:
+        """Tick exactly these run ids. Unknown ids are reported inline.
+
+        :param run_ids: run ids to tick; every other run is unticked. Ids that
+            match no listed run are reported and make the call return
+            ``False``.
+        """
+        wanted = set(run_ids or ())
+        known = set(self.run_ids())
+        missing = sorted(wanted - known)
+        self._runs_list.blockSignals(True)
+        for i in range(self._runs_list.count()):
+            item = self._runs_list.item(i)
+            item.setCheckState(Qt.Checked
+                               if item.data(Qt.UserRole) in wanted
+                               else Qt.Unchecked)
+        self._runs_list.blockSignals(False)
+        self._update_controls()
+        if missing:
+            self._set_status(f"No such run: {', '.join(missing)}", error=True)
+            return False
+        return True
+
+    def comparison(self) -> Optional[tc.Comparison]:
+        """The last comparison computed, if any.
+
+        :returns: the comparison, or None before one has been run.
+        """
+        return self._comparison
+
+    def figure(self):
+        """The live matplotlib figure (one per screen, reused every overlay)."""
+        return self._figure
+
+    def series_labels(self) -> List[str]:
+        """Labels of the currently drawn series, in draw order."""
+        mapping = getattr(self._figure, "spacr_series_by_label", {}) or {}
+        return list(mapping)
+
+
+    def _on_metric_changed(self, *_a) -> None:
+        """Redraw the curves for a different metric."""
+        if self._comparison is not None:
+            self._draw()
+
+    def _on_fold_changed(self, *_a) -> None:
+        """Redraw for a different way of combining the folds."""
+        if self._comparison is not None:
+            self.overlay()
+
+    def overlay(self) -> bool:
+        """Compare the ticked runs: draw their curves and fill the diff table.
+
+        Everything the drawing needs is already in memory after
+        :meth:`scan`, so this runs on the GUI thread.
+
+        :returns: True when a comparison was produced.
+        """
+        chosen = set(self.selected_run_ids())
+        runs = [r for r in self._runs if r.run_id in chosen]
+        if not runs:
+            self._set_status("Tick at least one run to overlay.", error=True)
+            return False
+
+        try:
+            comparison = tc.compare_runs(runs, folds=self.fold_mode())
+        except Exception as e:
+            self._on_job_error(e)
+            return False
+
+        self._comparison = comparison
+        self._fill_metric_combo(comparison.metrics or self.available_metrics())
+        self._fill_diff(comparison)
+        self._draw()
+
+        plotted = len(self.series_labels())
+        no_curves = [r.run_id for r in runs if not r.has_curves]
+        bits = [f"{plotted} series from {len(runs)} run"
+                f"{'s' if len(runs) != 1 else ''}"]
+        if comparison.lengths_differ():
+            bits.append("different epoch counts — each curve is drawn to its "
+                        "own length")
+        if no_curves:
+            bits.append(f"no curves in {', '.join(no_curves)} — settings only")
+        self._set_status(" · ".join(bits))
+        return True
+
+    def _clear_plot(self) -> None:
+        """Empty the curve plot."""
+        self._figure.clear()
+        self._figure.patch.set_alpha(0.0)
+        self._figure.spacr_series_by_label = {}
+        self._picked.setText("")
+        self._canvas.draw_idle()
+
+    def _draw(self) -> None:
+        """Redraw the curves for the current metric into the shared figure."""
+        if self._comparison is None:
+            return
+        pal = _active_palette()
+        self._figure.clear()
+        ax = self._figure.add_subplot(111)
+        metric = self.selected_metric() or (
+            self._comparison.metrics[0]
+            if self._comparison.metrics else "accuracy")
+        tc.plot_curves(self._comparison, metric, ax=ax)
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(self._figure, self._figure._spacr_data,
+                              **self._figure._spacr_spec)
+        self._style_axes(ax, pal)
+        from ...figures.style import _apply_user_style
+        _apply_user_style(self._figure, force=True)
+        self._canvas.draw_idle()
+        self._picked.setText("")
+
+    @staticmethod
+    def _style_axes(ax, pal: dict) -> None:
+        """Match the plot to the app palette so it doesn't glare."""
+        fig = ax.figure
+        fig.patch.set_alpha(0.0)
+        ax.patch.set_facecolor(pal["surface_alt"])
+        ax.patch.set_alpha(_page_alpha())
+        for spine in ax.spines.values():
+            spine.set_color(pal["border"])
+        ax.tick_params(colors=pal["fg_muted"])
+        ax.xaxis.label.set_color(pal["fg_muted"])
+        ax.yaxis.label.set_color(pal["fg_muted"])
+        ax.title.set_color(pal["fg"])
+        for text in ax.texts:
+            text.set_color(pal["fg_muted"])
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.get_frame().set_facecolor(pal["surface_alt"])
+            legend.get_frame().set_edgecolor(pal["border"])
+            for text in legend.get_texts():
+                text.set_color(pal["fg"])
+
+
+    def _clear_diff(self) -> None:
+        """Empty the settings diff, so a stale one is not read as current."""
+        self._diff_table.clear()
+        self._diff_table.setRowCount(0)
+        self._diff_table.setColumnCount(0)
+        self._diff_summary.setText("")
+
+    def _fill_diff(self, comparison: tc.Comparison) -> None:
+        """Show which settings differ between the compared runs.
+
+        :param comparison: the finished comparison.
+        """
+        diff = comparison.settings_diff
+        ids = list(diff.get("run_ids") or [])
+        changed = list(diff.get("changed") or [])
+        env = list(diff.get("env") or []) + list(diff.get("env_manifest") or [])
+        drift = list(diff.get("drift") or [])
+
+        if len(ids) < 2:
+            which = ", ".join(diff.get("no_settings") or []) or "these runs"
+            self._diff_summary.setText(
+                f"Settings not comparable — fewer than two selected runs have "
+                f"a settings snapshot ({which} had none).")
+            self._set_table(("setting", "difference"),
+                            [["—", "no settings to compare"]])
+            return
+
+        if diff.get("identical"):
+            self._diff_summary.setText(
+                f"No differences — all {len(ids)} selected runs ran with "
+                f"identical settings.")
+            self._set_table(
+                ("setting", "difference"),
+                [["—", f"No differences — all {len(ids)} selected runs ran "
+                       f"with identical settings ({diff.get('shared', 0)} "
+                       f"keys compared, none differ)."]])
+            return
+
+        self._diff_summary.setText(
+            f"{len(changed)} setting(s) changed of {diff.get('shared', 0)} "
+            f"shared · {len(env)} environment drift · {len(drift)} schema "
+            f"drift. Environment drift (paths, hosts, worker counts, "
+            f"versions) is bucketed separately — none of it is a modelling "
+            f"decision.")
+
+        headers = ("bucket", "setting", *ids)
+        rows: List[List[str]] = []
+        for entry in changed:
+            rows.append(["changed", entry["key"]]
+                        + [tc.render_setting_value(entry["values"].get(rid), 40)
+                           for rid in ids])
+        for entry in env:
+            rows.append(["env", entry["key"]]
+                        + [tc.render_setting_value(entry["values"].get(rid), 40)
+                           for rid in ids])
+        for entry in drift:
+            present = set(entry.get("present") or ())
+            rows.append(["drift", entry["key"]]
+                        + ["recorded" if rid in present else "not recorded"
+                           for rid in ids])
+        self._set_table(headers, rows)
+
+    def _set_table(self, headers: Sequence[str],
+                   rows: Sequence[Sequence[str]]) -> None:
+        """Fill one table with headers and rows.
+
+        :param headers: the column headings.
+        :param rows: the rows.
+        """
+        self._diff_table.clear()
+        self._diff_table.setColumnCount(len(headers))
+        self._diff_table.setHorizontalHeaderLabels(list(headers))
+        self._diff_table.setRowCount(len(rows))
+        for r, row in enumerate(rows):
+            for c, value in enumerate(row):
+                self._diff_table.setItem(r, c, _cell(str(value)))
+        self._diff_table.resizeColumnsToContents()
+
+    def diff_headers(self) -> List[str]:
+        """The settings-diff table's column headers.
+
+        :returns: the headers, in column order.
+        """
+        return [self._diff_table.horizontalHeaderItem(c).text()
+                if self._diff_table.horizontalHeaderItem(c) else ""
+                for c in range(self._diff_table.columnCount())]
+
+    def diff_rows(self) -> List[List[str]]:
+        """The settings-diff table as it reads on screen.
+
+        :returns: one row per differing setting.
+        """
+        out = []
+        for r in range(self._diff_table.rowCount()):
+            row = []
+            for c in range(self._diff_table.columnCount()):
+                item = self._diff_table.item(r, c)
+                row.append(item.text() if item else "")
+            out.append(row)
+        return out
+
+
+    def _on_pick(self, event) -> None:
+        """Report which curve point the user clicked.
+
+        :param event: the matplotlib pick event.
+        """
+        artist = getattr(event, "artist", None)
+        getter = getattr(artist, "get_label", None)
+        label = getter() if callable(getter) else ""
+        self.identify_series(str(label))
+
+    def identify_series(self, label: str) -> str:
+        """Name the run behind a series label and report it inline.
+
+        :param label: legend label of a plotted series, looked up in the
+            figure's ``spacr_series_by_label`` mapping.
+        :returns: the description shown, or ``''`` when the label is unknown.
+        """
+        mapping = getattr(self._figure, "spacr_series_by_label", {}) or {}
+        series = mapping.get(label)
+        if series is None:
+            self._picked.setText("")
+            return ""
+        run = next((r for r in self._runs if r.run_id == series.run_id), None)
+        metric = self.selected_metric()
+        lo, hi = series.epoch_range()
+        bits = [f"{series.label}",
+                f"epochs {lo}–{hi}" if lo != hi else f"epoch {hi}"]
+        best = series.best(metric)
+        last = series.last(metric)
+        if last is not None:
+            bits.append(f"last {metric} {last['value']:.4f} @ {last['epoch']}")
+        if best is not None:
+            bits.append(f"best {metric} {best['value']:.4f} @ {best['epoch']} "
+                        f"(chosen on this same curve, so optimistic)")
+        if run is not None:
+            bits.append(str(run.path))
+        text = " · ".join(bits)
+        self._picked.setText(text)
+        self.series_clicked.emit(series.label)
+        return text
+
+
+    def _run_job(self, fn: Callable[[], Any],
+                 on_done: Callable[[Any], None]) -> bool:
+        """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
+
+        Mirrors ``AgreementScreen._run_job`` / ``ModelCompareScreen._run_job``:
+        one threading idiom for the whole Qt layer, and ``threaded=False``
+        runs inline while firing the same signals.
+        """
+        if not self._threaded:
+            ok = True
+            try:
+                on_done(fn())
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+            self._update_controls()
+            self.job_finished.emit(ok)
+            return ok
+
+        box: Dict[str, Any] = {}
+
+        def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload."""
+            payload["result"] = fn()
+
+        thread, worker = make_thread(_job, box)
+        self._jobs.append((thread, worker))
+        self._pending = (box, on_done)
+        worker.error.connect(self._on_worker_error_text)
+        worker.finished.connect(self._on_job_settled)
+        thread.finished.connect(self._retire_finished_jobs)
+        self._busy = True
+        self._update_controls()
+        thread.start()
+        return True
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Apply the pending scan result on the GUI thread."""
+        pending, self._pending = self._pending, None
+        self._busy = False
+        if ok and pending is not None:
+            box, on_done = pending
+            try:
+                on_done(box.get("result"))
+            except Exception as exc:
+                LOG.exception("Could not apply the Training Runs result")
+                self._on_job_error(exc)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
+
+    def _retire_job(self, thread) -> None:
+        """Forget a finished worker thread.
+
+        HELD UNTIL IT FINISHES and dropped after, because a QThread garbage
+        collected while running takes the process with it.
+
+        :param thread: the thread that finished.
+        """
+        self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
+
+    def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
+        return len(self._jobs)
+
+    def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        :returns: True while work is outstanding.
+        """
+        return self._busy
+
+    def _on_worker_error_text(self, tb: str) -> None:
+        """Show a worker's traceback without closing the screen.
+
+        :param tb: the traceback text.
+        """
+        LOG.error("Training Runs worker failed:\n%s", tb)
+        last = [ln for ln in str(tb).strip().splitlines() if ln.strip()]
+        self._set_status(last[-1] if last else "Scan failed.", error=True)
+
+    def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed scan.
+
+        :param exc: what went wrong.
+        """
+        LOG.error("Training Runs operation failed: %s: %s",
+                  type(exc).__name__, exc)
+        self._set_status(f"{type(exc).__name__}: {exc}", error=True)
+
+    def _update_controls(self) -> None:
+        """Enable each control only when it has something to act on."""
+        has_root = bool(self._path_edit.text().strip())
+        self._btn_scan.setEnabled(has_root and not self._busy)
+        self._btn_overlay.setEnabled(
+            bool(self.selected_run_ids()) and not self._busy)
+
+    def closeEvent(self, event):  # noqa: N802 — Qt naming
+        """Stop background work before going away.
+
+        :param event: the Qt close event.
+        """
+        for thread, _worker in list(self._jobs):
+            try:
+                thread.quit()
+                thread.wait(2000)
+            except Exception:
+                LOG.debug("Could not wait for a Training Runs worker",
+                          exc_info=True)
+        self._jobs.clear()
+        super().closeEvent(event)

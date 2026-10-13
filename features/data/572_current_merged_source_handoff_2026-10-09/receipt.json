@@ -1,0 +1,42 @@
+{
+  "public_base": "f0b81dacefe089c54b1d22a4aebd363a29d53cfb",
+  "private_final_source": "b33f4b1c5ebdd3ed8e9fe7ddcb66341de3a763e8",
+  "source_diff": "source-tests-from-f0.patch.gz",
+  "compressed_sha256": "5556cc96d1a33b9aa17fdf19f331486be55b976be7f00063c8be99aa54a80ab7",
+  "patch_sha256": "d49350181852546b502e22d88f61044359acdbaecfed7298c99edaae57f0d89f",
+  "source_and_test_files": {
+    "spacr/plot.py": {
+      "base_sha256": "8128ec1aa6fd5e13fb9eb3c6ba531f4d6fffd6568afd3db6930b669f4bf32410",
+      "final_sha256": "00b89f3a320965e77ce1ad95c12153e9b3443f4126abf42714d3de8b9c41cf11"
+    },
+    "spacr/qt/widgets/cell_montage_view.py": {
+      "base_sha256": "2d9b31f0577d335f71ab395cad8fc9866865b7d2628d097d237ffdbc6e11a632",
+      "final_sha256": "073c83b823f4808f4c4516ccd240c6220658b878830b6b11583a9aa456a5254e"
+    },
+    "spacr/qt/widgets/picture_export.py": {
+      "base_sha256": "8f9104cbedd6e85747803e1358c1b2427c0e6b9285ca78e6a2811e9fd7b6a0fe",
+      "final_sha256": "a07c04b77f9398d6d90a12f756ad3efa13cacbdf4aa3b76cc9743feae939c7c9"
+    },
+    "tests/qt/test_cells_behind_the_dot_tab.py": {
+      "base_sha256": "c7b05b1de395d2d43beff587f0ee941a0ab8c647df5b990293ca40f8c7840c80",
+      "final_sha256": "0385b17f9ee954a858cac0006c20e84a32eec4b390bd6b97b5b73024d0399558"
+    },
+    "tests/qt/test_right_click_saves_the_picture.py": {
+      "base_sha256": "1f9d487eaac6fc05cbb1f68da35fbedcf5b2a5519c6a5eea37f6e4738b713cb1",
+      "final_sha256": "10848637f28e94720cb7be5cc323302f1439951a4c9b4b309df54165e42a9b50"
+    },
+    "tests/test_figure_integrity_guard.py": {
+      "base_sha256": "d9763ec19837e020fa6ed7add1563d9049d3ecb7513bcda2690f66ed749db549",
+      "final_sha256": "0c8f7d8c397592fdbe4769cc4a6b011b37ed1da01b3e34e1292c4bcf89514a48"
+    }
+  },
+  "complete_scope": "Consolidates existing six-file figure provenance/export packet plus verified same-source overlap checks reachable from actual merged montage exports.",
+  "limits": [
+    "Private source, not published application feature.",
+    "Preserve concurrent workstation N658 plot changes during source integration.",
+    "Normal extractor currently omits existing new tr literal in plot.py; ownership/review and regenerated catalogs required before product publication.",
+    "Current 115-case owning proof is in 572_verified_merged_source_regions_cpu_2026-10-08; earlier full167 and historical recipe proofs are preserved separately, not summed.",
+    "Broader arbitrary source-splice and heavy-noise detection remain open. Existing distinct controls can falsely match; no forensic verdict justified."
+  ],
+  "integration_instruction": "Apply consolidated scoped patch against frozen public f0 in isolated tree; reconcile later public and workstation source without replacing full old files. Verify all source digests and run owning tests again."
+}

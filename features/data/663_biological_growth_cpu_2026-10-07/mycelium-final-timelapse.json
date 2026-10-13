@@ -1,0 +1,21 @@
+{
+  "source_sha256": "766aed5afbe443e7240b522c4f914b454356e07c32cb1dc5ee3cc9ad4037f4b8",
+  "source_commit": "604269d2487ab2513989736415047465b9432ff9",
+  "renderer": "actual _FungalGrowthEngine.shade",
+  "viewport": [
+    960,
+    540
+  ],
+  "frames": 61,
+  "animation_seconds": [
+    0,
+    120
+  ],
+  "sampling_step_animation_seconds": 2,
+  "playback_fps": 12,
+  "palette": "spacr",
+  "background": "#080a12",
+  "seed": 7,
+  "density": 1,
+  "size": 1
+}

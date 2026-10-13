@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: Spaceout's Magnifier size slider and its help, and the rewritten camera-path description (items 604-606), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Magnifier size",
+      "source": "Magnifier size",
+      "source_sha256": "ac81ccf39c390183a17bf2ca5a47a7a1b13f19b282f8a5d02d0e180ee474eeba",
+      "translation": "돋보기 크기"
+    },
+    {
+      "table": "ui",
+      "key": "How big the magnifying glass under the pointer is, as a share of its usual size. The whole lens scales together: the bulge under the cursor and the soft edge around it. 25% is a small loupe; 300% bends most of the window. Applies wherever the pointer bends the picture: both orbit folds, and the cascade and space on the GPU renderer. The Mandelbrot is dragged instead. Default 100%.",
+      "source": "How big the magnifying glass under the pointer is, as a share of its usual size. The whole lens scales together: the bulge under the cursor and the soft edge around it. 25% is a small loupe; 300% bends most of the window. Applies wherever the pointer bends the picture: both orbit folds, and the cascade and space on the GPU renderer. The Mandelbrot is dragged instead. Default 100%.",
+      "source_sha256": "d8ba2a6891810350357555ec889c14e254e9686a56909c1556c0fb26fc9ac7aa",
+      "translation": "포인터 아래 돋보기의 크기를 평소 크기에 대한 비율로 나타냅니다. 렌즈 전체가 함께 커지고 작아집니다. 커서 아래의 볼록한 부분과 그 주위의 부드러운 가장자리가 함께 바뀝니다. 25%는 작은 확대경이고, 300%는 창의 대부분을 휘게 합니다. 포인터가 그림을 휘게 하는 모든 곳에 적용됩니다. 두 궤도 접기, 그리고 GPU 렌더러의 캐스케이드와 우주가 해당됩니다. Mandelbrot은 대신 드래그합니다. 기본값 100%."
+    },
+    {
+      "table": "ui",
+      "key": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source": "Straight down descends to one point on the boundary and stays pointed at it — the steadiest picture, and what the published settings use.\n\nSearch as it goes looks for somewhere more interesting every so often and moves the camera onto it. It finds more variety, and moving the camera is visible: the Steering control below sets how much.\n\nTour the interesting places measures the view as it descends and glides toward the part with the most colours in it, never toward a single-colour patch. The camera eases in and out of every move and turns away before the detail runs out, and at the end of a dive it glides back up. Dragging the view stops the tour; Ctrl+R hands the camera back to it.",
+      "source_sha256": "2bb17930bf3f6e4cfa74b3efe32ccabdb5dd57237615690d25596af7f376d41a",
+      "translation": "똑바로 아래로는 경계 위의 한 점을 향해 내려가며 계속 그 점을 향합니다. 가장 안정적인 화면이며, 공개된 설정이 쓰는 방식입니다.\n\n가면서 찾기는 이따금 더 흥미로운 곳을 찾아 카메라를 그쪽으로 옮깁니다. 더 다양한 장면을 찾으며, 카메라 이동이 눈에 보입니다. 아래의 조향 컨트롤이 그 정도를 정합니다.\n\n흥미로운 곳 둘러보기는 내려가는 동안 화면을 측정하여 색이 가장 많은 부분으로 미끄러지듯 이동하며, 한 가지 색만 있는 부분으로는 가지 않습니다. 카메라는 모든 움직임을 부드럽게 시작하고 끝내며, 세부가 다하기 전에 방향을 돌리고, 한 번의 하강이 끝나면 다시 위로 미끄러져 올라갑니다. 화면을 드래그하면 둘러보기가 멈추고, Ctrl+R을 누르면 카메라를 다시 넘겨줍니다."
+    }
+  ]
+}

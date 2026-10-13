@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>spaCR Simplified GUI</title>
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #1e1e1e;
+      font-family: 'Open Sans', sans-serif;
+      color: white;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .left-panel {
+      width: 30%;
+      background-color: #2a2a2a;
+      padding: 20px;
+      box-sizing: border-box;
+      border-right: 1px solid #444;
+      overflow-y: auto;
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .top-right,
+    .bottom-right {
+      background-color: #333;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+    }
+
+    .top-right {
+      flex: 1;
+      margin-bottom: 10px;
+      position: relative;
+      justify-content: center;
+    }
+
+    #tutorial-image {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .middle-slider {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bottom-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-bottom: 10px;
+      min-height: 0;
+      /* Prevent overflow pushing layout */
+    }
+
+    .bottom-row {
+      display: flex;
+      flex: 1;
+      gap: 20px;
+    }
+
+    .button-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .console-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      overflow: hidden;
+      margin-bottom: 180px;
+      /* keeps space clear for button bar */
+    }
+
+    .console-label {
+      font-size: 16px;
+      font-weight: bold;
+      padding: 5px 10px;
+      background-color: #222;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    .console-output {
+      flex: none;
+      width: 100%;
+      height: 100%;
+      padding: 10px;
+      background: #222;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      white-space: pre-wrap;
+      box-sizing: border-box;
+    }
+
+    .gui-button {
+      width: 160px;
+      height: 160px;
+      border-radius: 20px;
+      background-color: #444;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: relative;
+    }
+
+    .gui-button:hover {
+      background-color: #007bff;
+      transform: scale(1.05);
+    }
+
+    .gui-button[title]:hover::after {
+      content: attr(title) " \000a Help";
+      white-space: pre;
+      text-decoration: underline;
+      position: absolute;
+      background: #000a;
+      color: #fff;
+      padding: 8px;
+      border-radius: 10px;
+      top: -60px;
+      left: 0;
+      width: 200px;
+    }
+
+    .button-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      width: calc(100% - 20px);
+      box-sizing: border-box;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button-description {
+      color: #ccc;
+      font-size: 14px;
+      max-width: 300px;
+      background-color: #2a2a2a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      flex: 1;
+    }
+
+    .help-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 15px;
+      color: white;
+      display: none;
+      z-index: 1000;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .slider {
+      width: 100%;
+    }
+
+    .settings-button {
+      height: 40px;
+      padding: 0 20px;
+      border-radius: 12px;
+      background-color: #444;
+      border: none;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      position: relative;
+      z-index: 2;
+    }
+
+    .settings-button:hover {
+      background-color: #007bff;
+    }
+
+    .settings-button-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: -180%;
+      left: 30%;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 3;
+      margin-top: 8px;
+    }
+
+
+    .dropdown label {
+      display: block;
+      margin: 4px 0;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .dropdown label.active {
+      background-color: #007bff;
+    }
+
+    .category-settings {
+      margin-top: 10px;
+    }
+
+    .setting-entry {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+
+    .setting-entry label {
+      margin-right: 10px;
+      position: relative;
+      cursor: help;
+    }
+
+    .setting-entry label:hover::after {
+      content: attr(title);
+      position: absolute;
+      background: #555;
+      color: #fff;
+      padding: 5px;
+      border-radius: 5px;
+      left: 100%;
+      white-space: nowrap;
+      margin-left: 10px;
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <h2>Settings</h2>
+      <div id="settings-fields"></div>
+    </div>
+    <div class="right-panel">
+      <div class="top-right">
+        <img id="tutorial-image" src="" style="max-height: 100%; max-width: 100%; display: none;" />
+        <h2 id="figure-title">Figure</h2>
+      </div>
+      <div class="middle-slider" id="slider-container">
+        <input id="slider" class="slider" type="range" min="0" max="3" value="0" oninput="updateImage(this.value)" />
+      </div>
+      <div class="bottom-right">
+        <div class="console-wrapper">
+          <div class="console-label">Console</div>
+          <div class="console-output" id="console-output"></div>
+        </div>
+        <div class="button-bar">
+          <div class="button-container">
+            <button class="gui-button" title="Run tutorial sequence." onclick="handleButton('Run')"
+              style="background-image: url('../resources/icons/run.png');"></button>
+            <button class="gui-button" title="Stop current process." onclick="handleButton('Stop')"
+              style="background-image: url('../resources/icons/abort.png');"></button>
+            <button class="gui-button" title="Download files." onclick="handleButton('Download')"
+              style="background-image: url('../resources/icons/download.png');"></button>
+            <button class="gui-button" title="Import saved settings." onclick="handleButton('Import')"
+              style="background-image: url('../resources/icons/settings.png');"></button>
+            <button class="settings-button" onclick="handleButton('Settings')">Settings</button>
+          </div>
+          <div class="button-description" id="button-description">
+            Hover or click a button to see what it does.
+          </div>
+          <div class="dropdown" id="dropdown-menu"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="help-overlay" class="help-box"></div>
+  <script>
+    const consoleOutputEntries = [
+      { text: "run_function_gui settings_type: mask", tooltip: "Starts the mask generation function with selected settings." },
+      { text: "Processing folder: src", tooltip: "Indicates the folder currently being processed." },
+      { text: "Found path: src", tooltip: "Confirms the input path exists and is accessible." },
+      { text: "Saving settings to src/settings/gen_mask_settings.csv", tooltip: "Saves the current settings to a CSV file for reproducibility." },
+      { text: "Found 208 tif files", tooltip: "Number of TIFF image files detected in the source folder." },
+      { text: "Image_format: tif", tooltip: "Specifies the detected image format for processing." },
+      { text: "regex mode:cellvoyager regex:(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).tif", tooltip: "Displays the regex pattern used to parse filenames into metadata fields." },
+      { text: "All files: 208 in /home/olafsson/datasets/plate1", tooltip: "Total number of files found in the dataset path." },
+      { text: "All unique FOV: 208 in src/plate1", tooltip: "Reports the number of unique fields of view in the dataset." },
+      { text: "List of folders in src: ['1', '2', '3', '4']. Single channel folders.", tooltip: "Lists detected single-channel folders in the source directory." },
+      { text: "Generated folder with merged arrays: src/plate1/stack", tooltip: "Indicates where the merged array data has been saved." },
+      { text: "All files concatenated and normalized. Saved to: src/masks", tooltip: "Confirms saving of normalized, concatenated mask arrays." },
+      { text: "{'diameter': 160, 'minimum_size': 6400.0, 'maximum_size': 256000, 'merge': False, 'resample': True, 'remove_border_objects': False, 'model_name': 'cyto2', 'filter_size': False, 'filter_intensity': False, 'restore_type': None}", tooltip: "Displays Cellpose model and segmentation parameters used for this run." },
+      { text: "{'nucleus': [0, 0], 'pathogen': [0, 2], 'cell': [0, 1]}", tooltip: "Specifies channel mappings for nucleus, pathogen, and cell." },
+      { text: "Device 0: NVIDIA GeForce RTX 3090, VRAM: 23.56 GB, cellpose batch size: 48", tooltip: "Details of the GPU device used for batch processing." },
+      { text: "Number of objects, : 55", tooltip: "Reports number of segmented cell objects before filtering." },
+      { text: "object_size:cell: 24494.792 px2", tooltip: "Average area of segmented cell objects in pixels squared." },
+      { text: "Number of objects, : 53", tooltip: "Reports number of segmented nucleus objects before filtering." },
+      { text: "object_size:nucleus: 6594.860 px2", tooltip: "Average area of segmented nucleus objects in pixels squared." },
+      { text: "Number of objects before filtration: 50", tooltip: "Number of pathogen objects before applying filtration steps." },
+      { text: "Number of objects after merging adjacent objects, : 46", tooltip: "Number of pathogen objects after merging adjacent detections." },
+      { text: "Number of objects, : 46", tooltip: "Final count of pathogen objects after all filtering." },
+      { text: "object_size:pathogen: 1652.630 px2", tooltip: "Average area of pathogen objects in pixels squared." },
+      { text: "Number of objects before filtration: 91", tooltip: "Alternate count of pathogen objects before merging." },
+      { text: "Number of objects after merging adjacent objects, : 87", tooltip: "Count of pathogen objects after merging in this step." },
+      { text: "Number of objects, : 87", tooltip: "Final pathogen object count for this step." },
+      { text: "object_size:pathogen: 1652.860 px2", tooltip: "Alternate average area for pathogen objects in pixels squared." },
+      { text: "Adjusting cell masks with nuclei and pathogen masks", tooltip: "Aligns and adjusts cell masks using nucleus and pathogen data." },
+      { text: "Successfully completed run function: gen_mask", tooltip: "Confirms the entire mask generation function ran successfully." }
+    ];
+    const imagePaths = [
+      '../resources/tutorial/1_mask/notebook/img1.png',
+      '../resources/tutorial/1_mask/notebook/img2.png',
+      '../resources/tutorial/1_mask/notebook/img3.png',
+      '../resources/tutorial/1_mask/notebook/img4.png'
+    ];
+
+    const allSettingsTooltips = {
+      "cell_diamiter": "(int) - Diameter for cellpose objects to segment.",
+      "nucleus_diamiter": "(int) - Diameter for cellpose objects to segment.",
+      "pathogen_diamiter": "(int) - Diameter for cellpose objects to segment.",
+      "adjust_cells": "(bool) - Adjust cell parameters for better segmentation.",
+      "agg_type": "(str) - Type of aggregation to use for the data.",
+      "alpha": "(float) - Alpha parameter for the regression model.",
+      "all_to_mip": "(bool) - Whether to convert all images to maximum intensity projections before processing.",
+      "amsgrad": "(bool) - Whether to use AMSGrad optimizer.",
+      "analyze_clusters": "(bool) - Whether to analyze the resulting clusters.",
+      "augment": "(dict) - Data augmentation settings.",
+      "background": "(float) - Background intensity for the images.",
+      "backgrounds": "(str) - Background settings for the analysis.",
+      "barcodes": "(str) - Path to the file containing barcodes.",
+      "batch_size": "(int) - The batch size to use for processing the images. This will determine how many images are processed at once. Images are normalized and segmented in batches. Lower if application runs out of RAM or VRAM.",
+      "black_background": "(bool) - Whether to use a black background for plots.",
+      "calculate_correlation": "(bool) - Whether to calculate correlations between features.",
+      "cell_CP_prob": "(float) - The cellpose probability threshold for the cell channel. This will be used in cell segmentation.",
+      "nucleus_CP_prob": "(float) - The cellpose probability threshold for the nucleus channel. This will be used in cell segmentation.",
+      "pathogen_CP_prob": "(float) - The cellpose probability threshold for the pathogen channel. This will be used in cell segmentation.",
+      "cell_FT": "(float) - The flow threshold for cell objects. This will be used to segment the cells.",
+      "nucleus_FT": "(float) - The flow threshold for nucleus objects. This will be used to segment the cells.",
+      "pathogen_FT": "(float) - The flow threshold for pathogen objects. This will be used to segment the cells.",
+      "cell_background": "(int) - The background intensity for the cell channel. This will be used to remove background noise.",
+      "nucleus_background": "(int) - The background intensity for the nucleus channel. This will be used to remove background noise.",
+      "pathogen_background": "(int) - The background intensity for the pathogen channel. This will be used to remove background noise.",
+      "cell_chann_dim": "(int) - Dimension of the channel to use for cell segmentation.",
+      "cell_channel": "(int) - The channel to use for generatin cell masks. If None, cell masks will not be generated.",
+      "nucleus_channel": "(int) - The channel to use for generatin nucleus masks. If None, nucleus masks will not be generated.",
+      "pathogen_channel": "(int) - The channel to use for generatin pathogen masks. If None, pathogen masks will not be generated.",
+      "cell_intensity_range": "(list) - Intensity range for cell segmentation.",
+      "cell_loc": "(list) - The locations of the cell types in the images.",
+      "cell_mask_dim": "(int) - The dimension of the array the cell mask is saved in (array order:channels,cell, nucleus, pathogen, cytoplasm) array starts at dimension 0.",
+      "nucleus_mask_dim": "(int) - The dimension of the array the nucleus mask is saved in (array order:channels,cell, nucleus, pathogen, cytoplasm) array starts at dimension 0.",
+      "cell_min_size": "(int) - The minimum size of cell objects in pixels^2.",
+      "cell_plate_metadata": "(str) - Metadata for the cell plate.",
+      "cell_Signal_to_noise": "(int) - The signal-to-noise ratio for the cell channel. This will be used to determine the range of intensities to normalize images to for cell segmentation.",
+      "cell_size_range": "(list) - Size range for cell segmentation.",
+      "cell_types": "(list) - Types of cells to include in the analysis.",
+      "cells": "(list of lists) - The cell types to include in the analysis.",
+      "cells_per_well": "(int) - Number of cells per well.",
+      "channel_dims": "(list) - The dimensions of the image channels.",
+      "channel_of_interest": "(int) - The channel of interest to use for the analysis.",
+      "channels": "(list) - List of channels to use for the analysis. The first channel is 0, the second is 1, and so on. For example, [0,1,2] will use channels 0, 1, and 2.",
+      "chunk_size": "(int) - Chunk size for processing the sequencing data.",
+      "classes": "(list) - Classes to include in the training.",
+      "class_1_threshold": "(float) - Threshold for class 1 classification.",
+      "clustering": "(str) - Clustering algorithm to use.",
+      "col_to_compare": "(str) - Column to compare in the embeddings.",
+      "color_by": "(str) - Coloring scheme for the plots.",
+      "compartments": "(list) - The compartments to measure in the images.",
+      "consolidate": "(bool) - Consolidate image files from subfolders into one folder named consolidated.",
+      "CP_prob": "(float) - Cellpose probability threshold for segmentation.",
+      "crop_mode": "(str) - Mode to use for cropping images (cell, nucleus, pathogen, cytoplasm).",
+      "custom_model": "(str) - Path to a custom Cellpose model.",
+      "custom_regex": "(str) - Custom regex pattern to extract metadata from the image names. This will only be used if 'custom' or 'auto' is selected for 'metadata_type'.",
+      "cytoplasm": "(bool) - Whether to segment the cytoplasm (Cell - Nucleus + Pathogen).",
+      "cytoplasm_min_size": "(int) - The minimum size of cytoplasm objects in pixels^2.",
+      "nucleus_min_size": "(int) - The minimum size of nucleus objects in pixels^2.",
+      "normalize_by": "(str) - Normalize cropped png images by png or by field of view.",
+      "dependent_variable": "(str) - The dependent variable for the regression analysis.",
+      "delete_intermediate": "(bool) - Delete intermediate folders (stack, channel, masks).",
+      "diameter": "(float) - Diameter of the objects to segment.",
+      "dialate_png_ratios": "(list) - The ratios to use for dilating the PNG images. This will determine the amount of dilation applied to the images before cropping.",
+      "dialate_pngs": "(bool) - Whether to dilate the PNG images before saving.",
+      "dot_size": "(int) - Size of dots in scatter plots.",
+      "downstream": "(str) - Downstream region for sequencing analysis.",
+      "dropout_rate": "(float) - Dropout rate for training.",
+      "eps": "(float) - Epsilon parameter for clustering.",
+      "epochs": "(int) - Number of epochs for training the deep learning model.",
+      "examples_to_plot": "(int) - The number of images to plot for each segmented object. This will be used to visually inspect the segmentation results and normalization.",
+      "exclude": "(list) - Conditions to exclude from the analysis.",
+      "exclude_conditions": "(list) - Specific conditions to exclude from the analysis.",
+      "experiment": "(str) - Name of the experiment. This will be used to name the output files.",
+      "figuresize": "(tuple) - Size of the figures to plot.",
+      "filter": "(dict) - Filter settings for the analysis.",
+      "filter_by": "(str) - Feature to filter the data by.",
+      "fill_in": "(bool) - Whether to fill in the segmented objects.",
+      "flow_threshold": "(float) - Flow threshold for segmentation.",
+      "fps": "(int) - Frames per second of the automatically generated timelapse movies.",
+      "fraction_threshold": "(float) - Threshold for the fraction of cells to consider in the analysis.",
+      "from_scratch": "(bool) - Whether to train the Cellpose model from scratch.",
+      "gene_weights_csv": "(str) - Path to the CSV file containing gene weights.",
+      "gradient_accumulation": "(bool) - Whether to use gradient accumulation.",
+      "gradient_accumulation_steps": "(int) - Number of steps for gradient accumulation.",
+      "grayscale": "(bool) - Whether to process the images in grayscale.",
+      "grna": "(str) - Path to the file containing gRNA sequences.",
+      "grouping": "(str) - Grouping variable for plotting.",
+      "heatmap_feature": "(str) - Feature to use for generating heatmaps.",
+      "homogeneity": "(float) - Measure of homogeneity for the objects.",
+      "homogeneity_distances": "(list) - Distances to use for measuring homogeneity.",
+      "image_nr": "(int) - Number of images to process.",
+      "image_size": "(int) - Size of the images for training.",
+      "img_zoom": "(float) - Zoom factor for the images in plots.",
+      "nuclei_limit": "(int) - Whether to include multinucleated cells in the analysis.",
+      "pathogen_limit": "(int) - Whether to include multi-infected cells in the analysis.",
+      "uninfected": "(bool) - Whether to include uninfected cells in the analysis.",
+      "init_weights": "(bool) - Whether to initialize weights for the model.",
+      "src": "(str) - Path to the folder containing the images.",
+      "intermedeate_save": "(bool) - Whether to save intermediate results.",
+      "invert": "(bool) - Whether to invert the image intensities.",
+      "learning_rate": "(float) - Learning rate for training.",
+      "location_column": "(str) - Column name for the location information.",
+      "log_data": "(bool) - Whether to log-transform the data.",
+      "lower_percentile": "(float) - The lower quantile to use for normalizing the images. This will be used to determine the range of intensities to normalize images to.",
+      "magnification": "(int) - At what magnification the images were taken. This will be used to determine the size of the objects in the images.",
+      "manders_thresholds": "(list) - Thresholds for Manders' coefficients.",
+      "mask": "(bool) - Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
+      "measurement": "(str) - The measurement to use for the analysis.",
+      "metadata_type": "(str) - Type of metadata to expect in the images. If 'custom' is selected, you can provide a custom regex pattern to extract metadata from the image names. auto will attempt to automatically extract metadata from the image names. cellvoyager and cq1 will use the default metadata extraction for CellVoyager and CQ1 images.",
+      "metadata_types": "(list) - Types of metadata to include in the analysis.",
+      "merge_edge_pathogen_cells": "(bool) - Whether to merge cells that share pathogen objects.",
+      "merge_pathogens": "(bool) - Whether to merge pathogen objects that share more than 75 percent of their perimeter.",
+      "metric": "(str) - Metric to use for UMAP.",
+      "min_cell_count": "(int) - Minimum number of cells required for analysis.",
+      "min_dist": "(float) - Minimum distance for UMAP.",
+      "min_max": "(tuple) - Minimum and maximum values for normalizing plots.",
+      "min_samples": "(int) - Minimum number of samples for clustering.",
+      "mix": "(dict) - Mixing settings for the samples.",
+      "model_name": "(str) - Name of the Cellpose model.",
+      "model_type": "(str) - Type of model to use for the analysis.",
+      "model_type_ml": "(str) - Type of model to use for machine learning.",
+      "nc": "(str) - Negative control identifier.",
+      "nc_loc": "(str) - Location of the negative control in the images.",
+      "negative_control": "(str) - Identifier for the negative control.",
+      "n_estimators": "(int) - Number of estimators for the model.",
+      "n_epochs": "(int) - Number of epochs for training the Cellpose model.",
+      "n_jobs": "(int) - The number of n_jobs to use for processing the images. This will determine how many images are processed in parallel. Increase to speed up processing.",
+      "n_neighbors": "(int) - Number of neighbors for UMAP.",
+      "n_repeats": "(int) - Number of repeats for the pathogen plate.",
+      "pathogen_Signal_to_noise": "(int) - The signal-to-noise ratio for the pathogen channel. This will be used to determine the range of intensities to normalize images to for pathogen segmentation.",
+      "nucleus_Signal_to_noise": "(int) - The signal-to-noise ratio for the nucleus channel. This will be used to determine the range of intensities to normalize images to for nucleus segmentation.",
+      "pathogen_size_range": "(list) - Size range for pathogen segmentation.",
+      "pathogen_types": "(list) - Types of pathogens to include in the analysis.",
+      "pc": "(str) - Positive control identifier.",
+      "pc_loc": "(str) - Location of the positive control in the images.",
+      "percentiles": "(list) - Percentiles to use for normalizing the images.",
+      "pin_memory": "(bool) - Whether to pin memory for the data loader.",
+      "plate": "(str) - Plate identifier for the experiment.",
+      "plate_dict": "(dict) - Dictionary of plate metadata.",
+      "plot": "(bool) - Whether to plot the results.",
+      "plot_by_cluster": "(bool) - Whether to plot images by clusters.",
+      "plot_cluster_grids": "(bool) - Whether to plot grids of clustered images.",
+      "plot_control": "(dict) - Control settings for plotting.",
+      "plot_images": "(bool) - Whether to plot images.",
+      "plot_nr": "(int) - Number of plots to generate.",
+      "plot_outlines": "(bool) - Whether to plot outlines of segmented objects.",
+      "png_dims": "(list) - The dimensions of the PNG images to save. This will determine the dimensions of the saved images. Maximum of 3 dimensions e.g. [1,2,3].",
+      "png_size": "(list) - The size of the PNG images to save. This will determine the size of the saved images.",
+      "positive_control": "(str) - Identifier for the positive control.",
+      "preprocess": "(bool) - Whether to preprocess the images before segmentation. This includes background removal and normalization. Set to False only if this step has already been done.",
+      "radial_dist": "(list) - Radial distances for measuring features.",
+      "random_test": "(bool) - Whether to randomly select images for testing.",
+      "randomize": "(bool) - Whether to randomize the order of the images before processing. Recommended to avoid bias in the segmentation.",
+      "regression_type": "(str) - Type of regression to perform.",
+      "remove_background": "(bool) - Whether to remove background noise from the images. This will help improve the quality of the segmentation.",
+      "remove_background_cell": "(bool) - Whether to remove background noise from the cell channel.",
+      "remove_background_nucleus": "(bool) - Whether to remove background noise from the nucleus channel.",
+      "remove_background_pathogen": "(bool) - Whether to remove background noise from the pathogen channel.",
+      "remove_cluster_noise": "(bool) - Whether to remove noise from the clusters.",
+      "remove_highly_correlated": "(bool) - Whether to remove highly correlated features.",
+      "remove_highly_correlated_features": "(bool) - Whether to remove highly correlated features from the analysis.",
+      "remove_image_canvas": "(bool) - Whether to remove the image canvas after plotting.",
+      "remove_low_variance_features": "(bool) - Whether to remove low variance features from the analysis.",
+      "random_row_column_effects": "(bool) - Whether to remove row and column effects from the data.",
+      "resize": "(bool) - Resize factor for the images.",
+      "resample": "(bool) - Whether to resample the images during processing.",
+      "rescale": "(float) - Rescaling factor for the images.",
+      "reduction_method": "(str) - Dimensionality reduction method to use ().",
+      "resnet_features": "(bool) - Whether to use ResNet features for embedding.",
+      "row_limit": "(int) - Limit on the number of rows to plot.",
+      "save": "(bool) - Whether to save the results to disk.",
+      "save_arrays": "(bool) - Whether to save arrays of segmented objects.",
+      "save_figure": "(bool) - Whether to save the generated figures.",
+      "save_measurements": "(bool) - Whether to save the measurements to disk.",
+      "save_png": "(bool) - Whether to save the segmented objects as PNG images.",
+      "schedule": "(str) - Schedule for processing the data.",
+      "Signal_to_noise": "(int) - Signal-to-noise ratio for the images.",
+      "skip_mode": "(str) - The mode to use for skipping images. This will determine how to handle images that cannot be processed.",
+      "smooth_lines": "(bool) - Whether to smooth lines in the plots.",
+      "src": "(str, path) - Path to source directory.",
+      "target": "(str) - Target variable for the analysis.",
+      "target_height": "(int) - Target height for resizing the images.",
+      "target_intensity_min": "(float) - Minimum intensity for the target objects.",
+      "target_width": "(int) - Target width for resizing the images.",
+      "tables": "(list) - Tables to include in the analysis.",
+      "test": "(bool) - Whether to run the pipeline in test mode.",
+      "test_images": "(list) - List of images to use for testing.",
+      "test_mode": "(bool) - Mode to use for testing the analysis pipeline.",
+      "test_nr": "(int) - Number of test images.",
+      "test_size": "(float) - Size of the test set.",
+      "treatment_loc": "(list) - The locations of the treatments in the images.",
+      "treatments": "(list) - The treatments to include in the analysis.",
+      "top_features": "(int) - Top features to include in the analysis.",
+      "train": "(bool) - Whether to train the model.",
+      "transform": "(dict) - Transformation to apply to the data.",
+      "upscale": "(bool) - Whether to upscale the images.",
+      "upscale_factor": "(float) - Factor by which to upscale the images.",
+      "upstream": "(str) - Upstream region for sequencing analysis.",
+      "val_split": "(float) - Validation split ratio.",
+      "visualize": "(bool) - Whether to visualize the embeddings.",
+      "verbose": "(bool) - Whether to print verbose output during processing.",
+      "weight_decay": "(float) - Weight decay for regularization.",
+      "width_height": "(tuple) - Width and height of the input images.",
+      "barcode_coordinates": "(list of lists) - Coordinates of the barcodes in the sequence.",
+      "barcode_mapping": "dict - names and barecode csv files",
+      "compression": "str - type of compression (e.g. zlib)",
+      "complevel": "int - level of compression (0-9). Higher is slower and yealds smaller files",
+      "file_type": "str - type of file to process",
+      "model_path": "str - path to the model",
+      "dataset": "str - file name of the tar file with image dataset",
+      "score_threshold": "float - threshold for classification",
+      "sample": "str - number of images to sample for tar dataset (including both classes). Default: None",
+      "file_metadata": "str or list of strings - string(s) that must be present in image path to be included in the dataset",
+      "apply_model_to_dataset": "bool - whether to apply model to the dataset",
+      "train_channels": "list - channels to use for training",
+      "dataset_mode": "str - How to generate train/test dataset.",
+      "annotated_classes": "list - list of numbers in annotation column.",
+      "um_per_pixel": "(float) - The micrometers per pixel for the images.",
+      "pathogen_model": "(str) - use a custom cellpose model to detect pathogen objects.",
+      "timelapse_displacement": "(int) - Displacement for timelapse tracking.",
+      "timelapse_memory": "(int) - Memory for timelapse tracking.",
+      "timelapse_mode": "(str) - Mode for timelapse tracking, trackpy or btrack.",
+      "timelapse_frame_limits": "(list) - Frame limits for timelapse tracking [start,end].",
+      "timelapse_objects": "(list) - Objects to track in the timelapse, cells, nuclei, or pathogens.",
+      "timelapse_remove_transient": "(bool) - Whether to remove transient objects in the timelapse.",
+      "masks": "(bool) - Whether to generate masks for the segmented objects.",
+      "timelapse": "(bool) - Whether to analyze images as a timelapse.",
+      "pathogen_min_size": "(int) - The minimum size of pathogen objects in pixels^2.",
+      "pathogen_mask_dim": "(int) - The dimension of the array the pathogen mask is saved in (array order:channels,cell, nucleus, pathogen, cytoplasm) array starts at dimension 0.",
+      "use_bounding_box": "(bool) - Whether to use the bounding box for cropping the images.",
+      "plot_points": "(bool) - Whether to plot scatterplot points.",
+      "embedding_by_controls": "(bool) - Use the controlls to greate the embedding, then apply this embedding to all of the data.",
+      "pos": "(str) - Positive control identifier.",
+      "neg": "(str) - Negative control identifier.",
+      "minimum_cell_count": "(int) - Minimum number of cells/well. if number of cells < minimum_cell_count, the well is excluded from the analysis.",
+      "highlight": "(str) - highlight genes/grnas containing this string.",
+      "pathogen_plate_metadata": "(str) - Metadata for the pathogen plate.",
+      "treatment_plate_metadata": "(str) - Metadata for the treatment plate.",
+      "regex": "(str) - Regular expression to use.",
+      "target_sequence": "(str) - The DNA sequence to look for that the consensus sequence will start with directly downstream of the first barcode.",
+      "offset": "(int) - The offset to use for the consensus sequence, e.g. -8 if the barecode is 8 bases before target_sequence.",
+      "expected_end": "(int) - The expected length of the sequence from the start of the first barcode to the end of the last.",
+      "column_csv": "(path) - path to the csv file containing column barcodes.",
+      "row_csv": "(path) - path to the csv file containing row barcodes.",
+      "grna_csv": "(path) - path to the csv file containing gRNA sequences.",
+      "save_h5": "(bool) - Whether to save the results to an HDF5 file. (this generates a large file, if compression is used this can be very time consuming)",
+      "comp_type": "(str) - Compression type for the HDF5 file (e.g. zlib).",
+      "comp_level": "(int) - Compression level for the HDF5 file (0-9). Higher is slower and yields smaller files.",
+      "mode": "(str) - Mode to use for sequence analysis (either single for R1 or R2 fastq files or paired for the combination of R1 and R2).",
+      "signal_direction": "(str) - Direction of fastq file (R1 or R2). only relevent when mode is single.",
+      "custom_model_path": "(str) - Path to the custom model to finetune.",
+      "cam_type": "(str) - Choose between: gradcam, gradcam_pp, saliency_image, saliency_channel to generate activateion maps of DL models",
+      "target_layer": "(str) - Only used for gradcam and gradcam_pp. The layer to use for the activation map.",
+      "normalize": "(bool) - Normalize images before overlayng the activation maps.",
+      "overlay": "(bool) - Overlay activation maps on the images.",
+      "shuffle": "(bool) - Shuffle the dataset bufore generating the activation maps",
+      "correlation": "(bool) - Calculate correlation between image channels and activation maps. Data is saved to .db.",
+      "normalize_input": "(bool) - Normalize the input images before passing them to the model.",
+      "normalize_plots": "(bool) - Normalize images before plotting.",
+    }
+
+    const categories = {
+      "Paths": ["src", "grna", "barcodes", "custom_model_path", "dataset", "model_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
+      "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "test_mode", "plot", "metadata_type", "custom_regex", "experiment", "channels", "magnification", "channel_dims", "apply_model_to_dataset", "generate_training_dataset", "train_DL_model", "delete_intermediate", "uninfected",],
+      "Cellpose": ["denoise", "fill_in", "from_scratch", "n_epochs", "width_height", "model_name", "custom_model", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width"],
+      "Cell": ["cell_diamiter", "cell_intensity_range", "cell_size_range", "cell_background", "cell_Signal_to_noise", "cell_CP_prob", "cell_FT", "remove_background_cell", "cell_min_size", "cytoplasm_min_size", "adjust_cells", "cells", "cell_loc"],
+      "Nucleus": ["nucleus_diamiter", "nucleus_intensity_range", "nucleus_size_range", "nucleus_background", "nucleus_Signal_to_noise", "nucleus_CP_prob", "nucleus_FT", "remove_background_nucleus", "nucleus_min_size", "nucleus_loc"],
+      "Pathogen": ["pathogen_diamiter", "pathogen_intensity_range", "pathogen_size_range", "pathogen_background", "pathogen_Signal_to_noise", "pathogen_CP_prob", "pathogen_FT", "pathogen_model", "remove_background_pathogen", "pathogen_min_size", "pathogens", "pathogen_loc", "pathogen_types", "pathogen_plate_metadata",],
+      "Measurements": ["remove_image_canvas", "remove_highly_correlated", "homogeneity", "homogeneity_distances", "radial_dist", "calculate_correlation", "manders_thresholds", "save_measurements", "tables", "image_nr", "dot_size", "filter_by", "remove_highly_correlated_features", "remove_low_variance_features", "channel_of_interest"],
+      "Object Image": ["save_png", "dialate_pngs", "dialate_png_ratios", "png_size", "png_dims", "save_arrays", "normalize_by", "crop_mode", "use_bounding_box"],
+      "Sequencing": ["outlier_detection", "offset_start", "chunk_size", "single_direction", "signal_direction", "mode", "comp_level", "comp_type", "save_h5", "expected_end", "offset", "target_sequence", "regex", "highlight"],
+      "Generate Dataset": ["save_to_db", "file_metadata", "class_metadata", "annotation_column", "annotated_classes", "dataset_mode", "metadata_type_by", "custom_measurement", "sample", "size"],
+      "Hyperparamiters (Training)": ["png_type", "score_threshold", "file_type", "train_channels", "epochs", "loss_type", "optimizer_type", "image_size", "val_split", "learning_rate", "weight_decay", "dropout_rate", "init_weights", "train", "classes", "augment", "amsgrad", "use_checkpoint", "gradient_accumulation", "gradient_accumulation_steps", "intermedeate_save", "pin_memory"],
+      "Hyperparamiters (Embedding)": ["visualize", "n_neighbors", "min_dist", "metric", "resnet_features", "reduction_method", "embedding_by_controls", "col_to_compare", "log_data"],
+      "Hyperparamiters (Clustering)": ["eps", "min_samples", "analyze_clusters", "clustering", "remove_cluster_noise"],
+      "Hyperparamiters (Regression)": ["cross_validation", "prune_features", "reg_lambda", "reg_alpha", "cov_type", "plate", "other", "fraction_threshold", "alpha", "random_row_column_effects", "regression_type", "min_cell_count", "agg_type", "transform", "dependent_variable"],
+      "Hyperparamiters (Activation)": ["cam_type", "overlay", "correlation", "target_layer", "normalize_input"],
+      "Annotation": ["filter_column", "filter_value", "volcano", "toxo", "controls", "nc_loc", "pc_loc", "nc", "pc", "cell_plate_metadata", "treatment_plate_metadata", "metadata_types", "cell_types", "target", "positive_control", "negative_control", "location_column", "treatment_loc", "channel_of_interest", "measurement", "treatments", "um_per_pixel", "nr_imgs", "exclude", "exclude_conditions", "mix", "pos", "neg"],
+      "Plot": ["split_axis_lims", "x_lim", "log_x", "log_y", "plot_control", "plot_nr", "examples_to_plot", "normalize_plots", "cmap", "figuresize", "plot_cluster_grids", "img_zoom", "row_limit", "color_by", "plot_images", "smooth_lines", "plot_points", "plot_outlines", "black_background", "plot_by_cluster", "heatmap_feature", "grouping", "min_max", "cmap", "save_figure"],
+      "Timelapse": ["timelapse", "fps", "timelapse_displacement", "timelapse_memory", "timelapse_frame_limits", "timelapse_remove_transient", "timelapse_mode", "timelapse_objects", "compartments"],
+      "Advanced": ["merge_edge_pathogen_cells", "test_images", "random_test", "test_nr", "test", "test_split", "normalize", "target_unique_count", "threshold_multiplier", "threshold_method", "min_n", "shuffle", "target_intensity_min", "cells_per_well", "nuclei_limit", "pathogen_limit", "background", "backgrounds", "schedule", "test_size", "exclude", "n_repeats", "top_features", "model_type_ml", "model_type", "minimum_cell_count", "n_estimators", "preprocess", "remove_background", "normalize", "lower_percentile", "merge_pathogens", "batch_size", "filter", "save", "masks", "verbose", "randomize", "n_jobs"],
+      "Beta": ["all_to_mip", "upscale", "upscale_factor", "consolidate", "distance_gaussian_sigma"]
+    };
+
+    const pageSettings = [
+      "src", "grna", "barcodes", "plate_dict", "test", "verbose",
+      "pc", "pc_loc", "nc", "nc_loc"
+    ];
+
+    const thisPageCategories = filterCategoriesForPage(
+      categories,
+      pageSettings,
+      allSettingsTooltips
+    );
+
+    function filterCategoriesForPage(categories, allowedKeys, tooltipSource) {
+      return Object.fromEntries(
+        Object.entries(categories).map(([catName, keys]) => {
+          const filtered = keys.filter(k => allowedKeys.includes(k));
+          if (filtered.length > 0) {
+            return [catName, filtered.map(k => ({
+              name: k,
+              tooltip: tooltipSource[k] || ""
+            }))];
+          }
+        }).filter(Boolean)
+      );
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown-menu');
+      if (dropdown.innerHTML === '') {
+        for (const cat in thisPageCategories) {
+          const label = document.createElement('label');
+          label.innerText = cat;
+          label.onclick = () => toggleCategory(label, cat);
+          dropdown.appendChild(label);
+        }
+      }
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleCategory(label, cat) {
+      const container = document.getElementById('settings-fields');
+      const existing = document.getElementById('category-' + cat);
+      if (existing) {
+        existing.remove();
+        label.classList.remove('active');
+        return;
+      }
+      label.classList.add('active');
+      const div = document.createElement('div');
+      div.id = 'category-' + cat;
+      div.className = 'category-settings';
+      div.innerHTML = `<h3>${cat}</h3>`;
+      for (const setting of thisPageCategories[cat]) {
+        const settingDiv = document.createElement('div');
+        settingDiv.className = 'setting-entry';
+        const labelEl = document.createElement('label');
+        labelEl.innerText = setting.name + ':';
+        labelEl.title = setting.tooltip;
+        const valueEl = document.createElement('span');
+        valueEl.innerText = '[value]';
+        settingDiv.appendChild(labelEl);
+        settingDiv.appendChild(valueEl);
+        div.appendChild(settingDiv);
+      }
+      container.appendChild(div);
+    }
+
+    function runTutorial() {
+      document.getElementById('slider-container').style.display = 'flex';
+      document.getElementById('tutorial-image').style.display = 'block';
+      document.getElementById('figure-title').style.display = 'none';
+      updateImage(0);
+
+      const lines = consoleOutputEntries;
+      let i = 0;
+      const output = document.getElementById('console-output');
+      output.innerText = '';
+      const interval = setInterval(() => {
+        if (i >= lines.length) return clearInterval(interval);
+
+        // Add the line itself
+        const lineDiv = document.createElement('div');
+        lineDiv.textContent = lines[i].text;
+        lineDiv.title = lines[i].tooltip;
+        output.appendChild(lineDiv);
+
+        // Add a blank line after it
+        const spacer = document.createElement('div');
+        spacer.textContent = '';
+        spacer.style.height = '8px';
+        output.appendChild(spacer);
+
+        output.scrollTop = output.scrollHeight;
+        i++;
+      }, 500);
+    }
+
+    function updateImage(index) {
+      const img = document.getElementById('tutorial-image');
+      img.src = imagePaths[index];
+    }
+
+    function handleButton(action) {
+      const descBox = document.getElementById('button-description');
+      switch (action) {
+        case 'Run':
+          runTutorial();
+          descBox.innerText = 'Starts the tutorial sequence using current settings.';
+          break;
+        case 'Stop':
+          showHelp('Stop button stops all running processes.');
+          descBox.innerText = 'Stops any running processing or tutorial.';
+          break;
+        case 'Download':
+          showHelp('Download the processed files.');
+          descBox.innerText = 'Downloads the test dataset.';
+          break;
+        case 'Import':
+          showHelp('Import previous settings from file.');
+          descBox.innerText = 'Imports saved settings from a preveous run.';
+          break;
+        case 'Settings':
+          toggleDropdown();
+          descBox.innerText = 'Open and adjust all available processing settings.';
+          break;
+        default:
+          descBox.innerText = 'Hover or click a button to see what it does.';
+      }
+    }
+
+    function showHelp(text) {
+      const box = document.getElementById('help-overlay');
+      box.innerText = text;
+      box.style.display = 'block';
+      setTimeout(() => box.style.display = 'none', 5000);
+    }
+  </script>
+</body>
+
+</html>3

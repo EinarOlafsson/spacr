@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "method": "Direct Codex AI technical translation and source/meaning review; no independent peer or native-speaker signoff. Standard guide import and gates unchanged.",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "source_files": {
+    "docs/source/make_masks.rst": "e8ebbcbdd5438b8619acadd7fb6c7173f4047c45b6a2030286410d350ee5219f"
+  },
+  "runtime_catalog_sha256": "7e9da60cdec168b46438086c535fad8e3759afb8f9cca53245314616aae6a841",
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Centre-pixel puncta inside cysts or cells",
+      "source_sha256": "2325f6bf2a40ba920e59c7a93af50efe1f0cc45244b20c7a1346b196abc28e6f",
+      "target": "Punkter med centrum-pixlar inuti cystor eller celler",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Choose **Centre-pixel puncta within parent masks** in **Detection methods**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**.",
+      "source_sha256": "442efbe271e4a729693aca9ca14bff24f2143b75adbc600a8585885fa0c9e46e",
+      "target": "Välj **Punkter med centrum-pixlar inom föräldramasker** under **Detektionsmetoder**. Öppna de ursprungliga bilderna med en kanal och välj en separat mapp med föräldramasker vars filstammar matchar bilderna, eller en föräldramaskfil för den aktuella bilden. Föräldramasker är skrivskyddade. Använd **Ersätt** för hela bilden och sedan **Spara mask**.",
+      "ui": {
+        "Centre-pixel puncta within parent masks": "Punkter med centrum-pixlar inom föräldramasker",
+        "Replace": "Ersätt",
+        "Save mask": "Spara mask"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise from the MAD of the sigma-1 high-pass residual divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration.",
+      "source_sha256": "1633c1a6afc1229e30941354ec9db90032514a854148aa03cd492a2b9bb673e3",
+      "target": "Detektorn hittar skalnormaliserade LoG-toppar vid sigma 1.5, 2, 3, 4 och 6 pixlar. Den uppskattar varje förälders pixelbrus från MAD för den högpassfiltrerade residualen med sigma 1, dividerad med 0.87, och fortplantar bruset genom varje LoG-kärna. Kandidattröskeln är som standard 2.5 brusenheter. Topparna genomgår skalberoende undertryckning av svagare närliggande maxima och uteslutning inom tre pixlar från förälderns kant. Ändra skalorna, kandidattröskeln, toppavståndet eller kantmarginalen när bildtagningen kräver det; inställningarna anges i bildpixlar och är inte kalibrering.",
+      "ui": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20; 10 and 40 are supported. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed.",
+      "source_sha256": "319064319bed0b4b8dac199caf9431579c9b1d26ff05450f71163e84e811b5a4",
+      "target": "Varje punkt mäts med pixlarna närmast dess intensitetsviktade subpixelcentrum i ett nio gånger nio-fönster. **Centrum-pixlar per punkt** är som standard 20; även 10 och 40 stöds. Den lokala bakgrundsringen inom samma förälder börjar vid max(4, 2.5 sigma + 2) pixlar och är fyra pixlar bred. Den utesluter andra kandidatcentrum när tillräckligt med bakgrund finns kvar. Standardgränsen för inkludering är centrummedelvärde minus lokal bakgrund >= 3 ursprungliga intensitetsenheter. Visningsnormalisering, inversion, bildförbättring och Min area används inte.",
+      "ui": {
+        "Centre pixels per punctum": "Centrum-pixlar per punkt"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "The saved integer mask gives every retained punctum its own label. Nearby centre windows can overlap: each integer peak is reserved for its object, other shared pixels go to the nearest centre, and pixels outside the parent are omitted. Consequently a mask may contain fewer than the requested N pixels. This is a centre sampling mask, not the punctum's physical boundary.",
+      "source_sha256": "7fc3dd660fe26df123152270a4355a1f391f9faa2789ea318fae597c0a1627e6",
+      "target": "Den sparade heltalsmasken ger varje behållen punkt en egen etikett. Närliggande centrumfönster kan överlappa: varje heltalstopp reserveras för sitt objekt, andra delade pixlar tilldelas närmaste centrum och pixlar utanför föräldern utelämnas. En mask kan därför innehålla färre än de begärda N pixlarna. Detta är en mask för provtagning av centrum, inte punktens fysiska gräns.",
+      "ui": {}
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results.",
+      "source_sha256": "326e38b485818ba878d17ab37bf7b73444d74facfeec88ee91fe15c473de6020",
+      "target": "När en oförändrad detektion för hela bilden sparas skrivs även ``<stem>.puncta.csv`` och ``<stem>.puncta.json`` bredvid masken. Tabellen innehåller alla kandidater, deras inkluderingsflaggor, utdataobjektens etiketter, föräldra-ID, koordinater, brus, lokal bakgrund, exakta centrummedelvärden för 10/20/40 pixlar samt det valda N-pixelmedelvärdet. De exakta centrummedelvärdena behåller överlappande prov oberoende av vilken etikett som äger pixlarna. Använd ``center_corrected`` för det valda N-pixelmedelvärdet minus lokal bakgrund, eller ``corrected20`` för den fasta 20-pixelvarianten. Den äldre kolumnen ``corrected`` behåller referensens resultat för ett tre gånger tre-fönster. Kvittot binder bilden, föräldramasken, utdatamasken, CSV-filen och detektorinställningarna till kontrollsummor. Redigerade eller kombinerade etiketter kan inte obemärkt få de gamla centrummätningarna. Lokala förhandsvisningar uppskattar brus inom sitt utsnitt; använd detektion på hela bilden för vetenskapliga resultat.",
+      "ui": {}
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure.",
+      "source_sha256": "a64c2abbfc82902e9e7a9fa8de374fc12b85711a6c42a9f3893aa6c7d3b45c0d",
+      "target": "Använd **Ordna för Measure…** för att placera punkterna i en organellmaskplats tillsammans med föräldramaskerna och de ursprungliga kanalerna. Measure kan rapportera vanliga maskregionsintensiteter och föräldrarelationer, men medelvärdena kan skilja sig från exakta centrummedelvärden när proven överlappar. Använd den källbundna punkttabellen för centrum-/ringanalysen. Den här detektorn ensam implementerar inte brusnollmodellen, hierarkiska tester eller en sammansatt publikationsfigur.",
+      "ui": {
+        "Organize for Measure…": "Ordna för Measure…"
+      }
+    }
+  ]
+}

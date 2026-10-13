@@ -1,0 +1,3270 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: runtime rows that were wrong in meaning (machine translation picked the wrong sense of train, model, zoo, batch, run, seed, label, feature, hit, well, plate, figure and similar words), found by the guide-translation pilot's defect list and a follow-up review of high-visibility names. Re-translated and technically reviewed by AI against the English source and its code context; superseded records are kept under retired_records. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "(float) Mask-probability cutoff.",
+      "source": "(float) Mask-probability cutoff.",
+      "source_sha256": "fd576f448618c759611539e52cca1362fbfdf0c6759d1bfc28340e5e8cf266c8",
+      "translation": "(float) Umbral de probabilidad de máscara."
+    },
+    {
+      "table": "ui",
+      "key": "<b>Set spaCR up</b>",
+      "source": "<b>Set spaCR up</b>",
+      "source_sha256": "c9c7d5db98248d43fad0c0e1e58555dd8aed3d518575b4c411adad557934e264",
+      "translation": "<b>Configurar spaCR</b>"
+    },
+    {
+      "table": "ui",
+      "key": "Add score CSVs…",
+      "source": "Add score CSVs…",
+      "source_sha256": "e76b9926676144e1acac97a8521d1a02dca534446f894d385107da7044294179",
+      "translation": "Añadir CSV de puntuaciones…"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate cells",
+      "source": "Annotate cells",
+      "source_sha256": "316677a23dbeeb6a446bd77808d363d637fe309c5a24ff7eeae88cd12da04307",
+      "translation": "Anotar células"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate from gates",
+      "source": "Annotate from gates",
+      "source_sha256": "0e069a5793ca2d1415d256afbcbebccaa67d5b5485e4c877084ae6b7be9b33e7",
+      "translation": "Anotar desde gates"
+    },
+    {
+      "table": "ui",
+      "key": "Annotation set ready",
+      "source": "Annotation set ready",
+      "source_sha256": "14f9ffa1d859a6e546d49aae7e759f7627c1f41919443fa4caf668e1be9cf2cb",
+      "translation": "Conjunto de anotaciones listo"
+    },
+    {
+      "table": "ui",
+      "key": "Bins",
+      "source": "Bins",
+      "source_sha256": "eedf3216f00aefe908205c488fbfa1833ddb9261f883904e5492295d11bc57cc",
+      "translation": "Intervalos"
+    },
+    {
+      "table": "ui",
+      "key": "Check the crop settings",
+      "source": "Check the crop settings",
+      "source_sha256": "86f5374508ff5aacd0882d454583736cbd7ecb8b601c4bcc2c9e9596a1ee6e16",
+      "translation": "Compruebe la configuración de los recortes"
+    },
+    {
+      "table": "ui",
+      "key": "Choose per-object score CSVs",
+      "source": "Choose per-object score CSVs",
+      "source_sha256": "f7343ee271ddddf21b562cd911ebb62af5634914832336ca1c307b9339303d34",
+      "translation": "Elija los CSV de puntuaciones por objeto"
+    },
+    {
+      "table": "ui",
+      "key": "Choose tile folder…",
+      "source": "Choose tile folder…",
+      "source_sha256": "8183f2438aff127d704ca929a61ba09f7467ba5bcd848197675d2d2136738e0c",
+      "translation": "Elija la carpeta de teselas…"
+    },
+    {
+      "table": "ui",
+      "key": "Clear CPU",
+      "source": "Clear CPU",
+      "source_sha256": "b055894bcb5bb9e8609e921417f17d8339ad506a16b33fc7f1885996d7fc7f9a",
+      "translation": "Liberar CPU"
+    },
+    {
+      "table": "ui",
+      "key": "Clear RAM",
+      "source": "Clear RAM",
+      "source_sha256": "327a1a8a8b67f0711f06748a3e9e2200c7927278c888374c93f42646ce366717",
+      "translation": "Liberar RAM"
+    },
+    {
+      "table": "ui",
+      "key": "Clear VRAM",
+      "source": "Clear VRAM",
+      "source_sha256": "18aba4cb442c4c8d8387894e0bf003e698e3b14bff7cc61ce88a812f95f4a4e5",
+      "translation": "Liberar VRAM"
+    },
+    {
+      "table": "ui",
+      "key": "Clear finished",
+      "source": "Clear finished",
+      "source_sha256": "2a16b4f86f58cd2c48188531ddfef20e47834dc0268cb286d7fb5042fd419e1a",
+      "translation": "Quitar los terminados"
+    },
+    {
+      "table": "ui",
+      "key": "Confirm clear",
+      "source": "Confirm clear",
+      "source_sha256": "6271c0fe59d1fb60652a2882237dbecdcddc35d8cfd73e810b5533266f40a2d5",
+      "translation": "Confirmar vaciado"
+    },
+    {
+      "table": "ui",
+      "key": "Control-fitted embedding",
+      "source": "Control-fitted embedding",
+      "source_sha256": "e6a0de6e0c673592c8703eb50a5e4c45ab5a076cb2c306ce206239ed4346c087",
+      "translation": "Incrustación ajustada a los controles"
+    },
+    {
+      "table": "ui",
+      "key": "Crop preview",
+      "source": "Crop preview",
+      "source_sha256": "95876a5b3e4e6841fa183c4578ab4cb7bffdd69fb7bdb659ff0bdfa50c3f6e2c",
+      "translation": "Vista previa de los recortes"
+    },
+    {
+      "table": "ui",
+      "key": "Delete gate",
+      "source": "Delete gate",
+      "source_sha256": "7f8aed56f769036bf2a92eef5de3de74eef7eb0783c44e60bf603c7dbf35ea8e",
+      "translation": "Eliminar gate"
+    },
+    {
+      "table": "ui",
+      "key": "Delete runs from disk",
+      "source": "Delete runs from disk",
+      "source_sha256": "075222094c36b909189210b982c7aa6b47902162f14a7b31483af2b41a7606d3",
+      "translation": "Eliminar ejecuciones del disco"
+    },
+    {
+      "table": "ui",
+      "key": "Drop over-straight tracks",
+      "source": "Drop over-straight tracks",
+      "source_sha256": "cb4c08b748025deea84d052307d4aa6ca13a71caee78fef0f1cae306b60b2bbd",
+      "translation": "Descartar trayectorias demasiado rectas"
+    },
+    {
+      "table": "ui",
+      "key": "Embed and score",
+      "source": "Embed and score",
+      "source_sha256": "c1dd999fc0cb78d9bb96de4507d2bc4cb0788c539212504b90963a67b2ab32ca",
+      "translation": "Incrustar y puntuar"
+    },
+    {
+      "table": "ui",
+      "key": "Export gates…",
+      "source": "Export gates…",
+      "source_sha256": "601600b2232c49e57b92c79415a6af307c6934953c89b1391c7cdabb406eb1eb",
+      "translation": "Exportar gates…"
+    },
+    {
+      "table": "ui",
+      "key": "Export well grid",
+      "source": "Export well grid",
+      "source_sha256": "6969104f03620226890d5e16f124e869ca80b6ed18e116c0fb5290f4c9b19e47",
+      "translation": "Exportar la cuadrícula de pocillos"
+    },
+    {
+      "table": "ui",
+      "key": "Export well grid CSV…",
+      "source": "Export well grid CSV…",
+      "source_sha256": "e05bd464e6724ea8063dc7d13a18b4222300fa63cbb652acc7db694daeba63a9",
+      "translation": "Exportar la cuadrícula de pocillos en CSV…"
+    },
+    {
+      "table": "ui",
+      "key": "FORMULA (gene fit)",
+      "source": "FORMULA (gene fit)",
+      "source_sha256": "9b4c82ef99d193f0e4e3d142117c20f7938f97ae09727892a29ca1c4bad32f15",
+      "translation": "FORMULA (ajuste por gen)"
+    },
+    {
+      "table": "ui",
+      "key": "FORMULA (guide fit)",
+      "source": "FORMULA (guide fit)",
+      "source_sha256": "92d1e46c27f2e8b8fb32484d8b2055e811bfb320de429ebc46090f85020fe808",
+      "translation": "FORMULA (ajuste por guía)"
+    },
+    {
+      "table": "ui",
+      "key": "Find a feature…",
+      "source": "Find a feature…",
+      "source_sha256": "7cbb498cb93a614c2c56dd24c7c2fe13522179210d91febee6b18a9ed7f294b4",
+      "translation": "Buscar una característica…"
+    },
+    {
+      "table": "ui",
+      "key": "Fit non-monotone data",
+      "source": "Fit non-monotone data",
+      "source_sha256": "c967f08351ad5a401396d06f26df8eb43163a07c9e5e1fbc25ec596824b27ec7",
+      "translation": "Ajustar datos no monótonos"
+    },
+    {
+      "table": "ui",
+      "key": "Fold-inversion cascade (spatial 2x2)",
+      "source": "Fold-inversion cascade (spatial 2x2)",
+      "source_sha256": "1914a9f24393dd1ff3166f761f2db7b935261924e6975a6f667627a2f65a4720",
+      "translation": "Cascada de inversión por pliegues (espacial 2x2)"
+    },
+    {
+      "table": "ui",
+      "key": "Folders searched for projects",
+      "source": "Folders searched for projects",
+      "source_sha256": "8aa2cdfc319d92ccbf09e4dad976b899e2afa6ffccde7c211874c6bf6891d139",
+      "translation": "Carpetas donde se buscan proyectos"
+    },
+    {
+      "table": "ui",
+      "key": "Full-screen background",
+      "source": "Full-screen background",
+      "source_sha256": "a2eacf292891dd59159be265840fbb41a5293009f576d3213315ef79a412de60",
+      "translation": "Fondo de toda la ventana"
+    },
+    {
+      "table": "ui",
+      "key": "How many wells?",
+      "source": "How many wells?",
+      "source_sha256": "04a344d336dfe975cc2355cd0518299eb82717751cca1df4ab07c2b205fd6ff5",
+      "translation": "¿Cuántos pocillos?"
+    },
+    {
+      "table": "ui",
+      "key": "Import settings CSV",
+      "source": "Import settings CSV",
+      "source_sha256": "c1949657bd3d9a652ff50e27d324c422530d9556a6f020e362890a85c37ed738",
+      "translation": "Importar CSV de configuración"
+    },
+    {
+      "table": "ui",
+      "key": "Inputs",
+      "source": "Inputs",
+      "source_sha256": "7abc49dfa87bc183179762b87f9914ceadc46c29a5621493a4a91e54d401c1ed",
+      "translation": "Entradas"
+    },
+    {
+      "table": "ui",
+      "key": "Investigate hit",
+      "source": "Investigate hit",
+      "source_sha256": "8ccacd555137e0261b5ef7f42078301e89e57983c080fc947047993eeeee232f",
+      "translation": "Investigar el hallazgo"
+    },
+    {
+      "table": "ui",
+      "key": "Keep only full-length tracks",
+      "source": "Keep only full-length tracks",
+      "source_sha256": "bda464e02ae94c1bc843b5b387d7050787d4080612892def3b7de684994a109a",
+      "translation": "Conservar solo trayectorias completas"
+    },
+    {
+      "table": "ui",
+      "key": "Label top n",
+      "source": "Label top n",
+      "source_sha256": "7700226fc5b91330421459e29519a2c0a929c7d177e593bef132e6ca86cda94c",
+      "translation": "Etiquetar los n primeros"
+    },
+    {
+      "table": "ui",
+      "key": "Load graph style",
+      "source": "Load graph style",
+      "source_sha256": "8b2e4e4d99678700668de674b672a4a68206475a458586fae3d750708a203f6a",
+      "translation": "Cargar estilo de gráfico"
+    },
+    {
+      "table": "ui",
+      "key": "Lock axis scales",
+      "source": "Lock axis scales",
+      "source_sha256": "6b47e9fead8a9b83764a8d61ac7758297a75bd6e6ca68f0bf2c88a4047948a4c",
+      "translation": "Bloquear escalas de ejes"
+    },
+    {
+      "table": "ui",
+      "key": "Min objects / well",
+      "source": "Min objects / well",
+      "source_sha256": "caff73ec03d9cca84b9b3164242419c807943671e427ffe85946e1309b57f6b7",
+      "translation": "Mín. objetos / pocillo"
+    },
+    {
+      "table": "ui",
+      "key": "Model zoo",
+      "source": "Model zoo",
+      "source_sha256": "66c8a8676174fc53ee2e949f166f0458ee767bbcf620848d690ab7f04c078fd1",
+      "translation": "Biblioteca de modelos"
+    },
+    {
+      "table": "ui",
+      "key": "Model zoo…",
+      "source": "Model zoo…",
+      "source_sha256": "a5217ced826e5da63c2e1df0f4d40e8c233643fa0dbb68c590211f2a0fb34204",
+      "translation": "Biblioteca de modelos…"
+    },
+    {
+      "table": "ui",
+      "key": "Name the annotation",
+      "source": "Name the annotation",
+      "source_sha256": "ba3c2e1d04029f0e2c85be298955b561484eb5a9275cd4b37afba309545a6d5c",
+      "translation": "Nombre la anotación"
+    },
+    {
+      "table": "ui",
+      "key": "Name this gate",
+      "source": "Name this gate",
+      "source_sha256": "3e5569ffe2c879e1aa5c397a6d592931d1af928b04a5f37089b9912fba252731",
+      "translation": "Nombre este gate"
+    },
+    {
+      "table": "ui",
+      "key": "No figures yet.",
+      "source": "No figures yet.",
+      "source_sha256": "8f22773e556767be04a5cee8f2df5fe2bafb16d8c8b903018a8a7e8688652b09",
+      "translation": "Todavía no hay figuras."
+    },
+    {
+      "table": "ui",
+      "key": "No folder set.",
+      "source": "No folder set.",
+      "source_sha256": "1e02916c5fdbe1fc88644486e9a3cb21033f9dd7f2e0748403c8833b25a1523e",
+      "translation": "No hay carpeta definida."
+    },
+    {
+      "table": "ui",
+      "key": "No gates",
+      "source": "No gates",
+      "source_sha256": "8ba3abee2258326b436c6927e383c792c7c7a0c9abfd1258479efea8144bdc62",
+      "translation": "Sin gates"
+    },
+    {
+      "table": "ui",
+      "key": "No gates shown",
+      "source": "No gates shown",
+      "source_sha256": "b603f9978f5dd8b8396a4e805789a41b51f1790948917c7a0d1af24066dd48ee",
+      "translation": "No se muestran gates"
+    },
+    {
+      "table": "ui",
+      "key": "No runs yet.",
+      "source": "No runs yet.",
+      "source_sha256": "72a85758b69c1d33a7a08eeca633ef45383a116840fbeee8167dfda13fedd0d7",
+      "translation": "Todavía no hay ejecuciones."
+    },
+    {
+      "table": "ui",
+      "key": "No tracks open.",
+      "source": "No tracks open.",
+      "source_sha256": "86b564571032b5c6e34cea97fe7b126ae6816cc5ed988fff1a154651e793ae4f",
+      "translation": "No hay trayectorias abiertas."
+    },
+    {
+      "table": "ui",
+      "key": "Not runnable",
+      "source": "Not runnable",
+      "source_sha256": "e2bad86c3778dda7514b731d6b7595cec739d5e9fc7557448b543692d4e8e4ca",
+      "translation": "No ejecutable"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing run yet.",
+      "source": "Nothing run yet.",
+      "source_sha256": "05eba9e0ece4a0279d0e3b488785362250ebcfbf1b636bd5ae47cb181c0347e0",
+      "translation": "Todavía no se ha ejecutado nada."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing running.",
+      "source": "Nothing running.",
+      "source_sha256": "741b39aca41e108446b7df7e4f7b55a44cacc12d56651a5105006e5d72ae6a03",
+      "translation": "No se está ejecutando nada."
+    },
+    {
+      "table": "ui",
+      "key": "Open Preferences (Ctrl+P).",
+      "source": "Open Preferences (Ctrl+P).",
+      "source_sha256": "52aea8264ac0df2a12af82212a4581ccd4ca6a5992aba3d912f264f9c2e1d4ed",
+      "translation": "Abrir Preferencias (Ctrl+P)."
+    },
+    {
+      "table": "ui",
+      "key": "Open a tracks table",
+      "source": "Open a tracks table",
+      "source_sha256": "f12e8f614e70a4d068899d1c46e4f7313df1572b1c66609315a3154629725dd6",
+      "translation": "Abrir una tabla de trayectorias"
+    },
+    {
+      "table": "ui",
+      "key": "Open candidate crops",
+      "source": "Open candidate crops",
+      "source_sha256": "a0ff09d48dc3827f9b4589b7acca3cd04d2344a5d236dfcd37c6ffb83757b0e2",
+      "translation": "Abrir recortes candidatos"
+    },
+    {
+      "table": "ui",
+      "key": "Open crops",
+      "source": "Open crops",
+      "source_sha256": "d8163ec1e3457c9384db077be8c522869d8b071c22a414239c1ddfc4816fff6a",
+      "translation": "Abrir recortes"
+    },
+    {
+      "table": "ui",
+      "key": "Open in Annotate",
+      "source": "Open in Annotate",
+      "source_sha256": "771561a684c8b856229863099ae908f69457f12af9a28c6a382ac94e4165d4a5",
+      "translation": "Abrir en Annotate"
+    },
+    {
+      "table": "ui",
+      "key": "Open measurements database",
+      "source": "Open measurements database",
+      "source_sha256": "8f54de8805e71e658aae5438d2254cfaab14ad48486e325966c53eb5828c9707",
+      "translation": "Abrir base de datos de mediciones"
+    },
+    {
+      "table": "ui",
+      "key": "Open selection in Annotate",
+      "source": "Open selection in Annotate",
+      "source_sha256": "c163865130ab66155e6164a52e941269cb52e705285f7cba27cc55ccc4cc08e3",
+      "translation": "Abrir selección en Annotate"
+    },
+    {
+      "table": "ui",
+      "key": "Orbit fold (temporal 2x2)",
+      "source": "Orbit fold (temporal 2x2)",
+      "source_sha256": "f2de0ae10de8023ffdc2221126ecbd17ab2b768b9cf95c4bf6d5b9956149f17d",
+      "translation": "Pliegue orbital (temporal 2x2)"
+    },
+    {
+      "table": "ui",
+      "key": "Outputs",
+      "source": "Outputs",
+      "source_sha256": "e7ce99764a2debd20909bfcf02693d2c1aa3c6b38e1edc86fe2604296fe5e868",
+      "translation": "Salidas"
+    },
+    {
+      "table": "ui",
+      "key": "Parameter sweep",
+      "source": "Parameter sweep",
+      "source_sha256": "6167926eb7499ca9b35eb1fd7586442bbf3ebce768eee0585e440f4c87ecfea4",
+      "translation": "Barrido de parámetros"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque Analysis",
+      "source": "Plaque Analysis",
+      "source_sha256": "587a2aae4816f0a6e1e03202c9d3f466c294e7737d431ebf135fce6c45bc9f47",
+      "translation": "Análisis de placas de lisis"
+    },
+    {
+      "table": "ui",
+      "key": "Plate, well, class, filename…",
+      "source": "Plate, well, class, filename…",
+      "source_sha256": "b5bff7b13d8edbb527a1aea6c4a75dc0e1f2dcbaf6b191f14983d62af91cbb1d",
+      "translation": "Placa, pocillo, clase, nombre de archivo…"
+    },
+    {
+      "table": "ui",
+      "key": "Polling remote jobs…",
+      "source": "Polling remote jobs…",
+      "source_sha256": "4dbc460d90a6149df971686b01b89f05435d87ca4d63e1024ee69143b6d6690d",
+      "translation": "Consultando trabajos remotos…"
+    },
+    {
+      "table": "ui",
+      "key": "Promote calls to annotation",
+      "source": "Promote calls to annotation",
+      "source_sha256": "84f5ecfcf757c7ed8d1223a4d31890ec4613c4131c3e9ed0b8a1be6122db46b7",
+      "translation": "Convertir predicciones en anotaciones"
+    },
+    {
+      "table": "ui",
+      "key": "Queue diversity",
+      "source": "Queue diversity",
+      "source_sha256": "c23e3b5f51e04f19a543ca00be4283cb23d748a58a3113300de97f07c743702e",
+      "translation": "Diversidad de la cola"
+    },
+    {
+      "table": "ui",
+      "key": "Queue import",
+      "source": "Queue import",
+      "source_sha256": "ea1630784f5ca740b069d5a7b723aa6f3df5967d28ec92df4fb073214caba834",
+      "translation": "Poner en cola la importación"
+    },
+    {
+      "table": "ui",
+      "key": "Re-fit",
+      "source": "Re-fit",
+      "source_sha256": "1ca9ae3c3fd3ed56148900f692dcb8144e2e1ffa4083c4b6cfcd5e90211c3810",
+      "translation": "Reajustar"
+    },
+    {
+      "table": "ui",
+      "key": "Re-flood below the escape",
+      "source": "Re-flood below the escape",
+      "source_sha256": "3659ed697a82403a06bc0cc49bfb34434f9126e3216d1f7eb5bc8e3e99c39693",
+      "translation": "Volver a inundar por debajo del desbordamiento"
+    },
+    {
+      "table": "ui",
+      "key": "Read inside each file",
+      "source": "Read inside each file",
+      "source_sha256": "03bf4fa00df316ce74e69b47c83b7d0f7a2ece215c8d89f976874a91c74359c9",
+      "translation": "Leer dentro de cada archivo"
+    },
+    {
+      "table": "ui",
+      "key": "Regression results folder (results/<score>/<type>)",
+      "source": "Regression results folder (results/<score>/<type>)",
+      "source_sha256": "b13cb1c56fdb92afdbb45425d4f8367932fbb5d09acc7df720513b281dc9103f",
+      "translation": "Carpeta de resultados de regresión (results/<score>/<type>)"
+    },
+    {
+      "table": "ui",
+      "key": "Report logs",
+      "source": "Report logs",
+      "source_sha256": "8711fcb7d64fb149b669ccdafd94df603e1159c7051c67b97833417064c73287",
+      "translation": "Registros del informe"
+    },
+    {
+      "table": "ui",
+      "key": "Resume checkpoint",
+      "source": "Resume checkpoint",
+      "source_sha256": "e7ad24454b48542e9b028c97c56428c7ebc7b25981afd2795d5b4dabab865323",
+      "translation": "Reanudar desde checkpoint"
+    },
+    {
+      "table": "ui",
+      "key": "Review public GitHub report",
+      "source": "Review public GitHub report",
+      "source_sha256": "a8b8459b12f13a64721e427f1eeb1ce2de00e6f2ec35861411e3df61706b1bfd",
+      "translation": "Revisar el informe público de GitHub"
+    },
+    {
+      "table": "ui",
+      "key": "Ring the gated objects",
+      "source": "Ring the gated objects",
+      "source_sha256": "a3b7990c7d703ac255cd20bb618ff525bc44498ec8a937f5a3a1d742798361c1",
+      "translation": "Rodear los objetos del gate"
+    },
+    {
+      "table": "ui",
+      "key": "Run digest",
+      "source": "Run digest",
+      "source_sha256": "4e233730eb0bff99e269e16855702c079dd2db646137b0a213ef58551154e2ad",
+      "translation": "Resumen de la ejecución"
+    },
+    {
+      "table": "ui",
+      "key": "Run walk",
+      "source": "Run walk",
+      "source_sha256": "eacbfe5a05ed506a1d3515b41765cde7e6cbe91b2c9e17a20dbb43d384a1b4c9",
+      "translation": "Ejecutar búsqueda por pasos"
+    },
+    {
+      "table": "ui",
+      "key": "Run with these settings?",
+      "source": "Run with these settings?",
+      "source_sha256": "ab3ff0a0c1911813bd282da83b5dd267e4b50c666ea35305f67c0188d86cb365",
+      "translation": "¿Ejecutar con esta configuración?"
+    },
+    {
+      "table": "ui",
+      "key": "Runs",
+      "source": "Runs",
+      "source_sha256": "848f54e89660cea4357644039ac5d7146f76c8e85df5c04076e08feb7e7547f0",
+      "translation": "Ejecuciones"
+    },
+    {
+      "table": "ui",
+      "key": "Runs found",
+      "source": "Runs found",
+      "source_sha256": "331832fc1bed4612dda1e13bbfcb1fed8fd8f602c7e188714d2519b8f9b4bc52",
+      "translation": "Ejecuciones encontradas"
+    },
+    {
+      "table": "ui",
+      "key": "Save plot style",
+      "source": "Save plot style",
+      "source_sha256": "f745b1a5d48bcecb22c833015ebc6630018615813c657a710f14ee4b5c7c408f",
+      "translation": "Guardar estilo de gráfico"
+    },
+    {
+      "table": "ui",
+      "key": "Save the curated tracks",
+      "source": "Save the curated tracks",
+      "source_sha256": "bc82df6970e01b9c665378e62fa463e2a7f233dddf85e8e43430907a14dbbcad",
+      "translation": "Guardar las trayectorias revisadas"
+    },
+    {
+      "table": "ui",
+      "key": "Save the gating strategy",
+      "source": "Save the gating strategy",
+      "source_sha256": "63b7bc705b31d1db2f0e3241e5cdad67e7b865d0110be1e2db6e7eab250b92d6",
+      "translation": "Guardar la estrategia de gating"
+    },
+    {
+      "table": "ui",
+      "key": "Save tracks…",
+      "source": "Save tracks…",
+      "source_sha256": "a18cd4f5f9ef15ac94b86a0718eb4af10930529695b9e2c2cdbeb942bafea83e",
+      "translation": "Guardar trayectorias…"
+    },
+    {
+      "table": "ui",
+      "key": "Saved runs carry",
+      "source": "Saved runs carry",
+      "source_sha256": "a597a64911c848243865e9d2f859530e56727e886ea14391420bb8a73fa76732",
+      "translation": "Las ejecuciones guardadas contienen"
+    },
+    {
+      "table": "ui",
+      "key": "Scale-location",
+      "source": "Scale-location",
+      "source_sha256": "eaae97847600f227fdcd250896229c095215c11697530efa51b0a1e325186068",
+      "translation": "Escala-ubicación"
+    },
+    {
+      "table": "ui",
+      "key": "Score CSV",
+      "source": "Score CSV",
+      "source_sha256": "48c82938541b39e8312955b2b276942fdb1f924fbcc0a38150b51cd46687e012",
+      "translation": "CSV de puntuaciones"
+    },
+    {
+      "table": "ui",
+      "key": "Score again",
+      "source": "Score again",
+      "source_sha256": "447139339b9b8134ca867029c144489a5c0ab4e4942cd067a8e22b0fa1a8235a",
+      "translation": "Puntuar de nuevo"
+    },
+    {
+      "table": "ui",
+      "key": "Score wells too",
+      "source": "Score wells too",
+      "source_sha256": "afe57398fe2413a21003a5f87e2c762a429f5d3233c176ae141d8d305a455389",
+      "translation": "Puntuar también los pocillos"
+    },
+    {
+      "table": "ui",
+      "key": "Screen (as shown)",
+      "source": "Screen (as shown)",
+      "source_sha256": "605235709753609d773a2e8ca1e945d046183b1d1ea914268e45a32dd86ea5d6",
+      "translation": "pantalla (tal como se muestra)"
+    },
+    {
+      "table": "ui",
+      "key": "Seed:",
+      "source": "Seed:",
+      "source_sha256": "b784ffe8db315c0a39784fa946c792bca2b0f9c0e22157c11e12557deb631642",
+      "translation": "Semilla aleatoria:"
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation QC field browser",
+      "source": "Segmentation QC field browser",
+      "source_sha256": "61f10d453309100b8b0c392fe738c6b1c3de8d3b446a1c5331128316b0ba5532",
+      "translation": "Explorador de QC de segmentación por campo"
+    },
+    {
+      "table": "ui",
+      "key": "Skip to last annotated",
+      "source": "Skip to last annotated",
+      "source_sha256": "f8f49dc5f6672b6bce82bead59d473b6d2bb9ffbc5577cce5aec543af8a57b4b",
+      "translation": "Saltar al último anotado"
+    },
+    {
+      "table": "ui",
+      "key": "Split at frame",
+      "source": "Split at frame",
+      "source_sha256": "d96c2c1d8c9dc4cac8efdc14acb988d85e8dfbb722c7ce4c9406e1566616e58e",
+      "translation": "Dividir en el fotograma"
+    },
+    {
+      "table": "ui",
+      "key": "Surrogate model",
+      "source": "Surrogate model",
+      "source_sha256": "aa627947b7b4237f2e3d3cdfdcadc8972547dd5b85ab85cc63abe7d519e0d17f",
+      "translation": "Modelo sustituto"
+    },
+    {
+      "table": "ui",
+      "key": "Take the mask back",
+      "source": "Take the mask back",
+      "source_sha256": "c3c3e73f61aa8b2284d6875e608e553daee20422737ca0336463344418911911",
+      "translation": "Recuperar la máscara"
+    },
+    {
+      "table": "ui",
+      "key": "Taper onto the gradient",
+      "source": "Taper onto the gradient",
+      "source_sha256": "343519e90a9579c637dcea3b66b0eacde81b2906985c92929497d23eb06f05fa",
+      "translation": "Atenuar hacia el gradiente"
+    },
+    {
+      "table": "ui",
+      "key": "Tiles",
+      "source": "Tiles",
+      "source_sha256": "4da22a362d386464986ac588eba5fd2fc7197f751e2c6aab248827c60201fdbc",
+      "translation": "Teselas"
+    },
+    {
+      "table": "ui",
+      "key": "Track preview",
+      "source": "Track preview",
+      "source_sha256": "773edb8978f48fce965f60b1f775a3f8c61ce481ba08cb06d77399b0ea27c699",
+      "translation": "Vista previa de trayectorias"
+    },
+    {
+      "table": "ui",
+      "key": "Tracks",
+      "source": "Tracks",
+      "source_sha256": "88980154513d74131c5ec47da81bd01d3e921142c6ab810b805bc8e625f4ba5b",
+      "translation": "Trayectorias"
+    },
+    {
+      "table": "ui",
+      "key": "Trained on",
+      "source": "Trained on",
+      "source_sha256": "f94655acfb16306d1225ef040356d27db44ed613afb4a77d7e2fe3cc8733c6ec",
+      "translation": "Entrenado con"
+    },
+    {
+      "table": "ui",
+      "key": "Train…",
+      "source": "Train…",
+      "source_sha256": "3455694c0225b3460dd04b558e78c3e950d4cc0fdc24c79139477e4d9940b4e1",
+      "translation": "Entrenar…"
+    },
+    {
+      "table": "ui",
+      "key": "Trim a runaway flood",
+      "source": "Trim a runaway flood",
+      "source_sha256": "04e9c57935d9231445a5be0dc661bd51475e21d229ee16023ddd01f9a85239a1",
+      "translation": "Recortar una inundación desbocada"
+    },
+    {
+      "table": "ui",
+      "key": "Undo promotion",
+      "source": "Undo promotion",
+      "source_sha256": "60b7b9bcd08544af8a7793b772cbe6245552edeeb57b08dab5a9ac6a3a9f2b0b",
+      "translation": "Deshacer la conversión"
+    },
+    {
+      "table": "ui",
+      "key": "Versions, seeds, and manifest",
+      "source": "Versions, seeds, and manifest",
+      "source_sha256": "915d9d832ebb89e3778cee6e7e590d0bb7de7bd80bb441e4bc473dc9a17a309f",
+      "translation": "Versiones, semillas aleatorias y manifiesto"
+    },
+    {
+      "table": "ui",
+      "key": "WHAT IS MODELLED",
+      "source": "WHAT IS MODELLED",
+      "source_sha256": "8f3883b611088936b9a24733bac1d5633c1606aa473c7389c9300cc2f72d505c",
+      "translation": "QUÉ SE MODELA"
+    },
+    {
+      "table": "ui",
+      "key": "Walk",
+      "source": "Walk",
+      "source_sha256": "08ee52ae125a0a90df4b11a13ef422a0837c8d1a9e5c2883cb7779352ca17d62",
+      "translation": "Búsqueda por pasos"
+    },
+    {
+      "table": "ui",
+      "key": "Walk clusters",
+      "source": "Walk clusters",
+      "source_sha256": "8082c1f2454c843344dea1dd6140e4849c5eaf40f6516a5a2170f938a2139cb2",
+      "translation": "Recorrer clústeres por pasos"
+    },
+    {
+      "table": "ui",
+      "key": "Walk finished",
+      "source": "Walk finished",
+      "source_sha256": "4994deb72007948c3343c797d60d6658f85df80b4b68b9768f08183fe03e4b12",
+      "translation": "Búsqueda por pasos terminada"
+    },
+    {
+      "table": "ui",
+      "key": "Walk the parameters instead",
+      "source": "Walk the parameters instead",
+      "source_sha256": "87c235e33db8b964c99c8c2ad2a6506cd6825d75f21e23578603dceb5f9467a0",
+      "translation": "Recorrer los parámetros por pasos"
+    },
+    {
+      "table": "ui",
+      "key": "Y axis scale",
+      "source": "Y axis scale",
+      "source_sha256": "ed206ddf033c51bb6b7f6bd047d4122c131171cd1e0cd93e93452db2a0c0f5c2",
+      "translation": "Escala del eje Y"
+    },
+    {
+      "table": "ui",
+      "key": "annotator B",
+      "source": "annotator B",
+      "source_sha256": "75061b4777439dec2588d334d9ed185e012d122b79d52bc5685a590e7250ea2f",
+      "translation": "anotador B"
+    },
+    {
+      "table": "ui",
+      "key": "binomial GLM, logit link",
+      "source": "binomial GLM, logit link",
+      "source_sha256": "08a5d91006a29a8d5ff83863fc236d67ca6db5db50054742f93c170648ac7ba9",
+      "translation": "GLM binomial, enlace logit"
+    },
+    {
+      "table": "ui",
+      "key": "binomial GLM, probit link",
+      "source": "binomial GLM, probit link",
+      "source_sha256": "8500836a10b7a4003d3dd8448e3ab8ca3c21a5e968f1ca8f96033e58fbe7c7ed",
+      "translation": "GLM binomial, enlace probit"
+    },
+    {
+      "table": "ui",
+      "key": "generalised linear model",
+      "source": "generalised linear model",
+      "source_sha256": "c972780100971026f964a10ea8ef82f0a756010a38fb051ceeb2e595ea2af8d6",
+      "translation": "modelo lineal generalizado"
+    },
+    {
+      "table": "ui",
+      "key": "maximum graph panels",
+      "source": "maximum graph panels",
+      "source_sha256": "a1a6ed2443ef02183857f53cb88abf7bd91236c24c157cffbe326f00da797f08",
+      "translation": "máximo de paneles de gráficos"
+    },
+    {
+      "table": "ui",
+      "key": "quasi-binomial GLM",
+      "source": "quasi-binomial GLM",
+      "source_sha256": "6b330a0a6e1ae59705a984810b643f6db6f09f44476aa3195503dc80a9c8f8c8",
+      "translation": "GLM cuasibinomial"
+    },
+    {
+      "table": "ui",
+      "key": "reaches the model?",
+      "source": "reaches the model?",
+      "source_sha256": "6708dd5c481af49ef54067bda2983e2433df00be7df8c402703b03d28e745190",
+      "translation": "¿llega al modelo?"
+    },
+    {
+      "table": "ui",
+      "key": "seed",
+      "source": "seed",
+      "source_sha256": "19b25856e1c150ca834cffc8b59b23adbd0ec0389e58eb22b3b64768098d002b",
+      "translation": "semilla aleatoria"
+    },
+    {
+      "table": "ui",
+      "key": "splits",
+      "source": "splits",
+      "source_sha256": "6e83555522ef6908d810dcc89278eb84df36e2c4fae58b0c8357720f2be83848",
+      "translation": "particiones"
+    },
+    {
+      "table": "ui",
+      "key": "this screen",
+      "source": "this screen",
+      "source_sha256": "5cae44d40e27aebc52df3ea5c40994f499c6d452541ae4412df67cb76eef2b7d",
+      "translation": "esta vista"
+    },
+    {
+      "table": "ui",
+      "key": "trained on",
+      "source": "trained on",
+      "source_sha256": "af4ea0876118a7cb99ef8c1660223ad5e2702b8c825702689f7f089d5558f7c9",
+      "translation": "entrenado con"
+    },
+    {
+      "table": "ui",
+      "key": "use edge wells",
+      "source": "use edge wells",
+      "source_sha256": "1a308eef0932355f1202cba2b6e49546608429d56d63e5d0c565f19119c773ce",
+      "translation": "usar pocillos del borde"
+    },
+    {
+      "table": "ui",
+      "key": "within-run q",
+      "source": "within-run q",
+      "source_sha256": "7c4ca058d53ebd40ac7da79667d6d2d361c03c8165f8f77adee08fa6bc8614a5",
+      "translation": "q dentro de la ejecución"
+    },
+    {
+      "table": "setting_labels",
+      "key": "analysis_excluded_wells",
+      "source": "Analysis excluded wells",
+      "source_sha256": "6c95af96e0996fd5e2899b677f6bbd1b0a200b269bbd922b4d24a3d6f47a8099",
+      "translation": "Pocillos excluidos del análisis"
+    },
+    {
+      "table": "setting_labels",
+      "key": "auto_file_issues",
+      "source": "Auto file issues",
+      "source_sha256": "fb5388b71dc1b583b77e31432da905728ddc9af507b5d22cdb1c9c4644ec3cf5",
+      "translation": "Informar de errores automáticamente"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_column",
+      "source": "Batch column",
+      "source_sha256": "64abf3ea665b155fc8dca7e278f40881787d0fde6275994c14006e2817e396c7",
+      "translation": "Columna de lote"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_combat_mean_only",
+      "source": "Batch combat mean only",
+      "source_sha256": "6ff95c9c19a3bfa92e06aedd32cf81be3a5be1a9f30cbb8ba85370fa83af5eef",
+      "translation": "combat por lote solo de la media"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_control_column",
+      "source": "Batch control column",
+      "source_sha256": "5bffb4469d4b69cf007e52eb479f56468cccf33d2e10909449d8a03ddb0d0df7",
+      "translation": "Columna de control por lote"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_control_values",
+      "source": "Batch control values",
+      "source_sha256": "dcbe3ae3d67bd805734871bc6aed267c5d43bc8928704412886ec1aed78cf6da",
+      "translation": "Valores de control por lote"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_covariate_column",
+      "source": "Batch covariate column",
+      "source_sha256": "9593f575e8e3398cafbacc1ff78df2b2169f22231663fecf59d11b42f47b2c4c",
+      "translation": "Columna de covariable de lote"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_fields",
+      "source": "Batch fields",
+      "source_sha256": "94cf9ee15ee5abcb7bb3d6289aa1e9b11486fc66ee1c78e1fee473e1e677003f",
+      "translation": "Campos por lote"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_min_samples",
+      "source": "Batch min samples",
+      "source_sha256": "ea354747443de37a96e3fe4f90abad3c18139b298666ef5ee40c15df3647bab9",
+      "translation": "Mín. muestras por lote"
+    },
+    {
+      "table": "setting_labels",
+      "key": "batch_missing_control",
+      "source": "Batch missing control",
+      "source_sha256": "5c77a8c32ab97156bbbbaeaf863296d533a6a12065d31c5d8c36a45a722e2b6a",
+      "translation": "Lote sin control"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_mask_dim",
+      "source": "Cell mask dim",
+      "source_sha256": "93ea2900da8269506d3cd72062c3eb337271616e82c4c66b8bbe673f8f6b46ff",
+      "translation": "Dimensión de la máscara celular"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_model_name",
+      "source": "Cell model name",
+      "source_sha256": "5960e3b09fa1b4721a144f51127221147a091d94a975c62be0ba7cbd8578c689",
+      "translation": "Nombre del modelo de células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "checkpoint_path",
+      "source": "Checkpoint path",
+      "source_sha256": "66dc2b80e69cd245778e0cc276fb3158ce269dbe8caa46b69040f800b5abd8c1",
+      "translation": "Ruta del checkpoint"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_dtype",
+      "source": "Crop dtype",
+      "source_sha256": "a795e104bda9226adf2391cb08f4c3715a5fae788129fc53f2d3cf09cd3fdf78",
+      "translation": "dtype de los recortes"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_shape",
+      "source": "Crop shape",
+      "source_sha256": "7182ab1777c7be7ab38c2c63faef87321c3e90164abbf45edde5bf4a26b2bcb7",
+      "translation": "Forma del recorte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_source",
+      "source": "Crop source",
+      "source_sha256": "16a56151b4a03323e284e07e41d4f4ea9e8459fbc03957d09d7fd969ddfcbbab",
+      "translation": "Fuente del recorte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cross_validation_folds",
+      "source": "Cross validation folds",
+      "source_sha256": "70b1564fbe2054a2edc0c411764c469638752d782e5ec39c5f43dbd406384fd2",
+      "translation": "Particiones de validación cruzada"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dry_run",
+      "source": "Dry run",
+      "source_sha256": "d5da154d9f00ca143502673a3d7a3dfb188972ee7a2287cb5ac2d9562f5bf458",
+      "translation": "Ejecución de prueba"
+    },
+    {
+      "table": "setting_labels",
+      "key": "embedding_by_controls",
+      "source": "Embedding by controls",
+      "source_sha256": "dc8a27c5d1e089b76d87d3605680087022203c43ea6488679cec6abaa863e973",
+      "translation": "Incrustación según controles"
+    },
+    {
+      "table": "setting_labels",
+      "key": "evaluation_bins",
+      "source": "Evaluation bins",
+      "source_sha256": "e82d53458b4c1114e41596b39b76e924e9268ede514ef71ae6454635b185d1dd",
+      "translation": "Intervalos de evaluación"
+    },
+    {
+      "table": "setting_labels",
+      "key": "exclude_starved_wells",
+      "source": "Exclude starved wells",
+      "source_sha256": "721d472a0916e3a77557c61a1f1a28b0cb385bd769542898cf98a6db45b6006b",
+      "translation": "Excluir pocillos con pocas lecturas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_min_wells",
+      "source": "Guide min wells",
+      "source_sha256": "f646337c6d72e1c685465d03e5dcb273ca4f211c767c23d218f05c7055701298",
+      "translation": "Mín. pocillos por guía"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutation_seed",
+      "source": "Guide permutation seed",
+      "source_sha256": "13666d3c3d9ed1fd7d71d5a6ca040e48ef036c98d72c16b138c13f51c9ec4781",
+      "translation": "Semilla de permutación de guías"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_primary_min_wells",
+      "source": "Guide primary min wells",
+      "source_sha256": "b48c841e1630e7be45b4ee34a893aa09a875b98b3ea2c9dc737165429d1804b9",
+      "translation": "Mín. pocillos primarios por guía"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_bootstrap",
+      "source": "Hit bootstrap",
+      "source_sha256": "d35a5f16e84e612437d9c5fa692f0b8854773a0b215e19bddd580357f27836ba",
+      "translation": "Bootstrap de hallazgos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_direction",
+      "source": "Hit direction",
+      "source_sha256": "a22ddc601e7101450c8f9c7dce8c647fd75d2cb5436f0f3164dd154a35db64b7",
+      "translation": "Dirección del hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_effect",
+      "source": "Hit effect",
+      "source_sha256": "8f2b42ba8d337359170f67ea2cbf5e5b700862fe7d37a9bfcef24c71c9c92527",
+      "translation": "Efecto del hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_fdr",
+      "source": "Hit fdr",
+      "source_sha256": "0eccafd10c99622b87d1fc11619d66ac012cf675bdb8e5c507bd0434bdd23bb0",
+      "translation": "fdr de hallazgos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_feature_columns",
+      "source": "Hit feature columns",
+      "source_sha256": "36bf283be3688531a58584026dc47b38b3cd4a5b9d35ce8e7d08f8a7808dd522",
+      "translation": "Columnas de características de hallazgos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_gallery_per_stratum",
+      "source": "Hit gallery per stratum",
+      "source_sha256": "35b78f44d29484c0c1cd14c548effa5678bdd2315c42659d17f25ca17b8f79a1",
+      "translation": "Galería de hallazgos por estrato"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_guide_agreement",
+      "source": "Hit guide agreement",
+      "source_sha256": "3943b0ad6eb188399e791905c99115f19dc0f8b331a2a3ee1fdc5b5ff39af312",
+      "translation": "Concordancia de guías del hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_include_original_score",
+      "source": "Hit include original score",
+      "source_sha256": "44de7b78b0e7136e1a0db1726d1f56bd4568473f666c6aa3d33455b5398a27ec",
+      "translation": "Incluir la puntuación original del hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_n_guides",
+      "source": "Hit n guides",
+      "source_sha256": "e25557d065c0a158c94f765617ea93b2486ce32f71b685ab5f7fd73b758a08ac",
+      "translation": "n guías por hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_permutations",
+      "source": "Hit permutations",
+      "source_sha256": "9dd9bb387147c24147bf67c12e5de2770a4ddf0292c586e28c84cfa47bba904d",
+      "translation": "Permutaciones de hallazgos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_phenotype",
+      "source": "Hit phenotype",
+      "source_sha256": "3b832ed0db41960a27aecc21d0f475f1a12dd07e3a5f62621a7665c302dd3315",
+      "translation": "Fenotipo del hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_pipeline_permutations",
+      "source": "Hit pipeline permutations",
+      "source_sha256": "273eede195ddde9175616f80a542948be48bb774586058707bfbc93bccbc6b20",
+      "translation": "Permutaciones del pipeline de hallazgos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_probability_threshold",
+      "source": "Hit probability threshold",
+      "source_sha256": "04d546a2623f77472ef2ff3372a2d68186515b67ba00ff5acf6e8515f1da01bc",
+      "translation": "Umbral de probabilidad de hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_random_seed",
+      "source": "Hit random seed",
+      "source_sha256": "70531f1477b8327e432f499604604fcdaea0df3b1e7ad079d569d4050f7c6c5b",
+      "translation": "Semilla aleatoria de hallazgos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_split_by",
+      "source": "Hit split by",
+      "source_sha256": "36aa3cf6ff7ef960a5b3558010c5ac30a10802afbf532d8e2688a336b04da02b",
+      "translation": "Dividir hallazgos por"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_store_database",
+      "source": "Hit store database",
+      "source_sha256": "909d86f97cfb5eaec15751140190ace567578022382bf46af36dda85adef769c",
+      "translation": "Guardar hallazgo en la base de datos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hit_well_support",
+      "source": "Hit well support",
+      "source_sha256": "a57130f1afff4bc0b35e91c2b08bd59d54b191b2f54907d938943a18bdce041f",
+      "translation": "Pocillos que respaldan el hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "holdout_plate",
+      "source": "Holdout plate",
+      "source_sha256": "ea3d1899f227e8af7bb0083213ecb406af5fe4d45e91bd1d23d9184602105a24",
+      "translation": "Placa reservada"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_intensity_n_bins",
+      "source": "Infection intensity n bins",
+      "source_sha256": "9b1400cdcf5a9a2cd5c7166157b9151d42c4089788993ad505e0593b04f14087",
+      "translation": "n intervalos de intensidad de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_pathogen_weight",
+      "source": "Infection pca pathogen weight",
+      "source_sha256": "30d13b1c943abb65ae37a53884a3ef71f524ee46465fc371ca19efb338b896ca",
+      "translation": "Peso del patógeno en la pca de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_n_jobs",
+      "source": "Infection xgb n jobs",
+      "source_sha256": "cba0dae713af8541dc5b1a2047135c675217a9fbc0cc76a0da218b227ad7c8a2",
+      "translation": "n trabajos del xgb de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_top_features",
+      "source": "Infection xgb top features",
+      "source_sha256": "2ac9e805884bd52c5e74ea8c09d45c4dec37be326d751a1e127ce0030bbf2f5f",
+      "translation": "Características principales del xgb de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "input_statistics",
+      "source": "Input statistics",
+      "source_sha256": "dbd9035825fa2807f1745e1a9b1f4602d8ae5c1defe0603e702fa565210f262d",
+      "translation": "Estadísticas de entrada"
+    },
+    {
+      "table": "setting_labels",
+      "key": "intermedeate_save",
+      "source": "Intermedeate save",
+      "source_sha256": "f9d5e7149e586515aaf17384639a8a3d1d5cb006c7eb80d68498eb8332e4f1f0",
+      "translation": "Guardado intermedio"
+    },
+    {
+      "table": "setting_labels",
+      "key": "label_smoothing",
+      "source": "Label smoothing",
+      "source_sha256": "6a96caaab991e40ba91131d74761ba71a9e7a7aec0bd740da67119e52d356568",
+      "translation": "Suavizado de etiquetas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "leakage_audit_train_test",
+      "source": "Leakage audit train test",
+      "source_sha256": "2f5b88927aadf3cf0bd603725e3d0569bb22768586736784cd88be09cc601a35",
+      "translation": "Auditoría de fugas entre entrenamiento y prueba"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_bins",
+      "source": "Max bins",
+      "source_sha256": "47d49b76d695c59498dc866cbd79fe42888a4bc08c956ba6c09453ecd6ef88df",
+      "translation": "Máx. intervalos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_area_bin",
+      "source": "Min area bin",
+      "source_sha256": "298f6ec54157fd44441d16bebddc573bb1c93ee6d0dec10438b3ab1f5efd5c17",
+      "translation": "Intervalo mínimo de área"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_cells_per_well",
+      "source": "Min cells per well",
+      "source_sha256": "f4a78c0d6aba8acf8c2e2385c64b1571836e1ac6998cecca3967aebbfc53c618",
+      "translation": "Mín. células por pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_observations_per_hit",
+      "source": "Min observations per hit",
+      "source_sha256": "016c71dde14ac2bd3c738ebebf6f9f0d9d325d3c242553780a6651e4add2de9f",
+      "translation": "Mín. observaciones por hallazgo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_parasites_per_well",
+      "source": "Min parasites per well",
+      "source_sha256": "444af29aa13de3e8b23ec9ed5eeb75701ed6fd7a0419cdcf59389d00174a8fa8",
+      "translation": "Mín. parásitos por pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_reads_per_well",
+      "source": "Min reads per well",
+      "source_sha256": "1ffe51c8f164b0b5aa1a9aaead0c3d5353424059ca084d248a253bea8b2c6345",
+      "translation": "Mín. lecturas por pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "mixed_control_wells",
+      "source": "Mixed control wells",
+      "source_sha256": "b8fa5e1ad563d3fa4f0b634cf1bb3c9552695040342821c9d03765d46f023253",
+      "translation": "Pocillos de control mixtos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "model_data_layout",
+      "source": "Model data layout",
+      "source_sha256": "135869d219921993f868aaf0116144d3f7f75d79ef41059ff7a33cffec3c5036",
+      "translation": "Disposición de datos del modelo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "model_plate_position",
+      "source": "Model plate position",
+      "source_sha256": "08b7b549d4da652227dd2c465dc1c1248c693f31c64a211ef589104b27327917",
+      "translation": "Modelar la posición en la placa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "n_jobs",
+      "source": "N jobs",
+      "source_sha256": "d7b3fb6037ce5e8d022a8b2e3780666cabdae73ef4b9b3ea5c28603154db3992",
+      "translation": "N trabajos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nested_cv_inner_folds",
+      "source": "Nested cv inner folds",
+      "source_sha256": "999f744e17e6c1ca2a5cd019f6a5581fb1e81a32799861764d12694d4e43aee8",
+      "translation": "Particiones internas de cv anidada"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_mask_dim",
+      "source": "Nucleus mask dim",
+      "source_sha256": "0b3afe6fddbe11e975c8e069931415fa813568ea2835dc68ebc42a7cf24fc857",
+      "translation": "Dimensión de la máscara nuclear"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_model_name",
+      "source": "Nucleus model name",
+      "source_sha256": "e1cebafed10530f58bf04d97d3faec137d2857b369f035f23dd93295e8c40de5",
+      "translation": "Nombre del modelo de núcleos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_mask_dim",
+      "source": "Organelle 1 — Mask dim",
+      "source_sha256": "dbd6e5d3e5b45915630cfac6f577375775eee1248a6f723e7c6fdf57fd1d4f37",
+      "translation": "Organelle 1 — Dimensión de máscara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_mask_within_cells",
+      "source": "Organelle 1 — Mask within cells",
+      "source_sha256": "bf57e11906b62e2e7b1a5de513ded070a526741f4ef25e25f561ec9417db393d",
+      "translation": "Organelle 1 — Máscara dentro de las células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_watershed_spots",
+      "source": "Organelle 1 — Watershed spots",
+      "source_sha256": "dfb75295175c690de1b5746e77dcfe1310d9f9b4ee159fb6ca653adf7a0e922c",
+      "translation": "Organelle 1 — Puntos de watershed"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_mask_dim",
+      "source": "Organelle 2 — Mask dim",
+      "source_sha256": "4593c9bb648eb366d06a7d5afdaeff3e7c727b0b578d697e090654fd3e3682f9",
+      "translation": "Organelle 2 — Dimensión de máscara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_mask_within_cells",
+      "source": "Organelle 2 — Mask within cells",
+      "source_sha256": "17c5dc97276a0efc4cccd4da45f48baa47bb26af33178048d839fe92de7619e1",
+      "translation": "Organelle 2 — Máscara dentro de las células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_watershed_spots",
+      "source": "Organelle 2 — Watershed spots",
+      "source_sha256": "5a3b2a202ca18092e1b84bc0a20e71835cedf724a63e287a217c8c3aa5b05f87",
+      "translation": "Organelle 2 — Puntos de watershed"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_mask_dim",
+      "source": "Organelle 3 — Mask dim",
+      "source_sha256": "6e52a681e4ceb46c4600af8fe2a215d5a697d47d8070f6ff3cfbce2fa27145ee",
+      "translation": "Organelle 3 — Dimensión de máscara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_mask_within_cells",
+      "source": "Organelle 3 — Mask within cells",
+      "source_sha256": "24af612690b018b072b85339e0d781281947e8a5f034381be04f53f7be198555",
+      "translation": "Organelle 3 — Máscara dentro de las células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_watershed_spots",
+      "source": "Organelle 3 — Watershed spots",
+      "source_sha256": "d3fb131aa35db2a699284cb9d083c5eb8d5437a0296a6fdd2fc450906e4635e0",
+      "translation": "Organelle 3 — Puntos de watershed"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_mask_dim",
+      "source": "Organelle 4 — Mask dim",
+      "source_sha256": "c9b63d8d1fa8fb02153a95babd4ef73874d2b28be944319d0449c7fedb70b5a9",
+      "translation": "Organelle 4 — Dimensión de máscara"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_mask_within_cells",
+      "source": "Organelle 4 — Mask within cells",
+      "source_sha256": "53f16c9c895fedc06ed15edce6a650af9a864da4779c4af5bbd4281f33444eaa",
+      "translation": "Organelle 4 — Máscara dentro de las células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_watershed_spots",
+      "source": "Organelle 4 — Watershed spots",
+      "source_sha256": "29ae750d12f3e5361d50461758d5227c4a2aa601d546cdf62b961911264fd28d",
+      "translation": "Organelle 4 — Puntos de watershed"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_mask_dim",
+      "source": "Pathogen mask dim",
+      "source_sha256": "f30ee6a3803da8b4a504d44757e20d9211955fe5bbfe541b063440dc6bfe58df",
+      "translation": "Dimensión de la máscara de patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_model",
+      "source": "Pathogen model",
+      "source_sha256": "fe1e3a1e3f4efda8a8478b74d14236fa3cf3523bea88e58fd0f1935080fb32bd",
+      "translation": "Modelo de patógenos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_model_name",
+      "source": "Pathogen model name",
+      "source_sha256": "8e11133d20599b7a3fd5a22b42c77dbb1fcf68ea03abe1c343f51fea160593d6",
+      "translation": "Nombre del modelo de patógenos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plate_naming",
+      "source": "Plate naming",
+      "source_sha256": "99a04fee728c3071dfc7cfa29c28a9594d1758655eb1eb349386072d1c0ce33d",
+      "translation": "Nomenclatura de placas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "prune_features",
+      "source": "Prune features",
+      "source_sha256": "30724169964262feac303ac8781906a2195011715b2064fb45993d3a7f94930a",
+      "translation": "Depurar características"
+    },
+    {
+      "table": "setting_labels",
+      "key": "queue_by_uncertainty",
+      "source": "Queue by uncertainty",
+      "source_sha256": "09d061a9254fbf4449409598a1e911351d946ed1dd0c8c1a1d326e7f941002e7",
+      "translation": "Encolar por incertidumbre"
+    },
+    {
+      "table": "setting_labels",
+      "key": "queue_measure",
+      "source": "Queue measure",
+      "source_sha256": "ac94613e98335e8a45a6132d2fa7d3b3ddca69e4cc1e75c573ca25ae8c2b35aa",
+      "translation": "Poner Measure en cola"
+    },
+    {
+      "table": "setting_labels",
+      "key": "random_seed",
+      "source": "Random seed",
+      "source_sha256": "8a91c3ae834fb99072865cb3886439286d331f3f1e5746c0184b8a32b7319108",
+      "translation": "Semilla aleatoria"
+    },
+    {
+      "table": "setting_labels",
+      "key": "resnet_features",
+      "source": "Resnet features",
+      "source_sha256": "0225afe0487b1a27f8256e283c866c211b181af048445d78aa5149588ed6b4d3",
+      "translation": "Características de ResNet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seed_wells_from_cells",
+      "source": "Seed wells from cells",
+      "source_sha256": "787a2e4bdaff6edfa5546026423dde34f968e00fe28a4cfb62de0279b52a66e5",
+      "translation": "Tomar los pocillos de la tabla de células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_plate_fail_fraction",
+      "source": "Seg QC plate fail fraction",
+      "source_sha256": "3004c01a2e6276b1a36e6eecc66a7c5f89ad85b11892ae26eadead87ccadbed0",
+      "translation": "Fracción de fallos por placa en QC de segmentación"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_split_ratio",
+      "source": "Seg QC split ratio",
+      "source_sha256": "ea3666b3d9daa554c12f3ce104188d9a36beaec850ee074b5e2fe96871c46571",
+      "translation": "Proporción de división en QC de segmentación"
+    },
+    {
+      "table": "setting_labels",
+      "key": "show_all_in_well",
+      "source": "Show all in well",
+      "source_sha256": "75dacfa82a8ed810b4f8d4f509bbd02955d267d0e363cbfd36cee1f261936565",
+      "translation": "Mostrar todo el pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "stain_baseline_wells",
+      "source": "Stain baseline wells",
+      "source_sha256": "13e0279e02ce0c713730f1e8c5d42f2cda84e96ac322c0729bb91b5fd41e63f8",
+      "translation": "Pocillos de referencia de la tinción"
+    },
+    {
+      "table": "setting_labels",
+      "key": "stitch_threshold",
+      "source": "Stitch threshold",
+      "source_sha256": "9656283872d905089338d1b6726b188c283fce05e6dcfaf45422c4385274b627",
+      "translation": "Umbral de unión"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_random_seed",
+      "source": "Surrogate random seed",
+      "source_sha256": "437f9c7cf55088ad62d1e0f4972ed646172e3c58f1317e33a754d1d59551c1d4",
+      "translation": "Semilla aleatoria del modelo sustituto"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_split_by",
+      "source": "Surrogate split by",
+      "source_sha256": "5a67f254906c723ff805e150dc19a85510fa7984af4d8222e34bb35fd8a54aa5",
+      "translation": "Dividir el modelo sustituto por"
+    },
+    {
+      "table": "setting_labels",
+      "key": "sweep_points",
+      "source": "Sweep points",
+      "source_sha256": "d333f1951a87e5d864cc545357608f31029741fa72e0faf62d7cd45f562121b5",
+      "translation": "Puntos del barrido"
+    },
+    {
+      "table": "setting_labels",
+      "key": "sweep_span",
+      "source": "Sweep span",
+      "source_sha256": "faea30032896f87efa74be7152eda21cd6d81f12de8291801dc756341c6fe156",
+      "translation": "Amplitud del barrido"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_project_for_tracking",
+      "source": "T project for tracking",
+      "source_sha256": "cbd7d87a9f922de76a40e41739ceb10555b485b5735dcb36d71ff8e3fa668811",
+      "translation": "Proyectar T para el seguimiento"
+    },
+    {
+      "table": "setting_labels",
+      "key": "t_track_backend",
+      "source": "T track backend",
+      "source_sha256": "3aa08965f01e18bda8434a7b10a7a31a4cff4ad21db8650dc104ea476b7115e2",
+      "translation": "Motor de seguimiento en T"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_grnas_per_well",
+      "source": "Target gRNAs per well",
+      "source_sha256": "a88b0a484a1a7bacecd1faa1532160c95b1f76055e9f12b9bbfeff4257311930",
+      "translation": "gRNAs objetivo por pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_split",
+      "source": "Test split",
+      "source_sha256": "16a3b1e673e22e57a7a28f72a783766943d180fa9cf1fdbb549e2aca26f469f5",
+      "translation": "Partición de prueba"
+    },
+    {
+      "table": "setting_labels",
+      "key": "train",
+      "source": "Train",
+      "source_sha256": "e99c90db87c0e400832edcedcc1b14e33cff7559988f4d7032337e17401b2945",
+      "translation": "Entrenar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "train_cellpose",
+      "source": "Train cellpose",
+      "source_sha256": "a2320aa77a38fc8dcb342e312aa41583760c8a8ec6e35b42eaab77d480cdbfba",
+      "translation": "Entrenar cellpose"
+    },
+    {
+      "table": "setting_labels",
+      "key": "train_channels",
+      "source": "Train channels",
+      "source_sha256": "7f3cd370c42916a3310bc893664c849fdf377853fdd947d56d4c580b8c20447e",
+      "translation": "Canales de entrenamiento"
+    },
+    {
+      "table": "setting_labels",
+      "key": "trackastra_linking",
+      "source": "Trackastra linking",
+      "source_sha256": "73ae73e53412aab9795ca8c99fe0cf91e2b13548d37058e82c6e5243b8f75f28",
+      "translation": "Enlace de Trackastra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "trackastra_model",
+      "source": "Trackastra model",
+      "source_sha256": "1cdaf6dcb4fa0c57bc7ee3871e59fbe64fc4a68616ca6ccf01ac898f53f1591e",
+      "translation": "Modelo de Trackastra"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ultrack_division_weight",
+      "source": "Ultrack division weight",
+      "source_sha256": "a424a2ec7fb1702de2fa9a57bfd70178dc0ba9c1fc52039c92a143150e4b92f1",
+      "translation": "Peso de división de Ultrack"
+    },
+    {
+      "table": "setting_labels",
+      "key": "val_split",
+      "source": "Val split",
+      "source_sha256": "0014ed349fc996edab1ea0e4d36c514d0a885c9b14f671b0cfd957696c5e63e2",
+      "translation": "Partición de validación"
+    },
+    {
+      "table": "setting_labels",
+      "key": "weight_decay",
+      "source": "Weight decay",
+      "source_sha256": "58f4dae978ed24e5960898956200e48eeb19ef99882ac09810c1019dbdb50a95",
+      "translation": "Decaimiento de pesos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "well_confidence",
+      "source": "Well confidence",
+      "source_sha256": "4d3f6fcbf0aa873fb4edf5c0cafa0fcd23e9e9412418bbcf742746731405a6fd",
+      "translation": "Confianza del pocillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "well_detection",
+      "source": "Well detection",
+      "source_sha256": "36f8e074ce9d0b66e8f0689c534fa419e4675e6b44a21317fc252dd50d7cc4a8",
+      "translation": "Detección de pocillos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "well_diameter_mm",
+      "source": "Well diameter mm",
+      "source_sha256": "4eca73bbce764faf0a45d725e8461459e64389460209102bc0aca6570cb66d1e",
+      "translation": "Diámetro del pocillo mm"
+    },
+    {
+      "table": "setting_labels",
+      "key": "well_pad",
+      "source": "Well pad",
+      "source_sha256": "01fe307feb6c262813c7656f5888ba40990deb6ee41db05692d6a92867983b04",
+      "translation": "Margen del pocillo"
+    },
+    {
+      "table": "ui",
+      "key": "Setting animations",
+      "source": "Setting animations",
+      "source_sha256": "6308b3b70bfe7256ef3b4924d2114c27abc6c13feb31e5df1f979937a539b037",
+      "translation": "Animaciones de la configuración"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_out",
+      "source": "Anndata out",
+      "source_sha256": "2ef327f71f578e9d82258f82faa693211223367b8ea61d6c9ff27f1aea320509",
+      "translation": "Salida de Anndata"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_nan_policy",
+      "source": "Anndata nan policy",
+      "source_sha256": "0c169828d3b586ae80d3eee5670f091a746d818b53db9ae2df867a08ee040909",
+      "translation": "Política de nan de Anndata"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_single_table",
+      "source": "Anndata single table",
+      "source_sha256": "afe46de411d26132509a9d8bcfb028b91f4d30a1821d4ef6d8afb8cd56e3fa32",
+      "translation": "Anndata en una sola tabla"
+    },
+    {
+      "table": "setting_labels",
+      "key": "change_plate",
+      "source": "Change plate",
+      "source_sha256": "dde29d710a9d54f5438acca84e5d7894cbb21cfdc43cdad4ca1cf092dce7f6db",
+      "translation": "Renombrar placas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "background_correction",
+      "source": "Background correction",
+      "source_sha256": "5cd8b15823cfd7dfb8a14e4e8aad79af29bbc3f983ed60dcb5f3efb2b5c69186",
+      "translation": "Corrección de fondo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "backgrounds",
+      "source": "Backgrounds",
+      "source_sha256": "16a0b5fabbaf40308232d5014c44ff0eba2f84d7cd3d6cfc897607b27962058c",
+      "translation": "Fondos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "calibrate_fraction_threshold",
+      "source": "Calibrate fraction threshold",
+      "source_sha256": "eda84757607b5b1e68705d3aaf4945e47a2e4551065cc413b41baa1b934d0962",
+      "translation": "Calibrar umbral de fracción"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_area_outlier_mads",
+      "source": "Cell area outlier mads",
+      "source_sha256": "bfc33f8bcbbe4e9b4f58c9cf81852e03457b658a4942664f38c5a5ace665253f",
+      "translation": "mads de atípicos en el área celular"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_background",
+      "source": "Cell background",
+      "source_sha256": "e64fb403481074297ee775128ec445f1a32f8f28c4de8e20d6375f8dcb237375",
+      "translation": "Fondo de la célula"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cellprob_threshold",
+      "source": "Cell cellprob threshold",
+      "source_sha256": "220214bb1744ef46a98296343410c52eb18c3fb719078a68de5dcfb0fa345005",
+      "translation": "Umbral de cellprob de la célula"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_chann_dim",
+      "source": "Cell chann dim",
+      "source_sha256": "30bc3e3514ec55a416841706941fb01bfdb343ebe060c540fbe14cabcb8580d1",
+      "translation": "Dimensión del canal de la célula"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_intensity_outlier_mads",
+      "source": "Cell intensity outlier mads",
+      "source_sha256": "9b54614480b580710e6a83b4232a5dccd871ac4af937ed9788d9efd0bfaabaf6",
+      "translation": "mads de atípicos en la intensidad celular"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_intensity_range",
+      "source": "Cell intensity range",
+      "source_sha256": "fad3ca360888ef01976e18b0f60965c0d1b80ec27bd9b828245dce2cd56db59e",
+      "translation": "Rango de intensidad celular"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_loc",
+      "source": "Cell loc",
+      "source_sha256": "d288fc2b526bd1b89fc96de4e7079ddcfea5735fbceca059ecad3c39ad60d94c",
+      "translation": "Ubicación de las células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_max_size",
+      "source": "Cell max size",
+      "source_sha256": "3ed486440792eecf546d64d77f6683315f12ef45f2985e645aee97e8372322fb",
+      "translation": "Tamaño máximo de la célula"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_picking",
+      "source": "Cell picking",
+      "source_sha256": "91ba1269bc3f71a7a373768bc0d796b92cd985c64125ad2bfd1882e7faf7b815",
+      "translation": "Selección de células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_plate_metadata",
+      "source": "Cell plate metadata",
+      "source_sha256": "7204277b47111f0fc3f0601fb14878ed4b276f00240c46d64a162bdcf0c81703",
+      "translation": "Metadatos de placa de las células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_remove_border_objects",
+      "source": "Cell remove border objects",
+      "source_sha256": "ffdf9dfa86e8cdfd16ea4ba20d13a7cbaf0d2e034c684d24d28a5b034ab1d9ab",
+      "translation": "Eliminar células en el borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_signal_to_noise",
+      "source": "Cell signal to noise",
+      "source_sha256": "77082077f1a89173e227d0fcf180e6bd6722148c0fd7b4103bf6e5ee3d3a72da",
+      "translation": "Relación señal/ruido de la célula"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_size_range",
+      "source": "Cell size range",
+      "source_sha256": "63f36958bd50f6170c8588bd4188d4ab48cd8ae04d6fe3e04b76f978281e435e",
+      "translation": "Rango de tamaño de la célula"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_types",
+      "source": "Cell types",
+      "source_sha256": "7f86f9c454935b3da197de6f702e1fd506cab308d1f87af69884a6de5fa6b98d",
+      "translation": "Tipos celulares"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose_all",
+      "source": "Cellpose all",
+      "source_sha256": "5c6bdbb54776df4b4f4f5427b1d8671b8a678190aa7190d0dff20e161c176c77",
+      "translation": "Cellpose completo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cellpose_diameter",
+      "source": "Cellpose diameter",
+      "source_sha256": "7199e17566c08e45c1549dda7e33dff871b07d5263bafa0ac244be1f2a7a5f3b",
+      "translation": "Diámetro de Cellpose"
+    },
+    {
+      "table": "setting_labels",
+      "key": "channel_arrays",
+      "source": "Channel arrays",
+      "source_sha256": "7a2ac76dde22d28692522ded853d1e62e2e06ef51e16ed83c929fb11397a301b",
+      "translation": "Matrices de canales"
+    },
+    {
+      "table": "setting_labels",
+      "key": "channel_dims",
+      "source": "Channel dims",
+      "source_sha256": "3a3db09956cb41337078391e94f66ee20bb9fcc36c2413fd5cd9b359bc2f8a51",
+      "translation": "Dimensiones de canal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "chunk_size",
+      "source": "Chunk size",
+      "source_sha256": "9e9a177fbcb6aa4e1e850970859b568ffd1a2dd8d20fa28666f9ede475c2f455",
+      "translation": "Tamaño de fragmento"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dialate_png_ratios",
+      "source": "Dialate PNG ratios",
+      "source_sha256": "ce5b97c0f9e529c2a4d850b59be8efb9768d310bc7ad9df654201dac1ab69bc2",
+      "translation": "Proporciones de dilatación PNG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "dialate_pngs",
+      "source": "Dialate pngs",
+      "source_sha256": "a43ebdc4491971f179400688a34b9c5dac2315f87a948433ede472435ff6ebfa",
+      "translation": "Dilatar pngs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "diameter_estimate_n_fields",
+      "source": "Diameter estimate n fields",
+      "source_sha256": "3a3b4eab15052bbb5e628e6551aef6e1b88446a0d82ebc366071fe5594edc60d",
+      "translation": "Estimación del diámetro: n campos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "hinge_threshold",
+      "source": "Hinge threshold",
+      "source_sha256": "9e2949d58c0fce0d953bcd71330052b9286df9006c1432b321617465aeca3a44",
+      "translation": "Umbral de hinge (SVM)"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_intensity_qc",
+      "source": "Infection intensity QC",
+      "source_sha256": "b6f044f5585a5070c1d1e15107b44b4ce4c85125ba3e18299ac4bdefbf14caeb",
+      "translation": "QC de intensidad de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_intensity_qc_graphs",
+      "source": "Infection intensity QC graphs",
+      "source_sha256": "fb3d58af117e573ed98537c93df31474d95c3fe625de4000dc5d691ebf1f7a6e",
+      "translation": "Gráficos de QC de intensidad de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_intensity_qc_panel_path",
+      "source": "Infection intensity QC panel path",
+      "source_sha256": "8fc63e18da0e4e607077ca6a7b661812f84cb3e350539097c7acc9cb9faac0c4",
+      "translation": "Ruta del panel de QC de intensidad de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_intensity_qc_scope",
+      "source": "Infection intensity QC scope",
+      "source_sha256": "4ae7473f9fe3e4869584d12169e6dcf57bc7d345aa113c510f3fc9895ab8c599",
+      "translation": "Alcance del QC de intensidad de infección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_pca_log_intensity",
+      "source": "Infection pca log intensity",
+      "source_sha256": "e34ff1fdeb89c3f54b530914b7f79d0f55d583ff0e0427740a35b89c9966fecd",
+      "translation": "Infección: pca de intensidad log"
+    },
+    {
+      "table": "setting_labels",
+      "key": "infection_xgb_proba_threshold",
+      "source": "Infection xgb proba threshold",
+      "source_sha256": "4a7f098433972ec4f2ed265c2bd52b22154aa989a85f9f808a2747c368962c5d",
+      "translation": "Infección: umbral de xgb proba"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_area",
+      "source": "Max area",
+      "source_sha256": "6138d15ac325d53e8f28488e849676d365b2c4aaf380455bff70d691cd502d78",
+      "translation": "Área máxima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "max_parasite_area",
+      "source": "Max parasite area",
+      "source_sha256": "10c181b4bffedcb80e2ef5f93f944ffcf6365cb9e8fc36ce4caf753ae2eb28bd",
+      "translation": "Área máxima del parásito"
+    },
+    {
+      "table": "setting_labels",
+      "key": "merge_edge_pathogen_cells",
+      "source": "Merge edge pathogen cells",
+      "source_sha256": "681a3eb4479841361e18e328e832f306187c2aee4ecd97cbf47070bde987c43b",
+      "translation": "Fusionar patógenos en el límite entre células"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_objects_for_threshold",
+      "source": "Min objects for threshold",
+      "source_sha256": "919b24abf478cf9315a516651d2d59871cfd25140f2f127b2ec8358a8e52d7f7",
+      "translation": "Mínimo de objetos para el umbral"
+    },
+    {
+      "table": "setting_labels",
+      "key": "min_parasite_area",
+      "source": "Min parasite area",
+      "source_sha256": "c4c6ab72a235414de30b86cb44521a8fb18fbe09b0e06fce7ea2cc6e656d3317",
+      "translation": "Área mínima del parásito"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nuclei_limit",
+      "source": "Nuclei limit",
+      "source_sha256": "171ceb9b0bf26dd9c5d9f96325a891f7fd2d160a2b0c6435c2ac878a1aa994ee",
+      "translation": "Límite de núcleos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_area_outlier_mads",
+      "source": "Nucleus area outlier mads",
+      "source_sha256": "a859ffc949311aaa7c78fc2cacabc50dd0b9af2a3931c484b9a06b29fbf7615e",
+      "translation": "mads de atípicos en el área del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_background",
+      "source": "Nucleus background",
+      "source_sha256": "7947be6798a389382f8a12a57a8e8627c8265ab376117a5d4bf9f84770098bce",
+      "translation": "Fondo del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_cellprob_threshold",
+      "source": "Nucleus cellprob threshold",
+      "source_sha256": "d1187c8535d288c4b8694389b3fcf77bd5e0558e7a961a88b44120d16b12293e",
+      "translation": "Umbral de cellprob del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_chann_dim",
+      "source": "Nucleus chann dim",
+      "source_sha256": "2b8d076cc4aac10c0a991d324cd27e05149f881635799d9efaa70d5267247575",
+      "translation": "Dimensión del canal del núcleo"
+    },
+    {
+      "table": "ui",
+      "key": "Nucleus channel",
+      "source": "Nucleus channel",
+      "source_sha256": "570c1c54f4fd717f1bdaf6a5301dfdfcfdd5a03de7a874652c528fdfc37225b6",
+      "translation": "Canal del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_diameter",
+      "source": "Nucleus diameter",
+      "source_sha256": "c1aa7aa6bc9fb8ade5d7710ab8b7c9a644823cc01556676c80a44e514680f7f3",
+      "translation": "Diámetro del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_flow_threshold",
+      "source": "Nucleus flow threshold",
+      "source_sha256": "632f700906c576112a684e94c50a172ab20e2f4cd8d5586e13dcddd41ac1d609",
+      "translation": "Umbral de flujo del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_intensity_outlier_mads",
+      "source": "Nucleus intensity outlier mads",
+      "source_sha256": "c8f79ed7cd26e504fa07c2353807c77a2aafa8af754faecf493cdcaa03bcf92a",
+      "translation": "mads de atípicos en la intensidad del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_intensity_range",
+      "source": "Nucleus intensity range",
+      "source_sha256": "e35b066fa6ce39bad220f1ddb05494924c4da34023711b15b591471ebc248694",
+      "translation": "Rango de intensidad del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_max_size",
+      "source": "Nucleus max size",
+      "source_sha256": "036ccf4421e8a392af58da53efe100a48330354051866a53ba0d33be8cf89691",
+      "translation": "Tamaño máximo del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_min_size",
+      "source": "Nucleus min size",
+      "source_sha256": "639f0053d0adb46edc9888a8ee8ed005cee4b38ccec4f1c7896ce0694cabcc6e",
+      "translation": "Tamaño mínimo del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_perimeter_fraction",
+      "source": "Nucleus perimeter fraction",
+      "source_sha256": "2c0aee598dc54b14bda32d59d94642d7d1c1dc9bd6af3c613c4f585ba77c2025",
+      "translation": "Fracción del perímetro del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_remove_border_objects",
+      "source": "Nucleus remove border objects",
+      "source_sha256": "f7230786e538d70c243ee43f44dc264ac851dcf25bc642daee32d23190cab216",
+      "translation": "Eliminar núcleos en el borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_signal_to_noise",
+      "source": "Nucleus signal to noise",
+      "source_sha256": "d158d47bd0b5471fa4b7703813370ca61696a59456b9466c2b5f9dbe023b3e08",
+      "translation": "Relación señal/ruido del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "nucleus_size_range",
+      "source": "Nucleus size range",
+      "source_sha256": "1c99104655d5ed12a501cb8fe461b09fef21b65d98252f3ce9e458f1b181219f",
+      "translation": "Rango de tamaño del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_adaptive_offset",
+      "source": "Organelle 1 — Adaptive offset",
+      "source_sha256": "6c41fbd635b2db07c3b28dd940cdd844ae1ad764f49f6a8ddf915dc472f6b128",
+      "translation": "Organelle 1 — Desplazamiento adaptativo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_background",
+      "source": "Organelle 1 — Background",
+      "source_sha256": "c494f008b156d369be25c011ddb9f6c5f2a4408a6a0481b78b64bf9e4a93d32f",
+      "translation": "Organelle 1 — Fondo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_chann_dim",
+      "source": "Organelle 1 — Chann dim",
+      "source_sha256": "65354952cbeecc87887eee128ec5c276e9468d225340296667a05bf86ffd7a02",
+      "translation": "Organelle 1 — Dimensión del canal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_clahe",
+      "source": "Organelle 1 — Clahe",
+      "source_sha256": "103c25091aa603d3fd5c4793542d5e1f5e89e662812158cb799879a320d20857",
+      "translation": "Organelle 1 — Ecualización Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_clahe_clip_limit",
+      "source": "Organelle 1 — Clahe clip limit",
+      "source_sha256": "e08cfeb13793555cdcaa45570895c15f79a74960526aa8a5c97d1f69f2edf503",
+      "translation": "Organelle 1 — Límite de recorte de Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_dog_sigma_low",
+      "source": "Organelle 1 — DoG sigma low",
+      "source_sha256": "98e0e028bfeb3888d795a000d875c20c5693d212fed726a0943ee6bde2b65024",
+      "translation": "Organelle 1 — DoG sigma bajo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_fill_holes",
+      "source": "Organelle 1 — Fill holes",
+      "source_sha256": "6f0b4f3700a42b561615c997cdc39ae8adff3546dea46293fc6161d370b5fab2",
+      "translation": "Organelle 1 — Rellenar huecos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_log_max_sigma",
+      "source": "Organelle 1 — LoG max sigma",
+      "source_sha256": "965045436e5dd057cd202cf902573cd6b2c0f8b7709c9b7a18932585e460749c",
+      "translation": "Organelle 1 — LoG sigma máx."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_log_min_sigma",
+      "source": "Organelle 1 — LoG min sigma",
+      "source_sha256": "87961470327305a3b53caa747e24cbc80078c7ad877745bbbf392e17af946f4d",
+      "translation": "Organelle 1 — LoG sigma mín."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_log_num_sigma",
+      "source": "Organelle 1 — LoG num sigma",
+      "source_sha256": "fd92a356a38183003e5c36e73ab80e6a6d2e6934ab838a138e97d3836bfe548e",
+      "translation": "Organelle 1 — LoG número de valores sigma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_log_threshold",
+      "source": "Organelle 1 — LoG threshold",
+      "source_sha256": "3f1677d7b7d69366e35f2a9bc460a354c1263cb75cad3f80db5263ecf8277779",
+      "translation": "Organelle 1 — Umbral de LoG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_max_area",
+      "source": "Organelle 1 — Max area",
+      "source_sha256": "45a080d2065d7be4d76161c1baca96cc0731e6c1c0919bbd37b73999dcd2a6d8",
+      "translation": "Organelle 1 — Área máxima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_min_area",
+      "source": "Organelle 1 — Min area",
+      "source_sha256": "a3966a67a09864abcb870568bd6eb80496a2735886db8276f3195abff9bb703e",
+      "translation": "Organelle 1 — Área mínima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_morph_radius",
+      "source": "Organelle 1 — Morph radius",
+      "source_sha256": "0825fce1b0f9f339f38b3d370a8245d4e7d81202a745434dcb0e6a15eb0aa8b9",
+      "translation": "Organelle 1 — Radio morfológico"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_perimeter_fraction",
+      "source": "Organelle 1 — Perimeter fraction",
+      "source_sha256": "02ec1e69d455bdc0f7e40bd3ba4b08c9c7d5bea1306d9260c8bbdde0a18ba09b",
+      "translation": "Organelle 1 — Fracción de perímetro"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_remove_border",
+      "source": "Organelle 1 — Remove border",
+      "source_sha256": "5eced22131dcdac0a0bf321bbfe83922e42ea4a4b9bcf8d3fac32a4bdf72a2e8",
+      "translation": "Organelle 1 — Eliminar borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_remove_border_objects",
+      "source": "Organelle 1 — Remove border objects",
+      "source_sha256": "0058ad2a88309ad139f6acccc9a1eb8fa8b035ce8b248d39081d96d54ea35211",
+      "translation": "Organelle 1 — Eliminar objetos de borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_resample",
+      "source": "Organelle 1 — Resample",
+      "source_sha256": "5193c6e24c9f1cd555fa6aeb9a4d7a6dc087686cfc037d772c4151291c6aca2a",
+      "translation": "Organelle 1 — Remuestrear"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_ridge_filter",
+      "source": "Organelle 1 — Ridge filter",
+      "source_sha256": "8c37f60f647f85c68dcf6b55d447a075ad6d4c52cac1ae4b98a4087fae25759d",
+      "translation": "Organelle 1 — Filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_ridge_sigmas",
+      "source": "Organelle 1 — Ridge sigmas",
+      "source_sha256": "71a08a0d1aab11c219e3e599c2eb31361be0a5594884adb343c644ca0d78ebae",
+      "translation": "Organelle 1 — Sigmas del filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_ring_fill_method",
+      "source": "Organelle 1 — Ring fill method",
+      "source_sha256": "5e2a5a6683f535f5d855ddc51294a316fe99560b333cb5790e60ebb90e516cad",
+      "translation": "Organelle 1 — Método de relleno de anillos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_ring_min_prominence",
+      "source": "Organelle 1 — Ring min prominence",
+      "source_sha256": "43ac1eb48958a0cc3f326ffc9d1a94516e0ef006b77fb2c60d19df455f5d33e0",
+      "translation": "Organelle 1 — Prominencia mínima del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_ring_sigma_inner",
+      "source": "Organelle 1 — Ring sigma inner",
+      "source_sha256": "d8cf7afe1d8a3f974905fc4ba36d913135d3cf0d080e5b2e078c97bbed5c466f",
+      "translation": "Organelle 1 — sigma interior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_ring_sigma_outer",
+      "source": "Organelle 1 — Ring sigma outer",
+      "source_sha256": "601cf39463c5b9934fbc0735d6f8310ddb0b150ed23a865716ecf1a7d44958e0",
+      "translation": "Organelle 1 — sigma exterior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_rolling_ball_radius",
+      "source": "Organelle 1 — Rolling ball radius",
+      "source_sha256": "20c481573f3ee27f9c8ec4b35d4ecd8a9d74dd796ae837dd98c671e9ab4d1849",
+      "translation": "Organelle 1 — Radio de la bola rodante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_signal_to_noise",
+      "source": "Organelle 1 — Signal to noise",
+      "source_sha256": "590a4b53de1c6ab3d93220ec3d6cf1345d07ad33fe44234cbfdd36a5d7816ba0",
+      "translation": "Organelle 1 — Relación señal/ruido"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_skeletonize",
+      "source": "Organelle 1 — Skeletonize",
+      "source_sha256": "8dda6f583d9854f959539db864babff4e6e7924f1daa22ccd6264e089f12b907",
+      "translation": "Organelle 1 — Esqueletizar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_tophat_radius",
+      "source": "Organelle 1 — Tophat radius",
+      "source_sha256": "52ffb6247d38b6ad285f710fb73de37c66191a06ee455e9850c7323bc96c7a00",
+      "translation": "Organelle 1 — Radio de Tophat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelle_unet_threshold",
+      "source": "Organelle 1 — Unet threshold",
+      "source_sha256": "8b9b2f5e02f749e9b4223776360fd9a95236d9ddc637c5df62bf2b265d698153",
+      "translation": "Organelle 1 — Umbral de Unet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_adaptive_offset",
+      "source": "Organelle 2 — Adaptive offset",
+      "source_sha256": "8baf5aa1f923309a1efa8248bc3185d5b7fe1453c90e8ae91108140671dee5f3",
+      "translation": "Organelle 2 — Desplazamiento adaptativo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_background",
+      "source": "Organelle 2 — Background",
+      "source_sha256": "d6820a377058d7472ba63e4028aa7a9b7c0392fb03a16fc910a1c88d9f8755f6",
+      "translation": "Organelle 2 — Fondo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_chann_dim",
+      "source": "Organelle 2 — Chann dim",
+      "source_sha256": "3c2d89f1f2497521e19aa26a130b50024314506c44439e894f9e844c63d332b8",
+      "translation": "Organelle 2 — Dimensión del canal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_clahe",
+      "source": "Organelle 2 — Clahe",
+      "source_sha256": "f8cd3c55e34d038f732a7018cda6b721f2fbaf9ab77950c5fc9e7a360e0a356d",
+      "translation": "Organelle 2 — Ecualización Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_clahe_clip_limit",
+      "source": "Organelle 2 — Clahe clip limit",
+      "source_sha256": "25c2bc48b496f69d1ab652e134077c2495a9f9bdf8018567542c5c73cc3ca92c",
+      "translation": "Organelle 2 — Límite de recorte de Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_dog_sigma_low",
+      "source": "Organelle 2 — DoG sigma low",
+      "source_sha256": "0e9a8c847c4acfbb5b8548f9aa768eea03a11798ec6f023e22bf3497178da7dd",
+      "translation": "Organelle 2 — DoG sigma bajo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_fill_holes",
+      "source": "Organelle 2 — Fill holes",
+      "source_sha256": "69623c4c274064c3deb6ce93d7e0babd0ec3adcadc0228590358982d6288e145",
+      "translation": "Organelle 2 — Rellenar huecos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_log_max_sigma",
+      "source": "Organelle 2 — LoG max sigma",
+      "source_sha256": "6c821f9a99397b6b29a46a040527a9a6fd4bb234708e489513a2809fa696d577",
+      "translation": "Organelle 2 — LoG sigma máx."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_log_min_sigma",
+      "source": "Organelle 2 — LoG min sigma",
+      "source_sha256": "3873871a930dc39882023f29f225749cfee15c20dd6ec7aa2dc31650113e6782",
+      "translation": "Organelle 2 — LoG sigma mín."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_log_num_sigma",
+      "source": "Organelle 2 — LoG num sigma",
+      "source_sha256": "fa63e1e478796d2991a361b0df4e3fce026d55797c4b18ce66a577c5697f370e",
+      "translation": "Organelle 2 — LoG número de valores sigma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_log_threshold",
+      "source": "Organelle 2 — LoG threshold",
+      "source_sha256": "dfa51ee8bbbe5bb68a55f65bf2f7e44a8f1db289a68de3fc0cb8bd5b1a2e0f17",
+      "translation": "Organelle 2 — Umbral de LoG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_max_area",
+      "source": "Organelle 2 — Max area",
+      "source_sha256": "860a6f59a41b576a73e08575977d9a9684407a1dfb59ea865b07d5a4528196b9",
+      "translation": "Organelle 2 — Área máxima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_min_area",
+      "source": "Organelle 2 — Min area",
+      "source_sha256": "a27c0993850e694a89812cafefc4b86835ca690982c49ce8d41683026a429142",
+      "translation": "Organelle 2 — Área mínima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_morph_radius",
+      "source": "Organelle 2 — Morph radius",
+      "source_sha256": "868f46473f3bf23afc7c2e4fc803ae1fb7639b0ce5864b665e889e45f77712c3",
+      "translation": "Organelle 2 — Radio morfológico"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_perimeter_fraction",
+      "source": "Organelle 2 — Perimeter fraction",
+      "source_sha256": "07a5da412f9202c8db8b79d508b5e4d1a87d20f0a3e2d09273c8b3a3524de086",
+      "translation": "Organelle 2 — Fracción de perímetro"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_remove_border",
+      "source": "Organelle 2 — Remove border",
+      "source_sha256": "8d9a85152f47f1ef36e4085097d13fb35a2a04bc656122fc41194a9e8209326b",
+      "translation": "Organelle 2 — Eliminar borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_remove_border_objects",
+      "source": "Organelle 2 — Remove border objects",
+      "source_sha256": "66975807cbdbbef640fa58d29c987db02e4a07154d94d6dab835ca2e1898cd63",
+      "translation": "Organelle 2 — Eliminar objetos de borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_resample",
+      "source": "Organelle 2 — Resample",
+      "source_sha256": "04739357604d212ba042eab2f762739c450dceb304eee44f174e5be265452639",
+      "translation": "Organelle 2 — Remuestrear"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_ridge_filter",
+      "source": "Organelle 2 — Ridge filter",
+      "source_sha256": "2953a358dc763eeae8a4359d530fc88fc10c6475822f41d9d39541b4c15cabdf",
+      "translation": "Organelle 2 — Filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_ridge_sigmas",
+      "source": "Organelle 2 — Ridge sigmas",
+      "source_sha256": "e7661b27bae909754bb61237a5f47ac6cdda2c191f79add4181ed41155c61536",
+      "translation": "Organelle 2 — Sigmas del filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_ring_fill_method",
+      "source": "Organelle 2 — Ring fill method",
+      "source_sha256": "f8e5c98be4d866e47e48a858cbc32d16231324176694cfd5739cc19feacdbaac",
+      "translation": "Organelle 2 — Método de relleno de anillos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_ring_min_prominence",
+      "source": "Organelle 2 — Ring min prominence",
+      "source_sha256": "275fe98c74816aa7c0bb9cac3ad2279aa0ba1abfe88941d2ca1cc95ea148618c",
+      "translation": "Organelle 2 — Prominencia mínima del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_ring_sigma_inner",
+      "source": "Organelle 2 — Ring sigma inner",
+      "source_sha256": "aad4d7e61ac38c23a7e9708e693a4e3da41b6e16b8b360442f30d99b71e13fcd",
+      "translation": "Organelle 2 — sigma interior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_ring_sigma_outer",
+      "source": "Organelle 2 — Ring sigma outer",
+      "source_sha256": "348d01561a5ddb0763aa36aedc21a4c49bf8b3174ab5bbaadbf67d2ca3799c45",
+      "translation": "Organelle 2 — sigma exterior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_rolling_ball_radius",
+      "source": "Organelle 2 — Rolling ball radius",
+      "source_sha256": "d63bbd97783606f8f4abedf400e2e1bf2f52321165a533089e96bac981a389fe",
+      "translation": "Organelle 2 — Radio de la bola rodante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_signal_to_noise",
+      "source": "Organelle 2 — Signal to noise",
+      "source_sha256": "6b0ef28ef4c382de9dd58d666a36f8e695d52e624abb554c10555d33530e7c03",
+      "translation": "Organelle 2 — Relación señal/ruido"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_skeletonize",
+      "source": "Organelle 2 — Skeletonize",
+      "source_sha256": "f387b74b5f489bd290737e8708405999ec413cb6cdf1930156f2c2f55677f2b2",
+      "translation": "Organelle 2 — Esqueletizar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_tophat_radius",
+      "source": "Organelle 2 — Tophat radius",
+      "source_sha256": "2111213c373097138623782b1f7738a1a05041330b37bc943c8f49e16dac1fca",
+      "translation": "Organelle 2 — Radio de Tophat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelleb_unet_threshold",
+      "source": "Organelle 2 — Unet threshold",
+      "source_sha256": "7117fa1aff67c1b78f0bfb6562fbe8327c475490171be8d2ac50fa304c911533",
+      "translation": "Organelle 2 — Umbral de Unet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_adaptive_offset",
+      "source": "Organelle 3 — Adaptive offset",
+      "source_sha256": "a387958ae2456e30f681ed3ff688e83a768cb7f7a8898397db443d7db9f2cb31",
+      "translation": "Organelle 3 — Desplazamiento adaptativo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_background",
+      "source": "Organelle 3 — Background",
+      "source_sha256": "f77971831dbad37173e479f9b643ef58426ee7546b9fdad1bea0d3c9dbcae12e",
+      "translation": "Organelle 3 — Fondo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_chann_dim",
+      "source": "Organelle 3 — Chann dim",
+      "source_sha256": "c3664f051af5bc60fa7c4481ec9030928f0e1d71b655e5424c810a4c736edc3c",
+      "translation": "Organelle 3 — Dimensión del canal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_clahe",
+      "source": "Organelle 3 — Clahe",
+      "source_sha256": "c716dc69c2b89aef39c35b145da7fb0fb703a8160424e366a2f682a302b8c51e",
+      "translation": "Organelle 3 — Ecualización Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_clahe_clip_limit",
+      "source": "Organelle 3 — Clahe clip limit",
+      "source_sha256": "412da12746ea0be99b434f4bc09413a5deb8758c4265f25bf7f8f2de8ef80de7",
+      "translation": "Organelle 3 — Límite de recorte de Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_dog_sigma_low",
+      "source": "Organelle 3 — DoG sigma low",
+      "source_sha256": "29e73e9f901e4911ff859ec53d0d7df7044dfebb30275acf88882d77607ecd52",
+      "translation": "Organelle 3 — DoG sigma bajo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_fill_holes",
+      "source": "Organelle 3 — Fill holes",
+      "source_sha256": "6cbc0b27a47a6c7ea5c6f6be86a1ad8aac1930d72804f9784ce11ae1e2660743",
+      "translation": "Organelle 3 — Rellenar huecos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_log_max_sigma",
+      "source": "Organelle 3 — LoG max sigma",
+      "source_sha256": "15c5b4016dce9263d11ebf93c3fef7d43edb32e8857bbb6f445529043685373b",
+      "translation": "Organelle 3 — LoG sigma máx."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_log_min_sigma",
+      "source": "Organelle 3 — LoG min sigma",
+      "source_sha256": "7914f1253220d6bda1d1defb8f40dbfa5224657b7e11430b9c3bd8858255d897",
+      "translation": "Organelle 3 — LoG sigma mín."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_log_num_sigma",
+      "source": "Organelle 3 — LoG num sigma",
+      "source_sha256": "2480940c71c6358093562d33de1ec2f7e5556fc8aa2aecb4dae3f819b153bb7f",
+      "translation": "Organelle 3 — LoG número de valores sigma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_log_threshold",
+      "source": "Organelle 3 — LoG threshold",
+      "source_sha256": "8a52958eb7676c377d103b7125723f2841816173f100175af601c6298aef3e41",
+      "translation": "Organelle 3 — Umbral de LoG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_max_area",
+      "source": "Organelle 3 — Max area",
+      "source_sha256": "bf0f65a3de3a1c4b04926a2151869afd8746cbee185eff5c31e72601f0ab70ed",
+      "translation": "Organelle 3 — Área máxima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_min_area",
+      "source": "Organelle 3 — Min area",
+      "source_sha256": "c5c91217fe18d4618d8b5cb8a369b9472de557e8f4be2086eb94b76e588b5e59",
+      "translation": "Organelle 3 — Área mínima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_morph_radius",
+      "source": "Organelle 3 — Morph radius",
+      "source_sha256": "64231c447efefae1331d77f93fbdd2f1c275b4820d8006e5df739e273dad9a7a",
+      "translation": "Organelle 3 — Radio morfológico"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_perimeter_fraction",
+      "source": "Organelle 3 — Perimeter fraction",
+      "source_sha256": "3c3738209d30c1890909f0420ddb4ddc8a1271ca8e4c6576457adcab7c4ff3a0",
+      "translation": "Organelle 3 — Fracción de perímetro"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_remove_border",
+      "source": "Organelle 3 — Remove border",
+      "source_sha256": "2fd6c7c189a6077e76f1d65227d48e0efae9ee0c6c8bd4e5b90082eac14bbe29",
+      "translation": "Organelle 3 — Eliminar borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_remove_border_objects",
+      "source": "Organelle 3 — Remove border objects",
+      "source_sha256": "cbfa4e777c039c6486491e5099d6deefffe2aa45a52e2bcdd88fe47c0aa6edba",
+      "translation": "Organelle 3 — Eliminar objetos de borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_resample",
+      "source": "Organelle 3 — Resample",
+      "source_sha256": "cd880f1f1446c222e4c84943bc884edaf04520839533ebbee6090975a481e391",
+      "translation": "Organelle 3 — Remuestrear"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_ridge_filter",
+      "source": "Organelle 3 — Ridge filter",
+      "source_sha256": "a3a0a0e59287402d06f8a327ab36b1f25f61fcf88d6f3f750cd14d4dc1345f17",
+      "translation": "Organelle 3 — Filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_ridge_sigmas",
+      "source": "Organelle 3 — Ridge sigmas",
+      "source_sha256": "58c68ddfdd4e4fcbbc735b37ccf698b3b05c025d0fb6cd0794cb5c38cbf27825",
+      "translation": "Organelle 3 — Sigmas del filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_ring_fill_method",
+      "source": "Organelle 3 — Ring fill method",
+      "source_sha256": "30d280d3d9493f23da34bb07ea690e35b685aa672e95a9a0a28787a550ce6b41",
+      "translation": "Organelle 3 — Método de relleno de anillos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_ring_min_prominence",
+      "source": "Organelle 3 — Ring min prominence",
+      "source_sha256": "e0885ce2dc6546ed22d09bc20fa398ba2f66767c8a208123130c36ef9ef46670",
+      "translation": "Organelle 3 — Prominencia mínima del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_ring_sigma_inner",
+      "source": "Organelle 3 — Ring sigma inner",
+      "source_sha256": "d93ec1c179c9ef32bd813450981534dd6df96ce5f07226e43a7f57c423f28dc1",
+      "translation": "Organelle 3 — sigma interior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_ring_sigma_outer",
+      "source": "Organelle 3 — Ring sigma outer",
+      "source_sha256": "16d18a80db02a19e0627ae0d7ef989932e41d6838a9e03882f0075425ccced25",
+      "translation": "Organelle 3 — sigma exterior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_rolling_ball_radius",
+      "source": "Organelle 3 — Rolling ball radius",
+      "source_sha256": "784de4f69266916bc9e29aac0ee90339febe8ad02b51d2ece8032a77dad74dbe",
+      "translation": "Organelle 3 — Radio de la bola rodante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_signal_to_noise",
+      "source": "Organelle 3 — Signal to noise",
+      "source_sha256": "683d575c070abd5f12de8c2a49a53227a8b6f114d9d0277b921ef9d29374b536",
+      "translation": "Organelle 3 — Relación señal/ruido"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_skeletonize",
+      "source": "Organelle 3 — Skeletonize",
+      "source_sha256": "22e34ce914d03bd246fa536276f124ed5a063c1b2a4c443234c8bdb4985eaa1f",
+      "translation": "Organelle 3 — Esqueletizar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_tophat_radius",
+      "source": "Organelle 3 — Tophat radius",
+      "source_sha256": "f3af62fbac9b109369a9bfb3bf7644fde0b095101556452e236257177655e27b",
+      "translation": "Organelle 3 — Radio de Tophat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organellec_unet_threshold",
+      "source": "Organelle 3 — Unet threshold",
+      "source_sha256": "fda23f8cd3a0fcc0496aa08c9b4f7572744a5cfcf762e22a2b973b3254ddcce6",
+      "translation": "Organelle 3 — Umbral de Unet"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_adaptive_offset",
+      "source": "Organelle 4 — Adaptive offset",
+      "source_sha256": "42eaf2cd2e2179692a0577455a7f22e91c17c56d92db1bfbcdd11a52378ee94f",
+      "translation": "Organelle 4 — Desplazamiento adaptativo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_background",
+      "source": "Organelle 4 — Background",
+      "source_sha256": "99b409ab5e1d5f6ea6a63d803538377256d20067d358018a3a3d2e74c7b8b779",
+      "translation": "Organelle 4 — Fondo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_chann_dim",
+      "source": "Organelle 4 — Chann dim",
+      "source_sha256": "181925f30cfab91fc04ed792683c69006b311755dcc980cc8b3548051ee0917a",
+      "translation": "Organelle 4 — Dimensión del canal"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_clahe",
+      "source": "Organelle 4 — Clahe",
+      "source_sha256": "861b241f0b62c4b1fd728c56070aadab771fe926f02c89887f8c55a8389391db",
+      "translation": "Organelle 4 — Ecualización Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_clahe_clip_limit",
+      "source": "Organelle 4 — Clahe clip limit",
+      "source_sha256": "e959f0335a6d3a795b48693206815d69d93e910d5d82498c4071320e6e826145",
+      "translation": "Organelle 4 — Límite de recorte de Clahe"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_dog_sigma_low",
+      "source": "Organelle 4 — DoG sigma low",
+      "source_sha256": "f967d2a2e0170b01a7ca7d0abe3f9845875f65be284ddd765ac75f0aa1e4bcde",
+      "translation": "Organelle 4 — DoG sigma bajo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_fill_holes",
+      "source": "Organelle 4 — Fill holes",
+      "source_sha256": "6190e1f5d3670219a7b91762aa4e32ae3446b4de46f0884d78d560506462f20e",
+      "translation": "Organelle 4 — Rellenar huecos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_log_max_sigma",
+      "source": "Organelle 4 — LoG max sigma",
+      "source_sha256": "4541f980fa898adfcc35297259d2f99cdc45b0570f49e7fa80fc8f0a2bfeaff5",
+      "translation": "Organelle 4 — LoG sigma máx."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_log_min_sigma",
+      "source": "Organelle 4 — LoG min sigma",
+      "source_sha256": "06359365a5d5ea1cf53c85d593dd3ae9ba67ab384fbeee00b30f8ba07215c2d8",
+      "translation": "Organelle 4 — LoG sigma mín."
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_log_num_sigma",
+      "source": "Organelle 4 — LoG num sigma",
+      "source_sha256": "c3151d62b49a0139bb105cc1580aca7e1a9053c73b3fd5d04d726feea4537d72",
+      "translation": "Organelle 4 — LoG número de valores sigma"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_log_threshold",
+      "source": "Organelle 4 — LoG threshold",
+      "source_sha256": "2c0050f9b40a56695408733b9f824a93ce2c3c020137ca047a65b147954d164a",
+      "translation": "Organelle 4 — Umbral de LoG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_max_area",
+      "source": "Organelle 4 — Max area",
+      "source_sha256": "2fddff8747e2dfd1a46359a9cfefefaa99bc44eddb1eb82a38d3a945d16a57be",
+      "translation": "Organelle 4 — Área máxima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_min_area",
+      "source": "Organelle 4 — Min area",
+      "source_sha256": "db0069a5da6008e9337a823b75b0c49c2a0e11dc1dfcc37499ac27ab3481f8e7",
+      "translation": "Organelle 4 — Área mínima"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_morph_radius",
+      "source": "Organelle 4 — Morph radius",
+      "source_sha256": "deff7aa19e48b4c37902d261449ed47b476132f27aa5d751065187bbd2a286e2",
+      "translation": "Organelle 4 — Radio morfológico"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_perimeter_fraction",
+      "source": "Organelle 4 — Perimeter fraction",
+      "source_sha256": "d85585734e55d4bfe3ed06b0dddece6803a0c548a4306a233c38a56416435a28",
+      "translation": "Organelle 4 — Fracción de perímetro"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_remove_border",
+      "source": "Organelle 4 — Remove border",
+      "source_sha256": "3ee4582ff8bab58eaf0b1003265d58fab1ce14704d531dc3cf32b46ff7d3d978",
+      "translation": "Organelle 4 — Eliminar borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_remove_border_objects",
+      "source": "Organelle 4 — Remove border objects",
+      "source_sha256": "557f69a5990a7263925ae2ff6cf7dc3fa9aa46129459cfb8cc713c8912aab7b1",
+      "translation": "Organelle 4 — Eliminar objetos de borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_resample",
+      "source": "Organelle 4 — Resample",
+      "source_sha256": "2aba2ca177a166a16bc430c722dcb611e209e0ca355e81eef4ee8de30fe15280",
+      "translation": "Organelle 4 — Remuestrear"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_ridge_filter",
+      "source": "Organelle 4 — Ridge filter",
+      "source_sha256": "e1518a5d7b1f35643dd10acff69b4d70363904a08b261feb568e0202156778d1",
+      "translation": "Organelle 4 — Filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_ridge_sigmas",
+      "source": "Organelle 4 — Ridge sigmas",
+      "source_sha256": "ae0eb16dd8ad59bf89130c53a038366203848c623bfae25662649fa076a580ad",
+      "translation": "Organelle 4 — Sigmas del filtro de crestas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_ring_fill_method",
+      "source": "Organelle 4 — Ring fill method",
+      "source_sha256": "e330918ac025f34f65fef3c53db6c2e857185b0dff5eecaf53f22db04b094d45",
+      "translation": "Organelle 4 — Método de relleno de anillos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_ring_min_prominence",
+      "source": "Organelle 4 — Ring min prominence",
+      "source_sha256": "403c876dd17f117348a2442881c086697ef04ad48264ec21a285ba562f8126d4",
+      "translation": "Organelle 4 — Prominencia mínima del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_ring_sigma_inner",
+      "source": "Organelle 4 — Ring sigma inner",
+      "source_sha256": "4e1eca725e77d0ce052b819ab2889a87f493abdecc0e1fbf0371a24cea12bdb2",
+      "translation": "Organelle 4 — sigma interior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_ring_sigma_outer",
+      "source": "Organelle 4 — Ring sigma outer",
+      "source_sha256": "ea82dbd9f8c8986c42308a062b8145befc4ce76854ad3147775729a9812edd7c",
+      "translation": "Organelle 4 — sigma exterior del anillo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_rolling_ball_radius",
+      "source": "Organelle 4 — Rolling ball radius",
+      "source_sha256": "dedf3936e7e412fca15387909dc028388d3ea7f18a263a3c7a29468ce0b1eb25",
+      "translation": "Organelle 4 — Radio de la bola rodante"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_signal_to_noise",
+      "source": "Organelle 4 — Signal to noise",
+      "source_sha256": "4bc6d184500f0b7861bcdf34cd7dc5ed619932168e81918a0a9187ff2628329e",
+      "translation": "Organelle 4 — Relación señal/ruido"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_skeletonize",
+      "source": "Organelle 4 — Skeletonize",
+      "source_sha256": "54f5ff42c7f7009bda8f3930bd3f18b177d5a604b06fdf3bea0f0706913c2ad0",
+      "translation": "Organelle 4 — Esqueletizar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_tophat_radius",
+      "source": "Organelle 4 — Tophat radius",
+      "source_sha256": "4ab8b746f2b9ebfa022ce44df58331c5d40e68bb5a64c1dbb75c1812c11d1bd4",
+      "translation": "Organelle 4 — Radio de Tophat"
+    },
+    {
+      "table": "setting_labels",
+      "key": "organelled_unet_threshold",
+      "source": "Organelle 4 — Unet threshold",
+      "source_sha256": "30085d1d322653210595f3b89040a96f954f6b955fd6b71050617e5a5fe1febc",
+      "translation": "Organelle 4 — Umbral de Unet"
+    },
+    {
+      "table": "ui",
+      "key": "Outline threshold factor",
+      "source": "Outline threshold factor",
+      "source_sha256": "45627f5564d73ec90ce385997c80eb74ad971c2acc701586be7428985b8ed17d",
+      "translation": "Factor de umbral del contorno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outside_channel",
+      "source": "Outside channel",
+      "source_sha256": "633e0c1e27588a355310e5c0f6917e31d5abcd12afd9b441d2f4aefbf2c60b37",
+      "translation": "Canal de tinción exterior"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outside_threshold",
+      "source": "Outside threshold",
+      "source_sha256": "88357f880c1f6c35f1d1c8318ebda3d0d8d32e9e12ce108b8e97021ce9e235d5",
+      "translation": "Umbral de tinción exterior"
+    },
+    {
+      "table": "setting_labels",
+      "key": "outside_threshold_method",
+      "source": "Outside threshold method",
+      "source_sha256": "506e559554e83878cc0cb75193129c345627a1aa65874265b245f6eb5ae26395",
+      "translation": "Método del umbral de tinción exterior"
+    },
+    {
+      "table": "setting_labels",
+      "key": "png_size",
+      "source": "PNG size",
+      "source_sha256": "f31dd000e10505afa4aeb65df67e007df8f44812b708097ab8ca94b04f57bfd2",
+      "translation": "Tamaño de PNG"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_background",
+      "source": "Pathogen background",
+      "source_sha256": "f6078ab756b086684afaae71c462a07108ae02512904cf43607cdac1be955808",
+      "translation": "Fondo del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_cellprob_threshold",
+      "source": "Pathogen cellprob threshold",
+      "source_sha256": "78331066b9b6ec5943ac5ef39ba34c0c562d8d2a962d5b835aaeb95942df44bd",
+      "translation": "Umbral de cellprob del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_chann_dim",
+      "source": "Pathogen chann dim",
+      "source_sha256": "ceb03387252c6841f1c7ea9d1d13a74678b4e77563b5601a7586c873559ae723",
+      "translation": "Dimensión del canal del patógeno"
+    },
+    {
+      "table": "ui",
+      "key": "Pathogen channel",
+      "source": "Pathogen channel",
+      "source_sha256": "c987e4026f658be1fbadf842e129082fa7838f01337125c7dba80b577aa9cf50",
+      "translation": "Canal del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_diameter",
+      "source": "Pathogen diameter",
+      "source_sha256": "fd5d7fcf19c2f426c489040a606463d13f60a5f488cab7d3e1c0136177872491",
+      "translation": "Diámetro del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_flow_threshold",
+      "source": "Pathogen flow threshold",
+      "source_sha256": "81effc95430582657a1ed59fb210c29ba39917f75bfa3e80a0a4d73bd89cefee",
+      "translation": "Umbral de flujo del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_intensity_range",
+      "source": "Pathogen intensity range",
+      "source_sha256": "23f98849e807449154593a0b34d33d8f5f7f507f7771c0c1cf43499f7af486ee",
+      "translation": "Rango de intensidad del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_limit",
+      "source": "Pathogen limit",
+      "source_sha256": "37abfde9a30c5d185ca13230bf7dbad446c130ad3d42c8055d1e10b97266b383",
+      "translation": "Límite de patógenos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_loc",
+      "source": "Pathogen loc",
+      "source_sha256": "75cc335039d3bb9057df46a8b9ffe9e511a514b535c19219ea1f3812ade50ae3",
+      "translation": "Ubicación de los patógenos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_min_size",
+      "source": "Pathogen min size",
+      "source_sha256": "4f9a6396f069f7e3d6e008ef094596621a9670d712dafbf47ff3a35fe3781078",
+      "translation": "Tamaño mínimo del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_perimeter_fraction",
+      "source": "Pathogen perimeter fraction",
+      "source_sha256": "288b80ef88dc5182e1d66124a5fcd16949a5bb8ab94e10b16ac2684aa7c96b1f",
+      "translation": "Fracción del perímetro del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_plate_metadata",
+      "source": "Pathogen plate metadata",
+      "source_sha256": "4bfed8da58717983e0adfa9d2a8b4a82efeb771f35aff25b295e70fdc25c72e8",
+      "translation": "Metadatos de placa de los patógenos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_remove_border_objects",
+      "source": "Pathogen remove border objects",
+      "source_sha256": "cd370e0100dfdac6c1232676207be80a4f45005c4e9f9bd113e53d40b3a22d55",
+      "translation": "Eliminar patógenos en el borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_signal_to_noise",
+      "source": "Pathogen signal to noise",
+      "source_sha256": "186fe424c9cb9e9c8cec78c2c7b39bf800b8060b5a09f99e54dfaf79cc413b07",
+      "translation": "Relación señal/ruido del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_size_range",
+      "source": "Pathogen size range",
+      "source_sha256": "88f4a871b432894f9d04d1a281e01825a966202e9deeaf6cbca4f042de92f24f",
+      "translation": "Rango de tamaño del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "pathogen_types",
+      "source": "Pathogen types",
+      "source_sha256": "d8060ed58aa9e72537adaafed63cc280a52b2b11935be631e463177c6c8ecd18",
+      "translation": "Tipos de patógenos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "picking_threshold",
+      "source": "Picking threshold",
+      "source_sha256": "2aea3e6f4bcab5877970ffd26f86e92a7c3c0131953fbd9feae81f02d41a4f30",
+      "translation": "Umbral de selección"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_background_cell",
+      "source": "Remove background cell",
+      "source_sha256": "63564ea07d5a4c04a5291fa0028b200d1ddeb47d81a96e95077eef2baec83e09",
+      "translation": "Eliminar fondo de la célula"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_background_nucleus",
+      "source": "Remove background nucleus",
+      "source_sha256": "8b5eab27e828c0503f334dd6e7ba110454930cdceaf95db6c3bd6d9c546b493d",
+      "translation": "Eliminar fondo del núcleo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_background_pathogen",
+      "source": "Remove background pathogen",
+      "source_sha256": "f95d79a3274deb67a7baa92b668a46653e7a5f9814e859b1adfebf3abf740d05",
+      "translation": "Eliminar fondo del patógeno"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_cluster_noise",
+      "source": "Remove cluster noise",
+      "source_sha256": "23953069466c92e353baba887ec9f80fb2a2850714f90f9eda71d192070de1a5",
+      "translation": "Eliminar ruido de clústeres"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_highly_correlated",
+      "source": "Remove highly correlated",
+      "source_sha256": "e7de70240919e651463314edb2ae911a794925173e5e73db97793cfd5b2f3842",
+      "translation": "Eliminar variables muy correlacionadas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_highly_correlated_features",
+      "source": "Remove highly correlated features",
+      "source_sha256": "74746ee537a6e794882f7bde42359c2e9cc3633accc8cece0f3ed399a96e38a9",
+      "translation": "Eliminar características muy correlacionadas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_image_canvas",
+      "source": "Remove image canvas",
+      "source_sha256": "22a973acb3f3e3ff32bba0053752d779fa9cc9f49681b3f3e202b0f879664b3d",
+      "translation": "Eliminar el fondo de la imagen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_border_fraction",
+      "source": "Seg QC border fraction",
+      "source_sha256": "71a9fc4332946863a2a36de698ff99c6cf8b703c3913ac82991c93c64aca0120",
+      "translation": "Seg QC fracción en el borde"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_count_ratio",
+      "source": "Seg QC count ratio",
+      "source_sha256": "87dd61d97083ec0e917e3d5bcb9fd6e3bed798e16de0238dd16718404abec368",
+      "translation": "Seg QC razón de recuento"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_max_object_fraction",
+      "source": "Seg QC max object fraction",
+      "source_sha256": "e3eae9ad09ab5f028b4a6643c15f7a7b068015e516a2e0f6794615a5afcfa5f0",
+      "translation": "Seg QC fracción máx. por objeto"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_min_diameter",
+      "source": "Seg QC min diameter",
+      "source_sha256": "f60622971146f4c4258d13e601a56a2e42ca3fa497fd88b637acabc661e6828f",
+      "translation": "Seg QC diámetro mín."
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_min_objects",
+      "source": "Seg QC min objects",
+      "source_sha256": "a34434cf3f8deea1b4c088477320533f36a846ccf8aadecd47b64c4abccb380a",
+      "translation": "Seg QC mín. de objetos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_outlier_fraction",
+      "source": "Seg QC outlier fraction",
+      "source_sha256": "3aa279a45263be6befa4b52202ee1b4ed993dea1aee754619dfbd05b6023b353",
+      "translation": "Seg QC fracción de atípicos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_outlier_mad",
+      "source": "Seg QC outlier mad",
+      "source_sha256": "9fdc11bc0d033d385c06c010f1d18fa6a7d86fc2b9e1bf83ab4d2447274a34c5",
+      "translation": "Seg QC mad de atípicos"
+    },
+    {
+      "table": "setting_labels",
+      "key": "seg_qc_tiny_fraction",
+      "source": "Seg QC tiny fraction",
+      "source_sha256": "b759436694e4a72e2ff3236eb24d078412dbc6df47a25f08c17e8071c9ae4997",
+      "translation": "Seg QC fracción de objetos diminutos"
+    },
+    {
+      "table": "ui",
+      "key": "Signal to noise",
+      "source": "Signal to noise",
+      "source_sha256": "3fcbdee01a05d55388b7a54814918967973d70fabdf54f5a6eccfaa183cd09ae",
+      "translation": "Relación señal/ruido"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_correlation_threshold",
+      "source": "Surrogate correlation threshold",
+      "source_sha256": "8c6403d2012edf19b472ab9e58c306770214b29fd42be20bc0c7dcfda865cae1",
+      "translation": "Umbral de correlación del modelo sustituto"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_test_size",
+      "source": "Surrogate test size",
+      "source_sha256": "74c8a9ebfe3b72de3ae4f98c5ff25102c934d64d33ddab9e367c20145f6cf4d8",
+      "translation": "Tamaño de prueba del modelo sustituto"
+    },
+    {
+      "table": "setting_labels",
+      "key": "target_intensity_min",
+      "source": "Target intensity min",
+      "source_sha256": "b1c05a5dd7032c7c58cf21520093ef6dbd38a107dab0af9609ff19d3b49d7835",
+      "translation": "Intensidad mínima del objetivo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "test_size",
+      "source": "Test size",
+      "source_sha256": "a37a6e4b81d7ba9be71ec2b814ad8bec5a591fea62c6fd41c62e31a84bccd9cb",
+      "translation": "Tamaño de prueba"
+    },
+    {
+      "table": "setting_labels",
+      "key": "threshold_agreement_tolerance",
+      "source": "Threshold agreement tolerance",
+      "source_sha256": "bcf72bfc345cf31c24a7aeea2082ce50d8a640eab6c2d51d9fdfb520edb7adf1",
+      "translation": "Tolerancia de concordancia del umbral"
+    },
+    {
+      "table": "setting_labels",
+      "key": "threshold_multiplier",
+      "source": "Threshold multiplier",
+      "source_sha256": "f719521b037a09b7312dae668e9089f4853f9fd97e73b353b5b64efa905efe43",
+      "translation": "Multiplicador del umbral"
+    },
+    {
+      "table": "ui",
+      "key": "Threshold sensitivity",
+      "source": "Threshold sensitivity",
+      "source_sha256": "1f8886e150299bf045eb92cbcaef609dd939814d8ae351b74e3679bddeda5272",
+      "translation": "Sensibilidad del umbral"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_displacement",
+      "source": "Timelapse displacement",
+      "source_sha256": "8ffb3e40b5b151542fd52836947de182ca35d639566ba2fdde57a101760e70c3",
+      "translation": "Desplazamiento en timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_frame_limits",
+      "source": "Timelapse frame limits",
+      "source_sha256": "e1f11dfe351e3ff319a056f7d1735f24c2941ae43e1248ddd5fc80d0a01ec9c2",
+      "translation": "Límites de fotogramas del timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_memory",
+      "source": "Timelapse memory",
+      "source_sha256": "3e84307ff05625f8f39a0a726b526e67cd3b8aab72b8044e41c2c9d51adcc8ce",
+      "translation": "Memoria del timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_mode",
+      "source": "Timelapse mode",
+      "source_sha256": "3139ca0d06968288eeeda6941f5c98517265dc70dc96e7f4c6abd4d7ba22d682",
+      "translation": "Modo de timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_objects",
+      "source": "Timelapse objects",
+      "source_sha256": "3e6ee3b073661aee9656e589efadbf81f945e87e710b71d9d8511967d67c0034",
+      "translation": "Objetos del timelapse"
+    },
+    {
+      "table": "setting_labels",
+      "key": "timelapse_remove_transient",
+      "source": "Timelapse remove transient",
+      "source_sha256": "ad1d099f3416f9eaba2091e0cf7a0f6f71e6802aa022f92bd3b3b72969abc7df",
+      "translation": "Timelapse: eliminar trayectorias transitorias"
+    },
+    {
+      "table": "setting_labels",
+      "key": "total_channel",
+      "source": "Total channel",
+      "source_sha256": "e3daa590b62f2f27d29ee46aee96594a28b1971bcf3471ce302f34f4fa2b5981",
+      "translation": "Canal de tinción total"
+    },
+    {
+      "table": "setting_labels",
+      "key": "umap_canvas_width",
+      "source": "UMAP canvas width",
+      "source_sha256": "9f7a0183579af71ca891c3dec3b0080d177f622e3e018d39449254cefdfff72c",
+      "translation": "Ancho del lienzo UMAP"
+    },
+    {
+      "table": "setting_labels",
+      "key": "voxel_size_xy_um",
+      "source": "Voxel size xy um",
+      "source_sha256": "5f694960254bb12152af4e80ee7970a5ecbbf1939c1be2a2217a51cba8fca6dc",
+      "translation": "Tamaño del vóxel xy um"
+    },
+    {
+      "table": "setting_labels",
+      "key": "voxel_size_z_um",
+      "source": "Voxel size z um",
+      "source_sha256": "de8be6c0ced498c9e44748f8ca41a3d2017e6275c618d86e6496c3d38d42bffe",
+      "translation": "Tamaño del vóxel z um"
+    },
+    {
+      "table": "setting_labels",
+      "key": "z_handling",
+      "source": "Z handling",
+      "source_sha256": "44daa4991725193eabb5ed27a00d4facc5938d71fb7a9cc80f3072832b0c7e02",
+      "translation": "Tratamiento de Z"
+    }
+  ]
+}

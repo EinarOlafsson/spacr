@@ -1,0 +1,34 @@
+{
+  "lesson": "48_hit_list",
+  "english_sha256": "725dbe48aa9ba7956c69806111ba283950734449a30162bf99095a7ff2109f87",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Hit List：候補を絞り込んで短いリストを書き出す",
+  "description": "Regressionの結果を読み込み、q値、ガイド数、一致度で絞り込んで、選んだ候補を書き出します。",
+  "objectives": [
+    "付属の補助スクリプトで、例のRegressionの結果を開く。",
+    "候補を絞り込み、その効果とガイドの一致度を読む。",
+    "選んだ行をCSV、Markdown、HTMLで書き出す。"
+  ],
+  "prerequisite": "Hit_List_real_results_companion.zipを展開し、spaCRの環境を有効にします。現在のRegressionのHitsのショートカットではパネルが表示されないので、代わりにpython hit_list_companion.pyを実行し、Browseで展開した結果フォルダーを選びます。補助スクリプトはInvestigateとは連携しません。裏付けとなるウェル数には、results_gene.csvのwells_with_geneを使います。書き出されたn_obs=0は実際の裏付けではありません。この例には、q <= 0.05を満たす遺伝子はありません。",
+  "scenes": [
+    "HomeからRegressionを開き、Hitsを選びます。パネルが表示されないままの場合は、このレッスンに付属の補助スクリプトでHit Listを開きます。",
+    "リンク先の例を展開し、spaCRの環境を有効にします。python hit_list_companion.pyを実行します。補助スクリプトのウィンドウでBrowseをクリックし、展開した結果フォルダーを選びます。",
+    "この例では三百二十五の遺伝子が読み込まれます。列を広げて、効果、P、q、ガイドの一致度を読みます。効果は標準化した周辺効果です。裏付けとなるウェル数は、results_gene.csvのwells_with_geneで確認します。書き出された観測数ゼロは、裏付けが利用できないことを示します。",
+    "Max qをゼロ点ゼロ五にします。この例ではこれを満たす遺伝子がないので、表は空になります。すべての候補を見るには、Max qを一に戻します。",
+    "Minimum guidesを二にします。検定されたガイドの行が二つ以上ある、百十七の遺伝子が残ります。このフィルターでは元のq値はそのままです。",
+    "Minimum agreementを一にします。検定されたガイドがすべて遺伝子の効果と同じ符号をもつ、五十七の候補が残ります。一致度はqと合わせて読みます。これらの候補も、有意性のしきい値は満たしていません。",
+    "Hide controlsをオンにすると、この表示から対照の行が除かれ、候補は五十六になります。後で書き出すときにその行を含めるには、もう一度オフにします。",
+    "ほかのフィルターを消し、Direction upを選び、Minimum absolute effectをゼロ点一にします。十六行が残ります。自分の解析に合ったしきい値を選び、次の手順の前にこれらの設定を元に戻します。",
+    "Searchに識別子を入力すると、その行が見つかります。一致しない検索では表が空になります。Searchを消すと、現在の絞り込み結果に戻ります。",
+    "書き出しには、ガイド二つ、完全な一致、対照を含む、検索は空、と設定します。選ばれた五十七行を、CSV、Markdown、HTMLのいずれかで書き出します。CSVでは数値の細かさが保たれます。フィルターの選択はファイルと一緒に保存します。",
+    "フィルターを消すと、三百二十五の遺伝子すべてに戻ります。短いリストの書き出しは、元の結果とは分けて保管します。Pythonでは、build_hit_listを使い、次にfilterと、CSV、Markdown、HTMLの書き出し関数を使います。各形式の行数の上限を確認してください。"
+  ]
+}

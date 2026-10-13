@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "recursive",
+      "source_sha256": "ee370df5c2ad2897860a7bfec0d84b1ff30e698db8746220dc0810b406ab58b6",
+      "source": "Search inside subfolders of every input folder. Turn this off when only files directly inside each selected folder belong to the import. Default True.",
+      "translation": "Söker även i undermapparna till varje indatamapp. Stäng av detta när bara filerna som ligger direkt i varje vald mapp hör till importen. Standard True."
+    }
+  ]
+}

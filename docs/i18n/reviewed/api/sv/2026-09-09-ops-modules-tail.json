@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.ops_solve.solve_placements#3",
+      "source_sha256": "f62d74a324e2ebfe590ec954902ceb82f6053d831f1d3c5d585744dc8ef5f6ad",
+      "source": "``(a, b) -> (dy, dx)``, b's position minus a's.",
+      "context": "``(a, b) -> (dy, dx)``, b's position minus a's.",
+      "translation": "``(a, b) -> (dy, dx)``, b:s position minus a:s."
+    }
+  ]
+}

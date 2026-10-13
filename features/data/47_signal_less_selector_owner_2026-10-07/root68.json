@@ -1,0 +1,14 @@
+{
+  "source_commit": "3cc5f8b919",
+  "result": "68 passed in3.38s",
+  "cap_gib": 4,
+  "cuda_hidden": true,
+  "qt_platform": "offscreen",
+  "randomly_disabled": true,
+  "field_fade_boundary_widgets": 0,
+  "field_fade_boundary_top_levels": 0,
+  "r4_blob": "068db3127004e2d3e2e028dbb130c31731aefb43",
+  "r5_blob_unchanged": "9cdc96a55f3108ade9761ee6a37b6c7a8a15c4f1",
+  "raw_log_sha256": "2578f3951c3343e2654efd17c27c622c6a81df186ccda12d8dff9c1dd0b23cd7",
+  "gzip_log_sha256": "352cbc6a45e9acdec56d3687cfcf11b96fcef527ceee1f785c32012614a5a75e"
+}

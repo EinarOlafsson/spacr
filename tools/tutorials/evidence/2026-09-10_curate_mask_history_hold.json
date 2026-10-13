@@ -1,0 +1,423 @@
+{
+  "lesson": "42_curate",
+  "accepted": false,
+  "synthetic": true,
+  "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-370cd3cv",
+  "original_inputs": {
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/tracks/trackpy_tracks_cell_plate1_A01_1_norm_timelapse.csv": "b455eefca827d68a68d61ef808c65dbdc8e6450a5c29fa6eb313e1f41e88f793"
+  },
+  "app_source_modified": false,
+  "synthetic_actions_not_biological_corrections": true,
+  "published": false,
+  "checks": {
+    "04_original_sixteen_label_mask": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      },
+      "status": "mask.tif is as the pipeline produced it.",
+      "ledger_entries": 0
+    },
+    "05_practice_disk_not_a_real_object": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      "changed_pixels": 195,
+      "actual_centre": [
+        63.979890933878664,
+        63.986139000830335
+      ],
+      "radius": 8,
+      "label": 18,
+      "disk_file_unchanged": true
+    },
+    "06_undo_restores_every_original_pixel": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      },
+      "actions": [
+        "paint",
+        "undo"
+      ]
+    },
+    "07_saved_mask_and_ledger": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      "mask_sha256": "6e69bd994b8e57300e826ea58d6f9c0d5d7f3b3523883e7c4151085d50b3bfd5",
+      "ledger": {
+        "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-370cd3cv/mask.tif",
+        "edits": [
+          {
+            "detail": {
+              "dabs": 1,
+              "radius": 8,
+              "replaced": [
+                0
+              ]
+            },
+            "kind": "paint",
+            "n_changed": 195,
+            "target": 18,
+            "when": "2026-09-10T21:33:49+00:00",
+            "who": "olafsson"
+          },
+          {
+            "detail": {
+              "dabs": 1,
+              "restored": [
+                0
+              ]
+            },
+            "kind": "undo",
+            "n_changed": 195,
+            "target": 18,
+            "when": "2026-09-10T21:33:50+00:00",
+            "who": "olafsson"
+          },
+          {
+            "detail": {
+              "dabs": 1,
+              "radius": 8,
+              "replaced": [
+                0
+              ]
+            },
+            "kind": "paint",
+            "n_changed": 195,
+            "target": 18,
+            "when": "2026-09-10T21:33:51+00:00",
+            "who": "olafsson"
+          }
+        ],
+        "schema_version": 1,
+        "source": "spacr-qt curation"
+      }
+    },
+    "09_reopened_mask_history": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      "history": {
+        "previous_entries": 3,
+        "current_entries": 0,
+        "status": "mask.tif has been curated by hand — see mask.tif.curation.json for what changed."
+      }
+    },
+    "10_second_session_saved_history": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "ledger": {
+        "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-370cd3cv/mask.tif",
+        "edits": [
+          {
+            "detail": {
+              "dabs": 1,
+              "radius": 4,
+              "replaced": [
+                0
+              ]
+            },
+            "kind": "paint",
+            "n_changed": 47,
+            "target": 19,
+            "when": "2026-09-10T21:34:01+00:00",
+            "who": "olafsson"
+          }
+        ],
+        "schema_version": 1,
+        "source": "spacr-qt curation"
+      },
+      "prior_history_preserved": false
+    },
+    "12_sixteen_tracks_128_rows": {
+      "tracks": {
+        "passed": true,
+        "rows": 128,
+        "tracks": 16,
+        "cells": 640
+      },
+      "status": "16 track(s) over 128 row(s); consistent. No corrections: this data is as the pipeline produced it."
+    },
+    "13_overlapping_tracks_cannot_join": {
+      "tracks": {
+        "passed": true,
+        "rows": 128,
+        "tracks": 16,
+        "cells": 640
+      },
+      "status": "tracks 2 and 3 are both present in frame(s) [0, 1, 2, 3, 4], so they are two objects at that time and cannot be one track. Split one of them first if the overlap is itself the error."
+    },
+    "14_split_tail_starts_at_frame_four": {
+      "tracks": {
+        "passed": true,
+        "rows": 128,
+        "tracks": 17,
+        "cells": 640
+      },
+      "status": "2026-09-10T21:34:15+00:00 by olafsson: split 2 (4 changed)\n17 track(s) over 128 row(s); consistent. 1 correction(s) by olafsson — 1 split. First 2026-09-10T21:34:15+00:00, last 2026-09-10T21:34:15+00:00. This data has been curated by hand."
+    },
+    "15_join_halves_restores_all_rows": {
+      "tracks": {
+        "passed": true,
+        "rows": 128,
+        "tracks": 16,
+        "cells": 640
+      },
+      "status": "2026-09-10T21:34:18+00:00 by olafsson: join [2, 18] (4 changed)\n16 track(s) over 128 row(s); consistent. 2 correction(s) by olafsson — 1 join, 1 split. First 2026-09-10T21:34:15+00:00, last 2026-09-10T21:34:18+00:00. This data has been curated by hand."
+    },
+    "16_saved_tracks_and_history": {
+      "tracks": {
+        "passed": true,
+        "rows": 128,
+        "tracks": 16,
+        "cells": 640
+      },
+      "ledger": {
+        "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/curate_runs/SYNTHETIC-private-corrections-370cd3cv/tracks.csv",
+        "edits": [
+          {
+            "detail": {
+              "at_frame": 4,
+              "head_frames": [
+                0,
+                1,
+                2,
+                3
+              ],
+              "new_track": 18,
+              "tail_frames": [
+                4,
+                5,
+                6,
+                7
+              ]
+            },
+            "kind": "split",
+            "n_changed": 4,
+            "target": 2,
+            "when": "2026-09-10T21:34:15+00:00",
+            "who": "olafsson"
+          },
+          {
+            "detail": {
+              "absorbed": 18,
+              "frames": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "kept": 2
+            },
+            "kind": "join",
+            "n_changed": 4,
+            "target": [
+              2,
+              18
+            ],
+            "when": "2026-09-10T21:34:18+00:00",
+            "who": "olafsson"
+          }
+        ],
+        "schema_version": 1,
+        "source": "spacr"
+      }
+    },
+    "17_unsaved_delete_removes_eight_rows": {
+      "tracks": {
+        "passed": true,
+        "rows": 120,
+        "tracks": 15,
+        "cells": 600
+      },
+      "status": "2026-09-10T21:34:22+00:00 by olafsson: delete 3 (8 changed)\n15 track(s) over 120 row(s); consistent. 3 correction(s) by olafsson — 1 delete, 1 join, 1 split. First 2026-09-10T21:34:15+00:00, last 2026-09-10T21:34:22+00:00. This data has been curated by hand."
+    },
+    "19_saved_tracks_and_two_actions_return": {
+      "tracks": {
+        "passed": true,
+        "rows": 128,
+        "tracks": 16,
+        "cells": 640
+      },
+      "actions": [
+        "split",
+        "join"
+      ],
+      "status": "16 track(s) over 128 row(s); consistent. 2 correction(s) by olafsson — 1 join, 1 split. First 2026-09-10T21:34:15+00:00, last 2026-09-10T21:34:18+00:00. This data has been curated by hand."
+    }
+  },
+  "mask_history_on_reopen": {
+    "previous_entries": 3,
+    "current_entries": 0,
+    "status": "mask.tif has been curated by hand — see mask.tif.curation.json for what changed."
+  },
+  "mask_prior_history_preserved_after_second_save": false,
+  "tracks_prior_history_preserved": true,
+  "hold": "The native mask reopening/save path loses prior ledger entries; no tutorial claims complete edit provenance.",
+  "original_inputs_preserved": true,
+  "date": "2026-09-10",
+  "status": "held_native_mask_history_loss",
+  "source_commit": "df1785ff1",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/curate_tiff_correction_ledger",
+  "native_frames": 20,
+  "helper_tests": {
+    "passed": 14,
+    "red_mutations": 7,
+    "statements": 35,
+    "branches": 18,
+    "coverage_percent": 100,
+    "scope": "tutorial numerical helper only"
+  },
+  "npy_picker_defect": {
+    "advertised": true,
+    "native_open_failed": true,
+    "exception": "PIL.UnidentifiedImageError",
+    "path": "stack_from_paths -> load_preview_image -> PIL.Image.open",
+    "workaround": "Exact integer label plane written as TIFF, checked pixel-for-pixel."
+  },
+  "visual_review": {
+    "frames": [
+      9,
+      14
+    ],
+    "findings": [
+      "Reopened Brush badge falsely says no corrections while Curate status says curated.",
+      "Track controls are narrow and the status/ledger text clips; tutorial capture is not ready."
+    ]
+  },
+  "narration_retained": false,
+  "media_matrix_started": false,
+  "native_translation_review_complete": false,
+  "listening_review_complete": false
+}

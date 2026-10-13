@@ -1,0 +1,58 @@
+{
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "normal_nine_language_generation_and_audit_passed": true,
+  "current_symbols_each_language": 13181,
+  "exact_changed_symbols": [
+    "spacr.doctor",
+    "spacr.doctor.check_qt_extra",
+    "spacr.qt.run"
+  ],
+  "other_complete_records_preserved_each_catalog": 13178,
+  "catalogs_verified": 10,
+  "source_bound_reviewed_prose_blocks": 36,
+  "strict_all_language_full_Sphinx_build_passed": true,
+  "API_catalog_tests_passed": 12,
+  "docstring_tests_passed": 6,
+  "guides_receipt": "615_standard_installation_guides_2026-10-05.json",
+  "runtime_receipt": "615_standard_installation_runtime_2026-10-05.json",
+  "nightly_deployment_verified": false,
+  "theme_replacement_refresh_pending_CPU_source": true,
+  "artifacts": {
+    "features/data/615_standard_installation_api_2026-10-05/check_core_gui_api_preservation.py": {
+      "sha256": "a7b4bdd043092ce70fb67ac47f4769ce82ec4578aaf0c29cd1efb3d9e263fec5",
+      "bytes": 1748
+    },
+    "features/data/615_standard_installation_api_2026-10-05/core-gui-api-preservation-proof.json": {
+      "sha256": "974434a0afcdd55f52d400fafd1c89eea4d3809e86e4fe08dbc31c24e4cd9fcf",
+      "bytes": 3710
+    },
+    "features/data/615_standard_installation_api_2026-10-05/core-gui-api-preservation-r1.log.gz": {
+      "sha256": "ea58a3a0c90861b294debde95b1e750ec811bb9c59c9a7d1f6c8a6bad04d097e",
+      "bytes": 138
+    },
+    "features/data/615_standard_installation_api_2026-10-05/core-gui-api-refresh-r1.log.gz": {
+      "sha256": "f60fc2486004ef45f0751cb2b7ccfe8b4f2f1e00b17196dda53782386923c1a4",
+      "bytes": 292
+    },
+    "features/data/615_standard_installation_api_2026-10-05/core-gui-api-tests-r1.log.gz": {
+      "sha256": "d30e4b52263f66bfc9e622d723807b77606bba10f82a8146d52da05a97252bea",
+      "bytes": 67
+    },
+    "features/data/615_standard_installation_api_2026-10-05/core-gui-docstring-tests-r1.log.gz": {
+      "sha256": "d01799dd089b34fae2b5611157d6e75db10570bd2e24d800d4874048072bfe94",
+      "bytes": 52
+    },
+    "features/data/615_standard_installation_api_2026-10-05/core-gui-sphinx-all-r1.log.gz": {
+      "sha256": "969f4eb5efc282f718fe76aed2329a7a406aef9b5b8f9cdc6f434d55945524a3",
+      "bytes": 32355
+    },
+    "features/data/615_standard_installation_api_2026-10-05/home-install-api-block-delta.json": {
+      "sha256": "47c79d0eeb5ca33f6eff5c55513ac8bda631d3d21373c1524adacea0b6c843cf",
+      "bytes": 1643
+    },
+    "features/data/615_standard_installation_api_2026-10-05/home-install-api-source-delta.json": {
+      "sha256": "4f89433bc0e8b0bad150bcea948a0d347e8dfefc2eeb00096f6dfc734ff50e43",
+      "bytes": 3448
+    }
+  }
+}

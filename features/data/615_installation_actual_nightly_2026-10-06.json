@@ -1,0 +1,126 @@
+{
+  "item": 615,
+  "actual_nightly_installation_deployment_mobile_full_video_and_visual_acceptance_passed": true,
+  "completed_documentation_workflow": 37426362903,
+  "actual_resolved_nightly_source": "e9fa3b7ab16e0b222e571c37d594721eba6b7521",
+  "immutable_media_commit": "0889ee14f5a7368a791df27c7331862a6c7741b4",
+  "three_new_installation_and_four_preserved_full_video_hashes_exact": true,
+  "actual_phone_playback_chapter_seek_cases_passed": 7,
+  "actual_deployed_API_catalogs_exact": {
+    "de.json": {
+      "sha256": "1c41eddc5541cfafa065a8c5906ada4bbe57a68db30274bf930510f849d897a4",
+      "bytes": 17947010
+    },
+    "en.json": {
+      "sha256": "b320a398d4141ac53ffff6b142b125bd89db2f3baf3dcebf7e22cada6067d026",
+      "bytes": 12557132
+    },
+    "es.json": {
+      "sha256": "d100843c3dc58a9280acb4901948095cfadd2a6de1fd630f18b0f59c0bee36a6",
+      "bytes": 17882723
+    },
+    "fr.json": {
+      "sha256": "b3ef81ed3fd68871294319192755f60ce89857e48a8cd19d5f5c63f8e5c3ae44",
+      "bytes": 18069790
+    },
+    "hi.json": {
+      "sha256": "0ea891e2984a21d607b68e5e8276b8ef5b386d54693b1674ce95c8aee04b446f",
+      "bytes": 24592839
+    },
+    "is.json": {
+      "sha256": "72efeb0b44813ded93b36e93afdbdee9e215b8f3f4236d39426b5f6c8efda34e",
+      "bytes": 17237615
+    },
+    "ko.json": {
+      "sha256": "baaedfe33fc9c079aca2b220d4a78273f824c46c4283aed4471a46bb9e84e30b",
+      "bytes": 18163725
+    },
+    "pt.json": {
+      "sha256": "84591e37a7b4a3935b21d0edefe4db0905a5df4de013ab1bbb1c4830b6e577cd",
+      "bytes": 17729737
+    },
+    "sv.json": {
+      "sha256": "32b3184b8c1b0c2b66b5defbcca3e0b1a3276d4f3b27adf09dcc016df487c686",
+      "bytes": 17407990
+    },
+    "zh_CN.json": {
+      "sha256": "72e399336570b6c06d44cdb9d57fd8ad12c75f4effbc2a353d7b8208a2fb3323",
+      "bytes": 16464679
+    }
+  },
+  "all_nine_API_locales_source_compatible_on_normal_deployed_build": true,
+  "normal_assembled_player_and_fourteen_catalogs_exact": true,
+  "actual_decoded_current_installation_Home_Measure_Conda_and_unchanged_Mask_frames_visually_reviewed": true,
+  "previous_machine_visual_review_pending_closed_by_separate_dated_visual_review": true,
+  "no_new_application_source_or_native_host_speaker_claim": true,
+  "artifacts": {
+    "features/data/615_installation_actual_nightly_2026-10-06/01_pypi_github-installation-nightly-frame-0-r1.png": {
+      "sha256": "59776e7ebed00d39bf004c7bd7730821115025341f25a8789670900163e18f10",
+      "bytes": 399171
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/02_conda_install-installation-nightly-frame-2682-r1.png": {
+      "sha256": "417ecb8d0ac6679beda971f8821065a2048f7ff2d356e2519da35376ce004286",
+      "bytes": 535899
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/03_pip_install-installation-nightly-frame-0-r1.png": {
+      "sha256": "369a9d20bacb3ad77869bfe7af9e16ce9c71d40bce350e579e5390fc79bd6ca1",
+      "bytes": 49891
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/04_platform_installers-installation-nightly-frame-0-r1.png": {
+      "sha256": "402d79fd075b4b4dc52897d94746fc05c665bac45ee473af8a8cece7df05b873",
+      "bytes": 359667
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/04_platform_installers-installation-nightly-frame-2625-r1.png": {
+      "sha256": "1863563e32fa27a826a57efe299d2cf7d768beebed9dc4e6be3a575cb619a918",
+      "bytes": 238589
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/05_home-installation-nightly-frame-1063-r1.png": {
+      "sha256": "2b999d9cd1328e7c9914648e583ea835cb02eb740d19935d9a52956e24c94d77",
+      "bytes": 309928
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/07_mask-installation-nightly-frame-0-r1.png": {
+      "sha256": "0bc7bca00a64c0774e6969ab3e831edb72458bde1566b05c49957da967f4cb3c",
+      "bytes": 644201
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/08_measure-installation-nightly-frame-0-r1.png": {
+      "sha256": "d471e043be3e272384589bb233aff5338c3a754a24f43eed19925b67b791db2e",
+      "bytes": 399572
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/actual-deployed-frame-visual-review.json": {
+      "sha256": "0ef20c16b7dc2afc3119dfa0d5d38dac44e4fef7cf3d27ced2eda767abced795",
+      "bytes": 2335
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/archive_installation_nightly_deployed_r1.py": {
+      "sha256": "ba8d45038dbf44f61be53dc3966c63e291775e8b89ae52d80784c1f382cb2252",
+      "bytes": 6005
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/channels.json": {
+      "sha256": "8a03f8a4078366b8598657858597c0a55caeb737c85ad7a59e84980c3102892e",
+      "bytes": 511
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/installation-current-nightly-deployed-r1.json": {
+      "sha256": "b28e554702a588258c54399c146be5bd1d0048ef9ade905e7587f2d0257a7207",
+      "bytes": 8402
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/installation-current-nightly-deployed-r1.log.gz": {
+      "sha256": "b0893932f8a686bff2f159ac12f557fcc4b3611e2ab4d6e3c76a419d821c2045",
+      "bytes": 163
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/installation-current-nightly-mobile-r1.json": {
+      "sha256": "0b3bb2605858a13aa19092ad9ef4dd45ea7e8e315ef821e0e005ff1eb1ceda91",
+      "bytes": 9468
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/installation-current-nightly-mobile-r1.log.gz": {
+      "sha256": "e5d979462b83a647678d0c93e2ee5683af44cdf63b9e75be766908ba28a4b8e9",
+      "bytes": 523
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/translation-compatibility.json": {
+      "sha256": "15ad2f9b771889040892ab992c01ba1ec0bd41a02c2ce91b50543232ce1e13ef",
+      "bytes": 13147
+    },
+    "features/data/615_installation_actual_nightly_2026-10-06/verify_installation_nightly_deployed_r1.py": {
+      "sha256": "ab30089e376ea421f17165adeff46808cab0ff10438cd559feee36c7942adb58",
+      "bytes": 5115
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "API delta 4, items 07/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.ml.perform_regression#3",
+      "source": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "source_sha256": "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
+      "context": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "translation": "Mapa de resultados de la regresión. ``model_data`` es la tabla de entrada preparada, no los resultados de los coeficientes; ``fit_designs`` registra los recuentos medidos del diseño por separado para cada nivel de ajuste paramétrico. Los recuentos no registrados se omiten, y las salidas de permutación conservan su propio esquema de resultados.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start#3",
+      "source": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "source_sha256": "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c",
+      "context": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "translation": "el controlador de la prueba de rendimiento del registro, o el controlador de la aplicación instalada cuando se selecciona explícitamente ``SPACR_DISTRIBUTION_SMOKE=1``; ``None`` cuando no se configura una ruta de salida.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#6",
+      "source": "the run folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "source_sha256": "2cbe0a85e31708dc3a545dc15d993f55aa2c38470c123db52949c411eda5b9cf",
+      "context": "the processing-session folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "translation": "la carpeta de la sesión de procesamiento. ``regression_data.csv`` proporciona los recuentos de la entrada preparada; ``regression_fit_designs.json`` proporciona los recuentos medidos de los ajustes cuando no se suministran registros explícitos.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#7",
+      "source": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "source_sha256": "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
+      "context": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "translation": "recuentos medidos opcionales del diseño por nivel. Los recuentos de ajuste ausentes se indican como desconocidos y nunca se infieren del número de filas preparadas.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.write_run_summary#8",
+      "source": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "source_sha256": "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
+      "context": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "translation": "recuentos medidos opcionales del diseño por nivel, que también se guardan en ``regression_fit_designs.json`` para conservar fielmente la información al volver a abrir los resultados sin un modelo.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.trial_metrics.design_summary#1",
+      "source": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "source_sha256": "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587",
+      "context": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "translation": "mapa de resultados del ensayo que puede contener ``model_data`` preparado y ``fit_designs`` medido por nivel. Los recuentos del ajuste se indican por nivel; solo se emite un recuento sin especificación de nivel cuando todos los ajustes registran el mismo valor. Las salidas antiguas sin registros de ajuste conservan sus recuentos basados en tablas.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    }
+  ]
+}

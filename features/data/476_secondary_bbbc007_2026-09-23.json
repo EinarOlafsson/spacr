@@ -1,0 +1,2657 @@
+{
+  "dataset": "BBBC007 v1",
+  "source": "https://bbbc.broadinstitute.org/BBBC007",
+  "archive_sha256": {
+    "images.zip": "b7009e2fce0a3152a5c9adda916eaa699d09696f4bd02a7d05d12d041e30c6d1",
+    "outlines.zip": "6a5246f9a9d743d22eafdb409fae638a8461af97e9ff9c4a92f25eba236224d3"
+  },
+  "conversion": "Measure fixed secondary-growth settings on BBBC007's manual paired outlines.\n\nDownload BBBC007_v1_images.zip and BBBC007_v1_outlines.zip from\nhttps://bbbc.broadinstitute.org/BBBC007 before running this CPU-only evaluator.\nNo archive is extracted and no input is modified. JSON records archive hashes,\neach field's exclusions, timings and relationship diagnostics.\n\nWhite outline pixels are unknown, not cell interior or background. Interiors\nare four-connected black regions enclosed by the outlines; border-connected\nregions and regions smaller than 16 pixels are excluded. A nuclear interior\nmust place more than half its area in exactly one cell interior, and that cell\nmust have exactly one candidate nucleus. All eligible nuclear interiors seed\nthe detector, including those without an unambiguous evaluation partner.\n\nScores are object IoU/Dice on the paired interior regions, ignoring white cell\noutline pixels. They are conditional on manual nuclear seeds and are NOT the\npublished BBBC007 adjacent-boundary metric, nor end-to-end detection accuracy.\nSettings are fixed before evaluation; no train/test fitting or tuning occurs.\nSome intensity TIFFs contain RGB channels. These use fixed BT.601 luminance\nweights (0.299, 0.587, 0.114), followed by division by 255 for every image.\nDistance growth was added after the first intensity comparison; its result is\nexploratory on this same dataset, not an independent held-out validation.\n",
+  "settings": {
+    "otsu_sigma2": {
+      "sigma": 2,
+      "stop": "threshold",
+      "stop_algorithm": "otsu"
+    },
+    "fraction_0.4_sigma2": {
+      "sigma": 2,
+      "stop": "seed_fraction",
+      "stop_value": 0.4
+    },
+    "absolute_0.1_sigma2": {
+      "sigma": 2,
+      "stop": "absolute",
+      "stop_value": 0.1
+    },
+    "percentile_60_sigma2": {
+      "sigma": 2,
+      "stop": "percentile",
+      "stop_value": 60
+    },
+    "distance_growth_otsu_sigma2": {
+      "sigma": 2,
+      "stop": "threshold",
+      "stop_algorithm": "otsu",
+      "growth": "distance"
+    }
+  },
+  "fields": [
+    {
+      "field": "A9/A9 p10f.tif",
+      "shape": [
+        450,
+        450
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 1
+        },
+        "cell_excluded": {
+          "border_components": 9,
+          "tiny_components": 14
+        },
+        "nuclei": 86,
+        "cell_interiors": 85,
+        "paired": 80,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 6
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.3503491040028166,
+          "threshold": 0.15050676465034485,
+          "summary": {
+            "cells": 80,
+            "mean_iou": 0.3923097781497444,
+            "median_iou": 0.31701631701631705,
+            "mean_dice": 0.5213070902029435,
+            "fraction_iou_at_least_0.5": 0.275
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 26
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.37749898100446444,
+          "threshold": null,
+          "summary": {
+            "cells": 80,
+            "mean_iou": 0.38076155724259614,
+            "median_iou": 0.3500071730043768,
+            "mean_dice": 0.5215618986712338,
+            "fraction_iou_at_least_0.5": 0.2375
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 8
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.3568736860033823,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 80,
+            "mean_iou": 0.3925119577181349,
+            "median_iou": 0.3620270706127034,
+            "mean_dice": 0.528290576773732,
+            "fraction_iou_at_least_0.5": 0.2375
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 15
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.3494164949952392,
+          "threshold": 0.12142179906368253,
+          "summary": {
+            "cells": 80,
+            "mean_iou": 0.39218875330457353,
+            "median_iou": 0.355631460930374,
+            "mean_dice": 0.5262428802856147,
+            "fraction_iou_at_least_0.5": 0.275
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 20
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.3460132509935647,
+          "threshold": 0.15050676465034485,
+          "summary": {
+            "cells": 80,
+            "mean_iou": 0.5943770870907054,
+            "median_iou": 0.6171065679262401,
+            "mean_dice": 0.7070249160863373,
+            "fraction_iou_at_least_0.5": 0.6375
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 11
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 80,
+            "mean_iou": 0.2238802799629469,
+            "median_iou": 0.20074952777556934,
+            "mean_dice": 0.35494072272901434,
+            "fraction_iou_at_least_0.5": 0.0125
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 86
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 80,
+            "mean_iou": 0.605375036525233,
+            "median_iou": 0.6102629135171298,
+            "mean_dice": 0.7253417258748819,
+            "fraction_iou_at_least_0.5": 0.675
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 1
+          }
+        }
+      }
+    },
+    {
+      "field": "A9/A9 p5f.tif",
+      "shape": [
+        450,
+        450
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 4
+        },
+        "cell_excluded": {
+          "border_components": 12,
+          "tiny_components": 11
+        },
+        "nuclei": 86,
+        "cell_interiors": 90,
+        "paired": 84,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 2
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.3481568930001231,
+          "threshold": 0.13825415074825287,
+          "summary": {
+            "cells": 84,
+            "mean_iou": 0.44169070475552175,
+            "median_iou": 0.4135385797887551,
+            "mean_dice": 0.5875825003014822,
+            "fraction_iou_at_least_0.5": 0.39285714285714285
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 25
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.37502475500514265,
+          "threshold": null,
+          "summary": {
+            "cells": 84,
+            "mean_iou": 0.4744771227088152,
+            "median_iou": 0.46075364244908157,
+            "mean_dice": 0.6225645989302274,
+            "fraction_iou_at_least_0.5": 0.4642857142857143
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 11
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.3556292669964023,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 84,
+            "mean_iou": 0.46366029124507774,
+            "median_iou": 0.4594773943692616,
+            "mean_dice": 0.6100839213436702,
+            "fraction_iou_at_least_0.5": 0.4523809523809524
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 14
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.3522515340009704,
+          "threshold": 0.07182356119155883,
+          "summary": {
+            "cells": 84,
+            "mean_iou": 0.45747641842092707,
+            "median_iou": 0.45722566398822306,
+            "mean_dice": 0.6065326779379074,
+            "fraction_iou_at_least_0.5": 0.42857142857142855
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 13
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.3443752719904296,
+          "threshold": 0.13825415074825287,
+          "summary": {
+            "cells": 84,
+            "mean_iou": 0.6101075557664716,
+            "median_iou": 0.68456573546935,
+            "mean_dice": 0.7316288545452284,
+            "fraction_iou_at_least_0.5": 0.7142857142857143
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 13
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 84,
+            "mean_iou": 0.3171263150412948,
+            "median_iou": 0.2870812855512268,
+            "mean_dice": 0.4683181292502399,
+            "fraction_iou_at_least_0.5": 0.08333333333333333
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 86
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 84,
+            "mean_iou": 0.6271414291841533,
+            "median_iou": 0.6735775750157635,
+            "mean_dice": 0.7496611417034441,
+            "fraction_iou_at_least_0.5": 0.7380952380952381
+          },
+          "relationships": {
+            "primary_ids": 86,
+            "secondary_ids": 86,
+            "matched_ids": 86,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        }
+      }
+    },
+    {
+      "field": "A9/A9 p7f.tif",
+      "shape": [
+        450,
+        450
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 2
+        },
+        "cell_excluded": {
+          "border_components": 9,
+          "tiny_components": 13
+        },
+        "nuclei": 124,
+        "cell_interiors": 136,
+        "paired": 122,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 2
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.4966420060081873,
+          "threshold": 0.21614256501197815,
+          "summary": {
+            "cells": 122,
+            "mean_iou": 0.3580210964647731,
+            "median_iou": 0.3300761207298214,
+            "mean_dice": 0.5043030988643233,
+            "fraction_iou_at_least_0.5": 0.22131147540983606
+          },
+          "relationships": {
+            "primary_ids": 124,
+            "secondary_ids": 124,
+            "matched_ids": 124,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 53
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.5253590579959564,
+          "threshold": null,
+          "summary": {
+            "cells": 122,
+            "mean_iou": 0.39273817630342134,
+            "median_iou": 0.37222571256635073,
+            "mean_dice": 0.5389372265801969,
+            "fraction_iou_at_least_0.5": 0.2786885245901639
+          },
+          "relationships": {
+            "primary_ids": 124,
+            "secondary_ids": 124,
+            "matched_ids": 124,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 10
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.5050237479881616,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 122,
+            "mean_iou": 0.3756816776624037,
+            "median_iou": 0.3671664365095022,
+            "mean_dice": 0.5211769756460601,
+            "fraction_iou_at_least_0.5": 0.23770491803278687
+          },
+          "relationships": {
+            "primary_ids": 124,
+            "secondary_ids": 124,
+            "matched_ids": 124,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 22
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.4978288709971821,
+          "threshold": 0.1911476731300354,
+          "summary": {
+            "cells": 122,
+            "mean_iou": 0.3681981240869601,
+            "median_iou": 0.33272162337532407,
+            "mean_dice": 0.5134303587644118,
+            "fraction_iou_at_least_0.5": 0.2540983606557377
+          },
+          "relationships": {
+            "primary_ids": 124,
+            "secondary_ids": 124,
+            "matched_ids": 124,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 43
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.48905123901204206,
+          "threshold": 0.21614256501197815,
+          "summary": {
+            "cells": 122,
+            "mean_iou": 0.49859183010168684,
+            "median_iou": 0.49513620707650563,
+            "mean_dice": 0.6343699782939495,
+            "fraction_iou_at_least_0.5": 0.4918032786885246
+          },
+          "relationships": {
+            "primary_ids": 124,
+            "secondary_ids": 124,
+            "matched_ids": 124,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 35
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 122,
+            "mean_iou": 0.2829452887365441,
+            "median_iou": 0.257494947719884,
+            "mean_dice": 0.42715553171354714,
+            "fraction_iou_at_least_0.5": 0.05737704918032787
+          },
+          "relationships": {
+            "primary_ids": 124,
+            "secondary_ids": 124,
+            "matched_ids": 124,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 124
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 122,
+            "mean_iou": 0.5386920408992945,
+            "median_iou": 0.5386448757235274,
+            "mean_dice": 0.6761519841229732,
+            "fraction_iou_at_least_0.5": 0.5819672131147541
+          },
+          "relationships": {
+            "primary_ids": 124,
+            "secondary_ids": 124,
+            "matched_ids": 124,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        }
+      }
+    },
+    {
+      "field": "A9/A9 p9f.tif",
+      "shape": [
+        450,
+        450
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 9
+        },
+        "cell_excluded": {
+          "border_components": 13,
+          "tiny_components": 37
+        },
+        "nuclei": 137,
+        "cell_interiors": 155,
+        "paired": 132,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 5
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.5469667290017242,
+          "threshold": 0.2106000781059265,
+          "summary": {
+            "cells": 132,
+            "mean_iou": 0.3840838468561101,
+            "median_iou": 0.3593187283224184,
+            "mean_dice": 0.5299009187118849,
+            "fraction_iou_at_least_0.5": 0.23484848484848486
+          },
+          "relationships": {
+            "primary_ids": 137,
+            "secondary_ids": 137,
+            "matched_ids": 137,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 71
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.5765159570000833,
+          "threshold": null,
+          "summary": {
+            "cells": 132,
+            "mean_iou": 0.3839596849730895,
+            "median_iou": 0.36376691521679094,
+            "mean_dice": 0.5329091195197068,
+            "fraction_iou_at_least_0.5": 0.24242424242424243
+          },
+          "relationships": {
+            "primary_ids": 137,
+            "secondary_ids": 137,
+            "matched_ids": 137,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 17
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.5519581740081776,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 132,
+            "mean_iou": 0.37687763815115294,
+            "median_iou": 0.33991687165262296,
+            "mean_dice": 0.5241054963255249,
+            "fraction_iou_at_least_0.5": 0.21212121212121213
+          },
+          "relationships": {
+            "primary_ids": 137,
+            "secondary_ids": 137,
+            "matched_ids": 137,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 26
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.54616757700569,
+          "threshold": 0.16850706040859223,
+          "summary": {
+            "cells": 132,
+            "mean_iou": 0.3941305664345164,
+            "median_iou": 0.34937205819250744,
+            "mean_dice": 0.5381919929725256,
+            "fraction_iou_at_least_0.5": 0.25757575757575757
+          },
+          "relationships": {
+            "primary_ids": 137,
+            "secondary_ids": 137,
+            "matched_ids": 137,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 55
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.536286367001594,
+          "threshold": 0.2106000781059265,
+          "summary": {
+            "cells": 132,
+            "mean_iou": 0.4843608025359182,
+            "median_iou": 0.4896263546189417,
+            "mean_dice": 0.6178866660126813,
+            "fraction_iou_at_least_0.5": 0.4772727272727273
+          },
+          "relationships": {
+            "primary_ids": 137,
+            "secondary_ids": 137,
+            "matched_ids": 137,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 50
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 132,
+            "mean_iou": 0.2905953050539541,
+            "median_iou": 0.25294364867411256,
+            "mean_dice": 0.4337371153050344,
+            "fraction_iou_at_least_0.5": 0.06060606060606061
+          },
+          "relationships": {
+            "primary_ids": 137,
+            "secondary_ids": 137,
+            "matched_ids": 137,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 137
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 132,
+            "mean_iou": 0.5214531705845035,
+            "median_iou": 0.5177760105540247,
+            "mean_dice": 0.6583106309771254,
+            "fraction_iou_at_least_0.5": 0.5303030303030303
+          },
+          "relationships": {
+            "primary_ids": 137,
+            "secondary_ids": 137,
+            "matched_ids": 137,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 8
+          }
+        }
+      }
+    },
+    {
+      "field": "f113/AS_09125_040701150004_A02f00d1.tif",
+      "shape": [
+        512,
+        512
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 1
+        },
+        "cell_excluded": {
+          "border_components": 5,
+          "tiny_components": 8
+        },
+        "nuclei": 80,
+        "cell_interiors": 79,
+        "paired": 77,
+        "ambiguous_cells": 1,
+        "unpaired_nuclei": 3
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.41576559700479265,
+          "threshold": 0.3182283043861389,
+          "summary": {
+            "cells": 77,
+            "mean_iou": 0.3331991051851265,
+            "median_iou": 0.3090909090909091,
+            "mean_dice": 0.4728553374356028,
+            "fraction_iou_at_least_0.5": 0.19480519480519481
+          },
+          "relationships": {
+            "primary_ids": 80,
+            "secondary_ids": 80,
+            "matched_ids": 80,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 25
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.4509085810132092,
+          "threshold": null,
+          "summary": {
+            "cells": 77,
+            "mean_iou": 0.3286545407776347,
+            "median_iou": 0.3090909090909091,
+            "mean_dice": 0.4774186179151169,
+            "fraction_iou_at_least_0.5": 0.14285714285714285
+          },
+          "relationships": {
+            "primary_ids": 80,
+            "secondary_ids": 80,
+            "matched_ids": 80,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.4164078059984604,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 77,
+            "mean_iou": 0.2678977995022813,
+            "median_iou": 0.25958702064896755,
+            "mean_dice": 0.40731692045983414,
+            "fraction_iou_at_least_0.5": 0.03896103896103896
+          },
+          "relationships": {
+            "primary_ids": 80,
+            "secondary_ids": 80,
+            "matched_ids": 80,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.41969623499608133,
+          "threshold": 0.07048137485980985,
+          "summary": {
+            "cells": 77,
+            "mean_iou": 0.23456278138618208,
+            "median_iou": 0.209165687426557,
+            "mean_dice": 0.36447128695923414,
+            "fraction_iou_at_least_0.5": 0.025974025974025976
+          },
+          "relationships": {
+            "primary_ids": 80,
+            "secondary_ids": 80,
+            "matched_ids": 80,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.41263674400397576,
+          "threshold": 0.3182283043861389,
+          "summary": {
+            "cells": 77,
+            "mean_iou": 0.6017811911283233,
+            "median_iou": 0.687374749498998,
+            "mean_dice": 0.7062623118242445,
+            "fraction_iou_at_least_0.5": 0.6753246753246753
+          },
+          "relationships": {
+            "primary_ids": 80,
+            "secondary_ids": 80,
+            "matched_ids": 80,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 18
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 77,
+            "mean_iou": 0.24631637577833404,
+            "median_iou": 0.22008547008547008,
+            "mean_dice": 0.38283600321962885,
+            "fraction_iou_at_least_0.5": 0.03896103896103896
+          },
+          "relationships": {
+            "primary_ids": 80,
+            "secondary_ids": 80,
+            "matched_ids": 80,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 80
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 77,
+            "mean_iou": 0.6090120969345336,
+            "median_iou": 0.6985743380855397,
+            "mean_dice": 0.7138970133745486,
+            "fraction_iou_at_least_0.5": 0.6753246753246753
+          },
+          "relationships": {
+            "primary_ids": 80,
+            "secondary_ids": 80,
+            "matched_ids": 80,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 14
+          }
+        }
+      }
+    },
+    {
+      "field": "f96 (17)/17P1_POS0006_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 4
+        },
+        "cell_excluded": {
+          "border_components": 1,
+          "tiny_components": 5
+        },
+        "nuclei": 27,
+        "cell_interiors": 32,
+        "paired": 26,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 1
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.09160682698711753,
+          "threshold": 0.14177793264389038,
+          "summary": {
+            "cells": 26,
+            "mean_iou": 0.4681827283621735,
+            "median_iou": 0.4036464232376791,
+            "mean_dice": 0.5943673830993573,
+            "fraction_iou_at_least_0.5": 0.4230769230769231
+          },
+          "relationships": {
+            "primary_ids": 27,
+            "secondary_ids": 27,
+            "matched_ids": 27,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 8
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.11378684900410008,
+          "threshold": null,
+          "summary": {
+            "cells": 26,
+            "mean_iou": 0.5137291702559561,
+            "median_iou": 0.4955737643581397,
+            "mean_dice": 0.6376306710075894,
+            "fraction_iou_at_least_0.5": 0.5
+          },
+          "relationships": {
+            "primary_ids": 27,
+            "secondary_ids": 27,
+            "matched_ids": 27,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.0935417669970775,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 26,
+            "mean_iou": 0.48857131206820126,
+            "median_iou": 0.3917181171103858,
+            "mean_dice": 0.6169968048367858,
+            "fraction_iou_at_least_0.5": 0.4230769230769231
+          },
+          "relationships": {
+            "primary_ids": 27,
+            "secondary_ids": 27,
+            "matched_ids": 27,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 4
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.09815410200098995,
+          "threshold": 0.01327338572591543,
+          "summary": {
+            "cells": 26,
+            "mean_iou": 0.29697741063511435,
+            "median_iou": 0.29968185949876636,
+            "mean_dice": 0.44597079770125314,
+            "fraction_iou_at_least_0.5": 0.038461538461538464
+          },
+          "relationships": {
+            "primary_ids": 27,
+            "secondary_ids": 27,
+            "matched_ids": 27,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.09134353100671433,
+          "threshold": 0.14177793264389038,
+          "summary": {
+            "cells": 26,
+            "mean_iou": 0.7593396941925185,
+            "median_iou": 0.8339478404464311,
+            "mean_dice": 0.8478858252853165,
+            "fraction_iou_at_least_0.5": 0.8461538461538461
+          },
+          "relationships": {
+            "primary_ids": 27,
+            "secondary_ids": 27,
+            "matched_ids": 27,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 26,
+            "mean_iou": 0.20526181501361734,
+            "median_iou": 0.2072554859620691,
+            "mean_dice": 0.3341661446878135,
+            "fraction_iou_at_least_0.5": 0.0
+          },
+          "relationships": {
+            "primary_ids": 27,
+            "secondary_ids": 27,
+            "matched_ids": 27,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 27
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 26,
+            "mean_iou": 0.7182219046899161,
+            "median_iou": 0.7783348715582219,
+            "mean_dice": 0.8166963828404855,
+            "fraction_iou_at_least_0.5": 0.8076923076923077
+          },
+          "relationships": {
+            "primary_ids": 27,
+            "secondary_ids": 27,
+            "matched_ids": 27,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        }
+      }
+    },
+    {
+      "field": "f96 (17)/17P1_POS0007_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 1
+        },
+        "cell_excluded": {
+          "border_components": 6,
+          "tiny_components": 13
+        },
+        "nuclei": 78,
+        "cell_interiors": 85,
+        "paired": 76,
+        "ambiguous_cells": 1,
+        "unpaired_nuclei": 2
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.24988660000963137,
+          "threshold": 0.21210725605487823,
+          "summary": {
+            "cells": 76,
+            "mean_iou": 0.3297774898943733,
+            "median_iou": 0.2410769088358647,
+            "mean_dice": 0.4661199307299615,
+            "fraction_iou_at_least_0.5": 0.23684210526315788
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 31
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.27086384600261226,
+          "threshold": null,
+          "summary": {
+            "cells": 76,
+            "mean_iou": 0.34218695579140346,
+            "median_iou": 0.27372325017754384,
+            "mean_dice": 0.4829110557553476,
+            "fraction_iou_at_least_0.5": 0.19736842105263158
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 8
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.2535766149958363,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 76,
+            "mean_iou": 0.32696162361598197,
+            "median_iou": 0.27481603862017245,
+            "mean_dice": 0.46906694729995213,
+            "fraction_iou_at_least_0.5": 0.14473684210526316
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 9
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.25700152199715376,
+          "threshold": 0.19189719259738922,
+          "summary": {
+            "cells": 76,
+            "mean_iou": 0.32769428101845977,
+            "median_iou": 0.23952814109451998,
+            "mean_dice": 0.46303520916380264,
+            "fraction_iou_at_least_0.5": 0.21052631578947367
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 28
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.24916462998953648,
+          "threshold": 0.21210725605487823,
+          "summary": {
+            "cells": 76,
+            "mean_iou": 0.5602663653542336,
+            "median_iou": 0.6347536788227767,
+            "mean_dice": 0.6829332181182808,
+            "fraction_iou_at_least_0.5": 0.631578947368421
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 14
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 76,
+            "mean_iou": 0.2317201454255434,
+            "median_iou": 0.21745059134765016,
+            "mean_dice": 0.36898253580903495,
+            "fraction_iou_at_least_0.5": 0.0
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 78
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 76,
+            "mean_iou": 0.6066252336187355,
+            "median_iou": 0.6764012746039427,
+            "mean_dice": 0.727479987863055,
+            "fraction_iou_at_least_0.5": 0.6973684210526315
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 1
+          }
+        }
+      }
+    },
+    {
+      "field": "f96 (17)/17P1_POS0011_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 3
+        },
+        "cell_excluded": {
+          "border_components": 15,
+          "tiny_components": 19
+        },
+        "nuclei": 105,
+        "cell_interiors": 122,
+        "paired": 102,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 3
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.33583390300918836,
+          "threshold": 0.22105687856674194,
+          "summary": {
+            "cells": 102,
+            "mean_iou": 0.374985551876457,
+            "median_iou": 0.3309679547078547,
+            "mean_dice": 0.5217597677223926,
+            "fraction_iou_at_least_0.5": 0.22549019607843138
+          },
+          "relationships": {
+            "primary_ids": 105,
+            "secondary_ids": 105,
+            "matched_ids": 105,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 34
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.35527216299669817,
+          "threshold": null,
+          "summary": {
+            "cells": 102,
+            "mean_iou": 0.39858786723375833,
+            "median_iou": 0.37367660854637363,
+            "mean_dice": 0.5512186819417113,
+            "fraction_iou_at_least_0.5": 0.2549019607843137
+          },
+          "relationships": {
+            "primary_ids": 105,
+            "secondary_ids": 105,
+            "matched_ids": 105,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 4
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.3386761490110075,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 102,
+            "mean_iou": 0.38824786381656384,
+            "median_iou": 0.3719338468635976,
+            "mean_dice": 0.5397882193643382,
+            "fraction_iou_at_least_0.5": 0.23529411764705882
+          },
+          "relationships": {
+            "primary_ids": 105,
+            "secondary_ids": 105,
+            "matched_ids": 105,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 7
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.34170899700256996,
+          "threshold": 0.22479417324066162,
+          "summary": {
+            "cells": 102,
+            "mean_iou": 0.3750791837751055,
+            "median_iou": 0.3336666861284645,
+            "mean_dice": 0.5219171868220406,
+            "fraction_iou_at_least_0.5": 0.22549019607843138
+          },
+          "relationships": {
+            "primary_ids": 105,
+            "secondary_ids": 105,
+            "matched_ids": 105,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 34
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.3322833830025047,
+          "threshold": 0.22105687856674194,
+          "summary": {
+            "cells": 102,
+            "mean_iou": 0.5632177034510607,
+            "median_iou": 0.6321783630680344,
+            "mean_dice": 0.6868397240120107,
+            "fraction_iou_at_least_0.5": 0.6274509803921569
+          },
+          "relationships": {
+            "primary_ids": 105,
+            "secondary_ids": 105,
+            "matched_ids": 105,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 24
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 102,
+            "mean_iou": 0.26507541962917935,
+            "median_iou": 0.2216781474163863,
+            "mean_dice": 0.4047356956355708,
+            "fraction_iou_at_least_0.5": 0.0392156862745098
+          },
+          "relationships": {
+            "primary_ids": 105,
+            "secondary_ids": 105,
+            "matched_ids": 105,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 105
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 102,
+            "mean_iou": 0.5987876048043471,
+            "median_iou": 0.6451947530451078,
+            "mean_dice": 0.7261542879290701,
+            "fraction_iou_at_least_0.5": 0.6764705882352942
+          },
+          "relationships": {
+            "primary_ids": 105,
+            "secondary_ids": 105,
+            "matched_ids": 105,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 1
+          }
+        }
+      }
+    },
+    {
+      "field": "f96 (17)/17P1_POS0013_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 1
+        },
+        "cell_excluded": {
+          "border_components": 4,
+          "tiny_components": 4
+        },
+        "nuclei": 48,
+        "cell_interiors": 49,
+        "paired": 48,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 0
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.15623265800240915,
+          "threshold": 0.17069277167320251,
+          "summary": {
+            "cells": 48,
+            "mean_iou": 0.41954561916084315,
+            "median_iou": 0.3685792030211153,
+            "mean_dice": 0.5621938904826086,
+            "fraction_iou_at_least_0.5": 0.3125
+          },
+          "relationships": {
+            "primary_ids": 48,
+            "secondary_ids": 48,
+            "matched_ids": 48,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 5
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.17720278099295683,
+          "threshold": null,
+          "summary": {
+            "cells": 48,
+            "mean_iou": 0.4202293547280944,
+            "median_iou": 0.37811006589868706,
+            "mean_dice": 0.57114448926357,
+            "fraction_iou_at_least_0.5": 0.3333333333333333
+          },
+          "relationships": {
+            "primary_ids": 48,
+            "secondary_ids": 48,
+            "matched_ids": 48,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.15689880400896072,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 48,
+            "mean_iou": 0.38800790948444513,
+            "median_iou": 0.33666488983653164,
+            "mean_dice": 0.5373140354544459,
+            "fraction_iou_at_least_0.5": 0.20833333333333334
+          },
+          "relationships": {
+            "primary_ids": 48,
+            "secondary_ids": 48,
+            "matched_ids": 48,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.15799408000020776,
+          "threshold": 0.0633239060640335,
+          "summary": {
+            "cells": 48,
+            "mean_iou": 0.35109988261132585,
+            "median_iou": 0.33164017924239475,
+            "mean_dice": 0.5024478362445093,
+            "fraction_iou_at_least_0.5": 0.125
+          },
+          "relationships": {
+            "primary_ids": 48,
+            "secondary_ids": 48,
+            "matched_ids": 48,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.15746208900236525,
+          "threshold": 0.17069277167320251,
+          "summary": {
+            "cells": 48,
+            "mean_iou": 0.6980899211570742,
+            "median_iou": 0.751707344069954,
+            "mean_dice": 0.8061489406965158,
+            "fraction_iou_at_least_0.5": 0.8333333333333334
+          },
+          "relationships": {
+            "primary_ids": 48,
+            "secondary_ids": 48,
+            "matched_ids": 48,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 48,
+            "mean_iou": 0.2499137817940266,
+            "median_iou": 0.22625661375661377,
+            "mean_dice": 0.38625759013458927,
+            "fraction_iou_at_least_0.5": 0.041666666666666664
+          },
+          "relationships": {
+            "primary_ids": 48,
+            "secondary_ids": 48,
+            "matched_ids": 48,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 48
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 48,
+            "mean_iou": 0.6909268966040635,
+            "median_iou": 0.7421467032408819,
+            "mean_dice": 0.8025298823417865,
+            "fraction_iou_at_least_0.5": 0.8333333333333334
+          },
+          "relationships": {
+            "primary_ids": 48,
+            "secondary_ids": 48,
+            "matched_ids": 48,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        }
+      }
+    },
+    {
+      "field": "f96 (17)/17P1_POS0014_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 3
+        },
+        "cell_excluded": {
+          "border_components": 18,
+          "tiny_components": 22
+        },
+        "nuclei": 74,
+        "cell_interiors": 85,
+        "paired": 72,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 2
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.2425459889927879,
+          "threshold": 0.21173787117004395,
+          "summary": {
+            "cells": 72,
+            "mean_iou": 0.4253272984386118,
+            "median_iou": 0.39117248269464067,
+            "mean_dice": 0.5751609977763508,
+            "fraction_iou_at_least_0.5": 0.3194444444444444
+          },
+          "relationships": {
+            "primary_ids": 74,
+            "secondary_ids": 74,
+            "matched_ids": 74,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 18
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.25836537800205406,
+          "threshold": null,
+          "summary": {
+            "cells": 72,
+            "mean_iou": 0.4844777252843916,
+            "median_iou": 0.4878474018583283,
+            "mean_dice": 0.6305954636202985,
+            "fraction_iou_at_least_0.5": 0.4444444444444444
+          },
+          "relationships": {
+            "primary_ids": 74,
+            "secondary_ids": 74,
+            "matched_ids": 74,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 7
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.24534161199699156,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 72,
+            "mean_iou": 0.4539615500285465,
+            "median_iou": 0.46367328780577993,
+            "mean_dice": 0.6046667376406089,
+            "fraction_iou_at_least_0.5": 0.3888888888888889
+          },
+          "relationships": {
+            "primary_ids": 74,
+            "secondary_ids": 74,
+            "matched_ids": 74,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 10
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.238276042000507,
+          "threshold": 0.16497833728790282,
+          "summary": {
+            "cells": 72,
+            "mean_iou": 0.44741865823820537,
+            "median_iou": 0.42335147053406513,
+            "mean_dice": 0.5957309028596757,
+            "fraction_iou_at_least_0.5": 0.3472222222222222
+          },
+          "relationships": {
+            "primary_ids": 74,
+            "secondary_ids": 74,
+            "matched_ids": 74,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 15
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.2342371030099457,
+          "threshold": 0.21173787117004395,
+          "summary": {
+            "cells": 72,
+            "mean_iou": 0.6066529416225895,
+            "median_iou": 0.6544870911956904,
+            "mean_dice": 0.7315955754862925,
+            "fraction_iou_at_least_0.5": 0.75
+          },
+          "relationships": {
+            "primary_ids": 74,
+            "secondary_ids": 74,
+            "matched_ids": 74,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 7
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 72,
+            "mean_iou": 0.26644919516667365,
+            "median_iou": 0.2608391608391608,
+            "mean_dice": 0.40791120712578866,
+            "fraction_iou_at_least_0.5": 0.013888888888888888
+          },
+          "relationships": {
+            "primary_ids": 74,
+            "secondary_ids": 74,
+            "matched_ids": 74,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 74
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 72,
+            "mean_iou": 0.6428534205342136,
+            "median_iou": 0.687933320841201,
+            "mean_dice": 0.7648012013865431,
+            "fraction_iou_at_least_0.5": 0.7916666666666666
+          },
+          "relationships": {
+            "primary_ids": 74,
+            "secondary_ids": 74,
+            "matched_ids": 74,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        }
+      }
+    },
+    {
+      "field": "f9620/20P1_POS0002_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 8
+        },
+        "cell_excluded": {
+          "border_components": 7,
+          "tiny_components": 11
+        },
+        "nuclei": 93,
+        "cell_interiors": 97,
+        "paired": 90,
+        "ambiguous_cells": 1,
+        "unpaired_nuclei": 3
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.2977997209964087,
+          "threshold": 0.1831536889076233,
+          "summary": {
+            "cells": 90,
+            "mean_iou": 0.46831444571579794,
+            "median_iou": 0.4709721591887197,
+            "mean_dice": 0.625083526503832,
+            "fraction_iou_at_least_0.5": 0.4111111111111111
+          },
+          "relationships": {
+            "primary_ids": 93,
+            "secondary_ids": 93,
+            "matched_ids": 93,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 10
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.3179321269999491,
+          "threshold": null,
+          "summary": {
+            "cells": 90,
+            "mean_iou": 0.4684464739418377,
+            "median_iou": 0.45547763752532333,
+            "mean_dice": 0.6258664405654957,
+            "fraction_iou_at_least_0.5": 0.4111111111111111
+          },
+          "relationships": {
+            "primary_ids": 93,
+            "secondary_ids": 93,
+            "matched_ids": 93,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 1
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.3060511859948747,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 90,
+            "mean_iou": 0.446345325995472,
+            "median_iou": 0.44004272053414817,
+            "mean_dice": 0.6048325267261192,
+            "fraction_iou_at_least_0.5": 0.34444444444444444
+          },
+          "relationships": {
+            "primary_ids": 93,
+            "secondary_ids": 93,
+            "matched_ids": 93,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.30075019400101155,
+          "threshold": 0.19173024296760557,
+          "summary": {
+            "cells": 90,
+            "mean_iou": 0.4654422060962048,
+            "median_iou": 0.4607030062301628,
+            "mean_dice": 0.6223876216357143,
+            "fraction_iou_at_least_0.5": 0.4111111111111111
+          },
+          "relationships": {
+            "primary_ids": 93,
+            "secondary_ids": 93,
+            "matched_ids": 93,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 12
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.28879170599975623,
+          "threshold": 0.1831536889076233,
+          "summary": {
+            "cells": 90,
+            "mean_iou": 0.7186069976772598,
+            "median_iou": 0.7465191611407185,
+            "mean_dice": 0.8264582544050831,
+            "fraction_iou_at_least_0.5": 0.9
+          },
+          "relationships": {
+            "primary_ids": 93,
+            "secondary_ids": 93,
+            "matched_ids": 93,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 5
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 90,
+            "mean_iou": 0.339203397374203,
+            "median_iou": 0.33107915936762355,
+            "mean_dice": 0.4987706357878956,
+            "fraction_iou_at_least_0.5": 0.06666666666666667
+          },
+          "relationships": {
+            "primary_ids": 93,
+            "secondary_ids": 93,
+            "matched_ids": 93,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 93
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 90,
+            "mean_iou": 0.7097136120184341,
+            "median_iou": 0.7332738805180784,
+            "mean_dice": 0.8203629149928926,
+            "fraction_iou_at_least_0.5": 0.9111111111111111
+          },
+          "relationships": {
+            "primary_ids": 93,
+            "secondary_ids": 93,
+            "matched_ids": 93,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        }
+      }
+    },
+    {
+      "field": "f9620/20P1_POS0005_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 2
+        },
+        "cell_excluded": {
+          "border_components": 2,
+          "tiny_components": 8
+        },
+        "nuclei": 45,
+        "cell_interiors": 46,
+        "paired": 44,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 1
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.14484540700505022,
+          "threshold": 0.12186804413795471,
+          "summary": {
+            "cells": 44,
+            "mean_iou": 0.46147840585268884,
+            "median_iou": 0.41515305138354763,
+            "mean_dice": 0.5992440232147834,
+            "fraction_iou_at_least_0.5": 0.36363636363636365
+          },
+          "relationships": {
+            "primary_ids": 45,
+            "secondary_ids": 45,
+            "matched_ids": 45,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 18
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.1661892709962558,
+          "threshold": null,
+          "summary": {
+            "cells": 44,
+            "mean_iou": 0.4503297464143021,
+            "median_iou": 0.4813074815547446,
+            "mean_dice": 0.5831467570516321,
+            "fraction_iou_at_least_0.5": 0.45454545454545453
+          },
+          "relationships": {
+            "primary_ids": 45,
+            "secondary_ids": 45,
+            "matched_ids": 45,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 1
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.14484951700433157,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 44,
+            "mean_iou": 0.47290140859464336,
+            "median_iou": 0.39772976071526667,
+            "mean_dice": 0.6087294810418774,
+            "fraction_iou_at_least_0.5": 0.4318181818181818
+          },
+          "relationships": {
+            "primary_ids": 45,
+            "secondary_ids": 45,
+            "matched_ids": 45,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 13
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.14743549400009215,
+          "threshold": 0.019308175519108763,
+          "summary": {
+            "cells": 44,
+            "mean_iou": 0.40977778949641586,
+            "median_iou": 0.3865257273122015,
+            "mean_dice": 0.5545156804251522,
+            "fraction_iou_at_least_0.5": 0.29545454545454547
+          },
+          "relationships": {
+            "primary_ids": 45,
+            "secondary_ids": 45,
+            "matched_ids": 45,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.143815547999111,
+          "threshold": 0.12186804413795471,
+          "summary": {
+            "cells": 44,
+            "mean_iou": 0.5925868440375588,
+            "median_iou": 0.5907472693280211,
+            "mean_dice": 0.7197615398278794,
+            "fraction_iou_at_least_0.5": 0.6363636363636364
+          },
+          "relationships": {
+            "primary_ids": 45,
+            "secondary_ids": 45,
+            "matched_ids": 45,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 11
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 44,
+            "mean_iou": 0.3706864213570693,
+            "median_iou": 0.3358655462793211,
+            "mean_dice": 0.5195290121102383,
+            "fraction_iou_at_least_0.5": 0.13636363636363635
+          },
+          "relationships": {
+            "primary_ids": 45,
+            "secondary_ids": 45,
+            "matched_ids": 45,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 45
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 44,
+            "mean_iou": 0.6131450213442735,
+            "median_iou": 0.6120203579802139,
+            "mean_dice": 0.7401044399697067,
+            "fraction_iou_at_least_0.5": 0.6818181818181818
+          },
+          "relationships": {
+            "primary_ids": 45,
+            "secondary_ids": 45,
+            "matched_ids": 45,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 5
+          }
+        }
+      }
+    },
+    {
+      "field": "f9620/20P1_POS0007_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 0
+        },
+        "cell_excluded": {
+          "border_components": 13,
+          "tiny_components": 16
+        },
+        "nuclei": 78,
+        "cell_interiors": 83,
+        "paired": 73,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 5
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.2534605380060384,
+          "threshold": 0.17679733037948608,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.38309341100691935,
+            "median_iou": 0.3326063249727372,
+            "mean_dice": 0.5306630631262951,
+            "fraction_iou_at_least_0.5": 0.2328767123287671
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 30
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.27780139999231324,
+          "threshold": null,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.40108279034068683,
+            "median_iou": 0.3952513966480447,
+            "mean_dice": 0.5512716020031883,
+            "fraction_iou_at_least_0.5": 0.2328767123287671
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 6
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.2512415429955581,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.39121985469833204,
+            "median_iou": 0.3782542113323124,
+            "mean_dice": 0.5415505440732139,
+            "fraction_iou_at_least_0.5": 0.1643835616438356
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 8
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.2510843750060303,
+          "threshold": 0.14773664772510528,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.39099929087759333,
+            "median_iou": 0.33668341708542715,
+            "mean_dice": 0.5382464582861654,
+            "fraction_iou_at_least_0.5": 0.2465753424657534
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 24
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.24881713699141983,
+          "threshold": 0.17679733037948608,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.5257045270707245,
+            "median_iou": 0.5695952615992103,
+            "mean_dice": 0.6591155670885002,
+            "fraction_iou_at_least_0.5": 0.5753424657534246
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 18
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.26809491119125745,
+            "median_iou": 0.2675862068965517,
+            "mean_dice": 0.4146287239863668,
+            "fraction_iou_at_least_0.5": 0.0136986301369863
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 78
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.5676415654691105,
+            "median_iou": 0.6013320647002854,
+            "mean_dice": 0.7003169746823829,
+            "fraction_iou_at_least_0.5": 0.6575342465753424
+          },
+          "relationships": {
+            "primary_ids": 78,
+            "secondary_ids": 78,
+            "matched_ids": 78,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        }
+      }
+    },
+    {
+      "field": "f9620/20P1_POS0008_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 0
+        },
+        "cell_excluded": {
+          "border_components": 4,
+          "tiny_components": 10
+        },
+        "nuclei": 61,
+        "cell_interiors": 63,
+        "paired": 60,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 1
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.19920754099439364,
+          "threshold": 0.19042611122131348,
+          "summary": {
+            "cells": 60,
+            "mean_iou": 0.41966323519950094,
+            "median_iou": 0.3890521413352554,
+            "mean_dice": 0.5645915737941568,
+            "fraction_iou_at_least_0.5": 0.35
+          },
+          "relationships": {
+            "primary_ids": 61,
+            "secondary_ids": 61,
+            "matched_ids": 61,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 12
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.2211384720139904,
+          "threshold": null,
+          "summary": {
+            "cells": 60,
+            "mean_iou": 0.3885178859089062,
+            "median_iou": 0.3513886673110671,
+            "mean_dice": 0.537136479222093,
+            "fraction_iou_at_least_0.5": 0.23333333333333334
+          },
+          "relationships": {
+            "primary_ids": 61,
+            "secondary_ids": 61,
+            "matched_ids": 61,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.2021522900031414,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 60,
+            "mean_iou": 0.39480590900345475,
+            "median_iou": 0.3737139514210265,
+            "mean_dice": 0.5451447437140104,
+            "fraction_iou_at_least_0.5": 0.2
+          },
+          "relationships": {
+            "primary_ids": 61,
+            "secondary_ids": 61,
+            "matched_ids": 61,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 3
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.20206584999687038,
+          "threshold": 0.1488131731748581,
+          "summary": {
+            "cells": 60,
+            "mean_iou": 0.4274589674108855,
+            "median_iou": 0.41049442371996825,
+            "mean_dice": 0.571532440935724,
+            "fraction_iou_at_least_0.5": 0.3333333333333333
+          },
+          "relationships": {
+            "primary_ids": 61,
+            "secondary_ids": 61,
+            "matched_ids": 61,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 6
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.19577285599370953,
+          "threshold": 0.19042611122131348,
+          "summary": {
+            "cells": 60,
+            "mean_iou": 0.6118698747383111,
+            "median_iou": 0.6515079375875719,
+            "mean_dice": 0.7343462102358089,
+            "fraction_iou_at_least_0.5": 0.6666666666666666
+          },
+          "relationships": {
+            "primary_ids": 61,
+            "secondary_ids": 61,
+            "matched_ids": 61,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 8
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 60,
+            "mean_iou": 0.300515261532409,
+            "median_iou": 0.26152607987398513,
+            "mean_dice": 0.4494547322108194,
+            "fraction_iou_at_least_0.5": 0.05
+          },
+          "relationships": {
+            "primary_ids": 61,
+            "secondary_ids": 61,
+            "matched_ids": 61,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 61
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 60,
+            "mean_iou": 0.616446963944187,
+            "median_iou": 0.634667573842582,
+            "mean_dice": 0.7435371551828553,
+            "fraction_iou_at_least_0.5": 0.75
+          },
+          "relationships": {
+            "primary_ids": 61,
+            "secondary_ids": 61,
+            "matched_ids": 61,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        }
+      }
+    },
+    {
+      "field": "f9620/20P1_POS0010_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 0
+        },
+        "cell_excluded": {
+          "border_components": 4,
+          "tiny_components": 10
+        },
+        "nuclei": 60,
+        "cell_interiors": 56,
+        "paired": 53,
+        "ambiguous_cells": 1,
+        "unpaired_nuclei": 7
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.19713884800148662,
+          "threshold": 0.1501317024230957,
+          "summary": {
+            "cells": 53,
+            "mean_iou": 0.48881201203985014,
+            "median_iou": 0.4774011299435028,
+            "mean_dice": 0.6225139524575062,
+            "fraction_iou_at_least_0.5": 0.4528301886792453
+          },
+          "relationships": {
+            "primary_ids": 60,
+            "secondary_ids": 60,
+            "matched_ids": 60,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 9
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.2120017349952832,
+          "threshold": null,
+          "summary": {
+            "cells": 53,
+            "mean_iou": 0.5355181836980356,
+            "median_iou": 0.543046357615894,
+            "mean_dice": 0.6688559409862848,
+            "fraction_iou_at_least_0.5": 0.6037735849056604
+          },
+          "relationships": {
+            "primary_ids": 60,
+            "secondary_ids": 60,
+            "matched_ids": 60,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 0
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.19403845199849457,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 53,
+            "mean_iou": 0.5053527314994363,
+            "median_iou": 0.5010683760683761,
+            "mean_dice": 0.6396505890604236,
+            "fraction_iou_at_least_0.5": 0.5094339622641509
+          },
+          "relationships": {
+            "primary_ids": 60,
+            "secondary_ids": 60,
+            "matched_ids": 60,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.20092982800269965,
+          "threshold": 0.08232278972864149,
+          "summary": {
+            "cells": 53,
+            "mean_iou": 0.5001448558411932,
+            "median_iou": 0.5019029495718363,
+            "mean_dice": 0.6375889268363281,
+            "fraction_iou_at_least_0.5": 0.5094339622641509
+          },
+          "relationships": {
+            "primary_ids": 60,
+            "secondary_ids": 60,
+            "matched_ids": 60,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 2
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.1918680919916369,
+          "threshold": 0.1501317024230957,
+          "summary": {
+            "cells": 53,
+            "mean_iou": 0.6517156002401097,
+            "median_iou": 0.7225130890052356,
+            "mean_dice": 0.7614516166915597,
+            "fraction_iou_at_least_0.5": 0.7169811320754716
+          },
+          "relationships": {
+            "primary_ids": 60,
+            "secondary_ids": 60,
+            "matched_ids": 60,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 6
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 53,
+            "mean_iou": 0.28190279865056234,
+            "median_iou": 0.2687651331719128,
+            "mean_dice": 0.4314878406920177,
+            "fraction_iou_at_least_0.5": 0.018867924528301886
+          },
+          "relationships": {
+            "primary_ids": 60,
+            "secondary_ids": 60,
+            "matched_ids": 60,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 60
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 53,
+            "mean_iou": 0.6483032243943455,
+            "median_iou": 0.7111486486486487,
+            "mean_dice": 0.7595653109177287,
+            "fraction_iou_at_least_0.5": 0.7924528301886793
+          },
+          "relationships": {
+            "primary_ids": 60,
+            "secondary_ids": 60,
+            "matched_ids": 60,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 1
+          }
+        }
+      }
+    },
+    {
+      "field": "f9620/20P1_POS0011_F_2UL.tif",
+      "shape": [
+        400,
+        400
+      ],
+      "reference": {
+        "nuclear_excluded": {
+          "border_components": 1,
+          "tiny_components": 3
+        },
+        "cell_excluded": {
+          "border_components": 15,
+          "tiny_components": 7
+        },
+        "nuclei": 77,
+        "cell_interiors": 79,
+        "paired": 73,
+        "ambiguous_cells": 0,
+        "unpaired_nuclei": 4
+      },
+      "methods": {
+        "otsu_sigma2": {
+          "seconds": 0.244082884004456,
+          "threshold": 0.2011260986328125,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.3540183913938475,
+            "median_iou": 0.3276216586703221,
+            "mean_dice": 0.5001573543162231,
+            "fraction_iou_at_least_0.5": 0.1506849315068493
+          },
+          "relationships": {
+            "primary_ids": 77,
+            "secondary_ids": 77,
+            "matched_ids": 77,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 24
+          }
+        },
+        "fraction_0.4_sigma2": {
+          "seconds": 0.2662362800037954,
+          "threshold": null,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.3849986191492862,
+            "median_iou": 0.3455794504181601,
+            "mean_dice": 0.5331246237487153,
+            "fraction_iou_at_least_0.5": 0.2602739726027397
+          },
+          "relationships": {
+            "primary_ids": 77,
+            "secondary_ids": 77,
+            "matched_ids": 77,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 5
+          }
+        },
+        "absolute_0.1_sigma2": {
+          "seconds": 0.24698819100740366,
+          "threshold": 0.1,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.3770291461922313,
+            "median_iou": 0.3365318711446196,
+            "mean_dice": 0.5247446083816758,
+            "fraction_iou_at_least_0.5": 0.2465753424657534
+          },
+          "relationships": {
+            "primary_ids": 77,
+            "secondary_ids": 77,
+            "matched_ids": 77,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 8
+          }
+        },
+        "percentile_60_sigma2": {
+          "seconds": 0.24550715999794193,
+          "threshold": 0.15682430565357208,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.3711840739403792,
+            "median_iou": 0.33849129593810445,
+            "mean_dice": 0.5171807451345494,
+            "fraction_iou_at_least_0.5": 0.1917808219178082
+          },
+          "relationships": {
+            "primary_ids": 77,
+            "secondary_ids": 77,
+            "matched_ids": 77,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 13
+          }
+        },
+        "distance_growth_otsu_sigma2": {
+          "seconds": 0.23961474098905455,
+          "threshold": 0.2011260986328125,
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.5947901493230306,
+            "median_iou": 0.6341463414634146,
+            "mean_dice": 0.7230649666758207,
+            "fraction_iou_at_least_0.5": 0.7123287671232876
+          },
+          "relationships": {
+            "primary_ids": 77,
+            "secondary_ids": 77,
+            "matched_ids": 77,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 12
+          }
+        },
+        "primary_only": {
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.2700987421456997,
+            "median_iou": 0.2549019607843137,
+            "mean_dice": 0.41687212929701006,
+            "fraction_iou_at_least_0.5": 0.0273972602739726
+          },
+          "relationships": {
+            "primary_ids": 77,
+            "secondary_ids": 77,
+            "matched_ids": 77,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 77
+          }
+        },
+        "distance_otsu": {
+          "summary": {
+            "cells": 73,
+            "mean_iou": 0.616596209995805,
+            "median_iou": 0.6501687289088864,
+            "mean_dice": 0.7458777840287776,
+            "fraction_iou_at_least_0.5": 0.7123287671232876
+          },
+          "relationships": {
+            "primary_ids": 77,
+            "secondary_ids": 77,
+            "matched_ids": 77,
+            "missing_secondary_ids": 0,
+            "orphan_secondary_ids": 0,
+            "incomplete_primary_ids": 0,
+            "unexpanded_primary_ids": 1
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "otsu_sigma2": {
+      "cells": 1212,
+      "mean_iou": 0.3977856749750604,
+      "median_iou": 0.3535414267326062,
+      "mean_dice": 0.5414036286553804,
+      "fraction_iou_at_least_0.5": 0.2838283828382838
+    },
+    "fraction_0.4_sigma2": {
+      "cells": 1212,
+      "mean_iou": 0.4128257792942689,
+      "median_iou": 0.37939371423469814,
+      "mean_dice": 0.5594246075712147,
+      "fraction_iou_at_least_0.5": 0.3102310231023102
+    },
+    "absolute_0.1_sigma2": {
+      "cells": 1212,
+      "mean_iou": 0.3981463392096616,
+      "median_iou": 0.36532888896333393,
+      "mean_dice": 0.5440465623804114,
+      "fraction_iou_at_least_0.5": 0.264026402640264
+    },
+    "percentile_60_sigma2": {
+      "cells": 1212,
+      "mean_iou": 0.38983141447718256,
+      "median_iou": 0.34785460750965463,
+      "mean_dice": 0.5341318675407515,
+      "fraction_iou_at_least_0.5": 0.26815181518151815
+    },
+    "distance_growth_otsu_sigma2": {
+      "cells": 1212,
+      "mean_iou": 0.586350225873221,
+      "median_iou": 0.6351967267841427,
+      "mean_dice": 0.7080020369053366,
+      "fraction_iou_at_least_0.5": 0.655940594059406
+    },
+    "primary_only": {
+      "cells": 1212,
+      "mean_iou": 0.277769919908262,
+      "median_iou": 0.25418176025887,
+      "mean_dice": 0.42144139209823334,
+      "fraction_iou_at_least_0.5": 0.0429042904290429
+    },
+    "distance_otsu": {
+      "cells": 1212,
+      "mean_iou": 0.6076802595594686,
+      "median_iou": 0.6469336670838548,
+      "mean_dice": 0.731330526807676,
+      "fraction_iou_at_least_0.5": 0.6996699669966997
+    }
+  },
+  "source_sha256": {
+    "spacr/qt/mask_engine.py": "171a5823fbaca3c48922db2ed1c0e43cf601dbe1c7a7f0faba672bc5aaee94d8",
+    "tools/evaluate_secondary_bbbc007.py": "ec07c27f42cc9706fba2d35b43ca493a00bc7d5c46c077e3bc989ae456f0e2eb"
+  },
+  "date": "2026-09-23",
+  "execution": "CPU only, 4 GiB MemoryMax, MemorySwapMax=0, OPENBLAS_NUM_THREADS=2, OMP_NUM_THREADS=2",
+  "command": "PYTHONPATH=. tools/run_capped.sh 4G python tools/evaluate_secondary_bbbc007.py --images /path/to/BBBC007_v1_images.zip --outlines /path/to/BBBC007_v1_outlines.zip --output /path/to/report.json --figure /path/to/figure.png"
+}

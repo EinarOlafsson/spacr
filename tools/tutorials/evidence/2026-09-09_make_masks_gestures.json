@@ -1,0 +1,23 @@
+{
+  "lesson": "14_make_masks",
+  "status": "Real manual-editing capture verified; narration and multilingual media not yet refreshed",
+  "application_commit": "0becacee8b59e47cf70ed82e83e980c7ffffe905",
+  "application_version": "1.5.0.4",
+  "capture": "refresh_2026-09-09/captures/make_masks_gestures_v3",
+  "source": "Two real seven-plane uint16 merged fields from the downloaded Measure example; exact ER plane 1 and cell-label plane 4 extracted into private TIFF copies",
+  "gestures": {
+    "erase_object": "Actual label 17 removed: 63 -> 62 objects; Undo restores every original label pixel, Redo repeats the same deletion, then Undo restores it again",
+    "draw": "A closed background outline creates one demonstrative object: 63 -> 64; it is undone and is not claimed to be a biological annotation",
+    "divide": "A real interior cell is divided: 63 -> 64; Undo restores the original array",
+    "save": "Saving the restored mask preserves its complete foreground geometry",
+    "recrop": "Actual drag writes one 267 x 331 crop containing one complete labelled object, with exact original image pixels; Next opens that child and moves only its private copied parent to recropped_originals"
+  },
+  "private_parent_recovery_path": "refresh_2026-09-09/make_masks_runs/example-v6iis97y/recropped_originals/plate1_E01_10_1_ER.tif",
+  "original_dataset_changed": false,
+  "folds_shown": ["train_cellpose", "cellpose_all", "model_compare", "model_zoo", "curate", "napari_bridge"],
+  "model_controls_shown": true,
+  "model_inference_performed": false,
+  "recorder_correction": "The first cut began outside the image on a border-touching cell. The driver now chooses a complete interior cell and rejects off-image gestures; no application fix was needed.",
+  "tests": "Four input-preparation tests pass, with removed format/label guards observed red",
+  "published": false
+}

@@ -1,0 +1,105 @@
+name: sync-installers-to-nightly
+
+# When a release commits new installers to main (online-installers.yml,
+# "chore(release): add spaCR <version> installers"), nightly kept linking the
+# previous release's installers until someone copied them over by hand, and
+# test_installer_archive_page failed on nightly in the meantime. This job
+# copies main's current installers onto nightly and rewrites the same README
+# and archive-page links the release job writes, with the same tools
+# (packaging/release.py collect + index). It does nothing when nightly
+# already carries byte-identical files. The daily run is a safety net for a
+# push event that was missed.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "spacr/application/**"
+      - "setup.py"
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-installers-to-nightly
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: nightly
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Find main's current installers
+        id: find
+        run: |
+          git fetch origin main
+          git show origin/main:setup.py > "$RUNNER_TEMP/setup_main.py"
+          python -m pip install "packaging>=24"
+          version=$(python packaging/release.py version --setup "$RUNNER_TEMP/setup_main.py")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          mkdir -p "$RUNNER_TEMP/installers"
+          missing=0
+          found=0
+          for path in $(git ls-tree --name-only origin/main spacr/application/ | grep -i "spacr-${version}-"); do
+            found=$((found + 1))
+            git show "origin/main:$path" > "$RUNNER_TEMP/installers/$(basename "$path")"
+            if [ ! -f "$path" ] || [ "$(git hash-object "$path")" != "$(git rev-parse "origin/main:$path")" ]; then
+              missing=$((missing + 1))
+            fi
+          done
+          echo "main $version: $found installer(s), $missing missing or different on nightly"
+          if [ "$found" -eq 0 ]; then
+            echo "Main has no installers for $version yet; nothing to sync."
+            echo "sync=false" >> "$GITHUB_OUTPUT"
+          elif [ "$missing" -eq 0 ]; then
+            echo "Nightly already carries main's $version installers."
+            echo "sync=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "sync=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Copy installers and rewrite links on nightly
+        if: steps.find.outputs.sync == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python packaging/release.py collect \
+            --source "$RUNNER_TEMP/installers" \
+            --destination spacr/application \
+            --readme README.rst \
+            --localized-readme-dir docs/i18n/readme \
+            --branch main
+          python packaging/release.py index \
+            --output docs/source/installers.rst \
+            --current-installers spacr/application
+      - name: Commit and push to nightly
+        if: steps.find.outputs.sync == 'true'
+        env:
+          VERSION: ${{ steps.find.outputs.version }}
+        run: |
+          git config user.name "Einar Olafsson"
+          git config user.email "einar.olafsson@gmail.com"
+          git add README.rst \
+            docs/i18n/readme/README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst \
+            docs/source/installers.rst \
+            spacr/application
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git commit -m "release: nightly links the $VERSION installers that main published"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:nightly; then
+              exit 0
+            fi
+            git pull --rebase origin nightly
+          done
+          exit 1

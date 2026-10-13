@@ -1,0 +1,29 @@
+{
+  "creation": "AppScreen(mask) \u2192 SettingsWidgets._build_sections \u2192 _refresh_mask_gpu_enablement \u2192 _mask_workers._mask_gpu_count_for_controls:798, daemon=True one-shot compatible-GPU probe",
+  "diagnostic_result": "1 passed in 6.58s, exit0, SpawnProcess-1 alive at pytest sessionfinish",
+  "diagnostic_selector": [
+    "tests/test_regression_offers_its_own_src.py::test_regression_and_mask_use_distinct_src_tooltips"
+  ],
+  "lifecycle": "_watch_mask_gpu_probe installs QTimer and app.aboutToQuit cleanup. This isolated tooltip test does not drive the app event loop or app.quit; the daemon was still alive when tests/conftest.py called multiprocessing.active_children at session finish. /proc/1351715 did not exist after interpreter exit. No reusable pool or lost production worker is demonstrated.",
+  "payload_sha256": {
+    "exact-tooltip-node.log.gz": "806552cac8f017aff4561438f8d4d3541ec3f56cec865160688ed34d54a670ef",
+    "process-start-sitecustomize.py.gz": "ab0f0fff7e823e4bb454947c9c670bdcb11f9c39690801317ad34d4fb6e12ddf",
+    "process-start-trace.log.gz": "9e15fc1317422af26098ae44a55addf230815db8eeb40d18c65a38464a09af57"
+  },
+  "scope": "Scratch-only sitecustomize traced BaseProcess.start; no app/test fixture or process termination changes. Combined 140/140 run remains accepted with a non-failing hygiene note.",
+  "source_blobs": {
+    "spacr/_mask_workers.py": "2ac3ab2debc2bde8303b74addfad2e6c35faf6fd",
+    "spacr/qt/screens/app_screen.py": "1b4bc4e4d310f8db092d84552710be82056655c5",
+    "spacr/qt/screens/settings_model.py": "9f93b43591d29e8aa0031349e9a48f68226f5eaa",
+    "tests/conftest.py": "772fe7af86aa0e676806438cdcd08eb487f22a35",
+    "tests/test_regression_offers_its_own_src.py": "ebca2f06a3527b81dec3911c780b53fbf2a6aafd"
+  },
+  "source_head": "c64d15dd360f6d989e8ff0964af042777d0bb5c4",
+  "source_sha256": {
+    "spacr/_mask_workers.py": "738350b8041f341df1cbe29f045c03dc74f7f80204e773933a683571f5195a06",
+    "spacr/qt/screens/app_screen.py": "1c4cfeabca6c641d38ba0fabbdcfdb628a278f6878755465db8ec33e351f5483",
+    "spacr/qt/screens/settings_model.py": "daf7d1ed565e55fab78cb0801fea97e58444fd1886305aff50fcc76d4a068e76",
+    "tests/conftest.py": "0feee4726c9bf63b7b4d2c058ea58b70e44dc57106e8e2eb424814b76eecee37",
+    "tests/test_regression_offers_its_own_src.py": "3dd63df642d5495e74991b86e8cbab18e0fdb321fff3e87e9a43029c8cb2ad50"
+  }
+}

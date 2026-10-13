@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-08",
+  "source_before": "1d7da13f6aa9d0c14333eb7d1ab5331fd70d1e5c",
+  "host_run": 37741618120,
+  "host_job": 113193780177,
+  "host_source": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "host_artifact": 11552827517,
+  "host_artifact_sha256": "6d707919800bd2f693324542a71fb94bc8cb2bf48ea66e7044341e520725c3fa",
+  "changed_source": "tests/qt/test_live_preview_coverage.py",
+  "original_source_sha256": "768136f813a03e852fe0a89c1646ad61ae12b8474cebda0c4bd50ea084337354",
+  "fixed_source_sha256": "aa575a3139c79f1624fda12f017c9ab747cb8331e13da000d983c8ece8bc89d8",
+  "tests": "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle",
+  "runtime": "Python3.12.13/pytest8.4.2; Qt6.11.2 and6.12.0 overlays, CPU/offscreen/4G cgroup/no swap; original13 lifecycle tests each PASS",
+  "negative_control": "Actual QThread worker differs on all three identity fields, rejected by unchanged comparison expression; 2G cgroup, each Qt runtime. Not a reproduced wrapper invalidation.",
+  "scope": "Repairs two false GUI thread wrapper identity assertions shown by original hosted journal. Captures actual Qt pointer/native OS ID/Python ID while live and retains worker/render/results/order/timeouts. No application change, native cause or full serial acceptance claimed.",
+  "payloads": {
+    "original.py.gz": {
+      "bytes": 22036,
+      "sha256": "520a1757ef7fe33ad08d18204073c095e4d239eaac850e28795a89a5ffbfb3ab"
+    },
+    "qt611.log.gz": {
+      "bytes": 53,
+      "sha256": "06e9b086986101c006f16f4e613b33dac0798e832b8be006c61a0f554172b1d3"
+    },
+    "qt612.log.gz": {
+      "bytes": 53,
+      "sha256": "1e9e744ba4808cf0a622f8bbd9624316fc7b94addf277e81c350ab4c118060b8"
+    },
+    "thread_negative.py.gz": {
+      "bytes": 434,
+      "sha256": "9c20a5562f73fc4c8ea3a86224a538ea39120f2a7260a3d5aafc611286b884ac"
+    },
+    "negative611.json.gz": {
+      "bytes": 176,
+      "sha256": "f3d68d6645a57e0eeae3b16bd133107eb458351faa33ddc98f528b3a564b0155"
+    },
+    "negative612.json.gz": {
+      "bytes": 175,
+      "sha256": "36b36f6e816f71cd3f42eb4bb3f05905d821346d0c33c04db621502c60be1b97"
+    },
+    "repair.patch": {
+      "bytes": 3672,
+      "sha256": "c0725c7c4026399cdca168fcd97734204fb00e2fed5e617c2e63d09ad25ed0e4"
+    },
+    "original_host_failures.json": {
+      "bytes": 2985,
+      "sha256": "c0c9f89a690641f1326c76303519fb8ac938b2083ce26819058a8af399459c79"
+    }
+  }
+}

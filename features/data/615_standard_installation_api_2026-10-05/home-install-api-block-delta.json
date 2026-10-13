@@ -1,0 +1,22 @@
+[
+  {
+    "label": "spacr.doctor#4",
+    "source": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
+    "context": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift."
+  },
+  {
+    "label": "spacr.doctor.check_qt_extra#0",
+    "source": "The GUI dependencies import in this interpreter.",
+    "context": "The GUI dependencies import in this interpreter."
+  },
+  {
+    "label": "spacr.doctor.check_qt_extra#1",
+    "source": "Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the GUI needs. The legacy ``qt extra`` report key stays stable for consumers.",
+    "context": "Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the GUI needs. The legacy ``qt extra`` report key stays stable for consumers."
+  },
+  {
+    "label": "spacr.qt.run#2",
+    "source": "Returns: The exit code returned by `QApplication.exec()`, or ``1`` when the required Qt dependency cannot be imported.",
+    "context": "Returns: The exit code returned by `QApplication.exec()`, or ``1`` when the required Qt dependency cannot be imported."
+  }
+]

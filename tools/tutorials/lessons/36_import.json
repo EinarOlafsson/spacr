@@ -1,0 +1,152 @@
+{
+  "id": "36_import",
+  "number": 36,
+  "slug": "import",
+  "series": 5,
+  "title": "Import Project: bring images, masks and measurements into spaCR",
+  "app_key": "foreign",
+  "section": "Data",
+  "description": "Choose matching images, instance masks and measurement tables, review their mapping, and create a spaCR project.",
+  "objectives": [
+    "Match images, masks and measurement rows.",
+    "Review and save the column mapping.",
+    "Import the project and inspect its outputs."
+  ],
+  "prerequisite": "Prepare corresponding image files, instance-label masks and a measurement CSV. Keep each field’s original plate and well identity, and use documented measurement units.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "From Home’s Data category, open Import. Use this screen to bring existing images, instance masks and measurements into a spaCR project.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_fold_import_images",
+      "narration": "Pick the import tool by what you start with: Import Images or Format Converter for images alone, External Masks for images with masks. This screen takes images, masks and a measurement table together.",
+      "hold_after": 0.7,
+      "focus_buttons": "FoldButton",
+      "related_lessons": [
+        "74_import_images",
+        "35_converter",
+        "31_external_masks"
+      ]
+    },
+    {
+      "visual": "org_organize_popup",
+      "narration": "If your images and masks still need sorting, open Import Images and click Organize images and masks. Give each channel and mask a column, choose whether to write for Mask Generation or Measure, and split multi-channel files when needed. Apply moves them into the layout that module reads, ready to open there.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_choose_images",
+      "narration": "Choose the image folder. The example uses two microscopy fields with one intensity channel and matching cell labels. Keep a record of each file’s original plate, well and field.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "04_choose_masks",
+      "narration": "Choose the Cell mask folder and press Add. Each object needs its own integer label. Add further mask classes when you have corresponding labels for the same fields.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_choose_table",
+      "narration": "Choose the measurement CSV. Match ImageNumber to each field and ObjectNumber to its mask label. Use both identifiers to distinguish objects across fields.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_inputs_unknown_calibration",
+      "narration": "Enter micrometres per pixel when you know the calibration; otherwise leave it blank. Check that area and intensity columns retain their documented units.",
+      "hold_after": 0.7,
+      "focus": [
+        350,
+        440,
+        3450,
+        65
+      ]
+    },
+    {
+      "visual": "06b_safe_inferred_names",
+      "narration": "Press Preview to inspect the proposed column mapping and joins before creating the project. Review the suggested foreign-prefixed names and their scientific meaning.",
+      "hold_after": 0.7,
+      "focus": [
+        350,
+        500,
+        2650,
+        155
+      ]
+    },
+    {
+      "visual": "07_conflict_refused",
+      "narration": "Select a target cell and press F two to edit its name. A reserved-name conflict disables Import when Refuse the import is selected; choose a distinct target name or use the Rename policy.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08b_join_report",
+      "narration": "Read the join report and resolve unmatched rows or objects. In the example, all one hundred and three measurement rows match mask objects.",
+      "hold_after": 0.7,
+      "focus": [
+        350,
+        1830,
+        3450,
+        195
+      ]
+    },
+    {
+      "visual": "09_mapping_edited",
+      "narration": "Give the imported area a clear name, such as foreign reviewed area pixels squared. Review the source, target, transform and units together.",
+      "hold_after": 0.7,
+      "focus": [
+        350,
+        500,
+        2650,
+        155
+      ]
+    },
+    {
+      "visual": "10_save_mapping",
+      "narration": "Use Save mapping to keep the reviewed column definitions as a CSV. Keep the mapping with your images, masks, measurement table and acquisition identities.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_mapping_reloaded",
+      "narration": "Use Load mapping to reuse saved definitions. Review the resulting plan whenever source columns, labels or units differ.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_imported",
+      "narration": "Press Import and read the completion report. The example writes two image files, two masks and two merged arrays, with one hundred and three rows in each of two object tables.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_import_scope",
+      "narration": "Open the project and inspect the imported measurements. The foreign columns table records their origin. Use Measure when you want spaCR to calculate new features from the images.",
+      "hold_after": 0.7,
+      "focus": [
+        350,
+        1830,
+        3450,
+        195
+      ],
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "14_import_scope",
+      "narration": "Keep the conversion map with the project and check its plate, well and field assignments. Generic file names may receive new coordinates, so resolve their original identities before plate-level analysis.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "74_import_images"
+      ]
+    },
+    {
+      "visual": "14_import_scope",
+      "narration": "Continue in Database Browser to inspect the tables or in Annotate to review object crops. Retain the reviewed mapping with the completed project.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "08_measure"
+      ]
+    }
+  ]
+}

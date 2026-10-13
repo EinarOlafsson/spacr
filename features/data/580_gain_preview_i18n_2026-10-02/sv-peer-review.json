@@ -1,0 +1,30 @@
+{
+  "reviewer": "Codex AI shared_ui, independent of root author",
+  "draft_sha256": "473ddc3b0f026c3b21f5c9896343b7e03e99fffc775ea2ce2d4e8d3eaec8522a",
+  "sources_sha256": "5c50978e198727077a82c5daf9ae728cb89ac2570976c91011daa034fae0a60e",
+  "accepted_sources": [
+    "Calculate reference-well gains without running Measure or changing files.",
+    "Calculating calibration gains…",
+    "Calibration gains",
+    "Choose a local source folder containing merged arrays.",
+    "Discard this preview. Any source scan already running will finish safely.",
+    "Enable intensity calibration before previewing gains.",
+    "Finish valid settings before previewing gains.",
+    "Gain",
+    "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+    "No eligible merged arrays were found.",
+    "Preview complete. No images or measurements were changed.",
+    "Preview gains",
+    "Preview only: each source folder is planned separately.",
+    "Reference fields",
+    "Reference plate",
+    "Reference statistic",
+    "Settings changed. Preview the gains again.",
+    "Some merged arrays could not be read. Check the source files.",
+    "The first plate by name is the reference.",
+    "Turn off Test mode to preview gains for all source fields."
+  ],
+  "corrections": {},
+  "review": "Read all20 pairs. Multiplicative intensity factors, reference wells/assay plates/microscope fields, first plate in name order, source-folder isolation, camera offset, no image/measurement writes and safe completion of a cancelled scan are retained. Testläge matches the setting label; Measure remains module name.",
+  "scope": "AI technical review only; no human/native-speaker signoff."
+}

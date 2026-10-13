@@ -1,0 +1,48 @@
+{
+  "date": "2026-09-23",
+  "selection": "tests/test_secondary_mask_source.py tests/qt/test_primary_mask_selector.py tests/qt/test_secondary_objects_in_make_masks.py",
+  "passed": 36,
+  "instrumentation": "--cov=spacr/qt; source-file coverage only; not a full-suite or full-package claim",
+  "files": {
+    "spacr/qt/secondary_masks.py": {
+      "summary": {
+        "covered_lines": 70,
+        "num_statements": 70,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 26,
+        "num_partial_branches": 0,
+        "covered_branches": 26,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    "spacr/qt/widgets/primary_mask_selector.py": {
+      "summary": {
+        "covered_lines": 132,
+        "num_statements": 132,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 26,
+        "num_partial_branches": 0,
+        "covered_branches": 26,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "anchor_commit": "963fc99633417d52ba11d56008fc251509d2a687",
+  "prior_count": 9991,
+  "new_count_excluding_YOLO": 9991,
+  "prior_parameter_count": 19859,
+  "current_parameter_count_excluding_YOLO": 19860,
+  "prior_required_parameter_count": 10221,
+  "current_required_parameter_count_excluding_YOLO": 10221,
+  "prior_digest": "bfe15fe1e3b29a17b80ebd01d0a016c909264a4eb519a3f379433774adf64abb",
+  "current_digest_excluding_YOLO": "c2a210d88f0d839771b40fae410573d223fa9d912431af203c79924d6bfd34b2",
+  "full_inverse_digest_exact": true,
+  "changed_contracts": {
+    "spacr.qt.night_themes.NightTheme": {
+      "before": {
+        "symbol": "spacr.qt.night_themes.NightTheme",
+        "category": "dataclass_constructor",
+        "exposure": "autoapi",
+        "parameters": [
+          "ambient",
+          "ambient_palette",
+          "description",
+          "key",
+          "label",
+          "palette"
+        ],
+        "required_parameters": [
+          "ambient",
+          "ambient_palette",
+          "description",
+          "key",
+          "label",
+          "palette"
+        ],
+        "accepted_documented_parameters": [
+          "ambient",
+          "ambient_palette",
+          "description",
+          "key",
+          "label",
+          "palette"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "variant_count": 1,
+        "docless_variant_count": 0,
+        "constructor_prose_variant_count": 0
+      },
+      "after": {
+        "symbol": "spacr.qt.night_themes.NightTheme",
+        "category": "dataclass_constructor",
+        "exposure": "autoapi",
+        "parameters": [
+          "ambient",
+          "ambient_palette",
+          "description",
+          "key",
+          "label",
+          "palette",
+          "sound_key"
+        ],
+        "required_parameters": [
+          "ambient",
+          "ambient_palette",
+          "description",
+          "key",
+          "label",
+          "palette"
+        ],
+        "accepted_documented_parameters": [
+          "ambient",
+          "ambient_palette",
+          "description",
+          "key",
+          "label",
+          "palette",
+          "sound_key"
+        ],
+        "accepts_arbitrary_keywords": false,
+        "variant_count": 1,
+        "docless_variant_count": 0,
+        "constructor_prose_variant_count": 0
+      }
+    }
+  },
+  "added_YOLO_contracts": {
+    "spacr.qt.mask_engine.export_yolo_boxes": {
+      "symbol": "spacr.qt.mask_engine.export_yolo_boxes",
+      "category": "function",
+      "exposure": "autoapi",
+      "parameters": [
+        "boxes",
+        "classes",
+        "image_shape",
+        "path"
+      ],
+      "required_parameters": [
+        "boxes",
+        "classes",
+        "image_shape",
+        "path"
+      ],
+      "accepted_documented_parameters": [
+        "boxes",
+        "classes",
+        "image_shape",
+        "path"
+      ],
+      "accepts_arbitrary_keywords": false,
+      "variant_count": 1,
+      "docless_variant_count": 0,
+      "constructor_prose_variant_count": 0
+    },
+    "spacr.qt.mask_engine.load_yolo_boxes": {
+      "symbol": "spacr.qt.mask_engine.load_yolo_boxes",
+      "category": "function",
+      "exposure": "autoapi",
+      "parameters": [
+        "filename",
+        "folder",
+        "image_shape"
+      ],
+      "required_parameters": [
+        "filename",
+        "folder",
+        "image_shape"
+      ],
+      "accepted_documented_parameters": [
+        "filename",
+        "folder",
+        "image_shape"
+      ],
+      "accepts_arbitrary_keywords": false,
+      "variant_count": 1,
+      "docless_variant_count": 0,
+      "constructor_prose_variant_count": 0
+    },
+    "spacr.qt.mask_engine.save_yolo_boxes": {
+      "symbol": "spacr.qt.mask_engine.save_yolo_boxes",
+      "category": "function",
+      "exposure": "autoapi",
+      "parameters": [
+        "boxes",
+        "classes",
+        "expected_source_sha256",
+        "filename",
+        "folder",
+        "image_shape"
+      ],
+      "required_parameters": [
+        "boxes",
+        "classes",
+        "filename",
+        "folder",
+        "image_shape"
+      ],
+      "accepted_documented_parameters": [
+        "boxes",
+        "classes",
+        "expected_source_sha256",
+        "filename",
+        "folder",
+        "image_shape"
+      ],
+      "accepts_arbitrary_keywords": false,
+      "variant_count": 1,
+      "docless_variant_count": 0,
+      "constructor_prose_variant_count": 0
+    },
+    "spacr.qt.mask_engine.yolo_box_lines": {
+      "symbol": "spacr.qt.mask_engine.yolo_box_lines",
+      "category": "function",
+      "exposure": "autoapi",
+      "parameters": [
+        "boxes",
+        "height",
+        "width"
+      ],
+      "required_parameters": [
+        "boxes",
+        "height",
+        "width"
+      ],
+      "accepted_documented_parameters": [
+        "boxes",
+        "height",
+        "width"
+      ],
+      "accepts_arbitrary_keywords": false,
+      "variant_count": 1,
+      "docless_variant_count": 0,
+      "constructor_prose_variant_count": 0
+    }
+  }
+}

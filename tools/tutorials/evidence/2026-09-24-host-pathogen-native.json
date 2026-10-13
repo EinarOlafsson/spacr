@@ -1,0 +1,41 @@
+{
+  "accepted": true,
+  "synthetic": false,
+  "actual_gui_run": true,
+  "home_and_organism_tiles_clicked": true,
+  "test_data_button_clicked": true,
+  "individual_parasite_counts_available": false,
+  "database_unchanged": true,
+  "database_sha256": "004ebef5f4a3e6ffa61f66c9da6a21176d21bf70108a021cb703cabd4fae1ad1",
+  "outputs": {
+    "settings.json": {
+      "sha256": "438344161543c8fb49cfed154657fbca2b2f1d77875e2f02717974b645332aa1",
+      "rows": null
+    },
+    "cells.csv": {
+      "sha256": "11a315cb55526e0862dd78097bb114a77f32dc9478e6c1a9f6fa64b3f597c094",
+      "rows": 164
+    },
+    "vacuoles.csv": {
+      "sha256": "ab54b6de071e8751d1cb97d5b767ce7c20188b638f5d817bea3c8abb95ac36d8",
+      "rows": 97
+    },
+    "marker_states.csv": {
+      "sha256": "0530a7e8fa6a638fcc9c963e127d94abf1724734659824d88e741678606ffe0e",
+      "rows": 2
+    },
+    "wells.csv": {
+      "sha256": "ba03abebfa2f209e9d64eb7bdc55c337c3fcdfac6678d20b7acd8ed9355ea47b",
+      "rows": 2
+    },
+    "replication_distribution.csv": {
+      "sha256": "b2c92cad829d83eb8742f9d3353330c07fe70ee9810c058e1f0b841fae0c701d",
+      "rows": 0
+    },
+    "orphan_parasites.csv": {
+      "sha256": "4746836e1f00f80df929086d1292a5aa4330d40a2ff3f616e583effd01257653",
+      "rows": 0
+    }
+  },
+  "published": false
+}

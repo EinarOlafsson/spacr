@@ -1,0 +1,116 @@
+[
+  {
+    "path": "tests/qt/test_main_window.py",
+    "unchanged_findings": [
+      {
+        "cell": null,
+        "code": "I001",
+        "end_location": {
+          "column": 42,
+          "row": 9
+        },
+        "filename": "/mnt/wd4tb/spacr-worktrees/codex-fresh-home-contracts-20261008/tests/qt/test_main_window.py",
+        "fix": {
+          "applicability": "safe",
+          "edits": [
+            {
+              "content": "from __future__ import annotations\n\nimport pytest\nfrom PySide6.QtCore import Qt\n\nfrom spacr.qt.app import APPS, MainWindow, Sidebar, _icon_for_app, make_home_page\n\n\n",
+              "end_location": {
+                "column": 1,
+                "row": 12
+              },
+              "location": {
+                "column": 1,
+                "row": 2
+              }
+            }
+          ],
+          "message": "Organize imports"
+        },
+        "location": {
+          "column": 1,
+          "row": 2
+        },
+        "message": "Import block is un-sorted or un-formatted",
+        "name": "unsorted-imports",
+        "noqa_row": 2,
+        "severity": "error",
+        "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+      },
+      {
+        "cell": null,
+        "code": "F401",
+        "end_location": {
+          "column": 14,
+          "row": 4
+        },
+        "filename": "/mnt/wd4tb/spacr-worktrees/codex-fresh-home-contracts-20261008/tests/qt/test_main_window.py",
+        "fix": {
+          "applicability": "safe",
+          "edits": [
+            {
+              "content": "",
+              "end_location": {
+                "column": 1,
+                "row": 5
+              },
+              "location": {
+                "column": 1,
+                "row": 4
+              }
+            }
+          ],
+          "message": "Remove unused import: `pytest`"
+        },
+        "location": {
+          "column": 8,
+          "row": 4
+        },
+        "message": "`pytest` imported but unused",
+        "name": "unused-import",
+        "noqa_row": 4,
+        "severity": "error",
+        "url": "https://docs.astral.sh/ruff/rules/unused-import"
+      },
+      {
+        "cell": null,
+        "code": "F401",
+        "end_location": {
+          "column": 30,
+          "row": 6
+        },
+        "filename": "/mnt/wd4tb/spacr-worktrees/codex-fresh-home-contracts-20261008/tests/qt/test_main_window.py",
+        "fix": {
+          "applicability": "safe",
+          "edits": [
+            {
+              "content": "",
+              "end_location": {
+                "column": 1,
+                "row": 7
+              },
+              "location": {
+                "column": 1,
+                "row": 6
+              }
+            }
+          ],
+          "message": "Remove unused import: `PySide6.QtCore.Qt`"
+        },
+        "location": {
+          "column": 28,
+          "row": 6
+        },
+        "message": "`PySide6.QtCore.Qt` imported but unused",
+        "name": "unused-import",
+        "noqa_row": 6,
+        "severity": "error",
+        "url": "https://docs.astral.sh/ruff/rules/unused-import"
+      }
+    ]
+  },
+  {
+    "path": "tests/qt/test_cov_wf_qt_app.py",
+    "unchanged_findings": []
+  }
+]

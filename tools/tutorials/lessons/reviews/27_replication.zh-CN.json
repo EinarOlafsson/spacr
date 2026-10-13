@@ -1,0 +1,35 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "f88be9a5d3e37117e01ec694187f3f515a070031de8789ee07e661eb4c098df3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Replication Assay：统计每个液泡中的寄生虫数",
+  "description": "加载寄生虫测量数据，选择液泡标识，运行分析，并检查计数分布和导出结果。",
+  "objectives": [
+    "选择测量数据库及其液泡标识符。",
+    "设置宿主分配和大小过滤条件，然后运行分析。",
+    "阅读每孔分布，并找到保存的结果表。"
+  ],
+  "prerequisite": "解压链接的合成Replication Assay示例。其中包含一个测量数据库和一份设置参考，共有分布在十二个孔、480个液泡中的1,992行寄生虫数据。条件名称和测量值是教学数据。对于您自己的检测，请使用已检查液泡分配的寄生虫测量数据，并安排独立的实验重复。",
+  "scenes": [
+    "从Home打开Toxoplasma，然后选择Replication Assay。先准备一个包含寄生虫行及其液泡分配的测量数据库。链接的合成示例可以让您练习这些设置，并阅读得到的计数分布。",
+    "解压样本，把Source设为其中的replication文件夹。数据库位于measurements中。输入随附的设置参考，把其中Source的占位值替换为您解压后的文件夹。保持Save开启以写出结果。",
+    "把Vacuole key设为vacuole_id。这样会按照寄生虫所属的液泡进行分组。样本中每个宿主细胞组有两个液泡，所以请使用液泡标识符把这些计数分开。",
+    "开启Require host cell，只纳入与宿主细胞关联的寄生虫。使用自己的数据时，请检查未分配的对象。对于本样本，把Minimum parasite area设为二百，把Maximum parasite area设为八百。",
+    "把Maximum parasites per vacuole设为十六。这设定了按二的幂命名的最大类别。更大的二的幂计数会归入溢出类别，而像三这样的计数则留在单独的非二的幂类别中。",
+    "输入vehicle和inhibitor作为两个Pathogen types，并在Pathogen plate metadata中把它们分别映射到第一列和第二列。每组包含六个练习孔。对于您的实验，请根据板布局输入条件名称和孔的分配。",
+    "检查Source、Vacuole key、过滤条件和Save，然后点击Run。在控制台中跟踪进度，直到处理完成。Figures区域将显示按孔和按条件的分布。",
+    "打开每孔图。每根堆叠柱显示各寄生虫计数类别中液泡所占的比例。请对照图例阅读颜色。在本样本中，每孔有四十个液泡，其中百分之五属于非二的幂类别。",
+    "打开Figure settings调整图例。如果标签超出了图的范围，请在axes选项卡中选择位于图内的Legend position。这只改变呈现方式，计算出的计数保持不变。",
+    "打开按条件的图，比较合并后的计数分布。查看这个汇总的同时，也请检查每孔的结果。分析实验时，请使用独立的生物学重复，并选择合适的实验单位进行统计比较。",
+    "阅读控制台中的任何导出警告。除了屏幕上的显示，也要检查保存的图，并选择在导出背景上仍然清晰可读的颜色。",
+    "Source中results/analyze_replication里的结果是逐层构建的。vacuole_counts.csv统计每个液泡，well_distribution.csv把这些计数转换为每个孔的分布，而按条件的汇总和图则把各孔合并起来。请把它们与设置和源数据库放在一起，以便追溯任何一个数字。"
+  ]
+}

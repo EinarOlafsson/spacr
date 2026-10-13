@@ -1,0 +1,232 @@
+{
+  "lesson": "01_pypi_github",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "d07367b454da6294eca05c393ea5fa3268827b12d736a124de6dedd945b146b0",
+  "scene_count": 8,
+  "seek_playback_clocks": {
+    "audio": 68.317959,
+    "video": 68.363996,
+    "expectedVideo": 68.31111419897805,
+    "audioDuration": 99.81,
+    "videoDuration": 99.8,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "336c92dd9404d94441e58d2931203889b8ff1f84c36e83e94ec5f14b0b24c571",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "sentence_cue_checks": [
+    {
+      "requested_audio_time": 1.04,
+      "text": "Choose how you want to install spaCR.",
+      "audio": 1.04,
+      "video": 1.039895,
+      "cues": [
+        "Choose how you want to install spaCR."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 6.4375,
+      "text": "Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment.",
+      "audio": 6.4375,
+      "video": 6.436855,
+      "cues": [
+        "Use a desktop installer for a ready-to-launch application, pip for a Python virtual environment, or conda-forge for a Conda environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 11.9875,
+      "text": "Start from the official spaCR links shown here.",
+      "audio": 11.9875,
+      "video": 11.986298,
+      "cues": [
+        "Start from the official spaCR links shown here."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 16.2275,
+      "text": "On PyPI, find spaCR and read the installation command beside the current release.",
+      "audio": 16.2275,
+      "video": 16.225874,
+      "cues": [
+        "On PyPI, find spaCR and read the installation command beside the current release."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 21.13,
+      "text": "Copy that command when you are ready to install into your Python environment.",
+      "audio": 21.13,
+      "video": 21.127882,
+      "cues": [
+        "Copy that command when you are ready to install into your Python environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 25.6325,
+      "text": "The pip tutorial shows how to create and activate that environment first.",
+      "audio": 25.6325,
+      "video": 25.629931,
+      "cues": [
+        "The pip tutorial shows how to create and activate that environment first."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 30.862499999999997,
+      "text": "Use Project links to open the documentation, source repository or issue tracker.",
+      "audio": 30.862499,
+      "video": 30.859407,
+      "cues": [
+        "Use Project links to open the documentation, source repository or issue tracker."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 36.349999999999994,
+      "text": "Bookmark the documentation so you can return to the module walkthroughs while working in spaCR.",
+      "audio": 36.349999,
+      "video": 36.346358,
+      "cues": [
+        "Bookmark the documentation so you can return to the module walkthroughs while working in spaCR."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 41.0375,
+      "text": "On GitHub, open the spaCR repository.",
+      "audio": 41.0375,
+      "video": 41.033388,
+      "cues": [
+        "On GitHub, open the spaCR repository."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 44.91,
+      "text": "Main contains the release source, and nightly contains the latest development work.",
+      "audio": 44.91,
+      "video": 44.9055,
+      "cues": [
+        "Main contains the release source, and nightly contains the latest development work."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 49.5925,
+      "text": "For a packaged desktop installation, open Releases and choose a release.",
+      "audio": 49.5925,
+      "video": 49.587531,
+      "cues": [
+        "For a packaged desktop installation, open Releases and choose a release."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 54.667500000000004,
+      "text": "Expand Assets and download the installer for Windows, macOS or Linux.",
+      "audio": 54.6675,
+      "video": 54.662022,
+      "cues": [
+        "Expand Assets and download the installer for Windows, macOS or Linux."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 59.3875,
+      "text": "Keep the checksum file from the same release if you want to verify the download.",
+      "audio": 59.3875,
+      "video": 59.381549,
+      "cues": [
+        "Keep the checksum file from the same release if you want to verify the download."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 64.26750000000001,
+      "text": "The Platform installers lesson walks through launching the installer and opening spaCR.",
+      "audio": 64.2675,
+      "video": 64.261061,
+      "cues": [
+        "The Platform installers lesson walks through launching the installer and opening spaCR."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 69.76,
+      "text": "On conda-forge, open the spaCR package page and check the available version.",
+      "audio": 69.76,
+      "video": 69.75301,
+      "cues": [
+        "On conda-forge, open the spaCR package page and check the available version."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 75.30000000000001,
+      "text": "Package channels can update at different times, so select the version available through the route you choose.",
+      "audio": 75.3,
+      "video": 75.292455,
+      "cues": [
+        "Package channels can update at different times, so select the version available through the route you choose."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 81.08250000000001,
+      "text": "The conda-forge command installs spaCR into your active Conda environment.",
+      "audio": 81.0825,
+      "video": 81.074376,
+      "cues": [
+        "The conda-forge command installs spaCR into your active Conda environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 86.4025,
+      "text": "Follow the Conda lesson to create that environment, install the package and launch the application.",
+      "audio": 86.4025,
+      "video": 86.393843,
+      "cues": [
+        "Follow the Conda lesson to create that environment, install the package and launch the application."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 91.3575,
+      "text": "Continue with pip, Conda or Platform installers.",
+      "audio": 91.3575,
+      "video": 91.348346,
+      "cues": [
+        "Continue with pip, Conda or Platform installers."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 96.1475,
+      "text": "Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data.",
+      "audio": 96.1475,
+      "video": 96.137866,
+      "cues": [
+        "Once spaCR opens, move to the Home lesson, then the pipeline overviews to choose a workflow for your data."
+      ],
+      "seek_attempts": 1
+    }
+  ],
+  "passed": true
+}

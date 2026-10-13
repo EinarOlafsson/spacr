@@ -1,0 +1,32 @@
+{
+  "observed_utc": "2026-10-08T06:03:55.072567+00:00",
+  "action": "Root submits cancellation only of older serial37728434064 after validating exact old/new SHA/job metadata.",
+  "reason": "Start latest-source serial acceptance earlier; old source lacks demonstrated Mandelbrot test-race repair and explicit layout failure JSON. Actual in-progress prefix cannot be downloaded; no imminent terminal result is known.",
+  "scope": "Any resulting old logs are cancelled/partial only, never a full acceptance or identified original layout cause.",
+  "old_run": 37728434064,
+  "new_run": 37735178905,
+  "old_source": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "new_source": "86d98624993ebcc356c70277028a0d3256d3ddcd",
+  "old_status_at_request": "in_progress",
+  "new_status_at_request": "pending",
+  "app_diff_lines": 0,
+  "unchanged_guards": [
+    "12GiB hard cap",
+    "zero swap",
+    "10.8GiB pytest guard"
+  ],
+  "payloads": {
+    "before-run.json": {
+      "bytes": 12402,
+      "sha256": "fd17b62075111ef2d8b0da2c57a08690b581c6cffb259fe74aacb1d226599d49"
+    },
+    "corrected-pending-run.json": {
+      "bytes": 12393,
+      "sha256": "ff951c96394368e056852d21c77a1558621f03e7077ea5db216018dd295f4a6f"
+    },
+    "before-jobs.json": {
+      "bytes": 2692,
+      "sha256": "c94ed609744a8be9aef011d7e4613b2622a6ba20c9a8f46899db65a85deff421"
+    }
+  }
+}

@@ -1,0 +1,449 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eighth pass 2026-09-30: runtime (GUI) translation debt from items 600 and 592 (Organize for Measure popup, its regex teaching and drop-classification dialogs, the popup table's view options), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "(nothing)",
+      "source": "(nothing)",
+      "source_sha256": "00b02571149957eb33be51e6d1197b9e64e8aafa4dd7c30056405a6ca9720944",
+      "translation": "(nada)"
+    },
+    {
+      "table": "ui",
+      "key": "A folder of images; drop one here",
+      "source": "A folder of images; drop one here",
+      "source_sha256": "42c18c0c7aba093e560e51cfd8441321678b32249b62ea7c07c75d9709e78d54",
+      "translation": "Uma pasta de imagens; solte uma aqui"
+    },
+    {
+      "table": "ui",
+      "key": "A {role} mask column belongs to channel {n}, which there is not.",
+      "source": "A {role} mask column belongs to channel {n}, which there is not.",
+      "source_sha256": "43cc23df7f8cc522dd50428049e7b846c8386a3d685dbc6eb773d1133616c3b8",
+      "translation": "Uma coluna de máscara {role} pertence ao canal {n}, que não existe."
+    },
+    {
+      "table": "ui",
+      "key": "Add images to at least one channel column first.",
+      "source": "Add images to at least one channel column first.",
+      "source_sha256": "e484c6a9dac4a9d9efd16bebbeee9b9e0360723d2eff6ea4c13c56375fdea4e6",
+      "translation": "Adicione primeiro imagens a pelo menos uma coluna de canal."
+    },
+    {
+      "table": "ui",
+      "key": "Add mask",
+      "source": "Add mask",
+      "source_sha256": "d42a692bcd07af6a4817ade1e3507044910a4cd5d31f82ea0131e248312820d6",
+      "translation": "Adicionar máscara"
+    },
+    {
+      "table": "ui",
+      "key": "Channel {n} has two mask columns; a channel's images have one mask each.",
+      "source": "Channel {n} has two mask columns; a channel's images have one mask each.",
+      "source_sha256": "afa90caf0b9ef4b0c63715607339ebd174750c69c032731df09558c077957292",
+      "translation": "O canal {n} tem duas colunas de máscara; as imagens de um canal têm uma máscara cada."
+    },
+    {
+      "table": "ui",
+      "key": "Channels and masks",
+      "source": "Channels and masks",
+      "source_sha256": "10002031890d67da8ca1565ba4a4110f8e5d7166aa10e98b95d8d5dbc36e0414",
+      "translation": "Canais e máscaras"
+    },
+    {
+      "table": "ui",
+      "key": "Consolidate subfolders into filenames first (copies the images into a new folder, each named after its folders; the originals are not touched)",
+      "source": "Consolidate subfolders into filenames first (copies the images into a new folder, each named after its folders; the originals are not touched)",
+      "source_sha256": "b1b69a2596949a232764e083b0a77af1753f9d84f46bc326da5bd9a2799fc4e7",
+      "translation": "Consolidar primeiro as subpastas nos nomes de arquivo (copia as imagens para uma pasta nova, cada uma com o nome das suas pastas; os originais não são alterados)"
+    },
+    {
+      "table": "ui",
+      "key": "Copied {n} mask(s) beside their images.",
+      "source": "Copied {n} mask(s) beside their images.",
+      "source_sha256": "b45febd1e3d3dc15b11b34ff53f781c180219e727419dbbe05bb1d4148e47023",
+      "translation": "{n} máscara(s) copiada(s) ao lado das suas imagens."
+    },
+    {
+      "table": "ui",
+      "key": "Could not copy {mask}: {error}",
+      "source": "Could not copy {mask}: {error}",
+      "source_sha256": "08d52685c5468441dd616ea3f1ea15aa3be671a0e4cf02e70ad0e5a62e1332e5",
+      "translation": "Não foi possível copiar {mask}: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Detect sets needs at least two channel columns with images: drop them into the columns, or sort by a regex with chanID.",
+      "source": "Detect sets needs at least two channel columns with images: drop them into the columns, or sort by a regex with chanID.",
+      "source_sha256": "047a42847a083416038180f48620643ee51b8a502964532fb8fe6f49382e617a",
+      "translation": "Detectar conjuntos precisa de pelo menos duas colunas de canal com imagens: solte-as nas colunas ou ordene por uma regex com chanID."
+    },
+    {
+      "table": "ui",
+      "key": "Drag it to another slot to move it (an occupied slot swaps); the × or Delete removes it.",
+      "source": "Drag it to another slot to move it (an occupied slot swaps); the × or Delete removes it.",
+      "source_sha256": "173209a5e514397df5f8eb159b7805ae39095a7121729d6c3a34d99a21970b3b",
+      "translation": "Arraste-o para outra posição para movê-lo (uma posição ocupada é trocada); o × ou Delete o remove."
+    },
+    {
+      "table": "ui",
+      "key": "Drop images or folders here for a new channel",
+      "source": "Drop images or folders here for a new channel",
+      "source_sha256": "912ef965167b41da3594bd84c8b25da4574fc483313577e4764bbaa0b5c199bd",
+      "translation": "Solte aqui imagens ou pastas para um canal novo"
+    },
+    {
+      "table": "ui",
+      "key": "Find a regex that puts every image in exactly one complete set, put it in custom_regex and sort by it.",
+      "source": "Find a regex that puts every image in exactly one complete set, put it in custom_regex and sort by it.",
+      "source_sha256": "9f0e5eb01735529fdc6acc4aad98725b2547955b270b8bcf14615b062fd29f1f",
+      "translation": "Encontre uma regex que coloque cada imagem em exatamente um conjunto completo, coloque-a em custom_regex e ordene por ela."
+    },
+    {
+      "table": "ui",
+      "key": "Ignore the names' structure: match every column's files by similarity, order and size, then show three sets to check.",
+      "source": "Ignore the names' structure: match every column's files by similarity, order and size, then show three sets to check.",
+      "source_sha256": "b9a49d044d283f8860c6beaa28fae50ed5bd41cdd8cfe5fcfcecf328a5681221",
+      "translation": "Ignorar a estrutura dos nomes: parear os arquivos de cada coluna por semelhança, ordem e tamanho e depois mostrar três conjuntos para verificar."
+    },
+    {
+      "table": "ui",
+      "key": "Image + text",
+      "source": "Image + text",
+      "source_sha256": "b2a5e40eb8449cdf0c8d5ccf520abda7ca52031f7483a058f0d18b90a7ad72a8",
+      "translation": "Imagem + texto"
+    },
+    {
+      "table": "ui",
+      "key": "Images whose names have “{marker}” here look like {kind}. Does this part of the name mark a channel or a mask, or is it only part of the field's name?",
+      "source": "Images whose names have “{marker}” here look like {kind}. Does this part of the name mark a channel or a mask, or is it only part of the field's name?",
+      "source_sha256": "a72ac549d925bb2ef91473c4820e7e651225047ab31eddf507c6dfe83a0a1ed7",
+      "translation": "As imagens cujos nomes têm “{marker}” aqui parecem ser {kind}. Esta parte do nome indica um canal ou uma máscara, ou é só parte do nome do campo?"
+    },
+    {
+      "table": "ui",
+      "key": "It is a mask",
+      "source": "It is a mask",
+      "source_sha256": "730b3db7f1555eceee469275cde465a856659f6dcf001e937bca04f17a17e396",
+      "translation": "É uma máscara"
+    },
+    {
+      "table": "ui",
+      "key": "It is part of the field's name",
+      "source": "It is part of the field's name",
+      "source_sha256": "3a1a840409fbdb3a47f69ab40cfd094a255f8282a18c98e3f767c4c07e11fe74",
+      "translation": "É parte do nome do campo"
+    },
+    {
+      "table": "ui",
+      "key": "It marks {kind}",
+      "source": "It marks {kind}",
+      "source_sha256": "cdbd3f4f0ab275011c9a036b2dd942b60aeee1897c4f02c76aef87c47b1a0f96",
+      "translation": "Indica {kind}"
+    },
+    {
+      "table": "ui",
+      "key": "Learned regex: {regex}",
+      "source": "Learned regex: {regex}",
+      "source_sha256": "b7deb176fe677316d48bcd0075518284eb4c14f51285d94158ee2afc1fbb92ba",
+      "translation": "Regex aprendida: {regex}"
+    },
+    {
+      "table": "ui",
+      "key": "New channel ({n})",
+      "source": "New channel ({n})",
+      "source_sha256": "955871bb7458688909e917db29e06a051baa4f5b88f17ac4f5bb06a79cd64be0",
+      "translation": "Canal novo ({n})"
+    },
+    {
+      "table": "ui",
+      "key": "Not images, left out: {names}",
+      "source": "Not images, left out: {names}",
+      "source_sha256": "c5b3fb3b7af2354dff45203fccbbfa307b1d8383ae71aa616ef79e669dc152f6",
+      "translation": "Não são imagens, deixados de fora: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "Not used from this drop: {item}",
+      "source": "Not used from this drop: {item}",
+      "source_sha256": "8034ec5a4b0a4eb5607ad8e96ec67644a655eef1521445c153b287ac9867fe0d",
+      "translation": "Não usado deste arraste: {item}"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing matched here",
+      "source": "Nothing matched here",
+      "source_sha256": "b117343439c1739bca1499484e7db6c5d7263e3bf20adb4adccfcb873cd1d0c4",
+      "translation": "Nada correspondeu aqui"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to sort: give a source folder of images, or drop images into the channel columns.",
+      "source": "Nothing to sort: give a source folder of images, or drop images into the channel columns.",
+      "source_sha256": "385223a855cc6188e69b7e293f2138bc69ca8ba55bc44f2f2c78c78f0c2dc7e7",
+      "translation": "Nada para ordenar: indique uma pasta de origem com imagens ou solte imagens nas colunas de canal."
+    },
+    {
+      "table": "ui",
+      "key": "Opening {n} image(s) with {k} dropped mask(s).",
+      "source": "Opening {n} image(s) with {k} dropped mask(s).",
+      "source_sha256": "eea13e7587987f63d308085bd0c110899b811091ded4b716e63a8219fbc9ec7c",
+      "translation": "Abrindo {n} imagem(ns) com {k} máscara(s) solta(s)."
+    },
+    {
+      "table": "ui",
+      "key": "Organise images and their masks into the layout Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field, and dropped files are matched across the columns by name. On Apply the images and masks are MOVED into Yokogawa-named channel folders and merged into merged/; every move is written to a manifest.",
+      "source": "Organise images and their masks into the layout Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field, and dropped files are matched across the columns by name. On Apply the images and masks are MOVED into Yokogawa-named channel folders and merged into merged/; every move is written to a manifest.",
+      "source_sha256": "7bc01aa4a636e745fdedd47b8bb399dd82bf09d5197a1422e0c4fe465cd5dd5d",
+      "translation": "Organize as imagens e as suas máscaras na estrutura que o Measure lê. Indique uma pasta de origem e ordene-a com uma regex, ou solte arquivos e pastas nas colunas abaixo: cada coluna é um canal ou uma máscara, cada linha um campo, e os arquivos soltos são pareados entre as colunas pelo nome. Ao Aplicar, as imagens e máscaras são MOVIDAS para pastas de canal com nomes Yokogawa e mescladas em merged/; cada movimentação é gravada num manifesto."
+    },
+    {
+      "table": "ui",
+      "key": "Organize for Measure",
+      "source": "Organize for Measure",
+      "source_sha256": "2136580d6869100fda0784f80372dc32139bd21544d061456adf0f65d39560a3",
+      "translation": "Organizar para o Measure"
+    },
+    {
+      "table": "ui",
+      "key": "Organize for Measure…",
+      "source": "Organize for Measure…",
+      "source_sha256": "d974f10b181bb5f1de05d91e9a56207c6f6bd1bbdc38ee5a144af949144c2876",
+      "translation": "Organizar para o Measure…"
+    },
+    {
+      "table": "ui",
+      "key": "Pick the source folder",
+      "source": "Pick the source folder",
+      "source_sha256": "d9e706f0a3f36712b3d336afb876850a58d2432aa6ba3d78931dd9141cde0431",
+      "translation": "Escolha a pasta de origem"
+    },
+    {
+      "table": "ui",
+      "key": "Put images and their masks into the layout Measure reads: one popup with the source folder, Mask generation's regex options and a table with a column per channel and per mask, which takes dropped files and folders. Apply moves them into Yokogawa-named channel folders and merges them into merged/.",
+      "source": "Put images and their masks into the layout Measure reads: one popup with the source folder, Mask generation's regex options and a table with a column per channel and per mask, which takes dropped files and folders. Apply moves them into Yokogawa-named channel folders and merges them into merged/.",
+      "source_sha256": "e572c494659a6493bc9a01e3274a926567b402160253c40ec8cc888b0e99045d",
+      "translation": "Coloque as imagens e as suas máscaras na estrutura que o Measure lê: uma janela com a pasta de origem, as opções de regex da Geração de máscaras e uma tabela com uma coluna por canal e por máscara, que aceita arquivos e pastas soltos. Aplicar move-os para pastas de canal com nomes Yokogawa e mescla-os em merged/."
+    },
+    {
+      "table": "ui",
+      "key": "Read the source folder (or the files in the table) with the regex: chanID gives the column, the other groups the row.",
+      "source": "Read the source folder (or the files in the table) with the regex: chanID gives the column, the other groups the row.",
+      "source_sha256": "c5e9c1b7e82fd5ed934d95c9bc50f0383224990c4e59313df431c979e9a09040",
+      "translation": "Ler a pasta de origem (ou os arquivos da tabela) com a regex: chanID dá a coluna, os outros grupos a linha."
+    },
+    {
+      "table": "ui",
+      "key": "Ready for Measure: open Measure and use {dest} as its source (it is first in Measure's recent sources). Its merged arrays hold the images first, then the mask planes in the order cell, nucleus, pathogen, organelle.",
+      "source": "Ready for Measure: open Measure and use {dest} as its source (it is first in Measure's recent sources). Its merged arrays hold the images first, then the mask planes in the order cell, nucleus, pathogen, organelle.",
+      "source_sha256": "a07d2afdca72c545fc75a2c5cc8672f199e7adc77090701a02cc06f8a171727f",
+      "translation": "Pronto para o Measure: abra o Measure e use {dest} como origem (é a primeira das origens recentes do Measure). Os seus arrays mesclados contêm primeiro as imagens e depois os planos de máscara na ordem cell, nucleus, pathogen, organelle."
+    },
+    {
+      "table": "ui",
+      "key": "Regex with named groups: chanID, and wellID, fieldID...",
+      "source": "Regex with named groups: chanID, and wellID, fieldID...",
+      "source_sha256": "e51af80c882d565112b03dc25e312072dbcae9ff17679f8177a49566838b074e",
+      "translation": "Regex com grupos nomeados: chanID, e wellID, fieldID..."
+    },
+    {
+      "table": "ui",
+      "key": "Regex: the same filename conventions as Mask generation. 'auto' lets spaCR propose one; 'custom' uses the regex below.",
+      "source": "Regex: the same filename conventions as Mask generation. 'auto' lets spaCR propose one; 'custom' uses the regex below.",
+      "source_sha256": "fe6d42aa52963b97bef330d411df4c5c894faf810288d4ad9200c0d0c5de9d37",
+      "translation": "Regex: as mesmas convenções de nomes de arquivo da Geração de máscaras. 'auto' deixa o spaCR propor uma; 'custom' usa a regex abaixo."
+    },
+    {
+      "table": "ui",
+      "key": "Remove from the table (Delete); the file is not touched.",
+      "source": "Remove from the table (Delete); the file is not touched.",
+      "source_sha256": "ceb8c6473da7582359d47d52ee996865aff0fc1d2542bcb5e216ace6bd1ac76d",
+      "translation": "Remover da tabela (Delete); o arquivo não é alterado."
+    },
+    {
+      "table": "ui",
+      "key": "Remove selected files",
+      "source": "Remove selected files",
+      "source_sha256": "ad4e3c56d304c08b698fab03c3c7c91e6cbd228b88bb415bb8c6654acdd189e1",
+      "translation": "Remover os arquivos selecionados"
+    },
+    {
+      "table": "ui",
+      "key": "Remove this column and its files from the table.",
+      "source": "Remove this column and its files from the table.",
+      "source_sha256": "f6bb8c75d02e9114a1d369ecde3f91855398b79980047d11665a6f2356a81d34",
+      "translation": "Remover esta coluna e os seus arquivos da tabela."
+    },
+    {
+      "table": "ui",
+      "key": "Show each cell as its file name, its image, or its image with the name written over it.",
+      "source": "Show each cell as its file name, its image, or its image with the name written over it.",
+      "source_sha256": "87bf35bff33a7adebd05842302eeb4718cb90dd8176039cd00a26c817f522f73",
+      "translation": "Mostrar cada célula como o nome do arquivo, a imagem ou a imagem com o nome escrito por cima."
+    },
+    {
+      "table": "ui",
+      "key": "Show one image at a time and ask which channel (or mask) it is, learning a regex from the answers until every image is placed.",
+      "source": "Show one image at a time and ask which channel (or mask) it is, learning a regex from the answers until every image is placed.",
+      "source_sha256": "d01da0cc6b030bda1ebae9d30659e162e6c3c3532ae0558b5c5fb10b9ca59a61",
+      "translation": "Mostrar uma imagem de cada vez e perguntar qual canal (ou máscara) ela é, aprendendo uma regex a partir das respostas até que todas as imagens estejam posicionadas."
+    },
+    {
+      "table": "ui",
+      "key": "Skip this image",
+      "source": "Skip this image",
+      "source_sha256": "064270a14252b2c1994f32f217bf9fd5a43ab15d312a983aefd047d6ea1aa960",
+      "translation": "Pular esta imagem"
+    },
+    {
+      "table": "ui",
+      "key": "Sort by regex",
+      "source": "Sort by regex",
+      "source_sha256": "56e2df5e73a6e0114a7461fcf2b7fc7062de52c6e4f4be11a9f5d69cfc788cb6",
+      "translation": "Ordenar por regex"
+    },
+    {
+      "table": "ui",
+      "key": "Stop: the rest are not needed",
+      "source": "Stop: the rest are not needed",
+      "source_sha256": "57fb2c10db4b6f67b99e674e14e01ad756b0446637ada6bb409f166a26a59c0e",
+      "translation": "Parar: o resto não é necessário"
+    },
+    {
+      "table": "ui",
+      "key": "Take the selected cells' files out of the table; the files themselves are not touched.",
+      "source": "Take the selected cells' files out of the table; the files themselves are not touched.",
+      "source_sha256": "0d41e5d5f6bb08d3dadff70d73ccb44e936c51ef5c4d00715a36feb3d32543ae",
+      "translation": "Tirar da tabela os arquivos das células selecionadas; os arquivos em si não são alterados."
+    },
+    {
+      "table": "ui",
+      "key": "Teach me…",
+      "source": "Teach me…",
+      "source_sha256": "44b0c14253115e4ffd6511b883da7ea3172a4648fa1a92b2a5ef623ae1bcffa1",
+      "translation": "Ensine-me…"
+    },
+    {
+      "table": "ui",
+      "key": "Text",
+      "source": "Text",
+      "source_sha256": "71988c4d8e0803ba4519f0b2864c1331c14a1890bf8694e251379177bfedb5c3",
+      "translation": "Texto"
+    },
+    {
+      "table": "ui",
+      "key": "Text colour",
+      "source": "Text colour",
+      "source_sha256": "25e9c8090de7f831975839a1155e1c546eb96d919a6f2a7a230d84ced7c0e7aa",
+      "translation": "Cor do texto"
+    },
+    {
+      "table": "ui",
+      "key": "The colour of the names written over the images.",
+      "source": "The colour of the names written over the images.",
+      "source_sha256": "f5668195ba9a37316958d5be32877c06d92a16b64c77ffa668307f09fb5fb02d",
+      "translation": "A cor dos nomes escritos sobre as imagens."
+    },
+    {
+      "table": "ui",
+      "key": "The detected sets were not used.",
+      "source": "The detected sets were not used.",
+      "source_sha256": "3c500b0dc73b1f717af87e97ed78161e252c31c3551e977db362784ee1d470e5",
+      "translation": "Os conjuntos detectados não foram usados."
+    },
+    {
+      "table": "ui",
+      "key": "Use the dropped masks?",
+      "source": "Use the dropped masks?",
+      "source_sha256": "6d04b8424a8d4328de73d3619324793e8ad4ab29a4580942ed7f2f5f30ec8b95",
+      "translation": "Usar as máscaras soltas?"
+    },
+    {
+      "table": "ui",
+      "key": "What does this part of the name mean?",
+      "source": "What does this part of the name mean?",
+      "source_sha256": "3a2f01449cbf276805f496cd1aaa2c7282f5e42645ee60a2a65b9d6862e141d5",
+      "translation": "O que significa esta parte do nome?"
+    },
+    {
+      "table": "ui",
+      "key": "Which channel is this?",
+      "source": "Which channel is this?",
+      "source_sha256": "1eee612bc94c78b27b875010ea604dd37e0b05f162cf036dcc1aee77dc065c53",
+      "translation": "Que canal é este?"
+    },
+    {
+      "table": "ui",
+      "key": "channel {n}",
+      "source": "channel {n}",
+      "source_sha256": "ae788436059ba8d0b066b901914b9a790a2078dfc05df8bb08a4133450f15b04",
+      "translation": "canal {n}"
+    },
+    {
+      "table": "ui",
+      "key": "of channel {n}",
+      "source": "of channel {n}",
+      "source_sha256": "0cf325d8256716cd532ee77d9e476e1d590182a17be2132f7e9119171d097729",
+      "translation": "do canal {n}"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR found no regex that puts every image in exactly one complete set. Drop the images into channel columns, or use Detect sets.",
+      "source": "spaCR found no regex that puts every image in exactly one complete set. Drop the images into channel columns, or use Detect sets.",
+      "source_sha256": "71ec554a68b4b5bd028f8f0cb7556efe472f176fe68d294c8ea4dcbd861c1787",
+      "translation": "O spaCR não encontrou nenhuma regex que coloque cada imagem em exatamente um conjunto completo. Solte as imagens nas colunas de canal ou use Detectar conjuntos."
+    },
+    {
+      "table": "ui",
+      "key": "the {role} mask of channel {n}",
+      "source": "the {role} mask of channel {n}",
+      "source_sha256": "610c94fb86aa44a823c255ba6892c8440f7299c29ce0ceb97c9ddc4cd6b5e485",
+      "translation": "a máscara {role} do canal {n}"
+    },
+    {
+      "table": "ui",
+      "key": "{n} dropped mask(s) belong to dropped images. Copy them into masks/ beside their images, named as Make Masks names masks, so they open with them? {k} image(s) already have a mask there, which is kept. No opens the images without them.",
+      "source": "{n} dropped mask(s) belong to dropped images. Copy them into masks/ beside their images, named as Make Masks names masks, so they open with them? {k} image(s) already have a mask there, which is kept. No opens the images without them.",
+      "source_sha256": "608376e336b1276c7e99a6b5f20a4eb162d760725c9ec585b014b4c08d0c64cd",
+      "translation": "{n} máscara(s) solta(s) pertencem a imagens soltas. Copiá-las para masks/ ao lado das suas imagens, com os nomes que o Make Masks dá às máscaras, para que abram com elas? {k} imagem(ns) já têm lá uma máscara, que é mantida. Não abre as imagens sem elas."
+    },
+    {
+      "table": "ui",
+      "key": "{n} mask(s) are shared by two images with one name stem and were left out: {names}",
+      "source": "{n} mask(s) are shared by two images with one name stem and were left out: {names}",
+      "source_sha256": "dfca149dc28853974ede976025592653da28d04ed866ffc878f78d300f1241f7",
+      "translation": "{n} máscara(s) são compartilhadas por duas imagens com o mesmo radical de nome e foram deixadas de fora: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "{n} row(s) lack an image in some channel column, so they cannot become Yokogawa sets. Change the regex (Sort by regex, Auto regex) or use Detect sets, drop the missing images into their columns, or remove those files.",
+      "source": "{n} row(s) lack an image in some channel column, so they cannot become Yokogawa sets. Change the regex (Sort by regex, Auto regex) or use Detect sets, drop the missing images into their columns, or remove those files.",
+      "source_sha256": "c63aa687a258822c355cfd3d4657c377ba919a34f97cd2d90917854fedb66027",
+      "translation": "{n} linha(s) não têm imagem em alguma coluna de canal e por isso não podem virar conjuntos Yokogawa. Altere a regex (Ordenar por regex, Regex automática) ou use Detectar conjuntos, solte as imagens em falta nas suas colunas ou remova esses arquivos."
+    },
+    {
+      "table": "ui",
+      "key": "{path} (no dropped image has this name)",
+      "source": "{path} (no dropped image has this name)",
+      "source_sha256": "ae1219ce453d81aab8faf6f0436911c326df2afa2bce049b5a54bccbc87915f5",
+      "translation": "{path} (nenhuma imagem solta tem este nome)"
+    },
+    {
+      "table": "ui",
+      "key": "{role} mask (channel {n})",
+      "source": "{role} mask (channel {n})",
+      "source_sha256": "0f83c63e26dbd6c11a68bcc696d7c85696e837f8bdb9c77ca325fe3ebc1b7d6b",
+      "translation": "máscara {role} (canal {n})"
+    },
+    {
+      "table": "ui",
+      "key": "{rows} row(s) in {channels} channel(s) and {masks} mask column(s); {missing} row(s) incomplete.",
+      "source": "{rows} row(s) in {channels} channel(s) and {masks} mask column(s); {missing} row(s) incomplete.",
+      "source_sha256": "af1ee5165cf4e18c480394308bcd4d1b413e29f89a7151f7e3ff92f9c81afc30",
+      "translation": "{rows} linha(s) em {channels} canal(is) e {masks} coluna(s) de máscara; {missing} linha(s) incompleta(s)."
+    }
+  ]
+}

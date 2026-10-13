@@ -1,0 +1,660 @@
+{
+  "lesson": "03_pip_install",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "canonical_english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "scene_count": 11,
+  "narrated_words": 441,
+  "native_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/pip_installed_visible_window",
+  "capture_provenance": {
+    "completed_capture": true,
+    "module": "pip_install",
+    "commit": "343d62c12a65e2dbd91e99f1e2efb09c0eed8b58",
+    "actual_system_terminal": true,
+    "installation_recorded_live": false,
+    "verification_recorded_live": true,
+    "application_source_modified": false,
+    "private_display": ":99",
+    "installed_environment": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv",
+    "setup_skipped_explicitly": true,
+    "first_run_tour_marked_seen": true,
+    "format_scope": "Linux, fresh public PyPI wheel; not other platforms",
+    "installed_identity": {
+      "version": "1.5.0.5",
+      "package": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr/__init__.py",
+      "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv"
+    },
+    "recording_preferences": {
+      "theme": "dark",
+      "font_scale": 1.5,
+      "preload": "on_demand"
+    },
+    "native_window_tree": "\nxwininfo: Window id: 0x3a7 (the root window) (has no name)\n\n  Root window id: 0x3a7 (the root window) (has no name)\n  Parent window id: 0x0 (none)\n     5 children:\n     0x800009 \"spaCR\": ()  1x1+0+0  +0+0\n     0x800007 \"spaCR\": (\"spacr\" \"spaCR\")  2560x720+0+0  +0+0\n     0x800005 \"Qt Selection Owner for spaCR\": ()  3x3+0+0  +0+0\n     0x600001 \"xdg-desktop-portal-gtk\": (\"xdg-desktop-portal-gtk\" \"Xdg-desktop-portal-gtk\")  10x10+10+10  +10+10\n     0x200005 \"Qt Selection Owner for capture_pip_installation.py\": ()  3x3+0+0  +0+0\n\n",
+    "native_window_geometry": "\nxwininfo: Window id: 0x800007 \"spaCR\"\n\n  Absolute upper-left X:  0\n  Absolute upper-left Y:  0\n  Relative upper-left X:  0\n  Relative upper-left Y:  0\n  Width: 3840\n  Height: 2160\n  Depth: 24\n  Visual: 0x21\n  Visual Class: TrueColor\n  Border width: 0\n  Class: InputOutput\n  Colormap: 0x800006 (not installed)\n  Bit Gravity State: NorthWestGravity\n  Window Gravity State: NorthWestGravity\n  Backing Store State: NotUseful\n  Save Under State: no\n  Map State: IsViewable\n  Override Redirect State: no\n  Corners:  +0+0  -0+0  -0-0  +0-0\n  -geometry 3840x2160+0+0\n\n",
+    "gui": {
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/spacr",
+        "--no-setup"
+      ],
+      "title": "spaCR",
+      "returncode": 0,
+      "normal_window_close": true,
+      "analysis_started": false
+    },
+    "generated_instruction_cards": [
+      "07_create_environment",
+      "08_activate_environment",
+      "09_install_package",
+      "10_launch_commands",
+      "11_update_intentionally"
+    ],
+    "instruction_style_source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/tools/render_install_keyframes.py"
+  },
+  "recorded_commands": [
+    {
+      "scene": "01_python_version",
+      "command": [
+        "python",
+        "--version"
+      ],
+      "output": "Python 3.12.13\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "02_pip_environment",
+      "command": [
+        "python",
+        "-m",
+        "pip",
+        "--version"
+      ],
+      "output": "pip 26.2.1 from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/pip (python 3.12)\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "03_installed_versions",
+      "command": [
+        "python",
+        "-c",
+        "import sys,spacr,PySide6; print(\"Python:\", sys.executable); print(\"spaCR:\", spacr.__version__); print(\"Qt:\", PySide6.__version__); print(\"Package:\", spacr.__file__)"
+      ],
+      "output": "Python: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python\nspaCR: 1.5.0.5\nQt: 6.11.2\nPackage: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr/__init__.py\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "04_dependency_check",
+      "command": [
+        "python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "output": "No broken requirements found.\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "05_doctor",
+      "command": [
+        "spacr-doctor",
+        "--no-gpu-probe"
+      ],
+      "output": "PASS  python              Python 3.12.13 satisfies requires-python !=3.14.1,<3.16,>=3.9.\n                          interpreter: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python\nPASS  spacr package       spacr 1.5.0.5 imports from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr.\nPASS  running checkout    Not inside a spaCR checkout; runs from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages.\n                          import spacr  -> /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr\n                          editable install: none (installed as a copy)\nPASS  duplicate installs  One importable spacr package: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr.\nPASS  distributions       spacr 1.5.0.5 is the only spaCR distribution.\n                          /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr-1.5.0.5.dist-info\nPASS  console scripts     All 16 installed spaCR commands resolve.\nPASS  PATH                `spacr-doctor` on PATH comes from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv.\nPASS  qt extra            Qt GUI available (PySide6 6.11.2).\nPASS  display             A display server is reachable.\nPASS  core imports        All 13 core dependencies import.\nWARN  optional extras     1 optional extras are half-installed and will fail when their feature is used.\n                          czi: missing pylibCZIrw\n                          installed: fractal, lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike\n                          fix: python -m pip install \"spacr[czi]\"\nSKIP  installer backend   No desktop-installer profile is present; this is a pip, conda, editable, or older installation.\n                          fix: Desktop installers record their choice in /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/install-profile.json.\nPASS  torch               torch 2.14.0+cu130 (built against CUDA 13.0).\nPASS  gpu                 1 CUDA device(s) reported: NVIDIA GeForce RTX 3090 (driver 580.173.02, torch CUDA 13.0); allocation probe skipped.\nPASS  cellpose            cellpose 4.2.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.\nSKIP  declared pins       Not inside a spaCR checkout; nothing to cross-check.\nSKIP  database            No database given.\n                          fix: spacr-doctor --db /path/to/plate/measurements/measurements.db\nSKIP  settings            No settings file given.\n                          fix: spacr-doctor --settings settings.csv --app measure\n\n13 passed, 1 warnings, 0 failed, 0 errored, 4 skipped\n",
+      "returncode": 0,
+      "accepted": true
+    }
+  ],
+  "frames": {
+    "01_python_version": {
+      "image": "01_python_version.png",
+      "sha256": "b8dd9f27e5afe528d8f1082ba4198b9401523e6fdf545858e2e667befa1b65d9",
+      "buttons": []
+    },
+    "02_pip_environment": {
+      "image": "02_pip_environment.png",
+      "sha256": "ff89b74634fcb7af3aa4444feb2ae7eb5fbcf6f57b0fdb3af362b9ed1d18a11b",
+      "buttons": []
+    },
+    "03_installed_versions": {
+      "image": "03_installed_versions.png",
+      "sha256": "3ef8df2ffd2298d2275d3760e4fa5ed1bacfa4fd9841cac4423dc7d37015221f",
+      "buttons": []
+    },
+    "04_dependency_check": {
+      "image": "04_dependency_check.png",
+      "sha256": "bf4b061127f3a2a03b490a29e94d56c9c270b77ae8ae3ce389768d181a481dcb",
+      "buttons": []
+    },
+    "05_doctor": {
+      "image": "05_doctor.png",
+      "sha256": "2ce57975effc8a43bfc29893b13c918d5a20cc30310da9118563ad48d78ac265",
+      "buttons": []
+    },
+    "06_installed_home": {
+      "image": "06_installed_home.png",
+      "sha256": "6aa721c5e755e74958d17b45b0a983e9c14f3b907775d27ff81c0fc02c94185e",
+      "buttons": []
+    },
+    "07_create_environment": {
+      "image": "07_create_environment.png",
+      "sha256": "27ca0d85d96008bf4a1b825185d54caf4c6721875e4737504b2801705105deae",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    },
+    "08_activate_environment": {
+      "image": "08_activate_environment.png",
+      "sha256": "0037da2b92861aeb200f4eacc2e4896ab5b18e8d36173adf4450fbed8186f9aa",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    },
+    "09_install_package": {
+      "image": "09_install_package.png",
+      "sha256": "de079f28ade59b1025a4a47109bc67e0ae52c6cbf788bf3ee6dba2e00ac5b33d",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    },
+    "10_launch_commands": {
+      "image": "10_launch_commands.png",
+      "sha256": "b651731568dd0dee3f8b6b46aa87ba76f84513ca957e06c8ca402ec7e0673b99",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    },
+    "11_update_intentionally": {
+      "image": "11_update_intentionally.png",
+      "sha256": "70816d59991213f72d83b19884b639c0d225ad5cc41121b3ea8037c000f6fafa",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    }
+  },
+  "previous_failed_capture": {
+    "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/pip_installed_verification",
+    "cause": "Recorder targeted the last matching Qt helper, not the visible application; resize and normal close were not delivered to the real window. Original failed images retained; not counted as an application defect or accepted take.",
+    "accepted": false
+  },
+  "instruction_cards_scope": "Five code-rendered command reference cards reuse the existing authoring style. Explicitly labelled instructions, not terminal output. Windows and macOS commands not executed here.",
+  "installation_preflight_receipt": "2026-09-10_clean_pypi_installation.json",
+  "all_50_voices_decoded_and_fingerprints_checked": true,
+  "full_master_decode_exit_code": 0,
+  "decoded_scene_samples": [
+    {
+      "scene": 1,
+      "sha256": "367f5641a93eb0d76472c7903d0a250eae55737ebb73668ab7ea567de9619ea6"
+    },
+    {
+      "scene": 2,
+      "sha256": "6cbf94a12ddae88234f7548608409dcc76dadd26549fcd6545339f5df369654a"
+    },
+    {
+      "scene": 3,
+      "sha256": "a51f6330dda7f61eb97f98c35288021c813b14b672de33fd38726b8b6f3b7992"
+    },
+    {
+      "scene": 4,
+      "sha256": "983454c1d8d9fc30bebd1bbd2cdfb06019fb020f435b438bd2f8f6f09325e714"
+    },
+    {
+      "scene": 5,
+      "sha256": "9735722d083c378a10c634a72ddadcb6848d73bcb2035cc5b0f928f1cd8d9946"
+    },
+    {
+      "scene": 6,
+      "sha256": "9cb4d51be36c8dc1480509e4a0b3e61fea45d6e43352ee96edf6fee93ee197d4"
+    },
+    {
+      "scene": 7,
+      "sha256": "de9009d2278a0762d0ad83043ddd879ee9f2d1c188c8122d20f4f47cc72ace70"
+    },
+    {
+      "scene": 8,
+      "sha256": "4ca4c7a42dd4bd381897bd852fe1cfd795c102f2bef800cc3cab653a9892b045"
+    },
+    {
+      "scene": 9,
+      "sha256": "8697839e713d3e434c7ec33f12020a2d9841ec21af5c707faaa4c2d12a8cc9d9"
+    },
+    {
+      "scene": 10,
+      "sha256": "bffb989ff8160c2b53b508336976a1bb81ecb854a61a627f60e6adccf60243a9"
+    },
+    {
+      "scene": 11,
+      "sha256": "64de08d83dca8d879824b4e47ae796b89e5d5e93bb52e9ba5f2886282077038b"
+    }
+  ],
+  "visually_inspected_decoded_scenes": [
+    6,
+    8,
+    10
+  ],
+  "native_frames_visually_inspected": [
+    "05_doctor",
+    "06_installed_home",
+    "08_activate_environment"
+  ],
+  "final_artifact_reconciliation": {
+    "lesson": "03_pip_install",
+    "passed": true,
+    "canonical_english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+    "scene_count": 11,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "3175f83e92369e621b31a5a9acfa1be6092409866331b71af41cb02bcfac8ebd"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "dc644ff5f2122c876e16ef6286114f99b9a8808c8156288d2e196e88536f3e45"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "34d8cbef2ef81a8525e541f7fede5aa294a97d99a586acf34c28f3de064e9352"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "62bbda5ddd28b6e2786d80e642ab9ad129da98e099f1464436bb7e7809970be1"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "3302598c84cc8238eb0c2d192bf2e525b51ed8435df2039a53d3554c4f2508c0"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "f24a9aa65f0790217e8133f0f283814ebabe60dd34b72603c21d0208db2606a2"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "99cbe2aa68a9b141d48548c4aa323e1231b607c2c7c0a202e0e90b8e81ded76c"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "abcdd8d5a2fae1fcb01f00a7eb8d00bf968ce4ffdd1033ff712dcb962ee3f8a8"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "4443d0fc37eaf02b1b28e51ac9ce3f2a0a5fabcc1f95d01b7d59f5d8d2a3230a"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "3d64bf6c1e00e0382b67be1a4a1617a8565b95d861b716343296e860574e17bd"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "f887d93cdbad5bf329b38dc6300b8963f8cf373bf91cce0c7b3e1cd2c907562d"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "e057c9139253986f1ad1972a595fa4650ebba4c6b306331851b1144dfa5441ce"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "770f6bd2ad092ca162dbff58ddaff71e2667a997fa66c24b827d273ffb41cf22"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "64b1885223d9e8e17bccaf5f1ea742b2df917ed794a6edc7577178b4071dccfe"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "d4c8dd79f16ff5ad6147f2b0783e6d38b03b24ce501eca518de35c3069b13397"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "cd74a9b99f7d391b4fa585e22a7b38eeb571aa83adbf763025fa9005e40ad3ac"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "00c2f0800288dd0d55c784c1b16125dc0ecb8a677df7c2d99844e35365acbcb4"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "a3c5a664d9ac2c3b8ce84a8d48f0dae5838d980441cd7abaedaf5806bc63b0e6"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "0ab44880f949bd56f6dbd2845e276bec33ed17c2b0b79393c864078dda6e877a"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "98cf5ff2f1a6db5a21a091e1db94c108e5f51016e2084f4dfe5eebd290130ca4"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "ebcbf704865e9120f30df39d4bc5e3ea4e6c95eea7ff68305f1f2b94b4991874"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "dc016baea1ebdf5354b38c6bd25091be7c69f1b8a36925e4ff301a276ec528bc"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "ef9bd6a024c35ae1073e06be306df78b183b37e744a725cefeeae1651c02d14d"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "043275d911e057fdbfd10eaf24ae3dc992865904c588510ca0c122d9bbc1f227"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "56487a56ee33466dd62d2080d49125fd1bc92184b8d6b95e411d5cd80a2f1427"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "9e6ba3189992c67e5be9e70d915b1e268f7612e5d3af280ad19785189dc26f25"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "c25d3a28b6291e910ca078004a6100d5cda7567d895c77d4bf5da7e5df8a7ed9"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "344dab6a0a8d148af7ca7b91bb6e595edcb7a98a8ad5ceded1041816f3470d25"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "2c86b170c6beafceaa24cf06aba41cae4f05df1e81c3cd9d68321c83063e9afe"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "a051dd79bebf7bb99005221ff2d6ce085aecd92215e8a15f162f9ff582cb050a"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "b1c5eedcbf855c33fab4315566359b48752e96389d753006bbbc6d36c7180bf9"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "284e221e22c77a1fcd2446a758e90dbf8167f8c2c3a2283423a7aec336fa01e0"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "54204743b9c3cfab38821c3241cbf7c19d99d075cf4964bb5b8250fc1e29b898"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "7841e47df75106b2f515bd4b2aee66bbe5aa51859ad8e07bb341ab1363417227"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "bf0de4fe375ce33031bde545e5413718e052f634da8c765962877e70a43eef92"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "bd40e80dd74fc4df4bc180ea2a0f2573363a4629ff4918fd870264af06fd9385"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "608eed63fed7017ec76055afa289285d86bfc6817290398f244c4590b1b42dbe"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "4a6242e198c30722e6554e170b93398d1eec913627c96748a080c018c386eb5a"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "4253dc920f72db9ccc0ba5d8e50087bea3793c663ddb6cbb1a97702f128fd3fa"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "edbb3aac638ec8da89c53b9dd7283f234b5863a868a324a1b6a44bb06a7656a3"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "0f4d6ed2e96904142b0ac94a0976bbfa6b60ad7bccc661eecec27b816387024c"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "a6d16a75a11b0428f2ef56a4bf2cd047fdeec6ea24d776146745f56c2ad2c162"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "b6e593572ee4e839b170e10fa6ef89255345f3f3cbaae8afed151f9440e0b906"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "bb92737fd9ceef318f117147889d92ac7d696e8d26ccdad7449876ff45bb835c"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "9deb86a454c9e5b28d0b71be6e10f743f3b4ee3d415bae00a4b7ce19b31e3f09"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "cdaa04a1af280c364fb5a6b7f8faa610ae91ff7684b720e613eee9156a1b289f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "f9b88e02265bc367e013cac5fc2768269cfd0be4f9e6d32762eae44c4179bbc1"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "9e8cbc0ea0fb620d26e0d5b1451c0d6067225f8943bd741bbb911898fcd02c31"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "deb1f56ed31f0ff34e776010bb76e2e7d2dc7f00e3c1078c1a617f40322e6db3"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "60724d0e2dc5665939d8d425d8f6df49a1099fe01f692e63151f2907185d0db8"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "bd99a1ef423885d84e46aa2a32f634b62ca6ed31860f682035ccb1d5b3b7ec53"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "53e2c7c0d38ea81652c15415eff550e3c4db63edca53297e5fdde4501f2c2de0"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "0242fb0dda4da7ded617a2ec21da8f5ef0670d9365d163d3db6da667355e76b4"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "dd0f9eeb190439d7c2a52cfae071a9aa3002886b59f4462ef8973ee41546b11d"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "d2318b3de4eeee218dd1d27bd0599771eef7f99b31b594f8d16ac847916dd7ff"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "f8d170888ba286011d4b7e7dd93365fe88825bb45fe0406f4c6ffb1bf0183042"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "5a06ffcc0f3bc86b830b241433d66c2433ba00130b3cb467f4ce882d190fb475"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "0d9796dee91f996fbd660fe5731628c57e103252a1edaa895020ca3e1bfdd4fc"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "1f806a6155a25dcc6f775bdca2bfcf39f8ca0fad84b9808b904f4e0032e008c7"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "61d302733d4ae16d91c0073f17538d706fb35ceb49f1990e26dd5c5ef5a52179"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "b19d566f68ac5cd9adb8971603eafcf6504c8396f40a9c90e266ab4ac3ebad81"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "fb34648f0665f0a5a761b470a9f668c21667666027e1a9d4288bb43b334f016f"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "03c2ab311e7e11f9f86430ebe883ca9642c3b040843051aa8f16af9df0465292"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "14528ceed9262e75002c016e1f3100c09e66d9a36af2294c06d77eca884a7a4b"
+      }
+    ],
+    "master_sha256": "9bed191a9f06e633c0ac7bdf56766011d6337bd941c2501d0e85bc83582e95f4",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "5568"
+        }
+      ],
+      "format": {
+        "duration": "185.600000",
+        "size": "4663449"
+      }
+    },
+    "poster_sha256": "367f5641a93eb0d76472c7903d0a250eae55737ebb73668ab7ea567de9619ea6",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "max_browser_clock_error_seconds": 0.04562002641235097,
+  "review_sources": [
+    {
+      "language": "da",
+      "sha256": "17d0449f6469a0e466f9cf76926c8a0e5d0e1da6233f35565e1eaa8425b086c9"
+    },
+    {
+      "language": "de",
+      "sha256": "1d38901859b1d2290dad206147d549e9a7555d226c0ce7de070f877834eb9d24"
+    },
+    {
+      "language": "es",
+      "sha256": "cb7bc5ccd07fe5787c3295b8459b8edb9df75fdf7fd69ce49011c4fb38c0d133"
+    },
+    {
+      "language": "fr",
+      "sha256": "965338cef8248a7f1f17464f09c967ab90606be3d55f5faa57b364837bb41b0c"
+    },
+    {
+      "language": "hi",
+      "sha256": "f6d5274716ae44d00b7d04360d3f8449038e6fe656bb6054cd18657974a94eb0"
+    },
+    {
+      "language": "is",
+      "sha256": "0ec045cc312ad5d5441bfb66beb5cbb0d72fcf773032c19a6a20d4be3928d666"
+    },
+    {
+      "language": "it",
+      "sha256": "cfa6682a7f4da764d7c42173b4856b196db5225d54044d97a3bde0320257d5b4"
+    },
+    {
+      "language": "ja",
+      "sha256": "0b334274474b19c186990de6e766c44298dcf731acc85b053031e3971c78864a"
+    },
+    {
+      "language": "ko",
+      "sha256": "e114097a325817a5b31f7ff884d0f5b80492b75b6cf961ae369f4af37d12c24c"
+    },
+    {
+      "language": "nb",
+      "sha256": "e1bacd9443a1017d7c1e63bde800026f0650b1c77ae78f4740c47791022d9260"
+    },
+    {
+      "language": "pt-BR",
+      "sha256": "c6362f799b97a8405e6d57f3be5b720b6abd2dcfa473a2a5c6dc8ea39ba5ba8f"
+    },
+    {
+      "language": "sv",
+      "sha256": "f8d92d4e4ccf708e678adc601ef40d6d439bb236b1f09cba3fb7f642f8b2c851"
+    },
+    {
+      "language": "zh-CN",
+      "sha256": "eb4c7c48dd2c947e6b9c4475a3aa707379c0034c4fb299273be4f937bb75a48d"
+    }
+  ],
+  "editorial_review": "Parent editorial review only; independent peer and native/listening approvals not claimed.",
+  "capture_guard_tests": {
+    "passed": 3,
+    "guard_lines_measured_executed": [
+      28,
+      33,
+      103,
+      106,
+      107,
+      108
+    ],
+    "mutations": "Each of private path, completed receipt, exact window title, visible window size, and largest real window altered independently in an isolated in-memory source copy. Each caused one failing test and two passing tests; restored source passed all three. No application code altered."
+  },
+  "translation_review_tool_tests_passed": 6,
+  "technical_staging_totals": {
+    "lessons": 38,
+    "unique_tracks": 1900,
+    "retained_tracks": 100,
+    "browser_cases": 532
+  },
+  "catalogs": {
+    "count": 14,
+    "lessons": 75,
+    "scenes": 809,
+    "unselected_unchanged": 38
+  },
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

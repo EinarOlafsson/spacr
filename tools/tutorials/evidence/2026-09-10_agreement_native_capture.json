@@ -1,0 +1,2446 @@
+Warning: truncated output (original token count: 53342)
+Total output lines: 8434
+
+{
+  "status": "Native Agreement demonstration verified; multilingual production pending",
+  "lesson": "23_agreement",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/agreement_demo_checked_pairs",
+  "provenance": {
+    "commit": "d094190fa4f7f8e6ac4e6e49d40510a52057180e",
+    "version": "1.5.0.5",
+    "module": "agreement",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "acceptance": {
+    "lesson": "23_agreement",
+    "accepted": true,
+    "data": {
+      "source_database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "source_rows_sha256": "5fbd50b0bd0f34f8269f00ab3bf04fcaa5ea68a9cc879785cb3d0d076f9e49da",
+      "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/measurements/measurements.db",
+      "database_sha256": "fc37e6037f777d6974003cb326083f35b606477c5b6f520e62deb69a075049b3",
+      "rows": [
+        {
+          "png_path": "data/crops/plate1_E01_10_1_4.png",
+          "DEMO_A": 1,
+          "DEMO_B": 1,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_10_1_45.png",
+          "DEMO_A": 1,
+          "DEMO_B": 1,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_14_1_3.png",
+          "DEMO_A": 1,
+          "DEMO_B": 1,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_1_1_18.png",
+          "DEMO_A": 1,
+          "DEMO_B": 1,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_1_1_7.png",
+          "DEMO_A": 1,
+          "DEMO_B": 1,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_20_1_35.png",
+          "DEMO_A": 1,
+          "DEMO_B": 2,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_20_1_36.png",
+          "DEMO_A": 1,
+          "DEMO_B": null,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_20_1_6.png",
+          "DEMO_A": 2,
+          "DEMO_B": 1,
+          "DEMO_C": 1
+        },
+        {
+          "png_path": "data/crops/plate1_E01_20_1_77.png",
+          "DEMO_A": 2,
+          "DEMO_B": 1,
+          "DEMO_C": 2
+        },
+        {
+          "png_path": "data/crops/plate1_E01_21_1_48.png",
+          "DEMO_A": 2,
+          "DEMO_B": 2,
+          "DEMO_C": 2
+        },
+        {
+          "png_path": "data/crops/plate1_E01_9_1_30.png",
+          "DEMO_A": 2,
+          "DEMO_B": 2,
+          "DEMO_C": 2
+        },
+        {
+          "png_path": "data/crops/plate1_E02_10_1_24.png",
+          "DEMO_A": 2,
+          "DEMO_B": 2,
+          "DEMO_C": 2
+        },
+        {
+          "png_path": "data/crops/plate1_E02_10_1_3.png",
+          "DEMO_A": 2,
+          "DEMO_B": 2,
+          "DEMO_C": 2
+        },
+        {
+          "png_path": "data/crops/plate1_E02_10_1_34.png",
+          "DEMO_A": 2,
+          "DEMO_B": null,
+          "DEMO_C": 2
+        },
+        {
+          "png_path": "data/crops/plate1_E02_10_1_4.png",
+          "DEMO_A": null,
+          "DEMO_B": 1,
+          "DEMO_C": 2
+        },
+        {
+          "png_path": "data/crops/plate1_E02_11_1_12.png",
+          "DEMO_A": null,
+          "DEMO_B": null,
+          "DEMO_C": null
+        }
+      ],
+      "crops": [
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_10_1_4.png",
+          "sha256": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_10_1_45.png",
+          "sha256": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_14_1_3.png",
+          "sha256": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_18.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_1_1_18.png",
+          "sha256": "9aa884f0464c68ca23b8aeb4ea572de5433de9f9dd81d7aef1e5f6650d45ff49"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_7.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_1_1_7.png",
+          "sha256": "bcc292a4b85a59aceb46485f092ba2f677b6cf0ce80a0d3cd048c7a16b66d241"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_20_1_35.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_20_1_35.png",
+          "sha256": "b14d22867efd4f239f965346c059235ce3c435ab0bf0fc101a9da3ec4b917da1"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_20_1_36.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_20_1_36.png",
+          "sha256": "2e76ede5e0343ff58172b63feb746b71f883354de145681f20231530ac5003a6"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_20_1_6.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_20_1_6.png",
+          "sha256": "c60eee68317c3b0fa0803a76ffcb40ec590f1d64ae498d7107f0cdc6230f8015"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_20_1_77.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_20_1_77.png",
+          "sha256": "bdfb4eff3d6c944617aff23666ce24bc9c7ac44e72a11c27b568ddf8e7629d3a"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_21_1_48.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_21_1_48.png",
+          "sha256": "b3a33dba329f4ea45ba04a55731e13776ec79693255efe4abc984221ad5a229d"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_9_1_30.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E01_9_1_30.png",
+          "sha256": "92d500218178716c6a6dabd4c21fed2ecf667e1975ac304186c9735f4a5c0312"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_10_1_24.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E02_10_1_24.png",
+          "sha256": "c5c6019db968271cc93ddc099b0a344eb4f2594ce44fd64bb983a0c4aab7e4d6"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_10_1_3.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E02_10_1_3.png",
+          "sha256": "dee3ba0c693af722b648471ba2842a5ee1bbda312a263cdd483e8e0029464b25"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_10_1_34.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E02_10_1_34.png",
+          "sha256": "94943e224e2110d2ab00c774d1b470d278bbb791f80d3adf989b2448580b08b4"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_10_1_4.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E02_10_1_4.png",
+          "sha256": "6039d45226be72267c2bc64028d8b2bee550f52b435bc294ad29e1d07755ce1d"
+        },
+        {
+          "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_11_1_12.png",
+          "copied": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement_runs/DEMO-labels-real-crops-9b2odjuh/data/crops/plate1_E02_11_1_12.png",
+          "sha256": "e96103e1c167169a155dc8ae9c946565f800d24386e249f100eb1aee39fbdc3a"
+        }
+      ],
+      "labels_are_artificial": true,
+      "biological_or_human_review_claim": false,
+      "scope": "Sixteen unchanged downloaded crop images; all DEMO labels deliberately assigned for teaching"
+    },
+    "runs": [
+      {
+        "name": "07_pairwise_results",
+        "columns": [
+          "DEMO_A",
+          "DEMO_B"
+        ],
+        "independent": {
+          "n_rows": 16,
+          "n_complete": 12,
+          "n_partial": 3,
+          "n_unlabelled": 1,
+          "n_disagreements": 3,
+          "percent_agreement": 0.75,
+          "overall_kappa": 0.5,
+          "pairs": [
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_B",
+              "n_compared": 12,
+              "n_agree": 9,
+              "n_disagree": 3,
+              "n_abstained": 3,
+              "n_neither": 1,
+              "percent_agreement": 0.75,
+              "expected_agreement": 0.5,
+              "kappa": 0.5,
+              "confusion": [
+                [
+                  5,
+                  1
+                ],
+                [
+                  2,
+                  4
+                ]
+              ]
+            }
+          ],
+          "disagreement_paths": [
+            "data/crops/plate1_E01_20_1_35.png",
+            "data/crops/plate1_E01_20_1_6.png",
+            "data/crops/plate1_E01_20_1_77.png"
+          ]
+        },
+        "actual": {
+          "n_rows": 16,
+          "n_complete": 12,
+          "n_partial": 3,
+          "n_unlabelled": 1,
+          "n_disagreements": 3,
+          "percent_agreement": 0.75,
+          "overall_kappa": 0.5,
+          "pairs": [
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_B",
+              "n_compared": 12,
+              "n_agree": 9,
+              "n_disagree": 3,
+              "n_abstained": 3,
+              "n_neither": 1,
+              "percent_agreement": 0.75,
+              "expected_agreement": 0.5,
+              "kappa": 0.5,
+              "confusion": [
+                [
+                  5,
+                  1
+                ],
+                [
+                  2,
+                  4
+                ]
+              ]
+            }
+          ],
+          "disagreement_paths": [
+            "data/crops/plate1_E01_20_1_35.png",
+            "data/crops/plate1_E01_20_1_6.png",
+            "data/crops/plate1_E01_20_1_77.png"
+          ]
+        },
+        "displayed_pairs": [
+          [
+            "DEMO_A",
+            "DEMO_B",
+            "12",
+            "3",
+            "75.0%",
+            "+0.500",
+            "moderate"
+          ]
+        ],
+        "summary": "<b>Overall Cohen's κ: +0.500</b> (moderate) &nbsp;·&nbsp; raw agreement 75.0% on 12 row(s) labelled by all 2 annotators &nbsp;·&nbsp; 3 abstention row(s) &nbsp;·&nbsp; 3 disagreement(s).<br>Only 12 row(s) are labelled by every annotator; κ is very noisy at that size. Treat the value as indicative.<br><i>Bands follow the Landis & Koch (1977) convention, not a law: the cut-points are a rule of thumb with no distributional basis. What counts as acceptable agreement depends on the assay, the number of classes and how lopsided the classes are.</i>",
+        "warnings": [
+          "Only 12 row(s) are labelled by every annotator; κ is very noisy at that size. Treat the value as indicative."
+        ],
+        "all_values_verified": true
+      },
+      {
+        "name": "11_three_pass_results",
+        "columns": [
+          "DEMO_A",
+          "DEMO_B",
+          "DEMO_C"
+        ],
+        "independent": {
+          "n_rows": 16,
+          "n_complete": 12,
+          "n_partial": 3,
+          "n_unlabelled": 1,
+          "n_disagreements": 4,
+          "percent_agreement": 0.75,
+          "overall_kappa": 0.6625,
+          "pairs": [
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_B",
+              "n_compared": 12,
+              "n_agree": 9,
+              "n_disagree": 3,
+              "n_abstained": 3,
+              "n_neither": 1,
+              "percent_agreement": 0.75,
+              "expected_agreement": 0.5,
+              "kappa": 0.5,
+              "confusion": [
+                [
+                  5,
+                  1
+                ],
+                [
+                  2,
+                  4
+                ]
+              ]
+            },
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_C",
+              "n_compared": 14,
+              "n_agree": 13,
+              "n_disagree": 1,
+              "n_abstained": 1,
+              "n_neither": 1,
+              "percent_agreement": 0.9285714285714286,
+              "expected_agreement": 0.5,
+              "kappa": 0.8571428571428571,
+              "confusion": [
+                [
+                  7,
+                  0
+                ],
+                [
+                  1,
+                  6
+                ]
+              ]
+            },
+            {
+              "column_a": "DEMO_B",
+              "column_b": "DEMO_C",
+              "n_compared": 13,
+              "n_agree": 10,
+              "n_disagree": 3,
+              "n_abstained": 2,
+              "n_neither": 1,
+              "percent_agreement": 0.7692307692307693,
+              "expected_agreement": 0.5088757396449705,
+              "kappa": 0.5301204819277109,
+              "confusion": [
+                [
+                  6,
+                  2
+                ],
+                [
+                  1,
+                  4
+                ]
+              ]
+            }
+          ],
+          "disagreement_paths": [
+            "data/crops/plate1_E01_20_1_35.png",
+            "data/crops/plate1_E01_20_1_6.png",
+            "data/crops/plate1_E01_20_1_77.png",
+            "data/crops/plate1_E02_10_1_4.png"
+          ]
+        },
+        "actual": {
+          "n_rows": 16,
+          "n_complete": 12,
+          "n_partial": 3,
+          "n_unlabelled": 1,
+          "n_disagreements": 4,
+          "percent_agreement": 0.75,
+          "overall_kappa": 0.6625000000000001,
+          "pairs": [
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_B",
+              "n_compared": 12,
+              "n_agree": 9,
+              "n_disagree": 3,
+              "n_abstained": 3,
+              "n_neither": 1,
+              "percent_agreement": 0.75,
+              "expected_agreement": 0.5,
+              "kappa": 0.5,
+              "confusion": [
+                [
+                  5,
+                  1
+                ],
+                [
+                  2,
+                  4
+                ]
+              ]
+            },
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_C",
+              "n_compared": 14,
+              "n_agree": 13,
+              "n_disagree": 1,
+              "n_abstained": 1,
+              "n_neither": 1,
+              "percent_agreement": 0.9285714285714286,
+              "expected_agreement": 0.5,
+              "kappa": 0.8571428571428572,
+              "confusion": [
+                [
+                  7,
+                  0
+                ],
+                [
+                  1,
+                  6
+                ]
+              ]
+            },
+            {
+              "column_a": "DEMO_B",
+              "column_b": "DEMO_C",
+              "n_compared": 13,
+              "n_agree": 10,
+              "n_disagree": 3,
+              "n_abstained": 2,
+              "n_neither": 1,
+              "percent_agreement": 0.7692307692307693,
+              "expected_agreement": 0.5088757396449705,
+              "kappa": 0.5301204819277109,
+              "confusion": [
+                [
+                  6,
+                  2
+                ],
+                [
+                  1,
+                  4
+                ]
+              ]
+            }
+          ],
+          "disagreement_paths": [
+            "data/crops/plate1_E01_20_1_35.png",
+            "data/crops/plate1_E01_20_1_6.png",
+            "data/crops/plate1_E01_20_1_77.png",
+            "data/crops/plate1_E02_10_1_4.png"
+          ]
+        },
+        "displayed_pairs": [
+          [
+            "DEMO_A",
+            "DEMO_B",
+            "12",
+            "3",
+            "75.0%",
+            "+0.500",
+            "moderate"
+          ],
+          [
+            "DEMO_A",
+            "DEMO_C",
+            "14",
+            "1",
+            "92.9%",
+            "+0.857",
+            "almost perfect"
+          ],
+          [
+            "DEMO_B",
+            "DEMO_C",
+            "13",
+            "2",
+            "76.9%",
+            "+0.530",
+            "moderate"
+          ]
+        ],
+        "summary": "<b>Overall Fleiss' κ: +0.663</b> (substantial) &nbsp;·&nbsp; raw agreement 75.0% on 12 row(s) labelled by all 3 annotators &nbsp;·&nbsp; 3 abstention row(s) &nbsp;·&nbsp; 4 disagreement(s).<br>Fleiss' κ uses the 12 row(s) all 3 annotators labelled; the pairwise κ values each use their own two annotators' shared rows.<br>3 row(s) were labelled by some but not all annotators and are excluded from the overall Fleiss' κ (they are abstentions, not disagreements).<br>Only 12 row(s) are labelled by every annotator; κ is very noisy at that size. Treat the value as indicative.<br><i>Bands follow the Landis & Koch (1977) convention, not a law: the cut-points are a rule of thumb with no distributional basis. What counts as acceptable agreement depends on the assay, the number of classes and how lopsided the classes are.</i>",
+        "warnings": [
+          "3 row(s) were labelled by some but not all annotators and are excluded from the overall Fleiss' κ (they are abstentions, not disagreements).",
+          "Only 12 row(s) are labelled by every annotator; κ is very noisy at that size. Treat the value as indicative."
+        ],
+        "all_values_verified": true
+      },
+      {
+        "name": "12_pairwise_restored",
+        "columns": [
+          "DEMO_A",
+          "DEMO_B"
+        ],
+        "independent": {
+          "n_rows": 16,
+          "n_complete": 12,
+          "n_partial": 3,
+          "n_unlabelled": 1,
+          "n_disagreements": 3,
+          "percent_agreement": 0.75,
+          "overall_kappa": 0.5,
+          "pairs": [
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_B",
+              "n_compared": 12,
+              "n_agree": 9,
+              "n_disagree": 3,
+              "n_abstained": 3,
+              "n_neither": 1,
+              "percent_agreement": 0.75,
+              "expected_agreement": 0.5,
+              "kappa": 0.5,
+              "confusion": [
+                [
+                  5,
+                  1
+                ],
+                [
+                  2,
+                  4
+                ]
+              ]
+            }
+          ],
+          "disagreement_paths": [
+            "data/crops/plate1_E01_20_1_35.png",
+            "data/crops/plate1_E01_20_1_6.png",
+            "data/crops/plate1_E01_20_1_77.png"
+          ]
+        },
+        "actual": {
+          "n_rows": 16,
+          "n_complete": 12,
+          "n_partial": 3,
+          "n_unlabelled": 1,
+          "n_disagreements": 3,
+          "percent_agreement": 0.75,
+          "overall_kappa": 0.5,
+          "pairs": [
+            {
+              "column_a": "DEMO_A",
+              "column_b": "DEMO_B",
+              "n_compared": 12,
+              "n_agree": 9,
+              "n_disagree": 3,
+              "n_abstained": 3,
+              "n_neither": 1,
+              "percent_agreement": 0.75,
+              "expected_agreement": 0.5,
+              "kappa": 0.5,
+              "confusion": [
+                [
+                  5,
+                  1
+                ],
+                [
+                  2,
+                  4
+                ]
+              ]
+            }
+          ],
+          "disagreement_paths": [
+            "data/crops/plate1_E01_20_1_35.png",
+            "data/crops/plate1_E01_20_1_6.png",
+            "data/crops/plate1_E01_20_1_77.png"
+          ]
+        },
+        "displayed_pairs": [
+          [
+            "DEMO_A",
+            "DEMO_B",
+            "12",
+            "3",
+            "75.0%",
+            "+0.500",
+            "moderate"
+          ]
+        ],
+        "summary": "<b>Overall Cohen's κ: +0.500</b> (moderate) &nbsp;·&nbsp; raw agreement 75.0% on 12 row(s) labelled by all 2 annotators &nbsp;·&nbsp; 3 abstention row(s) &nbsp;·&nbsp; 3 disagreement(s).<br>Only 12 row(s) are labelled by every annotator; κ is very noisy at that size. Treat the value as indicative.<br><i>Bands follow the Landis & Koch (1977) convention, not a law: the cut-points are a rule of thumb with no distributional basis. What counts as acceptable agreement depends on the assay, the number of classes and how lopsided the classes are.</i>",
+        "warnings": [
+          "Only 12 row(s) are labelled by every annotator; κ is very noisy at that size. Treat the value as indicative."
+        ],
+        "all_values_verified": true
+      }
+    ],
+    "app_source_modified": false,
+    "labels_are_artificial": true,
+    "human_performance_claim": false,
+    "crop_checks": [
+      {
+        "path": "data/crops/plate1_E01_20_1_35.png",
+        "all_rgba_pixels_equal": true,
+        "width": 260,
+        "height": 260
+      },
+      {
+        "path": "data/crops/plate1_E01_20_1_6.png",
+        "all_rgba_pixels_equal": true,
+        "width": 260,
+        "height": 260
+      },
+      {
+        "path": "data/crops/plate1_E01_20_1_77.png",
+        "all_rgba_pixels_equal": true,
+        "width": 260,
+        "height": 260
+      }
+    ],
+    "published": false,
+    "source_database_unchanged": true,
+    "private_database_unchanged": true,
+    "all_crop_files_unchanged": true
+  },
+  "frames": {
+    "00_home": {
+      "image": "00_home.png",
+      "capture_surface": "application_window",
+      "sha256": "3535d324a67afe671580569c14dd1c4a5a0199f8ddd3887c321cb3fb4eadc681",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            204,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            246,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            288,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            330,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            372,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            414,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "mask"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            638,
+            288,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "measure"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            911,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "annotate"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1183,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1455,
+            288,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1728,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "regression"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "foreign"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            638,
+            514,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "run_compare"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            911,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "experiment_design"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1183,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "power"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1455,
+            514,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "dose_response"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1728,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "qc_dashboard"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "make_masks"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            639,
+            740,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "align"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            911,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "umap"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1184,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "gate_editor"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1457,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "graph_builder"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            966,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "analyze_plaques"
+        },
+        {
+          "text": "",
+          "name": "AppTil…36342 tokens truncated…writes a model card.",
+          "rect": [
+            1446,
+            156,
+            114,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Suggest…",
+          "name": "",
+          "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+          "rect": [
+            1568,
+            156,
+            135,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Rounds",
+          "name": "",
+          "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. This is how you find out you can stop.",
+          "rect": [
+            1711,
+            156,
+            117,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Train…",
+          "name": "",
+          "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+          "rect": [
+            1836,
+            156,
+            122,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Auto-annotate…",
+          "name": "",
+          "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+          "rect": [
+            1966,
+            156,
+            177,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "View in database",
+          "name": "",
+          "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+          "rect": [
+            2151,
+            156,
+            184,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Annotate page",
+          "name": "",
+          "tooltip": "Give every image on this page the same class. Asks which.",
+          "rect": [
+            2343,
+            156,
+            163,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Clear page",
+          "name": "",
+          "tooltip": "Remove the annotations on this page only. Undoable.",
+          "rect": [
+            2514,
+            156,
+            139,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Clear column",
+          "name": "DangerButton",
+          "tooltip": "",
+          "rect": [
+            2661,
+            156,
+            186,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Load test data",
+          "name": "",
+          "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+          "rect": [
+            3312,
+            156,
+            159,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Generate annotation database…",
+          "name": "",
+          "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+          "rect": [
+            3479,
+            156,
+            327,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "?",
+          "name": "",
+          "tooltip": "Show the full keyboard reference",
+          "rect": [
+            3781,
+            218,
+            35,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Console ▾",
+          "name": "AnnotateConsoleSwitch",
+          "tooltip": "Show or hide the Console + AI pane.",
+          "rect": [
+            3638,
+            2075,
+            115,
+            37
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3266,
+            483,
+            22,
+            18
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Choose database…",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3300,
+            470,
+            203,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Choose run folder…",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3511,
+            470,
+            210,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Open",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3729,
+            470,
+            78,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Compute agreement",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            363,
+            1135,
+            260,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "✕",
+          "name": "",
+          "tooltip": "Close",
+          "rect": [
+            742,
+            288,
+            35,
+            35
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    },
+    "11_three_pass_results": {
+      "image": "11_three_pass_results.png",
+      "capture_surface": "application_window",
+      "sha256": "7aa78dffd9bc883341c3722a221c870439d64e0366f309d4925f60a30044f831",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            204,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            246,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            288,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            330,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            372,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            414,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "",
+          "name": "FoldButton",
+          "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+          "rect": [
+            3773,
+            68,
+            51,
+            51
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Open source…",
+          "name": "PrimaryButton",
+          "tooltip": "",
+          "rect": [
+            346,
+            156,
+            197,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Settings",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            551,
+            156,
+            121,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Back",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            680,
+            156,
+            91,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Next",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            779,
+            156,
+            90,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Skip to last annotated",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            877,
+            156,
+            249,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Class counts",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            1134,
+            156,
+            162,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Coverage",
+          "name": "",
+          "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+          "rect": [
+            1304,
+            156,
+            134,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Retrain",
+          "name": "",
+          "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+          "rect": [
+            1446,
+            156,
+            114,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Suggest…",
+          "name": "",
+          "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+          "rect": [
+            1568,
+            156,
+            135,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Rounds",
+          "name": "",
+          "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. This is how you find out you can stop.",
+          "rect": [
+            1711,
+            156,
+            117,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Train…",
+          "name": "",
+          "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+          "rect": [
+            1836,
+            156,
+            122,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Auto-annotate…",
+          "name": "",
+          "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+          "rect": [
+            1966,
+            156,
+            177,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "View in database",
+          "name": "",
+          "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+          "rect": [
+            2151,
+            156,
+            184,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Annotate page",
+          "name": "",
+          "tooltip": "Give every image on this page the same class. Asks which.",
+          "rect": [
+            2343,
+            156,
+            163,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Clear page",
+          "name": "",
+          "tooltip": "Remove the annotations on this page only. Undoable.",
+          "rect": [
+            2514,
+            156,
+            139,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Clear column",
+          "name": "DangerButton",
+          "tooltip": "",
+          "rect": [
+            2661,
+            156,
+            186,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Load test data",
+          "name": "",
+          "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+          "rect": [
+            3312,
+            156,
+            159,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Generate annotation database…",
+          "name": "",
+          "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+          "rect": [
+            3479,
+            156,
+            327,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "?",
+          "name": "",
+          "tooltip": "Show the full keyboard reference",
+          "rect": [
+            3781,
+            218,
+            35,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Console ▾",
+          "name": "AnnotateConsoleSwitch",
+          "tooltip": "Show or hide the Console + AI pane.",
+          "rect": [
+            3638,
+            2075,
+            115,
+            37
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3266,
+            483,
+            22,
+            18
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Choose database…",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3300,
+            470,
+            203,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Choose run folder…",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3511,
+            470,
+            210,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Open",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3729,
+            470,
+            78,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Compute agreement",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            363,
+            1107,
+            260,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "✕",
+          "name": "",
+          "tooltip": "Close",
+          "rect": [
+            742,
+            288,
+            35,
+            35
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    },
+    "12_pairwise_restored": {
+      "image": "12_pairwise_restored.png",
+      "capture_surface": "application_window",
+      "sha256": "d89ce74b65e8119f87000cd6170fd966916e41fe3bacd520ecb97607178bcd13",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            204,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            246,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            288,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            330,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            372,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            414,
+            316,
+            42
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "",
+          "name": "FoldButton",
+          "tooltip": "Annotator Agreement\nCompute Cohen's or Fleiss' κ across annotation columns and review discordant crops.",
+          "rect": [
+            3773,
+            68,
+            51,
+            51
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Open source…",
+          "name": "PrimaryButton",
+          "tooltip": "",
+          "rect": [
+            346,
+            156,
+            197,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Settings",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            551,
+            156,
+            121,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Back",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            680,
+            156,
+            91,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Next",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            779,
+            156,
+            90,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Skip to last annotated",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            877,
+            156,
+            249,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Class counts",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            1134,
+            156,
+            162,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Coverage",
+          "name": "",
+          "tooltip": "Summarize annotation provenance by class, well, plate and active-learning round. This identifies label sets concentrated within a small number of wells or plates.",
+          "rect": [
+            1304,
+            156,
+            134,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Retrain",
+          "name": "",
+          "tooltip": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+          "rect": [
+            1446,
+            156,
+            114,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Suggest…",
+          "name": "",
+          "tooltip": "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.",
+          "rect": [
+            1568,
+            156,
+            135,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Rounds",
+          "name": "",
+          "tooltip": "Held-out accuracy per round, and whether the last stretch of labelling moved it. This is how you find out you can stop.",
+          "rect": [
+            1711,
+            156,
+            117,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Train…",
+          "name": "",
+          "tooltip": "Train a model on the current annotations, on the images or on the measured features, and apply it to the whole dataset.",
+          "rect": [
+            1836,
+            156,
+            122,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Auto-annotate…",
+          "name": "",
+          "tooltip": "Label a whole population at once — by metadata, by measurement thresholds, by a gate, or by UMAP cluster.",
+          "rect": [
+            1966,
+            156,
+            177,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "View in database",
+          "name": "",
+          "tooltip": "Open png_list in the Database Browser to see the annotation column as it is stored.",
+          "rect": [
+            2151,
+            156,
+            184,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Annotate page",
+          "name": "",
+          "tooltip": "Give every image on this page the same class. Asks which.",
+          "rect": [
+            2343,
+            156,
+            163,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Clear page",
+          "name": "",
+          "tooltip": "Remove the annotations on this page only. Undoable.",
+          "rect": [
+            2514,
+            156,
+            139,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Clear column",
+          "name": "DangerButton",
+          "tooltip": "",
+          "rect": [
+            2661,
+            156,
+            186,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Load test data",
+          "name": "",
+          "tooltip": "Download an example plate to annotate, and fill in the settings that go with it.",
+          "rect": [
+            3312,
+            156,
+            159,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Generate annotation database…",
+          "name": "",
+          "tooltip": "Build a set of crops to annotate by streaming them from the merged arrays or from the coordinates in measurements.db, without measuring the plate again. The result is registered as a new png_list table.",
+          "rect": [
+            3479,
+            156,
+            327,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "?",
+          "name": "",
+          "tooltip": "Show the full keyboard reference",
+          "rect": [
+            3781,
+            218,
+            35,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Console ▾",
+          "name": "AnnotateConsoleSwitch",
+          "tooltip": "Show or hide the Console + AI pane.",
+          "rect": [
+            3638,
+            2075,
+            115,
+            37
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3266,
+            483,
+            22,
+            18
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Choose database…",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3300,
+            470,
+            203,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Choose run folder…",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3511,
+            470,
+            210,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Open",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3729,
+            470,
+            78,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Compute agreement",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            363,
+            1135,
+            260,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "✕",
+          "name": "",
+          "tooltip": "Close",
+          "rect": [
+            742,
+            288,
+            35,
+            35
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  "independent_verification": "Counter and exact Fraction calculations, without importing spacr.agreement, check all pairs, confusion matrices, missingness, aggregates and disagreement paths. Three displayed crop RGBA buffers match independently scaled original images.",
+  "guard_tests": {
+    "passed": 7,
+    "coverage_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/agreement-demo-guards.json",
+    "executed_lines": [
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      19,
+      21,
+      22,
+      29,
+      33,
+      86,
+      87,
+      88,
+      89,
+      91,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      111,
+      112,
+      114,
+      115,
+      117,
+      118,
+      119,
+      120,
+      121,
+      123,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139
+    ]
+  },
+  "source_mutations": [
+    "pair count: 1 failed, 6 passed",
+    "pair numbers: 1 failed, 6 passed",
+    "numeric result: 2 failed, 5 passed",
+    "counts and identities: 4 failed, 3 passed"
+  ],
+  "visually_inspected_final_frames": [
+    "07_pairwise_results",
+    "09_disagreement_crop_1",
+    "11_three_pass_results"
+  ],
+  "limitations": [
+    "Artificial teaching labels, not biological truth or human performance.",
+    "No native-language, listening, publication or whole-library completion claim.",
+    "Earlier agreement_demo_native capture superseded after strengthening extra-pair verification.",
+    "The old published master repeated an empty view; automatic discovery of known model columns is no longer current. This is not merely a relocated unchanged lesson."
+  ],
+  "canonical_english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0"
+}

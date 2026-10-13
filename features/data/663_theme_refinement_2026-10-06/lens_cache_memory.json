@@ -1,0 +1,9 @@
+{
+  "native_grains": 131104,
+  "cached_origins": 24,
+  "stationary_wake_cache_bytes": 62929920,
+  "lattice_bytes": 1048832,
+  "history_bound": 24,
+  "expires_at_age_seconds": 5,
+  "buffers_unchanged": true
+}

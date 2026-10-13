@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Apply",
+      "source": "Apply",
+      "source_sha256": "31e392d1c0378beca611de66c0f4c71cba29159905cc54242d9bddee5b23d851",
+      "table": "ui",
+      "translation": "Beita"
+    }
+  ],
+  "schema": 1
+}

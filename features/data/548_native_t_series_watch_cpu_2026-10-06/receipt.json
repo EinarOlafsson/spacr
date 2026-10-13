@@ -1,0 +1,21 @@
+{
+  "root_source_commit": "593886b686",
+  "agent_source_commit": "33211434d2b2d00a92a3bc8f7dd9934a1490f3c1",
+  "core_sha256": "37f7578cadf6090c389d904d2d208e596527a7667c0bfebf5b202d08289c2ef3",
+  "new_executable_statements": 106,
+  "new_executed_statements": 106,
+  "missing_added_lines": [],
+  "executed_added_origin_arcs": 58,
+  "executed_touching_arcs": 63,
+  "missing_touching_arcs": [],
+  "root_integrated_cases": 119,
+  "memory_cap_gib": 4,
+  "cuda_visible_devices": "",
+  "scientific_acceptance": "Real TIFF preservation and ordinary batch/watch outputs; inference fixture doubles, not pretrained GPU acceptance.",
+  "limitations": [
+    "Mask-only complete fixed-map TZYX subset; no native-over-time Measure/tracking/Classify/feedback.",
+    "Standalone batch abrupt-publication recovery and large-volume memory are separate limitations.",
+    "No vendor-completion marker inferred from settling or idle timeout.",
+    "Full GitHub tests/coverage/uninterrupted Qt remain separate pending items."
+  ]
+}

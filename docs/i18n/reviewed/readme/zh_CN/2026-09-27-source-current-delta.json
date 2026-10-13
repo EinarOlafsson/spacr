@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_method": "AI technical review (Codex), no native-speaker signoff",
+  "readme_source_sha256": "9d0fda10cabd97b52fb15570fd757bde3b43a36997655d9bb84b4523bb821445",
+  "scope": "Current-source delta only; prior translations and dated review records remain intact. Source-deleted duplicate paragraphs removed; section hierarchy aligned with English.",
+  "records": [
+    {
+      "label": "try",
+      "source": "Try spaCR",
+      "source_sha256": "2f251585454541a756ee2043266214a9b6c30cad902b126d3f9fe7b24bf7ae91",
+      "translation": "试用 spaCR"
+    },
+    {
+      "label": "examples",
+      "source": "Use **Load test data…** in Import, Make Masks, Annotate or an assay screen to download example data. From a terminal, use ``spacr-download``.",
+      "source_sha256": "cfe651c03b06fd4f9f6c52576f21b4344383ad9d51b1e32ef09dc15a471445b7",
+      "translation": "在 Import、Make Masks、Annotate 或实验分析界面中使用 **加载测试数据…** 下载示例数据。在终端中使用 ``spacr-download``。"
+    },
+    {
+      "label": "installer",
+      "source": "See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall, offline and troubleshooting instructions, and `system requirements <docs/source/system_requirements.rst>`_ for workstation and server recommendations and the GPU compatibility tables.",
+      "source_sha256": "52066500237d2bb17c251bc26bd7b31af81e7c66928b99f4df96dfa3b6c5e108",
+      "translation": "有关更新、卸载、离线使用和故障排查的说明，请参阅 `安装指南 <docs/source/installer_guide.rst>`_；有关工作站和服务器的配置建议以及 GPU 兼容性表，请参阅 `系统要求 <docs/source/system_requirements.rst>`_。"
+    },
+    {
+      "label": "modules",
+      "source": "Every module with a Home tile, in Home's order: the six pipeline modules first, then the rest. Select a tile to open that module's API page.",
+      "source_sha256": "52d69df219fe19d55eeabc54bce5fe1fc6fc78253d68fc7a664682d47fbad11a",
+      "translation": "这里列出所有在主界面上有入口卡片的模块，顺序与主界面一致：先是六个流程模块，然后是其余模块。选择卡片可打开对应模块的 API 页面。"
+    },
+    {
+      "label": "tutorials",
+      "source": "`Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_ — guided workflows from installation through hit investigation.",
+      "source_sha256": "8f80fac28aa3b8cda7b7019ac0cfe955b0f881f0b4d2d72cebcf5e82c3ac3a68",
+      "translation": "`交互式教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到筛选命中结果分析的引导式工作流程。"
+    },
+    {
+      "label": "models",
+      "source": "Models are hosted on each author's own Hugging Face account; ``spacr.model_zoo.publish_model`` uploads one and prints the catalogue row to add.",
+      "source_sha256": "b44169274ea3259eb8fe6c5473fa04ebe2935ec60afa2b72c63bbe16b1870d93",
+      "translation": "模型托管在各作者自己的 Hugging Face 账户中； ``spacr.model_zoo.publish_model`` 可上传模型，并输出要添加到目录中的条目。"
+    },
+    {
+      "label": "performance",
+      "source": "Reads no project data. Times imports, numeric libraries, window construction and animation, and reports x86_64 emulation on Apple Silicon and NumPy's BLAS.",
+      "source_sha256": "1eb1d56ed0edb3b7714fe3d0049d5b5065c3b2574b1a343d606fdf507e27beb8",
+      "translation": "不读取项目数据。测量导入、数值库运算、窗口构建和动画的耗时，并报告 Apple Silicon 上的 x86_64 仿真情况以及 NumPy 使用的 BLAS 实现。"
+    },
+    {
+      "label": "api_alt",
+      "source": "API Documentation",
+      "source_sha256": "1cc77e60fcee8c4392cc52a2fdd1d9129beed4e6af97aca1b78ea61362c85247",
+      "translation": "API 文档"
+    }
+  ]
+}

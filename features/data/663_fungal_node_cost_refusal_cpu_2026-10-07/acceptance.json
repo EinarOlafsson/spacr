@@ -1,0 +1,250 @@
+{
+  "parent_revision": "0d8950bb6242cb08fd035056dc8d9ecd35a7180d",
+  "source_test_commit": "237f649ad2f1dcb38e74703c92b7e1f5384eeb4e",
+  "before_sha256": "867e84aa256ef7b5b6c7abb08351de51d68061bad2d6dcccfd946421851cec8b",
+  "after_sha256": "7c9dcdcfb032a4f9677fcb45d101f5d5540e887d28145b794c5d91625632c9bc",
+  "changes": "Only2outer-loop guard lines; original accepted sums, siblings, cycles and selected-index handling unchanged. No new arrays/caches/work limits.",
+  "mathematics": "An unselected index is necessarily included in its own original sibling group chain directly or had already been included as another sibling ancestor. All physical costs positive(radius\u22651.7 and \u03c0radius\u00b2 term), so an individual cost above budget cannot pass the original whole-chain sum. Already selected indices retain the original walk; no rejection memoization or global-minimum shortcut ships.",
+  "focused_tests": {
+    "passed": 18,
+    "seconds": 97.05,
+    "rss_cap_gib": 4,
+    "scope": "Selected-parent ordering,3near-equality cases, empty/duplicate endpoints, connected-front/density/Detail/native-cache ownership;18-case targeted subset, not whole suite."
+  },
+  "parity": {
+    "legacy_source_sha256": "a30979cce98c45a5ce66a7b67b53dafe77bccaebf934dd09727e6186aab3979a",
+    "geometry_pairs": 24,
+    "legacy_native_pairs": 4,
+    "current_runtime_native_pairs": 4,
+    "near_ulp_cases": 17,
+    "empty_cycle_duplicate_cases": 3,
+    "counts_overlap": true,
+    "all_differing_pixels": 0,
+    "source_scopes": {
+      "24_geometry_and_17_ulp": "Legacya309 kernel proof, not claimed as full current-runtime measurements; full fungal class AST independently verified identical to867e.",
+      "four_current_native_frames": "Complete867e current-runtime source; exact output preserved.",
+      "three_new_pytest_ulp_cases": "Directly measured final7c9 source under branch coverage."
+    }
+  },
+  "workers": [
+    {
+      "file": "data_art_fungal_growth-after-spacr-3.0-after-B.json.gz",
+      "variant": "after",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.052119675994618,
+          "published_frames": 21,
+          "published_fps": 4.1566711295028265,
+          "distinct_published_clocks": 21,
+          "first_clock": 97.14299999999999,
+          "clock_advance": 5.100999999999999,
+          "painted_fps": 24.148279895206894,
+          "repeated_frame_objects": 101,
+          "worker_shade": {
+            "median_ms": 243.21259898715653,
+            "p95_ms": 289.70752298482694,
+            "max_ms": 303.06544501218013,
+            "samples": 21
+          },
+          "gui_paint": {
+            "median_ms": 6.697094009723514,
+            "p95_ms": 18.840023985831067,
+            "max_ms": 32.79658200335689,
+            "samples": 122
+          },
+          "heartbeat_10ms": {
+            "median_ms": 10.869144491152838,
+            "p95_ms": 40.85594799835235,
+            "max_ms": 68.71608801884577,
+            "samples": 300
+          },
+          "publication_intervals": {
+            "median_ms": 244.14182800683193,
+            "p95_ms": 289.73150099045597,
+            "max_ms": 303.0942239856813,
+            "samples": 20
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            4.1962890625,
+            3.5654296875,
+            3.39208984375
+          ],
+          "current_rss_kib": 318752
+        }
+      ],
+      "peak_rss_kib": 355656,
+      "retained_cache_array_bytes": 116416,
+      "all_workers_retired": true
+    },
+    {
+      "file": "data_art_fungal_growth-after-spacr-3.0-after-C.json.gz",
+      "variant": "after",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.034931307978695,
+          "published_frames": 21,
+          "published_fps": 4.170861272073756,
+          "distinct_published_clocks": 21,
+          "first_clock": 97.23,
+          "clock_advance": 5.059999999999988,
+          "painted_fps": 24.42933030786057,
+          "repeated_frame_objects": 102,
+          "worker_shade": {
+            "median_ms": 240.7399980002083,
+            "p95_ms": 286.271877004765,
+            "max_ms": 319.087233976461,
+            "samples": 21
+          },
+          "gui_paint": {
+            "median_ms": 6.717301992466673,
+            "p95_ms": 17.29658999829553,
+            "max_ms": 29.585092997876927,
+            "samples": 123
+          },
+          "heartbeat_10ms": {
+            "median_ms": 12.40387100551743,
+            "p95_ms": 39.11213300307281,
+            "max_ms": 53.6586630041711,
+            "samples": 312
+          },
+          "publication_intervals": {
+            "median_ms": 242.65561549691483,
+            "p95_ms": 286.30124501069076,
+            "max_ms": 319.1129729966633,
+            "samples": 20
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            4.15966796875,
+            3.5791015625,
+            3.3984375
+          ],
+          "current_rss_kib": 318572
+        }
+      ],
+      "peak_rss_kib": 357020,
+      "retained_cache_array_bytes": 116416,
+      "all_workers_retired": true
+    },
+    {
+      "file": "data_art_fungal_growth-before-spacr-3.0-before-A.json.gz",
+      "variant": "before",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.011072622000938,
+          "published_frames": 17,
+          "published_fps": 3.3924872541982523,
+          "distinct_published_clocks": 17,
+          "first_clock": 97.27,
+          "clock_advance": 4.85799999999999,
+          "painted_fps": 24.54564307449324,
+          "repeated_frame_objects": 106,
+          "worker_shade": {
+            "median_ms": 291.736797982594,
+            "p95_ms": 374.1186379920691,
+            "max_ms": 374.1186379920691,
+            "samples": 17
+          },
+          "gui_paint": {
+            "median_ms": 7.327862025704235,
+            "p95_ms": 17.702901997836307,
+            "max_ms": 38.337784993927926,
+            "samples": 123
+          },
+          "heartbeat_10ms": {
+            "median_ms": 12.784623497282155,
+            "p95_ms": 39.56946401740424,
+            "max_ms": 63.61209700116888,
+            "samples": 290
+          },
+          "publication_intervals": {
+            "median_ms": 291.50805648532696,
+            "p95_ms": 374.1668159782421,
+            "max_ms": 374.1668159782421,
+            "samples": 16
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            4.232421875,
+            3.5498046875,
+            3.38525390625
+          ],
+          "current_rss_kib": 319012
+        }
+      ],
+      "peak_rss_kib": 380252,
+      "retained_cache_array_bytes": 109144,
+      "all_workers_retired": true
+    },
+    {
+      "file": "data_art_fungal_growth-before-spacr-3.0-before-D.json.gz",
+      "variant": "before",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.005643821990816,
+          "published_frames": 18,
+          "published_fps": 3.5959410297876815,
+          "distinct_published_clocks": 18,
+          "first_clock": 97.265,
+          "clock_advance": 4.820999999999998,
+          "painted_fps": 24.572263703549158,
+          "repeated_frame_objects": 105,
+          "worker_shade": {
+            "median_ms": 265.6867415062152,
+            "p95_ms": 348.1747509795241,
+            "max_ms": 348.1747509795241,
+            "samples": 18
+          },
+          "gui_paint": {
+            "median_ms": 6.39289800892584,
+            "p95_ms": 15.795375016750768,
+            "max_ms": 23.932436015456915,
+            "samples": 123
+          },
+          "heartbeat_10ms": {
+            "median_ms": 10.542564996285364,
+            "p95_ms": 44.28988098516129,
+            "max_ms": 63.43782800831832,
+            "samples": 286
+          },
+          "publication_intervals": {
+            "median_ms": 266.9372569944244,
+            "p95_ms": 348.20209999452345,
+            "max_ms": 348.20209999452345,
+            "samples": 17
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            4.1669921875,
+            3.615234375,
+            3.41357421875
+          ],
+          "current_rss_kib": 318820
+        }
+      ],
+      "peak_rss_kib": 378608,
+      "retained_cache_array_bytes": 124520,
+      "all_workers_retired": true
+    }
+  ],
+  "balanced_order": [
+    "before-A",
+    "after-B",
+    "after-C",
+    "before-D"
+  ],
+  "utc_provenance": "measurement-load-provenance.json.gz; filesystem whole-process bounds, not exact thread timestamps; quartet ends10.11s before reported86case cohort starts. No universal machine-isolation claim.",
+  "native_result": "Both requested24/native4K/D3/Detail2/Size2.5 pairs improve:3.392\u21924.157 and3.596\u21924.171 publishedFPS. Still far below24; cold birth phase and GUI repaint counts are different workloads.",
+  "limits": [
+    "No hard24FPS/GPU/human aesthetics/whole-suite/hosted-green acceptance.",
+    "Live quartetspacr/dark only; Random/light covered by native parity, not live cadence.",
+    "Geometry timings are direct stage timings, not end-to-end workerFPS.",
+    "Phases overlap; no unique union/summed-test claim.",
+    "Full numerical old-universe union updated independently bycoverage_gate; this archive verifies exact inserted lines/arcs."
+  ]
+}

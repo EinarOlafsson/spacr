@@ -1,0 +1,67 @@
+{
+  "da": [
+    "Denne optagelse installerer spaCR version et punkt fem punkt et punkt tre. Udgivne versioner kan vise et ældre Home-layout. Her vises Home i den aktuelle nightly-version med Core, Data, Tools og Assays. Fortsæt med Home screen and navigation for de aktuelle moduler.",
+    "Åbn Preferences i den aktuelle nightly-grænseflade, og vælg Performance. Vælg en profil til din computer. Laptop bruger færre ressourcer; højere profiler tillader mere caching og baggrundsarbejde. Start med en beskeden profil, hvis hukommelsen er begrænset.",
+    "Kør spacr-doctor fra den installerede runtime, hvis opstart eller et filformat kræver opmærksomhed. I denne optagede CPU-installation består backend-kontrollen, og GPU-kontrollen springes over. Advarslen siger, at den valgfrie CZI-læser mangler; installer kun denne ekstra pakke, hvis du har brug for CZI-filer."
+  ],
+  "de": [
+    "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Assays. Die aktuellen Module erklärt Home screen and navigation.",
+    "Öffnen Sie in der aktuellen Nightly-Oberfläche Preferences und wählen Sie Performance. Wählen Sie ein Profil für Ihren Computer. Laptop benötigt weniger Ressourcen; höhere Profile erlauben mehr Zwischenspeicherung und Hintergrundarbeit. Beginnen Sie bei knappem Speicher mit einem sparsamen Profil.",
+    "Führen Sie spacr-doctor aus der installierten Laufzeitumgebung aus, wenn der Start oder ein Dateiformat Probleme bereitet. In dieser aufgezeichneten CPU-Installation besteht die Backend-Prüfung, und die GPU-Prüfung wird übersprungen. Die Warnung weist auf den fehlenden optionalen CZI-Leser hin; installieren Sie dieses Extra nur, wenn Sie CZI-Dateien benötigen."
+  ],
+  "es": [
+    "Esta grabación instala spaCR versión uno punto cinco punto uno punto tres. Las versiones publicadas pueden mostrar una distribución anterior de Home. Aquí se muestra Home en la versión nightly actual, con Core, Data, Tools y Assays. Continúa con Home screen and navigation para conocer los módulos actuales.",
+    "En la interfaz nightly actual, abre Preferences y elige Performance. Selecciona un perfil para tu ordenador. Laptop utiliza menos recursos; los perfiles superiores permiten más caché y trabajo en segundo plano. Empieza con un perfil moderado si dispones de poca memoria.",
+    "Ejecuta spacr-doctor desde el entorno instalado si el inicio o un formato de archivo necesita atención. En esta instalación de CPU grabada, la comprobación del backend pasa y la prueba de GPU se omite. La advertencia indica que falta el lector CZI opcional; instala ese extra solo si necesitas archivos CZI."
+  ],
+  "fr": [
+    "Cet enregistrement installe spaCR version un point cinq point un point trois. Les versions publiées peuvent présenter une ancienne disposition de Home. Voici Home dans la version nightly actuelle, avec Core, Data, Tools et Assays. Poursuivez avec Home screen and navigation pour découvrir les modules actuels.",
+    "Dans l’interface nightly actuelle, ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée.",
+    "Exécutez spacr-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Dans cette installation CPU enregistrée, la vérification du backend réussit et le test GPU est ignoré. L’avertissement indique que le lecteur CZI facultatif manque ; installez cet extra uniquement si vous avez besoin de fichiers CZI."
+  ],
+  "hi": [
+    "इस रिकॉर्डिंग में spaCR का संस्करण एक दशमलव पाँच दशमलव एक दशमलव तीन स्थापित किया जाता है। जारी किए गए संस्करणों में Home का पुराना लेआउट दिख सकता है। यहाँ वर्तमान nightly बिल्ड का Home दिखाया गया है, जिसमें Core, Data, Tools और Assays हैं। वर्तमान मॉड्यूल जानने के लिए Home screen and navigation देखें।",
+    "वर्तमान nightly इंटरफ़ेस में Preferences खोलें और Performance चुनें। अपने कंप्यूटर के लिए प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल अधिक कैश और पृष्ठभूमि कार्य की अनुमति देती हैं। मेमोरी सीमित हो तो कम संसाधन वाली प्रोफ़ाइल से शुरू करें।",
+    "स्टार्टअप या किसी फ़ाइल फ़ॉर्मेट में समस्या हो तो स्थापित रनटाइम से spacr-doctor चलाएँ। इस रिकॉर्ड की गई CPU स्थापना में बैकएंड की जाँच सफल होती है और GPU की जाँच छोड़ दी जाती है। चेतावनी बताती है कि वैकल्पिक CZI रीडर मौजूद नहीं है; यह अतिरिक्त पैकेज तभी स्थापित करें जब आपको CZI फ़ाइलें पढ़नी हों।"
+  ],
+  "is": [
+    "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
+    "Opnaðu Preferences í núverandi nightly-viðmóti og veldu Performance. Veldu snið fyrir tölvuna þína. Laptop notar færri tilföng; hærri snið leyfa meira skyndiminni og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað.",
+    "Keyrðu spacr-doctor úr uppsetta keyrsluumhverfinu ef ræsing eða skráarsnið þarfnast athugunar. Í þessari upptöku af CPU-uppsetningu stenst bakendaprófunin og GPU-prófuninni er sleppt. Viðvörunin segir að valfrjálsan CZI-lesara vanti; settu aðeins upp þá viðbót ef þú þarft CZI-skrár."
+  ],
+  "it": [
+    "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
+    "Nell’interfaccia nightly attuale, apri Preferences e scegli Performance. Seleziona un profilo per il tuo computer. Laptop usa meno risorse; i profili superiori consentono più cache e lavoro in background. Inizia con un profilo moderato se la memoria è limitata.",
+    "Esegui spacr-doctor dall’ambiente installato se l’avvio o un formato di file richiede attenzione. In questa installazione CPU registrata, il controllo del backend passa e la verifica della GPU viene saltata. L’avviso segnala che manca il lettore CZI opzionale; installa questo extra solo se ti servono file CZI."
+  ],
+  "ja": [
+    "この録画では、spaCRのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、Homeの配置が古い場合があります。ここに示すのは現在のナイトリービルドのHomeで、Core、Data、Tools、Assaysがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。",
+    "現在のナイトリー版の画面でPreferencesを開き、Performanceを選びます。お使いのコンピューターに合うプロファイルを選んでください。Laptopは使うリソースが少なく、上位のプロファイルではキャッシュとバックグラウンド処理をより多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。",
+    "起動やファイル形式に問題があれば、インストールされたランタイムからspacr-doctorを実行します。この録画のCPUインストールでは、バックエンドのチェックは合格し、GPUのチェックはスキップされています。警告は、オプションのCZIリーダーがないことを示しています。CZIファイルが必要な場合だけ、この追加パッケージをインストールしてください。"
+  ],
+  "ko": [
+    "이 녹화에서는 spaCR 버전 일 점 오 점 일 점 삼을 설치합니다. 정식 배포 버전에는 이전 Home 배치가 표시될 수 있습니다. 여기에는 Core, Data, Tools, Assays가 있는 현재 nightly 빌드의 Home이 표시됩니다. 현재 모듈은 홈 화면과 탐색 튜토리얼에서 확인하세요.",
+    "현재 nightly 인터페이스에서 Preferences를 열고 Performance를 선택하세요. 컴퓨터에 맞는 프로필을 선택하세요. Laptop은 적은 자원을 사용하며, 상위 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 제한되어 있다면 자원 사용이 적은 프로필로 시작하세요.",
+    "시작이나 파일 형식에 문제가 있다면 설치된 런타임에서 spacr-doctor를 실행하세요. 이 녹화의 CPU 설치에서는 백엔드 검사가 통과하고 GPU 검사는 생략됩니다. 경고는 선택 사항인 CZI 리더가 없다는 뜻입니다. CZI 파일이 필요한 경우에만 이 추가 패키지를 설치하세요."
+  ],
+  "nb": [
+    "Dette opptaket installerer spaCR versjon én punkt fem punkt én punkt tre. Publiserte versjoner kan vise et eldre Home-oppsett. Her vises Home i den nåværende nightly-versjonen, med Core, Data, Tools og Assays. Fortsett med Home screen and navigation for de nåværende modulene.",
+    "Åpne Preferences i det nåværende nightly-grensesnittet, og velg Performance. Velg en profil for datamaskinen din. Laptop bruker færre ressurser; høyere profiler tillater mer mellomlagring og bakgrunnsarbeid. Start med en moderat profil hvis minnet er begrenset.",
+    "Kjør spacr-doctor fra det installerte kjøremiljøet hvis oppstart eller et filformat trenger oppmerksomhet. I denne innspilte CPU-installasjonen består backend-kontrollen, og GPU-kontrollen hoppes over. Advarselen sier at den valgfrie CZI-leseren mangler; installer dette tillegget bare hvis du trenger CZI-filer."
+  ],
+  "pt-BR": [
+    "Esta gravação instala o spaCR versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Assays. Continue em Home screen and navigation para conhecer os módulos atuais.",
+    "Na interface nightly atual, abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória.",
+    "Execute spacr-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Nesta instalação de CPU gravada, a verificação do backend passa e a verificação da GPU é ignorada. O aviso informa que o leitor CZI opcional está ausente; instale esse extra apenas se precisar de arquivos CZI."
+  ],
+  "sv": [
+    "Den här inspelningen installerar spaCR version ett punkt fem punkt ett punkt tre. Publicerade versioner kan visa en äldre Home-layout. Här visas Home i den aktuella nightly-versionen, med Core, Data, Tools och Assays. Fortsätt till Home screen and navigation för de aktuella modulerna.",
+    "Öppna Preferences i det aktuella nightly-gränssnittet och välj Performance. Välj en profil för din dator. Laptop använder färre resurser; högre profiler tillåter mer cache och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat.",
+    "Kör spacr-doctor från den installerade körmiljön om uppstart eller ett filformat behöver åtgärdas. I den här inspelade CPU-installationen godkänns backend-kontrollen och GPU-kontrollen hoppas över. Varningen säger att den valfria CZI-läsaren saknas; installera bara det tillägget om du behöver CZI-filer."
+  ],
+  "zh-CN": [
+    "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。",
+    "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。",
+    "如果启动或文件格式需要处理，请从安装的运行环境执行 spacr-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Database Browser: síaðu og fluttu út mælingar",
+  "description": "Opnaðu mælingagagnagrunn, veldu dálka og línur og fluttu niðurstöðuna út.",
+  "objectives": [
+    "Opna og fletta í mælingatöflu.",
+    "Velja dálka og sía línur.",
+    "Flytja út færslurnar sem passa."
+  ],
+  "prerequisite": "Hafðu tiltæka spaCR-skrána measurements.db eða keyrslumöppu sem inniheldur hana. Dæmaverkefni Measure gefur gagnagrunn eftir mælingu.",
+  "scenes": [
+    "Opnaðu Help og svo Database Browser til að skoða og flytja út mælingatöflur.",
+    "Veldu measurements.db, eða keyrslumöppuna sem inniheldur hana, og opnaðu gagnagrunninn.",
+    "Veldu töfluna sem þú þarft. Veldu cell fyrir mælingar á frumum, eða aðra töflu hluta fyrir eiginleika þess hlutar.",
+    "Lestu heildarfjölda lína og dálka og skoðaðu svo síðuna sem birtist. Notaðu síðustýringarnar til að fletta í stærri töflum.",
+    "Leitaðu í dálkaheitum til að finna eiginleika. Veldu dálkana sem þú vilt skoða og flytja út.",
+    "Búðu til síu með því að velja dálk, virkja og gildi. Beittu henni til að velja færslur sem passa í allri töflunni.",
+    "Athugaðu fjölda síaðra lína og skoðaðu færslurnar sem passa. Breyttu síunni eða hreinsaðu hana til að breyta valinu.",
+    "Veldu Export og áfangaskrá. Útflutningurinn inniheldur allar línur sem passa og dálkana sem þú valdir, án þess að breyta upprunagagnagrunninum."
+  ]
+}

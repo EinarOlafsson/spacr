@@ -1,0 +1,48 @@
+{
+  "limits": [
+    "Separate cohorts overlap; no unique summed count.",
+    "Current source still needs hosted ordinary/coverage and its own final original-order serial verdict.",
+    "Hard24FPS, installed Save crash and broader scientific/data-owned acceptance remain OPEN."
+  ],
+  "local_acceptance": {
+    "fatal_ruff_exit_code": 0,
+    "first_scipy_after_ready": true,
+    "first_scipy_seconds": 2.123410711006727,
+    "integrated_palette_safe_help_cases": 122,
+    "normal_startup_exit_code": 0,
+    "profiling_enabled": false,
+    "readiness_report_count": 0,
+    "ready_seconds": 2.090941736008972,
+    "source_doc_guards": 7
+  },
+  "reports": {
+    "final-packed-doc-guards.log.gz": {
+      "raw_sha256": "f2c42e01292e0395ebaf475631732e3dc474269b502361d9a4df76dc4a7f1c19",
+      "stored_sha256": "f6838338dd126dc3007d5d3b589dce8e089f3de7da5bcb6ac2291fcf3f2a7365"
+    },
+    "final-packed-fatal-ruff.log.gz": {
+      "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stored_sha256": "47f394a1497b1873bc6e6d6f9bb92aa51b990821f1ddd7770a933ffd29c456cd"
+    },
+    "final-packed-normal-home.log.gz": {
+      "raw_sha256": "3d0cbd26d48a82e15ee26b3261bf73ff19fdd44fae6656b2d5a4b51f273685a2",
+      "stored_sha256": "cd7df8be77ee6e912d31462841c233751e65832100e3b510129df7d0e15cab4d"
+    },
+    "final-packed-palette-safe-help.log.gz": {
+      "raw_sha256": "dfb9f47fe79875dfed3cd53e6cce386f868a45eb6d67060f0078f463243be535",
+      "stored_sha256": "94dbcc2954b99e026a96d773883bce8e2c79cdcd7b1c26e8ee97cc2269ed3856"
+    },
+    "reproduce-normal-home.py": {
+      "sha256": "557a69b52dbd2f968eea353513c478ee3bcb63f7d8a27131612b33bef41a794d"
+    }
+  },
+  "source_revision": "c31f0acc1ef37ce2b8e68c320baab8cf156c88c4",
+  "source_sha256": {
+    "spacr/io.py": "6ef38e31d93111a805626da5d31516d1544967ab045269f85a15b0aafe560a76",
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/widgets/ambient.py": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+    "tests/qt/test_data_art_random_palette.py": "7e2afe89d98622c0acd49c3727eb5cfd0c1a7e6360a75449cabcd0b537f81242",
+    "tests/test_ci_suite_classification.py": "84cc233b9933908b3de5bb19f2b877dc63cca6ecef45ddedcf7ec363137f478f"
+  }
+}

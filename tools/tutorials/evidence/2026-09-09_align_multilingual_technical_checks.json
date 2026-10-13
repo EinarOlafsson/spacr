@@ -1,0 +1,37 @@
+{
+  "lesson": "32_align_stitch",
+  "status": "Staged technical checks passed; publication remains held",
+  "canonical_english_sha256": "c5ca1b87343bf3d9dc635ae146c77ffe5c57cb49886fdbcb1312ffdf69e6c5cc",
+  "scene_count_per_catalog": 11,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "all_track_hashes_rechecked_after_verification": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 6198,
+    "duration_seconds": 206.6, "audio_streams": 0, "bytes": 13371123,
+    "sha256": "1f19cc955d7ee6fbf7ef0be980d4e144605a37273936562f661aff040f247880"
+  },
+  "browser_checks": {
+    "spoken_languages": 8, "independent_caption_languages": 6, "all_passed": true,
+    "checks": ["Actual fetched audio bytes", "Chapter seeking and mapped audio/video clocks", "Retained scene links", "Current parent-module navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "All caption scenes and generated WebVTT without switching voice"]
+  },
+  "recording": {
+    "app_commit": "16c6b9000851826075677c32d6a9c000b4e8f7ef", "version": "1.5.0.4", "font_scale": 2,
+    "capture": "refresh_2026-09-09/captures/align_release",
+    "source_and_written_stack_sha256": "89671005f62f0b7b9cf73b644b887b28bdf427404c9e47cfe40c224f9cfa1ded",
+    "disclosure": "Nine preserved exact crops from ONE real microscopy field emulate a 3 by 3 acquisition, not nine independent fields. Tutorial plate/well names are demonstration coordinates, not original acquisition identities.",
+    "checks": ["Actual folder selection and settings controls", "Plan before Write with no output created early", "Nine registered tiles, no nominal fallback or unplaced tiles", "All known crop origins agree within 0.01 pixel", "Actual middle-tile selection displays its details", "All 2000 by 2000 by 4 uint16 output pixels match the original field", "All nine coordinate records match source files, four identity fields, canvas positions and output stack path", "Original field and nine tile hashes unchanged"],
+    "band_budget_bytes": 8388608,
+    "measured_peak_band_buffer_bytes": 8344000,
+    "band_rows": 149,
+    "budget_is_not_total_process_memory": true,
+    "ops_workflow_validated": false,
+    "app_source_modified": false
+  },
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 616, "refreshed_scripts": 13, "unselected_unchanged": 62, "unselected_media_replaced": false},
+  "technical_matrices_completed_so_far": 13,
+  "synthesis": "One CUDA job, 10% VRAM cap, two CPU threads, 110 GiB host-memory guard",
+  "translation_review": "Editorial translation plus independent cross-check; not native-speaker sign-off",
+  "human_listening_review": false, "published": false, "whole_refresh_complete": false
+}

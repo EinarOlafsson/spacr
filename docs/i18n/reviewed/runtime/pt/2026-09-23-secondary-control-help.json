@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted source-context review of primary and secondary mask class metadata and label-preserving hole filling. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.",
+      "source": "Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.",
+      "source_sha256": "40ba693734df71522b1fc18dc318a3b98faa89d63aaea9bf9fbab7e2edd4b7b7",
+      "translation": "Tipo de objeto representado pelas máscaras primárias. Escolha uma classe ou digite um nome personalizado. Isso rotula a relação salva; não segmenta novamente a máscara de origem."
+    },
+    {
+      "table": "ui",
+      "key": "Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.",
+      "source": "Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.",
+      "source_sha256": "a2c71ac7bf98d32fdc70718fb69a157856378ca6e3ffda3537229d48ceb80f2e",
+      "translation": "Tipo de objeto atribuído às máscaras expandidas. Escolha uma classe ou digite um nome personalizado diferente da classe primária. O crescimento é controlado pelas outras configurações."
+    },
+    {
+      "table": "ui",
+      "key": "Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.",
+      "source": "Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.",
+      "source_sha256": "8ab2d752a5f4fdb31d41b5e49e416d74af767ba8427390e0fc4f1da869a208f8",
+      "translation": "Preencher os buracos de fundo fechados dentro de cada objeto secundário após o crescimento e antes da filtragem por área mínima. Os pixels que pertencem a outro objeto são preservados."
+    }
+  ]
+}

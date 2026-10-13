@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "regression_panel_manifest",
+      "source_sha256": "a56fd9034478bbde3fbb64babff621b7916c98e4a6146d4e3573293fcb014bb3",
+      "source": "Publication panels built after the regression CSVs are written. None skips them. Supply a mapping, or a path to JSON/YAML, declaring each panel's result source, phenotype, gene/gRNA level and plot kind; the packages land under publication_panels/. Structured rather than a one-line field, so it is set from a script or a saved settings file rather than in the GUI. Default None.",
+      "translation": "Paneles de publicación que se construyen después de escribir los CSV de regresión. None los omite. Proporciona un mapeo, o una ruta a un archivo JSON/YAML, que declare para cada panel su fuente de resultados, el fenotipo, el nivel de gen/gRNA y el tipo de gráfico; los paquetes se guardan en publication_panels/. Es un campo estructurado y no de una sola línea, por lo que se define desde un script o desde un archivo de ajustes guardado, y no en la GUI. Valor predeterminado: None."
+    }
+  ]
+}

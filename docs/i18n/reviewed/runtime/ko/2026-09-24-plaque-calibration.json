@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted source-context review. Preserves pixels per micrometer, hours, independent scale/time requirement, approximate estimates and strain/host/imaging validation. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
+      "source": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
+      "source_sha256": "6a49d414bf9a8b6220d6c9aa0fb5fad0e6dfbdf6f45353f01463013d42a42704",
+      "translation": "이미지 척도를 마이크로미터당 픽셀 수로, 플라크 형성 시간을 시간 단위로 입력하세요. 측정된 웰 지름은 픽셀 단위로 저장되며, 알려진 웰의 실제 지름으로 이미지 척도를 보정할 수 있습니다. 이 값들은 플라크 크기에 물리적 의미를 부여합니다."
+    },
+    {
+      "table": "categories",
+      "key": "Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.",
+      "source": "Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.",
+      "source_sha256": "86df272ad69995197fb1eb7cfce1c801456f2e0cb919e5449b8465a267515f16",
+      "translation": "필요하면 플라크 크기를 실험적 기준 성장 곡선과 비교하세요. 시간을 추정하려면 독립적으로 알려진 척도가 필요하고, 척도를 추정하려면 알려진 시간이 필요합니다. 플라크 크기만으로는 둘 다 결정할 수 없습니다. 추정값은 근사치이며 기생충 균주, 숙주 세포 및 영상 촬영 조건에 맞는 검증이 필요합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Scale & Time",
+      "source": "Scale & Time",
+      "source_sha256": "3d8bfa4c21fedcb75c6fd4e20bef851e5529627d02e6a2c6f57f61140d0e585e",
+      "translation": "척도 및 시간"
+    },
+    {
+      "table": "ui",
+      "key": "Experimental Growth Estimates",
+      "source": "Experimental Growth Estimates",
+      "source_sha256": "52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54",
+      "translation": "실험적 성장 추정"
+    }
+  ]
+}

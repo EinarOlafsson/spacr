@@ -1,0 +1,9 @@
+{
+  "phase": "after-final",
+  "seconds": 5.55896192099317,
+  "exit_code": 0,
+  "source_sha256": "eaeb0e6867861dfaefbff29b32138e71d5f144a2eb3fd76b83e3364914be4dc6",
+  "core_limit_bytes": 0,
+  "blocked_reader": "Same controlled reader; actual5000ms shutdown timeout and native owner destruction",
+  "cause_scope": "Independent SIGABRT lifetime repair; hosted80ms waitUntil SIGSEGV remains unresolved."
+}

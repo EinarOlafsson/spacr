@@ -1,0 +1,113 @@
+{
+  "source_commit": "f33805514a0baae336c947468569bedde8b1a955",
+  "workflow": 35969439055,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "79d71a92f7204c8b839b7b8c7aff5de7302394ef",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "f33805514a0baae336c947468569bedde8b1a955",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 565172108,
+    "media_files": 155
+  },
+  "english_api_entries": 11528,
+  "live_catalog_sha256": "c395980afeba74bbd69b50f14e1bcbe560109e26170776901bad20a11de1b21f",
+  "catalog_matches_source": true,
+  "api_matches_source": true,
+  "api_manifest_comparison": "Regenerated current English manifest; pipeline regenerates the source catalog before publication",
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "e83a819b00bbe4133d1e955c3ad79a686b27fbc57fd20bbafd1f394d27b7bad3"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "25c7c86633a47dcf5a59a57c5339765785677bcba3bb710b60e904221ff15919"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617/07_mask/video/07_mask_silent.mp4",
+      "width": 3840,
+      "time": 44.872297,
+      "expected": 45.1187619857145,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "59_anndata_export",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/59_anndata_export/video/59_anndata_export_silent.mp4",
+      "width": 3840,
+      "time": 22.493832,
+      "expected": 22.699448625928653,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "70_explain_cv",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/70_explain_cv/video/70_explain_cv_silent.mp4",
+      "width": 3840,
+      "time": 22.500982,
+      "expected": 22.99543766753919,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "72_volcano_explorer",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/72_volcano_explorer/video/72_volcano_explorer_silent.mp4",
+      "width": 3840,
+      "time": 22.750555,
+      "expected": 23.113067942602285,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "73_parameter_sweep",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/73_parameter_sweep/video/73_parameter_sweep_silent.mp4",
+      "width": 3840,
+      "time": 21.797068,
+      "expected": 22.2797523982422,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "74_import_images",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/74_import_images/video/74_import_images_silent.mp4",
+      "width": 3840,
+      "time": 21.877416,
+      "expected": 22.244499292522487,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "75_regression_diagnostics",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/75_regression_diagnostics/video/75_regression_diagnostics_silent.mp4",
+      "width": 3840,
+      "time": 20.692506,
+      "expected": 20.84338951158801,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "77_embeddings",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/77_embeddings/video/77_embeddings_silent.mp4",
+      "width": 3840,
+      "time": 24.583242,
+      "expected": 24.820925283686382,
+      "error": null
+    }
+  ],
+  "passed": true
+}

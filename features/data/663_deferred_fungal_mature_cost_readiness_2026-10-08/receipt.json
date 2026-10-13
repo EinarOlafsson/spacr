@@ -1,0 +1,29 @@
+{
+  "observed_utc": "2026-10-08 03:48 UTC",
+  "production_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+  "candidate_sha256": "90f3e96a4f4259bead6624c786622970252dbc4aa34ead1799934206c90e82e7",
+  "readiness_only": true,
+  "production_modified": false,
+  "integration_accepted": false,
+  "dry_git_apply_check_exit": 0,
+  "direct_statement_obligations": 34,
+  "files": [
+    {
+      "file": "mature-cost-fa95-to-90f3.patch",
+      "sha256": "c4f281377b2c78a3b20f238a391ea80c370725e1587e1a12bcfc1e3f07dc78fe",
+      "bytes": 5860
+    },
+    {
+      "file": "readiness.json",
+      "sha256": "7d1f7008a6a351bc515ebadcda6c522e9f3a3796ad5028db6465a7c1fb492b0e",
+      "bytes": 2728
+    },
+    {
+      "file": "README.txt",
+      "sha256": "d3e78cd08c7ead5cea4477c7d982b0a1d5471c045e5194be5fdc8dcd59e4de59",
+      "bytes": 5580
+    }
+  ],
+  "measured_candidate_proof": "../663_deferred_fungal_mature_cost_cpu_2026-10-08/receipt.json",
+  "hard_24fps_accepted": false
+}

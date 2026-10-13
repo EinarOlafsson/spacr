@@ -1,0 +1,40 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Small Multiples: jämför grupper med gemensamma eller separata axlar",
+  "description": "Läs in mätningar, ordna grupperade spridningsdiagram, välj axelskalor och filter och lägg till en härledd kolumn.",
+  "objectives": [
+    "Läsa in mätningar och tilldela axlar och facetter.",
+    "Välja gemensamma, oberoende eller grupperade axelgränser.",
+    "Granska filter och visade grupper och sedan lägga till eller ta bort en härledd kolumn."
+  ],
+  "prerequisite": "Hämta mätexemplet från Annotate-handledningen och arbeta med en kopia av measurements.db. Genomgången använder tabellen cell med 2 341 objekt från fyra brunnar. Small Multiples visar diagram; använd Tabulate för att exportera grupperade CSV-sammanfattningar.",
+  "scenes": [
+    "Från Home öppnar du Graph Builder och sedan Small Multiples. Använd vyn för att jämföra samma mätningar mellan grupper. Exemplet använder mätdatabasen från den länkade Annotate-handledningen.",
+    "Klicka på Load table bredvid rubriken Small Multiples. Öppna en kopia av measurements.db och välj cell. Kontrollera tabellen och dess 2 341 objekt innan du tilldelar diagramkanaler.",
+    "Dra cell_area till X och cell_channel_1_mean_intensity till Y och välj sedan Scatter. Lägg rowID på Facet down och columnID på Facet across. Sökningen hjälper dig att hitta kolumnnamn; varje punkt är en uppmätt cell.",
+    "Välj shared för båda skalorna så att alla fyra paneler använder samma axelgränser. Läs grupprubrikerna och objektantalen. I exemplet anger facettetiketterna rumsliga rader och kolumner.",
+    "Välj free för X scale och Y scale så att varje panel får egna gränser. Då blir mönster inom grupper lättare att se. Jämför skalstrecksetiketterna noga eftersom intervallen nu skiljer sig mellan panelerna.",
+    "Välj per row för båda skalorna för att dela gränser mellan panelerna på varje rad i rutnätet. Olika rader kan ha olika intervall. Använd detta när jämförelser inom rader är viktigast.",
+    "Välj per column för att dela gränser inom varje kolumn i rutnätet. Du kan ställa in X och Y var för sig. Återställ shared på båda axlarna när du vill jämföra alla fyra brunnar på gemensamma skalor.",
+    "Under Filter lägger du till cell_area och sätter minimum till 21 925. Rutnätet uppdateras direkt för de återstående 1 171 objekten. Kontrollera de nya panelantalen.",
+    "Klicka på Clear all under Filter för att återställa hela populationen. Använd Clear all channels till vänster när du i stället vill ta bort diagramtilldelningarna. Ingen av åtgärderna ändrar källdatabasen.",
+    "Filtrera columnID till c2 och fieldID till f20 och f21. Lägg fieldID på Facet across och behåll rowID på Facet down. Panelen för rad 5, synfält 20 har inga objekt; den tomma panelen motsvarar en saknad grupp.",
+    "Rensa filtren och lägg tillbaka columnID på Facet across. Ställ Wrap at på 5. Radbrytningen gäller en enda facettkanal, så det nuvarande tvåvägsrutnätet förblir två gånger två.",
+    "Töm Facet down och lägg fieldID på Facet across. Med Wrap at 5 fyller de visade synfälten rader med upp till fem paneler. Oanvända platser i slutet döljs.",
+    "Läs meddelandet under rutnätet innan du jämför grupper. Vyn visar 12 synfältsnivåer; synfält 21 utelämnas från panelerna. Antalet inlästa rader inkluderar det synfältet, så kontrollera vilka grupper som faktiskt syns.",
+    "Stäng av radbrytningen och återställ rowID och columnID som de två facetterna. Under Columns namnger du en härledd kolumn area_k och anger cell_area delat med 1000. Kontrollera förhandsvisningen och klicka sedan på Add column för att beräkna den för hela tabellen.",
+    "Dra area_k till X för att visa arean i tusental av de ursprungliga enheterna. De vertikala koordinaterna och grupperna är desamma. Detta skalar bara om talen; omräkning till fysisk area kräver korrekt bildkalibrering.",
+    "Lägg tillbaka cell_area på X. Markera area_k under Columns och klicka på Remove för att ta bort den härledda kolumnen från vyn. Dokumentera dina variabler, facetter, filter och skalval.",
+    "Använd Tabulate när du behöver en exporterad CSV-sammanfattning. För skriptade small multiples-diagram använder du trellis och TrellisSpec från spacr.qt.widgets.trellis_spec tillsammans med GraphSpec för diagramkanalerna. Tolka grupperna på lämplig nivå av experimentella replikat."
+  ]
+}

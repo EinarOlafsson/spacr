@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Image Scatter : examiner des mesures et leurs vignettes",
+  "description": "Tracez deux colonnes de mesures, prévisualisez les vignettes d’objets et envoyez un objet sélectionné vers Annotate.",
+  "objectives": [
+    "Charger des mesures et choisir les axes.",
+    "Examiner la vignette derrière un point.",
+    "Envoyer un objet sélectionné vers Annotate."
+  ],
+  "prerequisite": "Utilisez une base de données de mesures spaCR avec les vignettes d’objets et les fichiers de format de vignette correspondants. L’exemple téléchargeable d’Annotate fournit ces entrées.",
+  "scenes": [
+    "Ouvrez Image UMAP, puis Image Scatter pour tracer deux mesures existantes. Exercez-vous avec la base de données de l’exemple Annotate et ses vignettes de cellules correspondantes.",
+    "Cliquez sur Browse et ouvrez measurements.db. Gardez le dossier data du projet et les fichiers de format de vignette avec la base de données pour que les miniatures soient trouvées.",
+    "Sélectionnez cell dans le sélecteur de tables et cliquez sur Plot. Si vous passez à une autre table, cliquez de nouveau sur Plot pour charger ses lignes.",
+    "Réglez x sur l’aire cellulaire et y sur l’intensité moyenne du canal un de la cellule. Chaque choix d’axe redessine immédiatement les lignes chargées.",
+    "Survolez un point pour voir sa vignette enregistrée et l’identité complète de l’objet. Servez-vous de l’image pour comprendre la mesure derrière le point.",
+    "Éloignez le pointeur pour effacer l’aperçu temporaire, puis survolez un autre point pour l’examiner.",
+    "Intervertissez les mesures x et y pour explorer la relation sous un autre angle. Choisissez des caractéristiques pertinentes et vérifiez leurs unités.",
+    "Sélectionnez une autre mesure, par exemple la caractéristique d’homogénéité. Les lignes sans coordonnées sont omises du graphique ; le nombre de points tracés peut donc différer du nombre de lignes chargées.",
+    "Une colonne constante, comme la dimension de mesure dans cet exemple, place les points sur une ligne. Revenez à une caractéristique présentant une variation utile pour examiner les objets.",
+    "Pour examiner une vignette sélectionnée dans Annotate, ouvrez d’abord Annotate et chargez le même projet. Revenez ensuite à la vue Image Scatter existante.",
+    "Cliquez sur le point lui-même pour envoyer l’identité de son objet vers Annotate, puis passez à cette page. Le survol ne fait que prévisualiser la vignette.",
+    "Examinez l’objet sélectionné dans Annotate avant de lui attribuer une étiquette. Utilisez Database Browser pour exporter des tables, ou PCA pour l’analyse en composantes."
+  ]
+}

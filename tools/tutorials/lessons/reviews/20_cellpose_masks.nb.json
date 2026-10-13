@@ -1,0 +1,34 @@
+{
+  "lesson": "20_cellpose_masks",
+  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Bruk Cellpose: segmenter en mappe og undersøk masker",
+  "description": "Velg en segmenteringsmodell, behandle de medfølgende bildene og undersøk lagrede masker og størrelsesfiltre i sanntid.",
+  "objectives": [
+    "Velge bilder, modellvekter og segmenteringsinnstillinger.",
+    "Kjøre Apply og finne de lagrede maske-TIFF-filene.",
+    "Undersøke resultater i sanntid og sammenligne filtre for objektstørrelse."
+  ],
+  "prerequisite": "Pakk ut det lenkede Apply Cellpose-eksemplet i en ny mappe. Det inneholder tre enkanals cellebilder og en innstillingsreferanse. Velg mappen images som Source. Denne gjennomgangen bruker standardmodellen cpsam; for en egen modell velger du vekter og innstillinger som passer bildene dine.",
+  "scenes": [
+    "Fra Home åpner du Make Masks og deretter Cellpose Workbench. Velg Apply for å segmentere bilder med en eksisterende modell. Bruk Train når du vil lære nye vekter fra kontrollerte par av bilde og maske.",
+    "Pakk ut det lenkede eksemplet og sett Source til mappen images. Den inneholder tre enkanals cellebilder, hver på 512 × 512 piksler. Hvis du bruker den innspilte innstillingsfilen som referanse, bytter du ut kildebanen med mappen du pakket ut.",
+    "Velg cpsam og la Custom model være tomt i dette eksemplet. Sett Channels til 0, normaliseringspersentilene til 2 og 99, Diameter til 30, Flow threshold til 0,4 og Cell probability til 0. Juster innstillingene etter at du har undersøkt noen representative synsfelt fra ditt eget eksperiment.",
+    "Aktiver Save og Verbose, velg batchstørrelse 1, og klikk på Run i Apply. Følg konsollen mens hvert bilde behandles. Gå gjennom feil før du går videre til måling.",
+    "Åpne undermappen masks i Source. Hvert bilde har en maske-TIFF med samme filnavnstamme. Undersøk figurene ved siden av originalbildene, og se etter oversette objekter og sammenslåtte celler. Flytpanelet viser retningene modellen bruker til segmenteringen.",
+    "Slå på Live preview og velg et bilde med bildevelgeren. Åpne Live settings og kontroller kontrollene for kanal og normalisering. Skjul Console og System for å gi forhåndsvisningen mer plass ved behov.",
+    "Sammenlign forhåndsvisningen med den lagrede batchmasken. Forhåndsvisningen og Apply bruker ulike behandlingsveier i dette eksemplet, så de kan gi ulike grenser og antall. Undersøk de lagrede TIFF-filene når du vurderer om batchutdataene egner seg for måling.",
+    "Bruk musehjulet til å forstørre et område på begge forhåndsvisningsflatene. Undersøk objekter som berører hverandre og svake grenser, og zoom deretter ut for å kontrollere hele synsfeltet.",
+    "Åpne Live settings og øk Minimum cell area for å fjerne små objekter fra forhåndsvisningen. Grensen er i piksler; velg den ut fra størrelsen på objektene dine. Lukk dialogen for å undersøke det filtrerte resultatet.",
+    "Sammenlign de filtrerte omrissene med originalbildet. Endringer i dette sanntidsfilteret oppdaterer forhåndsvisningen uten å skrive over masker som Apply allerede har lagret. Kjør batchen på nytt med de ønskede innstillingene når du trenger nye lagrede utdata.",
+    "Sett Minimum cell area tilbake til 0 for å gjenopprette den ufiltrerte forhåndsvisningen. Hold inndatabildene, modellens identitet, innstillingene og de lagrede maskene samlet. Bruk Make Masks til korrigeringer, eller Measure til å hente ut objektegenskaper fra de kontrollerte maskene."
+  ]
+}

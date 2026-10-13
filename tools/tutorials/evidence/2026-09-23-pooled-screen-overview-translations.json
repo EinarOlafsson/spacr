@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "78_spacr_screens",
+  "english_sha256": "71761f378ef9aa3750a1ca9d13c9a8b930509fa818c4cd284e876c68d041b3ae",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "required_languages": 13,
+  "staged_languages": 13,
+  "reviewed_scenes": 104,
+  "languages": [
+    {
+      "language": "da",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.da.json",
+      "review_sha256": "29b5c376be27adc3820764f82ab57ba4c49798c9aa987f67715bc3772ec20115",
+      "catalog_sha256": "d589bfcf38aa9e7477668c4b2bce9186ddfff82185177fba1351e3d54382cd06",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "de",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.de.json",
+      "review_sha256": "12048216a2c212d27ef8939428737bc4363df7dda0c94205161fe46f0db57eaf",
+      "catalog_sha256": "7b3149263af456117b50df04b70288b71b11cd3d474b7068ac11e70511f5c062",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "es",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.es.json",
+      "review_sha256": "848803fa72ef7eacd8836afee264080634a9477046e80012c5cbb387a1fdf20c",
+      "catalog_sha256": "ecdaa26879f56b594e3383180f3792fcf992ae0539ded2998fb540b883fa8a1f",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "fr",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.fr.json",
+      "review_sha256": "0c1a6bfdd74ba1e5d7c63535f518c9cc33afb5243d9e9073a52c9931c3a1f4fe",
+      "catalog_sha256": "dc716755db6eb8b6903783315655adc5d38a6680ce3aa43b55dcdc9fb727b24c",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "hi",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.hi.json",
+      "review_sha256": "465c94896e0116e35e8a10c739eb8caa66d0e9954a0ebb1fa9f6fd5834709faf",
+      "catalog_sha256": "3f95d9b250eadc728c9bd3d7f945de9a8227249febe061abe5697a7b79900216",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "is",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.is.json",
+      "review_sha256": "fd6dc9c4f64849accc59fa721e38d43928458ef4b7ccb4053b8020a5a8bf67eb",
+      "catalog_sha256": "dc3b9fe99ee7b4716c235e70d749d826f33a69f769d3bea25c46d0cb17afc84f",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "it",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.it.json",
+      "review_sha256": "f305d5f6d43052ef5969f6038ff605e41592a47ddd84df756afe647b4e1904ed",
+      "catalog_sha256": "7b80162c958dbeb68716ffbf7d7bd19b8884446d39208da1307b347dfaf78236",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "ja",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.ja.json",
+      "review_sha256": "28ebe79701436fae2a79ed1c694cc543c600d3b46235878f3e5f46b44d4f2193",
+      "catalog_sha256": "0ee7c71b6ded820d2f2f684b9933e6a09c7dea737d509a3e6e90615df25edee0",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "ko",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.ko.json",
+      "review_sha256": "835dd810b0fd4817d14c6db9c2a0f9ab8b58938b94d09b5b805527dc6cc2adc1",
+      "catalog_sha256": "5edb808709af603cca672bad9a29ba71ff62e2e3190553a4513ee4ad6e92721f",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "nb",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.nb.json",
+      "review_sha256": "4244d9125b4be40f31689656657eb0855c0466cf0c72fcb536ba1ae92311ea16",
+      "catalog_sha256": "74b46a4977d8b34dbb1e0d4b29f9ede9d2acb4e1f724bbdc06a5043481577f28",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "pt-BR",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.pt-BR.json",
+      "review_sha256": "466b74cf6d175b5ceef228528eb3776e9f3f7736c2e9aa5ebaf7a0e210708eec",
+      "catalog_sha256": "d96399419d88f29aba99ae1eedb9dced35f426e13bfd90d3d4e08c29e588c5d8",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "sv",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.sv.json",
+      "review_sha256": "0b1500da1a1e90c056404f49f2e59342bcbc0e8eb4b4e0c8e18e1cbb2f45e70e",
+      "catalog_sha256": "d2a8309fa14d6e66707a0da3c23d09e72db0517bf232c792b69e1b1f0c653772",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    },
+    {
+      "language": "zh-CN",
+      "review": "tools/tutorials/lessons/reviews/78_spacr_screens.zh-CN.json",
+      "review_sha256": "ef5a2cbf177ea6d6efd4a8d4432124d0734ead939bcc0157fd9c40414c6ebfdd",
+      "catalog_sha256": "ff53b65071289d7effb2d0f363d3d6bc3f2d04e386a5a8537a526fe0363655f4",
+      "scenes": 8,
+      "source_and_map_bindings_current": true,
+      "technical_names_preserved": true,
+      "unrelated_lessons_unchanged": true
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "full_media_acceptance": false
+}

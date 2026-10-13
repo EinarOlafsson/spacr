@@ -1,0 +1,48 @@
+{
+  "cwd": "/mnt/wd4tb/spacr-worktrees/codex-serial-field-fade-20261008",
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "SPACR_DEVICE": "cpu",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg",
+    "PYTHONPATH": ".:/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay"
+  },
+  "launcher": [
+    "tools/run_capped.sh",
+    "4G",
+    "/home/olafsson/anaconda3/envs/spacr/bin/python"
+  ],
+  "after_owning": [
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:randomly",
+    "tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py",
+    "tests/qt/test_a_module_screen_is_sheeted_once_before_it_is_seen.py",
+    "tests/qt/test_field_fade.py",
+    "--cov=spacr.qt.theme",
+    "--cov-branch",
+    "--cov-report=json:/mnt/wd4tb/scratch/serial-field-fade-20261008/focused-coverage.json",
+    "--durations=8"
+  ],
+  "before": [
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:randomly",
+    "-p",
+    "baseline_plugin",
+    "tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py::test_existing_hidden_menu_waits_and_opens_in_the_latest_theme",
+    "tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py::test_visible_menu_changes_theme_immediately"
+  ],
+  "scripts": [
+    "fade_probe.py",
+    "menu_probe.py",
+    "inventory_probe.py before",
+    "inventory_probe.py after"
+  ],
+  "COVERAGE_FILE": "/mnt/wd4tb/scratch/serial-field-fade-20261008/.coverage",
+  "fatal_ruff": "python -m ruff check --select E9,F63,F7,F82 spacr/qt/theme.py tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py"
+}

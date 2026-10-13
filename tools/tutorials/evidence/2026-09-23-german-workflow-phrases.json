@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "language": "de",
+  "phrase_count": 238,
+  "phrase_bank_sha256": "0f645c5e5b74591ba8663f1406c5945da6e41a7c4fc13bae5535c269bdd3392b",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "gui_publication": {
+    "language": "de",
+    "review_records": 211,
+    "map_ui_sources": 215,
+    "newly_fresh": 209,
+    "values_changed": 210,
+    "catalog_sha256": "40264306b51aa017c32390d97db6459d37c4a04e2d446bb75eb01914974af92a",
+    "review_sha256": "e76ee9138c4be98eb2ab4d8ef00ce7b37a31ba1c8da15e625144d900b3e43d35",
+    "unrelated_entries_preserved": true
+  },
+  "live_tr_sources": 215,
+  "ui_current": 4625,
+  "ui_sources": 5016,
+  "ui_current_percent": 92.2,
+  "english_ui_and_api_manifests_current": true,
+  "full_german_runtime_and_api_review_loaders": true,
+  "tutorials": [
+    {
+      "lesson": "78_spacr_screens",
+      "scenes": 8,
+      "review_sha256": "12048216a2c212d27ef8939428737bc4363df7dda0c94205161fe46f0db57eaf",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "scenes": 79,
+      "review_sha256": "8e648e0f52d05bfacbe0efece62fcb9ec2bf27aef7a75cfaa14b41f0ff1cf196",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "scenes": 18,
+      "review_sha256": "3a61b2ba47c1258227dbaf0359426ed5b9d44d303943f01d78559cbc88079a03",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "scenes": 11,
+      "review_sha256": "be5061a9e080e36c822d7e4bdfa1f1c046fbd362eec9c987cc135433b7a1ea27",
+      "staged_translation_current": true
+    }
+  ],
+  "unrelated_staged_lessons_preserved": true,
+  "tests": {
+    "shared_generator_and_batch_promotion": 49,
+    "literal_boundary": 6,
+    "file_format_plural_and_phrase_validation": 11,
+    "existing_numpydoc_parameter_boundary": 1
+  },
+  "native_speaker_signoff": false,
+  "listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "The other12 shared phrase languages, including8 GUI locales",
+    "Complete video,voice,caption and browser matrix",
+    "Listening acceptance and complete-set publication"
+  ]
+}

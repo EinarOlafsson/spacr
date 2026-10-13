@@ -1,0 +1,154 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "source_sha256": "cc9ae20efdf28de8254e631fc3c587cfca5a8ff7337128cf47efbca274214c58",
+      "table": "ui",
+      "translation": "일반 사진 대신 현미경 영상으로 학습한 모델입니다. OpenPhenom과 ChAda-ViT는 염색 채널 수에 제한이 없습니다. SubCell의 두 평면 모델은 DNA 다음에 단백질을 받으며, 네 평면 모델은 미세소관, ER, DNA, 단백질을 명시적으로 매핑해야 합니다. 가중치는 한 번 다운로드합니다. Cell-DINO는 공식 체크포인트가 필요하며 이 버전에서는 아직 지원하지 않습니다. 기본값: None (백본 네트워크 사용)."
+    },
+    {
+      "key": "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
+      "source": "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
+      "source_sha256": "aacf67f543d79b938c33e5e42d3f898f791b3d22a8708c41e53618118ecded0a",
+      "table": "ui",
+      "translation": "선택한 SubCell 채널이 불러온 크롭에 없습니다. 채널…을 열고 네 영상 평면을 다시 매핑하세요."
+    },
+    {
+      "key": "Assign four different crop channels in SubCell's official order. No stain identity is guessed from channel position.",
+      "source": "Assign four different crop channels in SubCell's official order. No stain identity is guessed from channel position.",
+      "source_sha256": "254e443153bc15e730a355c982351d445ecccc905660ed0c65352a881e0d2a8e",
+      "table": "ui",
+      "translation": "SubCell의 공식 순서대로 서로 다른 크롭 채널 네 개를 지정하세요. 채널 위치로 염색 종류를 추측하지 않습니다."
+    },
+    {
+      "key": "Channel {position} (index {index})",
+      "source": "Channel {position} (index {index})",
+      "source_sha256": "4bf31a4f3b106e62b2e66f07a4ad07dcc72fd3d689c6821d785c96fdfbd4ec5a",
+      "table": "ui",
+      "translation": "채널 {position} (인덱스 {index})"
+    },
+    {
+      "key": "Channels…",
+      "source": "Channels…",
+      "source_sha256": "5c5fffe79ba55bf09c467589a93cf69aa7216e00af5add85a5d7b32995442a00",
+      "table": "ui",
+      "translation": "채널…"
+    },
+    {
+      "key": "Choose a crop channel for each SubCell plane: microtubules, ER, DNA and protein.",
+      "source": "Choose a crop channel for each SubCell plane: microtubules, ER, DNA and protein.",
+      "source_sha256": "7bd72e86ff9878cf7a253273ecd85aa4331e909d6ca1d84907a6dbec7ef61f08",
+      "table": "ui",
+      "translation": "각 SubCell 영상 평면의 크롭 채널을 선택하세요: 미세소관, ER, DNA, 단백질."
+    },
+    {
+      "key": "Choose channel…",
+      "source": "Choose channel…",
+      "source_sha256": "2628e79725e97ed03ce0aa050e102bc6ea681cf2ee54a07d15c334c523f11e6f",
+      "table": "ui",
+      "translation": "채널 선택…"
+    },
+    {
+      "key": "Choose four different crop channels for SubCell.",
+      "source": "Choose four different crop channels for SubCell.",
+      "source_sha256": "84e8fdeb01d7da4cf590dd7ec7dd27b5e5fc4bded4020dbb4bc83387370994d4",
+      "table": "ui",
+      "translation": "SubCell에 사용할 서로 다른 크롭 채널 네 개를 선택하세요."
+    },
+    {
+      "key": "Choose four distinct crop channels before running SubCell's four-plane model.",
+      "source": "Choose four distinct crop channels before running SubCell's four-plane model.",
+      "source_sha256": "3e218ec522abe8661cc77ad5bb0bfe9da83481418510902e8265f24511b0c1b7",
+      "table": "ui",
+      "translation": "SubCell의 네 평면 모델을 실행하기 전에 서로 다른 크롭 채널 네 개를 선택하세요."
+    },
+    {
+      "key": "DNA (B)",
+      "source": "DNA (B)",
+      "source_sha256": "6d205c6996b05e3f400dc81b2d13742d4f273329ea818ba6d7ee4c4a55132730",
+      "table": "ui",
+      "translation": "DNA (B)"
+    },
+    {
+      "key": "ER (Y)",
+      "source": "ER (Y)",
+      "source_sha256": "17c675b2d57aa167b421f8d2a07fcfdc818c6349db760df9d3f35d1eb5bb70f9",
+      "table": "ui",
+      "translation": "ER (Y)"
+    },
+    {
+      "key": "Four mapped planes (one pass)",
+      "source": "Four mapped planes (one pass)",
+      "source_sha256": "f4069431015e5f3c2646b13a59b91ee89039283899441d15f2be9e54af10d132",
+      "table": "ui",
+      "translation": "매핑된 네 평면 (한 번의 실행)"
+    },
+    {
+      "key": "Load crops with at least four channels before mapping SubCell's microtubules, ER, DNA and protein planes.",
+      "source": "Load crops with at least four channels before mapping SubCell's microtubules, ER, DNA and protein planes.",
+      "source_sha256": "1498d373271f6b2fead7abdad98a1f46b50eadb061774e48839c442d8c14b689",
+      "table": "ui",
+      "translation": "SubCell의 미세소관, ER, DNA, 단백질 평면을 매핑하기 전에 채널이 네 개 이상인 크롭을 불러오세요."
+    },
+    {
+      "key": "Map four crop channels to microtubules, ER, DNA and protein before running SubCell's four-plane model.",
+      "source": "Map four crop channels to microtubules, ER, DNA and protein before running SubCell's four-plane model.",
+      "source_sha256": "3e0638cc0428ecd5c1b27cbf6571acf51788b90cb7f91e5b108d7006aabd4ac8",
+      "table": "ui",
+      "translation": "SubCell의 네 평면 모델을 실행하기 전에 크롭 채널 네 개를 미세소관, ER, DNA, 단백질에 매핑하세요."
+    },
+    {
+      "key": "Microtubules (R)",
+      "source": "Microtubules (R)",
+      "source_sha256": "627cb9333e8fb9cbc4ba35f4db75fd06890f206cfa0969b7f2a3de1b7a7e8da5",
+      "table": "ui",
+      "translation": "미세소관 (R)"
+    },
+    {
+      "key": "Protein (G)",
+      "source": "Protein (G)",
+      "source_sha256": "572c556c07e2302e3be58a4597d4fbe6abb21aad66471d618a9164cbeddeb1c6",
+      "table": "ui",
+      "translation": "단백질 (G)"
+    },
+    {
+      "key": "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+      "source": "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+      "source_sha256": "969a3f008e0fc2e26dcec324877f15126932f1e13e965f516f448015a0fe51c3",
+      "table": "ui",
+      "translation": "SubCell (CZI / Lundberg 연구실 ViT-B/16, R/Y/B/G)"
+    },
+    {
+      "key": "SubCell channel mapping saved in microtubules, ER, DNA, protein order.",
+      "source": "SubCell channel mapping saved in microtubules, ER, DNA, protein order.",
+      "source_sha256": "9d49eb36c81862bf3c846d7a662d136adcb02329595e49561ed37b7ee4257447",
+      "table": "ui",
+      "translation": "SubCell 채널 매핑을 미세소관, ER, DNA, 단백질 순서로 저장했습니다."
+    },
+    {
+      "key": "SubCell four-plane channels",
+      "source": "SubCell four-plane channels",
+      "source_sha256": "c53ba646493319cbd0cc9486c123f31da3ea916762e90fa3d132efbc2062d69f",
+      "table": "ui",
+      "translation": "SubCell 네 평면 채널"
+    },
+    {
+      "key": "SubCell's four-plane model needs crops with at least four channels. Load a suitable crop source first.",
+      "source": "SubCell's four-plane model needs crops with at least four channels. Load a suitable crop source first.",
+      "source_sha256": "ed449605525005bca9b4cbce5b7144ddc4145b80c12cf6ccd02b1c8cb551835b",
+      "table": "ui",
+      "translation": "SubCell의 네 평면 모델에는 채널이 네 개 이상인 크롭이 필요합니다. 먼저 적합한 크롭 소스를 불러오세요."
+    },
+    {
+      "key": "The new crops have fewer channels. Reopen Channels… to map SubCell's four planes.",
+      "source": "The new crops have fewer channels. Reopen Channels… to map SubCell's four planes.",
+      "source_sha256": "adf1f955718cfe4edf15ac7019995f8880906d2ba61e8ff07300e9848b2178f3",
+      "table": "ui",
+      "translation": "새 크롭의 채널 수가 더 적습니다. 채널…을 다시 열고 SubCell의 네 평면을 매핑하세요."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review of all 21 new channel-mapping captions, preserving official R/Y/B/G markers, image-plane/crop/network meanings and source-bound format fields; no native-speaker signoff.",
+  "schema": 1
+}

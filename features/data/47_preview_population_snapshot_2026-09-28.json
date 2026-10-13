@@ -1,0 +1,22 @@
+{
+  "scope": "Avoid full-plate snapshots on non-projection preview loads and reuse immutable projection snapshots",
+  "passed": true,
+  "tests": 63,
+  "seconds": 38.24,
+  "exit_code": 0,
+  "source_sha256": "7b47aeadc24e4fe511bdfa88036e8e4cac79fe3f019fafc65080c58a3900bdce",
+  "tests_sha256": "845a2ac45522a6cd6afeb780042e3aa1b61304677e0dd764af066dbe7455c751",
+  "junit_sha256": "5664ec85b18919a2910044f21ca45a8d3c76bc745ed90a4a0711fa85e2ee6fb4",
+  "log_sha256": "e7dc683203a1c4873125bebd0bf495a4308f1c7e8f01b2a079c8b138c4cb5090",
+  "checks": [
+    "no full-population iteration when projection is off",
+    "one snapshot reused per unchanged population when projection is on",
+    "every sampler rescan/invalidation replaces snapshot identity",
+    "actual old/new TIFF projections match their queued immutable snapshots",
+    "stale callbacks do not overwrite the latest preview",
+    "existing 98304-file timing guard passes with unchanged 15ms ceiling"
+  ],
+  "completed_field_change_latency_acceptance": false,
+  "full_serial_qt_passed": false,
+  "gpu_used": false
+}

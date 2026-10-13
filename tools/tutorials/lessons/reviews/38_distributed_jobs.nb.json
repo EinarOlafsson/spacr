@@ -1,0 +1,32 @@
+{
+  "lesson": "38_distributed_jobs",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Distributed Jobs: konfigurer et kjøremål",
+  "description": "Lag en kjøreprofil og forbered en modulejobb for en annen arbeidsstasjon eller en klynge.",
+  "objectives": [
+    "Lage en profil for kjøremålet ditt.",
+    "Konfigurere baner og backendalternativer.",
+    "Forberede innsending og undersøke jobbstatus."
+  ],
+  "prerequisite": "Sørg for tilgang til et mål med spaCR, avhengighetene og inndataene dine. Eksporter innstillingene for modulen du vil kjøre. Bytt ut eksempelverten og -banene som vises her, med dine egne.",
+  "scenes": [
+    "Åpne Help og deretter Distributed Jobs. Begynn med å lage en kjøreprofil for arbeidsstasjonen eller klyngen du vil bruke.",
+    "Installer kompatible spaCR-avhengigheter på målet og gjør inndataene tilgjengelige der. Sett opp SSH-nøkler eller leverandørens kommandolinjeautentisering utenfor spaCR.",
+    "Velg New profile. Skriv inn et beskrivende navn og velg backend. Fyll ut de obligatoriske feltene som skjemaet viser.",
+    "For SSH skriver du inn vert, ekstern arbeidskatalog og spaCR-kjører. Lagre profilen, og åpne den igjen når du må oppdatere disse innstillingene.",
+    "Angi lokale og eksterne datasettrøtter når de samme dataene har ulike absolutte baner på de to maskinene. Dette skriver om banene i innstillingene; ordne delt lagring eller kopier filene separat.",
+    "For Slurm velger du partisjonen, tidsgrensen og akseleratorforespørselen som klyngen din støtter. Hold verts- og kataloginnstillingene tilpasset innloggingsmiljøet.",
+    "For en sky- eller egendefinert kommando skriver du inn argumentmaler for innsending, status og avbryting, og for henting av logger ved behov. Ta med plassholderne for innstillinger og ekstern ID som kontrollene viser.",
+    "Lagre endringene du vil beholde, eller bruk Cancel for å la profilen være uendret. Poll interval angir hvor ofte jobbstatus sjekkes.",
+    "Velg profil, modul og de eksporterte innstillingene, og bruk deretter Submit når målet er klart. Følg status og logger i jobbtabellen. Bruk Cancel job for å stoppe en valgt jobb, og undersøk resultatene på den konfigurerte utdataplasseringen."
+  ]
+}

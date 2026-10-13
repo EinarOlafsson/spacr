@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tutorial</title>
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            src: url("../resources/font/open_sans/static/OpenSans-Regular.ttf") format('truetype');
+        }
+
+        body {
+            background-color: #333333;
+            color: white;
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .tutorial-title {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            padding: 20px 0 0 0;
+        }
+
+        .tutorial-description {
+            text-align: center;
+            font-size: 1em;
+            padding-bottom: 20px;
+        }
+
+        .tile-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 10px 20px 40px 20px;
+        }
+
+        .tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 240px;
+            gap: 8px;
+        }
+
+        .tile-img-container {
+            background-color: black;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 240px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tile-img-container img {
+            width: 50%;
+            height: 50%;
+            object-fit: contain;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .tile-caption {
+            margin-top: 8px;
+            font-size: 14px;
+            color: white;
+            text-align: center;
+        }
+
+        .tile-img-container:hover img {
+            transform: scale(1.05);
+        }
+
+        .tile-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .tile-buttons a {
+            background-color: #007bff;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: background-color 0.2s;
+        }
+
+        .tile-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tutorial-title">Tutorial</div>
+    <div class="tutorial-description">
+        <p>Explore the spaCR pipeline step-by-step through interactive tutorials.<br>
+            Each section includes both GUI and Notebook workflows.</p>
+    </div>
+
+    <div class="tile-gallery">
+        <div class="tile">
+            <div class="tile-img-container">
+                <img src="../resources/icons/mask.png" alt="Masking">
+            </div>
+            <div class="tile-caption">1. Generate segmentation masks</div>
+            <div class="tile-buttons">
+                <a href="1_mask_gen_gui.html">GUI</a>
+                <a href="1_mask_gen_notebook.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
+            <div class="tile-img-container">
+                <img src="../resources/icons/measure.png" alt="Measurement">
+            </div>
+            <div class="tile-caption">2. Measure & crop single cells</div>
+            <div class="tile-buttons">
+                <a href="2_measure_gui.html">GUI</a>
+                <a href="2_measure_notebook.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
+            <div class="tile-img-container">
+                <img src="../resources/icons/classify.png" alt="Classify">
+            </div>
+            <div class="tile-caption">3. Classify using ML/DL</div>
+            <div class="tile-buttons">
+                <a href="3_classify_gui.html">GUI</a>
+                <a href="3_classify_notebook.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
+            <div class="tile-img-container">
+                <img src="../resources/icons/map_barcodes.png" alt="Barcodes">
+            </div>
+            <div class="tile-caption">4. Map barcodes from FASTQ</div>
+            <div class="tile-buttons">
+                <a href="4_map_barcodes_gui.html">GUI</a>
+                <a href="4_map_barcodes_notebook.html">Notebook</a>
+            </div>
+        </div>
+
+        <div class="tile">
+            <div class="tile-img-container">
+                <img src="../resources/icons/regression.png" alt="Regression">
+            </div>
+            <div class="tile-caption">5. Perform regression analysis</div>
+            <div class="tile-buttons">
+                <a href="5_regression_gui.html">GUI</a>
+                <a href="5_regression_notebook.html">Notebook</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

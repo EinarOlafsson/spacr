@@ -1,0 +1,8 @@
+Decompress before.py/after.py and the chosen probes into one isolated scratch directory.
+Set probe REPO variable to a nightlyworktree; original frozen script hashes stay inthisarchive.
+Functional: CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python functional_probe.py
+Mutationnegative/finalfallback: same environment python mutation_probe.py (requires initial-candidate.py).
+Fixed: same environment python timing_probe.py; coldgeometry+warmABBA andnativepairsconditionalonconvincingmainpaths.
+Live: CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=xcb PYTHONDONTWRITEBYTECODE=1 SPACR_PROOF_REPO=<nightlyworktree> xvfb-run -a -s '-screen 0 3840x2160x24' tools/run_capped.sh 4G python worker_probe.py data_art_fungal_growth before --palette spacr --density 3 --run-id before-A
+Use4serialfreshprocesses inbefore-A/after-B/after-C/before-D order; do notoverlaptimingwithCPUtests.
+Allcounts/phases/sourceepochs remain distinct. Thisarchive isdeferredcandidateevidence only.

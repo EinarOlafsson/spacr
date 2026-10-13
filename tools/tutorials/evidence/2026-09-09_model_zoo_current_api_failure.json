@@ -1,0 +1,52 @@
+{
+  "lesson": "22_model_zoo",
+  "status": "Held: actual current benchmark fails before producing masks",
+  "app_commit": "13e196e34",
+  "capture": "refresh_2026-09-09/captures/model_zoo_real",
+  "app_version": "1.5.0.4",
+  "cellpose_version": "4.2.1.1",
+  "operation": "Make Masks -> Model Zoo; choose the existing local model directory, select its exact cpsam checkpoint, load the three provenance-verified TIFFs, then click Test",
+  "error": "CellposeModel.eval() got an unexpected keyword argument 'invert'",
+  "actual_backend": "spacr.model_zoo.benchmark uses spacr.model_compare.segment_with_cellpose without a segment_fn override",
+  "source_trace": [
+    "spacr/model_compare.py:ModelConfig.honoured_parameters includes invert=False by default",
+    "ModelConfig.eval_kwargs removes only model from that dictionary",
+    "segment_with_cellpose passes the remaining dictionary into CellposeModel.eval",
+    "The installed CellposeModel.eval signature has no invert argument and no **kwargs"
+  ],
+  "source_sha256": {
+    "spacr/model_compare.py": "533c4e345cd55f2b775fb90e9c2e3778ad4a03282ca1a36b9a33307690260234",
+    "spacr/model_zoo.py": "0fe2c492ad804f5b35b90377fd0f47086c5d45af52d1bc922c92223a93c4215e"
+  },
+  "input_evidence": {
+    "fields": 3,
+    "shape": [512, 512],
+    "dtype": "uint16",
+    "all_pixels_equal_to_original_channel_1_crops": true,
+    "reused_training_examples_not_held_out_validation": true,
+    "artificial_images_created": false,
+    "checkpoint": "/home/olafsson/.cellpose/models/cpsam",
+    "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+    "gui_provenance": "trained on unknown; trained by unknown; no published checksum/settings snapshot",
+    "all_11_original_input_and_checkpoint_hashes_rechecked_unchanged_after_failure": true
+  },
+  "worker_state_on_failure": {"class": "ModelZooScreen", "busy": false, "active_jobs": 0},
+  "benchmark_masks_or_accuracy_obtained": false,
+  "comparison_handoff_reached": false,
+  "device_claimed": false,
+  "application_modified": false,
+  "environment_downgraded_or_backend_overridden": false,
+  "new_video_or_narration_generated_from_failure": false,
+  "separate_published_4k_assembly_check": {
+    "checked_at_utc": "2026-09-09 21:06",
+    "method": "Unauthenticated read-only HEAD of the exact 4K asset selected by the repository player; compare Hugging Face x-linked-etag and x-linked-size with the local encoded master",
+    "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/main/22_model_zoo/video/22_model_zoo_silent.mp4",
+    "local_sha256_and_remote_linked_etag": "f6c0f1e143ef520ed17f7d7afe86715979a26f1e47c7803a6275d4ae554121da",
+    "local_and_remote_bytes": 3363905,
+    "finding": "The existing overview-only local master described by the separate assembly audit is also the published 4K object, not merely a superseded local draft",
+    "remote_object_replaced": false,
+    "other_quality_variants_examined": false
+  },
+  "published": false,
+  "owner_followup": "The application-owning session should reconcile the actual supported Cellpose arguments and reported honored parameters. Model Compare shares this backend; no separate runtime failure is claimed for lesson 21."
+}

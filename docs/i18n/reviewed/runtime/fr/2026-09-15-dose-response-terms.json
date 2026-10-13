@@ -1,0 +1,76 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "dose_response",
+      "source": "Fit four-parameter logistic curves and estimate EC50 with profile-likelihood intervals",
+      "source_sha256": "392d2a783141453819ed97fa9faf48bde087204660ceb2f0dfb4abdc51100bde",
+      "table": "module_summaries",
+      "translation": "Ajuster des courbes logistiques à quatre paramètres et estimer l'EC50 avec des intervalles de vraisemblance profilée"
+    },
+    {
+      "key": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source": "A bell-shaped series is refused by default: it is not a 4PL, and the usual cause is cytotoxicity at the top dose. Ticking this fits it anyway and keeps the warning on the result.",
+      "source_sha256": "fcb5ee955f8be89fc1ef3488740857a40925effb20647389dccc7b57e78101e4",
+      "table": "ui",
+      "translation": "Une série en cloche est refusée par défaut : ce n'est pas une 4PL, et la cause habituelle est une cytotoxicité à la dose la plus élevée. Cocher cette option ajuste quand même la courbe et conserve l'avertissement sur le résultat."
+    },
+    {
+      "key": "A gene or compound column, or nothing",
+      "source": "A gene or compound column, or nothing",
+      "source_sha256": "4d5e2c306dca8b629e2981046b296a64f943bd08b902f891c97110adb66a114e",
+      "table": "ui",
+      "translation": "Une colonne de gènes ou de composés, ou aucune"
+    },
+    {
+      "key": "A measurements.db, or a CSV of dose and response",
+      "source": "A measurements.db, or a CSV of dose and response",
+      "source_sha256": "cf06cb3d09268099dbc8163c77bd9b016d1d1b3fc082e956ee51700b8cabafce",
+      "table": "ui",
+      "translation": "Une base measurements.db, ou un fichier CSV de doses et de réponses"
+    },
+    {
+      "key": "Fit non-monotone data",
+      "source": "Fit non-monotone data",
+      "source_sha256": "c967f08351ad5a401396d06f26df8eb43163a07c9e5e1fbc25ec596824b27ec7",
+      "table": "ui",
+      "translation": "Ajuster des données non monotones"
+    },
+    {
+      "key": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source": "Fits a four-parameter logistic model for each gene or compound using selected concentration and response columns. EC50 is estimated on a log10 scale, and profile-likelihood intervals are used by default. When the midpoint lies outside the tested dose range, the result is reported as a bound instead of an unsupported point estimate. Non-monotonic series are identified with their turning concentrations. Results include R² with an interpretive warning and a lack-of-fit test against pure error.",
+      "source_sha256": "c1c1f4eb439c980eb809767977a795ed1ea672a3d291ce755a42eba86bc279a6",
+      "table": "ui",
+      "translation": "Ajuste un modèle logistique à quatre paramètres pour chaque gène ou composé à partir des colonnes de concentration et de réponse choisies. L'EC50 est estimée sur une échelle log10, et les intervalles de vraisemblance profilée sont utilisés par défaut. Lorsque le point médian se situe hors de la gamme de doses testée, le résultat est rapporté comme une borne plutôt que comme une estimation ponctuelle non étayée. Les séries non monotones sont signalées avec les concentrations où elles changent de sens. Les résultats incluent le R² avec un avertissement d'interprétation et un test de défaut d'ajustement par rapport à l'erreur pure."
+    },
+    {
+      "key": "Pick a concentration column and a response column, then Fit.",
+      "source": "Pick a concentration column and a response column, then Fit.",
+      "source_sha256": "2f6fa18952f1ff15a84f90dfac248d973895fc55dbaccf1c6ff6bc2b552f453d",
+      "table": "ui",
+      "translation": "Choisissez une colonne de concentration et une colonne de réponse, puis ajustez."
+    },
+    {
+      "key": "Profile likelihood (can decline to close)",
+      "source": "Profile likelihood (can decline to close)",
+      "source_sha256": "1275278ac5f967df352482437178496290e8a519b31c5a7db7bc906e959cb473",
+      "table": "ui",
+      "translation": "Vraisemblance profilée (peut rester ouvert)"
+    },
+    {
+      "key": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source": "The dose column. A concentration of 0 is read as a vehicle control: it is excluded from the fit and reported as a reference, never fed to log10.",
+      "source_sha256": "61de1de9ccc3eda8c57732db4c6558ccab9ddca415ca968985f97d5dbc1bafc8",
+      "table": "ui",
+      "translation": "La colonne des doses. Une concentration de 0 est lue comme un témoin véhicule : elle est exclue de l'ajustement, rapportée comme référence et jamais transmise à log10."
+    },
+    {
+      "key": "Which table of the database to fit",
+      "source": "Which table of the database to fit",
+      "source_sha256": "c03cf29fe9270ccb4bff28c8f241c39883b42bce54f4eb4a25ace13160ab2775",
+      "table": "ui",
+      "translation": "Table de la base de données à laquelle ajuster la courbe"
+    }
+  ],
+  "schema": 1
+}

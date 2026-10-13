@@ -1,0 +1,30 @@
+{
+  "lesson": "11_classify_ml",
+  "accepted": false,
+  "source_commit": "4351af7b987bca4ceb4b03f77983784f82499e59",
+  "version": "1.5.0.6",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/classify_ml_fresh/captures/classify_ml_native",
+  "observed": {
+    "native_family": "ml",
+    "native_model": "random_forest",
+    "native_test_size": 0.5,
+    "shared_test_split": 0.1,
+    "saved_requested_fraction": 0.1,
+    "rows_scored": 2153,
+    "train_objects": 1118,
+    "test_objects": 1035,
+    "actual_well_overlap": [],
+    "native_figures": 3,
+    "worker_finished_successfully": true
+  },
+  "hashes": {
+    "configured_settings.json": "568638d210631bbf70b12f581ffde1f68891af01a516b5b456dbeb8163658208",
+    "results.csv": "066597100b496711f2eac551e29cb77f656dc547aa986285c03645e152bace7c",
+    "random_forest_model.csv": "47cd137d12c15325a4c8e68755d9c2fbe5ca75c69053fc04410488615b325995"
+  },
+  "cause": "training_basis.normalize_settings prefers canonical test_split over its test_size alias. The merged form exposes both, so the ML-specific value is discarded before dispatch, unlike model_type_ml which classify.classify explicitly preserves.",
+  "tutorial_action": "Original capture retained but marked scientifically unaccepted. A fresh run requests 0.1 in the native ML field to match the shared value; its saved fraction must match before staging. No assertion that the discarded 0.5 request ran.",
+  "scope": "Tutorial helpers only; application fix remains with its owner. Metadata labels c1/c2 are not independently validated biological phenotypes.",
+  "tests": {"focused_helper_tests_passed": 11, "source_string_mutations_observed_red": 5},
+  "published": false
+}

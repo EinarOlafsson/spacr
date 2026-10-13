@@ -1,0 +1,43 @@
+{
+  "item": 567,
+  "passed": true,
+  "CPU_only": true,
+  "normal_optional_environment_install": true,
+  "actual_parent_worker_protocol": true,
+  "input_scope": "Declared synthetic RGB clip; no microscopy or event-accuracy claim",
+  "feature_shape": [
+    1,
+    768
+  ],
+  "repeat_bit_exact": true,
+  "uint8_preparation_max_absolute_difference": 0.0,
+  "provenance": {
+    "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+    "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+    "files_sha256": {
+      "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+      "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+      "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+    },
+    "weights_license": "CC-BY-NC-4.0",
+    "frames": 16,
+    "feature_width": 768,
+    "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+    "frame_sampling": "rounded evenly spaced indices including endpoints",
+    "pooling": "mean patch tokens followed by pretrained fc_norm",
+    "channel_map": [
+      0,
+      1,
+      2
+    ],
+    "device": "cpu",
+    "transformers": "4.48.3",
+    "torch": "2.11.0+cpu"
+  },
+  "environment": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-cpu-r1/backends/videomae",
+  "seconds": 42.83777904510498,
+  "source_sha256": {
+    "spacr/_segmentation_backends.py": "a2d7df8da1047f94d1b24196467cdc99df8a03f97fc2f49301e434174f64ecc1",
+    "spacr/timelapse.py": "3a98e79773c8c50e9420621d66220193108b7752d7ab2b1d0bb2b2670c112522"
+  }
+}

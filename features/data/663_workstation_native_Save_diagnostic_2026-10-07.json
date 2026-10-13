@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "owner": "Workstation diagnostic; Home implementation",
+  "source_commit": "b6c1a18efe040e18c40009c18d95dcdba7ea7c89",
+  "passed": true,
+  "scope": "Suggested current-source native xcb private-settings diagnostic; original installed Preferences Save crash remains open",
+  "environment": {
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+    "display": {
+      "DISPLAY": ":0",
+      "WAYLAND_DISPLAY": null,
+      "XAUTHORITY": "/run/user/1000/gdm/Xauthority"
+    },
+    "packages": {
+      "spacr": "1.5.1.3",
+      "PySide6": "6.11.1",
+      "shiboken6": "6.11.1",
+      "numpy": "2.4.3",
+      "torch": "2.10.0"
+    }
+  },
+  "source_and_helper": {
+    "original": "features/data/663_unchanged_preferences_cpu_2026-10-06/repro_mainwindow_random_alpha_20261006.py",
+    "original_sha256": "72ab498965c487461d2ac9b275bd4d6e2be3a885a2399f207544ffce5343d4a3",
+    "adapted_sha256": "6b0fcb270cf93c600b047891f74b3869d867db862f4307b5d6eab7c2883e8c47",
+    "only_change": "Private scratch base path; original actions/assertions unchanged.",
+    "source_commit": "b6c1a18efe040e18c40009c18d95dcdba7ea7c89",
+    "scope": "Native xcb desktop diagnostic, not installed-user crash closure."
+  },
+  "actions": [
+    "Open Home, Mask, Measure and Annotate",
+    "Three actual modal Saves at detail200/100/200, gravity0/65/0%, random/spacr/random palettes",
+    "Verify opaque producer frames, native pointer preconditions, saved values and zero remaining widgets/workers after close"
+  ],
+  "observed_process_VmHWM_KiB": 1292792,
+  "terminal_exit_status": 0,
+  "limitations": [
+    "Fresh private settings and source-pinned worktree, not the original user installation",
+    "PySide6/Shiboken6 6.11.1; Home reports 6.11.2",
+    "No original crash closure or hard24FPS/theme aesthetic acceptance"
+  ],
+  "evidence": {
+    "path": "features/data/663_workstation_native_Save_diagnostic_2026-10-07/complete-native-evidence.zip",
+    "sha256": "2d33466a50b9613d1064c52192744d57e50bc65fd3077ace926d8c3d34c21eb7",
+    "bytes": 7810,
+    "payload_count": 7
+  }
+}

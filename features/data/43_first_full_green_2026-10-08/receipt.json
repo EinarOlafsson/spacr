@@ -1,0 +1,82 @@
+{
+  "captured_at_utc": "2026-10-08T16:15:09+00:00",
+  "current_later_tip_at_capture": "8df3033c609707eb788d763266a706eabd0ee971",
+  "date": "2026-10-08",
+  "runs": {
+    "compat": {
+      "conclusion": "success",
+      "created_at": "2026-10-08T14:18:46Z",
+      "id": 37791416494,
+      "job_count": 17,
+      "name": "compat-matrix",
+      "payloads": {
+        "jobs": {
+          "endpoint": "repos/EinarOlafsson/spacr/actions/runs/37791416494/jobs?per_page=100",
+          "file": "compat-jobs.json.gz",
+          "gzip_sha256": "2d45d38e81a8c860446b922c7b81b3e4bd2243ac51a8f52275fcea5dcb4162a2",
+          "raw_sha256": "496a7e4665320eeefe05426b1420f1da296e8f26627699c10bbf2f5927901bb9"
+        },
+        "run": {
+          "endpoint": "repos/EinarOlafsson/spacr/actions/runs/37791416494",
+          "file": "compat-run.json.gz",
+          "gzip_sha256": "e4d4c6fe581f9be47474206ba1732e6be539f015b09af2cc75c9e6188265463a",
+          "raw_sha256": "9f84b887dbd9e59dfed0345303649b75b9a720902c0ace162d21d89c9ef81ead"
+        }
+      },
+      "status": "completed",
+      "successful_jobs": 17,
+      "updated_at": "2026-10-08T15:30:47Z"
+    },
+    "docs": {
+      "conclusion": "success",
+      "created_at": "2026-10-08T14:18:46Z",
+      "id": 37791416745,
+      "job_count": 4,
+      "name": "docs",
+      "payloads": {
+        "jobs": {
+          "endpoint": "repos/EinarOlafsson/spacr/actions/runs/37791416745/jobs?per_page=100",
+          "file": "docs-jobs.json.gz",
+          "gzip_sha256": "a2ec79d3caf3ba052a62d1c0f014abd021aa18b4a571d35ac4c09d42ce4e0017",
+          "raw_sha256": "3af0f44a02427bf70bb3ccd0fef3e6e9923f63b6005454915fa42977be3ca40d"
+        },
+        "run": {
+          "endpoint": "repos/EinarOlafsson/spacr/actions/runs/37791416745",
+          "file": "docs-run.json.gz",
+          "gzip_sha256": "27ba794f785a369ec6076afc3c3ac25bbe83411ee53ea9e4d055e7bc0313b8c9",
+          "raw_sha256": "34b35f9177caa55a1a20089e7f5ddf32596facb6a33ba31c99e625c2becef3f2"
+        }
+      },
+      "status": "completed",
+      "successful_jobs": 4,
+      "updated_at": "2026-10-08T15:47:24Z"
+    },
+    "tests": {
+      "conclusion": "success",
+      "created_at": "2026-10-08T14:18:46Z",
+      "id": 37791417012,
+      "job_count": 29,
+      "name": "tests",
+      "payloads": {
+        "jobs": {
+          "endpoint": "repos/EinarOlafsson/spacr/actions/runs/37791417012/jobs?per_page=100",
+          "file": "tests-jobs.json.gz",
+          "gzip_sha256": "d61904cc33fa15df725816aae021bd280e80c14a5fd73c13f3ca91ace51aa8ac",
+          "raw_sha256": "3bed250ef08e2a158bfbbefb3641f297a16ab7389743b21e31acf7c3e693f136"
+        },
+        "run": {
+          "endpoint": "repos/EinarOlafsson/spacr/actions/runs/37791417012",
+          "file": "tests-run.json.gz",
+          "gzip_sha256": "5deab1418ca2a99db849e9e6cac63ad13b90ecf678251e41450cf2d368d3333f",
+          "raw_sha256": "d67cb32cd0b90e32529eeb54550453f86192ae6b5bf632b3a315b6e5fb5b5cd3"
+        }
+      },
+      "status": "completed",
+      "successful_jobs": 29,
+      "updated_at": "2026-10-08T16:01:36Z"
+    }
+  },
+  "scope": "first full required tests success plus same-source docs and compatibility",
+  "source_ref": "nightly",
+  "source_sha": "07809d92646cd125cf5c8f2629ff5da27dcbca31"
+}

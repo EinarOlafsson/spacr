@@ -1,0 +1,37 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Illumination: skatta och granska en korrektionsmodell",
+  "description": "Välj bildkanaler, skatta ett belysningsfält, granska dess QC-figur och återanvänd den sparade modellen.",
+  "objectives": [
+    "Välja representativa synfält och intensitetskanaler.",
+    "Skatta och granska en belysningsmodell.",
+    "Använda den sparade modellen i Measure."
+  ],
+  "prerequisite": "Använd en mapp med sammanslagna bilder med representativa synfält från varje förvärvsgrupp. Exemplet använder de sexton synfälten från plattexemplet som hämtades i Measure. Ha koll på vilka sparade plan som innehåller intensiteter och vilka som innehåller etiketter.",
+  "scenes": [
+    "Öppna Measure och sedan Illumination för att skatta en korrektionsmodell för ojämn bildljusstyrka.",
+    "Ställ Source på mappen merged som innehåller bildarrayerna. Använd representativa synfält från ditt förvärv; exemplet använder sexton synfält från en platta.",
+    "Ställ Channels på de sparade intensitetsplan du vill korrigera. Exemplet använder kanal 0. Kontrollera din kanalmappning och uteslut plan med etikettmasker.",
+    "Aktivera Illumination correction innan du skattar ett fält. När det är avstängt slutförs Run utan att någon korrektionsmodell skapas.",
+    "Välj en skattare och dess inställningar. För polynomexemplet använder du grad 4 och låter Illumination model vara tomt för att skatta ett nytt fält. Granska resultatet efter strukturer som hör till celler snarare än till belysningen.",
+    "Aktivera Illumination per plate för att anpassa separata förvärvsgrupper. Ställ Maximum fields på ett representativt urval; exemplet tar med alla sexton tillgängliga synfält.",
+    "Ställ in Illumination dark från kamerans kalibrering när den finns. Det är en additiv förskjutning i råräkningar; 0 är exemplets värde.",
+    "Aktivera Illumination QC och välj en policy för saknade modeller. Med error valt stoppar en saknad plattkorrektion bearbetningen så att du kan åtgärda den.",
+    "Tryck på Run och läs den sparade modellens sökväg i konsolen. Det här steget skattar modellen; aktivera den i en senare analys för att tillämpa korrektionen.",
+    "Öppna den sparade QC-PNG-filen för belysning i mappen illumination. Använd en bildvisare om den inte visas i panelen Figures.",
+    "Granska det skattade belysningsfältet efter jämn ljusstyrkevariation och oönskade cellformade strukturer. Korrektionen drar av mörkerförskjutningen och delar med detta fält med medelvärde 1.",
+    "Jämför de radiella profilerna före och efter. Använd ytterligare synfält för att bedöma hur väl korrektionen fungerar utöver de bilder som användes för anpassningen.",
+    "Behåll den sparade modellen tillsammans med dess kanaler, plattidentiteter och inställningar. Använd den en gång på en uppsättning intensiteter; korrigeras samma intensiteter två gånger förvrängs de.",
+    "För att använda modellen öppnar du Measure och söker efter illumination i inställningarna. Under Image Preprocessing slår du på Illumination correction och sätter Illumination model till den sparade filen. Measure dividerar sedan de modellerade kanalerna med fältet innan mätningen; maskerna ändras inte."
+  ]
+}

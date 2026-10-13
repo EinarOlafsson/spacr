@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted linguistic and technical review against watershed, per-seed intensity ratio, shared threshold scope and cleanup order; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.",
+      "source": "Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.",
+      "source_sha256": "7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198",
+      "translation": "शिखर का अनुपात: हर वॉटरशेड क्षेत्र को उसके बीज की तीव्रता के चुने हुए अनुपात पर काटें। यह तीव्रताओं का अनुपात है, प्रतिशतक नहीं; पृष्ठभूमि स्तर में बदलाव परिणाम को प्रभावित करते हैं। अन्य तीन नियम संसाधित दृश्य क्षेत्र या क्षेत्रांश के लिए एक ही सीमा मान से वॉटरशेड विभाजन को सीमित करते हैं। इसके बाद छिद्र भरे जाते हैं और न्यूनतम क्षेत्रफल के आधार पर फ़िल्टर किया जाता है।"
+    }
+  ]
+}

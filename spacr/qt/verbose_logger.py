@@ -1,0 +1,613 @@
+"""
+Verbose diagnostic logger for the Qt GUI.
+
+When the "Verbose logging" preference is on, spaCR's Python loggers are dialled
+up to DEBUG and the log files keep those records. The active ConsolePanel shows
+only the levels switched on for the console on the Logging tab of Preferences.
+That puts a detailed trail on disk for triaging a bug report.
+
+The handler is a lazy module-level singleton so multiple
+:func:`apply_verbose_logging` calls (e.g. every time the Preferences
+dialog is saved) don't stack up handlers or leak references. Turning
+verbose off leaves the handler attached but silent — cheaper than
+tearing it down and rebuilding it, and safer for cases where a log
+record fires mid-toggle.
+
+Design:
+
+* One :class:`_ConsoleForwarder` handler is added to the root ``spacr``
+  logger. Its emit() hands the formatted line to
+  :class:`_ConsoleRelay`, which delivers it to whatever ConsolePanel is
+  registered via :func:`register_console_target`.
+* Registration is a weak reference to avoid keeping a closed screen
+  alive. If the target has been garbage-collected the record is
+  silently dropped.
+* Level and format are set once at first registration; only the
+  ``verbose`` gate flips DEBUG ↔ INFO afterwards.
+
+.. warning::
+
+   ``emit()`` runs on **whatever thread logged the record** — Python's
+   logging module calls handlers inline. A ConsolePanel answers
+   ``append_stdout`` by *constructing QWidgets* (a topic bar and a text
+   block), and Qt forbids building a QWidget anywhere but the GUI
+   thread. Calling the panel straight from ``emit()`` therefore built
+   widgets on a worker thread; Qt printed ``QObject::setParent: Cannot
+   set parent, new parent is in a different thread`` and then took the
+   process down. It was reproducible from
+   :meth:`spacr.qt.hf_download._HFDownloadWorker.run`, whose exception
+   path logs a warning from inside the download thread.
+
+   :class:`_ConsoleRelay` is the fix: a QObject pinned to the GUI
+   thread whose ``line`` signal is connected to its own **bound
+   method**, so Qt queues the delivery whenever the emitting thread is
+   not the GUI thread and the panel only ever touches widgets on the
+   thread that owns them.
+"""
+from __future__ import annotations
+
+import functools
+import logging
+import reprlib
+import os
+import threading
+import weakref
+from contextlib import contextmanager
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
+
+from spacr.logging_util import _quicken
+from pathlib import Path
+from typing import Any, Callable, Optional
+
+from PySide6.QtCore import QCoreApplication, QObject, Signal
+from shiboken6 import isValid
+from ..logging_util import _spacr_home
+
+
+
+_console_ref: "Optional[weakref.ReferenceType[Any]]" = None
+_handler: "Optional[_ConsoleForwarder]" = None
+_relay: "Optional[_ConsoleRelay]" = None
+_file_handler: "Optional[RotatingFileHandler]" = None
+
+#: The verbose preference as last applied by :func:`apply_verbose_logging`.
+#: :func:`is_verbose` reads THIS, not a handler level: the per-level console
+#: switches set the forwarder to DEBUG in every session so that their filter
+#: decides, and a check that read the handler reported verbose on whether
+#: the user had turned it on or not.
+_verbose = False
+_SINK_LOGGER = "spacr"
+_ATTACHED_LOGGERS = ("spacr", "spacr.qt", "spacr.pipeline_v2",
+                        "spacr.qt.plate_queue", "spacr.qt.hf_download",
+                        "spacr.updater", "spacr.trace")
+
+
+#: Per-thread re-entrancy latch for the console sink.
+#:
+#: Writing a line into the console runs Python inside a QWidget, and any log
+#: record produced by *that* code comes straight back here. The loop is short
+#: and it is fatal: ``_StdoutBlock.append`` calls ``setPlainText``, which
+#: begins by destroying the QTextDocument's frames, so a re-entrant call
+#: destroys them a second time while the outer one is still inside
+#: ``QTextDocumentPrivate::clear()``. gdb:
+#: ``QTextFrame::~QTextFrame -> QTextDocumentPrivate::clear ->
+#: QTextDocument::setPlainText``, with ``#0`` in freed memory.
+#:
+#: Reproduced deterministically as ``pytest tests/qt/test_all_module_smoke.py
+#: tests/qt/test_batch_f_diagnostics.py`` (SIGSEGV, exit 139): the smoke test
+#: leaves a console registered, and the first test that switches verbose
+#: logging on drives ``spacr.logging_util``'s profile hook, which logs on
+#: entry to every spaCR function — including ``_StdoutBlock.append`` itself.
+#:
+#: ``logging_util._trace_profile`` has a latch of its own, but it only stops
+#: the *hook* from re-entering the hook. It cannot stop a record emitted by
+#: anything else — a ``log_call`` wrapper, a widget's own ``LOG.debug`` — from
+#: arriving while the console is mid-write. The sink is where the loop has to
+#: be cut, because the sink is the part that re-enters.
+#:
+#: The latch is per-thread on purpose. A worker thread logging while the GUI
+#: thread happens to be drawing the console is not re-entrancy and its record
+#: must still arrive.
+#:
+#: There is more than one sink: this module's :class:`_ConsoleForwarder` and
+#: :class:`spacr.qt.logging_util.QtLogHandler` both end up in
+#: ``ConsolePanel.append_stdout``, and every ConsolePanel in the process
+#: subscribes to the latter. Guarding one sink is not enough — measured: a
+#: 30-file shard still dumped core in the same place after only this module's
+#: sink was guarded. So the latch is raised by the panel itself, around every
+#: widget write, and every sink consults it.
+#:
+#: Exactly one layer raises it — :meth:`ConsolePanel.append_stdout` and
+#: :meth:`ConsolePanel.append_error`, the innermost writers. A sink that
+#: raised it around its own delivery would make the panel refuse the very
+#: line it was handed.
+_DELIVERY_STATE = threading.local()
+
+
+def console_write_in_progress() -> bool:
+    """Whether this thread is currently writing into the console panel.
+
+    Log sinks that feed the console must return without delivering while
+    this is true — see :data:`_DELIVERY_STATE`.
+    """
+    return int(getattr(_DELIVERY_STATE, "depth", 0)) > 0
+
+
+@contextmanager
+def console_write():
+    """Mark the calling thread as being inside a console write.
+
+    Re-entrant by design: ``append_error`` may be reached from inside
+    ``append_stdout``'s own bookkeeping, and unwinding must restore the
+    previous depth rather than clear the latch outright.
+    """
+    depth = int(getattr(_DELIVERY_STATE, "depth", 0))
+    _DELIVERY_STATE.depth = depth + 1
+    try:
+        yield
+    finally:
+        _DELIVERY_STATE.depth = depth
+
+
+def _drop_console_target(ref=None) -> None:
+    """Forget a destroyed console without disturbing a newer target."""
+    global _console_ref
+    if ref is None or _console_ref is ref:
+        _console_ref = None
+
+
+
+def log_dir() -> Path:
+    """Return ``~/.spacr/logs/`` — created if it doesn't exist.
+
+    Overridable via the ``SPACR_LOG_DIR`` env var so tests can point
+    the log at a tmp directory."""
+    override = os.environ.get("SPACR_LOG_DIR")
+    if override:
+        p = Path(override)
+    else:
+        p = _spacr_home() / "logs"
+    p.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+def current_log_file() -> Path:
+    """Path of today's rotating log file."""
+    return log_dir() / f"spacr-{datetime.now().strftime('%Y%m%d')}.log"
+
+
+def _ensure_file_handler() -> RotatingFileHandler:
+    """Attach a rotating file handler once at the spaCR package root.
+
+    Idempotent. The handler writes to ``~/.spacr/logs/spacr-YYYYMMDD.log``,
+    rotates at 5 MB, and keeps 5 backups. Always attached — this is
+    NOT gated by the verbose preference so bug reports from users who
+    never turned verbose logging on still have a trail we can read.
+
+    Level is INFO by default; verbose mode drops it to DEBUG (same as
+    the console forwarder).
+    """
+    global _file_handler
+    if _file_handler is not None:
+        if _file_handler not in logging.getLogger(_SINK_LOGGER).handlers:
+            logging.getLogger(_SINK_LOGGER).addHandler(_file_handler)
+        return _file_handler
+    try:
+        handler = _quicken(RotatingFileHandler(
+            str(current_log_file()),
+            maxBytes=5 * 1024 * 1024,
+            backupCount=5,
+            encoding="utf-8",
+        ))
+    except Exception:
+        return None                                                       # type: ignore[return-value]
+    from ..logging_util import _CompactTraceFormat
+
+    handler.setFormatter(_CompactTraceFormat(
+        "%(asctime)s %(name)s %(levelname)s  %(message)s"))
+    handler.setLevel(logging.INFO)
+    sink = logging.getLogger(_SINK_LOGGER)
+    if handler not in sink.handlers:
+        sink.addHandler(handler)
+    for name in _ATTACHED_LOGGERS:
+        logger = logging.getLogger(name)
+        if name != _SINK_LOGGER and handler in logger.handlers:
+            logger.removeHandler(handler)
+        logger.setLevel(min(logger.level or logging.INFO, logging.INFO))
+    _file_handler = handler
+    return handler
+
+
+class _ConsoleRelay(QObject):
+    """Carries one formatted log line onto the GUI thread.
+
+    ``line`` is emitted by :meth:`_ConsoleForwarder.emit`, which runs on
+    whatever thread produced the record. :meth:`_deliver` is a **bound
+    method of this QObject**, not a closure, so Qt can see the receiver's
+    thread affinity and picks the connection type from it: direct when
+    the record was logged on the GUI thread, queued when it was not.
+
+    The object is pushed onto the QApplication's thread at construction
+    so its affinity does not depend on which thread happened to log
+    first. Without that hop the delivery ran inline on the worker
+    thread, where ``ConsolePanel.append_stdout`` builds a ``_TopicBar``
+    and a ``_StdoutBlock`` — QWidgets, off the GUI thread. That is
+    undefined behaviour in Qt and it killed the test process.
+
+    Delivery still goes through the module's weak reference rather than
+    a connection to the panel itself, so a closed screen is not kept
+    alive by the relay and a record that arrives after the panel is gone
+    is dropped instead of resurrecting it.
+    """
+
+    line = Signal(str)
+
+    def __init__(self) -> None:
+        """Connect the line signal so records reach the GUI thread."""
+        super().__init__()
+        self.line.connect(self._deliver)
+        app = QCoreApplication.instance()
+        if app is not None and app.thread() is not self.thread():
+            self.moveToThread(app.thread())
+
+    def _deliver(self, text: str) -> None:
+        """Append ``text`` to the registered console. GUI thread only."""
+        if console_write_in_progress():
+            return
+        target = _console_ref() if _console_ref is not None else None
+        if target is None:
+            return
+        if not isValid(target):
+            _drop_console_target(_console_ref)
+            return
+        append = getattr(target, "append_stdout", None)
+        if append is None:
+            return
+        try:
+            append(text)
+        except Exception:
+            pass
+
+
+def _ensure_relay() -> "_ConsoleRelay":
+    """Return the single :class:`_ConsoleRelay`, creating it on demand."""
+    global _relay
+    if _relay is None:
+        _relay = _ConsoleRelay()
+    return _relay
+
+
+class _ConsoleForwarder(logging.Handler):
+    """Forward every record it sees to the currently-registered ConsolePanel.
+
+    Format: ``[HH:MM:SS] name LEVEL  message``. Keeping the timestamp
+    short — the console already scrolls fast when verbose is on.
+
+    The panel is never called from here: ``emit`` runs on the logging
+    thread and the panel builds widgets. The line goes over
+    :attr:`_ConsoleRelay.line` instead — see the module docstring.
+    """
+
+    def emit(self, record: logging.LogRecord) -> None:
+        """Forward one record to the console, unless that would recurse.
+
+        The feedback loop is cut as early as possible: a record emitted while
+        this thread is inside a console write is a record ABOUT that write, and
+        formatting it would run more spaCR code -- which under the function-trace
+        profile hook produces more records still.
+
+        A logging failure never escapes into the application: a broken log line
+        is not worth a crash.
+
+        :param record: the log record.
+        """
+        if console_write_in_progress():
+            return
+        if _console_ref is None or _console_ref() is None:
+            return
+        try:
+            msg = self.format(record)
+            _ensure_relay().line.emit(msg + "\n")
+        except Exception:
+            pass
+
+
+class _NotAlreadyShownByTheRootSink(logging.Filter):
+    """Drop records the always-on console sink is going to render anyway.
+
+    THE SAME ARGUMENT AS :func:`_ensure_handler`'S, ONE LEVEL UP. That
+    docstring already says attaching a handler to both a child and its
+    ancestors delivers one record repeatedly as logging walks upward. Nobody
+    applied it ACROSS modules: this forwarder sits on ``spacr`` while
+    ``spacr.qt.logging_util`` puts its ``QtLogHandler`` on the ROOT, and every
+    ``ConsolePanel`` subscribes to both. A record from ``spacr.qt`` therefore
+    walked spacr -> root and was rendered twice, in two different formats:
+
+        [13:48:12] spacr.qt WARNING  Qt warning: ...     <- this forwarder
+        13:48:12 [WARNING] spacr.qt: Qt warning: ...     <- QtLogHandler
+
+    which is exactly what was seen on macOS. Neither copy is
+    the raw stderr print in ``_install_quiet_qt_logging``; both are formatted
+    records, which is why looking at that print explained nothing.
+
+    Verbose mode exists to ADD the detail the ordinary sink filters out -- the
+    DEBUG and trace records below its level -- not to restate what it already
+    showed. So the rule is: render a record only when the root sink will not.
+    When there is no Qt sink (a headless or non-Qt process) this passes
+    everything, which is the behaviour verbose logging had before.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:  # noqa: D401
+        """Pass only records the root console sink will not already show.
+
+        Without this, a record above the root sink's level reaches the console
+        twice -- once from each handler -- and the duplicate reads as the
+        pipeline having done something twice.
+
+        :param record: the log record.
+        :returns: ``True`` to let it through; ``True`` also when the root sink
+            cannot be found, because one line is better than none.
+        """
+        try:
+            from .logging_util import get_signal_handler
+            root_sink = get_signal_handler()
+        except Exception:                                    # noqa: BLE001
+            return True
+        if root_sink not in logging.getLogger().handlers:
+            return True
+        return record.levelno < root_sink.level
+
+
+def _ensure_handler() -> _ConsoleForwarder:
+    """Attach the console sink once at ``spacr``'s package logger.
+
+    Descendants propagate there. Attaching the same handler to both a child
+    and its ancestors delivers one record repeatedly as logging walks upward.
+    """
+    global _handler
+    if _handler is None:
+        _handler = _ConsoleForwarder()
+        _handler.setFormatter(logging.Formatter(
+            fmt="[%(asctime)s] %(name)s %(levelname)s  %(message)s",
+            datefmt="%H:%M:%S",
+        ))
+        _handler.addFilter(_NotAlreadyShownByTheRootSink())
+    sink = logging.getLogger(_SINK_LOGGER)
+    if _handler not in sink.handlers:
+        sink.addHandler(_handler)
+    for name in _ATTACHED_LOGGERS:
+        logger = logging.getLogger(name)
+        if name != _SINK_LOGGER and _handler in logger.handlers:
+            logger.removeHandler(_handler)
+    return _handler
+
+
+def register_console_target(panel: Any) -> None:
+    """Point the verbose logger at ``panel`` (a ConsolePanel).
+
+    The target is stored as a :class:`weakref.ref` so a closed screen
+    doesn't keep the panel alive. Any earlier target is replaced.
+
+    Called from the GUI thread (the AppScreen constructor), which is
+    where the relay wants to be built — see :class:`_ConsoleRelay`.
+
+    :param panel: the console panel that receives log lines; it is held by weak
+        reference and dropped when its ``destroyed`` signal fires.
+    """
+    global _console_ref
+    _ensure_handler()
+    _ensure_relay()
+    target_ref = weakref.ref(panel)
+    _console_ref = target_ref
+    destroyed = getattr(panel, "destroyed", None)
+    if destroyed is not None:
+        destroyed.connect(
+            lambda *_args, ref=target_ref: _drop_console_target(ref))
+
+
+def apply_console_levels(levels) -> None:
+    """Gate the in-app console to an explicit set of levels.
+
+    Called by :func:`spacr.logging_util.apply_level_policy`, which has
+    already clamped ``levels`` to a subset of what the log files record --
+    a line the user cannot find in the log they are about to attach to a
+    bug report should not appear in the console either.
+
+    The handler keeps passing everything and a filter decides, so the set
+    can change while another thread is mid-log without the handler being
+    swapped underneath it.
+
+    :param levels: numeric logging levels the console should show; anything
+        outside DEBUG-CRITICAL is dropped, and attached spaCR loggers are
+        lowered to the lowest level kept.
+    """
+    from ..logging_util import LevelSetFilter, normalise_levels
+    handler = _ensure_handler()
+    wanted = set(normalise_levels(levels))
+    for existing in handler.filters:
+        if isinstance(existing, LevelSetFilter):
+            existing.levels = wanted
+            break
+    else:
+        handler.addFilter(LevelSetFilter(wanted))
+    handler.setLevel(logging.DEBUG)
+    lowest = min(wanted) if wanted else logging.CRITICAL
+    for name in _ATTACHED_LOGGERS:
+        logger = logging.getLogger(name)
+        if logger.level == 0 or logger.level > lowest:
+            logger.setLevel(lowest)
+
+
+def console_levels() -> frozenset:
+    """The levels the console is currently showing."""
+    from ..logging_util import LevelSetFilter
+    if _handler is None:
+        return frozenset()
+    for existing in _handler.filters:
+        if isinstance(existing, LevelSetFilter):
+            return frozenset(existing.levels)
+    return frozenset()
+
+
+def apply_verbose_logging(on: bool) -> None:
+    """Flip DEBUG ↔ INFO on every attached spaCR logger + handlers.
+
+    The user reaches this via the Preferences dialog. It's idempotent
+    and cheap — safe to call on every dialog save. Also ensures the
+    rotating file handler is attached so bug reports always have a
+    trail on disk regardless of verbose state.
+
+    The ``cellpose`` logger goes to INFO while verbose is on, so it can
+    say which model it loaded, and back to WARNING when verbose is off.
+
+    :param on: ``True`` sets the console handler, file handler and attached
+        spaCR loggers to DEBUG (and ``cellpose`` to INFO); ``False`` sets them
+        to INFO (and ``cellpose`` to WARNING).
+    """
+    global _verbose
+    _verbose = bool(on)
+    handler = _ensure_handler()
+    file_handler = _ensure_file_handler()
+    level = logging.DEBUG if on else logging.INFO
+    handler.setLevel(level)
+    if file_handler is not None:
+        file_handler.setLevel(level)
+    for name in _ATTACHED_LOGGERS:
+        logging.getLogger(name).setLevel(level)
+    logging.getLogger("cellpose").setLevel(
+        logging.INFO if on else logging.WARNING)
+
+
+
+def is_verbose() -> bool:
+    """Cheap runtime check — decorated functions call this on entry so they
+    emit nothing when verbose mode is off.
+
+    It reads the verbose PREFERENCE as :func:`apply_verbose_logging` last
+    applied it, not the console forwarder's level, which
+    :func:`apply_console_levels` holds at DEBUG in every session.
+    """
+    return _verbose
+
+
+def log_call(fn: Callable) -> Callable:
+    """Decorator: log entry + return of ``fn`` when verbose mode is on.
+
+    Zero cost when verbose is off (the wrapper does one attribute
+    check and forwards). When on, emits:
+
+        [class.func] args=… kwargs=…
+        [class.func] -> return-repr
+
+    Truncates each repr to 240 characters so a settings dict with 100 entries
+    does not flood the console.
+
+    :param fn: the function or method to wrap; its arguments, return value or
+        raised exception are logged to ``spacr.trace`` while verbose mode is
+        on.
+    """
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        """Call the function, logging it only when verbose is on.
+
+        The check is INSIDE rather than at decoration time, so switching verbose
+        on mid-session takes effect without rebuilding anything.
+        """
+        if not is_verbose():
+            return fn(*args, **kwargs)
+        label = _label_for(fn, args)
+        logger = logging.getLogger("spacr.trace")
+        a_str = _brief(args[1:] if _looks_bound(fn, args) else args)
+        k_str = _brief(kwargs) if kwargs else ""
+        logger.debug("[%s] args=%s kwargs=%s", label, a_str, k_str)
+        try:
+            result = fn(*args, **kwargs)
+        except Exception as e:
+            logger.debug("[%s] RAISED %s: %s", label, type(e).__name__, e)
+            raise
+        logger.debug("[%s] -> %s", label, _brief(result))
+        return result
+    return wrapper
+
+
+def log_button_press(button_name: str,
+                        context: Optional[dict] = None) -> None:
+    """Fire a one-line trace record documenting a UI button press.
+
+    Wire this from Qt slot handlers so the console shows exactly which
+    button the user hit, with any relevant context values (e.g. the
+    current settings dict on a Run press).
+
+    :param button_name: name of the pressed button, shown in the
+        ``[button:<name>]`` trace line; nothing is logged unless verbose mode
+        is on.
+    """
+    if not is_verbose():
+        return
+    logger = logging.getLogger("spacr.trace")
+    if context:
+        logger.debug("[button:%s] %s", button_name, _brief(context))
+    else:
+        logger.debug("[button:%s] pressed", button_name)
+
+
+def _label_for(fn: Callable, args: tuple) -> str:
+    """Return "ClassName.method_name" when fn is a bound method, else
+    just the function's __qualname__."""
+    q = getattr(fn, "__qualname__", fn.__name__)
+    return q
+
+
+def _looks_bound(fn: Callable, args: tuple) -> bool:
+    """Rough check for whether the first arg is ``self`` — if so, we
+    hide it from the args snapshot."""
+    if not args:
+        return False
+    first = args[0]
+    q = getattr(fn, "__qualname__", "")
+    if "." not in q:
+        return False
+    cls_name = q.split(".", 1)[0]
+    return type(first).__name__ == cls_name
+
+
+class _BriefRepr(reprlib.Repr):
+    """``reprlib`` limits, but a failing ``__repr__`` still raises.
+
+    :class:`reprlib.Repr` hides the failure behind an ``<X instance at
+    0x...>`` placeholder; :func:`_brief` reports it in its own words.
+    """
+
+    def repr_instance(self, x, level):
+        """The object's own repr, truncated to :attr:`maxother`."""
+        s = repr(x)
+        if len(s) > self.maxother:
+            keep = max(0, (self.maxother - 3) // 2)
+            s = s[:keep] + "..." + s[len(s) - keep:]
+        return s
+
+
+_BRIEF_REPR = _BriefRepr()
+_BRIEF_REPR.maxstring = 240
+_BRIEF_REPR.maxother = 240
+_BRIEF_REPR.maxlist = _BRIEF_REPR.maxtuple = _BRIEF_REPR.maxdict = 12
+_BRIEF_REPR.maxset = _BRIEF_REPR.maxfrozenset = _BRIEF_REPR.maxdeque = 12
+_BRIEF_REPR.maxlevel = 3
+
+
+def _brief(value: Any, max_chars: int = 240) -> str:
+    """Return a short repr of ``value``, capped to ``max_chars``.
+
+    Bounded while it is built, not only after: a pipeline's settings or
+    return value can hold millions of list items, and a plain ``repr`` of
+    those was built in full -- every element formatted, the whole string in
+    memory -- before the first ``max_chars`` of it were kept.
+    """
+    try:
+        s = _BRIEF_REPR.repr(value)
+    except Exception:
+        s = f"<{type(value).__name__} — repr failed>"
+    if len(s) > max_chars:
+        s = s[: max_chars - 3] + "…"
+    return s

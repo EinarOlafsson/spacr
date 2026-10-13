@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "18_motility",
+    "scene_count": 10,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete calibrated motility workflow, track and infection semantics, exact interface labels, bounded filtering, held-out classifier validation, and trajectory quality control."
+  },
+  "languages": {
+    "es": {
+      "description": "Mida el movimiento calibrado a partir de imágenes con seguimiento y compare las trayectorias según la infección o el grupo experimental.",
+      "prerequisite": "Complete Timelapse con trayectorias revisadas y conozca el intervalo entre fotogramas, la calibración de píxeles, los canales y los controles de infección.",
+      "objectives": [
+        "Asignar correctamente los objetos seguidos y la calibración.",
+        "Filtrar el movimiento inverosímil sin ocultar trayectorias reales.",
+        "Validar las etiquetas de infección e interpretar los resultados calibrados de motilidad."
+      ],
+      "narrations": [
+        "Motility Assay reconstruye las mediciones a partir de matrices con seguimiento y calcula el desplazamiento, la velocidad, la longitud de la trayectoria y la rectitud. La consola registra las tablas derivadas, las comprobaciones de calidad y las figuras.",
+        "Objects and Channels permite seleccionar el origen con seguimiento, el objeto móvil y los canales que contienen las señales de células, núcleos y patógenos. Una asignación incorrecta invalida los resultados de intensidad e infección.",
+        "Essentials contiene los controles necesarios para un primer ensayo. Utilice Modified para revisar los cambios, All para acceder a los clasificadores y métodos de reducción dimensional opcionales y Recipes para las adquisiciones repetidas.",
+        "Spatial and Temporal Calibration proporciona el intervalo entre fotogramas y la escala de píxeles. Verifique ambos valores en los metadatos de adquisición, porque cualquier error afecta proporcionalmente a todos los desplazamientos y velocidades físicas.",
+        "Motion Filtering elimina saltos inverosímiles, trayectorias interrumpidas y, de forma opcional, valores atípicos de características o velocidad. Examine las trayectorias excluidas para no descartar movimientos rápidos reales.",
+        "Infection Classification puede comenzar a partir del solapamiento con las máscaras de patógenos y, de forma opcional, refinar las trayectorias inciertas mediante la intensidad. Utilice la regla más sencilla que esté respaldada por los controles.",
+        "Las secciones opcionales de XGBoost, agrupamiento y reducción dimensional proporcionan clasificadores de infección alternativos cuando las máscaras directas no son suficientes. Valide cualquier regla aprendida en un conjunto reservado de trayectorias etiquetadas.",
+        "Abra Track Preview antes del ensayo completo. La muestra acotada superpone las trayectorias reales e informa del desplazamiento, la velocidad, la longitud de la trayectoria, la rectitud, las interrupciones y la calibración, de modo que los fallos del seguimiento o de la escala sean visibles antes de guardar las figuras de resumen.",
+        "Run mide los fotogramas, suaviza y filtra las trayectorias, asigna el estado de infección, calcula resúmenes y correlaciones calibrados y guarda tablas y figuras.",
+        "Examine conjuntamente las tablas por fotograma y por trayectoria, las figuras de las trayectorias y las figuras de control de calidad. Confirme la continuidad de las trayectorias, las unidades de calibración y las etiquetas de grupo antes de comparar las condiciones."
+      ]
+    },
+    "fr": {
+      "description": "Mesurez le mouvement calibré à partir d’images suivies et comparez les trajectoires selon l’infection ou le groupe expérimental.",
+      "prerequisite": "Terminez Timelapse avec des trajectoires examinées et connaissez l’intervalle entre les images, l’étalonnage des pixels, les canaux et les contrôles d’infection.",
+      "objectives": [
+        "Associer correctement les objets suivis et l’étalonnage.",
+        "Filtrer les mouvements invraisemblables sans masquer les trajectoires réelles.",
+        "Valider les étiquettes d’infection et interpréter les résultats de motilité étalonnés."
+      ],
+      "narrations": [
+        "Motility Assay reconstruit les mesures à partir des matrices suivies et calcule le déplacement, la vitesse, la longueur de la trajectoire et sa rectitude. La console consigne les tableaux dérivés, les contrôles qualité et les figures.",
+        "Objects and Channels permet de sélectionner la source suivie, l’objet mobile et les canaux qui portent les signaux des cellules, des noyaux et des agents pathogènes. Une association incorrecte invalide les résultats d’intensité et d’infection.",
+        "Essentials contient les commandes nécessaires à un premier essai. Utilisez Modified pour contrôler les changements, All pour accéder aux classificateurs et méthodes de réduction dimensionnelle facultatifs, et Recipes pour les acquisitions répétées.",
+        "Spatial and Temporal Calibration fournit l’intervalle entre les images et l’échelle des pixels. Vérifiez ces deux valeurs dans les métadonnées d’acquisition, car toute erreur se répercute proportionnellement sur chaque déplacement et chaque vitesse physiques.",
+        "Motion Filtering élimine les sauts invraisemblables, les trajectoires interrompues et, de manière facultative, les valeurs aberrantes des caractéristiques ou de la vitesse. Examinez les trajectoires exclues afin de ne pas supprimer de véritables mouvements rapides.",
+        "Infection Classification peut partir du chevauchement avec les masques d’agents pathogènes et, de manière facultative, affiner les trajectoires incertaines à l’aide de l’intensité. Utilisez la règle la plus simple étayée par les contrôles.",
+        "Les sections facultatives XGBoost, regroupement et réduction dimensionnelle fournissent d’autres classificateurs d’infection lorsque les masques directs sont insuffisants. Validez toute règle apprise sur un jeu réservé de trajectoires étiquetées.",
+        "Ouvrez Track Preview avant l’essai complet. L’échantillon limité superpose les trajectoires réelles et indique le déplacement, la vitesse, la longueur de la trajectoire, la rectitude, les interruptions et l’étalonnage, de sorte qu’un suivi défectueux ou une échelle incorrecte soit visible avant l’enregistrement des figures récapitulatives.",
+        "Run mesure les images, lisse et filtre les trajectoires, attribue l’état d’infection, calcule les résumés et les corrélations étalonnés, puis enregistre les tableaux et les figures.",
+        "Examinez conjointement les tableaux par image et par trajectoire, les figures des trajectoires et les figures de contrôle qualité. Vérifiez la continuité des trajectoires, les unités d’étalonnage et les étiquettes des groupes avant de comparer les conditions."
+      ]
+    },
+    "it": {
+      "description": "Misura il movimento calibrato a partire da immagini tracciate e confronta le traiettorie in base all’infezione o al gruppo sperimentale.",
+      "prerequisite": "Completa Timelapse con tracce esaminate e conosci l’intervallo tra i fotogrammi, la calibrazione dei pixel, i canali e i controlli di infezione.",
+      "objectives": [
+        "Associare correttamente gli oggetti tracciati e la calibrazione.",
+        "Filtrare il movimento non plausibile senza nascondere le traiettorie reali.",
+        "Convalidare le etichette di infezione e interpretare i risultati calibrati della motilità."
+      ],
+      "narrations": [
+        "Motility Assay ricostruisce le misurazioni dalle matrici tracciate e calcola spostamento, velocità, lunghezza della traiettoria e rettilineità. La console registra le tabelle derivate, i controlli di qualità e le figure.",
+        "Objects and Channels consente di selezionare l’origine tracciata, l’oggetto in movimento e i canali che contengono i segnali di cellule, nuclei e patogeni. Un’associazione errata invalida i risultati relativi all’intensità e all’infezione.",
+        "Essentials contiene i controlli necessari per un primo saggio. Usa Modified per verificare le modifiche, All per accedere ai classificatori e ai metodi facoltativi di riduzione dimensionale e Recipes per le acquisizioni ripetute.",
+        "Spatial and Temporal Calibration fornisce l’intervallo tra i fotogrammi e la scala dei pixel. Verifica entrambi nei metadati di acquisizione, perché qualsiasi errore si ripercuote proporzionalmente su ogni spostamento e velocità fisici.",
+        "Motion Filtering rimuove salti non plausibili, tracce interrotte e, facoltativamente, valori anomali delle caratteristiche o della velocità. Esamina le traiettorie escluse per evitare di eliminare movimenti rapidi reali.",
+        "Infection Classification può partire dalla sovrapposizione con le maschere dei patogeni e, facoltativamente, perfezionare le tracce incerte usando l’intensità. Utilizza la regola più semplice supportata dai controlli.",
+        "Le sezioni facoltative XGBoost, clustering e riduzione dimensionale forniscono classificatori di infezione alternativi quando le maschere dirette non sono sufficienti. Convalida ogni regola appresa su un set riservato di tracce etichettate.",
+        "Apri Track Preview prima del saggio completo. Il campione limitato sovrappone le traiettorie reali e riporta spostamento, velocità, lunghezza della traiettoria, rettilineità, interruzioni e calibrazione, in modo che un tracciamento difettoso o una scala errata siano visibili prima di salvare le figure riepilogative.",
+        "Run misura i fotogrammi, regolarizza e filtra le tracce, assegna lo stato di infezione, calcola riepiloghi e correlazioni calibrati e salva tabelle e figure.",
+        "Esamina insieme le tabelle per fotogramma e per traccia, le figure delle traiettorie e le figure del controllo qualità. Verifica la continuità delle tracce, le unità di calibrazione e le etichette dei gruppi prima di confrontare le condizioni."
+      ]
+    }
+  }
+}

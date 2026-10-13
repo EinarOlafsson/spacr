@@ -1,0 +1,396 @@
+{
+  "parent_commit": "22413aa4d072fe4eb06303cf82d0c6fbfe677d61",
+  "source_test_commit": "555323f6db",
+  "py39_test_only_commit": "d93816f44e",
+  "phase_test_only_commit": "4b1c86bda5",
+  "ambient_before_sha256": "08815be8f5e01de4ae87517290197d3c1747eff65b4e39afbd5f2f0e1d3b8a28",
+  "ambient_after_sha256": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+  "new_test_sha256": "072918b336179727664c370ce6975a6f13ce05319b3e1dc36c21aefdb406209b",
+  "status": "review candidate; not pushed or integrated by this agent",
+  "native_frames": {
+    "pairs": 144,
+    "differing_pixels": 0,
+    "cache_hit_frames": 40,
+    "cache_hits": 166,
+    "all_geometry_equal": true,
+    "all_rgb32_alpha255": true,
+    "viewport": [
+      3840,
+      2160
+    ],
+    "max_pixels": 8294400
+  },
+  "actual_native_worker_pairs": [
+    {
+      "palette": "spacr",
+      "launch_order": [
+        "before",
+        "after"
+      ],
+      "phases": {
+        "before": {
+          "receipt": "data_art_fungal_growth-before-spacr.json",
+          "source_sha256": "08815be8f5e01de4ae87517290197d3c1747eff65b4e39afbd5f2f0e1d3b8a28",
+          "cold": {
+            "current_rss_kib": 209884,
+            "widget_show_ms": 62.25228800030891,
+            "post_show_seconds": 2.0016075590101536,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.98072478490101,
+            "worker_shade": {
+              "median_ms": 3.038716000446584,
+              "p95_ms": 6.376632998581044,
+              "max_ms": 16.883343007066287,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.068184004921932,
+              "p95_ms": 15.148024001973681,
+              "max_ms": 43.58599799161311,
+              "samples": 194
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 206108
+          },
+          "steady": {
+            "repeat": 1,
+            "steady_seconds": 5.027444616993307,
+            "published_frames": 65,
+            "published_fps": 12.92903352536057,
+            "distinct_published_clocks": 65,
+            "first_clock": 97.32699999999996,
+            "clock_advance": 4.907999999999987,
+            "painted_fps": 24.06789317797891,
+            "repeated_frame_objects": 55,
+            "worker_shade": {
+              "median_ms": 74.05669099534862,
+              "p95_ms": 96.24140801315662,
+              "max_ms": 143.60092399874702,
+              "samples": 65
+            },
+            "gui_paint": {
+              "median_ms": 6.343512999592349,
+              "p95_ms": 11.528121001902036,
+              "max_ms": 43.219628001679666,
+              "samples": 121
+            },
+            "heartbeat_10ms": {
+              "median_ms": 16.02518900472205,
+              "p95_ms": 54.24794300051872,
+              "max_ms": 79.4704009895213,
+              "samples": 247
+            },
+            "publication_intervals": {
+              "median_ms": 73.86537599813892,
+              "p95_ms": 96.26708600262646,
+              "max_ms": 143.62620400788728,
+              "samples": 64
+            },
+            "lightning_worker_shades": null,
+            "load_average": [
+              4.71240234375,
+              3.9892578125,
+              2.82080078125
+            ],
+            "current_rss_kib": 308792
+          },
+          "peak_rss_kib": 337692,
+          "hide_stops_worker_immediately": true,
+          "hide_stops_worker_200ms": true
+        },
+        "after": {
+          "receipt": "data_art_fungal_growth-after-spacr.json",
+          "source_sha256": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+          "cold": {
+            "current_rss_kib": 224512,
+            "widget_show_ms": 146.62293299625162,
+            "post_show_seconds": 2.0002437400107738,
+            "post_show_published_frames": 47,
+            "post_show_published_fps": 23.497136403859884,
+            "worker_shade": {
+              "median_ms": 4.026155002065934,
+              "p95_ms": 9.4446360017173,
+              "max_ms": 16.81414399354253,
+              "samples": 47
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.085208996315487,
+              "p95_ms": 17.73812499595806,
+              "max_ms": 46.308608012623154,
+              "samples": 192
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 221648
+          },
+          "steady": {
+            "repeat": 1,
+            "steady_seconds": 5.022203301006812,
+            "published_frames": 81,
+            "published_fps": 16.128379347718113,
+            "distinct_published_clocks": 81,
+            "first_clock": 97.24200000000002,
+            "clock_advance": 4.977999999999952,
+            "painted_fps": 24.292126918785307,
+            "repeated_frame_objects": 42,
+            "worker_shade": {
+              "median_ms": 61.07454300217796,
+              "p95_ms": 74.43874099408276,
+              "max_ms": 82.30917000037152,
+              "samples": 81
+            },
+            "gui_paint": {
+              "median_ms": 6.54710250091739,
+              "p95_ms": 9.544286993332207,
+              "max_ms": 11.404225995647721,
+              "samples": 122
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.087986491271295,
+              "p95_ms": 24.53686400258448,
+              "max_ms": 37.77300599904265,
+              "samples": 444
+            },
+            "publication_intervals": {
+              "median_ms": 61.24591349362163,
+              "p95_ms": 74.46272199740633,
+              "max_ms": 82.33041099447291,
+              "samples": 80
+            },
+            "lightning_worker_shades": null,
+            "load_average": [
+              4.81982421875,
+              4.10595703125,
+              2.92138671875
+            ],
+            "current_rss_kib": 324928
+          },
+          "peak_rss_kib": 353232,
+          "hide_stops_worker_immediately": true,
+          "hide_stops_worker_200ms": true
+        }
+      }
+    },
+    {
+      "palette": "random",
+      "launch_order": [
+        "after",
+        "before"
+      ],
+      "phases": {
+        "before": {
+          "receipt": "data_art_fungal_growth-before-random.json",
+          "source_sha256": "08815be8f5e01de4ae87517290197d3c1747eff65b4e39afbd5f2f0e1d3b8a28",
+          "cold": {
+            "current_rss_kib": 209824,
+            "widget_show_ms": 53.90436400193721,
+            "post_show_seconds": 2.001032321000821,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.98761853881135,
+            "worker_shade": {
+              "median_ms": 3.137074498226866,
+              "p95_ms": 5.429865006590262,
+              "max_ms": 16.796116004115902,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.07265000953339,
+              "p95_ms": 14.739767007995397,
+              "max_ms": 45.07980799826328,
+              "samples": 195
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 207460
+          },
+          "steady": {
+            "repeat": 1,
+            "steady_seconds": 5.018330569000682,
+            "published_frames": 83,
+            "published_fps": 16.53936480643763,
+            "distinct_published_clocks": 82,
+            "first_clock": 97.251,
+            "clock_advance": 4.954999999999984,
+            "painted_fps": 24.310873570908324,
+            "repeated_frame_objects": 43,
+            "worker_shade": {
+              "median_ms": 60.28593498922419,
+              "p95_ms": 71.62312300351914,
+              "max_ms": 80.18609700957313,
+              "samples": 83
+            },
+            "gui_paint": {
+              "median_ms": 6.442400503146928,
+              "p95_ms": 9.353683999506757,
+              "max_ms": 24.010302004171535,
+              "samples": 122
+            },
+            "heartbeat_10ms": {
+              "median_ms": 14.022828996530734,
+              "p95_ms": 49.15268199692946,
+              "max_ms": 59.371075010858476,
+              "samples": 253
+            },
+            "publication_intervals": {
+              "median_ms": 60.349639505147934,
+              "p95_ms": 71.6620160092134,
+              "max_ms": 80.23269900877494,
+              "samples": 82
+            },
+            "lightning_worker_shades": null,
+            "load_average": [
+              4.88330078125,
+              4.26513671875,
+              3.10498046875
+            ],
+            "current_rss_kib": 308732
+          },
+          "peak_rss_kib": 338788,
+          "hide_stops_worker_immediately": true,
+          "hide_stops_worker_200ms": true
+        },
+        "after": {
+          "receipt": "data_art_fungal_growth-after-random.json",
+          "source_sha256": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+          "cold": {
+            "current_rss_kib": 224740,
+            "widget_show_ms": 151.21321599872317,
+            "post_show_seconds": 2.001190907001728,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.98571762047215,
+            "worker_shade": {
+              "median_ms": 3.786250003031455,
+              "p95_ms": 9.509211988188326,
+              "max_ms": 14.543800993124023,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.066443996038288,
+              "p95_ms": 16.11886800674256,
+              "max_ms": 41.10571800265461,
+              "samples": 195
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 221444
+          },
+          "steady": {
+            "repeat": 1,
+            "steady_seconds": 5.009316005001892,
+            "published_frames": 98,
+            "published_fps": 19.563549175605058,
+            "distinct_published_clocks": 98,
+            "first_clock": 97.19900000000001,
+            "clock_advance": 4.97300000000007,
+            "painted_fps": 24.354622443100176,
+            "repeated_frame_objects": 24,
+            "worker_shade": {
+              "median_ms": 50.83499149623094,
+              "p95_ms": 63.42284999846015,
+              "max_ms": 75.1299479888985,
+              "samples": 98
+            },
+            "gui_paint": {
+              "median_ms": 6.694585994409863,
+              "p95_ms": 8.605922004790045,
+              "max_ms": 11.399994997191243,
+              "samples": 122
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.09612699272111,
+              "p95_ms": 24.568328997702338,
+              "max_ms": 35.32246800023131,
+              "samples": 453
+            },
+            "publication_intervals": {
+              "median_ms": 50.68910599220544,
+              "p95_ms": 62.337258001207374,
+              "max_ms": 64.2080329998862,
+              "samples": 97
+            },
+            "lightning_worker_shades": null,
+            "load_average": [
+              4.7802734375,
+              4.1865234375,
+              3.04052734375
+            ],
+            "current_rss_kib": 325172
+          },
+          "peak_rss_kib": 353572,
+          "hide_stops_worker_immediately": true,
+          "hide_stops_worker_200ms": true
+        }
+      }
+    }
+  ],
+  "cache_budget": {
+    "array_bytes": 8388608,
+    "entries": 64,
+    "observed_paths": 64,
+    "new_groups_per_frame": 1,
+    "minimum_unchanged_observations": 3,
+    "native_stage_transient_bytes": 33177600,
+    "observed_native_sparse_arrays_bytes": {
+      "spacr": 680016,
+      "random": 682928
+    },
+    "scope": "arrays bound only; Qt path metadata is separately bounded by entry count"
+  },
+  "coverage": {
+    "executed_statements_in_12_touched_fungal_methods": 154,
+    "missing_statements": 0,
+    "missing_branch_destinations": 0,
+    "receipt": "coverage_receipt.json",
+    "logical_short_circuit_predicates": "individual conditions are covered by native positive contexts and twelve explicit invalid contexts; branch-line totals are not predicate MC/DC"
+  },
+  "test_phases": [
+    {
+      "scope": "growth/branch-owned/point-owned existing",
+      "count": 38,
+      "seconds": 11.3,
+      "artifact": "tool transcript; summary only"
+    },
+    {
+      "scope": "new cache initial",
+      "count": 18,
+      "seconds": 7.75,
+      "artifact": "tool transcript; summary only"
+    },
+    {
+      "scope": "final cache + branch-owned + growth under branch coverage",
+      "count": 41,
+      "seconds": 22.4,
+      "artifact": "focused-tests.log"
+    },
+    {
+      "scope": "callable docs + nested docs + completed-module docs + quality contracts + final18cache",
+      "count": 277,
+      "seconds": 34.8,
+      "artifact": "tool transcript; summary only"
+    },
+    {
+      "scope": "phase-aware generic visibility/motion + new semantics + original fungal geometry",
+      "count": 59,
+      "seconds": 10.64,
+      "artifact": "tool transcript; summary only"
+    }
+  ],
+  "test_phase_overlap": "counts are separate phases and overlap; no union-count claim",
+  "static_guards": {
+    "repo_fatal_ruff": "PASS E9,F63,F7,F82",
+    "new_cache_test_full_ruff": "PASS",
+    "maintained_target_xenon": "PASS max-absoluteB/max-modulesB/max-averageA; original six targets unchanged",
+    "app_full_ruff": "not an enforced ambient gate; four inherited I001/F401 issues not changed or waived",
+    "ratchets": "no ceilings/targetlists/baselines changed"
+  },
+  "limitations": [
+    "Hard native24FPS remains OPEN; shader p95 exceeds41.67ms in both production paired runs",
+    "Native4K softwareXvfb Linux only; no actualWindows/macOS renderer/GUI acceptance",
+    "Default and Random colours kept separate; all actual controls unchanged",
+    "Cold phase is initial colony atclock0; steady phase begins afterset_time95 and2.2swarmup",
+    "Current paired machine load~4.7\u20134.9 differs from earlier scratch measurements; these final-source receipts supersede prototype FPS claims",
+    "Cache adds retained arrays/path metadata and an ephemeral native stage; observed current wholeRSS is~16MiB higher, not a memory-reduction claim",
+    "No new thread/JIT/queue/dependency, GPU, full-suite, aesthetic100%, SaveSIGSEGV fix, generated API/docs, or translations acceptance"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "item": 47,
+  "date": "2026-09-27",
+  "status": "bounded ownership defects repaired; full serial acceptance remains open",
+  "scratch": "/mnt/wd4tb/scratch/spacr-completion/item47-memory-probe",
+  "constraints": {
+    "memory_cap": "4G",
+    "gpu_visible": false,
+    "pytest_randomly": "disabled for ordered probes",
+    "observer": "RSS, QApplication widget snapshots, weak references, creation origins and read-only referrers",
+    "observer_collects_or_deletes": false,
+    "global_collection_or_memory_limit_changed": false
+  },
+  "ordered_prefix_before": {
+    "named_files": 78,
+    "passed": 871,
+    "skipped": 1,
+    "seconds": 430.16,
+    "final_rss_kib": 2915352,
+    "persistent_widgets_at_later_normal_boundaries": 2051,
+    "persistent_parentless_app_screens": 4,
+    "log": "early-ordered.log",
+    "sha256": "41164017b4cdb16b8b4f6820271c5b1f0367fddbdc99196a961bc2694dfd6aeb"
+  },
+  "defects": [
+    "Four test-created folded settings pages lacked qtbot ownership; each now registers its page.",
+    "Model-only tests built parentless controls without retiring them; their explicit model fixture now closes and schedules deletion of only already-built controls.",
+    "Eager and lazy SettingsWidgets construction did not consistently use the supplied Qt owner; controls are now adopted without disturbing existing parent relationships.",
+    "Waiting categories detached controls with setParent(None); a hidden screen-owned parking widget now retains Qt ownership until a layout adopts them.",
+    "HomePage retained a hidden, parentless StageLegend; it now owns the hidden legend and deletes it with the page."
+  ],
+  "before_checks": [
+    {
+      "log": "channel-boundary.log",
+      "passed": 2,
+      "seconds": 4.60,
+      "live_widgets_after_following_normal_boundary": 67,
+      "sha256": "b7f03861050191eda97d1505ba01341e6e874f8d5df9d1b669861dfc352daa2a"
+    },
+    {
+      "log": "owner-regression-before.log",
+      "failed": 2,
+      "seconds": 2.98,
+      "meaning": "Eager and lazy controls remained valid after their declared Qt owner was deleted while Python model and wrapper references were deliberately retained.",
+      "sha256": "11e959c406f680bb4f07d7248c4ab00711408ea2b703ae922e88f5ff0c95bc04"
+    }
+  ],
+  "final_checks": {
+    "unique_checks_passed": 40,
+    "combined_batch": {
+      "log": "ownership-complete.log",
+      "passed": 39,
+      "failed": 1,
+      "seconds": 37.54,
+      "live_widgets_after_following_normal_boundary": 0,
+      "failure": "The old legend test required parent=None. Its contract now checks hidden page ownership, exclusion from the displayed aside, and destruction with the page.",
+      "sha256": "a706a0b60118afefd22395faf22dea716518e0085f875fdbefa17ec6daee7bdf"
+    },
+    "corrected_legend_check": {
+      "log": "legend-corrected.log",
+      "passed": 2,
+      "seconds": 2.81,
+      "live_widgets_after_following_normal_boundary": 0,
+      "sha256": "2fccdf3af5d130ca3f3ec8f26f394791dba9ab568a27b1aad6bf0e5adb0fc659"
+    },
+    "named_files": [
+      "tests/qt/test_a_closed_category_builds_nothing_until_opened.py",
+      "tests/qt/test_a_folded_form_is_not_empty.py",
+      "tests/qt/test_a_channel_brings_its_segmentation_settings.py",
+      "tests/qt/test_home_stage_and_dock.py::test_the_legend_is_no_longer_in_the_aside_column",
+      "tests/qt/test_a_hint_with_no_widget_has_no_bar.py::test_no_widget_at_all_means_no_bar"
+    ]
+  },
+  "limitations": [
+    "This bounded result does not prove completion or the memory ceiling of the 27,186-test serial acceptance run.",
+    "One final combined batch reported a busy JobRunner at the opening-module test boundary; no test failed for that warning and the final Qt widget count was zero. Its longer-session behavior remains to be checked.",
+    "An intermediate legend rerun exposed an authoring typo calling the legend property; it was corrected before the passing focused rerun.",
+    "Earlier exploratory db-browser/dialog-sequence/early-prefix probes accidentally enabled pytest-randomly and are not ordered reproductions. The ordered prefix explicitly disables it."
+  ]
+}

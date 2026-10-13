@@ -1,0 +1,220 @@
+{
+  "lesson": "51_control_charts",
+  "accepted": true,
+  "published": false,
+  "scope": "Software workflow using a disclosed synthetic campaign only",
+  "synthetic_inputs": true,
+  "biological_validation": false,
+  "acquired_test_data": false,
+  "model_run": false,
+  "ai_request_sent": false,
+  "download_control_available": false,
+  "app_key": "control_chart",
+  "host_app_key": "qc_dashboard",
+  "source": {
+    "path": "/mnt/firecuda2/codex/repo/spacr/tools/tutorials/fixtures/control_chart_campaign.csv",
+    "sha256": "1eabed5648ea4412e0f127b6c5aa85b9c7d34562b9d6dc4df1696d3c8c87920a",
+    "rows": 270,
+    "plates": 30,
+    "wells_per_control_per_plate": 3,
+    "generator": "control_chart_evidence.generate; NumPy default_rng seed 11",
+    "origin": "Adapted from tests/qt/test_control_chart_screen.py:campaign"
+  },
+  "dropdowns": {
+    "05a_sigma_choices": [
+      "auto — chosen from the subgroup size",
+      "moving_range — individuals / moving range — sigma = MR-bar / 1.128",
+      "subgroup_s — X-bar / S — sigma = S-bar / c4(n), per plate over sqrt(n)",
+      "robust — robust — median centre, sigma = median(MR) / 0.9539",
+      "mad — robust — median centre, sigma = 1.4826 · MAD"
+    ],
+    "05b_rule_choices": [
+      "Western Electric (1, 2, 5, 6) — the usual four",
+      "Nelson (all eight) — most sensitive, most false alarms",
+      "Limits only (rule 1) — nothing but 3 sigma"
+    ]
+  },
+  "export": {
+    "rows": 30,
+    "checked_fields": 390,
+    "ordered_identities_and_numbers_match": true,
+    "rule_one_independently_checked": true,
+    "sha256": "b9b78d157007b41bc818eb591d23e85b77f9e9920b80cc626c638c9fdc3795a9",
+    "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/control_chart_runs/synthetic-34ob9xz2/synthetic_negative_control_points.csv"
+  },
+  "source_unchanged": true,
+  "jobs_finished": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "workers": {
+    "busy": false,
+    "active_jobs": 0
+  },
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/control_chart_native_desktop",
+  "capture_provenance": {
+    "commit": "f595f643ba183cee1c1e10830defc16250cb7979",
+    "version": "1.5.0.4",
+    "module": "control_chart",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "acceptance_sha256": "3805a235663cc426e07298a5421e786c2db2889fb6bc343866fbd246646c1290",
+  "canonical_english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "scene_count": 10,
+  "word_count": 427,
+  "states": {
+    "05_negative_control_default_rules": {
+      "centre": 100.22618874491418,
+      "sigma_within": 1.9555297465068366,
+      "sigma_of_plotted_mean": 1.1290256255540427,
+      "rules": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "flagged_plates": [
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26",
+        "P27",
+        "P28",
+        "P29",
+        "P30"
+      ],
+      "checked_fields": 330,
+      "visible_rule_rows": 12
+    },
+    "06_limits_only": {
+      "centre": 100.22618874491418,
+      "sigma_within": 1.9555297465068366,
+      "sigma_of_plotted_mean": 1.1290256255540427,
+      "rules": [
+        1
+      ],
+      "flagged_plates": [
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26",
+        "P27",
+        "P28",
+        "P29",
+        "P30"
+      ],
+      "checked_fields": 390,
+      "visible_rule_rows": 9
+    },
+    "07_positive_control": {
+      "centre": 19.72447924352056,
+      "sigma_within": 2.4576386589559003,
+      "sigma_of_plotted_mean": 1.41891834131902,
+      "rules": [
+        1
+      ],
+      "flagged_plates": [],
+      "checked_fields": 390,
+      "visible_rule_rows": 0
+    },
+    "08_negative_restored": {
+      "centre": 100.22618874491418,
+      "sigma_within": 1.9555297465068366,
+      "sigma_of_plotted_mean": 1.1290256255540427,
+      "rules": [
+        1
+      ],
+      "flagged_plates": [
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26",
+        "P27",
+        "P28",
+        "P29",
+        "P30"
+      ],
+      "checked_fields": 390,
+      "visible_rule_rows": 9
+    },
+    "09_shorter_baseline": {
+      "centre": 100.15153368792342,
+      "sigma_within": 2.2012470792720027,
+      "sigma_of_plotted_mean": 1.2708905937705683,
+      "rules": [
+        1
+      ],
+      "flagged_plates": [
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26",
+        "P27",
+        "P28",
+        "P29",
+        "P30"
+      ],
+      "checked_fields": 390,
+      "visible_rule_rows": 9
+    },
+    "10_baseline_restored": {
+      "centre": 100.22618874491418,
+      "sigma_within": 1.9555297465068366,
+      "sigma_of_plotted_mean": 1.1290256255540427,
+      "rules": [
+        1
+      ],
+      "flagged_plates": [
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26",
+        "P27",
+        "P28",
+        "P29",
+        "P30"
+      ],
+      "checked_fields": 390,
+      "visible_rule_rows": 9
+    }
+  },
+  "tests": {
+    "green": 16,
+    "deliberate_comparison_bypass_failed": 14,
+    "mutation_restored": true
+  },
+  "rejected_recordings": {
+    "original": "Two-plate error displayed instead of a chart",
+    "control_chart_current": "Multi-selection toggled both controls; guard correctly failed",
+    "control_chart_single_control": "Intermediate numeric check; superseded by full-label capture",
+    "control_chart_verified_popups": "Parent-window grab omitted popup windows; not used",
+    "control_chart_final": "Same popup omission; not used"
+  },
+  "visual_review": [
+    "Real sigma popup with all choices",
+    "Real rule popup with all choices",
+    "Actual native export picker",
+    "Complete plotted drift and rule table"
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false
+}

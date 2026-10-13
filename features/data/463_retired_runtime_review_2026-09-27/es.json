@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source_sha256": "507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e",
+      "translation": "Descarga unos {size} MB de datos de prueba SINTÉTICOS: campos de dos colores y máscaras de objetos dibujados por spaCR, no adquiridos por microscopía ni segmentados, y después medidos por Measure. Incluye una columna de control de tinción y dos condiciones con proporciones conocidas de parásitos que han invadido las células, junto con los valores verdaderos. Los ajustes se rellenan automáticamente; el siguiente paso es Ejecutar. Se guarda en caché tras la primera descarga."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the synthetic Invasion Assay test data",
+      "source": "Downloading the synthetic Invasion Assay test data",
+      "source_sha256": "f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e",
+      "translation": "Descargando los datos de prueba sintéticos de Invasion Assay"
+    }
+  ]
+}

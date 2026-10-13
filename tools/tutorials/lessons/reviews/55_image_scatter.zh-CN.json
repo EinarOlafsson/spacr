@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Image Scatter：查看测量值及其裁剪图像",
+  "description": "绘制两列测量数据，预览对象裁剪图像，并把所选对象发送到Annotate。",
+  "objectives": [
+    "加载测量数据并选择坐标轴。",
+    "查看某个点背后的裁剪图像。",
+    "把所选对象发送到Annotate。"
+  ],
+  "prerequisite": "使用带有对应对象裁剪图像和裁剪格式文件的spaCR测量数据库。可下载的Annotate示例提供了这些输入。",
+  "scenes": [
+    "打开Image UMAP，然后打开Image Scatter，绘制两个已有的测量值。练习时使用Annotate示例的数据库及其对应的细胞裁剪图像。",
+    "点击Browse并打开measurements.db。把项目的data文件夹和裁剪格式文件与数据库放在一起，以便找到缩略图。",
+    "在表选择器中选择cell，然后点击Plot。切换到其他表时，请再次点击Plot加载其中的行。",
+    "把x设为细胞面积，把y设为细胞通道一的平均强度。选择坐标轴后，已加载的行会立即重新绘制。",
+    "把指针悬停在一个点上，查看其保存的裁剪图像和完整的对象标识。借助图像理解该点背后的测量值。",
+    "移开指针即可清除临时预览，然后悬停在另一个点上进行查看。",
+    "交换x和y的测量值，从另一个角度探索两者关系。请选择有意义的特征并检查其单位。",
+    "选择另一个测量值，例如均匀性特征。缺少坐标的行不会绘制，因此绘制的点数可能与加载的表行数不同。",
+    "常数列，例如本例中的测量维度，会让点排成一条线。请回到具有有用差异的特征来检查对象。",
+    "要在Annotate中查看所选的裁剪图像，请先打开Annotate并加载同一个项目，然后回到已有的Image Scatter视图。",
+    "点击点本身，把其对象标识发送到Annotate，然后切换到该页面。仅悬停只会预览裁剪图像。",
+    "在分配标签之前，先在Annotate中检查所选对象。导出表格请使用Database Browser，进行成分分析请使用PCA。"
+  ]
+}

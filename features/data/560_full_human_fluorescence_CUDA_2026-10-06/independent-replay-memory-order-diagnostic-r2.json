@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "diagnostics": [
+    {
+      "original_order": "original-C",
+      "memory_order": {
+        "C": true,
+        "F": false
+      },
+      "maximum_difference_from_actual_normal_index": 2.8401613235473633e-05,
+      "different_matrix_elements": 4249867
+    },
+    {
+      "original_order": "original-F",
+      "memory_order": {
+        "C": false,
+        "F": true
+      },
+      "maximum_difference_from_actual_normal_index": 0.0,
+      "different_matrix_elements": 0
+    },
+    {
+      "original_order": "normal-frame-selection",
+      "memory_order": {
+        "C": false,
+        "F": true
+      },
+      "maximum_difference_from_actual_normal_index": 0.0,
+      "different_matrix_elements": 0
+    }
+  ],
+  "original_F_order_replay_is_bitwise_equal_to_normal_index": true
+}

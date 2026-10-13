@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "base_commit": "04498dcfc2740f94404b8dc33dd6e51277da220c",
+  "scope": "Document the existing gated Timeflows assignment and refresh its nine-language API records; correct the chrome test inventory for the existing inversion caption.",
+  "source_inventory": {
+    "schema": 1,
+    "source_commit": "04498dcfc2740f94404b8dc33dd6e51277da220c",
+    "api_before": 11409,
+    "api_after": 11409,
+    "api_added": [],
+    "api_removed": [],
+    "api_changed": [
+      "spacr.timeflows_model.link_by_timeflows"
+    ],
+    "ui_before": 5017,
+    "ui_after": 5017,
+    "ui_added": [],
+    "ui_removed": [],
+    "full_catalog_acceptance": false
+  },
+  "catalogs": {
+    "public_api_count": 11409,
+    "symbol": "spacr.timeflows_model.link_by_timeflows",
+    "languages": [
+      {
+        "language": "sv",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "de",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "es",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "zh_CN",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "pt",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "hi",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "ko",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "is",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "fr",
+        "symbols": 1,
+        "source_bound_blocks": 11,
+        "full_api_and_runtime_review_loaders": true
+      }
+    ],
+    "preserved_retired_records": 3,
+    "runtime_ast_unchanged": true,
+    "english_manifest_current": true,
+    "full_catalog_acceptance": false,
+    "native_speaker_signoff": false
+  },
+  "source_bound_translation_pairs": 99,
+  "retired_records_preserved": 3,
+  "validation": {
+    "sphinx_warnings_as_errors": "passed",
+    "internal_links": [
+      {
+        "page": "timeflows_training.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.ctc_pairs"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.track_masks_from_ctc"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.ctc_pairs.indexed"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.train_timeflows"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.train_timeflows.run"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.augment_pair.apply"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.link_by_timeflows"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/core/index.html#module-spacr.core"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#build-pairs-from-cell-tracking-challenge-annotations"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#understand-crop-boundaries"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#interpret-links-and-unmatched-objects"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#keep-checkpoint-provenance-with-the-results"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#applications-and-workflow"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#modules-reached-from-another-screen"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#stability"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#complete-module-reference"
+      }
+    ],
+    "chrome_before": "1 failed",
+    "chrome_after": "67 passed",
+    "logs": {
+      "matching-sphinx.log": "7400f341ef002afed9f63da3e32bc996af594106fa5d82a2ab7939dc5989c2fe",
+      "matching-catalog-verification.log": "3d76f726ea0bcf218486ed6c4c0a72edc0184befbbfc7bffbace937a913d46ba",
+      "chrome-inventory-before.log": "b4ef42a728918a5411c9f0bae85eef0c0fdd285500711f81d6502a3e78b6b10c",
+      "chrome-caption-checks-after.log": "c6c78dbd0e12745faa46919dc3778e0658a23305eaac7660f313e7d082e0e5ab"
+    }
+  },
+  "files": {
+    "spacr/timeflows_model.py": "86b131130c3bcd5f8f2e45a254b84c5c35d2f7352b5476478e929b03778258ec",
+    "docs/source/timeflows_training.rst": "ae008664c770a528b583fe0febaffd2bc39095f4d7c034e7d86f4861535925b9",
+    "tests/qt/test_the_chrome_captions_have_catalog_rows.py": "7a232a5be030c381b5dc387f4b74c8872da137b6c3858f18b4862ac535bb19ee"
+  },
+  "full_catalog_acceptance": false,
+  "full_ci_passed": false,
+  "native_speaker_signoff": false,
+  "remaining": [
+    "Incoming held-out training arguments need a fresh API update when merged.",
+    "Existing missing and stale API records still prevent whole-catalog language acceptance.",
+    "Broad nested-helper rollout and media/listening acceptance remain open."
+  ]
+}

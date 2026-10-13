@@ -1,0 +1,127 @@
+{
+  "normal_generated_owner_tests": 498,
+  "renderer_event_layout_diagnostic_tests": 112,
+  "native_GUI_combined_tests": 241,
+  "tutorial_contracts": 93,
+  "runtime_review_records_checked": 56485,
+  "same_API_runtime_inputs": true,
+  "current_guide_msgids_domains_unchanged": 34,
+  "all_source_media_publication_complete": false,
+  "artifacts": {
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-Home-latest-owner-delta-r5.json.gz": {
+      "bytes": 395,
+      "sha256": "8d56cd0d72ad43945160e31b172f2dc92a871ae744d1873ed034b21c57200b9f",
+      "original_sha256": "8ebfb6cd31a5ac9fbd9efd7236272e427aaffbd871af4cd7c9c769a35f33667e"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-Home-latest-owner-delta-r5.log.gz": {
+      "bytes": 287,
+      "sha256": "39be52ea00d8bffd82ea8bd34281e76b8c2d437245694b7f383b3b0dd257514f",
+      "original_sha256": "97f7790285089e10bbb3156b888cdc74b781ed3672cd27492b8c2c75789001f0"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/check_final_Home_latest_owner_delta_r5.py.gz": {
+      "bytes": 1214,
+      "sha256": "49255c298ccf75a467ca823d47af3a48fb2804b44c727c4702298168a7a1f1d9",
+      "original_sha256": "34ac848666aa17d1e0a7631ffc909e46a0244bd39c59e0450b556a806908972f"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-latest-Home-renderer-event-layout-checks-r1.log.gz": {
+      "bytes": 163,
+      "sha256": "1aa6ecc9956799a67db0a7bd9f0805216a3d003c6fc3f9f93c9e47d5e30e76b5",
+      "original_sha256": "cbfe9243b2afd403485d54a2b856d91e539acb808ad6162ed6d509a56928da7b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-native-composer-renderer-contracts-r2.log.gz": {
+      "bytes": 1809,
+      "sha256": "1c60a2a209b82b0a5fb0130687bb12f133cc43b4dd8375aa5fe5a1b61a51e7f7",
+      "original_sha256": "dc7a6a44d18d258cedb989170c8a0d3486fdc61e0ecdab828218bd90364fbc04"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-native-composer-renderer-contracts-r3.log.gz": {
+      "bytes": 1951,
+      "sha256": "51125207f29fd863ca0abb18a7db6f6aefcb0c596b5f1dc87149ff23dc3fbc92",
+      "original_sha256": "b432cf5698ab712d87906d17b86c873d1eaa16933cc9cc05429d9676350cd9cc"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-native-composer-renderer-contracts-r4.log.gz": {
+      "bytes": 161,
+      "sha256": "111232178ffd7be29867f9c3c26721aed8a7cc6efcff8dae79a2496dbe13512c",
+      "original_sha256": "ac29fd7b167fc373cf6a065da73665c3835304111eb828cd4633c98c1a0e537d"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-latest-Home-five-owner-refresh-r3.log.gz": {
+      "bytes": 643,
+      "sha256": "b2149d3f015d26f256dce8f808bf4fbfc067f4b25a6b27b2ca93897a65867e13",
+      "original_sha256": "5c95a718c746540bdaaab46e116eec4d80828a5711622a7af49b8372bb228d2d"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-latest-Home-generated-owner-contracts-r3.log.gz": {
+      "bytes": 467,
+      "sha256": "6b1b0741d725d6d93fffa0037087fb38447019ee3edab866cce6bd7e11ce8e41",
+      "original_sha256": "b2ea989d41f725d363419a9551c1a8ee4a199910b83f55262e1fd753da28fab5"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-latest-Home-runtime-all9-audit-r2.log.gz": {
+      "bytes": 189,
+      "sha256": "127dbc8d4fa48735f4d3d997c6fc9418741d5204f915f3ecda0b7cafca532365",
+      "original_sha256": "747302c9f2d7f58f26a9cd5b6f1ee914576351dcb4a8cbfe22da383c55883f1e"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-latest-Home-runtime-reviewed-evidence-r2.log.gz": {
+      "bytes": 169,
+      "sha256": "1b0693532a7a37a068abc9ff239a68ab352996ef02a117da6311071122ea0273",
+      "original_sha256": "e80b6064e9e7317dc59da98c3bd4d930c523a787f720849663a6b5c9a4bd0f74"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-latest-Home-native-stage-r2.log.gz": {
+      "bytes": 388,
+      "sha256": "09f0bcc9c2e15899b45a4f9a9ded13f8c127fc8c8a92046e5797e84d015d7553",
+      "original_sha256": "978739ad642e0931b07173d522fa87e6315bcb4f3efc3741eeea8541e1268726"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/prepare_latest_Home_tutorial_stage_r2.py.gz": {
+      "bytes": 1473,
+      "sha256": "e1cef64ecea2ffbda732c196ff335c4b076ef4c202edb6506d41129abc1b250d",
+      "original_sha256": "5af3560ab9c2af34a25ce7732509c88608caeeb79840a6030c16ec703084d25e"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/capture_final_Home_GUI_compatibility_r2.py.gz": {
+      "bytes": 1830,
+      "sha256": "a6385b5201d0dac4236632959fd093c922e9c10c962d07dee8cc5ebd78b36574",
+      "original_sha256": "f3ef2881efd11bde453e292f8ac425b60874f6fba70e096395620c20a1355ab6"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/capture_final_Home_GUI_compatibility_r3.py.gz": {
+      "bytes": 1928,
+      "sha256": "cc165e4225e1623b9555c8335054c974392e695bce3a879cc75db7fd892dc6a5",
+      "original_sha256": "05d457c65d9de1d592bbaa9cae570b8e0236eab6582bc8546da9825b0ef131e6"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-Home-native-companion-compatibility-r3.json.gz": {
+      "bytes": 716,
+      "sha256": "c67d499ae9d6a98198cec1159c4c73d5f50ad4f5dd12d93c814c8086c1eeb745",
+      "original_sha256": "2cf81039aa5a65e8fff48df5c321a77baee5d7f89ab86486164882737e07d004"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/final-current-Home-docs-controller-adjustment-r3.json.gz": {
+      "bytes": 448,
+      "sha256": "2b696f2b7ea4c8650cbf279664e8818256388b040544c86c5bd68462b300eaf6",
+      "original_sha256": "0b4ddb4512dd31afc3c1ccbc29d305a8ff357dee64bfe6ff9c915cd344c35171"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/latest-Home-doc-controller-module-entry-correction-r4.json.gz": {
+      "bytes": 199,
+      "sha256": "267efc15ffeb8702c0d3424b48308d88b46a603b06bdd5e363ab70ad53311b27",
+      "original_sha256": "34ec502a37aba5bb0b16a8de342b3f3c343d09999e2e669e9c49032bc5b266e5"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/continue_latest_Home_docs_r3.py.gz": {
+      "bytes": 2289,
+      "sha256": "8ebc783945cae8ab8166769ba32a02fbaed9ca23c62c177950f831cb4b1ea251",
+      "original_sha256": "86bfe31314f7c0da51771d8c83e761fffaaae6a611aff1d3e60fbe5a45912bf0"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/continue_latest_Home_docs_r4.py.gz": {
+      "bytes": 2287,
+      "sha256": "c943abc8f3f041a8e168bff7b020b020b6f08b3511d69ff99b50c166a229cd58",
+      "original_sha256": "e2522bc92a6c266284012fd52fdd28a5efbf94e95fc6701cc6fa2c6b4d44546f"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/run_current_source_tool_r4.py.gz": {
+      "bytes": 663,
+      "sha256": "f72d7385dca9da574f43bfd387e0b64e6163a1ad68a339e4a179f3353539806b",
+      "original_sha256": "ac6f97bcefa37b97c34c58d7afef0a667860d163f1df90f439e6c19f2a10f8a2"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/continue_latest_Home_tutorial_media_r2.py.gz": {
+      "bytes": 1231,
+      "sha256": "efcbd8145a230b11655c3f8958f34560eb6e894b25d42a881fd9d12b5bead958",
+      "original_sha256": "9501aae4af0246b05e8feaef48d7d0897fdac954e8bb8ed9212d47c1cddf9733"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/integration/continue_latest_Home_tutorial_candidate_upload_r2.py.gz": {
+      "bytes": 1566,
+      "sha256": "307b33abc9d039abe3011490334f9e9348228495b412e19a59629e1f06540384",
+      "original_sha256": "57ec00c64350ecc7784de099b21af7d3671be09226a8cb7f781eb891b6f0a28c"
+    }
+  }
+}

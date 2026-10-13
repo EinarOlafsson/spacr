@@ -1,0 +1,79 @@
+{
+  "nightly_deployment_verified": true,
+  "completed_documentation_workflow": 37401660267,
+  "workflow_trigger_commit": "06be554e2447b84e7a6b960281bede4c9eefa278",
+  "actual_resolved_documentation_source_commit": "44443b0bc899928164e182f38f7ff1fcf9677507",
+  "immutable_media_commit": "7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27",
+  "actual_deployed_publisher_output_exact": true,
+  "actual_390x844_touch_playback_and_chapter_seek_passed": true,
+  "complete_actual_player_videos_match_verified_candidate": true,
+  "actual_decoded_current_frames_visually_reviewed": true,
+  "lessons": [
+    "05_home",
+    "08_measure"
+  ],
+  "Mask_07_unchanged": true,
+  "Conda_02_accepted_one_scene_correction_retained": true,
+  "artifacts": {
+    "features/data/615_home_measure_ui_nightly_2026-10-05/05_home-nightly-current-frame.png": {
+      "sha256": "2b999d9cd1328e7c9914648e583ea835cb02eb740d19935d9a52956e24c94d77",
+      "bytes": 309928
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/08_measure-nightly-current-frame.png": {
+      "sha256": "d471e043be3e272384589bb233aff5338c3a754a24f43eed19925b67b791db2e",
+      "bytes": 399572
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/channels.json.gz": {
+      "sha256": "a2988de87e9254fede5609f3bb3802bf2db978ae2fe040600e54a109e492d8f7",
+      "bytes": 259
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-published-assemble-r1.log.gz": {
+      "sha256": "91cdab77ee57d7b7dcaf278a985d359b33823aeb7ab71d469e3c95608b700625",
+      "bytes": 242
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-ui-docs-nightly-build-r1.log.gz": {
+      "sha256": "bfc24ebd1fa3ede79a59830ec81cf83e829eb735b8697f369f24b33f26ce5951",
+      "bytes": 96775
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-ui-docs-resolve-r1.log.gz": {
+      "sha256": "4d458975d91f1ac6800b5ea3d0d840f62a1852cb594e82c9901370759f25466e",
+      "bytes": 1079
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-ui-nightly-current-r1.json": {
+      "sha256": "401ce180e5c33c9cc801457ce9bf39f95281a347eb779629f7e5730b43994df8",
+      "bytes": 3337
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-ui-nightly-current-r1.log.gz": {
+      "sha256": "614e33ebcad243db0d091c357743fcf902e189286b4c800aebee6dddce1b3618",
+      "bytes": 238
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-ui-nightly-current-r2.log.gz": {
+      "sha256": "ef0e3d906b44125dba3a4d7012c3404020bf1ba4742a770cec4a3b9f0473875d",
+      "bytes": 164
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-ui-nightly-mobile-r1.json": {
+      "sha256": "f2efef015743d325367d604768c444283e47011890652b3bb7f3c3ac8173377e",
+      "bytes": 3202
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/home-measure-ui-nightly-mobile-r1.log.gz": {
+      "sha256": "454dfab2acd39a9b0bd862bf88a3d12b8ad5fbbeee4fb0ac4ccfd55b91b66fee",
+      "bytes": 475
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/nightly-publication.json.gz": {
+      "sha256": "9f787ad0c831f54d52a144c66d79558b533099cb71a2acb95ebdcce370786c05",
+      "bytes": 161
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/nightly-tutorials-app_v2.js.gz": {
+      "sha256": "d3adebf1e63c829dcb7c7e1949ab36e289bb1aa4bc911e6a187646bc0fc1d77c",
+      "bytes": 28188
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/nightly-tutorials-index.html.gz": {
+      "sha256": "082c0a1275f73a462cb5acac400f9116ef80a7359b1e78b1fa0339f0f2de1ecb",
+      "bytes": 4103
+    },
+    "features/data/615_home_measure_ui_nightly_2026-10-05/verify_home_measure_nightly.py": {
+      "sha256": "12b2b849050df38984213be20d0925330c56517ff68fe68ac0bd61cf1c777bc1",
+      "bytes": 4532
+    }
+  }
+}

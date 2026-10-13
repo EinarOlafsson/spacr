@@ -1,0 +1,205 @@
+{
+  "id": "24_plaque",
+  "number": 24,
+  "slug": "plaque-assay",
+  "title": "Plaque Assay: count plaques and measure their areas",
+  "series": 3,
+  "app_key": "analyze_plaques",
+  "section": "Toxoplasma assays",
+  "description": "Open the synthetic example, choose saved masks or model segmentation, inspect a preview, and read the per-image and per-plaque results.",
+  "objectives": [
+    "Open Plaque Assay from Toxoplasma and select the image folder.",
+    "Choose a model, inspect a preview and set area filters.",
+    "Run the analysis and inspect counts, areas and calibration in the output database.",
+    "Read plaque wells and their conditions from a published figure in Figure mode."
+  ],
+  "example_files": [
+    "SYNTHETIC_plaque_example.zip"
+  ],
+  "prerequisite": "Download and extract SYNTHETIC_plaque_example.zip. It contains four grayscale TIFF images and their saved label masks. Use a working copy when trying new segmentation. Have a local plaque checkpoint available or download one through Model Zoo. The synthetic example has no physical calibration.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "From Home, open Toxoplasma, then choose Plaque Assay. Start with a folder of plaque images. This walkthrough uses the linked synthetic example so you can practise selecting masks, adjusting the preview and opening the results.",
+      "focus": [
+        346,
+        50,
+        1200,
+        155
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_setting_src",
+      "narration": "Download and extract the example. Set Source to SYNTHETIC_plaque, the folder containing the TIFF images and the masks subfolder. Keep a working copy if you plan to generate replacement masks.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_setting_masks",
+      "narration": "Leave Masks off to analyse the supplied label masks. Switch Masks on when you want the selected model to segment the images first. For new segmentation, choose a plaque model and review its diameter and detection thresholds on a representative image.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_setting_well_diameter_mm",
+      "narration": "Leave well detection off for this example. For images containing a whole plate, use well detection to separate the wells. If you know the image scale, enter pixels per micrometer; a known physical well diameter can also provide calibration. Record formation time in hours when it is known. Leave unknown calibration values unset.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_setting_plaque_model",
+      "narration": "Set Plaque model to a local checkpoint. If you need one, open Model Zoo and download a plaque model, then enter its local path. The analysis resolves this model setting even when it reuses saved masks.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_preview_settings_unmatched",
+      "narration": "Open Live preview and Live settings. Check the selected model and image before running the preview. Match the model in the preview to the one you plan to use for the full analysis.",
+      "focus": [
+        1020,
+        456,
+        1800,
+        380
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12c_actual_download_verified",
+      "narration": "In Model Zoo, select the plaque model, choose a Save to folder and click Download. Wait until the model is available locally, then select that checkpoint for the preview. Keep its saved path for later runs.",
+      "focus": [
+        1025,
+        568,
+        1790,
+        1035
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16b_overlay_settings",
+      "narration": "Choose an example image and click Run preview. Right-click the picture and open Overlay settings, where Display switches between outlines and a filled overlay, to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
+      "focus": [
+        1700,
+        280,
+        1100,
+        1320
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_actual_filter_changed",
+      "narration": "Raise Min area to hide small predicted regions. Watch which objects disappear, and adjust the threshold to the smallest plaque you intend to measure. Change one setting at a time so its effect is clear.",
+      "focus": [
+        1980,
+        286,
+        432,
+        660
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_actual_filter_restored",
+      "narration": "Lower Min area to bring smaller regions back; zero removes this lower area cutoff. Check the final preview and the batch settings before Run. A preview shows the selected image; Run produces the analysis outputs.",
+      "focus": [
+        3040,
+        1570,
+        760,
+        230
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_completion",
+      "narration": "Press Run and follow the console until the analysis finishes. With Masks off, the example reads the supplied labels and writes masks/plaques_analysis.db. The database contains the counts and areas for the images in Source.",
+      "focus": [
+        1510,
+        170,
+        2300,
+        1450
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_help_route",
+      "narration": "Open Help, then Database browser. Select plaques_analysis.db in the masks folder. Leave Edit mode off while inspecting the output, and choose a table from the table list.",
+      "related_lessons": [
+        "34_database"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_actual_summary_table",
+      "narration": "Open summary for an overview by image. Match rows using their filenames. The supplied synthetic masks contain four, three, two and one objects. Average size reports their mean area in pixels.",
+      "focus": [
+        345,
+        278,
+        1420,
+        225
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_actual_stats_table",
+      "narration": "Open stats to compare each image’s plaque count, mean area and area spread. The standard deviation describes the range of plaque sizes within that image. Use independent experimental replicates when comparing biological conditions.",
+      "focus": [
+        345,
+        278,
+        1930,
+        225
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_actual_details_table",
+      "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings.",
+      "focus": [
+        345,
+        278,
+        1420,
+        410
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "30_figure_mode",
+      "narration": "Plaque Assay also reads published figures. Switch the preview's Mode from Plaque to Figure. In Figure mode the run finds the plaque wells inside each figure, reads the text printed around them to name each condition, and then segments the plaques. Drop PDFs or figure pictures anywhere on the screen, or fetch a paper.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "30b_from_a_paper",
+      "narration": "Click From a paper and enter a DOI, PubMed or PMC id. spaCR fetches the paper's figures and their legends from Europe PMC into a new folder, notes the licence, and points the preview at them. This example uses an open-access paper.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "31_figure_wells",
+      "narration": "Choose a figure and click Run preview. Each well found is boxed on the figure and listed in the table with the label text read beside it; here eight wells were found, each named by its strain and drug concentration. Check each condition, correct it where needed, and click Save annotations before Run so the measurements carry the right names.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "32_figure_all_wells",
+      "narration": "Click Find plaques in all wells. Each well is segmented with the default plaque model, and the Plaques tab lists every plaque found. Here sixty-six plaques were found across the eight wells, seventeen of them in the wild-type well without drug. Compare the counts with the figure before you rely on them.",
+      "hold_after": 0.7
+    }
+  ],
+  "host_app_key": "toxoplasma"
+}

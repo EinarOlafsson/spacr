@@ -1,0 +1,540 @@
+{
+  "source_sha256": "2017f255047a9c7d29a766d98df3d2f50b2a5225348ab7d667dbb13b9be20cbe",
+  "source_path": "/mnt/wd4tb/scratch/root-evidence-20261006/direct-frame-worker/ambient-frozen.py",
+  "qt_platform": "xcb",
+  "scope": "real AmbientWidget and FrameProducer on Xvfb 4K, 10 ms GUI heartbeat; end grab outside timing",
+  "peak_rss_mib": 728.33984375,
+  "records": [
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#101418",
+      "radius": 0.0,
+      "moving_pointer": false,
+      "clicking": false,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.500615584998741,
+      "published_frames": 83,
+      "published_fps": 23.710115545300543,
+      "distinct_published_clocks": 83,
+      "clock_advance": 3.4439999999999813,
+      "painted_frames": 85,
+      "painted_fps": 24.281443630729473,
+      "repeated_frame_objects": 3,
+      "worker_shade": {
+        "median_ms": 9.990609003580175,
+        "p95_ms": 23.48808701208327,
+        "max_ms": 35.79652399639599,
+        "samples": 83
+      },
+      "gui_paint": {
+        "median_ms": 6.236650006030686,
+        "p95_ms": 9.979779002605937,
+        "max_ms": 15.473938998184167,
+        "samples": 85
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.076946011395194,
+        "p95_ms": 14.611072998377495,
+        "max_ms": 20.000745993456803,
+        "samples": 349
+      },
+      "publication_intervals": {
+        "median_ms": 41.82558100001188,
+        "p95_ms": 51.594377000583336,
+        "max_ms": 62.42641501012258,
+        "samples": 82
+      },
+      "click_events": 0,
+      "last_local_pointer": null,
+      "active_impulses": 0,
+      "pending_clicks": 0,
+      "final_grab_sha256": "07fcdca47a9b1a429ce1b5e025fd8c4f82ac42f48cbe1038bf353e2ea6f1fb61",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#101418",
+      "radius": 0.25,
+      "moving_pointer": true,
+      "clicking": true,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.453409552006633,
+      "published_frames": 81,
+      "published_fps": 23.4550807774694,
+      "distinct_published_clocks": 81,
+      "clock_advance": 3.356999999999985,
+      "painted_frames": 84,
+      "painted_fps": 24.323787472931233,
+      "repeated_frame_objects": 13,
+      "worker_shade": {
+        "median_ms": 25.61628799594473,
+        "p95_ms": 40.03915700013749,
+        "max_ms": 73.63172600162216,
+        "samples": 81
+      },
+      "gui_paint": {
+        "median_ms": 8.179135496902745,
+        "p95_ms": 15.050613001221791,
+        "max_ms": 18.986174996825866,
+        "samples": 84
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.151946502446663,
+        "p95_ms": 19.18149799166713,
+        "max_ms": 35.156523998011835,
+        "samples": 326
+      },
+      "publication_intervals": {
+        "median_ms": 42.82609000074444,
+        "p95_ms": 55.94676001055632,
+        "max_ms": 89.69492001051549,
+        "samples": 80
+      },
+      "click_events": 7,
+      "last_local_pointer": [
+        0.41653645833333336,
+        0.5386574074074074
+      ],
+      "active_impulses": 24,
+      "pending_clicks": 0,
+      "final_grab_sha256": "0c61eb713c72761ea7c31e4920af62f1e560a8f68c5f29ff114ad64447576fd6",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#101418",
+      "radius": 0.0,
+      "moving_pointer": false,
+      "clicking": false,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.5993180639925413,
+      "published_frames": 79,
+      "published_fps": 21.94860209502277,
+      "distinct_published_clocks": 79,
+      "clock_advance": 3.563999999999986,
+      "painted_frames": 88,
+      "painted_fps": 24.449075751417773,
+      "repeated_frame_objects": 11,
+      "worker_shade": {
+        "median_ms": 37.792015995364636,
+        "p95_ms": 60.878084987052716,
+        "max_ms": 95.34066299966071,
+        "samples": 79
+      },
+      "gui_paint": {
+        "median_ms": 11.091252003097907,
+        "p95_ms": 17.845509995822795,
+        "max_ms": 36.0097070079064,
+        "samples": 88
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.106761998031288,
+        "p95_ms": 20.782111008884385,
+        "max_ms": 47.39948800124694,
+        "samples": 321
+      },
+      "publication_intervals": {
+        "median_ms": 42.88093500508694,
+        "p95_ms": 64.45475800137501,
+        "max_ms": 95.38779199647252,
+        "samples": 78
+      },
+      "click_events": 0,
+      "last_local_pointer": null,
+      "active_impulses": 0,
+      "pending_clicks": 0,
+      "final_grab_sha256": "6b15a00f493c14c26a47ffe4e85fea0968a0db14e0bef577f52bce20c97ff5b5",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#101418",
+      "radius": 0.25,
+      "moving_pointer": true,
+      "clicking": false,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.570756157001597,
+      "published_frames": 85,
+      "published_fps": 23.804481813559466,
+      "distinct_published_clocks": 85,
+      "clock_advance": 3.525999999999982,
+      "painted_frames": 87,
+      "painted_fps": 24.364587267996157,
+      "repeated_frame_objects": 4,
+      "worker_shade": {
+        "median_ms": 25.826185999903828,
+        "p95_ms": 38.79405099723954,
+        "max_ms": 44.344666006509215,
+        "samples": 85
+      },
+      "gui_paint": {
+        "median_ms": 6.465229002060369,
+        "p95_ms": 12.598008994245902,
+        "max_ms": 15.59384900610894,
+        "samples": 87
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.080041996843647,
+        "p95_ms": 15.08709900372196,
+        "max_ms": 19.489241996780038,
+        "samples": 356
+      },
+      "publication_intervals": {
+        "median_ms": 41.468058501777705,
+        "p95_ms": 55.92541801161133,
+        "max_ms": 63.98679000267293,
+        "samples": 84
+      },
+      "click_events": 0,
+      "last_local_pointer": [
+        0.344140625,
+        0.47847222222222224
+      ],
+      "active_impulses": 0,
+      "pending_clicks": 0,
+      "final_grab_sha256": "00de52cb2ee4b53c867fa1c5a3050296579276b435cd3cef592b40f3c62dbe38",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#101418",
+      "radius": 0.0,
+      "moving_pointer": false,
+      "clicking": false,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.4302242589910747,
+      "published_frames": 82,
+      "published_fps": 23.90514258216998,
+      "distinct_published_clocks": 82,
+      "clock_advance": 3.398999999999983,
+      "painted_frames": 84,
+      "painted_fps": 24.488194840271685,
+      "repeated_frame_objects": 2,
+      "worker_shade": {
+        "median_ms": 15.232986996124964,
+        "p95_ms": 30.33825900638476,
+        "max_ms": 42.949948998284526,
+        "samples": 82
+      },
+      "gui_paint": {
+        "median_ms": 6.420494501071516,
+        "p95_ms": 9.835121003561653,
+        "max_ms": 15.396275994135067,
+        "samples": 84
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.08227199781686,
+        "p95_ms": 15.064619990880601,
+        "max_ms": 24.192889002733864,
+        "samples": 341
+      },
+      "publication_intervals": {
+        "median_ms": 41.66320200602058,
+        "p95_ms": 49.436975008575246,
+        "max_ms": 56.94558200775646,
+        "samples": 81
+      },
+      "click_events": 0,
+      "last_local_pointer": null,
+      "active_impulses": 0,
+      "pending_clicks": 0,
+      "final_grab_sha256": "36af4edc61ec278d86cf21511ed52e4d6bcfbe68c1b2a7d30a676ebf4ef3b7fe",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#101418",
+      "radius": 0.25,
+      "moving_pointer": true,
+      "clicking": false,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.42078034899896,
+      "published_frames": 81,
+      "published_fps": 23.678807680155035,
+      "distinct_published_clocks": 81,
+      "clock_advance": 3.3999999999999773,
+      "painted_frames": 83,
+      "painted_fps": 24.263469598183555,
+      "repeated_frame_objects": 4,
+      "worker_shade": {
+        "median_ms": 22.73805599543266,
+        "p95_ms": 36.59205199801363,
+        "max_ms": 40.76801298651844,
+        "samples": 81
+      },
+      "gui_paint": {
+        "median_ms": 6.163989004562609,
+        "p95_ms": 10.240124000119977,
+        "max_ms": 13.069528999039903,
+        "samples": 83
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.08339000691194,
+        "p95_ms": 15.109316009329632,
+        "max_ms": 19.64974100701511,
+        "samples": 341
+      },
+      "publication_intervals": {
+        "median_ms": 41.376243498234544,
+        "p95_ms": 52.572464002878405,
+        "max_ms": 65.48722799925599,
+        "samples": 80
+      },
+      "click_events": 0,
+      "last_local_pointer": [
+        0.441015625,
+        0.5534722222222223
+      ],
+      "active_impulses": 0,
+      "pending_clicks": 0,
+      "final_grab_sha256": "3373a97dc8c87f0552badebb28195c36aa4189ed018ffe0a82369507c8b174f4",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "background": "#f6f7f9",
+      "radius": 0.25,
+      "moving_pointer": true,
+      "clicking": true,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.4594108119927114,
+      "published_frames": 83,
+      "published_fps": 23.992524886684336,
+      "distinct_published_clocks": 83,
+      "clock_advance": 3.3969999999999736,
+      "painted_frames": 84,
+      "painted_fps": 24.28159145158415,
+      "repeated_frame_objects": 4,
+      "worker_shade": {
+        "median_ms": 16.80302500608377,
+        "p95_ms": 27.171253997948952,
+        "max_ms": 29.52745799848344,
+        "samples": 83
+      },
+      "gui_paint": {
+        "median_ms": 6.139795499620959,
+        "p95_ms": 8.471584995277226,
+        "max_ms": 12.736030999803916,
+        "samples": 84
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.097288504766766,
+        "p95_ms": 14.107896000496112,
+        "max_ms": 19.614621996879578,
+        "samples": 344
+      },
+      "publication_intervals": {
+        "median_ms": 41.425403505854774,
+        "p95_ms": 50.49068501102738,
+        "max_ms": 54.72638200444635,
+        "samples": 82
+      },
+      "click_events": 7,
+      "last_local_pointer": [
+        0.42096354166666666,
+        0.5414351851851852
+      ],
+      "active_impulses": 24,
+      "pending_clicks": 0,
+      "final_grab_sha256": "6303caf53054cdab09f0a07ab48c374895778a298e5aa94d81ffb30287571996",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "background": "#f6f7f9",
+      "radius": 0.25,
+      "moving_pointer": true,
+      "clicking": false,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.470011785000679,
+      "published_frames": 83,
+      "published_fps": 23.919227121582747,
+      "distinct_published_clocks": 83,
+      "clock_advance": 3.489999999999988,
+      "painted_frames": 85,
+      "painted_fps": 24.495594040175103,
+      "repeated_frame_objects": 6,
+      "worker_shade": {
+        "median_ms": 24.566337000578642,
+        "p95_ms": 41.92408299422823,
+        "max_ms": 45.571227004984394,
+        "samples": 83
+      },
+      "gui_paint": {
+        "median_ms": 7.076175999827683,
+        "p95_ms": 9.965453995391726,
+        "max_ms": 14.97616599954199,
+        "samples": 85
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.08244400145486,
+        "p95_ms": 15.839376006624661,
+        "max_ms": 24.572317008278333,
+        "samples": 342
+      },
+      "publication_intervals": {
+        "median_ms": 41.55847999936668,
+        "p95_ms": 55.553030004375614,
+        "max_ms": 63.086576003115624,
+        "samples": 82
+      },
+      "click_events": 0,
+      "last_local_pointer": [
+        0.4212239583333333,
+        0.5414351851851852
+      ],
+      "active_impulses": 0,
+      "pending_clicks": 0,
+      "final_grab_sha256": "f56469546e4ec1c6544898e34ad6f63bb4d86f4305f5fbc978b27eb8cb4f1cd5",
+      "worker_stopped_after_hide": true
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "background": "#f6f7f9",
+      "radius": 0.25,
+      "moving_pointer": true,
+      "clicking": false,
+      "viewport": [
+        3840,
+        2160
+      ],
+      "screen_pixels": 8294400,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "active_rate_cap": 24,
+      "steady_seconds": 3.449631824012613,
+      "published_frames": 82,
+      "published_fps": 23.770652690876897,
+      "distinct_published_clocks": 81,
+      "clock_advance": 3.404999999999996,
+      "painted_frames": 84,
+      "painted_fps": 24.350424707727555,
+      "repeated_frame_objects": 5,
+      "worker_shade": {
+        "median_ms": 28.51826599362539,
+        "p95_ms": 41.64509699330665,
+        "max_ms": 47.6260529976571,
+        "samples": 82
+      },
+      "gui_paint": {
+        "median_ms": 8.01056349882856,
+        "p95_ms": 12.521566997747868,
+        "max_ms": 16.866999998455867,
+        "samples": 84
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.101438499987125,
+        "p95_ms": 18.350551996263675,
+        "max_ms": 26.614172995323315,
+        "samples": 332
+      },
+      "publication_intervals": {
+        "median_ms": 42.45931000332348,
+        "p95_ms": 52.65470400627237,
+        "max_ms": 64.91191399982199,
+        "samples": 81
+      },
+      "click_events": 0,
+      "last_local_pointer": [
+        0.4212239583333333,
+        0.5414351851851852
+      ],
+      "active_impulses": 0,
+      "pending_clicks": 0,
+      "final_grab_sha256": "31eea6c217e6d814c67e034383c34c6d38b30079a807b3466a6b3ba57f5bf56f",
+      "worker_stopped_after_hide": true
+    }
+  ]
+}

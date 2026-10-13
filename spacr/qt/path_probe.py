@@ -1,0 +1,254 @@
+"""Check whether paths exist, from a cache, without blocking the GUI thread.
+
+`spacr/qt/widgets/file_list.py` asked `os.path.exists` for every remembered
+path, on the GUI thread, to colour the missing ones red. That is free for a
+local disk and it is not free for a network one: measured on one workstation,
+``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount with
+``timeout=600`` -- had not returned after twenty seconds, because the stat is
+what triggers the automount and the share was asleep.
+
+A blocked GUI thread does not look like a slow path check. It looks like
+this, and every one of these was reported as a separate defect on 2026-09-04:
+
+  * "opening map barcodes crashes spacr" -- it is not a crash, it is a
+    freeze with no traceback, which is why nothing reached the logs. The
+    journal shows `automount request ... triggered by spacr` immediately
+    before each force-quit.
+  * "it kind of flickers ... several events are happening upon hover and
+    they sometimes lag for a couple of seconds" -- hover events queue while
+    the thread is stalled and then replay in a burst.
+  * "i see millisecond glimmers of parts of the module screens on the home
+    screen" -- repaints are deferred, so the stack shows what it has not
+    been given time to paint over.
+  * "it seems to happen ... after i have opened one or two moduals" -- each
+    module adds its own remembered paths, so there is more to stat.
+
+Code on the GUI thread must therefore not access the filesystem for a path
+the user supplied; this module provides the check it uses instead.
+
+Answers come from a cache, immediately. A path not yet seen is reported as
+present and queued for a background check; when the answer arrives the
+cache is updated and :data:`probes` emits, so a widget can redraw. The
+default is optimistic because a path briefly drawn as missing and then
+corrected is a false alarm, whereas a path briefly drawn as present and
+then marked missing is an ordinary update.
+"""
+from __future__ import annotations
+
+import os
+import queue
+import threading
+from typing import Dict, Optional
+
+from PySide6.QtCore import QObject, Signal
+
+#: How long a worker waits for one stat before giving up on it. A path that
+#: cannot answer in this long is not going to be useful to the user either,
+#: and the answer it eventually gives is not worth a thread parked forever.
+PROBE_TIMEOUT_S = 5.0
+
+#: How many paths are probed at once. Small: these are stat calls, and the
+#: point is to keep one slow mount from starving the rest, not throughput.
+WORKERS = 4
+
+
+class _Probes(QObject):
+    """Emits when a background check has changed what :func:`exists` says."""
+
+    #: The path whose answer just changed, and what it changed to.
+    answered = Signal(str, bool)
+
+
+#: The signal source. Connect to `probes.answered` to redraw when a path's
+#: state is finally known.
+probes = _Probes()
+
+#: Keyed on ``(path, want_dir)``: a path can exist and not be a directory,
+#: and the two questions have different answers and different callers.
+_cache: Dict[tuple, bool] = {}
+_pending: set = set()
+_lock = threading.Lock()
+_queue: "queue.Queue[tuple]" = queue.Queue()
+_started = False
+
+
+def _worker() -> None:
+    """Stat one path at a time, forever, off the GUI thread."""
+    while True:
+        key = _queue.get()
+        path, want_dir = key
+        answer = _stat_with_timeout(path, want_dir)
+        with _lock:
+            changed = _cache.get(key) != answer
+            _cache[key] = answer
+            _pending.discard(key)
+        if changed:
+            probes.answered.emit(path, answer)
+        _queue.task_done()
+
+
+def _stat_with_timeout(path: str, want_dir: bool = False) -> bool:
+    """``os.path.exists(path)``, but bounded by :data:`PROBE_TIMEOUT_S`.
+
+    A stat cannot be cancelled, so the timeout is on WAITING for it rather
+    than on the call: the thread that made it stays parked until the kernel
+    lets go, and this one stops waiting and reports the path as present.
+    Reporting it present is the conservative answer -- it is what the widget
+    already assumed, and it does not paint a path red on the strength of a
+    mount being slow.
+    """
+    done = threading.Event()
+    result = [True]
+
+    def run() -> None:
+        """Ask the filesystem the question that is allowed to block.
+
+        It runs on a worker, so an `autofs` mount that takes twenty seconds
+        to wake does not freeze the window. `OSError` is an answer of "no",
+        not a failure -- a path that cannot be stat-ed cannot be used either.
+        """
+        try:
+            result[0] = (os.path.isdir(path) if want_dir
+                         else os.path.exists(path))
+        except OSError:
+            result[0] = False
+        finally:
+            done.set()
+
+    thread = threading.Thread(target=run, daemon=True,
+                              name=f"spacr-path-probe:{path[:40]}")
+    thread.start()
+    done.wait(PROBE_TIMEOUT_S)
+    return result[0]
+
+
+def _ensure_started() -> None:
+    """Start the probe worker threads, once.
+
+    Daemon threads, so a probe still blocked on a sleeping mount cannot hold
+    the application open at exit -- which is the whole reason path checks
+    were moved off the GUI thread in the first place.
+    """
+    global _started
+    with _lock:
+        if _started:
+            return
+        _started = True
+    for index in range(WORKERS):
+        threading.Thread(target=_worker, daemon=True,
+                         name=f"spacr-path-probe-{index}").start()
+
+
+def exists(path, *, default: bool = True, want_dir: bool = False,
+           wait: bool = False) -> bool:
+    """Whether ``path`` is there, answered from cache and never blocking.
+
+    :param path: the path to ask about. Anything falsy is ``False``.
+    :param default: what to say while the answer is unknown. ``True`` by
+        default -- see the module docstring for why the default is
+        optimistic.
+    :param want_dir: ask ``isdir`` rather than ``exists``. Cached
+        separately, because a path can exist and not be a directory.
+    :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
+        answering ``default`` immediately, and cache what comes back. For
+        callers whose whole question is "is this one missing" -- see
+        :func:`isdir` for why the optimistic default is wrong for them.
+    :returns: the cached answer, or ``default`` with a check queued.
+    """
+    text = str(path or "")
+    if not text:
+        return False
+    if wait:
+        known_answer = known(text, want_dir=want_dir)
+        if known_answer is not None:
+            return known_answer
+        answer = _stat_with_timeout(text, want_dir=want_dir)
+        prime(text, answer, want_dir=want_dir)
+        return answer
+    key = (text, bool(want_dir))
+    with _lock:
+        if key in _cache:
+            return _cache[key]
+        if key in _pending:
+            return default
+        _pending.add(key)
+    _ensure_started()
+    _queue.put(key)
+    return default
+
+
+def isdir(path, *, default: bool = False, wait: bool = False) -> bool:
+    """Whether ``path`` is a directory, answered from cache.
+
+    ``default`` is False here and True in :func:`exists`, and the asymmetry
+    is deliberate: the callers of this one are choosing a folder to OPEN a
+    dialog in, and opening it somewhere that turns out not to exist is worse
+    than opening it at the default location.
+
+    :param path: the path to ask about; passed to :func:`exists` with
+        ``want_dir=True``, so anything falsy is ``False``.
+    :param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of
+        answering ``default`` immediately, and cache what comes back.
+
+    ``wait`` is off by default. The freeze this module was written for came
+    from statting remembered paths -- a passive pass over everything a
+    settings file mentions, on the GUI thread, to colour the missing ones
+    red. No user action waits on that pass, so answering from cache and
+    checking later costs nothing.
+
+    Expanding a folder the user has just dropped or chosen is the opposite
+    situation. They performed an action and are waiting for its result, and
+    the unknown-path default turns "add this folder's files" into "add this
+    folder as a file" -- silently, and only the first time a path is seen.
+    The wait is bounded by :data:`PROBE_TIMEOUT_S` (5 s), so a sleeping
+    autofs mount costs at most that rather than twenty seconds.
+    """
+    return exists(path, default=default, want_dir=True, wait=wait)
+
+
+def known(path, *, want_dir: bool = False) -> Optional[bool]:
+    """The cached answer for ``path``, or ``None`` when it is not known yet.
+
+    :param path: the path whose cached answer is wanted, looked up by its
+        string form (a falsy path as the empty string).
+    """
+    with _lock:
+        return _cache.get((str(path or ""), bool(want_dir)))
+
+
+def forget(path=None) -> None:
+    """Drop what is cached, so the next :func:`exists` asks again.
+
+    :param path: one path, or ``None`` for all of them. Called when the
+        user has just created or deleted something and the cache would
+        otherwise keep answering with what was true before.
+    """
+    with _lock:
+        if path is None:
+            _cache.clear()
+        else:
+            text = str(path or "")
+            _cache.pop((text, False), None)
+            _cache.pop((text, True), None)
+
+
+def prime(path, answer: bool, *, want_dir: bool = False) -> None:
+    """Record an answer somebody already has, without a probe.
+
+    The file dialog has just told us a path exists; asking the filesystem
+    again would be a second stat for a fact already in hand.
+
+    :param path: the path the answer is about.
+    :param answer: what is already known to be true of it.
+    :param want_dir: record it against :func:`isdir` rather than
+        :func:`exists`. The two are cached separately -- a path can exist and
+        not be a directory -- so a caller who knows both must say so twice.
+        Without it, :func:`isdir` answers with its ``False`` default until a
+        background probe completes.
+    """
+    text = str(path or "")
+    if text:
+        key = (text, bool(want_dir))
+        with _lock:
+            _cache[key] = bool(answer)
+            _pending.discard(key)

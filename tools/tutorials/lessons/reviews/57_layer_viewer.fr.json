@@ -1,0 +1,43 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Layer Viewer : examiner des images et des superpositions d’étiquettes",
+  "description": "Chargez une image et son masque, réglez la superposition et zoomez pour examiner les contours des objets.",
+  "objectives": [
+    "Ouvrir une image et son masque correspondant.",
+    "Régler la visibilité, l’opacité, le mode de fusion et l’ordre des calques.",
+    "Examiner les étiquettes avec le zoom et le déplacement."
+  ],
+  "prerequisite": "Téléchargez et extrayez Layer_Viewer_real_image_mask.zip. Utilisez l’image d’intensité fournie et le masque d’étiquettes entières correspondant. Cet exemple n’a pas de calibration physique des pixels.",
+  "scenes": [
+    "Depuis Home, ouvrez QC, puis Layer Viewer. Téléchargez et extrayez l’exemple image et masque associé. La visionneuse a ses propres commandes de fichiers pour ces deux entrées.",
+    "Cliquez sur plus Image et ouvrez fov01_C1 point tif. L’image en niveaux de gris apparaît dans la zone d’affichage avec un étirement de contraste par percentiles.",
+    "Cliquez sur Fit pour remplir le panneau de l’image. Fit peut étirer une image carrée dans un panneau large ; ajustez le séparateur pour que le panneau soit à peu près carré lorsque vous examinez des formes.",
+    "Cliquez sur plus Mask et ouvrez fov01_cell_mask point tif. Les quarante-quatre objets étiquetés apparaissent sur l’image. Zéro correspond au fond et reste transparent.",
+    "Sélectionnez mask dans la liste des calques avant de modifier ses réglages. Cochez et décochez sa case pour comparer les contours avec l’image en dessous.",
+    "Réglez l’Opacity de mask sur zéro pour masquer ses couleurs tout en gardant le calque chargé. Vérifiez la ligne sélectionnée avant de régler un autre calque.",
+    "Réglez Opacity sur cent pour cent pour examiner la forme des étiquettes. Les couleurs recouvrent l’image à l’intérieur de chaque objet étiqueté.",
+    "Remettez Opacity à cinquante pour cent et choisissez la fusion translucent pour voir la texture de l’image à travers le masque. Comparez les contours des objets avec le signal sous-jacent.",
+    "Choisissez la fusion additive pour ajouter les couleurs du masque à l’image. Les zones claires peuvent saturer dans cet affichage ; revenez à translucent lorsque vous avez besoin d’une comparaison plus nette.",
+    "Essayez les fusions multiply et minimum pour comparer des superpositions plus sombres. Ces options modifient le composite affiché, tandis que les valeurs d’intensité d’origine restent disponibles dans l’image source.",
+    "Choisissez opaque et déplacez le curseur Opacity pour comparer son aspect. Avec ce masque d’entiers, la fusion opaque à cinquante pour cent ressemble à la fusion translucent à cinquante pour cent. Revenez à translucent pour continuer.",
+    "Sélectionnez image et choisissez cyan dans le sélecteur de palette. L’image d’intensité change de couleur tandis que le masque garde les couleurs de ses étiquettes. Choisissez gray pour revenir aux niveaux de gris.",
+    "Sélectionnez mask et appuyez sur la flèche vers le bas pour le placer derrière l’image. Le calque supérieur apparaît au premier plan. Remontez le masque pour examiner ses étiquettes.",
+    "Cliquez sur un objet étiqueté visible pour lire sa position et son numéro d’étiquette dans la ligne d’état. Utilisez les métadonnées de votre projet pour identifier le champ, la plaque ou le puits de cet objet.",
+    "Tournez la molette de la souris au-dessus d’un objet pour zoomer autour du pointeur. Rapprochez-vous jusqu’à bien voir son contour.",
+    "Maintenez Maj et faites glisser avec le bouton gauche pour vous déplacer. Vous pouvez aussi faire glisser avec le bouton central. Parcourez le champ en gardant le zoom actuel.",
+    "Cliquez sur Fit pour revenir au champ entier. Ajustez la forme du panneau si l’image ajustée paraît étirée.",
+    "Plus Points et plus Shapes ajoutent des calques auxiliaires vides. Pour dessiner ou modifier des masques de segmentation, poursuivez dans Make Masks ; cette visionneuse n’a pas d’outils de dessin pour ces calques vides.",
+    "Sélectionnez un calque et utilisez Remove pour le retirer de l’affichage. Son fichier d’origine reste sur le disque, prêt à être rechargé.",
+    "Vous obtenez une vue de calques examinée. Pour exporter un composite, utilisez stack_from_paths et LayerStack.render_uint8 depuis Python. Poursuivez avec Make Masks pour enregistrer des modifications de masques, ou avec Measure pour les mesures d’objets."
+  ]
+}

@@ -1,0 +1,113 @@
+--- a/spacr/qt/widgets/ambient.py
++++ b/spacr/qt/widgets/ambient.py
+@@ -6034,7 +6034,7 @@
+         key = (block, width, height, self.size, self.density)
+         cached = self._lineage_cache.get(key)
+         if cached is not None:
+-            return cached
++            return cached[0]
+         seed = (self._fungal_seed ^ (block * 0xD1B54A32D192ED03)) & (2 ** 128 - 1)
+         rng = random.Random(seed)
+         direction = block % 4
+@@ -6148,7 +6148,26 @@
+                 following.append(child)
+             frontier = following
+         result = tuple(edges)
+-        self._lineage_cache[key] = result
++        full_costs = []
++        if width > 0 and height > 0:
++            stroke = max(0.65, min(2.0, 1.45 * self.size
++                                  * (min(width, height) / 1080.0) ** 0.35))
++            progress = 1.0
++            for (_, x0, y0, cx, cy, x1, y1, _, _, _, depth) in result:
++                thick = max(0.4, stroke * 0.90 ** depth)
++                control_x = x0 + progress * (cx - x0)
++                control_y = y0 + progress * (cy - y0)
++                end_x = ((1.0 - progress) ** 2 * x0
++                         + 2.0 * (1.0 - progress) * progress * cx
++                         + progress ** 2 * x1)
++                end_y = ((1.0 - progress) ** 2 * y0
++                         + 2.0 * (1.0 - progress) * progress * cy
++                         + progress ** 2 * y1)
++                length = math.hypot(control_x - x0, control_y - y0) \
++                    + math.hypot(end_x - control_x, end_y - control_y)
++                radius = thick * 0.5 + 1.5
++                full_costs.append(2.0 * radius * length + math.pi * radius ** 2)
++        self._lineage_cache[key] = (result, tuple(full_costs))
+         if len(self._lineage_cache) > 8:
+             del self._lineage_cache[next(iter(self._lineage_cache))]
+         return result
+@@ -6161,18 +6180,23 @@
+         latest = max(0, math.floor((self.time + 0.55) / self._interval))
+         earliest = max(0, math.floor((self.time - self._edge_lifetime)
+                                      / self._interval))
+-        stroke = max(0.65, min(2.0, 1.45 * self.size
++        size = self.size
++        stroke = max(0.65, min(2.0, 1.45 * size
+                               * (min(width, height) / 1080.0) ** 0.35))
+         density = self.density
+         density_alpha = min(1.0, 60.0 * density) / math.sqrt(max(1.0, density))
+         candidates = []
++        costs = []
+         for block in range(earliest, latest + 1):
+             colony_age = self.time - (block * self._interval - 0.55)
+             colony_fade = min(1.0, (self._edge_lifetime - colony_age) / 32.0)
+             if colony_fade <= 0.0:
+                 continue
+-            for (index, x0, y0, cx, cy, x1, y1, born, duration,
+-                 hue, depth) in self._lineage(block, width, height):
++            lineage = self._lineage(block, width, height)
++            cached = self._lineage_cache.get((block, width, height, size, density))
++            full_costs = cached[1] if cached and cached[0] is lineage else None
++            for offset, (index, x0, y0, cx, cy, x1, y1, born, duration,
++                         hue, depth) in enumerate(lineage):
+                 age = self.time - born
+                 if age <= 0.0:
+                     continue
+@@ -6184,28 +6208,30 @@
+                 if alpha >= 0.006:
+                     candidates.append((x0, y0, cx, cy, x1, y1, progress,
+                                        alpha, max(0.4, stroke * 0.90 ** depth), hue))
++                    costs.append(full_costs[offset] if progress == 1.0
++                                 and full_costs is not None else None)
+         budget = width * height * 0.22 * min(
+             1.0, 0.5 + 0.5 * math.sqrt(self.effective_density() / 3.0))
+-        costs = []
+         by_endpoint = {}
+         by_origin = {}
+         for index, edge in enumerate(candidates):
+             x0, y0, cx, cy, x1, y1, progress, _, thick, _ = edge
+-            control_x = x0 + progress * (cx - x0)
+-            control_y = y0 + progress * (cy - y0)
+-            end_x = ((1.0 - progress) ** 2 * x0
+-                     + 2.0 * (1.0 - progress) * progress * cx
+-                     + progress ** 2 * x1)
+-            end_y = ((1.0 - progress) ** 2 * y0
+-                     + 2.0 * (1.0 - progress) * progress * cy
+-                     + progress ** 2 * y1)
+-            length = math.hypot(control_x - x0, control_y - y0) \
+-                + math.hypot(end_x - control_x, end_y - control_y)
+-            radius = thick * 0.5 + 1.5
+-            footprint = 2.0 * radius * length + math.pi * radius ** 2
+-            if progress < 1.0:
+-                footprint += math.pi * (thick * 0.8 + 1.5) ** 2
+-            costs.append(footprint)
++            if costs[index] is None:
++                control_x = x0 + progress * (cx - x0)
++                control_y = y0 + progress * (cy - y0)
++                end_x = ((1.0 - progress) ** 2 * x0
++                         + 2.0 * (1.0 - progress) * progress * cx
++                         + progress ** 2 * x1)
++                end_y = ((1.0 - progress) ** 2 * y0
++                         + 2.0 * (1.0 - progress) * progress * cy
++                         + progress ** 2 * y1)
++                length = math.hypot(control_x - x0, control_y - y0) \
++                    + math.hypot(end_x - control_x, end_y - control_y)
++                radius = thick * 0.5 + 1.5
++                footprint = 2.0 * radius * length + math.pi * radius ** 2
++                if progress < 1.0:
++                    footprint += math.pi * (thick * 0.8 + 1.5) ** 2
++                costs[index] = footprint
+             by_endpoint[(x1, y1)] = index
+             by_origin.setdefault((x0, y0), []).append(index)
+         parents = [by_endpoint.get(edge[:2]) for edge in candidates]

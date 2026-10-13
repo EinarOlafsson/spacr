@@ -1,0 +1,34 @@
+{
+  "lesson": "10_classify_cv",
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Classify: treinar um classificador de imagens",
+  "description": "Prepare recortes de imagem rotulados, escolha a família de visão computacional, treine um modelo pequeno e encontre suas previsões.",
+  "objectives": [
+    "Preparar o exemplo de classificação de imagens para download.",
+    "Escolher o modelo, os canais de imagem e as configurações de treinamento.",
+    "Manter os poços separados e inspecionar os modelos e as previsões salvos."
+  ],
+  "prerequisite": "Baixe o exemplo medido pelo Annotate com Load test data e depois Load. Mantenha a pasta plate1 com measurements/measurements.db e os recortes png. Baixe Classify_existing_split_example.zip abaixo e extraia o script auxiliar. No seu ambiente do spaCR, execute prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Selecione a pasta new_split no Classify. O script auxiliar é para este exemplo de quatro poços; ele copia 64 recortes RGB rotulados para pastas de treinamento e de teste.",
+  "scenes": [
+    "Na tela Home, abra Classify e escolha Computer Vision, Torch. Esta família aprende com recortes de objetos rotulados e salva um modelo capaz de pontuar outros recortes. Siga antes a aula do Annotate para baixar as imagens de exemplo e seus rótulos.",
+    "No Annotate, escolha Load test data e depois Load. Mantenha a pasta da placa com as medições e os recortes PNG. Com seus próprios dados, comece com recortes do Measure e atribua no Annotate as classes que você quer ensinar.",
+    "Baixe o ZIP de exemplo indicado e extraia prepare_classify_split.py. Execute-o no seu ambiente do spaCR com a origem apontando para a pasta da placa de exemplo e o destino apontando para uma pasta nova. O script prepara sessenta e quatro imagens rotuladas para este exercício.",
+    "Abra a pasta nova e o manifesto. Os diretórios de treinamento e de teste contêm, cada um, duas pastas de classe. O manifesto lista cada imagem copiada e o poço dela. Mantenha poços inteiros de um só lado da divisão quando as imagens do mesmo poço compartilham condições experimentais.",
+    "Volte ao Classify e escolha a pasta preparada como Source. Selecione a pasta superior que contém train e test. Use essa pasta preparada no resto da aula, para que o modelo e os arquivos de saída fiquem juntos.",
+    "Desative Generate training dataset, porque o script auxiliar já preparou a divisão. Ative Train e Test. Deixe desativada a aplicação ao conjunto de dados completo nesta primeira execução. O modelo usa os índices de classe zero e um para as duas pastas de classe.",
+    "Escolha ResNet18, tamanho de imagem cento e vinte e oito, os três canais RGB, tamanho de lote oito e uma época. Defina dois processos de carregamento, com pesos pré-treinados e aumento de dados desativados neste exemplo curto. As épocas controlam quantas vezes o treinamento percorre as imagens de entrada.",
+    "Defina a fração de validação como um meio, mantenha o agrupamento por poço e deixe as verificações de vazamento ativadas. A validação acompanha o modelo durante o treinamento; a pasta de teste separada é usada na avaliação final. Confira a distribuição de poços informada antes de interpretar as pontuações.",
+    "Ative Plot, limpe a busca de configurações e pressione Run. Acompanhe no console o carregamento do conjunto de dados, a divisão resultante, o progresso do treinamento e os caminhos de saída. Aguarde o fim do treinamento e do teste antes de abrir os resultados salvos.",
+    "Abra Figures para inspecionar a perda e a acurácia. Uma época dá uma primeira passada rápida. Compare os resultados de teste entre as classes antes de aumentar o tempo de treinamento. Se as previsões favorecerem só uma classe, revise os rótulos, o equilíbrio entre classes e os canais de entrada antes de usar o modelo num conjunto de dados maior.",
+    "Abra model, resnet18, rgb, epochs sublinhado um dentro da pasta preparada. Mantenha juntos o checkpoint, o cartão do modelo e as tabelas de resultados. Use as previsões salvas para revisar os erros e depois siga para Classifier Evaluation ou Activation Maps para examinar melhor o modelo."
+  ]
+}

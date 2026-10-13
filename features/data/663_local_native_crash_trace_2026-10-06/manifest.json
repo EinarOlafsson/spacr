@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "captured_at_utc": "2026-10-06T15:44:19.851790+00:00",
+  "original_path": "/home/carruthers/.spacr/logs/spacr-crash.log",
+  "original_snapshot_bytes": 68337,
+  "original_snapshot_sha256": "201e6f7e71766ae5ffcea90d5c2bc6bd7e742f219d8b9184885e2575a4556793",
+  "original_file_mtime_ns_observed_after_read": 1791299077033027281,
+  "excerpt_byte_range": [
+    61453,
+    68263
+  ],
+  "excerpt_path": "features/data/663_local_native_crash_trace_2026-10-06/pid-3063654-faulthandler.log",
+  "excerpt_sha256": "648c7d69eeac98c4193fe4c603694c01e731e2c4281c55f510a38b76f804ad25",
+  "pid": 3063654,
+  "observed_current_thread": "Garbage-collecting; spacr/qt/gc_policy.py:96 collect_once; spacr/qt/app.py:7331 launch",
+  "observed_ambient_thread": "Waiting in threading.Event.wait from spacr/qt/widgets/ambient.py:5492 _run",
+  "limits": [
+    "The appended crash block contains no timestamp or source commit.",
+    "Neither the reported Detail/Save action nor its relationship to this exact crash is recorded.",
+    "Current shared app.py no longer calls collect_once at this recorded location; do not assign the trace to current source without identifying the crashed revision.",
+    "A Python faulthandler trace does not diagnose the native object or prove a Qt worker lifetime cause.",
+    "No running application or protected job was changed, and no native reproduction or fix is claimed."
+  ]
+}

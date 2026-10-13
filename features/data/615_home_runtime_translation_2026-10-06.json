@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "scope": "Accepted normal runtime catalog generation for the frozen older Home Cell-DINO/Save/multi-plate/six-theme source. Latest Home 1f3e4a240 source is not integrated here and still requires a separate normal refresh. Broader N615 remains OPEN.",
+  "archive_parent_commit": "49bc972bfc5d878d40d60464419d61cb7fe076e9",
+  "application_source_sha256": {
+    "spacr/embeddings.py": "afd5c885a462a5cbc16e9d2ef038f0a7b1316c06cb12e05e1089243753deaec9",
+    "spacr/qt/screens/annotate.py": "0775060bdeeee795aedfc197f1c3f39408bb29dbe935b5b56f3cf3f53fdf8337",
+    "spacr/qt/screens/embeddings.py": "41b05ac8c5e3afbcab098b5e5d44748b6a0b96c11db40b93cf7c14680053a3e7",
+    "spacr/qt/preferences.py": "b1544ed2ee2a2a1dac28d9e6ea94048a98810d106162371fae3098099c614924",
+    "spacr/qt/night_themes.py": "57c627fffab699318a7e2c83e1872a8afbdf296a55a7df8b19b6126706500177",
+    "spacr/qt/widgets/ambient.py": "bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3"
+  },
+  "runtime_entries_per_language": 9918,
+  "ui_sources": 7150,
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "new_interface_reviews": 522,
+  "corrected_existing_crop_captions": {
+    "ko": "비슷한 이미지 조각",
+    "is": "Svipaðir myndskurðir"
+  },
+  "all_524_reviewed_targets_exact": true,
+  "original_unchanged_rows_and_source_hashes_preserved": true,
+  "full_normal_generator_exit_code_observed": 0,
+  "full_preservation_verifier_exit_code_observed": 0,
+  "swedish_french_historical_cohort_checks": {
+    "passed": 2,
+    "historical_numeric_pins_unchanged": true,
+    "retirements_verified_against_complete_byte_exact_original_archives": true
+  },
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "acceptance_exclusions": [
+    "newer seven-theme/native-watcher source",
+    "API/README generator completion",
+    "Sphinx and browser readback",
+    "native desktop crash acceptance",
+    "GPU execution",
+    "website publication"
+  ],
+  "script_scope": "Original executed scripts/logs retained byte-exact. Historical verifier paths refer to the preserved original scratch baseline; no claim of independent portable replay.",
+  "artifacts": {
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-reviewed-inputs-r3.json.gz": {
+      "stored_sha256": "1d9be74639c4fe64ddf4d5bcdd2ce12d3218cdac0b2bba7b4f5445805b37b62a",
+      "original_sha256": "4da212731304cf33df1e2664a33eb36b376447cbb7f804f2b091e7d7f3067a25",
+      "original_bytes": 210853
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-reviewed-admission-r1.json.gz": {
+      "stored_sha256": "c9e836d76c12d74c0f70089dc3a454fae1fa4e362533a88cee92ab975d715f07",
+      "original_sha256": "e96a51c0de042938f313bbcb8fe740145a5810d64b62e77c3169bc2ea9ae410b",
+      "original_bytes": 3958
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-review-retirement-r1.json.gz": {
+      "stored_sha256": "8ecafbadf4cd8ae66c35e2d2c0c463e4d65ebdf99c7ad609acc15ea7fb321d7d",
+      "original_sha256": "2b5d88672d7a639248526da7d4559de4ae11b7073d677fbf821dcf2e5ba42db9",
+      "original_bytes": 126653
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-preservation-r1.json.gz": {
+      "stored_sha256": "073b6abac579db3eebe15482bcfec9e5f0e9cf250c89f268d993796d399cf132",
+      "original_sha256": "2f81b43e89c6ff18905da18b342c54b41c695d7a1e896bc4a6e0162b2e7ecca3",
+      "original_bytes": 69722
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-normal-refresh-r1.log.gz": {
+      "stored_sha256": "5aba8f1060257c2b732539349525538fec376cfd9d38a16c5649d1ae49dc2270",
+      "original_sha256": "737bf9c6c9f2fbe090a0927450f0b207f0b78fa5e28a8ea47f577fa7d8139f04",
+      "original_bytes": 1509
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-preservation-r1.log.gz": {
+      "stored_sha256": "fefa1a803f40e4c4c25636eb6a74652d15879e4e302eb3d3326b2a0a6bfdee8d",
+      "original_sha256": "cc341f13c593177b9dbdce2e05bd144fa8cbe26a54f90f69ecc0c0c5f74036ac",
+      "original_bytes": 1097
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-reviewed-admission-r1.log.gz": {
+      "stored_sha256": "3c8af7e18cf9127a1fc31e330a6d5e41ff1be53523d646b8f20620aad986ef61",
+      "original_sha256": "bfc452d5fce1d79e5be78832da58bb9ae467b98ec92e46e2dd66d7e6913013ba",
+      "original_bytes": 988
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-review-retirement-r1.log.gz": {
+      "stored_sha256": "359c9d0fe6f4318ebe600db43b8bfa7a31326d2b2aef4f42eb9080636fa60f67",
+      "original_sha256": "47b20188c4a005c724439f139b0cb7bd47fabe10a04133645e16c58235d07826",
+      "original_bytes": 987
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/Home-current-runtime-reviewed-inputs-r4.log.gz": {
+      "stored_sha256": "1d468cb667239aa2d05436d1f79dccb162aa0a9bdd919572943772c15c863812",
+      "original_sha256": "8d61fa09f58a8cff8079b904034b33b8d3f5fadf663ed8765340a6d660f41d98",
+      "original_bytes": 843
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/prepare_Home_runtime_review_r2.py.gz": {
+      "stored_sha256": "8d01c704a0c466144cece7ddf2576431c98a1c0e96fdc4210dedca8042231500",
+      "original_sha256": "b163dbef256aa5dcc76d86072186a593b289d5a8df3b2b9dbfe3e2b96d8ffa01",
+      "original_bytes": 4044
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/review_Home_runtime_inputs_r2.py.gz": {
+      "stored_sha256": "c27c412cb7a95106b0441ed616992a16c3d6a0e1109d5e2d7ed5e29befe56dc9",
+      "original_sha256": "c5fc51fed924fd4e1646a124dd27b09d2e957c626017c39595acb32fcd50f135",
+      "original_bytes": 46124
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/correct_Home_runtime_review_inputs_r3.py.gz": {
+      "stored_sha256": "e99bb16f722a888dad660de4106eb5d08098fa87628e807d7978ead4086d41a6",
+      "original_sha256": "26cb11d48441292d9cd09e2aea9433f0ec13a8fc1c0c5e4b47880a9e3c499e0c",
+      "original_bytes": 3494
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/admit_Home_runtime_reviews_r1.py.gz": {
+      "stored_sha256": "e36f8b06e8694244555d023f1155fa6f6c83399b6225e596a4a0ae940392b0e9",
+      "original_sha256": "f43ab5d6a4e8288086d9f5e7e94cdfa4a27d93d9d3878bf9ea565d50a31dd7b9",
+      "original_bytes": 3245
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/retire_Home_stale_runtime_reviews_r1.py.gz": {
+      "stored_sha256": "2ca8b178cb27c39d6840c28ce6f64ad2ef0119f2c3ba83b3432e3d33584d53fc",
+      "original_sha256": "3e64ceab5fb3427df7df0ffdbedbd3ec3d47bd77a38137f4b5285dade1b5087b",
+      "original_bytes": 3035
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/check_Home_runtime_preservation_r1.py.gz": {
+      "stored_sha256": "820c9ac7adddef9056aedbb98fcffb9140cd7ead5e10ed9efebfc18930a03e27",
+      "original_sha256": "6902a5df177a52ba7d3e21c9c11023ff525a83367f36056b8b44e01fc7d6303d",
+      "original_bytes": 3214
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/runtime-policy-cohort-reconciliation-r3.log.gz": {
+      "stored_sha256": "807634fc9aaf87b0e1ccb5a50c83b7501d0cc808e373feaae702b0943f7d0313",
+      "original_sha256": "6c9a16279a3b1a189bb21ee636cce100b39b31b4843e55a079d5ecb52930a3aa",
+      "original_bytes": 211
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/reconcile_theme_review_cohort_pins_r1.py.gz": {
+      "stored_sha256": "a55ef56a84ce4519501aaf84383eeca2f3c7ec0f4fb0edf3a46dababb25755b0",
+      "original_sha256": "e70cf0480671d79890ad906bf2fa6ceb4405646f136d109e0445946dd192b68c",
+      "original_bytes": 4900
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/spacr__embeddings.py.gz": {
+      "stored_sha256": "60eac0d42e652025e71a4fdad9d78ca86a4fc1044e57fa6806730e4de233fb28",
+      "original_sha256": "afd5c885a462a5cbc16e9d2ef038f0a7b1316c06cb12e05e1089243753deaec9",
+      "original_bytes": 100298
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/spacr__qt__screens__annotate.py.gz": {
+      "stored_sha256": "ff6ef3a873ab627b10f20123288b80a42798e194893e5b9e5f1e03dc508bc945",
+      "original_sha256": "0775060bdeeee795aedfc197f1c3f39408bb29dbe935b5b56f3cf3f53fdf8337",
+      "original_bytes": 336705
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/spacr__qt__screens__embeddings.py.gz": {
+      "stored_sha256": "2551da8a49ee0a7d045b8d7d3ba3d92bc7bbf46f2076760cbe331b70d8a19c12",
+      "original_sha256": "41b05ac8c5e3afbcab098b5e5d44748b6a0b96c11db40b93cf7c14680053a3e7",
+      "original_bytes": 87574
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/spacr__qt__preferences.py.gz": {
+      "stored_sha256": "6cc719edb167c4ff5636dce1026fca00b23f2f97a5a7b6c6ec48d5015260e554",
+      "original_sha256": "b1544ed2ee2a2a1dac28d9e6ea94048a98810d106162371fae3098099c614924",
+      "original_bytes": 457445
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/spacr__qt__night_themes.py.gz": {
+      "stored_sha256": "5bf3e27d8eac1214de8819d0d853bcf31abe4e7cae83e653246cf4d1971774a1",
+      "original_sha256": "57c627fffab699318a7e2c83e1872a8afbdf296a55a7df8b19b6126706500177",
+      "original_bytes": 21303
+    },
+    "features/data/615_home_runtime_translation_2026-10-06/spacr__qt__widgets__ambient.py.gz": {
+      "stored_sha256": "ce1c777560651d1b17209b8babf35a56f44ae0c7d853366c0d92ca491905585b",
+      "original_sha256": "bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3",
+      "original_bytes": 309886
+    }
+  }
+}

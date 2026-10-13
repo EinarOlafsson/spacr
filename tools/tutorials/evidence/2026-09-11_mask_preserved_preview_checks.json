@@ -1,0 +1,23 @@
+{
+  "before": 51,
+  "minimum_area": 5642,
+  "after": 25,
+  "restored": 51,
+  "parameter_variant_objects": 42,
+  "preserved_native_observation_not_new_inference": true,
+  "segmentation_quality_ranking_claimed": false,
+  "source_hashes": {
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/preview_cell.npy": "77e4c9ec3cf840589cb3b149e4f1e6859f704255602c8b71e6ebb4bd3556225b",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/preview_cell_diameter_variant.npy": "ada8c2f92a022f23fe0e66a55778d2c8090488f9e77042c7535bfbe45e570475",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/preview_outputs.json": "999d9fdd18dfa1edb6d1c99686d5d90cebd194ca78bba078a5c75cfd13332427",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/live_variants.json": "7ab6afa040a86e1bb9832cf9671e170818538459c92b424862a08f1b511f71fc"
+  },
+  "focused_tests_passed": 6,
+  "mutations_observed_red": [
+    "area lower-bound changed from inclusive to exclusive",
+    "parameter array SHA comparison removed"
+  ],
+  "old_batch_partial_overlay_not_accepted": true,
+  "new_mask_batch_completed": false,
+  "published": false
+}

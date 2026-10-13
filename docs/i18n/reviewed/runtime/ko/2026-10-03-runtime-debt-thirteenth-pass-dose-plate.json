@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: item 633's public dose-plate test data caption, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Load a public dose plate: four replicate A549 plates of the LINCS Cell Painting set (CC0), 56 compounds at six doses with DMSO wells, as well-level profiles, with regression and training runs made from them. Under 1 MB, cached afterwards.",
+      "source": "Load a public dose plate: four replicate A549 plates of the LINCS Cell Painting set (CC0), 56 compounds at six doses with DMSO wells, as well-level profiles, with regression and training runs made from them. Under 1 MB, cached afterwards.",
+      "source_sha256": "2c6eb76fc3bba79aeca716ff642ee6adae30603efda644342e8433b7b7f290c1",
+      "translation": "공개 용량 플레이트 불러오기: LINCS Cell Painting 세트(CC0)의 A549 반복 플레이트 4장으로, 화합물 56종을 6가지 용량으로 처리하고 DMSO 웰을 포함하며, 웰 수준 프로필과 이를 바탕으로 만든 회귀 및 학습 실행이 함께 제공됩니다. 1 MB 미만이며 이후 캐시됩니다."
+    }
+  ]
+}

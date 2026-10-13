@@ -1,0 +1,39 @@
+{
+  "language": "da",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "e5335413a37e795563110b03c5e417f7f684ee5761afaa68bc261c9930146608",
+  "title": "Sekventeringsmoduler og hvordan de hænger sammen",
+  "section": "Arbejdsgange",
+  "description": "Forbind workflows for sekventering og optiske stregkoder med fænotypescorer, regression, forsøgsplanlægning, styrkeberegninger, dosis-respons-analyse og sammenligning af kørsler.",
+  "objectives": [
+    "Vælg et startmodul ud fra de data, du allerede har.",
+    "Find ud af, hvad hvert modul læser og skriver.",
+    "Følg de tilknyttede modullektioner og API-kontrakter til næste trin."
+  ],
+  "prerequisite": "Installer spaCR, og åbn Home. Vælg startdata til dit workflow, og følg derefter de linkede modullektioner for kontroller og eksempeldata.",
+  "scenes": [
+    "Sekventering er den måde, en poolet screening finder ud af, hvilken guide der sidder i hvilken brønd eller celle, og spaCR læser den på to måder. Læsninger fra en sekventeringsmaskine går til Map Barcodes. Stregkoder, der er afbildet cyklus for cyklus, går til OPS, som ligger i Mask. Uanset hvad ender stregkodeidentiteterne ved siden af dine fænotyper i Regression. Omkring den kerne ligger planlægningsværktøjerne Experiment Design og Power til tiden før optagelsen og Dose–Response og Run Compare til dine resultater.",
+    "Begynd med sekventeringslæsningerne. Åbn Map Barcodes fra Home, og giv det dine FASTQ-filer, enkelt- eller parrede læsninger, med de referencetabeller for stregkoder, der koder dit eksperiment. Map Barcodes matcher hver læsning med dens stregkoder og tæller guides i hver brønd og gemmer unique_combinations.csv og annotated_reads.h5 i kørselsmappen. Før du stoler på tællingerne, åbner du dem i Barcode QC. Når de har bestået, er de de guideantal, som Regression parrer med fænotypescorer via de samme plade- og brøndnøgler.",
+    "Barcode QC ligger i Map Barcodes, så åbn Map Barcodes fra Home, og vælg det der. Det læser de guideantal, du lige har dannet, og viser mapningsdybde, dækning, stregkodekollisioner og positionseffekter. Det gemmer QC-resultaterne med eksporterbare figurer og tabeller, så du kan beslutte, hvilke guides der skal filtreres fra, før du går videre.",
+    "Optiske screeninger går en anden vej. Åbn Mask fra Home, og vælg derefter OPS. I stedet for læsninger tager OPS billederne fra hver sekventeringscyklus, justerer dem mod fænotypebillederne og afkoder en stregkode for hver kerne. Resultaterne havner i OPS' measurements.db med tabeller for geometri, fænotypejustering, kerner og stregkoder. Den database er dog ikke en FASTQ-tælletabel. For at bruge den i Regression forbinder og aggregerer du først de afkodede identiteter med dine fænotypedata, så hvert objekt eller hver brønd bærer begge dele.",
+    "Uanset hvordan du sekventerede, mødes stregkoder og fænotyper i Regression. Åbn det fra Home. Ved en poolet screening tager det fænotypescorer fra Classify og guideantal fra Map Barcodes. Ved en optisk screening tager det de afkodede OPS-objekter, når du selv har forbundet og aggregeret dem; det er ikke en direkte filoverlevering. Det kan også modellere en direkte målt respons. I alle tilfælde skal plade- og brøndidentifikatorerne stemme overens mellem inputtene. Vælg respons og kontroller, kør tilpasningen, og læs diagnostikken, før du kalder noget et hit. Den resultatmappe, det skriver, med koefficienter, hittabeller, indstillinger og figurer, er det, Run Compare åbner, når du vil stille denne kørsel op mod en anden.",
+    "Gå nu tilbage til før eksperimentet. Åbn Power / Design fra Home for at vurdere, hvor meget prøvetagning du har brug for til at se en effekt, ud fra de effektstørrelser og den variabilitet, du vælger. Pilotmålinger kan understøtte antagelserne, men de er valgfrie. Layoutet fra Experiment Design indgår i disse vurderinger, og vurderingerne kan til gengæld få dig til at revidere designet.",
+    "Åbn Experiment Design fra Home for at planlægge pladerne, før du optager noget. Indtast betingelser, kontroller, replikater og pladebegrænsninger med dine styrkeberegninger i tankerne, og eksportér forsøgslayoutet. Layoutet rækker langt. Power / Design bruger det til at fastsætte prøvetagningsantagelserne, og senere, når eksperimentet er optaget og målt, bruger Dose–Response dets dosis- og betingelsesidentiteter, så hold dem uændrede hele vejen.",
+    "Dose–Response svarer på hvor meget, ikke hvilken guide, så det kræver slet ingen sekventering. Åbn det fra Home, og tag dine målte responser med sammen med dosis- og betingelsesidentiteterne fra Experiment Design. Angiv dosis- og responskolonner, kontroller og enheder, og tilpas derefter kurverne. Det gemmer analyseresultaterne med figurer og tabeller til eksport.",
+    "Når du har mere end én analyse, åbner du Run Compare fra Home. Det læser dine gemte kørselsposter og resultater fra Regression og stiller deres indstillinger, tællinger og hitlister side om side. Hvis inputdataene ændrede sig mellem kørslerne, er forskellene ikke en kontrolleret modelsammenligning, så læs dem med det i tankerne.",
+    "Endnu et planlægningsværktøj findes kun i Python: simuleringsgennemløbet for poolet screening, spacr.sim.run_multiple_simulations, uden flise på Home eller menupunkt. Du giver det en indstillingsordbog med antagelser som screeningstørrelse, belægning, klassifikatorens nøjagtighed og sekventering. Det udvider hver kombination, simulerer hver af dem i en procespulje og tilføjer syntetiske resumérækker til simulations.db; selve kaldet returnerer None. Hold parametergitteret lille, og angiv max_workers eksplicit, før du kører det. Det, der kommer ud, er planlægningsgrundlag, ikke data, og kan ikke erstatte målinger eller stregkodetællinger i Regression. Læs resuméerne, notér dine antagelser, og overfør dem i hånden til Power / Design eller Experiment Design, da ingen af værktøjerne importerer simuleringsdatabasen.",
+    "Stregkodesiden af en screening ender altså altid på samme måde: identiteter forbundet med fænotyper via plade og brønd. Opbevar stregkodereferencer og pladelayouts sammen med dine tælletabeller, og ved en optisk screening forbinder du de afkodede objekter med deres fænotyper og aggregerer dem før Regression. De linkede modullektioner viser indstillinger og output for hvert trin."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "d09ff0a490896314a1ce2f1b7bd727a1b9f1845d21b7c757c6dc787a785cb530",
+    "corrections": [
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
+  }
+}

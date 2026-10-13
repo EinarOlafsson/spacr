@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "40c231106",
+  "scope": "targeted statement and branch coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/widgets/object_grid_binding.py",
+  "source_sha256": "f5399ba79879ceee7729ecd8b71c8951830f71f04f904e325c2049e8c2ae0152",
+  "coverage_json_sha256": "5f4bcf1e36abc2d63275a81945535ec767c5a8d363180c436a53af6a11710259",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 113,
+    "num_statements": 115,
+    "percent_covered": 96.36363636363636,
+    "percent_covered_display": "96.36",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 98.26086956521739,
+    "percent_statements_covered_display": "98.26",
+    "num_branches": 50,
+    "num_partial_branches": 4,
+    "covered_branches": 46,
+    "missing_branches": 4,
+    "percent_branches_covered": 92.0,
+    "percent_branches_covered_display": "92.00"
+  },
+  "missing_lines": [
+    207,
+    251
+  ],
+  "missing_branches": [
+    [
+      179,
+      178
+    ],
+    [
+      206,
+      207
+    ],
+    [
+      211,
+      205
+    ],
+    [
+      250,
+      251
+    ]
+  ],
+  "validation": {
+    "passed": 55,
+    "seconds": 177.67,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/qt/test_object_grid_binding_recovers.py",
+      "tests/qt/test_the_grid_and_the_form_agree.py",
+      "tests/qt/test_the_object_grid_can_be_switched_on.py",
+      "tests/qt/test_test_data_descriptions_are_translated.py",
+      "tests/qt/test_annotate_test_data_chooser.py"
+    ],
+    "log_sha256": "6979f0a0e2d37712102922affe2f7aeeb6def98a6ec759420446f776849046a3",
+    "test_sha256": {
+      "tests/qt/test_object_grid_binding_recovers.py": "98fa369f2e58eb153daab26c9e392083b05e0c673184c468bc8d84baf9f851cc",
+      "tests/qt/test_the_grid_and_the_form_agree.py": "9ba90a5190d8b5801a6aba63a6cd8bb55f9d2dea1c4d49266d3f0c71290b75da",
+      "tests/qt/test_the_object_grid_can_be_switched_on.py": "5426464db60c73425462df73342e8a82f203d0e54942ff6d641d1f49bbca1aa7",
+      "tests/qt/test_test_data_descriptions_are_translated.py": "1d3c2375c7160bfb9fee00fa6481b857eaf13bae6c8b793c13e4a52397e3f82d",
+      "tests/qt/test_annotate_test_data_chooser.py": "e340205301abcd761d28947ef1a532549e228ccaa879a3a665795539c2733193"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Combined selection includes nine-language chooser UI checks.",
+    "Initial fixture lacked a second diameter field, so the grid correctly omitted that row; corrected fixture uses two object kinds."
+  ]
+}

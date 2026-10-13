@@ -1,0 +1,37 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "c9422e3e62380aac367c30389de6533c519bd2e7212353f5650aae238e314280",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Classifier Evaluation: esaminare previsioni ed errori",
+  "description": "Carica un pacchetto di valutazione salvato, esamina la fuga di dati e i conteggi di confusione e filtra le previsioni da rivedere.",
+  "objectives": [
+    "Caricare un pacchetto ed esaminare la fuga di dati.",
+    "Esaminare i conteggi di confusione e i gruppi di confidenza.",
+    "Filtrare le previsioni e trovare le figure salvate."
+  ],
+  "prerequisite": "Scarica e decomprimi l’esempio di risultati salvati collegato. Contiene previsioni, tabelle e figure; i ritagli richiedono l’esperimento corrispondente in Annotate. L’esempio condivide pozzetti tra dati di addestramento e di test, quindi usalo per imparare l’ispettore e non per stimare l’accuratezza su pozzetti indipendenti.",
+  "scenes": [
+    "Apri Classify e poi Classifier Evaluation. Usa questo ispettore per esplorare un pacchetto di valutazione salvato dopo aver prodotto le previsioni.",
+    "Scarica e decomprimi l’esempio qui sotto. Fai clic su Browse e scegli la cartella che contiene evaluation manifest punto json.",
+    "Leggi Summary per il numero di previsioni e i nomi delle classi registrati. L’esempio contiene duecentotrentaquattro previsioni su due classi.",
+    "Apri Leakage audit prima di interpretare l’accuratezza. Questo esempio segnala pozzetti condivisi tra dati di addestramento e di test. Per una valutazione su pozzetti indipendenti, prepara una suddivisione con pozzetti separati e riesegui addestramento e valutazione.",
+    "Apri Confusion matrix. Le righe sono le classi registrate e le colonne le previsioni. La diagonale mostra le concordanze; le celle fuori diagonale indicano i disaccordi da rivedere.",
+    "Fai clic su una cella di disaccordo per elencarne gli esempi. La cella selezionata contiene undici disaccordi, raggruppati per confidenza.",
+    "Cambia Confidence threshold per scegliere quali disaccordi entrano nell’elenco ad alta confidenza. Portandolo da zero virgola sette cinque a zero virgola nove cinque, ne restano due nell’elenco alto e nove in quello basso.",
+    "Esamina gli esempi selezionati insieme alle loro immagini e annotazioni. Usa le spiegazioni mostrate come spunti di indagine e verifica le prove prima di cambiare le etichette.",
+    "Apri Per-plate metrics per confrontare i risultati per piastra. Questo esempio ha una sola piastra; un pacchetto con più piastre fornisce righe separate da confrontare.",
+    "Apri Calibration per confrontare la probabilità prevista con la frequenza osservata della classe. Controlla il conteggio di ogni intervallo quando interpreti le differenze.",
+    "Apri Predictions e digita un identificativo di campione o di pozzetto per filtrare i record. Nell’esempio, r cinque trattino basso c due seleziona le previsioni di un pozzetto.",
+    "Cancella il filtro per ripristinare tutti i record. Per aprire i ritagli nel tuo progetto, carica prima l’esperimento corrispondente in Annotate; l’esempio di risultati scaricabile non contiene ritagli.",
+    "Trova le figure di calibrazione e di confusione salvate nella cartella del pacchetto. Controlla etichette e leggibilità prima di usarle in un report.",
+    "Conserva l’audit della fuga di dati insieme alle metriche riportate. Usa Training Runs per confrontare l’avanzamento dell’addestramento salvato e torna ad Annotate quando serve rivedere immagini o etichette."
+  ]
+}

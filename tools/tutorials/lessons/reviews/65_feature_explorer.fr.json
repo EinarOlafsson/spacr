@@ -1,0 +1,37 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Feature Explorer : comparer des groupes et exporter un classement des caractéristiques",
+  "description": "Choisissez une colonne de regroupement, classez les mesures par AUC ou KS, examinez les distributions et exportez les caractéristiques sélectionnées.",
+  "objectives": [
+    "Charger des mesures et choisir les groupes à comparer.",
+    "Lire les classements et les distributions, puis explorer les filtres et les colonnes calculées.",
+    "Exporter le nombre voulu de caractéristiques classées."
+  ],
+  "prerequisite": "Téléchargez l’exemple Annotate et ouvrez une copie de travail de son measurements.db. Il contient 2341 cellules. Cette démonstration compare les groupes rowID r12 et r5, qui identifient des lignes spatiales de la plaque. Choisissez une colonne de groupe adaptée à votre expérience et tenez compte du fait que les cellules partagent des puits pour interpréter la comparaison.",
+  "scenes": [
+    "Depuis Home, ouvrez Classify, puis Feature Explorer. Utilisez la base de données de mesures de l’exemple Annotate pour comparer des caractéristiques existantes entre groupes.",
+    "Cliquez sur Load table, choisissez measurements.db et sélectionnez cell. Réglez Split by sur rowID. Les groupes de l’exemple sont des lignes spatiales de la plaque ; vérifiez que votre colonne de regroupement représente bien la comparaison voulue.",
+    "Choisissez AUC sous Rank by. La séparation est la valeur absolue de deux fois AUC moins un. Higher in indique le sens, et min n compte les mesures finies du plus petit groupe.",
+    "Réglez Top sur quatre pour examiner quatre histogrammes superposés. Pour chaque caractéristique, les groupes partagent les bornes des classes, et la hauteur des barres indique des effectifs. Lisez à la fois les distributions et le score de classement.",
+    "Cliquez sur Export ranking pour enregistrer les meilleures caractéristiques affichées. Avec Top à quatre, l’export contient quatre lignes de caractéristiques. Augmentez Top avant d’exporter un classement plus long.",
+    "Réglez Top sur cinq cents pour inclure les deux cent soixante et une caractéristiques évaluables de cet exemple. Le graphique affiche au plus huit distributions, même lorsque le classement exporté est plus long.",
+    "Passez Rank by sur KS pour comparer le plus grand écart entre les distributions cumulées. KS peut révéler des différences de dispersion qu’AUC ne voit pas. Revenez à AUC pour lire le sens dans Higher in.",
+    "Dans Filter, ajoutez cell_area et réglez le minimum sur vingt et un mille neuf cent vingt-cinq. La population passe à mille cent soixante et onze cellules, et le classement se met à jour.",
+    "Cliquez sur Clear all pour rétablir la population et le classement complets. Revérifiez Split by après avoir modifié les filtres, afin de savoir quels groupes sont comparés.",
+    "Filtrer rowID sur r douze supprime le second groupe. Dans cette version, Split by passe alors automatiquement à une autre colonne. Vérifiez cette commande chaque fois qu’un filtre supprime un groupe.",
+    "Effacez le filtre et remettez explicitement rowID sous Split by. Laissez Shuffle test désactivé pour cet exemple : les cellules partagent des puits, donc des permutations libres des étiquettes de cellules ne représentent pas des réplicats expérimentaux indépendants.",
+    "Ouvrez Columns et nommez une colonne calculée area_k. Saisissez cell_area divisé par mille et cliquez sur Add column avec le remplacement désactivé. Preview affiche les deux mille premières lignes ; l’ajout applique la formule à toute la table.",
+    "La colonne calculée entre dans le classement. Un changement d’échelle positif lui donne les mêmes AUC et KS que cell_area. Supprimez la formule pour revenir aux caractéristiques d’origine.",
+    "Exportez le classement après avoir vérifié la population, Split by et Top. En Python, utilisez rank_features et ExplorerSpec de spacr.qt.widgets.feature_rank. Continuez dans Graph Builder pour tracer plus en détail une caractéristique sélectionnée."
+  ]
+}

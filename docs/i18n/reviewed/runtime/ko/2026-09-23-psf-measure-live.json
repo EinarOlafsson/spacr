@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted source-context review of PSF Measure intensity-source and Live processing status/help. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "PSF: {operation} (preview field).",
+      "source": "PSF: {operation} (preview field).",
+      "source_sha256": "b7ca2034a2551d748d36bd83d8466977ece668e6a882c17b55e9e7ddab4624d8",
+      "translation": "PSF: {operation} (미리보기 시야)."
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation: {methods}.",
+      "source": "Segmentation: {methods}.",
+      "source_sha256": "44c9c0497ca652c0362573d1dd4a198cce8f6ca031019ad6288304601e52a0e9",
+      "translation": "분할: {methods}."
+    },
+    {
+      "table": "ui",
+      "key": "Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.",
+      "source": "Preview uses the loaded field and field-local normalization. Full Mask runs can use batch normalization and illumination correction, so their masks may differ. Intensity filters use the original preview pixels.",
+      "source_sha256": "91bf3195d019e91e6c1a3cb0c5652c4f61f41c57e00584c987c5e19378fae0b7",
+      "translation": "미리보기는 불러온 시야와 해당 시야 내부의 정규화를 사용합니다. 전체 Mask 실행은 배치 정규화와 조명 보정을 사용할 수 있어 마스크가 다를 수 있습니다. 강도 필터는 원본 미리보기 픽셀을 사용합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+      "source": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+      "source_sha256": "2f17db1295200b62eac581ec2a85b838e2cbe9cca2b3bed2ab4b7b11d197efd3",
+      "translation": "정량적 특징에 일반 Measure 강도 또는 보정된 PSF로 처리한 강도를 선택합니다. PSF 처리는 표준 재조정과 등록된 전처리 단계 뒤에 수행됩니다. 원본 파일과 내보낸 크롭은 기존 픽셀을 유지하며, 데이터베이스의 처리 이력에 선택 항목과 정확한 커널이 기록됩니다. 변경된 커널을 기존 측정값과 혼합할 수 없습니다."
+    }
+  ]
+}

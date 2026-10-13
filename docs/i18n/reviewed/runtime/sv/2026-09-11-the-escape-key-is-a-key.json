@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "key": "press Escape to close",
+      "source": "press Escape to close",
+      "source_sha256": "a9e0d568dbfab5a3f7fb81af57e44db2e51740813f86a0d53c187d362b93e97a",
+      "table": "ui",
+      "translation": "tryck på Escape för att stänga"
+    }
+  ]
+}

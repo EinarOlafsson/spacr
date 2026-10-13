@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Image Scatter: revisar mediciones y sus recortes",
+  "description": "Representa dos columnas de mediciones, previsualiza los recortes de objetos y envía un objeto seleccionado a Annotate.",
+  "objectives": [
+    "Cargar mediciones y elegir los ejes.",
+    "Revisar el recorte que hay detrás de un punto.",
+    "Enviar un objeto seleccionado a Annotate."
+  ],
+  "prerequisite": "Usa una base de datos de mediciones de spaCR con los recortes de objetos y los archivos de formato de recorte correspondientes. El ejemplo descargable de Annotate proporciona estas entradas.",
+  "scenes": [
+    "Abre Image UMAP y luego Image Scatter para representar dos mediciones existentes. Practica con la base de datos del ejemplo de Annotate y sus recortes de células correspondientes.",
+    "Haz clic en Browse y abre measurements.db. Mantén la carpeta data del proyecto y los archivos de formato de recorte junto a la base de datos para que se encuentren las miniaturas.",
+    "Selecciona cell en el selector de tablas y haz clic en Plot. Al cambiar a otra tabla, vuelve a hacer clic en Plot para cargar sus filas.",
+    "Pon en x el área celular y en y la intensidad media del canal uno de la célula. Al elegir los ejes se vuelven a dibujar de inmediato las filas cargadas.",
+    "Pasa el puntero sobre un punto para ver su recorte guardado y la identidad completa del objeto. Usa la imagen para entender la medición que hay detrás del punto.",
+    "Aparta el puntero para quitar la vista previa temporal y luego pásalo sobre otro punto para revisarlo.",
+    "Intercambia las mediciones de x e y para explorar la relación desde otra perspectiva. Elige características con sentido y comprueba sus unidades.",
+    "Selecciona otra medición, como la característica de homogeneidad. Las filas sin coordenadas se omiten del gráfico, así que el número representado puede diferir del número de filas cargadas.",
+    "Una columna constante, como la dimensión de la medición en este ejemplo, coloca los puntos en una línea. Vuelve a una característica con variación útil para revisar objetos.",
+    "Para revisar un recorte seleccionado en Annotate, abre primero Annotate y carga el mismo proyecto. Luego vuelve a la vista de Image Scatter existente.",
+    "Haz clic en el propio punto para enviar la identidad de su objeto a Annotate y luego cambia a esa página. Pasar el puntero solo previsualiza el recorte.",
+    "Revisa el objeto seleccionado en Annotate antes de asignarle una etiqueta. Usa Database Browser para exportar tablas, o PCA para el análisis de componentes."
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "source_commit": "82205d5e609d0ac5ebd11148ba8023693546a794",
+  "passed": true,
+  "scope": "Nine-language existing translations of three current feature paragraphs and three actual runtime captions; normal guide markup/literal/glossary validation and current runtime source hashes. Portable purge selection only, temporary sandbox, no user data deletion. No native-speaker review, wider accessibility lint or cross-platform native acceptance claim.",
+  "existing_tests": {
+    "passed": 27,
+    "seconds": 1.45,
+    "qt": "6.12.0",
+    "python": "3.12.14",
+    "pytest": "8.4.2",
+    "ram_cap": "8G"
+  },
+  "original_probe_failure": "r1 used nonexistent Italian catalog instead of Portuguese; source unchanged, original failure retained; r2 uses repository catalog_languages and actual nine-code runtime set.",
+  "artifacts": {
+    "old-task-portable-lock-purge-r1.log.gz": {
+      "raw_bytes": 757,
+      "raw_sha256": "e85c253b6c9b51572969e6dc2aa6d702a83279310196b8e4ec5e7b9cf52182c8",
+      "gzip_sha256": "6bd84fff82e6f1a3bade91071e6279625017bacfe5c8d39f68b19557be5b4d85"
+    },
+    "old-task-portable-lock-purge-r1-tool.log.gz": {
+      "raw_bytes": 215,
+      "raw_sha256": "561a7e9987f5fa8a78dd5165236a091b219a8518271e8f78e99f8a92343188be",
+      "gzip_sha256": "74e875389591a4d1a254c89341bf4293411320c9663f035737f970171600eaaf"
+    },
+    "old-task-translation-portable-r1.log.gz": {
+      "raw_bytes": 1902,
+      "raw_sha256": "935c16e09eff2404e1621c223f645f26fe33c16b3c5365be4e6f6ae3bf577008",
+      "gzip_sha256": "634bb91406f324309882511ea2edfee8dfcb9b139f6bb9c1917fc761e2499a4e"
+    },
+    "old-task-translation-portable-r1-tool.log.gz": {
+      "raw_bytes": 116,
+      "raw_sha256": "2b1c1501f72021eccc58a7b11eb81d5fca456a962c7f206d1601e0d39aa0537e",
+      "gzip_sha256": "93bd78d422286e5d04292fa3e155184ac08bd48a851e7e7eb82629d85749b26b"
+    },
+    "old-task-translation-portable-r2.log.gz": {
+      "raw_bytes": 844,
+      "raw_sha256": "f5069ae9e00771aba1ba443ae71e56700a73a16576d9c48ef260476221e4d7e0",
+      "gzip_sha256": "9951b023602868fc6381940a7dd10b1539f69dde74b39d4e6e781e5956c1ce22"
+    },
+    "old-task-translation-portable-r2-tool.log.gz": {
+      "raw_bytes": 257,
+      "raw_sha256": "095e5b8bbab8a2eb54f3fa42946c5e446c430556f9dec2d5c9f0488cb42c4dff",
+      "gzip_sha256": "0003c0fa9ad9f79cf7014ac8c267fa7ad2b3c692486bf425b3beb458e9aceb63"
+    },
+    "old-task-translation-portable-r2.json.gz": {
+      "raw_bytes": 43480,
+      "raw_sha256": "e01712debbdf1a67122a445b466f223ef39c257e334f6f9864fedc6cb39854aa",
+      "gzip_sha256": "86d9f26ee9c45ced94f5dd57a95c323275ef0a35320743d772d303d8efcf6ad0"
+    },
+    "check_old_task_translation_and_portable_r1.py.gz": {
+      "raw_bytes": 5157,
+      "raw_sha256": "fbf43b08121419f2af2643b780c07e58ced11eadf7778fe65c40ac4446aefde9",
+      "gzip_sha256": "e98060cd45312939543104dac78bac4edecb60df762b540a689527fd9a49ad81"
+    }
+  }
+}

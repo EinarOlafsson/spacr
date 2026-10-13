@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Investigate Hit：从Regression的基因追溯到测量的细胞",
+  "description": "从Hit List把一个基因发送到Investigate Hit，添加测量数据库、单细胞预测和向导比例，然后阅读孔水平的证据。",
+  "objectives": [
+    "在Hit List中打开一次Regression运行，检查q值，并把一个基因发送到Investigate Hit。",
+    "选择测量数据库、细胞预测、向导比例和分数列。",
+    "阅读证据、孔、向导和阈值选项卡，并找到保存的表格。"
+  ],
+  "prerequisite": "解压Investigate_Hit_real_screen_example.zip。其中所有内容都来自同一次真实筛选：在Regression测试数据上的Regression运行（使用Regression教程中的设置）、对应的单细胞CV预测，以及包含这些细胞真实形状、大小和强度测量值的测量数据库。为了让下载更小，数据库包含52个孔：所有带有基因225160向导的已分析孔，以及每个孔对应的三个来自同一块板、不含该向导的孔。在这次快速Regression运行中，没有基因满足q ≤ 0.05。请把这次调查当作实例演示，而不是已确认的命中。",
+  "scenes": [
+    "从Home打开Regression。Investigate Hit从一次已完成的Regression运行开始。它要回答的是：与某个基因相关的孔中所测量的细胞，看起来是否不同于不含该基因的孔中的细胞。",
+    "选择Hits打开Hit List。先解压示例压缩包。其中包含一次在测试数据上的Regression运行、对应的单细胞CV预测，以及这些细胞的测量数据库。这三者都来自同一次真实筛选。",
+    "点击Browse，选择regression_run的results中的guide_permutation文件夹。这是Regression教程中测试数据运行的输出。",
+    "Hit List对三百二十五个基因进行排序。请把每一行的效应、P值和q值放在一起阅读，同时查看向导数量以及其中有多少方向一致。",
+    "把Max q设为零点零五。表格会变空，因为这次运行中没有基因的q值小于或等于零点零五。在一百九十九次置换下，可能的最小P值是零点零零五，最低的q值约为零点二七。因此接下来检查的是一个排名靠前的候选，而不是已确认的命中。",
+    "把Max q改回一，搜索二二五一六零，然后选中它所在的行。它的效应为零点三四，q值为零点二七，三个向导的方向全部一致。",
+    "点击Investigate selected。Investigate Hit打开时，已根据这一行填好了结果文件夹、基因、它的三个向导和正向的效应方向。",
+    "在Measurements database旁点击Browse，选择示例中的measurements.db。它包含五十二个孔中八千九百一十五个细胞的形状、大小和各通道平均强度。",
+    "在Existing CV predictions中选择cv_predictions.csv。每一行是一个细胞保存的CV分数，对应同一个已测量对象。点击路径并按Enter，以读取分数列，然后保留pred作为表型分数列。",
+    "在Well/guide fractions中，选择同一结果文件夹中的regression_data.csv。这张表由Regression写出，给出每个向导在每个已分析孔中的比例。",
+    "Independent morphology features保持为空。这样模块会使用数据库中的十三项数值型细胞测量值，并排除标识符、向导比例和CV分数，因此这项检查不会重复使用该分数。对于您自己的数据库，请只列出没有缺失值的测量列。",
+    "点击Investigate hit。模型每次留出一块板进行拟合，因此任何细胞都不会被在其自身所在板上训练的模型打分。孔的向导比例只设定该孔细胞的初始预期，绝不会把某个细胞标记为携带该向导。这个示例需要几分钟。",
+    "Evidence给出结果。目标孔的类命中流行率只比对照孔高零点零一。按孔的自助法区间从负零点零四到正零点零六，分块置换的P值约为零点六三。这些细胞不支持这个候选。",
+    "Wells列出每个孔的向导比例、平均类命中概率、流行率和细胞数量。每个孔算作一个独立单位，因此比较使用的是十三个目标孔和三十九个对照孔，而不是单个细胞。",
+    "Guides分别显示每个目标向导。它们的剂量反应方向各不相同，这又是一个不把该基因当作命中的理由。",
+    "Threshold sensitivity在零点五到零点九的概率阈值下重复比较。在每个阈值下，差异都保持在零点零一左右，因此结论不取决于阈值。",
+    "Candidate cells按类命中概率对细胞排序，并显示原始分数以及为每个细胞打分的折。这些概率描述的是类似命中的形态，而不是细胞携带了哪个向导。只有当孔水平的证据令人信服时，才把判定提升到注释中。Undo可以撤销提升。",
+    "表格保存在结果文件夹中的hit_investigation下，再进入二二五一六零。其中包括这个嵌入和一份清单，每次运行也会作为新版本保存在数据库中。本示例没有裁剪图像，所以审阅图库是空的。接下来，请在置换次数更多的Regression运行中，调查一个通过您阈值的基因。"
+  ]
+}

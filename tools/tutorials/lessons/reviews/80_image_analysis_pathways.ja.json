@@ -1,0 +1,51 @@
+{
+  "language": "ja",
+  "lesson": "80_image_analysis_pathways",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
+  "title": "画像解析モジュールとその関係",
+  "section": "ワークフロー",
+  "description": "画像から測定に至る現在の経路をたどり、探索、ラベル付け、比較、生物種に特化した解析から選びます。",
+  "objectives": [
+    "すでにあるデータに応じて、開始するモジュールを選びます。",
+    "各モジュールが何を読み書きするかを把握します。",
+    "次の手順では、リンクされたモジュールのレッスンと API の入出力仕様を参照します。"
+  ],
+  "prerequisite": "spaCR をインストールして Home を開きます。ワークフローの出発点となるデータを選び、リンク先のモジュールのレッスンで操作と例データを確認してください。",
+  "scenes": [
+    "問いと、すでにあるデータから始めます。現在の Home の各行は Core analysis、Data preparation and comparison、Tools、Toxoplasma の Organism ページに分かれています。モジュールは一つの工程であり、その出力が別のモジュールの入力になります。",
+    "Import は取り込む顕微鏡ファイルとメタデータを整理します。撮影データに重なり合うタイルが含まれる場合、Align & Stitch で座標記録を伴うモザイクを準備できます。チャネルの識別情報と元のメタデータをプロジェクトとともに保持してください。",
+    "Mask は顕微鏡画像からオブジェクトラベルを生成します。Make Masks ではマスクを手作業で作成、確認できます。画像とマスクの組は同じ視野識別情報を保持する必要があります。単独のマスクファイルが、そのまま Measure に必要なプロジェクトの結合配列になるわけではありません。",
+    "Measure は準備された画像とマスク平面を一緒に読み込みます。オブジェクトの識別情報と特徴量列を含む measurements.db を書き出し、オブジェクトの切り抜き画像も保存できます。元のプロジェクトとチャネル対応表をこれらのテーブルとともに保持してください。",
+    "Annotate はオブジェクトの切り抜き画像を表示し、確認済みラベルを追加できるようにします。Classify は切り抜き画像または測定した特徴量を使い、選択したラベル列でモデルを学習させます。評価用オブジェクトを学習用オブジェクトと分け、スコア列とオブジェクトの識別情報を後続の解析に引き継いでください。",
+    "Embeddings は切り抜き画像を数値特徴量に符号化します。Image UMAP は互換性のある特徴量を探索用に投影します。クラスタに意味を与える前に代表的な切り抜き画像を確認してください。クラスタだけで、検証済みの表現型とはいえません。",
+    "Gate Editor は実際の特徴量列や互換性のある投影座標を使ってオブジェクトを選択します。ラベルを書き込む前に選択したオブジェクトを確認してください。そのラベルを、Annotate や Classify の確認済みの例として利用できます。",
+    "QC は実施されている品質確認と不足している根拠を報告します。Run Compare は保存された実行結果を並べて確認します。Graph Builder は選択した列とグループ分けを使って測定テーブルをグラフ化します。",
+    "Experiment Design は条件と試料の識別情報を計画します。Power / Design は統計的計画の前提を検討します。Dose-Response は濃度ごとの評価指標を解析します。測定する評価指標、対照、実験単位を明確にしてください。",
+    "Toxoplasma ページには生物種に特化したアッセイがまとめられています。入力はそれぞれ異なります。プラーク画像、区画の測定値、明示的な寄生虫と液胞の対応関係は互いに代用できません。適切なアッセイを選び、その入力要件に従ってください。",
+    "プール型スクリーニングでは、Map Barcodes がシーケンスリードからガイド配列のカウントを生成します。Regression はそのカウントを互換性のある表現型スコアと組み合わせます。二つの経路を結合する際は、プレート、ウェル、ガイド配列の識別情報を保持してください。",
+    "Home に戻り、実際にある出力から次の工程を選びます。完全な実行にはリンクされたモジュールのレッスンを利用してください。後からワークフローを確認できるように、入力の識別情報、設定、インストール済みバージョン、出力場所をまとめて保持してください。"
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "3edf5b6bb0a199a9636f5bf50d8a8914fb7e013cc28a94558aff1653efcd0984",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
+}

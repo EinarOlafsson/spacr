@@ -1,0 +1,72 @@
+{
+  "source": "/mnt/wd4tb/scratch/advection_gravity_probe_20261006/final/final_ambient.py",
+  "sha256": "2917d3be9db693075c160aedb3ed233d32eb92e5e7ef7cd234eb3e100d926d87",
+  "records": [
+    {
+      "display": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "radius": 0.25,
+      "elapsed_s": 3.1071831849985756,
+      "published_fps": 24.137617750410936,
+      "published": 75,
+      "distinct_clocks": 75,
+      "painted_fps": 24.459452653749747,
+      "repeated_frames": 1,
+      "shade": {
+        "median_ms": 14.787624008022249,
+        "p95_ms": 22.052939995774068,
+        "samples": 75
+      },
+      "paint": {
+        "median_ms": 1.3596655044239014,
+        "p95_ms": 2.782799012493342,
+        "samples": 76
+      },
+      "heartbeat": {
+        "median_ms": 10.078595005325042,
+        "p95_ms": 11.491794008179568,
+        "samples": 309
+      },
+      "stopped_after_hide": true
+    },
+    {
+      "display": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "radius": 0.25,
+      "elapsed_s": 3.149963221003418,
+      "published_fps": 23.80980180972044,
+      "published": 75,
+      "distinct_clocks": 75,
+      "painted_fps": 24.127265833850043,
+      "repeated_frames": 3,
+      "shade": {
+        "median_ms": 20.784387001185678,
+        "p95_ms": 33.21488499932457,
+        "samples": 75
+      },
+      "paint": {
+        "median_ms": 7.0378204982262105,
+        "p95_ms": 10.924374000751413,
+        "samples": 76
+      },
+      "heartbeat": {
+        "median_ms": 10.084394001751207,
+        "p95_ms": 16.55344999744557,
+        "samples": 310
+      },
+      "stopped_after_hide": true
+    }
+  ]
+}

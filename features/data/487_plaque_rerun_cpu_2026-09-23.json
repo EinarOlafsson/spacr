@@ -1,0 +1,33 @@
+{
+  "device": "cpu",
+  "checkpoint": "/home/olafsson/.spacr/models/cpsam_plaque_r5_v2",
+  "source": "/mnt/firecuda2/Claude/implementation-20260922/plaque-scale-424/pbio.3002110.g008.png",
+  "crop_xyxy": [
+    202,
+    3,
+    534,
+    333
+  ],
+  "inference_shape": [
+    128,
+    128
+  ],
+  "calls": [
+    {
+      "thread": 126049706833600,
+      "flow_threshold": 0.4
+    },
+    {
+      "thread": 126049706833600,
+      "flow_threshold": 0.2
+    }
+  ],
+  "gui_thread": 126050060776960,
+  "timer_ticks": 823,
+  "max_timer_gap_seconds": 0.3394473040243611,
+  "elapsed_seconds": 17.27753746099188,
+  "final_count": 15,
+  "stale_results_delivered": 0,
+  "exact_user_crash_reproduced": false,
+  "gpu_tested": false
+}

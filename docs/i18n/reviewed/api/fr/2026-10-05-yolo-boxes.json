@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Codex), no independent peer or native-speaker signoff",
+  "source_commit": "d7522bcd71198539e0506388f25626ef68df85fb",
+  "note": "Evidence for 22 current YOLO API source/context blocks. Full API catalog repair remains open; admission gates are unchanged.",
+  "source_files": {
+    "spacr/qt/mask_engine.py": "9b25edcc8870b999677066c1bc3c743c2946549c271c30b0cc90ce6fbb1c136c"
+  },
+  "records": [
+    {
+      "label": "spacr.qt.mask_engine.export_yolo_boxes#0",
+      "source": "Atomically write a YOLO label text file and sibling class metadata.",
+      "source_sha256": "f820e2776783be7b2903e03727f33c3081416e612cc3893afbdfceb5a0b30638",
+      "context": "Atomically write a YOLO label text file and sibling class metadata.",
+      "translation": "Écrire atomiquement un fichier texte d'étiquettes YOLO et les métadonnées de classes associées.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.export_yolo_boxes#1",
+      "source": "The label path must end in ``.txt``. Its sibling ``.classes.json`` keeps the ordered class names; an existing map may only be extended. Empty ``boxes`` intentionally writes an empty label file for a negative image. Source images and masks are never opened or converted by this export.",
+      "source_sha256": "dd604131d2a9f4387dca33b9eb3ab64767bdcbc13536f880a5fb4ecf574fd268",
+      "context": "The label path must end in ``.txt``. Its sibling ``.classes.json`` keeps the ordered class names; an existing map may only be extended. Empty ``boxes`` intentionally writes an empty label file for a negative image. Source images and masks are never opened or converted by this export.",
+      "translation": "Le chemin des étiquettes doit se terminer par ``.txt``. Le fichier associé ``.classes.json`` conserve les noms de classes ordonnés ; une correspondance de classes existante peut uniquement être étendue. Des ``boxes`` vides produisent intentionnellement un fichier d'étiquettes vide pour une image négative. Cet export n'ouvre ni ne convertit jamais les images sources ou les masques.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.export_yolo_boxes#2",
+      "source": "chosen ``.txt`` path in an existing directory.",
+      "source_sha256": "47a757e4628dfb6dc5b74ee91017a966710703690d66a5adc2cd0e94d8836956",
+      "context": "chosen ``.txt`` path in an existing directory.",
+      "translation": "chemin ``.txt`` choisi dans un répertoire existant.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.export_yolo_boxes#3",
+      "source": "``(class_id, x0, y0, x1, y1)`` full-image pixel boxes.",
+      "source_sha256": "9dac37272c1cf65811f4292b51a178507e4c74da94781c3a0f580fb52f96ad7c",
+      "context": "``(class_id, x0, y0, x1, y1)`` full-image pixel boxes.",
+      "translation": "boîtes ``(class_id, x0, y0, x1, y1)`` en coordonnées de pixels de l'image entière.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.export_yolo_boxes#4",
+      "source": "shape of the image the labels describe.",
+      "source_sha256": "20eed0a5046f73831497edfdbba1c94eefe40c7b145c6c2a5e5354ca16a83dc9",
+      "context": "shape of the image the labels describe.",
+      "translation": "forme de l'image décrite par les étiquettes.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.export_yolo_boxes#5",
+      "source": "ordered names whose indexes are the class IDs.",
+      "source_sha256": "28f175d3e524de90fe3bf8e5adce9d1adcad31e79f0ad6d2a1ad45ea4ebacd35",
+      "context": "ordered names whose indexes are the class IDs.",
+      "translation": "noms ordonnés dont les indices sont les identifiants de classe.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.export_yolo_boxes#6",
+      "source": "the written label text path as a string.",
+      "source_sha256": "6001dce281f44fcf95fb74d0935e38bcfceb9e8232378c7f6a6bbabf73b79d60",
+      "context": "the written label text path as a string.",
+      "translation": "chemin du fichier texte d'étiquettes écrit, sous forme de chaîne.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_yolo_boxes#0",
+      "source": "Load this source's boxes, refusing stale bytes or changed image shape.",
+      "source_sha256": "ebd81a03a270fc79e4e80ce177c0e61af5a0680a65c1d53e34793d2c8fb62e7e",
+      "context": "Load this source's boxes, refusing stale bytes or changed image shape.",
+      "translation": "Charger les boîtes de cette source en refusant les données périmées ou une forme d'image modifiée.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_yolo_boxes#1",
+      "source": "An unannotated source returns the existing project classes and no boxes. A project with no ledger starts with class ``object`` and no boxes.",
+      "source_sha256": "095041847af717e9263587e5f11bd681c19392e54e7521ba181e15ed9bb4a922",
+      "context": "An unannotated source returns the existing project classes and no boxes. A project with no ledger starts with class ``object`` and no boxes.",
+      "translation": "Une source sans annotations renvoie les classes existantes du projet et aucune boîte. Un projet sans registre commence avec la classe ``object`` et aucune boîte.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_yolo_boxes#2",
+      "source": "project folder holding the original image.",
+      "source_sha256": "f7a29fa61b60d67a739b2501f64f922c69bbf5b86804fd130638bc370fa8f1de",
+      "context": "project folder holding the original image.",
+      "translation": "dossier du projet contenant l'image originale.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_yolo_boxes#3",
+      "source": "source-image path relative to ``folder``.",
+      "source_sha256": "df8ecdc84c4d628cf9d1a95417b8ab3aaee3a6a87833c2c8cbde70f17721d743",
+      "context": "source-image path relative to ``folder``.",
+      "translation": "chemin de l'image source relatif à ``folder``.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_yolo_boxes#4",
+      "source": "shape of the displayed source image.",
+      "source_sha256": "2f51a6a2b9f44ce515afbb89a0440de7eacda3c60df14474a357ebfa6056d4bd",
+      "context": "shape of the displayed source image.",
+      "translation": "forme de l'image source affichée.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.load_yolo_boxes#5",
+      "source": "classes, canonical boxes and the current source SHA-256.",
+      "source_sha256": "1a5b7eca167f7b86954a4cfed3b3479ddc8e0a5d29dccee1b796d6a97dc61bad",
+      "context": "classes, canonical boxes and the current source SHA-256.",
+      "translation": "classes, boîtes sous forme canonique et SHA-256 actuel de la source.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_yolo_boxes#0",
+      "source": "Atomically save one source-bound box record in the project's ledger.",
+      "source_sha256": "370788dd497afc3714ca11fb93cbfb579cd83d4f91c68d32a14fe4d2ad1421de",
+      "context": "Atomically save one source-bound box record in the project's ledger.",
+      "translation": "Enregistrer atomiquement une entrée de boîtes liée à la source dans le registre du projet.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_yolo_boxes#1",
+      "source": "``folder`` holds the untouched source image. ``filename`` is relative to that folder. Existing class IDs retain their meanings: the old class map must be a prefix of ``classes``. The saved source SHA-256 and full image shape must agree when :func:`load_yolo_boxes` is next called. When an expected source digest is supplied, an external image change between loading and saving is refused before touching the ledger.",
+      "source_sha256": "928e4d97ccfc5d0ce56959c5228114f2e7a9dce6dfa9af1958988f8d7377ab7c",
+      "context": "``folder`` holds the untouched source image. ``filename`` is relative to that folder. Existing class IDs retain their meanings: the old class map must be a prefix of ``classes``. The saved source SHA-256 and full image shape must agree when :func:`load_yolo_boxes` is next called. When an expected source digest is supplied, an external image change between loading and saving is refused before touching the ledger.",
+      "translation": "``folder`` contient l'image source inchangée. ``filename`` est relatif à ce dossier. Les identifiants de classe existants conservent leur signification : l'ancienne correspondance de classes doit être un préfixe de ``classes``. Le SHA-256 enregistré de la source et la forme complète de l'image doivent correspondre lors du prochain appel à :func:`load_yolo_boxes`. Lorsqu'un hachage attendu de la source est fourni, toute modification externe de l'image entre le chargement et l'enregistrement est refusée avant de modifier le registre.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_yolo_boxes#7",
+      "source": "digest received from a previous load, or None when the caller has no prior image snapshot.",
+      "source_sha256": "2cc5d31c47a2faac8ae3c5400096aae8613d1e901e310c79f3c622e715e3d887",
+      "context": "digest received from a previous load, or None when the caller has no prior image snapshot.",
+      "translation": "hachage reçu lors d'un chargement précédent, ou None si l'appelant ne dispose pas d'un instantané antérieur de l'image.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.save_yolo_boxes#8",
+      "source": "the private project-ledger path.",
+      "source_sha256": "45283214155749d88cb27f05ee8da67a14e6291fa05d00791a2c7bf8b55301ab",
+      "context": "the private project-ledger path.",
+      "translation": "chemin du registre privé du projet.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.yolo_box_lines#0",
+      "source": "Encode full-image pixel boxes as standard YOLO ``class cx cy w h``.",
+      "source_sha256": "c27208cc5d1aef207e598ceb72a815197f23ff0d7542851e3aef7190349b3ba0",
+      "context": "Encode full-image pixel boxes as standard YOLO ``class cx cy w h``.",
+      "translation": "Encoder les boîtes en coordonnées de pixels de l'image entière au format YOLO standard ``class cx cy w h``.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.yolo_box_lines#1",
+      "source": "Corners may be reversed or outside the image. Every box is clipped and checked before any line is returned; overlapping boxes stay distinct. Coordinates use exclusive right and bottom edges and are normalised by the positive image width and height.",
+      "source_sha256": "fa93c8ee76d607e3536d2aa72383a23c2baaafea0db3d30803d10c131856a768",
+      "context": "Corners may be reversed or outside the image. Every box is clipped and checked before any line is returned; overlapping boxes stay distinct. Coordinates use exclusive right and bottom edges and are normalised by the positive image width and height.",
+      "translation": "Les coins peuvent être inversés ou se trouver hors de l'image. Chaque boîte est limitée aux frontières de l'image et vérifiée avant le retour de toute ligne ; les boîtes chevauchantes restent distinctes. Les coordonnées utilisent des limites droite et inférieure exclusives et sont normalisées par la largeur et la hauteur positives de l'image.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.yolo_box_lines#3",
+      "source": "positive integer width of the original image.",
+      "source_sha256": "5d375f4997e4a3211ba49792cdc1f795a47e942ea7c844e80600b56646a72df7",
+      "context": "positive integer width of the original image.",
+      "translation": "largeur de l'image originale sous forme d'entier positif.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.yolo_box_lines#4",
+      "source": "positive integer height of the original image.",
+      "source_sha256": "e26d416e9596bbdd1c03ca205d8cf57462730eb97827e71e1e9b752fac1dc276",
+      "context": "positive integer height of the original image.",
+      "translation": "hauteur de l'image originale sous forme d'entier positif.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    },
+    {
+      "label": "spacr.qt.mask_engine.yolo_box_lines#5",
+      "source": "one normalised YOLO label line per input box, in input order.",
+      "source_sha256": "ed74942a85ce01b209a09bac04d4b937c51d6a4275a870f344e720b35217e81a",
+      "context": "one normalised YOLO label line per input box, in input order.",
+      "translation": "une ligne d'étiquettes YOLO normalisée par boîte d'entrée, dans l'ordre d'entrée.",
+      "review_basis": "Direct Codex technical translation and review of YOLO box persistence/export: atomic writes, append-only class identities, immutable source hashes, negative labels, exclusive pixel edges, clipping, normalization and overlapping boxes. Literal filenames, coordinate tuples, function links and format tokens preserved."
+    }
+  ]
+}

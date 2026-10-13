@@ -1,0 +1,635 @@
+{
+  "schema": 1,
+  "language": "en",
+  "lang_code": "a",
+  "dialect": "us",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "total_duration": 96.345,
+  "media_sha256": "f0c39395bc855eeeb7bc79b901679f46bfa3a001da10ed1ee3df111d3c0c2cf5",
+  "media_bytes": 610061,
+  "render_fingerprint": "8e5cc877384a1ec7b69189c2b21540b361142fe8d7cf804fe334a15b7e53cd19",
+  "render_inputs": {
+    "kind": "one_sentence_pronunciation_repair",
+    "source_revision": "222abdcb5835a75e6f92e7144e249d5ad4d64214",
+    "source_audio_sha256": "854bf0ff5e881e449b7bbfb7da1d1da629d9a91437ac296f91c611ebc32c78e3",
+    "source_metadata_sha256": "690e088417e2560c0dcc927f1f7c491146788570d7dac9884aa8ac9b36cbad06",
+    "scene": 5,
+    "sentence": 2,
+    "start": 54.375000000000014,
+    "end": 61.88000000000001,
+    "old_phonemes": "/kˈuːdᵊ/",
+    "new_phonemes": "/kˈudə/",
+    "tempo_ratio": 0.9966688874083944,
+    "rms_gain": 2.3113632202148438,
+    "seed": 20260911,
+    "outside_interval_pcm_identical_before_encoding": true,
+    "all_caption_text_and_sentence_boundaries_unchanged": true,
+    "whole_track_reencoded": true,
+    "movie_changed": false,
+    "decoded_sample_peak_dbfs": -2.51041841506958,
+    "runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    },
+    "repair_script_sha256": "4eb550414174e77e9d5f3b5caad0fdb647ac452202cfdbeb3f1ccf0a5b78bcae"
+  },
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.305,
+      "scene_end": 9.825,
+      "duration": 9.825,
+      "text": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its dependencies.",
+      "speech_text": "The lightweight native installers create a private Python three point twelve runtime, then download Q T, [PyTorch](/pˈItˌɔɹʧ/), spacer, and its dependencies.",
+      "phonemes": "ðə lˈItwˌAt nˈATɪv ɪnstˈɔləɹz kɹiˈAt ɐ pɹˈIvət pˈIθˌɑn θɹˈi pˈYnt twˈɛlv ɹˈʌntIm, ðˈɛn dˈWnlˌOd kjˈu tˈi, pˈItˌɔɹʧ, spˈAsəɹ, ænd ɪts dəpˈɛndᵊnsiz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 0.0,
+          "speech_end": 9.305,
+          "audible_start": 0.1,
+          "audible_end": 9.125,
+          "duration": 9.305,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.275,
+          "text": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its dependencies.",
+          "speech_text": "The lightweight native installers create a private Python three point twelve runtime, then download Q T, [PyTorch](/pˈItˌɔɹʧ/), spacer, and its dependencies.",
+          "phonemes": "ðə lˈItwˌAt nˈATɪv ɪnstˈɔləɹz kɹiˈAt ɐ pɹˈIvət pˈIθˌɑn θɹˈi pˈYnt twˈɛlv ɹˈʌntIm, ðˈɛn dˈWnlˌOd kjˈu tˈi, pˈItˌɔɹʧ, spˈAsəɹ, ænd ɪts dəpˈɛndᵊnsiz."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.825,
+      "speech_end": 21.505,
+      "scene_end": 22.025,
+      "duration": 12.2,
+      "text": "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+      "speech_text": "Download installers only from the latest spacer [GitHub](/ɡˈɪthˌʌb/) Release. Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download.",
+      "phonemes": "dˈWnlˌOd ɪnstˈɔləɹz ˈOnli fɹʌm ðə lˈATᵻst spˈAsəɹ ɡˈɪthˌʌb ɹəlˈis. mˈæʧ ðə fˈIl tə jʊɹ ˈɑpəɹˌATɪŋ sˈɪstəm ænd jˈuz ðə pˈʌblɪʃt ˈɛs ˈAʧ ɐ tˈu fˈɪfti sˈɪks fˈIl wˌɛn ju nˈid tə vˈɛɹəfˌI ðə dˈWnlˌOd.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 9.825,
+          "speech_end": 13.66,
+          "audible_start": 9.924999999999999,
+          "audible_end": 13.479999999999999,
+          "duration": 3.835,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.24,
+          "trimmed_tail": 0.25,
+          "text": "Download installers only from the latest spaCR GitHub Release.",
+          "speech_text": "Download installers only from the latest spacer [GitHub](/ɡˈɪthˌʌb/) Release.",
+          "phonemes": "dˈWnlˌOd ɪnstˈɔləɹz ˈOnli fɹʌm ðə lˈATᵻst spˈAsəɹ ɡˈɪthˌʌb ɹəlˈis."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 13.78,
+          "speech_end": 21.505,
+          "audible_start": 13.879999999999999,
+          "audible_end": 21.325,
+          "duration": 7.725,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.285,
+          "text": "Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+          "speech_text": "Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download.",
+          "phonemes": "mˈæʧ ðə fˈIl tə jʊɹ ˈɑpəɹˌATɪŋ sˈɪstəm ænd jˈuz ðə pˈʌblɪʃt ˈɛs ˈAʧ ɐ tˈu fˈɪfti sˈɪks fˈIl wˌɛn ju nˈid tə vˈɛɹəfˌI ðə dˈWnlˌOd."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 22.025,
+      "speech_end": 34.835,
+      "scene_end": 35.355000000000004,
+      "duration": 13.330000000000005,
+      "text": "On Windows ten or eleven, open the online setup executable. Automatic hardware acceleration is selected by default. Clear that component only when you require a smaller CPU-only installation.",
+      "speech_text": "On Windows ten or eleven, open the online setup executable. Automatic hardware acceleration is selected by default. Clear that component only when you require a smaller CPU-only installation.",
+      "phonemes": "ˌɔn wˈɪndOz tˈɛn ɔɹ əlˈɛvᵊn, ˈOpᵊn ði ˌɑnlˈIn sˈɛTˌʌp ˈɛksəkjˌuTəbᵊl. ˌɔTəmˈæTɪk hˈɑɹdwˌɛɹ əksˌɛləɹˈAʃən ɪz səlˈɛktᵻd bI dəfˈɔlt. klˈɪɹ ðˈæt kəmpˈOnənt ˈOnli wˌɛn ju ɹəkwˈIəɹ ɐ smˈɔləɹ sˌipˌijˈuˌOnli ˌɪnztəlˈAʃən.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 22.025,
+          "speech_end": 26.18,
+          "audible_start": 22.125,
+          "audible_end": 26.0,
+          "duration": 4.155,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.29,
+          "text": "On Windows ten or eleven, open the online setup executable.",
+          "speech_text": "On Windows ten or eleven, open the online setup executable.",
+          "phonemes": "ˌɔn wˈɪndOz tˈɛn ɔɹ əlˈɛvᵊn, ˈOpᵊn ði ˌɑnlˈIn sˈɛTˌʌp ˈɛksəkjˌuTəbᵊl."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 26.299999999999997,
+          "speech_end": 30.049999999999997,
+          "audible_start": 26.4,
+          "audible_end": 29.869999999999997,
+          "duration": 3.75,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.24,
+          "text": "Automatic hardware acceleration is selected by default.",
+          "speech_text": "Automatic hardware acceleration is selected by default.",
+          "phonemes": "ˌɔTəmˈæTɪk hˈɑɹdwˌɛɹ əksˌɛləɹˈAʃən ɪz səlˈɛktᵻd bI dəfˈɔlt."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 30.169999999999998,
+          "speech_end": 34.835,
+          "audible_start": 30.269999999999996,
+          "audible_end": 34.655,
+          "duration": 4.665,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.31,
+          "text": "Clear that component only when you require a smaller CPU-only installation.",
+          "speech_text": "Clear that component only when you require a smaller CPU-only installation.",
+          "phonemes": "klˈɪɹ ðˈæt kəmpˈOnənt ˈOnli wˌɛn ju ɹəkwˈIəɹ ɐ smˈɔləɹ sˌipˌijˈuˌOnli ˌɪnztəlˈAʃən."
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 35.355000000000004,
+      "speech_end": 47.57000000000001,
+      "scene_end": 48.09000000000001,
+      "duration": 12.735000000000007,
+      "text": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+      "speech_text": "On [macOS](/mˈækOˌɛs/) eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the [unnotarized](/ʌnnˈOTəɹIzd/) package, use Privacy and Security, Open Anyway, then run it again.",
+      "phonemes": "ˌɔn mˈækOˌɛs əlˈɛvᵊn ɔɹ nˈuəɹ, ˈOpᵊn ðə jˌunəvˈɜɹsᵊl pˈækɪʤ fɔɹ ˈɪntˌɛl ænd ˈæpᵊl sˈɪləkˌɑn. ˌɪf ɡˈAtkˌipəɹ blˈɑks ði ʌnnˈOTəɹIzd pˈækɪʤ, jˈuz pɹˈIvəsi ænd səkjˈʊɹəTi, ˈOpᵊn ˈɛniwˌA, ðˈɛn ɹˈʌn ɪt əɡˈɛn.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 35.355000000000004,
+          "speech_end": 40.785000000000004,
+          "audible_start": 35.455000000000005,
+          "audible_end": 40.605000000000004,
+          "duration": 5.43,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.29,
+          "text": "On macOS eleven or newer, open the universal package for Intel and Apple silicon.",
+          "speech_text": "On [macOS](/mˈækOˌɛs/) eleven or newer, open the universal package for Intel and Apple silicon.",
+          "phonemes": "ˌɔn mˈækOˌɛs əlˈɛvᵊn ɔɹ nˈuəɹ, ˈOpᵊn ðə jˌunəvˈɜɹsᵊl pˈækɪʤ fɔɹ ˈɪntˌɛl ænd ˈæpᵊl sˈɪləkˌɑn."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 40.905,
+          "speech_end": 47.57000000000001,
+          "audible_start": 41.005,
+          "audible_end": 47.39,
+          "duration": 6.665,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.28,
+          "text": "If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+          "speech_text": "If Gatekeeper blocks the [unnotarized](/ʌnnˈOTəɹIzd/) package, use Privacy and Security, Open Anyway, then run it again.",
+          "phonemes": "ˌɪf ɡˈAtkˌipəɹ blˈɑks ði ʌnnˈOTəɹIzd pˈækɪʤ, jˈuz pɹˈIvəsi ænd səkjˈʊɹəTi, ˈOpᵊn ˈɛniwˌA, ðˈɛn ɹˈʌn ɪt əɡˈɛn."
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "speech_start": 48.09000000000001,
+      "speech_end": 61.88000000000001,
+      "scene_end": 62.40000000000001,
+      "duration": 14.310000000000002,
+      "text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. Automatic backend selection is the default and installs CUDA support when compatible NVIDIA hardware is available.",
+      "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. Automatic back end selection is the default and installs [CUDA](/kˈudə/) support when compatible NVIDIA hardware is available.",
+      "phonemes": "ˌɔn sˈɪksti fˈɔɹ bˈɪt lˈɪnəks, mˌAk ðə dˈWnlˌOdᵻd ɹˈʌn fˈIl ˈɛksəkjˌuTəbᵊl, ðˈɛn stˈɑɹt ɪt fɹʌm ɐ tˈɜɹmənəl. ˌɔTəmˈæTɪk bˈæk ˈɛnd səlˈɛkʃən ɪz ðə dəfˈɔlt ænd ɪnstˈɔlz kˈudə səpˈɔɹt wˌɛn kəmpˈæTəbᵊl ɛnvˈɪdiə hˈɑɹdwˌɛɹ ɪz əvˈAləbᵊl.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 48.09000000000001,
+          "speech_end": 54.25500000000001,
+          "audible_start": 48.19000000000001,
+          "audible_end": 54.07500000000001,
+          "duration": 6.165,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.31,
+          "text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal.",
+          "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal.",
+          "phonemes": "ˌɔn sˈɪksti fˈɔɹ bˈɪt lˈɪnəks, mˌAk ðə dˈWnlˌOdᵻd ɹˈʌn fˈIl ˈɛksəkjˌuTəbᵊl, ðˈɛn stˈɑɹt ɪt fɹʌm ɐ tˈɜɹmənəl."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 54.375000000000014,
+          "speech_end": 61.88000000000001,
+          "audible_start": 54.475334224598946,
+          "audible_end": 61.69939839572194,
+          "duration": 7.505,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.31,
+          "text": "Automatic backend selection is the default and installs CUDA support when compatible NVIDIA hardware is available.",
+          "speech_text": "Automatic back end selection is the default and installs [CUDA](/kˈudə/) support when compatible NVIDIA hardware is available.",
+          "phonemes": "ˌɔTəmˈæTɪk bˈæk ˈɛnd səlˈɛkʃən ɪz ðə dəfˈɔlt ænd ɪnstˈɔlz kˈudə səpˈɔɹt wˌɛn kəmpˈæTəbᵊl ɛnvˈɪdiə hˈɑɹdwˌɛɹ ɪz əvˈAləbᵊl."
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "speech_start": 62.40000000000001,
+      "speech_end": 74.75500000000001,
+      "scene_end": 75.275,
+      "duration": 12.874999999999993,
+      "text": "To require a smaller CPU-only installation on Linux, pass --torch-backend cpu. Otherwise, keep the default automatic selection so CUDA acceleration is used when supported.",
+      "speech_text": "To require a smaller CPU-only installation on Linux, pass dash dash torch back end cpu. Otherwise, keep the default automatic selection so [CUDA](/kˈuːdᵊ/) acceleration is used when supported.",
+      "phonemes": "tə ɹəkwˈIəɹ ɐ smˈɔləɹ sˌipˌijˈuˌOnli ˌɪnztəlˈAʃən ˌɔn lˈɪnəks, pˈæs dˈæʃ dˈæʃ tˈɔɹʧ bˈæk ˈɛnd sˌipˌijˈu. ˈʌðəɹwˌIz, kˈip ðə dəfˈɔlt ˌɔTəmˈæTɪk səlˈɛkʃən sˌO kˈuːdᵊ əksˌɛləɹˈAʃən ɪz jˈuzd wˌɛn səpˈɔɹTᵻd.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 62.40000000000001,
+          "speech_end": 68.68500000000002,
+          "audible_start": 62.500000000000014,
+          "audible_end": 68.50500000000001,
+          "duration": 6.285,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.29,
+          "text": "To require a smaller CPU-only installation on Linux, pass --torch-backend cpu.",
+          "speech_text": "To require a smaller CPU-only installation on Linux, pass dash dash torch back end cpu.",
+          "phonemes": "tə ɹəkwˈIəɹ ɐ smˈɔləɹ sˌipˌijˈuˌOnli ˌɪnztəlˈAʃən ˌɔn lˈɪnəks, pˈæs dˈæʃ dˈæʃ tˈɔɹʧ bˈæk ˈɛnd sˌipˌijˈu."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 68.805,
+          "speech_end": 74.75500000000001,
+          "audible_start": 68.90500000000002,
+          "audible_end": 74.57500000000002,
+          "duration": 5.95,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.285,
+          "text": "Otherwise, keep the default automatic selection so CUDA acceleration is used when supported.",
+          "speech_text": "Otherwise, keep the default automatic selection so [CUDA](/kˈuːdᵊ/) acceleration is used when supported.",
+          "phonemes": "ˈʌðəɹwˌIz, kˈip ðə dəfˈɔlt ˌɔTəmˈæTɪk səlˈɛkʃən sˌO kˈuːdᵊ əksˌɛləɹˈAʃən ɪz jˈuzd wˌɛn səpˈɔɹTᵻd."
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "speech_start": 75.275,
+      "speech_end": 88.26,
+      "scene_end": 88.78,
+      "duration": 13.504999999999995,
+      "text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+      "speech_text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install dot log remains in the private spacer installation directory.",
+      "phonemes": "ˈiʧ ɪnstˈɔləɹ vˈælɪdˌAts ðə ɹəplˈAsmᵊnt bəfˈɔɹ swˈɪʧɪŋ vˈɜɹʒənz. ɐn ˌɪntəɹˈʌptᵻd ˈʌpdˌAt lˈivz ðə pɹˈiviəs ənvˈIɹənmᵊnt ɪntˈækt, ænd ɪnstˈɔl dˈɑt lˈɔɡ ɹəmˈAnz ɪn ðə pɹˈIvət spˈAsəɹ ˌɪnztəlˈAʃən dəɹˈɛktəɹi.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 75.275,
+          "speech_end": 79.415,
+          "audible_start": 75.375,
+          "audible_end": 79.235,
+          "duration": 4.14,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.285,
+          "text": "Each installer validates the replacement before switching versions.",
+          "speech_text": "Each installer validates the replacement before switching versions.",
+          "phonemes": "ˈiʧ ɪnstˈɔləɹ vˈælɪdˌAts ðə ɹəplˈAsmᵊnt bəfˈɔɹ swˈɪʧɪŋ vˈɜɹʒənz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 79.53500000000001,
+          "speech_end": 88.26,
+          "audible_start": 79.635,
+          "audible_end": 88.08000000000001,
+          "duration": 8.725,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.315,
+          "text": "An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+          "speech_text": "An interrupted update leaves the previous environment intact, and install dot log remains in the private spacer installation directory.",
+          "phonemes": "ɐn ˌɪntəɹˈʌptᵻd ˈʌpdˌAt lˈivz ðə pɹˈiviəs ənvˈIɹənmᵊnt ɪntˈækt, ænd ɪnstˈɔl dˈɑt lˈɔɡ ɹəmˈAnz ɪn ðə pɹˈIvət spˈAsəɹ ˌɪnztəlˈAʃən dəɹˈɛktəɹi."
+        }
+      ]
+    },
+    {
+      "scene": 8,
+      "speech_start": 88.78,
+      "speech_end": 95.825,
+      "scene_end": 96.345,
+      "duration": 7.564999999999998,
+      "text": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+      "speech_text": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+      "phonemes": "ˈæftəɹ ˌɪnztəlˈAʃən, jˈuz ði ˈɑpəɹˌATɪŋ sˈɪstəm lˈɔnʧəɹ. nˈO sˈɛpəɹət pˈIθˌɑn ɔɹ kˈɑndə sˈɛTˌʌp ɪz ɹəkwˈIəɹd.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 88.78,
+          "speech_end": 92.33,
+          "audible_start": 88.88,
+          "audible_end": 92.15,
+          "duration": 3.55,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.275,
+          "text": "After installation, use the operating system launcher.",
+          "speech_text": "After installation, use the operating system launcher.",
+          "phonemes": "ˈæftəɹ ˌɪnztəlˈAʃən, jˈuz ði ˈɑpəɹˌATɪŋ sˈɪstəm lˈɔnʧəɹ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 92.45,
+          "speech_end": 95.825,
+          "audible_start": 92.55,
+          "audible_end": 95.645,
+          "duration": 3.375,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.26,
+          "text": "No separate Python or Conda setup is required.",
+          "speech_text": "No separate Python or Conda setup is required.",
+          "phonemes": "nˈO sˈɛpəɹət pˈIθˌɑn ɔɹ kˈɑndə sˈɛTˌʌp ɪz ɹəkwˈIəɹd."
+        }
+      ]
+    }
+  ],
+  "source_render_fingerprint": "702a11d6837299dbccfc10e12eae581b4c8fbf79b0110fd9022c0a58271226e1",
+  "source_render_inputs": {
+    "renderer": "render_all_voices-v4",
+    "lesson": "04_platform_installers",
+    "language": "en",
+    "lang_code": "a",
+    "dialect": "us",
+    "voice": "af_heart",
+    "speed": 1.0,
+    "scenes": [
+      {
+        "narration": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its dependencies.",
+        "speech_text": [
+          "The lightweight native installers create a private Python three point twelve runtime, then download Q T, [PyTorch](/pˈItˌɔɹʧ/), spacer, and its dependencies."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+        "speech_text": [
+          "Download installers only from the latest spacer [GitHub](/ɡˈɪthˌʌb/) Release.",
+          "Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "On Windows ten or eleven, open the online setup executable. Automatic hardware acceleration is selected by default. Clear that component only when you require a smaller CPU-only installation.",
+        "speech_text": [
+          "On Windows ten or eleven, open the online setup executable.",
+          "Automatic hardware acceleration is selected by default.",
+          "Clear that component only when you require a smaller CPU-only installation."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+        "speech_text": [
+          "On [macOS](/mˈækOˌɛs/) eleven or newer, open the universal package for Intel and Apple silicon.",
+          "If Gatekeeper blocks the [unnotarized](/ʌnnˈOTəɹIzd/) package, use Privacy and Security, Open Anyway, then run it again."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. Automatic backend selection is the default and installs CUDA support when compatible NVIDIA hardware is available.",
+        "speech_text": [
+          "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal.",
+          "Automatic back end selection is the default and installs [CUDA](/kˈuːdᵊ/) support when compatible NVIDIA hardware is available."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "To require a smaller CPU-only installation on Linux, pass --torch-backend cpu. Otherwise, keep the default automatic selection so CUDA acceleration is used when supported.",
+        "speech_text": [
+          "To require a smaller CPU-only installation on Linux, pass dash dash torch back end cpu.",
+          "Otherwise, keep the default automatic selection so [CUDA](/kˈuːdᵊ/) acceleration is used when supported."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+        "speech_text": [
+          "Each installer validates the replacement before switching versions.",
+          "An interrupted update leaves the previous environment intact, and install dot log remains in the private spacer installation directory."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+        "speech_text": [
+          "After installation, use the operating system launcher.",
+          "No separate Python or Conda setup is required."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      }
+    ],
+    "assembly": {
+      "version": "2026-08-11-natural-sentences-v1",
+      "sample_rate": 24000,
+      "lead_silence_seconds": 0.1,
+      "tail_silence_seconds": 0.18,
+      "sentence_pause_seconds": 0.12,
+      "scene_hold_min_seconds": 0.32,
+      "scene_hold_max_seconds": 0.52,
+      "default_scene_hold_seconds": 0.42,
+      "vad_frame_seconds": 0.005,
+      "vad_peak_ratio": 0.002,
+      "vad_absolute_floor": 2e-05
+    },
+    "cadence_profile": {
+      "version": "2026-08-11-af-heart-scene-cadence-v6",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008,
+      "enabled": false,
+      "targets": {
+        "slow_wpm": 125.0,
+        "fast_wpm": 145.0,
+        "calibration_wpm": 150.0
+      },
+      "safe_multiplier_bounds": {
+        "minimum": 0.68,
+        "maximum": 1.18
+      }
+    },
+    "mastering": {
+      "filters": [
+        "loudnorm=I=-16:TP=-3:LRA=11",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.7:attack=5:release=50:level=disabled",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.5:attack=5:release=50:level=disabled"
+      ],
+      "codec": "aac",
+      "bitrate": "48k",
+      "channels": 1,
+      "maximum_decoded_true_peak_dbfs": -1.0
+    },
+    "pronunciation": {
+      "role": "pronunciation_profile",
+      "version": "2026-08-27-pype-v10",
+      "sha256": "a4d51ff825a9289d71d578160827c53e4ff569f6e371ae51aeaa9154ba5b4e59",
+      "bytes": 15264
+    },
+    "synthesis_runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.6.0",
+        "soundfile": "0.14.0",
+        "python": "3.12.4",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cuda"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm10 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "92dfb2468e6f5f06919b5433c0f14459ac19b81b1bc2d9fdceb83c6ad42e37b5",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "ad63ef3f2f18fa92e89f0ec2bde6941e81f83724c8d265414cb659c28077392d"
+        }
+      }
+    }
+  }
+}

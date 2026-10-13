@@ -1,0 +1,73 @@
+{
+  "source_parent": "56e05f7bcc041ac46b3dace1466edc6905b45b0f",
+  "test_before_sha256": "73a00e352333282208feeadf613db937e7fed6fda0aca05b85848e2cc092da7a",
+  "source_sha256": {
+    "tests/qt/test_exclude_multi_column.py": "4c025d9a92cb6d914f3a6632401a0004503341a1f8dc7e5bad8a1a93661518b4",
+    "tests/qt/test_field_fade.py": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15",
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7"
+  },
+  "passed_before": 21,
+  "passed_after": 21,
+  "seconds_before": 5.74,
+  "seconds_after": 5.98,
+  "hard_memory_cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "selection": [
+    "tests/qt/test_exclude_multi_column.py",
+    "tests/qt/test_field_fade.py::test_the_field_owner_outlives_its_native_painter"
+  ],
+  "file_end_records": {
+    "before": [
+      {
+        "cached_qt_top_levels": 4,
+        "cached_qt_widgets": 60,
+        "event": "file_end",
+        "file": "tests/qt/test_exclude_multi_column.py",
+        "hwm_bytes": 1583759360,
+        "pid": 2209660,
+        "rss_bytes": 1583759360,
+        "threads": 114,
+        "time_ns": 1791346566265329715
+      },
+      {
+        "cached_qt_top_levels": 4,
+        "cached_qt_widgets": 28,
+        "event": "file_end",
+        "file": "tests/qt/test_field_fade.py",
+        "hwm_bytes": 1583771648,
+        "pid": 2209660,
+        "rss_bytes": 1583771648,
+        "threads": 115,
+        "time_ns": 1791346566286119243
+      }
+    ],
+    "after": [
+      {
+        "cached_qt_top_levels": 0,
+        "cached_qt_widgets": 0,
+        "event": "file_end",
+        "file": "tests/qt/test_exclude_multi_column.py",
+        "hwm_bytes": 1583415296,
+        "pid": 2210073,
+        "rss_bytes": 1583415296,
+        "threads": 114,
+        "time_ns": 1791346592757034900
+      },
+      {
+        "cached_qt_top_levels": 1,
+        "cached_qt_widgets": 2,
+        "event": "file_end",
+        "file": "tests/qt/test_field_fade.py",
+        "hwm_bytes": 1583431680,
+        "pid": 2210073,
+        "rss_bytes": 1583431680,
+        "threads": 115,
+        "time_ns": 1791346592782537739
+      }
+    ]
+  },
+  "scope": "Matched bounded file and sentinel. Qt owners retire temporary controls; no production, assertion, collection-order, forced-GC or memory-limit change. Approximately0.3MiB RSS difference is not meaningful whole-suite savings or native-crash acceptance."
+}

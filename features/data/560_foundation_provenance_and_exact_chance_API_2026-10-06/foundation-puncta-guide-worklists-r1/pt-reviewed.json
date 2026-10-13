@@ -1,0 +1,86 @@
+[
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``",
+    "hint": "``ridge_sigmas`` — padrão ``(1.0, 2.0, 3.0)``",
+    "ui": {},
+    "msgstr": "``puncta_sigmas`` — padrão ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "scale-normalised LoG widths in image pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "larguras LoG normalizadas pela escala, em píxeis de imagem."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_k`` — default ``2.5``",
+    "hint": "``local_k`` — padrão ``0.2``",
+    "ui": {},
+    "msgstr": "``puncta_k`` — padrão ``2.5``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "candidate response threshold in propagated pixel-noise units.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "limiar de resposta dos candidatos em unidades de ruído de píxel propagado."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_center_pixels`` — default ``20``",
+    "hint": "``psf_iterations`` — padrão ``20``",
+    "ui": {},
+    "msgstr": "``puncta_center_pixels`` — padrão ``20``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "número de píxeis mais próximos de cada centro subpíxel, de 1 a 81 na janela de medição de nove por nove píxeis."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_corrected`` — default ``3.0``",
+    "hint": "``unet_threshold`` — padrão ``0.5``",
+    "ui": {},
+    "msgstr": "``puncta_min_corrected`` — padrão ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum centre mean minus local annulus median, in native intensity units. Equality is retained.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "mínimo da média central menos a mediana do anel local, em unidades de intensidade originais. A igualdade é mantida."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_distance`` — default ``2``",
+    "hint": "``propagate_min_distance`` — padrão ``10``",
+    "ui": {},
+    "msgstr": "``puncta_min_distance`` — padrão ``2``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "vizinhança do máximo local do pico em píxeis; segue-se a supressão de máximos dependente da escala."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_edge_margin`` — default ``3.0``",
+    "hint": "``dog_sigma_high`` — padrão ``3.0``",
+    "ui": {},
+    "msgstr": "``puncta_edge_margin`` — padrão ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum distance from the parent boundary in pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "distância mínima ao limite do objeto pai, em píxeis."
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "phase": "after",
+  "exit_code": 0,
+  "seconds": 6.813405900989892,
+  "source_sha256": "63fb512e45ca18f57aeac8b1a95c6670b7b7c8fc64f6809d1af358c7e51e6b2e",
+  "core_limit_bytes": 0,
+  "existing_timeout_ms": 5000,
+  "scope": "Controlled I/O wait in real _MaskLoadWorker; actual screen close/native destruction. Separate from small-image Shiboken SIGSEGV."
+}

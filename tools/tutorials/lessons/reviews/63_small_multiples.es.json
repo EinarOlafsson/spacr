@@ -1,0 +1,40 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Small Multiples: comparar grupos con ejes compartidos o separados",
+  "description": "Carga mediciones, organiza gráficos de dispersión por grupos, elige escalas de ejes y filtros, y añade una columna derivada.",
+  "objectives": [
+    "Cargar mediciones y asignar ejes y facetas.",
+    "Elegir límites de ejes compartidos, independientes o por grupo.",
+    "Revisar los filtros y los grupos mostrados, y luego añadir o quitar una columna derivada."
+  ],
+  "prerequisite": "Descarga el ejemplo de mediciones del tutorial de Annotate y trabaja con una copia de measurements.db. Este recorrido usa su tabla cell, con 2341 objetos en cuatro pozos. Small Multiples muestra gráficos; usa Tabulate para exportar resúmenes agrupados en CSV.",
+  "scenes": [
+    "Desde Home, abre Graph Builder y luego Small Multiples. Usa esta vista para comparar las mismas mediciones entre grupos. Este ejemplo usa la base de datos de mediciones disponible en el tutorial de Annotate enlazado.",
+    "Haz clic en Load table junto al título Small Multiples. Abre una copia de measurements.db y selecciona cell. Comprueba la tabla y sus dos mil trescientos cuarenta y un objetos antes de asignar los canales del gráfico.",
+    "Arrastra cell_area a X y cell_channel_1_mean_intensity a Y, y elige Scatter. Pon rowID en Facet down y columnID en Facet across. La búsqueda te ayuda a encontrar nombres de columna; cada punto representa una célula medida.",
+    "Elige shared en ambas escalas para que los cuatro paneles usen los mismos límites de eje. Lee los títulos de grupo y los recuentos de objetos. En este ejemplo, las etiquetas de faceta identifican filas y columnas espaciales.",
+    "Elige free en X scale y en Y scale para que cada panel tenga sus propios límites. Así se ven mejor los patrones dentro de cada grupo. Compara con cuidado las etiquetas de las marcas, porque ahora los rangos difieren entre paneles.",
+    "Elige per row en ambas escalas para compartir límites entre los paneles de cada fila de la cuadrícula. Filas distintas pueden tener rangos distintos. Úsalo cuando la prioridad sean las comparaciones dentro de cada fila.",
+    "Elige per column para compartir límites dentro de cada columna de la cuadrícula. Puedes ajustar X e Y por separado. Vuelve a poner shared en ambos ejes cuando quieras comparar los cuatro pozos en escalas comunes.",
+    "En Filter, añade cell_area y pon su mínimo en veintiún mil novecientos veinticinco. La cuadrícula se actualiza de inmediato con los mil ciento setenta y un objetos restantes. Revisa los nuevos recuentos de los paneles.",
+    "Haz clic en Clear all en Filter para recuperar la población completa. Usa Clear all channels a la izquierda cuando quieras quitar las asignaciones del gráfico. Ninguna de las dos operaciones modifica la base de datos de origen.",
+    "Filtra columnID a c dos y fieldID a f veinte y f veintiuno. Pon fieldID en Facet across y deja rowID en Facet down. El panel de la fila cinco y el campo veinte no tiene objetos; ese panel vacío representa un grupo que falta.",
+    "Limpia los filtros y vuelve a poner columnID en Facet across. Pon Wrap at en cinco. El ajuste se aplica a un solo canal de faceta, así que la cuadrícula actual de dos vías sigue siendo de dos por dos.",
+    "Vacía Facet down y pon fieldID en Facet across. Con Wrap at en cinco, los campos mostrados llenan filas de hasta cinco paneles. Los huecos sin usar al final quedan ocultos.",
+    "Lee el aviso debajo de la cuadrícula antes de comparar grupos. Esta vista muestra doce niveles de campo; el campo veintiuno se omite en los paneles. El recuento de filas cargadas incluye ese campo, así que comprueba qué grupos están realmente visibles.",
+    "Desactiva el ajuste y vuelve a poner rowID y columnID como las dos facetas. En Columns, llama area_k a una columna derivada e introduce cell_area dividido entre mil. Revisa la vista previa y haz clic en Add column para calcularla en toda la tabla.",
+    "Arrastra area_k a X para mostrar el área en miles de las unidades originales. Las coordenadas verticales y los grupos no cambian. Esto solo reescala los números; convertir a área física requiere la calibración correcta de la imagen.",
+    "Vuelve a poner cell_area en X. Selecciona area_k en Columns y haz clic en Remove para eliminar la columna derivada de esta vista. Guarda un registro de tus variables, facetas, filtros y opciones de escala.",
+    "Usa Tabulate cuando necesites un resumen exportado en CSV. Para gráficos de múltiplos pequeños desde código, usa trellis y TrellisSpec de spacr.qt.widgets.trellis_spec junto con GraphSpec para los canales del gráfico. Interpreta los grupos al nivel de réplica experimental adecuado."
+  ]
+}

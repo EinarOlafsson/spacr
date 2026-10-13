@@ -1,0 +1,12 @@
+..........................                                               [100%]
+26 passed in 32.30s
+
+(python:1028223): Gdk-CRITICAL **: 18:30:43.568: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1028223): Gdk-CRITICAL **: 18:30:43.568: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1028223): Gdk-CRITICAL **: 18:30:43.568: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1028223): Gdk-CRITICAL **: 18:30:43.568: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1028223): Gdk-CRITICAL **: 18:30:43.568: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed

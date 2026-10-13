@@ -1,0 +1,35 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "AnnData Export: salvar objetos medidos e suas características",
+  "description": "Exporte medições combinadas ou uma única tabela de objetos para h5ad, escolha como tratar valores ausentes e mantenha os metadados dos objetos.",
+  "objectives": [
+    "Abrir o AnnData Export e selecionar um projeto medido.",
+    "Escolher medições combinadas ou de uma tabela e uma regra para valores ausentes.",
+    "Exportar um arquivo h5ad com os nomes das características e os metadados dos objetos."
+  ],
+  "prerequisite": "Use um projeto que já passou pelo Measure, ou baixe o exemplo de medições pelo Annotate. Trabalhe numa cópia do projeto e mantenha as imagens de origem. Use a versão nightly atual para o exportador normal mostrado aqui.",
+  "scenes": [
+    "Na tela Home, abra Measure e escolha AnnData Export. Use esta ferramenta para salvar juntos, num arquivo h5ad, os objetos medidos, as características e os metadados.",
+    "Selecione seu projeto medido como Source. Neste passo a passo, use uma cópia do exemplo de medições disponível pelo Annotate. Mantenha juntas a pasta de medições e as imagens de origem.",
+    "Deixe Single table vazio para combinar as tabelas selecionadas em linhas de células. Defina um nome de arquivo de saída terminado em h5ad. Mantenha float32 e gzip para uma exportação numérica compacta.",
+    "Defina Row limit como zero para incluir todas as linhas disponíveis. Um limite positivo é útil para uma primeira exportação pequena. Deixe Compute UMAP desativado quando só precisar da matriz de medições.",
+    "Escolha keep como regra para valores ausentes e pressione Run. Leia a mensagem de conclusão. O exemplo combinado contém duas mil trezentas e quarenta e uma linhas de células e mil cento e trinta e seis características.",
+    "Defina Single table como cell e escolha um nome de arquivo novo. Execute de novo para exportar só as medições de células. Aqui o resultado tem duzentas e sessenta e uma características e vinte e oito valores ausentes.",
+    "Escolha mean para substituir os valores ausentes pela média observada de cada coluna. A exportação também registra as posições originais deles numa camada de valores ausentes. Use essa regra quando a imputação pela média for adequada à sua análise posterior.",
+    "Escolha drop_features para remover colunas que contêm valores ausentes. Este exemplo mantém todas as células e remove quatro colunas de características. Confira os nomes das características mantidas ao comparar exportações.",
+    "Escolha drop_objects para remover linhas com valores de características ausentes. Aqui, sete células são removidas. Avalie se os objetos excluídos podem mudar a sua análise.",
+    "Escolha nucleus como tabela única quando precisar de uma linha por núcleo. Este exemplo gera dois mil seiscentos e oitenta e dois núcleos e trezentas e quarenta e uma características.",
+    "Ative Register artifact para que a saída possa ser encontrada no projeto. Salve cada regra com um nome de arquivo diferente e guarde as configurações. O arquivo h5ad contém medições e metadados; guarde as imagens de origem separadamente.",
+    "Abra o arquivo h5ad gerado na sua análise posterior e inspecione as dimensões, os nomes das características e os metadados dos objetos. No Python, run_anndata_export usa as mesmas configurações, enquanto build_anndata monta os dados na memória."
+  ]
+}

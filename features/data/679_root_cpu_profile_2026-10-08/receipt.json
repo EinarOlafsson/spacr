@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "item": 679,
+  "accepted_profile": "r2",
+  "gpu_used": false,
+  "source_commit": "ff80e84a2dfe4098f5074db8c8e9d4a904623b2e",
+  "terminal": 0,
+  "cases": 12,
+  "frames_per_case": 12,
+  "native_image_sizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      3840,
+      2160
+    ]
+  ],
+  "densities": [
+    0.1,
+    1.0
+  ],
+  "payloads": [
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_genetic_advection-1920x1080-density0.1.prof",
+      "payload": "r1-data_art_genetic_advection-1920x1080-density0.1.prof.gz",
+      "raw_sha256": "debadd3fe095308e3674f3cf77432eb0618fe1dc979d9078e018d3b7d48372c7",
+      "payload_sha256": "dc13e2c0779144af85705e4c0fe8418bc87ef71639db00ff6b65969d7ad54146"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_genetic_advection-1920x1080-density1.prof",
+      "payload": "r1-data_art_genetic_advection-1920x1080-density1.prof.gz",
+      "raw_sha256": "d6bfd4a693508cbd8d40fa71d4ce70665819be491158d83cdc14dd6d7a616cc3",
+      "payload_sha256": "584a2f2691f8be2321c7bbc6efa3606bb2c01c3dafca077d01388f341152d7c7"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_genetic_advection-3840x2160-density0.1.prof",
+      "payload": "r1-data_art_genetic_advection-3840x2160-density0.1.prof.gz",
+      "raw_sha256": "98a68c5501a8fe56998c6009b1f8c6bfc3f5932546f4c088397e9676d748d530",
+      "payload_sha256": "7ddfbcd513f70acd0351d9de9b0daf56d5a27cb7d925ff6fb06677b5ae941324"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_genetic_advection-3840x2160-density1.prof",
+      "payload": "r1-data_art_genetic_advection-3840x2160-density1.prof.gz",
+      "raw_sha256": "7e842382800670f9ed023ca2a1ff5ab860495b6d9b7feec9144e3328e9f5ee73",
+      "payload_sha256": "cab90dd6221578d0fff30b323f1d3af14eac39bd9ad92828fabc2a85633642cd"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_impulse_lens-1920x1080-density0.1.prof",
+      "payload": "r1-data_art_impulse_lens-1920x1080-density0.1.prof.gz",
+      "raw_sha256": "db27e7e189f58d6b1c05338467492779bf300950213540b4e13a2b9b188dcc5b",
+      "payload_sha256": "8ddd2b4683310a6e062eefcc024c83f3bda598f2ef44c6dbc536e89b68f54fb1"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_impulse_lens-1920x1080-density1.prof",
+      "payload": "r1-data_art_impulse_lens-1920x1080-density1.prof.gz",
+      "raw_sha256": "1fa483d7fc88f33f642fb860dc3c19dae09dd02ab36ab81297264171a1173ec4",
+      "payload_sha256": "d5c82c893516efaefdbd0d93dd483fdc5aa6bb5a7f3cc4c61abfc5b7a2d21eba"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_impulse_lens-3840x2160-density0.1.prof",
+      "payload": "r1-data_art_impulse_lens-3840x2160-density0.1.prof.gz",
+      "raw_sha256": "e34e0ed49bdcb5845dea6a6a8c9f6943cf299b7e8f56ef52600a857daebd9e83",
+      "payload_sha256": "249cb9ffd073c50666355f371593fa2c7ad970c407b3c3510832f13054e61494"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_impulse_lens-3840x2160-density1.prof",
+      "payload": "r1-data_art_impulse_lens-3840x2160-density1.prof.gz",
+      "raw_sha256": "aada1a90445f6f7202ae05a503dd64368e66ee70fc5d22401462e2b331df6af0",
+      "payload_sha256": "23e302afe6da9dcab6d8b4dddd068d30c8ebb5418a586e297ac737cfbfe04992"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_spaceout_field-1920x1080-density0.1.prof",
+      "payload": "r1-data_art_spaceout_field-1920x1080-density0.1.prof.gz",
+      "raw_sha256": "20de37e449b05bffde5be920dbb476523e94772707892fae48f0e2968f31dc4d",
+      "payload_sha256": "7670cb43f96fad9d2b963ca99a64f64de9164fcd6e9bbd71871654a6c16c4529"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_spaceout_field-1920x1080-density1.prof",
+      "payload": "r1-data_art_spaceout_field-1920x1080-density1.prof.gz",
+      "raw_sha256": "547ab8d6dcedba554012585e8e16a49cf2132f6e78b10b65c62d53e42e3bf9fb",
+      "payload_sha256": "0fc2b9cbed7a03bd44d476407a7186dcb171170c0b56ab6e76f6ef285fd6d31d"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_spaceout_field-3840x2160-density0.1.prof",
+      "payload": "r1-data_art_spaceout_field-3840x2160-density0.1.prof.gz",
+      "raw_sha256": "c3e7f77796bec2498b00fb98de5a0b79c1b070b0a0493ca354cf894d0a4b55f2",
+      "payload_sha256": "c82f6fa27aca5a81369914c8f3b89cc9058db89a808820641d37bb864ddc06a3"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/data_art_spaceout_field-3840x2160-density1.prof",
+      "payload": "r1-data_art_spaceout_field-3840x2160-density1.prof.gz",
+      "raw_sha256": "bf81096e4d22daa832b54406a85949d80e48c14626c9cb8e330dd158130012cb",
+      "payload_sha256": "b2c247413586b88f49dda0788e96ff801e624574c6045f695eaab66ba9fe2de1"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1/receipt.json",
+      "payload": "r1-receipt.json.gz",
+      "raw_sha256": "3d96f408efa9ea31abc4e7ab995244859b99d9c2dca66613e8d8d5c369c50a92",
+      "payload_sha256": "cd0fcadf79eca1b696e7fca057b50dd4868892558c864ebddfb676b0552bdff8"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1.log",
+      "payload": "data-flow-cpu-profile-r1.log.gz",
+      "raw_sha256": "5f62c4c17bb9ad0b7364b0d3f018ee1da1b85bb523bd6f41084a29788246e53f",
+      "payload_sha256": "ff4210a8ec3425f4a3025bfbe0e2f273fce62cda402de4bbe244453d05bbbb30"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r1-tool.log",
+      "payload": "data-flow-cpu-profile-r1-tool.log.gz",
+      "raw_sha256": "c46b95bfb6f2968c4d82de94e658952d6ffabd3d6417c34f3549f4aa1263a410",
+      "payload_sha256": "3e9f88c331930e0cb37e0eaa9fb026fd706dad6e62409ab0e66c14bb800132cc"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/profile_data_flow_cpu_r1.py",
+      "payload": "profile_data_flow_cpu_r1.py.gz",
+      "raw_sha256": "03a548d5edd9d330167b9e1f7f662bc8a8a883535bc966131a33ee2fea62a5f1",
+      "payload_sha256": "1c011c3b1e1afa22c60cce41ca7072a909c7319ed455d5a9acd9c449981f6633"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_genetic_advection-1920x1080-density0.1.prof",
+      "payload": "r2-data_art_genetic_advection-1920x1080-density0.1.prof.gz",
+      "raw_sha256": "61dba0171c3d12a594a80af57f411f3d662ca69233b9913ea012a964e05aa692",
+      "payload_sha256": "2fd4986ae662d7d623b55eda248b64966363c7b71936aa25f49bd1056c31d39a"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_genetic_advection-1920x1080-density1.prof",
+      "payload": "r2-data_art_genetic_advection-1920x1080-density1.prof.gz",
+      "raw_sha256": "143a5446445b04b3dfe8ee7ab07168490b04b8c4c12c2dcebc772263ae67d28f",
+      "payload_sha256": "8ce8d70f2ebb54c1aa5cb8116d4287393d0f5829678930668ccf9769727602d2"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_genetic_advection-3840x2160-density0.1.prof",
+      "payload": "r2-data_art_genetic_advection-3840x2160-density0.1.prof.gz",
+      "raw_sha256": "26447bf617a4ebf7e276ef6634f052791ce79a672e236f56b0e993d2c20cb74d",
+      "payload_sha256": "574030d4773b91dba25986fcea26f661c1ef8eb883f1b75b728215b2db7c6683"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_genetic_advection-3840x2160-density1.prof",
+      "payload": "r2-data_art_genetic_advection-3840x2160-density1.prof.gz",
+      "raw_sha256": "04009bd249a3001fe4e6e717eba08460cd6c4b65999f15adf7b1fd8f3125b090",
+      "payload_sha256": "d45a3b3ffc28ba8200a93a3305f10f5046388ba296adadef2a2bae4baa44d77b"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_impulse_lens-1920x1080-density0.1.prof",
+      "payload": "r2-data_art_impulse_lens-1920x1080-density0.1.prof.gz",
+      "raw_sha256": "f692eafc4a79115445eefe7555ba04b7e15e6250a035c76d54b0a86f2c5d3a5e",
+      "payload_sha256": "2bca1f37af50e9071e9adc9be9c274637a1057dba1053750611cc7f3c04ea182"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_impulse_lens-1920x1080-density1.prof",
+      "payload": "r2-data_art_impulse_lens-1920x1080-density1.prof.gz",
+      "raw_sha256": "26fcb6461a76ebe5101ac70150929df62bb46aeb37d0f2020e90afd3441ded62",
+      "payload_sha256": "b8440d4edfcf78dc641428439fe71479aebefd6b2f71f90b56b80c51432dad24"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_impulse_lens-3840x2160-density0.1.prof",
+      "payload": "r2-data_art_impulse_lens-3840x2160-density0.1.prof.gz",
+      "raw_sha256": "008f60a1639a5dcfbf2815d8b2802aaa6e13f471e7e21f90a3ac1994f36ffec5",
+      "payload_sha256": "1d919a378d50cfab9ea46ab2cf7f5cdb2b1d48978d460f3a89a19e4561fd4cb5"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_impulse_lens-3840x2160-density1.prof",
+      "payload": "r2-data_art_impulse_lens-3840x2160-density1.prof.gz",
+      "raw_sha256": "0bc80458d846b7ed51c8a359472e0431fa6530830a88b4d33e40459399f1fe8d",
+      "payload_sha256": "80def7a5a7eeb75cf83ceb7b3aadcb545be2782c03cc6809e44419de59b2d65b"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_spaceout_field-1920x1080-density0.1.prof",
+      "payload": "r2-data_art_spaceout_field-1920x1080-density0.1.prof.gz",
+      "raw_sha256": "e3c0c5eb4e283caac385008195b3831b5a6e624db23682184938bf95cedeff69",
+      "payload_sha256": "36ec2606624f6a39768c26f1a653f263f9b9c2e263bb0548feac5c41648b3443"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_spaceout_field-1920x1080-density1.prof",
+      "payload": "r2-data_art_spaceout_field-1920x1080-density1.prof.gz",
+      "raw_sha256": "20acd12377195557de65517115c00ebc447925a317aa0a2bafc274f90e684042",
+      "payload_sha256": "d25f8902c13a7954976cc9b6984aa23776998aec9a2d6f941979ecad45343fb3"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_spaceout_field-3840x2160-density0.1.prof",
+      "payload": "r2-data_art_spaceout_field-3840x2160-density0.1.prof.gz",
+      "raw_sha256": "9832bfc561142f26e4f47a306d0b6bb02ab0ecf70b2615f9fac87f392b2cd69c",
+      "payload_sha256": "f0ef356f384ce7321328bc89e2ba6da6d50cceaca43fdcdb3cb675ab015a1397"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/data_art_spaceout_field-3840x2160-density1.prof",
+      "payload": "r2-data_art_spaceout_field-3840x2160-density1.prof.gz",
+      "raw_sha256": "bc2d5745b2882fb06fb8f2fdda6ae205c0ad820557a86e54ec7fe1fe41f2dfa7",
+      "payload_sha256": "24772b1a80e5fdadc8c0a749d3b5896bc7f7dec8895951e7b1f97487e1a15808"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2/receipt.json",
+      "payload": "r2-receipt.json.gz",
+      "raw_sha256": "ea85773813facdae67a630041a5c036c26ee6800d26a456c4c7f48630b1999cd",
+      "payload_sha256": "e02bacce484b9f5cc17276838b4a067348ae92916f0509c7eb5227c51b325620"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2.log",
+      "payload": "data-flow-cpu-profile-r2.log.gz",
+      "raw_sha256": "18e0cfb10b816dd9cd065ac073f9d8d9c54d280508f44d955537e0e40e86bb70",
+      "payload_sha256": "9f5b4826da80f58c5af7945e3e3677de2460a0f59c8b57a8833645c029bf3081"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/data-flow-cpu-profile-r2-tool.log",
+      "payload": "data-flow-cpu-profile-r2-tool.log.gz",
+      "raw_sha256": "814ba40fac642242031391866158679e047cd9b82b6ead222510a7e4f7da7e83",
+      "payload_sha256": "da8d420b6d1728d454f06e8986bd49f3e4118ec323035b777a02fc9d1d2840c0"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/profile_data_flow_cpu_r2.py",
+      "payload": "profile_data_flow_cpu_r2.py.gz",
+      "raw_sha256": "73dfcbe2dcd2159b7a0833c374e709c484a02d4710f30699164a37b7f67ba604",
+      "payload_sha256": "8af92069e4b159247ab0ec65d4a4289b2616708138cd3f8a59f03ca18aae1b3a"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/spacr-worktrees/publication-home-ui-20261008/spacr/qt/widgets/ambient.py",
+      "payload": "ambient.py.gz",
+      "raw_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+      "payload_sha256": "c112a3f26ae804475822ccafc83f95676ca3977df5a7078eb169e8e34d8bcd62"
+    }
+  ],
+  "limits": [
+    "Controlled CPU shade/blit measurement with other agents active; not native display rate or GPU acceptance.",
+    "r1 included actual startup imports/compiler specialization; preserved as transitional evidence, not steady baseline.",
+    "r2 warms both actualCPU kernels, verifies unchanged compiled signatures percase and hashes independently owned frames outside timed/profiled drawing.",
+    "144 distinct changing frames retained by hashes; no CUDA/graphics GPU job started.",
+    "GPU implementation, driver/interaction lifecycle, numerical/visual parity and measured speedup remain open."
+  ],
+  "ambient_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619"
+}

@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Alpha : modules d’organismes",
+  "description": "Activez Show alpha species et parcourez les pages d’organismes inachevées : Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection et Mammalian cells.",
+  "objectives": [
+    "Activer et désactiver Show alpha species dans Preferences.",
+    "Lire une page d’organisme : introduction, schéma cellulaire et tuiles d’essai.",
+    "Distinguer les tuiles ouvertes des tuiles prévues et savoir que ces pages sont alpha."
+  ],
+  "prerequisite": "Ouvrez Home dans spaCR. Aucun fichier d’entrée n’est nécessaire. Ces pages d’organismes sont alpha : inachevées et susceptibles de changer.",
+  "scenes": [
+    "Ce tutoriel est le seul à montrer les modules d’organismes alpha de spaCR. Dans une installation normale, l’onglet Assays de Home ne contient qu’un organisme, Toxoplasma. Les autres pages d’organismes restent désactivées tant que vous ne les demandez pas.",
+    "Ouvrez Preferences depuis le menu spaCR et allez dans l’onglet Modules. Sous Module visibility, le dernier interrupteur est Show alpha species. Il est désactivé par défaut.",
+    "Activez-le. Considérez tout ce qu’il révèle comme alpha : les pages sont inachevées, la plupart de leurs tuiles d’essai sont encore prévues, et les noms, mises en page et analyses peuvent changer avant leur publication. Servez-vous-en pour explorer, pas pour rapporter des résultats.",
+    "Appuyez sur Save. Le réglage s’applique tout de suite et est conservé pour votre prochaine session ; vous n’avez donc à le faire qu’une fois.",
+    "De retour sur Home, l’onglet Assays affiche maintenant huit organismes : Toxoplasma, puis Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection et Mammalian cells. Chaque tuile ouvre une page construite de la même façon : qui en connaît une sait les lire toutes.",
+    "Commencez par Plasmodium, les parasites du paludisme. À gauche, une courte introduction explique ce que l’imagerie peut mesurer chez cet organisme : fréquence d’infection, développement des stades sanguins, infection du foie, motilité et réponse aux composés. Dessous, chaque section relie une question biologique aux tuiles d’essai de droite.",
+    "Le schéma cellulaire est une carte interactive des compartiments issue d’UniProt. Survolez la cellule pour identifier une structure, et cochez plusieurs compartiments dans la liste pour les garder surlignés ensemble. Clear components réinitialise le dessin.",
+    "C’est dans les tuiles d’essai que le travail commence. Les tuiles claires ouvrent un module qui fonctionne déjà : Parasitaemia ouvre Host–Pathogen Analysis, Sporozoite motility ouvre Motility Assay. Les tuiles atténuées sont prévues et ne s’ouvrent pas encore. La même règle vaut sur chaque page d’organisme.",
+    "Candida regroupe des levures capables de passer de cellules bourgeonnantes à des tubes germinatifs et à des hyphes. Ses tuiles ouvertes réutilisent des modules existants pour l’adhésion, l’invasion épithéliale, la phagocytose et la réponse antifongique ; les tuiles prévues mesureront la filamentation, les tubes germinatifs, le biofilm et la morphologie.",
+    "Trypanosoma réunit deux parasites sur une page : Trypanosoma brucei, qui nage dans le sang, et Trypanosoma cruzi, qui se réplique dans les cellules hôtes. Flagellar motility, Host-cell invasion, Amastigote infection et Drug response ouvrent déjà de vrais modules.",
+    "Les parasites Leishmania se répliquent dans les macrophages. Macrophage infection indique la fraction infectée et les amastigotes par macrophage, et Promastigote motility mesure la nage. Les tuiles prévues suivront la métacyclogenèse, la conversion en amastigote et la taille de la vacuole.",
+    "Giardia duodenalis se fixe à la paroi intestinale grâce à son disque ventral. Vous pouvez ici compter les trophozoïtes sur des cellules épithéliales, suivre leur nage et mesurer la réponse aux médicaments ; l’enkystement, le dékystement et la morphologie du disque sont encore prévus.",
+    "Virus infection est une page consacrée aux cellules hôtes plutôt qu’à un parasite. Infection rate compte les cellules positives au virus, Plaque Assay mesure les plages et Recruitment mesure les protéines de l’hôte qui s’accumulent aux sites de réplication. Définissez la positivité à partir de puits infectés à blanc.",
+    "Mammalian cells couvre les cribles sans aucun pathogène. Ses tuiles ouvertes mènent directement à Mask, Measure, Motility Assay, la phagocytose et la cytotoxicité : le pipeline principal est à un clic de la page d’organisme.",
+    "Quand vous avez fini d’explorer, revenez dans Preferences, désactivez Show alpha species puis appuyez sur Save. Les pages d’organismes disparaissent ; rien de ce que vous avez mesuré n’est modifié.",
+    "Home n’affiche de nouveau que Toxoplasma. À mesure que chaque organisme mûrira, il quittera l’alpha et aura son propre parcours. D’ici là, utilisez la leçon Toxoplasma pour un exemple d’essai complet et les leçons de modules pour chaque flux de travail ouvert par ces tuiles."
+  ]
+}

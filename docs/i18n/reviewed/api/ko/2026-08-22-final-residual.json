@@ -1,0 +1,13 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "The propagation and class-mass normalization follow the label-propagation framework described by Zhu and Ghahramani (2003) and Zhou et al. (2004). The implementation has no trained graph-model weights; each result can be traced to its anchors and the sequencing constraint.",
+      "label": "spacr.sudoku#4",
+      "source": "The propagation and class-mass normalization follow the label-propagation framework described by Zhu and Ghahramani (2003) and Zhou et al. (2004). The implementation has no trained graph-model weights; each result can be traced to its anchors and the sequencing constraint.",
+      "source_sha256": "1bf06e0760c8ebd854674e7216e4c6bc5afdd0334fb928f8b7ae26af279f104e",
+      "translation": "전파 및 클래스 질량 정규화는 Zhu와 Ghahramani(2003), Zhou 등(2004)이 설명한 레이블 전파 프레임워크를 따릅니다. 이 구현에는 학습된 그래프 모델 가중치가 없으며, 각 결과는 앵커와 시퀀싱 제약 조건까지 추적할 수 있습니다."
+    }
+  ],
+  "schema": 1
+}

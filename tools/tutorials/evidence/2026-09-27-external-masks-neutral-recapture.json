@@ -1,0 +1,136 @@
+{
+ "item": "447",
+ "lesson": "31_external_masks",
+ "date": "2026-09-27",
+ "published": false,
+ "scope": "Replace only preview-off and completed-measurement-summary frames with genuine neutral captures; retain13 existing verified scenes,15 English scene IDs and all narration/captions. Preview and measurement are separately recorded runs of the same retained image/mask pairs.",
+ "captures": [
+  {
+   "frame": "08_preview_only_disabled",
+   "directory": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/external_masks_preview_neutral_20260927c",
+   "sha256": "0e104e92c49a5b23a26479df74b2ae0a66cee3f60046d6a1c2a89032b885cc6c",
+   "provenance": {
+    "commit": "4661d52165182641d401f4613549b462a4e09463",
+    "version": "1.5.1.0",
+    "module": "external_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+   },
+   "acceptance": {
+    "accepted": true,
+    "published": false,
+    "scope": "Native non-writing preview and Preview only toggle; no new measurement",
+    "destination": "/tmp/spacr-tutorials/external_mask_runs/example-xdb_7auq/project",
+    "destination_exists": false,
+    "source_inputs_unchanged": true,
+    "input_groups_from_real_pickers": true,
+    "nonwriting_preview_verified": true,
+    "originals_sha256": {
+     "/tmp/spacr-tutorials/captures/foreign_release_v2/inputs.json": "6b7c7218e6b9e896731be185df24dd49c892fef03f4af93b9cf4e23f1241df09",
+     "/tmp/spacr-tutorials/captures/foreign_release_v2/scientific_acceptance.json": "f8815c93184317009d0993721df3935526d99c85d3934121908d7eb277c0dbca",
+     "/tmp/spacr-tutorials/retained_inputs/example_data/plate1/merged/plate1_E01_1_1.npy": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+     "/tmp/spacr-tutorials/retained_inputs/foreign_runs/example-13nt_fa4/images/fov01_C1.tif": "cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c",
+     "/tmp/spacr-tutorials/retained_inputs/foreign_runs/example-13nt_fa4/cell_masks/fov01_cell_mask.tif": "bbc1d55c4fd57e0476bc3761ec385bede0a20b5895a8cb7b2d0b008ab75bd6ee",
+     "/tmp/spacr-tutorials/retained_inputs/example_data/plate1/merged/plate1_L02_9_1.npy": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+     "/tmp/spacr-tutorials/retained_inputs/foreign_runs/example-13nt_fa4/images/fov02_C1.tif": "e9ae8fe15224699a3148a5459649fa9cdc6bf5dd5f9a2b0bcfae45713c39a6f0",
+     "/tmp/spacr-tutorials/retained_inputs/foreign_runs/example-13nt_fa4/cell_masks/fov02_cell_mask.tif": "03574376bfcdadb4543b59538deaa7e1c2a0d9f7bbd643ffce6ee2cfe5c59b52"
+    },
+    "measurement_run": false,
+    "measurement_outputs_verified": false,
+    "preview_worker": {
+     "finished": true,
+     "ok": true,
+     "errors": []
+    },
+    "final_frame": "08_preview_only_disabled"
+   },
+   "focus_before": [
+    470,
+    805,
+    1660,
+    535
+   ],
+   "focus_after": [
+    395,
+    739,
+    1640,
+    88
+   ]
+  },
+  {
+   "frame": "11_external_measurement_summary",
+   "directory": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/external_masks_neutral_20260927b",
+   "sha256": "205aaeb34e5ac2b107ef64dd6d17f5ac94c5510e3c749bbc238d8e17156daf5f",
+   "provenance": {
+    "commit": "8302780a80b8e2e407c36a4d12cd49dcd4b63734",
+    "version": "1.5.1.0",
+    "module": "external_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+   },
+   "output_evidence_sha256": "9de0d0f4bea481298076ce796d750e0ce84011b97ccf4589bf58a05e435a47fb",
+   "field_count": 2,
+   "cell_rows": 103,
+   "cytoplasm_rows": 103,
+   "png_rows": 103,
+   "all_sources_unchanged": true,
+   "all_output_pixels_equal": true
+  }
+ ],
+ "diagnostic_attempts": [
+  {
+   "capture": "external_masks_neutral_20260927",
+   "adopted": false,
+   "reason": "Stopped before preview because old recorder assumed two runtime panes; updated to use the native four panes and real fold controls."
+  },
+  {
+   "capture": "external_masks_neutral_20260927b",
+   "unadopted_frame": "08_preview_only_disabled",
+   "reason": "Genuine hash_inputs unknown-setting warning. Preserved unchanged; underlying global known-key omission was fixed and preview recaptured separately."
+  }
+ ],
+ "preservation": {
+  "english_sha256": "7ee27b5ecdd37819f9326e4e90534b289a64039307adc2ae352de8bcf1ec79f7",
+  "english_bytes_unchanged": true,
+  "scene_count": 15,
+  "voices": 27,
+  "audio_timing_caption_files_unchanged": 81,
+  "backup": "/mnt/firecuda2/codex/scratch-docs/t447/backup-31-before-neutral-20260927",
+  "alpha_features_disabled": true
+ },
+ "media": {
+  "master_sha256": "26394458f956bb6ec28166d560e5d50d983b744506f017273ef7992eebacf9e2",
+  "poster_sha256": "edb99ec42f70f7a88a7233d6d1de7a7875cc9168ddd4c2ef318544cbd906b854",
+  "web_sha256": "baa6cae8838129f75e91dab1e2fca9ca445624a3869d44989b0039449cc9cac1",
+  "web_bytes": 9827020,
+  "frames": 5589,
+  "narration_regenerated": false
+ },
+ "checks": {
+  "master_sentence_cues": true,
+  "web_sentence_cues": true,
+  "browser_report_hashes": {
+   "browser": "8b7f4e8cfd92ffcf2e30ec9661d72bc0404e5fa254bb31fb1b15ceb57fc45175",
+   "browser-web": "c66193605a9e86052697db10ecb8f472309f902c22431e703f5388dfd2860592"
+  },
+  "frame_sweep": {
+   "images_checked": 22,
+   "path_offenders": [],
+   "errors": {},
+   "receipt": "/mnt/firecuda2/codex/scratch-docs/t447/sweep_staged_31_neutral.json",
+   "sha256": "ce210e6c35ba447315709790d29dd47110cfc3b1cd419b08cadd7727e9ccc669"
+  },
+  "visual_manifest_sha256": "be03d5915d22e7c13257c009201e8aa3e2220bd4501cb4d406dbaa7e17e264db"
+ },
+ "review": "AI technical review: neutral preview and completed summary are readable; spotlight covers the real Preview only toggle. No native-speaker or listening signoff.",
+ "renderer": {
+  "path": "/mnt/wd4tb/scratch/spacr-completion/worktree/tools/tutorials/authoring/tools/render_visual_master.py",
+  "sha256": "3bbffeccb13e5cf0156a8812b5a1dfbb9000da11be250b0e9f6cb7a4402a548f"
+ }
+}

@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+  "commit": "7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27",
+  "documentation_source_commit": "44443b0bc899928164e182f38f7ff1fcf9677507",
+  "completed_docs_workflow": 37401660267,
+  "normal_publisher_assembled_reference": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/home-measure-published-assembled-r1",
+  "index_sha256": "8a187bc40682a99c3188917767e759721e557c2e06211c34c6b21d34331a5a50",
+  "deployed_index_exact": true,
+  "deployed_player_script_exact": true,
+  "deployed_English_catalog_exact": true,
+  "current_authored_narration_exact": true,
+  "mobile_receipt_sha256": "f2efef015743d325367d604768c444283e47011890652b3bb7f3c3ac8173377e",
+  "lessons": {
+    "05_home": {
+      "video_url_from_actual_deployed_player": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27/05_home/web/05_home_silent.mp4",
+      "complete_video_sha256": "c2aaa7e085ab762245d0d78017c807e187abb1f35b2b9db289f00ae05e08f021",
+      "candidate_media_record_identical": true,
+      "decoded_frame_index": 1063,
+      "decoded_frame_png": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/05_home-nightly-current-frame.png",
+      "decoded_frame_png_sha256": "2b999d9cd1328e7c9914648e583ea835cb02eb740d19935d9a52956e24c94d77",
+      "mobile_playback_and_seek_passed": true,
+      "narration_sha256": "27b949c20219dbf19252e799dfa3ab2251273325ad2fa4975f747a6b39df3079"
+    },
+    "08_measure": {
+      "video_url_from_actual_deployed_player": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27/08_measure/web/08_measure_silent.mp4",
+      "complete_video_sha256": "0afda4c258bacca6fb0864408d529d27c31ac7cbedfe2df614973c7840411b8f",
+      "candidate_media_record_identical": true,
+      "decoded_frame_index": 0,
+      "decoded_frame_png": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/08_measure-nightly-current-frame.png",
+      "decoded_frame_png_sha256": "d471e043be3e272384589bb233aff5338c3a754a24f43eed19925b67b791db2e",
+      "mobile_playback_and_seek_passed": true,
+      "narration_sha256": "10fe8d2a4c15d88a40e9b21d578e827cfc8c7ed56032dbbbb7f37420714dad91"
+    }
+  },
+  "visual_review_pending": false,
+  "decoded_actual_published_frames_visually_reviewed": true,
+  "visual_review_method": "Codex inspected both PNGs decoded from complete videos fetched from the actual live mobile player URLs; this is a visual review, not a native-speaker listening signoff.",
+  "visual_review_findings": {
+    "05_home": "The Data row is shown left to right: Import, Embeddings, Run Compare, Experiment Design, Power / Design, Dose-Response, QC.",
+    "08_measure": "The opening shows actual Input & Experiment controls with a loaded merged Source and Load test data button. The obsolete empty-source Point measure at some data card is absent."
+  },
+  "reference_correction": "The first private comparison against the raw source HTML failed correctly because the normal publisher injects a channel banner and hashes its rewritten player. Both completed workflow artifacts were downloaded and normally assembled; exact published HTML and script bytes then passed. No acceptance threshold or encoder was changed."
+}

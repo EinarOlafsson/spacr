@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-07",
+  "base_commit": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+  "changes": [
+    "Immediate first enabled popup wave",
+    "Page opacity on settings cards",
+    "Saved appearance defaults: gravity 15%, waves 5/min, rim 17%"
+  ],
+  "tests": {
+    "popup_r3": {
+      "passed": 52,
+      "exit_status": 0
+    },
+    "neighbors_r2": {
+      "passed": 72,
+      "exit_status": 0
+    },
+    "source_guards_r2": {
+      "passed": 18,
+      "exit_status": 0
+    },
+    "overlapping_cohorts": true
+  },
+  "native_capture": {
+    "exit_status": 0,
+    "resolution": [
+      3840,
+      2160
+    ],
+    "private_fresh_profile": true,
+    "visually_reviewed": "13d_appearance_animation.png"
+  },
+  "generation": {
+    "english_api_symbols": 13214,
+    "english_api_audit_exit_status": 0,
+    "help_generation_exit_status": 0,
+    "runtime": {
+      "generation_exit_status": 0,
+      "audit_exit_status": 0,
+      "languages": 9,
+      "settings": 1243,
+      "categories": 237,
+      "ui": 7239,
+      "modules": 77
+    }
+  },
+  "retained_failures": [
+    "popup-r1.log: incorrect straight-RGB assertion",
+    "popup-neighbors-r1.log: nonexistent test filename",
+    "source-guards-r1.log: two missing API parameter descriptions"
+  ],
+  "native_executable_source_matches_final": true,
+  "excluded_claims": [
+    "Native compositor stacking",
+    "Native 24 FPS",
+    "Original installed Save/puncta crash causation",
+    "Full translated API/guides/tutorial publication"
+  ],
+  "source_sha256": {
+    "spacr/qt/preferences.py": "c4d6b8b7ffdee6c000454bf32579a74ba4c7c9e76af5ddcf007978d89f455f84",
+    "spacr/qt/widgets/ambient.py": "550d68b66a62093ea25261ef734613e5a476fc6e8f6bc366c464ab5bbdfa6d11",
+    "spacr/qt/widgets/setup_card.py": "218826fc2b2b86f31f2772c7288d9f38d626bed848b498cfed698e0b142cd76b"
+  },
+  "artifacts": {
+    "archive_popup.py": "151f8dd42f718bf721e6c3c874144a045ce68b6cf371eb7265463cad0c48c632",
+    "english-api-audit-r1-tool.log.gz": "e545c477773b7928cc7476bd4b02b63201e793fc01b63846cab4b605831b8a4a",
+    "english-api-audit-r1.log.gz": "b6ec2bf4331cdd227ac09bc57ba86fb991d6aac5ca841c248f23d16b61762c47",
+    "english-api-audit-r2-tool.log.gz": "e545c477773b7928cc7476bd4b02b63201e793fc01b63846cab4b605831b8a4a",
+    "english-api-audit-r2.log.gz": "b1b329229461b61f2b49de6a5619a703ea8dae75d238279237b2f6f020f2b3bc",
+    "english-api-r1-tool.log.gz": "3f184d18e7e5cdf13680f361139b1eb480807f16250606993a794af42ce39841",
+    "english-api-r1.log.gz": "f79e7e860a4546189ec3f34dc72c1e4ba5fac56f0e8f58aa8fb1d11d55e04751",
+    "english-api-r2-tool.log.gz": "3f184d18e7e5cdf13680f361139b1eb480807f16250606993a794af42ce39841",
+    "english-api-r2.log.gz": "a36501dc0858d59822aeaf5831ccb2afc450e181e81ab1c3e057320af79a3482",
+    "help-index-r1-tool.log.gz": "09d1e3e5b02415ddc0c0ed6fada5c7b08a1af309154b836bee413d7247c0cb52",
+    "help-index-r1.log.gz": "067f03d7220f2fd22f9c3999ac62499fb82868636998b232f5b1cef9af3163dc",
+    "help-index-r2-tool.log.gz": "09d1e3e5b02415ddc0c0ed6fada5c7b08a1af309154b836bee413d7247c0cb52",
+    "help-index-r2.log.gz": "4a7e5424e384c26e7ffca859d447c24ccf5786d81b03f3fb7e0005a3ca020e55",
+    "instruction-index-r1-tool.log.gz": "c64b3e618d37012db2ab8e9c3ab29fabe963b566087fc49a06f656cfb5539f2b",
+    "instruction-index-r1.log.gz": "6ca782b77acb34dd574c73d4c0eb8fd456fa33e43a6b713107844c256a1150b1",
+    "native/00_home.png": "2a83db35882f15256dba65f646e14c52e17bd3e8f0756f2e46e52538bdaf7d98",
+    "native/09_performance.png": "d129139193eb5b92e45db88ddb9b233e73a47f4cf777ad1362fdddfeb129bd55",
+    "native/10_appearance_categories.png": "691d119736bd756d4b5b28d81c7af2f0489cce5330de873e2ea8b00a66b75084",
+    "native/11_appearance_theme.png": "c9c17b64d5df3ef9f2d47fd9e6f6d19c937f1219cab231695bc0d158cbcf40e2",
+    "native/12_appearance_animation.png": "d9142a854672212fad819aa141d0980d44d8d167e48f3eb4023fa37a435f45c9",
+    "native/13_preferences_general.png": "dd94dc14bbfccf650b1ac4ccad170401c6fbd1b4996f70877fde3ec58405b29b",
+    "native/13b_preferences_appearance.png": "095275846717016807b5fb730d8d4a58927d639ec82eab80a421ecdefb0a1880",
+    "native/13c_appearance_theme.png": "55f379c62d2dd6026835890929c4a2b18f903fe237dee7e70863ca23e0783ac1",
+    "native/13d_appearance_animation.png": "b948b6fe883a701e515657ceec8561c8824047aebd905bcea97d4799047ab881",
+    "native/13e_session_updates.png": "acd193a07d6da2fc3d4469a104bf431779fff1655c94815de9442b74e96f1c37",
+    "native/13f_storage.png": "9de80e31d0e3e7b6519b984c58a69c999056cf7269761d24d99c915b7c73de05",
+    "native/13g_storage_prune.png": "d87ce34460ec86307f0459631ffd157969a29ba107b17bdca433c18d7dbcd4ea",
+    "native/13h_preferences_apply.png": "9d4f0e826fef03e54751e4be1ea7cef3eb5a817e2e1cd25a3c2e4a176ca89a46",
+    "native/13i_preferences_kept.png": "179e2dd36937a6c7d4a1d43bbde243a2647331381f43c7b456f5a531fa09ce8c",
+    "native/frames.json": "0e421fb5db34f18ca7bc38b6fc5472f6eca66d123f9a79bf1337bddf4cae92f4",
+    "native/home_focus.json": "ae147dec332fee2237bf4e56d842b95ab1dd4f4d616170297af5e23f970a59a9",
+    "native/provenance.json": "91a7d31bb25f5ecebac4b0082026f03b5fd3436bebea04bbff58bf2d6ce7cbd4",
+    "native-preferences-r1.log.gz": "b799de8bc644b3821d2a9232d2057d1994c7d85a2bfa2d0e29f4880024f376bb",
+    "popup-neighbors-r1-tool.log.gz": "ab929648949765c83777fae8f0c5da2f0cb0501159aa8ffb1480f32ce89a7c91",
+    "popup-neighbors-r1.log.gz": "d96736d1f793400e0f619398e513e005ce3e8ffdda3fbaad165786f9c50f1045",
+    "popup-neighbors-r2-tool.log.gz": "b2e70e9a70273aed9c0782cb6312271cec518b2249f7e11ac3069580ec331716",
+    "popup-neighbors-r2.log.gz": "4e82c69c25e4b2c66c02a19628f0a1f2a384bf37012e9396a5fe1b028c5af42b",
+    "popup-opacity-r2-tool.log.gz": "5228b169a6f0230d485ce42a3108c948060a9b7f56ca7b86e91654b76f1ecf72",
+    "popup-opacity-r2.log.gz": "83a4a2e7da26e48c68e9641c54270ffbbee53bdac5c8a10d50f7e30f79884514",
+    "popup-r1-tool.log.gz": "c6adf1f1e662d73ca680515724f13eae96cd83b9063073aad4c6280b0f1a5d51",
+    "popup-r1.log.gz": "1a8707e401a51698cccc85bb761f2e6e5cf9048e35e4305d72b4da7a9eca5161",
+    "popup-r3-tool.log.gz": "86b9a81257ba1b69eb77148becc3d5a90004a45c229e6e20fd85a9f241c35216",
+    "popup-r3.log.gz": "fe908aa14c815f876f48fd038bc1050c2152191d4452f7c5973e7624f7c93d2b",
+    "runtime-audit-r1-tool.log.gz": "3945e56b502117eacfdfaced9af2f82bcfecc0421a57292e86bbb9f60e9b3bd4",
+    "runtime-audit-r1.log.gz": "3f4512d4807bc7b1945e7b8350bf8eca24b1f6912b45d3a4a44bc969250b8bae",
+    "runtime-r1-tool.log.gz": "9f7175353a08df3dbefd04786bdcee12baa504f2b67fd158c14657edd47e2e52",
+    "runtime-r1.log.gz": "5974d523656074c90ab8d446d5f59ebf6da91f1a6c41af01a0a07ef91140c7db",
+    "saved_appearance.json": "5592f44d116cdfd8da1015b96a4c11d29584ebf39cc1bc707112bf0f271639ab",
+    "source/spacr/qt/preferences.py.gz": "05201c9d77a2e10a42711f21d146049d1f631f281d659fdae4d61aa88383ffbe",
+    "source/spacr/qt/widgets/ambient.py.gz": "4223719e6c246b44b623e79cee44a68e9081e05c9e5215b1d1830224a47c0417",
+    "source/spacr/qt/widgets/setup_card.py.gz": "fb0d8489a4ae6a3df3548961b74782bc94f78cd9cc6f3e5ba7b3d168201fdc5e",
+    "source/tests/qt/test_field_popup_waves.py.gz": "c0b4a97f2e7897baf886d135aef9212c9a456a906c674891e6cf2b87e85fc4a1",
+    "source/tests/qt/test_popup_backdrop_apply.py.gz": "d028b25ac5ddccdef0a79751d4988089f6d8c10bd48587488cd918ee53114d9e",
+    "source/tests/qt/test_requested_appearance_defaults.py.gz": "9dc0df9f9d5ba5b284661eae629e950a10f075ed7e97f7228eed8448f91e0b6b",
+    "source-guards-r1-tool.log.gz": "42b387287f863cb62b485aff529cc89230fcc2384312530b05900847e0ba1965",
+    "source-guards-r1.log.gz": "3e7afcd757b85a568b8bb1a9f78ee97461f2268a163c620fa9d2ddca67585bc4",
+    "source-guards-r2-tool.log.gz": "5d96c9729207adaa7984a64ca5c96d99ddb4116fef69e98fe9fecfe1b15544e1",
+    "source-guards-r2.log.gz": "4bee9ade413aad093f6b4b2630989b607bcea8bbbf9fe326d29fbb47a99431c7",
+    "source-native/spacr/qt/preferences.py.gz": "05201c9d77a2e10a42711f21d146049d1f631f281d659fdae4d61aa88383ffbe",
+    "source-native/spacr/qt/widgets/ambient.py.gz": "28ddaed0adc67c184690a215ba72cc604fd894ac53ef0912966eefdf072de959",
+    "source-native/spacr/qt/widgets/setup_card.py.gz": "fb0d8489a4ae6a3df3548961b74782bc94f78cd9cc6f3e5ba7b3d168201fdc5e",
+    "source-native/tests/qt/test_field_popup_waves.py.gz": "c0b4a97f2e7897baf886d135aef9212c9a456a906c674891e6cf2b87e85fc4a1",
+    "source-native/tests/qt/test_popup_backdrop_apply.py.gz": "d028b25ac5ddccdef0a79751d4988089f6d8c10bd48587488cd918ee53114d9e",
+    "source-native/tests/qt/test_requested_appearance_defaults.py.gz": "9dc0df9f9d5ba5b284661eae629e950a10f075ed7e97f7228eed8448f91e0b6b"
+  }
+}

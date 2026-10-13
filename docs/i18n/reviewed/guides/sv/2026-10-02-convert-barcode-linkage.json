@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "method": "Direct Codex AI technical translation with independent Codex AI peer review; no local-model draft or human/native-speaker signoff. Normal guide literal, role, UI and source-bound checks unchanged.",
+  "draft_author": "root",
+  "independent_technical_reviewer": "shared_ui",
+  "draft_sha256": "923bc6df0c0ed7fbf69b42b6ae727391403a54162b0af820840466c26ab127b9",
+  "reviewed_sha256": "923bc6df0c0ed7fbf69b42b6ae727391403a54162b0af820840466c26ab127b9",
+  "peer_review": {
+    "reviewer": "Codex AI shared_ui, independent of root author",
+    "accepted_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "draft_sha256": "923bc6df0c0ed7fbf69b42b6ae727391403a54162b0af820840466c26ab127b9",
+    "meaning": "Preserves source/output plate names, one/multiple plate barcode syntax, leading zeroes and conflict guards, CSV mapping and mismatches, completion receipt last, source preservation and local-versus-HTTP service route. Exact runtime captions and RST/literal gates pass. No native/human signoff."
+  },
+  "peer_review_sha256": "58f94d1c92a2bbbdd2209e7af7a92cd76ae55074ba71e4391ace52abdfa188e0",
+  "source_files": {
+    "docs/source/plate_barcode_linkage.rst": "165873b6b15a164964d90bee1a4b19a7cecbf41be9b57b03fdd5afc960c7c5c6"
+  },
+  "runtime_catalog_sha256": "984077f976c56fe004f06eb939e4d1cf9f3f8c4ff6c64ef03fc1be5dc8fb6c52",
+  "derivative": "Accepted original draft unchanged",
+  "records": [
+    {
+      "index": 0,
+      "domain": "plate_barcode_linkage",
+      "source": "Link during Convert",
+      "source_sha256": "4015578abe1bc88031b4db2df45728ae2f08af2a50edd65b8cc3ae4c231a1a5f",
+      "original_ai_draft": "Koppla vid konvertering",
+      "reviewed_translation": "Koppla vid konvertering",
+      "ui_bindings": {}
+    },
+    {
+      "index": 1,
+      "domain": "plate_barcode_linkage",
+      "source": "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names.",
+      "source_sha256": "631a13528efa95a3c275e7b7ed48671661d8bc77435161b33ed01d942985d5b8",
+      "original_ai_draft": "I **Konvertera** aktiverar du **Visa alfafunktioner** och väljer en lokal CSV med provposter under **Koppling av plattstreckkoder (alfa)**. CSV-filen behöver en streckkodskolumn, en brunnskolumn och de provuppgifter som ska ingå i plattkartan. Förhandsgranskningen validerar kopplingen innan bilder skrivs. Konvertera använder namnen på utdataplattorna som visas i förhandsgranskningen; de kan skilja sig från namnen på källmapparna.",
+      "reviewed_translation": "I **Konvertera** aktiverar du **Visa alfafunktioner** och väljer en lokal CSV med provposter under **Koppling av plattstreckkoder (alfa)**. CSV-filen behöver en streckkodskolumn, en brunnskolumn och de provuppgifter som ska ingå i plattkartan. Förhandsgranskningen validerar kopplingen innan bilder skrivs. Konvertera använder namnen på utdataplattorna som visas i förhandsgranskningen; de kan skilja sig från namnen på källmapparna.",
+      "ui_bindings": {
+        "Show alpha features": "Visa alfafunktioner",
+        "Convert": "Konvertera",
+        "Plate barcode linkage (Alpha)": "Koppling av plattstreckkoder (alfa)"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "plate_barcode_linkage",
+      "source": "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate.",
+      "source_sha256": "cc496d3ac0f42d4c531b3e87265e8258a066687a6dd1e1889d7548cfe9cc08e5",
+      "original_ai_draft": "Ange streckkoder för utdataplattorna i formen ``plate1=BC001; plate2=BC002``, eller lägg en UTF-8-kodad ``barcode.txt`` i källans rotmapp eller i en faktisk källplattas mapp. En fil med endast en streckkod gäller bara när mappen innehåller en enda källplatta. För flera plattor skriver du en post av formen ``source_plate=barcode`` per platta, avskild med radbrytning eller semikolon; nycklarna är de *ursprungliga källplattornas* namn. Uttryckliga tilldelningar i Konvertera använder *utdataplattornas* namn och kan fylla i återstående plattor. spaCR bevarar inledande nollor, avvisar tvetydiga eller motstridiga tilldelningar och kräver en streckkod för varje utdataplatta.",
+      "reviewed_translation": "Ange streckkoder för utdataplattorna i formen ``plate1=BC001; plate2=BC002``, eller lägg en UTF-8-kodad ``barcode.txt`` i källans rotmapp eller i en faktisk källplattas mapp. En fil med endast en streckkod gäller bara när mappen innehåller en enda källplatta. För flera plattor skriver du en post av formen ``source_plate=barcode`` per platta, avskild med radbrytning eller semikolon; nycklarna är de *ursprungliga källplattornas* namn. Uttryckliga tilldelningar i Konvertera använder *utdataplattornas* namn och kan fylla i återstående plattor. spaCR bevarar inledande nollor, avvisar tvetydiga eller motstridiga tilldelningar och kräver en streckkod för varje utdataplatta.",
+      "ui_bindings": {}
+    },
+    {
+      "index": 3,
+      "domain": "plate_barcode_linkage",
+      "source": "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service.",
+      "source_sha256": "e4a399863efb9348311b70ec2daf99ceebc0154669d043866dd1137539143d55",
+      "original_ai_draft": "Efter en slutförd konvertering hittar du ``plate_barcode_linkage/plate_map_lims.csv`` i målmappen. Granska ``plate_barcode_mismatches.csv`` där för omatchade brunnar och andra avvikelser. Kvittot ``complete.json`` skrivs sist; om det saknas är kopplingspaketet ofullständigt. Skärmen Konvertera visar en begränsad förhandsgranskning av avvikelserna och sökvägarna till båda CSV-filerna. Originalbilder, streckkodsfiler och befintliga användarskapade plattkartor lämnas oförändrade. Den här vägen i Konvertera tar emot en lokal CSV; använd Mätning för en LIMS-tjänst via HTTP.",
+      "reviewed_translation": "Efter en slutförd konvertering hittar du ``plate_barcode_linkage/plate_map_lims.csv`` i målmappen. Granska ``plate_barcode_mismatches.csv`` där för omatchade brunnar och andra avvikelser. Kvittot ``complete.json`` skrivs sist; om det saknas är kopplingspaketet ofullständigt. Skärmen Konvertera visar en begränsad förhandsgranskning av avvikelserna och sökvägarna till båda CSV-filerna. Originalbilder, streckkodsfiler och befintliga användarskapade plattkartor lämnas oförändrade. Den här vägen i Konvertera tar emot en lokal CSV; använd Mätning för en LIMS-tjänst via HTTP.",
+      "ui_bindings": {}
+    }
+  ]
+}

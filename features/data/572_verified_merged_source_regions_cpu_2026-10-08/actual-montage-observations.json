@@ -1,0 +1,153 @@
+{
+  "capped": {
+    "panel_count": 24,
+    "sidecar_sha256": "21d43e4f486ffffe43f18936e14f6769adac7181c87dc3702d76129a08cee96c",
+    "source_region_notes": []
+  },
+  "first": {
+    "panel_count": 24,
+    "sidecar_sha256": "c280b2e68f7f4a0bc5ed54e103ba6a9777195fe50487cf8a67884070042bd473",
+    "source_region_notes": []
+  },
+  "later": {
+    "panel_count": 24,
+    "sidecar_sha256": "c1a258e6608e8d82a1da7a95d3d63ef9057265b95253fdf938f9da6975a84f62",
+    "source_region_notes": [
+      {
+        "check": "cross_figure_source_region",
+        "message": "Panel 0 and panel 2 in first.pdf show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+        "panels": [
+          0
+        ],
+        "prior_figure": "first.pdf",
+        "prior_panel": 2,
+        "severity": "note",
+        "source_boxes": [
+          [
+            0,
+            96,
+            0,
+            78
+          ],
+          [
+            0,
+            82,
+            0,
+            88
+          ]
+        ],
+        "source_sha256": "c6d2313eb3a1165bdc04c650daaa6b7482f0a01218c5dbd2270ecafe8f7bcf1d"
+      },
+      {
+        "check": "cross_figure_source_region",
+        "message": "Panel 1 and panel 4 in first.pdf show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+        "panels": [
+          1
+        ],
+        "prior_figure": "first.pdf",
+        "prior_panel": 4,
+        "severity": "note",
+        "source_boxes": [
+          [
+            0,
+            76,
+            28,
+            112
+          ],
+          [
+            0,
+            82,
+            18,
+            112
+          ]
+        ],
+        "source_sha256": "c6d2313eb3a1165bdc04c650daaa6b7482f0a01218c5dbd2270ecafe8f7bcf1d"
+      },
+      {
+        "check": "cross_figure_source_region",
+        "message": "Panel 2 and panel 2 in first.pdf show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+        "panels": [
+          2
+        ],
+        "prior_figure": "first.pdf",
+        "prior_panel": 2,
+        "severity": "note",
+        "source_boxes": [
+          [
+            0,
+            96,
+            0,
+            104
+          ],
+          [
+            0,
+            82,
+            0,
+            88
+          ]
+        ],
+        "source_sha256": "c6d2313eb3a1165bdc04c650daaa6b7482f0a01218c5dbd2270ecafe8f7bcf1d"
+      },
+      {
+        "check": "cross_figure_source_region",
+        "message": "Panel 3 and panel 2 in first.pdf show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+        "panels": [
+          3
+        ],
+        "prior_figure": "first.pdf",
+        "prior_panel": 2,
+        "severity": "note",
+        "source_boxes": [
+          [
+            0,
+            76,
+            2,
+            112
+          ],
+          [
+            0,
+            82,
+            0,
+            88
+          ]
+        ],
+        "source_sha256": "c6d2313eb3a1165bdc04c650daaa6b7482f0a01218c5dbd2270ecafe8f7bcf1d"
+      },
+      {
+        "check": "cross_figure_source_region",
+        "message": "Panel 4 and panel 2 in first.pdf show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+        "panels": [
+          4
+        ],
+        "prior_figure": "first.pdf",
+        "prior_panel": 2,
+        "severity": "note",
+        "source_boxes": [
+          [
+            0,
+            96,
+            2,
+            112
+          ],
+          [
+            0,
+            82,
+            0,
+            88
+          ]
+        ],
+        "source_sha256": "c6d2313eb3a1165bdc04c650daaa6b7482f0a01218c5dbd2270ecafe8f7bcf1d"
+      }
+    ]
+  },
+  "replay-tampered": {
+    "panel_count": 24,
+    "sidecar_sha256": "e9e54a5078e8484df73f608e5bfe1c47b1af283f4b423d6dc243e04eb71d4617",
+    "source_region_notes": []
+  },
+  "source-changed": {
+    "panel_count": 24,
+    "sidecar_sha256": "e226757db442f82f70b72b56214a4d22870fdaee5b095cfad394614213b5df44",
+    "source_region_notes": []
+  }
+}

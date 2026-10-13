@@ -1,0 +1,55 @@
+{
+  "item": 419,
+  "scope": "Save/Next/close/fresh-screen persistence and confirmed Clear placement",
+  "reproduced": "Older same-extension PNG/TIFF mask shadows the edited canonical TIFF on reopening",
+  "fix": "Canonical .tif mask is loaded first; original fallback files and source-image bytes are preserved",
+  "actual_mouse_modes": [
+    "draw",
+    "brush"
+  ],
+  "source_extensions": [
+    ".tif",
+    ".tiff",
+    ".png"
+  ],
+  "clear_immediately_before_discard": true,
+  "clear_decline_preserves_labels": true,
+  "clear_accept_removes_all_segmentation_labels": true,
+  "clear_undo_exact": true,
+  "baseline_exit_code": 1,
+  "baseline_result": "4 failed,3 passed",
+  "fixed_exit_code": 0,
+  "fixed_tests": 146,
+  "engine_exit_code": 0,
+  "engine_tests": 61,
+  "baseline_layout_test_note": "Added an explicit nonnegative layout index assertion to prevent an absent button from satisfying the adjacency arithmetic.",
+  "new_popup_translation_sources_pending_normal_integration": [
+    "Clear mask",
+    "Remove all {count} object(s) from this field? The field itself is untouched, and Undo brings the objects back."
+  ],
+  "Box_annotations": "Existing right-click box deletion remains intact; underlying-mask deletion clarification remains pending",
+  "event_backend_local_checkpoint": "61b551d7f",
+  "event_backend_scope": "231 contracts and real installed-worker synthetic CPU train/save/reload accepted; GPU/science/GUI/docs remain open",
+  "source_sha256": {
+    "spacr/qt/mask_engine.py": "f9ab967d77e7c8c89ee95b5eedaf7705237895411d6a4c9142b486f888f31a63",
+    "spacr/qt/screens/make_masks.py": "71337f164b03beecaf3770362cd08419a80a022a51e9967c723efe4a6816c46d",
+    "tests/qt/test_make_masks_saved_edits_reopen.py": "eb902a0f3a225dcb91067046d3f5b251f7ec4e272cc9926bab25d20589aa48a4"
+  },
+  "archive_sha256": {
+    "mask-save-engine-contracts-r1.log.gz": "5d044448642f5d2800d5a98188760a32f03012466fe17ea35ddd619d470b68d7",
+    "mask-save-reopen-baseline-r1.log.gz": "6f85ca27dc280cc853cfa89f2dae265270f323e81a569d4f4454bc0dee93870d",
+    "mask-save-reopen-fixed-r1.log.gz": "1ae88dd23fad9939aaf10f521699a922169d89cf356fd4b0628f13f4a266db61",
+    "regressions.py": "eb902a0f3a225dcb91067046d3f5b251f7ec4e272cc9926bab25d20589aa48a4"
+  },
+  "complete_original_logs": {
+    "mask-save-reopen-baseline-r1.log.gz": {
+      "uncompressed_sha256": "1f5160bd05ed656c7db9cb85e383251599c28b277e6e2dcf26db1d85cfee7974"
+    },
+    "mask-save-reopen-fixed-r1.log.gz": {
+      "uncompressed_sha256": "1e519f4a0e768e3c256078b388c30985e24cdf0ecdb8b69c36ca30a7837ffcaf"
+    },
+    "mask-save-engine-contracts-r1.log.gz": {
+      "uncompressed_sha256": "f4fb2c2aec3a9e06181a0d904bc1ad08ef0302278dab1f8d03b025b6e39280f5"
+    }
+  }
+}

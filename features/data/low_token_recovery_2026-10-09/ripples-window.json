@@ -1,0 +1,18 @@
+{
+  "status": "completed",
+  "exit_code": 0,
+  "seconds": 14.49,
+  "files": [
+    "tests/qt/test_field_ripple_controls.py",
+    "tests/qt/test_field_grab_physics_and_input.py",
+    "tests/qt/test_window_snap_and_field_edges_n666.py"
+  ],
+  "counts": {
+    "tests": 80,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "updated_utc": "2026-10-09T13:05:01Z"
+}

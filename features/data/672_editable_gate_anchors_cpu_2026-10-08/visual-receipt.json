@@ -1,0 +1,144 @@
+{
+  "source_checkpoint": "1ad258e625f",
+  "scope": "Actual 1100x800 offscreen GUI captures; no animation/FPS/GPU acceptance.",
+  "images": [
+    {
+      "path": "box-anchors.png",
+      "width": 1380,
+      "height": 800
+    },
+    {
+      "path": "edited-adjacent-surfaces.png",
+      "gate": {
+        "kind": "editable_volume",
+        "name": "box",
+        "parent": null,
+        "x_column": "a",
+        "y_column": "b",
+        "z_column": "c",
+        "vertices": [
+          [
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          [
+            1.0,
+            -1.0,
+            -0.95
+          ],
+          [
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          [
+            1.0,
+            1.0,
+            -0.95
+          ],
+          [
+            -1.0,
+            -1.0,
+            1.05
+          ],
+          [
+            1.0,
+            -1.0,
+            1.05
+          ],
+          [
+            -1.0,
+            1.0,
+            1.05
+          ],
+          [
+            1.0,
+            1.0,
+            1.05
+          ]
+        ],
+        "faces": [
+          [
+            0,
+            2,
+            3
+          ],
+          [
+            0,
+            3,
+            1
+          ],
+          [
+            4,
+            5,
+            7
+          ],
+          [
+            4,
+            7,
+            6
+          ],
+          [
+            0,
+            1,
+            5
+          ],
+          [
+            0,
+            5,
+            4
+          ],
+          [
+            2,
+            6,
+            7
+          ],
+          [
+            2,
+            7,
+            3
+          ],
+          [
+            0,
+            4,
+            6
+          ],
+          [
+            0,
+            6,
+            2
+          ],
+          [
+            1,
+            3,
+            7
+          ],
+          [
+            1,
+            7,
+            5
+          ]
+        ],
+        "surface_groups": [
+          0,
+          0,
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          4,
+          4,
+          5,
+          5
+        ]
+      }
+    },
+    {
+      "path": "cylinder-depth-anchors.png",
+      "analytic_gate_preserved": true
+    }
+  ]
+}

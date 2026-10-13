@@ -1,0 +1,294 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "accepted": true,
+  "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/evaluation_runs/REAL-portable-inspector-jqkicv9l",
+  "prepared_manifest": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/evaluation_runs/REAL-portable-inspector-jqkicv9l/evaluation/evaluation_manifest.json",
+  "actual_gui_loaded": true,
+  "app_source_modified": false,
+  "published": false,
+  "original_inputs_preserved": true,
+  "loaded_signals": [
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/evaluation_runs/REAL-portable-inspector-jqkicv9l/evaluation/evaluation_manifest.json"
+  ],
+  "status_text": "Loaded 234 held-out prediction(s) · leakage audit: review required.",
+  "bundle_unchanged": true,
+  "next_gate": "English, 13 translations, 50 voices, shared 4K master and browser verification",
+  "acceptance_scope": "Read-only inspection of known-overlap saved predictions; not independent model validation or working crop navigation",
+  "numeric_checks": {
+    "saved": {
+      "passed": true,
+      "predictions": 234,
+      "summary_fields": 11,
+      "calibration_rows": 10,
+      "confusion": [
+        [
+          104,
+          11
+        ],
+        [
+          8,
+          111
+        ]
+      ],
+      "biological_validation": false
+    },
+    "snapshots": {
+      "04_actual_summary": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true
+      },
+      "05_actual_leakage_requires_review": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true
+      },
+      "06_actual_confusion_counts": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true
+      },
+      "07_actual_error_cell": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 6,
+          "low": 5,
+          "threshold": 0.75,
+          "causal_diagnosis_validated": false
+        }
+      },
+      "08_actual_confidence_threshold": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 2,
+          "low": 9,
+          "threshold": 0.95,
+          "causal_diagnosis_validated": false
+        }
+      },
+      "09_actual_per_plate": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 2,
+          "low": 9,
+          "threshold": 0.95,
+          "causal_diagnosis_validated": false
+        }
+      },
+      "10_actual_calibration_table": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 2,
+          "low": 9,
+          "threshold": 0.95,
+          "causal_diagnosis_validated": false
+        }
+      },
+      "11_actual_all_predictions": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 2,
+          "low": 9,
+          "threshold": 0.95,
+          "causal_diagnosis_validated": false
+        }
+      },
+      "12_actual_prediction_filter": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 128,
+          "checked_cells": 2304,
+          "filter_text": "r5_c2"
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 2,
+          "low": 9,
+          "threshold": 0.95,
+          "causal_diagnosis_validated": false
+        }
+      },
+      "13_actual_filter_cleared": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 2,
+          "low": 9,
+          "threshold": 0.95,
+          "causal_diagnosis_validated": false
+        }
+      },
+      "14_actual_final_leakage": {
+        "confusion": {
+          "passed": true,
+          "cells": 4
+        },
+        "predictions": {
+          "passed": true,
+          "rows": 234,
+          "checked_cells": 4212,
+          "filter_text": ""
+        },
+        "summary_fields": 11,
+        "per_plate_fields": 11,
+        "calibration_rows": 10,
+        "leakage_exact": true,
+        "confidence": {
+          "passed": true,
+          "error_cell_count": 11,
+          "high": 2,
+          "low": 9,
+          "threshold": 0.95,
+          "causal_diagnosis_validated": false
+        }
+      }
+    }
+  },
+  "biological_validation": false,
+  "crop_navigation_validated": false,
+  "all_original_inputs_rechecked": true,
+  "png_visual_inspection": "Native calibration curve readable; native confusion numbers have weak dark-on-blue contrast. Generic OOF titles are not accurate for this single test split; neither export is endorsed as publication-ready.",
+  "tests": {
+    "numeric": 27,
+    "archive": 9,
+    "red_mutants_numeric": 13,
+    "red_mutants_archive": 8
+  },
+  "archive": {
+    "bytes": 199726,
+    "sha256": "a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4"
+  },
+  "native_speaker_signoff": false,
+  "listening_review": false
+}

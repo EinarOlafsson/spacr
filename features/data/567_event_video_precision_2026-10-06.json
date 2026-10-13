@@ -1,0 +1,683 @@
+{
+  "item": 567,
+  "accepted": true,
+  "date": "2026-10-06",
+  "scope": "Declared synthetic RGB and explicitly repeated monochrome clips; pretrained extraction and numerical parity only, no biological event accuracy.",
+  "biological_event_accuracy_claimed": false,
+  "queue": "Normal real-HOME scheduler: 360 seconds idle and 600 seconds gap; protected jobs and user application untouched.",
+  "repair": "Worker temporarily selects IEEE float32 CUDA convolutions and restores the previous precision and thread count on success or failure. Original CPU features remain bit exact.",
+  "unchanged_parity_contract": {
+    "rtol": 0.0002,
+    "atol": 2e-05
+  },
+  "CPU": {
+    "item": 567,
+    "passed": true,
+    "device": "cpu",
+    "scope": "Declared synthetic RGB and explicitly repeated monochrome clips; pretrained extraction and numerical parity only, no biological event accuracy.",
+    "normal_parent_worker_protocol": true,
+    "parity_contract_fixed_before_run": {
+      "rtol": 0.0002,
+      "atol": 2e-05
+    },
+    "source_sha256": {
+      "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+      "spacr/timelapse.py": "df54908687d66cecc1971a463afe116194e0454e8387c05d0e2bb5569ce2d88d"
+    },
+    "clips": {
+      "RGB": {
+        "provenance": {
+          "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+          "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+          "files_sha256": {
+            "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+            "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+            "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+          },
+          "weights_license": "CC-BY-NC-4.0",
+          "frames": 16,
+          "feature_width": 768,
+          "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+          "frame_sampling": "rounded evenly spaced indices including endpoints",
+          "pooling": "mean patch tokens followed by pretrained fc_norm",
+          "channel_map": [
+            0,
+            1,
+            2
+          ],
+          "device": "cpu",
+          "CUDA_convolution_precision": "IEEE float32",
+          "transformers": "4.48.3",
+          "torch": "2.11.0+cu128"
+        },
+        "repeat_bit_exact": true,
+        "shape": [
+          1,
+          768
+        ]
+      },
+      "declared_mono": {
+        "provenance": {
+          "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+          "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+          "files_sha256": {
+            "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+            "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+            "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+          },
+          "weights_license": "CC-BY-NC-4.0",
+          "frames": 16,
+          "feature_width": 768,
+          "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+          "frame_sampling": "rounded evenly spaced indices including endpoints",
+          "pooling": "mean patch tokens followed by pretrained fc_norm",
+          "channel_map": [
+            0,
+            0,
+            0
+          ],
+          "device": "cpu",
+          "CUDA_convolution_precision": "IEEE float32",
+          "transformers": "4.48.3",
+          "torch": "2.11.0+cu128"
+        },
+        "repeat_bit_exact": true,
+        "shape": [
+          1,
+          768
+        ]
+      }
+    },
+    "worker_pids": [
+      3213888
+    ],
+    "GPU_compute_observations": [],
+    "seconds": 13.424710512161255
+  },
+  "CUDA": {
+    "item": 567,
+    "passed": true,
+    "device": "cuda",
+    "scope": "Declared synthetic RGB and explicitly repeated monochrome clips; pretrained extraction and numerical parity only, no biological event accuracy.",
+    "normal_parent_worker_protocol": true,
+    "parity_contract_fixed_before_run": {
+      "rtol": 0.0002,
+      "atol": 2e-05
+    },
+    "source_sha256": {
+      "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+      "spacr/timelapse.py": "df54908687d66cecc1971a463afe116194e0454e8387c05d0e2bb5569ce2d88d"
+    },
+    "clips": {
+      "RGB": {
+        "provenance": {
+          "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+          "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+          "files_sha256": {
+            "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+            "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+            "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+          },
+          "weights_license": "CC-BY-NC-4.0",
+          "frames": 16,
+          "feature_width": 768,
+          "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+          "frame_sampling": "rounded evenly spaced indices including endpoints",
+          "pooling": "mean patch tokens followed by pretrained fc_norm",
+          "channel_map": [
+            0,
+            1,
+            2
+          ],
+          "device": "cuda",
+          "CUDA_convolution_precision": "IEEE float32",
+          "transformers": "4.48.3",
+          "torch": "2.11.0+cu128"
+        },
+        "repeat_bit_exact": true,
+        "shape": [
+          1,
+          768
+        ],
+        "CPU_CUDA_max_absolute_difference": 1.1324882507324219e-06,
+        "CPU_CUDA_mean_absolute_difference": 3.157971377731883e-07,
+        "CPU_CUDA_parity_passed": true
+      },
+      "declared_mono": {
+        "provenance": {
+          "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+          "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+          "files_sha256": {
+            "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+            "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+            "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+          },
+          "weights_license": "CC-BY-NC-4.0",
+          "frames": 16,
+          "feature_width": 768,
+          "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+          "frame_sampling": "rounded evenly spaced indices including endpoints",
+          "pooling": "mean patch tokens followed by pretrained fc_norm",
+          "channel_map": [
+            0,
+            0,
+            0
+          ],
+          "device": "cuda",
+          "CUDA_convolution_precision": "IEEE float32",
+          "transformers": "4.48.3",
+          "torch": "2.11.0+cu128"
+        },
+        "repeat_bit_exact": true,
+        "shape": [
+          1,
+          768
+        ],
+        "CPU_CUDA_max_absolute_difference": 1.2367963790893555e-06,
+        "CPU_CUDA_mean_absolute_difference": 2.779346743864153e-07,
+        "CPU_CUDA_parity_passed": true
+      }
+    },
+    "worker_pids": [
+      3215949
+    ],
+    "GPU_compute_observations": [
+      {
+        "seconds": 0.029984712600708008,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 0.313751220703125,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 0.591740608215332,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 0.8711857795715332,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.146026372909546,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.4228169918060303,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.6980504989624023,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.9736356735229492,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 2.245847463607788,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 2.519284725189209,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 2.7896339893341064,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.06327486038208,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.3375113010406494,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 18 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.607048749923706,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.877338171005249,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.148193597793579,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.416907787322998,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.684966325759888,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.954912424087524,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 5.224957227706909,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 5.493559837341309,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 5.765174865722656,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 6.035567283630371,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 6.3049397468566895,
+        "returncode": 0,
+        "stdout": "3215949, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      }
+    ],
+    "seconds": 6.434507369995117
+  },
+  "real_model_cleanup": {
+    "passed": true,
+    "scope": "Actual pinned CPU VideoMAE model and preprocessing; real success plus deliberate forward-hook exception verifies precision/thread cleanup. No CUDA or biology claim.",
+    "source_sha256": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "torch": "2.11.0+cu128",
+    "control": "fp32_precision",
+    "before": "tf32",
+    "before_threads": 2,
+    "deliberate_exception_observed": true,
+    "observed": [
+      {
+        "convolution_precision": "ieee",
+        "threads": 2
+      },
+      {
+        "convolution_precision": "ieee",
+        "threads": 2
+      }
+    ],
+    "after": "tf32",
+    "after_threads": 2,
+    "original_CPU_features_bit_exact": true
+  },
+  "diagnosis": {
+    "accepted_diagnostic_only": true,
+    "result_archive": "567-event-video-precision-diagnosis-r1/result.json.gz",
+    "original_RGB_mismatches": 373,
+    "original_monochrome_mismatches": 590
+  },
+  "affected_tests": {
+    "passed": 158,
+    "seconds": 23.73,
+    "exit_code": 0,
+    "log": "probes-and-logs/567-video-precision-affected-tests-r1.log.gz"
+  },
+  "original_failure_preserved": true,
+  "files": {
+    "probes-and-logs/validate_event_video_devices_r1.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/validate_event_video_devices_r1.py",
+      "bytes": 5568,
+      "uncompressed_sha256": "593c3c86e53b0507039b7a510249b60b94df3cbf914583862c0e2a68ec7e72b3",
+      "archive_sha256": "12d7f0484d81ba8120d6504bdf16994924bfa4b9993bc9d32cda08f32025a677"
+    },
+    "probes-and-logs/validate_event_video_devices_r2.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/validate_event_video_devices_r2.py",
+      "bytes": 5864,
+      "uncompressed_sha256": "22da2ce86d649ae8e82628c21d2af099d598899f21311c8471018c55c30e291b",
+      "archive_sha256": "c67e13c28ed187f732fdf020bcae73182c07c4d1030af3a048b44e477b27c2f4"
+    },
+    "probes-and-logs/diagnose_event_video_precision_r1.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/diagnose_event_video_precision_r1.py",
+      "bytes": 5468,
+      "uncompressed_sha256": "33045f8c9e40a1cab8f0817aa05800c7a9be2063479b20a1e1372d8dfb761497",
+      "archive_sha256": "860fbc31f144a230dbf3bc314e43e8faec3e3102cdd7d728cc16b573cde5292c"
+    },
+    "probes-and-logs/verify_event_video_precision_cleanup_r1.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_event_video_precision_cleanup_r1.py",
+      "bytes": 3708,
+      "uncompressed_sha256": "b92e135a031560c9b7b68e71e55ed5db0effa6db93e4fd85fec1fb9b2a9728ae",
+      "archive_sha256": "ed8ab0c4d5f3c7862c5850d70754b293e8f04dfc1592fef50b7c06590c39591d"
+    },
+    "probes-and-logs/567-event-video-parent-worker-GPU-r1.log.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-parent-worker-GPU-r1.log",
+      "bytes": 2654,
+      "uncompressed_sha256": "1b20c5452979550f8818ac9b735378fcfab8424304b94d41270fc899099ebdbf",
+      "archive_sha256": "db4a1509cf29266d9ff7f618e5cc5d00459cc0d78867e8460e664e05d8f49e2d"
+    },
+    "probes-and-logs/567-event-video-parent-worker-GPU-r2.log.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-parent-worker-GPU-r2.log",
+      "bytes": 886,
+      "uncompressed_sha256": "ea5521f89705eb82d906e754b9488d096d70f0b3ea7ebdafe1fc3a89a9fcf615",
+      "archive_sha256": "bf40582cfd3a362e28e78c80f9cdf70c2c20f78706b9d377358911dae9927292"
+    },
+    "probes-and-logs/567-event-video-parent-worker-CPU-r2.log.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-parent-worker-CPU-r2.log",
+      "bytes": 257,
+      "uncompressed_sha256": "15b9b1fa0419ba2ef1de4edecb4ec3aefdda534d452b38f9600b43af8179171a",
+      "archive_sha256": "5cbeb0b12a4415681086f628d0198dc39bbcf74902697a003f737752fe70f0fe"
+    },
+    "probes-and-logs/567-event-video-precision-diagnosis-GPU-r1.log.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-GPU-r1.log",
+      "bytes": 2754,
+      "uncompressed_sha256": "ba557ad18aed27eaf0fb72a60a37a9b4882f16142142eb9dc94334bcca0d2f60",
+      "archive_sha256": "0a91d282ab4793c6658c17ed4acd82de9f00323d7b5d7c100abafe745d0ac35e"
+    },
+    "probes-and-logs/567-event-video-precision-cleanup-CPU-r1.log.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-cleanup-CPU-r1.log",
+      "bytes": 125,
+      "uncompressed_sha256": "e6ab43f4d6f5c2c48bd1086a16085600ab857c9390e282d830b4550f0b6d69b3",
+      "archive_sha256": "cadc9bd5947ec01b818d3235db8258cdae1f439e7fa0cf2e13be63511a9c4a53"
+    },
+    "probes-and-logs/567-video-precision-affected-tests-r1.log.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-video-precision-affected-tests-r1.log",
+      "bytes": 377,
+      "uncompressed_sha256": "e58af04dc26bf343f06a87c3d24bdbeec606d551e7dcae268a61fb58ef0640b0",
+      "archive_sha256": "f928b13ebbd0903dc95b85985a358c69af69ac28cd0a027290757a8e35d34cb6"
+    },
+    "cpu-validation/RGB-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation/RGB-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "c9858d49e03802c838537b42b3af62d86f1623c9319a7181ca8ccdb483d05d47",
+      "archive_sha256": "8ec20140d1d8d121f6a2307ef1fed5f108de04710586b76c72c6704db9922e6f"
+    },
+    "cpu-validation/RGB-input.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation/RGB-input.npy",
+      "bytes": 9633920,
+      "uncompressed_sha256": "e8f3990c9a8784a818524a2911a7db065cb363bf8146b851b2de4dee4695a87e",
+      "archive_sha256": "ca83d1e853c0c7d65f64c199edf0a56eadd63c5ee5f967988f5423e2ce394fc2"
+    },
+    "cpu-validation/declared_mono-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation/declared_mono-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "2499bdb7b78c261ce1f57ef719f85b2e18fa3f6aa703cf0fa4a5fe704a6ee43e",
+      "archive_sha256": "a661c022e5aa32c415a8faa99046be33bd0238432cff2dce42eb08fb5eeb66ee"
+    },
+    "cpu-validation/declared_mono-input.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation/declared_mono-input.npy",
+      "bytes": 401536,
+      "uncompressed_sha256": "13b1b6bee7a8d1fe50cada17446d5247709ab5c9c3b9bfa43e74fe3411f0ee34",
+      "archive_sha256": "119b73e305448f3e5e7a97d6da926a50127ad2419264e39313cc10fb1c76d034"
+    },
+    "cpu-validation/result.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation/result.json",
+      "bytes": 2855,
+      "uncompressed_sha256": "1581b19d1b2f0d9eb3aea0f699652a3bfaad36e149802b3cb84d4edc1a20bb02",
+      "archive_sha256": "0b0bf24d11316841470966bea6f8b157c8cf60597152d11a1c2e9286f2f7570d"
+    },
+    "cuda-validation/RGB-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation/RGB-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "7a5cf5443fdfa11c600d8937958c247769f41920a01df77f73faa6d18b9ffefb",
+      "archive_sha256": "fbd1bf770c352d9e35fcb6eeadf54514d9c418e1f33c5b8626cefa849348efeb"
+    },
+    "cuda-validation/RGB-input.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation/RGB-input.npy",
+      "bytes": 9633920,
+      "uncompressed_sha256": "e8f3990c9a8784a818524a2911a7db065cb363bf8146b851b2de4dee4695a87e",
+      "archive_sha256": "ca83d1e853c0c7d65f64c199edf0a56eadd63c5ee5f967988f5423e2ce394fc2"
+    },
+    "cuda-validation/progress.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation/progress.json",
+      "bytes": 1833,
+      "uncompressed_sha256": "cde2e48c26553c2769090a8413bd8b14a6025fec275cd0432751415bc9b09382",
+      "archive_sha256": "d57ddcd3138531c8ef490410c70f561ad71cc523d0d8ca77586c79991c0f014e"
+    },
+    "cuda-validation/queue-holder.txt.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation/queue-holder.txt",
+      "bytes": 170,
+      "uncompressed_sha256": "cbf3c93f23168e3193e3e8a016b8569963e2af89a66d2bc26497f59eb35296ed",
+      "archive_sha256": "7cffbf60b003c791315adfda62b4393272a6c6916afa643336704aabc991de7c"
+    },
+    "cuda-validation/result.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation/result.json",
+      "bytes": 18953,
+      "uncompressed_sha256": "d6c8e39878e35c6d518fd499cfa7754cef7ff91c3406f169d946d14144df66a0",
+      "archive_sha256": "5db56ec352b8d5f03ae9d9db8c36f1366ac1b558da1aa78a4caf2ccf55de62de"
+    },
+    "cpu-validation-r2/RGB-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation-r2/RGB-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "c9858d49e03802c838537b42b3af62d86f1623c9319a7181ca8ccdb483d05d47",
+      "archive_sha256": "8ec20140d1d8d121f6a2307ef1fed5f108de04710586b76c72c6704db9922e6f"
+    },
+    "cpu-validation-r2/RGB-input.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation-r2/RGB-input.npy",
+      "bytes": 9633920,
+      "uncompressed_sha256": "e8f3990c9a8784a818524a2911a7db065cb363bf8146b851b2de4dee4695a87e",
+      "archive_sha256": "ca83d1e853c0c7d65f64c199edf0a56eadd63c5ee5f967988f5423e2ce394fc2"
+    },
+    "cpu-validation-r2/declared_mono-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation-r2/declared_mono-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "2499bdb7b78c261ce1f57ef719f85b2e18fa3f6aa703cf0fa4a5fe704a6ee43e",
+      "archive_sha256": "a661c022e5aa32c415a8faa99046be33bd0238432cff2dce42eb08fb5eeb66ee"
+    },
+    "cpu-validation-r2/declared_mono-input.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation-r2/declared_mono-input.npy",
+      "bytes": 401536,
+      "uncompressed_sha256": "13b1b6bee7a8d1fe50cada17446d5247709ab5c9c3b9bfa43e74fe3411f0ee34",
+      "archive_sha256": "119b73e305448f3e5e7a97d6da926a50127ad2419264e39313cc10fb1c76d034"
+    },
+    "cpu-validation-r2/result.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cpu-validation-r2/result.json",
+      "bytes": 2963,
+      "uncompressed_sha256": "6e3f324fa676d319a1283e245e5d40850b042d78d1289458ff099f9e03ba26c1",
+      "archive_sha256": "2532167ef6721eb9ac41c669ba6d3de9b25b20433730ae3804bbdcc74d6a63b2"
+    },
+    "cuda-validation-r2/RGB-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation-r2/RGB-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "d082c6438e2018e04c052c178f7b0ff8df119caaeb02cade42a3a72072c18340",
+      "archive_sha256": "ae24c2662e23094a0151d8703bf3d8251c0201e39741690139c6153daa4d507b"
+    },
+    "cuda-validation-r2/RGB-input.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation-r2/RGB-input.npy",
+      "bytes": 9633920,
+      "uncompressed_sha256": "e8f3990c9a8784a818524a2911a7db065cb363bf8146b851b2de4dee4695a87e",
+      "archive_sha256": "ca83d1e853c0c7d65f64c199edf0a56eadd63c5ee5f967988f5423e2ce394fc2"
+    },
+    "cuda-validation-r2/declared_mono-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation-r2/declared_mono-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "ed1f4e9356f7e008958c291a8894e0624f0602f181cf0caf16b7235bbbb2d46d",
+      "archive_sha256": "d797005bceaabe33b6534c4b2534e67f032d4e0c587a4928d6213c30b7f68ce1"
+    },
+    "cuda-validation-r2/declared_mono-input.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation-r2/declared_mono-input.npy",
+      "bytes": 401536,
+      "uncompressed_sha256": "13b1b6bee7a8d1fe50cada17446d5247709ab5c9c3b9bfa43e74fe3411f0ee34",
+      "archive_sha256": "119b73e305448f3e5e7a97d6da926a50127ad2419264e39313cc10fb1c76d034"
+    },
+    "cuda-validation-r2/progress.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation-r2/progress.json",
+      "bytes": 3204,
+      "uncompressed_sha256": "9ea71901870e50d5b803ac58043260760deaa1570958ba4ffe0c233fb6de1165",
+      "archive_sha256": "61a0014594fa3b6a0a733ea6ce29f6e38902d6dcde3fb5f24e4cde579405176c"
+    },
+    "cuda-validation-r2/queue-holder.txt.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation-r2/queue-holder.txt",
+      "bytes": 170,
+      "uncompressed_sha256": "702e56b03e8a7a20fd9f9e3d572b3b465fa7f443fad927a7747b067981d8c1bf",
+      "archive_sha256": "1a821744f577b3030d52f87046212bdbf362f52aed21a704a1d79570c8f62e64"
+    },
+    "cuda-validation-r2/result.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/cuda-validation-r2/result.json",
+      "bytes": 7671,
+      "uncompressed_sha256": "5517f886f51a8636579a16b8f8d4890c015b46a92e4afded6af14d7eec0f995a",
+      "archive_sha256": "826299905eb35a6a662930d2fe069e1b6fa43d41e2a52835d7de637831ba34fb"
+    },
+    "567-event-video-precision-diagnosis-r1/baseline-RGB-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/baseline-RGB-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "7a5cf5443fdfa11c600d8937958c247769f41920a01df77f73faa6d18b9ffefb",
+      "archive_sha256": "fbd1bf770c352d9e35fcb6eeadf54514d9c418e1f33c5b8626cefa849348efeb"
+    },
+    "567-event-video-precision-diagnosis-r1/baseline-declared_mono-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/baseline-declared_mono-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "42eeb8788397d442f645be5530f60673d1b025c1881a33b9f157e24622bb14a1",
+      "archive_sha256": "d65a80899f53e1d4fe475740d3dec0f2a1464a8c7c6fb39355a1b36fbd1103de"
+    },
+    "567-event-video-precision-diagnosis-r1/baseline-precision.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/baseline-precision.json",
+      "bytes": 98,
+      "uncompressed_sha256": "149e67a74838201b94a07802904f340a4ea7f59577c76d8eaaef1cd245d85957",
+      "archive_sha256": "e2dca40f90ab3a0d87d060a09e082fde15ade5fc65c53b60ce04024c1701ca7c"
+    },
+    "567-event-video-precision-diagnosis-r1/baseline-worker.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/baseline-worker.py",
+      "bytes": 553,
+      "uncompressed_sha256": "de8040418bdbe0c9baa04b4bad8cea36229006437744b0b020f73e0412c5ec2f",
+      "archive_sha256": "9a397bd58ee66f921587c045531d410db06eeee0f2b14a8a379c0123cd567806"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-RGB-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-RGB-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "d082c6438e2018e04c052c178f7b0ff8df119caaeb02cade42a3a72072c18340",
+      "archive_sha256": "ae24c2662e23094a0151d8703bf3d8251c0201e39741690139c6153daa4d507b"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-declared_mono-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-declared_mono-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "ed1f4e9356f7e008958c291a8894e0624f0602f181cf0caf16b7235bbbb2d46d",
+      "archive_sha256": "d797005bceaabe33b6534c4b2534e67f032d4e0c587a4928d6213c30b7f68ce1"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-precision.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-precision.json",
+      "bytes": 98,
+      "uncompressed_sha256": "08ed539a3a931f647dbc5c3633935cc3d98a9a2170ba8de6a695280bc0f4829f",
+      "archive_sha256": "1c676cf4157bf13b92b39cc4a37aa90e5190be41d8465a77d7cf2a7af0cf4d72"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-worker.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_and_matmul_ieee-worker.py",
+      "bytes": 666,
+      "uncompressed_sha256": "2d316279c5668f6382ca3597bb38019b5c6d5ac699fedf5c6d57e9add49e61f4",
+      "archive_sha256": "4876b53ca2634f871f91ca7ccdfb403f622b554aa448f640a92ccc503cefc79d"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_ieee-RGB-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_ieee-RGB-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "d082c6438e2018e04c052c178f7b0ff8df119caaeb02cade42a3a72072c18340",
+      "archive_sha256": "ae24c2662e23094a0151d8703bf3d8251c0201e39741690139c6153daa4d507b"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_ieee-declared_mono-features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_ieee-declared_mono-features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "ed1f4e9356f7e008958c291a8894e0624f0602f181cf0caf16b7235bbbb2d46d",
+      "archive_sha256": "d797005bceaabe33b6534c4b2534e67f032d4e0c587a4928d6213c30b7f68ce1"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_ieee-precision.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_ieee-precision.json",
+      "bytes": 98,
+      "uncompressed_sha256": "629c11626c30f26309e199845d0d5ab06f55c1049ca5f7a5dabf637617a1d404",
+      "archive_sha256": "8ba303e3737da61050b9b5e54010662d066f27c64108dcdac17088ebfb2ad9ae"
+    },
+    "567-event-video-precision-diagnosis-r1/conv_ieee-worker.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/conv_ieee-worker.py",
+      "bytes": 604,
+      "uncompressed_sha256": "ed409e74c174a8668e25b12c76aa3d7aede8b31a0cb1819cb5cccf91b8a0a72c",
+      "archive_sha256": "b1c29936a2f228d468089abe57285959e628b4e1e1a8196f619b20852c47ac6e"
+    },
+    "567-event-video-precision-diagnosis-r1/progress.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/progress.json",
+      "bytes": 9279,
+      "uncompressed_sha256": "89ac7f49b7dde24853b2d206bcb68a5adb203a12021023926ba367dfde439204",
+      "archive_sha256": "c361cbeda19d3e06950fff857ab629db9d02d7251e5d2990de2cd118cdf01c76"
+    },
+    "567-event-video-precision-diagnosis-r1/queue-holder.txt.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/queue-holder.txt",
+      "bytes": 169,
+      "uncompressed_sha256": "098841c5188e0489f0bb0cfc96044fb9546558f3b89ff7778320ddc8eae3bda3",
+      "archive_sha256": "01e7f8d58e4ac38b2480278c6f062c1d28610e01ae3cc5ce0ae8a04c8f227eac"
+    },
+    "567-event-video-precision-diagnosis-r1/result.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-diagnosis-r1/result.json",
+      "bytes": 9291,
+      "uncompressed_sha256": "bc3bf4b1ee17db0d494c111c1385e3600ff2dcb94e96423d9883540103086b12",
+      "archive_sha256": "35e649366087a8c7e5893a5846b797ec3dd6e77a8edbee3916915bb13ae1ba59"
+    },
+    "567-event-video-precision-cleanup-r1/features.npy.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-cleanup-r1/features.npy",
+      "bytes": 3200,
+      "uncompressed_sha256": "c9858d49e03802c838537b42b3af62d86f1623c9319a7181ca8ccdb483d05d47",
+      "archive_sha256": "8ec20140d1d8d121f6a2307ef1fed5f108de04710586b76c72c6704db9922e6f"
+    },
+    "567-event-video-precision-cleanup-r1/result.json.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-precision-cleanup-r1/result.json",
+      "bytes": 675,
+      "uncompressed_sha256": "416ac0ad40dbbf44745e749345f645b9c6cfb042d77be968cb332b2189fc70c8",
+      "archive_sha256": "bdd84d57222660956049a258b1cb49cf48b227c3fc516f0448e322d8bef667a3"
+    },
+    "accepted-source/spacr/_segmentation_backends.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/spacr-worktrees/event-video-backend-20261006/spacr/_segmentation_backends.py",
+      "bytes": 281411,
+      "uncompressed_sha256": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+      "archive_sha256": "334f83c1b150c02dae0618b9e607bda59d2e2797206ad7d7fa7a9fd0e3eca60f"
+    },
+    "accepted-source/spacr/timelapse.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/spacr-worktrees/event-video-backend-20261006/spacr/timelapse.py",
+      "bytes": 388188,
+      "uncompressed_sha256": "df54908687d66cecc1971a463afe116194e0454e8387c05d0e2bb5569ce2d88d",
+      "archive_sha256": "1402cd57d5b20b5b0438f7c8d19b3ddcd32ec5b063e134bd8b8afb11e8092bfb"
+    },
+    "probes-and-logs/archive_event_video_precision_r1.py.gz": {
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/archive_event_video_precision_r1.py",
+      "bytes": 4788,
+      "uncompressed_sha256": "1bd7ce980468f78f6a5de9dd2fa15fab5b78d5c20c392c966c446b0c3fca890f",
+      "archive_sha256": "bdea9b0f1b3cf71920fb75fc2195cb3553c7a21049efc331c811fc5860ae9acb"
+    }
+  },
+  "remaining": "Final integrated source documentation/publication and annotated held-out Toxoplasma egress/invasion evaluation remain open."
+}

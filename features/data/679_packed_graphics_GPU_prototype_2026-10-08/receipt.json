@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "item": 679,
+  "scope": "Scratch graphics-GPU packed scatter prototype; application backend not implemented.",
+  "passing": true,
+  "cases": 24,
+  "pixel_exact_samples": 192,
+  "themes": [
+    "spaCR field",
+    "spaCR advection",
+    "Spaceout spaCR field"
+  ],
+  "sizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      3840,
+      2160
+    ]
+  ],
+  "densities": [
+    0.1,
+    1.0
+  ],
+  "dark_and_light": true,
+  "actual_renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+  "actual_gl": "4.3.0 NVIDIA 580.178.04",
+  "qt": "6.12.0",
+  "application_source": "bd050ae04fe72100282a7ce2a16d0135b97875ab",
+  "ambient_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+  "dependencies": {
+    "moderngl": "5.12.0",
+    "glcontext": "3.0.0",
+    "location": "Owned prototype scratch only; application installation unchanged."
+  },
+  "memory_cap": "8G",
+  "GPU_IDLE_S": 360,
+  "GPU_GAP_S": 600,
+  "limits": [
+    "Scratch-only experiment; no application renderer or preferences changed.",
+    "GPU timing includes point preparation, uploads, dispatch and full readback; actual native-sized packed pixels are compared with the current CPU material.",
+    "Only the default spaCR palette with zero dot flicker and no colour-wave event is in this first experiment; no random-palette or full native-widget acceptance claimed.",
+    "Other agents are active on CPU; these measurements alone do not establish production speedup.",
+    "CPU has one warmed material sample per case; GPU has eight. This is not a controlled paired speed comparison.",
+    "Readback overhead is substantial and several cases are slower. A default GPU switch is not justified by these results.",
+    "Further work must include owned QImage readback, persistent buffers, paired CPU/GPU timing, random palette/effects and fail-safe thread lifetime before application integration."
+  ],
+  "payloads": {
+    "prototype_packed_flow_GL_r1.py.gz": {
+      "raw_bytes": 8477,
+      "raw_sha256": "be6a7d197733d93d44f73c987e8086336ff0babc378865775d0a0d6a1cd7c16c",
+      "gzip_bytes": 3076,
+      "gzip_sha256": "edf1c23fdcb2a8a3769c40daf2d0f2083f46962cc8213e26199c4e689f599ce0"
+    },
+    "packed-flow-GL-prototype-r1.log.gz": {
+      "raw_bytes": 12944,
+      "raw_sha256": "884ae2c4e7ac702290ce722e707ceb3cf3af21eb768111bb1b841e5829f0bfac",
+      "gzip_bytes": 4049,
+      "gzip_sha256": "81e81db4cc8586ad255e22bb9987c7d4fa777074e3b144b34f044b9cccb8233a"
+    },
+    "native-receipt.json.gz": {
+      "raw_bytes": 17606,
+      "raw_sha256": "f00ca47fa5f55f2676e05f7916b949b6d0704ab3f4e490826ed6c6c01073a638",
+      "gzip_bytes": 4525,
+      "gzip_sha256": "57970e8e1f1ba8e278adc8022596b9095bbe96624f498b6905d9a9c8c7cb8e06"
+    },
+    "ambient-source.py.gz": {
+      "raw_bytes": 416593,
+      "raw_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+      "gzip_bytes": 114603,
+      "gzip_sha256": "ced1f1700717c46c003261bbb0892adf75dddf1498864d606e00d8db66ffcf9c"
+    },
+    "archive_flow_GL_prototype_r1.py.gz": {
+      "raw_bytes": 2970,
+      "raw_sha256": "780f3f772eb85bc90a95818dd73ea3939fb81b079ef11e1403896cd67b177a82",
+      "gzip_bytes": 1366,
+      "gzip_sha256": "40d127f804a26b81d03a8460d13730b3e8a43349978d61ee02b4ae6b4e4fdea0"
+    }
+  }
+}

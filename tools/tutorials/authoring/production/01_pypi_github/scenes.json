@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "fps": 30,
+  "size": [
+    3840,
+    2160
+  ],
+  "lesson": "01_pypi_github",
+  "scenes": [
+    {
+      "image": "keyframes/01_pypi_top.png",
+      "narration": "Before installing spaCR, choose an official distribution route. PyPI and conda-forge provide released packages, while GitHub provides source code, desktop installers, and release records.",
+      "speech_text": "Before installing spacer, choose an official distribution route. [pype](/pˈIp/) and Conda Forge provide released packages, while [GitHub](/ɡˈɪthˌʌb/) provides source code, desktop installers, and release records.",
+      "hold_after": 0.7,
+      "pointer": false
+    },
+    {
+      "image": "keyframes/01_pypi_top.png",
+      "narration": "On PyPI, the release header shows the current stable version and the pip install spacr command.",
+      "speech_text": "On [pype](/pˈIp/), the release header shows the current stable version and the pip install spacer command.",
+      "hold_after": 0.7,
+      "pointer": false,
+      "focus": [
+        448,
+        311,
+        962,
+        418
+      ]
+    },
+    {
+      "image": "keyframes/01_pypi_top.png",
+      "narration": "The Project links section opens the documentation, homepage, issue tracker, and source repository.",
+      "speech_text": "The Project links section opens the documentation, homepage, issue tracker, and source repository.",
+      "hold_after": 0.7,
+      "pointer": false,
+      "focus": [
+        2716,
+        1071,
+        675,
+        514
+      ]
+    },
+    {
+      "image": "keyframes/04_github_main.png",
+      "narration": "On GitHub, use the branch selector to choose the source line. Main is the released line; nightly contains newer work still being tested.",
+      "speech_text": "On [GitHub](/ɡˈɪthˌʌb/), use the branch selector to choose the source line. Main is the released line; nightly contains newer work still being tested.",
+      "hold_after": 0.7,
+      "pointer": false,
+      "focus": [
+        704,
+        412,
+        214,
+        64
+      ]
+    },
+    {
+      "image": "keyframes/05_github_release.png",
+      "narration": "In a GitHub Release, expand Assets to download the Windows, macOS, or Linux installer, the Python package files, or the checksum list.",
+      "speech_text": "In a [GitHub](/ɡˈɪthˌʌb/) Release, expand Assets to download the Windows, [macOS](/mˈækOˌɛs/), or Linux installer, the Python package files, or the checksum list.",
+      "hold_after": 0.7,
+      "pointer": false,
+      "focus": [
+        738,
+        922,
+        2364,
+        758
+      ]
+    },
+    {
+      "image": "keyframes/06_conda_status.png",
+      "narration": "The official conda-forge package installs spaCR and its desktop dependencies into the active Conda environment. Use the exact command conda install conda-forge::spacr.",
+      "speech_text": "The official Conda Forge package installs spacer and its desktop dependencies into the active Conda environment. Use the exact command conda install Conda Forge spacer.",
+      "hold_after": 0.7,
+      "pointer": false
+    },
+    {
+      "image": "keyframes/07_decision.png",
+      "narration": "Use conda-forge or PyPI for a managed Python environment, GitHub Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
+      "speech_text": "Use Conda Forge or [pype](/pˈIp/) for a managed Python environment, [GitHub](/ɡˈɪthˌʌb/) Releases for a desktop installer, and nightly only when you need unreleased work. Next, choose the installation tutorial for your route.",
+      "hold_after": 0.7,
+      "pointer": false
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "cell_loc",
+      "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
+      "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
+      "translation": "Une liste d’identifiants de puits pour chaque entrée de cells précise la position sur la plaque de chaque lignée de cellules hôtes, par exemple [['c1','c2'],['c3']]. Les identifiants doivent commencer par 'r' pour une ligne ou 'c' pour une colonne ; les autres valeurs sont ignorées et les puits correspondants restent sans annotation. None attribue la première entrée de cells à toutes les lignes. Aucune valeur par défaut n’est définie : annotate_filter_vision accède directement à settings['cell_loc']. La clé doit donc être présente dans le dictionnaire et explicitement définie sur None lorsque la correspondance des emplacements n’est pas requise."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cv_group_by",
+      "source_sha256": "ff80ee44bc17dec739551dcee2460f5d298c281faa14ee5c728d4a390846e85e",
+      "source": "Train/test independence: 'cell', 'field', 'well' (default), or 'plate'. Cell can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop identities come from spaCR's plate_well_field_object.png names; unverifiable grouped designs are refused rather than silently randomized.",
+      "translation": "Indépendance entre entraînement et test : 'cell', 'field', 'well' (par défaut) ou 'plate'. Le niveau cellule peut placer des images sœurs provenant d’un même puits des deux côtés ; le niveau champ réduit cette fuite sans la supprimer ; le niveau puits correspond à l’unité d’affectation expérimentale habituelle ; le niveau plaque réserve un batch complet. Des groupes entiers rendent la fraction demandée approximative, les exécutions indiquent donc les groupes et cellules réservés. Les anciennes valeurs 'none'/'off' sont des alias de 'cell'. L’identité des images provient des noms plate_well_field_object.png de spaCR ; les plans groupés invérifiables sont refusés plutôt que randomisés silencieusement."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "seg_qc",
+      "source_sha256": "f60cc27eabd842673c2ad1b60e0e374b28de57c77889cc32b371f9cc1c2e0e93",
+      "source": "Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.",
+      "translation": "Contrôle qualité de la segmentation effectué lors de l’écriture des masques, avant la mesure. 'off' ignore l’évaluation ; 'report' évalue chaque champ, écrit qc/segmentation_qc_<object>.csv et affiche les problèmes de qualité détectés ; 'flag' écrit également un fichier JSON par champ pour le traitement ultérieur ; 'stop' déclenche une exception lorsque le verdict de la plaque est 'fail', après l’écriture de la fiche de résultats. Aucun mode ne supprime ni n’omet de champ, et 'stop' ne déclenche pas d’exception pour un verdict 'warn'. Valeur par défaut : 'report'."
+    }
+  ]
+}

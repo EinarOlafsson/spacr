@@ -1,0 +1,35 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Activation Maps：检查图像分类器的显著性图",
+  "description": "选择训练好的分类器和匹配的图像裁剪，比较通道显著性和图像显著性，并打开保存的图。",
+  "objectives": [
+    "让裁剪图像归档、模型和预处理设置相互匹配。",
+    "运行带图像叠加的通道显著性分析。",
+    "比较图像显著性，并找到保存的网格图。"
+  ],
+  "prerequisite": "使用训练好的图像分类检查点，以及一个包含兼容图像裁剪的TAR归档。如有裁剪格式标记，请保留，并遵循模型卡中的通道顺序、图像尺寸和归一化方式。示例使用来自Annotate的四张RGB裁剪图像和来自Classify的ResNet18模型。开始之前，请训练或获取一个预处理方式已知的模型。",
+  "scenes": [
+    "从Home打开Classify，再打开Activation Maps。这个工具显示训练好的图像分类器的预测对哪些输入像素敏感。请从模型，以及按与其训练数据相同方式准备的裁剪图像归档开始。",
+    "在Dataset中选择裁剪图像归档。本例包含四张来自Annotate的RGB细胞裁剪图像。打包图像时请包含裁剪格式标记，并保留文件名，以便把每张图与其原始对象对应起来。",
+    "选择训练好的模型，并选择其模型类型。这里的模型是ResNet十八。阅读它的模型卡，把Image size设为一百二十八，与训练输入一致。",
+    "把Channels设为模型期望的顺序。本例中，选择器对RGB输入使用一、二、三。比较不同图像的显著性图时，请保持这个顺序。",
+    "把Normalize input设为与训练时一致。另外的显示归一化决定图像在保存的叠加图中的外观。比较不同运行时，请保持这两项设置一致。",
+    "选择saliency channel，并开启Overlay、Plot和Save。这样会在图像上生成各通道单独的显著性图。对于这个四张裁剪图像的示例，把批大小设为四，工作进程设为一，然后点击Run。",
+    "在控制台中跟踪，直到处理完成。如果Figures面板为空，请打开输出文件夹，检查保存的批次网格图。继续之前，请检查错误消息和保存的结果。",
+    "从该方法的batch_grids文件夹中打开batch_0_grid.png。把每个有内容的格子与其源裁剪图像对应起来；未使用的格子可能是空白。角落的标签是模型的预测。把显著区域与原始图像和已知的对象边界进行比较。",
+    "要比较合并后的图，请选择saliency image并关闭Overlay。用相同的预处理再次运行同一批图像。把两种方法的输出分别保存在各自的文件夹中。",
+    "打开第二张保存的网格图。图像显著性把各通道的敏感度合并为每张裁剪图像的一张图。把高亮区域与各通道的显著性图进行比较。显示的颜色表示图的刻度；解读它们需要结合模型和图像的具体情况。",
+    "在第一次演示中保持Correlation关闭。在解读规律之前，请查看不同类别的示例，包括预测错误的例子。使用Classifier Evaluation在独立留出的数据上评估性能。",
+    "把输入归档、模型和模型卡、设置、显著性图以及输出数据库放在一起。回到原始裁剪图像调查意外的区域，或用相同的输入比较另一种方法。"
+  ]
+}

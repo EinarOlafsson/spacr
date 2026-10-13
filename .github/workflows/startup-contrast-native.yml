@@ -1,0 +1,54 @@
+name: Native Windows startup contrast
+
+on:
+  push:
+    branches: [nightly]
+    paths:
+      - .github/workflows/startup-contrast-native.yml
+      - tools/validate_native_startup_contrast.py
+      - tests/qt/test_native_startup_contrast.py
+      - spacr/qt/widgets/loading_screen.py
+      - spacr/qt/theme.py
+      - spacr/qt/preferences.py
+      - spacr/qt/app.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-startup-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  startup:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: windows
+      PYTHONNOUSERSITE: '1'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install the native GUI dependencies
+        run: |
+          python -m pip install "PySide6>=6.8,<7" "numpy>=1.26,<3" "pandas>=2,<3" "matplotlib>=3.8,<4" pillow psutil packaging pyqtgraph
+          python -m pip install --no-deps -e .
+      - name: Give the native windows room on the hosted desktop
+        shell: pwsh
+        run: Set-DisplayResolution -Width 1920 -Height 1080 -Force
+      - name: Measure real OS and application theme combinations
+        run: python tools/validate_native_startup_contrast.py --output native-startup-evidence
+      - name: Keep native captures and exact platform evidence, including failures
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-native-startup-${{ github.sha }}
+          path: native-startup-evidence/
+          if-no-files-found: error
+          retention-days: 30

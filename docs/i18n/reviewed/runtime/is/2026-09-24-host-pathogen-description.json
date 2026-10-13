@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted source-context review. Preserves vacuole marker recruitment, parasite counts and the host infection denominator as separate combined readouts. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Combine vacuole marker recruitment, parasite counts and host infection denominators.",
+      "source": "Combine vacuole marker recruitment, parasite counts and host infection denominators.",
+      "source_sha256": "5120ec4571177f07d8e93ab43163195162dc238e2b9cda0da55ef0c5a7bdcc12",
+      "translation": "Sameinaðu söfnun merkja í frymisbólum, fjölda sníkjudýra og nefnara fyrir sýkingu hýsilfrumna."
+    }
+  ]
+}

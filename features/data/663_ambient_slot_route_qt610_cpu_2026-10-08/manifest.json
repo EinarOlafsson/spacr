@@ -1,0 +1,74 @@
+{
+  "payloads": [
+    {
+      "path": "README.txt",
+      "bytes": 1283,
+      "sha256": "2427597525fc89fe6dcfa8e63079c7ccfd056372e50d3a856c53d75ec49b0f58"
+    },
+    {
+      "path": "logs/probe-accepted.log.gz",
+      "bytes": 974,
+      "sha256": "8114901c1b83574fabd8972da400548232608f49b0e04b9937fd60c1ee332305"
+    },
+    {
+      "path": "logs/probe-final.log.gz",
+      "bytes": 1032,
+      "sha256": "d4cdb21a85fc1ee36a67c1f8ad13d5d58ab5911db75183be66179041d069f430"
+    },
+    {
+      "path": "logs/probe-setup.log.gz",
+      "bytes": 365,
+      "sha256": "974fbf7a7332f135573a6b8444410013fbb786d464003b09016428552091a4ce"
+    },
+    {
+      "path": "probe-receipt.json",
+      "bytes": 14826,
+      "sha256": "0bfacb3577d9c3ed7ee93634132f445a0f2332399a7a452bff2881bca8814381"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 4424,
+      "sha256": "f865df90c88e506cd9755dd8f916c91548649f5a615360f1c70cb0a98145fd2a"
+    },
+    {
+      "path": "repro/archive.py",
+      "bytes": 9069,
+      "sha256": "2f2bb3716b8801e9ce499cd3288833d3b4f75978abba943a03b8d22e9f524de3"
+    },
+    {
+      "path": "repro/probe.py",
+      "bytes": 7389,
+      "sha256": "ba81412d0389778f1e084d6e2735492c12a97129f795fc195f513f92313007db"
+    },
+    {
+      "path": "source/spacr/qt/app.py.gz",
+      "bytes": 91808,
+      "sha256": "09d0c6bba96a90fad9f5278305cd36ffe6ad518d75c395bd4a87504d025f4721"
+    },
+    {
+      "path": "source/spacr/qt/preferences.py.gz",
+      "bytes": 132430,
+      "sha256": "a460f9656e92daff332340ec0ec5e2ac422bf6845853c2b1208e377e70768b50"
+    },
+    {
+      "path": "source/spacr/qt/screens/app_screen.py.gz",
+      "bytes": 151801,
+      "sha256": "7bbfff47508e835ee0cb8b752f77f202a87740cdd8fb52b6e72cd474dee92fa4"
+    },
+    {
+      "path": "source/spacr/qt/widgets/ambient.py.gz",
+      "bytes": 114586,
+      "sha256": "4b1e9a4e09f7d0ef4ab458525535cf4f59540e5839f8d4232229e11dab54f10b"
+    },
+    {
+      "path": "source/spacr/qt/widgets/glass.py.gz",
+      "bytes": 13693,
+      "sha256": "f12e168fd2da9d801c0fce351f615d4687bd2ef0a119d606fe1cfcd07672596d"
+    },
+    {
+      "path": "verify.py",
+      "bytes": 1738,
+      "sha256": "9a728a7d78e87fc766fe253be91b985eb92ca4a26d364e4800e0d8ab7eb994f6"
+    }
+  ]
+}

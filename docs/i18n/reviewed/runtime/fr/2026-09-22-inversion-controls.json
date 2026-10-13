@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Swap object and background",
+      "source": "Swap object and background",
+      "source_sha256": "5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be",
+      "translation": "Permuter l’objet et l’arrière-plan"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "baseline": "21362b61978",
+  "source_commit": "35cefc993a8e8194d181d6a26fd6a14ab7820342",
+  "source_bindings": {
+    "spacr/qt/theme.py": "af5bab6c0d44f2a29d0966d5ccc7864153e0db157e7d3429a288c99e95c803fb",
+    "tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py": "6a02364fb221fb4d5d71e933637de7202662b6c4052ea7ccdc8ce2179d9f4168",
+    "tests/qt/test_field_fade.py": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15"
+  },
+  "tests": {
+    "fresh_field_file": {
+      "passed": 30,
+      "seconds": 6.54,
+      "instrumented": true
+    },
+    "owning_after": {
+      "passed": 59,
+      "seconds": 24.39,
+      "branch_tracing": true
+    },
+    "new_regressions_before": {
+      "failed": 2,
+      "passed": 1,
+      "seconds": 1.97,
+      "baseline_helper_replay": true
+    },
+    "counts_overlap": true
+  },
+  "direct_new_guard_arcs": [
+    [
+      4092,
+      4094
+    ],
+    [
+      4092,
+      4095
+    ]
+  ],
+  "inventory": {
+    "api_count": 13232,
+    "runtime_counts": {
+      "categories": 237,
+      "installer": 65,
+      "module_summaries": 77,
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "ui": 7288
+    },
+    "all_api_and_runtime_maps_equal": true
+  },
+  "scope": "Avoid eagerly restyling existing closed menus; existing aboutToShow/Show delivery retains current theme. No full serial, hidden-widget leak, hosted slowdown cause, GPU or native crash acceptance."
+}

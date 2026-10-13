@@ -1,0 +1,1552 @@
+{
+  "provenance": {
+    "commit": "aac99e25768a53e80b2bd1660e9d86dcf0661aab",
+    "version": "1.5.0.4",
+    "module": "pca",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "workflow": {
+    "lesson": "60_pca",
+    "accepted": true,
+    "source": {
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/pca_runs/real-measurements-r7j1kecg/measurements.db",
+      "source_bundle": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+          "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "signature": [
+            66306,
+            33957043,
+            30629888,
+            1788972666110587400,
+            1788972666110587400
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": [
+            66306,
+            33962636,
+            0,
+            1788973501772441900,
+            1788973501772441900
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "signature": [
+            66306,
+            33962707,
+            32768,
+            1788982325621416400,
+            1788982325621416400
+          ]
+        }
+      },
+      "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "copy_is_byte_identical": true,
+      "source_opened_in_gui": false
+    },
+    "synthetic_measurements": false,
+    "app_source_modified": false,
+    "published": false,
+    "initial_auto_fit": {
+      "rows": 2334,
+      "report": "PCA of 2,334 objects × 255 features (standardised to unit variance, NaN policy 'auto').\n8 component(s) shown, holding 55.9% of the total variance; 241 exist.\n\n  PC1 takes 17.37% of the variance; led by cell_channel_2_homogeneity_distance_8 (+0.12), cell_channel_1_range_intensity (+0.12), cell_channel_2_homogeneity_distance_16 (+0.12).\n  PC2 takes 13.85% of the variance; led by cell_channel_0_homogeneity_distance_8 (+0.12), cell_channel_1_percentile_10 (-0.12), cell_channel_1_percentile_25 (-0.12).\n  PC3 takes 6.38% of the variance; led by cell_channel_3_entropy_intensity (+0.16), cell_channel_3_mean_intensity (+0.15), cell_channel_3_percentile_25 (+0.14).\n  PC4 takes 5.05% of the variance; led by cell_channel_0_channel_3_M2_correlation_15 (+0.16), cell_channel_1_channel_3_M2_correlation_15 (+0.16), cell_channel_1_channel_3_Pearson_correlation (+0.15).\n  PC5 takes 4.30% of the variance; led by cell_channel_2_channel_3_M2_correlation_85 (+0.17), cell_channel_2_percentile_75 (-0.17), cell_channel_2_percentile_85 (-0.17).\n  PC6 takes 3.16% of the variance; led by cell_channel_1_maxima_to_own_boundary_mean (+0.17), cell_distance_to_own_boundary (+0.17), cell_channel_0_maxima_to_own_boundary_mean (+0.16).\n  PC7 takes 3.12% of the variance; led by cell_extent (+0.14), cell_channel_0_channel_2_manders_overlap_coefficient (-0.14), cell_channel_0_channel_3_Pearson_correlation (-0.14).\n  PC8 takes 2.71% of the variance; led by cell_channel_3_percentile_5 (+0.17), cell_channel_3_percentile_10 (+0.17), cell_channel_3_percentile_25 (+0.15).\n\n  ! 7 of 2,341 objects (0.3%) were dropped for missing values, so this is a PCA of the remaining 2,334. If the missingness is structural — a pathogen feature on uninfected cells — those objects are a population, not a random sample.\n  ! The 255 features span only 241 independent directions, so there are 241 components and no more; the rest would be floating-point noise.\n\n  · rank 241 out of 255 features: 14 direction(s) are redundant, so components past PC241 do not exist",
+      "independently_validated": false
+    },
+    "checks": {
+      "05_standardised_three_features": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 4.698441300161509,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "06_spatial_row_colours": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 4.698441300161509,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "07_pc3_against_pc1": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          2,
+          0
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 2.331004794829394,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "08_arrows_hidden": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 0,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "09_biplot_restored": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 4.698441300161509,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "11_raw_units_pca": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "none",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.9013142526458313,
+          0.09863952449373684,
+          0.00004622286043171235
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 0,
+          "scores": 1.4551915228366852e-11,
+          "loadings": 4.440892098500626e-16,
+          "correlations": 2.043962330118554e-14,
+          "explained_variance": 2.9802322387695312e-8,
+          "explained_variance_ratio": 1.1102230246251565e-16,
+          "total_variance": 5.960464477539063e-8
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 90.1%",
+        "report": "PCA of 2,341 objects × 3 features (centred only, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 90.13% of the variance; and it is mostly cell_area alone (100% of the component), so it is close to that one measurement under another name.\n  PC2 takes 9.86% of the variance; and it is mostly cell_channel_1_mean_intensity alone (100% of the component), so it is close to that one measurement under another name.\n  PC3 takes 0.00% of the variance; and that is close enough to nothing that its direction is not identified — read no loading pattern out of it.\n\n  ! Features were centred but not scaled, so a component is dominated by whichever column has the largest raw variance — usually an area in px². Meaningful only if every feature is already in the same unit.\n  ! PC3 hold under 0.5% of the variance each. The matrix is numerically full rank but effectively is not: those directions are rounding error and their loadings are arbitrary.",
+        "arrow_scale": 20461.24516769915,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "12_standardisation_restored": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 4.698441300161509,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "13_live_filter_refits_basis": {
+        "input_rows": 1171,
+        "analysed_rows": 1171,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.6342710330904318,
+          0.30454089378287585,
+          0.061188073126692416
+        ],
+        "centre": [
+          33510.49786507259,
+          13588.413489379249,
+          845.1107070996204
+        ],
+        "scale": [
+          10692.846171473262,
+          3579.808914217002,
+          201.71303994469406
+        ],
+        "numeric_errors": {
+          "centre": 5.4569682106375694e-12,
+          "scale": 3.637978807091713e-12,
+          "scores": 8.881784197001252e-15,
+          "loadings": 9.992007221626409e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 1.9984014443252818e-15,
+          "explained_variance_ratio": 6.661338147750939e-16,
+          "total_variance": 2.6645352591003757e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 1171,
+        "source_label": "1,171 objects × 3 features · PC1 63.4%",
+        "report": "PCA of 1,171 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 63.43% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 30.45% of the variance; and it is mostly cell_channel_1_mean_intensity alone (91% of the component), so it is close to that one measurement under another name.\n  PC3 takes 6.12% of the variance; and it is mostly cell_perimeter alone (51% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 2.8569507855864447,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "14_clear_restores_full_basis": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 4.698441300161509,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "16_auto_seven_rows_removed": {
+        "input_rows": 2341,
+        "analysed_rows": 2334,
+        "features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 7,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.6445874072766996,
+          0.23712972399253884,
+          0.10419481566190461
+        ],
+        "centre": [
+          23840.625535561267,
+          0.2562293886824808,
+          14187.73938431871,
+          673.0792275679984
+        ],
+        "scale": [
+          12798.79842441282,
+          0.1317485696384866,
+          4295.6724017936795,
+          237.8517822583957
+        ],
+        "numeric_errors": {
+          "centre": 1.8189894035458565e-12,
+          "scale": 9.094947017729282e-12,
+          "scores": 7.549516567451064e-15,
+          "loadings": 1.1102230246251565e-15,
+          "correlations": 1.0685896612017132e-15,
+          "explained_variance": 2.55351295663786e-15,
+          "explained_variance_ratio": 3.608224830031759e-16,
+          "total_variance": 4.884981308350689e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2334,
+        "source_label": "2,334 objects × 4 features · PC1 64.5%",
+        "report": "PCA of 2,334 objects × 4 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 98.6% of the total variance; 4 exist.\n\n  PC1 takes 64.46% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 23.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (93% of the component), so it is close to that one measurement under another name.\n  PC3 takes 10.42% of the variance; and it is mostly cell_channel_0_homogeneity_distance_32 alone (68% of the component), so it is close to that one measurement under another name.\n\n  ! 7 of 2,341 objects (0.3%) were dropped for missing values, so this is a PCA of the remaining 2,334. If the missingness is structural — a pathogen feature on uninfected cells — those objects are a population, not a random sample.",
+        "arrow_scale": 4.775093727524612,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "18_drop_feature_keeps_objects": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {
+          "cell_channel_0_homogeneity_distance_32": "at least one object has no value for it"
+        },
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "drop_features",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'drop_features').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.\n\n  ! 1 feature(s) were not used: cell_channel_0_homogeneity_distance_32.",
+        "arrow_scale": 4.698441300161509,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "19_mean_imputes_seven_values": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "mean",
+        "explained_variance_ratio": [
+          0.6427179532116091,
+          0.23841078909982472,
+          0.1047352101751335
+        ],
+        "centre": [
+          23774.065356685176,
+          0.25622938868248085,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          0.1315513622174586,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 7.105427357601002e-15,
+          "loadings": 6.661338147750939e-16,
+          "correlations": 6.661338147750939e-16,
+          "explained_variance": 3.1086244689504383e-15,
+          "explained_variance_ratio": 2.498001805406602e-16,
+          "total_variance": 3.1086244689504383e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 4 features · PC1 64.3%",
+        "report": "PCA of 2,341 objects × 4 features (standardised to unit variance, NaN policy 'mean').\n3 component(s) shown, holding 98.6% of the total variance; 4 exist.\n\n  PC1 takes 64.27% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 23.84% of the variance; and it is mostly cell_channel_1_mean_intensity alone (92% of the component), so it is close to that one measurement under another name.\n  PC3 takes 10.47% of the variance; and it is mostly cell_channel_0_homogeneity_distance_32 alone (68% of the component), so it is close to that one measurement under another name.\n\n  · 7 missing value(s) replaced by their feature's mean. Every imputed object now sits at the centre of that feature's distribution whether or not it belongs there.",
+        "arrow_scale": 4.792630533377818,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "20_complete_cases": {
+        "input_rows": 2341,
+        "analysed_rows": 2334,
+        "features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 7,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "complete",
+        "explained_variance_ratio": [
+          0.6445874072766996,
+          0.23712972399253884,
+          0.10419481566190461
+        ],
+        "centre": [
+          23840.625535561267,
+          0.2562293886824808,
+          14187.73938431871,
+          673.0792275679984
+        ],
+        "scale": [
+          12798.79842441282,
+          0.1317485696384866,
+          4295.6724017936795,
+          237.8517822583957
+        ],
+        "numeric_errors": {
+          "centre": 1.8189894035458565e-12,
+          "scale": 9.094947017729282e-12,
+          "scores": 7.549516567451064e-15,
+          "loadings": 1.1102230246251565e-15,
+          "correlations": 1.0685896612017132e-15,
+          "explained_variance": 2.55351295663786e-15,
+          "explained_variance_ratio": 3.608224830031759e-16,
+          "total_variance": 4.884981308350689e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2334,
+        "source_label": "2,334 objects × 4 features · PC1 64.5%",
+        "report": "PCA of 2,334 objects × 4 features (standardised to unit variance, NaN policy 'complete').\n3 component(s) shown, holding 98.6% of the total variance; 4 exist.\n\n  PC1 takes 64.46% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 23.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (93% of the component), so it is close to that one measurement under another name.\n  PC3 takes 10.42% of the variance; and it is mostly cell_channel_0_homogeneity_distance_32 alone (68% of the component), so it is close to that one measurement under another name.\n\n  ! 7 of 2,341 objects (0.3%) were dropped for missing values, so this is a PCA of the remaining 2,334. If the missingness is structural — a pathogen feature on uninfected cells — those objects are a population, not a random sample.",
+        "arrow_scale": 4.775093727524612,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      },
+      "21_original_three_features_restored": {
+        "input_rows": 2341,
+        "analysed_rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "dropped_rows": 0,
+        "dropped_features": {},
+        "components": 3,
+        "scaling": "zscore",
+        "policy": "auto",
+        "explained_variance_ratio": [
+          0.657029343011153,
+          0.31708449382653603,
+          0.02588616316231096
+        ],
+        "centre": [
+          23774.065356685176,
+          14173.880818614882,
+          671.6457453372028
+        ],
+        "scale": [
+          12837.439290496366,
+          4298.6025810622305,
+          238.97835945178824
+        ],
+        "numeric_errors": {
+          "centre": 3.637978807091713e-12,
+          "scale": 7.275957614183426e-12,
+          "scores": 6.661338147750939e-15,
+          "loadings": 8.881784197001252e-16,
+          "correlations": 1.4432899320127035e-15,
+          "explained_variance": 9.992007221626409e-16,
+          "explained_variance_ratio": 3.3306690738754696e-16,
+          "total_variance": 1.3322676295501878e-15
+        },
+        "independent_method": "covariance eigendecomposition versus application SVD",
+        "painted_score_error": 0,
+        "plane": [
+          0,
+          1
+        ],
+        "drawn_points": 2341,
+        "source_label": "2,341 objects × 3 features · PC1 65.7%",
+        "report": "PCA of 2,341 objects × 3 features (standardised to unit variance, NaN policy 'auto').\n3 component(s) shown, holding 100.0% of the total variance; 3 exist.\n\n  PC1 takes 65.70% of the variance; and it is a general-magnitude axis — every feature loads the same way, led by cell_perimeter. An axis like this usually says the objects differ in size or in focus more than in anything else.\n  PC2 takes 31.71% of the variance; and it is mostly cell_channel_1_mean_intensity alone (95% of the component), so it is close to that one measurement under another name.\n  PC3 takes 2.59% of the variance; and it is mostly cell_perimeter alone (50% of the component), so it is close to that one measurement under another name.",
+        "arrow_scale": 4.698441300161509,
+        "selected_features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ]
+      }
+    },
+    "exports": {
+      "scores": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/pca_runs/real-measurements-r7j1kecg/pca_example_scores.csv",
+        "rows": 2341,
+        "columns": 279,
+        "sha256": "1d7badd49086ef0d8f40b4c3feb1481c43f110a3fe59bae13ccf80f9dd84f215"
+      },
+      "loadings": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/pca_runs/real-measurements-r7j1kecg/pca_example_loadings.csv",
+        "rows": 3,
+        "columns": 7,
+        "sha256": "d438cda2baece0eef27afdc1c81724e004504f08f9ac75d4bd7538d69736a6b9"
+      },
+      "variance": {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/pca_runs/real-measurements-r7j1kecg/pca_example_variance.csv",
+        "rows": 3,
+        "columns": 4,
+        "sha256": "430baa96660fa6d14d24a38ad6947fbb742ddcf34b81e9054c8f68b63b450443"
+      }
+    },
+    "original_unchanged": true,
+    "private_database_unchanged": true,
+    "compute_events": [
+      {
+        "rows": 2334,
+        "features": [
+          "cell_area",
+          "cell_area_bbox",
+          "cell_area_filled",
+          "cell_centre_to_nearest_nucleus_centre",
+          "cell_centre_to_nearest_pathogen_centre",
+          "cell_centre_to_nucleus_surface",
+          "cell_centre_to_pathogen_surface",
+          "cell_channel_0_blur",
+          "cell_channel_0_centroid_weighted-0",
+          "cell_channel_0_centroid_weighted-1",
+          "cell_channel_0_centroid_weighted_local-0",
+          "cell_channel_0_centroid_weighted_local-1",
+          "cell_channel_0_channel_1_M1_correlation_15",
+          "cell_channel_0_channel_1_M1_correlation_85",
+          "cell_channel_0_channel_1_M1_correlation_95",
+          "cell_channel_0_channel_1_M2_correlation_15",
+          "cell_channel_0_channel_1_M2_correlation_85",
+          "cell_channel_0_channel_1_M2_correlation_95",
+          "cell_channel_0_channel_1_Pearson_correlation",
+          "cell_channel_0_channel_1_manders_m1",
+          "cell_channel_0_channel_1_manders_m2",
+          "cell_channel_0_channel_1_manders_overlap_coefficient",
+          "cell_channel_0_channel_2_M1_correlation_15",
+          "cell_channel_0_channel_2_M1_correlation_85",
+          "cell_channel_0_channel_2_M1_correlation_95",
+          "cell_channel_0_channel_2_M2_correlation_15",
+          "cell_channel_0_channel_2_M2_correlation_85",
+          "cell_channel_0_channel_2_M2_correlation_95",
+          "cell_channel_0_channel_2_Pearson_correlation",
+          "cell_channel_0_channel_2_manders_m1",
+          "cell_channel_0_channel_2_manders_m2",
+          "cell_channel_0_channel_2_manders_overlap_coefficient",
+          "cell_channel_0_channel_3_M1_correlation_15",
+          "cell_channel_0_channel_3_M1_correlation_85",
+          "cell_channel_0_channel_3_M1_correlation_95",
+          "cell_channel_0_channel_3_M2_correlation_15",
+          "cell_channel_0_channel_3_M2_correlation_85",
+          "cell_channel_0_channel_3_M2_correlation_95",
+          "cell_channel_0_channel_3_Pearson_correlation",
+          "cell_channel_0_channel_3_manders_m1",
+          "cell_channel_0_channel_3_manders_m2",
+          "cell_channel_0_channel_3_manders_overlap_coefficient",
+          "cell_channel_0_cv_intensity",
+          "cell_channel_0_distance_to_nucleus",
+          "cell_channel_0_distance_to_pathogen",
+          "cell_channel_0_entropy_intensity",
+          "cell_channel_0_frac_high90",
+          "cell_channel_0_frac_low10",
+          "cell_channel_0_gini_intensity",
+          "cell_channel_0_homogeneity_distance_16",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_0_homogeneity_distance_8",
+          "cell_channel_0_integrated_intensity",
+          "cell_channel_0_intensity_centre_offset",
+          "cell_channel_0_iqr_intensity",
+          "cell_channel_0_kurtosis_intensity",
+          "cell_channel_0_max_intensity",
+          "cell_channel_0_maxima_count",
+          "cell_channel_0_maxima_spread",
+          "cell_channel_0_maxima_to_centre_mean",
+          "cell_channel_0_maxima_to_centre_min",
+          "cell_channel_0_maxima_to_nucleus_surface_mean",
+          "cell_channel_0_maxima_to_own_boundary_mean",
+          "cell_channel_0_maxima_to_own_boundary_min",
+          "cell_channel_0_maxima_to_pathogen_surface_mean",
+          "cell_channel_0_maxima_to_pathogen_surface_min",
+          "cell_channel_0_mean_intensity",
+          "cell_channel_0_median_intensity",
+          "cell_channel_0_min_intensity",
+          "cell_channel_0_mode_intensity",
+          "cell_channel_0_percentile_10",
+          "cell_channel_0_percentile_25",
+          "cell_channel_0_percentile_5",
+          "cell_channel_0_percentile_75",
+          "cell_channel_0_percentile_85",
+          "cell_channel_0_percentile_95",
+          "cell_channel_0_range_intensity",
+          "cell_channel_0_skew_intensity",
+          "cell_channel_0_std_intensity",
+          "cell_channel_1_blur",
+          "cell_channel_1_centroid_weighted-0",
+          "cell_channel_1_centroid_weighted-1",
+          "cell_channel_1_centroid_weighted_local-0",
+          "cell_channel_1_centroid_weighted_local-1",
+          "cell_channel_1_channel_2_M1_correlation_15",
+          "cell_channel_1_channel_2_M1_correlation_85",
+          "cell_channel_1_channel_2_M1_correlation_95",
+          "cell_channel_1_channel_2_M2_correlation_15",
+          "cell_channel_1_channel_2_M2_correlation_85",
+          "cell_channel_1_channel_2_M2_correlation_95",
+          "cell_channel_1_channel_2_Pearson_correlation",
+          "cell_channel_1_channel_2_manders_m1",
+          "cell_channel_1_channel_2_manders_m2",
+          "cell_channel_1_channel_2_manders_overlap_coefficient",
+          "cell_channel_1_channel_3_M1_correlation_15",
+          "cell_channel_1_channel_3_M1_correlation_85",
+          "cell_channel_1_channel_3_M1_correlation_95",
+          "cell_channel_1_channel_3_M2_correlation_15",
+          "cell_channel_1_channel_3_M2_correlation_85",
+          "cell_channel_1_channel_3_M2_correlation_95",
+          "cell_channel_1_channel_3_Pearson_correlation",
+          "cell_channel_1_channel_3_manders_m1",
+          "cell_channel_1_channel_3_manders_m2",
+          "cell_channel_1_channel_3_manders_overlap_coefficient",
+          "cell_channel_1_cv_intensity",
+          "cell_channel_1_distance_to_nucleus",
+          "cell_channel_1_distance_to_pathogen",
+          "cell_channel_1_entropy_intensity",
+          "cell_channel_1_frac_high90",
+          "cell_channel_1_gini_intensity",
+          "cell_channel_1_homogeneity_distance_16",
+          "cell_channel_1_homogeneity_distance_32",
+          "cell_channel_1_homogeneity_distance_8",
+          "cell_channel_1_integrated_intensity",
+          "cell_channel_1_intensity_centre_offset",
+          "cell_channel_1_iqr_intensity",
+          "cell_channel_1_kurtosis_intensity",
+          "cell_channel_1_max_intensity",
+          "cell_channel_1_maxima_count",
+          "cell_channel_1_maxima_spread",
+          "cell_channel_1_maxima_to_centre_mean",
+          "cell_channel_1_maxima_to_centre_min",
+          "cell_channel_1_maxima_to_nucleus_surface_mean",
+          "cell_channel_1_maxima_to_nucleus_surface_min",
+          "cell_channel_1_maxima_to_own_boundary_mean",
+          "cell_channel_1_maxima_to_own_boundary_min",
+          "cell_channel_1_maxima_to_pathogen_surface_mean",
+          "cell_channel_1_maxima_to_pathogen_surface_min",
+          "cell_channel_1_mean_intensity",
+          "cell_channel_1_median_intensity",
+          "cell_channel_1_min_intensity",
+          "cell_channel_1_mode_intensity",
+          "cell_channel_1_percentile_10",
+          "cell_channel_1_percentile_25",
+          "cell_channel_1_percentile_5",
+          "cell_channel_1_percentile_75",
+          "cell_channel_1_percentile_85",
+          "cell_channel_1_percentile_95",
+          "cell_channel_1_range_intensity",
+          "cell_channel_1_skew_intensity",
+          "cell_channel_1_std_intensity",
+          "cell_channel_2_blur",
+          "cell_channel_2_centroid_weighted-0",
+          "cell_channel_2_centroid_weighted-1",
+          "cell_channel_2_centroid_weighted_local-0",
+          "cell_channel_2_centroid_weighted_local-1",
+          "cell_channel_2_channel_3_M1_correlation_15",
+          "cell_channel_2_channel_3_M1_correlation_85",
+          "cell_channel_2_channel_3_M1_correlation_95",
+          "cell_channel_2_channel_3_M2_correlation_15",
+          "cell_channel_2_channel_3_M2_correlation_85",
+          "cell_channel_2_channel_3_M2_correlation_95",
+          "cell_channel_2_channel_3_Pearson_correlation",
+          "cell_channel_2_channel_3_manders_m1",
+          "cell_channel_2_channel_3_manders_m2",
+          "cell_channel_2_channel_3_manders_overlap_coefficient",
+          "cell_channel_2_cv_intensity",
+          "cell_channel_2_distance_to_nucleus",
+          "cell_channel_2_distance_to_pathogen",
+          "cell_channel_2_entropy_intensity",
+          "cell_channel_2_frac_high90",
+          "cell_channel_2_frac_low10",
+          "cell_channel_2_gini_intensity",
+          "cell_channel_2_homogeneity_distance_16",
+          "cell_channel_2_homogeneity_distance_32",
+          "cell_channel_2_homogeneity_distance_8",
+          "cell_channel_2_integrated_intensity",
+          "cell_channel_2_intensity_centre_offset",
+          "cell_channel_2_iqr_intensity",
+          "cell_channel_2_kurtosis_intensity",
+          "cell_channel_2_max_intensity",
+          "cell_channel_2_maxima_spread",
+          "cell_channel_2_maxima_to_centre_mean",
+          "cell_channel_2_maxima_to_centre_min",
+          "cell_channel_2_maxima_to_nucleus_surface_mean",
+          "cell_channel_2_maxima_to_nucleus_surface_min",
+          "cell_channel_2_maxima_to_own_boundary_mean",
+          "cell_channel_2_maxima_to_own_boundary_min",
+          "cell_channel_2_maxima_to_pathogen_surface_mean",
+          "cell_channel_2_maxima_to_pathogen_surface_min",
+          "cell_channel_2_mean_intensity",
+          "cell_channel_2_median_intensity",
+          "cell_channel_2_min_intensity",
+          "cell_channel_2_mode_intensity",
+          "cell_channel_2_percentile_10",
+          "cell_channel_2_percentile_25",
+          "cell_channel_2_percentile_5",
+          "cell_channel_2_percentile_75",
+          "cell_channel_2_percentile_85",
+          "cell_channel_2_percentile_95",
+          "cell_channel_2_range_intensity",
+          "cell_channel_2_skew_intensity",
+          "cell_channel_2_std_intensity",
+          "cell_channel_3_blur",
+          "cell_channel_3_centroid_weighted-0",
+          "cell_channel_3_centroid_weighted-1",
+          "cell_channel_3_centroid_weighted_local-0",
+          "cell_channel_3_centroid_weighted_local-1",
+          "cell_channel_3_cv_intensity",
+          "cell_channel_3_distance_to_nucleus",
+          "cell_channel_3_distance_to_pathogen",
+          "cell_channel_3_entropy_intensity",
+          "cell_channel_3_frac_high90",
+          "cell_channel_3_frac_low10",
+          "cell_channel_3_gini_intensity",
+          "cell_channel_3_homogeneity_distance_16",
+          "cell_channel_3_homogeneity_distance_32",
+          "cell_channel_3_homogeneity_distance_8",
+          "cell_channel_3_integrated_intensity",
+          "cell_channel_3_intensity_centre_offset",
+          "cell_channel_3_iqr_intensity",
+          "cell_channel_3_kurtosis_intensity",
+          "cell_channel_3_max_intensity",
+          "cell_channel_3_maxima_spread",
+          "cell_channel_3_maxima_to_centre_mean",
+          "cell_channel_3_maxima_to_centre_min",
+          "cell_channel_3_maxima_to_nucleus_surface_mean",
+          "cell_channel_3_maxima_to_nucleus_surface_min",
+          "cell_channel_3_maxima_to_own_boundary_mean",
+          "cell_channel_3_maxima_to_own_boundary_min",
+          "cell_channel_3_maxima_to_pathogen_surface_mean",
+          "cell_channel_3_maxima_to_pathogen_surface_min",
+          "cell_channel_3_mean_intensity",
+          "cell_channel_3_median_intensity",
+          "cell_channel_3_min_intensity",
+          "cell_channel_3_mode_intensity",
+          "cell_channel_3_percentile_10",
+          "cell_channel_3_percentile_25",
+          "cell_channel_3_percentile_5",
+          "cell_channel_3_percentile_75",
+          "cell_channel_3_percentile_85",
+          "cell_channel_3_percentile_95",
+          "cell_channel_3_range_intensity",
+          "cell_channel_3_skew_intensity",
+          "cell_channel_3_std_intensity",
+          "cell_convex_area",
+          "cell_distance_to_field_edge",
+          "cell_distance_to_own_boundary",
+          "cell_eccentricity",
+          "cell_equivalent_diameter_area",
+          "cell_euler_number",
+          "cell_extent",
+          "cell_feret_diameter_max",
+          "cell_major_axis_length",
+          "cell_minor_axis_length",
+          "cell_nearest_neighbor_distance",
+          "cell_nucleus_overlap_fraction",
+          "cell_pathogen_overlap_fraction",
+          "cell_percent_touching",
+          "cell_perimeter",
+          "cell_relative_radial_position",
+          "cell_second_neighbor_distance",
+          "cell_solidity",
+          "cell_surface_to_nucleus_surface",
+          "cell_surface_to_pathogen_surface"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2334,
+        "features": [
+          "cell_area",
+          "cell_area_bbox",
+          "cell_area_filled",
+          "cell_centre_to_nearest_nucleus_centre",
+          "cell_centre_to_nearest_pathogen_centre",
+          "cell_centre_to_nucleus_surface",
+          "cell_centre_to_pathogen_surface",
+          "cell_channel_0_blur",
+          "cell_channel_0_centroid_weighted-0",
+          "cell_channel_0_centroid_weighted-1",
+          "cell_channel_0_centroid_weighted_local-0",
+          "cell_channel_0_centroid_weighted_local-1",
+          "cell_channel_0_channel_1_M1_correlation_15",
+          "cell_channel_0_channel_1_M1_correlation_85",
+          "cell_channel_0_channel_1_M1_correlation_95",
+          "cell_channel_0_channel_1_M2_correlation_15",
+          "cell_channel_0_channel_1_M2_correlation_85",
+          "cell_channel_0_channel_1_M2_correlation_95",
+          "cell_channel_0_channel_1_Pearson_correlation",
+          "cell_channel_0_channel_1_manders_m1",
+          "cell_channel_0_channel_1_manders_m2",
+          "cell_channel_0_channel_1_manders_overlap_coefficient",
+          "cell_channel_0_channel_2_M1_correlation_15",
+          "cell_channel_0_channel_2_M1_correlation_85",
+          "cell_channel_0_channel_2_M1_correlation_95",
+          "cell_channel_0_channel_2_M2_correlation_15",
+          "cell_channel_0_channel_2_M2_correlation_85",
+          "cell_channel_0_channel_2_M2_correlation_95",
+          "cell_channel_0_channel_2_Pearson_correlation",
+          "cell_channel_0_channel_2_manders_m1",
+          "cell_channel_0_channel_2_manders_m2",
+          "cell_channel_0_channel_2_manders_overlap_coefficient",
+          "cell_channel_0_channel_3_M1_correlation_15",
+          "cell_channel_0_channel_3_M1_correlation_85",
+          "cell_channel_0_channel_3_M1_correlation_95",
+          "cell_channel_0_channel_3_M2_correlation_15",
+          "cell_channel_0_channel_3_M2_correlation_85",
+          "cell_channel_0_channel_3_M2_correlation_95",
+          "cell_channel_0_channel_3_Pearson_correlation",
+          "cell_channel_0_channel_3_manders_m1",
+          "cell_channel_0_channel_3_manders_m2",
+          "cell_channel_0_channel_3_manders_overlap_coefficient",
+          "cell_channel_0_cv_intensity",
+          "cell_channel_0_distance_to_nucleus",
+          "cell_channel_0_distance_to_pathogen",
+          "cell_channel_0_entropy_intensity",
+          "cell_channel_0_frac_high90",
+          "cell_channel_0_frac_low10",
+          "cell_channel_0_gini_intensity",
+          "cell_channel_0_homogeneity_distance_16",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_0_homogeneity_distance_8",
+          "cell_channel_0_integrated_intensity",
+          "cell_channel_0_intensity_centre_offset",
+          "cell_channel_0_iqr_intensity",
+          "cell_channel_0_kurtosis_intensity",
+          "cell_channel_0_max_intensity",
+          "cell_channel_0_maxima_count",
+          "cell_channel_0_maxima_spread",
+          "cell_channel_0_maxima_to_centre_mean",
+          "cell_channel_0_maxima_to_centre_min",
+          "cell_channel_0_maxima_to_nucleus_surface_mean",
+          "cell_channel_0_maxima_to_own_boundary_mean",
+          "cell_channel_0_maxima_to_own_boundary_min",
+          "cell_channel_0_maxima_to_pathogen_surface_mean",
+          "cell_channel_0_maxima_to_pathogen_surface_min",
+          "cell_channel_0_mean_intensity",
+          "cell_channel_0_median_intensity",
+          "cell_channel_0_min_intensity",
+          "cell_channel_0_mode_intensity",
+          "cell_channel_0_percentile_10",
+          "cell_channel_0_percentile_25",
+          "cell_channel_0_percentile_5",
+          "cell_channel_0_percentile_75",
+          "cell_channel_0_percentile_85",
+          "cell_channel_0_percentile_95",
+          "cell_channel_0_range_intensity",
+          "cell_channel_0_skew_intensity",
+          "cell_channel_0_std_intensity",
+          "cell_channel_1_blur",
+          "cell_channel_1_centroid_weighted-0",
+          "cell_channel_1_centroid_weighted-1",
+          "cell_channel_1_centroid_weighted_local-0",
+          "cell_channel_1_centroid_weighted_local-1",
+          "cell_channel_1_channel_2_M1_correlation_15",
+          "cell_channel_1_channel_2_M1_correlation_85",
+          "cell_channel_1_channel_2_M1_correlation_95",
+          "cell_channel_1_channel_2_M2_correlation_15",
+          "cell_channel_1_channel_2_M2_correlation_85",
+          "cell_channel_1_channel_2_M2_correlation_95",
+          "cell_channel_1_channel_2_Pearson_correlation",
+          "cell_channel_1_channel_2_manders_m1",
+          "cell_channel_1_channel_2_manders_m2",
+          "cell_channel_1_channel_2_manders_overlap_coefficient",
+          "cell_channel_1_channel_3_M1_correlation_15",
+          "cell_channel_1_channel_3_M1_correlation_85",
+          "cell_channel_1_channel_3_M1_correlation_95",
+          "cell_channel_1_channel_3_M2_correlation_15",
+          "cell_channel_1_channel_3_M2_correlation_85",
+          "cell_channel_1_channel_3_M2_correlation_95",
+          "cell_channel_1_channel_3_Pearson_correlation",
+          "cell_channel_1_channel_3_manders_m1",
+          "cell_channel_1_channel_3_manders_m2",
+          "cell_channel_1_channel_3_manders_overlap_coefficient",
+          "cell_channel_1_cv_intensity",
+          "cell_channel_1_distance_to_nucleus",
+          "cell_channel_1_distance_to_pathogen",
+          "cell_channel_1_entropy_intensity",
+          "cell_channel_1_frac_high90",
+          "cell_channel_1_gini_intensity",
+          "cell_channel_1_homogeneity_distance_16",
+          "cell_channel_1_homogeneity_distance_32",
+          "cell_channel_1_homogeneity_distance_8",
+          "cell_channel_1_integrated_intensity",
+          "cell_channel_1_intensity_centre_offset",
+          "cell_channel_1_iqr_intensity",
+          "cell_channel_1_kurtosis_intensity",
+          "cell_channel_1_max_intensity",
+          "cell_channel_1_maxima_count",
+          "cell_channel_1_maxima_spread",
+          "cell_channel_1_maxima_to_centre_mean",
+          "cell_channel_1_maxima_to_centre_min",
+          "cell_channel_1_maxima_to_nucleus_surface_mean",
+          "cell_channel_1_maxima_to_nucleus_surface_min",
+          "cell_channel_1_maxima_to_own_boundary_mean",
+          "cell_channel_1_maxima_to_own_boundary_min",
+          "cell_channel_1_maxima_to_pathogen_surface_mean",
+          "cell_channel_1_maxima_to_pathogen_surface_min",
+          "cell_channel_1_mean_intensity",
+          "cell_channel_1_median_intensity",
+          "cell_channel_1_min_intensity",
+          "cell_channel_1_mode_intensity",
+          "cell_channel_1_percentile_10",
+          "cell_channel_1_percentile_25",
+          "cell_channel_1_percentile_5",
+          "cell_channel_1_percentile_75",
+          "cell_channel_1_percentile_85",
+          "cell_channel_1_percentile_95",
+          "cell_channel_1_range_intensity",
+          "cell_channel_1_skew_intensity",
+          "cell_channel_1_std_intensity",
+          "cell_channel_2_blur",
+          "cell_channel_2_centroid_weighted-0",
+          "cell_channel_2_centroid_weighted-1",
+          "cell_channel_2_centroid_weighted_local-0",
+          "cell_channel_2_centroid_weighted_local-1",
+          "cell_channel_2_channel_3_M1_correlation_15",
+          "cell_channel_2_channel_3_M1_correlation_85",
+          "cell_channel_2_channel_3_M1_correlation_95",
+          "cell_channel_2_channel_3_M2_correlation_15",
+          "cell_channel_2_channel_3_M2_correlation_85",
+          "cell_channel_2_channel_3_M2_correlation_95",
+          "cell_channel_2_channel_3_Pearson_correlation",
+          "cell_channel_2_channel_3_manders_m1",
+          "cell_channel_2_channel_3_manders_m2",
+          "cell_channel_2_channel_3_manders_overlap_coefficient",
+          "cell_channel_2_cv_intensity",
+          "cell_channel_2_distance_to_nucleus",
+          "cell_channel_2_distance_to_pathogen",
+          "cell_channel_2_entropy_intensity",
+          "cell_channel_2_frac_high90",
+          "cell_channel_2_frac_low10",
+          "cell_channel_2_gini_intensity",
+          "cell_channel_2_homogeneity_distance_16",
+          "cell_channel_2_homogeneity_distance_32",
+          "cell_channel_2_homogeneity_distance_8",
+          "cell_channel_2_integrated_intensity",
+          "cell_channel_2_intensity_centre_offset",
+          "cell_channel_2_iqr_intensity",
+          "cell_channel_2_kurtosis_intensity",
+          "cell_channel_2_max_intensity",
+          "cell_channel_2_maxima_spread",
+          "cell_channel_2_maxima_to_centre_mean",
+          "cell_channel_2_maxima_to_centre_min",
+          "cell_channel_2_maxima_to_nucleus_surface_mean",
+          "cell_channel_2_maxima_to_nucleus_surface_min",
+          "cell_channel_2_maxima_to_own_boundary_mean",
+          "cell_channel_2_maxima_to_own_boundary_min",
+          "cell_channel_2_maxima_to_pathogen_surface_mean",
+          "cell_channel_2_maxima_to_pathogen_surface_min",
+          "cell_channel_2_mean_intensity",
+          "cell_channel_2_median_intensity",
+          "cell_channel_2_min_intensity",
+          "cell_channel_2_mode_intensity",
+          "cell_channel_2_percentile_10",
+          "cell_channel_2_percentile_25",
+          "cell_channel_2_percentile_5",
+          "cell_channel_2_percentile_75",
+          "cell_channel_2_percentile_85",
+          "cell_channel_2_percentile_95",
+          "cell_channel_2_range_intensity",
+          "cell_channel_2_skew_intensity",
+          "cell_channel_2_std_intensity",
+          "cell_channel_3_blur",
+          "cell_channel_3_centroid_weighted-0",
+          "cell_channel_3_centroid_weighted-1",
+          "cell_channel_3_centroid_weighted_local-0",
+          "cell_channel_3_centroid_weighted_local-1",
+          "cell_channel_3_cv_intensity",
+          "cell_channel_3_distance_to_nucleus",
+          "cell_channel_3_distance_to_pathogen",
+          "cell_channel_3_entropy_intensity",
+          "cell_channel_3_frac_high90",
+          "cell_channel_3_frac_low10",
+          "cell_channel_3_gini_intensity",
+          "cell_channel_3_homogeneity_distance_16",
+          "cell_channel_3_homogeneity_distance_32",
+          "cell_channel_3_homogeneity_distance_8",
+          "cell_channel_3_integrated_intensity",
+          "cell_channel_3_intensity_centre_offset",
+          "cell_channel_3_iqr_intensity",
+          "cell_channel_3_kurtosis_intensity",
+          "cell_channel_3_max_intensity",
+          "cell_channel_3_maxima_spread",
+          "cell_channel_3_maxima_to_centre_mean",
+          "cell_channel_3_maxima_to_centre_min",
+          "cell_channel_3_maxima_to_nucleus_surface_mean",
+          "cell_channel_3_maxima_to_nucleus_surface_min",
+          "cell_channel_3_maxima_to_own_boundary_mean",
+          "cell_channel_3_maxima_to_own_boundary_min",
+          "cell_channel_3_maxima_to_pathogen_surface_mean",
+          "cell_channel_3_maxima_to_pathogen_surface_min",
+          "cell_channel_3_mean_intensity",
+          "cell_channel_3_median_intensity",
+          "cell_channel_3_min_intensity",
+          "cell_channel_3_mode_intensity",
+          "cell_channel_3_percentile_10",
+          "cell_channel_3_percentile_25",
+          "cell_channel_3_percentile_5",
+          "cell_channel_3_percentile_75",
+          "cell_channel_3_percentile_85",
+          "cell_channel_3_percentile_95",
+          "cell_channel_3_range_intensity",
+          "cell_channel_3_skew_intensity",
+          "cell_channel_3_std_intensity",
+          "cell_convex_area",
+          "cell_distance_to_field_edge",
+          "cell_distance_to_own_boundary",
+          "cell_eccentricity",
+          "cell_equivalent_diameter_area",
+          "cell_euler_number",
+          "cell_extent",
+          "cell_feret_diameter_max",
+          "cell_major_axis_length",
+          "cell_minor_axis_length",
+          "cell_nearest_neighbor_distance",
+          "cell_nucleus_overlap_fraction",
+          "cell_pathogen_overlap_fraction",
+          "cell_percent_touching",
+          "cell_perimeter",
+          "cell_relative_radial_position",
+          "cell_second_neighbor_distance",
+          "cell_solidity",
+          "cell_surface_to_nucleus_surface",
+          "cell_surface_to_pathogen_surface"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "none"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 1171,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2334,
+        "features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "drop_features",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "mean",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2334,
+        "features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "complete",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2334,
+        "features": [
+          "cell_area",
+          "cell_channel_0_homogeneity_distance_32",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      },
+      {
+        "rows": 2341,
+        "features": [
+          "cell_area",
+          "cell_channel_1_mean_intensity",
+          "cell_perimeter"
+        ],
+        "policy": "auto",
+        "scaling": "zscore"
+      }
+    ],
+    "failures": [],
+    "remaining_workers": 0
+  },
+  "capture_frames": 24,
+  "lesson": "60_pca",
+  "scope": "Verified real GUI workflow; multilingual media not yet complete",
+  "capture": "pca_real_measurements_and_missing_values",
+  "canonical_english_sha256": "f295718c295b040c75a11a245ef79b086bb19375b109fcd741ddbbc33b19d402",
+  "scenes": 16,
+  "spoken_words": 758,
+  "tests": {
+    "passed": 24,
+    "guard_mutations": {
+      "seven_guards_bypassed": "14 DID NOT RAISE failures / 9 passing tests; before splitting policy and identity test",
+      "isolated_policy_bypass": "1 DID NOT RAISE failure / 1 passing / 22 deselected",
+      "restored": "24 passed"
+    },
+    "named_raises_executed": [
+      56,
+      67,
+      69,
+      92,
+      101,
+      105,
+      111
+    ],
+    "coverage_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/pca_guard_coverage.json"
+  },
+  "limits": [
+    "The initial automatic 255-feature fit is not independently validated; narration uses explicit three and four features.",
+    "An old Image UMAP source preference initially triggered a missing object-table error. Actual PCA Load table then loaded the intended private cell table; the initial error frame is not narrated.",
+    "All plotted score coordinates verified; arrow-pixel geometry, linked brushing and crop handoff not independently validated.",
+    "No treatment identity, missingness mechanism, biological separation, calibration or predictive accuracy established.",
+    "No independent peer, native-speaker, human-listening or publication approval."
+  ]
+}

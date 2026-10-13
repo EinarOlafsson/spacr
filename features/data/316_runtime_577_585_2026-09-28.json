@@ -1,0 +1,197 @@
+{
+  "schema": 1,
+  "item": 316,
+  "date": "2026-09-28",
+  "base_commit": "4014dbdef10966e90d89df0c26cf304dc0e052fc",
+  "status": "577/585 runtime delta accepted",
+  "review": "AI technical review (Codex), no native-speaker signoff",
+  "review_records": 180,
+  "review_files_sha256": {
+    "docs/i18n/reviewed/runtime/de/2026-09-28-runtime-577-585.json": "ca4cafef7462ec3639f6587fa0266fdb573dbc4a4e90afe5e80e7a43d09aa237",
+    "docs/i18n/reviewed/runtime/es/2026-09-28-runtime-577-585.json": "cb0c0b9e23d6fccf8b08d20dd5b7ea136cfbcf2c0ba9eb439b018119163905c2",
+    "docs/i18n/reviewed/runtime/fr/2026-09-28-runtime-577-585.json": "92505ab9d7a6520246db83af7a9cac8ae7c80c2397249abcf7da2258ad1591b0",
+    "docs/i18n/reviewed/runtime/hi/2026-09-28-runtime-577-585.json": "3c0e912dca3724f2d67737119ffdf898cbec099e3f7b8faad85b0e43cc1473ee",
+    "docs/i18n/reviewed/runtime/is/2026-09-28-runtime-577-585.json": "551baee6555f826d4fdafbd61bbd1448391ad215737a81892588d5942c40aef9",
+    "docs/i18n/reviewed/runtime/ko/2026-09-28-runtime-577-585.json": "47bef504e04d7ee04122c949a586890a4a39e14488c96f7492e22f56a3d95cec",
+    "docs/i18n/reviewed/runtime/pt/2026-09-28-runtime-577-585.json": "4be5baf93219af189491009fc528d6a3901c09ea7fc1aced50abc3daa92dcaec",
+    "docs/i18n/reviewed/runtime/sv/2026-09-28-runtime-577-585.json": "1cfda94a5258f47b2a4cb07aee788d88fc2427c31cd33301ade0b1c1d1bf1ce9",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-28-runtime-577-585.json": "9eebd912ed3945e94067bbf8ed7eec09c008e78ab8b566ee1a8aa3b4524d5736"
+  },
+  "catalog_audit": {
+    "passed": true,
+    "languages": 9,
+    "unique_sources": 8382,
+    "model_inference": false,
+    "catalogs": {
+      "en": "c3272016e280e77e54ca373491cd23ce451ca9ac6b787dc9936661b1940c0af7",
+      "de": "a7fc452f8549fe7ae44b6b1a1288c4da1765107ca00eceed41a2539b84e5129c",
+      "sv": "5f8e0ce5a2b2529292f09194614324693c64fb9f02751e4109975bd9b3f0dd1d",
+      "es": "1d696043233efe646a6c94fdc71ae93c52381d26aafce2c50ade43f637776580",
+      "fr": "6eaf969f5b2d384142ded7321dd77fc7e055a412b840bd4676199bdf70bc74ef",
+      "pt": "a711ac7bb86456b25e8562e18f0ccd9833d953e1ee753b0f420e0f941129d5ba",
+      "zh_CN": "659a3198666c5250c96d86e8748bea314c737031fd65dff698843087b4860aa8",
+      "ko": "79d91970c73d61bd17d807a270878d614b1a88e485d7c70b757dadb29249755c",
+      "is": "f36d7a5ab4a879d2bb34caa2c36dcd82c6533b8a36646ac9272c0ad161ddf5a3",
+      "hi": "d89af7204ca0487f06047f04943fdee42ccfe0f29aec756d2a30684a6970e04e"
+    }
+  },
+  "inventory": {
+    "before_counts": {
+      "SETTING_LABELS": 1194,
+      "SETTING_TOOLTIPS": 1216,
+      "CATEGORY_HELP": 230,
+      "UI": 6017,
+      "MODULE_SUMMARIES": 72
+    },
+    "after_counts": {
+      "SETTING_LABELS": 1194,
+      "SETTING_TOOLTIPS": 1216,
+      "CATEGORY_HELP": 230,
+      "UI": 6035,
+      "MODULE_SUMMARIES": 72
+    },
+    "before_digest": "3d8b79fa2c4cded37fae3cf4e0302980b675b859d902b44b3a8d6322c16e319b",
+    "after_digest": "fe5315235280c69d30649341cfb60caa3793a4ae282cda6acc4b4bb0768a9178",
+    "added": [
+      [
+        "UI",
+        "An optional bearer token for the webhook. Kept like a password. Leave empty to keep the saved one. Default empty."
+      ],
+      [
+        "UI",
+        "Delete all saved notification passwords, webhook addresses, topics and tokens from the keyring and from spaCR's own file, at once. Default kept."
+      ],
+      [
+        "UI",
+        "Field cost"
+      ],
+      [
+        "UI",
+        "Largest count considered: biological replicates per condition, wells per condition per replicate, or fields per well. Default {default}."
+      ],
+      [
+        "UI",
+        "Maximum fields per well"
+      ],
+      [
+        "UI",
+        "Maximum replicates"
+      ],
+      [
+        "UI",
+        "Maximum wells per condition"
+      ],
+      [
+        "UI",
+        "Microsoft Teams"
+      ],
+      [
+        "UI",
+        "No design within {replicates} replicates, {wells} wells per condition and {fields} fields per well reaches the target power."
+      ],
+      [
+        "UI",
+        "Post an Adaptive Card to a Microsoft Teams channel or chat through a workflow webhook. Default off."
+      ],
+      [
+        "UI",
+        "Relative cost per condition: one replicate, one well within a replicate, or one field within a well. Use common units; zero ignores this cost. Default {default:g}."
+      ],
+      [
+        "UI",
+        "Replicate cost"
+      ],
+      [
+        "UI",
+        "Send a JSON object with title, body and failed fields to the webhook below. The body contains the run summary and output path; failed is true when the run failed. Default off."
+      ],
+      [
+        "UI",
+        "Teams webhook"
+      ],
+      [
+        "UI",
+        "The HTTP or HTTPS address that receives the JSON notification. Kept like a password because webhook addresses can contain access keys. Leave empty to keep the saved one. Default empty."
+      ],
+      [
+        "UI",
+        "The webhook address from a Teams workflow configured to allow Anyone to call it. Anyone with the address can post, so it is kept like a password. Leave empty to keep the saved one. Default empty."
+      ],
+      [
+        "UI",
+        "Webhook"
+      ],
+      [
+        "UI",
+        "Webhook access token"
+      ],
+      [
+        "UI",
+        "Webhook address"
+      ],
+      [
+        "UI",
+        "Well cost"
+      ],
+      [
+        "UI",
+        "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or Microsoft Teams, through ntfy or a webhook. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring."
+      ]
+    ],
+    "removed": [
+      [
+        "UI",
+        "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept."
+      ],
+      [
+        "UI",
+        "No design within 12 replicates, 12 wells and 25 fields reaches the target power."
+      ],
+      [
+        "UI",
+        "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring."
+      ]
+    ]
+  },
+  "retired_review_archive": "features/data/316_runtime_577_585_retired_2026-09-28",
+  "portuguese_repair": "Preserve scientific well-container locations; repair adverbial well-locations.",
+  "validation": {
+    "unique_passed": 268,
+    "runs": [
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/pytest-20260928T010421-2753826.log.xml",
+        "sha256": "cc9b0a86233f8e965ccdfd213fd1ab0c03924c6853d296f41192c5f1bcede386",
+        "cases": 268,
+        "failed": 3,
+        "exit": 1
+      },
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/recheck-20260928T012008-2828513.log.xml",
+        "sha256": "98220539d2c883c6b08019b4562cf7c556752af4978e32e5dcf1289d10a7a2c6",
+        "cases": 3,
+        "failed": 2,
+        "exit": 1
+      },
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/recheck-20260928T012823-2882946.log.xml",
+        "sha256": "cbf1d4ab965f40862c596224d0d85b6d422b9f0a72619738abe327a7f5e7716a",
+        "cases": 2,
+        "failed": 0,
+        "exit": 0
+      }
+    ],
+    "cap": "4G",
+    "private_home": true,
+    "qt": "offscreen",
+    "gpu_hidden": true,
+    "original_failures_retained": true
+  },
+  "source_sha256": {
+    "tools/build_i18n_catalogs.py": "beafade1442e829903ea7d7ecd710b1e2b1e3bc94ac4ee817f3c4c213cf0d884",
+    "tests/test_runtime_i18n_syntax.py": "6757d410702b855f9a254fa6b0235e14efb87b962310bc8ea63a5bd10b635d89",
+    "tests/qt/test_i18n_caption_ratchet.py": "20a7216161da154a29b7f66ae5d3eec7aa2206e88608d6544de821a87eb3801f"
+  },
+  "api": "English API manifest inventory/hash check passed; no new public API.",
+  "human_review": false,
+  "model_inference": false
+}

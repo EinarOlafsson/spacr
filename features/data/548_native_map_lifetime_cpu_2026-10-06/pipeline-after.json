@@ -1,0 +1,28 @@
+{
+  "mode": "after",
+  "active_io_sha256": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+  "frozen_callables": null,
+  "outputs": {
+    "masks/plate1_A01_1_norm_timelapse.npz": {
+      "size": 419186,
+      "sha256": "d88216638125ffa26e21f652a9be1acdf9748b9641ff6ac6ca0b65496a6b2b57"
+    },
+    "stack/plate1_A01_1_1.npy": {
+      "size": 26214528,
+      "sha256": "a08023ac0e5565d6a50a000d2bde5485fa9ae08e8ecfc363be0cadb503880bf6"
+    },
+    "stack/plate1_A01_1_2.npy": {
+      "size": 26214528,
+      "sha256": "a5a8bbaa5d386637b89d3da908a78fed9f1361bf13ab4ced98238581e252ac4f"
+    }
+  },
+  "channels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "cellpose_nucleus_channel": 0,
+  "cellpose_cell_channel": 1,
+  "peak_rss_kib": 1402180
+}

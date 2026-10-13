@@ -1,0 +1,40 @@
+{
+  "lesson": "28_training_runs",
+  "english_sha256": "bfd4577f24cda15426fb3ce671f5fed9b5d30194aad42e78bfe98ffb932b88b6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Training Runs: jämför kurvor och inställningar",
+  "description": "Läs in träningsloggar, överlagra mått, jämför inställningar och utforska korsvalideringens veck.",
+  "objectives": [
+    "Hitta sparade körningar och välja vilka som ska jämföras.",
+    "Överlagra tränings- och valideringsmått och granska skillnader i inställningar.",
+    "Växla mellan enskilda veck och deras medelvärde och standardavvikelse."
+  ],
+  "prerequisite": "Ladda ned och packa upp det länkade syntetiska Training Runs-exemplet. Dess kurvor är övningsdata. För din egen analys väljer du en överordnad mapp som innehåller sparade train.csv- och validation.csv-filer med varje körnings inställningar. Behåll oberoende utvärderingsresultat med din modell när du bedömer prestandan.",
+  "scenes": [
+    "Från Home öppnar du Classify och sedan Training Runs. Använd verktyget för att jämföra förloppsloggar och inställningar från sparade träningskörningar. Det länkade provet innehåller syntetiska kurvor för att öva på kontrollerna.",
+    "Gå igenom skärmen i ordning: välj en mapp för att hitta körningar, markera dem i listan, välj sedan Metric och Folds och klicka på Overlay selected. Börja med den överordnade mappen som innehåller dina körningar.",
+    "Packa upp det länkade provet och klicka på Choose folder. Välj dess mapp training_runs och bekräfta valet. För egna projekt väljer du en överordnad mapp som innehåller körningsmapparna och deras sparade CSV-loggar.",
+    "Sök igenom mappen och granska de körningar som hittas. Provet har exemplen baseline, tuned och cross_validated samt en ofullständig post. Välj de användbara körningar du vill jämföra.",
+    "Kontrollera varningarna för ofullständiga poster. Om train.csv, validation.csv eller inställningarna saknas kan det hindra kurvor eller inställningar från att visas. Leta upp den fullständiga körningsmappen innan du lägger till den i en jämförelse.",
+    "Markera baseline och tuned och välj sedan accuracy under Metric. Menyn listar de numeriska kolumner som finns i de valda loggarna. Välj loss eller ett annat loggat mått när det besvarar din jämförelsefråga.",
+    "Klicka på Overlay selected. Träningskurvorna är streckade och valideringskurvorna heldragna. Läs av varje körning och datadelning i förklaringen. Varje kurva slutar vid sin egen sista loggade epok.",
+    "Granska jämförelsen av inställningar under diagrammet. Den framhäver skillnader som batchstorlek, antal epoker och inlärningstakt. Använd den för att se vad som ändrats mellan körningarna innan du tolkar kurvorna.",
+    "Miljöraden skiljer körningsinställningar, som antal arbetsprocesser, från träningskonfigurationen. Läs den tillsammans med konfigurationsskillnaderna när du jämför körningar gjorda på olika datorer.",
+    "Klicka på en valideringskurva för att se dess senaste och bästa loggade värden och epoker. Använd samma urvalsregel när du jämför körningar. Utvärdera en vald kontrollpunkt på oberoende data för att bedöma dess prestanda.",
+    "Välj loss under Metric för att uppdatera den lodräta axeln och överlagringen. Jämför tränings- och valideringskurvornas förlopp, även deras riktning mot slutet av träningen.",
+    "Välj tuned och cross_validated, välj accuracy och klicka sedan på Overlay selected. Öppna Folds och välj om du vill visa enskilda veck, deras medelvärde och standardavvikelse, eller båda.",
+    "Välj medelvärde plus minus standardavvikelse för att sammanfatta veckens kurvor. Varje band visar en standardavvikelse för stickprovet över de tillgängliga vecken vid den epoken. Läs bandet som variationen mellan vecken.",
+    "Välj båda för att visa de enskilda veckens kurvor tillsammans med medelvärdet. Jämför vecken för att se om en sammanfattning döljer en körning med ett annat förlopp.",
+    "Välj visning per veck för att bara visa de enskilda kurvorna. Jämförelsen av inställningar uppdateras med dina valda körningar. Tänk på varje kurvas epokintervall när du jämför var träningen slutade.",
+    "Gå tillbaka till Metric för att jämföra en annan loggad storhet, eller ändra de valda körningarna för att avgränsa jämförelsen. Håll ihop de ursprungliga CSV-loggarna och inställningarna så att samma jämförelse kan öppnas igen.",
+    "För skriptad analys använder du find_runs och load_run i spacr.train_compare, och sedan compare_runs och plot_curves. Behåll jämförelsen med din modell och oberoende utvärderingsresultat när du väljer nästa träningskonfiguration."
+  ]
+}

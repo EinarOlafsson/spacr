@@ -1,0 +1,2533 @@
+{
+  "all_128_actual_normal_GPU_calls_accepted_after_independent_CPU_saved_label_replay": true,
+  "original_GPU_turn_terminal_rc": 1,
+  "original_failure_private_CSV_column_expectation": {
+    "observed": "fieldID",
+    "expected": "field"
+  },
+  "normal_table_canonicalisation_field_to_fieldID_verified": true,
+  "no_GPU_rerun_or_application_source_change": true,
+  "normal_summary_and_canonical_field_csv_equal_saved_original_GPU_masks": true,
+  "full_acquired_fields": 16,
+  "shape": [
+    1994,
+    1994
+  ],
+  "grid": [
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "baseline",
+      "value": "run settings"
+    },
+    {
+      "diameter": 22.5,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "diameter",
+      "value": "x0.75"
+    },
+    {
+      "diameter": 37.5,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "diameter",
+      "value": "x1.25"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.2,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "flow_threshold",
+      "value": "0.2"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.6,
+      "cellprob_threshold": 0.0,
+      "enhance": false,
+      "parameter": "flow_threshold",
+      "value": "0.6"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": -2.0,
+      "enhance": false,
+      "parameter": "cellprob_threshold",
+      "value": "-2"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 6.0,
+      "enhance": false,
+      "parameter": "cellprob_threshold",
+      "value": "6"
+    },
+    {
+      "diameter": null,
+      "flow_threshold": 0.4,
+      "cellprob_threshold": 0.0,
+      "enhance": true,
+      "parameter": "enhancement",
+      "value": "CLAHE"
+    }
+  ],
+  "calls": [
+    {
+      "index": 0,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-000-labels.npz",
+      "labels_sha256": "7da8c3e5b1635c044dafd41f9ddb81a36bb057cd0d41925375e4f67b70cfeb98",
+      "objects": 68,
+      "log_line": "actual normal GPU segmentation 1 /128 plate1_L01_9_1.npy baseline run settings objects 68"
+    },
+    {
+      "index": 1,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-001-labels.npz",
+      "labels_sha256": "5a93339d4cca0944a80346b6c52d486b2d93d8796f1dbdeb49cbee6454b439d7",
+      "objects": 73,
+      "log_line": "actual normal GPU segmentation 2 /128 plate1_L01_9_1.npy diameter x0.75 objects 73"
+    },
+    {
+      "index": 2,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-002-labels.npz",
+      "labels_sha256": "f0adff8f17f0878550071757ab9acc76952567b24c6dec8af88467e6dafadc8f",
+      "objects": 67,
+      "log_line": "actual normal GPU segmentation 3 /128 plate1_L01_9_1.npy diameter x1.25 objects 67"
+    },
+    {
+      "index": 3,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-003-labels.npz",
+      "labels_sha256": "c5d16eccd60128646bd12532e9850c4b603292f39376d4a2f7f90d8969b6d77d",
+      "objects": 65,
+      "log_line": "actual normal GPU segmentation 4 /128 plate1_L01_9_1.npy flow_threshold 0.2 objects 65"
+    },
+    {
+      "index": 4,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-004-labels.npz",
+      "labels_sha256": "ae45e090736b80d4bd35242bcb443d580a1ef3c84ca948d18ad100061808ece2",
+      "objects": 69,
+      "log_line": "actual normal GPU segmentation 5 /128 plate1_L01_9_1.npy flow_threshold 0.6 objects 69"
+    },
+    {
+      "index": 5,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-005-labels.npz",
+      "labels_sha256": "abd7dc0fd2c9d965caaf31c68c52cde994d4bbdc8fa3097b2263ffc7e2e5da7b",
+      "objects": 69,
+      "log_line": "actual normal GPU segmentation 6 /128 plate1_L01_9_1.npy cellprob_threshold -2 objects 69"
+    },
+    {
+      "index": 6,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-006-labels.npz",
+      "labels_sha256": "27b9fd6cc573946e3932ffa517545f94d6acbeb88a4f349baa8dc91833e2f52e",
+      "objects": 57,
+      "log_line": "actual normal GPU segmentation 7 /128 plate1_L01_9_1.npy cellprob_threshold 6 objects 57"
+    },
+    {
+      "index": 7,
+      "field": "plate1_L01_9_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "b1eb0d46a41ded45c4e904363fa2f978c5e324acb5b31c5b6a91441cf1073ad0",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-007-labels.npz",
+      "labels_sha256": "2df5200943c786b8990680f16bfe4fbed0f59a0126d9aa2f09e1038d8a12b864",
+      "objects": 68,
+      "log_line": "actual normal GPU segmentation 8 /128 plate1_L01_9_1.npy enhancement CLAHE objects 68"
+    },
+    {
+      "index": 8,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-008-labels.npz",
+      "labels_sha256": "6785c236c3cb09dd88f3d44bfedcc0b94f389566676916a5f93da6dbf422a4a5",
+      "objects": 33,
+      "log_line": "actual normal GPU segmentation 9 /128 plate1_E02_11_1.npy baseline run settings objects 33"
+    },
+    {
+      "index": 9,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-009-labels.npz",
+      "labels_sha256": "05ec6261f95f0adcafa4486e06780303bf29a3d460dc0f5c1ae34094266e5783",
+      "objects": 34,
+      "log_line": "actual normal GPU segmentation 10 /128 plate1_E02_11_1.npy diameter x0.75 objects 34"
+    },
+    {
+      "index": 10,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-010-labels.npz",
+      "labels_sha256": "f5f4d551f51710f5f251b441e4c7e968055e4ac01209bf5efad9dcb98ef3e2a4",
+      "objects": 31,
+      "log_line": "actual normal GPU segmentation 11 /128 plate1_E02_11_1.npy diameter x1.25 objects 31"
+    },
+    {
+      "index": 11,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-011-labels.npz",
+      "labels_sha256": "2b7e9bd47bdf067698d791b14ee277da4f82a6c66abfa54f0621b1cc739dacb7",
+      "objects": 29,
+      "log_line": "actual normal GPU segmentation 12 /128 plate1_E02_11_1.npy flow_threshold 0.2 objects 29"
+    },
+    {
+      "index": 12,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-012-labels.npz",
+      "labels_sha256": "5104be43566e5a1909b0c4ab65b87a976b735ef3a12b05a6f148c45e41598e22",
+      "objects": 36,
+      "log_line": "actual normal GPU segmentation 13 /128 plate1_E02_11_1.npy flow_threshold 0.6 objects 36"
+    },
+    {
+      "index": 13,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-013-labels.npz",
+      "labels_sha256": "f408fd117c6a2475915a135e3979b48e41f64f703f3932297b4d5bfb800281af",
+      "objects": 31,
+      "log_line": "actual normal GPU segmentation 14 /128 plate1_E02_11_1.npy cellprob_threshold -2 objects 31"
+    },
+    {
+      "index": 14,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-014-labels.npz",
+      "labels_sha256": "0e6d10ec3e7938567335a5b379445a6be5247c42c46ec1f2a82190f4c5bc5a04",
+      "objects": 20,
+      "log_line": "actual normal GPU segmentation 15 /128 plate1_E02_11_1.npy cellprob_threshold 6 objects 20"
+    },
+    {
+      "index": 15,
+      "field": "plate1_E02_11_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "641e527487f7055e52a87f720d6b9a465d5edc4b69d9c0883779db8c83b79e4a",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-015-labels.npz",
+      "labels_sha256": "b6b8ceb6af21bf347dfe7d356fc1ae304eff2c129878ba48be92e2d78afb0fe9",
+      "objects": 38,
+      "log_line": "actual normal GPU segmentation 16 /128 plate1_E02_11_1.npy enhancement CLAHE objects 38"
+    },
+    {
+      "index": 16,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-016-labels.npz",
+      "labels_sha256": "3d6198bee881ca9237a895d115ff27d0502027ca3c54e4537ac99d79261afab2",
+      "objects": 49,
+      "log_line": "actual normal GPU segmentation 17 /128 plate1_L02_10_1.npy baseline run settings objects 49"
+    },
+    {
+      "index": 17,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-017-labels.npz",
+      "labels_sha256": "230a68b2485b87f86c44a46c2731c333ac01930521c0212685487864b630a9e5",
+      "objects": 48,
+      "log_line": "actual normal GPU segmentation 18 /128 plate1_L02_10_1.npy diameter x0.75 objects 48"
+    },
+    {
+      "index": 18,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-018-labels.npz",
+      "labels_sha256": "409c74f7300b839f71f15d093132d321da0445c5e334c2d61a1821c97643cc2a",
+      "objects": 48,
+      "log_line": "actual normal GPU segmentation 19 /128 plate1_L02_10_1.npy diameter x1.25 objects 48"
+    },
+    {
+      "index": 19,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-019-labels.npz",
+      "labels_sha256": "7626375e9473037b520fc81d3a1cf42eb1e7889c309800bb6205ed2748aae13d",
+      "objects": 48,
+      "log_line": "actual normal GPU segmentation 20 /128 plate1_L02_10_1.npy flow_threshold 0.2 objects 48"
+    },
+    {
+      "index": 20,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-020-labels.npz",
+      "labels_sha256": "0e01da6a67482897e9069fd4e6631ffac3a58888e70278a9337bccdbc4670d26",
+      "objects": 50,
+      "log_line": "actual normal GPU segmentation 21 /128 plate1_L02_10_1.npy flow_threshold 0.6 objects 50"
+    },
+    {
+      "index": 21,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-021-labels.npz",
+      "labels_sha256": "464cf7da55a5986b785ff85eb2389b5c3e0cdd1e2d7eca0e0e9e227416c8f471",
+      "objects": 49,
+      "log_line": "actual normal GPU segmentation 22 /128 plate1_L02_10_1.npy cellprob_threshold -2 objects 49"
+    },
+    {
+      "index": 22,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-022-labels.npz",
+      "labels_sha256": "caaafc73e059d2bb911750eaa99e397a6cdffb3d4bb8a147ff4d1027558f19bf",
+      "objects": 40,
+      "log_line": "actual normal GPU segmentation 23 /128 plate1_L02_10_1.npy cellprob_threshold 6 objects 40"
+    },
+    {
+      "index": 23,
+      "field": "plate1_L02_10_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "ae4c805f1acbd589ed7b9a15393c7281055e0975ac4978f2cac18c312dbace99",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-023-labels.npz",
+      "labels_sha256": "3dc75a9df9bbe68789bccfedb053856574d85b2b844b82473807cb9d2c8577b0",
+      "objects": 50,
+      "log_line": "actual normal GPU segmentation 24 /128 plate1_L02_10_1.npy enhancement CLAHE objects 50"
+    },
+    {
+      "index": 24,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-024-labels.npz",
+      "labels_sha256": "2be4a152251b1397af18a32b6df439c9c293011d269246be9dc0a4b607bc214a",
+      "objects": 40,
+      "log_line": "actual normal GPU segmentation 25 /128 plate1_E02_10_1.npy baseline run settings objects 40"
+    },
+    {
+      "index": 25,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-025-labels.npz",
+      "labels_sha256": "53e75e7968e8a91804acb9d6358243ca6d7e7d6368d44c52e52b909106bd8967",
+      "objects": 44,
+      "log_line": "actual normal GPU segmentation 26 /128 plate1_E02_10_1.npy diameter x0.75 objects 44"
+    },
+    {
+      "index": 26,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-026-labels.npz",
+      "labels_sha256": "29edba65d7e076cf7a5b7a0fc98800b875d370700172780caee6a7447c19e751",
+      "objects": 40,
+      "log_line": "actual normal GPU segmentation 27 /128 plate1_E02_10_1.npy diameter x1.25 objects 40"
+    },
+    {
+      "index": 27,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-027-labels.npz",
+      "labels_sha256": "0cf26993ffa802891cdc692ef5182c8d2fe01b289c09ddadedfacabced3f60ce",
+      "objects": 37,
+      "log_line": "actual normal GPU segmentation 28 /128 plate1_E02_10_1.npy flow_threshold 0.2 objects 37"
+    },
+    {
+      "index": 28,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-028-labels.npz",
+      "labels_sha256": "548c61957553e557c140ee62668f0c60b3dce13ad8884b6025e4ab242ab4d52c",
+      "objects": 42,
+      "log_line": "actual normal GPU segmentation 29 /128 plate1_E02_10_1.npy flow_threshold 0.6 objects 42"
+    },
+    {
+      "index": 29,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-029-labels.npz",
+      "labels_sha256": "2bdc1747af13b9ca6bf34041b2f1bfe801f26613a46ae5b7bee676bbf328a7a0",
+      "objects": 39,
+      "log_line": "actual normal GPU segmentation 30 /128 plate1_E02_10_1.npy cellprob_threshold -2 objects 39"
+    },
+    {
+      "index": 30,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-030-labels.npz",
+      "labels_sha256": "801884bd6d75715377d459bbb5719e2ddf3eda9614319bf19175349efca9aab8",
+      "objects": 30,
+      "log_line": "actual normal GPU segmentation 31 /128 plate1_E02_10_1.npy cellprob_threshold 6 objects 30"
+    },
+    {
+      "index": 31,
+      "field": "plate1_E02_10_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "2f465dbb59c52b92400d62369c11f8f552c17572a859b511a04d182ea551fdfe",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-031-labels.npz",
+      "labels_sha256": "d6eab7d0004396560b205f0ef779e5a312377a560547106ee37b84afbb886a5a",
+      "objects": 42,
+      "log_line": "actual normal GPU segmentation 32 /128 plate1_E02_10_1.npy enhancement CLAHE objects 42"
+    },
+    {
+      "index": 32,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-032-labels.npz",
+      "labels_sha256": "db1f640fbf8f385df5fa219604f95992ff1538827aca66b406f37e0ea25af9bc",
+      "objects": 64,
+      "log_line": "actual normal GPU segmentation 33 /128 plate1_E01_10_1.npy baseline run settings objects 64"
+    },
+    {
+      "index": 33,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-033-labels.npz",
+      "labels_sha256": "b03341cb7bc5b4c05dc4e8da4f724214eb1b9c7cd65fc01ddbc62fbc58f9e3fc",
+      "objects": 69,
+      "log_line": "actual normal GPU segmentation 34 /128 plate1_E01_10_1.npy diameter x0.75 objects 69"
+    },
+    {
+      "index": 34,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-034-labels.npz",
+      "labels_sha256": "939aa702c9d08bdc2b4f6200c27a21b928ae14c615f0d51aa844edfe5a4d929f",
+      "objects": 64,
+      "log_line": "actual normal GPU segmentation 35 /128 plate1_E01_10_1.npy diameter x1.25 objects 64"
+    },
+    {
+      "index": 35,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-035-labels.npz",
+      "labels_sha256": "46e4e302c62a275097d56af87b4c3c834d7227f4df1ead77cd132d5c7845d440",
+      "objects": 63,
+      "log_line": "actual normal GPU segmentation 36 /128 plate1_E01_10_1.npy flow_threshold 0.2 objects 63"
+    },
+    {
+      "index": 36,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-036-labels.npz",
+      "labels_sha256": "db1f640fbf8f385df5fa219604f95992ff1538827aca66b406f37e0ea25af9bc",
+      "objects": 64,
+      "log_line": "actual normal GPU segmentation 37 /128 plate1_E01_10_1.npy flow_threshold 0.6 objects 64"
+    },
+    {
+      "index": 37,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-037-labels.npz",
+      "labels_sha256": "d821aed0c2d947afc3593c46fd541a82835832cffd966e8b6ecb25465a59bb44",
+      "objects": 63,
+      "log_line": "actual normal GPU segmentation 38 /128 plate1_E01_10_1.npy cellprob_threshold -2 objects 63"
+    },
+    {
+      "index": 38,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-038-labels.npz",
+      "labels_sha256": "33d685145a26710f5f0c74c76752ed617d9ed64ba07a252f70255fcca08e0acb",
+      "objects": 55,
+      "log_line": "actual normal GPU segmentation 39 /128 plate1_E01_10_1.npy cellprob_threshold 6 objects 55"
+    },
+    {
+      "index": 39,
+      "field": "plate1_E01_10_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "8a2b1dc358f5a0c7463c0fd9d7d5d0e90401a34316e6e7701ef1e76b1ea583d7",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-039-labels.npz",
+      "labels_sha256": "07f0cdbfeaf2fdc63209346d483cba53dac7511ff26a62440a5ee9cb2743f4ec",
+      "objects": 68,
+      "log_line": "actual normal GPU segmentation 40 /128 plate1_E01_10_1.npy enhancement CLAHE objects 68"
+    },
+    {
+      "index": 40,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-040-labels.npz",
+      "labels_sha256": "c6bf41b235908bbdaa64f1e06ce10a8d8495d298b06b77d44e95e4948b0f10fb",
+      "objects": 21,
+      "log_line": "actual normal GPU segmentation 41 /128 plate1_L02_11_1.npy baseline run settings objects 21"
+    },
+    {
+      "index": 41,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-041-labels.npz",
+      "labels_sha256": "75912b073207da2e457053364ad674ab8112d6a0a6511faf514df5c2f42f0d33",
+      "objects": 22,
+      "log_line": "actual normal GPU segmentation 42 /128 plate1_L02_11_1.npy diameter x0.75 objects 22"
+    },
+    {
+      "index": 42,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-042-labels.npz",
+      "labels_sha256": "086606b5504e1d188d63bf16372645e790c471ad88f9883c473f73458c421232",
+      "objects": 22,
+      "log_line": "actual normal GPU segmentation 43 /128 plate1_L02_11_1.npy diameter x1.25 objects 22"
+    },
+    {
+      "index": 43,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-043-labels.npz",
+      "labels_sha256": "c6bf41b235908bbdaa64f1e06ce10a8d8495d298b06b77d44e95e4948b0f10fb",
+      "objects": 21,
+      "log_line": "actual normal GPU segmentation 44 /128 plate1_L02_11_1.npy flow_threshold 0.2 objects 21"
+    },
+    {
+      "index": 44,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-044-labels.npz",
+      "labels_sha256": "b5d5dae92df819555276857c2070f1d59c2d6849a7b8330b1da4caa76dc270ba",
+      "objects": 23,
+      "log_line": "actual normal GPU segmentation 45 /128 plate1_L02_11_1.npy flow_threshold 0.6 objects 23"
+    },
+    {
+      "index": 45,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-045-labels.npz",
+      "labels_sha256": "ca04418fd9b550fcad8ae77a7b822cd54de2f9f8ec723df1a251f27171a5327a",
+      "objects": 21,
+      "log_line": "actual normal GPU segmentation 46 /128 plate1_L02_11_1.npy cellprob_threshold -2 objects 21"
+    },
+    {
+      "index": 46,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-046-labels.npz",
+      "labels_sha256": "f6fae1443e1cae449ece629510a702ba8de3096dfccd60d22ef062706217241f",
+      "objects": 14,
+      "log_line": "actual normal GPU segmentation 47 /128 plate1_L02_11_1.npy cellprob_threshold 6 objects 14"
+    },
+    {
+      "index": 47,
+      "field": "plate1_L02_11_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "c50ad89eaba0b97373aadbc9dd996c63157739ee2b7df3843d7c435e2ed387ca",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-047-labels.npz",
+      "labels_sha256": "128f8bba5d93d5b212a34468808d6bb40f17f912be723bdf94a60475bc869ece",
+      "objects": 23,
+      "log_line": "actual normal GPU segmentation 48 /128 plate1_L02_11_1.npy enhancement CLAHE objects 23"
+    },
+    {
+      "index": 48,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-048-labels.npz",
+      "labels_sha256": "0dd9ffc616d324099f7549bd80cb21f03225da3e8ea4f649e0722d8386b1250f",
+      "objects": 46,
+      "log_line": "actual normal GPU segmentation 49 /128 plate1_E01_11_1.npy baseline run settings objects 46"
+    },
+    {
+      "index": 49,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-049-labels.npz",
+      "labels_sha256": "80f0d2af134086c452e0c5cd1a0097adb3e03fb05e582f848c115ce9a115024c",
+      "objects": 50,
+      "log_line": "actual normal GPU segmentation 50 /128 plate1_E01_11_1.npy diameter x0.75 objects 50"
+    },
+    {
+      "index": 50,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-050-labels.npz",
+      "labels_sha256": "02798bc72bbc0ac364bd104f480b83e9ef31464749f9031559790c45457617d1",
+      "objects": 47,
+      "log_line": "actual normal GPU segmentation 51 /128 plate1_E01_11_1.npy diameter x1.25 objects 47"
+    },
+    {
+      "index": 51,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-051-labels.npz",
+      "labels_sha256": "bfc86342becf488fdde9175ef9d9e6a36907725c5cb19188d84c115eb11c6470",
+      "objects": 45,
+      "log_line": "actual normal GPU segmentation 52 /128 plate1_E01_11_1.npy flow_threshold 0.2 objects 45"
+    },
+    {
+      "index": 52,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-052-labels.npz",
+      "labels_sha256": "0dd9ffc616d324099f7549bd80cb21f03225da3e8ea4f649e0722d8386b1250f",
+      "objects": 46,
+      "log_line": "actual normal GPU segmentation 53 /128 plate1_E01_11_1.npy flow_threshold 0.6 objects 46"
+    },
+    {
+      "index": 53,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-053-labels.npz",
+      "labels_sha256": "3df38b751d84b99756e7022d01eef997c370c587d2e29b6e6402fd68b8f21f16",
+      "objects": 45,
+      "log_line": "actual normal GPU segmentation 54 /128 plate1_E01_11_1.npy cellprob_threshold -2 objects 45"
+    },
+    {
+      "index": 54,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-054-labels.npz",
+      "labels_sha256": "26a3a1d7e55ef4be509b71677fd25c553d33c00950d96a4d25bf8bb19a85390e",
+      "objects": 37,
+      "log_line": "actual normal GPU segmentation 55 /128 plate1_E01_11_1.npy cellprob_threshold 6 objects 37"
+    },
+    {
+      "index": 55,
+      "field": "plate1_E01_11_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "60b52733c8929cd29caf44345aedc8925af6d4a3c4b128b596a58adf63a9a703",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-055-labels.npz",
+      "labels_sha256": "0531837405f85c2edda90928448ea98c76f59b0d1d55fe8190c631f229d40266",
+      "objects": 48,
+      "log_line": "actual normal GPU segmentation 56 /128 plate1_E01_11_1.npy enhancement CLAHE objects 48"
+    },
+    {
+      "index": 56,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-056-labels.npz",
+      "labels_sha256": "d043bcab4d520021f91e8e2fb21808c99806e55f0e6f239428d3ad599504c344",
+      "objects": 26,
+      "log_line": "actual normal GPU segmentation 57 /128 plate1_L02_1_1.npy baseline run settings objects 26"
+    },
+    {
+      "index": 57,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-057-labels.npz",
+      "labels_sha256": "0c832e87b85b4083f0365b1253f3e2cbaa5e56112be042ed9a4bd4fc96b0dbaf",
+      "objects": 26,
+      "log_line": "actual normal GPU segmentation 58 /128 plate1_L02_1_1.npy diameter x0.75 objects 26"
+    },
+    {
+      "index": 58,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-058-labels.npz",
+      "labels_sha256": "6200badfebd4f61f1173e93dc04c2941138de18caed7cbf23b5197caf541c34c",
+      "objects": 23,
+      "log_line": "actual normal GPU segmentation 59 /128 plate1_L02_1_1.npy diameter x1.25 objects 23"
+    },
+    {
+      "index": 59,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-059-labels.npz",
+      "labels_sha256": "5b444ab1254903cda22d8b85e76ca2f0ef337433724ca5e7adf167ec33b55abf",
+      "objects": 23,
+      "log_line": "actual normal GPU segmentation 60 /128 plate1_L02_1_1.npy flow_threshold 0.2 objects 23"
+    },
+    {
+      "index": 60,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-060-labels.npz",
+      "labels_sha256": "dedb01182c180dd6dc493e1d18c887890aaf988ffd6811eb975e465c7f3997e3",
+      "objects": 29,
+      "log_line": "actual normal GPU segmentation 61 /128 plate1_L02_1_1.npy flow_threshold 0.6 objects 29"
+    },
+    {
+      "index": 61,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-061-labels.npz",
+      "labels_sha256": "09bbc353fd68102e65bf2002a8b222501ba395890a0e45c0f1e56b04fd238410",
+      "objects": 25,
+      "log_line": "actual normal GPU segmentation 62 /128 plate1_L02_1_1.npy cellprob_threshold -2 objects 25"
+    },
+    {
+      "index": 62,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-062-labels.npz",
+      "labels_sha256": "799f55e84968fb9594c7b172a555cce8125b225f8020554eff3ebcd3bc3289c9",
+      "objects": 16,
+      "log_line": "actual normal GPU segmentation 63 /128 plate1_L02_1_1.npy cellprob_threshold 6 objects 16"
+    },
+    {
+      "index": 63,
+      "field": "plate1_L02_1_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "c288b3b0379101ae87cf063f2887a80ef65566cf1e19037615990ff03c3328f8",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-063-labels.npz",
+      "labels_sha256": "96c93444d85d7d5ccd00678525bebca6828d23c84509ca72233050cf56b318df",
+      "objects": 30,
+      "log_line": "actual normal GPU segmentation 64 /128 plate1_L02_1_1.npy enhancement CLAHE objects 30"
+    },
+    {
+      "index": 64,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-064-labels.npz",
+      "labels_sha256": "5f62f272e914d0bea708f825ef0a50a88ad1ad0110797120f306f5c47861a9f2",
+      "objects": 72,
+      "log_line": "actual normal GPU segmentation 65 /128 plate1_L01_10_1.npy baseline run settings objects 72"
+    },
+    {
+      "index": 65,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-065-labels.npz",
+      "labels_sha256": "9b375c31fb184b3a3f6458659bde60f1e65ca12cd987f7ba792fd778a3e148da",
+      "objects": 72,
+      "log_line": "actual normal GPU segmentation 66 /128 plate1_L01_10_1.npy diameter x0.75 objects 72"
+    },
+    {
+      "index": 66,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-066-labels.npz",
+      "labels_sha256": "e5a20fd8ad7362c0007872265b1239a205c72bfbf913dc95d44a1bd20c726b1c",
+      "objects": 71,
+      "log_line": "actual normal GPU segmentation 67 /128 plate1_L01_10_1.npy diameter x1.25 objects 71"
+    },
+    {
+      "index": 67,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-067-labels.npz",
+      "labels_sha256": "ab3cc88ed3206034ec587d2db2473840f7c8665154c571d93fccf9615ee76133",
+      "objects": 69,
+      "log_line": "actual normal GPU segmentation 68 /128 plate1_L01_10_1.npy flow_threshold 0.2 objects 69"
+    },
+    {
+      "index": 68,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-068-labels.npz",
+      "labels_sha256": "709efffecce5b343ba3073d691c5b1954f94759e4fe4c2a482adf4c5aaf48448",
+      "objects": 74,
+      "log_line": "actual normal GPU segmentation 69 /128 plate1_L01_10_1.npy flow_threshold 0.6 objects 74"
+    },
+    {
+      "index": 69,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-069-labels.npz",
+      "labels_sha256": "5b7bc5b1ab5f4b9433e7158c5186faa4f096fa3e21b9ab6de8783100d320a0f4",
+      "objects": 71,
+      "log_line": "actual normal GPU segmentation 70 /128 plate1_L01_10_1.npy cellprob_threshold -2 objects 71"
+    },
+    {
+      "index": 70,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-070-labels.npz",
+      "labels_sha256": "2850c386e9926b2eb5114bb63c5b7dde75df4db4f82dbcd922e907f2a7fc69cf",
+      "objects": 51,
+      "log_line": "actual normal GPU segmentation 71 /128 plate1_L01_10_1.npy cellprob_threshold 6 objects 51"
+    },
+    {
+      "index": 71,
+      "field": "plate1_L01_10_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "27f4e881284cd54431b48a84b2f508b6509e762b5687dd445877c20e4825e060",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-071-labels.npz",
+      "labels_sha256": "d1bc3ed5f9c6ee25ea32eea915200d73405c1500e5d8c568ff995fd7d0d77379",
+      "objects": 81,
+      "log_line": "actual normal GPU segmentation 72 /128 plate1_L01_10_1.npy enhancement CLAHE objects 81"
+    },
+    {
+      "index": 72,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-072-labels.npz",
+      "labels_sha256": "9dff5282f3f969ed6f4e708582f15121e5201135618b077cbe1a32de5d86454d",
+      "objects": 30,
+      "log_line": "actual normal GPU segmentation 73 /128 plate1_E02_1_1.npy baseline run settings objects 30"
+    },
+    {
+      "index": 73,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-073-labels.npz",
+      "labels_sha256": "2058bbf3cfe542d5545d7ebc88d06f986789590914cad6b177a1b192b8b6b08b",
+      "objects": 28,
+      "log_line": "actual normal GPU segmentation 74 /128 plate1_E02_1_1.npy diameter x0.75 objects 28"
+    },
+    {
+      "index": 74,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-074-labels.npz",
+      "labels_sha256": "df580409a71a16d99dfef9842e659274b8d40005932413560d2e0038ae915ea7",
+      "objects": 27,
+      "log_line": "actual normal GPU segmentation 75 /128 plate1_E02_1_1.npy diameter x1.25 objects 27"
+    },
+    {
+      "index": 75,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-075-labels.npz",
+      "labels_sha256": "61f254c288e265e4813064c15232f7d98cdc910e9006fa23cfa661b4a5d73e94",
+      "objects": 25,
+      "log_line": "actual normal GPU segmentation 76 /128 plate1_E02_1_1.npy flow_threshold 0.2 objects 25"
+    },
+    {
+      "index": 76,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-076-labels.npz",
+      "labels_sha256": "9dff5282f3f969ed6f4e708582f15121e5201135618b077cbe1a32de5d86454d",
+      "objects": 30,
+      "log_line": "actual normal GPU segmentation 77 /128 plate1_E02_1_1.npy flow_threshold 0.6 objects 30"
+    },
+    {
+      "index": 77,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-077-labels.npz",
+      "labels_sha256": "1cf7f15a82681e2a95ba34198b181cd3ce2e49dc28f45223ccbd5944718c2d45",
+      "objects": 30,
+      "log_line": "actual normal GPU segmentation 78 /128 plate1_E02_1_1.npy cellprob_threshold -2 objects 30"
+    },
+    {
+      "index": 78,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-078-labels.npz",
+      "labels_sha256": "362da93ce43738a716d7a8a2513d4c8aa0612e479ba35c575fef6047e8735ee3",
+      "objects": 21,
+      "log_line": "actual normal GPU segmentation 79 /128 plate1_E02_1_1.npy cellprob_threshold 6 objects 21"
+    },
+    {
+      "index": 79,
+      "field": "plate1_E02_1_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "42217a9a780eb8ee76f42274ead47a44cdc700031f564e551f5b01ad01abae47",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-079-labels.npz",
+      "labels_sha256": "08966f0d0c7c60cc338ab7e840ee4248d6ccd882245161bd4cd67f9a1bfb4f07",
+      "objects": 29,
+      "log_line": "actual normal GPU segmentation 80 /128 plate1_E02_1_1.npy enhancement CLAHE objects 29"
+    },
+    {
+      "index": 80,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-080-labels.npz",
+      "labels_sha256": "5da77f4a0d915f030771398c7f8324143d8e1c8b30f6bb51e8ab7f0d88f34397",
+      "objects": 53,
+      "log_line": "actual normal GPU segmentation 81 /128 plate1_L02_9_1.npy baseline run settings objects 53"
+    },
+    {
+      "index": 81,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-081-labels.npz",
+      "labels_sha256": "9a94068fd2a1f30d8f2860f661bef3cacf96f45868b0d29a3d08bf27c573d0af",
+      "objects": 54,
+      "log_line": "actual normal GPU segmentation 82 /128 plate1_L02_9_1.npy diameter x0.75 objects 54"
+    },
+    {
+      "index": 82,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-082-labels.npz",
+      "labels_sha256": "c9d5080c21cf558848f7fc8aa1673d84956baa6e265883e5f51036a25275ce15",
+      "objects": 53,
+      "log_line": "actual normal GPU segmentation 83 /128 plate1_L02_9_1.npy diameter x1.25 objects 53"
+    },
+    {
+      "index": 83,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-083-labels.npz",
+      "labels_sha256": "ffe1256e1f269b37014abca349dfc7ffbe958f39dc5aa5c092ac1c0b5869ff06",
+      "objects": 50,
+      "log_line": "actual normal GPU segmentation 84 /128 plate1_L02_9_1.npy flow_threshold 0.2 objects 50"
+    },
+    {
+      "index": 84,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-084-labels.npz",
+      "labels_sha256": "3bb94f68a4f4773662a53a52e775a7ceca0da8c9361a43850b0119e74e779781",
+      "objects": 56,
+      "log_line": "actual normal GPU segmentation 85 /128 plate1_L02_9_1.npy flow_threshold 0.6 objects 56"
+    },
+    {
+      "index": 85,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-085-labels.npz",
+      "labels_sha256": "0c4a8397958e750b5a706de1db0022e24800081a973db034ba024e76ea7f29bc",
+      "objects": 52,
+      "log_line": "actual normal GPU segmentation 86 /128 plate1_L02_9_1.npy cellprob_threshold -2 objects 52"
+    },
+    {
+      "index": 86,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-086-labels.npz",
+      "labels_sha256": "8ff549839673becb026777c8f611c9044dac32f51a8e2a70596bda25898b5c67",
+      "objects": 45,
+      "log_line": "actual normal GPU segmentation 87 /128 plate1_L02_9_1.npy cellprob_threshold 6 objects 45"
+    },
+    {
+      "index": 87,
+      "field": "plate1_L02_9_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "e3cb6555055632ed6e9dd7af0d24270a9d9e6127499bbbe9ed6392700fc0d443",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-087-labels.npz",
+      "labels_sha256": "1c8d4c3136c778d935490258f05fd6e9ef38f92bf84de90592af5168de13265e",
+      "objects": 54,
+      "log_line": "actual normal GPU segmentation 88 /128 plate1_L02_9_1.npy enhancement CLAHE objects 54"
+    },
+    {
+      "index": 88,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-088-labels.npz",
+      "labels_sha256": "0ede11dd0bcc80a24e88c2a15a9edff3c3e5c78085ff925320d34a6b7f5089d4",
+      "objects": 62,
+      "log_line": "actual normal GPU segmentation 89 /128 plate1_E01_9_1.npy baseline run settings objects 62"
+    },
+    {
+      "index": 89,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-089-labels.npz",
+      "labels_sha256": "1ab4f9c74794ff9605af82177a704f0d22dde52d5e33ee62341c2ed266a34971",
+      "objects": 61,
+      "log_line": "actual normal GPU segmentation 90 /128 plate1_E01_9_1.npy diameter x0.75 objects 61"
+    },
+    {
+      "index": 90,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-090-labels.npz",
+      "labels_sha256": "ebd38cda37c81e5cfc35d62b225288d6b562908dfd9b357b48654943b1237f62",
+      "objects": 63,
+      "log_line": "actual normal GPU segmentation 91 /128 plate1_E01_9_1.npy diameter x1.25 objects 63"
+    },
+    {
+      "index": 91,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-091-labels.npz",
+      "labels_sha256": "e84c481e1fd6cdde984d0f5fccb9bceecfc4e67882cfa238a69912062f1a318a",
+      "objects": 61,
+      "log_line": "actual normal GPU segmentation 92 /128 plate1_E01_9_1.npy flow_threshold 0.2 objects 61"
+    },
+    {
+      "index": 92,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-092-labels.npz",
+      "labels_sha256": "0ede11dd0bcc80a24e88c2a15a9edff3c3e5c78085ff925320d34a6b7f5089d4",
+      "objects": 62,
+      "log_line": "actual normal GPU segmentation 93 /128 plate1_E01_9_1.npy flow_threshold 0.6 objects 62"
+    },
+    {
+      "index": 93,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-093-labels.npz",
+      "labels_sha256": "d9677e6207445d77ceac93157061e9ed8af211c0c006c1b59416c864de1faf83",
+      "objects": 61,
+      "log_line": "actual normal GPU segmentation 94 /128 plate1_E01_9_1.npy cellprob_threshold -2 objects 61"
+    },
+    {
+      "index": 94,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-094-labels.npz",
+      "labels_sha256": "5f0088992ab0c51e34e2f670614dd166425e50f60556ef7c326b23f03f1eeea9",
+      "objects": 55,
+      "log_line": "actual normal GPU segmentation 95 /128 plate1_E01_9_1.npy cellprob_threshold 6 objects 55"
+    },
+    {
+      "index": 95,
+      "field": "plate1_E01_9_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "535074bea154ebff3e36c95cdde9864018f6366118348804e15cf7b94bba73a9",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-095-labels.npz",
+      "labels_sha256": "ec4b13a0abd6ad9850128470fcd21c4188ec5d6ad3e928c498b5b2795eea8e84",
+      "objects": 62,
+      "log_line": "actual normal GPU segmentation 96 /128 plate1_E01_9_1.npy enhancement CLAHE objects 62"
+    },
+    {
+      "index": 96,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-096-labels.npz",
+      "labels_sha256": "7393dc20b0649af3d9842bbb9d9ab29931eec310b8de9c0c8323059fb63085c4",
+      "objects": 17,
+      "log_line": "actual normal GPU segmentation 97 /128 plate1_E02_9_1.npy baseline run settings objects 17"
+    },
+    {
+      "index": 97,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-097-labels.npz",
+      "labels_sha256": "6117f5b7cece3a0cf727a11fca9a2476afc4f7f64bcb002316d4574ce9f24b7a",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 98 /128 plate1_E02_9_1.npy diameter x0.75 objects 18"
+    },
+    {
+      "index": 98,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-098-labels.npz",
+      "labels_sha256": "25f9f96292fcd83100dc4ef897af0481b6b7e321ace922336be51a4dcbf3bccd",
+      "objects": 16,
+      "log_line": "actual normal GPU segmentation 99 /128 plate1_E02_9_1.npy diameter x1.25 objects 16"
+    },
+    {
+      "index": 99,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-099-labels.npz",
+      "labels_sha256": "19fb61e1c9df9ac5770b4c3ffd325f8471d59ab1a16fbe024b0efffae17c1f54",
+      "objects": 16,
+      "log_line": "actual normal GPU segmentation 100 /128 plate1_E02_9_1.npy flow_threshold 0.2 objects 16"
+    },
+    {
+      "index": 100,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-100-labels.npz",
+      "labels_sha256": "99c94bea04ba3a4a6745f3bb0ccd0ebeed7754e95390abae096e7a003704d54e",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 101 /128 plate1_E02_9_1.npy flow_threshold 0.6 objects 18"
+    },
+    {
+      "index": 101,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-101-labels.npz",
+      "labels_sha256": "333277b5235485851544e7ff34dfda4eda739cf7c69b7607757c5a8c1972d481",
+      "objects": 16,
+      "log_line": "actual normal GPU segmentation 102 /128 plate1_E02_9_1.npy cellprob_threshold -2 objects 16"
+    },
+    {
+      "index": 102,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-102-labels.npz",
+      "labels_sha256": "435db918178f8d247e09f21669283d2f48486d814182f62be86bdbb922e53339",
+      "objects": 11,
+      "log_line": "actual normal GPU segmentation 103 /128 plate1_E02_9_1.npy cellprob_threshold 6 objects 11"
+    },
+    {
+      "index": 103,
+      "field": "plate1_E02_9_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "652b9c8a369e23d4a50baf55205cfc27dba35890902c85b4d1e754e250aa8b11",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-103-labels.npz",
+      "labels_sha256": "22ec09273c22fddd5dc8dc21d5f658e0f03b2150ddf6781e573f9073c9b9a7f0",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 104 /128 plate1_E02_9_1.npy enhancement CLAHE objects 18"
+    },
+    {
+      "index": 104,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-104-labels.npz",
+      "labels_sha256": "44debd9355dc638e78af2f110fe872466f8730c7c9e5d72fda6edb62f98f8db3",
+      "objects": 39,
+      "log_line": "actual normal GPU segmentation 105 /128 plate1_E01_1_1.npy baseline run settings objects 39"
+    },
+    {
+      "index": 105,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-105-labels.npz",
+      "labels_sha256": "56dd91c65545cd7f50db1548eafa93e2c97651d013e4d7d261dfcd1a1bdc9f03",
+      "objects": 39,
+      "log_line": "actual normal GPU segmentation 106 /128 plate1_E01_1_1.npy diameter x0.75 objects 39"
+    },
+    {
+      "index": 106,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-106-labels.npz",
+      "labels_sha256": "87224e394f49b6623ffba3018e4e0853f2e54843eac31a623ddb63c95c74c38a",
+      "objects": 36,
+      "log_line": "actual normal GPU segmentation 107 /128 plate1_E01_1_1.npy diameter x1.25 objects 36"
+    },
+    {
+      "index": 107,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-107-labels.npz",
+      "labels_sha256": "b5f753338c98f06f95a768ed4b29ad6de8a5aee3ef4afc47164abb3ebb2f4e7d",
+      "objects": 35,
+      "log_line": "actual normal GPU segmentation 108 /128 plate1_E01_1_1.npy flow_threshold 0.2 objects 35"
+    },
+    {
+      "index": 108,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-108-labels.npz",
+      "labels_sha256": "a58a6b59cb5b8789ffdfe084891bfa290e18f200f6f88a5ffea993c67398683b",
+      "objects": 41,
+      "log_line": "actual normal GPU segmentation 109 /128 plate1_E01_1_1.npy flow_threshold 0.6 objects 41"
+    },
+    {
+      "index": 109,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-109-labels.npz",
+      "labels_sha256": "6810da7849e5d55867718fb1bb301f2c4c96eae5612cdb46536f3a4da27161cc",
+      "objects": 37,
+      "log_line": "actual normal GPU segmentation 110 /128 plate1_E01_1_1.npy cellprob_threshold -2 objects 37"
+    },
+    {
+      "index": 110,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-110-labels.npz",
+      "labels_sha256": "7587bb89e7af5a70a8f2b1b8186f9873ca8e45cf9fd004c0feb31f17bae9b8cb",
+      "objects": 26,
+      "log_line": "actual normal GPU segmentation 111 /128 plate1_E01_1_1.npy cellprob_threshold 6 objects 26"
+    },
+    {
+      "index": 111,
+      "field": "plate1_E01_1_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "75fea5d340b11b821afd1a4c7fca301c38f395976d02ec6ebef8d282159d6164",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-111-labels.npz",
+      "labels_sha256": "0165518418849f8cb20cdcc6ed8d73cc8cef558f959b147b5c847076a2b546d1",
+      "objects": 36,
+      "log_line": "actual normal GPU segmentation 112 /128 plate1_E01_1_1.npy enhancement CLAHE objects 36"
+    },
+    {
+      "index": 112,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-112-labels.npz",
+      "labels_sha256": "69e70842f2b2b1bd980f9fbc74d4ce66a936a9704889b58bf34ad7e706cf1082",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 113 /128 plate1_L01_1_1.npy baseline run settings objects 18"
+    },
+    {
+      "index": 113,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-113-labels.npz",
+      "labels_sha256": "2df945b872d973fc2384ea526af00fb0d12fb040a27994bc34ef6bd758a7bca7",
+      "objects": 20,
+      "log_line": "actual normal GPU segmentation 114 /128 plate1_L01_1_1.npy diameter x0.75 objects 20"
+    },
+    {
+      "index": 114,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-114-labels.npz",
+      "labels_sha256": "ec872673b012c68091bc0da01d65d44bc0f3ed9f976acbeb92b8dd0d0b45f3d0",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 115 /128 plate1_L01_1_1.npy diameter x1.25 objects 18"
+    },
+    {
+      "index": 115,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-115-labels.npz",
+      "labels_sha256": "69e70842f2b2b1bd980f9fbc74d4ce66a936a9704889b58bf34ad7e706cf1082",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 116 /128 plate1_L01_1_1.npy flow_threshold 0.2 objects 18"
+    },
+    {
+      "index": 116,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-116-labels.npz",
+      "labels_sha256": "69e70842f2b2b1bd980f9fbc74d4ce66a936a9704889b58bf34ad7e706cf1082",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 117 /128 plate1_L01_1_1.npy flow_threshold 0.6 objects 18"
+    },
+    {
+      "index": 117,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-117-labels.npz",
+      "labels_sha256": "3351ceddf758ab5dce04980e5d2ab6005874d390c55b2968baf7a2fba9738b2c",
+      "objects": 18,
+      "log_line": "actual normal GPU segmentation 118 /128 plate1_L01_1_1.npy cellprob_threshold -2 objects 18"
+    },
+    {
+      "index": 118,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-118-labels.npz",
+      "labels_sha256": "cb2950c4912c9e0671f0834542169934412babe7352f96aad494441e68632932",
+      "objects": 5,
+      "log_line": "actual normal GPU segmentation 119 /128 plate1_L01_1_1.npy cellprob_threshold 6 objects 5"
+    },
+    {
+      "index": 119,
+      "field": "plate1_L01_1_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "d97158fd263b7f2913041d46567b17f948ba9fbcaab8843d93851d8d8f8eea1b",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-119-labels.npz",
+      "labels_sha256": "77c9e912208fc4585581656766b8f649f3fe90c0c30bf0ddadf239203b4e81d2",
+      "objects": 15,
+      "log_line": "actual normal GPU segmentation 120 /128 plate1_L01_1_1.npy enhancement CLAHE objects 15"
+    },
+    {
+      "index": 120,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 0,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "baseline",
+        "value": "run settings"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-120-labels.npz",
+      "labels_sha256": "bac3d66489583cd9c459b618474239f098644b43d84b0636fa82fd4bbc047517",
+      "objects": 53,
+      "log_line": "actual normal GPU segmentation 121 /128 plate1_L01_11_1.npy baseline run settings objects 53"
+    },
+    {
+      "index": 121,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 1,
+      "point": {
+        "diameter": 22.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x0.75"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-121-labels.npz",
+      "labels_sha256": "71ffd8768febd0ca965a28136a5ab179c4427139b2c3d479ff30fdfacccf484d",
+      "objects": 53,
+      "log_line": "actual normal GPU segmentation 122 /128 plate1_L01_11_1.npy diameter x0.75 objects 53"
+    },
+    {
+      "index": 122,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 2,
+      "point": {
+        "diameter": 37.5,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "diameter",
+        "value": "x1.25"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-122-labels.npz",
+      "labels_sha256": "c68b3fbe9d9b46076d8d8fe8a59dc6fbdc6286728e1b78904048a5a5035880b9",
+      "objects": 52,
+      "log_line": "actual normal GPU segmentation 123 /128 plate1_L01_11_1.npy diameter x1.25 objects 52"
+    },
+    {
+      "index": 123,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 3,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.2,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.2"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-123-labels.npz",
+      "labels_sha256": "de2d60318325051aed18d4eda4aa58bc6d73aa02e47f0af08b169c3e6c639d28",
+      "objects": 50,
+      "log_line": "actual normal GPU segmentation 124 /128 plate1_L01_11_1.npy flow_threshold 0.2 objects 50"
+    },
+    {
+      "index": 124,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 4,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.6,
+        "cellprob_threshold": 0.0,
+        "enhance": false,
+        "parameter": "flow_threshold",
+        "value": "0.6"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-124-labels.npz",
+      "labels_sha256": "bac3d66489583cd9c459b618474239f098644b43d84b0636fa82fd4bbc047517",
+      "objects": 53,
+      "log_line": "actual normal GPU segmentation 125 /128 plate1_L01_11_1.npy flow_threshold 0.6 objects 53"
+    },
+    {
+      "index": 125,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 5,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": -2.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "-2"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-125-labels.npz",
+      "labels_sha256": "9974ef935517f636656131b8240c806165d3b4d213953f62a36eadc97daeb747",
+      "objects": 53,
+      "log_line": "actual normal GPU segmentation 126 /128 plate1_L01_11_1.npy cellprob_threshold -2 objects 53"
+    },
+    {
+      "index": 126,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 6,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 6.0,
+        "enhance": false,
+        "parameter": "cellprob_threshold",
+        "value": "6"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-126-labels.npz",
+      "labels_sha256": "3c4b6c367713054199a864988a4908ef60190beac91f729aa71d74452d7fe74c",
+      "objects": 44,
+      "log_line": "actual normal GPU segmentation 127 /128 plate1_L01_11_1.npy cellprob_threshold 6 objects 44"
+    },
+    {
+      "index": 127,
+      "field": "plate1_L01_11_1.npy",
+      "grid_index": 7,
+      "point": {
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0.0,
+        "enhance": true,
+        "parameter": "enhancement",
+        "value": "CLAHE"
+      },
+      "image_sha256": "deb3d60deb9485f0f97d22a7f4145de26a3213439710d92b647f86ec10e39604",
+      "labels_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/cuda-r2/call-127-labels.npz",
+      "labels_sha256": "e120e3b8b8bd909a75af60153b5d66aca0947c8ec8e43448ddd252bf04d65be7",
+      "objects": 56,
+      "log_line": "actual normal GPU segmentation 128 /128 plate1_L01_11_1.npy enhancement CLAHE objects 56"
+    }
+  ],
+  "CUDA_profiles": {
+    "0": {
+      "positive_actual_CUDA_kernel_events": 80921,
+      "sha256": "a4690735456775295bf7eba8c1dece25ace5fba3d738b31bcfd0662411d8bdfc",
+      "bytes": 312534068
+    },
+    "127": {
+      "positive_actual_CUDA_kernel_events": 80249,
+      "sha256": "9353b816d280bfb18cc5a0b08e59da3959e92910f4d8c8f33dc63320c6a94c38",
+      "bytes": 312282134
+    }
+  },
+  "source_sha256": {
+    "spacr/core.py": "cc1ccacea893d5ff0ff6c8f66f5af1cc1c2ab645c0c123ebcb9c48d8069e1491",
+    "spacr/object.py": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+    "spacr/seg_qc.py": "01e0db24fbe25454e856660398586847754f367d04c8d736a131bb4c96412eeb",
+    "spacr/settings.py": "94c92993a70b4e85e1cc926823edd5db852f1e960f91958d0dcdfd1ffefda749",
+    "spacr/utils.py": "2fad5d4550b23e99f2067c81f5a8adb5f66536430f182b7314fba67aa58f6a8c",
+    "spacr/accelerator.py": "3dd82388149d9a22dfb863aef7cba30cb8a56539a9d106f7959ebc706f4bdd9e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/figures/style.py": "0132bd360a5d90caafe51925baa6cee249d688c2d515db344a56fcce3eca96ff",
+    "spacr/plot.py": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+    "spacr/tabular.py": "af731073ce639a0c65a44eea28b97ca43541744f58eacfb74c85fb8febac92b2"
+  },
+  "model_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "plan_sha256": "5f399e02c4ded23bc37f828237ee38bb8d7749a0d86cea4e249c95e9cc091059",
+  "benchmark_sha256": "fd2504469b0c202f5205dc9d63b42e1fe7057d906dfcb1daf441c0af32d48a96",
+  "verifier_sha256": "01660d6f3f4b089c8f3c57308489e8dcbce385931ca96b6eb1a412b44894d256",
+  "raw_terminal_log_sha256": "7c174e5f8a668eb09f62d83bc160b087183246430d3bf6f16e1259a8026423be",
+  "summary": [
+    {
+      "parameter": "baseline",
+      "value": "run settings",
+      "n_fields": 16,
+      "object_count_change": 0.0,
+      "median_area_change": 0.0,
+      "mean_intensity_change": 0.0,
+      "matched_fraction": 1.0,
+      "worst_change": 0.0,
+      "fragile": false,
+      "reason": ""
+    },
+    {
+      "parameter": "diameter",
+      "value": "x0.75",
+      "n_fields": 16,
+      "object_count_change": 0.03896103896103896,
+      "median_area_change": 0.01720656270275793,
+      "mean_intensity_change": 0.022849696195706856,
+      "matched_fraction": 0.9543324009526457,
+      "worst_change": 0.04566759904735429,
+      "fragile": false,
+      "reason": ""
+    },
+    {
+      "parameter": "diameter",
+      "value": "x1.25",
+      "n_fields": 16,
+      "object_count_change": 0.019638043896804003,
+      "median_area_change": 0.027680288451813907,
+      "mean_intensity_change": 0.013230574005120108,
+      "matched_fraction": 0.9493285576895164,
+      "worst_change": 0.050671442310483594,
+      "fragile": false,
+      "reason": ""
+    },
+    {
+      "parameter": "flow_threshold",
+      "value": "0.2",
+      "n_fields": 16,
+      "object_count_change": 0.050360710321864594,
+      "median_area_change": 0.019776679471502558,
+      "mean_intensity_change": 0.014971123101345274,
+      "matched_fraction": 0.9429659861192046,
+      "worst_change": 0.05703401388079543,
+      "fragile": false,
+      "reason": ""
+    },
+    {
+      "parameter": "flow_threshold",
+      "value": "0.6",
+      "n_fields": 16,
+      "object_count_change": 0.024092970521541947,
+      "median_area_change": 0.0025689253409435097,
+      "mean_intensity_change": 0.01598110717803862,
+      "matched_fraction": 1.0,
+      "worst_change": 0.024092970521541947,
+      "fragile": false,
+      "reason": ""
+    },
+    {
+      "parameter": "cellprob_threshold",
+      "value": "-2",
+      "n_fields": 16,
+      "object_count_change": 0.015877016129032258,
+      "median_area_change": 0.07096379857323487,
+      "mean_intensity_change": 0.047596580821784126,
+      "matched_fraction": 0.9724131885938965,
+      "worst_change": 0.07096379857323487,
+      "fragile": false,
+      "reason": ""
+    },
+    {
+      "parameter": "cellprob_threshold",
+      "value": "6",
+      "n_fields": 16,
+      "object_count_change": 0.27083333333333337,
+      "median_area_change": 0.16163752378092272,
+      "mean_intensity_change": 0.09684251462948192,
+      "matched_fraction": 0.7050255581439507,
+      "worst_change": 0.29497444185604926,
+      "fragile": true,
+      "reason": "only 71% of baseline objects found again"
+    },
+    {
+      "parameter": "enhancement",
+      "value": "CLAHE",
+      "n_fields": 16,
+      "object_count_change": 0.05771365149833518,
+      "median_area_change": 0.04670852909523475,
+      "mean_intensity_change": 0.07643042124046528,
+      "matched_fraction": 0.904841695843988,
+      "worst_change": 0.09515830415601201,
+      "fragile": false,
+      "reason": ""
+    }
+  ],
+  "baseline_stable": true,
+  "deliberately_fragile_threshold_6_flagged": true,
+  "normal_PDF_written_visual_review_pending": true,
+  "full_production_screen_or_independent_biological_accuracy_claimed": false,
+  "artifacts": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/qc/segmentation_robustness_nucleus.csv": {
+      "sha256": "2e5e748019af85ee6c247a0b105e1ff3bbf7e5d269bc3648867342b6bc64edd4",
+      "bytes": 1112
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/qc/segmentation_robustness_nucleus_fields.csv": {
+      "sha256": "a9beff886b007c8854345513cc0c5bc38dda60a9dd7b7afeffdd53e2225b288b",
+      "bytes": 16974
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/578-robustness-plate-r1/plate/qc/segmentation_robustness_nucleus.pdf": {
+      "sha256": "7d7886c75c9de29b8b5de9318e5ae8cfbb0b33f25516efb29cfa525b9c15cbe5",
+      "bytes": 30882
+    }
+  }
+}

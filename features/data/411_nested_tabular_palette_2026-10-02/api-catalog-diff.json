@@ -1,0 +1,92 @@
+{
+  "sv": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "c8fb7e3956abeb6a7015d8f1a2612473cbfddf1ae93de8cc4b6b897b6bce558e"
+  },
+  "de": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "765d4ebed10b558bbb186bf5f8a6e2c443b615bde166caf5c62de8a9ed48833e"
+  },
+  "es": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "2f4d61b65ff43645c315de68a4929b9dfeff66f1fe702bb52d825b4c622c725a"
+  },
+  "zh_CN": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "aaab0b3bb1f40010b75b7e8651856209967646e9a4cdde8b329fe8cddd85ba7d"
+  },
+  "pt": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "43a24a0bac556cd128ddc2b9bc24d75eef77c27a87ee199b2b6fd154ecfc7d48"
+  },
+  "hi": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "da5b7da794866ad3155a6dffa9a06b341448c07cfb79b08a34f3a5961063b2f2"
+  },
+  "ko": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "348c72dd8bb4ec08e662778f28f2ea8e2feab90e0d18ebf76444205f4a49e297"
+  },
+  "is": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "ad38a9701ba7a061c6ad3ab5cf72ce1b8f3da9ebec2e891ae26bb4b1a153bb41"
+  },
+  "fr": {
+    "added": [
+      "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+      "spacr.tabular._write_workbook._write"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12036,
+    "sha256": "95e309fa2ac760d913cec3cb87fe7c84b8928bdd4628d03f2a55293e2b15bca0"
+  }
+}

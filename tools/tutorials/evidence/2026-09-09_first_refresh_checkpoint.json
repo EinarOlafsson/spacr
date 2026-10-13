@@ -1,0 +1,30 @@
+{
+  "application_commit": "04b23431ff2eecff4d5ee444a8486188ec05152c",
+  "application_version": "1.5.0.4",
+  "workspace": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09",
+  "home": {
+    "state": "English master staged; other voices and languages incomplete",
+    "scenes": 9,
+    "video": {"width": 3840, "height": 2160, "fps": 30, "frames": 4422, "duration_seconds": 147.4, "audio_streams": 0},
+    "narration": {"voice": "af_heart", "language": "en", "sidecar_seconds": 147.41, "decoded_true_peak_dbfs": -1.4, "strict_audio_errors": [], "sha256": "4d2ad81164d9e59c5c6c37b44ceeb7ae67ac1e7ddacefa61404526abab421b82"},
+    "browser": {"passed": true, "scene_links_verified": true, "mobile_width": 390, "seek_audio_seconds": 79.581197, "seek_video_seconds": 79.625828, "expected_video_seconds": 79.57579837053117},
+    "human_listening_review": false,
+    "published": false
+  },
+  "mask": {
+    "state": "Real-data preview and live variants captured; batch figures/console/AI lesson still pending",
+    "capture_platform": "xcb under private 3840x2160 Xvfb",
+    "data_source": "Load test data UI, cached real downloaded plate1 archive",
+    "baseline": {"model": "cpsam", "shape": [1994, 1994], "objects": 51, "npy_sha256": "77e4c9ec3cf840589cb3b149e4f1e6859f704255602c8b71e6ebb4bd3556225b"},
+    "filter": {"minimum_area": 5642, "before": 51, "after": 25, "restored": 51, "model_rerun": false, "raw_segmentation_unchanged": true},
+    "model_parameter": {"diameter_before": 30, "diameter_after": 60, "objects_after": 42, "model_rerun": true},
+    "quality_ranking_claimed": false
+  },
+  "translation_review": {
+    "first_method": "Whole-scene NLLB-600M drafts",
+    "result": "REJECTED; never promoted into narration catalogs",
+    "examples": ["Spanish scene 1 omitted the third source sentence", "Spanish scene 7 omitted the hover and specialist-lesson sentences", "Image crops mistranslated as cultivos"],
+    "next_method": "Sentence chunks, then explicit semantic and GUI-label review",
+    "translated_voices_rendered": 0
+  }
+}

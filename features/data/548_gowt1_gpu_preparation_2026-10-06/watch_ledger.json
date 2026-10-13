@@ -1,0 +1,8 @@
+{
+ "conversion_map_sha256": "e7cef301cc42ca6c130d5a1af01b5bddc78ddf2f3d2ea2c7d6e97267175e55ad",
+ "fields": {},
+ "mask_settings_sha256": "5ae60d886ca3d5d316f127dc60a3d58b6714a6b1b2c07be9ad5f076f84abc794",
+ "measure_settings_sha256": "4420cc3d3e061b0463a85c6e3738dcc1ad0b02ba35e38d6224534e2bebd9c91f",
+ "pipeline": "mask_measure",
+ "src": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/548-gowt1-watch-r1/partial-watch"
+}

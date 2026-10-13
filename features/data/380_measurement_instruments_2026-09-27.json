@@ -1,0 +1,28 @@
+{
+  "item": 380,
+  "date": "2026-09-27",
+  "scope": "Additional opt-in measurements, not performance acceptance",
+  "local_tests": {
+    "exit_code": 0,
+    "passed": 16,
+    "elapsed_seconds": 33.26,
+    "command": "bash /mnt/wd4tb/scratch/spacr-completion/380-native-prep/test.sh",
+    "log": "/mnt/wd4tb/scratch/spacr-completion/380-native-prep/test.log",
+    "qt_platform": "offscreen",
+    "memory_cap": "4G",
+    "gpu_used": false
+  },
+  "instruments": [
+    "Actual splitter drags with changed pane-size witnesses",
+    "Home tile hover with distinct module-hint witnesses",
+    "Actual fullscreen and windowed CPU screensaver paths with generated-frame and render-surface observations",
+    "Actual Qt display/platform metadata, paint events and GUI event-loop gaps"
+  ],
+  "limits": [
+    "Qt paint events do not establish physical compositor presentation or dropped frames",
+    "Offscreen tests do not establish native display performance",
+    "Original performance budgets are unchanged",
+    "Lower-end hardware, physical input and native display acceptance remain open"
+  ],
+  "item_closed": false
+}

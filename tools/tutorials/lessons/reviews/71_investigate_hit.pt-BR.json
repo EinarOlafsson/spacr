@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Investigate Hit: rastrear um gene de Regression até as células medidas",
+  "description": "Envie um gene da Hit List para o Investigate Hit, adicione o banco de dados de medições, as predições por célula e as frações de guias e leia as evidências no nível do poço.",
+  "objectives": [
+    "Abrir uma execução de Regression na Hit List, conferir os valores q e enviar um gene para o Investigate Hit.",
+    "Escolher o banco de dados de medições, as predições por célula, as frações de guias e a coluna de pontuação.",
+    "Ler as abas de evidências, poços, guias e limiar e encontrar as tabelas salvas."
+  ],
+  "prerequisite": "Extraia Investigate_Hit_real_screen_example.zip. Todo o conteúdo vem de uma mesma triagem real: a execução de Regression com os dados de teste de Regression (as configurações do tutorial de Regression), as predições CV por célula correspondentes e um banco de dados de medições com as medidas reais de forma, tamanho e intensidade dessas mesmas células. Para manter o download pequeno, o banco de dados tem 52 poços: todos os poços analisados com uma guia para o gene 225160 e, para cada um, três poços sem ela da mesma placa. Nenhum gene desta execução rápida de Regression atende a q ≤ 0,05. Trate a investigação como um exemplo prático, e não como um hit confirmado.",
+  "scenes": [
+    "Na tela Home, abra Regression. O Investigate Hit parte de uma execução de Regression concluída. Ele pergunta se as células medidas nos poços ligados a um gene parecem diferentes das células de poços sem esse gene.",
+    "Escolha Hits para abrir a Hit List. Primeiro extraia o arquivo de exemplo. Ele contém uma execução de Regression com os dados de teste, as predições CV por célula correspondentes e um banco de dados de medições das mesmas células. Os três vêm de uma mesma triagem real.",
+    "Clique em Browse e selecione a pasta guide_permutation dentro de regression_run, results. Essa é a saída da execução com dados de teste do tutorial de Regression.",
+    "A Hit List ordena trezentos e vinte e cinco genes. Leia juntos o efeito, o valor P e o valor q de cada linha, além do número de guias e de quantas delas concordam.",
+    "Defina Max q como zero vírgula zero cinco. A tabela fica vazia porque nenhum gene desta execução tem valor q igual ou menor que zero vírgula zero cinco. Com cento e noventa e nove permutações, o menor valor P possível é zero vírgula zero zero cinco, e o menor valor q fica em torno de zero vírgula vinte e sete. Por isso, o que vem a seguir examina um candidato ranqueado, e não um hit confirmado.",
+    "Volte Max q para um, busque dois dois cinco um seis zero e selecione a linha dele. Ele tem efeito de zero vírgula trinta e quatro, valor q de zero vírgula vinte e sete e três guias que concordam na direção.",
+    "Clique em Investigate selected. O Investigate Hit abre com a pasta de resultados, o gene, as três guias e uma direção de efeito positiva já preenchidos a partir dessa linha.",
+    "Ao lado de Measurements database, clique em Browse e escolha o measurements.db do exemplo. Ele contém forma, tamanho e intensidade média por canal de oito mil novecentas e quinze células em cinquenta e dois poços.",
+    "Em Existing CV predictions, escolha cv_predictions.csv. Cada linha é a pontuação CV salva de uma célula, ligada ao mesmo objeto medido. Clique no caminho e aperte Enter para que as colunas de pontuação sejam lidas, e mantenha pred como a coluna de pontuação do fenótipo.",
+    "Em Well/guide fractions, escolha regression_data.csv na mesma pasta de resultados. Foi o Regression que gravou essa tabela. Ela traz a fração de cada guia em cada poço analisado.",
+    "Deixe Independent morphology features vazio. Assim o módulo usa as treze medições celulares numéricas do banco de dados e deixa de fora identificadores, frações de guias e a pontuação CV, de modo que esta verificação não reaproveita a pontuação. No seu próprio banco de dados, liste apenas colunas de medição sem valores ausentes.",
+    "Clique em Investigate hit. O modelo é ajustado deixando uma placa de fora de cada vez, então nenhuma célula é pontuada por um modelo treinado na própria placa. A fração de guia de um poço só define a expectativa inicial para as células desse poço. Ela nunca marca uma célula como portadora da guia. Este exemplo leva alguns minutos.",
+    "Evidence mostra o resultado. Os poços-alvo têm uma prevalência do tipo hit apenas zero vírgula zero um maior que a dos poços-controle. O intervalo bootstrap por poço vai de menos zero vírgula zero quatro a mais zero vírgula zero seis, e o valor P da permutação em blocos é de cerca de zero vírgula sessenta e três. As células não sustentam este candidato.",
+    "Wells lista, para cada poço, a fração de guia, a probabilidade média do tipo hit, a prevalência e o número de células. Cada poço conta como uma unidade independente, por isso a comparação usa treze poços-alvo e trinta e nove poços-controle, e não células individuais.",
+    "Guides mostra cada guia-alvo separadamente. As respostas à dose apontam em direções diferentes, mais um motivo para não tratar este gene como um hit.",
+    "Threshold sensitivity repete a comparação com limiares de probabilidade de zero vírgula cinco a zero vírgula nove. Em todos os limiares a diferença fica perto de zero vírgula zero um, então a conclusão não depende do limiar.",
+    "Candidate cells ordena as células pela probabilidade do tipo hit, com a pontuação original e a dobra que pontuou cada célula. Essas probabilidades descrevem uma morfologia do tipo hit, e não qual guia uma célula carregava. Promova classificações para a anotação apenas quando as evidências no nível do poço forem convincentes. Undo desfaz uma promoção.",
+    "As tabelas são salvas na pasta de resultados, em hit_investigation e depois em dois dois cinco um seis zero. Elas incluem esta representação e um manifesto, e cada execução também é guardada como uma nova versão no banco de dados. O exemplo não tem imagens de recortes, então a galeria de revisão fica vazia. Em seguida, investigue um gene que passe no seu limiar em uma execução de Regression com mais permutações."
+  ]
+}

@@ -1,0 +1,838 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "lesson": "12_map_barcodes",
+  "english_sha256": "733e958822f3afda7bb88f47f217a3552aa94e5de9be05ff8cea8d1605145127",
+  "previous_english_sha256": "fb39d2e0d47dadd275e617a1de465e547e44c298c7e1df9fd7efe98ae16edec3",
+  "review_bundle_sha256": "896896fb37e6880a3fb35a9b62f4e9b5c502af77bf5ab267f23318de0927f8f2",
+  "scene_count": 15,
+  "languages": [
+    {
+      "language": "es",
+      "staged_catalog_sha256": "500932b6e2c8c8c8fde4480cc02607b4d686ef9d549fdd63fca6f197f9476999",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": true
+    },
+    {
+      "language": "it",
+      "staged_catalog_sha256": "c74a6550b575b989791c8431c298862e4325202cd115cae3480934ae1936140b",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": true
+    },
+    {
+      "language": "pt-BR",
+      "staged_catalog_sha256": "c91b074a187405674907fc59cc6f9a9eca147a1d2e01ceac70b66f2913274a29",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": true
+    },
+    {
+      "language": "ja",
+      "staged_catalog_sha256": "b3571b93703fbad5e33ec9a450eb7b4f6aa07c6861bcc17123ba0598bbb0ebf1",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": true
+    },
+    {
+      "language": "zh-CN",
+      "staged_catalog_sha256": "9bc2aa6a51f48706f7a9f04082fe5fe2e3d81ede3b5fd96c6e72a7442bbf0f97",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": true
+    },
+    {
+      "language": "hi",
+      "staged_catalog_sha256": "9ea21289457fb14478d4f27d0eb574f391beb8143babb6cd0cc81b75526bc9e6",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": true
+    },
+    {
+      "language": "de",
+      "staged_catalog_sha256": "4f2df397b83e628a13434cf1b27cb8162daaa30f109c80978c3ba7d4e26dc281",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": false
+    },
+    {
+      "language": "sv",
+      "staged_catalog_sha256": "cb571bd7dde78b806390100f65604e03f0a02692e580e472fa7a24071f7ce485",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": false
+    },
+    {
+      "language": "nb",
+      "staged_catalog_sha256": "0d39e1b85494fdeab5e5668ef87a70a1d257a8b0b8e9ca2f8f874a452bdaf140",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": false
+    },
+    {
+      "language": "da",
+      "staged_catalog_sha256": "9f1c0f63310714ee5b32be87adfef6e78eee42c444631ba65c6b285858fb2e14",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": false
+    },
+    {
+      "language": "is",
+      "staged_catalog_sha256": "994e7da774bf21d43f7f5b664613619bd93b9ab07e808830317199cbc21d3cb4",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": false
+    },
+    {
+      "language": "ko",
+      "staged_catalog_sha256": "faae139fdb83c5d4fe1f246d61d43d17e38426aaaea5b38237c7ad62147af659",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": false
+    },
+    {
+      "language": "fr",
+      "staged_catalog_sha256": "b126351405645a545b4c690138828815ff098d94ca79b41eba961a2b0717e52c",
+      "retained_translated_scenes": 12,
+      "old_to_current_retained_indices": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "changed_scene_indices": [
+        2
+      ],
+      "new_scene_indices": [
+        5,
+        6
+      ],
+      "current_speech_helpers": true
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Render and independently verify remaining spoken tracks",
+    "Caption/player and audible acceptance",
+    "Complete-set publication"
+  ]
+}

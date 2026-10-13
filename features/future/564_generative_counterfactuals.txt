@@ -1,0 +1,223 @@
+GENERATIVE COUNTERFACTUALS: MORPH A CONTROL CELL TOWARD A HIT PHENOTYPE
+
+Status: DONE (alpha) 2026-09-28 (evidence e3d185ee9)
+VERIFIED 2026-10-04: test_generative_counterfactuals, qt/test_generative_counterfactuals_alpha_gate pass (nightly 85c3e41c2, CPU).
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    No image.sc thread; from the literature / general practice.
+
+WHAT TO BUILD
+    Train a conditional generative model (e.g. diffusion or StyleGAN as in
+    Phenexplain, Lamiable et al., Nat Commun 2023) on crops and render how a
+    control cell would look under a hit condition, to make subtle phenotypes
+    visible beyond Grad-CAM.
+
+DONE WHEN
+    Counterfactual sequences for a known phenotype show the expected change,
+    and a classifier's score moves monotonically along them.
+
+ALPHA: 2026-09-28
+    Built as an alpha, CPU-validated. Settings counterfactuals,
+    counterfactual_crops and counterfactual_epochs (ALPHA_FEATURES[564]) form
+    the Counterfactuals heading of Activation Maps, hidden unless
+    Preferences -> Show alpha features is on.
+
+    Method (spacr/attribution.py, private helpers): a small class-conditional
+    autoencoder (encoder -> latent; decoder takes latent + class code) trained
+    on crops at <=64 px against the frozen classifier, which labels each crop
+    with its own prediction. Loss = reconstruction + classifier cross-entropy
+    for another class on the edited crop + mean absolute edit size. The
+    counterfactual is the crop plus (decode(target) - decode(own class)),
+    upsampled, so the edit is exactly zero at the crop's own class and all
+    detail the small generator cannot draw is kept. Sequences interpolate the
+    class code in 7 steps; the classifier scores every step. The report
+    compares against a class-mean-shift baseline. generate_activation_map
+    collects the first counterfactual_crops crops and writes
+    counterfactuals/counterfactual_{cells,summary}.csv and
+    counterfactual_sequences.pdf next to the maps.
+
+    CPU validation (synthetic crops, 32 px, known phenotype: bright puncta
+    inside a smooth cell; 400 crops, 30 epochs, 6 s on CPU; classifier 99.5%
+    held-out accuracy). Held-out 100 crops, both directions:
+        flip rate 0.99 (class-mean shift baseline 0.09)
+        monotone score along the sequence 1.00, mean Spearman 0.996
+        median edit 0.062 of the crop's intensity range, 12% of pixels
+        changed by >10% of the range (baseline edit 0.016)
+    Control -> hit on 50 held-out control crops: flip rate 1.00, puncta
+    energy (image minus its 5x5 blur, positive part) rose in every sequence
+    and monotonically, from 14.9 to 18.2 (real hit crops 20.3), so the edit
+    adds the expected phenotype, about 60% of the way to real hits.
+    Caveat: the same classifier guides and scores the edits, so the flip
+    rate alone can reflect an adversarial edit; the edit size, the phenotype
+    feature and the baseline are the checks against that.
+    Script: /mnt/wd4tb/scratch/564/validate_cpu.py. GPU run (larger N and
+    epochs) ready at /mnt/wd4tb/scratch/564/gpu_train.sh, not run.
+
+    What is left: validation on real screen crops with a known phenotype
+    (the DONE WHEN asks for real data); a diffusion/StyleGAN generator in its
+    own env for photorealistic counterfactuals at full crop size (the alpha
+    uses a tiny autoencoder); a per-condition (plate/well metadata) target
+    instead of the classifier's classes; a Qt viewer for the sequences.
+
+GPU RUN 2026-09-30
+    /mnt/wd4tb/scratch/564/gpu_train.sh through tools/gpu_turn.sh (08:24-08:26,
+    rc 0), same synthetic phenotype, 4,000 crops (3,000 train, 1,000
+    held-out), 100 epochs, 65.5 s training; classifier held-out accuracy 1.00,
+    reconstruction MSE 0.0027.
+        flip rate 0.918 (class-mean shift baseline 0.040)
+        monotone 0.999, mean Spearman 0.999
+        closeness: median edit 0.010 of the intensity range (baseline 0.018;
+        CPU run 0.062), 1.8% of pixels changed by >10% (CPU run 12%)
+    Control -> hit: flip rate 1.00, puncta energy rose in every sequence,
+    14.87 -> 18.08 (real hits 20.30), 59% of the way to real hits.
+    Outputs: /mnt/wd4tb/scratch/564/out_gpu_n4000_e100/ (validation.json,
+    counterfactual_{cells,summary}.csv, counterfactual_sequences.pdf).
+    Conclusion: with more data the edits are six times smaller, and now
+    smaller than the baseline's, for a flip rate that falls only from 0.99
+    to 0.92; real screen crops are still the open DONE WHEN step.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    BLOCKED / open: real screen crops with known phenotype (data); diffusion/StyleGAN generator (GPU, own env). OPEN code over 1 h: per-condition target, Qt viewer.
+
+PER-CONDITION TARGET AND QT VIEWER 2026-10-03 (alpha, CPU)
+    New setting counterfactual_condition (ALPHA_FEATURES[564], Counterfactuals
+    heading): 'class' (default, as before) or 'plate', 'well', 'row',
+    'column', read from each crop's <plate>_<well>_... file name. With a
+    condition, the generator's codes are conditions; each condition's target
+    is the classifier's mean class probabilities over its training crops
+    (soft cross-entropy), held-out crops morph to the next condition, rows
+    carry source_condition/target_condition, the class-mean baseline is per
+    condition, and the step score is p.t/(t.t) (equal to the target-class
+    probability for class targets). Fewer than two conditions skip with a
+    note. The run also writes counterfactual_frames.npy.
+    Qt viewer: Activation Maps header button "Counterfactuals…"
+    (ActivationCounterfactualViewer, alpha widget) opens a counterfactuals
+    folder and lists every sequence (source -> target, score change,
+    flipped) and draws the saved frames with the score per step.
+    CPU check (synthetic puncta crops, control vs hit wells, 20 epochs):
+    flip rate >= 0.7 and above the per-condition baseline, monotone >= 0.8.
+    Tests: tests/test_generative_counterfactuals.py,
+    tests/qt/test_generative_counterfactuals_alpha_gate.py.
+    Still left: real screen crops with a known phenotype; a
+    diffusion/StyleGAN generator in its own env; picking the target
+    condition (now the next one in sorted order); i18n catalog entries for
+    the new captions and tooltip.
+
+2026-10-03 — DIFFUSION GENERATOR GPU RUN: SKIPPED (lane 3)
+    Skipped under the lane's 2-hour GPU cap. spaCR has no diffusion or
+    StyleGAN generator code, and no own-env backend exists for one. A
+    photorealistic generator at full crop size would need its own
+    environment, a class/condition-conditioned model trained from scratch
+    on screen crops (or fine-tuned from a pretrained latent-diffusion
+    checkpoint), and guided sampling for each sequence step. Training
+    alone is many GPU-hours on a 24 GB card, well past 2 h. The tiny
+    autoencoder result from 2026-09-30 still stands. Still open as before:
+    the generator, and real screen crops with a known phenotype.
+
+2026-10-03 — BLOCKED RECHECK
+    (b) real screen crops with a known phenotype: DONE on CPU. BBBC014 MCF7
+    (CC-BY 3.0), 2-channel 32 px nucleus-centred crops (Hoechst, NF-kB);
+    control = TNF-a columns 10-12 (cytoplasmic), hit = columns 1-3 (nuclear);
+    train rows A-C (5,687 crops), held-out row D (1,921). Classifier held-out
+    accuracy 0.989. _counterfactual_report: flip 0.99 vs class-mean baseline
+    0.08, monotone 0.998, edit L1 0.040 (baseline 0.057). Held-out control ->
+    hit (100): flip 0.98, monotone 0.99, NF-kB disk/ring ratio 0.93 -> 1.50
+    (real hits 1.82), rises in 83%. The edit moves NF-kB into the nucleus, as
+    the biology predicts. 570 s CPU. /mnt/wd4tb/scratch/564/bbbc014/run.py,
+    out/validation.json.
+    (c) diffusion/StyleGAN generator: many GPU-hours in its own env.
+    Not blocked, still OPEN: choosing the target condition (code); caption
+    catalog entries (catalog lane). Status stays IMPLEMENTED AS ALPHA.
+
+2026-10-03 — TARGET CHOICE (alpha, CPU)
+    ALPHA: new setting counterfactual_target (ALPHA_FEATURES[564],
+    Counterfactuals heading, default ''): a class index when
+    counterfactual_condition is 'class', else a condition name (e.g. 'c2'
+    for column, 'plate1_B03' for well). Every held-out crop morphs toward
+    it; crops already there are left out; an unknown target skips with a
+    note. Empty keeps the old next-in-sorted-order behaviour. The class-mean
+    baseline uses the same target; the summary gains a 'target' column.
+    Tests: tests/test_generative_counterfactuals.py (condition target, class
+    index target, run passes the setting), the alpha gate test (saved while
+    hidden reaches collect()).
+    Left: diffusion/StyleGAN generator (GPU, own env); catalog entries for
+    the new label and tooltip (catalog lane).
+
+2026-10-04 — DIFFUSION GENERATOR (alpha, GPU-validated on BBBC014)
+    ALPHA: new setting counterfactual_generator (ALPHA_FEATURES[564],
+    Counterfactuals heading, default 'autoencoder'): 'autoencoder' as before
+    or 'diffusion'. spacr/attribution.py gains _CounterfactualDiffusion and
+    _train_counterfactual_diffusion, no new module. It is a class-
+    conditional DDPM (cosine schedule, small U-Net, width 64) with
+    classifier-free guidance (class dropped 15% in training); the class
+    code mixes learned class embeddings, so codes interpolate. It offers the
+    autoencoder's encode/decode API: encode is unconditional DDIM inversion
+    to noise level `strength`, decode is guided DDIM sampling under a code,
+    so _cf_edit (residual, exactly zero at the own class), the sequences,
+    the baseline and the report are unchanged. The classifier only labels
+    the training crops; nothing is trained against it. Sequences now decode
+    all steps in one batch. The report gains generator, realism_fd and
+    realism_fd_unedited: Frechet distance on hand features (per channel
+    mean, std, central disk/ring ratio, gradient magnitude) between the
+    counterfactuals and real training crops of their target, and the same
+    for the unedited sources. With out_dir the diffusion weights are saved
+    as counterfactual_diffusion.pt. Defaults (strength 0.95, guidance 4,
+    50 DDIM steps, width 64) are the setting chosen below.
+
+    Data: BBBC014 MCF7 (CC BY 3.0), 2-channel 64 px nucleus-centred crops
+    (Hoechst, NF-kB); control = TNF-a columns 10-12, hit = columns 1-3; train
+    rows A-C (8,553 crops), held-out row D (2,906): 100 crops to tune
+    strength/guidance, 2,806 to test, disjoint. Classifier (3-layer CNN)
+    row-D accuracy 0.980. Diffusion: 400 epochs, 2,547 s on the RTX 3090 Ti,
+    final denoising loss 0.042.
+    Tune (100 crops): strength 0.3-0.7 barely edits (flip <= 0.01, edit
+    <= 0.005); flip/realism FD (unedited 5.62) at guidance 2 / 4:
+    0.80: 0.09/5.42, 0.38/5.02   0.85: 0.34/4.96, 0.71/4.24
+    0.90: 0.77/3.93, 0.94/3.15   0.95: 0.93/2.80, 0.99/2.32
+    Chosen 0.95 / 4 (flip >= 0.8, lowest FD). At 1.0 (probe on 48 control
+    crops) the NF-kB ratio overshoots to 3.2 (real hits 1.6): the cell is
+    lost.
+    Held-out test, 2,806 crops, both directions:
+                              diffusion   autoencoder   class-mean shift
+        flip rate             0.990       0.9996        0.013
+        monotone / Spearman   0.979/0.980 0.999/1.000   -
+        median edit L1        0.089       0.018         0.041
+        pixels changed >10%   29%         1.5%          -
+        realism FD            1.94        31.65         (unedited 4.83)
+        NF-kB disk/ring, control -> hit: before 1.20, real hits 1.58
+                              1.68 (rose  1.26 (rose
+                              in 97%)     in 100%)
+    Conclusion: both flip the classifier, but the autoencoder does it with
+    a tiny edit that is visible as speckle (counterfactual_sequences.pdf),
+    moves NF-kB only 15% of the way to real hits and makes the crops much
+    less like real cells (FD 4.8 -> 31.7): an adversarial edit. The
+    diffusion edits move NF-kB into the nucleus all the way to the real
+    hits' level and are closer to real target cells than the sources were
+    (FD 4.8 -> 1.9), without ever being trained against the classifier.
+    Their price: the edit is not minimal; at strength 0.95 the model
+    redraws the neighbourhood (neighbouring nuclei move), so a sequence
+    shows "a cell like this, in the target class", not the same cell.
+    Scale matters: through _counterfactual_report on 600 random crops
+    (450 train, 60 epochs, width 32) diffusion flips only 0.13 and FD
+    worsens (8.1 -> 9.3); the app defaults (256 crops, 30 epochs) are far
+    too small for it, and the tooltip says so.
+    Outputs: /media/carruthers/mnt3/claude/564data/out/ (validation.json,
+    run.log, {diffusion,autoencoder}_test/counterfactual_{cells,summary}
+    .csv, counterfactual_sequences.pdf, counterfactual_frames.npy,
+    report_api/). Weights (LOCAL ONLY, not uploaded; HF upload needs the
+    maintainer's OK): out/diffusion_bbbc014_e400.pt (7.9 MB). Scripts:
+    564data/prep.py (crops), 564data/gpu_run.py.
+    Tests (CPU, tiny stub model): tests/test_generative_counterfactuals.py
+    (report with diffusion, first frame is the crop, zero strength is the
+    identity, unknown generator refused, realism distance, the run passes
+    the setting); the alpha gate test covers the new key.
+    Left: a pretrained or larger latent-diffusion backbone so it works at
+    app scale; a lower-strength mode with a structure-preserving term for
+    minimal edits; catalog entries for the new label and tooltip (catalog
+    lane).

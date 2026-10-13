@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "69_dose_response",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Ajuste curvas de dose-resposta, informe a incerteza e rejeite estimativas de EC50 sem suporte suficiente.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Dose–Response.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Dose–Response. Ajuste curvas de dose-resposta, informe a incerteza e rejeite estimativas de EC50 sem suporte suficiente.",
+        "Selecione as colunas de concentração, resposta, réplica, condição e controle.",
+        "Na área principal de configuração, examine a normalização, a direção, os limites, a ponderação, o agrupamento e os requisitos mínimos de evidência.",
+        "Ajuste e examine a curva, os resíduos, o intervalo de confiança e qualquer recusa ou limite unilateral.",
+        "Ao término do fluxo de trabalho, os parâmetros da curva, a incerteza, os diagnósticos e os dados de origem podem ser exportados em conjunto."
+      ]
+    }
+  }
+}

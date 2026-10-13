@@ -1,0 +1,14 @@
+{
+  "Barcode column": "Columna del código de barras",
+  "CSV files (*.csv)": "Archivos CSV (*.csv)",
+  "Choose CSV…": "Elegir CSV…",
+  "Column name in the CSV that contains the plate barcode.": "Nombre de la columna del CSV que contiene el código de barras de la placa.",
+  "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.": "CSV local opcional con metadatos de las muestras. Deje el campo vacío para omitir la vinculación por código de barras. Se crea una nueva carpeta plate_barcode_linkage en el destino; se conservan los archivos de origen y los mapas de placa existentes.",
+  "Output plate barcodes": "Códigos de barras de las placas de salida",
+  "Plate barcode linkage (Alpha)": "Vinculación de placas por código de barras (Alpha)",
+  "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}": "Vinculación de placas por código de barras: número de pocillos {wells}, número de discrepancias {mismatches}.\nMapa de placa: {map_path}\nDiscrepancias: {mismatch_path}",
+  "Sample records CSV": "CSV de registros de muestras",
+  "Select sample records CSV": "Seleccionar CSV de registros de muestras",
+  "Showing {shown} of {total} mismatches; the CSV contains all rows.": "Se muestran {shown} de {total} discrepancias; el CSV contiene todas las filas.",
+  "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.": "Los códigos de barras pueden leerse de barcode.txt en la carpeta raíz de origen o en una carpeta de placa de origen. Use un código de barras sin más texto para una placa de origen, o entradas source_plate=barcode para varias placas de origen. Complete aquí las placas de salida restantes, por ejemplo plate1=BC001; plate2=BC002. Los nombres de las placas de salida pueden diferir de los nombres de las carpetas de origen."
+}

@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Alpha: módulos de organismos",
+  "description": "Active Show alpha species y recorra las páginas de organismos sin terminar: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection y Mammalian cells.",
+  "objectives": [
+    "Activar y desactivar Show alpha species en Preferences.",
+    "Leer una página de organismo: introducción, diagrama celular y mosaicos de ensayo.",
+    "Distinguir los mosaicos abiertos de los planificados y saber que estas páginas son alfa."
+  ],
+  "prerequisite": "Abra Home en spaCR. No se necesitan archivos de entrada. Estas páginas de organismos son alfa: están sin terminar y pueden cambiar.",
+  "scenes": [
+    "Este es el único tutorial que muestra los módulos alfa de organismos de spaCR. En una instalación normal, la pestaña Assays de Home contiene un solo organismo, Toxoplasma. Las demás páginas de organismos permanecen desactivadas hasta que las pida.",
+    "Abra Preferences desde el menú spaCR y vaya a la pestaña Modules. En Module visibility, el último interruptor es Show alpha species. Está desactivado por defecto.",
+    "Actívelo. Trate todo lo que muestra como alfa: las páginas están sin terminar, la mayoría de sus mosaicos de ensayo siguen planificados, y los nombres, diseños y análisis pueden cambiar antes de publicarse. Úselas para explorar, no para informar resultados.",
+    "Pulse Save. El ajuste se aplica de inmediato y se conserva para su próxima sesión, así que solo tiene que hacerlo una vez.",
+    "De vuelta en Home, la pestaña Assays muestra ahora ocho organismos: Toxoplasma y luego Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection y Mammalian cells. Cada mosaico abre una página construida igual, así que si conoce una, puede leerlas todas.",
+    "Empiece por Plasmodium, los parásitos de la malaria. A la izquierda, una breve introducción explica qué puede medir la imagen en este organismo: frecuencia de infección, desarrollo en estadios sanguíneos, infección hepática, motilidad y respuesta a compuestos. Debajo, cada sección relaciona una pregunta biológica con los mosaicos de ensayo de la derecha.",
+    "El diagrama celular es un mapa interactivo de compartimentos tomado de UniProt. Pase el cursor sobre la célula para identificar una estructura y marque varios compartimentos en la lista para mantenerlos resaltados juntos. Clear components restablece el dibujo.",
+    "Los mosaicos de ensayo son donde empieza el trabajo. Los mosaicos brillantes abren un módulo que ya funciona: Parasitaemia abre Host–Pathogen Analysis y Sporozoite motility abre Motility Assay. Los mosaicos atenuados están planificados y aún no se pueden abrir. La misma regla vale en cada página de organismo.",
+    "Candida abarca levaduras que pueden pasar de células en gemación a tubos germinales e hifas. Sus mosaicos abiertos reutilizan módulos existentes para adhesión, invasión epitelial, fagocitosis y respuesta antifúngica; los planificados medirán filamentación, tubos germinales, biopelícula y morfología.",
+    "Trypanosoma reúne dos parásitos en una página: Trypanosoma brucei, que nada en la sangre, y Trypanosoma cruzi, que se replica dentro de las células huésped. Flagellar motility, Host-cell invasion, Amastigote infection y Drug response ya abren módulos reales.",
+    "Los parásitos Leishmania se replican dentro de los macrófagos. Macrophage infection informa la fracción infectada y los amastigotes por macrófago, y Promastigote motility mide la natación. Los mosaicos planificados seguirán la metaciclogénesis, la conversión a amastigote y el tamaño de la vacuola.",
+    "Giardia duodenalis se adhiere a la pared intestinal con su disco ventral. Aquí puede contar trofozoítos sobre células epiteliales, seguir su natación y medir respuestas a fármacos; el enquistamiento, el desenquistamiento y la morfología del disco aún están planificados.",
+    "Virus infection es una página para células huésped y no para un parásito. Infection rate cuenta células positivas para el virus, Plaque Assay mide placas y Recruitment mide proteínas del huésped que se acumulan en los sitios de replicación. Defina la positividad a partir de pocillos con infección simulada.",
+    "Mammalian cells abarca cribados sin ningún patógeno. Sus mosaicos abiertos llevan directamente a Mask, Measure, Motility Assay, fagocitosis y citotoxicidad, así que la canalización principal está a un clic de la página del organismo.",
+    "Cuando termine de explorar, vuelva a Preferences, desactive Show alpha species y pulse Save. Las páginas de organismos desaparecen; nada de lo que haya medido cambia.",
+    "Home vuelve a mostrar solo Toxoplasma. A medida que cada organismo madure, saldrá de alfa y tendrá su propio recorrido. Mientras tanto, use la lección de Toxoplasma para un ejemplo de ensayo completo y las lecciones de módulos para cada flujo de trabajo que abren estos mosaicos."
+  ]
+}

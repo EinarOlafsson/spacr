@@ -1,0 +1,57 @@
+{
+  "date_utc": "2026-10-06",
+  "source_commit_io": "dfcd44c791",
+  "integrated_product_commit": "1c39848550a61eeda675fc9e5e0ea0540a563f1f",
+  "io_sha256_before": "6ef38e31d93111a805626da5d31516d1544967ab045269f85a15b0aafe560a76",
+  "io_sha256_after": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+  "object_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+  "core_sha256": "7dd588247aa6c55d458eee90d90d7900989acc38cf0940b95a54c9a75fbe4ab2",
+  "crash_before_exit": 139,
+  "safe_after_exit": 0,
+  "safe_retained_plane_sum": 136960.0,
+  "core_rlimit_set": [
+    0,
+    0
+  ],
+  "host_core_handler_limit": "Host apport pipe can observe signal despite RLIMIT_CORE=0; no local core file is archived or claimed.",
+  "release_phase": {
+    "passed": 151,
+    "failed": 1,
+    "failure_owner": "workstation source-current SCN API boundary pins"
+  },
+  "integrated_phase": {
+    "passed": 262,
+    "failed": 0
+  },
+  "independent_phase": {
+    "passed": 11,
+    "registered_maps_observed": 22,
+    "matching_unlinks_after_close": 20
+  },
+  "phases_overlap_not_unique_sum": true,
+  "added_statement_and_arc_coverage": {
+    "source_sha256": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+    "statements": 42,
+    "touching_arcs": 12,
+    "missing_statements": [],
+    "missing_arcs": []
+  },
+  "native_actual_preprocess_outputs_and_channels_exact": true,
+  "fixture": {
+    "timepoints": 2,
+    "z_planes": 2,
+    "source_channels": 4,
+    "width": 1280,
+    "height": 1280,
+    "selected": [
+      3,
+      1
+    ]
+  },
+  "no_new_rss_or_gpu_or_runtime_or_whole_pipeline_acceptance_claim": true,
+  "parent_F548_open": true,
+  "ordinary_mask_phase": {
+    "passed": 174,
+    "failed": 0
+  }
+}

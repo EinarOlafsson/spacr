@@ -1,0 +1,39 @@
+{
+  "lesson": "14_make_masks",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "8d24344932d77598f55e446b6e79104c62df72454c1a85e573f359030a9bab57",
+  "scene_count_per_catalog": 21,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 11486,
+    "duration_seconds": 382.866667, "audio_streams": 0, "bytes": 25885830,
+    "sha256": "c50467601de1de2cd6041dc9d271c11420b90016f430586ab6834c3b82da6245"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Retained specialist scene links", "Current parent-module navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "recording": {
+    "application_commit": "62b9ade0ef0aafe47782ef0f23a554ea1f813db8",
+    "package_version": "1.5.0.4",
+    "capture_directory": "refresh_2026-09-09/captures/make_masks_complete",
+    "dataset": "Two unchanged image/label plane pairs from Measure's genuinely downloaded example",
+    "actual_gestures": ["Open folder", "Erase object", "Undo", "Redo", "Draw", "Divide", "Contrast change and restoration", "Area filter and Undo", "Save mask", "Recrop", "Next with recoverable parent archive", "Cellpose-SAM detection", "Cell probability and Flows views", "Detection Undo"],
+    "source_pixels_and_original_downloads_unchanged": true,
+    "app_source_modified": false,
+    "resolved_inference_device_recorded": false,
+    "folds": ["train_cellpose", "cellpose_all", "model_compare", "model_zoo", "curate", "napari_bridge"]
+  },
+  "input_preparation_tests": "tools/tutorials/tests/test_make_masks_inputs.py: 4 passed; missing-label and wrong-plane-layout guards were observed red when removed",
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 574, "refreshed": 8, "unselected_lessons_unchanged": 67, "unselected_media_replaced": false},
+  "synthesis": "One CUDA synthesis process at a time, capped to 10% of video memory, two CPU threads and the 110 GiB host-memory guard",
+  "evidence_directory": "refresh_2026-09-09/production/14_make_masks and refresh_2026-09-09/browser/14_make_masks in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and actual gestures; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

@@ -1,0 +1,50 @@
+{
+  "normal_repaired_full_17074_cell_scorecard_two_threads_passed": true,
+  "full_unchanged_original_GPU_features_keys_and_human_labels": true,
+  "every_original_dense_one_thread_metric_matches_to_1e_12": true,
+  "no_top_k_mAP_approximation_or_label_cohort_reduction": true,
+  "actual_CPU_thread_settings": {
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2",
+    "MKL_NUM_THREADS": "2"
+  },
+  "normal_model_zoo_encoder_entry": {
+    "key": "encoder:vit_small_patch14_dinov2.lvd142m/project",
+    "name": "vit_small_patch14_dinov2.lvd142m (project)",
+    "kind": "encoder",
+    "source": "local",
+    "path": "/home/carruthers/.cache/huggingface/hub/models--timm--vit_small_patch14_dinov2.lvd142m/snapshots/4610ca143709d58a633b6397a74412c2c3842454/model.safetensors",
+    "uri": "timm:vit_small_patch14_dinov2.lvd142m",
+    "version": "1",
+    "sha256": "04d27f3400d059fc0cfd7d17dd1909a75bf3ea8fb3eeb48b97cb99e57ee20081",
+    "size_bytes": 88240510,
+    "trained_on": "unknown",
+    "trained_by": "timm / vit_small_patch14_dinov2.lvd142m pretrained weights",
+    "metrics": {
+      "knn_accuracy": 0.9279020733278669,
+      "map": 0.4630365058482782,
+      "precision_at_k": 0.8568876654562493,
+      "chance_map": 0.14397477263482286,
+      "chance_precision": 0.14397477263482286,
+      "n": 17074.0,
+      "classes": 8.0
+    },
+    "notes": [
+      "Channel policy: project. Dimensions from one policy are not comparable with the other's."
+    ],
+    "verified": false,
+    "settings_path": "",
+    "licence": ""
+  },
+  "elapsed_seconds": 23.29649610898923,
+  "peak_process_RSS_KiB": 880100,
+  "current_source_sha256": {
+    "spacr/embeddings.py": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+    "spacr/qt/screens/embeddings.py": "cdca449bf549907478af63c5c1a8f044a730931b8f99db49271a045a8e3e4597"
+  },
+  "prior_normal_full_cohort_acceptance_sha256": "9b0251c7ca5f092cabd368e1c3e1f649388ca6c65dbf0ad76c4de580160f7e6b",
+  "original_GPU_feature_acceptance_sha256": "7824036a6140bcf7bfb22874b4c866dad2ac9d91a66d9cfc3586c4a8874a8ca4",
+  "verification_script_sha256": "5762116b387e59a0398fe7e7cc5895ba3cfc228f189d9f80fa9ea0b2399e900f",
+  "no_new_GPU_inference_pretrained_weight_or_environment_change": true,
+  "bare_numpy_two_thread_large_matrix_library_failure_not_claimed_fixed": true
+}

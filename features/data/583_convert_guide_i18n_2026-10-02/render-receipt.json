@@ -1,0 +1,76 @@
+{
+  "scope": "Strict standalone full-page Sphinx/Furo render with production guide extension and actual PO catalogs; not a whole-site/API build or deployed-site proof.",
+  "english_source_sha256": "165873b6b15a164964d90bee1a4b19a7cecbf41be9b57b03fdd5afc960c7c5c6",
+  "renders": [
+    {
+      "language": "en",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "c7000fb193e2cc1166352bcd17b866c4fb4593d815fa3e36908cc16d0edb2cc0",
+      "new_translations_present": null
+    },
+    {
+      "language": "sv",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "09cad1aa5ce11d7e97730ad99fc20ab81edd81d4e900dae546e127c35b1c0570",
+      "new_translations_present": 4
+    },
+    {
+      "language": "de",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "d4a7dc25fb9078cc279678c1c628149846538529a3c3d883fd23b0f4ac015efd",
+      "new_translations_present": 4
+    },
+    {
+      "language": "es",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "2462fecbe1052478f12416cf498d7fc6f474138fadc09de9d9e0d5093698e65b",
+      "new_translations_present": 4
+    },
+    {
+      "language": "pt",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "69e8395c26db481083e262fbdd79c70d08f1093a18b0af5632eed6842dec47b8",
+      "new_translations_present": 4
+    },
+    {
+      "language": "fr",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "1f253be0c9bed57ab227a75cbcf03d33a01bc9b5520e30da6d6c728693cc2a1f",
+      "new_translations_present": 4
+    },
+    {
+      "language": "is",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "714c7c1291453e8dc128781887fd2e6bd4a4748f3ec6a90c89de4069ed33b631",
+      "new_translations_present": 4
+    },
+    {
+      "language": "zh_CN",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "0532eb5edc07a6756f6b0eeb380ea2de09c7c03d729f60afc224ea333935672c",
+      "new_translations_present": 4
+    },
+    {
+      "language": "ko",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "f213050e7d82dc3bc160fb1ec78ef10763f5d93ed7698dc9499edd4286ba5b5e",
+      "new_translations_present": 4
+    },
+    {
+      "language": "hi",
+      "strict_sphinx_exit": 0,
+      "warnings": 0,
+      "html_sha256": "c53c27ed37980c5d9607d3cbb46c6b9b71be8f4a834d851725984368714a3bb4",
+      "new_translations_present": 4
+    }
+  ]
+}

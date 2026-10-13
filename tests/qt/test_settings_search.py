@@ -1,0 +1,810 @@
+"""Finding a setting, and meeting a module a few settings at a time.
+
+Offscreen, against rendered geometry: every assertion here is made about
+form rows that a real ``AppScreen`` built, not about a dictionary that
+stands in for one. That distinction is the reason the strip exists — the
+question "is this setting on screen?" is answered by the QFormLayout, and a
+model-level test would pass while a collapsed section hid every match.
+"""
+from __future__ import annotations
+
+import pytest
+
+from PySide6.QtWidgets import QFormLayout, QWidget
+
+import spacr.settings as S
+from spacr.qt.screens.settings_model import (
+    CURATION_THRESHOLD,
+    SettingsWidgets,
+    categories_for_app,
+    essential_keys,
+    get_categories,
+    has_curated_layout,
+    needs_curated_layout,
+    resolve_default_settings,
+)
+from spacr.qt.settings_search import (
+    ALL,
+    ESSENTIALS,
+    SettingsSearchBar,
+    disclosure_for,
+    forget_disclosure,
+    install,
+)
+
+
+@pytest.fixture(autouse=True)
+def _clean_disclosure():
+    """No test inherits another's Essentials/All choice."""
+    forget_disclosure()
+    yield
+    forget_disclosure()
+
+
+@pytest.fixture
+def mask_screen(qtbot):
+    from spacr.qt.screens.app_screen import AppScreen
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    return screen
+
+
+def _owned_model(qtbot, app_key):
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return SettingsWidgets(app_key, parent=owner)
+
+
+# ---------------------------------------------------------------------------
+# 1. Search — the point is the description, not the key
+# ---------------------------------------------------------------------------
+
+def test_search_finds_a_key_by_its_tooltip_text(qtbot):
+    """The word the user knows is in the description, not in the name.
+
+    ``merge_edge_pathogen_cells`` is what a user is looking for when they
+    say "a parasite is straddling two cells and they got fused". The word
+    "straddling" appears nowhere in the key and nowhere in the label — only
+    in the description — so a search that indexed either of those alone
+    would return nothing and the setting would stay unreachable.
+    """
+    model = _owned_model(qtbot, "measure")
+    model.build_sections()
+
+    key = "merge_edge_pathogen_cells"
+    assert key in model._widgets
+    assert "straddling" not in key
+    assert "straddling" not in model._label_for(key).lower()
+    assert "straddling" in model.plain_tooltip_for(key).lower()
+
+    assert model.keys_matching("straddling") == [key]
+
+
+def test_search_terms_narrow_rather_than_widen(qtbot):
+    """A second word means "and also this", not "or anything like it"."""
+    model = _owned_model(qtbot, "mask")
+    model.build_sections()
+    one = set(model.keys_matching("cell"))
+    two = set(model.keys_matching("cell diameter"))
+    assert two, "two terms found nothing at all"
+    assert two < one
+
+
+def test_an_empty_query_matches_everything(qtbot):
+    """Clearing the box restores the form without a special case."""
+    model = _owned_model(qtbot, "measure")
+    model.build_sections()
+    assert set(model.keys_matching("")) == set(model._widgets)
+    assert set(model.keys_matching("   ")) == set(model._widgets)
+
+
+def test_search_hides_the_rendered_row_not_just_the_field(mask_screen):
+    """A filtered-out row takes its label with it.
+
+    ``Section`` builds the label side as a wrapper widget it does not hand
+    back, so hiding the field alone leaves a stranded label pointing at
+    nothing. The check is made against the QFormLayout because that is the
+    only thing that knows the two halves belong together.
+    """
+    bar = install(mask_screen)
+    assert bar is not None
+    bar.set_level(ALL)
+    bar.set_query("merge pathogens")
+
+    section, field = bar._index["merge_pathogens"]
+    form = section.findChild(QFormLayout)
+    assert form.isRowVisible(field)
+
+    other_section, other_field = bar._index["n_jobs"]
+    other_form = other_section.findChild(QFormLayout)
+    assert not other_form.isRowVisible(other_field)
+
+
+def test_a_narrowing_search_opens_the_sections_it_kept(mask_screen):
+    """Telling a user there are three matches and then hiding all three
+    behind collapsed headings is worse than not filtering at all."""
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    # WHAT WAS OPEN BEFORE THE SEARCH, rather than "nothing was". The section
+    # carrying "Load test data" is deliberately opened when the form is
+    # built, because a button inside a collapsed body is a button nobody can
+    # find. So the question this test asks is what the SEARCH changed.
+    open_before = {s for s in mask_screen._settings_sections if s.is_expanded()}
+
+    bar.set_query("merge pathogens")
+    holding = bar._index["merge_pathogens"][0]
+    assert holding.is_expanded()
+    # `isHidden`, not `isVisible`: the screen itself is never shown in an
+    # offscreen test, which makes every descendant invisible for a reason
+    # that has nothing to do with the filter.
+    assert not holding.isHidden()
+    # 2026-09-29 (item 592): Output & Storage and Runtime & Reliability were
+    # merged into Mask generation's "Quality Control", so n_jobs now shares
+    # merge_pathogens' heading; a heading with no match is Input & Metadata.
+    emptied = bar._index["src"][0]
+    assert emptied is not holding
+    assert emptied.isHidden()
+
+    bar.set_query("")
+    assert {s for s in mask_screen._settings_sections if s.is_expanded()} == \
+        open_before, (
+            "clearing the box left the form splayed open instead of "
+            "restoring what was showing before the search")
+
+
+@pytest.mark.parametrize("app_key", ["mask", "timelapse"])
+def test_a_setting_is_recorded_against_the_heading_that_draws_it(
+        app_key, qtbot):
+    """The two modules that nest families used to file six keys too high.
+
+    A sub-heading is added to its parent with ``add_prose``, which spans the
+    parent's form -- and PySide hands a spanning widget back for the field
+    role, so the index walked into the sub-heading and claimed the first
+    setting it found there for the parent. Sections are indexed deepest
+    first, so the parent's pass overwrote the right answer.
+
+    The row it recorded was the sub-heading itself, which is what made this
+    more than bookkeeping: hiding that "row" hid the sub-heading and
+    everything under it.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen(app_key)
+    qtbot.addWidget(screen)
+    bar = install(screen)
+    assert bar is not None
+
+    sections = {id(s): s for s in screen._settings_sections}
+    stolen = {key: str(field.property("settingsCategorySource"))
+              for key, (_section, field) in bar._index.items()
+              if id(field) in sections}
+    assert stolen == {}, (
+        "these keys are recorded as a row that is really a whole heading")
+
+    widgets = screen._settings_model._widgets
+    for key, (section, _field) in bar._index.items():
+        widget = widgets.get(key)
+        if widget is None:
+            continue
+        node, deepest = widget, None
+        while node is not None:
+            if id(node) in sections:
+                deepest = node
+                break
+            node = node.parentWidget()
+        assert deepest is section, (
+            f"{key} is drawn under "
+            f"{str(deepest.property('settingsCategorySource'))!r} and "
+            f"recorded under "
+            f"{str(section.property('settingsCategorySource'))!r}")
+
+
+def test_a_match_under_a_heading_of_only_sub_headings_is_on_screen(qtbot):
+    """A heading that owns no rows must not take its matches down with it.
+
+    ``Advanced settings`` holds only sub-headings, and the object family
+    under it holds only one heading per object, so neither owns a form row
+    for the strip to count. Counting rows alone put both at zero, and a
+    narrowing view hides whatever counts zero -- while the one matching row
+    stayed marked visible on the innermost form, inside two hidden
+    headings. The count line promised a match that was nowhere on screen.
+
+    Asserted up the whole chain rather than on the umbrella alone: the
+    defect is that an ancestor is hidden, and which ancestor depends on how
+    deep the module nests its families.
+
+    2026-09-29 (item 592): on Mask generation ``cell_remove_border_objects``
+    is a cell of the per-object table now, so no flat row under those
+    umbrellas matches any more (the table's own section is counted by the
+    keys it answers; see ``test_a_match_in_the_per_object_table_keeps_the_
+    table_on_screen``). The same defect is measured on Measure, whose
+    "Postprocessing" (item 595) owns no rows and holds "Runtime &
+    Reliability".
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("measure")
+    qtbot.addWidget(screen)
+    bar = install(screen)
+    assert bar is not None
+    bar.set_level(ALL)
+    bar.set_query("max_failure_rate")
+
+    key = "max_failure_rate"
+    assert bar.visible_keys() == [key]
+
+    sections = {id(s) for s in screen._settings_sections}
+    holding, field = bar._index[key]
+    form = holding.findChild(QFormLayout)
+    assert form.isRowVisible(field)
+
+    chain = []
+    node = holding
+    while node is not None:
+        if id(node) in sections:
+            chain.append(node)
+        node = node.parentWidget()
+    assert len(chain) > 1, (
+        "this module no longer nests that setting under a heading, so the "
+        "test is no longer about the defect it was written for")
+
+    for section in chain:
+        title = str(section.property("settingsCategorySource"))
+        # `isHidden`, not `isVisible`: an offscreen screen is never shown,
+        # which makes every descendant invisible for an unrelated reason.
+        assert not section.isHidden(), (
+            f"the only match is inside {title!r}, and the search hid it")
+        assert section.is_expanded(), (
+            f"the only match is inside {title!r}, and it stayed collapsed")
+
+    umbrella = chain[-1]
+    assert [k for k, (sec, _f) in bar._index.items() if sec is umbrella] == [], (
+        "the outermost heading owns form rows, so it would have been "
+        "counted anyway and this test proves nothing")
+
+    emptied = bar._index["src"][0]
+    assert emptied.isHidden(), (
+        "rolling counts up must not keep a section that holds no match")
+
+
+def test_a_match_in_the_per_object_table_keeps_the_table_on_screen(
+        mask_screen):
+    """A search for a per-object question lands on the table (item 592).
+
+    2026-09-29: on Mask generation the table is the only layout of
+    ``cell_remove_border_objects``; its flat row stays hidden behind the
+    table, and the table's section is kept and opened for the match.
+    """
+    from tests.qt.per_object_table import grid_section
+
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    bar.set_query("remove border objects")
+
+    assert bar.visible_keys() == []
+    assert "cell_remove_border_objects" in bar._wanted_now()[1]
+    table = grid_section(mask_screen)
+    assert table is not None and not table.isHidden()
+    assert table.is_expanded()
+
+
+def test_a_search_that_matches_nothing_says_what_to_do(mask_screen):
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    bar.set_query("zzzzz-no-such-setting")
+    assert bar.visible_keys() == []
+    text = bar.count_text().lower()
+    assert "no setting matches" in text
+    assert "clear" in text
+
+
+
+def _applicable(bar):
+    """Every indexed key the run's own shape does not rule out.
+
+    The bar hides a row for two independent reasons: the disclosure LEVEL
+    the user chose, and whether the row means anything for this run at all.
+    A plate with no z axis has no use for the voxel sizes, so those rows are
+    not offered -- and that is not the level filter doing it. Naming the
+    second filter separately is what lets a test about the first one avoid
+    asserting the second by accident.
+
+    The dimension split is read from the settings themselves through
+    :func:`spacr.qt.screens.app_screen.dimension_settings`, rather than
+    listed here, so a key added to a 3-D or timelapse category is covered
+    without this helper being touched.
+
+    THE OBJECT RULE IS A THIRD REASON, added 2026-09-08 and read from the
+    model for the same reason as the second: a run whose nucleus channel
+    names no plane has no use for the nucleus settings, and that is not the
+    level filter either. It became visible here when the rows started being
+    BUILT and hidden instead of being left out of the build -- see 382. A
+    row that never existed was never indexed, so this helper never had to
+    know about it.
+    """
+    from spacr.qt.screens.app_screen import dimension_settings
+
+    screen = bar.parent()
+    while screen is not None and not hasattr(screen, "dimension_is_on"):
+        screen = screen.parent()
+    ruled_out = set()
+    if screen is not None:
+        for dimension, keys in dimension_settings().items():
+            if not screen.dimension_is_on(dimension):
+                ruled_out |= set(keys)
+        model = getattr(screen, "_settings_model", None)
+        hidden = getattr(model, "keys_hidden_by_the_run", None)
+        if callable(hidden):
+            ruled_out |= set(hidden())
+    return set(bar.indexed_keys()) - ruled_out
+
+
+# ---------------------------------------------------------------------------
+# 2. Differs from default
+# ---------------------------------------------------------------------------
+
+def test_modified_reports_nothing_on_a_freshly_built_panel(qtbot):
+    model = _owned_model(qtbot, "measure")
+    model.build_sections()
+    assert model.modified_keys() == []
+
+
+def test_modified_reports_exactly_what_changed(mask_screen):
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    mask_screen._settings_model.set_value_for_key("n_jobs", 3)
+
+    bar.set_modified_only(True)
+    assert bar.visible_keys() == ["n_jobs"]
+    assert "modified only" in bar.count_text()
+
+    bar.set_modified_only(False)
+    assert set(bar.visible_keys()) == _applicable(bar)
+
+
+def test_modified_uses_the_same_equality_as_the_diff_dialog(qtbot):
+    """A value round-tripped through CSV is not an edit.
+
+    The run journal stores ``channels`` as the string ``"[0, 1, 2]"`` where
+    a fresh panel holds the list. If this filter used ``==`` it would call
+    that an edit while the settings diff called it unchanged, and the two
+    views of one run would disagree.
+    """
+    from spacr.qt.settings_diff import _values_equal
+    assert _values_equal("[0, 1, 2]", [0, 1, 2])
+
+    model = _owned_model(qtbot, "mask")
+    model.build_sections()
+    model.set_value_for_key("channels", "[0, 1, 2, 3]")
+    assert "channels" not in model.modified_keys()
+
+
+# ---------------------------------------------------------------------------
+# 3. Progressive disclosure
+# ---------------------------------------------------------------------------
+
+def test_essentials_is_where_a_first_visit_starts(mask_screen):
+    bar = install(mask_screen)
+    assert bar.level() == ESSENTIALS
+    shown = len(bar.visible_keys())
+    total = len(bar.indexed_keys())
+    assert 0 < shown < total
+    assert f"of {total} settings" in bar.count_text()
+    assert "All settings" in bar.count_text()
+
+
+def test_all_settings_hides_nothing_by_level(mask_screen):
+    """At the top level the disclosure filter stops hiding anything.
+
+    IT IS A LEVEL, NOT AN OVERRIDE. A row can also be hidden because the
+    object it belongs to is not in the run -- a plate with no z axis does
+    not show the volumetric settings -- and picking "All settings" is a
+    statement about COMPLEXITY, not a request to be shown settings for
+    objects the run does not have. So the target is every APPLICABLE row,
+    which is what a user actually sees offered.
+    """
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    assert set(bar.visible_keys()) == _applicable(bar)
+
+
+def test_no_setting_is_hidden_in_every_state(mask_screen):
+    """Nothing is indexed that a user can never reach.
+
+    The failure this guards is a master switch hidden by the rule it
+    would itself satisfy: if `z_stack` were only shown once the plate was
+    already 3-D, the volumetric settings could not be turned on from the
+    panel at all. Announcing each dimension and giving every object a
+    channel has to reach every row the bar has indexed.
+    """
+    from spacr.organelle_types import organelle_role
+
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    indexed = set(bar.indexed_keys())
+
+    announced = {"cell_channel": 0, "nucleus_channel": 1,
+                 "pathogen_channel": 2, "z_stack": True, "t_stack": True,
+                 "number_of_organelles": 4}
+    for slot in range(1, 5):
+        announced[f"{organelle_role(slot)}_channel"] = 2 + slot
+    mask_screen.apply_settings_dict(announced)
+    bar.set_level(ALL)
+    reached = set(bar.visible_keys())
+
+    # The legacy Cellpose 3 rows are gated on a MODEL rather than a
+    # dimension or a channel: they apply only to an object segmented by a
+    # Cellpose 3 model, and the model zoo chooses one by writing
+    # ``cellpose3:<model>`` into that object's model setting. So the second
+    # state is the first with the cell model sent to Cellpose 3, and a row is
+    # reachable when either state shows it.
+    from spacr._segmentation_backends import _cellpose3_value
+
+    mask_screen.apply_settings_dict(
+        {**announced, "cell_model_name": _cellpose3_value("cyto3")})
+    bar.set_level(ALL)
+    reached |= set(bar.visible_keys())
+
+    unreachable = indexed - reached
+    # What is left is gated on an organelle's TYPE -- a punctate organelle
+    # does not show the ridge or ring controls -- so each remaining row is
+    # reached by choosing that type, and none is orphaned.
+    typed = {k for k in unreachable if k.startswith("organelle")}
+    # 2026-09-29 (item 592): the keys the per-object table answers are
+    # reached through the table, not through a flat row; they must all be
+    # in it in the announced state.
+    in_the_table = set(bar._wanted_now()[1])
+    unreachable -= in_the_table
+    typed -= in_the_table
+    assert unreachable == typed, (
+        "these rows are indexed but no run state shows them: "
+        + ", ".join(sorted(unreachable - typed)))
+
+
+def test_the_choice_is_remembered_per_module(mask_screen, qtbot):
+    bar = install(mask_screen)
+    bar.set_level(ALL)
+    assert disclosure_for("mask") == ALL
+    assert disclosure_for("measure") == ESSENTIALS, (
+        "one module's choice leaked into another's")
+
+    from spacr.qt.screens.app_screen import AppScreen
+    second = AppScreen("mask")
+    qtbot.addWidget(second)
+    assert install(second).level() == ALL
+
+
+def test_essentials_narrows_a_search_rather_than_fighting_it(mask_screen):
+    """The two filters compose. With both on, what is shown is the
+    intersection — never a match Essentials excluded, and never an
+    essential the query did not match."""
+    bar = install(mask_screen)
+    bar.set_level(ESSENTIALS)
+    essentials = set(bar.visible_keys())
+    bar.set_query("channel")
+    shown = set(bar.visible_keys())
+    assert shown <= essentials
+    assert shown <= set(mask_screen._settings_model.keys_matching("channel"))
+
+
+def test_essential_keys_are_derived_from_the_layout(qtbot):
+    """Derived, so a layout change cannot leave the essentials behind.
+
+    The first group of a curated layout is by construction the "what you
+    must set" group, and it is taken whole.
+    """
+    cats = categories_for_app("mask", get_categories())
+    first_group = list(cats.values())[0]
+    derived = essential_keys("mask", cats)
+    assert set(first_group) <= set(derived)
+
+
+@pytest.mark.parametrize("app_key", [
+    "mask", "measure", "timelapse", "classify", "regression", "invasion",
+    "cellpose_masks", "barcode_qc",
+])
+def test_essentials_is_a_real_subset_for_every_big_module(app_key):
+    """Not empty (nothing to start from) and not everything (no disclosure)."""
+    total = resolve_default_settings(app_key)
+    essentials = [k for k in essential_keys(app_key) if k in total]
+    assert essentials, f"{app_key} has no essential settings at all"
+    assert len(essentials) < len(total), (
+        f"{app_key} calls every one of its {len(total)} settings essential")
+
+
+# ---------------------------------------------------------------------------
+# 4. Curated layouts — the parametrised guard
+# ---------------------------------------------------------------------------
+#
+# This is the test that fails by name when a module is added with real
+# settings and no layout of its own. Falling back to the shared category map
+# is not a layout: that map is keyed by what a setting IS (a path, a plot
+# option, "Advanced"), not by what the module does with it, which is how
+# Cellpose Masks came to render thirteen knobs under one "Cellpose" heading.
+
+def _all_app_keys():
+    from spacr.qt.app import APPS
+    keys = [row[0] for row in APPS]
+    # Reachable from the Tk GUI and the CLI, absent from the Qt home grid.
+    keys.append("cellpose_all")
+    return sorted(set(keys))
+
+
+@pytest.mark.parametrize("app_key", _all_app_keys())
+def test_every_module_with_real_settings_has_a_curated_layout(app_key):
+    if not needs_curated_layout(app_key):
+        pytest.skip(
+            f"{app_key} renders {len(resolve_default_settings(app_key))} "
+            f"settings, at or under the {CURATION_THRESHOLD} that can be one "
+            "group whatever it is called")
+    assert has_curated_layout(app_key), (
+        f"{app_key} renders {len(resolve_default_settings(app_key))} "
+        "settings with no layout of its own, so they land in whatever shared "
+        "buckets they happen to fall into. Add an entry to "
+        "`_APP_CATEGORY_SPECS` in spacr/qt/screens/settings_model.py."
+    )
+
+
+@pytest.mark.parametrize("app_key", sorted(
+    __import__("spacr.qt.screens.settings_model", fromlist=["x"])
+    ._APP_CATEGORY_SPECS))
+def test_a_curated_layout_accounts_for_every_setting(app_key):
+    """No module drops a setting off the end of its own layout.
+
+    A key named in no group falls into the trailing "Other" bucket, which is
+    not a heading anyone chose — it is the absence of one.
+    """
+    from spacr.qt.screens.settings_model import (_APP_HIDDEN_CATEGORIES,
+                                                 _APP_HIDDEN_KEYS)
+    defaults = resolve_default_settings(app_key)
+    hidden = _APP_HIDDEN_CATEGORIES.get(app_key, set())
+    # A key a module deliberately never shows is not one it "dropped off
+    # the end". Timelapse keeps `timelapse` in its settings, at True, and
+    # renders no control for it -- the module IS the timelapse one. The
+    # distinction this test cares about is between a key nobody placed and
+    # a key somebody decided not to place.
+    never_shown = _APP_HIDDEN_KEYS.get(app_key, set())
+    used = set(never_shown)
+    for name, keys in categories_for_app(app_key, S.categories).items():
+        if name in hidden:
+            continue
+        used.update(k for k in keys if k in defaults)
+    assert not (set(defaults) - used), (
+        f"{app_key} leaves {sorted(set(defaults) - used)} out of every group")
+
+
+def test_a_layout_may_name_a_key_the_shared_map_never_heard_of():
+    """A literal key in a spec outranks the shared category map.
+
+    Barcode QC and Illumination register settings that are in no shared
+    category at all. Filtering literals against that map sent all of Barcode
+    QC's checks to the trailing "Other" bucket — the exact thing a layout
+    exists to prevent.
+    """
+    rendered = categories_for_app("barcode_qc", S.categories)
+    defaults = resolve_default_settings("barcode_qc")
+    placed = {k for keys in rendered.values() for k in keys if k in defaults}
+    assert "target_grnas_per_well" in placed
+    assert set(defaults) <= placed
+
+
+# ---------------------------------------------------------------------------
+# 5. Installation and geometry
+# ---------------------------------------------------------------------------
+
+def test_the_strip_sits_outside_the_scroll_area(mask_screen):
+    """A search box that scrolls away with its own results is a search box
+    you have to scroll back up to reach."""
+    bar = install(mask_screen)
+    scroll = mask_screen._settings_scroll
+    assert not scroll.isAncestorOf(bar)
+    assert bar.parentWidget() is scroll.parentWidget()
+
+
+def test_the_strip_is_a_thin_band_above_the_form_not_over_it(qtbot):
+    """Rendered geometry, because nothing else catches this.
+
+    Re-parenting the scroll area into the new container HIDES it -- that is
+    what `setParent` does -- and a layout skips hidden children. So the
+    QVBoxLayout saw one visible child, left the scroll area at the full-pane
+    geometry it had as a splitter pane, and centred the strip on top of it:
+    two widgets drawing over each other down the whole settings column.
+    Every behavioural assertion in this file still passed, because form-row
+    visibility knows nothing about where the row is on screen.
+    """
+    # Pinned, because this test measures pixels. The font scale is
+    # persisted in QSettings, so it is ambient state rather than anything
+    # this file sets: whatever the last run left behind decides it. At 1.5
+    # the styled pane's padding scales with it and the strip sits at y=11,
+    # so this test passed alone and failed after any other qt file -- and
+    # the blame landed on whichever test drew the short straw.
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt import theme
+    from spacr.qt.preferences import get_font_scale, set_font_scale
+    _scale = get_font_scale()
+    set_font_scale(1.0)
+    # The scale is baked into the stylesheet when it is built, and the app
+    # stylesheet is applied once per session. Changing the preference alone
+    # leaves the already-applied 1.5 padding on the pane, so it has to be
+    # rebuilt for the new scale to reach the layout.
+    _app = QApplication.instance()
+    _app.setStyleSheet(theme.stylesheet())
+
+    from spacr.qt.app import MainWindow
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.resize(1500, 950)
+    window.show()
+    qtbot.waitExposed(window)
+    window._on_nav_selected("mask")
+    qtbot.wait(300)
+
+    screen = window._screens["mask"]
+    bar = screen._settings_search
+    scroll = screen._settings_scroll
+    assert bar is not None
+
+    try:
+        _assert_thin_band(bar, scroll)
+    finally:
+        set_font_scale(_scale)
+        _app.setStyleSheet(theme.stylesheet())
+
+
+def _assert_thin_band(bar, scroll):
+    assert bar.isVisible() and scroll.isVisible()
+    assert not bar.geometry().intersects(scroll.geometry()), (
+        f"the strip {bar.geometry()} overlaps the form {scroll.geometry()}")
+    assert bar.y() == 0, "the strip is not at the top of the pane"
+    assert scroll.y() == bar.height()
+    # Two rows of controls, not a share of the pane.
+    assert 0 < bar.height() < 120
+    assert scroll.height() > 4 * bar.height()
+
+
+def test_installing_twice_adds_one_strip(mask_screen):
+    first = install(mask_screen)
+    assert install(mask_screen) is first
+    assert len(mask_screen.findChildren(SettingsSearchBar)) == 1
+
+
+def test_a_screen_that_has_never_been_shown_keeps_its_strip_and_its_layout(
+        mask_screen):
+    """Item 380: the strip is installed before the page is ever shown.
+
+    Reparenting the settings form is the same work whenever it happens;
+    doing it at first show, after the page has been sheeted, made it cost
+    about 250 ms of every module open. `spacr.qt.app` now installs from
+    `_a_page_joined_the_stack`, where the page is marked for the sheet but
+    has not received it.
+
+    AND THE SPLITTER IS NOT TOLD WHAT IT ALREADY KNOWS. A splitter that
+    has never been laid out answers `sizes()` with pre-layout defaults, so
+    the restore this function does for a visible screen would write those
+    defaults over the layout the first show is about to compute.
+    """
+    from PySide6.QtWidgets import QSplitter
+
+    assert not mask_screen.isVisible()
+    splitter = mask_screen._settings_scroll.parentWidget()
+    assert isinstance(splitter, QSplitter)
+    written = []
+    original = splitter.setSizes
+    splitter.setSizes = lambda sizes: written.append(list(sizes))
+    try:
+        bar = install(mask_screen)
+    finally:
+        splitter.setSizes = original
+    assert bar is not None
+    assert written == [], (
+        f"pre-layout splitter sizes were written back: {written}")
+
+
+def test_a_visible_screen_still_keeps_the_sizes_it_had(qtbot):
+    """The other half of the same rule: once there are real sizes, the
+    insert must not change them."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    screen.resize(900, 700)
+    screen.show()
+    qtbot.waitExposed(screen)
+    splitter = screen._settings_scroll.parentWidget()
+    before = list(splitter.sizes())
+    assert sum(before) > 0, "the fixture never laid the splitter out"
+    assert install(screen) is not None
+    assert list(splitter.sizes()) == before
+    screen.hide()
+
+
+def test_a_screen_without_a_settings_form_is_left_alone(qtbot):
+    from PySide6.QtWidgets import QWidget
+    assert install(QWidget()) is None
+
+
+def test_every_registered_widget_qss_block_reaches_the_stylesheet(qapp):
+    """A bad palette key in a QSS block is invisible until someone looks.
+
+    ``registered_widget_qss`` catches whatever a block raises, logs it and
+    moves on -- which is right, since an unstyled widget must not take the
+    window down. The cost is that a typo makes the block silently vanish:
+    three blocks in this batch asked for ``palette["text_dim"]``, which the
+    palette spells ``fg_dim``, and all three shipped with no stylesheet at
+    all. The first one was found because Home started painting an opaque
+    slab over the ambient backdrop; the other two were found by looking.
+
+    So: render the real stylesheet and check every registered name is in
+    it. It costs one call and closes the whole class.
+    """
+    import spacr.qt
+    from spacr.qt import theme
+    spacr.qt.register_self_registering_modules()
+
+    names = theme.widget_qss_names()
+    assert names, "no widget QSS blocks are registered at all"
+    css = theme.stylesheet()
+    missing = sorted(n for n in names if n not in css)
+    assert not missing, (
+        "these registered QSS blocks raised while rendering and were "
+        f"swallowed, so their widgets ship unstyled: {missing}")
+
+
+# ---------------------------------------------------------------------------
+# 6. Fixed-alphabet multi-select
+# ---------------------------------------------------------------------------
+
+def test_train_channels_offers_exactly_r_g_b(qtbot):
+    """The pipeline maps letters to planes with three membership tests and
+    drops anything else in silence, so the control must not be able to
+    express anything else."""
+    from spacr.qt.screens.settings_model import _AlphabetSelect
+    model = _owned_model(qtbot, "classify")
+    model.build_sections()
+    widget = model._widgets["train_channels"]
+    assert isinstance(widget, _AlphabetSelect)
+    assert widget.choices() == ("r", "g", "b")
+    assert widget.get_value() == ["r", "g", "b"]
+    assert model.collect()["train_channels"] == ["r", "g", "b"]
+
+
+def test_the_alphabet_control_always_emits_canonical_order(qtbot):
+    """``['b','r']`` and ``['r','b']`` select the same two planes but write
+    two different model directories, so click order must not survive."""
+    from spacr.qt.screens.settings_model import _AlphabetSelect
+    widget = _AlphabetSelect(key="train_channels", default=[],
+                             choices=(("r", "Red"), ("g", "Green"),
+                                      ("b", "Blue")))
+    qtbot.addWidget(widget)
+    widget.set_value(["b", "r"])
+    assert widget.get_value() == ["r", "b"]
+
+
+def test_off_alphabet_values_cannot_be_selected(qtbot):
+    from spacr.qt.screens.settings_model import _AlphabetSelect
+    widget = _AlphabetSelect(key="train_channels", default=["r", "x", "red"],
+                             choices=(("r", "Red"), ("g", "Green"),
+                                      ("b", "Blue")))
+    qtbot.addWidget(widget)
+    assert widget.get_value() == ["r"]
+
+
+def test_the_alphabet_control_reads_a_csv_string(qtbot):
+    """Settings CSVs and the Live Preview both hand back text."""
+    from spacr.qt.screens.settings_model import _AlphabetSelect
+    widget = _AlphabetSelect(key="train_channels", default=None,
+                             choices=(("r", "Red"), ("g", "Green"),
+                                      ("b", "Blue")))
+    qtbot.addWidget(widget)
+    widget.set_value("['r', 'g']")
+    assert widget.get_value() == ["r", "g"]
+    widget.set_value("g,b")
+    assert widget.get_value() == ["g", "b"]
+
+
+def test_train_channels_round_trips_through_set_value_for_key(qtbot):
+    model = _owned_model(qtbot, "classify")
+    model.build_sections()
+    assert model.set_value_for_key("train_channels", ["g"])
+    assert model.collect()["train_channels"] == ["g"]

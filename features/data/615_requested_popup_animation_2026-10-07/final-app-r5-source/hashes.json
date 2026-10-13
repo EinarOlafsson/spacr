@@ -1,0 +1,9 @@
+{
+  "spacr/qt/preferences.py": "bea681e405622665e699cf6f956f0ff969c4dd23848e41a03b56a62efe2c2a58",
+  "spacr/qt/screens/make_masks.py": "91d2759816ae76fad94b06c80ae818773805ecf0e0dbc843a2ec9f0247b25025",
+  "spacr/qt/mask_engine.py": "bc82fd12b84d33a8ace54a9fe3c577fb2b6048073ebe43f9e3dd54ffb7143253",
+  "spacr/qt/widgets/ambient.py": "4d8363321fd91262ca60d502a69ec6b78f1a3ef7dd420c90fe9a47f2256d11c6",
+  "spacr/qt/widgets/glass.py": "55849e471fd0befab7e7b90d4034e5fb29ccf6ff5ef2b9f102b2c656a35cab40",
+  "spacr/qt/widgets/setup_card.py": "35ab5480a04db6e708ca000aa7959492158fa169ca70994b248ceb5b8425d6af",
+  "spacr/qt/dialogs.py": "9c5f7c857f6db95bfa49dbd9dee5ede40480d8d08845afc1bbdf6823d69a555f"
+}

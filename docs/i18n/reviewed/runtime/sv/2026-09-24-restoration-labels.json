@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-assisted source-context review. Reviews six restoration control labels against the current Make Masks UI; preserves Cellpose 3 and CPU identifiers. Remaining restoration text is still tracked separately. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Deep image enhancement",
+      "source": "Deep image enhancement",
+      "source_sha256": "fb8f13f88e4cbe61be3c95ed28087e90910e824c80ee7a94a20b89bc29ad1e58",
+      "translation": "Bildförbättring med djupinlärning"
+    },
+    {
+      "table": "ui",
+      "key": "Restoration model",
+      "source": "Restoration model",
+      "source_sha256": "0ed67d7cba3682f17785d4f8f467a040eca12d7e8381004647769c89e6eefb1f",
+      "translation": "Återställningsmodell"
+    },
+    {
+      "table": "ui",
+      "key": "Restoration diameter",
+      "source": "Restoration diameter",
+      "source_sha256": "47420493c2bba1cbca374e80c2f6712f5dfe5f66f2f6f753f9c71fbcb69425ee",
+      "translation": "Objektdiameter för återställning"
+    },
+    {
+      "table": "ui",
+      "key": "Load / retry model",
+      "source": "Load / retry model",
+      "source_sha256": "0062cf2fd11334252ba44c352e11e2bc959260f0a0d3d01206de948e478c3d01",
+      "translation": "Ladda / försök ladda modellen igen"
+    },
+    {
+      "table": "ui",
+      "key": "Install Cellpose 3…",
+      "source": "Install Cellpose 3…",
+      "source_sha256": "42bc3c35908e8e862ff4722e0cd2768754cd849d4f97232c64b06357280f3415",
+      "translation": "Installera Cellpose 3…"
+    },
+    {
+      "table": "ui",
+      "key": "Loading restoration model on CPU…",
+      "source": "Loading restoration model on CPU…",
+      "source_sha256": "37cb39550e344a08857639b255183be8796f40ce86127683396840b89ae917fe",
+      "translation": "Laddar återställningsmodellen på CPU…"
+    },
+    {
+      "table": "ui",
+      "key": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source": "Order: percentile stretch (Display) → background → PSF → restoration → denoise → contrast → sharpen → detect → morphology → split.",
+      "source_sha256": "91430e90926cf1cc1cc85d7dcd334937b9f0d684015928c4100d746d9b7680f4",
+      "translation": "Ordning: percentilsträckning (Visning) → bakgrund → PSF → återställning → brusreducering → kontrast → skärpa → detektion → morfologi → delning."
+    }
+  ]
+}

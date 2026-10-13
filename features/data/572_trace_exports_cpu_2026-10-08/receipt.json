@@ -1,0 +1,37 @@
+{
+  "api": {
+    "added": [],
+    "baseline_count": 13232,
+    "changed_key": "spacr.qt.widgets.cell_montage_view.MontageLoad",
+    "current_count": 13232,
+    "new_doc_sha256": "b0531160e1cdc0f5dcc63a62af8f1963226bb4e9c8bf2a39d44e138ed370adcd",
+    "old_doc_sha256": "e07420d1124155124172f26b2abc95469c18556415c8ec3dc8859288c73b8c7d",
+    "removed": []
+  },
+  "base_commit": "f0b81dacefe089c54b1d22a4aebd363a29d53cfb",
+  "item": "F572 figure-integrity tracing child; parent remains open",
+  "limits": [
+    "Overlay records the merged array and exact channel/mask recipe but remains non-replayable because the overlay compositor is not a replay operation.",
+    "Rendered QImage export checks final pixels and output bytes but cannot infer acquisition sources.",
+    "Montage PNG and merged crop recipes replay exactly when source bytes persist; stat checks detect ordinary replacement but are not cryptographic snapshots.",
+    "No approximate crop/splice detection or biological fraud claim.",
+    "This source commit requires normal regeneration of one API prose record before publication."
+  ],
+  "runtime": {
+    "all_buckets_equal": true,
+    "categories": 237,
+    "installer": 65,
+    "module_summaries": 77,
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "ui": 7288
+  },
+  "source_commit": "3a403e40169dae61f1073bc1cd9c727c633009f2",
+  "source_sha256": {
+    "spacr/plot.py": "46983e803e95710370a7c5ed03021c0a225cd5162c582128a43077bdd2545444",
+    "spacr/qt/widgets/cell_montage_view.py": "073c83b823f4808f4c4516ccd240c6220658b878830b6b11583a9aa456a5254e",
+    "spacr/qt/widgets/picture_export.py": "a07c04b77f9398d6d90a12f756ad3efa13cacbdf4aa3b76cc9743feae939c7c9"
+  },
+  "validation": "161 passed, 41 existing Agg warnings, 33.75s, 4 GiB hard cap",
+  "validation_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_figure_integrity_guard.py tests/qt/test_right_click_saves_the_picture.py tests/qt/test_cells_behind_the_dot_tab.py tests/test_mask_overlay_draws_every_organelle_slot.py tests/test_cov_plot_overlay_core.py"
+}

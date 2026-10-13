@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "context": "prepare Matplotlib figure interception. Keep true for analysis runs; read-only UI jobs which cannot emit figures set it false to preserve the operation import boundary.",
+      "label": "spacr.qt.bridge.make_thread#8",
+      "source": "prepare Matplotlib figure interception. Keep true for analysis runs; read-only UI jobs which cannot emit figures set it false to preserve the operation import boundary.",
+      "source_sha256": "6c5b2f14c32d33bed068fb7e9c0e7815486ca7a7145c50a6c8e18252b876f5ef",
+      "translation": "Bereitet das Abfangen von Matplotlib-Abbildungen vor. Für Analyseläufe true beibehalten; schreibgeschützte UI-Aufträge, die keine Abbildungen erzeugen können, setzen den Wert auf false, um die Importgrenze der Operation zu erhalten."
+    }
+  ]
+}

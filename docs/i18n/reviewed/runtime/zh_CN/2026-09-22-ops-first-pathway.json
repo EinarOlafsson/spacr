@@ -1,0 +1,21 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source_sha256": "cca5a39ff17884b8980b1fca42a37f5e73df82b6045eed938543afeead665eea",
+      "table": "ui",
+      "translation": "从“主页 (Home)”开始，打开“掩膜 (Mask)”，然后打开“OPS”；提供各轮次和位置的原始图像，以及与表型图像的配准信息。"
+    },
+    {
+      "key": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source_sha256": "94eb405c190f4c641af1067323ce33972b0d7aea00ae3000d20dc9c3f71fc903",
+      "table": "ui",
+      "translation": "如果图像需要检查图块几何结构或进行坐标映射，可选择使用“对齐与拼接（Align & Stitch）”；它不是运行 OPS 示例的前提。仅凭拼接图像无法替代测序轮次图像。OPS 表格在回归分析前需要按身份明确关联并聚合；本引导不会自动执行该转换。"
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review against the OPS-first sample route; optional preparation prefix retains the earlier reviewed note unchanged; no native-speaker sign-off",
+  "schema": 1
+}

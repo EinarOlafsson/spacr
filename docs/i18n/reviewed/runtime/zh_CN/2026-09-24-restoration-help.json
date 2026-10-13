@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted source-context review. Reviews the five restoration tooltips and the Compare action in their enhancement-panel context. Preserves processing order, separate environment, model limitations, coordinate alignment, calibration caveats and unchanged measurement intensities. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+      "source": "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+      "source_sha256": "ebbdf850b1826b6071eacc35e4f25501575ce5def1ccf2756fb1fb658c15759d",
+      "translation": "所选细胞或细胞核的近似直径，单位为像素。控制模型的缩放；输出尺寸保持不变。此设置不会估算显微镜校准参数。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+      "source": "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+      "source_sha256": "fcd09a8798008e5d7ccc591230c3dad97693639b2da12b21a44771faa4031253",
+      "translation": "选择针对细胞或细胞核训练的权重。这些模型并未针对每一种细胞器或采集条件进行验证。恢复后的数值是模型的归一化输出，而不是经过校准的荧光值。接受新掩膜前，请检查比较结果。不进行上采样，以保持图像和掩膜坐标对齐。"
+    },
+    {
+      "table": "ui",
+      "key": "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source": "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+      "source_sha256": "bac44e9e5928fd308a143b2fc85aa7b932aa3df290834c7ceabbc2953912eac9",
+      "translation": "在 CPU 上加载所选的 Cellpose 3 恢复权重。首次使用时可能需要下载权重。捕获的软件包版本、模型检查点哈希和直径会随已应用的图像增强一同记录。"
+    },
+    {
+      "table": "ui",
+      "key": "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+      "source": "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+      "source_sha256": "980e13dc86dead0a8467e79a67df5334ca7a343ea1b6fb1a2cca66490d1087fe",
+      "translation": "打开 Model Zoo 安装程序，为 Cellpose 3 安装独立环境。spaCR 自身使用的 Cellpose 版本保持不变。"
+    },
+    {
+      "table": "ui",
+      "key": "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.",
+      "source": "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged.",
+      "source_sha256": "56680507b5109ea4bc78fa2b45b700db9977b17ff268775098ad2a0b960aabdd",
+      "translation": "使用独立环境中的 Cellpose 3 恢复所选强度通道。在 PSF 处理后、传统去噪前执行。“比较”预览结果；“应用”使其用于后续检测。原始像素和测量强度保持不变。"
+    },
+    {
+      "table": "ui",
+      "key": "Compare",
+      "source": "Compare",
+      "source_sha256": "e888155d8c7d2e3c3f9eb1bf57e8d81ba1a3c182b5e94b01e09de2cb2cca81f9",
+      "translation": "比较"
+    }
+  ]
+}

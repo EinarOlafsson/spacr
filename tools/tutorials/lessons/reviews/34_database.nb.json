@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Database Browser: filtrer og eksporter målinger",
+  "description": "Åpne en måledatabase, velg kolonner og rader, og eksporter resultatet.",
+  "objectives": [
+    "Åpne og bla i en måletabell.",
+    "Velge kolonner og filtrere rader.",
+    "Eksportere de samsvarende postene."
+  ],
+  "prerequisite": "Ha en spaCR-fil measurements.db eller en kjøremappe som inneholder en. Eksempelprosjektet i Measure gir en database etter målingen.",
+  "scenes": [
+    "Åpne Help og deretter Database Browser for å undersøke og eksportere måletabeller.",
+    "Velg measurements.db, eller kjøremappen som inneholder den, og åpne databasen.",
+    "Velg tabellen du trenger. Velg cell for cellemålinger, eller en annen objekttabell for egenskapene til det objektet.",
+    "Les det totale antallet rader og kolonner, og undersøk deretter siden som vises. Bruk sidekontrollene for å bla gjennom større tabeller.",
+    "Søk i kolonnenavnene for å finne en egenskap. Velg kolonnene du vil vise og eksportere.",
+    "Lag et filter ved å velge en kolonne, en operator og en verdi. Bruk det for å velge samsvarende poster i hele tabellen.",
+    "Kontroller antallet filtrerte rader og undersøk de samsvarende postene. Juster eller fjern filteret for å endre utvalget.",
+    "Velg Export og en målfil. Eksporten inneholder alle samsvarende rader og kolonnene du valgte, mens kildedatabasen forblir uendret."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "README.md": "6848ab183c19ef7c374cdbd4491e5f130b5b15b641cf2bedf8d9c5aed5141f54",
+  "affected-preferences.log": "9a86b4f2fad121645b0fafbd88b56267d1900dd43fc303f34c08036fe2b8f273",
+  "default-census-after.json": "77fc6a0ec986956f7bcbc486b725b8198a573cea0f8064ad28ba3f5eabc909eb",
+  "default-census-before.json": "5a72fc594678b840b1b320e577cdede6f87d5b3e99d492fd57d8ec3edafeac0f",
+  "default_census.py": "7a8bdb4a356fde5f9fb6d968e64ec7c1f8d1a31021118c6c0d3124dfe6a1f64c",
+  "exact-default-census-test.log": "ec3c61992e3bb1a5aac88c5f3c5619a6eccaa445b8e776896e3c8c676f9f6278"
+}

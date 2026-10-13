@@ -1,0 +1,104 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "10_classify_cv",
+    "scene_count": 12,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete computer-vision classification workflow, leakage-safe grouped evaluation, exact settings-section labels, and natural machine-learning terminology."
+  },
+  "languages": {
+    "es": {
+      "description": "Entrene y evalúe un clasificador de imágenes a partir de recortes de objetos anotados, con validación agrupada y una búsqueda opcional de hiperparámetros.",
+      "prerequisite": "Complete Annotate con clases documentadas y una cobertura representativa de las placas o los pocillos previstos.",
+      "objectives": [
+        "Integrar las etiquetas guardadas y los recortes de objetos en un conjunto de datos protegido contra fugas de información.",
+        "Configurar un modelo de referencia y una evaluación agrupada.",
+        "Utilizar Hyperparameter Search únicamente para una comparación específica."
+      ],
+      "narrations": [
+        "Classify CV entrena modelos de imágenes con recortes de objetos anotados. La consola informa sobre las comprobaciones del conjunto de datos, el progreso del entrenamiento, las métricas del conjunto reservado, la inferencia, las advertencias y las rutas de salida.",
+        "Plate Sources and Workflow permite seleccionar los proyectos medidos y las etapas que se ejecutarán: crear una partición, entrenar, evaluar o aplicar un punto de control existente.",
+        "Comience con Essentials, utilice Modified para revisar los cambios deliberados y abra All solo para acceder a los controles que requiera el experimento. Guarde una Recipe cuando vaya a repetir la configuración.",
+        "Labels and Classes permite seleccionar el campo de anotación o de metadatos que se utilizará como referencia y asigna sus valores guardados a nombres de clase documentados. Verifique esa correspondencia antes del entrenamiento.",
+        "Images and Cropping permite elegir las imágenes de los objetos, los canales, el equilibrado y la fracción reservada. Agrupe las imágenes relacionadas por placa o pocillo para impedir que objetos casi duplicados se repartan entre el entrenamiento y la evaluación.",
+        "Model and Regularization permite seleccionar la red, los canales y el tamaño de entrada, los pesos preentrenados, la normalización y la regularización adecuados para las imágenes. Comience con un único modelo de referencia razonable.",
+        "Training and Loss contiene la tasa de aprendizaje, el aumento de datos, los lotes, las épocas y la detención temprana. Modifique pocos controles a la vez y evalúelos a partir del comportamiento de la validación.",
+        "Evaluation and Results añade la evaluación agrupada, la calibración y comprobaciones estrictas de identidad y de fuga por contenido. Mantenga los datos reservados para la evaluación final separados de la selección del modelo.",
+        "La misma sección Evaluation and Results controla la inferencia sobre todo el conjunto de datos, las probabilidades y clases guardadas, y los ejemplos representativos. Revise estos resultados antes de utilizar las predicciones para extraer conclusiones biológicas.",
+        "Active Hyperparameter Search cuando sea necesario comparar varias configuraciones plausibles. El banco de pruebas reducido ejecuta ensayos agrupados y muestra la puntuación, la variación entre particiones, los parámetros y el estado de cada ensayo.",
+        "Search Settings define un conjunto específico de candidatos, la métrica de clasificación, las particiones agrupadas y el límite de ensayos. Evite búsquedas amplias que consuman recursos en alternativas que el experimento no puede distinguir.",
+        "Run valida primero las etiquetas y las particiones; después, entrena y evalúa el modelo configurado. Revise las métricas y los ejemplos del conjunto reservado antes de aplicarlo ampliamente; spaCR guarda el punto de control, las predicciones, los ajustes y el registro de la ejecución."
+      ]
+    },
+    "fr": {
+      "description": "Entraînez et évaluez un classificateur d’images à partir de vignettes d’objets annotés, avec une validation groupée et une recherche facultative d’hyperparamètres.",
+      "prerequisite": "Terminez Annotate avec des classes documentées et une couverture représentative des plaques ou des puits concernés.",
+      "objectives": [
+        "Intégrer les étiquettes enregistrées et les vignettes d’objets dans un jeu de données protégé contre les fuites d’information.",
+        "Configurer un modèle de référence et une évaluation groupée.",
+        "Utiliser Hyperparameter Search uniquement pour une comparaison ciblée."
+      ],
+      "narrations": [
+        "Classify CV entraîne des modèles d’images à partir de vignettes d’objets annotés. La console indique les contrôles du jeu de données, la progression de l’entraînement, les métriques sur le jeu réservé, l’inférence, les avertissements et les chemins de sortie.",
+        "Plate Sources and Workflow permet de sélectionner les projets mesurés et les étapes à exécuter : créer une partition, entraîner, évaluer ou appliquer un point de contrôle existant.",
+        "Commencez par Essentials, utilisez Modified pour contrôler les modifications délibérées et ouvrez All uniquement pour accéder aux commandes nécessaires à l’expérience. Enregistrez une Recipe lorsque la configuration doit être répétée.",
+        "Labels and Classes permet de sélectionner le champ d’annotation ou de métadonnées utilisé comme référence et associe ses valeurs enregistrées à des noms de classe documentés. Vérifiez cette correspondance avant l’entraînement.",
+        "Images and Cropping permet de choisir les images des objets, les canaux, l’équilibrage et la fraction réservée. Regroupez les images apparentées par plaque ou par puits afin d’empêcher que des objets presque identiques soient répartis entre l’entraînement et l’évaluation.",
+        "Model and Regularization permet de sélectionner le réseau, les canaux et la taille d’entrée, les poids préentraînés, la normalisation et la régularisation adaptés aux images. Commencez par un seul modèle de référence raisonnable.",
+        "Training and Loss contient le taux d’apprentissage, l’augmentation des données, les lots, les époques et l’arrêt anticipé. Ne modifiez que quelques commandes à la fois et jugez-les d’après le comportement en validation.",
+        "Evaluation and Results ajoute l’évaluation groupée, l’étalonnage ainsi que des contrôles stricts de l’identité et des fuites par le contenu. Conservez les données réservées à l’évaluation finale à l’écart de la sélection du modèle.",
+        "La même section Evaluation and Results contrôle l’inférence sur l’ensemble du jeu de données, les probabilités et classes enregistrées, ainsi que les exemples représentatifs. Examinez ces résultats avant d’utiliser les prédictions pour tirer des conclusions biologiques.",
+        "Activez Hyperparameter Search lorsque plusieurs configurations plausibles doivent être comparées. Le banc d’essai réduit exécute des essais groupés et affiche, pour chacun, le score, la variation entre les partitions, les paramètres et l’état.",
+        "Search Settings définit un ensemble ciblé de candidats, la métrique de classement, les partitions groupées et le nombre maximal d’essais. Évitez les recherches étendues qui consacrent des ressources à des choix que l’expérience ne peut pas distinguer.",
+        "Run valide d’abord les étiquettes et les partitions, puis entraîne et évalue le modèle configuré. Examinez les métriques et les exemples du jeu réservé avant de l’appliquer largement ; spaCR enregistre le point de contrôle, les prédictions, les paramètres et le journal d’exécution."
+      ]
+    },
+    "it": {
+      "description": "Addestra e valuta un classificatore di immagini a partire da ritagli di oggetti annotati, con convalida raggruppata e ricerca facoltativa degli iperparametri.",
+      "prerequisite": "Completa Annotate con classi documentate e una copertura rappresentativa delle piastre o dei pozzetti previsti.",
+      "objectives": [
+        "Integrare le etichette salvate e i ritagli degli oggetti in un set di dati protetto dalle fughe di informazione.",
+        "Configurare un modello di riferimento e una valutazione raggruppata.",
+        "Utilizzare Hyperparameter Search solo per un confronto mirato."
+      ],
+      "narrations": [
+        "Classify CV addestra modelli di immagini su ritagli di oggetti annotati. La console riporta i controlli del set di dati, l’avanzamento dell’addestramento, le metriche sul set riservato, l’inferenza, gli avvisi e i percorsi di output.",
+        "Plate Sources and Workflow consente di selezionare i progetti misurati e le fasi da eseguire: creare una partizione, addestrare, valutare o applicare un punto di controllo esistente.",
+        "Inizia da Essentials, usa Modified per verificare le modifiche intenzionali e apri All solo per accedere ai controlli richiesti dall’esperimento. Salva una Recipe quando la configurazione deve essere ripetuta.",
+        "Labels and Classes consente di selezionare il campo di annotazione o di metadati usato come riferimento e associa i valori salvati a nomi di classe documentati. Verifica questa corrispondenza prima dell’addestramento.",
+        "Images and Cropping consente di scegliere le immagini degli oggetti, i canali, il bilanciamento e la frazione riservata. Raggruppa le immagini correlate per piastra o pozzetto, affinché oggetti quasi duplicati non vengano distribuiti tra addestramento e valutazione.",
+        "Model and Regularization consente di selezionare la rete, i canali e la dimensione di input, i pesi preaddestrati, la normalizzazione e la regolarizzazione adatti alle immagini. Inizia con un unico modello di riferimento ragionevole.",
+        "Training and Loss contiene il tasso di apprendimento, l’aumento dei dati, i batch, le epoche e l’arresto anticipato. Modifica pochi controlli alla volta e valutali in base al comportamento durante la convalida.",
+        "Evaluation and Results aggiunge la valutazione raggruppata, la calibrazione e controlli rigorosi dell’identità e delle fughe dovute al contenuto. Mantieni i dati riservati alla valutazione finale separati dalla selezione del modello.",
+        "La stessa sezione Evaluation and Results controlla l’inferenza sull’intero set di dati, le probabilità e le classi salvate e gli esempi rappresentativi. Esamina questi risultati prima di usare le previsioni per trarre conclusioni biologiche.",
+        "Attiva Hyperparameter Search quando devi confrontare diverse configurazioni plausibili. Il banco di prova ridotto esegue prove raggruppate e mostra per ciascuna il punteggio, la variazione tra le partizioni, i parametri e lo stato.",
+        "Search Settings definisce un insieme mirato di candidati, la metrica di classificazione, le partizioni raggruppate e il limite di prove. Evita ricerche ampie che impiegano risorse per scelte che l’esperimento non può distinguere.",
+        "Run convalida prima le etichette e le partizioni, quindi addestra e valuta il modello configurato. Esamina le metriche e gli esempi del set riservato prima di applicarlo su larga scala; spaCR salva il punto di controllo, le previsioni, le impostazioni e il registro dell’esecuzione."
+      ]
+    },
+    "pt-BR": {
+      "description": "Treine e avalie um classificador de imagens a partir de recortes de objetos anotados, com validação agrupada e busca opcional de hiperparâmetros.",
+      "prerequisite": "Conclua Annotate com classes documentadas e cobertura representativa das placas ou dos poços que serão analisados.",
+      "objectives": [
+        "Associar os rótulos salvos e os recortes dos objetos em um conjunto de dados protegido contra vazamento.",
+        "Configurar um modelo de referência e uma avaliação agrupada.",
+        "Usar Hyperparameter Search somente em uma comparação específica."
+      ],
+      "narrations": [
+        "Classify CV treina modelos de imagem usando recortes de objetos anotados. O console informa as verificações do conjunto de dados, o progresso do treinamento, as métricas dos dados reservados, a inferência, os avisos e os caminhos de saída.",
+        "Plate Sources and Workflow seleciona os projetos medidos e as etapas que serão executadas: criar uma divisão dos dados, treinar, avaliar ou aplicar um ponto de verificação existente.",
+        "Comece por Essentials, use Modified para revisar as alterações deliberadas e abra All somente para os controles exigidos pelo experimento. Salve uma Recipe quando a configuração for reutilizada.",
+        "Labels and Classes seleciona o campo de anotação ou de metadados usado como referência e associa seus valores salvos aos nomes documentados das classes. Verifique esse mapeamento antes do treinamento.",
+        "Images and Cropping seleciona as imagens de objetos, os canais, o balanceamento e a fração reservada para teste. Agrupe imagens relacionadas por placa ou poço para impedir que duplicatas quase idênticas sejam distribuídas entre treinamento e avaliação.",
+        "Model and Regularization seleciona a rede, os canais e o tamanho de entrada, os pesos pré-treinados, a normalização e a regularização apropriada às imagens. Comece com uma única configuração de referência razoável.",
+        "Training and Loss reúne taxa de aprendizado, aumento de dados, tamanho dos lotes, número de épocas e parada antecipada. Altere poucos controles de cada vez e avalie-os pelo desempenho de validação.",
+        "Evaluation and Results adiciona avaliação agrupada, calibração e verificações rigorosas de identidade e de vazamento de conteúdo. Mantenha os dados finais reservados separados da seleção do modelo.",
+        "A mesma seção Evaluation and Results controla a inferência no conjunto de dados completo, as probabilidades e classes salvas e os exemplos representativos. Examine essas saídas antes de interpretar biologicamente as previsões.",
+        "Ative Hyperparameter Search quando for necessário comparar várias configurações plausíveis. O ambiente de busca executa ensaios agrupados e mostra a pontuação, a variação entre partições, os parâmetros e o estado de cada ensaio.",
+        "Search Settings define um espaço específico de candidatos, a métrica de classificação, as partições agrupadas e o número máximo de ensaios. Evite buscas amplas que consumam recursos computacionais em escolhas que o experimento não consegue distinguir.",
+        "Run começa validando os rótulos e as divisões dos dados e, em seguida, treina e avalia o modelo configurado. Examine as métricas e os exemplos dos dados reservados antes de aplicar o modelo amplamente; o spaCR armazena o ponto de verificação, as previsões, as configurações e o registro da execução."
+      ]
+    }
+  }
+}

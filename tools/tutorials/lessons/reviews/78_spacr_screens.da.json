@@ -1,0 +1,36 @@
+{
+  "language": "da",
+  "lesson": "78_spacr_screens",
+  "english_sha256": "9c69d3bd6bce92b72feef865100a92f462356235781349735280c3f6dbacb4f5",
+  "title": "spaCR screens",
+  "section": "Arbejdsgange",
+  "description": "Følg en poolet billedbaseret screening fra Home gennem billedmålinger, fænotypeklassifikation og stregkodetællinger frem til regression.",
+  "objectives": [
+    "Vælg et startmodul ud fra de data, du allerede har.",
+    "Find ud af, hvad hvert modul læser og skriver.",
+    "Følg de tilknyttede modullektioner og API-kontrakter til næste trin."
+  ],
+  "prerequisite": "Installer spaCR, og åbn Home. Vælg startdata til dit workflow, og følg derefter de linkede modullektioner for kontroller og eksempeldata.",
+  "scenes": [
+    "En poolet screening fortæller sin historie to gange, én gang i billeder og én gang i sekventeringslæsninger, og spaCR samler de to til sidst. På billedsiden gør Mask og Measure dine mikroskopsynsfelter til målte celler, og Annotate og Classify gør cellerne til fænotypescorer. På sekventeringssiden gør Map Barcodes læsninger til guideantal. Regression forbinder de to via plade og brønd. Kom ind der, hvor dine resultater begynder.",
+    "Alt begynder med dine mikroskopbilleder. Åbn Mask fra Home, vælg kanalerne og en segmenteringsmodel, og kontrollér forhåndsvisningen, før du kører den. Mask finder objekterne i hvert synsfelt og gemmer hvert synsfelt som et sammenlagt array, hvor billedkanalerne er stablet sammen med deres labelmasker. Disse sammenlagte arrays er det, Measure åbner bagefter. Den lille tælledatabase, som Mask efterlader, er kun en optælling, endnu ikke en egenskabstabel.",
+    "Åbn derefter Measure fra Home, og peg det mod det samme projekt med billed- og maskekanalindeksene korrekt indstillet. Measure læser hvert sammenlagt array, billeder og labelplaner samlet, og skriver hver celle, kerne eller parasit som en række i measurements.db. Slå lagring af udsnit til, så skærer det også en lille PNG ud omkring hvert objekt, indekseret i png_list. Herfra deler historien sig. Annotate viser udsnittene, så du kan mærke eksempler, og Classify lærer af enten udsnittene eller de målte egenskaber, så hold objektidentiteterne stabile.",
+    "Før en klassifikator kan lære noget, har den brug for eksempler. Åbn Annotate fra Home, så viser det de objektudsnit, som Measure har gemt eller streamer. Gennemgå repræsentative celler, og mærk dem. Hver label skrives til en annotationskolonne i tabellen png_list, knyttet til objektets identitet. Brug en separat kolonne til hvert spørgsmål, og læg nogle mærkede objekter til side til evaluering. Det er den annotationskolonne, Classify træner på bagefter.",
+    "Åbn Classify fra Home, og her bliver dine labels til scorer. Classify har to familier, og dine data afgør hvilken. Computer Vision lærer af selve objektudsnittene, mens Tabular Machine Learning lærer af de målte egenskabskolonner. Uanset hvad træner det på de labels, du lavede i Annotate, tester sig selv på de objekter, du holdt tilbage, og gemmer den trænede model, en evalueringspakke og scorerne som CSV-filer og, når de lægges sammen, i png_list. Vælg den CV- eller ML-scorekolonne, du vil teste, hold plade- og brøndidentiteten intakt, og tag den med til Regression.",
+    "Mens billederne går én vej, går sekventeringslæsningerne en anden. Åbn Map Barcodes fra Home, giv det dine FASTQ-filer og de stregkodereferencer, der koder din screening, så tæller det, hvilke guides der dukkede op i hver brønd. Kontrollér de mappede tællinger og stregkode-QC, før du stoler på dem. Filen unique_combinations.csv, som det skriver, er den guidetælletabel, som Regression parrer med dine fænotypescorer, brønd for brønd.",
+    "Det er her, screeningens to halvdele mødes. Åbn Regression fra Home, og giv det begge dele: fænotypescorerne fra Classify og guideantallene fra Map Barcodes. Regression matcher dem via plade og brønd, så nøglerne skal stemme i begge filer. Vælg responskolonnen og dine kontroller, kør tilpasningen, og åbn diagnostikken, før du tror på noget hit. Hvis dine stregkoder i stedet blev læst optisk med OPS, forbinder og aggregerer du først de afkodede objekter med dine fænotype- og guidedata; OPS leverer ikke en færdig tælletabel. Regression kan også modellere en direkte målt respons. Det skriver en resultatmappe med koefficienter, hittabeller, indstillinger og diagnostiske figurer.",
+    "En poolet screening løber altså som to strømme, der mødes i Regression. Før du åbner det, kontrollerer du, at plade- og brøndidentifikatorerne stemmer overens mellem scorer, guideantal og pladelayout, og opbevarer annotationskolonnen, klassifikatorindstillingerne og stregkodereferencerne sammen med kørslen. De linkede modullektioner gennemgår hvert trin, eller du kan vælge gennemgangen af poolet screening på Home."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "d09ff0a490896314a1ce2f1b7bd727a1b9f1845d21b7c757c6dc787a785cb530",
+    "corrections": [
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Activation Maps: skoðaðu áberandikort myndflokkara",
+  "description": "Veldu þjálfaðan flokkara og samsvarandi myndúrklipp, berðu saman áberandi eftir rásum og myndum og opnaðu vistuðu kortin.",
+  "objectives": [
+    "Samræma úrklippasafnið, líkanið og forvinnslustillingarnar.",
+    "Keyra áberandi eftir rásum með yfirlögn á myndina.",
+    "Bera saman áberandi eftir myndum og finna vistuðu hnitanetin."
+  ],
+  "prerequisite": "Notaðu þjálfaðan vistunarpunkt fyrir myndflokkun og TAR-safn samhæfðra myndúrklippa. Haltu merkinu um snið úrklippa ef það er til staðar og fylgdu röð rása, myndstærð og stöðlun samkvæmt líkanlýsingunni. Dæmið notar fjögur RGB-úrklipp úr Annotate og ResNet18-líkan úr Classify. Þjálfaðu eða útvegaðu líkan með þekktri forvinnslu áður en þú byrjar.",
+  "scenes": [
+    "Frá Home opnarðu Classify og svo Activation Maps. Tólið sýnir fyrir hvaða inntaksdílum spá þjálfaðs myndflokkara er næm. Byrjaðu á líkaninu og safni úrklippa sem voru undirbúin á sama hátt og þjálfunargögn þess.",
+    "Veldu úrklippasafnið í Dataset. Dæmið inniheldur fjögur RGB-frumuúrklipp úr Annotate. Taktu merkið um snið úrklippa með þegar þú pakkar myndunum og haltu skráarheitunum svo þú getir tengt hvert kort við upprunalegan hlut.",
+    "Veldu þjálfaða líkanið og tegund þess. Hér er líkanið ResNet18. Lestu líkanlýsinguna og stilltu Image size á 128 svo það passi við inntak þjálfunarinnar.",
+    "Stilltu Channels í þá röð sem líkanið býst við. Í dæminu notar valið 1, 2 og 3 fyrir RGB-inntakið. Haltu þeirri röð þegar þú berð saman kort úr ólíkum myndum.",
+    "Stilltu Normalize input eins og í þjálfuninni. Sérstaka birtingarstöðlunin ræður hvernig myndin lítur út í vistuðu yfirlögninni. Hafðu báðar stillingar eins þegar þú berð keyrslur saman.",
+    "Veldu saliency channel og virkjaðu Overlay, Plot og Save. Það býr til aðskilin kort fyrir hverja rás yfir myndunum. Fyrir dæmið með fjórum úrklippum notarðu runustærð 4 og eitt vinnsluferli og smellir svo á Run.",
+    "Fylgstu með stjórnborðinu þar til vinnslunni lýkur. Ef spjaldið Figures er tómt opnarðu úttaksmöppuna og skoðar vistuðu runuhnitanetin. Athugaðu villuboð og vistaðar niðurstöður áður en þú heldur áfram.",
+    "Opnaðu batch_0_grid.png úr möppunni batch_grids fyrir aðferðina. Paraðu hvern notaðan reit við upprunaúrklipp sitt; ónotaðir reitir geta verið auðir. Merkin í hornunum eru spár líkansins. Berðu áberandi svæði saman við upprunalegu myndina og þekkt mörk hluta.",
+    "Til að bera saman sameinað kort velurðu saliency image og slekkur á Overlay. Keyrðu sömu myndirnar aftur með sömu forvinnslu. Haltu úttaki aðferðanna tveggja í sínum möppum.",
+    "Opnaðu seinna vistaða hnitanetið. Áberandi eftir myndum sameinar næmni rásanna í eitt kort fyrir hvert úrklipp. Berðu auðkenndu svæðin saman við kort rásanna. Litirnir sýna kvarða kortsins; til að túlka þá þarf að skoða líkanið og samhengi myndarinnar.",
+    "Hafðu slökkt á Correlation í þessari fyrstu yfirferð. Skoðaðu dæmi úr ólíkum flokkum, þar á meðal rangar spár, áður en þú túlkar mynstur. Notaðu Classifier Evaluation til að meta frammistöðu á gögnum sem haldið var sjálfstætt til hliðar.",
+    "Haltu inntakssafninu, líkaninu og líkanlýsingunni, stillingunum, kortunum og úttaksgagnagrunninum saman. Farðu aftur í upprunalegu úrklippin til að rannsaka óvænt svæði, eða berðu saman aðra aðferð með sömu inntökum."
+  ]
+}

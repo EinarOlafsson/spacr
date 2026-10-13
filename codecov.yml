@@ -1,0 +1,35 @@
+# Item 688. Codecov reports coverage; it never blocks a merge. The enforcing
+# coverage check is the per-module 90% floor and ratchet in
+# .github/workflows/tests.yml (tools/verify_module_coverage.py).
+codecov:
+  require_ci_to_pass: false
+
+coverage:
+  precision: 2
+  round: down
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+# .coveragerc measures `source = spacr` with no omit list, so these paths are
+# never in the report; listing them keeps Codecov's scope identical to
+# coverage.py's and its total equal to the ratchet's combined total.
+ignore:
+  - "tests/**"
+  - "docs/**"
+  - "tools/**"
+  - "features/**"
+  - "packaging/**"
+  - "Notebooks/**"
+
+flags:
+  nightly:
+    carryforward: false
+  main:
+    carryforward: false
+
+comment: false

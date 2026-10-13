@@ -1,0 +1,209 @@
+{
+  "id": "09_annotate",
+  "number": 9,
+  "slug": "annotate",
+  "title": "Annotate: label objects and save your annotations",
+  "series": 1,
+  "app_key": "annotate",
+  "section": "Core",
+  "description": "Load example crops, choose an annotation column, label objects, adjust the view and prepare your labels for classification.",
+  "objectives": [
+    "Load saved crops or stream crops from merged images.",
+    "Choose an annotation column, assign and clear labels, and save your changes.",
+    "Adjust channel colours and review class counts and coverage.",
+    "Find Agreement and the image and feature training routes."
+  ],
+  "prerequisite": "Open Annotate from Home. Use Load test data and choose Load for the example crops and measurements database. For your own project, use the folder containing its measurements database and crops or merged images.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "Open Annotate from Home. The grid shows individual objects from your project. You will label these objects and save the labels in the measurements database.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_data_choice_load",
+      "focus": [
+        1680,
+        896,
+        460,
+        477
+      ],
+      "narration": "Click Load test data and choose Load. This downloads the example image crops and their measurements database, then opens them in Annotate.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_data_choice_stream",
+      "focus": [
+        1680,
+        896,
+        460,
+        477
+      ],
+      "narration": "Choose Stream when you want to read crops directly from merged images. Choose Load for already exported crops. We will use Load for this walkthrough.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_open_source_dialog",
+      "focus": [
+        1393,
+        810,
+        1300,
+        950
+      ],
+      "narration": "To open your own data, click Open source and select the plate folder containing measurements and the image data. The grid then loads the objects from that project.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_loaded_crops",
+      "narration": "Inspect the crop grid. Use the page controls to browse the objects. Adjust the crop size if you need a closer view or want more objects on each page.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_annotation_settings",
+      "focus": [
+        1536,
+        309,
+        748,
+        1462
+      ],
+      "narration": "Open Settings and choose an annotation column. Create a new column to keep this labelling task separate from existing annotations. Decide what each class represents before you start.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_class_one_pending",
+      "narration": "Left-click a crop to assign class one. Right-click assigns class two. Click the same class again to clear it. The coloured ring shows the label, and the white ring marks the focused crop.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_next_page_saved",
+      "narration": "Press Next to move to the next page and submit your labels for saving. Wait for saving to finish before closing the application.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_class_one_saved",
+      "narration": "Press Back to return to the previous page and check your labels. You can also use keys one to nine to assign classes and zero to clear a label. The on-screen legend lists the navigation and undo shortcuts.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_class_counts",
+      "focus": [
+        1768,
+        972,
+        285,
+        136
+      ],
+      "narration": "Open Class counts to see how many objects you have labelled in each class. Use this to find classes that need more examples.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_annotation_coverage",
+      "focus": [
+        1450,
+        730,
+        920,
+        620
+      ],
+      "narration": "Open Coverage to see how your annotations are distributed across the project. Include examples from the conditions and image groups you want the classifier to recognize.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_class_cleared",
+      "narration": "To clear a label, click the same class again. Move to the next page to save the change, then return to check the cleared crop.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_display_colour_settings",
+      "focus": [
+        1536,
+        309,
+        748,
+        1462
+      ],
+      "narration": "In Settings, Channel colours selects the display palette. Display order assigns source channels to the colour slots. Choose a view that makes your classes easy to distinguish.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_cmy_view",
+      "narration": "Here is the CMY palette. You can return to RGB through the same settings. Keep the view consistent while comparing and labelling objects.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_agreement_fold",
+      "narration": "Open Annotator Agreement from the icon at the top right to compare annotation columns. Use it to find objects where reviewers assigned different labels.",
+      "focus_buttons": "FoldButton",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "23_agreement"
+      ]
+    },
+    {
+      "visual": "16_training_routes",
+      "focus": [
+        1832,
+        204,
+        416,
+        80
+      ],
+      "narration": "When your labels are ready, open Train. Choose images for an image classifier or measured features for a tabular classifier. The linked Classify lessons explain the training settings.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "41_classify",
+        "10_classify_cv",
+        "11_classify_ml"
+      ]
+    },
+    {
+      "visual": "19_labels_for_suggest",
+      "narration": "Suggest proposes labels for the crops you have not answered yet, so first give it examples of both classes from several wells. Here a few crops of each class are labelled in four wells, then Next saves them.",
+      "focus": [
+        360,
+        380,
+        3450,
+        1000
+      ],
+      "related_lessons": [],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_suggestions",
+      "narration": "Open Suggest and choose Suggest for the images on this page. The round takes a few seconds, and every crop on the page now wears a question-mark badge. The bar above the grid counts how many suggestions are left to judge.",
+      "focus": [
+        350,
+        250,
+        3460,
+        1150
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_judged",
+      "narration": "Click a suggested crop or press Y to confirm it, and right-click it or press N to reject it. Both answers are recorded, rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
+      "focus": [
+        350,
+        250,
+        3460,
+        700
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_generate_database_entry",
+      "narration": "Generate annotation database creates a crop set from suitable source data. Use it when preparing a new annotation project; the downloaded example already includes the crops and database needed here.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "18_annotation_console",
+      "narration": "Open Console to check source-loading and save messages. Your annotation column is stored in the project database and can be selected when you prepare training data in Classify.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "30_ai_unsent_question",
+      "narration": "For help with a setting, open spaCR AI in Console after configuring a provider in Preferences. When you have finished labelling, continue to Classify with your project and chosen annotation column.",
+      "hold_after": 0.7
+    }
+  ]
+}

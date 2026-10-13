@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: the confluency_channel, confluency_source and confluency_window tooltips that item 536's phase confluency source rewrote, re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7578bb1f6d42093da1b5b6e361d10e7890278a20b883516e0dcd7bd6deb80adf",
+      "translation": "Le canal du tableau fusionné que lisent les sources de confluence texture, intensité et phase, compté comme dans channels. Vide utilise la première entrée de channels. Choisissez le plan en fond clair ou en phase pour la texture ou la phase, ou le marquage du cytoplasme ou de la membrane pour l’intensité. Ignoré quand confluency_source se résout en masques. Valeur par défaut : None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "1ad7c53391ca65eafe218c43afc1b78b597ef9635c7d5c63fed1de29970f4436",
+      "translation": "Manière de décider la confluence. auto utilise les masques de cellules quand l’exécution en a, et la texture sinon. masks est l’union de toutes les cellules segmentées, avant les filtres de taille de Measure. texture lit la variation locale de confluency_channel avec un seuil automatique. phase classe chaque pixel de confluency_channel avec un petit modèle entraîné sur des images en contraste de phase de huit lignées cellulaires, pour le contraste de phase et le fond clair. intensity seuille automatiquement confluency_channel, pour les marquages fluorescents du cytoplasme ou de la membrane. Valeur par défaut : auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "b67b9aee3ea6ab1b6d9cfa65b4f72c2567c5d6d012d87cbce7c7b17169830eed",
+      "translation": "Côté de la fenêtre carrée, en pixels, sur laquelle la source de confluence texture mesure la variation locale. À peu près la largeur du plus fin prolongement cellulaire qui doit compter comme couvert : plus petite, elle suit les bords de plus près mais laisse l’intérieur lisse des cellules comme des trous ; plus grande, elle comble les espaces étroits. Pour la phase, le champ est d’abord redimensionné par 15/fenêtre ; augmentez donc la valeur en proportion quand les cellules font plus de pixels de large que dans les images d’entraînement du classificateur. Ignoré par les sources masques et intensité. Valeur par défaut : 15."
+    }
+  ]
+}

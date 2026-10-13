@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#0",
+      "source_sha256": "3bf217b72aee585433ba56c06f012fb473644aa5e73368e48221fc9f70ff743a",
+      "source": "Write one deterministic box-and-jitter four-file panel package.",
+      "context": "Write one deterministic box-and-jitter four-file panel package.",
+      "translation": "Skrifar einn safngrip með kassa- og dreifingarmynd í fjórum skrám, sem gefur alltaf sömu niðurstöðu."
+    }
+  ]
+}

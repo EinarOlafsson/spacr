@@ -1,0 +1,158 @@
+{
+  "accepted_execution": true,
+  "device": "cpu",
+  "source": {
+    "path": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_9_1.npy",
+    "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+    "labels": 64
+  },
+  "explicitly_derived_crop_yx": [
+    0,
+    384,
+    0,
+    384
+  ],
+  "intensity_planes": [
+    0,
+    1,
+    2
+  ],
+  "only_acquired_intensity_planes_sent_not_reference_mask_plane_5": true,
+  "source_unchanged_and_all_normalized_channels_independently_verified": true,
+  "cases": [
+    {
+      "case": "one_channel",
+      "selected_acquired_intensity_planes": [
+        0
+      ],
+      "normal_ingest_and_worker_input_exact": true,
+      "generated_mask_planes_sent": false,
+      "source_TIFF_hashes": {
+        "plate1_E01_T01F09L01A01Z01C00.tif": "adfe3c0fccddb6d994f471cbb008567d804ec26731c893452f09449d6bd7ced3"
+      },
+      "profile": {
+        "request": 1,
+        "requested_device": "cpu",
+        "actual_worker_reply_device": "cpu",
+        "cuda_events": 0,
+        "cuda_kernel_events": 0,
+        "cuda_kernel_names": [],
+        "torch_version": "2.11.0+cu128",
+        "cuda_runtime": "12.8",
+        "model": "fluorescence_nuclei_and_cells",
+        "params": {
+          "channel_axis": -1,
+          "normalize": false,
+          "diameter": 86.0,
+          "flow_threshold": 0.4,
+          "cellprob_threshold": 0,
+          "min_size": 0,
+          "resample": true,
+          "batch_size": 1
+        },
+        "inputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-multiplex-r1/cpu-r3/profiling/request-01-input-01.npy",
+            "sha256": "3ace072f89c7c27a8dc7ea039ae0380f7d043a4d9061c007997ba22e296c2c4e",
+            "shape": [
+              384,
+              384,
+              1
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-multiplex-r1/cpu-r3/profiling/request-01-mask-01.npy",
+            "sha256": "7c63276fbffa0272eedb041133e4e15042e73cfe00cafa384a659c777482e585",
+            "objects": 2
+          }
+        ],
+        "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47"
+      },
+      "mask": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-multiplex-r1/cpu-r3/one_channel/masks/nucleus_mask_stack/plate1_E01_9_1.npy",
+      "mask_sha256": "7c63276fbffa0272eedb041133e4e15042e73cfe00cafa384a659c777482e585",
+      "objects_after_normal_pipeline_filters": 2
+    },
+    {
+      "case": "three_channels",
+      "selected_acquired_intensity_planes": [
+        0,
+        1,
+        2
+      ],
+      "normal_ingest_and_worker_input_exact": true,
+      "generated_mask_planes_sent": false,
+      "source_TIFF_hashes": {
+        "plate1_E01_T01F09L01A01Z01C00.tif": "adfe3c0fccddb6d994f471cbb008567d804ec26731c893452f09449d6bd7ced3",
+        "plate1_E01_T01F09L01A01Z01C01.tif": "72d58876a2866a960f19ab212e35adb9de242165e5ce700523df8338826a98c7",
+        "plate1_E01_T01F09L01A01Z01C02.tif": "3eb75e13b5918dc9c674a3ad036422c85e5b557392a8d89bf9a2dfbee1f11179"
+      },
+      "profile": {
+        "request": 2,
+        "requested_device": "cpu",
+        "actual_worker_reply_device": "cpu",
+        "cuda_events": 0,
+        "cuda_kernel_events": 0,
+        "cuda_kernel_names": [],
+        "torch_version": "2.11.0+cu128",
+        "cuda_runtime": "12.8",
+        "model": "fluorescence_nuclei_and_cells",
+        "params": {
+          "channel_axis": -1,
+          "normalize": false,
+          "diameter": 86.0,
+          "flow_threshold": 0.4,
+          "cellprob_threshold": 0,
+          "min_size": 0,
+          "resample": true,
+          "batch_size": 1
+        },
+        "inputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-multiplex-r1/cpu-r3/profiling/request-02-input-01.npy",
+            "sha256": "4012b934e09562cfff00600058d99e69b9ca5af36ec41e2225c686c03e72b11d",
+            "shape": [
+              384,
+              384,
+              3
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-multiplex-r1/cpu-r3/profiling/request-02-mask-01.npy",
+            "sha256": "b7668516328d0db3486686423d7ee03fd381b9a1ce8a0f22d4446b6ac5ad4465",
+            "objects": 5
+          }
+        ],
+        "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47"
+      },
+      "mask": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-multiplex-r1/cpu-r3/three_channels/masks/nucleus_mask_stack/plate1_E01_9_1.npy",
+      "mask_sha256": "b7668516328d0db3486686423d7ee03fd381b9a1ce8a0f22d4446b6ac5ad4465",
+      "objects_after_normal_pipeline_filters": 5
+    }
+  ],
+  "preprocessing_controls": "Three actual separate one-channel ingests retaining the same nucleus/cell/pathogen role and its normal normalization/background parameters; exact comparison with selected planes of the normal one/three-channel ingests.",
+  "independent_normalized_reference_sha256": "4012b934e09562cfff00600058d99e69b9ca5af36ec41e2225c686c03e72b11d",
+  "fixed_diameter_pixels": 86,
+  "no_independent_multiplex_ground_truth_or_accuracy_claim": true,
+  "models": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/cover.png": "5516689c2e8e403d7ea7f7ac4f694ee6019905ff91f5ade55bcade10dae8f8c5",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/fluorescence_nuclei_and_cells_README.md": "4e75c20db5d273d8849dc5a9793e509c00adb098905b9145d3a865b9951a2f21",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/instanseg.pt": "636833d26b5afcc03bde1357b3e669cf015e91dd1edda863aa51c19eee986562",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/instanseg_postprocess.ijm": "0886f52737326dba0c6d53528909d746e75e0dce7a0cb41e855a648f8133ba88",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/instanseg_preprocess.ijm": "53376aec6738fb19eab1ace9308c383ee04e46af2a3acf7e70b5862919dca86c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/rdf.yaml": "d2b741585fb88cda1bfb552f2829cbdeeed1e814638ea45bbb111bfd6a326281",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/test-input.npy": "2c65ea28d752e79281f530ef5292b06fb221e9b314908d7e9092efaba02168ff",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/fluorescence_nuclei_and_cells/0.1.1/test-output_instance_segmentation.npy": "c723b2b160a1803dbe1933757334416ae8c0b29e561175a145d27669bd9f2924"
+  },
+  "benchmark_script_sha256": "e08ceaec7cc3d2714a51545d4e7816991265956c7eb3527276c87294fe44c6a5",
+  "worker_script_sha256": "050e665cf1fe9cf239077276a879b38f6c234dd426d5b4763d277db344de549c",
+  "source_hashes": {
+    "spacr/core.py": "cc1ccacea893d5ff0ff6c8f66f5af1cc1c2ab645c0c123ebcb9c48d8069e1491",
+    "spacr/object.py": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+    "spacr/utils.py": "2fad5d4550b23e99f2067c81f5a8adb5f66536430f182b7314fba67aa58f6a8c",
+    "spacr/_segmentation_backends.py": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47"
+  }
+}

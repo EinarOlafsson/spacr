@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "48_hit_list",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Classifique e examine os resultados positivos da triagem usando tamanho de efeito, incerteza, taxa de descobertas falsas e concordância entre guias.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Hit List.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Hit List. Classifique e examine os resultados positivos da triagem usando tamanho de efeito, incerteza, taxa de descobertas falsas e concordância entre guias.",
+        "Selecione uma análise concluída e as colunas de resultados que definem o desfecho da triagem.",
+        "Na área principal de configuração, defina os controles e os filtros de direção, significância, tamanho de efeito, anotação e concordância.",
+        "Examine a prévia da tabela classificada e os candidatos individuais antes de exportar um subconjunto final.",
+        "Ao término do fluxo de trabalho, a lista filtrada preserva as pontuações, as evidências, as anotações e os identificadores de origem."
+      ]
+    }
+  }
+}

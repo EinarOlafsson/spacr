@@ -1,0 +1,9 @@
+tests/qt/test_dose_response_fits_an_asymmetric_curve.py::test_the_fitted_midpoint_is_the_ec50_under_every_asymmetry
+tests/qt/test_dose_response_fits_an_asymmetric_curve.py::test_the_asymmetric_profile_interval_covers_the_ec50_it_is_built_for
+owned_collection_probe={"pid": 3969483, "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python3.12", "maps": 1627, "items": 503}
+
+Thread 1 "python" received signal SIGUSR1, User defined signal 1.
+0x00007ffff7c4553b in __GI_kill () at ../sysdeps/unix/syscall-template.S:120
+warning: 120	../sysdeps/unix/syscall-template.S: No such file or directory
+warning: Memory read failed for corefile section, 4096 bytes at 0xffffffffff600000.
+Saved corefile /mnt/wd4tb/scratch/native-qt612-7a-collection-20261008/core.qt-batch3-collection.elf

@@ -1,0 +1,353 @@
+{
+  "lesson": "04_platform_installers",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "6113aa10ab6e0b64f35b735728c7a847baad13ef0fd94d0cfe105d614b26cfc5",
+  "scene_count": 11,
+  "seek_playback_clocks": {
+    "audio": 81.161109,
+    "video": 81.19065,
+    "expectedVideo": 81.15313545326434,
+    "audioDuration": 169.65,
+    "videoDuration": 169.633333,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "3cc8e4cb50fecf8489b38a14b219b528ee525b10e569554539d51e32aa98a94e",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "02_conda_install",
+    "03_pip_install",
+    "05_home"
+  ],
+  "sentence_cue_checks": [
+    {
+      "requested_audio_time": 3.5475,
+      "text": "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system.",
+      "audio": 3.5475,
+      "video": 3.547151,
+      "cues": [
+        "Open the official spaCR release on GitHub and, under Assets, download the installer for your operating system."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 10.2275,
+      "text": "These online installers download the Python runtime and scientific packages during setup.",
+      "audio": 10.2275,
+      "video": 10.226495,
+      "cues": [
+        "These online installers download the Python runtime and scientific packages during setup."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 16.7825,
+      "text": "Keep SHA256SUMS dot txt from the same release if you want to verify the download.",
+      "audio": 16.7825,
+      "video": 16.780851,
+      "cues": [
+        "Keep SHA256SUMS dot txt from the same release if you want to verify the download."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 22.5875,
+      "text": "On Windows, run the setup executable and follow its prompts.",
+      "audio": 22.5875,
+      "video": 22.58528,
+      "cues": [
+        "On Windows, run the setup executable and follow its prompts."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 29.482499999999995,
+      "text": "Leave automatic acceleration selected to use the supported hardware detected on your computer, or choose CPU-only operation if that is what you need.",
+      "audio": 29.482499,
+      "video": 29.479603,
+      "cues": [
+        "Leave automatic acceleration selected to use the supported hardware detected on your computer, or choose CPU-only operation if that is what you need."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 36.8725,
+      "text": "On macOS, open the universal package and follow the installer.",
+      "audio": 36.8725,
+      "video": 36.868877,
+      "cues": [
+        "On macOS, open the universal package and follow the installer."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 41.46,
+      "text": "Start spaCR from its application launcher, and allow the first-run downloads to finish.",
+      "audio": 41.46,
+      "video": 41.455926,
+      "cues": [
+        "Start spaCR from its application launcher, and allow the first-run downloads to finish."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 46.56,
+      "text": "Read any security prompt and confirm that the package came from the official release.",
+      "audio": 46.56,
+      "video": 46.555425,
+      "cues": [
+        "Read any security prompt and confirm that the package came from the official release."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 51.932500000000005,
+      "text": "On Linux, make the downloaded installer executable, then run it from a terminal.",
+      "audio": 51.9325,
+      "video": 51.927397,
+      "cues": [
+        "On Linux, make the downloaded installer executable, then run it from a terminal."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 56.2175,
+      "text": "Automatic acceleration selects a supported backend.",
+      "audio": 56.2175,
+      "video": 56.211976,
+      "cues": [
+        "Automatic acceleration selects a supported backend."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 63.5,
+      "text": "The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries.",
+      "audio": 63.5,
+      "video": 63.493761,
+      "cues": [
+        "The help lists dash dash torch-backend cpu for CPU-only operation, and dash dash skip-system-deps for computers that already have the Qt graphics libraries."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 71.585,
+      "text": "After setup, the installation profile records the selected backend.",
+      "audio": 71.585,
+      "video": 71.577967,
+      "cues": [
+        "After setup, the installation profile records the selected backend."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 76.76249999999999,
+      "text": "Check this when you want to confirm whether the runtime uses CPU or a supported accelerator.",
+      "audio": 76.762499,
+      "video": 76.754958,
+      "cues": [
+        "Check this when you want to confirm whether the runtime uses CPU or a supported accelerator."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 81.1925,
+      "text": "Check the installed spaCR version.",
+      "audio": 81.1925,
+      "video": 81.184523,
+      "cues": [
+        "Check the installed spaCR version."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 84.66999999999999,
+      "text": "Keep it with your analysis notes, especially when you update the application later.",
+      "audio": 84.669999,
+      "video": 84.661681,
+      "cues": [
+        "Keep it with your analysis notes, especially when you update the application later."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 89.59999999999997,
+      "text": "Setup asks about optional diagnostic sharing and account setup.",
+      "audio": 89.599999,
+      "video": 89.591197,
+      "cues": [
+        "Setup asks about optional diagnostic sharing and account setup."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 94.22749999999998,
+      "text": "Answer y only for the options you want; n, the default, keeps each one off.",
+      "audio": 94.227499,
+      "video": 94.218242,
+      "cues": [
+        "Answer y only for the options you want; n, the default, keeps each one off."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 98.59499999999997,
+      "text": "The Windows installer shows the same choices as checkboxes.",
+      "audio": 98.594999,
+      "video": 98.585313,
+      "cues": [
+        "The Windows installer shows the same choices as checkboxes."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 103.05749999999998,
+      "text": "In the current nightly interface, open Preferences and choose Performance.",
+      "audio": 103.057499,
+      "video": 103.047375,
+      "cues": [
+        "In the current nightly interface, open Preferences and choose Performance."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 106.36499999999998,
+      "text": "Select a profile for your computer.",
+      "audio": 106.364999,
+      "video": 106.35455,
+      "cues": [
+        "Select a profile for your computer."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 110.28249999999997,
+      "text": "Laptop uses fewer resources; higher profiles allow more caching and background work.",
+      "audio": 110.282499,
+      "video": 110.271665,
+      "cues": [
+        "Laptop uses fewer resources; higher profiles allow more caching and background work."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 114.69249999999997,
+      "text": "Start with a modest profile if memory is limited.",
+      "audio": 114.692499,
+      "video": 114.681232,
+      "cues": [
+        "Start with a modest profile if memory is limited."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 119.08999999999997,
+      "text": "This recording installs spaCR version one point five point one point three.",
+      "audio": 119.089999,
+      "video": 119.0783,
+      "cues": [
+        "This recording installs spaCR version one point five point one point three."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 122.88249999999996,
+      "text": "Released builds can show an older Home layout.",
+      "audio": 122.882499,
+      "video": 122.870427,
+      "cues": [
+        "Released builds can show an older Home layout."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 126.72749999999996,
+      "text": "Here is Home in the current nightly build, with Core, Data, Tools and Assays.",
+      "audio": 126.727499,
+      "video": 126.715049,
+      "cues": [
+        "Here is Home in the current nightly build, with Core, Data, Tools and Assays."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 131.09499999999997,
+      "text": "Continue to Home screen and navigation for the current modules.",
+      "audio": 131.094999,
+      "video": 131.08212,
+      "cues": [
+        "Continue to Home screen and navigation for the current modules."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 136.45999999999998,
+      "text": "Run spacr-doctor from the installed runtime if startup or a file format needs attention.",
+      "audio": 136.459999,
+      "video": 136.446593,
+      "cues": [
+        "Run spacr-doctor from the installed runtime if startup or a file format needs attention."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 142.60999999999996,
+      "text": "In this recorded CPU installation, the backend check passes and the GPU probe is skipped.",
+      "audio": 142.609999,
+      "video": 142.595989,
+      "cues": [
+        "In this recorded CPU installation, the backend check passes and the GPU probe is skipped."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 149.09249999999997,
+      "text": "The warning says the optional CZI reader is missing; install that extra only if you need CZI files.",
+      "audio": 149.092499,
+      "video": 149.077852,
+      "cues": [
+        "The warning says the optional CZI reader is missing; install that extra only if you need CZI files."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 156.52499999999998,
+      "text": "For installation problems, find install dot log and install-profile dot json in the installation directory.",
+      "audio": 156.524999,
+      "video": 156.509622,
+      "cues": [
+        "For installation problems, find install dot log and install-profile dot json in the installation directory."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 161.8775,
+      "text": "Review the logs before sharing them with a support request.",
+      "audio": 161.8775,
+      "video": 161.861596,
+      "cues": [
+        "Review the logs before sharing them with a support request."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 166.36999999999998,
+      "text": "Include your operating system and spaCR version so the problem is easier to diagnose.",
+      "audio": 166.369999,
+      "video": 166.353655,
+      "cues": [
+        "Include your operating system and spaCR version so the problem is easier to diagnose."
+      ],
+      "seek_attempts": 1
+    }
+  ],
+  "passed": true
+}

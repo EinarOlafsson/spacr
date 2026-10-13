@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "item": 53,
+  "date": "2026-09-28",
+  "scope": "Rebuilt native frozen Windows/macOS and Debian artifacts installed and actual CPU GUI Measure accepted; copied helper CLI survives original removal",
+  "run_id": 36372926331,
+  "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/36372926331",
+  "source_commit": "f9d5af988ec34d9432fbf01372cd8ee9263d3cef",
+  "conclusion": "success",
+  "workflow_sha256": "bda5f7df4f9e6eff183831891ac575b4d4409c5cf3e1c330015c388a41a8fe23",
+  "jobs": [
+    {
+      "name": "build-debian",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "build-frozen (macos-15, macos)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "build-frozen (windows-2025, windows)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "smoke-frozen (windows-2025, windows)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "smoke-frozen (macos-15, macos)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "smoke-debian (ubuntu:22.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "smoke-debian (debian:12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "claude-native-windows (powershell51)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "claude-native-macos",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "claude-native-windows (cmd)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "claude-native-linux",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact": "legacy-smoke-windows",
+      "artifact_id": 10950364179,
+      "github_reported_artifact_digest": "sha256:c609feb65bd229f43dd001398258b133d22072bd599928d7c1f429db3973ac99",
+      "smoke_sha256": "2979c2ad9675f8538043c76bbd0c4cd2e85d226b049a0485c3c484677d35f097",
+      "helper_receipt_sha256": "045d16d50cdf531bf7c68bf5d57f257cb106fd5eac38d0c7ff484dea1d1b41fa",
+      "database_sha256": "a59b009e5fe10a252819d712575f172e30a9eb70bd836ed0a802a33a01512afa",
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "kind": "frozen",
+      "version": "1.5.1.0",
+      "real_gui_run": true,
+      "cpu_measure_cells": 16,
+      "database_integrity": "ok",
+      "independent_cell_recount": 16,
+      "packaged_resources_verified": true,
+      "visual_layout_status": "passed",
+      "helper_survives_original_removal": true,
+      "helper_scope": "native copied-helper CLI after uninstall, not update execution"
+    },
+    {
+      "artifact": "legacy-smoke-macos",
+      "artifact_id": 10950741950,
+      "github_reported_artifact_digest": "sha256:97703777b644f0feab7ea6008e2994abf8298bb2110152691809715a872ef0ef",
+      "smoke_sha256": "56c0e8ece8224fed1a11c78e0b150a23f51af5a0ccfb5c54bfe4a7946f4d0587",
+      "helper_receipt_sha256": "e631e9f26c6eab7ae1ce26299712f8c59cad208bcbff470e52b0f6016b77857b",
+      "database_sha256": "27e9417712f00e3ee5bed976183a8f7c1297b3334f168731e90e6c01cafe1dab",
+      "platform": "macOS-15.7.9-arm64-arm-64bit",
+      "kind": "frozen",
+      "version": "1.5.1.0",
+      "real_gui_run": true,
+      "cpu_measure_cells": 16,
+      "database_integrity": "ok",
+      "independent_cell_recount": 16,
+      "packaged_resources_verified": true,
+      "visual_layout_status": "passed",
+      "helper_survives_original_removal": true,
+      "helper_scope": "native copied-helper CLI after app removal, not update execution"
+    },
+    {
+      "artifact": "legacy-smoke-0-debian",
+      "artifact_id": 10949654464,
+      "github_reported_artifact_digest": "sha256:b2843bbc62333bd938e3df2b38d2356f8243501b3e14e9f604ec87f46bb1253e",
+      "smoke_sha256": "d188ea9b98b0cea0d97d7a1b155401c4e861d488a8cf049fc557ac9dbddd5296",
+      "helper_receipt_sha256": "1978a2ca6a98a368644928c953db9af0c416f90172faba61e737b0c97175423e",
+      "database_sha256": "f38e8e04b1185dcf496dbf2cdd19595df9a537a11ccaa8c09c0cebc39cda414f",
+      "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.35",
+      "kind": "debian-frozen",
+      "version": "1.5.1.0",
+      "real_gui_run": true,
+      "cpu_measure_cells": 16,
+      "database_integrity": "ok",
+      "independent_cell_recount": 16,
+      "packaged_resources_verified": true,
+      "visual_layout_status": "passed",
+      "helper_survives_original_removal": true,
+      "helper_scope": "native copied-helper CLI after package removal, not update execution"
+    },
+    {
+      "artifact": "legacy-smoke-1-debian",
+      "artifact_id": 10950796982,
+      "github_reported_artifact_digest": "sha256:dde3eaddfa2672a564bc7c9b274e894a15946a5af1f6eccd269a32043863317a",
+      "smoke_sha256": "8f6c11a811f2fa6fd052b812ff34c68decc170f12c07d291290b09dd51f67dfe",
+      "helper_receipt_sha256": "6748b22a2d2d30678825b4a56bc5de94f04df412c7af697273d5c823ed554d24",
+      "database_sha256": "ea4ec8e2c0a81abafc3cf8bb2b8fcb34644792a9c5b94c188159858c7efe9d7d",
+      "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.36",
+      "kind": "debian-frozen",
+      "version": "1.5.1.0",
+      "real_gui_run": true,
+      "cpu_measure_cells": 16,
+      "database_integrity": "ok",
+      "independent_cell_recount": 16,
+      "packaged_resources_verified": true,
+      "visual_layout_status": "passed",
+      "helper_survives_original_removal": true,
+      "helper_scope": "native copied-helper CLI after package removal, not update execution"
+    }
+  ],
+  "checks": {
+    "run_binding": true,
+    "all_jobs_success": true,
+    "receipt_source_bindings": true,
+    "independent_sqlite_integrity_and_recounts": true
+  },
+  "windows_compiler_prerequisite": {
+    "actual_native_build": "passed",
+    "exact_package_fallback_branch": "Not independently established; acquisition receipt has not been downloaded"
+  },
+  "remaining": [
+    "Historical Windows released online-family recovery",
+    "Actual frozen helper replacement and interrupted recovery transactions",
+    "Protected macOS authorization/dispatch and GUI CPU restart after replacement",
+    "Other required frozen and mixed/legacy update families"
+  ],
+  "full_item_complete": false,
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/item53-native-36372926331"
+}

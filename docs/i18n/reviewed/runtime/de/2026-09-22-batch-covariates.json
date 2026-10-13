@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI-assisted linguistic and technical review; preserve the literal comma-separated column names",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "batch_covariate_column",
+      "source": "Metadata column(s) naming the biological effects ComBat must preserve, for example 'condition' or 'condition,timepoint'. ComBat estimates the batch effect from residuals after fitting these terms, so unlisted effects may be removed with the plate effect. Include every treatment effect that must remain in the corrected data. See spacr.batch_correction.correct_batch_effects. Default None.",
+      "source_sha256": "ef1da37a6df496997f04e8e080d89f814318b92e686117d56d8a1556051340c4",
+      "translation": "Metadatenspalte(n), die die biologischen Effekte benennen, die ComBat erhalten muss, zum Beispiel 'condition' oder 'condition,timepoint'. ComBat schätzt den Batch-Effekt anhand der Residuen nach der Anpassung dieser Terme; nicht aufgeführte Effekte können daher zusammen mit dem Platteneffekt entfernt werden. Geben Sie jeden Behandlungseffekt an, der in den korrigierten Daten erhalten bleiben muss. Siehe spacr.batch_correction.correct_batch_effects. Standardwert None."
+    }
+  ]
+}

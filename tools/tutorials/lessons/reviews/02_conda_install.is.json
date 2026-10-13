@@ -1,0 +1,32 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "bd6c60f01901809050a21eef5511d84dba6220200285260e3aec4a1faab042ed",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Settu upp spaCR með Conda",
+  "description": "Búðu til Conda-umhverfi, settu upp spaCR frá conda-forge og ræstu forritið.",
+  "objectives": [
+    "Búa til og virkja sérstakt Conda-umhverfi.",
+    "Setja upp spaCR frá conda-forge.",
+    "Opna spaCR og uppfæra sama umhverfi þegar þörf krefur."
+  ],
+  "prerequisite": "Settu upp Conda eða Miniforge og opnaðu síðan skipanaglugga þar sem skipunin conda er tiltæk.",
+  "scenes": [
+    "Opnaðu skipanaglugga með Conda. Þú býrð til umhverfi fyrir spaCR, setur upp conda-forge-pakkann og ræsir forritið úr því umhverfi.",
+    "Búðu til umhverfi sem heitir spacr-conda með Python 3.12 og spaCR frá conda-forge með skipuninni sem birtist. Veldu annað nafn ef þú notar það nafn nú þegar fyrir annað umhverfi.",
+    "Conda leysir umhverfið og birtir pakkaáætlunina. Farðu yfir hana, sláðu inn y til að samþykkja og bíddu síðan þar til niðurhali og uppsetningu er lokið.",
+    "Virkjaðu spacr-conda. Keyrðu Python-skipunina sem birtist til að sjá slóð umhverfisins og gakktu úr skugga um að þetta sé umhverfið sem þú varst að búa til.",
+    "Keyrðu conda list spacr til að sjá uppsettu útgáfuna og staðfesta að hún komi frá conda-forge. Þegar Python og spaCR eru sett upp með einni skipun getur Conda leyst alla pakkana saman, sem er mun fljótlegra en að bæta spaCR við umhverfi sem þegar er til.",
+    "Athugaðu uppsettu spaCR-útgáfuna og staðsetningu pakkans. Geymdu útgáfuna með greiningarglósunum þínum svo þú getir síðar snúið aftur í sama umhverfi.",
+    "Keyrðu spacr-doctor til að athuga uppsetninguna. Hér tilkynnir það að vispy, sem er kjarnapakki sem spaCR þarfnast, vanti og sýnir skipunina sem setur hann upp. Keyrðu þá skipun og keyrðu svo spacr-doctor aftur. Fylgdu öðrum ráðlögðum skrefum aðeins fyrir þau skráarsnið eða eiginleika sem þú þarft.",
+    "Sláðu inn spacr til að ræsa forritið. Ljúktu við valkostina við fyrstu ræsingu og haltu svo áfram með Home-kennsluna til að finna einingar og sýnigögn þeirra.",
+    "Til að uppfæra síðar lokarðu spaCR, virkjar þetta umhverfi og uppfærir conda-forge-pakkann. Þegar conda-forge hefur enga nýrri útgáfu tilkynnir Conda að allir umbeðnir pakkar séu þegar uppsettir. Athugaðu síðan uppsettu útgáfuna; kennslustundirnar um pip og uppsetningarforritið fjalla um hinar uppsetningarleiðirnar."
+  ]
+}

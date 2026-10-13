@@ -1,0 +1,460 @@
+{
+  "checkpoint": "/mnt/wd4tb/af3/projects/live_cell/timeflows/timeflows_v1.pt",
+  "checkpoint_sha256": "e9060390f1a5b13a587dbd5bee434ef2a6e41373c52ceecb884c38a833a851fc",
+  "checkpoint_metadata": {
+    "base": "cpsam",
+    "movies": [
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Unspecified/Masks/timelapse/Widefield_4x/Phase_contrast/ctc_phc_psc_timelapse",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Rattus_norvegicus/Masks/timelapse/Confocal_10x-20x/Fluorescence/ctc_fluo_c2dl_msc/unpacked/Fluo-C2DL-MSC/Fluo-C2DL-MSC",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_musc_timelapse",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Widefield_10x/Brightfield/ctc_bf_hsc_timelapse",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Mus_musculus/Masks/timelapse/Confocal_63x/Fluorescence/ctc_fluo_n2dh_gowt1/unpacked/Fluo-N2DH-GOWT1/Fluo-N2DH-GOWT1",
+      "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_10x/Fluorescence/ctc_fluo_n2dl_hela/unpacked/Fluo-N2DL-HeLa/Fluo-N2DL-HeLa"
+    ],
+    "pairs": 694,
+    "max_pairs_per_sequence": 60,
+    "head_steps": 2000,
+    "full_steps": 2000,
+    "final_loss": 0.050018150359392166
+  },
+  "metadata_sha256": "7567329a3c22cfbddec7fab255504280241c0247b21b0cde502bcc1f57461b47",
+  "movie": "/mnt/wd4tb/af3/projects/live_cell/datasets/Synthetic/Masks/timelapse/Widefield_40x/Fluorescence/ctc_fluo_n2dh_sim/unpacked/Fluo-N2DH-SIM+/Fluo-N2DH-SIM+",
+  "data_kind": "synthetic",
+  "segmentation_source": "GT",
+  "device": "cpu",
+  "seed": 0,
+  "selected_pairs": 9,
+  "pairs_per_gap": 3,
+  "gaps_frames": [
+    1,
+    12,
+    24
+  ],
+  "software": {
+    "numpy": "1.26.4",
+    "scipy": "1.13.1",
+    "torch": "2.6.0",
+    "cellpose": "4.2.1.1",
+    "tifffile": "2023.4.12"
+  },
+  "evaluator_sha256": "85701e54ed8e1fd42af7d5aa0bf1ee9371faf311e7f99521be6bc423d69b76b0",
+  "model_code_sha256": "dbc80a62c236f1160940a9cea4018e94267726d93b455822f162ace93d194aba",
+  "scope": "Linking given supplied full segmentation, not end-to-end segmentation/tracking accuracy.",
+  "holdout_check": "Resolved movie paths and aliases; not a content comparison against all training images.",
+  "controls": "IoU, zero motion, oracle, random time head on checkpoint encoder, copied frame with trained head; random-head chance is not assumed.",
+  "feature": 426,
+  "status": "Evaluator implemented and focused checks passed; actual checkpoint scoring is running, not accepted as complete.",
+  "test_result": "25 passed in 5.60s",
+  "fatal_ruff": "passed",
+  "base_commit": "4bced8cd6",
+  "launch_session": 27511,
+  "launch_pid": 3803647,
+  "memory_max_gib": 8,
+  "swap_max_bytes": 0,
+  "cpu_threads": 2,
+  "test_sha256": "fde1f55db422b91c968e976343e65faaa59c60b7c323642d63bf090e93ccefa3",
+  "motion_only_candidate_qc": [
+    {
+      "frames": [
+        0,
+        1
+      ],
+      "gap": 1,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 30,
+      "hard_successors": 0,
+      "all_successors": 30,
+      "iou_accuracy": 1.0,
+      "exclusions": [
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        32,
+        33
+      ],
+      "gap": 1,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 43,
+      "hard_successors": 0,
+      "all_successors": 43,
+      "iou_accuracy": 1.0,
+      "exclusions": [
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        63,
+        64
+      ],
+      "gap": 1,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 44,
+      "hard_successors": 0,
+      "all_successors": 43,
+      "iou_accuracy": 1.0,
+      "exclusions": [
+        {
+          "retained_tracks": 44,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        0,
+        6
+      ],
+      "gap": 6,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 30,
+      "hard_successors": 0,
+      "all_successors": 30,
+      "iou_accuracy": 1.0,
+      "exclusions": [
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        29,
+        35
+      ],
+      "gap": 6,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 44,
+      "hard_successors": 0,
+      "all_successors": 39,
+      "iou_accuracy": 0.9743589743589743,
+      "exclusions": [
+        {
+          "retained_tracks": 44,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 42,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        58,
+        64
+      ],
+      "gap": 6,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 45,
+      "hard_successors": 0,
+      "all_successors": 42,
+      "iou_accuracy": 0.9285714285714286,
+      "exclusions": [
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        0,
+        12
+      ],
+      "gap": 12,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 30,
+      "hard_successors": 0,
+      "all_successors": 27,
+      "iou_accuracy": 1.0,
+      "exclusions": [
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 33,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        26,
+        38
+      ],
+      "gap": 12,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 43,
+      "hard_successors": 0,
+      "all_successors": 34,
+      "iou_accuracy": 0.8823529411764706,
+      "exclusions": [
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        52,
+        64
+      ],
+      "gap": 12,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 46,
+      "hard_successors": 2,
+      "all_successors": 34,
+      "iou_accuracy": 0.8235294117647058,
+      "exclusions": [
+        {
+          "retained_tracks": 46,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        0,
+        24
+      ],
+      "gap": 24,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 30,
+      "hard_successors": 0,
+      "all_successors": 16,
+      "iou_accuracy": 1.0,
+      "exclusions": [
+        {
+          "retained_tracks": 30,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        20,
+        44
+      ],
+      "gap": 24,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 40,
+      "hard_successors": 2,
+      "all_successors": 25,
+      "iou_accuracy": 0.84,
+      "exclusions": [
+        {
+          "retained_tracks": 40,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 43,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    },
+    {
+      "frames": [
+        40,
+        64
+      ],
+      "gap": 24,
+      "shape": [
+        690,
+        628
+      ],
+      "sources": 42,
+      "hard_successors": 5,
+      "all_successors": 25,
+      "iou_accuracy": 0.72,
+      "exclusions": [
+        {
+          "retained_tracks": 42,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        },
+        {
+          "retained_tracks": 45,
+          "unmarked_objects": 0,
+          "multi_marker_objects": 0,
+          "duplicate_track_objects": 0,
+          "markers_without_retained_full_mask": 0,
+          "excluded_track_ids": []
+        }
+      ]
+    }
+  ],
+  "selection_note": "Gaps 1,12,24 selected after annotation-only displacement QC and before checkpoint scoring. Synthetic data, whole frames, no source edits.",
+  "previous_attempt": {
+    "directory": "/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/sim-v1-evaluation",
+    "terminal_exit": 1,
+    "reason": "CPSAM constructor left a float32 patch bias beside bfloat16 weights; loader now casts the whole encoder, covered in both dtype tests."
+  }
+}

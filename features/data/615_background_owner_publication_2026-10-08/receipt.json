@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "date": "2026-10-08",
+  "owner": "Root/workstation",
+  "source_commit": "42a34d17cf45d96669a0d09e8f9424f212f70240",
+  "source_sha256": {
+    "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+    "spacr/qt/widgets/ambient.py": "7c9dcdcfb032a4f9677fcb45d101f5d5540e887d28145b794c5d91625632c9bc",
+    "tools/build_documentation_i18n.py": "65cfbc1dc8b7b5d80bbdb4cf58fe50f2ff03472189135ec7be9425185517c910",
+    "tools/build_i18n_catalogs.py": "be5907913341649cb84a3d6c2c0896f494998f8983f0db94a19dc26f62786776",
+    "docs/source/features.rst": "6dff85bb5b34a4a1fe8b8b2f6305a8f136ad898f76495596a26a039abf2db9db",
+    "tests/test_api_i18n_extractor.py": "139dd5183c03e58a5ea4170c36d55087b661ac389f38c8a8994572c3d194ef82",
+    "tests/test_documentation_i18n.py": "3afa641a6f99166f89d24c75573dda1aec5743838f6cd07826ee52751e586bf1"
+  },
+  "scope": "Normal source-bound Animation background owner publication: one new API picker, seven actual external UI rows and one full guide paragraph in nine languages.",
+  "acceptance": {
+    "api_generation": "English and all nine targets 13215, original 13214 prose unchanged; normal reviewed-record and catalog writers finish 0",
+    "runtime": "Normal nine-language build: 1243 settings, 237 categories, 7245 UI strings, 77 modules",
+    "guides": "All nine strict audits: 3029/3029, stale 0, invalid 0, unlabelled 0",
+    "help": "Normal Help search index generation finishes 0"
+  },
+  "original_failures": {
+    "preflight_r1": "Missing newly generated English picker inventory; order prerequisite corrected normally",
+    "preflight_r2": "Fixture incorrectly assumed compact Background belongs to external UI; actual extractor ownership respected",
+    "preflight_r3": "Source runner missing tool-log argument; corrected invocation, no product change"
+  },
+  "review_scope": "Full-message AI technical review through normal protected-token/context checks; no native-speaker signoff.",
+  "pending": [
+    "Rebase onto latest Home source and complete strict 13215 API audit and current publication nodes",
+    "Actual final-source hosted CI and original-order native serial acceptance",
+    "Strict current English/translated HTML, deployment and fresh tutorial media"
+  ],
+  "artifacts": {
+    "logs/background-delta-r1.log.gz": {
+      "raw_bytes": 1291,
+      "raw_sha256": "12688f3b37e0db0c9a9f4d95b0bf95758548f73727176fb2093d6c30b93840c5",
+      "gzip_sha256": "907a75bdc6327fa849cd6f37d6ee1e22e60f5b66ec9c6b1c02eae7b53cf54f81"
+    },
+    "logs/background-api-english-r1.log.gz": {
+      "raw_bytes": 591,
+      "raw_sha256": "adfeb75014d4e909dbbc080f7d77507d0a3a09a31f72973687ba4652e59bacf9",
+      "gzip_sha256": "459fc8c448f817c3dab58b66f22450a185dd8e137342a90b39cdef5531e725a8"
+    },
+    "logs/background-preflight-r1.log.gz": {
+      "raw_bytes": 690,
+      "raw_sha256": "c994ee1f4c2b6a7d7e04b7fd897d49a1ac9496b75b2d502ab59f96340b06f263",
+      "gzip_sha256": "e8bc8ef7758dcec9b5e0e3b9b8012de667e6b5cd2405b470f9144a7e4fa5a1fc"
+    },
+    "logs/background-preflight-r2.log.gz": {
+      "raw_bytes": 1206,
+      "raw_sha256": "853c8d5e2fa28f05189cbcf7e151a6fc7cd48b8c3f48bc38844e60bc6af48557",
+      "gzip_sha256": "a0e3f4eaf4d67bf800e771a1949bc8d9fa1eb16d504945f8e7f4f4c20c731b13"
+    },
+    "logs/background-preflight-r3.log.gz": {
+      "raw_bytes": 699,
+      "raw_sha256": "3194a76070c0613c75e1ab638bac3637e435b72ebe3979d4211d559d1b79ae71",
+      "gzip_sha256": "1a6564fc3872c94de0137be8a8c38f5ad2eada3ab2ceb86a2a7717996038daa8"
+    },
+    "logs/background-preflight-r4.log.gz": {
+      "raw_bytes": 607,
+      "raw_sha256": "aa162032189edb56f6e18d40283c23c2932c32782ab7c59a504318c6aecbf2d0",
+      "gzip_sha256": "8a61859c754102c2ebdba0ebc9bf4b31676b2d4adc860ced8486742d62485c57"
+    },
+    "logs/background-reviewed-import-r1.log.gz": {
+      "raw_bytes": 1024,
+      "raw_sha256": "14ae1e829c66e83bffb5a93fabe79c71c6078209cd6059ccb874fc8ea180384a",
+      "gzip_sha256": "2b35912c51e3a739390e6661e34a94b2a0ab4b1ad4f7cdd97791413d3207f598"
+    },
+    "logs/background-runtime-normal-r1.log.gz": {
+      "raw_bytes": 1736,
+      "raw_sha256": "255daef4d28ed75e067fe94452b46dff80da96493c325241da0a86335de80bcb",
+      "gzip_sha256": "6b1627f617a5533c96d48ad8265962254993a6681186ff91df4b82b3e66a9fbb"
+    },
+    "logs/background-guide-extract-r1.log.gz": {
+      "raw_bytes": 14279,
+      "raw_sha256": "1de34a78db770ff7714b94290124f2f0ed721b39da5a9f6aaddf05d3c2c19225",
+      "gzip_sha256": "40e0dad950f2832f9ec4f0ebf51a15f1890634bea1c59be6c2bf0577e6ae6776"
+    },
+    "logs/background-guide-update-r1.log.gz": {
+      "raw_bytes": 744,
+      "raw_sha256": "374921834a13ed8335409c82d92f4d63a1dbe6db5307542558794178a6da1a0c",
+      "gzip_sha256": "98918fcba4feb6c5e8d6beacfa994252a811f896511ce51a97e1bba4420976dc"
+    },
+    "logs/background-guide-reviewed-import-r1.log.gz": {
+      "raw_bytes": 844,
+      "raw_sha256": "7b99c8af3d46eb3a123561eebf58c89e27fc3a56e3a3b1a79178975ee54fe288",
+      "gzip_sha256": "f6a93f47fc2a9764cdb3b29ff40bc564c1d8f1ef4a309f13482be71ee27efa65"
+    },
+    "logs/background-help-normal-r1.log.gz": {
+      "raw_bytes": 545,
+      "raw_sha256": "041e2b3c32f300a55ca6661ff2d4436040ed7cd1734a23660aa3c9d69a0f7b76",
+      "gzip_sha256": "9750eef4bbd01a30e42064ceddc5ba6602fcea348b2bb08517ce6677b4217eec"
+    },
+    "logs/background-guide-strict-audit-r1.log.gz": {
+      "raw_bytes": 1156,
+      "raw_sha256": "6a5e7ba8f0cf26e03c9629dbf0c69e9e59bbe55e0f838f6fd7de7870e376f9d3",
+      "gzip_sha256": "aec6a9d83aa9a436e6111e3c1ed9c257511cd1da00e85d24a0399096aa84fcdd"
+    },
+    "owner/archive_background_publication.py.gz": {
+      "raw_bytes": 3763,
+      "raw_sha256": "f62963ebe042457b3303c0a210d3573633e09cbce8db3d8ae8d0cddd072ec5ef",
+      "gzip_sha256": "4be562e0b31ec8fd1d672abf9f9fd0d2b7d10a3fa187847b5dde60fbd467aa97"
+    },
+    "owner/inspect_background_delta.py.gz": {
+      "raw_bytes": 1620,
+      "raw_sha256": "d1c4b1ee5eb2a661c3037018f2188970b11535a34900dc348af259adca9e0d58",
+      "gzip_sha256": "fda011c88fa1576d21af6569416ed323af5c9b7681c3243d48f966de322a60b1"
+    },
+    "owner/import_background_reviews.py.gz": {
+      "raw_bytes": 3579,
+      "raw_sha256": "b6166f1047bc0d435635a587b3b79e42526f0b156f7510928b069e5982ba8f18",
+      "gzip_sha256": "6bc18905aec4053ceabb2db5d6823c74bc8e07bfff0fc15beecc8e6ed81bbd2b"
+    },
+    "owner/import_background_guide.py.gz": {
+      "raw_bytes": 2246,
+      "raw_sha256": "a31fe3f5673890ba1b96781a9b8fabdd542c71deb81977d8e9ab591adcafc0b1",
+      "gzip_sha256": "d817cfa4f5c3dce45d8338490d811a986046edcb1c56480cac96ed0495bfd155"
+    },
+    "owner/background_review_targets.json.gz": {
+      "raw_bytes": 7818,
+      "raw_sha256": "1ae34a30427cd81e96b3633ceeb86a631dea5e1a82f6ee10ebf650b42d14791a",
+      "gzip_sha256": "ad934c4a376e4d4e4daae8a9e1a204094e3f7e0e15f89b742857ae492ebfd978"
+    },
+    "owner/background_guide_targets.json.gz": {
+      "raw_bytes": 4777,
+      "raw_sha256": "16ebe6512868d6c86530adc59d7a4198c10350bcf6876f9c3a848f8dca7263d1",
+      "gzip_sha256": "0fcc4d519b5784699ba80f4e30ca90197932fef943176f167cbe25da3dc987cd"
+    },
+    "owner/background-delta.json.gz": {
+      "raw_bytes": 1176640,
+      "raw_sha256": "57a14368aa1757e172a9496d6b3cfabeb4614dd4e28d2c4ba3a7e91e3bcd161f",
+      "gzip_sha256": "a48fb8f27db4bccf4f7038ceb96cc2ecf05bb7fd9d650d990d7573067179ed40"
+    },
+    "owner/background-review-import.json.gz": {
+      "raw_bytes": 3018,
+      "raw_sha256": "c30d161f8bef5453b1b304ba53b7a22db77511dc8f6e30e11b73d40502c3d187",
+      "gzip_sha256": "fdb8dfdb9a4bc5a3dba0c5e421ada21e370b28607e3961543cdc7efadd991080"
+    },
+    "owner/background-guide-import.json.gz": {
+      "raw_bytes": 5707,
+      "raw_sha256": "22c5353cb7f78f0c7ed95528288d199babd872e1b9963aaf70c69945cd8c4c20",
+      "gzip_sha256": "d7b85f25547c1451a97bd96600dc16c0acd293c7a9fbc8624152ef5404b91e88"
+    },
+    "owner/background-guide-audit.json.gz": {
+      "raw_bytes": 63704,
+      "raw_sha256": "1149ccffbf3d856871ea97d190bcf29754df7a61590016c84c6a22f72fddd271",
+      "gzip_sha256": "9c55cf87ab7ff1ac2a9f9b333ae94393ba0473fb9b57b257f4f448c4bee11355"
+    }
+  }
+}

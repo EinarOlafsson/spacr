@@ -1,0 +1,35 @@
+{
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "OPS: 시퀀싱 이미지에서 세포 바코드까지",
+  "description": "OPS 테스트 데이터를 불러오고, 이미지와 디코딩 설정을 고르고, 분석을 실행한 뒤 출력 데이터베이스에서 바코드 배정을 찾습니다.",
+  "objectives": [
+    "Mask 안에서 OPS를 열고 예제 이미지와 바코드 라이브러리를 불러옵니다.",
+    "입력 및 출력 폴더를 고르고 주요 정렬 및 디코딩 설정을 이해합니다.",
+    "OPS를 실행하고 출력 데이터베이스에서 핵의 바코드 배정을 확인합니다."
+  ],
+  "prerequisite": "spaCR을 여세요. 예제 시퀀싱 이미지와 가이드 라이브러리는 OPS 안의 Load test data로 불러옵니다. 자신의 실험에서는 촬영 파일 이름이 붙은 시퀀싱 사이클 TIFF와 이에 대응하는 바코드 라이브러리 CSV를 준비하세요.",
+  "scenes": [
+    "Home에서 Mask를 연 뒤 OPS를 켜세요. 이 페이지는 시퀀싱 사이클 이미지를 받아 디코딩한 바코드를 핵에 배정합니다.",
+    "Load test data를 클릭하세요. 예제에는 시퀀싱 사이클 11회에 걸친 이미지 위치 두 곳과 이에 대응하는 바코드 라이브러리가 들어 있습니다. 불러오기가 끝나면 spaCR이 입력, 라이브러리, 플레이트, 출력 칸을 채웁니다.",
+    "OPS input에서 시퀀싱 이미지 폴더와 바코드 라이브러리 CSV를 확인하세요. 결과를 저장할 위치를 고르세요. 예제는 내려받은 프로젝트 안의 ops_output 폴더에 결과를 씁니다.",
+    "이 예제에서는 표현형 이미지 폴더를 비워 두세요. 대응하는 표현형 촬영이 있다면 여기서 그 폴더를 선택해, 그 시야가 시퀀싱 이미지와 어떻게 정렬되는지 기록하세요.",
+    "OPS alignment에서 핵 분할 모델을 고르세요. Diameter는 예상되는 핵 크기를 픽셀 단위로 정합니다. Raster overlap은 촬영한 인접 타일 사이의 겹침을 나타내므로 촬영 당시의 값을 쓰세요. 이번 첫 실행에서는 예제 설정을 유지하세요.",
+    "Window overlap은 인접한 분할 창이 얼마나 겹칠지를 정합니다. 창 가장자리의 객체를 온전히 포함할 수 있도록 가장 큰 핵보다 크게 설정해야 합니다. 값을 늘리면 처리 시간이 길어집니다.",
+    "OPS decoding에서 네 염기 채널을 G, T, A, C 순서로 설정하세요. 예제는 CY3, A594, CY5, CY7을 사용합니다. 자신의 이미지에서는 이 이름을 TIFF 파일 이름에 있는 채널 이름과 맞추세요.",
+    "Read threshold는 점이 리드로 인정되려면 얼마나 밝아야 하는지를 정합니다. 높이면 강한 점만 선택되고, 낮추면 약한 점과 배경이 더 많이 포함됩니다. Footprint는 리드가 핵에서 얼마나 떨어져 있어도 그 핵의 바코드에 기여할 수 있는지를 정합니다.",
+    "나중에 개별 리드를 확인하려면 Store reads를 켜세요. 추가 표가 저장되어 디스크 공간을 더 씁니다. 간단한 첫 실행에서는 꺼 두세요.",
+    "OPS performance를 확인한 뒤 Run을 누르세요. GPU는 사용 가능한 경우 가속을 켭니다. Workers는 동시에 디코딩할 시야 수를 정하며, 메모리가 부족하면 낮추세요. 진행 상황은 Console에서 확인하세요.",
+    "Console에 Finished가 표시되면 Help를 열고 Database Browser를 연 다음, 선택한 출력 폴더의 measurements.db를 고르세요. 그 옆에는 웰마다 폴더가 있으며, 여기서는 A1에 디코딩 요약과 경고가 담긴 OPS 보고서가 있습니다.",
+    "ops_barcodes 표는 각 핵에 바코드, 리드 지지도, 일치하는 가이드를 연결하고, ops_objects에는 같은 핵 식별자가 이미지 좌표와 함께 들어 있습니다. 이 식별자가 스크린의 나머지 부분으로 이어지는 다리입니다. 식별자를 통해 바코드를 표현형 측정값과 결합한 뒤 Regression을 위해 집계하세요. 데이터베이스, 보고서, 설정은 함께 보관하세요."
+  ]
+}

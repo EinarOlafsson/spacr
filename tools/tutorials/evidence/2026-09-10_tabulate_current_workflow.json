@@ -1,0 +1,1989 @@
+{
+  "lesson": "61_tabulate",
+  "scope": "Verified real GUI workflow; multilingual media checks not yet complete",
+  "capture": "tabulate_verified_cells_and_scatter",
+  "provenance": {
+    "commit": "8a1616018fe0c6fb333c7094693b2bfeb2c36986",
+    "version": "1.5.0.4",
+    "module": "tabulate",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "f09a40c85fa7b4a0c02c18d7fc14858799cdd4342e43b4630a7a480d73536ccd",
+  "scenes": 18,
+  "spoken_words": 884,
+  "capture_frames": 33,
+  "workflow": {
+    "lesson": "61_tabulate",
+    "accepted": true,
+    "source": {
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/tabulate_runs/real-measurements-pjr5_06c/measurements.db",
+      "source_bundle": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+          "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "signature": [
+            66306,
+            33957043,
+            30629888,
+            1788972666110587305,
+            1788972666110587305
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": [
+            66306,
+            33962636,
+            0,
+            1788973501772441799,
+            1788973501772441799
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "signature": [
+            66306,
+            33962707,
+            32768,
+            1788982325621416451,
+            1788982325621416451
+          ]
+        }
+      },
+      "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "copy_is_byte_identical": true,
+      "source_opened_in_gui": false
+    },
+    "synthetic_measurements": false,
+    "app_source_modified": false,
+    "published": false,
+    "pivots": {
+      "05_well_count_preset": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 0.0,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            615
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            525
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            700
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            501
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 501–700"
+      },
+      "06_real_missing_well_field": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [
+          "fieldID"
+        ],
+        "values": [],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          13
+        ],
+        "present": 51,
+        "empty": [
+          {
+            "row": [
+              "plate1",
+              "r5",
+              "c2"
+            ],
+            "col": [
+              "f20"
+            ]
+          }
+        ],
+        "max_numeric_error": 0.0,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "f1 · n",
+          "f9 · n",
+          "f10 · n",
+          "f11 · n",
+          "f12 · n",
+          "f13 · n",
+          "f14 · n",
+          "f16 · n",
+          "f17 · n",
+          "f18 · n",
+          "f19 · n",
+          "f20 · n",
+          "f21 · n"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            37,
+            62,
+            60,
+            46,
+            38,
+            68,
+            49,
+            24,
+            19,
+            52,
+            25,
+            72,
+            63
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            26,
+            16,
+            39,
+            27,
+            45,
+            68,
+            29,
+            53,
+            42,
+            75,
+            38,
+            null,
+            67
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            15,
+            63,
+            67,
+            50,
+            59,
+            58,
+            53,
+            35,
+            39,
+            57,
+            40,
+            76,
+            88
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            23,
+            51,
+            47,
+            22,
+            36,
+            49,
+            28,
+            33,
+            16,
+            50,
+            39,
+            61,
+            46
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 13 table",
+        "notice": "4 × 13 = 52 cells, 51 with data · n per cell 15–88"
+      },
+      "08_area_mean_sample_sd": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_area"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 5.4569682106375694e-12,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n(cell_area)",
+          "mean(cell_area)",
+          "sd(cell_area)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            615,
+            23997.7837398374,
+            13018.733414218312
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            525,
+            25101.091428571428,
+            12875.734844041624
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            700,
+            23310.575714285715,
+            12908.12305387365
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            501,
+            22756.43512974052,
+            12377.69233622663
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 501–700"
+      },
+      "09_median_sem_upper_quartile": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_area"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "median",
+          "sd",
+          "sem",
+          "quantile"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 5.4569682106375694e-12,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n(cell_area)",
+          "mean(cell_area)",
+          "median(cell_area)",
+          "sd(cell_area)",
+          "sem(cell_area)",
+          "quantile(cell_area)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            615,
+            23997.7837398374,
+            22400.0,
+            13018.733414218312,
+            524.9659992249508,
+            29723.0
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            525,
+            25101.091428571428,
+            23382.0,
+            12875.734844041624,
+            561.9431385809636,
+            32068.0
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            700,
+            23310.575714285715,
+            21208.5,
+            12908.12305387365,
+            487.88119275956115,
+            30750.5
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            501,
+            22756.43512974052,
+            20792.0,
+            12377.69233622663,
+            552.9945110776443,
+            29700.0
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 501–700"
+      },
+      "10_quantile_half_is_median": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_area"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "median",
+          "sd",
+          "sem",
+          "quantile"
+        ],
+        "quantile": 0.5,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 5.4569682106375694e-12,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n(cell_area)",
+          "mean(cell_area)",
+          "median(cell_area)",
+          "sd(cell_area)",
+          "sem(cell_area)",
+          "quantile(cell_area)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            615,
+            23997.7837398374,
+            22400.0,
+            13018.733414218312,
+            524.9659992249508,
+            22400.0
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            525,
+            25101.091428571428,
+            23382.0,
+            12875.734844041624,
+            561.9431385809636,
+            23382.0
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            700,
+            23310.575714285715,
+            21208.5,
+            12908.12305387365,
+            487.88119275956115,
+            21208.5
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            501,
+            22756.43512974052,
+            20792.0,
+            12377.69233622663,
+            552.9945110776443,
+            20792.0
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 501–700"
+      },
+      "11_finite_feature_count": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_channel_0_homogeneity_distance_32"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 5.551115123125783e-17,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n(cell_channel_0_homogeneity_distance_32)",
+          "mean(cell_channel_0_homogeneity_distance_32)",
+          "sd(cell_channel_0_homogeneity_distance_32)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            615,
+            0.2569110241646483,
+            0.13659947143659723
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            523,
+            0.2608792471859074,
+            0.12839890888221536
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            698,
+            0.25884479541191285,
+            0.13391638906684258
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            498,
+            0.2468385539114606,
+            0.12585927505269046
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 498–698"
+      },
+      "12_restored_area": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_area"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 5.4569682106375694e-12,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n(cell_area)",
+          "mean(cell_area)",
+          "sd(cell_area)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            615,
+            23997.7837398374,
+            13018.733414218312
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            525,
+            25101.091428571428,
+            12875.734844041624
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            700,
+            23310.575714285715,
+            12908.12305387365
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            501,
+            22756.43512974052,
+            12377.69233622663
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 501–700"
+      },
+      "15_live_pivot_old_plot": {
+        "source_rows": 1171,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_area"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 3.637978807091713e-12,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n(cell_area)",
+          "mean(cell_area)",
+          "sd(cell_area)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            318,
+            33247.89937106918,
+            11280.166607655512
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            290,
+            33756.872413793106,
+            10587.395977890974
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            333,
+            33695.33933933934,
+            10895.805710745268
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            230,
+            33295.30434782609,
+            9704.69771372752
+          ]
+        ],
+        "source_label": "1,171 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 230–333"
+      },
+      "18_clear_restores_cells": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_area"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          4,
+          1
+        ],
+        "present": 4,
+        "empty": [],
+        "max_numeric_error": 5.4569682106375694e-12,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "n(cell_area)",
+          "mean(cell_area)",
+          "sd(cell_area)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            615,
+            23997.7837398374,
+            13018.733414218312
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            525,
+            25101.091428571428,
+            12875.734844041624
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            700,
+            23310.575714285715,
+            12908.12305387365
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            501,
+            22756.43512974052,
+            12377.69233622663
+          ]
+        ],
+        "source_label": "2,341 rows → 4 × 1 table",
+        "notice": "4 × 1 = 4 cells, 4 with data · n per cell 501–700"
+      },
+      "20_field_level_is_a_different_unit": {
+        "source_rows": 2341,
+        "row_keys": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "fieldID"
+        ],
+        "col_keys": [],
+        "values": [
+          "cell_area"
+        ],
+        "aggs": [
+          "n",
+          "mean",
+          "sd"
+        ],
+        "quantile": 0.75,
+        "shape": [
+          52,
+          1
+        ],
+        "present": 51,
+        "empty": [
+          {
+            "row": [
+              "plate1",
+              "r5",
+              "c2",
+              "f20"
+            ],
+            "col": []
+          }
+        ],
+        "max_numeric_error": 3.637978807091713e-12,
+        "csv_headers": [
+          "plateID",
+          "rowID",
+          "columnID",
+          "fieldID",
+          "n(cell_area)",
+          "mean(cell_area)",
+          "sd(cell_area)"
+        ],
+        "csv_rows": [
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f1",
+            37,
+            21573.972972972973,
+            14506.732166071659
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f9",
+            62,
+            24056.290322580644,
+            11520.743844648365
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f10",
+            60,
+            23402.55,
+            13402.043538112299
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f11",
+            46,
+            24068.934782608696,
+            9752.538503503529
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f12",
+            38,
+            29654.263157894737,
+            13937.861931665615
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f13",
+            68,
+            22244.485294117647,
+            11336.451669833337
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f14",
+            49,
+            25147.632653061224,
+            9341.928139428439
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f16",
+            24,
+            37244.5,
+            19775.654659641266
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f17",
+            19,
+            29363.315789473683,
+            13515.621825842172
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f18",
+            52,
+            18674.21153846154,
+            10721.558957716263
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f19",
+            25,
+            28026.52,
+            15075.434236753072
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f20",
+            72,
+            19286.88888888889,
+            12894.512887550221
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f21",
+            63,
+            24979.619047619046,
+            11428.688993519732
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f1",
+            26,
+            23113.80769230769,
+            10689.246035223367
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f9",
+            16,
+            27735.875,
+            14191.504509741031
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f10",
+            39,
+            27549.17948717949,
+            13510.00354098632
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f11",
+            27,
+            26905.51851851852,
+            12514.160727783454
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f12",
+            45,
+            27419.11111111111,
+            12503.277976053505
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f13",
+            68,
+            22743.16176470588,
+            9813.884486011892
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f14",
+            29,
+            23882.724137931036,
+            14388.543123155192
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f16",
+            53,
+            27051.075471698114,
+            13193.093936206893
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f17",
+            42,
+            30379.880952380954,
+            13777.901699075386
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f18",
+            75,
+            21878.986666666668,
+            11013.131650128544
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f19",
+            38,
+            23099.473684210527,
+            15751.213330762193
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f20",
+            null,
+            null,
+            null
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f21",
+            67,
+            24344.97014925373,
+            13667.70199807511
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f1",
+            15,
+            20259.0,
+            11334.230851716406
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f9",
+            63,
+            22996.603174603173,
+            14301.629880654007
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f10",
+            67,
+            22460.20895522388,
+            10791.358377069257
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f11",
+            50,
+            27916.86,
+            14136.984096593833
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f12",
+            59,
+            23163.084745762713,
+            11602.071680773128
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f13",
+            58,
+            27948.137931034482,
+            12723.537503863468
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f14",
+            53,
+            23091.584905660377,
+            11907.276095593435
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f16",
+            35,
+            24731.22857142857,
+            11421.976997632843
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f17",
+            39,
+            21749.358974358973,
+            13133.774227033662
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f18",
+            57,
+            21947.964912280702,
+            10651.315295983926
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f19",
+            40,
+            22188.275,
+            9843.046294635282
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f20",
+            76,
+            22579.63157894737,
+            14277.981747051044
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f21",
+            88,
+            21410.81818181818,
+            15351.245433428741
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f1",
+            23,
+            25106.17391304348,
+            13387.764303993723
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f9",
+            51,
+            23603.254901960783,
+            10414.559007165186
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f10",
+            47,
+            25573.23404255319,
+            10830.018072193292
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f11",
+            22,
+            24899.5,
+            9848.802778341471
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f12",
+            36,
+            31107.61111111111,
+            14183.245180297929
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f13",
+            49,
+            23591.48979591837,
+            15328.746300011037
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f14",
+            28,
+            23315.428571428572,
+            10610.223320959598
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f16",
+            33,
+            25766.242424242424,
+            15201.186431966222
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f17",
+            16,
+            20792.0625,
+            10244.16651217495
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f18",
+            50,
+            19124.56,
+            11454.080784540307
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f19",
+            39,
+            21905.46153846154,
+            12179.946996354627
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f20",
+            61,
+            20275.081967213115,
+            10271.376067004658
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f21",
+            46,
+            15457.95652173913,
+            9447.01747397681
+          ]
+        ],
+        "source_label": "2,341 rows → 52 × 1 table",
+        "notice": "52 × 1 = 52 cells, 51 with data · n per cell 15–88"
+      }
+    },
+    "cell_tooltips": {
+      "06b_blank_not_zero_tooltip": "plate1 · r5 · c2 · f20\nNo objects here at all — this combination was not measured, or nothing survived the filter. It is blank rather than zero on purpose.",
+      "08b_read_full_cell_statistics": "plate1 · r5 · c1\n615 source row(s)\nn(cell_area) = 615\nmean(cell_area) = 2.4e+04\nsd(cell_area) = 1.302e+04",
+      "09b_full_median_sem_quantile": "plate1 · r5 · c1\n615 source row(s)\nn(cell_area) = 615\nmean(cell_area) = 2.4e+04\nmedian(cell_area) = 22,400\nsd(cell_area) = 1.302e+04\nsem(cell_area) = 525\nquantile(cell_area) = 29,723",
+      "10b_half_quantile_tooltip": "plate1 · r5 · c1\n615 source row(s)\nn(cell_area) = 615\nmean(cell_area) = 2.4e+04\nmedian(cell_area) = 22,400\nsd(cell_area) = 1.302e+04\nsem(cell_area) = 525\nquantile(cell_area) = 22,400",
+      "11b_source_count_vs_feature_n": "plate1 · r12 · c2\n501 source row(s)\nn(cell_channel_0_homogeneity_distance_32) = 498\nmean(cell_channel_0_homogeneity_distance_32) = 0.2468\nsd(cell_channel_0_homogeneity_distance_32) = 0.1259"
+    },
+    "exports": {
+      "07_field_counts_with_blank": {
+        "rows": 4,
+        "columns": 16,
+        "independently_compared": true,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/tabulate_runs/real-measurements-pjr5_06c/07_field_counts_with_blank.csv",
+        "sha256": "ba60fc38ceb01fb20dc3d9cd28496343777b3fdfcbe0f293ae8f7c00ef15576d"
+      },
+      "13_all_well_statistics": {
+        "rows": 4,
+        "columns": 6,
+        "independently_compared": true,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/tabulate_runs/real-measurements-pjr5_06c/13_all_well_statistics.csv",
+        "sha256": "3c1f687a6e7240d187a232cfd101a2d6d77bbad5af95ecea15d20ceec5baff8e"
+      },
+      "17_filtered_well_statistics": {
+        "rows": 4,
+        "columns": 6,
+        "independently_compared": true,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/tabulate_runs/real-measurements-pjr5_06c/17_filtered_well_statistics.csv",
+        "sha256": "ff628664dab782b89cc7c22abcd47815e3daf06c2a1677dc870f8df411e5fd3a"
+      },
+      "23_field_level_statistics": {
+        "rows": 52,
+        "columns": 7,
+        "independently_compared": true,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/tabulate_runs/real-measurements-pjr5_06c/23_field_level_statistics.csv",
+        "sha256": "5573215877697d04c2a09747b977677068bbd445b8ca00d1291d20e556116511"
+      }
+    },
+    "initial_graph": {
+      "rows": 4,
+      "means": [
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "mean": 23997.7837398374
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "mean": 25101.091428571428
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "mean": 23310.575714285715
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "mean": 22756.43512974052
+        }
+      ],
+      "notice": ""
+    },
+    "automatic_four_well_plot": {
+      "kinds": {
+        "plateID": "categorical",
+        "rowID": "categorical",
+        "columnID": "categorical",
+        "cell_rows": "categorical",
+        "value_column": "categorical",
+        "n": "categorical",
+        "mean": "categorical",
+        "sd": "categorical"
+      },
+      "kind": "heatmap",
+      "rows": 4
+    },
+    "filter_requires_explicit_plot_handoff": true,
+    "filtered_graph": {
+      "rows": 4,
+      "means": [
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "mean": 33247.89937106918
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "mean": 33756.872413793106
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "mean": 33695.33933933934
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "mean": 33295.30434782609
+        }
+      ],
+      "notice": "4 rows · no object keys in this table — brushing cannot publish a selection · the shared filter does not apply here (range filter names column 'cell_area', which this frame does not have)"
+    },
+    "restored_graph": {
+      "rows": 4,
+      "means": [
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "mean": 23997.7837398374
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "mean": 25101.091428571428
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "mean": 23310.575714285715
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "mean": 22756.43512974052
+        }
+      ],
+      "notice": "4 rows · no object keys in this table — brushing cannot publish a selection"
+    },
+    "field_graph": {
+      "rows": 51,
+      "means": [
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f1",
+          "mean": 21573.972972972973
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f9",
+          "mean": 24056.290322580644
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f10",
+          "mean": 23402.55
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f11",
+          "mean": 24068.934782608696
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f12",
+          "mean": 29654.263157894737
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f13",
+          "mean": 22244.485294117647
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f14",
+          "mean": 25147.632653061224
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f16",
+          "mean": 37244.5
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f17",
+          "mean": 29363.315789473683
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f18",
+          "mean": 18674.21153846154
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f19",
+          "mean": 28026.52
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f20",
+          "mean": 19286.88888888889
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c1",
+          "fieldID": "f21",
+          "mean": 24979.619047619046
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f1",
+          "mean": 23113.80769230769
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f9",
+          "mean": 27735.875
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f10",
+          "mean": 27549.17948717949
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f11",
+          "mean": 26905.51851851852
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f12",
+          "mean": 27419.11111111111
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f13",
+          "mean": 22743.16176470588
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f14",
+          "mean": 23882.724137931036
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f16",
+          "mean": 27051.075471698114
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f17",
+          "mean": 30379.880952380954
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f18",
+          "mean": 21878.986666666668
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f19",
+          "mean": 23099.473684210527
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r5",
+          "columnID": "c2",
+          "fieldID": "f21",
+          "mean": 24344.97014925373
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f1",
+          "mean": 20259.0
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f9",
+          "mean": 22996.603174603173
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f10",
+          "mean": 22460.20895522388
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f11",
+          "mean": 27916.86
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f12",
+          "mean": 23163.084745762713
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f13",
+          "mean": 27948.137931034482
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f14",
+          "mean": 23091.584905660377
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f16",
+          "mean": 24731.22857142857
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f17",
+          "mean": 21749.358974358973
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f18",
+          "mean": 21947.964912280702
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f19",
+          "mean": 22188.275
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f20",
+          "mean": 22579.63157894737
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c1",
+          "fieldID": "f21",
+          "mean": 21410.81818181818
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f1",
+          "mean": 25106.17391304348
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f9",
+          "mean": 23603.254901960783
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f10",
+          "mean": 25573.23404255319
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f11",
+          "mean": 24899.5
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f12",
+          "mean": 31107.61111111111
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f13",
+          "mean": 23591.48979591837
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f14",
+          "mean": 23315.428571428572
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f16",
+          "mean": 25766.242424242424
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f17",
+          "mean": 20792.0625
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f18",
+          "mean": 19124.56
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f19",
+          "mean": 21905.46153846154
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f20",
+          "mean": 20275.081967213115
+        },
+        {
+          "plateID": "plate1",
+          "rowID": "r12",
+          "columnID": "c2",
+          "fieldID": "f21",
+          "mean": 15457.95652173913
+        }
+      ],
+      "notice": "51 rows · no object keys in this table — brushing cannot publish a selection",
+      "kind": "scatter",
+      "kinds": {
+        "plateID": "categorical",
+        "rowID": "categorical",
+        "columnID": "categorical",
+        "fieldID": "categorical",
+        "cell_rows": "continuous",
+        "value_column": "categorical",
+        "n": "continuous",
+        "mean": "continuous",
+        "sd": "continuous"
+      },
+      "independently_checked_rendered_points": 51,
+      "max_rendered_y_error": 0.0
+    },
+    "original_unchanged": true,
+    "private_database_unchanged": true,
+    "computed_events": [
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          13
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 1171,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          4,
+          1
+        ]
+      },
+      {
+        "source_rows": 2341,
+        "shape": [
+          52,
+          1
+        ]
+      }
+    ],
+    "remaining_workers": 0
+  },
+  "checks": {
+    "tests_passed": 24,
+    "guards_bypassed": 6,
+    "mutation_failures": 22,
+    "mutation_positive_passes": 2,
+    "restored_tests_passed": 24,
+    "executed_guard_lines": [
+      85,
+      91,
+      96,
+      101,
+      127,
+      142
+    ],
+    "all_named_guards_executed": true,
+    "coverage_sha256": "cb35d682c5eeea99268bc89e71a9a7ff86b9661eb40c2b7d492c999f8d25c16e",
+    "oracle_sha256": "4df10e8cbac9188bb4c090e3c6c4085d84e3035a5893780c434f9d625a35b9be",
+    "recorder_sha256": "f1903593dcf08b7e16ed820ce94ffa0d18e57acec733ad5ee896d952ca40e22d"
+  },
+  "earlier_capture": {
+    "name": "tabulate_real_pivot_statistics",
+    "accepted_numerical_workflow": true,
+    "used_in_final_media": false,
+    "reason": "Extended with genuine full-cell tooltips and a separately grouped, numerically checked field scatter; initial four-mean Automatic heatmap is categorical, not a continuous magnitude chart."
+  },
+  "scope_limits": [
+    "No missing axis labels, infinite-value policy or capped-grid validation; finite or missing feature values and ordinary bounded groups only.",
+    "No biological treatment inference, independent experimental replication, GPU image analysis, classifier training or AI request.",
+    "Four-mean automatic chart is a categorical heatmap. Independently checked final numeric scatter ordinates, not every colour or categorical horizontal-position mapping.",
+    "Compact pivot cells hide multiline statistics; actual native tooltip and full CSV used, with no app layout alteration. Filter updates pivot, but Plot this table must be pressed again to update the summary.",
+    "Source hash and original sidecar signatures remain identical; private measurement database remains byte-identical."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

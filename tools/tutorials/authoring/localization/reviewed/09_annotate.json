@@ -1,0 +1,96 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "09_annotate",
+    "scene_count": 10,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete current annotation workflow, exact interface and classifier handoff labels, consistent object-crop terminology, and restored coverage and provenance guidance."
+  },
+  "languages": {
+    "es": {
+      "description": "Revise recortes de objetos, asigne etiquetas coherentes, evalúe la cobertura y entregue las etiquetas guardadas a un clasificador.",
+      "prerequisite": "Complete Measure con recortes de objetos y defina un esquema de clases documentado.",
+      "objectives": [
+        "Configurar una vista de recortes y una columna de anotación coherentes.",
+        "Etiquetar, navegar, deshacer cambios y guardar de forma eficiente.",
+        "Evaluar la cobertura antes de entregar las etiquetas a un clasificador."
+      ],
+      "narrations": [
+        "Annotate da prioridad a la cuadrícula de recortes. Abra la consola solo cuando necesite consultar mensajes de la base de datos, el estado del guardado, advertencias o la ayuda local; después, ocúltela para devolver ese espacio a las imágenes.",
+        "Abra un proyecto medido, seleccione o cree una columna de anotación y confirme que se carguen los recortes de objetos esperados. Defina el significado de cada clase antes de comenzar a etiquetar.",
+        "Settings controla los canales mostrados, el aspecto de los recortes, los filtros de objetos y la cola opcional de incertidumbre. Mantenga la misma vista para todas las personas que aporten etiquetas.",
+        "Abra la referencia del teclado para consultar el pequeño conjunto de acciones que se utilizan repetidamente: asignar una clase, mover el foco, omitir, deshacer y guardar o avanzar.",
+        "Asigne etiquetas con las teclas numéricas o con el ratón. El anillo del color de la clase confirma la etiqueta guardada y el foco avanza para que pueda revisar muchos objetos de forma eficiente.",
+        "Utilice la navegación y la función de deshacer para corregir una elección reciente sin borrar el resto del trabajo guardado. Guarde antes de cambiar de página o finalizar la sesión.",
+        "Coverage muestra si las etiquetas abarcan las clases, las placas, los pocillos, los orígenes y las rondas de aprendizaje activo. Añada ejemplos de los grupos ausentes antes de entrenar un modelo.",
+        "Cuando haya suficientes etiquetas representativas, Retrain puede puntuar los recortes restantes y dar prioridad a los ejemplos inciertos. Utilícelo como ayuda opcional para la revisión, no como sustituto de una cobertura adecuada.",
+        "Train CV envía los recortes de imágenes y esta columna de anotación al clasificador de visión. Train XG envía las mismas etiquetas al clasificador basado en características; ambos abren un módulo configurado sin iniciar el entrenamiento automáticamente.",
+        "Las anotaciones permanecen en measurements.db junto con los identificadores de los objetos y toda la información de procedencia. Continúe hasta que la cobertura sea adecuada para el modelo o la decisión de control de calidad previstos."
+      ]
+    },
+    "fr": {
+      "description": "Examinez les vignettes d’objets, attribuez des étiquettes cohérentes, évaluez la couverture et transmettez les étiquettes enregistrées à un classificateur.",
+      "prerequisite": "Terminez Measure avec des vignettes d’objets et définissez un schéma de classes documenté.",
+      "objectives": [
+        "Configurer une vue des vignettes et une colonne d’annotation cohérentes.",
+        "Étiqueter, parcourir, annuler et enregistrer efficacement.",
+        "Évaluer la couverture avant de transmettre les étiquettes à un classificateur."
+      ],
+      "narrations": [
+        "Annotate donne la priorité à la grille de vignettes. Ouvrez la console uniquement pour consulter les messages de la base de données, l’état de l’enregistrement, les avertissements ou l’aide locale, puis masquez-la afin de rendre cet espace aux images.",
+        "Ouvrez un projet mesuré, sélectionnez ou créez une colonne d’annotation et vérifiez que les vignettes d’objets attendues se chargent. Définissez la signification de chaque classe avant de commencer l’étiquetage.",
+        "Settings contrôle les canaux affichés, l’apparence des vignettes, les filtres d’objets et la file d’incertitude facultative. Conservez la même vue pour toutes les personnes qui contribuent aux étiquettes.",
+        "Ouvrez la référence du clavier pour consulter le petit ensemble d’actions utilisées régulièrement : attribuer une classe, déplacer le focus, ignorer, annuler, puis enregistrer ou avancer.",
+        "Attribuez les étiquettes avec les touches numériques ou la souris. L’anneau de la couleur de la classe confirme l’étiquette enregistrée et le focus avance afin de permettre l’examen efficace d’un grand nombre d’objets.",
+        "Utilisez la navigation et la fonction d’annulation pour corriger un choix récent sans effacer les autres travaux enregistrés. Enregistrez avant de changer de page ou de terminer la session.",
+        "Coverage indique si les étiquettes couvrent les classes, les plaques, les puits, les sources et les cycles d’apprentissage actif. Ajoutez des exemples provenant des groupes manquants avant l’entraînement.",
+        "Lorsque les étiquettes représentatives sont suffisamment nombreuses, Retrain peut attribuer un score aux vignettes restantes et donner la priorité aux exemples incertains. Utilisez cette fonction comme une aide facultative à l’examen, et non comme un substitut à une couverture adéquate.",
+        "Train CV transmet les vignettes d’images et cette colonne d’annotation au classificateur de vision. Train XG transmet les mêmes étiquettes au classificateur fondé sur les caractéristiques ; les deux commandes ouvrent un module configuré sans lancer automatiquement l’entraînement.",
+        "Les annotations restent dans measurements.db avec les identifiants des objets et toutes les informations de provenance. Poursuivez jusqu’à ce que la couverture soit suffisante pour le modèle ou la décision de contrôle qualité visés."
+      ]
+    },
+    "it": {
+      "description": "Esamina i ritagli degli oggetti, assegna etichette coerenti, valuta la copertura e passa le etichette salvate a un classificatore.",
+      "prerequisite": "Completa Measure con i ritagli degli oggetti e definisci uno schema di classi documentato.",
+      "objectives": [
+        "Configurare una vista dei ritagli e una colonna di annotazione coerenti.",
+        "Etichettare, navigare, annullare e salvare in modo efficiente.",
+        "Valutare la copertura prima di passare le etichette a un classificatore."
+      ],
+      "narrations": [
+        "Annotate dà priorità alla griglia dei ritagli. Apri la console solo quando devi consultare i messaggi del database, lo stato del salvataggio, gli avvisi o la guida locale; poi nascondila per restituire spazio alle immagini.",
+        "Apri un progetto misurato, seleziona o crea una colonna di annotazione e verifica che vengano caricati i ritagli degli oggetti previsti. Definisci il significato di ogni classe prima di iniziare l’etichettatura.",
+        "Settings controlla i canali visualizzati, l’aspetto dei ritagli, i filtri degli oggetti e la coda di incertezza facoltativa. Mantieni la stessa vista per tutte le persone che contribuiscono alle etichette.",
+        "Apri il riferimento della tastiera per consultare il piccolo insieme di azioni usate di frequente: assegnare una classe, spostare il focus, saltare, annullare e salvare o avanzare.",
+        "Assegna le etichette con i tasti numerici o con il mouse. L’anello del colore della classe conferma l’etichetta salvata e il focus avanza, consentendo di esaminare molti oggetti in modo efficiente.",
+        "Usa la navigazione e la funzione di annullamento per correggere una scelta recente senza cancellare gli altri dati salvati. Salva prima di passare a un’altra pagina o terminare la sessione.",
+        "Coverage mostra se le etichette coprono classi, piastre, pozzetti, origini e cicli di apprendimento attivo. Aggiungi esempi provenienti dai gruppi mancanti prima dell’addestramento.",
+        "Quando sono disponibili abbastanza etichette rappresentative, Retrain può assegnare un punteggio ai ritagli rimanenti e dare priorità agli esempi incerti. Consideralo un ausilio facoltativo alla revisione, non un sostituto di una copertura adeguata.",
+        "Train CV invia i ritagli delle immagini e questa colonna di annotazione al classificatore di visione. Train XG invia le stesse etichette al classificatore basato sulle caratteristiche; entrambi aprono un modulo configurato senza avviare automaticamente l’addestramento.",
+        "Le annotazioni rimangono in measurements.db insieme agli identificativi degli oggetti e a tutte le informazioni sulla provenienza. Continua finché la copertura non è adeguata al modello o alla decisione di controllo qualità previsti."
+      ]
+    },
+    "pt-BR": {
+      "description": "Examine recortes de objetos, atribua rótulos consistentes, verifique a cobertura e encaminhe os rótulos salvos a um classificador.",
+      "prerequisite": "Conclua Measure com recortes de objetos e defina um esquema de classes documentado.",
+      "objectives": [
+        "Configurar uma visualização consistente dos recortes e uma coluna de anotação.",
+        "Rotular, navegar, desfazer e salvar com eficiência.",
+        "Verificar a cobertura antes de encaminhar os rótulos a um classificador."
+      ],
+      "narrations": [
+        "Annotate prioriza a grade de recortes. Abra o console somente quando precisar consultar mensagens do banco de dados, o estado do salvamento, avisos ou a ajuda local; depois, oculte-o para devolver espaço às imagens.",
+        "Abra um projeto medido, selecione ou crie uma coluna de anotação e confirme que os recortes dos objetos esperados foram carregados. Defina o significado de cada classe antes de iniciar a rotulagem.",
+        "Settings controla os canais exibidos, a aparência dos recortes, os filtros de objetos e a fila opcional de incerteza. Mantenha a mesma visualização para todas as pessoas que contribuírem com rótulos.",
+        "Abra a referência do teclado para consultar o pequeno conjunto de ações usadas repetidamente: atribuir uma classe, mover o foco, ignorar, desfazer e salvar ou avançar.",
+        "Atribua rótulos com as teclas numéricas ou com o mouse. O anel na cor da classe confirma o rótulo salvo, e o foco avança para permitir a revisão eficiente de muitos objetos.",
+        "Use a navegação e a função de desfazer para corrigir uma escolha recente sem apagar o restante do trabalho salvo. Salve antes de mudar de página ou encerrar a sessão.",
+        "Coverage mostra se os rótulos abrangem classes, placas, poços, fontes e rodadas de aprendizagem ativa. Adicione exemplos dos grupos ausentes antes do treinamento.",
+        "Quando houver rótulos representativos suficientes, Retrain poderá pontuar os recortes restantes e priorizar exemplos incertos. Use esse recurso como auxílio opcional à revisão, não como substituto de uma cobertura adequada.",
+        "Train CV envia os recortes das imagens e esta coluna de anotação ao classificador de visão computacional. Train XG envia os mesmos rótulos ao classificador baseado em características; ambos abrem um módulo configurado sem iniciar o treinamento automaticamente.",
+        "As anotações permanecem em measurements.db, com identificadores de objetos e proveniência preservados. Continue até que a cobertura seja adequada ao modelo ou à decisão de controle de qualidade pretendida."
+      ]
+    }
+  }
+}

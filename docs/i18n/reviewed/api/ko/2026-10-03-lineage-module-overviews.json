@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr._lineage_measurements#0",
+      "source": "Measured values on lineage trees.",
+      "source_sha256": "161b7cdc292552b3888f1eb49abd1be87606f66522a20ebbbb76466e127846a9",
+      "context": "Measured values on lineage trees.",
+      "translation": "계보 트리 위의 측정값입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_measurements#1",
+      "source": "Records which images and label stacks a tracking run used, so a later Measure run can join its per-object measurements onto the same tracks and colour the lineage trees by a measured column.",
+      "source_sha256": "5f7ed57768207cbf5c5b112009b1307820357d8159a6cd800af318207e6a555e",
+      "context": "Records which images and label stacks a tracking run used, so a later Measure run can join its per-object measurements onto the same tracks and colour the lineage trees by a measured column.",
+      "translation": "추적 실행이 어떤 이미지와 레이블 스택을 사용했는지 기록하여, 이후의 Measure 실행이 객체별 측정값을 같은 트랙에 결합하고 측정된 열에 따라 계보 트리를 색칠할 수 있게 합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_trees#0",
+      "source": "Lineage trees built from tracked objects.",
+      "source_sha256": "c32fcc377f0527dae4669d3d2050b4a5640eee5174e3b496fe6ce69e8addfcef",
+      "context": "Lineage trees built from tracked objects.",
+      "translation": "추적된 객체로 만든 계보 트리입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_trees#1",
+      "source": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
+      "source_sha256": "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca",
+      "context": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
+      "translation": "분열 이벤트는 명시적인 부모 열에서 읽거나 가까운 트랙 시작점에서 추론한 뒤, 트리 그림으로 그리고 Newick 텍스트로 기록하며 계보별 통계로 요약하고, 선택적으로 시간 단위로 보정합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

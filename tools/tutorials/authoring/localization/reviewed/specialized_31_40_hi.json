@@ -1,0 +1,135 @@
+{
+  "_meta": {
+    "schema": 2,
+    "reviewer": "human scientific-language review",
+    "scope": "Complete Hindi review for specialized lessons 31–40, excluding frozen Regression and separately reviewed Batch Runner."
+  },
+  "lessons": {
+    "31_external_masks": {"languages": {"hi": {
+      "description": "Third-party images और label masks को measured, traceable spaCR project के रूप में import करें।",
+      "prerequisite": "Source images, integer label masks, naming rules और object-class definitions तैयार करें।",
+      "objectives": ["External inputs को सही map करना।", "Preview में import validate करना।", "Provenance सहित measured project बनाना।"],
+      "narrations": {
+        "1": "External Masks source images और बाहरी रूप से बनाए गए labels import करता है, फिर project को सामान्य spaCR measurement और annotation के लिए तैयार करता है।",
+        "2": "Data अनुभाग से External Masks खोलें। Images और mask sources जोड़ें, फिर पुष्टि करें कि spaCR ने उनकी intended roles सही पहचानी हैं।",
+        "3": "प्रत्येक input को उसके object class से map करें। Inferred assignment पर निर्भर रहने के बजाय filenames, dimensions और field pairing जाँचें।",
+        "4": "Input Mapping channel और mask-plane order, naming तथा destination layout नियंत्रित करता है।",
+        "5": "Measurement settings निर्धारित करती हैं कि import के बाद कौन-से objects और features बनाए जाएँगे।",
+        "6": "पहली run में Preview enabled रखें और नया destination चुनें।",
+        "7": "कुछ लिखने से पहले pairing, channel counts, object classes, warnings और blocking errors जाँचें।",
+        "8": "Reviewed import चलाएँ। Resulting images, masks, measurements और provenance downstream annotation के लिए तैयार होते हैं।"
+      }
+    }}},
+    "32_align_stitch": {"languages": {"hi": {
+      "description": "Image tiles को register करें और सीमित memory उपयोग के साथ stitched mosaic लिखें।",
+      "prerequisite": "ज्ञात order, overlap या stage positions और उपयोगी registration channel वाले tiled acquisitions तैयार करें।",
+      "objectives": ["Tile layout निर्धारित करना।", "Registration plan की समीक्षा करना।", "Traceable bounded-memory mosaic लिखना।"],
+      "narrations": {
+        "1": "Align and Stitch registration planning को writing से अलग रखता है, ताकि placement और resource estimates की पहले समीक्षा की जा सके।",
+        "2": "Data and batch runs अनुभाग से Align and Stitch खोलें। Source acquisitions को बदले बिना tile folder और अलग destination चुनें।",
+        "3": "Grid order, overlap, stage information और उपयोगी structure वाला reference channel निर्धारित करें।",
+        "4": "Match confidence, neighboring constraints, blending और output bands के लिए memory budget set करें।",
+        "5": "Plan mosaic बनाए बिना pairwise offsets का अनुमान लगाता है और accepted constraints solve करता है।",
+        "6": "Registered और fallback tiles, residuals, confidence, canvas size और write estimate जाँचें।",
+        "7": "Output commit करने से पहले weak या isolated tiles चुनकर उनकी solved position समझें।",
+        "8": "Plan acceptable होने के बाद ही Write करें। spaCR mosaic, transforms, coordinates और registration report सहेजता है।"
+      }
+    }}},
+    "33_plate_viewer": {"languages": {"hi": {
+      "description": "Measurements को plate heatmaps के रूप में देखें और spatial artifacts या edge effects पहचानें।",
+      "prerequisite": "स्थिर plate और well identifiers के साथ plate मापें।",
+      "objectives": ["उपयुक्त plate heatmap बनाना।", "Spatial और low-count artifacts पहचानना।", "Traceable well summaries जाँचकर export करना।"],
+      "narrations": {
+        "1": "Plate Viewer object measurements को well-level heatmaps में बदलता है और उनके साथ spatial quality checks दिखाता है।",
+        "2": "Results and quality control अनुभाग से Plate Viewer खोलें। measurements database या run folder खोलें। Source पर केवल read-only query की जाती है।",
+        "3": "दिखाने के लिए object table, numeric feature और plate चुनें।",
+        "4": "Aggregation, color scaling और well के लिए आवश्यक minimum evidence चुनें। Count segmentation या seeding differences पहचानने में उपयोगी है।",
+        "5": "View render करें, फिर heatmap की row, column, ring और edge diagnostics से तुलना करें।",
+        "6": "Well चुनकर उसका identifier, object count, displayed value और position जाँचें।",
+        "7": "Evidence threshold से नीचे वाले wells misleading zeros के बजाय स्पष्ट blanks बनते हैं।",
+        "8": "Audit या replotting के लिए counts और spatial annotations सहित वर्तमान tidy well grid export करें।"
+      }
+    }}},
+    "34_database": {"languages": {"hi": {
+      "description": "Command line के बिना spaCR measurement databases browse, filter और export करें।",
+      "prerequisite": "spaCR SQLite database या run folder उपलब्ध रखें।",
+      "objectives": ["Database सुरक्षित रूप से खोलकर pages देखना।", "Preview को पूर्ण table न समझते हुए संपूर्ण table filter करना।", "Traceable subset export करना।"],
+      "narrations": {
+        "1": "Database Browser बड़े spaCR databases को सीमित, read-only view में जाँचता है।",
+        "2": "Data अनुभाग से Database Browser खोलें। measurements database या उसका run folder चुनकर खोलें।",
+        "3": "Table का purpose और read-only status जाँचने के बाद उसे चुनें।",
+        "4": "Preview सीमित page load करता है, जबकि पूर्ण row और column counts अलग से report किए जाते हैं।",
+        "5": "Underlying rows बदले बिना wide feature tables को readable बनाने के लिए columns खोजें।",
+        "6": "Structured filter बनाएँ। Column names और operators validate होते हैं तथा values सुरक्षित रूप से bind की जाती हैं।",
+        "7": "केवल एक page दिखने पर भी exact filtered count पूरी query को दर्शाता है।",
+        "8": "Complete current filter और visible-column selection export करें। Source database अपरिवर्तित रहता है।"
+      }
+    }}},
+    "35_converter": {"languages": {"hi": {
+      "description": "Microscopy formats को reviewed provenance map सहित spaCR-compatible TIFF names में convert करें।",
+      "prerequisite": "Supported microscopy files तैयार करें और तय करें कि acquisition dimensions को spaCR identifiers से कैसे map करना है।",
+      "objectives": ["Information loss को ध्यान में रखकर mapping set करना।", "Complete Preview plan validate करना।", "Sources बदले बिना convert या resume करना।"],
+      "narrations": {
+        "1": "Format Converter preview-first workflow उपयोग करता है, ताकि files लिखने से पहले naming और dimensional mapping दिखाई दे।",
+        "2": "Data अनुभाग से Format Converter खोलें। Source files और अलग destination चुनें।",
+        "3": "Folder layout, series, time, depth, plate naming और resume behavior निर्धारित करें। Projection से information हटती है, इसलिए विकल्प सोच-समझकर चुनें।",
+        "4": "Preview headers scan करके images लिखे बिना conversion plan बनाता है।",
+        "5": "प्रत्येक source के साथ उसके target plate, well, field, channel, time और depth identifiers जाँचें।",
+        "6": "Mapping सही होने और collision checks pass होने पर ही Convert करें। Sources को कभी rename या replace नहीं किया जाता।",
+        "7": "Result में standardized TIFFs और प्रत्येक original file तथा identifier से जुड़ा provenance map शामिल होता है।",
+        "8": "Resume completed field checkpoints को skip करने से पहले validate करता है, इसलिए missing या damaged outputs फिर बनाए जाते हैं।"
+      }
+    }}},
+    "36_import": {"languages": {"hi": {
+      "description": "किसी अन्य laboratory की images, masks और measurements को traceable spaCR project में map करें।",
+      "prerequisite": "Source images, optional masks, measurements, identifiers और physical calibration तैयार करें।",
+      "objectives": ["External data को स्पष्ट रूप से map करना।", "Preview में joins, units और naming conflicts हल करना।", "Provenance सहित standardized project बनाना।"],
+      "narrations": {
+        "1": "Import Project spaCR project बनाने से पहले inferred mappings को reviewed decisions से अलग करता है।",
+        "2": "Data अनुभाग से Import Project खोलें। Original files सुरक्षित रखते हुए external images और नया destination चुनें।",
+        "3": "प्रत्येक mask class जोड़ें और पुष्टि करें कि हर field में अपेक्षित matching labels हैं।",
+        "4": "Measurements, calibration, identifiers और external column names के लिए conflict policy जोड़ें।",
+        "5": "Preview project data लिखे बिना headers, field pairing, labels, joins, units और name conflicts जाँचता है।",
+        "6": "प्रत्येक proposed target column, transform, unit और join warning की समीक्षा करें।",
+        "7": "Inferred mappings सीधे सुधारें और plan के source experiment को सही दर्शाने तक validation दोहराएँ।",
+        "8": "केवल reviewed plan import करें। spaCR external identifiers रखते हुए canonical images, masks, measurements और provenance लिखता है।"
+      }
+    }}},
+    "38_distributed_jobs": {"languages": {"hi": {
+      "description": "SSH workstations, Slurm clusters या cloud और HPC commands पर spaCR jobs submit और monitor करें।",
+      "prerequisite": "इस module को upstream results की आवश्यकता हो तो पहले संबंधित workflow lessons पूरे करें।",
+      "objectives": ["Distributed Jobs के उपयोग का उचित समय समझना।", "महत्वपूर्ण inputs और settings configure करना।", "Workflow चलाकर outputs का स्थान ज्ञात करना।"],
+      "narrations": {
+        "1": "इस ट्यूटोरियल में Distributed Jobs शामिल है। SSH workstations, Slurm clusters या cloud और HPC commands पर spaCR jobs submit और monitor करें।",
+        "2": "Data and batch runs अनुभाग से Distributed Jobs खोलें। Remote profile, connection method, working directory, environment और data paths configure करें।",
+        "3": "मुख्य configuration क्षेत्र में scheduler resources, command templates, file synchronization, credentials और status polling निर्धारित करें।",
+        "4": "महंगे analyses तक scale करने से पहले छोटा validation job submit करें।",
+        "5": "Workflow पूरा होने पर local records remote job identifiers, logs, state, transferred artifacts और failures track करते हैं।"
+      }
+    }}},
+    "39_classifier_evaluation": {"languages": {"hi": {
+      "description": "Held-out predictions, nested cross-validation, calibration, leakage और per-plate performance का audit करें।",
+      "prerequisite": "इस module को upstream results की आवश्यकता हो तो पहले संबंधित workflow lessons पूरे करें।",
+      "objectives": ["Classifier Evaluation के उपयोग का उचित समय समझना।", "महत्वपूर्ण inputs और settings configure करना।", "Workflow चलाकर outputs का स्थान ज्ञात करना।"],
+      "narrations": {
+        "1": "इस ट्यूटोरियल में Classifier Evaluation शामिल है। Held-out predictions, nested cross-validation, calibration, leakage और per-plate performance का audit करें।",
+        "2": "Results and quality control अनुभाग से Classifier Evaluation खोलें। Ground truth, split metadata, plate identifiers, probabilities और model-run records वाली predictions चुनें।",
+        "3": "मुख्य configuration क्षेत्र में class order, thresholds, calibration bins, grouping, bootstrap uncertainty और leakage checks configure करें।",
+        "4": "Classifier से biological conclusions निकालने से पहले held-out और per-plate behavior का मूल्यांकन करें।",
+        "5": "Workflow पूरा होने पर spaCR discrimination, calibration, confusion, leakage और robustness reports बनाता है।"
+      }
+    }}},
+    "40_run_history": {"languages": {"hi": {
+      "description": "सभी jobs की settings, files, warnings, failures और performance एक ही स्थान से खोजें।",
+      "prerequisite": "इस module को upstream results की आवश्यकता हो तो पहले संबंधित workflow lessons पूरे करें।",
+      "objectives": ["Run History के उपयोग का उचित समय समझना।", "महत्वपूर्ण inputs और settings configure करना।", "Workflow चलाकर outputs का स्थान ज्ञात करना।"],
+      "narrations": {
+        "1": "इस ट्यूटोरियल में Run History शामिल है। सभी jobs की settings, files, warnings, failures और performance एक ही स्थान से खोजें।",
+        "2": "Results and quality control अनुभाग से Run History खोलें। Current workspace या selected project roots के लिए run registry खोलें।",
+        "3": "मुख्य configuration क्षेत्र में module, status, date, project, version, warning, duration या resource use के आधार पर filter करें।",
+        "4": "Run खोलकर उसकी immutable settings, logs, outputs और failure context जाँचें।",
+        "5": "Workflow पूरा होने पर previous run की विधि का अनुमान लगाए बिना prior work को reproduce, compare, resume या report किया जा सकता है।"
+      }
+    }}}
+  }
+}

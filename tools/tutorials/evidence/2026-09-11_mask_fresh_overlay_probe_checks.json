@@ -1,0 +1,73 @@
+{
+  "lesson": "07_mask",
+  "status": "New native run still has partial overlay output; explicit API probe produced both PNGs, terminal/viewer recording pending",
+  "native_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native",
+  "native_batch_acceptance": {
+    "accepted": false,
+    "reasons": [
+      "The console reports partial artifacts despite the GUI completion status."
+    ],
+    "figure_count": 9,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "native_worker_outcome": {
+    "finished": true,
+    "ok": true,
+    "errors": []
+  },
+  "api_probe": {
+    "accepted": true,
+    "scope": "Explicit per-array PNG workaround, not the native plotting loop",
+    "plotting_api_source": {
+      "path": "/mnt/firecuda2/codex/repo/spacr/spacr/plot.py",
+      "sha256": "6579a80351a01e61578c3e1e47658cd248b7ee158f62de8c37a90119af84d77f"
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/.spacr_plane_layout.json": "e473ec9f540c3bb302a5f2121711f7349587fb9774be9178ed444ba9054f0de8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_E01_17_1.npy": "f16ac19e23d16f9b7454327eea82177e4a57bda436abccfe4eb430e64e173ef9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_L02_18_1.npy": "862062d0ad9d61744ba54dd4da81776232db9d37b44c7830887d8fb1aa99b1b6"
+    },
+    "reports": [
+      {
+        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_E01_17_1.npy",
+        "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_codex_probe/plate1_E01_17_1.png",
+        "png_sha256": "d0dbb672ef9a68234a1642fce9b05b145eb4d7db9458d4dc2c69f56df1173f5c",
+        "channel_rgb_values_checked": 47712432,
+        "combined_foreground_pixels_checked": 3976036,
+        "counts": {
+          "cell": 25,
+          "nucleus": 19,
+          "pathogen": 8
+        },
+        "segmentation_accuracy_certified": false
+      },
+      {
+        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_L02_18_1.npy",
+        "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_codex_probe/plate1_L02_18_1.png",
+        "png_sha256": "5c41fa65e43e487b96c2563ee5f44f388faa83a6f5a4b5f20cbd060ab3a0312c",
+        "channel_rgb_values_checked": 47712432,
+        "combined_foreground_pixels_checked": 3976036,
+        "counts": {
+          "cell": 52,
+          "nucleus": 50,
+          "pathogen": 58
+        },
+        "segmentation_accuracy_certified": false
+      }
+    ],
+    "original_inputs_unchanged": true,
+    "app_source_modified": false,
+    "native_plotting_loop_fixed": false,
+    "segmentation_accuracy_certified": false,
+    "published": false
+  },
+  "helper_sha256": "5355bfea044ac7be0ebcdc3fac478e54776aa86966b27ba7dede9f4250860c57",
+  "tests": {
+    "focused_overlay_passed": 7,
+    "overlay_mutations_observed_red": 2
+  },
+  "first_probe_import_note": "Initial probe imported the installed editable Claude checkout; plotting source SHA was identical. This preserved second probe explicitly imports the Codex checkout and records its exact path/hash.",
+  "published": false,
+  "native_plotting_loop_fixed": false
+}

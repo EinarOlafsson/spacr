@@ -1,0 +1,16 @@
+[
+  {
+    "nodeid": "tests/qt/test_main_window.py::test_main_window_constructs_and_switches",
+    "persisted_target": "mask",
+    "initial_app": "__home__",
+    "screens_after_constructor": [],
+    "starts_at_home": true
+  },
+  {
+    "nodeid": "tests/qt/test_cov_wf_qt_app.py::test_a_screen_can_be_rebuilt_before_it_was_ever_built",
+    "persisted_target": "mask",
+    "initial_app": "__home__",
+    "screens_after_constructor": [],
+    "starts_at_home": true
+  }
+]

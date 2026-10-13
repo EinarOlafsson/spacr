@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.io.preprocess_img_data#1",
+      "source": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "source_sha256": "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
+      "context": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-image data channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "translation": "通常由 :func:`spacr.core.preprocess_generate_masks` 在内部调用，但当您只需要预处理这一半时也可以直接调用。默认情况下，它将 z 堆栈转换为 MIP，将文件重命名为 Yokogawa/spacr 布局，将各通道文件夹合并为堆叠的 ``.npy`` 数组（可选背景扣除和百分位归一化），并（在 ``test_mode`` 中）输出示例图。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#2",
+      "source": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each field/channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the field and channel; ambiguous axes, duplicate channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one field at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "source_sha256": "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
+      "context": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each microscope field of view/image data channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the microscope field of view and image data channel; ambiguous axes, duplicate image data channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one microscope field of view at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "translation": "当 ``z_stack=True`` 且 ``z_segmentation_mode='volumetric'`` 时，一条单独的原始 TIFF 路径会保留 Z。每个视野和通道必须是一个明确标记为 ``ZYX`` 的完整 TIFF 序列。文件名元数据用于识别视野和通道；在写入任何堆栈之前，模糊的轴、重复的通道和缺失的配套文件都会被拒绝。即使 ``save_original_images`` 为假，此路径也会保留原始文件，发布带有完成记录的规范 ``ZYXC`` 堆栈，并一次归一化一个视野。复用时会验证源文件和堆栈的哈希以及相关的处理设置。旧的投影堆栈不能作为体数据复用。此原始体积路径不支持单切片文件布局、时间序列、测试模式抽样以及照明或 PSF 预处理。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#9",
+      "source": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-field/channel projection behavior.",
+      "source_sha256": "4482e2824d99fb361e767cfbc3bfaf8e2dab751d99920f89e95931613ad6c318",
+      "context": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-microscope field of view/image data channel projection behavior.",
+      "translation": "``z_stack`` 和 ``z_segmentation_mode`` 选择上文所述的显式体积 TIFF 路径。其他原始布局保留现有的按视野和通道投影的行为。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

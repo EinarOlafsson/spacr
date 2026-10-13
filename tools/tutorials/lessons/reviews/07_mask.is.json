@@ -1,0 +1,36 @@
+{
+  "lesson": "07_mask",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Mask: aðgreindu myndir og skoðaðu niðurstöðurnar",
+  "description": "Hlaðu inn smásjármyndum, veldu aðgreiningarstillingar, forskoðaðu hluti og vistaðu grímur fyrir mælingu.",
+  "objectives": [
+    "Hlaða inn smásjárdæminu og greina styrkleikarásir þess.",
+    "Bera saman stillingar líkans og stærðarsíur hluta í Live-forskoðun.",
+    "Keyra skiptingu, skoða myndir hennar og finna sameinuð úttök."
+  ],
+  "prerequisite": "Opnaðu Mask og veldu Load test data. Fyrir eigin myndir útbýrðu upprunamöppu með samræmdum skráarheitum og þekktum rásum. Dæmið notar kjarnarás 0, frumurás 1 og sýkilrás 2, auk viðbótarstyrkleikarásar 3.",
+  "scenes": [
+    "Frá Home opnarðu Mask. Notaðu þessa einingu til að afmarka frumur, kjarna og sýkla í smásjármyndum. Þessi yfirferð vinnur úr tvívíðum myndum. Verkferlin fyrir Time, þrívídd og OPS hafa eigin kennslur.",
+    "Ef myndirnar þínar eru dreifðar um möppur eða heita nöfnum sem Mask getur ekki lesið smellirðu á Raða myndum efst í Input & Metadata. Gefðu hverri rás dálk, með því að draga möppuna hennar inn eða með regex, og athugaðu að hver lína sé eitt heilt sjónsvið. Apply færir myndirnar í eina möppu með Yokogawa-heitum og beinir Source að henni, með rásirnar þegar útfylltar.",
+    "Smelltu á Load test data og bíddu þar til smásjárdæmið hefur hlaðist inn. Athugaðu Source áður en þú heldur áfram. Fyrir eigin myndir velurðu möppuna þeirra og staðfestir að skráarheitin tilgreini plötu, brunn, sjónsvið og rás.",
+    "Berðu rásaúthlutanirnar saman við myndirnar. Í þessu dæmi er styrkur kjarna rás 0, styrkur frumna rás 1 og styrkur sýkla rás 2. Rás 3 er viðbótarstyrkleikamynd. Veldu aðeins þær gerðir hluta sem eru í tilrauninni þinni.",
+    "Undir inntakinu geymir taflan með stillingum fyrir hvern hlut það sem þú velur fyrir hvern hlut. Hver hlutur er dálkur, hér fruma, kjarni og sýkill, og hver lína spyr einnar spurningar: hvort fjarlægja eigi bakgrunn, þvermál hlutarins, skiptingarlíkanið, bakgrunnsgildið og mörk fyrir hlutfall merkis og suðs. Add a filter bætir við línu sem fjarlægir hluti eftir mældum eiginleika eins og flatarmáli, og Add an organelle bætir við öðrum hlutadálki.",
+    "Kveiktu á Live og veldu sjónsvið. Skoðaðu myndina og tillögur að grímum saman áður en þú vinnur úr allri möppunni. Prófaðu nokkur sjónsvið sem endurspegla breidd myndgæða í tilrauninni.",
+    "Opnaðu Live settings og veldu líkanið fyrir hlutinn sem þú vilt skipta. Stilltu áætlað þvermál hlutarins og smelltu svo á Run preview.",
+    "Þegar forskoðuninni lýkur skaltu bera útlínurnar saman við myndina. Leitaðu að hlutum sem misstust og nágrannahlutum sem runnu saman í einn. Stöðulínan segir hve margir hlutir fundust.",
+    "Notaðu síu fyrir lágmarksflatarmál til að fela hluti sem eru minni en valinn fjöldi díla. Hærra gildi fjarlægir litlar merkingar úr forskoðuninni. Sían uppfærir grímuniðurstöðu sem þegar er til, svo þú getur borið stærðarmörk saman hratt.",
+    "Settu lágmarksflatarmálið aftur á núll til að fá alla hluti til baka. Ef líkanið skiptir eða sameinar hluti í rangri stærð skaltu breyta Diameter og keyra forskoðunina aftur, og skoða bæði jaðrana og fjöldann. Settu inn þær stillingar sem þú vilt áður en keyrt er á öllu.",
+    "Fyrir fljótlega fyrstu keyrslu beinir þessi upptaka Source að miðjubútum úr tveimur dæmasviðum; með þínum eigin gögnum kveikirðu frekar á Test mode og velur nokkrar prófmyndir. Hafðu Plot á, athugaðu þvermál og flæðimörk hvers hlutar, hafðu Save á undir Quality Control og smelltu svo á Run.",
+    "Þegar keyrslunni lýkur fyllist myndalistinn af gröfum hennar. Síðasta myndin teiknar útlínur hvers hlutar á eigin rás, kjarna, frumur og sýkla, og sameinuðu hlutina hægra megin. Athugaðu litla hluti, frumur sem snertast og svæði sem misstust á hverri mynd.",
+    "Hinar myndirnar sýna hverja rás og grímu- og flæðifylkin sem líkanið bjó til. Keyrslan skrifar merged-möppu með styrk myndanna og endanlegum merkjum hlutanna, og geymir lýsigögn um lagaskipan við hlið fylkjanna svo Measure þekki hverja rás og grímu. Haltu inntaki, stillingum, grímum og gæðaskýrslum saman og haltu svo áfram í Measure til að draga út eiginleika og búta hlutanna."
+  ]
+}

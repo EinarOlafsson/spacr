@@ -1,0 +1,4 @@
+Pytest stdout copied from the tool transcript; not a raw captured terminal file.
+47 passed in 10.67s
+Coverage JSON written to /mnt/wd4tb/scratch/queue-owner-20261007/coverage.json
+Command: CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen PYTHONPATH=. COVERAGE_FILE=/mnt/wd4tb/scratch/queue-owner-20261007/.coverage-root tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/qt/test_plate_queue.py tests/test_cov_w2_4_queue_screen.py tests/qt/test_qt_worker_teardown.py::test_queue_screen_close_stops_the_runner tests/qt/test_qt_worker_teardown.py::test_queue_timeout_detaches_the_runner_and_preserves_safe_cancellation tests/qt/test_qt_worker_teardown.py::test_native_queue_owner_deletion_keeps_a_slow_runner_alive --cov=spacr.qt.screens.queue --cov-branch --cov-report=json:/mnt/wd4tb/scratch/queue-owner-20261007/coverage.json

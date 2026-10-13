@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "accepted": true,
+  "device": "cpu",
+  "policy": "Median of normal Cellpose3 nuclei size-model estimates on all 20 raw training-sequence frames, fixed for every evaluation arm before held-out predictions. No evaluation image, gold label or score is used for selection.",
+  "model": "cellpose3:nuclei",
+  "cellpose": "3.1.1.3",
+  "diameter_px": 14.862803134641222,
+  "records": [
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t000.tif",
+      "image_sha256": "a0ae50aa44a82226b0517663a849ad6e969a23bcfea29269cd5db1ee86e3077c",
+      "learned_diameter_px": 15.054455784347006,
+      "style_diameter_px": 12.631443636306965,
+      "seconds": 20.36059811199084
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t005.tif",
+      "image_sha256": "472a9b62683a4779d898ddfa2333ecdf05d7f15a533658c7777b385e1dea81e5",
+      "learned_diameter_px": 13.865755343832141,
+      "style_diameter_px": 12.856319256074137,
+      "seconds": 20.396926235000137
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t010.tif",
+      "image_sha256": "139e6a4ec57154a73dcdf57d3931b6ee1ac831b949ecac07918876e29ecd128c",
+      "learned_diameter_px": 14.361306376794651,
+      "style_diameter_px": 13.523412716435299,
+      "seconds": 20.239559417008422
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t014.tif",
+      "image_sha256": "681dff08289e0975d726f6dbb027870fc0baf2441ef2909420d74f2357230436",
+      "learned_diameter_px": 15.755662333072406,
+      "style_diameter_px": 13.696266321391551,
+      "seconds": 16.135499116033316
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t019.tif",
+      "image_sha256": "3f5cdf4ca798fab47107c6ae97032186edd9d867de3173a78678e00cb0b7eac3",
+      "learned_diameter_px": 14.905698391017925,
+      "style_diameter_px": 13.845840113343288,
+      "seconds": 17.560722240945324
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t024.tif",
+      "image_sha256": "dac5b66c2e2cf8d7c98dcd5c3ffd1ffece57996f0eb8f697d14831ec517e5a01",
+      "learned_diameter_px": 17.03798790081211,
+      "style_diameter_px": 14.289916057210203,
+      "seconds": 16.24925172200892
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t029.tif",
+      "image_sha256": "5f048cc0008c1cb79f956384ce904b49148baebd66cf61f6f67da035bf221e38",
+      "learned_diameter_px": 15.34917528403172,
+      "style_diameter_px": 14.209517814426912,
+      "seconds": 16.220056022051722
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t034.tif",
+      "image_sha256": "425320898bb47a02240e3231091bbf8950f10ee4f5d3dd5d4b7d7111a5e22381",
+      "learned_diameter_px": 13.445439320842588,
+      "style_diameter_px": 12.94800831868125,
+      "seconds": 20.298497265961487
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t038.tif",
+      "image_sha256": "0a518b72a04ffcc5f5165573a4752937085438918e494ba5eacfc220ff9f51b6",
+      "learned_diameter_px": 12.20528683538466,
+      "style_diameter_px": 12.163529634068157,
+      "seconds": 20.432428167026956
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t043.tif",
+      "image_sha256": "7020c50ca9576550406d6b8e81487ead69aa6f694982ae97755d4e83f777af39",
+      "learned_diameter_px": 13.540468379265606,
+      "style_diameter_px": 12.332524363564007,
+      "seconds": 19.675396435020957
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t048.tif",
+      "image_sha256": "188e8f4078e5515d411d16eb42a69e7b81b0d662b36984f77e6022463c4c64c2",
+      "learned_diameter_px": 12.939489749546224,
+      "style_diameter_px": 12.417094898301558,
+      "seconds": 20.152088153990917
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t053.tif",
+      "image_sha256": "eef545e06b66fbbb5fbc8e4aaf863017cf4d6fc7f0731802c5601231b474327b",
+      "learned_diameter_px": 14.81990787826452,
+      "style_diameter_px": 14.111623269280923,
+      "seconds": 16.326577399973758
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t057.tif",
+      "image_sha256": "61b6681395d579a509845dd9ce6c90f2c22dd48491d8c428c7a44ef416363a5e",
+      "learned_diameter_px": 16.15593100600236,
+      "style_diameter_px": 14.04213113483302,
+      "seconds": 17.006866088020615
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t062.tif",
+      "image_sha256": "085edcb408e2f6b72e72ab44132305d4b5978e19589b39304018988f1b96be3e",
+      "learned_diameter_px": 20.090119937734162,
+      "style_diameter_px": 16.303466196973872,
+      "seconds": 14.060275252035353
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t067.tif",
+      "image_sha256": "71eedce28c8ed7e825dfd8d018f2be2a1994b2e8643a3cfcae57f5df1087c8d3",
+      "learned_diameter_px": 18.921667720026537,
+      "style_diameter_px": 14.949091541815315,
+      "seconds": 16.728150626993738
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t072.tif",
+      "image_sha256": "3fe05eea392f5347cbfdef8896a5558034a66627c46fd8932cecd419938f14bf",
+      "learned_diameter_px": 21.557653718072718,
+      "style_diameter_px": 16.412122390677606,
+      "seconds": 12.729612355993595
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t077.tif",
+      "image_sha256": "708af23ee5dd973f968b439f7cd3159a22d1cd6e458f93c4c3e9d1d789637e87",
+      "learned_diameter_px": 16.848218265059955,
+      "style_diameter_px": 14.452337910626666,
+      "seconds": 16.568309168040287
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t081.tif",
+      "image_sha256": "6d94bd74823f5b872d4253a49ee336e520f5bf5abfefbdd173a51f0bdbad5560",
+      "learned_diameter_px": 13.159049284959083,
+      "style_diameter_px": 13.350399294527366,
+      "seconds": 20.507854597002733
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t086.tif",
+      "image_sha256": "c24f1fa90dcea2e4e1e2389a2dbc0bc1032887af7f6391bb6b0c9f935eb6e28c",
+      "learned_diameter_px": 13.013103375051498,
+      "style_diameter_px": 12.055252369769983,
+      "seconds": 20.299703470955137
+    },
+    {
+      "training_image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t091.tif",
+      "image_sha256": "8886200ce186f03eb8bb59b41d59ce70e5760fa137670a7df2feb256c134cf12",
+      "learned_diameter_px": 12.332808557614122,
+      "style_diameter_px": 11.743799662542262,
+      "seconds": 23.582269763050135
+    }
+  ],
+  "source_input_and_model_sha256": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/estimate_gowt1_training_diameter.py": "297831260db8af496379372414b50a78b600d1a11de3ac711ce37f7fa333bf8a",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/plan.json": "c57db2df0c77c17edcfa191fca41f79c3e09f68b2242c0803e0dce03b948f9ca",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/spacr-backend.json": "3d4eb9ba8e4633b768bbc117b38435a5f7641d9108141bdd1cc47adcf83a984c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/segformer.py": "2371d4ecb676559a7ebea47d61ea204a53fc3a37258ce77e552de73de1b9889c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/__init__.py": "dd241e3ee16c706d1330ae9c8b9e938316d96950a11f7d4ee09b484bf3adee9a",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/io.py": "15bb0ad6f87b9a3f4994dfefb96c138c1b3ef4ee07a6367d3475bf75871b369d",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/metrics.py": "75a0bf85523fa2a88ce492557b79e6abff068d174a130785f7d5a0bb2e6b97d1",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/export.py": "8e4e79152f3099f1f61c75ebaddbe00eabd9cd9f16d2133d6d4a0f7ec5bd56fe",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/plot.py": "92bd9c21fc2e5f1990f3149501f5a0f8b7e2b9a5a099c174ae1e42d79a68ed4c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/dynamics.py": "254b7a78ae18134f452f4fd046f189f10beae5745ad47821843cd8d102fcf102",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/transforms.py": "0ea43fe5cfbc5c63b20d5c8f10a7d4c02047ea91852cc0721414776acdfeee64",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/cli.py": "1a15a0ec67fa5b132df2a6e37eee7ac3b5e7350fffcee0dd743967ecc10f75b4",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/train.py": "4063f87b849e95ed3112cd533f6fff47a13bbe44224d25351a4c6ed044b70810",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/__main__.py": "42f9cc3bb0c87fd51ffc2af94597253c437542d9afff633b2765d9d48ff7b1b7",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/core.py": "400b85bfdc23368af8e866b93df89bc4eaf36b2dc05cd3e53b43706f2199f82f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/version.py": "0b30a6cbc232c70692708206431f1cf6f416e6c7e782e20a2c7b59427ca109c0",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/denoise.py": "bab74a883a5c019fd90e0c290649b15562ead07540ceb6182e984f41252b0f2f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/resnet_torch.py": "37107844f2255cca769ab2ea2057c68e2ee91c46503e85525fbb281b97e5bebc",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/models.py": "b3f08d9750032d6574b0f02da1a7e9d88ff458c299996edfe070d9f30a632f46",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/utils.py": "b19a28f4c511fac0a1139077c19705db8c9d8b874ddadb964f1453b5a10d6e95",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/test_mkl.py": "1551a8f3357286c0dad2c2064baddbaf34afcb45e5760ef3771cade572acd1c8",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/gui/io.py": "4fc77b17ef8bb4c6fe8e721016bc930713f70953ee79b9c804079fd5e60735b0",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/gui/make_train.py": "e002d6002b637d05ef623827cebfac52d532cefd819361e0e6bbfaafa0e37918",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/gui/gui.py": "28b78d211db62cbe796f87e81d0b4880cdb8d91e5491088599c40afbc4777add",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/gui/gui3d.py": "69ce1a211981e751884140cf4b0cecf0cee372b1b6805eda6d2052f9d5ca3906",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/gui/menus.py": "3885f79793b8ac93b0e2000fcee5dfacded531e8cca465b3cd28d7f41355acef",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/gui/guiparts.py": "c6e96abbba038efe49fc321e2bf6d1bcb824bae51cc22303446e1cd59fdd035a",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/lib/python3.10/site-packages/cellpose/contrib/distributed_segmentation.py": "71764c9bd9d1743ae5ac65efcb920593a550d6cececb80106ccffb32b029147d",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/models/size_nucleitorch_0.npy": "a79107c9f284b569dd65f3a7363014d613a3403241c062822f07b6f026b4d3ef",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/backends/cellpose3/models/nucleitorch_0": "89ca45e4a45048d5010d29621466b1274b91b3dcb9714dce9f9e90a9a8671303",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t000.tif": "a0ae50aa44a82226b0517663a849ad6e969a23bcfea29269cd5db1ee86e3077c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t000.npy": "1d1b9f08243a46651cbeb5385806a677174591129e90da5b81442d0c87974944",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t005.tif": "472a9b62683a4779d898ddfa2333ecdf05d7f15a533658c7777b385e1dea81e5",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t005.npy": "9616b7f292f4044fd48cbe2f2d82939f78058d7576b4198246c39f8ce3526616",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t010.tif": "139e6a4ec57154a73dcdf57d3931b6ee1ac831b949ecac07918876e29ecd128c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t010.npy": "7265ad233cdb2cdb371a69845dd55229771529291fbb2b186645de4d554b95e4",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t014.tif": "681dff08289e0975d726f6dbb027870fc0baf2441ef2909420d74f2357230436",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t014.npy": "e64acdbb298c6178b25a6edc525a5f6afe5ab764c5c19e0f260ff4e8e4f740b2",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t019.tif": "3f5cdf4ca798fab47107c6ae97032186edd9d867de3173a78678e00cb0b7eac3",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t019.npy": "d667c3a4ec0848077c5607d03eb73a05d6c5ed6baf2a7cea0175a666acdc99ec",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t024.tif": "dac5b66c2e2cf8d7c98dcd5c3ffd1ffece57996f0eb8f697d14831ec517e5a01",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t024.npy": "82ac3e84d61703e38eb16406b47b8c01cc2f5680a7d46653c06f2f099b2084d5",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t029.tif": "5f048cc0008c1cb79f956384ce904b49148baebd66cf61f6f67da035bf221e38",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t029.npy": "d66b806038d600329daffdc0b81146d1d3f6fb05323ec6ae3e3699a3fa3996e4",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t034.tif": "425320898bb47a02240e3231091bbf8950f10ee4f5d3dd5d4b7d7111a5e22381",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t034.npy": "95d9711850c981140145713f548f502fe4ad352d93cd39ae3e6da5eaf5d3cd62",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t038.tif": "0a518b72a04ffcc5f5165573a4752937085438918e494ba5eacfc220ff9f51b6",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t038.npy": "9bd510d47ed3ace8c4f6a24bb4da117d69674329cd95564eb266ae221727745c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t043.tif": "7020c50ca9576550406d6b8e81487ead69aa6f694982ae97755d4e83f777af39",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t043.npy": "3cc1228e63a4876ef40c15335a3e8026e545ab5deb1091d3f4dcdb1eeb0174cb",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t048.tif": "188e8f4078e5515d411d16eb42a69e7b81b0d662b36984f77e6022463c4c64c2",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t048.npy": "6675775455c5fb213776b8d847fa58ffaf5112e82ccfdca58331557987a91d1d",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t053.tif": "eef545e06b66fbbb5fbc8e4aaf863017cf4d6fc7f0731802c5601231b474327b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t053.npy": "0682c85065fc53d44c757e5daae03bc9b1afa6976caf6cec6c6f4b692386193d",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t057.tif": "61b6681395d579a509845dd9ce6c90f2c22dd48491d8c428c7a44ef416363a5e",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t057.npy": "135cd7a90969ac5b9026b69c447f0432ab9c65eab6cc0f888d2cd0140d53c93a",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t062.tif": "085edcb408e2f6b72e72ab44132305d4b5978e19589b39304018988f1b96be3e",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t062.npy": "751beb051a7c53b272dd8724d52ca02dc7281d4071dcf36bc2a515d3d70d73b3",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t067.tif": "71eedce28c8ed7e825dfd8d018f2be2a1994b2e8643a3cfcae57f5df1087c8d3",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t067.npy": "eee6b473802588b27b236fcf3110aeae26330517dea5ed75b2f4066236d2fd5a",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t072.tif": "3fe05eea392f5347cbfdef8896a5558034a66627c46fd8932cecd419938f14bf",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t072.npy": "914fa918b583e71e2351bbda0a97a8ed47cb6831c4d4744add6b4225287b3964",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t077.tif": "708af23ee5dd973f968b439f7cd3159a22d1cd6e458f93c4c3e9d1d789637e87",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t077.npy": "48142089b927af500791551894753946e1aa1b15cefa8fa9cc499f40d999d632",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t081.tif": "6d94bd74823f5b872d4253a49ee336e520f5bf5abfefbdd173a51f0bdbad5560",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t081.npy": "142cd74f2116705c32efa50ebf6ce7178231d483893da650a1d3a63372393e67",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t086.tif": "c24f1fa90dcea2e4e1e2389a2dbc0bc1032887af7f6391bb6b0c9f935eb6e28c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t086.npy": "e1bd53c3d6383e41493ea7c611bbdd9e6d3b4999f5a880f9e67230584de83d3b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t091.tif": "8886200ce186f03eb8bb59b41d59ce70e5760fa137670a7df2feb256c134cf12",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t091.npy": "289b49f7d2c5c08b04da1d3a26b8f3a76ca97277d982040bc7b32f2d41d10d1b"
+  },
+  "original_inputs_and_models_unchanged": true
+}

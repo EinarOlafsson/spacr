@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "source_base_commit": "298a3c525e7b4a0e7ba0d048a0ab289ece42e98d",
+  "problem": "Before a first regression run, the native Hits button selected the Hits tab inside a hidden Figures container, leaving no visible result view.",
+  "change": "The existing private results-tab raiser now shows the Figures card and unfolds its body before selecting the result page. The automatic unfolding does not persist a preference change.",
+  "reproduction": {
+    "failed_tests": 1,
+    "log_sha256": "f3fe4907126a4f3ddadd8e404bd06a83626cc93d21dcd982cadf424516599854"
+  },
+  "verification": {
+    "passed": 47,
+    "files": [
+      "tests/qt/test_hit_list_opens_before_first_regression.py",
+      "tests/qt/test_the_regression_folds_kept_every_capability.py"
+    ],
+    "log_sha256": "6d6b06df46ba33f90f8a73ad2161c2f24dc7fa4b32a0c66b40ceeb061f55edd6",
+    "states": [
+      "Fresh hidden results container",
+      "User-folded results container"
+    ],
+    "analysis_started": false
+  },
+  "source_sha256": {
+    "spacr/qt/screens/app_screen.py": "88a34dfe12ad784ad40c3b69f620fbfe50f783f5006537fc837f7196b59bb056",
+    "tests/qt/test_hit_list_opens_before_first_regression.py": "d908a6092e1ee78d46415ac069f34e9598ec913668ad91609e5a5674b793766a"
+  },
+  "public_api_prose_changed": false,
+  "caption_changes": false,
+  "remaining": [
+    "Verify the actual native tutorial capture after this fix"
+  ]
+}

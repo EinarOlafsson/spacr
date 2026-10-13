@@ -1,0 +1,60 @@
+Accepted scope: e0ea321342 PLUS 7f90125469, based on 711999b77d.
+Do not ship the explicit-close e0ea checkpoint alone. The final object.py SHA
+is recorded in receipt.json; current core.py adds only the mask scratch prune.
+
+Use the repository's normal CPU environment. Launch from the repository:
+
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python features/data/548_native_mask_archive_cpu_2026-10-06/reproduce.py --repo "$PWD" --scratch /mnt/wd4tb/scratch/f548-mask-reproduction-new
+
+The scratch directory must not exist. The script builds one compressed
+128 MiB numeric fixture, runs fresh paired processes sequentially, compares
+all owned model inputs, complete saved mask files, SQLite rows, completion
+callbacks and stdout at batch_size=2, and runs the 71 focused cases. No
+Cellpose weights, GPU, new dependency, whole suite or source modification.
+The legacy eager baseline uses the exact frozen original SAM generator AST;
+all its other original function/class ASTs match the final source. Storage
+scaffolding is the only intentional downstream generator change.
+
+Optional --unsafe-before executes the rejected direct-close reader in a
+separate capped subprocess and expects exit139. The probe sets RLIMIT_CORE
+to (0,0). This machine's host core_pattern is an apport pipe, so the shell
+still reports a core-dump flag; no repository/scratch core file was produced.
+The accepted path exits0, reads retained validation pixels (sum276), then
+releases views/tracebacks and confirms eventual stage cleanup. Final lifetime
+tests prove exact map owner/base chains, transformed C/F T views and real
+axis/channel error locals are safe, with close before unlink on last-owner
+death. Full diagnostic traceback locations and locals remain intact.
+
+Measurements in receipt.json are source-bound Linux CPU model-double probes,
+not actual Cellpose/GPU or speed acceptance. VmHWM fell132.90MiB for T and
+130.01MiB for Z; anonymous heap also fell. Clean staged file pages remain
+cgroup-charged and reclaimable: total-cgroup peaks did not materially fall.
+Without optional MADV_DONTNEED the mapped heap falls but full-series resident
+file pages accumulate. Windows has no RSS guarantee. Selected-channel
+batches/masks/filter arrays still scale with configured original batching.
+
+Physical disk reservation and checkpoints are covered, including unsupported
+fallocate, partial writes, ENOSPC/quota, cancel, CRC corruption, valid-CRC
+trailing payload bytes and injected incomplete ZIP-member reads. Native
+staging uses the already-writable mask output directory, preserving read-only
+source directories. NumPy literal data/filenames member priority is preserved.
+Legacy timelapse and ordinary eager mutation/normalization remain unchanged.
+
+Watch tests interrupt after actual native collection and resume with a
+reserved orphan scratch directory. Only regular .spacr-native-mask-* dirs
+under mask traversal are pruned, after linked-directory rejection. A symlink
+using that prefix is still rejected. Arbitrary hidden scientific outputs
+still enter the inventory and block mismatched resume. Existing scientific
+artifact hashes remain bound and inference is not repeated.
+
+validation phase counts overlap and must not be summed:
+- preceding broader native/archive/watch cohort:269pass,105.38s;
+  object SHAda60 (before the final unreachable-close removal).
+- final71 archive/lifetime plus Watch boundary cases:71pass,31.13s.
+- final callable/nested doc guards:255pass,23.52s.
+- Ruff full changed tests, fatal changed source, git diff --check:pass.
+Final five private helpers cover96/96statements and28/28branch destinations.
+The three new collector-pruning source lines are covered; no full-module or
+global coverage claim. Archived broader coverage is labelled before-final;
+coverage_lifetime_final and targeted-coverage belong to accepted final source.
+Parent F548 stays OPEN; no universal large-volume or vendor readiness claim.

@@ -1,0 +1,7 @@
+{
+  "source_sha256": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+  "statements": 42,
+  "touching_arcs": 12,
+  "missing_statements": [],
+  "missing_arcs": []
+}

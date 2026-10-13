@@ -1,0 +1,6 @@
+
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/QtCore.abi3.so:     file format elf64-x86-64
+
+Contents of section .rodata:
+ 2d9d20 31345154 68726561 64577261 70706572  14QThreadWrapper
+ 2d9d30 00000000 00000000 00000000 00000000  ................

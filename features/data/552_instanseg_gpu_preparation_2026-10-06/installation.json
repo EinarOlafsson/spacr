@@ -1,0 +1,31 @@
+{
+  "normal_isolated_installation_complete": true,
+  "torch_index": "https://download.pytorch.org/whl/cu128",
+  "backend": "instanseg",
+  "environment": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg",
+  "record": {
+    "backend": "instanseg",
+    "device": "cpu",
+    "installed": "2026-10-06 01:03:05",
+    "interpreter": [
+      "/home/carruthers/anaconda3/envs/spacr/bin/python"
+    ],
+    "licence": "Apache-2.0",
+    "packages": {
+      "instanseg-torch": "0.1.1",
+      "numpy": "2.5.3",
+      "torch": "2.11.0+cu128"
+    },
+    "protocol": 1,
+    "python": "3.13.14",
+    "requirements": [
+      "instanseg-torch==0.1.1"
+    ],
+    "torch": [
+      "torch"
+    ],
+    "torch_index": "https://download.pytorch.org/whl/cu128"
+  },
+  "cuda_inference_acceptance": false,
+  "scope": "Normal installer with CUDA hidden; GPU inference must run separately through gpu_turn.sh."
+}

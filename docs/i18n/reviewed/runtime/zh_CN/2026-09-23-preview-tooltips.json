@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted source-context review of cancellation, asynchronous saving, enhancement comparisons and optional scale/time estimates. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page",
+      "source": "Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page",
+      "source_sha256": "447c81f3d033d7e04a825a1a8d1ba2b6865f355a9296458901180b2d91fd8ca3",
+      "translation": "根据面积最大的25%空斑推测缺失值。假定其生长符合RH/HFF对照；保留现有测量值。API: spacr.plaque_growth.estimate_page"
+    },
+    {
+      "table": "ui",
+      "key": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.",
+      "source": "Preview the configured enhancements beside the unenhanced image, for the magnifier's box when it has one and for the whole field otherwise, so every step of the chain can be judged by looking at what it did. Processing runs in the background. Cancel closes the comparison; a running filter finishes without displaying its result. Whole-field normalization is applied before cropping, as it is for detection.",
+      "source_sha256": "77e8c38330d9cb74abd412d31eebbe734fc50801e8e598d59809d6f6ec6901a0",
+      "translation": "将配置的图像增强结果与未增强图像并排预览：有放大镜选框时预览该区域，否则预览整个视野，以便观察各处理步骤的效果。处理在后台运行。取消会关闭对比；正在运行的滤镜会完成，但不显示其结果。与检测时相同，先对整个视野进行归一化，再裁剪。"
+    }
+  ]
+}

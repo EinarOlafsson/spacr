@@ -1,0 +1,173 @@
+"""Three-field editor for ``png_channel_mapping``: which source channel is
+red, which is green, which is blue.
+
+Replaces a text box holding ``{'r': 2, 'g': 1, 'b': 0}``. The dict form is
+still what the setting *is* -- this only stops the user having to type a
+Python literal to say something as simple as "555 is my red".
+
+Three labelled fields replace one ordered list because the list form
+(``png_dims``) did not say which colour each position meant: position 0 was
+blue because of how cv2 interprets an array, which the settings panel could
+not show and a user could not infer. A misread list writes crops with the
+channels in the wrong colours; a field labelled "R" states its colour.
+"""
+from __future__ import annotations
+
+from typing import Any, Dict, Optional
+
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QSpinBox,
+    QWidget,
+)
+
+#: Highest source channel index the spin boxes offer. Well past any real
+#: stack; the cost of a too-high ceiling is nothing, and the cost of a too-low
+#: one is a user who cannot enter their own data.
+MAX_SOURCE_CHANNEL = 31
+
+#: The value that means "leave this colour empty". QSpinBox needs a real
+#: number for its `specialValueText` slot, so the empty plane lives one below
+#: the first legal channel rather than in a separate control.
+_EMPTY = -1
+
+#: Label and tooltip per colour slot, in file order.
+_SLOTS = (
+    ("r", "R", "Source channel shown as RED (conventionally 555 / 647)"),
+    ("g", "G", "Source channel shown as GREEN (conventionally 488)"),
+    ("b", "B", "Source channel shown as BLUE (conventionally 405 / DAPI)"),
+)
+
+
+class ChannelMappingWidget(QWidget):
+    """Editor for a ``{'r': int, 'g': int, 'b': int}`` channel mapping.
+
+    :param value: the mapping already saved. ``None`` opens with nothing
+        assigned, and a colour left empty STAYS empty -- the run must not put
+        a plane back into a slot the user cleared.
+    :param parent: parent widget.
+    """
+
+    valueChanged = Signal(dict)
+
+    def __init__(self, value: Any = None, parent: Optional[QWidget] = None):
+        """Build the row of colour-slot spin boxes.
+
+        The whole help lives on each slot's name rather than on the box beside
+        it: hovering the field the user is about to type in used to cover it
+        with a tooltip they had already read on the label.
+
+        The container paints nothing and registers no stylesheet of its own, so
+        there is no new rule to forget to add to the theme's module list -- the
+        children are styled by the existing spin-box and label rules. A theme
+        that cannot be reached leaves the field working on the window colour,
+        because decoration must never be load-bearing.
+
+        :param value: the mapping to start with.
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        self._boxes: Dict[str, QSpinBox] = {}
+        for key, label_text, tip in _SLOTS:
+            label = QLabel(label_text, self)
+            label.setObjectName(f"ChannelMappingLabel{label_text}")
+            label.setToolTip(tip + ". “—” leaves this colour empty.")
+            layout.addWidget(label)
+
+            box = QSpinBox(self)
+            box.setObjectName(f"ChannelMappingSpin{label_text}")
+            box.setRange(_EMPTY, MAX_SOURCE_CHANNEL)
+            box.setSpecialValueText("—")
+            box.valueChanged.connect(self._emit)
+            layout.addWidget(box)
+            self._boxes[key] = box
+        layout.addStretch(1)
+
+        try:
+            from ..theme import make_transparent
+            make_transparent(self)
+        except Exception:
+            pass
+
+        self.set_value(value)
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+
+    def get_value(self) -> Dict[str, Optional[int]]:
+        """Return the mapping, with ``None`` for any colour left empty."""
+        out: Dict[str, Optional[int]] = {}
+        for key, box in self._boxes.items():
+            raw = box.value()
+            out[key] = None if raw == _EMPTY else int(raw)
+        return out
+
+    def set_value(self, value: Any) -> None:
+        """Load a mapping dict, a legacy ``png_dims`` list, or nothing.
+
+        The list form is accepted because a settings CSV written by an older
+        build holds one, and the panel has to be able to show what that file
+        actually asked for. It is translated the same way the pipeline
+        translates it -- entry 0 is blue -- so the fields show the colours the
+        run will produce, not a rearrangement of them.
+
+        :param value: ``None`` (the default mapping), a colour-slot mapping, a
+            legacy ``png_dims`` list, or the string form of either; an
+            unparseable string falls back to the default mapping.
+        """
+        mapping = self._coerce(value)
+        for key, box in self._boxes.items():
+            idx = mapping.get(key)
+            box.blockSignals(True)
+            box.setValue(_EMPTY if idx is None else int(idx))
+            box.blockSignals(False)
+        self._emit()
+
+    @staticmethod
+    def _coerce(value: Any) -> Dict[str, Optional[int]]:
+        """Normalise a stored value into a colour-slot mapping.
+
+        A string is parsed as a Python literal, and anything that will not parse
+        falls back to the default mapping rather than raising -- a settings file
+        with a mangled value should open the module, not refuse to build it.
+
+        :param value: ``None``, a mapping, a ``png_dims`` sequence, or the
+            string form of either.
+        :returns: the mapping, one entry per colour slot.
+        """
+        from ...crops import (
+            DEFAULT_PNG_CHANNEL_MAPPING,
+            png_dims_to_channel_mapping,
+            resolve_png_channel_mapping,
+        )
+        if value is None:
+            return dict(DEFAULT_PNG_CHANNEL_MAPPING)
+        if isinstance(value, str):
+            import ast
+            try:
+                value = ast.literal_eval(value)
+            except (ValueError, SyntaxError):
+                return dict(DEFAULT_PNG_CHANNEL_MAPPING)
+        try:
+            if isinstance(value, (list, tuple)):
+                return png_dims_to_channel_mapping(value)
+            if isinstance(value, dict):
+                return resolve_png_channel_mapping(
+                    {"png_channel_mapping": value})
+        except Exception:
+            pass
+        return dict(DEFAULT_PNG_CHANNEL_MAPPING)
+
+    def _emit(self, *_args) -> None:
+        """Announce the current mapping.
+
+        :param _args: whatever the emitting spin box passes; ignored.
+        """
+        self.valueChanged.emit(self.get_value())

@@ -1,0 +1,13 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Return an application view with guide-to-well assignments permuted.",
+      "label": "spacr.annotation_validation.permuted#0",
+      "source": "Return a screen with guide-to-well assignments permuted.",
+      "source_sha256": "52114f6e4ff7b5b7e296dffab2fe680ad79bf5c5130c564ac495dbc1c884b5fc",
+      "translation": "Renvoyer les données avec une permutation des affectations guide-puits."
+    }
+  ],
+  "schema": 1
+}

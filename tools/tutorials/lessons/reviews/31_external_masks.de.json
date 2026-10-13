@@ -1,0 +1,38 @@
+{
+  "lesson": "31_external_masks",
+  "english_sha256": "5c94fdec0708e9848478d70a90be12722fd91c5c955c5a4090d82ebed3684bb3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "External Masks: Bilder mit mitgelieferten Objektlabels messen",
+  "description": "Weisen Sie Bild- und Maskendateien zu, prüfen Sie ihre Paarung in der Vorschau und erstellen Sie dann ein gemessenes spaCR-Projekt mit Objekttabellen und Ausschnitten.",
+  "objectives": [
+    "Intensitätsbilder und Labelmasken den richtigen Rollen zuweisen.",
+    "Kanäle, Ausgabeort und Messoptionen wählen.",
+    "Die Paarung in der Vorschau prüfen, Measure ausführen und das Ausgabeprojekt prüfen."
+  ],
+  "prerequisite": "Bereiten Sie zueinander passende Intensitätsbilder und ganzzahlig beschriftete Masken mit denselben räumlichen Abmessungen vor. Jedes Objekt braucht ein eigenes positives ganzzahliges Label; 0 ist Hintergrund. Das Beispiel verwendet zwei Bild-Zellmasken-Paare aus dem Tutorial Import Project.",
+  "scenes": [
+    "Öffnen Sie von Home aus Import Project und wählen Sie dann External Masks. Verwenden Sie dieses Werkzeug, wenn Sie bereits Segmentierungslabels haben und spaCR die zugehörigen Bilder messen soll.",
+    "Bereiten Sie zueinander passende Intensitätsbilder und beschriftete Masken vor. Dieses Beispiel verwendet zwei Bild-Zellmasken-Paare. Halten Sie jedes Paar ausgerichtet und verwenden Sie Dateinamen oder Metadaten, mit denen der Import das richtige Bildfeld zuordnen kann.",
+    "Klicken Sie auf Add folder für den Bildordner und erneut für die Masken. Prüfen Sie Use as: Wählen Sie Image für Intensitätsdateien und Mask für Labels. Setzen Sie Mask type auf das Kompartiment, das jede Maske darstellt, zum Beispiel Cell.",
+    "Setzen Sie Use as für jede Gruppe, die Sie auslassen möchten, auf Ignore. Ihre Dateien bleiben auf der Festplatte. Lassen Sie die Bildgruppe und die für Ihre Analyse nötigen Masken eingeschlossen.",
+    "Stellen Sie für die Intensitätsgruppe des Beispiels wieder Image ein. Prüfen Sie die Zuordnungen für Image und Zellmaske, bevor Sie das Ziel wählen.",
+    "Setzen Sie Dst auf einen neuen Projektordner. Wählen Sie Layout, Z handling und Plate naming passend zu Ihren Dateien. Dieses Beispiel verwendet ein flaches Layout, die erste Z-Ebene und indexbasierte Plattennamen. Verwenden Sie Aufnahmemetadaten, wenn die ursprüngliche Well-Kennung erhalten bleiben muss.",
+    "Wählen Sie unter Channels die zu messenden Intensitätskanäle. Jedes TIFF dieses Beispiels enthält eine Intensitätsebene; wählen Sie daher Kanal 0 und lassen Sie Normalize ausgeschaltet. Die Kanalnummern beziehen sich auf die importierten Dateien.",
+    "Wählen Sie, ob das Zytoplasma gemessen werden soll. Mit reinen Zellmasken umfasst der abgeleitete Bereich die ganze Zelle. Stellen Sie die Masken innerer Kompartimente bereit, wenn diese aus dem Bereich ausgeschlossen werden sollen.",
+    "Aktivieren Sie unter Object Crops Save PNG und wählen Sie cell unter Crop mode. Setzen Sie PNG size auf 224 × 224. Wählen Sie für die PNG-Zuordnung dieses einkanaligen Beispiels Kanal 0.",
+    "Wählen Sie die benötigten Messmerkmale und aktivieren Sie dann Save measurements. Legen Sie mit N jobs die Parallelität fest. Beginnen Sie mit einer kleinen Eingabemenge, während Sie die Einstellungen kennenlernen und die entstandenen Ausschnitte prüfen.",
+    "Aktivieren Sie Preview only und drücken Sie Run. Prüfen Sie im Plan die vorgeschlagenen Bild-Masken-Paarungen, die Zahl der Bildfelder und die Kanalanordnung. Korrigieren Sie Zuordnungen, bevor das Projekt geschrieben wird.",
+    "Schalten Sie Preview only aus und drücken Sie erneut Run. Das Werkzeug bereitet die Bilder und Masken des Projekts vor und führt dann Measure aus, um Objektmerkmale zu berechnen und die gewünschten Ausschnitte zu erstellen.",
+    "Prüfen Sie das Intensitätsbild neben den mitgelieferten Labels. Prüfen Sie Objektgrenzen, fehlende Objekte und die Ausrichtung von Bild und Maske, bevor Sie die Messwerte deuten.",
+    "Blättern Sie durch die Objektmontage, um die extrahierten Ausschnitte zu prüfen. Wechseln Sie im Abbildungsbetrachter zwischen Bildfeldern und prüfen Sie, ob die gewählten Kanäle und die Ausschnittgröße die Objekte deutlich zeigen.",
+    "Öffnen Sie measurements/measurements.db für die Objekttabellen und data für die Annotationsausschnitte. Bewahren Sie conversion_map.csv und das Quellmanifest beim Projekt auf, damit importierte Bildfelder nachvollziehbar bleiben. Fahren Sie in Annotate fort, um die Ausschnitte zu beschriften, oder verwenden Sie die Messtabellen in einer weiteren Analyse."
+  ]
+}

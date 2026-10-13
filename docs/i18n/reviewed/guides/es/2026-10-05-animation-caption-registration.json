@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "es",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Only the displayed Animation caption is changed to the actual first-run-owned runtime row; all surrounding reviewed wording is retained. Previous target text is retained as historical evidence.",
+  "records": [
+    {
+      "domain": "localization",
+      "source": "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping.",
+      "source_sha256": "8f1f5b591f96f5a7ee5f6786f3305f5237cb0deaeb67185b8e156b6cbadaa64e",
+      "previous_translation": "El enlace **API** al pie de la información emergente de cada ajuste conserva la URL exacta de la documentación en todos los idiomas. Su rótulo y su nombre accesible siguen el idioma seleccionado, y cambiar de idioma actualiza las ventanas de configuración ya abiertas. Cuando existe ayuda visual, el pie de la información emergente ofrece también la palabra **Animation**, que muestra el dibujo junto al texto. El dibujo científico en sí es independiente del idioma. Consulte la :doc:`galería de animaciones de ajustes <setting_animations>` para ver cada correspondencia exacta.",
+      "target": "El enlace **API** al pie de la información emergente de cada ajuste conserva la URL exacta de la documentación en todos los idiomas. Su rótulo y su nombre accesible siguen el idioma seleccionado, y cambiar de idioma actualiza las ventanas de configuración ya abiertas. Cuando existe ayuda visual, el pie de la información emergente ofrece también la palabra **Animación**, que muestra el dibujo junto al texto. El dibujo científico en sí es independiente del idioma. Consulte la :doc:`galería de animaciones de ajustes <setting_animations>` para ver cada correspondencia exacta.",
+      "displayed_animation_caption": "Animación"
+    },
+    {
+      "domain": "setting_animations",
+      "source": "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking.",
+      "source_sha256": "460fc0515db2637d3cb746082c5a9ab630257dd9444cdffbacf13cde30acad85",
+      "previous_translation": "spaCR incluye GIF breves y deterministas para los ajustes cuyo efecto se entiende mejor visualmente. En la interfaz de escritorio, al pasar el puntero sobre un ajuste se muestra su explicación; al pulsar la palabra **Animation** en verde azulado del pie de esa información emergente se muestra la animación correspondiente a la derecha del texto. Solo se muestra para ese ajuste — el siguiente ajuste vuelve a ser texto hasta que se pulse su propia **Animation**, y no se decodifica nada hasta entonces. Active *Animaciones de la configuración* en Preferencias para mostrarlas sin preguntar.",
+      "target": "spaCR incluye GIF breves y deterministas para los ajustes cuyo efecto se entiende mejor visualmente. En la interfaz de escritorio, al pasar el puntero sobre un ajuste se muestra su explicación; al pulsar la palabra **Animación** en verde azulado del pie de esa información emergente se muestra la animación correspondiente a la derecha del texto. Solo se muestra para ese ajuste — el siguiente ajuste vuelve a ser texto hasta que se pulse su propia **Animación**, y no se decodifica nada hasta entonces. Active *Animaciones de la configuración* en Preferencias para mostrarlas sin preguntar.",
+      "displayed_animation_caption": "Animación"
+    }
+  ]
+}

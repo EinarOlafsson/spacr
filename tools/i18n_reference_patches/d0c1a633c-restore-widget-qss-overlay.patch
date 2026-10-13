@@ -1,0 +1,26 @@
+diff --git a/spacr/qt/theme.py b/spacr/qt/theme.py
+index 8cafb6c66..e2d299b99 100644
+--- a/spacr/qt/theme.py
++++ b/spacr/qt/theme.py
+@@ -5190,3 +5190,21 @@ def take_the_scroll_arrows_off(root) -> int:
+     for bar in unique.values():
+         bar.setUsesScrollButtons(False)
+     return len(unique)
++
++
++# --- restored for instruction 306's caption review (see tools/i18n_reference_sources.py)
++# This revision's app_screen.py imports and calls these two names, and this
++# revision's theme.py does not define them, so the tree does not import.  Both
++# are reproduced verbatim from a3c18f779, where they were introduced.
++_LOCAL_WIDGET_QSS_ATTRIBUTE = "_spacr_local_widget_qss_suffix"
++
++
++def preserve_widget_qss_overlay(root, stylesheet: str) -> str:
++    """Return ``stylesheet`` with ``root``'s owned late-QSS suffix intact.
++
++    A screen may legitimately replace its own base stylesheet after its late
++    widget blocks were installed.  Folding the suffix into that existing
++    assignment avoids a second ``setStyleSheet`` call (and its palette-change
++    cascade) while keeping the blocks available for the next paint.
++    """
++    return str(stylesheet) + getattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, "")

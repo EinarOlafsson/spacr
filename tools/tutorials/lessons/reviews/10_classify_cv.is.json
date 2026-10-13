@@ -1,0 +1,34 @@
+{
+  "lesson": "10_classify_cv",
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Classify: þjálfaðu myndflokkara",
+  "description": "Undirbúðu merkt myndúrklipp, veldu tölvusjónarfjölskylduna, þjálfaðu lítið líkan og finndu spár þess.",
+  "objectives": [
+    "Undirbúa niðurhalanlega dæmið um myndflokkun.",
+    "Velja líkan, myndrásir og þjálfunarstillingar.",
+    "Halda brunnum aðskildum og skoða vistuð líkön og spár."
+  ],
+  "prerequisite": "Sæktu mælda dæmið í gegnum Annotate með Load test data og svo Load. Haltu möppunni plate1 með measurements/measurements.db og png-úrklippunum. Sæktu Classify_existing_split_example.zip hér fyrir neðan og dragðu hjálparskriftuna út. Í spaCR-umhverfinu þínu keyrirðu prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Veldu möppuna new_split í Classify. Hjálparskriftan er gerð fyrir þetta dæmi með fjórum brunnum; hún afritar 64 merkt RGB-úrklipp í þjálfunar- og prófunarmöppur.",
+  "scenes": [
+    "Frá Home opnarðu Classify og velur Computer Vision, Torch. Þessi fjölskylda lærir af merktum úrklippum hluta og vistar líkan sem getur gefið öðrum úrklippum stig. Fylgdu fyrst Annotate-kennslustundinni til að sækja dæmamyndirnar og merki þeirra.",
+    "Í Annotate velurðu Load test data og svo Load. Haltu plötumöppunni sem geymir mælingarnar og PNG-úrklippin. Fyrir þín eigin gögn byrjarðu á úrklippum úr Measure og setur í Annotate þá flokka sem líkanið á að læra.",
+    "Sæktu tengdu ZIP-dæmaskrána og dragðu út prepare_classify_split.py. Keyrðu hana í spaCR-umhverfinu með upprunann á plötumöppu dæmisins og áfangastaðinn á nýja möppu. Hjálparskriftan undirbýr 64 merktar myndir fyrir þessa æfingu.",
+    "Opnaðu nýju möppuna og yfirlitsskrá hennar. Þjálfunar- og prófunarmöppurnar innihalda hvor um sig tvær flokkamöppur. Yfirlitsskráin telur upp hverja afritaða mynd og brunn hennar. Haltu heilum brunnum öðrum megin við skiptinguna þegar myndir úr sama brunni deila tilraunaaðstæðum.",
+    "Farðu aftur í Classify og veldu undirbúnu möppuna sem Source. Veldu yfirmöppuna sem inniheldur train og test. Notaðu þessa möppu það sem eftir er kennslustundarinnar svo líkanið og úttaksskrár þess haldist saman.",
+    "Slökktu á Generate training dataset, því hjálparskriftan hefur þegar undirbúið skiptinguna. Virkjaðu Train og Test. Hafðu slökkt á beitingu á allt gagnasafnið í þessari fyrstu keyrslu. Líkanið notar flokkavísana 0 og 1 fyrir flokkamöppurnar tvær.",
+    "Veldu ResNet18, myndstærð 128, allar þrjár RGB-rásirnar, runustærð 8 og eina umferð. Stilltu tvö innlestrarferli, með forþjálfaða vigta og gagnaaukningu óvirk fyrir þetta stutta dæmi. Fjöldi umferða ræður hversu oft þjálfunin fer í gegnum inntaksmyndirnar.",
+    "Stilltu staðfestingarhlutfallið á 0,5, haltu flokkun eftir brunnum og hafðu lekaprófanir virkar. Staðfestingin fylgist með líkaninu meðan á þjálfun stendur; aðskilda prófunarmappan er notuð í lokamatið. Athugaðu uppgefna skiptingu brunna áður en þú túlkar stigin.",
+    "Kveiktu á Plot, hreinsaðu leitina í stillingunum og ýttu á Run. Fylgstu með í stjórnborðinu hvernig gagnasafnið er lesið inn, endanlegri skiptingu, framvindu þjálfunar og úttaksslóðum. Bíddu þar til þjálfun og prófun er lokið áður en þú opnar vistuðu niðurstöðurnar.",
+    "Opnaðu Figures til að skoða tap og nákvæmni. Ein umferð gefur fljótlega fyrstu yfirferð. Berðu prófunarniðurstöður flokkanna saman áður en þú lengir þjálfunina. Ef spárnar hygla aðeins einum flokki skaltu fara yfir merkin, jafnvægi flokka og inntaksrásir áður en þú notar líkanið á stærra gagnasafn.",
+    "Opnaðu model/resnet18/rgb/epochs_1 í undirbúnu möppunni. Haltu vistunarpunktinum, líkanlýsingunni og niðurstöðutöflunum saman. Notaðu vistuðu spárnar til að fara yfir villur og haltu svo áfram í Classifier Evaluation eða Activation Maps til að skoða líkanið nánar."
+  ]
+}

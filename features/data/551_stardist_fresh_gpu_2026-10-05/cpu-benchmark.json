@@ -1,0 +1,280 @@
+{
+  "schema": 1,
+  "accepted": true,
+  "device": "cpu",
+  "scope": "Fresh normally installed StarDist backend, official annotated biological 2D image, four original acquired DNA fields, and real biological plant 3D volume. 3D is model/example execution and CPU/GPU parity, not independent held-out accuracy.",
+  "worker_hello": {
+    "backend": "stardist",
+    "python": "3.13.14",
+    "packages": {
+      "stardist": "0.9.2",
+      "torch": "",
+      "numpy": "2.5.3",
+      "tensorflow": "2.21.0"
+    },
+    "device": "cpu",
+    "models": [
+      "2D_versatile_fluo",
+      "2D_versatile_he",
+      "2D_paper_dsb2018"
+    ],
+    "protocol": 1,
+    "id": 1,
+    "ok": true
+  },
+  "observed_gpu_processes": "",
+  "observed_gpu_convolution_placement": [],
+  "gpu_execution_verification_pending": false,
+  "warmup_excluded": {
+    "official_2d_nuclei": 0.4408453470095992,
+    "biological_plant_3d": 1.3266385670285672
+  },
+  "cases": [
+    {
+      "case": "official_2d_nuclei",
+      "shape": [
+        512,
+        512
+      ],
+      "objects": 118,
+      "foreground": 55777,
+      "labels_sha256": "d7c011543538a994a86c8d451c59648e9d077d091ae16103090cb7eb8568347a",
+      "seconds": 0.1321862670010887,
+      "independent_truth": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/data/images/mask2d.tif"
+    },
+    {
+      "case": "plate1_E01_10_1",
+      "shape": [
+        1994,
+        1994
+      ],
+      "objects": 98,
+      "foreground": 423519,
+      "labels_sha256": "005ee206d42f9f1277889287ad8637cf3589cdf3d746949e7932479c53f4fb3e",
+      "seconds": 2.1191669820109382,
+      "independent_truth": null
+    },
+    {
+      "case": "plate1_E01_11_1",
+      "shape": [
+        1994,
+        1994
+      ],
+      "objects": 93,
+      "foreground": 340154,
+      "labels_sha256": "f4cbda6aedbba1b8c6e9cd47982ad3af14c91fc31855ac09183294006f713301",
+      "seconds": 1.7944523400510661,
+      "independent_truth": null
+    },
+    {
+      "case": "plate1_E01_1_1",
+      "shape": [
+        1994,
+        1994
+      ],
+      "objects": 111,
+      "foreground": 236271,
+      "labels_sha256": "3852b7dbb7d79f8eccf10af711be0f86e58cd059c4ae0f5d4bf55964c1dedaeb",
+      "seconds": 1.7356261590030044,
+      "independent_truth": null
+    },
+    {
+      "case": "plate1_E01_9_1",
+      "shape": [
+        1994,
+        1994
+      ],
+      "objects": 118,
+      "foreground": 463012,
+      "labels_sha256": "370bda21b1e2c63bad1039f5e6982ca5a6c3e1fc3248b902c3e0d3f1529d6c85",
+      "seconds": 1.8321142520289868,
+      "independent_truth": null
+    },
+    {
+      "case": "biological_plant_3d",
+      "shape": [
+        66,
+        116,
+        116
+      ],
+      "objects": 13,
+      "foreground": 128561,
+      "labels_sha256": "866692e7453f001e9db45cbb5eb42d6172f871d66e5e2eca39164b132a60e332",
+      "seconds": 1.1408857819624245,
+      "independent_truth": null,
+      "occupied_z_planes": 60
+    }
+  ],
+  "source_files": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/keras/keras.json": {
+      "sha256": "760f24a997adf5b270e12494d6614c28f7d9665b0a3b9281d9c2beb5400adcdb",
+      "bytes": 120
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/keras/models/StarDist2D/2D_versatile_fluo/2D_versatile_fluo.zip": {
+      "sha256": "4ad678d0758eed6e55625f1b5ae30771e59adb79f1239e09b9772eac8846c3dd",
+      "bytes": 5320433
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/keras/models/StarDist2D/2D_versatile_fluo/2D_versatile_fluo_extracted/config.json": {
+      "sha256": "836da16282c3e0db1ba2e58f377e977419887ace8c737ebde16a094d58d50f74",
+      "bytes": 1021
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/keras/models/StarDist2D/2D_versatile_fluo/2D_versatile_fluo_extracted/thresholds.json": {
+      "sha256": "5cd6aac6e923f8659b63a9e297485920d45a59dad35371ddb8b6ae4be398d805",
+      "bytes": 39
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/keras/models/StarDist2D/2D_versatile_fluo/2D_versatile_fluo_extracted/weights_best.h5": {
+      "sha256": "42202bd269c8106782316f1a2c75afb3f5ffa65e525c2e155ee0ced3a95da349",
+      "bytes": 5771480
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/__init__.py": {
+      "sha256": "7e89c233068a12edb2a7464d0477383c79999ab83c5ab298c314ad8e676f635a",
+      "bytes": 1740
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/big.py": {
+      "sha256": "85390c50e77a3102482eb7c6d4fc87fab070caae845de00891e755e5c3383832",
+      "bytes": 25283
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/bioimageio_utils.py": {
+      "sha256": "32af04843436ee11ee251813fbba753cb5857e19aa0fabd87a3d3095cc3ccc31",
+      "bytes": 20526
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/data/__init__.py": {
+      "sha256": "b48e9b332d71ba7cd039d9c5e8a216d929c4b107093193033a6e47528b39cf83",
+      "bytes": 1108
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/data/images/img2d.tif": {
+      "sha256": "f9ccc1571b92c861ff87e28463068b43f61bd47357ed0503f711e5cd1eb97750",
+      "bytes": 524544
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/data/images/mask2d.tif": {
+      "sha256": "59ad5e820b7982ca9d13e946fa6e7f64e2714899e00a2ae6c69aa79aad53d46f",
+      "bytes": 524544
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/geometry/__init__.py": {
+      "sha256": "487ef9103396dabe1a7579b99bfa03cd9311ea7245ab096c6456b6022a07280b",
+      "bytes": 444
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/geometry/geom2d.py": {
+      "sha256": "7f917c976934f76438a2d38d9511b86782c1d402e23a3536b68de6b166769988",
+      "bytes": 7437
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/geometry/geom3d.py": {
+      "sha256": "7a53a7f3864fe8da9bfa8e9a5cd9c9e2079d50f9ad295e4d14d8a10e290a30f1",
+      "bytes": 12542
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/matching.py": {
+      "sha256": "30ec25b1ce0e6ef58311629eeb34738ea2c03703f269924102b7a595782beeb4",
+      "bytes": 19434
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/models/__init__.py": {
+      "sha256": "13d726932bda2f044ae591b188b2a6c2ba7385a8bb44ce62b3a8a49b97839b50",
+      "bytes": 2229
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/models/base.py": {
+      "sha256": "f88dff51e13dfbc36c49938391ea3e4c782f9e46771e6ab84e0b76ba3be65d4d",
+      "bytes": 56874
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/models/model2d.py": {
+      "sha256": "185206fab735d4ff562d55a11822806690d263032265bfd5f78ea99939d1fd42",
+      "bytes": 28713
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/models/model3d.py": {
+      "sha256": "99175fb00015aa151f840587d652890b9fa542487b77a038f782f9d413393cec",
+      "bytes": 33607
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/nms.py": {
+      "sha256": "91f664366d98ca618c9009ac6a6ee03d1d1d2b97d53fbc94f226d5a19a6f3da9",
+      "bytes": 12632
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/plot/__init__.py": {
+      "sha256": "70130562aef81d95bc81313fd52aca0ce81bd963368e025b9a8a4218cef5c0ed",
+      "bytes": 42
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/plot/plot.py": {
+      "sha256": "336efd2a78a6c280b4fad5ee2353e016a7729c5d0f275b011499464344843dba",
+      "bytes": 2785
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/plot/render.py": {
+      "sha256": "ddf507c210db9683bc2b6df0dea36e91d025425ac4a73559e332bd3666681fc2",
+      "bytes": 9478
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/rays3d.py": {
+      "sha256": "9eb27c4ef2e9feb59cb7b8efe6a821682d821c53e9c060f26d24f89f19a80493",
+      "bytes": 11608
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/sample_patches.py": {
+      "sha256": "7d26a8d71f743db4d44db777821ef383ed63ed7060766590598ed69e9fc36d46",
+      "bytes": 2778
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/scripts/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/scripts/predict2d.py": {
+      "sha256": "8767b2c16e0b4192536a4b67706d0b3ae5abf43751df8e0ef1a3b333afd14eac",
+      "bytes": 3442
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/scripts/predict3d.py": {
+      "sha256": "ae9767a00e573c38d143e8a6bb518ee2e9db7da3b9c3c3e514ba9dff99408ef6",
+      "bytes": 3581
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/utils.py": {
+      "sha256": "32562a830acd50bc9526154698411ca417254d35f3595542f287e254e6cb8f0d",
+      "bytes": 15976
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/lib/python3.13/site-packages/stardist/version.py": {
+      "sha256": "1d2325e9b2e6debd486acd631c83e925e43421836eb927654f7f0c4dbefd7b03",
+      "bytes": 22
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/551-stardist/backends/stardist/spacr-backend.json": {
+      "sha256": "529f996316bddd9ebbfa5404849d5c7737ff951ba56a1d5a8f620090354f0376",
+      "bytes": 645
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/benchmark_stardist_profile_r3.py": {
+      "sha256": "3076de15a26d3d20cec1ea449f62c524f79ee2464f1ed6ff24881cd60db3572f",
+      "bytes": 8051
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/stardist_worker_profile_r3.py": {
+      "sha256": "a11baf71aab5e1cc61b8af1eba86d5c4a4a9faf3e2a3c03fa91b5403ee1afe1e",
+      "bytes": 769
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-run-r4-current/example_data/plate1/merged/plate1_E01_10_1.npy": {
+      "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "bytes": 55664632
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-run-r4-current/example_data/plate1/merged/plate1_E01_11_1.npy": {
+      "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "bytes": 55664632
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-run-r4-current/example_data/plate1/merged/plate1_E01_1_1.npy": {
+      "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "bytes": 55664632
+    },
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-run-r4-current/example_data/plate1/merged/plate1_E01_9_1.npy": {
+      "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+      "bytes": 55664632
+    },
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/_segmentation_backends.py": {
+      "sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+      "bytes": 269926
+    },
+    "/media/carruthers/mnt3/spacr-f551-3d-20261002/plant-nuclei-3d/config.json": {
+      "sha256": "fc180d787bb2d9e59cb8877d111f183478e9696e4d9da4eb388e44ce862eb772",
+      "bytes": 1446
+    },
+    "/media/carruthers/mnt3/spacr-f551-3d-20261002/plant-nuclei-3d/thresholds.json": {
+      "sha256": "91c98b0608292649340af5a9488e298dcf5304e48f741959f5a6081c170b712f",
+      "bytes": 47
+    },
+    "/media/carruthers/mnt3/spacr-f551-3d-20261002/plant-nuclei-3d/weights_best.h5": {
+      "sha256": "7c731ed67ecd67f459f479ef8a44eb18cce39fadd5d884c7dc033fb71b4ca229",
+      "bytes": 18243672
+    },
+    "/media/carruthers/mnt3/spacr-f551-3d-20261002/test_input.npy": {
+      "sha256": "4fefa11d7e4224912445406e233102dfbb9bb21dfcde60cd2f0701cf8e33ff0c",
+      "bytes": 3552512
+    }
+  },
+  "original_files_unchanged": true,
+  "annotation_scoring_pending": true
+}

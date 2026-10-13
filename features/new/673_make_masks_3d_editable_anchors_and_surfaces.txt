@@ -1,0 +1,70 @@
+================================================================================
+3D MAKE MASKS WITH SHARED ANCHOR AND SURFACE EDITING
+================================================================================
+
+Status:    OPEN 2026-10-10 — implemented and published with nine-language captions and API pages; only the maintainer's hands-on desktop check is left
+Requested: 2026-10-08
+Owner:     Home/root CPU mask editing lane; workstation API/docs/translations/tutorials
+Depends:   N672 validated gate anchor and surface editing logic
+
+WHAT THE STATE IS
+
+After the Gate Editor anchor and surface logic is implemented, the user wants the same interaction model in Make Masks to draw and modify 3D masks.
+
+WHAT TO DO
+
+Add a 3D mode to Make Masks in which users can draw masks, rotate the view and edit their volume using the same validated anchor and surface logic as N672. Provide evenly spaced anchors on every edge and surface, including the depth axis, an Anchor density setting, and a separate anchor visibility toggle.
+
+Allow users to select multiple surfaces and move their associated anchors together using dragging or the mouse wheel. Keep shared anchors connected, distinguish view rotation from editing, and allow nonuniform depth deformation rather than only extruding a 2D outline.
+
+Apply edited geometry to the actual mask voxels and preserve the original image shape, axis order, voxel spacing and object label identity. Define supported volumetric input and output through the existing Make Masks paths. Preserve existing 2D drawing and bounding-box annotation behavior. Save/load, undo/redo and invalid-geometry handling must follow the shared gate editing behavior where applicable. Reuse existing modules and do not add a new module under spacr/.
+
+HOW TO KNOW IT WORKED
+
+Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
+
+2026-10-08 — Registered the user's follow-on request. This is open work, not implemented functionality. Complete and validate N672 before porting its editing logic to Make Masks. Workstation retains API/docs/translations/tutorials and GPU ownership.
+
+2026-10-08 15:33 EDT — First native scientific volume model privately committed
+Private3dc450de27b mask_engine/model tests:36PASS3.06s. Explicit spatial axis
+permutations, physical spacing, independent voxel-centre membership, real
+TIFF label/dtype/ID roundtrip, collision/topology/memory refusal, atomic pair
+rollback and external-file changes checked. Native shared-editor GUI follows;
+no published 3D-mask feature or scientific acceptance of the whole item yet.
+
+2026-10-10 — Published. Codex's private native volume work (92ebb1729,
+ecd38110b, 14e4bbcb2, e4ebe5cd8 and 6bbc41860: spatial TIFF model, source-
+bound persistence, shared-anchor 3D editor, busy-close protection, stable
+status/preview) ported onto nightly after N672. Integration fixes:
+QKeySequence/QShortcut imports restored after N656 moved Make Masks keys to
+per-screen bindings; the editor's accessibility descriptions are literal
+tooltips so the extractor sees them; the window title is "3D mask editor"
+(the old "3D Make Masks" was an untranslatable identity). 49 captions
+reviewed in nine locales (docs/i18n/reviewed/runtime/*/2026-10-10-make-
+masks-native-volume.json); 11 new public API symbols (VolumeMaskSession and
+members, load_volume_image_and_mask, save_volume_mask,
+MakeMasksScreen.open_volume) with 41 reviewed API blocks per locale. The
+load and folder-job workers now retire through primary_mask_selector._retire
+(item 43 Shiboken fix), covered in
+tests/qt/test_primary_mask_worker_outlives_its_cpp_half.py. Checks: native
+volume model/editor 60 PASS; all Make Masks, gate, shortcut and worker Qt
+files PASS (3,284 cases). Left for the maintainer: hands-on desktop check on
+a real display; AI-reviewed translations have no native-speaker signoff.
+
+2026-10-12 — The maintainer's desktop check: a 3D image opened in a separate
+window; it should open in the same container as the 2-D test data. Done: the
+"3D mask editor" window (_VolumeMaskEditor) is retired and a volume opens in
+the Make Masks Mask tab (_VolumeStage): slice slider with index/total on the
+left, a Z button (blue when on) that makes the wheel change the slice, Page
+Up/Down, and a View list left of the Mask tab (Default / Orthogonal / True
+3D, shown only for a volume). The old "3D anchors" tab is True 3D: the gate
+editor's 3-D view with every object drawn as coloured surface voxels; draw
+(New object), reshape with anchors, Delete object, spin free or about X/Y/Z;
+Shift+E/S/D and Shift+X/Y/Z (after Shift+S: spin axis), rebindable on the
+Make Masks keymap. A large object's anchor boundary is built off the GUI
+thread (FIB-SEM object of 1,310 voxels: about 9 s in the shared mesh
+validation, the GUI stays live). Not alpha. API: replace_plane and
+delete_label in tests/data/release_contracts/673_volume_in_container_api_
+arrivals_2026-10-12.json; open_volume's pin carries its new docstring.
+Tests: tests/qt/test_673_make_masks_3d_in_container.py; the window tests in
+test_make_masks_native_volume_editor.py now drive True 3D.

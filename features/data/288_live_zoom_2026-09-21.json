@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "727c9a730787964f394336d2eb33f038c54a41c9",
+  "scope": "targeted branch and statement coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/live_zoom.py",
+  "source_sha256": "64cca166270215be5332edf5dbd3663df534bb3f0a3f361b889b64bdb8daa4eb",
+  "coverage_json_sha256": "a84b253e112d0f6aed7341dede0a4abbec5db38b331baa27c7940d5c0b26bf7f",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 172,
+    "num_statements": 173,
+    "percent_covered": 97.85407725321889,
+    "percent_covered_display": "97.85",
+    "missing_lines": 1,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.42196531791907,
+    "percent_statements_covered_display": "99.42",
+    "num_branches": 60,
+    "num_partial_branches": 4,
+    "covered_branches": 56,
+    "missing_branches": 4,
+    "percent_branches_covered": 93.33333333333333,
+    "percent_branches_covered_display": "93.33"
+  },
+  "missing_lines": [
+    156
+  ],
+  "missing_branches": [
+    [
+      149,
+      156
+    ],
+    [
+      272,
+      281
+    ],
+    [
+      409,
+      407
+    ],
+    [
+      426,
+      -372
+    ]
+  ],
+  "selection": [
+    "tests/qt/test_live_zoom_endings.py",
+    "tests/qt/test_z_and_the_wheel_resize_the_text.py"
+  ],
+  "passed": 38,
+  "failed": 0,
+  "elapsed_seconds": 22.16,
+  "memory_cap": "6G",
+  "cpu_threads": 1,
+  "gpu_used": false,
+  "production_source_changed": false,
+  "baseline_changed": false
+}

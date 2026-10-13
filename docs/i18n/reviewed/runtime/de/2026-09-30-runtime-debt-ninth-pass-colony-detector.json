@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, ninth pass 2026-09-30: the colony_detector setting label and tooltip (item 542), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "colony_detector",
+      "source": "Colony detector",
+      "source_sha256": "68beea6aa1d0b2ea9eb4f3cc498e2b290aa8cab4fe933d6173b59636693715a4",
+      "translation": "Koloniedetektor"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_detector",
+      "source": "A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
+      "source_sha256": "715e9aa717e6aead1dcdb1df63413b1db968a50e249118e910a1a7570505ae20",
+      "translation": "Ein YOLO-Koloniedetektor, mit dem die Kolonien statt durch Schwellenwertbildung gefunden werden: ein Checkpoint-Pfad oder ein Schlüssel aus dem Modellzoo. Er benötigt das Paket ultralytics. Die Detektion zählt Kolonien in Ketten und am Schalenrand, die die Schwellenwertbildung verschmilzt oder verliert; Polarität, Schwellenwert und Mindestfläche werden dann nicht verwendet. Leer bedeutet Schwellenwertbildung. Standard None."
+    }
+  ]
+}

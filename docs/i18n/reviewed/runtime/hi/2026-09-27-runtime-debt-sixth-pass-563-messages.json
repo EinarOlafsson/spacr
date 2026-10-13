@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source_sha256": "359b2331bf33d304486fd930e9edbe819d82b168ed5f34e5e1dc9a79c26eed3c",
+      "translation": "कोई ऑब्जेक्ट बाहरी मान है जब उसका स्कोर नियंत्रण ऑब्जेक्टों के इस क्वांटाइल से आगे जाता है, इसलिए नियंत्रणों का यह हिस्सा परिभाषा से सामान्य है। वेल अपने बाहरी मानों के हिस्से के अनुसार क्रमित होते हैं। डिफ़ॉल्ट 0.99।"
+    },
+    {
+      "table": "ui",
+      "key": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source_sha256": "b5e7b7f4fba304a07fa7e00a0518f23de2c5cf945fcdae550c0a73180e8bc157",
+      "translation": "कोई ऑब्जेक्ट नियंत्रणों से कितना भिन्न है: रोबस्ट महालनोबिस दूरी, निकटतम नियंत्रण ऑब्जेक्टों से औसत दूरी, आइसोलेशन फ़ॉरेस्ट, या गाउसीय मिश्रण के अंतर्गत कम घनत्व। सभी CPU पर चलते हैं। डिफ़ॉल्ट Robust Mahalanobis।"
+    },
+    {
+      "table": "ui",
+      "key": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source_sha256": "ba71d351bd2ebefb0f24b62e3abb60e02e0547396ffaa7ff22714640875b1635",
+      "translation": "नकारात्मक नियंत्रण के ऑब्जेक्टों को सामान्य मानकर मॉडल करता है और हर संख्यात्मक फ़ीचर (या मौजूद होने पर emb_ एम्बेडिंग कॉलमों) पर हर ऑब्जेक्ट और वेल को इस आधार पर स्कोर करता है कि वह उनसे कितना भिन्न है। प्रति-ऑब्जेक्ट तालिका, ऊपर चुना गया नकारात्मक नियंत्रण और वेल स्थितियाँ चाहिए। डिफ़ॉल्ट बंद।"
+    },
+    {
+      "table": "ui",
+      "key": "Pick the control column and the negative control to score anomalies against.",
+      "source": "Pick the control column and the negative control to score anomalies against.",
+      "source_sha256": "27c4bf39f456613c55b5a32ae036688bb36822f72a223954638aa3b2015f8f85",
+      "translation": "वह नियंत्रण कॉलम और नकारात्मक नियंत्रण चुनें जिनके विरुद्ध विसंगतियाँ स्कोर करनी हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Score anomalies against the negative control",
+      "source": "Score anomalies against the negative control",
+      "source_sha256": "7e9de04bbee97f24ce0311a895f10dafe5b37304a3c778e0c5e1d88338eee257",
+      "translation": "नकारात्मक नियंत्रण के विरुद्ध विसंगतियाँ स्कोर करें"
+    },
+    {
+      "table": "ui",
+      "key": "Turn on anomaly scoring and name the negative control.",
+      "source": "Turn on anomaly scoring and name the negative control.",
+      "source_sha256": "aa4bfc88a6b38a2be33b74967e598f9973a39485c8798db18cbea60d8582896c",
+      "translation": "विसंगति स्कोरिंग चालू करें और नकारात्मक नियंत्रण का नाम दें।"
+    },
+    {
+      "table": "ui",
+      "key": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source_sha256": "4294eaa8e152a4d7862f95f1be47a6987567ed8f31419ed16f80851b53ed0537",
+      "translation": "वेल (A01), प्लेट वेल (prc) या उपचार नाम जो ज्ञात हिट हैं, अल्पविराम से अलग। सकारात्मक नियंत्रण के साथ ये नकारात्मक नियंत्रण के विरुद्ध क्रम का AUROC देते हैं। डिफ़ॉल्ट खाली।"
+    },
+    {
+      "table": "ui",
+      "key": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source_sha256": "daa5eb71b5812c9d808c3937b40253c108dad1884ac9b908dbd4f2bd9a01ecae",
+      "translation": "क्रमबद्ध वेल, हर ऑब्जेक्ट का स्कोर, शीर्ष बाहरी मान और समीक्षा चित्र एक फ़ोल्डर में लिखें।"
+    }
+  ]
+}

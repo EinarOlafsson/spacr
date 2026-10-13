@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "language": "hi",
+  "phrase_count": 238,
+  "phrase_bank_sha256": "25d06aa7c229e3ea429baf87141b43bd0ace5c19573cef1323d991dd0f94fb68",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "gui_publication": {
+    "language": "hi",
+    "review_records": 211,
+    "map_ui_sources": 215,
+    "newly_fresh": 209,
+    "values_changed": 210,
+    "catalog_sha256": "feb2dea63ff30d105f6514711a41ee9211a4cd853b1f6cda55b01800289f8e39",
+    "review_sha256": "417b599141dfb8e0be2e27aa772a20b7cf5b3ce0a947ad955b00e7ec1aa428b8",
+    "unrelated_entries_preserved": true
+  },
+  "live_tr_sources": 215,
+  "full_runtime_review_loader": true,
+  "ui_current": 4442,
+  "ui_sources": 5017,
+  "ui_current_percent": 88.5,
+  "tutorials": [
+    {
+      "lesson": "78_spacr_screens",
+      "scenes": 8,
+      "review_sha256": "465c94896e0116e35e8a10c739eb8caa66d0e9954a0ebb1fa9f6fd5834709faf",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "scenes": 79,
+      "review_sha256": "1cfa822d9861c8538e5cb00a55fc26a2b15e58f7e9e5217be0356693b2e50046",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "scenes": 18,
+      "review_sha256": "d4efbfc1d8c527dd37cc283302d014ab5f3c4af125b96aeda3ae27c6d0b872e9",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "scenes": 11,
+      "review_sha256": "4b463fb9ba160f9415b8f087c448c37e88ff1769ee5df080c327bae486d34dda",
+      "staged_translation_current": true
+    }
+  ],
+  "unrelated_staged_lessons_preserved": true,
+  "spoken_forms_checked": true,
+  "full_api_review_acceptance": false,
+  "api_limit": "The incoming Timeflows validation surface still needs source-bound API translations; this receipt covers Hindi workflow text and GUI captions only.",
+  "native_speaker_signoff": false,
+  "listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Korean/Icelandic/Danish/Norwegian workflow banks",
+    "Complete voice and caption browser matrix",
+    "Listening acceptance and complete-set publication",
+    "Timeflows validation API update and broad catalog debt"
+  ]
+}

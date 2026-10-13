@@ -1,0 +1,9 @@
+{
+  "scope": "Independent all154 portable compressed/raw hash and length readback, plus658actual source+25artifact/helper/fixture/test bindings. No Root8cc source/followup claim.",
+  "payloads_verified": 154,
+  "source_files_verified": 658,
+  "artifact_files_verified": 25,
+  "required79_terminal": "PASS",
+  "owning106_terminal": "PASS",
+  "terminal": "PASS"
+}

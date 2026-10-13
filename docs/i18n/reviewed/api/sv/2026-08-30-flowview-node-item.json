@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "context": "run-graph node whose label, state, metrics, progress, and optional thumbnail the card displays.",
+      "label": "spacr.flowview.items.NodeItem#2",
+      "source": "run-graph node whose label, state, metrics, progress, and optional thumbnail the card displays.",
+      "source_sha256": "c47fda8b0be8f2ec0efbdb18118e621fa6b15ec5ada24f7b992bbaafec3b0595",
+      "translation": "nod i körningsgrafen vars etikett, tillstånd, mätvärden, förlopp och valfria miniatyrbild visas på kortet."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "lesson": "28_training_runs",
+  "english_sha256": "bfd4577f24cda15426fb3ce671f5fed9b5d30194aad42e78bfe98ffb932b88b6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Training Runs: comparar curvas y ajustes",
+  "description": "Carga registros de entrenamiento, superpón métricas, compara ajustes y explora los pliegues de validación cruzada.",
+  "objectives": [
+    "Encontrar ejecuciones guardadas y seleccionar las que quieres comparar.",
+    "Superponer métricas de entrenamiento y validación y revisar las diferencias de ajustes.",
+    "Alternar entre pliegues individuales y su media y desviación estándar."
+  ],
+  "prerequisite": "Descarga y extrae el ejemplo sintético de Training Runs enlazado. Sus curvas son datos de práctica. Para tu propio análisis, selecciona una carpeta principal que contenga los archivos train.csv y validation.csv guardados junto con los ajustes de cada ejecución. Conserva resultados de evaluación independientes con tu modelo al valorar su rendimiento.",
+  "scenes": [
+    "Desde Home, abre Classify y después Training Runs. Usa esta herramienta para comparar los registros de progreso y los ajustes de entrenamientos guardados. La muestra enlazada contiene curvas sintéticas para practicar con los controles.",
+    "Recorre la pantalla en orden: elige una carpeta para encontrar ejecuciones, márcalas en la lista, elige después Metric y Folds y haz clic en Overlay selected. Empieza por la carpeta principal que contiene tus ejecuciones.",
+    "Extrae la muestra enlazada y haz clic en Choose folder. Selecciona su carpeta training_runs y confirma la elección. En tus propios proyectos, selecciona una carpeta principal que contenga las carpetas de las ejecuciones y sus registros CSV guardados.",
+    "Explora la carpeta y revisa las ejecuciones encontradas. La muestra incluye los ejemplos baseline, tuned y cross_validated, además de una entrada incompleta. Selecciona las ejecuciones utilizables que quieras comparar.",
+    "Revisa las advertencias de las entradas incompletas. Si faltan train.csv, validation.csv o los ajustes, puede que no aparezcan las curvas o los ajustes. Localiza la carpeta completa de la ejecución antes de añadirla a una comparación.",
+    "Marca baseline y tuned y elige accuracy en Metric. El menú muestra las columnas numéricas disponibles en los registros seleccionados. Elige loss u otra métrica registrada cuando responda a la pregunta de tu comparación.",
+    "Haz clic en Overlay selected. Las curvas de entrenamiento son discontinuas y las de validación, continuas. Identifica cada ejecución y cada división en la leyenda. Cada curva termina en su propia última época registrada.",
+    "Revisa la comparación de ajustes debajo del gráfico. Resalta diferencias como el tamaño de lote, el número de épocas y la tasa de aprendizaje. Úsala para identificar qué cambió entre las ejecuciones antes de interpretar sus curvas.",
+    "La fila del entorno separa los ajustes de ejecución, como el número de procesos de trabajo, de la configuración del entrenamiento. Léela junto con las diferencias de configuración cuando compares ejecuciones hechas en ordenadores distintos.",
+    "Haz clic en una curva de validación para ver sus valores último y mejor registrados y sus épocas. Usa la misma regla de selección al comparar ejecuciones. Evalúa el punto de control seleccionado con datos independientes para valorar su rendimiento.",
+    "Elige loss en Metric para actualizar el eje vertical y la superposición. Compara las trayectorias de entrenamiento y de validación, incluida su dirección cerca del final del entrenamiento.",
+    "Selecciona tuned y cross_validated, elige accuracy y haz clic en Overlay selected. Abre Folds y elige si quieres ver los pliegues individuales, su media y desviación estándar, o ambos.",
+    "Elige la media más o menos la desviación estándar para resumir las curvas de los pliegues. Cada banda muestra una desviación estándar muestral entre los pliegues disponibles en esa época. Interpreta la banda como la variación entre pliegues.",
+    "Elige ambos para mostrar las curvas de los pliegues individuales junto con su media. Compara los pliegues para ver si un resumen oculta una ejecución con una trayectoria diferente.",
+    "Elige por pliegue para mostrar solo las curvas individuales. La comparación de ajustes se actualiza con las ejecuciones que selecciones. Ten en cuenta el intervalo de épocas de cada curva al comparar dónde terminó el entrenamiento.",
+    "Vuelve a Metric para comparar otra magnitud registrada, o cambia las ejecuciones seleccionadas para acotar la comparación. Mantén juntos los registros CSV originales y los ajustes para poder volver a abrir la misma comparación.",
+    "Para un análisis con código, usa find_runs y load_run de spacr.train_compare, y después compare_runs y plot_curves. Guarda la comparación con tu modelo y con resultados de evaluación independientes al elegir la siguiente configuración de entrenamiento."
+  ]
+}

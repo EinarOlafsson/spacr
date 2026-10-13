@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "date": "2026-09-25",
+  "bundle": "docs/source/_extra/tutorials/examples/Cellpose_training_images_masks.zip",
+  "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6",
+  "previous_sha256": "a001d89f6fcd42bc9e4d33a8a0e08b92694fe800c9203f32ccf61b9111bdac91",
+  "approved_by": "maintainer (via the orchestrator)",
+  "training_pairs": 6,
+  "apply_images": [
+    "apply/cell_field_01.tif",
+    "apply/cell_field_02.tif",
+    "apply/cell_field_03.tif"
+  ],
+  "training_images_and_masks_byte_identical_to_previous": true,
+  "changed_members": [
+    "README.txt",
+    "source_manifest.json"
+  ],
+  "added_members": [
+    "apply/cell_field_01.tif",
+    "apply/cell_field_02.tif",
+    "apply/cell_field_03.tif"
+  ],
+  "guide": "docs/source/cellpose_training.rst names the apply folder and the Save switch in Apply",
+  "builder": "tools/tutorials/build_cellpose_training_images.py"
+}

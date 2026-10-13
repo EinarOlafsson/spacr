@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "29ab0e6c21052c0ce4a4da87970654d09c03b126",
+  "mapped_home_pathways": 9,
+  "new_home_caption_translations": 54,
+  "updated_magnifier_method_translations": 9,
+  "languages": [
+    {
+      "language": "sv",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "de",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "new_home_captions": 6,
+      "updated_method_tooltips": 1,
+      "previous_tooltip_preserved": true,
+      "unrelated_catalog_rows_unchanged": true
+    }
+  ],
+  "native_speaker_signoff": false,
+  "full_catalog_audit_passed": false
+}

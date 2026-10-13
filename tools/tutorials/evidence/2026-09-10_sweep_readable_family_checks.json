@@ -1,0 +1,116 @@
+{
+  "lesson": "73_parameter_sweep",
+  "source_commit": "7d37e4b4a83b51f79a62a624d1f6900ebf0f9f36",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/sweep_saved_results_both_families",
+  "accepted": true,
+  "scope": "saved execution and display consistency only",
+  "inference_validated": false,
+  "published": false,
+  "new_fits_requested": false,
+  "display": {
+    "rows": 2,
+    "columns": 17,
+    "cells": 34,
+    "passed": true
+  },
+  "trials": [
+    {
+      "trial_id": "1",
+      "alpha": 0.01,
+      "results_sha256": "bb5b9c3eaa3ce190bf891d9ce590d14927bcafe030195b33a07dc79957f2e51e",
+      "counts": {
+        "n_results": 1174,
+        "n_below_alpha": 10
+      },
+      "qc_inference": "fail",
+      "qc_verdict": "fail"
+    },
+    {
+      "trial_id": "2",
+      "alpha": 0.1,
+      "results_sha256": "f9c8a29f1d522a37af60d42df7442a562c1e9dd99e28916537b589f342b07595",
+      "counts": {
+        "n_results": 1174,
+        "n_below_alpha": 5
+      },
+      "qc_inference": "fail",
+      "qc_verdict": "fail"
+    }
+  ],
+  "family_checks": {
+    "10_saved_guide_family": {
+      "passed": true,
+      "level": "grna",
+      "table": {
+        "rows": 792,
+        "columns": 11,
+        "cells": 8712,
+        "passed": true
+      },
+      "plotted_points": 791,
+      "maximum_coordinate_error": 1.7275070263167436e-13,
+      "inference_validated": false
+    },
+    "11_saved_gene_family": {
+      "passed": true,
+      "level": "gene",
+      "table": {
+        "rows": 382,
+        "columns": 11,
+        "cells": 4202,
+        "passed": true
+      },
+      "plotted_points": 381,
+      "maximum_coordinate_error": 1.98507876802978e-13,
+      "inference_validated": false
+    },
+    "12_saved_guide_family_restored": {
+      "passed": true,
+      "level": "grna",
+      "table": {
+        "rows": 792,
+        "columns": 11,
+        "cells": 8712,
+        "passed": true
+      },
+      "plotted_points": 791,
+      "maximum_coordinate_error": 1.7275070263167436e-13,
+      "inference_validated": false
+    }
+  },
+  "original_inputs_preserved": true,
+  "trial_table_geometry": {
+    "height": 283,
+    "viewport_height": 249,
+    "row_height": 30,
+    "both_rows_visible": true
+  },
+  "checked_result_cells": 21626,
+  "checked_plot_points": 1963,
+  "date": "2026-09-10",
+  "status": "native_readable_replay_verified_not_a_finished_tutorial",
+  "helper_tests": {
+    "passed": 28,
+    "previous_red_mutations": 9,
+    "new_red_guard_mutations": 5,
+    "statements": 63,
+    "branches": 38,
+    "coverage_percent": 100,
+    "scope": "sweep_evidence tutorial helper only"
+  },
+  "replay_tests": {
+    "passed": 4,
+    "red_guard_mutations": 3
+  },
+  "notes": [
+    "Both rows fit at native font scale 1.0; no new fit was requested for the replay.",
+    "The summary omits the varied alpha and failed QC columns; original CSV and actual settings must be inspected.",
+    "Both actual trial fits fail inference QC. This example cannot establish valid biological hits.",
+    "n_rows_fitted reports 1174 result rows, not 2955 prepared long-form rows or 620 wells.",
+    "Table +inf log-P values are checked exactly; plot zero-P coordinates use a finite display floor.",
+    "English narration, translations, audio and shared master for this refresh are not yet complete."
+  ],
+  "media_matrix_started": false,
+  "translation_review_complete": false,
+  "listening_review_complete": false
+}

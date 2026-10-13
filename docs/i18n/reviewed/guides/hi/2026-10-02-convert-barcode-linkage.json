@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "method": "Direct Codex AI technical translation with independent Codex AI peer review; no local-model draft or human/native-speaker signoff. Normal guide literal, role, UI and source-bound checks unchanged.",
+  "draft_author": "shared_ui",
+  "independent_technical_reviewer": "root",
+  "draft_sha256": "5ddcf2597145969bbc294cff44cff11040b70877a1a6473b9ecde679720f6567",
+  "reviewed_sha256": "5ddcf2597145969bbc294cff44cff11040b70877a1a6473b9ecde679720f6567",
+  "peer_review": {
+    "author": "shared_ui",
+    "checks": {
+      "hi": {
+        "all_identifiers_preserved": true,
+        "file_sha256": "5ddcf2597145969bbc294cff44cff11040b70877a1a6473b9ecde679720f6567",
+        "meaning_reviewed": true,
+        "one_vs_multiple_source_plates": true,
+        "receipt_last_and_mismatch_review": true,
+        "source_output_plate_distinction": true,
+        "utf8_and_leading_zeroes": true
+      },
+      "is": {
+        "all_identifiers_preserved": true,
+        "file_sha256": "539ec02b59b53aeb4babfc35e865e819eb619ea80a263b4fa61cac91ec98fc83",
+        "meaning_reviewed": true,
+        "one_vs_multiple_source_plates": true,
+        "receipt_last_and_mismatch_review": true,
+        "source_output_plate_distinction": true,
+        "utf8_and_leading_zeroes": true
+      },
+      "ko": {
+        "all_identifiers_preserved": true,
+        "file_sha256": "e26d5beadb1041797739addf4a2e69341628682036226ecad1ff184b3ecce706",
+        "meaning_reviewed": true,
+        "one_vs_multiple_source_plates": true,
+        "receipt_last_and_mismatch_review": true,
+        "source_output_plate_distinction": true,
+        "utf8_and_leading_zeroes": true
+      },
+      "zh_CN": {
+        "all_identifiers_preserved": true,
+        "file_sha256": "c2e891322fa7412d9c46c0eb100097a72aa72e2b1ee29f869bd9f1215dafbe71",
+        "meaning_reviewed": true,
+        "one_vs_multiple_source_plates": true,
+        "receipt_last_and_mismatch_review": true,
+        "source_output_plate_distinction": true,
+        "utf8_and_leading_zeroes": true
+      }
+    },
+    "decision": "accepted",
+    "notes": "Korean RST boundary escapes preserve the visible translated wording. No native-speaker signoff claimed.",
+    "reviewer": "root",
+    "scope": "F583 Convert guide four new source-bound messages in zh_CN, hi, ko, is; independent AI technical review only."
+  },
+  "peer_review_sha256": "9cff9bbe5ef0b98823577b953897c3cccde5304d9ca0dfc21de7bd7c75ec6aa1",
+  "source_files": {
+    "docs/source/plate_barcode_linkage.rst": "165873b6b15a164964d90bee1a4b19a7cecbf41be9b57b03fdd5afc960c7c5c6"
+  },
+  "runtime_catalog_sha256": "d0ad67799e79cad6d3d5ab0d042fbec26fb8db2a9a7aa50c62d10d4a2f0f1f1b",
+  "derivative": "Accepted original draft unchanged",
+  "records": [
+    {
+      "index": 0,
+      "domain": "plate_barcode_linkage",
+      "source": "Link during Convert",
+      "source_sha256": "4015578abe1bc88031b4db2df45728ae2f08af2a50edd65b8cc3ae4c231a1a5f",
+      "original_ai_draft": "रूपांतरण के दौरान लिंक करें",
+      "reviewed_translation": "रूपांतरण के दौरान लिंक करें",
+      "ui_bindings": {}
+    },
+    {
+      "index": 1,
+      "domain": "plate_barcode_linkage",
+      "source": "In **Convert**, enable **Show alpha features** and choose a local sample-records CSV in **Plate barcode linkage (Alpha)**. The CSV needs a barcode column, a well column and whichever sample fields you want in the plate map. Preview validates the linkage before writing images. Convert uses the output plate names shown in its preview; these may differ from source folder names.",
+      "source_sha256": "631a13528efa95a3c275e7b7ed48671661d8bc77435161b33ed01d942985d5b8",
+      "original_ai_draft": "**रूपांतरण** में **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें और **प्लेट बारकोड लिंकिंग (अल्फ़ा)** में स्थानीय नमूना-रिकॉर्ड CSV चुनें। CSV में बारकोड का कॉलम, वेल का कॉलम और प्लेट मैप में शामिल किए जाने वाले नमूना फ़ील्ड होने चाहिए। पूर्वावलोकन छवियाँ लिखने से पहले लिंकिंग को सत्यापित करता है। रूपांतरण अपने पूर्वावलोकन में दिखाए गए आउटपुट प्लेट नामों का उपयोग करता है; ये स्रोत फ़ोल्डर नामों से अलग हो सकते हैं।",
+      "reviewed_translation": "**रूपांतरण** में **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें और **प्लेट बारकोड लिंकिंग (अल्फ़ा)** में स्थानीय नमूना-रिकॉर्ड CSV चुनें। CSV में बारकोड का कॉलम, वेल का कॉलम और प्लेट मैप में शामिल किए जाने वाले नमूना फ़ील्ड होने चाहिए। पूर्वावलोकन छवियाँ लिखने से पहले लिंकिंग को सत्यापित करता है। रूपांतरण अपने पूर्वावलोकन में दिखाए गए आउटपुट प्लेट नामों का उपयोग करता है; ये स्रोत फ़ोल्डर नामों से अलग हो सकते हैं।",
+      "ui_bindings": {
+        "Show alpha features": "अल्फ़ा सुविधाएँ दिखाएँ",
+        "Convert": "रूपांतरण",
+        "Plate barcode linkage (Alpha)": "प्लेट बारकोड लिंकिंग (अल्फ़ा)"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "plate_barcode_linkage",
+      "source": "Assign output plate barcodes in the form ``plate1=BC001; plate2=BC002``, or put a UTF-8 ``barcode.txt`` at the acquisition root or in an actual source plate folder. A file containing one plain barcode applies only when that folder holds one source plate. For several plates, write one ``source_plate=barcode`` entry per plate, separated by lines or semicolons; those keys are the *original source* plate names. Explicit assignments in Convert use the *output* plate names and can fill any remaining plates. spaCR keeps leading zeroes, rejects ambiguous or disagreeing assignments, and requires a barcode for every output plate.",
+      "source_sha256": "cc496d3ac0f42d4c531b3e87265e8258a066687a6dd1e1889d7548cfe9cc08e5",
+      "original_ai_draft": "आउटपुट प्लेट बारकोड ``plate1=BC001; plate2=BC002`` के रूप में दें, या अधिग्रहण के मूल फ़ोल्डर अथवा वास्तविक स्रोत प्लेट के फ़ोल्डर में UTF-8 ``barcode.txt`` रखें। केवल एक बारकोड वाली फ़ाइल तभी लागू होती है जब उस फ़ोल्डर में एक ही स्रोत प्लेट हो। कई प्लेटों के लिए हर प्लेट की एक ``source_plate=barcode`` प्रविष्टि लिखें और प्रविष्टियों को नई पंक्तियों या अर्धविराम से अलग करें; ये कुंजियाँ *मूल स्रोत* प्लेटों के नाम हैं। रूपांतरण में स्पष्ट रूप से दिए गए मान *आउटपुट* प्लेट नामों का उपयोग करते हैं और शेष प्लेटों के बारकोड भर सकते हैं। spaCR शुरुआती शून्य बनाए रखता है, अस्पष्ट या परस्पर विरोधी मान अस्वीकार करता है और हर आउटपुट प्लेट के लिए बारकोड अनिवार्य करता है।",
+      "reviewed_translation": "आउटपुट प्लेट बारकोड ``plate1=BC001; plate2=BC002`` के रूप में दें, या अधिग्रहण के मूल फ़ोल्डर अथवा वास्तविक स्रोत प्लेट के फ़ोल्डर में UTF-8 ``barcode.txt`` रखें। केवल एक बारकोड वाली फ़ाइल तभी लागू होती है जब उस फ़ोल्डर में एक ही स्रोत प्लेट हो। कई प्लेटों के लिए हर प्लेट की एक ``source_plate=barcode`` प्रविष्टि लिखें और प्रविष्टियों को नई पंक्तियों या अर्धविराम से अलग करें; ये कुंजियाँ *मूल स्रोत* प्लेटों के नाम हैं। रूपांतरण में स्पष्ट रूप से दिए गए मान *आउटपुट* प्लेट नामों का उपयोग करते हैं और शेष प्लेटों के बारकोड भर सकते हैं। spaCR शुरुआती शून्य बनाए रखता है, अस्पष्ट या परस्पर विरोधी मान अस्वीकार करता है और हर आउटपुट प्लेट के लिए बारकोड अनिवार्य करता है।",
+      "ui_bindings": {}
+    },
+    {
+      "index": 3,
+      "domain": "plate_barcode_linkage",
+      "source": "After a complete conversion, read ``plate_barcode_linkage/plate_map_lims.csv`` in the destination. Review ``plate_barcode_mismatches.csv`` there for unmatched wells and other disagreements. The ``complete.json`` receipt is written last; its absence means the linkage bundle is incomplete. The Convert screen shows a bounded preview of mismatches and the paths to both CSV files. Original images, barcode files and existing user plate maps are left unchanged. This Convert path accepts a local CSV; use Measure for an HTTP LIMS service.",
+      "source_sha256": "e4a399863efb9348311b70ec2daf99ceebc0154669d043866dd1137539143d55",
+      "original_ai_draft": "रूपांतरण पूरा होने के बाद गंतव्य में ``plate_barcode_linkage/plate_map_lims.csv`` पढ़ें। बेमेल वेल और अन्य असंगतियाँ देखने के लिए वहीं ``plate_barcode_mismatches.csv`` की जाँच करें। ``complete.json`` रसीद सबसे अंत में लिखी जाती है; इसका न होना बताता है कि लिंकिंग बंडल अधूरा है। रूपांतरण स्क्रीन सीमित संख्या में बेमेल प्रविष्टियों का पूर्वावलोकन और दोनों CSV फ़ाइलों के पथ दिखाती है। मूल छवियाँ, बारकोड फ़ाइलें और उपयोगकर्ता के मौजूदा प्लेट मैप अपरिवर्तित रहते हैं। यह रूपांतरण प्रक्रिया स्थानीय CSV स्वीकार करती है; HTTP LIMS सेवा के लिए मापन का उपयोग करें।",
+      "reviewed_translation": "रूपांतरण पूरा होने के बाद गंतव्य में ``plate_barcode_linkage/plate_map_lims.csv`` पढ़ें। बेमेल वेल और अन्य असंगतियाँ देखने के लिए वहीं ``plate_barcode_mismatches.csv`` की जाँच करें। ``complete.json`` रसीद सबसे अंत में लिखी जाती है; इसका न होना बताता है कि लिंकिंग बंडल अधूरा है। रूपांतरण स्क्रीन सीमित संख्या में बेमेल प्रविष्टियों का पूर्वावलोकन और दोनों CSV फ़ाइलों के पथ दिखाती है। मूल छवियाँ, बारकोड फ़ाइलें और उपयोगकर्ता के मौजूदा प्लेट मैप अपरिवर्तित रहते हैं। यह रूपांतरण प्रक्रिया स्थानीय CSV स्वीकार करती है; HTTP LIMS सेवा के लिए मापन का उपयोग करें।",
+      "ui_bindings": {}
+    }
+  ]
+}

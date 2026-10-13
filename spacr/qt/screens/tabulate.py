@@ -1,0 +1,399 @@
+"""The Tabulate screen — a pivot table, and the chart of it underneath.
+
+A JMP-style *Tabulate*: drag ``plateID`` down the rows, ``gene`` across the
+columns, tick the aggregations, read the numbers.
+
+Four parts:
+
+* :class:`spacr.qt.widgets.pivot_builder.PivotPanel` — the wells and the grid;
+* :class:`spacr.qt.widgets.graph_builder.GraphBuilderPanel` — the chart of the
+  summary, in the lower half of the splitter;
+* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data
+  Filter, so narrowing the population narrows the table and every other open
+  view at once;
+* :func:`spacr.qt.screens.graph_builder.read_table` — the same CSV/SQLite
+  reader the Graph Builder loads through.
+
+The table is not a chart
+------------------------
+"Plot this table" hands the Graph Builder
+:meth:`~spacr.qt.widgets.pivot_spec.PivotResult.to_long` — one row per
+non-empty cell, one column per statistic — and the Graph Builder does the rest.
+So ``x = plateID``, ``y = mean``, ``size = n`` is a drag, and there is no second
+implementation of scales, facets or colour to keep in step with the first.
+
+Two things follow from the summary being a real frame rather than a picture,
+and both are intended:
+
+* the chart's own status line reports **no object keys in this table**, because
+  a summary row is a *group*, not an object. Brushing it cannot publish an
+  object selection, and the status line says so instead of publishing an
+  empty one.
+* the chart is on its own linked-selection source, so it does not answer to a
+  lasso drawn over individual cells somewhere else.
+
+Filter, then aggregate
+----------------------
+A filter change recomputes the pivot rather than restyling it, for the same
+reason it recomputes a PCA: an aggregate is a property of the population, and a
+mean of the unfiltered rows shown next to a filtered plot is the kind of
+mismatch nobody catches by eye.
+
+:func:`register` is **not** called at import; read its docstring.
+"""
+from __future__ import annotations
+
+import logging
+import os
+from typing import List, Optional
+
+import pandas as pd
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import (
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
+    QVBoxLayout, QWidget,
+)
+
+from ..job_runner import JobRunner
+from ..theme import SPACING
+from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.data_filter_panel import DataFilterPanel
+from ..widgets.graph_builder import GraphBuilderPanel
+from ..widgets.pivot_builder import PivotPanel
+from ..widgets.measurements_example import (
+    EXAMPLE_TABLE, install_test_data_button,
+)
+from .graph_builder import read_table, table_names
+from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
+
+LOG = logging.getLogger("spacr.qt.screens.tabulate")
+
+__all__ = ["TabulateScreen", "make_tabulate_screen", "register", "APP_KEY",
+           "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE"]
+
+#: The registry key. Chosen once and never renamed.
+APP_KEY = "tabulate"
+
+#: A filter change re-aggregates the whole frame, so it is coalesced this long.
+REFILTER_MS = 200
+
+#: The linked-selection source the summary chart publishes under. Its own, not
+#: ``graph_builder``: two views sharing a source would each ignore the other's
+#: selections as their own echo.
+GRAPH_SOURCE = "tabulate_graph"
+
+
+class TabulateScreen(QWidget):
+    """Load a measurement table, pivot it, and plot the summary.
+
+    :param link: a private
+        :class:`~spacr.qt.linked_selection.LinkedSelection` for tests. ``None``
+        joins the process-wide one.
+    :param parent: parent widget; ownership only.
+    :param threaded: ``False`` runs every table read inline instead of on the
+        job runner's thread. A test needs the result on the line after the
+        call; a user needs the window to keep painting while a large table
+        loads. The jobs are the same either way -- they still register, still
+        report failure through ``job_failed`` -- so only the waiting differs.
+    """
+
+    def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the pivot builder beside the shared filter.
+
+        The pivot, the graph and the filter are sections of
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        panes -- each folds by its heading and each shared edge drags.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
+        super().__init__(parent)
+        self.setObjectName("TabulateScreen")
+        self._frame: Optional[pd.DataFrame] = None
+        self._path: Optional[str] = None
+        self._jobs = JobRunner(self, threaded=threaded, app_key="tabulate")
+        self._jobs.job_failed.connect(self._on_load_failed)
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["md"], SPACING["md"],
+                                 SPACING["md"], SPACING["md"])
+        outer.setSpacing(SPACING["sm"])
+
+        head = QHBoxLayout()
+        head.setContentsMargins(0, 0, 0, 0)
+        head.setSpacing(SPACING["sm"])
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Load a table, then drop columns on Rows, Columns and Values.",
+        )
+        self._header = header
+        head.addWidget(header)
+
+        self._source = QLabel("no table loaded", self)
+        self._source.setObjectName("TabulateSourceLabel")
+        head.addWidget(self._source, 1)
+
+        self._table_picker = QComboBox(self)
+        self._table_picker.setObjectName("TabulateTablePicker")
+        self._table_picker.setToolTip("Which table of the database to pivot")
+        self._table_picker.setVisible(False)
+        self._table_picker.currentTextChanged.connect(self._on_table_picked)
+        head.addWidget(self._table_picker)
+
+        load = QPushButton("Load table…", self)
+        load.setObjectName("PrimaryButton")
+        load.setToolTip("A measurements.db, or a CSV of measurements")
+        load.clicked.connect(self.choose_table)
+        head.addWidget(load)
+        install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
+        outer.addLayout(head)
+
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="tabulate::body")
+        stack = CollapsibleSplitter(Qt.Vertical,
+                                    persist_key="tabulate::stack")
+        self.pivot = PivotPanel()
+        stack.add_section(self.pivot, "Pivot", persist_key="tabulate/Pivot")
+        self.graph = GraphBuilderPanel(link=link, source=GRAPH_SOURCE)
+        stack.add_section(self.graph, "Graph", persist_key="tabulate/Graph")
+        body.add_pane(stack, "Tables", stretch=1)
+
+        self.filters = DataFilterPanel(self, link=link)
+        from ..preferences import scaled_px
+        self.filters.setMaximumWidth(scaled_px(320))
+        body.add_section(self.filters, "Filter", persist_key="tabulate/Filter",
+                         stretch=0)
+        self._body_splitter = body
+        self._stack_splitter = stack
+        outer.addWidget(body, 1)
+
+        self.pivot.plot_requested.connect(self.plot_summary)
+        self.pivot.computed.connect(self._on_computed)
+
+        self._refilter = QTimer(self)
+        self._refilter.setSingleShot(True)
+        self._refilter.setInterval(REFILTER_MS)
+        self._refilter.timeout.connect(self._recompute_filtered)
+        self._link = self.graph.canvas.link
+        self._link.filter_changed.connect(self._on_filter_changed)
+        from ..dnd import install_for
+        install_for(self, "tabulate")
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+    def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
+        """Pivot ``frame``. The one call a host needs.
+
+        :param frame: the table to filter and pivot; it replaces the current
+            one.
+        """
+        self._frame = frame
+        self.filters.set_frame(frame)
+        self.pivot.set_frame(self._filtered())
+        self._source.setText(
+            label or f"{len(frame):,} rows × {len(frame.columns)} columns")
+
+    def _filtered(self) -> Optional[pd.DataFrame]:
+        """Narrow the loaded frame to the rows the shared filter allows.
+
+        :returns: the visible rows, ``None`` when nothing is loaded, and the
+            whole frame when the filter does not apply here -- a filter written
+            against another table should not empty this screen.
+        """
+        if self._frame is None:
+            return None
+        try:
+            return self._link.visible(self._frame)
+        except Exception as exc:
+            LOG.info("the shared filter does not apply to this table: %s", exc)
+            return self._frame
+
+    def choose_table(self) -> None:
+        """Ask which table in the project to use."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open a measurement table", "",
+            "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
+        if path:
+            self.load_path(path)
+
+    def load_path(self, path: str, table: Optional[str] = None) -> None:
+        """Load a CSV or one table of a SQLite measurement database.
+
+        The read runs on a worker thread. ``SELECT * FROM cell`` into pandas
+        measures 1.5 s for a 200 000-row measurement table on a warm local
+        SSD; run inline, the read would stop the whole window from
+        redrawing. Listing the table names stays inline -- it is
+        one ``sqlite_master`` query, measured at 0.4 ms -- because the picker
+        has to be populated before the read is dispatched, to know which
+        table to read.
+
+        Returns as soon as the read is dispatched;
+        :meth:`_on_frame_loaded` finishes on the GUI thread.
+
+        :param path: a ``.csv``, ``.tsv`` or ``.txt`` file, or any other suffix
+            as a SQLite database whose table names fill the table picker. A
+            database that cannot be listed is reported in the source line and
+            nothing is read.
+        """
+        self._path = path
+        names: List[str] = []
+        if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
+            try:
+                names = table_names(path)
+            except Exception as exc:
+                LOG.info("could not list tables in %s", path, exc_info=True)
+                self._source.setText(
+                    f"could not read {os.path.basename(path)}: {exc}")
+                return
+        self._table_picker.blockSignals(True)
+        self._table_picker.clear()
+        self._table_picker.addItems(names)
+        self._table_picker.setVisible(bool(names))
+        if table and table in names:
+            self._table_picker.setCurrentText(table)
+        self._table_picker.blockSignals(False)
+        chosen = table or (self._table_picker.currentText() or None)
+        self._jobs.cancel()
+        self._source.setText(
+            f"loading {os.path.basename(path)}"
+            + (f" · {chosen}" if chosen else "") + "…")
+        self._jobs.submit(
+            lambda p=path, t=chosen: (t, read_table(p, t)),
+            self._on_frame_loaded)
+
+    def _on_frame_loaded(self, payload) -> None:
+        """Hand a worker-read frame to the pivot. GUI thread only."""
+        chosen, frame = payload
+        path = self._path or ""
+        suffix = f" · {chosen}" if chosen else ""
+        self.set_frame(
+            frame,
+            label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
+                  f"× {len(frame.columns)} columns")
+
+    def _on_load_failed(self, message: str) -> None:
+        """Report a failed read inline. Never a modal — a dialog nobody can
+        dismiss is how a headless run hangs."""
+        path = self._path or ""
+        LOG.info("could not read %s: %s", path, message)
+        self._source.setText(
+            f"could not read {os.path.basename(path)}: {message}")
+
+    def active_jobs(self) -> int:
+        """How many worker threads are still winding down."""
+        return self._jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a table read is in flight."""
+        return self._jobs.is_busy()
+
+    def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
+        if self._path and name:
+            self.load_path(self._path, table=name)
+
+    def _on_filter_changed(self) -> None:
+        """Queue a re-aggregation after the shared filter changed.
+
+        Debounced, so dragging a filter handle re-aggregates once rather than
+        per step.
+        """
+        if self._frame is not None:
+            self._refilter.start()
+
+    def _recompute_filtered(self) -> None:
+        """Re-aggregate the narrowed population.
+
+        The spec survives: the wells hold column names, and the columns do not
+        change when the rows do. Only the numbers move.
+        """
+        frame = self._filtered()
+        if frame is not None:
+            self.pivot.set_frame(frame)
+
+    def _on_computed(self, result) -> None:
+        """Say how many source rows became how large a table.
+
+        :param result: the computed pivot.
+        """
+        rows, cols = result.shape
+        self._source.setText(
+            f"{result.n_source_rows:,} rows → {rows:,} × {cols:,} table")
+
+    def plot_summary(self, frame: Optional[pd.DataFrame] = None) -> None:
+        """Hand the summary to the Graph Builder.
+
+        The summary rows are groups rather than objects, so the chart's status
+        line will say the table carries no object keys and that brushing
+        cannot publish a selection, because a summary row is a group of
+        objects, not an object.
+        """
+        if frame is None:
+            frame = self.pivot.long_frame()
+        if frame is None or frame.empty:
+            self._source.setText(
+                "Nothing to plot — build a table with at least one non-empty "
+                "cell first.")
+            return
+        self.graph.set_frame(frame)
+        self._source.setText(
+            f"plotting the summary · {len(frame):,} cell(s) — drag a key onto "
+            f"X and a statistic onto Y")
+
+    def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
+        self._jobs.shutdown()
+        try:
+            self._link.filter_changed.disconnect(self._on_filter_changed)
+        except (RuntimeError, TypeError):
+            pass
+        self._refilter.stop()
+        self.pivot.close()
+        self.graph.close()
+        super().closeEvent(event)
+
+
+def make_tabulate_screen(app_key: Optional[str] = None) -> QWidget:
+    """Factory handed to :func:`spacr.qt.app.register_app`."""
+    return TabulateScreen()
+
+
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+
+
+def register() -> bool:
+    """Put Tabulate in the app registry, through the public seam. Idempotent.
+
+    The row -- ``intro``, ``cli_note``, ``api_module`` and ``translations``
+    among it -- is declared in :mod:`spacr.qt.app_catalog`, and
+    :func:`spacr.qt.app.register_app` distributes it into the four registry
+    tables.
+
+    :returns: ``True`` if this call is what registered it. Safe to call twice.
+
+    **Not called at import**, for the reason ``app.py``'s
+    ``_SELF_REGISTERING_APPS`` table documents: a registration made anywhere
+    else is one that some importer's snapshot of ``APPS`` predates. The
+    screen is listed in that table as::
+
+        ("spacr.qt.screens.tabulate", "register"),
+    """
+    return register_declared(__name__) is not None

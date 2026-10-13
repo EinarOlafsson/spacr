@@ -1,0 +1,54 @@
+{
+  "organism": "plasmodium",
+  "home_tile_clicked": true,
+  "selected_components": [
+    "Rhoptries",
+    "Apicoplast"
+  ],
+  "clear_components_verified": true,
+  "analysis_started": false,
+  "external_application_started": false,
+  "tiles": [
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    },
+    {
+      "key": "",
+      "enabled": false
+    }
+  ],
+  "reference_links": [
+    "<a href=\"https://www.swissbiopics.org/name/Apicomplexa_cell\">Philippe Le Mercier · SIB Swiss Institute of Bioinformatics · SwissBioPics</a>",
+    "<a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>",
+    "<a href=\"https://www.cdc.gov/dpdx/malaria/\">Biology source: CDC</a>",
+    "<a href=\"https://plasmodb.org/plasmo/\">PlasmoDB</a>",
+    "<a href=\"https://www.uniprot.org/uniprotkb?query=taxonomy_id%3A5820\">UniProt</a>",
+    "<a href=\"https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=5820\">NCBI Taxonomy</a>",
+    "<a href=\"https://www.beiresources.org/ProgramInformation.aspx\">BEI Resources / MR4</a>"
+  ]
+}

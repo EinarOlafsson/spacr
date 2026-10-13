@@ -1,0 +1,20 @@
+{
+  "source": "5ffe2aa9e3ddc37b5a3a27c061b07128fef6fc8d",
+  "passed": 51,
+  "seconds": 5.78,
+  "memory_cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "source_sha256": {
+    "spacr/timelapse.py": "954c51e8f5903705204d25ccc258070607c488fa4cd30758f4ad041ddf374cc4",
+    "tests/test_timelapse_video_feature_boundaries_cpu.py": "c1ec694a152740bae4c66815273de2bd98004cac4be8a2c669a0ecac70717907",
+    "tests/test_event_video_backend.py": "5270b317cc7e26bca4132c61aecc9a8657c4f6441496a4dd8b163829b5de5285",
+    "tests/test_timelapse_event_annotation_provenance.py": "fc4a8590ae1d5877f124749c2397c6a7bb43123b4d9d841b25751cb5232944df"
+  },
+  "independently_verified_proof_payloads": 7,
+  "missing_statements": 0,
+  "missing_branch_destinations": 1,
+  "original_statement_allowance": 1,
+  "original_branch_allowance": 1,
+  "scope": "Bounded independent CPU routing/provenance integration and exact-source archived union verification. No pretrained/GPU/scientific/full hosted/serial acceptance claim."
+}

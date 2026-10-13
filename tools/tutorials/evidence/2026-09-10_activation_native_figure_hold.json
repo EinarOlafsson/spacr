@@ -1,0 +1,643 @@
+{
+  "lesson": "16_activation",
+  "status": "held_before_narration_and_media",
+  "accepted": false,
+  "published": false,
+  "application_source_commit": "b81a1f2f3dc90ebb6bac9cf29abdb009a78d6432",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/activation_cpu_two_saved_methods",
+  "native_frames": 19,
+  "capture_completed": false,
+  "source_files": {
+    "tools/tutorials/capture_activation.py": "e9297379dd2891122ded4882925f2fc9c175a966d4a880b9d2c2a5f301ff6554",
+    "tools/tutorials/activation_evidence.py": "3be0b5535c22e08266c63f617718c46b4ed2ba5e532090b9339849419873e5a1",
+    "tools/tutorials/capture_refresh.py": "0a7d7425876db80f8b769ec9ffe4bfd226de897bf2269c444788d8e31b8946e9",
+    "tools/tutorials/tests/test_activation_evidence.py": "0fa93efaa13069c45cb05f6550c9bc476ec75c7378d195312c30b7900e38942c"
+  },
+  "workflow": {
+    "lesson": "16_activation",
+    "accepted": false,
+    "inputs": {
+      "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project",
+      "archive": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops.tar",
+      "model": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/resnet18_best_channels_rgb.pth",
+      "crops": [
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+          "name": "plate1_E01_10_1_4.png",
+          "sha256": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+          "identity": {
+            "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+            "file_name": "plate1_E01_10_1_4.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f10",
+            "prcfo": "plate1_r5_c1_f10_o4",
+            "cell_id": "o4",
+            "annotate": null,
+            "al_prob_0": null,
+            "al_prob_1": null,
+            "infected": 2,
+            "tutorial_demo_01": null,
+            "tutorial_demo_02": null,
+            "tutorial_demo_03": null,
+            "tutorial_demo_04": null,
+            "tutorial_demo_05": null,
+            "tutorial_demo_06": null
+          }
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+          "name": "plate1_E01_10_1_45.png",
+          "sha256": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+          "identity": {
+            "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+            "file_name": "plate1_E01_10_1_45.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f10",
+            "prcfo": "plate1_r5_c1_f10_o45",
+            "cell_id": "o45",
+            "annotate": null,
+            "al_prob_0": null,
+            "al_prob_1": null,
+            "infected": 2,
+            "tutorial_demo_01": null,
+            "tutorial_demo_02": null,
+            "tutorial_demo_03": null,
+            "tutorial_demo_04": null,
+            "tutorial_demo_05": null,
+            "tutorial_demo_06": null
+          }
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+          "name": "plate1_E01_14_1_3.png",
+          "sha256": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+          "identity": {
+            "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+            "file_name": "plate1_E01_14_1_3.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f14",
+            "prcfo": "plate1_r5_c1_f14_o3",
+            "cell_id": "o3",
+            "annotate": null,
+            "al_prob_0": null,
+            "al_prob_1": null,
+            "infected": 2,
+            "tutorial_demo_01": null,
+            "tutorial_demo_02": null,
+            "tutorial_demo_03": null,
+            "tutorial_demo_04": null,
+            "tutorial_demo_05": null,
+            "tutorial_demo_06": null
+          }
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_18.png",
+          "name": "plate1_E01_1_1_18.png",
+          "sha256": "9aa884f0464c68ca23b8aeb4ea572de5433de9f9dd81d7aef1e5f6650d45ff49",
+          "identity": {
+            "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_18.png",
+            "file_name": "plate1_E01_1_1_18.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f1",
+            "prcfo": "plate1_r5_c1_f1_o18",
+            "cell_id": "o18",
+            "annotate": null,
+            "al_prob_0": null,
+            "al_prob_1": null,
+            "infected": 2,
+            "tutorial_demo_01": null,
+            "tutorial_demo_02": null,
+            "tutorial_demo_03": null,
+            "tutorial_demo_04": null,
+            "tutorial_demo_05": null,
+            "tutorial_demo_06": null
+          }
+        }
+      ],
+      "original_hashes": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/datasets/training_1/model/resnet18/rgb/epochs_1/resnet18_best_channels_rgb.pth": "30d2cc41d01a7411dd5dc05093e0c3b910853a83e59cefa913229ac4ac4ad0c3",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json": "2e9a9c47a6c22c58dcd36da22c0c21db41f7e2daa791351e7f389f067bf96049",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/datasets/training_1/model/resnet18/rgb/epochs_1/resnet18_best_channels_rgb.card.json": "eb94dc9c06d401b0b53070d9fc3de45805acee0cffeacdcf1b523efe17c27961",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_18.png": "9aa884f0464c68ca23b8aeb4ea572de5433de9f9dd81d7aef1e5f6650d45ff49"
+      },
+      "private_input_hashes": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops.tar": "bbf6725b8afbda80fdbd7f404d903f631093c9541161b14da8cbb61ccdae6f5a",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/resnet18_best_channels_rgb.pth": "30d2cc41d01a7411dd5dc05093e0c3b910853a83e59cefa913229ac4ac4ad0c3",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/resnet18_best_channels_rgb.card.json": "eb94dc9c06d401b0b53070d9fc3de45805acee0cffeacdcf1b523efe17c27961"
+      },
+      "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "database_bundle": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+          "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "signature": [
+            66306,
+            33957043,
+            30629888,
+            1788972666110587305,
+            1788972666110587305
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": [
+            66306,
+            33962636,
+            0,
+            1788973501772441799,
+            1788973501772441799
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "signature": [
+            66306,
+            33962707,
+            32768,
+            1789037854409238512,
+            1789037854409238512
+          ]
+        }
+      },
+      "crop_format": {
+        "channel_order": "declared_rgb",
+        "narrowing": "high-byte",
+        "note": "The red, green and blue channels hold the source channels named by settings['png_channel_mapping']. No list-position convention is involved, so there is nothing here to read backwards.",
+        "spacr_crop_format": 3,
+        "updated_utc": "2026-09-01T18:48:32Z"
+      },
+      "model_classes": [
+        "infected_1",
+        "infected_2"
+      ],
+      "model_epochs": 1,
+      "model_validation_claim": false,
+      "biological_claim": false,
+      "limitation": "The earlier demonstration split shares wells; no independent accuracy claim."
+    },
+    "runs": [
+      {
+        "method": "saliency_channel",
+        "maps": [
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_0/plate1/E01/plate1_E01_10_1_4.png",
+            "sha256": "09bfded7761594726c32371f2a2453a4b57fa6f218cb52ca1c427eaeb4e9c10b",
+            "pixels": 49152,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_10_1_45.png",
+            "sha256": "ba6bfc7b6154da1a8b7c04a3f2e1720bec6d60688bcd68e04067ddd40e3b0d86",
+            "pixels": 49152,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_14_1_3.png",
+            "sha256": "0520490f37a012de5e651fd62e593341d21f7a7502b9c3116df3c6ef111286e7",
+            "pixels": 49152,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_1_1_18.png",
+            "sha256": "21446931c3d2fbc17b0c3d217d398a598b297ab54fcb5adccebbb51044f8a1a9",
+            "pixels": 49152,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          }
+        ],
+        "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/measurements/real_cell_crops.db",
+        "database_rows": [
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_0/plate1/E01/plate1_E01_10_1_4.png",
+            "file_name": "plate1_E01_10_1_4.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f10",
+            "prcfo": "plate1_r5_c1_f10_o4",
+            "object": "o4"
+          },
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_10_1_45.png",
+            "file_name": "plate1_E01_10_1_45.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f10",
+            "prcfo": "plate1_r5_c1_f10_o45",
+            "object": "o45"
+          },
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_14_1_3.png",
+            "file_name": "plate1_E01_14_1_3.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f14",
+            "prcfo": "plate1_r5_c1_f14_o3",
+            "object": "o3"
+          },
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_1_1_18.png",
+            "file_name": "plate1_E01_1_1_18.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f1",
+            "prcfo": "plate1_r5_c1_f1_o18",
+            "object": "o18"
+          }
+        ],
+        "independent_saved_pixels_checked": 196608,
+        "settings": {
+          "dataset": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops.tar",
+          "model_type": "resnet18",
+          "model_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/resnet18_best_channels_rgb.pth",
+          "image_size": 128,
+          "batch_size": 4,
+          "normalize": true,
+          "cam_type": "saliency_channel",
+          "target_layer": null,
+          "plot": true,
+          "save": true,
+          "normalize_input": true,
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "overlay": true,
+          "shuffle": false,
+          "correlation": false,
+          "manders_thresholds": [
+            15,
+            50,
+            75
+          ],
+          "n_jobs": 1,
+          "smoothgrad_samples": 0,
+          "smoothgrad_sigma": 0.15,
+          "occlusion_window": 8,
+          "occlusion_stride": 4,
+          "ig_steps": 50,
+          "ig_baseline": "zero",
+          "attribution_steps": 12,
+          "attribution_baseline": "blur",
+          "sanity_check": true,
+          "object_type": "cell"
+        },
+        "outcome": {
+          "finished": true,
+          "ok": true,
+          "errors": []
+        },
+        "console": [
+          "Recording reproducibility input hashes…\n",
+          "Reproducibility manifest: /home/olafsson/.spacr/runs/2026-09-10_110622_e41d99d5__activation\n",
+          "[settings] ERROR [src]: src is missing from the settings.\n",
+          "[settings]     Set src to the folder holding the images (or, for measure, the merged folder).\n",
+          "Saving settings to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/settings/saliency_channel_settings.csv\n",
+          "Activation maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel\n",
+          "Batch grid maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/batch_grids\n",
+          "Saved batch grid to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/batch_grids/batch_0_grid.png\n",
+          "Figure(1920x240)\n",
+          "Progress: 0/4, operation_type: Generating Activation Maps, Time/batch: 0.844sec, Time/image: 0.211sec, Time_left: 0.056 min.\n",
+          "Activation map generation complete.\n"
+        ],
+        "figures": [],
+        "gui_figure_count": 0,
+        "figures_card_visible": false,
+        "settings_errors": [
+          "[settings] ERROR [src]: src is missing from the settings.\n"
+        ]
+      },
+      {
+        "method": "saliency_image",
+        "maps": [
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_0/plate1/E01/plate1_E01_10_1_4.png",
+            "sha256": "085a81a4a02468aee33e24659a7ce8a22eced7b1d37c2d47be6102df2e7a2268",
+            "pixels": 16384,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_10_1_45.png",
+            "sha256": "85356c237e06204ae46e68ccc9a033016f1f50e1a5c518ffd8d0eddd8eff2650",
+            "pixels": 16384,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_14_1_3.png",
+            "sha256": "eb093f51fefb90ea96e3bb79f9446ad81c5454b4a7b11121a14036adeee3a8b7",
+            "pixels": 16384,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_1_1_18.png",
+            "sha256": "1a4f1edfb5f20b1fd20bab9a1669ed44758d873612d271f5f29794dfead203e3",
+            "pixels": 16384,
+            "max_absolute_error": 0,
+            "differing_pixels": 0,
+            "tolerance": 1
+          }
+        ],
+        "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/measurements/real_cell_crops.db",
+        "database_rows": [
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_0/plate1/E01/plate1_E01_10_1_4.png",
+            "file_name": "plate1_E01_10_1_4.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f10",
+            "prcfo": "plate1_r5_c1_f10_o4",
+            "object": "o4"
+          },
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_10_1_45.png",
+            "file_name": "plate1_E01_10_1_45.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f10",
+            "prcfo": "plate1_r5_c1_f10_o45",
+            "object": "o45"
+          },
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_14_1_3.png",
+            "file_name": "plate1_E01_14_1_3.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f14",
+            "prcfo": "plate1_r5_c1_f14_o3",
+            "object": "o3"
+          },
+          {
+            "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_1_1_18.png",
+            "file_name": "plate1_E01_1_1_18.png",
+            "plateID": "plate1",
+            "rowID": "r5",
+            "columnID": "c1",
+            "fieldID": "f1",
+            "prcfo": "plate1_r5_c1_f1_o18",
+            "object": "o18"
+          }
+        ],
+        "independent_saved_pixels_checked": 65536,
+        "settings": {
+          "dataset": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops.tar",
+          "model_type": "resnet18",
+          "model_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/resnet18_best_channels_rgb.pth",
+          "image_size": 128,
+          "batch_size": 4,
+          "normalize": true,
+          "cam_type": "saliency_image",
+          "target_layer": null,
+          "plot": true,
+          "save": true,
+          "normalize_input": true,
+          "channels": [
+            1,
+            2,
+            3
+          ],
+          "overlay": false,
+          "shuffle": false,
+          "correlation": false,
+          "manders_thresholds": [
+            15,
+            50,
+            75
+          ],
+          "n_jobs": 1,
+          "smoothgrad_samples": 0,
+          "smoothgrad_sigma": 0.15,
+          "occlusion_window": 8,
+          "occlusion_stride": 4,
+          "ig_steps": 50,
+          "ig_baseline": "zero",
+          "attribution_steps": 12,
+          "attribution_baseline": "blur",
+          "sanity_check": true,
+          "object_type": "cell"
+        },
+        "outcome": {
+          "finished": true,
+          "ok": true,
+          "errors": []
+        },
+        "console": [
+          "Reproducibility manifest: /home/olafsson/.spacr/runs/2026-09-10_110628_8bf6dc26__activation\n",
+          "[settings] ERROR [src]: src is missing from the settings.\n",
+          "[settings]     Set src to the folder holding the images (or, for measure, the merged folder).\n",
+          "Saving settings to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/settings/saliency_image_settings.csv\n",
+          "Activation maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image\n",
+          "Batch grid maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/batch_grids\n",
+          "Saved batch grid to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/batch_grids/batch_0_grid.png\n",
+          "Figure(1920x240)\n",
+          "Progress: 0/4, operation_type: Generating Activation Maps, Time/batch: 0.525sec, Time/image: 0.131sec, Time_left: 0.035 min.\n",
+          "Activation map generation complete.\n"
+        ],
+        "figures": [],
+        "gui_figure_count": 0,
+        "figures_card_visible": false,
+        "settings_errors": [
+          "[settings] ERROR [src]: src is missing from the settings.\n"
+        ]
+      }
+    ],
+    "app_source_modified": false,
+    "provider_contacted": false,
+    "published": false,
+    "reference_device_resolution": {
+      "device": "cpu",
+      "note": ""
+    },
+    "independent_reference": {
+      "reference_device": "cpu",
+      "source_names": [
+        "plate1_E01_10_1_4.png",
+        "plate1_E01_10_1_45.png",
+        "plate1_E01_14_1_3.png",
+        "plate1_E01_1_1_18.png"
+      ],
+      "logits": [
+        [
+          0.09765313565731049,
+          -0.001865677535533905
+        ],
+        [
+          -1.2176710367202759,
+          1.317823886871338
+        ],
+        [
+          -0.8896890878677368,
+          0.9985834956169128
+        ],
+        [
+          -1.202850580215454,
+          1.2881903648376465
+        ]
+      ],
+      "prediction_indices": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "training_input_pixels": 196608,
+      "training_input_max_error": 0.0,
+      "autograd_target": "predicted class logit",
+      "original_channel_order_preserved": true
+    },
+    "defaults": {
+      "dataset": "path",
+      "model_type": "maxvit",
+      "model_path": "path",
+      "image_size": 224,
+      "batch_size": 64,
+      "normalize": true,
+      "cam_type": "gradcam",
+      "target_layer": null,
+      "plot": false,
+      "save": true,
+      "normalize_input": true,
+      "channels": [
+        1,
+        2,
+        3
+      ],
+      "overlay": true,
+      "shuffle": true,
+      "correlation": true,
+      "manders_thresholds": [
+        15,
+        50,
+        75
+      ],
+      "n_jobs": null,
+      "smoothgrad_samples": 0,
+      "smoothgrad_sigma": 0.15,
+      "occlusion_window": 8,
+      "occlusion_stride": 4,
+      "ig_steps": 50,
+      "ig_baseline": "zero",
+      "attribution_steps": 12,
+      "attribution_baseline": "blur",
+      "sanity_check": true,
+      "object_type": "cell"
+    },
+    "live_preview_control_present": false,
+    "preservation": {
+      "original_database_and_sidecars_unchanged": true,
+      "original_crops_model_card_and_marker_unchanged": true,
+      "private_archive_model_and_card_unchanged": true
+    },
+    "active_jobs_after_close": 0
+  },
+  "saved_figures": [
+    {
+      "method": "saliency_channel",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_channel/batch_grids/batch_0_grid.png",
+      "sha256": "562042b62a6b7a2a2baab949c14fbc1a71b793ee17bc2bfff0a733d88055e658",
+      "bytes": 179915,
+      "dimensions": [
+        4800,
+        600
+      ],
+      "inspected_as_saved_file": true,
+      "seen_inside_application": false
+    },
+    {
+      "method": "saliency_image",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-bah_gey5/project/data/real_cell_crops/saliency_image/batch_grids/batch_0_grid.png",
+      "sha256": "5be79d385a7949c65b4813d883f55f824f4216eae090497822c1fce2f2531163",
+      "bytes": 190354,
+      "dimensions": [
+        4800,
+        600
+      ],
+      "inspected_as_saved_file": true,
+      "seen_inside_application": false
+    }
+  ],
+  "independent_saved_pixel_values": 262144,
+  "independent_saved_pixel_max_error": 0,
+  "all_eight_full_database_cell_identities_checked_after_recording": true,
+  "helper_extraction_note": "check_native_runs and check_database were extracted after the recording; the recording used its original inline completion check. Both extracted checks were subsequently run against these genuine saved records.",
+  "test_evidence": {
+    "each_guard_mutated_in_isolation": [{"line":24,"exit_code":1,"summary":"5 failed, 32 passed in 0.16s"},{"line":26,"exit_code":1,"summary":"1 failed, 36 passed in 0.16s"},{"line":40,"exit_code":1,"summary":"2 failed, 35 passed in 0.16s"},{"line":44,"exit_code":1,"summary":"1 failed, 36 passed in 0.16s"},{"line":53,"exit_code":1,"summary":"4 failed, 33 passed in 0.17s"},{"line":56,"exit_code":1,"summary":"1 failed, 36 passed in 0.16s"},{"line":63,"exit_code":1,"summary":"2 failed, 35 passed in 0.16s"},{"line":67,"exit_code":1,"summary":"7 failed, 30 passed in 0.16s"},{"line":73,"exit_code":1,"summary":"2 failed, 35 passed in 0.17s"},{"line":76,"exit_code":1,"summary":"6 failed, 31 passed in 0.16s"}],
+    "passed": 37,
+    "all_ten_guards_bypassed": {
+      "failed": 31,
+      "passed": 6
+    },
+    "coverage_json": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_guard_coverage.json",
+    "coverage_sha256": "f26ca2a68697846dfed1f3218a6eb9184db5e272dd8b9f52e1307729c54611c2",
+    "named_guard_lines": [
+      24,
+      26,
+      40,
+      44,
+      53,
+      56,
+      63,
+      67,
+      73,
+      76
+    ],
+    "all_named_guards_executed": true
+  },
+  "blockers": [
+    "Both real runs finish successfully with Plot enabled but zero GUI figures and a hidden Figures card. The batch grid is saved; IPython display prints Figure(1920x240) rather than reaching the Qt figure sink.",
+    "Both runs log [settings] ERROR [src]: src is missing from the settings. This form exposes dataset, not src; generate_activation_map derives src from dataset after wrapper validation."
+  ],
+  "preliminary_attempts": [
+    {
+      "capture": "activation_real_predicted_class_saliency",
+      "result": "Recorder used historical classify key; failed before analysis."
+    },
+    {
+      "capture": "activation_current_host_saliency",
+      "result": "Recorder expected removed settings search control; failed before analysis."
+    },
+    {
+      "capture": "activation_nested_native_form_saliency",
+      "result": "Recorder typed into list-entry chip field instead of preserving current RGB selection; failed before analysis."
+    },
+    {
+      "capture": "activation_preserved_rgb_channels",
+      "result": "First actual run succeeded and saved four maps; the GUI had no figures. Separate CPU/CUDA reference comparisons exceeded the predefined one-level pixel tolerance; no exact-match acceptance claimed for this preliminary GPU run."
+    }
+  ],
+  "device_note": "Final two runs explicitly use the application-supported SPACR_DEVICE=cpu override, and independent CPU derivatives match every saved byte. No cross-backend bitwise-reproducibility claim.",
+  "unchanged_originals": true,
+  "active_jobs_after_close": 0,
+  "new_english_script": false,
+  "new_narration": false,
+  "new_video": false
+}

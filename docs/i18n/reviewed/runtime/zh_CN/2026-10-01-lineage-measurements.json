@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Direct Codex AI technical translation; independent Codex technical review, no human or native-speaker signoff",
+  "draft_author": "shared_ui",
+  "technical_reviewer": "root",
+  "source_file": "spacr/settings.py",
+  "source_file_sha256": "3fa147bd9fc3e2002f5d962ecb8fdcef56573c57849b98d86b841e92b3136d6e",
+  "superseded_review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+  "superseded_review_file_sha256": "e62479132fdd109e784c6b4d8d954f11b255d17804cfafc99365a5f22a40377e",
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "在每个视野跟踪后，根据跟踪器的分裂链接构建谱系树：按 timelapse_lineage_color_by 着色的树图、Newick 树、每个细胞的片段表和每个谱系的统计量（以帧计的世代时间、姐妹细胞相关性），写入 tracks/lineage。Trackastra 的分裂链接按报告使用；对于其他跟踪器，在新轨迹于母细胞旁开始处推断分裂。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "谱系树中每个细胞的着色依据：generation_time、generation、start_frame 或 n_frames，或轨迹表中某个数值列的名称（在该细胞的各帧上取平均）。未知名称会回退到 generation_time 并给出提示。除非开启 timelapse_lineage，否则忽略。默认值 generation_time。"
+    }
+  ],
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "Build lineage trees after tracking, preserving native division links and recording the actual frame filenames and final object labels. Measure can rebuild trees using a numeric measured feature, with outputs in tracks/lineage_measured; original tracks, measurements and pre-Measure lineage outputs remain unchanged. Measured colours require the saved frame/source mapping; rerun tracking with lineage enabled if it is missing. Frame quantities are retained, with hours added only when time_s or frame_interval_s supplies calibration. Default False.",
+      "source_sha256": "bd4f4882cfb159551d67ab7421adafcd618c5d4cf7b45b041a308715cf642204",
+      "translation": "追踪后构建谱系树，保留追踪器的原生分裂关系，并记录实际帧文件名和最终对象标签。测量模块可利用数值测量特征重建谱系树，结果保存在 tracks/lineage_measured；原始轨迹、测量数据以及测量前的谱系结果均保持不变。按测量值着色需要已保存的帧与来源对应关系；若缺失，请启用谱系功能后重新追踪。保留以帧为单位的数值，仅在 time_s 或 frame_interval_s 提供时间校准时添加小时数值。默认 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "Colour each lineage segment by generation_time (frames), generation_time_hours, generation, start_frame or n_frames, or a numeric feature averaged over its observed frames. Tracking reads tracks-table columns; Measure reads the selected tracked object's measurement table using saved frame and label identities. Means use available measured frames; segments with no measured values remain uncoloured. Ambiguous identities or invalid features stop that field's measured-colour export. Default generation_time.",
+      "source_sha256": "6d9fee5227cdd647f3edf8e7f71858da9017cd2dd4c9c41f8734b1fcfce41ae2",
+      "translation": "根据 generation_time（帧）、generation_time_hours、generation、start_frame、n_frames，或在该谱系段已观测帧上取平均的数值特征，为每个谱系段着色。追踪读取轨迹表的列；测量模块根据已保存的帧和标签标识读取所选追踪对象的测量表。均值使用有测量值的帧计算；完全没有测量值的谱系段保持未着色。标识不明确或特征无效时，停止导出该视野按测量值着色的结果。默认 generation_time。"
+    }
+  ],
+  "review": "Checked against source and code: actual saved frame/label mapping, only available measured frames in means, uncoloured missing values, ambiguity/invalid feature rejection, separate output, and calibration conditions. Settings IDs and exact output path preserved."
+}

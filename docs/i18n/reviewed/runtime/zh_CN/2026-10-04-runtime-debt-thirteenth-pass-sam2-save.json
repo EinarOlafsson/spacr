@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-04: SAM2 tracking's save step (folder choice, its tooltip and status lines), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Choose a folder for the SAM2 results",
+      "source": "Choose a folder for the SAM2 results",
+      "source_sha256": "211ea8d9b9954db780ff0814f8f4f0647a90bca49a35697ad81a6d914c81cca2",
+      "translation": "选择保存 SAM2 结果的文件夹"
+    },
+    {
+      "table": "ui",
+      "key": "Propagate before saving.",
+      "source": "Propagate before saving.",
+      "source_sha256": "52f816d2fd9f1a53a93ff4a09ce4a91be05aa696b2c2b20196ce9f5bc2c4f5ef",
+      "translation": "请先传播再保存。"
+    },
+    {
+      "table": "ui",
+      "key": "Saved to {folder}",
+      "source": "Saved to {folder}",
+      "source_sha256": "16e67bdde9b8998417061139e10d513f230f0a76c7feb3f17efe52c1f414cf48",
+      "translation": "已保存到 {folder}"
+    },
+    {
+      "table": "ui",
+      "key": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+      "source": "Write the propagated labels (TIFF), the tracks table with each daughter's parent track (CSV) and the seeds and settings used into a sam2 folder beside the movie.",
+      "source_sha256": "124778e2d3d71dd7d3f49bf47639377ce154ece5c99737c3e5e12674041d5e13",
+      "translation": "将传播后的标签（TIFF）、记录每个子细胞父轨迹的轨迹表（CSV）以及所用的种子和设置写入影片旁的 sam2 文件夹。"
+    }
+  ]
+}

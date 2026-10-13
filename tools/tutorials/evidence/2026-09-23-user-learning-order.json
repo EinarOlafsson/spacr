@@ -1,0 +1,41 @@
+{
+  "checks": [
+    "Setup, Home and pipelines precede modules; every lesson appears once",
+    "Next and Previous follow the visible learning order",
+    "Moved lesson retains URL and shows current parent breadcrumb",
+    "Searching a parent finds its submodules",
+    "Spanish navigation switches with the narration language",
+    "390-pixel mobile layout fits and both sections collapse accessibly",
+    "No JavaScript runtime errors"
+  ],
+  "remote_media_tested": false,
+  "catalog_lesson_count": 81,
+  "runtime_source_commit": "46bfd663f5d263298a374da1f2015227ba344f2f",
+  "missing_tutorials": [
+    {
+      "app_key": "candida",
+      "title": "Candida spp.",
+      "host_app_key": null,
+      "status": "needs_tutorial"
+    },
+    {
+      "app_key": "host_pathogen",
+      "title": "Host\u2013Pathogen Analysis",
+      "host_app_key": "toxoplasma",
+      "status": "needs_tutorial"
+    },
+    {
+      "app_key": "plasmodium",
+      "title": "Plasmodium spp.",
+      "host_app_key": null,
+      "status": "needs_tutorial"
+    },
+    {
+      "app_key": "toxoplasma",
+      "title": "Toxoplasma",
+      "host_app_key": null,
+      "status": "needs_tutorial"
+    }
+  ],
+  "passed": true
+}

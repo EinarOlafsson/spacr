@@ -1,0 +1,27 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source_sha256": "5953c8c31498297d04d4e07ec15f0d3b18adb968bec94f4e86cccb76d4d31893",
+      "table": "ui",
+      "translation": "मॉडल ज़ू ब्राउज़ करें, एक Cellpose मॉडल डाउनलोड करें और उससे सेगमेंट करें। वहाँ चुना गया मॉडल इस बटन के पास वाली सूची में चुन लिया जाता है।"
+    },
+    {
+      "key": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source_sha256": "7e3849bd96a50a540c32fa32ac80f26b8b5b12f80e564e92b057bc9af6947717",
+      "table": "ui",
+      "translation": "वर्गाकार बॉक्स की भुजा, छवि पिक्सेल में, खुली छवि की अपनी ऊँचाई या चौड़ाई तक। माउस के नीचे का क्षेत्र में यही वह क्षेत्र भी है जिसे मॉडल सेगमेंट करता है, इसलिए इसे जोड़े जाने वाले सबसे बड़े ऑब्जेक्ट से चौड़ा रखें। आवर्धक चालू रहते हुए Shift + माउस व्हील इसे बदलता है।"
+    },
+    {
+      "key": "{name} (not downloaded)",
+      "source": "{name} (not downloaded)",
+      "source_sha256": "cbd91332316192ec43faa12ca9dcbc7b8a185d00fb36ae3657b5ee86d8019493",
+      "table": "ui",
+      "translation": "{name} (डाउनलोड नहीं हुआ)"
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,477 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third and fourth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A well is a hit when its score reaches this value. SSMD 3 is a strong effect; 3 for robust z and B-score is three robust standard deviations.",
+      "source": "A well is a hit when its score reaches this value. SSMD 3 is a strong effect; 3 for robust z and B-score is three robust standard deviations.",
+      "source_sha256": "401fa75c58a4d23de5cc5931ffe8536ad53c2106c67c21d03e535f4152445833",
+      "translation": "Brunnur er frambjóðandi þegar skor hans nær þessu gildi. SSMD 3 eru sterk áhrif; 3 fyrir traust z og B-skor eru þrjú traust staðalfrávik."
+    },
+    {
+      "table": "ui",
+      "key": "Add the outline micro-SAM drew as one new object: one edit, undone by one Ctrl+Z, written by Save mask and recorded in the field's curation ledger with the prompt, the model and the micro-SAM version. Enter on the image does the same. Default unavailable until an outline is shown.",
+      "source": "Add the outline micro-SAM drew as one new object: one edit, undone by one Ctrl+Z, written by Save mask and recorded in the field's curation ledger with the prompt, the model and the micro-SAM version. Enter on the image does the same. Default unavailable until an outline is shown.",
+      "source_sha256": "337d5873347835d0e147c2729f77d18cff16d56cdef00609a703d413b82f9e57",
+      "translation": "Bæta útlínunni sem micro-SAM teiknaði við sem einum nýjum hlut: ein breyting, afturkölluð með einu Ctrl+Z, skrifuð með Vista grímu og skráð í yfirferðarskrá sjónsviðsins ásamt ábendingunni, líkaninu og útgáfu micro-SAM. Enter á myndinni gerir það sama. Sjálfgefið ekki tiltækt fyrr en útlína birtist."
+    },
+    {
+      "table": "ui",
+      "key": "Blinded: the source, plates, wells, conditions and file names are hidden, and the crops are in a shuffled order.",
+      "source": "Blinded: the source, plates, wells, conditions and file names are hidden, and the crops are in a shuffled order.",
+      "source_sha256": "329aca3de14d6f075a905a7a2c0771d6522ef38bf0382a1e8f5a2182ac2c470e",
+      "translation": "Blindað: uppsprettan, plöturnar, brunnarnir, aðstæðurnar og skráarnöfnin eru falin, og úrklippurnar eru í slembiröð."
+    },
+    {
+      "table": "ui",
+      "key": "Blinded: {count} fields, named by code and in a shuffled order.",
+      "source": "Blinded: {count} fields, named by code and in a shuffled order.",
+      "source_sha256": "61f9e7d9a09ceb7f61ddca4cd65aaecfd978ed29a6b51af9e86ff2912d4c7b10",
+      "translation": "Blindað: {count} sjónsvið, nefnd eftir kóða og í slembiröð."
+    },
+    {
+      "table": "ui",
+      "key": "Click on one object, or drag a box round it, and micro-SAM outlines it. Right-click marks what is not the object. Enter adds the outline as a new object.",
+      "source": "Click on one object, or drag a box round it, and micro-SAM outlines it. Right-click marks what is not the object. Enter adds the outline as a new object.",
+      "source_sha256": "968152b0ab2b0029660cd1beba5966c9db7eff98381f70f06cc8a33e3ba5d0b6",
+      "translation": "Smelltu á einn hlut, eða dragðu ramma utan um hann, og micro-SAM afmarkar hann. Hægrismellur merkir það sem er ekki hluturinn. Enter bætir útlínunni við sem nýjum hlut."
+    },
+    {
+      "table": "ui",
+      "key": "Confluency {percent} ({source}), {verdict}",
+      "source": "Confluency {percent} ({source}), {verdict}",
+      "source_sha256": "09e8aeac996e66bd6226359e2d0e01eb8b8a5bf40e6bd7c72666da09a82b027b",
+      "translation": "Þekjuhlutfall {percent} ({source}), {verdict}"
+    },
+    {
+      "table": "ui",
+      "key": "Curate blind: name every field by a code instead of its file name and folder, and show the fields in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source": "Curate blind: name every field by a code instead of its file name and folder, and show the fields in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source_sha256": "1b8ebfbea06a4a9afc49ef87652d85ba4df0c9e9639327520410c83bddeb0be7",
+      "translation": "Yfirfara blindað: nefna hvert sjónsvið eftir kóða í stað skráarnafns og möppu og sýna sjónsviðin í slembiröð. Lykillinn er geymdur við hlið keyrsludagbókarinnar, utan gagnamöppunnar. Að slökkva afblindar, og dagbókin skráir hver afblindaði og hvenær. Sjálfgefið slökkt."
+    },
+    {
+      "table": "ui",
+      "key": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without saturating the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source": "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without saturating the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for.",
+      "source_sha256": "4eeb0ba99c39c2cc5c919e81068bf30f27651405500997c516e1a13f9f93a8ac",
+      "translation": "Jafnar súluritið innan hverrar flísar frekar en yfir allt sjónsviðið, með mörkum á því hversu mikið eitt stig má teygjast. Það er það sem dregur fram hluti í daufu horni án þess að mettun verði í bjartri miðjunni. Það magnar líka suð í tómum flísum, og til þess eru klippimörkin."
+    },
+    {
+      "table": "ui",
+      "key": "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO JSON, one outline per object with its id and class, or import one of those files back as masks.",
+      "source": "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO JSON, one outline per object with its id and class, or import one of those files back as masks.",
+      "source_sha256": "0c04724e3d12c9b15e2c1742ebf70638899cb73c59c56b29bf07647aed96afa4",
+      "translation": "Flytja grímurnar út sem QuPath GeoJSON, ImageJ RoiSet eða COCO JSON, eina útlínu á hlut með auðkenni hans og flokki, eða flytja eina af þessum skrám aftur inn sem grímur."
+    },
+    {
+      "table": "ui",
+      "key": "InstanSeg (instanseg-torch 0.1.1) is Apache-2.0, and so are its fluorescence_nuclei_and_cells and brightfield_nuclei models, which InstanSeg downloads itself from the instanseg/instanseg GitHub release (instanseg_models_v0.1.1) into the backend's own folder. spaCR ships none of it.",
+      "source": "InstanSeg (instanseg-torch 0.1.1) is Apache-2.0, and so are its fluorescence_nuclei_and_cells and brightfield_nuclei models, which InstanSeg downloads itself from the instanseg/instanseg GitHub release (instanseg_models_v0.1.1) into the backend's own folder. spaCR ships none of it.",
+      "source_sha256": "926aa6d08aaeea6b8056537522a89a2af76e890f17e1d9178535b0d2f3c32f47",
+      "translation": "InstanSeg (instanseg-torch 0.1.1) er Apache-2.0, eins og líkön þess fluorescence_nuclei_and_cells og brightfield_nuclei, sem InstanSeg sækir sjálft úr GitHub-útgáfunni instanseg/instanseg (instanseg_models_v0.1.1) í eigin möppu bakendans. spaCR fylgir ekkert af því."
+    },
+    {
+      "table": "ui",
+      "key": "InstanSeg, embedding-based segmentation of nuclei and cells that reads any number of fluorescence channels, with its fluorescence_nuclei_and_cells and brightfield_nuclei models or an InstanSeg TorchScript file. A nucleus object keeps its nuclei, every other object its cells. It runs in an environment of its own.",
+      "source": "InstanSeg, embedding-based segmentation of nuclei and cells that reads any number of fluorescence channels, with its fluorescence_nuclei_and_cells and brightfield_nuclei models or an InstanSeg TorchScript file. A nucleus object keeps its nuclei, every other object its cells. It runs in an environment of its own.",
+      "source_sha256": "8fec57417a44e515fa6ab0ac9a06d44cdc98aeee3931f66ee4ad30ccb5f5d99d",
+      "translation": "InstanSeg, ívafningabyggð bútun kjarna og frumna sem les hvaða fjölda flúrljómunarrása sem er, með líkönunum fluorescence_nuclei_and_cells og brightfield_nuclei eða InstanSeg TorchScript-skrá. Kjarnahlutur heldur kjörnum sínum, hver annar hlutur frumum sínum. Það keyrir í eigin umhverfi."
+    },
+    {
+      "table": "ui",
+      "key": "Locked {sha} at {time}. Runs of these settings on this source are checked against it.",
+      "source": "Locked {sha} at {time}. Runs of these settings on this source are checked against it.",
+      "source_sha256": "978ca78705bc8d6c8f2459a8f0bdcaee4648ee4fdb37ccb3bdc0d2e23c92e6ff",
+      "translation": "Læst {sha} kl. {time}. Keyrslur þessara stillinga á þessari uppsprettu eru bornar saman við læsinguna."
+    },
+    {
+      "table": "ui",
+      "key": "Mask generation: segment batches on every GPU allocated to the job",
+      "source": "Mask generation: segment batches on every GPU allocated to the job",
+      "source_sha256": "77f3126d15e1ca031d38464f627369554d8d9e38ee22ada4aa44b7e59452ea37",
+      "translation": "Grímugerð: búta lotur á hverju GPU sem verkinu er úthlutað"
+    },
+    {
+      "table": "ui",
+      "key": "Needs the {backend} backend, which runs in an environment of its own and is not installed — press Install to install it.",
+      "source": "Needs the {backend} backend, which runs in an environment of its own and is not installed — press Install to install it.",
+      "source_sha256": "ee311881085955e3f1e9f12fccd6655431da7551d63bf00b9b658ae40fbfe997",
+      "translation": "Þarf {backend}-bakendann, sem keyrir í eigin umhverfi og er ekki uppsettur — ýttu á Setja upp til að setja hann upp."
+    },
+    {
+      "table": "ui",
+      "key": "Needs two or more compatible CUDA or ROCm GPUs; {count} found on this computer. Cluster Distribution runs use the GPUs allocated to the job.",
+      "source": "Needs two or more compatible CUDA or ROCm GPUs; {count} found on this computer. Cluster Distribution runs use the GPUs allocated to the job.",
+      "source_sha256": "e8dd29b3978be9196421e56782500493597705f00af301342cbde7f2e5be1361",
+      "translation": "Þarf tvö eða fleiri samhæf CUDA- eða ROCm-GPUs; {count} fundust á þessari tölvu. Keyrslur með klasadreifingu nota GPUs sem verkinu var úthlutað."
+    },
+    {
+      "table": "ui",
+      "key": "No analysis lock applies to these settings yet.",
+      "source": "No analysis lock applies to these settings yet.",
+      "source_sha256": "d1d9e63cba9e007908e79b6f42abc3b485b3e2309417eea413f8df0f44765a13",
+      "translation": "Engin greiningarlæsing gildir enn um þessar stillingar."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing was added: under the Overlap rule the outline leaves nothing that is not already an object.",
+      "source": "Nothing was added: under the Overlap rule the outline leaves nothing that is not already an object.",
+      "source_sha256": "ba91b4c2ec904a1d9c535518f08e36495bc2bcc64e80444db75cf2482ef924c1",
+      "translation": "Engu var bætt við: samkvæmt skörunarreglunni skilur útlínan ekkert eftir sem er ekki þegar hlutur."
+    },
+    {
+      "table": "ui",
+      "key": "Omnipose is NOT open source: omnipose 1.1.4 carries the Omnipose NonCommercial License (Copyright 2021 University of Washington), which permits use, modification and redistribution for noncommercial purposes only; commercial use needs a licence from UW CoMotion (license@uw.edu). That is not the licence spaCR carries. Its models are downloaded by Omnipose itself from the kevinjohncutler/omnipose-models GitHub repository, which names no licence of its own, into the backend's own folder. spaCR ships none of it. Read the licence before using Omnipose for anything commercial.",
+      "source": "Omnipose is NOT open source: omnipose 1.1.4 carries the Omnipose NonCommercial License (Copyright 2021 University of Washington), which permits use, modification and redistribution for noncommercial purposes only; commercial use needs a licence from UW CoMotion (license@uw.edu). That is not the licence spaCR carries. Its models are downloaded by Omnipose itself from the kevinjohncutler/omnipose-models GitHub repository, which names no licence of its own, into the backend's own folder. spaCR ships none of it. Read the licence before using Omnipose for anything commercial.",
+      "source_sha256": "ca37f0259747894318ffc184a9706fe22ab27bd89065e10c021da8cde6469e5c",
+      "translation": "Omnipose er EKKI opinn hugbúnaður: omnipose 1.1.4 fellur undir Omnipose NonCommercial License (Copyright 2021 University of Washington), sem leyfir notkun, breytingar og endurdreifingu eingöngu í tilgangi sem ekki er viðskiptalegur; viðskiptaleg notkun krefst leyfis frá UW CoMotion (license@uw.edu). Það er ekki leyfið sem spaCR er gefið út undir. Líkön þess sækir Omnipose sjálft úr GitHub-geymslunni kevinjohncutler/omnipose-models, sem nefnir ekkert eigið leyfi, í eigin möppu bakendans. spaCR fylgir ekkert af því. Lestu leyfið áður en þú notar Omnipose í nokkrum viðskiptalegum tilgangi."
+    },
+    {
+      "table": "ui",
+      "key": "Omnipose, for bacteria and other elongated or filamentous cells, with its bact_phase_omni, bact_fluor_omni, worm and cyto2_omni models or an Omnipose checkpoint. It runs in an environment of its own; its masks, flows and distance field come back in Cellpose-SAM's shapes. Noncommercial use only.",
+      "source": "Omnipose, for bacteria and other elongated or filamentous cells, with its bact_phase_omni, bact_fluor_omni, worm and cyto2_omni models or an Omnipose checkpoint. It runs in an environment of its own; its masks, flows and distance field come back in Cellpose-SAM's shapes. Noncommercial use only.",
+      "source_sha256": "3db1c9a1007da103846b0612638a7f708ce7366ec77c783d6b5aeab97956d762",
+      "translation": "Omnipose, fyrir bakteríur og aðrar ílangar eða þráðlaga frumur, með líkönunum bact_phase_omni, bact_fluor_omni, worm og cyto2_omni eða Omnipose-vistunarpunkti. Það keyrir í eigin umhverfi; grímur þess, flæði og fjarlægðarsvið skila sér á sniði Cellpose-SAM. Eingöngu til notkunar sem ekki er í viðskiptaskyni."
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder of images before curating it blind.",
+      "source": "Open a folder of images before curating it blind.",
+      "source_sha256": "75bad3e0aaa0f6b07ea951f6b36e9366e7501c3609a776eaa5de3b828a96adc1",
+      "translation": "Opnaðu myndamöppu áður en þú ferð blindað yfir hana."
+    },
+    {
+      "table": "ui",
+      "key": "Open an experiment source before scoring it blind.",
+      "source": "Open an experiment source before scoring it blind.",
+      "source_sha256": "ac57528f1870d1b7b157ddbed789c12136d25c943543bee5da513c2172316969",
+      "translation": "Opnaðu tilraunauppsprettu áður en þú skorar hana blindað."
+    },
+    {
+      "table": "ui",
+      "key": "Pick the control column and the negative control to score hits against.",
+      "source": "Pick the control column and the negative control to score hits against.",
+      "source_sha256": "3f067cdf6c2965d8d2dbee2eb66516995bdd01988dfd9f6eb8a36967090b0616",
+      "translation": "Veldu viðmiðsdálkinn og neikvæða viðmiðið sem frambjóðendur eru skoraðir gegn."
+    },
+    {
+      "table": "ui",
+      "key": "Preregister the analysis: freeze these settings, your hypotheses and thresholds, and the model and gate files they name, with a hash and a timestamp, before the results are seen. Every later run on the same source is checked against the lock, and a change is flagged in its manifest, the report and the methods text, as post-hoc once the blinding key has been opened. Default no lock.",
+      "source": "Preregister the analysis: freeze these settings, your hypotheses and thresholds, and the model and gate files they name, with a hash and a timestamp, before the results are seen. Every later run on the same source is checked against the lock, and a change is flagged in its manifest, the report and the methods text, as post-hoc once the blinding key has been opened. Default no lock.",
+      "source_sha256": "1eced7b62f9ed561d2ca3f839d4dfb08712e5278ff79ac4e6dee7e926eabf28f",
+      "translation": "Forskrá greininguna: frysta þessar stillingar, tilgátur þínar og þröskulda, og líkans- og valmarkaskrárnar sem þær nefna, með tætigildi og tímastimpli, áður en niðurstöðurnar sjást. Hver síðari keyrsla á sömu uppsprettu er borin saman við læsinguna og breyting er merkt í skrá hennar, skýrslunni og aðferðatextanum, sem eftiráákvörðun þegar blindunarlykillinn hefur verið opnaður. Sjálfgefið engin læsing."
+    },
+    {
+      "table": "ui",
+      "key": "Prompt-based segmentation runs micro-SAM, which is not installed yet.",
+      "source": "Prompt-based segmentation runs micro-SAM, which is not installed yet.",
+      "source_sha256": "7b9c39c31e6f795f296339fbc8d17131aef0a762a99851479a57168294549275",
+      "translation": "Bútun eftir ábendingu keyrir micro-SAM, sem er ekki enn uppsett."
+    },
+    {
+      "table": "ui",
+      "key": "Prompting needs micro-SAM, which is not installed.",
+      "source": "Prompting needs micro-SAM, which is not installed.",
+      "source_sha256": "c51a9ef201df1a1732e031d41f9575a79351c72ef66e44f13f2af298f9bc643d",
+      "translation": "Ábendingar þurfa micro-SAM, sem er ekki uppsett."
+    },
+    {
+      "table": "ui",
+      "key": "Prompting off. The objects it added stay in the mask.",
+      "source": "Prompting off. The objects it added stay in the mask.",
+      "source_sha256": "d1ed91a4b9353882a616c22679ae75fe42ce64f1f91e83294ab1b84c034aade6",
+      "translation": "Ábendingar óvirkar. Hlutirnir sem bætt var við haldast í grímunni."
+    },
+    {
+      "table": "ui",
+      "key": "Prompting on: click the object, right-click what is not it, or drag a box round it; Enter adds the outline.",
+      "source": "Prompting on: click the object, right-click what is not it, or drag a box round it; Enter adds the outline.",
+      "source_sha256": "8414bae120e6ce3dc65f80c3d17e54894ccb5b11b8a3f062c28f8e629379ed89",
+      "translation": "Ábendingar virkar: smelltu á hlutinn, hægrismelltu á það sem er ekki hluturinn, eða dragðu ramma utan um hann; Enter bætir útlínunni við."
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Archit et al., 'Segment Anything for Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-02580-4). spaCR has not scored this backend on its own data.",
+      "source": "Published results: Archit et al., 'Segment Anything for Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-02580-4). spaCR has not scored this backend on its own data.",
+      "source_sha256": "389cd341c4987e6d9379a0005224613c0af8b1082d0aeafbc81cac3577d968f1",
+      "translation": "Birtar niðurstöður: Archit et al., 'Segment Anything for Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-02580-4). spaCR hefur ekki skorað þennan bakenda á eigin gögnum."
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Cutler et al., 'Omnipose: a high-precision morphology-independent solution for bacterial cell segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-01639-4). spaCR has not scored it against those results; item 553 scores it on Omnipose's own bacteria test images.",
+      "source": "Published results: Cutler et al., 'Omnipose: a high-precision morphology-independent solution for bacterial cell segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-01639-4). spaCR has not scored it against those results; item 553 scores it on Omnipose's own bacteria test images.",
+      "source_sha256": "99244f9cfe706c99d3c5afcdcd20756ee5828184383dcabfa8aec48f1f256568",
+      "translation": "Birtar niðurstöður: Cutler et al., 'Omnipose: a high-precision morphology-independent solution for bacterial cell segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-01639-4). spaCR hefur ekki borið það saman við þessar niðurstöður; atriði 553 skorar það á eigin prófunarmyndum Omnipose af bakteríum."
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Goldsborough et al., 'InstanSeg: an embedding-based instance segmentation algorithm optimized for accurate, efficient and portable cell segmentation', arXiv 2024 (arXiv:2408.15954). spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source": "Published results: Goldsborough et al., 'InstanSeg: an embedding-based instance segmentation algorithm optimized for accurate, efficient and portable cell segmentation', arXiv 2024 (arXiv:2408.15954). spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source_sha256": "be634dceea747274cf66f3927ea86a704232f0e60dc46e7b99f2e8421386c366",
+      "translation": "Birtar niðurstöður: Goldsborough et al., 'InstanSeg: an embedding-based instance segmentation algorithm optimized for accurate, efficient and portable cell segmentation', arXiv 2024 (arXiv:2408.15954). spaCR hefur ekki borið það saman við þessar niðurstöður; atriði 532 skorar það á eigin sjónsviðum spaCR."
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Schmidt, Weigert, Broaddus and Myers, 'Cell Detection with Star-convex Polygons', MICCAI 2018 (arXiv:1806.03535). The README publishes no results table. spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source": "Published results: Schmidt, Weigert, Broaddus and Myers, 'Cell Detection with Star-convex Polygons', MICCAI 2018 (arXiv:1806.03535). The README publishes no results table. spaCR has not scored it against those results; item 532 scores it on spaCR's own fields.",
+      "source_sha256": "7fc99652bb392d27199e227552322607ee41413d853a6a3c2f751b3b3782ac4d",
+      "translation": "Birtar niðurstöður: Schmidt, Weigert, Broaddus og Myers, 'Cell Detection with Star-convex Polygons', MICCAI 2018 (arXiv:1806.03535). README birtir enga niðurstöðutöflu. spaCR hefur ekki borið það saman við þessar niðurstöður; atriði 532 skorar það á eigin sjónsviðum spaCR."
+    },
+    {
+      "table": "ui",
+      "key": "Put a point on the object, or drag a box round it, before points off it.",
+      "source": "Put a point on the object, or drag a box round it, before points off it.",
+      "source_sha256": "9ba05372c5445e640330fc9c21739f065f560427a5fe1e9a65b839b221db7aa8",
+      "translation": "Settu punkt á hlutinn, eða dragðu ramma utan um hann, áður en þú setur punkta utan hans."
+    },
+    {
+      "table": "ui",
+      "key": "Recrop is off while blinded, because the new fields are named after the field they are cut from.",
+      "source": "Recrop is off while blinded, because the new fields are named after the field they are cut from.",
+      "source_sha256": "1b5f1a5a3feb93be7093b2c8dfe98bf4291e59fb74f15771e7738f07e3e7a829",
+      "translation": "Endurklipping er óvirk á meðan blindað er, því nýju sjónsviðin eru nefnd eftir sjónsviðinu sem þau eru klippt úr."
+    },
+    {
+      "table": "ui",
+      "key": "Replace the saved mask of every field that has ROIs in {path}?",
+      "source": "Replace the saved mask of every field that has ROIs in {path}?",
+      "source_sha256": "aa320b9852d1947f091821b8d5e76fbbb4a8385f48d34b7daf99de06b1b36fa8",
+      "translation": "Skipta út vistaðri grímu hvers sjónsviðs sem hefur ROIs í {path}?"
+    },
+    {
+      "table": "ui",
+      "key": "Runs through the {backend} backend, which is installed. Use this model writes {prefix}{model} into the object's model setting, which runs that object through {backend} with its usual Mask generation settings.",
+      "source": "Runs through the {backend} backend, which is installed. Use this model writes {prefix}{model} into the object's model setting, which runs that object through {backend} with its usual Mask generation settings.",
+      "source_sha256": "32dfaa06ee3482e809fdeedf0cfe7600f5a36ed02b5517d0564b40db2b876486",
+      "translation": "Keyrir í gegnum {backend}-bakendann, sem er uppsettur. Nota þetta líkan skrifar {prefix}{model} í líkansstillingu hlutarins, sem keyrir þann hlut í gegnum {backend} með venjulegum grímugerðarstillingum hans."
+    },
+    {
+      "table": "ui",
+      "key": "Score blind: hide the source, plates, wells, conditions and file names, and show the crops in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source": "Score blind: hide the source, plates, wells, conditions and file names, and show the crops in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off.",
+      "source_sha256": "1521a8a9175beae2ab88ed62a990fa3b1ea570af4e691be507451b1313a43a91",
+      "translation": "Skora blindað: fela uppsprettuna, plöturnar, brunnana, aðstæðurnar og skráarnöfnin og sýna úrklippurnar í slembiröð. Lykillinn er geymdur við hlið keyrsludagbókarinnar, utan gagnamöppunnar. Að slökkva afblindar, og dagbókin skráir hver afblindaði og hvenær. Sjálfgefið slökkt."
+    },
+    {
+      "table": "ui",
+      "key": "Score every well against the negative control and call hits. Needs the negative control picked above and well positions in the table (prc, rowID and columnID, or well).",
+      "source": "Score every well against the negative control and call hits. Needs the negative control picked above and well positions in the table (prc, rowID and columnID, or well).",
+      "source_sha256": "d57777f368bb44242a2e617a852e98dec0ad3cd2bcdd8b4aa4b2f1760e7b888d",
+      "translation": "Skorar hvern brunn gegn neikvæða viðmiðinu og greinir frambjóðendur. Þarf neikvæða viðmiðið sem valið er að ofan og staðsetningar brunna í töflunni (prc, rowID og columnID, eða well)."
+    },
+    {
+      "table": "ui",
+      "key": "Show the area of this field Measure would count as covered by cells, using the Confluency settings of the run.",
+      "source": "Show the area of this field Measure would count as covered by cells, using the Confluency settings of the run.",
+      "source_sha256": "cb56b45f239096f960f6475e606e7f49b963a8a173f5b54602443126c72c2853",
+      "translation": "Sýna það svæði þessa sjónsviðs sem Measure myndi telja þakið frumum, með stillingum keyrslunnar fyrir þekjuhlutfall."
+    },
+    {
+      "table": "ui",
+      "key": "Show the settings, controls, screens and models built from the future-features list that are not yet released. Off hides them; saved values still reach every run.",
+      "source": "Show the settings, controls, screens and models built from the future-features list that are not yet released. Off hides them; saved values still reach every run.",
+      "source_sha256": "0a5207c15cb912a8cb2e60c80ed04f09ee0f8444d0fabdde8aae99f4020a5802",
+      "translation": "Sýna stillingar, stýringar, skjái og líkön af listanum yfir framtíðareiginleika sem hafa ekki enn verið gefin út. Slökkt felur þau; vistuð gildi ná samt til hverrar keyrslu."
+    },
+    {
+      "table": "ui",
+      "key": "StarDist 0.9.2 is BSD-3-Clause (Copyright 2018-2025 Uwe Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause and TensorFlow 2.21 Apache-2.0. The pretrained models are downloaded by StarDist itself from the stardist/stardist-models GitHub release (BSD-3-Clause), checked against the digest StarDist pins, into the backend's own folder. spaCR ships none of it.",
+      "source": "StarDist 0.9.2 is BSD-3-Clause (Copyright 2018-2025 Uwe Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause and TensorFlow 2.21 Apache-2.0. The pretrained models are downloaded by StarDist itself from the stardist/stardist-models GitHub release (BSD-3-Clause), checked against the digest StarDist pins, into the backend's own folder. spaCR ships none of it.",
+      "source_sha256": "aa6874b2b0be9c78f3ad0f1042901d78226e1c032777b4e0a34d276ff412ed59",
+      "translation": "StarDist 0.9.2 er BSD-3-Clause (Copyright 2018-2025 Uwe Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause og TensorFlow 2.21 Apache-2.0. Forþjálfuðu líkönin sækir StarDist sjálft úr GitHub-útgáfunni stardist/stardist-models (BSD-3-Clause), sannprófuð gegn tætigildinu sem StarDist festir, í eigin möppu bakendans. spaCR fylgir ekkert af því."
+    },
+    {
+      "table": "ui",
+      "key": "StarDist, star-convex polygons for nuclei, with its 2D_versatile_fluo, 2D_versatile_he and 2D_paper_dsb2018 models or a StarDist model folder of your own. It runs on TensorFlow in an environment of its own; its masks and object probability come back in Cellpose-SAM's shapes.",
+      "source": "StarDist, star-convex polygons for nuclei, with its 2D_versatile_fluo, 2D_versatile_he and 2D_paper_dsb2018 models or a StarDist model folder of your own. It runs on TensorFlow in an environment of its own; its masks and object probability come back in Cellpose-SAM's shapes.",
+      "source_sha256": "b330c86cf6302094d7bc97e56a76141f2d7f6cc53757455bacee11b71a442c87",
+      "translation": "StarDist, stjörnukúptir marghyrningar fyrir kjarna, með líkönunum 2D_versatile_fluo, 2D_versatile_he og 2D_paper_dsb2018 eða eigin StarDist-líkansmöppu. Það keyrir á TensorFlow í eigin umhverfi; grímur þess og hlutalíkur skila sér á sniði Cellpose-SAM."
+    },
+    {
+      "table": "ui",
+      "key": "Submits mask_parallel on with a blank mask_gpu_indices, so the job uses exactly the GPUs its scheduler allocates, one model per GPU. Request them in the execution profile, for example --gres=gpu:2. A job given one GPU runs on that one.",
+      "source": "Submits mask_parallel on with a blank mask_gpu_indices, so the job uses exactly the GPUs its scheduler allocates, one model per GPU. Request them in the execution profile, for example --gres=gpu:2. A job given one GPU runs on that one.",
+      "source_sha256": "ce4c267a272320e3ab5fc540941d81b9986abe94d0584b4f231e0ee55480aa36",
+      "translation": "Sendir mask_parallel virkt með auðu mask_gpu_indices, svo verkið notar nákvæmlega þau GPUs sem tímaáætlunarkerfið úthlutar, eitt líkan á hvert GPU. Biddu um þau í keyrslusniðinu, til dæmis --gres=gpu:2. Verk sem fær eitt GPU keyrir á því."
+    },
+    {
+      "table": "ui",
+      "key": "The column naming what is in each well. Wells sharing a treatment are replicates and get one replicate SSMD in the export. Leave empty for a screen without replicates.",
+      "source": "The column naming what is in each well. Wells sharing a treatment are replicates and get one replicate SSMD in the export. Leave empty for a screen without replicates.",
+      "source_sha256": "1a841a1c7cef631850684f84647d850b5b9223e21448d619a9198bfebddaef28",
+      "translation": "Dálkurinn sem segir hvað er í hverjum brunni. Brunnar sem deila meðferð eru endurtekningar og fá eitt sameiginlegt SSMD endurtekninga í útflutningnum. Skildu eftir autt ef engar endurtekningar eru."
+    },
+    {
+      "table": "ui",
+      "key": "The file holds several object types. Which one goes on this field?",
+      "source": "The file holds several object types. Which one goes on this field?",
+      "source_sha256": "613b74b3255b2f83c77a909b8310e57816cb75723832a7bee4e25bea36411d42",
+      "translation": "Skráin inniheldur nokkrar hlutagerðir. Hver þeirra á við þetta sjónsvið?"
+    },
+    {
+      "table": "ui",
+      "key": "The thresholds and gates that decide a call, one per line.",
+      "source": "The thresholds and gates that decide a call, one per line.",
+      "source_sha256": "d64400543cb7584b1d42f7a2fc2ae3ab5e7e00abf6ce56c32602aad4a0d418b6",
+      "translation": "Þröskuldarnir og valmörkin sem ákvarða niðurstöðu, einn í hverri línu."
+    },
+    {
+      "table": "ui",
+      "key": "Throw away the points, the box and the outline, and start again on another object. Nothing had been added to the mask. Escape on the image does the same. Default unavailable until there is a prompt.",
+      "source": "Throw away the points, the box and the outline, and start again on another object. Nothing had been added to the mask. Escape on the image does the same. Default unavailable until there is a prompt.",
+      "source_sha256": "63d4c47f205007041780ea1e400124700b47d7acde4ab6d2089bf7ff0464ce8b",
+      "translation": "Henda punktunum, rammanum og útlínunni og byrja aftur á öðrum hlut. Engu hafði verið bætt við grímuna. Escape á myndinni gerir það sama. Sjálfgefið ekki tiltækt fyrr en ábending er komin."
+    },
+    {
+      "table": "ui",
+      "key": "Turn on hit scoring and name the negative control.",
+      "source": "Turn on hit scoring and name the negative control.",
+      "source_sha256": "69d33f06cc2a5c7aa9c38d7d28aee46acee4e71807e86bdb8264ca1144ffac35",
+      "translation": "Kveiktu á skorun frambjóðenda og tilgreindu neikvæða viðmiðið."
+    },
+    {
+      "table": "ui",
+      "key": "Unblinded key {key}; the journal recorded who and when.",
+      "source": "Unblinded key {key}; the journal recorded who and when.",
+      "source_sha256": "8912db6c7b325d65a561e3e88b5e0600262a35fc69157b957e3267e68a70d10c",
+      "translation": "Lykillinn {key} afblindaður; dagbókin skráði hver og hvenær."
+    },
+    {
+      "table": "ui",
+      "key": "Unblinding shows every field's file name and folder again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source": "Unblinding shows every field's file name and folder again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source_sha256": "a1a435f1421170e12eca88e3675d4c8c4d52194a84d1343a07268a7911a9879e",
+      "translation": "Afblindun sýnir aftur skráarnafn og möppu hvers sjónsviðs, og keyrsludagbókin skráir hver afblindaði og hvenær. Greiningarlæsing á þessari möppu meðhöndlar hverja síðari breytingu sem eftiráákvörðun. Afblinda núna?"
+    },
+    {
+      "table": "ui",
+      "key": "Unblinding shows where every crop is from again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source": "Unblinding shows where every crop is from again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?",
+      "source_sha256": "a6a804c2b19b9c59f4d4a29565bde1a68f283c386c25caf51d64b9e2fad6ccc1",
+      "translation": "Afblindun sýnir aftur hvaðan hver úrklippa kemur, og keyrsludagbókin skráir hver afblindaði og hvenær. Greiningarlæsing á þessari möppu meðhöndlar hverja síðari breytingu sem eftiráákvörðun. Afblinda núna?"
+    },
+    {
+      "table": "ui",
+      "key": "Used only when mask_parallel is on. {count} GPUs found.",
+      "source": "Used only when mask_parallel is on. {count} GPUs found.",
+      "source_sha256": "d1a41589e776d5a72d3607bee932331ef6a3603dee585e109f6bdc5516a089f7",
+      "translation": "Aðeins notað þegar mask_parallel er virkt. {count} GPUs fundust."
+    },
+    {
+      "table": "ui",
+      "key": "Watching: {done} analysed, {waiting} waiting, {failed} failed",
+      "source": "Watching: {done} analysed, {waiting} waiting, {failed} failed",
+      "source_sha256": "aed1e826e0bb6b95f9dac9681f739695f60396be51031f83a9126a843bfa198b",
+      "translation": "Vaktar: {done} greind, {waiting} bíða, {failed} mistókust"
+    },
+    {
+      "table": "ui",
+      "key": "What the accepted object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip adds nothing if it touches an existing object. Replace lets it take every pixel it covers, which is how an object a model split into pieces is made one again. Default Clip.",
+      "source": "What the accepted object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip adds nothing if it touches an existing object. Replace lets it take every pixel it covers, which is how an object a model split into pieces is made one again. Default Clip.",
+      "source_sha256": "1883b188e30f96df78e5b801d55849606f92a7e4e3db859ce721e863d8fe78e1",
+      "translation": "Hvað samþykkti hluturinn gerir þar sem gríman hefur þegar hlut. Clip heldur aðeins ómerktum dílum hans, svo enginn fyrirliggjandi hlutur missir díl. Skip bætir engu við ef hann snertir fyrirliggjandi hlut. Replace leyfir honum að taka hvern díl sem hann þekur, sem er hvernig hlutur sem líkan klauf í búta verður aftur einn. Sjálfgefið Clip."
+    },
+    {
+      "table": "ui",
+      "key": "What you expect to find, and what would count against it.",
+      "source": "What you expect to find, and what would count against it.",
+      "source_sha256": "ee2ce3dad74d7ba2cb892bd6d253b5eb8623857cc035309473f7e522d5001b2b",
+      "translation": "Hvað þú býst við að finna, og hvað myndi mæla gegn því."
+    },
+    {
+      "table": "ui",
+      "key": "While on, a left click on the image marks the object, a right click marks what is not the object and a left drag draws a box round it. micro-SAM runs in an environment of its own; the first click on a field waits while it embeds the field, and later clicks reuse that embedding. If micro-SAM is not installed, turning this on offers to install it. The Live magnifier is turned off while this is on. Default off.",
+      "source": "While on, a left click on the image marks the object, a right click marks what is not the object and a left drag draws a box round it. micro-SAM runs in an environment of its own; the first click on a field waits while it embeds the field, and later clicks reuse that embedding. If micro-SAM is not installed, turning this on offers to install it. The Live magnifier is turned off while this is on. Default off.",
+      "source_sha256": "691080197211efbdfb1e8b9da3eaf0af0d9ccc940f11122d0c234e91a46fe60d",
+      "translation": "Á meðan kveikt er á þessu merkir vinstrismellur á myndinni hlutinn, hægrismellur það sem er ekki hluturinn og vinstri dráttur teiknar ramma utan um hann. micro-SAM keyrir í eigin umhverfi; fyrsti smellur á sjónsviði bíður á meðan það ívefur sjónsviðið, og síðari smellir endurnýta þá ívafningu. Ef micro-SAM er ekki uppsett býðst uppsetning þegar kveikt er á þessu. Slökkt er á lifandi stækkunarglerinu á meðan þetta er virkt. Sjálfgefið slökkt."
+    },
+    {
+      "table": "ui",
+      "key": "Write the ranked hit table, every well's scores and the plate summary as CSV, and one plate heatmap per statistic, into a folder",
+      "source": "Write the ranked hit table, every well's scores and the plate summary as CSV, and one plate heatmap per statistic, into a folder",
+      "source_sha256": "497f627c14bc30e0171d51535ae5125e0d1b248ab5d10906e43b2e2d0284a25d",
+      "translation": "Skrifa raðaða töflu frambjóðenda, skor hvers brunns og samantekt plötunnar sem CSV, og eitt plötuhitakort fyrir hverja tölfræði, í möppu"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM 1.8.14 is MIT (computational-cell-analytics). It builds on Meta's Segment Anything, Apache-2.0. Its light-microscopy model, vit_b_lm ('SAM LM Generalist (ViT-B)', 375 MB), is CC-BY-4.0 on bioimage.io and is downloaded into the backend's own folder the first time a field is prompted. micro-SAM itself is installed without its declared dependencies -- napari, PyQt6, bioimageio.core and trackastra, whose tracking solver pulls in the proprietary gurobipy -- because the prompt path spaCR runs imports none of them.",
+      "source": "micro-SAM 1.8.14 is MIT (computational-cell-analytics). It builds on Meta's Segment Anything, Apache-2.0. Its light-microscopy model, vit_b_lm ('SAM LM Generalist (ViT-B)', 375 MB), is CC-BY-4.0 on bioimage.io and is downloaded into the backend's own folder the first time a field is prompted. micro-SAM itself is installed without its declared dependencies -- napari, PyQt6, bioimageio.core and trackastra, whose tracking solver pulls in the proprietary gurobipy -- because the prompt path spaCR runs imports none of them.",
+      "source_sha256": "39944710d7eff853f590d45c58658ad48e02bfc7f85ecd4cb1c6c04f08aaecf8",
+      "translation": "micro-SAM 1.8.14 er MIT (computational-cell-analytics). Það byggir á Segment Anything frá Meta, Apache-2.0. Ljóssmásjárlíkan þess, vit_b_lm ('SAM LM Generalist (ViT-B)', 375 MB), er CC-BY-4.0 á bioimage.io og er sótt í eigin möppu bakendans í fyrsta sinn sem ábending er gefin á sjónsvið. micro-SAM sjálft er sett upp án yfirlýstra kerfisháða sinna -- napari, PyQt6, bioimageio.core og trackastra, en rakningarleysir þess dregur inn séreignarhugbúnaðinn gurobipy -- því ábendingarleiðin sem spaCR keyrir flytur ekkert þeirra inn."
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM added object {ids} — Ctrl+Z to undo",
+      "source": "micro-SAM added object {ids} — Ctrl+Z to undo",
+      "source_sha256": "10d0a82b49f4e091163dac6aa665248bfacbc2a6d6f2e979cccd8fa796a41982",
+      "translation": "micro-SAM bætti við hlut {ids} — Ctrl+Z til að afturkalla"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt then took {prompt:.2f} s.",
+      "source": "micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt then took {prompt:.2f} s.",
+      "source_sha256": "51f02b2e16c3025a82df4e49538695b81ea16e52520fe27c5d081d757d0578ca",
+      "translation": "micro-SAM ívafði þetta sjónsvið á {embed:.1f} s á {device}; ábendingin tók síðan {prompt:.2f} s."
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM is embedding this field; the first prompt on a field waits for it…",
+      "source": "micro-SAM is embedding this field; the first prompt on a field waits for it…",
+      "source_sha256": "bd9e4c5bdd02ec3802f22f1e53a52135b85bbfedbbe19d318bf512561f558763",
+      "translation": "micro-SAM er að ívefja þetta sjónsvið; fyrsta ábendingin á sjónsviði bíður eftir því…"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM is starting in its own environment…",
+      "source": "micro-SAM is starting in its own environment…",
+      "source_sha256": "a2ce231b1c5aaab8bb9f4041bdaf4a6d3018bdb892db2d895d07010446d6ff30",
+      "translation": "micro-SAM er að ræsa í eigin umhverfi…"
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM outlined nothing; add a point or draw a box.",
+      "source": "micro-SAM outlined nothing; add a point or draw a box.",
+      "source_sha256": "697f2c847129b4125e32967dad14a8bf76c525d2a74563a0acfe19dcc0721636",
+      "translation": "micro-SAM afmarkaði ekkert; bættu við punkti eða teiknaðu ramma."
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, Backspace takes the last prompt back, Escape discards it.",
+      "source": "micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, Backspace takes the last prompt back, Escape discards it.",
+      "source_sha256": "d0061366b2d7f71eae5c4b27c1f8ea622b06e864a74e32ae388f93ce18c6427d",
+      "translation": "micro-SAM afmarkaði {pixels} px á {seconds:.2f} s. Enter bætir því við, Backspace tekur síðustu ábendingu til baka, Escape hendir því."
+    },
+    {
+      "table": "ui",
+      "key": "micro-SAM, Segment Anything fine-tuned for microscopy, for prompt-based segmentation in Make Masks: click points on one object, or drag a box round it, and it returns that object's mask. Each field is embedded once and every later click on it is answered from the cached embedding.",
+      "source": "micro-SAM, Segment Anything fine-tuned for microscopy, for prompt-based segmentation in Make Masks: click points on one object, or drag a box round it, and it returns that object's mask. Each field is embedded once and every later click on it is answered from the cached embedding.",
+      "source_sha256": "7d4bec14dc55fa002b4716d0c19b12a24b1b167453b1e9f00e53f5ad133c29e3",
+      "translation": "micro-SAM, Segment Anything fínstillt fyrir smásjárgreiningu, fyrir bútun eftir ábendingu í Make Masks: smelltu punktum á einn hlut, eða dragðu ramma utan um hann, og það skilar grímu þess hlutar. Hvert sjónsvið er ívafið einu sinni og hverjum síðari smelli á það er svarað úr ívafningunni í skyndiminni."
+    },
+    {
+      "table": "ui",
+      "key": "{done}/{total} {role} batches done, {failed} failed",
+      "source": "{done}/{total} {role} batches done, {failed} failed",
+      "source_sha256": "148067c5f3f5e2e1179ec7042ebe39b910444e0c11283b8ab59ea8f63bdf19f0",
+      "translation": "{done}/{total} {role}-lotum lokið, {failed} mistókust"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is a backend, not a checkpoint file. Install it here, then choose one of its models listed with it and press Use this model, which writes {prefix}<model> into the object's model setting.",
+      "source": "{name} is a backend, not a checkpoint file. Install it here, then choose one of its models listed with it and press Use this model, which writes {prefix}<model> into the object's model setting.",
+      "source_sha256": "ffb9088a78d4f4e3e527a7777d16d9397aa252ba65c83181cbd1487cdaa81dfa",
+      "translation": "{name} er bakendi, ekki vistunarpunktsskrá. Settu hann upp hér, veldu síðan eitt af líkönum hans sem talin eru upp með honum og ýttu á Nota þetta líkan, sem skrifar {prefix}<model> í líkansstillingu hlutarins."
+    },
+    {
+      "table": "ui",
+      "key": "{n} object(s) imported from {path}; save to keep them",
+      "source": "{n} object(s) imported from {path}; save to keep them",
+      "source_sha256": "5c202f013b0a4fd82ae8f828b81b1e27e3244e2bc7a18cf14dc1248003fa71cb",
+      "translation": "{n} hlutur/hlutir fluttir inn úr {path}; vistaðu til að halda þeim"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Database Browser: Messwerte filtern und exportieren",
+  "description": "Öffnen Sie eine Messdatenbank, wählen Sie Spalten und Zeilen und exportieren Sie das Ergebnis.",
+  "objectives": [
+    "Eine Messtabelle öffnen und durchsuchen.",
+    "Spalten auswählen und Zeilen filtern.",
+    "Die passenden Datensätze exportieren."
+  ],
+  "prerequisite": "Halten Sie eine spaCR-Datei measurements.db oder einen Laufordner bereit, der eine enthält. Das Beispielprojekt von Measure liefert nach der Messung eine Datenbank.",
+  "scenes": [
+    "Öffnen Sie Help und dann Database Browser, um Messtabellen zu prüfen und zu exportieren.",
+    "Wählen Sie measurements.db oder den Laufordner, der sie enthält, und öffnen Sie die Datenbank.",
+    "Wählen Sie die benötigte Tabelle. Wählen Sie cell für Zellmesswerte oder eine andere Objekttabelle für die Merkmale dieses Objekts.",
+    "Lesen Sie die Gesamtzahl der Zeilen und Spalten und prüfen Sie dann die angezeigte Seite. Blättern Sie mit den Seitensteuerelementen durch größere Tabellen.",
+    "Durchsuchen Sie die Spaltennamen, um ein Merkmal zu finden. Wählen Sie die Spalten, die Sie anzeigen und exportieren möchten.",
+    "Erstellen Sie einen Filter, indem Sie eine Spalte, einen Operator und einen Wert wählen. Wenden Sie ihn an, um passende Datensätze in der gesamten Tabelle auszuwählen.",
+    "Prüfen Sie die Zahl der gefilterten Zeilen und die passenden Datensätze. Passen Sie den Filter an oder löschen Sie ihn, um Ihre Auswahl zu ändern.",
+    "Wählen Sie Export und eine Zieldatei. Der Export enthält alle passenden Zeilen und Ihre ausgewählten Spalten; die Quelldatenbank bleibt unverändert."
+  ]
+}

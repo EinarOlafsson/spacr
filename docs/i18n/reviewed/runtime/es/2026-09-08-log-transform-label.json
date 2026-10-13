@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "log_data",
+      "source_sha256": "c832f93fb21fcfd6a50bc6aaf356a00b0782803ce5c5a09d07ed39056fee044d",
+      "source": "Log-transform features",
+      "translation": "Transformación logarítmica de las características"
+    }
+  ]
+}

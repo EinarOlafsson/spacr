@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Database Browser：測定値を絞り込んで書き出す",
+  "description": "測定データベースを開き、列と行を選んで、結果を書き出します。",
+  "objectives": [
+    "測定値の表を開いて閲覧する。",
+    "列を選び、行を絞り込む。",
+    "条件に合う記録を書き出す。"
+  ],
+  "prerequisite": "spaCRのmeasurements.dbファイル、またはそれを含む実行フォルダーを用意します。Measureの例のプロジェクトでは、測定後にデータベースができます。",
+  "scenes": [
+    "測定値の表を確認して書き出すには、Helpを開き、続いてDatabase Browserを開きます。",
+    "measurements.db、またはそれを含む実行フォルダーを選び、データベースを開きます。",
+    "必要な表を選びます。細胞の測定値にはcellを、ほかの物体の特徴量にはその物体の表を選びます。",
+    "行と列の総数を読み、表示されたページを確認します。大きな表では、ページの操作で移動します。",
+    "列名を検索して、特徴量を探します。表示して書き出したい列を選びます。",
+    "列、演算子、値を選んでフィルターを作ります。適用すると、表全体から条件に合う記録が選ばれます。",
+    "絞り込んだ行数を確認し、条件に合う記録を確認します。選択を変えるには、フィルターを調整するか消します。",
+    "Exportと出力先のファイルを選びます。書き出しには、条件に合うすべての行と選んだ列が含まれ、元のデータベースは変更されません。"
+  ]
+}

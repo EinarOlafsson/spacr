@@ -1,0 +1,51 @@
+{
+  "language": "zh-CN",
+  "lesson": "80_image_analysis_pathways",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
+  "title": "图像分析模块及其关系",
+  "section": "工作流程",
+  "description": "沿着当前从图像到测量的流程，选择探索、标注、比较或生物体特定分析。",
+  "objectives": [
+    "根据已有数据选择起始模块。",
+    "明确每个模块读取和写入的内容。",
+    "下一步请参阅链接的模块教程和 API 输入输出约定。"
+  ],
+  "prerequisite": "安装 spaCR 并打开 Home。选择工作流程的起始数据，然后按照链接的模块课程了解控件和示例数据。",
+  "scenes": [
+    "从研究问题和已有数据开始。当前 Home 的各行区分 Core analysis、Data preparation and comparison、Tools，以及 Toxoplasma 的 Organism 页面。每个模块代表一个步骤；它的输出会成为另一个模块的输入。",
+    "Import 整理传入的显微图像文件和元数据。如果采集结果包含重叠的图块，Align & Stitch 可以准备拼接图及其坐标记录。请将通道标识和源元数据与项目一起保留。",
+    "Mask 从显微图像生成对象标签。Make Masks 可用于手动创建或检查掩膜。图像与掩膜配对必须保留相同的视野标识；单独的掩膜文件并不会自动成为 Measure 所需的项目合并数组。",
+    "Measure 同时读取准备好的图像和掩膜平面。它会写入含对象标识和特征列的 measurements.db，还可以保存对象裁剪图。请将源项目和通道映射与这些表一起保留。",
+    "Annotate 显示对象裁剪图，以便添加经过检查的标签。Classify 使用裁剪图像或测量特征，基于所选标签列训练模型。请将评估对象与训练对象分开，并把评分列和对象标识传递到后续分析中。",
+    "Embeddings 将裁剪图编码为数值特征。Image UMAP 对兼容特征进行投影，供探索使用。为聚类赋予含义之前，请检查有代表性的裁剪图；单凭聚类本身不能认定为经过验证的表型。",
+    "Gate Editor 使用实际特征列或兼容的投影坐标选择对象。写入标签之前，请检查所选对象。这些标签可以成为 Annotate 或 Classify 的已审核示例。",
+    "QC 报告现有的质量检查和缺失的证据。Run Compare 并排检查保存的运行结果。Graph Builder 使用您选择的列和分组，对测量表绘图。",
+    "Experiment Design 规划条件和样本标识。Power / Design 探索统计规划的假设。Dose-Response 分析不同浓度下的终点指标。请明确测量终点、对照和实验单位。",
+    "Toxoplasma 页面汇集该生物体特定的实验分析。各分析的输入不同：斑块图像、细胞区室测量，或明确的寄生虫与液泡关联不能互相替代。请选择相应的分析，并遵循其输入要求。",
+    "对于混池筛选，Map Barcodes 从测序读段生成向导序列计数。Regression 将这些计数与兼容的表型评分结合。合并两条流程时，请保留板、孔和向导序列的标识。",
+    "返回 Home，根据实际已有的输出选择下一步。使用链接的模块教程完成一次完整运行。请将输入标识、设置、安装版本和输出位置一起保留，以便之后检查整个流程。"
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "aa5d46a13beaba8019e790abed7a02cb600c9efc5c8b5c5c98b7abe3b146ebac",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
+}

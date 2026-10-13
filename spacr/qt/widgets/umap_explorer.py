@@ -1,0 +1,1190 @@
+"""Interactive Image UMAP viewer with click, lasso, and DB annotation.
+
+The lasso also shows where the selected cells are on the plate: the explorer
+joins the shared selection through
+:class:`spacr.qt.linked_selection.LinkedView`: a lasso publishes the objects it
+caught, and a selection made anywhere else lights up the same points here.
+
+The two directions are deliberately asymmetric, because a filter and a
+selection are not the same thing:
+
+* an incoming **selection** draws a ring around the matching points and
+  changes nothing else. It never removes a point, and it never becomes the
+  local lasso — "Label lasso selection" keeps meaning *the lasso drawn here*,
+  or a highlight arriving from the database browser could write annotations
+  the user never drew.
+* an incoming **filter** dims the points it excludes. Removing them would
+  redraw the embedding around the remaining points, so the axes would move each
+  time a filter changed.
+"""
+from __future__ import annotations
+
+import logging
+from typing import Dict, List, Optional, Sequence
+
+import numpy as np
+import pandas as pd
+from PIL import Image
+from PIL.ImageQt import ImageQt
+
+from PySide6.QtCore import QSize, Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import (
+    QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QVBoxLayout,
+    QWidget,
+)
+
+from .eliding import ElidingPushButton
+from ... import schema
+from ...selection import (OBJECT_KEY_COLUMNS, DataFilter, Selection,
+                          match_keys, object_keys)
+from ...umap_annotations import write_umap_annotations
+from ..hidpi import follow_device_ratio, scaled_for
+from ..linked_selection import LinkedView
+
+LOG = logging.getLogger("spacr.qt.umap_explorer")
+
+#: How much of its opacity a point keeps when the shared filter excludes it.
+#: Low enough to read as "not in the population", high enough that the shape
+#: of what was filtered out is still visible — which is most of the point of
+#: dimming rather than hiding.
+DIMMED_ALPHA = 0.12
+
+
+def _usable(value) -> bool:
+    """Whether ``value`` is a real identity token rather than a gap.
+
+    ``None``, ``NaN`` (which is what a missing sqlite value becomes once it
+    has been through pandas) and blank strings are all "this record does not
+    say", and each of them turns into the literal key ``'nan'`` if it reaches
+    :func:`~spacr.selection.object_keys`.
+    """
+    try:
+        if pd.isna(value):
+            return False
+    except (TypeError, ValueError):
+        return False
+    return str(value).strip() != ""
+
+
+def _record_identity(record: Dict) -> Optional[Dict[str, str]]:
+    """The object key columns for one UMAP record, or ``None``.
+
+    Two sources, in order of trust:
+
+    1. the key columns spelled out on the record;
+    2. its ``prcfo``, which :func:`spacr.core.generate_image_umap` copies
+       from the measurement row.
+
+    ``prcfo`` is *not* an object key: it spells the object as ``'o7'`` where
+    every object table stores ``object_label`` bare. Parsing it and rebuilding
+    the columns is what keeps a lasso here naming the same rows as a
+    selection made in the database browser.
+    """
+    known = {c: record.get(c) for c in OBJECT_KEY_COLUMNS}
+    if all(_usable(v) for v in known.values()):
+        return {c: str(v) for c, v in known.items()}
+    text = record.get(schema.PRCFO_KEY)
+    if not _usable(text):
+        return None
+    try:
+        obj = schema.parse_prcfo(text)
+    except Exception:
+        return None
+    return {
+        schema.PLATE_KEY: obj.plateID,
+        schema.ROW_KEY: obj.rowID,
+        schema.COLUMN_KEY: obj.columnID,
+        schema.FIELD_KEY: obj.fieldID,
+        schema.OBJECT_LABEL_KEY: schema.strip_prefix(
+            obj.objectID, schema.OBJECT_PREFIX),
+    }
+
+
+class _AnnotationWorker(QThread):
+    """Commit a selection without blocking the Qt event loop on SQLite."""
+
+    finished_result = Signal(int, int, str)
+
+    def __init__(self, records, values, column, parent=None):
+        """Write one batch of UMAP annotations off the GUI thread.
+
+        :param records: the objects to annotate.
+        :param values: the label for each, positionally.
+        :param column: the annotation column written to.
+        :param parent: parent object.
+
+        Both sequences are COPIED. They come from a selection the user can
+        change while the write runs, and a worker reading the live list
+        would annotate whatever was selected when it got there rather than
+        what was selected when they asked.
+        """
+        super().__init__(parent)
+        self._records = list(records)
+        self._values = list(values)
+        self._column = column
+
+    def run(self):
+        """Write the UMAP annotations back and report what landed.
+
+        A failure emits zero written and every record skipped, with the reason,
+        rather than raising: this runs on a worker thread, and a partial write
+        the caller cannot see is worse than one it can.
+        """
+        try:
+            updated, skipped = write_umap_annotations(
+                self._records, self._values, self._column)
+            self.finished_result.emit(updated, skipped, "")
+        except Exception as exc:
+            LOG.info("UMAP annotation write failed", exc_info=True)
+            self.finished_result.emit(0, len(self._records), str(exc))
+
+
+#: The explorer names a display setting after the artist it sets; the run
+#: names it after the settings file it is written to. ``generate_image_umap``
+#: maps settings -> display when it builds the payload, and this maps back,
+#: so a value tuned in the display window lands on the key the settings panel
+#: and the settings CSV actually use. Keys not listed here are already the
+#: same on both sides.
+SETTINGS_KEY_FOR_DISPLAY = {
+    "point_size": "dot_size",
+    "canvas_width": "umap_canvas_width",
+    "sidebar_width": "umap_sidebar_width",
+}
+
+
+def as_settings_keys(values: Dict) -> Dict:
+    """Map Image UMAP display keys to their persisted setting names.
+
+    :param values: display values keyed by display name; keys in
+        :data:`SETTINGS_KEY_FOR_DISPLAY` are renamed and the rest kept as they
+        are. ``None`` gives an empty dict.
+    """
+    return {SETTINGS_KEY_FOR_DISPLAY.get(key, key): value
+            for key, value in (values or {}).items()}
+
+
+class UmapDisplaySettings(QDialog):
+    """One window holding every Image UMAP display setting.
+
+    Some apply to the figure on screen and some cannot, and the window says
+    which.
+
+    The ones that cannot are not disabled -- they are editable, saved, and take
+    effect on the next run.
+
+    :param values: the settings to open on. Every key in :data:`FIELDS` is
+        looked up here; one that is absent falls back to its control's own
+        default rather than raising, so a settings file written before a
+        field existed still opens.
+    :param parent: parent widget.
+    """
+
+    #: ``key -> (label, kind, low, high, live)``. ``live`` decides which
+    #: half of the form the row lands in, and nothing else.
+    FIELDS = (
+        ("point_size",     "Dot size",        "int",   1, 400,  True),
+        ("point_alpha",    "Dot opacity",     "float", 0.0, 1.0, True),
+        ("outline_width",  "Outline width",   "float", 0.0, 10.0, True),
+        ("point_color",    "Dot colour",      "text",  0, 0,    True),
+        ("canvas_width",   "Canvas width",    "int",   200, 4000, True),
+        ("sidebar_width",  "Sidebar width",   "int",   120, 2000, True),
+        ("figuresize",     "Figure size",     "float", 1.0, 60.0, False),
+        ("image_nr",       "Images shown",    "int",   0, 100000, False),
+        ("img_zoom",       "Image zoom",      "float", 0.001, 5.0, False),
+    )
+
+    def __init__(self, values: Dict, parent=None):
+        """Build the display-settings dialog.
+
+        :param values: the settings to start from.
+        :param parent: parent widget.
+        """
+        super().__init__(parent)
+        self.setWindowTitle("Image UMAP display settings")
+        self._editors: Dict[str, QWidget] = {}
+
+        outer = QVBoxLayout(self)
+        live_form = QFormLayout()
+        later_form = QFormLayout()
+
+        for key, label, kind, low, high, live in self.FIELDS:
+            editor = self._editor(kind, low, high, values.get(key))
+            self._editors[key] = editor
+            (live_form if live else later_form).addRow(label, editor)
+
+        outer.addWidget(QLabel("<b>Applies now</b>"))
+        outer.addLayout(live_form)
+        note = QLabel("<b>Applies on the next run</b><br>"
+                      "<span style='color:gray;'>These decide what gets "
+                      "drawn, so they need the run that draws it.</span>")
+        note.setWordWrap(True)
+        outer.addWidget(note)
+        outer.addLayout(later_form)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok
+                                   | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        outer.addWidget(buttons)
+
+    @staticmethod
+    def _editor(kind: str, low, high, value):
+        """One editor of the right kind for a setting.
+
+        :param kind: which control the setting wants.
+        :param low: its smallest value.
+        :param high: its largest.
+        :param value: where it starts.
+        :returns: the editor widget.
+        """
+        if kind == "int":
+            box = QSpinBox()
+            box.setRange(int(low), int(high))
+            if value is not None:
+                box.setValue(int(float(value)))
+            return box
+        if kind == "float":
+            box = QDoubleSpinBox()
+            box.setDecimals(3)
+            box.setRange(float(low), float(high))
+            if value is not None:
+                box.setValue(float(value))
+            return box
+        edit = QLineEdit()
+        if value is not None:
+            edit.setText(str(value))
+        return edit
+
+    def values(self) -> Dict:
+        """What the user set, keyed as the settings dict keys."""
+        out: Dict = {}
+        for key, editor in self._editors.items():
+            if isinstance(editor, QLineEdit):
+                out[key] = editor.text().strip()
+            else:
+                out[key] = editor.value()
+        return out
+
+    def live_values(self) -> Dict:
+        """Only the values that can be applied to the figure already on
+        screen."""
+        live = {key for key, _l, _k, _lo, _hi, is_live in self.FIELDS
+                if is_live}
+        return {k: v for k, v in self.values().items() if k in live}
+
+
+class _ScaledPreview(QLabel):
+    """The clicked point's crop, shown WHOLE at whatever width it is given.
+
+    A plain ``QLabel`` clips a pixmap wider than itself and says nothing about
+    it, so a crop opened to be inspected loses its edges -- and an object
+    whose interesting part is off-centre can be missing from its own preview.
+    It also cannot be made narrower than the picture, which pins the sidebar
+    at a floor the chart/sidebar divider then has no room to move against.
+
+    Scaling on every resize costs one smooth transform per drag frame and
+    keeps both properties: the whole crop is visible, and the sidebar can
+    yield width to the chart.
+    """
+
+    #: Below this the crop is too small to read, so it is where the sidebar
+    #: stops giving width away.
+    #:
+    #: 120 WAS TOO HIGH, and the reason given for it no longer holds. It
+    #: was set where the controls beneath the crop began to elide -- but
+    #: eliding is what those controls are FOR, and holding the sidebar open
+    #: to prevent it cost the thing the sidebar exists inside: measured,
+    #: the chart/sidebar divider moved on a 1400 px window and was frozen
+    #: at 1000 px and below, because the sidebar was already as narrow as
+    #: this constant allowed.
+    #:
+    #: 72 px is still a legible thumbnail -- the crop is scaled, not
+    #: cropped, so it stays whole -- and it lets the divider move at every
+    #: window size the application opens at.
+    MINIMUM_SIDE = 72
+
+    #: What the label asks the layout for. Fixed on purpose -- see
+    #: :meth:`sizeHint`.
+    PREFERRED_SIDE = 240
+
+    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+        """Build the preview, and follow the screen it is drawn on.
+
+        :param text: the placeholder shown before a pixmap is set.
+        :param parent: parent widget; ownership only.
+        """
+        super().__init__(text, parent)
+        self._source = QPixmap()
+        self.setMinimumSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
+        follow_device_ratio(self, self._rescale)
+
+    def sizeHint(self):                                # noqa: N802 - Qt name
+        """A constant, NOT the pixmap's size.
+
+        ``QLabel`` reports the pixmap it is showing as its preferred size.
+        With a pixmap rescaled to whatever the label was given, that is a
+        loop: the layout offers the hint, the label rescales to it, and the
+        next hint is smaller again -- so the preview walks itself down to
+        nothing over a few resizes.
+        """
+        return QSize(self.PREFERRED_SIDE, self.PREFERRED_SIDE)
+
+    def minimumSizeHint(self):                         # noqa: N802 - Qt name
+        """The floor, for the same reason :meth:`sizeHint` is a constant."""
+        return QSize(self.MINIMUM_SIDE, self.MINIMUM_SIDE)
+
+    def setPixmap(self, pixmap: QPixmap) -> None:      # noqa: N802 - Qt name
+        """Remember the full-size crop and show it scaled to fit."""
+        self._source = QPixmap(pixmap)
+        self._rescale()
+
+    def source_pixmap(self) -> QPixmap:
+        """The crop as handed over, before it was scaled to the label."""
+        return self._source
+
+    def _rescale(self) -> None:
+        """Redraw the pixmap for the current size, or pass it through.
+
+        An unsized widget gets the source untouched rather than scaled to
+        nothing, which is what a first paint before layout would otherwise do.
+        """
+        if self._source.isNull() or not self.width() or not self.height():
+            super().setPixmap(self._source)
+            return
+        super().setPixmap(scaled_for(self._source, self, self.size()))
+
+    def resizeEvent(self, event):                      # noqa: N802 - Qt name
+        """Rescale the preview to the new size.
+
+        :param event: the resize event.
+        """
+        super().resizeEvent(event)
+        self._rescale()
+
+
+class ImageUmapExplorer(LinkedView, QWidget):
+    """Zoomable embedding: click a point, lasso a group, write labels.
+
+    Linked to the shared selection as ``"umap"``. See the module docstring
+    for why an incoming selection highlights and an incoming filter dims.
+
+    :param parent: parent widget.
+    """
+
+    annotation_finished = Signal(int, int)
+
+    #: Where the sidebar's collapse is remembered (item 471).
+    SECTION_KEY = "image_umap"
+
+    def __init__(self, parent=None):
+        """Build the explorer: the embedding, the gallery and the writers.
+
+        :param parent: parent widget.
+        """
+        super().__init__(parent)
+        self._embedding = np.empty((0, 2), dtype=float)
+        self._labels = np.empty(0, dtype=int)
+        self._records: List[Dict] = []
+        self._selected = np.empty(0, dtype=int)
+        self._picked: Optional[int] = None
+        self._worker: Optional[_AnnotationWorker] = None
+        #: One frame row per point, carrying whatever identity the payload
+        #: could give it — the object key columns, plus any extra columns a
+        #: caller attached so the shared filter has something to filter on.
+        #: ``None`` when the payload named no objects at all.
+        self._point_frame: Optional[pd.DataFrame] = None
+        #: The object key of each point, aligned to ``_embedding``.
+        self._point_keys: Optional[pd.Index] = None
+        #: False for points the shared filter excludes. All-True when there
+        #: is no filter, or when this payload cannot honour the one there is.
+        self._point_visible = np.ones(0, dtype=bool)
+        #: Points named by a selection published elsewhere.
+        self._linked_points = np.empty(0, dtype=int)
+        #: Set when this payload cannot answer the active filter, so the
+        #: status line can say so rather than silently drawing everything.
+        self._filter_note = ""
+        self._display = {
+            "point_size": 26,
+            "point_color": "cluster",
+            "point_alpha": 0.65,
+            "outline_width": 1.0,
+            "canvas_width": 900,
+            "sidebar_width": 280,
+        }
+        self._build_ui()
+        self.link_selection("umap")
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+    def _build_ui(self):
+        """Lay out the embedding beside the crop gallery."""
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_qtagg import (
+            FigureCanvasQTAgg, NavigationToolbar2QT)
+
+        class _OwnedTimerFigureCanvas(FigureCanvasQTAgg):
+            """Figure canvas whose deferred draw cannot outlive the widget.
+
+            Matplotlib's Qt canvas uses static ``QTimer.singleShot`` calls.
+            Those callbacks are not owned by the canvas and can consequently
+            run after Qt has deleted it. An owned timer is destroyed together
+            with the canvas, so lasso/display updates cannot draw a dangling
+            C++ object.
+            """
+
+            def __init__(self, figure):
+                """Wrap a figure in a canvas that owns its own redraw timer.
+
+                :param figure: the Matplotlib ``Figure`` to draw. The timer
+                    is a child of this canvas, so a queued redraw cannot
+                    outlive the object it would draw on -- which is what
+                    the paragraph above means by owned.
+                """
+                super().__init__(figure)
+                self._spacr_draw_timer = QTimer(self)
+                self._spacr_draw_timer.setSingleShot(True)
+                self._spacr_draw_timer.timeout.connect(self._spacr_draw)
+
+            def draw_idle(self):
+                """Queue a redraw on the canvas's own timer."""
+                self._draw_pending = True
+                if not self._spacr_draw_timer.isActive():
+                    self._spacr_draw_timer.start(0)
+
+            def _spacr_draw(self):
+                """Draw once, if a draw is still pending.
+
+                The pending flag is cleared first, so a draw that itself
+                schedules another does not lose it.
+                """
+                if not self._draw_pending:
+                    return
+                self._draw_pending = False
+                try:
+                    self.draw()
+                except RuntimeError:
+                    return
+
+            def cancel_pending_draw(self):
+                """Drop any queued redraw."""
+                self._spacr_draw_timer.stop()
+                self._draw_pending = False
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(6)
+
+        from ..theme import active_palette
+
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        self._body_splitter = CollapsibleSplitter(Qt.Horizontal, self)
+        self._body_splitter.setObjectName("UmapBodySplit")
+        surface = active_palette()["surface"]
+        self._figure = Figure(figsize=(8, 6), facecolor=surface)
+        self._canvas = _OwnedTimerFigureCanvas(self._figure)
+        from ..gui_scale import follow_canvas
+        follow_canvas(self._canvas)
+        from .figure_settings import _attach_figure_menu
+        _attach_figure_menu(self._canvas)
+        self._canvas.setStyleSheet(f"background: {surface};")
+        from ..gui_scale import mend_matplotlib_icons
+        mend_matplotlib_icons()
+        self._toolbar = NavigationToolbar2QT(self._canvas, self)
+        chart = QVBoxLayout()
+        tools = QHBoxLayout()
+        tools.setContentsMargins(0, 0, 0, 0)
+        tools.addWidget(self._toolbar, 1)
+        from .preview_scale import install_preview_scale, scale_figure_canvas
+        self._scale_control = install_preview_scale(
+            self, "image_umap", tools, prefer_card=False)
+        self._scale_control.scaler.add_hook(
+            lambda scale: scale_figure_canvas(self._canvas, scale))
+        chart.addLayout(tools)
+        chart.addWidget(self._canvas, 1)
+        chart_wrap = QWidget(self)
+        chart_wrap.setLayout(chart)
+        chart_wrap.setStyleSheet(f"background: {surface};")
+        self._body_splitter.add_pane(chart_wrap, "Chart", stretch=1)
+
+        side = QVBoxLayout()
+        self._preview = _ScaledPreview("Click a point to preview its image.",
+                                       self)
+        self._preview.setAlignment(Qt.AlignCenter)
+        self._preview.setStyleSheet("border: 1px solid palette(mid);")
+        side.addWidget(self._preview)
+        self._point_label = QLabel("", self)
+        self._point_label.setWordWrap(True)
+        side.addWidget(self._point_label)
+
+        form = QFormLayout()
+        self._cluster_box = QComboBox(self)
+        self._cluster_box.currentIndexChanged.connect(self._select_cluster)
+        form.addRow("Select cluster", self._cluster_box)
+        self._column = QLineEdit("umap_annotation", self)
+        self._column.setToolTip(
+            "Column created/updated on png_list when labels are applied.")
+        form.addRow("DB column", self._column)
+        self._value = QSpinBox(self)
+        self._value.setRange(-1_000_000, 1_000_000)
+        self._value.setValue(1)
+        form.addRow("Manual label", self._value)
+        side.addLayout(form)
+
+        self._apply_selected = ElidingPushButton("Label lasso selection", self)
+        self._apply_selected.setObjectName("PrimaryButton")
+        self._apply_selected.clicked.connect(self._write_selected)
+        side.addWidget(self._apply_selected)
+        self._apply_clusters = ElidingPushButton(
+            "Propagate automatic clusters", self)
+        self._apply_clusters.setToolTip(
+            "Write the current DBSCAN/KMeans cluster number for every point.")
+        self._apply_clusters.clicked.connect(self._write_clusters)
+        side.addWidget(self._apply_clusters)
+        self._display_btn = QPushButton("Display settings…", self)
+        self._display_btn.setToolTip(
+            "Dot size, colour and opacity apply to this figure straight "
+            "away. Figure size, image count and image zoom are saved and "
+            "take effect on the next run.")
+        self._display_btn.clicked.connect(self.open_display_settings)
+        side.addWidget(self._display_btn)
+
+        self._status = QLabel("Waiting for an embedding.", self)
+        self._status.setWordWrap(True)
+        side.addWidget(self._status)
+        side.addStretch(1)
+        side_wrap = QWidget(self)
+        side_wrap.setLayout(side)
+        side_wrap.setStyleSheet(f"background: {surface};")
+        self._body_splitter.add_pane(
+            side_wrap, "Sidebar", mode=EDGE, stretch=0,
+            fold_key=f"{self.SECTION_KEY}/Sidebar",
+            hint=("Drag to trade width between the chart and the sidebar. "
+                  "The plot redraws at the new size; "
+                  "the points do not move."))
+        try:
+            border = active_palette()["border_soft"]
+            accent = active_palette()["accent"]
+        except Exception:                                    # noqa: BLE001
+            border, accent = "#3A3A3A", "#4A9EFF"
+        self._body_splitter.setStyleSheet(f"""
+QSplitter#UmapBodySplit::handle:horizontal {{
+    background: transparent;
+    border-left: 1px solid {border};
+}}
+QSplitter#UmapBodySplit::handle:horizontal:hover {{
+    background: transparent;
+    border-left: 1px solid {accent};
+}}
+""")
+        root.addWidget(self._body_splitter, 1)
+
+        self._axes = self._figure.add_subplot(111)
+        self._axes.set_facecolor(surface)
+        self._scatter = None
+        self._selection_artist = None
+        self._picked_artist = None
+        self._linked_artist = None
+        self._lasso = None
+        self._canvas.mpl_connect("button_press_event", self._on_click)
+        self._canvas.mpl_connect("scroll_event", self._on_scroll)
+        self._apply_body_widths()
+
+    def _apply_body_widths(self) -> None:
+        """Give the chart and the sidebar the widths the display settings ask.
+
+        The sidebar collapses to the right by its handle (item 471); while
+        the user has it collapsed, the width is kept for when it opens
+        rather than forced on screen, which would open it behind the
+        collapse the user chose.
+        """
+        chart = int(self._display["canvas_width"])
+        sidebar = int(self._display["sidebar_width"])
+        pane = self._body_splitter.pane("Sidebar")
+        if pane is not None:
+            pane.extent = sidebar
+            if pane.is_collapsed():
+                self._body_splitter.setSizes([chart + sidebar, 0])
+                return
+        self._body_splitter.setSizes([chart, sidebar])
+
+    #: Which display settings can be applied to the CURRENT figure, and
+    #: which only take effect on the next run.
+    #:
+    #: The split is not a policy, it is a fact about the artists: point
+    #: size, colour and alpha are settable on a `PathCollection` that
+    #: already exists, and the splitter widths are Qt. Everything else --
+    #: `figuresize`, `image_nr`, `img_zoom` -- decides what gets DRAWN, and
+    #: redrawing it from the same embedding is fine, but a setting that
+    #: changes the embedding itself must not be in here at all: a "live
+    #: apply" that re-embeds moves every point and the user loses the
+    #: arrangement they were reading.
+    LIVE_DISPLAY_KEYS = ("point_size", "point_color", "point_alpha",
+                         "outline_width", "canvas_width", "sidebar_width")
+
+    def set_propagate_callback(self, callback) -> None:
+        """Register ``callback(dict)`` to push values into the settings panel.
+
+        Optional: the explorer is usable without one, and a widget built in
+        a test has none.
+
+        :param callback: called with a dict of settings, keyed by their
+            persisted names, after the display settings window is accepted; any
+            exception it raises is logged and ignored.
+        """
+        self._propagate_cb = callback
+
+    def open_display_settings(self) -> None:
+        """Open the display settings window, apply the live settings, and
+        propagate all of them."""
+        values = dict(self._display)
+        getter = getattr(self, "_settings_getter", None)
+        if callable(getter):
+            try:
+                values.update(getter() or {})
+            except Exception:
+                LOG.debug("could not read the current run settings",
+                          exc_info=True)
+
+        dialog = UmapDisplaySettings(values, self)
+        if not dialog.exec():
+            return
+        applied = self.apply_display(dialog.live_values())
+        callback = getattr(self, "_propagate_cb", None)
+        if callable(callback):
+            try:
+                callback(as_settings_keys(dialog.values()))
+            except Exception:
+                LOG.debug("could not propagate the display settings",
+                          exc_info=True)
+        self._status.setText(
+            "Display updated." if applied
+            else "Saved. The changed settings take effect on the next run.")
+
+    def display_settings(self) -> Dict:
+        """The current display values, as plain data."""
+        return dict(self._display)
+
+    def apply_display(self, values: Dict) -> bool:
+        """Apply display settings to the figure that is already on screen.
+
+        :param values: ``{display key: value}``; keys the explorer does not
+            know and ``None`` values are skipped, and ``None`` for the whole
+            mapping changes nothing.
+        :returns: True when something changed and the canvas was redrawn.
+
+        The embedding is never changed. Only the keys in
+        :data:`LIVE_DISPLAY_KEYS` are applied; anything else is stored for the
+        next run and reported by the caller as needing a re-run.
+        """
+        changed = False
+        for key, value in (values or {}).items():
+            if key not in self._display or value is None:
+                continue
+            if self._display[key] == value:
+                continue
+            self._display[key] = value
+            changed = changed or key in self.LIVE_DISPLAY_KEYS
+        if not changed:
+            return False
+        self._apply_body_widths()
+        self._draw_embedding()
+        return True
+
+    def set_payload(self, payload: Dict) -> None:
+        """Load the arrays/records attached by ``generate_image_umap``.
+
+        ``payload['frame']`` is optional: a DataFrame with one row per point,
+        carrying whatever the caller measured. Without it the explorer can
+        still identify its points (from the records' ``prcfo``) and so still
+        publishes and receives selections — but a filter on a measurement
+        column has nothing here to test, and is reported as ignored rather
+        than silently drawing everything as if it had applied.
+
+        :param payload: the dict attached by ``generate_image_umap``:
+            ``embedding`` (shape (N, 2)), ``labels`` and ``records`` of the
+            same length, and optionally ``frame`` (a DataFrame with N rows) and
+            ``display`` (initial display values). A wrong shape or length
+            raises :class:`ValueError`.
+        """
+        embedding = np.asarray(payload.get("embedding", []), dtype=float)
+        if embedding.ndim != 2 or embedding.shape[1:] != (2,):
+            raise ValueError("UMAP payload embedding must have shape (N, 2)")
+        labels = np.asarray(payload.get("labels", []))
+        records = list(payload.get("records", []))
+        if len(labels) != len(embedding) or len(records) != len(embedding):
+            raise ValueError("UMAP payload arrays must have equal lengths")
+        frame = payload.get("frame")
+        if isinstance(frame, pd.DataFrame) and len(frame) != len(embedding):
+            raise ValueError("UMAP payload arrays must have equal lengths")
+        self._embedding = embedding
+        self._labels = labels
+        self._records = records
+        display = payload.get("display")
+        if isinstance(display, dict):
+            for key in self._display:
+                if key in display and display[key] is not None:
+                    self._display[key] = display[key]
+            self._apply_body_widths()
+        self._selected = np.empty(0, dtype=int)
+        self._picked = None
+        self._build_point_identity(frame)
+        self._recompute_visible_points()
+        self._recompute_linked_points()
+        self._draw_embedding()
+
+
+    def _build_point_identity(self, frame: Optional[pd.DataFrame]) -> None:
+        """Work out which measured object each point is, once per payload.
+
+        Derived here rather than per lasso: parsing ninety thousand ``prcfo``
+        strings on every drag would make the lasso the slow part of a screen
+        whose whole job is to feel immediate.
+        """
+        self._point_frame = None
+        self._point_keys = None
+        if not len(self._embedding):
+            return
+        columns = list(OBJECT_KEY_COLUMNS)
+        identity = pd.DataFrame(
+            [_record_identity(r) or {} for r in self._records],
+            columns=columns)
+        if identity.isna().any(axis=None):
+            identity = identity.iloc[:, :0]
+        if isinstance(frame, pd.DataFrame):
+            table = frame.reset_index(drop=True)
+            missing = {c: identity[c] for c in identity.columns
+                       if c not in table.columns}
+            if missing:
+                table = table.assign(**missing)
+        else:
+            table = identity
+        if not len(table.columns):
+            return
+        self._point_frame = table
+        if any(c not in table.columns for c in columns):
+            return
+        if table[columns].isna().any(axis=None):
+            return
+        try:
+            self._point_keys = object_keys(table)
+        except Exception:
+            self._point_keys = None
+
+    def point_keys(self) -> Optional[pd.Index]:
+        """The object key of each point, or ``None`` when unidentifiable."""
+        return self._point_keys
+
+    def _draw_embedding(self) -> None:
+        """Draw every point of the embedding."""
+        from matplotlib.widgets import LassoSelector
+        from ..theme import active_palette
+
+        palette = active_palette()
+        background = palette["surface_alt"]
+        foreground = palette["fg"]
+        self._axes.clear()
+        self._figure.patch.set_facecolor(background)
+        self._axes.set_facecolor(background)
+        requested_color = str(self._display["point_color"]).strip()
+        color_key = requested_color.lower()
+        scatter_kwargs = {}
+        if color_key in {"", "cluster", "viridis"}:
+            scatter_kwargs.update(c=self._labels, cmap="viridis")
+        else:
+            from matplotlib.colors import is_color_like
+            if is_color_like(requested_color):
+                scatter_kwargs["color"] = requested_color
+            else:
+                scatter_kwargs.update(c=self._labels, cmap="viridis")
+        self._scatter = self._axes.scatter(
+            self._embedding[:, 0], self._embedding[:, 1],
+            s=float(self._display["point_size"]),
+            alpha=float(self._display["point_alpha"]),
+            **scatter_kwargs,
+        )
+        self._axes.set_xlabel("UMAP Dimension 1")
+        self._axes.set_ylabel("UMAP Dimension 2")
+        self._axes.set_title("Click a point to preview · drag a lasso to select")
+        self._axes.tick_params(axis="both", colors=foreground)
+        self._axes.xaxis.label.set_color(foreground)
+        self._axes.yaxis.label.set_color(foreground)
+        self._axes.title.set_color(foreground)
+        for spine in self._axes.spines.values():
+            spine.set_color(foreground)
+        self._selection_artist = self._axes.scatter(
+            [], [], s=70, facecolors="none", edgecolors=foreground,
+            linewidths=float(self._display["outline_width"]))
+        self._picked_artist = self._axes.scatter(
+            [], [], s=110, facecolors="none", edgecolors="#ffcc33",
+            linewidths=float(self._display["outline_width"]))
+        self._linked_artist = self._axes.scatter(
+            [], [], s=90, facecolors="none",
+            edgecolors=palette.get("accent", "#4A9EFF"),
+            linewidths=float(self._display["outline_width"]) * 1.6)
+        if self._lasso is not None:
+            self._lasso.disconnect_events()
+        self._lasso = LassoSelector(
+            self._axes, onselect=self._on_lasso,
+            props={
+                "color": foreground,
+                "linewidth": float(self._display["outline_width"]),
+            },
+        )
+        self._cluster_box.blockSignals(True)
+        self._cluster_box.clear()
+        self._cluster_box.addItem("—", None)
+        for label in sorted(np.unique(self._labels), key=lambda value: str(value)):
+            self._cluster_box.addItem(str(label), label)
+        self._cluster_box.blockSignals(False)
+        self._status.setText(self._payload_status())
+        if len(self._selected):
+            self._selection_artist.set_offsets(
+                self._embedding[self._selected])
+        if self._picked is not None:
+            self._picked_artist.set_offsets(
+                self._embedding[self._picked].reshape(1, 2))
+        self._apply_point_alpha()
+        self._draw_linked_points()
+        from ...figures.style import _apply_user_style
+        _apply_user_style(self._figure, "scatter", force=True)
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(
+            self._figure, lambda: {
+                "umap_1": self._embedding[:, 0],
+                "umap_2": self._embedding[:, 1],
+                "cluster": np.asarray(self._labels).astype(str)},
+            x="umap_1", y="umap_2", hue="cluster", kind="scatter")
+        self._canvas.draw_idle()
+
+    def _payload_status(self) -> str:
+        """The resting status line, including how the shared filter landed."""
+        writable = sum(
+            bool(row.get("db_path") and row.get("db_png_path"))
+            for row in self._records)
+        return (f"{len(self._records)} points · {writable} database-backed · "
+                "drag around points to select them." + self._filter_note)
+
+
+    def _recompute_visible_points(self) -> None:
+        """Work out which points the shared filter keeps.
+
+        Degrades to "all of them" when the filter names something this
+        payload does not carry — an embedding drawn with every point missing
+        is a worse answer than a complete one — but records that it did, so
+        the status line can say the filter was ignored rather than let a
+        complete picture read as a filtered one.
+        """
+        count = len(self._embedding)
+        self._point_visible = np.ones(count, dtype=bool)
+        self._filter_note = ""
+        if not count:
+            return
+        try:
+            data_filter = self.link.filter
+        except Exception:
+            return
+        if data_filter.is_empty:
+            return
+        frame = self._point_frame
+        if frame is None:
+            self._filter_note = (
+                f" · filter ignored ({data_filter.describe()}): this "
+                "embedding carries no identities")
+            return
+        try:
+            kept = self.linked_visible(frame).index
+        except Exception as exc:
+            self._filter_note = (
+                f" · filter ignored ({exc.__class__.__name__})")
+            return
+        mask = np.zeros(count, dtype=bool)
+        positions = np.asarray(kept, dtype=np.int64)
+        mask[positions[(positions >= 0) & (positions < count)]] = True
+        self._point_visible = mask
+        self._filter_note = (
+            f" · filtered: {data_filter.describe()} "
+            f"({int(mask.sum())} of {count} points)")
+
+    def _apply_point_alpha(self) -> None:
+        """Repaint opacity so filtered-out points recede without moving.
+
+        A scalar alpha is restored when nothing is filtered because display
+        settings elsewhere read the value back from the artist and expect the
+        original scalar form.
+        """
+        if self._scatter is None:
+            return
+        base = float(self._display["point_alpha"])
+        target = (base if self._point_visible.all()
+                  else np.where(self._point_visible, base,
+                                base * DIMMED_ALPHA))
+        if np.iterable(self._scatter.get_alpha()) and not np.iterable(target):
+            self._scatter._alpha = None
+        self._scatter.set_alpha(target)
+
+    def visible_points(self) -> np.ndarray:
+        """Boolean mask of the points the shared filter keeps."""
+        return self._point_visible.copy()
+
+    def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        """Re-draw for a filter another view has just set.
+
+        :param data_filter: the new shared filter.
+        """
+        self._recompute_visible_points()
+        self._apply_point_alpha()
+        self._status.setText(self._payload_status())
+        self._canvas.draw_idle()
+
+
+    def _recompute_linked_points(self,
+                                 selection: Optional[Selection] = None) -> None:
+        """Which points a selection published elsewhere names."""
+        if selection is None:
+            try:
+                selection = self.link.selection
+            except Exception:
+                selection = Selection.none()
+        keys = self._point_keys
+        if keys is None or not selection.is_active or not len(self._embedding):
+            self._linked_points = np.empty(0, dtype=int)
+            return
+        self._linked_points = np.flatnonzero(
+            match_keys(keys, selection.keys))
+
+    def _draw_linked_points(self) -> None:
+        """Redraw only the points a linked view has selected.
+
+        SEPARATE FROM THE FULL DRAW because a selection changes often and the
+        embedding does not: redrawing every point on each linked change makes
+        brushing in another view feel like the application has stalled.
+        """
+        if self._linked_artist is None:
+            return
+        points = (self._embedding[self._linked_points]
+                  if len(self._linked_points) else np.empty((0, 2)))
+        self._linked_artist.set_offsets(points)
+
+    def linked_points(self) -> np.ndarray:
+        """Indices of the points a selection made elsewhere is highlighting."""
+        return self._linked_points.copy()
+
+    def on_linked_selection_changed(self, selection: Selection) -> None:
+        """Ring the points another view selected. Nothing is hidden, and the
+        local lasso — which is what the annotation buttons write — is left
+        exactly as the user drew it.
+
+        :param selection: the :class:`~spacr.selection.Selection` another view
+            published; the points whose object keys it names are ringed, and an
+            inactive selection rings none.
+        """
+        self._recompute_linked_points(selection)
+        self._draw_linked_points()
+        self._canvas.draw_idle()
+
+    def _on_scroll(self, event) -> None:
+        """Zoom around the pointer with the mouse wheel."""
+        if (event.inaxes is not self._axes or event.xdata is None
+                or event.ydata is None):
+            return
+        factor = 0.8 if event.button == "up" else 1.25
+        x0, x1 = self._axes.get_xlim()
+        y0, y1 = self._axes.get_ylim()
+        self._axes.set_xlim(
+            event.xdata - (event.xdata - x0) * factor,
+            event.xdata + (x1 - event.xdata) * factor,
+        )
+        self._axes.set_ylim(
+            event.ydata - (event.ydata - y0) * factor,
+            event.ydata + (y1 - event.ydata) * factor,
+        )
+        self._canvas.draw_idle()
+
+    def _on_click(self, event) -> None:
+        """Select the point under the click.
+
+        :param event: the matplotlib click event.
+        """
+        if (event.inaxes is not self._axes or event.xdata is None
+                or not len(self._embedding)):
+            return
+        click = np.array([event.xdata, event.ydata], dtype=float)
+        spans = np.ptp(self._embedding, axis=0)
+        spans[spans == 0] = 1.0
+        distance = np.linalg.norm((self._embedding - click) / spans, axis=1)
+        self.show_point(int(np.argmin(distance)))
+
+    def show_point(self, index: int) -> None:
+        """Preview one point's image and database identity.
+
+        :param index: position of the point in the payload's records; converted
+            to ``int``, and an out-of-range index does nothing.
+        """
+        if not (0 <= int(index) < len(self._records)):
+            return
+        index = int(index)
+        self._picked = index
+        point = self._embedding[index]
+        self._picked_artist.set_offsets(point.reshape(1, 2))
+        record = self._records[index]
+        source = record.get("image")
+        try:
+            if source is None:
+                raise ValueError("No image source for this point")
+            if hasattr(source, "array"):
+                image = Image.fromarray(np.asarray(source.array())).convert("RGB")
+            else:
+                with Image.open(source) as opened:
+                    image = opened.convert("RGB")
+            image.thumbnail((360, 360), Image.Resampling.LANCZOS)
+            qimage = QImage(ImageQt(image)).copy()
+            self._preview.setPixmap(QPixmap.fromImage(qimage))
+        except Exception as exc:
+            self._preview.setPixmap(QPixmap())
+            self._preview.setText(f"Preview unavailable\n{exc}")
+        self._point_label.setText(
+            f"Point {index + 1}/{len(self._records)} · "
+            f"cluster {self._labels[index]}\n"
+            f"{record.get('db_png_path') or record.get('display_name') or ''}")
+        self._canvas.draw_idle()
+
+    def _on_lasso(self, vertices: Sequence) -> None:
+        """Select every point inside a drawn outline.
+
+        :param vertices: the outline the user drew.
+        """
+        from matplotlib.path import Path
+
+        inside = Path(vertices).contains_points(self._embedding)
+        self._selected = np.flatnonzero(inside)
+        self._refresh_selection()
+
+    def _select_cluster(self, _index: int) -> None:
+        """Select a whole cluster from the cluster list.
+
+        :param _index: the row clicked; the cluster is re-read from the list.
+        """
+        label = self._cluster_box.currentData()
+        if label is None:
+            return
+        self._selected = np.flatnonzero(self._labels == label)
+        self._refresh_selection()
+
+    def _refresh_selection(self) -> None:
+        """Redraw the gallery and the counts for the current selection."""
+        points = (self._embedding[self._selected]
+                  if len(self._selected) else np.empty((0, 2)))
+        self._selection_artist.set_offsets(points)
+        self._status.setText(f"{len(self._selected)} point(s) selected."
+                             + self._filter_note)
+        if len(self._selected):
+            self.show_point(int(self._selected[0]))
+        self._publish_local_selection()
+        self._canvas.draw_idle()
+
+    def _publish_local_selection(self) -> None:
+        """Tell every other view what was just lassoed here.
+
+        Silent when the payload carries no identities: publishing a lasso as
+        an empty selection would tell the plate view "the user selected
+        nothing", wiping a highlight that was never this screen's to clear.
+
+        A lasso that legitimately caught nothing IS published, as an empty
+        selection — that is a result, and the resting state is a different
+        thing (:meth:`clear_linked_selection`).
+        """
+        if self._point_keys is None:
+            return
+        try:
+            self.publish_selection(self._point_keys[self._selected])
+        except Exception:
+            LOG.info("publishing the UMAP selection failed", exc_info=True)
+
+    def _write_selected(self) -> None:
+        """Write the selected points' labels to the database."""
+        if not len(self._selected):
+            self._status.setText("Draw a lasso or select a cluster first.")
+            return
+        records = [self._records[i] for i in self._selected]
+        values = [self._value.value()] * len(records)
+        self._start_write(records, values, "manual selection")
+
+    def _write_clusters(self) -> None:
+        """Write every cluster's label to the database."""
+        self._start_write(
+            self._records, self._labels.tolist(), "automatic clusters")
+
+    def _start_write(self, records, values, label: str) -> None:
+        """Write labels on a worker, so the window stays responsive.
+
+        :param records: the objects to label.
+        :param values: the label for each.
+        :param label: what to call this write in the status area.
+        """
+        if self._worker is not None and self._worker.isRunning():
+            self._status.setText("An annotation write is already running.")
+            return
+        column = self._column.text().strip()
+        self._set_write_enabled(False)
+        self._status.setText(f"Writing {label} to {column or '(no column)'}…")
+        worker = _AnnotationWorker(records, values, column, self)
+        worker.finished_result.connect(self._on_write_done, Qt.QueuedConnection)
+        worker.finished.connect(worker.deleteLater)
+        self._worker = worker
+        worker.start()
+
+    def _set_write_enabled(self, enabled: bool) -> None:
+        """Disable the write buttons while a write is running.
+
+        SO A SECOND WRITE CANNOT START on top of the first: two writers on one
+        SQLite database is a lock error at best, and interleaved labels at
+        worst.
+
+        :param enabled: True to allow writing.
+        """
+        self._apply_selected.setEnabled(enabled)
+        self._apply_clusters.setEnabled(enabled)
+
+    @Slot(int, int, str)
+    def _on_write_done(self, updated: int, skipped: int, error: str) -> None:
+        """Report what a finished write actually changed.
+
+        SAYS WHAT IT SKIPPED as well as what it wrote: an object already
+        carrying that label is not an error, but a user who asked for 400 and
+        got 380 needs to know which of the two happened.
+
+        :param updated: how many rows were written.
+        :param skipped: how many already had the label.
+        :param error: what went wrong, if anything.
+        """
+        self._worker = None
+        self._set_write_enabled(True)
+        if error:
+            self._status.setText(f"Database write failed: {error}")
+        else:
+            self._status.setText(
+                f"Updated {updated} png_list row(s); skipped {skipped}.")
+        self.annotation_finished.emit(updated, skipped)
+
+    def closeEvent(self, event):
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
+        try:
+            self.unlink_selection()
+        except (RuntimeError, TypeError):
+            pass
+        worker = self._worker
+        if worker is not None:
+            worker.requestInterruption()
+            worker.wait()
+            self._worker = None
+        if self._lasso is not None:
+            self._lasso.disconnect_events()
+            self._lasso = None
+        if getattr(self, "_canvas", None) is not None:
+            self._canvas.cancel_pending_draw()
+        super().closeEvent(event)

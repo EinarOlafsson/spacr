@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-05",
+  "language": "fr",
+  "note": "Actual Make Masks tool-row registry labels and fallback MODE constants now enter normal extraction. Seven previously omitted labels translated with drawing, erasing, recropping and zoom semantics; plus/minus symbols preserved. Four existing covered tool labels retain their catalog ownership.",
+  "records": [
+    {
+      "key": "Box",
+      "source": "Box",
+      "source_sha256": "512fd3c6042cd1d9150d46fa59b5911a1f97b8275d73eb0a841daa31e93bd349",
+      "table": "ui",
+      "translation": "Boîte"
+    },
+    {
+      "key": "Draw",
+      "source": "Draw",
+      "source_sha256": "61517c08b3bf84b42ac5a38367a9ca07dbc54e9c00ee92df09debe4f38df34d4",
+      "table": "ui",
+      "translation": "Dessiner"
+    },
+    {
+      "key": "Erase object",
+      "source": "Erase object",
+      "source_sha256": "455ab0e0ade57fdeb8aa728b88d9d9309c54a1821ed4f1d39a84de1b7a27013e",
+      "table": "ui",
+      "translation": "Effacer l'objet"
+    },
+    {
+      "key": "Recrop",
+      "source": "Recrop",
+      "source_sha256": "c529fbddfbec86471fb0fab86131765948c5b1406f13765625555ad9dd3ca23d",
+      "table": "ui",
+      "translation": "Recadrer à nouveau"
+    }
+  ],
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

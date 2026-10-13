@@ -1,0 +1,36 @@
+F401 [*] `pytest` imported but unused
+ --> tests/qt/test_main_window.py:4:8
+  |
+2 | from __future__ import annotations
+3 |
+4 | import pytest
+  |        ^^^^^^
+5 |
+6 | from PySide6.QtCore import Qt
+  |
+help: Remove unused import: `pytest`
+  |
+3 |
+  - import pytest
+4 |
+  |
+
+F401 [*] `PySide6.QtCore.Qt` imported but unused
+ --> tests/qt/test_main_window.py:6:28
+  |
+4 | import pytest
+5 |
+6 | from PySide6.QtCore import Qt
+  |                            ^^
+7 |
+8 | from spacr.qt.app import (APPS, MainWindow, Sidebar, _icon_for_app,
+  |
+help: Remove unused import: `PySide6.QtCore.Qt`
+  |
+5 |
+  - from PySide6.QtCore import Qt
+6 |
+  |
+
+Found 2 errors.
+[*] 2 fixable with the `--fix` option.

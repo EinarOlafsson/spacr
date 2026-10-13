@@ -1,0 +1,169 @@
+[build-system]
+# setuptools >= 77 is the floor, and it is a HARD one: it is the first release
+# that accepts PEP 639's `license = "<SPDX>"` string. The previous floor of 64
+# was chosen for PEP 621 `[project]` support including
+# `dynamic = ["entry-points", "scripts"]`; that reason still holds and 77 is
+# strictly above it. Older setuptools silently ignores the whole `[project]`
+# table, which would drop `requires-python` from the built metadata rather
+# than fail loudly — so the floor is declared, not assumed.
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spacr"
+
+# ---------------------------------------------------------------------------
+# requires-python: the single most valuable line in this file.
+#
+# It used to read `>=3.10,<3.13`, and that ceiling was correct at the time for
+# a reason worth remembering: without it, `pip install spacr` on Python 3.13
+# resolved happily, downloaded several hundred MB, and then died inside a
+# *source build of numpy 1.26.4* with a compiler error — which reads to a user
+# as "spaCR is broken". numpy 1.26.4 was the only release satisfying the old
+# `numpy>=1.26.4,<2.0`, and its wheels stop at cp312.
+#
+# The floor is 3.9. spaCR is used successfully on that interpreter, and the
+# dependency graph still has compatible published lines: pip selects torch
+# 2.8, the final Python-3.9-compatible releases of PySide6/numba/llvmlite,
+# and IPython 8.18. Supporting an older interpreter means accepting those
+# resolver branches, so 3.9 has its own blocking CI cell rather than being a
+# README-only claim. The three native packaging scripts carry the same floor.
+#
+# The blocking ceiling is 3.14, and every blocker that held it at 3.14 was closed
+# rather than reasoned away. Measured in throwaway conda envs, never in the
+# working one:
+#
+#   * pillow, lxml and psutil were never 3.13 blockers. All three publish
+#     cp313 and cp314 wheels; their caps in setup.py were conventions, and
+#     were widened on 2026-07-26 (pillow <13, psutil <8, lxml uncapped).
+#   * numpy is now `>=1.26.4,<3.0`. The three things that blocked it are
+#     fixed: `np.trapz` is gone from spacr/utils.py, spacr/attribution.py and
+#     spacr/timelapse.py (all three now prefer `np.trapezoid`; timelapse.py's
+#     old `scipy.integrate.trapz` fallback was already dead, SciPy removed it
+#     in 1.14); `torchcam`, every release of which declares `numpy<2.0.0`
+#     spuriously, has moved to the `attribution` extra; and
+#     tests/test_diameter_estimator.py:1083 now calls `np.ptp(field)` instead
+#     of the removed `ndarray.ptp()` method.
+#   * mahotas was never a numpy-2 blocker — 1.4.18 computes Zernike moments
+#     correctly under numpy 2.4.4, because its wheels are numpy-2 ABI clean.
+#     What it is, is a *wheel* blocker: no cp313 or cp314 has ever been
+#     published, so on 3.13 it builds from sdist, which succeeds where a C++
+#     toolchain exists and fails confusingly where one does not. It has moved
+#     to the `zernike` extra, so a plain `pip install spacr` on 3.13 never
+#     reaches a compiler.
+#   * pylibCZIrw and btrack are native optional features. Both are loaded only
+#     when their feature is selected. pylibCZIrw has no CPython 3.14 wheel.
+#     btrack 0.7.0 and its bundled tracker are qualified by the blocking 3.14
+#     fast-suite cell; neither package is required to import core spaCR.
+#
+# Python 3.14.1 is excluded because supported torchvision releases explicitly
+# exclude that interpreter patch release. Python 3.15 is NOT admitted: its
+# forward CI cell was dropped on 2026-09-21 at the maintainer's request, and
+# PySide6 6.11.2 still declares ``<3.15,>=3.10``, so it could not install the
+# GUI there anyway. Admit it again together with a CI cell once Qt does. The
+# upper bound keeps the untested interpreter out.
+#
+# Every version admitted here has a CI cell — see the classifier note below.
+# ---------------------------------------------------------------------------
+requires-python = ">=3.9,<3.15,!=3.14.1"
+
+authors = [
+    { name = "Einar Birnir Olafsson", email = "olafsson@med.umich.com" },
+]
+# A PEP 639 SPDX EXPRESSION, NOT A TABLE. `license = { file = "LICENSE" }` is
+# rejected outright by setuptools >= 77 with "configuration error:
+# `project.license` must be string", and that error is raised while READING
+# pyproject.toml -- so it does not merely mis-label the wheel, it stops the
+# build before it starts. Every job in the compat matrix failed on it: the
+# sdist, the wheel, and `pip install spacr` on all six interpreters.
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+
+# ---------------------------------------------------------------------------
+# Classifiers are a *claim of support*. `Operating System :: OS Independent`
+# was never true — Windows-on-ARM cannot install spaCR at all (torch has
+# never published a win_arm64 wheel, and neither has numpy<2.0, mahotas,
+# opencv-python-headless, pylibCZIrw or aicspylibczi), so the honest
+# statement is the three operating systems CI actually exercises.
+#
+# Every Python classifier below is covered by a CI cell in
+# .github/workflows/tests.yml (full suite) or compat-matrix.yml (install +
+# import + packaging subset). If you add a classifier, add the cell first.
+# tests/test_packaging_metadata.py asserts the two agree exactly, in both
+# directions — a classifier requires-python does not admit is as much a bug as
+# a version admitted with no classifier.
+#
+# 3.13 was added on 2026-07-27 together with the numpy widening, the mahotas
+# and torchcam moves to extras, a full-suite cell in tests.yml and a real
+# install cell in compat-matrix.yml (replacing the job that used to assert
+# 3.13 was refused).
+# ---------------------------------------------------------------------------
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+
+# ---------------------------------------------------------------------------
+# Everything below is still supplied by setup.py. That is deliberate, not
+# laziness: several things read setup.py as text or execute it directly and
+# would break if the data moved here —
+#   * packaging/build_debian.sh runs `python3 setup.py` under stdeb and
+#     regex-extracts `VERSION = "..."`,
+#   * packaging/build_macos.sh and packaging/build_windows.ps1 regex-extract
+#     the same line,
+#   * tests/test_gui_dispatch_call_styles.py ast-parses `entry_points`,
+#     tests/test_timelapse_ultrack.py regexes `extras_require['ultrack']`,
+#     tests/test_smoke.py regexes VERSION, tests/test_regressions.py greps
+#     the dependency list.
+# Declaring them `dynamic` is what PEP 621 provides for exactly this case,
+# and it was verified end-to-end on setuptools 83.0.0: both `pip wheel`
+# (PEP 517) and a direct `python setup.py egg_info` emit the declared
+# `Requires-Python` value and the classifiers above.
+# ---------------------------------------------------------------------------
+dynamic = [
+    "version",
+    "description",
+    "readme",
+    "dependencies",
+    "optional-dependencies",
+    "entry-points",
+    "scripts",
+]
+
+[project.urls]
+Homepage = "https://github.com/EinarOlafsson/spacr"
+Website = "https://einarolafsson.github.io/projects/spacr/"
+Documentation = "https://einarolafsson.github.io/spacr/"
+Source = "https://github.com/EinarOlafsson/spacr"
+Issues = "https://github.com/EinarOlafsson/spacr/issues"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+# CI applies the complete fatal-error set repository-wide and this broader set
+# to .github/quality-targets.txt. Keeping the broad set here makes a plain
+# `ruff check <file>` agree with the maintained-code gate.
+select = ["E4", "E7", "E9", "F", "I", "B"]
+
+[tool.mypy]
+python_version = "3.9"
+check_untyped_defs = true
+follow_imports = "skip"
+ignore_missing_imports = true
+no_error_summary = true
+warn_unused_configs = true

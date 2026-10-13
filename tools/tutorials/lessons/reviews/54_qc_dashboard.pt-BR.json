@@ -1,0 +1,35 @@
+{
+  "lesson": "54_qc_dashboard",
+  "english_sha256": "8d73de741cc8b5d38c497eac960c0dfe562312ed73b07d6f02e536ba8ec4c174",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "QC: inspecionar os relatórios de qualidade de um projeto",
+  "description": "Escolha um projeto, leia os relatórios de qualidade disponíveis, investigue os avisos e atualize o painel.",
+  "objectives": [
+    "Escolher o projeto ou a execução pretendidos.",
+    "Ler os relatórios disponíveis, ausentes e desatualizados.",
+    "Investigar os achados e atualizar a visualização."
+  ],
+  "prerequisite": "Use um projeto com relatórios de qualidade salvos. Os exemplos baixados do Mask e do Annotate fornecem conjuntos de relatórios diferentes; escolha o projeto ou a pasta de execução específica que quer inspecionar.",
+  "scenes": [
+    "Abra o QC pela categoria Data da tela Home para revisar os relatórios de qualidade salvos com um projeto.",
+    "O cabeçalho abre Layer Viewer, Control Charts e Outliers. Use os tutoriais deles quando um achado do painel precisar de mais investigação.",
+    "Clique em Browse e escolha a pasta do projeto. Selecione a pasta que contém os relatórios da execução que você quer avaliar.",
+    "Entenda Missing como um relatório indisponível para aquela verificação. Siga as orientações para obter o relatório necessário antes de tirar conclusões.",
+    "Escolha uma subpasta de execução quando as saídas dela estiverem separadas do projeto principal. Confira se o escopo exibido corresponde aos dados que você quer revisar.",
+    "Leia os avisos de segmentação e inspecione os campos correspondentes. Diante de um aviso sobre a distribuição de tamanhos, compare as imagens e os contornos dos objetos para entender a causa.",
+    "Revise o cartão de unidades junto com as demais categorias. Um relatório de unidades consistente resolve essa verificação; os relatórios ausentes continuam precisando de atenção.",
+    "Leia as cinco categorias e as orientações. No caso do vazamento, confira se as identidades das amostras e o agrupamento refletem as unidades de validação independentes pretendidas.",
+    "Abra os detalhes das falhas ou avisos para identificar os campos afetados e os relatórios de origem. Use a ferramenta de análise adequada para investigá-los.",
+    "Clique em Refresh depois que os relatórios mudarem no disco. O painel relê as evidências disponíveis; gere relatórios atualizados pela análise que os produz.",
+    "Investigue um relatório desatualizado comparando-o com os dados de entrada e as configurações. Mantenha visíveis os achados não resolvidos na revisão do projeto.",
+    "Guarde os relatórios de qualidade com o projeto. Continue nas ferramentas especializadas indicadas ou no tutorial do módulo adequado para tratar cada achado."
+  ]
+}

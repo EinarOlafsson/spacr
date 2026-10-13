@@ -1,0 +1,180 @@
+{
+  "id": "64_gate_editor",
+  "number": 64,
+  "slug": "gate_editor",
+  "series": 5,
+  "app_key": "gate_editor",
+  "section": "Tools",
+  "title": "Gate Editor: select populations and save their membership",
+  "description": "Draw gates on measurements, save reusable boundaries, explore projections and export object membership to a database.",
+  "objectives": [
+    "Load measurements and draw named gates.",
+    "Save and reload gate strategies, figures and membership.",
+    "Explore three-dimensional views, clustering and filters."
+  ],
+  "prerequisite": "Download the Annotate example and make a working copy of measurements.db. Gate Editor uses its 2,341 cell measurements; it has no separate example-download button. Export gates writes membership to the chosen database. Gate names should describe the selected measurements until their biological meaning has been established.",
+  "scenes": [
+    {
+      "visual": "01b_readable_panels",
+      "narration": "From Home, open Tools and choose Gate Editor. Adjust the dividers so you can see the plot, gate table and side controls. Use the measurement database from the Annotate example.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate"
+      ]
+    },
+    {
+      "visual": "02_real_database_picker",
+      "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database. Merge tables, beside the picker, combines the cell table with its nucleus or pathogen tables into one new table, as in Graph Builder; the source tables stay unchanged.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_real_scatter",
+      "narration": "Choose cell_area for X and cell_channel_1_mean_intensity for Y, then select Rectangle. Each point represents an object. Check the feature names and units before drawing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_name_drawn_gate",
+      "narration": "Drag across the scatter, release and enter a descriptive gate name. The gate stores boundaries in the two selected measurements.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_real_gate_and_counts",
+      "narration": "Read the count and percentage beside the gate name. The illustrated region contains six hundred fifty-five objects. Your mouse positions may give different boundaries; save a strategy to repeat an exact selection.",
+      "hold_after": 0.7,
+      "focus": [
+        2420,
+        375,
+        820,
+        430
+      ]
+    },
+    {
+      "visual": "07_gate_hidden_not_deleted",
+      "narration": "Untick the gate to hide its overlay, then tick it to show it again. Delete gate removes its definition. The Filter tab separately controls the objects displayed beneath the gates.",
+      "hold_after": 0.7,
+      "focus": [
+        2420,
+        375,
+        820,
+        430
+      ]
+    },
+    {
+      "visual": "09_save_strategy",
+      "narration": "Click Save gates to write a JSON strategy. Delete the gate, then choose Load gates and open the saved file. Reuse strategies with matching feature names, units and preprocessing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_strategy_restored",
+      "narration": "The loaded strategy restores the saved boundaries and population. Check the axes, outline and count before continuing with another dataset.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12b_save_graph",
+      "narration": "Choose Save graph to save the plotted figure. File formats follow your plotting preferences; this example produces PNG and PDF. Keep the JSON strategy beside the figure.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12c_exported_gate_membership",
+      "narration": "Choose Export gates to write membership flags to the working database’s filters table. Each flag is associated with the object’s plate, well, field, label and type.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_second_gate_not_automatically_nested",
+      "narration": "Draw a second gate and give it a new name. New shapes are independent of the selected gate, so the second can include objects outside the first. Save this two-gate strategy under a new filename.",
+      "hold_after": 0.7,
+      "focus": [
+        2420,
+        375,
+        820,
+        520
+      ]
+    },
+    {
+      "visual": "16_actual_three_dimensional_view",
+      "narration": "Choose three D and set Z to cell_perimeter. Use the spin-axis buttons to rotate the view. Return to two D to inspect the original area-intensity boundaries.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17c_actual_volume_gate",
+      "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17e_free_orbit",
+      "narration": "Choose Free under spin to orbit the volume: drag sideways and up and down at once, and the view stays exactly where you let go. Turn it until the population you want stands apart from the rest.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17f_live_highlight",
+      "narration": "Choose Polygon through view and switch drag to Draw. Click the corners around the population on screen; the status line counts the vertices, and the outline is swept through the whole volume at the angle you see.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17h_rename_gate",
+      "narration": "Click the first corner again to close the polygon and name the gate; here it holds one thousand four hundred seventy-nine objects. Double-click any gate in the gate table to rename it; its child gates follow the new name.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_actual_projection_2d",
+      "narration": "Enable x D to compute principal components from eligible measurements. The axis labels show explained variance for each component. Choose two D or three D separately to control the view.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_projection_off_keeps_columns",
+      "narration": "When turning x D off, select the raw measurement axes again. Save projection details separately: the gate JSON does not retain the fitted projection, and component boundaries may differ between independently fitted datasets.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_bounded_walk_settings",
+      "narration": "Open Search and widen its panel. Save and remove temporary gates, choose the two raw features, enable scaling and set twenty minimum neighbours and five Walk steps. Click Run walk and review the confirmation values.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_walk_outcome",
+      "narration": "Inspect the resulting outlines and population counts. Here Walk chooses a radius near zero point one six seven and finds two populations. Review which objects lie outside those regions.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "25_fixed_radius_result",
+      "narration": "Save the Walk strategy, remove its gates and switch Walk off. Try radius zero point five to compare the resulting larger region, then choose the strategy appropriate to your analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "28_live_area_filter",
+      "narration": "Reload the saved two-gate strategy. In Filter, add cell_area with a minimum of twenty-one thousand nine hundred twenty-five. The view now contains one thousand one hundred seventy-one objects.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "29_live_filter_cleared",
+      "narration": "Click Clear all to restore the full population. Check the active filters and gate definitions before interpreting counts or exporting membership.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "31_real_console_answer",
+      "narration": "To inspect the loaded table directly, open the right-hand console and enter len(df). This example returns two thousand three hundred forty-one rows.",
+      "hold_after": 0.7,
+      "focus": [
+        3090,
+        320,
+        740,
+        1795
+      ]
+    },
+    {
+      "visual": "32_chat_draft_not_sent",
+      "narration": "Keep your data, JSON strategy and exported membership together. In Python, use GateSet for definitions, gate_mask_over_table to calculate membership and export_gate to save object flags.",
+      "hold_after": 0.7,
+      "focus": [
+        3090,
+        320,
+        740,
+        1795
+      ],
+      "related_lessons": [
+        "06_api",
+        "09_annotate"
+      ]
+    }
+  ]
+}

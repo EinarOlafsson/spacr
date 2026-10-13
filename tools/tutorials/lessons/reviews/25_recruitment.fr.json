@@ -1,0 +1,39 @@
+{
+  "lesson": "25_recruitment",
+  "english_sha256": "a715d9ca58ce49398b497703e04145ed9542ac251e4ea8708650163b6d4478f8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Recruitment : mesurer l’enrichissement d’un marqueur autour des parasites",
+  "description": "Choisissez un projet mesuré, attribuez le canal du marqueur et les conditions, réglez les filtres d’objets, puis examinez les rapports de recrutement par cellule hôte et par puits.",
+  "objectives": [
+    "Sélectionner un projet contenant des mesures liées de cellules, noyaux, pathogènes et cytoplasme.",
+    "Régler le canal du marqueur, les conditions de la plaque et les filtres d’objets.",
+    "Lancer Recruitment et lire les résultats CSV par cellule hôte et par puits."
+  ],
+  "prerequisite": "Partez d’un projet issu de Measure contenant measurements/measurements.db et les tables liées de cellules, noyaux, pathogènes et cytoplasme. Incluez les images fusionnées pour afficher les superpositions. L’exemple utilise un marqueur du RE sur le canal 1 ; utilisez l’attribution des canaux et les étiquettes de conditions enregistrées pour votre propre projet.",
+  "scenes": [
+    "Depuis Home, ouvrez Toxoplasma, puis choisissez Recruitment. Cette analyse compare l’intensité du marqueur dans les régions associées aux parasites avec le cytoplasme environnant de la cellule hôte. Commencez avec un projet dont les objets et les canaux d’intensité ont déjà été mesurés.",
+    "Réglez Source sur le dossier du projet qui contient measurements/measurements.db. Gardez ensemble les tables de cellules, de noyaux, de pathogènes et de cytoplasme. Incluez le dossier des images fusionnées si vous voulez des superpositions sur les images.",
+    "Réglez Channel of interest sur le marqueur à mesurer. Les canaux sont numérotés à partir de zéro : un désigne le deuxième plan d’image. Cet exemple utilise le canal un pour le marqueur du réticulum endoplasmique. Choisissez le canal qui correspond à votre acquisition.",
+    "Réglez Channel dims sur les canaux nécessaires aux résumés auxiliaires de recrutement. Pour une première exécution, utilisez le même canal unique que Channel of interest, afin que le rapport principal et les résumés d’intensité supplémentaires soient faciles à comparer.",
+    "Vérifiez l’attribution des canaux de cellule, de noyau et de pathogène par rapport au projet mesuré. L’exemple utilise cellule un, noyau zéro et pathogène trois. Conservez cette attribution avec vos paramètres, pour que les superpositions et les filtres visent les bons signaux.",
+    "Saisissez les étiquettes de cellule, de pathogène et de traitement, puis associez chaque étiquette à ses lignes ou colonnes de plaque. Seuls les puits annotés entrent dans l’analyse. Faites correspondre ces attributions à votre plan de plaque, témoins positifs et négatifs compris.",
+    "Utilisez les plages de taille pour exclure les objets en dehors des aires à analyser. Les aires sont en pixels et les bornes sont strictes. Dans cette analyse, l’aire des pathogènes est cumulée dans chaque cellule hôte ; choisissez donc sa plage pour le total par cellule.",
+    "Réglez Nuclei limit et Pathogen limit pour déterminer quelles cellules hôtes sont conservées. Une limite de noyaux de un garde les cellules à noyau unique. Augmentez une limite pour inclure des cellules associées à plus d’objets, puis vérifiez combien de cellules restent.",
+    "Commencez avec des plages d’intensité larges pour pouvoir examiner les premiers résultats. Resserrez une plage lorsque vous disposez d’une règle de sélection par intensité bien définie. Le minimum d’intensité cible applique un seuil supplémentaire à l’intensité cellulaire du marqueur.",
+    "Vérifiez le canal utilisé par chaque filtre d’intensité avant de resserrer ses bornes. Avec l’attribution de l’exemple, le filtre d’intensité nucléaire utilise le canal trois et le filtre d’intensité des pathogènes le canal un. Gardez les plages larges de l’exemple pendant que vous apprenez le flux de travail.",
+    "Réglez Cells per well sur le nombre minimal de cellules sources qu’un puits doit avoir pour rester dans l’analyse. Ce paramètre filtre les puits, tandis que les filtres d’objets sélectionnent les cellules. Examinez les effectifs finalement conservés autant que le seuil.",
+    "Activez Plot pour afficher les superpositions d’images disponibles et utilisez Plot number pour limiter leur nombre. Laissez Plot control activé si vous voulez les figures d’intensité des témoins. Servez-vous des graphiques pour vérifier le choix des canaux et le filtrage avant d’interpréter les rapports.",
+    "Appuyez sur Run. Suivez la console pendant que le module joint les mesures, applique les conditions et les filtres, calcule les rapports et écrit les résultats. Attendez la fin de l’analyse avant d’ouvrir les tables de sortie.",
+    "Examinez le graphique de recrutement. La valeur principale divise l’intensité moyenne cumulée des pathogènes de la cellule hôte par l’intensité moyenne de son cytoplasme, sur le canal du marqueur sélectionné. Les valeurs supérieures à un indiquent un enrichissement par rapport à cette référence. Consultez les exports numériques pour les rapports situés sous la plage tracée ou dont le dénominateur n’est pas valide.",
+    "Examinez le résumé par puits et comparez les conditions témoins. Chaque puits fait la moyenne des rapports de ses cellules conservées ; les graphiques par condition résument ces valeurs par puits. Les barres d’erreur montrent l’écart-type entre puits. La table des cellules représente des cellules hôtes avec leurs mesures de pathogènes cumulées.",
+    "Ouvrez results/cells.csv pour les mesures des cellules hôtes conservées et results/wells.csv pour les résumés par puits. Gardez les deux fichiers avec les paramètres enregistrés. Vérifiez les effectifs de cellules, les étiquettes de conditions et le caractère fini des rapports avant de comparer des expériences, et utilisez des puits indépendants comme réplicats expérimentaux."
+  ]
+}

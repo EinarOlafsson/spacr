@@ -1,0 +1,18 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "/home/carruthers/anaconda3/envs/spacr/bin/python",
+  "-m",
+  "sphinx",
+  "-W",
+  "-E",
+  "-b",
+  "dummy",
+  "--keep-going",
+  "-j",
+  "1",
+  "-d",
+  "/tmp/spacr-implementation-20261001/documentation-acceptance-615/full/doctrees",
+  "docs/source",
+  "/tmp/spacr-implementation-20261001/documentation-acceptance-615/full/dummy"
+]

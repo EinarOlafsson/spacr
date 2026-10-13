@@ -1,0 +1,847 @@
+{
+  "schema": 1,
+  "language": "en",
+  "lang_code": "a",
+  "dialect": "us",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "total_duration": 160.265,
+  "media_sha256": "32792383902b604fac4d9d7e503a3b4ed421c8e970a6b93c5fd027592ec9d50a",
+  "media_bytes": 1057200,
+  "render_fingerprint": "9e455fca0cdc859eb314fd9ce41157547cac40d28ac08a5ce6d4c632f3eed67d",
+  "render_inputs": {
+    "renderer": "render_all_voices-v4",
+    "lesson": "76_ops",
+    "language": "en",
+    "lang_code": "a",
+    "dialect": "us",
+    "voice": "af_heart",
+    "speed": 1.0,
+    "scenes": [
+      {
+        "narration": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles. In spaCR, open Mask to find the nested OPS screen. This lesson shows its location and a small, verified image-alignment example.",
+        "speech_text": [
+          "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles.",
+          "In spacer, open Mask to find the nested OPS screen.",
+          "This lesson shows its location and a small, verified image-alignment example."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Use the OPS toggle in Mask's action row. It opens a separate page inside the host module. OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+        "speech_text": [
+          "Use the OPS toggle in Mask's action row.",
+          "It opens a separate page inside the host module.",
+          "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings. Its Run button uses a different, legacy engine. We do not start it here or imply that a complete screening pipeline has been validated. The next steps use the geometry APIs directly.",
+        "speech_text": [
+          "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings.",
+          "Its Run button uses a different, legacy engine.",
+          "We do not start it here or imply that a complete screening pipeline has been validated.",
+          "The next steps use the geometry APIs directly."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "This CPU demonstration registers and composes four real image tiles from an existing acquisition. It does not segment cells, decode barcodes or process a whole plate. The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+        "speech_text": [
+          "This CPU demonstration registers and composes four real image tiles from an existing acquisition.",
+          "It does not segment cells, decode barcodes or process a whole plate.",
+          "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Select sites zero, one, ten and eleven from the first imaging cycle. Each original file has five planes; plane zero contains the nuclear stain. Keep the original three hundred thirty-three-site layout and site numbers. Four selected tiles do not define a new four-tile well.",
+        "speech_text": [
+          "Select sites zero, one, ten and eleven from the first imaging cycle.",
+          "Each original file has five planes; plane zero contains the nuclear stain.",
+          "Keep the original three hundred thirty-three-site layout and site numbers.",
+          "Four selected tiles do not define a new four-tile well."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window. All four tiles are placed. Their patch is two thousand seven hundred fifty-six pixels square. The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+        "speech_text": [
+          "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window.",
+          "All four tiles are placed.",
+          "Their patch is two thousand seven hundred fifty-six pixels square.",
+          "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Do not trust placement alone. Compare actual overlapping pixels independently of the registration score. Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels. Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+        "speech_text": [
+          "Do not trust placement alone.",
+          "Compare actual overlapping pixels independently of the registration score.",
+          "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels.",
+          "Those wrong-offset controls help detect a plausible-looking but incorrect placement."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Inspect the actual saved image and coverage map. The left panel shows the composed nuclear image; the right counts contributing tiles. Zero coverage means no acquisition pixel, not biological background. This combines spatial neighbors within one plane, never different sequencing cycles.",
+        "speech_text": [
+          "Inspect the actual saved image and coverage map.",
+          "The left panel shows the composed nuclear image; the right counts contributing tiles.",
+          "Zero coverage means no acquisition pixel, not biological background.",
+          "This combines spatial neighbors within one plane, never different sequencing cycles."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Save the array, coverage, placements, source checksums and run report together. The helper reopens its outputs and confirms all four source files are unchanged. Treat this as a reproducible geometry checkpoint. A full optical screening tutorial still needs separately validated downstream stages.",
+        "speech_text": [
+          "Save the array, coverage, placements, source checksums and run report together.",
+          "The helper reopens its outputs and confirms all four source files are unchanged.",
+          "Treat this as a reproducible geometry checkpoint.",
+          "A full optical screening tutorial still needs separately validated downstream stages."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      }
+    ],
+    "assembly": {
+      "version": "2026-08-11-natural-sentences-v1",
+      "sample_rate": 24000,
+      "lead_silence_seconds": 0.1,
+      "tail_silence_seconds": 0.18,
+      "sentence_pause_seconds": 0.12,
+      "scene_hold_min_seconds": 0.32,
+      "scene_hold_max_seconds": 0.52,
+      "default_scene_hold_seconds": 0.42,
+      "vad_frame_seconds": 0.005,
+      "vad_peak_ratio": 0.002,
+      "vad_absolute_floor": 2e-05
+    },
+    "cadence_profile": {
+      "version": "2026-08-11-af-heart-scene-cadence-v6",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008,
+      "enabled": false,
+      "targets": {
+        "slow_wpm": 125.0,
+        "fast_wpm": 145.0,
+        "calibration_wpm": 150.0
+      },
+      "safe_multiplier_bounds": {
+        "minimum": 0.68,
+        "maximum": 1.18
+      }
+    },
+    "mastering": {
+      "filters": [
+        "loudnorm=I=-16:TP=-3:LRA=11",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.7:attack=5:release=50:level=disabled",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.5:attack=5:release=50:level=disabled"
+      ],
+      "codec": "aac",
+      "bitrate": "48k",
+      "channels": 1,
+      "maximum_decoded_true_peak_dbfs": -1.0
+    },
+    "pronunciation": {
+      "role": "pronunciation_profile",
+      "version": "2026-08-28-pype-v11",
+      "sha256": "8789f5eb4444a0ec85a592dcf3160a0ba521d8b356e83814b88aac7742e11423",
+      "bytes": 15302
+    },
+    "synthesis_runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    }
+  },
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 15.34,
+      "scene_end": 15.86,
+      "duration": 15.86,
+      "text": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles. In spaCR, open Mask to find the nested OPS screen. This lesson shows its location and a small, verified image-alignment example.",
+      "speech_text": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles. In spacer, open Mask to find the nested OPS screen. This lesson shows its location and a small, verified image-alignment example.",
+      "phonemes": "ˈɑptəkᵊl pˈuld skɹˈinɪŋ bəɡˈɪnz wɪð ˈɪmɪʤᵻz əkwˈIəɹd əkɹˈɔs nˈAbəɹɪŋ fˈildz ænd ɹəpˈiTᵻd ˈɪmɪʤɪŋ sˈIkəlz. ɪn spˈAsəɹ, ˈOpᵊn mˈæsk tə fˈInd ðə nˈɛstᵻd ˌOpˌiˈɛs skɹˈin. ðˌɪs lˈɛsən ʃˈOz ɪts lOkˈAʃən ænd ɐ smˈɔl, vˈɛɹᵻfˌId ˌɪmɪʤəlˈInmənt ɪɡzˈæmpəl.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 0.0,
+          "speech_end": 6.6,
+          "audible_start": 0.1,
+          "audible_end": 6.42,
+          "duration": 6.6,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.265,
+          "text": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles.",
+          "speech_text": "Optical pooled screening begins with images acquired across neighboring fields and repeated imaging cycles.",
+          "phonemes": "ˈɑptəkᵊl pˈuld skɹˈinɪŋ bəɡˈɪnz wɪð ˈɪmɪʤᵻz əkwˈIəɹd əkɹˈɔs nˈAbəɹɪŋ fˈildz ænd ɹəpˈiTᵻd ˈɪmɪʤɪŋ sˈIkəlz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 6.72,
+          "speech_end": 10.36,
+          "audible_start": 6.82,
+          "audible_end": 10.18,
+          "duration": 3.64,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.28,
+          "text": "In spaCR, open Mask to find the nested OPS screen.",
+          "speech_text": "In spacer, open Mask to find the nested OPS screen.",
+          "phonemes": "ɪn spˈAsəɹ, ˈOpᵊn mˈæsk tə fˈInd ðə nˈɛstᵻd ˌOpˌiˈɛs skɹˈin."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 10.48,
+          "speech_end": 15.34,
+          "audible_start": 10.58,
+          "audible_end": 15.16,
+          "duration": 4.86,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.29,
+          "text": "This lesson shows its location and a small, verified image-alignment example.",
+          "speech_text": "This lesson shows its location and a small, verified image-alignment example.",
+          "phonemes": "ðˌɪs lˈɛsən ʃˈOz ɪts lOkˈAʃən ænd ɐ smˈɔl, vˈɛɹᵻfˌId ˌɪmɪʤəlˈInmənt ɪɡzˈæmpəl."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 15.86,
+      "speech_end": 27.775,
+      "scene_end": 28.294999999999998,
+      "duration": 12.434999999999999,
+      "text": "Use the OPS toggle in Mask's action row. It opens a separate page inside the host module. OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+      "speech_text": "Use the OPS toggle in Mask's action row. It opens a separate page inside the host module. OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+      "phonemes": "jˈuz ði ˌOpˌiˈɛs tˈɑɡᵊl ɪn mˈæsks ˈækʃən ɹˈO. ˌɪt ˈOpᵊnz ɐ sˈɛpəɹət pˈAʤ ɪnsˈId ðə hˈOst mˈɑʤul. ˈɑps ɪz nˌɑt ɐ sˈɛkənd hˈOm tˈIl, ænd ɪt ɪz nˌɑt ðə mˈæp bˈɑɹkˌOdz wˈɜɹkflˌO fɔɹ sˈikwənsɪŋ ɹˈɛd fˈIlz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 15.86,
+          "speech_end": 18.619999999999997,
+          "audible_start": 15.959999999999999,
+          "audible_end": 18.439999999999998,
+          "duration": 2.76,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.31,
+          "text": "Use the OPS toggle in Mask's action row.",
+          "speech_text": "Use the OPS toggle in Mask's action row.",
+          "phonemes": "jˈuz ði ˌOpˌiˈɛs tˈɑɡᵊl ɪn mˈæsks ˈækʃən ɹˈO."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 18.74,
+          "speech_end": 21.675,
+          "audible_start": 18.84,
+          "audible_end": 21.494999999999997,
+          "duration": 2.935,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.28,
+          "text": "It opens a separate page inside the host module.",
+          "speech_text": "It opens a separate page inside the host module.",
+          "phonemes": "ˌɪt ˈOpᵊnz ɐ sˈɛpəɹət pˈAʤ ɪnsˈId ðə hˈOst mˈɑʤul."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 21.794999999999998,
+          "speech_end": 27.775,
+          "audible_start": 21.895,
+          "audible_end": 27.595,
+          "duration": 5.98,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.27,
+          "text": "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+          "speech_text": "OPS is not a second Home tile, and it is not the Map Barcodes workflow for sequencing read files.",
+          "phonemes": "ˈɑps ɪz nˌɑt ɐ sˈɛkənd hˈOm tˈIl, ænd ɪt ɪz nˌɑt ðə mˈæp bˈɑɹkˌOdz wˈɜɹkflˌO fɔɹ sˈikwənsɪŋ ɹˈɛd fˈIlz."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 28.294999999999998,
+      "speech_end": 46.14,
+      "scene_end": 46.660000000000004,
+      "duration": 18.365000000000006,
+      "text": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings. Its Run button uses a different, legacy engine. We do not start it here or imply that a complete screening pipeline has been validated. The next steps use the geometry APIs directly.",
+      "speech_text": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings. Its Run button uses a different, legacy engine. We do not start it here or imply that a complete screening pipeline has been validated. The next steps use the geometry APIs directly.",
+      "phonemes": "ðə kˈɜɹənt ˌOpˌiˈɛs pˈAʤ ɪkspˈOzᵻz ˈɪnpˌʊt, stˈɪʧɪŋ, mOzˈAɪk, əlˈInmənt ænd kwˌɑləTikəntɹˈOl sˈɛTɪŋz. ˌɪts ɹˈʌn bˈʌtn jˈuzᵻz ɐ dˈɪfəɹənt, lˈɛɡəsi ˈɛnʤən. wˌi dˈu nˌɑt stˈɑɹt ɪt hˈɪɹ ɔɹ ɪmplˈI ðæt ɐ kəmplˈit skɹˈinɪŋ pˈIplˌIn hæz bɪn vˈælɪdˌATᵻd. ðə nˈɛkst stˈɛps jˈuz ðə ʤiˈɑmətɹi ˌApˌiˈIz dəɹˈɛktli.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 28.294999999999998,
+          "speech_end": 34.78,
+          "audible_start": 28.395,
+          "audible_end": 34.599999999999994,
+          "duration": 6.485,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.27,
+          "text": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings.",
+          "speech_text": "The current OPS page exposes input, stitching, mosaic, alignment and quality-control settings.",
+          "phonemes": "ðə kˈɜɹənt ˌOpˌiˈɛs pˈAʤ ɪkspˈOzᵻz ˈɪnpˌʊt, stˈɪʧɪŋ, mOzˈAɪk, əlˈInmənt ænd kwˌɑləTikəntɹˈOl sˈɛTɪŋz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 34.9,
+          "speech_end": 37.73,
+          "audible_start": 35.0,
+          "audible_end": 37.55,
+          "duration": 2.83,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.26,
+          "text": "Its Run button uses a different, legacy engine.",
+          "speech_text": "Its Run button uses a different, legacy engine.",
+          "phonemes": "ˌɪts ɹˈʌn bˈʌtn jˈuzᵻz ɐ dˈɪfəɹənt, lˈɛɡəsi ˈɛnʤən."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 37.849999999999994,
+          "speech_end": 42.855,
+          "audible_start": 37.949999999999996,
+          "audible_end": 42.675,
+          "duration": 5.005,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "We do not start it here or imply that a complete screening pipeline has been validated.",
+          "speech_text": "We do not start it here or imply that a complete screening pipeline has been validated.",
+          "phonemes": "wˌi dˈu nˌɑt stˈɑɹt ɪt hˈɪɹ ɔɹ ɪmplˈI ðæt ɐ kəmplˈit skɹˈinɪŋ pˈIplˌIn hæz bɪn vˈælɪdˌATᵻd."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 42.974999999999994,
+          "speech_end": 46.14,
+          "audible_start": 43.074999999999996,
+          "audible_end": 45.959999999999994,
+          "duration": 3.165,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.29,
+          "text": "The next steps use the geometry APIs directly.",
+          "speech_text": "The next steps use the geometry APIs directly.",
+          "phonemes": "ðə nˈɛkst stˈɛps jˈuz ðə ʤiˈɑmətɹi ˌApˌiˈIz dəɹˈɛktli."
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 46.660000000000004,
+      "speech_end": 66.21000000000001,
+      "scene_end": 66.73,
+      "duration": 20.07,
+      "text": "This CPU demonstration registers and composes four real image tiles from an existing acquisition. It does not segment cells, decode barcodes or process a whole plate. The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+      "speech_text": "This CPU demonstration registers and composes four real image tiles from an existing acquisition. It does not segment cells, decode barcodes or process a whole plate. The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+      "phonemes": "ðˌɪs sˌipˌijˈu dˌɛmənstɹˈAʃən ɹˈɛʤəstəɹz ænd kəmpˈOzᵻz fˈɔɹ ɹˈiᵊl ˈɪmɪʤ tˈIlz fɹʌm ɐn ɪɡzˈɪstɪŋ ˌækwəzˈɪʃən. ˌɪt dˈʌz nˌɑt sˈɛɡmˌɛnt sˈɛlz, dˌikˈOd bˈɑɹkˌOdz ɔɹ pɹˈɑsˌɛs ɐ hˈOl plˈAt. ði əɹˈɪʤənᵊl ˌækwəzˈɪʃən ɪz nˌɑt ɐ bˈʌndᵊld tˈɛst dˈWnlˌOd; ɪɡzˈækt ɹˌipɹədˈʌkʃən ɹəkwˈIəɹz ˈɔθəɹˌIzd ˈæksˌɛs tə ðOz fˈIlz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 46.660000000000004,
+          "speech_end": 53.63,
+          "audible_start": 46.760000000000005,
+          "audible_end": 53.45,
+          "duration": 6.97,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.285,
+          "text": "This CPU demonstration registers and composes four real image tiles from an existing acquisition.",
+          "speech_text": "This CPU demonstration registers and composes four real image tiles from an existing acquisition.",
+          "phonemes": "ðˌɪs sˌipˌijˈu dˌɛmənstɹˈAʃən ɹˈɛʤəstəɹz ænd kəmpˈOzᵻz fˈɔɹ ɹˈiᵊl ˈɪmɪʤ tˈIlz fɹʌm ɐn ɪɡzˈɪstɪŋ ˌækwəzˈɪʃən."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 53.75,
+          "speech_end": 58.095000000000006,
+          "audible_start": 53.85,
+          "audible_end": 57.915000000000006,
+          "duration": 4.345,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.265,
+          "text": "It does not segment cells, decode barcodes or process a whole plate.",
+          "speech_text": "It does not segment cells, decode barcodes or process a whole plate.",
+          "phonemes": "ˌɪt dˈʌz nˌɑt sˈɛɡmˌɛnt sˈɛlz, dˌikˈOd bˈɑɹkˌOdz ɔɹ pɹˈɑsˌɛs ɐ hˈOl plˈAt."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 58.215,
+          "speech_end": 66.21000000000001,
+          "audible_start": 58.315000000000005,
+          "audible_end": 66.03,
+          "duration": 7.995,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.27,
+          "text": "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+          "speech_text": "The original acquisition is not a bundled test download; exact reproduction requires authorized access to those files.",
+          "phonemes": "ði əɹˈɪʤənᵊl ˌækwəzˈɪʃən ɪz nˌɑt ɐ bˈʌndᵊld tˈɛst dˈWnlˌOd; ɪɡzˈækt ɹˌipɹədˈʌkʃən ɹəkwˈIəɹz ˈɔθəɹˌIzd ˈæksˌɛs tə ðOz fˈIlz."
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "speech_start": 66.73,
+      "speech_end": 84.27000000000001,
+      "scene_end": 84.79,
+      "duration": 18.060000000000002,
+      "text": "Select sites zero, one, ten and eleven from the first imaging cycle. Each original file has five planes; plane zero contains the nuclear stain. Keep the original three hundred thirty-three-site layout and site numbers. Four selected tiles do not define a new four-tile well.",
+      "speech_text": "Select sites zero, one, ten and eleven from the first imaging cycle. Each original file has five planes; plane zero contains the nuclear stain. Keep the original three hundred thirty-three-site layout and site numbers. Four selected tiles do not define a new four-tile well.",
+      "phonemes": "səlˈɛkt sˈIts zˈɪɹO, wˈʌn, tˈɛn ænd əlˈɛvᵊn fɹʌm ðə fˈɜɹst ˈɪmɪʤɪŋ sˈIkəl. ˈiʧ əɹˈɪʤənᵊl fˈIl hæz fˈIv plˈAnz; plˈAn zˈɪɹO kəntˈAnz ðə nˈukliəɹ stˈAn. kˈip ði əɹˈɪʤənᵊl θɹˈi hˈʌndɹəd θˈɜɹTiθɹˌisˈIt lˈAˌWt ænd sˈIt nˈʌmbəɹz. fˈɔɹ səlˈɛktᵻd tˈIlz dˈu nˌɑt dəfˈIn ɐ nˈu fˌɔɹtˈIl wˈɛl.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 66.73,
+          "speech_end": 71.215,
+          "audible_start": 66.83,
+          "audible_end": 71.035,
+          "duration": 4.485,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.18,
+          "trimmed_tail": 0.285,
+          "text": "Select sites zero, one, ten and eleven from the first imaging cycle.",
+          "speech_text": "Select sites zero, one, ten and eleven from the first imaging cycle.",
+          "phonemes": "səlˈɛkt sˈIts zˈɪɹO, wˈʌn, tˈɛn ænd əlˈɛvᵊn fɹʌm ðə fˈɜɹst ˈɪmɪʤɪŋ sˈIkəl."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 71.33500000000001,
+          "speech_end": 76.22,
+          "audible_start": 71.435,
+          "audible_end": 76.04,
+          "duration": 4.885,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.275,
+          "text": "Each original file has five planes; plane zero contains the nuclear stain.",
+          "speech_text": "Each original file has five planes; plane zero contains the nuclear stain.",
+          "phonemes": "ˈiʧ əɹˈɪʤənᵊl fˈIl hæz fˈIv plˈAnz; plˈAn zˈɪɹO kəntˈAnz ðə nˈukliəɹ stˈAn."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 76.34,
+          "speech_end": 80.54,
+          "audible_start": 76.44,
+          "audible_end": 80.36,
+          "duration": 4.2,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.185,
+          "trimmed_tail": 0.265,
+          "text": "Keep the original three hundred thirty-three-site layout and site numbers.",
+          "speech_text": "Keep the original three hundred thirty-three-site layout and site numbers.",
+          "phonemes": "kˈip ði əɹˈɪʤənᵊl θɹˈi hˈʌndɹəd θˈɜɹTiθɹˌisˈIt lˈAˌWt ænd sˈIt nˈʌmbəɹz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 80.66,
+          "speech_end": 84.27000000000001,
+          "audible_start": 80.76,
+          "audible_end": 84.09,
+          "duration": 3.61,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.18,
+          "trimmed_tail": 0.285,
+          "text": "Four selected tiles do not define a new four-tile well.",
+          "speech_text": "Four selected tiles do not define a new four-tile well.",
+          "phonemes": "fˈɔɹ səlˈɛktᵻd tˈIlz dˈu nˌɑt dəfˈIn ɐ nˈu fˌɔɹtˈIl wˈɛl."
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "speech_start": 84.79,
+      "speech_end": 101.605,
+      "scene_end": 102.125,
+      "duration": 17.334999999999994,
+      "text": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window. All four tiles are placed. Their patch is two thousand seven hundred fifty-six pixels square. The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+      "speech_text": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window. All four tiles are placed. Their patch is two thousand seven hundred fifty-six pixels square. The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+      "phonemes": "ðə hˈɛlpəɹ kˈɔlz stˈɪʧwˌɛl, ʧˈɛks ˈɔl fˈɔɹ nˈAbəɹɪŋ ˈOvəɹlˌæps, ænd ðˈɛn kˈɔlz kəmpˈOzwˌɪndO. ˈɔl fˈɔɹ tˈIlz ɑɹ plˈAst. ðˌɛɹ pˈæʧ ɪz tˈu θˈWzᵊnd sˈɛvən hˈʌndɹəd fˈɪftisˌɪks pˈɪksᵊlz skwˈɛɹ. ðə lˈup klˈOzᵻz wɪðˈɪn ɐ kwˈɔɹTəɹ pˈɪksᵊl ɪn ðɪs ˌækwəzˈɪʃən, nˌɑt ɐ jˌunəvˈɜɹsᵊl ˈækjəɹəsi ɡˌɛɹəntˈi.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 84.79,
+          "speech_end": 90.055,
+          "audible_start": 84.89,
+          "audible_end": 89.875,
+          "duration": 5.265,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.29,
+          "text": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window.",
+          "speech_text": "The helper calls stitch_well, checks all four neighboring overlaps, and then calls compose_window.",
+          "phonemes": "ðə hˈɛlpəɹ kˈɔlz stˈɪʧwˌɛl, ʧˈɛks ˈɔl fˈɔɹ nˈAbəɹɪŋ ˈOvəɹlˌæps, ænd ðˈɛn kˈɔlz kəmpˈOzwˌɪndO."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 90.17500000000001,
+          "speech_end": 91.825,
+          "audible_start": 90.275,
+          "audible_end": 91.64500000000001,
+          "duration": 1.65,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.225,
+          "text": "All four tiles are placed.",
+          "speech_text": "All four tiles are placed.",
+          "phonemes": "ˈɔl fˈɔɹ tˈIlz ɑɹ plˈAst."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 91.94500000000001,
+          "speech_end": 95.715,
+          "audible_start": 92.045,
+          "audible_end": 95.53500000000001,
+          "duration": 3.77,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.275,
+          "text": "Their patch is two thousand seven hundred fifty-six pixels square.",
+          "speech_text": "Their patch is two thousand seven hundred fifty-six pixels square.",
+          "phonemes": "ðˌɛɹ pˈæʧ ɪz tˈu θˈWzᵊnd sˈɛvən hˈʌndɹəd fˈɪftisˌɪks pˈɪksᵊlz skwˈɛɹ."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 95.83500000000001,
+          "speech_end": 101.605,
+          "audible_start": 95.935,
+          "audible_end": 101.42500000000001,
+          "duration": 5.77,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.335,
+          "text": "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+          "speech_text": "The loop closes within a quarter pixel in this acquisition, not a universal accuracy guarantee.",
+          "phonemes": "ðə lˈup klˈOzᵻz wɪðˈɪn ɐ kwˈɔɹTəɹ pˈɪksᵊl ɪn ðɪs ˌækwəzˈɪʃən, nˌɑt ɐ jˌunəvˈɜɹsᵊl ˈækjəɹəsi ɡˌɛɹəntˈi."
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "speech_start": 102.125,
+      "speech_end": 122.03,
+      "scene_end": 122.55,
+      "duration": 20.424999999999997,
+      "text": "Do not trust placement alone. Compare actual overlapping pixels independently of the registration score. Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels. Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+      "speech_text": "Do not trust placement alone. Compare actual overlapping pixels independently of the registration score. Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels. Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+      "phonemes": "dˈu nˌɑt tɹˈʌst plˈAsmᵊnt əlˈOn. kəmpˈɛɹ ˈækʧəwəl ˌOvəɹlˈæpɪŋ pˈɪksᵊlz ˌɪndəpˈɛndəntli ʌv ðə ɹˌɛʤəstɹˈAʃən skˈɔɹ. hˈɪɹ, əlˈInd kˌɔɹəlˈAʃənz ɑɹ mˈʌʧ stɹˈɔŋɡəɹ ðən kˌɔɹəlˈAʃənz ˈæftəɹ dəlˈɪbəɹətli ʃˈɪftɪŋ ˈiðəɹ ˈæksɪs bI sˌɛvəntˈin pˈɪksᵊlz. ðˌOz ɹˌɔŋˈɔfsˌɛt kəntɹˈOlz hˈɛlp dətˈɛkt ɐ plˈɔzəbᵊllˌʊkɪŋ bˌʌt ˌɪnkəɹˈɛkt plˈAsmᵊnt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 102.125,
+          "speech_end": 103.895,
+          "audible_start": 102.225,
+          "audible_end": 103.715,
+          "duration": 1.77,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.225,
+          "text": "Do not trust placement alone.",
+          "speech_text": "Do not trust placement alone.",
+          "phonemes": "dˈu nˌɑt tɹˈʌst plˈAsmᵊnt əlˈOn."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 104.015,
+          "speech_end": 108.675,
+          "audible_start": 104.115,
+          "audible_end": 108.495,
+          "duration": 4.66,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.3,
+          "text": "Compare actual overlapping pixels independently of the registration score.",
+          "speech_text": "Compare actual overlapping pixels independently of the registration score.",
+          "phonemes": "kəmpˈɛɹ ˈækʧəwəl ˌOvəɹlˈæpɪŋ pˈɪksᵊlz ˌɪndəpˈɛndəntli ʌv ðə ɹˌɛʤəstɹˈAʃən skˈɔɹ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 108.795,
+          "speech_end": 117.03999999999999,
+          "audible_start": 108.895,
+          "audible_end": 116.86,
+          "duration": 8.245,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.285,
+          "text": "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels.",
+          "speech_text": "Here, aligned correlations are much stronger than correlations after deliberately shifting either axis by seventeen pixels.",
+          "phonemes": "hˈɪɹ, əlˈInd kˌɔɹəlˈAʃənz ɑɹ mˈʌʧ stɹˈɔŋɡəɹ ðən kˌɔɹəlˈAʃənz ˈæftəɹ dəlˈɪbəɹətli ʃˈɪftɪŋ ˈiðəɹ ˈæksɪs bI sˌɛvəntˈin pˈɪksᵊlz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 117.16,
+          "speech_end": 122.03,
+          "audible_start": 117.26,
+          "audible_end": 121.85,
+          "duration": 4.87,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.285,
+          "text": "Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+          "speech_text": "Those wrong-offset controls help detect a plausible-looking but incorrect placement.",
+          "phonemes": "ðˌOz ɹˌɔŋˈɔfsˌɛt kəntɹˈOlz hˈɛlp dətˈɛkt ɐ plˈɔzəbᵊllˌʊkɪŋ bˌʌt ˌɪnkəɹˈɛkt plˈAsmᵊnt."
+        }
+      ]
+    },
+    {
+      "scene": 8,
+      "speech_start": 122.55,
+      "speech_end": 140.755,
+      "scene_end": 141.275,
+      "duration": 18.72500000000001,
+      "text": "Inspect the actual saved image and coverage map. The left panel shows the composed nuclear image; the right counts contributing tiles. Zero coverage means no acquisition pixel, not biological background. This combines spatial neighbors within one plane, never different sequencing cycles.",
+      "speech_text": "Inspect the actual saved image and coverage map. The left panel shows the composed nuclear image; the right counts contributing tiles. Zero coverage means no acquisition pixel, not biological background. This combines spatial neighbors within one plane, never different sequencing cycles.",
+      "phonemes": "ɪnspˈɛkt ði ˈækʧəwəl sˈAvd ˈɪmɪʤ ænd kˈʌvəɹɪʤ mˈæp. ðə lˈɛft pˈænᵊl ʃˈOz ðə kəmpˈOzd nˈukliəɹ ˈɪmɪʤ; ðə ɹˈIt kˈWnts kəntɹˈɪbjuTɪŋ tˈIlz. zˈɪɹO kˈʌvəɹɪʤ mˈinz nˈO ˌækwəzˈɪʃən pˈɪksᵊl, nˌɑt bˌIəlˈɑʤəkᵊl bˈækɡɹˌWnd. ðˌɪs kəmbˈInz spˈAʃᵊl nˈAbəɹz wɪðˈɪn wˈʌn plˈAn, nˈɛvəɹ dˈɪfəɹənt sˈikwənsɪŋ sˈIkəlz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 122.55,
+          "speech_end": 125.73,
+          "audible_start": 122.64999999999999,
+          "audible_end": 125.55,
+          "duration": 3.18,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.24,
+          "text": "Inspect the actual saved image and coverage map.",
+          "speech_text": "Inspect the actual saved image and coverage map.",
+          "phonemes": "ɪnspˈɛkt ði ˈækʧəwəl sˈAvd ˈɪmɪʤ ænd kˈʌvəɹɪʤ mˈæp."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 125.85,
+          "speech_end": 130.935,
+          "audible_start": 125.95,
+          "audible_end": 130.755,
+          "duration": 5.085,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.27,
+          "text": "The left panel shows the composed nuclear image; the right counts contributing tiles.",
+          "speech_text": "The left panel shows the composed nuclear image; the right counts contributing tiles.",
+          "phonemes": "ðə lˈɛft pˈænᵊl ʃˈOz ðə kəmpˈOzd nˈukliəɹ ˈɪmɪʤ; ðə ɹˈIt kˈWnts kəntɹˈɪbjuTɪŋ tˈIlz."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 131.055,
+          "speech_end": 135.78,
+          "audible_start": 131.155,
+          "audible_end": 135.6,
+          "duration": 4.725,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.26,
+          "text": "Zero coverage means no acquisition pixel, not biological background.",
+          "speech_text": "Zero coverage means no acquisition pixel, not biological background.",
+          "phonemes": "zˈɪɹO kˈʌvəɹɪʤ mˈinz nˈO ˌækwəzˈɪʃən pˈɪksᵊl, nˌɑt bˌIəlˈɑʤəkᵊl bˈækɡɹˌWnd."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 135.9,
+          "speech_end": 140.755,
+          "audible_start": 136.0,
+          "audible_end": 140.575,
+          "duration": 4.855,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.275,
+          "text": "This combines spatial neighbors within one plane, never different sequencing cycles.",
+          "speech_text": "This combines spatial neighbors within one plane, never different sequencing cycles.",
+          "phonemes": "ðˌɪs kəmbˈInz spˈAʃᵊl nˈAbəɹz wɪðˈɪn wˈʌn plˈAn, nˈɛvəɹ dˈɪfəɹənt sˈikwənsɪŋ sˈIkəlz."
+        }
+      ]
+    },
+    {
+      "scene": 9,
+      "speech_start": 141.275,
+      "speech_end": 159.745,
+      "scene_end": 160.26500000000001,
+      "duration": 18.99000000000001,
+      "text": "Save the array, coverage, placements, source checksums and run report together. The helper reopens its outputs and confirms all four source files are unchanged. Treat this as a reproducible geometry checkpoint. A full optical screening tutorial still needs separately validated downstream stages.",
+      "speech_text": "Save the array, coverage, placements, source checksums and run report together. The helper reopens its outputs and confirms all four source files are unchanged. Treat this as a reproducible geometry checkpoint. A full optical screening tutorial still needs separately validated downstream stages.",
+      "phonemes": "sˈAv ði əɹˈA, kˈʌvəɹɪʤ, plˈAsmᵊnts, sˈɔɹs ʧˈɛksˌʌmz ænd ɹˈʌn ɹəpˈɔɹt təɡˈɛðəɹ. ðə hˈɛlpəɹ ɹiˈOpᵊnz ɪts ˈWtpˌʊts ænd kənfˈɜɹmz ˈɔl fˈɔɹ sˈɔɹs fˈIlz ɑɹ ˌʌnʧˈAnʤd. tɹˈit ðɪs æz ɐ ɹˌipɹədˈusəbᵊl ʤiˈɑmətɹi ʧˈɛkpˌYnt. ɐ fˈʊl ˈɑptəkᵊl skɹˈinɪŋ tutˈɔɹiəl stˈɪl nˈidz sˈɛpəɹətli vˈælɪdˌATᵻd dˌWnstɹˈim stˈAʤᵻz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 141.275,
+          "speech_end": 146.19,
+          "audible_start": 141.375,
+          "audible_end": 146.01000000000002,
+          "duration": 4.915,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.185,
+          "trimmed_tail": 0.3,
+          "text": "Save the array, coverage, placements, source checksums and run report together.",
+          "speech_text": "Save the array, coverage, placements, source checksums and run report together.",
+          "phonemes": "sˈAv ði əɹˈA, kˈʌvəɹɪʤ, plˈAsmᵊnts, sˈɔɹs ʧˈɛksˌʌmz ænd ɹˈʌn ɹəpˈɔɹt təɡˈɛðəɹ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 146.31,
+          "speech_end": 151.125,
+          "audible_start": 146.41,
+          "audible_end": 150.945,
+          "duration": 4.815,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.265,
+          "text": "The helper reopens its outputs and confirms all four source files are unchanged.",
+          "speech_text": "The helper reopens its outputs and confirms all four source files are unchanged.",
+          "phonemes": "ðə hˈɛlpəɹ ɹiˈOpᵊnz ɪts ˈWtpˌʊts ænd kənfˈɜɹmz ˈɔl fˈɔɹ sˈɔɹs fˈIlz ɑɹ ˌʌnʧˈAnʤd."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 151.245,
+          "speech_end": 154.305,
+          "audible_start": 151.345,
+          "audible_end": 154.125,
+          "duration": 3.06,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.265,
+          "text": "Treat this as a reproducible geometry checkpoint.",
+          "speech_text": "Treat this as a reproducible geometry checkpoint.",
+          "phonemes": "tɹˈit ðɪs æz ɐ ɹˌipɹədˈusəbᵊl ʤiˈɑmətɹi ʧˈɛkpˌYnt."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 154.425,
+          "speech_end": 159.745,
+          "audible_start": 154.525,
+          "audible_end": 159.565,
+          "duration": 5.32,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.275,
+          "text": "A full optical screening tutorial still needs separately validated downstream stages.",
+          "speech_text": "A full optical screening tutorial still needs separately validated downstream stages.",
+          "phonemes": "ɐ fˈʊl ˈɑptəkᵊl skɹˈinɪŋ tutˈɔɹiəl stˈɪl nˈidz sˈɛpəɹətli vˈælɪdˌATᵻd dˌWnstɹˈim stˈAʤᵻz."
+        }
+      ]
+    }
+  ]
+}

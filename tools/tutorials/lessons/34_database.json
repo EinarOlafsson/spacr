@@ -1,0 +1,66 @@
+{
+  "id": "34_database",
+  "number": 34,
+  "slug": "database",
+  "title": "Database Browser: filter and export measurements",
+  "series": 4,
+  "app_key": "db_browser",
+  "section": "Data",
+  "description": "Open a measurement database, select columns and rows, and export the result.",
+  "objectives": [
+    "Open and browse a measurement table.",
+    "Select columns and filter rows.",
+    "Export the matching records."
+  ],
+  "prerequisite": "Have a spaCR measurements.db file or a run folder containing one. Measure’s example project provides a database after measurement.",
+  "scenes": [
+    {
+      "narration": "Open Help, then Database Browser to inspect and export measurement tables.",
+      "visual": "01_overview",
+      "hold_after": 0.7,
+      "focus_key": "screen"
+    },
+    {
+      "narration": "Choose measurements.db, or the run folder containing it, and open the database.",
+      "visual": "02_open",
+      "hold_after": 0.7,
+      "focus_key": "source"
+    },
+    {
+      "narration": "Select the table you need. Choose cell for cell measurements, or a different object table for that object’s features.",
+      "visual": "03_tables",
+      "hold_after": 0.7,
+      "focus_key": "tables"
+    },
+    {
+      "narration": "Read the total row and column counts, then inspect the displayed page. Use the page controls to move through larger tables.",
+      "visual": "04_cell_table",
+      "hold_after": 0.7,
+      "focus_key": "preview"
+    },
+    {
+      "narration": "Search column names to locate a feature. Select the columns you want to view and export.",
+      "visual": "05_column_search",
+      "hold_after": 0.7,
+      "focus_key": "column_search"
+    },
+    {
+      "narration": "Build a filter by choosing a column, an operator and a value. Apply it to select matching records across the full table.",
+      "visual": "08_filter",
+      "hold_after": 0.7,
+      "focus_key": "filter"
+    },
+    {
+      "narration": "Check the filtered row count and inspect the matching records. Adjust or clear the filter to change your selection.",
+      "visual": "09_filtered",
+      "hold_after": 0.7,
+      "focus_key": "status"
+    },
+    {
+      "narration": "Choose Export and a destination file. The export includes all matching rows and your selected columns, while keeping the source database unchanged.",
+      "visual": "10_export",
+      "hold_after": 0.7,
+      "focus_key": "export"
+    }
+  ]
+}

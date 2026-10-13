@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted source-context review of Host–Pathogen module caption and revised Toxoplasma introduction, retaining the individual-parasite counting limitation. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Host–Pathogen",
+      "source": "Host–Pathogen",
+      "source_sha256": "4c412cc95aa2cb17f6e0845eb10053d19c10cdd3303bd167cf972ce50362302e",
+      "translation": "숙주–병원체"
+    },
+    {
+      "table": "ui",
+      "key": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source_sha256": "9e911ea8fe2901d8809fb0145ca76fb04d1288ad1a4227464425c899dd863134",
+      "translation": "Invasion Assay는 숙주 세포에 부착된 기생충과 세포 안으로 들어간 기생충을 구분합니다. Recruitment는 기생충을 포함한 액포 주변의 숙주 단백질 농축을 측정합니다. 숙주–병원체는 액포 수준의 리크루트먼트, 기생충 수, 숙주 세포 감염 지표의 분모를 하나의 분석에 결합합니다. 개별 기생충 수를 세려면 적절한 기생충 마스크나 검증된 추정 방법이 필요하며, 액포 전체의 마스크만으로는 이 수를 얻을 수 없습니다. 이 모듈들을 함께 사용하면 침입의 변화와 침입 후 숙주 반응의 변화를 구분하는 데 도움이 됩니다. 두 집단을 구분할 수 있는 영상 채널과 표지자 정의를 선택하세요."
+    }
+  ]
+}

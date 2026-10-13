@@ -1,0 +1,20 @@
+[
+  {
+    "case": "parentless",
+    "returncode": -11,
+    "stdout": "{\"python\": \"3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"parentless\"}\n",
+    "stderr": "Fatal Python error: Segmentation fault\n\nCurrent thread 0x00007d3eba7de740 (most recent call first):\n  Garbage-collecting\n  File \"/mnt/wd4tb/scratch/ci-final-repairs-20261006/undo_gc_probe.py\", line 20 in <module>\n\nExtension modules: shiboken6.Shiboken, PySide6.QtCore, PySide6.QtGui (total: 3)\n"
+  },
+  {
+    "case": "parented",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"parented\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  },
+  {
+    "case": "cleared",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"cleared\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  }
+]

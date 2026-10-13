@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: the confluency_channel, confluency_source and confluency_window tooltips that item 536's phase confluency source rewrote, re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7578bb1f6d42093da1b5b6e361d10e7890278a20b883516e0dcd7bd6deb80adf",
+      "translation": "O canal do array mesclado que as fontes de confluência textura, intensidade e fase leem, contado como em channels. Em branco usa a primeira entrada de channels. Escolha o plano de campo claro ou de fase para textura ou fase, ou a coloração de citoplasma ou de membrana para intensidade. Ignorado quando confluency_source resulta em máscaras. Padrão None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "1ad7c53391ca65eafe218c43afc1b78b597ef9635c7d5c63fed1de29970f4436",
+      "translation": "Como a confluência é decidida. auto usa as máscaras de células quando a execução as tem, e a textura caso contrário. masks é a união de todas as células segmentadas, antes dos filtros de tamanho do Measure. texture lê a variação local de confluency_channel com um limiar automático. phase classifica cada pixel de confluency_channel com um modelo pequeno treinado em imagens de contraste de fase de oito linhagens celulares, para contraste de fase e campo claro. intensity aplica automaticamente um limiar a confluency_channel, para colorações fluorescentes de citoplasma ou de membrana. Padrão auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "b67b9aee3ea6ab1b6d9cfa65b4f72c2567c5d6d012d87cbce7c7b17169830eed",
+      "translation": "Lado da janela quadrada, em pixels, sobre a qual a fonte de confluência textura mede a variação local. Aproximadamente a largura do prolongamento celular mais fino que deve contar como coberto: menor acompanha as bordas mais de perto, mas deixa o interior liso das células como buracos; maior cobre lacunas estreitas. Para fase, o campo é primeiro redimensionado por 15/janela, então aumente o valor na mesma proporção quando as células tiverem mais pixels de largura do que nas imagens de treino do classificador. Ignorado pelas fontes máscaras e intensidade. Padrão 15."
+    }
+  ]
+}

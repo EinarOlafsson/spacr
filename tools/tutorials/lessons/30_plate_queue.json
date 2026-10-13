@@ -1,0 +1,111 @@
+{
+  "id": "30_plate_queue",
+  "number": 30,
+  "slug": "plate_queue",
+  "series": 4,
+  "app_key": "queue",
+  "section": "Data and batch runs",
+  "title": "Plate Queue: run several prepared projects",
+  "description": "Add the current project or drop prepared folders into a queue, run jobs in order, and continue after a controlled stop.",
+  "objectives": [
+    "Add prepared projects with their saved module settings.",
+    "Run the queue and stop between jobs.",
+    "Find each project’s results and clear completed queue entries."
+  ],
+  "prerequisite": "Prepare a project and its saved module settings. For practice, use two copies of the Recruitment example in separate folders; they contain the same data and are not biological replicates.",
+  "scenes": [
+    {
+      "visual": "00a_import_recruitment_settings",
+      "narration": "Prepare the first project in its analysis module. In Recruitment, choose Import settings and open the project’s settings CSV. The example uses two separate copies of the same measured data to practise running several jobs.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "25_recruitment"
+      ]
+    },
+    {
+      "visual": "00b_current_recruitment_settings",
+      "narration": "Check Source, the channel mapping and the condition labels. Save the settings you want the queue to use, then leave this project open.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01_help_queue",
+      "narration": "Open Help, then Plate queue. The queue runs one item at a time in the listed order.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_added_replay_1",
+      "narration": "Choose Add current plate. A new row stores the current module and settings. Check its module, source and label before starting the queue.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        160,
+        2120,
+        420
+      ]
+    },
+    {
+      "visual": "03_added_replay_2",
+      "narration": "Drag another prepared project folder onto the queue. Its saved settings identify the module, and the dropped folder becomes its source. Use separate project folders when each job needs separate output files.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        160,
+        2120,
+        420
+      ]
+    },
+    {
+      "visual": "04_first_job_running",
+      "narration": "Choose Run queue. The first row changes to running while later items remain queued. Watch the status and elapsed time to follow progress.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        160,
+        2120,
+        420
+      ]
+    },
+    {
+      "visual": "05_stop_requested",
+      "narration": "Press Stop when you want the queue to finish its current item and pause before the next one. Wait until the active job finishes.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        160,
+        2120,
+        420
+      ]
+    },
+    {
+      "visual": "06_stopped_between_jobs",
+      "narration": "The completed row now says success and the next row remains queued. Choose Run queue again to continue with the remaining item.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        160,
+        2120,
+        420
+      ]
+    },
+    {
+      "visual": "07_both_jobs_finished",
+      "narration": "When both jobs finish, open each project’s output folder. For Recruitment, inspect the cells and wells CSV results. Use Recruitment directly when you want its figure workflow; this queue does not display or save those plots.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        160,
+        2120,
+        420
+      ]
+    },
+    {
+      "visual": "08_finished_records_cleared",
+      "narration": "Choose Clear finished to remove completed entries from the list. Their project folders and saved results remain available.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "25_recruitment"
+      ]
+    }
+  ]
+}

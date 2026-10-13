@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spaCR in slides</title>
+<meta name="description" content="Flip through the spaCR info deck: what spaCR does, every module, and the trained models.">
+<style>
+  :root {
+    --bg: #0b0e14; --panel: #151a23; --fg: #e6e9ef; --muted: #8b93a3;
+    --accent: #2ec4b6; --edge: #262d3a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+    border-bottom: 1px solid var(--edge); flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  header .title { color: var(--muted); flex: 1; min-width: 0; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; }
+  header a, header button { color: var(--fg); background: var(--panel);
+    border: 1px solid var(--edge); border-radius: 8px; padding: 6px 10px;
+    font: inherit; font-size: 13px; text-decoration: none; cursor: pointer; }
+  header a:hover, header button:hover { border-color: var(--accent); }
+  main { flex: 1; min-height: 0; display: flex; align-items: center;
+    justify-content: center; position: relative; padding: 12px 56px; }
+  #frame { position: relative; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.5); }
+  #frame img { position: absolute; user-select: none; -webkit-user-drag: none; }
+  #slide { inset: 0; width: 100%; height: 100%; }
+  .nav { position: absolute; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 64px; border-radius: 10px; border: 1px solid var(--edge);
+    background: rgba(21,26,35,.85); color: var(--fg); font-size: 26px;
+    cursor: pointer; }
+  .nav:hover { border-color: var(--accent); }
+  .nav:disabled { opacity: .25; cursor: default; }
+  #prev { left: 6px; } #next { right: 6px; }
+  footer { border-top: 1px solid var(--edge); padding: 8px 12px; }
+  .counter { text-align: center; color: var(--muted); font-size: 13px;
+    margin-bottom: 6px; }
+  .strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: thin; }
+  .strip button { flex: 0 0 auto; padding: 0; border: 2px solid transparent;
+    border-radius: 5px; background: none; cursor: pointer; opacity: .6; }
+  .strip button.on { border-color: var(--accent); opacity: 1; }
+  .strip button:hover { opacity: 1; }
+  .strip img { display: block; width: 120px; height: auto; border-radius: 3px; }
+  @media (max-width: 640px) {
+    main { padding: 8px 4px; }
+    .nav { display: none; }
+    .strip img { width: 84px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1><span>spaCR</span> in slides</h1>
+  <div class="title" id="title"></div>
+  <a id="pdf" href="spacr_deck.pdf" download>PDF</a>
+  <button id="full" type="button" title="Full screen (F)">Full screen</button>
+  <a href="https://github.com/EinarOlafsson/spacr">GitHub</a>
+</header>
+<main id="stage">
+  <button class="nav" id="prev" type="button" aria-label="Previous slide">&#8249;</button>
+  <div id="frame"><img id="slide" alt=""></div>
+  <button class="nav" id="next" type="button" aria-label="Next slide">&#8250;</button>
+</main>
+<footer>
+  <div class="counter" id="counter"></div>
+  <div class="strip" id="strip"></div>
+</footer>
+<script>
+const DECK = __SLIDES__;
+const slides = DECK.slides;
+let at = 0;
+const img = document.getElementById("slide");
+const frame = document.getElementById("frame");
+const stage = document.getElementById("stage");
+const aspect = DECK.aspect || 16 / 9;
+function fit() {
+  const style = getComputedStyle(stage);
+  const w = stage.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  const h = stage.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+  const width = Math.min(w, h * aspect);
+  frame.style.width = width + "px";
+  frame.style.height = (width / aspect) + "px";
+}
+window.addEventListener("resize", fit);
+const strip = document.getElementById("strip");
+const thumbs = slides.map((s, i) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.title = (i + 1) + ". " + s.title;
+  const t = document.createElement("img");
+  t.src = s.thumb; t.alt = s.title; t.loading = "lazy";
+  b.appendChild(t);
+  b.onclick = () => show(i);
+  strip.appendChild(b);
+  return b;
+});
+function show(i, keepHash) {
+  at = Math.max(0, Math.min(slides.length - 1, i));
+  const s = slides[at];
+  img.src = s.image;
+  img.alt = s.title;
+  frame.querySelectorAll(".anim").forEach(el => el.remove());
+  (s.animations || []).forEach(a => {
+    const el = document.createElement("img");
+    el.className = "anim";
+    el.src = a.src;
+    el.alt = "";
+    Object.assign(el.style, {left: a.x * 100 + "%", top: a.y * 100 + "%",
+                             width: a.w * 100 + "%", height: a.h * 100 + "%"});
+    frame.appendChild(el);
+  });
+  document.getElementById("title").textContent = s.title;
+  document.getElementById("counter").textContent = (at + 1) + " / " + slides.length;
+  document.getElementById("prev").disabled = at === 0;
+  document.getElementById("next").disabled = at === slides.length - 1;
+  thumbs.forEach((b, j) => b.classList.toggle("on", j === at));
+  thumbs[at].scrollIntoView({block: "nearest", inline: "center"});
+  if (!keepHash) history.replaceState(null, "", "#" + (at + 1));
+  [at - 1, at + 1].forEach(j => { if (slides[j]) new Image().src = slides[j].image; });
+}
+document.getElementById("prev").onclick = () => show(at - 1);
+document.getElementById("next").onclick = () => show(at + 1);
+document.getElementById("full").onclick = () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+};
+document.addEventListener("keydown", e => {
+  if (["ArrowRight", "PageDown", " "].includes(e.key)) { show(at + 1); e.preventDefault(); }
+  else if (["ArrowLeft", "PageUp"].includes(e.key)) { show(at - 1); e.preventDefault(); }
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(slides.length - 1);
+  else if (e.key === "f" || e.key === "F") document.getElementById("full").click();
+});
+let x0 = null;
+stage.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive: true});
+stage.addEventListener("touchend", e => {
+  if (x0 === null) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1));
+  x0 = null;
+});
+frame.addEventListener("click", e => {
+  const r = frame.getBoundingClientRect();
+  show(at + (e.clientX - r.left > r.width / 2 ? 1 : -1));
+});
+window.addEventListener("hashchange", () => show((parseInt(location.hash.slice(1), 10) || 1) - 1, true));
+fit();
+show((parseInt(location.hash.slice(1), 10) || 1) - 1, true);
+</script>
+</body>
+</html>

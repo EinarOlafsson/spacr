@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "2f7b3cd1a1e5f992da555b9e9fbae3beb9341191",
+  "scope": "Targeted branch and statement coverage; not a whole-suite verdict.",
+  "source_path": "spacr/qt/widgets/object_settings_grid.py",
+  "source_sha256": "90725824b3bb5c018355da1e13e282e8e19e943a449be3e6f31186f5b584c162",
+  "coverage_json_sha256": "1b2a5bd9d4b8436f04cf70b246681187f7385942a7093cc80f2a73984a97ef08",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 476,
+    "num_statements": 488,
+    "percent_covered": 96.53465346534654,
+    "percent_covered_display": "96.53",
+    "missing_lines": 12,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.54098360655738,
+    "percent_statements_covered_display": "97.54",
+    "num_branches": 118,
+    "num_partial_branches": 9,
+    "covered_branches": 109,
+    "missing_branches": 9,
+    "percent_branches_covered": 92.37288135593221,
+    "percent_branches_covered_display": "92.37"
+  },
+  "missing_lines": [
+    112,
+    113,
+    271,
+    635,
+    639,
+    671,
+    676,
+    677,
+    689,
+    1025,
+    1027,
+    1028
+  ],
+  "missing_branches": [
+    [
+      270,
+      271
+    ],
+    [
+      634,
+      635
+    ],
+    [
+      638,
+      639
+    ],
+    [
+      670,
+      671
+    ],
+    [
+      688,
+      689
+    ],
+    [
+      806,
+      808
+    ],
+    [
+      813,
+      -792
+    ],
+    [
+      1002,
+      1000
+    ],
+    [
+      1024,
+      1025
+    ]
+  ],
+  "validation": {
+    "passed": 98,
+    "skipped": 2,
+    "seconds": 36.73,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/qt/test_object_grid_drag_and_help_recovery.py",
+      "tests/qt/test_the_per_object_settings_are_one_table.py",
+      "tests/qt/test_the_grid_and_the_form_agree.py",
+      "tests/qt/test_object_grid_binding_recovers.py",
+      "tests/qt/test_a_cellpose3_model_is_one_click_away.py"
+    ],
+    "log_sha256": "c26cc5b05c9068833254071428deb34bb13fe622c9ecae39bedbda2a77d6325b",
+    "test_sha256": {
+      "tests/qt/test_object_grid_drag_and_help_recovery.py": "a979f2b75038b93c32d86adc21a3003f8194f282d12109eddfc2ff08951981e0",
+      "tests/qt/test_the_per_object_settings_are_one_table.py": "1e5dd449137328e0d07b2561f0bc4d01bc9ca1bf901ad94e969ffce047762db3",
+      "tests/qt/test_the_grid_and_the_form_agree.py": "9ba90a5190d8b5801a6aba63a6cd8bb55f9d2dea1c4d49266d3f0c71290b75da",
+      "tests/qt/test_object_grid_binding_recovers.py": "98fa369f2e58eb153daab26c9e392083b05e0c673184c468bc8d84baf9f851cc",
+      "tests/qt/test_a_cellpose3_model_is_one_click_away.py": "04966e4c91da9c6b08ceae4d57ec8774521256a5b60e3f44784fd4d1ead8f099"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Two pre-existing tests skip because their selected settings fixture contains no absent-object cells; a separate sparse-model case explicitly checks absent cells in the added tests."
+  ]
+}

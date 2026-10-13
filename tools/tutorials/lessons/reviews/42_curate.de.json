@@ -1,0 +1,34 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "54e14df590f9c3ae40a549095430907e6e853617b3cbc6e9ec04702b29e80d0d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Curate: Masken und Tracks bearbeiten",
+  "description": "Üben Sie Pinselbearbeitungen sowie das Teilen und Verbinden von Tracks und speichern Sie die korrigierten Dateien.",
+  "objectives": [
+    "Eine Labelmaske mit Pinsel und Rückgängig-Funktionen bearbeiten.",
+    "Tracks teilen, verbinden und speichern.",
+    "Quelldateien und Kurationsverlauf erhalten."
+  ],
+  "prerequisite": "Laden Sie das synthetische Übungsarchiv herunter und arbeiten Sie mit Kopien. Sichern Sie Masken und ihre .curation.json-Begleitdateien getrennt, bevor Sie sie erneut öffnen: Das Speichern einer erneut geöffneten Maske ersetzt derzeit ihr früheres Bearbeitungsprotokoll.",
+  "scenes": [
+    "Öffnen Sie Make Masks und dann Curate, um Labelmasken und Tracks zu bearbeiten. Laden Sie das synthetische Übungsbeispiel unten herunter und bewahren Sie eine unveränderte Kopie auf.",
+    "Navigieren Sie zum TIFF mit ganzzahligen Labels aus dem Beispiel. Jedes Objekt hat ein eigenes Label; 0 ist für den Hintergrund reserviert. Verwenden Sie für diese Anleitung das TIFF-Beispiel.",
+    "Setzen Sie Brush radius auf 8 und klicken Sie auf New, um ein neues Label zu wählen. Klicken Sie auf eine leere Stelle des Übungsbildes, um einen kleinen Bereich zu malen.",
+    "Klicken Sie auf Undo stroke, um die letzte Pinselbearbeitung zu entfernen. Malen Sie erneut und prüfen Sie das Ergebnis vor dem Speichern.",
+    "Klicken Sie auf Save mask, um das Arbeits-TIFF und seine Kurations-Begleitdatei zu schreiben. Sichern Sie vor dem erneuten Öffnen beide Dateien in einem neuen Sicherungsordner; der Download enthält dafür ein Checkpoint-Skript.",
+    "Bewahren Sie die Sicherung und die Bearbeitungsnotizen jeder Sitzung auf. Beim erneuten Öffnen einer Maske beginnt ein neues Protokoll im Arbeitsspeicher, und ein weiteres Speichern ersetzt die Begleitdatei durch den Verlauf dieser Sitzung.",
+    "Navigieren Sie zur Track-CSV und wählen Sie die zu prüfenden Tracks. Join akzeptiert Tracks mit nicht überlappenden Frame-Bereichen; eine Überlappung erzeugt eine Meldung, die zuerst behoben werden muss.",
+    "Wählen Sie Track 2, setzen Sie Split at frame auf 4 und klicken Sie auf Split. Die späteren Frames wandern in einen neuen Track, während die früheren die ursprüngliche Kennung behalten.",
+    "Wählen Sie die beiden nicht überlappenden Hälften und klicken Sie auf Join, um sie zu verbinden. Klicken Sie auf Save tracks, um die CSV und ihre separate Kurations-Begleitdatei zu schreiben.",
+    "Verwenden Sie Delete nur für Tracks, die Sie entfernen möchten. Um eine ungespeicherte Änderung zu verwerfen, öffnen Sie die zuletzt gespeicherte CSV erneut.",
+    "Prüfen Sie die erneut geöffneten Tracks und den gespeicherten Verlauf. Bewahren Sie Originale und Gründe für Änderungen auf und wiederholen Sie jede nachgelagerte Analyse, die von korrigierten Masken oder Trajektorien betroffen ist."
+  ]
+}

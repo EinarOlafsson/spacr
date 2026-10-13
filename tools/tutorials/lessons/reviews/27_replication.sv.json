@@ -1,0 +1,35 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "f88be9a5d3e37117e01ec694187f3f515a070031de8789ee07e661eb4c098df3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Replication Assay: räkna parasiter per vakuol",
+  "description": "Läs in parasitmätningar, välj vakuolidentitet, kör analysen och granska räkningsfördelningar och exporter.",
+  "objectives": [
+    "Välja en mätdatabas och dess vakuolidentifierare.",
+    "Ange filter för värdcellstilldelning och storlek och sedan köra analysen.",
+    "Läsa fördelningarna per brunn och hitta de sparade resultattabellerna."
+  ],
+  "prerequisite": "Packa upp det länkade syntetiska Replication Assay-exemplet. Det innehåller en mätdatabas och en inställningsreferens, med 1 992 parasitrader i 480 vakuoler fördelade på tolv brunnar. Villkorsnamnen och mätningarna är undervisningsdata. För din egen analys använder du uppmätta parasiter med granskade vakuoltilldelningar och oberoende experimentella replikat.",
+  "scenes": [
+    "Från Home öppnar du Toxoplasma och väljer sedan Replication Assay. Börja med en mätdatabas som innehåller parasitrader och deras vakuoltilldelningar. Med det länkade syntetiska exemplet kan du öva på inställningarna och läsa de resulterande räkningsfördelningarna.",
+    "Packa upp provet och ställ in Source på dess mapp replication. Databasen finns i measurements. Ange den medföljande inställningsreferensen och ersätt platshållaren för Source med den uppackade mappen. Låt Save vara påslaget så att resultaten skrivs.",
+    "Ställ Vacuole key på vacuole_id. Då grupperas parasiterna efter den vakuol de tillhör. Provet innehåller två vakuoler per värdcellsgrupp, så använd vakuolidentifieraren för att hålla isär räkningarna.",
+    "Slå på Require host cell för att bara ta med parasiter som är kopplade till en värdcell. Granska otilldelade objekt när du använder egna data. För det här provet ställer du Minimum parasite area på 200 och Maximum parasite area på 800.",
+    "Ställ Maximum parasites per vacuole på 16. Det anger den största namngivna kategorin bland tvåpotenserna. Större tvåpotenser hamnar i en överflödeskategori, medan antal som 3 stannar i den separata kategorin för värden som inte är tvåpotenser.",
+    "Ange vehicle och inhibitor som de två Pathogen types och koppla dem till kolumn 1 och kolumn 2 i Pathogen plate metadata. Varje grupp innehåller sex övningsbrunnar. För ditt experiment anger du villkorsnamn och brunntilldelningar från din plattdesign.",
+    "Kontrollera Source, Vacuole key, filtren och Save och klicka sedan på Run. Följ konsolen tills bearbetningen är klar. Området Figures visar fördelningar per brunn och per villkor.",
+    "Öppna figuren per brunn. Varje staplad stapel visar andelen vakuoler i varje kategori av parasitantal. Läs färgerna med hjälp av förklaringen. I det här provet innehåller varje brunn 40 vakuoler, och 5 procent hamnar i kategorin för värden som inte är tvåpotenser.",
+    "Öppna Figure settings för att justera förklaringen. På fliken axes väljer du en Legend position inuti figuren om etiketterna sträcker sig utanför den. Det ändrar bara presentationen; de beräknade antalen behålls.",
+    "Öppna figuren per villkor för att jämföra de sammanslagna räkningsfördelningarna. Granska resultaten per brunn tillsammans med sammanfattningen. När du analyserar ett experiment använder du oberoende biologiska replikat och en lämplig experimentell enhet för statistiska jämförelser.",
+    "Läs eventuella exportvarningar i konsolen. Kontrollera de sparade figurerna och inte bara vyn på skärmen, och välj färger som går att läsa mot exportens bakgrund.",
+    "Resultaten i results/analyze_replication i Source bygger på varandra. vacuole_counts.csv räknar varje vakuol, well_distribution.csv gör om räkningarna till varje brunns fördelning, och sammanfattningarna och figurerna per villkor slår ihop brunnarna. Spara dem med inställningarna och källdatabasen så att du kan spåra varje tal."
+  ]
+}

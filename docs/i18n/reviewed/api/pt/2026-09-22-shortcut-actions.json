@@ -1,0 +1,70 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "Search spaCR from the field beside the Help menu",
+      "label": "spacr.qt.shortcuts#5",
+      "source": "Search spaCR from the field beside the Help menu",
+      "source_sha256": "15171377ee0df3ed557afa0db3e1f3918cbfd579e4114e018f18e1e75384beff",
+      "translation": "Pesquisar no spaCR pelo campo ao lado do menu Ajuda"
+    },
+    {
+      "context": "Show the shortcuts cheat sheet",
+      "label": "spacr.qt.shortcuts#6",
+      "source": "Show the shortcuts cheat sheet",
+      "source_sha256": "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
+      "translation": "Mostrar a folha de referência dos atalhos"
+    },
+    {
+      "context": "Open Preferences",
+      "label": "spacr.qt.shortcuts#7",
+      "source": "Open Preferences",
+      "source_sha256": "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
+      "translation": "Abrir preferências"
+    },
+    {
+      "context": "Put GUI scale, font scale and preview scales back to 100 %",
+      "label": "spacr.qt.shortcuts#8",
+      "source": "Put GUI scale, font scale and preview scales back to 100 %",
+      "source_sha256": "a82c2a18ac9474918c388dcd2b01787d5a86d44e92dc00df261aa923a818e246",
+      "translation": "Restaurar as escalas da interface (GUI), da fonte e das prévias para 100 %"
+    },
+    {
+      "context": "Open the AI Console",
+      "label": "spacr.qt.shortcuts#9",
+      "source": "Open the AI Console",
+      "source_sha256": "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
+      "translation": "Abra o Console de IA"
+    },
+    {
+      "context": "Jump to the newest console line",
+      "label": "spacr.qt.shortcuts#10",
+      "source": "Jump to the newest console line",
+      "source_sha256": "7554498397eaddc0acb386964c5921adc73719d98010a36f581d2d50a7de464c",
+      "translation": "Ir para a linha mais recente do console"
+    },
+    {
+      "context": "Toggle full application view",
+      "label": "spacr.qt.shortcuts#11",
+      "source": "Toggle full screen",
+      "source_sha256": "57789cb3e56114c2ac0b6da7897da3ab981774d3cce81cbfe4a88b60b4475ecf",
+      "translation": "Alternar o modo de tela cheia"
+    },
+    {
+      "context": "Close any open dialog / popup",
+      "label": "spacr.qt.shortcuts#12",
+      "source": "Close any open dialog / popup",
+      "source_sha256": "08e3d9a4ad4c1558a7bf0f213ac730d653a98a876106f56d7a9bf7b595bb3aeb",
+      "translation": "Fechar qualquer caixa de diálogo ou janela pop-up aberta"
+    },
+    {
+      "context": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
+      "label": "spacr.qt.shortcuts#13",
+      "source": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
+      "source_sha256": "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
+      "translation": ":func:`install` é chamada uma vez a partir de ``MainWindow.__init__``. Cada atalho é documentado em :data:`SHORTCUTS` para que a caixa de diálogo da folha de referência permaneça sincronizada com o que está realmente configurado."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review; historical exact-source tail retained",
+  "schema": 1
+}

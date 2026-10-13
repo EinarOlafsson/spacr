@@ -1,0 +1,113 @@
+{
+  "id": "32_align_stitch",
+  "number": 32,
+  "slug": "align_stitch",
+  "series": 4,
+  "app_key": "align",
+  "section": "Tools",
+  "title": "Align & Stitch: plan and write an image mosaic",
+  "description": "Choose image tiles, set their acquisition layout, inspect the registration plan, and write the mosaic with its coordinates.",
+  "objectives": [
+    "Choose tiles and set the grid, overlap and registration channel.",
+    "Inspect the planned positions and registration quality.",
+    "Write the mosaic and retain its coordinate database."
+  ],
+  "prerequisite": "Download and unzip the nine-tile example below, or prepare image tiles with known acquisition order, overlap and a useful registration channel. The example uses overlapping crops from one microscopy field to provide a practice layout.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "From Home’s Tools category, open Align and Stitch. Choose the tiles, review their layout with Plan, then use Write stack to create the mosaic.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_preserved_real_pixel_tiles",
+      "narration": "Download and unzip the example below, then select its tiles folder. It contains nine overlapping crops arranged in a three-by-three grid. For your own acquisition, keep the original tile order and stage metadata available.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02b_align_test_data_loaded",
+      "narration": "To practise on published data instead, press Load test data. spaCR downloads nine overlapping tiles from an optical pooled screen and fills in the tile folder, grid, order, overlap and output folder, so you can press Plan straight away. The next steps use the settings of the downloadable example.",
+      "focus": [
+        340,
+        170,
+        3490,
+        170
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_actual_layout_and_budget",
+      "narration": "Set the grid to three by three, row-major order and overlap zero point two five for this example. Match these settings to your acquisition; use serpentine order when alternate rows were acquired in opposite directions.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        300,
+        1800,
+        170
+      ]
+    },
+    {
+      "visual": "03_actual_layout_and_budget",
+      "narration": "Set Reference channel to the image plane used for registration. This example uses channel one, the second plane with zero-based numbering. Choose a channel with visible structure across overlaps; the resulting placement applies to all image channels.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        300,
+        1800,
+        170
+      ]
+    },
+    {
+      "visual": "03_actual_layout_and_budget",
+      "narration": "Set Minimum confidence for accepting a registration and Neighbour radius for the nearby tiles to compare. The example uses zero point three and one, with feather blending across overlaps. The band-buffer budget controls memory used by the image writer.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        300,
+        1800,
+        170
+      ]
+    },
+    {
+      "visual": "04_registered_plan_not_yet_written",
+      "narration": "Press Plan. Inspect the registered, nominal and unplaced tile counts and the proposed canvas size. The layout shows tile positions. Review any nominal fallback or unplaced tiles before writing the mosaic.",
+      "hold_after": 0.7,
+      "focus": [
+        1700,
+        440,
+        2100,
+        850
+      ]
+    },
+    {
+      "visual": "05_actual_tile_detail",
+      "narration": "Click a tile to inspect its coordinates, confidence, residual and contributing pairs. Use these details to investigate unexpected positions, then adjust the registration settings and plan again if needed.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_actual_tile_detail",
+      "narration": "Choose an output folder and a coordinate-database path. Leave Overwrite off when creating a new result. Once the plan and destination are ready, press Write stack.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        1990,
+        3370,
+        140
+      ]
+    },
+    {
+      "visual": "06_real_stitch_complete",
+      "narration": "Wait for the completion summary and open the output stack. Inspect the overlaps and object boundaries in the mosaic. Keep the coordinate database and source tiles with it so downstream locations can be traced back to the acquisition.",
+      "hold_after": 0.7,
+      "focus": [
+        1700,
+        440,
+        2100,
+        1100
+      ]
+    }
+  ],
+  "example_files": [
+    "Align_Stitch_nine_tiles.zip"
+  ]
+}

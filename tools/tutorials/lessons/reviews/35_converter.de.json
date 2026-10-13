@@ -1,0 +1,35 @@
+{
+  "lesson": "35_converter",
+  "english_sha256": "ebc9da9b1151232bc9d3f3ef39943821bd6d61b512039da9278febd7d3afaebe",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Format Converter: Bilddateien in der Vorschau prüfen und konvertieren",
+  "description": "Wählen Sie einen Quellordner, prüfen Sie Zielnamen und Kanalzuordnungen, konvertieren Sie dann die Bilder und setzen Sie abgeschlossene Arbeit fort.",
+  "objectives": [
+    "Quell- und Zielordner mit dem richtigen Aufnahmelayout wählen.",
+    "Zielnamen, Bildfelder und Kanalzuordnungen in der Vorschau prüfen.",
+    "Die Dateien konvertieren und Resume für abgeschlossene Bildfelder verwenden."
+  ],
+  "prerequisite": "Bereiten Sie einen Ordner mit unterstützten Bilddateien vor und bewahren Sie deren Aufnahme-Metadaten auf. Sie können mit den zwei TIFF-Bildern aus dem Import-Project-Tutorial üben. Legen Sie Layout und Z-Behandlung für Ihre eigene Aufnahme fest.",
+  "scenes": [
+    "Öffnen Sie von Home aus Import Project und wählen Sie Format Converter. Damit bereiten Sie Bilddateien und Dateinamen für den nächsten Analyseschritt vor.",
+    "Der Konverter arbeitet in eine Richtung: von Source über Preview nach Destination. Preview zeigt, wohin jede Quelldatei kommt, bevor etwas geschrieben wird, sodass Sie die Zuordnungen prüfen können; Convert schreibt sie dann.",
+    "Wählen Sie den Ordner mit Ihren Quellbildern. Dieses Beispiel verwendet zwei einkanalige TIFFs. Halten Sie die ursprünglichen Aufnahme-Metadaten bereit, wenn Sie die konvertierten Namen prüfen.",
+    "Wählen Sie einen neuen Zielordner. Der Konverter schreibt dort die neuen Bilder zusammen mit einer Zuordnungsdatei; bewahren Sie Ihre Originalbilder getrennt auf.",
+    "Stellen Sie Layout passend zu Ihren Ordnern ein. Wählen Sie für den flachen Ordner des Beispiels die Option für Bilder direkt in der Quelle und die benötigte Regel für Plattennamen. Wählen Sie für einen Verzeichnisbaum nach Platte und Well das entsprechende Layout.",
+    "Wählen Sie, wie Z-Ebenen behandelt werden. Behalten Sie alle Ebenen, wenn Sie den vollständigen Stapel brauchen, verwenden Sie die Maximumprojektion für ein projiziertes Bild, oder wählen Sie die erste Ebene, wenn diese die vorgesehene Eingabe ist. Dieses Beispiel enthält eine Ebene pro Datei.",
+    "Drücken Sie Preview. Prüfen Sie jede Zuordnung von Quelle zu Ziel, einschließlich Platte, Well, Bildfeld und Kanal. Indizierte Namen sind zugewiesene Identitäten; bestätigen Sie anhand der ursprünglichen Metadaten, welche Versuchsbedingungen sie darstellen.",
+    "Prüfen Sie From field und From channel zusammen mit den Zielnamen. Kanalindizes in Arrays und Kanalnummern in Dateinamen können unterschiedlichen Konventionen folgen. Prüfen Sie, dass jedes Ziel die Bildebene enthält, die Sie analysieren möchten.",
+    "Ist eine Zuordnung falsch, ändern Sie das Quelllayout oder die Konvertierungseinstellungen und erstellen Sie die Vorschau erneut. Die Vorschautabelle ist schreibgeschützt.",
+    "Drücken Sie Convert und lesen Sie die Abschlusszusammenfassung zu konvertierten, fehlgeschlagenen und übersprungenen Dateien. Öffnen Sie ein konvertiertes Bild, um Abmessungen und Kanäle zu prüfen, bevor Sie mit Segmentierung oder Messung weitermachen.",
+    "Bewahren Sie conversion_map.csv bei den konvertierten Bildern auf. Die Datei hält Quell- und Zielpfade, zugewiesene Identitäten und den Konvertierungsstatus fest. Legen Sie die ursprünglichen Aufnahme-Metadaten daneben.",
+    "Aktivieren Sie Resume für einen späteren Lauf mit derselben Quelle, demselben Plan und demselben Ziel. Kompatible abgeschlossene Bildfelder können wiederverwendet werden. Lesen Sie die Zusammenfassung, um zu sehen, welche Dateien konvertiert wurden und welche bereits vorhanden waren."
+  ]
+}

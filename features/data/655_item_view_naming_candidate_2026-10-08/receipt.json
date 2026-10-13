@@ -1,0 +1,158 @@
+{
+  "source_commit": "82205d5e609d0ac5ebd11148ba8023693546a794",
+  "source_sha256": {
+    "spacr/qt/i18n.py": "0b03d5d8b90c4182640a7030ebcdc41863aedcd5e771feae439b118e1c110058",
+    "spacr/qt/widgets/object_settings_grid.py": "2327d39f7f7619669b380a3867a576be768b2511949cc2e913dbff0ed59a22a7",
+    "spacr/qt/screens/foreign.py": "f54479adfb1dab60c4fc2a00a26c9b46fa52b24a4dc5e90e74fb36f00fbd9d1e",
+    "spacr/qt/screens/train_compare.py": "4a1c35a534a412b90aef7320cdc7f499fbd4abfb55aa748baedbe21eb23e24ef",
+    "tests/qt/test_accessibility_pass.py": "039947bb2c5421e8721cb1b8a05d3471a0b26b674c70c497bbddf2cb2c367503"
+  },
+  "terminal_statuses": {
+    "accessibility-view-candidate-r1": 1,
+    "accessibility-view-candidate-r2": 1,
+    "accessibility-view-candidate-r3": 0,
+    "accessibility-view-languages-r1": 0
+  },
+  "candidate_passed": 61,
+  "elapsed_seconds": 16.91,
+  "screens": 48,
+  "named_visible_views": 43,
+  "unnamed_visible_views": 0,
+  "language_names_checked": 30,
+  "scope": "Scratch runtime proposal only: include QListView/QTableView/QTreeView in ordinary derived naming, excluding headers; set Objects, Masks, SettingsDiff object names on three formerly unnamed constructors. Original production and test files unchanged. Ready for coordinated path ownership review.",
+  "limitations": [
+    "r1 retains real58PASS/3FAIL missing-name results; r2 retains54FAIL/7PASS due scratch findChildren tuple argument unsupported by PySide, not application regression.",
+    "r3 ordinary strict61 cases pass; session-end diagnostic reports one child subsequently joined by Python before terminal exit0. No zero-child-at-sessionfinish claim.",
+    "Three targeted names refresh across nine actual translations and English, explicit application name preserved. Other derived names not exhaustively checked for translation completeness.",
+    "MainWindow/Preferences lint and StorageCacheTable candidate acceptance remain separate; no native assistive-technology/platform signoff.",
+    "No application source adoption or broad publication hold release."
+  ],
+  "payloads": {
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r1.log.gz": {
+      "raw_bytes": 3536,
+      "raw_sha256": "4df91f1df382254401cec0822ababbacc4b5a850059b36eafe27da69432d11a9",
+      "gzip_bytes": 1032,
+      "gzip_sha256": "aa902c22fecf00127ba536b80daf925349b621636785ed07f75e188d1b4dadbe"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r1-tool.log.gz": {
+      "raw_bytes": 3027,
+      "raw_sha256": "8f3e9c40e20a5b3c7690a1b013b598d5dd9505d78615f98bc2bbfdbb9304dcc6",
+      "gzip_bytes": 848,
+      "gzip_sha256": "d34a31aae738b920a80db25d6df71ada460fbf31f4528381a8545e2dfa13c650"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r2.log.gz": {
+      "raw_bytes": 90850,
+      "raw_sha256": "6c9f9e73d36395cf1fd07a3b89e733fabb3182624781f66d87ef3682f4d3c6c3",
+      "gzip_bytes": 2759,
+      "gzip_sha256": "48b9d7f0201dc1dd7628e789cf906312d18026987e770d9666cea42eb9f618c0"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r2-tool.log.gz": {
+      "raw_bytes": 90237,
+      "raw_sha256": "1ff3274a6c59f420ddad07bd40663895bbc900f61cdf9155aea060eebd57f2ed",
+      "gzip_bytes": 2585,
+      "gzip_sha256": "a8607a7caa8c3e17bd0e05972778cc41bfe7faca89bba5012014ae9e31b34126"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r2.json.gz": {
+      "raw_bytes": 290,
+      "raw_sha256": "381db1f81a0a2daa9f16e80a98b48d9fd83ee2c61f4e5e8e47679df3cf170fa0",
+      "gzip_bytes": 219,
+      "gzip_sha256": "3021732d9e8eee30b755824e99326e190c2352a00cc81369615bcbccddc420eb"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r3.log.gz": {
+      "raw_bytes": 1176,
+      "raw_sha256": "faeacc41bb9ae90ee01e640da4ad8be81928bf8975bcea96890731e352c3e80f",
+      "gzip_bytes": 547,
+      "gzip_sha256": "a0d2604ea7e69afd9e6b9165f21470ba76d54211b65ee394685b9e2827dbf755"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r3-tool.log.gz": {
+      "raw_bytes": 563,
+      "raw_sha256": "1406d97333379ac3de4c185f5b3fc8283e00f4cf6cb108b576ac53b17dde8c0f",
+      "gzip_bytes": 346,
+      "gzip_sha256": "a1dcead4aa240b410f711703ffe535417b48a7ebb8f56604d84710c3ca369135"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-candidate-r3.json.gz": {
+      "raw_bytes": 9062,
+      "raw_sha256": "dbb760910ae9fd3f345435239c068530e459fd01d8d80824093b4e1e06eee57f",
+      "gzip_bytes": 1315,
+      "gzip_sha256": "84462e056c992dd3bb36a4c81ff98b7e93204da004940269e11a957efbbd5957"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-languages-r1.log.gz": {
+      "raw_bytes": 813,
+      "raw_sha256": "929309ff0ac33f7105c553bb1fc995858caf5812fa4e31b82e0029c211f60299",
+      "gzip_bytes": 373,
+      "gzip_sha256": "946ccbb30f48a233ea05b8e08891c260a26b92af8edfb32babb72f44dcd80fdf"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-languages-r1-tool.log.gz": {
+      "raw_bytes": 202,
+      "raw_sha256": "a5111c5fc201941916bc494e03e3ff5b9c94aa85a500ee3edf77280008b0fc2b",
+      "gzip_bytes": 177,
+      "gzip_sha256": "01b7411ced3ab0a72846a785e220b5a766771bd61b23021fadfb507f0bc8b5e7"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/logs/accessibility-view-languages-r1.json.gz": {
+      "raw_bytes": 3677,
+      "raw_sha256": "61c33372dc5f9a207e51c59278641ff1dc9f4e12048b901bab0a93def8a431d2",
+      "gzip_bytes": 684,
+      "gzip_sha256": "2e93a8977077da97393859085c3c2d519c3c8e6d62d4ed2298911038a2037cbe"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/scripts/accessibility_view_candidate_r1.py.gz": {
+      "raw_bytes": 565,
+      "raw_sha256": "edbd16541c3c4e61fa5957b30d9ae093d07b174bc289fe26e29a3997e7c7577d",
+      "gzip_bytes": 371,
+      "gzip_sha256": "6d0e194ed842317566eac96755e9920281968d7263c3a5ca7b133b878b5bd7e8"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/scripts/accessibility_view_candidate_r2.py.gz": {
+      "raw_bytes": 2275,
+      "raw_sha256": "9550c4a131a0d27ab933cd91175d5cfb91bc5affaa5137e03911f897bcc3377c",
+      "gzip_bytes": 989,
+      "gzip_sha256": "d0bf723b3709956b520b7b676d82d1a446c83b88f81704d0bbd32eff0252e86e"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/scripts/accessibility_view_candidate_r3.py.gz": {
+      "raw_bytes": 2334,
+      "raw_sha256": "962ebc38699c33519055bf17599eab15c908cc7eac2c0452ece02f7a3b791b1b",
+      "gzip_bytes": 1012,
+      "gzip_sha256": "5f39c2911e2607e186e4c7c4152508677f439dfe69765dab01bb0c96662abce2"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/scripts/accessibility_view_languages_r1.py.gz": {
+      "raw_bytes": 2266,
+      "raw_sha256": "b683973d56a342158f477d38f805e33a16efc211493f24a70b2ceec2417507fb",
+      "gzip_bytes": 989,
+      "gzip_sha256": "3be50dad2f9a48643de31a93c6bc367922a5fa63888f60e2d9515d6906725e35"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/scripts/archive_qt_controls_accessibility_r2.py.gz": {
+      "raw_bytes": 9425,
+      "raw_sha256": "17043d301243486bb22efecb2d5e79fa2b148f612186a17a0ce1a2977806ffd4",
+      "gzip_bytes": 3826,
+      "gzip_sha256": "7ee66b64a336ded38749f50e8f1a9d2abc9863728e678585564af6f971f10cbe"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/source/spacr/qt/i18n.py.gz": {
+      "raw_bytes": 354074,
+      "raw_sha256": "0b03d5d8b90c4182640a7030ebcdc41863aedcd5e771feae439b118e1c110058",
+      "gzip_bytes": 124248,
+      "gzip_sha256": "5df2ca7121cf16ae773bb8df606eba006dc6d232ed182aa4eb8b1bea16425726"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/source/spacr/qt/widgets/object_settings_grid.py.gz": {
+      "raw_bytes": 63650,
+      "raw_sha256": "2327d39f7f7619669b380a3867a576be768b2511949cc2e913dbff0ed59a22a7",
+      "gzip_bytes": 18752,
+      "gzip_sha256": "6c40cd6a937cae1e429201bf6ad0ff88a4c79b8e2eb495fbd7a8875d3dfb842e"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/source/spacr/qt/screens/foreign.py.gz": {
+      "raw_bytes": 60004,
+      "raw_sha256": "f54479adfb1dab60c4fc2a00a26c9b46fa52b24a4dc5e90e74fb36f00fbd9d1e",
+      "gzip_bytes": 16758,
+      "gzip_sha256": "088546e9fd369fa524c80ecadf19f5cb1940402ec27d89434b7bc8467a5b0966"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/source/spacr/qt/screens/train_compare.py.gz": {
+      "raw_bytes": 44297,
+      "raw_sha256": "4a1c35a534a412b90aef7320cdc7f499fbd4abfb55aa748baedbe21eb23e24ef",
+      "gzip_bytes": 13051,
+      "gzip_sha256": "27a880c318d15b1a011f94922e0be848ffca65e851b0b33a4cf2303584333e97"
+    },
+    "features/data/655_item_view_naming_candidate_2026-10-08/source/tests/qt/test_accessibility_pass.py.gz": {
+      "raw_bytes": 7737,
+      "raw_sha256": "039947bb2c5421e8721cb1b8a05d3471a0b26b674c70c497bbddf2cb2c367503",
+      "gzip_bytes": 2722,
+      "gzip_sha256": "fd99b74913fab0182c7213c4ce53410aea9481fc2de62fe7b96ec3affb97fd16"
+    }
+  }
+}

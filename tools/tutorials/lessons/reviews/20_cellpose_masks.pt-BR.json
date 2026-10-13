@@ -1,0 +1,34 @@
+{
+  "lesson": "20_cellpose_masks",
+  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Aplicar Cellpose: segmentar uma pasta e inspecionar as máscaras",
+  "description": "Escolha um modelo de segmentação, processe as imagens fornecidas e inspecione as máscaras salvas e os filtros de tamanho ao vivo.",
+  "objectives": [
+    "Selecionar as imagens, os pesos do modelo e as configurações de segmentação.",
+    "Executar o Apply e localizar os TIFF de máscara salvos.",
+    "Inspecionar os resultados ao vivo e comparar filtros de tamanho de objeto."
+  ],
+  "prerequisite": "Extraia o exemplo do Apply Cellpose indicado em uma pasta nova. Ele contém três imagens de células de um único canal e uma referência de configurações. Selecione a pasta images dele como Source. Este passo a passo usa o modelo padrão cpsam; para um modelo próprio, escolha pesos e configurações compatíveis com suas imagens.",
+  "scenes": [
+    "Na tela Home, abra Make Masks e depois o Cellpose Workbench. Escolha Apply para segmentar imagens com um modelo existente. Use Train quando quiser aprender pesos novos a partir de pares de imagem e máscara revisados.",
+    "Extraia o exemplo indicado e defina Source como a pasta images dele. Ela contém três imagens de células de um único canal, cada uma com quinhentos e doze pixels de lado. Se usar o arquivo de configurações gravado como referência, troque o caminho de origem dele pela pasta que você extraiu.",
+    "Selecione cpsam e deixe Custom model vazio neste exemplo. Defina Channels como zero, os percentis de normalização como dois e noventa e nove, Diameter como trinta, Flow threshold como zero vírgula quatro e Cell probability como zero. Ajuste essas configurações depois de inspecionar alguns campos representativos do seu próprio experimento.",
+    "Ative Save e Verbose, escolha tamanho de lote um e clique em Run no Apply. Acompanhe o console enquanto cada imagem é processada. Revise as falhas antes de seguir para a medição.",
+    "Abra a subpasta masks dentro de Source. Cada imagem tem um TIFF de máscara com o mesmo nome base. Inspecione as figuras ao lado das imagens originais, prestando atenção a objetos não detectados e células unidas. O painel de fluxos mostra as direções que o modelo usa para segmentar.",
+    "Ative Live preview e escolha uma imagem no seletor de imagens. Abra Live settings e confira os controles de canal e de normalização. Recolha Console e System para dar mais espaço à pré-visualização, se necessário.",
+    "Compare a pré-visualização com a máscara salva do lote. Neste exemplo, a pré-visualização e o Apply usam caminhos de processamento diferentes, então podem gerar contornos e contagens diferentes. Revise os TIFF salvos ao decidir se as saídas do lote servem para a medição.",
+    "Use a roda do mouse para ampliar uma área nas duas telas de pré-visualização. Inspecione objetos que se tocam e contornos fracos e depois reduza o zoom para conferir o campo inteiro.",
+    "Abra Live settings e aumente Minimum cell area para remover objetos pequenos da pré-visualização. O limite é em pixels; escolha-o de acordo com o tamanho dos seus objetos. Feche a caixa de diálogo para inspecionar o resultado filtrado.",
+    "Compare os contornos filtrados com a imagem original. Mudar este filtro ao vivo atualiza a pré-visualização sem regravar as máscaras que o Apply já salvou. Execute o lote de novo com as configurações desejadas quando precisar de novas saídas salvas.",
+    "Volte Minimum cell area para zero para restaurar a pré-visualização sem filtro. Mantenha juntos as imagens de entrada, a identidade do modelo, as configurações e as máscaras salvas. Use o Make Masks para correções ou o Measure para extrair características dos objetos a partir das máscaras revisadas."
+  ]
+}

@@ -1,0 +1,2143 @@
+"""``spacr-run`` — run any spaCR module from a settings file, with no GUI.
+
+The GUI entry points — the PySide6 app (``spacr`` / ``spacr-qt``) and the
+classic Tk app (``spacr-tk``) — import Qt or Tk, which cannot run on a compute
+node without a display.
+
+This module runs pipelines without a GUI. Importing ``spacr.cli`` does not
+import Qt, Tk, torch, cellpose, numpy or pandas. Everything
+heavy is imported inside the command that needs it, so ``spacr-run --help`` and
+``spacr-run --list`` answer instantly on a login node, and ``--dry-run``
+validates a 40-plate settings file without touching a GPU.
+
+Usage::
+
+    spacr-run <module> --settings settings.csv [--set key=value ...] [--dry-run]
+    spacr-run --list                  # every module that can run headless
+    spacr-run --describe measure      # what it does, what it needs, what it writes
+    spacr-run validate --settings f --module mask     # pre-flight only
+
+The settings file is the one the GUI writes. Both spaCR CSV layouts are read —
+``Key,Value`` (what :func:`spacr.utils.save_settings` emits next to every run)
+and ``setting_key,setting_value`` (the documented default of
+:func:`spacr.utils.load_settings`) — plus the ``settings.json`` written into
+each run-journal folder. So the round trip is: click through the GUI once on a
+laptop, copy ``<src>/settings/gen_mask_settings.csv`` to the cluster, and
+``sbatch`` it unchanged.
+
+Exit codes (a failed run never exits with 0, so a cluster scheduler sees
+the failure):
+
+  0  the module ran to completion, or the dry run / validation found no errors
+  1  the module raised
+  2  bad arguments, unreadable settings, or pre-flight found errors
+
+A pipeline that raises ``SystemExit`` itself is the exception: its integer
+code is passed through unchanged, so any value can reach the shell.
+
+Matplotlib is forced to ``Agg`` when there is no display, and ``plt.show`` is
+replaced by a close-the-figure shim for the duration of the run — the same
+thing :func:`spacr.gui_utils.spacrFigShow` does inside the GUI — so a pipeline
+that calls ``plt.show()`` neither blocks nor leaks figures.
+"""
+from __future__ import annotations
+
+import argparse
+import ast
+import csv
+import difflib
+import importlib
+import json
+import logging
+import os
+import sys
+import time
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+
+__all__ = [
+    "EXIT_OK",
+    "EXIT_RUNTIME",
+    "EXIT_USAGE",
+    "Module",
+    "MODULES",
+    "ALIASES",
+    "SettingsError",
+    "resolve_module",
+    "module_defaults",
+    "load_settings_file",
+    "write_settings_file",
+    "coerce_value",
+    "apply_overrides",
+    "resolve_settings",
+    "build_parser",
+    "main",
+]
+
+EXIT_OK = 0
+EXIT_RUNTIME = 1
+EXIT_USAGE = 2
+
+LOG = logging.getLogger("spacr.cli")
+
+
+class SettingsError(Exception):
+    """Raised for an invalid settings file, override or module name.
+
+    Always maps to exit code 2: the run never started, so it is an argument
+    problem rather than a runtime failure.
+    """
+
+
+
+
+@dataclass(frozen=True)
+class Module:
+    """One headless-runnable spaCR pipeline.
+
+    :param key: name the user types, matching the GUI's ``app_key``.
+    :param summary: one line for ``--list``.
+    :param entry: ``"module:function"`` of the callable that does the work.
+    :param defaults: name of the ``spacr.settings`` helper that fills the
+        defaults, or ``None`` when the pipeline has none there.
+    :param validate_key: app key understood by :mod:`spacr.validate`; empty
+        when that module has no specific rules and only generic checks apply.
+    :param requires: settings that must be supplied, phrased for a human.
+    :param writes: what lands on disk.
+    :param call_style: ``"settings"`` for ``fn(settings_dict)``; ``"folder"``
+        for ``fn(settings["src"])``. No built-in module uses ``"folder"``; it
+        reaches spaCR only through a plugin app that declares it.
+    :param note: caveat worth printing in ``--describe``.
+    :param defaults_entry: ``"module:function"`` of a defaults helper that does
+        **not** live in :mod:`spacr.settings`. Six built-in pipelines keep
+        their own (``foreign``, ``external_masks``, ``convert``,
+        ``illumination``, ``barcode_qc``, ``anndata_export``), as does every
+        plugin app, because their keys are theirs alone; without this the CLI
+        would resolve an empty defaults dict for them, and ``--set`` would then
+        reject every one of their keys as a setting that does not exist.
+    """
+
+    key: str
+    summary: str
+    entry: str
+    defaults: Optional[str]
+    validate_key: str
+    requires: Tuple[str, ...] = ()
+    writes: Tuple[str, ...] = ()
+    call_style: str = "settings"
+    note: str = ""
+    defaults_entry: str = ""
+
+    @property
+    def module_name(self) -> str:
+        """Import path of the module holding :attr:`entry`."""
+        return self.entry.split(":", 1)[0]
+
+    @property
+    def func_name(self) -> str:
+        """Attribute name of the callable inside :attr:`module_name`."""
+        return self.entry.split(":", 1)[1]
+
+    @property
+    def defaults_label(self) -> str:
+        """How ``--describe`` names this module's defaults helper."""
+        if self.defaults_entry:
+            return self.defaults_entry.replace(":", ".") + "()"
+        if self.defaults:
+            return f"spacr.settings.{self.defaults}()"
+        return ""
+
+
+_MODULE_LIST: Tuple[Module, ...] = (
+    Module(
+        key="mask",
+        summary="Segment cells / nuclei / pathogens with Cellpose and write merged stacks.",
+        entry="spacr.core:preprocess_generate_masks",
+        defaults="set_default_settings_preprocess_generate_masks",
+        validate_key="mask",
+        requires=("src — folder of raw acquisition images",
+                  "at least one of cell_channel / nucleus_channel / "
+                  "pathogen_channel / organelle_channel"),
+        writes=("<src>/masks/", "<src>/merged/*.npy",
+                "<src>/settings/gen_mask_settings.csv"),
+    ),
+    Module(
+        key="timelapse",
+        summary="Mask pipeline with object tracking across the frames of a time series.",
+        entry="spacr.core:preprocess_generate_masks_timelapse",
+        defaults="get_timelapse_settings",
+        validate_key="mask",
+        requires=("src — folder of raw time-series images",
+                  "at least one segmentation channel",
+                  "timelapse_mode — trackpy / btrack / iou / trackastra / ultrack"),
+        writes=("<src>/masks/", "<src>/merged/*.npy", "tracked object tables"),
+    ),
+    Module(
+        key="motility",
+        summary="Automated motility assay: per-track velocity plus infection QC.",
+        entry="spacr.timelapse:automated_motility_assay",
+        defaults="get_automated_motility_assay_default_settings",
+        validate_key="",
+        requires=("src — plate folder already processed by the timelapse module",),
+        writes=("motility results tables and QC figures next to src",),
+    ),
+    Module(
+        key="measure",
+        summary="Measure per-object morphology / intensity and crop single-object PNGs.",
+        entry="spacr.measure:measure_crop",
+        defaults="get_measure_crop_settings",
+        validate_key="measure",
+        requires=("src — plate folder holding merged/*.npy written by the mask module",
+                  "the *_mask_dim of every object named in crop_mode",
+                  "normalize — a [lower, upper] percentile pair, or False"),
+        writes=("<src>/measurements/measurements.db", "<src>/data/**/<mode>_png/"),
+    ),
+    Module(
+        key="align",
+        summary="Register and stitch an arbitrary number of tiles into one canvas.",
+        entry="spacr.align:align_folder",
+        defaults=None,
+        validate_key="align",
+        requires=("src — folder of .npy/.tif tiles",),
+        writes=("<dst>/<plate>_<well>_stitched.npy — the stitched canvas",
+                "align_coordinates in measurements.db when db_path is set"),
+    ),
+    Module(
+        key="ops",
+        summary="Stitch, segment and decode the wells of an optical "
+                "pooled screen's sequencing acquisition.",
+        entry="spacr.ops_engine:run_ops",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:ops_defaults",
+        validate_key="",
+        requires=("genotype_source \u2014 the sequencing acquisition: "
+                  "10X_c<cycle>_<well>_<channels>_Site-<n>.tif tiles, cycle 1 "
+                  "carrying DAPI",),
+        writes=("<dst_root>/measurements.db \u2014 ops_geometry, ops_objects "
+                "and ops_barcodes",
+                "<dst_root>/<well>/ops_report.json \u2014 counts, unreadable "
+                "files and timings per phase"),
+        note="ALPHA. Validated on one plate (screenA 20200202_6W-LaC024A, "
+             "372 PART 14-M). It does not place the phenotype acquisition, "
+             "and the base channels, read threshold and raster overlap are "
+             "that plate's.",
+    ),
+    Module(
+        key="spatial_masks",
+        summary="Segment a whole Xenium morphology or Visium HD H&E slide "
+                "in overlapping tiles into Measure-ready fields.",
+        entry="spacr.ops_engine:run_spatial_masks",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:spatial_mask_defaults",
+        validate_key="",
+        requires=("spatial_source \u2014 a Xenium output folder or a "
+                  "Visium HD output folder with its full-resolution image",),
+        writes=("<spatial_dst>/merged/ \u2014 one field per window with its "
+                "masks, the layout Measure reads",
+                "<spatial_dst>/measurements/measurements.db \u2014 the "
+                "fields' places on the slide"),
+        note="ALPHA (F534). Reached in the GUI from the Spatial switch in "
+             "Mask Generation's actions row, behind Show alpha features.",
+    ),
+    Module(
+        key="spatial_map",
+        summary="Count every Xenium transcript or Visium HD bin into the "
+                "cells Spatial Mask Generation segmented.",
+        entry="spacr.ops_engine:run_spatial_map",
+        defaults=None,
+        defaults_entry="spacr.ops_settings:spatial_map_defaults",
+        validate_key="",
+        requires=("spatial_source \u2014 the Xenium or Visium HD output "
+                  "folder that was segmented",
+                  "spatial_masks_dir \u2014 the spatial_dst Spatial Mask "
+                  "Generation wrote"),
+        writes=("<spatial_masks_dir>/measurements/measurements.db \u2014 "
+                "per-object expression and infection calls",),
+        note="ALPHA (F534). Reached in the GUI from the Spatial switch in "
+             "Map Barcodes' actions row, behind Show alpha features.",
+    ),
+    Module(
+        key="foreign",
+        summary="Import external images, masks, and a measurement table as a spaCR project.",
+        entry="spacr.foreign:import_project",
+        defaults=None,
+        defaults_entry="spacr.foreign:default_settings",
+        validate_key="foreign",
+        requires=("images — their folder of images",
+                  "masks — their mask folder, or a list of them",
+                  "measurements — their measurement table (CSV / TSV / sqlite)",
+                  "column_map — a reviewed map file from a preview_only run"),
+        writes=("<dst>/ (default <images>_spacr) — a spaCR project: renamed images, "
+                "masks, and measurements.db with their columns mapped onto spaCR's",),
+        note=("Takes 'images', not 'src' — there is no spaCR project yet. Run "
+              "it once with --set preview_only=True: that prints the column "
+              "mapping and the join counts, writes nothing, and is the only way "
+              "to see what a column_map would have to fix."),
+    ),
+    Module(
+        key="external_masks",
+        summary="Measure images using label masks generated outside spaCR.",
+        entry="spacr.external_masks:prepare_external_masks",
+        defaults=None,
+        defaults_entry="spacr.external_masks:default_settings",
+        validate_key="external_masks",
+        requires=(
+            "inputs — image/mask paths or reviewed input-group mappings",
+            "each mask group assigned to cell, nucleus, pathogen or organelle",
+            "dst — a new output project folder",
+        ),
+        writes=(
+            "<dst>/merged/*.npy and masks/*_mask_stack/*.npy",
+            "<dst>/measurements/measurements.db",
+            "<dst>/data/**/<object>_png/ for annotation",
+        ),
+    ),
+    Module(
+        key="classify",
+        summary="Full DL pipeline: build dataset, train, apply the model, merge predictions.",
+        entry="spacr.deep_spacr:deep_spacr",
+        defaults="deep_spacr_defaults",
+        validate_key="classify",
+        requires=("src — plate folder with per-object PNGs from the measure module",
+                  "classes — what each class means, or "
+                  "class_folder_names for an existing dataset",
+                  "model_path when train=False and apply_model_to_dataset=True"),
+        writes=("<src>/datasets/", "<src>/model/*.pth",
+                "predictions merged into measurements.db"),
+        note=("Same function the Classify (CV) button runs in both GUIs, so a "
+              "settings.csv saved there behaves identically here. Use the "
+              "'train_only' module for the training stage alone."),
+    ),
+    Module(
+        key="classify_merged",
+        summary=("Train a classifier on single objects: Torch on crops, or "
+                 "gradient boosting on measured features."),
+        entry="spacr.classify:classify",
+        defaults="set_default_classify",
+        validate_key="classify_merged",
+        requires=("src — plate folder with a measurements database",
+                  "dataset_mode — the training basis: metadata, annotation "
+                  "or measurement",
+                  "classifier family — 'cv' for Torch on crops, or a "
+                  "gradient-boosting family for measured features"),
+        writes=("<src>/datasets/", "<src>/model/",
+                "scores merged into measurements.db"),
+        note=("The same function the Classify button runs in the GUI. It "
+              "dispatches to deep_spacr or generate_ml_scores unchanged, so "
+              "a run here, a run from the Classify screen, and a run through "
+              "Classify (CV) / Classify (ML) are the same run. Alpha: the "
+              "merged settings vocabulary may still move."),
+    ),
+    Module(
+        key="train_only",
+        summary="The training stage alone: train / evaluate on an existing dataset folder.",
+        entry="spacr.deep_spacr:train_test_model",
+        defaults="get_train_test_model_settings",
+        validate_key="classify",
+        requires=("src — dataset folder laid out as train/<class>/*.png and test/<class>/*.png",
+                  "class_folder_names — the class folder names",
+                  "train and/or test"),
+        writes=("<src>/model/*.pth", "training + evaluation metrics CSVs"),
+        note=("Ignores generate_training_dataset and apply_model_to_dataset — "
+              "the dataset must already exist. Use 'classify' for the full "
+              "pipeline, which is what both GUIs run."),
+    ),
+    Module(
+        key="activation",
+        summary="Generate class-activation maps for a trained classifier.",
+        entry="spacr.deep_spacr:generate_activation_map",
+        defaults="get_default_generate_activation_map_settings",
+        validate_key="",
+        requires=("dataset — tar of single-object PNGs", "model_path — trained checkpoint"),
+        writes=("activation-map PNGs and correlation CSVs next to the dataset",),
+    ),
+    Module(
+        key="umap",
+        summary="Embed single-object images with UMAP and plot them as image glyphs.",
+        entry="spacr.core:generate_image_umap",
+        defaults="set_default_umap_image_settings",
+        validate_key="umap",
+        requires=("src — plate folder holding measurements/measurements.db",),
+        writes=("UMAP embedding CSV and figure next to src",),
+    ),
+    Module(
+        key="ml_analyze",
+        summary="Classical ML (XGBoost / RF / logistic) on per-object screen features.",
+        entry="spacr.ml:generate_ml_scores",
+        defaults="set_default_analyze_screen",
+        validate_key="ml_analyze",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "positive/negative control wells, or an annotation_column"),
+        writes=("<src>/results/ — per-object scores, feature importance, plate heatmap",),
+    ),
+    Module(
+        key="regression",
+        summary="Regress per-well scores against sgRNA counts to call screen hits.",
+        entry="spacr.ml:perform_regression",
+        defaults="get_perform_regression_default_settings",
+        validate_key="regression",
+        requires=("paired_data — ordered rows pairing score and sgRNA-count tables",
+                  "dependent_variable — the score column to regress"),
+        writes=("volcano plots, plate heatmaps, gene phenotype plots, GO reports",),
+        note=("src is an optional output root. Legacy score_data/count_data lists "
+              "are paired by position; new configurations should use paired_data."),
+    ),
+    Module(
+        key="explain_cv",
+        summary="Explain existing CV predictions with measured object features.",
+        entry="spacr.surrogate:run_explain_cv",
+        defaults=None,
+        defaults_entry="spacr.surrogate:explain_cv_default_settings",
+        validate_key="explain_cv",
+        requires=("db_path — exact measurements.db for the scored objects",
+                  "predictions_file — existing per-object CV predictions CSV"),
+        writes=("fidelity report, class metrics, confusion matrix, gain/permutation/SHAP tables and figures",),
+        note=("The CV model is not rerun. Importances are withheld when held-out "
+              "fidelity does not clear the configured majority-baseline gate."),
+    ),
+    Module(
+        key="investigate_hit",
+        summary="Resolve one exact regression hit to cross-fitted candidate cells.",
+        entry="spacr.hit_investigation:investigate_hit",
+        defaults=None,
+        defaults_entry="spacr.hit_investigation:hit_investigation_default_settings",
+        validate_key="investigate_hit",
+        requires=("results_folder — exact regression output to hash",
+                  "db_path, predictions_file and guide_fractions_file",
+                  "target_gene, target_guides and score_column"),
+        writes=("candidate cells, well enrichment, guide evidence, control-fitted embedding and blinded gallery manifest",),
+        note=("Candidate probabilities describe hit-like morphology under a "
+              "well-level model, not observed cell-resolved guide identity."),
+    ),
+    Module(
+        key="map_barcodes",
+        summary="Map row / column / gRNA barcodes out of sequencing reads onto wells.",
+        entry="spacr.sequencing:generate_barecode_mapping",
+        defaults="set_default_generate_barecode_mapping",
+        validate_key="map_barcodes",
+        requires=("src — folder of FASTQ reads",
+                  "grna_csv, row_csv, column_csv — barcode tables with name/sequence columns",
+                  "regex — must name the columnID / grna / rowID groups"),
+        writes=("<src>/*.h5 read table", "unique-combination and QC CSVs"),
+    ),
+    Module(
+        key="recruitment",
+        summary="Analyze recruitment of a channel of interest to pathogen compartments.",
+        entry="spacr.submodules:analyze_recruitment",
+        defaults="get_analyze_recruitment_default_settings",
+        validate_key="recruitment",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "channel_of_interest", "cell_plate_metadata / pathogen_plate_metadata"),
+        writes=("recruitment figures and per-condition CSVs next to src",),
+    ),
+    Module(
+        key="invasion",
+        summary="Red/green invasion assay: score every parasite attached or invaded, per well.",
+        entry="spacr.submodules:analyze_invasion",
+        defaults="set_analyze_invasion_defaults",
+        validate_key="invasion",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "outside_channel / total_channel — the pre- and "
+                  "post-permeabilisation stain channels",
+                  "pathogen_types + pathogen_plate_metadata — which wells are "
+                  "which condition",
+                  "control_wells — wells whose parasites carry no outside stain, "
+                  "if you have them"),
+        writes=("<src>/results/analyze_invasion/parasite_calls.csv, "
+                "field_thresholds.csv, well_invasion.csv, condition_summary.csv, "
+                "condition_comparisons.csv, chi_squared_results.csv",
+                "<src>/results/analyze_invasion/invasion_per_well.pdf and "
+                "invasion_by_condition.pdf",
+                "<src>/settings/analyze_invasion.csv"),
+        note=("'Invaded' is defined by the ABSENCE of outside stain, so every "
+              "staining or focus failure inflates invasion efficiency and "
+              "nothing pushes it the other way. Headless, set control_wells: "
+              "the threshold is then a quantile of a real negative "
+              "distribution rather than an Otsu cut on whatever the field "
+              "happened to contain, and threshold_source says which you got."),
+    ),
+    Module(
+        key="replication",
+        summary="Count parasites per vacuole and compare replication distributions.",
+        entry="spacr.submodules:analyze_replication",
+        defaults="set_analyze_replication_defaults",
+        validate_key="replication",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "one row per segmented parasite with centroids or a "
+                  "vacuole-ID column",
+                  "cell_types / pathogen_types / treatments and their "
+                  "*_plate_metadata well maps, which define group_column"),
+        writes=("<src>/results/analyze_replication/vacuole_counts.csv, "
+                "well_distribution.csv, condition_summary.csv and tests",
+                "<src>/results/analyze_replication/"
+                "parasites_per_vacuole_*.pdf",
+                "<src>/settings/analyze_replication.csv"),
+        note=("The counting unit is a vacuole, not a host cell. Check the "
+              "reported vacuole_key and non-power-of-two QC fraction before "
+              "quoting the result."),
+    ),
+    Module(
+        key='host_pathogen',
+        defaults=None,
+        validate_key='host_pathogen',
+        summary='Combine vacuole recruitment, explicit parasite counts and host infection denominators.',
+        entry='spacr.host_pathogen:analyze_host_pathogen',
+        defaults_entry='spacr.host_pathogen:default_settings',
+        requires=('src — measured projects or measurements.db files',
+                  'cell and vacuole objects with explicit host links and a per-host reference table'),
+        writes=('<src>/results/host_pathogen/*.csv and settings.json',),
+        note='Counts remain unknown unless a linked parasite table or explicit count column is supplied. Recruitment remains available separately.',
+    ),
+    Module(
+        key="endodyogeny",
+        summary="Legacy size proxy: bin pathogen area-derived volume by doublings.",
+        entry="spacr.submodules:analyze_endodyogeny",
+        defaults="set_analyze_endodyogeny_defaults",
+        validate_key="endodyogeny",
+        requires=("src — plate folder holding measurements/measurements.db",
+                  "um_per_px — pixel calibration used by the size bins"),
+        writes=("<src>/results/analyze_endodyogeny/ — proxy tables and plots",),
+        note=("This is not a parasite count: pathogen areas are collapsed onto "
+              "host cells. Use `spacr-run replication` when individual "
+              "parasites are resolvable."),
+    ),
+    Module(
+        key="analyze_plaques",
+        summary="Segment and quantify plaques in a plaque assay.",
+        entry="spacr.submodules:analyze_plaques",
+        defaults="get_analyze_plaque_settings",
+        validate_key="analyze_plaques",
+        requires=("src — folder of plaque assay images",),
+        writes=("plaque masks and a per-image plaque count / area CSV",),
+    ),
+    Module(
+        key="train_cellpose",
+        summary="Train or fine-tune a Cellpose model on your own labelled images.",
+        entry="spacr.submodules:train_cellpose",
+        defaults="get_train_cellpose_default_settings",
+        validate_key="train_cellpose",
+        requires=("src — folder of images plus matching label masks",
+                  "model_name — where the trained model is saved"),
+        writes=("<src>/models/<model_name>",),
+    ),
+    Module(
+        key="cellpose_masks",
+        summary="Run one Cellpose model over a folder and save the masks.",
+        entry="spacr.spacr_cellpose:identify_masks_finetune",
+        defaults="get_identify_masks_finetune_default_settings",
+        validate_key="cellpose_masks",
+        requires=("src — folder of images", "model_name or custom_model"),
+        writes=("<dst>/ — one mask .tif per input image",),
+    ),
+    Module(
+        key="convert",
+        summary="Convert vendor images into mapped, collision-safe Yokogawa TIFFs.",
+        entry="spacr.convert:convert_folder",
+        defaults=None,
+        defaults_entry="spacr.convert:default_settings",
+        validate_key="convert",
+        requires=("src — folder of images to convert",),
+        writes=("<dst>/ — Yokogawa TIFFs, conversion_map.csv, and a run ledger",),
+        note=("The default keeps every Z plane. Set z_handling='max' or "
+              "'first' only when lossy projection is intentional."),
+    ),
+    Module(
+        key="illumination",
+        summary=("Estimate the plate's illumination field and install the "
+                 "correction every measure worker applies."),
+        entry="spacr.illumination:prepare_illumination_correction",
+        defaults=None,
+        defaults_entry="spacr.illumination:illumination_settings",
+        validate_key="illumination",
+        requires=("src — the merged field folder measure_crop reads",
+                  "channels — merged-stack channel indices to estimate",
+                  "illumination_correction=True, or the call does nothing"),
+        writes=("<plate>/illumination/illumination_model.npz",
+                "<plate>/illumination/ — the QC figures and report"),
+        note=("measure_crop calls this itself when illumination_correction "
+              "is on, so running it separately is for estimating and "
+              "inspecting the field before committing to it. The model it "
+              "writes can then be reused with illumination_model=<path>."),
+    ),
+    Module(
+        key="barcode_qc",
+        summary=("QC a barcode-mapping run and derive its abundance "
+                 "threshold from a gRNAs-per-well target."),
+        entry="spacr.sequencing_qc:barcode_qc",
+        defaults=None,
+        defaults_entry="spacr.sequencing_qc:barcode_qc_defaults",
+        validate_key="barcode_qc",
+        requires=("count_data — unique_combinations.csv from a mapping run",
+                  "target_grnas_per_well — how many gRNAs the design intends"),
+        writes=("<dst>/ — the sweep, the per-well tables, the QC figures "
+                "and the written recommendation",),
+        note=("Run it after map_barcodes and before regression: the "
+              "threshold it recommends is what ml.process_reads takes as "
+              "fraction_threshold."),
+    ),
+    Module(
+        key="simulation",
+        summary="Sweep the pooled-screen simulator across a grid of parameters.",
+        entry="spacr.sim:run_multiple_simulations",
+        defaults=None,
+        validate_key="simulation",
+        requires=("max_workers — process-pool size (None means cpu_count - 4)",
+                  "the sweep grid keys read by spacr.sim.generate_parameters"),
+        writes=("one results CSV per simulation under the configured output folder",),
+        note=("No set_default_* helper exists for the simulator, so every key must "
+              "come from the settings file."),
+    ),
+    Module(
+        key="anndata_export",
+        summary="Export the measurement tables as AnnData (.h5ad) for scanpy and scvi-tools.",
+        entry="spacr.anndata_export:run_anndata_export",
+        defaults=None,
+        defaults_entry="spacr.anndata_export:anndata_export_settings",
+        validate_key="anndata_export",
+        requires=("src — a spaCR project whose measurements/measurements.db "
+                  "the measure module has written",),
+        writes=("<src>/results/<project>.h5ad — objects x features, with obs, "
+                "var, obsm and the run's provenance in uns",
+                "a row in artifacts.db downstream of measurements.db, so "
+                "re-running Measure marks the export stale"),
+        note=("Needs the optional extra: pip install \"spacr[anndata]\". Set "
+              "anndata_single_table to export one object table at its own "
+              "granularity — the default join averages nuclei and pathogens "
+              "onto their parent cell, and no downstream analysis can undo "
+              "that."),
+    ),
+)
+
+MODULES: Dict[str, Module] = {m.key: m for m in _MODULE_LIST}
+
+ALIASES: Dict[str, str] = {
+    "sequencing": "map_barcodes",
+    "barcodes": "map_barcodes",
+    "barcode_mapping": "map_barcodes",
+    "generate_barecode_mapping": "map_barcodes",
+    "preprocess_generate_masks": "mask",
+    "generate_masks": "mask",
+    "masks": "mask",
+    "measure_crop": "measure",
+    "train_test_model": "train_only",
+    "train": "train_only",
+    "deep_spacr": "classify",
+    "classify_dl": "classify",
+    "classify_ml": "ml_analyze",
+    "generate_ml_scores": "ml_analyze",
+    "generate_image_umap": "umap",
+    "embedding": "umap",
+    "perform_regression": "regression",
+    "explain_classifier": "explain_cv",
+    "hit_investigation": "investigate_hit",
+    "analyze_recruitment": "recruitment",
+    "analyze_invasion": "invasion",
+    "invasion_assay": "invasion",
+    "analyze_replication": "replication",
+    "analyze_endodyogeny": "endodyogeny",
+    "replication_assay": "replication",
+    "import_project": "foreign",
+    "foreign_import": "foreign",
+    "prepare_external_masks": "external_masks",
+    "import_external_masks": "external_masks",
+    "plaques": "analyze_plaques",
+    "plaque": "analyze_plaques",
+    "motility_assay": "motility",
+    "sim": "simulation",
+    "activation_map": "activation",
+    "anndata": "anndata_export",
+    "h5ad": "anndata_export",
+    "run_anndata_export": "anndata_export",
+    "cellpose_all": "cellpose_masks",
+}
+
+
+def _register_plugin_modules() -> None:
+    """Add valid plugin apps without letting collisions replace core modules."""
+    try:
+        from .plugins import plugin_apps, record_diagnostic
+    except Exception:
+        LOG.exception("Could not initialise the spaCR plugin SDK")
+        return
+    for app in plugin_apps():
+        if app.key in MODULES:
+            record_diagnostic(
+                app.key,
+                f"Plugin app key {app.key!r} collides with a built-in module; "
+                "the built-in module was kept.",
+            )
+            continue
+        MODULES[app.key] = Module(
+            key=app.key,
+            summary=app.description,
+            entry=app.entrypoint,
+            defaults=None,
+            defaults_entry=app.defaults,
+            validate_key=app.key,
+            requires=tuple(app.requires),
+            writes=tuple(app.writes),
+            call_style=app.call_style,
+            note=f"Provided by a spaCR plugin ({app.kind}).",
+        )
+        for alias in app.aliases:
+            normalized = alias.strip().lower().replace("-", "_")
+            if normalized and normalized not in ALIASES and normalized not in MODULES:
+                ALIASES[normalized] = app.key
+
+
+_register_plugin_modules()
+
+INTERACTIVE_ONLY: Dict[str, str] = {
+    "outliers": "For headless use, call "
+                "spacr.qt.widgets.outlier_model.detect_outliers() to compute "
+                "the same object flags, well scores, and report.",
+    "control_chart": "For headless use, call "
+                     "spacr.qt.widgets.control_chart.control_chart(frame, "
+                     "spec) to return the same limits, violations, and "
+                     "report text.",
+    "trellis": "For headless use, call "
+               "spacr.qt.widgets.trellis_spec.trellis() to compute the panel "
+               "layout, scales, and per-panel sample sizes.",
+    "feature_explorer": "For headless use, call "
+                        "spacr.qt.widgets.feature_rank.rank_features(frame, "
+                        "spec) to return the same feature-level statistics "
+                        "and ranking.",
+    "import_images": "Image import folded into the foreign-format importer. "
+                     "In the GUI open 'foreign'; headless, call "
+                     "spacr.image_import.apply_import, which is what that "
+                     "screen drives.",
+    "regression_diagnostics": "Regression diagnostics folded into "
+                              "Regression, which writes them as part of its "
+                              "own run. In the GUI open 'regression'; "
+                              "headless, run 'spacr-run regression' — the "
+                              "diagnostics are written beside its output — "
+                              "or call spacr.regression_diagnostics "
+                              "directly.",
+    "annotate": "Annotate paints labels onto a grid of single-object images by hand; "
+                "run it in the GUI (spacr-qt) — there is no batch equivalent.",
+    "make_masks": "Make Masks is a manual mask editor -- the brush, the "
+                  "wand and the recrop are the whole feature, so there is "
+                  "nothing to batch -- but it does open on a folder from a "
+                  "terminal: 'spacr-make-masks --folder <dir>' builds a "
+                  "curation queue over that folder and opens the editor on "
+                  "it. --order easy|prob|value|name chooses what to offer "
+                  "first (easy by default), --limit N ends the session after "
+                  "N fields, and --dry-run prints the queue and its order "
+                  "with no display at all. Progress is kept in "
+                  "<dir>/curate_status.csv, so done and skip survive a "
+                  "restart and travel with the images between machines. "
+                  "From Python, spacr.curation_queue.build_queue(folder) "
+                  "returns the same session.",
+    "queue": "Plate Queue is a GUI convenience that chains plates through another "
+             "module. Headless, loop over plates in your batch script and call "
+             "spacr-run once per plate.",
+    "db_browser": "Database Browser is an interactive sqlite viewer; use the sqlite3 "
+                  "CLI or pandas on measurements.db instead.",
+    "agreement": "Annotator Agreement is an interactive review of the crops two "
+                 "annotators disagreed on; headless, call "
+                 "spacr.agreement.agreement_report + format_agreement from Python.",
+    "plate_view": "Plate Viewer is an interactive heatmap; headless, call "
+                  "spacr.plate_qc.detect_edge_effect + format_edge_report.",
+    "model_compare": "Model Compare runs two Cellpose models side by side for you to "
+                     "look at; headless, call spacr.model_compare.compare_models.",
+    "batch": "Batch Runner is the GUI for building a queue file. Headless, run the "
+             "queue itself: from spacr.batch import load_queue, run_queue; "
+             "run_queue(load_queue('night.queue.json'), path='night.queue.json') "
+             "-- each job in it is a spacr-run invocation.",
+    "distributed_jobs": "Distributed Jobs is the interactive monitor. Headless, "
+                        "use the spacr-remote CLI to manage profiles, submit "
+                        "settings, poll logs and cancel jobs instead.",
+    "model_zoo": "Model Zoo is an interactive browser; headless, call "
+                 "spacr.model_zoo.discover_local + format_zoo, and "
+                 "benchmark(entry, source=...) to test one on three fields.",
+    "curate": "Curate is hand correction of a mask or a track table -- the "
+              "brush and the track surgery are the whole feature; run it in "
+              "the GUI (spacr-qt), where it is a button on Make Masks. "
+              "Headless, spacr.curation.MaskCuration and TrackCuration make "
+              "the same edits with the same ledger.",
+    "report": "Report is a one-click document builder; headless, call "
+              "spacr.report.build_report(src, out, fmt='html').",
+    "train_compare": "Training Runs is an interactive curve/settings comparison; "
+                     "headless, use spacr.train_compare.find_runs + "
+                     "format_comparison from Python.",
+    "classifier_evaluation": "Classifier Evaluation is an interactive results "
+                             "workbench; headless, call "
+                             "spacr.classifier_evaluation.evaluate_predictions "
+                             "or load_evaluation_bundle from Python instead.",
+    "run_history": "Run History is an interactive searchable dashboard; headless, "
+                   "call spacr.run_journal.search_runs() instead.",
+    "data_manager": "Data Manager shows what a project costs in disk and makes "
+                    "you read the deletion before it happens, which is the "
+                    "whole point of it -- so there is deliberately no one-shot "
+                    "headless delete. From Python: "
+                    "spacr.data_manager.scan_project(src) for the per-kind "
+                    "sizes, plan_prune(src) for exactly what is regenerable "
+                    "and what is being kept, then prune(plan, "
+                    "confirm=plan.token) once you have read the plan.",
+    "image_scatter": "Image Scatter is an interactive plot — the hover "
+                     "preview is the whole feature; run it in the GUI "
+                     "(spacr-qt), where it is a button on Image UMAP. "
+                     "Headless, read the same table with pandas.",
+    "pca": "PCA here is interactive multivariate exploration — ticking "
+           "features and brushing a cluster are the feature; run it in the "
+           "GUI (spacr-qt), where it is a button on Image UMAP. Headless, "
+           "spacr.qt.widgets.pca_model.pca() is the equivalent.",
+    "volcano_explorer": "Volcano Explorer is an interactive reader for a "
+                        "finished regression — clicking a point is the "
+                        "feature, so there is nothing to batch; run it in "
+                        "the GUI (spacr-qt), where it is “Publication "
+                        "figure…” on the Regression volcano and a button on "
+                        "that masthead. Headless, call "
+                        "spacr.volcano_style.render_volcano(results, "
+                        "VolcanoStyle(...), save_path='volcano.pdf'); that "
+                        "is the renderer this screen draws through, so the "
+                        "figure is the same one, vector at publication "
+                        "size.",
+    "hit_list": "Hit List is an interactive ranked table — filtering, "
+                "annotating and clicking through to the cells is the "
+                "feature; run it in the GUI (spacr-qt), where it is a tab "
+                "on the Regression results and a button on that masthead. "
+                "Headless, spacr.hits.build_hit_list(...) builds the same "
+                "ranking, and 'spacr-run investigate_hit' takes one hit "
+                "back to its wells.",
+    "methods_export": "Use Methods & Results for interactive drafting. In a "
+                      "headless workflow, call "
+                      "spacr.methods_export.build_digest(...), then "
+                      "render_methods(digest) and render_results(digest); "
+                      "these functions need no AI provider.",
+    "napari_bridge": "Open in napari hands a mask to napari for you to "
+                     "correct by hand and reads it back; the correcting is "
+                     "the feature, so there is nothing to batch. Run it in "
+                     "the GUI (spacr-qt), where it is a button on Make "
+                     "Masks. Headless, "
+                     "spacr.napari_bridge.correct_mask(mask_path, "
+                     "image_path) is the same round trip from Python.",
+}
+
+
+def _absorb_registered_gui_only() -> None:
+    """Take the "no headless run" sentence of every registered GUI-only app.
+
+    The PULL half of the app-registration seam: a screen that registers
+    itself through :func:`spacr.qt.app.register_app` gives that sentence
+    once, as ``cli_note=``, and ``register_app`` PUSHES it into the table
+    above when this module is already imported. This picks up the apps
+    that registered before it was, so which of the two modules is
+    imported first stops mattering — and it did matter: the order pytest
+    happened to collect in decided whether
+    ``test_every_app_has_a_cli_module_or_is_declared_gui_only`` passed.
+
+    Read out of :data:`sys.modules`, never imported. This module answers
+    ``--list`` and ``--describe`` on a cluster with no display and often
+    no PySide6 installed at all; importing ``spacr.qt.app`` to find out
+    what a GUI-only module is called would be exactly the wrong trade. A
+    process that never loaded the Qt registry keeps the built-in table
+    above, which is what it had before this existed.
+    """
+    app = sys.modules.get("spacr.qt.app")
+    pull = getattr(app, "registered_metadata", None) if app else None
+    if pull is None:
+        return
+    for key, note in pull("cli_note").items():
+        INTERACTIVE_ONLY.setdefault(key, note)
+
+
+_absorb_registered_gui_only()
+
+
+def resolve_module(name: Any) -> Optional[Module]:
+    """Return the :class:`Module` for a user-typed name, or None.
+
+    :param name: module key, alias, or the bare name of the pipeline function.
+    :returns: the matching :class:`Module`, or None when nothing matches.
+    """
+    if not isinstance(name, str):
+        return None
+    key = name.strip().lower().replace("-", "_")
+    key = ALIASES.get(key, key)
+    return MODULES.get(key)
+
+
+def _unknown_module_message(name: str) -> str:
+    """Explain an unrecognised module name, with a suggestion when there is one."""
+    key = str(name).strip().lower().replace("-", "_")
+    if key in INTERACTIVE_ONLY:
+        return (f"'{name}' is a GUI-only module and cannot run headless.\n"
+                f"  {INTERACTIVE_ONLY[key]}")
+    pool = sorted(set(MODULES) | set(ALIASES))
+    close = difflib.get_close_matches(key, pool, n=1, cutoff=0.6)
+    hint = f" Did you mean '{resolve_module(close[0]).key}'?" if close else ""
+    return (f"unknown module '{name}'.{hint}\n"
+            f"  Run 'spacr-run --list' to see every module that can run headless.")
+
+
+
+
+def module_defaults(module: Module) -> Dict[str, Any]:
+    """Return a fresh defaults dict for ``module``.
+
+    Calls the same helper the pipeline itself uses to canonicalize its
+    settings, so the resolved dict the CLI prints is the one the pipeline will
+    see. That is usually a :mod:`spacr.settings` function
+    (:attr:`Module.defaults`); for the pipelines that keep their own it is
+    :attr:`Module.defaults_entry`, imported here rather than at module load so
+    ``--list`` stays instant.
+
+    :param module: the module whose defaults are wanted.
+    :returns: dict of defaults; empty when the pipeline has no helper.
+    :raises SettingsError: when the defaults module will not import. No
+        empty ``{}`` is returned in that case, because :func:`resolve_settings`
+        uses this function on the run path: with empty defaults, a valid
+        override such as ``spacr-run convert --set z_handling=max`` would be
+        rejected as an unknown setting instead of reporting the missing
+        dependency. ``--describe`` has its own guard around this call.
+    """
+    fn = None
+    if module.defaults_entry:
+        target, _, name = module.defaults_entry.partition(":")
+        try:
+            fn = getattr(importlib.import_module(target), name, None)
+        except Exception as exc:
+            raise SettingsError(
+                f"module {module.key!r} keeps its defaults in {target!r}, "
+                f"which will not import: {exc}. Install what it needs (or "
+                f"fix the import) — until then spaCR cannot tell which "
+                f"settings this module has, so it cannot check yours."
+            ) from exc
+    elif module.defaults:
+        from . import settings as _settings
+
+        fn = getattr(_settings, module.defaults, None)
+    if fn is None:
+        return {}
+    try:
+        produced = fn({})
+    except TypeError:
+        produced = fn()
+    return dict(produced) if isinstance(produced, dict) else {}
+
+
+_CSV_COLUMNS: Tuple[Tuple[str, str], ...] = (
+    ("Key", "Value"),
+    ("setting_key", "setting_value"),
+    ("key", "value"),
+    ("Setting", "Value"),
+    ("name", "value"),
+)
+
+
+def _parse_csv_value(value: Any) -> Any:
+    """Turn one CSV cell back into its original Python type.
+
+    A faithful port of the ``parse_value`` closure inside
+    :func:`spacr.utils.load_settings`, reproduced here rather than imported
+    because ``spacr.utils`` pulls torch and cellpose — twenty seconds and a
+    CUDA context to read a two-column CSV. :mod:`spacr.validate` reproduces
+    ``_get_regex`` for the same reason. Any behaviour change there must be
+    mirrored here; the round trip is covered by ``tests/test_cli.py``.
+
+    :param value: raw cell text.
+    :returns: bool, int, float, None, list, tuple, dict or str.
+    """
+    if value is None or value == "":
+        return None
+    if not isinstance(value, str):
+        return value
+    if value.strip().lower() == "true":
+        return True
+    if value.strip().lower() == "false":
+        return False
+    if value.startswith(("(", "[", "{")):
+        try:
+            parsed = ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            return value
+        if isinstance(parsed, dict):
+            return {k: _parse_csv_value(v) for k, v in parsed.items()}
+        return parsed
+    try:
+        if "." in value:
+            return float(value)
+        return int(value)
+    except ValueError:
+        pass
+    return value
+
+
+def _load_settings_csv(path: str) -> Dict[str, Any]:
+    """Read a two-column spaCR settings CSV into a dict.
+
+    :param path: path to the CSV.
+    :returns: parsed settings.
+    :raises SettingsError: when no recognised key/value column pair is present.
+    """
+    with open(path, "r", newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = [f for f in (reader.fieldnames or []) if f is not None]
+        pair = None
+        for key_col, value_col in _CSV_COLUMNS:
+            if key_col in fieldnames and value_col in fieldnames:
+                pair = (key_col, value_col)
+                break
+        if pair is None:
+            expected = " or ".join(f"'{k},{v}'" for k, v in _CSV_COLUMNS[:2])
+            raise SettingsError(
+                f"{path} is not a spaCR settings CSV: its columns are "
+                f"{fieldnames or ['<none>']}, but {expected} is expected.\n"
+                f"  Export the settings again from the GUI, or use the "
+                f"settings.csv written into <src>/settings/ by any run.")
+        key_col, value_col = pair
+        out: Dict[str, Any] = {}
+        for row in reader:
+            key = row.get(key_col)
+            if key is None or not str(key).strip():
+                continue
+            raw = row.get(value_col)
+            overflow = row.get(None)
+            if overflow and value_col == fieldnames[-1]:
+                raw = ",".join([str(raw)] + [str(x) for x in overflow])
+            out[str(key).strip()] = _parse_csv_value(raw)
+    return out
+
+
+def _load_settings_json(path: str) -> Dict[str, Any]:
+    """Read a ``settings.json`` (as written into every run-journal folder).
+
+    :param path: path to the JSON file.
+    :returns: parsed settings.
+    :raises SettingsError: when the file is not a JSON object.
+    """
+    with open(path, "r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict):
+        raise SettingsError(
+            f"{path} holds a {type(data).__name__}, not a settings object.")
+    return data
+
+
+def load_settings_file(path: Any) -> Dict[str, Any]:
+    """Load a settings file written by the GUI, a pipeline run or a run journal.
+
+    :param path: path to a ``.csv`` or ``.json`` settings file.
+    :returns: the settings dict.
+    :raises SettingsError: when the path is missing, unreadable or malformed.
+        Never a traceback — a cluster job should fail with a sentence.
+    """
+    if not isinstance(path, str) or not path.strip():
+        raise SettingsError("no settings file given; pass --settings <file>.")
+    if not os.path.exists(path):
+        raise SettingsError(
+            f"settings file not found: {path}\n"
+            f"  Check the path, and that the share holding it is mounted on this node.")
+    if os.path.isdir(path):
+        raise SettingsError(
+            f"--settings expects a file, but {path} is a folder.\n"
+            f"  A run writes its settings to <src>/settings/*.csv — point at one of those.")
+    try:
+        if path.lower().endswith(".json"):
+            return _load_settings_json(path)
+        return _load_settings_csv(path)
+    except SettingsError:
+        raise
+    except (OSError, UnicodeDecodeError) as exc:
+        raise SettingsError(f"could not read {path}: {exc}") from exc
+    except (json.JSONDecodeError, csv.Error) as exc:
+        raise SettingsError(f"could not parse {path}: {exc}") from exc
+
+
+def _settings_csv_cell(value: Any) -> str:
+    """One settings value as the text :func:`spacr.utils.save_settings` writes.
+
+    ``None`` is an empty cell and every other value is its ``str``, as
+    pandas writes them. The one change is a float whose ``str`` has an
+    exponent and no decimal point, such as ``1e-05``: it is written in
+    positional form, ``0.00001``, because the loaders read text without a
+    point as an integer or a word, and would give the float back as the
+    string ``'1e-05'``.
+
+    :param value: a settings value.
+    :returns: the cell text.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    if isinstance(value, float) and "e" in text and "." not in text:
+        from decimal import Decimal
+
+        positional = format(Decimal(text), "f")
+        return positional if "." in positional else positional + ".0"
+    return text
+
+
+def _settings_json_value(value: Any) -> Any:
+    """A settings value as something JSON can hold, or its ``repr``.
+
+    :param value: a settings value.
+    :returns: ``None``, a bool, number or string, a list or dict of those,
+        or the ``repr`` of anything else.
+    """
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if isinstance(value, dict):
+        return {str(k): _settings_json_value(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_settings_json_value(v) for v in value]
+    item = getattr(value, "item", None)
+    if callable(item):
+        try:
+            return _settings_json_value(item())
+        except (TypeError, ValueError):
+            pass
+    return repr(value)
+
+
+def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
+    """Write a settings dict to a CSV that the GUI and ``spacr-run`` read back.
+
+    The inverse of :func:`load_settings_file`, and the file the GUI's
+    "Export settings…" button writes. The layout is the one
+    :func:`spacr.utils.save_settings` writes next to every run: a
+    ``Key,Value`` header, one row per setting in the dict's order, ``None``
+    as an empty cell, booleans as ``True`` / ``False``, and lists, tuples and
+    dicts in Python literal form. The settings are written as given: unlike
+    ``save_settings``, ``test_mode`` and ``plot`` are not turned off, and
+    nothing is listed, scanned or opened except the files written.
+
+    A ``.json`` copy is written beside the CSV, as ``save_settings`` writes
+    one, so the types survive exactly; ``spacr-run --settings`` reads either.
+
+    :param settings: the settings to write.
+    :param path: the CSV to write; ``~`` and ``$VARS`` are expanded and the
+        folder is created.
+    :returns: the CSV and JSON paths written, in that order.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.cli import load_settings_file, write_settings_file
+            write_settings_file({"src": "/data/plate1", "channels": [0, 1]},
+                                "measure_settings.csv")
+            load_settings_file("measure_settings.csv")
+    """
+    import pandas as pd
+
+    from . import tabular
+
+    values = dict(settings)
+    rows = [(str(key), _settings_csv_cell(value))
+            for key, value in values.items()]
+    frame = pd.DataFrame(rows, columns=["Key", "Value"])
+    written = tabular.write_table(frame, path, canonicalise=False)
+    sibling = os.path.splitext(written)[0] + ".json"
+    with open(sibling, "w", encoding="utf-8") as out:
+        json.dump({str(k): _settings_json_value(v)
+                   for k, v in values.items()},
+                  out, indent=2, sort_keys=True)
+    return [written, sibling]
+
+
+_TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
+    "src": (str, list),
+    "normalize": (bool, list),
+    "save": (bool, list),
+}
+
+_PATH_LIST_KEYS = frozenset({"src"})
+
+_APP_TYPE_OVERRIDES: Dict[str, Dict[str, Tuple[type, ...]]] = {
+    "foreign": {"masks": (str, list)},
+}
+
+_TRUE_WORDS = frozenset({"true", "t", "yes", "y", "on", "1"})
+_FALSE_WORDS = frozenset({"false", "f", "no", "n", "off", "0"})
+_NONE_WORDS = frozenset({"none", "null", "nil", ""})
+
+
+def _allowed_types(key: str, current: Any, expected_types: Mapping[str, Any],
+                   app: str = "") -> Tuple[type, ...]:
+    """Types ``key`` may take, from ``expected_types`` or the current value.
+
+    :param key: settings key being overridden.
+    :param current: the value the key holds before the override, used to infer
+        a type for keys that ``expected_types`` does not declare.
+    :param expected_types: :data:`spacr.settings.expected_types`.
+    :param app: module key, for the per-module narrowings above.
+    :returns: tuple of types; empty means "anything, parse it literally".
+    """
+    per_app = _APP_TYPE_OVERRIDES.get(app, {})
+    if key in per_app:
+        return per_app[key]
+    if key in _TYPE_OVERRIDES:
+        return _TYPE_OVERRIDES[key]
+    if key in expected_types:
+        declared = expected_types[key]
+        raw = declared if isinstance(declared, tuple) else (declared,)
+        out = tuple(type(None) if t is None else t for t in raw if isinstance(t, type) or t is None)
+        if out:
+            return out
+    if isinstance(current, bool):
+        return (bool,)
+    if isinstance(current, int):
+        return (int,)
+    if isinstance(current, float):
+        return (float, int)
+    if isinstance(current, (list, tuple)):
+        return (list,)
+    if isinstance(current, dict):
+        return (dict,)
+    if isinstance(current, str):
+        return (str,)
+    return ()
+
+
+def _literal_scalar(text: str) -> Any:
+    """Parse one bare token of a comma-separated list into a Python scalar."""
+    token = text.strip()
+    if token.lower() in _NONE_WORDS:
+        return None
+    if token.lower() in _TRUE_WORDS - {"1"}:
+        return True
+    if token.lower() in _FALSE_WORDS - {"0"}:
+        return False
+    try:
+        return int(token)
+    except ValueError:
+        pass
+    try:
+        return float(token)
+    except ValueError:
+        pass
+    if len(token) >= 2 and token[0] == token[-1] and token[0] in "'\"":
+        return token[1:-1]
+    return token
+
+
+def _type_label(types: Sequence[type]) -> str:
+    """Render a tuple of types as readable prose for an error message."""
+    if not types:
+        return "any value"
+    return " or ".join("None" if t is type(None) else getattr(t, "__name__", str(t))
+                       for t in types)
+
+
+def coerce_value(key: str, text: str, current: Any,
+                 expected_types: Mapping[str, Any], app: str = "") -> Any:
+    """Coerce a ``--set key=value`` string into the type the setting expects.
+
+    The type comes from :data:`spacr.settings.expected_types` when the key is
+    declared there, otherwise from the type of the value the key already holds.
+    A value that cannot be coerced is an error rather than a silently-stored
+    string: ``cell_mask_dim='4'`` is exactly the bug the settings CSV round trip
+    keeps producing, and measure_crop only notices it an hour in.
+
+    :param key: settings key.
+    :param text: the raw text after the first ``=``.
+    :param current: the value ``key`` holds before the override.
+    :param expected_types: :data:`spacr.settings.expected_types`.
+    :param app: module key, so a key two pipelines share is read as the module
+        being run means it (see :data:`_APP_TYPE_OVERRIDES`).
+    :returns: the coerced value.
+    :raises SettingsError: when ``text`` is not a legal value for ``key``.
+    """
+    types = _allowed_types(key, current, expected_types, app)
+    stripped = text.strip()
+    lowered = stripped.lower()
+    allow = (lambda t: True) if not types else (lambda t: t in types)
+
+    if lowered in _NONE_WORDS and (not types or type(None) in types):
+        return None
+
+    if key in _PATH_LIST_KEYS:
+        from .portable_paths import _parse_path_list
+
+        paths = _parse_path_list(text)
+        if all(isinstance(path, str) for path in paths) and paths:
+            return paths[0] if len(paths) == 1 else paths
+
+    if stripped.startswith("{") and allow(dict):
+        try:
+            parsed = ast.literal_eval(stripped)
+        except (ValueError, SyntaxError) as exc:
+            raise SettingsError(f"--set {key}={text!r} is not a valid dict: {exc}") from exc
+        if isinstance(parsed, dict):
+            return parsed
+
+    if stripped.startswith(("[", "(")) and (allow(list) or allow(tuple)):
+        try:
+            parsed = ast.literal_eval(stripped)
+        except (ValueError, SyntaxError) as exc:
+            raise SettingsError(f"--set {key}={text!r} is not a valid list: {exc}") from exc
+        if isinstance(parsed, (list, tuple)):
+            return tuple(parsed) if (allow(tuple) and not allow(list)) else list(parsed)
+
+    if allow(bool):
+        if lowered in _TRUE_WORDS:
+            return True
+        if lowered in _FALSE_WORDS:
+            return False
+
+    if allow(int):
+        try:
+            return int(stripped)
+        except ValueError:
+            try:
+                as_float = float(stripped)
+            except ValueError:
+                as_float = None
+            if as_float is not None and as_float.is_integer():
+                return int(as_float)
+
+    if allow(float):
+        try:
+            return float(stripped)
+        except ValueError:
+            pass
+
+    if (key == "custom_model"
+            and lowered in (_TRUE_WORDS | _FALSE_WORDS)):
+        raise SettingsError(
+            "--set custom_model is a checkpoint path, not a boolean switch; "
+            "use custom_model=none for the stock Cellpose model."
+        )
+
+    if allow(str):
+        return text
+
+    if allow(list) or allow(tuple):
+        items = [_literal_scalar(part) for part in stripped.split(",")] if stripped else []
+        return tuple(items) if (allow(tuple) and not allow(list)) else items
+
+    raise SettingsError(
+        f"--set {key}={text!r} cannot be read as {_type_label(types)}.\n"
+        f"  {key} expects {_type_label(types)}; the current value is {current!r}.")
+
+
+def _split_override(item: str) -> Tuple[str, str]:
+    """Split a ``key=value`` override, raising a useful error when it has no ``=``."""
+    if "=" not in item:
+        raise SettingsError(
+            f"--set {item!r} is not a key=value pair.\n"
+            f"  Write it as --set {item}=<value> (quote values containing spaces).")
+    key, _, value = item.partition("=")
+    key = key.strip()
+    if not key:
+        raise SettingsError(f"--set {item!r} has an empty key.")
+    return key, value
+
+
+def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
+                    module: Optional[Module] = None) -> Dict[str, Any]:
+    """Apply ``--set key=value`` overrides on top of a settings dict.
+
+    An override naming a key spaCR does not know is an error, not a no-op: a
+    typo'd override that quietly does nothing costs a whole run to discover,
+    and the run looks like it succeeded.
+
+    So is an override naming a key spaCR *does* know but nothing reads. Those
+    are worse, because they pass every "is this a real setting?" test there is:
+    ``remove_border_pathogens`` is typed, tooltipped and offered by the Pathogen
+    category, and ``spacr-run mask --set remove_border_pathogens=True`` was
+    accepted in silence and did nothing. ``spacr.settings.DEAD_SETTINGS`` names
+    every such key and the spelling that works instead.
+
+    :param settings: settings resolved from defaults plus file; mutated in place.
+    :param overrides: raw ``key=value`` strings from the command line.
+    :param module: the module being run, used only for the error message.
+    :returns: ``settings``.
+    :raises SettingsError: on an unknown key, a key nothing reads, or an
+        uncoercible value.
+    """
+    if not overrides:
+        return settings
+    from .settings import expected_types
+
+    known = set(settings) | set(expected_types)
+    for item in overrides:
+        key, text = _split_override(item)
+        if key not in known:
+            close = difflib.get_close_matches(key, sorted(known), n=1, cutoff=0.6)
+            hint = f" Did you mean '{close[0]}'?" if close else ""
+            where = f" for module '{module.key}'" if module is not None else ""
+            raise SettingsError(
+                f"--set {key}=... names a setting that does not exist{where}: "
+                f"'{key}'.{hint}\n"
+                f"  Run 'spacr-run --describe {module.key if module else '<module>'}' "
+                f"to list the settings this module accepts.")
+        settings[key] = coerce_value(key, text, settings.get(key), expected_types,
+                                     module.key if module is not None else "")
+    return settings
+
+
+def _under_todays_names(settings: Dict[str, Any],
+                        moved: Optional[List[Any]] = None) -> Dict[str, Any]:
+    """A settings file's own keys, under the names the pipelines read today.
+
+    THE FILE IS MIGRATED BEFORE IT MEETS THE DEFAULTS, and the order is the
+    whole fix. `spacr.settings` folds a renamed key onto its new name with
+    "the NEW name wins where both are present", which is right for a file
+    but wrong for a file LAYERED ON TOP OF DEFAULTS: the defaults have
+    already filled in the new name, so the file's value lost to it every
+    time. Before this ordering, a regression file saying
+    `min_cell_count,50` resolved to `min_cells_per_well = 100`, the
+    default, and the fold said "this settings file names both" about a file
+    that named one.
+
+    SO EVERY RENAME THE DOCTOR REPORTS WAS SILENTLY DROPPED ON THIS PATH --
+    ten keys and six role-family rules -- while the GUI, which translates a
+    dict before it meets a form, kept them. `spacr-run <module> --settings`
+    is the path a cluster job takes.
+
+    THE MESSAGE IS THE DOCTOR'S OWN. The pre-flight runs after this and can
+    only see the new name, so each key that moved is named here instead,
+    once, with the sentence the pre-flight would have used.
+
+    A CALLER THAT WILL PRINT A REPORT TAKES THE MESSAGES INSTEAD OF THE LOG.
+    Passing ``moved`` collects the same `Problem` objects and suppresses the
+    log line, because the migration would otherwise be announced twice on
+    ``spacr-run <module> --dry-run`` and, worse, on ``validate``: that
+    command formats its own report and never calls :func:`setup_logging`, so
+    a log line there escapes to `logging.lastResort` on stderr, unformatted
+    and outside the report the user is reading. Without ``moved``, a file
+    saying `min_cell_count,50` and `toxo,False`
+    validated with ``--module regression`` reported one warning (`barcodes`,
+    the only key with no successor) where the same file with no ``--module``
+    reported three. A caller that passes nothing keeps the log line and is
+    unchanged -- :func:`spacr.batch.resolve_job_settings` is one.
+
+    :param settings: the mapping just read from the file, edited in place.
+    :param moved: list to receive one `spacr.validate.Problem` per key that
+        moved, in which case nothing is logged. None logs, as before.
+    :returns: the same mapping, for chaining.
+    """
+    from .settings import (_fold_gradient_accumulation, _fold_object_bounds,
+                           _fold_renamed_settings, _fold_toxoplasma)
+    from .validate import _check_retired_keys
+
+    before = set(settings)
+    said = {problem.setting: problem for problem in
+            _check_retired_keys(settings)}
+    _fold_renamed_settings(settings)
+    _fold_toxoplasma(settings)
+    _fold_gradient_accumulation(settings)
+    _fold_object_bounds(settings)
+    for key in sorted(before - set(settings), key=str):
+        problem = said.get(key)
+        if problem is None:
+            continue
+        if moved is None:
+            LOG.warning("%s %s", problem.message, problem.fix)
+        else:
+            moved.append(problem)
+    return settings
+
+
+def resolve_settings(module: Module, settings_path: Optional[str],
+                     overrides: Sequence[str] = (),
+                     moved: Optional[List[Any]] = None) -> Dict[str, Any]:
+    """Build the settings dict that the pipeline receives.
+
+    Layered lowest-to-highest: the module's own defaults, the settings file,
+    then the ``--set`` overrides. The file is read under today's names first
+    -- see :func:`_under_todays_names`, without which a value the file set
+    under an old name lost to the default already sitting under the new one.
+
+    :param module: module being run.
+    :param settings_path: path to the settings file, or None for defaults only.
+    :param overrides: ``key=value`` strings.
+    :param moved: list to receive the migration notices, passed straight to
+        :func:`_under_todays_names`; a caller that prints a pre-flight report
+        hands these to :func:`_preflight` so the keys the fold consumed are
+        still named there.
+    :returns: the fully-resolved settings dict.
+    :raises SettingsError: on any unreadable file, unknown key or bad value.
+    """
+    resolved = module_defaults(module)
+    if settings_path:
+        resolved.update(
+            _under_todays_names(load_settings_file(settings_path), moved))
+    apply_overrides(resolved, overrides, module)
+    return resolved
+
+
+
+
+def _has_display() -> bool:
+    """True when a windowing system is available for matplotlib to draw on."""
+    if sys.platform.startswith("win") or sys.platform == "darwin":
+        return True
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+
+
+def use_agg_if_headless() -> bool:
+    """Force matplotlib's Agg backend when there is no display.
+
+    Called before the first spaCR import that could pull pyplot. An explicit
+    ``MPLBACKEND`` in the environment always wins, and interactive local use
+    (a display is present) is left alone, so this applies only without a display.
+
+    :returns: True when Agg was forced.
+    """
+    if os.environ.get("MPLBACKEND"):
+        return False
+    if _has_display():
+        return False
+    os.environ["MPLBACKEND"] = "Agg"
+    try:
+        import matplotlib
+        matplotlib.use("Agg", force=True)
+    except Exception:
+        return False
+    return True
+
+
+class _NoShow:
+    """Context manager that neutralises ``plt.show`` for the length of a run.
+
+    A pipeline that calls ``plt.show()`` under Agg emits a UserWarning per
+    figure and leaks every one of them — forty plates' worth of open figures is
+    a real memory problem on a shared node. Closing the current figure instead
+    is exactly what :func:`spacr.gui_utils.spacrFigShow` does inside the GUI,
+    so the pipelines are already built for it.
+    """
+
+    def __init__(self) -> None:
+        """Initialize empty references for a reversible pyplot patch."""
+        self._plt = None
+        self._original = None
+
+    def __enter__(self) -> "_NoShow":
+        """Replace ``pyplot.show`` with figure cleanup when available."""
+        try:
+            import matplotlib.pyplot as plt
+        except Exception:
+            return self
+        self._plt = plt
+        self._original = plt.show
+
+        def _close_instead(*args: Any, **kwargs: Any) -> None:
+            """Close the captured current figure instead of displaying it.
+
+            :param args: ignored positional arguments accepted for ``show``
+                signature compatibility.
+            :param kwargs: ignored keyword arguments accepted for compatibility.
+            :returns: None. Backend and close errors are deliberately swallowed
+                so optional visualization cleanup cannot fail a headless run.
+            """
+            try:
+                plt.close(plt.gcf())
+            except Exception:
+                pass
+
+        plt.show = _close_instead
+        return self
+
+    def __exit__(self, *exc_info: Any) -> bool:
+        """Restore pyplot, close remaining figures, and propagate exceptions."""
+        if self._plt is not None and self._original is not None:
+            try:
+                self._plt.show = self._original
+                self._plt.close("all")
+            except Exception:
+                pass
+        return False
+
+
+def setup_logging(verbose: bool = False) -> logging.Logger:
+    """Configure timestamped logging to stdout for a batch run.
+
+    :param verbose: raise the level from INFO to DEBUG.
+    :returns: the ``spacr.cli`` logger.
+    """
+    level = logging.DEBUG if verbose else logging.INFO
+    LOG.setLevel(level)
+    LOG.propagate = False
+    for handler in list(LOG.handlers):
+        LOG.removeHandler(handler)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(level)
+    handler.setFormatter(logging.Formatter(
+        fmt="%(asctime)s %(levelname)-7s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"))
+    LOG.addHandler(handler)
+    return LOG
+
+
+def _quiet_progress_bars() -> bool:
+    """Disable tty-only progress rendering when stdout is a file or a pipe.
+
+    :returns: True when stdout is not a tty and the bars were disabled.
+    """
+    try:
+        is_tty = bool(sys.stdout.isatty())
+    except (AttributeError, ValueError):
+        is_tty = False
+    if is_tty:
+        return False
+    os.environ.setdefault("TQDM_DISABLE", "1")
+    os.environ.setdefault("SPACR_NO_PROGRESS", "1")
+    return True
+
+
+
+
+def _format_value(value: Any) -> str:
+    """Compact single-line rendering of a settings value."""
+    text = repr(value) if isinstance(value, str) else str(value)
+    return text if len(text) <= 70 else text[:67] + "..."
+
+
+def render_settings(settings: Mapping[str, Any]) -> str:
+    """Render a resolved settings dict as an aligned, sorted table.
+
+    :param settings: the resolved settings.
+    :returns: the table as one string, no trailing newline.
+    """
+    if not settings:
+        return "  (no settings)"
+    width = min(38, max(len(str(k)) for k in settings))
+    return "\n".join(f"  {str(k).ljust(width)}  {_format_value(v)}"
+                     for k, v in sorted(settings.items(), key=lambda kv: str(kv[0])))
+
+
+def render_module_list() -> str:
+    """Render the ``--list`` table of headless-runnable modules.
+
+    :returns: the table as one string, no trailing newline.
+    """
+    modules = tuple(MODULES.values())
+    width = max(len(m.key) for m in modules)
+    lines = ["spaCR modules that can run headless:", ""]
+    for module in modules:
+        lines.append(f"  {module.key.ljust(width)}  {module.summary}")
+        lines.append(f"  {' ' * width}  -> {module.module_name}.{module.func_name}()")
+    lines.append("")
+    lines.append("GUI-only (no headless equivalent):")
+    for key in sorted(INTERACTIVE_ONLY):
+        lines.append(f"  {key.ljust(width)}  {INTERACTIVE_ONLY[key]}")
+    lines.append("")
+    lines.append("Run 'spacr-run --describe <module>' for required settings and outputs.")
+    return "\n".join(lines)
+
+
+def render_module_description(module: Module) -> str:
+    """Render the ``--describe`` block for one module.
+
+    :param module: module to describe.
+    :returns: the description as one string, no trailing newline.
+    """
+    lines = [f"{module.key} — {module.summary}", "=" * max(len(module.key) + 3, 60), ""]
+    lines.append(f"  runs        {module.module_name}.{module.func_name}(settings)"
+                 if module.call_style == "settings" else
+                 f"  runs        {module.module_name}.{module.func_name}(settings['src'])")
+    lines.append(f"  defaults    {module.defaults_label}"
+                 if module.defaults_label else
+                 "  defaults    none — every setting must come from the settings file")
+    lines.append(f"  pre-flight  spacr.validate rules for '{module.validate_key}'"
+                 if module.validate_key else
+                 "  pre-flight  generic checks only (no module-specific rules)")
+
+    try:
+        defaults = module_defaults(module)
+    except Exception:
+        defaults = {}
+    if defaults:
+        lines.append(f"  settings    {len(defaults)} keys, all optional unless listed below")
+
+    if module.requires:
+        lines.append("")
+        lines.append("Required settings:")
+        for item in module.requires:
+            lines.append(f"  - {item}")
+    if module.writes:
+        lines.append("")
+        lines.append("Writes:")
+        for item in module.writes:
+            lines.append(f"  - {item}")
+    if module.note:
+        lines.append("")
+        lines.append(f"Note: {module.note}")
+    lines.append("")
+    lines.append(f"  spacr-run {module.key} --settings settings.csv --dry-run")
+    return "\n".join(lines)
+
+
+def _preflight(settings: Mapping[str, Any], validate_key: str,
+               printer: Callable[[str], None] = print,
+               moved: Sequence[Any] = ()) -> List[Any]:
+    """Validate settings against the data they point at and print the report.
+
+    Delegates every rule to :mod:`spacr.validate` — :func:`validate_settings`
+    for the checks, :func:`format_report` for the errors and warnings,
+    :func:`describe_plan` for the "here is what would happen" summary. Only the
+    trailer differs from :func:`spacr.validate.run_preflight`, which is worded
+    for the in-pipeline ``dry_run=True`` setting rather than for ``--dry-run``.
+
+    ``moved`` IS WHAT THE REPORT CANNOT SEE FOR ITSELF. The settings arrive
+    already migrated -- they have to be, or a renamed value would lose to the
+    default -- so the old names the user actually wrote are gone by now, and
+    the retired-key rules find nothing to report about them. The notices
+    :func:`_under_todays_names` collected are prepended, so the report names
+    every key the file spelled the old way, whether or not it had a successor.
+
+    :param settings: the resolved settings.
+    :param validate_key: app key understood by :mod:`spacr.validate`.
+    :param printer: where the text goes.
+    :param moved: migration notices from :func:`resolve_settings`.
+    :returns: the list of ``spacr.validate.Problem`` found.
+    """
+    from .validate import describe_plan, format_report, validate_settings
+
+    problems = list(moved) + validate_settings(dict(settings), validate_key)
+    printer(format_report(problems, dict(settings), validate_key))
+    printer("")
+    printer(describe_plan(dict(settings), validate_key))
+    return problems
+
+
+def _error_count(problems: Sequence[Any]) -> int:
+    """Number of problems that would break or corrupt the run."""
+    return sum(1 for p in problems if getattr(p, "is_error", False))
+
+
+
+
+def import_entry(module: Module) -> Callable[..., Any]:
+    """Import and return the pipeline callable for ``module``.
+
+    Deliberately late: this is where torch, cellpose and the rest of the heavy
+    stack finally load, long after ``--help`` and ``--list`` have answered.
+
+    :param module: module whose entry point is wanted.
+    :returns: the callable.
+    :raises SettingsError: when the module or attribute cannot be imported.
+    """
+    try:
+        imported = importlib.import_module(module.module_name)
+    except Exception as exc:
+        raise SettingsError(
+            f"could not import {module.module_name} for module '{module.key}': "
+            f"{type(exc).__name__}: {exc}\n"
+            f"  Check that spaCR's dependencies are installed in this environment.") from exc
+    func = getattr(imported, module.func_name, None)
+    if func is None or not callable(func):
+        raise SettingsError(
+            f"{module.module_name} has no callable '{module.func_name}' — "
+            f"module '{module.key}' cannot run against this spaCR version.")
+    return func
+
+
+def _call_entry(module: Module, func: Callable[..., Any],
+                settings: Dict[str, Any]) -> Any:
+    """Invoke a pipeline entry point with the calling convention it expects."""
+    if module.call_style == "folder":
+        src = settings.get("src")
+        if not isinstance(src, str) or not src.strip():
+            raise SettingsError(
+                f"module '{module.key}' needs a single folder in src, "
+                f"but src is {src!r}.")
+        return func(src)
+    return func(settings)
+
+
+def cmd_list(_args: argparse.Namespace) -> int:
+    """``--list`` — print every module that can run headless."""
+    print(render_module_list())
+    return EXIT_OK
+
+
+def cmd_describe(name: str) -> int:
+    """``--describe <module>`` — print one module's contract."""
+    module = resolve_module(name)
+    if module is None:
+        print(_unknown_module_message(name), file=sys.stderr)
+        return EXIT_USAGE
+    print(render_module_description(module))
+    return EXIT_OK
+
+
+def cmd_validate(args: argparse.Namespace) -> int:
+    """``validate --settings f`` — pre-flight only, nothing is executed."""
+    module = resolve_module(args.module) if args.module else None
+    if args.module and module is None:
+        print(_unknown_module_message(args.module), file=sys.stderr)
+        return EXIT_USAGE
+    if not args.settings:
+        print("error: validate needs a settings file: "
+              "spacr-run validate --settings <file> [--module <module>]",
+              file=sys.stderr)
+        return EXIT_USAGE
+
+    moved: List[Any] = []
+    try:
+        if module is not None:
+            settings = resolve_settings(module, args.settings, args.set or [],
+                                        moved)
+        else:
+            settings = load_settings_file(args.settings)
+            apply_overrides(settings, args.set or [], None)
+    except SettingsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+
+    if getattr(args, "hash_inputs", None) is not None:
+        settings["hash_inputs"] = bool(args.hash_inputs)
+
+    validate_key = module.validate_key if module is not None else ""
+    problems = _preflight(settings, validate_key, moved=moved)
+    errors = _error_count(problems)
+    print("")
+    if errors:
+        print(f"validate: {errors} error{'' if errors == 1 else 's'} — "
+              f"these settings would not run.")
+        return EXIT_USAGE
+    print("validate: settings are runnable.")
+    return EXIT_OK
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    """``<module> --settings f`` — run the module, or print the plan with ``--dry-run``."""
+    module = resolve_module(args.module)
+    if module is None:
+        print(_unknown_module_message(args.module), file=sys.stderr)
+        return EXIT_USAGE
+    if not args.settings:
+        print(f"error: no settings file given.\n"
+              f"  spacr-run {module.key} --settings <file>   "
+              f"(see 'spacr-run --describe {module.key}')", file=sys.stderr)
+        return EXIT_USAGE
+
+    log = setup_logging(args.verbose)
+    moved: List[Any] = []
+    try:
+        settings = resolve_settings(module, args.settings, args.set or [],
+                                    moved)
+    except SettingsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+
+    log.info("module   %s -> %s.%s()", module.key, module.module_name, module.func_name)
+    log.info("settings %s (%d keys resolved)", args.settings, len(settings))
+    if args.set:
+        log.info("overrides %s", ", ".join(args.set))
+    if args.no_preflight and not args.dry_run:
+        for problem in moved:
+            log.warning("%s %s", problem.message, problem.fix)
+
+    if args.dry_run:
+        print("")
+        print("Resolved settings:")
+        print(render_settings(settings))
+        print("")
+        problems = _preflight(settings, module.validate_key, moved=moved)
+        errors = _error_count(problems)
+        print("")
+        print(f"--dry-run: nothing was executed. "
+              f"{module.module_name}.{module.func_name}() was not called.")
+        if errors:
+            log.error("dry run found %d error%s in the settings",
+                      errors, "" if errors == 1 else "s")
+            return EXIT_USAGE
+        log.info("dry run clean — drop --dry-run to execute")
+        return EXIT_OK
+
+    if args.verbose:
+        log.debug("resolved settings:\n%s", render_settings(settings))
+
+    if not args.no_preflight:
+        problems = _preflight(settings, module.validate_key, moved=moved)
+        errors = _error_count(problems)
+        if errors and not args.force:
+            log.error("pre-flight found %d error%s; refusing to start.",
+                      errors, "" if errors == 1 else "s")
+            log.error("Fix them, or pass --force to run anyway "
+                      "(or --no-preflight to skip the check).")
+            return EXIT_USAGE
+        if errors:
+            log.warning("pre-flight found %d error%s — running anyway (--force).",
+                        errors, "" if errors == 1 else "s")
+
+    if use_agg_if_headless():
+        log.info("no display detected — matplotlib backend forced to Agg")
+    if _quiet_progress_bars():
+        log.debug("stdout is not a tty — tty-only progress output disabled")
+
+    try:
+        func = import_entry(module)
+    except SettingsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+
+    started = time.time()
+    log.info("starting %s", module.key)
+    try:
+        from .figure_font import _open_sans_is_the_default
+        from .run_journal import open_run
+        with _NoShow(), _open_sans_is_the_default():
+            log.info("recording reproducibility input hashes")
+            with open_run(module.key, settings) as run:
+                log.info("reproducibility manifest %s", run.dir)
+                lock = getattr(run, "_analysis_lock", None)
+                if lock:
+                    (log.info if lock.get("status") == "verified"
+                     else log.warning)("%s", lock.get("summary"))
+                _call_entry(module, func, settings)
+    except SettingsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+    except KeyboardInterrupt:
+        log.error("interrupted after %.1fs", time.time() - started)
+        return EXIT_RUNTIME
+    except BaseException as exc:  # noqa: BLE001 - a batch job must report, not crash
+        if isinstance(exc, SystemExit):
+            code = exc.code if isinstance(exc.code, int) else EXIT_RUNTIME
+            log.info("%s exited with code %s after %.1fs",
+                     module.key, code, time.time() - started)
+            return code
+        import traceback
+        log.error("%s failed after %.1fs: %s: %s",
+                  module.key, time.time() - started, type(exc).__name__, exc)
+        traceback.print_exc()
+        return EXIT_RUNTIME
+
+    log.info("%s finished in %.1fs", module.key, time.time() - started)
+    return EXIT_OK
+
+
+
+
+class _Parser(argparse.ArgumentParser):
+    """ArgumentParser whose usage errors exit 2 through the same path as ours."""
+
+    def error(self, message: str) -> None:  # type: ignore[override]
+        """Print usage and ``message``, then exit with the usage status."""
+        self.print_usage(sys.stderr)
+        print(f"error: {message}", file=sys.stderr)
+        raise SystemExit(EXIT_USAGE)
+
+
+def _archive_metadata_object(pairs):
+    """Return a JSON object from ``pairs``, rejecting duplicate field names."""
+    values = {}
+    for key, value in pairs:
+        if key in values:
+            raise ValueError(f"duplicate metadata field: {key}")
+        values[key] = value
+    return values
+
+
+def _archive_package_parser():
+    """Return the standard-library parser for a local alpha archive export."""
+    parser = _Parser(
+        prog="spacr-run archive-package",
+        description="Build and check a local MIHCSME/REMBI, IDR and BioStudies "
+                    "archive package (alpha). Nothing is uploaded.",
+        epilog="Metadata is a JSON object of text fields such as title, "
+               "description, authors, email, microscope, organism and plate_map. "
+               "Missing fields use saved run settings and archive defaults. "
+               "Checks use spaCR's local templates, not archive-service approval. "
+               "The new named package must be outside the source run and must "
+               "not already exist; --out is its parent directory.",
+    )
+    parser.add_argument("--src", required=True, help="Run folder containing raw images.")
+    parser.add_argument("--out", required=True, help="Parent folder for the new named package.")
+    parser.add_argument("--screen-src", action="append", default=[], metavar="RUN",
+                        help="Another run folder, added as the next screen of the same "
+                             "study; repeat for more screens.")
+    metadata = parser.add_mutually_exclusive_group(required=True)
+    metadata.add_argument("--metadata", metavar="FILE", help="UTF-8 JSON metadata file.")
+    metadata.add_argument("--metadata-json", metavar="JSON", help="Inline JSON metadata object.")
+    parser.add_argument("--copy-images", action="store_true",
+                        help="Copy images into the package; otherwise reference the originals.")
+    return parser
+
+
+def _cmd_archive_package(argv):
+    """Build a package from command arguments and return its checked exit status."""
+    from pathlib import Path
+
+    parser = _archive_package_parser()
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as exc:
+        return exc.code if isinstance(exc.code, int) else EXIT_USAGE
+    try:
+        if args.metadata:
+            with open(args.metadata, encoding="utf-8") as handle:
+                raw = handle.read(1024 * 1024 + 1)
+        else:
+            raw = args.metadata_json
+        if len(raw.encode("utf-8")) > 1024 * 1024:
+            raise ValueError("metadata JSON exceeds 1 MiB")
+        form = json.loads(raw, object_pairs_hook=_archive_metadata_object)
+        if not isinstance(form, dict):
+            raise ValueError("metadata JSON must be an object")
+        if any(value is not None and not isinstance(value, str)
+               for value in form.values()):
+            raise ValueError("metadata fields must contain text or null")
+        src = Path(args.src).expanduser().resolve()
+        for folder in (src, *(Path(p).expanduser().resolve() for p in args.screen_src)):
+            if not folder.is_dir():
+                raise ValueError(f"Not a folder: {folder}")
+    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+
+    try:
+        from . import report
+
+        supported = {key for key, _required in report._ARCHIVE_FORM_FIELDS}
+        unknown = sorted(set(form) - supported)
+        if unknown:
+            raise SettingsError("unknown metadata fields: " + ", ".join(unknown))
+        values = report._archive_form_defaults(src)
+        values.update({key: value.strip() for key, value in form.items()
+                       if value is not None})
+        missing = [key for key, required in report._ARCHIVE_FORM_FIELDS
+                   if required and not values.get(key)]
+        if missing:
+            raise SettingsError("missing required metadata: " + ", ".join(missing))
+        package = report._write_archive_study(
+            [src, *args.screen_src], args.out, values,
+            copy_images=args.copy_images)
+        problems = report._validate_archive_study(package)
+        if problems:
+            print(f"Package written to {package}, but spaCR's local checks failed:",
+                  file=sys.stderr)
+            for problem in problems:
+                print(f"  - {problem}", file=sys.stderr)
+            return EXIT_RUNTIME
+    except SettingsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_USAGE
+    except Exception as exc:
+        print(f"archive-package failed: {exc}", file=sys.stderr)
+        return EXIT_RUNTIME
+    print(f"Archive package: {package}")
+    print("spaCR's local template and checksum checks passed. Nothing was uploaded. "
+          "Archive curator/service approval is still required.")
+    return EXIT_OK
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Return the ``spacr-run`` argument parser.
+
+    Building the parser imports nothing beyond the standard library, so
+    ``spacr-run --help`` is instant even on a node with a cold NFS cache.
+
+    :returns: the parser.
+    """
+    parser = _Parser(
+        prog="spacr-run",
+        description="Run a spaCR module from a settings file, with no GUI and "
+                    "no display.",
+        epilog="Archive export (alpha): spacr-run archive-package --help\n"
+               "Exit codes: 0 success, 1 the module raised, 2 bad arguments or settings.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "module", nargs="?",
+        help="Module to run, or 'validate' for a pre-flight check. "
+             "Use --list to see them all.")
+    parser.add_argument(
+        "--settings", "-s", metavar="FILE",
+        help="Settings CSV or JSON, as written by the GUI or by any spaCR run "
+             "into <src>/settings/.")
+    parser.add_argument(
+        "--set", action="append", metavar="KEY=VALUE", default=[],
+        help="Override one setting after the file is loaded. Repeatable. "
+             "Unknown keys are an error.")
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="Print the resolved settings and the plan, run the pre-flight "
+             "checks, and stop without executing anything.")
+    parser.add_argument(
+        "--module", "-m", dest="module_opt", metavar="MODULE",
+        help="Module the settings belong to; only needed with the 'validate' "
+             "subcommand.")
+    parser.add_argument(
+        "--force", action="store_true",
+        help="Run even when the pre-flight check reports errors.")
+    parser.add_argument(
+        "--no-preflight", action="store_true",
+        help="Skip the pre-flight check entirely.")
+    parser.add_argument(
+        "--hash-inputs", dest="hash_inputs", action="store_true",
+        default=None,
+        help="Record a SHA-256 of every input and output file in the run "
+             "manifest. Off by default: it is proportional to the DATA, not "
+             "the run, and costs minutes on a large plate. The manifest is "
+             "written either way and says which it was.")
+    parser.add_argument(
+        "--no-hash-inputs", dest="hash_inputs", action="store_false",
+        help="Skip input hashing even if the settings file asks for it.")
+    parser.add_argument(
+        "--verbose", "-v", action="store_true",
+        help="Log at DEBUG, including the fully-resolved settings.")
+    parser.add_argument(
+        "--list", "-l", action="store_true",
+        help="List every module that can run headless, and exit.")
+    parser.add_argument(
+        "--list-models", "--models", action="store_true",
+        help="List local and downloadable model-zoo entries, and exit. "
+             "Use a model key in settings to download missing weights on use.")
+    parser.add_argument(
+        "--describe", metavar="MODULE",
+        help="Describe one module: what it runs, what it needs, what it "
+             "writes; then exit.")
+    parser.add_argument(
+        "--version", action="store_true",
+        help="Print the spaCR version and exit.")
+    return parser
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    """``spacr-run`` entry point.
+
+    :param argv: argument list; ``sys.argv[1:]`` when None.
+    :returns: process exit code — 0 success, 1 the module raised, 2 bad
+        arguments or settings. Any other integer comes from a pipeline that
+        raised ``SystemExit`` itself; :func:`cmd_run` passes that code through
+        unchanged.
+    """
+    from .logging_util import _apply_portable_mode
+    _apply_portable_mode()
+    arguments = list(argv) if argv is not None else sys.argv[1:]
+    if arguments and arguments[0] == "archive-package":
+        return _cmd_archive_package(arguments[1:])
+    parser = build_parser()
+    try:
+        args = parser.parse_args(arguments)
+    except SystemExit as exc:
+        return exc.code if isinstance(exc.code, int) else EXIT_USAGE
+
+    if args.version:
+        from ._version import __version__
+        print(__version__)
+        return EXIT_OK
+
+    if args.list:
+        return cmd_list(args)
+
+    if args.list_models:
+        from .model_zoo import catalogue, format_zoo
+        print(format_zoo(catalogue(remote=True)))
+        return EXIT_OK
+
+    if args.describe:
+        return cmd_describe(args.describe)
+
+    if not args.module:
+        parser.print_usage(sys.stderr)
+        print("error: no module given. Use --list to see what is available.",
+              file=sys.stderr)
+        return EXIT_USAGE
+
+    if args.module.lower() == "validate":
+        args.module = args.module_opt
+        return cmd_validate(args)
+
+    return cmd_run(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,76 @@
+{
+  "lesson": "29_report",
+  "status": "Current GUI collection, HTML generation and actual browser rendering accepted; narration and multilingual media not yet complete",
+  "capture_directory": "refresh_2026-09-09/captures/report_private_copy",
+  "app_commit": "e3ccb77b4",
+  "app_version": "1.5.0.4",
+  "app_source_modified": false,
+  "gui_process_exit_code": 0,
+  "gui_frames": 13,
+  "gui_actions": ["Help menu -> Report", "Actual Choose run folder picker", "Automatic scan and actual Scan button", "Read-only section inventory", "Actual HTML/PDF/Both format menu", "Native figure cap changed to3", "Actual separate output Save picker", "Generate report"],
+  "original_project": "refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project",
+  "private_copy": "refresh_2026-09-09/report_runs/example-gccukqtu/source_project",
+  "source_protection": {
+    "full_byte_identical_copy_files": 131,
+    "original_file_set_and_bytes_unchanged_during_accepted_capture": true,
+    "private_material_file_set_and_bytes_unchanged": true,
+    "private_sqlite_sidecar_changes_in_accepted_capture": [],
+    "prior_failed_capture_disclosure": "The first direct-source Scan added artifacts.db-shm(32768 bytes) and empty artifacts.db-wal without changing or removing any existing file. The strict guard stopped, both additions were preserved, and the accepted capture then used a complete byte-identical private copy including those files. No sidecars were deleted or silently prewarmed by the recorder.",
+    "zero_file_writes_for_all_report_scans_claimed": false
+  },
+  "actual_results": {
+    "measurement_step": "measure_crop", "attempted": 2, "succeeded": 2, "failed": 0,
+    "processing_stamp_created_for_tutorial": false,
+    "source_pipeline_rerun": false,
+    "sections": 8, "found": 5,
+    "missing": ["provenance", "segmentation_qc", "plate_qc"],
+    "section_selection_supported": false,
+    "figure_cap": 3, "figures_found": 6, "figures_embedded": 0,
+    "vector_pdf_paths": ["results/plate1_A01_1/after_filtration.pdf", "results/plate1_A01_1/before_filtration.pdf", "results/plate1_A01_1/pngs.pdf", "results/plate1_A01_2/after_filtration.pdf", "results/plate1_A01_2/before_filtration.pdf", "results/plate1_A01_2/pngs.pdf"],
+    "measurement_table_rows": {"cell": 103, "cytoplasm": 103, "intensity_rescale": 2, "png_list": 103, "run_status": 1, "settings": 2170, "settings_history": 2170},
+    "database_inventory_rows": {"artifacts.db": 3, "measurements/measurements.db": 4652},
+    "job_results": [true, true, true], "active_jobs": 0
+  },
+  "generated_html": {
+    "path": "refresh_2026-09-09/report_runs/example-gccukqtu/reports/external_masks_report.html",
+    "sha256": "97eef6129734ca3747a961e441e6f91779025de13ffabf2b87f15e0153156e48",
+    "only_file_written_to_selected_output_directory": true,
+    "all_sections_and_exact_returned_tables_retained": true,
+    "html_css_dom_rewritten_for_capture": false
+  },
+  "browser": {
+    "directory": "refresh_2026-09-09/captures/report_browser_private_copy",
+    "accepted": true, "process_exit_code": 0,
+    "chrome_version": "152.0.7977.82", "viewport_css": [1920, 1080], "device_scale_factor": 2,
+    "actual_png_dimensions": [3840, 2160], "frames": 10,
+    "all_eight_section_DOM_texts_and_tables_match_source_bound_HTML": true,
+    "actual_native_wheel_scrolling": true,
+    "settings_summary_opened_and_closed_by_native_click": true,
+    "open_gui_button_clicked": false,
+    "html_opened_directly_as_accepted_local_file": true,
+    "network_requests": 0, "javascript_errors": 0, "console_errors": 0,
+    "horizontal_overflow": false, "source_HTML_and_receipt_unchanged": true,
+    "parent_visually_inspected": ["03_provenance.png", "07_statistics.png"],
+    "visual_findings": "Legible actual fallback-version/missing-QC text and exact103-cell/103-cytoplasm/103-PNG table counts. No new analytical result is substituted for absent evidence."
+  },
+  "evidence_sha256": {
+    "gui/provenance.json": "cbf26834c095d568215859309a59e62cf16c35c1d68b963af8795955165d8478",
+    "gui/frames.json": "c2086043319fdd865af22573a563b149f5099a4aee342e61f23f8913e4cb64f3",
+    "gui/report_output_evidence.json": "befea239fc530c24d0fe116eb7a0d7acada5ef766877f5101425a253eb6ff5ed",
+    "browser/browser_review.json": "15bc6b566d4b1c11b1cbdf2ed36ff976fcf2807441e857225cc667819927bbbf",
+    "browser/browser_dom.json": "2884ce2817a51b416ab0b3e19cb000aa19402e42ae7f508ebeb2774fc104290a",
+    "browser/frames.json": "5ce59ea3afbd62b817362b98ade7f37daade17396c2a017895a538c9d659b2ed"
+  },
+  "interpretation_limits": [
+    "Complete is the processing stamp, not segmentation/plate QC or scientific approval.",
+    "No matching journal names the private copy, so fallback versions describe the report-generating environment, not reconstructed source provenance.",
+    "Six vector PDFs are listed, not rendered as embedded images; raising a raster figure cap does not convert them.",
+    "Cell-only cytoplasm duplicates the103 cell regions. Database table rows and stored settings rows are not independent biological observations or necessarily distinct settings.",
+    "The actual GUI offers no title, authorship or privacy-exclusion controls; review paths and metadata before sharing.",
+    "The report's existing Tools -> Plate Viewer advisory is stale: current tutorial navigation places Plate Viewer under Graph Builder. No application text was edited by the tutorial session."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "lesson_complete": false
+}

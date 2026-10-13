@@ -1,0 +1,26 @@
+{
+  "status": "completed",
+  "exit_code": 0,
+  "seconds": 2.62,
+  "files": [
+    "tests/test_test_count_badge.py"
+  ],
+  "counts": {
+    "tests": 14,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "hosted_endpoint": {
+    "schemaVersion": 1,
+    "label": "tests",
+    "message": "82587/83724",
+    "color": "green",
+    "passed": 82587,
+    "total": 83724,
+    "run_id": "37881951815",
+    "source_sha": "6fb0115f807c351382f6d6b20625e00ba05dd0dc"
+  },
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "updated_utc": "2026-10-09T13:05:06Z"
+}

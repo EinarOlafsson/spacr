@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Database Browser：过滤并导出测量数据",
+  "description": "打开测量数据库，选择列和行，并导出结果。",
+  "objectives": [
+    "打开并浏览测量表。",
+    "选择列并过滤行。",
+    "导出符合条件的记录。"
+  ],
+  "prerequisite": "准备一个spaCR的measurements.db文件，或包含该文件的运行文件夹。Measure的示例项目在测量后会提供一个数据库。",
+  "scenes": [
+    "打开Help，然后打开Database Browser，查看并导出测量表。",
+    "选择measurements.db，或包含它的运行文件夹，然后打开数据库。",
+    "选择需要的表。细胞测量选择cell，其他对象的特征则选择相应的对象表。",
+    "阅读总行数和总列数，然后查看显示的页面。使用翻页控件浏览较大的表。",
+    "在列名中搜索以找到某个特征。选择要查看和导出的列。",
+    "选择一列、一个运算符和一个值来建立过滤条件。应用后即可在整张表中选出符合条件的记录。",
+    "检查过滤后的行数，并查看符合条件的记录。调整或清除过滤条件以更改选择。",
+    "选择Export和目标文件。导出包含所有符合条件的行和所选的列，源数据库保持不变。"
+  ]
+}

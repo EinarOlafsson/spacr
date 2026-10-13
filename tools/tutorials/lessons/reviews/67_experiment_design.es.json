@@ -1,0 +1,37 @@
+{
+  "lesson": "67_experiment_design",
+  "english_sha256": "dcdd47c45e3948d1277938465185a3ca85f2a743d264d0ce8492f8b7a01477c8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Experiment Design: planificar una placa y exportar su mapa de pozos",
+  "description": "Define condiciones y réplicas, elige una distribución, revisa los avisos y exporta las asignaciones para la adquisición y el análisis.",
+  "objectives": [
+    "Introducir condiciones, número de réplicas y funciones de control.",
+    "Elegir un formato de placa, una política de bordes y una distribución aleatoria reproducible.",
+    "Exportar las asignaciones exactas de pozos para unirlas después a las mediciones."
+  ],
+  "prerequisite": "Prepara los nombres de las condiciones, las funciones de los controles y el número de pozos previsto antes de la adquisición. El ejemplo pide seis pozos de control negativo, seis de control positivo y doce de tratamiento; elige la replicación para tu propio experimento. Mantén el identificador de la placa coherente con las imágenes y mediciones posteriores.",
+  "scenes": [
+    "Desde Home, abre Data y elige Experiment Design. Empieza introduciendo las condiciones y los controles que quieres colocar en la placa.",
+    "Pon a la placa el identificador que usarás durante la adquisición. Revisa Condition, Replicates y Role en la tabla. Haz doble clic en el borde de una columna para ensancharla si hace falta.",
+    "Elige un formato de placa con suficientes pozos para las réplicas pedidas. Si seleccionas seis pozos para este plan de veinticuatro, aparece un error de capacidad. Cambia el formato o los recuentos pedidos para continuar.",
+    "Selecciona noventa y seis pozos para recuperar la distribución. Usa Add condition y Remove selected para editar las filas de condiciones, y luego revisa el mapa de la placa actualizado.",
+    "Para editar un número de réplicas, selecciona su celda y pulsa F dos. Un único pozo de control negativo provoca un aviso. Elige una replicación experimental independiente adecuada para tu análisis.",
+    "Elige Block layout para agrupar las condiciones. Lee los avisos de posición y revisa el mapa por si la condición y la posición pudieran estar confundidas.",
+    "Elige Random layout, activa Leave edge empty y pon Seed en cuarenta y dos. Esta placa de noventa y seis pozos tiene sesenta pozos interiores disponibles, y el plan de ejemplo asigna veinticuatro.",
+    "Cambia Seed a cuarenta y tres para generar otra disposición con los mismos recuentos por condición. Revisa dónde quedan los controles y los tratamientos en la placa.",
+    "Vuelve a poner Seed en cuarenta y dos para recuperar la disposición anterior. Guarda la semilla junto con el formato, la política de bordes y la tabla de condiciones.",
+    "Arrastra sobre los pozos de B cero dos a C cero cuatro para seleccionarlos. Esto selecciona pozos para revisarlos; usa la tabla de condiciones y los controles de distribución para cambiar las asignaciones.",
+    "Haz clic en Export plate map y elige una carpeta. Guarda juntos plate_map.csv, plate_map.json y plate_map_settings.json.",
+    "Abre el CSV para ver una fila por cada pozo asignado. Únelo a las mediciones posteriores usando plateID, rowID y columnID a la vez. El JSON conserva el diseño y sus avisos.",
+    "Para esta distribución aleatoria, el archivo de configuración indica expressible como false. Usa el mapa de pozos exacto del CSV para las etiquetas de condición: los ajustes de tratamiento por fila o por columna completa no pueden representar estas asignaciones mezcladas.",
+    "Revisa el mapa final antes de la adquisición y guárdalo con el experimento. En Python, usa Condition y PlateDesign, seguidos de assign_wells, check_design y write_design de spacr.qt.widgets.plate_layout."
+  ]
+}

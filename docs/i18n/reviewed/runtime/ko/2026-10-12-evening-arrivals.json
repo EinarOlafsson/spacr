@@ -1,0 +1,469 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A lesson number, slug or screen name, such as 7, make_masks or measure. Without one, the whole tutorial library opens.",
+      "source": "A lesson number, slug or screen name, such as 7, make_masks or measure. Without one, the whole tutorial library opens.",
+      "source_sha256": "f71d8aac70f716a5e1835ac970d00c5124660f635fb3428ef1920775db24be63",
+      "translation": "수업 번호, 슬러그 또는 창 이름(예: 7, make_masks, measure). 지정하지 않으면 튜토리얼 라이브러리 전체가 열립니다."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the object to delete in the Object ID list.",
+      "source": "Choose the object to delete in the Object ID list.",
+      "source_sha256": "be4a703d71e2707cce8b91a9d7cb55552b881a7b46a9fb8475710e29d832019e",
+      "translation": "객체 ID 목록에서 삭제할 객체를 선택합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Classify and ML scores (*_result.csv *results.csv)",
+      "source": "Classify and ML scores (*_result.csv *results.csv)",
+      "source_sha256": "226f5bc45d7401590c3109c96531033d1a24fb184997c4bc92416499ee597355",
+      "translation": "Classify 및 ML 점수 (*_result.csv *results.csv)"
+    },
+    {
+      "table": "ui",
+      "key": "Click to enlarge",
+      "source": "Click to enlarge",
+      "source_sha256": "ac169cea45b55e0017b32de824695e833e099c004f19ed612272cad4d9f551ee",
+      "translation": "클릭하여 확대"
+    },
+    {
+      "table": "ui",
+      "key": "Could not save the settings: {error}",
+      "source": "Could not save the settings: {error}",
+      "source_sha256": "77c62fd6a7c092add1262c57dbef697bc81a5ec8ec8b95a71fa1ad35be597690",
+      "translation": "설정을 저장할 수 없습니다: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through the crosshair; the middle button moves it. True 3D shows the volume and its objects in 3D, to draw and reshape them with anchors.",
+      "source": "Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through the crosshair; the middle button moves it. True 3D shows the volume and its objects in 3D, to draw and reshape them with anchors.",
+      "source_sha256": "2bcf7434f4b3d9476392d596175574541a0cadb6a22aef4208bad41a504fda6c",
+      "translation": "기본값은 한 번에 슬라이스 하나에 그립니다. Orthogonal은 십자선을 지나는 XZ와 YZ 측면 보기를 추가하며, 가운데 버튼으로 이동합니다. True 3D는 볼륨과 그 객체를 3D로 보여 주며, 앵커로 그리고 모양을 바꿀 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Deleted object {label}: {n} voxels.",
+      "source": "Deleted object {label}: {n} voxels.",
+      "source_sha256": "688b4ba9aad8353faa7108d9c6a7abf650107192eb17bd8c0ddd9d38a4edfd2e",
+      "translation": "객체 {label} 삭제됨: 복셀 {n}개."
+    },
+    {
+      "table": "ui",
+      "key": "Did you mean: {names}?",
+      "source": "Did you mean: {names}?",
+      "source_sha256": "a66bba52bdee7d4dec8d42cd733c42fa04d131fe95254512139bc11a96b80cd1",
+      "translation": "혹시 다음을 찾으셨나요: {names}?"
+    },
+    {
+      "table": "ui",
+      "key": "Draw a thick outline round the control that has keyboard focus, so you can follow Tab from control to control.",
+      "source": "Draw a thick outline round the control that has keyboard focus, so you can follow Tab from control to control.",
+      "source_sha256": "684bf18f4c1dc1f197fd5c2c5a00fa10fe92af8fd851b2fb62b1610755673b7d",
+      "translation": "키보드 포커스가 있는 컨트롤 둘레에 굵은 윤곽선을 그려 Tab으로 컨트롤 사이를 따라갈 수 있게 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Export settings CSV",
+      "source": "Export settings CSV",
+      "source_sha256": "cf3dcf835c7aec6313bab5fdee891ee9f6a5cbcf9f36dd523a5569ae037fa99f",
+      "translation": "설정 CSV 내보내기"
+    },
+    {
+      "table": "ui",
+      "key": "Fact",
+      "source": "Fact",
+      "source_sha256": "2558566c5e58d4c6547af738cca32029a083177a654fdd0561d2d5c0407a3e72",
+      "translation": "항목"
+    },
+    {
+      "table": "ui",
+      "key": "Focus outlines",
+      "source": "Focus outlines",
+      "source_sha256": "3847062881400cb60f5aacd848d3b3526012d9cd044d5526dc3779b7f0713a63",
+      "translation": "포커스 윤곽선"
+    },
+    {
+      "table": "ui",
+      "key": "Hold every animated backdrop still and turn off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back.",
+      "source": "Hold every animated backdrop still and turn off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back.",
+      "source_sha256": "10e81bb454a479807f9d033c99b222c878a042569cec247936a936cbd8c8e6f9",
+      "translation": "움직이는 배경을 모두 정지시키고 물결, 클릭 물결, 팝업 파동, 마우스 중력을 끕니다. 해제하면 이전 모션 설정으로 돌아갑니다."
+    },
+    {
+      "table": "ui",
+      "key": "Keyboard",
+      "source": "Keyboard",
+      "source_sha256": "2316810a5de343dd59d15e5f5c4f47e4c5177540f68bc4747286cce83bfd5d39",
+      "translation": "키보드"
+    },
+    {
+      "table": "ui",
+      "key": "Lesson",
+      "source": "Lesson",
+      "source_sha256": "6e2b26d9de4033b952bd242f69b798420ee887151b937f394efc23252c78af74",
+      "translation": "수업"
+    },
+    {
+      "table": "ui",
+      "key": "List the spaCR tutorial lessons and open them in your web browser.",
+      "source": "List the spaCR tutorial lessons and open them in your web browser.",
+      "source_sha256": "e7d98befe35c2affd1c312846cfb16d9cdd1adfa7261df9d93b077fe434ac4e3",
+      "translation": "spaCR 튜토리얼 수업을 나열하고 웹 브라우저에서 엽니다."
+    },
+    {
+      "table": "ui",
+      "key": "Loading the card images…",
+      "source": "Loading the card images…",
+      "source_sha256": "bb93f7bd9b81f501b31078ee2619b0866b328f2063e55eb58a5d77f656205aeb",
+      "translation": "카드 이미지를 불러오는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Make all text in spaCR larger or smaller. This is the same setting as Font scale on the General tab.",
+      "source": "Make all text in spaCR larger or smaller. This is the same setting as Font scale on the General tab.",
+      "source_sha256": "6ce767970fa395d725a934e8d8bca6ec0bdbc09e5bfb725950dbd28f78b41964",
+      "translation": "spaCR의 모든 텍스트를 더 크게 또는 더 작게 만듭니다. 일반 탭의 글꼴 배율과 같은 설정입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Middle button",
+      "source": "Middle button",
+      "source_sha256": "f971c1b522118df48cf8bc6f604ab7a6720894bdcc754ec7303a29d92565406e",
+      "translation": "가운데 버튼"
+    },
+    {
+      "table": "ui",
+      "key": "Move the 3D crosshair",
+      "source": "Move the 3D crosshair",
+      "source_sha256": "c1e900ad6c00ab8a1aa4537da98b1fe985b15c882cc695edc9e016bbebfa3118",
+      "translation": "3D 십자선 이동"
+    },
+    {
+      "table": "ui",
+      "key": "No lesson matches '{name}'.",
+      "source": "No lesson matches '{name}'.",
+      "source_sha256": "9e656e7673eb5b092b14b229128a2498bf7073b0d7e0f521812350c70b6656a9",
+      "translation": "'{name}'과(와) 일치하는 수업이 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "No web browser could be opened. Open this address yourself: {url}",
+      "source": "No web browser could be opened. Open this address yourself: {url}",
+      "source_sha256": "4418753d5331af38bcb40b32c69328be50cd0e5dabec76dc4e1275deba911e82",
+      "translation": "웹 브라우저를 열 수 없습니다. 이 주소를 직접 여세요: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "No.",
+      "source": "No.",
+      "source_sha256": "38178a20b470cfd18299fb1593dd4ba706f1a83321dac051d01086efd8b7a96f",
+      "translation": "번호"
+    },
+    {
+      "table": "ui",
+      "key": "Object {label}: drag its anchors or surfaces to reshape it.",
+      "source": "Object {label}: drag its anchors or surfaces to reshape it.",
+      "source_sha256": "9db523a0f01e8af1569335687799cc12559ebcae8b89f10381b5e7d03a8b4cfd",
+      "translation": "객체 {label}: 앵커나 표면을 끌어 모양을 바꾸세요."
+    },
+    {
+      "table": "ui",
+      "key": "Object {label}: {n} voxels",
+      "source": "Object {label}: {n} voxels",
+      "source_sha256": "6b74e0c1e5281aa67b457daf7b88c3093b1ff7aa7ee011205afa43f949878db8",
+      "translation": "객체 {label}: 복셀 {n}개"
+    },
+    {
+      "table": "ui",
+      "key": "On (blue): the mouse wheel changes the slice. Off: the wheel zooms.",
+      "source": "On (blue): the mouse wheel changes the slice. Off: the wheel zooms.",
+      "source_sha256": "085b40542e30582e695aa94dd1bd59c2f063a6a3a5d33727efe937be7c32a657",
+      "translation": "켜짐(파란색): 마우스 휠이 슬라이스를 바꿉니다. 꺼짐: 휠이 확대/축소합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Open on Hugging Face",
+      "source": "Open on Hugging Face",
+      "source_sha256": "8d104ae20486b8eebdfa478e24fcb47a9ae8529a5eec6099fea45eb14af0bd67",
+      "translation": "Hugging Face에서 열기"
+    },
+    {
+      "table": "ui",
+      "key": "Open one lesson with 'spacr-tutorial <number, slug or screen>', for example 'spacr-tutorial mask'.",
+      "source": "Open one lesson with 'spacr-tutorial <number, slug or screen>', for example 'spacr-tutorial mask'.",
+      "source_sha256": "64815bd4d6d8914ef6aef4da79e4ea6da7120a1006a13bf09cae2162a4c8aa2a",
+      "translation": "'spacr-tutorial <number, slug or screen>'으로 수업을 엽니다. 예: 'spacr-tutorial mask'."
+    },
+    {
+      "table": "ui",
+      "key": "Opened {url}",
+      "source": "Opened {url}",
+      "source_sha256": "fe93e5827f08bbf3177e13c3433f67a1fbaf8e5c807bf4fbf839071fa6844bdf",
+      "translation": "{url}을(를) 열었습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Orthogonal",
+      "source": "Orthogonal",
+      "source_sha256": "25a9fd0249f906f4133ad5338b381cfb0e21fd6902344603db2082a0d676579e",
+      "translation": "직교"
+    },
+    {
+      "table": "ui",
+      "key": "Page Up / Page Down",
+      "source": "Page Up / Page Down",
+      "source_sha256": "d9f7dcaaeb636115c27f6c3e95e180544aa2860b272225f752b783babe759216",
+      "translation": "Page Up / Page Down"
+    },
+    {
+      "table": "ui",
+      "key": "Preparing the anchors of object {label}…",
+      "source": "Preparing the anchors of object {label}…",
+      "source_sha256": "3e6112d2b10a35cab3305916d90c591412c8cc4ac7ec5251b26f59f5a511fd12",
+      "translation": "객체 {label}의 앵커를 준비하는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Previous",
+      "source": "Previous",
+      "source_sha256": "a57b08a480b822a0a572b993391c292ede593bf8000b406675b180bbb16260fa",
+      "translation": "이전"
+    },
+    {
+      "table": "ui",
+      "key": "Previous / next 3D slice",
+      "source": "Previous / next 3D slice",
+      "source_sha256": "5ba0ff462347f7b776463db98755a25ed0cc117ae43165958be902b747668f4e",
+      "translation": "이전 / 다음 3D 슬라이스"
+    },
+    {
+      "table": "ui",
+      "key": "Print the lessons and open nothing.",
+      "source": "Print the lessons and open nothing.",
+      "source_sha256": "289b35ad01aae5eb413b5ceb6749b4ff8605497a2362585cb3a9b1c0afb5381e",
+      "translation": "수업을 출력하고 아무것도 열지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Print the web address instead of opening a browser.",
+      "source": "Print the web address instead of opening a browser.",
+      "source_sha256": "833a93cb17e932208d8f6fd0bd26d27ce2486935c7e1ac162552c3c28aedbae7",
+      "translation": "브라우저를 여는 대신 웹 주소를 출력합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Reduce motion",
+      "source": "Reduce motion",
+      "source_sha256": "297ef4c79b4b21dd8fe7d32df1ad5dbeaeb3c70193ec7386f67d597140bf1537",
+      "translation": "모션 줄이기"
+    },
+    {
+      "table": "ui",
+      "key": "Remove the chosen object from every slice. Undo brings it back.",
+      "source": "Remove the chosen object from every slice. Undo brings it back.",
+      "source_sha256": "2a33aea5b334e2ad215eecb327aedf19d605d1a7540c8338a0f2d2c15c567750",
+      "translation": "선택한 객체를 모든 슬라이스에서 제거합니다. 실행 취소하면 되돌아옵니다."
+    },
+    {
+      "table": "ui",
+      "key": "Run 'spacr-tutorial --list' to see every lesson.",
+      "source": "Run 'spacr-tutorial --list' to see every lesson.",
+      "source_sha256": "44a62fbc9430c0c335d3b1746898df1f81aa33725a36d4ad76d47f30b9e457cf",
+      "translation": "모든 수업을 보려면 'spacr-tutorial --list'를 실행하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Save settings CSV…",
+      "source": "Save settings CSV…",
+      "source_sha256": "9bbf7b95a11e8f386c683a77244343b25e8dffc7b1522faa91e41f02e6f6b750",
+      "translation": "설정 CSV 저장…"
+    },
+    {
+      "table": "ui",
+      "key": "Save the settings snapshot sent by Submit remote… as a settings CSV, to copy to a cluster and run with spacr-run --settings.",
+      "source": "Save the settings snapshot sent by Submit remote… as a settings CSV, to copy to a cluster and run with spacr-run --settings.",
+      "source_sha256": "8cc178bc207cfaabcfc5945d0e3eb310f3dbde24e69466abdf086d3b936f9cb9",
+      "translation": "원격 제출…이 보낸 설정 스냅샷을 설정 CSV로 저장하여 클러스터에 복사한 뒤 spacr-run --settings 로 실행합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Save this form's current settings to a CSV without running anything. Import settings reads it back, and spacr-run --settings runs it on a cluster.",
+      "source": "Save this form's current settings to a CSV without running anything. Import settings reads it back, and spacr-run --settings runs it on a cluster.",
+      "source_sha256": "e3449e48c4068e8338aa3d4775b73decd3ef4067a22cf9700582ad0fe33b9901",
+      "translation": "이 양식의 현재 설정을 아무것도 실행하지 않고 CSV로 저장합니다. 설정 가져오기가 이를 다시 읽고, spacr-run --settings 가 클러스터에서 실행합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Saved the settings to {path}. On the cluster run: spacr-run {module} --settings {name}",
+      "source": "Saved the settings to {path}. On the cluster run: spacr-run {module} --settings {name}",
+      "source_sha256": "4d52a4452b638cf128ee3e8108d62ba4ee71f3e64e37aa07216834b4a305bc3e",
+      "translation": "설정을 {path}에 저장했습니다. 클러스터에서 실행: spacr-run {module} --settings {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Saved {count} settings to {path}",
+      "source": "Saved {count} settings to {path}",
+      "source_sha256": "89eeff4b24ce3644141583562e12cfa4ff3244b47dbfaf542dd301e24665d613",
+      "translation": "설정 {count}개를 {path}에 저장했습니다"
+    },
+    {
+      "table": "ui",
+      "key": "Score",
+      "source": "Score",
+      "source_sha256": "38e5a46cbc5ad32842ac60a4f1425ac9b31c06bac685f446a06ab72b87de31ed",
+      "translation": "점수"
+    },
+    {
+      "table": "ui",
+      "key": "Screen",
+      "source": "Screen",
+      "source_sha256": "6e56137e21d3222a2e3135fc3458286fc3fb6b2e2c679e9ae28db268fe982af7",
+      "translation": "스크린"
+    },
+    {
+      "table": "ui",
+      "key": "See every keyboard shortcut and change the key for any of them.",
+      "source": "See every keyboard shortcut and change the key for any of them.",
+      "source_sha256": "bed4a1c6a40045de57dee15a4018f7b4a1853254b4faf640820ed3ddd9ec93c4",
+      "translation": "모든 키보드 단축키를 보고 각각의 키를 바꿉니다."
+    },
+    {
+      "table": "ui",
+      "key": "Settings that make spaCR easier to see, read and use from the keyboard. Screen readers announce every control by name.",
+      "source": "Settings that make spaCR easier to see, read and use from the keyboard. Screen readers announce every control by name.",
+      "source_sha256": "04dda1eada503116d7c5703bb79cb54ea78cf82dfe0665979c4fdf3e2e3018f4",
+      "translation": "spaCR를 더 쉽게 보고 읽고 키보드로 사용할 수 있게 하는 설정입니다. 스크린 리더는 모든 컨트롤을 이름으로 알려 줍니다."
+    },
+    {
+      "table": "ui",
+      "key": "Shift+E / Shift+S / Shift+D",
+      "source": "Shift+E / Shift+S / Shift+D",
+      "source_sha256": "fa38a667b2eb4d630cb5b1ae89dfdae07205a32664141e267a89420220117d2f",
+      "translation": "Shift+E / Shift+S / Shift+D"
+    },
+    {
+      "table": "ui",
+      "key": "Shift+X / Shift+Y / Shift+Z",
+      "source": "Shift+X / Shift+Y / Shift+Z",
+      "source_sha256": "2da233d6e620a8d911d6c417e5daa33a048e11bbdd490c7818bd696a50445779",
+      "translation": "Shift+X / Shift+Y / Shift+Z"
+    },
+    {
+      "table": "ui",
+      "key": "Startup animation",
+      "source": "Startup animation",
+      "source_sha256": "c6013d4786bb822dcd3c1f02d2d67ec0ace86385ce63c92ab9b8f1115633a84b",
+      "translation": "시작 애니메이션"
+    },
+    {
+      "table": "ui",
+      "key": "Stronger focus outlines",
+      "source": "Stronger focus outlines",
+      "source_sha256": "0885d12a1d7a8575da9c32cb259718d6476391849b894dfa4c51e3047c083965",
+      "translation": "더 강한 포커스 윤곽선"
+    },
+    {
+      "table": "ui",
+      "key": "The card images could not be downloaded. Showing the card data stored with spaCR.",
+      "source": "The card images could not be downloaded. Showing the card data stored with spaCR.",
+      "source_sha256": "2f99341f9c856812b279beb6a72ce00b1d1680b85db004fbb974c100ad725433",
+      "translation": "카드 이미지를 다운로드할 수 없습니다. spaCR와 함께 저장된 카드 데이터를 표시합니다."
+    },
+    {
+      "table": "ui",
+      "key": "The lesson list is not available in this installation.",
+      "source": "The lesson list is not available in this installation.",
+      "source_sha256": "9d70353a6ba484e239a925e88c3d21da57fe123b5c9da743dc875b702ec2433f",
+      "translation": "이 설치에서는 수업 목록을 사용할 수 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "The slice on screen. Page Up and Page Down step through the volume.",
+      "source": "The slice on screen. Page Up and Page Down step through the volume.",
+      "source_sha256": "33a1e7200512743925036ffc215baf8b0518befd0b2561bee4c019a65fe2fc72",
+      "translation": "화면에 표시된 슬라이스. Page Up과 Page Down으로 볼륨을 이동합니다."
+    },
+    {
+      "table": "ui",
+      "key": "This model (stock base)",
+      "source": "This model (stock base)",
+      "source_sha256": "04062affc76b15ebfbfa657a79df35126401fb3c39b035bfd51d7f7280ded3ad",
+      "translation": "이 모델(기본 베이스)"
+    },
+    {
+      "table": "ui",
+      "key": "True 3D",
+      "source": "True 3D",
+      "source_sha256": "37b8dccd126bbfd9aa05d174f678223ab4e0bb054201f5ed3319e96783d73bf4",
+      "translation": "True 3D"
+    },
+    {
+      "table": "ui",
+      "key": "True 3D: edit, spin, draw",
+      "source": "True 3D: edit, spin, draw",
+      "source_sha256": "7937256b6331fb9d0bd65c63fa8ed6c319b05ae63a18d4a70862f9f838985a45",
+      "translation": "True 3D: 편집, 회전, 그리기"
+    },
+    {
+      "table": "ui",
+      "key": "True 3D: plane; after Shift+S, spin axis",
+      "source": "True 3D: plane; after Shift+S, spin axis",
+      "source_sha256": "6612eb109075360757b3c75ed03bedcd4901bd6b187b8a8ea181dd76e6dbbb21",
+      "translation": "True 3D: 평면; Shift+S 뒤에는 회전축"
+    },
+    {
+      "table": "ui",
+      "key": "Updated {n} voxels in the volume.",
+      "source": "Updated {n} voxels in the volume.",
+      "source_sha256": "51ebe73d1467c188e10771da5f6faff0fe601878fdde5de70e840f819178a06f",
+      "translation": "볼륨에서 복셀 {n}개를 업데이트했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Use the High contrast theme: white text and outlines on black with a yellow accent. Clear it to go back to the theme you had. The Theme control under Appearance shows the same choice.",
+      "source": "Use the High contrast theme: white text and outlines on black with a yellow accent. Clear it to go back to the theme you had. The Theme control under Appearance shows the same choice.",
+      "source_sha256": "80a8dfd1c4bd236a679c952261dbd3fd32cb1764fa68e3b802f3d4de23cb8b09",
+      "translation": "고대비 테마를 사용합니다: 검은색 위에 흰색 텍스트와 윤곽선, 노란색 강조. 해제하면 이전 테마로 돌아갑니다. 모양 아래의 테마 컨트롤도 같은 선택을 보여 줍니다."
+    },
+    {
+      "table": "ui",
+      "key": "When spaCR starts, the logo photomosaic blows away tile by tile to reveal the window. Off shows the mosaic without the animation. Reduce motion also turns it off. A click or a key skips it.",
+      "source": "When spaCR starts, the logo photomosaic blows away tile by tile to reveal the window. Off shows the mosaic without the animation. Reduce motion also turns it off. A click or a key skips it.",
+      "source_sha256": "2b6557a4f76db526ab933d744a2f782bdef518a0fad1de80f1e5c531a9a78969",
+      "translation": "spaCR가 시작되면 로고 포토모자이크가 타일 하나씩 흩어지며 창이 드러납니다. 끄면 애니메이션 없이 모자이크를 보여 줍니다. 모션 줄이기도 이를 끕니다. 클릭하거나 키를 누르면 건너뜁니다."
+    },
+    {
+      "table": "ui",
+      "key": "{files} has no 'pred' column. 'pred' is the classifier probability that Classify writes to <date>_<dataset>_<model>_result.csv next to the tar (ML scoring writes results/<model>/<features>/results.csv). Run Classify and point the score file at that output, or pick a response from the list. Columns you can use: {columns}.",
+      "source": "{files} has no 'pred' column. 'pred' is the classifier probability that Classify writes to <date>_<dataset>_<model>_result.csv next to the tar (ML scoring writes results/<model>/<features>/results.csv). Run Classify and point the score file at that output, or pick a response from the list. Columns you can use: {columns}.",
+      "source_sha256": "c3c3594b8fbe46f282a7528f0a3f8f3de7c292467b77e4df9466faa5adbfbc08",
+      "translation": "{files} 에 'pred' 열이 없습니다. 'pred' 는 Classify 가 tar 옆의 <date>_<dataset>_<model>_result.csv 에 쓰는 분류기 확률입니다(ML 점수 계산은 results/<model>/<features>/results.csv 에 씁니다). Classify를 실행하고 점수 파일을 그 출력으로 지정하거나, 목록에서 반응 변수를 고르세요. 사용할 수 있는 열: {columns}."
+    },
+    {
+      "table": "ui",
+      "key": "{name!r} is not a numeric column of the score file. Columns you can use: {columns}.",
+      "source": "{name!r} is not a numeric column of the score file. Columns you can use: {columns}.",
+      "source_sha256": "de2e12b690f0668d0f77fd7e029a332dd96e2891f0381d5d6a89ce8f1603e82d",
+      "translation": "{name!r}은(는) 점수 파일의 숫자 열이 아닙니다. 사용할 수 있는 열: {columns}."
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {n} slices, voxel size {spacing} {unit}. Page Up and Page Down change the slice.",
+      "source": "{name}: {n} slices, voxel size {spacing} {unit}. Page Up and Page Down change the slice.",
+      "source_sha256": "f5da3d83e385b7b05063fa34b3a61ad060070cabb1a0f90f87528420ee0715e2",
+      "translation": "{name}: 슬라이스 {n}개, 복셀 크기 {spacing} {unit}. Page Up과 Page Down으로 슬라이스를 바꿉니다."
+    },
+    {
+      "table": "ui",
+      "key": "{n} objects in the volume",
+      "source": "{n} objects in the volume",
+      "source_sha256": "54f0656294bbec4d9df8eb76ba71d572229fa05d13d19b8ba4af4dddae849eff",
+      "translation": "볼륨의 객체 {n}개"
+    }
+  ]
+}

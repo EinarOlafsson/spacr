@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review": "AI-assisted editorial/technical review: projected view membership at arbitrary angle is distinct from plane shapes with a second depth drag; right-button drag rotates. No native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "What a drag in Draw mode makes. Lasso and Rectangle through view work at any angle: turn the volume until the population stands apart, draw around it, and the gate keeps every object whose position on that view falls inside the outline. Box, oval, circle and polygon are drawn on the chosen plane and given a depth with a second drag. A right-button drag always turns the volume.",
+      "source": "What a drag in Draw mode makes. Lasso and Rectangle through view work at any angle: turn the volume until the population stands apart, draw around it, and the gate keeps every object whose position on that view falls inside the outline. Box, oval, circle and polygon are drawn on the chosen plane and given a depth with a second drag. A right-button drag always turns the volume.",
+      "source_sha256": "6214ddcae0e4795ce47eed00c66a24c9ac4a645cd1fc331c9343821206923888",
+      "translation": "Vad ett drag i läget Draw skapar. Lasso och Rectangle through view fungerar från vilken vinkel som helst: vrid volymen tills populationen syns åtskild, rita runt den och grinden behåller varje objekt vars position i den vyn ligger innanför konturen. Rätblock, oval, cirkel och polygon ritas på det valda planet och får djup med ett andra drag. Ett drag med höger musknapp vrider alltid volymen."
+    }
+  ]
+}

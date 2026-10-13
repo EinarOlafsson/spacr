@@ -1,0 +1,499 @@
+{
+  "lesson": "68_power_design",
+  "status": "Complete staged technical matrix; critical reading, not calibrated planning advice or publication",
+  "native_verification": {
+    "accepted": true,
+    "scope": "Critical reading of actual simulator output, explicitly REJECTING contradictory advice; not calibrated power or sample-size guidance",
+    "original_scientific_advice_hold": {
+      "accepted": false,
+      "hold_reason": "Actual headline recommends going to 96 wells to improve detection while the recorded design already has 96 wells. Different random draws in the two marginal scans do not constitute an increase in well count.",
+      "real_simulator": true,
+      "spec": {
+        "n_genes": 40,
+        "n_grnas_per_gene": 4,
+        "score_per": "gene",
+        "cells_per_well": 120.0,
+        "wells_per_plate": 96,
+        "n_plates": 1,
+        "constructs_per_well": 2.0,
+        "background_positive_rate": 0.12,
+        "effect_fold": 6.667,
+        "hit_rate": 0.1,
+        "reads_per_well": 30000.0,
+        "gene_abundance_alpha": 0.6,
+        "cells_per_well_var": 8000.0,
+        "class_pos_var": 0.1,
+        "class_neg_var": 0.01,
+        "well_abundance_var": 1.0,
+        "sequencing_cells_per_well": 1000.0,
+        "pcr_factor_mu": 2.0,
+        "pcr_factor_var": 1.0,
+        "read_depth_cv": 0.35,
+        "sequencing_error_rate": 0.0,
+        "min_cells_per_well": 0,
+        "imaging_split": "abundance",
+        "n_replicates": 2,
+        "detection_auroc": 0.8,
+        "seed": 0,
+        "backend": "torch"
+      },
+      "fit_kwargs_overridden": false,
+      "scans_count": 2,
+      "fits": 18,
+      "plotted_points": 9,
+      "replicates_per_point": 2,
+      "every_replicate_in_detection_denominator": true,
+      "unsupported_effect_guard_then_recovery": true,
+      "guide_and_gene_units_demonstrated": true,
+      "caveat_toggle_then_restoration": true,
+      "measured_biological_results": false,
+      "recommended_experimental_sample_size": false,
+      "gui_export_demonstrated": false,
+      "published": false
+    },
+    "review": {
+      "nominal_inputs_identical": true,
+      "independent_seed_groups": [
+        [
+          1874364848,
+          2040376534
+        ],
+        [
+          2613022947,
+          3679268941
+        ]
+      ],
+      "same_well_count_advice_rejected": true,
+      "recommendation_approved": false,
+      "calibrated_statistical_power": false
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/provenance.json": "e27647cb0b79437d140f6c0edba2aa8ec3b3b8a77301e38f8f4b8e556c24d887",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/scientific_acceptance.json": "bcfbf805efbf3c98522ede9fa4660ca34f115bff012927eac129e4f7ede2d555",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/simulation_result.json": "3ba203731e135ec6d883de211c19a2ac33de373e624d339386760a82d6fc44f3",
+      "/mnt/firecuda2/codex/repo/spacr/spacr/qt/screens/power.py": "2cca4081eb316f5e16c764d208d6ea28aac0d5f72eef372257bb4e26c3341171",
+      "/mnt/firecuda2/codex/repo/spacr/spacr/qt/widgets/power_design.py": "b0900625408397e80561698dbae7d7cc8294522b749129aff1431d95449bcdaa",
+      "/mnt/firecuda2/codex/repo/spacr/spacr/power_model.py": "703494fd41c1e3febd07505e645c231563ae89e0ba71ba0eca905d9dd7c5c8d9",
+      "/mnt/firecuda2/codex/repo/spacr/spacr/power_simulate.py": "295456c2257b56239952705796fecf7535adb8997a3dcb74fb1e2aaf7c1847e5",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/frames.json": "0e28470d0ed4ed594a12c073aab31168a247df49a3f746afd61ccd0105fe119c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/00_home.png": "bed10b79b334d642069743dda2862f0e26ddb053c306e1d7fa04fb355fc7e4c3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/01_module.png": "878ae6a0125c83183e3cf0cfc9060896582ad9b7953666ab14c62216020ad88b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/02_readable_defaults.png": "a3d47d00e5ff147c9549b7d21bfba1ac02279ae8ef3cd6b06c72f489fcad7c98",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/03_guide_library.png": "cb3295e235b0849746d67edc555b8619beef83dd0e8cab2006c65b0faf626d69",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/04_bounded_library_plate.png": "d2e8c86758c250fb2cd653ec2e31d24c6a38b000f52a6d2dbccf4d7e22135fe9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/05_unsupported_effect_warning.png": "535a9797aa84df60600826f009aa825991e222cdd7e81cbd0f4a7a6ad7eb6cf0",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/06_effect_restored.png": "709b1baddec12f80b3696c5ecb4f38343bf780c3489603cf3944f0371b0d28c1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/07_acquisition_and_held_values.png": "8cfb1ed00801adf1f2b3e0847ca09270b4842d4008eac48834ca763de7cae626",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/08_run_settings.png": "8cfb1ed00801adf1f2b3e0847ca09270b4842d4008eac48834ca763de7cae626",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/09_real_simulation_running.png": "23f3fae966989142f8bb7afc3b2683db14eaae21807172fd66fe2f898d1850a4",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/10_actual_results.png": "ba9522431bf207b414c62c60d901d441626dc16ebc38f680b34d5cad4374b786",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/11_full_caveats.png": "f17a6b960f239f0d560178adf893716736e5804c874df895d3a1bf1e158564e0",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/power_real/12_results_and_limitations.png": "603bde905f6a3c26ece2d58f1d2dc3952fc3ab9b3a3a19691c8ed0a59ec37410"
+    },
+    "actual_fit_count": 18,
+    "actual_table_cells_checked": 81,
+    "new_simulation": false,
+    "recommendation_fixed": false,
+    "scientific_calibration_approved": false,
+    "published": false
+  },
+  "final_reconciliation": {
+    "lesson": "68_power_design",
+    "passed": true,
+    "canonical_english_sha256": "c70c0ea4d037c92883296dfc5b72dcc4e9cf5e7c331311afabbe1c56618147b6",
+    "scene_count": 11,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "8416fe044549e316887049ebda8259be6de2555603bd0c0628495d949fc3bc96"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "fbadbe5952eae101d2601e51f9e3e39a885c56158ae715978e7452b50c98894c"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "3b69fa32add305124761e2b55a90c397315fb910e2f5d9510c52a23da25dbff5"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "c8c3125d654244f772fb42ff7f70ec5e5d3b1e5aaae23243c829bd4cebf84a2c"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "e22df7bdecda8e24d39105dccace07f0a57e38209aea69702c49d7b131b0554b"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "3b37699843fe0fac1d165ea9a57de90b3107c57b91b440af92476896132fdacb"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "de88a4259a2fa7fa0dd246beaed1e596678388aaf9b8a4333745b24f58615351"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "d03b0b08bb2b1bfee1d423900bbb6fbc3949a40eab35fd4e3ba6787ac29d69b4"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "b71e35b82faca746784a8572fbf553adbba7be072ecb8f1d72817671ac4c3036"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "54dcbcad2bbfe7fdfc1ca38b9aaf4c59bbc1c5bd53503b7e22fb6b53fdf9db27"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "96197ee405cc96d6b50d49740d1b4abefe278c04b6b0db9ba627ca41a2e01fd1"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "ad94a5c7ce6e8e15010949f07a1302c5ed1e3b94ebb5a8ce19ff7c68820ae50f"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "45d11014df9508507e3dea75d08a0b68b2622721b7e85ab5b941f44fd4834aa0"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "43087d39c1e8155b6dcdbb16a08d5632208f9d6a8f0229ad0468185e5facbc2c"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "2f973465032f5f00c2be78d006fdcf77c20682414884d15dfc932bab6d4bba14"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "4db84b68a3a67523ea555e85dd717bcde56b3d084942317913ce5b97a82d4491"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "923f9d54ec3936dc73277240a37ec14dcdb12eb6f2f299c3ec3951560911597b"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "36d4b23635724029924813f030c17dfaeaf7928380573502cd17fa42516ccfbf"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "9f0dd026aa2ee96df3f98a888df4b1aa267868fc41b1cc7b4d7c8900dd8b4603"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "5cade4d8bb04c2ca21eabee1d8550ba43051c8cb3c455bc347782eedc03e2837"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "4b8e02f24b6ca6e97310d69978d42f48b059958611ead7b1a8c5aee1f4abbb57"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "ff984f0ce0b4ec6bc3c1c3961073c861e9ead1b16d024e8a6a440086bb9bf631"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "70ab8a8161e9353e8cd17d6c507342cf2429282181e474a90a73265c705ea560"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "65f7a52ad95b102e95363078244848a3da475cd2fc29ea4da073919db7ae5b42"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "ddc2ee480e384e1316b57c742f8bb8a51557f226104d95ef48d8034e0180475a"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "c97a041b6899a253d07a2dfc5890baff3e8897c9db1184c3e5bd006eb0aca70f"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "d1d34b1a78e611a912f32b6c4fae51e669a6aaba0c5b11a078fdcf6b2aa81922"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "2a55dd2fe88df0ca708562179f073725780ab17633db3415d450d95bfc00ebc2"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "8cafac2027b12a05d8b10dfd63a181fc9a274704502333cc17ed9b0861238b91"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "02b66f604afc5b20584a25c5fded58a88067fe358b1582d777de9f2081fede12"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "0eed97bd21c8ee08f8f2bc337e62d25c23dae402f6c52245de9507b8ebaecc85"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "e59e0ce893ffeffa4837f05cd8b08426d48d0dda219a2ca9d81605e4d7420240"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "a464d1d9e0669560cfcd1ff951d12c6ba2ffd1178c54078527a8f78a42e2801b"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "500f9c5ea41a0d633cd337ab7b5ca3e2ff77a8bd5a8d185499c8a57687150bf5"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "1f3effce9667759f201a2f3753cc07b66fee9a43fdecbf6f55cfd53edc898e33"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "b2e907fac6fe7ab53d7292406a3e9bcd7269a70a7a52f7e13fd609b3d72a5c6e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "c14975cedfcad6eb2f474b74bbf14490797a99ed92410235e088ea3b20d3200b"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "0754e609b24bde7bf059f5afb1af9e556c492a6ea9df0d83de282a71ee448686"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "c8855502c1d0f66892656618b0da9f150a8b40f2aa41d82926eb5a8ce04646ec"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "a4eafa207048be9e5de0228124bf889e94ac0fd0f1a4c03e8a75fe264dcee4fa"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "43f7bf51b5189c497fdafcd95570c0b71bea5fde25e1c2a31038920cbd36f404"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "82afddc975d9da55bb41404b457f385132038e565d44262456860efb8ead6068"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "44667c738a7eca747ee94bc7f49fdaf9bb58a5bc8b6eecc84f576739fbda5946"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "c5a7d4407a220392520de0cf1cc99c9afb07c08c375a5180ed99d355ec69dbbd"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "4629e26d98b7b77941c3c90880a1e27692494d4cbd45a355fbf3da2a53fac2eb"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "713428858f415b3267165a063380762d8a501accb4ec1a43b8cd588e22b88c34"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "0fa4c15afb3b5453c423e36a451277a3e09aa87e66eb11b0e744ad47d3d0d141"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "58e8a8fd417aa5405cde07eab11b5e98e5a537042b066b801ac60dc9e143c3cd"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "03bcd0efa310b24e80d07381d4a0054aae57aae1a97eb793f4687741bcbaa127"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "d779289127f13db8ed872f475deea33c471d64945e0f3922bd73f684ee30e3c8"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "9bf0c0173054341400e891cdf60cb1a1d7b2f8517d0e3edd7595f0f8f2947695"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "0bf7ee7e4ef0c025c72fb014c96d76a43ae4cc730709e6ec7a046fc28f47e752"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "ad23dd242f21cf6be14c63a469532b581c092863e31ff474691d1900f6154437"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "7c978ecdae9bf656d2d89b7ec53690eff7d6690e850e6af839578e2d2e7a61cd"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "915dc5b2fe2ef20c8edbc1e611634057ad828eda70dd839980420db55230a5bc"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "140d53e33b320b9f62089dc398ac69adb360c2ee4a2f4afe0bf00f4cd2e15d6d"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "1fe3148f7bb18df60e958378d326e3711ee836ca8b69150df6c225c5ba6ff9f0"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "4ede39471ea226ee50b881ee5009970d2831675f083def98dfc8fc19f922fc9e"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "9f7158ce7d19ef2b8cb560767d87878809cdf63de9792189fe2513d6952b1661"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "35c87b66010b2510f738e60bee46b92c47bbb17cc5edd8a24b6fc08dbee88533"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "8efa5a0c49b2e60358c64339aeee81330dd6b0a0b0a71fb231235bc57ed7eb35"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "ece81b8628294973fc88bdf676472ef1bc6c5cdbb65ace16d96393261c275ee2"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "ed14cafa31a3c522f2397cf12b948ed5db2a3acc6a4d09b88cc8481d68f2577d"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "9e211ee93c691175e2ac86509907cd3a9993bbdfdc495040187f6165dda2118e"
+      }
+    ],
+    "master_sha256": "7f2610862a844c46836b5818a76cd04c8b5e0d0ede84397c183b0fd95d092642",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "6751"
+        }
+      ],
+      "format": {
+        "duration": "225.033333",
+        "size": "19662072"
+      }
+    },
+    "poster_sha256": "1be62b4b4d4d58c0d85878d1f38890bccdd40904ec52c309f126511c04de4486",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "final_scene_midpoints_visually_inspected": [
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/01.jpg",
+      "sha256": "1be62b4b4d4d58c0d85878d1f38890bccdd40904ec52c309f126511c04de4486"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/02.jpg",
+      "sha256": "f71a3ab97bffd6256bf4149d43e1719a4a3b02e0820affdec53f709193088916"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/03.jpg",
+      "sha256": "50dbd4c1eaaa93d135354342b0d59dfa946cc46961d685bde0b2fb47d16f3b81"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/04.jpg",
+      "sha256": "b935195e7508ba31d912cf41720b16b851cac16307d940b5eef2bbe9bfe61f66"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/05.jpg",
+      "sha256": "3f31d8d58315c0721eeef9a5688e6181addeda27bf3eb42147915da8fb008154"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/06.jpg",
+      "sha256": "e91834abfb6c4251d5ffc04bd717724a33196e2ef88aa235f238f994c88e2c6d"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/07.jpg",
+      "sha256": "05f9d07aef4cdfd19de3b790aaccc3881c0feaf9c1d9bd2adfe985b644d4ec00"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/08.jpg",
+      "sha256": "a6cf72941b73d32d5f55bd5e2202fdcec187562b33b9cc91e89f96a567744cb1"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/09.jpg",
+      "sha256": "9daca8a53996e3d8b637ee3a6a068707dfdebc6fe779a4a5afdee36f49f98ed5"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/10.jpg",
+      "sha256": "ea91ce002462aa51518019385fedd3cf2a17ffb70d14e3a825aebce07bd83205"
+    },
+    {
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/production/68_power_design/scene_samples/11.jpg",
+      "sha256": "d430d62e0abf72f470248979ab2b2be6eca053d6ef71c5a2225a13ca548f0f66"
+    }
+  ],
+  "full_master_decode_passed": true,
+  "editorial_translations": 13,
+  "focused_tests_passed": 15,
+  "new_deliberate_mutations_observed_red": 3,
+  "recommendation_fixed": false,
+  "scientific_calibration_approved": false,
+  "visual_limitations": [
+    "Native plot endpoint labels are clipped; the complete nine-point table is shown and checked.",
+    "The unsupported-effect scene shows the entered value and disabled Run; the warning text is verified from native validation, not legible in that frame."
+  ],
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "published": false
+}

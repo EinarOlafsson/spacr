@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "92e4259482e175cb6fbdc7d49fc5fa09eeeb2e05",
+  "review_kind": "AI-assisted linguistic and technical review of each source and target",
+  "native_speaker_signoff": false,
+  "languages": [
+    {
+      "language": "hi",
+      "records": 27,
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-22-make-masks-help.json",
+      "review_sha256": "726f7cbf0224f00ba7ca2caabc52bdeb4e85f8f5c67438e7b08b50c141e739a9",
+      "real_tr_checks": 27
+    },
+    {
+      "language": "is",
+      "records": 27,
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-22-make-masks-help.json",
+      "review_sha256": "97755ae7881992fd83eec98b303aee82b82b2c3bda4b58641c0227ce228ff0d7",
+      "real_tr_checks": 27
+    },
+    {
+      "language": "ko",
+      "records": 23,
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-22-make-masks-help.json",
+      "review_sha256": "1af6eaaac4e579111b86fc8cc81e6a4593ebf32ed2315995a9fbe3f2d7579fc5",
+      "real_tr_checks": 23
+    },
+    {
+      "language": "pt",
+      "records": 1,
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-22-make-masks-help.json",
+      "review_sha256": "c1cfa96d054a34f2fdd708accb2fc5b24f5cb6038d5c35e395331dd2be5cb34b",
+      "real_tr_checks": 1
+    },
+    {
+      "language": "zh_CN",
+      "records": 1,
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-make-masks-help.json",
+      "review_sha256": "47b7c59ad668f595fdbdcedc567605d453d8c72fa80a59880f65815b56f4bd3d",
+      "real_tr_checks": 1
+    }
+  ],
+  "source_bound_records": 79,
+  "missing_catalog_rows_filled": 79,
+  "unrelated_catalog_rows_unchanged": true,
+  "full_catalog_audit_passed": false
+}

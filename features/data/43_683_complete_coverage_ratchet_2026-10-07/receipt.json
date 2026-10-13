@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-07",
+  "run_id": 37698599898,
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "aggregate_job_id": 113085039577,
+  "aggregate_conclusion": "failure",
+  "integrity": {
+    "shipped_modules": 664,
+    "checked_modules": 664,
+    "shards": 12,
+    "missing_shards": 0,
+    "lost_worker_recoveries": 0,
+    "unconfirmed_rises": 0
+  },
+  "numerical_ratchet": "failure",
+  "modules_failing": 11,
+  "failing_modules": [
+    "spacr/deep_spacr.py",
+    "spacr/model_zoo.py",
+    "spacr/plaque.py",
+    "spacr/qt/mask_engine.py",
+    "spacr/qt/preferences.py",
+    "spacr/qt/screens/make_masks.py",
+    "spacr/qt/screens/plate_view.py",
+    "spacr/qt/widgets/ambient.py",
+    "spacr/submodules.py",
+    "spacr/torch_artifacts.py",
+    "spacr/validate.py"
+  ],
+  "floor_exemption": "spacr/ops_accel.py: existing documented CuPy-only exemption, not a new rise",
+  "coverage2_job_id": 113058129605,
+  "coverage2_conclusion": "failure",
+  "coverage2_failed_nodes": [
+    "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+    "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+    "tests/test_guide_i18n.py::test_glossary_matches_the_runtime_catalogs"
+  ],
+  "source_fix_commit": "ebfdb47132b92129213ec24f5b5c98099c2cf1e6",
+  "source_sha256_before": {
+    "spacr/deep_spacr.py": "91ba9c3d5727c8ff29cc837b1974f30259c93de6c120370bc3f36f5316488cb3",
+    "spacr/model_zoo.py": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829",
+    "spacr/torch_artifacts.py": "22d33b4ad95ebed539928d1bd7fb33b41d6c5c1402c4a85a9118b24a0a103a50",
+    "spacr/validate.py": "ee876d102f8c18b3c3a00b3500e0493a21216041b9a13282879bde2ccefe4c03"
+  },
+  "source_sha256_after": {
+    "spacr/deep_spacr.py": "198f08a49ba2bbad93aa411f57924d5d1d7ee5fed196210e350a093452658b53",
+    "spacr/model_zoo.py": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829",
+    "spacr/torch_artifacts.py": "22d33b4ad95ebed539928d1bd7fb33b41d6c5c1402c4a85a9118b24a0a103a50",
+    "spacr/validate.py": "ee876d102f8c18b3c3a00b3500e0493a21216041b9a13282879bde2ccefe4c03"
+  },
+  "focused_validation": {
+    "command": "CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg COVERAGE_FILE=<scratch>/own-four-final.coverage tools/run_capped.sh 4G <near-parity-python> -m coverage run --branch -m pytest -q -p no:randomly tests/test_683_catalogue_path_guards.py tests/test_cov_deep_spacr_train_model.py::test_train_model_resumes_after_saved_epoch_with_optimizer_state",
+    "result": "7 passed in 12.89s",
+    "targeted_missing_lines_or_arcs_after": {
+      "spacr/deep_spacr.py": 0,
+      "spacr/model_zoo.py": 0,
+      "spacr/torch_artifacts.py": 0,
+      "spacr/validate.py": 0
+    },
+    "scope": "Only exact hosted target gaps, not a new full aggregate verdict."
+  },
+  "artifact_zip_id": 11519648871,
+  "artifact_zip_archived": false,
+  "limitations": "Complete hosted source 683 remains red; current source has further module/test repairs pending. No ratchet ceiling/exclusion change."
+}

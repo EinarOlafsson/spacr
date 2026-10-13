@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "measurement_verified_capture_candidate_not_published",
+  "capture_directory": "/tmp/spacr-masks-current/captures/readouts-features-08",
+  "capture_provenance": {
+    "commit": "1bedf749154c6e92178a357c2f9082e7dead2d84",
+    "version": "1.5.0.8",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-masks-current/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "device": "cpu",
+  "memory_cap_gib": 8,
+  "frames": [
+    {
+      "name": "00_home",
+      "file": "00_home.png",
+      "sha256": "6894891f7aef7418282cf33d0a1bb7e3e226c5f4239b78f167af4313f0c800f1",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "01_module",
+      "file": "01_module.png",
+      "sha256": "91c826dd5e8ad9a657b9cc2c50ba2a2e98b6587db1aff54385f1c52fb9c5db54",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "02_folder_picker",
+      "file": "02_folder_picker.png",
+      "sha256": "bef72e31b43e8e599969d1aaa259ec01752cfa185481861d685019831ed1fd44",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "03_real_labels",
+      "file": "03_real_labels.png",
+      "sha256": "169297f490460441cf8646ba2c6108446ca83eb2252bd9f5b2091c02634ad098",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "04_otsu_magnifier_settings",
+      "file": "04_otsu_magnifier_settings.png",
+      "sha256": "6637517ffb3b3ff1f1848becb033b96f61f7a3514921f41c8cb558cde73d6f06",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "05_live_otsu_magnifier",
+      "file": "05_live_otsu_magnifier.png",
+      "sha256": "d4bd62704f79d8aa3ac3505ab4c66710840dca5460f4aabc9001774aabe5c198",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "06_features_real_files",
+      "file": "06_features_real_files.png",
+      "sha256": "f47440e4385de45a96a0a7e7f2143af7574c47c54fdc9bf917ffb00678060f29",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "07_features_choose_image",
+      "file": "07_features_choose_image.png",
+      "sha256": "0e179e83172272294eb286a1c8ac25cc16160bd5285c0ba1208727f8d17395fd",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "08_features_choose_cell_mask",
+      "file": "08_features_choose_cell_mask.png",
+      "sha256": "25a724dbb02d9c2bb17fbdf5a45ff6756e44a00b66a4b588253855a222e33dde",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "09_features_assigned_table",
+      "file": "09_features_assigned_table.png",
+      "sha256": "640a3db4ca8df7c9329cd48296e3bac9e47137e24faca4e858d2e9cf61bc8adc",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "10_features_setting_n_jobs",
+      "file": "10_features_setting_n_jobs.png",
+      "sha256": "5ee5e72e47d59bd74f0dbe817793681bdef19c2080b0d302f13cb9dfa047424a",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "10_features_setting_cell_min_size",
+      "file": "10_features_setting_cell_min_size.png",
+      "sha256": "2ec949fd2a51cb4899f04aa5dd872368750694b98e91d03ffc05b829d6c07174",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "10_features_setting_save_png",
+      "file": "10_features_setting_save_png.png",
+      "sha256": "d0d83e6144f04c9832ef1a0bc029f48ea9f1ebc40f813d541ba8db685a52bb01",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "11_features_measuring",
+      "file": "11_features_measuring.png",
+      "sha256": "7b1ae90b38aa3a1b18ab244adf496c37c1759995b6481fe5972b394f2f097627",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "12_features_measurements_saved",
+      "file": "12_features_measurements_saved.png",
+      "sha256": "fd3680965babe612799266e842ffa6b54f3182e9454654d71da66867a953f219",
+      "size": [
+        3840,
+        2160
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "source": "/tmp/spacr-masks-current/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "image": "/tmp/spacr-masks-current/make_masks_runs/example-haz39p19/plate1_E01_10_1_ER.tif",
+      "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+      "mask": "/tmp/spacr-masks-current/make_masks_runs/example-haz39p19/masks/plate1_E01_10_1_ER.tif",
+      "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+      "image_plane": 1,
+      "cell_mask_plane": 4,
+      "objects": 63,
+      "shape": [
+        1994,
+        1994
+      ]
+    },
+    {
+      "source": "/tmp/spacr-masks-current/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "image": "/tmp/spacr-masks-current/make_masks_runs/example-haz39p19/plate1_E01_11_1_ER.tif",
+      "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+      "mask": "/tmp/spacr-masks-current/make_masks_runs/example-haz39p19/masks/plate1_E01_11_1_ER.tif",
+      "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+      "image_plane": 1,
+      "cell_mask_plane": 4,
+      "objects": 51,
+      "shape": [
+        1994,
+        1994
+      ]
+    }
+  ],
+  "measurement": {
+    "fields": 2,
+    "channels": 1,
+    "mask_roles": [
+      "cell"
+    ],
+    "settings_chosen_visibly": {
+      "n_jobs": 1,
+      "cell_min_size": 1,
+      "save_png": false
+    },
+    "test_mode": false,
+    "database": "/tmp/spacr-masks-current/make_masks_runs/example-haz39p19/features/measurements/measurements.db",
+    "database_sha256": "7407d131ae2877564122c79ee0cf6af2a1384e44244a606259ac617daa634294",
+    "database_tables": [
+      "cell",
+      "cytoplasm",
+      "intensity_rescale",
+      "run_status",
+      "settings",
+      "settings_history"
+    ],
+    "measured_cell_rows": 114,
+    "source_files_unchanged": true,
+    "every_cell_area_and_mean_verified_against_source_pixels": true,
+    "distinct_field_identities_verified": true
+  },
+  "magnifier": {
+    "mode": "otsu",
+    "objects": 1,
+    "image_and_labels_unchanged": true
+  },
+  "acceptance_receipt_sha256": "ba9afaab4d9f8b86310c1604c027e447ab1c1a931db5d4d44772203118b31c5c",
+  "capture_helper_sha256": {
+    "capture_features_run.py": "b2568f844ec77ae2b64b493f9522a21f4104f26747002a81e8e91cd23a95d2d8",
+    "capture_make_masks.py": "f631e744fd1763ccb5618c98927375215acf9acf50ac41c3bf213d9d08136be8",
+    "capture_mask_readouts.py": "c23e2f842e87ba7400f68d8122f4a8b1c520f8fb11cec8c7593ff142f4da93c3"
+  },
+  "visual_review": "Assigned table and completed-result frames inspected: dark/Blobs, both real image/mask pairs and the saved database path are visible; paths use the neutral private workspace.",
+  "ready_for_publication": false,
+  "outstanding": [
+    "The UI keeps its earlier regex status caption after manual assignment; this is recorded in feature 325, not hidden from the frames.",
+    "The UI accepts underscore-containing plate names that collapse field identities; the verified recording uses maskdemo. This production defect remains with the FEATURES owner.",
+    "Narration, scene integration, captions and browser/mobile review remain open.",
+    "New incoming Make Masks UI changes must be reconciled before final lesson acceptance."
+  ]
+}

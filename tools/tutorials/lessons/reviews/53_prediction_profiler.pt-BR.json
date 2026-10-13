@@ -1,0 +1,33 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Prediction Profiler: explorar um modelo ajustado",
+  "description": "Carregue os coeficientes de um modelo, varie uma entrada mantendo as outras fixas e inspecione as respostas previstas.",
+  "objectives": [
+    "Carregar os coeficientes com a função de ligação correta.",
+    "Varrer uma entrada e ajustar os valores fixos.",
+    "Inspecionar as curvas de resposta e a sensibilidade."
+  ],
+  "prerequisite": "Baixe o exemplo sintético de coeficientes ou use os coeficientes de um modelo ajustado adequado. Faça corresponder a função de ligação e a codificação das entradas. O caminho com arquivo de coeficientes supõe faixas de entrada de zero a um; efeitos marginais separados não substituem um modelo de previsão ajustado em conjunto.",
+  "scenes": [
+    "Abra Regression e depois Prediction Profiler para explorar as respostas previstas por um modelo ajustado. O exemplo indicado usa dados sintéticos.",
+    "Baixe e descompacte o exemplo e depois use Browse para ir até o CSV sintético de coeficientes OLS. Inclua o intercepto ao fornecer seus próprios coeficientes ajustados.",
+    "Defina Link como a função usada pelo modelo ajustado. Mantenha identity neste exemplo de mínimos quadrados ordinários.",
+    "Confira as informações de faixa depois de carregar. O caminho com arquivo de coeficientes supõe que cada entrada vai de zero a um. Confirme que isso corresponde ao uso pretendido antes de interpretar as curvas.",
+    "Selecione Input A para a varredura. Mova o controle deslizante de Input B, que está fixo, para um e inspecione a curva de resposta resultante.",
+    "Mova B para zero e compare os valores de resposta. Observe a escala do eixo além da linha, porque o gráfico pode mudar de escala.",
+    "Clique em Reset held values para devolver os controles deslizantes ao ponto médio das faixas supostas, um meio neste exemplo.",
+    "Selecione Input B na lista ordenada para varrer B mantendo A fixo. A ordenação resume a sensibilidade do modelo nas faixas de entrada configuradas.",
+    "Mude Points para escolher quantas posições são avaliadas ao longo da curva. Onze dá uma grade mais grossa que sessenta e um, sem mudar o modelo ajustado.",
+    "Ajuste os valores fixos para explorar outros cenários e redefina-os ao terminar. Interprete as curvas como previsões do modelo e avalie os efeitos experimentais reais com dados adequados."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "The experiment name, channel list, normalisation and whether a cytoplasm compartment is derived — the frame the imported masks are measured in. Check the channel list matches the images you are importing.",
+      "source": "The experiment name, channel list, normalisation and whether a cytoplasm compartment is derived — the frame the imported masks are measured in. Check the channel list matches the images you are importing.",
+      "source_sha256": "e4f0c50601652ae5f0faf266b215959b1fc3231ad108401309154943e9875531",
+      "table": "categories",
+      "translation": "实验名称、通道列表、归一化，以及是否派生细胞质区室 — 导入的掩膜在其中被测量的框架。请检查通道列表是否与您要导入的图像相符。"
+    },
+    {
+      "key": "The experiment name, channel list, normalisation and whether a cytoplasm compartment is derived — the frame the imported masks are measured in. Check the channel list matches the images you are importing.",
+      "source": "The experiment name, channel list, normalisation and whether a cytoplasm compartment is derived — the frame the imported masks are measured in. Check the channel list matches the images you are importing.",
+      "source_sha256": "e4f0c50601652ae5f0faf266b215959b1fc3231ad108401309154943e9875531",
+      "table": "ui",
+      "translation": "实验名称、通道列表、归一化，以及是否派生细胞质区室 — 导入的掩膜在其中被测量的框架。请检查通道列表是否与您要导入的图像相符。"
+    }
+  ],
+  "schema": 1
+}

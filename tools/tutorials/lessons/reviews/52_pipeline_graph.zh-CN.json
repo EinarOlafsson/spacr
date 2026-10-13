@@ -1,0 +1,34 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "bf0c6dac571bc3ffd103198c0eaa0c23ba38b289ef5090da9df64295ed67932f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Pipeline Graph：检查输出和依赖关系",
+  "description": "打开项目的产物图，检查缺失的输出，并复制其依赖关系图。",
+  "objectives": [
+    "打开项目的产物图。",
+    "检查路径、状态和依赖关系。",
+    "复制关系图并刷新记录。"
+  ],
+  "prerequisite": "选择一个带有已登记输出的spaCR项目。External Masks示例提供测量数据和裁剪图像；Data Manager课程展示了已删除产物的显示方式。",
+  "scenes": [
+    "打开Help，然后打开Pipeline graph，检查项目记录的输出和依赖关系。",
+    "用Browse找到项目文件夹。如果图为空，请检查该文件夹是否有已登记的产物；文件可能存在，但没有登记记录。",
+    "选择已测量的项目以显示其产物框。示例包含测量数据、裁剪图像和资源日志，其中一个已删除的裁剪文件夹被标为缺失。",
+    "点击一个产物，并拖动分隔条加宽详情区域。检查其路径、角色、运行标识、生成时间和软件版本。",
+    "选择一个Missing产物，找到其记录的路径。显示的大小来自保存的记录，因此排查缺失文件时请检查实际位置。",
+    "在有记录的情况下，检查输入和下游链接。有些产物，例如资源日志，可能位于项目文件夹之外。",
+    "使用Current、Stale和Missing选择显示哪些状态的产物。例如，隐藏Current以专注于缺失的输出。",
+    "如果看不到任何框，请检查显示过滤器和产物总数。恢复您想检查的状态。",
+    "点击Copy Graphviz，把完整的关系图复制为DOT文本，其中也包括被过滤器隐藏的节点。把它粘贴到Graphviz工具中进行渲染或保存。",
+    "恢复所需的过滤器，再次选择一个产物查看详情。根据其记录的路径和上游流程判断需要处理的内容。",
+    "项目更改后点击Redraw重新读取登记信息。打开Run History查看保存的设置和日志，或打开Data Manager进行清理和归档。"
+  ]
+}

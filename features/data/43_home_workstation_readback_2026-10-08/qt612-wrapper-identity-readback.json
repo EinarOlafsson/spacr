@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "receipt_sha256": "450a27645a89684007ae5f007c2af2f18a9982342158a9537d9d3f8b2e8c06e6",
+  "payloads_verified": 20,
+  "source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "exact_qt_version_control": {
+    "original_test_bytes_identical": true,
+    "qt611_original": "1 passed in 4.01s, exit 0",
+    "qt612_original": "1 failed in 3.99s, exit 1, exact hosted qualified-name mismatch",
+    "qt612_repaired_full_file": "16 passed in 6.85s, exit 0",
+    "environment": "same Python 3.12.13 and pytest 8.4.2, xdist2/loadfile and coverage, 4G CPU/offscreen; only scratch Qt/PySide6/Shiboken6 6.12.0 overlay changed",
+    "original_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest /mnt/wd4tb/scratch/ci-7a-root-20261008/original_wrapper_test.py::test_a_child_parented_into_a_watched_host_keeps_its_wrapper -n 2 --dist loadfile --cov=spacr.qt.screens.app_screen --cov-report= -q",
+    "repaired_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest tests/qt/test_the_pyside_slot_warning_is_fixed_not_filtered.py -n 2 --dist loadfile --cov=spacr.qt.screens.app_screen --cov-report= -q",
+    "qt611_command": "Same original command without the qt612-overlay PYTHONPATH entry",
+    "remaining_limit": "Exact original test is stored in scratch and uses pytest-qt rather than the repository Qt conftest. Full repaired file uses original repository path/conftest. Historical macOS poisoning remains unreproduced."
+  },
+  "limitations": [
+    "Historical macOS wrapper poisoning was not reproduced on local Linux/PySide6 6.11.2. Original attempted negative probes exit 1 and remain preserved.",
+    "Small-cohort coverage is not complete numerical coverage acceptance. No ratchet changed.",
+    "Current original-order serial remains uninterrupted on 0b source. One Qt assertion now differs; application, runner and selected order unchanged.",
+    "Hosted required run remains unaccepted until actual final green."
+  ]
+}

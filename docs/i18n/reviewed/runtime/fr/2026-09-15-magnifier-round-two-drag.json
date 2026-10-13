@@ -1,0 +1,48 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "All objects in the zoom area",
+      "source": "All objects in the zoom area",
+      "source_sha256": "85c44b198efec1717bcf6561a73af044c6bdcfbfc320857ba6058906fadf8e66",
+      "table": "ui",
+      "translation": "Tous les objets de la zone agrandie"
+    },
+    {
+      "key": "Magnifier: nothing was added — there was no object under the mouse, or the Overlap rule or Min area left nothing of it.",
+      "source": "Magnifier: nothing was added — there was no object under the mouse, or the Overlap rule or Min area left nothing of it.",
+      "source_sha256": "6e99913fae7ce8ec5b113e652b6c0ce5081b9f42492f60ae870e95f7c2764dc4",
+      "table": "ui",
+      "translation": "Loupe : rien n'a été ajouté — il n'y avait aucun objet sous la souris, ou la règle de Chevauchement ou Min area n'en a rien laissé."
+    },
+    {
+      "key": "Magnifier: segmenting the last regions — the objects are added as soon as they are done.",
+      "source": "Magnifier: segmenting the last regions — the objects are added as soon as they are done.",
+      "source_sha256": "1a771cedac2e76a386e9f94f478662bf2e2bec628946361d96c3599d5ae586d5",
+      "table": "ui",
+      "translation": "Loupe : segmentation des dernières régions — les objets sont ajoutés dès qu'elles sont terminées."
+    },
+    {
+      "key": "Objects added",
+      "source": "Objects added",
+      "source_sha256": "ae6c0e723bf6c02af62aab2bd85f02b3a46f6c10575680eefbb7d0d2cd2a9a2d",
+      "table": "ui",
+      "translation": "Objets ajoutés"
+    },
+    {
+      "key": "Only objects touching the mouse",
+      "source": "Only objects touching the mouse",
+      "source_sha256": "61218b3c308f4637f1411232ab0cdb5012619fbf98a43edc48b11dc841424a55",
+      "table": "ui",
+      "translation": "Seulement les objets que touche la souris"
+    },
+    {
+      "key": "Which objects a click or a drag adds. All objects in the zoom area adds every object the box outlines. Only objects touching the mouse adds just the object under the cursor and leaves the rest of the box out. Press and drag to keep adding along the path: the objects the cursor passes over become one object, joined from the pieces found in each box where they lie in the image. Whole image always adds only the objects under the mouse.",
+      "source": "Which objects a click or a drag adds. All objects in the zoom area adds every object the box outlines. Only objects touching the mouse adds just the object under the cursor and leaves the rest of the box out. Press and drag to keep adding along the path: the objects the cursor passes over become one object, joined from the pieces found in each box where they lie in the image. Whole image always adds only the objects under the mouse.",
+      "source_sha256": "134a1dfd3880bd25552cd3da65a0df3d141568e9e2d483ce87885825788a37d5",
+      "table": "ui",
+      "translation": "Quels objets un clic ou un glisser ajoute. Tous les objets de la zone agrandie ajoute chaque objet que le cadre entoure. Seulement les objets que touche la souris n'ajoute que l'objet sous le curseur et laisse de côté le reste du cadre. Appuyez et faites glisser pour continuer à ajouter le long du tracé : les objets que le curseur survole deviennent un seul objet, assemblé à partir des morceaux trouvés dans chaque cadre, là où ils se trouvent dans l'image. Image entière n'ajoute toujours que les objets sous la souris."
+    }
+  ],
+  "schema": 1
+}

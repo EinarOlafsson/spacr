@@ -1,0 +1,33 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Plate Queue: mehrere vorbereitete Projekte ausführen",
+  "description": "Fügen Sie das aktuelle Projekt hinzu oder legen Sie vorbereitete Ordner in eine Warteschlange, führen Sie Jobs der Reihe nach aus und setzen Sie nach einem kontrollierten Stopp fort.",
+  "objectives": [
+    "Vorbereitete Projekte mit ihren gespeicherten Moduleinstellungen hinzufügen.",
+    "Die Warteschlange ausführen und zwischen Jobs anhalten.",
+    "Die Ergebnisse jedes Projekts finden und abgeschlossene Einträge entfernen."
+  ],
+  "prerequisite": "Bereiten Sie ein Projekt und seine gespeicherten Moduleinstellungen vor. Verwenden Sie zum Üben zwei Kopien des Recruitment-Beispiels in getrennten Ordnern; sie enthalten dieselben Daten und sind keine biologischen Replikate.",
+  "scenes": [
+    "Bereiten Sie das erste Projekt in seinem Analysemodul vor. Wählen Sie in Recruitment Import settings und öffnen Sie die Einstellungs-CSV des Projekts. Das Beispiel verwendet zwei getrennte Kopien derselben Messdaten, um das Ausführen mehrerer Jobs zu üben.",
+    "Prüfen Sie Source, Kanalzuordnung und Bedingungslabels. Speichern Sie die Einstellungen, die die Warteschlange verwenden soll, und lassen Sie dieses Projekt geöffnet.",
+    "Öffnen Sie Help und dann Plate queue. Die Warteschlange führt jeweils einen Eintrag in der angezeigten Reihenfolge aus.",
+    "Wählen Sie Add current plate. Eine neue Zeile speichert das aktuelle Modul und die aktuellen Einstellungen. Prüfen Sie Modul, Quelle und Label, bevor Sie die Warteschlange starten.",
+    "Ziehen Sie einen weiteren vorbereiteten Projektordner auf die Warteschlange. Seine gespeicherten Einstellungen bestimmen das Modul, und der abgelegte Ordner wird zur Quelle. Verwenden Sie getrennte Projektordner, wenn jeder Job eigene Ausgabedateien braucht.",
+    "Wählen Sie Run queue. Die erste Zeile wechselt zu running, während spätere Einträge queued bleiben. Verfolgen Sie Status und verstrichene Zeit, um den Fortschritt zu sehen.",
+    "Drücken Sie Stop, wenn die Warteschlange den aktuellen Eintrag abschließen und vor dem nächsten anhalten soll. Warten Sie, bis der aktive Job fertig ist.",
+    "Die abgeschlossene Zeile zeigt jetzt success, und die nächste bleibt queued. Wählen Sie erneut Run queue, um mit dem verbleibenden Eintrag fortzufahren.",
+    "Wenn beide Jobs abgeschlossen sind, öffnen Sie den Ausgabeordner jedes Projekts. Prüfen Sie bei Recruitment die CSV-Ergebnisse für Zellen und Wells. Verwenden Sie Recruitment direkt, wenn Sie dessen Abbildungsablauf möchten; diese Warteschlange zeigt und speichert diese Diagramme nicht.",
+    "Wählen Sie Clear finished, um abgeschlossene Einträge aus der Liste zu entfernen. Ihre Projektordner und gespeicherten Ergebnisse bleiben erhalten."
+  ]
+}

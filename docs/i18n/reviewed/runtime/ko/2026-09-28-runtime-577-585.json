@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "Direct AI translation and technical review against the current English runtime source and adjacent code context. Format fields and technical identities retained. The empty-result caption makes the per-replicate wells hierarchy explicit, following the adjacent shared tooltip and planner semantics. No native-speaker signoff; no external translation service used.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or Microsoft Teams, through ntfy or a webhook. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
+      "source": "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or Microsoft Teams, through ntfy or a webhook. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring.",
+      "source_sha256": "d38a6a538fb06ee8ee9499d2b2876d0a564a98f38ef962ea692a552be76e81e0",
+      "translation": "spaCR은 긴 실행이 끝나거나 실패할 때 이 컴퓨터의 데스크톱, 이메일, Slack 또는 Microsoft Teams, ntfy 또는 웹후크로 알려 드릴 수 있습니다. 여기서 켜기 전에는 아무것도 보내지 않습니다. 비밀번호와 비밀번호처럼 쓰이는 주소는 시스템 키링에 보관됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Post an Adaptive Card to a Microsoft Teams channel or chat through a workflow webhook. Default off.",
+      "source": "Post an Adaptive Card to a Microsoft Teams channel or chat through a workflow webhook. Default off.",
+      "source_sha256": "a6d993d95072530b1241dc409a8cb4236e5234955a9cf4b677fa6274f8a646dc",
+      "translation": "워크플로 웹후크를 통해 Microsoft Teams 채널 또는 채팅에 Adaptive Card를 게시합니다. 기본값은 꺼짐입니다."
+    },
+    {
+      "table": "ui",
+      "key": "The webhook address from a Teams workflow configured to allow Anyone to call it. Anyone with the address can post, so it is kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source": "The webhook address from a Teams workflow configured to allow Anyone to call it. Anyone with the address can post, so it is kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "5e98d1b71d697540e0926dac0d691cf682054cd59a55aae56585018886e0af77",
+      "translation": "Anyone이 호출할 수 있도록 설정한 Teams 워크플로의 웹후크 주소입니다. 주소를 아는 사람은 누구나 게시할 수 있으므로 비밀번호처럼 보관됩니다. 비워 두면 저장된 주소를 유지합니다. 기본값은 비어 있음입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Teams webhook",
+      "source": "Teams webhook",
+      "source_sha256": "523081b681fe39a4a5dcab47b001577dfe437e08d587784b2d99767c3a9c4ee9",
+      "translation": "Teams 웹후크"
+    },
+    {
+      "table": "ui",
+      "key": "Webhook",
+      "source": "Webhook",
+      "source_sha256": "4814f62c108d82de42a65c515d56fc220b7fe8521510fd128919664daaa167bb",
+      "translation": "알림 웹후크"
+    },
+    {
+      "table": "ui",
+      "key": "Send a JSON object with title, body and failed fields to the webhook below. The body contains the run summary and output path; failed is true when the run failed. Default off.",
+      "source": "Send a JSON object with title, body and failed fields to the webhook below. The body contains the run summary and output path; failed is true when the run failed. Default off.",
+      "source_sha256": "05cdc1e8fdf4addf210064b30dac90e16da5256081d1562d74c28b9c6e6df6d2",
+      "translation": "title, body, failed 필드가 있는 JSON 객체를 아래 웹후크로 보냅니다. body에는 실행 요약과 출력 경로가 포함되며, 실행이 실패하면 failed는 true입니다. 기본값은 꺼짐입니다."
+    },
+    {
+      "table": "ui",
+      "key": "The HTTP or HTTPS address that receives the JSON notification. Kept like a password because webhook addresses can contain access keys. Leave empty to keep the saved one. Default empty.",
+      "source": "The HTTP or HTTPS address that receives the JSON notification. Kept like a password because webhook addresses can contain access keys. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "4c0cb28108347b3b562e19a86b74e079236efbc3f496de7fa6851cfbc2fdcf5c",
+      "translation": "JSON 알림을 받는 HTTP 또는 HTTPS 주소입니다. 웹후크 주소에는 액세스 키가 포함될 수 있으므로 비밀번호처럼 보관됩니다. 비워 두면 저장된 주소를 유지합니다. 기본값은 비어 있음입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Webhook address",
+      "source": "Webhook address",
+      "source_sha256": "18012b843143b06546935b95ce2827022d1945bd9abaa396ba3193cdde00d268",
+      "translation": "웹후크 주소"
+    },
+    {
+      "table": "ui",
+      "key": "An optional bearer token for the webhook. Kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source": "An optional bearer token for the webhook. Kept like a password. Leave empty to keep the saved one. Default empty.",
+      "source_sha256": "3be3c528703397b324bfe168165ea594188bd13d57ab0174a1a830c3484087da",
+      "translation": "웹후크에 사용할 선택 사항인 Bearer 토큰입니다. 비밀번호처럼 보관됩니다. 비워 두면 저장된 토큰을 유지합니다. 기본값은 비어 있음입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Webhook access token",
+      "source": "Webhook access token",
+      "source_sha256": "c9bf9a69746d024cb45c3167f36f083f8e3c8b09e7b5babf71b949d2993385e8",
+      "translation": "웹후크 액세스 토큰"
+    },
+    {
+      "table": "ui",
+      "key": "Delete all saved notification passwords, webhook addresses, topics and tokens from the keyring and from spaCR's own file, at once. Default kept.",
+      "source": "Delete all saved notification passwords, webhook addresses, topics and tokens from the keyring and from spaCR's own file, at once. Default kept.",
+      "source_sha256": "0288ec581c62a0646f6437a269baf99cd5cc21721b0e64c5cc97739afb3510af",
+      "translation": "저장된 모든 알림 비밀번호, 웹후크 주소, 주제 및 토큰을 키링과 spaCR 자체 파일에서 한꺼번에 삭제합니다. 기본값은 유지입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Replicate cost",
+      "source": "Replicate cost",
+      "source_sha256": "a72f91f668f3869195f291c1e06d5e681c46431f79e3cfbbd8bebb31a79c5a43",
+      "translation": "반복당 비용"
+    },
+    {
+      "table": "ui",
+      "key": "Well cost",
+      "source": "Well cost",
+      "source_sha256": "94cb7ed27ccbe00725817f7adce54948eaadf1741e3aae35742c625dcbd15423",
+      "translation": "웰당 비용"
+    },
+    {
+      "table": "ui",
+      "key": "Field cost",
+      "source": "Field cost",
+      "source_sha256": "bd7750c94fa3b6c5bc7d92dcd90b76b2cba056585c885433168c4958d5c8bf45",
+      "translation": "시야당 비용"
+    },
+    {
+      "table": "ui",
+      "key": "Relative cost per condition: one replicate, one well within a replicate, or one field within a well. Use common units; zero ignores this cost. Default {default:g}.",
+      "source": "Relative cost per condition: one replicate, one well within a replicate, or one field within a well. Use common units; zero ignores this cost. Default {default:g}.",
+      "source_sha256": "a64f3c811be6caf3663ac5403cd510504dc7acacf394f46a738cc3ec07769322",
+      "translation": "조건별 상대 비용: 반복 하나, 반복 내 웰 하나 또는 웰 내 시야 하나의 비용입니다. 공통 단위를 사용하세요. 0이면 이 비용을 무시합니다. 기본값은 {default:g}입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Maximum replicates",
+      "source": "Maximum replicates",
+      "source_sha256": "ce1dd2746f3a8b8a0af0e090282e491d39ea1e7dca20974dfdc978bf7a5671e9",
+      "translation": "최대 반복 수"
+    },
+    {
+      "table": "ui",
+      "key": "Maximum wells per condition",
+      "source": "Maximum wells per condition",
+      "source_sha256": "10f8b6776761833a9cd9fb0d8ba861cdbbd1fcf6297e4f8715d9d58e5dc12662",
+      "translation": "조건당 최대 웰 수"
+    },
+    {
+      "table": "ui",
+      "key": "Maximum fields per well",
+      "source": "Maximum fields per well",
+      "source_sha256": "0f16affb9b3a18265f0ed1bf4dd1463563632dc80d94932986f106b58bdff2aa",
+      "translation": "웰당 최대 시야 수"
+    },
+    {
+      "table": "ui",
+      "key": "Largest count considered: biological replicates per condition, wells per condition per replicate, or fields per well. Default {default}.",
+      "source": "Largest count considered: biological replicates per condition, wells per condition per replicate, or fields per well. Default {default}.",
+      "source_sha256": "8612f7a5599f3ef21a9dedfedca00fb7630c3f982f6e11b3fa48312f144bc4c0",
+      "translation": "고려할 최대 개수: 조건당 생물학적 반복 수, 각 반복에서 조건당 웰 수 또는 웰당 시야 수입니다. 기본값은 {default}입니다."
+    },
+    {
+      "table": "ui",
+      "key": "No design within {replicates} replicates, {wells} wells per condition and {fields} fields per well reaches the target power.",
+      "source": "No design within {replicates} replicates, {wells} wells per condition and {fields} fields per well reaches the target power.",
+      "source_sha256": "ac59cfdd09e7786679c3aa7077c9ac0b94e3e98ac95aa8386c17a9fbaa157ac4",
+      "translation": "최대 {replicates}개 반복, 각 반복에서 조건당 {wells}개 웰 및 웰당 {fields}개 시야 이내의 어떤 설계도 목표 검정력에 도달하지 못합니다."
+    }
+  ]
+}

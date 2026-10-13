@@ -1,0 +1,69 @@
+{
+  "scope": "Local fixed player with current hosted Heart audio; not deployment or human pronunciation review",
+  "player_sha256": "47b9096f57156f6c569dd95f908683474bd5327fb00b56aa728024d6ad8de726",
+  "audio_identity": {
+    "voice": "af_heart",
+    "expected": "f0c39395bc855eeeb7bc79b901679f46bfa3a001da10ed1ee3df111d3c0c2cf5",
+    "actual": "f0c39395bc855eeeb7bc79b901679f46bfa3a001da10ed1ee3df111d3c0c2cf5",
+    "chapterTexts": [
+      "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its dependencies.",
+      "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+      "On Windows ten or eleven, open the online setup executable. Automatic hardware acceleration is selected by default. Clear that component only when you require a smaller CPU-only installation.",
+      "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+      "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. Automatic backend selection is the default and installs CUDA support when compatible NVIDIA hardware is available.",
+      "To require a smaller CPU-only installation on Linux, pass --torch-backend cpu. Otherwise, keep the default automatic selection so CUDA acceleration is used when supported.",
+      "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+      "After installation, use the operating system launcher. No separate Python or Conda setup is required."
+    ],
+    "spokenTexts": [
+      "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its dependencies.",
+      "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+      "On Windows ten or eleven, open the online setup executable. Automatic hardware acceleration is selected by default. Clear that component only when you require a smaller CPU-only installation.",
+      "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+      "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. Automatic backend selection is the default and installs CUDA support when compatible NVIDIA hardware is available.",
+      "To require a smaller CPU-only installation on Linux, pass --torch-backend cpu. Otherwise, keep the default automatic selection so CUDA acceleration is used when supported.",
+      "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+      "After installation, use the operating system launcher. No separate Python or Conda setup is required."
+    ]
+  },
+  "native_track_reload_checks": 3,
+  "reported_timestamp_checks": [
+    {
+      "audioTime": 27.216701,
+      "videoTime": 26.99673,
+      "expectedText": "Automatic hardware acceleration is selected by default.",
+      "activeCues": [
+        "Automatic hardware acceleration is selected by default."
+      ],
+      "requestedAudioTime": 27
+    },
+    {
+      "audioTime": 37.216739,
+      "videoTime": 36.995519,
+      "expectedText": "On macOS eleven or newer, open the universal package for Intel and Apple silicon.",
+      "activeCues": [
+        "On macOS eleven or newer, open the universal package for Intel and Apple silicon."
+      ],
+      "requestedAudioTime": 37
+    },
+    {
+      "audioTime": 55.233453,
+      "videoTime": 54.993339,
+      "expectedText": "Automatic backend selection is the default and installs CUDA support when compatible NVIDIA hardware is available.",
+      "activeCues": [
+        "Automatic backend selection is the default and installs CUDA support when compatible NVIDIA hardware is available."
+      ],
+      "requestedAudioTime": 55
+    },
+    {
+      "audioTime": 76.225408,
+      "videoTime": 76.234922,
+      "expectedText": "Each installer validates the replacement before switching versions.",
+      "activeCues": [
+        "Each installer validates the replacement before switching versions."
+      ],
+      "requestedAudioTime": 76
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,34 @@
+{
+  "scope": "Source-bound score-threshold tooltip in nine runtime languages; thresholds each augmented view before agreement/voting and preserves available probability scores.",
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "runtime_lookups": 9,
+  "passed": true,
+  "review": "AI-assisted source-context review; no native-speaker sign-off",
+  "cohort_checks": {
+    "passed": 2,
+    "log": "/mnt/firecuda2/codex/workflow-authoring-20260922/score-tooltip-cohort-tests.log",
+    "sha256": "594988faac7be19d8321bedbb360e67cf2d58c6d7a98527ceaedc3cab51ecea0"
+  },
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11526\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "c9422e3e62380aac367c30389de6533c519bd2e7212353f5650aae238e314280",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Classifier Evaluation: Vorhersagen und Fehler prüfen",
+  "description": "Laden Sie ein gespeichertes Evaluierungspaket, prüfen Sie Leakage und Konfusionszahlen und filtern Sie Vorhersagen zur Durchsicht.",
+  "objectives": [
+    "Ein Paket laden und Leakage prüfen.",
+    "Konfusionszahlen und Konfidenzgruppen prüfen.",
+    "Vorhersagen filtern und gespeicherte Abbildungen finden."
+  ],
+  "prerequisite": "Laden Sie das verlinkte Beispiel mit gespeicherten Ergebnissen herunter und entpacken Sie es. Es enthält Vorhersagen, Tabellen und Abbildungen; für Ausschnitte benötigen Sie Ihr passendes Experiment in Annotate. Das Beispiel teilt Wells zwischen Trainings- und Testdaten; nutzen Sie es daher zum Kennenlernen des Inspektors, nicht zur Schätzung der Genauigkeit auf unabhängigen Wells.",
+  "scenes": [
+    "Öffnen Sie Classify und dann Classifier Evaluation. Mit diesem Inspektor erkunden Sie ein gespeichertes Evaluierungspaket, nachdem Vorhersagen erzeugt wurden.",
+    "Laden Sie das Beispiel unten herunter und entpacken Sie es. Klicken Sie auf Browse und wählen Sie den Ordner mit evaluation_manifest.json.",
+    "Lesen Sie unter Summary die Zahl der Vorhersagen und die erfassten Klassennamen. Das Beispiel enthält 234 Vorhersagen in zwei Klassen.",
+    "Öffnen Sie Leakage audit, bevor Sie die Genauigkeit deuten. Dieses Beispiel markiert Wells, die Trainings- und Testdaten gemeinsam haben. Für eine Bewertung mit unabhängigen Wells bereiten Sie eine Aufteilung mit getrennten Wells vor und führen Training und Evaluierung erneut aus.",
+    "Öffnen Sie Confusion matrix. Zeilen sind erfasste Klassen, Spalten sind Vorhersagen. Die Diagonale zeigt Übereinstimmung; Zellen außerhalb der Diagonalen kennzeichnen zu prüfende Abweichungen.",
+    "Klicken Sie auf eine Abweichungszelle, um ihre Beispiele aufzulisten. Die gewählte Zelle enthält elf Abweichungen, gruppiert nach Konfidenz.",
+    "Ändern Sie Confidence threshold, um festzulegen, welche Abweichungen in die Liste mit hoher Konfidenz kommen. Erhöht man den Wert von 0,75 auf 0,95, bleiben zwei in der hohen und neun in der niedrigen Liste.",
+    "Prüfen Sie die ausgewählten Beispiele zusammen mit ihren Bildern und Annotationen. Nutzen Sie die angezeigten Erklärungen als Anstoß für eine Untersuchung und prüfen Sie die Belege, bevor Sie Labels ändern.",
+    "Öffnen Sie Per-plate metrics, um Ergebnisse pro Platte zu vergleichen. Dieses Beispiel hat eine Platte; ein Paket mit mehreren Platten liefert getrennte Zeilen zum Vergleich.",
+    "Öffnen Sie Calibration, um die vorhergesagte Wahrscheinlichkeit mit der beobachteten Klassenhäufigkeit zu vergleichen. Prüfen Sie beim Deuten der Unterschiede die Anzahl in jedem Intervall.",
+    "Öffnen Sie Predictions und geben Sie eine Proben- oder Well-Kennung ein, um die Datensätze zu filtern. Im Beispiel wählt r5_c2 die Vorhersagen eines Wells aus.",
+    "Löschen Sie den Filter, um alle Datensätze wiederherzustellen. Um Ausschnitte in Ihrem eigenen Projekt zu öffnen, laden Sie zuerst das passende Experiment in Annotate; das herunterladbare Ergebnisbeispiel enthält keine Ausschnitte.",
+    "Suchen Sie die gespeicherten Kalibrierungs- und Konfusionsabbildungen im Paketordner. Prüfen Sie Beschriftungen und Lesbarkeit, bevor Sie sie in einem Bericht verwenden.",
+    "Bewahren Sie das Leakage-Audit zusammen mit den berichteten Kennzahlen auf. Vergleichen Sie mit Training Runs den gespeicherten Trainingsverlauf und kehren Sie zu Annotate zurück, wenn Bilder oder Labels geprüft werden müssen."
+  ]
+}

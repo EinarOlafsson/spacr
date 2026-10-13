@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "53_prediction_profiler",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Varie uma entrada do modelo e observe como a previsão ajustada responde.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Prediction Profiler.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Prediction Profiler. Varie uma entrada do modelo e observe como a previsão ajustada responde.",
+        "Selecione um modelo ajustado, uma linha representativa e a característica que será variada.",
+        "Na área principal de configuração, defina um intervalo justificável para a característica e escolha deliberadamente entre manter fixas ou amostrar as demais entradas.",
+        "Gere o perfil e compare-o entre classes ou objetos de referência relevantes.",
+        "Ao término do fluxo de trabalho, a curva de resposta descreve o comportamento do modelo, não um efeito biológico causal, e pode ser exportada com suas configurações."
+      ]
+    }
+  }
+}

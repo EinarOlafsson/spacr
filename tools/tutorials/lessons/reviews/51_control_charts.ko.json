@@ -1,0 +1,33 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "71794c3c8f4747dd0bada9c613b11e057020b5adc0892760865854a902df4f0e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Control Charts: 플레이트 전반의 대조군 모니터링",
+  "description": "캠페인 표를 불러오고, 대조군과 기준 한계를 고르고, 경고를 확인한 뒤 그래프의 점을 내보냅니다.",
+  "objectives": [
+    "측정값과 대조군 집단을 고릅니다.",
+    "기준 구간과 경고 규칙을 설정합니다.",
+    "경고를 확인하고 차트의 점을 내보냅니다."
+  ],
+  "prerequisite": "아래의 합성 캠페인 CSV를 내려받거나, 플레이트 식별 정보, 실행 순서, 측정값, 대조군 라벨이 있는 웰 단위 표를 준비하세요. 예제는 의도적인 드리프트가 있는 플레이트 30장을 보여 줍니다.",
+  "scenes": [
+    "QC를 연 뒤 Control Charts를 열어 캠페인 전반에서 반복된 대조군을 모니터링하세요. 연습용 CSV는 합성 플레이트와 의도적인 드리프트를 씁니다.",
+    "아래 예제 CSV를 내려받고 Load table을 클릭해 선택하세요. 플레이트 30장이 있으며, 각 플레이트에는 대조군 유형마다 웰 3개와 샘플 웰 3개가 있습니다.",
+    "Plate, Run order, Measurement, Control column을 표의 열에 맞추세요. Control is에서는 음성 대조군으로 neg를 고르세요. 아무것도 고르지 않으면 모든 행이 포함됩니다.",
+    "Sigma from으로 변동 추정 방법을 고르세요. 각 플레이트에 선택된 대조군 웰이 3개씩 있으므로 여기서 Auto는 하위 그룹 추정을 씁니다.",
+    "Rules에서 확인할 경고를 고르세요. 예제는 3시그마 한계를 벗어난 점에 집중하도록 Limits only를 씁니다. 설정을 바꾸면 차트가 다시 그려집니다.",
+    "Baseline plates를 20으로 두세요. 처음 20장의 플레이트가 계열의 한계를 정합니다. 보고서와 규칙 표를 읽고 표시된 이후 플레이트를 찾으세요.",
+    "양성 대조군을 확인하려면 neg를 해제하고 pos를 고르세요. 평균과 한계를 따로 검토한 뒤, 예제를 계속하려면 neg로 돌아가세요.",
+    "계획한 기준 기간이 다르면 Baseline plates를 조정하세요. 이 도구는 플레이트가 최소 8장 필요하므로, 분석법에 맞는 안정적인 기준을 고르세요.",
+    "Export points를 클릭하고 CSV 저장 위치를 고르세요. 플레이트 식별 정보, 평균, 하위 그룹 크기, 한계, 기준 포함 여부, 발동된 규칙이 저장됩니다.",
+    "입력 CSV, 선택한 대조군, 기준 설정을 내보낸 점과 함께 보관하세요. 표시된 플레이트의 식별 정보로 획득이나 분석법의 변화를 조사하세요."
+  ]
+}

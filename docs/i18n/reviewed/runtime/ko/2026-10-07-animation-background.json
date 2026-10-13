@@ -1,0 +1,55 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Animation background",
+      "source": "Animation background",
+      "source_sha256": "437a56412491e7158d03f6b6bdc902acfcc22aaf3adfcb17c5d65cc58d7b3828",
+      "table": "ui",
+      "translation": "애니메이션 배경"
+    },
+    {
+      "key": "Animation background colour",
+      "source": "Animation background colour",
+      "source_sha256": "10f9af4e16b9be0d5052b786315383e597496e72228596694baf5ae14929c41e",
+      "table": "ui",
+      "translation": "애니메이션 배경 색상"
+    },
+    {
+      "key": "Background · Theme colour",
+      "source": "Background · Theme colour",
+      "source_sha256": "cd0df7d7c855ae90da0aea3bcddf73f9180cf9e7a216774804ba2ff4de9e4cfc",
+      "table": "ui",
+      "translation": "배경 · 테마 색상"
+    },
+    {
+      "key": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
+      "source": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
+      "source_sha256": "30e34da6ba9d95995b3adb7809e73a15e8221add251515006ec2d41196ffc5b9",
+      "table": "ui",
+      "translation": "팔레트와 독립적으로 모든 애니메이션의 배경을 선택합니다. 색상을 선택하기 전까지 배경은 현재 페이지 테마를 따르며, 밝기는 현재 어두운 테마 또는 밝은 테마의 범위 안에 유지됩니다. 환경설정을 저장하면 변경 사항이 적용됩니다."
+    },
+    {
+      "key": "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
+      "source": "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
+      "source_sha256": "80d6002bf644c784c0845b38e29cdcce5274a4bdd339aea3a4458b85d7c3ae96",
+      "table": "ui",
+      "translation": "애니메이션 배경 색상을 선택합니다. 밝기는 현재 어두운 테마 또는 밝은 테마에 맞게 조정됩니다."
+    },
+    {
+      "key": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+      "source": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+      "source_sha256": "06a921b65c8ddf7bcfbe79581ca0653a478a6493d684bfae4eb38ce62d1bcc0d",
+      "table": "ui",
+      "translation": "사용자 지정 색상 팔레트의 기본 색상과 강조 색상을 선택합니다. 환경설정을 저장하면 변경 사항이 적용됩니다."
+    },
+    {
+      "key": "Theme colour",
+      "source": "Theme colour",
+      "source_sha256": "41988af879a5f2c0f04e77926eb1a53271575d20085c3e80079ac31184e8e0c5",
+      "table": "ui",
+      "translation": "테마 색상"
+    }
+  ],
+  "schema": 1
+}

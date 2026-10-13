@@ -1,0 +1,27 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Return borrowed controls and detach subscriptions on every exit.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#0",
+      "source": "Return borrowed controls and detach subscriptions on every exit.",
+      "source_sha256": "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+      "translation": "在每条退出路径上归还借用的控件并断开订阅连接。"
+    },
+    {
+      "context": "Qt destroys a dialog's children with it, so anything of the panel's still parented under this dialog when it goes would go with it. The controls belong to the panel and retain their values after Close, Escape, accept, reject and explicit completion. Restoring them in ``done`` covers exits that do not deliver a close event. A completed dialog cannot move controls out of a replacement dialog.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#1",
+      "source": "Qt destroys a dialog's children with it, so anything of the panel's still parented under this dialog when it goes would go with it. The controls belong to the panel and retain their values after Close, Escape, accept, reject and explicit completion. Restoring them in ``done`` covers exits that do not deliver a close event. A completed dialog cannot move controls out of a replacement dialog.",
+      "source_sha256": "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+      "translation": "Qt 销毁对话框时也会销毁其子控件，因此，退出时仍以该对话框为父对象的面板控件也会被销毁。控件属于面板，在 Close、Escape、accept、reject 和显式完成后仍保留原有值。在 ``done`` 中归还控件，也能覆盖不发送关闭事件的退出路径。已经结束的对话框不能从替代它的新对话框中移走控件。"
+    },
+    {
+      "context": "dialog result passed to Qt after controls return to the panel's hidden store.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#2",
+      "source": "dialog result passed to Qt after controls return to the panel's hidden store.",
+      "source_sha256": "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4",
+      "translation": "控件返回面板的隐藏存放容器后传递给 Qt 的对话框结果。"
+    }
+  ],
+  "schema": 1
+}

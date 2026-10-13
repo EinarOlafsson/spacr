@@ -1,0 +1,194 @@
+{
+  "accepted": true,
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1",
+  "provenance": {
+    "commit": "d3d5d8ddca7a402ac87eb6bb94f9c878c6bfc803",
+    "version": "1.5.1.3",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_acceptance": {
+    "accepted": true,
+    "demonstration_boxes_are_not_biological_ground_truth": true,
+    "source_images_and_masks_unchanged": true,
+    "inputs": [
+      {
+        "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_10_1.npy",
+        "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+        "image": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/plate1_E01_10_1_ER.tif",
+        "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+        "mask": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/masks/plate1_E01_10_1_ER.tif",
+        "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+        "image_plane": 1,
+        "cell_mask_plane": 4,
+        "objects": 63,
+        "shape": [
+          1994,
+          1994
+        ]
+      },
+      {
+        "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_11_1.npy",
+        "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+        "image": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/plate1_E01_11_1_ER.tif",
+        "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+        "mask": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/masks/plate1_E01_11_1_ER.tif",
+        "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+        "image_plane": 1,
+        "cell_mask_plane": 4,
+        "objects": 51,
+        "shape": [
+          1994,
+          1994
+        ]
+      }
+    ],
+    "classes": [
+      "object",
+      "demonstration"
+    ],
+    "boxes": [
+      [
+        1,
+        795,
+        795,
+        1275,
+        1275
+      ],
+      [
+        1,
+        914,
+        914,
+        1059,
+        1059
+      ]
+    ],
+    "drawn": [
+      1,
+      696,
+      696,
+      1097,
+      1097
+    ],
+    "moved": [
+      1,
+      795,
+      795,
+      1196,
+      1196
+    ],
+    "resized": [
+      1,
+      795,
+      795,
+      1275,
+      1275
+    ],
+    "independent_xywh_export_check": true,
+    "undo_redo_and_reload_exact": true,
+    "project": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/.spacr_yolo_annotations.json",
+    "project_sha256": "4872232ca42b8aa9b1c82eb5d66a222e10e8b78533b86673b98bcc30635ba311",
+    "labels": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/plate1_E01_10_1_ER.txt",
+    "labels_sha256": "7d0c119122cbc70037ac0d5df4433b26b83ab9697ef5e188a148edafcbbb3265",
+    "class_names": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/.classes.json",
+    "class_names_sha256": "cb3f06beac341f566511a342f1779d17b6fe5f3456651fa162228525c660daad",
+    "negative_labels": "/tmp/spacr-tutorials/make_masks_runs/example-6bkrt0iq/plate1_E01_11_1_ER.txt",
+    "negative_labels_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "frame_sha256": {
+    "00_home": "266ad1d631502a278f8a30724afee3a1bde1ce4ae92328a4c476ff2fcf56bd45",
+    "01_module": "a8b640230814535f4f7bbe648a73d7bade5bc7a246ef91601d3d142c133a46b7",
+    "yolo_02_folder_picker": "7849d0c1aa6f80d06143fd191527a2e422b45566cbb259be0e9421c5f3d0d004",
+    "yolo_03_source_and_mask": "2999b360e737b1a10289dba3cb5dc7d00318d7f364b94e1c28a9174b2b57f6e4",
+    "yolo_04_box_controls": "b45fd2f951da9817860c3b0888afcabeb6588a6c1079c5f631455f6e41bbb9cc",
+    "yolo_05_add_class": "bc604aa4f1c5686550cf8c36affcf5feb25cce53212bd51b441baa02cd7cf235",
+    "yolo_06_drawn_box": "dda9b2fc578bbbd782d0f7876127d35122db3e063e163a4e01be1bd24890c053",
+    "yolo_07_moved_box": "8021d5ba36e3fd2e18e63c3a4920f0f93129506f7c4786a4e7c1a2f95eb64859",
+    "yolo_08_resized_box": "b50faddad965ddc7016230c254032ca1e16af20c4cf50fb41b2974760eecb174",
+    "yolo_09_contained_box": "538e7bfd8ccaecd60121a08837d75013508eb40ebb5e78a7fcfbf18d46d551d3",
+    "yolo_10_deleted_box": "0ef8cf72e645d449d6abf53ef969962a5db466e319d269b0114abc103a78ead3",
+    "yolo_11_undo_boxes": "0eb5cd48aae4e11f146ef1aa2a1f459937b68a8c6791bbed298eab1be233f17b",
+    "yolo_12_redo_boxes": "cc9ba5922ce3b5b1eba0aac30e36e694fe2c4b19ee2c96082015ba876cfb9d40",
+    "yolo_13_saved_boxes": "372c9913027ff42fab9901d5194fdbcf9563a63965639906c57b19af8501f119",
+    "yolo_14_export_picker": "351f5f473889f0811df513f1fb3c6c640e6e17012e911fd2c9bf7ae0643cee58",
+    "yolo_15_exported": "7a55635539a5ac1e320c7308c4870ff1f1320fd60eb76c7009985ea082036874",
+    "yolo_16_negative_export_picker": "6df74ca7fec2193099a82450e5440c63e7984a19a6236bdea967e2102c858549",
+    "yolo_17_negative_exported": "1ed6757e4a7d1444e59960a037eb51b9fa3b6d050d94cce9fef3193b364fd6c8",
+    "yolo_18_reloaded_boxes": "a66cd4e58baa43738d219bf5fbcf8920940b93c689f0d0921e3448a0c1f93fd2"
+  },
+  "application_source_sha256": {
+    "spacr/qt/screens/make_masks.py": "ade519db269661793672c863e9c19c04acc3d2c34569949582a79fcc7179611b",
+    "spacr/qt/mask_engine.py": "f286c466dd779dc9864a7898d5dd97db2eb8eb20a540fa8cfd3daa29155e75e3",
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  },
+  "biological_ground_truth_claimed": false,
+  "narration_video_publication_complete": false,
+  "independent_input_checks": [
+    {
+      "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+      "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+      "exact_source_planes": [
+        1,
+        4
+      ]
+    },
+    {
+      "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+      "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+      "exact_source_planes": [
+        1,
+        4
+      ]
+    }
+  ],
+  "scope": "Fresh native Box gestures and real save/reload/YOLO exports; exact full-image coordinates and unchanged acquired images/masks independently checked.",
+  "independent_yolo_coordinate_verification": true,
+  "source_file_sha256": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/00_home.png": "266ad1d631502a278f8a30724afee3a1bde1ce4ae92328a4c476ff2fcf56bd45",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/01_module.png": "a8b640230814535f4f7bbe648a73d7bade5bc7a246ef91601d3d142c133a46b7",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_02_folder_picker.png": "7849d0c1aa6f80d06143fd191527a2e422b45566cbb259be0e9421c5f3d0d004",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_03_source_and_mask.png": "2999b360e737b1a10289dba3cb5dc7d00318d7f364b94e1c28a9174b2b57f6e4",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_04_box_controls.png": "b45fd2f951da9817860c3b0888afcabeb6588a6c1079c5f631455f6e41bbb9cc",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_05_add_class.png": "bc604aa4f1c5686550cf8c36affcf5feb25cce53212bd51b441baa02cd7cf235",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_06_drawn_box.png": "dda9b2fc578bbbd782d0f7876127d35122db3e063e163a4e01be1bd24890c053",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_07_moved_box.png": "8021d5ba36e3fd2e18e63c3a4920f0f93129506f7c4786a4e7c1a2f95eb64859",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_08_resized_box.png": "b50faddad965ddc7016230c254032ca1e16af20c4cf50fb41b2974760eecb174",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_09_contained_box.png": "538e7bfd8ccaecd60121a08837d75013508eb40ebb5e78a7fcfbf18d46d551d3",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_10_deleted_box.png": "0ef8cf72e645d449d6abf53ef969962a5db466e319d269b0114abc103a78ead3",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_11_undo_boxes.png": "0eb5cd48aae4e11f146ef1aa2a1f459937b68a8c6791bbed298eab1be233f17b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_12_redo_boxes.png": "cc9ba5922ce3b5b1eba0aac30e36e694fe2c4b19ee2c96082015ba876cfb9d40",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_13_saved_boxes.png": "372c9913027ff42fab9901d5194fdbcf9563a63965639906c57b19af8501f119",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_14_export_picker.png": "351f5f473889f0811df513f1fb3c6c640e6e17012e911fd2c9bf7ae0643cee58",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_15_exported.png": "7a55635539a5ac1e320c7308c4870ff1f1320fd60eb76c7009985ea082036874",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_16_negative_export_picker.png": "6df74ca7fec2193099a82450e5440c63e7984a19a6236bdea967e2102c858549",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_17_negative_exported.png": "1ed6757e4a7d1444e59960a037eb51b9fa3b6d050d94cce9fef3193b364fd6c8",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/captures/make_masks_final_yolo_r1/yolo_18_reloaded_boxes.png": "a66cd4e58baa43738d219bf5fbcf8920940b93c689f0d0921e3448a0c1f93fd2",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/plate1_E01_10_1_ER.tif": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/masks/plate1_E01_10_1_ER.tif": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/example_data/plate1/merged/plate1_E01_11_1.npy": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/example_data/plate1/merged/plate1_E01_11_1.npy": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/plate1_E01_11_1_ER.tif": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/masks/plate1_E01_11_1_ER.tif": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/.spacr_yolo_annotations.json": "4872232ca42b8aa9b1c82eb5d66a222e10e8b78533b86673b98bcc30635ba311",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/plate1_E01_10_1_ER.txt": "7d0c119122cbc70037ac0d5df4433b26b83ab9697ef5e188a148edafcbbb3265",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/.classes.json": "cb3f06beac341f566511a342f1779d17b6fe5f3456651fa162228525c660daad",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-yolo-r1/make_masks_runs/example-6bkrt0iq/plate1_E01_11_1_ER.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/screens/make_masks.py": "ade519db269661793672c863e9c19c04acc3d2c34569949582a79fcc7179611b",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/mask_engine.py": "f286c466dd779dc9864a7898d5dd97db2eb8eb20a540fa8cfd3daa29155e75e3",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  }
+}

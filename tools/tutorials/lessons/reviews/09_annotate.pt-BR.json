@@ -1,0 +1,46 @@
+{
+  "lesson": "09_annotate",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Annotate: rotular objetos e salvar suas anotações",
+  "description": "Carregue recortes de exemplo, escolha uma coluna de anotação, rotule objetos, ajuste a visualização e prepare seus rótulos para a classificação.",
+  "objectives": [
+    "Carregar recortes salvos ou ler recortes diretamente das imagens combinadas.",
+    "Escolher uma coluna de anotação, atribuir e limpar rótulos e salvar as alterações.",
+    "Ajustar as cores dos canais e revisar as contagens por classe e a cobertura.",
+    "Encontrar o Agreement e os caminhos de treinamento com imagens e com características."
+  ],
+  "prerequisite": "Abra o Annotate na tela Home. Use Load test data e escolha Load para os recortes de exemplo e o banco de dados de medições. Para o seu próprio projeto, use a pasta que contém o banco de dados de medições e os recortes ou as imagens combinadas.",
+  "scenes": [
+    "Abra o Annotate na tela Home. A grade mostra objetos individuais do seu projeto. Você vai rotular esses objetos e salvar os rótulos no banco de dados de medições.",
+    "Clique em Load test data e escolha Load. Isso baixa os recortes de imagem de exemplo e o banco de dados de medições, e depois os abre no Annotate.",
+    "Escolha Stream quando quiser ler os recortes diretamente das imagens combinadas. Escolha Load para recortes já exportados. Neste passo a passo, vamos usar Load.",
+    "Para abrir seus próprios dados, clique em Open source e selecione a pasta da placa que contém as medições e os dados de imagem. A grade então carrega os objetos desse projeto.",
+    "Inspecione a grade de recortes. Use os controles de página para percorrer os objetos. Ajuste o tamanho dos recortes se precisar de uma visão mais próxima ou quiser mais objetos por página.",
+    "Abra Settings e escolha uma coluna de anotação. Crie uma coluna nova para manter esta tarefa de rotulagem separada das anotações existentes. Decida o que cada classe representa antes de começar.",
+    "Clique com o botão esquerdo em um recorte para atribuir a classe um. O botão direito atribui a classe dois. Clique de novo na mesma classe para limpá-la. O anel colorido mostra o rótulo, e o anel branco marca o recorte em foco.",
+    "Pressione Next para ir à próxima página e enviar seus rótulos para salvar. Aguarde o salvamento terminar antes de fechar o aplicativo.",
+    "Pressione Back para voltar à página anterior e conferir seus rótulos. Você também pode usar as teclas de um a nove para atribuir classes e o zero para limpar um rótulo. A legenda na tela lista os atalhos de navegação e de desfazer.",
+    "Abra Class counts para ver quantos objetos você rotulou em cada classe. Use isso para encontrar as classes que precisam de mais exemplos.",
+    "Abra Coverage para ver como suas anotações estão distribuídas no projeto. Inclua exemplos das condições e dos grupos de imagens que você quer que o classificador reconheça.",
+    "Para limpar um rótulo, clique de novo na mesma classe. Vá para a próxima página para salvar a alteração e depois volte para conferir o recorte limpo.",
+    "Em Settings, Channel colours seleciona a paleta de exibição. Display order atribui os canais de origem às posições de cor. Escolha uma visualização que facilite distinguir suas classes.",
+    "Esta é a paleta CMY. Você pode voltar para RGB nas mesmas configurações. Mantenha a mesma visualização enquanto compara e rotula objetos.",
+    "Abra o Annotator Agreement pelo ícone no canto superior direito para comparar colunas de anotação. Use-o para encontrar objetos que revisores rotularam de formas diferentes.",
+    "Quando seus rótulos estiverem prontos, abra Train. Escolha imagens para um classificador de imagens ou características medidas para um classificador tabular. As aulas de Classify indicadas explicam as configurações de treinamento.",
+    "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em quatro poços, e Next os salva.",
+    "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e cada recorte da página passa a ter um ponto de interrogação. A barra acima da grade conta quantas sugestões faltam julgar.",
+    "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas são registradas, as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir.",
+    "Generate annotation database cria um conjunto de recortes a partir de dados de origem adequados. Use-o ao preparar um novo projeto de anotação; o exemplo baixado já inclui os recortes e o banco de dados necessários aqui.",
+    "Abra o Console para conferir as mensagens de carregamento da origem e de salvamento. Sua coluna de anotação fica guardada no banco de dados do projeto e pode ser selecionada quando você preparar os dados de treinamento no Classify.",
+    "Para obter ajuda com uma configuração, abra o spaCR AI no Console depois de configurar um provedor em Preferences. Quando terminar de rotular, continue no Classify com seu projeto e a coluna de anotação escolhida."
+  ]
+}

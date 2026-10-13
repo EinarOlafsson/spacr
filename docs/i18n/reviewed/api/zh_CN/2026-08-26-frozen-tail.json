@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.crops.build_png_channels#1",
+      "source_sha256": "18e4c47b8f711fa200253e3ed9e7fa6f3fd61997ecd01a25d77e1e9b3eecc78e",
+      "source": "The returned array uses the same channel order as the PNG file, so in-memory and decoded representations have the same colour semantics.",
+      "context": "The returned array uses the same image data channel order as the PNG file, so in-memory and decoded representations have the same colour semantics.",
+      "translation": "返回的数组使用与 PNG 文件相同的通道顺序，因此内存表示与解码后的表示具有相同的颜色语义。"
+    }
+  ]
+}

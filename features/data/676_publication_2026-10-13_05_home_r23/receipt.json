@@ -1,0 +1,218 @@
+{
+  "lesson": "05_home",
+  "recorded_with": "GNOME capture host, 2560x1440, 30 fps, --fresh, real pointer and keyboard; spaCR field (impulse lens, spacr palette, density 0.25), settings windows on plain glass",
+  "app_and_recorder_commit": "0cde90ced82641b8caf831cdac81dc0c3911900d",
+  "clip_gate": {
+    "r23-05-navigation": {
+      "clips": {
+        "home_module_measure": {
+          "passed": true,
+          "distinct_fps": 28.71,
+          "accepted_near_miss": null
+        },
+        "home_module_mask": {
+          "passed": true,
+          "distinct_fps": 29.64,
+          "accepted_near_miss": null
+        },
+        "home_module_annotate": {
+          "passed": true,
+          "distinct_fps": 29.59,
+          "accepted_near_miss": null
+        },
+        "home_module_map_barcodes": {
+          "passed": true,
+          "distinct_fps": 29.34,
+          "accepted_near_miss": null
+        },
+        "00_home": {
+          "passed": true,
+          "distinct_fps": 29.54,
+          "accepted_near_miss": null
+        },
+        "home_module_regression": {
+          "passed": true,
+          "distinct_fps": 29.27,
+          "accepted_near_miss": null
+        },
+        "home_module_foreign": {
+          "passed": true,
+          "distinct_fps": 29.85,
+          "accepted_near_miss": null
+        },
+        "home_module_run_compare": {
+          "passed": true,
+          "distinct_fps": 29.83,
+          "accepted_near_miss": null
+        },
+        "home_module_align": {
+          "passed": true,
+          "distinct_fps": 29.67,
+          "accepted_near_miss": null
+        },
+        "home_module_make_masks": {
+          "passed": true,
+          "distinct_fps": 29.77,
+          "accepted_near_miss": null
+        },
+        "home_module_power": {
+          "passed": true,
+          "distinct_fps": 29.86,
+          "accepted_near_miss": null
+        },
+        "home_module_graph_builder": {
+          "passed": true,
+          "distinct_fps": 29.46,
+          "accepted_near_miss": null
+        },
+        "home_module_umap": {
+          "passed": true,
+          "distinct_fps": 29.87,
+          "accepted_near_miss": null
+        },
+        "06_mask_host": {
+          "passed": true,
+          "distinct_fps": 27.96,
+          "accepted_near_miss": null
+        },
+        "06b_mask_settings": {
+          "passed": true,
+          "distinct_fps": 28.19,
+          "accepted_near_miss": null
+        },
+        "06c_mask_actions": {
+          "passed": false,
+          "distinct_fps": 27.43,
+          "accepted_near_miss": null
+        },
+        "14_resize_panels": {
+          "passed": true,
+          "distinct_fps": 28.17,
+          "accepted_near_miss": null
+        },
+        "11_column_folded": {
+          "passed": true,
+          "distinct_fps": 29.64,
+          "accepted_near_miss": null
+        },
+        "10_home_column": {
+          "passed": true,
+          "distinct_fps": 29.8,
+          "accepted_near_miss": null
+        },
+        "08_help_search": {
+          "passed": true,
+          "distinct_fps": 29.03,
+          "accepted_near_miss": null
+        },
+        "12_command_palette": {
+          "passed": true,
+          "distinct_fps": 29.62,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [
+        "06c_mask_actions"
+      ],
+      "accepted_near_miss": []
+    },
+    "r23-05-navigation-b": {
+      "clips": {
+        "06c_mask_actions": {
+          "passed": true,
+          "distinct_fps": 29.28,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [],
+      "accepted_near_miss": []
+    },
+    "r23-05-preferences": {
+      "clips": {
+        "13_preferences_general": {
+          "passed": true,
+          "distinct_fps": 29.7,
+          "accepted_near_miss": null
+        },
+        "09_performance": {
+          "passed": true,
+          "distinct_fps": 29.01,
+          "accepted_near_miss": null
+        },
+        "00_home": {
+          "passed": true,
+          "distinct_fps": 29.6,
+          "accepted_near_miss": null
+        },
+        "13b_preferences_appearance": {
+          "passed": true,
+          "distinct_fps": 28.73,
+          "accepted_near_miss": null
+        },
+        "13c_appearance_theme": {
+          "passed": true,
+          "distinct_fps": 29.45,
+          "accepted_near_miss": null
+        },
+        "13i_preferences_kept": {
+          "passed": true,
+          "distinct_fps": 29.2,
+          "accepted_near_miss": null
+        },
+        "13h_preferences_apply": {
+          "passed": true,
+          "distinct_fps": 28.14,
+          "accepted_near_miss": null
+        },
+        "13e_session_updates": {
+          "passed": true,
+          "distinct_fps": 29.52,
+          "accepted_near_miss": null
+        },
+        "13d_appearance_animation": {
+          "passed": false,
+          "distinct_fps": 27.61,
+          "accepted_near_miss": "capture loss"
+        },
+        "13f_storage": {
+          "passed": true,
+          "distinct_fps": 29.59,
+          "accepted_near_miss": null
+        },
+        "13g_storage_prune": {
+          "passed": true,
+          "distinct_fps": 28.9,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [],
+      "accepted_near_miss": [
+        "13d_appearance_animation"
+      ]
+    },
+    "r23-05-spaceout": {
+      "clips": {
+        "02_spaceout_field_effects": {
+          "passed": true,
+          "distinct_fps": 28.48,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [],
+      "accepted_near_miss": []
+    }
+  },
+  "near_miss_rule": "capture loss only, >= 27.0 distinct fps (coordinator, 2026-10-13); maintainer review pending",
+  "narration_checks": "check_narration_onsets (50 tracks) and no narration pause at native boundaries (browser matrix)",
+  "candidate": "release-candidate-append-frq2f51o",
+  "hf": {
+    "repository": "datasets/einarolafsson/spacr-tutorials",
+    "branch": "tutorial-05-home-20261013-r23",
+    "tag": "tutorial-05-home-20261013-r23-verified",
+    "commit": "b37e447866242c0860f1b61ca55792701c4efbb9",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/b37e447866242c0860f1b61ca55792701c4efbb9",
+    "media_files": 5087,
+    "media_bytes": 6798977497
+  },
+  "pages_cache_key": "tutorial-05-home-20261013-r23-verified"
+}

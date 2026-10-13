@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "35_converter",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Converta formatos de microscopia em arquivos TIFF com nomenclatura compatível com o spaCR e um mapa de proveniência revisado.",
+      "prerequisite": "Prepare arquivos de microscopia compatíveis e defina como as dimensões da aquisição correspondem aos identificadores do spaCR.",
+      "objectives": [
+        "Configurar um mapeamento que explicite perdas.",
+        "Validar o plano completo na prévia.",
+        "Converter ou retomar a conversão sem alterar os arquivos de origem."
+      ],
+      "narrations": [
+        "Format Converter usa um fluxo que começa pela prévia, para tornar visíveis a nomenclatura e o mapeamento dimensional antes da gravação dos arquivos.",
+        "Selecione os arquivos de origem e um destino separado.",
+        "Especifique a organização das pastas, as séries, o tempo, a profundidade, a nomenclatura das placas e o comportamento de retomada. Como as opções de projeção descartam informação, selecione-as deliberadamente.",
+        "Preview examina os cabeçalhos e constrói o plano de conversão sem gravar imagens.",
+        "Examine cada origem ao lado dos identificadores de placa, poço, campo, canal, tempo e profundidade do destino.",
+        "Converta os dados somente quando o mapeamento estiver correto e as verificações de colisão forem aprovadas. Os arquivos de origem nunca são renomeados nem substituídos.",
+        "O resultado inclui arquivos TIFF padronizados e um mapa de proveniência que remete a cada arquivo e identificador original.",
+        "Ao retomar, o programa valida os pontos de verificação dos campos concluídos antes de ignorá-los; assim, saídas ausentes ou danificadas são reconstruídas."
+      ]
+    }
+  }
+}

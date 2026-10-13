@@ -1,0 +1,68 @@
+{
+  "item": 411,
+  "coordinated_before_editing_commit": "4cda58d6b",
+  "exact_one_optional_NightTheme_sound_key_contract_admitted_and_checked": true,
+  "all_original_inventory_count_digest_required_docless_and_coverage_pins_preserved": true,
+  "complete_original_inverse_digest_exact": "bfe15fe1e3b29a17b80ebd01d0a016c909264a4eb519a3f379433774adf64abb",
+  "all_five_independent_contract_mutations_rejected": [
+    "missing_sound_key",
+    "sound_key_required",
+    "sound_key_undocumented",
+    "extra_unexplained_optional_parameter",
+    "arbitrary_keywords_changed"
+  ],
+  "normal_current_docstring_and_settings_flow_tests_passed": 145,
+  "original_failed_diagnostics_preserved": true,
+  "no_application_source_or_runtime_dependency_change_in_this_guard_repair": true,
+  "no_global_CI_coverage_serial_Qt_or_publication_claim": true,
+  "artifacts": {
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/API-boundary-guard-controls-r1.json": {
+      "sha256": "8074920905110e5cbca2a8018c8d33bda510dcfe6437ed892201ff75a95aa81d",
+      "bytes": 343
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/API-boundary-guard-controls-r1.log.gz": {
+      "sha256": "8e1636b87ca9d7dcffd25ece3484505fb906d64d46b4c0c77a17b9033ca398c1",
+      "bytes": 217
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/archive_API_boundary_repair_r1.py": {
+      "sha256": "71f25e2b10744d6a507fb30c561c708727ef3edc9e69b21ea1379657ed5fa904",
+      "bytes": 4437
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/fixed-callable-guard.py.gz": {
+      "sha256": "1a66c06bea3337d6e3eb6ccbd382d11ba88d06f71baf6207b5695b61f26ecaee",
+      "bytes": 58118
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/foundation-docstring-guards-r1.log.gz": {
+      "sha256": "cced4eab33027d0fcc263d4e44e5df6b09eb00c177c467a1c14bf0b6219ef3b0",
+      "bytes": 17357
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/foundation-docstring-guards-r2.log.gz": {
+      "sha256": "42e3d28cda4bc76e75e41c882d8c9b38dfe5564a900b50bff86907e96adadca6",
+      "bytes": 167
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/foundation-inherited-API-inventory-delta-r1.log.gz": {
+      "sha256": "815c70ebddf2adfe4fbc32ccf97d9a8b042c43dfc005b714e6e8a646f2fd2b79",
+      "bytes": 859
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/foundation-inherited-callable-inventory-failure-r1.json": {
+      "sha256": "3618209f6c99b2ce63eb8701e4159c2facbacb989703210f9d6071c422584ef2",
+      "bytes": 540
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/foundation-inherited-callable-inventory-failure-r1.log.gz": {
+      "sha256": "ed346d1e797533b1e866bba31513bb5d365c2818a23b7ab1fada153e8b992f5f",
+      "bytes": 199
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/original-callable-guard.py.gz": {
+      "sha256": "9835d58766d4ec424216f0b4decee7a0f033902478675e249cb9aff92bfdfd7a",
+      "bytes": 57850
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/verify_API_boundary_guard_mutations_r1.py": {
+      "sha256": "c7487b8e3f8c268a1ac78de4b425798f40b0a16b572c8d15e4c441e872e0be92",
+      "bytes": 2182
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_repaired_2026-10-06/verify_inherited_callable_inventory_failure_r1.py": {
+      "sha256": "cd4deb3f6bcefcf54b09a6d27e03f198b483f8829e190e776867ab5c64fc6809",
+      "bytes": 2846
+    }
+  }
+}

@@ -1,0 +1,5 @@
+.........s..s................                                            [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_measurement_backends.py:146: postgres store not available here
+SKIPPED [1] tests/test_measurement_backends.py:184: postgres store not available here
+27 passed, 2 skipped in 10.68s

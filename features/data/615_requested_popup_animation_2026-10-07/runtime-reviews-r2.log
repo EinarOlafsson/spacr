@@ -1,0 +1,15 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/runtime-reviews-r2-tool.log', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/review-new-controls-r2.py']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+sv 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/sv/2026-10-07-requested-magnifier-animation-controls.json
+fr 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/fr/2026-10-07-requested-magnifier-animation-controls.json
+de 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/de/2026-10-07-requested-magnifier-animation-controls.json
+es 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/es/2026-10-07-requested-magnifier-animation-controls.json
+pt 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/pt/2026-10-07-requested-magnifier-animation-controls.json
+is 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/is/2026-10-07-requested-magnifier-animation-controls.json
+zh_CN 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/zh_CN/2026-10-07-requested-magnifier-animation-controls.json
+ko 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/ko/2026-10-07-requested-magnifier-animation-controls.json
+hi 11 /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/hi/2026-10-07-requested-magnifier-animation-controls.json
+Review scope: AI technical translation review; no native-speaker signoff.
+
+Terminal exit status: 0

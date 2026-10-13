@@ -1,0 +1,259 @@
+"""Coverage-fill for cli_repro, __init__, __main__, logging_util.
+
+The ``__main__`` dispatch tests changed subject with the interface. Every
+window subcommand used to import its own Tk launcher module and call it;
+those modules are gone and each subcommand now opens the Qt application on
+one tab, so the tests assert the tab key that ``main`` hands to
+``spacr.qt.run`` instead of the launcher it used to call.
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pytest
+
+
+# ---------------------------------------------------------------------------
+# spacr/__init__.py — lazy attribute access
+# ---------------------------------------------------------------------------
+
+def test_download_models_lazy_attr():
+    # spacr.download_models resolves via __getattr__ (lines 84-85).
+    import spacr
+    fn = spacr.download_models
+    assert callable(fn)
+
+
+def test_dir_includes_submodules():
+    # __dir__ merges the lazy submodule names (line 95).
+    import spacr
+    names = dir(spacr)
+    assert "core" in names and "download_models" in names
+
+
+def test_unknown_attr_raises():
+    import spacr
+    with pytest.raises(AttributeError):
+        spacr.definitely_not_a_real_attribute
+
+
+# ---------------------------------------------------------------------------
+# spacr/__main__.py — command dispatch
+# ---------------------------------------------------------------------------
+
+def test_main_make_masks_command(monkeypatch):
+    """``make-masks`` opens the Qt application on the make_masks tab."""
+    import spacr.__main__ as M
+    import spacr.qt as QT
+    seen = {}
+
+    def _fake_run(argv=None):
+        seen["argv"] = list(argv or [])
+        return 0
+
+    monkeypatch.setattr(QT, "run", _fake_run)
+    rc = M.main(["make-masks"])
+    assert rc == 0
+    assert seen["argv"] == ["make_masks"]
+
+
+def test_main_unknown_command_errors(monkeypatch):
+    # parser.error path for an unrecognised command (line 95).
+    import spacr.__main__ as M
+    # argparse subparsers reject unknown commands with SystemExit(2).
+    with pytest.raises(SystemExit):
+        M.main(["not-a-command"])
+
+
+def test_main_version_command(capsys):
+    import spacr.__main__ as M
+    rc = M.main(["version"])
+    assert rc == 0
+
+
+# ---------------------------------------------------------------------------
+# spacr/cli_repro.py — replay branches
+# ---------------------------------------------------------------------------
+
+def _make_run(tmp_path, with_hashes=False):
+    from spacr.run_journal import open_run
+    import spacr.run_journal as rj
+    # Point runs_root at tmp so the run lands here.
+    with open_run("mask", {"src": str(tmp_path / "data")}) as run:
+        pass
+    if with_hashes:
+        mp = run.dir / "manifest.json"
+        m = json.loads(mp.read_text())
+        m["model_hashes"] = {"cyto": "abc123"}
+        mp.write_text(json.dumps(m))
+    return run.dir
+
+
+def test_cli_show_prints_model_hashes(tmp_path, monkeypatch, capsys):
+    # --show with model_hashes present (lines 45-49).
+    import spacr.run_journal as rj
+    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    from spacr.cli_repro import main
+    d = _make_run(tmp_path, with_hashes=True)
+    rc = main([str(d), "--show"])
+    assert rc == 0
+    assert "models:" in capsys.readouterr().out
+
+
+def test_cli_resolve_pipeline_exception_returns_none(monkeypatch):
+    # _resolve_pipeline swallows import errors → None (lines 60-64).
+    import spacr.cli_repro as C
+    monkeypatch.setattr(
+        "spacr.qt.bridge.resolve_pipeline_entry",
+        lambda k: (_ for _ in ()).throw(RuntimeError("boom")))
+    # Even if resolve raises, _resolve_pipeline returns None.
+    assert C._resolve_pipeline("mask") is None
+
+
+def test_cli_no_pipeline_entry_returns_2(tmp_path, monkeypatch):
+    # entry is None → error + return 2 (lines 116-118).
+    import spacr.run_journal as rj
+    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    import spacr.cli_repro as C
+    monkeypatch.setattr(C, "_resolve_pipeline", lambda k: None)
+    d = _make_run(tmp_path)
+    rc = C.main([str(d)])
+    assert rc == 2
+
+
+def test_cli_replay_raises_returns_1(tmp_path, monkeypatch):
+    # entry raises during replay → status failed + return 1 (130-134).
+    import spacr.run_journal as rj
+    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    import spacr.cli_repro as C
+    def _boom(settings):
+        raise ValueError("replay failed")
+    monkeypatch.setattr(C, "_resolve_pipeline", lambda k: _boom)
+    d = _make_run(tmp_path)
+    rc = C.main([str(d)])
+    assert rc == 1
+
+
+def test_cli_replay_success_returns_0(tmp_path, monkeypatch):
+    # Successful replay → "done" + return 0 (line 140 area).
+    import spacr.run_journal as rj
+    monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
+    import spacr.cli_repro as C
+    monkeypatch.setattr(C, "_resolve_pipeline",
+                        lambda k: (lambda settings: None))
+    d = _make_run(tmp_path)
+    rc = C.main([str(d)])
+    assert rc == 0
+
+
+# ---------------------------------------------------------------------------
+# spacr/logging_util.py — Timer + timed-function scan
+# ---------------------------------------------------------------------------
+
+def test_timer_records_elapsed_when_enabled(monkeypatch):
+    # __exit__ elapsed calc + _TIMING_ENABLED branch (line 378).
+    import spacr.logging_util as LU
+    monkeypatch.setattr(LU, "_TIMING_ENABLED", True, raising=False)
+    with LU.Timer("test-op") as t:
+        sum(range(1000))
+    assert t.elapsed_ms is not None and t.elapsed_ms >= 0
+
+
+def test_timer_noop_when_not_started(monkeypatch, caplog):
+    """__exit__ without __enter__ must not invent an elapsed time.
+
+    The early return is the whole behaviour, and neither half of it was
+    checked: ``elapsed_ms`` has to stay None, and nothing may reach the log --
+    a timing line for a block that never ran is worse than no line, because it
+    is indistinguishable from a real measurement.
+    """
+    import logging
+    import spacr.logging_util as LU
+
+    # Timing on and no threshold, so a stray line WOULD be emitted.
+    monkeypatch.setattr(LU, "_TIMING_ENABLED", True, raising=False)
+    monkeypatch.setattr(LU, "_TIMING_THRESHOLD_MS", 0.0, raising=False)
+
+    t = LU.Timer("never-entered")
+    with caplog.at_level(logging.INFO, logger="spacr.timing"):
+        assert t.__exit__(None, None, None) is None
+    assert t.elapsed_ms is None
+    assert [r.getMessage() for r in caplog.records] == []
+
+    # Contrast: entered, the same Timer records and logs -- so the silence
+    # above belongs to the early return, not to the logging setup.
+    caplog.clear()
+    with caplog.at_level(logging.INFO, logger="spacr.timing"):
+        with LU.Timer("entered") as started:
+            pass
+    assert started.elapsed_ms is not None and started.elapsed_ms >= 0
+    assert any("entered took" in r.getMessage() for r in caplog.records)
+
+
+# ---------------------------------------------------------------------------
+# __main__ — every command branch (stubbed launchers)
+# ---------------------------------------------------------------------------
+
+import pytest as _pytest
+
+#: subcommand -> the argv ``main`` must hand to ``spacr.qt.run``.
+#:
+#: ``gui`` names no tab, so it passes nothing and the window opens on Home;
+#: every other command names the tab that replaced its Tk launcher.
+_COMMAND_TABS = [
+    ("gui", []),
+    ("mask", ["mask"]),
+    ("measure", ["measure"]),
+    ("classify", ["classify_merged"]),
+    ("annotate", ["annotate"]),
+    ("sequencing", ["map_barcodes"]),
+    ("umap", ["umap"]),
+    ("make-masks", ["make_masks"]),
+]
+
+
+@_pytest.mark.parametrize("command,expected_argv", _COMMAND_TABS)
+def test_main_each_command_opens_its_tab(command, expected_argv, monkeypatch):
+    """Every window subcommand reaches the Qt app on the right screen."""
+    import spacr.__main__ as M
+    import spacr.qt as QT
+    seen = {}
+
+    def _fake_run(argv=None):
+        seen["argv"] = list(argv or [])
+        return 0
+
+    monkeypatch.setattr(QT, "run", _fake_run)
+    rc = M.main([command])
+    assert rc == 0
+    assert seen["argv"] == expected_argv
+
+
+@_pytest.mark.parametrize(
+    "expected_argv", [a for _c, a in _COMMAND_TABS if a])
+def test_every_command_tab_is_a_real_app_screen(expected_argv):
+    """A tab key with no screen behind it opens the window on Home instead,
+    which looks to the user exactly like the subcommand being ignored."""
+    from spacr.qt.app import APPS
+
+    keys = {entry[0] for entry in APPS}
+    assert expected_argv[0] in keys
+
+
+def test_main_returns_the_exit_code_the_gui_returns(monkeypatch):
+    """``python -m spacr`` is what a job script waits on, so a GUI that exits
+    non-zero has to reach the shell as a non-zero status."""
+    import spacr.__main__ as M
+    import spacr.qt as QT
+
+    monkeypatch.setattr(QT, "run", lambda argv=None: 3)
+    assert M.main(["mask"]) == 3
+
+
+def test_init_lazy_submodule_import():
+    # Accessing a declared submodule goes through __getattr__'s
+    # import_module path (__init__ line 88).
+    import spacr
+    mod = spacr.run_journal   # light submodule
+    assert hasattr(mod, "open_run")

@@ -1,0 +1,122 @@
+{
+  "video": "/tmp/spacr-tutorial-current/captures/make_masks/06_redo.native.mp4",
+  "size": [
+    2560,
+    1440
+  ],
+  "fps": 30.0,
+  "duration_s": 20.6,
+  "frames": 618,
+  "passed": false,
+  "reasons": [
+    "choppy (capture loss): 25.2 distinct fps < 27.9 [capture loss in second(s) [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 16, 19]]"
+  ],
+  "limits": {
+    "min_fps": 27.9,
+    "change_level": 10,
+    "change_pixels": 4,
+    "cursor_box": 72,
+    "peak_per_frame": 0.02,
+    "jump_margin": 1.5,
+    "min_cursor_found": 0.9,
+    "top_bar_height": 32,
+    "top_bar_every": 10
+  },
+  "field_window_s": null,
+  "distinct_fps": 25.24,
+  "distinct_fraction": 0.8412,
+  "longest_unchanged_run_frames": 32,
+  "distinct_per_second": [
+    23,
+    26,
+    1,
+    22,
+    27,
+    28,
+    27,
+    25,
+    26,
+    26,
+    25,
+    27,
+    25,
+    29,
+    27,
+    28,
+    27,
+    29,
+    29,
+    27
+  ],
+  "app_painted_per_second": [
+    145.2,
+    62.9,
+    30.9,
+    111.5,
+    110.6,
+    107.6,
+    116.6,
+    113.2,
+    114.4,
+    113.7,
+    117.3,
+    111.2,
+    112.7,
+    111.3,
+    118.0,
+    115.2,
+    122.1,
+    121.2,
+    122.6,
+    121.3
+  ],
+  "app_freeze_seconds": [],
+  "app_slow_seconds": [],
+  "capture_loss_seconds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    16,
+    19
+  ],
+  "app_stall_windows_s": [],
+  "app_stall_video_offset_s": 0.0,
+  "unchanged_frames": 98,
+  "unchanged_frames_in_app_stalls": 0,
+  "exact_md5_distinct_fraction": 0.945,
+  "cursor": {
+    "found_fraction": 1.0,
+    "shapes_seen": [
+      "left_ptr@32"
+    ],
+    "max_step_px": 16.0,
+    "p95_step_px": 0.0,
+    "bound_px": 76.8,
+    "jumps": [],
+    "jump_count": 0
+  },
+  "top_bar": {
+    "hidden": true,
+    "sampled_frames": 62,
+    "visible_in": [],
+    "first_sample": {
+      "frame": 0,
+      "visible": false,
+      "black_fraction": 0.0074,
+      "top_rows_black": 0.0,
+      "text_pixels": 0,
+      "below_black_fraction": 0.0
+    }
+  },
+  "adapter_bypasses": []
+}

@@ -1,0 +1,35 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "fd1261988e9c8631c8f500e2e77fac6c1caa4936c111f425e2b0207551ba9896",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Timelapse",
+  "description": "在时间序列中关联对象，检查它们的轨迹，并为测量准备已跟踪的图像。",
+  "objectives": [
+    "在Track preview中加载示例图像和掩膜。",
+    "调整重叠并检查各帧之间的对象身份。",
+    "配置用于时间序列的Mask运行，并找到其跟踪输出。"
+  ],
+  "prerequisite": "下载并解压SYNTHETIC_timelapse_preview.zip。这个教学示例包含八帧细胞图像及对应的标签图像。若要对自己的数据完整运行Mask，请准备按时间顺序排列的显微图像，并记录采集间隔。",
+  "scenes": [
+    "从 Home 打开 Mask，在 Actions 行打开 Time，再打开 Timelapse 以启用跟踪。Timelapse 会在连续图像之间链接对象。我们先在 Track preview 中试用链接的示例，然后查看处理您自己图像序列的设置。",
+    "下载并解压下方的示例压缩包，然后点击Actions标题右侧的Track preview。压缩包包含一个八帧的图像序列和对应的掩膜序列。请把两个文件夹放在一起，以便选择相互对应的图像和标签。",
+    "选择image_sequences，再选择field_A01作为图像文件夹。选择通道零：每张示例图像只包含一个细胞强度通道。把Frames previewed设为八，Fields设为一。",
+    "点击Masks，选择label_sequences，再选择field_A01。每个标签标识对应图像中的一个对象。一开始请保持Keep only full-length tracks关闭，以便检查在序列中途开始或结束的轨迹。",
+    "把重叠阈值设为零点一，然后点击Run preview。这个阈值控制相邻掩膜需要重叠多少才会被关联。检查彩色的对象身份和轨迹长度汇总。这个示例产生十六条轨迹，覆盖全部八帧。",
+    "如果对象被拆成短轨迹，或关联到了错误的邻近对象，请调整重叠阈值。阈值越高，要求的重叠越多。修改后，等待预览完成，再点击Re-link检查最终数值。接受结果之前，请来回查看几帧。",
+    "使用帧滑块在整个序列中跟随同一个对象。Play改变浏览帧的速度。请另外记录实际的采集间隔，以便之后测量速度。",
+    "要对自己的图像完整运行，请在Mask中设置Source和强度通道。这段录制导入了一个八帧小型合成序列的设置。请保持每个视野的时间点顺序。帧范围由起点和不包含在内的终点指定：从零到八表示选择前八帧。",
+    "选择要跟踪的对象和跟踪模式。重叠模式iou利用相邻帧中的掩膜关联对象。先检查一段短序列，再根据对象在帧与帧之间移动的距离选择合适的模式。",
+    "打开Keep original images，以便在流程清理期间保留输入图像。为您的数据设置分割模型和通道，并在处理完整序列之前检查预览。",
+    "打开Plot以便检查生成的图，然后点击Run。在控制台中查看进度并等待完成。先从短序列开始，这样可以在处理更大的实验之前检查掩膜和轨迹身份。",
+    "在输出图中检查强度层和标签层。运行结果会保存在项目文件夹中：已跟踪的数组在merged中，轨迹表在tracks中。继续使用Measure，然后使用Motility，从这些轨迹中计算对象特征和运动。"
+  ]
+}

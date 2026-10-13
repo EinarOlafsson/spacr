@@ -1,0 +1,553 @@
+{
+  "lesson": "26_invasion",
+  "status": "Native synthetic run, CSV values and all three plotted figures verified; multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions",
+  "provenance": {
+    "commit": "c9c0c640755f8eafec785002783efd09f3321995",
+    "version": "1.5.0.5",
+    "module": "invasion",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "scene_count": 13,
+  "narrated_words": 611,
+  "acceptance": {
+    "accepted": true,
+    "synthetic": true,
+    "biological_effect_claim": false,
+    "actual_gui_run": true,
+    "app_source_modified": false,
+    "manifest": {
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/invasion/measurements/measurements.db",
+      "source_sha256": "8f722b58a3d64e72f50c6a600558eb1ef53c36a0777fb013cce909e7d62d420d",
+      "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/invasion_runs/SYNTHETIC-two-colour-zd_y7sm3/measurements/measurements.db",
+      "database_sha256": "8f722b58a3d64e72f50c6a600558eb1ef53c36a0777fb013cce909e7d62d420d",
+      "synthetic": true,
+      "images_available": false,
+      "biological_effect_claim": false,
+      "rows": 1800
+    },
+    "published": false,
+    "pipeline": {
+      "accepted": true,
+      "reasons": [],
+      "figure_count": 3,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "output_checks": {
+      "parasite_calls.csv": {
+        "rows": 1440,
+        "fields_checked": 21600
+      },
+      "field_thresholds.csv": {
+        "rows": 24,
+        "fields_checked": 360
+      },
+      "well_invasion.csv": {
+        "rows": 12,
+        "fields_checked": 228
+      },
+      "condition_summary.csv": {
+        "rows": 2,
+        "fields_checked": 20
+      }
+    },
+    "source_unchanged": true,
+    "private_database_unchanged": true,
+    "figures_visible": true,
+    "figure_checks": [
+      {
+        "index": 0,
+        "geometry_fields_checked": 48,
+        "groups": [
+          "plate1_r1_c2",
+          "plate1_r1_c3",
+          "plate1_r2_c2",
+          "plate1_r2_c3",
+          "plate1_r3_c2",
+          "plate1_r3_c3",
+          "plate1_r4_c2",
+          "plate1_r4_c3",
+          "plate1_r5_c2",
+          "plate1_r5_c3",
+          "plate1_r6_c2",
+          "plate1_r6_c3"
+        ],
+        "series": [
+          {
+            "bucket": "attached",
+            "rectangles": [
+              {
+                "height": 0.6083333333333333,
+                "bottom": 0
+              },
+              {
+                "height": 0.3,
+                "bottom": 0
+              },
+              {
+                "height": 0.6,
+                "bottom": 0
+              },
+              {
+                "height": 0.325,
+                "bottom": 0
+              },
+              {
+                "height": 0.6,
+                "bottom": 0
+              },
+              {
+                "height": 0.3,
+                "bottom": 0
+              },
+              {
+                "height": 0.6083333333333333,
+                "bottom": 0
+              },
+              {
+                "height": 0.30833333333333335,
+                "bottom": 0
+              },
+              {
+                "height": 0.6,
+                "bottom": 0
+              },
+              {
+                "height": 0.30833333333333335,
+                "bottom": 0
+              },
+              {
+                "height": 0.6,
+                "bottom": 0
+              },
+              {
+                "height": 0.325,
+                "bottom": 0
+              }
+            ]
+          },
+          {
+            "bucket": "invaded",
+            "rectangles": [
+              {
+                "height": 0.3916666666666667,
+                "bottom": 0.6083333333333333
+              },
+              {
+                "height": 0.6999999999999998,
+                "bottom": 0.3
+              },
+              {
+                "height": 0.4,
+                "bottom": 0.6
+              },
+              {
+                "height": 0.6749999999999999,
+                "bottom": 0.325
+              },
+              {
+                "height": 0.4,
+                "bottom": 0.6
+              },
+              {
+                "height": 0.6999999999999998,
+                "bottom": 0.3
+              },
+              {
+                "height": 0.3916666666666667,
+                "bottom": 0.6083333333333333
+              },
+              {
+                "height": 0.6916666666666665,
+                "bottom": 0.30833333333333335
+              },
+              {
+                "height": 0.4,
+                "bottom": 0.6
+              },
+              {
+                "height": 0.6916666666666665,
+                "bottom": 0.30833333333333335
+              },
+              {
+                "height": 0.4,
+                "bottom": 0.6
+              },
+              {
+                "height": 0.6749999999999999,
+                "bottom": 0.325
+              }
+            ]
+          }
+        ],
+        "denominators": [
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120",
+          "n=120"
+        ],
+        "styling": {
+          "legend_inside_canvas": true,
+          "legend_bounds": [
+            1023.95,
+            691,
+            121,
+            49.5
+          ],
+          "canvas_bounds": [
+            0,
+            0,
+            2116,
+            850
+          ],
+          "actual_native_dialog": true
+        }
+      },
+      {
+        "index": 1,
+        "geometry_fields_checked": 8,
+        "groups": [
+          "HeLa_inhibitor",
+          "HeLa_vehicle"
+        ],
+        "series": [
+          {
+            "bucket": "attached",
+            "rectangles": [
+              {
+                "height": 0.3111111111111111,
+                "bottom": 0
+              },
+              {
+                "height": 0.6027777777777777,
+                "bottom": 0
+              }
+            ]
+          },
+          {
+            "bucket": "invaded",
+            "rectangles": [
+              {
+                "height": 0.6888888888888889,
+                "bottom": 0.3111111111111111
+              },
+              {
+                "height": 0.39722222222222214,
+                "bottom": 0.6027777777777777
+              }
+            ]
+          }
+        ],
+        "denominators": [
+          "n=720",
+          "n=720"
+        ],
+        "styling": {
+          "legend_inside_canvas": true,
+          "legend_bounds": [
+            1775.9,
+            691,
+            121,
+            49.5
+          ],
+          "canvas_bounds": [
+            0,
+            0,
+            2116,
+            850
+          ],
+          "actual_native_dialog": true
+        }
+      }
+    ],
+    "histogram_checks": {
+      "panels": 12,
+      "bins_checked": 480,
+      "threshold_lines_checked": 12,
+      "observations": 1440
+    },
+    "csv_unchanged_after_native_styling": true,
+    "statistical_inference_validated": false,
+    "image_or_biological_validation": false
+  },
+  "independent_control_objects": 360,
+  "independent_threshold": 22.795955296875167,
+  "independent_summary": {
+    "HeLa_vehicle": {
+      "n_attached": 434,
+      "n_invaded": 286,
+      "n_total": 720,
+      "invasion_efficiency": 0.39722222222222225,
+      "invasion_efficiency_pooled": 0.3972222222222222,
+      "invasion_efficiency_median": 0.4,
+      "n_wells": 6,
+      "n_wells_scored": 6,
+      "invasion_efficiency_sd": 0.004303314829119365,
+      "invasion_efficiency_sem": 0.0017568209223157718
+    },
+    "HeLa_inhibitor": {
+      "n_attached": 224,
+      "n_invaded": 496,
+      "n_total": 720,
+      "invasion_efficiency": 0.6888888888888889,
+      "invasion_efficiency_pooled": 0.6888888888888889,
+      "invasion_efficiency_median": 0.6916666666666667,
+      "n_wells": 6,
+      "n_wells_scored": 6,
+      "invasion_efficiency_sd": 0.011385500851066179,
+      "invasion_efficiency_sem": 0.004648111258522625
+    }
+  },
+  "guard_tests": {
+    "passed": 24,
+    "measured_executed_lines": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      14,
+      15,
+      18,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      29,
+      31,
+      32,
+      33,
+      34,
+      35,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      60,
+      61,
+      62,
+      63,
+      65,
+      66,
+      67,
+      68,
+      71,
+      77,
+      78,
+      79,
+      80,
+      81,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      99,
+      100,
+      107,
+      108,
+      109,
+      110,
+      113,
+      139,
+      143,
+      145,
+      147,
+      150,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      164,
+      165,
+      166,
+      169,
+      170,
+      171,
+      172,
+      174,
+      179,
+      181,
+      182,
+      183,
+      184
+    ],
+    "measurement_sha256": "3d1c41ea4f55f2181d79f2caccd430ce111cde55d506242768bef2b0f206e71c",
+    "mutations": [
+      {
+        "mutation": "interpolation",
+        "exit_code": 1,
+        "result": "4 failed, 11 passed in 0.18s"
+      },
+      {
+        "mutation": "identity",
+        "exit_code": 1,
+        "result": "1 failed, 14 passed in 0.19s"
+      },
+      {
+        "mutation": "filters",
+        "exit_code": 1,
+        "result": "4 failed, 11 passed in 0.18s"
+      },
+      {
+        "mutation": "baseline size",
+        "exit_code": 1,
+        "result": "1 failed, 14 passed in 0.17s"
+      },
+      {
+        "mutation": "positive baseline",
+        "exit_code": 1,
+        "result": "1 failed, 14 passed in 0.17s"
+      },
+      {
+        "mutation": "baseline exclusion",
+        "exit_code": 1,
+        "result": "8 failed, 7 passed in 0.19s"
+      },
+      {
+        "mutation": "threshold equality",
+        "exit_code": 1,
+        "result": "1 failed, 14 passed in 0.17s"
+      },
+      {
+        "mutation": "denominator",
+        "exit_code": 1,
+        "result": "1 failed, 14 passed in 0.17s"
+      },
+      {
+        "mutation": "preservation",
+        "exit_code": 1,
+        "result": "2 failed, 13 passed in 0.17s"
+      },
+      {
+        "mutation": "plot fraction",
+        "exit_code": 1,
+        "result": "1 failed, 14 passed in 0.17s"
+      },
+      {
+        "mutation": "well mean",
+        "exit_code": 1,
+        "result": "1 failed, 22 passed in 0.18s"
+      },
+      {
+        "mutation": "hist identity",
+        "exit_code": 1,
+        "result": "1 failed, 22 passed in 0.19s"
+      },
+      {
+        "mutation": "hist range",
+        "exit_code": 1,
+        "result": "1 failed, 22 passed in 0.18s"
+      },
+      {
+        "mutation": "hist cuts",
+        "exit_code": 1,
+        "result": "2 failed, 21 passed in 0.18s"
+      },
+      {
+        "mutation": "hist geometry",
+        "exit_code": 1,
+        "result": "1 failed, 22 passed in 0.18s"
+      },
+      {
+        "mutation": "hist values",
+        "exit_code": 1,
+        "result": "2 failed, 21 passed in 0.19s"
+      },
+      {
+        "mutation": "no artist roundtrip",
+        "exit_code": 1,
+        "result": "1 failed, 23 passed in 0.18s"
+      },
+      {
+        "mutation": "unbounded artist roundtrip",
+        "exit_code": 1,
+        "result": "1 failed, 23 passed in 0.18s"
+      }
+    ],
+    "mutation_scopes": "Ten initial mutations ran against 15 tests; six summary/histogram mutations against 23 tests; two endpoint-roundtrip mutations against the final 24. All made the focused tests fail; the untouched final test file passed."
+  },
+  "artifacts": {
+    "scientific_acceptance.json": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions/scientific_acceptance.json",
+      "sha256": "4e54763389247a3c3360053ea4314b460f6c1d72422a95c42c1f4495feb3f9f2"
+    },
+    "configured_settings.json": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions/configured_settings.json",
+      "sha256": "fecf8f336ebcf7b893971b89282275303ca74035ae8e6510125b5aebb51e72a1"
+    },
+    "histogram_data.json": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions/histogram_data.json",
+      "sha256": "3c17617ce35db762b76bd65c4cffcd654836a5e09793e8fff2cb362c7c6b9157"
+    },
+    "figure_data_00.json": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions/figure_data_00.json",
+      "sha256": "b9da662e5aed8dc2f16277ab20c3293cfb506d0724741d22a972ad46834f6df1"
+    },
+    "figure_data_01.json": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions/figure_data_01.json",
+      "sha256": "69542055607c7e39a77d3c8b206d84fa4dd10070512ff9fd358d7eb006d9c634"
+    },
+    "frames.json": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions/frames.json",
+      "sha256": "e2694017538c53c686d7a2f22effb79abe2a2393412ed9b1a06bac190dac408d"
+    },
+    "provenance.json": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/invasion_verified_distributions/provenance.json",
+      "sha256": "6b63a8d5bf591749d582541dc8c965c923dd6b043f21997a143c5a6f2ddbd659"
+    }
+  },
+  "limitations": [
+    "Synthetic data, not acquired assay images or evidence for a treatment.",
+    "Mean intensity is chosen because the existing teaching database has those columns, not as a general recommendation for a surface stain.",
+    "The general downloadable plate does not establish the required paired-stain experimental design.",
+    "Inferential statistics, image segmentation and stain quality were not biologically validated.",
+    "The old script cutoff is represented by the actual GUI as 0.555556; readback is exact, not relaxed.",
+    "The first native plots had clipped legends. The final recording uses the genuine Figure settings dialog and keeps CSV values, labels and geometry unchanged.",
+    "The first histogram audit found two artist left edges above their minimum observations by one ULP. Final endpoint allowance is bounded to four ULPs and tested positively and against an eight-ULP displacement; interior-bin edges are not fuzzed."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

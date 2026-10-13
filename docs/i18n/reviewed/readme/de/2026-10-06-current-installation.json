@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_method": "Direct Codex AI numeric review against all current tracked file sizes, retaining the original dated download measurements, and technical review of standard Qt installation versus headless execution. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1710 MB checkout (measured 2026-10-06), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "586cb07b47cda3c5a4cb369e9ad5fba28c8638190470a3a23f957ba05898c939",
+      "translation": "Bei der Messung am 2026-09-15 lud der vollständige Klon 5,8 GB herunter. Beim flachen Klon verringerte ``--filter=blob:none`` die gemessene Downloadmenge nicht. Die versionierten Dateien von nightly ergeben ein Arbeitsverzeichnis von 1710 MB (gemessen am 2026-10-06), ohne Git-Verlauf. Downloadmenge und Dauer hängen vom Branch ab."
+    },
+    {
+      "label": "standard-Qt-installation-headless-command-line-use",
+      "source": "The standard installation includes the Qt desktop interface. For a server, cluster or CI runner, run the command-line pipelines without opening it:",
+      "source_sha256": "ef361e3da0eb00540c9a56603825d58a35edd3923990b57f59716192e4872942",
+      "translation": "Die Standardinstallation enthält die Qt-Desktopoberfläche. Auf einem Server, Cluster oder CI-Runner können Sie die Befehlszeilen-Pipelines ausführen, ohne sie zu öffnen:"
+    }
+  ]
+}

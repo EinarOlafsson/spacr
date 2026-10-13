@@ -1,0 +1,221 @@
+{
+  "schema": 1,
+  "baseline": "23d939816ad28671dbee5c0b3daf07d5651bf508",
+  "checkpoint": "e31e19543ad2d056739c4a230766ec0b1c24875f",
+  "items": [
+    "N666",
+    "N667",
+    "N668",
+    "N670",
+    "N671"
+  ],
+  "scope": "Private source handoff; app source has not been published. Final normal catalogs and exact inventory guards are pending workstation refresh. N674 is a subsequent in-progress change, not included here.",
+  "environment": {
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "PySide6": "6.11.2",
+    "pytest": "8.4.2 overlay",
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg",
+    "xdist": false
+  },
+  "sources": {
+    "spacr/qt/app.py": {
+      "payload": "source-00.gz",
+      "sha256": "a15be25f0dd192af38b4f573751592976127b5c960fd0a0cf7c43550e14cf234",
+      "raw_sha256": "d44ef423ff75614b67438c7ad9a0356625809c2431e4d515ddc2428165596331"
+    },
+    "spacr/qt/preferences.py": {
+      "payload": "source-01.gz",
+      "sha256": "81617ff2ba005abaf29bbcbf9e386ce04180df9fa7177d3bd46131714f4bdf72",
+      "raw_sha256": "f818518c5154d3b15f0224d2671045cb7b0984e37db22d7f83b1e0574d79d701"
+    },
+    "spacr/qt/screens/app_screen.py": {
+      "payload": "source-02.gz",
+      "sha256": "7dd5db1aedd254ff3ff5c82c5ae3081f73cd8fbc989f6e8326cc1e34b81d4d4e",
+      "raw_sha256": "a2e30a77235025622c9cbb8448f0580d398d08bf4e0e4236f975300e293243be"
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "payload": "source-03.gz",
+      "sha256": "11ba7807a3f31e599e7714506fd66cc61bb76e8052d68b244de25760ea96d8ef",
+      "raw_sha256": "294214235b3da31c8de3b701cf21ca5625a13fe4c92bc467f82bd3431776d60c"
+    },
+    "spacr/qt/widgets/collapsible_splitter.py": {
+      "payload": "source-04.gz",
+      "sha256": "26174a865a538d72c10f8f6735d316832ccbd7557c36565bdbbde708d5b2a90f",
+      "raw_sha256": "b873a4b999a0965cc69fba4cf574106113a93b73eda69c5c3eeb8c4cbb858a07"
+    },
+    "spacr/qt/widgets/dock.py": {
+      "payload": "source-05.gz",
+      "sha256": "bfa32a10a90ca48d21f5c17ff0ffd83d7f79e418ab9e0e76108a3a117ffbf56b",
+      "raw_sha256": "a0f741ff435378243ce2c0ab079ce92ba113c225ba57e3983de7d9c53c9fe995"
+    },
+    "spacr/qt/widgets/gate_editor.py": {
+      "payload": "source-06.gz",
+      "sha256": "f1f145f014837d1307ad54b2a1c2ec84d069ffd238edcc098cbf812b47c02098",
+      "raw_sha256": "327515830ae3fabfb45405725df35faf8e36c2e781f3c0af166045e391257071"
+    },
+    "spacr/qt/widgets/glass.py": {
+      "payload": "source-07.gz",
+      "sha256": "f12e168fd2da9d801c0fce351f615d4687bd2ef0a119d606fe1cfcd07672596d",
+      "raw_sha256": "f30b606c702bce792d9c1ad3673d6cc7d5c97a9cf7e9908b2eb6d4c987f2ddd0"
+    },
+    "spacr/qt/widgets/height_grip.py": {
+      "payload": "source-08.gz",
+      "sha256": "441f2c473c30613991b36e4a4e58469ec4fc11fbcda2f3affddafc8be3d909a2",
+      "raw_sha256": "fd38146c9bee37e4e5d6e5b8c5f74b874ae533dafb8613696678d2b7ac6fbb2c"
+    },
+    "spacr/qt/widgets/hint_bar.py": {
+      "payload": "source-09.gz",
+      "sha256": "9aae8d2067cfd9c63343f4dd9cfd22c98882536d1aa9dbc24c003721083d1703",
+      "raw_sha256": "52b5356bbd225644037fdf1175d152b56bd8eed5c1bad7fc39a1e11616fa6345"
+    },
+    "spacr/qt/widgets/section.py": {
+      "payload": "source-10.gz",
+      "sha256": "c7713a451427ede9b2e3d957c9cc2229a881621b88c4a6d50a1e05b608fd0b3c",
+      "raw_sha256": "310b62daa9428842fc1baef8ba47885a800f2b8df5685655155a1753aa6714a5"
+    },
+    "spacr/qt/widgets/setup_slides.py": {
+      "payload": "source-11.gz",
+      "sha256": "bb3f42cd94514ae6f44a35465589edf7158f7f576375ae084beb3721b7b077cf",
+      "raw_sha256": "89af9ee76f3915b3ec9a884a93d4b82aaed9bc5bb3583aff42c0f11e33a3034d"
+    },
+    "tests/qt/test_ambient_gravity_radius_preferences.py": {
+      "payload": "source-12.gz",
+      "sha256": "450736ddc41242c1ecef3ad71356e6b9dc0b41c2a974db3ba90b78eed8e6ab25",
+      "raw_sha256": "fbd418a5fc095feb4f94f490fa2add32198969442e801dad8d96053e0c85c15d"
+    },
+    "tests/qt/test_ambient_none.py": {
+      "payload": "source-13.gz",
+      "sha256": "bcf28f49bca304084095a2a637af81c9eaeca2992a85f541f2d48419d1fef175",
+      "raw_sha256": "7e8470e1abbf8a8da918a7db238cbe35556798a9d3b3b2be90b2a096df5939cd"
+    },
+    "tests/qt/test_data_art_catalog.py": {
+      "payload": "source-14.gz",
+      "sha256": "d3a030b103af4ecfd0dcaa002b3694523b218d9553f08ff52dab9016f409de36",
+      "raw_sha256": "3f09f65801a5a4dbb92580199b53e67b4e2bddd21e0f10875cabc4a0d93a24e6"
+    },
+    "tests/qt/test_field_popup_waves.py": {
+      "payload": "source-15.gz",
+      "sha256": "e5b6fc16e6814e8a1b653554f7d56c683937e4ac6701bb6562d2e16f5c900a33",
+      "raw_sha256": "f3a1084f7a4205c228fbb56ef1eab9253d3f6657f374798c5fc9672f52a94d0d"
+    },
+    "tests/qt/test_field_ripple_controls.py": {
+      "payload": "source-16.gz",
+      "sha256": "97e35aedd900c911acddbe6635d23c1aa7df215e40a86525661b77487bf39454",
+      "raw_sha256": "0f3158f01ecb35a201ff15c62915feb49d8e05604b6f1c8dfbf5ecbd64783e6b"
+    },
+    "tests/qt/test_gate_editor_rounded_graph.py": {
+      "payload": "source-17.gz",
+      "sha256": "9d85b8f846bdb98dd4da4c7136acbac38c6a2ad3f554641928505d6ecd7ae3fc",
+      "raw_sha256": "6c40a17afcee6492db460425663a624ce671f706e74e048bcab6050c4bf1cc80"
+    },
+    "tests/qt/test_hint_bar_uncovered_paths.py": {
+      "payload": "source-18.gz",
+      "sha256": "abc31053b2e392a6ad616039961ee9f7c836bf90d7e82257ec15e81e6dab4596",
+      "raw_sha256": "31367472b23fffb69a2e991759df256d33f928fa62db818670e9fdf3ff038079"
+    },
+    "tests/qt/test_n667_stable_action_help.py": {
+      "payload": "source-19.gz",
+      "sha256": "1557f31de3ca907f92cb0a34eb148055fd993e53b48132256c9003154e96c859",
+      "raw_sha256": "5c818f09b90cca6f3ee3a174051657818847f3769789b57f85cf226816037fd8"
+    },
+    "tests/qt/test_n668_spaceout_and_popup_motion.py": {
+      "payload": "source-20.gz",
+      "sha256": "a26a075d1ae8487d1fe58d3702695a2c37da5822e06bdaa7e6ba2ae9c93fdf24",
+      "raw_sha256": "1c8844e0f286675529dca82a6c7c96d547f629f5ba6405b88f2105a900a270e0"
+    },
+    "tests/qt/test_page_panels_backdrop.py": {
+      "payload": "source-21.gz",
+      "sha256": "9138b11ba686f9f9b21a8385ef7e512ced6819a23bce0db814472f8b52026609",
+      "raw_sha256": "191cadcb40de900d01b08c4426f40b7f0775b89df5d8d8fc05c2d55dc6d5c8ee"
+    },
+    "tests/qt/test_popup_backdrop_apply.py": {
+      "payload": "source-22.gz",
+      "sha256": "db57143e7905303de9703273ba01450fbced472b865a6124f28c478eb5696e0d",
+      "raw_sha256": "9323d01ba94ea259f9aa6cc49f16da1fc15949651f3abb3a9140a37aaf00da67"
+    },
+    "tests/qt/test_spaceout_is_the_only_way_in.py": {
+      "payload": "source-23.gz",
+      "sha256": "0031073c8de67f3e3ff32ad6e318bb1f6fd835f42de45e1a35e8f19e8a03ea00",
+      "raw_sha256": "82029262de84aa66881d5ba20acf3dae2c0dc81bea0b29cfb2025c3afc055b71"
+    },
+    "tests/qt/test_the_action_row_wraps_instead_of_squeezing.py": {
+      "payload": "source-24.gz",
+      "sha256": "ea423eea80078cc1f928f153b67b08c696051049ff456e0ad8b96382de26eb7e",
+      "raw_sha256": "242d383e64f6223362f93ba7272a75d7b7206766e360d27c714723592f776be2"
+    },
+    "tests/qt/test_the_rim_has_modes_and_the_windows_are_bare.py": {
+      "payload": "source-25.gz",
+      "sha256": "fea72a2bd4c98b742513dc52e3110886d9ea4874d33ac3a03d119ac21d84fe30",
+      "raw_sha256": "481f2b946629add9bc77eb9ce4b436f7c7d564cf98ca3fb5d192ea6eff001507"
+    },
+    "tests/qt/test_the_settings_windows_are_one_rounded_card.py": {
+      "payload": "source-26.gz",
+      "sha256": "24793064ee8ddba7f5e986a2ebb129d347ea663e7b623d669f6093206e113fcb",
+      "raw_sha256": "32ae003b5ceed0e44ac4e69c7f7d9b6f4f52ea3ff26d36c3859bfbfd114579e4"
+    },
+    "tests/qt/test_the_setup_is_a_sequence_of_slides.py": {
+      "payload": "source-27.gz",
+      "sha256": "5524f58fadbc4495ff85b33c48955790804705afbb280e4282a2c4c269766aea",
+      "raw_sha256": "ad37482abb46cf518475d627b62f329a627b656dfaf3ec5982b5180d7c194bdd"
+    },
+    "tests/qt/test_the_spaceout_fractal.py": {
+      "payload": "source-28.gz",
+      "sha256": "167bef452225085421262e0c9ab6fc887284714ef4424445304ea3f3c735200a",
+      "raw_sha256": "d834fcc491e4061ca9a26decdd6cfe3f09d75794dd0d07b8c8cb2a2f8a648b8a"
+    },
+    "tests/qt/test_window_snap_and_field_edges_n666.py": {
+      "payload": "source-29.gz",
+      "sha256": "7b3a32af9601a40c2748904efe9f3537dd74158659d90b128d36044aa550bd74",
+      "raw_sha256": "c73a6c568730bf0caf04641b4821902ce8ce5ea776d1b4451a37bab10bb6d864"
+    }
+  },
+  "patch": {
+    "payload": "source-and-tests.patch.gz",
+    "sha256": "3767f3723cc57125ffbc037392e0aaa08dcff3da45c97f4ade5e4c1d0bb4f5c0",
+    "raw_sha256": "57e4df26e0e00fe9b018216b47b7f5e650904662d0cb3852f44c0b42c4ce478b"
+  },
+  "phases": [
+    {
+      "passed": 313,
+      "tested_checkpoint": "e31e19543ad2d056739c4a230766ec0b1c24875f",
+      "scope": "Final combined 12-file CPU/Qt interaction cohort; includes setup, ripples, window states, footer, settings and Gate rendering.",
+      "payload": "n666-671-final-cohort-20261008.log.gz",
+      "sha256": "97a348a585148d19c3768647d9133b8b683886ccccc855db2cf83342f049021e",
+      "raw_sha256": "4952f66d4602ddd4cc64c09773ac06645ce27daa85558438b35fbb7f2dadf26f"
+    },
+    {
+      "passed": 162,
+      "tested_checkpoint": "b5eb568b65dc27b8ef1f160c954dcc0fc16eea86",
+      "scope": "Gate drawing, 3D rotation/dragging, mouse and menus; same Gate source as final checkpoint.",
+      "payload": "gate-rounded-interaction-final-20261008.log.gz",
+      "sha256": "90d311bd504d36330d95ce18229b24f233a0406f3ca30e5a4c19c8aca8449b0d",
+      "raw_sha256": "fe371ace91ded3a62033b231d64e0d039fa7063019f16df3dc156bf0bb3c2d07"
+    },
+    {
+      "passed": 119,
+      "tested_checkpoint": "b5eb568b65dc27b8ef1f160c954dcc0fc16eea86",
+      "scope": "Gravity, grab and switch behavior before the discrete-popup follow-up; overlaps final cohort.",
+      "payload": "ripples-gravity-switch-final-20261008.log.gz",
+      "sha256": "dab9ebfb27c311f6c5abc809c7a01efeca888c1d6b9e1ecc2585612768a5f4c6",
+      "raw_sha256": "48e5c4533d6610dfecb89cb118f17292c2eea3afff9cc1e99d1d7e48fdf4a7ba"
+    },
+    {
+      "passed": 3,
+      "tested_checkpoint": "4f7ba6db8913eab672170d513c1a57ad57abdab8",
+      "scope": "Callable and nested-helper documentation guards before final popup prose and Gate painter follow-up; historical scope only.",
+      "payload": "ui-final-docguards-20261008.log.gz",
+      "sha256": "b71b599135661392e0e62c8fb3d08999d0cdd5c4b51c79006d1f089a0624100a",
+      "raw_sha256": "7196cfb76befa507ad5c38b1f7432f2997842df07cf0f41b99b5e3ea898c56b1"
+    }
+  ],
+  "limits": [
+    "Phase totals overlap and must not be summed as unique tests.",
+    "No native compositor, GPU, full serial or human appearance acceptance.",
+    "Existing required CI green belongs to exact 07809d9264; fresh protected 53ab run does not test this source.",
+    "N672/N673 are registered open work and are not implemented in this patch.",
+    "No test ceiling, correctness assertion, workflow timeout or memory cap has been raised."
+  ]
+}

@@ -1,0 +1,79 @@
+# spaCR user guide translation (ko).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Language: ko\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Unified run history"
+msgstr "통합 실행 기록"
+
+msgid "Open **Help → Run History** (or type *Run History* in the command palette, Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal happens on a background worker and does not create another run record."
+msgstr "**도움말 → 실행 기록** 을 열거나 명령 팔레트(Ctrl+K)에 *실행 기록* 을 입력하면 spaCR이 기록한 모든 파이프라인을 검색할 수 있습니다. 큰 기록을 새로 고치는 작업은 백그라운드 작업자에서 이루어지며 새로운 실행 기록을 만들지 않습니다."
+
+msgid "The dashboard combines:"
+msgstr "대시보드는 다음을 함께 보여 줍니다."
+
+msgid "module, status, start/end time, wall time and process CPU time;"
+msgstr "모듈, 상태, 시작/종료 시간, 경과 시간, 프로세스 CPU 시간;"
+
+msgid "exact resolved settings;"
+msgstr "정확히 확정된 설정;"
+
+msgid "SHA-256 records for inputs, outputs and models;"
+msgstr "입력, 출력, 모델의 SHA-256 기록;"
+
+msgid "structured warnings, provenance warnings and failure tracebacks;"
+msgstr "구조화된 경고, 출처 경고, 실패 트레이스백;"
+
+msgid "package, spaCR, Git and platform versions;"
+msgstr "패키지, spaCR, Git, 플랫폼 버전;"
+
+msgid "declared seeds and runtime random-state identifiers."
+msgstr "선언된 시드와 런타임 난수 상태 식별자."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
+msgstr "검색어는 함께 적용됩니다. ``adamw plate_03 warning``\\ 은 설정, 경로, 경고, 실패 또는 환경 데이터 어디에든 세 단어를 모두 포함하는 기록만 표시합니다. 모듈 필터와 상태 필터를 동시에 적용할 수 있습니다. 중단되거나 손상된 실행 폴더는 ``running`` 또는 ``corrupt`` 상태 및 진단 경고와 함께 계속 목록에 표시됩니다."
+
+msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "행을 선택하면 세부 정보를 볼 수 있습니다. **모듈에 설정 불러오기** 는 원래 모듈을 열고 기록된 정확한 설정을 컨트롤에 채우며, 실행을 시작하지는 않습니다. **실행 폴더 열기** 와 **경로 복사** 는 기본 ``~/.spacr/runs/...`` 폴더에 접근할 수 있게 합니다."
+
+msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
+msgstr "선택한 행을 마우스 오른쪽 버튼으로 클릭하여 폴더를 열거나 삭제합니다. **모두 지우기** 는 표에 나열된 모든 실행을 삭제합니다. 삭제 전에 먼저 확인을 요청하며 기록 폴더만 제거합니다. 프로젝트에 기록된 출력은 건드리지 않습니다."
+
+msgid "Storage: pruning and caches"
+msgstr "저장 공간: 정리와 캐시"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**환경설정 → 저장소**\\ 는 spaCR 홈 폴더를 정리할 때 사용하는 한도를 설정합니다. 일별 로그, 실행 로그(``~/.spacr/logs/runs``), 실행 폴더(``~/.spacr/runs``)에 대해 두 가지 한도를 둡니다. **유지**\\ 는 그 기간 안의 항목은 절대 삭제하지 않는 일 단위 기간이고, **상한**\\ 은 이 크기를 넘으면 오래된 항목 중 가장 오래된 것부터 삭제하는 크기입니다(**상한 없음**\\ 은 오래된 항목을 모두 삭제). 진행 중인 실행과 열려 있는 로그 파일은 절대 삭제되지 않습니다. **지금 정리…**\\ 는 한도에 따라 삭제될 항목을 나열하고 삭제 전에 확인을 요청하며, 자동으로 정리되는 것은 없습니다."
+
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
+msgstr "캐시 표에는 spaCR 모델, Cellpose, Hugging Face, Torch, 백엔드 환경, 소식 캐시가 나열됩니다. **측정** 은 크기를 읽고, **비우기…** 는 확인 후 선택한 캐시를 비우며, **이동…** 은 다른 드라이브의 ``<folder>/spacr-<cache>`` 로 옮깁니다. 새 위치는 ``~/.spacr/cache_locations.json`` 에 기록되어 매번 시작할 때 사용됩니다. 변수(예: ``HF_HOME``)가 spaCR 밖에서 설정된 캐시는 옮기지 않습니다. 비우기와 이동은 진행 중인 실행이 없을 때까지 기다립니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
+msgstr "**환경설정 → 로깅 → 로그 파일** 에는 **모든 로그 비우기…** 가 있습니다. 일별 로그, 실행 로그, 충돌 로그, 상세 로그를 그룹별 파일 수와 크기와 함께 나열하고, 확인한 뒤에만 삭제합니다. 실행 중인 spaCR 세션이 열어 둔 로그는 삭제하지 않고 비우므로 진행 중인 실행은 로그를 유지합니다. 결과에는 삭제하고 비운 파일 수와 확보한 공간이 표시됩니다."
+
+msgid "Headless search"
+msgstr "헤드리스 검색"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs`\\ 는 손상되거나 중단된 실행을 포함하여 대시보드와 같은 기록을 Qt 없이 반환합니다:"
+

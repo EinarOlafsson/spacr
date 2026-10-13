@@ -1,0 +1,33 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "71794c3c8f4747dd0bada9c613b11e057020b5adc0892760865854a902df4f0e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Control Charts: Kontrollen über Platten hinweg überwachen",
+  "description": "Laden Sie eine Kampagnentabelle, wählen Sie Kontrollen und Basisgrenzen, prüfen Sie Warnungen und exportieren Sie die dargestellten Punkte.",
+  "objectives": [
+    "Messgröße und Kontrollpopulation wählen.",
+    "Basisbereich und Warnregeln festlegen.",
+    "Warnungen prüfen und Diagrammpunkte exportieren."
+  ],
+  "prerequisite": "Laden Sie die synthetische Kampagnen-CSV unten herunter oder bereiten Sie eine Tabelle auf Well-Ebene mit Plattenkennung, Laufreihenfolge, einer Messgröße und Kontrolllabels vor. Das Beispiel zeigt dreißig Platten mit programmierter Drift.",
+  "scenes": [
+    "Öffnen Sie QC und dann Control Charts, um wiederholte Kontrollen über eine Kampagne hinweg zu überwachen. Die Übungs-CSV verwendet synthetische Platten und eine programmierte Drift.",
+    "Laden Sie die Beispiel-CSV unten herunter, klicken Sie auf Load table und wählen Sie sie aus. Sie enthält dreißig Platten mit je drei Wells pro Kontrolltyp und drei Proben-Wells.",
+    "Ordnen Sie Plate, Run order, Measurement und Control column der Tabelle zu. Wählen Sie unter Control is neg für die Negativkontrollen. Eine leere Auswahl schließt alle Zeilen ein.",
+    "Legen Sie mit Sigma from den Schätzer für die Streuung fest. Auto verwendet hier den Untergruppenschätzer, weil jede Platte drei ausgewählte Kontroll-Wells enthält.",
+    "Wählen Sie unter Rules die Warnungen, die Sie prüfen möchten. Das Beispiel verwendet Limits only, um sich auf Punkte außerhalb der Drei-Sigma-Grenzen zu konzentrieren. Jede Änderung einer Einstellung zeichnet das Diagramm neu.",
+    "Setzen Sie Baseline plates auf 20. Die ersten zwanzig Platten legen die Grenzen der Serie fest. Suchen Sie im Bericht und in der Regeltabelle die markierten späteren Platten.",
+    "Um Positivkontrollen zu prüfen, wählen Sie neg ab und pos aus. Prüfen Sie ihre Mittelwerte und Grenzen getrennt und kehren Sie dann zu neg zurück, um mit dem Beispiel fortzufahren.",
+    "Passen Sie Baseline plates an, wenn Ihr geplanter Referenzzeitraum abweicht. Das Werkzeug benötigt mindestens acht Platten; wählen Sie eine stabile, zum Assay passende Basis.",
+    "Klicken Sie auf Export points und wählen Sie ein CSV-Ziel. Gespeichert werden Plattenkennungen, Mittelwerte, Untergruppengrößen, Grenzen, Zugehörigkeit zur Basis und ausgelöste Regeln.",
+    "Bewahren Sie Eingabe-CSV, ausgewählte Kontrollen und Basiseinstellungen zusammen mit den exportierten Punkten auf. Untersuchen Sie anhand der markierten Plattenkennungen Änderungen bei Aufnahme oder Assay."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "A daemon thread takes one reading every effective ``interval`` seconds into a ring buffer of ``capacity`` samples. The default settings retain the most recent hour in memory; custom settings retain approximately ``capacity * interval`` seconds. A processing session that lasts a week therefore cannot grow the in-memory series without limit.",
+      "label": "spacr.resource_log.ResourceSampler#1",
+      "source": "A daemon thread takes one reading every effective ``interval`` seconds into a ring buffer of ``capacity`` samples. The default settings retain the most recent hour in memory; custom settings retain approximately ``capacity * interval`` seconds. A run that lasts a week therefore cannot grow the in-memory series without limit.",
+      "source_sha256": "9a94a4651b9ca99eac253a30f34e6f9a54228be90b79506ba207700cd2ff1cca",
+      "translation": "Bakgrunnsþráður tekur eina mælingu á hverju virku ``interval`` sekúndna bili og geymir hana í hringbiðminni sem rúmar ``capacity`` sýni. Sjálfgefnar stillingar geyma nýjustu klukkustundina í minni; sérsniðnar stillingar geyma um það bil ``capacity * interval`` sekúndur. Þess vegna getur vikulöng vinnslulota ekki látið röðina í minni vaxa án takmarkana."
+    }
+  ],
+  "schema": 1
+}

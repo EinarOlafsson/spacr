@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.utils.SaliencyMapGenerator.compute_saliency_and_predictions#0",
+      "source": "Return saliency maps and the model's own predicted classes.",
+      "context": "Return saliency maps and the model's own predicted classes.",
+      "source_sha256": "9b065eea73429a70353bfc9facbfdde69c07ed434d18e239737a7d52be5c4b86",
+      "translation": "Returnera salienskartor och modellens egna predikterade klasser."
+    }
+  ]
+}

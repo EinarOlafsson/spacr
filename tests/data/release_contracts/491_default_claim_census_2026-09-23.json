@@ -1,0 +1,196 @@
+{
+  "baseline_commit": "0a4f5aa75",
+  "comparisons_before": 673,
+  "comparisons_after": 716,
+  "added_pairs": [
+    [
+      "analyze_plaques",
+      "plaque_formation_hours"
+    ],
+    [
+      "analyze_plaques",
+      "plaque_growth_reference_hours"
+    ],
+    [
+      "analyze_plaques",
+      "plaque_growth_reference_um"
+    ],
+    [
+      "analyze_plaques",
+      "plaque_pixels_per_um"
+    ],
+    [
+      "classify_merged",
+      "tta_enabled"
+    ],
+    [
+      "classify_merged",
+      "tta_horizontal_flip"
+    ],
+    [
+      "classify_merged",
+      "tta_max_std"
+    ],
+    [
+      "classify_merged",
+      "tta_min_agreement"
+    ],
+    [
+      "classify_merged",
+      "tta_rotations"
+    ],
+    [
+      "classify_merged",
+      "tta_vertical_flip"
+    ],
+    [
+      "external_masks",
+      "psf_fwhm_um"
+    ],
+    [
+      "external_masks",
+      "psf_image_sampling_um"
+    ],
+    [
+      "external_masks",
+      "psf_iterations"
+    ],
+    [
+      "external_masks",
+      "psf_kernel_sampling_um"
+    ],
+    [
+      "external_masks",
+      "psf_path"
+    ],
+    [
+      "host_pathogen",
+      "hp_count_column"
+    ],
+    [
+      "host_pathogen",
+      "hp_marker_channels"
+    ],
+    [
+      "host_pathogen",
+      "hp_marker_thresholds"
+    ],
+    [
+      "host_pathogen",
+      "hp_parasite_table"
+    ],
+    [
+      "mask",
+      "image_qc_channels"
+    ],
+    [
+      "mask",
+      "image_qc_max_nonfinite"
+    ],
+    [
+      "mask",
+      "image_qc_max_saturation"
+    ],
+    [
+      "mask",
+      "image_qc_min_focus"
+    ],
+    [
+      "mask",
+      "image_qc_saturation_level"
+    ],
+    [
+      "mask",
+      "metadata_type"
+    ],
+    [
+      "mask",
+      "psf_fwhm_um"
+    ],
+    [
+      "mask",
+      "psf_image_sampling_um"
+    ],
+    [
+      "mask",
+      "psf_iterations"
+    ],
+    [
+      "mask",
+      "psf_kernel_sampling_um"
+    ],
+    [
+      "mask",
+      "psf_path"
+    ],
+    [
+      "measure",
+      "psf_fwhm_um"
+    ],
+    [
+      "measure",
+      "psf_image_sampling_um"
+    ],
+    [
+      "measure",
+      "psf_iterations"
+    ],
+    [
+      "measure",
+      "psf_kernel_sampling_um"
+    ],
+    [
+      "measure",
+      "psf_path"
+    ],
+    [
+      "replication",
+      "class_column"
+    ],
+    [
+      "replication",
+      "group_by_class"
+    ],
+    [
+      "replication",
+      "max_area"
+    ],
+    [
+      "replication",
+      "max_bins"
+    ],
+    [
+      "replication",
+      "min_area_bin"
+    ],
+    [
+      "replication",
+      "nuclei_limit"
+    ],
+    [
+      "replication",
+      "tables"
+    ],
+    [
+      "replication",
+      "um_per_px"
+    ]
+  ],
+  "removed_pairs": [],
+  "changed_variants": {
+    "replication:class_column": {
+      "before": null,
+      "after": {
+        "actual": "'predictions'",
+        "claimed": "'test'"
+      }
+    },
+    "replication:nuclei_limit": {
+      "before": null,
+      "after": {
+        "actual": "10",
+        "claimed": "None"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "sha256": {
+    "reproduce_coverage.py": "3ca82b0be1d523f0657cd995c16df69e7ae0585af20107a615b31b305de39806",
+    "receipt.json": "e6fb642738da3e60808a90aced7e6fcd9a4d216572928257368971e660801537",
+    "root-native-watch-integration.log.gz": "5af2695d1d6e68c8880ae39024ed0451eebfb28059aafbcf9dcdf6c5a309fc2a",
+    "core.patch.gz": "99b48ae2d7d1ea50c01f34e42cc8c7636cce6d3c8ac12667e92fa305fe3a5593",
+    "core.py.gz": "0b3e67da1687dc6313a3a54fa113a6db64781a235b04fbb132657a0a920820ad",
+    "REPRODUCE.txt": "941bdd8727c1e75d2f75b678ea5e41cc04b9aca5387995bdc95b088810f67389",
+    "root-native-watch-source-contracts.log.gz": "f383590a9424ccdaacde928eff078beba1b32c2a4b061202a5d97e6b8334c6e5",
+    "core-branch-trace.json": "6ca4cb6a02d899d0030f58e18b6543a3026f430e26faf72bc599cafa30d30bd9"
+  }
+}

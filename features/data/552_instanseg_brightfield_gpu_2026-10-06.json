@@ -1,0 +1,153 @@
+{
+  "item": 552,
+  "original_full_field_brightfield_real_GPU_execution_accepted": true,
+  "terminal_GPU_returncode": 0,
+  "turn_label": "552-instanseg-brightfield-cuda-20261006-r1",
+  "original_RGB_shape": [
+    1484,
+    1380,
+    3
+  ],
+  "input_models_source_parameters_and_worker_contract_exact": true,
+  "normal_RGB_ingest_verified_by_independent_single_channel_controls": true,
+  "routes": [
+    {
+      "route": "make_masks",
+      "cpu_objects": 5728,
+      "cuda_objects": 5727,
+      "cuda_kernel_events": 1154,
+      "original_worker_output": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9998657174108364,
+        "cpu_to_cuda_instance_agreement_not_human_accuracy": {
+          "tp50": 5727,
+          "fp50": 0,
+          "fn50": 1,
+          "f1_50": 0.9999,
+          "precision50": 1.0,
+          "recall50": 0.9998,
+          "iou_sum": 5724.201511909045,
+          "iou_mean": 0.9995,
+          "n_truth": 5728,
+          "n_pred": 5727,
+          "tp75": 5727,
+          "fp75": 0,
+          "fn75": 1,
+          "f1_75": 0.9999,
+          "precision75": 1.0,
+          "recall75": 0.9998
+        }
+      },
+      "final_normal_route_labels": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9998657174108364,
+        "cpu_to_cuda_instance_agreement_not_human_accuracy": {
+          "tp50": 5727,
+          "fp50": 0,
+          "fn50": 1,
+          "f1_50": 0.9999,
+          "precision50": 1.0,
+          "recall50": 0.9998,
+          "iou_sum": 5724.201511909045,
+          "iou_mean": 0.9995,
+          "n_truth": 5728,
+          "n_pred": 5727,
+          "tp75": 5727,
+          "fp75": 0,
+          "fn75": 1,
+          "f1_75": 0.9999,
+          "precision75": 1.0,
+          "recall75": 0.9998
+        }
+      }
+    },
+    {
+      "route": "normal_mask_generation",
+      "cpu_objects": 5871,
+      "cuda_objects": 5868,
+      "cuda_kernel_events": 1074,
+      "original_worker_output": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9997983319660925,
+        "cpu_to_cuda_instance_agreement_not_human_accuracy": {
+          "tp50": 5868,
+          "fp50": 0,
+          "fn50": 3,
+          "f1_50": 0.9997,
+          "precision50": 1.0,
+          "recall50": 0.9995,
+          "iou_sum": 5865.623245035864,
+          "iou_mean": 0.9996,
+          "n_truth": 5871,
+          "n_pred": 5868,
+          "tp75": 5868,
+          "fp75": 0,
+          "fn75": 3,
+          "f1_75": 0.9997,
+          "precision75": 1.0,
+          "recall75": 0.9995
+        }
+      },
+      "final_normal_route_labels": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9997983319660925,
+        "cpu_to_cuda_instance_agreement_not_human_accuracy": {
+          "tp50": 5868,
+          "fp50": 0,
+          "fn50": 3,
+          "f1_50": 0.9997,
+          "precision50": 1.0,
+          "recall50": 0.9995,
+          "iou_sum": 5865.623245035864,
+          "iou_mean": 0.9996,
+          "n_truth": 5871,
+          "n_pred": 5868,
+          "tp75": 5868,
+          "fp75": 0,
+          "fn75": 3,
+          "f1_75": 0.9997,
+          "precision75": 1.0,
+          "recall75": 0.9995
+        }
+      }
+    }
+  ],
+  "same_route_CPU_CUDA_exact_label_arrays": false,
+  "CPU_CUDA_count_and_pixel_differences_explicitly_retained": true,
+  "no_crop_simulation_independent_human_accuracy_or_throughput_claim": true,
+  "Make_Masks_and_normal_Mask_route_outputs_not_claimed_identical": true,
+  "artifacts": {
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/accept_instanseg_brightfield_gpu.py": {
+      "sha256": "0a9a05856770487f2d0d7d82b89ffdbe4080dbf5df93b02b811c2b83a297f0af",
+      "bytes": 7676
+    },
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/benchmark_instanseg_brightfield.py": {
+      "sha256": "6a9c620b0632c12f7c85192db192277b4fb6bfd46a5463677ccf8621f1fd5ee7",
+      "bytes": 7608
+    },
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/cpu-r2-acceptance.json": {
+      "sha256": "34d135d5c744220489324c96358c5ff4f0166f7aadb53a8d514527497f4472c4",
+      "bytes": 7795
+    },
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/cuda-acceptance.json": {
+      "sha256": "4356ad387a5237fa43008a9cbe2992966a59a9c1c3c11f4b0e65b667c39a993b",
+      "bytes": 142852
+    },
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/instanseg-brightfield-cpu-r2.log.gz": {
+      "sha256": "fcd939ba8f7c0f770a8749642565a4498a248a21c46d4adb3232d76c78ce6ec5",
+      "bytes": 1320
+    },
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/instanseg-brightfield-cuda-r1.log.gz": {
+      "sha256": "80810ba161212225d20ef59f7457c29a58583edd8e6d52bd73bc3dfc1707addb",
+      "bytes": 1566
+    },
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/instanseg_multiplex_worker.py": {
+      "sha256": "050e665cf1fe9cf239077276a879b38f6c234dd426d5b4763d277db344de549c",
+      "bytes": 2907
+    },
+    "features/data/552_instanseg_brightfield_gpu_2026-10-06/original-input-controls-profiles-and-paired-labels.zip": {
+      "sha256": "7fbfcc1b45e6365a9c1b2bce93941c35716b7e1c651f9e152a119c13c6f1fec5",
+      "bytes": 37193636
+    }
+  }
+}

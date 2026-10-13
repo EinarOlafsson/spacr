@@ -1,0 +1,112 @@
+{
+  "source_commit": "9ad69bab29d9a4f1b2188dbe823cc52860793adf",
+  "source_sha256": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/owned-growth-thore-experiment/before.py",
+  "variant": "before",
+  "theme": "data_art_fungal_growth",
+  "label": "spaCR growth",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 1.0,
+    "size": 1.0,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "custom",
+    "colors": [
+      "#3b82f6",
+      "#ff00ff"
+    ]
+  },
+  "qt_platform": "xcb",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 274004,
+    "widget_show_ms": 87.69521499925759,
+    "post_show_seconds": 2.0014102720015217,
+    "post_show_published_frames": 47,
+    "post_show_published_fps": 23.48344098034302,
+    "worker_shade": {
+      "median_ms": 8.641765001812018,
+      "p95_ms": 36.02639600285329,
+      "max_ms": 37.91041199292522,
+      "samples": 47
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.07149650104111,
+      "p95_ms": 40.77862399572041,
+      "max_ms": 55.36879500141367,
+      "samples": 152
+    },
+    "compile_ready": false,
+    "compile_failed": false,
+    "rss_peak_kib": 303228
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.034228296004585,
+      "published_frames": 115,
+      "published_fps": 22.843620360099628,
+      "distinct_published_clocks": 98,
+      "first_clock": 97.22000000000001,
+      "clock_advance": 4.9730000000000985,
+      "painted_fps": 24.234101599410042,
+      "repeated_frame_objects": 10,
+      "worker_shade": {
+        "median_ms": 36.87726800853852,
+        "p95_ms": 50.62265599553939,
+        "max_ms": 57.56163700425532,
+        "samples": 115
+      },
+      "gui_paint": {
+        "median_ms": 8.155666495440528,
+        "p95_ms": 12.602659000549465,
+        "max_ms": 14.224076992832124,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.072157012473326,
+        "p95_ms": 36.35822101205122,
+        "max_ms": 50.67864300508518,
+        "samples": 394
+      },
+      "publication_intervals": {
+        "median_ms": 36.948444503650535,
+        "p95_ms": 70.55126900377218,
+        "max_ms": 78.16584900137968,
+        "samples": 114
+      },
+      "lightning_worker_shades": null,
+      "load_average": [
+        2.06201171875,
+        1.79931640625,
+        2.02490234375
+      ],
+      "current_rss_kib": 306736
+    }
+  ],
+  "frame_sha256": "7196004993ae814c1aefd216e12013a56116cf9a6d85eed95cc1dfa2a3be1099",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 368380,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "eca3a67095bf07360f9ee9c6349015a83b06f2d256878bd168c6a3963db21567",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

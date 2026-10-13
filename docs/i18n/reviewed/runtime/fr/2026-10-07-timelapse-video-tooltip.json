@@ -1,0 +1,13 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "timelapse_events",
+      "source": "After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
+      "source_sha256": "2f77db7d9fe6c50ed9b47c8104d2366d35c94008fa568830f99670d5ef8897f7",
+      "table": "setting_tooltips",
+      "translation": "Après l'exécution, détecte les événements sur chaque objet suivi à l'aide d'un petit réseau neuronal qui analyse de courtes fenêtres de chaque trajectoire (forme, intensité, mouvement, trajectoires qui commencent ou se terminent à proximité et recadrages d'image) : mitose, egress, invasion, mort de l'hôte ou les classes définies par timelapse_events_annotations. Écrit dans tracks/events les événements horodatés, les arbres de lignage reliés à partir des mitoses détectées et le temps de Kaplan-Meier jusqu'à chaque événement par condition. Le petit encodeur s'exécute sur CPU ; l'encodeur videomae facultatif utilise son processus de travail installé séparément et le périphérique vidéo déclaré. Par défaut False."
+    }
+  ],
+  "schema": 1
+}

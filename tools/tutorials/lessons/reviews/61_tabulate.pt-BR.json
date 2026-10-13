@@ -1,0 +1,41 @@
+{
+  "lesson": "61_tabulate",
+  "english_sha256": "1d22d1f5a170f7e6d1e63dc052ce2281278fe4068e9a27b1c7c90b3a8c60d2cb",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Tabulate: resumir medições por poço e por campo",
+  "description": "Agrupe os objetos medidos, selecione estatísticas de resumo, inspecione os grupos vazios e exporte uma tabela dinâmica ou envie-a ao Graph Builder.",
+  "objectives": [
+    "Carregar medições e agrupá-las por poço ou por campo.",
+    "Escolher valores, estatísticas e filtros conferindo as contagens que contribuem.",
+    "Exportar resumos em CSV e atualizar os gráficos no Graph Builder."
+  ],
+  "prerequisite": "Baixe o exemplo de medições do tutorial do Annotate e trabalhe com uma cópia de measurements.db. A tabela cell dele tem 2341 objetos em quatro poços. Mantenha os rótulos espaciais separados dos rótulos de tratamento e escolha o nível de agrupamento adequado ao seu experimento.",
+  "scenes": [
+    "Na tela Home, abra Database Browser e escolha Tabulate. Use esta ferramenta para resumir colunas de medições por poço, por campo ou por outro grupo. Este passo a passo usa o banco de dados do exemplo do Annotate indicado.",
+    "Dentro do Tabulate, clique em Load table, abra measurements.db e escolha cell. Use os próprios controles do Tabulate para selecionar a entrada e exportar. Confira a tabela e os dois mil trezentos e quarenta e um objetos carregados.",
+    "Escolha Plate barra row barra column para agrupar por placa e poço. Deixe Values vazio para contar as linhas de origem. Os quatro poços contêm seiscentas e quinze, quinhentas e vinte e cinco, setecentas e quinhentas e uma células.",
+    "Procure fieldID e arraste para Columns. Isso cria uma grade de poços por campos. Passe o ponteiro sobre uma célula vazia para inspecioná-la: este exemplo tem uma combinação sem linhas de origem. Não a confunda com um zero medido.",
+    "Limpe Columns e arraste cell_area para Values. O resumo padrão mostra a contagem, a média e o desvio padrão amostral. A busca encontra nomes de colunas; mudar os eixos ou as estatísticas recalcula o resumo.",
+    "Passe o ponteiro sobre uma célula de resultado para ver todas as estatísticas e a contagem que contribui, incluindo linhas ocultas pela altura da linha. O desvio padrão descreve a variação entre os objetos daquele grupo.",
+    "Ative median, sem e quantile para acrescentar essas estatísticas. Defina Quantile at como zero vírgula sete cinco para o quartil superior. O SEM usa a contagem de objetos disponível; escolha à parte o nível de réplica experimental ao estimar a incerteza biológica.",
+    "Defina Quantile at como zero vírgula cinco para mostrar a mediana. O primeiro poço agora mostra vinte e dois mil e quatrocentos nas duas. Volte para zero vírgula sete cinco e desative as estatísticas extras para retornar ao resumo mais simples.",
+    "Troque cell_area por cell_channel_0_homogeneity_distance_32. Essa característica tem sete valores ausentes, então as contagens que contribuem são menores que as das linhas de origem. Use essas contagens ao comparar grupos.",
+    "Volte para cell_area e clique em Export CSV dentro do Tabulate. Escolha um nome de arquivo novo. Este resumo por poço contém as três chaves de agrupamento, a contagem, a média e o desvio padrão. Guarde as escolhas de agrupamento, estatísticas e filtros junto com o arquivo exportado.",
+    "Clique em Plot this table para enviar o resumo ao Graph Builder. Arraste columnID para X, mean para Y e rowID para Colour. Confira os tipos de coluna inferidos: neste exemplo, Automatic trata essas quatro médias distintas como categorias e mostra um mapa de calor.",
+    "Adicione um filtro de cell_area com mínimo de vinte e um mil novecentos e vinte e cinco. A tabela dinâmica é atualizada na hora para os objetos restantes. Clique de novo em Plot this table sempre que quiser transferir o resumo atualizado para o gráfico.",
+    "Depois de clicar em Plot this table, inspecione as médias atualizadas dos grupos. Pode aparecer uma nota sobre o filtro de área, porque o resumo transferido contém mean, e não cell_area. O filtro de objetos já foi aplicado antes, no Tabulate.",
+    "Clique em Clear all no filtro e depois de novo em Plot this table para restaurar o resumo por poço original. Salve as exportações filtradas e não filtradas com nomes diferentes quando precisar das duas.",
+    "Para um resumo por campo, arraste fieldID para Rows depois das chaves de poço. Cada linha com dados agora resume um campo dentro de um poço. Inspecione as contagens que contribuem e mantenha esse nível de agrupamento consistente ao comparar resultados.",
+    "Clique em Plot this table, coloque fieldID em X, mantenha mean em Y e rowID em Colour e escolha Scatter em Plot. Neste exemplo, mean agora é reconhecida como contínua. Confirme os tipos de coluna e os rótulos dos eixos exibidos.",
+    "O gráfico de dispersão mostra cinquenta e uma médias por campo. As cores identificam as linhas espaciais, e rótulos de campo repetidos podem pertencer a poços diferentes. Use a tabela de objetos original quando quiser selecionar células individuais e inspecionar as imagens delas.",
+    "Exporte o resumo por campo como um CSV separado. Ele contém cinquenta e duas linhas de grade, com a combinação vazia em branco; o gráfico contém cinquenta e um grupos com dados. No Python, use pivot e PivotSpec de spacr.qt.widgets.pivot_spec e depois to_csv para salvar o resultado."
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "accepted": true,
+  "scope": "Current 45-scene native Make Masks lesson staged with all thirteen source-bound reviews; audio/video/publication remain open",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "scene_count": 45,
+  "distinct_visuals": 43,
+  "previous_scene_texts_preserved": 41,
+  "new_puncta_scenes": 4,
+  "reviewed_languages": 13,
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-wave/captures/make_masks_current_20261005_r1",
+  "catalog_preservation": [
+    {
+      "catalog": "captions_da.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "captions_de.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "captions_is.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "captions_ko.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "captions_nb.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "captions_sv.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_en.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_es.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_fr.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_hi.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_it.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_ja.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_pt-BR.json",
+      "untouched_complete_objects_equal": 81
+    },
+    {
+      "catalog": "lessons_zh-CN.json",
+      "untouched_complete_objects_equal": 81
+    }
+  ],
+  "narration_video_publication_complete": false
+}

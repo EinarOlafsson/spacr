@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Image Scatter: 측정값과 그 크롭 확인",
+  "description": "측정 열 두 개를 그리고, 객체 크롭을 미리 본 뒤 선택한 객체를 Annotate로 보냅니다.",
+  "objectives": [
+    "측정값을 불러오고 축을 고릅니다.",
+    "점 뒤에 있는 크롭을 확인합니다.",
+    "선택한 객체를 Annotate로 보냅니다."
+  ],
+  "prerequisite": "대응하는 객체 크롭과 크롭 형식 파일이 있는 spaCR 측정 데이터베이스를 쓰세요. 내려받을 수 있는 Annotate 예제에 이 입력이 들어 있습니다.",
+  "scenes": [
+    "Image UMAP을 연 뒤 Image Scatter를 열어 기존 측정값 두 개를 그리세요. 연습에는 Annotate 예제의 데이터베이스와 대응하는 세포 크롭을 쓰세요.",
+    "Browse를 클릭하고 measurements.db를 여세요. 썸네일을 찾을 수 있도록 프로젝트의 data 폴더와 크롭 형식 파일을 데이터베이스와 함께 두세요.",
+    "표 선택기에서 cell을 고르고 Plot을 클릭하세요. 다른 표로 바꿀 때는 Plot을 다시 클릭해 그 행을 불러오세요.",
+    "x는 세포 면적으로, y는 세포의 채널 1 평균 강도로 두세요. 축을 고르면 불러온 행이 바로 다시 그려집니다.",
+    "점 위에 포인터를 올리면 저장된 크롭과 객체의 전체 식별 정보가 보입니다. 이미지를 보며 그 점의 측정값을 이해하세요.",
+    "포인터를 치우면 임시 미리 보기가 사라집니다. 다른 점 위에 포인터를 올려 확인하세요.",
+    "x와 y의 측정값을 바꿔 다른 관점에서 관계를 살펴보세요. 의미 있는 특징을 고르고 단위를 확인하세요.",
+    "균질성 특징처럼 다른 측정값을 고르세요. 좌표가 없는 행은 그래프에서 빠지므로, 그려진 점의 수가 불러온 표의 행 수와 다를 수 있습니다.",
+    "이 예제의 측정 차원처럼 값이 일정한 열은 점을 한 줄로 늘어놓습니다. 객체를 확인하려면 변동이 있는 특징으로 돌아가세요.",
+    "선택한 크롭을 Annotate에서 보려면 먼저 Annotate를 열고 같은 프로젝트를 불러오세요. 그다음 열려 있는 Image Scatter 보기로 돌아오세요.",
+    "점 자체를 클릭하면 그 객체의 식별 정보가 Annotate로 전송됩니다. 그다음 그 페이지로 전환하세요. 포인터만 올리면 크롭 미리 보기만 표시됩니다.",
+    "라벨을 붙이기 전에 Annotate에서 선택한 객체를 확인하세요. 표 내보내기에는 Database Browser를, 성분 분석에는 PCA를 쓰세요."
+  ]
+}

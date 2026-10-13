@@ -1,0 +1,79 @@
+# spaCR user guide translation (pt).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Language: pt\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Unified run history"
+msgstr "Histórico unificado de execuções"
+
+msgid "Open **Help → Run History** (or type *Run History* in the command palette, Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal happens on a background worker and does not create another run record."
+msgstr "Abra **Ajuda → Histórico de execuções** (ou digite *Histórico de execuções* na paleta de comandos, Ctrl+K) para pesquisar todos os pipelines registrados pelo spaCR. A atualização de um diário grande acontece em um processo de trabalho em segundo plano e não cria outro registro de execução."
+
+msgid "The dashboard combines:"
+msgstr "O painel reúne:"
+
+msgid "module, status, start/end time, wall time and process CPU time;"
+msgstr "módulo, status, horário de início/término, tempo decorrido e tempo de CPU do processo;"
+
+msgid "exact resolved settings;"
+msgstr "as configurações resolvidas exatas;"
+
+msgid "SHA-256 records for inputs, outputs and models;"
+msgstr "registros SHA-256 de entradas, saídas e modelos;"
+
+msgid "structured warnings, provenance warnings and failure tracebacks;"
+msgstr "avisos estruturados, avisos de proveniência e rastreamentos de falhas;"
+
+msgid "package, spaCR, Git and platform versions;"
+msgstr "versões de pacotes, do spaCR, do Git e da plataforma;"
+
+msgid "declared seeds and runtime random-state identifiers."
+msgstr "sementes declaradas e identificadores de estado aleatório em tempo de execução."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
+msgstr "Os termos de pesquisa são combinados: ``adamw plate_03 warning`` mostra apenas os registros que contêm os três termos em qualquer parte das configurações, caminhos, avisos, falhas ou dados de ambiente. Os filtros de módulo e de status podem ser aplicados ao mesmo tempo. Pastas de execução interrompidas ou corrompidas continuam listadas, com status ``running`` ou ``corrupt`` e avisos de diagnóstico."
+
+msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "Selecione uma linha para examinar seus detalhes. **Carregar configurações no módulo** abre o módulo original e transfere as configurações exatas registradas para os seus controles; não inicia uma execução. **Abrir pasta da execução** e **Copiar caminho** dão acesso à pasta ``~/.spacr/runs/...`` subjacente."
+
+msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
+msgstr "Clique com o botão direito nas linhas selecionadas para abrir suas pastas ou excluí-las; **Limpar tudo** exclui todas as execuções listadas na tabela. A exclusão pede confirmação antes e remove apenas as pastas do diário; as saídas gravadas nos seus projetos não são alteradas."
+
+msgid "Storage: pruning and caches"
+msgstr "Armazenamento: limpeza e caches"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**Preferências → Armazenamento** define os limites usados ao limpar a pasta pessoal do spaCR. Para os logs diários, os logs de execução (``~/.spacr/logs/runs``) e as pastas de execução (``~/.spacr/runs``), ela mantém dois limites: **Manter**, uma idade em dias dentro da qual nada é excluído, e **Limite máximo**, um tamanho acima do qual as entradas mais antigas dentre as anteriores são excluídas (**sem limite** exclui todas as entradas anteriores). A execução em andamento e os arquivos de log abertos nunca são excluídos. **Limpar agora…** lista o que os limites excluiriam e pergunta antes de excluir; nada é limpo automaticamente."
+
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
+msgstr "A tabela de caches lista os caches de modelos do spaCR, do Cellpose, do Hugging Face, do Torch, dos ambientes de backends e de novidades. **Medição** lê seus tamanhos, **Esvaziar…** esvazia o cache selecionado após perguntar, e **Mover…** o transfere para ``<folder>/spacr-<cache>`` em outra unidade. O novo local é registrado em ``~/.spacr/cache_locations.json`` e usado a cada inicialização; um cache cuja variável (por exemplo ``HF_HOME``) está definida fora do spaCR não é movido. Esvaziar e mover aguardam até que nenhuma execução esteja em andamento."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
+msgstr "**Preferências → Registro → Arquivos de log** tem **Esvaziar todos os logs…**. Ele lista os logs diários, de execução, de falhas e detalhados, com o número de arquivos e o tamanho de cada grupo, e os exclui somente depois que você confirma. Um log que a sessão do spaCR em andamento mantém aberto é esvaziado em vez de excluído, para que a execução em andamento mantenha seu log. O resultado informa quantos arquivos foram excluídos e esvaziados e quanto espaço foi liberado."
+
+msgid "Headless search"
+msgstr "Pesquisa sem interface gráfica"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs` retorna os mesmos registros que o painel, incluindo execuções corrompidas e interrompidas, sem Qt:"
+

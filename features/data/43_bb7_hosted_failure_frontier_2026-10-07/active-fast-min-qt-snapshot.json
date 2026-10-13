@@ -1,0 +1,134 @@
+{
+  "hosted_source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+  "run_id": 37681965976,
+  "snapshot_utc": "2026-10-07T22:44:50Z",
+  "integration_head_at_review": "5018da292bc59503bfa375a475ef9cd09d1d4f36",
+  "note": "These Fast, minimum-dependency, and Qt logs were captured while jobs were active, except MinDeps shard 2, which was already terminal. No pass/green verdict follows from a missing FAILED line in a partial log. Full source-bound raw snapshots remain in scratch with the recorded SHA-256.",
+  "jobs": [
+    {
+      "job_id": 113019198929,
+      "job_name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "b0f6580be670bda4e06980fe76ed69796a365e299e59d498a0a72e223b64d5af",
+      "snapshot_bytes": 4226588,
+      "failed_summary_count": 7
+    },
+    {
+      "job_id": 113019199268,
+      "job_name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 0 of 3",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "796263c3ff72435b25a2050b030f33ff4591b461edf52f7a55b79ca16ebe3369",
+      "snapshot_bytes": 4226334,
+      "failed_summary_count": 0
+    },
+    {
+      "job_id": 113019199281,
+      "job_name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 1 of 3",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "b686003e27ae8987fb735d4b6ce98327828cd01f0d64529fe856aec58f1d6888",
+      "snapshot_bytes": 2113186,
+      "failed_summary_count": 2
+    },
+    {
+      "job_id": 113019199461,
+      "job_name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 1 of 3",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "99b6b089a8d4714bfe8d13fbcff8c1dba2aa0f9ada9f39d8f82185c4f24c8534",
+      "snapshot_bytes": 2113144,
+      "failed_summary_count": 2
+    },
+    {
+      "job_id": 113019199519,
+      "job_name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 0 of 3",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "69e8c244290b8eb78be9ee70b7868f6687a2239e11bc3f8c31384e4b026d195e",
+      "snapshot_bytes": 6341919,
+      "failed_summary_count": 2
+    },
+    {
+      "job_id": 113019199535,
+      "job_name": "Qt (1) / Qt shard 1 of 3 (ubuntu-24.04, py3.12)",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "8483119bb4c5f39651131b878ca67ca04cdcc4cc9433904c92089aeba5228f8e",
+      "snapshot_bytes": 2112574,
+      "failed_summary_count": 57
+    },
+    {
+      "job_id": 113019199602,
+      "job_name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+      "status_at_snapshot": "completed",
+      "conclusion_at_snapshot": "failure",
+      "snapshot_sha256": "691bd3560b52ab8fd4778c57a5680bede3752ddd42ec3768cdfb5db5e3a4c7da",
+      "snapshot_bytes": 5110691,
+      "failed_summary_count": 7
+    },
+    {
+      "job_id": 113019199668,
+      "job_name": "Qt (2) / Qt shard 2 of 3 (ubuntu-24.04, py3.12)",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "f96eb3b1c4f7db2c4c989336023ce99686fb8c99449791fe43e7e139ff995447",
+      "snapshot_bytes": 2113573,
+      "failed_summary_count": 36
+    },
+    {
+      "job_id": 113019199786,
+      "job_name": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+      "status_at_snapshot": "in_progress",
+      "conclusion_at_snapshot": null,
+      "snapshot_sha256": "068992edcd4fa23a57d1cbfa3f1588c7af3393a65aa0457da8093316330c7696",
+      "snapshot_bytes": 2112880,
+      "failed_summary_count": 4
+    }
+  ],
+  "new_distinct_groups_since_previous_partial_snapshot": [
+    {
+      "group": "Fast shard 2 callable and reviewed API surface",
+      "nodes": [
+        "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+        "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+        "tests/test_docstring_correctness.py::test_no_new_undocumented_required_public_parameters",
+        "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current[en]"
+      ],
+      "observed": "Hosted bb7 reports two undocumented AmbientWidget setter value parameters and API inventory 13214 versus reviewed 13199. The current root independently passed the required-parameter node; catalog/inventory still requires workstation regeneration and review.",
+      "owner": "root source docs for any current contract failure; workstation generated API/inventory"
+    },
+    {
+      "group": "Swedish guide glossary",
+      "nodes": [
+        "tests/test_guide_i18n.py::test_glossary_matches_the_runtime_catalogs"
+      ],
+      "observed": "Animation detail: reviewed guide Animeringsuppgifter versus current runtime Animationsdetaljer.",
+      "owner": "workstation guide/runtime review"
+    },
+    {
+      "group": "Swedish and French runtime review",
+      "nodes": [
+        "tests/test_runtime_i18n_syntax.py::test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean",
+        "tests/test_runtime_i18n_syntax.py::test_french_reviewed_runtime_text_is_source_bound_and_gate_clean"
+      ],
+      "observed": "Reviewed source bindings are stale; French count is 70 plus zero against 71.",
+      "owner": "workstation normal catalog/review refresh"
+    }
+  ],
+  "already_known_groups_seen_again": [
+    {
+      "group": "Cellpose converted doubles declare exact installed eval signature",
+      "status": "root CPU fixture correction b789 integrated, awaiting new-source hosted verdict"
+    },
+    {
+      "group": "HintBar retired private _hover_delay test",
+      "status": "root CPU test correction integrated, awaiting new-source hosted verdict"
+    },
+    {
+      "group": "Qt theme geometry/default and native worker failures",
+      "status": "No distinct nodes added since the previous partial snapshot; root and theme lanes have targeted repairs, native GC and puncta causation remain open"
+    }
+  ]
+}

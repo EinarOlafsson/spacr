@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "power",
+      "source_sha256": "ef33e991f4e77307fccb419e731005a2ce64be45f552a63482b7043a89b98669",
+      "source": "Statistical power",
+      "translation": "Tölfræðilegur styrkur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_backend",
+      "source_sha256": "956fe017ecf6f765335cb7eecc4b69d231b2afb3996619a849d178b5c35b6c20",
+      "source": "Statistical power — inference backend",
+      "translation": "Tölfræðilegur styrkur — ályktunarbakendi"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_background_positive_rate",
+      "source_sha256": "6b9af66a77032c9d9ceb5cb739dafad74ca92376433570485bd6cf0e11822be9",
+      "source": "Statistical power — background positive-call rate",
+      "translation": "Tölfræðilegur styrkur — bakgrunnstíðni jákvæðra flokkunarniðurstaðna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_cells_per_well",
+      "source_sha256": "cd3a8fb5932689617a8003ef54ca46d5288e17779c4d067f7779c6d2183d440a",
+      "source": "Statistical power — cells per well",
+      "translation": "Tölfræðilegur styrkur — frumur í hverjum brunni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_constructs_per_well",
+      "source_sha256": "810302ea02c8747975f52490a892836fff5f73e92df75ef2ccd9207f80ea41de",
+      "source": "Statistical power — library units per well",
+      "translation": "Tölfræðilegur styrkur — safneiningar í hverjum brunni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_detection_auroc",
+      "source_sha256": "752f7da1abf948204f98c587431ca38a244ed20ec1946993b4a6c31779a5ed94",
+      "source": "Statistical power — detection AUROC threshold",
+      "translation": "Tölfræðilegur styrkur — AUROC-þröskuldur greiningar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_effect_fold",
+      "source_sha256": "c768002379e024486b62119b99d00b8a08855d6f7e39ab35ea0fd9b2adbe0584",
+      "source": "Statistical power — effect multiplier",
+      "translation": "Tölfræðilegur styrkur — margföldunarstuðull áhrifa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_hit_rate",
+      "source_sha256": "60ad85bced0c29d038d744b82f5d7189aba6b04215c9166c8bb40b99f83e58fc",
+      "source": "Statistical power — hit probability",
+      "translation": "Tölfræðilegur styrkur — líkur á raunverulegum áhrifum"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_genes",
+      "source_sha256": "9751ff9b35135df55ac3b0054eab46ae0ce6c0964fcfbb7f130c25721c65f993",
+      "source": "Statistical power — genes",
+      "translation": "Tölfræðilegur styrkur — fjöldi gena"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_grnas_per_gene",
+      "source_sha256": "e63938d08e73c1206419220a7cc63253512078e701a204f291ad1c5400de59f0",
+      "source": "Statistical power — gRNAs per gene",
+      "translation": "Tölfræðilegur styrkur — fjöldi gRNAs á hvert gen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_plates",
+      "source_sha256": "531737da998d745c3957c8c4c3562285db8ed13d5aa76d5eb8d50bf5e1d9469e",
+      "source": "Statistical power — plates",
+      "translation": "Tölfræðilegur styrkur — fjöldi platna"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_n_replicates",
+      "source_sha256": "f746c9c15dffa6eecc8e346f65252d2a303812b61f3c7b236a02d6ce81851ba6",
+      "source": "Statistical power — replicates",
+      "translation": "Tölfræðilegur styrkur — fjöldi endurtekninga"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_reads_per_well",
+      "source_sha256": "d8af7ccfa4459dcdd569e05606ab22892caee092db83fe55518d7363823d9372",
+      "source": "Statistical power — reads per well",
+      "translation": "Tölfræðilegur styrkur — lestrar í hverjum brunni"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_score_per",
+      "source_sha256": "9fd836e238d3404d89314cff57d51bb7f3868402a72b6312e014e1c46a427706",
+      "source": "Statistical power — scoring level",
+      "translation": "Tölfræðilegur styrkur — eining stigagjafar"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_seed",
+      "source_sha256": "24fd5934685034aa0d62a8b76cd340ef1cfa705d5b00b777c572a8819ba76412",
+      "source": "Statistical power — random seed",
+      "translation": "Tölfræðilegur styrkur — slembifræ"
+    },
+    {
+      "table": "setting_labels",
+      "key": "power_wells_per_plate",
+      "source_sha256": "83664967a29c97f69b623c1c0e9dc5f74697ea35dd10458191f162ab2c4bec24",
+      "source": "Statistical power — wells per plate",
+      "translation": "Tölfræðilegur styrkur — brunnar á plötu"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power",
+      "source_sha256": "ef98157ed391ecf7d300b4abcfb288652779633592cd091085b3c05575684827",
+      "source": "Simulates experiments under the specified library, plate, classifier, and effect-size assumptions, then fits the selected analysis model. The parameter scan varies cells per well and the number of wells and reports the fraction of simulations in which the planted effects are recovered.",
+      "translation": "Hermir tilraunir út frá tilgreindum forsendum um safn, plötur, flokkara og áhrifastærð og aðlagar síðan valið greiningarlíkan. Stikuskönnunin breytir fjölda frumna í hverjum brunni og fjölda brunna og sýnir hlutfall hermana þar sem fyrirfram skilgreindu sönnu áhrifin finnast aftur."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_backend",
+      "source_sha256": "47c91b7bafb730b559afc6d050dade096a8134573972a8f886394dae15993037",
+      "source": "Inference backend: 'torch' uses mean-field ADVI; 'numpyro' and 'pymc' use optional NUTS; 'auto' prefers numpyro, then pymc, then torch. An unavailable named backend raises. AUROC uses coefficient ordering, but ADVI can reach a local optimum and its intervals are not calibrated. Default 'torch'.",
+      "translation": "Ályktunarbakendi: 'torch' notar mean-field ADVI; 'numpyro' og 'pymc' nota NUTS þegar valfrjálsu pakkarnir eru tiltækir; 'auto' velur helst numpyro, síðan pymc og loks torch. Ef sérstaklega tilgreindur bakendi er ekki tiltækur kemur upp villa. AUROC byggist á röðun stuðlanna, en ADVI getur náð staðbundnu kjörgildi og bilin þess eru ekki kvörðuð. Sjálfgefið gildi: 'torch'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_background_positive_rate",
+      "source_sha256": "79977ab83e0308811779abe58cb25db6ec351b12f0533ed68c175b7569cda0a5",
+      "source": "Mean probability that a non-hit cell is called positive. Rates vary across library-unit/well observations according to the held class_neg_var. Default 0.12.",
+      "translation": "Meðallíkur á að fruma úr einingu án raunverulegra áhrifa sé flokkuð sem jákvæð. Tíðnin er breytileg milli athugana fyrir safneiningar/brunna samkvæmt föstu gildi class_neg_var. Sjálfgefið gildi: 0.12."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_cells_per_well",
+      "source_sha256": "57c03adc76fc9c35e87b1d9456e8f7cc194ff766d67adb5568d789a23b4852de",
+      "source": "Mean cells imaged per well. The real screen averaged 123. This is the parameter you buy with microscope time, and the first curve sweeps it. Default 123.0.",
+      "translation": "Meðalfjöldi frumna sem teknar eru myndir af í hverjum brunni. Í raunverulegu skimuninni var meðaltalið 123. Þetta er stikan sem kostar smásjártíma og er skönnuð á fyrsta ferlinum. Sjálfgefið gildi: 123.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_constructs_per_well",
+      "source_sha256": "828a03d422b0ce477db384b640e9851c6e5c227ef11534f5cf683cb1bb985242",
+      "source": "Target mean distinct library units present per well (genes in gene mode, guides in guide mode), passed as well_abundance_factor_mu. Probability clipping can make the realised mean lower. Default 4.6.",
+      "translation": "Markmiðsgildi fyrir meðalfjölda aðgreindra safneininga í hverjum brunni (gen í 'gene'-ham, leiðareiningar í 'guide'-ham), sent sem well_abundance_factor_mu. Líkindaklipping getur valdið því að meðaltalið sem raunverulega fæst verði lægra. Sjálfgefið gildi: 4.6."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_detection_auroc",
+      "source_sha256": "7dd39575717ba97d9fc6a1eda812b4872d121995966b4f1ee9ba0feeda1a9b36",
+      "source": "The AUROC a simulated screen must reach to count as a detection. There is no p-value here - the model ranks genes, so the bar is a ranking quality and you choose it. Default 0.8.",
+      "translation": "AUROC-gildið sem hermd skimun þarf að ná til að teljast greining. Hér er ekkert p-gildi — líkanið raðar genum, þannig að þröskuldurinn mælir gæði röðunarinnar og notandinn velur hann. Sjálfgefið gildi: 0.8."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_effect_fold",
+      "source_sha256": "ef86a530434ab3ff6e59b3814ad366e14109f5c6c51f4c2a8a9ff9127e4f61d5",
+      "source": "Requested fold multiplier on the mean background positive-call rate. The simulator uses min(0.999, background rate × fold); the screen rejects folds below 1 and classifier mean/variance combinations that cannot define a beta distribution. Default 6.667, yielding 0.80004 at the default background.",
+      "translation": "Umbeðinn margföldunarstuðull fyrir meðaltíðni jákvæðrar flokkunar í bakgrunni. Hermirinn notar min(0.999, bakgrunnstíðni × stuðull); viðmótið hafnar stuðlum undir 1 og samsetningum meðaltals og dreifni flokkarans sem geta ekki skilgreint beta-dreifingu. Sjálfgefið gildi: 6.667, sem gefur 0.80004 við sjálfgefinn bakgrunn."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_hit_rate",
+      "source_sha256": "e84df178cb1f7faccb733fdaee2cdc9ceb875e606e4988028d78847300edf9ed",
+      "source": "Independent probability that each simulated library unit is a true hit; the realised hit fraction varies between replicates. In guide mode, guide units are assigned independently because no gene-grouping layer is modelled. Default 0.025.",
+      "translation": "Óháðar líkur á að hver hermd safneining sé raunveruleg áhrifaeining; hlutfall áhrifaeininga sem raunverulega fæst er breytilegt milli endurtekninga. Í 'guide'-ham fær hver leiðareining þessa stöðu óháð hinum, þar sem líkanið hefur ekkert lag sem hópar þær eftir genum. Sjálfgefið gildi: 0.025."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_genes",
+      "source_sha256": "b7e50b343f7bc78213bc1c9595de83e4e21a7da0bb7cc945295b321adfd2d2ab",
+      "source": "Number of genes in the design. In gene mode this is the number of simulated library units; in guide mode the simulator uses genes × guides-per-gene independent units. Larger libraries generally make recovery harder, but the simulator evaluates the resulting design directly rather than assuming a fixed scaling law. Default 452.",
+      "translation": "Fjöldi gena í hönnuninni. Í 'gene'-ham er þetta fjöldi hermdra safneininga; í 'guide'-ham notar hermirinn gen × leiðareiningar á hvert gen sem óháðar einingar. Stærri söfn gera endurheimt almennt erfiðari, en hermirinn metur hönnunina sem fæst beint í stað þess að gera ráð fyrir fastri skölunarreglu. Sjálfgefið gildi: 452."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_grnas_per_gene",
+      "source_sha256": "6137f904a97c573142111a9561e5861937527f06a04fe517e04ead63c1205dd1",
+      "source": "Guides per gene. Only reaches the simulation when power_score_per is 'guide'; there is no guide-efficiency layer in the port, so scoring per gene it changes no number. Default 4.",
+      "translation": "Leiðareiningar á hvert gen. Stikan er aðeins notuð í hermuninni þegar power_score_per er 'guide'; þessi útfærsla hefur ekkert lag fyrir skilvirkni leiðareininga, þannig að við stigagjöf á genastigi breytir hún engri niðurstöðu. Sjálfgefið gildi: 4."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_plates",
+      "source_sha256": "4967793a1d8ee0afd61770a8ee317fe3d846be0b7ece7365db82da7f0b253567",
+      "source": "Number of plates used to calculate total simulated wells: wells-per-plate × plates. The simulator and fitted model receive only that total and do not model plate identity or plate-to-plate variance. Default 4.",
+      "translation": "Fjöldi platna sem notaður er til að reikna heildarfjölda hermdra brunna: brunnar á plötu × plötur. Hermirinn og aðlagaða líkanið fá aðeins þessa heildartölu og taka hvorki tillit til auðkennis platna né dreifni milli platna. Sjálfgefið gildi: 4."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_n_replicates",
+      "source_sha256": "85b74b9e738944b3a2a66178dd595cae1918e2584b6475f954eae9ac0cc73cdb",
+      "source": "Simulated screens per grid point. One screen at one setting is a single draw from a noisy process. Default 3.",
+      "translation": "Fjöldi hermdra skimunartilrauna á hverjum grindarpunkti. Ein skimunartilraun við tiltekna stillingu er ein slembiútkoma úr ferli með suði. Sjálfgefið gildi: 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_reads_per_well",
+      "source_sha256": "aaea2c308cd9acaa7450668b2fcd7dc0a2bff64092bafcfc6adcb3761daeee51",
+      "source": "Target mean sequencing depth per well. Per-well targets vary according to the held read_depth_cv, and realised reads cannot exceed the amplified barcode pool. Default 30000.",
+      "translation": "Markmiðsgildi fyrir meðaltal raðgreiningardýptar í hverjum brunni. Markmiðsgildin fyrir einstaka brunna eru breytileg samkvæmt föstu gildi read_depth_cv, og raunfjöldi lestra getur ekki farið fram úr fjöldanum í magnaða strikamerkjasafninu. Sjálfgefið gildi: 30000."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_score_per",
+      "source_sha256": "8b009ebb894f07cb6d9f52622e3cd4291e8ba1747340d2b4152aacb86c51a057",
+      "source": "'gene' simulates one aggregate library unit and coefficient per gene; 'guide' simulates genes × guides-per-gene independent guide-level units, each with its own coefficient and reads. The simulator has no guide-efficiency or within-gene grouping layer. Choices: 'gene' or 'guide'. Default 'gene'.",
+      "translation": "Í 'gene'-ham er hermd ein samanlögð safneining og einn stuðull fyrir hvert gen; í 'guide'-ham eru gen × leiðareiningar á hvert gen hermd sem óháðar einingar á leiðarstigi, hver með sinn stuðul og sína lestra. Hermirinn hefur hvorki lag fyrir skilvirkni leiðareininga né hópun innan gens. Valkostir: 'gene' eða 'guide'. Sjálfgefið gildi: 'gene'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_seed",
+      "source_sha256": "b98669ad22dcff882967a48fb9edc04069ada5c0264d8a06ec0932005939db6d",
+      "source": "Master seed used to derive each grid-point replicate seed. Reproduction requires the complete DesignSpec, the same sweep grid and order, resolved backend, and software stack. Default 0.",
+      "translation": "Aðalfræ sem notað er til að búa til fræ hverrar endurtekningar á hverjum grindarpunkti. Til að endurtaka niðurstöðuna þarf fullkomið DesignSpec, sama stikuskönnunarnet í sömu röð, sama bakenda sem fæst eftir sjálfvirkt val og sama hugbúnaðarumhverfi. Sjálfgefið gildi: 0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "power_wells_per_plate",
+      "source_sha256": "54fd0866270dab68d2a043eafa374e41eaa0bab008efe7f738016fae245152ac",
+      "source": "Wells per plate. The GUI offers 96, 384 and 1536; programmatic designs are not restricted to those formats. This is multiplied by power_n_plates and only the resulting total well count reaches the simulator; no plate identity is modelled. Default 384.",
+      "translation": "Brunnar á plötu. Notendaviðmótið (GUI) býður upp á 96, 384 og 1536; hannanir sem búnar eru til með forritun eru ekki bundnar við þessi snið. Gildið er margfaldað með power_n_plates og aðeins heildarfjöldi brunna sem fæst er sendur til hermisins; auðkenni einstakra platna er ekki hluti af líkaninu. Sjálfgefið gildi: 384."
+    }
+  ]
+}

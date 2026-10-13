@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "baseline_manifest_sha256": "8edca98f414e5e9e4808f1c28c25cd397cca39a98b3c6bcfb70d76aada78bbd3",
+  "candidate_manifest_sha256": "900dcfc739a183944d58a6eb21025cb5b082fa38dccd4b9be14b40d2dc47b2b9",
+  "changed_media": [
+    "media_host/02_conda_install/video/02_conda_install_silent.mp4",
+    "media_host/02_conda_install/web/02_conda_install_silent.mp4"
+  ],
+  "normal_player_index_and_navigation_changes": [
+    "web/index.html",
+    "web/module_navigation.js"
+  ],
+  "preserved_media_records": 4758,
+  "unchanged_lessons": 84,
+  "catalogs_preserved": 14,
+  "narration_tracks_preserved": 27,
+  "scope": "Conda Home scene only; all other complete media records and all fourteen catalog bytes retained. Normal candidate index/navigation are generated independently."
+}

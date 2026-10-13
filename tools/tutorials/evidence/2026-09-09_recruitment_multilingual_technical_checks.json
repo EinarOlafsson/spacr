@@ -1,0 +1,36 @@
+{
+  "lesson": "25_recruitment",
+  "status": "Staged technical checks passed; publication remains held",
+  "canonical_english_sha256": "0622b1045a10bd4ca8433c5097acfe6147c6e750f727885d64c9c6b5de31c4f2",
+  "scene_count_per_catalog": 21,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "all_track_hashes_rechecked_after_verification": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 12672,
+    "duration_seconds": 422.4, "audio_streams": 0, "bytes": 23802512,
+    "sha256": "821dc7739fa3f6cd428ccabc9e04334bf36a40153ad9b75cef7f6d1520a223fa"
+  },
+  "browser_checks": {
+    "spoken_languages": 8, "independent_caption_languages": 6, "all_passed": true,
+    "checks": ["Actual fetched audio bytes match final tracks", "Chapter seeking and mapped audio/video clocks", "Retained scene links", "Current parent-module navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "All caption scenes and generated WebVTT without changing voice"]
+  },
+  "recording": {
+    "app_commit": "750fbdf2721734b2816ff4c9185ae1d280b8bd5a", "version": "1.5.0.4", "font_scale": 2,
+    "capture": "refresh_2026-09-09/captures/recruitment_release",
+    "private_project": "refresh_2026-09-09/recruitment_runs/example-ac__3qcy/project",
+    "source_database_sha256": "9028eabff2bab4d7ef5447e1870f7e0aa3879fa641497ae150ad31b8d2f97d5d",
+    "source_rows": {"cell": 453, "cytoplasm": 453, "nucleus": 588, "pathogen": 998},
+    "retention_counts": [453, 350, 331, 223], "retained_cells": 223, "wells": 4, "actual_figures": 5,
+    "independent_checks": ["Exact original parent identities", "Child aggregates", "All 16 ratio columns", "Well means of retained-cell ratios", "All source intensities within explicit nonrestrictive bounds", "Original database and four image arrays unchanged"],
+    "max_absolute_numeric_difference": 1.1368683772161603e-13,
+    "important_limits": ["Four real fields are a small unbalanced subset, not biological effect validation", "Recorded ER/control metadata is not independent biological validation", "PV-labelled outputs actually aggregate within host cells", "Well charts average well values by condition and use between-well SD, not CI", "Single-well groups cannot estimate between-well spread", "Historical measured masks have not been exactly reconstructed from archived overlays", "One-nucleus filtering explains the 103-cell generic database-gap warning", "Actual nucleus/pathogen intensity filters read channels 3/1; broad demonstrated bounds exclude no source rows", "Cells-per-well threshold counts before filtering; slope columns are constants", "AI question drafted but never sent"],
+    "app_source_modified": false
+  },
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 629, "refreshed_scripts": 14, "unselected_unchanged": 61, "unselected_media_replaced": false},
+  "technical_matrices_completed_so_far": 14,
+  "synthesis": "One CUDA job, 10% VRAM cap, two CPU threads, 110 GiB host-memory guard",
+  "translation_review": "Editorial translation plus independent cross-check; not native-speaker sign-off",
+  "human_listening_review": false, "published": false, "whole_refresh_complete": false
+}

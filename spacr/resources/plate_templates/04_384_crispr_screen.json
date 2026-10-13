@@ -1,0 +1,440 @@
+{
+  "title": "384-well: arrayed CRISPR screen",
+  "description": "84 target genes with four wells each (one per guide, or four replicates of a pool), 24 non-targeting guide wells as the negative control and 24 wells of a knockout with a known phenotype as the positive control: 384 wells, randomised across the whole plate so that no gene and no control is confounded with a row, a column or the edge. Rename gene_001 to gene_084 after your library.",
+  "plate_format": 384,
+  "layout": "random",
+  "edge_policy": "use",
+  "seed": 384,
+  "conditions": [
+    {
+      "name": "non_targeting",
+      "replicates": 24,
+      "role": "negative_control"
+    },
+    {
+      "name": "positive_ko",
+      "replicates": 24,
+      "role": "positive_control"
+    },
+    {
+      "name": "gene_001",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_002",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_003",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_004",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_005",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_006",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_007",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_008",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_009",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_010",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_011",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_012",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_013",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_014",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_015",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_016",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_017",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_018",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_019",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_020",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_021",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_022",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_023",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_024",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_025",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_026",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_027",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_028",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_029",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_030",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_031",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_032",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_033",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_034",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_035",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_036",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_037",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_038",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_039",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_040",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_041",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_042",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_043",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_044",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_045",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_046",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_047",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_048",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_049",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_050",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_051",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_052",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_053",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_054",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_055",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_056",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_057",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_058",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_059",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_060",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_061",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_062",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_063",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_064",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_065",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_066",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_067",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_068",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_069",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_070",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_071",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_072",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_073",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_074",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_075",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_076",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_077",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_078",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_079",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_080",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_081",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_082",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_083",
+      "replicates": 4,
+      "role": "treatment"
+    },
+    {
+      "name": "gene_084",
+      "replicates": 4,
+      "role": "treatment"
+    }
+  ]
+}

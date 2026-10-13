@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted source-context review of cancellation, asynchronous saving, enhancement comparisons and optional scale/time estimates. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "An annotation or legend save is already in progress.",
+      "source": "An annotation or legend save is already in progress.",
+      "source_sha256": "d4299c22caf1a431e84aa5805537eabda3886582ed26ffc84e33c71f1e574897",
+      "translation": "어노테이션 또는 그림 설명을 이미 저장하고 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Discard this preview. A model call already running finishes in the background before another preview can start.",
+      "source": "Discard this preview. A model call already running finishes in the background before another preview can start.",
+      "source_sha256": "2d6ecca1a19ef9b68d4b16b75ec9f7be6f20436bb6442e2769ca9a25066737d0",
+      "translation": "이 미리보기를 취소합니다. 실행 중인 모델 호출이 백그라운드에서 끝나야 다음 미리보기를 시작할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Estimate scale / time (experimental)",
+      "source": "Estimate scale / time (experimental)",
+      "source_sha256": "09e96cf331da1d5835e1b91b7fd5285f4c087ab263e8d0e09f7d6134a48fe989",
+      "translation": "축척 / 시간 추정 (실험적)"
+    },
+    {
+      "table": "ui",
+      "key": "Experimental suggestion; measured values are retained. See the reference and assumptions below.",
+      "source": "Experimental suggestion; measured values are retained. See the reference and assumptions below.",
+      "source_sha256": "95af9d7a28567c2703266c1a1abe077815d2f2556ccd512fe8afc0ceb9ecace2",
+      "translation": "실험적 제안이며 측정값은 유지됩니다. 아래의 참조 자료와 가정을 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.",
+      "source": "Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.",
+      "source_sha256": "66668744c88856c7147d3c1dbe8993f3d16349bf70ef4439ba81dc948a0c309e",
+      "translation": "향상된 이미지를 준비하는 중… 취소하면 비교 창이 닫히고, 실행 중인 필터는 백그라운드에서 완료됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Saving review…",
+      "source": "Saving review…",
+      "source_sha256": "ecccc3f1f8dd1bea9674ca24d4157c2eb4112dafe505b99088ad210d14178557",
+      "translation": "검토 결과를 저장하는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "The image or enhancement settings changed. Choose Compare again.",
+      "source": "The image or enhancement settings changed. Choose Compare again.",
+      "source_sha256": "285e73dd77995589e407786245fce666c995bf350b58a1a3148fccd3f1da7192",
+      "translation": "이미지 또는 향상 설정이 변경되었습니다. 비교를 다시 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "The previous preview is still finishing. Run preview will be available when it exits.",
+      "source": "The previous preview is still finishing. Run preview will be available when it exits.",
+      "source_sha256": "63ea86dc036b431a6b1e235df29739496b3ecbcb2db1b45a8d85a29e498d27fa",
+      "translation": "이전 미리보기가 아직 종료 중입니다. 종료되면 미리보기 실행을 사용할 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Updating conditions with the new text settings…",
+      "source": "Updating conditions with the new text settings…",
+      "source_sha256": "7afcdcbd2283fc070de1c98e08b2a62b97c978ec71799e29c61d00e71644b237",
+      "translation": "새 텍스트 설정으로 실험 조건을 업데이트하는 중…"
+    }
+  ]
+}

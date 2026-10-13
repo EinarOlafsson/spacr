@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "item": 53,
+  "date": "2026-09-27",
+  "scope": "Prepared exact-package fallback for the Windows NSIS build prerequisite only",
+  "trigger": {
+    "run": 36368240823,
+    "job": 108763614671,
+    "source_commit": "0e8b545305fccb888701484703b75c746a5ed60b",
+    "artifact_id": 10948614661,
+    "verified_artifact_digest": "sha256:d921662b84e586cdc116e69ecd1123b8f350a5c82975e303c7d649755404fe51",
+    "observed_failure": "All three official requests returned HTTP 200 HTML download pages; retained payload hashes and HTML bytes were independently checked. No payload passed the unchanged installer pin."
+  },
+  "independently_verified_package": {
+    "url": "https://community.chocolatey.org/api/v2/package/nsis.install/3.13.0",
+    "bytes": 1553581,
+    "sha256": "cefd57d4ebbc56d3ab104034044f54d61918642d51f6fcc44ff8d6c960533f91",
+    "fresh_download_matches_previously_verified_package": true,
+    "zip_entries": 9,
+    "installer_entry": "tools/nsis-3.13-setup.exe",
+    "case_insensitive_matching_entries": 1,
+    "installer_bytes": 1567985,
+    "installer_compressed_bytes": 1543396,
+    "installer_external_attributes": 0,
+    "installer_sha256": "db9a1038bbc0e53fef24f423fd609979bd578e942f1be1198db186d1c42652a3",
+    "installer_mz_and_pe_signatures_verified": true,
+    "embedded_bytes_match_previously_verified_official_installer": true
+  },
+  "prepared_fallback": {
+    "official_attempts_and_retained_evidence_preserved": true,
+    "package_attempts_after_official_failure": 1,
+    "download_deadline_seconds": 120,
+    "redirect_limit": 5,
+    "maximum_retained_package_bytes": 1553582,
+    "maximum_bytes_explanation": "Exact expected size plus one sentinel byte; exceeding the expected size fails before ZIP parsing",
+    "package_gate": "HTTP 200, exact package length and package SHA256 before ZIP access",
+    "archive_gate": "At most 32 entries; exactly one case-insensitive match with exact target spelling; exact entry length, bounded compressed length and regular/unspecified file type",
+    "extraction": "Only the known entry stream is copied to a fixed evidence filename under an exact byte bound; no broad extraction or package script execution",
+    "execution_gate": "Unchanged inner installer SHA256 and executable-header check, followed by the existing copied-installer hash check immediately before execution",
+    "retained_evidence": "Package payload/headers/status/final URL, entry payload, hashes, byte counts, timestamps and failures"
+  },
+  "validation": {
+    "workflow_sha256": "bda5f7df4f9e6eff183831891ac575b4d4409c5cf3e1c330015c388a41a8fe23",
+    "yaml_parse_and_pin_gate_order_checks": "passed with Node; no Python",
+    "actual_zip_directory_sizes_and_single_entry_identity": "passed",
+    "official_installer_byte_comparison": "passed",
+    "diff_whitespace_check": "passed",
+    "checks_json_sha256": "b043ed89b9e670fd4e9a4465a67165f0e0f7338b5d9558282b429f5057cfd6c3",
+    "fresh_package_headers_sha256": "11b41fccd10f5aea3bee5258b25dd969d0f247de4794a2df6769da3ee0f2f1e1",
+    "python_tests": {
+      "files": [
+        "tests/test_native_installer_workflow.py",
+        "tests/qt/test_plugin_catalogue_alpha_gate.py",
+        "tests/qt/test_a_hovered_setting_does_not_turn_the_chat_box_black.py"
+      ],
+      "cap": "4G",
+      "private_home": true,
+      "cuda_hidden": true,
+      "qt_platform": "offscreen",
+      "exit_status": 0,
+      "passed": 12,
+      "duration_seconds": 13.89,
+      "log": "/mnt/wd4tb/scratch/spacr-completion/cheap-fixes-check-20260927/pytest.log",
+      "log_sha256": "b3bd18e5a3ce8a88cf3d59c03405b3c93dc849d53821673dce8cc87715fdbc56"
+    },
+    "powershell_parser_or_execution_locally": false,
+    "installer_executed_locally": false,
+    "native_windows_acceptance": "pending"
+  },
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/53-nsis-package-fallback-20260927",
+  "full_item_complete": false
+}

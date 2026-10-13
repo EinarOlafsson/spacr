@@ -1,0 +1,8 @@
+spacr/sp_stats.py:64:1: I001 [*] Import block is un-sorted or un-formatted
+spacr/sp_stats.py:671:9: B007 Loop control variable `iterations` not used within loop body
+spacr/sp_stats.py:1228:9: I001 [*] Import block is un-sorted or un-formatted
+spacr/sp_stats.py:1976:5: I001 [*] Import block is un-sorted or un-formatted
+spacr/sp_stats.py:3346:23: B007 Loop control variable `features` not used within loop body
+spacr/sp_stats.py:4200:5: I001 [*] Import block is un-sorted or un-formatted
+Found 6 errors.
+[*] 4 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

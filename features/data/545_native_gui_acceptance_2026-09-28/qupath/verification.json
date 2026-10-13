@@ -1,0 +1,49 @@
+{
+  "schema": "spacr.545.qupath_native_acceptance.v1",
+  "passed": true,
+  "source_revision": "5014fb90f71302246782e099aad0159a04294be7",
+  "source_sha256": {
+    "tests/test_545_roi_export_import.py": "d9d7e4f86e655bc178a2e3d099f2f425dbdf4bd583561248fa4a7b9ef7538d22",
+    "spacr/mask_io.py": "f8eda3ee0ac80ce9a309c4c67424ccdd037d3c29d698e58b22a8247ead77deed"
+  },
+  "official_release": "https://github.com/qupath/qupath/releases/tag/v0.7.0",
+  "artifact": {
+    "name": "QuPath-v0.7.0-Linux.tar.xz",
+    "size": 256194072,
+    "digest": "sha256:165e27a0731d58ba039e9d0d34a54acf896bb92e81922370df295cb85418ce53",
+    "browser_download_url": "https://github.com/qupath/qupath/releases/download/v0.7.0/QuPath-v0.7.0-Linux.tar.xz"
+  },
+  "published_archive_digest_verified": true,
+  "archive_size_limit_bytes": 314572800,
+  "process_exit_code": 0,
+  "memory_max_bytes": 4294967296,
+  "memory_swap_max_bytes": 0,
+  "java_heap_max": "2G",
+  "visible_native_gui": true,
+  "software_rendering": true,
+  "annotation_count": 8,
+  "geometry_pixel_centres_checked": 49152,
+  "pixel_centre_differences": 0,
+  "checks": [
+    "Native GUI image open",
+    "Native GUI GeoJSON import",
+    "All 8 annotation names",
+    "Object IDs as native measurements",
+    "Classifications",
+    "Original UUIDs",
+    "Bounds",
+    "Areas",
+    "Valid JTS geometry",
+    "Every per-object pixel centre",
+    "Saved native QP data",
+    "Full external Xvfb screenshot visually reviewed"
+  ],
+  "native_receipt": "gui-receipt.json",
+  "external_screenshot": "private-display.png",
+  "artifact_manifest": "evidence.sha256",
+  "limitations": [
+    "Synthetic awkward-geometry acceptance fixture; no claim about all third-party versions",
+    "No manual human signoff",
+    "Initial harness failures retained separately; no spaCR or QuPath code changed"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "items": [
+    419,
+    417
+  ],
+  "base_commit": "b9cce38540af9fc3d336a20634249ee8bb68ed7f",
+  "scope": "Divide / Merge manual editing and magnifier drag extension of starting identity",
+  "gesture": "Left drag divides. Right drag crosses and merges object labels into the first crossed ID.",
+  "magnifier": "Path-touched detections share the initial object ID; a drag beginning on background allocates one ID. Applies at the shared magnifier paste boundary.",
+  "invariants": [
+    "No background bridge painted",
+    "Bystander labels unchanged",
+    "Acquired-image bytes unchanged",
+    "One undo step per drag",
+    "Undo/redo restore labels and grouping policy",
+    "Exact manually grouped IDs retained through Save, Next, close and fresh-screen reopen",
+    "Box right-click annotation deletion remains independent"
+  ],
+  "validation": "Actual Qt gestures and worker requests for Otsu and Cellpose with deterministic detector stubs. Does not claim new neural-model accuracy or GPU inference acceptance.",
+  "environment": "CUDA hidden, QT_QPA_PLATFORM=offscreen, 8 GiB capped, OMP/BLAS threads 2; no whole-repository suite",
+  "final_exit_code": 0,
+  "final_test_count": 268,
+  "source_sha256": {
+    "spacr/qt/mask_engine.py": "a442b2ec4733a64e8845f73ac5dd3bf5e062194091b6532f752c96a0ac86739b",
+    "spacr/qt/screens/make_masks.py": "8030568879596a036b5acb37bcf2a338f17a7dfa9760d6ec7aa0e093455f8b6b",
+    "tests/qt/test_make_masks_draw_divide.py": "4f7cd3f8ff25a7afb8f9154b49541d8f07a627bf5894bd28d9634ad61f09d798",
+    "tests/qt/test_the_magnifier_drag_merges_what_the_cursor_passes_over.py": "6f846a7b291d9f69b584b26f4a61717809424db92f491d802f5ce4192078977c"
+  },
+  "complete_logs": {
+    "mask-manual-merge-and-Cellpose-drag-tests-r1.log": {
+      "exit_code": 1,
+      "result": "63 passed, 3 fixture failures: wrong signal-count dictionary keys",
+      "uncompressed_sha256": "54ea1215479496eea6c18a80176aad36f7f94aa20f1087f0f2ff33cf9c09fa71",
+      "archive_sha256": "6320dbb5b45be67b8727a2e8fcb271439e93f33e4df107dd7c673d8933eac760"
+    },
+    "mask-manual-merge-and-Cellpose-drag-tests-r2.log": {
+      "exit_code": 0,
+      "result": "121 passed",
+      "uncompressed_sha256": "64752349f962517972d45a689e3fa89f71e5e83cf79205db2504b72b87576e0e",
+      "archive_sha256": "e3c4a2e4da253d7192186697167aa9acb3415d7d7d1f56a437e6fcde1c9f8369"
+    },
+    "mask-merge-current-nightly-baseline-r1.log": {
+      "exit_code": 1,
+      "result": "3 reproduced product failures against b9cce3854 with earlier new regressions",
+      "uncompressed_sha256": "bd5a8e0913f7019ba410314dcdd2a9210b4a5448f31ab3fe8291cb5bad95c143",
+      "archive_sha256": "ec5e35ae5d12d376c266ee6400916e5eea5286ed2439752c3e94104816b14bab"
+    },
+    "mask-manual-merge-and-Cellpose-drag-tests-r3.log": {
+      "exit_code": 1,
+      "result": "234 passed, 1 fixture failure: wrong Wand stub signature",
+      "uncompressed_sha256": "b36fede3edac5042857732dc4ffcc38f1ab300c1ef93bae283e5115f0f3efdf1",
+      "archive_sha256": "c5ec10d87841abd1d7558e49266fc318267bcb6ddd7ec3e2c33c4273a6a92e40"
+    },
+    "mask-manual-merge-and-Cellpose-drag-tests-r4.log": {
+      "exit_code": 0,
+      "result": "235 passed",
+      "uncompressed_sha256": "d5dd8b1e867c58f3afd01131add619f0337f9f71923fa0cf6cd8be4076ac99b2",
+      "archive_sha256": "d9c0765514d9daecf1c7f993750ce59b2ab0ed558f950d6cf9f0068c228d26a0"
+    },
+    "mask-merge-Box-neighbor-tests-r1.log": {
+      "exit_code": 0,
+      "result": "32 passed",
+      "uncompressed_sha256": "11a5fdb19e9ebbca33bbace170d5eee30e803f9396bb1ddfa4a8561d1d5b85ef",
+      "archive_sha256": "e6f20b2594af365418116663f6a4d3463438c643b3d42a2b2bda381993f81e9c"
+    },
+    "mask-manual-merge-and-Cellpose-drag-tests-r5.log": {
+      "exit_code": 0,
+      "result": "268 passed in 105.31s; final complete affected cohort",
+      "uncompressed_sha256": "e079eb01daa91ee9af60f9d082c67fa215346e1fc29c8f94629dd150b5c898e7",
+      "archive_sha256": "e04c1ab0715e2b9efe9c5f6ad74c7a39d7227750dc6789bf7f4bfa65fccf8d30"
+    }
+  },
+  "baseline_note": "Baseline uses the earlier variants of the new regression files, archived separately. Three genuine product failures are distinct from later test-fixture corrections.",
+  "runtime_translation_status": "New tr() sources extracted, but combined review preparation is not admitted: stale global ui/Divide review rejected the context gate. Full normal source-current all-nine refresh remains required.",
+  "broader_goal": "API/docs/translations/tutorials and GPU science remain open; this receipt closes only the requested mask editing behavior."
+}

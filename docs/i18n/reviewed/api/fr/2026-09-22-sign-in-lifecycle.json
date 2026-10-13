@@ -1,0 +1,21 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Reap the command, stop its process group and close the terminal.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#0",
+      "source": "Reap the command, stop its process group and close the terminal.",
+      "source_sha256": "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+      "translation": "Attendre la fin de la commande et récupérer son état de sortie, arrêter son groupe de processus et fermer le terminal."
+    },
+    {
+      "context": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#1",
+      "source": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "source_sha256": "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad",
+      "translation": "Les lanceurs peuvent laisser un processus enfant garder le terminal ouvert après leur arrêt. Le groupe appartient à cette session ; l’annulation termine donc aussi ces processus enfants. Répéter le nettoyage ne peut pas fermer un descripteur de fichier réutilisé."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and process-lifecycle review; no native-speaker sign-off",
+  "schema": 1
+}

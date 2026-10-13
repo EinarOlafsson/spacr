@@ -1,0 +1,148 @@
+{
+  "source_commit": "scratch-packed-rank-on-a324",
+  "source_sha256": "a324d395c4029fdeb1e307595fcc4d2353cb4fd7f15589f51e456c67f19b417a",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/random-packed-alpha-20261006/before.py",
+  "variant": "before",
+  "theme": "data_art_genetic_advection",
+  "label": "spaCR advection",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 1.0,
+    "size": 1.0,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0.25,
+    "pointer": [
+      0.5001302083333333,
+      0.5002314814814814
+    ],
+    "seed": 42,
+    "background": "#101418",
+    "palette": "random",
+    "colors": [
+      "#e17247",
+      "#46e29e",
+      "#cb45e3",
+      "#cfe445",
+      "#44a2e5",
+      "#e64474",
+      "#46e743",
+      "#6f42e8",
+      "#e99e42",
+      "#41eace",
+      "#eb41d7",
+      "#a7ec40",
+      "#3f76ed",
+      "#ee3f44",
+      "#3eef6a",
+      "#9d3df0",
+      "#f1d03c",
+      "#3ce0f2",
+      "#f33bac",
+      "#78f43a",
+      "#3a43f5",
+      "#f66539",
+      "#38f79b",
+      "#d137f8",
+      "#e9f937",
+      "#36b2fa",
+      "#fb357a",
+      "#42fc34",
+      "#5f34fd",
+      "#fe9833",
+      "#2ce1ba",
+      "#e22bd6"
+    ]
+  },
+  "qt_platform": "xcb",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 406036,
+    "widget_show_ms": 329.1365449986188,
+    "post_show_seconds": 2.001031863997923,
+    "post_show_published_frames": 28,
+    "post_show_published_fps": 13.992780676694442,
+    "worker_shade": {
+      "median_ms": 42.939022001519334,
+      "p95_ms": 161.01991200412158,
+      "max_ms": 247.6232799963327,
+      "samples": 28
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.124117994564585,
+      "p95_ms": 22.203008003998548,
+      "max_ms": 39.167268012533896,
+      "samples": 175
+    },
+    "compile_ready": true,
+    "compile_failed": false,
+    "colored_compile_ready": true,
+    "colored_compile_failed": false,
+    "rss_peak_kib": 507820
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.000467727993964,
+      "published_frames": 116,
+      "published_fps": 23.19782994510709,
+      "distinct_published_clocks": 116,
+      "first_clock": 10.221999999999992,
+      "clock_advance": 4.934999999999972,
+      "painted_fps": 24.397717700888492,
+      "repeated_frame_objects": 11,
+      "worker_shade": {
+        "median_ms": 36.87020800134633,
+        "p95_ms": 55.79040999873541,
+        "max_ms": 62.676621004357,
+        "samples": 116
+      },
+      "gui_paint": {
+        "median_ms": 8.23340399801964,
+        "p95_ms": 12.818073999369517,
+        "max_ms": 14.240504999179393,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.089899500599131,
+        "p95_ms": 18.74705799855292,
+        "max_ms": 23.946187997353263,
+        "samples": 478
+      },
+      "publication_intervals": {
+        "median_ms": 41.5417060139589,
+        "p95_ms": 62.55332499858923,
+        "max_ms": 71.66177799808793,
+        "samples": 115
+      },
+      "lightning_worker_shades": null,
+      "load_average": [
+        2.45458984375,
+        2.29833984375,
+        2.5537109375
+      ],
+      "current_rss_kib": 448488
+    }
+  ],
+  "frame_sha256": "ac663e8e6eb81499df9f566b2c8143943dd2ae28e6fc88e4fd47e1decb7ef0b1",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 516840,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

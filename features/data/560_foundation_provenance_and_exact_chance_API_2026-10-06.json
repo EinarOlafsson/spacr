@@ -1,0 +1,558 @@
+{
+  "item": 560,
+  "source_original_parent": "11d3a451b9fc49fb822213859c040b3a090298d6",
+  "local_commit_at_verification": "8214e16bb17225d3562ff1d6c1fd8710e391284a",
+  "source_sha256": "6284705a6f854d310781dff63e6842754d069b4db34b0c9ee1f69ae1980f0920",
+  "root_existing_function_repairs": [
+    "_weights_on_disk",
+    "encoder_entry",
+    "_retrieval_scorecard"
+  ],
+  "verification_scope": "Owned three-function repair integrated with df5b9bb7f strict timm sizing, before the later Home four-channel SubCell source checkpoint. The source digest is authoritative; later source needs its own refresh and acceptance.",
+  "later_Home_four_channel_source_pending_integration_at_this_receipt": "3ce39ac7bde621dffc34c82f18779ce1a21a61e0",
+  "Home_timm_resize_retained_exact_to_df5b9bb7f": true,
+  "all_twelve_current_source_full_cohorts_and_six_actual_checkpoint_digests_pass": true,
+  "all_measured_scores_and_chance_precision_preserved_atol_1e_12": true,
+  "exact_finite_random_ranking_AP_corrected": true,
+  "four_crop_random_AP": "11/18",
+  "four_crop_random_precision": "1/3",
+  "normal_all_nine_generation_functions_and_all_nine_full_normal_CLI_audits_pass": true,
+  "only_one_public_API_entry_changed_each_catalog": "spacr.embeddings.encoder_entry",
+  "current_API_records": 13181,
+  "all_other_complete_API_records_exact": 13180,
+  "all_seven_encoder_description_blocks_directly_technically_reviewed_each_language": true,
+  "prior_complete_runtime_rows_and_hashes_exact": 9857,
+  "new_runtime_notes": 3,
+  "current_runtime_rows": 9860,
+  "previous_complete_guide_messages_exact": 2979,
+  "new_puncta_guide_reference_messages": 12,
+  "current_guide_messages": 2991,
+  "all_nine_guide_audits_coverage_100_percent_stale_invalid_unlabelled_zero": true,
+  "all_nine_readmes_normally_rebuilt_and_original_prose_ceiling_preserved": true,
+  "dated_checkout_claim_binary_MB": 1710,
+  "only_redundant_installer_description_and_duplicate_feature_guide_sentence_trimmed": true,
+  "obsolete_omit_Qt_source_archived_and_standard_Qt_headless_execution_translated": true,
+  "removed_Make_Masks_heading_review_cannot_reactivate_from_embedded_mentions": true,
+  "all_old_reviewed_API_runtime_files_and_order_exact": {
+    "api": {
+      "all_prior_complete_files_and_order_byte_identical": 1033,
+      "new_direct_AI_review_files": 9
+    },
+    "runtime": {
+      "all_prior_complete_files_and_order_byte_identical": 1963,
+      "new_direct_AI_review_files": 9
+    }
+  },
+  "Help_search_all_four_YOLO_helpers_and_current_theme_descriptions_regenerated": true,
+  "Make_Masks_reference_all_six_puncta_parameters_normally_regenerated": true,
+  "strict_complete_Sphinx_build_and_all_nine_guide_builds_passed": true,
+  "nine_actual_local_browser_panels_all_seven_current_blocks_exact": true,
+  "nine_actual_local_browser_Make_Masks_pages_all_twelve_new_reference_messages_exact": true,
+  "checks_passed": {
+    "foundation-final-source-focused-tests-r1.log": 123,
+    "foundation-final-docstring-guards-r1.log": 161,
+    "foundation-catalog-scoped-tests-r3.log": 20,
+    "foundation-readme-presentation-tests-r2.log": 32,
+    "foundation-help-search-tests-r1.log": 5,
+    "foundation-guide-tests-r1.log": 22
+  },
+  "inventory_guard_repair": "b39c55531",
+  "no_old_guard_pin_or_debt_coverage_editorial_ceiling_raised": true,
+  "all_Mask_Measure_Home_Conda_and_other_tutorial_source_media_preserved": true,
+  "retained_nonaccepted_attempts": {
+    "old_API_generation_r1_r2_r3": "All terminated by owner with SIGTERM/rc143. r1 switched from full repair to normal reuse; r2 integrated Home source; r3 completed nine writes but its audit was stopped for the browser-discovered complete-description refinement. None is represented as strict acceptance.",
+    "complete_description_review_r1": "Protected literal order gate rejected Chinese return text before any file write; reviewed r2 preserves source literal order in Chinese, Korean and Hindi.",
+    "local_browser_r1": "Private verifier compared literal RST role markup with rendered text; actual role display is correct. r2 checks rendered roles and all seven reviewed blocks.",
+    "local_browser_r2": "All nine encoder panels passed. The added guide check used a main element selector that the actual Furo theme does not provide; r3 uses its actual article role=main and checks the same twelve complete reviewed messages in each guide.",
+    "early_README_checks": "Temporary missing navigation sentence was restored; localized checkout facts awaited the normal rebuild. Final 32 presentation/install checks pass.",
+    "catalog_r1": "Obsolete Make Masks heading evidence incorrectly reactivated from prose mentions. Source-bound retirement now passes all final catalog checks without changing the test.",
+    "Make_Masks_reference_check_r1": "Six source puncta parameters were absent from the generated include; normal regeneration and nine guide translations repair it.",
+    "historical_README_measurement_r1_editorial_field": "The numerical checkout measurement remains valid. Its temporary module-navigation removal was reversed before acceptance; only the redundant installer paragraph and duplicate feature-guide sentence are absent in the final README.",
+    "initial_guard": "144 pass/one inherited NightTheme sound_key pin mismatch, proven and repaired independently in b39c55531; original logs remain archived.",
+    "raw_tracebacks": "Wrapper failure tracebacks outside its Tee are not reconstructed as raw log evidence."
+  },
+  "actual_publication_readback_of_new_checkpoint_pending": true,
+  "no_new_GPU_inference_or_classifier_fit_or_native_speaker_host_or_global_CI_claim": true,
+  "artifacts": {
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/archive_final_encoder_documentation_r1.py": {
+      "sha256": "7a9d7e6e85cb0762f729c2977c4c26c064a76de0ea07f2b167b83df28fb0574c",
+      "bytes": 16135
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/build_foundation_api_docs_r1.py": {
+      "sha256": "2bab600dfb1a128a8bcb939ff5577ba31c29037f30dc46dc6e25bdee4175158a",
+      "bytes": 291
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/build_foundation_api_docs_r2.py": {
+      "sha256": "8ba10b27396327f8cf2477aff173473bde27e13d2fac0088553d893103fceebd",
+      "bytes": 286
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/check_foundation_catalog_preservation_r2.py": {
+      "sha256": "ea910aeca9b7c76abbaf3e6ed5d1e3407619efad0f5dd7fda42cc98aa39cf84a",
+      "bytes": 5392
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/check_foundation_catalog_preservation_r3.py": {
+      "sha256": "85e9bea945869e6981694b0d5acf50e110ed2c1f37f0357056f379f517293011",
+      "bytes": 5392
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/check_puncta_guide_preservation_r1.py": {
+      "sha256": "983f9dc010d6ed95a5116f643444b9d9fa2c18560b2259ba7c0200df1888c051",
+      "bytes": 2280
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/current-readme-measurement-r1.json": {
+      "sha256": "203ddbd3ff1e2a128631993fecb533d3f0df296db83f7d96e0a3f1809a1ceed7",
+      "bytes": 312
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/current-readme-measurement-r1.log.gz": {
+      "sha256": "7b8ceee91826456376aa2c9dd1aca45b52176dce3a1cd2ec1a943b5de423490e",
+      "bytes": 290
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/final-embeddings.py.gz": {
+      "sha256": "6ef904cb2218679987d6da46a97aa609d9d434d2c5c696df9cd199db03bc16f5",
+      "bytes": 26295
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-API-normal-refresh-r1.log.gz": {
+      "sha256": "028d78a017aaad5d741f3fee4c578046c89bc2d3a531aef24e8c41cf6733e5e0",
+      "bytes": 249
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-API-normal-refresh-r2.log.gz": {
+      "sha256": "ce7b8db5697f75b7cae131af149da7f0ce9f09d037bafa66c679d37de3d839a4",
+      "bytes": 213
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-API-normal-refresh-r3.log.gz": {
+      "sha256": "cb2c313d74c742bb1d75fcd718557baaeb7c2d00dd961e3ea0f41afcdf57b5bc",
+      "bytes": 257
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-English-source-generation-r1.log.gz": {
+      "sha256": "33562ed938e55f7eb8b0ba026abfe2d9ad2d040da0da5b14a1a5a0ece4a9677c",
+      "bytes": 151
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-English-source-generation-r2.log.gz": {
+      "sha256": "33562ed938e55f7eb8b0ba026abfe2d9ad2d040da0da5b14a1a5a0ece4a9677c",
+      "bytes": 151
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-catalog-preservation-r2.json": {
+      "sha256": "987a52b03aac78f8287633d15cecf65c93585471436789d79e47ab13fc2b39a3",
+      "bytes": 5452
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-catalog-preservation-r2.log.gz": {
+      "sha256": "ba994c1dcb43bb6a46e3cde3e4151b4c20f4d766eb95f36612289a7637de5d2f",
+      "bytes": 257
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-catalog-preservation-r3.json": {
+      "sha256": "18b370d304957dd39dc0f9dbc0a0ef7d036217c488e06ee70b4a9b8d012481b6",
+      "bytes": 5452
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-catalog-preservation-r3.log.gz": {
+      "sha256": "ba994c1dcb43bb6a46e3cde3e4151b4c20f4d766eb95f36612289a7637de5d2f",
+      "bytes": 257
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-complete-description-review-r1.log.gz": {
+      "sha256": "bfe453d4d93eb29f1b61831a9756c2f7d42fa4d5e5425178dfde6ec2352864dc",
+      "bytes": 117
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-complete-description-review-r2.log.gz": {
+      "sha256": "7a3b4233f1b7348164554862afaa0dcdf47fe70dd0b936be5c3c131eaf4df0da",
+      "bytes": 204
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-docs-all-r1.log.gz": {
+      "sha256": "49bedcd0d671a424c85fa35d765bf904c4b74786e58554b9cb7e12806e76d312",
+      "bytes": 32377
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-docs-all-r2.log.gz": {
+      "sha256": "be8a6fed766c7d4168eb8dca21ffa8bdf61becf7c1419aa4c1503a20efb0d107",
+      "bytes": 32230
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-focused-tests-r1.log.gz": {
+      "sha256": "000cdf2b15a0f8c1a13f67053f54c66ba0dc92897afeb2a9e65daa36d0693e45",
+      "bytes": 620
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-focused-tests-r2.log.gz": {
+      "sha256": "f7dca175c4927c659fd42d5fcaeb5710abb2d7ae9f69e9e33e5986644ebe1fa2",
+      "bytes": 145
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-full-cohort-replay-r1.json": {
+      "sha256": "83ba3b76a3d8f9a9600d64d8dc0618ae861fc4238db3d87d7216692de7e169b3",
+      "bytes": 20271
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-full-cohort-replay-r1.log.gz": {
+      "sha256": "0d2603dff9a9102bd4c05f6ddbb92836634f2f598850297d2bcfdacf826a413c",
+      "bytes": 1204
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-full-cohort-replay-r2.json": {
+      "sha256": "f67fcdc57dbc679915079fdbd60bc78fa67ef6c76df6e0b40229b80e8f0ae87c",
+      "bytes": 20270
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-full-cohort-replay-r2.log.gz": {
+      "sha256": "518447168e87133c542b9a2d5363a26adff03646d6f2ba40ad8d1b956636c7dd",
+      "bytes": 1204
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-full-cohort-replay-r3.json": {
+      "sha256": "2485749cc4ca4c67bd8766c99c4a305647e094a98f3e23b95830b446a2fc6590",
+      "bytes": 20271
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-full-cohort-replay-r3.log.gz": {
+      "sha256": "771c16c0840356adfd85e2c500abff31b2fe03f26fe78fc1960fd05bb36e9771",
+      "bytes": 1203
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-preparation-r1.log.gz": {
+      "sha256": "8d9270f8dcad70072856d67681d40cb42e93fe4b873177710e4211431b468488",
+      "bytes": 1211
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-reviewed-inputs-r1.json": {
+      "sha256": "f3f518baffa0807acdb4dc6cba38ef0fb848b174bc61cdf954f9910be4e5abb4",
+      "bytes": 43122
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-reviewed-inputs-r1.log.gz": {
+      "sha256": "bfe453d4d93eb29f1b61831a9756c2f7d42fa4d5e5425178dfde6ec2352864dc",
+      "bytes": 117
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-reviewed-inputs-r2.json": {
+      "sha256": "98c26acd38688ca2afb391baedfded82ba1a6baa41710f34c7a4a93a102a9409",
+      "bytes": 43192
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-reviewed-inputs-r2.log.gz": {
+      "sha256": "b240368a4652360822c31734f307c73d014d678155f91d7f0b37e05b0ef54a39",
+      "bytes": 196
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-reviewed-inputs-r3.json": {
+      "sha256": "17788109afe06f15179d174c2d7aec35637705079eb876bd36a47b2edd156357",
+      "bytes": 63662
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-api-source-delta-r1.json": {
+      "sha256": "d4e8064aae03d914efffcea4897d2eb87fb931424171f6b30804a07076753692",
+      "bytes": 2983
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-catalog-scoped-tests-r1.log.gz": {
+      "sha256": "83bb7d6b29ef317d70b2d94c58a6dfb58b929e87a30b9a294812e78039eab807",
+      "bytes": 950
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-catalog-scoped-tests-r2.log.gz": {
+      "sha256": "6e2f10135477bdf823a8ccff6868a38189d8bc2f1ba58d2f513716558020d4b6",
+      "bytes": 156
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-catalog-scoped-tests-r3.log.gz": {
+      "sha256": "701966b96a3de2f97b80574e769b720ba38ec1df36e1a89a958d5a4fa539423c",
+      "bytes": 157
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-consumer-map-integrated-r1.log.gz": {
+      "sha256": "17819e856d37e657fb39a3fdb1eadb1df21099c4bd318b9b5b5bf8349fef4d4e",
+      "bytes": 385
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-current-API-generation-r1.json": {
+      "sha256": "4b41e27a8a8d598ffcf727e797a3bb098f76269986108b8d354c7f73f1273dcb",
+      "bytes": 1389
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-current-API-generation-r1.log.gz": {
+      "sha256": "6b9498e53a0cc8132af1675d9b14b301b68035b3fbfeb0f64e46b450371db48e",
+      "bytes": 299
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-docstring-guards-r1.log.gz": {
+      "sha256": "cced4eab33027d0fcc263d4e44e5df6b09eb00c177c467a1c14bf0b6219ef3b0",
+      "bytes": 17357
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-docstring-guards-r2.log.gz": {
+      "sha256": "42e3d28cda4bc76e75e41c882d8c9b38dfe5564a900b50bff86907e96adadca6",
+      "bytes": 167
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-final-API-audit-A-r1.log.gz": {
+      "sha256": "645c004d1d9ed1e6173fd4b25eb1ee64447b96ed249b449e1948f4bb6a9cf9fa",
+      "bytes": 156
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-final-API-audit-B-r1.log.gz": {
+      "sha256": "645c004d1d9ed1e6173fd4b25eb1ee64447b96ed249b449e1948f4bb6a9cf9fa",
+      "bytes": 156
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-final-API-audit-C-r1.log.gz": {
+      "sha256": "645c004d1d9ed1e6173fd4b25eb1ee64447b96ed249b449e1948f4bb6a9cf9fa",
+      "bytes": 156
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-final-docstring-guards-r1.log.gz": {
+      "sha256": "b5db554a450158af7f7e275eaac0e04f247f756bd9a3f7aab28ea2e4a05bb590",
+      "bytes": 169
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-final-source-focused-tests-r1.log.gz": {
+      "sha256": "64e895b77695d9f63950d74a85c13d9cb6ec30ce8854745974afac38e9af2c07",
+      "bytes": 156
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-guide-audit-r1.json": {
+      "sha256": "3860fa72e62481445a9f16a33850fa5c3314761ea39f8900ff56957f949a4f3b",
+      "bytes": 63560
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-guide-audit-r1.log.gz": {
+      "sha256": "121f041805ac82b70f39ef27c4701050b0e5fe1fbf1a917655185298f3934a66",
+      "bytes": 192
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-guide-extract-r1.log.gz": {
+      "sha256": "bfe453d4d93eb29f1b61831a9756c2f7d42fa4d5e5425178dfde6ec2352864dc",
+      "bytes": 117
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-guide-tests-r1.log.gz": {
+      "sha256": "998d7092bad5d6b1dc6d81e376332cc17edf49399e4a9d59bdced1db34095a20",
+      "bytes": 145
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-guide-update-r1.log.gz": {
+      "sha256": "e3dae67f5bc0073d1a0a7b3345623356ddf802c4e7d5bccb7558afa82b5192c5",
+      "bytes": 166
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-guides-render-r1.log.gz": {
+      "sha256": "6726babc733669f5495ed4224e624769d73ef2fa38c8b291a2c42bc0bf181bc8",
+      "bytes": 157
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-help-search-generation-r1.log.gz": {
+      "sha256": "472951d41e242bbcfbfd5791dc9699fe3278fb137c54a84aa8b842589382ff74",
+      "bytes": 135
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-help-search-tests-r1.log.gz": {
+      "sha256": "ac25931e9c15462bee282ba2fd8fd4268b7cf42b0b920b2efb07f0c0f23693cc",
+      "bytes": 153
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-instruction-index-r1.log.gz": {
+      "sha256": "5041fc09b2904d6db3b29a42f86b5f7fbf1ce46d1123a71ad0dd72c52c15f69f",
+      "bytes": 139
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-integrated-api-tests-r1.log.gz": {
+      "sha256": "4e0452c7be5703c5371cdf33ef3b4eb844b0135e8c96acda836bbaf3aa0132cb",
+      "bytes": 3587
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-local-browser-r1.log.gz": {
+      "sha256": "bfe453d4d93eb29f1b61831a9756c2f7d42fa4d5e5425178dfde6ec2352864dc",
+      "bytes": 117
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-local-browser-r2.log.gz": {
+      "sha256": "4a2f2e58e9fe436656a5cb97c0b9b44f3aea798fe83f38fe31bd20c72c9028e3",
+      "bytes": 178
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-local-browser-r3/acceptance.json": {
+      "sha256": "6d203b32fd3ff29c03ca3cae701024dc4a808b6c81461aa609e614fd5c502af9",
+      "bytes": 5004
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-local-browser-r3/encoder-entry-ko.png": {
+      "sha256": "49265542648a36f397ff06252846975e128674bcf01787a779f447385c58878f",
+      "bytes": 279279
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-local-browser-r3/encoder-entry-sv.png": {
+      "sha256": "5cffdc85691f9241c4b344554b388b1cdc0854da73f809bab0f4ec172a711fc4",
+      "bytes": 269339
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-local-browser-r3/encoder-entry-zh_CN.png": {
+      "sha256": "d4de5da0a51f44c656255c47e5096321fd1882dd0c8ba00da67715b8ded5c86c",
+      "bytes": 307475
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-local-browser-r3.log.gz": {
+      "sha256": "48e13fb6aeea8d5009a2f64cc2ab64039cbedae6063e717ecd39d6adc5a9e077",
+      "bytes": 232
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-make-masks-reference-check-r1.log.gz": {
+      "sha256": "25455e0da2a288648f07509c26c01e30b6761cfc9e152ead96966f630bd6ba97",
+      "bytes": 156
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-make-masks-reference-generation-r1.log.gz": {
+      "sha256": "1787dfe6cd541639c4d70b01126dfcef6450e868accd53b654c2cdfea515312b",
+      "bytes": 151
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-import-r1.json": {
+      "sha256": "3a421e1114d86290f8aa4ebe10f6428219875fcaac9eb1dded35df641e23471a",
+      "bytes": 4511
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-import-r1.log.gz": {
+      "sha256": "a1304eeb6fb1960488dcf11193b7c004c4cc1c74989c39f5667bfb26e259af46",
+      "bytes": 198
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-preservation-r1.json": {
+      "sha256": "9c3c75a590deaf37302cc6ca7b90bd74f87b01b277f755c1d7331550d20594de",
+      "bytes": 2823
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-preservation-r1.log.gz": {
+      "sha256": "7a885e1398aab0042f48883c339cd8d5f277069ed6dce484005d9b4d833c47da",
+      "bytes": 207
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/de-reviewed.json": {
+      "sha256": "34945909873e40c50f2af29f20d9924e7eeb5ad62829700f4b57cd945816fe22",
+      "bytes": 3085
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/de.json": {
+      "sha256": "1c14f9a27c4c7572954f5df381b99528816fb86ac7debce03c95233e22a0bf8c",
+      "bytes": 2057
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/es-reviewed.json": {
+      "sha256": "e71d16faa30c6f2dc372eb1f9fe090940a36321ac85f0319275ec1f8b21a829b",
+      "bytes": 3067
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/es.json": {
+      "sha256": "37970dff6b7c0b2ed41982160cd1885293bd55b63265555d01d1070795027e37",
+      "bytes": 2057
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/fr-reviewed.json": {
+      "sha256": "93f0318224beb31e7c346b2d6b91b439918b798aca2046cd2eb84dce75555e4f",
+      "bytes": 3048
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/fr.json": {
+      "sha256": "f44a7ff98c7574bad8f87a4b4990e2a33410480dbdbf29b428a0b0a4715ecb2b",
+      "bytes": 2039
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/hi-reviewed.json": {
+      "sha256": "9a055b076df37044807c9fda87aad3e685bea4e9025b5135b3ad714e3317bb97",
+      "bytes": 3902
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/hi.json": {
+      "sha256": "b76aaae4e06acd2440fac069a345fe682086aed6a09060ae43b7520dd8664170",
+      "bytes": 2117
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/is-reviewed.json": {
+      "sha256": "4034eb1930404689620dcef6a6052cf0f0d102175afdc047b52c697591c88d05",
+      "bytes": 2982
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/is.json": {
+      "sha256": "663686f68a011218b0670671d8f9513b56fc953e605d8ad360977113f54c602c",
+      "bytes": 2039
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/ko-reviewed.json": {
+      "sha256": "e02908b9a7a44914e14e1161df0ea639594f4493a18e9e1e4905357c0c997c33",
+      "bytes": 3049
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/ko.json": {
+      "sha256": "0a80ff53eafee51b7167f28c8c89ba9831f434bd0f50ebedd043d2756eaf690a",
+      "bytes": 2027
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/pt-reviewed.json": {
+      "sha256": "8ccf0ae5876e560962963c3fb26a8b81108af2cd2d6768a9e8d0b0bf59de84ed",
+      "bytes": 2951
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/pt.json": {
+      "sha256": "7e319b8063565665f8debc27caae8d7d926508997b996b1c68e3a7e589a3a47c",
+      "bytes": 2015
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/sv-reviewed.json": {
+      "sha256": "d5e74296bb2b1dead03ded5d2042356d2b27296ced9d7bb88fb403c058b45d0e",
+      "bytes": 2937
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/sv.json": {
+      "sha256": "d617692bdeed68083bbc447690d8678127342e1fbe091bf076b86aaf848861ad",
+      "bytes": 2021
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/zh_CN-reviewed.json": {
+      "sha256": "d7a1bd2f66aa439f92790d2d46d6bd066e4b2bf6e791e43ed6312bfa386583cc",
+      "bytes": 2935
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1/zh_CN.json": {
+      "sha256": "b15ff8ab6c92c032b31037198cdc2bdb5aa3ca11718497246f4f52022ea78b0c",
+      "bytes": 2027
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-puncta-guide-worklists-r1.log.gz": {
+      "sha256": "f0e4b81a7a10e4d1a448b9f4f5ef43ce40da052b72c323e872446091ed56f488",
+      "bytes": 384
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-readme-editorial-r1.log.gz": {
+      "sha256": "b984febc88d9fe47ff5ec172863c35fde42af0d889da98ede3218558d7ff42cf",
+      "bytes": 133
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-readme-editorial-r2.log.gz": {
+      "sha256": "e65577054ab803e1065c0598c9754c74e5ec8962fa73ebcfbb8a82d2129d4fe4",
+      "bytes": 142
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-readme-normal-refresh-r1.log.gz": {
+      "sha256": "595ce3252108d95c9ad5c5e60019db9dc7ce3c6f38527d9c7a1e690ee0178d38",
+      "bytes": 342
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-readme-presentation-tests-r2.log.gz": {
+      "sha256": "9ac79b62c9b6269b677a4bb059465cc7963af9e208b9e38520dcc69b77a4d779",
+      "bytes": 388
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-reviewed-input-semantic-refinement-r1.log.gz": {
+      "sha256": "a80ce66deb1bec5b7883230f8a42aa44c440a5a822a5a317af0039ef44ec6c07",
+      "bytes": 182
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-runtime-integrated-audit-r1.log.gz": {
+      "sha256": "f3057495bb9a0fac29276e86bdc376b62a24538680adc290ec5ef4ce40ac8d09",
+      "bytes": 180
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-runtime-normal-refresh-r1.log.gz": {
+      "sha256": "0e8cfbc5bf44de462463ee59c7a62624e45cdd03c24d158e9b0f6b9bd9815bba",
+      "bytes": 252
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-runtime-preservation-r1.json": {
+      "sha256": "737d1d9bbbd12c973be03e0fa12151af22cf48cb59ab2634868a70addc04beda",
+      "bytes": 2466
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-runtime-scoped-tests-r1.log.gz": {
+      "sha256": "131fc9ab04ba5942201a1d685182e242574a4e8e03783b95d24df8e2832b93e7",
+      "bytes": 145
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/foundation-settings-flow-integrated-r1.log.gz": {
+      "sha256": "b1826d7d34ab8cfef0994d3e27109f183ba5ab196d12c819d991d62040135e64",
+      "bytes": 263
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/generate_current_encoder_API_r1.py": {
+      "sha256": "95ced97ac334707a8f25be7ee5e9bab7477ed873ceca1c3b4a960b106d211edd",
+      "bytes": 1939
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/import_puncta_guide_reviews_r1.py": {
+      "sha256": "b386d94bac4ac800016afa0add7f0cff34af1c289e849b5b6d5fb01445c2a0a0",
+      "bytes": 2607
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/original-embeddings.py.gz": {
+      "sha256": "9e408a4f91211975e5965f416b8d3f2b502010cb20a5d841c3894e0191275d4b",
+      "bytes": 25663
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/prepare_foundation_api_refresh_r1.py": {
+      "sha256": "288a2850e4d907c8dc9dc22a9c0c3e703892586af4d31463be42822adb997241",
+      "bytes": 2524
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/prepare_puncta_guide_worklists_r1.py": {
+      "sha256": "67363899021b80bcf25b41e104a09053aad630cb32975a31716de42429611941",
+      "bytes": 835
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/refine_foundation_reviewed_inputs_r1.py": {
+      "sha256": "b2d7069725ed2a80310ffaa1e078994ebed359aee525bb955a233dcfdb45df2a",
+      "bytes": 1155
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/refresh_current_readme_evidence_r1.py": {
+      "sha256": "cd80060251db0c9aafaf72253bc78c380a5304874dc485e3e6d79f8900cebfbe",
+      "bytes": 4297
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/review_complete_encoder_description_r1.py": {
+      "sha256": "0b3bc5bb95b5495ed4c1c525427bdac7ec9d92c44354d653c970e674958d86f6",
+      "bytes": 10005
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/review_complete_encoder_description_r2.py": {
+      "sha256": "f98add93dcbb4f9fee1edf437b29060825d750be99a5352e53e8e000eb12710e",
+      "bytes": 10040
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/review_foundation_api_translations_r1.py": {
+      "sha256": "dfae7cac86db9b588a4d4990dd4037765e4873b8ed1ab65cefa9d458df166458",
+      "bytes": 16204
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/run_foundation_api_tool_r1.py": {
+      "sha256": "ade7ee14fd46e927c18d2d3d2c95362a32bdb2949c0aeedead7d2ed66e7ded93",
+      "bytes": 1292
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/run_foundation_api_tool_r2.py": {
+      "sha256": "d177b5a1da4cb184e9846edacd23ff2a016191812092fca740e23a00c4476251",
+      "bytes": 1369
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/verify_foundation_api_full_cohorts_r1.py": {
+      "sha256": "f9e4d6802502ec238e7783aadcd43262a78ee35c5d6d6904be2744df8e526b1e",
+      "bytes": 5095
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/verify_foundation_api_full_cohorts_r2.py": {
+      "sha256": "016e6bd2cf22ac0a766d98385a58f1e17f487510ec6c7814a709b0cd15e285b0",
+      "bytes": 5095
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/verify_foundation_api_full_cohorts_r3.py": {
+      "sha256": "9e67343b1f347a112ee892ed5c92d7bdd396215470e788e54a6c5ebcdda5b1d8",
+      "bytes": 5095
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/verify_foundation_local_browser_r1.py": {
+      "sha256": "1e1e44967df4375d296dbd0dbf598b1334836b5f1c8e511d2eee9fc328f4bc1e",
+      "bytes": 4064
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/verify_foundation_local_browser_r2.py": {
+      "sha256": "cd7cc859a5c685e4c91365fd733bc70d437eb41e6dd4fdf1cf650d74fccb67c0",
+      "bytes": 5089
+    },
+    "features/data/560_foundation_provenance_and_exact_chance_API_2026-10-06/verify_foundation_local_browser_r3.py": {
+      "sha256": "1d7822f1e22f50228a2f2755251b024706a8746aaf02f7f1ef57a01a3fdfc934",
+      "bytes": 5098
+    }
+  }
+}

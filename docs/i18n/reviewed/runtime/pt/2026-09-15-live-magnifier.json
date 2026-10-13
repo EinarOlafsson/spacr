@@ -1,0 +1,69 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Clip",
+      "source": "Clip",
+      "source_sha256": "82337888d76466b26eeef984735aa945a1ab2ac99c46c87e994189c940c0b95e",
+      "table": "ui",
+      "translation": "Recortar"
+    },
+    {
+      "key": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source": "How many times larger than the canvas the box draws its region. The mouse wheel changes it while the magnifier is on. It changes only what you see: the model always segments the region at the image's own resolution.",
+      "source_sha256": "af61776b26183018ce604f1b865ad31a9eee7a949770738a5f09da3e2034b776",
+      "table": "ui",
+      "translation": "Quantas vezes maior do que a tela a caixa desenha a sua região. A roda do rato altera-o enquanto a lupa está ligada. Só altera o que vê: o modelo segmenta sempre a região na resolução da própria imagem."
+    },
+    {
+      "key": "Live magnifier",
+      "source": "Live magnifier",
+      "source_sha256": "886ee4e35e283ff0705084c59eb144aab13bc0b5f9f2b6efff3b05a11c268ba8",
+      "table": "ui",
+      "translation": "Lupa em tempo real"
+    },
+    {
+      "key": "Magnifier",
+      "source": "Magnifier",
+      "source_sha256": "b3a4c2cd1daea7f8ee7b0924c30154618e8541289bfee8c4867b221e48ac8ecb",
+      "table": "ui",
+      "translation": "Lupa"
+    },
+    {
+      "key": "Magnifier off. The objects it added stay in the mask.",
+      "source": "Magnifier off. The objects it added stay in the mask.",
+      "source_sha256": "ab2959dd7d3bb4b084cb34e241affbc8aaff770060f1a319c12d2b44043369f4",
+      "table": "ui",
+      "translation": "Lupa desligada. Os objetos que adicionou permanecem na máscara."
+    },
+    {
+      "key": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source": "Magnifier on: a click adds the objects outlined in the box; the mouse wheel changes its zoom.",
+      "source_sha256": "1bd2cdea1990127e09484704cd3ffef3e48b1f339d9f9c9aafd68b0f5dbd3ff4",
+      "table": "ui",
+      "translation": "Lupa ligada: um clique adiciona os objetos contornados na caixa; a roda do rato altera o seu zoom."
+    },
+    {
+      "key": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source": "Magnifier: nothing to add — the box outlines no object, or every object it outlines overlaps one already in the mask.",
+      "source_sha256": "c046b887a7c710b4307da11cb9c16a97ef1fbfc0b3d4357b7f9365e53ebd9ffd",
+      "table": "ui",
+      "translation": "Lupa: nada a adicionar — a caixa não contorna nenhum objeto, ou cada objeto que contorna sobrepõe-se a um que já está na máscara."
+    },
+    {
+      "key": "Replace",
+      "source": "Replace",
+      "source_sha256": "95e154398a4bc0091aa4d6b607472ac5a89e41fbc84a3a49f823314d6de9eebc",
+      "table": "ui",
+      "translation": "Substituir"
+    },
+    {
+      "key": "Updating…",
+      "source": "Updating…",
+      "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",
+      "table": "ui",
+      "translation": "A atualizar…"
+    }
+  ],
+  "schema": 1
+}

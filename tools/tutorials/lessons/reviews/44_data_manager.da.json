@@ -1,0 +1,36 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "e442156c3d5154963bc72ce01be337bb0f19806767d7ebe8eae9e9572eef06ff",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Data Manager: undersøg forbrug, ryd op, og arkivér",
+  "description": "Gennemgå projektets lagerforbrug, forhåndsvis en oprydningsplan, og flyt et projekt til en arkivdestination.",
+  "objectives": [
+    "Undersøge projektets diskforbrug.",
+    "Gennemgå og anvende en oprydningsplan.",
+    "Flytte og genscanne et arkiveret projekt."
+  ],
+  "prerequisite": "Brug et færdigt spaCR-projekt, og tag en uafhængig sikkerhedskopi før oprydning. Eksemplet bruger en kopi af projektet, som External Masks har lavet.",
+  "scenes": [
+    "Åbn Help og derefter Data manager. Vælg et færdigt projekt for at undersøge dets lager og planlægge oprydning eller arkivering.",
+    "Klik på Choose project, og vælg projektets rod. Læs Usage for dets filer, diskplads og registrerede artefakter.",
+    "Åbn Prune, og vælg de artefakttyper, der skal overvejes. Lad måledatabaser og modelvægte være fravalgt, hvis du vil beholde dem, og klik derefter på Show what can be deleted.",
+    "Gennemgå de foreslåede filer, pladsbesparelsen og gendannelsesoplysningerne. Eksemplet vælger mappen med objektudsnit. Behold de input og indstillinger, der skal bruges til at genskabe det, du fjerner.",
+    "Klik på Delete for at gennemgå den endelige filliste. Sletning kan ikke fortrydes, så kontrollér stierne og din sikkerhedskopi, før du godkender planen.",
+    "Brug Cancel, hvis du vil beholde filerne eller ændre udvalget. Når listen godkendes, bliver den endelige handling Delete tilgængelig.",
+    "Bekræft Delete, når planen er korrekt. Læs i resultatet antallet af fjernede filer og den frigjorte plads.",
+    "Gennemgå den opdaterede Usage-scanning. Fjernede artefakter kan stadig stå som manglende med deres registrerede opskrift; genskab dem med det relevante modul efter behov.",
+    "Åbn Archive, og vælg en tom destination uden for kildeprojektet. Klik på Show what would move, og undersøg begge stier.",
+    "Klik på Move for at gennemgå bekræftelsen. Archive flytter projektet, så tag de separate sikkerhedskopier, du har brug for, før du fortsætter.",
+    "Bekræft Yes for at flytte projektet. Behold manifestet på destinationen og arkivloggen, der efterlades på den oprindelige placering.",
+    "Vælg destinationen som projekt, og scan den igen. Kontrollér de flyttede filer, og opdatér eksterne henvisninger, der stadig peger på den gamle placering.",
+    "Brug Database Browser til at undersøge måletabeller, Report til at lave en projektoversigt og Data Manager til vedligeholdelse af lager. Behold arkivposterne sammen med projektdokumentationen."
+  ]
+}

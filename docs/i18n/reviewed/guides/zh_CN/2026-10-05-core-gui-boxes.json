@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "review_method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Core Qt installation, optional extras, eleven tools and independent Box/YOLO export checked; displayed bold controls inserted from current runtime glossary.",
+  "source_files": {
+    "docs/source/features.rst": "a202396112e3c8a4cc3f1f390298fe9eb25b1ef4a27cbf2c5ec60dc528494263",
+    "docs/source/index.rst": "b55457de1e444e53de8600e24cb21e23376043305ece3f0d729716767121dd64",
+    "docs/source/installer_guide.rst": "a6c88a4dc0799676d0741c988a9932b4430f11ad5328e66114275bfd66fe0483"
+  },
+  "records": [
+    {
+      "domain": "features",
+      "source": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement.",
+      "source_sha256": "2013e91de5bb1903826a324797d9cc4c438fe2f82dd7ad64794548a62cae9491",
+      "target": "Make Masks 用于手动修正掩膜，并在标题栏中提供 Cellpose 循环。画布包含十一种工具：Brush、Erase、Erase object、Wand +、Wand −、绘制、边界框、Divide、Zoom、重新裁剪 和 标尺。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、Levels、检测设置、主次对象配对、保存和测量。",
+      "ui": {}
+    },
+    {
+      "domain": "features",
+      "source": "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged.",
+      "source_sha256": "313862afacdbd436805c3b7b3b34803897aba5b8865d3c3dd3a6ed599ef96da3",
+      "target": "**边界框** 为 YOLO 标注绘制带类别标签的独立矩形。可以移动或调整框的大小、撤销或重做编辑，并使用 **保存边界框** 保存项目，或使用 **Export YOLO…** 写出归一化标签和有序的类别元数据。源图像和分割掩膜保持不变。",
+      "ui": {
+        "Box": "边界框",
+        "Save boxes": "保存边界框"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table.",
+      "source_sha256": "ef5a762fc344a395ee3ff23e4bee62e9cd161a403029279d248c2a69cc2b9549",
+      "target": "基础包包含 Qt 桌面界面和无图形界面的处理流水线。可选扩展提供 OME-Zarr、OMERO、napari、归因分析、追踪、Zernike 测量以及厂商文件读取器。可用性取决于 Python 版本；:doc:`安装指南 <installer_guide>` 提供权威的兼容性表。",
+      "ui": {}
+    },
+    {
+      "domain": "index",
+      "source": "Install spaCR and launch the desktop application. The standard package includes the Qt interface and command-line pipelines.",
+      "source_sha256": "4ab94fb787ad0cad77a177cb5cc3f1b94b2e1f0a393825f07f30755299e9be82",
+      "target": "安装 spaCR 并启动桌面应用。标准包包含 Qt 界面和命令行处理流水线。",
+      "ui": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release.",
+      "source_sha256": "14339f77ed52307372e0458d2eb238063c38c0a50f7dd283c2409fb4c66ca780",
+      "target": "此命令在 ``dist/offline`` 下写出文件夹 ``spaCR-VERSION-Linux-x86_64-Offline-cpu``；使用 ``--archive`` 时，还将同一文件夹打包为单个 ``.tar`` 文件。``--extras`` 选择可选的 spaCR 扩展（默认为无）；标准包包含 Qt 桌面界面。``--cellpose-model`` 添加 Cellpose 权重，可重复使用；``--test-fields`` 限制测试视野数量；``--from-source .`` 打包从工作副本构建的 spaCR，而非 PyPI 发布版本。",
+      "ui": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:",
+      "source_sha256": "939a107d53ed79cd848029f7bf114b0f89e57d93a6cce694eaba034c42cd4586",
+      "target": "标准包包含 Qt 桌面界面和命令行处理流水线。在无图形界面的服务器上，使用 ``spacr-run``，无需打开桌面应用。扩展可以组合，例如 ``spacr[czi,nd2,lif]``。常用扩展包括：",
+      "ui": {}
+    }
+  ],
+  "preserved_existing_translations": 2959
+}

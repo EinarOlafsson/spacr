@@ -1,0 +1,1088 @@
+#!/usr/bin/env python3
+"""Render resumable Kokoro narration tracks for the complete tutorial matrix.
+
+The output is intentionally audio-only: one 4K silent visual master is shared
+by every language and voice in the browser. This keeps the published course
+small enough to host while preserving every approved distinct voice.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import subprocess
+import tempfile
+import time
+from pathlib import Path
+from sentence_audio_cache import cached_sentence
+
+from narration_audio import (
+    SAMPLE_RATE,
+    assemble_sentence_audio,
+    assert_cadence_profile_current,
+    atomic_write_text,
+    audio_assembly_config,
+    cadence_profile_identity,
+    clamp_scene_hold,
+    effective_scene_speed,
+    file_sha256,
+    load_module_snapshot,
+    narration_dialect,
+    render_fingerprint,
+    resolve_voice_speed,
+    split_sentences,
+    staged_output_path,
+    synthesis_runtime_identity,
+)
+
+PRONUNCIATION_PATH = Path(__file__).with_name("pronunciation.py")
+pronunciation_profile, PRONUNCIATION_SOURCE_SNAPSHOT = load_module_snapshot(
+    PRONUNCIATION_PATH,
+    "tutorial_pronunciation_snapshot",
+    "pronunciation_profile",
+)
+PRONUNCIATION_IDENTITY = PRONUNCIATION_SOURCE_SNAPSHOT.fingerprint(
+    getattr(pronunciation_profile, "PRONUNCIATION_VERSION", None)
+)
+assert_pronunciation_safe = pronunciation_profile.assert_pronunciation_safe
+spoken_form = pronunciation_profile.spoken_form
+
+
+def assert_frozen_sources_current() -> None:
+    """Stop a run before source edits can mix identities between tracks."""
+    PRONUNCIATION_SOURCE_SNAPSHOT.assert_current()
+    assert_cadence_profile_current()
+
+
+AUTHORING_ROOT = Path(__file__).resolve().parents[1]
+# A refresh must not replace the currently published narration while only
+# some languages are ready. Keep models shared, but isolate scripts/output.
+ROOT = Path(os.environ.get("SPACR_TUTORIAL_WORKSPACE", AUTHORING_ROOT)).resolve()
+CATALOG = ROOT / "catalog"
+PRODUCTION = ROOT / "production"
+MODEL_CACHE = Path(os.environ.get(
+    "SPACR_TUTORIAL_MODEL_CACHE",
+    AUTHORING_ROOT / "project" / "kokoro_models",
+)).expanduser().resolve()
+SNAPSHOT = (
+    MODEL_CACHE
+    / "hub"
+    / "models--hexgrad--Kokoro-82M"
+    / "snapshots"
+    / "f3ff3571791e39611d31c381e3a41a3af07b4987"
+)
+# AAC can overshoot the PCM true peak during encoding. A -1.5 dBTP filter
+# target produced decoded peaks as high as +1.4 dBFS in the release matrix.
+# The measured -3 dBTP target leaves roughly 2 dB of post-codec headroom while
+# preserving a broadcast-friendly integrated loudness near -16 LUFS.
+LOUDNESS_FILTERS = (
+    "loudnorm=I=-16:TP=-3:LRA=11",
+    (
+        "loudnorm=I=-16:TP=-5:LRA=11,"
+        "alimiter=limit=0.7:attack=5:release=50:level=disabled"
+    ),
+    (
+        "loudnorm=I=-16:TP=-5:LRA=11,"
+        "alimiter=limit=0.5:attack=5:release=50:level=disabled"
+    ),
+)
+MAX_RELEASE_TRUE_PEAK_DBFS = -1.0
+
+
+class TruePeakError(RuntimeError):
+    """One track stayed above the decoded true-peak gate after every filter."""
+MASTERING_CONFIG = {
+    "filters": list(LOUDNESS_FILTERS),
+    "codec": "aac",
+    "bitrate": "48k",
+    "channels": 1,
+    "maximum_decoded_true_peak_dbfs": MAX_RELEASE_TRUE_PEAK_DBFS,
+}
+
+LANGUAGES = {
+    "en": (
+        "a",
+        [
+            "af_heart",
+            "af_aoede",
+            "af_bella",
+            "af_jessica",
+            "af_river",
+            "af_sarah",
+            "af_sky",
+            "am_adam",
+            "am_echo",
+            "am_eric",
+            "am_fenrir",
+            "am_liam",
+            "am_michael",
+            "am_onyx",
+            "am_puck",
+            "am_santa",
+            "bf_alice",
+            "bf_emma",
+            "bf_isabella",
+            "bf_lily",
+            "bm_daniel",
+            "bm_fable",
+            "bm_george",
+            "bm_lewis",
+        ],
+    ),
+    "es": ("e", ["ef_dora", "em_alex", "em_santa"]),
+    "fr": ("f", ["ff_siwis"]),
+    "hi": ("h", ["hf_alpha", "hf_beta", "hm_omega", "hm_psi"]),
+    "it": ("i", ["if_sara", "im_nicola"]),
+    "pt-BR": ("p", ["pf_dora", "pm_alex", "pm_santa"]),
+    "ja": (
+        "j",
+        ["jf_alpha", "jf_gongitsune", "jf_nezumi", "jf_tebukuro", "jm_kumo"],
+    ),
+    "zh-CN": (
+        "z",
+        [
+            "zf_xiaobei",
+            "zf_xiaoni",
+            "zf_xiaoxiao",
+            "zf_xiaoyi",
+            "zm_yunjian",
+            "zm_yunxi",
+            "zm_yunxia",
+            "zm_yunyang",
+        ],
+    ),
+}
+
+
+def vtt_timestamp(seconds: float) -> str:
+    total_ms = int(round(max(0.0, seconds) * 1000))
+    hours, remainder = divmod(total_ms, 3_600_000)
+    minutes, remainder = divmod(remainder, 60_000)
+    secs, millis = divmod(remainder, 1000)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}.{millis:03d}"
+
+
+def write_vtt(path: Path, timings: list[dict]) -> None:
+    cues = []
+    for timing in timings:
+        sentences = timing.get("sentences")
+        if sentences:
+            cues.extend(
+                {
+                    "speech_start": sentence["speech_start"],
+                    "speech_end": sentence["speech_end"],
+                    "text": sentence["text"],
+                }
+                for sentence in sentences
+            )
+        else:
+            cues.append(timing)
+    lines = ["WEBVTT", ""]
+    previous_end = 0.0
+    for index, timing in enumerate(cues, start=1):
+        start = float(timing["speech_start"])
+        end = float(timing["speech_end"])
+        if start < previous_end - 0.001 or end <= start:
+            raise ValueError(
+                f"Non-monotonic caption timing at cue {index}: {start}--{end}"
+            )
+        text = str(timing["text"]).replace("-->", "→").strip()
+        lines.extend(
+            [
+                str(index),
+                f"{vtt_timestamp(start)} --> {vtt_timestamp(end)}",
+                text,
+                "",
+            ]
+        )
+        previous_end = end
+    atomic_write_text(path, "\n".join(lines))
+
+
+def true_peak_dbfs(path: Path) -> float | None:
+    """Measure the decoded AAC true peak, or fail closed with ``None``."""
+    result = subprocess.run(
+        [
+            "ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-i",
+            str(path),
+            "-af",
+            "ebur128=peak=true",
+            "-f",
+            "null",
+            "-",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    matches = re.findall(
+        r"Peak:\s+(-?(?:\d+(?:\.\d+)?|inf)) dBFS", result.stderr
+    )
+    if result.returncode != 0 or not matches:
+        return None
+    return float(matches[-1])
+
+
+def track_speech_text(lesson_id, language, voice, display_text, speech_text):
+    """Carry the reported Heart CUDA correction into the refreshed script.
+
+    This is a different sentence from the older live recording's repair.
+    Match it explicitly so neither the second CUDA mention nor another voice
+    is silently changed. The resolved speech text enters the fingerprint.
+    """
+    if lesson_id == "05_home" and language in {"ja", "zh-CN"}:
+        # Home-only reviewed speech forms. Keep visible captions unchanged,
+        # and leave the existing global Home/Cellpose/UMAP forms in place.
+        forms = [
+            ('Import settings', 'インポート セッティングス', '导入设置'),
+            ('Align & Stitch', 'アライン アンド スティッチ', '对齐与拼接'),
+            ('Organism', 'オーガニズム', '生物'),
+            ('Spaceout', 'スペースアウト', '空间模式'),
+            ('Stop', 'ストップ', '停止'),
+            ('Tabular Machine Learning', 'タビュラー マシン ラーニング', '表格机器学习'),
+            ('Classifier Evaluation', 'クラシファイア エバリュエーション', '分类器评估'),
+            ('Pipeline overviews', 'パイプライン オーバービューズ', '流程概览'),
+            ('Settings backdrop darkness', 'セッティングス バックドロップ ダークネス', '设置背景暗度'),
+            ('Settings animation speed', 'セッティングス アニメーション スピード', '设置动画速度'),
+            ('Settings animation size', 'セッティングス アニメーション サイズ', '设置动画大小'),
+            ('Settings animation detail', 'セッティングス アニメーション ディテール', '设置动画细节'),
+            ('Settings animation density', 'セッティングス アニメーション デンシティ', '设置动画密度'),
+            ('Settings backdrop', 'セッティングス バックドロップ', '设置背景'),
+            ('Animation colours', 'アニメーション カラーズ', '动画颜色'),
+            ('Custom colours', 'カスタム カラーズ', '自定义颜色'),
+            ('Animation background', 'アニメーション バックグラウンド', '动画背景'),
+            ('Theme colour', 'テーマ カラー', '主题颜色'),
+            ('Mouse gravity radius', 'マウス グラビティ レイディアス', '鼠标引力半径'),
+            ('Dot blinking', 'ドット ブリンキング', '光点闪烁'),
+            ('Popup wave frequency', 'ポップアップ ウェーブ フリークエンシー', '弹窗波纹频率'),
+            ('Field ripples', 'フィールド リップルズ', '场波纹'),
+            ('Click ripples', 'クリック リップルズ', '点击波纹'),
+            ('Detail', 'ディテール', '细节'),
+            ('Speed', 'スピード', '速度'),
+            ('Size', 'サイズ', '大小'),
+            ('Density', 'デンシティ', '密度'),
+            ('Apply', 'アプライ', '应用'),
+            ('Keep', 'キープ', '保留'),
+            ('Revert', 'リバート', '还原'),
+            ('Save', 'セーブ', '保存'),
+            ('field', 'フィールド', '场'),
+            # The re-recorded Home lesson (column, palette, Preferences pages).
+            ('Tooltip delay', 'ツールチップ ディレイ', '工具提示延迟'),
+            ('Certificate bundle', 'サーティフィケート バンドル', '证书包'),
+            ('Update channel', 'アップデート チャンネル', '更新渠道'),
+            ('High contrast', 'ハイ コントラスト', '高对比度'),
+            ('Prune now', 'プルーン ナウ', '立即清理'),
+            ('Modules', 'モジュールズ', '模块'),
+            ('Session', 'セッション', '会话'),
+            ('Storage', 'ストレージ', '存储'),
+            ('Cancel', 'キャンセル', '取消'),
+            ('Proxy', 'プロキシ', '代理'),
+            ('Clear', 'クリア', '清除'),
+            ('Move', 'ムーブ', '移动'),
+            ('Show tooltips', 'ショー ツールチップス', '显示工具提示'),
+            ('Recent runs', 'リーセント ランズ', '最近运行'),
+            ('Text size', 'テキスト サイズ', '文字大小'),
+            ('Control-K', 'コントロール ケー', '控制键加凯'),
+            ('Control-0', 'コントロール ゼロ', '控制键加零'),
+            ('Control', 'コントロール', '控制键'),
+            ('General', 'ジェネラル', '常规'),
+            ('Figures', 'フィギュアズ', '图形'),
+            ('System', 'システム', '系统'),
+            ('Totals', 'トータルズ', '总计'),
+            ('Enter', 'エンター', '回车键'),
+            ('GUI', 'ジー ユー アイ', '图形界面'),
+            ('Classifier family', 'クラシファイア ファミリー', '分类器系列'),
+            ('Experiment Design', 'エクスペリメント デザイン', '实验设计'),
+            ('Embeddings', 'エンベディングス', '嵌入特征'),
+            ('Power / Design', 'パワー アンド デザイン', '功效与设计'),
+            ('Dose-Response', 'ドーズ レスポンス', '剂量反应'),
+            ('Align and Stitch', 'アライン アンド スティッチ', '对齐与拼接'),
+            ('Explain CV Model', 'エクスプレイン シー ブイ モデル', '解释计算机视觉模型'),
+            ('Feature Explorer', 'フィーチャー エクスプローラー', '特征浏览器'),
+            ('Computer Vision', 'コンピューター ビジョン', '计算机视觉'),
+            ('Load test data', 'ロード テスト データ', '加载测试数据'),
+            ('Graph Builder', 'グラフ ビルダー', '图表构建器'),
+            ('Training Runs', 'トレーニング ランズ', '训练记录'),
+            ('Map Barcodes', 'マップ バーコード', '条形码映射'),
+            ('Performance', 'パフォーマンス', '性能'),
+            ('Preferences', 'プリファレンシズ', '偏好设置'),
+            ('Run Compare', 'ラン コンペア', '运行比较'),
+            ('Activation', 'アクティベーション', '激活'),
+            ('Appearance', 'アピアランス', '外观'),
+            ('Make Masks', 'メイク マスクス', '制作掩膜编辑器'),
+            ('Plasmodium', 'プラスモディウム', '疟原虫'),
+            ('Regression', 'リグレッション', '回归'),
+            ('Toxoplasma', 'トキソプラズマ', '弓形虫'),
+            ('Animation', 'アニメーション', '动画'),
+            ('Workbench', 'ワークベンチ', '工作台'),
+            ('Annotate', 'アノテート', '标注'),
+            ('Classify', 'クラシファイ', '分类'),
+            ('Candida', 'カンジダ', '念珠菌'),
+            ('Measure', 'メジャー', '测量'),
+            ('screens', 'スクリーンズ', '筛选流程'),
+            ('Assays', 'アッセイズ', '检测'),
+            ('Import', 'インポート', '导入'),
+            ('Laptop', 'ラップトップ', '笔记本电脑'),
+            ('Image', 'イメージ', '图像'),
+            ('Theme', 'テーマ', '主题'),
+            ('Tools', 'ツールズ', '工具'),
+            ('Core', 'コア', '核心'),
+            ('Data', 'データ', '数据'),
+            ('Help', 'ヘルプ', '帮助'),
+            ('Live', 'ライブ', '实时预览'),
+            ('Mask', 'マスク', '批量掩膜模块'),
+            ('Time', 'タイム', '时间'),
+            ('API', 'エー ピー アイ', '应用程序接口'),
+            ('Run', 'ラン', '运行'),
+            ('QC', 'キュー シー', '质量控制'),
+        ]
+        for label, japanese, chinese in sorted(forms, key=lambda row: (-len(row[0]), row[0])):
+            spoken = japanese if language == "ja" else chinese
+            pattern = rf"(?<![A-Za-z]){re.escape(label)}(?![A-Za-z])"
+            if len(re.findall(pattern, speech_text)) != len(re.findall(pattern, display_text)):
+                raise ValueError(f"The Home control pronunciation premise changed: {label}")
+            speech_text = re.sub(pattern, spoken, speech_text)
+            display_text = re.sub(pattern, spoken, display_text)
+        if re.search(r"[A-Za-z]", speech_text):
+            raise ValueError("Unreviewed Latin text in Home Japanese/Chinese narration")
+        return speech_text
+    if lesson_id == "86_psf_workflow" and language in {"ja", "zh-CN"}:
+        # These frontends otherwise pass English control names through as
+        # literal Latin letters, some absent from the model's phoneme set.
+        # Keep the visible English labels; only this lesson's speech changes.
+        forms = {
+            "ja": {
+                "Infer from images": "インファー フロム イメージズ",
+                "Image enhancement": "イメージ エンハンスメント",
+                "Richardson–Lucy": "リチャードソン・ルーシー",
+                "Make Masks": "メイク マスクス",
+                "PSF optics": "ピー エス エフ オプティクス",
+                "Convolution": "コンボリューション",
+                "Settings": "セッティングス",
+                "Compare": "コンペア",
+                "Apply": "アプライ",
+                "Measure": "メジャー",
+                "original": "オリジナル",
+                "processed": "プロセスト",
+                "Timelapse": "タイムラプス",
+                "Mask": "マスク",
+                "PSF": "ピー エス エフ",
+            },
+            "zh-CN": {
+                "Infer from images": "从图像推断",
+                "Image enhancement": "图像增强",
+                "Richardson–Lucy": "理查德森露西",
+                "Make Masks": "制作掩膜编辑器",
+                "PSF optics": "点扩散函数光学参数",
+                "Convolution": "卷积",
+                "Settings": "设置",
+                "Compare": "比较",
+                "Apply": "应用",
+                "Measure": "测量",
+                "original": "原始图像",
+                "processed": "处理后图像",
+                "Timelapse": "延时成像",
+                "Mask": "批量掩膜模块",
+                "PSF": "点扩散函数",
+            },
+        }[language]
+        for label, spoken in forms.items():
+            pattern = rf"(?<![A-Za-z]){re.escape(label)}(?![A-Za-z])"
+            if len(re.findall(pattern, speech_text)) != len(re.findall(pattern, display_text)):
+                raise ValueError(f"The PSF control pronunciation premise changed: {label}")
+            speech_text = re.sub(pattern, spoken, speech_text)
+            # Later shorter labels must be counted after the same replacement.
+            display_text = re.sub(pattern, spoken, display_text)
+        if re.search(r"[A-Za-z]", speech_text):
+            raise ValueError("Unreviewed Latin text in PSF Japanese/Chinese narration")
+        return speech_text
+    if (lesson_id, language, display_text) == (
+        "12_map_barcodes", "en",
+        "This Python verification figure displays read depth from the saved three-barcode GUI run.",
+    ):
+        if speech_text.count("read depth") != 1:
+            raise ValueError("The Map read-depth pronunciation premise changed")
+        return speech_text.replace("read depth", "[read](/ɹˈid/) depth")
+    map_read_phrases = {
+        "Here the guide is strongly supported as reverse complemented in read one and as stored in read two.": ("read one", "read two"),
+        "Read one supports the reversed reference, while read two supports the stored orientation.": ("Read one", "read two"),
+        "Check your own library and read layout in the same way.": ("read layout",),
+    }
+    if lesson_id == "12_map_barcodes" and language == "en" and display_text in map_read_phrases:
+        for phrase in map_read_phrases[display_text]:
+            if speech_text.count(phrase) != 1:
+                raise ValueError("The Map read-orientation pronunciation premise changed")
+            word, rest = phrase.split(" ", 1)
+            speech_text = speech_text.replace(phrase, f"[{word}](/ɹˈid/) {rest}")
+        return speech_text
+    if (lesson_id, language, voice, display_text) == (
+        "04_platform_installers", "en", "af_heart",
+        "Here the request was auto and the selected backend is CUDA on NVIDIA hardware.",
+    ):
+        before = "[CUDA](/kˈuːdᵊ/)"
+        if speech_text.count(before) != 1:
+            raise ValueError("The refreshed Heart CUDA pronunciation premise changed")
+        return speech_text.replace(before, "[CUDA](/kˈudə/)")
+    return speech_text
+
+
+def prepare_scene_plans(
+    lesson: dict,
+    language: str,
+    dialect: str,
+    base_speed: float = 1.0,
+    *,
+    voice: str | None = None,
+) -> list[dict]:
+    """Resolve exact sentence-level TTS text before cache validation."""
+    plans = []
+    for index, scene in enumerate(lesson["scenes"], start=1):
+        display_text = scene["narration"].strip()
+        display_sentences = split_sentences(display_text, language)
+        if not display_sentences:
+            raise ValueError(
+                f"Empty narration in {lesson['id']} scene {index}"
+            )
+        sentences = []
+        for display_sentence in display_sentences:
+            speech_text = spoken_form(
+                display_sentence, language, dialect=dialect
+            )
+            speech_text = track_speech_text(
+                lesson["id"], language, voice, display_sentence, speech_text
+            )
+            assert_pronunciation_safe(display_sentence, speech_text)
+            sentences.append(
+                {
+                    "text": display_sentence,
+                    "speech_text": speech_text,
+                }
+            )
+        authored_hold = scene.get("hold_after")
+        scene_speed, speed_multiplier = effective_scene_speed(
+            base_speed, language, lesson["id"], index
+        )
+        plans.append(
+            {
+                "display_text": display_text,
+                "sentences": sentences,
+                "authored_hold": authored_hold,
+                "hold": clamp_scene_hold(authored_hold),
+                "speed_multiplier": speed_multiplier,
+                "effective_speed": scene_speed,
+            }
+        )
+    return plans
+
+
+def track_fingerprint(
+    lesson: dict,
+    language: str,
+    lang_code: str,
+    dialect: str,
+    voice: str,
+    speed: float,
+    scene_plans: list[dict],
+    runtime_identity: dict | None = None,
+) -> tuple[str, dict]:
+    """Return a deterministic digest and the render inputs it represents."""
+    payload = {
+        "renderer": "render_all_voices-v4",
+        "lesson": lesson["id"],
+        "language": language,
+        "lang_code": lang_code,
+        "dialect": dialect,
+        "voice": voice,
+        "speed": speed,
+        "scenes": [
+            {
+                "narration": plan["display_text"],
+                "speech_text": [
+                    sentence["speech_text"] for sentence in plan["sentences"]
+                ],
+                "authored_hold": plan["authored_hold"],
+                "resolved_hold": plan["hold"],
+                "speed_multiplier": plan["speed_multiplier"],
+                "effective_speed": plan["effective_speed"],
+            }
+            for plan in scene_plans
+        ],
+        "assembly": audio_assembly_config(),
+        "cadence_profile": (
+            cadence_profile_identity() if language == "en" else None
+        ),
+        "mastering": mastering_config(lesson["id"], language, voice),
+        "pronunciation": PRONUNCIATION_IDENTITY,
+        "synthesis_runtime": runtime_identity or {"state": "test-unbound"},
+    }
+    return render_fingerprint(payload), payload
+
+
+def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
+    """Keep existing tracks unchanged; pin a measured, narrowly scoped repair.
+
+    Motility's bf_isabella failed all three normal encodes: the last decoded
+    AAC true peak was -0.5 dBFS. Add 2 dB of attenuation only for this track,
+    before encoding, and still require the existing decoded -1 dBFS gate.
+    The extra chain is fingerprinted; no timing, voice or pronunciation changes.
+    """
+    result = dict(MASTERING_CONFIG)
+    result["filters"] = list(MASTERING_CONFIG["filters"])
+    if (lesson_id, language, voice) == ("18_motility", "en", "bf_isabella"):
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("12_map_barcodes", "en", "bm_fable"):
+        # Measured AAC overshoot was -0.6 dBFS after the normal encodes.
+        # Keep the -1 dBFS acceptance gate and attenuate only this track.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("07_mask", "en", "bm_fable"):
+        # 2026-09-15 refresh (105/52/36 narration): decoded AAC true peak was
+        # -0.8 dBFS after all three normal encodes. Same voice, same repair
+        # as Map above; the -1 dBFS gate still decides acceptance.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("41_classify", "es", "ef_dora"):
+        # The 2026-09-21 overview reached -0.9 dBFS after all normal AAC
+        # encodes. Fingerprint extra headroom for this measured track only;
+        # the decoded -1 dBFS acceptance gate still decides the result.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("79_module_inputs_outputs", "en", "af_heart"):
+        # The current 80-scene reference reached -0.0 dBFS after all normal
+        # AAC encodes. Keep the decoded peak gate and fingerprint this repair.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("78_spacr_screens", "zh-CN", "zm_yunjian"):
+        # The 2026-09-30 re-record reached -0.5 dBFS decoded true peak after
+        # all normal AAC encodes. Same fingerprinted repair; the decoded
+        # -1 dBFS gate still decides acceptance.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("50_run_compare", "hi", "hf_beta"):
+        # The 2026-09-26 Hindi render reached +0.4 dBFS decoded true peak
+        # after all three normal AAC encodes. Same fingerprinted repair as
+        # above; the decoded -1 dBFS gate still decides acceptance.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    return result
+
+
+def audio_equivalent_render_inputs(
+    previous: object,
+    current: object,
+) -> bool:
+    """Return whether a profile edit left the synthesized audio unchanged.
+
+    The complete pronunciation source identity remains in the release
+    fingerprint, so any edit is visible and auditable.  Re-synthesis is only
+    necessary when that edit changes the exact sentence speech plan.  Display
+    narration may also change without changing the waveform; its timing
+    metadata and captions can be refreshed in place.
+    """
+    if not isinstance(previous, dict) or not isinstance(current, dict):
+        return False
+    old = json.loads(json.dumps(previous))
+    new = json.loads(json.dumps(current))
+    old.pop("pronunciation", None)
+    new.pop("pronunciation", None)
+    for payload in (old, new):
+        scenes = payload.get("scenes")
+        if not isinstance(scenes, list):
+            return False
+        for scene in scenes:
+            if not isinstance(scene, dict):
+                return False
+            scene.pop("narration", None)
+    return old == new
+
+
+def refresh_reused_timing(
+    timing_data: dict,
+    scene_plans: list[dict],
+    fingerprint: str,
+    fingerprint_inputs: dict,
+    media_bytes: int,
+) -> bool:
+    """Refresh text/profile metadata while preserving verified audio timing."""
+    scenes = timing_data.get("scenes")
+    if not isinstance(scenes, list) or len(scenes) != len(scene_plans):
+        return False
+    for timing, plan in zip(scenes, scene_plans):
+        sentences = timing.get("sentences")
+        planned_sentences = plan["sentences"]
+        if (
+            not isinstance(sentences, list)
+            or len(sentences) != len(planned_sentences)
+            or [item.get("speech_text") for item in sentences]
+            != [item["speech_text"] for item in planned_sentences]
+        ):
+            return False
+        timing["text"] = plan["display_text"]
+        timing["speech_text"] = " ".join(
+            item["speech_text"] for item in planned_sentences
+        )
+        timing["authored_hold_after"] = plan["authored_hold"]
+        timing["hold_after"] = plan["hold"]
+        timing["speed_multiplier"] = plan["speed_multiplier"]
+        timing["effective_speed"] = plan["effective_speed"]
+        for sentence_timing, sentence_plan in zip(
+            sentences, planned_sentences
+        ):
+            sentence_timing["text"] = sentence_plan["text"]
+            sentence_timing["speech_text"] = sentence_plan["speech_text"]
+    timing_data["render_fingerprint"] = fingerprint
+    timing_data["render_inputs"] = fingerprint_inputs
+    timing_data["media_bytes"] = media_bytes
+    return True
+
+
+def render_track(
+    pipeline,
+    voice: str,
+    lesson: dict,
+    language: str,
+    lang_code: str,
+    dialect: str,
+    speed: float,
+    np,
+    sf,
+    force: bool,
+    repair_peaks: bool,
+    runtime_identity: dict,
+    synthesis_voice,
+) -> float:
+    assert_frozen_sources_current()
+    lesson_root = PRODUCTION / lesson["id"]
+    audio_dir = lesson_root / "audio" / language
+    audio_dir.mkdir(parents=True, exist_ok=True)
+    m4a = audio_dir / f"{voice}.m4a"
+    timing_path = audio_dir / f"{voice}.json"
+    captions_path = lesson_root / "captions" / language / f"{voice}.vtt"
+    scene_plans = prepare_scene_plans(lesson, language, dialect, speed, voice=voice)
+    fingerprint, fingerprint_inputs = track_fingerprint(
+        lesson,
+        language,
+        lang_code,
+        dialect,
+        voice,
+        speed,
+        scene_plans,
+        runtime_identity,
+    )
+    complete = all(
+        path.exists() and path.stat().st_size > 200
+        for path in (m4a, timing_path)
+    )
+    if not force and complete:
+        try:
+            timing_data = json.loads(timing_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            timing_data = {}
+        fingerprint_matches = timing_data.get("render_fingerprint") == fingerprint
+        media_matches = False
+        if timing_data.get("media_sha256"):
+            try:
+                media_matches = timing_data["media_sha256"] == file_sha256(m4a)
+            except OSError:
+                media_matches = False
+        previous_inputs = timing_data.get("render_inputs")
+        previous_runtime = (
+            previous_inputs.get("synthesis_runtime")
+            if isinstance(previous_inputs, dict)
+            else None
+        )
+        reuse_fingerprint, reuse_inputs = track_fingerprint(
+            lesson,
+            language,
+            lang_code,
+            dialect,
+            voice,
+            speed,
+            scene_plans,
+            previous_runtime,
+        )
+        metadata_reusable = (
+            not fingerprint_matches
+            and media_matches
+            and isinstance(previous_runtime, dict)
+            and audio_equivalent_render_inputs(previous_inputs, reuse_inputs)
+        )
+        peak = (
+            true_peak_dbfs(m4a)
+            if repair_peaks
+            and (fingerprint_matches or metadata_reusable)
+            and media_matches
+            else None
+        )
+        peak_is_safe = not repair_peaks or (
+            peak is not None and peak <= MAX_RELEASE_TRUE_PEAK_DBFS
+        )
+        if (
+            (fingerprint_matches or metadata_reusable)
+            and media_matches
+            and peak_is_safe
+        ):
+            if metadata_reusable:
+                refreshed = refresh_reused_timing(
+                    timing_data,
+                    scene_plans,
+                    reuse_fingerprint,
+                    reuse_inputs,
+                    m4a.stat().st_size,
+                )
+                if not refreshed:
+                    metadata_reusable = False
+                else:
+                    atomic_write_text(
+                        timing_path,
+                        json.dumps(timing_data, indent=2, ensure_ascii=False)
+                        + "\n",
+                    )
+            if not fingerprint_matches and not metadata_reusable:
+                pass
+            else:
+                write_vtt(captions_path, timing_data["scenes"])
+                return -1.0
+
+    combined = []
+    timings = []
+    cursor = 0.0
+    for index, plan in enumerate(scene_plans, start=1):
+        sentence_audio = []
+        sentence_phonemes = []
+        for sentence_number, sentence in enumerate(plan["sentences"], start=1):
+            def synthesize_sentence():
+                chunks, phonemes = [], []
+                for result in pipeline(sentence['speech_text'], voice=synthesis_voice,
+                                       speed=plan['effective_speed']):
+                    if result.audio is not None:
+                        chunks.append(result.audio.detach().cpu().numpy().astype(np.float32))
+                    if result.phonemes:
+                        phonemes.append(str(result.phonemes))
+                if not chunks:
+                    raise RuntimeError(f"No audio for {language}/{voice}/{lesson['id']}/"
+                                       f"{index}/{sentence_number}")
+                return np.concatenate(chunks).astype(np.float32, copy=False), ' '.join(phonemes)
+
+            raw, phonemes, reused = cached_sentence(
+                Path(os.environ.get('SPACR_TUTORIAL_SENTENCE_CACHE',
+                                    str(PRODUCTION.parent / 'sentence-audio-cache'))),
+                {'schema': 1, 'speech_text': sentence['speech_text'],
+                 'speed': plan['effective_speed'], 'language': language,
+                 'lang_code': lang_code, 'dialect': dialect, 'voice': voice,
+                 'sample_rate': SAMPLE_RATE, 'synthesis_runtime': runtime_identity},
+                synthesize_sentence, np,
+            )
+            sentence_audio.append(raw)
+            sentence_phonemes.append(phonemes)
+        speech, sentence_segments = assemble_sentence_audio(sentence_audio, np)
+        peak = float(np.max(np.abs(speech)))
+        if peak > 0.98:
+            speech *= 0.98 / peak
+        speech_start = cursor
+        speech_end = speech_start + len(speech) / SAMPLE_RATE
+        hold = plan["hold"]
+        scene_end = speech_end + hold
+        combined.extend(
+            [
+                speech,
+                np.zeros(int(round(hold * SAMPLE_RATE)), dtype=np.float32),
+            ]
+        )
+        sentence_timings = []
+        for sentence, segment, phonemes in zip(
+            plan["sentences"], sentence_segments, sentence_phonemes
+        ):
+            sentence_timings.append(
+                {
+                    "sentence": segment["sentence"],
+                    "speech_start": speech_start + segment["clip_start"],
+                    "speech_end": speech_start + segment["clip_end"],
+                    "audible_start": speech_start + segment["audible_start"],
+                    "audible_end": speech_start + segment["audible_end"],
+                    "duration": segment["duration"],
+                    "gap_from_previous": segment.get("gap_from_previous"),
+                    "trimmed_lead": segment["trimmed_lead"],
+                    "trimmed_tail": segment["trimmed_tail"],
+                    "text": sentence["text"],
+                    "speech_text": sentence["speech_text"],
+                    "phonemes": phonemes,
+                }
+            )
+        timings.append(
+            {
+                "scene": index,
+                "speech_start": speech_start,
+                "speech_end": speech_end,
+                "scene_end": scene_end,
+                "duration": scene_end - speech_start,
+                "text": plan["display_text"],
+                "speech_text": " ".join(
+                    sentence["speech_text"] for sentence in plan["sentences"]
+                ),
+                "phonemes": " ".join(sentence_phonemes),
+                "authored_hold_after": plan["authored_hold"],
+                "hold_after": hold,
+                "base_speed": speed,
+                "speed_multiplier": plan["speed_multiplier"],
+                "effective_speed": plan["effective_speed"],
+                "sentences": sentence_timings,
+            }
+        )
+        cursor = scene_end
+
+    full = np.concatenate(combined).astype(np.float32, copy=False)
+    assert_frozen_sources_current()
+    with tempfile.NamedTemporaryFile(suffix=".wav") as temp:
+        sf.write(temp.name, full, SAMPLE_RATE, subtype="PCM_16")
+        with staged_output_path(m4a) as staged_m4a:
+            decoded_peak = None
+            for loudness_filter in fingerprint_inputs["mastering"]["filters"]:
+                subprocess.run(
+                    [
+                        "ffmpeg",
+                        "-y",
+                        "-loglevel",
+                        "error",
+                        "-i",
+                        temp.name,
+                        "-af",
+                        loudness_filter,
+                        "-ar",
+                        str(SAMPLE_RATE),
+                        "-ac",
+                        "1",
+                        "-c:a",
+                        "aac",
+                        "-b:a",
+                        "48k",
+                        "-movflags",
+                        "+faststart",
+                        "-f",
+                        "ipod",
+                        str(staged_m4a),
+                    ],
+                    check=True,
+                )
+                decoded_peak = true_peak_dbfs(staged_m4a)
+                if (
+                    decoded_peak is not None
+                    and decoded_peak <= MAX_RELEASE_TRUE_PEAK_DBFS
+                ):
+                    break
+            if decoded_peak is None:
+                raise RuntimeError(
+                    f"Could not measure decoded true peak: {staged_m4a}"
+                )
+            if decoded_peak > MAX_RELEASE_TRUE_PEAK_DBFS:
+                raise TruePeakError(
+                    f"Decoded true peak {decoded_peak:.1f} dBFS exceeds "
+                    f"{MAX_RELEASE_TRUE_PEAK_DBFS:.1f} dBFS: {m4a}"
+                )
+            media_sha256 = file_sha256(staged_m4a)
+            media_bytes = staged_m4a.stat().st_size
+            assert_frozen_sources_current()
+            os.replace(staged_m4a, m4a)
+    assert_frozen_sources_current()
+    atomic_write_text(
+        timing_path,
+        json.dumps(
+            {
+                "schema": 1,
+                "language": language,
+                "lang_code": lang_code,
+                "dialect": dialect,
+                "voice": voice,
+                "speed": speed,
+                "sample_rate": SAMPLE_RATE,
+                "total_duration": len(full) / SAMPLE_RATE,
+                "media_sha256": media_sha256,
+                "media_bytes": media_bytes,
+                "render_fingerprint": fingerprint,
+                "render_inputs": fingerprint_inputs,
+                "scenes": timings,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+        + "\n",
+    )
+    write_vtt(captions_path, timings)
+    return len(full) / SAMPLE_RATE
+
+
+def parse_range(value: str, maximum: int) -> set[int]:
+    if value == "all":
+        return set(range(1, maximum + 1))
+    selected = set()
+    for part in value.split(","):
+        if "-" in part:
+            start, end = (int(item) for item in part.split("-", 1))
+            selected.update(range(start, end + 1))
+        else:
+            selected.add(int(part))
+    return selected
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--languages",
+        default="all",
+        help="Comma-separated catalog language ids",
+    )
+    parser.add_argument(
+        "--lessons", default="all", help="Lesson number, ranges, or all"
+    )
+    parser.add_argument(
+        "--voices", default="all", help="Optional comma-separated voice ids"
+    )
+    parser.add_argument(
+        "--speed",
+        type=float,
+        default=None,
+        help=(
+            "override the measured per-voice speed profile "
+            "(base default: 1.00)"
+        ),
+    )
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--repair-peaks",
+        action="store_true",
+        help="rerender only tracks whose decoded true peak exceeds -1 dBFS",
+    )
+    parser.add_argument("--threads", type=int, default=12)
+    parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
+    args = parser.parse_args()
+    if not 1 <= args.threads <= 16:
+        parser.error("--threads must be between 1 and 16")
+
+    os.environ.setdefault("HF_HOME", str(MODEL_CACHE))
+    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+    import numpy as np
+    import soundfile as sf
+    import torch
+    from kokoro import KModel, KPipeline
+
+    torch.set_num_threads(args.threads)
+    selected_languages = (
+        list(LANGUAGES)
+        if args.languages == "all"
+        else args.languages.split(",")
+    )
+    catalog_maximum = max(
+        lesson["number"]
+        for lesson in json.loads(
+            (CATALOG / "lessons_en.json").read_text(encoding="utf-8")
+        )["lessons"]
+    )
+    selected_lessons = parse_range(args.lessons, catalog_maximum)
+    voice_filter = (
+        None if args.voices == "all" else set(args.voices.split(","))
+    )
+    model = (
+        KModel(
+            repo_id="hexgrad/Kokoro-82M",
+            config=str(SNAPSHOT / "config.json"),
+            model=str(SNAPSHOT / "kokoro-v1_0.pth"),
+        )
+        .to(args.device)
+        .eval()
+    )
+    rendered = skipped = 0
+    # A track that fails the true-peak gate is left unwritten and reported;
+    # the rest of the matrix still renders and the exit status is nonzero.
+    peak_failures = []
+    start_time = time.monotonic()
+    for language in selected_languages:
+        lang_code, voices = LANGUAGES[language]
+        catalog = json.loads(
+            (CATALOG / f"lessons_{language}.json").read_text(encoding="utf-8")
+        )
+        lessons = [
+            lesson
+            for lesson in catalog["lessons"]
+            if lesson["number"] in selected_lessons
+        ]
+        pipelines = {}
+        for voice in voices:
+            if voice_filter is not None and voice not in voice_filter:
+                continue
+            voice_lang_code = (
+                "b"
+                if language == "en" and voice.startswith("b")
+                else lang_code
+            )
+            if voice_lang_code not in pipelines:
+                pipelines[voice_lang_code] = KPipeline(
+                    lang_code=voice_lang_code,
+                    repo_id="hexgrad/Kokoro-82M",
+                    model=model,
+                    device=args.device,
+                )
+            pipeline = pipelines[voice_lang_code]
+            dialect = narration_dialect(language, voice_lang_code, voice)
+            speed = resolve_voice_speed(voice, args.speed)
+            runtime_identity = synthesis_runtime_identity(
+                SNAPSHOT, voice, args.device
+            )
+            synthesis_voice = pipeline.load_voice(str(SNAPSHOT / "voices" / f"{voice}.pt"))
+            runtime_identity["voice_pack"] = dict(
+                runtime_identity["voice_pack"]
+            )
+            loaded_voice_sha256 = hashlib.sha256(
+                synthesis_voice.detach().cpu().contiguous().numpy().tobytes()
+            ).hexdigest()
+            if (
+                loaded_voice_sha256
+                != runtime_identity["voice_pack"]["tensor_sha256"]
+            ):
+                raise RuntimeError(
+                    f"Loaded Kokoro voice does not match {voice}.pt"
+                )
+            runtime_identity["voice_pack"][
+                "loaded_tensor_sha256"
+            ] = loaded_voice_sha256
+            for lesson in lessons:
+                try:
+                    duration = render_track(
+                        pipeline,
+                        voice,
+                        lesson,
+                        language,
+                        voice_lang_code,
+                        dialect,
+                        speed,
+                        np,
+                        sf,
+                        args.force,
+                        args.repair_peaks,
+                        runtime_identity,
+                        synthesis_voice,
+                    )
+                except TruePeakError as error:
+                    peak_failures.append(str(error))
+                    print(f"TRUE PEAK FAIL {error}", flush=True)
+                    continue
+                if duration < 0:
+                    skipped += 1
+                else:
+                    rendered += 1
+                    elapsed = time.monotonic() - start_time
+                    print(
+                        f"{language}/{voice}/{lesson['id']} {duration:.1f}s "
+                        f"rendered={rendered} elapsed={elapsed / 60:.1f}m",
+                        flush=True,
+                    )
+    print(
+        f"complete rendered={rendered} skipped={skipped} "
+        f"peak_failures={len(peak_failures)}",
+        flush=True,
+    )
+    for failure in peak_failures:
+        print(f"TRUE PEAK FAIL {failure}", flush=True)
+    return 1 if peak_failures else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

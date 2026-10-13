@@ -1,0 +1,2013 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting#0",
+      "source": "Sort a folder of images (and their masks) into channels, rename, and merge.",
+      "source_sha256": "458486111a916fa7f202695e21a73c8a966addc639b4f85fedced23026a42feb",
+      "context": "Sort a folder of images (and their masks) into image data channels, rename, and merge.",
+      "translation": "Organiza uma pasta de imagens (e suas máscaras) em canais, renomeia e mescla.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#1",
+      "source": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-channel field per position, in the layout spaCR's Mask/Measure pipeline reads.",
+      "source_sha256": "1434b3d91d4e9a6b2d0a0b02c5dd84aad621be24cdc3bc9f182b24d1a49a3db3",
+      "context": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-image data channel microscope field of view per position, in the layout spaCR's Mask/Measure workflow reads.",
+      "translation": "O caso para o qual este módulo existe: as máscaras foram desenhadas no Make Masks sobre uma pasta que contém dois tipos de imagem ao mesmo tempo -- por exemplo, imagens com coloração nuclear e máscaras de núcleo e imagens com coloração celular e máscaras de célula --, e isso precisa virar um campo de visão multicanal por posição, na estrutura que o pipeline Mask/Measure do spaCR lê.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#2",
+      "source": "It happens in three separate steps, and nothing is moved until the last:",
+      "source_sha256": "0336d5e9eaf39d7e23221368495964995f8d2aad7b920afe462d0e1fd0a68b48",
+      "context": "It happens in three separate steps, and nothing is moved until the last:",
+      "translation": "Isso acontece em três etapas separadas, e nada é movido até a última:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#3",
+      "source": "1. **Channels and sets.** Each image gets a CHANNEL, and images that show the same field in different channels share a SET. Channels come from the user's selection (:func:`parse_names` ``channels=``) or from a regex's ``chanID`` group; sets come from the regex's other named groups (:func:`parse_names`, checked by :func:`check_sets`), from a regex spaCR proposes (:func:`infer_regex`), or, ignoring names, from pairing each image with the most similar image of the same size in every other channel (:func:`detect_sets`). 2. **The plan.** :func:`build_plan` names every set in the Yokogawa / CellVoyager form ``plate1_A01_T0001F001L01A01Z01C01.tif`` -- exactly what ``spacr.utils._get_regex('cellvoyager', ...)`` parses -- and lists every move. It writes nothing. 3. **Apply.** :func:`apply_plan` moves each image into ``C01/``, ``C02/``... under a new folder, its mask into that channel folder's ``masks/`` under the new name (and its ``.curation.json`` ledger with it, so the pairing survives), records every move in ``channel_sorting_manifest.csv``, and then :func:`merge_sorted` builds ``stack/``, ``masks/<role>_mask_stack/`` and ``merged/`` with spaCR's own functions (:func:`spacr.utils._extract_filename_metadata`, :func:`spacr.io._escaped_field_stem` and :func:`spacr.io._load_and_concatenate_arrays`), so each merged array has the pipeline's own layout: intensity channels first, then one label plane per mask role in the order cell, nucleus, pathogen.",
+      "source_sha256": "d5befb1360f1394b0ee9ab328fd16c648a682117f96041ecd2d89ac63d8f3b8d",
+      "context": "1. **Image data channels and sets.** Each image gets an image data channel, and images that show the same microscope field of view in different image data channels share a SET. image data channels come from the user's selection (:func:`parse_names` ``channels=``) or from a regex's ``chanID`` group; sets come from the regex's other named groups (:func:`parse_names`, checked by :func:`check_sets`), from a regex spaCR proposes (:func:`infer_regex`), or, ignoring names, from pairing each image with the most similar image of the same size in every other image data channel (:func:`detect_sets`). 2. **The plan.** :func:`build_plan` names every set in the Yokogawa / CellVoyager form ``plate1_A01_T0001F001L01A01Z01C01.tif`` -- exactly what ``spacr.utils._get_regex('cellvoyager', ...)`` parses -- and lists every move. It writes nothing. 3. **Apply.** :func:`apply_plan` moves each image into ``C01/``, ``C02/``... under a new folder, its mask into that image data channel folder's ``masks/`` under the new name (and its ``.curation.json`` ledger with it, so the pairing survives), records every move in ``channel_sorting_manifest.csv``, and then :func:`merge_sorted` builds ``stack/``, ``masks/<role>_mask_stack/`` and ``merged/`` with spaCR's own functions (:func:`spacr.utils._extract_filename_metadata`, :func:`spacr.io._escaped_field_stem` and :func:`spacr.io._load_and_concatenate_arrays`), so each merged array has the workflow's own layout: intensity image data channels first, then one label image layer per mask role in the order cell, nucleus, pathogen.",
+      "translation": "1. **Canais e conjuntos.** Cada imagem recebe um CANAL, e as imagens que mostram o mesmo campo de visão em canais diferentes compartilham um CONJUNTO. Os canais vêm da seleção do usuário (:func:`parse_names` ``channels=``) ou do grupo ``chanID`` de uma expressão regular; os conjuntos vêm dos outros grupos nomeados da expressão regular (:func:`parse_names`, conferidos por :func:`check_sets`), de uma expressão regular que o spaCR propõe (:func:`infer_regex`) ou, ignorando os nomes, do pareamento de cada imagem com a imagem mais parecida do mesmo tamanho em cada um dos outros canais (:func:`detect_sets`). 2. **O plano.** :func:`build_plan` nomeia cada conjunto na forma Yokogawa / CellVoyager ``plate1_A01_T0001F001L01A01Z01C01.tif`` -- exatamente o que ``spacr.utils._get_regex('cellvoyager', ...)`` interpreta -- e lista cada movimentação. Ele não grava nada. 3. **Aplicação.** :func:`apply_plan` move cada imagem para ``C01/``, ``C02/``... sob uma pasta nova, sua máscara para o ``masks/`` dessa pasta de canal com o novo nome (e seu registro ``.curation.json`` junto, para que o pareamento se mantenha), registra cada movimentação em ``channel_sorting_manifest.csv`` e então :func:`merge_sorted` constrói ``stack/``, ``masks/<role>_mask_stack/`` e ``merged/`` com as funções do próprio spaCR (:func:`spacr.utils._extract_filename_metadata`, :func:`spacr.io._escaped_field_stem` e :func:`spacr.io._load_and_concatenate_arrays`), de modo que cada matriz mesclada tem a estrutura própria do pipeline: primeiro os canais de intensidade, depois um plano de rótulos por papel de máscara na ordem célula, núcleo, patógeno.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#4",
+      "source": "Regex conventions: ``chanID`` is the channel; ``plateID``, ``wellID``, ``fieldID`` and ``timeID`` say where a set goes; any other named group only helps tell sets apart. A group that did not take part in a match counts as the empty string, so an optional ``(?:_(?P<fieldID>\\d+))?`` reads the numbered copies :mod:`spacr.folder_consolidation` makes.",
+      "source_sha256": "56bf30057b1bd4c91b78b73e1297955ec3d9606b193049ede87afcc859d56685",
+      "context": "Regex conventions: ``chanID`` is the channel; ``plateID``, ``wellID``, ``fieldID`` and ``timeID`` say where a set goes; any other named group only helps tell sets apart. A group that did not take part in a match counts as the empty string, so an optional ``(?:_(?P<fieldID>\\d+))?`` reads the numbered copies :mod:`spacr.folder_consolidation` makes.",
+      "translation": "Convenções da expressão regular: ``chanID`` é o canal; ``plateID``, ``wellID``, ``fieldID`` e ``timeID`` dizem para onde vai um conjunto; qualquer outro grupo nomeado só ajuda a distinguir conjuntos. Um grupo que não participou de uma correspondência conta como a string vazia, então um ``(?:_(?P<fieldID>\\d+))?`` opcional lê as cópias numeradas que :mod:`spacr.folder_consolidation` cria.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#0",
+      "source": "What :func:`apply_plan` did.",
+      "source_sha256": "90477d55cb26b1a9986a6668ff4e6d077c2a3feb8375cc741acbeb8112d25a6e",
+      "context": "What :func:`apply_plan` did.",
+      "translation": "O que :func:`apply_plan` fez.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#1",
+      "source": "the folder written.",
+      "source_sha256": "6a8e2856439fbdadc0e6aa818324bbe5fe2b1a401e86dd047e82c294343ec8fa",
+      "context": "the folder written.",
+      "translation": "a pasta gravada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#2",
+      "source": "the move/rename record.",
+      "source_sha256": "0340678cb12ae9ed1a71ba972d0cad25cc37508e93c460cee5825afc011c9190",
+      "context": "the move/rename record.",
+      "translation": "o registro de movimentações e renomeações.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#3",
+      "source": "files moved (images, masks and ledgers).",
+      "source_sha256": "65f1f7d074d5e1ded795ffe1e3e4217a15f3873980832a88c61e608630e49574",
+      "context": "files moved (images, masks and ledgers).",
+      "translation": "arquivos movidos (imagens, máscaras e registros).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#4",
+      "source": "``stack/*.npy`` written.",
+      "source_sha256": "f272dbcb8b6307c55afa36956f61a949145f0eb12a83bfa7202804176e813555",
+      "context": "``stack/*.npy`` written.",
+      "translation": "``stack/*.npy`` gravados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#5",
+      "source": "``merged/*.npy`` written.",
+      "source_sha256": "9942dcfc9a2604567dd386208bbe44bda76e2657347b59304f593a5fe80b4d11",
+      "context": "``merged/*.npy`` written.",
+      "translation": "``merged/*.npy`` gravados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#0",
+      "source": "What :func:`detect_sets` paired.",
+      "source_sha256": "c71eef9afa1dc57fae88e6678160741152450c9a3bac0b37729be532386e6356",
+      "context": "What :func:`detect_sets` paired.",
+      "translation": "O que :func:`detect_sets` pareou.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#1",
+      "source": "``{set key: {channel: name}}``, keyed ``((\"set\", \"000001\"),)``.",
+      "source_sha256": "a9b74a246e5ab8bbd8883957a4149829b5b149d128696d338f4c983fc72384bc",
+      "context": "``{set key: {channel: name}}``, keyed ``((\"set\", \"000001\"),)``.",
+      "translation": "``{set key: {channel: name}}``, com chaves ``((\"set\", \"000001\"),)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#2",
+      "source": "images left without a partner in some channel.",
+      "source_sha256": "0f1fbe5b2695ea02260205298bad78a95cee4ea45442b6565821f07904f4d96f",
+      "context": "images left without a partner in some image data channel.",
+      "translation": "imagens que ficaram sem par em algum canal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#3",
+      "source": "reasons the pairing cannot be used as it is.",
+      "source_sha256": "d18ca06cab2ffe0f689b55c93f55d364320b3aa9f06fa870d9369b184c1b2f4a",
+      "context": "reasons the pairing cannot be used as it is.",
+      "translation": "motivos pelos quais o pareamento não pode ser usado como está.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#0",
+      "source": "One image name read through a regex.",
+      "source_sha256": "6f1d9cc0ab2be05fb75ed49260c4eedd624b5535b029e97db6c5ed4defcbe418",
+      "context": "One image name read through a regex.",
+      "translation": "Um nome de imagem lido por meio de uma expressão regular.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#1",
+      "source": "the file name.",
+      "source_sha256": "984ff85dca71135cfe899d5268967048467c5263f66252c94aabeb06bf728333",
+      "context": "the file name.",
+      "translation": "o nome do arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#2",
+      "source": "whether the regex matched it.",
+      "source_sha256": "4590707f4c7f60df9680c624f8a4501d6624a871a05b8db2964c44778f17e7d4",
+      "context": "whether the regex matched it.",
+      "translation": "se a expressão regular correspondeu a ele.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#3",
+      "source": "every named group's value; one that did not take part is the empty string.",
+      "source_sha256": "68a9e1b701354398d0315e348cc07b55cbb63197323eed2de17a5b559e7dee0e",
+      "context": "every named group's value; one that did not take part is the empty string.",
+      "translation": "o valor de cada grupo nomeado; um que não participou é a string vazia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#4",
+      "source": "the 1-based channel, from the selection or ``chanID``; None when neither gives one.",
+      "source_sha256": "e4ec6b68aa18e0907527b7f5c6a6855791db18c2a4af808077fd8e5285a9e4e4",
+      "context": "the 1-based channel, from the selection or ``chanID``; None when neither gives one.",
+      "translation": "o canal, contado a partir de 1, da seleção ou de ``chanID``; None quando nenhum dos dois o fornece.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#5",
+      "source": "the set the image belongs to; None when unmatched.",
+      "source_sha256": "3f3e78ebaf1d2e57167e56fca69089eb61ad8c6d3f90f0bc76c36cb3f3bb2fca",
+      "context": "the set the image belongs to; None when unmatched.",
+      "translation": "o conjunto a que a imagem pertence; None quando não houve correspondência.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#0",
+      "source": "One image to move, with its mask and the mask's ledger.",
+      "source_sha256": "2c06b49eee676f7b73d7ba4d3ef99dc71fafb14d90486b08267ff405787e18a5",
+      "context": "One image to move, with its mask and the mask's ledger.",
+      "translation": "Uma imagem a mover, com sua máscara e o registro da máscara.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#1",
+      "source": "1-based channel.",
+      "source_sha256": "f9b85205a521c8b78d55322be64e766a83972789f54fc28e7834dc714009ed5d",
+      "context": "1-based channel.",
+      "translation": "canal contado a partir de 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#10",
+      "source": "``\"rgb\"`` or ``\"zstack\"`` when the image is written as one converted 2-D plane (the original is kept under ``originals/``).",
+      "source_sha256": "f621f5a3acf1478b90563db5517900225e5c163e92139602dce88d3796205fcc",
+      "context": "``\"rgb\"`` or ``\"zstack\"`` when the image is written as one converted 2-D image layer (the original is kept under ``originals/``).",
+      "translation": "``\"rgb\"`` ou ``\"zstack\"`` quando a imagem é gravada como um único plano 2-D convertido (o original é mantido em ``originals/``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#2",
+      "source": "the set's place.",
+      "source_sha256": "5853d75e7105622c7e1021adae830466adb9b67a41fd898828f8bde15656a57c",
+      "context": "the set's place.",
+      "translation": "o lugar do conjunto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#3",
+      "source": "the set the image is in.",
+      "source_sha256": "53b7dd7a7246224f4ba3dfc2b430ebd0e963f08eb51d682093499db519732f94",
+      "context": "the set the image is in.",
+      "translation": "o conjunto em que a imagem está.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#4",
+      "source": "current image path.",
+      "source_sha256": "3016071957a2806f20ff98f29071af1d90b41fdeeb159484807600e94a1eb87c",
+      "context": "current image path.",
+      "translation": "caminho atual da imagem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#5",
+      "source": "where it goes.",
+      "source_sha256": "33831bee7a9e78464fbd7503df8522b1d205fce7da415b3123107f7b366c6aad",
+      "context": "where it goes.",
+      "translation": "para onde ela vai.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#6",
+      "source": "current mask path, or None.",
+      "source_sha256": "65d0bccb8efb9116009324ba4facefb49f833760a3f43eb9b04040f288daaec6",
+      "context": "current mask path, or None.",
+      "translation": "caminho atual da máscara, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#7",
+      "source": "where the mask goes, or None.",
+      "source_sha256": "a0c6e24419f745c52cc2a10a1874c4ee86d14b6d91a7f46ec0220c6ab267ae68",
+      "context": "where the mask goes, or None.",
+      "translation": "para onde a máscara vai, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#8",
+      "source": "the mask's ``.curation.json``, or None.",
+      "source_sha256": "10484b5526c41557b5e92888836c03cfde7a3f541aafb1a98a34513494239e3f",
+      "context": "the mask's ``.curation.json``, or None.",
+      "translation": "o ``.curation.json`` da máscara, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#9",
+      "source": "where the ledger goes, or None.",
+      "source_sha256": "0353d9672c27d58b4057366015f793fb0a3e503a6eb4d4395afc771fed6a75b6",
+      "context": "where the ledger goes, or None.",
+      "translation": "para onde o registro vai, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#0",
+      "source": "Where one set goes in the Yokogawa naming.",
+      "source_sha256": "1a9aceb126aff211f6f2cd19a3750e03ac924768927d31d41cd754f8c6d1d1e1",
+      "context": "Where one set goes in the Yokogawa naming.",
+      "translation": "Para onde vai um conjunto na nomenclatura Yokogawa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#1",
+      "source": "the plate token, with no underscore.",
+      "source_sha256": "c271aae260b307c480bee7992690adc17ec559e47d6586895fad4d5dd084fe9c",
+      "context": "the plate token, with no underscore.",
+      "translation": "o identificador da placa, sem sublinhado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#3",
+      "source": "1-based field.",
+      "source_sha256": "ed478660d8fa9467a2cb0ca052fe16b0705451e4e5f413fd69cfe44fe9854114",
+      "context": "1-based field.",
+      "translation": "campo de visão contado a partir de 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#4",
+      "source": "1-based timepoint.",
+      "source_sha256": "b929bd5886ecd32a67096c98062d34badffcf7c48abb8e02cd49ad82793fe111",
+      "context": "1-based timepoint.",
+      "translation": "ponto no tempo contado a partir de 1.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#0",
+      "source": "Whether a set of parsed names forms complete, unique sets.",
+      "source_sha256": "1df44e54e74ad587726f61da20f83fddab66f9ad4b6ec0aa080d4d93726dddf8",
+      "context": "Whether a set of parsed names forms complete, unique sets.",
+      "translation": "Se um conjunto de nomes interpretados forma conjuntos completos e únicos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#1",
+      "source": "the channels present, sorted.",
+      "source_sha256": "830087af73577638d0dd6483f4f4bd7357a75c85b6bff1c74ecdb744b2197f95",
+      "context": "the channels present, sorted.",
+      "translation": "os canais presentes, ordenados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#2",
+      "source": "``{set key: {channel: name}}`` for sets with exactly one image in every channel.",
+      "source_sha256": "1c9fbe92bb387f05625615f89c923ce68185a9777bb29b7d0c1eda8b855d1657",
+      "context": "``{set key: {channel: name}}`` for sets with exactly one image in every image data channel.",
+      "translation": "``{set key: {channel: name}}`` para conjuntos com exatamente uma imagem em cada canal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#4",
+      "source": "``{(set key, channel): [names]}`` -- two images claiming the same place.",
+      "source_sha256": "a682cd1fe2a15697b1c1c2628bbc6a97bb852de89380e9a265775df83512bfd6",
+      "context": "``{(set key, channel): [names]}`` -- two images claiming the same place.",
+      "translation": "``{(set key, channel): [names]}`` -- duas imagens reivindicando o mesmo lugar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#5",
+      "source": "names the regex did not match.",
+      "source_sha256": "271e0a04123a0369f04673cb4c7fdd52b7101f8329ae1d6204c276427cbcad83",
+      "context": "names the regex did not match.",
+      "translation": "nomes aos quais a expressão regular não correspondeu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#6",
+      "source": "matched names with no channel.",
+      "source_sha256": "a6faa9069bb07496a266bdc962c70333bf901251c8f05a7f9053bd1310826b67",
+      "context": "matched names with no channel.",
+      "translation": "nomes correspondidos sem canal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport.ok#0",
+      "source": "True when every image is in exactly one complete set.",
+      "source_sha256": "b556f7c7439955a4b311efa2b57a3273a8b1be65e99a04454947c37a92dbd0b7",
+      "context": "True when every image is in exactly one complete set.",
+      "translation": "True quando cada imagem está em exatamente um conjunto completo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport.summary#0",
+      "source": "A few plain lines saying what is and is not right.",
+      "source_sha256": "611d695256be70f7e171f6718b596c633ad25697a2b210d1c159565c9c4fd622",
+      "context": "A few plain lines saying what is and is not right.",
+      "translation": "Algumas linhas simples dizendo o que está certo e o que não está.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#0",
+      "source": "Everything :func:`apply_plan` will do, decided before it does any.",
+      "source_sha256": "00b7c899bc315c108addc02e2113ee9be18958bd699e5c6b2bb5eef34dd8f6f0",
+      "context": "Everything :func:`apply_plan` will do, decided before it does any.",
+      "translation": "Tudo o que :func:`apply_plan` fará, decidido antes de fazer qualquer coisa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#1",
+      "source": "the image folder.",
+      "source_sha256": "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+      "context": "the image folder.",
+      "translation": "a pasta de imagens.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#2",
+      "source": "the new folder the channels, stacks and ``merged/`` go in.",
+      "source_sha256": "f3bb66bd32cd74675df52cf3dfa919c284df43a3eee51fcae739d557256552d9",
+      "context": "the new folder the channels, stacks and ``merged/`` go in.",
+      "translation": "a pasta nova em que ficam os canais, as pilhas e ``merged/``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#3",
+      "source": "one per image.",
+      "source_sha256": "c9c9c7bd76336bdf8cbc99e2f75a1281fb8027e70bb197e5f667cf17c706843e",
+      "context": "one per image.",
+      "translation": "um por imagem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#4",
+      "source": "channels, sorted.",
+      "source_sha256": "b29d1877be33def0a3f0489ebf16630a17487afd874a466686d315dc34082aa4",
+      "context": "channels, sorted.",
+      "translation": "canais, ordenados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#5",
+      "source": "``{channel: role}`` for channels whose masks are merged.",
+      "source_sha256": "c960491cebcac2488ab96a021f0186cc6d4eb8bd6c7aa5e289361e43c36b6b43",
+      "context": "``{channel: role}`` for image data channels whose masks are merged.",
+      "translation": "``{channel: role}`` para os canais cujas máscaras são mescladas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#6",
+      "source": "reasons the plan cannot be applied.",
+      "source_sha256": "f36d4ede262bf84048aa9c123ff72a9e6c7862cf93cea075ff319c74939ae80a",
+      "context": "reasons the plan cannot be applied.",
+      "translation": "motivos pelos quais o plano não pode ser aplicado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#7",
+      "source": "things the user should know before it is.",
+      "source_sha256": "f3b1687c55cc4cb4ab0921f2d25783f4dedf97b2cef335d4b95cf1a91d7866cc",
+      "context": "things the user should know before it is.",
+      "translation": "coisas que o usuário deve saber antes de aplicá-lo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#8",
+      "source": "RGB images and z-stacks that :func:`build_plan` would convert when asked to (``convert=True``).",
+      "source_sha256": "9fe0cdb630b97ba90463a7cb01b94795995928a57ab6d029796f9bb5ef067d32",
+      "context": "RGB images and z-stacks that :func:`build_plan` would convert when asked to (``convert=True``).",
+      "translation": "imagens RGB e pilhas z que :func:`build_plan` converteria quando solicitado (``convert=True``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan.n_sets#0",
+      "source": "How many sets the plan holds.",
+      "source_sha256": "8875d59ceb04b8a5cdbb2d3a3c874eac4d02d4669b34309cda418db6ea3af874",
+      "context": "How many sets the plan holds.",
+      "translation": "Quantos conjuntos o plano contém.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan.ok#0",
+      "source": "True when there is something to do and nothing stops it.",
+      "source_sha256": "548496a9ed91d86260889b50d60ad4c27e1553b905c3af08e4ca5b95b6778e86",
+      "context": "True when there is something to do and nothing stops it.",
+      "translation": "True quando há algo a fazer e nada o impede.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan.summary#0",
+      "source": "Plain lines saying what applying the plan will do.",
+      "source_sha256": "7d26a047d111c56705ea146362e8def7fd7cebcc268291ab8568cbcbb80ef5c2",
+      "context": "Plain lines saying what applying the plan will do.",
+      "translation": "Linhas simples dizendo o que a aplicação do plano fará.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#0",
+      "source": "MOVE the images and masks as planned, then merge.",
+      "source_sha256": "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
+      "context": "MOVE the images and masks as planned, then merge.",
+      "translation": "MOVE as imagens e máscaras conforme o plano e depois mescla.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#1",
+      "source": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
+      "source_sha256": "29e95e789da46b73db83881f87758d927a88132bfdbf975d3addbef5b47efc79",
+      "context": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
+      "translation": "Cada movimentação é gravada em ``<dest>/channel_sorting_manifest.csv`` no momento em que acontece, então uma execução que para no meio ainda diz qual arquivo foi para onde. Nada é sobrescrito: cada destino é conferido como livre antes da primeira movimentação.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#2",
+      "source": "an ``ok`` plan from :func:`build_plan`.",
+      "source_sha256": "6bd783ca5a7672e861143095394733fc9e7ff1b070dceeea311dec1bba64a113",
+      "context": "an ``ok`` plan from :func:`build_plan`.",
+      "translation": "um plano ``ok`` de :func:`build_plan`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#3",
+      "source": "run :func:`merge_sorted` afterwards.",
+      "source_sha256": "b8fdc5843edc99fc4edf71528d753be7b1a73b18a99e37c7f2b582c0f5217ed1",
+      "context": "run :func:`merge_sorted` afterwards.",
+      "translation": "executa :func:`merge_sorted` depois.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#4",
+      "source": "called with progress lines; default prints.",
+      "source_sha256": "7db6a5d784a8d50ce0ccef93d7fa6d2b21e2d9e096079a1e6fed6a260d4f5fea",
+      "context": "called with progress lines; default prints.",
+      "translation": "chamado com linhas de progresso; por padrão, imprime.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#6",
+      "source": "when the plan has problems, a source is gone or a target is taken.",
+      "source_sha256": "198dfe1289bda4c083fec92fa4a3c937fbf9957a63a93ba531f9d941b9a9f760",
+      "context": "when the plan has problems, a source is gone or a target is taken.",
+      "translation": "quando o plano tem problemas, uma origem sumiu ou um destino está ocupado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#7",
+      "source": "when a move fails; the manifest records it and every move before it.",
+      "source_sha256": "81bc508e57c25673eed13005edc46e6b5faf1a6cf1dab33914121d000b8a48a1",
+      "context": "when a move fails; the manifest records it and every move before it.",
+      "translation": "quando uma movimentação falha; o manifesto a registra junto com cada movimentação anterior.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#0",
+      "source": "Decide every move, name and check before anything is touched.",
+      "source_sha256": "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
+      "context": "Decide every move, name and check before anything is touched.",
+      "translation": "Decide cada movimentação, nome e verificação antes de mexer em qualquer coisa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#2",
+      "source": "``{set key: {channel: name}}``, complete sets only.",
+      "source_sha256": "2361736aef7fa63deaec9192bdd5133b7327747c69b9093a1b49a11ba8453b88",
+      "context": "``{set key: {channel: name}}``, complete sets only.",
+      "translation": "``{set key: {channel: name}}``, apenas conjuntos completos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#3",
+      "source": "an explicit masks folder.",
+      "source_sha256": "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+      "context": "an explicit masks folder.",
+      "translation": "uma pasta de máscaras indicada explicitamente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#4",
+      "source": "``{channel: role}``; ``None`` guesses (:func:`default_mask_roles`); a channel missing from it, or given ``\"none\"``, has its masks moved but not merged.",
+      "source_sha256": "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
+      "context": "``{channel: role}``; ``None`` guesses (:func:`default_mask_roles`); an image data channel missing from it, or given ``\"none\"``, has its masks moved but not merged.",
+      "translation": "``{channel: role}``; ``None`` adivinha (:func:`default_mask_roles`); um canal ausente dele, ou que recebe ``\"none\"``, tem suas máscaras movidas, mas não mescladas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#5",
+      "source": "the new folder; default ``<folder>/sorted_channels``.",
+      "source_sha256": "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
+      "context": "the new folder; default ``<folder>/sorted_channels``.",
+      "translation": "a pasta nova; por padrão, ``<folder>/sorted_channels``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#6",
+      "source": "read each image's and mask's size and refuse a set whose images differ in size, a mask that is not its image's size or an image that is not 2-D.",
+      "source_sha256": "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+      "context": "read each image's and mask's size and refuse a set whose images differ in size, a mask that is not its image's size or an image that is not 2-D.",
+      "translation": "lê o tamanho de cada imagem e de cada máscara e recusa um conjunto cujas imagens tenham tamanhos diferentes, uma máscara que não tenha o tamanho da sua imagem ou uma imagem que não seja 2-D.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#8",
+      "source": "write RGB images as grey and z-stacks as their maximum projection instead of refusing them; without it they are listed in :attr:`SortPlan.convertible` so the caller can ask.",
+      "source_sha256": "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
+      "context": "write RGB images as grey and z-stacks as their maximum projection instead of refusing them; without it they are listed in :attr:`SortPlan.convertible` so the caller can ask.",
+      "translation": "grava imagens RGB em tons de cinza e pilhas z como sua projeção máxima em vez de recusá-las; sem isso, elas são listadas em :attr:`SortPlan.convertible` para que quem chama possa perguntar.",
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.channel_sorting.build_plan#7"
+    },
+    {
+      "label": "spacr.channel_sorting.canonical_well#0",
+      "source": "``A1``, ``a01`` or ``r01c01`` as ``A01``; None for anything else.",
+      "source_sha256": "73f7258541a9b7c9ee26ceb32cc3e4c7b423593684397f119354222427a60783",
+      "context": "``A1``, ``a01`` or ``r01c01`` as ``A01``; None for anything else.",
+      "translation": "``A1``, ``a01`` ou ``r01c01`` como ``A01``; None para qualquer outra coisa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.canonical_well#1",
+      "source": "a well token.",
+      "source_sha256": "d77d1af5cdd15ce1518ae4a02dbe1a5e905783c9a03ce114b2bcc8189cbc3c8f",
+      "context": "a microplate sample position token.",
+      "translation": "um identificador de poço.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.check_sets#0",
+      "source": "Group parsed names into sets and report every way they fail to fit.",
+      "source_sha256": "87a6faab11c3cb5374f04d6132ded08777fe346fbc15364f40cb8d4bd484bca9",
+      "context": "Group parsed names into sets and report every way they fail to fit.",
+      "translation": "Agrupa os nomes interpretados em conjuntos e informa cada forma em que eles não se encaixam.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.check_sets#1",
+      "source": "the output of :func:`parse_names`.",
+      "source_sha256": "fb0c1977dcf105a63a130577cdafe0255515d75ee60eb16d0957d55e642ef864",
+      "context": "the output of :func:`parse_names`.",
+      "translation": "a saída de :func:`parse_names`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.compile_regex#0",
+      "source": "Compile ``pattern``, or return the error message.",
+      "source_sha256": "8c5ed2493404ad3aa4facb11375b8e12112825aa5c1a36beb41577a5d0b14d35",
+      "context": "Compile ``pattern``, or return the error message.",
+      "translation": "Compila ``pattern`` ou retorna a mensagem de erro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.compile_regex#1",
+      "source": "the regex text.",
+      "source_sha256": "e993152778207493e9524d9759f22b5f8f0cd4a60bb45b1146cd5e6d76412595",
+      "context": "the regex text.",
+      "translation": "o texto da expressão regular.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.compile_regex#2",
+      "source": "``(compiled, None)`` or ``(None, message)``.",
+      "source_sha256": "5e51075ccdc7efc3a21cf1e7584b0530b9d07c24a1815b6f004f84c7c6bba4a3",
+      "context": "``(compiled, None)`` or ``(None, message)``.",
+      "translation": "``(compiled, None)`` ou ``(None, message)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#0",
+      "source": "Guess which role each masked channel's masks have.",
+      "source_sha256": "f244e57c58ef4dcda34d41ce41a522c8254e33adb8dc57bfa93e9e041dc5bd87",
+      "context": "Guess which role each masked image data channel's masks have.",
+      "translation": "Adivinha qual papel têm as máscaras de cada canal com máscaras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#1",
+      "source": "A channel whose names say ``nuc``/``dapi``/``hoechst`` is ``nucleus``, ``cell``/``cyto`` is ``cell``, ``parasite``/``pathogen`` is ``pathogen``; the rest take the first unused of cell, nucleus, pathogen.",
+      "source_sha256": "4b2428cdcdbf1972b9b4c99a95889c8e15d12a7985ed4b33a16c35244e275c0a",
+      "context": "A channel whose names say ``nuc``/``dapi``/``hoechst`` is ``nucleus``, ``cell``/``cyto`` is ``cell``, ``parasite``/``pathogen`` is ``pathogen``; the rest take the first unused of cell, nucleus, pathogen.",
+      "translation": "Um canal cujos nomes dizem ``nuc``/``dapi``/``hoechst`` é ``nucleus``, ``cell``/``cyto`` é ``cell``, ``parasite``/``pathogen`` é ``pathogen``; os demais recebem o primeiro ainda não usado entre célula, núcleo, patógeno.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#3",
+      "source": "the channels that have masks.",
+      "source_sha256": "1607faaee5736e94371dfe9dd60d3d2c0ac3f0542abe0e262b40b30473b14398",
+      "context": "the image data channels that have masks.",
+      "translation": "os canais que têm máscaras.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#4",
+      "source": "``{channel: role}`` for those channels, roles distinct.",
+      "source_sha256": "f6aa06d1ff7451eca90569d8d280d64a5c2500b245412d0988123cbe210221aa",
+      "context": "``{channel: role}`` for those channels, roles distinct.",
+      "translation": "``{channel: role}`` para esses canais, com papéis distintos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#0",
+      "source": "Pair images across channels by name similarity, order and size.",
+      "source_sha256": "1920afd86b004ff6ea2fd6f030b41c48cd8d474dae8b2e5cd5067f3935b64fb6",
+      "context": "Pair images across image data channels by name similarity, order and size.",
+      "translation": "Pareia imagens entre canais por semelhança de nome, ordem e tamanho.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#1",
+      "source": "The channel with the most images is the reference. Each other channel's images are matched one-to-one to the reference images by the smallest total cost, where the cost is :func:`name_distance` plus a small term for how far apart the two sit in their channel's sorted order, and a pair whose images differ in size is not allowed. Names play no other part: each resulting set is keyed by its number alone. A mask whose size is not its image's is reported as a problem.",
+      "source_sha256": "5968d486cfbbdc170803a4bf11729f3d05e7fbca7fa6a4b7d66491f9a25aab3f",
+      "context": "The image data channel with the most images is the reference. Each other image data channel's images are matched one-to-one to the reference images by the smallest total cost, where the cost is :func:`name_distance` plus a small term for how far apart the two sit in their image data channel's sorted order, and a pair whose images differ in size is not allowed. Names play no other part: each resulting set is keyed by its number alone. A mask whose size is not its image's is reported as a problem.",
+      "translation": "O canal com mais imagens é a referência. As imagens de cada outro canal são pareadas uma a uma com as imagens de referência pelo menor custo total, em que o custo é :func:`name_distance` mais um pequeno termo para a distância entre as duas na ordem do seu canal, e um par cujas imagens tenham tamanhos diferentes não é permitido. Os nomes não têm outro papel: cada conjunto resultante tem como chave apenas o seu número. Uma máscara cujo tamanho não é o da sua imagem é informada como problema.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#3",
+      "source": "``{name: channel}`` for every image to pair.",
+      "source_sha256": "5517301b321ea3987a4d3cc263f55d461e7fb917bd5fe838ac5afffefd337fe3",
+      "context": "``{name: channel}`` for every image to pair.",
+      "translation": "``{name: channel}`` para cada imagem a parear.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#5",
+      "source": "``{name: shape}`` already read; read here otherwise.",
+      "source_sha256": "4d16b2a984bbe53670b24226253e64679926d633048c17a5ce4775956c33b97f",
+      "context": "``{name: shape}`` already read; read here otherwise.",
+      "translation": "``{name: shape}`` já lido; caso contrário, lido aqui.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#0",
+      "source": "Read an image's pixel shape from its header, without its pixels.",
+      "source_sha256": "52ececac93c1d260398500e120df3c6fd4deb17b213e7daefd7bcac169a1ffa4",
+      "context": "Read an image's pixel shape from its header, without its pixels.",
+      "translation": "Lê a forma em pixels de uma imagem a partir do cabeçalho, sem ler os pixels.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#1",
+      "source": "Singleton axes are dropped, so a ``(1, H, W)`` TIFF and an ``(H, W)`` PNG compare equal.",
+      "source_sha256": "0dd22743ce78b3421195a6cd1a0abe6da3654cbe75a1829652b91de9c140234b",
+      "context": "Singleton axes are dropped, so a ``(1, H, W)`` TIFF and an ``(H, W)`` PNG compare equal.",
+      "translation": "Eixos de tamanho um são descartados, então um TIFF ``(1, H, W)`` e um PNG ``(H, W)`` são comparados como iguais.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#2",
+      "source": "an image file.",
+      "source_sha256": "b1b9371f7b8de2eb0074dd89574bb5cde631d19150b21963e927795cdbbf2202",
+      "context": "an image file.",
+      "translation": "um arquivo de imagem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#3",
+      "source": "the shape, or None when the file cannot be read.",
+      "source_sha256": "aad02169536c1c17428acfa3370c91f00582681cd7d76207b05111ad78f8f025",
+      "context": "the shape, or None when the file cannot be read.",
+      "translation": "a forma, ou None quando o arquivo não pode ser lido.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#0",
+      "source": "Propose a regex that maps every image to a unique, complete set.",
+      "source_sha256": "300206768e4e9f0bb5d788194a6c44ad6f6125e5f7373436d30a9706754cf070",
+      "context": "Propose a regex that maps every image to a unique, complete set.",
+      "translation": "Propõe uma expressão regular que leva cada imagem a um conjunto único e completo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#1",
+      "source": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the channel -- or, when the user assigned channels, the tokens that only follow the channel are set aside -- and the rest must identify a set that holds exactly one image per channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST channels wins: any name can be read as a channel of its own in a single set, which passes and means nothing.",
+      "source_sha256": "6c67fca6f45364075dbfb42ff14a0728aebb8069fa4632f9eb9ff9815c3a7366",
+      "context": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the image data channel -- or, when the user assigned image data channels, the tokens that only follow the image data channel are set aside -- and the rest must identify a set that holds exactly one image per image data channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST image data channels wins: any name can be read as an image data channel of its own in a single set, which passes and means nothing.",
+      "translation": "Os nomes são divididos em fragmentos (em ``_ - . space`` e, se isso falhar, em sequências de dígitos e de letras); os fragmentos que variam são identificados; um deles é testado como canal -- ou, quando o usuário atribuiu canais, os fragmentos que apenas seguem o canal são deixados de lado -- e o resto deve identificar um conjunto com exatamente uma imagem por canal. Cada candidata é conferida com :func:`check_sets` antes de ser retornada. O padrão Yokogawa do próprio spaCR é testado primeiro e :func:`spacr.regex_infer.propose` por último. Das candidatas aprovadas, vence a que tem MENOS canais: qualquer nome pode ser lido como um canal próprio em um único conjunto, o que passa e não significa nada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#2",
+      "source": "image file names.",
+      "source_sha256": "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+      "context": "image file names.",
+      "translation": "nomes de arquivos de imagem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#3",
+      "source": "``{name: channel}`` from the selection strategy; when every name has one, the regex needs no ``chanID`` group.",
+      "source_sha256": "f58656d665ee2aa2f2c061411c7ac790b00d29aa6151c13e3fe93058d2eb294d",
+      "context": "``{name: channel}`` from the selection strategy; when every name has one, the regex needs no ``chanID`` group.",
+      "translation": "``{name: channel}`` da estratégia de seleção; quando todo nome tem um canal, a expressão regular não precisa de um grupo ``chanID``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#4",
+      "source": "the first regex that passes, or None.",
+      "source_sha256": "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791",
+      "context": "the first regex that passes, or None.",
+      "translation": "a primeira expressão regular aprovada, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.list_folder_images#0",
+      "source": "Return the image file names directly in ``folder``, naturally sorted.",
+      "source_sha256": "b79e04ddd944ecdc7a05a2554fe1a061b477f32e4284d4ebf473ad6eeca8e545",
+      "context": "Return the image file names directly in ``folder``, naturally sorted.",
+      "translation": "Retorna os nomes de arquivos de imagem diretamente em ``folder``, em ordem natural.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.list_folder_images#1",
+      "source": "the folder; a missing one holds none.",
+      "source_sha256": "0836ada670697d679cb99cf7e5c7eae699c3226d23435073a58dfd072f1ab931",
+      "context": "the folder; a missing one holds none.",
+      "translation": "a pasta; uma pasta ausente não contém nenhum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#0",
+      "source": "Return the path of the saved mask of image ``name``, or None.",
+      "source_sha256": "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
+      "context": "Return the path of the saved mask of image ``name``, or None.",
+      "translation": "Retorna o caminho da máscara salva da imagem ``name``, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#1",
+      "source": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
+      "source_sha256": "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+      "context": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
+      "translation": "O Make Masks salva cada máscara como ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#3",
+      "source": "the image file name.",
+      "source_sha256": "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
+      "context": "the image file name.",
+      "translation": "o nome do arquivo de imagem.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#0",
+      "source": "A small preview of a label mask: 255 where any object is, else 0.",
+      "source_sha256": "4f351d5edd65ef7e8e492d7c9d2a150e3ff4fbc1afcc73ebd65b65779d2c1ebf",
+      "context": "A small preview of a label mask: 255 where any object is, else 0.",
+      "translation": "Uma pequena prévia de uma máscara de rótulos: 255 onde há algum objeto, 0 no resto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#1",
+      "source": "the mask file.",
+      "source_sha256": "d188a54dceae17fb3ac90948c18a69c9568cc18071af399a81d6bc8e580d7efe",
+      "context": "the mask file.",
+      "translation": "o arquivo de máscara.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#2",
+      "source": "the longest side, in pixels.",
+      "source_sha256": "70f5dab4f5133d102f1c5d1bce6e32049dd6728958baff6691a1caed01b1459e",
+      "context": "the longest side, in pixels.",
+      "translation": "o lado mais longo, em pixels.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#3",
+      "source": "a 2-D ``uint8`` array, or None when it cannot be read.",
+      "source_sha256": "1d138b9df4463f630aefa59dc510193964accfdce83f3805c1b5090d03f2e228",
+      "context": "a 2-D ``uint8`` array, or None when it cannot be read.",
+      "translation": "uma matriz 2-D ``uint8``, ou None quando não pode ser lida.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.masks_folder#0",
+      "source": "Where Make Masks keeps the masks of ``folder``'s images.",
+      "source_sha256": "8cb00d31f62ff762b71776aa9354cfd89472265e44be819b86754455c0dae44e",
+      "context": "Where Make Masks keeps the masks of ``folder``'s images.",
+      "translation": "Onde o Make Masks guarda as máscaras das imagens de ``folder``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.masks_folder#2",
+      "source": "an explicit masks folder, when not ``<folder>/masks``.",
+      "source_sha256": "f11ee1e19937390f66c259eb008b021803c5e598b66937c5ea4c20a20db5ddfc",
+      "context": "an explicit masks folder, when not ``<folder>/masks``.",
+      "translation": "uma pasta de máscaras indicada explicitamente, quando não é ``<folder>/masks``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#0",
+      "source": "Build ``stack/``, the mask stacks and ``merged/`` from sorted channels.",
+      "source_sha256": "876c5666d20a4c091ef3f4d5afb6dfe24b2b1432b5f0f26071ee78f9d3c8feee",
+      "context": "Build ``stack/``, the mask stacks and ``merged/`` from sorted image data channels.",
+      "translation": "Constrói ``stack/``, as pilhas de máscaras e ``merged/`` a partir de canais organizados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#1",
+      "source": "The Yokogawa names in ``C01/``, ``C02/``... are read with spaCR's own ``cellvoyager`` pattern and :func:`spacr.utils._extract_filename_metadata`, each field's stem is :func:`spacr.io._escaped_field_stem` -- the stem the pipeline gives it -- and its channels are stacked in channel order into ``stack/<stem>.npy``. Each channel's masks are copied to ``masks/<role>_mask_stack/<stem>.tif``, and :func:`spacr.io._load_and_concatenate_arrays` writes ``merged/``.",
+      "source_sha256": "cd30c90d72b008acf1c788c6b961a79391844ec4cddf9b8eb3926141ece3af1d",
+      "context": "The Yokogawa names in ``C01/``, ``C02/``... are read with spaCR's own ``cellvoyager`` pattern and :func:`spacr.utils._extract_filename_metadata`, each microscope field of view's stem is :func:`spacr.io._escaped_field_stem` -- the stem the workflow gives it -- and its image data channels are stacked in image data channel order into ``stack/<stem>.npy``. Each image data channel's masks are copied to ``masks/<role>_mask_stack/<stem>.tif``, and :func:`spacr.io._load_and_concatenate_arrays` writes ``merged/``.",
+      "translation": "Os nomes Yokogawa em ``C01/``, ``C02/``... são lidos com o padrão ``cellvoyager`` do próprio spaCR e :func:`spacr.utils._extract_filename_metadata`, o nome-base de cada campo de visão é :func:`spacr.io._escaped_field_stem` -- o nome-base que o pipeline lhe dá -- e seus canais são empilhados em ordem de canal em ``stack/<stem>.npy``. As máscaras de cada canal são copiadas para ``masks/<role>_mask_stack/<stem>.tif``, e :func:`spacr.io._load_and_concatenate_arrays` grava ``merged/``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#2",
+      "source": "the folder :func:`apply_plan` filled.",
+      "source_sha256": "467e5c8e0d8b30d2fe01f90201764bc06e752d8467404d50cf2ee53f0e1d801b",
+      "context": "the folder :func:`apply_plan` filled.",
+      "translation": "a pasta que :func:`apply_plan` preencheu.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#4",
+      "source": "called with progress lines.",
+      "source_sha256": "af180464f5ebfea75d9e56d72c11bffddd7076d26203a4795a1c157ff419a14c",
+      "context": "called with progress lines.",
+      "translation": "chamado com linhas de progresso.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_distance#0",
+      "source": "How different two names are, 0 (same tokens) to 1 (nothing shared).",
+      "source_sha256": "690f081719d4745a85dfcb9f139beb93d8438e33a2597ee064faec8bbdc1620f",
+      "context": "How different two names are, 0 (same tokens) to 1 (nothing shared).",
+      "translation": "O quanto dois nomes diferem, de 0 (mesmos fragmentos) a 1 (nada em comum).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_distance#1",
+      "source": "a file name.",
+      "source_sha256": "86608a7bd77f1988e802f8bbd89a0d5d1d8d9a9d2c915c161e7c7b84a012105d",
+      "context": "a file name.",
+      "translation": "um nome de arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_distance#2",
+      "source": "another.",
+      "source_sha256": "b2ae3b35a2cf24018c375f618fee617d0d562d4be32250c6398450418dd05b36",
+      "context": "another.",
+      "translation": "outro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#0",
+      "source": "Give every set a unique plate, well, field and time.",
+      "source_sha256": "766c925c14d11b16e734485815618926e3ad104dcbbf4e9d7e7fb51a6359dbcd",
+      "context": "Give every set a unique laboratory microplate, microplate sample position, microscope field of view and time.",
+      "translation": "Dá a cada conjunto uma placa, um poço, um campo de visão e um tempo únicos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#1",
+      "source": "Sets keyed by :func:`detect_sets` get one well each, ``A01`` onward, field 1, 384 wells to a plate. Otherwise the plate is ``plateID`` (or ``plate1``); the well is ``wellID`` when every value reads as a well, else wells are numbered in natural order; the field is ``fieldID`` when it is the only other group and every value is a whole number from 1 to 999, else fields are numbered within their well; without a ``wellID`` group the fields fill ``A01`` to 999 and then move on to ``A02``. The time is ``timeID`` when every value is a whole number from 1, else numbered; 1 without one.",
+      "source_sha256": "62af1d1797c84a5f5068a473b6cf7bcaf58dec6b3016c18d4fc6687930df9efb",
+      "context": "Sets keyed by :func:`detect_sets` get one well each, ``A01`` onward, microscope field of view 1, 384 microplate sample positions to a laboratory microplate. Otherwise the laboratory microplate is ``plateID`` (or ``plate1``); the well is ``wellID`` when every value reads as a well, else microplate sample positions are numbered in natural order; the microscope field of view is ``fieldID`` when it is the only other group and every value is a whole number from 1 to 999, else microscope fields of view are numbered within their well; without a ``wellID`` group the microscope fields of view fill ``A01`` to 999 and then move on to ``A02``. The time is ``timeID`` when every value is a whole number from 1, else numbered; 1 without one.",
+      "translation": "Conjuntos com chaves de :func:`detect_sets` recebem um poço cada, de ``A01`` em diante, campo de visão 1, 384 poços por placa. Caso contrário, a placa é ``plateID`` (ou ``plate1``); o poço é ``wellID`` quando todo valor é lido como um poço; senão, os poços são numerados em ordem natural; o campo de visão é ``fieldID`` quando é o único outro grupo e todo valor é um inteiro de 1 a 999; senão, os campos são numerados dentro do seu poço; sem um grupo ``wellID``, os campos preenchem ``A01`` até 999 e depois passam para ``A02``. O tempo é ``timeID`` quando todo valor é um inteiro a partir de 1; senão, é numerado; 1 quando não há nenhum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#2",
+      "source": "set keys, as :func:`check_sets` or :func:`detect_sets` return them.",
+      "source_sha256": "b4b4600a7831a0335b08789f0d9c06a9e5fbd16ccd943a3bf66c0bd44d804940",
+      "context": "set keys, as :func:`check_sets` or :func:`detect_sets` return them.",
+      "translation": "chaves de conjunto, como :func:`check_sets` ou :func:`detect_sets` as retornam.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#4",
+      "source": "when two sets would get one name.",
+      "source_sha256": "e1ff2328f1cf090fc31d6fe044233e587f5a2f1dd974f56baf657047b76d4e48",
+      "context": "when two sets would get one name.",
+      "translation": "quando dois conjuntos receberiam o mesmo nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.natural_key#0",
+      "source": "Sort key that orders ``img2`` before ``img10``.",
+      "source_sha256": "588ffefa0368d6ed340f041cfa5cef2a0a42933beb2dc05c4c28df05645db61e",
+      "context": "Sort key that orders ``img2`` before ``img10``.",
+      "translation": "Chave de ordenação que coloca ``img2`` antes de ``img10``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.natural_key#1",
+      "source": "a name.",
+      "source_sha256": "7e33a7be63ba84a14eb94de960afb77da917fa9b6d9e7cfc8d09d3f0aea8d58b",
+      "context": "a name.",
+      "translation": "um nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.natural_key#2",
+      "source": "a tuple comparing numbers numerically and text case-blind.",
+      "source_sha256": "332e6cf528c29fb091eb324c972c5b433940d150c26c97bde7cc15360b936568",
+      "context": "a tuple comparing numbers numerically and text case-blind.",
+      "translation": "uma tupla que compara números numericamente e texto sem diferenciar maiúsculas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#0",
+      "source": "Read each name's channel and set through ``pattern``.",
+      "source_sha256": "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
+      "context": "Read each name's channel and set through ``pattern``.",
+      "translation": "Lê o canal e o conjunto de cada nome por meio de ``pattern``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#1",
+      "source": "The channel of a name the user assigned (``channels``) is that assignment; otherwise it is its ``chanID`` value's position among all ``chanID`` values, naturally sorted, from 1. The set key is every other named group, in the pattern's order. A name the pattern does not match has no set.",
+      "source_sha256": "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
+      "context": "The channel of a name the user assigned (``channels``) is that assignment; otherwise it is its ``chanID`` value's position among all ``chanID`` values, naturally sorted, from 1. The set structured-data name is every other named group, in the pattern's order. A name the pattern does not match has no set.",
+      "translation": "O canal de um nome que o usuário atribuiu (``channels``) é essa atribuição; caso contrário, é a posição do seu valor ``chanID`` entre todos os valores ``chanID``, em ordem natural, contando a partir de 1. A chave do conjunto são todos os outros grupos nomeados, na ordem do padrão. Um nome ao qual o padrão não corresponde não tem conjunto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#3",
+      "source": "the regex, matched from the start of each name; empty or None matches nothing.",
+      "source_sha256": "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
+      "context": "the regex, matched from the start of each name; empty or None matches nothing.",
+      "translation": "a expressão regular, aplicada a partir do início de cada nome; vazia ou None não corresponde a nada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#4",
+      "source": "``{name: channel}`` from the selection strategy.",
+      "source_sha256": "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
+      "context": "``{name: channel}`` from the selection strategy.",
+      "translation": "``{name: channel}`` da estratégia de seleção.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#5",
+      "source": "one :class:`ParsedName` per name, in order.",
+      "source_sha256": "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e",
+      "context": "one :class:`ParsedName` per name, in order.",
+      "translation": "um :class:`ParsedName` por nome, em ordem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.set_label#0",
+      "source": "A set key as short text, ``wellID=A01 fieldID=2``.",
+      "source_sha256": "3bfed329d65f70c5b33dcbdd8a745ec4a2f200cfc4698d8e46ce888ca96aa044",
+      "context": "A set key as short text, ``wellID=A01 fieldID=2``.",
+      "translation": "Uma chave de conjunto como texto curto, ``wellID=A01 fieldID=2``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.set_label#1",
+      "source": "the set key.",
+      "source_sha256": "89d19183b8564f538b3c293d0850f89613f115b8324475f4d3f4e26f136da75b",
+      "context": "the set key.",
+      "translation": "a chave do conjunto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.split_extension#0",
+      "source": "Split ``name`` into stem and extension, keeping ``.ome.tif`` whole.",
+      "source_sha256": "249403f564bc3ff84af60bc175dc8e35d35d999523482e0e9201bdad377d9801",
+      "context": "Split ``name`` into stem and extension, keeping ``.ome.tif`` whole.",
+      "translation": "Divide ``name`` em nome-base e extensão, mantendo ``.ome.tif`` inteiro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.split_extension#2",
+      "source": "``(stem, extension)``; the extension keeps its dot.",
+      "source_sha256": "952832eadb2db786496f53e41975b809dd7c4e1aca277231639a2cf9483f5c66",
+      "context": "``(stem, extension)``; the extension keeps its dot.",
+      "translation": "``(stem, extension)``; a extensão mantém o ponto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.thumbnail#0",
+      "source": "A small 8-bit grey preview of an image, contrast-stretched.",
+      "source_sha256": "7b2b0309faa45ba0f7eddef6063af65e9c38edbc18b6fe992ce217d776d2d262",
+      "context": "A small 8-bit grey preview of an image, contrast-stretched.",
+      "translation": "Uma pequena prévia em cinza de 8 bits de uma imagem, com contraste esticado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.unused_folder#0",
+      "source": "``parent/name``, or ``name_2``, ``name_3``... when that exists.",
+      "source_sha256": "b65ef497225b7f10afd3c2c1b2eed87909f9b23405e118f89b9ba9aa17e88720",
+      "context": "``parent/name``, or ``name_2``, ``name_3``... when that exists.",
+      "translation": "``parent/name``, ou ``name_2``, ``name_3``... quando já existe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.unused_folder#1",
+      "source": "the folder to create in.",
+      "source_sha256": "f1410ec00870000a995b714810daa4bb8ceeff4cf6d441547b47897ac0180250",
+      "context": "the folder to create in.",
+      "translation": "a pasta em que criar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.unused_folder#2",
+      "source": "the name wanted.",
+      "source_sha256": "548e0b26bdd1d74286db31a21116dd524d1b259007662c232fee600e0f32dc2a",
+      "context": "the name wanted.",
+      "translation": "o nome desejado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.well_name#0",
+      "source": "The ``index``-th well of a 384-well plate, row by row: 0 is ``A01``.",
+      "source_sha256": "e02937db95dc0741552a76a88333f031d00f8ec8252e12ffdd2de117fccc8402",
+      "context": "The ``index``-th microplate sample position of a 384-position laboratory microplate, row by row: 0 is ``A01``.",
+      "translation": "O poço de número ``index`` de uma placa de 384 poços, linha por linha: 0 é ``A01``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.well_name#1",
+      "source": "0-based, below :data:`WELLS_PER_PLATE`.",
+      "source_sha256": "62e8b2a556fdb8a9ab5acf2707cd540d5ab88328a4f33a054363739fe15977f9",
+      "context": "0-based, below :data:`WELLS_PER_PLATE`.",
+      "translation": "contado a partir de 0, abaixo de :data:`WELLS_PER_PLATE`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.yokogawa_name#0",
+      "source": "The Yokogawa file name of one channel of one set.",
+      "source_sha256": "ef301ec27d623573fe7a97095350fe8dcd5618249a35172f61983f6119dbcc10",
+      "context": "The Yokogawa file name of one channel of one set.",
+      "translation": "O nome de arquivo Yokogawa de um canal de um conjunto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.yokogawa_name#1",
+      "source": "Built by :func:`spacr.convert.target_name`, so it is the exact form ``spacr.utils._get_regex('cellvoyager', ...)`` parses.",
+      "source_sha256": "70acb511f1b2d3540d3b2f48d38657b770cd8c2e958b4d56deea228aca4f89e7",
+      "context": "Built by :func:`spacr.convert.target_name`, so it is the exact form ``spacr.utils._get_regex('cellvoyager', ...)`` parses.",
+      "translation": "Construído por :func:`spacr.convert.target_name`, então é exatamente a forma que ``spacr.utils._get_regex('cellvoyager', ...)`` interpreta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.yokogawa_name#4",
+      "source": "the image's own extension, kept.",
+      "source_sha256": "6cc340a7296d2c258357d68319a831dc271e1e37c91fd24dc4f31128d4493627",
+      "context": "the image's own extension, kept.",
+      "translation": "a extensão própria da imagem, mantida.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.deep_spacr.generate_activation_map#2",
+      "source": "Settings dict — see ``settings.get_default_generate_activation_map_settings`` for keys (``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...). With ``counterfactuals`` on, up to ``counterfactual_crops`` of the crops also train a small class-conditional generator against the loaded model, and the held-out crops are morphed toward the other class with the classifier's score written at every step (see ``_run_counterfactuals``).",
+      "source_sha256": "b3dd69507a77b03f78ff76dbe97552d3268883ad31189f02fe0349e85a98a4df",
+      "context": "Settings key-value mapping — see ``settings.get_default_generate_activation_map_settings`` for structured-data names (``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...). With ``counterfactuals`` on, up to ``counterfactual_crops`` of the extracted image regions also train a small class-conditional generator against the loaded model, and the held-out extracted image regions are morphed toward the other class with the machine-learning classification model's score written at every step (see ``_run_counterfactuals``).",
+      "translation": "Dicionário de configurações — veja ``settings.get_default_generate_activation_map_settings`` para as chaves (``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...). Com ``counterfactuals`` ativado, até ``counterfactual_crops`` dos recortes também treinam um pequeno gerador condicionado à classe contra o modelo carregado, e os recortes reservados são transformados em direção à outra classe, com o escore do classificador gravado a cada passo (veja ``_run_counterfactuals``).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#0",
+      "source": "Copy a folder tree into ONE folder, naming each copy after its folder path.",
+      "source_sha256": "49d79b30728e105050438986a645748b5da6b0bdc4059177bc6a492cf22a9385",
+      "context": "Copy a folder tree into ONE folder, naming each copy after its folder path.",
+      "translation": "Copia uma árvore de pastas para UMA pasta, nomeando cada cópia pelo caminho das pastas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#1",
+      "source": "A tree like",
+      "source_sha256": "0bbdc3a960a8dad1e516a89957347a7b755196539554281770ff2bdaeea695a0",
+      "context": "A tree like",
+      "translation": "Uma árvore como",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#2",
+      "source": "becomes ``exp_renamed/`` holding ``exp_nucleus.tif``, ``exp_nucleus_2.tif``, ``exp_cell.tif`` and ``exp_cell_2.tif``: every copy is named after the folders it sat in, joined by ``_``, and a second file from the same folder is numbered. A ``rename_manifest.csv`` beside the copies maps each original path to its new name, so nothing about where a file came from is lost.",
+      "source_sha256": "97d612ede5ea20d959e2428d9f8749662f08dcbcf157cac4654487e8cfc3be19",
+      "context": "becomes ``exp_renamed/`` holding ``exp_nucleus.tif``, ``exp_nucleus_2.tif``, ``exp_cell.tif`` and ``exp_cell_2.tif``: every copy is named after the folders it sat in, joined by ``_``, and a second file from the same folder is numbered. A ``rename_manifest.csv`` beside the copies maps each original path to its new name, so nothing about where a file came from is lost.",
+      "translation": "vira ``exp_renamed/`` com ``exp_nucleus.tif``, ``exp_nucleus_2.tif``, ``exp_cell.tif`` e ``exp_cell_2.tif``: cada cópia recebe o nome das pastas em que estava, unidas por ``_``, e um segundo arquivo da mesma pasta é numerado. Um ``rename_manifest.csv`` ao lado das cópias relaciona cada caminho original ao seu novo nome, então nada sobre a origem de um arquivo se perde.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#3",
+      "source": "It needs only the standard library. The originals are COPIED, never moved; symbolic links, to files or folders, are skipped and listed; names are made safe for Windows; a name too long for a typical filesystem is shortened with a hash of the full name so two long names cannot collide; and the output folder must not exist yet. Two options were added for Make Masks, which offers this on a dropped folder: ``extensions`` limits the copy to image files and ``skip_dirs`` leaves out folders such as ``masks`` whose contents are not images to edit. With neither, every file is copied, as the script did.",
+      "source_sha256": "e54c9034fbc1ef8add9ccf0a6283d4bc82d04734bc668584c9bda815b536e985",
+      "context": "It needs only the standard library. The originals are COPIED, never moved; symbolic links, to files or folders, are skipped and listed; names are made safe for Windows; a name too long for a typical filesystem is shortened with a hash of the full name so two long names cannot collide; and the output folder must not exist yet. Two options were added for Make Masks, which offers this on a dropped folder: ``extensions`` limits the copy to image files and ``skip_dirs`` leaves out folders such as ``masks`` whose contents are not images to edit. With neither, every file is copied, as the script did.",
+      "translation": "Ele precisa apenas da biblioteca padrão. Os originais são COPIADOS, nunca movidos; links simbólicos, para arquivos ou pastas, são ignorados e listados; os nomes são tornados seguros para o Windows; um nome longo demais para um sistema de arquivos típico é encurtado com um hash do nome completo, para que dois nomes longos não possam colidir; e a pasta de saída ainda não deve existir. Duas opções foram adicionadas para o Make Masks, que oferece isso ao soltar uma pasta: ``extensions`` limita a cópia a arquivos de imagem e ``skip_dirs`` deixa de fora pastas como ``masks``, cujo conteúdo não são imagens a editar. Sem nenhuma das duas, todo arquivo é copiado, como o script fazia.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#4",
+      "source": "Run as a program",
+      "source_sha256": "d1410bfc5063793653b1c83c5ac4ac3029b7e847cff3f45f45853d4a653f492d",
+      "context": "Run as a program",
+      "translation": "Executar como programa",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#0",
+      "source": "What :func:`consolidate_folder` did.",
+      "source_sha256": "7fbd2840be89d34315e4a63ddab52d36eb5310bdb8e70e2401e1e0fe17717729",
+      "context": "What :func:`consolidate_folder` did.",
+      "translation": "O que :func:`consolidate_folder` fez.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#1",
+      "source": "the new folder holding the copies.",
+      "source_sha256": "dc3870ef28358fb8c993060bcda4feaddfb8a20b6345dc8a94d7f888d8bb5e34",
+      "context": "the new folder holding the copies.",
+      "translation": "a pasta nova com as cópias.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#2",
+      "source": "the ``rename_manifest.csv`` inside it.",
+      "source_sha256": "e942d925cca908c8d9b6f8805f9cab0b6413cf137ba919d971f581d1e192c429",
+      "context": "the ``rename_manifest.csv`` inside it.",
+      "translation": "o ``rename_manifest.csv`` dentro dela.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#3",
+      "source": "files copied.",
+      "source_sha256": "b09a29ad1e3db6aaa6f63c1a437c27a1787149755f79068f7d063bb42f35c6b8",
+      "context": "files copied.",
+      "translation": "arquivos copiados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#4",
+      "source": "files or folders that could not be read or copied.",
+      "source_sha256": "e46c7e22cf367eca997f7bb8f020737834dc16d41b50a3a511384119d0a85746",
+      "context": "files or folders that could not be read or copied.",
+      "translation": "arquivos ou pastas que não puderam ser lidos ou copiados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#5",
+      "source": "symbolic links left out.",
+      "source_sha256": "ab575276aa559b5ce37359b97b89126b15520b8f47c02d1f937679954f23da07",
+      "context": "symbolic links left out.",
+      "translation": "links simbólicos deixados de fora.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#6",
+      "source": "the manifest rows, ``(original, new name, status, error)``.",
+      "source_sha256": "035a53e3a28a83fc8fc7de68c39827f249724f60b4fef5a35bdee847d92dd31d",
+      "context": "the manifest rows, ``(original, new name, status, error)``.",
+      "translation": "as linhas do manifesto, ``(original, new name, status, error)``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#0",
+      "source": "Pick the next free name for ``stem`` in ``output``.",
+      "source_sha256": "4c4cf8d0cbceed599596995a5b890d61c15c84894262041f226d27686ce8d4ea",
+      "context": "Pick the next free name for ``stem`` in ``output``.",
+      "translation": "Escolhe o próximo nome livre para ``stem`` em ``output``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#1",
+      "source": "Collisions are numbered ``_2``, ``_3`` and so on; names are compared case-insensitively so the folder survives a move to Windows or macOS. A name longer than 240 bytes is cut and ends in a 12-character hash of the full stem. Windows' reserved device names are prefixed with ``_``.",
+      "source_sha256": "d0242cdc327547c90698f929be5a7e4564d907143b1bc27a5ffb7037eb9e08c2",
+      "context": "Collisions are numbered ``_2``, ``_3`` and so on; names are compared case-insensitively so the folder survives a move to Windows or macOS. A name longer than 240 bytes is cut and ends in a 12-character hash of the full stem. Windows' reserved device names are prefixed with ``_``.",
+      "translation": "As colisões são numeradas ``_2``, ``_3`` e assim por diante; os nomes são comparados sem diferenciar maiúsculas, para que a pasta sobreviva a uma mudança para Windows ou macOS. Um nome com mais de 240 bytes é cortado e termina com um hash de 12 caracteres do nome-base completo. Os nomes de dispositivo reservados do Windows recebem o prefixo ``_``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#2",
+      "source": "the output folder.",
+      "source_sha256": "abd7566a9b76a9d5e92b91426b9bb15dc374b41d618c17768c53049a69f70d0c",
+      "context": "the output folder.",
+      "translation": "a pasta de saída.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#3",
+      "source": "the name wanted, without extension.",
+      "source_sha256": "f2d76e7bb4c8e37fd1af180a83cbd2f2ea2c9cb45d993dcff064cb3aab08d2fa",
+      "context": "the name wanted, without extension.",
+      "translation": "o nome desejado, sem extensão.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#4",
+      "source": "the extension, with its dot.",
+      "source_sha256": "79980a2a4574379974a60f20c7fe82baa5f5becdae0ab44668208991f5d0c98d",
+      "context": "the extension, with its dot.",
+      "translation": "a extensão, com o ponto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#5",
+      "source": "case-folded names already handed out; updated.",
+      "source_sha256": "b23ce30daacd3521f7d58ce036a437175bca1e02f425e94583308ede38c5b011",
+      "context": "case-folded names already handed out; updated.",
+      "translation": "nomes em minúsculas já atribuídos; atualizado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#6",
+      "source": "the next number per ``(stem, extension)``; updated.",
+      "source_sha256": "7672223e78b0e1fa52734e9e1074a34513c99dd9353af1e7e6255d96be234e61",
+      "context": "the next number per ``(stem, extension)``; updated.",
+      "translation": "o próximo número por ``(stem, extension)``; atualizado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#7",
+      "source": "the path to copy to.",
+      "source_sha256": "868a26285a2313fbd4ca84f12994459f06f24596570d04690113092a335f9730",
+      "context": "the path to copy to.",
+      "translation": "o caminho para onde copiar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#8",
+      "source": "when the extension alone leaves no room for a name.",
+      "source_sha256": "6ccae8299b97de8c20bc437f5d51c198f36bdba03e8db38d1163218e48fc9211",
+      "context": "when the extension alone leaves no room for a name.",
+      "translation": "quando a extensão sozinha não deixa espaço para um nome.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#0",
+      "source": "Copy every file under ``source`` into one new folder, named by folder path.",
+      "source_sha256": "22109e86e59c3e9a38b5ebf5af1fba59e8dda3845e37a4ca862d9c0ad004f67a",
+      "context": "Copy every file under ``source`` into one new folder, named by folder path.",
+      "translation": "Copia todo arquivo sob ``source`` para uma pasta nova, nomeado pelo caminho das pastas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#1",
+      "source": "Each copy is named after the folder path it came from, from ``source``'s own name down, parts joined by ``_``; a file directly in ``source`` is named after ``source``. Several files in one folder are numbered ``_2``, ``_3``..., in sorted file-name order. The originals are never touched.",
+      "source_sha256": "3cbc514729cf686ff05895c8a4c060fd2e87a149479aabaf83e48917538a2db7",
+      "context": "Each copy is named after the folder path it came from, from ``source``'s own name down, parts joined by ``_``; a file directly in ``source`` is named after ``source``. Several files in one folder are numbered ``_2``, ``_3``..., in sorted file-name order. The originals are never touched.",
+      "translation": "Cada cópia recebe o nome do caminho de pastas de onde veio, a partir do próprio nome de ``source`` para baixo, com as partes unidas por ``_``; um arquivo diretamente em ``source`` recebe o nome de ``source``. Vários arquivos em uma pasta são numerados ``_2``, ``_3``..., em ordem de nome de arquivo. Os originais nunca são tocados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#2",
+      "source": "the folder to consolidate.",
+      "source_sha256": "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1",
+      "context": "the folder to consolidate.",
+      "translation": "a pasta a consolidar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#3",
+      "source": "the NEW folder to create; default :func:`default_output_folder`.",
+      "source_sha256": "c13576f065150c47f7c54b32a9dc335313ab5a2b5cf373aedb3b903720ae6de7",
+      "context": "the NEW folder to create; default :func:`default_output_folder`.",
+      "translation": "a pasta NOVA a criar; por padrão, :func:`default_output_folder`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#4",
+      "source": "copy only these extensions (e.g. image types); None, the script's behaviour, copies every file.",
+      "source_sha256": "f391b1dc17b67aea517aab7ed8a542db018a24f2f7870d0b27ab1a174fb54415",
+      "context": "copy only these extensions (e.g. image types); None, the script's behaviour, copies every file.",
+      "translation": "copia apenas estas extensões (por exemplo, tipos de imagem); None, o comportamento do script, copia todo arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#5",
+      "source": "folder names not descended into, case-insensitively and with or without a numbered ``_2`` suffix.",
+      "source_sha256": "bdc8023e8f99cc8437cefb81189f5f1ad08db7edf24ddc48665ae2b490dc6180",
+      "context": "folder names not descended into, case-insensitively and with or without a numbered ``_2`` suffix.",
+      "translation": "nomes de pastas em que não se entra, sem diferenciar maiúsculas e com ou sem um sufixo numerado ``_2``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#6",
+      "source": "called with progress lines; default prints them.",
+      "source_sha256": "97371ab6955aa002845b3a4526c365963a36aead7429a0d339f706ad9daf2c70",
+      "context": "called with progress lines; default prints them.",
+      "translation": "chamado com linhas de progresso; por padrão, imprime-as.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#8",
+      "source": "when ``source`` is not a folder or ``output`` exists.",
+      "source_sha256": "bc953981765e6b4dc27f61e5bb7fb94cf20ceff5e9805075855da142e2ba6c08",
+      "context": "when ``source`` is not a folder or ``output`` exists.",
+      "translation": "quando ``source`` não é uma pasta ou ``output`` existe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.copy_and_rename#0",
+      "source": "The script's entry point: consolidate and return an exit status.",
+      "source_sha256": "5e5ceaf941a2131e3a7e9404f9588d3ccb77e1777dfc7a64ad02f31f7b25f855",
+      "context": "The script's entry point: consolidate and return an exit status.",
+      "translation": "O ponto de entrada do script: consolida e retorna um status de saída.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.copy_and_rename#2",
+      "source": "the NEW output folder.",
+      "source_sha256": "1fe1c7601bc6abdc1a6b9cd58e3f10a9ca9206dc5ad304e203ab48dc23f0be7d",
+      "context": "the NEW output folder.",
+      "translation": "a pasta de saída NOVA.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.copy_and_rename#3",
+      "source": "1 when any file failed, else 0.",
+      "source_sha256": "388d6c5c41bd9876c344ea7499505f3eb777716227912f4fe19cb6bc11ea6bab",
+      "context": "1 when any file failed, else 0.",
+      "translation": "1 quando algum arquivo falhou; senão, 0.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.default_output_folder#0",
+      "source": "Return the unused ``<parent>/<name>_renamed`` beside ``source``.",
+      "source_sha256": "6a1a5d33616dcd76ccfd2c60556f1ba979f9c46939030c598385aa6130610915",
+      "context": "Return the unused ``<parent>/<name>_renamed`` beside ``source``.",
+      "translation": "Retorna o ``<parent>/<name>_renamed`` não usado ao lado de ``source``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.file_extension#0",
+      "source": "Return the extension of ``path``, keeping a compound one whole.",
+      "source_sha256": "273c809d1578454e19b5d58cd283dee43a506ab8b0dae00a06af3cef1d1ab79e",
+      "context": "Return the extension of ``path``, keeping a compound one whole.",
+      "translation": "Retorna a extensão de ``path``, mantendo inteira uma extensão composta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.file_extension#1",
+      "source": "a file path.",
+      "source_sha256": "1c3215b7bee4ffee22dffea163459d36d3fc83a738b4f399beb3783fb47c1032",
+      "context": "a file path.",
+      "translation": "um caminho de arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.file_extension#2",
+      "source": "e.g. ``.ome.tif`` for ``x.ome.tif`` and ``.tif`` for ``x.tif``.",
+      "source_sha256": "f2bc1ccb893f96a67c524e59aba85772a56adb39fe5155273e9c4d7d6b94d3cb",
+      "context": "e.g. ``.ome.tif`` for ``x.ome.tif`` and ``.tif`` for ``x.tif``.",
+      "translation": "por exemplo, ``.ome.tif`` para ``x.ome.tif`` e ``.tif`` para ``x.tif``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.main#0",
+      "source": "Command line: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.",
+      "source_sha256": "bfcdbbd918652aad7d3a28306266ae5a7c015a15abc457320bb8999316fb3cb4",
+      "context": "Command line: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.",
+      "translation": "Linha de comando: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.main#1",
+      "source": "the arguments; default ``sys.argv[1:]``.",
+      "source_sha256": "dd20436de1483a6cc9f48a7248b1f81a0c99606cb37bd604905a5f19afd75fc1",
+      "context": "the arguments; default ``sys.argv[1:]``.",
+      "translation": "os argumentos; por padrão, ``sys.argv[1:]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#0",
+      "source": "Count the files that sit in SUBFOLDERS of ``source``, recursively.",
+      "source_sha256": "669feae1b1a6ff61599ca1fcf2adcb3078a574834633970dd0fa78399453ebe1",
+      "context": "Count the files that sit in SUBFOLDERS of ``source``, recursively.",
+      "translation": "Conta os arquivos que estão em SUBPASTAS de ``source``, recursivamente.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#1",
+      "source": "Make Masks asks whether to consolidate only when this is not zero: files directly in ``source`` open as they are.",
+      "source_sha256": "c8db997d9b72cc1d14bc853804eac0064d3744712a8ca6dbd223b5e56d4c8771",
+      "context": "Make Masks asks whether to consolidate only when this is not zero: files directly in ``source`` open as they are.",
+      "translation": "O Make Masks pergunta se deve consolidar apenas quando isto não é zero: arquivos diretamente em ``source`` são abertos como estão.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#3",
+      "source": "count only these extensions; None counts every file.",
+      "source_sha256": "9b6b87182cc69b3f747aa73c54ff78c3b084ae37a7e85ca6e39e4f63fd976170",
+      "context": "count only these extensions; None counts every file.",
+      "translation": "conta apenas estas extensões; None conta todo arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#4",
+      "source": "folder names not descended into (case-insensitive), such as ``masks``; hidden folders are never descended into.",
+      "source_sha256": "d11715be701d1c58867e18c38536dccce5e4b5bbfada04978779946fecc1a1bd",
+      "context": "folder names not descended into (case-insensitive), such as ``masks``; hidden folders are never descended into.",
+      "translation": "nomes de pastas em que não se entra (sem diferenciar maiúsculas), como ``masks``; nunca se entra em pastas ocultas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#5",
+      "source": "``(files, folders)`` -- how many files lie below the top level and how many distinct subfolders hold them. Symbolic links are not counted or followed.",
+      "source_sha256": "ed6b40e942f41e85a8ecdc9ab84313f8ffe137bbccf192b20860baabb8b5de3f",
+      "context": "``(files, folders)`` -- how many files lie below the top level and how many distinct subfolders hold them. Symbolic links are not counted or followed.",
+      "translation": "``(files, folders)`` -- quantos arquivos ficam abaixo do nível superior e quantas subpastas distintas os contêm. Links simbólicos não são contados nem seguidos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.safe_part#0",
+      "source": "Replace characters Windows forbids in a filename; keep spaces.",
+      "source_sha256": "2d155c52bda8ebab5ac5cd146f41e5d4f68d757fbe5f1f8454171f5fc2e551fc",
+      "context": "Replace characters Windows forbids in a filename; keep spaces.",
+      "translation": "Substitui os caracteres que o Windows proíbe em um nome de arquivo; mantém os espaços.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.safe_part#1",
+      "source": "one folder name.",
+      "source_sha256": "9aa0208a3c31c5876434ddd7d5d9f1ccb173e3fc443e54fda178ecd1e5443795",
+      "context": "one folder name.",
+      "translation": "um nome de pasta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.safe_part#2",
+      "source": "the name with ``<>:\"/\\|?*`` and control characters replaced by ``_`` and trailing spaces and dots removed; ``folder`` when nothing is left.",
+      "source_sha256": "697b2740c5d9b9e8852bb22e1dc0f6f814f2217a6fb65d9e810779d8c67b2b97",
+      "context": "the name with ``<>:\"/\\|?*`` and control characters replaced by ``_`` and trailing spaces and dots removed; ``folder`` when nothing is left.",
+      "translation": "o nome com ``<>:\"/\\|?*`` e os caracteres de controle substituídos por ``_`` e os espaços e pontos finais removidos; ``folder`` quando nada sobra.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.unused_output_folder#0",
+      "source": "Return ``parent/name``, or ``name_2``, ``name_3``... when it exists.",
+      "source_sha256": "d3ffd10136b4da79605fbcf9d981f989f74a81ce2b58f52c4da84023d5bf5586",
+      "context": "Return ``parent/name``, or ``name_2``, ``name_3``... when it exists.",
+      "translation": "Retorna ``parent/name``, ou ``name_2``, ``name_3``... quando já existe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.unused_output_folder#1",
+      "source": "the folder to create the output in.",
+      "source_sha256": "e0f8d66b7b7e96ad6a6d88c21ba4362beb8f689bad4300a17d3a7087932a2991",
+      "context": "the folder to create the output in.",
+      "translation": "a pasta em que criar a saída.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.unused_output_folder#3",
+      "source": "a path that does not exist yet.",
+      "source_sha256": "cd83d1e909378720c01c7ebdc67f1df41b746a18699c5a8b067e4e1ba5b045b0",
+      "context": "a path that does not exist yet.",
+      "translation": "um caminho que ainda não existe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline#4",
+      "source": "SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "source_sha256": "053a6f3ea879abe3f0597364d142db70df217b383995dcc2b937bb41187efb63",
+      "context": "Self-supervised denoising comes before the chain. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation image data channel is trained by CAREamics, in its own environment, on a sample of the processing session's own raw microscope fields of view -- no clean images are needed -- or read from ``n2v_model``. Each microscope field of view's selected image data channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "translation": "A REMOÇÃO DE RUÍDO AUTOSSUPERVISIONADA VEM ANTES DA CADEIA. Com ``n2v_denoise`` ativado, um modelo Noise2Void (N2V2) por canal de segmentação é treinado pelo CAREamics, em seu próprio ambiente, com uma amostra dos campos de visão brutos da própria execução -- não são necessárias imagens limpas --, ou lido de ``n2v_model``. Os canais selecionados de cada campo de visão têm o ruído removido depois da correção de iluminação e antes da PSF e da cadeia, enquanto o ruído ainda é independente de pixel para pixel, que é o que o Noise2Void pressupõe. Os hashes dos checkpoints e o registro do treinamento entram no mesmo registro de procedência.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.processing_requested#2",
+      "source": "the run's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
+      "source_sha256": "229b6786bd16520e9192474e27a864aa92c75af0624df37f2b9629d3dcbcd04c",
+      "context": "the processing session's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
+      "translation": "as configurações ``psf_*``, ``enhance_*``, ``unmix`` e ``n2v_denoise`` da execução.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.install_qc_banner#0",
+      "source": "Put a QC switch on ``screen``'s action row that opens the verdict.",
+      "source_sha256": "8053ef0a2c0de301207113ca1bf92ce2540c0daaf3ca4cd99d13c3a66b390285",
+      "context": "Put a QC switch on ``screen``'s action row that opens the verdict.",
+      "translation": "Coloca na linha de ações de ``screen`` um botão de QC que abre o veredito.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.install_qc_banner#1",
+      "source": "The switch sits left of the 3D and Time switches; the banner lives in its popup, so the Run row keeps its place whatever the verdict says.",
+      "source_sha256": "4ae3d89a22e65b1a5ed09fec04d461f4f01c98fb2895f186f270d9419731f128",
+      "context": "The switch sits left of the 3D and Time switches; the banner lives in its popup, so the Run row keeps its place whatever the verdict says.",
+      "translation": "O botão fica à esquerda dos botões de 3D e de tempo; o aviso fica em seu popup, então a linha de Run mantém o seu lugar, diga o que disser o veredito.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.settings_section_maturity#1",
+      "source": "An alpha or beta module colours every one of its settings. A stable module can still contain an explicitly experimental category -- an alpha one is named with a trailing ``α`` (\"Confluency α\"), a beta one with ``(Beta)`` -- in which case that section receives the more cautious stage.",
+      "source_sha256": "6ae1a111029f0c7b00467fcf35924614cdf2c17b7042b29cf5e35307c0b80bb2",
+      "context": "An alpha or beta module colours every one of its settings. A stable module can still contain an explicitly experimental category -- an alpha one is named with a trailing ``α`` (\"Confluency α\"), a beta one with ``(Beta)`` -- in which case that section receives the more cautious stage.",
+      "translation": "Um módulo alfa ou beta colore cada uma das suas configurações. Um módulo estável ainda pode conter uma categoria explicitamente experimental -- uma alfa é nomeada com um ``α`` no final (\"Confluency α\"), uma beta com ``(Beta)`` --, e nesse caso essa seção recebe o estágio mais cauteloso.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.settings_section_maturity#3",
+      "source": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"``, ends with ``α`` or contains ``\"(alpha)\"``, beta when it is ``\"beta\"`` or contains ``\"(beta)\"``, and stable otherwise.",
+      "source_sha256": "d8bf2920971d132b38c6c8c64d3a1f864deef7df5b11eb8af28e46781d3da929",
+      "context": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"``, ends with ``α`` or contains ``\"(alpha)\"``, beta when it is ``\"beta\"`` or contains ``\"(beta)\"``, and stable otherwise.",
+      "translation": "o título da seção; comparado sem diferenciar maiúsculas, é alfa quando é ``\"alpha\"``, termina com ``α`` ou contém ``\"(alpha)\"``, beta quando é ``\"beta\"`` ou contém ``\"(beta)\"``, e estável nos demais casos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.essential_keys#3",
+      "source": "Classify's first group is only the family switch, so its extras carry what training either family needs: the classes, the splits, the image model and its schedule, and the tabular algorithm and its main hyperparameters. The family switch greys whichever half does not apply.",
+      "source_sha256": "e176b8e2748dfa8182c17f642ff2209408fbbe523c9c925a100a157d277804fc",
+      "context": "Classify's first group is only the family switch, so its extras carry what training either family needs: the classes, the splits, the image model and its schedule, and the tabular algorithm and its main hyperparameters. The family switch greys whichever half does not apply.",
+      "translation": "O primeiro grupo do Classify é apenas o seletor de família, então seus extras trazem o que o treinamento de qualquer uma das famílias precisa: as classes, as divisões, o modelo de imagem e seu cronograma, e o algoritmo tabular e seus principais hiperparâmetros. O seletor de família acinzenta a metade que não se aplica.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#0",
+      "source": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
+      "source_sha256": "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
+      "context": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
+      "translation": "O diálogo \"Sort into channels…\" do Make Masks, sua janela de expressões regulares e sua verificação de conjuntos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#1",
+      "source": "Thin Qt over :mod:`spacr.channel_sorting`, which holds every decision:",
+      "source_sha256": "38a92d896bd02d1ee365ac19101402041ee66a5d06a7cb215e56f6458a99a8c8",
+      "context": "Thin Qt over :mod:`spacr.channel_sorting`, which holds every decision:",
+      "translation": "Camada fina de Qt sobre :mod:`spacr.channel_sorting`, que toma todas as decisões:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#2",
+      "source": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to a channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
+      "source_sha256": "94f3cc9027bc8055bd60bdb1bb9d6c2fc87ffe82342ef00dc089ee04f2411741",
+      "context": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to an image data channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
+      "translation": ":class:`ChannelSortDialog` lista as imagens da pasta aberta com miniaturas e se cada uma tem máscara. As imagens são selecionadas (clique, Shift, Ctrl, Selecionar tudo) e atribuídas a um canal -- a estratégia de SELEÇÃO --, e em vez disso uma expressão regular pode atribuir cada imagem -- a estratégia REGEX. Apply constrói um :class:`spacr.channel_sorting.SortPlan`; quando os nomes não podem ser transformados em conjuntos, pede-se ao usuário que mude a expressão regular.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#3",
+      "source": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
+      "source_sha256": "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
+      "context": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
+      "translation": ":class:`RegexWindow` explica os grupos nomeados, testa uma expressão regular ao vivo contra cada nome de arquivo, propõe uma (\"Auto regex\") ou pareia as imagens por semelhança e tamanho, ignorando os nomes (\"Detect sets\").",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#4",
+      "source": ":class:`ExampleSetsDialog` shows three detected sets side by side, every channel with its mask, and asks whether they are right.",
+      "source_sha256": "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
+      "context": ":class:`ExampleSetsDialog` shows three detected sets side by side, every image data channel with its mask, and asks whether they are right.",
+      "translation": ":class:`ExampleSetsDialog` mostra três conjuntos detectados lado a lado, cada canal com sua máscara, e pergunta se estão certos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#5",
+      "source": "Nothing here moves a file. The dialog hands back a plan; the screen applies it off the GUI thread.",
+      "source_sha256": "468d8bebcd4980752b4eebfed956ce4258ac3c5a2a83b2600f864602233d2c33",
+      "context": "Nothing here moves a file. The dialog hands back a plan; the application view applies it off the main GUI execution path.",
+      "translation": "Nada aqui move um arquivo. O diálogo devolve um plano; a visualização o aplica fora da thread da GUI.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#0",
+      "source": "Assign the folder's images to channels, check the sets, plan the move.",
+      "source_sha256": "69d8a6d49fbf27e2f72823f13a87b5aaee37cb7544adccffe12f35d53e9b6370",
+      "context": "Assign the folder's images to image data channels, check the sets, plan the move.",
+      "translation": "Atribui as imagens da pasta a canais, confere os conjuntos e planeja a movimentação.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#1",
+      "source": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
+      "source_sha256": "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+      "context": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
+      "translation": "o :class:`spacr.channel_sorting.SortPlan` confirmado quando o diálogo é aceito; senão, None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#2",
+      "source": "List the folder and propose a regex.",
+      "source_sha256": "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
+      "context": "List the folder and propose a regex.",
+      "translation": "Lista a pasta e propõe uma expressão regular.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#3",
+      "source": "the folder Make Masks has open.",
+      "source_sha256": "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
+      "context": "the folder Make Masks has open.",
+      "translation": "a pasta que o Make Masks tem aberta.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#4",
+      "source": "its masks folder, when not ``<folder>/masks``.",
+      "source_sha256": "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
+      "context": "its masks folder, when not ``<folder>/masks``.",
+      "translation": "sua pasta de máscaras, quando não é ``<folder>/masks``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#0",
+      "source": "Offer one more channel.",
+      "source_sha256": "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
+      "context": "Offer one more channel.",
+      "translation": "Oferece mais um canal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#1",
+      "source": "the new channel's number.",
+      "source_sha256": "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f",
+      "context": "the new channel's number.",
+      "translation": "o número do novo canal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#0",
+      "source": "Assign the selected images to ``channel``; None clears them.",
+      "source_sha256": "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
+      "context": "Assign the selected images to ``channel``; None clears them.",
+      "translation": "Atribui as imagens selecionadas a ``channel``; None as desatribui.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#1",
+      "source": "Assigning by hand replaces any sets \"Detect sets\" found.",
+      "source_sha256": "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
+      "context": "Assigning by hand replaces any sets \"Detect sets\" found.",
+      "translation": "Atribuir à mão substitui os conjuntos que \"Detect sets\" tenha encontrado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#2",
+      "source": "the 1-based channel, or None.",
+      "source_sha256": "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08",
+      "context": "the 1-based channel, or None.",
+      "translation": "o canal contado a partir de 1, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets#0",
+      "source": "The sets Apply would use, and what is wrong when there are none.",
+      "source_sha256": "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
+      "context": "The sets Apply would use, and what is wrong when there are none.",
+      "translation": "Os conjuntos que Apply usaria, e o que está errado quando não há nenhum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles#0",
+      "source": "``{channel: role}`` as chosen, leaving out ``none``.",
+      "source_sha256": "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a",
+      "context": "``{channel: role}`` as chosen, leaving out ``none``.",
+      "translation": "``{channel: role}`` conforme escolhido, deixando de fora ``none``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed#0",
+      "source": "Every image read through the regex, with the selection's channels.",
+      "source_sha256": "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d",
+      "context": "Every image read through the regex, with the selection's image data channels.",
+      "translation": "Cada imagem lida por meio da expressão regular, com os canais da seleção.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#0",
+      "source": "Build the plan from the current sets, or None when there are none.",
+      "source_sha256": "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
+      "context": "Build the plan from the current sets, or None when there are none.",
+      "translation": "Constrói o plano a partir dos conjuntos atuais, ou None quando não há nenhum.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#1",
+      "source": "convert RGB images and z-stacks to one plane.",
+      "source_sha256": "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+      "context": "convert RGB images and z-stacks to one image layer.",
+      "translation": "converte imagens RGB e pilhas z em um único plano.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#2",
+      "source": "the plan, which may still carry problems.",
+      "source_sha256": "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9",
+      "context": "the plan, which may still carry problems.",
+      "translation": "o plano, que ainda pode ter problemas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh#0",
+      "source": "Redraw the list texts, the mask-role choices and the status line.",
+      "source_sha256": "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444",
+      "context": "Redraw the list texts, the mask-role choices and the status line.",
+      "translation": "Redesenha os textos da lista, as escolhas de papel de máscara e a linha de status.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names#0",
+      "source": "The selected images' names, in list order.",
+      "source_sha256": "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3",
+      "context": "The selected images' names, in list order.",
+      "translation": "Os nomes das imagens selecionadas, na ordem da lista.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#0",
+      "source": "Use ``regex`` for channels and sets from now on.",
+      "source_sha256": "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
+      "context": "Use ``regex`` for channels and sets from now on.",
+      "translation": "Usa ``regex`` para canais e conjuntos daqui em diante.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#1",
+      "source": "the pattern.",
+      "source_sha256": "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d",
+      "context": "the pattern.",
+      "translation": "o padrão.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog#0",
+      "source": "Three sets side by side -- every channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
+      "source_sha256": "dd2e726e1cde5d46efc870a113c92884a8c2754136bee3681e0161ec1e1ea844",
+      "context": "Three sets side by side -- every image data channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
+      "translation": "Três conjuntos lado a lado -- cada canal e sua máscara -- e uma pergunta. Dispõe até três conjuntos: o primeiro, o do meio e o último.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#0",
+      "source": "Write, test, infer or bypass the regex that sorts images into sets.",
+      "source_sha256": "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
+      "context": "Write, test, infer or bypass the regex that sorts images into sets.",
+      "translation": "Escreve, testa, infere ou dispensa a expressão regular que organiza as imagens em conjuntos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#1",
+      "source": "the regex when the window is accepted with \"Use this regex\".",
+      "source_sha256": "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
+      "context": "the regex when the window is accepted with \"Use this regex\".",
+      "translation": "a expressão regular quando a janela é aceita com \"Use this regex\".",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#2",
+      "source": "the sets \"Detect sets\" found and the user confirmed, or None.",
+      "source_sha256": "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
+      "context": "the sets \"Detect sets\" found and the user confirmed, or None.",
+      "translation": "os conjuntos que \"Detect sets\" encontrou e o usuário confirmou, ou None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#3",
+      "source": "Build the window and run the test once.",
+      "source_sha256": "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
+      "context": "Build the window and run the test once.",
+      "translation": "Constrói a janela e executa o teste uma vez.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#5",
+      "source": "the image names to test against.",
+      "source_sha256": "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
+      "context": "the image names to test against.",
+      "translation": "os nomes de imagem contra os quais testar.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#6",
+      "source": "``{name: channel}`` from the selection.",
+      "source_sha256": "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
+      "context": "``{name: channel}`` from the selection.",
+      "translation": "``{name: channel}`` da seleção.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#7",
+      "source": "the regex to start from.",
+      "source_sha256": "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
+      "context": "the regex to start from.",
+      "translation": "a expressão regular inicial.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#0",
+      "source": "Propose a regex, put it in the field and test it.",
+      "source_sha256": "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
+      "context": "Propose a regex, put it in the field and test it.",
+      "translation": "Propõe uma expressão regular, coloca-a no campo e a testa.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#1",
+      "source": "the regex, or None when none was found.",
+      "source_sha256": "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896",
+      "context": "the regex, or None when none was found.",
+      "translation": "a expressão regular, ou None quando nenhuma foi encontrada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#0",
+      "source": "Pair images into sets, show three, and keep them when confirmed.",
+      "source_sha256": "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
+      "context": "Pair images into sets, show three, and keep them when confirmed.",
+      "translation": "Pareia imagens em conjuntos, mostra três e os mantém quando confirmados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#1",
+      "source": "the sets when the user said they are right, else None.",
+      "source_sha256": "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585",
+      "context": "the sets when the user said they are right, else None.",
+      "translation": "os conjuntos quando o usuário disse que estão certos; senão, None.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#0",
+      "source": "Parse every name with the regex and fill the table and summary.",
+      "source_sha256": "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
+      "context": "Parse every name with the regex and fill the table and summary.",
+      "translation": "Interpreta cada nome com a expressão regular e preenche a tabela e o resumo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#1",
+      "source": "the set report.",
+      "source_sha256": "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737",
+      "context": "the set report.",
+      "translation": "o relatório de conjuntos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter#0",
+      "source": "Add a filter row for regionprop ``name``, every cell empty.",
+      "source_sha256": "b82dc728f624555ebc67f6b45c5a47ec2f5bf09b70407692bd7704c470b96681",
+      "context": "Add a filter row for regionprop ``name``, every cell empty.",
+      "translation": "Adiciona uma linha de filtro para a regionprop ``name``, com todas as células vazias.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter#1",
+      "source": "a scalar scikit-image regionprop, e.g. ``\"area\"`` or ``\"intensity_mean\"``; legacy spellings are accepted.",
+      "source_sha256": "c5265f16228c6399bae94f1c10102b8d4dfd3da5c0105e9d0d5a19535ae7ff9e",
+      "context": "a scalar scikit-image regionprop, e.g. ``\"area\"`` or ``\"intensity_mean\"``; legacy spellings are accepted.",
+      "translation": "uma regionprop escalar do scikit-image, por exemplo ``\"area\"`` ou ``\"intensity_mean\"``; grafias antigas são aceitas.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter#2",
+      "source": "False when the name is not a filterable property or the row is already there.",
+      "source_sha256": "38cedd18b410dcb4ca0cbdbb991cfc0830cb4bbf20636c8506c98489f64d3970",
+      "context": "False when the name is not a filterable property or the row is already there.",
+      "translation": "False quando o nome não é uma propriedade filtrável ou a linha já existe.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.filter_properties#0",
+      "source": "The properties the table has a filter row for, in order.",
+      "source_sha256": "f51c533c12699430380adf7a451ca233e890cd79c76e02de87ecb4c7c2b373b3",
+      "context": "The properties the table has a filter row for, in order.",
+      "translation": "As propriedades para as quais a tabela tem uma linha de filtro, em ordem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_filters#0",
+      "source": "Show ``object_filters`` as it now stands, e.g. after a file load.",
+      "source_sha256": "2ab7f9ad0082668696ca59253081e99fefaf2ec62c14a7f807f0b9b1daae96c6",
+      "context": "Show ``object_filters`` as it now stands, e.g. after a file load.",
+      "translation": "Mostra ``object_filters`` como está agora, por exemplo depois de carregar um arquivo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_filters#1",
+      "source": "the setting's value, a mapping or its text.",
+      "source_sha256": "2b394f47bfee2a64c3bbcf5b94029fb95b57905c409602353a6cb8d223fddbd1",
+      "context": "the setting's value, a mapping or its text.",
+      "translation": "o valor da configuração, um mapeamento ou seu texto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.settings#1",
+      "source": "The filter rows are written back into ``object_filters``: each shown object's list is rebuilt from its cells, in row order, and an object the table does not show keeps the list it had.",
+      "source_sha256": "fb2e34371e7e2e84b030934935782c6528aad45e4be896160595bea8efedf000",
+      "context": "The filter rows are written back into ``object_filters``: each shown object's list is rebuilt from its cells, in row order, and an object the table does not show keeps the list it had.",
+      "translation": "As linhas de filtro são gravadas de volta em ``object_filters``: a lista de cada objeto exibido é reconstruída a partir das suas células, na ordem das linhas, e um objeto que a tabela não exibe mantém a lista que tinha.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular#16",
+      "source": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
+      "source_sha256": "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58",
+      "context": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
+      "translation": "``pandas``, ``sqlite3`` e :mod:`spacr.schema`. Os armazenamentos de medições alternativos importam ``duckdb`` ou ``psycopg`` somente quando um armazenamento DuckDB, Parquet ou PostgreSQL é aberto. Nada mais no escopo do módulo -- nem ``spacr.utils``, nem matplotlib, nem torch. Isso é um requisito, não capricho: o seletor de CSV e a lista de colunas SQL precisam conseguir importar isto para obter nomes canônicos, e não podem pagar por uma importação do torch para isso.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.database_tables#1",
+      "source": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",
+      "source_sha256": "370c2c69e8d397bbf0327cfd4e97db9061f5b666592f84afc854fdfda670f5be",
+      "context": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",
+      "translation": "caminho para o banco de dados, ou qualquer armazenamento que :func:`read_database` leia. ``~`` e ``$VARS`` são expandidos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_database#0",
+      "source": "Read one or more tables out of a measurement database.",
+      "source_sha256": "eb907b4863e0f587e88670c516346a060305bf9311af586600eb08b80767eea7",
+      "context": "Read one or more tables out of a measurement database.",
+      "translation": "Lê uma ou mais tabelas de um banco de dados de medições.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_database#2",
+      "source": "SQLite is the default store. A ``.duckdb`` file, a ``.parquetdb`` folder of Parquet parts or a ``postgresql://`` connection string is read the same way, through duckdb or psycopg imported only then; the schema migration, ``read_only`` and ``kwargs`` apply to SQLite alone.",
+      "source_sha256": "1787c9c2bb11571bf276f2d53dbf652598ee2a72532a6f693b505dd5be46a5a3",
+      "context": "SQLite is the default store. A ``.duckdb`` file, a ``.parquetdb`` folder of Parquet parts or a ``postgresql://`` connection string is read the same way, through duckdb or psycopg imported only then; the schema migration, ``read_only`` and ``kwargs`` apply to SQLite alone.",
+      "translation": "SQLite é o armazenamento padrão. Um arquivo ``.duckdb``, uma pasta ``.parquetdb`` de partes Parquet ou uma cadeia de caracteres de conexão ``postgresql://`` é lido da mesma forma, via duckdb ou psycopg, importados só então; a migração de esquema, ``read_only`` e ``kwargs`` se aplicam apenas ao SQLite.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_database#3",
+      "source": "path to the database, or a PostgreSQL connection string.",
+      "source_sha256": "35c9bc9bcd414fa2270f7982384da08e73c9675a7b5f6b23384d0767e769a825",
+      "context": "path to the database, or a PostgreSQL connection string.",
+      "translation": "caminho para o banco de dados, ou uma cadeia de caracteres de conexão do PostgreSQL.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_table#1",
+      "source": "CSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A database -- SQLite, a ``.duckdb`` file, a ``.parquetdb`` store or a ``postgresql://`` string -- needs ``table``; every other format ignores it.",
+      "source_sha256": "7b8a5a108ef08e81c6ea4037d836c9638cfaa6eb667f3beb3b38a4b888cb9194",
+      "context": "CSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A database -- SQLite, a ``.duckdb`` file, a ``.parquetdb`` store or a ``postgresql://`` string -- needs ``table``; every other format ignores it.",
+      "translation": "CSV, TSV, SQLite, Parquet, Feather e Excel, escolhidos pela extensão. Um banco de dados -- SQLite, um arquivo ``.duckdb``, um armazenamento ``.parquetdb`` ou uma cadeia de caracteres ``postgresql://`` -- precisa de ``table``; todos os outros formatos o ignoram.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.write_database#0",
+      "source": "Write one frame into a database table, with canonical column names.",
+      "source_sha256": "8bc9607578d8c0e61f0df9e5a85e8124b72e9ecc5bd5766fb1d1c05dd70298fe",
+      "context": "Write one frame into a database table, with canonical column names.",
+      "translation": "Grava um data frame em uma tabela de banco de dados, com nomes de coluna canônicos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.write_database#1",
+      "source": "SQLite by default; a ``.duckdb`` path, a ``.parquetdb`` path or a ``postgresql://`` string writes to that store instead, where ``append`` also adds columns the table lacks and ``migrate`` and ``kwargs`` are ignored.",
+      "source_sha256": "ca159092c99aa585d9402b7033d5d70bce5f8d1da2520632f79f3c0a84dedac5",
+      "context": "SQLite by default; a ``.duckdb`` path, a ``.parquetdb`` path or a ``postgresql://`` string writes to that store instead, where ``append`` also adds columns the table lacks and ``migrate`` and ``kwargs`` are ignored.",
+      "translation": "SQLite por padrão; um caminho ``.duckdb``, um caminho ``.parquetdb`` ou uma cadeia de caracteres ``postgresql://`` grava nesse armazenamento em vez disso, onde ``append`` também acrescenta colunas que faltam à tabela e ``migrate`` e ``kwargs`` são ignorados.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.write_database#3",
+      "source": "path to the database, or a PostgreSQL connection string; created if absent, ``~`` expanded.",
+      "source_sha256": "712d7de416953159084c363aa825659c0be1df1457ae8108beb63ebd46a300f9",
+      "context": "path to the database, or a PostgreSQL connection string; created if absent, ``~`` expanded.",
+      "translation": "caminho para o banco de dados, ou uma cadeia de caracteres de conexão do PostgreSQL; criado se não existir, ``~`` expandido.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

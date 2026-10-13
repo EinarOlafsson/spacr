@@ -1,0 +1,55 @@
+{
+  "source_commit": "bc170e097fae045eaf63e6087b8c30260b96f03f",
+  "parental_published_checkpoint": "45f3cb1ec0",
+  "source_sha256": {
+    "before": "a324d395c4029fdeb1e307595fcc4d2353cb4fd7f15589f51e456c67f19b417a",
+    "after": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20"
+  },
+  "test_phase": {
+    "passed": 95,
+    "seconds": 18.94,
+    "files": [
+      "test_data_art_random_palette.py",
+      "test_data_art_compiled_grains.py",
+      "test_data_art_startup_compilers.py",
+      "test_data_art_owned_point_frames.py",
+      "test_data_art_clock_handoff.py"
+    ]
+  },
+  "source_coverage": {
+    "scope": "95 focused cases; changed source additions only",
+    "source_sha256": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+    "added_executable_statements": 15,
+    "missing_added_statements": [],
+    "touching_branch_arcs": 9,
+    "missing_touching_arcs": []
+  },
+  "source_and_test_only": true,
+  "no_style_detail_density_resolution_changes": true,
+  "full_default_custom_frame_pairs": 40,
+  "new_random_compiled_fallback_pairs": 24,
+  "before_after_random_native_pairs": 24,
+  "balanced_native_pairs": 96,
+  "native_hard_24fps": "OPEN",
+  "save_crash_resolution": "not claimed",
+  "fresh_live_repeats": "mixed; both raw before/after pairs retained",
+  "balanced_worker_scope": "warmed ABBA; modest improvement, not cold or hard guarantee",
+  "compiler_startup_scope": "fresh closed private gate; NumBa/SciPy absent until explicit release",
+  "memory_scope": "real native show/hide/delete + weakrefs; JIT remains process resident",
+  "rejected_probe_setup_attempts": [
+    "balanced_stages initially passed unsupported gravity_radius factory argument; corrected to setter before measurement",
+    "balanced_worker initially omitted active-window setup and failed pointer precondition; corrected before accepted measurement"
+  ],
+  "validation": {
+    "ruff_test_file": "PASS",
+    "git_diff_check": "PASS",
+    "ambient_ruff": "existing import-format/unused-import diagnostics unchanged; not fixed in this renderer patch"
+  },
+  "local_root_integration": "9ed9688b0b714993b9954c584664e49df9adf5eb",
+  "hosted_acceptance": "pending; root owns final source CI and publication",
+  "portable_replay": {
+    "mode": "startup",
+    "passed": true,
+    "source_sha256": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20"
+  }
+}

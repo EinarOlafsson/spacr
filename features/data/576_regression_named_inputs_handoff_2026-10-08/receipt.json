@@ -1,0 +1,113 @@
+{
+  "item": "F576 private regression named-table inputs; parent remains partial",
+  "source_revision": "21abcc764d12c2aa61588160cbcb5f0e822bafe1",
+  "source_base": "02e5bcfddda55e12d1bab1a38b6bed43d85a44c4",
+  "public_io_prerequisite": "b0879b0fa57f42adaccd9c17619643c46d380d32",
+  "source_sha256": {
+    "spacr/ml.py": "6f71eba18b5c1954ba543b1d92eeb4aa0bf579ac8b1fa16a8266e5648fdbeb75",
+    "tests/test_one_parse_per_file.py": "8cc8e40f758ef44e9d12f9291194a1f674e7999acaa80bd765728420bd380735",
+    "tests/test_cov_ml_perform_regression.py": "59f179742c48bbf01ec9fe59490f581d7e97dd1c138677e200096cacd3b1354d"
+  },
+  "inventory_source": "a1de868f569aa2a4355d25b5d06d82bfd22be030",
+  "inventory_binding": "Only a PostgreSQL test was added after the full a1de normal inventory; application source is byte-identical.",
+  "normal_api_count": 13232,
+  "runtime_counts": {
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "categories": 237,
+    "ui": 7288,
+    "installer": 65,
+    "module_summaries": 77
+  },
+  "runtime_equal": true,
+  "foreign_imports": {},
+  "api_delta": {
+    "key": "spacr.ml.load_regression_input_pairs",
+    "before_sha256": "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63",
+    "after_sha256": "bccd8c56c3b7afb8975c77afcf90d2585f98883bcadc3bdb34ca5eac6dd5220b"
+  },
+  "results": [
+    "81 owning tests passed in 412s on a1de application source",
+    "3 complete regression fit parity cases passed for SQLite/DuckDB/Parquet against CSV",
+    "9 complete named-input tests passed in 6.22s with real PostgreSQL 18.4",
+    "Earlier 69-neighbor checks passed; first targeted failure was an incorrect test regex and is preserved"
+  ],
+  "publication": "Source private until workstation refreshes the one normal API prose record. No runtime captions arrive. Source patch excludes already-public IO read bridge.",
+  "limitations": [
+    "The 81-test owning result predates the new PostgreSQL test, not its application source.",
+    "Real PostgreSQL proves named input loading/cache, not complete regression fit parity.",
+    "Classifier writes and migration UI are separate incomplete children."
+  ],
+  "payloads": {
+    "source-and-tests.patch.gz": {
+      "sha256": "3f0924af5abe1c9f78190b1a2d250cb393cad9c99b2fe6de935724242025764b",
+      "bytes": 3579,
+      "uncompressed_sha256": "de7eaeafb7cd3f7653926ff24626659e1e6d940d5255ffa91a3a232329e746d2"
+    },
+    "full-normal-inventory.json.gz": {
+      "sha256": "19081401916531032aa97ed00e25ec9fc10596d306c27d74064e7b849f33bdf6",
+      "bytes": 2514113,
+      "uncompressed_sha256": "0e3b7ebe33d129c1245ae7357650f133b78bfe0eb908fdafb1211ea85fa21e97"
+    },
+    "inventory-report.json.gz": {
+      "sha256": "39fd3d35b1105d989a7e08bd0c5144337052b6ced487729ff337886a8a5f57fd",
+      "bytes": 798,
+      "uncompressed_sha256": "81baa11964a472af46c33015f934cff05c9aaf004f4d9f9258946bf55634d5a8"
+    },
+    "inventory-reader.py.gz": {
+      "sha256": "fb31311597fead6a375cd19b19d181a484d72a72165d6c33796ff0b3799024e1",
+      "bytes": 968,
+      "uncompressed_sha256": "e522fe991a73755bce2b942ad4280de60d78de575c1c340145f0cefbe1b1dbe9"
+    },
+    "final-owning.log.gz": {
+      "sha256": "dadbb310c520a780d4cbafe2b8b946cb02cfa8f033cf2f49b053663f51db9394",
+      "bytes": 1270,
+      "uncompressed_sha256": "2d1333febe456c1037d59d7cbc5a98e8cf2e0edf38f7c6d37186ae53735cf85d"
+    },
+    "full-fit-targeted.log.gz": {
+      "sha256": "22747eb00c42eb65a484a11960cdf59bf6e219d1676ea34d9910c1fa03d9c191",
+      "bytes": 814,
+      "uncompressed_sha256": "03bcb745aee73dc6a76f1bda091623888436c944fcb27a30187b33a5f09f5c83"
+    },
+    "pairs-owning.log.gz": {
+      "sha256": "a2aa8a6ff6d8da5b2bf4ca6c3c07a1f1dc986af435b6778aa938e5fd94d991be",
+      "bytes": 844,
+      "uncompressed_sha256": "6f99f4c30daacce88b1330f923c6a3f1faed4a798c25a0cecf7bddd1cfc01360"
+    },
+    "pairs-targeted.log.gz": {
+      "sha256": "867b7b6f3a341f0dd0621213ded7bd1b91d3e13201f7da3ffa0d47b02ff00752",
+      "bytes": 392,
+      "uncompressed_sha256": "716bc98a1f018f0f27cfdd759e7c26e3845bdcba18c77621b7881cc1f24c7e1d"
+    },
+    "real-postgres.log.gz": {
+      "sha256": "22cb8864c528e9fef1c9563fe999e6a1fd83dd42ff6c749920fde90d547202a6",
+      "bytes": 51,
+      "uncompressed_sha256": "0e985eaf6d4928359c648182b751ea479f272feb29e88f192b786b58b6ffe346"
+    },
+    "inventory.log.gz": {
+      "sha256": "39fd3d35b1105d989a7e08bd0c5144337052b6ced487729ff337886a8a5f57fd",
+      "bytes": 798,
+      "uncompressed_sha256": "81baa11964a472af46c33015f934cff05c9aaf004f4d9f9258946bf55634d5a8"
+    },
+    "ruff-existing-diagnostics.json.gz": {
+      "sha256": "45ebf21d9bb6e42114c8d70efe8cd6a2b944d4c203da9243894003fdf3ec3ecd",
+      "bytes": 3485,
+      "uncompressed_sha256": "67965042399c6a31959916c429881c3fd10d1bac830ab2ae16000d928b58a99a"
+    },
+    "frozen-spacr_ml.py.gz": {
+      "sha256": "c58ea3c10004a02a534502e87329ce9daecacff5c0ac328a10c460589af706be",
+      "bytes": 131978,
+      "uncompressed_sha256": "6f71eba18b5c1954ba543b1d92eeb4aa0bf579ac8b1fa16a8266e5648fdbeb75"
+    },
+    "frozen-tests_test_one_parse_per_file.py.gz": {
+      "sha256": "98c612596a4a9b98f561e3fa46986283898305c77f064902ed63f311db3829ac",
+      "bytes": 2558,
+      "uncompressed_sha256": "8cc8e40f758ef44e9d12f9291194a1f674e7999acaa80bd765728420bd380735"
+    },
+    "frozen-tests_test_cov_ml_perform_regression.py.gz": {
+      "sha256": "b1107cf306fe6d811633bd24ec61238aa722bd730f514085b9c84e4647e7476f",
+      "bytes": 22949,
+      "uncompressed_sha256": "59f179742c48bbf01ec9fe59490f581d7e97dd1c138677e200096cacd3b1354d"
+    }
+  }
+}

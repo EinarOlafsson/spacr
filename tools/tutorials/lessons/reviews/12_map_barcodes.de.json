@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Map Barcodes: von Sequenzier-Reads zu Zählwerten",
+  "description": "Laden Sie gepaarte Reads und Bibliotheksreferenzen, finden Sie die Barcode-Positionen, übernehmen Sie die Einstellungen und speichern Sie die Guide-Zählungen.",
+  "objectives": [
+    "Ein kleines Beispiel mit gepaarten Reads herunterladen und passende Referenztabellen auswählen.",
+    "Barcode-Positionen und -Orientierung prüfen, bevor Sie einen Vorschlag übernehmen.",
+    "Das Mapping ausführen und Zählwerte und Qualitätskontrollausgaben prüfen."
+  ],
+  "prerequisite": "Wählen Sie in Map Barcodes Load test data. Das Beispiel verwendet die Reads SRR33531217, die passenden Spalten- und Zeilentabellen primers_3 und die Guide-Referenzen. Verwenden Sie für andere Reads Referenztabellen, die zu Ihrer eigenen Bibliothek passen.",
+  "scenes": [
+    "Öffnen Sie von Home aus Map Barcodes. Die Eingaben sind Sequenzier-Reads und Referenztabellen, die die Barcodes Ihrer Bibliothek benennen. Die Ausgabe zählt jede beobachtete Kombination und ist bereit für die Sequenzier-Qualitätskontrolle und die weitere Analyse.",
+    "Klicken Sie auf Load test data und wählen Sie beide Mates des ersten Archivlaufs. Begrenzen Sie jede Datei für dieses Beispiel auf 10.000 Reads und warten Sie, bis die gepaarte Probe heruntergeladen ist.",
+    "Wählen Sie die passenden Referenztabellen für Spalten, Zeilen und Guides. Jede Tabelle ordnet Barcode-Namen Sequenzen zu. Halten Sie diese Namen konsistent mit dem Plattenlayout und den Guide-Kennungen, die im Rest Ihrer Analyse verwendet werden.",
+    "Öffnen Sie Find barcodes und starten Sie die Suche. Die Vorschau zieht Stichproben aus beiden Mates und prüft Positionen und Orientierungen der Barcodes. Warten Sie auf die Ergebnisse, bevor Sie das Hauptformular ändern.",
+    "Vergleichen Sie Observed mit By chance und prüfen Sie dann für jeden Barcode die vorgeschlagene Orientierung, den Versatz und das Urteil. Bevorzugen Sie Positionen, die von vielen Reads und klar unterscheidbaren erwarteten Referenzen gestützt werden. Öffnen Sie die Erklärung zum Urteil, wenn das Ergebnis unsicher ist.",
+    "Prüfen Sie die Guide-Ergebnisse für beide Mates. In diesem Beispiel stützt Read 1 die revers-komplementäre Guide-Sequenz und Read 2 die gespeicherte Orientierung. Richten Sie sich bei der Wahl der Orientierung nach den Ergebnissen für Ihre Bibliothek und Ihr Read-Paar.",
+    "Prüfen Sie auch den Zeilen-Barcode. Hier stützt Read 1 sein Reverse-Komplement und Read 2 die gespeicherte Sequenz. Prüfen Sie Spalte, Guide und Zeile gemeinsam, damit die vollständige Kombination das beabsichtigte Well und den beabsichtigten Guide identifiziert.",
+    "Öffnen Sie den Read-Viewer, um einzelne Reads zu prüfen. Finden Sie mit der Farblegende die Segmente für Spalte, Guide, Zeile und Anker. Prüfen Sie, ob die vorgeschlagenen Positionen zur erwarteten Bibliotheksstruktur passen.",
+    "Prüfen Sie die vorgeschlagenen Extraktionseinstellungen und klicken Sie dann auf Apply these settings, um sie in das Formular zu übernehmen. Das Beispiel verwendet ein Extraktionsfenster von 89 Basen. Prüfen Sie die aktualisierten Felder, bevor Sie den Lauf starten.",
+    "Folgen Sie den Hinweisen zur Orientierung, wenn Sie Ihre endgültigen Referenzdateien wählen. Wählen Sie für dieses Beispiel revers-komplementäre Kopien der Zeilen- und Guide-Referenzen und behalten Sie die Spaltenreferenz wie gespeichert. Bewahren Sie beim Erstellen dieser Kopien alle Barcode-Namen.",
+    "Wählen Sie das heruntergeladene Read-Paar, zwei Worker und Blöcke von 1.000 Reads. Aktivieren Sie das Speichern annotierter Reads, wenn Sie einzelne Zuordnungen prüfen möchten. Klicken Sie auf Run; dieser Mapping-Workflow nutzt die CPU.",
+    "Wenn das Mapping abgeschlossen ist, prüfen Sie unique_combinations.csv und die Ausgaben der Qualitätskontrolle. Die Zähltabelle verknüpft Spalten-, Zeilen- und Guide-Namen mit Read-Zahlen. Prüfen Sie nicht zugeordnete und mehrdeutige Zuordnungen in Barcode QC und kombinieren Sie diese Zählwerte dann in Regression mit Phänotyp-Werten."
+  ]
+}

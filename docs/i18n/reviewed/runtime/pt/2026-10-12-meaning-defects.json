@@ -1,0 +1,174 @@
+{
+  "language": "pt",
+  "schema": 1,
+  "records": [
+    {
+      "key": "Logging",
+      "source": "Logging",
+      "source_sha256": "d3ef01b4a9c9910364c9b26b2499c8787a0461d2d24ab80376fff736a288b34c",
+      "table": "ui",
+      "translation": "Registro"
+    },
+    {
+      "key": "Settings backdrop",
+      "source": "Settings backdrop",
+      "source_sha256": "ce2f7ac79260ab08f1859435a6743727e4277d16d651a077bdfca9ab9efdd4c6",
+      "table": "ui",
+      "translation": "Plano de fundo das configurações"
+    },
+    {
+      "key": "A qc",
+      "source": "A qc",
+      "source_sha256": "a89c29bb02d5e2d89b62b4a8a2936fcd191504241fa135717c3a0a2d5a3f34f8",
+      "table": "ui",
+      "translation": "A — controle de qualidade"
+    },
+    {
+      "key": "Add files…",
+      "source": "Add files…",
+      "source_sha256": "59da6c5a070f73158e2ac3d5127ee1c076cda04e40b5d98b9c3e905b5d719e44",
+      "table": "ui",
+      "translation": "Adicionar arquivos..."
+    },
+    {
+      "key": "Copy files up to",
+      "source": "Copy files up to",
+      "source_sha256": "2b318ec9bf6b3e6bb52dbe636768e47b979f4ce00b69d711f9416401b1f9297e",
+      "table": "ui",
+      "translation": "Copiar arquivos até"
+    },
+    {
+      "key": "Could not write the file",
+      "source": "Could not write the file",
+      "source_sha256": "7b9a75f71260eec6010bb8c1d45b1d0966f1574bda15ea43bf9ea9c1fc719086",
+      "table": "ui",
+      "translation": "Não foi possível escrever o arquivo"
+    },
+    {
+      "key": "Filename",
+      "source": "Filename",
+      "source_sha256": "971b974235a86ca628dcc713d6e2e8d975206cc84c858720ce046c2dab72855a",
+      "table": "ui",
+      "translation": "Nome do arquivo"
+    },
+    {
+      "key": "Files",
+      "source": "Files",
+      "source_sha256": "abc7e9892806b047b4d4786b3685285543f76ca314c4c76246d5f6544c7856c9",
+      "table": "ui",
+      "translation": "Arquivos"
+    },
+    {
+      "key": "File…",
+      "source": "File…",
+      "source_sha256": "47f05af8a3d23e9796861e274cf01ac96f2da6dbcfb406cde0998158fcdb460c",
+      "table": "ui",
+      "translation": "Arquivo..."
+    },
+    {
+      "key": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+      "source": "Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.",
+      "source_sha256": "079e363f5542b7f14a980c52313d45a9b9c0b2c6391a43f9eb5dfb369796ca17",
+      "table": "ui",
+      "translation": "Coloque um modelo nas etiquetas feitas até agora, marque cada safra com ele, e reclassifique a fila de incertezas — sem sair desta tela. Realizado por bem, Assim, a precisão não é um artefato de rotulagem de um campo de visão. Cada rodada escreve um cartão modelo."
+    },
+    {
+      "key": "Gate files",
+      "source": "Gate files",
+      "source_sha256": "60b189b4ded0cf20527d64741775f0b43f6fa743df19e85efbd9478fd3301e64",
+      "table": "ui",
+      "translation": "Arquivos de gate"
+    },
+    {
+      "key": "Grid axis",
+      "source": "Grid axis",
+      "source_sha256": "dd494a907665d7cb4844a5da0e02b637bd8644bb112d37a0a50cc6b287b2aaa7",
+      "table": "ui",
+      "translation": "Eixo da grade"
+    },
+    {
+      "key": "Grid colour",
+      "source": "Grid colour",
+      "source_sha256": "9fec06153c3f6a761e157c158c2be066730783f6c5972010a5f39091620b35a3",
+      "table": "ui",
+      "translation": "Cor da grade"
+    },
+    {
+      "key": "Grid width",
+      "source": "Grid width",
+      "source_sha256": "1eb7e9325e6f933f20c948d2d33e99c7ffb6dc2452d9f1cf1104880e43ded952",
+      "table": "ui",
+      "translation": "Largura da grade"
+    },
+    {
+      "key": "No evaluation_manifest.json files were found.",
+      "source": "No evaluation_manifest.json files were found.",
+      "source_sha256": "b9d86ecc53e9e2d2e7e3ef53f120d5db0f1f795081f8206af3c99620b428367b",
+      "table": "ui",
+      "translation": "Não foram encontrados arquivos evaluation_manifest.json."
+    },
+    {
+      "key": "Or start from a preset:",
+      "source": "Or start from a preset:",
+      "source_sha256": "2a42766b5684e3c00ff50899c45aa709fb9b61ab4329c66f9355fb0b7cd9cd2c",
+      "table": "ui",
+      "translation": "Ou comece a partir de um preset:"
+    },
+    {
+      "key": "Press Preview first — there is nothing to import yet.",
+      "source": "Press Preview first — there is nothing to import yet.",
+      "source_sha256": "54293a91a8d7de6c4725559db8259a40288daf946c67d5b9d816f071e0760f3e",
+      "table": "ui",
+      "translation": "Pressione Pré-visualização em primeiro lugar - não há nada para importar ainda."
+    },
+    {
+      "key": "Reset to defaults",
+      "source": "Reset to defaults",
+      "source_sha256": "e240e635ff6dce4ff2ac0b90a84889cff420f2c9a56014543e78f366681820db",
+      "table": "ui",
+      "translation": "Redefinir para os padrões"
+    },
+    {
+      "key": "Reset to spaCR defaults",
+      "source": "Reset to spaCR defaults",
+      "source_sha256": "4ec44250d46d7a7c31d9d8e7acbceee09ededa9cb91b5631ec1f271a44f2267c",
+      "table": "ui",
+      "translation": "Restaurar os padrões do spaCR"
+    },
+    {
+      "key": "Round provenance not recorded for {n} label(s): {err}",
+      "source": "Round provenance not recorded for {n} label(s): {err}",
+      "source_sha256": "910380266a0108501c341976c84c7d4a3bf2c297b027808f25547712e791ba2a",
+      "table": "ui",
+      "translation": "Procedência redonda não registrada para {n} etiqueta(s): {err}"
+    },
+    {
+      "key": "Show grid",
+      "source": "Show grid",
+      "source_sha256": "873ebb9300e109b8b91ac18227790111aebb81a2c67695d91575cc673b23fe60",
+      "table": "ui",
+      "translation": "Mostrar a grade"
+    },
+    {
+      "key": "Which animation drifts behind a settings window. Separate from the module screens' own backdrop above: what belongs behind a screen of figures is not necessarily what belongs behind a form you are reading. None keeps the card and the rim and drops only the movement.",
+      "source": "Which animation drifts behind a settings window. Separate from the module screens' own backdrop above: what belongs behind a screen of figures is not necessarily what belongs behind a form you are reading. None keeps the card and the rim and drops only the movement.",
+      "source_sha256": "9f1e09e9f36a85a9bef5be569723833d59c2828286362423ac13795aaa2b1fdd",
+      "table": "ui",
+      "translation": "Que animação deriva atrás de uma janela de configurações. Separado do próprio pano de fundo das telas do módulo acima: o que pertence atrás de uma tela de figuras não é necessariamente o que deve por trás de um formulário que você está lendo. None mantém o cartão e a borda e deixa cair apenas o movimento."
+    },
+    {
+      "key": "Write the selected row's parameters into the settings panel. Nothing changes until you press this.",
+      "source": "Write the selected row's parameters into the settings panel. Nothing changes until you press this.",
+      "source_sha256": "a4dccba4205ddaf73508565970ae9757ce52f0bb97917870213b1c67f7060a51",
+      "table": "ui",
+      "translation": "Escreva os parâmetros da linha seleccionada no painel de definições. Nada muda até pressionar esta opção."
+    },
+    {
+      "key": "non-targeting control",
+      "source": "non-targeting control",
+      "source_sha256": "44c6fedbc98aeccbad7e2649a132196047ae24aa617f1eb71ed231f1b6c2fd52",
+      "table": "ui",
+      "translation": "controle não direccionado"
+    }
+  ]
+}

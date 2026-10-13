@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "item": 585,
+  "date": "2026-09-28",
+  "status": "planner controls and saved-plan implementation verified as alpha",
+  "base_commit": "4014dbdef10966e90d89df0c26cf304dc0e052fc",
+  "source_sha256": {
+    "spacr/qt/screens/power.py": "8ca550ebba9ab76ebbf1512b74fd1dd18931d74c14fe2c540fd96c568aad0f88",
+    "spacr/sp_stats.py": "020ba52d516c99618068470ec280d7b68ef2233ea8a9aa3cbb01f94e78301fc0",
+    "tests/qt/test_arrayed_planner_alpha_gate.py": "6a248bf36f334c2f289a13ddde91882570f7f883c52b7d1ef3c9d801499fdb82",
+    "tests/test_arrayed_sample_size_planner.py": "0c4fdf88f6a5dad59055dc74ba9c03ff287edd772f7a364e743edd8ea4d4b7ee"
+  },
+  "behavior": {
+    "acceptance": "Recommended design matches cell-level simulation on a simulated five-plate pilot within 0.03.",
+    "costs": {
+      "replicate": 20.0,
+      "well": 1.0,
+      "field": 0.1
+    },
+    "cost_bounds": [
+      0.0,
+      1000000.0
+    ],
+    "cost_decimals": 3,
+    "limits": {
+      "replicates": [
+        2,
+        24,
+        12
+      ],
+      "wells": [
+        1,
+        24,
+        12
+      ],
+      "fields": [
+        1,
+        50,
+        25
+      ]
+    },
+    "export": "Atomic strict JSON preserves computed costs, limits, pilot mapping and simulation provenance.",
+    "alpha": "All controls remain inside PowerArrayedPlanner.",
+    "limitations": [
+      "Normal-theory continuous outcomes.",
+      "No replicate-by-condition interaction term.",
+      "Saved engine inputs are replayable; no GUI load-plan action."
+    ]
+  },
+  "validation": {
+    "unique_passed": 268,
+    "runs": [
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/pytest-20260928T010421-2753826.log.xml",
+        "sha256": "cc9b0a86233f8e965ccdfd213fd1ab0c03924c6853d296f41192c5f1bcede386",
+        "cases": 268,
+        "failed": 3,
+        "exit": 1
+      },
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/recheck-20260928T012008-2828513.log.xml",
+        "sha256": "98220539d2c883c6b08019b4562cf7c556752af4978e32e5dcf1289d10a7a2c6",
+        "cases": 3,
+        "failed": 2,
+        "exit": 1
+      },
+      {
+        "junit": "/mnt/wd4tb/scratch/spacr-completion/577-585-focused-20260928/recheck-20260928T012823-2882946.log.xml",
+        "sha256": "cbf1d4ab965f40862c596224d0d85b6d422b9f0a72619738abe327a7f5e7716a",
+        "cases": 2,
+        "failed": 0,
+        "exit": 0
+      }
+    ],
+    "cap": "4G",
+    "private_home": true,
+    "qt": "offscreen",
+    "gpu_hidden": true,
+    "original_failures_retained": true,
+    "item_cases": [
+      "tests.test_arrayed_sample_size_planner::test_recommendation_reaches_target_in_simulation",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_statsmodels[design2-False]",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_simulation[False]",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_statsmodels[design0-False]",
+      "tests.test_arrayed_sample_size_planner::test_unreachable_target_and_bad_input",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_statsmodels[design0-True]",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_simulation[True]",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_statsmodels[design1-False]",
+      "tests.test_arrayed_sample_size_planner::test_pilot_components_recover_the_truth",
+      "tests.test_arrayed_sample_size_planner::test_condition_pooling_ignores_the_treatment_shift",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_statsmodels[design2-True]",
+      "tests.test_arrayed_sample_size_planner::test_single_replicate_pilot_flags_replicate_variance",
+      "tests.test_arrayed_sample_size_planner::test_power_matches_statsmodels[design1-True]",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_cancelling_save_keeps_the_result_and_writes_nothing",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_save_preserves_the_computed_design_after_form_edits",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_failed_save_preserves_the_destination_and_allows_retry",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_cost_weights_change_ranking_without_changing_reachable_designs",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_replanning_with_an_active_sort_preserves_whole_design_rows",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_a_plan_made_while_hidden_uses_the_form",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_cost_and_limit_controls_keep_bounded_defaults",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_the_planner_is_hidden_until_alpha_features_are_shown",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_no_result_cannot_open_a_save_dialog[unreadable]",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_search_limits_change_reachable_designs_and_empty_summary",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_no_result_cannot_open_a_save_dialog[unreachable]",
+      "tests.qt.test_arrayed_planner_alpha_gate::test_no_result_cannot_open_a_save_dialog[initial]"
+    ]
+  }
+}

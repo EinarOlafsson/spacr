@@ -1,0 +1,34 @@
+{
+  "lesson": "74_import_images",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Import Images : associer les identités des images et créer un projet",
+  "description": "Analysez les noms et métadonnées des images, vérifiez l’association proposée entre puits, champ et canal, enregistrez un plan et importez des copies dans un projet.",
+  "objectives": [
+    "Analyser des images de microscope et résoudre les questions de nommage.",
+    "Choisir une destination, un nom de plaque et le mode copie ou lien.",
+    "Enregistrer un plan réutilisable et importer des images pour Mask."
+  ],
+  "prerequisite": "Téléchargez d’abord l’exemple Mask. Cette démonstration utilise des copies des champs E01/F001 et L01/F009, avec quatre canaux chacun. Ses copies préparées omettent l’élément A redondant situé juste avant Z, tout en conservant l’identité du puits, du champ et du canal. Gardez les originaux et appuyez-vous sur les registres d’acquisition pour interpréter les éléments inconnus.",
+  "scenes": [
+    "Depuis Home, ouvrez Data, choisissez Import, puis Import Images. Partez des fichiers d’images de microscope que vous voulez organiser en projet.",
+    "Si vous avez aussi des masques, cliquez sur Organiser les images et les masques à côté du dossier d’images. Déposez chaque dossier de canal et le dossier de masques dans leurs colonnes, définissez le rôle du masque et, sous Écrire pour, choisissez Mask Generation ou Measure. Les fichiers à plusieurs canaux peuvent d’abord être séparés en une colonne par canal ; Apply déplace tout dans l’organisation de ce module et consigne chaque déplacement dans un manifeste.",
+    "Utilisez l’exemple Mask pour cette démonstration. Sélectionnez des copies d’un champ dans chacun de deux puits, avec quatre canaux par champ. Ne modifiez pas le téléchargement d’origine.",
+    "Cliquez sur Scan. S’il vous demande ce que signifie un élément du nom de fichier, consultez les registres d’acquisition avant de l’attribuer. Ne continuez que lorsque les identités proposées distinguent sans ambiguïté les champs et les canaux.",
+    "Analysez les copies d’exemple préparées. L’élément d’acquisition redondant en a été retiré, tandis que ceux du puits, du champ et du canal sont conservés. Vérifiez que la proposition compte huit images, deux puits, deux numéros de champ et quatre canaux.",
+    "Comparez la proposition aux noms de fichiers. Activez Read inside each file lorsque vous avez besoin des métadonnées d’axes intégrées. Réglez Sample assez haut pour examiner les fichiers que vous comptez importer.",
+    "Choisissez une destination en dehors du dossier d’entrée et saisissez le nom de la plaque. Désactivez Link instead of copy pour obtenir des copies indépendantes. Les liens économisent de l’espace disque, mais exigent que les fichiers d’origine restent accessibles.",
+    "Pour les acquisitions en mosaïque, choisissez d’assembler les tuiles, de les garder séparées ou de les ignorer. Vérifiez l’organisation des champs obtenue avant de mesurer. Ces images d’exemple sont des champs séparés et n’ont pas besoin d’être assemblées.",
+    "Cliquez sur Save plan pour conserver la source et les choix d’association en JSON. Gardez le plan avec les notes d’acquisition et les images d’origine.",
+    "Cliquez sur Load plan pour recharger la source et les réponses enregistrées. Vérifiez la nouvelle proposition avant d’importer, surtout si les fichiers sources ont changé.",
+    "Cliquez sur Import et lisez le résumé. Cet exemple produit huit copies d’images sans fichier ignoré. Ouvrez le projet obtenu dans Mask et examinez Live preview avant de lancer la segmentation."
+  ]
+}

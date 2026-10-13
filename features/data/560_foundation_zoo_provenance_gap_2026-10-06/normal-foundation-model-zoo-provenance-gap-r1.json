@@ -1,0 +1,143 @@
+{
+  "source_sha256": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+  "actual_CPU_normal_entries": [
+    {
+      "backbone": "openphenom",
+      "actual_cached_weight_files": {
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/config.json": {
+          "sha256": "cdbf5b22f3aed6a729fa690c804861c931b511e2de74c8526189a38b1c3a52cf",
+          "bytes": 2025
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/huggingface_mae.py": {
+          "sha256": "2fd6da12b32a548db38e271d67072f85c82358e1e5aceac19adf06d151af68f1",
+          "bytes": 10945
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/loss.py": {
+          "sha256": "6b3fa60b6f7b89d90def3b9151e67f6c393d6de2f7895da1eada545a070ff776",
+          "bytes": 2267
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/mae_modules.py": {
+          "sha256": "5bea326273b234824e0fdfb31fe7a226a1ea1d5ff5502448c7ad675d48d90dfc",
+          "bytes": 9416
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/mae_utils.py": {
+          "sha256": "3fc34b749011afc7053b038745bddce02d34061f7e098a216ed8133195bf2cef",
+          "bytes": 2256
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/masking.py": {
+          "sha256": "b6eea7c755171aea3722d4d9d755e1ddb0e2db358d4e22bd4f87a3d25438ba33",
+          "bytes": 1671
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/model.safetensors": {
+          "sha256": "f6e5f1c97101331b1574c9e4b99623260191c55eea5d98e40460849c0e4c4d47",
+          "bytes": 712434294
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/normalizer.py": {
+          "sha256": "78923002ab47743d3866e7008e809187cd5b104dc66e60695519a4d6fc54ae2f",
+          "bytes": 173
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--recursionpharma--OpenPhenom/snapshots/0f92333685f6e9f031b804c70fe246f9b05ae90d/vit.py": {
+          "sha256": "964f7a1e59e7b3a3edca0289ca35c387fd186305d3ef2aed7d245855c53b9bef",
+          "bytes": 9879
+        }
+      },
+      "actual_normal_encoder_entry": {
+        "key": "encoder:openphenom/project",
+        "name": "openphenom (project)",
+        "kind": "encoder",
+        "source": "remote",
+        "path": "",
+        "uri": "timm:openphenom",
+        "version": "1",
+        "sha256": "",
+        "size_bytes": 0,
+        "trained_on": "unknown",
+        "trained_by": "timm / openphenom pretrained weights",
+        "metrics": {},
+        "notes": [
+          "Channel policy: project. Dimensions from one policy are not comparable with the other's.",
+          "No checksum: the pretrained weights are not in this machine's HuggingFace cache, so there are no bytes to hash yet. Run an embedding once and re-read this entry.",
+          "No scorecard. 386: an embedding that ships without one is a black box twice over. Measure retrieval -- kNN accuracy on gene identity against a known-phenotype control -- and attach it."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      }
+    },
+    {
+      "backbone": "chada_vit",
+      "actual_cached_weight_files": {
+        "/home/carruthers/.cache/huggingface/hub/models--nicoboou--chadavit16-moyen/snapshots/91a41123650ccff12f590364fec95d76af36cc93/config.json": {
+          "sha256": "0a833f4a15c63fa51592ff2e259157bc24999f946a222054ca68eae0ed679ea2",
+          "bytes": 510
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--nicoboou--chadavit16-moyen/snapshots/91a41123650ccff12f590364fec95d76af36cc93/config_chada_vit.py": {
+          "sha256": "9a334481122fbfcff8ee1b235af765eb69307bc062fce2b24eda9e06683a90a8",
+          "bytes": 1010
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--nicoboou--chadavit16-moyen/snapshots/91a41123650ccff12f590364fec95d76af36cc93/model.safetensors": {
+          "sha256": "0e3abb79d96d8a15785470441cb68bd8ff8dca2cc04e976e567fb58f7b542f8a",
+          "bytes": 45380728
+        },
+        "/home/carruthers/.cache/huggingface/hub/models--nicoboou--chadavit16-moyen/snapshots/91a41123650ccff12f590364fec95d76af36cc93/modeling_chada_vit.py": {
+          "sha256": "a0fdf393f48e669bbff4dac7ad16700643adaea19e12d4b6a1ba44a6c7149c22",
+          "bytes": 17593
+        }
+      },
+      "actual_normal_encoder_entry": {
+        "key": "encoder:chada_vit/project",
+        "name": "chada_vit (project)",
+        "kind": "encoder",
+        "source": "remote",
+        "path": "",
+        "uri": "timm:chada_vit",
+        "version": "1",
+        "sha256": "",
+        "size_bytes": 0,
+        "trained_on": "unknown",
+        "trained_by": "timm / chada_vit pretrained weights",
+        "metrics": {},
+        "notes": [
+          "Channel policy: project. Dimensions from one policy are not comparable with the other's.",
+          "No checksum: the pretrained weights are not in this machine's HuggingFace cache, so there are no bytes to hash yet. Run an embedding once and re-read this entry.",
+          "No scorecard. 386: an embedding that ships without one is a black box twice over. Measure retrieval -- kNN accuracy on gene identity against a known-phenotype control -- and attach it."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      }
+    },
+    {
+      "backbone": "subcell",
+      "actual_cached_weight_files": {
+        "/home/carruthers/.cache/torch/hub/checkpoints/DNA-Protein_ViT-ProtS-Pool.pth": {
+          "sha256": "fbd47422a750f28bc76f4f2258f9fdc232e261bb43713039297016a0d026c71d",
+          "bytes": 347436154
+        }
+      },
+      "actual_normal_encoder_entry": {
+        "key": "encoder:subcell/project",
+        "name": "subcell (project)",
+        "kind": "encoder",
+        "source": "remote",
+        "path": "",
+        "uri": "timm:subcell",
+        "version": "1",
+        "sha256": "",
+        "size_bytes": 0,
+        "trained_on": "unknown",
+        "trained_by": "timm / subcell pretrained weights",
+        "metrics": {},
+        "notes": [
+          "Channel policy: project. Dimensions from one policy are not comparable with the other's.",
+          "No checksum: the pretrained weights are not in this machine's HuggingFace cache, so there are no bytes to hash yet. Run an embedding once and re-read this entry.",
+          "No scorecard. 386: an embedding that ships without one is a black box twice over. Measure retrieval -- kNN accuracy on gene identity against a known-phenotype control -- and attach it."
+        ],
+        "verified": false,
+        "settings_path": "",
+        "licence": ""
+      }
+    }
+  ],
+  "source_change_not_started_while_frozen_GPU_turn_queued": true
+}

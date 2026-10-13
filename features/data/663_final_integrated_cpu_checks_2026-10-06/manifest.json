@@ -1,0 +1,38 @@
+{
+  "renderer_source_commit": "9ad69bab29",
+  "renderer_sha256": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5",
+  "test_fix_commit": "4154ab5713",
+  "scope": "Affected theme cohort, explicit failure diagnosis, current-offered-theme replay and final source contracts",
+  "results": {
+    "affected_cohort": "944 passed; 3 failures were retired cells/ripple factory choices",
+    "repaired_affected_file": "22 passed with unchanged timing/ownership guards",
+    "source_contracts": "140 passed"
+  },
+  "limitations": [
+    "Not whole local Qt suite or hosted serial acceptance.",
+    "No reported Save-crash fix.",
+    "Scientific/GPU/documentation acceptance remains separately owned."
+  ],
+  "files": {
+    "backdrop-choice-change.diff": {
+      "sha256": "7bea1bc4af12e1ad2e07049ac27d75df4fbc477e66b73232c5d6b962947ec504",
+      "bytes": 2430
+    },
+    "backdrop-tests.py": {
+      "sha256": "178827a16dea97d98c224b1c30c8e0f66f2f3f182df57052e5c2507bce4e2a8a",
+      "bytes": 28387
+    },
+    "final-backdrop-offered-theme-replay.log.gz": {
+      "sha256": "f1808c8b747578c224238c57bdfdb12209948626d5b6241e17c6c05a53f503d8",
+      "bytes": 53
+    },
+    "final-integrated-source-contracts.log.gz": {
+      "sha256": "15a6ef505994b2472472f07c8a0d5c23d77e0cd195fc6ffc514f9f8b649e3d4d",
+      "bytes": 63
+    },
+    "final-integrated-themes.log.gz": {
+      "sha256": "a97b464c141a17e2e39c3b453e842151d59fb06b859e1793da5b5f83993e93eb",
+      "bytes": 2447
+    }
+  }
+}

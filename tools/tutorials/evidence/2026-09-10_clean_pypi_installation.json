@@ -1,0 +1,472 @@
+{
+  "route": "Public PyPI, clean Python venv, no system packages",
+  "probe_tests": {
+    "guard_lines_executed": [
+      31,
+      45,
+      100
+    ],
+    "coverage": {
+      "covered_lines": 82,
+      "num_statements": 83,
+      "percent_covered": 97.89473684210526,
+      "percent_covered_display": "97.89",
+      "missing_lines": 1,
+      "excluded_lines": 0,
+      "percent_statements_covered": 98.79518072289157,
+      "percent_statements_covered_display": "98.80",
+      "num_branches": 12,
+      "num_partial_branches": 1,
+      "covered_branches": 11,
+      "missing_branches": 1,
+      "percent_branches_covered": 91.66666666666667,
+      "percent_branches_covered_display": "91.67"
+    },
+    "unit_tests_passed": 10,
+    "guard_mutations": [
+      {
+        "guard": "if shutil.disk_usage(stage).free < 40 * 1024**3:",
+        "exit_code": 1,
+        "summary": "1 failed, 9 passed in 0.21s"
+      },
+      {
+        "guard": "if not version or not all(c.isdecimal() or c == '.' for c in version):",
+        "exit_code": 1,
+        "summary": "1 failed, 9 passed in 0.19s"
+      },
+      {
+        "guard": "if result.returncode:",
+        "exit_code": 1,
+        "summary": "6 failed, 4 passed in 0.21s"
+      }
+    ],
+    "scope": "Unit tests for failure recording and limits; actual public installation proven separately, not by mocks."
+  },
+  "folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt",
+  "steps": [
+    {
+      "name": "01_create",
+      "command": [
+        "/home/olafsson/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "venv",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv"
+      ],
+      "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/01_create.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 1.416,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "02_upgrade_pip",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--index-url",
+        "https://pypi.org/simple",
+        "--upgrade",
+        "pip"
+      ],
+      "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/02_upgrade_pip.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 2.168,
+      "log_sha256": "5bf154f340aa83e42deeb2547fae1baee5aa7a4e3ae3302f389ab5b3ea56f86f"
+    },
+    {
+      "name": "03_install",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--index-url",
+        "https://pypi.org/simple",
+        "--report",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/install-report.json",
+        "spacr==1.5.0.5"
+      ],
+      "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/03_install.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 357.928,
+      "log_sha256": "57148e65dafb1e93d7ac10101298d8a75c02fd9f9e8ff1e505081dc8737a0ccc"
+    },
+    {
+      "name": "04_dependency_check",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/04_dependency_check.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 0.365,
+      "log_sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+    },
+    {
+      "name": "05_import",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python",
+        "-I",
+        "-c",
+        "import json,sys,pathlib,importlib.metadata as m,spacr,PySide6,torch; assert m.version(\"spacr\")=='1.5.0.5'; assert pathlib.Path(spacr.__file__).resolve().is_relative_to(pathlib.Path(sys.prefix)); print(json.dumps(dict(python=sys.executable,prefix=sys.prefix,spacr=spacr.__version__, location=spacr.__file__,qt=PySide6.__version__,torch=torch.__version__, cuda_available=torch.cuda.is_available()),indent=2))"
+      ],
+      "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/05_import.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 1.818,
+      "log_sha256": "eab651d0936b3c4dc54900e28b7fa380e160401bfde9286f11e1c2dfbf2f3548"
+    },
+    {
+      "name": "06_doctor",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/spacr-doctor",
+        "--json",
+        "--no-gpu-probe"
+      ],
+      "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/06_doctor.log",
+      "returncode": 0,
+      "completed": true,
+      "elapsed_seconds": 7.627,
+      "log_sha256": "69e20c1291c59d3eacdb1ca63cfe0849d6d118fac3e6b4c5c1ff9ee0d3053b32"
+    }
+  ],
+  "accepted": true,
+  "source_checkout_installed": false,
+  "published": false,
+  "pypi": {
+    "url": "https://pypi.org/pypi/spacr/json",
+    "response_sha256": "66f8af6b62fdd3fd8ff213917f09a550617f9f90d36fc2227440f2708ddcaf8e",
+    "version": "1.5.0.5",
+    "requires_python": "!=3.14.1,<3.16,>=3.9",
+    "files": [
+      {
+        "filename": "spacr-1.5.0.5-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/37/69/bf699a64805d17c584dcc9696e744b8f7bbd094bc59cd216ae1b8f7b1831/spacr-1.5.0.5-py3-none-any.whl",
+        "size": 39519204,
+        "digests": {
+          "blake2b_256": "3769bf699a64805d17c584dcc9696e744b8f7bbd094bc59cd216ae1b8f7b1831",
+          "md5": "aff022838d33a6a50200620aaa293724",
+          "sha256": "4dcccbbf55dafed1c16fbe986e308758e7b124eb2c50d120d2cc647d043523da"
+        },
+        "upload_time_iso_8601": "2026-09-10T13:21:18.841827Z"
+      },
+      {
+        "filename": "spacr-1.5.0.5.tar.gz",
+        "url": "https://files.pythonhosted.org/packages/9c/ed/06f54935022c26b23dab456fbc286a954401b2f2a2b935b905376e9570c4/spacr-1.5.0.5.tar.gz",
+        "size": 46599424,
+        "digests": {
+          "blake2b_256": "9ced06f54935022c26b23dab456fbc286a954401b2f2a2b935b905376e9570c4",
+          "md5": "3c3f339163b14002eee2b10d57fcf447",
+          "sha256": "a5631f0462f044985607ad211415ffbf08c7c34ae02ba2b245d845bd40fad5bc"
+        },
+        "upload_time_iso_8601": "2026-09-10T13:21:22.608303Z"
+      }
+    ]
+  },
+  "scope": "Linux installation, pip consistency, real package imports and doctor only; no GUI or other-platform success claimed",
+  "lesson": "03_pip_install",
+  "status": "Installation verified; tutorial recording and media not yet complete",
+  "installed_package": {
+    "python": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python",
+    "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv",
+    "spacr": "1.5.0.5",
+    "location": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr/__init__.py",
+    "qt": "6.11.2",
+    "torch": "2.14.0+cu130",
+    "cuda_available": true
+  },
+  "doctor": {
+    "ok": true,
+    "results": [
+      {
+        "check": "python",
+        "details": [
+          "interpreter: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/bin/python"
+        ],
+        "fix": "",
+        "message": "Python 3.12.13 satisfies requires-python !=3.14.1,<3.16,>=3.9.",
+        "status": "PASS"
+      },
+      {
+        "check": "spacr package",
+        "details": [],
+        "fix": "",
+        "message": "spacr 1.5.0.5 imports from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr.",
+        "status": "PASS"
+      },
+      {
+        "check": "running checkout",
+        "details": [
+          "import spacr  -> /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr",
+          "editable install: none (installed as a copy)"
+        ],
+        "fix": "",
+        "message": "Not inside a spaCR checkout; runs from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages.",
+        "status": "PASS"
+      },
+      {
+        "check": "duplicate installs",
+        "details": [],
+        "fix": "",
+        "message": "One importable spacr package: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr.",
+        "status": "PASS"
+      },
+      {
+        "check": "distributions",
+        "details": [
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv/lib/python3.12/site-packages/spacr-1.5.0.5.dist-info"
+        ],
+        "fix": "",
+        "message": "spacr 1.5.0.5 is the only spaCR distribution.",
+        "status": "PASS"
+      },
+      {
+        "check": "console scripts",
+        "details": [],
+        "fix": "",
+        "message": "All 16 installed spaCR commands resolve.",
+        "status": "PASS"
+      },
+      {
+        "check": "PATH",
+        "details": [],
+        "fix": "",
+        "message": "`spacr-doctor` on PATH comes from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/venv.",
+        "status": "PASS"
+      },
+      {
+        "check": "qt extra",
+        "details": [],
+        "fix": "",
+        "message": "Qt GUI available (PySide6 6.11.2).",
+        "status": "PASS"
+      },
+      {
+        "check": "display",
+        "details": [],
+        "fix": "",
+        "message": "QT_QPA_PLATFORM=offscreen: Qt is deliberately headless.",
+        "status": "PASS"
+      },
+      {
+        "check": "core imports",
+        "details": [],
+        "fix": "",
+        "message": "All 13 core dependencies import.",
+        "status": "PASS"
+      },
+      {
+        "check": "optional extras",
+        "details": [
+          "czi: missing pylibCZIrw",
+          "installed: fractal, lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike"
+        ],
+        "fix": "python -m pip install \"spacr[czi]\"",
+        "message": "1 optional extras are half-installed and will fail when their feature is used.",
+        "status": "WARN"
+      },
+      {
+        "check": "installer backend",
+        "details": [],
+        "fix": "Desktop installers record their choice in /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/public-pypi-sj_vulgt/install-profile.json.",
+        "message": "No desktop-installer profile is present; this is a pip, conda, editable, or older installation.",
+        "status": "SKIP"
+      },
+      {
+        "check": "torch",
+        "details": [],
+        "fix": "",
+        "message": "torch 2.14.0+cu130 (built against CUDA 13.0).",
+        "status": "PASS"
+      },
+      {
+        "check": "gpu",
+        "details": [],
+        "fix": "",
+        "message": "1 CUDA device(s) reported: NVIDIA GeForce RTX 3090 (driver 580.173.02, torch CUDA 13.0); allocation probe skipped.",
+        "status": "PASS"
+      },
+      {
+        "check": "cellpose",
+        "details": [],
+        "fix": "",
+        "message": "cellpose 4.2.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.",
+        "status": "PASS"
+      },
+      {
+        "check": "declared pins",
+        "details": [],
+        "fix": "",
+        "message": "Not inside a spaCR checkout; nothing to cross-check.",
+        "status": "SKIP"
+      },
+      {
+        "check": "database",
+        "details": [],
+        "fix": "spacr-doctor --db /path/to/plate/measurements/measurements.db",
+        "message": "No database given.",
+        "status": "SKIP"
+      },
+      {
+        "check": "settings",
+        "details": [],
+        "fix": "spacr-doctor --settings settings.csv --app measure",
+        "message": "No settings file given.",
+        "status": "SKIP"
+      }
+    ],
+    "summary": {
+      "ERROR": 0,
+      "FAIL": 0,
+      "PASS": 13,
+      "SKIP": 4,
+      "WARN": 1
+    }
+  },
+  "install_report_sha256": "68b11a297dfa6afe54ff8b2e26f38436a1f7d317659d6657280a31d626798b03",
+  "resolved_distributions": 186,
+  "installed_wheel_hash_matches_pypi": true,
+  "installed_spacr_requires_dist": [
+    "numpy<3.0,>=1.26.4",
+    "pandas<4.0,>=2.2.1",
+    "scipy<2.0,>=1.12.0",
+    "cellpose<5.0,>=4.0.7",
+    "scikit-image<0.28,>=0.22.0",
+    "scikit-learn<2.0,>=1.5.0",
+    "scikit-posthocs<0.20,>=0.10.0",
+    "trackpy<1.0,>=0.6.2",
+    "statsmodels<0.15,>=0.14.0",
+    "patsy<2.0,>=0.5.6",
+    "shap<1.0,>=0.47.0",
+    "torch<3.0,>=2.0; sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\"",
+    "pyfixest<1,>=0.40.1; python_version >= \"3.10\"",
+    "glum<4,>=3.1.2; python_version >= \"3.10\"",
+    "gpytorch<2,>=1.11; python_version >= \"3.10\"",
+    "tensorboard<3.0,>=2.21",
+    "numba<1.0,>=0.60; sys_platform != \"darwin\" or platform_machine != \"x86_64\"",
+    "llvmlite<1.0,>=0.43; sys_platform != \"darwin\" or platform_machine != \"x86_64\"",
+    "numba<0.63,>=0.60; sys_platform == \"darwin\" and platform_machine == \"x86_64\"",
+    "llvmlite<0.46,>=0.43; sys_platform == \"darwin\" and platform_machine == \"x86_64\"",
+    "torchvision<1.0,>=0.15; sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\"",
+    "captum<1.0,>=0.7.0",
+    "seaborn<1.0,>=0.13.2",
+    "matplotlib<4.0,>=3.8.3",
+    "matplotlib_venn<2.0,>=1.1",
+    "pypdf<7.0,>=6.16.1",
+    "cycler<1,>=0.10",
+    "PySide6<7,>=6.6",
+    "qtawesome<2,>=1.3",
+    "pyqtgraph<1,>=0.13.3",
+    "mpmath<2,>=1.3",
+    "vispy<1.0,>=0.14",
+    "win10toast>=0.9; platform_system == \"Windows\"",
+    "adjustText<2.0,>=1.2.0",
+    "bottleneck<2.0,>=1.3.6",
+    "numexpr<3.0,>=2.8.4",
+    "opencv-python-headless<5.0,>=4.9.0.80",
+    "pillow<13,>=10.2.0",
+    "tifffile>=2023.4.12",
+    "nd2reader<4.0,>=3.3.0",
+    "czifile",
+    "readlif",
+    "openpyxl<4.0,>=3.1",
+    "imageio<3.0,>=2.34.0",
+    "umap-learn<1.0,>=0.5.11",
+    "xgboost<4,>=2.0.3",
+    "biopython<2.0,>=1.80",
+    "lxml>=5.1.0",
+    "psutil<8,>=5.9.8",
+    "gputil<2.0,>=1.4.0",
+    "nvidia-ml-py<14,>=11.450.51",
+    "tables<4.0,>=3.8.0",
+    "screeninfo<1.0,>=0.8.1",
+    "fastremap>=1.14.1",
+    "tqdm>=4.65.0",
+    "requests<3.0,>=2.28",
+    "joblib<2.0,>=1.2",
+    "natsort<9.0,>=8.0",
+    "sympy<2.0,>=1.12",
+    "IPython<10,>=8.18.1",
+    "ipywidgets<9.0,>=8.1.2",
+    "huggingface-hub<1.0,>=0.25",
+    "protobuf>=5.28.3",
+    "pytest<9,>=8.0; extra == \"dev\"",
+    "pytest-qt<5,>=4.4; extra == \"dev\"",
+    "pytest-xdist<4,>=3.6.1; extra == \"dev\"",
+    "tomli>=2.0; python_version < \"3.11\" and extra == \"dev\"",
+    "hypothesis<7,>=6.100; extra == \"dev\"",
+    "docutils<0.24,>=0.20.1; extra == \"dev\"",
+    "pyarrow<26,>=14.0.2; extra == \"dev\"",
+    "ruff<1,>=0.9; extra == \"dev\"",
+    "mypy<2,>=1.11; extra == \"dev\"",
+    "xenon<1,>=0.9; extra == \"dev\"",
+    "pingouin<2.0,>=0.5.5; extra == \"dev\"",
+    "opencv-python-headless<5.0,>=4.9.0.80; extra == \"headless\"",
+    "trackastra<1.0,>=0.5; (python_version >= \"3.10\" and (sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\")) and extra == \"trackastra\"",
+    "ultrack<1.0,>=0.6; (python_version >= \"3.10\" and python_version < \"3.14\" and (sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\")) and extra == \"ultrack\"",
+    "torchcam<1.0,>=0.4.0; extra == \"attribution\"",
+    "cuml-cu12>=25.2; (python_version >= \"3.11\" and python_version < \"3.13\") and extra == \"rapids\"",
+    "cupy-cuda12x>=13.0; (python_version >= \"3.11\" and python_version < \"3.13\") and extra == \"rapids\"",
+    "intel-extension-for-pytorch>=2.1; platform_system != \"Darwin\" and extra == \"intel-gpu\"",
+    "torch-directml>=0.2; platform_system == \"Windows\" and extra == \"directml\"",
+    "catboost<2.0,>=1.2; extra == \"boosting\"",
+    "lightgbm<5.0,>=4.0; extra == \"boosting\"",
+    "ultralytics<9,>=8.0; extra == \"plaque\"",
+    "umap-learn<1.0,>=0.5.11; extra == \"umap\"",
+    "anndata<0.13,>=0.10; extra == \"anndata\"",
+    "napari<1.0,>=0.5; extra == \"napari\"",
+    "opencv-python; extra == \"full\"",
+    "threadpoolctl<4,>=3.0; extra == \"sweep\"",
+    "PySide6<7,>=6.6; extra == \"qt\"",
+    "qtawesome<2,>=1.3; extra == \"qt\"",
+    "pyqtgraph<1,>=0.13.3; extra == \"qt\"",
+    "win10toast>=0.9; platform_system == \"Windows\" and extra == \"qt\"",
+    "PySide6<7,>=6.6; extra == \"flowview\"",
+    "vispy<1.0,>=0.14; extra == \"fractal\"",
+    "PySide6<7,>=6.6; extra == \"tutorial\"",
+    "qtawesome<2,>=1.3; extra == \"tutorial\"",
+    "win10toast>=0.9; platform_system == \"Windows\" and extra == \"tutorial\"",
+    "piper-tts<2,>=1.2; (sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.14\") and extra == \"tutorial\"",
+    "pylibCZIrw<7.0,>=5.0.0; python_version < \"3.14\" and extra == \"czi\"",
+    "czifile; extra == \"czi\"",
+    "nd2reader<4.0,>=3.3.0; extra == \"nd2\"",
+    "readlif; extra == \"lif\"",
+    "mahotas<2.0,>=1.4.13; python_version < \"3.13\" and extra == \"zernike\"",
+    "btrack<1.0,>=0.7.0; extra == \"btrack\"",
+    "numpyro<1.0,>=0.13; extra == \"numpyro\"",
+    "jax<1.0,>=0.4; extra == \"numpyro\"",
+    "pymc<6.0,>=5.10; extra == \"pymc\"",
+    "pyfixest<1,>=0.40.1; python_version >= \"3.10\" and extra == \"pyfixest\"",
+    "glum<4,>=3.1.2; python_version >= \"3.10\" and extra == \"glum\"",
+    "gpytorch<2,>=1.11; python_version >= \"3.10\" and extra == \"gpytorch\"",
+    "zarr<4,>=2.16; extra == \"zarr\"",
+    "numcodecs<1,>=0.12; extra == \"zarr\"",
+    "omero-py<6,>=5.17; extra == \"omero\"",
+    "PySide6<7,>=6.6; extra == \"all\"",
+    "qtawesome<2,>=1.3; extra == \"all\"",
+    "pyqtgraph<1,>=0.13.3; extra == \"all\"",
+    "vispy<1.0,>=0.14; extra == \"all\"",
+    "win10toast>=0.9; platform_system == \"Windows\" and extra == \"all\"",
+    "piper-tts<2,>=1.2; (sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.14\") and extra == \"all\"",
+    "trackastra<1.0,>=0.5; (python_version >= \"3.10\" and (sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\")) and extra == \"all\"",
+    "ultrack<1.0,>=0.6; (python_version >= \"3.10\" and python_version < \"3.14\" and (sys_platform != \"darwin\" or platform_machine != \"x86_64\" or python_version < \"3.13\")) and extra == \"all\"",
+    "catboost<2.0,>=1.2; extra == \"all\"",
+    "lightgbm<5.0,>=4.0; extra == \"all\"",
+    "ultralytics<9,>=8.0; extra == \"all\"",
+    "pylibCZIrw<7.0,>=5.0.0; python_version < \"3.14\" and extra == \"all\"",
+    "czifile; extra == \"all\"",
+    "nd2reader<4.0,>=3.3.0; extra == \"all\"",
+    "readlif; extra == \"all\"",
+    "mahotas<2.0,>=1.4.13; python_version < \"3.13\" and extra == \"all\"",
+    "btrack<1.0,>=0.7.0; extra == \"all\"",
+    "anndata<0.13,>=0.10; extra == \"all\""
+  ],
+  "scope_note": "Linux Python 3.12 only. Doctor exits zero with 13 PASS, 4 SKIP and one optional CZI WARN; not all optional features verified. No GPU tensor probe or GUI launch in this check. No existing environment changed."
+}

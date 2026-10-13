@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "receipt_sha256": "367b7ea3ea22b24f235f90b5686491879f9a29c3e44fc46f9c781557a2db2014",
+  "payloads": [
+    {
+      "path": "gdb23/gdb.log.gz",
+      "verified": true
+    },
+    {
+      "path": "gdb23/launcher.log.gz",
+      "verified": true
+    },
+    {
+      "path": "gdb23/gdb.commands.gz",
+      "verified": true
+    },
+    {
+      "path": "gdb23/replay.py.gz",
+      "verified": true
+    },
+    {
+      "path": "gdb23/original-receipt.json.gz",
+      "verified": true
+    },
+    {
+      "path": "valgrind/memcheck.log.gz",
+      "verified": true
+    },
+    {
+      "path": "valgrind/pytest.log.gz",
+      "verified": true
+    },
+    {
+      "path": "valgrind/memcheck.exit.gz",
+      "verified": true
+    },
+    {
+      "path": "valgrind/memcheck-focused.log.gz",
+      "verified": true
+    },
+    {
+      "path": "valgrind/pytest-focused.log.gz",
+      "verified": true
+    },
+    {
+      "path": "valgrind/memcheck-focused.exit.gz",
+      "verified": true
+    },
+    {
+      "path": "valgrind/install.log.gz",
+      "verified": true
+    }
+  ],
+  "git_source_bindings": {
+    "spacr/qt/bridge.py": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a",
+    "spacr/qt/screens/make_masks.py": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+    "spacr/qt/widgets/primary_mask_selector.py": "38a79dea542ff89b96264d00878f73349f9b1fc58bfe288ae5579d611ecc481b",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+    "tests/qt/test_live_preview_remove_background.py": "c2179ffaef96d0c40a269fdb7f647a4801673c1cb3fd3bb3fbd53bab526e6dd5",
+    "tests/qt/test_make_masks_parent_source_race_guards.py": "5dc81d71d91ae5f4b4b63a8b0009d33748527ebfb88ccde2973c62d0629799d7",
+    "tests/qt/test_magnifier_lock.py": "7ea1f06faae92000ca1ffea2fc30d7b2d9d15410fc99bdad8054b904b799c880"
+  },
+  "scope": "Independent original compressed/raw bytes and original Git source bindings verified. Original Valgrind exits97/124 remain failures/incomplete. No native crash origin or correction established."
+}

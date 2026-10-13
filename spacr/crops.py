@@ -1,0 +1,3713 @@
+"""On-demand single-object crops cut straight out of ``merged/*.npy``.
+
+Background
+----------
+:func:`spacr.measure.measure_crop` writes a per-object PNG for every object it
+measures (``<root>/data/.../{cell,nucleus,pathogen,cytoplasm}_png/``) and records
+the paths in the ``png_list`` table of ``measurements/measurements.db``. Every
+downstream consumer -- the annotation GUIs, the classification datasets, the
+image UMAP -- reads those PNGs. That costs disk, has to be regenerated whenever
+a crop setting changes, and goes stale silently.
+
+The ``merged/`` array already contains everything needed to cut the same crop on
+demand: the intensity planes *and* the integer label-mask planes. This module is
+that alternative source. It is deliberately **additive** -- :class:`PngCropSource`
+wraps the existing behaviour unchanged, :class:`MergedCropSource` is the new one,
+and :func:`resolve_crop_source` picks between them and says which it picked.
+
+Merged array layout
+-------------------
+``spacr.io._load_and_concatenate_arrays`` builds each ``merged/<fov>.npy`` as::
+
+    (H, W, n_intensity_channels + n_mask_planes)
+
+The intensity channels come first (the subset selected by ``settings['channels']``
+at preprocessing time), then one ``uint16`` label-mask plane per segmented object
+class, always in the order **cell, nucleus, pathogen, organelle** -- each present
+only if that class was segmented. ``settings['cell_mask_dim']`` /
+``nucleus_mask_dim`` / ``pathogen_mask_dim`` / ``organelle_mask_dim`` record the
+resulting plane indices; spaCR's default four-channel layout is
+``{cell: 4, nucleus: 5, pathogen: 6, organelle: 7}`` (:data:`DEFAULT_MASK_DIMS`).
+
+There is **no cytoplasm plane on disk**: ``measure_crop`` derives cytoplasm as
+"cell minus nucleus/pathogen/organelle" in memory and never saves it back. This
+module derives it the same way (see :func:`MergedField.mask_plane`).
+
+Fidelity
+--------
+:func:`extract_crop` reproduces the PNG path in ``spacr.measure._measure_crop_core``
+step for step: same channel selection (``png_dims``), same region definition
+(object mask, optionally replaced by its padded bounding box, optionally
+dilated), same ``_crop_center`` centering/padding, same ``normalize_to_dtype``
+percentile normalisation, same dtype. :func:`png_view` turns that array into
+what a consumer sees after the PNG round trip, and :func:`read_crop_png` reads
+a crop PNG back into the same thing -- the two are the two halves of one
+contract, and ``tests/test_crops.py`` asserts they agree.
+
+Crop PNG format
+---------------
+This module is also the authority on **what a crop PNG on disk means** --
+see the "Crop PNG format" section below. In short: the current format is 3
+("declared_rgb", :data:`CROP_FORMAT_CURRENT`), whose red, green and blue slots
+hold exactly the source channels ``settings['png_channel_mapping']`` names;
+format 1 ("legacy", unmarked) holds the same bytes for the default mapping and
+is returned untouched; format 2, written for eleven days in 2026, is the one
+that is reversed, and :func:`read_crop_png` is what reverses it back. A folder
+says which format it is via a ``.spacr_crop_format.json`` sidecar, and an
+unmarked folder is format 1.
+
+Dependencies
+------------
+numpy, and the standard library (plus PIL only inside :func:`read_crop_png`
+and cv2 only inside :func:`migrate_crop_folder`, both imported lazily). No
+torch, no cellpose, no scipy, no skimage -- importing this module must stay
+cheap enough for a GUI thumbnail path, and ``spacr.measure`` imports it for
+the writer helpers, so it must not import ``spacr`` back.
+"""
+
+from __future__ import annotations
+
+import ast
+import datetime
+import hashlib
+import json
+import os
+import re
+import sqlite3
+import sys
+import tempfile
+import threading
+import time
+from collections import OrderedDict
+from contextlib import contextmanager
+from dataclasses import dataclass, replace
+from dataclasses import field as _dc_field
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union, cast
+
+import numpy as np
+
+try:
+    from .schema import ALL_ROLES, ORGANELLE_ROLES, SEGMENTED_ROLES
+except ImportError:
+    import importlib.util as _importlib_util
+    import sys as _sys
+
+    _schema_path = os.path.join(os.path.dirname(__file__), 'schema.py')
+    _schema_spec = _importlib_util.spec_from_file_location(
+        '_spacr_crops_schema', _schema_path)
+    _schema_module = _importlib_util.module_from_spec(_schema_spec)
+    _sys.modules[_schema_spec.name] = _schema_module
+    _schema_spec.loader.exec_module(_schema_module)
+    ALL_ROLES = _schema_module.ALL_ROLES
+    ORGANELLE_ROLES = _schema_module.ORGANELLE_ROLES
+    SEGMENTED_ROLES = _schema_module.SEGMENTED_ROLES
+
+__all__ = [
+    "MASK_PLANE_ORDER",
+    "DEFAULT_MASK_DIMS",
+    "MERGED_LAYOUT_SIDECAR",
+    "PlaneLayoutConflict",
+    "read_merged_plane_layout",
+    "reconcile_merged_mask_dims",
+    "CropError",
+    "MergedFileMissing",
+    "CorruptMergedFile",
+    "MaskPlaneMissing",
+    "LabelMissing",
+    "CropSpec",
+    "MergedField",
+    "open_merged_field",
+    "clear_field_cache",
+    "extract_crop",
+    "extract_crops",
+    "png_view",
+    "mask_dims_from_settings",
+    "crop_settings_from_db",
+    "crop_spec_from_settings",
+    "CropSource",
+    "PngCropSource",
+    "MergedCropSource",
+    "resolve_crop_source",
+    "CROP_FORMAT_LEGACY_BGR",
+    "CROP_FORMAT_RGB",
+    "CROP_FORMAT_CURRENT",
+    "CROP_FORMAT_SIDECAR",
+    "CROP_FORMAT_DB_COLUMN",
+    "CropFormatConflict",
+    "CROP_FORMAT_DECLARED_RGB",
+    "narrow_to_uint8",
+    "to_cv2_bgr",
+    "legacy_png_view",
+    "PNG_COLOR_KEYS",
+    "DEFAULT_PNG_CHANNEL_MAPPING",
+    "png_dims_to_channel_mapping",
+    "resolve_png_channel_mapping",
+    "build_png_channels",
+    "read_crop_folder_marker",
+    "write_crop_folder_marker",
+    "stamp_crop_folder",
+    "crop_folder_format",
+    "crop_format_for_png",
+    "read_crop_png",
+    "read_db_crop_format",
+    "stamp_crop_format_in_db",
+    "clear_crop_format_cache",
+    "MigrationResult",
+    "migrate_crop_folder",
+    "migrate_crop_tree",
+    "find_crop_folders",
+    "legacy_channel_names",
+]
+
+
+#: Order in which mask planes are appended to a merged array by
+#: :func:`spacr.io._load_and_concatenate_arrays`.
+MASK_PLANE_ORDER: Tuple[str, ...] = (
+    "cell", "nucleus", "pathogen", *ORGANELLE_ROLES)
+
+#: spaCR's default plane indices for a four-intensity-channel merged array.
+DEFAULT_MASK_DIMS: Dict[str, int] = {
+    role: 4 + index for index, role in enumerate(MASK_PLANE_ORDER)
+}
+
+#: Self-describing mask-plane layout written next to ``merged/*.npy``.
+MERGED_LAYOUT_SIDECAR = ".spacr_plane_layout.json"
+
+#: Object types that have their own plane on disk, plus the derived one.
+OBJECT_TYPES: Tuple[str, ...] = tuple(ALL_ROLES)
+
+
+
+class CropError(RuntimeError):
+    """Base class for every failure raised while cutting an on-demand crop."""
+
+
+class MergedFileMissing(CropError, FileNotFoundError):
+    """The requested ``merged/*.npy`` does not exist."""
+
+
+class CorruptMergedFile(CropError):
+    """The ``.npy`` exists but cannot be read as an ``(H, W, C)`` array."""
+
+
+class MaskPlaneMissing(CropError):
+    """The array has no plane for the requested object type."""
+
+
+class LabelMissing(CropError):
+    """The requested object label is not present in the mask plane."""
+
+
+class PlaneLayoutConflict(CropError):
+    """A requested mask plane disagrees with the merged-folder manifest."""
+
+
+def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
+    """Read and validate a merged folder's optional plane-layout manifest.
+
+    Legacy folders have no manifest and return ``None``. A present but
+    malformed manifest raises: once metadata exists, silently ignoring it
+    would recreate the exact wrong-plane failure the manifest prevents.
+
+    :param path: a merged folder, or a ``.npy`` file inside one (its parent
+        folder is used); the ``.spacr_plane_layout.json`` sidecar is read
+        from that folder.
+    """
+    folder = os.path.dirname(path) if str(path).endswith('.npy') else path
+    manifest = os.path.join(os.fspath(folder), MERGED_LAYOUT_SIDECAR)
+    if not os.path.exists(manifest):
+        return None
+    try:
+        with open(manifest, 'r', encoding='utf-8') as handle:
+            layout = json.load(handle)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise CorruptMergedFile(
+            f"cannot read merged plane layout {manifest}: {exc}") from exc
+    if not isinstance(layout, dict) or layout.get('version') != 1:
+        raise CorruptMergedFile(
+            f"unsupported merged plane layout in {manifest}: expected "
+            "an object with version 1")
+    order = layout.get('mask_plane_order')
+    raw_dims = layout.get('mask_dims')
+    channels = layout.get('intensity_channels')
+    if not isinstance(order, list) or not isinstance(raw_dims, dict) or not isinstance(channels, list):
+        raise CorruptMergedFile(
+            f"invalid merged plane layout in {manifest}: expected "
+            "intensity_channels list, mask_plane_order list and mask_dims object")
+    if len(order) != len(set(order)) or any(
+            role not in SEGMENTED_ROLES for role in order):
+        raise CorruptMergedFile(
+            f"invalid mask_plane_order in {manifest}: {order!r}")
+    dims: Dict[str, int] = {}
+    for role in order:
+        value = raw_dims.get(role)
+        if isinstance(value, bool):
+            raise CorruptMergedFile(
+                f"invalid mask dim for {role!r} in {manifest}: {value!r}")
+        try:
+            dims[role] = int(value)
+        except (TypeError, ValueError) as exc:
+            raise CorruptMergedFile(
+                f"invalid mask dim for {role!r} in {manifest}: {value!r}") from exc
+    expected = {
+        role: len(channels) + index for index, role in enumerate(order)}
+    if dims != expected or set(raw_dims) != set(order):
+        raise CorruptMergedFile(
+            f"inconsistent mask dims in {manifest}: got {raw_dims!r}, "
+            f"expected {expected!r} from its channel count and order")
+    return {**layout, 'mask_dims': dims}
+
+
+def reconcile_merged_mask_dims(
+        settings: Mapping[str, Any], merged_folder: str,
+        *, explicit_keys: Iterable[str] = ()) -> Dict[str, Any]:
+    """Apply a plane manifest and reject explicit conflicting mask indices.
+
+    A manifest is authoritative for the folder it accompanies. Defaults are
+    replaced automatically; a non-``None`` value the caller explicitly
+    supplied must agree or the run stops before measuring a wrong plane.
+    Legacy folders without a manifest return an unchanged copy.
+
+    Every organelle slot the manifest records gets its plane, and every
+    slot ``settings`` carries is set to the manifest's answer. A slot that
+    neither names is left out of the copy rather than set to ``None``.
+    The cell, nucleus and pathogen keys are always set, so a plane the
+    manifest does not record is switched off.
+
+    :param settings: the run settings; its ``<role>_mask_dim`` keys are read
+        and a copy with those keys reconciled is returned (the mapping itself
+        is not modified).
+    :param merged_folder: the merged folder whose plane-layout manifest is
+        applied.
+    :param explicit_keys: settings keys the caller supplied explicitly; a
+        non-``None`` value under one of these that disagrees with the manifest
+        raises ``PlaneLayoutConflict``.
+    """
+    out = dict(settings)
+    layout = read_merged_plane_layout(merged_folder)
+    if layout is None:
+        return out
+    explicit = set(explicit_keys)
+    dims = layout['mask_dims']
+    for role in SEGMENTED_ROLES:
+        key = f'{role}_mask_dim'
+        requested = settings.get(key)
+        expected = dims.get(role)
+        if (expected is None and key not in settings
+                and role in ORGANELLE_ROLES):
+            continue
+        if key in explicit and requested is not None:
+            try:
+                requested_dim = int(requested)
+            except (TypeError, ValueError) as exc:
+                raise PlaneLayoutConflict(
+                    f"{key}={requested!r} is not a plane index") from exc
+            if requested_dim != expected:
+                raise PlaneLayoutConflict(
+                    f"{key}={requested_dim} conflicts with "
+                    f"{os.path.join(merged_folder, MERGED_LAYOUT_SIDECAR)}, "
+                    f"which records {expected!r}. Refusing to measure a "
+                    "possibly wrong image plane. "
+                    f"Set {key} to {expected!r} in Measure settings "
+                    "(None means this object is absent), or choose the "
+                    "merged folder that belongs to these settings. "
+                    "Do not change the plane-layout file to bypass this check.")
+        out[key] = expected
+    return out
+
+
+
+def _rescale_intensity(image, in_range, out_range):
+    """``skimage.exposure.rescale_intensity`` for explicit 2-tuple ranges.
+
+    Returns float64 (skimage returns float when ``out_range`` is a pair of
+    values), so the caller is responsible for the cast back to the image dtype
+    -- exactly as ``normalize_to_dtype`` does via slice assignment.
+    """
+    imin, imax = float(in_range[0]), float(in_range[1])
+    omin, omax = float(out_range[0]), float(out_range[1])
+    image = np.clip(image, imin, imax)
+    if imin != imax:
+        image = (image - imin) / (imax - imin)
+        return image * (omax - omin) + omin
+    return np.clip(image, omin, omax)
+
+
+#: The percentile pair spaCR stretches a crop between when nothing else is
+#: asked for. The same pair `_normalize_to_dtype` defaults to and the same
+#: pair the annotator ships in `percentiles`, named once so the parser's
+#: fallback and every panel's starting value cannot drift apart.
+DEFAULT_PERCENTILES: Tuple[float, float] = (2.0, 98.0)
+
+#: What separates the two halves of a percentile pair, in every spelling one
+#: has ever arrived in. A pair is TWO NUMBERS, however it was written:
+#: `[2, 98]` from a settings CSV, `(2, 98)` from the annotator's own
+#: defaults, `2,98` typed into a box, `[1 99]` typed into the same box by
+#: somebody who used a space, and `2;98` from a locale that separates lists
+#: with semicolons.
+_PAIR_SEPARATORS = re.compile(r"[\s,;]+")
+
+
+def percentile_pair(value, default=DEFAULT_PERCENTILES) -> Tuple[float, float]:
+    """Parse a percentile range and return ``(low, high)``.
+
+    :param value: two numbers or a string representation separated by spaces,
+        commas or semicolons.
+    :param default: range returned when two numeric values cannot be parsed.
+    :returns: two floats in ascending order, clipped to ``[0, 100]``.
+
+    This parser treats the values as percentiles rather than channel indices;
+    numeric values such as ``0``, ``1`` and ``2`` therefore retain their
+    literal meaning.
+    """
+    parts = None
+    if value is None or isinstance(value, bool):
+        parts = None
+    elif isinstance(value, str):
+        text = value.strip()
+        if text.startswith(("[", "(")) and text.endswith(("]", ")")):
+            text = text[1:-1]
+        parts = [p for p in _PAIR_SEPARATORS.split(text.strip()) if p]
+    else:
+        try:
+            parts = [p for p in value]
+        except TypeError:
+            parts = None
+    if not parts or len(parts) < 2:
+        return (float(default[0]), float(default[1]))
+    try:
+        low = float(str(parts[0]).strip().strip("'\""))
+        high = float(str(parts[1]).strip().strip("'\""))
+    except (TypeError, ValueError):
+        return (float(default[0]), float(default[1]))
+    low, high = min(low, high), max(low, high)
+    return (max(0.0, min(100.0, low)), max(0.0, min(100.0, high)))
+
+
+def _normalize_to_dtype(array, p1=2, p2=98, percentile_list=None):
+    """Clone of :func:`spacr.utils.normalize_to_dtype` with ``new_dtype=None``.
+
+    The PNG path only ever calls it that way, so the output range is always
+    ``(0, iinfo(array.dtype).max)`` and the result keeps the input dtype.
+    """
+    out_range = (0, np.iinfo(array.dtype).max)
+    nimg = array.shape[2]
+    new_stack = np.empty_like(array, dtype=array.dtype)
+    for i in range(nimg):
+        img = array[:, :, i]
+        non_zero_img = img[img > 0]
+        if percentile_list is None:
+            if non_zero_img.size > 0:
+                img_min = np.percentile(non_zero_img, p1)
+                img_max = np.percentile(non_zero_img, p2)
+            else:
+                img_min = np.percentile(img, p1)
+                img_max = np.percentile(img, p2)
+        else:
+            img_min, img_max = percentile_list[i][0], percentile_list[i][1]
+        new_stack[:, :, i] = _rescale_intensity(img, (img_min, img_max), out_range)
+    return new_stack
+
+
+def _get_percentiles(array, p1=2, p2=98):
+    """Clone of :func:`spacr.utils._get_percentiles` (per-channel, nonzero pixels)."""
+    percentiles = []
+    for v in range(array.shape[2]):
+        img = np.squeeze(array[:, :, v])
+        non_zero_img = img[img > 0]
+        if non_zero_img.size > 0:
+            percentiles.append([np.percentile(non_zero_img, p1),
+                                np.percentile(non_zero_img, p2)])
+        else:
+            percentiles.append([np.percentile(img, p1),
+                                np.percentile(img, p2)])
+    return percentiles
+
+
+def _binary_dilate(region, iterations):
+    """``scipy.ndimage.binary_dilation`` with a full 3x3 structuring element.
+
+    Equivalent to ``binary_dilation(region, structure=generate_binary_structure(2, 2),
+    iterations=iterations)`` for ``iterations >= 1``: each pass ORs the 8-neighbourhood,
+    with the outside of the array treated as background.
+
+    ``iterations <= 0`` is *not* handled here -- scipy interprets that as "repeat
+    until nothing changes", which fills the whole array. The caller special-cases
+    it so the quirk is visible rather than buried (see :func:`_region_for`).
+    """
+    out = np.asarray(region, dtype=bool)
+    for _ in range(int(iterations)):
+        acc = out.copy()
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dy == 0 and dx == 0:
+                    continue
+                shifted = np.zeros_like(out)
+                ys_dst = slice(max(0, dy), out.shape[0] + min(0, dy))
+                ys_src = slice(max(0, -dy), out.shape[0] + min(0, -dy))
+                xs_dst = slice(max(0, dx), out.shape[1] + min(0, dx))
+                xs_src = slice(max(0, -dx), out.shape[1] + min(0, -dx))
+                shifted[ys_dst, xs_dst] = out[ys_src, xs_src]
+                acc |= shifted
+        out = acc
+    return out
+
+
+
+@dataclass(frozen=True)
+class CropSpec:
+    """Everything needed to reproduce one crop, byte for byte.
+
+    The field names mirror the ``measure_crop`` settings that drive the PNG
+    path, so a spec can be built straight from a saved settings snapshot
+    (:func:`crop_spec_from_settings`).
+
+    :param merged_path: path to the ``merged/<fov>.npy`` the object lives in.
+    :param object_type: ``'cell'`` | ``'nucleus'`` | ``'pathogen'`` |
+        ``'organelle'`` | ``'cytoplasm'`` -- selects the mask plane
+        (``measure_crop``'s ``crop_mode``).
+    :param label: the object's integer label in that mask plane
+        (``object_label`` in ``measurements.db``). ``0`` is background and is
+        always an error.
+    :param channels: intensity plane indices, in output order
+        (``measure_crop``'s ``png_dims``).
+    :param size: ``(width, height)`` of the crop (``measure_crop``'s ``png_size``).
+        Note the width-first order -- that is the PNG path's convention.
+    :param mask_dims: object type -> plane index. ``None`` uses
+        :data:`DEFAULT_MASK_DIMS`.
+    :param use_bounding_box: crop the object's padded bounding box instead of
+        its exact outline (``measure_crop``'s ``use_bounding_box``). The pad is
+        hard-coded to 10 px in the PNG path; :attr:`bbox_buffer` mirrors it.
+    :param bbox_buffer: pad added around the bounding box, in pixels.
+    :param bbox: optional pre-computed ``(y0, y1, x0, x1)`` half-open bounding
+        box (skimage ``regionprops`` convention) for this label, e.g. read from
+        a database column. When given, the mask plane is never scanned to find
+        the object, only the window is read.
+    :param dilate: dilate the region before cropping (``dialate_pngs``).
+    :param dilate_ratio: dilation radius as a fraction of ``sqrt(area)``
+        (``dialate_png_ratios``).
+    :param normalize: ``False`` (the shipped default) reproduces the PNG path's
+        fallback of a full 0-100 percentile stretch; a ``(p1, p2)`` pair
+        reproduces the configured stretch.
+    :param normalize_by: ``'png'`` (percentiles from the crop) or ``'fov'``
+        (percentiles from the whole field before cropping).
+    """
+
+    merged_path: str
+    object_type: str = "cell"
+    label: int = 0
+    channels: Tuple[int, ...] = (0, 1, 2)
+    size: Tuple[int, int] = (224, 224)
+    mask_dims: Optional[Mapping[str, int]] = None
+    use_bounding_box: bool = False
+    bbox_buffer: int = 10
+    bbox: Optional[Tuple[int, int, int, int]] = None
+    dilate: bool = False
+    dilate_ratio: float = 0.2
+    normalize: Union[bool, Sequence[float], None] = False
+    normalize_by: str = "png"
+
+    def __post_init__(self):
+        """Normalize integer fields and reject unsupported crop options.
+
+        :raises CropError: If ``object_type`` or ``normalize_by`` is
+            unsupported.
+        """
+        object.__setattr__(self, "channels", tuple(int(c) for c in self.channels))
+        w, h = self.size
+        object.__setattr__(self, "size", (int(w), int(h)))
+        object.__setattr__(self, "label", int(self.label))
+        if self.bbox is not None:
+            object.__setattr__(self, "bbox", tuple(int(v) for v in self.bbox))
+        if self.object_type not in OBJECT_TYPES:
+            from .schema import object_type_summary
+
+            raise CropError(
+                f"unknown object_type {self.object_type!r}; expected one of "
+                f"{object_type_summary(OBJECT_TYPES)}")
+        if self.normalize_by not in ("png", "fov"):
+            raise CropError(
+                f"normalize_by must be 'png' or 'fov', got {self.normalize_by!r}")
+
+    def with_(self, **kwargs) -> "CropSpec":
+        """Return a copy of this spec with ``kwargs`` replaced."""
+        return replace(self, **kwargs)
+
+
+
+class _LabelIndex:
+    """Per-label bounding box, pixel count and centroid for one mask plane.
+
+    Built with a single vectorised pass over the plane, then cached on the
+    :class:`MergedField`. A grid drawing 100 objects out of one field therefore
+    scans the plane once, not 100 times.
+    """
+
+    __slots__ = ("labels", "_pos", "ymin", "ymax", "xmin", "xmax",
+                 "count", "_ysum", "_xsum", "shape")
+
+    def __init__(self, mask: np.ndarray):
+        """Build compact per-label geometry from a two-dimensional mask.
+
+        :param mask: a 2-D label image. Scanned ONCE, vectorised, and the
+            result cached on the field -- which is the whole point: a grid
+            drawing 100 objects out of one field must not scan the plane
+            100 times. TWO-DIMENSIONAL ONLY: a 3-D array fails on the
+            unpack below rather than being measured plane by plane.
+        """
+        self.shape = (int(mask.shape[0]), int(mask.shape[1]))
+        ys, xs = np.nonzero(mask)
+        if ys.size == 0:
+            self.labels = np.zeros(0, dtype=np.int64)
+            self._pos = {}
+            empty_i = np.zeros(0, dtype=np.int64)
+            empty_f = np.zeros(0, dtype=np.float64)
+            self.ymin = self.ymax = self.xmin = self.xmax = self.count = empty_i
+            self._ysum = self._xsum = empty_f
+            return
+        vals = np.asarray(mask)[ys, xs]
+        order = np.argsort(vals, kind="stable")
+        v = vals[order]
+        y = ys[order].astype(np.int64, copy=False)
+        x = xs[order].astype(np.int64, copy=False)
+        uniq, starts, counts = np.unique(v, return_index=True, return_counts=True)
+        self.labels = uniq.astype(np.int64, copy=False)
+        self.ymin = np.minimum.reduceat(y, starts)
+        self.ymax = np.maximum.reduceat(y, starts)
+        self.xmin = np.minimum.reduceat(x, starts)
+        self.xmax = np.maximum.reduceat(x, starts)
+        self._ysum = np.add.reduceat(y.astype(np.float64), starts)
+        self._xsum = np.add.reduceat(x.astype(np.float64), starts)
+        self.count = counts.astype(np.int64, copy=False)
+        self._pos = {int(lbl): i for i, lbl in enumerate(self.labels)}
+
+    def __contains__(self, label: int) -> bool:
+        """Return whether ``label`` occurs among nonbackground mask pixels."""
+        return int(label) in self._pos
+
+    def _index(self, label: int) -> int:
+        """Return the compact-array offset for ``label``.
+
+        :raises LabelMissing: If the label is absent from the mask.
+        """
+        try:
+            return self._pos[int(label)]
+        except KeyError:
+            raise LabelMissing(
+                f"label {label} is not present in this mask plane "
+                f"({len(self._pos)} labels available)") from None
+
+    def bbox(self, label: int) -> Tuple[int, int, int, int]:
+        """Return the half-open ``(y0, y1, x0, x1)`` bounding box of ``label``.
+
+        Half-open (``y1``/``x1`` exclusive) to match skimage ``regionprops.bbox``,
+        which is what a database column would hold.
+
+        :param label: the object's integer label in this plane. The index is
+            built from the plane's non-zero pixels, so background (``0``) is
+            never in it, and a label the plane does not hold raises
+            :class:`LabelMissing` rather than returning an empty box.
+        """
+        i = self._index(label)
+        return (int(self.ymin[i]), int(self.ymax[i]) + 1,
+                int(self.xmin[i]), int(self.xmax[i]) + 1)
+
+    def area(self, label: int) -> int:
+        """Return the pixel count of ``label``.
+
+        :param label: the object's integer label; one the plane does not hold
+            raises :class:`LabelMissing`. The count is of the label's own
+            pixels in the mask plane, not of the dilated or bounding-box
+            region the crop may end up covering.
+        """
+        return int(self.count[self._index(label)])
+
+    def centroid(self, label: int) -> Tuple[float, float]:
+        """Return the ``(row, col)`` centroid of ``label``.
+
+        :param label: the object's integer label; one the plane does not hold
+            raises :class:`LabelMissing`. The centroid is the unweighted mean
+            of that label's pixel coordinates -- what
+            ``scipy.ndimage.center_of_mass`` computes on the binary region --
+            so the intensity channels never move it.
+        """
+        i = self._index(label)
+        n = float(self.count[i])
+        return (float(self._ysum[i]) / n, float(self._xsum[i]) / n)
+
+
+
+class MergedField:
+    """A memory-mapped ``merged/<fov>.npy`` plus its per-plane label indices.
+
+    The array is opened with ``mmap_mode='r'``: cutting one object reads the
+    object's mask plane once (cached) and then only the crop window, never the
+    whole field. A 2048x2048x5 uint16 field is 40 MB; materialising it per
+    object would make an on-demand grid slower than the PNG folder it replaces.
+
+    Only ``shape``, ``dtype``, ``ndim`` and ``__getitem__`` are ever used on the
+    underlying array, so tests can substitute a recording proxy to assert on the
+    access pattern.
+
+    :param path: the ``merged/<fov>.npy`` field on disk.
+    :param array: the opened array. Defaults to memory-mapping ``path``;
+        pass one to substitute a proxy or an already-open handle.
+    :param mask_dims: which channel of the field holds each object's mask,
+        as ``{object: plane index}``. Defaults to the layout recorded beside
+        the file, and to ``DEFAULT_MASK_DIMS`` when the file records none.
+    :raises CorruptMergedFile: when the array is not ``(H, W, C)``.
+    """
+
+    def __init__(self, path: str, array=None, mask_dims: Optional[Mapping[str, int]] = None):
+        """Open or adopt a three-dimensional field and resolve its mask layout."""
+        self.path = os.fspath(path)
+        if mask_dims is None:
+            layout = read_merged_plane_layout(self.path)
+            mask_dims = (layout or {}).get('mask_dims')
+        self.mask_dims = (dict(mask_dims) if mask_dims
+                          else dict(DEFAULT_MASK_DIMS))
+        if array is None:
+            array = _load_mmap(self.path)
+        if getattr(array, "ndim", None) != 3:
+            raise CorruptMergedFile(
+                f"{self.path}: expected an (H, W, C) array, got shape "
+                f"{getattr(array, 'shape', None)!r}")
+        self.array = array
+        self._indices: Dict[int, _LabelIndex] = {}
+        self._derived: Dict[str, np.ndarray] = {}
+
+    @property
+    def shape(self) -> Tuple[int, int, int]:
+        """Return the ``(H, W, C)`` shape of the merged array."""
+        return tuple(int(v) for v in self.array.shape)
+
+    @property
+    def dtype(self):
+        """Return the on-disk dtype of the merged array."""
+        return self.array.dtype
+
+    @property
+    def crop_dtype(self):
+        """Return the dtype crops are cut in.
+
+        ``_measure_crop_core`` promotes anything that is not ``uint8``/``uint16``
+        to ``uint16`` before cropping; this mirrors that.
+        """
+        dt = self.array.dtype
+        return dt if dt in (np.dtype(np.uint8), np.dtype(np.uint16)) else np.dtype(np.uint16)
+
+    def mask_dim(self, object_type: str) -> int:
+        """Return the plane index holding ``object_type``'s labels.
+
+        :param object_type: one of :data:`MASK_PLANE_ORDER` -- ``'cell'``,
+            ``'nucleus'``, ``'pathogen'``, ``'organelle'``. ``'cytoplasm'``
+            is refused rather than defaulted: it has no plane on disk, so
+            :meth:`mask_plane` is the only way to get it. The index comes
+            from this field's ``mask_dims``, not from the array, so a
+            settings dict that names a plane the array does not have fails
+            here rather than silently cropping by the wrong stain.
+        :raises MaskPlaneMissing: if the type has no plane, or the recorded
+            plane index is out of range for this array.
+        """
+        if object_type == "cytoplasm":
+            raise MaskPlaneMissing(
+                "cytoplasm has no plane on disk; it is derived from cell minus "
+                "nucleus/pathogen/organelle -- use mask_plane('cytoplasm')")
+        dim = self.mask_dims.get(object_type)
+        if dim is None:
+            raise MaskPlaneMissing(
+                f"{self.path}: no mask plane recorded for object_type "
+                f"{object_type!r} (known: {sorted(k for k, v in self.mask_dims.items() if v is not None)})")
+        dim = int(dim)
+        if not 0 <= dim < self.shape[2]:
+            raise MaskPlaneMissing(
+                f"{self.path}: mask plane {dim} for {object_type!r} is out of "
+                f"range for an array with {self.shape[2]} planes")
+        return dim
+
+    def mask_plane(self, object_type: str) -> np.ndarray:
+        """Return the 2-D label plane for ``object_type`` as a real array.
+
+        ``'cytoplasm'`` is derived on the fly -- ``measure_crop`` computes it as
+        the cell mask with every nucleus / pathogen / organelle pixel zeroed and
+        never writes it back to the merged file.
+
+        :param object_type: ``'cell'`` | ``'nucleus'`` | ``'pathogen'`` |
+            ``'organelle'`` come back as a view on the memory-mapped array, so
+            nothing is read off disk until pixels are touched.
+            ``'cytoplasm'`` is the derived plane and costs a full pass over
+            the field to build, so it is cached on this field and every later
+            call is free.
+        """
+        if object_type != "cytoplasm":
+            return np.asarray(self.array[:, :, self.mask_dim(object_type)])
+        if "cytoplasm" in self._derived:
+            return self._derived["cytoplasm"]
+        cell = np.asarray(self.array[:, :, self.mask_dim("cell")])
+        interior = np.zeros(cell.shape, dtype=bool)
+        for other in ("nucleus", "pathogen", *ORGANELLE_ROLES):
+            if self.mask_dims.get(other) is None:
+                continue
+            try:
+                dim = self.mask_dim(other)
+            except MaskPlaneMissing:
+                continue
+            interior |= np.asarray(self.array[:, :, dim]) != 0
+        cyto = np.where(interior, 0, cell)
+        self._derived["cytoplasm"] = cyto
+        return cyto
+
+    def label_index(self, object_type: str) -> _LabelIndex:
+        """Return the cached :class:`_LabelIndex` for ``object_type``'s plane.
+
+        :param object_type: which plane to index. The cache is keyed on the
+            plane index (``'cytoplasm'`` gets its own key, since it has no
+            plane on disk), so two object types recorded at the same
+            ``mask_dim`` share one index. The scan happens on first use and
+            is kept for the life of the field, which is what makes drawing
+            many objects out of one field a single pass over the plane.
+        """
+        key = -1 if object_type == "cytoplasm" else self.mask_dim(object_type)
+        idx = self._indices.get(key)
+        if idx is None:
+            idx = _LabelIndex(self.mask_plane(object_type))
+            self._indices[key] = idx
+        return idx
+
+    def labels(self, object_type: str = "cell") -> List[int]:
+        """Return every non-zero label present in ``object_type``'s plane.
+
+        :param object_type: which plane to list; defaults to ``'cell'``
+            because that is the plane every spaCR run has. Labels come back
+            in ascending order, background (``0``) is never among them, and
+            an empty list means the plane holds no objects at all -- not that
+            the plane is missing, which raises instead.
+        """
+        return [int(v) for v in self.label_index(object_type).labels]
+
+    def read_window(self, y0: int, y1: int, x0: int, x1: int,
+                    channels: Sequence[int], dtype=None) -> np.ndarray:
+        """Read ``channels`` over ``[y0:y1, x0:x1]``, zero-padding outside the array.
+
+        The window may run off any edge; the out-of-array part comes back as
+        zeros, which is what the PNG path's ``np.pad`` produces.
+
+        :param y0: first row of the window. May be negative -- that part is
+            padded, not clamped, so the object stays centred in the result.
+        :param y1: one past the last row (half-open). May exceed the field
+            height; the overhang is padded the same way.
+        :param x0: first column, negative allowed as for ``y0``.
+        :param x1: one past the last column, over-wide allowed as for ``y1``.
+        :param channels: plane indices in output order -- result channel
+            ``k`` holds plane ``channels[k]``, and repeating an index
+            repeats the plane. Each must satisfy ``0 <= c < C``; negative
+            indices are rejected rather than wrapped, so ``-1`` is an error
+            and not "the last plane". An empty sequence yields an
+            ``(h, w, 0)`` array here; :func:`extract_crop` rejects it first.
+        :param dtype: dtype of the returned array. ``None`` uses
+            :attr:`crop_dtype`, i.e. what the PNG path would have cropped in;
+            pass one explicitly only to match an array you already hold.
+        """
+        dtype = self.crop_dtype if dtype is None else np.dtype(dtype)
+        H, W, C = self.shape
+        for c in channels:
+            if not 0 <= int(c) < C:
+                raise CropError(
+                    f"{self.path}: channel {c} out of range for an array with "
+                    f"{C} planes")
+        out = np.zeros((int(y1 - y0), int(x1 - x0), len(channels)), dtype=dtype)
+        sy0, sy1 = max(0, int(y0)), min(H, int(y1))
+        sx0, sx1 = max(0, int(x0)), min(W, int(x1))
+        if sy1 > sy0 and sx1 > sx0:
+            dy, dx = sy0 - int(y0), sx0 - int(x0)
+            for k, c in enumerate(channels):
+                sub = np.asarray(self.array[sy0:sy1, sx0:sx1, int(c)])
+                out[dy:dy + (sy1 - sy0), dx:dx + (sx1 - sx0), k] = sub.astype(dtype, copy=False)
+        return out
+
+    def read_mask_window(self, object_type: str, y0: int, y1: int,
+                         x0: int, x1: int) -> np.ndarray:
+        """Read ``object_type``'s label plane over ``[y0:y1, x0:x1]``, zero-padded.
+
+        :param object_type: which label plane to read; ``'cytoplasm'`` is
+            served from the derived (and cached) plane, every other type
+            straight off the memory map.
+        :param y0: first row; may be negative, and the overhang comes back as
+            zeros -- which reads as background, so no label ever appears to
+            run past the edge of the field.
+        :param y1: one past the last row (half-open); may exceed the field
+            height, padded as for ``y0``.
+        :param x0: first column, negative allowed as for ``y0``.
+        :param x1: one past the last column, over-wide allowed as for ``y1``.
+        """
+        H, W, _ = self.shape
+        if object_type == "cytoplasm":
+            plane = self.mask_plane("cytoplasm")
+            out = np.zeros((int(y1 - y0), int(x1 - x0)), dtype=plane.dtype)
+            sy0, sy1 = max(0, int(y0)), min(H, int(y1))
+            sx0, sx1 = max(0, int(x0)), min(W, int(x1))
+            if sy1 > sy0 and sx1 > sx0:
+                out[sy0 - int(y0):sy1 - int(y0), sx0 - int(x0):sx1 - int(x0)] = \
+                    plane[sy0:sy1, sx0:sx1]
+            return out
+        dim = self.mask_dim(object_type)
+        out = np.zeros((int(y1 - y0), int(x1 - x0)), dtype=self.array.dtype)
+        sy0, sy1 = max(0, int(y0)), min(H, int(y1))
+        sx0, sx1 = max(0, int(x0)), min(W, int(x1))
+        if sy1 > sy0 and sx1 > sx0:
+            out[sy0 - int(y0):sy1 - int(y0), sx0 - int(x0):sx1 - int(x0)] = \
+                np.asarray(self.array[sy0:sy1, sx0:sx1, dim])
+        return out
+
+
+def _load_mmap(path: str):
+    """``np.load(path, mmap_mode='r')`` with spaCR-shaped error messages."""
+    if not os.path.isfile(path):
+        raise MergedFileMissing(f"merged array not found: {path}")
+    try:
+        arr = np.load(path, mmap_mode="r", allow_pickle=False)
+    except Exception as exc:
+        raise CorruptMergedFile(f"{path}: cannot read as .npy ({exc})") from exc
+    if not hasattr(arr, "shape") or getattr(arr, "ndim", 0) != 3:
+        raise CorruptMergedFile(
+            f"{path}: expected an (H, W, C) array, got shape "
+            f"{getattr(arr, 'shape', None)!r}")
+    return arr
+
+
+_FIELD_CACHE: "OrderedDict[Tuple[str, int, int], MergedField]" = OrderedDict()
+_FIELD_CACHE_MAX = 8
+_FIELD_CACHE_USED: "Dict[Tuple[str, int, int], float]" = {}
+
+
+def clear_field_cache() -> None:
+    """Drop every cached :class:`MergedField` (and its label indices)."""
+    _FIELD_CACHE.clear()
+    _FIELD_CACHE_USED.clear()
+
+
+def _merged_field_cache_bytes(field: MergedField) -> int:
+    """Bytes addressable through a cached field, counted without reading it.
+
+    A merged array is memory-mapped, so ``nbytes`` describes the mapping
+    without faulting its pages into RAM.  Derived masks and label indices are
+    ordinary arrays and are added once each.  This is deliberately an
+    accounting measurement, not an RSS guess: RSS includes shared pages and
+    allocator state that this one cache cannot honestly claim to own.
+    """
+    arrays = [getattr(field, "array", None)]
+    arrays.extend(getattr(field, "_derived", {}).values())
+    for index in getattr(field, "_indices", {}).values():
+        slots = getattr(type(index), "__slots__", None)
+        held = ([getattr(index, name, None) for name in slots] if slots
+                else list(vars(index).values()))
+        arrays.extend(value for value in held if hasattr(value, "nbytes"))
+    total = 0
+    seen = set()
+    for value in arrays:
+        if value is None or id(value) in seen:
+            continue
+        seen.add(id(value))
+        try:
+            total += max(0, int(value.nbytes))
+        except (AttributeError, TypeError, ValueError):
+            continue
+    return total
+
+
+def cache_budget_entries():
+    """Budget records for the live merged-field cache.
+
+    Each row is ``(opaque key, measured bytes, last-use epoch, in-use)``.
+    Removing a field from this dictionary cannot invalidate a caller that is
+    already using it -- that caller owns its own reference -- so entries are
+    safely evictable here.  The active object itself survives until the caller
+    releases it.
+    """
+    now = time.time()
+    return [
+        (key, _merged_field_cache_bytes(field),
+         float(_FIELD_CACHE_USED.get(key, now)), False)
+        for key, field in list(_FIELD_CACHE.items())
+    ]
+
+
+def drop_cache_budget_entry(key) -> bool:
+    """Evict one merged field selected by the global memory policy."""
+    existed = key in _FIELD_CACHE
+    _FIELD_CACHE.pop(key, None)
+    _FIELD_CACHE_USED.pop(key, None)
+    return existed
+
+
+def _ensure_cache_budget_sweep() -> None:
+    """Start the GUI sweep if resource cleanup was registered before Qt."""
+    cleanup = sys.modules.get("spacr.qt.resource_cleanup")
+    install = getattr(cleanup, "install_budget_sweep", None)
+    if callable(install):
+        install()
+
+
+#: How much of a merged file the cache key fingerprints, from each end.
+#:
+#: THE MTIME IS NOT ENOUGH AND THE FIELD NAME SAYS OTHERWISE. `st_mtime_ns`
+#: reports nanoseconds and no filesystem provides them: the kernel stamps
+#: from a coarse clock, so two writes a fraction of a millisecond apart get
+#: the SAME value. Measured on this box, /tmp, 200 rewrites of one file:
+#: 192 landed on an identical `st_mtime_ns`. Two merged fields of the same
+#: shape also have the same size, so a regenerated file could be served
+#: from the cache with the previous field's pixels --
+#: `test_field_cache_is_keyed_on_file_contents` reproduced exactly that, 8
+#: times in 20 runs, and it is a wrong-pixels bug rather than a slow one.
+#:
+#: 4 KiB from each end, NOT the whole file and not 64 KiB either. A merged
+#: field is hundreds of megabytes and is about to be read anyway, so hashing
+#: all of it to decide whether to read it would cost more than the read.
+#:
+#: THE WINDOW IS PRICED, NOT PICKED. This fingerprint runs on every
+#: `open_merged_field` INCLUDING a cache hit, and `MergedCropSource.get` is
+#: the documented one-row-at-a-time path, so the window is a per-crop tax.
+#: Measured on a 59 MB field with a warm page cache:
+#:
+#:     window      per call     per 100,000 crops
+#:        512 B       7.5 us           0.7 s
+#:      4 KiB        14.2 us           1.4 s
+#:      8 KiB        20.8 us           2.1 s
+#:     64 KiB       121.7 us          12.2 s
+#:
+#: About 7 us of that is the open and the seeks and is paid at any size, so
+#: 64 KiB bought 8x the bytes for 9x the time over 4 KiB. The first version
+#: of this used 64 KiB, chosen rather than measured, and took the cache-hit
+#: path from 1.2 us to 128 us -- a 90x regression on the hot path, to fix a
+#: correctness bug that 4 KiB fixes just as well.
+#:
+#: WHAT THE WINDOW IS FOR, which is why 4 KiB is enough: mtime and size
+#: still carry the discrimination. The fingerprint only has to break ties
+#: between two files of THE SAME SIZE written within one clock granule of
+#: each other, and 8 KiB of content settles that for any real field. A
+#: regeneration that changes neither the first nor the last 4 KiB, and keeps
+#: the size, is still served stale -- that is the bound, stated here rather
+#: than left to be discovered.
+#:
+#: STILL EXPENSIVE ON THE PER-ROW PATH at 1.4 s per 100,000 crops. The real
+#: fix there is for `MergedCropSource` to hold its field rather than
+#: re-resolve it by path per row; that is a caller change and is not this
+#: one.
+_CACHE_FINGERPRINT_BYTES = 4 * 1024
+
+
+def _content_fingerprint(path: str, size: int) -> str:
+    """A cheap digest of ``path``'s first and last bytes.
+
+    :param path: the file to sample.
+    :param size: its size in bytes, already stat-ed by the caller.
+    :returns: a hex digest, or ``None`` if the file cannot be read. ``None``
+        means "cannot verify", which :func:`open_merged_field` answers by
+        reusing a cached field whose path, mtime and size still match --
+        the mapping it holds is unaffected by our failure to re-read the
+        first few kilobytes.
+    """
+    window = min(int(size), _CACHE_FINGERPRINT_BYTES)
+    digest = hashlib.blake2b(digest_size=16)
+    try:
+        with open(path, "rb") as handle:
+            digest.update(handle.read(window))
+            if size > window:
+                handle.seek(-window, os.SEEK_END)
+                digest.update(handle.read(window))
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
+def _cache_key(path: str) -> Tuple[str, int, int, str]:
+    """Return absolute path, mtime, size and a content fingerprint.
+
+    :raises MergedFileMissing: If the path cannot be inspected.
+    """
+    try:
+        st = os.stat(path)
+    except OSError as exc:
+        raise MergedFileMissing(f"merged array not found: {path}") from exc
+    size = int(st.st_size)
+    return (os.path.abspath(path), int(st.st_mtime_ns), size,
+            _content_fingerprint(path, size))
+
+
+def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
+                      use_cache: bool = True) -> MergedField:
+    """Return a :class:`MergedField` for ``path``, reusing a cached one if possible.
+
+    :param path: the ``merged/<fov>.npy``.
+    :param mask_dims: object type -> plane index; ``None`` uses
+        :data:`DEFAULT_MASK_DIMS`.
+    :param use_cache: set False to force a fresh open (and a fresh label index).
+    :raises MergedFileMissing: the file does not exist.
+    :raises CorruptMergedFile: the file is not a readable 3-D ``.npy``.
+    """
+    if mask_dims is None:
+        layout = read_merged_plane_layout(path)
+        mask_dims = (layout or {}).get('mask_dims')
+    dims = (dict(mask_dims) if mask_dims
+            else dict(DEFAULT_MASK_DIMS))
+    if not use_cache:
+        return MergedField(path, mask_dims=dims)
+    key = _cache_key(path)
+    cached = _FIELD_CACHE.get(key)
+    if cached is None and key[3] is None:
+        for other, field in _FIELD_CACHE.items():
+            if other[:3] == key[:3]:
+                cached, key = field, other
+                break
+    if cached is not None and cached.mask_dims == dims:
+        _FIELD_CACHE.move_to_end(key)
+        _FIELD_CACHE_USED[key] = time.time()
+        return cached
+    fld = MergedField(path, mask_dims=dims)
+    if len(_FIELD_CACHE) >= _FIELD_CACHE_MAX:
+        oldest, _ = _FIELD_CACHE.popitem(last=False)
+        _FIELD_CACHE_USED.pop(oldest, None)
+    _FIELD_CACHE[key] = fld
+    _FIELD_CACHE_USED[key] = time.time()
+    _ensure_cache_budget_sweep()
+    return fld
+
+
+
+def _region_for(fld: MergedField, spec: CropSpec):
+    """Return ``(centroid_yx, region_bounds, region_mask)``.
+
+    ``region_mask`` is always the boolean region restricted to
+    ``region_bounds``. Bounding-box dilation is based on the number of pixels,
+    independent of the object's integer label. A dilation radius that rounds
+    down to zero is skipped, because ``scipy.ndimage.binary_dilation`` assigns
+    a different, surprising meaning to ``iterations=0`` (dilate to stability).
+    """
+    H, W, _ = fld.shape
+    idx = None
+    if spec.bbox is not None:
+        by0, by1, bx0, bx1 = spec.bbox
+        if not (0 <= by0 < by1 <= H and 0 <= bx0 < bx1 <= W):
+            raise CropError(
+                f"{fld.path}: bbox {spec.bbox} runs outside the "
+                f"{H}x{W} field")
+    else:
+        idx = fld.label_index(spec.object_type)
+        by0, by1, bx0, bx1 = idx.bbox(spec.label)
+
+    if spec.use_bounding_box:
+        ry0 = max(by0 - spec.bbox_buffer, 0)
+        ry1 = min(by1 - 1 + spec.bbox_buffer, H - 1) + 1
+        rx0 = max(bx0 - spec.bbox_buffer, 0)
+        rx1 = min(bx1 - 1 + spec.bbox_buffer, W - 1) + 1
+        region = np.ones((ry1 - ry0, rx1 - rx0), dtype=bool)
+        area_for_dilation = float(region.size)
+        cy = (ry0 + ry1 - 1) / 2.0
+        cx = (rx0 + rx1 - 1) / 2.0
+    else:
+        ry0, ry1, rx0, rx1 = by0, by1, bx0, bx1
+        window = fld.read_mask_window(spec.object_type, ry0, ry1, rx0, rx1)
+        region = window == spec.label
+        if not region.any():
+            raise LabelMissing(
+                f"{fld.path}: label {spec.label} is not present in the "
+                f"{spec.object_type} mask plane")
+        area_for_dilation = float(region.sum())
+        if idx is not None:
+            cy, cx = idx.centroid(spec.label)
+        else:
+            ys, xs = np.nonzero(region)
+            cy = float(ys.astype(np.int64).sum()) / ys.size + ry0
+            cx = float(xs.astype(np.int64).sum()) / xs.size + rx0
+
+    if spec.dilate:
+        px = int(np.sqrt(area_for_dilation) * float(spec.dilate_ratio))
+        if px > 0:
+            gy0, gy1 = max(0, ry0 - px), min(H, ry1 + px)
+            gx0, gx1 = max(0, rx0 - px), min(W, rx1 + px)
+            grown = np.zeros((gy1 - gy0, gx1 - gx0), dtype=bool)
+            grown[ry0 - gy0:ry1 - gy0, rx0 - gx0:rx1 - gx0] = region
+            region = _binary_dilate(grown, px)
+            ry0, ry1, rx0, rx1 = gy0, gy1, gx0, gx1
+            ys, xs = np.nonzero(region)
+            cy = float(ys.astype(np.int64).sum()) / ys.size + ry0
+            cx = float(xs.astype(np.int64).sum()) / xs.size + rx0
+
+    centroid = np.round(np.array([cy, cx])).astype(int)
+    return centroid, (ry0, ry1, rx0, rx1), region
+
+
+def _crop_from_field(fld: MergedField, spec: CropSpec) -> np.ndarray:
+    """Cut one crop out of an already-open field. See :func:`extract_crop`."""
+    if spec.label == 0:
+        raise LabelMissing(
+            "label 0 is background, not an object; pass the object_label "
+            "recorded in measurements.db")
+    if spec.label < 0:
+        raise LabelMissing(f"label must be a positive integer, got {spec.label}")
+    if not spec.channels:
+        raise CropError("channels is empty; nothing to crop")
+
+    width, height = spec.size
+    if width <= 0 or height <= 0:
+        raise CropError(f"size must be positive, got {spec.size}")
+
+    dtype = fld.crop_dtype
+    centroid, (ry0, ry1, rx0, rx1), region = _region_for(fld, spec)
+
+    wy0 = int(centroid[0]) - height // 2
+    wy1 = wy0 + height
+    wx0 = int(centroid[1]) - width // 2
+    wx1 = wx0 + width
+
+    percentile_list = None
+    if isinstance(spec.normalize, (list, tuple)) and spec.normalize_by == "fov":
+        fov = fld.read_window(0, fld.shape[0], 0, fld.shape[1], spec.channels, dtype)
+        percentile_list = _get_percentiles(fov, spec.normalize[0], spec.normalize[1])
+
+    crop = fld.read_window(wy0, wy1, wx0, wx1, spec.channels, dtype)
+
+    keep = np.zeros((height, width), dtype=bool)
+    oy0, oy1 = max(wy0, ry0), min(wy1, ry1)
+    ox0, ox1 = max(wx0, rx0), min(wx1, rx1)
+    keep[oy0 - wy0:oy1 - wy0, ox0 - wx0:ox1 - wx0] = \
+        region[oy0 - ry0:oy1 - ry0, ox0 - rx0:ox1 - rx0]
+    crop = np.where(keep[:, :, None], crop, 0).astype(dtype, copy=False)
+
+    if isinstance(spec.normalize, (list, tuple)):
+        crop = _normalize_to_dtype(crop, spec.normalize[0], spec.normalize[1],
+                                   percentile_list=percentile_list)
+    else:
+        crop = _normalize_to_dtype(crop, 0, 100)
+
+    if crop.shape[2] == 2:
+        crop = np.dstack((crop, np.zeros_like(crop[:, :, 0])))
+    return crop
+
+
+def extract_crop(merged_path: str, object_type: str = "cell", label: int = 0,
+                 *, spec: Optional[CropSpec] = None, field: Optional[MergedField] = None,
+                 **kwargs) -> np.ndarray:
+    """Cut one object out of a merged array, reproducing the PNG path exactly.
+
+    The returned array is the *pre-write* array: exactly what
+    ``_measure_crop_core`` hands to the writer. Its dtype is the merged
+    array's (``uint16`` for a normal spaCR run) and its channel order is
+    ``spec.channels``. Use :func:`png_view` to get what a consumer reading the
+    written PNG (via :func:`read_crop_png`) would see.
+
+    :param merged_path: the ``merged/<fov>.npy``.
+    :param object_type: which mask plane to crop by.
+    :param label: the object's ``object_label``.
+    :param spec: a ready-made :class:`CropSpec`; ``merged_path`` /
+        ``object_type`` / ``label`` and ``kwargs`` override its fields.
+    :param field: an already-open :class:`MergedField` to cut from.
+    :param kwargs: any other :class:`CropSpec` field.
+    :returns: ``(height, width, n_channels)`` array.
+    :raises MergedFileMissing: the merged file does not exist.
+    :raises CorruptMergedFile: it is not a readable 3-D ``.npy``.
+    :raises MaskPlaneMissing: no plane for ``object_type``.
+    :raises LabelMissing: ``label`` is 0/negative or absent from the plane.
+    :raises CropError: a bad channel index, size, or an out-of-array ``bbox``.
+    """
+    if spec is None:
+        spec = CropSpec(merged_path=merged_path, object_type=object_type,
+                        label=label, **kwargs)
+    else:
+        overrides = dict(kwargs)
+        overrides.setdefault("merged_path", merged_path)
+        if object_type != "cell" or "object_type" in kwargs:
+            overrides.setdefault("object_type", object_type)
+        if label or "label" in kwargs:
+            overrides.setdefault("label", label)
+        spec = replace(spec, **overrides)
+    fld = field if field is not None else open_merged_field(spec.merged_path, spec.mask_dims)
+    return _crop_from_field(fld, spec)
+
+
+def extract_crops(merged_path: str, specs: Iterable[CropSpec],
+                  *, mask_dims: Optional[Mapping[str, int]] = None,
+                  on_error: str = "raise") -> List[Optional[np.ndarray]]:
+    """Cut many objects out of one merged array, opening the file once.
+
+    A grid draws from a handful of fields, so batching matters: the ``.npy`` is
+    memory-mapped once and every object's mask plane is indexed once, no matter
+    how many objects are requested from it.
+
+    :param merged_path: the ``merged/<fov>.npy``; every spec is cut from it,
+        whatever ``spec.merged_path`` says.
+    :param specs: iterable of :class:`CropSpec`.
+    :param mask_dims: object type -> plane index for the whole batch; defaults
+        to the first spec's ``mask_dims``.
+    :param on_error: ``'raise'`` (default) or ``'none'`` to put ``None`` in the
+        result for each failing spec instead of raising.
+    :returns: list of crops, one per spec, in order.
+    """
+    if on_error not in ("raise", "none"):
+        raise ValueError("on_error must be 'raise' or 'none'")
+    specs = list(specs)
+    if not specs:
+        return []
+    dims = mask_dims if mask_dims is not None else specs[0].mask_dims
+    try:
+        fld = open_merged_field(merged_path, dims)
+    except CropError:
+        if on_error == "raise":
+            raise
+        return [None] * len(specs)
+    out: List[Optional[np.ndarray]] = []
+    for spec in specs:
+        try:
+            out.append(_crop_from_field(fld, replace(spec, merged_path=merged_path)))
+        except CropError:
+            if on_error == "raise":
+                raise
+            out.append(None)
+    return out
+
+
+def png_view(crop: np.ndarray) -> np.ndarray:
+    """Return what a consumer sees after the crop has made the PNG round trip.
+
+    Channel ``i`` of the crop is channel ``i`` of the result, narrowed to
+    8 bit by :func:`narrow_to_uint8`.
+
+    That holds because a crop is cut in COLOUR order -- ``CropSpec.channels``
+    is ``(red_source, green_source, blue_source)``, built by
+    :func:`channels_from_settings` from the declared
+    ``png_channel_mapping``. So channel 0 is the red one here, in the file,
+    and in what :func:`read_crop_png` hands back. There is exactly one order
+    and every part of the crop path speaks it.
+
+    The alternative -- keeping crops in ``png_dims`` list order and
+    translating at the edges -- is what made the on-demand source and the
+    PNG folder return different pixels for the same object.
+
+    :func:`read_crop_png` returns exactly this for the same object, for a crop
+    written in either format, which is what makes the on-demand source and the
+    PNG folder interchangeable.
+
+    Before spaCR grew a crop-format marker the answer was the *reverse* of this
+    (see :func:`legacy_png_view`); that was a bug, not a convention.
+
+    :param crop: the array returned by :func:`extract_crop`.
+    :returns: ``(H, W, 3)`` uint8 RGB array.
+    """
+    arr = np.asarray(crop)
+    if arr.ndim == 2:
+        arr = arr[:, :, None]
+    eight = narrow_to_uint8(arr)
+    n = eight.shape[2]
+    if n == 1:
+        return np.repeat(eight, 3, axis=2)
+    if n == 2:
+        rgb = np.zeros((eight.shape[0], eight.shape[1], 3), dtype=np.uint8)
+        rgb[:, :, :2] = eight
+        return rgb
+    return np.ascontiguousarray(eight[:, :, :3])
+
+
+def legacy_png_view(crop: np.ndarray) -> np.ndarray:
+    """Return what a *naive* PIL read of a **legacy** crop PNG gives back.
+
+    Kept, and named for what it is, because it is the inverse of the format-1
+    write and therefore the thing :func:`read_crop_png` has to undo. Two
+    behaviours, both of them the bug:
+
+    * the channel order is reversed relative to ``png_dims`` -- ``cv2.imwrite``
+      read the array as BGR;
+    * a ``uint16`` crop is a 16-bit PNG and PIL narrows it two different ways:
+      the high byte (``// 256``) for an RGB image, but a *clip* at 255 for a
+      single-channel one, which flattens any crop brighter than 255/65535 to
+      solid white.
+
+    Nothing in spaCR calls this on the live path any more. It exists so tests
+    can prove the legacy reader inverts the legacy writer exactly, and so code
+    that genuinely needs bug-compatible pixels (a classifier trained on legacy
+    crops, say) can ask for them by name instead of by accident.
+
+    :param crop: the array returned by :func:`extract_crop`.
+    :returns: ``(H, W, 3)`` uint8 RGB array.
+    """
+    arr = np.asarray(crop)
+    if arr.ndim == 2:
+        arr = arr[:, :, None]
+    n = arr.shape[2]
+    if arr.dtype == np.dtype(np.uint16):
+        if n == 1:
+            eight = np.clip(arr, 0, 255).astype(np.uint8)
+        else:
+            eight = (arr // 256).astype(np.uint8)
+    elif arr.dtype == np.dtype(np.uint8):
+        eight = arr
+    else:
+        eight = np.clip(arr, 0, 255).astype(np.uint8)
+    if n == 1:
+        return np.repeat(eight, 3, axis=2)
+    if n == 2:
+        rgb = np.zeros((arr.shape[0], arr.shape[1], 3), dtype=np.uint8)
+        rgb[:, :, :2] = eight
+        return rgb[:, :, ::-1].copy()
+    return eight[:, :, :3][:, :, ::-1].copy()
+
+
+
+#: NOTE ON ORDER: `CropSpec.channels`, `extract_crop`, `png_view` and
+#: `read_crop_png` are all in COLOUR order (red, green, blue). The only
+#: place list order survives is the legacy `png_dims` setting, and
+#: `channels_from_settings` translates it once, at the edge.
+#:
+#: Format 1: what ``cv2.imwrite(png_channels)`` wrote -- ``png_dims[0]`` in
+#: the file's BLUE slot. Named "legacy BGR" for the array-order reversal that
+#: produced it, but see :data:`_FORMAT_IS_DECLARED_ORDER`: the pixels it left
+#: on disk are in the order the user declared, so it is read back as-is.
+CROP_FORMAT_LEGACY_BGR = 1
+
+#: Legacy RGB format in which ``png_dims[0]`` occupies the file's red slot.
+#: Because the first-listed channel is conventionally the 405/DAPI plane,
+#: this transitional format is reversed when read.
+CROP_FORMAT_RGB = 2
+
+#: Format 3: the file's red, green and blue slots hold exactly the source
+#: channels named by ``settings['png_channel_mapping']``. No interpretation,
+#: no list-position convention: the mapping says which array index is red and
+#: the red slot holds it.
+CROP_FORMAT_DECLARED_RGB = 3
+
+#: The format new crops are written in.
+CROP_FORMAT_CURRENT = CROP_FORMAT_DECLARED_RGB
+
+#: Whether a format's file slots already hold the colours the user declared.
+#:
+#: This, not the format number, is what decides a reversal on read. Formats 1
+#: and 3 agree pixel-for-pixel for the same declared mapping -- they were
+#: produced by different code and arrived at the same bytes -- so reading one
+#: as the other must NOT reverse. Only format 2 is out of step.
+_FORMAT_IS_DECLARED_ORDER = {
+    CROP_FORMAT_LEGACY_BGR: True,
+    CROP_FORMAT_RGB: False,
+    CROP_FORMAT_DECLARED_RGB: True,
+}
+
+#: Sidecar file name, written into each crop folder.
+CROP_FORMAT_SIDECAR = ".spacr_crop_format.json"
+
+#: Column :func:`stamp_crop_format_in_db` adds to ``png_list``.
+CROP_FORMAT_DB_COLUMN = "crop_format"
+
+#: Suffix of the staging file :func:`migrate_crop_folder` converts through.
+#: Its presence means "the file next to me has NOT been converted yet".
+CROP_MIGRATION_SUFFIX = ".spacr_v2"
+
+#: Prefix of the temporary files both the marker and the migrator write.
+_TMP_PREFIX = ".spacr_tmp_"
+
+_CHANNEL_ORDER_NAME = {
+    CROP_FORMAT_LEGACY_BGR: "bgr",
+    CROP_FORMAT_RGB: "rgb",
+    CROP_FORMAT_DECLARED_RGB: "declared_rgb",
+}
+
+#: What the sidecar says about each format, in the words of someone reading it
+#: on disk a year from now with no access to this file.
+_FORMAT_NOTE = {
+    CROP_FORMAT_LEGACY_BGR: (
+        "Written before 2026-07-26. The file's blue channel is png_dims[0], "
+        "which for a 405/488/555 stack is the nuclear stain -- so these "
+        "pixels are already in the order the user declared and spaCR reads "
+        "them as they are."),
+    CROP_FORMAT_RGB: (
+        "Written between 2026-07-26 and 2026-08-06, when png_dims[0] was "
+        "wrongly placed in the file's RED channel. Nuclei appear red in an "
+        "external viewer. spacr.crops.read_crop_png reverses it on load; "
+        "spacr.crops.migrate_crop_folder repairs the file itself."),
+    CROP_FORMAT_DECLARED_RGB: (
+        "The red, green and blue channels hold the source channels named by "
+        "settings['png_channel_mapping']. No list-position convention is "
+        "involved, so there is nothing here to read backwards."),
+}
+
+
+class CropFormatConflict(CropError):
+    """The sidecar and the database disagree about a folder's crop format."""
+
+
+def _utc_now() -> str:
+    """Return an ISO-8601 UTC timestamp for the sidecar."""
+    return datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y-%m-%dT%H:%M:%SZ")
+
+
+def _coerce_format(value: Any) -> Optional[int]:
+    """Return ``value`` as a known crop-format integer, or ``None``."""
+    if value is None:
+        return None
+    try:
+        fmt = int(value)
+    except (TypeError, ValueError):
+        return None
+    return fmt if fmt in _CHANNEL_ORDER_NAME else None
+
+
+
+def narrow_to_uint8(arr: np.ndarray) -> np.ndarray:
+    """Convert ``arr`` to ``uint8`` using the crop-writer convention.
+
+    ``uint16`` (and anything wider) is narrowed by **taking the high byte**,
+    which is a plain linear rescale of a crop that ``normalize_to_dtype``
+    already stretched across the full dtype range. Floats, which only appear
+    when a caller hands in something the crop path never produces, are clipped
+    -- there is no dtype range to rescale from.
+
+    This differs from PIL's format-dependent behaviour: PIL takes the high byte of a 16-bit
+    RGB PNG but clips a 16-bit single-channel one at 255, so the same pixel
+    value survives or saturates depending on how many channels its neighbours
+    have. One behaviour, applied here, replaces both.
+
+    :param arr: any numeric array.
+    :returns: ``uint8`` array of the same shape.
+    """
+    a = np.asarray(arr)
+    if a.dtype == np.dtype(np.uint8):
+        return a
+    if np.issubdtype(a.dtype, np.integer):
+        info = np.iinfo(a.dtype)
+        if info.max <= 255:
+            return np.clip(a, 0, 255).astype(np.uint8)
+        return (np.clip(a, 0, 65535) // 256).astype(np.uint8)
+    return np.clip(a, 0, 255).astype(np.uint8)
+
+
+def to_cv2_bgr(png_channels: np.ndarray) -> np.ndarray:
+    """Return ``png_channels`` in the order ``cv2.imwrite`` has to be handed it.
+
+    :func:`build_png_channels` assembles the crop in **file order** -- red
+    plane first -- while ``cv2.imwrite`` interprets a 3-channel array as BGR.
+    Reversing the channel axis here, once, in the writer, makes cv2's
+    interpretation land the array's red plane in the file's red slot, so the
+    PNG's slots hold the channels ``settings['png_channel_mapping']`` named
+    (format 3). Under :data:`DEFAULT_PNG_CHANNEL_MAPPING` that puts
+    ``png_dims[0]`` in blue, byte-identical to format 1.
+
+    * 2-D or single-channel: returned unchanged. cv2 writes a grayscale PNG
+      and does no colour interpretation, so there is nothing to reverse.
+    * 2 channels: padded with a zero plane to RGB first, then reversed.
+      :func:`build_png_channels` never emits two planes -- it carries an empty
+      colour as a zero plane in the slot the user left blank -- so this is for
+      callers that assemble their own array.
+    * 3 channels: reversed.
+    * 4 or more: **refused**. cv2 would write BGRA, and PIL then reads the
+      fourth intensity plane as an alpha channel and drops it on
+      ``convert('RGB')`` -- a whole stain silently deleted from every crop.
+      ``settings['png_dims']`` documents a maximum of three entries; this is
+      where a fourth stops being ignored and starts being an error.
+
+    :param png_channels: the crop in file order, as :func:`build_png_channels`
+        assembles it for ``_measure_crop_core``.
+    :returns: the array to hand to ``cv2.imwrite``.
+    :raises CropError: more than three channels.
+    """
+    arr = np.asarray(png_channels)
+    if arr.ndim == 2:
+        return arr
+    if arr.ndim != 3:
+        raise CropError(
+            f"a crop must be 2-D or (H, W, C); got shape {arr.shape!r}")
+    n = arr.shape[2]
+    if n == 1:
+        return arr
+    if n == 2:
+        arr = np.dstack((arr, np.zeros_like(arr[:, :, 0])))
+    elif n > 3:
+        raise CropError(
+            f"png_dims selected {n} channels, but a crop PNG holds at most 3: "
+            f"cv2 would write channel 4 as an alpha plane and every reader "
+            f"would silently drop it. Use at most three entries in png_dims.")
+    return arr[:, :, ::-1]
+
+
+
+#: The colour slots a crop PNG has, in file order.
+PNG_COLOR_KEYS = ("r", "g", "b")
+
+#: Default colour mapping for the legacy ``png_dims=[0, 1, 2]`` setting.
+#:
+#: Microscope channels arrive in wavelength order -- 0 is 405, 1 is 488, 2 is
+#: 555, 3 is 647 -- so the first channel is the nuclear stain and belongs in
+#: blue. This mapping preserves the appearance of crops written with the
+#: legacy convention.
+DEFAULT_PNG_CHANNEL_MAPPING = {"r": 2, "g": 1, "b": 0}
+
+
+def png_dims_to_channel_mapping(png_dims) -> Dict[str, Optional[int]]:
+    """Translate a legacy ``png_dims`` list into an explicit ``{r, g, b}`` map.
+
+    ``png_dims`` does not state which colour each entry fills; in the legacy
+    writer the colour followed implicitly from cv2's BGR interpretation of the
+    array. The list is still accepted, because existing settings CSVs and
+    notebooks contain it, and is translated here into an explicit mapping.
+
+    The translation is the *legacy* reading, because that is the one that was
+    ever on screen: entry 0 is blue, 1 is green, 2 is red.
+
+    * ``[a, b, c]`` -> ``{'r': c, 'g': b, 'b': a}``
+    * ``[a, b]``    -> ``{'r': None, 'g': b, 'b': a}`` (the old zero third plane)
+    * ``[a]``       -> ``{'r': a, 'g': a, 'b': a}`` (greyscale; see
+      :func:`build_png_channels`, which keeps it a one-plane image)
+
+    :param png_dims: the legacy list of source channel indices.
+    :returns: a ``{'r': idx, 'g': idx, 'b': idx}`` dict; ``None`` means an
+        empty plane.
+    :raises CropError: more than three entries, or an empty list.
+    """
+    dims = [int(d) for d in list(png_dims or [])]
+    if not dims:
+        raise CropError("png_dims is empty: a crop needs at least one channel")
+    if len(dims) > 3:
+        raise CropError(
+            f"png_dims selected {len(dims)} channels, but a crop PNG holds at "
+            f"most 3. Use at most three entries, or state the mapping "
+            f"outright with png_channel_mapping={{'r': .., 'g': .., 'b': ..}}.")
+    if len(dims) == 1:
+        return {"r": dims[0], "g": dims[0], "b": dims[0]}
+    if len(dims) == 2:
+        return {"r": None, "g": dims[1], "b": dims[0]}
+    return {"r": dims[2], "g": dims[1], "b": dims[0]}
+
+
+def resolve_png_channel_mapping(settings) -> Dict[str, Optional[int]]:
+    """Return the ``{r, g, b}`` source-channel mapping a run should use.
+
+    Precedence, and the reason for it:
+
+    1. ``settings['png_channel_mapping']`` -- the explicit form. If the user
+       said which channel is red, that is the answer.
+    2. ``settings['png_dims']`` -- the legacy list, translated by
+       :func:`png_dims_to_channel_mapping`. A settings CSV written by any
+       older build lands here and keeps rendering the way it always did.
+    3. :data:`DEFAULT_PNG_CHANNEL_MAPPING`.
+
+    A mapping that names a colour spaCR does not have, or a non-integer index,
+    is an error rather than a silent drop: a mis-keyed mapping would otherwise
+    delete a whole stain from every crop in the run and say nothing.
+
+    :param settings: the run settings dict (or anything with ``.get``).
+    :returns: ``{'r': idx, 'g': idx, 'b': idx}``; ``None`` means an empty plane.
+    :raises CropError: an unknown colour key or a non-integer channel index.
+    """
+    get = getattr(settings, "get", None)
+    raw = get("png_channel_mapping", None) if get else None
+    if raw is None:
+        dims = get("png_dims", None) if get else None
+        if dims is None:
+            return dict(DEFAULT_PNG_CHANNEL_MAPPING)
+        return png_dims_to_channel_mapping(dims)
+
+    if not isinstance(raw, dict):
+        raise CropError(
+            f"png_channel_mapping must be a dict like "
+            f"{{'r': 2, 'g': 1, 'b': 0}}; got {type(raw).__name__}")
+    unknown = {str(k).lower() for k in raw} - set(PNG_COLOR_KEYS)
+    if unknown:
+        raise CropError(
+            f"png_channel_mapping has no colour {sorted(unknown)!r}; the keys "
+            f"are 'r', 'g' and 'b'. A mis-keyed colour would drop that stain "
+            f"from every crop in the run.")
+    out: Dict[str, Optional[int]] = {}
+    for key in PNG_COLOR_KEYS:
+        val = raw.get(key, raw.get(key.upper()))
+        if val is None or (isinstance(val, str) and not val.strip()):
+            out[key] = None
+            continue
+        try:
+            out[key] = int(val)
+        except (TypeError, ValueError):
+            raise CropError(
+                f"png_channel_mapping['{key}'] must be a source channel index "
+                f"or blank; got {val!r}") from None
+    if all(v is None for v in out.values()):
+        raise CropError(
+            "png_channel_mapping leaves every colour empty, so every crop "
+            "would be a black square")
+    return out
+
+
+def channels_from_settings(settings) -> tuple:
+    """Return the source channels in COLOUR order: ``(red, green, blue)``.
+
+    The one translation from "what the user declared" to "what a crop array
+    holds". Everything downstream -- :class:`CropSpec`, :func:`png_view`,
+    :func:`extract_crop` -- is in this order, so channel 0 of a crop is
+    always the red one and there is no second convention to keep straight.
+
+    A colour left empty has no source channel, so it cannot appear in a tuple
+    of indices; it is filled with the first channel that *is* mapped, and the
+    emptiness is applied later by :func:`build_png_channels`, which is the
+    only place that can write a zero plane. Callers that need the empty plane
+    honoured should use the mapping directly.
+
+    :param settings: the run settings dict.
+    :returns: a 1- or 3-tuple of source channel indices.
+    """
+    mapping = resolve_png_channel_mapping(settings)
+    idxs = [mapping.get(k) for k in PNG_COLOR_KEYS]
+    if idxs[0] is not None and idxs[0] == idxs[1] == idxs[2]:
+        return (int(idxs[0]),)
+    fallback = next(i for i in idxs if i is not None)
+    return tuple(int(fallback if i is None else i) for i in idxs)
+
+
+def build_png_channels(data: np.ndarray, mapping: Dict[str, Optional[int]],
+                       dtype=None) -> np.ndarray:
+    """Assemble the crop planes in **file order** -- red, green, blue.
+
+    The returned array uses the same channel order as the PNG file, so in-memory
+    and decoded representations have the same colour semantics.
+
+    Greyscale is preserved: when all three colours name the same source
+    channel the result is a single plane, so cv2 writes a one-channel PNG
+    exactly as ``png_dims=[a]`` always did, rather than three identical
+    planes at three times the size.
+
+    :param data: the merged ``(H, W, C)`` array.
+    :param mapping: as returned by :func:`resolve_png_channel_mapping`.
+    :param dtype: optional dtype to cast the assembled planes to.
+    :returns: ``(H, W, 1|3)`` array, red plane first.
+    :raises CropError: a mapping index is out of range for ``data``.
+    """
+    arr = np.asarray(data)
+    if arr.ndim != 3:
+        raise CropError(
+            f"build_png_channels needs a (H, W, C) array; got {arr.shape!r}")
+    n_src = arr.shape[2]
+    for key, idx in mapping.items():
+        if idx is not None and not (-n_src <= int(idx) < n_src):
+            raise CropError(
+                f"png_channel_mapping['{key}'] = {idx} is out of range for an "
+                f"array with {n_src} channels")
+
+    idxs = [mapping.get(k) for k in PNG_COLOR_KEYS]
+    if idxs[0] is not None and idxs[0] == idxs[1] == idxs[2]:
+        planes = [arr[:, :, idxs[0]]]
+    else:
+        blank = None
+        planes = []
+        for idx in idxs:
+            if idx is None:
+                if blank is None:
+                    blank = np.zeros(arr.shape[:2], dtype=arr.dtype)
+                planes.append(blank)
+            else:
+                planes.append(arr[:, :, idx])
+    out = np.stack(planes, axis=2)
+    return out.astype(dtype) if dtype is not None else out
+
+
+
+_FORMAT_CACHE: Dict[str, Tuple[Any, Optional[Dict[str, Any]]]] = {}
+_STAMPED_FOLDERS: set = set()
+_DB_FORMAT_CACHE: Dict[str, Optional[int]] = {}
+
+
+def clear_crop_format_cache() -> None:
+    """Forget every cached folder marker (and every "already stamped" folder)."""
+    _FORMAT_CACHE.clear()
+    _STAMPED_FOLDERS.clear()
+    _DB_FORMAT_CACHE.clear()
+
+
+def _sidecar_path(folder: str) -> str:
+    """Return the crop-format sidecar path inside ``folder``."""
+    return os.path.join(os.fspath(folder), CROP_FORMAT_SIDECAR)
+
+
+def _cache_stamp(folder: str) -> Any:
+    """Return a value that changes whenever the folder's sidecar could have."""
+    side = _sidecar_path(folder)
+    try:
+        st = os.stat(side)
+        return ("file", st.st_mtime_ns, st.st_size)
+    except OSError:
+        pass
+    try:
+        return ("none", os.stat(folder).st_mtime_ns)
+    except OSError:
+        return ("gone",)
+
+
+def read_crop_folder_marker(folder: str, use_cache: bool = True) -> Optional[Dict[str, Any]]:
+    """Return the parsed ``.spacr_crop_format.json`` of ``folder``, or ``None``.
+
+    A sidecar that cannot be parsed is treated as absent -- a corrupt marker
+    must not be *more* trusted than no marker, and no marker means legacy,
+    which is the safe answer.
+
+    :param folder: the crop folder (the one holding the PNGs).
+    :param use_cache: reuse a cached read while the sidecar is unchanged.
+    :returns: the marker dict, or ``None`` when there is no usable one.
+    """
+    key = os.path.abspath(os.fspath(folder))
+    stamp = _cache_stamp(key)
+    if use_cache:
+        cached = _FORMAT_CACHE.get(key)
+        if cached is not None and cached[0] == stamp:
+            return cached[1]
+    marker: Optional[Dict[str, Any]] = None
+    try:
+        with open(_sidecar_path(key), "r", encoding="utf-8") as handle:
+            loaded = json.load(handle)
+        if isinstance(loaded, dict) and _coerce_format(
+                loaded.get("spacr_crop_format")) is not None:
+            marker = loaded
+    except (OSError, ValueError):
+        marker = None
+    if marker is None or "migration" not in marker:
+        _FORMAT_CACHE[key] = (stamp, marker)
+    return marker
+
+
+def write_crop_folder_marker(folder: str, fmt: int = CROP_FORMAT_CURRENT,
+                             **extra: Any) -> str:
+    """Write ``folder``'s crop-format sidecar atomically.
+
+    Temp file plus :func:`os.replace`, like ``spacr.io._save_array_atomic``:
+    a marker is either the previous one or the complete new one, never a
+    half-written JSON document that :func:`read_crop_folder_marker` would
+    then read as "no marker" -- i.e. as legacy -- over a folder of corrected
+    crops.
+
+    :param folder: the crop folder.
+    :param fmt: any known crop format (1, 2 or 3); defaults to
+        :data:`CROP_FORMAT_CURRENT`, i.e. :data:`CROP_FORMAT_DECLARED_RGB`.
+    :param extra: extra keys to record (``migration``, ``png_dims``, ...).
+        A key whose value is ``None`` is dropped.
+    :returns: the sidecar path.
+    :raises CropError: ``fmt`` is not a known format.
+    """
+    if _coerce_format(fmt) is None:
+        raise CropError(f"unknown crop format {fmt!r}")
+    fmt = int(fmt)
+    folder = os.path.abspath(os.fspath(folder))
+    os.makedirs(folder, exist_ok=True)
+    payload: Dict[str, Any] = {
+        "spacr_crop_format": fmt,
+        "channel_order": _CHANNEL_ORDER_NAME[fmt],
+        "narrowing": "high-byte",
+        "updated_utc": _utc_now(),
+        "note": _FORMAT_NOTE[fmt],
+    }
+    payload.update({k: v for k, v in extra.items() if v is not None})
+    fd, tmp = tempfile.mkstemp(prefix=_TMP_PREFIX, suffix=".json", dir=folder)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, _sidecar_path(folder))
+    except BaseException:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
+    _FORMAT_CACHE.pop(folder, None)
+    return _sidecar_path(folder)
+
+
+def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[str]:
+    """Ensure that ``folder`` contains a crop-format marker.
+
+    The crop writer calls this before writing the first PNG. An interrupted
+    run therefore leaves a marked, possibly incomplete folder rather than an
+    unmarked folder that could be interpreted as the legacy format.
+
+    Each folder is checked once per process. Failure to write the marker emits
+    a warning instead of aborting the measurement run, because the image data
+    remain valid but their stored channel convention becomes ambiguous.
+
+    If a folder already contains crops in another format, the function reports
+    the conflict but does not migrate files. Migration remains a separate,
+    single-process operation in :func:`migrate_crop_folder`.
+
+    :param folder: the crop folder.
+    :param fmt: format to record; defaults to :data:`CROP_FORMAT_CURRENT`.
+    :returns: the sidecar path, or ``None`` if it could not be written.
+    """
+    key = os.path.abspath(os.fspath(folder))
+    if key in _STAMPED_FOLDERS:
+        return _sidecar_path(key)
+    fmt = int(fmt)
+    try:
+        existing = read_crop_folder_marker(key)
+        found = _coerce_format(existing.get("spacr_crop_format")) if existing else None
+        if found != fmt:
+            if existing is None and fmt == CROP_FORMAT_CURRENT:
+                stale = _crop_pngs_in(key)
+                if stale and read_crop_folder_marker(key, use_cache=False) is None:
+                    print(
+                        f"spacr: {key} already holds {len(stale)} unmarked "
+                        f"crop PNG(s), which are in the old reversed channel "
+                        f"order, and this run is about to add corrected ones. "
+                        f"Crops this run overwrites are fine; any it does not "
+                        f"will be read as if they were corrected. Delete the "
+                        f"folder before re-measuring, or convert it first "
+                        f"with: python -m spacr.crops {os.path.dirname(key)}")
+            elif found is not None:
+                print(
+                    f"spacr: {key} is marked crop format {found} "
+                    f"({_CHANNEL_ORDER_NAME[found]}) and this run writes "
+                    f"format {fmt} ({_CHANNEL_ORDER_NAME[fmt]}). Re-marking "
+                    f"it; any crop in here the run does not overwrite will be "
+                    f"read in the wrong order.")
+            write_crop_folder_marker(key, fmt)
+    except Exception as exc:
+        print(f"spacr: could not write the crop-format marker in {key}: "
+              f"{exc}. Crops written here will be read back with their "
+              f"channels reversed until "
+              f"spacr.crops.write_crop_folder_marker() is run on it.")
+        return None
+    _STAMPED_FOLDERS.add(key)
+    return _sidecar_path(key)
+
+
+
+def read_db_crop_format(db_path: str, png_path: Optional[str] = None,
+                        table: str = "png_list") -> Optional[int]:
+    """Return the crop format recorded in the database, or ``None``.
+
+    Reads the ``crop_format`` column of ``png_list``: for one ``png_path`` if
+    given, otherwise the single distinct value covering the whole table (a
+    table holding both formats returns ``None`` -- ambiguous is not an answer).
+
+    :param db_path: path to ``measurements.db``.
+    :param png_path: restrict to one crop's row.
+    :param table: table holding the crops.
+    :returns: the format integer, or ``None`` when the column, the table or
+        the database is absent, or the answer is ambiguous.
+    """
+    if not db_path or not os.path.isfile(db_path):
+        return None
+    try:
+        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
+    except sqlite3.Error:
+        return None
+    try:
+        cols = {row[1] for row in conn.execute(
+            f'PRAGMA table_info("{table}")').fetchall()}
+        if CROP_FORMAT_DB_COLUMN not in cols:
+            return None
+        if png_path:
+            rows = conn.execute(
+                f'SELECT DISTINCT "{CROP_FORMAT_DB_COLUMN}" FROM "{table}" '
+                f'WHERE png_path = ?', (str(png_path),)).fetchall()
+            if not rows:
+                rows = conn.execute(
+                    f'SELECT DISTINCT "{CROP_FORMAT_DB_COLUMN}" FROM "{table}"'
+                ).fetchall()
+        else:
+            rows = conn.execute(
+                f'SELECT DISTINCT "{CROP_FORMAT_DB_COLUMN}" FROM "{table}"'
+            ).fetchall()
+    except sqlite3.Error:
+        return None
+    finally:
+        conn.close()
+    values = {_coerce_format(r[0]) for r in rows}
+    values.discard(None)
+    if len(values) != 1:
+        return None
+    return values.pop()
+
+
+def _db_crop_format_cached(db_path: str) -> Optional[int]:
+    """:func:`read_db_crop_format` for a whole table, memoised per process.
+
+    The table-wide query is a ``SELECT DISTINCT`` over every crop row; running
+    it once per thumbnail would make the annotate grid quadratic in the size
+    of ``png_list``.
+    """
+    key = os.path.abspath(os.fspath(db_path))
+    if key not in _DB_FORMAT_CACHE:
+        _DB_FORMAT_CACHE[key] = read_db_crop_format(db_path)
+    return _DB_FORMAT_CACHE[key]
+
+
+def stamp_crop_format_in_db(db_path: str, png_paths: Optional[Iterable[str]] = None,
+                            fmt: int = CROP_FORMAT_CURRENT,
+                            table: str = "png_list") -> int:
+    """Record the crop format on ``png_list``, adding the column if needed.
+
+    The database copy is advisory -- :func:`crop_format_for_png` prefers the
+    sidecar -- but it makes "which of my plates are still legacy?" a query
+    rather than a filesystem walk.
+
+    :param db_path: path to ``measurements.db``.
+    :param png_paths: rows to stamp; ``None`` stamps every row.
+    :param fmt: the format to record.
+    :param table: table holding the crops.
+    :returns: number of rows updated.
+    :raises CropError: unknown ``fmt``.
+    """
+    if _coerce_format(fmt) is None:
+        raise CropError(f"unknown crop format {fmt!r}")
+    if not db_path or not os.path.isfile(db_path):
+        return 0
+    conn = sqlite3.connect(db_path, timeout=30)
+    try:
+        cols = {row[1] for row in conn.execute(
+            f'PRAGMA table_info("{table}")').fetchall()}
+        if not cols:
+            return 0
+        if CROP_FORMAT_DB_COLUMN not in cols:
+            conn.execute(
+                f'ALTER TABLE "{table}" ADD COLUMN "{CROP_FORMAT_DB_COLUMN}" INTEGER')
+        if png_paths is None:
+            cur = conn.execute(
+                f'UPDATE "{table}" SET "{CROP_FORMAT_DB_COLUMN}" = ?', (int(fmt),))
+            n = cur.rowcount
+        else:
+            paths = [(int(fmt), str(p)) for p in png_paths]
+            cur = conn.executemany(
+                f'UPDATE "{table}" SET "{CROP_FORMAT_DB_COLUMN}" = ? '
+                f'WHERE png_path = ?', paths)
+            n = cur.rowcount
+        conn.commit()
+    finally:
+        conn.close()
+    _DB_FORMAT_CACHE.pop(os.path.abspath(db_path), None)
+    return int(n or 0)
+
+
+def crop_folder_format(folder: str, db_path: Optional[str] = None,
+                       *, strict: bool = False) -> int:
+    """Return the crop format that applies to ``folder`` as a whole.
+
+    Precedence: sidecar, then the database column, then
+    :data:`CROP_FORMAT_LEGACY_BGR`. When both are present and they disagree,
+    **the sidecar wins** -- it is the marker that travels with the folder --
+    and the disagreement is reported: printed by default, raised when
+    ``strict``.
+
+    A folder in the middle of a migration reports ``CROP_FORMAT_LEGACY_BGR``,
+    because the files that have not been converted yet still are; use
+    :func:`crop_format_for_png` to resolve one file inside such a folder.
+
+    :param folder: the crop folder.
+    :param db_path: optional ``measurements.db`` to consult.
+    :param strict: raise :class:`CropFormatConflict` instead of printing.
+    :returns: the format integer.
+    """
+    marker = read_crop_folder_marker(folder)
+    from_db = _db_crop_format_cached(db_path) if db_path else None
+    if marker is not None:
+        fmt = _coerce_format(marker.get("spacr_crop_format"))
+        if from_db is not None and from_db != fmt:
+            msg = (f"crop format conflict for {folder}: the sidecar "
+                   f"{CROP_FORMAT_SIDECAR} says {fmt} "
+                   f"({_CHANNEL_ORDER_NAME[fmt]}) and {db_path} says "
+                   f"{from_db} ({_CHANNEL_ORDER_NAME[from_db]}). Using the "
+                   f"sidecar: it travels with the crops, the database row "
+                   f"does not.")
+            if strict:
+                raise CropFormatConflict(msg)
+            print(f"spacr: {msg}")
+        if "migration" in marker:
+            return CROP_FORMAT_LEGACY_BGR
+        return fmt
+    if from_db is not None:
+        return from_db
+    return CROP_FORMAT_LEGACY_BGR
+
+
+def crop_format_for_png(png_path: str, db_path: Optional[str] = None,
+                        *, strict: bool = False) -> int:
+    """Return the crop format of one crop PNG.
+
+    Same precedence as :func:`crop_folder_format`, plus the two per-file
+    overrides an interrupted :func:`migrate_crop_folder` leaves behind:
+
+    * a leftover ``<name>.spacr_v2`` staging file means the file next to it
+      has **not** been converted yet -- it is still legacy;
+    * a name in the marker's ``unconverted`` list is a file the migration
+      could not rewrite. It stays in the source format (format 2) inside a
+      folder that is otherwise format 3, so it still has to be read correctly;
+    * otherwise, inside a folder whose marker carries a ``migration`` block,
+      a file at or before the recorded watermark is converted and one after
+      it is not.
+
+    :param png_path: the crop PNG.
+    :param db_path: optional ``measurements.db`` to consult.
+    :param strict: raise on a sidecar/database conflict.
+    :returns: the format integer.
+    """
+    png_path = os.fspath(png_path)
+    folder = os.path.dirname(os.path.abspath(png_path)) or "."
+    marker = read_crop_folder_marker(folder)
+    if isinstance(marker, dict):
+        name = os.path.basename(png_path)
+        migration = marker.get("migration")
+        source = _coerce_format(
+            (migration or marker).get("from")
+            or marker.get("migrated_from")) or CROP_FORMAT_LEGACY_BGR
+        if os.path.exists(png_path + CROP_MIGRATION_SUFFIX):
+            return source
+        if name in set((migration or marker).get("unconverted") or ()):
+            return source
+        if migration:
+            done_through = migration.get("done_through")
+            target = (_coerce_format(marker.get("spacr_crop_format"))
+                      or CROP_FORMAT_CURRENT)
+            if done_through is not None and name <= str(done_through):
+                return target
+            return source
+    return crop_folder_format(folder, db_path, strict=strict)
+
+
+
+def decode_crop_image(image, fmt: int = CROP_FORMAT_LEGACY_BGR,
+                      as_format: int = CROP_FORMAT_CURRENT, *,
+                      orient: bool = False) -> np.ndarray:
+    """Decode a PIL crop without clipping its high-bit-depth intensities.
+
+    :param image: open PIL image; owned and closed by the caller.
+    :param fmt: source crop format, including an archive member's marker.
+    :param as_format: requested channel ordering, normally declared format 3.
+    :param orient: apply EXIF orientation before decoding, for classification.
+    :returns: contiguous, independently owned HWC RGB uint8 array.
+    :raises CropError: either format is unsupported.
+    """
+    from PIL import ImageOps
+
+    if _coerce_format(fmt) is None or _coerce_format(as_format) is None:
+        raise CropError(f"unknown crop format {fmt!r} or {as_format!r}")
+    if orient:
+        image = ImageOps.exif_transpose(image)
+    mode = image.mode
+    if mode in ("RGB", "L") or mode.startswith("I") or mode == "F":
+        arr = np.array(image)
+    else:
+        arr = np.array(image.convert("RGB"))
+    arr = narrow_to_uint8(arr)
+    if arr.ndim == 2:
+        arr = np.repeat(arr[:, :, None], 3, axis=2)
+    if (_FORMAT_IS_DECLARED_ORDER[int(fmt)]
+            is not _FORMAT_IS_DECLARED_ORDER[int(as_format)]):
+        arr = arr[:, :, ::-1]
+    return np.ascontiguousarray(arr)
+
+
+def read_crop_png(path: str, fmt: Optional[int] = None,
+                  db_path: Optional[str] = None,
+                  as_format: int = CROP_FORMAT_CURRENT) -> np.ndarray:
+    """Read a crop PNG and return it in the corrected order, as 8-bit RGB.
+
+    The one function every consumer of a crop folder should go through. It
+    resolves the file's format (see :func:`crop_format_for_png`), reverses the
+    channel axis when the file's ordering differs from the one asked for --
+    which today means format 2 only, since formats 1 and 3 are both already in
+    declared order -- and narrows to 8 bit with :func:`narrow_to_uint8`, so a
+    legacy dataset and a new one come back identical and the caller never has
+    to know which it opened.
+
+    The result equals ``png_view(extract_crop(...))`` for the same object,
+    under either format. That equality is the contract, and
+    ``tests/test_crops.py`` asserts it.
+
+    :param path: the crop PNG.
+    :param fmt: what the file on disk is, when you know better than the
+        marker does. ``None`` resolves it.
+    :param as_format: what ordering you want *back*. The default is the
+        declared one. Formats 1 and 3 share this order; format 2 requests the
+        intermediate reversed order. Classification also needs its recorded
+        intensity-decoding policy, handled by :mod:`spacr.classification_pixels`.
+    :param db_path: optional ``measurements.db`` consulted when the folder has
+        no sidecar.
+    :returns: ``(H, W, 3)`` uint8 RGB array.
+    :raises MergedFileMissing: the file does not exist.
+    :raises CropError: ``as_format`` is not a known format.
+    """
+    from PIL import Image
+
+    path = os.fspath(path)
+    if not os.path.isfile(path):
+        raise MergedFileMissing(f"crop PNG not found: {path}")
+    if _coerce_format(as_format) is None:
+        raise CropError(f"unknown crop format {as_format!r}")
+    if fmt is None:
+        fmt = crop_format_for_png(path, db_path)
+    with Image.open(path) as img:
+        return decode_crop_image(img, fmt=fmt, as_format=as_format)
+
+
+
+@dataclass
+class MigrationResult:
+    """What :func:`migrate_crop_folder` did to one folder.
+
+    :param folder: crop folder that was examined or migrated.
+    :param converted: filenames whose channel order was or would be rewritten.
+    :param skipped: filenames needing no rewrite, including already-processed
+        or single-channel crops.
+    :param failed: ``(filename, reason)`` pairs for crops that could not be
+        converted.
+    :param already: whether the folder was already in a format requiring no
+        migration.
+    :param dry_run: whether the result describes planned work without writing
+        files.
+    :param mode: ``"rewrite"`` for pixel conversion or ``"mark"`` for
+        recording legacy format without touching pixels.
+    """
+
+    folder: str
+    converted: List[str] = _dc_field(default_factory=list)
+    skipped: List[str] = _dc_field(default_factory=list)
+    failed: List[Tuple[str, str]] = _dc_field(default_factory=list)
+    already: bool = False
+    dry_run: bool = False
+    mode: str = "rewrite"
+
+    def describe(self) -> str:
+        """Return a one-line summary for a log."""
+        if self.already:
+            return f"{self.folder}: already format {CROP_FORMAT_CURRENT}, nothing to do"
+        if self.mode == "mark":
+            return f"{self.folder}: marked as legacy (format {CROP_FORMAT_LEGACY_BGR}), pixels untouched"
+        what = "would convert" if self.dry_run else "converted"
+        text = (f"{self.folder}: {what} {len(self.converted)} crop(s), "
+                f"skipped {len(self.skipped)}")
+        if self.failed:
+            text += f", FAILED {len(self.failed)}"
+        return text
+
+
+def _crop_pngs_in(folder: str) -> List[str]:
+    """Return the crop PNG names in ``folder``, sorted, staging files excluded."""
+    try:
+        names = os.listdir(folder)
+    except OSError as exc:
+        raise CropError(f"cannot list crop folder {folder}: {exc}") from exc
+    return sorted(
+        n for n in names
+        if n.lower().endswith(".png") and not n.startswith(".")
+        and os.path.isfile(os.path.join(folder, n)))
+
+
+def _convert_one(src: str, dst: str) -> bool:
+    """Write the format-2 version of the legacy crop ``src`` to ``dst``.
+
+    ``cv2.imread(..., IMREAD_UNCHANGED)`` hands back the file's samples in
+    BGR order, which for a legacy file is exactly the ``png_channels`` array
+    that was passed to ``cv2.imwrite`` -- so re-writing it through
+    :func:`to_cv2_bgr` is literally the new writer, bit depth and all. No
+    narrowing happens here: the file keeps its 16 bits.
+
+    :returns: True if a file was written, False if the crop needs no rewrite.
+    :raises CropError: the PNG cannot be decoded, or has too many channels.
+    """
+    import cv2
+
+    arr = cv2.imread(src, cv2.IMREAD_UNCHANGED)
+    if arr is None:
+        raise CropError(f"cv2 could not decode {src}")
+    if arr.ndim == 2 or arr.shape[2] == 1:
+        return False
+    out = to_cv2_bgr(arr)
+    if not cv2.imwrite(dst, out):
+        raise CropError(f"cv2 could not write {dst}")
+    return True
+
+
+def _atomic_convert(src: str, staged: str) -> bool:
+    """Convert ``src`` into ``staged`` via a temp file plus :func:`os.replace`."""
+    folder = os.path.dirname(staged) or "."
+    fd, tmp = tempfile.mkstemp(prefix=_TMP_PREFIX, suffix=".png", dir=folder)
+    os.close(fd)
+    try:
+        wrote = _convert_one(src, tmp)
+        if not wrote:
+            os.remove(tmp)
+            return False
+        os.replace(tmp, staged)
+    except BaseException:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
+    return True
+
+
+def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
+                        dry_run: bool = False, on_error: str = "raise",
+                        db_path: Optional[str] = None,
+                        progress: Optional[Any] = None) -> MigrationResult:
+    """Repair reversed format-2 crops and stamp the folder. Idempotent.
+
+    Format 2 stores three-channel crops in the reverse of their declared
+    channel mapping. Formats 1 and 3, as well as unmarked folders, already
+    use declared order and require no pixel rewrite.
+
+    ``mode='rewrite'`` (the default) rewrites every 3-channel PNG of a
+    **format-2** folder with its channels put back, and marks the folder
+    format 3. A folder that is format 1, format 3 or unmarked is already in
+    declared order, so it is an immediate no-op -- which is the answer for
+    almost every folder that exists.
+
+    ``mode='mark'`` touches no pixels and only records that the folder is
+    format 1 -- use it when something outside spaCR reads those exact bytes
+    and must keep seeing them (a classifier trained on legacy crops, for
+    instance).
+
+    Interruption safety, which is the whole design:
+
+    * each file is converted into a durable staging file ``<name>.spacr_v2``
+      (itself written temp-then-``os.replace``, per ``io._save_array_atomic``)
+      and only then ``os.replace``-d over the original, so the crop at its
+      real name is always a complete PNG -- the old one or the new one;
+    * the folder marker carries a ``migration`` block with a ``done_through``
+      watermark, advanced *before* the install, so the rule
+      **"a staging file exists ⇒ the crop beside it is still legacy"**
+      resolves every file at every point in the sequence. That is what
+      :func:`crop_format_for_png` reads, and it is why a killed migration is
+      still read correctly and can be run again.
+
+    Running it on an already-converted folder is an immediate no-op: nothing
+    is decoded, nothing is written, and ``result.already`` is True. Running it
+    twice therefore cannot double-reverse anything.
+
+    The one exception is a folder finished with ``on_error='skip'``: its
+    marker names the files that could not be rewritten, those stay format 2
+    (and are read as format 2) inside an otherwise format-3 folder, and a
+    later run retries **only** them.
+
+    :param folder: the crop folder (``.../<well>/cell_png`` and friends).
+    :param mode: ``'rewrite'`` or ``'mark'``.
+    :param dry_run: report what would happen; write nothing.
+    :param on_error: ``'raise'`` (default) or ``'skip'``, which records the
+        file in the marker's ``unconverted`` list and keeps reading it as
+        legacy.
+    :param db_path: also stamp ``png_list.crop_format`` in this database.
+    :param progress: optional callable ``(done, total, name)``.
+    :returns: a :class:`MigrationResult`.
+    :raises CropError: bad arguments, or a file that cannot be converted when
+        ``on_error='raise'``.
+    """
+    if mode not in ("rewrite", "mark"):
+        raise CropError(f"mode must be 'rewrite' or 'mark', got {mode!r}")
+    if on_error not in ("raise", "skip"):
+        raise CropError(f"on_error must be 'raise' or 'skip', got {on_error!r}")
+    folder = os.path.abspath(os.fspath(folder))
+    if not os.path.isdir(folder):
+        raise CropError(f"not a crop folder: {folder}")
+
+    result = MigrationResult(folder=folder, dry_run=dry_run, mode=mode)
+    marker = read_crop_folder_marker(folder, use_cache=False)
+    current = _coerce_format(marker.get("spacr_crop_format")) if marker else None
+    migration = marker.get("migration") if marker else None
+
+    if mode == "mark":
+        if current == CROP_FORMAT_LEGACY_BGR and not migration:
+            result.already = True
+            return result
+        if current == CROP_FORMAT_RGB and not migration:
+            raise CropError(
+                f"{folder} is already format {CROP_FORMAT_RGB}; marking it "
+                f"legacy would make every crop in it read back reversed")
+        if current == CROP_FORMAT_DECLARED_RGB and not migration:
+            raise CropError(
+                f"{folder} is format {CROP_FORMAT_DECLARED_RGB}; marking it "
+                f"legacy would discard the record that it was repaired. "
+                f"Delete {CROP_FORMAT_SIDECAR} first if that is really what "
+                f"you want.")
+        if not dry_run:
+            write_crop_folder_marker(folder, CROP_FORMAT_LEGACY_BGR)
+            if db_path:
+                stamp_crop_format_in_db(db_path, None, CROP_FORMAT_LEGACY_BGR)
+        return result
+
+    retry_only: Optional[set] = None
+    if not migration:
+        leftover = set((marker or {}).get("unconverted") or ())
+        if current == CROP_FORMAT_CURRENT and leftover:
+            retry_only = leftover
+        elif current != CROP_FORMAT_RGB:
+            result.already = True
+            return result
+
+    names = _crop_pngs_in(folder)
+    done_through = str(migration.get("done_through") or "") if migration else ""
+    failed_names = list((migration or marker or {}).get("unconverted") or ())
+    started = (migration or {}).get("started_utc") or _utc_now()
+
+    def _todo(name: str) -> bool:
+        """True when ``name`` still has to be converted.
+
+        A staged file outranks everything else, in both modes and in both
+        directions -- it is the same rule :func:`crop_format_for_png` reads,
+        so what the migrator thinks is left to do and what a reader thinks is
+        still legacy can never disagree.
+        """
+        if os.path.exists(os.path.join(folder, name + CROP_MIGRATION_SUFFIX)):
+            return True
+        if retry_only is not None:
+            return name in retry_only
+        return not (done_through and name <= done_through)
+
+    if dry_run:
+        for name in names:
+            (result.converted if _todo(name) else result.skipped).append(name)
+        return result
+
+    def _flush(done: str) -> None:
+        """Advance the watermark durably. One small fsync per crop, on purpose.
+
+        It is what makes "converted" and "not converted yet" a fact on disk
+        rather than a guess, and it is cheap next to decoding and re-encoding
+        the PNG it guards.
+
+        A retry run has no watermark to advance -- the folder is already
+        format 3 apart from the named leftovers -- so it rewrites the finished
+        marker with a shorter ``unconverted`` list instead.
+        """
+        if retry_only is not None:
+            write_crop_folder_marker(
+                folder, CROP_FORMAT_DECLARED_RGB,
+                migrated_from=CROP_FORMAT_RGB,
+                unconverted=sorted(set(failed_names)) or None)
+            return
+        block = {"from": CROP_FORMAT_RGB, "started_utc": started,
+                 "done_through": done}
+        if failed_names:
+            block["unconverted"] = sorted(set(failed_names))
+        write_crop_folder_marker(
+            folder, CROP_FORMAT_DECLARED_RGB, migration=block)
+
+    total = len(names)
+    for i, name in enumerate(names):
+        path = os.path.join(folder, name)
+        staged = path + CROP_MIGRATION_SUFFIX
+        if not _todo(name):
+            result.skipped.append(name)
+            if progress:
+                progress(i + 1, total, name)
+            continue
+        try:
+            if os.path.exists(staged):
+                wrote = True
+            else:
+                wrote = _atomic_convert(path, staged)
+        except CropError as exc:
+            if on_error == "raise":
+                raise CropError(
+                    f"{folder}: {name} could not be converted ({exc}). "
+                    f"Nothing after it was touched; fix or remove the file "
+                    f"and re-run -- the migration resumes where it stopped."
+                ) from exc
+            failed_names.append(name)
+            result.failed.append((name, str(exc)))
+            done_through = name
+            _flush(done_through)
+            if progress:
+                progress(i + 1, total, name)
+            continue
+        if name in failed_names:
+            failed_names.remove(name)
+        done_through = name
+        _flush(done_through)
+        if wrote:
+            os.replace(staged, path)
+            result.converted.append(name)
+        else:
+            result.skipped.append(name)
+        if progress:
+            progress(i + 1, total, name)
+
+    extra: Dict[str, Any] = {}
+    if failed_names:
+        extra["unconverted"] = sorted(set(failed_names))
+    extra["migrated_from"] = CROP_FORMAT_RGB
+    extra["migrated_utc"] = _utc_now()
+    write_crop_folder_marker(folder, CROP_FORMAT_DECLARED_RGB, **extra)
+    if db_path:
+        stamp_crop_format_in_db(
+            db_path,
+            [os.path.join(folder, n) for n in names if n not in failed_names],
+            CROP_FORMAT_DECLARED_RGB)
+    return result
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    """Migrate crop folders from the shell: ``python -m spacr.crops <path>``.
+
+    Exists so the migration is a command a user can run over an old dataset,
+    not a Python snippet they have to be told how to write.
+
+    :param argv: argument list; ``None`` uses ``sys.argv[1:]``.
+    :returns: process exit status.
+    """
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(
+        prog="python -m spacr.crops",
+        description="Convert object-crop PNG folders to the corrected "
+                    "channel order (png_dims[0] = red) and stamp them.")
+    parser.add_argument("path", help="experiment root, its data/ folder, or "
+                                     "one *_png crop folder")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="report what would change; write nothing")
+    parser.add_argument("--mark-legacy", action="store_true",
+                        help="do not rewrite any pixels; only record that "
+                             "these folders are in the old order, so spaCR "
+                             "corrects them on load and anything reading the "
+                             "raw bytes (a classifier trained on them) still "
+                             "sees what it expects")
+    parser.add_argument("--db", default=None,
+                        help="measurements.db to stamp as well")
+    parser.add_argument("--skip-errors", action="store_true",
+                        help="record files that cannot be converted and "
+                             "carry on, instead of stopping")
+    args = parser.parse_args(argv)
+
+    try:
+        results = migrate_crop_tree(
+            args.path, dry_run=args.dry_run,
+            mode="mark" if args.mark_legacy else "rewrite",
+            on_error="skip" if args.skip_errors else "raise",
+            db_path=args.db)
+    except CropError as exc:
+        print(f"spacr: {exc}", file=sys.stderr)
+        return 1
+    for result in results:
+        print(result.describe())
+    return 1 if any(r.failed for r in results) else 0
+
+
+def legacy_channel_names(channels: Iterable[str]) -> List[str]:
+    """Map a legacy-trained model's ``train_channels`` onto format-2 crops.
+
+    A classifier trained on legacy crops learned "input plane 0 is whatever is
+    in the file's red channel", and in a legacy file that is ``png_dims[-1]``.
+    Feed the same model a format-2 crop and plane 0 is now ``png_dims[0]`` --
+    a permutation of its input, which the model scores without raising an
+    error and classifies incorrectly.
+
+    Reversing the request undoes the permutation exactly: red and blue swap,
+    green is unmoved. So a model trained with ``train_channels=['r','g','b']``
+    keeps seeing the pixels it was trained on if it is applied with
+    ``['b','g','r']``, and one trained with ``['r','g']`` with ``['b','g']``.
+
+    This is a stopgap for a model you cannot retrain. Retraining on corrected
+    crops is the real fix, and it is cheap compared with getting this wrong.
+
+    :param channels: the ``train_channels`` the model was trained with.
+    :returns: the equivalent list to apply it with on format-2 crops.
+    """
+    swap = {"r": "b", "b": "r", "g": "g"}
+    return [swap.get(str(c).strip().lower(), str(c)) for c in channels]
+
+
+def find_crop_folders(root: str) -> List[str]:
+    """Return every ``*_png`` crop folder under ``root``, sorted.
+
+    Accepts an experiment root, its ``data`` folder, or a crop folder itself.
+
+    :param root: where to look.
+    :returns: absolute folder paths.
+    """
+    root = os.path.abspath(os.fspath(root))
+    if os.path.basename(root).endswith("_png") and os.path.isdir(root):
+        return [root]
+    found: List[str] = []
+    for start in (os.path.join(root, "data"), root):
+        if not os.path.isdir(start):
+            continue
+        for dirpath, dirnames, _files in os.walk(start):
+            for name in sorted(dirnames):
+                if name.endswith("_png"):
+                    found.append(os.path.join(dirpath, name))
+        if found:
+            break
+    return sorted(set(found))
+
+
+def migrate_crop_tree(root: str, **kwargs) -> List[MigrationResult]:
+    """Run :func:`migrate_crop_folder` on every crop folder under ``root``.
+
+    :param root: experiment root, its ``data`` folder, or one crop folder.
+    :param kwargs: forwarded to :func:`migrate_crop_folder`.
+    :returns: one :class:`MigrationResult` per folder, in folder order.
+    """
+    folders = find_crop_folders(root)
+    if not folders:
+        raise CropError(f"no '*_png' crop folders found under {root}")
+    return [migrate_crop_folder(f, **kwargs) for f in folders]
+
+
+
+def mask_dims_from_settings(settings: Mapping[str, Any]) -> Dict[str, int]:
+    """Return ``{object_type: plane index}`` from a ``measure_crop`` settings dict.
+
+    Falls back to :data:`DEFAULT_MASK_DIMS` for anything the dict does not name.
+
+    :param settings: a ``measure_crop`` settings mapping (a live dict or one
+        read back by :func:`crop_settings_from_db`). Only the
+        ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` /
+        ``organelle_mask_dim`` keys are read; a key that is absent, blank,
+        the string ``'none'`` or not an integer is skipped rather than
+        raised on. The fallback is all-or-nothing: a dict naming even one
+        plane returns only the planes it named, so an object type it left out
+        has no entry at all -- it is not filled in from
+        :data:`DEFAULT_MASK_DIMS`.
+    """
+    dims: Dict[str, int] = {}
+    for obj in MASK_PLANE_ORDER:
+        val = settings.get(f"{obj}_mask_dim")
+        if val is None or val == "" or str(val).lower() == "none":
+            continue
+        try:
+            dims[obj] = int(val)
+        except (TypeError, ValueError):
+            continue
+    return dims or dict(DEFAULT_MASK_DIMS)
+
+
+def _coerce(value: Any) -> Any:
+    """Turn a stringified settings value back into a Python object."""
+    if not isinstance(value, str):
+        return value
+    text = value.strip()
+    if text == "" or text.lower() == "none":
+        return None
+    try:
+        return ast.literal_eval(text)
+    except (ValueError, SyntaxError):
+        return value
+
+
+def crop_settings_from_db(db_path: str) -> Dict[str, Any]:
+    """Read the ``settings`` table ``measure_crop`` writes into ``measurements.db``.
+
+    ``spacr.io._save_settings_to_db`` stores every setting as
+    ``(setting_key, setting_value)`` strings; this parses them back so a crop
+    cut on demand can use the same ``png_dims`` / ``png_size`` / ``normalize``
+    that produced the PNG folder.
+
+    :param db_path: path to ``measurements.db``.
+    :returns: the settings dict, or ``{}`` if the table is absent.
+    """
+    if not os.path.isfile(db_path):
+        raise MergedFileMissing(f"measurements database not found: {db_path}")
+    from .database_concurrency import connect as _connect_database
+
+    conn = _connect_database(db_path)
+    try:
+        rows = conn.execute(
+            "SELECT setting_key, setting_value FROM settings").fetchall()
+    except sqlite3.Error:
+        return {}
+    finally:
+        conn.close()
+    return {str(k): _coerce(v) for k, v in rows}
+
+
+def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
+                            object_type: Optional[str] = None,
+                            label: int = 0) -> CropSpec:
+    """Build a :class:`CropSpec` from a ``measure_crop`` settings dict.
+
+    Uses ``png_dims``, ``png_size``, ``normalize``, ``normalize_by``,
+    ``use_bounding_box``, ``dialate_pngs``, ``dialate_png_ratios``, ``crop_mode``
+    and the ``*_mask_dim`` keys -- i.e. everything that shaped the PNG folder.
+
+    :param settings: The ``measure_crop`` settings. A scalar ``png_size``
+        defines a square crop. Object-specific values in nested ``png_size``,
+        ``dialate_pngs``, and ``dialate_png_ratios`` are selected by the
+        object's position in ``crop_mode`` and fall back to the first entry
+        when that object is absent. Channels are resolved from
+        ``png_channel_mapping``, or legacy ``png_dims``, through
+        :func:`channels_from_settings` and stored in colour order. Text forms
+        such as ``"[2, 98]"``, ``"2,98"``, and ``"[1 99]"`` are parsed as
+        percentile windows; a non-text sequence with a length other than two
+        disables normalization.
+    :param merged_path: the ``merged/<fov>.npy`` to record on the spec. The
+        default ``""`` builds a *template* spec, which is what
+        :class:`MergedCropSource` wants: it fills the path (and label) in per
+        row.
+    :param object_type: which mask plane to crop by; ``None`` takes the first
+        entry of ``settings['crop_mode']``. ``'cytoplasm'`` forces
+        ``dilate=False`` whatever the settings say, because
+        ``_measure_crop_core`` hard-disables dilation for it.
+    :param label: the object's ``object_label``. The default ``0`` is
+        background, so it is only meaningful on a template spec -- cutting
+        with it raises :class:`LabelMissing`.
+    """
+    crop_mode = settings.get("crop_mode", ["cell"])
+    if isinstance(crop_mode, str):
+        crop_mode = [crop_mode]
+    obj = object_type or (crop_mode[0] if crop_mode else "cell")
+
+    size = settings.get("png_size", [224, 224])
+    if isinstance(size, (int, float)) and not isinstance(size, bool):
+        size = [int(size), int(size)]
+    if size and isinstance(size[0], (list, tuple)):
+        try:
+            size = size[list(crop_mode).index(obj)]
+        except (ValueError, IndexError):
+            size = size[0]
+    width, height = int(size[0]), int(size[1])
+
+    dilate = settings.get("dialate_pngs", False)
+    if isinstance(dilate, (list, tuple)):
+        try:
+            dilate = dilate[list(crop_mode).index(obj)]
+        except (ValueError, IndexError):
+            dilate = bool(dilate[0]) if dilate else False
+    ratios = settings.get("dialate_png_ratios", [0.2])
+    if isinstance(ratios, (int, float)):
+        ratios = [ratios]
+    try:
+        ratio = float(ratios[list(crop_mode).index(obj)])
+    except (ValueError, IndexError, TypeError):
+        ratio = float(ratios[0]) if ratios else 0.2
+
+    if obj == "cytoplasm":
+        dilate = False
+
+    normalize = settings.get("normalize", False)
+    if isinstance(normalize, str) and normalize.strip():
+        low, high = percentile_pair(normalize, (0.0, 100.0))
+        normalize = [low, high]
+    if isinstance(normalize, (list, tuple)) and len(normalize) != 2:
+        normalize = False
+
+    return CropSpec(
+        merged_path=merged_path,
+        object_type=obj,
+        label=label,
+        channels=channels_from_settings(settings),
+        size=(width, height),
+        mask_dims=mask_dims_from_settings(settings),
+        use_bounding_box=bool(settings.get("use_bounding_box", False)),
+        dilate=bool(dilate),
+        dilate_ratio=ratio,
+        normalize=normalize,
+        normalize_by=str(settings.get("normalize_by", "png")),
+    )
+
+
+
+
+#: The folders under an experiment root that a recorded path can be anchored
+#: on. The structure a spaCR run writes is ``<root>/data/`` (the exported
+#: crop PNGs), ``<root>/merged/`` (the arrays a crop is cut from) and
+#: ``<root>/measurements/measurements.db``, so BOTH anchors live under one
+#: root and one function can re-anchor every path-bearing column against
+#: whichever anchor its own path happens to contain.
+PATH_ANCHORS: Tuple[str, ...] = ("data", "merged")
+
+#: The columns a measurement frame records a path in. ``png_path`` is the
+#: exported crop, ``path_name`` / ``merged_path`` the array it was cut from --
+#: re-anchoring only the first is why a moved folder used to show its PNGs and
+#: fail on its merged arrays.
+PATH_COLUMNS: Tuple[str, ...] = ("png_path", "path_name", "merged_path")
+
+#: :func:`reanchor_path` outcomes.
+ALREADY_ANCHORED = "already"     #: the path is already under the root.
+REANCHORED = "reanchored"        #: the path was rewritten under the root.
+NO_ANCHOR = "no-anchor"          #: no anchor folder in it; left untouched.
+
+
+def normalise_separators(path: Any) -> str:
+    """Return ``path`` with every ``\\`` turned into ``/``.
+
+    A database written on Windows records ``C:\\lab\\exp1\\data\\plate1\\a.png``
+    and is then opened on Linux, where ``str.split('/data/')`` cannot match
+    and :func:`os.path.basename` returns the WHOLE string because posix knows
+    nothing of backslashes. Every path comparison in this module therefore
+    starts here, so the re-anchor works on a share mounted both ways.
+
+    :param path: anything path-like. ``None`` becomes ``''``.
+    :returns: the path in forward-slash spelling. A UNC ``\\\\server\\share``
+        becomes ``//server/share``, which is the same location.
+    """
+    if path is None:
+        return ""
+    return os.fspath(path).replace("\\", "/") if not isinstance(path, str) \
+        else path.replace("\\", "/")
+
+
+def basename_any(path: Any) -> str:
+    """The file name after the last separator of EITHER kind.
+
+    :param path: a recorded path, written on any OS.
+    :returns: the last component. ``os.path.basename`` cannot be used for
+        this: on Linux it hands back the whole of
+        ``C:\\lab\\exp1\\merged\\x.npy``, which then fails as a missing file
+        with no hint that the separator was the problem.
+    """
+    return normalise_separators(path).rstrip("/").rpartition("/")[2]
+
+
+def path_components(path: Any) -> Tuple[str, ...]:
+    """Split ``path`` into components, separator-agnostically and resolved.
+
+    ``.`` is dropped and ``..`` pops the component before it, so two spellings
+    of one location compare equal. The leading ``''`` of an absolute posix
+    path is kept, which is what stops ``old/data/x`` matching ``/old/data/x``.
+
+    :param path: a recorded path.
+    :returns: the components, root first.
+    """
+    text = normalise_separators(path)
+    if not text:
+        return ()
+    parts = text.split("/")
+    out: List[str] = []
+    for index, part in enumerate(parts):
+        if part == "" and index > 0:
+            continue
+        if part == ".":
+            continue
+        if part == ".." and out and out[-1] not in ("", ".."):
+            out.pop()
+            continue
+        out.append(part)
+    return tuple(out)
+
+
+def path_is_under(path: Any, root: Any) -> bool:
+    """True when ``path`` already sits under ``root``.
+
+    Comparison is component-wise rather than substring-based, preventing
+    similarly named sibling directories from being treated as descendants.
+
+    :param path: the recorded path.
+    :param root: the destination root.
+    :returns: whether ``path`` is ``root`` or lies inside it.
+    """
+    here = path_components(path)
+    there = path_components(root)
+    if not there or not here:
+        return False
+    return len(there) <= len(here) and here[:len(there)] == there
+
+
+def reanchor_path(path: Any, root: Any,
+                  anchors: Sequence[str] = PATH_ANCHORS) -> Tuple[str, str]:
+    """Re-anchor one recorded path under ``root`` and report the outcome.
+
+    The rightmost recognized anchor is used so nested directories with the
+    same name retain the path components nearest the file.
+
+    :param path: the recorded path, in any OS's spelling.
+    :param root: the experiment root on this machine.
+    :param anchors: the folder names that may anchor the rewrite, e.g.
+        ``('data', 'merged')``. The rightmost occurrence of ANY of them wins.
+    :returns: ``(path, outcome)`` where outcome is
+        :data:`ALREADY_ANCHORED`, :data:`REANCHORED` or :data:`NO_ANCHOR`.
+        The path is unchanged for :data:`ALREADY_ANCHORED` and
+        :data:`NO_ANCHOR`.
+    """
+    text = path if isinstance(path, str) else normalise_separators(path)
+    if not text or not root:
+        return text, NO_ANCHOR
+    if path_is_under(text, root):
+        return text, ALREADY_ANCHORED
+    parts = path_components(text)
+    wanted = {str(a).strip("/\\") for a in anchors if str(a).strip("/\\")}
+    for index in range(len(parts) - 2, -1, -1):
+        if parts[index] in wanted:
+            remainder = parts[index + 1:]
+            return os.path.join(str(root), parts[index], *remainder), REANCHORED
+    return text, NO_ANCHOR
+
+
+@dataclass(frozen=True)
+class ReanchorReport:
+    """Summary of one path re-anchoring pass.
+
+    :param root: the root everything was re-anchored under.
+    :param n_paths: how many non-null paths were looked at.
+    :param n_reanchored: how many were rewritten.
+    :param n_already: how many were already under ``root``.
+    :param failures: the paths that carried no anchor folder, in order.
+    """
+
+    root: str
+    n_paths: int = 0
+    n_reanchored: int = 0
+    n_already: int = 0
+    failures: Tuple[str, ...] = ()
+
+    @property
+    def n_failed(self) -> int:
+        """How many paths could not be re-anchored."""
+        return len(self.failures)
+
+    def describe(self) -> str:
+        """Return a log summary, or ``''`` when all paths were placed.
+
+        Failure summaries include one example path to make the unresolved
+        route identifiable.
+        """
+        if not self.failures:
+            return ""
+        if self.n_reanchored == 0 and self.n_already == 0:
+            return (f"none of the {self.n_failed:,} recorded path(s) are "
+                    f"under {self.root} -- that route's files are not on this "
+                    f"machine")
+        return (f"{self.n_failed:,} of {self.n_paths:,} recorded paths could "
+                f"not be re-anchored under {self.root} -- they contain none "
+                f"of {list(PATH_ANCHORS)}; the first is {self.failures[0]}")
+
+
+def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
+                   anchors: Sequence[str] = PATH_ANCHORS):
+    """Re-anchor every path-bearing column of ``df`` under one experiment root.
+
+    Each configured column is matched to its own rightmost anchor, allowing a
+    relocated project to resolve both exported crops and merged arrays in one
+    pass.
+
+    :param df: a measurement frame. Not copied -- the named columns are
+        written in place, which is what the callers already expect.
+    :param root: the experiment root on this machine.
+    :param columns: the columns to re-anchor. Absent ones are skipped.
+    :param anchors: the anchor folder names.
+    :returns: ``(df, report)`` with a :class:`ReanchorReport`.
+    """
+    seen = 0
+    moved = 0
+    already = 0
+    failures: List[str] = []
+    #: (recorded prefix, prefix on this machine) pairs already discovered.
+    #: Every crop of a plate shares one, so the first row that resolves pays
+    #: for the search and the rest are a string replacement and one stat.
+    prefixes: List[Tuple[str, str]] = []
+    #: Folders whose search has failed, and how many times. Without this a
+    #: route that is not on this machine at all -- a screen with PNG crops
+    #: and no `merged/`, which is healthy and common -- costs a full search
+    #: per ROW.
+    #:
+    #: A COUNT AND NOT A SET, and the difference is a bug this file's first
+    #: version had: a folder written off after ONE failed search takes every
+    #: later row in it down too, and the first row of a folder is not
+    #: guaranteed to be one whose file was exported. Measured -- a single
+    #: never-exported crop at the head of a folder lost all three real crops
+    #: behind it. Three strikes costs at most two extra searches per folder,
+    #: which is nothing against the per-row search this replaces, and a
+    #: folder does not hang on its unluckiest row.
+    #:
+    #: `spacr.portable_paths.reroot_frame` gives up after one and has the
+    #: same hole; it is left alone here rather than changed blind, and is
+    #: named in the instruction record.
+    unresolvable: Dict[str, int] = {}
+    #: How many failed searches condemn a folder.
+    give_up_after = 3
+    for column in columns:
+        if column not in getattr(df, "columns", ()):
+            continue
+        values = df[column].tolist()
+        out = []
+        for value in values:
+            if not isinstance(value, str) or not value:
+                out.append(value)
+                continue
+            seen += 1
+            new, outcome = reanchor_path(value, root, anchors=anchors)
+            if outcome != ALREADY_ANCHORED and not os.path.exists(new):
+                from .portable_paths import _reroot_with_prefix
+
+                forward = value.replace("\\", "/")
+                placed = False
+                for was, now in prefixes:
+                    if not forward.startswith(was):
+                        continue
+                    candidate = now + forward[len(was):]
+                    if os.path.exists(candidate):
+                        new, outcome, placed = candidate, REANCHORED, True
+                    break
+                if not placed:
+                    folder = os.path.dirname(forward)
+                    if unresolvable.get(folder, 0) < give_up_after:
+                        found, discovered = _reroot_with_prefix(value, root)
+                        if discovered is not None and discovered not in prefixes:
+                            prefixes.append(discovered)
+                        if found and found != value and os.path.exists(found):
+                            new, outcome = found, REANCHORED
+                            unresolvable.pop(folder, None)
+                        else:
+                            unresolvable[folder] = (
+                                unresolvable.get(folder, 0) + 1)
+            if outcome == REANCHORED:
+                moved += 1
+            elif outcome == ALREADY_ANCHORED:
+                already += 1
+            else:
+                failures.append(value)
+            out.append(new)
+        df[column] = out
+    return df, ReanchorReport(root=str(root), n_paths=seen, n_reanchored=moved,
+                              n_already=already, failures=tuple(failures))
+
+
+def object_label(value: Any) -> int:
+    """Return the integer object label from a measurement or crop-table value.
+
+    Measurement tables store ``object_label`` as an integer. ``png_list``
+    stores the equivalent ``cell_id`` in ``o<n>`` form. Both representations
+    are accepted.
+
+    :raises CropError: for anything that is not a label at all, naming the
+        value rather than leaving a bare ValueError from int().
+    """
+    if isinstance(value, (int, np.integer)) and not isinstance(value, bool):
+        return int(value)
+    text = str(value).strip()
+    if text[:1].isalpha():
+        text = text[1:]
+    try:
+        return int(text)
+    except (TypeError, ValueError):
+        raise CropError(
+            f"object label {value!r} is not a label: spaCR writes it as an "
+            f"integer in the measurement tables and as 'o<n>' in png_list, "
+            f"and this is neither.") from None
+
+
+#: The old private name. Kept because the function is now the ONE parser for
+#: an object label and other modules import it.
+_object_label = object_label
+
+
+def _row_get(row: Any, *names: str, default: Any = None) -> Any:
+    """Read the first present key/attribute of ``row`` out of ``names``."""
+    for name in names:
+        if isinstance(row, Mapping):
+            if name in row:
+                val = row[name]
+                if val is not None:
+                    return val
+        else:
+            try:
+                if name in row:
+                    val = row[name]
+                    if val is not None and not (isinstance(val, float) and np.isnan(val)):
+                        return val
+                    continue
+            except (TypeError, KeyError, ValueError):
+                pass
+            val = getattr(row, name, None)
+            if val is not None:
+                return val
+    return default
+
+
+class CropSource:
+    """A source of single-object crops.
+
+    Implementations return a ``(H, W, 3)`` uint8 RGB array from :meth:`get`, so
+    a consumer can swap one for the other without changing anything downstream.
+    """
+
+    #: ``'png'`` or ``'merged'`` -- which source this is.
+    kind: str = "abstract"
+    #: Human-readable explanation of why this source was chosen.
+    reason: str = ""
+
+    def get(self, row: Any) -> np.ndarray:
+        """Return the crop for ``row`` as a ``(H, W, 3)`` uint8 RGB array.
+
+        :param row: one measurement row -- a mapping, a pandas ``Series``, or
+            any object carrying the fields as attributes. Which fields are
+            required is the implementation's business, not the interface's:
+            :class:`PngCropSource` needs ``png_path`` (or accepts a bare path
+            string), :class:`MergedCropSource` needs the merged file and
+            ``object_label``.
+        """
+        raise NotImplementedError
+
+    def get_image(self, row: Any):
+        """Return the crop for ``row`` as a PIL ``Image`` in RGB mode.
+
+        :param row: as for :meth:`get`. PIL is imported inside this method,
+            so a consumer that only ever wants arrays never pays for it.
+        """
+        from PIL import Image
+        return Image.fromarray(self.get(row))
+
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
+        """Return crops for many rows. Overridden by sources that can batch.
+
+        :param rows: rows to crop. The result has one entry per row in the
+            same order, so a caller can zip the two. This base implementation
+            is a plain loop over :meth:`get` and therefore raises on the first
+            row it cannot crop, and so does the one override shipped here,
+            on :class:`MergedCropSource`. Successful calls therefore never
+            contain ``None``.
+        """
+        return [self.get(r) for r in rows]
+
+    def describe(self) -> str:
+        """Return a one-line description for logs / the GUI status bar."""
+        return f"{self.kind} crop source ({self.reason})" if self.reason else f"{self.kind} crop source"
+
+
+
+#: Whether to print each crop path as it is read. Enabled by default to make
+#: crop-source problems visible; disable it when loading large montages if
+#: the per-file output is not needed.
+PRINT_CROP_PATHS = True
+
+#: Paths announced since the last :func:`forget_announced_crops` call.
+_ANNOUNCED_CROPS: set = set()
+
+
+#: Per-thread suppression of the announcements, set by
+#: :func:`quiet_crop_paths` and read by :func:`_say_which_crop`.
+_QUIET_CROP_PATHS = threading.local()
+
+
+def say_crop_paths(on: bool = True) -> None:
+    """Turn the per-crop path printing on or off, for the whole process."""
+    global PRINT_CROP_PATHS
+    PRINT_CROP_PATHS = bool(on)
+
+
+@contextmanager
+def quiet_crop_paths():
+    """Silence the per-crop announcements on the CALLING THREAD only.
+
+    :data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk
+    reader that turns it off around its own work turns it off for every
+    other reader running at the same time -- in the app, for whichever
+    screen is reading crops in another thread, which then loses the
+    ``<- NOT ON DISK`` line that is the only reason the flag defaults to on.
+    A missing crop there reads as a silent success until the bulk read
+    finishes and puts the flag back.
+
+    So a reader that wants quiet asks for quiet here instead: the
+    suppression is thread-local, the global flag is left exactly as it was,
+    and a concurrent reader on another thread keeps its diagnostics.
+
+    :returns: a context manager. Restores the previous state on the way out,
+        including when the body raises, and nests.
+    """
+    was = getattr(_QUIET_CROP_PATHS, "on", False)
+    _QUIET_CROP_PATHS.on = True
+    try:
+        yield
+    finally:
+        _QUIET_CROP_PATHS.on = was
+
+
+def forget_announced_crops() -> None:
+    """Clear the record of announced crop paths so each is printed again."""
+    _ANNOUNCED_CROPS.clear()
+
+
+def _say_which_crop(path: str) -> None:
+    """Print the crop being opened, once per path."""
+    if getattr(_QUIET_CROP_PATHS, "on", False):
+        return
+    if not PRINT_CROP_PATHS or not path:
+        return
+    text = str(path)
+    if text in _ANNOUNCED_CROPS:
+        return
+    _ANNOUNCED_CROPS.add(text)
+    exists = "" if os.path.exists(text) else "   <- NOT ON DISK"
+    print(f"crop: {text}{exists}", flush=True)
+
+
+class PngCropSource(CropSource):
+    """Crop source that reads the pre-generated PNG named by each row.
+
+    Reads go through :func:`read_crop_png`, which reverses format-2 files and
+    returns format-1 and format-3 files unchanged, so every folder comes back
+    in the same declared channel order whichever format it holds.
+
+    :param root: optional experiment root used to re-anchor ``png_path`` values
+        recorded on another machine (the same rewrite
+        :func:`spacr.utils.correct_paths` performs).
+    :param folder: the anchor folder name for that rewrite.
+    :param reason: why this source was chosen (for :meth:`describe`).
+    :param db_path: ``measurements.db`` consulted for the ``crop_format``
+        column when a folder carries no sidecar; defaults to
+        ``<root>/measurements/measurements.db`` when ``root`` is given.
+    """
+
+    kind = "png"
+
+    def __init__(self, root: Optional[str] = None, folder: str = "data",
+                 reason: str = "", db_path: Optional[str] = None):
+        """Configure reanchoring and discover an existing default database."""
+        self.root = root
+        self.folder = folder
+        self.reason = reason
+        if db_path is None and root:
+            candidate = os.path.join(root, "measurements", "measurements.db")
+            db_path = candidate if os.path.isfile(candidate) else None
+        self.db_path = db_path
+
+    def resolve(self, row: Any) -> str:
+        """Return the on-disk PNG path for ``row``, re-anchored under ``root``.
+
+        :param row: a row carrying ``png_path`` (or ``path``), or a bare path
+            string, which is accepted as-is and only re-anchored. A row with
+            neither raises :class:`CropError`. Re-anchoring goes through
+            :func:`reanchor_path`, so it is separator-agnostic (a Windows
+            path opened on Linux re-anchors), it takes the LAST ``<folder>``
+            component rather than the first (an old root that itself
+            contained a ``data`` folder used to produce a path naming a
+            directory), and "already under the root" is a component-wise
+            prefix test rather than a substring one. A path carrying no
+            anchor at all is returned untouched even if it points nowhere on
+            this machine, and the failure surfaces on read.
+        """
+        path = row if isinstance(row, str) else _row_get(row, "png_path", "path")
+        if not path:
+            raise CropError("row has no 'png_path'")
+        recorded = str(path)
+        path = recorded
+        if self.root:
+            path, _outcome = reanchor_path(path, self.root,
+                                           anchors=(self.folder,))
+        if path and not os.path.exists(path):
+            from .portable_paths import reroot_crop_path
+
+            found = reroot_crop_path(recorded, self.root or self.db_path)
+            if found and os.path.exists(found):
+                return found
+        return path
+
+    def get(self, row: Any) -> np.ndarray:
+        """Return the PNG for ``row`` decoded as a ``(H, W, 3)`` uint8 RGB array.
+
+        Legacy content is converted on load, so this equals
+        ``png_view(extract_crop(...))`` for the same object whichever format
+        the folder is in.
+
+        :param row: as for :meth:`resolve`. The folder's sidecar -- failing
+            that, this source's ``db_path`` -- is what decides whether the
+            file's channels are reversed on the way back, so the same row can
+            legitimately give different pixels before and after a folder is
+            marked or migrated.
+        """
+        path = self.resolve(row)
+        _say_which_crop(path)
+        return read_crop_png(path, db_path=self.db_path)
+
+
+class MergedCropSource(CropSource):
+    """Crop source that cuts each crop out of ``merged/*.npy`` on demand.
+
+    A row needs the merged array it came from and the object's label. Both are
+    already in ``measurements.db``: ``path_name`` (written by
+    :func:`spacr.utils._merge_and_save_to_database`) and ``object_label``.
+    ``prcfo`` / ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` are used
+    only as a fallback to rebuild ``<merged_root>/<plate>_<well>_<field>.npy``.
+
+    :param spec: the template :class:`CropSpec`; each row supplies
+        ``merged_path`` and ``label``.
+    :param merged_root: folder holding the ``.npy`` files, used to re-anchor a
+        ``path_name`` recorded on another machine and for the ``prcfo``
+        fallback.
+    :param object_type: default object type when a row does not carry one.
+    :param reason: why this source was chosen (for :meth:`describe`).
+    """
+
+    kind = "merged"
+
+    def __init__(self, spec: Optional[CropSpec] = None,
+                 merged_root: Optional[str] = None,
+                 object_type: Optional[str] = None,
+                 reason: str = ""):
+        """Configure on-demand crops, optionally overriding the object type."""
+        self.spec = spec or CropSpec(merged_path="")
+        if object_type:
+            self.spec = replace(self.spec, object_type=object_type)
+        self.merged_root = merged_root
+        self.reason = reason
+
+    def resolve_path(self, row: Any) -> str:
+        """Return the merged ``.npy`` path for ``row``.
+
+        The row-to-well conversion uses :mod:`spacr.schema`, imported lazily
+        to keep this module's import path dependency-light.
+
+        :param row: a measurement row. ``merged_path`` or ``path_name`` is
+            used directly, and -- when that path does not exist here --
+            retried as ``<merged_root>/<basename>``, which is how a database
+            written on another machine still resolves. A path that exists
+            nowhere is returned anyway, so the failure arrives later as
+            :class:`MergedFileMissing`. With neither key the name is rebuilt
+            from ``file_name``, or else from ``plateID`` / ``rowID`` /
+            ``columnID`` / ``fieldID`` (all four required), and
+            ``merged_root`` must be set or this raises.
+        """
+        path = _row_get(row, "merged_path", "path_name")
+        if path:
+            path = str(path)
+            if self.merged_root and not os.path.isfile(path):
+                anchored, outcome = reanchor_path(
+                    path, os.path.dirname(os.path.abspath(self.merged_root)),
+                    anchors=("merged",))
+                if outcome == REANCHORED and os.path.isfile(anchored):
+                    return anchored
+                candidate = os.path.join(self.merged_root, basename_any(path))
+                if os.path.isfile(candidate):
+                    return candidate
+            return path
+        if not self.merged_root:
+            raise CropError(
+                "row has no 'path_name' and no merged_root was given, so the "
+                "merged array cannot be located")
+        stem = _row_get(row, "file_name")
+        if stem:
+            stem = os.path.splitext(str(stem))[0]
+        else:
+            plate = _row_get(row, "plateID")
+            rowid = _row_get(row, "rowID")
+            colid = _row_get(row, "columnID")
+            fieldid = _row_get(row, "fieldID")
+            if plate is None or rowid is None or colid is None or fieldid is None:
+                raise CropError(
+                    "row has no 'path_name' and not enough metadata "
+                    "(plateID/rowID/columnID/fieldID) to rebuild it")
+            from . import schema
+            try:
+                well = schema.well_id(rowid, colid)
+                field = schema.field_index(fieldid)
+                if field is None:
+                    raise schema.KeyParseError(
+                        f"fieldID {fieldid!r} holds no field number")
+            except schema.SchemaError as exc:
+                raise CropError(
+                    f"row has no 'path_name' and its metadata does not name a "
+                    f"field: {exc}") from exc
+            stem = f"{plate}_{well}_{field}"
+        return self._merged_named(stem)
+
+    def _merged_named(self, stem: str) -> str:
+        """Return ``<merged_root>/<stem>.npy``, dropping a crop's object suffix.
+
+        The two tables spell ``file_name`` differently. ``cell`` holds the
+        field it was measured in -- ``plate1_E01_16_1`` -- while ``png_list``
+        holds the crop -- ``plate1_E01_17_1_2.png``, the same field with the
+        object label appended. Rebuilding the merged name from ``png_list``
+        therefore asked for ``plate1_E01_17_1_2.npy``, which no run writes,
+        and every annotator row failed with :class:`MergedFileMissing`.
+        png_list rows are the annotator's rows, so streaming crops for it
+        could not work against any database spaCR writes.
+
+        The trailing ``_<n>`` is dropped only when the full name is absent
+        and the shortened one is really there, so a field whose own name ends
+        in a number is never mistaken for a crop.
+        """
+        path = os.path.join(self.merged_root, f"{stem}.npy")
+        if not os.path.isfile(path):
+            head, sep, tail = stem.rpartition("_")
+            if sep and head and tail.isdigit():
+                candidate = os.path.join(self.merged_root, f"{head}.npy")
+                if os.path.isfile(candidate):
+                    return candidate
+        return path
+
+    def spec_for(self, row: Any) -> CropSpec:
+        """Return the :class:`CropSpec` describing ``row``'s crop.
+
+        :param row: a measurement row. The label is the first present of
+            ``object_label``, ``label``, ``cell_id``, ``nucleus_id``,
+            ``pathogen_id``, ``cytoplasm_id``, and a row with none of them
+            raises :class:`CropError`; ``object_type``, if present,
+            overrides the template spec's. ``bbox-0`` .. ``bbox-3`` (or
+            ``bbox_0`` .. ``bbox_3``) are honoured only when all four are
+            there, and are reordered out of the skimage ``regionprops``
+            convention ``(min_row, min_col, max_row, max_col)`` into the
+            spec's ``(y0, y1, x0, x1)`` -- supplying them lets the crop skip
+            the whole-plane label index scan. The mask plane inside that box
+            is still read, unless the spec also sets ``use_bounding_box``,
+            which skips reading the label plane altogether.
+        """
+        label = _row_get(row, "object_label", "label", "cell_id", "nucleus_id",
+                         "pathogen_id", "cytoplasm_id")
+        if label is None:
+            raise CropError("row has no 'object_label'")
+        label = object_label(label)
+        obj = _row_get(row, "object_type", default=self.spec.object_type)
+        bbox = None
+        b = [_row_get(row, f"bbox-{i}", f"bbox_{i}") for i in range(4)]
+        if all(v is not None for v in b):
+            bbox = (int(b[0]), int(b[2]), int(b[1]), int(b[3]))
+        return replace(self.spec, merged_path=self.resolve_path(row),
+                       object_type=str(obj), label=label, bbox=bbox)
+
+    def get_array(self, row: Any) -> np.ndarray:
+        """Return the raw crop (native dtype, ``spec.channels`` order).
+
+        :param row: a measurement row; :meth:`spec_for` says which fields it
+            has to carry. What comes back is the *pre-write* array -- the
+            merged file's dtype (``uint16`` on a normal run) and as many
+            channels as the spec selects -- not 8-bit RGB. Use :meth:`get`
+            for something a viewer or a classifier can take.
+        """
+        spec = self.spec_for(row)
+        return extract_crop(spec.merged_path, spec=spec)
+
+    def get(self, row: Any) -> np.ndarray:
+        """Return the crop as a ``(H, W, 3)`` uint8 RGB array.
+
+        Deliberately routed through :func:`png_view`, so what a consumer gets
+        here is identical to what :func:`read_crop_png` returns for the same
+        object out of the PNG folder -- 16-bit narrowing included.
+
+        :param row: a measurement row; :meth:`spec_for` says which fields it
+            has to carry. Each row is resolved and cut on its own, so use
+            :meth:`get_many` when filling a grid -- it opens each merged file
+            once for the whole batch instead of once per row.
+        """
+        return png_view(self.get_array(row))
+
+    def get_many(self, rows: Iterable[Any]) -> List[np.ndarray]:
+        """Return crops for many rows, opening each merged file only once.
+
+        :param rows: rows to crop; :meth:`spec_for` says which fields each has
+            to carry. The result has one entry per row in the original order,
+            however the rows were regrouped internally -- they are bucketed by
+            merged file so each ``.npy`` is memory-mapped and label-indexed
+            once for the whole bucket. Every spec is built up front, so one
+            row missing its label fails the batch before any file is opened.
+            The default fail-loud extraction policy means successful calls
+            never contain ``None``.
+        """
+        rows = list(rows)
+        specs = [self.spec_for(r) for r in rows]
+        out: List[Optional[np.ndarray]] = [None] * len(specs)
+        by_path: Dict[str, List[int]] = {}
+        for i, spec in enumerate(specs):
+            by_path.setdefault(spec.merged_path, []).append(i)
+        for path, positions in by_path.items():
+            crops = extract_crops(path, [specs[i] for i in positions])
+            for i, crop in zip(positions, crops):
+                out[i] = png_view(crop) if crop is not None else None
+        return cast(List[np.ndarray], out)
+
+
+def _looks_like_experiment_root(src: str) -> str:
+    """Return the experiment root for ``src`` (which may be the merged folder)."""
+    src = os.path.abspath(os.fspath(src).rstrip(os.sep))
+    if os.path.basename(src) == "merged":
+        return os.path.dirname(src)
+    return src
+
+
+def _has_png_folder(root: str) -> bool:
+    """Return True if ``<root>/data`` holds at least one ``*_png`` crop folder."""
+    data = os.path.join(root, "data")
+    if not os.path.isdir(data):
+        return False
+    for dirpath, dirnames, _files in os.walk(data):
+        for name in dirnames:
+            if name.endswith("_png"):
+                return True
+        if dirpath.count(os.sep) - data.count(os.sep) >= 3:
+            dirnames[:] = []
+    return False
+
+
+
+
+#: Read the crops already written under ``data/``. THE DEFAULT, always.
+LOAD_IMAGES = "png"
+LOAD_IMAGES_LABEL = "load images"
+
+#: Cut them out of ``merged/*.npy`` as it goes, locating each object by the
+#: LABEL it carries in a mask plane of that array.
+#:
+#: The stored value stays ``'merged'``: it is what every settings file and
+#: every recorded run already holds, and it is still the mode that streams.
+STREAM_IMAGES = "merged"
+STREAM_IMAGES_LABEL = "stream images (array)"
+
+#: Cut them out of ``merged/*.npy`` too, locating each object by its row in
+#: the measurement database instead.
+#:
+#: THE SAME PIXELS, A DIFFERENT WAY OF FINDING THEM. The array route reads
+#: the object's label out of a mask plane, so it can follow the outline; this
+#: one reads a coordinate column, which gives a rectangle and nothing to
+#: follow. Separating them at the source is what makes that difference
+#: visible before a crop is cut, rather than after.
+STREAM_FROM_DB = "merged_db"
+STREAM_FROM_DB_LABEL = "stream images (database)"
+
+#: ``(value, label)`` in the order a panel should offer them.
+PICTURE_SOURCES: Tuple[Tuple[str, str], ...] = (
+    (LOAD_IMAGES, LOAD_IMAGES_LABEL),
+    (STREAM_IMAGES, STREAM_IMAGES_LABEL),
+    (STREAM_FROM_DB, STREAM_FROM_DB_LABEL),
+)
+
+#: Every value that cuts from ``merged/*.npy``, whichever way it locates.
+STREAMING_SOURCES: Tuple[str, ...] = (STREAM_IMAGES, STREAM_FROM_DB)
+
+
+def picture_source_label(value: str) -> str:
+    """The user-facing name for a stored crop-source value."""
+    text = str(value or "").strip().lower()
+    for stored, label in PICTURE_SOURCES:
+        if text == stored:
+            return label
+    return text or LOAD_IMAGES_LABEL
+
+
+def resolve_crop_source(
+        settings_or_src: Union[str, Sequence[str], Mapping[str, Any]],
+                        *, object_type: Optional[str] = None,
+                        prefer: Optional[str] = None,
+                        ask: Optional[Any] = None) -> CropSource:
+    """Pick the crop source for a run, and record which one it picked.
+
+    The returned object's :attr:`CropSource.kind` is ``'png'`` or ``'merged'``
+    and :attr:`CropSource.reason` says why, so a caller can print
+    ``source.describe()`` instead of guessing.
+
+    Selection order:
+
+    1. an explicit ``prefer`` argument, then ``settings['crop_source']``
+       (``'png'`` | ``'merged'`` | ``'auto'``);
+    2. otherwise ``'auto'``: the PNG folder if one exists (nothing changes for
+       existing datasets), else the merged folder.
+
+    When the merged source is chosen and ``measurements.db`` holds the
+    ``measure_crop`` settings, the crop parameters (``png_dims``, ``png_size``,
+    ``normalize``, mask plane indices, ...) are read back from it, so the
+    on-demand crops match the PNGs that run would have produced.
+
+    :param settings_or_src: a settings dict (with ``src``, optionally
+        ``crop_source``), a source path, or a list/tuple whose first entry is
+        the source path -- the experiment root or its ``merged`` folder.
+    :param object_type: default object type for the merged source.
+    :param prefer: force ``'png'`` or ``'merged'``.
+    :raises CropError: the requested source is not available.
+    """
+    if isinstance(settings_or_src, Mapping):
+        settings = dict(settings_or_src)
+        src = settings.get("src")
+    else:
+        settings = {}
+        src = settings_or_src
+    if isinstance(src, (list, tuple)):
+        src = src[0] if src else None
+    if not src:
+        raise CropError("no 'src' to resolve a crop source from")
+
+    root = _looks_like_experiment_root(str(src))
+    merged_dir = os.path.join(root, "merged")
+    db_path = os.path.join(root, "measurements", "measurements.db")
+
+    choice = prefer or settings.get("crop_source") or "auto"
+    choice = str(choice).lower()
+    if choice not in ("auto", "png", "merged"):
+        raise CropError(
+            f"crop_source must be 'auto', 'png' or 'merged', got {choice!r}")
+
+    has_png = _has_png_folder(root)
+    has_merged = os.path.isdir(merged_dir)
+
+    if choice == "png" and has_png:
+        return PngCropSource(root=root, reason=LOAD_IMAGES_LABEL)
+    if choice == "auto" and has_png:
+        return PngCropSource(
+            root=root,
+            reason=f"{LOAD_IMAGES_LABEL}: pre-generated crops found under "
+                   f"{os.path.join(root, 'data')}")
+
+    if not has_merged:
+        if choice == "merged" and has_png:
+            return PngCropSource(
+                root=root,
+                reason=f"{STREAM_IMAGES_LABEL} was asked for and there is no "
+                       f"'merged/' folder under {root}, so this is "
+                       f"{LOAD_IMAGES_LABEL} instead")
+        if ask is not None:
+            tried = (f"no '*_png' folder under 'data/' and no 'merged/' "
+                     f"folder in {root}")
+            answer = ask(tried=tried, root=root)
+            if answer:
+                return resolve_crop_source(answer, object_type=object_type,
+                                           prefer=prefer)
+        raise CropError(
+            f"no crop source available for {root}: no '*_png' folder under "
+            f"'data/' and no 'merged/' folder")
+
+    saved: Dict[str, Any] = {}
+    if os.path.isfile(db_path):
+        try:
+            saved = crop_settings_from_db(db_path)
+        except CropError:
+            saved = {}
+    merged_settings = dict(saved)
+    for key in ("png_dims", "png_size", "normalize", "normalize_by", "crop_mode",
+                "use_bounding_box", "dialate_pngs", "dialate_png_ratios",
+                *(f"{role}_mask_dim" for role in SEGMENTED_ROLES)):
+        if key in settings:
+            merged_settings[key] = settings[key]
+    spec = crop_spec_from_settings(merged_settings, object_type=object_type)
+
+    if choice == "merged":
+        reason = f"{STREAM_IMAGES_LABEL}: selected by the user"
+    elif choice == "png":
+        reason = (f"{LOAD_IMAGES_LABEL} was asked for and there is no "
+                  f"'*_png' folder under {os.path.join(root, 'data')}, so "
+                  f"this is {STREAM_IMAGES_LABEL} instead")
+    else:
+        reason = (f"{STREAM_IMAGES_LABEL}: no pre-generated crops found, "
+                  f"cutting from merged/*.npy")
+    if saved:
+        reason += " (crop settings recovered from measurements.db)"
+    return MergedCropSource(spec=spec, merged_root=merged_dir,
+                            object_type=object_type, reason=reason)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+#: The six ways three colour slots can be filled from three source planes.
+#: A DISPLAY choice, not a statement about the file -- see
+#: :func:`apply_display_order`.
+DISPLAY_ORDERS: Tuple[str, ...] = ("rgb", "rbg", "grb", "gbr", "brg", "bgr")
+
+#: The identity, and the default everywhere. Named so call sites read as
+#: "no permutation" rather than as a magic string.
+DISPLAY_ORDER_IDENTITY = "rgb"
+
+
+def display_order_indices(order: str) -> Tuple[int, int, int]:
+    """Return the source plane index of each slot: ``'bgr'`` -> ``(2, 1, 0)``.
+
+    :param order: three letters from r/g/b, each used once.
+    :returns: source index for the red, green and blue slots.
+    :raises CropError: anything that is not a permutation of rgb. Refused
+        rather than defaulted, because silently ignoring a typed order shows
+        the user a picture they did not ask for and did not know they were
+        not getting.
+    """
+    text = str(order or "").strip().lower().replace(",", "").replace(" ", "")
+    if sorted(text) != ["b", "g", "r"]:
+        raise CropError(
+            f"display order {order!r} must use r, g and b exactly once; "
+            f"the six valid orders are {list(DISPLAY_ORDERS)}")
+    return tuple("rgb".index(letter) for letter in text)  # type: ignore[return-value]
+
+
+def apply_display_order(image, order: str = DISPLAY_ORDER_IDENTITY):
+    """Apply a display-only permutation to an RGB image.
+
+    Crop-format decoding and display preference are separate operations.
+    :func:`read_crop_png` resolves how channel bytes were stored;
+    ``apply_display_order`` changes only their presentation and does not alter
+    or infer the on-disk format.
+
+    :param image: ``(H, W, 3)`` array, already in the corrected format.
+    :param order: one of :data:`DISPLAY_ORDERS`. The default is the identity
+        and returns the original array unchanged.
+    :returns: the permuted array, or ``image`` itself for the identity.
+    :raises CropError: an order that is not a permutation of rgb.
+    """
+    indices = display_order_indices(order)
+    if indices == (0, 1, 2):
+        return image
+    array = np.asarray(image)
+    if array.ndim != 3 or array.shape[2] < 3:
+        return image
+    return array[:, :, list(indices)]
+
+
+#: How a three-channel image is coloured on screen. TWO DIFFERENT GOALS live
+#: here and they are deliberately separate modes rather than one "colourblind"
+#: switch:
+#:
+#:   rgb          what the camera meant. The default.
+#:   cmy          THE PUBLISHING CONVENTION. Cyan / magenta / yellow is how
+#:                biologists show multichannel micrographs now, and users want
+#:                it because it is what a figure looks like -- not primarily
+#:                for accessibility. Offered on its own merits.
+#:   deuteranope  }  ACCESSIBILITY. One per deficiency, because the deficiency
+#:   protanope    }  decides which pair collapses and therefore which
+#:   tritanope    }  substitution helps. A single "colourblind" mode cannot be
+#:                   right for all three.
+DISPLAY_PRIMARIES: Tuple[str, ...] = (
+    "rgb", "cmy", "deuteranope", "protanope", "tritanope")
+
+#: source plane -> the RGB it is drawn in, per mode. Each row is one plane.
+#:
+#: CMY IS NOT AN ACCESSIBILITY MODE, and the numbers say so. Simulated against
+#: a Brettel-style deuteranope transform, a red stain beside a green one is
+#: 21.2 apart drawn as RGB and 10.6 apart drawn as CMY -- cyan and magenta
+#: separate along the very axis the deficiency removes. It is here because it
+#: is the convention, and the accessibility modes are here because they work.
+#:
+#: The per-deficiency mappings were chosen by scoring every triple of
+#: primaries under normal, deuteranope, protanope and tritanope simulation and
+#: taking the WORST pair in each -- the pair a user would confuse:
+#:
+#:     red/green/blue        283 normal,  21 deuter,  60 protan
+#:     green/blue/yellow     200 normal, 146 deuter, 159 protan
+#:
+#: 21 is not a small number, it is invisible: to a deuteranope a red stain and
+#: a green stain are ONE COLOUR, which is the whole complaint.
+_PRIMARY_MATRICES = {
+    "cmy": (np.array([[0.0, 1.0, 1.0],
+                      [1.0, 0.0, 1.0],
+                      [1.0, 1.0, 0.0]], dtype=np.float32), 2.0),
+    "deuteranope": (np.array([[1.0, 1.0, 0.0],
+                              [0.0, 1.0, 0.0],
+                              [0.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+    "protanope": (np.array([[1.0, 1.0, 0.0],
+                            [0.0, 1.0, 0.0],
+                            [0.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+    "tritanope": (np.array([[1.0, 0.0, 0.0],
+                            [0.0, 1.0, 0.0],
+                            [1.0, 0.0, 1.0]], dtype=np.float32), 1.0),
+}
+
+
+def apply_display_primaries(image, primaries: str = "rgb"):
+    """Redraw an RGB image in ``primaries``. A DISPLAY transform only.
+
+    See :data:`DISPLAY_PRIMARIES` for the modes and why ``cmy`` is offered as
+    a publishing convention rather than as an accessibility mode.
+
+    NOT an RGB->CMYK conversion. CMYK is a subtractive PRINT model: on a
+    screen it darkens, does not improve separability, and is lossy in a way
+    that changes what the user believes they are seeing. ``cmy`` here is a
+    channel substitution -- each plane keeps its own identity and the result
+    stays additive, so two stains overlapping still brighten.
+
+    :param image: ``(H, W, 3)`` array.
+    :param primaries: one of :data:`DISPLAY_PRIMARIES`.
+    :returns: the redrawn array, or ``image`` itself for ``'rgb'``.
+    :raises CropError: an unknown mode, named rather than ignored.
+    """
+    name = str(primaries or "rgb").strip().lower()
+    if name not in DISPLAY_PRIMARIES:
+        raise CropError(
+            f"display primaries {primaries!r} must be one of "
+            f"{list(DISPLAY_PRIMARIES)}")
+    if name == "rgb":
+        return image
+    array = np.asarray(image)
+    if array.ndim != 3 or array.shape[2] < 3:
+        return image
+
+    matrix, divisor = _PRIMARY_MATRICES[name]
+    original = array.dtype
+    mixed = array[:, :, :3].astype(np.float32) @ matrix / divisor
+    if np.issubdtype(original, np.integer):
+        info = np.iinfo(original)
+        return np.clip(mixed, info.min, info.max).astype(original)
+    return mixed.astype(original)

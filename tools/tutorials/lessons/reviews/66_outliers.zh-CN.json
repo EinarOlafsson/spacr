@@ -1,0 +1,40 @@
+{
+  "lesson": "66_outliers",
+  "english_sha256": "11fc8373bff222df7688c809af9a0f13ee7ffe05927b59ef7fbdf36f1c883ca7",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Outliers：标记需要检查的测量值",
+  "description": "选择特征和稳健规则，检查对象和孔的结果，并连同完整输入表导出标记。",
+  "objectives": [
+    "加载测量数据并选择要扫描的特征。",
+    "比较MAD、IQR和对数变换后的规则。",
+    "阅读评分的局限，并导出行、标记和报告。"
+  ],
+  "prerequisite": "使用Annotate示例中measurements.db的工作副本。标记用于找出需要检查的观测；请根据您的分析选择阈值。示例有四个孔，少于跨孔比较所需的五个。请把未评分的孔与已评分但没有标记的孔区分开。",
+  "scenes": [
+    "从Home打开QC，然后选择Outliers。使用Annotate示例的数据库，把异常的测量值标记出来以便检查。",
+    "点击Load table并选择cell表。加载时会自动扫描所选的连续特征。在解读这个宽泛的初始结果之前，请先检查所选特征。",
+    "在特征搜索框为空时，点击None清除全部选择。搜索cell_area，勾选该特征并点击Scan。更改选择后需要重新扫描。",
+    "选择MAD，Transform保持为none，把k设为三点五。点击Scan。该规则用稳健的尺度测量与中位数的距离，在本例中标记了二十六个对象。",
+    "打开Wells，阅读well_scored和reason列。这四个孔没有评分，因为比较至少需要五个符合条件的孔。Flagged share单独汇总对象的标记。",
+    "打开Report，阅读规则、中心和尺度。在此版本中，其关于孔数的一般说明不适用于本例；请以Wells表中的具体原因为准：符合条件的孔太少。",
+    "降低k可以标记偏离中心较小的对象。设为零点五时，本例有一千四百七十九个标记。对象表只显示五百行，因此请使用标记计数，而不是可见的行数。",
+    "选择Export并输入新的文件名。objects CSV保留所有输入行及其标记；flagged只包含被标记的对象。Wells和report保存孔的汇总和分析文字。",
+    "选择IQR，把c设为一点五，然后点击Scan。这会应用基于四分位距的界限，对原始细胞面积标记五十五个对象。",
+    "阅读IQR报告中的界限。显示的中心是第一和第三四分位数的中点，尽管此版本把它标为median。需要真正的中位数时，请使用源数据。",
+    "选择log十并再次扫描。中心、尺度和距离规则现在作用于对数变换后的值。试试三点五的MAD，把其结果与IQR规则比较。",
+    "把Transform恢复为none，清除特征选择，只选择cell_channel_0_min_intensity。在尝试对数变换之前，先扫描原始值。",
+    "选择log十并点击Scan。该特征包含零，因此变换被拒绝，导出也被禁用。请阅读错误信息：仍然可见的旧行属于上一次的结果。",
+    "恢复原始的cell_area、MAD和三点五的k，然后点击Scan。把Min objects per well提高到七百会使三个孔不符合条件。剩下的一个孔仍然无法支持五孔比较。",
+    "把Min objects per well恢复为二十。关闭Score wells too并点击Scan，只获取对象标记。重新开启并再次扫描，即可包含孔的汇总。",
+    "用单独的文件名导出恢复后的规则。把报告与二十六个被标记的行、完整的对象表和四个孔的汇总放在一起，以便识别所用的设置。",
+    "在Python中，请使用spacr.qt.widgets.outlier_model中的detect_outliers和OutlierSpec。在决定如何处理被标记的对象之前，可继续用Feature Explorer检查分布，或用Annotate查看对应的图像。"
+  ]
+}

@@ -1,0 +1,230 @@
+diff --git a/spacr/qt/widgets/ambient.py b/spacr/qt/widgets/ambient.py
+index 5dfa324110..de10335829 100644
+--- a/spacr/qt/widgets/ambient.py
++++ b/spacr/qt/widgets/ambient.py
+@@ -4620,7 +4620,7 @@ class _DataArtEngine(_BufferedEngine):
+     base_edge = 2048
+     _families = ("point_atlas", "tissue_facets", "chromatin_ribbon",
+                  "genetic_advection", "impulse_lens")
+-    _interactive = frozenset(("point_atlas", "genetic_advection",
++    _interactive = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
+                               "impulse_lens"))
+ 
+     def __init__(self, *args, family: str, **kwargs):
+@@ -4631,6 +4631,7 @@ class _DataArtEngine(_BufferedEngine):
+         self.name = f"data_art_{family}"
+         self.interactive = family in self._interactive
+         self.pointer: Optional[Tuple[float, float]] = None
++        self.gravity_radius = 0.0
+         super().__init__(*args, **kwargs)
+ 
+     def _configure(self, rng: random.Random) -> None:
+@@ -4692,7 +4693,8 @@ class _DataArtEngine(_BufferedEngine):
+         self.pointer = (max(0.0, min(1.0, float(x))),
+                         max(0.0, min(1.0, float(y)))) if (
+                             math.isfinite(x) and math.isfinite(y)) else None
+-        if self.family == "impulse_lens" and self.pointer is not None:
++        if (self.gravity_radius > 0.0 and self.family == "impulse_lens"
++                and self.pointer is not None):
+             previous = self._pointer_impulse_origin
+             moved = previous is None or math.hypot(
+                 self.pointer[0] - previous[0], self.pointer[1] - previous[1]) > 0.006
+@@ -4703,7 +4705,8 @@ class _DataArtEngine(_BufferedEngine):
+ 
+     def _add_impulse(self, point, strength: float = 1.0) -> None:
+         """Remember a bounded, finite gravity burst in animation time."""
+-        if self.family != "impulse_lens" or point is None:
++        if (self.gravity_radius <= 0.0 or self.family != "impulse_lens"
++                or point is None):
+             return
+         x, y = point
+         if not all(math.isfinite(value) for value in (x, y, strength)):
+@@ -4717,6 +4720,41 @@ class _DataArtEngine(_BufferedEngine):
+                   if 0.0 <= self.time - event[0] < 5.0]
+         self._gravity_impulses = (recent + [(self.time, point, strength)])[-24:]
+ 
++    def set_gravity_radius(self, radius: float) -> None:
++        """Set finite mouse reach in fractions of the shorter screen edge."""
++        radius = float(radius)
++        radius = max(0.0, min(1.0, radius)) if math.isfinite(radius) else 0.0
++        if radius == self.gravity_radius:
++            return
++        self.gravity_radius = radius
++        self._gravity_impulses.clear()
++        self._pointer_impulse_time = -math.inf
++        self._pointer_impulse_origin = None
++        for key, material in self._material_cache.items():
++            if key[0] == "impulse_lens":
++                material[2].clear()
++
++    def _pointer_field(self, x, y, width, height):
++        """Return compact smooth reach and shorter-edge pointer distances."""
++        np = _numpy()
++        shorter = max(1, min(width, height))
++        dx = (x - self.pointer[0]) * width / shorter
++        dy = (y - self.pointer[1]) * height / shorter
++        squared = dx * dx + dy * dy
++        weight = np.maximum(0.0, 1.0 - squared / self.gravity_radius ** 2) ** 3
++        return dx, dy, squared, weight
++
++    def _bend_pointer(self, x, y, width, height):
++        """Apply local gravity without changing any sample outside its reach."""
++        if self.pointer is None or self.gravity_radius <= 0.0:
++            return x, y
++        np = _numpy()
++        dx, dy, squared, weight = self._pointer_field(x, y, width, height)
++        strength = -0.055 * weight / np.sqrt(squared + 0.013)
++        shorter = max(1, min(width, height))
++        return (x + dx * strength * shorter / width,
++                y + dy * strength * shorter / height)
++
+     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+         """Return deterministic sampled material anchors for the engine API.
+ 
+@@ -4811,8 +4849,11 @@ class _DataArtEngine(_BufferedEngine):
+             jitter = rng.uniform(-0.17, 0.17, size=(2, xx.size)).astype(np.float32)
+             xx = xx.ravel() + jitter[0] / columns
+             zz = zz.ravel() + jitter[1] / rows
+-            margin_x = 0.07 * np.abs(zz - 0.5) + 0.047074 + 1.0 / width
+-            margin_z = 0.05 * np.abs(xx - 0.5) + 0.161001 + 1.0 / height
++            shorter = max(1, min(width, height))
++            margin_x = (0.07 * np.abs(zz - 0.5) + 0.047074 + 1.0 / width
++                        + 0.055 * shorter / width)
++            margin_z = (0.05 * np.abs(xx - 0.5) + 0.161001 + 1.0 / height
++                        + 0.055 * shorter / height)
+             visible = ((xx >= -margin_x) & (xx <= 1.0 + margin_x)
+                        & (zz >= -margin_z) & (zz <= 1.0 + margin_z))
+             xx, zz = xx[visible], zz[visible]
+@@ -4821,9 +4862,6 @@ class _DataArtEngine(_BufferedEngine):
+                       18.0 * xx + 8.0 * zz + self._anchors[0][0] * math.tau)
+             self._material_cache[key] = points
+         xx, zz, base_a, base_b, base_c = points
+-        pointer = self.pointer or (0.5, 0.5)
+-        yaw = (pointer[0] - 0.5) * 0.14
+-        tilt = (pointer[1] - 0.5) * 0.10
+         phase_a = base_a + self.time * 0.25
+         phase_b = base_b - self.time * 0.17
+         phase_c = base_c + self.time * 0.12
+@@ -4837,15 +4875,16 @@ class _DataArtEngine(_BufferedEngine):
+         normal = (0.90 - 0.30 * slope_x - 0.48 * slope_z) / np.sqrt(
+             1.0 + slope_x * slope_x + slope_z * slope_z)
+         light = np.clip(0.30 + 0.62 * normal, 0.20, 0.95)
+-        sx = width * (xx + yaw * (zz - 0.5) + 0.034 * slope_z)
+-        sy = height * (zz + crest + tilt * (xx - 0.5))
++        sx, sy = self._bend_pointer(xx + 0.034 * slope_z, zz + crest,
++                                   width, height)
++        sx, sy = sx * width, sy * height
+         gain = max(1.0, self.effective_density())
+         painter.drawImage(0, 0, self._point_material(
+             width, height, sx, sy, light * gain, spread=True))
+ 
+     def _paint_tissue_facets(self, painter: QPainter, width: int,
+                              height: int) -> None:
+-        """Move seeded faceted tissue cells with continuous local breathing."""
++        """Keep crisp paper relief still until local mouse gravity lifts it."""
+         key = ("tissue_facets", width, height, self.size, self.density)
+         material = self._material_cache.get(key)
+         if material is None:
+@@ -4917,9 +4956,17 @@ class _DataArtEngine(_BufferedEngine):
+             material = tuple(cells)
+             self._material_cache[key] = material
+         for cx, cy, rx, ry, phase, tile, extent_x, extent_y in material:
+-            drift = self.time * 0.30 + phase
+-            dx = rx * 0.23 * math.sin(drift + cy / max(1, height) * 3.0)
+-            dy = ry * 0.21 * math.cos(drift * 0.83 + cx / max(1, width) * 4.0)
++            dx = dy = 0.0
++            if self.pointer is not None and self.gravity_radius > 0.0:
++                shorter = max(1, min(width, height))
++                distance_x = (cx - self.pointer[0] * width) / shorter
++                distance_y = (cy - self.pointer[1] * height) / shorter
++                squared = distance_x ** 2 + distance_y ** 2
++                reach = max(0.0, 1.0 - squared / self.gravity_radius ** 2) ** 3
++                if reach > 0.0:
++                    lift = reach * (0.55 + 0.15 * math.sin(phase))
++                    dx = -distance_x * rx * lift
++                    dy = -distance_y * ry * lift - ry * 0.28 * reach
+             painter.drawImage(QPointF(cx + dx - extent_x,
+                                       cy + dy - extent_y), tile)
+ 
+@@ -5029,12 +5076,13 @@ class _DataArtEngine(_BufferedEngine):
+              + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v + phase * 0.7)
+              + 0.023 * np.sin(5.0 * math.tau * x + 11.0 * v))
+         y -= np.floor(y)
+-        if self.pointer is not None:
+-            dx, dy = x - self.pointer[0], y - self.pointer[1]
+-            rotation = 1.5 * np.exp(-(dx * dx + dy * dy) / 0.035)
++        if self.pointer is not None and self.gravity_radius > 0.0:
++            dx, dy, _, weight = self._pointer_field(x, y, width, height)
++            rotation = 1.5 * weight
+             cosine, sine = np.cos(rotation), np.sin(rotation)
+-            x = self.pointer[0] + dx * cosine - dy * sine
+-            y = self.pointer[1] + dx * sine + dy * cosine
++            shorter = max(1, min(width, height))
++            x += (dx * (cosine - 1.0) - dy * sine) * shorter / width
++            y += (dx * sine + dy * (cosine - 1.0)) * shorter / height
+         columns = np.clip((x * width).astype(np.int32), 0, width - 1)
+         rows = np.clip((y * height).astype(np.int32), 0, height - 1)
+         intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
+@@ -5060,17 +5108,19 @@ class _DataArtEngine(_BufferedEngine):
+             lattice = (xx.ravel() / width, yy.ravel() / height, {})
+             self._material_cache[key] = lattice
+         x, y, impulse_fields = lattice
+-        aspect = width / max(1, height)
+-        cx = self.pointer[0] if self.pointer else 0.5 + 0.20 * math.sin(
++        shorter = max(1, min(width, height))
++        aspect_x, aspect_y = width / shorter, height / shorter
++        cx = 0.5 + 0.20 * math.sin(
+             self.time * 0.10 + self._anchors[0][0])
+-        cy = self.pointer[1] if self.pointer else 0.5 + 0.18 * math.cos(
++        cy = 0.5 + 0.18 * math.cos(
+             self.time * 0.083 + self._anchors[0][1])
+-        dx, dy = (x - cx) * aspect, y - cy
++        dx, dy = (x - cx) * aspect_x, (y - cy) * aspect_y
+         radius = np.sqrt(dx * dx + dy * dy + 1e-6)
+         envelope = np.exp(-(radius / 0.34) ** 2)
+         gravity = -0.052 * envelope / np.sqrt(radius * radius + 0.013)
+-        px = x + dx / aspect * gravity
+-        py = y + dy * gravity
++        px = x + dx / aspect_x * gravity
++        py = y + dy / aspect_y * gravity
++        px, py = self._bend_pointer(px, py, width, height)
+         energy = envelope * 0.12
+         active_origins = {origin for started, origin, _ in self._gravity_impulses
+                           if 0.0 <= self.time - started < 5.0}
+@@ -5083,23 +5133,27 @@ class _DataArtEngine(_BufferedEngine):
+                 continue
+             field = impulse_fields.get(origin)
+             if field is None:
+-                ex, ey = (x - origin[0]) * aspect, y - origin[1]
++                ex = (x - origin[0]) * aspect_x
++                ey = (y - origin[1]) * aspect_y
+                 distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+-                field = (ex / aspect, ey, distance,
+-                         np.exp(-(distance / 0.32) ** 2),
+-                         np.sqrt(distance * distance + 0.02))
++                selected = np.flatnonzero(distance < self.gravity_radius)
++                distance = distance[selected]
++                reach = np.maximum(0.0, 1.0 - (distance / self.gravity_radius) ** 2) ** 3
++                field = (selected, ex[selected] / aspect_x, ey[selected] / aspect_y,
++                         distance, reach * np.exp(-(distance / 0.32) ** 2),
++                         np.sqrt(distance * distance + 0.02), reach)
+                 impulse_fields[origin] = field
+-            ex, ey, distance, burst_envelope, burst_softening = field
++            selected, ex, ey, distance, burst_envelope, burst_softening, reach = field
+             decay = math.exp(-age * 0.90) * strength
+             burst = (-0.12 * decay * math.exp(-age * 3.0)
+                      * burst_envelope / burst_softening)
+             front = distance - age * 0.26
+-            packet = np.exp(-(front / 0.075) ** 2)
++            packet = np.exp(-(front / 0.075) ** 2) * reach
+             ripple = 0.045 * decay * packet * np.sin(front * 58.0)
+             displacement = burst + ripple / np.maximum(distance, 0.055)
+-            px += ex * displacement
+-            py += ey * displacement
+-            energy += decay * packet * 0.40
++            px[selected] += ex * displacement
++            py[selected] += ey * displacement
++            energy[selected] += decay * packet * 0.40
+         brilliance = np.clip(0.57 + energy, 0.48, 1.0)
+         gain = max(1.0, self.effective_density())
+         painter.drawImage(0, 0, self._point_material(

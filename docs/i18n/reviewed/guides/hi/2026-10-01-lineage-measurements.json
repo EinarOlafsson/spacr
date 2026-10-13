@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native signoff",
+  "draft_author": "shared_ui",
+  "technical_reviewer": "root",
+  "source_file": "docs/source/workflows.rst",
+  "source_file_sha256": "317a2755c402e74c757450f5b0e48a84c1d807ab53822f534921127385a8d04e",
+  "records": [
+    {
+      "source": "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused.",
+      "source_sha256": "4c5222a0348b1e345f4f0a1b1e9680bac8448e95a8eb8a4a6258e1eb27dba974",
+      "translation": "मापित विशेषताओं से वृक्षों को रंग देने के लिए पहले ``timelapse_lineage`` सक्षम करके ट्रैकिंग करें, ताकि spaCR फ़्रेम/स्रोत मिलान सहेज सके। फिर मर्ज किए गए प्रोजेक्ट पर मापन मॉड्यूल चलाएँ और ``timelapse=True``, मेल खाते ``timelapse_objects`` तथा ``timelapse_lineage=True`` रखें। वंशावली नियंत्रण दिखाने के लिए अल्फ़ा सुविधाएँ और समय आयाम सक्षम करें। ``timelapse_lineage_color_by`` को चुने गए ऑब्जेक्ट की माप तालिका के किसी संख्यात्मक कॉलम पर सेट करें। खंड का औसत उपलब्ध माप वाले फ़्रेमों से निकाला जाता है; जिन खंडों में कोई माप नहीं है, वे बिना रंग के रहते हैं और कवरेज की जानकारी दी जाती है। परिणाम ``tracks/lineage_measured`` में जाते हैं, पुराने वंशावली परिणामों को बदले बिना। जिन पुराने ट्रैक में मिलान नहीं है, उनके लिए ट्रैकिंग दोबारा करनी होगी। सहेजा गया स्पष्ट समय अंशांकन आगे उपयोग होता है; उससे टकराने वाला समय अंतराल अस्वीकार किया जाता है।"
+    }
+  ],
+  "review": "Checked setting identifiers, measured source/label mapping, partial observations and uncoloured segments, separate output, old-track requirement and timing calibration. Literal markup checked."
+}

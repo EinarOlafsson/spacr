@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.feature_rank#1",
+      "source_sha256": "2d0656eed05386e0a55a0e121a0417389f85d48389da2e627d26dbfb03529208",
+      "source": "The default statistic is the area under the receiver-operating-characteristic curve (AUC), computed from the Mann–Whitney U statistic. Results are reported as the unit-free separation ``|2·AUC − 1|`` in ``[0, 1]`` together with the direction of the class difference. AUC is rank based and therefore invariant under monotonic transformations; it does not require normality, equal variance or symmetry. These properties allow measurements with different units and distributions to be compared in one ranking.",
+      "context": "The default statistic is the area under the receiver-operating-characteristic curve (AUC), computed from the Mann–Whitney U statistic. Results are reported as the unit-free separation ``|2·AUC − 1|`` in ``[0, 1]`` together with the direction of the class difference. AUC is rank based and therefore invariant under monotonic transformations; it does not require normality, equal variance or symmetry. These properties allow measurements with different units and distributions to be compared in one ranking.",
+      "translation": "Standardmåttet är arean under receiver-operating-characteristic-kurvan (AUC), beräknad från Mann–Whitneys U-statistik. Resultaten rapporteras som den enhetslösa separationen ``|2·AUC − 1|`` i ``[0, 1]`` tillsammans med riktningen för klasskillnaden. AUC är rangbaserad och därför invariant under monotona transformationer; den kräver varken normalfördelning, lika varians eller symmetri. Dessa egenskaper gör det möjligt att jämföra mätningar med olika enheter och fördelningar i en gemensam rangordning."
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides.showEvent#1",
+      "source_sha256": "2dc2fcb6af9cb35c786982d6d49b01af7b7827fc5eca6b317a7df1733d9f2ea0",
+      "source": "Whether the end of the terms document is visible depends on its rendered viewport. The zero-delay callback runs on the next event-loop turn, after Qt has completed layout for the show event.",
+      "context": "Whether the end of the terms document is visible depends on its rendered viewport. The zero-delay callback executes on the next event-loop turn, after Qt has completed layout for the show event.",
+      "translation": "Om slutet av villkorsdokumentet är synligt beror på dess renderade visningsområde. Återanropet med nollfördröjning körs under nästa varv i händelseslingan, efter att Qt har slutfört layouten för visningshändelsen."
+    },
+    {
+      "label": "spacr.deep_spacr.resolve_mixed_precision#3",
+      "source_sha256": "7dbb9376abe879a6dfe5a6f09608c7f821d6cda308c50d675e6295cb0a11ce87",
+      "source": "peak memory",
+      "context": "peak memory",
+      "translation": "maximalt minne"
+    }
+  ]
+}

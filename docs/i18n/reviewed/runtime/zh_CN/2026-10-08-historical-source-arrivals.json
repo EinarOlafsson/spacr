@@ -1,0 +1,574 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "timelapse_events_encoder",
+      "source": "Timelapse events encoder",
+      "source_sha256": "e39311c99225289b3272ac7fa814cdd63d12bf3673b8fa1b68c2bb8515037fd3",
+      "table": "setting_labels",
+      "translation": "时间序列事件编码器"
+    },
+    {
+      "key": "timelapse_events_video_channels",
+      "source": "Timelapse events video channels",
+      "source_sha256": "95cc38db471dde81214bc586fe8020ce5a6012a7c529afd29e45a1683f55e47e",
+      "table": "setting_labels",
+      "translation": "时间序列事件视频通道"
+    },
+    {
+      "key": "timelapse_events_video_checkpoint",
+      "source": "Timelapse events video checkpoint",
+      "source_sha256": "dfaa0e3c6f8ed559e7a9d6af607912083ff911274617520bc64ab8c522ad3390",
+      "table": "setting_labels",
+      "translation": "时间序列事件视频检查点"
+    },
+    {
+      "key": "timelapse_events_video_device",
+      "source": "Timelapse events video device",
+      "source_sha256": "9585c9c286a4e0fe0d04b74e4836e00a58b92267c988f64fdd6ba9f695e1289f",
+      "table": "setting_labels",
+      "translation": "时间序列事件视频设备"
+    },
+    {
+      "key": "timelapse_events",
+      "source": "After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
+      "source_sha256": "2f77db7d9fe6c50ed9b47c8104d2366d35c94008fa568830f99670d5ef8897f7",
+      "table": "setting_tooltips",
+      "translation": "运行结束后，使用小型神经网络检测每个跟踪对象的事件。网络读取每条轨迹的短时间窗口，包括形状、强度、运动、附近开始或结束的轨迹及图像裁剪区域，以检测有丝分裂、逸出、侵入、宿主死亡或 timelapse_events_annotations 指定的类别。将带时间戳的事件、根据检测到的有丝分裂重新连接的谱系树，以及各条件下到每种事件的 Kaplan-Meier 时间写入 tracks/events。小型编码器在 CPU 上运行；可选的 videomae 编码器使用单独安装的工作进程和指定的视频设备。默认值 False。"
+    },
+    {
+      "key": "timelapse_events_video_channels",
+      "source": "Exactly three ordered source-channel indices for VideoMAE's RGB input, such as [0,1,2] or explicitly [0,0,0] for monochrome. Crop intensities normalized by the movie's channel percentiles are clipped to [0,1], sampled at 16 evenly spaced frames and processed with the pinned checkpoint's image processor. Mapping and preprocessing identity are saved with the event model. Default None.",
+      "source_sha256": "b89ee4054ce36fa74e669c11e31495b2772aa9e81bd558784f7c00139577ffff",
+      "table": "setting_tooltips",
+      "translation": "用于 VideoMAE RGB 输入的恰好三个有序源通道索引，例如 [0,1,2]，或为单色数据明确指定 [0,0,0]。图像裁剪区域的强度按影片的各通道百分位数归一化后限制到 [0,1]，在 16 个等间隔帧上采样，并使用固定检查点的图像处理器处理。通道映射和预处理标识随事件模型一同保存。默认值 None。"
+    },
+    {
+      "key": "timelapse_events_video_checkpoint",
+      "source": "Local folder containing the pinned official VideoMAE config.json, preprocessor_config.json and model.safetensors. Every SHA-256 is checked before and after inference; no weights are downloaded. The official checkpoint is CC-BY-NC-4.0. Required when training with videomae; a saved model can reuse its recorded folder. Default None.",
+      "source_sha256": "a52f175efa2e83ca2e530e632587f70853999f46373eb2bd54dbaea9ea606ae2",
+      "table": "setting_tooltips",
+      "translation": "本地文件夹包含固定版本的官方 VideoMAE config.json、preprocessor_config.json 和 model.safetensors。推理前后都会校验每个 SHA-256；不会下载任何权重。官方检查点采用 CC-BY-NC-4.0 许可。使用 videomae 训练时必须提供；已保存的模型可以复用其记录的文件夹。默认值 None。"
+    },
+    {
+      "key": "timelapse_events_video_device",
+      "source": "auto selects CUDA, then Metal, then CPU inside VideoMAE's separate worker; cpu forces CPU feature extraction. The frozen encoder processes one clip at a time and the small event classifier trains on CPU. Default auto.",
+      "source_sha256": "4ca26ed8a069e06a1920bbd9885f1a2b9887b520fbbcab5aed40c30414ade406",
+      "table": "setting_tooltips",
+      "translation": "auto 在 VideoMAE 的独立工作进程中依次选择 CUDA、Metal、CPU；cpu 强制使用 CPU 提取特征。冻结的编码器每次处理一个视频片段，小型事件分类器在 CPU 上训练。默认值 auto。"
+    },
+    {
+      "key": "A tracked frame is outside the selected image sequence.",
+      "source": "A tracked frame is outside the selected image sequence.",
+      "source_sha256": "24e50d8d8c868c928521c98405b799cc98ca0a286a8105ca54218c6f3d419921",
+      "table": "ui",
+      "translation": "跟踪轨迹中的某个帧超出了所选图像序列的范围。"
+    },
+    {
+      "key": "Accept proposals without clicking. Region mode follows Objects added; Whole image accepts only the object under the pointer. Undo is available; Save or Save & Next writes the masks.",
+      "source": "Accept proposals without clicking. Region mode follows Objects added; Whole image accepts only the object under the pointer. Undo is available; Save or Save & Next writes the masks.",
+      "source_sha256": "2ff0a464260547f910784f8e57f198a901389d6070dd5c4efac7b1feee4ad036",
+      "table": "ui",
+      "translation": "无需点击即可接受候选对象。区域模式遵循“添加的对象”设置；整幅图像模式仅接受指针下的对象。可以撤销；“保存”或“保存并进入下一项”会写入掩膜。"
+    },
+    {
+      "key": "Add or update",
+      "source": "Add or update",
+      "source_sha256": "ac0177d83a592d0941524cb2386c61fca38ce295da1773b708a9794babbdec1f",
+      "table": "ui",
+      "translation": "添加或更新"
+    },
+    {
+      "key": "An existing event is not on an observed track frame.",
+      "source": "An existing event is not on an observed track frame.",
+      "source_sha256": "edeb3a85ea7a360192a3076273ac96f087d941695221c2ab2479b80a0a5c0854",
+      "table": "ui",
+      "translation": "某个现有事件不对应轨迹中已观测到的帧。"
+    },
+    {
+      "key": "Annotations CSV",
+      "source": "Annotations CSV",
+      "source_sha256": "bb2d321598ccaeb3bc25bac4acdc00b4bebe4f66762edddaa3bae6656409096b",
+      "table": "ui",
+      "translation": "标注 CSV"
+    },
+    {
+      "key": "Annotations changed during save; reopen the field.",
+      "source": "Annotations changed during save; reopen the field.",
+      "source_sha256": "3aa49f3a9d8abdad068596e95a0b9a233b728f2cf36b1fe19351365abcd0955a",
+      "table": "ui",
+      "translation": "保存过程中标注发生了变化；请重新打开视野。"
+    },
+    {
+      "key": "Annotations changed on disk; reopen the field or choose a new CSV.",
+      "source": "Annotations changed on disk; reopen the field or choose a new CSV.",
+      "source_sha256": "13a0e35936e97272e56949fe47b47a47998ff18ed7f17fd366620a52d044cbf0",
+      "table": "ui",
+      "translation": "磁盘上的标注发生了变化；请重新打开视野或选择新的 CSV。"
+    },
+    {
+      "key": "Annotations changed while they were being read.",
+      "source": "Annotations changed while they were being read.",
+      "source_sha256": "75ec49404720d2f7b0982e350e9799f0ac2dc5b63365fd9d5708551edd68de74",
+      "table": "ui",
+      "translation": "读取过程中标注发生了变化。"
+    },
+    {
+      "key": "Annotations must be saved as a CSV file.",
+      "source": "Annotations must be saved as a CSV file.",
+      "source_sha256": "07c5244278e12dcb2f6aa9529316ff7917f1759d4f401cc14a2ba4aa3de52cae",
+      "table": "ui",
+      "translation": "标注必须保存为 CSV 文件。"
+    },
+    {
+      "key": "CSV (*.csv)",
+      "source": "CSV (*.csv)",
+      "source_sha256": "4ff5293e508e1466b767917a88adcb8f82c22192c654bebe6837d8d250a13c84",
+      "table": "ui",
+      "translation": "CSV 文件 (*.csv)"
+    },
+    {
+      "key": "Choose a frame where this track was observed.",
+      "source": "Choose a frame where this track was observed.",
+      "source_sha256": "27484d54593b934bccb865cb49293c5cc1a638a0ea1607c544923f96010646f4",
+      "table": "ui",
+      "translation": "请选择已观测到此轨迹的帧。"
+    },
+    {
+      "key": "Choose a spaCR tracks CSV named backend_tracks_object_field.csv.",
+      "source": "Choose a spaCR tracks CSV named backend_tracks_object_field.csv.",
+      "source_sha256": "832cba73397fa00384a778fbaaa341dedb676ca47e2b10768ad6d0b038c7de47",
+      "table": "ui",
+      "translation": "请选择名为 backend_tracks_object_field.csv 的 spaCR 轨迹 CSV。"
+    },
+    {
+      "key": "Choose a tracks CSV and its matching image sequence.",
+      "source": "Choose a tracks CSV and its matching image sequence.",
+      "source_sha256": "361f6f2c9c45b42b09698154cbf9d3619b49ba4c2842bd9bc0680a28c0067e11",
+      "table": "ui",
+      "translation": "请选择轨迹 CSV 及其对应的图像序列。"
+    },
+    {
+      "key": "Choose an annotation CSV separate from the tracker and image source.",
+      "source": "Choose an annotation CSV separate from the tracker and image source.",
+      "source_sha256": "9b8520ff80dab51f5fca8efef6a214f005614ead9cb30cbd3703f19d13572fa4",
+      "table": "ui",
+      "translation": "请选择与跟踪器和图像源分开的标注 CSV。"
+    },
+    {
+      "key": "Choose annotations CSV",
+      "source": "Choose annotations CSV",
+      "source_sha256": "97cbcb97e7bf1ec30f0f8cc9057aac748095c2be06fb313261374d5c51172ec1",
+      "table": "ui",
+      "translation": "选择标注 CSV"
+    },
+    {
+      "key": "Choose both a tracks CSV and image sequence.",
+      "source": "Choose both a tracks CSV and image sequence.",
+      "source_sha256": "d9868bc2c58f09d988da7b4899436b0135384d203d810d58461cfd63cfe5fae6",
+      "table": "ui",
+      "translation": "请同时选择轨迹 CSV 和图像序列。"
+    },
+    {
+      "key": "Choose image sequence",
+      "source": "Choose image sequence",
+      "source_sha256": "a53ad2dbd2eb005d11a74b66209b497d50b820f8fe0af77f5d97936498131d06",
+      "table": "ui",
+      "translation": "选择图像序列"
+    },
+    {
+      "key": "Choose image-frame folder",
+      "source": "Choose image-frame folder",
+      "source_sha256": "a3048425cd52a3cbb2e99dc64a6223038aff5b4a7ca256c7eac38c19230e3c0f",
+      "table": "ui",
+      "translation": "选择图像帧文件夹"
+    },
+    {
+      "key": "Choose spaCR tracks CSV",
+      "source": "Choose spaCR tracks CSV",
+      "source_sha256": "9138411ccf199c54a484d3e1d1ebcb50e058483b86bbda1077e4a33ffe512206",
+      "table": "ui",
+      "translation": "选择 spaCR 轨迹 CSV"
+    },
+    {
+      "key": "Could not open tracked field: {reason}",
+      "source": "Could not open tracked field: {reason}",
+      "source_sha256": "7042a9258bbbf76c2b418dc14df2c535e4f9a834e0b85c213c8b5f2a198d282b",
+      "table": "ui",
+      "translation": "无法打开已跟踪的视野：{reason}"
+    },
+    {
+      "key": "Could not save annotations: {reason}",
+      "source": "Could not save annotations: {reason}",
+      "source_sha256": "77a6c0ad70dec5945874931737f568a64520e00a2ca889c39ccbdaf084be1379",
+      "table": "ui",
+      "translation": "无法保存标注：{reason}"
+    },
+    {
+      "key": "Could not show frame: {reason}",
+      "source": "Could not show frame: {reason}",
+      "source_sha256": "6835ff19c3a714247f09efbb88ec6d8c1882a86bde3c699f9fdb6158b9251e54",
+      "table": "ui",
+      "translation": "无法显示帧：{reason}"
+    },
+    {
+      "key": "Enter a nonempty event name other than background.",
+      "source": "Enter a nonempty event name other than background.",
+      "source_sha256": "e2cf847438204c540752677f86ea7922ae0ab9d77ea4a71d4029c5861241d7a4",
+      "table": "ui",
+      "translation": "请输入非空的事件名称，且不能为 background。"
+    },
+    {
+      "key": "Event",
+      "source": "Event",
+      "source_sha256": "4e1f49a9c8ae8a158434e647c0c410352d718984a4fcd144d26cca3c394caa02",
+      "table": "ui",
+      "translation": "事件"
+    },
+    {
+      "key": "Event annotations…",
+      "source": "Event annotations…",
+      "source_sha256": "69b74560f510742117c8dca1d7a4079eefdb0752c9e34ef376ce1cd5362fff42",
+      "table": "ui",
+      "translation": "事件标注…"
+    },
+    {
+      "key": "Event is staged; save to publish the table.",
+      "source": "Event is staged; save to publish the table.",
+      "source_sha256": "ea46735c90a37e8c9d53c6a7f990e5a6fc6a2adc071f1463ff5b86309168aca6",
+      "table": "ui",
+      "translation": "事件已暂存为未保存的修改；请保存以写入表格。"
+    },
+    {
+      "key": "Event name, for example mitosis",
+      "source": "Event name, for example mitosis",
+      "source_sha256": "c29afaab9a74408d3685d38413dfc754bf5b31724ec5bf8c2d6ef0f88183f3b4",
+      "table": "ui",
+      "translation": "事件名称，例如有丝分裂"
+    },
+    {
+      "key": "Event removed from staged edits.",
+      "source": "Event removed from staged edits.",
+      "source_sha256": "a775ebaea808ca5d5f832b69f2785611fef726e256bd6e3254307fa22f24d73b",
+      "table": "ui",
+      "translation": "事件已从暂存的修改中移除。"
+    },
+    {
+      "key": "Existing annotations for this field have no object identity.",
+      "source": "Existing annotations for this field have no object identity.",
+      "source_sha256": "a055d0e43ebf9859e82e370109e2330c23e0b6910fb67f475f9b5f86461e0a23",
+      "table": "ui",
+      "translation": "该字段的现有注释没有对象标识。"
+    },
+    {
+      "key": "Existing annotations for this field need an object column before editing.",
+      "source": "Existing annotations for this field need an object column before editing.",
+      "source_sha256": "4b67d6904d11fe810d34d4e07d34e0bf6f6d56e400d4d2cb230b3a89e113bcd7",
+      "table": "ui",
+      "translation": "在编辑之前,该字段的现有标记需要一个对象列。"
+    },
+    {
+      "key": "Existing event labels belong to another tracker CSV.",
+      "source": "Existing event labels belong to another tracker CSV.",
+      "source_sha256": "0c3d5bb35e91215179dd39fb98b76dedea1eed63c90a3930d243ad9ce6178e1b",
+      "table": "ui",
+      "translation": "现有事件标签属于另一个跟踪器 CSV。"
+    },
+    {
+      "key": "Existing labels have no tracker identity; confirm this exact tracker CSV before saving.",
+      "source": "Existing labels have no tracker identity; confirm this exact tracker CSV before saving.",
+      "source_sha256": "6611202beb50628dcc4869f33ba3b0b6fab4bfc0cfedcb1bd06b4bbc5e81c687",
+      "table": "ui",
+      "translation": "现有标签没有跟踪器标识；保存前请确认这个确切的跟踪器 CSV。"
+    },
+    {
+      "key": "Existing track IDs and frames must be nonnegative integers.",
+      "source": "Existing track IDs and frames must be nonnegative integers.",
+      "source_sha256": "84b3888850e3112963a7a302d42a89bf004b0343c57205a557f7561698b0cdac",
+      "table": "ui",
+      "translation": "现有轨迹 ID 和帧编号必须是非负整数。"
+    },
+    {
+      "key": "Field {field} · {object} · {backend} · source {source}",
+      "source": "Field {field} · {object} · {backend} · source {source}",
+      "source_sha256": "ba4d9eef90fb39994018229514514caf1ac3f3e5f367edcf15702c94399f5377",
+      "table": "ui",
+      "translation": "字段 {field} · {object} · {backend} · 源 {source}"
+    },
+    {
+      "key": "Frame (zero-based)",
+      "source": "Frame (zero-based)",
+      "source_sha256": "2fd0428fd18d3cccab76200cff4894840a190459cd631a23f8f46e7e170077ca",
+      "table": "ui",
+      "translation": "帧编号（从零开始）"
+    },
+    {
+      "key": "Fuse retains and extends the existing ID. Add non-overlapping pixels creates a new object from unlabelled pixels. Replace removes overlapping old objects in full. Skip ignores overlapping proposals. Secondary mode cannot fuse primary IDs.",
+      "source": "Fuse retains and extends the existing ID. Add non-overlapping pixels creates a new object from unlabelled pixels. Replace removes overlapping old objects in full. Skip ignores overlapping proposals. Secondary mode cannot fuse primary IDs.",
+      "source_sha256": "64d3e2d7a369d8bba5aeec9a76c15b42d8c55359f968db46b438fb362030f3e6",
+      "table": "ui",
+      "translation": "合并会保留并扩展现有 ID。“添加不重叠的像素”会用未标记的像素创建新对象。“替换”会完整移除发生重叠的旧对象。“跳过”会忽略重叠的候选对象。次级模式不能合并主对象 ID。"
+    },
+    {
+      "key": "I confirm this image sequence and existing event labels belong to this tracker CSV.",
+      "source": "I confirm this image sequence and existing event labels belong to this tracker CSV.",
+      "source_sha256": "f22dd17b557fddb1818e3b014dcfa202b301ab10a019f5c35133d2b289dcc3f3",
+      "table": "ui",
+      "translation": "我确认这个图像序列和现有事件标签属于这个跟踪器 CSV。"
+    },
+    {
+      "key": "Image sequence",
+      "source": "Image sequence",
+      "source_sha256": "cc7e82b535f79f6398e078a29f5f478a266fd6a316ae7ef5fa40535ee338fcf8",
+      "table": "ui",
+      "translation": "图像序列"
+    },
+    {
+      "key": "Images (*.tif *.tiff *.npy)",
+      "source": "Images (*.tif *.tiff *.npy)",
+      "source_sha256": "32a188e37c30a9ce3290095db66b589cae986934d7243cf5cb723e5fa38dbb6f",
+      "table": "ui",
+      "translation": "图片(*.tif *.tiff *.npy)"
+    },
+    {
+      "key": "Label events on an existing tracked field for event detection.",
+      "source": "Label events on an existing tracked field for event detection.",
+      "source_sha256": "93ca1a7ca0bc054413bc033178cea9f4c6143ed03275f14bcdc7653d08754a68",
+      "table": "ui",
+      "translation": "在已有的跟踪视野上标注事件，用于事件检测。"
+    },
+    {
+      "key": "Loaded tracked field; frames are read only when shown.",
+      "source": "Loaded tracked field; frames are read only when shown.",
+      "source_sha256": "bc7e5ba3d483da754f22fcd49a4e745d91e9662a9e8ae16008caafcdb4015baf",
+      "table": "ui",
+      "translation": "已加载跟踪视野；仅在显示时读取帧。"
+    },
+    {
+      "key": "One track frame cannot have multiple event labels.",
+      "source": "One track frame cannot have multiple event labels.",
+      "source_sha256": "14b398d3a96d38e910289c868da917ef1cbc3f16ebcd019c23c1660061b0aa45",
+      "table": "ui",
+      "translation": "同一轨迹的一个帧不能有多个事件标签。"
+    },
+    {
+      "key": "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Combined with Page opacity.",
+      "source": "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Combined with Page opacity.",
+      "source_sha256": "8a7aefb73830d55f3d82742aa427f1c7c46970de15dcb7640f1dba5c34fdc03c",
+      "table": "ui",
+      "translation": "设置卡片在动画上方的不透明度。较高的值会遮挡更多背景，使文字更易阅读。与页面不透明度共同作用。"
+    },
+    {
+      "key": "Open a field and confirm its image sequence first.",
+      "source": "Open a field and confirm its image sequence first.",
+      "source_sha256": "10ce5ddc9bc807f48d51420fa3f0a0aa7971e6581e3b45839260aea86f9b136c",
+      "table": "ui",
+      "translation": "请先打开视野并确认其图像序列。"
+    },
+    {
+      "key": "Open tracked field",
+      "source": "Open tracked field",
+      "source_sha256": "bb1fe157c208a318c78af8b7c8b3ab87dd8ba1194969a5d1e6c694494b14ec7b",
+      "table": "ui",
+      "translation": "打开跟踪视野"
+    },
+    {
+      "key": "Opening tracked field…",
+      "source": "Opening tracked field…",
+      "source_sha256": "29097aee3c1a08663d6eb756cc69eded46213a27b9cb3cd1e58d1ab206ef853b",
+      "table": "ui",
+      "translation": "正在打开跟踪视野…"
+    },
+    {
+      "key": "Percentage of visible dots that flash white. Applies to dot animations; density and movement stay unchanged.",
+      "source": "Percentage of visible dots that flash white. Applies to dot animations; density and movement stay unchanged.",
+      "source_sha256": "b1f3b518a823a8b5194ca8a1b874990d9a0f4980b5dab0c3e3d2e6a81b9b4644",
+      "table": "ui",
+      "translation": "可见点的百分比闪烁白色. 适用于点动画; 密度和运动保持不变。"
+    },
+    {
+      "key": "Pretrained video features for an event classifier trained on the experiment's annotations. Kinetics labels are not microscopy events; microscopy precision, recall and timing require held-out evaluation.",
+      "source": "Pretrained video features for an event classifier trained on the experiment's annotations. Kinetics labels are not microscopy events; microscopy precision, recall and timing require held-out evaluation.",
+      "source_sha256": "bcd464a85facfd06dc3c26fe1bbe492c7c2cd1ec3d20ada87ff5d9ddce92f5ad",
+      "table": "ui",
+      "translation": "为使用实验标注训练的事件分类器提供预训练视频特征。Kinetics 标签不是显微成像事件；显微成像中的精确率、召回率和时间定位需要使用独立留出数据进行评估。"
+    },
+    {
+      "key": "Run the CPU method chosen under Object detection on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+      "source": "Run the CPU method chosen under Object detection on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+      "source_sha256": "6a1d4f7168f89cadd40828fa6ebfa709f652ef6321885d96699a10790d7d879d",
+      "table": "ui",
+      "translation": "对整幅图像运行“对象检测”中选定的 CPU 方法，并按上方设置的最小面积标记检测结果。该方法使用的所有设置都来自此类别：阈值算法、校正、平滑、哪一侧是对象、填孔、分离相互接触的对象对，以及删除被图像边界截断的对象。如果选定 Cellpose 或其他后端，此按钮会改用 Otsu，因为这些方法有各自的“对象检测”按钮。"
+    },
+    {
+      "key": "Saved annotations to {path}",
+      "source": "Saved annotations to {path}",
+      "source_sha256": "fe131da001d22fe70e839255178995f5f6103fc2d59173e77f81e4d72160fefc",
+      "table": "ui",
+      "translation": "保存到 {path} 的标签"
+    },
+    {
+      "key": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field, or eight when an optional ensemble model is selected in Object detection.",
+      "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field, or eight when an optional ensemble model is selected in Object detection.",
+      "source_sha256": "c1c1fe668b1c028a4b6a760a261b8c381b0abdfd152235b109ad92a7c4347394",
+      "table": "ui",
+      "translation": "使用“对象检测”设置，对每个视野分割四次：原图、两个方向的翻转图，以及旋转四分之一圈的图像，并测量四次结果不一致的位置。“映射此视野”在单独的选项卡中用热图显示差异；“视野排序”将最不确定的视野排在前面，并将分数保存为 curate_uncertainty.csv，供 spacr-make-masks --order uncertain 使用。每个视野需要运行四次检测；在“对象检测”中选择可选集成模型时需要八次。"
+    },
+    {
+      "key": "The detector reader did not retain every event row.",
+      "source": "The detector reader did not retain every event row.",
+      "source_sha256": "67a24a695e3aeba2cf3a2feac728448129699cda7bbaee0699d81738de742955",
+      "table": "ui",
+      "translation": "检测器的读取程序未保留所有事件行。"
+    },
+    {
+      "key": "The existing annotation table has an invalid event name.",
+      "source": "The existing annotation table has an invalid event name.",
+      "source_sha256": "5ebef8f50e8d850441a346558e4c1b9455b1dec15b0a7f7ccf19873400a54b29",
+      "table": "ui",
+      "translation": "现有标注表中有无效的事件名称。"
+    },
+    {
+      "key": "The existing annotation table has incomplete event rows.",
+      "source": "The existing annotation table has incomplete event rows.",
+      "source_sha256": "1edf80282f82d6257394c2a78ea0d492528ec2d53458c4209521103577ece92d",
+      "table": "ui",
+      "translation": "现有标记表包含不完整的事件行。"
+    },
+    {
+      "key": "The existing annotation table labels one track frame more than once.",
+      "source": "The existing annotation table labels one track frame more than once.",
+      "source_sha256": "793dc7cb425ff73baf26322473e9c4ecfed09d15ad819b3712cc9b01b0d27621",
+      "table": "ui",
+      "translation": "现有标记表标记一个轨道框,超过一次。"
+    },
+    {
+      "key": "The existing annotation table lacks field, track_id, frame or event.",
+      "source": "The existing annotation table lacks field, track_id, frame or event.",
+      "source_sha256": "a1c44ae752d9da5099545e323c2d9c3bc705f055ab83bd08d8b6e0488c92cd66",
+      "table": "ui",
+      "translation": "现有标注表缺少 field、track_id、frame 或 event 列。"
+    },
+    {
+      "key": "The source paths changed; reopen the tracked field.",
+      "source": "The source paths changed; reopen the tracked field.",
+      "source_sha256": "fa5a4a368f8a4dc0ddadd27eca43381c9acccb9348ada989b31853cb03c18c1a",
+      "table": "ui",
+      "translation": "源路径发生了变化；请重新打开跟踪视野。"
+    },
+    {
+      "key": "The tracks CSV changed while it was being read.",
+      "source": "The tracks CSV changed while it was being read.",
+      "source_sha256": "d1ba07afe2dd80e6e10638b783d953d193b5ee4dceee528dad48599b79b35e73",
+      "table": "ui",
+      "translation": "读取过程中轨迹 CSV 发生了变化。"
+    },
+    {
+      "key": "The tracks CSV changed; reopen the field before saving.",
+      "source": "The tracks CSV changed; reopen the field before saving.",
+      "source_sha256": "6ecada67eb05de1e85b09d64f52b6c4f068313d80a9245f9627c4811c7a26490",
+      "table": "ui",
+      "translation": "轨迹 CSV 发生了变化；保存前请重新打开视野。"
+    },
+    {
+      "key": "The tracks CSV needs frame and track_id rows with x and y positions.",
+      "source": "The tracks CSV needs frame and track_id rows with x and y positions.",
+      "source_sha256": "b912fc2b45d709df18c1660c13340482bc4a6713950da8ee81fe2676cd89628a",
+      "table": "ui",
+      "translation": "轨迹 CSV 必须包含带有 x 和 y 位置的 frame 和 track_id 行。"
+    },
+    {
+      "key": "The tracks CSV repeats a track at the same frame.",
+      "source": "The tracks CSV repeats a track at the same frame.",
+      "source_sha256": "29e08149f30e915e321a17df17037898b58bbbb5e1a8e6851fe2197a776b0a39",
+      "table": "ui",
+      "translation": "轨迹 CSV 在同一帧重复记录了同一轨迹。"
+    },
+    {
+      "key": "This track frame already has an event label.",
+      "source": "This track frame already has an event label.",
+      "source_sha256": "7f9c9c5f14e77f1bb3819bdb0be90664fa403370c8394b891be3a417a9ce872c",
+      "table": "ui",
+      "translation": "此轨迹帧已有事件标签。"
+    },
+    {
+      "key": "This track has no observation at this frame.",
+      "source": "This track has no observation at this frame.",
+      "source_sha256": "c46212db2371da30edb6f82398e35f920fc1a4996a3fb5783a404f77b1f35c89",
+      "table": "ui",
+      "translation": "此轨迹在该帧没有观测记录。"
+    },
+    {
+      "key": "Track",
+      "source": "Track",
+      "source_sha256": "051f01f095a28b04433fb7b6cc6785ef57533bfb7d5c784d33a472c56ea125dd",
+      "table": "ui",
+      "translation": "轨迹"
+    },
+    {
+      "key": "Track ID",
+      "source": "Track ID",
+      "source_sha256": "28413c4ca3e652fc18fe3af6fd398374e1f2db7633e1d1593d52d40f060a4422",
+      "table": "ui",
+      "translation": "轨迹 ID"
+    },
+    {
+      "key": "Track IDs and frames must be nonnegative integers.",
+      "source": "Track IDs and frames must be nonnegative integers.",
+      "source_sha256": "7bccc3df483fa9861ab538e0a45327e4cf3ec0ec5f743599bc6dd763fc7b6a1f",
+      "table": "ui",
+      "translation": "轨迹 ID 和帧编号必须是非负整数。"
+    },
+    {
+      "key": "Track event annotations",
+      "source": "Track event annotations",
+      "source_sha256": "a2c54e1269f4ab052e61a96f727f7ad2662bee19e3d82a2cdad18c02106dd72b",
+      "table": "ui",
+      "translation": "轨迹事件标注"
+    },
+    {
+      "key": "Track positions must be finite numbers.",
+      "source": "Track positions must be finite numbers.",
+      "source_sha256": "ae137520a830496687b4b896eafe7b24a6df7045b09862b99bc5ba493e3964f8",
+      "table": "ui",
+      "translation": "轨迹位置必须是有限数值。"
+    },
+    {
+      "key": "Tracks CSV",
+      "source": "Tracks CSV",
+      "source_sha256": "495e19160c874e912c1742dffb608c262262cfcc30c586a79a8d90a9d093354e",
+      "table": "ui",
+      "translation": "轨迹 CSV"
+    },
+    {
+      "key": "Transformers is Apache-2.0. The pinned official VideoMAE Kinetics checkpoint is CC-BY-NC-4.0; its noncommercial weight terms apply. Supply a verified local checkpoint folder; inference downloads no weights.",
+      "source": "Transformers is Apache-2.0. The pinned official VideoMAE Kinetics checkpoint is CC-BY-NC-4.0; its noncommercial weight terms apply. Supply a verified local checkpoint folder; inference downloads no weights.",
+      "source_sha256": "3345775e1b3ce109c58b050bad862523fff35c359cf023cf1b4b8ffd62297c3c",
+      "table": "ui",
+      "translation": "Transformers 采用 Apache-2.0 许可。固定版本的官方 VideoMAE Kinetics 检查点采用 CC-BY-NC-4.0 许可；其模型权重的非商业使用条款适用。请提供已验证的本地检查点文件夹；推理不会下载任何权重。"
+    },
+    {
+      "key": "VideoMAE event encoder",
+      "source": "VideoMAE event encoder",
+      "source_sha256": "4a04a051f2140e8a66fff0ad8499e34b23f7f4bb44253640e5b40e70f9b6efbf",
+      "table": "ui",
+      "translation": "VideoMAE 事件编码器"
+    },
+    {
+      "key": "Waves per minute spreading from the centre of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent.",
+      "source": "Waves per minute spreading from the centre of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent.",
+      "source_sha256": "6bc9f07d5fac796c523153544d6ed3dc87ca10a3a0bab526f561f5b370b4449e",
+      "table": "ui",
+      "translation": "每分钟从打开的弹出窗口中心传播到 spaCR 场中的波数。零表示关闭自动波；鼠标引力独立运行。"
+    },
+    {
+      "key": "event annotation load",
+      "source": "event annotation load",
+      "source_sha256": "3f229ebe6aa64eb121639f601b8422644fdc737acb1a81b631bac5156e5a7316",
+      "table": "ui",
+      "translation": "加载事件标注"
+    }
+  ],
+  "review_scope": "Direct AI technical and contextual review of actual current English/target pairs in all nine runtime locales; no native-speaker signoff. Exact arrays, CPU/device defaults, literal CSV field names and globs, executable commands, VideoMAE encoder semantics, event annotations and staging were inspected. Correct inherited targets are preserved; demonstrable defects are corrected. Original targets and source evidence are frozen in the accompanying immutable historical review receipt.",
+  "schema": 1
+}

@@ -1,0 +1,33 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "71794c3c8f4747dd0bada9c613b11e057020b5adc0892760865854a902df4f0e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Control Charts: övervaka kontroller över plattor",
+  "description": "Läs in en kampanjtabell, välj kontroller och baslinjegränser, granska larm och exportera de ritade punkterna.",
+  "objectives": [
+    "Välja mätvärde och kontrollpopulation.",
+    "Ställa in baslinje och larmregler.",
+    "Granska larm och exportera diagrampunkter."
+  ],
+  "prerequisite": "Hämta den syntetiska kampanj-CSV-filen nedan, eller förbered en tabell på brunnsnivå med plattidentitet, körordning, ett mätvärde och kontrolletiketter. Exemplet visar trettio plattor med programmerad drift.",
+  "scenes": [
+    "Öppna QC och sedan Control Charts för att övervaka upprepade kontroller under en kampanj. Övnings-CSV-filen använder syntetiska plattor och en programmerad drift.",
+    "Hämta exempel-CSV-filen nedan, klicka på Load table och välj den. Den innehåller trettio plattor, var och en med tre brunnar för varje kontrolltyp och tre provbrunnar.",
+    "Matcha Plate, Run order, Measurement och Control column mot tabellen. Under Control is väljer du neg för de negativa kontrollerna. Ett tomt val tar med alla rader.",
+    "Välj Sigma from för att styra variationsskattningen. Auto använder här undergruppsskattningen, eftersom varje platta innehåller tre valda kontrollbrunnar.",
+    "Välj i Rules de larm du vill granska. Exemplet använder Limits only för att fokusera på punkter utanför tresigmagränserna. När du ändrar en inställning ritas diagrammet om.",
+    "Ställ Baseline plates på 20. De första tjugo plattorna fastställer seriens gränser. Läs rapporten och regeltabellen för att hitta flaggade senare plattor.",
+    "För att granska positiva kontroller avmarkerar du neg och väljer pos. Granska deras medelvärden och gränser separat och gå sedan tillbaka till neg för att fortsätta exemplet.",
+    "Justera Baseline plates när din planerade referensperiod är en annan. Verktyget kräver minst åtta plattor; välj en stabil baslinje som passar analysen.",
+    "Klicka på Export points och välj ett CSV-mål. Filen sparar plattidentiteter, medelvärden, undergruppsstorlekar, gränser, baslinjetillhörighet och utlösta regler.",
+    "Behåll indata-CSV-filen, de valda kontrollerna och baslinjeinställningarna tillsammans med de exporterade punkterna. Använd de flaggade plattornas identiteter för att undersöka förändringar i förvärv eller analys."
+  ]
+}

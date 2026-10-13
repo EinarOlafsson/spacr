@@ -1,0 +1,535 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "method": "Direct Codex AI technical translation and independent Codex-agent technical review. No local-model generation, native-speaker review or human signoff claimed. Imports use the normal protected-literal, role, URL, substitution and actual UI-name gates. Historical PO attribution remains preserved.",
+  "draft_author": "Codex agent shared_ui",
+  "independent_technical_reviewer": "Codex agent root",
+  "draft_sha256": "d35688dc7a45b7c907ffd15d7aab4c57cf850e179866f20fa78cbf4da81d47c0",
+  "original_worklist_sha256": "79b258eed2b03bbcf1e75e8f715e30ba9352fcca60ef51bd4c6709f0bee44c04",
+  "current_worklist_sha256": "09a3e53119b7254a14519e8d2661bb70be5182fc8bde8910f3594718564a9cef",
+  "reviewed_sha256": "9e7e9f1626ec002f886d3f86e3811da6ef453afa1b14bd0fb29ff5fa4876a0e8",
+  "peer_review": {
+    "language": "zh_CN",
+    "reviewer": "root (Codex independent AI technical review; no human/native claim)",
+    "draft_sha256": "d35688dc7a45b7c907ffd15d7aab4c57cf850e179866f20fa78cbf4da81d47c0",
+    "scope": "All43 messages read against source, including all scientific counts/scores, matching/dilution semantics, memory boundaries and pipeline descriptions.",
+    "prose_corrections": {
+      "24": "**训练数据。** 弓形虫速殖子的寄生泡：第 6 轮的 DsRed 和抗弓形虫生物素标记视野，加上一块新 384 孔板的弓形虫通道。第 7 轮，cellpose 4.2.1.1，100 个训练轮次，以 cpsam_v2 为基础",
+      "25": "**实测结果。** 在 IoU 0.5、11 个锚定孔上的 F1 为 0.854，原版 cpsam_v2 为 0.765；AJI 为 0.776，原版为 0.505"
+    },
+    "pending_effective_ui_bindings": [
+      "1: corrected Thumbnail quality + Low/Medium/High",
+      "12: Checked images dynamic caption prefix",
+      "13: Uncheck all images",
+      "15: Propagate settings",
+      "18: English source corrected to Use stored image layout",
+      "34: Plugins and Preferences proper names",
+      "37-42: prefer actual translated Merge tables, Organize for Measure, Merge original filenames and Annotate conditions labels where available"
+    ],
+    "verdict": "Technical prose accepted with two heading translations; final UI-bound derivative requires final review once targets settle."
+  },
+  "peer_review_sha256": "ed72ce55914213d63ac51dac53da09800a4e5a5acd504f2dc9261d6134d8e5d4",
+  "source_files": {
+    "docs/source/make_masks.rst": "0025fba244c3a87cbbd5d8f67fd70c84746722eae0b4228d866602ac595e60ab",
+    "docs/source/measure_live.rst": "b6f19ee3f307862e15966ed64c0becd88eee16e881d86fc092927ede45c62309",
+    "docs/source/model_zoo.rst": "b2045883b3b4c1f2fbae92c102210a1edd3fb6ad6ca55f08f5f891924f94e79d",
+    "docs/source/plaque_assay.rst": "100a70cf39c28456e140e9996aac00d3d13f8e3c76456295e3e7c4264d6c3b42",
+    "docs/source/plugin_sdk.rst": "a232b8f667d67874a946f48be7b120cc3741349b68609b2f3317113011830ad0",
+    "docs/source/workflows.rst": "afc0f1c14ca17a1d560d54dcb2c650c81bd24f15638970f822d662ad880252c8"
+  },
+  "runtime_catalog_sha256": "52c7e4594b61adcf029c80ab28438c47a85a692a32ad805d3913024d4847f0ed",
+  "ui_binding_method": "Match the original exact translated label to its source key, then the verified current runtime target; preserve target-language sentence order. Checked images is the exact counted caption prefix with only the final count suffix removed.",
+  "counted_caption_binding": {
+    "source": "Checked images ({count})",
+    "translation": "已勾选的图像（{count}）"
+  },
+  "derivative_review": {
+    "rejected_positional_derivative_sha256": "7265e6ef608da14eb18e30a29d7f7af80f5a8d88559c630cdbdaec30739723d4",
+    "reason": "Positional replacement was rejected before import because it swapped control roles in Chinese, Hindi and Korean row 1. Identity-based rebinding preserves natural word order; Korean Low/High particles corrected.",
+    "additional_receipts": {
+      "root-final-review-zh_CN.json": {
+        "language": "zh_CN",
+        "reviewer": "root independent Codex AI technical review",
+        "sha256": "9e7e9f1626ec002f886d3f86e3811da6ef453afa1b14bd0fb29ff5fa4876a0e8",
+        "scope": "Allchangedrowsreviewed; row1 nowcorrectly selectsqualitywithinDisplayorOrganizer. Otherfull43prosecoveredbypriorreview.",
+        "accepted": true,
+        "rejected_derivative_preserved": "/tmp/spacr-implementation-20261001/guide-gap-refresh/zh_CN-rejected-positional-derivative.json"
+      }
+    }
+  },
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Thumbnail display quality",
+      "source_sha256": "9db8ef8ecc76015017aa606da6b00c25501c505ef032bf68497675ed4e0e270c",
+      "original_draft_source": "Thumbnail display quality",
+      "original_ai_draft": "缩略图显示质量",
+      "reviewed_translation": "缩略图显示质量",
+      "ui_bindings": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size.",
+      "source_sha256": "3e7673a1b0074415bb25c37d34a2817c1441b95a751c9bda9ee29aa463b20e61",
+      "original_draft_source": "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size.",
+      "original_ai_draft": "在 **显示** 或 **为 Measure 整理…** 中选择 **土木品质**。**Low** 保留原来的 64 像素源采样。**Medium** 的最长边最多为 256 像素，**High** 最多为 1024 像素，均不超过源图像的分辨率。这些选项会重新读取源图像和掩膜，不会把 Low 质量的位图放大。独立的 **尺寸** 控件用于设置界面中单元格的逻辑尺寸。",
+      "reviewed_translation": "在 **显示** 或 **为 Measure 整理…** 中选择 **缩略图质量**。**低** 保留原来的 64 像素源采样。**中** 的最长边最多为 256 像素，**高** 最多为 1024 像素，均不超过源图像的分辨率。这些选项会重新读取源图像和掩膜，不会把 低 质量的位图放大。独立的 **尺寸** 控件用于设置界面中单元格的逻辑尺寸。",
+      "ui_bindings": {
+        "Thumbnail quality": "缩略图质量",
+        "Display": "显示",
+        "Organize for Measure…": "为 Measure 整理…",
+        "Low": "低",
+        "Medium": "中",
+        "High": "高",
+        "Size": "尺寸"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged.",
+      "source_sha256": "eb007019e0e0c274e359f33ce188459ff5ec8b909a734172ed3e5b602347e5de",
+      "original_draft_source": "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged.",
+      "original_ai_draft": "程序会记住这个选择，并更新已打开的缩略图视图。整理器只加载可见单元格，缓存大小有上限。质量变化仅影响显示；保存的图像、掩膜和测量结果保持不变。",
+      "reviewed_translation": "程序会记住这个选择，并更新已打开的缩略图视图。整理器只加载可见单元格，缓存大小有上限。质量变化仅影响显示；保存的图像、掩膜和测量结果保持不变。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area.",
+      "source_sha256": "abdc8627caaa73bba97d16e6e90074b61606aea818de76d1d8a57bc10ab3e510",
+      "original_draft_source": "**Save mask**, **Previous image** and **Next image** share the top action row with the editing tools. Scroll that row horizontally on a narrow window to reach controls outside the visible area.",
+      "original_ai_draft": "**保存掩膜**、**上一张图像** 和 **下一张图像** 与编辑工具共用顶部操作栏。窗口较窄时，可水平滚动此栏以访问可见区域以外的控件。",
+      "reviewed_translation": "**保存掩膜**、**上一张图像** 和 **下一张图像** 与编辑工具共用顶部操作栏。窗口较窄时，可水平滚动此栏以访问可见区域以外的控件。",
+      "ui_bindings": {
+        "Save mask": "保存掩膜",
+        "Previous image": "上一张图像",
+        "Next image": "下一张图像"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "Large plates in Mask generation",
+      "source_sha256": "4ab76e5d89b32266c211a862226f5e3881827612d47a26c95413d4c12cd6c227",
+      "original_draft_source": "Large plates in Mask generation",
+      "original_ai_draft": "Mask generation 中的大型实验板",
+      "reviewed_translation": "Mask generation 中的大型实验板",
+      "ui_bindings": {}
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used.",
+      "source_sha256": "54d67d58e29e6ee2eadd1e67b56832ecea59fec13f41f97ed14ae8b02e425e6c",
+      "original_draft_source": "The **Mask** batch-generation module processes a plate; **Make Masks** edits the field currently open. For a crash while processing a raw plate, check the batch module's console and saved ``settings/gen_mask_settings.json`` to identify the stage and settings used.",
+      "original_ai_draft": "**掩膜** 批量生成模块处理整块实验板；**创建掩膜** 编辑当前打开的视野。处理原始实验板时若发生崩溃，请查看批量模块的控制台和保存的 ``settings/gen_mask_settings.json``，确认出错阶段及所用设置。",
+      "reviewed_translation": "**掩膜** 批量生成模块处理整块实验板；**创建掩膜** 编辑当前打开的视野。处理原始实验板时若发生崩溃，请查看批量模块的控制台和保存的 ``settings/gen_mask_settings.json``，确认出错阶段及所用设置。",
+      "ui_bindings": {
+        "Mask": "掩膜",
+        "Make Masks": "创建掩膜"
+      }
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate.",
+      "source_sha256": "40abd86c82798160e6e02016719a54472794e64b57b816150699e8e47c3ff071",
+      "original_draft_source": "In the V1 batch pipeline, raw-file preprocessing projects and writes one field at a time to ``stack/``. It retains filenames across the plate, not every field's pixel data. Z planes are combined incrementally. Completed field stacks are published atomically and can be reused when preprocessing resumes. This stage's pixel memory therefore follows the size and channels of a field, rather than the number of fields in the plate.",
+      "original_ai_draft": "在 V1 批处理流程中，原始文件预处理每次投影并写入一个视野到 ``stack/``。内存中保留整块板的文件名，而不是所有视野的像素数据。Z 层逐步合并。完成的视野堆栈以原子方式写出，恢复预处理时可以复用。因此，此阶段的像素内存取决于单个视野的大小和通道数，而不是整块板的视野数量。",
+      "reviewed_translation": "在 V1 批处理流程中，原始文件预处理每次投影并写入一个视野到 ``stack/``。内存中保留整块板的文件名，而不是所有视野的像素数据。Z 层逐步合并。完成的视野堆栈以原子方式写出，恢复预处理时可以复用。因此，此阶段的像素内存取决于单个视野的大小和通道数，而不是整块板的视野数量。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 7,
+      "domain": "make_masks",
+      "source": "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis.",
+      "source_sha256": "f3461f3a66262ad5e986cff897c7630b7db0d1ac29c73caeb92638c416a5aa63",
+      "original_draft_source": "Normalization and segmentation still need working memory for a batch and the model. Completed segmentation input, mask and flow buffers are released before the next batch; reducing plate-wide retention does not make an individual very large image or model cost-free. The V1 ``batch_size`` also sets the normalization pool, so changing it can change normalized values and subsequent masks. Retain it when reproducing a previous analysis.",
+      "original_ai_draft": "归一化和分割仍需要存放一个批次及模型的工作内存。完成分割的输入、掩膜和流场缓冲区会在下一批次前释放；减少整板数据的内存保留，不代表单个超大图像或模型不再占用内存。V1 的 ``batch_size`` 也决定归一化的数据池，因此改变它可能改变归一化值及后续掩膜。复现以前的分析时应保持这个设置。",
+      "reviewed_translation": "归一化和分割仍需要存放一个批次及模型的工作内存。完成分割的输入、掩膜和流场缓冲区会在下一批次前释放；减少整板数据的内存保留，不代表单个超大图像或模型不再占用内存。V1 的 ``batch_size`` 也决定归一化的数据池，因此改变它可能改变归一化值及后续掩膜。复现以前的分析时应保持这个设置。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 8,
+      "domain": "make_masks",
+      "source": "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written.",
+      "source_sha256": "64bd67bf55173c2715cc57f90fc5b64d0d06cd1b80b633c0f28db4891f0d36cc",
+      "original_draft_source": "If memory still rises unexpectedly, record whether the last console stage was preprocessing filenames, normalization or model evaluation, together with image dimensions, channel count and the saved settings. Existing ``stack/`` files help distinguish a completed ingestion stage from a failure before the first field was written.",
+      "original_ai_draft": "若内存仍异常增加，请记录控制台最后处于文件名预处理、归一化还是模型评估阶段，同时记录图像尺寸、通道数和已保存的设置。现有的 ``stack/`` 文件有助于区分数据读取阶段已经完成，还是在写出第一个视野前就失败了。",
+      "reviewed_translation": "若内存仍异常增加，请记录控制台最后处于文件名预处理、归一化还是模型评估阶段，同时记录图像尺寸、通道数和已保存的设置。现有的 ``stack/`` 文件有助于区分数据读取阶段已经完成，还是在写出第一个视野前就失败了。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 9,
+      "domain": "measure_live",
+      "source": "Measure: preview checked images and verify mask planes",
+      "source_sha256": "79bc5ec4eab6c7ef79efce9b9efa8ea311c915b37478ae7f24706ebffc0243b2",
+      "original_draft_source": "Measure: preview checked images and verify mask planes",
+      "original_ai_draft": "Measure：预览勾选的图像并核对掩膜层",
+      "reviewed_translation": "测量：预览勾选的图像并核对掩膜层",
+      "ui_bindings": {}
+    },
+    {
+      "index": 10,
+      "domain": "measure_live",
+      "source": "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment.",
+      "source_sha256": "b4682bea0eff320769e2769e3a4001d8f257f9a9c3c0d5de9c15add90c7c1933",
+      "original_draft_source": "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment.",
+      "original_ai_draft": "在 **测量** 中打开运行文件夹或其 ``merged`` 文件夹。**实时** 视图加载一个视野，并显示从配置的对象掩膜中取得的裁剪图。测量整个实验前，使用 **图像裁剪设置…** 选择对象、掩膜层、图像通道、裁剪尺寸和筛选条件。",
+      "reviewed_translation": "在 **测量** 中打开运行文件夹或其 ``merged`` 文件夹。**实时** 视图加载一个视野，并显示从配置的对象掩膜中取得的裁剪图。测量整个实验前，使用 **图像裁剪设置…** 选择对象、掩膜层、图像通道、裁剪尺寸和筛选条件。",
+      "ui_bindings": {
+        "Measure": "测量",
+        "Live": "实时",
+        "Crop settings…": "图像裁剪设置…"
+      }
+    },
+    {
+      "index": 11,
+      "domain": "measure_live",
+      "source": "Compare objects from several fields",
+      "source_sha256": "addccfed4d174b6f698f0651eaf194792de202ef0484739cb6eba0f5d41800dc",
+      "original_draft_source": "Compare objects from several fields",
+      "original_ai_draft": "比较多个视野中的对象",
+      "reviewed_translation": "比较多个视野中的对象",
+      "ui_bindings": {}
+    },
+    {
+      "index": 12,
+      "domain": "measure_live",
+      "source": "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number.",
+      "source_sha256": "f7c76a147aaa288c379fb2cb4c4f7b7507a42fe6615f4f6ca33099825682115f",
+      "original_draft_source": "Open **Checked images** and check the fields to include. Each checkbox is independent. The grid combines their crops and names the source field in each group; it does not superimpose fields. Hover a crop for its full source path, label, area and filter result. Double-click a crop to open that exact source, including when another field contains the same label number.",
+      "original_ai_draft": "打开 **Checked images**，勾选要包含的视野。每个复选框相互独立。网格把各视野的裁剪图合并显示，并为每组标明来源视野；不会把不同视野叠加。悬停在裁剪图上可查看完整源路径、标签、面积和筛选结果。双击裁剪图可打开其准确来源，即使其他视野也有相同的标签编号。",
+      "reviewed_translation": "打开 **已勾选的图像**，勾选要包含的视野。每个复选框相互独立。网格把各视野的裁剪图合并显示，并为每组标明来源视野；不会把不同视野叠加。悬停在裁剪图上可查看完整源路径、标签、面积和筛选结果。双击裁剪图可打开其准确来源，即使其他视野也有相同的标签编号。",
+      "ui_bindings": {
+        "Checked images": "已勾选的图像"
+      }
+    },
+    {
+      "index": 13,
+      "domain": "measure_live",
+      "source": "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection.",
+      "source_sha256": "2f9e17e94218de4a6291663b50bffe2449fd89066941dd6bfc017231de417abd",
+      "original_draft_source": "Uncheck a field to remove its crops, or choose **Uncheck all images** to clear the grid. Changing channels, object type or filters refreshes all checked fields. The field dropdown retains ordinary single-field navigation when only its current field is checked. With several fields checked, it changes the active source without replacing the checked selection.",
+      "original_ai_draft": "取消勾选某个视野可移除它的裁剪图，或选择 **查看所有图片** 清空网格。更改通道、对象类型或筛选条件会刷新所有已勾选视野。仅勾选当前视野时，视野下拉框保留普通的单视野导航功能。勾选多个视野时，它只更改活动来源，不会替换已勾选的集合。",
+      "reviewed_translation": "取消勾选某个视野可移除它的裁剪图，或选择 **取消勾选所有图像** 清空网格。更改通道、对象类型或筛选条件会刷新所有已勾选视野。仅勾选当前视野时，视野下拉框保留普通的单视野导航功能。勾选多个视野时，它只更改活动来源，不会替换已勾选的集合。",
+      "ui_bindings": {
+        "Uncheck all images": "取消勾选所有图像"
+      }
+    },
+    {
+      "index": 14,
+      "domain": "measure_live",
+      "source": "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection.",
+      "source_sha256": "de679a9b77bcd3ddd240aead4024c1d54ee19783f878e2bc06cd13bd50bdc3af",
+      "original_draft_source": "The image list uses the existing bounded random sample. Already checked fields remain available when the sample changes. **Maximum preview crops** limits the combined grid, with slots divided among checked fields. Increase it if there are more checked fields than available slots. Additional fields are read one at a time. A load failure names the field and leaves valid fields available for inspection.",
+      "original_ai_draft": "图像列表使用现有的有数量上限的随机样本。样本变化时，已勾选视野仍然可用。**最大预览裁剪图数** 限制合并网格的大小，可用位置分配给各个已勾选视野。若勾选视野数多于可用位置，请提高此限制。额外视野每次只读取一个。加载失败时会指出视野名称，并保留可供检查的有效视野。",
+      "reviewed_translation": "图像列表使用现有的有数量上限的随机样本。样本变化时，已勾选视野仍然可用。**最大预览裁剪图数** 限制合并网格的大小，可用位置分配给各个已勾选视野。若勾选视野数多于可用位置，请提高此限制。额外视野每次只读取一个。加载失败时会指出视野名称，并保留可供检查的有效视野。",
+      "ui_bindings": {
+        "Maximum preview crops": "最大预览裁剪图数"
+      }
+    },
+    {
+      "index": 15,
+      "domain": "measure_live",
+      "source": "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form.",
+      "source_sha256": "ee2a1ca1358e9adeb3679a11e24d584f7dbb64c9bab89dcc37b7f699e01a8d24",
+      "original_draft_source": "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form.",
+      "original_ai_draft": "勾选图像只改变预览，不会选择 Measure 处理哪些视野，也不会改变已保存的测量结果或导出内容。**宣传设置** 保留原有用途：把裁剪和筛选设置复制到 Measure 表单。",
+      "reviewed_translation": "勾选图像只改变预览，不会选择 测量 处理哪些视野，也不会改变已保存的测量结果或导出内容。**传递设置** 保留原有用途：把裁剪和筛选设置复制到 测量 表单。",
+      "ui_bindings": {
+        "Propagate settings": "传递设置"
+      }
+    },
+    {
+      "index": 16,
+      "domain": "measure_live",
+      "source": "Resolve a stored plane-layout conflict",
+      "source_sha256": "ad68dfe9df2c75cde5a064963e0e70e313b2a2a80ed196bb8831c9634561844e",
+      "original_draft_source": "Resolve a stored plane-layout conflict",
+      "original_ai_draft": "解决已存储图像层布局的冲突",
+      "reviewed_translation": "解决已存储图像层布局的冲突",
+      "ui_bindings": {}
+    },
+    {
+      "index": 17,
+      "domain": "measure_live",
+      "source": "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid.",
+      "source_sha256": "b06a8f1c6d1b9d148db54e5281bc183804250848ff7e0f488f43178849be8265",
+      "original_draft_source": "A merged folder can include ``.spacr_plane_layout.json``, which records the image channels and mask planes written with its arrays. Measure checks explicit mask-plane settings against this record before using them. ``uninfected=True`` keeps uninfected cells; it does not make an incorrect pathogen mask plane valid.",
+      "original_ai_draft": "merged 文件夹可以包含 ``.spacr_plane_layout.json``，其中记录与数组一起写出的图像通道和掩膜层。Measure 使用显式设置的掩膜层之前，会将其与这份记录核对。``uninfected=True`` 保留未感染细胞，但不会使错误的病原体掩膜层变成有效设置。",
+      "reviewed_translation": "merged 文件夹可以包含 ``.spacr_plane_layout.json``，其中记录与数组一起写出的图像通道和掩膜层。测量 使用显式设置的掩膜层之前，会将其与这份记录核对。``uninfected=True`` 保留未感染细胞，但不会使错误的病原体掩膜层变成有效设置。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 18,
+      "domain": "measure_live",
+      "source": "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings.",
+      "source_sha256": "9ad9afb3a475927d5cee2ff1eec4eb0a1a5c64325df02f1b3076311636343999",
+      "original_draft_source": "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored plane layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings.",
+      "original_ai_draft": "若已保存表单与文件夹不一致，**运行** 会说明不匹配之处。选择 **Use stored plane layout** 将记录的图像层复制到表单，检查对象设置后再次按 **运行**。不存在的对象使用 ``None``。**取消** 保持表单不变。布局不同或未知的来源必须分别使用匹配的设置运行。",
+      "reviewed_translation": "若已保存表单与文件夹不一致，**运行** 会说明不匹配之处。选择 **使用存储的图像配置** 将记录的图像层复制到表单，检查对象设置后再次按 **运行**。不存在的对象使用 ``None``。**取消** 保持表单不变。布局不同或未知的来源必须分别使用匹配的设置运行。",
+      "ui_bindings": {
+        "Run": "运行",
+        "Use stored image layout": "使用存储的图像配置",
+        "Cancel": "取消"
+      }
+    },
+    {
+      "index": 19,
+      "domain": "measure_live",
+      "source": "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask.",
+      "source_sha256": "45444dbcc09effb49ec6f47e75ff4d8fd993dec95588efcbb56cd876390aec25",
+      "original_draft_source": "For Python calls, use the plane indices recorded for the selected merged folder. A conflicting explicit index raises :class:`spacr.crops.PlaneLayoutConflict`. Unspecified defaults can be resolved through :func:`spacr.crops.reconcile_merged_mask_dims`. Do not edit or remove the sidecar to bypass the check: that can make an intensity plane look like an object mask.",
+      "original_ai_draft": "在 Python 调用中，应使用所选 merged 文件夹记录的图像层索引。显式索引发生冲突时，会引发 :class:`spacr.crops.PlaneLayoutConflict`。未指定的默认值可通过 :func:`spacr.crops.reconcile_merged_mask_dims` 解析。不要编辑或移除辅助文件来绕过检查，否则可能把强度图像层当作对象掩膜。",
+      "reviewed_translation": "在 Python 调用中，应使用所选 merged 文件夹记录的图像层索引。显式索引发生冲突时，会引发 :class:`spacr.crops.PlaneLayoutConflict`。未指定的默认值可通过 :func:`spacr.crops.reconcile_merged_mask_dims` 解析。不要编辑或移除辅助文件来绕过检查，否则可能把强度图像层当作对象掩膜。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 20,
+      "domain": "model_zoo",
+      "source": "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))",
+      "source_sha256": "8630f2684cb70791658865cd97a72baf1211a3c86f577b791acf85ef3f7f4481",
+      "original_draft_source": "``toxoplasma_pv_v4`` (Cellpose-SAM (cpsam_v2))",
+      "original_ai_draft": "``toxoplasma_pv_v4``（Cellpose-SAM (cpsam_v2)）",
+      "reviewed_translation": "``toxoplasma_pv_v4``（Cellpose-SAM (cpsam_v2)）",
+      "ui_bindings": {}
+    },
+    {
+      "index": 21,
+      "domain": "model_zoo",
+      "source": "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "source_sha256": "e2e2af50ef63f9f58be4ceef1c7e761e596eb94c990be23d3db86631df963dc4",
+      "original_draft_source": "round 6's 556 curated fields plus 80 hand-curated fields of a new plate (Anu revision, Replication09182026 plate 1); 502 train / 123 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "original_ai_draft": "第 6 轮的 556 个精选视野，加上一块新实验板的 80 个人工精选视野（Anu 修订版，Replication09182026 第 1 板）；502 个训练、123 个验证、11 个测试；训练数据位于 einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "reviewed_translation": "第 6 轮的 556 个精选视野，加上一块新实验板的 80 个人工精选视野（Anu 修订版，Replication09182026 第 1 板）；502 个训练、123 个验证、11 个测试；训练数据位于 einarolafsson/toxoplasma-pv-segmentation-dataset-r7",
+      "ui_bindings": {}
+    },
+    {
+      "index": 22,
+      "domain": "model_zoo",
+      "source": "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "source_sha256": "8aa4c6293977aa8c61c66836915b053d6d4ad47f2f5ddf7876bb576bdf8e7ec9",
+      "original_draft_source": "F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "original_ai_draft": "在 IoU 0.5、11 个锚定孔上的 F1 为 0.854，原版 cpsam_v2 为 0.765；AJI 为 0.776，原版为 0.505",
+      "reviewed_translation": "在 IoU 0.5、11 个锚定孔上的 F1 为 0.854，原版 cpsam_v2 为 0.765；AJI 为 0.776，原版为 0.505",
+      "ui_bindings": {}
+    },
+    {
+      "index": 23,
+      "domain": "model_zoo",
+      "source": "Toxoplasma PV v4 (round 7)",
+      "source_sha256": "83bcd289cdd6c3b0e51395ebc7fedba421756c759592c4b46f8adc7af0601354",
+      "original_draft_source": "Toxoplasma PV v4 (round 7)",
+      "original_ai_draft": "弓形虫 PV v4（第 7 轮）",
+      "reviewed_translation": "弓形虫 PV v4（第 7 轮）",
+      "ui_bindings": {}
+    },
+    {
+      "index": 24,
+      "domain": "model_zoo",
+      "source": "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2",
+      "source_sha256": "e42e16c3bed6685cf93245669327cf399a8e34dc8735eb74fe8d70c66d0610e7",
+      "original_draft_source": "**Trained on.** Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxoplasma-biotin fields plus the Toxoplasma channel of a new 384-well plate. Round 7, cellpose 4.2.1.1, 100 epochs, base cpsam_v2",
+      "original_ai_draft": "**Trained on.** 弓形虫速殖子的寄生泡：第 6 轮的 DsRed 和抗弓形虫生物素标记视野，加上一块新 384 孔板的弓形虫通道。第 7 轮，cellpose 4.2.1.1，100 个训练轮次，以 cpsam_v2 为基础",
+      "reviewed_translation": "**训练数据。** 弓形虫速殖子的寄生泡：第 6 轮的 DsRed 和抗弓形虫生物素标记视野，加上一块新 384 孔板的弓形虫通道。第 7 轮，cellpose 4.2.1.1，100 个训练轮次，以 cpsam_v2 为基础",
+      "ui_bindings": {}
+    },
+    {
+      "index": 25,
+      "domain": "model_zoo",
+      "source": "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "source_sha256": "6a4ffc51c00945db029331050ca8defccf32fdc75daa9a85312636dddbcedbe6",
+      "original_draft_source": "**Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505",
+      "original_ai_draft": "**Measured.** 在 IoU 0.5、11 个锚定孔上的 F1 为 0.854，原版 cpsam_v2 为 0.765；AJI 为 0.776，原版为 0.505",
+      "reviewed_translation": "**实测结果。** 在 IoU 0.5、11 个锚定孔上的 F1 为 0.854，原版 cpsam_v2 为 0.765；AJI 为 0.776，原版为 0.505",
+      "ui_bindings": {}
+    },
+    {
+      "index": 26,
+      "domain": "model_zoo",
+      "source": "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate",
+      "source_sha256": "315eb2c0c11cc6fdf6ade455745ffc8df0d656fe6c4571057f48b60772704904",
+      "original_draft_source": "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate",
+      "original_ai_draft": "这里并非最新模型最好：在来自其训练所用新板的 20 个留出视野上，第 7 轮 F1 为 0.748，第 6 轮为 0.899（召回率分别为 0.636 和 0.829）——这块板应优先使用 toxoplasma_pv_v3",
+      "reviewed_translation": "这里并非最新模型最好：在来自其训练所用新板的 20 个留出视野上，第 7 轮 F1 为 0.748，第 6 轮为 0.899（召回率分别为 0.636 和 0.829）——这块板应优先使用 toxoplasma_pv_v3",
+      "ui_bindings": {}
+    },
+    {
+      "index": 27,
+      "domain": "model_zoo",
+      "source": "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168",
+      "source_sha256": "4f7ffbf060de8ffc22030757959eb7d67f332636093db8c2c37d07bc98656c3b",
+      "original_draft_source": "on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168",
+      "original_ai_draft": "在 11 个锚定孔上，它与第 6 轮相当（0.8536 对 0.8602）；5 折交叉验证 F1 为 0.8142 +/- 0.015，第 6 轮为 0.8168",
+      "reviewed_translation": "在 11 个锚定孔上，它与第 6 轮相当（0.8536 对 0.8602）；5 折交叉验证 F1 为 0.8142 +/- 0.015，第 6 轮为 0.8168",
+      "ui_bindings": {}
+    },
+    {
+      "index": 28,
+      "domain": "model_zoo",
+      "source": "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them",
+      "source_sha256": "57efe24ac9e37028995440c11abcc2f50c3c6e7c66d49e8e0c858e53c775a2be",
+      "original_draft_source": "it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them",
+      "original_ai_draft": "它对找到的寄生泡描绘得比第 6 轮更贴合（在新板上的 AJI 为 0.827 对 0.786），但找到的寄生泡更少",
+      "reviewed_translation": "它对找到的寄生泡描绘得比第 6 轮更贴合（在新板上的 AJI 为 0.827 对 0.786），但找到的寄生泡更少",
+      "ui_bindings": {}
+    },
+    {
+      "index": 29,
+      "domain": "model_zoo",
+      "source": "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation",
+      "source_sha256": "10399be566192b7f49123b3c48446158f715341483a8b09d9a090afe9d89fe6b",
+      "original_draft_source": "the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation",
+      "original_ai_draft": "新板上表现下降的原因仍在调查：第 7 轮对该板自身的训练视野也欠拟合，这提示问题可能在于这些视野如何进入训练流程，而非泛化能力",
+      "reviewed_translation": "新板上表现下降的原因仍在调查：第 7 轮对该板自身的训练视野也欠拟合，这提示问题可能在于这些视野如何进入训练流程，而非泛化能力",
+      "ui_bindings": {}
+    },
+    {
+      "index": 30,
+      "domain": "model_zoo",
+      "source": "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``.",
+      "source_sha256": "1158fae3f7938424740b4691a0eeb9aeba2f3f9ffd1e27d807c736a0ed80d2b5",
+      "original_draft_source": "Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``.",
+      "original_ai_draft": "发布于 `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_，名称为 ``cpsam_v2_toxo_r7``。",
+      "reviewed_translation": "发布于 `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_，名称为 ``cpsam_v2_toxo_r7``。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 31,
+      "domain": "model_zoo",
+      "source": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.",
+      "source_sha256": "1cf3609e0384f02008c7b5d1766ce202e1f44ac82e1b44aefd7a03f40b4486dd",
+      "original_draft_source": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.",
+      "original_ai_draft": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``。",
+      "reviewed_translation": "SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 32,
+      "domain": "plaque_assay",
+      "source": "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL.",
+      "source_sha256": "e08a1907de02fa5a2aa2d18a8feab7eb1397085757c763f9bfd88da8c3b080b4",
+      "original_draft_source": "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL.",
+      "original_ai_draft": "若各实验板的稀释度不同，在 **菌落稀释度** 中输入 UTF-8 CSV 路径。必需的表头为 ``file,dilution``；每行给出图像文件名（包含扩展名）或不带扩展名的文件名，以及一个正的有限稀释数值。例如，``plate1.png,10000`` 和 ``plate2,0.0001`` 都表示稀释倍数为 10000。完整文件名的优先级高于不带扩展名的文件名。重复标识或格式错误的行会在检测或写出结果之前停止预览或分析；不在映射中的板仍会得到计数，但没有 CFU/mL。仍支持单个数值或 Python 字典。铺板体积以 µL 为单位另行设置；计算 CFU/mL 时会将体积换算为 mL。",
+      "reviewed_translation": "若各实验板的稀释度不同，在 **菌落稀释度** 中输入 UTF-8 CSV 路径。必需的表头为 ``file,dilution``；每行给出图像文件名（包含扩展名）或不带扩展名的文件名，以及一个正的有限稀释数值。例如，``plate1.png,10000`` 和 ``plate2,0.0001`` 都表示稀释倍数为 10000。完整文件名的优先级高于不带扩展名的文件名。重复标识或格式错误的行会在检测或写出结果之前停止预览或分析；不在映射中的板仍会得到计数，但没有 CFU/mL。仍支持单个数值或 Python 字典。铺板体积以 µL 为单位另行设置；计算 CFU/mL 时会将体积换算为 mL。",
+      "ui_bindings": {
+        "Colony dilution": "菌落稀释度"
+      }
+    },
+    {
+      "index": 33,
+      "domain": "plugin_sdk",
+      "source": "Browse and install from a catalogue",
+      "source_sha256": "05c2f11f36446f5c79f65353cdab16ef68d102e862d4fc4151ada86463554a44",
+      "original_draft_source": "Browse and install from a catalogue",
+      "original_ai_draft": "从目录浏览和安装插件",
+      "reviewed_translation": "从目录浏览和安装插件",
+      "ui_bindings": {}
+    },
+    {
+      "index": 34,
+      "domain": "plugin_sdk",
+      "source": "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis.",
+      "source_sha256": "47a48168349fdf25e800c7a2e06ab873ea8db9bc8bfdc9360b8859ad7cc3bd34",
+      "original_draft_source": "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis.",
+      "original_ai_draft": "在 Preferences 中启用 **显示 Alpha 功能**，然后打开 **Plugins** 选项卡。在 **目录** 中输入目录 JSON 文件、其所在文件夹或 HTTP(S) 地址，按 **列表**。选择条目后可执行 **安装或更新** 或 **卸载**。对于已安装的分析配置，**打开** 会把保存的设置加载到相应模块，不会启动分析。",
+      "reviewed_translation": "在 偏好 中启用 **显示 Alpha 功能**，然后打开 **插件** 选项卡。在 **目录** 中输入目录 JSON 文件、其所在文件夹或 HTTP(S) 地址，按 **列表**。选择条目后可执行 **安装或更新** 或 **卸载**。对于已安装的分析配置，**打开** 会把保存的设置加载到相应模块，不会启动分析。",
+      "ui_bindings": {
+        "Show alpha features": "显示 Alpha 功能",
+        "Plugins": "插件",
+        "Catalogue": "目录",
+        "List": "列表",
+        "Install or update": "安装或更新",
+        "Uninstall": "卸载",
+        "Open": "打开"
+      }
+    },
+    {
+      "index": 35,
+      "domain": "plugin_sdk",
+      "source": "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal.",
+      "source_sha256": "33853dc2d7abcf972a6e0d3e391c2db27ff7529d165bde819d524f3f822b18cf",
+      "original_draft_source": "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal.",
+      "original_ai_draft": "列出、安装和移除操作在后台运行。操作期间，选项卡显示 **工作...** 并暂时禁用目录控件。其他界面控件仍可用。关闭 Preferences 不会取消安装；安装会独立于窗口继续完成。重新打开选项卡可查看安装结果。若目录刷新失败，它会与成功的安装或移除操作分开报告。",
+      "reviewed_translation": "列出、安装和移除操作在后台运行。操作期间，选项卡显示 **工作...** 并暂时禁用目录控件。其他界面控件仍可用。关闭 偏好 不会取消安装；安装会独立于窗口继续完成。重新打开选项卡可查看安装结果。若目录刷新失败，它会与成功的安装或移除操作分开报告。",
+      "ui_bindings": {
+        "Working…": "工作..."
+      }
+    },
+    {
+      "index": 36,
+      "domain": "plugin_sdk",
+      "source": "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer.",
+      "source_sha256": "f7f43e3ca11dc15c413c2a6bf35f7f4998f8418c8af50605fae57a632594c0e9",
+      "original_draft_source": "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer.",
+      "original_ai_draft": "目录插件使用各自的安装文件夹，但共享 spaCR 的 Python 解释器。此目录安装程序目前尚不为存在依赖冲突的插件提供独立环境。",
+      "reviewed_translation": "目录插件使用各自的安装文件夹，但共享 spaCR 的 Python 解释器。此目录安装程序目前尚不为存在依赖冲突的插件提供独立环境。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 37,
+      "domain": "workflows",
+      "source": ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "1dd71052b3fd7d2c9392ffd62e57c4a0d0fdc88fb9fd05a46ebac5f40626ab2b",
+      "original_draft_source": ":ref:`Gate Editor <workflow-module-gate_editor>`: Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "original_ai_draft": ":ref:`Gate Editor <workflow-module-gate_editor>`：加载表格，或使用 Merge tables 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 Annotate 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。",
+      "reviewed_translation": ":ref:`Gate Editor <workflow-module-gate_editor>`：加载表格，或使用 合并表格 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 标注 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 38,
+      "domain": "workflows",
+      "source": ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "9c498ecda281460a5f3e7f40a0ab43e36aa421f6644c1a2c37749bf8e6928eae",
+      "original_draft_source": ":ref:`Make Masks <workflow-module-make_masks>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "original_ai_draft": ":ref:`Make Masks <workflow-module-make_masks>`：使用 Organize for Measure 将图像及其掩膜合并为 Measure 读取的数组；单独的掩膜不是合并数组。",
+      "reviewed_translation": ":ref:`Make Masks <workflow-module-make_masks>`：使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组；单独的掩膜不是合并数组。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 39,
+      "domain": "workflows",
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "original_draft_source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "original_ai_draft": "整理用于分割训练的图像/掩膜对，或使用 Organize for Measure 将图像及其掩膜合并为 Measure 读取的数组。保存掩膜不会训练分类器。",
+      "reviewed_translation": "整理用于分割训练的图像/掩膜对，或使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组。保存掩膜不会训练分类器。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 40,
+      "domain": "workflows",
+      "source": ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "c884fb4d0bec2b8cf9588d135fd62fc3800fb0a9554637b4479784c331010fe0",
+      "original_draft_source": ":ref:`Measure <workflow-module-measure>`: Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "original_ai_draft": ":ref:`Measure <workflow-module-measure>`：使用 Organize for Measure 将图像及其掩膜合并为 Measure 读取的数组；单独的掩膜不是合并数组。",
+      "reviewed_translation": ":ref:`Measure <workflow-module-measure>`：使用 为 Measure 整理 将图像及其掩膜合并为 测量 读取的数组；单独的掩膜不是合并数组。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 41,
+      "domain": "workflows",
+      "source": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "source_sha256": "2745c09669c4b288cfbe3489ff27d0f7df8a5d4c24cba98009099b0a609e4910",
+      "original_draft_source": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "original_ai_draft": "加载表格，或使用 Merge tables 合并兼容的测量数据。对于经过转换的图像，使用 Merge original filenames 从转换映射中恢复名称。使用 Annotate conditions，通过元数据 regex 规则或拖入的行分配一个命名列；保存已标注的 SQLite 表格，或导出带规则的 CSV。选择变量、分组和绘图设置，然后连同分析上下文导出图形。",
+      "reviewed_translation": "加载表格，或使用 合并表格 合并兼容的测量数据。对于经过转换的图像，使用 合并原始文件名 从转换映射中恢复名称。使用 标注实验条件，通过元数据 regex 规则或拖入的行分配一个命名列；保存已标注的 SQLite 表格，或导出带规则的 CSV。选择变量、分组和绘图设置，然后连同分析上下文导出图形。",
+      "ui_bindings": {}
+    },
+    {
+      "index": 42,
+      "domain": "workflows",
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "original_draft_source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "original_ai_draft": "加载表格，或使用 Merge tables 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 Annotate 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。",
+      "reviewed_translation": "加载表格，或使用 合并表格 通过已验证的键和聚合规则创建工作集。在实际特征或坐标列上定义阈值或多边形门控，然后将保存的门控应用于兼容对象。使用 标注 将显示的门控写入标注列；检查选中的对象并选择二分类或多分类标签。",
+      "ui_bindings": {}
+    }
+  ]
+}

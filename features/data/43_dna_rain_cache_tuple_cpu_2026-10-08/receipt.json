@@ -1,0 +1,49 @@
+{
+  "measured_agent_commit": "d4c825f2e36d0f599349dc5d53a99f495ba56e34",
+  "integrated_commit": "e30c6b6bab2fb7b14701cb04513bd9129e4efb60",
+  "hosted_source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "hosted_run": 37720484173,
+  "hosted_job": 113126751953,
+  "scope": "Existing broken-theme lookup regression now pins actual three-field page/ambient/wallpaper cache, retaining failure atomicity and successful retry/rain color checks",
+  "before": "Exact original node fails too-many-values-to-unpack,3.11s",
+  "after": "Exact node passes; four related original backdrop/theme nodes pass3.74s under4GiB,CUDA hidden,offscreen",
+  "production_or_failure_guard_changed": false,
+  "files": [
+    {
+      "file": "before.log.gz",
+      "sha256": "7b06847474416a43caede5654b8b32ef98060b0f6c23afe414d806dc91d34642",
+      "raw_sha256": "39138062d8ad9efba9429fa2ca4237628d7625e08a952351f32bc4dc5b752ba0",
+      "raw_bytes": 3113
+    },
+    {
+      "file": "after-node.log.gz",
+      "sha256": "292fa21dee0d016616cd38fc596d08bdd5a572e7911a1416d0e8836e99634674",
+      "raw_sha256": "a4f4eee5c3cfd4d66ed0e5640986e5fdcdc04bcae931e493f824f1968c722867",
+      "raw_bytes": 98
+    },
+    {
+      "file": "after-neighbors.log.gz",
+      "sha256": "ea558202aab2bd9ecf766cb7d48fe6d32221f9e295ca0f76289d0d529a74bac5",
+      "raw_sha256": "bc267a1830072d24194f96f18e75dff02d630991445bd2cfd773a3dec58e8954",
+      "raw_bytes": 98
+    },
+    {
+      "file": "before-test_dna_rain.py.gz",
+      "sha256": "853e2ad93b21ed9e409c4e741200d996cd20932503ec4a09a6b3c4eb7980c031",
+      "raw_sha256": "523106855226748dc43b71b6d1b5d2b417bf821a8257a31d69118cdda78a3fe5",
+      "raw_bytes": 78840
+    },
+    {
+      "file": "after-test_dna_rain.py.gz",
+      "sha256": "4238a66525bbb96aa31308e3d1722b9f504219f71dc91a4528e0add1700042c3",
+      "raw_sha256": "c5267a16a22442ede7b0c11199f7649ec170c885865dbb9ca9f619a03c550d3b",
+      "raw_bytes": 79041
+    },
+    {
+      "file": "cache-tuple.patch.gz",
+      "sha256": "83bb1e14b28b61eaadc1292c80b722c5ecc63204306342c1ccb9a68029d29dd6",
+      "raw_sha256": "324dc21290a23860cd7bc901db9b9e6d6480765cf9f811602a20d2f1425c97d1",
+      "raw_bytes": 1657
+    }
+  ]
+}

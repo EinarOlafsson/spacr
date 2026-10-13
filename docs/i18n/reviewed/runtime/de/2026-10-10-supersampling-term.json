@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_scope": "AI technical review (Claude Opus 5.5); no native-speaker signoff.",
+  "note": "2026-10-10: the machine pass left the English word; German uses Überabtastung, with the familiar technical term in parentheses.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Supersampling",
+      "source": "Supersampling",
+      "source_sha256": "ada017dbd3764a94a33d6db50e8e2e1898137c703a025b3976f9dbfdbcc6a6ce",
+      "translation": "Überabtastung (Supersampling)"
+    }
+  ]
+}

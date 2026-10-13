@@ -1,0 +1,3228 @@
+{
+  "schema": 1,
+  "scope": [
+    "make_masks",
+    "measure_live",
+    "model_zoo",
+    "plaque_assay",
+    "plugin_sdk",
+    "workflows"
+  ],
+  "review_kind": "Direct Codex AI technical translation, independent Codex-agent technical peer review; no native-speaker or human signoff",
+  "new_reviewed_messages": 387,
+  "locales": 9,
+  "whole_guide_current_messages": 25758,
+  "whole_guide_translated_messages": 25758,
+  "new_glossary_terms": 209,
+  "source_check": {
+    "changes": [
+      {
+        "domain": "measure_live",
+        "added": [
+          "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored image layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings."
+        ],
+        "removed": [
+          "If a saved form disagrees with the folder, **Run** explains the mismatch. Choose **Use stored plane layout** to copy the recorded planes into the form, review the object settings, then press **Run** again. An absent object uses ``None``. **Cancel** leaves the form unchanged. Sources with different or unknown layouts must be run separately with their matching settings."
+        ]
+      }
+    ],
+    "sources": {
+      "docs/source/make_masks.rst": "0025fba244c3a87cbbd5d8f67fd70c84746722eae0b4228d866602ac595e60ab",
+      "docs/source/measure_live.rst": "b6f19ee3f307862e15966ed64c0becd88eee16e881d86fc092927ede45c62309",
+      "docs/source/model_zoo.rst": "b2045883b3b4c1f2fbae92c102210a1edd3fb6ad6ca55f08f5f891924f94e79d",
+      "docs/source/plaque_assay.rst": "100a70cf39c28456e140e9996aac00d3d13f8e3c76456295e3e7c4264d6c3b42",
+      "docs/source/plugin_sdk.rst": "a232b8f667d67874a946f48be7b120cc3741349b68609b2f3317113011830ad0",
+      "docs/source/workflows.rst": "afc0f1c14ca17a1d560d54dcb2c650c81bd24f15638970f822d662ad880252c8"
+    }
+  },
+  "selected_audit": {
+    "schema": 1,
+    "review_kind": "AI technical review; recorded per page, no native-speaker signoff",
+    "languages": {
+      "sv": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "de": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "es": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "pt": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "fr": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "is": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "zh_CN": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "ko": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "hi": {
+        "total": 1187,
+        "translated": 1187,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      }
+    }
+  },
+  "full_audit": {
+    "schema": 1,
+    "review_kind": "AI technical review; recorded per page, no native-speaker signoff",
+    "languages": {
+      "sv": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "de": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "es": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "pt": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "fr": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "is": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "zh_CN": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "ko": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "hi": {
+        "total": 2862,
+        "translated": 2862,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 80,
+            "translated": 80,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 63,
+            "translated": 63,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 121,
+            "translated": 121,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 73,
+            "translated": 73,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 255,
+            "translated": 255,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 48,
+            "translated": 48,
+            "stale": 0,
+            "missing": 0
+          },
+          "plate_barcode_linkage": {
+            "total": 12,
+            "translated": 12,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 98,
+            "translated": 98,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 14,
+            "translated": 14,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 608,
+            "translated": 608,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plate_barcode_linkage": "AI technical review (Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      }
+    }
+  },
+  "preservation_and_compilation": [
+    {
+      "language": "sv",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "de",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "es",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "pt",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "fr",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "is",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "zh_CN",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "ko",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    },
+    {
+      "language": "hi",
+      "compiled_domains": [
+        "make_masks",
+        "measure_live",
+        "model_zoo",
+        "plaque_assay",
+        "plugin_sdk",
+        "workflows"
+      ],
+      "active_historical_translations_and_comments_preserved": 1144
+    }
+  ],
+  "normal_imports": [
+    {
+      "language": "sv",
+      "imported": 43,
+      "new_glossary_terms": 24,
+      "rejected": [],
+      "reviewed_record_sha256": "a72caabd51a7d31f1d16926d93d39435eab17cf6c23a7efc6580da433176a39f"
+    },
+    {
+      "language": "de",
+      "imported": 43,
+      "new_glossary_terms": 24,
+      "rejected": [],
+      "reviewed_record_sha256": "07f95368441d322c4ed94c6c20b34cbbbea99134e3633e013e395cc758b12748"
+    },
+    {
+      "language": "es",
+      "imported": 43,
+      "new_glossary_terms": 23,
+      "rejected": [],
+      "reviewed_record_sha256": "5cb64d98e597b34766e76b44a93a595461a3f3eaa7b0cc1dedb05626dddc4b5e"
+    },
+    {
+      "language": "pt",
+      "imported": 43,
+      "new_glossary_terms": 23,
+      "rejected": [],
+      "reviewed_record_sha256": "a21b237d28a15f6dc4b9e2d0103af93ecfc85bcdbc8dc30afac368d04f5ece99"
+    },
+    {
+      "language": "fr",
+      "imported": 43,
+      "new_glossary_terms": 23,
+      "rejected": [],
+      "reviewed_record_sha256": "3911bd68aefadbcfed80f2900a13f12099dee42d2e1255537afd8cd6fd5620ca"
+    },
+    {
+      "language": "is",
+      "imported": 43,
+      "new_glossary_terms": 23,
+      "rejected": [],
+      "reviewed_record_sha256": "1505ff80a9b13a5c2828cd3a3ac95b98fcf64e56a5415baccbbdc2590822e303"
+    },
+    {
+      "language": "zh_CN",
+      "imported": 43,
+      "new_glossary_terms": 23,
+      "rejected": [],
+      "reviewed_record_sha256": "c1b8b1ce9baba7625b7a0d14b4a3d8f1821f5cd045434114fbf2c69d63e31742"
+    },
+    {
+      "language": "ko",
+      "imported": 43,
+      "new_glossary_terms": 23,
+      "rejected": [],
+      "reviewed_record_sha256": "f6e59ca4c627730a398e32e4a81c280babf35bdaa7c4a2408f81fc5a669db2cf"
+    },
+    {
+      "language": "hi",
+      "imported": 43,
+      "new_glossary_terms": 23,
+      "rejected": [],
+      "reviewed_record_sha256": "f2cdce79baaeeef372ea9230de01d92b77a47be33991e6a557c72aa9e57f19fd"
+    }
+  ],
+  "runtime_verification": {
+    "ui_source_count": 6489,
+    "added_ui_sources": [
+      "High",
+      "Low",
+      "Medium",
+      "Plugins"
+    ],
+    "changed_setting_tooltips": [
+      "colony_dilution"
+    ],
+    "other_English_inventory_unchanged": true,
+    "exact_records": 76,
+    "locales": [
+      {
+        "language": "de",
+        "verified": 9
+      },
+      {
+        "language": "es",
+        "verified": 7
+      },
+      {
+        "language": "fr",
+        "verified": 9
+      },
+      {
+        "language": "hi",
+        "verified": 8
+      },
+      {
+        "language": "is",
+        "verified": 10
+      },
+      {
+        "language": "ko",
+        "verified": 10
+      },
+      {
+        "language": "pt",
+        "verified": 6
+      },
+      {
+        "language": "sv",
+        "verified": 8
+      },
+      {
+        "language": "zh_CN",
+        "verified": 9
+      }
+    ]
+  },
+  "runtime_preflight": {
+    "records": 76,
+    "rejected": 0,
+    "normalizations": 0,
+    "four_new_keys": [
+      "Low",
+      "Medium",
+      "High",
+      "Plugins"
+    ],
+    "ui_count": 6489,
+    "external_key_digest": "f4809f012900e0ca40c662e1dcf0b965e82071f7118193214a915d20efa70741"
+  },
+  "checks": {
+    "guide_provenance_tests": {
+      "command": "python -m pytest -q tests/test_guide_i18n.py tests/test_guide_review_provenance_n615.py",
+      "passed": 30,
+      "seconds": 7.75
+    },
+    "runtime_chrome_tests": {
+      "owner": "root",
+      "passed": 60,
+      "seconds": 6.55,
+      "log": "/tmp/spacr-implementation-20261001/review/runtime-preview-dilution-tests.log"
+    },
+    "guide_mo_compilation": 54,
+    "historical_active_strings_and_review_comments_preserved": 10296,
+    "full_current_sphinx": "Pending final source/catalog freeze; this receipt does not claim a new full rendered build."
+  },
+  "limits": {
+    "extract-final-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "tools/build_guide_i18n.py",
+        "extract",
+        "--output",
+        "/tmp/spacr-implementation-20261001/guide-gap-refresh/gettext-final"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r550e616e12884281a2f45b7197459e32.scope",
+      "limits": {
+        "memory.max": "1073741824",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=1073741824",
+          "MemorySwapMax=0"
+        ]
+      }
+    },
+    "guide-tests-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_guide_i18n.py",
+        "tests/test_guide_review_provenance_n615.py"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r9e86a1c99fed4386a51b78242bd9b464.scope",
+      "limits": {
+        "memory.max": "1073741824",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=1073741824",
+          "MemorySwapMax=0"
+        ]
+      }
+    },
+    "import-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "/tmp/spacr-implementation-20261001/guide-gap-refresh/import_reviewed.py"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r0c9e04eaf2de4c4488a473e223e03ca4.scope",
+      "limits": {
+        "memory.max": "1073741824",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=1073741824",
+          "MemorySwapMax=0"
+        ]
+      }
+    },
+    "validation-limits.json": {
+      "command": [
+        "/home/carruthers/anaconda3/envs/spacr/bin/python",
+        "/tmp/spacr-implementation-20261001/guide-gap-refresh/validate_final.py"
+      ],
+      "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r5bc166c5e65a4a149e2a2115812b30d8.scope",
+      "limits": {
+        "memory.max": "1073741824",
+        "memory.swap.max": "0",
+        "cpu_affinity": [
+          0
+        ],
+        "cpu.max": null,
+        "systemd_properties": [
+          "CPUQuotaPerSecUSec=1s",
+          "MemoryMax=1073741824",
+          "MemorySwapMax=0"
+        ]
+      }
+    }
+  },
+  "owned_file_sha256": {
+    "tools/build_guide_i18n.py": "88c8debb132b1e1b4164b2bfb44bdb4ab4b8930df3b753a3ccdd04accce398ae",
+    "tools/build_i18n_catalogs.py": "f04eea588874e2f4cf6f94a87826c31df4781475f3b3b2a62783163363adb7c0",
+    "tests/test_guide_review_provenance_n615.py": "a8ee7ec6c2c8f1d67a3275a2d35b47774af380d9f2f7ba731391edcb355903d5",
+    "tests/qt/test_the_chrome_captions_have_catalog_rows.py": "d0b19d0501cc9ff81dc9b48488c41cb2dc42be6f9dc3ecc4eb03bfb969570339",
+    "tests/qt/test_i18n_caption_ratchet.py": "51f56c883d8353498d40bfa20355d15099a6a1f11a6e8aa57fa52c3312abb47d",
+    "docs/i18n/guides/sv/LC_MESSAGES/make_masks.po": "e713f2771eb07d254955bceb5bb3d9048ef1d37962014e02593285eb7a19f6b1",
+    "docs/i18n/guides/sv/LC_MESSAGES/measure_live.po": "1f12443f8384bc9748855fec54c55dcdc0d0b61c7035c8b7b58e677643d0431e",
+    "docs/i18n/guides/sv/LC_MESSAGES/model_zoo.po": "da3a365f800d975c5fc8b1908e6ca3511af561c29f26d16a505305ca1b2a88a2",
+    "docs/i18n/guides/sv/LC_MESSAGES/plaque_assay.po": "3a866889750c79649cc176840a1381e9b004453fee710c6d71ffdf63264e0d8d",
+    "docs/i18n/guides/sv/LC_MESSAGES/plugin_sdk.po": "868f193bb70858f896055e12d49425d0acc05e897c4d0e9147d5acf3588145b1",
+    "docs/i18n/guides/sv/LC_MESSAGES/workflows.po": "74a1002803a97c4f210d34df3bae62e1fd987e06548624c155ce266794432c11",
+    "docs/i18n/guides/glossary/sv.json": "faaf3ce44b9fea9cf3674de8c7efb898ce91475e970f10d20c2a57e3b309aa15",
+    "docs/i18n/reviewed/guides/sv/2026-10-01-preview-model-and-plugin-guides.json": "a72caabd51a7d31f1d16926d93d39435eab17cf6c23a7efc6580da433176a39f",
+    "docs/i18n/reviewed/runtime/sv/2026-10-01-preview-controls-and-colony-dilution.json": "b8faf290df28d161f5f1e7614ffbf980ad4fd69567c4f6133609b8cd92dee99f",
+    "docs/i18n/reviewed/runtime/sv/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "4abfb6fd198857561dd0cc32c35d1e5cb8acfd374610c625a694ecd59a4302f0",
+    "docs/i18n/guides/de/LC_MESSAGES/make_masks.po": "9700d81a4122d578ca92c9fc9dad39fec076e01cd9b1df649f04723873381abf",
+    "docs/i18n/guides/de/LC_MESSAGES/measure_live.po": "ca975b9fa07571449b588d48193d97ec20bad9397ecdc04b40e0c6f2d4f73ae3",
+    "docs/i18n/guides/de/LC_MESSAGES/model_zoo.po": "ff1b4bc55635d23c8aa24a6fb7d8281c9471e2a83fff7d3de3295da3a7d889fc",
+    "docs/i18n/guides/de/LC_MESSAGES/plaque_assay.po": "ea6717aa24fe1f60512adf7569ec564ce8396bab17ecc82f023cc38cacae98d3",
+    "docs/i18n/guides/de/LC_MESSAGES/plugin_sdk.po": "ec87a949988fd52d334a34aa926ab322579705b05669dd7d085b8e79c75ec4a7",
+    "docs/i18n/guides/de/LC_MESSAGES/workflows.po": "783e0f92903f846d1d93e15daed4ea16cda1ac544559f696e73d97c714d532ff",
+    "docs/i18n/guides/glossary/de.json": "eeb6b59e75aaebbfbd6e767259f4cbdc8116dd4b8110059ada9d4db3ed4d6fa0",
+    "docs/i18n/reviewed/guides/de/2026-10-01-preview-model-and-plugin-guides.json": "07f95368441d322c4ed94c6c20b34cbbbea99134e3633e013e395cc758b12748",
+    "docs/i18n/reviewed/runtime/de/2026-10-01-preview-controls-and-colony-dilution.json": "9c2a4695b25b8db071039fd26339ea99c088ab9b33c665a10418f588e71a4bd5",
+    "docs/i18n/reviewed/runtime/de/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "553fc735fdb41cf4e3d76736f93ad78cb17ccdb5c8baa14ac59965b52b400a76",
+    "docs/i18n/guides/es/LC_MESSAGES/make_masks.po": "5c8cdb3846198acfec75a9f293ab80f4f95ef7ad81bd1304854764f8c1ff68cf",
+    "docs/i18n/guides/es/LC_MESSAGES/measure_live.po": "cad6e01c3d1be376375af33ba14db2d8505fac1dd11c73b0229924c6ef8143bd",
+    "docs/i18n/guides/es/LC_MESSAGES/model_zoo.po": "44f81849960e8a103311ef646efc188baacc3c84df6e706d6d8351e3b4228e17",
+    "docs/i18n/guides/es/LC_MESSAGES/plaque_assay.po": "b48eb357f8ea14f09aa1de681daa64b6e55eb1035e07ac46bdebd6334bbbcee5",
+    "docs/i18n/guides/es/LC_MESSAGES/plugin_sdk.po": "db6ba7e3c75ca25725f7b4940fa7c104a06459cd701488e2ab0347205fa1f166",
+    "docs/i18n/guides/es/LC_MESSAGES/workflows.po": "64d17813d0037e4f5ae6c74ac2036b95fac63904bb432139056728d141a02ede",
+    "docs/i18n/guides/glossary/es.json": "5d63eb7fceaf6187ba61781bec180f74203744635db9cf0d3c761fd68aa0c462",
+    "docs/i18n/reviewed/guides/es/2026-10-01-preview-model-and-plugin-guides.json": "5cb64d98e597b34766e76b44a93a595461a3f3eaa7b0cc1dedb05626dddc4b5e",
+    "docs/i18n/reviewed/runtime/es/2026-10-01-preview-controls-and-colony-dilution.json": "7d89aa1e44b35d371a644fb8c152183b42fc24880dc365d9a4813655360c7ac4",
+    "docs/i18n/reviewed/runtime/es/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "595e949176e265019d3d9bbe8bf088e7c9967cfd710e0d4f9f899ac9dbf48e5d",
+    "docs/i18n/guides/pt/LC_MESSAGES/make_masks.po": "5639a886bdf441951e51c271edc74f8c54883bbf21df084eb78a984d65ae5d61",
+    "docs/i18n/guides/pt/LC_MESSAGES/measure_live.po": "86396fce693a21d417cffda86484c28cee187adbd5b715aa48635785717c8fb0",
+    "docs/i18n/guides/pt/LC_MESSAGES/model_zoo.po": "c4d6ebd11ca4150d210a103481458afb5b9f3f4ffb86f5af5c1681e2eb5669fc",
+    "docs/i18n/guides/pt/LC_MESSAGES/plaque_assay.po": "9410feea9db6ce7de47136ff15c6fb578ac1ae16893057a51287b11fbf7a259e",
+    "docs/i18n/guides/pt/LC_MESSAGES/plugin_sdk.po": "a5726d41f85e1838812bdf7b3f264b6c25876926bba86880b7cdcba018e5cf03",
+    "docs/i18n/guides/pt/LC_MESSAGES/workflows.po": "f4405092b61cb0e5f027c977ba33545e5184900ad581d59c3d2df7d93c72dc5f",
+    "docs/i18n/guides/glossary/pt.json": "0b348b978cf7d6aa6197ccb6b1f11dd37f30845af574f48eca8ddbe12a4c5c97",
+    "docs/i18n/reviewed/guides/pt/2026-10-01-preview-model-and-plugin-guides.json": "a21b237d28a15f6dc4b9e2d0103af93ecfc85bcdbc8dc30afac368d04f5ece99",
+    "docs/i18n/reviewed/runtime/pt/2026-10-01-preview-controls-and-colony-dilution.json": "650a3038e97d4b1c83499be5f023b5a7d12c45d51dab1b01be51bfd8067b49da",
+    "docs/i18n/reviewed/runtime/pt/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "cdb31dede2807f9be142ebce5d09e29b26b95735e03a54195576d856d7028f7f",
+    "docs/i18n/guides/fr/LC_MESSAGES/make_masks.po": "331ce3a26e9900db85bd0a5a0ecc50bfa30bb94c24f517a73fec650641f08c24",
+    "docs/i18n/guides/fr/LC_MESSAGES/measure_live.po": "cc3567b0d341ec60261dce413ec9873dff72cf5e89655a1e8d8b0012fe0c9a78",
+    "docs/i18n/guides/fr/LC_MESSAGES/model_zoo.po": "957c840cee19e02317fb5c7116dd783012bffd967095051c0d04fd064bac31c4",
+    "docs/i18n/guides/fr/LC_MESSAGES/plaque_assay.po": "c2cf78bed9c67aeb0e70aa36fa7b2fb0f7f59225a6f2da2f994f97f88bf3f4c3",
+    "docs/i18n/guides/fr/LC_MESSAGES/plugin_sdk.po": "50d881e5445bd3b27018b6627c7d4c7ba4fdffc5b305097b14ed202e6ab2df5f",
+    "docs/i18n/guides/fr/LC_MESSAGES/workflows.po": "ba149c9cb75c8fe928a2153656e901f2896882befd7a734d9687883263b8120c",
+    "docs/i18n/guides/glossary/fr.json": "cd90eac5c5a0df035adef4e799008c103f7d9f5dc4dd2e3db8b9e9edb4ccd988",
+    "docs/i18n/reviewed/guides/fr/2026-10-01-preview-model-and-plugin-guides.json": "3911bd68aefadbcfed80f2900a13f12099dee42d2e1255537afd8cd6fd5620ca",
+    "docs/i18n/reviewed/runtime/fr/2026-10-01-preview-controls-and-colony-dilution.json": "95f6ea853292b26a5c12a7f675daf2e799ae1ef1b5ee75d6971af5f1daae5a41",
+    "docs/i18n/reviewed/runtime/fr/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "26209193e585f8b366c8807541ec8ab2602f73217af23eeee6c6567474014778",
+    "docs/i18n/guides/is/LC_MESSAGES/make_masks.po": "ffd4f4b6155b4223d45e737f7685096f8761674631d3fcaccd12801cf29df4e3",
+    "docs/i18n/guides/is/LC_MESSAGES/measure_live.po": "fa016a06ff8281fd5e559167aab53755bfc2cb3558f27e7886399e690dad1b6f",
+    "docs/i18n/guides/is/LC_MESSAGES/model_zoo.po": "1743ddde3d21f127e49545357015171fc7b829f071af21f5986a5be565fd1a85",
+    "docs/i18n/guides/is/LC_MESSAGES/plaque_assay.po": "3b2c9ef6615eebbf4b14c8ea22eca7c2a88109c00ec306ac46f97aa4c792726f",
+    "docs/i18n/guides/is/LC_MESSAGES/plugin_sdk.po": "d8c313cdb7aad5dfd4dfdd744c84ca1559348630a98715a68bae886dc9551621",
+    "docs/i18n/guides/is/LC_MESSAGES/workflows.po": "4c7161b0f99cea85d3daec97d39748ec44d299478ef99a244029ea1d601b7c7d",
+    "docs/i18n/guides/glossary/is.json": "c53efa8c1f55d9dd94fc10c9ce23c8ebe883f657a9ee9e62760243949df4c03a",
+    "docs/i18n/reviewed/guides/is/2026-10-01-preview-model-and-plugin-guides.json": "1505ff80a9b13a5c2828cd3a3ac95b98fcf64e56a5415baccbbdc2590822e303",
+    "docs/i18n/reviewed/runtime/is/2026-10-01-preview-controls-and-colony-dilution.json": "cc860abbec78110cc216a1472c0ecd650acbbfdf20dfbcfd2b2c404e266c5b8d",
+    "docs/i18n/reviewed/runtime/is/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "1240bb03cffcc890a7619cfec9c26b14f8e01ae81c21cbe8bb71ff75fba7e678",
+    "docs/i18n/guides/zh_CN/LC_MESSAGES/make_masks.po": "e2d256f6d89a7994382fdc58e4faa990dfe414c4d5de214784286d2bd7235520",
+    "docs/i18n/guides/zh_CN/LC_MESSAGES/measure_live.po": "819dfec8088f849045bee4726b27856bd48438df92d44a314722bc59e3c57659",
+    "docs/i18n/guides/zh_CN/LC_MESSAGES/model_zoo.po": "e17ed026cd909cf17380e7c1cf70663e2c448f7d180da1e673defc79ca7a9b7b",
+    "docs/i18n/guides/zh_CN/LC_MESSAGES/plaque_assay.po": "42384e9a42bf73e1a0e1c8ab918046776fc6afa138a89fc03b19601dc9468f73",
+    "docs/i18n/guides/zh_CN/LC_MESSAGES/plugin_sdk.po": "a32622b020c2718be77326cb1a669f3bec351c255764b4db2f37ce42c34c016e",
+    "docs/i18n/guides/zh_CN/LC_MESSAGES/workflows.po": "1a523239f9b4b20dbed3077408f99a593dc73e1584d9a89c670f8f3dfecaf40a",
+    "docs/i18n/guides/glossary/zh_CN.json": "88ced0b6e7dcfdc9e73972cbba17e038b57beb7558883f373d41e3ceca935767",
+    "docs/i18n/reviewed/guides/zh_CN/2026-10-01-preview-model-and-plugin-guides.json": "c1b8b1ce9baba7625b7a0d14b4a3d8f1821f5cd045434114fbf2c69d63e31742",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-01-preview-controls-and-colony-dilution.json": "b8c74b959723171fe2fe9106b0fcda43080aa58817d1404e7f84e5922d892b59",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "e62479132fdd109e784c6b4d8d954f11b255d17804cfafc99365a5f22a40377e",
+    "docs/i18n/guides/ko/LC_MESSAGES/make_masks.po": "62673e581775fc30587b739508d8728dd1f0185091b4d038d383d6240062f51f",
+    "docs/i18n/guides/ko/LC_MESSAGES/measure_live.po": "0832c1cf6eec44f49fa400fefbbfbf048fff5bf9e0cd8556876f98eb335a9ca0",
+    "docs/i18n/guides/ko/LC_MESSAGES/model_zoo.po": "6b10cdb790e64e28c56acdfbf637c628c5a27413e58a8436b8b95a88c6c3be95",
+    "docs/i18n/guides/ko/LC_MESSAGES/plaque_assay.po": "ba249313a99a6c1f787fcfcd4da8ef9386a9b484a0e439426d05a5d426f1736d",
+    "docs/i18n/guides/ko/LC_MESSAGES/plugin_sdk.po": "db0b11f3fc77ad7dbe0bf0d3258482c88bd8a7e11799d2b08a69a441f5a189f7",
+    "docs/i18n/guides/ko/LC_MESSAGES/workflows.po": "18e011b927230ee897cca6c89474b0a792567da7102f61fa8187f1014ddf362f",
+    "docs/i18n/guides/glossary/ko.json": "1f58e88d64446f89db492d242d400114f2b2cd1df19c95eee45f18c786b36b56",
+    "docs/i18n/reviewed/guides/ko/2026-10-01-preview-model-and-plugin-guides.json": "f6e59ca4c627730a398e32e4a81c280babf35bdaa7c4a2408f81fc5a669db2cf",
+    "docs/i18n/reviewed/runtime/ko/2026-10-01-preview-controls-and-colony-dilution.json": "41ee9c0a4d99bf818daf9faf6e014201ae6a669094b4e6ccc209b622c18b32a2",
+    "docs/i18n/reviewed/runtime/ko/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "3e998cb764f9c381a79ef21561de16c2d4f47f9565d0e3ef8a61882d8a6b2b6c",
+    "docs/i18n/guides/hi/LC_MESSAGES/make_masks.po": "2e8d3e289531880acc022ef0020353339bb96f1f89143dc96751aab2b4f2c0aa",
+    "docs/i18n/guides/hi/LC_MESSAGES/measure_live.po": "0f4e70aaddc42a95c39e7563af4bafe17abc0ed34d4773fdfae88d558a6c1927",
+    "docs/i18n/guides/hi/LC_MESSAGES/model_zoo.po": "7a58c3d10f6060ea8247fb30bbefdfc730db13a4f82ba4e5cf7eac8e13091202",
+    "docs/i18n/guides/hi/LC_MESSAGES/plaque_assay.po": "b2351a6648204f2068ba1429ed0ce73977e3e834879190ddad59433ff3d66eda",
+    "docs/i18n/guides/hi/LC_MESSAGES/plugin_sdk.po": "9d13e2b747434f9f74eea0ccc4d088633bbbd1688ba06e60c7c357f625d7338b",
+    "docs/i18n/guides/hi/LC_MESSAGES/workflows.po": "dd68bfd6681df91b48dbb8023759effc0a1c8f3c6629e2cd510db9d59f39b295",
+    "docs/i18n/guides/glossary/hi.json": "78b29f8260d92c46d88c873d773d32e1b645e649bbd7e08fa7689ba77123d8fe",
+    "docs/i18n/reviewed/guides/hi/2026-10-01-preview-model-and-plugin-guides.json": "f2cdce79baaeeef372ea9230de01d92b77a47be33991e6a557c72aa9e57f19fd",
+    "docs/i18n/reviewed/runtime/hi/2026-10-01-preview-controls-and-colony-dilution.json": "eada2a6e7a74d979b65bcb4584b6461e26e9d7f242e4f1b56542feb69f91cf2a",
+    "docs/i18n/reviewed/runtime/hi/2026-09-27-runtime-debt-sixth-pass-setting-help.json": "660197cd130f0965375b8bc55539548456b36abd020bb747ee59cfef510d55bf"
+  }
+}

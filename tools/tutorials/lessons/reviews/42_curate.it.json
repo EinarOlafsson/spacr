@@ -1,0 +1,34 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "54e14df590f9c3ae40a549095430907e6e853617b3cbc6e9ec04702b29e80d0d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Curate: modificare maschere e tracce",
+  "description": "Esercitati con le modifiche a pennello, la divisione e l’unione delle tracce, e salva i file corretti.",
+  "objectives": [
+    "Modificare una maschera di etichette con il pennello e i comandi di annullamento.",
+    "Dividere, unire e salvare le tracce.",
+    "Conservare i file di origine e la cronologia di curazione."
+  ],
+  "prerequisite": "Scarica l’archivio di esercitazione sintetico e lavora su copie. Tieni backup separati delle maschere e dei relativi file ausiliari .curation.json prima di riaprirle: salvare una maschera riaperta al momento sostituisce il suo registro delle modifiche precedente.",
+  "scenes": [
+    "Apri Make Masks e poi Curate per modificare maschere di etichette e tracce. Scarica l’esempio di esercitazione sintetico qui sotto e conserva una copia intatta.",
+    "Individua il TIFF di etichette intere dell’esempio. Ogni oggetto ha la propria etichetta e lo zero è riservato allo sfondo. Usa l’esempio TIFF per questa guida.",
+    "Imposta Brush radius su otto e fai clic su New per selezionare una nuova etichetta. Fai clic su una parte vuota dell’immagine di esercitazione per dipingere una piccola regione.",
+    "Fai clic su Undo stroke per annullare l’ultima modifica a pennello. Dipingi di nuovo ed esamina il risultato prima di salvare.",
+    "Fai clic su Save mask per scrivere il TIFF di lavoro e il suo file ausiliario di curazione. Prima di riaprirlo, conserva entrambi i file in una nuova cartella di backup; il download include uno script di checkpoint per questo passaggio.",
+    "Conserva il backup e le note di modifica di ogni sessione. Riaprire una maschera avvia un nuovo registro in memoria, e un altro salvataggio sostituisce il file ausiliario con la cronologia di quella sessione.",
+    "Individua il CSV delle tracce e seleziona quelle da esaminare. Join accetta tracce con intervalli di fotogrammi non sovrapposti; una sovrapposizione produce un messaggio da risolvere prima.",
+    "Seleziona la traccia due, imposta Split at frame su quattro e fai clic su Split. I fotogrammi successivi passano a una nuova traccia, mentre quelli precedenti mantengono l’identificativo originale.",
+    "Seleziona le due metà non sovrapposte e fai clic su Join per unirle. Fai clic su Save tracks per scrivere il CSV e il suo file ausiliario di curazione separato.",
+    "Usa Delete solo per le tracce che vuoi eliminare. Per scartare una modifica non salvata, riapri l’ultimo CSV salvato.",
+    "Esamina le tracce riaperte e la cronologia salvata. Conserva gli originali e i motivi delle modifiche, e riesegui ogni analisi successiva interessata dalle maschere o dalle traiettorie corrette."
+  ]
+}

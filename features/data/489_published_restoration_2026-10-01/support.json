@@ -1,0 +1,159 @@
+{
+  "caption_sources": [
+    "Approximate diameter of the selected cells or nuclei in pixels. Controls model rescaling; output dimensions remain unchanged. This does not estimate microscope calibration.",
+    "Cellpose 3 is installed",
+    "Cells (cyto2)",
+    "Cells (cyto3)",
+    "Choose weights trained for cells or nuclei. These models are not validated for every organelle or acquisition. Restored values are normalized model output, not calibrated fluorescence. Inspect the comparison before accepting new masks. Upsampling is excluded so image and mask coordinates stay aligned.",
+    "Deblur",
+    "Deep image enhancement",
+    "Denoise",
+    "Install Cellpose 3…",
+    "Installing Cellpose 3…",
+    "Load / retry model",
+    "Load the selected Cellpose 3 restoration weights on the CPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+    "Load the selected Cellpose 3 restoration weights on the GPU. First use may download weights. The captured package version, checkpoint hash and diameter are recorded with applied enhancement.",
+    "Loading restoration model on CPU…",
+    "Loading restoration model on the GPU…",
+    "Nuclei",
+    "Off",
+    "On the CPU a whole field takes tens of seconds and the magnifier box about a second.",
+    "One-click restoration",
+    "Open the Model Zoo installer for the isolated Cellpose 3 environment. The Cellpose version used by spaCR itself is unchanged.",
+    "Restoration diameter",
+    "Restoration model",
+    "Restoration model is not ready. Load the model before applying it.",
+    "Restoration ready: {model} on {device}; original intensities retained for measurements.",
+    "Restoration ready: {model}. CPU processing; original intensities retained for measurements.",
+    "Restoration unavailable: {error}",
+    "Restore the selected intensity channel with Cellpose 3 in its own environment. Runs after PSF processing and before classical denoising. Compare previews the result; Apply enables it for subsequent detection. Source pixels and measurement intensities remain unchanged."
+  ],
+  "caption_coverage": {
+    "sv": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "Av"
+      },
+      "missing_or_stale": 0
+    },
+    "de": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "Aus"
+      },
+      "missing_or_stale": 0
+    },
+    "es": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "Desactivado"
+      },
+      "missing_or_stale": 0
+    },
+    "zh_CN": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "关闭"
+      },
+      "missing_or_stale": 0
+    },
+    "pt": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "Desativado"
+      },
+      "missing_or_stale": 0
+    },
+    "hi": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "बंद"
+      },
+      "missing_or_stale": 0
+    },
+    "ko": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "꺼짐"
+      },
+      "missing_or_stale": 0
+    },
+    "is": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "Slökkt"
+      },
+      "missing_or_stale": 0
+    },
+    "fr": {
+      "current_caption_entries": 27,
+      "generated_source_bound_entries": 26,
+      "existing_static_row": {
+        "Off": "Désactivé"
+      },
+      "missing_or_stale": 0
+    }
+  },
+  "api_scope": [
+    "spacr.qt.detect_chain",
+    "spacr.qt.detect_chain.Chain",
+    "spacr.qt.detect_chain.background_surface",
+    "spacr.qt.detect_chain.chain_settings",
+    "spacr.qt.detect_chain.describe",
+    "spacr.qt.detect_chain.finish",
+    "spacr.qt.detect_chain.heavy_steps",
+    "spacr.qt.detect_chain.is_active",
+    "spacr.qt.detect_chain.post_active",
+    "spacr.qt.detect_chain.pre_active",
+    "spacr.qt.detect_chain.prepare",
+    "spacr.qt.detect_chain.provenance",
+    "spacr.qt.detect_chain.setting_name",
+    "spacr.qt.detect_chain.step_names",
+    "spacr.qt.widgets.restoration_controls"
+  ],
+  "api_source_contracts": {
+    "sv": {
+      "current_chain_controls_symbols": 15
+    },
+    "de": {
+      "current_chain_controls_symbols": 15
+    },
+    "es": {
+      "current_chain_controls_symbols": 15
+    },
+    "zh_CN": {
+      "current_chain_controls_symbols": 15
+    },
+    "pt": {
+      "current_chain_controls_symbols": 15
+    },
+    "hi": {
+      "current_chain_controls_symbols": 15
+    },
+    "ko": {
+      "current_chain_controls_symbols": 15
+    },
+    "is": {
+      "current_chain_controls_symbols": 15
+    },
+    "fr": {
+      "current_chain_controls_symbols": 15
+    }
+  },
+  "full_current_api_audit": "features/data/615_api_bscore_delta_2026-10-01.json",
+  "guide": {
+    "path": "docs/source/make_masks.rst",
+    "file_sha256": "0025fba244c3a87cbbd5d8f67fd70c84746722eae0b4228d866602ac595e60ab",
+    "restoration_section_sha256": "a2932bfc67768e3ea3ca76d1cf14a60691aec246be48a7e69d17aec295949d0a",
+    "content": "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nUnder **Image enhancement**, choose **Denoise**, **Deblur**, or\n**One-click restoration** in **Deep image enhancement**. The default is\n**Off**. If needed, select **Install Cellpose 3…** to install its separate\nbackend environment; this does not replace spaCR's own Cellpose installation.\nFirst use may download the selected model's weights.\n\nOpen **Restoration model settings** and choose **Cells (cyto3)**,\n**Cells (cyto2)**, or **Nuclei**, according to the structures in the selected\nintensity channel. Set their approximate diameter in pixels. This controls\nmodel rescaling, not microscope calibration. **Load / retry model** reloads\nthe current choice. Wait for the ready message before comparing or applying\nit; that message identifies the device used by the isolated backend.\n\nLoading and restoration run in the background. On a CPU, a whole field can\ntake tens of seconds; a small magnifier region is quicker. Timing depends\non the image, model and computer. A backend installed with supported GPU\nacceleration can use it, but the workflow also runs on a CPU.\n\nUse **Compare** to inspect several representative regions before choosing\n**Apply**. Restoration follows background and PSF processing and precedes\nclassical denoising and contrast adjustments. Apply feeds the restored\nfloating-point intensities to detection and the Wand while keeping display\nscaling separate. The image dimensions and loaded source pixels stay\nunchanged; upsampling models are not offered here.\n\nRestored values are normalized model output, not calibrated fluorescence;\nthey can be negative or exceed one. Measurements retain the original\nintensities. A clearer-looking image does not establish recovered structure\nor more accurate masks, and these weights are not validated for every\norganelle or acquisition. Inspect the resulting masks as well as the image.\nKeep the saved enhancement record with the masks: it identifies the model,\nCellpose version, checkpoint hash, device, diameter and processing settings.\nCARE and Noise2Void are not supplied as ready restoration engines.\n"
+  },
+  "scope": "Focused current caption and API source-binding inventory; no new native linguistic or biological acceptance claim"
+}

@@ -1,0 +1,13 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "A hook that raises, returns ``None``, or returns the wrong shape/dtype gets its exception re-raised as :class:`MeasurementHookError` (a :class:`spacr.errors.ConfigurationError`) naming the hook and the field. It is raised inside ``_measure_crop_core``'s ``try``, so it takes the ordinary per-field failure route: the traceback is printed, the field is recorded on the ``RunLedger`` as a failure, and ``measurements.db`` is stamped incomplete. It is never swallowed into a row of quietly-wrong numbers.",
+      "label": "spacr.measure_hooks#17",
+      "source": "A hook that raises, returns ``None``, or returns the wrong shape/dtype gets its exception re-raised as :class:`MeasurementHookError` (a :class:`spacr.errors.ConfigurationError`) naming the hook and the field. It is raised inside ``_measure_crop_core``'s ``try``, so it takes the ordinary per-field failure route: the traceback is printed, the field is recorded on the ``RunLedger`` as a failure, and ``measurements.db`` is stamped incomplete. It is never swallowed into a row of quietly-wrong numbers.",
+      "source_sha256": "c560aafe8c12f7d7b6c465e6eb639351e3422bf517e7a236d94b0153d9074ad5",
+      "translation": "Un hook que genera una excepción, devuelve ``None`` o devuelve datos con forma o dtype incorrectos vuelve a generar su excepción como :class:`MeasurementHookError` (una :class:`spacr.errors.ConfigurationError`) e identifica el hook y el campo. La excepción se genera dentro de ``_measure_crop_core``, en su bloque ``try``, por lo que sigue la ruta normal de error por campo: se imprime el traceback, el campo se registra como fallido en ``RunLedger`` y ``measurements.db`` se marca como incompleto. Nunca se convierte silenciosamente en una fila de valores incorrectos."
+    }
+  ],
+  "schema": 1
+}

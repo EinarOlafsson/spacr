@@ -1,0 +1,35 @@
+{
+  "lesson": "54_qc_dashboard",
+  "english_sha256": "8d73de741cc8b5d38c497eac960c0dfe562312ed73b07d6f02e536ba8ec4c174",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "QC : examiner les rapports qualité d’un projet",
+  "description": "Choisissez un projet, lisez les rapports qualité disponibles, étudiez les avertissements et actualisez le tableau de bord.",
+  "objectives": [
+    "Choisir le projet ou l’exécution à examiner.",
+    "Lire les rapports disponibles, manquants et obsolètes.",
+    "Étudier les constats et actualiser l’affichage."
+  ],
+  "prerequisite": "Utilisez un projet avec des rapports qualité enregistrés. Les exemples téléchargés de Mask et d’Annotate fournissent des ensembles de rapports différents ; choisissez le projet ou le dossier d’exécution précis à examiner.",
+  "scenes": [
+    "Ouvrez QC depuis la catégorie Data de Home pour examiner les rapports qualité enregistrés avec un projet.",
+    "L’en-tête ouvre Layer Viewer, Control Charts et Outliers. Utilisez leurs tutoriels lorsqu’un constat du tableau de bord demande une étude plus poussée.",
+    "Cliquez sur Browse et choisissez le dossier du projet. Sélectionnez le dossier qui contient les rapports de l’exécution à évaluer.",
+    "Interprétez Missing comme un rapport indisponible pour ce contrôle. Suivez les indications pour obtenir le rapport nécessaire avant de conclure.",
+    "Choisissez un sous-dossier d’exécution lorsque ses sorties sont séparées du projet parent. Vérifiez que la portée affichée correspond aux données que vous voulez examiner.",
+    "Lisez les avertissements de segmentation et examinez les champs correspondants. Pour un avertissement sur la distribution des tailles, comparez les images et les contours des objets pour en comprendre la cause.",
+    "Examinez la carte des unités avec les autres catégories. Un rapport d’unités cohérent règle ce contrôle ; les rapports manquants demandent toujours votre attention.",
+    "Lisez les cinq catégories et leurs indications. Pour les fuites, vérifiez que les identités d’échantillons et le regroupement reflètent les unités de validation indépendantes prévues.",
+    "Ouvrez le détail des échecs ou des avertissements pour identifier les champs concernés et les rapports sources. Utilisez l’outil d’analyse approprié pour les étudier.",
+    "Cliquez sur Refresh lorsque des rapports changent sur le disque. Le tableau de bord relit les éléments disponibles ; produisez des rapports à jour avec l’analyse qui les génère.",
+    "Étudiez un rapport obsolète au regard de ses données d’entrée et de ses paramètres. Gardez les constats non résolus visibles dans la revue de votre projet.",
+    "Conservez les rapports qualité avec le projet. Poursuivez dans les outils spécialisés associés ou dans le tutoriel du module concerné pour traiter chaque constat."
+  ]
+}

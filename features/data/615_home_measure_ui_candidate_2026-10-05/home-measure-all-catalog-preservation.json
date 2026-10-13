@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "catalogs": {
+    "captions_da.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "captions_de.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "captions_is.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "captions_ko.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "captions_nb.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "captions_sv.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_en.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_es.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_fr.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_hi.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_it.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_ja.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_pt-BR.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    },
+    "lessons_zh-CN.json": {
+      "complete_unchanged_other_lesson_objects": 83,
+      "passed": true
+    }
+  },
+  "Mask_07_unchanged": true,
+  "Conda_02_unchanged": true
+}

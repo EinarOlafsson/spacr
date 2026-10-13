@@ -1,0 +1,537 @@
+"""Well-level distribution panels for regression reports.
+
+This module plots normalized guide representation and response distributions
+from the table used to fit a model. These panels remain separate from
+:mod:`spacr.figures.panels`, whose registry consumes coefficient tables.
+Returned :class:`~spacr.figures.panels.Panel` records include the plotted data
+and the statistics needed to interpret each distribution.
+"""
+
+from __future__ import annotations
+
+from typing import Callable, Dict, Optional, Sequence, Tuple
+
+import numpy as np
+
+from .panels import Panel
+from .style import (ROLES, WEIGHTS, annotate, figure_style, reference_line,
+                    theme_target)
+
+#: The guide-share column, whatever the caller named it.
+FRACTION_COLUMNS = ("fraction", "grna_fraction", "guide_fraction")
+
+#: The well identifier. spaCR's is `prc` -- plate, row, column.
+WELL_COLUMNS = ("prc", "prcfo", "well_id", "wellID", "well")
+
+#: Response columns, in the order the pipeline would mean them. Only consulted
+#: when the caller did not name one and the frame has more than one numeric
+#: column; a panel that had to guess says which column it drew.
+RESPONSE_COLUMNS = ("log_pred", "pred", "recruitment", "score", "response",
+                    "value")
+
+#: A well holding one guide has no within-well evenness to measure: its single
+#: share is 1.0 of the equal share by construction. Left in, those rows pile a
+#: spike of pure arithmetic onto the exact x where the reference line is, which
+#: is the worst place in the panel for an artefact. On this screen that is 93
+#: of 610 wells.
+MIN_GUIDES_PER_WELL = 2
+
+#: Below this many values a histogram is a rug and its moments are noise.
+MIN_VALUES = 8
+
+#: Read on |skew| and on |excess kurtosis| alike.
+NEAR_SYMMETRIC = 0.5
+MODERATELY_SKEWED = 1.0
+
+
+
+def _column(frame, names) -> Optional[str]:
+    """The first of ``names`` this frame has."""
+    for name in names:
+        if name in frame.columns:
+            return name
+    return None
+
+
+def fraction_column(frame) -> Optional[str]:
+    """Return the first known guide-share column in ``frame``, or None.
+
+    :param frame: table whose columns are searched for a known guide-share
+        name.
+    """
+    return _column(frame, FRACTION_COLUMNS)
+
+
+def well_column(frame) -> Optional[str]:
+    """The well identifier, or None when the frame does not carry one.
+
+    :param frame: table whose columns are searched for a known well identifier.
+    """
+    return _column(frame, WELL_COLUMNS)
+
+
+def response_column(frame, column: Optional[str] = None) -> Optional[str]:
+    """Return the name of the response column, or None when none is found.
+
+    An explicit ``column`` is returned when the frame has it, and None
+    otherwise; the pipeline knows its dependent variable and should pass it.
+    Without one, a frame with exactly one numeric column (the shape
+    `dmatrices` returns) uses that column. Otherwise the first name in
+    :data:`RESPONSE_COLUMNS` that the frame has is used, and the panel labels
+    its axis with the column it drew.
+
+    :param frame: model-input table whose numeric and named response columns
+        are inspected.
+    """
+    if column is not None:
+        return column if column in frame.columns else None
+    numeric = [name for name in frame.columns
+               if str(frame[name].dtype).startswith(("float", "int"))]
+    if len(numeric) == 1:
+        return numeric[0]
+    return _column(frame, RESPONSE_COLUMNS)
+
+
+def _finite(values) -> np.ndarray:
+    """Return finite values as a flat floating-point array.
+
+    :param values: Array-like values to convert and filter.
+    :returns: One-dimensional ``float64`` array containing only finite values.
+    """
+    array = np.asarray(values, dtype="float64").ravel()
+    return array[np.isfinite(array)]
+
+
+def _bins(n: int) -> int:
+    """Bin count from the sample size, the same rule the QC report uses.
+
+    Root-n, floored at 10 so a small screen still shows a shape and capped at
+    60 so a large one does not turn into a comb.
+    """
+    return int(np.clip(np.sqrt(max(n, 1)), 10, 60))
+
+
+
+def gini(values) -> float:
+    """The Gini coefficient of a non-negative sample.
+
+    0 when every value is equal, approaching 1 when one value holds
+    everything. The standard evenness statistic for a pooled library, and the
+    same one :func:`spacr.plot.plot_lorenz_curves` reports.
+
+    The statistic is the same but its input is not, although both are
+    labelled "Gini". The Lorenz curves take raw gRNA
+    counts pooled over a plate; this panel takes each guide's share of its own
+    well divided by that well's equal split. On the tsg101 screen those are
+    0.20 and 0.32 -- the panel's is larger because normalising by the well
+    removes the between-well spread that flattens the pooled curve. The two
+    values are therefore not comparable.
+
+    NaN for an empty sample, one with a negative value, or one that sums to
+    zero, rather than a
+    ZeroDivisionError or a silent 0.0 -- an evenness of zero would be read as
+    "perfectly even", which is the opposite of "there was nothing to measure".
+
+    :param values: guide-representation values; non-finite values are ignored.
+    """
+    array = np.sort(_finite(values))
+    if array.size == 0 or array.min() < 0:
+        return float("nan")
+    total = array.sum()
+    if total <= 0:
+        return float("nan")
+    index = np.arange(1, array.size + 1)
+    return float(((2 * index - array.size - 1) * array).sum()
+                 / (array.size * total))
+
+
+def relative_representation(frame, fraction: str, well: str):
+    """Each guide's share of its well, divided by an equal split of that well.
+
+    ``(values, dropped_wells, dropped_rows)``. 1.0 means the guide holds
+    exactly its share; 2.0 means twice what an equal split would give it.
+
+    The raw fraction confounds evenness with how many guides were retained in
+    the well: a two-guide well and a fifteen-guide well produce shares an
+    order of magnitude apart with no unevenness at all. Dividing by the
+    well's own equal share removes that dependence, so a single reference
+    line at 1 applies to every well.
+
+    :param frame: guide-level table containing the share and well columns.
+    :param fraction: name of the guide-share column in ``frame``.
+    :param well: name of the well-identifier column in ``frame``.
+    """
+    shares = np.asarray(frame[fraction], dtype="float64")
+
+    usable_share = np.where(np.isfinite(shares), shares, np.nan)
+    per_well = frame[[well]].copy()
+    per_well["_share"] = usable_share
+    grouped = per_well.groupby(well, observed=True)["_share"]
+    counts = grouped.transform("count").to_numpy()
+    totals = grouped.transform("sum").to_numpy(dtype="float64")
+
+    usable = (np.isfinite(shares) & np.isfinite(totals) & (totals > 0)
+              & (counts >= MIN_GUIDES_PER_WELL))
+    equal = np.divide(totals, counts, out=np.full(totals.shape, np.nan),
+                      where=usable)
+    values = np.divide(shares, equal, out=np.full(shares.shape, np.nan),
+                       where=usable)
+    values = values[usable]
+
+    kept = frame.loc[usable, well] if usable.any() else frame.loc[[], well]
+    dropped_wells = int(frame[well].nunique() - kept.nunique())
+    return values, dropped_wells, int((~usable).sum())
+
+
+def shape_of(values) -> dict:
+    """Return the skewness, excess kurtosis and a short verdict for the finite values.
+
+    Returned rather than printed so a test can assert the number a reader is
+    shown, and so the console summary can quote the same
+    one the panel does instead of computing its own.
+
+    :param values: response values whose finite observations define the shape.
+    """
+    from scipy import stats
+
+    array = _finite(values)
+    if array.size < 3 or array.std() == 0:
+        return {"n": int(array.size), "skew": float("nan"),
+                "excess_kurtosis": float("nan"), "verdict": "not measurable"}
+    skew = float(stats.skew(array))
+    kurtosis = float(stats.kurtosis(array))
+    if abs(skew) < NEAR_SYMMETRIC:
+        verdict = "near-symmetric"
+    elif abs(skew) < MODERATELY_SKEWED:
+        verdict = "moderately skewed"
+    else:
+        verdict = "strongly skewed"
+    if abs(skew) < NEAR_SYMMETRIC and abs(kurtosis) >= MODERATELY_SKEWED:
+        verdict = "symmetric, heavy-tailed"
+    if skew >= NEAR_SYMMETRIC:
+        verdict += " right"
+    elif skew <= -NEAR_SYMMETRIC:
+        verdict += " left"
+    return {"n": int(array.size), "skew": skew,
+            "excess_kurtosis": kurtosis, "verdict": verdict}
+
+
+def one_value_per_well(frame, column: str, well: Optional[str]):
+    """Return the response once per well when it is constant within every well.
+
+    ``(values, deduplicated)``.
+
+    The pipeline passes the response as one row per guide-in-well, but the
+    response is a property of the well -- on the reference screen `log_pred`
+    has exactly one distinct value in each of the 610 wells, repeated once
+    per guide the well retained. Counting every row would count a 15-guide
+    well fifteen times and give n = 1,945 for 610 independent observations,
+    overstating the evidence three-fold and weighting the distribution
+    towards wells with many guides.
+
+    If the response varies within any well, every row is kept, because
+    collapsing it would then be wrong.
+
+    :param frame: observation table containing the response and optional well
+        identifier.
+    :param column: response column to extract from ``frame``.
+    :param well: well-identifier column, or ``None`` to retain every response
+        observation.
+    """
+    if well is None or well not in frame.columns:
+        return _finite(frame[column]), False
+    varies = frame.groupby(well, observed=True)[column].nunique(dropna=True)
+    if (varies > 1).any():
+        return _finite(frame[column]), False
+    return _finite(frame.groupby(well, observed=True)[column].first()), True
+
+
+
+def _ratio_ticks(ax, values) -> None:
+    """Powers of two labelled as MULTIPLIERS, not as exponents.
+
+    matplotlib's log-base-2 default writes ``2^-3``, and an axis captioned
+    "× equal share" then asks the reader to exponentiate before they can say
+    whether a guide is under-represented. The tick positions stay powers of
+    two -- that is what makes half and twice equidistant -- and only the text
+    changes: 0.25, 0.5, 1, 2, 4.
+    """
+    from matplotlib.ticker import FixedFormatter, FixedLocator, NullLocator
+
+    low = int(np.floor(np.log2(values.min())))
+    high = int(np.ceil(np.log2(values.max())))
+    exponents = list(range(low, high + 1))
+    step = max(1, int(np.ceil(len(exponents) / 6)))
+    exponents = [e for e in exponents if e % step == 0]
+    powers = np.array([2.0 ** e for e in exponents])
+    labels = [f"{p:g}" if p >= 1 else f"{p:.3g}" for p in powers]
+    ax.xaxis.set_major_locator(FixedLocator(powers))
+    ax.xaxis.set_major_formatter(FixedFormatter(labels))
+    ax.xaxis.set_minor_locator(NullLocator())
+
+
+def _normal_reference(ax, values, bins_edges) -> None:
+    """Draw a normal reference scaled to the histogram's count axis.
+
+    Estimate the curve from the sample mean and standard deviation, then
+    multiply its density by ``n * bin_width``. The grey dashed line remains
+    visually subordinate to the observed counts.
+    """
+    from scipy import stats
+
+    width = float(np.diff(bins_edges).mean())
+    grid = np.linspace(bins_edges[0], bins_edges[-1], 200)
+    curve = stats.norm.pdf(grid, values.mean(), values.std(ddof=1))
+    ax.plot(grid, curve * values.size * width, color=ROLES["reference"],
+            lw=WEIGHTS["reference"], ls=(0, (4, 3)), zorder=3)
+
+
+def guide_fraction(ax, frame, *, well: Optional[str] = None,
+                   bins: Optional[int] = None, relative: bool = True) -> Panel:
+    """Draw a histogram of guide representation within wells on ``ax`` and return its panel record.
+
+    Each guide's share of its well, divided by the well's equal share when
+    ``relative`` is true (the default), is plotted on a log2 axis because the
+    quantity is a ratio: half and twice equal representation are the same
+    distance from 1, which they are not on a linear axis, and a library's
+    abundances are approximately log-normal.
+
+    :param ax: Matplotlib axes on which to draw the histogram.
+    :param frame: guide-level table containing a recognized share column and,
+        for the relative view, a well identifier.
+    """
+    fraction = fraction_column(frame)
+    if fraction is None:
+        return Panel("guide_fraction", "guide representation", drawn=False,
+                     reason="no fraction column", needs=("fraction",))
+    well = well or well_column(frame)
+    if relative and well is None:
+        return Panel("guide_fraction", "guide representation", drawn=False,
+                     reason=("no well column, so a guide's share cannot be "
+                             "compared with its own well's equal share"),
+                     needs=(fraction, "prc"))
+
+    if relative:
+        values, dropped_wells, _dropped_rows = relative_representation(
+            frame, fraction, well)
+        unit, floor = "× equal share", 1.0
+    else:
+        values, dropped_wells = _finite(frame[fraction]), 0
+        unit, floor = "guide fraction of well", None
+
+    values = values[values > 0]
+    if values.size < MIN_VALUES:
+        return Panel("guide_fraction", "guide representation", drawn=False,
+                     reason=(f"only {values.size} usable guide shares; a "
+                             f"histogram needs at least {MIN_VALUES}"),
+                     needs=(fraction,))
+
+    low, high = float(values.min()), float(values.max())
+    if high <= low:
+        low, high = low / 2.0, high * 2.0
+    edges = np.geomspace(low, high, (bins or _bins(values.size)) + 1)
+    ax.hist(values, bins=edges, color=ROLES["fill"], edgecolor="none")
+    ax.set_xscale("log", base=2)
+    _ratio_ticks(ax, values)
+    if floor is not None:
+        reference_line(ax, x=floor, label="equal share")
+    ax.set_xlabel(unit)
+    ax.set_ylabel("guides")
+
+    spread = np.quantile(values, [0.1, 0.9])
+    evenness = gini(values)
+    over = float(np.mean(values >= 2.0))
+    note = (f"n = {values.size:,} guides\nGini = {evenness:.2f}\n"
+            + (f"80% within {spread[0]:.2f}–{spread[1]:.2f}×\n"
+               f"{over:.0%} at ≥ 2× equal" if relative else
+               f"80% within {spread[0]:.3f}–{spread[1]:.3f}\n"
+               f"median {np.median(values):.3f}"))
+    annotate(ax, note, x=0.02, ha="left")
+
+    dropped = (f" Wells holding a single guide ({dropped_wells}) are excluded: "
+               f"one guide is 1× its own equal share by construction, and "
+               f"there is no within-well evenness to measure."
+               if dropped_wells else "")
+    if relative:
+        built = (f"each as its share of its well divided by an equal split of "
+                 f"that well, so 1 is exact equality; the dashed line marks "
+                 f"it. The axis is log2 because the quantity is a ratio. The "
+                 f"middle 80% span {spread[0]:.2f}–{spread[1]:.2f}× equal "
+                 f"representation and {over:.0%} of guides hold at least "
+                 f"twice it")
+    else:
+        built = (f"each as its raw share of its well, on a log2 axis. Wells "
+                 f"retaining different numbers of guides are pooled, so this "
+                 f"spread ({spread[0]:.3f}–{spread[1]:.3f} over the middle "
+                 f"80%) mixes uneven representation with how many guides a "
+                 f"well kept; no well column was available to separate them")
+    return Panel(
+        "guide_fraction", "guide representation",
+        caption=(f"Representation of {values.size:,} gRNAs, {built} "
+                 f"(Gini = {evenness:.2f}, where 0 is a perfectly even "
+                 f"library and 1 is one guide holding everything).{dropped}"),
+        needs=(fraction,) + ((well,) if relative else ()))
+
+
+def response(ax, frame, *, column: Optional[str] = None,
+             well: Optional[str] = None, bins: Optional[int] = None,
+             family: str = "gaussian") -> Panel:
+    """Draw the response histogram with skewness and excess kurtosis on ``ax`` and return its panel record.
+
+    For ``family='gaussian'`` a normal curve with the response's mean and SD
+    is drawn over the histogram. Skewness and excess kurtosis are printed on
+    the panel, so symmetry does not have to be judged by eye.
+
+    :param ax: Matplotlib axes on which to draw the histogram.
+    :param frame: model-input table containing the response observations.
+    """
+    name = response_column(frame, column)
+    if name is None:
+        return Panel("response", "response distribution", drawn=False,
+                     reason="no response column could be identified",
+                     needs=("log_pred",))
+    well = well or well_column(frame)
+    values, deduplicated = one_value_per_well(frame, name, well)
+    if values.size < MIN_VALUES:
+        return Panel("response", "response distribution", drawn=False,
+                     reason=(f"only {values.size} finite response values; a "
+                             f"histogram needs at least {MIN_VALUES}"),
+                     needs=(name,))
+
+    counts, edges, _patches = ax.hist(
+        values, bins=bins or _bins(values.size), color=ROLES["fill"],
+        edgecolor="none")
+    stats_ = shape_of(values)
+    normal = bool(values.std(ddof=1) > 0 and family == "gaussian")
+    if normal:
+        _normal_reference(ax, values, edges)
+
+    unit = "wells" if deduplicated else "observations"
+    ax.set_xlabel(name.replace("_", " "))
+    ax.set_ylabel(unit)
+
+    before = ""
+    raw = name[4:] if name.startswith("log_") else None
+    if raw and raw in frame.columns:
+        raw_values, _ = one_value_per_well(frame, raw, well)
+        if raw_values.size >= 3:
+            raw_skew = shape_of(raw_values)["skew"]
+            before = (f"\nskew before log: {raw_skew:+.2f}")
+
+    annotate(ax,
+             f"n = {values.size:,} {unit}\n"
+             f"skew = {stats_['skew']:+.2f}{before}\n"
+             f"excess kurtosis = {stats_['excess_kurtosis']:+.2f}\n"
+             f"{stats_['verdict']}",
+             x=0.98, ha="right")
+
+    collapsed = (f" One value per well: the response is constant within a "
+                 f"well, so the {len(frame):,} guide-level rows collapse to "
+                 f"{values.size:,} independent observations."
+                 if deduplicated else "")
+    reference = (f", with a normal of the same mean ({values.mean():.3g}) and "
+                 f"SD ({values.std(ddof=1):.3g}) dashed over it" if normal
+                 else f" (fitted family: {family}, so no normal is drawn)")
+    return Panel(
+        "response", "response distribution",
+        caption=(f"Distribution of {name.replace('_', ' ')} over "
+                 f"{values.size:,} {unit}{reference}. "
+                 f"Skewness {stats_['skew']:+.2f} and excess "
+                 f"kurtosis {stats_['excess_kurtosis']:+.2f} "
+                 f"({stats_['verdict']}; |skew| below 0.5 is read as "
+                 f"near-symmetric, above 1 as strong). The fit assumes normal "
+                 f"RESIDUALS rather than a normal response, so this is a "
+                 f"flag to read the residual and q-q panels with, not a "
+                 f"verdict on the model.{collapsed}"),
+        needs=(name,))
+
+
+#: This module's catalog. Deliberately NOT merged into
+#: :data:`spacr.figures.panels.REGISTRY`: those panels take the coefficient
+#: table and these take the well-level one, and a registry whose entries want
+#: different frames is a registry that cannot be iterated.
+REGISTRY: Dict[str, Callable] = {
+    "guide_fraction": guide_fraction,
+    "response": response,
+}
+
+#: Reading order, same principle as the sheet's: the input to the fit before
+#: the thing that was fitted.
+ORDER: Tuple[str, ...] = ("guide_fraction", "response")
+
+#: The file names a run has always written. Kept exactly, because the grid
+#: view, the queue and `tests/test_cov_ml_regression_core.py` all find these
+#: figures by name.
+FILENAMES = {"guide_fraction": "fraction_histogram",
+             "response": "{response}_histogram"}
+
+
+def build_panel(key: str, frame, *, target: Optional[str] = None,
+                figsize=(3.4, 2.6), **kwargs):
+    """Draw one distribution panel on its own figure and return ``(figure, Panel)``.
+
+    The same shape and the same margins as :func:`spacr.figures.sheet.build_panel`
+    so a saved distribution sits beside a saved volcano at the same size on
+    the grid. The style is applied as a context manager, as everywhere in
+    this package: spaCR draws from a long-lived GUI and a global rcParams
+    write would restyle every later figure in the session.
+
+    :param key: distribution-panel name from :data:`REGISTRY`.
+    :param frame: data table consumed by the selected panel.
+    """
+    import matplotlib.pyplot as plt
+
+    with figure_style(target or theme_target()):
+        figure = plt.figure(figsize=figsize)
+        ax = figure.add_subplot(111)
+        panel = REGISTRY[key](ax, frame, **kwargs)
+        from .bundle import _register_figure_data
+        _register_figure_data(figure, lambda: panel.data if getattr(panel, "data", None) is not None else frame, kind=str(key), title=str(getattr(panel, "title", "") or key))
+        figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
+        return figure, panel
+
+
+def save_distributions(frame, dst, *, response_variable: Optional[str] = None,
+                       target: Optional[str] = None,
+                       order: Sequence[str] = ORDER) -> Dict[str, str]:
+    """Write both distributions into a run's results folder.
+
+    Returns ``{panel_name: path}`` for panels that were drawn; unavailable
+    panels are omitted. The function never opens an interactive window.
+
+    The default ``target='print'`` produces page-readable ink for saved files.
+    Pass another target explicitly when the output will be embedded on a GUI
+    surface.
+
+    :param frame: well- or guide-level table consumed by the distribution
+        panels.
+    :param dst: results directory in which to write the panel files.
+    """
+    import os
+
+    import matplotlib.pyplot as plt
+
+    from ..plot import save_figure
+
+    written: Dict[str, str] = {}
+    for key in order:
+        kwargs = {"column": response_variable} if key == "response" else {}
+        figure, panel = build_panel(key, frame, target=target or "print",
+                                    **kwargs)
+        if not panel.drawn:
+            plt.close(figure)
+            print(f"Skipped {key}: {panel.reason}")
+            continue
+        stem = FILENAMES[key].format(
+            response=response_variable
+            or response_column(frame, response_variable) or "response")
+        written[key] = save_figure(figure, os.path.join(dst, f"{stem}.pdf"),
+                                   close=True)
+    return written
+
+
+__all__ = ["FILENAMES", "MIN_GUIDES_PER_WELL", "MIN_VALUES", "ORDER",
+           "REGISTRY", "RESPONSE_COLUMNS", "build_panel", "fraction_column",
+           "gini", "guide_fraction", "one_value_per_well",
+           "relative_representation", "response", "response_column",
+           "save_distributions", "shape_of", "well_column"]

@@ -1,0 +1,114 @@
+{
+  "base": "9504be028",
+  "source": "https://raw.githubusercontent.com/vanvalenlab/deepcell-spots/0.4.2/deepcell_spots/utils/postprocessing_utils.py",
+  "contract": "y_annotations_to_point_list_max returns np.array(dot_centers), one outer element per image. The probe supplies that documented return shape, not trained-model predictions.",
+  "checks": [
+    {
+      "count": 0,
+      "upstream_shape": [
+        1,
+        0
+      ],
+      "before": {
+        "error": "ValueError",
+        "message": "not enough values to unpack (expected 2, got 0)"
+      },
+      "after": {
+        "result": {
+          "spots": []
+        },
+        "matches_expected": true
+      }
+    },
+    {
+      "count": 1,
+      "upstream_shape": [
+        1,
+        1,
+        2
+      ],
+      "before": {
+        "error": "ValueError",
+        "message": "not enough values to unpack (expected 2, got 1)"
+      },
+      "after": {
+        "result": {
+          "spots": [
+            [
+              0.25,
+              1.75
+            ]
+          ]
+        },
+        "matches_expected": true
+      }
+    },
+    {
+      "count": 2,
+      "upstream_shape": [
+        1,
+        2,
+        2
+      ],
+      "before": {
+        "error": "TypeError",
+        "message": "only length-1 arrays can be converted to Python scalars"
+      },
+      "after": {
+        "result": {
+          "spots": [
+            [
+              0.25,
+              1.75
+            ],
+            [
+              1.25,
+              2.75
+            ]
+          ]
+        },
+        "matches_expected": true
+      }
+    },
+    {
+      "count": 5,
+      "upstream_shape": [
+        1,
+        5,
+        2
+      ],
+      "before": {
+        "error": "ValueError",
+        "message": "too many values to unpack (expected 2)"
+      },
+      "after": {
+        "result": {
+          "spots": [
+            [
+              0.25,
+              1.75
+            ],
+            [
+              1.25,
+              2.75
+            ],
+            [
+              2.25,
+              3.75
+            ],
+            [
+              3.25,
+              4.75
+            ],
+            [
+              4.25,
+              5.75
+            ]
+          ]
+        },
+        "matches_expected": true
+      }
+    }
+  ],
+  "remaining": "Real package postprocessing, pretrained detection, real-field comparison and module integration remain separate requirements."
+}

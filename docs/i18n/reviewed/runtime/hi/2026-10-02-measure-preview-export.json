@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct Codex AI technical translation with independent Codex AI technical peer review; no human or native-speaker signoff",
+  "draft_author": "merge_interfaces",
+  "technical_reviewer": "shared_ui",
+  "draft_sha256": "0f903f8dd1a569c7e143d62b1b4b7a2ddb63e4d046cff8e59237d24b7eaef44e",
+  "peer_review_sha256": "66e83202fad82f80de39da3f2abe2626ee1f7415bf5714e27692c8b572b9afe9",
+  "review": "Reviewed all sixteen exact source/target pairs for full-size RGB PNG crop export, local folder finalization, parent directory selection, source and batch output preservation, display colours and optional spectral unmixing; placeholders and protected literals preserved. Applied three peer clarifications for local finalization and parent folder meaning; original drafts remain immutable. Standard source binding and candidate gates remain mandatory.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A preview crop must contain nonempty RGB pixels.",
+      "source": "A preview crop must contain nonempty RGB pixels.",
+      "source_sha256": "08c8986c7753c8c2860c156a7c59d5e2d41496a0fdff209cfaad9d28c81b98dc",
+      "translation": "पूर्वावलोकन की क्रॉप छवि में गैर-रिक्त RGB पिक्सेल डेटा होना चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot publish export folder: {path}",
+      "source": "Cannot publish export folder: {path}",
+      "source_sha256": "b5e83c2b89b5b6b0e2012829c597c8c859125191a735bdfa75082be24d19ab99",
+      "translation": "निर्यात फ़ोल्डर को अंतिम स्थान पर नहीं रखा जा सका: {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder name without path separators.",
+      "source": "Choose a folder name without path separators.",
+      "source_sha256": "9cc72dd4df57145ee8d26dc96f2c5f2f617ae241feb456e43054690c68451b15",
+      "translation": "पथ विभाजक चिह्नों के बिना फ़ोल्डर का नाम चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose an export parent folder",
+      "source": "Choose an export parent folder",
+      "source_sha256": "046e6d4fa3e954029f461ac2b9e49fdc1fe5c5ad7d866d31368b3910ba13fea3",
+      "translation": "वह फ़ोल्डर चुनें जिसमें नया निर्यात फ़ोल्डर बनेगा"
+    },
+    {
+      "table": "ui",
+      "key": "Export cancelled.",
+      "source": "Export cancelled.",
+      "source_sha256": "47c8e0cee4bd398e18018ee57a71dafa998a7a30d17eac6e7c16b4d341f93e7e",
+      "translation": "निर्यात रद्द किया गया।"
+    },
+    {
+      "table": "ui",
+      "key": "Export displayed crops…",
+      "source": "Export displayed crops…",
+      "source_sha256": "b8aee42c34d351133167c33967f0c7f2bfb09efd5b3cacd149cf37d926c63fbf",
+      "translation": "दिखाई गई क्रॉप छवियाँ निर्यात करें…"
+    },
+    {
+      "table": "ui",
+      "key": "Export failed: {error}",
+      "source": "Export failed: {error}",
+      "source_sha256": "a6d7ef525134fec086a069ba5fa9658003b11692e67cd5e4dd87e5aa6ce95f0b",
+      "translation": "निर्यात विफल: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Export folder already exists: {path}",
+      "source": "Export folder already exists: {path}",
+      "source_sha256": "b2090e06491960a35e28c43081668c9da62f7ca9dfb323b8ade1c54e8ccd1b8c",
+      "translation": "निर्यात फ़ोल्डर पहले से मौजूद है: {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Exported {count} crops to {path}.",
+      "source": "Exported {count} crops to {path}.",
+      "source_sha256": "a5219b575ce21035ef48ddf926564eab9f22d5e0ecdc6a56be0d2d233c9dcde5",
+      "translation": "{count} क्रॉप छवियाँ {path} में निर्यात की गईं।"
+    },
+    {
+      "table": "ui",
+      "key": "Exporting displayed crops…",
+      "source": "Exporting displayed crops…",
+      "source_sha256": "7db7d7adbf32f116e0df4bfebb80433a895b758fa477af786cb312222d5f1ac2",
+      "translation": "दिखाई गई क्रॉप छवियाँ निर्यात की जा रही हैं…"
+    },
+    {
+      "table": "ui",
+      "key": "Folder name:",
+      "source": "Folder name:",
+      "source_sha256": "7b54ad03f45a1638c7e0f1a77975e3f48e982bca3e21d802abf2ea1110a23d01",
+      "translation": "फ़ोल्डर का नाम:"
+    },
+    {
+      "table": "ui",
+      "key": "New export folder",
+      "source": "New export folder",
+      "source_sha256": "d15fea0811a9b049d098c77271ccb0fe28225a4edcde080a181a26f8a2b25696",
+      "translation": "नया निर्यात फ़ोल्डर"
+    },
+    {
+      "table": "ui",
+      "key": "Preview changed; export the new preview again.",
+      "source": "Preview changed; export the new preview again.",
+      "source_sha256": "bc1bf171ff84491155c4ff8a8fb6df6bda46cfdea3e91a1e91416210e745966d",
+      "translation": "पूर्वावलोकन बदल गया है; नए पूर्वावलोकन को फिर से निर्यात करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; batch PNG exports and source files are unchanged.",
+      "source": "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; batch PNG exports and source files are unchanged.",
+      "source_sha256": "9ddde52901713e65be4949f3f7f16d79496649299c4e21fe0388c972905ec523",
+      "translation": "इस रन के एकल-स्टेन नियंत्रणों से स्पेक्ट्रल अनमिक्सिंग का पूर्वावलोकन करें। इससे केवल दिखाई गई क्रॉप छवियाँ बदलती हैं; बैच PNG निर्यात और स्रोत फ़ाइलें अपरिवर्तित रहती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Run a crop preview before exporting.",
+      "source": "Run a crop preview before exporting.",
+      "source_sha256": "cf238b5e7a21faa2f2b37cca67d00827e7507d62cb3abc4562ecf976011949c2",
+      "translation": "निर्यात करने से पहले क्रॉप पूर्वावलोकन चलाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Save the completed preview as PNG crops and provenance in a new folder, including display colours and optional unmixing. Batch outputs are unchanged.",
+      "source": "Save the completed preview as PNG crops and provenance in a new folder, including display colours and optional unmixing. Batch outputs are unchanged.",
+      "source_sha256": "13d9a92dbdf64b5faf906536ccf20ed9288ca3ffde5c908f6827d0f50a4f1bae",
+      "translation": "पूर्ण पूर्वावलोकन को PNG क्रॉप छवियों और उद्गम जानकारी के रूप में एक नए फ़ोल्डर में सहेजें, जिसमें प्रदर्शन के रंग और वैकल्पिक अनमिक्सिंग शामिल हों। बैच आउटपुट अपरिवर्तित रहते हैं।"
+    }
+  ]
+}

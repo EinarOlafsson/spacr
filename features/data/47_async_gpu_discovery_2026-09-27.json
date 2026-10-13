@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-27",
+  "item": 47,
+  "baseline_commit": "5781a7906",
+  "reproduced_failure": "tests/qt/test_gui_responsiveness.py::test_opening_a_module_does_not_import_the_heavy_stack",
+  "cause": "Building Mask settings synchronously called compatible GPU discovery, importing Torch in the GUI process.",
+  "repair": "A spawned child probes compatible CUDA/ROCm devices. Qt polls without waiting; pending controls are disabled with an explicit checking note. Completed counts are cached. Failed, exited and timed-out probes resolve to zero. Saved control values remain unchanged.",
+  "validation": {
+    "focused_cases_passed": 28,
+    "focused_elapsed_seconds": 9.95,
+    "focused_log": "/mnt/wd4tb/scratch/spacr-completion/heavy-import-fixed-tests.log",
+    "real_child_case_passed": true,
+    "real_child_elapsed_seconds": 3.24,
+    "real_child_log": "/mnt/wd4tb/scratch/spacr-completion/heavy-import-child-test.log",
+    "real_child_assertions": "Discovery completes with hidden GPUs, releases its probe state, disables parallel controls and leaves Torch absent from the GUI process.",
+    "memory_cap": "4G",
+    "gpu_visibility": "CUDA, HIP and ROCr devices hidden"
+  },
+  "limitations": [
+    "No physical GPU or frozen-platform acceptance claimed.",
+    "The focused batch reported a still-live daemon discovery child at pytest session end; the wrapper exited normally and the exact child PID was absent afterward.",
+    "New pending-discovery caption requires the final runtime translation delta.",
+    "Whole serial-suite acceptance remains pending."
+  ]
+}

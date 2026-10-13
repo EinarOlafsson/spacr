@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Organism annotation joined to regression results. 'toxoplasma' uses bundled Toxoplasma gondii tables without a network. Other organism names or NCBI taxon IDs fetch UniProt entries; a single accession such as P04637 fetches that entry. Results are cached beside the outputs for offline reuse. An unrecognised name leaves results unannotated and suggests similar names. Leave empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "51e99dde4b4c7188b918d5b48d0f89b1b4310d7332fd345908a6d6886a2c7921",
+      "translation": "जीव का एनोटेशन जिसे प्रतिगमन परिणामों से जोड़ा जाता है। 'toxoplasma' बिना नेटवर्क के साथ दी गई Toxoplasma gondii तालिकाओं का उपयोग करता है। अन्य जीवों के नाम या NCBI टैक्सन ID से UniProt प्रविष्टियाँ प्राप्त होती हैं; P04637 जैसे एकल एक्सेशन नंबर से केवल वही प्रविष्टि मिलती है। परिणाम आउटपुट के पास कैश किए जाते हैं ताकि उन्हें ऑफ़लाइन दोबारा उपयोग किया जा सके। अपरिचित नाम पर परिणाम बिना एनोटेशन के रहते हैं और मिलते-जुलते नाम सुझाए जाते हैं। एनोटेशन न करने के लिए खाली छोड़ें। डिफ़ॉल्ट 'toxoplasma'।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
+      "source_sha256": "da585a654be3db66be5a0e082e9423e5deb7d95d16b56f46cc545386e87cd173",
+      "translation": "कच्ची छवियों के फ़ाइल नामों की परंपरा, माइक्रोस्कोप निर्माता के अनुसार समूहित। डिफ़ॉल्ट 'cellvoyager' (Yokogawa CV7000/CV8000)। 'custom' में custom_regex उपयोग होता है; 'auto' पहले फ़ाइलों का नाम Yokogawa परंपरा के अनुसार बदलता है, custom_regex दिए जाने पर उससे, अन्यथा स्वचालित पहचान से। अस्थायी परंपराएँ सार्वजनिक डेटासेट के फ़ाइल नामों से ली गई हैं, निर्माता के दस्तावेज़ों से नहीं। गलत चयन से प्लेट, वेल, दृश्य क्षेत्र या चैनल ID और चैनल फ़ोल्डर गलत निर्धारित हो सकते हैं। रन से पहले “Test on my folder” उपयोग करें।"
+    }
+  ]
+}

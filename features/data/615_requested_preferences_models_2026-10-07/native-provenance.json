@@ -1,0 +1,10 @@
+{
+  "commit": "01488ce388991ad7e5db66bfd50251c1290c30d2",
+  "version": "1.5.1.3",
+  "module": "home",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorials/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": true
+}

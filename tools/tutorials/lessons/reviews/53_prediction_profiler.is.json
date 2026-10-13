@@ -1,0 +1,33 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Prediction Profiler: kannaðu aðlagað líkan",
+  "description": "Hlaðu inn stuðlum líkans, breyttu einu inntaki meðan hin eru föst og skoðaðu spáð svör.",
+  "objectives": [
+    "Hlaða inn stuðlum með réttu tengifalli.",
+    "Sópa einu inntaki og stilla föstu gildin.",
+    "Skoða svörunarferla og næmi."
+  ],
+  "prerequisite": "Sæktu tilbúna stuðladæmið, eða notaðu stuðla úr hentugu aðlöguðu líkani. Samræmdu tengifall þess og kóðun inntaka. Leiðin um stuðlaskrá gerir ráð fyrir inntaksbilum frá 0 til 1; aðskilin jaðaráhrif koma ekki í stað sameiginlega aðlagaðs spálíkans.",
+  "scenes": [
+    "Opnaðu Regression og svo Prediction Profiler til að kanna spáð svör úr aðlöguðu líkani. Tengda dæmið notar tilbúin gögn.",
+    "Sæktu og afþjappaðu dæmið og notaðu svo Browse til að fara í tilbúnu CSV-skrána með OLS-stuðlum. Taktu skurðpunktinn með þegar þú leggur fram eigin aðlagaða stuðla.",
+    "Stilltu Link á fallið sem aðlagaða líkanið notar. Haltu identity fyrir þetta dæmi um venjulega minnstu kvaðrata.",
+    "Athugaðu upplýsingar um bil eftir innlestur. Leiðin um stuðlaskrá gerir ráð fyrir að hvert inntak nái frá 0 til 1. Staðfestu að það passi við fyrirhugaða notkun áður en þú túlkar ferlana.",
+    "Veldu Input A fyrir sópið. Færðu sleða fasta Input B á 1 og skoðaðu svörunarferilinn sem kemur út.",
+    "Færðu B á 0 og berðu saman svörunargildin. Horfðu á kvarða ássins jafnt sem línuna, því grafið getur breytt kvarða.",
+    "Smelltu á Reset held values til að setja sleðana aftur á miðpunkt áætlaðra bila sinna, 0,5 í þessu dæmi.",
+    "Veldu Input B í röðuðum listanum til að sópa B meðan A er fast. Röðunin tekur saman næmi líkansins yfir stillt inntaksbil.",
+    "Breyttu Points til að velja hve margar stöður eru reiknaðar eftir ferlinum. Ellefu gefur grófara net en sextíu og einn án þess að breyta aðlagaða líkaninu.",
+    "Stilltu föstu gildin til að kanna fleiri sviðsmyndir og endurstilltu þau þegar þú ert búin. Túlkaðu ferlana sem spár líkansins og mettu raunveruleg tilraunaáhrif með viðeigandi gögnum."
+  ]
+}

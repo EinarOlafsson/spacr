@@ -1,0 +1,33 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Prediction Profiler: 적합된 모델 탐색",
+  "description": "모델 계수를 불러오고, 다른 입력은 고정한 채 한 입력을 바꾸며 예측 반응을 확인합니다.",
+  "objectives": [
+    "올바른 연결 함수로 계수를 불러옵니다.",
+    "한 입력을 스윕하고 고정값을 조정합니다.",
+    "반응 곡선과 민감도를 확인합니다."
+  ],
+  "prerequisite": "합성 계수 예제를 내려받거나, 적절히 적합된 모델의 계수를 쓰세요. 연결 함수와 입력 인코딩을 맞추세요. 계수 파일 방식은 입력 범위를 0에서 1로 가정합니다. 따로 구한 한계 효과는 함께 적합한 예측 모델을 대신할 수 없습니다.",
+  "scenes": [
+    "Regression을 연 뒤 Prediction Profiler를 열어 적합된 모델의 예측 반응을 살펴보세요. 연결된 예제는 합성 데이터를 씁니다.",
+    "예제를 내려받아 압축을 푼 뒤 Browse로 합성 OLS 계수 CSV를 찾으세요. 자신이 적합한 계수를 쓸 때는 절편도 포함하세요.",
+    "Link를 적합된 모델이 쓴 함수로 지정하세요. 이 보통 최소제곱 예제에서는 identity를 유지하세요.",
+    "불러온 뒤 범위 정보를 확인하세요. 계수 파일 방식은 각 입력이 0에서 1까지라고 가정합니다. 곡선을 해석하기 전에 이것이 의도한 용도와 맞는지 확인하세요.",
+    "스윕할 입력으로 Input A를 고르세요. 고정된 Input B 슬라이더를 1로 옮기고 그에 따른 반응 곡선을 확인하세요.",
+    "B를 0으로 옮기고 반응 값을 비교하세요. 그래프의 축척이 바뀔 수 있으니 선뿐 아니라 축 눈금도 보세요.",
+    "Reset held values를 클릭하면 슬라이더가 가정된 범위의 중간, 이 예제에서는 0.5로 돌아갑니다.",
+    "순위 목록에서 Input B를 선택하면 A를 고정한 채 B를 스윕합니다. 이 순위는 설정한 입력 범위에서의 모델 민감도를 요약합니다.",
+    "Points를 바꿔 곡선을 따라 계산할 위치 수를 고르세요. 11은 61보다 성긴 격자를 주지만 적합된 모델은 바뀌지 않습니다.",
+    "고정값을 조정해 다른 상황을 탐색하고, 끝나면 재설정하세요. 곡선은 모델 예측으로 해석하고, 실제 실험 효과는 적절한 데이터로 평가하세요."
+  ]
+}

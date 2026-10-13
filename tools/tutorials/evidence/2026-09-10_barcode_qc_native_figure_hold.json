@@ -1,0 +1,456 @@
+{
+  "schema": 1,
+  "instruction": 358,
+  "lesson": "47_barcode_qc",
+  "status": "HOLD: native figures absent and false src preflight error",
+  "branch": "nightly",
+  "app_sha": "63ef3e79f6d99ca9dc5f3afd95d63711937fc7ff",
+  "app_version": "1.5.0.5",
+  "capture_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1",
+  "capture_exit_code": 1,
+  "raw_capture_provenance_completed": false,
+  "workflow": {
+    "lesson": "47_barcode_qc",
+    "accepted": false,
+    "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-hchvac08",
+    "inputs": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate_1_unique_combinations.csv": {
+        "bytes": 4325565,
+        "mtime_ns": 1788965780086229830,
+        "sha256": "9bbfd6de409ec501b94abd2f20230611a695b142228892f5c3b8b2b564ba1f13"
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-hchvac08/plate_1_unique_combinations.csv": {
+        "bytes": 4325565,
+        "mtime_ns": 1788965780086229830,
+        "sha256": "9bbfd6de409ec501b94abd2f20230611a695b142228892f5c3b8b2b564ba1f13"
+      }
+    },
+    "input_rows": 172756,
+    "app_source_modified": false,
+    "target_is_demonstration_not_experiment_design": true,
+    "omitted_optional_inputs": [
+      "qc_data",
+      "grna_csv",
+      "row_csv",
+      "column_csv"
+    ],
+    "provider_contacted": false,
+    "published": false,
+    "defaults": {
+      "count_data": [
+        "/mnt/firecuda2/codex/repo/spacr/path to unique_combinations.csv"
+      ],
+      "qc_data": null,
+      "grna_csv": "",
+      "row_csv": "",
+      "column_csv": "",
+      "target_grnas_per_well": 5,
+      "target_statistic": "median",
+      "min_reads_per_well": 0,
+      "starved_read_fraction": 0.1,
+      "exclude_starved_wells": true,
+      "position_effect_ratio": 2.0,
+      "collision_max_distance": 1,
+      "sweep_span": 4.0,
+      "sweep_points": 25,
+      "dst": null,
+      "plot": true,
+      "save": true,
+      "verbose": true
+    },
+    "settings": {
+      "count_data": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-hchvac08/plate_1_unique_combinations.csv"
+      ],
+      "qc_data": null,
+      "grna_csv": "",
+      "row_csv": "",
+      "column_csv": "",
+      "target_grnas_per_well": 5,
+      "target_statistic": "median",
+      "min_reads_per_well": 0,
+      "starved_read_fraction": 0.1,
+      "exclude_starved_wells": true,
+      "position_effect_ratio": 2.0,
+      "collision_max_distance": 1,
+      "sweep_span": 4.0,
+      "sweep_points": 25,
+      "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-hchvac08/results",
+      "plot": true,
+      "save": true,
+      "verbose": true
+    },
+    "live_preview_control_present": false,
+    "run": {
+      "outcome": {
+        "finished": true,
+        "ok": true,
+        "errors": []
+      },
+      "console": [
+        "Recording reproducibility input hashes…\n",
+        "Reproducibility manifest: /home/olafsson/.spacr/runs/2026-09-10_133226_990d9d6a__barcode_qc\n",
+        "[settings] ERROR [src]: src is missing from the settings.\n",
+        "[settings]     Set src to the folder holding the images (or, for measure, the merged folder).\n",
+        "Target: 5 gRNAs per well (median). Derived abundance threshold: 0.0121 (1.21% of a well's reads).\n",
+        "At 0.0121 the median well carries 5.0 gRNAs and 100% of wells are retained (384 of 384); 40% of wells hold more than 5 gRNAs and so cannot have a phenotype attributed to a single guide. 58% of mapped reads survive.\n",
+        "Every cutoff from 0.0112 to 0.0132 gives the same median of 5.0; 0.0121 is the geometric middle of that range and so the point least sensitive to a re-run. The collision rate does still vary across the range — see the sweep — which is why the middle is the number to quote and not either edge.\n",
+        "Relaxing to 0.0086 takes the median to 8.0 gRNAs per well and the collision rate to 72%, for +0 percentage points of well retention.\n",
+        "Tightening to 0.0172 drops the median to 4.0 gRNAs per well and retention to 100%.\n",
+        "Below 0.0121 the collision rate rises sharply: 40% at 0.0121 becomes 72% at 0.0086. That is the floor worth defending.\n"
+      ],
+      "gui_figure_count": 0,
+      "figures_card_visible": false,
+      "figures": [],
+      "settings_errors": [
+        "[settings] ERROR [src]: src is missing from the settings.\n"
+      ]
+    },
+    "independent_csv_check": {
+      "checks": {
+        "per_well": {
+          "rows": 384,
+          "fields_checked": 2304,
+          "maximum_numeric_error": 0.0
+        },
+        "positions": {
+          "rows": 40,
+          "fields_checked": 320,
+          "maximum_numeric_error": 0.0
+        },
+        "starved": {
+          "rows": 0,
+          "fields_checked": 0,
+          "maximum_numeric_error": 0.0
+        },
+        "sweep": {
+          "rows": 26,
+          "fields_checked": 260,
+          "maximum_numeric_error": 0.0
+        }
+      },
+      "total_reads": 49464341,
+      "wells": 384,
+      "observed_guides": 1379,
+      "starved_wells": 0,
+      "starvation_cutoff": 12574.45,
+      "source_unchanged": true
+    },
+    "saved_files": {
+      "results/barcode_qc.png": {
+        "bytes": 256208,
+        "mtime_ns": 1789047153610315111,
+        "sha256": "e4de0233924a6e42122e2f40266dfee6c83563153e96a5d4d393ff172917230a"
+      },
+      "results/position_effects.csv": {
+        "bytes": 2563,
+        "mtime_ns": 1789047147920680058,
+        "sha256": "18427f1e9f6ba1f661cf78cd7f423fa260fcdc77b53111cddf5a1333b7076cb4"
+      },
+      "results/reads_per_well.csv": {
+        "bytes": 15051,
+        "mtime_ns": 1789047147919684915,
+        "sha256": "571d2d4eeb086a5a156129b5a891b3621ee5f39adf1b776bbe19ca1e3b0ab6f3"
+      },
+      "results/starved_wells.csv": {
+        "bytes": 41,
+        "mtime_ns": 1789047147920500887,
+        "sha256": "1599e72b4fb30612fc2a5a42e5d8283c4c80150ff5cf456524cd346bfe216725"
+      },
+      "results/threshold_recommendation.txt": {
+        "bytes": 946,
+        "mtime_ns": 1789047147921471112,
+        "sha256": "eaeca9b1f8a9c2efdba1f847d48976f79d4bc5868f70a96631fe85e739ac2eeb"
+      },
+      "results/threshold_sweep.csv": {
+        "bytes": 2486,
+        "mtime_ns": 1789047147918235408,
+        "sha256": "e7da7f93e2655157fd1079a67bef22bfe59211b5aac6a57ffcf6b42bd70fc70f"
+      },
+      "results/threshold_sweep.png": {
+        "bytes": 164253,
+        "mtime_ns": 1789047152732302817,
+        "sha256": "a319b9416f33cec2fd565c54676611c3a03a595db2b87c0df2eebcf53abf79f7"
+      }
+    },
+    "inputs_unchanged": true,
+    "active_jobs_after_close": 0
+  },
+  "frames": [
+    {
+      "name": "00_home",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/00_home.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "c539f980ed8fdb8e27c17bb881535451b03b5c2911e842665e2d5b7223312a9d"
+    },
+    {
+      "name": "01_map_barcodes_host",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/01_map_barcodes_host.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "8bad97cf4f3ec17628dd194ef8992817adb6039f6c7673cd22af3ece430063c3"
+    },
+    {
+      "name": "02_barcode_qc_fold",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/02_barcode_qc_fold.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "e60bc47dfc7f4d48c872e8f334a7ff22209ceb86be0efaacd8bcab567e2e15ef"
+    },
+    {
+      "name": "03_choose_published_plate1",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/03_choose_published_plate1.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "6d4763640265cdd12a89c490f8130a182e94a9a11f4072a5d7d84fa23412d25e"
+    },
+    {
+      "name": "04_actual_count_input",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/04_actual_count_input.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "4b997e0f5ef5447c450b7db580b08338737de1548d978cf758ad8b82dc7e1693"
+    },
+    {
+      "name": "05_00_dst",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/05_00_dst.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "8ab524278a46d1932a05ccd8d1827e6742596a335b6ee411d93040c9a4683ba2"
+    },
+    {
+      "name": "05_01_target_grnas_per_well",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/05_01_target_grnas_per_well.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "582852ba51b555a51df01b37e7ba57fdef6ea759b334bc2c1d78b99dc7db53aa"
+    },
+    {
+      "name": "05_04_starved_read_fraction",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/05_04_starved_read_fraction.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "fce154eabe637ac87f0d0f2e91c53152992c62c302d27514264e02cd47bb81a3"
+    },
+    {
+      "name": "05_09_plot",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/05_09_plot.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "094abf9805daf094fee81ad66a1ac04cfdece0c893e71de1d4be81f61b391a83"
+    },
+    {
+      "name": "06_running",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/06_running.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "5b74ce979c6fd97797e82d3583f5c498e1a45b946cea56722c20ccbbfb5cc23f"
+    },
+    {
+      "name": "07_finished_console",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/07_finished_console.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "faa2bf67345486093f2639452884befb542b105b7b77c1c414fc3d7e4c74c473"
+    },
+    {
+      "name": "08_actual_figures_state",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/barcode_qc_real_plate1/08_actual_figures_state.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "21d67f6599ddf8b6bf00b47fa1d07cab2705476a7ff59972bac63247bf6beca5"
+    }
+  ],
+  "saved_images": [
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-hchvac08/results/barcode_qc.png",
+      "size": [
+        3903,
+        2704
+      ],
+      "sha256": "e4de0233924a6e42122e2f40266dfee6c83563153e96a5d4d393ff172917230a"
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-hchvac08/results/threshold_sweep.png",
+      "size": [
+        2279,
+        1850
+      ],
+      "sha256": "a319b9416f33cec2fd565c54676611c3a03a595db2b87c0df2eebcf53abf79f7"
+    }
+  ],
+  "visual_review": {
+    "gui": "Finished console, Plot enabled, no Figures card.",
+    "outputs": "Both real PNGs are legible: threshold sweep and read-depth/position/library panels."
+  },
+  "source_files": {
+    "spacr/sequencing_qc.py": "65c7d6c83da4a92e063a990f7acd2352e3a14a2f0490ca62fa20b207fe6d5449",
+    "spacr/plot.py": "6579a80351a01e61578c3e1e47658cd248b7ee158f62de8c37a90119af84d77f",
+    "spacr/qt/bridge.py": "daf9b47ff6fe3cb07faa6b4286b7d82cbf56ace144a289c8fbe3af09dd3f039c",
+    "spacr/qt/screens/map_barcodes.py": "63844c27446461665c0b8c152502d4703066c21e1a5fad7aeee4be7be58c25f9",
+    "tools/tutorials/barcode_qc_evidence.py": "14535323044f83a2756b331325a94f6af53da94ba2a56692919f68ff17418f38"
+  },
+  "verification": {
+    "focused_tests": 27,
+    "restored_result": "27 passed in 0.22s",
+    "coverage_summary": {
+      "covered_lines": 97,
+      "num_statements": 97,
+      "percent_covered": 99.32885906040268,
+      "percent_covered_display": "99.33",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 52,
+      "num_partial_branches": 1,
+      "covered_branches": 51,
+      "missing_branches": 1,
+      "percent_branches_covered": 98.07692307692308,
+      "percent_branches_covered_display": "98.08"
+    },
+    "guards": [
+      21,
+      26,
+      28,
+      30,
+      62,
+      83,
+      89,
+      94,
+      97,
+      99,
+      117,
+      121,
+      131,
+      133,
+      135
+    ],
+    "unexecuted_guards": [],
+    "isolated_source_mutations": [
+      {
+        "line": 21,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 26,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 28,
+        "exit_code": 1,
+        "summary": "2 failed, 25 passed in 0.16s"
+      },
+      {
+        "line": 30,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 62,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 83,
+        "exit_code": 1,
+        "summary": "4 failed, 23 passed in 0.15s"
+      },
+      {
+        "line": 89,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 94,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 97,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.16s"
+      },
+      {
+        "line": 99,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 117,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 121,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.15s"
+      },
+      {
+        "line": 131,
+        "exit_code": 1,
+        "summary": "3 failed, 24 passed in 0.15s"
+      },
+      {
+        "line": 133,
+        "exit_code": 1,
+        "summary": "2 failed, 25 passed in 0.15s"
+      },
+      {
+        "line": 135,
+        "exit_code": 1,
+        "summary": "1 failed, 26 passed in 0.16s"
+      }
+    ]
+  },
+  "journal": {
+    "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/runs/2026-09-10_133226_990d9d6a__barcode_qc/manifest.json",
+    "sha256": "7db6f686d6908af4631adef5a9c3affc92be1b22d788b32a13757a36b9199129",
+    "elapsed_s": 6.835,
+    "end_utc": "2026-09-10T13:32:33.641133+00:00"
+  },
+  "handoff": [
+    "sequencing_qc.barcode_qc saves both real figures, then closes them without publishing through the installed figure sink.",
+    "Please route the actual figures through the existing sink before closing; do not fabricate GUI output or double-save.",
+    "The form accepts count_data, not src. Preflight asks for an image source despite a valid count CSV and successful worker.",
+    "The default target 5 is an illustrative QC choice, not a validated design parameter or proof of single-guide phenotype attribution.",
+    "Optional mapping QC and barcode reference files were omitted; no unmapped-rate, reference-dropout or sequence-collision claim is supported.",
+    "No application source, English lesson, translated narration or production master was changed for this held workflow.",
+    "The recorder gained a final preservation/job acceptance reset after this capture; the actual run already proves unchanged inputs and zero jobs."
+  ],
+  "publication": {
+    "published": false,
+    "new_english": false,
+    "new_narrations": 0,
+    "new_visual_master": false,
+    "native_language_review": false,
+    "human_listening_review": false
+  }
+}

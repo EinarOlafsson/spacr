@@ -1,0 +1,35 @@
+{
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Report: lag et dokument fra prosjektresultater",
+  "description": "Velg et fullført prosjekt, velg utdataformat og figurgrense, og lag og les deretter rapporten.",
+  "objectives": [
+    "Velge et fullført prosjekt og undersøke de tilgjengelige rapportdelene.",
+    "Angi format, figurgrense og navn på utdatafilen.",
+    "Lage rapporten og undersøke resultatene, innstillingene og opphavet."
+  ],
+  "prerequisite": "Begynn med et fullført spaCR-prosjekt som inneholder de lagrede innstillingene, målingene og figurene. Du kan gjenbruke prosjektet fra veiledningen External Masks. Report samler filer som allerede finnes i prosjektet.",
+  "scenes": [
+    "Åpne Help og deretter Report. Bruk verktøyet til å samle et fullført prosjekts resultater, figurer og innstillinger i ett dokument.",
+    "Klikk på Choose run folder og velg prosjektet ditt. I dette eksemplet bruker du prosjektet med to synsfelt fra External Masks, og holder målinger, innstillinger og figurer samlet.",
+    "Les behandlingsstatusen etter skanningen. Complete betyr at de registrerte behandlingstrinnene er fullført. Gå gjennom tilgjengelige kvalitetskontrollresultater separat når du vurderer analysen.",
+    "Se i listen over deler hvilke prosjektelementer som er tilgjengelige. En manglende del står likevel oppført i rapporten. Legg til de aktuelle analyseutdataene i prosjektet hvis du trenger den delen.",
+    "Velg HTML, PDF eller Both under Format. HTML åpnes i en nettleser; PDF gir en dokumentversjon. Eksemplet bruker HTML.",
+    "Angi Embed at most for å begrense antallet rasterfigurer i dokumentet. Vektor-PDF-er listes som kildefiler i stedet for innebygde forhåndsvisninger. Bruk en lavere grense for en kompakt rapport.",
+    "Klikk på Choose output og skriv inn navnet på målfilen. Kontroller at valgt format og filendelse stemmer overens. Før du deler rapporten, går du gjennom prosjektbaner og metadata den inneholder.",
+    "Trykk på Generate report og vent på bekreftelsen på at filen er skrevet. Åpne den lagrede HTML-filen i en nettleser for å undersøke resultatet.",
+    "Bruk lenkene i innholdsfortegnelsen for å hoppe mellom delene. Begynn med behandlingssammendraget, og gå deretter gjennom figurer, resultattabeller og lagrede innstillinger.",
+    "Åpne Key figures for å finne prosjektets figurer. Følg de oppgitte filplasseringene for vektor-PDF-er, eller undersøk innebygde rasterforhåndsvisninger når de finnes.",
+    "Gå gjennom Statistics and result tables for de tilgjengelige objekttabellene og antall rader. Dette eksemplet med bare celler har samsvarende celle- og cytoplasmaområder, så behandle dem som målinger av de samme cellene.",
+    "Utvid Saved settings for å undersøke konfigurasjonen som er lagret med prosjektet. Hold rapporten sammen med prosjektfilene når du deler en analyse som viser til eksterne figurer."
+  ]
+}

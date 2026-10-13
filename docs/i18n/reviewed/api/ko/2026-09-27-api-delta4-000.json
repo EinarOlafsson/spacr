@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "API delta 4, items 07/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.ml.perform_regression#3",
+      "source": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "source_sha256": "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
+      "context": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "translation": "회귀 출력 매핑입니다. ``model_data``는 준비된 입력 테이블이며 회귀계수 결과가 아닙니다. ``fit_designs``는 각 모수적 적합 수준에서 실제로 측정한 설계 관련 개수를 별도로 기록합니다. 기록되지 않은 개수는 생략하며, 순열 검정 출력은 자체 결과 스키마를 유지합니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start#3",
+      "source": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "source_sha256": "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c",
+      "context": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "translation": "레지스트리 벤치마크 컨트롤러이며, ``SPACR_DISTRIBUTION_SMOKE=1``을 명시적으로 선택하면 설치된 애플리케이션의 컨트롤러입니다. 출력 경로가 설정되지 않으면 ``None``입니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#6",
+      "source": "the run folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "source_sha256": "2cbe0a85e31708dc3a545dc15d993f55aa2c38470c123db52949c411eda5b9cf",
+      "context": "the processing-session folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "translation": "실행 폴더입니다. ``regression_data.csv``는 준비된 입력의 개수를 제공하며, 기록을 명시적으로 제공하지 않으면 ``regression_fit_designs.json``이 실제 측정한 적합 관련 개수를 제공합니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#7",
+      "source": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "source_sha256": "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
+      "context": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "translation": "선택적으로 제공하는 수준별 실측 설계 관련 개수입니다. 적합 관련 개수가 없으면 알 수 없음으로 보고하며, 준비된 입력 행 수로 추정하지 않습니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.write_run_summary#8",
+      "source": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "source_sha256": "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
+      "context": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "translation": "선택적으로 제공하는 수준별 실측 설계 관련 개수이며, 모델 없이 다시 열어도 이 개수를 정확하게 복원할 수 있도록 ``regression_fit_designs.json``으로도 저장합니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.trial_metrics.design_summary#1",
+      "source": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "source_sha256": "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587",
+      "context": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "translation": "준비된 ``model_data``와 실제 측정한 수준별 ``fit_designs``를 선택적으로 포함하는 시행 출력 매핑입니다. 적합 관련 개수는 수준별로 보고하며, 모든 적합에 동일한 값이 기록된 경우에만 수준 구분이 없는 개수를 출력합니다. 적합 기록이 없는 기존 출력은 테이블을 기반으로 한 개수를 유지합니다.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    }
+  ]
+}

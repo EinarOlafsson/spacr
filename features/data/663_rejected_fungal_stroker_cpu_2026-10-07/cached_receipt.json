@@ -1,0 +1,205 @@
+{
+  "source_sha256": {
+    "before": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+    "candidate": "708b4f91e909d7d003154ec7af9f5053a12bac7e0630c2075b03b2e1187fa52f"
+  },
+  "records": [
+    {
+      "palette": "spacr",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "clock": 95,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "dff3ac3e10969adfe350f1831f399f1df8cc51cab61cfb1da2152478abdb95fc",
+        "candidate": "dff3ac3e10969adfe350f1831f399f1df8cc51cab61cfb1da2152478abdb95fc"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "clock": 98,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "a0f932e5c1436d04fdba9f7d04acc470e7dcaf57bc23ed3bc510440065f7b84e",
+        "candidate": "a0f932e5c1436d04fdba9f7d04acc470e7dcaf57bc23ed3bc510440065f7b84e"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "clock": 3600.33,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "c1db93b3c09270643c33eebd7d177595661d9a61bd2b6c7f945874da45ec50cb",
+        "candidate": "c1db93b3c09270643c33eebd7d177595661d9a61bd2b6c7f945874da45ec50cb"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 64.97937699896283,
+        "candidate": 69.63694200385362
+      }
+    },
+    {
+      "palette": "random",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "clock": 95,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "9e0a6311036c87f9c4931475eed75f096f2d5fb1f3c0009b92485a73741279e9",
+        "candidate": "9e0a6311036c87f9c4931475eed75f096f2d5fb1f3c0009b92485a73741279e9"
+      }
+    },
+    {
+      "palette": "random",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "clock": 98,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "1b99a06b2d2e024afff814e87288ddd17867529dfac9244e3ead04e25f0072df",
+        "candidate": "1b99a06b2d2e024afff814e87288ddd17867529dfac9244e3ead04e25f0072df"
+      }
+    },
+    {
+      "palette": "random",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "clock": 3600.33,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "5003cc226da2017b23949161061748379adfe15d9f91cb11112c0b1c94ae61c8",
+        "candidate": "5003cc226da2017b23949161061748379adfe15d9f91cb11112c0b1c94ae61c8"
+      }
+    },
+    {
+      "palette": "random",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 38.20001349959057,
+        "candidate": 41.96751750714611
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 2.0,
+      "resolution": 1,
+      "density": 3,
+      "clock": 95,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "f07024d5965db8dd0ca9de6f1df9a1e1fe63909df4f438f331cb7c7c7cacbfa2",
+        "candidate": "f07024d5965db8dd0ca9de6f1df9a1e1fe63909df4f438f331cb7c7c7cacbfa2"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 2.0,
+      "resolution": 1,
+      "density": 3,
+      "clock": 98,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "472d57b809837a3c5a6b171055c681226e1dd6697407d2b090a9da838ee2e90f",
+        "candidate": "472d57b809837a3c5a6b171055c681226e1dd6697407d2b090a9da838ee2e90f"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 2.0,
+      "resolution": 1,
+      "density": 3,
+      "clock": 3600.33,
+      "different_pixels": 0,
+      "strokes": 64,
+      "hashes": {
+        "before": "f74b5b53ba3f0520610d7ec8226bf6436e11d94bc4fcc9bfc0b0292c2c2f8e45",
+        "candidate": "f74b5b53ba3f0520610d7ec8226bf6436e11d94bc4fcc9bfc0b0292c2c2f8e45"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 2.0,
+      "resolution": 1,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 113.05586699745618,
+        "candidate": 118.40056150685996
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 1.0,
+      "resolution": 2,
+      "density": 3,
+      "clock": 95,
+      "different_pixels": 0,
+      "strokes": 0,
+      "hashes": {
+        "before": "08ae44fab13714037f4c3dc4f9712a7d8e2ad5fe99e4942b6f7311029e46ea2a",
+        "candidate": "08ae44fab13714037f4c3dc4f9712a7d8e2ad5fe99e4942b6f7311029e46ea2a"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 1.0,
+      "resolution": 2,
+      "density": 3,
+      "clock": 98,
+      "different_pixels": 0,
+      "strokes": 0,
+      "hashes": {
+        "before": "8abf0e0d958149884f8a602d0d869aa39385922ce4470f59ef87940bbc987848",
+        "candidate": "8abf0e0d958149884f8a602d0d869aa39385922ce4470f59ef87940bbc987848"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 1.0,
+      "resolution": 2,
+      "density": 3,
+      "clock": 3600.33,
+      "different_pixels": 0,
+      "strokes": 0,
+      "hashes": {
+        "before": "dea2ae1214a5863bf2cb44feb4ec08bc48de188843767aea379328350789af97",
+        "candidate": "dea2ae1214a5863bf2cb44feb4ec08bc48de188843767aea379328350789af97"
+      }
+    },
+    {
+      "palette": "spacr",
+      "size": 1.0,
+      "resolution": 2,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 8.465631995932199,
+        "candidate": 8.429573499597609
+      }
+    }
+  ],
+  "scope": "Scratch source only; full native4K parity and shader timing, not live widget cadence."
+}

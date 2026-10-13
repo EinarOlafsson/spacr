@@ -1,0 +1,36 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "973d0e47bf1648e4e05e8f2d5d91f1f5f7a03c7be083695151927f4a71b5648a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Volcano Explorer: esaminare i risultati e salvare una figura",
+  "description": "Carica i risultati di Regression, scegli i valori da rappresentare e le linee di riferimento, poi salva uno stile riutilizzabile ed esporta la figura.",
+  "objectives": [
+    "Aprire una famiglia di risultati ed esaminare identità e supporto delle guide.",
+    "Scegliere valori corretti, trasformazioni di visualizzazione e linee di riferimento.",
+    "Salvare lo stile ed esportare figure in PDF o PNG."
+  ],
+  "prerequisite": "Estrai Volcano_real_guide_family.zip e usa la sua cartella results. Contiene 434 risultati di guide dall’esempio di Regression. Nessuna guida supera la soglia originale di P corretto di 0,05. Gli effetti sono effetti marginali standardizzati. Conserva la tabella dei risultati originale e le soglie statistiche insieme alla figura.",
+  "scenes": [
+    "Da Home, apri Regression e poi Volcano Explorer. Estrai l’archivio d’esempio collegato prima di scegliere le tabelle di risultati da rappresentare.",
+    "Fai clic su Open results e seleziona la cartella results estratta. Ogni punto rappresenta una guida in questa famiglia di quattrocentotrentaquattro test. Tieni separate le diverse famiglie di correzione.",
+    "Fai clic su Save style per salvare le impostazioni iniziali della figura, poi su Load style e seleziona quel file. Così hai un punto di partenza salvato, con i comandi corrispondenti, prima di modificare la figura.",
+    "Controlla alpha a zero virgola zero cinque, il moltiplicatore a tre e la trasformazione logaritmica negativa attiva. Leggi le etichette degli assi: questo esempio rappresenta effetti marginali standardizzati.",
+    "Fai clic su un punto per esaminarne la riga di origine. Leggi insieme l’identificativo della guida, il P grezzo, il P corretto e il numero di pozzetti a supporto. L’esempio selezionato ha un P corretto di circa zero virgola tre nove.",
+    "Scegli la colonna del P di permutazione grezzo per esaminarla, poi torna ad adjusted_p_value. Cambiare la colonna rappresentata non modifica l’analisi sottostante né i suoi indicatori di significatività salvati.",
+    "Attiva e disattiva meno log dieci per confrontare i valori di P trasformati e originali. Con la trasformazione attiva, i valori di P più piccoli compaiono più in alto. Ripristina la vista del P corretto trasformato per questa figura.",
+    "Porta alpha a zero virgola cinque per vedere come si sposta la linea di riferimento orizzontale, poi torna a zero virgola zero cinque. Modificare questa linea non ricalcola i test statistici né i loro indicatori di significatività salvati.",
+    "Imposta una soglia di effetto esplicita di zero virgola uno con moltiplicatore tre. Le linee verticali compaiono a meno e più zero virgola tre. Torna ad Auto per ripristinare la linea di effetto iniziale.",
+    "Scegli wells_with_guide per il colore ed esamina il supporto delle guide rappresentate. Ripristina i colori di significatività prima dell’esportazione finale se vuoi la presentazione originale.",
+    "Imposta dimensione della figura, dimensioni dei caratteri e risoluzione. Questo esempio usa sette per cinque pollici a centocinquanta punti per pollice. Controlla la leggibilità; un ritaglio stretto può cambiare le dimensioni esterne salvate.",
+    "Salva lo stile finale come JSON. Cambia la dimensione dei marcatori, poi usa Load style per ripristinare l’aspetto salvato. Tieni il file di stile accanto alla tabella dei risultati.",
+    "Esporta in PDF e PNG, poi apri i file per controllare etichette, contrasto e ritaglio. Conserva l’output con i risultati di input e lo stile. In Python, usa VolcanoStyle e render_volcano per lo stesso flusso di rappresentazione."
+  ]
+}

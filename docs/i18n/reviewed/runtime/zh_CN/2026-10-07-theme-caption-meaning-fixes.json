@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Animation palette",
+      "source": "Animation palette",
+      "source_sha256": "6a318aca4fecde716fe6da4911c60e06f6c4f2a216a81547ac52002ffa15692f",
+      "table": "ui",
+      "translation": "动画调色板"
+    }
+  ],
+  "schema": 1
+}

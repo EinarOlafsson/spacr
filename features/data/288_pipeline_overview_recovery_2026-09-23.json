@@ -1,0 +1,58 @@
+{
+  "feature": 288,
+  "related_features": [
+    472,
+    483
+  ],
+  "date": "2026-09-23",
+  "base_commit": "5fe7e089b",
+  "scope": "Current pipeline-overview module and actual dialog recovery; not a full-suite or full-ratchet verdict.",
+  "tests": "48 passed in 90.70s; final run after all edits",
+  "execution": "8 GiB memory cap, no swap, offscreen Qt, CPU only, two BLAS/OpenMP threads, isolated home/config",
+  "historical_ci": {
+    "run": 35807838039,
+    "commit": "6006a0608fd120fda76c3bd22d29ff0bfc7713b7",
+    "sample_project_percent": 84.31,
+    "note": "Historical whole-suite observation, not a matched before/after cohort."
+  },
+  "module": "spacr/qt/widgets/sample_project.py",
+  "coverage": {
+    "covered_lines": 171,
+    "num_statements": 173,
+    "percent_covered": 99.02439024390245,
+    "percent_covered_display": "99.02",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 98.84393063583815,
+    "percent_statements_covered_display": "98.84",
+    "num_branches": 32,
+    "num_partial_branches": 0,
+    "covered_branches": 32,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "remaining_lines": [
+    234,
+    235
+  ],
+  "remaining_branches": [],
+  "behavior": [
+    "Malformed and missing workflow files leave fallback diagrams selectable.",
+    "workflow_map now raises its documented ValueError for non-object JSON instead of AttributeError.",
+    "Empty/cancelled selections do not navigate; unavailable destinations do not load data or install a walkthrough button.",
+    "Example dispatch chooses the module-specific chooser or measurement loader exactly once.",
+    "Existing OPS routing, translations, localized API links, column ordering and stable geometry tests remain green."
+  ],
+  "limitations": [
+    "No model download, analysis or GUI acceptance on a physical desktop.",
+    "Native QtCore startup crash reproduced under dotted-module instrumentation; directory-scoped instrumentation succeeds. No upstream-crash fix claimed.",
+    "Coverage baseline, exemptions, thresholds and API signatures/descriptions are unchanged."
+  ],
+  "report_sha256": "f40e8788a2b716d4f6e818e071e0741516617b9ee39a28e2751adafbcbb417c5",
+  "source_sha256": {
+    "spacr/qt/widgets/sample_project.py": "e7a072a0e1db98e855f0369e3850241b4002d45cb9c9bc71bd32b087a2d7735c",
+    "spacr/qt/widgets/workflow_diagram.py": "172e1d436b6781bcd726d7ba43b01c8a3c77cf254e37ba28dc045110f757c9a8",
+    "tests/qt/test_home_starts_a_sample_project.py": "a18a3201b4a1114fe38fd973fef7600a52b0a9771f00037e3b9d5e7fe50e35e6"
+  }
+}

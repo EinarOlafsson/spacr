@@ -1,0 +1,28 @@
+{
+  "item": "F576 public alternate measurement read bridge, real PostgreSQL acceptance",
+  "source_revision": "b0879b0fa57f42adaccd9c17619643c46d380d32",
+  "source_sha256": {
+    "spacr/io.py": "c819fff913447d7d4396527c32b636b4497c62e6e4b10b1495a27f2966463c32",
+    "spacr/tabular.py": "5181b88f315a92945cee422136054744ca3205dca0ff80517178bb1a932f6b4c",
+    "tests/test_measurement_backends.py": "064db8803fa4bda049749923645837f6c5d64f78e2c96644363e07d0f4c9f315",
+    "tests/test_a_readonly_database_can_still_be_read.py": "bdbe8df4aaa8659232907726f28d6e6767db8baed02f869f836a1f1846ac3587",
+    "tests/test_io_merge_measurement_stamp.py": "90e49c1c51aaf8300a07195b735a74088c7c44d91230be5bf6c30006796b3256",
+    "tests/test_io.py": "537b51c88e2a95c9110e52d4e61086b43efaec87507dc3407f7cb83f6bafd01d"
+  },
+  "result": "40 passed in 11.29s; zero skips",
+  "server": "Root-owned PostgreSQL 18.4, local Unix socket only, isolated scratch prefix/data and dedicated test database",
+  "limits": "Read/migration neighbors only, not classifier-write/GUI/full F576 acceptance. No existing services or protected jobs used.",
+  "command": "SPACR_TEST_POSTGRES_DSN=<owned local DSN> CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen SPACR_DEVICE=cpu OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G python -m pytest -q tests/test_measurement_backends.py tests/test_a_readonly_database_can_still_be_read.py tests/test_io_merge_measurement_stamp.py tests/test_io.py",
+  "payloads": {
+    "owning-40.log.gz": {
+      "sha256": "dba3832628d9c9c0deb54a10b66fd341e46a065212639df67837f50fe3e7fb35",
+      "bytes": 53,
+      "uncompressed_sha256": "8c3cba5cd0ca5138f52e15e40f38b9e4b45aa5542cdf55973fefbbf8ad748385"
+    },
+    "owned-server-lifecycle.py.gz": {
+      "sha256": "47eed318da3028f31ed615477a57b1fca1bf6bb2216aa10e73b298fb7f308ee6",
+      "bytes": 684,
+      "uncompressed_sha256": "2a16ee729f9ad648c3a7ce3ed3ab598bdcc23ff6ab701cd59a0cde531cda65b1"
+    }
+  }
+}

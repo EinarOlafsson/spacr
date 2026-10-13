@@ -1,0 +1,1714 @@
+"""Motility live preview — tracks, velocity, straightness, infection split.
+
+Point it at a plate folder holding ``merged/*.npy`` (or at the ``merged``
+folder itself) and it rebuilds, for a handful of frames, exactly what
+:func:`spacr.timelapse.automated_motility_assay` computes: per-track
+velocity and straightness from the cell-mask centroids, split by infection
+state read off the pathogen mask.
+
+Two rules apply to what the preview reports.
+
+**Units.** The assay converts pixels per frame into physical units with
+``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when
+*both* are known; otherwise it reports ``px/frame``. So that a velocity is
+never read in the wrong unit, the calibration fields start **unset**, every
+velocity carries its unit, and while the calibration is unknown the panel says
+so in words instead of silently using the 1.78 px/µm default.
+
+**Short tracks.** Mean step length and straightness are unstable on a
+three-point track — straightness is exactly 1.0 for any two-point track,
+whatever the cell did. So the track-length distribution is drawn beside the
+velocity plot with the cutoff marked, and the minimum length is a live
+setting that decides which tracks enter the velocity and straightness
+numbers.
+
+The expensive half (reading merged arrays and extracting centroids) runs
+once in a worker thread and is **cached** as a point table. Every metric
+setting — minimum length, max displacement, straightness threshold, and both
+calibration fields — recomputes from that cached table on the GUI thread,
+instantly.
+"""
+from __future__ import annotations
+
+import logging
+import os
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtWidgets import (
+    QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox,
+    QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSpinBox, QVBoxLayout,
+    QWidget,
+)
+from .preview_controls import (
+    DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
+    ImageSet, ImageSetSampler, configure_max_sets_box,
+    populate_channel_combo, selected_channel,
+)
+from .preview_contract import (
+    PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, LivePreviewContract,
+    preview_failure_message,
+)
+from .toggle import Toggle
+from .. import path_probe
+from ..job_runner import JobRunner
+
+from .live_preview import numpy_to_qpixmap
+
+LOG = logging.getLogger("spacr.qt.motility_preview")
+
+#: Objects the assay can track. ``tracked_object`` in the settings dict.
+TRACKED_OBJECTS = ("cell", "nucleus", "pathogen")
+
+#: Colours for the infection split, used by both the plot and the legend.
+INFECTED_RGB = (0.92, 0.35, 0.35)
+UNINFECTED_RGB = (0.35, 0.65, 0.95)
+
+
+class MotilityInputError(ValueError):
+    """The chosen folder is not a usable motility input, with the reason."""
+
+
+
+@dataclass(frozen=True)
+class Calibration:
+    """Pixel size and frame interval, either of which may be unknown.
+
+    :ivar pixels_per_um: image scale in px/µm, or ``None`` when unset.
+    :ivar seconds_per_frame: frame interval in seconds, or ``None``.
+    """
+    pixels_per_um: Optional[float] = None
+    seconds_per_frame: Optional[float] = None
+
+    @property
+    def known(self) -> bool:
+        """Whether physical units can be reported at all."""
+        return (self.pixels_per_um is not None
+                and self.seconds_per_frame is not None
+                and self.pixels_per_um > 0 and self.seconds_per_frame > 0)
+
+    @property
+    def factor(self) -> float:
+        """Multiplier from px/frame to :attr:`unit`.
+
+        Identical to the assay's own conversion, so a preview number and a
+        run number are the same number.
+        """
+        if not self.known:
+            return 1.0
+        return (1.0 / float(self.pixels_per_um)) * (
+            60.0 / float(self.seconds_per_frame))
+
+    @property
+    def unit(self) -> str:
+        """``"µm/min"`` when calibrated, else ``"px/frame"``."""
+        return "µm/min" if self.known else "px/frame"
+
+    def caveat(self) -> str:
+        """The sentence shown when the calibration is incomplete."""
+        if self.known:
+            return ""
+        missing = []
+        if not (self.pixels_per_um and self.pixels_per_um > 0):
+            missing.append("pixel size (pixels_per_um)")
+        if not (self.seconds_per_frame and self.seconds_per_frame > 0):
+            missing.append("frame interval (seconds_per_frame)")
+        return (
+            "Calibration incomplete — " + " and ".join(missing) +
+            " not set. Velocities below are in px/frame, NOT µm/min; set both "
+            "fields to convert.")
+
+
+
+def resolve_merged_dir(path) -> str:
+    """Return the ``merged`` directory for ``path``.
+
+    Accepts the plate folder (which holds ``merged/``) or the ``merged``
+    folder itself, which is what a user dragging a folder in will most
+    likely grab.
+
+    :param path: a plate folder holding ``merged/``, the ``merged`` folder
+        itself, or a file inside either (its parent folder is used).
+    :raises MotilityInputError: when neither exists or it holds no ``.npy``.
+    """
+    p = Path(path)
+    if not p.exists():
+        raise MotilityInputError(f"No such folder: {p}")
+    if not p.is_dir():
+        p = p.parent
+    candidate = p / "merged" if (p / "merged").is_dir() else p
+    files = sorted(f for f in candidate.iterdir()
+                   if f.is_file() and f.suffix.lower() == ".npy")
+    if not files:
+        raise MotilityInputError(
+            f"{p.name} holds no merged/*.npy arrays. Point the preview at a "
+            "plate folder produced by the Timelapse module.")
+    return str(candidate)
+
+
+def group_merged_files(merged_dir: str) -> "Dict[tuple, List[dict]]":
+    """Group ``merged/*.npy`` by (plate, well, field) and sort each by time.
+
+    Shares the lightweight parser behind
+    :func:`spacr.timelapse._parse_merged_filename`, so grouping agrees with
+    the assay without importing plotting or model dependencies.
+
+    :param merged_dir: folder of merged ``.npy`` arrays; only groups with at
+        least two time points are returned.
+    """
+    from spacr._merged_names import parse_merged_filename
+    groups: "Dict[tuple, List[dict]]" = {}
+    for name in sorted(os.listdir(merged_dir)):
+        if not name.endswith(".npy"):
+            continue
+        meta = parse_merged_filename(name)
+        key = (meta["plateID"], meta["wellID"], meta["fieldID"])
+        groups.setdefault(key, []).append(meta)
+    for metas in groups.values():
+        metas.sort(key=lambda m: m["timeID"])
+    return {k: v for k, v in groups.items() if len(v) >= 2}
+
+
+def default_plane_layout(n_planes: int, n_channels: int) -> "Tuple[int, Optional[int]]":
+    """Guess (tracked mask plane, pathogen mask plane) from the plane count.
+
+    Mirrors the layout :func:`spacr.timelapse._load_masks_from_merged`
+    documents: intensity channels first, then the cell mask, then optionally
+    a nucleus mask, then optionally the pathogen mask.
+
+    :param n_planes: number of planes in a merged array.
+    :param n_channels: number of intensity channels stored before the mask
+        planes; values below 1 count as 1.
+    :returns: ``(cell_plane, pathogen_plane_or_None)``.
+    """
+    n_channels = max(1, int(n_channels))
+    if n_planes <= n_channels:
+        return max(0, n_planes - 1), None
+    if n_planes == n_channels + 1:
+        return n_channels, None
+    if n_planes == n_channels + 2:
+        return n_channels, n_channels + 1
+    return n_channels, n_channels + 2
+
+
+def _plane(arr: np.ndarray, index: int, n_channels: int) -> np.ndarray:
+    """Return plane ``index`` of a merged array in either stored orientation."""
+    from spacr.timelapse import _reorient_merged_array
+    oriented, planes, _h, _w = _reorient_merged_array(arr, n_channels=n_channels)
+    return np.asarray(oriented[int(index) % planes])
+
+
+def build_point_table(merged_dir: str, metas: "List[dict]", n_channels: int,
+                      tracked_plane: int, pathogen_plane: Optional[int],
+                      max_frames: int = 12):
+    """Extract one row per object per frame from a group of merged arrays.
+
+    Loads each ``.npy`` memory-mapped and touches only the two planes it
+    needs, so a 10-plane 2048² merged array costs two planes of I/O, not ten.
+    Objects keep their mask label as ``cellID`` — merged arrays written by
+    the Timelapse module are already relabelled by track id, which is the
+    same assumption the assay makes.
+
+    :param merged_dir: folder holding the merged ``.npy`` arrays.
+    :param metas: parsed file names of one (plate, well, field) group in time
+        order; each supplies ``filename``, ``plateID``, ``wellID`` and
+        ``fieldID``, and its position becomes ``frame``.
+    :param n_channels: number of intensity channels, used to orient each array.
+    :param tracked_plane: index of the label plane whose objects are tracked.
+    :param pathogen_plane: index of the pathogen mask plane; an object
+        overlapping it is ``infected``. ``None`` marks every object uninfected.
+    :returns: DataFrame with ``plateID``, ``wellID``, ``fieldID``,
+        ``cellID``, ``frame``, ``x``, ``y``, ``area`` and ``infected``.
+    """
+    import pandas as pd
+    from skimage.measure import regionprops_table
+
+    rows = []
+    for t, meta in enumerate(metas[:max(2, int(max_frames))]):
+        path = os.path.join(merged_dir, meta["filename"])
+        arr = np.load(path, mmap_mode="r")
+        if np.asarray(arr).ndim != 3:
+            continue
+        labels = _plane(arr, tracked_plane, n_channels).astype(np.int32)
+        if not labels.any():
+            continue
+        props = regionprops_table(labels, properties=("label", "centroid",
+                                                      "area"))
+        df = pd.DataFrame(props).rename(columns={
+            "centroid-0": "y", "centroid-1": "x", "label": "cellID"})
+        if pathogen_plane is None:
+            df["infected"] = False
+        else:
+            pat = _plane(arr, pathogen_plane, n_channels)
+            hit = np.asarray(pat) > 0
+            infected_labels = set(np.unique(labels[hit]).tolist()) - {0}
+            df["infected"] = df["cellID"].isin(infected_labels)
+        df["frame"] = t
+        df["plateID"] = meta["plateID"]
+        df["wellID"] = meta["wellID"]
+        df["fieldID"] = meta["fieldID"]
+        rows.append(df[["plateID", "wellID", "fieldID", "cellID", "frame",
+                        "x", "y", "area", "infected"]])
+    if not rows:
+        raise MotilityInputError(
+            "No labelled objects found in the tracked mask plane — check the "
+            "channel count and the mask plane index.")
+    return pd.concat(rows, ignore_index=True)
+
+
+
+TRACK_KEYS = ["plateID", "wellID", "fieldID", "cellID"]
+
+
+def smooth_and_filter_tracks(points, max_displacement: float):
+    """Apply the assay's centroid QC: fix one-frame jumps, drop impossible tracks.
+
+    A single frame whose steps in and out both exceed ``max_displacement``
+    while its neighbours are within it is a segmentation glitch, and the
+    assay interpolates it. Any *remaining* step over the limit means the
+    track links two different objects, and the assay drops the whole track.
+    This reproduces both, so the preview's track count matches a run's.
+
+    :param points: point table as returned by :func:`build_point_table`, one
+        row per object per frame; tracks are keyed by plate, well, field and
+        ``cellID``. ``None`` or empty is returned as is.
+    :param max_displacement: largest plausible step between frames, in pixels.
+    :returns: ``(points, n_glitches_fixed, n_tracks_dropped)``.
+    """
+    import pandas as pd
+    if points is None or points.empty:
+        return points, 0, 0
+    limit = float(max_displacement)
+    kept: List[Any] = []
+    glitches = 0
+    dropped = 0
+    for _key, g in points.sort_values(TRACK_KEYS + ["frame"]).groupby(
+            TRACK_KEYS, sort=False):
+        g = g.copy()
+        x = g["x"].to_numpy(dtype=float, copy=True)
+        y = g["y"].to_numpy(dtype=float, copy=True)
+        n = x.size
+        glitch_at = set()
+        for i in range(1, n - 1):
+            d_prev = float(np.hypot(x[i] - x[i - 1], y[i] - y[i - 1]))
+            d_next = float(np.hypot(x[i + 1] - x[i], y[i + 1] - y[i]))
+            d_neigh = float(np.hypot(x[i + 1] - x[i - 1], y[i + 1] - y[i - 1]))
+            if d_prev > limit and d_next > limit and d_neigh <= limit:
+                glitch_at.add(i)
+        for i in sorted(glitch_at):
+            x[i] = 0.5 * (x[i - 1] + x[i + 1])
+            y[i] = 0.5 * (y[i - 1] + y[i + 1])
+            glitches += 1
+        impossible = False
+        for i in range(1, n):
+            d = float(np.hypot(x[i] - x[i - 1], y[i] - y[i - 1]))
+            if d > limit and i not in glitch_at and (i - 1) not in glitch_at:
+                impossible = True
+                break
+        if impossible:
+            dropped += 1
+            continue
+        g["x"] = x
+        g["y"] = y
+        kept.append(g)
+    if not kept:
+        return points.iloc[0:0], glitches, dropped
+    return pd.concat(kept, ignore_index=True), glitches, dropped
+
+
+def track_metrics(points, calibration: Calibration, min_length: int = 3):
+    """Per-track velocity and straightness, using the assay's own formulae.
+
+    ``v_px_per_frame`` is the mean step length; ``straightness`` is net
+    displacement over path length. Velocity is ``v_px_per_frame * factor``
+    and carries :attr:`Calibration.unit`.
+
+    Tracks shorter than ``min_length`` frames are kept in the table and
+    flagged ``too_short`` rather than silently dropped, so the length
+    distribution plot can show what the cutoff is discarding.
+
+    :param points: point table as returned by :func:`build_point_table`, one
+        row per object per frame.
+    :param calibration: pixel size and frame interval; its factor converts
+        px/frame to the reported velocity unit.
+    """
+    import pandas as pd
+    cols = TRACK_KEYS + ["n_frames", "v_px_per_frame", "velocity",
+                         "velocity_unit", "straightness", "path_length",
+                         "net_displacement", "infected", "too_short"]
+    if points is None or points.empty:
+        return pd.DataFrame(columns=cols)
+
+    factor = calibration.factor
+    unit = calibration.unit
+    records = []
+    for key, g in points.sort_values(TRACK_KEYS + ["frame"]).groupby(
+            TRACK_KEYS, sort=False):
+        g = g.sort_values("frame")
+        x = g["x"].to_numpy(dtype=float)
+        y = g["y"].to_numpy(dtype=float)
+        if x.size < 2:
+            continue
+        d = np.hypot(np.diff(x), np.diff(y))
+        if d.size == 0 or not np.isfinite(d).any():
+            continue
+        v_px = float(np.nanmean(d))
+        path_length = float(np.nansum(d))
+        net = float(np.hypot(x[-1] - x[0], y[-1] - y[0]))
+        straightness = net / path_length if path_length > 0 else np.nan
+        rec = dict(zip(TRACK_KEYS, key))
+        rec.update({
+            "n_frames": int(x.size),
+            "v_px_per_frame": v_px,
+            "velocity": v_px * factor,
+            "velocity_unit": unit,
+            "straightness": straightness,
+            "path_length": path_length,
+            "net_displacement": net,
+            "infected": bool(g["infected"].any()),
+            "too_short": bool(x.size < int(min_length)),
+        })
+        records.append(rec)
+    return pd.DataFrame(records, columns=cols)
+
+
+@dataclass
+class MotilitySummary:
+    """Everything the panel pins under the plots."""
+    n_tracks: int = 0
+    n_used: int = 0
+    n_short: int = 0
+    min_length: int = 3
+    unit: str = "px/frame"
+    calibrated: bool = False
+    mean_velocity: float = float("nan")
+    mean_velocity_infected: float = float("nan")
+    mean_velocity_uninfected: float = float("nan")
+    mean_straightness: float = float("nan")
+    n_infected: int = 0
+    n_uninfected: int = 0
+    n_high_straightness: int = 0
+    straightness_threshold: float = 0.95
+    glitches_fixed: int = 0
+    tracks_dropped: int = 0
+
+    def summary(self) -> str:
+        """One monospace block: counts, then velocities *with their unit*."""
+        def _f(v):
+            """Format one number, or "n/a" when it is not finite."""
+            return "n/a" if not np.isfinite(v) else f"{v:.3g}"
+        return (
+            f"{self.n_tracks} tracks · {self.n_used} at or above "
+            f"{self.min_length} frames ({self.n_short} shorter, excluded) · "
+            f"{self.n_infected} infected / {self.n_uninfected} uninfected\n"
+            f"mean velocity {_f(self.mean_velocity)} {self.unit} · "
+            f"infected {_f(self.mean_velocity_infected)} {self.unit} · "
+            f"uninfected {_f(self.mean_velocity_uninfected)} {self.unit}\n"
+            f"mean straightness {_f(self.mean_straightness)} · "
+            f"{self.n_high_straightness} tracks at or above "
+            f"{self.straightness_threshold:.2f} (drift/artefact candidates) · "
+            f"{self.glitches_fixed} centroid glitches fixed, "
+            f"{self.tracks_dropped} tracks dropped as impossible"
+        )
+
+
+def summarise(tracks, calibration: Calibration, min_length: int,
+              straightness_threshold: float, glitches: int = 0,
+              dropped: int = 0) -> MotilitySummary:
+    """Reduce a per-track table to the numbers shown under the plots.
+
+    :param tracks: per-track table as returned by :func:`track_metrics`; tracks
+        flagged ``too_short`` are left out of the means.
+    :param calibration: supplies the velocity unit and whether it is
+        calibrated.
+    :param min_length: the minimum track length in frames, recorded in the
+        summary.
+    :param straightness_threshold: straightness at or above which a used track
+        counts as highly straight.
+    """
+    s = MotilitySummary(min_length=int(min_length), unit=calibration.unit,
+                        calibrated=calibration.known,
+                        straightness_threshold=float(straightness_threshold),
+                        glitches_fixed=int(glitches),
+                        tracks_dropped=int(dropped))
+    if tracks is None or tracks.empty:
+        return s
+    s.n_tracks = int(len(tracks))
+    used = tracks[~tracks["too_short"]]
+    s.n_used = int(len(used))
+    s.n_short = s.n_tracks - s.n_used
+    if used.empty:
+        return s
+    s.mean_velocity = float(used["velocity"].mean())
+    inf = used[used["infected"]]
+    uninf = used[~used["infected"]]
+    s.n_infected = int(len(inf))
+    s.n_uninfected = int(len(uninf))
+    s.mean_velocity_infected = (float(inf["velocity"].mean()) if len(inf)
+                                else float("nan"))
+    s.mean_velocity_uninfected = (float(uninf["velocity"].mean())
+                                  if len(uninf) else float("nan"))
+    s.mean_straightness = float(used["straightness"].mean())
+    s.n_high_straightness = int(
+        (used["straightness"] >= float(straightness_threshold)).sum())
+    return s
+
+
+
+def render_motility_figure(points, tracks, calibration: Calibration,
+                           min_length: int, straightness_threshold: float,
+                           width_px: int = 1180,
+                           height_px: int = 380) -> np.ndarray:
+    """Render the three panels the user tunes against, as an RGB array.
+
+    1. **Tracks**, drawn from the origin so paths are comparable, coloured
+       by infection state.
+    2. **Track-length distribution**, with the minimum-length cutoff drawn
+       on it — this plot shows how many tracks the cutoff excludes.
+    3. **Velocity and straightness**, split by infection state, with the
+       unit in the axis label so ``px/frame`` is never mistaken for µm/s.
+
+    :param points: point table as returned by :func:`build_point_table`, one
+        row per object per frame; drawn as tracks from the origin.
+    :param tracks: per-track table as returned by :func:`track_metrics`, for
+        the length histogram and the velocity panel.
+    :param calibration: supplies the velocity axis unit; an uncalibrated one is
+        labelled px/frame on the plot.
+    :param min_length: minimum track length in frames, drawn as the cutoff on
+        the length histogram.
+    :param straightness_threshold: straightness threshold of the current
+        settings; not drawn.
+    """
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure
+
+    dpi = 100.0
+    fig = Figure(figsize=(width_px / dpi, height_px / dpi), dpi=dpi)
+    fig.patch.set_facecolor("#161719")
+    axes = fig.subplots(1, 3)
+    for ax in axes:
+        ax.set_facecolor("#161719")
+        for spine in ax.spines.values():
+            spine.set_color("#666666")
+        ax.tick_params(colors="#cccccc", labelsize=7)
+        ax.xaxis.label.set_color("#dddddd")
+        ax.yaxis.label.set_color("#dddddd")
+        ax.title.set_color("#ffffff")
+
+    ax_tracks, ax_len, ax_vel = axes
+
+    ax_tracks.set_title("Tracks (from origin)", fontsize=8)
+    ax_tracks.set_xlabel("Δx (px)", fontsize=7)
+    ax_tracks.set_ylabel("Δy (px)", fontsize=7)
+    if points is not None and not points.empty:
+        infected_by_track = {}
+        if tracks is not None and not tracks.empty:
+            infected_by_track = {
+                tuple(r[k] for k in TRACK_KEYS): bool(r["infected"])
+                for _i, r in tracks.iterrows()}
+        for key, g in points.sort_values(TRACK_KEYS + ["frame"]).groupby(
+                TRACK_KEYS, sort=False):
+            x = g["x"].to_numpy(dtype=float)
+            y = g["y"].to_numpy(dtype=float)
+            if x.size < 2:
+                continue
+            colour = (INFECTED_RGB if infected_by_track.get(tuple(key), False)
+                      else UNINFECTED_RGB)
+            ax_tracks.plot(x - x[0], y - y[0], color=colour, linewidth=0.9,
+                           alpha=0.85)
+        ax_tracks.axhline(0, color="#555555", linewidth=0.5)
+        ax_tracks.axvline(0, color="#555555", linewidth=0.5)
+
+    ax_len.set_title("Track length", fontsize=8)
+    ax_len.set_xlabel("frames per track", fontsize=7)
+    ax_len.set_ylabel("tracks", fontsize=7)
+    if tracks is not None and not tracks.empty:
+        lengths = tracks["n_frames"].to_numpy(dtype=float)
+        bins = max(4, int(min(24, np.ptp(lengths) + 1)))
+        ax_len.hist(lengths, bins=bins, color="#8899aa", edgecolor="#161719")
+        ax_len.axvline(float(min_length), color="#ffcc44", linewidth=1.4,
+                       linestyle="--")
+        ax_len.text(0.98, 0.95, f"min = {int(min_length)}",
+                    transform=ax_len.transAxes, ha="right", va="top",
+                    color="#ffcc44", fontsize=7)
+
+    ax_vel.set_title("Velocity by infection state", fontsize=8)
+    ax_vel.set_ylabel(f"velocity ({calibration.unit})", fontsize=7)
+    if tracks is not None and not tracks.empty:
+        used = tracks[~tracks["too_short"]]
+        groups = [used.loc[used["infected"], "velocity"].to_numpy(dtype=float),
+                  used.loc[~used["infected"], "velocity"].to_numpy(dtype=float)]
+        labels = [f"infected (n={groups[0].size})",
+                  f"uninfected (n={groups[1].size})"]
+        colours = [INFECTED_RGB, UNINFECTED_RGB]
+        for i, (vals, colour) in enumerate(zip(groups, colours)):
+            vals = vals[np.isfinite(vals)]
+            if vals.size == 0:
+                continue
+            jitter = (np.linspace(-0.16, 0.16, vals.size)
+                      if vals.size > 1 else np.zeros(1))
+            ax_vel.scatter(np.full(vals.size, i) + jitter, vals, s=9,
+                           color=colour, alpha=0.8, linewidths=0)
+            ax_vel.hlines(float(np.mean(vals)), i - 0.25, i + 0.25,
+                          color="#ffffff", linewidth=1.2)
+        ax_vel.set_xticks([0, 1])
+        ax_vel.set_xticklabels(labels, fontsize=7)
+        ax_vel.set_xlim(-0.6, 1.6)
+    if not calibration.known:
+        ax_vel.text(0.5, 0.02, "uncalibrated — px/frame",
+                    transform=ax_vel.transAxes, ha="center", va="bottom",
+                    color="#ffcc44", fontsize=7)
+
+    fig.tight_layout(pad=0.8)
+    canvas = FigureCanvasAgg(fig)
+    canvas.draw()
+    rgba = np.asarray(canvas.buffer_rgba())
+    return np.ascontiguousarray(rgba[..., :3])
+
+
+
+@dataclass
+class MotilityRequest:
+    """One read of merged arrays into a point table."""
+    merged_dir: str = ""
+    metas: List[dict] = field(default_factory=list)
+    n_channels: int = 4
+    tracked_plane: int = 4
+    pathogen_plane: Optional[int] = None
+    max_frames: int = 12
+
+
+def run_motility_pass(req: MotilityRequest):
+    """Build the cached point table for one (plate, well, field) group.
+
+    :param req: the merged folder, group file names, channel count, plane
+        indices and frame cap passed to :func:`build_point_table`.
+    """
+    return build_point_table(
+        req.merged_dir, req.metas, req.n_channels, req.tracked_plane,
+        req.pathogen_plane, max_frames=req.max_frames)
+
+
+class _MotilityWorker(QThread):
+    """Reads merged arrays off the GUI thread.
+
+    Same contract as ``live_preview._PreviewWorker``: every exception is
+    caught inside :meth:`run` and emitted as a string; nothing escapes.
+    """
+
+    finished_result = Signal(object, str)
+
+    def __init__(self, request: MotilityRequest, parent=None):
+        """Prepare the worker.
+
+        :param request: everything the pass needs, READ ON THE WORKER THREAD
+            rather than here -- so it must not be mutated after the worker
+            is started; build a new request instead.
+        :param parent: parent object; ownership only. It does NOT keep the
+            thread alive across a parent's destruction, so the panel still
+            has to wait for the thread itself.
+        """
+        super().__init__(parent)
+        self._request = request
+
+    def run(self):
+        """Run one motility pass and emit its result, or the failure text.
+
+        A failure is emitted rather than raised: this runs on a worker thread,
+        where an exception has nobody to catch it.
+        """
+        try:
+            self.finished_result.emit(run_motility_pass(self._request), "")
+        except Exception as e:
+            LOG.info("motility preview failed: %s", e, exc_info=True)
+            self.finished_result.emit(None, str(e))
+
+
+
+def scan_plate_payload(path) -> Dict[str, Any]:
+    """Resolve a plate's ``merged`` folder and group it. No Qt: worker-safe.
+
+    The expensive half of opening a plate: ``resolve_merged_dir`` lists the
+    candidate folder and ``group_merged_files`` reads every name in
+    ``merged/`` and parses it -- thousands of entries on a 384-well plate.
+
+    :param path: a plate folder or its ``merged`` folder; any failure is caught
+        and reported in the ``error`` entry.
+    :returns: ``{path, merged, groups, error}``.
+    """
+    out: Dict[str, Any] = {"path": str(path), "merged": None,
+                           "groups": None, "error": ""}
+    try:
+        merged = resolve_merged_dir(path)
+        groups = group_merged_files(merged)
+    except Exception as exc:
+        out["error"] = f"Load failed: {exc}"
+        return out
+    out["merged"] = merged
+    out["groups"] = groups
+    return out
+
+
+def read_plane_count(merged_dir: str, filename: str) -> int:
+    """Planes held by one merged array. No Qt: worker-safe.
+
+    ``np.load(..., mmap_mode="r")`` is not free: before it maps anything it
+    opens the file and reads the ``.npy`` header, so it is a filesystem
+    round trip on a path the user supplied, and an open costs as much as a
+    stat. Measured on one
+    workstation, one stat under ``/nas_mnt`` -- an
+    ``autofs`` mount whose share was asleep -- had not returned after twenty
+    seconds.
+
+    :param merged_dir: the ``merged`` folder holding the array.
+    :param filename: the array's basename inside it.
+    :returns: the plane count, or ``0`` when the array cannot be read. Zero
+        is a soft failure: the spinners keep the values they had and the
+        channel dropdown empties, rather than the panel raising.
+    """
+    try:
+        arr = np.load(os.path.join(merged_dir, filename), mmap_mode="r")
+        return int(min(np.asarray(arr).shape))
+    except Exception:
+        LOG.debug("plane count unavailable for %s", filename, exc_info=True)
+        return 0
+
+
+class MotilityPreviewPanel(LivePreviewContract, QWidget):
+    """Interactive motility preview — Motility Assay module.
+
+    Same contract as :class:`~spacr.qt.widgets.live_preview.LivePreviewPanel`,
+    and the shared half is the same code: standalone ``QWidget``, ``QThread``
+    worker emitting over signals,
+    :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract` for the
+    run/cancel/status protocol, :meth:`set_propagate_callback` to push tuned
+    values back into the main settings panel, and a ``build_*_card`` factory.
+
+    :param parent: parent widget.
+    :param threaded: whether the panel's jobs run off the GUI thread. False
+        runs each one inline, emitting the same signals in the same order, so
+        a test can drive the panel synchronously without the behaviour
+        diverging.
+    """
+
+    #: Where this preview's section folds and sizes are remembered (item
+    #: 471): the settings groups, the plot and the summary each fold by their heading and trade height by their
+    #: edge.
+    SECTION_KEY = "motility_preview"
+
+    preview_ready = Signal(object)
+
+    PREVIEW_SOURCE_HINT = "Load a plate folder first."
+
+    def __init__(self, parent=None, *, threaded: bool = True):
+        """Build the motility preview panel.
+
+        Two job runners, for two reasons: the pending work on the main one is
+        what reports "a plate is still being scanned", and a plane-count read
+        is not a plate scan; and the second is marked not user-visible so the
+        Home run banner does not announce a read the user never started.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run scans and reads on worker threads. Set ``False`` in
+            tests: each job then runs inline, emitting the same signals in the
+            same order, so the panel can be driven synchronously without the
+            behaviour diverging.
+        """
+        super().__init__(parent)
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key="motility preview")
+        self._plane_jobs = JobRunner(self, threaded=threaded,
+                                     app_key="motility plane layout",
+                                     user_visible=False)
+        self._jobs.job_failed.connect(self._on_scan_failed)
+        self._plane_jobs.job_finished.connect(self._on_plane_job_settled)
+        #: Bumped whenever a newer scan supersedes the one in flight.
+        self._load_token = 0
+        #: Planes held by the selected group's first merged array, read off
+        #: the GUI thread by `read_plane_count`. 0 before the first read
+        #: lands and whenever one failed.
+        self._planes = 0
+        #: One plane-count read in flight at a time with exactly one
+        #: catch-up when it lands -- the `ChainingBar._refresh` pattern, so
+        #: arrowing through the field dropdown asks the question twice
+        #: rather than once per keystroke, and never drops the last answer.
+        self._plane_busy = False
+        self._plane_again = False
+        #: Bumped whenever a newer plane-count read supersedes the one in
+        #: flight, so a late result cannot paint the wrong plate's layout.
+        self._plane_token = 0
+        self._points = None
+        self._tracks = None
+        self._summary: Optional[MotilitySummary] = None
+        self._groups: "Dict[tuple, List[dict]]" = {}
+        self._merged_dir: str = ""
+        self._worker: Optional[_MotilityWorker] = None
+        self._retired_worker: Optional[_MotilityWorker] = None
+        self._run_token = 0
+        self._pending_token = 0
+        self._propagate_cb = None
+        self._sampler = ImageSetSampler(DEFAULT_MAX_SETS)
+        self._build_ui()
+        self.setAcceptDrops(True)
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+
+    def _build_ui(self):
+        """Lay out the plate pickers, the array layout controls and the plot."""
+        root = QVBoxLayout(self)
+        root.setContentsMargins(8, 8, 8, 8)
+        root.setSpacing(6)
+
+        pick = QHBoxLayout()
+        self._pick_row = pick
+        self._path_label = QLabel(
+            "No plate loaded — drop a folder holding merged/*.npy here, "
+            "or choose one")
+        self._path_label.setSizePolicy(QSizePolicy.Expanding,
+                                       QSizePolicy.Preferred)
+        self._max_sets_box = FlatSpinBox(self, value=DEFAULT_MAX_SETS,
+                                         tooltip=MAX_SETS_TOOLTIP)
+        self._max_sets_box.valueChanged.connect(self._on_max_sets_changed)
+        self._fov_box = FlatComboBox(
+            self,
+            tooltip=("Field of view — the (plate, well, field) group "
+                     "previewed. Each group is one time series. Lists a "
+                     "random sample of the plate, not all of it."))
+        self._fov_box.currentIndexChanged.connect(self._on_group_changed)
+        self._group_box = self._fov_box
+        self._channel_box = FlatComboBox(
+            self,
+            tooltip=("Plane of the merged array the preview reads its objects "
+                     "from. Bound to 'Tracked mask plane'; changing it drops "
+                     "the cached point table, so run the preview to see it."))
+        self._channel_box.currentIndexChanged.connect(
+            self._on_display_channel_changed)
+        self._pick_btn = FlatButton("Choose plate folder…", self)
+        self._pick_btn.clicked.connect(self._pick_folder)
+        pick.addWidget(self._path_label, 1)
+        pick.addWidget(self._max_sets_box)
+        pick.addWidget(self._fov_box)
+        pick.addWidget(self._channel_box)
+        pick.addWidget(self._pick_btn)
+        root.addLayout(pick)
+
+        self._tracked_object = QComboBox(self)
+        self._tracked_object.addItems(list(TRACKED_OBJECTS))
+        self._tracked_object.setToolTip(
+            "(str) tracked_object — which mask the tracks come from.")
+        self._n_channels = QSpinBox(self)
+        self._n_channels.setRange(1, 16)
+        self._n_channels.setValue(4)
+        self._n_channels.setToolTip(
+            "(int) How many intensity channels the merged arrays hold; the "
+            "mask planes follow them.")
+        self._tracked_plane = QSpinBox(self)
+        self._tracked_plane.setRange(0, 32)
+        self._tracked_plane.setValue(4)
+        self._tracked_plane.setToolTip(
+            "(int) Plane index of the tracked object's mask.")
+        self._pathogen_plane = QSpinBox(self)
+        self._pathogen_plane.setRange(-1, 32)
+        self._pathogen_plane.setValue(-1)
+        self._pathogen_plane.setSpecialValueText("none")
+        self._pathogen_plane.setToolTip(
+            "(int) Plane index of the pathogen mask, used to split tracks by "
+            "infection state. 'none' treats every track as uninfected.")
+        self._max_frames = QSpinBox(self)
+        self._max_frames.setRange(2, 500)
+        self._max_frames.setValue(12)
+        self._max_frames.setToolTip(
+            "(int) How many frames of the series the preview reads. The rest "
+            "is never loaded.")
+
+        self._min_len = QSpinBox(self)
+        self._min_len.setRange(2, 500)
+        self._min_len.setValue(3)
+        self._min_len.setToolTip(
+            "(int) Tracks shorter than this are excluded from the velocity "
+            "and straightness numbers. Short tracks give unstable values — a "
+            "two-point track always has straightness 1.0.")
+        self._max_disp = QDoubleSpinBox(self)
+        self._max_disp.setRange(1.0, 5000.0)
+        self._max_disp.setValue(50.0)
+        self._max_disp.setSuffix(" px")
+        self._max_disp.setToolTip(
+            "(float, px) max_displacement — single-frame jumps are "
+            "interpolated, and any track that still jumps further than this "
+            "is dropped as an impossible link.")
+        self._straightness = QDoubleSpinBox(self)
+        self._straightness.setRange(0.0, 1.0)
+        self._straightness.setSingleStep(0.01)
+        self._straightness.setValue(0.95)
+        self._straightness.setToolTip(
+            "(float) straightness_threshold — tracks at or above this are "
+            "flagged as stage-drift / artefact candidates.")
+        self._straightness_filter = Toggle(
+            "Drop over-straight tracks", self)
+        self._straightness_filter.setToolTip(
+            "(bool) drop_straight_tracks — remove the flagged tracks entirely.")
+
+        self._pixels_per_um = QDoubleSpinBox(self)
+        self._pixels_per_um.setRange(0.0, 1000.0)
+        self._pixels_per_um.setDecimals(3)
+        self._pixels_per_um.setValue(0.0)
+        self._pixels_per_um.setSpecialValueText("unknown")
+        self._pixels_per_um.setToolTip(
+            "(float, px/µm) pixels_per_um. Left unknown, velocities are "
+            "reported in px/frame; no scale is assumed.")
+        self._seconds_per_frame = QDoubleSpinBox(self)
+        self._seconds_per_frame.setRange(0.0, 100000.0)
+        self._seconds_per_frame.setDecimals(2)
+        self._seconds_per_frame.setValue(0.0)
+        self._seconds_per_frame.setSpecialValueText("unknown")
+        self._seconds_per_frame.setToolTip(
+            "(float, s) seconds_per_frame. Left unknown, velocities are "
+            "reported in px/frame; no interval is assumed.")
+
+        layout_group = QGroupBox("Merged arrays (changing these re-reads)")
+        lform = QFormLayout(layout_group)
+        lform.addRow("Tracked object", self._tracked_object)
+        lform.addRow("Intensity channels", self._n_channels)
+        lform.addRow("Tracked mask plane", self._tracked_plane)
+        lform.addRow("Pathogen mask plane", self._pathogen_plane)
+        lform.addRow("Frames previewed", self._max_frames)
+
+        metric_group = QGroupBox("Metrics (live — recomputed from the cache)")
+        mform = QFormLayout(metric_group)
+        mform.addRow("Min track length", self._min_len)
+        mform.addRow("Max displacement", self._max_disp)
+        mform.addRow("Straightness threshold", self._straightness)
+        mform.addRow(self._straightness_filter)
+
+        cal_group = QGroupBox("Calibration (units)")
+        cform = QFormLayout(cal_group)
+        cform.addRow("Pixels per µm", self._pixels_per_um)
+        cform.addRow("Seconds per frame", self._seconds_per_frame)
+        self._unit_label = QLabel("", self)
+        self._unit_label.setWordWrap(True)
+        cform.addRow(self._unit_label)
+
+        groups_host = QWidget(self)
+        groups = QHBoxLayout(groups_host)
+        groups.setContentsMargins(0, 0, 0, 0)
+        groups.addWidget(layout_group, 1)
+        groups.addWidget(metric_group, 1)
+        groups.addWidget(cal_group, 1)
+        from .collapsible_splitter import CollapsibleSplitter
+        key = self.SECTION_KEY
+        self._section_split = CollapsibleSplitter(
+            Qt.Vertical, self, persist_key=f"{key}::sections")
+        self._sections = {}
+        self._sections["Preview settings"] = self._section_split.add_section(
+            groups_host, "Preview settings", stretch=0,
+            persist_key=f"{key}/Preview settings")
+
+        for w in (self._min_len, self._max_disp, self._straightness,
+                  self._pixels_per_um, self._seconds_per_frame):
+            w.valueChanged.connect(self._on_metric_changed)
+        self._straightness_filter.toggled.connect(self._on_metric_changed)
+        self._tracked_object.currentTextChanged.connect(
+            self._on_tracked_object_changed)
+        self._tracked_plane.valueChanged.connect(
+            self._sync_plane_combo_from_spin)
+
+        act = QHBoxLayout()
+        self._run_btn = QPushButton(PREVIEW_RUN_TEXT, self)
+        self._run_btn.clicked.connect(self.run_preview)
+        self._cancel_btn = QPushButton(PREVIEW_CANCEL_TEXT, self)
+        self._cancel_btn.setToolTip(
+            "Abandon the read in flight. The arrays already being read finish "
+            "in the background and their result is dropped.")
+        self._cancel_btn.setEnabled(False)
+        self._cancel_btn.clicked.connect(self.cancel_preview)
+        self._propagate_btn = QPushButton("Propagate settings", self)
+        self._propagate_btn.setObjectName("ToggleButton")
+        self._propagate_btn.setCheckable(True)
+        self._propagate_btn.setToolTip(
+            "When on, the settings tuned here are copied into the main "
+            "Motility Assay settings so the run uses them.")
+        self._propagate_btn.toggled.connect(self._on_propagate_toggled)
+        self._status = QLabel("", self)
+        act.addWidget(self._run_btn)
+        act.addWidget(self._cancel_btn)
+        act.addWidget(self._propagate_btn)
+        act.addWidget(self._status, 1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "motility", act)
+        root.addLayout(act)
+
+        self._plot = QLabel(self)
+        self._plot.setAlignment(Qt.AlignCenter)
+        self._plot.setMinimumHeight(240)
+        self._plot.setStyleSheet("background: #161719;")
+        self._sections["Plot"] = self._section_split.add_section(
+            self._plot, "Plot", stretch=1, persist_key=f"{key}/Plot")
+
+        self._stats_label = QLabel(
+            "Load a plate folder and run the preview.", self)
+        self._stats_label.setWordWrap(True)
+        self._stats_label.setStyleSheet("font-family: monospace;")
+        self._sections["Summary"] = self._section_split.add_section(
+            self._stats_label, "Summary", stretch=0,
+            persist_key=f"{key}/Summary")
+        root.addWidget(self._section_split, 1)
+
+        self._refresh_unit_label()
+
+
+    def _dropped_path(self, event) -> Optional[str]:
+        """The first local folder in a drag, decided without touching the disk.
+
+        `dragMoveEvent` re-fires this on EVERY mouse move while a folder is
+        held over the panel, so the old ``Path(...).is_dir()`` here was a
+        stat per pixel of travel on the GUI thread. Measured on one
+        workstation: one stat under ``/nas_mnt`` -- an
+        ``autofs`` mount whose share was asleep -- had not returned after
+        twenty seconds. Dragging a folder off a sleeping share froze the
+        whole application before the drop was even released.
+
+        Answered optimistically from the cache instead: a folder nobody has
+        probed yet is ACCEPTED, because the accept/reject decision has to be
+        made now and a probe cannot have finished. Being wrong is cheap --
+        the accept only reaches `load_folder_async`, whose worker turns a
+        non-folder into the "No such folder" message in `self._status`,
+        which is a sentence rather than a freeze.
+        """
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return None
+        for url in mime.urls():
+            if not url.isLocalFile():
+                continue
+            text = url.toLocalFile()
+            if text and path_probe.exists(text, default=True, want_dir=True):
+                return text
+        return None
+
+    def dragEnterEvent(self, event):    # noqa: N802
+        """Accept a drag carrying a tracked timelapse to measure motility from.
+
+        :param event: the Qt drag event.
+        """
+        if self._dropped_path(event) is not None:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):     # noqa: N802
+        """Keep accepting while a tracked timelapse to measure motility from stays over the panel.
+
+        :param event: the Qt drag event.
+        """
+        if self._dropped_path(event) is not None:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):         # noqa: N802
+        """Take the dropped input and preview it.
+
+        :param event: the Qt drop event.
+        """
+        p = self._dropped_path(event)
+        if p is None:
+            event.ignore()
+            return
+        event.acceptProposedAction()
+        self.load_folder_async(p)
+
+
+    @property
+    def _loads_in_flight(self) -> List[int]:
+        """Outstanding scans, as a list so ``not ...`` reads naturally."""
+        runner = getattr(self, "_jobs", None)
+        return [] if runner is None else [0] * runner.pending_jobs()
+
+    def load_folder_async(self, path) -> bool:
+        """Scan a plate on a worker, then install it on the GUI thread.
+
+        Both GUI entry points -- the drop handler and the Choose-plate dialog
+        -- come through here.
+
+        :param path: a plate or ``merged`` folder; ``None`` or an empty path
+            submits nothing and returns ``False``.
+        :returns: ``True`` when a job was submitted.
+        """
+        text = os.fspath(path).strip() if path is not None else ""
+        if not text:
+            return False
+        self._load_token += 1
+        token = self._load_token
+        self._status.setText(f"Scanning {os.path.basename(text)}…")
+        self._jobs.submit(
+            lambda: scan_plate_payload(text),
+            lambda payload, _t=token: self._on_plate_scanned(_t, payload))
+        return True
+
+    def _on_plate_scanned(self, token: int, payload) -> None:
+        """Install a scanned plate. Always on the GUI thread."""
+        if token != self._load_token or not isinstance(payload, dict):
+            return
+        if payload.get("error"):
+            self._status.setText(payload["error"])
+            return
+        groups = payload.get("groups")
+        if not groups:
+            self._status.setText(
+                "No (plate, well, field) group has two or more time points — "
+                "a motility preview needs a time series.")
+            return
+        self._install_plate(payload["merged"], groups)
+
+    def _on_scan_failed(self, message: str) -> None:
+        """Replace the "Scanning..." placeholder when a scan never answers.
+
+        `JobRunner._on_settled` hands a result to `on_done` only when the job
+        SUCCEEDED, so `_on_plate_scanned` -- and with it every status update
+        -- is skipped for one that raised. Without this the placeholder
+        written just before `submit` stays on screen for the rest of the
+        session, telling the user a scan is running that is not.
+
+        Guarded on nothing being left in flight, because `job_failed` carries
+        no job id and so cannot be generation-checked: a failure arriving
+        while a NEWER scan is still running must not overwrite that scan's
+        placeholder with a dead one's message.
+
+        :param message: the worker's one-line reason, shown as-is.
+        """
+        try:
+            if self._jobs.pending_jobs():
+                return
+            status = getattr(self, "_status", None)
+            if status is not None:
+                status.setText(f"Load failed: {message}")
+        except RuntimeError:
+            LOG.debug("status label already deleted", exc_info=True)
+
+    def shutdown(self) -> None:
+        """Abandon anything in flight and leave no QThread behind.
+
+        Both runners -- the plate scan and the plane-count read. Qt aborts
+        the process when a running QThread is destroyed, so a runner left out
+        of here is a crash at teardown rather than a leak.
+        """
+        for name in ("_jobs", "_plane_jobs"):
+            runner = getattr(self, name, None)
+            if runner is None:
+                continue
+            try:
+                runner.shutdown()
+            except RuntimeError:
+                LOG.debug("%s already deleted", name, exc_info=True)
+
+    def load_folder(self, path) -> bool:
+        """Synchronously open a plate (or ``merged``) folder.
+
+        For programmatic callers and tests, mirroring
+        ``LivePreviewPanel.load_image``. The GUI uses :meth:`load_folder_async`.
+
+        :param path: a plate or ``merged`` folder, scanned with
+            :func:`scan_plate_payload`; a failure or a plate with no time
+            series is shown in the status line.
+        """
+        payload = scan_plate_payload(path)
+        if payload["error"]:
+            self._status.setText(payload["error"])
+            return False
+        groups = payload["groups"]
+        if not groups:
+            self._status.setText(
+                "No (plate, well, field) group has two or more time points — "
+                "a motility preview needs a time series.")
+            return False
+        self._install_plate(payload["merged"], groups)
+        return True
+
+    def _install_plate(self, merged: str, groups) -> bool:
+        """Adopt an already-scanned plate and refresh the selectors."""
+        self._merged_dir = merged
+        self._groups = groups
+        self._points = None
+        self._tracks = None
+        self._sampler.invalidate()
+        self._populate_group_box()
+        self._refresh_plane_layout()
+        self._path_label.setText(
+            f"{os.path.basename(os.path.dirname(merged.rstrip(os.sep)) or merged)}"
+            f"  ·  {len(groups)} group(s)")
+        self._status.setText(
+            f"{len(groups)} time series found — {self.sample_note()}. "
+            "Run the preview.")
+        return True
+
+    def _populate_group_box(self) -> None:
+        """Fill the groups dropdown with a bounded random sample of the plate.
+
+        A 384-well plate produces thousands of time series and listing them
+        all made the dropdown, and every refresh of it, cost more than the
+        preview itself. The sample is drawn across the whole plate and is
+        reproducible — see
+        :class:`~spacr.qt.widgets.preview_controls.ImageSetSampler`.
+
+        The dropdown stores each group's ``(plate, well, field)`` **key** as
+        item data, not a path, so it populates itself rather than going
+        through :func:`apply_sample_to_combo`.
+        """
+        if self._sampler.directory != self._merged_dir:
+            self._sampler.adopt(
+                self._merged_dir,
+                [ImageSet(key=key, directory=self._merged_dir,
+                          channels={"": metas[0]["filename"]})
+                 for key, metas in self._groups.items()],
+                [])
+        self._sampler.set_max(
+            configure_max_sets_box(self._max_sets_box, self._sampler.total))
+        current = self._group_box.currentData()
+        keep = next((s for s in self._sampler.sets if s.key == current), None)
+        shown = self._sampler.sample(keep=keep)
+        self._sample_note = self._sampler.describe(len(shown))
+        blocked = self._group_box.blockSignals(True)
+        try:
+            self._group_box.clear()
+            for item in shown:
+                metas = self._groups.get(item.key) or []
+                self._group_box.addItem(
+                    f"{item.key[0]} {item.key[1]} f{item.key[2]} "
+                    f"({len(metas)} frames)", item.key)
+            index = self._group_box.findData(current)
+            if index >= 0:
+                self._group_box.setCurrentIndex(index)
+        finally:
+            self._group_box.blockSignals(blocked)
+        self._group_box.setToolTip(
+            f"Field of view — {self._sample_note}.\n\n{MAX_SETS_TOOLTIP}")
+
+    def sample_note(self) -> str:
+        """The sentence stating this preview is a sample of N of M sets."""
+        return getattr(self, "_sample_note", "")
+
+    def _on_max_sets_changed(self, value: int) -> None:
+        """Draw a new sample at the user's new cap — without re-grouping."""
+        if not self._sampler.set_max(int(value)):
+            return
+        self._populate_group_box()
+        if self.sample_note():
+            self._status.setText(
+                self.sample_note()[:1].upper() + self.sample_note()[1:])
+
+    def set_propagate_callback(self, cb) -> None:
+        """Register a ``callback(dict)`` used to push tuned settings back.
+
+        :param cb: callable taking one settings dict, or ``None`` to push
+            nothing.
+        """
+        self._propagate_cb = cb
+
+    def calibration(self) -> Calibration:
+        """The current calibration, with unset fields as ``None``."""
+        ppu = float(self._pixels_per_um.value())
+        spf = float(self._seconds_per_frame.value())
+        return Calibration(pixels_per_um=ppu if ppu > 0 else None,
+                           seconds_per_frame=spf if spf > 0 else None)
+
+    def settings_for_propagation(self) -> dict:
+        """Map the preview's widgets onto real Motility Assay setting keys.
+
+        ``pixels_per_um`` / ``seconds_per_frame`` are only propagated when
+        the user actually set them, so no assumed calibration is written into
+        the run's settings.
+        """
+        cal = self.calibration()
+        out: Dict[str, Any] = {
+            "tracked_object": self._tracked_object.currentText(),
+            "max_displacement": float(self._max_disp.value()),
+            "straightness_threshold": float(self._straightness.value()),
+            "drop_straight_tracks": bool(self._straightness_filter.isChecked()),
+            "channels": list(range(int(self._n_channels.value()))),
+        }
+        if cal.pixels_per_um is not None:
+            out["pixels_per_um"] = cal.pixels_per_um
+        if cal.seconds_per_frame is not None:
+            out["seconds_per_frame"] = cal.seconds_per_frame
+        if self._pathogen_plane.value() >= 0:
+            out["pathogen_channel"] = int(self._pathogen_plane.value())
+        return out
+
+    def propagate_settings(self) -> None:
+        """Push the current settings to the main panel, if wired."""
+        if self._propagate_cb is not None:
+            try:
+                self._propagate_cb(self.settings_for_propagation())
+            except Exception:
+                LOG.debug("propagate_settings failed", exc_info=True)
+
+    def apply_settings(self, settings: dict) -> None:
+        """Seed the preview from the main Motility settings dict.
+
+        :param settings: the Motility settings dict. ``tracked_object``,
+            ``max_displacement``, ``straightness_threshold``,
+            ``drop_straight_tracks``, ``channels``, ``pixels_per_um`` and
+            ``seconds_per_frame`` are read when present; errors are logged, not
+            raised.
+        """
+        try:
+            obj = settings.get("tracked_object")
+            if obj and self._tracked_object.findText(str(obj)) >= 0:
+                self._tracked_object.setCurrentText(str(obj))
+            if settings.get("max_displacement"):
+                self._max_disp.setValue(float(settings["max_displacement"]))
+            if settings.get("straightness_threshold"):
+                self._straightness.setValue(
+                    float(settings["straightness_threshold"]))
+            self._straightness_filter.setChecked(
+                bool(settings.get("drop_straight_tracks", False)))
+            chans = settings.get("channels")
+            if isinstance(chans, (list, tuple)) and chans:
+                self._n_channels.setValue(len(chans))
+            if settings.get("pixels_per_um"):
+                self._pixels_per_um.setValue(float(settings["pixels_per_um"]))
+            if settings.get("seconds_per_frame"):
+                self._seconds_per_frame.setValue(
+                    float(settings["seconds_per_frame"]))
+        except Exception:
+            LOG.debug("apply_settings failed", exc_info=True)
+
+    def current_params(self) -> dict:
+        """Snapshot for tests + external callers."""
+        cal = self.calibration()
+        return {
+            "tracked_object": self._tracked_object.currentText(),
+            "n_channels": int(self._n_channels.value()),
+            "tracked_plane": int(self._tracked_plane.value()),
+            "pathogen_plane": (int(self._pathogen_plane.value())
+                               if self._pathogen_plane.value() >= 0 else None),
+            "min_length": int(self._min_len.value()),
+            "max_displacement": float(self._max_disp.value()),
+            "unit": cal.unit,
+            "calibrated": cal.known,
+            "n_tracks": 0 if self._tracks is None else int(len(self._tracks)),
+            "display_channel": self.display_channel(),
+            "fov": self._fov_box.currentText(),
+        }
+
+
+    def _preview_blocked_reason(self) -> str:
+        """Why this panel cannot read a plate right now, or ``""``."""
+        if not self._groups:
+            return self.PREVIEW_SOURCE_HINT
+        return ""
+
+    def run_preview(self) -> None:
+        """Read the merged arrays into the cached point table, then score.
+
+        The guard, the refusals and the busy state are the shared ones —
+        see :class:`~spacr.qt.widgets.preview_contract.LivePreviewContract`.
+        """
+        if not self.begin_preview():
+            return
+        key = self._group_box.currentData()
+        metas = self._groups.get(key) or next(iter(self._groups.values()))
+        pat = int(self._pathogen_plane.value())
+        req = MotilityRequest(
+            merged_dir=self._merged_dir,
+            metas=metas,
+            n_channels=int(self._n_channels.value()),
+            tracked_plane=int(self._tracked_plane.value()),
+            pathogen_plane=pat if pat >= 0 else None,
+            max_frames=int(self._max_frames.value()),
+        )
+        self._status.setText("Reading merged arrays…")
+        self._release_worker()
+        worker = _MotilityWorker(req, self)
+        worker.preview_token_value = self.preview_token()
+        self._pending_token = worker.preview_token_value
+        worker.finished_result.connect(self._on_worker_done)
+        worker.finished.connect(self._on_worker_finished)
+        self._worker = worker
+        worker.start()
+
+    def _release_worker(self) -> None:
+        """Free a worker whose thread has already exited.
+
+        Parented to the panel, so C++ owns it and it would otherwise hold the
+        whole point table until the panel itself died. Unparenting hands
+        ownership back to Python. Mirrors ``LivePreviewPanel._release_worker``.
+        """
+        old = self._retired_worker
+        self._retired_worker = None
+        if old is None:
+            return
+        try:
+            old.wait()
+            old.setParent(None)
+        except RuntimeError:
+            LOG.debug("worker already deleted", exc_info=True)
+
+    def _result_token(self):
+        """The generation the result now landing belongs to."""
+        worker = self.sender()
+        token = getattr(worker, "preview_token_value", None)
+        return getattr(self, "_pending_token", 0) if token is None else token
+
+    def _on_worker_finished(self) -> None:
+        """Relay for the worker thread's own ``finished`` signal.
+
+        A bound method on purpose (see :meth:`run_preview`), and the first
+        moment at which the QThread may be freed.
+        """
+        self.set_preview_busy(False)
+        self._release_worker()
+
+    def _on_worker_done(self, points, err: str) -> None:
+        """Adopt the point table. Runs on the GUI thread (queued signal)."""
+        if self.preview_stale(self._result_token()):
+            LOG.debug("dropping a superseded motility preview result")
+            return
+        if self._worker is not None:
+            self._retired_worker = self._worker
+            self._worker = None
+        self.set_preview_busy(False)
+        if err:
+            self._status.setText(preview_failure_message(err))
+            self.preview_ready.emit(None)
+            return
+        if points is None or points.empty:
+            self._status.setText("No objects found in the tracked mask plane.")
+            self.preview_ready.emit(None)
+            return
+        self._points = points
+        n_frames = int(points["frame"].nunique())
+        self._status.setText(
+            f"Read {n_frames} frames · {len(points)} object observations — "
+            "metric changes below are recomputed from this cache.")
+        self.recompute()
+
+
+    def _on_metric_changed(self, *_):
+        """Restate the units and recompute, if there is anything to recompute.
+
+        :param _: whatever the emitting signal passes; ignored.
+        """
+        self._refresh_unit_label()
+        if self._points is not None:
+            self.recompute()
+
+    def recompute(self) -> None:
+        """Re-score the cached point table. No file is re-read."""
+        if self._points is None:
+            return
+        cal = self.calibration()
+        cleaned, glitches, dropped = smooth_and_filter_tracks(
+            self._points, float(self._max_disp.value()))
+        tracks = track_metrics(cleaned, cal, int(self._min_len.value()))
+        if self._straightness_filter.isChecked() and not tracks.empty:
+            keep = tracks["straightness"] < float(self._straightness.value())
+            dropped_ids = {tuple(r[k] for k in TRACK_KEYS)
+                           for _i, r in tracks[~keep].iterrows()}
+            tracks = tracks[keep]
+            if dropped_ids and not cleaned.empty:
+                mask = [tuple(r) not in dropped_ids
+                        for r in cleaned[TRACK_KEYS].itertuples(index=False)]
+                cleaned = cleaned[mask]
+        self._tracks = tracks
+        self._summary = summarise(
+            tracks, cal, int(self._min_len.value()),
+            float(self._straightness.value()), glitches, dropped)
+        text = self._summary.summary()
+        caveat = cal.caveat()
+        if caveat:
+            text = caveat + "\n" + text
+        self._stats_label.setText(text)
+        self._render_plot(cleaned, tracks, cal)
+        if self._propagate_btn.isChecked():
+            self.propagate_settings()
+        self.preview_ready.emit(self._summary)
+
+    def _render_plot(self, points, tracks, cal: Calibration) -> None:
+        """Draw the motility figure at the plot label's current size.
+
+        A failed render becomes a message in the plot area rather than an
+        exception: the panel is a preview, and losing it should not take the
+        screen with it.
+
+        :param points: the per-object point table.
+        :param tracks: the linked tracks.
+        :param cal: the calibration the velocities are reported in.
+        """
+        try:
+            rgb = render_motility_figure(
+                points, tracks, cal, int(self._min_len.value()),
+                float(self._straightness.value()),
+                width_px=max(480, self._plot.width() or 1180),
+                height_px=max(200, self._plot.height() or 380))
+        except Exception as e:
+            LOG.debug("motility plot failed", exc_info=True)
+            self._plot.setText(f"Plot failed: {e}")
+            return
+        self._plot.setPixmap(numpy_to_qpixmap(rgb))
+
+
+    def _refresh_unit_label(self) -> None:
+        """Say which units velocities are in, or why they are only pixels per frame.
+
+        An unknown calibration is stated as a caveat in the warning colour
+        rather than left blank -- a velocity whose units nobody wrote down is
+        the failure this line exists to prevent.
+        """
+        cal = self.calibration()
+        if cal.known:
+            self._unit_label.setText(
+                f"Velocities reported in {cal.unit} "
+                f"(×{cal.factor:.4g} from px/frame).")
+            self._unit_label.setStyleSheet("color: #9fd39f;")
+        else:
+            self._unit_label.setText(cal.caveat())
+            self._unit_label.setStyleSheet("color: #ffcc44;")
+
+
+    def _selected_group_key(self):
+        """The (plate, well, field) key the field dropdown is showing.
+
+        Widget and dict reads only -- no file is touched.
+
+        :returns: the key, or ``None`` when no plate is loaded. ``_fov_box``
+            and ``_group_box`` are the same combo under two names, so the
+            two callers that used to ask separately now agree by
+            construction.
+        """
+        try:
+            return self._group_box.currentData() or next(iter(self._groups))
+        except (StopIteration, RuntimeError):
+            return None
+
+    def _refresh_plane_layout(self) -> None:
+        """Read the selected group's plane count OFF the GUI thread, then apply.
+
+        THE SIBLING OF THE DRAG FIX, and the same freeze. `_autodetect_planes`
+        and `_plane_count` each opened the group's first merged array right
+        here with ``np.load(..., mmap_mode="r")`` -- twice per plate load and
+        twice per change of field, on the GUI thread, on a path the user
+        supplied. Worse, one of those calls sat in `_on_plate_scanned`, the
+        callback that installs a freshly scanned plate: the scan itself was
+        already threaded and the step immediately after it was not, so a
+        sleeping ``autofs`` share froze the application at exactly the moment
+        the panel looked like it had finished loading.
+
+        Coalesced the way :meth:`spacr.qt.chaining.ChainingBar._refresh`
+        coalesces: one read in flight, one catch-up flag, so holding an arrow
+        key on the field dropdown asks the question twice rather than once
+        per keystroke -- and the last answer is never the one dropped.
+        """
+        key = self._selected_group_key()
+        metas = (self._groups or {}).get(key) or []
+        merged = self._merged_dir
+        filename = str(metas[0]["filename"]) if metas else ""
+        if not merged or not filename:
+            self._apply_plane_layout(0)
+            return
+        if self._plane_busy:
+            self._plane_again = True
+            return
+        self._plane_busy = True
+        self._plane_token += 1
+        token = self._plane_token
+        self._plane_jobs.submit(
+            lambda _dir=merged, _name=filename: read_plane_count(_dir, _name),
+            lambda planes, _t=token: self._on_planes_read(_t, planes))
+
+    def _on_planes_read(self, token: int, planes) -> None:
+        """Adopt a plane count that has landed. GUI thread only.
+
+        :param token: the generation this read belongs to. A read that a
+            newer plate or a newer field has superseded is DROPPED, because
+            applying it would set the spinners from the wrong array.
+        :param planes: whatever :func:`read_plane_count` returned.
+        """
+        if token != self._plane_token:
+            LOG.debug("dropping a superseded motility plane count")
+            return
+        self._apply_plane_layout(int(planes or 0))
+
+    def _apply_plane_layout(self, planes: int) -> None:
+        """Install a known plane count in the spinners and the dropdown.
+
+        :param planes: the count just read, or 0 when it could not be read.
+        """
+        self._planes = int(planes or 0)
+        self._autodetect_planes()
+        self._refresh_source_selectors()
+
+    def _on_plane_job_settled(self, _ok: bool) -> None:
+        """Release the one-in-flight slot, then run the coalesced catch-up.
+
+        Connected to ``job_finished``, which fires for EVERY job -- including
+        one that raised and one whose result was dropped as stale, neither of
+        which reaches :meth:`_on_planes_read`. Clearing the flag anywhere
+        else would let a single failed read wedge the panel's plane layout
+        shut for the rest of the session.
+
+        :param _ok: whether the job succeeded. Not consulted: the flag has to
+            be released either way.
+        """
+        try:
+            if self._plane_jobs.pending_jobs():
+                return
+        except RuntimeError:
+            LOG.debug("plane runner already deleted", exc_info=True)
+            return
+        self._plane_busy = False
+        if self._plane_again:
+            self._plane_again = False
+            self._refresh_plane_layout()
+
+    def _autodetect_planes(self) -> None:
+        """Set the mask plane indices from the CACHED plane count.
+
+        Cheap and GUI-thread-safe: ``self._planes`` was read on a worker by
+        :meth:`_refresh_plane_layout`. A count of 0 means the array could not
+        be read (or has not been read yet) and the spinners keep the values
+        they had -- the same soft failure the inline ``except`` used to give.
+        """
+        planes = int(getattr(self, "_planes", 0))
+        if planes <= 0:
+            return
+        n_channels = int(self._n_channels.value())
+        tracked, pathogen = default_plane_layout(planes, n_channels)
+        self._tracked_plane.setValue(tracked)
+        self._pathogen_plane.setValue(
+            pathogen if pathogen is not None else -1)
+
+
+    def _plane_count(self) -> int:
+        """Planes held by the first merged array of the selected group.
+
+        From the cache :meth:`_refresh_plane_layout` fills; this opens no
+        file. 0 before the first read lands, and whenever one failed.
+        """
+        return int(getattr(self, "_planes", 0))
+
+    def _refresh_source_selectors(self) -> None:
+        """Re-fill the channel dropdown for the selected field of view.
+
+        Reads nothing: the plane count comes from :meth:`_plane_count`, which
+        is a cached integer. Safe to call from anywhere on the GUI thread.
+        """
+        populate_channel_combo(
+            self._channel_box, self._plane_count(), include_all=False,
+            keep=f"Ch {int(self._tracked_plane.value())}")
+
+    def _sync_plane_spin_from_combo(self) -> None:
+        """Push the dropdown's plane into the tracked-mask-plane spinner."""
+        index = selected_channel(self._channel_box)
+        if index is None or int(self._tracked_plane.value()) == int(index):
+            return
+        self._tracked_plane.setValue(int(index))
+
+    def _sync_plane_combo_from_spin(self, *_args) -> None:
+        """Reflect a spinner-side plane change in the dropdown."""
+        box = getattr(self, "_channel_box", None)
+        if box is None:
+            return
+        index = box.findText(f"Ch {int(self._tracked_plane.value())}")
+        if index < 0 or index == box.currentIndex():
+            return
+        blocked = box.blockSignals(True)
+        try:
+            box.setCurrentIndex(index)
+        finally:
+            box.blockSignals(blocked)
+
+    def display_channel(self) -> Optional[int]:
+        """Merged-array plane the preview reads objects from."""
+        return selected_channel(self._channel_box)
+
+    def _on_display_channel_changed(self, *_args) -> None:
+        """Adopt the newly selected plane and drop the stale point table."""
+        if not hasattr(self, "_tracked_plane"):
+            return
+        self._sync_plane_spin_from_combo()
+        self._points = None
+        self._tracks = None
+        self._invite_rerun()
+
+    def _invite_rerun(self) -> None:
+        """Say the cache was dropped. Reading merged arrays is the expensive
+        half of this panel, so it stays an explicit ``Run preview`` — never a
+        side effect of touching a dropdown."""
+        if self._groups:
+            self._status.setText(
+                "Field / plane changed — run the preview to read it.")
+
+    def _on_group_changed(self, *_):
+        """Drop the cached table and re-read the new field's plane layout.
+
+        The plane read is dispatched, not performed: `_refresh_plane_layout`
+        opens the array on a worker and coalesces, so holding an arrow key on
+        the field dropdown cannot queue one file open per keystroke.
+        """
+        self._points = None
+        self._tracks = None
+        self._refresh_plane_layout()
+        self._invite_rerun()
+
+    def _on_tracked_object_changed(self, name: str) -> None:
+        """Move the tracked mask plane to the chosen object's slot."""
+        n = int(self._n_channels.value())
+        offset = {"cell": 0, "nucleus": 1, "pathogen": 2}.get(name, 0)
+        self._tracked_plane.setValue(n + offset)
+
+    def _on_propagate_toggled(self, on: bool) -> None:
+        """Push the tuned settings into the main panel when the toggle goes on.
+
+        :param on: the toggle's new state; turning it off pushes nothing, since
+            what was already propagated stays propagated.
+        """
+        if on:
+            self.propagate_settings()
+
+    def _pick_folder(self):
+        """Ask for a plate folder and load it off the GUI thread."""
+        path = QFileDialog.getExistingDirectory(
+            self, "Choose a plate folder holding merged/*.npy")
+        if path:
+            self.load_folder_async(path)
+
+    def closeEvent(self, event):
+        """Let a running read finish before the widget is torn down.
+
+        A ``QThread`` collected while running aborts the process; the worker
+        outlives the emit that produced its result by a few instructions.
+
+        :param event: the close event, passed on to the base class after any
+            running worker has been waited for (up to five seconds each).
+        """
+        self.shutdown()
+        for worker in (self._worker, getattr(self, "_retired_worker", None)):
+            if worker is not None:
+                try:
+                    worker.wait(5000)
+                except RuntimeError:
+                    LOG.debug("worker already deleted", exc_info=True)
+        super().closeEvent(event)
+
+
+def build_motility_preview_card(host):
+    """Build the ``Motility preview`` card + panel pair.
+
+    Mirrors ``spacr.qt.screens.hyperparam.build_hyperparam_card``: returns
+    the pair without adding it to any layout.
+
+    :param host: the :class:`AppScreen` asking for the card.
+    :returns: ``(panel, card)``.
+    """
+    from .card import Card
+    card = Card(title="Motility preview")
+    panel = MotilityPreviewPanel(card)
+    card.body_layout.addWidget(panel)
+    card.setMinimumHeight(320)
+    return panel, card

@@ -1,0 +1,35 @@
+{
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "OPS: fra sekvenseringsbilder til strekkoder for celler",
+  "description": "Last inn OPS-testdataene, velg bilde- og dekodingsinnstillinger, kjør analysen og finn strekkodetilordningene i utdatadatabasen.",
+  "objectives": [
+    "Åpne OPS i Mask og laste inn eksempelbildene og strekkodebiblioteket.",
+    "Velge inn- og utdatamapper og forstå de viktigste innstillingene for justering og dekoding.",
+    "Kjøre OPS og undersøke strekkodetilordningene for cellekjerner i utdatadatabasen."
+  ],
+  "prerequisite": "Åpne spaCR. Bruk Load test data i OPS for eksemplets sekvenseringsbilder og guidebibliotek. For ditt eget eksperiment klargjør du TIFF-filer for sekvenseringssyklusene med opptaksfilnavnene deres og en tilsvarende CSV-fil med strekkodebiblioteket.",
+  "scenes": [
+    "Fra Home åpner du Mask og slår deretter på OPS. Denne siden tar imot bilder fra sekvenseringssykluser og tilordner dekodede strekkoder til cellekjerner.",
+    "Klikk på Load test data. Eksemplet inneholder to bildeposisjoner over elleve sekvenseringssykluser og et tilsvarende strekkodebibliotek. Når innlastingen er ferdig, fyller spaCR ut feltene for inndata, bibliotek, plate og utdata.",
+    "Under OPS input kontrollerer du mappen med sekvenseringsbilder og CSV-filen med strekkodebiblioteket. Velg et mål for resultatene. Eksemplet skriver til mappen ops_output i det nedlastede prosjektet.",
+    "La mappen for fenotypebilder stå tom i dette eksemplet. Når du har et tilsvarende fenotypeopptak, velger du mappen her for å registrere hvordan synsfeltene samsvarer med sekvenseringsbildene.",
+    "Under OPS alignment velger du modellen for kjernesegmentering. Diameter angir forventet kjernestørrelse i piksler. Raster overlap beskriver overlappingen mellom nabofliser i opptaket; bruk verdien fra opptaket ditt. Behold eksemplets innstillinger i denne første kjøringen.",
+    "Window overlap styrer hvor mye nabovinduer i segmenteringen deler. Verdien bør være større enn den største kjernen, slik at objekter ved vinduskantene kan tas med hele. Å øke den gir lengre behandlingstid.",
+    "Under OPS decoding angir du de fire basekanalene i rekkefølgen G, T, A, C. Eksemplet bruker CY3, A594, CY5 og CY7. For egne bilder må navnene samsvare med kanalnavnene i TIFF-filnavnene.",
+    "Read threshold styrer hvor lys en flekk må være for å telle som en lesning. Høyere verdi velger sterkere flekker; lavere verdi tar med svakere flekker og mer bakgrunn. Footprint styrer hvor langt utenfor en kjerne en lesning kan ligge og likevel bidra til strekkoden.",
+    "Slå på Store reads hvis du vil undersøke de enkelte lesningene senere. Det lagrer en ekstra tabell og bruker mer diskplass. La det være av for en kompakt første kjøring.",
+    "Kontroller OPS performance og trykk deretter på Run. GPU aktiverer akselerasjon der det er tilgjengelig. Workers styrer hvor mange synsfelt som dekodes samtidig; senk verdien hvis minnet er begrenset. Følg fremdriften i Console.",
+    "Når Console viser Finished, åpner du Help, deretter Database Browser, og velger measurements.db i den valgte utdatamappen. Ved siden av har hver brønn en mappe, her A1, med OPS-rapporten som inneholder dekodingssammendraget og eventuelle advarsler.",
+    "Tabellen ops_barcodes gir hver kjerne strekkode, lesestøtte og tilsvarende guide; ops_objects inneholder de samme kjerneidentifikatorene med bildekoordinatene deres. Disse identifikatorene er broen til resten av screeningen: koble strekkodene til fenotypemålingene gjennom dem, og aggreger deretter for Regression. Oppbevar databasen, rapportene og innstillingene samlet."
+  ]
+}

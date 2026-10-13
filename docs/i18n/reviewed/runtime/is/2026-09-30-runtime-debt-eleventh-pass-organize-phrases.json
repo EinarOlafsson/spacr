@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: the two workflow-map phrases the Make Masks re-layout rewrote (FEATURES became Organize for Measure), re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "translation": "Veldu pör mynda/gríma fyrir þjálfun bútunar, eða notaðu Raða fyrir Measure til að sameina myndir og grímur þeirra í fylki sem Measure les. Vistun grímu þjálfar ekki flokkara."
+    },
+    {
+      "table": "ui",
+      "key": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "aafb7c2b254b3d128e14e0af31ff2cac483a4c60b11f9ee8ef6b371bbbbdac77",
+      "translation": "Notaðu Raða fyrir Measure til að sameina myndir og grímur þeirra í fylkin sem Measure les; stakar grímur eru ekki sameinuð fylki."
+    }
+  ]
+}

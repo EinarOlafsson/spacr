@@ -1,0 +1,35 @@
+{
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Report: lav et dokument ud fra projektresultater",
+  "description": "Vælg et færdigt projekt, vælg outputformat og figurgrænse, og generér og læs derefter rapporten.",
+  "objectives": [
+    "Vælge et færdigt projekt og undersøge de tilgængelige rapportafsnit.",
+    "Indstille format, figurgrænse og navn på outputfilen.",
+    "Generere rapporten og undersøge dens resultater, indstillinger og oprindelse."
+  ],
+  "prerequisite": "Begynd med et færdigt spaCR-projekt, der indeholder de gemte indstillinger, målinger og figurer. Du kan genbruge projektet fra vejledningen External Masks. Report samler filer, der allerede findes i projektet.",
+  "scenes": [
+    "Åbn Help og derefter Report. Brug værktøjet til at samle et færdigt projekts resultater, figurer og indstillinger i ét dokument.",
+    "Klik på Choose run folder, og vælg dit projekt. I dette eksempel bruger du projektet med to synsfelter fra External Masks og holder målinger, indstillinger og figurer samlet.",
+    "Læs behandlingsstatus efter scanningen. Complete betyder, at de registrerede behandlingstrin er gennemført. Gennemgå de tilgængelige kvalitetskontrolresultater separat, når du vurderer analysen.",
+    "Se på listen over afsnit, hvilke projektelementer der er tilgængelige. Et manglende afsnit står stadig med overskrift i rapporten. Tilføj de relevante analyseoutput til projektet, hvis du har brug for det afsnit.",
+    "Vælg HTML, PDF eller Both under Format. HTML åbnes i en browser; PDF giver en dokumentversion. Eksemplet bruger HTML.",
+    "Indstil Embed at most for at begrænse antallet af rasterfigurer i dokumentet. Vektor-PDF'er vises som kildefiler i stedet for indlejrede forhåndsvisninger. Brug en lavere grænse til en kompakt rapport.",
+    "Klik på Choose output, og indtast navnet på destinationsfilen. Kontrollér, at det valgte format og filendelsen stemmer overens. Før du deler rapporten, gennemgår du de projektstier og metadata, den indeholder.",
+    "Tryk på Generate report, og vent på bekræftelsen af, at filen er skrevet. Åbn den gemte HTML-fil i en browser for at undersøge resultatet.",
+    "Brug linkene i indholdsfortegnelsen til at springe mellem afsnit. Begynd med behandlingsoversigten, og gennemgå derefter figurer, resultattabeller og gemte indstillinger.",
+    "Åbn Key figures for at finde projektets figurer. Følg de angivne filplaceringer for vektor-PDF'er, eller undersøg indlejrede rasterforhåndsvisninger, når de findes.",
+    "Gennemgå Statistics and result tables for de tilgængelige objekttabeller og deres antal rækker. Dette eksempel med kun celler har matchende celle- og cytoplasmaområder, så behandl dem som målinger af de samme celler.",
+    "Fold Saved settings ud for at undersøge den konfiguration, der er gemt med projektet. Hold rapporten sammen med projektfilerne, når du deler en analyse, der henviser til eksterne figurer."
+  ]
+}

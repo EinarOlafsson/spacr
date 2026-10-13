@@ -1,0 +1,123 @@
+{
+  "scope": "Complete final-source original API GPU checkpoint and full failed terminal log, followed by normal strict 18-record source/context admission. Exactly eight SCN blocks in five locales failed the original audit. API CPU repair is now independent of the untouched runtime GPU/store; all-nine catalog acceptance remains pending. Revised idle continuation, upload and deployed-source browser code is preparation, not acceptance. No live runtime/API repair/narration log is read or archived.",
+  "API_symbols": 13199,
+  "API_input_sha256": "8e60f24b491d76e32b8542c3ba265d8cfa4863c0f46966209ccf75a0777cef83",
+  "original_API_exit": 1,
+  "original_failed_blocks": {
+    "sv": 2,
+    "de": 1,
+    "hi": 2,
+    "ko": 2,
+    "is": 1
+  },
+  "complete_original_API_source_checkpoint_files": 1925,
+  "complete_original_checkpoint_bytes": 92613213,
+  "complete_original_checkpoint_sha256": "ee67cb804c9f44fac61d4dbec3d684b83355979b7430fb73a0f700df4e204baf",
+  "parts": [
+    {
+      "path": "features/data/615_final_independent_API_context_2026-10-06_r2/original-complete-API-source-checkpoint.zip.part00",
+      "bytes": 33554432,
+      "sha256": "c3103f883d757d6fa95841d80ed4e75dbde3892c8d3ab7dcc00552e3345c6be6"
+    },
+    {
+      "path": "features/data/615_final_independent_API_context_2026-10-06_r2/original-complete-API-source-checkpoint.zip.part01",
+      "bytes": 33554432,
+      "sha256": "58e768f6b0b12d5840392a660a45094cb6990e52c338a9df49401cf49dc924e8"
+    },
+    {
+      "path": "features/data/615_final_independent_API_context_2026-10-06_r2/original-complete-API-source-checkpoint.zip.part02",
+      "bytes": 25504349,
+      "sha256": "4a1ad152fc6d92c52a1fdd3f86ae570b6e2037a021178edca293a1b03897323d"
+    }
+  ],
+  "artifacts": [
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-API-normal-GPU-refresh-r1.log",
+      "original_bytes": 17188,
+      "original_sha256": "eabba70871942f9906771979e0de45302be43905289d1fb0aed32869d19f9b89",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/final-API-normal-GPU-refresh-r1.log.gz",
+      "archive_sha256": "68ccc1251e6926c33fe8dee3cfbebbc0339f1cc7c8fa4b2dfcbb561a3e2236e7"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-independent-API-review-admission-r2.log",
+      "original_bytes": 938,
+      "original_sha256": "e0c365acfc4e572913dcbb78715c23cd942c43e72e2176cf3468ae26cf5729c8",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/final-independent-API-review-admission-r2.log.gz",
+      "archive_sha256": "2e7f84ed6ccdfd1b63c622be79da7511beaa1d0aff2a5fe40c2a7aff528146e2"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-independent-API-review-admission-r2.json",
+      "original_bytes": 248292,
+      "original_sha256": "a416cd2866d230d1c8185f3a15e9018032d3a5babe9055daea29817572a461a7",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/final-independent-API-review-admission-r2.json.gz",
+      "archive_sha256": "059f33b2fba970f2e4af475ba5c2f9381c82a9690e0c5a3c7e36de3448d9de8a"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-independent-catalog-controller-adjustment-r2.json",
+      "original_bytes": 855,
+      "original_sha256": "af24c851114ca2906b679caa7f94b96985b4200842db07d029a0d159daa5f14e",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/final-independent-catalog-controller-adjustment-r2.json.gz",
+      "archive_sha256": "cc9c09fcfb2518bac1455d1e4ed883e954fc0becffcefec04533badd4926fd16"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/prepare_final_independent_API_recovery_r2.py",
+      "original_bytes": 4832,
+      "original_sha256": "14fbd9ec82f33ff2f80f4c30f548ee8ff3d857f90f19055f61b3f73713caaf0f",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/prepare_final_independent_API_recovery_r2.py.gz",
+      "archive_sha256": "1912ccfac00e4a641a0311bc8f80da29e877af8ce8cb24cb827bdeb3807f7aa8"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/admit_final_independent_runtime_reviews_r2.py",
+      "original_bytes": 2172,
+      "original_sha256": "673807fb9c33f4759b92649ce5924fb5c86c9e584d32209cbaa885521055e8a4",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/admit_final_independent_runtime_reviews_r2.py.gz",
+      "archive_sha256": "b351d18320919509f34bdc6bbb546d5c06bf39737cae5c903fb01fdeb3547292"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_independent_catalog_recovery_r2.py",
+      "original_bytes": 5223,
+      "original_sha256": "e05efd67f0238a90c34a0312d6611ab8f03f134aca30b1a34b835c013ff77dac",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/continue_final_independent_catalog_recovery_r2.py.gz",
+      "archive_sha256": "fda30a776a22475a2664046407037a88e691a2ba42505e53d5f536c901caa35c"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_post_recovery_docs_r2.py",
+      "original_bytes": 2916,
+      "original_sha256": "dd3cbf1613bc71c832c97f9a9293230f313b1f85abbe6c5b6c24be1d24bcced6",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/continue_final_post_recovery_docs_r2.py.gz",
+      "archive_sha256": "6adbedf801b77e7346574f5dcdb2f18f35905aa962257daa099fa86ad3e4e278"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_current_docs_browsers_r2.py",
+      "original_bytes": 1819,
+      "original_sha256": "c1be1d2978e50ecec0608970d19fe26e052ccef1cdec89baf0422e9b50c6ac13",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/continue_final_current_docs_browsers_r2.py.gz",
+      "archive_sha256": "f10a85166ff452006d6614ba8f461375f2deed20f8a3441685467622cad8d882"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_immutable_tutorial_upload_r1.py",
+      "original_bytes": 3184,
+      "original_sha256": "04b205f148ce9c0ae86ac1590931fb6207c2e0782e35bc796e6f60a7ac951ce3",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/continue_final_immutable_tutorial_upload_r1.py.gz",
+      "archive_sha256": "0eae995996a608c8e037d41ec4eff1a6810d175d3780258fb2bf1fde08261662"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_final_deployed_API_guide_browsers_r1.py",
+      "original_bytes": 10065,
+      "original_sha256": "744c3a5e12f617a957bc304f7bf92541903c01f539b7cf20684d182f9d63c646",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/verify_final_deployed_API_guide_browsers_r1.py.gz",
+      "archive_sha256": "0ea7f5e56e7627147570e13f6536383dca898c0718cdab369163774ae0398179"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/archive_final_independent_API_context_r2.py",
+      "original_bytes": 3947,
+      "original_sha256": "67bacc310b871bd72fdec052fe9c530025f1f75768a364384dd1728b0f90b3bc",
+      "archive_path": "features/data/615_final_independent_API_context_2026-10-06_r2/archive_final_independent_API_context_r2.py.gz",
+      "archive_sha256": "282d672f8f7ec3e7122a4cf9344b263b4debe32710822d3fff9fc8f0a515512a"
+    }
+  ],
+  "strict_source_context_review_records_admitted": 18,
+  "runtime_review_store_changed_by_API_admission": false,
+  "all9_current_catalog_acceptance": false,
+  "published": false
+}

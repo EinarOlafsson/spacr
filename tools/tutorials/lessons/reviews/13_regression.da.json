@@ -1,0 +1,38 @@
+{
+  "lesson": "13_regression",
+  "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Regression: fra parrede tabeller til resultater",
+  "description": "Par fænotypescorer med guideoptællinger, vælg en inferensmetode, kør eksemplet, og udforsk resultater for guides og gener.",
+  "objectives": [
+    "Indlæse parrede score- og optællingstabeller og vælge en outputmappe.",
+    "Indstille inferensmetode, rapporteringsniveau og analyseenhed.",
+    "Køre eksemplet og undersøge resultaterne sammen med den tilhørende diagnostik."
+  ],
+  "prerequisite": "Åbn Regression, og vælg Load test data for at få fire parrede score- og optællingstabeller. Brug en ny outputmappe. En måledatabase er valgfri til denne analyse af scorer og optællinger; visninger på objektniveau kræver de tilsvarende måledata og billeder.",
+  "scenes": [
+    "Fra Home åbner du Regression. Dette modul relaterer fænotypescorer til guidernes forekomst. Begynd med én scoretabel og én optællingstabel pr. plade, og vælg derefter, hvordan sammenhænge skal testes og rapporteres.",
+    "I Input Tables klikker du på Load test data og venter, til eksemplet er indlæst. Det indeholder fire scoretabeller og fire optællingstabeller, parret efter plade.",
+    "Undersøg hver parret række, og kontrollér pladenavnet, scorefilen og optællingsfilen. Lad den valgfrie kolonne til måledatabasen være tom i dette eksempel. Vælg en ny outputmappe til analysen.",
+    "Skift til All settings, og brug søgefeltet til at finde Inference. Vælg nonparametric til dette eksempel med guidepermutation. Brug en parametrisk metode, når dit spørgsmål og dit design kræver, at flere prædiktorer tilpasses samtidig.",
+    "Level bestemmer, hvilke resultater der rapporteres. Vælg both for at få resultater både for guides og for gener. Hold disse testfamilier adskilt, når du gennemgår justeret signifikans.",
+    "Vælg well som analyseenhed i dette eksempel. Gennemgå responskolonnen, transformationerne, kontrollerne og de udelukkede brønde. Tilpas indstillingerne til designet af din egen screen, før du kører nye data.",
+    "Mindste guidestøtte styrer, hvor mange brønde en guide skal findes i, før den testes. Sæt den til 2 for at følge dette lille eksempel. Vælg et støttekrav, der passer til dit forsøg.",
+    "Indstil 199 permutationer til en hurtig første kørsel. Flere permutationer giver en finere opløsning af den empiriske p-værdi og tager længere tid. Vælg et højere antal, når din endelige analyse kræver det.",
+    "Sæt permutationsseedet til 0 for at gentage den samme randomisering. Behold eksemplets pladeblokke og støjleddene for række og kolonne. Til dine egne data vælger du blokke, der respekterer, hvilke observationer der kan ombyttes ifølge forsøgsdesignet.",
+    "Vælg none i Annotation source for at køre eksemplet uden opslag af genannoteringer. Til en anden screen vælger du annoteringer, der passer til dens organisme og identifikatorsystem.",
+    "Ryd søgningen, kontrollér de parrede input og outputmappen, og klik derefter på Run. Følg konsollen, mens modulet afstemmer tabellerne, filtrerer guides og beregner resultaterne. Diagnostikfigurerne dannes sammen med analysen.",
+    "Når kørslen er færdig, åbner du Runs og vælger den gemte analyse. Bekræft mappen og indstillingerne, før du sammenligner den med en anden kørsel. Kør analysen igen efter ændrede indstillinger, hvis du vil have nye resultater.",
+    "Åbn Results, og brug Level til at skifte mellem guide- og genresultater. Undersøg resultattabellen og de interaktive visninger. De gemte filer results_grna.csv og results_gene.csv indeholder de tilsvarende tabeller til videre analyse.",
+    "Åbn visningen af p-værdier og værktøjet Diagnostics. Gennemgå fordelingen af resultaterne sammen med permutationsopløsningen, testfamilien og advarslerne om designet. Løs vigtige diagnostiske problemer, før du fortolker sammenhænge.",
+    "Brug værktøjslinjen til at åbne Volcano Explorer, Hit List eller Investigate Hit som næste trin. Deres vejledninger viser, hvordan du undersøger udvalgte resultater. Hold inputtabeller, gemte indstillinger, resultatfiler og diagnostikrapporter samlet, når du deler analysen."
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "base_commit": "c4c94a808a1d4ce79db3072d34cc52bf05b5f0b3",
+  "captions": [
+    "Save on navigation",
+    "Save an edited mask before Keep, Discard, Next or Previous. If saving fails, stay on this image without recording a verdict. Off by default; Skip still writes no mask."
+  ],
+  "created_utc": "2026-10-08T22:24:32.289428+00:00",
+  "final_commit": "e113e3fdf48306b3433ba0773f2baf5601813364",
+  "inventory": "inventory_delta.json: API 13232 to 13232 with zero added/removed/changed; runtime UI 7288 to 7290 with exactly two added strings and no other table changes. Three new helper docstrings are private, so none is a published API record.",
+  "item": "N680",
+  "limits": "Focused CPU checks only. This archive does not claim hosted CI, original serial acceptance, translated catalogs, or user-visible guide publication.",
+  "payloads": {
+    "final-12.log": {
+      "bytes": 99,
+      "sha256": "b68e5257ccacf86877579b4dfe97be2e9b981338e3bbee80621d481d69056447"
+    },
+    "final-25.log": {
+      "bytes": 100,
+      "sha256": "1493e58e46e512144e9c0176db2b341e2cb874d197aa8a5e9c083d947febd3b6"
+    },
+    "inventory_delta.json": {
+      "bytes": 2355,
+      "sha256": "6608178739437c9c768386896cd4a694c90dad3858b6824a39988aa2006afb10"
+    },
+    "inventory_probe.py": {
+      "bytes": 3036,
+      "sha256": "de742a1229b731cb059830c5a5b8d04714a1684b26b835a055cec52a739106a1"
+    },
+    "source.patch.gz": {
+      "bytes": 2317,
+      "sha256": "6d2eb3bda6182dbed24610ebb42977ec9d03dfd43579029ceb23fd2273596440"
+    }
+  },
+  "reader": "inventory_probe.py reads public_docstrings() and canonical_sources() in isolated c4/e113 subprocesses, rejects foreign spaCR imports, and writes no generated catalogs",
+  "source": "spacr/qt/screens/make_masks.py",
+  "source_git_blob": "e890956f0e353c549b6d5c9da9aad3dd4384cbd9",
+  "source_patch": "source.patch.gz contains the byte-exact git diff c4..e113 for make_masks.py; decompress before git apply --check on c4",
+  "source_sha256": "2f0366ad04df2c608c68a62b1591925722d45eab424ef50640f9f7f82944cde9",
+  "test_git_blob": "d553a97ca97b280e0840e6619759d2ac126a7130",
+  "validation": {
+    "earlier_tool_only": {
+      "note": "These earlier results were returned by the capped tool but no raw log file was saved; final-source replacement logs are included.",
+      "original_12": "12 passed in 13.34s",
+      "original_25": "25 passed in 24.23s",
+      "post_alias_12": "12 passed in 12.65s",
+      "raw_logs_retained": false
+    },
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "NumPy": "2.5.2",
+      "PySide6": "6.11.2",
+      "QT_QPA_PLATFORM": "offscreen",
+      "cgroup_cap": "4G",
+      "pytest": "9.1.1",
+      "python": "3.12.13"
+    },
+    "final_12": {
+      "log": "final-12.log",
+      "result": "12 passed in 9.66s",
+      "selectors": [
+        "tests/qt/test_make_masks_save_on_navigation.py"
+      ]
+    },
+    "final_25": {
+      "log": "final-25.log",
+      "result": "25 passed in 18.13s",
+      "selectors": [
+        "tests/qt/test_make_masks_save_on_navigation.py",
+        "tests/qt/test_make_masks_yolo_boxes_save_boundaries.py",
+        "tests/qt/test_make_masks_yolo_boxes_session_boundaries.py"
+      ]
+    }
+  }
+}

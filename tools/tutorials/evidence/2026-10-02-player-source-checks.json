@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "date": "2026-10-02",
+  "items": [
+    "N43",
+    "N601"
+  ],
+  "scope": "Source-only player revision. This is not evidence of a media upload or Pages deployment.",
+  "published": false,
+  "historical_manifest_sha256": "bfbd22241617d19538518849c9582b6200af0d3d783b760c8f964a98b55ffefc",
+  "historical_media_commit": "6d8def47e0240627cfe9b655d8d73e6b2403273d",
+  "index_sha256": "a2c09ae377ce2d9bc6657e0cfc126dc49efdde64c55ec40fbd12227cedec67bc",
+  "cache_key": "20261002-home-landscape",
+  "assets": {
+    "app_v2.js": {
+      "sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+      "published_sha256": "58a42129a21c2008d9b68ed1c2012942c13403b43965f81d9b92043484d2cae9",
+      "bytes": 92929
+    },
+    "styles.css": {
+      "sha256": "48d77dd48b09ebbdbdb3a66983b0dd0b2c25d32f9d8717a030cba0485b12a7e3",
+      "published_sha256": "bee7e11147cd09da6627795df1f2fedeca98f80067c0395c8d50e73238926463",
+      "bytes": 35608
+    }
+  },
+  "browser_checks": {
+    "passed": true,
+    "player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+    "receipt": "/tmp/spacr-ui-evidence/601/source-current-stage/browser-web/05_home/en-af_heart-sentence-cues/playback-checks.json",
+    "receipt_sha256": "9957595407d6a682d45e6b6e5b2e4916642049f4b3d0cdea426d57f0c77129de",
+    "lesson": "05_home",
+    "scope": "en/af_heart playback and scene links only",
+    "scene_count": 14,
+    "checks": [
+      "loaded narration hash",
+      "scene seek audio/video clocks",
+      "chapter and transcript links",
+      "sentence cue boundaries",
+      "full web-rendition playback"
+    ],
+    "environment": "Headless desktop Chromium; not a native mobile device.",
+    "command": "tools/tutorials/verify_staged_lesson.py --stage /tmp/spacr-ui-evidence/601/source-current-stage --lesson 05_home --language en --voice af_heart --web-rendition --sentence-cues",
+    "resources": "4 GiB memory.max, zero swap, actual CPU1 affinity, configured CPUQuota100%."
+  },
+  "preserved": [
+    "Historical release-manifest.json and publication-receipt.json are unchanged.",
+    "Narration remains the stable playback clock; explicit seek/load boundaries alone may move it.",
+    "No hosted media or external site was changed."
+  ],
+  "focused_tests": {
+    "command": "python -m pytest -q tests/test_docs_media_budget.py::test_narration_is_the_stable_mobile_clock tests/test_docs_media_budget.py::test_source_player_receipt_rejects_drift",
+    "passed": 4,
+    "seconds": 0.41,
+    "log": "/tmp/spacr-ui-evidence/601/source-current-tests.log",
+    "log_sha256": "dff9851771949a794e02483c09b1fee45aa3969fda67891437c04c281b2c8a96",
+    "resources": "1 GiB memory.max, zero swap, actual CPU2 affinity, configured CPUQuota100%."
+  }
+}

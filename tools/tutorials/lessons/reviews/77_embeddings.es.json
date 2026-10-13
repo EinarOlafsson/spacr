@@ -1,0 +1,32 @@
+{
+  "lesson": "77_embeddings",
+  "english_sha256": "fa2d38e241cdc746d2971e944f97e9f10198b0c9615f3fd3ea439452efa44871",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Embeddings: cargar recortes y comparar políticas de canales",
+  "description": "Carga recortes de imagen desde Home, elige el codificador y la política de canales, ejecuta Embed y revisa la vista previa de características.",
+  "objectives": [
+    "Cargar una carpeta de recortes desde la pantalla Embeddings.",
+    "Elegir la red base, el tamaño de lote y la política de canales.",
+    "Revisar la vista previa de los vectores y guardar los resultados completos con el script de Python proporcionado."
+  ],
+  "prerequisite": "Instala spaCR con su extra de embeddings. Descarga el ejemplo de Annotate y localiza plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. Para el pequeño ejemplo mostrado, copia los primeros dieciséis PNG, en orden alfabético de nombre de archivo, a una carpeta nueva. La primera ejecución del codificador descarga los pesos preentrenados si no están en caché. El archivo opcional Embeddings_API_example.zip incluye un script auxiliar para guardar las matrices completas.",
+  "scenes": [
+    "Desde Home, abre Embeddings en Data. Cargarás recortes de imagen, elegirás cómo se codifican sus canales y generarás un vector numérico de características por objeto.",
+    "Elige crop folder en Crops from. También puedes usar una base de datos de mediciones cuando quieras seleccionar una clase de objeto, una placa o una condición. Este recorrido usa la carpeta de recortes del ejemplo descargable de Annotate.",
+    "Copia dieciséis PNG de ejemplo en una carpeta de trabajo. Escribe la ruta de esa carpeta y pulsa Enter, o usa Browse. Pon At most en dieciséis y haz clic en Load crops.",
+    "Lee el número de recortes cargados, su tamaño y su número de canales. El ejemplo contiene dieciséis imágenes de doscientos veinticuatro píxeles de lado, con tres canales guardados. Comprueba la correspondencia de canales de la exportación de recortes antes de comparar resultados.",
+    "Elige Per channel para codificar cada canal por separado y concatenar sus características. Deja resnet18 como Backbone y pon Batch en cuatro para esta ejecución pequeña. Los lotes más pequeños reducen el uso de memoria.",
+    "Haz clic en Embed y espera la vista previa. El ejemplo genera dieciséis vectores de objeto con mil quinientas treinta y seis dimensiones. La tabla muestra solo las primeras dimensiones y, en ejecuciones más grandes, hasta cincuenta objetos.",
+    "Selecciona Project to three y vuelve a hacer clic en Embed. Así se codifica la imagen combinada en lugar de cada canal por separado. Usa los mismos recortes y la misma red base al comparar las dos políticas.",
+    "El ejemplo proyectado tiene quinientas doce dimensiones por objeto. Guarda la política de canales y la configuración del codificador junto con los resultados. Usa los vectores completos en el análisis posterior; las dimensiones individuales no son mediciones biológicas.",
+    "Por ahora, la pantalla ofrece una vista previa sin botón de exportación. Para guardar las matrices completas, descarga el script auxiliar de Python enlazado y sigue su README. Escribe los vectores, los nombres de archivo de los objetos, la configuración y gráficos exploratorios en una carpeta de salida nueva."
+  ]
+}

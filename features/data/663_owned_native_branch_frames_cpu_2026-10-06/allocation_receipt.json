@@ -1,0 +1,42 @@
+{
+  "scope": "scratch separate instrumentation of Python-visible QImage constructors/copies, not all native internal allocations; no instrumentation in live benchmark",
+  "records": [
+    {
+      "theme": "data_art_fungal_growth",
+      "variant": "before",
+      "frames": 5,
+      "constructors": 1,
+      "copies": 5,
+      "retained_engine_frame_bytes": 33177600,
+      "published_frame_bytes": 33177600
+    },
+    {
+      "theme": "data_art_thore",
+      "variant": "before",
+      "frames": 5,
+      "constructors": 1,
+      "copies": 5,
+      "retained_engine_frame_bytes": 33177600,
+      "published_frame_bytes": 33177600
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "variant": "after",
+      "frames": 5,
+      "constructors": 5,
+      "copies": 0,
+      "retained_engine_frame_bytes": 0,
+      "published_frame_bytes": 33177600
+    },
+    {
+      "theme": "data_art_thore",
+      "variant": "after",
+      "frames": 5,
+      "constructors": 5,
+      "copies": 0,
+      "retained_engine_frame_bytes": 0,
+      "published_frame_bytes": 33177600
+    }
+  ],
+  "peak_rss_kib": 939528
+}

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Anomalies",
+      "source": "Anomalies",
+      "source_sha256": "ac2064ecc29b9f28aad2ec70593b35cc35ce0e72b916797d830d681300eb3c44",
+      "translation": "Anomalien"
+    },
+    {
+      "table": "ui",
+      "key": "Export anomalies…",
+      "source": "Export anomalies…",
+      "source_sha256": "274b416b0d88c5e64536011691a62f0dff278982e339a485e1c0580e53270494",
+      "translation": "Anomalien exportieren…"
+    },
+    {
+      "table": "ui",
+      "key": "Known hits",
+      "source": "Known hits",
+      "source_sha256": "c0a5fdfe5f6f4c14224f0061b164fc4d3cb876a69bc65e22d93489f4eb9ab6dd",
+      "translation": "Bekannte Treffer"
+    },
+    {
+      "table": "ui",
+      "key": "Outlier quantile",
+      "source": "Outlier quantile",
+      "source_sha256": "872668ac47d7a60506fedeab416c4b8ab9185590f73289c1324bb259ba104b02",
+      "translation": "Ausreißer-Quantil"
+    },
+    {
+      "table": "ui",
+      "key": "Write the anomaly report into",
+      "source": "Write the anomaly report into",
+      "source_sha256": "b6539b0ec5e1a881283bcbdb5cf5d52e00dc6807365803461ee71ce0e170ab26",
+      "translation": "Anomaliebericht schreiben in"
+    },
+    {
+      "table": "ui",
+      "key": "anomaly report written to {folder}",
+      "source": "anomaly report written to {folder}",
+      "source_sha256": "aa15a6b16f33d39899d41d61b69640032af71b97f6c69b18ea5e02509c890015",
+      "translation": "Anomaliebericht geschrieben nach {folder}"
+    }
+  ]
+}

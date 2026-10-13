@@ -1,0 +1,119 @@
+{
+  "feature": 288,
+  "date": "2026-09-23",
+  "base_commit": "b1c6b807e3c66f810cf00d9aacae7c3b0dee7b19",
+  "problem": "Visible warm-up dialogs lose their last external strong reference before the next constructor; qtbot keeps only weak references. Cycle collection can destroy the previous window during the next constructor.",
+  "ci": {
+    "run": 35843528487,
+    "job": 107124572626,
+    "test": "tests/qt/test_every_settings_window_resizes.py::TestEverySettingsWindow::test_it_opens_at_the_size_it_always_did[annotate._SettingsDialog]",
+    "outcome": "worker segmentation fault during garbage collection",
+    "later_run": 35844861880,
+    "later_outcome": "same test passed; full run cancelled, demonstrating intermittent failure"
+  },
+  "reproduction": {
+    "python": "3.12.4",
+    "pyside6": "6.11.2",
+    "qt": "6.11.2",
+    "filelock": "3.32.3",
+    "platform": "offscreen",
+    "memory_cap": "8G",
+    "swap_cap": 0,
+    "stress_plugin": "import gc\n\ndef pytest_sessionstart(session):\n    gc.set_threshold(100, 5, 5)\n",
+    "ordinary_sweep": {
+      "passed": 278,
+      "seconds": 56.53
+    },
+    "full_stressed_sweep": "SIGSEGV at the same Annotate warm-up test",
+    "narrow_stressed_sweep": "SIGSEGV at the same Annotate warm-up test",
+    "native_frames": [
+      "QScreen::handle / QCursor::pos(QScreen const*)",
+      "offscreen platform",
+      "QWindowPrivate::setVisible(bool)",
+      "QDialog::~QDialog()",
+      "shiboken wrapper deallocation",
+      "CPython cycle collection"
+    ],
+    "debugger_exit_caveat": "Full gdb wrapper exited 0 despite inferior SIGSEGV; narrow wrapper exited 1 because the follow-up variable query used the wrong frame. Native signal/stack, not wrapper status, establish the crash."
+  },
+  "change": {
+    "file": "tests/qt/test_every_settings_window_resizes.py",
+    "after_sha256": "b43eae55e9f3bd112cacdc1784c75d2cfc5e799f2f576c123a2b08ff05fe2381",
+    "behavior": "Keep a strong dialog reference throughout measuring. Close and delete each owned warm-up in finally and deliver its DeferredDelete before constructing the next one.",
+    "unchanged": [
+      "production runtime",
+      "size equality and convergence conditions",
+      "test count",
+      "coverage gates",
+      "application dependency pins"
+    ]
+  },
+  "validation": {
+    "qt611_stressed_dialogs": {
+      "passed": 278,
+      "warnings": 1,
+      "seconds": 51.85
+    },
+    "qt611_stressed_theme_console": {
+      "passed": 89,
+      "seconds": 17.64
+    },
+    "qt611_console_baseline": {
+      "passed": 57,
+      "seconds": 13.9
+    },
+    "qt610_full_cohort": {
+      "passed": 367,
+      "warnings": 1,
+      "seconds": 65.73,
+      "files": [
+        "tests/qt/test_every_settings_window_resizes.py",
+        "tests/qt/test_theme_uncovered_paths.py",
+        "tests/qt/test_471c_screens_a_to_f_sections_fold.py"
+      ]
+    }
+  },
+  "artifacts": {
+    "qt611-resize-baseline.log": {
+      "sha256": "a2c0a7ab023a7869a10824455329bbc2559c140d2765c415776a3b84be555caa",
+      "bytes": 41141
+    },
+    "qt611-gc-stress.log": {
+      "sha256": "4c89ed2a40df9f95a706132cd99df6a27f53f70f5cdd93116175a851c8e86a25",
+      "bytes": 59206
+    },
+    "qt611-gc-narrow-before.log": {
+      "sha256": "cc873ac68b5e01b41d6bf3d79d67286bdb132f2cf1f6ef5a5091b0907fe61c62",
+      "bytes": 11849
+    },
+    "qt611-gc-fixed.log": {
+      "sha256": "caa95a60af592c0c1658955356dddf4de722bc8ce9feccff4451f7e089a1e0b5",
+      "bytes": 41141
+    },
+    "qt611-fold-console.log": {
+      "sha256": "fa457d31d397aa07a9b34565c57d7c8715dcfb057673f8f843b5ccfc306de74b",
+      "bytes": 100
+    },
+    "qt611-related-final.log": {
+      "sha256": "9b1043534577000490f4bcb81c689459823ea7334c8fda501bcdacc8601022a2",
+      "bytes": 180
+    },
+    "gc_stress.py": {
+      "sha256": "5d1bffe357befc56740f4eb3ef525ef4892dcbde8b588c074060603fb5434ec8",
+      "bytes": 77
+    },
+    "resize-test-before.py": {
+      "sha256": "d2af0c89a502b9cb97cdf5f1839e08a7acb4bd50732633ffbaaae0d67b094440",
+      "bytes": 44252
+    },
+    "qt610-dialog-final.log": {
+      "sha256": "7fb8ef7a632b5161d64ab4cc564296ac50b598bd2db93f81391f441d83128bea",
+      "bytes": 1154
+    }
+  },
+  "limitations": [
+    "Full remote CI has not verified this change yet.",
+    "A separate console-pane assertion in the cancelled run is not reproduced by its 57-test local cohort; no runtime fix claimed.",
+    "No claim to repair all Qt crashes or a general upstream Qt defect."
+  ]
+}

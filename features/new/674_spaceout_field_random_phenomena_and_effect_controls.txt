@@ -1,0 +1,38 @@
+================================================================================
+DEFAULT SPACEOUT FIELD WITH ELEGANT RANDOM PHENOMENA
+================================================================================
+
+Status:    in progress — unchanged by N684 apart from GPU and Dynamic animation; aesthetic acceptance open
+Requested: 2026-10-08
+Owner:     Home/root and reused CPU theme/preferences lanes; workstation API/docs/translations/tutorials
+
+WHAT THE STATE IS
+
+The user wants a Spaceout-only version of spaCR field as the default Spaceout theme. It should remain crisp and interactive while developing elegant, unpredictable visual phenomena.
+
+WHAT TO DO
+
+Add a separate Spaceout field variant and make it the default for Spaceout. Keep ordinary spaCR field intact and retain explicit selection of other Spaceout themes.
+
+Allow several simultaneously active points to push and pull the field into mountains and valleys. Let these disturbances either release gradually to a calm layer or release with damped elastic oscillation before settling. Add randomly placed whirlwinds. Support both synchronized increases/decreases in dot density and asynchronous density waves across the screen. Add travelling waves of dot colour and spirals of colour.
+
+Do not run every effect at once. Use bounded, randomized timing, varied durations, calm intervals and smooth transitions; avoid a visibly repeating scripted sequence. Mouse gravity, clicking and the existing held-field spring must continue to work during all effects. Detail, size, density, speed and background/palette controls still apply, and CPU/memory use must stay bounded with no GPU requirement.
+
+In Spaceout-mode Preferences, add a spaCR field dropdown or collapsible section with independent persisted boolean settings for attractors, gradual relaxation, elastic release, whirlwinds, synchronized density pulses, asynchronous density waves, colour waves and colour spirals. These controls belong to Spaceout and must not alter ordinary field animation. Save, Cancel and live application must follow existing Preferences behavior.
+
+HOW TO KNOW IT WORKED
+
+Focused capped CPU/Qt checks cover fresh Spaceout defaults and ordinary-mode exclusion, all eight saved toggles, Save/Cancel, live effect changes, each effect's visible geometry or colour/density behavior, calm recovery, damped elastic release, bounded overlapping events and memory, deterministic seeded reproduction without frame-rate-dependent scheduling, mouse interaction during effects, resize/detail/density controls and hidden animation stopping. Existing field, popup, gravity and grab regressions must pass. Record software checks separately from human aesthetic or native-display acceptance.
+
+2026-10-08 — Registered the explicit implementation request. Reused theme and preferences agents are implementing isolated lanes; source inventory and translation regeneration follow the final combined source freeze. GitHub tests remain the primary priority, and no test ceiling or correctness assertion is waived.
+
+2026-10-08 13:40 EDT — Home final private0527 source transferred in data/649_674_spaceout_edit_source_handoff_2026-10-08. Fourteen selected CPU/Qt files212PASS47.25s under4G; phases overlap earlier proofs. Exact nine source payloads and normal inventory diff verified. Final catalogs, coherent app publication/current GitHub/fullserial acceptance remain pending; no 100% or native frame-rate claim.
+
+2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-08 23:01 EDT — Signed 3D relief projection, normal-based lighting, stronger vortex rotation, richer colour-wave/spiral traversal and first-minute geometry scheduling implemented. All existing switches, grain count, bounds, clock seeks and calm/disabled equivalence retained. Owning47PASS; actual1280x720 previews inspected. Native/user visual and current hosted acceptance remain pending.
+
+2026-10-10 — N684: Spaceout field frames use the GPU point renderer when
+no colour-wave/spiral event is active and Animation GPU allows it; colour
+events stay on the CPU path. Dynamic animation pauses it during CPU-heavy
+jobs. Phenomena unchanged; human aesthetic acceptance remains open.

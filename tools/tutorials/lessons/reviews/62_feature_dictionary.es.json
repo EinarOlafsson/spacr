@@ -1,0 +1,32 @@
+{
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Feature Dictionary: buscar definiciones y unidades",
+  "description": "Busca por nombre de medición o por concepto, lee la definición y las unidades, y copia el texto de referencia que te sea útil.",
+  "objectives": [
+    "Encontrar una definición por nombre o por concepto.",
+    "Acotar los resultados con los filtros de concepto y de objeto.",
+    "Leer las unidades y las notas, y luego copiar la definición."
+  ],
+  "prerequisite": "Ten a mano el nombre de una columna de medición, o empieza con una idea como tamaño o intensidad. El diccionario integrado se puede abrir sin cargar un proyecto.",
+  "scenes": [
+    "Abre Help y luego Feature Dictionary. Usa esta ventana cuando quieras entender una columna de medición de una tabla de resultados o de un gráfico.",
+    "Escribe size en el campo de búsqueda y selecciona Area en los resultados. La definición aparece a la derecha, y la lista de coincidencias se actualiza mientras escribes.",
+    "Elige un concepto y un tipo de objeto para acotar las definiciones. Prueba intensity y cell. Vuelve a poner los selectores en Any concept y Any object para una búsqueda más amplia.",
+    "Busca cell_channel_1_mean_intensity y selecciona Mean intensity. Lee el estadístico y las unidades para entender qué describe la columna.",
+    "Desplázate hacia abajo hasta Channel, Module y Computed by para ver más detalle. Usa la función de cálculo indicada como punto de partida en la referencia de la API.",
+    "Busca cell_area y lee Unit. En mediciones bidimensionales representa un área; en mediciones tridimensionales representa un volumen. Comprueba las unidades de medida registradas en tu proyecto antes de convertir valores.",
+    "Lee Note para ver matices, como valores ya expresados en unidades físicas. Para obtener un diccionario de las columnas que realmente hay en una base de datos, usa describe_database y export_dictionary desde Python.",
+    "Si ninguna definición coincide, limpia los filtros y prueba un término más amplio o el nombre exacto de la columna. Las características personalizadas pueden necesitar la documentación del flujo de trabajo que las creó.",
+    "Selecciona el texto de la definición y cópialo en tus notas. Usa las funciones de exportación de Python cuando necesites un archivo de diccionario propio del proyecto, y luego vuelve a tu tabla o gráfico."
+  ]
+}

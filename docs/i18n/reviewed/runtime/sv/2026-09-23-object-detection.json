@@ -1,0 +1,28 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Object detection ({model}) running…",
+      "source": "Object detection ({model}) running…",
+      "source_sha256": "ce2de8d28ac721ef43ca0673854c1c800cb7b1a5e4948a995f41408f3359e13c",
+      "table": "ui",
+      "translation": "Objektdetektering ({model}) pågår…"
+    },
+    {
+      "key": "Detection result discarded because the field or mask changed. Run detection again to use the current field.",
+      "source": "Detection result discarded because the field or mask changed. Run detection again to use the current field.",
+      "source_sha256": "fe47a783cd177b8d1982cf569b2355c9c050a5e3807dc76a85509f24c98f4ee3",
+      "table": "ui",
+      "translation": "Detekteringsresultatet kasserades eftersom bildfältet eller masken ändrades. Kör detekteringen igen för att använda det aktuella bildfältet."
+    },
+    {
+      "key": "Object detection failed",
+      "source": "Object detection failed",
+      "source_sha256": "1e91f706f8fbded4c04c503f4a6a45ccd353db078d986e51916e4d0df692a625",
+      "table": "ui",
+      "translation": "Objektdetekteringen misslyckades"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of asynchronous object-detection progress, failure and discarded-result captions; format field preserved. No native-speaker sign-off.",
+  "schema": 1
+}

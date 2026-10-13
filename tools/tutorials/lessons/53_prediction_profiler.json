@@ -1,0 +1,139 @@
+{
+  "id": "53_prediction_profiler",
+  "number": 53,
+  "slug": "prediction_profiler",
+  "title": "Prediction Profiler: explore a fitted model",
+  "series": 5,
+  "app_key": "profiler",
+  "section": "Explore",
+  "description": "Load model coefficients, vary one input while holding others fixed, and inspect predicted responses.",
+  "objectives": [
+    "Load coefficients with the correct model link.",
+    "Sweep one input and adjust held values.",
+    "Inspect response curves and sensitivity."
+  ],
+  "example_files": [
+    "SYNTHETIC_profiler_example.zip"
+  ],
+  "prerequisite": "Download the synthetic coefficient example, or use coefficients from a suitable fitted model. Match its link and input encoding. The coefficient-file route assumes input ranges of zero to one; separate marginal effects are not substitutes for a jointly fitted prediction model.",
+  "scenes": [
+    {
+      "visual": "01_regression_host",
+      "narration": "Open Regression, then Prediction Profiler to explore predicted responses from a fitted model. The linked example uses synthetic data.",
+      "focus": [
+        460,
+        45,
+        3340,
+        540
+      ],
+      "related_lessons": [
+        "13_regression"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_explicit_synthetic_coefficients_picker",
+      "narration": "Download and unzip the example, then Browse to the synthetic OLS coefficients CSV. Include the intercept when supplying your own fitted coefficients.",
+      "focus": [
+        890,
+        390,
+        1920,
+        1080
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_link_options_keep_identity",
+      "narration": "Set Link to the function used by the fitted model. Keep identity for this ordinary least-squares example.",
+      "focus": [
+        2910,
+        465,
+        900,
+        610
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_loaded_identity_model",
+      "narration": "Check the range information after loading. The coefficient-file route assumes each input spans zero to one. Confirm that this matches your intended use before interpreting the curves.",
+      "focus": [
+        470,
+        530,
+        3320,
+        240
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_hold_b_at_one",
+      "narration": "Select Input A for the sweep. Move the held Input B slider to one and inspect the resulting response curve.",
+      "focus": [
+        1480,
+        590,
+        2320,
+        1440
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_hold_b_at_zero",
+      "narration": "Move B to zero and compare the response values. Watch the axis scale as well as the line, because the plot may rescale.",
+      "focus": [
+        1480,
+        590,
+        2320,
+        1440
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_reset_midpoints",
+      "narration": "Click Reset held values to return the sliders to the midpoints of their assumed ranges, one half in this example.",
+      "focus": [
+        1470,
+        1435,
+        2330,
+        660
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_sweep_second_input",
+      "narration": "Select Input B in the ranked list to sweep B while holding A fixed. The ranking summarizes model sensitivity over its configured input ranges.",
+      "focus": [
+        470,
+        590,
+        3330,
+        940
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_eleven_grid_points",
+      "narration": "Change Points to choose the number of positions evaluated along the plotted curve. Eleven gives a coarser grid than sixty-one without changing the fitted model.",
+      "focus": [
+        1480,
+        465,
+        2320,
+        1040
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_hold_a_at_one",
+      "narration": "Adjust the held values to explore further scenarios, then reset when finished. Interpret the curves as model predictions and assess real experimental effects with appropriate data.",
+      "focus": [
+        1480,
+        590,
+        2320,
+        1490
+      ],
+      "related_lessons": [
+        "06_api",
+        "75_regression_diagnostics"
+      ],
+      "hold_after": 0.7
+    }
+  ],
+  "host_app_key": "regression"
+}

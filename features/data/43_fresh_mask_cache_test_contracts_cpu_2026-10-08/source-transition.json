@@ -1,0 +1,14 @@
+[
+  {
+    "path": "tests/qt/test_main_window.py",
+    "before_sha256": "f20ade0ffbe12d7d88e0d1621a3b81186ffcb063836ca5c0f4f976dad2f42b9b",
+    "after_sha256": "852f270622cdf197ace83b61a60bdb1b097c3d89a04d492c6f0f9440b8feb691",
+    "replacements": 1
+  },
+  {
+    "path": "tests/qt/test_cov_wf_qt_app.py",
+    "before_sha256": "0a390835a4b99ad9289eb7885b04119389eda0b840938556644428c0db6941b7",
+    "after_sha256": "debd30f2fbc01063d180176b9e7c19b68c1f59bc241ea1d559323e5ef2b38c07",
+    "replacements": 1
+  }
+]

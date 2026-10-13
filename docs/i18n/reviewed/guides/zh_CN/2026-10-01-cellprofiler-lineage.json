@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Direct Codex AI translation with independent Codex agent technical review; no human/native signoff",
+  "author": "root",
+  "reviewer": "shared_ui",
+  "source_file": "docs/source/workflows.rst",
+  "source_file_sha256": "1ecf55a967a9f6e649143edb15aa22047fce748773beaedef0358b3cb06f9bf6",
+  "records": [
+    {
+      "source": "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment.",
+      "source_sha256": "9f621bb68c2ef7d0a408d244d71714caa546bdcc83a7493dc46a294945a60921",
+      "translation": "启用测试阶段功能后，使用 ``cellprofiler_pipeline`` 旁的保存图标导出随附示例。该示例要求两个图像通道：``_ch0.tif`` (DNA) 和 ``_ch1.tif`` (Actin)，以及 ``_nucleus_mask.tif`` (Nuclei) 和 ``_cell_mask.tif`` (Cells)。运行前，请根据您的数据调整其通道和对象定义。保存成功后会选中导出路径；取消或保存失败时保留原先选择。CellProfiler 在其独立环境中运行。"
+    },
+    {
+      "source": "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames.",
+      "source_sha256": "40a65cde8ee13fb15954992027ea9d86b5cd959d0a0bea3445bffc11a67daa15",
+      "translation": "谱系导出保留以帧为单位的世代时间，并添加 ``generation_time_hours`` 及经过校准的汇总统计量。请提供正数 ``frame_interval_s``，或在轨迹表中提供完整、递增的 ``time_s`` 值。如果两者都存在，则必须一致；不设固定间隔时可使用不规则时间戳。缺少校准或细胞周期不完整时，不提供以小时为单位的世代时间。导出表会记录校准来源和单位。树的坐标轴和 Newick 分支长度仍以帧为单位。"
+    }
+  ],
+  "review": "Each message read against source; settings identifiers, filenames, timing agreement and missing calibration, save/cancel/failure behavior and unchanged frame units retained. Accepted without corrections."
+}

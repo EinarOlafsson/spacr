@@ -1,0 +1,74 @@
+{
+  "feature": "F580",
+  "date": "2026-10-02",
+  "status": "partial; gain-preview UI implemented",
+  "source_base": "87a27c66597aacd5c6c31084bc67906008477135",
+  "behavior": [
+    "Existing alpha-gated Measure reference-well control opens a read-only gain table.",
+    "Exact production calibration planning on private settings; saved QC exclusions and independent source-folder plans retained.",
+    "Camera offset, uint16 working rescale and mask-plane exclusion use existing Measure implementation.",
+    "Test mode and remote paths rejected; no test folder, database, journal or image writes.",
+    "Threaded planning, stale-settings invalidation, cancellation, close-time worker parking and no overlapping preview scans.",
+    "Preview action adds height, not minimum width, to the existing editor; saved scalar/list values retain their original reader."
+  ],
+  "validation": {
+    "new_checks": 14,
+    "existing_calibration_checks": 19,
+    "unique_checks": 33,
+    "final_layout_checks": 2,
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "mode": "offscreen actual Qt mouse click opens real modal and executes real worker on two synthetic exposure sessions",
+    "render_size": [
+      1100,
+      850
+    ],
+    "source_settings_unchanged": true,
+    "production_gain_equality": true,
+    "plate2_gain": 0.5,
+    "ruff": "clean",
+    "resource_policy": "actual CPU0 affinity; MemoryMax=4GiB; MemorySwapMax=0; requested CPUQuota=100%",
+    "compact_action_fully_inside_narrow_viewport": true
+  },
+  "historical_real_evidence": {
+    "receipt": "features/data/538_541_580_real_data_validation_2026-09-30.json",
+    "fresh_rerun": false,
+    "source": "cpg0002-jump-scope P1 Phenix 2020-11-09 BIN2 versus 2020-11-11 BIN1",
+    "heldout_dmso_median_abs_deviation_pct": [
+      6.41,
+      6.55,
+      7.82,
+      2.79,
+      3.4
+    ],
+    "compound_median_abs_deviation_pct": [
+      7.17,
+      6.64,
+      7.56,
+      6.97,
+      5.92
+    ],
+    "median_bound_pct": 10,
+    "limits": "Binning changed; exposure metadata absent; p90 and some individual fields exceed 10%. Original scratch data/checker unavailable on this host. This is not a new independent acquisition or an exposure-only validation."
+  },
+  "remaining": [
+    "Source-bound nine-language runtime caption refresh.",
+    "Independent paired acquisition with known exposure difference remains unproven; F580 stays partial.",
+    "External bead folders, session-column mapping and reference-plate selection are not implemented."
+  ],
+  "artifacts": {
+    "captions.json": "16e907e235cd73ed7bf0db987b5a3a868d06a91ba9b87238b202766684af9be9",
+    "controls-dark.png": "47fed7620dcd155cf24c6d1a5463ab9702c5a584b37dd5e273b2823830183bb4",
+    "controls-light.png": "6b8e6c087e5b271ded5279399861e6bc1e9315c24654d43f5ccb6681506cd9a3",
+    "existing-calibration-and-initial-lifecycle.txt": "093c31dbce316540db685231a99bc28cd87b1190d53c522cbbe94481e5fb6d48",
+    "gains-dark.png": "03cccdff11874e7a816797eac5ae5722bd868ca3c82f2a29ae18fb3de75d962a",
+    "gains-light.png": "5b87620a78b25e2f219f4e3e8ae888cae455d140beac518954f48c5679d9234d",
+    "public-api-scope.json": "b47141093894968c5bc5e4e91276f6ba4fb2af38d8451211e9b24a99771cdce3",
+    "resources-final-cohort.json": "6e723ad27c5d1e8e6f0a8fdb80fd4b224385ea4841b84af8c2c5e8526dd7ebf9",
+    "resources-final-layout.json": "7a809848d4cb43ccf10e63d29679a9349a5eba21aed80bed93e20bf0f0a32de1",
+    "tests-final-cohort.txt": "12fc773192c800699110c0cbd5d8ac5e8fd20867a68203f836fbaaa8c4510320",
+    "tests-final-layout.txt": "c302b52dc230de5292d564270d85dc67a5f9bff4ccf8920027db4fee01d2d405"
+  }
+}

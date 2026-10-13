@@ -1,0 +1,33 @@
+{
+  "lesson": "70_explain_cv",
+  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Explain CV Model: sammenlign forudsigelser med målte egenskaber",
+  "description": "Indlæs tilsvarende forudsigelser og målinger, tilpas en surrogatmodel, og læs fideliteten, før du bruger egenskabsforklaringer.",
+  "objectives": [
+    "Matche måledatabasen med gemte klassifikatorforudsigelser.",
+    "Vælge forudsigelseskolonner, en beregningsmotor og tilbageholdte grupper.",
+    "Læse fidelitet, forvekslingsmatrix og gemte egenskabsoversigter."
+  ],
+  "prerequisite": "Brug measurements.db og forudsigelses-CSV-filen for de samme objekter fra Annotate/Classify-eksemplet. Vælg den gemte models klassebeslutninger som mål. Surrogatet har begrænset fidelitet i dette eksempel, så dets egenskabsattributioner bør ikke bruges til at forklare billedmodellen. Evaluer den oprindelige klassifikator separat med uafhængige data.",
+  "scenes": [
+    "Fra Home åbner du Classify og vælger derefter Explain CV Model øverst til højre. Forbered måledatabasen og de gemte forudsigelser for de samme udklippede objekter.",
+    "Vælg measurements.db og den tilsvarende forudsigelses-CSV. Kontrollér filnavne og objektidentiteter, før du fortsætter. Eksemplet bruger 234 gemte forudsigelser.",
+    "Bekræft forudsigelsesstien med Enter, hvis kolonnevalgene ikke er opdateret. Vælg filename til udklippets sti og predicted_label til modellens klassebeslutninger. Vælg Random Forest, gruppering pr. brønd og en ny outputmappe.",
+    "Klik på Explain model. Surrogatet bruger målte egenskaber til at genskabe de gemte klassebeslutninger. Vælg beregningsmotor og gruppering i denne formular; brug Python-API'et til flere tilpasningsmuligheder.",
+    "Læs Fidelity først. Her har 89 rækker fuldstændige egenskaber; 68 bruges til tilpasning, og 21 fra en anden brønd holdes tilbage. Sammenlign overensstemmelsen med baseline, og undersøg, hvilke rækker der blev udeladt.",
+    "Åbn Importance. I dette eksempel tilbageholder fidelitetskontrollen rangeringen. Gennemgå også navnene på udeladte egenskaber: en navnebaseret lækageadvarsel skal holdes op mod, hvad målingen faktisk indeholder.",
+    "Åbn Confusion for at sammenligne surrogatets beslutninger med billedmodellens. Her tildeles hvert tilbageholdt objekt klasse 1, hvilket giver 17 overensstemmelser og 4 forskelle. Kontrollér ydeevnen pr. klasse i stedet for kun at stole på den samlede overensstemmelse.",
+    "Per-cell SHAP beskriver det tilpassede surrogat. Når fideliteten er utilstrækkelig, kan disse værdier ikke forklare billedmodellen pålideligt. Behold denne begrænsning sammen med enhver eksporteret attributionstabel.",
+    "Åbn Correlations og Feature distributions for at undersøge målingerne. Disse tabeller i brugerfladen viser op til 1.000 rækker. Brug deres gemte CSV-filer til at undersøge de fulde oversigter.",
+    "Åbn Held-out cells for at se objektidentiteter og begge forudsigelser. Hold outputfiler, indstillinger og fidelitetsrapport samlet. Fortsæt med Evaluation-vejledningen, når du skal vurdere den oprindelige klassifikator."
+  ]
+}

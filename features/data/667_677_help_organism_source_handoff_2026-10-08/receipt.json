@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "baseline": "0527ae6fa01a0b06544213169a706dfbac9b0f84",
+  "checkpoint": "62a38906063d64f71bf2a4dcf25cca63ccd9f427",
+  "items": [
+    "N667",
+    "N677"
+  ],
+  "scope": "Incremental UI-only source after the accepted0527 packet: scrollable resizable Preferences help, translated inline-only Actions, Organism category, required-parameter docstring fields and explicit legacy-fractal fixture. Excludes already published CI retry tools/tests.",
+  "sources": {
+    "spacr/qt/app.py": {
+      "payload": "source-00.gz",
+      "sha256": "09d0c6bba96a90fad9f5278305cd36ffe6ad518d75c395bd4a87504d025f4721",
+      "raw_sha256": "2018ed9bf74352b39d26bdf1623b84f26ed5e17485c910ea951a8b48dd79f4bc"
+    },
+    "spacr/qt/preferences.py": {
+      "payload": "source-01.gz",
+      "sha256": "a460f9656e92daff332340ec0ec5e2ac422bf6845853c2b1208e377e70768b50",
+      "raw_sha256": "c2b9f79011f0eff4c1a2af98142d00d402940a1770bf67be7a56980a62c71db8"
+    },
+    "spacr/qt/screens/app_screen.py": {
+      "payload": "source-02.gz",
+      "sha256": "7bbfff47508e835ee0cb8b752f77f202a87740cdd8fb52b6e72cd474dee92fa4",
+      "raw_sha256": "92515a44aafdbab5551cf41867f052535c0ba88f72843d33f6047fc4402adaa4"
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "payload": "source-03.gz",
+      "sha256": "4b1e9a4e09f7d0ef4ab458525535cf4f59540e5839f8d4232229e11dab54f10b",
+      "raw_sha256": "272bd75f46bfa35ad56a8dd9f4dd0da75d96cc17f178a6a5d8675a6dd1a8bf6c"
+    },
+    "spacr/qt/widgets/gate_editor.py": {
+      "payload": "source-04.gz",
+      "sha256": "d3c0b60eac03d831bed163fb465c8cee290e09a056628a725da462786525f08d",
+      "raw_sha256": "cd6e971a656a576a197538af2b7ba7f24b150aef60edbcbe64db7f4919535716"
+    },
+    "spacr/qt/widgets/hint_bar.py": {
+      "payload": "source-05.gz",
+      "sha256": "84649dc5f190203e08efb0e6ed3d47e91e4c3ac553bafd67da92bb8c94d35301",
+      "raw_sha256": "b408a3f128a3fdb6fe4716dfb651d17c19acdbdb82c719be5351dfbe334b4e3b"
+    },
+    "spacr/qt/widgets/home.py": {
+      "payload": "source-06.gz",
+      "sha256": "fcb3c46abafde28c3c2de042f9203219d10876a11c948179927baaf0ef3a14a3",
+      "raw_sha256": "4450ce3e8365e37ef64163c91de18eb604d0c2ef2ed203af09ca33a2741d578f"
+    },
+    "tests/qt/test_cov_qt_app.py": {
+      "payload": "source-07.gz",
+      "sha256": "b57df9a12bfd19191bf0d9c37581d69bc223b88f6740405cefff7f8b8754541b",
+      "raw_sha256": "0e0aaec00b1ba4b2184188920c0107bb50926dcb96373e390ffb1c75b5a5f00d"
+    },
+    "tests/qt/test_fractal_changes_apply_without_a_restart.py": {
+      "payload": "source-08.gz",
+      "sha256": "94323285f2ecbde9a4dc2ac0e352a2ed4e47ed62b2bb32a2204e20246c1f4e43",
+      "raw_sha256": "14a0b5c796d7ff7c2dd95af96e3039b3a4e0f2b99ce56a1d99347f0a895e2aa7"
+    },
+    "tests/qt/test_home_v2.py": {
+      "payload": "source-09.gz",
+      "sha256": "d518f84f7ee12f2f76c072072222c625c81a9644cf18283874f25d77f281633a",
+      "raw_sha256": "58621b3d74cb457c3e726be2c387eb1619a0f8651a627633c04819ef863ceebc"
+    },
+    "tests/qt/test_n667_stable_action_help.py": {
+      "payload": "source-10.gz",
+      "sha256": "084248f5b4342c231769212e334998bc382f0186913eb1dcf1ad531b0a11ee09",
+      "raw_sha256": "3d43052c3ad79c819d9210e5393439c9b1aba5caa103455898a9e7c27fac910d"
+    },
+    "tests/qt/test_organism_dropdown.py": {
+      "payload": "source-11.gz",
+      "sha256": "73f862a06e9823a949579124c905c07f0a8643d5ffb22bbf750a7a3a50080c75",
+      "raw_sha256": "c8a310c948158e492e43ba67a7530953abdc9d20bf9492df0074ba64f632de61"
+    },
+    "tests/qt/test_preferences_explains_in_its_own_strip.py": {
+      "payload": "source-12.gz",
+      "sha256": "2492b8c8fbe92872a0f8e58a31ce07c31dc6aef9e43d0c7e58ef30293b8b6cf4",
+      "raw_sha256": "0f0b8656f9a43c97f31dbb85d28751f51c1c320e971c643a06a80fe1a432d393"
+    }
+  },
+  "patch": {
+    "payload": "source-and-tests.patch.gz",
+    "sha256": "2b671032c0417e458a214777ee265a9b94fcdfdbc700dab8f2d97754807796aa",
+    "raw_sha256": "e14e8e938394344caf8fba527a8ee7ea3129aa4a25d84b046172929069c6657f"
+  },
+  "inventory_diff": {
+    "payload": "normal-inventory-diff.json.gz",
+    "sha256": "b8b5733ec1fcecfd757f603acd6ee35d1fe1f16f743be3cf9e9c6516540a99b3",
+    "raw_sha256": "fd43debcab9c052ebf0bde19c6963b98ece286b3447350952a8c73774a2808fe"
+  },
+  "environment": {
+    "PySide6": "6.12.0 overlay",
+    "pytest": "8.4.2 overlay",
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg"
+  },
+  "phases": [
+    {
+      "tested_checkpoint": "828307f14e441c8817cc9ebd430261d0ff0ee76f",
+      "passing": false,
+      "terminal_summary": "7 failed, 227 passed in 90.40s (0:01:30)",
+      "payload": "home-ui-help-organism-final-612-20261008.log.gz",
+      "sha256": "72a73dca623f0516432ef8f0b0132a913017222c052f90076925623a73f4234a",
+      "raw_sha256": "76fc75b67888d0e5e1ed97914942443d814e3f9b2b6b85ec79b103092c9cdf0d"
+    },
+    {
+      "tested_checkpoint": "15e2ad0bdc5b0756943c9955207f0c3ae23fcfbb",
+      "passing": true,
+      "terminal_summary": "12 passed in 2.74s",
+      "payload": "preferences-help-root-612.log.gz",
+      "sha256": "fbf8303d9a89c570ebd9c3664d29e4fd51834caf6cad710c935438aecf4e1946",
+      "raw_sha256": "1d3b2f186daf02af202a04225e446a96c5cfe0092fb08451c402d1da2aa84e71"
+    },
+    {
+      "tested_checkpoint": "b8eeef003f93d99eff0107370f8693ebe7adbd8b",
+      "passing": false,
+      "terminal_summary": "1 failed, 279 passed in 103.67s (0:01:43)",
+      "payload": "home-ui-help-organism-intermediate-612-20261008.log.gz",
+      "sha256": "184c40832c50308df9ea2a7e82ed767468e07c24990223b35ee7b7bd34ea2cec",
+      "raw_sha256": "981e3697d54bb9b51e95c4bf62f575fedad21c98227deefbb16cac1dc0b281e7"
+    },
+    {
+      "tested_checkpoint": "62a38906063d64f71bf2a4dcf25cca63ccd9f427",
+      "passing": true,
+      "terminal_summary": "12 passed in 2.84s",
+      "payload": "preferences-help-painted-font-612.log.gz",
+      "sha256": "2c5eccb117fb54fb95da70091cdd31654e168f5e07720b8418303aa3efd2fb40",
+      "raw_sha256": "97aace87fca6833774508a46aa84cdf6491976d1038b7cdb8bab379570b5718c"
+    },
+    {
+      "tested_checkpoint": "62a38906063d64f71bf2a4dcf25cca63ccd9f427",
+      "passing": true,
+      "terminal_summary": "280 passed in 110.85s (0:01:50)",
+      "payload": "home-ui-help-organism-final-fixed-612-20261008.log.gz",
+      "sha256": "a864071231cc14148b143d2636d4ac243a0fad84ea8efa004099dd914738d3e4",
+      "raw_sha256": "49782cfa1aeef5e2d8585ffc8a5b0001869b8b30cefae57e7b18932a34069159"
+    }
+  ],
+  "limits": [
+    "Phase totals overlap; do not sum them.",
+    "Private source transfer is not application publication or current-source CI acceptance.",
+    "Workstation must remeasure combined source and regenerate API/callable/runtime translations normally.",
+    "N672/N673 geometry is separate and is not included.",
+    "No native compositor, GPU, full serial or human appearance acceptance is claimed."
+  ]
+}

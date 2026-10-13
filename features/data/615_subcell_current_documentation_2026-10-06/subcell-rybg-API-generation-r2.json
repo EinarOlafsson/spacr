@@ -1,0 +1,57 @@
+{
+  "languages": {
+    "sv": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "de": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "es": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "zh_CN": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "pt": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "hi": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "ko": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "is": {
+      "API": 13182,
+      "translated": [],
+      "normal_generation_functions_match_existing_CLI_path": true
+    },
+    "fr": {
+      "API": 13182,
+      "translated": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward",
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "normal_generation_functions_match_existing_CLI_path": true
+    }
+  },
+  "source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "all_nine_full_normal_CLI_audits_required_separately": true
+}

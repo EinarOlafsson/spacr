@@ -1,0 +1,6 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/runtime-audit-r6-tool.log', 'tools/build_i18n_catalogs.py', '--audit']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+verified external runtime catalogs: languages=9 settings=1243 categories=237 ui=7239 modules=77
+
+Terminal exit status: 0

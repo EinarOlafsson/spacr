@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openmicroscopy.org/Schemas/OME/2016-06 http://www.openmicroscopy.org/Schemas/OME/2016-06/ome.xsd" Creator="OME" UUID="urn:uuid:e2d1cfea-7206-42e8-befe-72a29e5b93c6">
+  <Plate ID="Plate:0" Name="Sample HCS OME-TIFF">
+    <Description>Sample HCS OME-TIFF fileset</Description>
+    <Well ID="Well:0:0" Row="0" Column="1">
+      <WellSample ID="WellSample:0:0:0" Index="1">
+        <ImageRef ID="Image:0"/>
+      </WellSample>
+    </Well>
+    <Well ID="Well:0:1" Row="1" Column="0">
+      <WellSample ID="WellSample:0:1:0" Index="2">
+        <ImageRef ID="Image:1"/>
+      </WellSample>
+    </Well>
+    <Well ID="Well:0:2" Row="1" Column="2">
+      <WellSample ID="WellSample:0:2:0" Index="3">
+        <ImageRef ID="Image:2"/>
+      </WellSample>
+    </Well>
+    <Well ID="Well:0:3" Row="2" Column="1">
+      <WellSample ID="WellSample:0:3:0" Index="4">
+        <ImageRef ID="Image:3"/>
+      </WellSample>
+      <WellSample ID="WellSample:0:3:1" Index="5">
+        <ImageRef ID="Image:4"/>
+      </WellSample>
+    </Well>
+  </Plate>
+  <Image ID="Image:0">
+    <Pixels ID="Pixels:0" DimensionOrder="XYZCT" SizeX="96" SizeY="96" SizeZ="1" SizeC="1" SizeT="1" Type="int8">
+      <Channel ID="Channel:0:0" Color="-1" SamplesPerPixel="1"/>
+      <TiffData FirstC="0" FirstT="0" FirstZ="0" IFD="0" PlaneCount="1">
+        <UUID FileName="well-A2.ome.tiff">
+          urn:uuid:939b4c9c-c297-4adb-a6ca-824342923f51
+        </UUID>
+      </TiffData>
+    </Pixels>
+  </Image>
+  <Image ID="Image:1">
+    <Pixels ID="Pixels:1" DimensionOrder="XYZCT" SizeX="96" SizeY="96" SizeZ="1" SizeC="1" SizeT="1" Type="int8">
+      <Channel ID="Channel:1:0" Color="-1" SamplesPerPixel="1"/>
+      <TiffData FirstC="0" FirstT="0" FirstZ="0" IFD="0" PlaneCount="1">
+        <UUID FileName="well-B1.ome.tiff">
+          urn:uuid:643b0c9f-2c45-4d5e-8e07-c6dbbd36c8c0
+        </UUID>
+      </TiffData>
+    </Pixels>
+  </Image>
+  <Image ID="Image:2">
+    <Pixels ID="Pixels:2" DimensionOrder="XYZCT" SizeX="96" SizeY="96" SizeZ="1" SizeC="1" SizeT="1" Type="int8">
+      <Channel ID="Channel:2:0" Color="-1" SamplesPerPixel="1"/>
+      <TiffData FirstC="0" FirstT="0" FirstZ="0" IFD="0" PlaneCount="1">
+        <UUID FileName="well-B3.ome.tiff">
+          urn:uuid:1666a11f-40b8-46bd-9cd8-196a7e4135f5
+        </UUID>
+      </TiffData>
+    </Pixels>
+  </Image>
+  <Image ID="Image:3">
+    <Pixels ID="Pixels:3" DimensionOrder="XYZCT" SizeX="96" SizeY="96" SizeZ="1" SizeC="1" SizeT="1" Type="int8">
+      <Channel ID="Channel:3:0" Color="-1" SamplesPerPixel="1"/>
+      <TiffData FirstC="0" FirstT="0" FirstZ="0" IFD="0" PlaneCount="1">
+        <UUID FileName="well-C2.ome.tiff">
+          urn:uuid:0ec1eba9-6147-43fb-8fc2-cd75cd16e981
+        </UUID>
+      </TiffData>
+    </Pixels>
+  </Image>
+  <Image ID="Image:4">
+    <Pixels ID="Pixels:4" DimensionOrder="XYZCT" SizeX="96" SizeY="96" SizeZ="1" SizeC="1" SizeT="1" Type="int8">
+      <Channel ID="Channel:4:0" Color="-1" SamplesPerPixel="1"/>
+      <TiffData FirstC="0" FirstT="0" FirstZ="0" IFD="0" PlaneCount="1">
+        <UUID FileName="well-C2-2.ome.tiff">
+          urn:uuid:6dd96c31-0f09-402a-918f-d691a7ef43ca
+        </UUID>
+      </TiffData>
+    </Pixels>
+  </Image>
+</OME>

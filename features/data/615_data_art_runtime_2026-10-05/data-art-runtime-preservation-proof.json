@@ -1,0 +1,65 @@
+{
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "languages": {
+    "en": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 2531,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "37e03a6a41e23e74b953035b0adf1fa728f2d6ddc5ab048541a211e2c9a3453d"
+    },
+    "sv": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "6baa683e2be1cb6bf78ac2bb7057073dbf1ac08518d444e7559ead392f48fda1"
+    },
+    "de": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "2c240c65dcb061c8754e75d00f462267213f5dfc7525e3df78ee83613b80c3df"
+    },
+    "es": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "4a01dc6044fb3b997f96917709d9235f8cd8ad1b6ef17ecd1540383617b4de76"
+    },
+    "zh_CN": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "422b6ab637541c6734688c6c0d6141cade04dfb85c3852ecb9d508be64d96b7c"
+    },
+    "pt": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "5565b61cf464ebfb411696ad488e8bf3337e7cdbe6a5187e3597251a41329489"
+    },
+    "hi": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "71e2a498809aa961689f71a1454c902c3f01b3520235c5f5e9cabb1f97940a5d"
+    },
+    "ko": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "647149dc58e39a8cd15af0085e6d634fb5c8b10cb0a9b7e9b6db3cfdcb79dad3"
+    },
+    "is": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "b49f8f02217fc376ea0b6f03c1e9939c7f4bd9ff35cd0698b610f3f558e1a762"
+    },
+    "fr": {
+      "new_reviewed_data_art_strings": 24,
+      "complete_previous_rows_preserved": 9833,
+      "all_previous_source_hashes_preserved": true,
+      "catalog_sha256": "66ff8357290b890a9a64ae8a159a9e945beac685ddce0170e4d35e06ef88ca45"
+    }
+  }
+}

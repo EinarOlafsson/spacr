@@ -1,0 +1,82 @@
+[
+  {
+    "label": "spacr.qt.night_themes#0",
+    "source": "Ten night palettes and twelve separate data-art presets.",
+    "context": "Ten night palettes and twelve separate data-art presets."
+  },
+  {
+    "label": "spacr.qt.night_themes#7",
+    "source": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+    "context": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules."
+  },
+  {
+    "label": "spacr.qt.night_themes.NightTheme#0",
+    "source": "One palette preset: its label, colours, backdrop and sound set.",
+    "context": "One palette preset: its label, colours, backdrop and sound set."
+  },
+  {
+    "label": "spacr.qt.night_themes.NightTheme#1",
+    "source": "stable identifier in the theme preference and palette map.",
+    "context": "stable identifier in the theme preference and palette map."
+  },
+  {
+    "label": "spacr.qt.night_themes.NightTheme#7",
+    "source": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key.",
+    "context": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key."
+  },
+  {
+    "label": "spacr.qt.night_themes.NightTheme.sound#0",
+    "source": "Key of an existing sound set; night presets keep their own.",
+    "context": "Key of an existing sound set; night presets keep their own."
+  },
+  {
+    "label": "spacr.qt.night_themes.ambient_for#1",
+    "source": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.",
+    "context": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`."
+  },
+  {
+    "label": "spacr.qt.night_themes.ambient_for#3",
+    "source": "if ``name`` is unknown.",
+    "context": "if ``name`` is unknown."
+  },
+  {
+    "label": "spacr.qt.night_themes.theme_for#0",
+    "source": "The night or data-art palette preset called ``name``.",
+    "context": "The night or data-art palette preset called ``name``."
+  },
+  {
+    "label": "spacr.qt.preferences#7",
+    "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+    "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`."
+  },
+  {
+    "label": "spacr.qt.preferences.apply_night_theme#0",
+    "source": "Write the backdrop and sound set a night or data-art preset brings.",
+    "context": "Write the backdrop and sound set a night or data-art preset brings."
+  },
+  {
+    "label": "spacr.qt.preferences.apply_night_theme#5",
+    "source": "a night or data-art preset key.",
+    "context": "a night or data-art preset key."
+  },
+  {
+    "label": "spacr.qt.preferences.set_theme_choice#1",
+    "source": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+    "context": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives."
+  },
+  {
+    "label": "spacr.qt.preferences.theme_choices#2",
+    "source": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
+    "context": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does."
+  },
+  {
+    "label": "spacr.qt.preferences.theme_description#1",
+    "source": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+    "context": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`."
+  },
+  {
+    "label": "spacr.qt.theme#1",
+    "source": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+    "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable."
+  }
+]

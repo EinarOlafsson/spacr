@@ -1,0 +1,325 @@
+<!doctype html>
+<html class="no-js" lang="ko" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="색인" href="genindex.html"><link rel="search" title="검색" href="search.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>spaCR guide acceptance 문서</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="#"><div class="brand">spaCR guide acceptance  문서</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+  
+  <span class="sidebar-brand-text">spaCR guide acceptance  문서</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="검색" name="q" aria-label="검색">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/plate_barcode_linkage.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <aside class="spacr-guide-translation" lang="ko" data-review-kind="AI technical review (Codex), no native-speaker signoff"><p class="spacr-guide-translation__label">번역된 사용자 가이드</p><p>AI 기술 검토(Codex), 원어민 검수 없음. <span lang="en">(AI technical review (Codex), no native-speaker signoff)</span> <span class="spacr-guide-translation__swatch"></span>아직 번역되지 않았거나 영어 원문이 바뀐 단락은 영어로 표시됩니다. <a href="../plate_barcode_linkage.html">영어 원문</a></p></aside><section id="link-plate-barcodes-to-sample-metadata">
+<h1>플레이트 바코드와 시료 메타데이터 연결<a class="headerlink" href="#link-plate-barcodes-to-sample-metadata" title="Link to this heading">¶</a></h1>
+<p><strong>측정</strong>에서 Preferences의 <strong>알파 기능 표시</strong>를 활성화하고 <strong>Plate Barcode Linkage (Alpha)</strong>를 엽니다. <code class="docutils literal notranslate"><span class="pre">plate_barcode_source</span></code>를 테이블 또는 LIMS 서비스 URL로 설정합니다. 연결 작업은 측정 후에 실행됩니다.</p>
+<p>로컬 CSV, TSV, Excel 또는 Parquet 테이블에는 바코드 열, 웰 열, 연결할 시료 메타데이터가 필요합니다. 예:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">barcode</span><span class="p">,</span><span class="n">well</span><span class="p">,</span><span class="n">strain</span><span class="p">,</span><span class="n">compound</span><span class="p">,</span><span class="n">concentration</span>
+<span class="n">BC001</span><span class="p">,</span><span class="n">A01</span><span class="p">,</span><span class="n">RH</span><span class="p">,</span><span class="n">DMSO</span><span class="p">,</span><span class="mi">0</span>
+<span class="n">BC001</span><span class="p">,</span><span class="n">A02</span><span class="p">,</span><span class="n">RH</span><span class="p">,</span><span class="n">pyrimethamine</span><span class="p">,</span><span class="mi">2</span>
+</pre></div>
+</div>
+<p>바코드 열의 이름이 다르면 <code class="docutils literal notranslate"><span class="pre">plate_barcode_column</span></code>을 설정합니다. <code class="docutils literal notranslate"><span class="pre">plate_barcodes</span></code>는 촬영된 플레이트의 이름을 바코드에 매핑합니다. 이 매핑이 없으면 spaCR은 플레이트 폴더의 <code class="docutils literal notranslate"><span class="pre">barcode.txt</span></code>를 읽거나 플레이트 이름을 사용합니다. 메타데이터에는 농도의 의미를 알 수 있도록 단위를 유지하세요.</p>
+<section id="link-during-convert">
+<h2>변환 중 연결<a class="headerlink" href="#link-during-convert" title="Link to this heading">¶</a></h2>
+<p><strong>변환</strong>에서 <strong>알파 기능 표시</strong>를 활성화하고 <strong>플레이트 바코드 연결 (알파)</strong>에서 로컬 샘플 기록 CSV를 선택하세요. CSV에는 바코드 열, 웰 열, 플레이트 맵에 넣으려는 샘플 필드가 필요합니다. 미리보기는 이미지를 쓰기 전에 연결을 검증합니다. 변환은 미리보기에 표시된 출력 플레이트 이름을 사용하며, 이 이름은 소스 폴더 이름과 다를 수 있습니다.</p>
+<p>출력 플레이트 바코드를 <code class="docutils literal notranslate"><span class="pre">plate1=BC001;</span> <span class="pre">plate2=BC002</span></code> 형식으로 지정하거나, 획득 데이터의 루트 폴더 또는 실제 소스 플레이트 폴더에 UTF-8 <code class="docutils literal notranslate"><span class="pre">barcode.txt</span></code> 파일을 두세요. 바코드 하나만 들어 있는 파일은 해당 폴더에 소스 플레이트가 하나일 때만 적용됩니다. 플레이트가 여러 개이면 플레이트마다 <code class="docutils literal notranslate"><span class="pre">source_plate=barcode</span></code> 항목을 작성하고 줄바꿈이나 세미콜론으로 구분하세요. 이 키는 <em>원래 소스</em> 플레이트 이름입니다. 변환에서 직접 지정하는 항목은 <em>출력</em> 플레이트 이름을 사용하며, 나머지 플레이트의 바코드를 채울 수 있습니다. spaCR는 앞자리의 0을 보존하고 모호하거나 서로 불일치하는 지정을 거부하며, 모든 출력 플레이트에 바코드를 요구합니다.</p>
+<p>변환이 완전히 끝나면 대상 폴더의 <code class="docutils literal notranslate"><span class="pre">plate_barcode_linkage/plate_map_lims.csv</span></code> 파일을 읽으세요. 같은 위치의 <code class="docutils literal notranslate"><span class="pre">plate_barcode_mismatches.csv</span></code> 파일에서 일치하지 않는 웰과 기타 불일치를 확인하세요. <code class="docutils literal notranslate"><span class="pre">complete.json</span></code> 기록 파일은 마지막에 작성되며, 이 파일이 없으면 연결 묶음이 불완전하다는 뜻입니다. 변환 화면에는 개수가 제한된 불일치 미리보기와 두 CSV 파일의 경로가 표시됩니다. 원본 이미지, 바코드 파일, 사용자의 기존 플레이트 맵은 바뀌지 않습니다. 이 변환 경로는 로컬 CSV를 받습니다. HTTP LIMS 서비스를 이용하려면 측정을 사용하세요.</p>
+</section>
+<section id="read-records-from-a-lims-service">
+<h2>LIMS 서비스에서 레코드 읽기<a class="headerlink" href="#read-records-from-a-lims-service" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">https://lims.example/plates/{barcode}/wells</span></code> 같은 URL을 사용합니다. spaCR은 인코딩된 바코드를 대입합니다. <code class="docutils literal notranslate"><span class="pre">{barcode}</span></code>가 없으면 <code class="docutils literal notranslate"><span class="pre">barcode</span></code> 쿼리 매개변수를 추가합니다. 인증이 필요하면 토큰을 환경 변수에 저장하고, 해당 변수의 이름을 <code class="docutils literal notranslate"><span class="pre">plate_barcode_token_env</span></code>에 입력합니다. 토큰 자체를 URL이나 설정에 넣지 마세요.</p>
+<p>서비스는 웰 레코드 목록이나, <code class="docutils literal notranslate"><span class="pre">wells</span></code>, <code class="docutils literal notranslate"><span class="pre">records</span></code>, <code class="docutils literal notranslate"><span class="pre">results</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">items</span></code> 중 하나의 키 아래에 그 목록을 담은 객체를 반환할 수 있습니다. 목록 바깥의 일반 필드는 해당 웰들의 메타데이터 기본값을 제공합니다:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;strain&quot;</span><span class="p">:</span> <span class="s2">&quot;RH&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;wells&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;well&quot;</span><span class="p">:</span> <span class="s2">&quot;A01&quot;</span><span class="p">,</span> <span class="s2">&quot;compound&quot;</span><span class="p">:</span> <span class="s2">&quot;DMSO&quot;</span><span class="p">}],</span>
+  <span class="s2">&quot;next&quot;</span><span class="p">:</span> <span class="s2">&quot;?page=2&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>spaCR은 <code class="docutils literal notranslate"><span class="pre">next</span></code>, <code class="docutils literal notranslate"><span class="pre">next_url</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;odata.nextLink</span></code>, <code class="docutils literal notranslate"><span class="pre">links.next``를</span> <span class="pre">따릅니다.</span> <span class="pre">링크는</span> <span class="pre">URL</span> <span class="pre">문자열이거나</span> <span class="pre">``href</span></code> 필드가 있는 객체일 수 있습니다. 상대 링크는 응답 URL을 기준으로 해석합니다. 링크가 없거나 null 또는 빈 문자열이면 목록이 끝납니다. 메타데이터 기본값은 다음 페이지에도 이어지며, 웰에 명시된 필드는 그 기본값보다 우선합니다. 페이지 탐색 필드는 시료 메타데이터에 포함되지 않습니다.</p>
+<p>모든 링크와 HTTP 리디렉션은 최초 서비스와 같은 스킴, 호스트, 포트를 유지해야 합니다. 충돌하는 링크와 반복되는 페이지는 오류입니다. 수집량은 응답당 16 MiB, 전체 조회당 64 MiB, 바코드당 페이지 주소 1,000개, 전체 조회당 레코드 100,000개로 제한됩니다. 오류가 발생하면 부분적인 플레이트 맵을 반환하지 않고 메타데이터 조회를 중단합니다. 기존 측정 결과는 계속 사용할 수 있습니다. 다음 페이지 URL을 제공하지 않는 공급업체별 커서 프로토콜에는 별도의 어댑터가 필요합니다.</p>
+</section>
+<section id="inspect-the-result">
+<h2>결과 확인<a class="headerlink" href="#inspect-the-result" title="Link to this heading">¶</a></h2>
+<p>완성된 맵은 <code class="docutils literal notranslate"><span class="pre">measurements/plate_map_lims.csv</span></code>에 저장됩니다. <code class="docutils literal notranslate"><span class="pre">profiling_metadata</span></code> 설정이 비어 있으면 이 맵으로 채웁니다. 화합물과 농도 열이 있으면 비어 있는 <code class="docutils literal notranslate"><span class="pre">viability_plate_map</span></code>도 채웁니다. 사용자가 이미 제공한 맵은 조용히 교체하지 않고 비교합니다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">measurements/plate_barcode_mismatches.csv</span></code>와 로그에서 누락된 바코드, 여러 플레이트가 공유하는 바코드, 일치하지 않는 웰, 충돌하는 레코드, 기존 맵과의 불일치를 검토합니다. 처리 조건 간 비교를 해석하기 전에 이러한 불일치를 해결하세요.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">플레이트 바코드와 시료 메타데이터 연결</a><ul>
+<li><a class="reference internal" href="#link-during-convert">변환 중 연결</a></li>
+<li><a class="reference internal" href="#read-records-from-a-lims-service">LIMS 서비스에서 레코드 읽기</a></li>
+<li><a class="reference internal" href="#inspect-the-result">결과 확인</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8e72191d"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    </body>
+</html>

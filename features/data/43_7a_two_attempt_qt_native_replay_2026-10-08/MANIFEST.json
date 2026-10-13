@@ -1,0 +1,45 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "batch_exit_code": 0,
+      "pytest_passed": 503,
+      "pytest_seconds": 367.62,
+      "pytest_warnings": 38
+    },
+    {
+      "attempt": 2,
+      "batch_exit_code": 0,
+      "pytest_passed": 503,
+      "pytest_seconds": 345.58,
+      "pytest_warnings": 38
+    }
+  ],
+  "batch_files_sha256": "d5f347bdb25b692cf207f18526b333d01e58a952a923842881367ad77ff65826",
+  "collector_sha": "9e7b35c8abb4cf7d72cf1fa546322472e0c18819",
+  "coverage_artifact_id": 11553571256,
+  "coverage_artifact_original_sha256": "874989fb9854da8e4e3043c4299ca1601640a3ba1cb5ceb5a2e7442f2d3557c0",
+  "coverage_artifact_scope": "Original raw coverage ZIP remains in GitHub Actions; compact integrity and ledger JSON are preserved here.",
+  "files_sha256": {
+    "attempt-1-integrity.json": "17bdbac85a01a88bbd1235a1e1a6dab518bfaa6083bab53e28429f5c0146d1a2",
+    "attempt-1-ledger.json": "1c26b930b0faa8a42ea4cce7e9d5a72aa0585098dd1c9dd63a6aad67c792bf32",
+    "attempt-2-integrity.json": "17bdbac85a01a88bbd1235a1e1a6dab518bfaa6083bab53e28429f5c0146d1a2",
+    "attempt-2-ledger.json": "1c26b930b0faa8a42ea4cce7e9d5a72aa0585098dd1c9dd63a6aad67c792bf32",
+    "identity.zip": "d2077c86d632d98b1b07fd6cd0a0bd2f3f16535c3f06f20bca7b18f4b17bd3a3",
+    "job.json": "5d67826cb0dda57fbe8db47a5ba09de7f0349d26d286a49fd7a6b41dde0ab6f3",
+    "job.log.gz": "7cedde48ba2f7f16be2d2185185a3ee04cc727fede74491d53bf32538f542217",
+    "run.json": "4849ac533c572f5f9eab586e0ec036cd4596d66c1c0e60ddd18fc840fbccd7e5"
+  },
+  "identity_original_sha256": "d2077c86d632d98b1b07fd6cd0a0bd2f3f16535c3f06f20bca7b18f4b17bd3a3",
+  "interpretation": "Two successful isolated diagnostic attempts are intermittent controls, not a native-cause fix or required-suite acceptance.",
+  "job_completed_at": "2026-10-08T13:24:28Z",
+  "job_conclusion": "success",
+  "job_id": 113327271680,
+  "job_started_at": "2026-10-08T13:08:32Z",
+  "log_original_bytes": 509964,
+  "log_original_sha256": "570ee7c438f13e8c21189bb0d4bb03ae4900fec24737aa74321c30477a52312f",
+  "native_recovery_and_upload": "skipped: no diagnostic fault",
+  "run_id": 37782034011,
+  "test_source_sha": "7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab",
+  "workflow_sha": "1d7da13f6aa9d0c14333eb7d1ab5331fd70d1e5c"
+}

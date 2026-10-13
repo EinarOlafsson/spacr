@@ -1,0 +1,421 @@
+{
+  "lesson": "46_napari_bridge",
+  "accepted": false,
+  "synthetic": true,
+  "original_source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy",
+  "original_sha256": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+  "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-t86s4jy8",
+  "napari_version": "0.9.1",
+  "app_source_modified": false,
+  "published": false,
+  "biological_corrections_validated": false,
+  "checks": {
+    "01_make_masks_host": {},
+    "02_actual_bridge": {},
+    "05_ready_to_open": {
+      "status": "mask.tif: 16 object(s), 256x256"
+    },
+    "06_actual_napari_layers": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      },
+      "names": [
+        "image",
+        "mask"
+      ]
+    },
+    "07_unchanged_round_trip": {
+      "status": "The mask came back unchanged; nothing was written.",
+      "no_writes": true
+    },
+    "08_fill_one_synthetic_object": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      "old_label": 2,
+      "new_label": 18,
+      "changed_pixels": 2197,
+      "native_click": [
+        1520,
+        838
+      ],
+      "data_pixel": [
+        29,
+        13
+      ]
+    },
+    "09_actual_napari_undo": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      }
+    },
+    "10_refill_before_import": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      "old_label": 2,
+      "new_label": 18,
+      "changed_pixels": 2197,
+      "native_click": [
+        1520,
+        838
+      ],
+      "data_pixel": [
+        29,
+        13
+      ]
+    },
+    "11_imported_and_recorded": {
+      "status": "mask.tif: 2,197 pixel(s), 1 object(s) added, 1 removed. Recorded in mask.tif.curation.json.",
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      "ledger": {
+        "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-t86s4jy8/mask.tif",
+        "edits": [
+          {
+            "detail": {
+              "added": [
+                18
+              ],
+              "altered": [],
+              "removed": [
+                2
+              ],
+              "via": "napari"
+            },
+            "kind": "napari",
+            "n_changed": 2197,
+            "target": [
+              18
+            ],
+            "when": "2026-09-11T00:13:01+00:00",
+            "who": "olafsson"
+          }
+        ],
+        "schema_version": 1,
+        "source": "spacr napari bridge"
+      }
+    },
+    "12_second_import_is_noop": {
+      "status": "The mask came back unchanged; nothing was written.",
+      "no_writes": true
+    },
+    "12b_same_viewer_new_edit": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "old_label": 3,
+      "new_label": 19,
+      "changed_pixels": 1261,
+      "native_click": [
+        1956,
+        826
+      ],
+      "data_pixel": [
+        23,
+        221
+      ]
+    },
+    "12c_same_viewer_import_result": {
+      "status": "The mask came back unchanged; nothing was written.",
+      "requested_pixels": 1261,
+      "pixels_not_saved": 1261,
+      "saved_second_edit": false,
+      "ledger": {
+        "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-t86s4jy8/mask.tif",
+        "edits": [
+          {
+            "detail": {
+              "added": [
+                18
+              ],
+              "altered": [],
+              "removed": [
+                2
+              ],
+              "via": "napari"
+            },
+            "kind": "napari",
+            "n_changed": 2197,
+            "target": [
+              18
+            ],
+            "when": "2026-09-11T00:13:01+00:00",
+            "who": "olafsson"
+          }
+        ],
+        "schema_version": 1,
+        "source": "spacr napari bridge"
+      }
+    },
+    "13_reopened_second_correction": {
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          20
+        ]
+      },
+      "old_label": 4,
+      "new_label": 20,
+      "changed_pixels": 1288,
+      "native_click": [
+        1630,
+        251
+      ],
+      "data_pixel": [
+        25,
+        111
+      ]
+    },
+    "14_history_preserved_after_reopen": {
+      "status": "mask.tif: 1,288 pixel(s), 1 object(s) added, 1 removed. Recorded in mask.tif.curation.json.",
+      "mask": {
+        "passed": true,
+        "pixels": 65536,
+        "labels": [
+          0,
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          20
+        ]
+      },
+      "ledger": {
+        "artifact": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-t86s4jy8/mask.tif",
+        "edits": [
+          {
+            "detail": {
+              "added": [
+                18
+              ],
+              "altered": [],
+              "removed": [
+                2
+              ],
+              "via": "napari"
+            },
+            "kind": "napari",
+            "n_changed": 2197,
+            "target": [
+              18
+            ],
+            "when": "2026-09-11T00:13:01+00:00",
+            "who": "olafsson"
+          },
+          {
+            "detail": {
+              "added": [
+                20
+              ],
+              "altered": [],
+              "removed": [
+                4
+              ],
+              "via": "napari"
+            },
+            "kind": "napari",
+            "n_changed": 1288,
+            "target": [
+              20
+            ],
+            "when": "2026-09-11T00:13:12+00:00",
+            "who": "olafsson"
+          }
+        ],
+        "schema_version": 1,
+        "source": "spacr napari bridge"
+      }
+    },
+    "15_viewer_closed": {
+      "status": "mask.tif: 1,288 pixel(s), 1 object(s) added, 1 removed. Recorded in mask.tif.curation.json."
+    }
+  },
+  "baseline_alias_after_first_import": true,
+  "same_session_second_edit_saved": false,
+  "acceptance_scope": "synthetic editing, exact pixels and correction history only",
+  "corrected_signals": [
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-t86s4jy8/mask.tif",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/napari_runs/SYNTHETIC-private-round-trip-t86s4jy8/mask.tif"
+  ],
+  "original_image_unchanged": true,
+  "originals_preserved": true,
+  "final_mask_sha256": "a8ef3e3b6d0bbbc0b738afff08e789220fb6f3bd0771dd6c3d96721196d8785a",
+  "final_ledger_sha256": "dfb166803bd00ed8d9a247cbf2fd24290a6c1614b44296c2c4e81b100d564f49",
+  "hold": "The first import aliases the saved baseline to the editable labels. A second edit in the same viewer is reported unchanged and is not saved; close/reopen avoids this, but the unrestricted workflow is not accepted.",
+  "capture_directory": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/napari_fullsize_same_viewer_hold",
+  "source_commit": "a9792ed63",
+  "native_frame_count": 18,
+  "production_media_generated": false,
+  "native_listening_approved": false,
+  "environment": "private .napari-venv; napari 0.9.1; existing PySide6; base environment unchanged",
+  "capture_sha256": {
+    "00_home.png": "52a1a19a22309d9d87f41b56881246d896a02377ad1fb2285f14fa1fa5817ee3",
+    "01_make_masks_host.png": "050ea562aa22cf9ef97385c1de28c75fbfb6f641615b7f63221e458822999209",
+    "02_actual_bridge.png": "75333719109c1d458f13c58646621e853b5a6c2098939aee2e0885ba77309a9e",
+    "03_private_mask_picker.png": "f523696f06a8c2acf9633276a357360a862030318297a7af36a6a73fc3771418",
+    "04_private_image_picker.png": "0f556d4170e702259950109df519d0f087c629299f14a7453b993f1f55b60a7e",
+    "05_ready_to_open.png": "56f607764242fdd9337f8846f99e6b0070c8527bb8240884d3f4a4f28bac00fa",
+    "06_actual_napari_layers.png": "b91e9486c0e3ef5b9ac8ec65d2f14ba821ce8b2f834ade1896f4eaf40024bc2c",
+    "07_unchanged_round_trip.png": "1537786ff1c65d4faafed6ed401e58c37c80f93a285f8b72c23a77691669ea04",
+    "08_fill_one_synthetic_object.png": "1fe3448f283534ca4aeba66b2a5fea28f0914460de4f2ca2ed36a795bb774c53",
+    "09_actual_napari_undo.png": "a81818cd678366049b2bf2d518c0fd087a11b119f50b32a1f6f037fe6cb1fc45",
+    "10_refill_before_import.png": "1fe3448f283534ca4aeba66b2a5fea28f0914460de4f2ca2ed36a795bb774c53",
+    "11_imported_and_recorded.png": "278725964fb716388c2d2dda71d9009b31e038b6e72782a93e17bef9d2d62115",
+    "12_second_import_is_noop.png": "d690ffe27bc52b8b00cb2ada5007b52008daba80acd054f41ab08abd762826b5",
+    "12b_same_viewer_new_edit.png": "8f4947eef8ee8e56a779f2b04ada7a7901cbcbda58e7d3a107187c831b7cefe2",
+    "12c_same_viewer_import_result.png": "45c7b4b1a4b9913f835214cfeb1a3134ecd26c8501926819445f2ec703b14aaa",
+    "13_reopened_second_correction.png": "a9cac9a6727caa2f48aaaff8446f8ad54961d12f4e00673fdd3c947721ac2b4b",
+    "14_history_preserved_after_reopen.png": "7b6c36afc02e09f0f4c6f1ce8b5c987323c82a8ed6312f7e2cbe70e3c28a706b",
+    "15_viewer_closed.png": "8b65487dc4ad43aa8ffea9d3da5c7b7d5a82c9d9695841c6ec497e41b2913462"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "title": "96-well: 8-point dose series, edge left empty",
+  "description": "Two compounds at eight 3-fold dilutions from 10 uM (10000 nM down to 5 nM), three replicates each, plus six vehicle and six positive-control wells. The outer ring is left empty and the 60 interior wells are randomised, so no dose sits on one row or column. The concentration is in each condition's name.",
+  "plate_format": 96,
+  "layout": "random",
+  "edge_policy": "leave_empty",
+  "seed": 96,
+  "conditions": [
+    {
+      "name": "vehicle",
+      "replicates": 6,
+      "role": "negative_control"
+    },
+    {
+      "name": "positive",
+      "replicates": 6,
+      "role": "positive_control"
+    },
+    {
+      "name": "compound_A_10000nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_A_3333nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_A_1111nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_A_370nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_A_123nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_A_41nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_A_14nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_A_5nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_10000nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_3333nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_1111nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_370nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_123nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_41nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_14nM",
+      "replicates": 3,
+      "role": "treatment"
+    },
+    {
+      "name": "compound_B_5nM",
+      "replicates": 3,
+      "role": "treatment"
+    }
+  ]
+}

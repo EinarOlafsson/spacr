@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "baseline": "c1976e3352d5aa3944cacf682a4709c688972b5c",
+  "checkpoint": "4adefbcd5281da15ab4c6c1d06948cfa26a0016b",
+  "scope": "Private diagnostics and explicit-hidden-CUDA capability optimization only; no app source change or hosted root-cause fix.",
+  "sources": {
+    "tests/conftest.py": {
+      "payload": "source-00.gz",
+      "sha256": "37c3592a5f1918fe326504dad17eb2cb95e7d483db7d28ef4cb6981dd7618513",
+      "raw_sha256": "0feee4726c9bf63b7b4d2c058ea58b70e44dc57106e8e2eb424814b76eecee37"
+    },
+    "tests/resource_capabilities.py": {
+      "payload": "source-01.gz",
+      "sha256": "57e342ac4f2b16956d7b6d592d11559b88c118ab1b9225555ac97bebccb89a70",
+      "raw_sha256": "b8a8a6f55bf1f805fb300cba1555ae59418fd4df1dc62e7eccbbed45db4b9ab7"
+    },
+    "tests/test_qt_native_core_extraction.py": {
+      "payload": "source-02.gz",
+      "sha256": "22f0207728547dd39affed4517f16fd7af4d3ad01c5e6f85f5231b78953c5f3c",
+      "raw_sha256": "1ff63b54d4857c6b0236dbac081bd99c59d8e2ee114dd450e9603410748d451c"
+    },
+    "tests/test_resource_capabilities.py": {
+      "payload": "source-03.gz",
+      "sha256": "061a544d852e7d5a5d3d42230c6b412242cb050499b052114ffc4d634f1752a0",
+      "raw_sha256": "1a94305f535b320c6611a6a942e18234cf6e6bc96ff19d5d4f88422f9ca9466d"
+    },
+    "tools/collect_qt_native_backtrace.py": {
+      "payload": "source-04.gz",
+      "sha256": "c509cd8a8229265fce3143a12f16b17a848f6a8936c7970d31cf0d0b1d74656f",
+      "raw_sha256": "ce7aff7d9e6b93f40637c1fc485ca454cb4ce0fcfd98205c5ee26257882f80f8"
+    }
+  },
+  "patch": {
+    "payload": "candidate.patch.gz",
+    "sha256": "0f8650354d6f13886f3a6eb88b6f0eb92b8e4f28c20aec392cb6e5060da460ec",
+    "raw_sha256": "64458e7ef9a7d86478b87681754718011e842796d0bcfd944d557edf7b424538"
+  },
+  "phases": [
+    {
+      "terminal_summary": "1 failed, 86 passed",
+      "payload": "n43-native-probe-capability-missing-doc-fixture-20261008.log.gz",
+      "sha256": "1dc0d7512d58cd9473be407826c2d7e3e2f30027f94c23e0302b7e31f725841e",
+      "raw_sha256": "bab7df4ecf47d954b83d2dd0fb371a49ca3855d91e29174e99559b66dd5f8c5a"
+    },
+    {
+      "terminal_summary": "87 passed",
+      "payload": "n43-native-probe-capability-integrated-20261008.log.gz",
+      "sha256": "7b86a938694748d366b32f0cc90018bc55184cccdb4b753267c3b92e3c92259a",
+      "raw_sha256": "6b55a70045b899837d110d4a19902e0229d3b0b4e26c3eb56da4e849991ba17c"
+    }
+  ],
+  "forensics": {
+    "payload": "forensics.txt.gz",
+    "sha256": "b5f79f1cc74ab378807f4c4d4c692545126eb727584b076df2274852d74e4583",
+    "raw_sha256": "f6802f1113880e4061dc70e267a21873a6e1a7b41deb076e862a88dc5c3ef556"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "PySide6": "6.12.0 overlay",
+    "pytest": "8.4.2 overlay",
+    "cap": "4G"
+  },
+  "limits": [
+    "Code publication intentionally held to preserve active2e push run; next code push would cancel it.",
+    "Original local harness lacked sparse docs JS; fixture materialized, all87 checks then pass5.13s.",
+    "Pinned x86-64 Shiboken6.12 function+80 and CPython3.12 permit at most96 ASCII class bytes, otherwise explicit unsupported result.",
+    "Class does not identify object instance or root cause; no core uploaded.",
+    "CUDA helper retains exact no-CUDA skip and visible/unset availability/memory checks; hosted browser timeout cause remains unproved."
+  ]
+}

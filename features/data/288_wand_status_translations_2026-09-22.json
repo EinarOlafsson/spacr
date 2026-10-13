@@ -1,0 +1,81 @@
+{
+  "languages": [
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "sv",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "de",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "es",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "zh_CN",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "pt",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "hi",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "ko",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "is",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "formatted_error_checked": true,
+      "full_runtime_review_loader": true,
+      "language": "fr",
+      "new_runtime_rows": 2,
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "public_api_count": 11365,
+  "public_api_sources_unchanged": true,
+  "remaining": "137 scoped organism prose sources, broader API/runtime translation backlog, reference completion and tutorial recordings/acceptance remain open.",
+  "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off.",
+  "schema": 1,
+  "source_commit": "c5edc80e5c388133698eb029024abdfa32e86ae1",
+  "ui_count": 4715,
+  "validation": {
+    "post_rebase_integration_tests": 68,
+    "log_sha256": {
+      "wand-integration-tests.log": "20d1fd92df7f2b6a5ee3684ec8820d7d4077ec0ab6988a31fabe97ee1a9af0ae",
+      "wand-status-verification.log": "dbe4a78a61f104aaa228f3b655fb1b1d641e5200a0d193781068efdb4e69f47b"
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "19_train_cellpose",
+    "scene_count": 9,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete Cellpose/CPSAM training workflow, paired image-instance-mask semantics, exact interface labels, reproducible spatial transforms, and held-out checkpoint evaluation."
+  },
+  "languages": {
+    "es": {
+      "description": "Ajuste un modelo compatible con Cellpose o CPSAM a partir de pares revisados de imágenes y máscaras de instancias.",
+      "prerequisite": "Cree pares diversos de imagen y máscara revisados de forma independiente, y reserve campos para la evaluación final.",
+      "objectives": [
+        "Validar los datos de entrenamiento emparejados y elegir un punto de control inicial adecuado.",
+        "Configurar de forma reproducible la geometría, el preprocesamiento y el programa de entrenamiento.",
+        "Evaluar los puntos de control guardados en imágenes reservadas."
+      ],
+      "narrations": [
+        "Train Cellpose ajusta un modelo de segmentación a partir de imágenes de microscopía emparejadas con máscaras de etiquetas de instancias. La consola informa sobre la validación de los datos, el progreso, la ruta del punto de control y los registros de reproducibilidad.",
+        "Seleccione la raíz del conjunto de datos que contiene imágenes de entrenamiento y máscaras correspondientes. Revise la calidad de las etiquetas y reserve campos representativos que no se utilizarán para ajustar el modelo.",
+        "Essentials contiene los controles necesarios para una primera calibración. Utilice Modified para revisar los cambios, All para acceder a las opciones de preprocesamiento y ejecución, y Recipes para guardar un diseño de entrenamiento reproducible.",
+        "Starting Point permite elegir la familia del modelo, el punto de control preentrenado, el ajuste fino o el entrenamiento desde cero y el nombre del resultado. El ajuste fino suele requerir menos imágenes revisadas que comenzar con pesos aleatorios.",
+        "Training Schedule establece la tasa de aprendizaje, la regularización, los lotes, el aumento de datos y las épocas. Aumente el entrenamiento únicamente después de verificar los pares de imagen y máscara y la evaluación en los datos reservados.",
+        "Image Geometry registra el tamaño de origen y de destino, la escala esperada de los objetos y el cambio de tamaño. Las imágenes y sus máscaras deben recibir la misma transformación espacial, sin perder las identidades de las etiquetas.",
+        "Background and Denoising aplica una corrección opcional de la intensidad antes del entrenamiento. Utilícela solo cuando pueda reproducir el mismo preprocesamiento al aplicar el modelo.",
+        "Run valida la correspondencia de los nombres de archivo, muestra una vista previa de los campos emparejados e inicia el entrenamiento. Examine cada imagen sobre su máscara en el panel de figuras antes de confiar en un ajuste prolongado.",
+        "Después del entrenamiento, pruebe los puntos de control candidatos en los campos reservados y examine los fallos, no solo la pérdida. spaCR guarda juntos el punto de control, los ajustes, el manifiesto de la ejecución y las vistas previas de los campos emparejados."
+      ]
+    },
+    "fr": {
+      "description": "Ajustez un modèle compatible avec Cellpose ou CPSAM à partir de paires examinées d’images et de masques d’instances.",
+      "prerequisite": "Créez des paires image-masque diverses, examinées indépendamment, et réservez des champs pour l’évaluation finale.",
+      "objectives": [
+        "Valider les données d’entraînement appariées et choisir un point de contrôle initial approprié.",
+        "Configurer de manière reproductible la géométrie, le prétraitement et le programme d’entraînement.",
+        "Évaluer les points de contrôle enregistrés sur des images réservées."
+      ],
+      "narrations": [
+        "Train Cellpose ajuste un modèle de segmentation à partir d’images de microscopie appariées à des masques d’instances étiquetées. La console indique la validation des données, la progression, le chemin du point de contrôle et les enregistrements de reproductibilité.",
+        "Sélectionnez la racine du jeu de données contenant les images d’entraînement et les masques correspondants. Examinez la qualité des étiquettes et réservez des champs représentatifs qui ne seront pas utilisés pour ajuster le modèle.",
+        "Essentials contient les commandes nécessaires à un premier étalonnage. Utilisez Modified pour contrôler les changements, All pour accéder aux options de prétraitement et d’exécution, et Recipes pour enregistrer un plan d’entraînement reproductible.",
+        "Starting Point permet de choisir la famille du modèle, le point de contrôle préentraîné, l’ajustement fin ou l’entraînement à partir de zéro, ainsi que le nom du résultat. L’ajustement fin nécessite généralement moins d’images examinées qu’un démarrage avec des poids aléatoires.",
+        "Training Schedule définit le taux d’apprentissage, la régularisation, les lots, l’augmentation des données et les époques. N’augmentez la durée de l’entraînement qu’après avoir vérifié les paires image-masque et l’évaluation sur les données réservées.",
+        "Image Geometry consigne les tailles source et cible, l’échelle attendue des objets et le redimensionnement. Les images et leurs masques doivent recevoir la même transformation spatiale tout en préservant l’identité des étiquettes.",
+        "Background and Denoising applique un nettoyage facultatif de l’intensité avant l’entraînement. Ne l’utilisez que si le même prétraitement peut être reproduit lors de l’application du modèle.",
+        "Run valide la correspondance des noms de fichiers, affiche un aperçu des champs appariés et lance l’entraînement. Examinez chaque image au-dessus de son masque dans le panneau des figures avant d’accorder votre confiance à un ajustement prolongé.",
+        "Après l’entraînement, testez les points de contrôle candidats sur les champs réservés et examinez les échecs, pas uniquement la perte. spaCR enregistre ensemble le point de contrôle, les paramètres, le manifeste d’exécution et les aperçus des champs appariés."
+      ]
+    },
+    "it": {
+      "description": "Esegui l’adattamento di un modello compatibile con Cellpose o CPSAM a partire da coppie esaminate di immagini e maschere di istanza.",
+      "prerequisite": "Crea coppie immagine-maschera diverse e sottoposte a revisione indipendente, quindi riserva alcuni campi per la valutazione finale.",
+      "objectives": [
+        "Convalidare i dati di addestramento appaiati e scegliere un punto di controllo iniziale adeguato.",
+        "Configurare in modo riproducibile la geometria, la pre-elaborazione e il programma di addestramento.",
+        "Valutare i punti di controllo salvati su immagini riservate."
+      ],
+      "narrations": [
+        "Train Cellpose adatta un modello di segmentazione a partire da immagini di microscopia appaiate a maschere con etichette di istanza. La console riporta la convalida dei dati, l’avanzamento, il percorso del punto di controllo e i registri di riproducibilità.",
+        "Seleziona la radice del set di dati contenente le immagini di addestramento e le maschere corrispondenti. Esamina la qualità delle etichette e riserva campi rappresentativi che non verranno usati per adattare il modello.",
+        "Essentials contiene i controlli necessari per una prima calibrazione. Usa Modified per verificare le modifiche, All per accedere alle opzioni di pre-elaborazione e di esecuzione e Recipes per salvare un disegno di addestramento riproducibile.",
+        "Starting Point consente di scegliere la famiglia del modello, il punto di controllo preaddestrato, l’adattamento fine o l’addestramento da zero e il nome dell’output. L’adattamento fine richiede in genere meno immagini esaminate rispetto a un avvio con pesi casuali.",
+        "Training Schedule imposta il tasso di apprendimento, la regolarizzazione, i batch, l’aumento dei dati e le epoche. Aumenta la durata dell’addestramento solo dopo aver verificato le coppie immagine-maschera e la valutazione sui dati riservati.",
+        "Image Geometry registra le dimensioni di origine e destinazione, la scala prevista degli oggetti e il ridimensionamento. Le immagini e le relative maschere devono ricevere la stessa trasformazione spaziale preservando le identità delle etichette.",
+        "Background and Denoising applica una pulizia facoltativa dell’intensità prima dell’addestramento. Usala solo quando la stessa pre-elaborazione può essere riprodotta durante l’applicazione del modello.",
+        "Run convalida la corrispondenza dei nomi dei file, mostra un’anteprima dei campi appaiati e avvia l’addestramento. Esamina ogni immagine sopra la relativa maschera nel pannello delle figure prima di affidarti a un adattamento prolungato.",
+        "Dopo l’addestramento, prova i punti di controllo candidati sui campi riservati ed esamina gli errori, non soltanto la perdita. spaCR salva insieme il punto di controllo, le impostazioni, il manifesto dell’esecuzione e le anteprime dei campi appaiati."
+      ]
+    }
+  }
+}

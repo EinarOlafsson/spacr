@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/bf1cca988e0fa91683a2ca96d3acabe8cf39c60a/02_conda_install/web/02_conda_install_silent.mp4",
+  "hosted_video_sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+  "exact_verified_replacement_sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+  "decoded_frame_time_seconds": 89.4,
+  "frame_sha256": "057cdc267579ea7d37cb9f8e273e186f6787d5b8d5c0eb59f5c9cfc5727b3fbb",
+  "deployed_mobile_report_sha256": "1cc69768d210b8d5ec9a2b7de789ecdccabf94b1891c48b7365f5f9bc1630865"
+}

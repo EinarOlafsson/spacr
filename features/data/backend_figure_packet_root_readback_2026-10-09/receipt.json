@@ -1,0 +1,28 @@
+{
+  "migration": {
+    "payloads": 12,
+    "source_bindings": 3,
+    "api_unchanged": true,
+    "ui_added": 22,
+    "patch_exact_source": true
+  },
+  "classifier": {
+    "payloads": 5,
+    "source_bindings": 2,
+    "api_prose_changed": [
+      "spacr.ml.generate_ml_scores",
+      "spacr.ml.interpret_vision_model",
+      "spacr.ml.load_regression_input_pairs",
+      "spacr.predictions.merge_prediction_results",
+      "spacr.predictions.migrate_prediction_columns"
+    ],
+    "runtime_changed": [],
+    "patch_exact_source": true
+  },
+  "merged_regions": {
+    "payloads": 6,
+    "source_bindings": 2,
+    "scope": "Actual cell montage merged_crop producer with recorded bbox, two export sizes, exact replay and source hash; advisory note only. Does not establish source-only splice/noise or whole F572 acceptance.",
+    "patch_exact_source": true
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "date": "2026-09-22",
+  "features": [
+    284,
+    380
+  ],
+  "base_commit": "3f907ea4f0b389ca4180c3f4e2b68f3774235d02",
+  "change": "Install fold controls before the first theme pass, using the existing idempotent installer; stack watcher retained",
+  "method": "Six alternating fresh processes, real MainWindow Home-to-Classify navigation, bundled fonts, fixed private dark-theme preferences, compiled sources, offscreen Qt, 8GB memory cap. Before restores the exact baseline _build_screen function only; all other source is identical. No concurrent tests from this session during the six measurements.",
+  "probe": "/mnt/firecuda2/Claude/implementation-20260922/fold-startup/probe.py",
+  "measurements": [
+    {
+      "arm": "before",
+      "key": "classify_merged",
+      "open_ms": 999.7909270023229,
+      "restyles": 5,
+      "widgets": 186,
+      "strip": true
+    },
+    {
+      "arm": "after",
+      "key": "classify_merged",
+      "open_ms": 931.8811519915471,
+      "restyles": 2,
+      "widgets": 186,
+      "strip": true
+    },
+    {
+      "arm": "before",
+      "key": "classify_merged",
+      "open_ms": 969.3403440032853,
+      "restyles": 5,
+      "widgets": 186,
+      "strip": true
+    },
+    {
+      "arm": "after",
+      "key": "classify_merged",
+      "open_ms": 887.7386149979429,
+      "restyles": 2,
+      "widgets": 186,
+      "strip": true
+    },
+    {
+      "arm": "before",
+      "key": "classify_merged",
+      "open_ms": 986.4776819886174,
+      "restyles": 5,
+      "widgets": 186,
+      "strip": true
+    },
+    {
+      "arm": "after",
+      "key": "classify_merged",
+      "open_ms": 912.2958689986262,
+      "restyles": 2,
+      "widgets": 186,
+      "strip": true
+    }
+  ],
+  "before_median_ms": 986.4776819886174,
+  "after_median_ms": 912.2958689986262,
+  "reduction_percent": 7.519867336527043,
+  "limitations": [
+    "Offscreen diagnostics on one loaded Linux machine",
+    "Broader 500ms stall ceiling remains unmet",
+    "No claim of macOS/Windows acceptance"
+  ],
+  "api_handoff": "MainWindow._build_screen docstring describes earlier fold installation; no new API or runtime string.",
+  "validation": "114 focused Qt tests passed in 89.61s: first-sheet ordering, fold hosts, merged Classify, Activation, Regression capabilities, fold pages and laptop layout."
+}

@@ -1,0 +1,55 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Animation background",
+      "source": "Animation background",
+      "source_sha256": "437a56412491e7158d03f6b6bdc902acfcc22aaf3adfcb17c5d65cc58d7b3828",
+      "table": "ui",
+      "translation": "动画背景"
+    },
+    {
+      "key": "Animation background colour",
+      "source": "Animation background colour",
+      "source_sha256": "10f9af4e16b9be0d5052b786315383e597496e72228596694baf5ae14929c41e",
+      "table": "ui",
+      "translation": "动画背景颜色"
+    },
+    {
+      "key": "Background · Theme colour",
+      "source": "Background · Theme colour",
+      "source_sha256": "cd0df7d7c855ae90da0aea3bcddf73f9180cf9e7a216774804ba2ff4de9e4cfc",
+      "table": "ui",
+      "translation": "背景 · 主题颜色"
+    },
+    {
+      "key": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
+      "source": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
+      "source_sha256": "30e34da6ba9d95995b3adb7809e73a15e8221add251515006ec2d41196ffc5b9",
+      "table": "ui",
+      "translation": "为所有动画选择背景，不受其调色板影响。在选择颜色之前，背景会跟随当前页面主题；其亮度始终保持在当前深色或浅色主题的范围内。保存偏好设置时，所做的更改会生效。"
+    },
+    {
+      "key": "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
+      "source": "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
+      "source_sha256": "80d6002bf644c784c0845b38e29cdcce5274a4bdd339aea3a4458b85d7c3ae96",
+      "table": "ui",
+      "translation": "选择动画背景颜色。亮度会调整为适合当前深色或浅色主题的范围。"
+    },
+    {
+      "key": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+      "source": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+      "source_sha256": "06a921b65c8ddf7bcfbe79581ca0653a478a6493d684bfae4eb38ce62d1bcc0d",
+      "table": "ui",
+      "translation": "选择自定义颜色调色板的主色和强调色。保存偏好设置时，所做的更改会生效。"
+    },
+    {
+      "key": "Theme colour",
+      "source": "Theme colour",
+      "source_sha256": "41988af879a5f2c0f04e77926eb1a53271575d20085c3e80079ac31184e8e0c5",
+      "table": "ui",
+      "translation": "主题颜色"
+    }
+  ],
+  "schema": 1
+}

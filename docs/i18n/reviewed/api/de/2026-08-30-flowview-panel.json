@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "context": "Placeholder used when PySide6 is unavailable.",
+      "label": "spacr.flowview.panel.FlowViewPanel#0",
+      "source": "Placeholder used when PySide6 is unavailable.",
+      "source_sha256": "542bb397f8f08e2621a8b2347ed9bb6991de0b20e8f1f7667c2251339fa6d589",
+      "translation": "Platzhalter, der verwendet wird, wenn PySide6 nicht verfügbar ist."
+    }
+  ]
+}

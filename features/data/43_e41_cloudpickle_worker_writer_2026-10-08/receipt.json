@@ -1,0 +1,75 @@
+{
+  "cause": "joblib 1.6.0 lacks joblib.externals.cloudpickle; standalone cloudpickle 3.1.2 is installed",
+  "failed_nodes": [
+    "tests/test_worker_writer_caller_boundaries.py::test_single_worker_cloudpickle_calls_finish_primaries_before_one_retry",
+    "tests/test_worker_writer_caller_boundaries.py::test_mask_commit_preserves_filtered_pixels_and_permissions_before_notification[success]",
+    "tests/test_worker_writer_caller_boundaries.py::test_mask_commit_preserves_filtered_pixels_and_permissions_before_notification[overload]",
+    "tests/test_worker_writer_caller_boundaries.py::test_mask_commit_preserves_filtered_pixels_and_permissions_before_notification[invalid]"
+  ],
+  "fixed_revision": "22a455f27fa0b31f0a7b467dabcd2f57f481057f",
+  "hosted_job": 113548884286,
+  "hosted_revision": "e41df27e0a37303cbbc81687d21f74738cc05e0b",
+  "manifest": {
+    "logs/e41-coverage5-full.log.gz": {
+      "bytes": 296000,
+      "original_bytes": 2093698,
+      "original_sha256": "412998522ac348c51956f666a62393e876602f01e7888756c344b4fcf35d0ccf",
+      "sha256": "ad0faa1054031e4860d77430f20434d24934a4b64f568f07f0181ffb617e73cc"
+    },
+    "logs/focused-coverage.json.gz": {
+      "bytes": 12126,
+      "original_bytes": 101799,
+      "original_sha256": "460c1f8573f6e23eab6a14303b24c68b76f21f878082db149def608e0dc04dad",
+      "sha256": "1e1705f605021faa38d2b6dccd6ba761f6272b3d81ecb13997c19a870a5573ec"
+    },
+    "logs/joblib142-vendor-2pass.log.gz": {
+      "bytes": 388,
+      "original_bytes": 694,
+      "original_sha256": "32339c932f1808e6dcea486bb890a1063f34869a20edfe864257177b1385e6a3",
+      "sha256": "dcc7e301f875c8735cf06c3cd5c65d23de04224bbd695d0a99e0b97edb9c7d3a"
+    },
+    "logs/joblib160-cloudpickle312-45pass.log.gz": {
+      "bytes": 654,
+      "original_bytes": 1863,
+      "original_sha256": "8e274fbd0c9ccb288a0520e240d52ec9c44aca434e64bc20e24fbcb09323b897",
+      "sha256": "4153742fd1ec1c7e023194ac3968c82e50e2c6857944b1e8fe5e8f4f16766b63"
+    },
+    "sources/fixed__spacr__resource_log.py.gz": {
+      "bytes": 21048,
+      "original_bytes": 77685,
+      "original_sha256": "427d38911ceba4f9d45b591cc670ed1317a1cf8d575564e17a7b9123193711c3",
+      "sha256": "a7a15e185c47ef60081372b24f2e89d102407d1792e2b4b364589be434a23b9c"
+    },
+    "sources/fixed__tests__test_worker_writer_caller_boundaries.py.gz": {
+      "bytes": 4631,
+      "original_bytes": 15550,
+      "original_sha256": "04a34a0aee7a3f89682450a56307ba8c5c06bf5b91054868ef31bdf5ba6bf614",
+      "sha256": "04ea1abc1ac6732b4cbc94493c38f4875348527e5aa19f2b9ea8752deb2ec647"
+    },
+    "sources/hosted__spacr__resource_log.py.gz": {
+      "bytes": 20984,
+      "original_bytes": 77461,
+      "original_sha256": "a06fbaa5a49f18ca5dfcf4222c9c4d633f744ea88a0d59caef8aca3202759e7f",
+      "sha256": "f28f9b64740409a147b1d6d587df41c9ea9580b7de83c7aadba6ca9d4b917576"
+    },
+    "sources/hosted__tests__test_worker_writer_caller_boundaries.py.gz": {
+      "bytes": 4434,
+      "original_bytes": 15009,
+      "original_sha256": "d2be98bc76c394e211bd5bcab5628bad9b98b7786750e7398bc3752cc170a31b",
+      "sha256": "1846eb5b9e66747b87bdd9599b3b5310d934aa77d5f68cde0ded819116f23db2"
+    }
+  },
+  "overlay_wheel_sha256": {
+    "cloudpickle-3.1.2-py3-none-any.whl": "9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a",
+    "joblib-1.6.0-py3-none-any.whl": "3dbbf9f6e4b592a2357b854608e980fe6390d131d7a82f011a377ef2ebef7aba"
+  },
+  "results": [
+    "43 owning cases pass with joblib 1.6.0/cloudpickle 3.1.2",
+    "two adjacent real closure/retry cases pass with joblib 1.6.0/cloudpickle 3.1.2",
+    "two adjacent real closure/retry cases pass with joblib 1.4.2 vendored codec"
+  ],
+  "source_paths": [
+    "spacr/resource_log.py",
+    "tests/test_worker_writer_caller_boundaries.py"
+  ]
+}

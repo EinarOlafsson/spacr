@@ -1,0 +1,138 @@
+{
+  "id": "45_project_browser",
+  "number": 45,
+  "slug": "project_browser",
+  "series": 5,
+  "app_key": "project_browser",
+  "section": "Data and batch runs",
+  "title": "Project Browser: find and inspect projects",
+  "description": "Search project folders, inspect recorded stages, and identify the next tool to open.",
+  "objectives": [
+    "Discover projects using roots and search depth.",
+    "Inspect artifacts and recorded stages.",
+    "Choose the next relevant tool."
+  ],
+  "prerequisite": "Choose folders containing your spaCR projects. Completed External Masks and Format Converter examples can be used for practice.",
+  "scenes": [
+    {
+      "visual": "01_help_project_browser",
+      "narration": "Open Help, then Project browser to find project folders and inspect their recorded outputs.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "31_external_masks",
+        "37_batch"
+      ]
+    },
+    {
+      "visual": "04_depth_zero_no_projects",
+      "narration": "Click Add folder and choose a search root. Depth zero checks that folder itself; increase the depth when projects are inside subfolders.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        170,
+        3450,
+        360
+      ]
+    },
+    {
+      "visual": "05_real_unregistered_conversion",
+      "narration": "Set Depth to one and click Scan to include folders immediately below the root. Inspect the resulting project rows.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        180,
+        3450,
+        660
+      ]
+    },
+    {
+      "visual": "05_real_unregistered_conversion",
+      "narration": "Read State and Stage alongside the files found on disk. A folder without an artifact registry may show unknown even when it contains converted images.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        300,
+        3450,
+        560
+      ],
+      "related_lessons": [
+        "37_batch",
+        "40_run_history"
+      ]
+    },
+    {
+      "visual": "07_two_real_projects",
+      "narration": "Add further search roots to include other projects. Select a row to inspect it; if details are blank after a rescan, select another row and return.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        225,
+        3450,
+        260
+      ]
+    },
+    {
+      "visual": "09_enlarged_details",
+      "narration": "Drag the divider to widen the details. Review recorded artifacts, unregistered files and the source of the last-run timestamp.",
+      "hold_after": 0.7,
+      "focus": [
+        2020,
+        300,
+        1790,
+        260
+      ]
+    },
+    {
+      "visual": "10_stages_and_next_steps",
+      "narration": "Open Stages to see which expected outputs are present. Use What could run next to choose a relevant workflow, then check that module’s required inputs.",
+      "hold_after": 0.7,
+      "focus": [
+        2020,
+        520,
+        1790,
+        650
+      ],
+      "related_lessons": [
+        "31_external_masks"
+      ]
+    },
+    {
+      "visual": "12_size_descending",
+      "narration": "Click a column heading such as Size to sort projects. Click it again to reverse the order.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        300,
+        1680,
+        170
+      ]
+    },
+    {
+      "visual": "14_depth_zero_keeps_direct_project",
+      "narration": "Adjust Depth and scan again when you need a narrower or wider search. A directly selected project remains discoverable at depth zero.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        175,
+        3450,
+        340
+      ]
+    },
+    {
+      "visual": "16_remove_search_root_only",
+      "narration": "Select a root and click Remove to stop searching it. This removes the search location from the list while leaving its files on disk.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_restored_project_inventory",
+      "narration": "Open Run History for job records, Database Browser for measurements, or Data Manager for cleanup and archiving. Use the relevant module tutorial to continue the analysis.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "40_run_history",
+        "34_database",
+        "44_data_manager"
+      ]
+    }
+  ]
+}

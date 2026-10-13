@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.txt": {
+      "sha256": "47af065d011cc5616c5d8fc8697b5aaa0e50c6355507ec709f74102a3caf0aa3",
+      "bytes": 790
+    },
+    "after-test.py.gz": {
+      "sha256": "519e7d5bd4347e00b1019587d5e332110cce241a2dfaf1adb472fa5a5ab1f1fb",
+      "bytes": 3494
+    },
+    "assemble.py": {
+      "sha256": "eb586a33e282ceef4a4761917ef31b379b6c03dccc7ba445fd866ad200a69c58",
+      "bytes": 5841
+    },
+    "before-test.py.gz": {
+      "sha256": "725035c5a1af7e3e57500694843c6bb991c20e0d0e08634233fec621f005d331",
+      "bytes": 3493
+    },
+    "focused.log.gz": {
+      "sha256": "e0f53c8e5a4351591266b5c471524734596ca673a12d5c4faecba18db160007c",
+      "bytes": 457
+    },
+    "hosted-failure-excerpt.txt": {
+      "sha256": "a65c067947903c7eaade69c5809777ceb8ffd5f8ecd9bb4bea4595fbbe89d058",
+      "bytes": 4251
+    },
+    "receipt.json": {
+      "sha256": "1b81e6fa995a5d1266c23889e449f87d93a291b6e0027dfffb2ec3440d2bf63c",
+      "bytes": 3515
+    },
+    "reproduce.sh": {
+      "sha256": "ebb08fef3f6968d158ba4adbbe0e13dc0c128fd9c4d7ac42953078303003fbe0",
+      "bytes": 758
+    },
+    "signature-probe-initial-path-error.log": {
+      "sha256": "44caec8117837132f5bb984c657c7f12c6b106e27ea4289debe36cec0045a643",
+      "bytes": 281
+    },
+    "signature-probe.json": {
+      "sha256": "0f55f32c4899070dd9a9ed9c26200d476efcce238a07c128135a70fb8c0a4038",
+      "bytes": 899
+    },
+    "signature-probe.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "signature-probe.py": {
+      "sha256": "ee3cce9061325f4b1eb8a2d98eae67bc99e164aa4a6aee4aeb20d56ad96cdebe",
+      "bytes": 1473
+    },
+    "verify.py": {
+      "sha256": "9ffeebb64989592e27a932140c27c71ea748e546882649364469406b8845a4f0",
+      "bytes": 1188
+    }
+  }
+}

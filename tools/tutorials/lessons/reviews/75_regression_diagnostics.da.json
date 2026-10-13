@@ -1,0 +1,33 @@
+{
+  "lesson": "75_regression_diagnostics",
+  "english_sha256": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Regression Diagnostics: undersøg de gemte analyserapporter",
+  "description": "Åbn design- og inferensrapporterne for en afsluttet kørsel, undersøg støtte og afhængigheder, og brug fundene, når du vælger den næste analyse.",
+  "objectives": [
+    "Åbne diagnosticeringsmappen for den ønskede Regression-kørsel.",
+    "Læse oversigterne over designstøtte, identificerbarhed og inferens.",
+    "Opbevare diagnosticeringen med dens indstillinger og køre igen efter at have ændret en analyse."
+  ],
+  "prerequisite": "Gennemfør Regression-eksemplet med dets fire par af scorer og tællinger. Den viste permutationskørsel bruger 199 permutationer og mindst to brønde. Hold indstillingerne og resultatfamilierne samlet, når du fortolker diagnosticeringspanelerne.",
+  "scenes": [
+    "Fra Home åbner du Regression. Når en analyse er færdig, klikker du på Diagnostics. Kontrollér mappestien: denne genvej åbner den nyeste diagnosticeringsmappe, den finder i projektet.",
+    "Læs diagnosticeringsfilerne i mappen i rækkefølge: først designets identificerbarhed, derefter designdiagnosticeringen med de kollineære guidepar, så inferensdiagnosticeringen og til sidst oversigten, der samler dem.",
+    "Begynd med Design identifiability. Sammenlign antallet af brønde, antallet af parametre og designets rang. Dette eksempel har flere parametre, end rangen understøtter, så det kan ikke identificere en entydig samtidig koefficient for hver guide.",
+    "Undersøg hver guides støtte på tværs af brøndene. Eksemplet indeholder mange guides, der kun findes i én brønd. Skeln mellem det fulde design og den filtrerede familie af guides, der faktisk blev testet.",
+    "Åbn Design diagnostics og tabellen over kollineære par. Find prædiktorer, der altid optræder sammen eller har svag støtte, før du tilskriver dem separate effekter.",
+    "Åbn Inference diagnostics. Undersøg fordelingen af P-værdier, sammenligningen med nulhypotesen og fundene ved forskellige justerede tærskler. Dette eksempel har ingen fund ved den viste tærskel.",
+    "Kontrollér antallet af permutationer, når du fortolker P-værdier. Med 199 permutationer er den mindst opnåelige empiriske P-værdi 0,005. Planlæg den opløsning, som din korrektion for multipel testning kræver.",
+    "En permutationsanalyse giver ikke tilpassede residualer fra en samtidig regressionsmodel. Se efter residualpaneler, når du bruger en tilstand, der leverer observerede og tilpassede værdier.",
+    "Læs oversigten sammen med de enkelte paneler. Dens samlede vurdering afspejler den dårligste panelvurdering, så åbn den tilsvarende rapport for at forstå årsagen.",
+    "Vend tilbage til Regression for bevidst at ændre input eller analyseindstillinger. Kør den reviderede analyse, og undersøg dens nye diagnosticering. Hold tidligere outputmapper adskilt, så hver rapport forbliver knyttet til sine indstillinger."
+  ]
+}

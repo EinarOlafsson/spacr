@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Could not fetch the paper: {why}",
+      "source": "Could not fetch the paper: {why}",
+      "source_sha256": "3a8ed6df4d0e4efa97fef51c668f2ccda52dfc2b7066a9220009aca5c3367741",
+      "translation": "शोधपत्र प्राप्त नहीं किया जा सका: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Download failed: {why}",
+      "source": "Download failed: {why}",
+      "source_sha256": "86f52a0646e4add31adfea3f3e338e51e36aa440ea5ae6a54cd009fbec66ae70",
+      "translation": "डाउनलोड विफल हुआ: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}",
+      "source": "Download {name}",
+      "source_sha256": "c807156b8e24f0a378cd22e57f3bddcd25555680645c9f0636d3b59d5e4563c3",
+      "translation": "{name} डाउनलोड करें"
+    },
+    {
+      "table": "ui",
+      "key": "Downloaded to {path}. Press Run preview.",
+      "source": "Downloaded to {path}. Press Run preview.",
+      "source_sha256": "46de57c483b30e9b16982e42468b8f43b48230098aeb1de8907114b602615f18",
+      "translation": "{path} में डाउनलोड हो गया। पूर्वावलोकन चलाएँ दबाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the test data into {path}",
+      "source": "Downloading the test data into {path}",
+      "source_sha256": "8bbe6ddb553030350d19fd5708b1ad508e7693c81dfbbcd3cb8d66e143a01f45",
+      "translation": "परीक्षण डेटा {path} में डाउनलोड हो रहा है"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {done} of {total}…",
+      "source": "Downloading {done} of {total}…",
+      "source_sha256": "c00e4b14fdbb2d741ab51c1e8f693f14beae1093ae66497da034428780fad00e",
+      "translation": "डाउनलोड हो रहा है: {done}, कुल {total}…"
+    },
+    {
+      "table": "ui",
+      "key": "Fetching {ref} into {path}…",
+      "source": "Fetching {ref} into {path}…",
+      "source_sha256": "c187bf877c6fb1f0853ac443e875a35c9c8e524d21c1a6ff38d79d61ef38fed3",
+      "translation": "{ref} को {path} में प्राप्त किया जा रहा है…"
+    },
+    {
+      "table": "ui",
+      "key": "Loading preview from {path}…",
+      "source": "Loading preview from {path}…",
+      "source_sha256": "58e81fac77039aa6251fca9a783a1e7ad61dc1ff6f71088c6b26e937dab7b89c",
+      "translation": "{path} से पूर्वावलोकन लोड हो रहा है…"
+    },
+    {
+      "table": "ui",
+      "key": "No images found in {path}.",
+      "source": "No images found in {path}.",
+      "source_sha256": "1c0b3eff0826e1f44dd9ab9d498e4c1eedcaedf2d4dc5ae1d80fc08342e86c20",
+      "translation": "{path} में कोई छवि नहीं मिली।"
+    },
+    {
+      "table": "ui",
+      "key": "OPS test data ready: {path}",
+      "source": "OPS test data ready: {path}",
+      "source_sha256": "5534a6a78f7653cad2cf123115266ae4afe0fbf2502a704783722e6983a7e2b8",
+      "translation": "OPS परीक्षण डेटा तैयार है: {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in to {name}",
+      "source": "Sign in to {name}",
+      "source_sha256": "47e7f20bbed4fe5f0fb08f5bdc8c397fd2fba3246d869a97a16e1953e175794e",
+      "translation": "{name} में साइन इन करें"
+    },
+    {
+      "table": "ui",
+      "key": "Saved {n} annotations ({ok} OK) to {path}.",
+      "source": "Saved {n} annotations ({ok} OK) to {path}.",
+      "source_sha256": "f579f7714c2864bb27b2e84cbe84f9d6940eeec3d619d9d452a86b8ff0fc1dba",
+      "translation": "{n} एनोटेशन ({ok} OK) {path} में सहेजे गए।"
+    },
+    {
+      "table": "ui",
+      "key": "Run preview",
+      "source": "Run preview",
+      "source_sha256": "10f7ab9af7acce0259a48eed6bf6c741bbcadc20e12646ac2ac09e3b059e847b",
+      "translation": "पूर्वावलोकन चलाएँ"
+    }
+  ]
+}

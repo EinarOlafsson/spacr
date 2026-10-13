@@ -1,0 +1,269 @@
+"""Shared click-to-fold behavior for titled Qt panels.
+
+Folding hides the panel body so it no longer contributes to the layout size
+hint; adjacent stretchable content can then occupy the released space. The
+heading remains visible and provides the control for restoring the body.
+"""
+from __future__ import annotations
+
+import logging
+from typing import Callable, Optional
+
+from PySide6.QtCore import QEvent, QObject, Qt
+from PySide6.QtWidgets import QLabel, QWidget
+
+from ..i18n import tr
+
+LOG = logging.getLogger("spacr.qt.foldable")
+
+#: What a folded heading shows, and what an open one does. The arrow is part
+#: of the label text rather than a second widget: a heading whose affordance
+#: is a sibling can be laid out apart from it, and then the arrow points at
+#: nothing.
+OPEN_MARK = "▾"
+SHUT_MARK = "▸"
+
+
+class _ClickToFold(QObject):
+    """Convert a heading click into a fold-state change.
+
+    The heading owns the event filter so Qt retains it for the lifetime of
+    the interactive label.
+
+    :param label: the heading to watch. ALSO THE QOBJECT PARENT, which is
+        what the note above means by the heading owning the filter.
+    :param toggle: called on a left-button release over the heading. Takes
+        no arguments and returns nothing: this decides WHEN to fold, never
+        what the folded state should be.
+    """
+
+    def __init__(self, label: QLabel, toggle: Callable[[], None]):
+        """Take the heading as parent and hold the toggle it calls."""
+        super().__init__(label)
+        self._toggle = toggle
+
+    def eventFilter(self, watched, event) -> bool:  # noqa: N802 - Qt name
+        """Fold the panel when its heading is clicked.
+
+        :param watched: the heading.
+        :param event: the event.
+        :returns: ``False`` -- observed, never consumed, so the heading still
+            behaves like a label.
+        """
+        if event.type() == QEvent.MouseButtonRelease and \
+                getattr(event, "button", lambda: None)() == Qt.LeftButton:
+            try:
+                self._toggle()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("folding failed", exc_info=True)
+            return True
+        return False
+
+
+class Folder:
+    """The fold state of one panel, and the two widgets it moves.
+
+    Not a QWidget. The panels this serves are already built and already in
+    their layouts, and a wrapper would mean re-parenting them -- which
+    changes what their stylesheets match and what their splitters remember.
+
+    :param heading: the label that folds the panel when clicked. It is
+        rewritten to carry the arrow, so it must be a label this owns.
+    :param body: the widget shown and hidden.
+    :param name: what the panel is called, for the tooltip and for anything
+        remembering fold state. Defaults to the heading's own text.
+    :param on_change: called with the new shut/open state after each fold.
+    """
+
+    def __init__(self, heading: QLabel, body: QWidget, name: str = "",
+                 on_change: Optional[Callable[[bool], None]] = None):
+        """Make one heading fold the panel under it.
+
+        The heading is composed -- an arrow, the panel name, and sometimes an
+        alert -- so asking the catalogue for the finished line asks for a key
+        that cannot exist. The generic language pass is kept off it and the line
+        is rebuilt from its translated parts.
+
+        :param heading: the label that becomes the fold control.
+        :param body: the widget it folds away.
+        :param name: the panel's name; defaults to the heading's own text.
+        :param on_change: called with the new folded state after each toggle.
+        """
+        self.heading = heading
+        self.body = body
+        self.name = name or heading.text().strip()
+        self._on_change = on_change
+        self._listeners = []
+        #: Whether the last fold was the user's own, which is what decides
+        #: whether it is remembered. An automatic fold -- the console making
+        #: room for a live preview -- is not a choice the user made, and
+        #: storing it would fold the console on their next launch.
+        self.last_change_by_user = True
+        self._shut = False
+        self._alert = ""
+        heading.unsetCursor()
+        self._refresh_tooltip()
+        self._filter = _ClickToFold(heading, self.toggle)
+        heading.installEventFilter(self._filter)
+        heading.setProperty("i18nSkipText", True)
+        heading.retranslate_dynamic_content = self._retranslate
+        self._repaint()
+
+
+    @property
+    def shut(self) -> bool:
+        """Whether the fold is closed.
+
+        :returns: True when shut.
+        """
+        return self._shut
+
+    def toggle(self, *, by_user: bool = True) -> bool:
+        """Fold if open, unfold if shut. Returns the new shut state.
+
+        :param by_user: whether a person asked for it; see :meth:`set_shut`.
+        """
+        return self.set_shut(not self._shut, by_user=by_user)
+
+    def add_listener(self, callback: Callable[[bool, bool], None]) -> None:
+        """Call ``callback(shut, by_user)`` after every fold from now on.
+
+        A second audience beside ``on_change``: the splitter that gives the
+        released room away, and the bookkeeping that keeps an automatic fold
+        from undoing a fold the user chose, both need to hear about it without
+        taking the callback the panel's owner already holds.
+
+        :param callback: called with the new shut state and whether the user
+            asked for it.
+        """
+        if callable(callback) and callback not in self._listeners:
+            self._listeners.append(callback)
+
+    def set_shut(self, shut: bool, *, by_user: bool = True) -> bool:
+        """Open or close the fold, reporting whether anything moved.
+
+        :param shut: True to close it.
+        :param by_user: False when the program folds it on the user's behalf
+            (for example, a live preview opening). Such a fold is not
+            remembered across a restart, and the listeners are told so.
+        :returns: the new shut state.
+        """
+        shut = bool(shut)
+        if shut == self._shut:
+            return shut
+        self.last_change_by_user = bool(by_user)
+        self._shut = shut
+        self.body.setVisible(not shut)
+        if not shut:
+            self._alert = ""
+        self._repaint()
+        if self._on_change is not None:
+            try:
+                self._on_change(shut)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("fold callback failed", exc_info=True)
+        for listener in list(self._listeners):
+            try:
+                listener(shut, bool(by_user))
+            except Exception:                                # noqa: BLE001
+                LOG.debug("fold listener failed", exc_info=True)
+        return shut
+
+    def alert(self, note: str = "!") -> None:
+        """Mark the folded strip as having something to say.
+
+        A folded console that receives an error is marked, because otherwise
+        a folded panel with new content looks the same as a folded panel with
+        nothing in it.
+        """
+        if not self._shut:
+            return
+        self._alert = str(note or "!")
+        self._repaint()
+
+    def _retranslate(self, language: Optional[str] = None) -> None:
+        """Rebuild the heading and its tooltip in ``language``."""
+        self._refresh_tooltip(language)
+        self._repaint(language)
+
+    def _refresh_tooltip(self, language: Optional[str] = None) -> None:
+        """Write the heading's hover text.
+
+        The name has to look clickable before it is clicked: a gesture nobody
+        knows about is not a feature, and the pointer is the only hint a heading
+        can carry without a second widget beside it.
+
+        :param language: the language to write in; ``None`` uses the current
+            one.
+        """
+        self.heading.setToolTip(tr(
+            "Click to fold {name} away, and click again to bring it back. "
+            "The panel above takes the space.",
+            language, name=tr(self.name, language)))
+
+    def _repaint(self, language: Optional[str] = None) -> None:
+        """Rebuild the heading line from its parts.
+
+        :param language: the language to build in; ``None`` uses the current
+            one. The alert is appended only while the panel is folded away --
+            open, whatever it warns about is on screen already.
+        """
+        mark = SHUT_MARK if self._shut else OPEN_MARK
+        text = f"{mark} {tr(self.name, language)}"
+        if self._shut and self._alert:
+            text = f"{text}  {self._alert}"
+        self.heading.setText(text)
+
+
+def make_foldable(heading: QLabel, body: QWidget, name: str = "",
+                  on_change: Optional[Callable[[bool], None]] = None,
+                  *, persist_key: str = "", shut_by_default: bool = False) -> Folder:
+    """Make clicking ``heading`` fold ``body`` away. Returns the Folder.
+
+    The Folder is returned so the caller can hold it: it owns the event
+    filter, and a Folder nobody keeps stops working silently.
+
+    :param heading: label that receives the click event filter and displays
+        the open or shut marker.
+    :param body: panel whose visibility the heading toggles.
+    :param persist_key: ``"<module>/<panel>"``. Given, the fold survives a
+        restart. Empty means it does not, which is what a bare panel in a
+        test wants -- a test that wrote to the real preferences would fold a
+        panel on the user's next launch.
+    :param shut_by_default: start folded unless the user opened this panel
+        before (advanced rows that most people never change).
+    """
+    key = str(persist_key or "").strip()
+    shut_at_start = bool(shut_by_default)
+    if key:
+        try:
+            from ..preferences import get_folded_panels
+
+            shut_at_start = bool(get_folded_panels().get(key, shut_at_start))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read the folded panels", exc_info=True)
+
+    def remember(shut: bool) -> None:
+        """Store the fold state, if this section has a key to store it under.
+
+        Only a fold the user made is stored: see
+        :attr:`Folder.last_change_by_user`.
+        """
+        if key and folder.last_change_by_user:
+            try:
+                from ..preferences import set_folded_panel
+
+                if shut_by_default:
+                    set_folded_panel(key, shut, default_shut=True)
+                else:
+                    set_folded_panel(key, shut)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not store the fold", exc_info=True)
+        if on_change is not None:
+            on_change(shut)
+
+    folder = Folder(heading, body, name=name,
+                    on_change=remember if key else on_change)
+    if shut_at_start:
+        folder.set_shut(True, by_user=not shut_by_default)
+    return folder

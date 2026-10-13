@@ -1,0 +1,100 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "11_classify_ml",
+    "scene_count": 11,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete feature-based classification workflow, plate-aware correction and grouped validation, exact interface labels, and scientifically precise model-selection language."
+  },
+  "languages": {
+    "es": {
+      "description": "Entrene y evalúe un clasificador basado en características de objetos medidos, con corrección por placa y una búsqueda opcional de hiperparámetros.",
+      "prerequisite": "Complete Measure y proporcione una asignación fiable de etiquetas o controles, junto con columnas de agrupación que eviten fugas de información.",
+      "objectives": [
+        "Preparar características de medición válidas y etiquetas que tengan en cuenta las placas.",
+        "Configurar una validación agrupada y resultados interpretables.",
+        "Utilizar Hyperparameter Search para realizar una comparación específica y reproducible."
+      ],
+      "narrations": [
+        "Classify ML entrena un modelo clásico con mediciones de cada objeto. La consola informa sobre la carga de la base de datos, la preparación de las características, la validación, la importancia de las características, las predicciones y los errores.",
+        "Labels and Classes permite seleccionar el proyecto de medición, el campo de etiquetas, los valores positivos y negativos y la agrupación experimental. Verifique el significado biológico de esta correspondencia antes de ajustar un modelo.",
+        "Comience con Essentials y revise los cambios en Modified. Abra All solo para acceder a los controles que necesite el análisis y guarde una Recipe para las ejecuciones que vaya a repetir.",
+        "Feature Preparation permite seleccionar el canal de interés y elimina antes del entrenamiento las mediciones excluidas, no válidas, de baja varianza, muy correlacionadas o con respaldo insuficiente.",
+        "Plate and Batch Correction puede normalizar cada placa con respecto a sus controles. Utilice una corrección que conserve el contraste biológico y pueda aplicarse de forma coherente a datos futuros.",
+        "Classifier and Validation permite seleccionar el estimador, su complejidad, la partición reservada y el comportamiento de la validación cruzada. Agrupe los objetos relacionados por placa o pocillo para evitar fugas de información.",
+        "Feature Selection and Importance reduce el conjunto final de características y estima qué mediciones respaldan al clasificador. Interprete la importancia únicamente después de obtener un rendimiento aceptable en el conjunto reservado.",
+        "Output and Database controla si las probabilidades, las clases asignadas, los archivos del modelo y las características seleccionadas se guardan o se escriben de nuevo en el proyecto de medición.",
+        "Hyperparameter Search es un banco de pruebas reducido para comparar un conjunto específico de modelos mediante particiones agrupadas. La tabla de resultados ordena los ensayos finalizados y muestra su variación.",
+        "Search Settings define los valores candidatos, el límite de ensayos, las particiones, la semilla y la métrica de clasificación. Mantenga el espacio de búsqueda lo bastante pequeño como para poder explicarlo y reproducirlo.",
+        "Run valida los controles, prepara las características, aplica la corrección por placa cuando corresponda, evalúa el clasificador, calcula la importancia de las características y guarda los resultados habilitados. Revise el comportamiento en el conjunto reservado y en cada placa antes de utilizar las predicciones para extraer conclusiones biológicas."
+      ]
+    },
+    "fr": {
+      "description": "Entraînez et évaluez un classificateur fondé sur les caractéristiques d’objets mesurés, avec une correction tenant compte des plaques et une recherche facultative d’hyperparamètres.",
+      "prerequisite": "Terminez Measure et fournissez une association fiable des étiquettes ou des contrôles, ainsi que des colonnes de regroupement qui empêchent les fuites d’information.",
+      "objectives": [
+        "Préparer des caractéristiques de mesure valides et des étiquettes tenant compte des plaques.",
+        "Configurer une validation groupée et des résultats interprétables.",
+        "Utiliser Hyperparameter Search pour effectuer une comparaison ciblée et reproductible."
+      ],
+      "narrations": [
+        "Classify ML entraîne un modèle classique sur les mesures de chaque objet. La console indique le chargement de la base de données, la préparation des caractéristiques, la validation, l’importance des caractéristiques, les prédictions et les erreurs.",
+        "Labels and Classes permet de sélectionner le projet de mesure, le champ d’étiquettes, les valeurs positives et négatives ainsi que le regroupement expérimental. Vérifiez la signification biologique de cette correspondance avant d’ajuster un modèle.",
+        "Commencez par Essentials et contrôlez les modifications dans Modified. Ouvrez All uniquement pour accéder aux commandes nécessaires à l’analyse et enregistrez une Recipe pour les exécutions répétées.",
+        "Feature Preparation permet de sélectionner le canal d’intérêt et élimine avant l’entraînement les mesures exclues, non valides, de faible variance, fortement corrélées ou insuffisamment étayées.",
+        "Plate and Batch Correction peut normaliser chaque plaque par rapport à ses contrôles. Utilisez une correction qui préserve le contraste biologique et peut être appliquée de manière cohérente aux données futures.",
+        "Classifier and Validation permet de sélectionner l’estimateur, sa complexité, la partition réservée et le comportement de la validation croisée. Regroupez les objets apparentés par plaque ou par puits afin d’éviter les fuites d’information.",
+        "Feature Selection and Importance réduit le jeu final de caractéristiques et estime les mesures qui étayent le classificateur. N’interprétez l’importance qu’après avoir obtenu des performances acceptables sur le jeu réservé.",
+        "Output and Database contrôle si les probabilités, les classes attribuées, les fichiers du modèle et les caractéristiques sélectionnées sont enregistrés ou réinscrits dans le projet de mesure.",
+        "Hyperparameter Search est un banc d’essai réduit qui compare un ensemble ciblé de modèles au moyen de partitions groupées. Le tableau de résultats classe les essais terminés et indique leur variation.",
+        "Search Settings définit les valeurs candidates, le nombre maximal d’essais, les partitions, la graine et la métrique de classement. Conservez un espace de recherche suffisamment restreint pour pouvoir l’expliquer et le reproduire.",
+        "Run valide les contrôles, prépare les caractéristiques, applique la correction par plaque le cas échéant, évalue le classificateur, calcule l’importance des caractéristiques et enregistre les résultats activés. Examinez le comportement sur le jeu réservé et sur chaque plaque avant d’utiliser les prédictions pour tirer des conclusions biologiques."
+      ]
+    },
+    "it": {
+      "description": "Addestra e valuta un classificatore basato sulle caratteristiche degli oggetti misurati, con correzione che tiene conto delle piastre e ricerca facoltativa degli iperparametri.",
+      "prerequisite": "Completa Measure e fornisci una corrispondenza affidabile di etichette o controlli, insieme a colonne di raggruppamento che impediscano fughe di informazione.",
+      "objectives": [
+        "Preparare caratteristiche di misurazione valide ed etichette che tengano conto delle piastre.",
+        "Configurare una convalida raggruppata e risultati interpretabili.",
+        "Utilizzare Hyperparameter Search per un confronto mirato e riproducibile."
+      ],
+      "narrations": [
+        "Classify ML addestra un modello classico sulle misurazioni di ciascun oggetto. La console riporta il caricamento del database, la preparazione delle caratteristiche, la convalida, l’importanza delle caratteristiche, le previsioni e gli errori.",
+        "Labels and Classes consente di selezionare il progetto di misurazione, il campo delle etichette, i valori positivi e negativi e il raggruppamento sperimentale. Verifica il significato biologico di questa corrispondenza prima di adattare un modello.",
+        "Inizia da Essentials e controlla le modifiche in Modified. Apri All solo per accedere ai controlli necessari all’analisi e salva una Recipe per le esecuzioni ripetute.",
+        "Feature Preparation consente di selezionare il canale di interesse e rimuove prima dell’addestramento le misurazioni escluse, non valide, a bassa varianza, fortemente correlate o con supporto insufficiente.",
+        "Plate and Batch Correction può normalizzare ogni piastra rispetto ai relativi controlli. Usa una correzione che preservi il contrasto biologico e possa essere applicata in modo coerente ai dati futuri.",
+        "Classifier and Validation consente di selezionare lo stimatore, la sua complessità, la partizione riservata e il comportamento della convalida incrociata. Raggruppa gli oggetti correlati per piastra o pozzetto per evitare fughe di informazione.",
+        "Feature Selection and Importance riduce l’insieme finale delle caratteristiche e stima quali misurazioni supportano il classificatore. Interpreta l’importanza solo dopo aver ottenuto prestazioni accettabili sul set riservato.",
+        "Output and Database controlla se le probabilità, le classi assegnate, i file del modello e le caratteristiche selezionate vengono salvati o riscritti nel progetto di misurazione.",
+        "Hyperparameter Search è un banco di prova ridotto che confronta un insieme mirato di modelli mediante partizioni raggruppate. La tabella dei risultati ordina le prove completate e ne mostra la variazione.",
+        "Search Settings definisce i valori candidati, il limite di prove, le partizioni, il seme e la metrica di classificazione. Mantieni lo spazio di ricerca abbastanza ristretto da poterlo spiegare e riprodurre.",
+        "Run convalida i controlli, prepara le caratteristiche, applica l’eventuale correzione per piastra, valuta il classificatore, calcola l’importanza delle caratteristiche e salva i risultati abilitati. Esamina il comportamento sul set riservato e su ciascuna piastra prima di usare le previsioni per trarre conclusioni biologiche."
+      ]
+    },
+    "pt-BR": {
+      "description": "Treine e avalie um classificador baseado em características de objetos medidos, com correção por placa e busca opcional de hiperparâmetros.",
+      "prerequisite": "Conclua Measure e forneça um mapeamento confiável de rótulos ou controles, com colunas de agrupamento que evitem vazamento entre conjuntos.",
+      "objectives": [
+        "Preparar características de medição válidas e rótulos que considerem as placas.",
+        "Configurar validação agrupada e saídas interpretáveis.",
+        "Usar Hyperparameter Search em uma comparação específica e reproduzível."
+      ],
+      "narrations": [
+        "Classify ML treina um modelo clássico usando medições por objeto. O console informa o carregamento do banco de dados, a preparação das características, a validação, a importância das características, as previsões e os erros.",
+        "Labels and Classes seleciona o projeto de medição, o campo de rótulos, os valores positivos e negativos e o agrupamento experimental. Confirme o significado biológico desse mapeamento antes de ajustar um modelo.",
+        "Comece por Essentials e revise as alterações em Modified. Abra All somente para os controles necessários à análise e salve uma Recipe para execuções repetidas.",
+        "Feature Preparation seleciona o canal de interesse e remove, antes do treinamento, medições excluídas, inválidas, de baixa variância, muito correlacionadas ou com suporte insuficiente.",
+        "Plate and Batch Correction pode normalizar cada placa em relação aos respectivos controles. Use uma correção que preserve o contraste biológico e possa ser aplicada de forma consistente a dados futuros.",
+        "Classifier and Validation seleciona o estimador, a complexidade, a divisão dos dados reservados e o comportamento da validação cruzada. Agrupe objetos relacionados por placa ou poço para evitar vazamento de dados.",
+        "Feature Selection and Importance reduz o conjunto final de características e estima quais medições sustentam o classificador. Interprete a importância somente depois que o desempenho nos dados reservados for aceitável.",
+        "Output and Database controla se as probabilidades, as classes atribuídas, os arquivos do modelo e as características selecionadas serão salvos ou gravados novamente no projeto de medição.",
+        "Hyperparameter Search é um ambiente compacto para comparar um conjunto específico de opções de modelo usando partições agrupadas. A tabela de resultados classifica os ensaios concluídos e mostra sua variabilidade.",
+        "Search Settings define os valores candidatos, o número máximo de ensaios, as partições, a semente aleatória e a métrica de classificação. Mantenha o espaço de busca pequeno o suficiente para ser explicado e reproduzido.",
+        "Run valida os controles, prepara as características, aplica a correção de placa configurada, avalia o classificador, calcula a importância e salva as saídas habilitadas. Examine o desempenho nos dados reservados e em cada placa antes de interpretar biologicamente as previsões."
+      ]
+    }
+  }
+}

@@ -1,0 +1,1606 @@
+"""Decode pooled-screen FASTQ reads into per-well guide counts.
+
+WHAT IT IS FOR
+==============
+The **Map Barcodes** module connects a sequencing run to an image-based
+screen.  It finds the plate-column, guide, and plate-row barcode in each
+read, resolves those sequences against reference tables, and counts the
+resulting guides by well.  :func:`generate_barecode_mapping` is the GUI and
+Python entry point (the historical ``barecode`` spelling remains part of the
+public API); :func:`graph_sequencing_stats` can then help choose a read-fraction
+cutoff.
+
+WHAT IT NEEDS
+=============
+``src`` must contain gzip-compressed FASTQ files whose names let spaCR pair R1
+and R2 reads.  The run also needs a CSV reference table per barcode, with
+``sequence`` and ``name`` columns.  A run that decodes the three barcodes
+spaCR shipped names them as ``row_csv``, ``column_csv`` and ``grna_csv``, and
+a run that decodes any other number of barcodes lists them under
+``barcode_set`` instead, one entry per barcode.  ``target_sequence`` anchors
+the barcode window, while ``offset_start``, ``expected_end``, and a regex
+naming one group per barcode describe its layout.  The shipped regex names
+``columnID``, ``grna`` and ``rowID``.  Use ``mode='paired'`` for a
+quality-weighted R1/R2 consensus or ``mode='single'`` with
+``single_direction`` when only one mate should be read.
+
+WHAT IT PRODUCES
+================
+Each sample gets its own output directory beneath ``src``.  The essential
+artifacts are ``unique_combinations.csv`` (guide counts by row and column)
+and ``qc.csv``; ``annotated_reads.h5`` is also written when ``save_h5`` is
+enabled.  Optional barcode QC adds a report and plots under ``barcode_qc``.
+Run manifests and failure records identify samples that were skipped or
+could not be processed.
+
+WHAT TO DO NEXT
+===============
+Inspect the QC table and unmapped fraction before trusting the counts.  Use
+``test=True`` to process one chunk while checking the regex, read direction,
+and reference orientation, then run the full mapping and pass the resulting
+``unique_combinations.csv`` files to :func:`spacr.ml.perform_regression` as
+``count_data``.  :func:`barecodes_reverse_complement` can make an
+opposite-orientation copy of a reference CSV.
+
+Three behaviours can produce plausible but incomplete output.  The
+anchor match is exact and a wrong regex silently rejects reads; reference
+sequences are compared in their stored orientation; and a sequence within
+``barcode_mismatches`` of two references remains unassigned instead of being
+guessed.  Separately, read-level HDF5 output can be much larger than the count
+tables, and high compression may spend more time saving than decoding, so
+disable ``save_h5`` unless those individual annotations are needed.
+"""
+
+import logging
+import os, gzip, re, time
+from collections.abc import Mapping
+import pandas as pd
+from multiprocessing import cpu_count, Queue, Process
+from .resource_log import _parallel_pool as Pool
+from Bio.Seq import Seq
+import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
+import numpy as np
+from . import schema
+from .runctx import run_context
+
+#: Named for the module the log lines already say they come from.
+LOG = logging.getLogger(__name__)
+from .plot import plot_plates
+
+from .figures.style import ROLES, figure_style, theme_target
+try:
+    from IPython.display import display
+except Exception:
+    def display(*args, **kwargs):
+        """Ignore notebook display requests while IPython is unavailable.
+
+        :param args: positional display values accepted for API compatibility.
+        :param kwargs: display options accepted for API compatibility.
+        :returns: ``None``.
+        """
+        pass
+
+#: How many mismatched bases a barcode may carry and still be matched.
+#:
+#: Set from `settings['barcode_mismatches']` by `generate_barecode_mapping`
+#: rather than threaded through as an argument, because the mapping runs in
+#: worker processes whose arguments are a fixed tuple built in three places
+#: -- and a run-scoped budget is one value for the whole run by definition.
+#: The workers are forked, so they inherit it.
+BARCODE_MISMATCHES = 0
+
+
+def map_sequences_to_names(csv_file, sequences, rc, mismatches=None):
+    """Look up barcode / gRNA names for a list of DNA reads against a ``sequence,name`` mapping CSV.
+
+    Used inside the spacr sequencing pipeline to translate the row,
+    column, and gRNA barcodes extracted from paired-end reads into their
+    human-readable labels. Only the CSV's ``sequence`` column is
+    reverse-complemented when ``rc=True``; the input ``sequences`` are
+    matched verbatim, so callers should orient reads consistently
+    beforehand.
+
+    :param csv_file: Path to a CSV with ``sequence`` and ``name``
+        columns.
+    :param sequences: Iterable of DNA sequences to look up.
+    :param rc: If True, reverse-complement the CSV sequences before
+        building the lookup dict.
+    :returns: List of names aligned positionally with ``sequences``;
+        ``pd.NA`` for sequences that do not match any entry.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.sequencing import map_sequences_to_names
+            names = map_sequences_to_names(
+                '/data/barcodes/rows.csv',
+                sequences=['ACGT...', 'TTGG...'],
+                rc=False,
+            )
+
+    See Also:
+        :func:`generate_barecode_mapping` — full end-to-end read ->
+        (row, column, gRNA) name pipeline.
+    """
+    def rev_comp(dna_sequence):
+        """Return the reverse complement of ``dna_sequence`` (N stays N)."""
+        complement_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
+        reverse_seq = dna_sequence[::-1]
+        return ''.join([complement_dict[base] for base in reverse_seq])
+    
+    df = pd.read_csv(csv_file)
+    required = {"sequence", "name"}
+    missing = required.difference(df.columns)
+    if missing:
+        raise ValueError(
+            f"Barcode mapping {csv_file!r} is missing required column(s): "
+            f"{', '.join(sorted(missing))}.")
+    duplicate_sequences = df["sequence"].dropna().duplicated(keep=False)
+    if duplicate_sequences.any():
+        ambiguous = set(df.loc[duplicate_sequences, "sequence"].astype(str))
+        examples = sorted(ambiguous)[:5]
+        kept = df[~df["sequence"].astype(str).isin(ambiguous)]
+        if not len(kept):
+            raise ValueError(
+                f"Barcode mapping {csv_file!r} has no usable barcode: every "
+                f"one of its {len(df)} sequences appears under more than one "
+                f"name, so none of them can identify a guide. Examples: "
+                f"{', '.join(examples)}.")
+        print(f"Barcode mapping {csv_file!r}: {len(ambiguous)} sequence(s) "
+              f"appear under more than one name and cannot identify a guide. "
+              f"Reads carrying them are counted as unassigned. Examples: "
+              f"{', '.join(examples)}.")
+        df = kept
+    if rc:
+        df['sequence'] = df['sequence'].apply(rev_comp)
+    
+    csv_sequences = pd.Series(df['name'].values, index=df['sequence']).to_dict()
+    budget = BARCODE_MISMATCHES if mismatches is None else mismatches
+    if not budget:
+        return [csv_sequences.get(sequence, pd.NA) for sequence in sequences]
+    return _map_within(csv_sequences, sequences, int(budget))
+
+
+def _map_within(reference, sequences, mismatches):
+    """Map each sequence to its reference, allowing ``mismatches`` bases.
+
+    THE BUDGET WAS FIXED AT ZERO. Every barcode had to match a reference
+    exactly, so one sequencing error anywhere in a barcode threw the read
+    away -- and on a long barcode that is a real fraction of the library.
+    The budget is a setting now.
+
+    AMBIGUITY IS NOT A MATCH. A read within the budget of TWO references
+    cannot be told which it came from, so it is unassigned rather than given
+    to whichever came first -- the same rule as a sequence that appears
+    under two names. Attributing it would put one guide's counts on another.
+
+    Exact matches never go through the search, so a run with a budget of
+    zero costs nothing and a clean read costs one dict lookup.
+    """
+    by_length = {}
+    for text, name in reference.items():
+        by_length.setdefault(len(str(text)), []).append((str(text), name))
+
+    cache = {}
+
+    def resolve(sequence):
+        """Return the unique reference name within the mismatch budget.
+
+        Exact matches bypass the scan.  Inexact results, including an
+        ambiguous ``pd.NA``, are cached by their string representation so a
+        repeated read does not rescan every same-length reference.
+        """
+        text = str(sequence)
+        if text in reference:
+            return reference[text]
+        if text in cache:
+            return cache[text]
+        hit = pd.NA
+        found = 0
+        for candidate, name in by_length.get(len(text), ()):
+            wrong = 0
+            for a, b in zip(text, candidate):
+                if a != b:
+                    wrong += 1
+                    if wrong > mismatches:
+                        break
+            if wrong <= mismatches:
+                found += 1
+                if found > 1:
+                    hit = pd.NA
+                    break
+                hit = name
+        cache[text] = hit
+        return hit
+
+    return [resolve(sequence) for sequence in sequences]
+
+def save_df_to_hdf5(df, hdf5_file, key='df', comp_type='zlib', comp_level=5):
+    """Append (or create) ``df`` to a ``table``-format HDF5 dataset.
+
+    :param df: DataFrame to persist.
+    :param hdf5_file: destination HDF5 file path.
+    :param key: dataset key inside the store. Default ``'df'``.
+    :param comp_type: compression library. Default ``'zlib'``.
+    :param comp_level: compression level 0-9. Default ``5``.
+    :returns: None.
+    :raises Exception: after printing context, when the HDF5 write fails.
+    """
+    try:
+        with pd.HDFStore(hdf5_file, 'a', complib=comp_type, complevel=comp_level) as store:
+            if key in store:
+                existing_df = store[key]
+                df = pd.concat([existing_df, df], ignore_index=True)
+            store.put(key, df, format='table')
+    except Exception as e:
+        print(f"Error while saving DataFrame to HDF5: {e}")
+        raise
+
+def save_unique_combinations_to_csv(unique_combinations, csv_file):
+    """Append per-barcode-combination counts to a CSV, summing duplicates.
+
+    The columns to group by are the frame's own, every column except the
+    count, so any number of barcodes is supported. The frame comes from the
+    groupby that produced it, so its columns are the combination being
+    counted, whether that is one barcode or six.
+
+    :param unique_combinations: DataFrame holding one column per barcode and
+        a numeric ``count`` column.
+    :param csv_file: destination CSV path (created if absent).
+    :returns: None.
+    :raises Exception: after printing context, when the CSV write fails.
+    """
+    try:
+        try:
+            existing_df = pd.read_csv(csv_file)
+        except FileNotFoundError:
+            existing_df = pd.DataFrame()
+        
+        if not existing_df.empty:
+            combination_columns = [column for column in unique_combinations.columns
+                                   if column != 'count']
+            unique_combinations = pd.concat([existing_df, unique_combinations])
+            unique_combinations = unique_combinations.groupby(
+                combination_columns, as_index=False).sum()
+
+        unique_combinations.to_csv(csv_file, index=False)
+    except Exception as e:
+        print(f"Error while saving unique combinations to CSV: {e}")
+        raise
+
+def save_qc_df_to_csv(qc_df, qc_csv_file):
+    """Accumulate a one-row QC frame into a CSV, summing it with what is there.
+
+    Both frames are put on a positional index before they are added. The
+    incoming row is labelled ``NaN_Counts`` and is written with
+    ``index=False``, so the copy read back from disk is labelled ``0``;
+    without the positional index ``DataFrame.add`` would not align the two
+    labels and the file would gain one row per chunk instead of one summed
+    row of totals.
+
+    :param qc_df: numeric QC metrics (e.g. missing counts, total reads).
+    :param qc_csv_file: destination CSV path.
+    :returns: None.
+    :raises Exception: after printing context, when the CSV write fails.
+    """
+    try:
+        try:
+            existing_qc_df = pd.read_csv(qc_csv_file)
+        except FileNotFoundError:
+            existing_qc_df = pd.DataFrame()
+
+        qc_df = qc_df.reset_index(drop=True)
+        if not existing_qc_df.empty:
+            qc_df = qc_df.add(existing_qc_df.reset_index(drop=True),
+                              fill_value=0)
+
+        qc_df.to_csv(qc_csv_file, index=False)
+    except Exception as e:
+        print(f"Error while saving QC DataFrame to CSV: {e}")
+        raise
+
+def extract_sequence_and_quality(sequence, quality, start, end):
+    """Return the ``[start:end]`` slice of a sequence and its paired quality string.
+
+    :param sequence: DNA sequence.
+    :param quality: quality string of equal length.
+    :param start: inclusive start index.
+    :param end: exclusive end index.
+    :returns: tuple ``(subsequence, subquality)``.
+    """
+    return sequence[start:end], quality[start:end]
+
+def create_consensus(seq1, qual1, seq2, qual2):
+    """Return a per-position consensus of two equal-length reads.
+
+    At each position the higher-quality base is kept; if one call is ``N``
+    the other is preferred regardless of quality.
+
+    :param seq1: first DNA sequence.
+    :param qual1: quality string for ``seq1``.
+    :param seq2: second DNA sequence.
+    :param qual2: quality string for ``seq2``.
+    :returns: the consensus sequence as a string.
+    :raises ValueError: if either sequence and quality pair, or the two reads,
+        have different lengths. A partial consensus could assign a barcode to
+        the wrong well, so uneven reads are rejected rather than truncated.
+    """
+    lengths = (len(seq1), len(qual1), len(seq2), len(qual2))
+    if len(set(lengths)) != 1:
+        raise ValueError(
+            "consensus reads and quality strings must have equal lengths; "
+            f"got seq1={lengths[0]}, qual1={lengths[1]}, "
+            f"seq2={lengths[2]}, qual2={lengths[3]}")
+    consensus_seq = []
+    for i in range(len(seq1)):
+        bases = [(seq1[i], qual1[i]), (seq2[i], qual2[i])]
+        consensus_seq.append(get_consensus_base(bases))
+    return ''.join(consensus_seq)
+
+def get_consensus_base(bases):
+    """Return the higher-quality base from two ``(base, quality)`` pairs, preferring non-``N``.
+
+    :param bases: list of two ``(base, quality)`` tuples.
+    :returns: the chosen base as a single-character string.
+    """
+    if bases[0][0] == 'N':
+        return bases[1][0]
+    elif bases[1][0] == 'N':
+        return bases[0][0]
+    else:
+        return bases[0][0] if bases[0][1] >= bases[1][1] else bases[1][0]
+
+def reverse_complement(seq):
+    """Return the reverse complement of a DNA sequence via BioPython.
+
+    :param seq: DNA sequence.
+    :returns: reverse-complemented sequence as a string.
+    """
+    return str(Seq(seq).reverse_complement())
+
+def process_chunk(chunk_data):
+    """Extract and map barcodes from a chunk of single- or paired-end FASTQ reads.
+
+    Anchors on ``target_sequence``, extracts a consensus window, splits that
+    window with the named-group ``regex``, and maps every barcode it holds to
+    a name through that barcode's own reference table.
+
+    The chunk has one of two shapes. A tuple is the original form and
+    decodes three barcodes, a plate column, a guide and a plate row, from
+    three reference CSV paths. A mapping carries a barcode set instead and
+    decodes however many barcodes that set holds, writing a sequence column and a name column
+    for each of them.
+
+    The regex must name a group for every barcode being decoded, and the run
+    stops naming the barcode that has no group rather than decoding the rest.
+    For the historical three the column and the row are read from
+    ``columnID`` and ``rowID`` where the regex defines those, and from
+    ``column`` and ``row`` where it does not, so a pattern written before
+    those names were settled goes on matching.
+
+    :param chunk_data: a 9-tuple for single-end reads
+        ``(r1_chunk, regex, target_sequence, offset_start, expected_end,
+        column_csv, grna_csv, row_csv, fill_na)``, a 10-tuple for paired-end
+        reads ``(r1_chunk, r2_chunk, ...)`` with the same trailing fields, or
+        a mapping holding ``r1_chunk``, ``r2_chunk`` (absent or None for
+        single-end reads), ``regex``, ``target_sequence``, ``offset_start``,
+        ``window_length``, ``barcode_set`` and ``fill_na``.
+    :returns: tuple ``(df, unique_combinations, qc_df)`` — the annotated
+        reads, holding the read and then each barcode's sequence and name;
+        the number of reads behind each unique combination of barcode names;
+        and a one-row QC frame of missing values and total reads.
+    :raises ValueError: when the chunk is neither of those shapes, when the
+        window length is not positive, when the regex names no group for one
+        of the barcodes, or when a FASTQ record is malformed.
+    """
+    if isinstance(chunk_data, Mapping):
+        absent = [name for name in ('r1_chunk', 'regex', 'target_sequence',
+                                    'offset_start', 'window_length',
+                                    'barcode_set')
+                  if name not in chunk_data]
+        if absent:
+            raise ValueError(
+                "A barcode-set chunk is missing " + ", ".join(absent) + ".")
+        r1_chunk = chunk_data['r1_chunk']
+        r2_chunk = chunk_data.get('r2_chunk')
+        regex = chunk_data['regex']
+        target_sequence = chunk_data['target_sequence']
+        offset_start = chunk_data['offset_start']
+        expected_end = chunk_data['window_length']
+        fill_na = chunk_data.get('fill_na', False)
+        barcode_set = chunk_data['barcode_set']
+    elif isinstance(chunk_data, (tuple, list)) and len(chunk_data) in (9, 10):
+        if len(chunk_data) == 10:
+            r1_chunk, r2_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
+        else:
+            r1_chunk, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, fill_na = chunk_data
+            r2_chunk = None
+        from .settings import BarcodeEntry, BarcodeSet
+
+        legacy = {
+            'columnID': ('column', column_csv, 'columnID', ('column',)),
+            'rowID': ('row', row_csv, 'rowID', ('row',)),
+            'grna_name': ('grna', grna_csv, 'grna', ()),
+        }
+        barcode_set = BarcodeSet(
+            tuple(BarcodeEntry(name=name, csv=reference, group=group,
+                               group_aliases=aliases, id_column=id_column)
+                  for id_column, (name, reference, group, aliases)
+                  in legacy.items()),
+            count_columns=('rowID', 'columnID', 'grna_name'))
+    else:
+        raise ValueError(
+            "process_chunk expects 9 values for single-end reads or 10 "
+            f"values for paired-end reads; received "
+            f"{len(chunk_data) if hasattr(chunk_data, '__len__') else 'an unknown count'}.")
+
+    groups = barcode_set.resolve_groups(regex)
+
+    def _parse_record(record, label):
+        """Validate and split one four-line FASTQ record.
+
+        :param record: the record as one string of four lines.
+        :param label: how to name this record in an error message.
+        :returns: tuple ``(sequence, quality)``.
+        :raises ValueError: when the record is not four lines, is not a FASTQ
+            record, or pairs a sequence with a quality string of another
+            length.
+        """
+        lines = str(record).splitlines()
+        if len(lines) != 4:
+            raise ValueError(
+                f"{label} FASTQ record must have exactly four lines; "
+                f"received {len(lines)}.")
+        header, sequence, separator, quality = lines
+        if not header.startswith("@") or not separator.startswith("+"):
+            raise ValueError(
+                f"{label} is not a valid FASTQ record (expected @ header "
+                "and + separator).")
+        if len(sequence) != len(quality):
+            raise ValueError(
+                f"{label} sequence and quality lengths differ "
+                f"({len(sequence)} != {len(quality)}).")
+        return sequence, quality
+
+    def _split_window(match):
+        """Record every barcode the regex captured in this window.
+
+        :param match: the regex match over one consensus window.
+        :returns: None. The captured text is appended to the lists in
+            ``extracted``, one list per barcode, so that every barcode of
+            every matched read stays at the same position.
+        """
+        for entry in barcode_set:
+            extracted[entry.name].append(match.group(groups[entry.name]))
+
+    def paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex):
+        """Return consensus reads and their barcodes for paired-end chunks.
+
+        :param r1_chunk: four-line FASTQ record strings for R1.
+        :param r2_chunk: the matching R2 records, paired with ``r1_chunk`` by
+            position only -- headers are never compared.
+        :param target_sequence: anchor located with ``str.find`` (first
+            occurrence). R2 is reverse-complemented before the search, so write
+            the anchor in R1 orientation. A pair missing the anchor in either
+            mate is dropped without a row, so the QC ``total_reads`` counts
+            matched pairs rather than input pairs.
+        :param offset_start: bases from the anchor to the window start. A
+            resulting start below zero is clamped to the read start, not
+            rejected, so an over-negative offset quietly shifts the window.
+        :param expected_end: window *length*, not an end coordinate. A window
+            cut short by the read end is right-padded with ``N`` (quality
+            ``!``) to exactly this length, so the length check always passes
+            and a truncated read can still match with ``N`` inside a barcode --
+            which then maps to NA and drops out of the per-well counts.
+        :param regex: pattern string applied with ``re.match``: anchored at the
+            window start, but bases past the last group are ignored, so an
+            oversized ``expected_end`` only adds padding.
+        :returns: the consensus sequence of every matched pair, one entry per
+            pair, with that pair's barcodes appended to ``extracted``. A chunk
+            with no matches prints a warning and retries the last window
+            reverse-complemented as an orientation hint.
+        :raises ValueError: when the two chunks hold different read counts.
+        """
+        consensus_sequences = []
+        consensus_seq = None
+        if len(r1_chunk) != len(r2_chunk):
+            raise ValueError(
+                "Paired FASTQ chunks contain different read counts: "
+                f"R1={len(r1_chunk)}, R2={len(r2_chunk)}.")
+        
+        for index, (r1_lines, r2_lines) in enumerate(zip(r1_chunk, r2_chunk)):
+            r1_sequence, r1_quality = _parse_record(
+                r1_lines, f"R1 record {index + 1}")
+            r2_sequence, r2_quality = _parse_record(
+                r2_lines, f"R2 record {index + 1}")
+            r2_sequence = reverse_complement(r2_sequence)
+            r2_quality = r2_quality[::-1]
+
+            r1_pos = r1_sequence.find(target_sequence)
+            r2_pos = r2_sequence.find(target_sequence)
+
+            if r1_pos != -1 and r2_pos != -1:
+                r1_start = max(r1_pos + offset_start, 0)
+                r1_end = min(r1_start + expected_end, len(r1_sequence))
+                r2_start = max(r2_pos + offset_start, 0)
+                r2_end = min(r2_start + expected_end, len(r2_sequence))
+
+                r1_seq, r1_qual = extract_sequence_and_quality(r1_sequence, r1_quality, r1_start, r1_end)
+                r2_seq, r2_qual = extract_sequence_and_quality(r2_sequence, r2_quality, r2_start, r2_end)
+
+                if len(r1_seq) < expected_end:
+                    r1_seq += 'N' * (expected_end - len(r1_seq))
+                    r1_qual += '!' * (expected_end - len(r1_qual))
+
+                if len(r2_seq) < expected_end:
+                    r2_seq += 'N' * (expected_end - len(r2_seq))
+                    r2_qual += '!' * (expected_end - len(r2_qual))
+
+                consensus_seq = create_consensus(r1_seq, r1_qual, r2_seq, r2_qual)
+                match = re.match(regex, consensus_seq)
+                if match:
+                    consensus_sequences.append(consensus_seq)
+                    _split_window(match)
+
+        if len(consensus_sequences) == 0:
+            print(f"WARNING: No sequences matched {regex} in chunk")
+            print("Are barcode sequences in the correct orientation?")
+            print(f"Is {consensus_seq} compatible with {regex} ?")
+            
+            if consensus_seq:
+                consensus_seq_rc = reverse_complement(consensus_seq)
+                match = re.match(regex, consensus_seq_rc)
+                if match:
+                    print(f"Reverse complement of last sequence in chunk matched {regex}")
+
+        return consensus_sequences
+    
+    def single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex):
+        """Return R1 windows and their barcodes for single-end chunks.
+
+        No consensus is computed here: the R1 window is used as-is, so read
+        quality never influences the base calls the way it does for pairs.
+
+        :param r1_chunk: four-line FASTQ record strings for R1.
+        :param target_sequence: anchor located with ``str.find`` (first
+            occurrence). A read without it is dropped without a row, so the QC
+            ``total_reads`` counts matched reads rather than input reads.
+        :param offset_start: bases from the anchor to the window start. A
+            resulting start below zero is clamped to the read start, not
+            rejected.
+        :param expected_end: window *length*, not an end coordinate. A window
+            cut short by the read end is right-padded with ``N`` (quality
+            ``!``) to exactly this length, so a truncated read can still match
+            with ``N`` inside a barcode -- which then maps to NA and drops out
+            of the per-well counts.
+        :param regex: pattern string applied with ``re.match``: anchored at the
+            window start, but bases past the last group are ignored.
+        :returns: the window of every matched read, one entry per read, with
+            that read's barcodes appended to ``extracted``. A chunk with no
+            matches prints a warning and retries the last window
+            reverse-complemented as an orientation hint.
+        """
+
+        consensus_sequences = []
+        consensus_seq = None
+
+        for index, r1_lines in enumerate(r1_chunk):
+            r1_sequence, r1_quality = _parse_record(
+                r1_lines, f"R1 record {index + 1}")
+            
+            r1_pos = r1_sequence.find(target_sequence)
+
+            if r1_pos != -1:
+                r1_start = max(r1_pos + offset_start, 0)
+                r1_end = min(r1_start + expected_end, len(r1_sequence))
+
+                r1_seq, r1_qual = extract_sequence_and_quality(r1_sequence, r1_quality, r1_start, r1_end)
+
+                if len(r1_seq) < expected_end:
+                    r1_seq += 'N' * (expected_end - len(r1_seq))
+                    r1_qual += '!' * (expected_end - len(r1_qual))
+
+                consensus_seq = r1_seq
+
+                match = re.match(regex, consensus_seq)
+                if match:
+                    consensus_sequences.append(consensus_seq)
+                    _split_window(match)
+
+        if len(consensus_sequences) == 0:
+            print(f"WARNING: No sequences matched {regex} in chunk")
+            print("Are barcode sequences in the correct orientation?")
+            print(f"Is {consensus_seq} compatible with {regex} ?")
+
+            if consensus_seq:
+                consensus_seq_rc = reverse_complement(consensus_seq)
+                match = re.match(regex, consensus_seq_rc)
+                if match:
+                    print(f"Reverse complement of last sequence in chunk matched {regex}")
+
+        return consensus_sequences
+
+    if int(expected_end) <= 0:
+        raise ValueError("window_length must be a positive integer.")
+
+    extracted = {entry.name: [] for entry in barcode_set}
+
+    if r2_chunk is None:
+        consensus_sequences = single_find_sequence_in_chunk_reads(r1_chunk, target_sequence, offset_start, expected_end, regex)
+    else:
+        consensus_sequences = paired_find_sequence_in_chunk_reads(r1_chunk, r2_chunk, target_sequence, offset_start, expected_end, regex)
+
+    frame = {'read': consensus_sequences}
+    for entry in barcode_set:
+        sequences = extracted[entry.name]
+        frame[entry.sequence_column] = sequences
+        frame[entry.id_column] = map_sequences_to_names(
+            entry.csv, sequences, rc=False)
+
+    df = pd.DataFrame(frame)
+
+    qc_df = df.isna().sum().to_frame().T
+    qc_df.columns = df.columns
+    qc_df.index = ["NaN_Counts"]
+    qc_df['total_reads'] = len(df)
+
+    count_columns = list(barcode_set.count_columns)
+    if fill_na:
+        df2 = df.copy()
+        for entry in barcode_set:
+            df2[entry.id_column] = df2[entry.id_column].fillna(
+                df2[entry.sequence_column])
+
+        unique_combinations = df2.groupby(count_columns).size().reset_index(name='count')
+    else:
+        unique_combinations = df.groupby(count_columns).size().reset_index(name='count')
+
+    return df, unique_combinations, qc_df
+
+def saver_process(save_queue, hdf5_file, save_h5, unique_combinations_csv, qc_csv_file, comp_type, comp_level):
+    """Background writer that drains ``save_queue`` and persists each item.
+
+    Runs until the sentinel ``"STOP"`` arrives on the queue.
+
+    :param save_queue: multiprocessing queue delivering ``(df, unique_combinations, qc_df)`` tuples.
+    :param hdf5_file: HDF5 destination for full annotated reads.
+    :param save_h5: enable HDF5 writes of the reads DataFrame.
+    :param unique_combinations_csv: destination CSV for aggregated barcode combinations.
+    :param qc_csv_file: destination CSV for QC statistics.
+    :param comp_type: HDF5 compression library.
+    :param comp_level: HDF5 compression level.
+    :returns: None.
+    """
+    while True:
+        item = save_queue.get()
+        if item == "STOP":
+            break
+        df, unique_combinations, qc_df = item
+        if save_h5:
+            save_df_to_hdf5(df, hdf5_file, key='df', comp_type=comp_type, comp_level=comp_level)
+        save_unique_combinations_to_csv(unique_combinations, unique_combinations_csv)
+        save_qc_df_to_csv(qc_df, qc_csv_file)
+
+
+def _chunk_worker_count(n_jobs):
+    """Return a valid process count while preserving three CPUs when possible."""
+    if n_jobs is None:
+        return max(1, cpu_count() - 3)
+    count = int(n_jobs)
+    if count < 1:
+        raise ValueError(f"n_jobs must be at least 1; received {n_jobs!r}.")
+    return count
+
+
+def _validate_chunk_size(chunk_size):
+    """Return ``chunk_size`` as a positive integer."""
+    size = int(chunk_size)
+    if size < 1:
+        raise ValueError(
+            f"chunk_size must be at least 1; received {chunk_size!r}.")
+    return size
+
+
+def _chunk_payload(r1_chunk, r2_chunk, regex, target_sequence, offset_start,
+                   expected_end, column_csv, grna_csv, row_csv, fill_na,
+                   barcode_set):
+    """Package one chunk of reads for :func:`process_chunk`.
+
+    A run that names no barcode set sends the tuple it has always sent, so
+    the three barcodes spaCR shipped reach the workers exactly as they did
+    before sets existed. A run that names one sends a mapping carrying the
+    set itself, because a collection of any size has no place in a tuple
+    whose length is what says whether the reads are paired.
+
+    :param r1_chunk: four-line FASTQ record strings for R1.
+    :param r2_chunk: the matching R2 records, or None for single-end reads.
+    :param regex: pattern with one named group per barcode.
+    :param target_sequence: anchor used to locate the barcode window.
+    :param offset_start: bases from the anchor to the window start.
+    :param expected_end: window length.
+    :param column_csv: column-barcode reference CSV, read only when no
+        barcode set is given.
+    :param grna_csv: gRNA-barcode reference CSV, read only when no barcode
+        set is given.
+    :param row_csv: row-barcode reference CSV, read only when no barcode set
+        is given.
+    :param fill_na: fill unmapped names with the raw barcode sequence.
+    :param barcode_set: the run's :class:`spacr.settings.BarcodeSet`, or None
+        for the three barcodes spaCR shipped.
+    :returns: the chunk, as a tuple when no set is given and a mapping when
+        one is.
+    """
+    if barcode_set is None:
+        if r2_chunk is None:
+            return (r1_chunk, regex, target_sequence, offset_start,
+                    expected_end, column_csv, grna_csv, row_csv, fill_na)
+        return (r1_chunk, r2_chunk, regex, target_sequence, offset_start,
+                expected_end, column_csv, grna_csv, row_csv, fill_na)
+    return {'r1_chunk': r1_chunk, 'r2_chunk': r2_chunk, 'regex': regex,
+            'target_sequence': target_sequence, 'offset_start': offset_start,
+            'window_length': expected_end, 'barcode_set': barcode_set,
+            'fill_na': fill_na}
+
+
+def _finish_saver(save_queue, save_process, timeout=60):
+    """Stop the writer and fail the run when output persistence failed."""
+    save_queue.put("STOP")
+    save_process.join(timeout)
+    if save_process.is_alive():
+        save_process.terminate()
+        save_process.join(5)
+        raise RuntimeError(
+            "Sequencing output writer did not stop within "
+            f"{timeout} seconds and was terminated.")
+    if save_process.exitcode not in (0, None):
+        raise RuntimeError(
+            "Sequencing output writer failed with exit code "
+            f"{save_process.exitcode}; one or more output files may be "
+            "incomplete. See the worker traceback above.")
+
+
+def _label_resource_process(process, worker_kind, worker_id):
+    """Name a multiprocessing child in the active run's resource record."""
+    try:
+        from .runctx import current_run_context
+
+        context = current_run_context()
+        pid = getattr(process, "pid", None)
+        if context is not None and pid is not None:
+            context.register_worker(worker_kind, worker_id, pid=int(pid))
+    except Exception:                                           # noqa: BLE001
+        pass
+
+
+class _ChunkOverloadRetries:
+    """Spool failed FASTQ chunks for one pass after the primary input ends."""
+
+    def __init__(self, pool, save_queue, save_process, destination):
+        """Keep only small identities in RAM; create a private spool lazily."""
+        from .runctx import _DeferredOverloadRetries
+
+        self._pool = pool
+        self._save_queue = save_queue
+        self._save_process = save_process
+        self._destination = os.path.dirname(os.path.abspath(destination))
+        self._folder = None
+        self._queue = _DeferredOverloadRetries()
+        self._paths = {}
+
+    def _retry(self, path):
+        """Load one original chunk and submit exactly one final attempt."""
+        import pickle
+        from .cancellation import checkpoint
+
+        checkpoint()
+        with open(path, 'rb') as handle:
+            payload = pickle.load(handle)
+        return self._pool.apply_async(process_chunk, (payload,)).get()
+
+    def defer(self, identity, payload, error):
+        """Admit explicit overloads and retain their original chunk on disk."""
+        import pickle
+        import tempfile
+        import traceback
+        from functools import partial
+        from .runctx import _is_overload_failure
+
+        if not _is_overload_failure(error):
+            return False
+        if identity in self._paths:
+            return True
+        try:
+            if self._folder is None:
+                os.makedirs(self._destination, exist_ok=True)
+                self._folder = tempfile.mkdtemp(
+                    prefix='.spacr-read-retries-', dir=self._destination)
+            path = os.path.join(self._folder, f'{identity}.pkl')
+            with open(path, 'xb') as handle:
+                pickle.dump(payload, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                handle.flush()
+                os.fsync(handle.fileno())
+            with open(path + '.error.txt', 'x', encoding='utf-8') as handle:
+                handle.write(''.join(traceback.format_exception(
+                    type(error), error, error.__traceback__)))
+            self._paths[identity] = path
+            return self._queue.defer(identity, error, partial(self._retry, path))
+        except BaseException:
+            _abort_chunk_workers(self._pool, self._save_queue, self._save_process)
+            raise
+
+    def drain(self):
+        """Attempt every deferred chunk once, retaining all final failures."""
+        import traceback
+
+        failure = None
+        try:
+            for identity, result, error in self._queue.drain():
+                if error is not None:
+                    path = self._paths[identity]
+                    with open(path + '.final-error.txt', 'x', encoding='utf-8') as handle:
+                        handle.write(''.join(traceback.format_exception(
+                            type(error), error, error.__traceback__)))
+                    if failure is None:
+                        failure = error
+                    continue
+                self._save_queue.put(result)
+                path = self._paths.pop(identity)
+                os.unlink(path)
+                os.unlink(path + '.error.txt')
+            if self._folder is not None and not self._paths:
+                os.rmdir(self._folder)
+                self._folder = None
+            if failure is not None:
+                raise failure
+        except BaseException:
+            _abort_chunk_workers(self._pool, self._save_queue, self._save_process)
+            raise
+
+
+def _label_chunk_pool(pool):
+    """Name the stable worker processes a multiprocessing Pool created."""
+    for index, process in enumerate(getattr(pool, "_pool", ()) or (), start=1):
+        _label_resource_process(process, "sequencing_chunk", index)
+
+
+def _abort_chunk_workers(pool, save_queue, save_process):
+    """Best-effort cleanup after a read-processing exception."""
+    pool.terminate()
+    pool.join()
+    if save_process.is_alive():
+        save_queue.put("STOP")
+        save_process.join(10)
+    if save_process.is_alive():
+        save_process.terminate()
+        save_process.join(5)
+
+
+def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False, barcode_set=None):
+    """Chunked paired-end FASTQ processing: extract, decode and stream barcodes to disk.
+
+    Reads R1/R2 in ``chunk_size`` blocks, farms them out to
+    :func:`process_chunk` workers, and lets :func:`saver_process` write
+    HDF5 / CSV outputs concurrently.
+
+    :param r1_file: gzipped R1 FASTQ path.
+    :param r2_file: gzipped R2 FASTQ path.
+    :param regex: regex naming one group per barcode. The three spaCR
+        shipped are read from ``rowID``, ``columnID`` and ``grna``.
+    :param target_sequence: anchor sequence used to locate the barcode region.
+    :param offset_start: offset from ``target_sequence`` to begin extraction.
+    :param expected_end: length of the extracted consensus region.
+    :param column_csv: column-barcode reference CSV.
+    :param grna_csv: gRNA-barcode reference CSV.
+    :param row_csv: row-barcode reference CSV.
+    :param save_h5: persist the full reads DataFrame to HDF5.
+    :param comp_type: HDF5 compression library.
+    :param comp_level: HDF5 compression level.
+    :param hdf5_file: HDF5 output path.
+    :param unique_combinations_csv: destination CSV for aggregated combinations.
+    :param qc_csv_file: destination CSV for QC statistics.
+    :param chunk_size: reads per batch. Default ``10000``.
+    :param n_jobs: worker processes; defaults to ``cpu_count() - 3``.
+    :param test: process only the first chunk and print a preview.
+    :param fill_na: fill unmapped IDs with raw barcode sequences.
+    :param barcode_set: the barcodes to decode, as a
+        :class:`spacr.settings.BarcodeSet` of any size. None decodes the
+        three barcodes spaCR shipped from the three reference CSVs above;
+        a set is used instead of them.
+    :returns: None.
+    """
+    from .utils import count_reads_in_fastq, print_progress
+
+    n_jobs = _chunk_worker_count(n_jobs)
+    chunk_size = _validate_chunk_size(chunk_size)
+    for label, path in (("R1", r1_file), ("R2", r2_file)):
+        if not path or not os.path.isfile(path):
+            raise FileNotFoundError(
+                f"{label} FASTQ file does not exist: {path!r}.")
+
+    chunk_count = 0
+    time_ls = []
+
+    if not test:
+        print(f'Calculating read count for {r1_file}...')
+        total_reads = count_reads_in_fastq(r1_file)
+        chunks_nr = (total_reads + chunk_size - 1) // chunk_size
+    else:
+        total_reads = chunk_size
+        chunks_nr = 1
+
+    print(f'Mapping barcodes for {total_reads} reads in {chunks_nr} batches for {r1_file}...')
+
+    save_queue = Queue()
+
+    save_process = Process(target=saver_process, args=(save_queue, hdf5_file, save_h5, unique_combinations_csv, qc_csv_file, comp_type, comp_level))
+    save_process.start()
+    _label_resource_process(save_process, "sequencing_saver", "paired")
+
+    from .resource_log import _guard_workers
+    n_jobs = _guard_workers('map_barcodes', n_jobs or cpu_count(),
+                            int(chunk_size) * 2 * 1024)
+    pool = Pool(n_jobs)
+    _label_chunk_pool(pool)
+    deferred_chunks = _ChunkOverloadRetries(
+        pool, save_queue, save_process, hdf5_file)
+
+    print(f'Chunk size: {chunk_size}')
+
+    with gzip.open(r1_file, 'rt') as r1, gzip.open(r2_file, 'rt') as r2:
+        while True:
+            start_time = time.time()
+            r1_chunk = []
+            r2_chunk = []
+
+            for _ in range(chunk_size):
+                r1_lines = [r1.readline().strip() for _ in range(4)]
+                r2_lines = [r2.readline().strip() for _ in range(4)]
+
+                r1_done, r2_done = not r1_lines[0], not r2_lines[0]
+                if r1_done != r2_done:
+                    _abort_chunk_workers(pool, save_queue, save_process)
+                    raise ValueError(
+                        "Paired FASTQ files contain different read counts; "
+                        "one file ended before the other.")
+                if r1_done:
+                    break
+
+                r1_chunk.append('\n'.join(r1_lines))
+                r2_chunk.append('\n'.join(r2_lines))
+            
+            if not r1_chunk:
+                break
+
+            chunk_count += 1
+            chunk_data = _chunk_payload(
+                r1_chunk, r2_chunk, regex, target_sequence, offset_start,
+                expected_end, column_csv, grna_csv, row_csv, fill_na,
+                barcode_set)
+
+            result = pool.apply_async(process_chunk, (chunk_data,))
+
+            try:
+                df, unique_combinations, qc_df = result.get()
+            except BaseException as error:
+                if deferred_chunks.defer(chunk_count, chunk_data, error):
+                    print(f'Chunk {chunk_count} overloaded; retrying after primary chunks.')
+                    if test:
+                        break
+                    continue
+                _abort_chunk_workers(pool, save_queue, save_process)
+                raise
+            save_queue.put((df, unique_combinations, qc_df))
+
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+            print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type="Mapping Barcodes")
+
+            if test:
+                print('First 1000 lines in chunk 1')
+                print(df[:100])
+                break
+
+    deferred_chunks.drain()
+    pool.close()
+    pool.join()
+
+    _finish_saver(save_queue, save_process)
+
+def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, offset_start, expected_end, column_csv, grna_csv, row_csv, save_h5, comp_type, comp_level, hdf5_file, unique_combinations_csv, qc_csv_file, chunk_size=10000, n_jobs=None, test=False, fill_na=False, barcode_set=None):
+    """Chunked single-end FASTQ processing: extract, decode and stream barcodes to disk.
+
+    :param r1_file: gzipped R1 FASTQ path.
+    :param r2_file: unused placeholder kept for interface parity with the paired variant.
+    :param regex: regex naming one group per barcode. The three spaCR
+        shipped are read from ``rowID``, ``columnID`` and ``grna``.
+    :param target_sequence: anchor sequence used to locate the barcode region.
+    :param offset_start: offset from ``target_sequence`` to begin extraction.
+    :param expected_end: length of the extracted barcode region.
+    :param column_csv: column-barcode reference CSV.
+    :param grna_csv: gRNA-barcode reference CSV.
+    :param row_csv: row-barcode reference CSV.
+    :param save_h5: persist the full reads DataFrame to HDF5.
+    :param comp_type: HDF5 compression library.
+    :param comp_level: HDF5 compression level.
+    :param hdf5_file: HDF5 output path.
+    :param unique_combinations_csv: destination CSV for aggregated combinations.
+    :param qc_csv_file: destination CSV for QC statistics.
+    :param chunk_size: reads per batch. Default ``10000``.
+    :param n_jobs: worker processes; defaults to ``cpu_count() - 3``.
+    :param test: process only the first chunk and print a preview.
+    :param fill_na: fill unmapped IDs with raw barcode sequences.
+    :param barcode_set: the barcodes to decode, as a
+        :class:`spacr.settings.BarcodeSet` of any size. None decodes the
+        three barcodes spaCR shipped from the three reference CSVs above;
+        a set is used instead of them.
+    :returns: None.
+    """
+    from .utils import count_reads_in_fastq, print_progress
+
+    n_jobs = _chunk_worker_count(n_jobs)
+    chunk_size = _validate_chunk_size(chunk_size)
+    if not r1_file or not os.path.isfile(r1_file):
+        raise FileNotFoundError(
+            f"R1 FASTQ file does not exist: {r1_file!r}.")
+
+    chunk_count = 0
+    time_ls = []
+
+    if not test:
+        print(f'Calculating read count for {r1_file}...')
+        total_reads = count_reads_in_fastq(r1_file)
+        chunks_nr = (total_reads + chunk_size - 1) // chunk_size
+    else:
+        total_reads = chunk_size
+        chunks_nr = 1
+
+    print(f'Mapping barcodes for {total_reads} reads in {chunks_nr} batches for {r1_file}...')
+
+    save_queue = Queue()
+
+    save_process = Process(target=saver_process, args=(save_queue, hdf5_file, save_h5, unique_combinations_csv, qc_csv_file, comp_type, comp_level))
+    save_process.start()
+    _label_resource_process(save_process, "sequencing_saver", "single")
+
+    from .resource_log import _guard_workers
+    n_jobs = _guard_workers('map_barcodes', n_jobs or cpu_count(),
+                            int(chunk_size) * 2 * 1024)
+    pool = Pool(n_jobs)
+    _label_chunk_pool(pool)
+    deferred_chunks = _ChunkOverloadRetries(
+        pool, save_queue, save_process, hdf5_file)
+
+    with gzip.open(r1_file, 'rt') as r1:
+        while True:
+            start_time = time.time()
+            r1_chunk = []
+
+            for _ in range(chunk_size):
+                r1_lines = [r1.readline().strip() for _ in range(4)]
+
+                if not r1_lines[0]:
+                    break
+
+                r1_chunk.append('\n'.join(r1_lines))
+
+            if not r1_chunk:
+                break
+
+            chunk_count += 1
+            chunk_data = _chunk_payload(
+                r1_chunk, None, regex, target_sequence, offset_start,
+                expected_end, column_csv, grna_csv, row_csv, fill_na,
+                barcode_set)
+
+            result = pool.apply_async(process_chunk, (chunk_data,))
+            
+            try:
+                df, unique_combinations, qc_df = result.get()
+            except BaseException as error:
+                if deferred_chunks.defer(chunk_count, chunk_data, error):
+                    print(f'Chunk {chunk_count} overloaded; retrying after primary chunks.')
+                    if test:
+                        break
+                    continue
+                _abort_chunk_workers(pool, save_queue, save_process)
+                raise
+
+            save_queue.put((df, unique_combinations, qc_df))
+
+            end_time = time.time()
+            chunk_time = end_time - start_time
+            time_ls.append(chunk_time)
+            print_progress(files_processed=chunk_count, files_to_process=chunks_nr, n_jobs=n_jobs, time_ls=time_ls, batch_size=chunk_size, operation_type="Mapping Barcodes")
+
+            if test:
+                print('First 1000 lines in chunk 1')
+                print(df[:100])
+                break
+
+    deferred_chunks.drain()
+    pool.close()
+    pool.join()
+
+    _finish_saver(save_queue, save_process)
+
+
+def _run_barcode_qc(settings, dst, count_csv, qc_csv):
+    """QC one finished sample, if the settings asked for it. Never raises.
+
+    Called at the end of each sample's turn in
+    :func:`generate_barecode_mapping`, once that sample's
+    ``unique_combinations.csv`` and ``qc.csv`` are on disk. The point of
+    running it here rather than leaving it to the user is that the two
+    questions a mapping run raises -- did it work, and where does the
+    abundance threshold go -- are asked about *this* run's numbers, and
+    nobody goes back for them once the counts exist.
+
+    Wrapped, deliberately and completely. The reads are mapped and the
+    table is written by the time this is reached: a QC panel that cannot
+    plot, a missing barcode reference or an unreadable ``qc.csv`` must
+    cost the report and nothing else. A run that already produced its
+    output must never be lost to the analysis OF that output.
+
+    :param settings: the mapping settings dict. Reads
+        ``barcode_qc`` (default False -- the QC is opt-in, because it
+        pulls in plotting and statistics the read workers do not want)
+        and ``target_grnas_per_well``, which is the number the threshold
+        is derived from.
+    :param dst: the sample's output folder; the QC lands in
+        ``<dst>/barcode_qc``.
+    :param count_csv: that sample's ``unique_combinations.csv``.
+    :param qc_csv: that sample's ``qc.csv``.
+    :returns: the :func:`spacr.sequencing_qc.barcode_qc` result dict, or
+        None when the QC was off or failed.
+    """
+    if not settings.get('barcode_qc', False):
+        return None
+    try:
+        from .sequencing_qc import barcode_qc
+        result = barcode_qc({
+            'count_data': count_csv,
+            'qc_data': qc_csv,
+            'row_csv': settings.get('row_csv'),
+            'column_csv': settings.get('column_csv'),
+            'grna_csv': settings.get('grna_csv'),
+            'target_grnas_per_well': settings.get('target_grnas_per_well', 1),
+            'dst': os.path.join(dst, 'barcode_qc'),
+        })
+        print(result.get('recommendation', ''))
+        return result
+    except Exception as exc:
+        print(f"WARNING: barcode QC failed for {dst}: {exc}. The counts "
+              f"themselves were written and are unaffected; run "
+              f"spacr.sequencing_qc.barcode_qc on them directly to see why.")
+        return None
+
+
+def generate_barecode_mapping(settings=None):
+    """Turn a folder of pooled-screen FASTQ files into per-well sgRNA count tables usable by :func:`spacr.ml.perform_regression`.
+
+    Discovers the R1 and R2 files of each sample under ``src``. Paired
+    vs single-end and R1/R2 orientation are chosen from
+    ``settings['mode']`` and ``single_direction``.
+
+    From every read it extracts each barcode the run decodes, using the
+    configured regex and offset window. Each extracted sequence is then
+    turned into a name through that barcode's own lookup CSV (see
+    :func:`map_sequences_to_names`).
+
+    Per sample it writes ``annotated_reads.h5`` (optional),
+    ``unique_combinations.csv`` (the per-well gRNA counts) and
+    ``qc.csv``.
+
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.set_default_generate_barecode_mapping`.
+        Key entries:
+
+        - ``src`` — folder containing ``*.fastq.gz`` reads.
+        - ``mode`` — ``'paired'`` or ``'single'``.
+        - ``single_direction`` — ``'R1'`` or ``'R2'`` (``mode='single'``
+          only).
+        - ``regex`` — regex extracting barcodes from a read.
+        - ``target_sequence``, ``offset_start``, ``expected_end`` —
+          anchor and slice window used to locate the barcode region.
+        - ``column_csv`` / ``row_csv`` / ``grna_csv`` — barcode->name
+          lookup CSVs for the three barcodes spaCR shipped.
+        - ``barcode_set`` — the barcodes to decode when a run has other than
+          those three, as a list with one entry per barcode. Each entry
+          names the barcode, the reference CSV that names its sequences and
+          the regex group that captures it. Absent, which is what every
+          settings file written before sets existed is, the run decodes the
+          three named above.
+        - ``save_h5``, ``comp_type``, ``comp_level`` — HDF5 output
+          knobs.
+        - ``chunk_size``, ``n_jobs``, ``test``, ``fill_na``.
+        - ``barcode_qc`` — when true, QC each finished sample with
+          :func:`spacr.sequencing_qc.barcode_qc`, writing plots and a
+          report into ``<dst>/barcode_qc`` (default False; not filled in
+          by the settings defaults).
+        - ``target_grnas_per_well`` — expected gRNAs per well, from which
+          that QC step derives its abundance threshold (default 1).
+
+    :returns: None. Writes per-sample outputs into
+        ``<src>/<sample>_<mode>[_<direction>]/``.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.sequencing import generate_barecode_mapping
+            generate_barecode_mapping({
+                'src': '/data/screen_v1/fastq',
+                'mode': 'paired',
+                'row_csv': '/data/barcodes/rows.csv',
+                'column_csv': '/data/barcodes/cols.csv',
+                'grna_csv': '/data/barcodes/grnas.csv',
+            })
+
+    See Also:
+        :func:`map_sequences_to_names` — inner barcode->name lookup.
+        :func:`spacr.ml.perform_regression` — consumes the resulting
+        ``unique_combinations.csv`` as ``count_data``.
+    """
+    if settings is None:
+        settings = {}
+    from .settings import (barcode_set_from_settings,
+                          set_default_generate_barecode_mapping)
+    from .utils import save_settings
+    from .io import parse_gz_files
+
+    settings = set_default_generate_barecode_mapping(settings)
+    if (
+        settings["mode"] == "single"
+        and settings["single_direction"] not in {"R1", "R2"}
+    ):
+        raise ValueError(
+            "single_direction must be 'R1' or 'R2' when mode is 'single'; "
+            f"got {settings['single_direction']!r}"
+        )
+    save_settings(settings, name=f"sequencing_{settings['mode']}_{settings['single_direction']}", show=True)
+
+    global BARCODE_MISMATCHES
+    BARCODE_MISMATCHES = int(settings.get('barcode_mismatches') or 0)
+    if BARCODE_MISMATCHES:
+        print(f"Barcodes may carry up to {BARCODE_MISMATCHES} mismatched "
+              f"base(s). A read within the budget of TWO barcodes is left "
+              f"unassigned rather than given to whichever was found first.")
+
+    regex = settings['regex']
+
+    print(f'Using regex: {regex} to extract barcode information')
+
+    barcode_set = barcode_set_from_settings(settings)
+    if barcode_set is not None:
+        barcode_set.resolve_groups(regex)
+        print(f'Decoding {len(barcode_set)} barcode(s): '
+              + ', '.join(barcode_set.names))
+
+    samples_dict = parse_gz_files(settings['src'])
+    
+    print(samples_dict)
+
+    print(f'If compression is low and save_h5 is True, saving might take longer than processing.')
+    
+    with run_context('sequencing', settings) as run:
+        for key in samples_dict:
+            for attempt in run.policy.attempts_for(key, stage='sample'):
+                with attempt:
+                    reads = samples_dict[key]
+                    r1_path = reads.get('R1')
+                    r2_path = reads.get('R2')
+                    mode = settings['mode']
+                    if mode == 'paired':
+                        usable = bool(r1_path and r2_path)
+                    else:
+                        wanted = settings.get('single_direction', 'R1')
+                        usable = bool(reads.get(wanted) or r1_path or r2_path)
+                    if not usable:
+                        have = ', '.join(sorted(reads)) or 'nothing'
+                        LOG.warning(
+                            "%s: skipped -- %s mode needs %s but this sample "
+                            "has %s. Check the file names in src.",
+                            key, mode,
+                            'R1 and R2' if mode == 'paired' else wanted, have)
+                        continue
+                    if True:
+                        key_mode = f"{key}_{settings['mode']}"
+                        if settings['mode'] == 'single':
+                            key_mode = f"{key_mode}_{settings['single_direction']}"
+                        dst = os.path.join(settings['src'], key_mode)
+                        hdf5_file = os.path.join(dst, 'annotated_reads.h5')
+                        unique_combinations_csv = os.path.join(dst, 'unique_combinations.csv')
+                        qc_csv_file = os.path.join(dst, 'qc.csv')
+                        os.makedirs(dst, exist_ok=True)
+
+                        print(f'Analyzing reads from sample {key}')
+
+                        if settings['mode'] == 'paired':
+                            function = paired_read_chunked_processing
+                            R1 = r1_path
+                            R2 = r2_path
+
+                        else:
+                            function = single_read_chunked_processing
+
+                            if settings['single_direction'] == 'R1':
+                                R1 = r1_path or r2_path
+                                R2 = None
+                            else:
+                                R1 = r2_path or r1_path
+                                R2 = None
+
+                        function(r1_file=R1,
+                                 r2_file=R2,
+                                 regex=regex,
+                                 target_sequence=settings['target_sequence'],
+                                 offset_start=settings['offset_start'],
+                                 expected_end=settings['window_length'],
+                                 column_csv=settings['column_csv'],
+                                 grna_csv=settings['grna_csv'],
+                                 row_csv=settings['row_csv'],
+                                 barcode_set=barcode_set,
+                                 save_h5 = settings['save_h5'],
+                                 comp_type = settings['comp_type'],
+                                 comp_level=settings['comp_level'],
+                                 hdf5_file=hdf5_file,
+                                 unique_combinations_csv=unique_combinations_csv,
+                                 qc_csv_file=qc_csv_file,
+                                 chunk_size=settings['chunk_size'],
+                                 n_jobs=settings['n_jobs'],
+                                 test=settings['test'],
+                                 fill_na=settings['fill_na'])
+
+                        _run_barcode_qc(settings, dst,
+                                        unique_combinations_csv, qc_csv_file)
+
+def barecodes_reverse_complement(csv_file):
+    """Write a copy of a barcode CSV with the ``sequence`` column reverse-complemented.
+
+    Output is saved in the same directory with the extension dropped and
+    ``_RC.csv`` appended, so ``rows.csv`` becomes ``rows_RC.csv``.
+
+    :param csv_file: input CSV path with a ``sequence`` column.
+    :returns: None.
+    """
+    def reverse_complement(sequence):
+        """Return the reverse complement of ``sequence`` (N stays N)."""
+        complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G', 'N': 'N'}
+        return ''.join(complement[base] for base in reversed(sequence))
+
+    df = pd.read_csv(csv_file)
+
+    df['sequence'] = df['sequence'].apply(reverse_complement)
+
+    file_dir, file_name = os.path.split(csv_file)
+    file_name_no_ext = os.path.splitext(file_name)[0]
+    new_filename = os.path.join(file_dir, f"{file_name_no_ext}_RC.csv")
+
+    df.to_csv(new_filename, index=False)
+
+    print(f"Reverse complement file saved as {new_filename}")
+
+def _resolve_column(df, wanted):
+    """The frame's own spelling of ``wanted``.
+
+    :raises ValueError: when no column matches, naming what the frame HAS --
+        a KeyError four frames down says only the name that was asked for,
+        which is the one piece of information the user already had.
+    """
+    name = str(wanted or "").strip()
+    if not name:
+        raise ValueError(
+            "No filter_column is set, so the control wells cannot be removed. "
+            f"The counts hold {list(df.columns)[:12]}.")
+    if name in df.columns:
+        return name
+    folded = {str(c).strip().lower(): c for c in df.columns}
+    if name.lower() in folded:
+        return folded[name.lower()]
+    raise ValueError(
+        f"filter_column={name!r} is not a column of the count data, which "
+        f"holds {list(df.columns)[:12]}. spaCR renames headers to its own "
+        f"vocabulary on read (plate_name -> plateID, col -> columnID), so a "
+        f"settings file written against the original headers can name a "
+        f"column that no longer exists under that spelling.")
+
+
+def graph_sequencing_stats(settings):
+    """Pick the fraction cutoff that yields a target mean of unique gRNAs per well.
+
+    Loads one or more count CSVs, drops control wells, computes per-well
+    gRNA fractions, sweeps thresholds to find the value producing the
+    requested unique-count average, and plots both the sweep curve and
+    the resulting per-plate heatmap.
+
+    :param settings: dict with keys ``count_data`` (str or list of CSVs
+        with ``grna``, ``count``, ``rowID``, ``columnID``),
+        ``target_unique_count``, ``filter_column``, ``control_wells``,
+        ``log_x`` and ``log_y``.
+    :returns: the fraction threshold closest to the target unique count.
+
+    ``calibrate_fraction_threshold`` is not read by this function.
+
+    The two settings answer different questions. ``target_unique_count`` sets
+    how many gRNAs a well should end up with and is answered from the counts;
+    the calibration finds the cut-off at which imaging and sequencing agree
+    and is answered from the control wells. The run reports both numbers, but
+    the switch is read only in ``ml._perform_regression``, for three reasons.
+
+    First, the calibration needs imaging inputs -- a per-cell classifier
+    score, the well each cell is in, and the plate design naming the pure
+    positive- and negative-control blocks. This function receives only the
+    count tables, so reading the switch here would require undocumented keys
+    or a silent fallback to the counts-based answer when they are absent.
+
+    Second, in ``ml._perform_regression`` the calibration runs first. When it
+    succeeds ``fraction_threshold`` is no longer ``None``, so this function is
+    not asked for a threshold; the sweep is only drawn, through
+    ``ml._draw_the_threshold_sweep``, which prints the calibrated number
+    beside this sweep's independent pick. If the sweep also read the switch,
+    it would return the calibrated number and both printed values would be
+    the same.
+
+    Third, the switch is read in one place, where the score table is loaded
+    and the calibration can run; a second reader could disagree with it.
+
+    This function prints that its returned threshold comes from
+    ``target_unique_count``, because a screen that asked for the calibration
+    and could not have it falls back to this threshold.
+    """
+    from .utils import correct_metadata_column_names, correct_metadata
+
+    def find_and_visualize_fraction_threshold(df, target_unique_count=5, log_x=False, log_y=False, dst=None):
+        """Return the fraction threshold whose per-well unique gRNA mean is closest to ``target_unique_count``.
+
+        The sweep plot's view is clamped to x in [0, 0.1] and y in [0, 20], so a
+        returned threshold above 0.1 has its marker line drawn off the visible
+        axes even though the value itself is correct.
+
+        :param df: one row per gRNA per well, with ``fraction`` plus
+            ``plateID``, ``rowID`` and ``columnID``; any missing column raises
+            ``KeyError``.
+        :param target_unique_count: mean unique gRNAs per well to aim for. The
+            answer is only the nearest point of a fixed 1000-step grid spanning
+            0.001 to 0.99, so an unreachable target silently saturates at one
+            end of that grid instead of reporting that it was not met. ``None``
+            or a string raises from the subtraction.
+        :param log_x: log-scale the plot's x axis. The hard-coded
+            ``xlim(0, 0.1)`` applied afterwards is then rejected by matplotlib
+            as a non-positive limit on a log axis, so the view autoscales.
+        :param log_y: the same for the y axis and ``ylim(0, 20)``.
+        :param dst: when set, writes ``<dst>/results/fraction_threshold.pdf``,
+            creating the directories; ``None`` only shows the figure. The sole
+            caller always passes a path, so the default is unreachable there.
+        :returns: the chosen threshold as a ``numpy.float64``. A threshold that
+            empties the table yields NaN rather than 0, so a table whose
+            fractions are all below 0.001 makes every sweep point NaN and the
+            fallback returns 0.99 -- a value that then discards every read.
+        """
+
+        def _line_plot(df, x, y, log_x, log_y):
+            """Plot columns ``x`` and ``y`` using the shared figure style.
+
+            The returned figure and axes let the caller add its chosen
+            threshold marker before either saving or displaying the plot.
+            """
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(figsize=(10, 10))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, df, x=x, y=y, kind="line")
+                ax.plot(df[x], df[y], linestyle='-', color=(0 / 255, 155 / 255, 155 / 255), label=f"{y}")
+                ax.set_xlabel(x)
+                ax.set_ylabel(y)
+                ax.set_title(f'{y} vs {x}')
+                ax.legend()
+                if log_x:
+                    ax.set_xscale('log')
+                if log_y:
+                    ax.set_yscale('log')
+                fig.tight_layout()
+                return fig, ax
+
+        fraction_thresholds = np.linspace(0.001, 0.99, 1000)
+        results = []
+
+        for threshold in fraction_thresholds:
+            filtered_df = df[df['fraction'] >= threshold]
+            unique_count = filtered_df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().mean()
+            results.append((threshold, unique_count))
+
+        results_df = pd.DataFrame(results, columns=['fraction_threshold', 'unique_count'])
+        closest_index = (results_df['unique_count'] - target_unique_count).abs().argmin()
+        closest_threshold = results_df.iloc[closest_index]
+
+        print(f"Closest Fraction Threshold: "
+              f"{closest_threshold['fraction_threshold']} "
+              f"(nearest target_unique_count={target_unique_count})")
+        print(f"Unique Count at Threshold: {closest_threshold['unique_count']}")
+
+        fig, ax = _line_plot(df=results_df, x='fraction_threshold', y='unique_count', log_x=log_x, log_y=log_y)
+
+        plt.axvline(x=closest_threshold['fraction_threshold'],
+                    color=ROLES["reference"], linestyle='--',
+                    label=f'Closest Threshold ({closest_threshold["fraction_threshold"]:.4f})')
+        plt.axhline(y=target_unique_count, color=ROLES["reference"],
+                    linestyle='--',
+                    label=f'Target Unique Count ({target_unique_count})')
+        
+        plt.xlim(0,0.1)
+        plt.ylim(0,20)
+
+        fig_path = os.path.join(dst, 'results')
+        os.makedirs(fig_path, exist_ok=True)
+        fig_file_path = os.path.join(fig_path, 'fraction_threshold.pdf')
+        from .plot import save_figure
+
+        fig_file_path = save_figure(fig, fig_file_path,
+                                    bbox_inches='tight')
+        print(f"Saved {fig_file_path}")
+        _show_if_interactive()
+
+        return closest_threshold['fraction_threshold']
+
+    if isinstance(settings['count_data'], str):
+        settings['count_data'] = [settings['count_data']]
+
+    dfs = []
+    for i, count_data in enumerate(settings['count_data']):
+        df = pd.read_csv(count_data)
+        
+        df = correct_metadata(df)
+        
+        if 'plateID' not in df.columns:
+            df['plateID'] = f'plate{i+1}'
+            
+        display(df)
+        
+        if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
+            df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+        else:
+            raise ValueError("The DataFrame must contain 'plateID', 'rowID', and 'columnID' columns.")
+        
+        df['total_count'] = df.groupby(['prc'])['count'].transform('sum')
+        df['fraction'] = df['count'] / df['total_count']
+        dfs.append(df)
+
+    df = pd.concat(dfs, axis=0)
+
+    df = correct_metadata_column_names(df)
+
+    filter_column = _resolve_column(df, settings.get('filter_column'))
+    for c in settings['analysis_excluded_wells']:
+        df = df[df[filter_column] != c]
+
+    dst = os.path.dirname(settings['count_data'][0])
+
+    closest_threshold = find_and_visualize_fraction_threshold(
+        df, settings['target_unique_count'],
+        log_x=settings.get('log_x', False),
+        log_y=settings.get('log_y', False), dst=dst)
+
+    df = df[df['fraction'] >= closest_threshold]
+
+    unique_counts = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().reset_index(name='unique_counts')
+    unique_count_mean = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().mean()
+    unique_count_std = df.groupby(['plateID', 'rowID', 'columnID'])['grna'].nunique().std()
+
+    df = pd.merge(df, unique_counts, on=['plateID', 'rowID', 'columnID'],
+                  how='left', validate='many_to_one')
+
+    print(f"unique_count mean: {unique_count_mean} std: {unique_count_std}")
+
+    df['rowID'] = (df['rowID'].astype(str)
+                   .str.rsplit(schema.KEY_SEPARATOR, n=1).str[-1])
+
+    plot_plates(df=df, variable='unique_counts', grouping='mean', min_max='allq', cmap='viridis',min_count=0, verbose=True, dst=dst)
+
+    print(f"fraction_threshold={closest_threshold} chosen from "
+          f"target_unique_count={settings['target_unique_count']}: the "
+          f"cut-off that leaves a well with about that many unique gRNAs, "
+          f"measured from the counts alone. This is not the cut-off at which "
+          f"imaging and sequencing agree -- that is a different question, put "
+          f"to the control wells by calibrate_fraction_threshold.")
+
+    return closest_threshold

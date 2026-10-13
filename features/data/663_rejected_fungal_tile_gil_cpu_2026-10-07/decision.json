@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-07",
+  "decision": "REJECTED: no production edit or new tile/live benchmark justified",
+  "scope": "Read-only renderer feasibility plus one bounded installed-binding GIL observation",
+  "argv": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python /mnt/wd4tb/scratch/fungal-tile-gil-feasibility-20261007/gil_probe.py",
+  "working_directory": "/mnt/wd4tb/spacr-worktrees/codex-settings-fixture-owners-20261007",
+  "current_ambient_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "installed_qtgui_sha256": "ac1da875502fd8142dc9083f1572efa20341145a6340b9d004d3318960f6306c",
+  "installed_gui_typesystem_sha256": "7d77aa0a877531042ae3ab1477eb155d2362e74a2f8fbcdfe7e4007c05a6a233",
+  "fresh_finding": "PySide6 6.11.2 native drawPath prevents heartbeat Python execution for the 4523.50ms single raster call; the sleep control permits 76 strictly interior ticks. This is a local installed-binding fact, not a universal claim about every Qt/PySide version.",
+  "current_source_guard": "Mature raster reuse requires this engine's owned frame, identity world/device transforms and no painter clipping. Independent tile painters fail these guards. Sharing mutable engine/frame/cache between threads is not justified.",
+  "previous_source_sha256": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+  "previous_scope": "Earlier scratch evidence only; not rerun and not claimed to be current renderer performance",
+  "previous_evidence": {
+    "directory": "/mnt/wd4tb/scratch/theme-refinement-20261006/mycelium-path-cache-20261006",
+    "tile_full_probe.py_sha256": "ffcbab86b2f53d9b244802475d4f802d8d1afac358599386dde2c5fa8af7432a",
+    "tile_full_timing.json_sha256": "daf01b476066eea790cbdd00128d91533621be75399b33075acdd24ffcb6f6a9",
+    "tile_two_gate.json_sha256": "ffec5c25f98f44e7892cb63f902088a710936bd86cbde9138c7536914873de17",
+    "translated_two_tiles": "6 differing seam pixels at clock3600.33",
+    "full_coordinate_sequential_tiles": "48 expanded exact native comparisons",
+    "full_coordinate_two_threads_dark_detail2_median_ms": [59.490534506039694, 98.07910400559194],
+    "full_coordinate_two_threads_dark_detail1_median_ms": [86.54054150247248, 142.89805149746826],
+    "peak_rss_kib": 939528
+  },
+  "quality_changes": false,
+  "production_changes": false,
+  "hard_24fps_acceptance": false
+}

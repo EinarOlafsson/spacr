@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted source-context review. Preserves per-view thresholding before agreement/voting, available probabilities and default. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "score_threshold",
+      "source": "Probability cutoff (0-1) applied to the model's positive-class score when deriving binary predictions. With test-time augmentation, this threshold labels each view before agreement and voting are calculated. Probability scores remain available. Default 0.5.",
+      "source_sha256": "4ac7d466720508704bc9a5a1e24952d1ed154bd2c6cb35393ef41791d33c7948",
+      "translation": "बाइनरी पूर्वानुमान निकालते समय मॉडल के सकारात्मक वर्ग के स्कोर पर लागू प्रायिकता सीमा (0–1)। परीक्षण के समय डेटा संवर्धन का उपयोग होने पर, सहमति और मतदान की गणना से पहले यह सीमा हर दृश्य का वर्ग निर्धारित करती है। प्रायिकता स्कोर उपलब्ध रहते हैं। डिफ़ॉल्ट मान 0.5 है।"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "accepted": true,
+  "installation_performed": false,
+  "folder": "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf",
+  "tag": "v1.5.1.3",
+  "github_response_sha256": "bc380dc6ca43b0f043cc7e31a38881ded1056108f8875938bd22eed6d2804702",
+  "installer": "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/spaCR-1.5.1.3-Linux-x86_64-Online.run",
+  "installer_bytes": 226601,
+  "sha256": "81c9806c8d80237c8d14de29e77980715d3628143afcb1a6f1aeb3a6d5562465",
+  "checksum_manifest_sha256": "d3495751f92a430700945e2b34c88f78aa1621a9c3d96c0253369ba6ea26107c",
+  "scope": "Downloaded bytes match exact public release; no installation or GUI success claimed",
+  "script_preflight_checks": [
+    {
+      "command": [
+        "bash",
+        "-n",
+        "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/spaCR-1.5.1.3-Linux-x86_64-Online.run"
+      ],
+      "returncode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "bash",
+        "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/spaCR-1.5.1.3-Linux-x86_64-Online.run",
+        "--help"
+      ],
+      "returncode": 0,
+      "output": "Usage: install_spacr_unix.sh [options]\n\nOptions:\n  --platform linux|macos  Override automatic platform detection (linux or macos).\n  --install-root PATH     Install into PATH.\n  --package-spec SPEC     Install SPEC instead of the released spaCR build.\n  --torch-backend NAME    PyTorch backend (default: auto; use cpu to disable hardware acceleration).\n  --launcher-dir PATH     Put the command launcher in PATH (mainly for CI).\n  --no-command-launcher   Do not install a command-line launcher.\n  --skip-system-deps      Do not install Linux Qt runtime libraries.\n  --no-launch             Do not launch spaCR after installation.\n  --dry-run               Print the resolved plan without downloading.\n  --share-diagnostics     Include redacted logs in report previews.\n  --report-issues         Show the public GitHub report action.\n  --sign-in-now           Open account setup on first launch.\n  --consent-collected     Record that these choices were reviewed.\n  --offline-bundle PATH   Install from an offline bundle, with no network.\n  --check-mask            After an offline install, run Mask on its test data.\n  -h, --help              Show this help.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/spaCR-1.5.1.3-Linux-x86_64-Online.run",
+        "--dry-run",
+        "--install-root",
+        "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/runtime",
+        "--launcher-dir",
+        "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/bin",
+        "--skip-system-deps",
+        "--no-launch"
+      ],
+      "returncode": 0,
+      "output": "spaCR lightweight online installer\n  platform:       linux\n  application:    spacr[qt]==1.5.1.3\n  private Python: 3.12\n  install root:   /tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/runtime\n  PyTorch backend: auto\n  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n  resolver guards: numba>=0.60,<1.0 llvmlite>=0.43,<1.0\nDRY RUN: would find and remove every older spaCR installation first\nDRY RUN: would download https://astral.sh/uv/0.11.32/install.sh\nDRY RUN: would create and validate /tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/runtime/venv\nDRY RUN: would install launcher /tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/bin/spacr\n"
+    }
+  ]
+}

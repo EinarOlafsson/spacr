@@ -1,0 +1,41 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "34417ee0b35163e5d977b5ec2c4cb8f350c8b51afbb57c35816ffba537990b2b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Dose Response: aðlagaðu styrkferla og lestu bil þeirra",
+  "description": "Hlaða inn styrktöflu, flokka raðir, aðlaga lógistíska ferla og halda matsgildum, bilum og aðlögunarviðvörunum saman.",
+  "objectives": [
+    "Hlaða inn tilbúna dæminu og velja dálka fyrir styrk, svörun og flokkun.",
+    "Aðlaga ferla og bera saman profile likelihood- og Wald-bil.",
+    "Lesa ótakmarkaðar eða hafnaðar niðurstöður og vista skýrsluna."
+  ],
+  "prerequisite": "Sæktu tengdu tilbúnu skammta-svörunar-CSV-skrána. Hún inniheldur fjórar lýsandi raðir, níu jákvæða styrki og burðarefni með núllskammti, með þremur athugunum á hvern styrk. Gefðu upp óunnin styrkgildi og ljúktu stöðlun eða einingabreytingu áður en þú hleður inn eigin gögnum.",
+  "scenes": [
+    "Frá Home opnarðu Data og velur Dose Response. Undirbúðu töflu með skýrum dálkum fyrir styrk og svörun fyrir hverja röð sem á að aðlaga.",
+    "Sæktu tengdu tilbúnu CSV-skrána, smelltu svo á Load table og opnaðu hana. Nefndu tilbúnu raðirnar sýna stýringarnar og ólíkar útkomur aðlögunar.",
+    "Taflan hefur 120 línur í fjórum röðum. Hver röð hefur níu jákvæða styrki, burðarefni með núllskammti og þrjár athuganir við hvern styrk.",
+    "Stilltu styrkdálkinn á concentration, svörunardálkinn á response og One curve per á series. Notaðu óunna styrki fremur en lógaritma þeirra.",
+    "Sláðu inn styrkeiningu í Unit. Notaðu µM í þessu dæmi. Reiturinn merkir aðeins gildin; umreiknaðu tölurnar fyrir fram ef þú þarft aðra einingu.",
+    "Veldu Profile likelihood, hafðu Fit non-monotone data óvirkt og smelltu á Fit. Skoðaðu ferlaspjaldið og niðurstöðutöfluna saman, þar á meðal raðir með viðvörunum eða matsgildi sem vantar.",
+    "Veldu synthetic inhibition. Miðpunktur hennar er 1,5 og Hill-hallinn neikvæður. Hálft hámark liggur mitt á milli aðlöguðu hásléttnanna, sem hér eru 5 og 95.",
+    "Veldu synthetic activation. Miðpunktur hennar er 2 og Hill-hallinn jákvæður. Valinn ferill er dreginn fram og skýrslan fyrir neðan fylgir valinni línu.",
+    "Veldu dæmið utan sviðs. Prófaðir styrkir þess enda í 100, svo miðpunkturinn hefur ekki stuðning. Lestu uppgefin mörk; auðir reitir fyrir miðpunkt og bil tákna matsgildi sem ekki fæst.",
+    "Veldu röðina sem snýst við og lestu hvers vegna aðlöguninni er hafnað. Skoðaðu lögun svörunar og samhengi tilraunarinnar áður en þú ákveður hvort einhalla lógistískt líkan eigi við.",
+    "Farðu aftur í inhibition og lestu fjölda athugana. 27 athuganir með jákvæðum skammti fara inn í aðlögunina. Þrjú viðmið með núllskammti eru tekin saman sérstaklega því að núll getur ekki farið inn í lógaritmísku aðlögunina.",
+    "Lestu leifaskekkju og skort á aðlögun ásamt R². Hafðu endurtekningaskipan tilraunarinnar í huga þegar þú túlkar óvissu; endurteknar línur einar sanna ekki óháðar tilraunir.",
+    "Veldu Wald og smelltu aftur á Fit til að bera saman aðferðir við bil. Breytt val krefst nýrrar aðlögunar. Bilið er reiknað á lógaritma miðpunktsins og umbreytt aftur í styrk.",
+    "Berðu saman endapunkta bila fyrir vel afmarkaðar raðir. Matsgildi miðpunkta haldast hér svipuð; dæmið utan sviðs hefur enn ekkert stutt mat á miðpunkti.",
+    "Settu Profile likelihood aftur og smelltu á Fit. Athugaðu valda aðferð og samsvarandi skýrslu áður en þú afritar niðurstöður.",
+    "Raðaðu töflunni aðeins eftir að samanburði aðlagana er lokið. Þessi útgáfa getur hliðrað línum ef þú aðlagar raðaða töflu aftur. Veldu inhibition og staðfestu að skýrslan nefni sömu röð.",
+    "Veldu texta skýrslunnar og afritaðu hann með venjulegri flýtilykla. Vistaðu viðvaranir, aðferð við bil og inntaksstyrki með niðurstöðunni.",
+    "Fyrir úttak í töfluformi notarðu fit_frame og niðurstöðutöflu skammta-svörunar í Python. Þessi skjámynd hefur engan útflutningshnapp. Haltu ótakmörkuðum og höfnuðum línum í úttakinu svo að gerð sé grein fyrir hverri inntaksröð."
+  ]
+}

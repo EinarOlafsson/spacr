@@ -1,0 +1,286 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "81_sequencing_pathways",
+  "capture_stage": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL",
+  "capture_provenance": {
+    "commit": "ee43d8530b161810d05d0f68481ac69981c42138",
+    "version": "1.5.0.9",
+    "module": "workflow_overview",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "navigation": {
+    "accepted": true,
+    "scope": "Real Home/fold navigation and indexed API search; data handoffs explained by the shared map",
+    "lesson": "81_sequencing_pathways",
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "lesson_sha256": "4c43b1d6b1b3f28ad012ee9860cf1740f79e6aa914393033dc7005f44cdea9ba",
+    "visuals": [
+      "home",
+      "module_map_barcodes",
+      "module_barcode_qc",
+      "module_ops",
+      "module_regression",
+      "module_power",
+      "module_experiment_design",
+      "module_dose_response",
+      "module_run_compare",
+      "module_simulation",
+      "home_summary"
+    ],
+    "routes": [
+      {
+        "module": "map_barcodes",
+        "home_host": "map_barcodes",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "barcode_qc",
+        "home_host": "map_barcodes",
+        "parent": "map_barcodes",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": true,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "ops",
+        "home_host": "mask",
+        "parent": "mask",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": true
+      },
+      {
+        "module": "regression",
+        "home_host": "regression",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "power",
+        "home_host": "power",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "PowerScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "experiment_design",
+        "home_host": "experiment_design",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "ExperimentDesignScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "dose_response",
+        "home_host": "dose_response",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "DoseResponseScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "run_compare",
+        "home_host": "run_compare",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "RunCompareScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "simulation",
+        "api_symbol": "spacr.sim.run_multiple_simulations",
+        "search_query": "run_multiple_simulations",
+        "real_help_result_visible": true,
+        "api_executed": false,
+        "local_docstring_displayed": true,
+        "displayed_docstring_sha256": "38a776efefe7a669c5e74482be69d5249d59c15b48a69c81ce304b88c3068a0d",
+        "home_tile_clicked": false
+      }
+    ],
+    "analysis_requested": false,
+    "download_requested": false,
+    "worked_experiment_completed": false,
+    "narration_or_media_accepted": false
+  },
+  "scene_count": 11,
+  "frames": {
+    "00_home": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/00_home.png",
+      "sha256": "01949dd4fb88de34a462ecde6c5b8fb0342c93ed16e9d1f0b9284abbfe77f975",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 25
+      }
+    },
+    "home": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/home.png",
+      "sha256": "01949dd4fb88de34a462ecde6c5b8fb0342c93ed16e9d1f0b9284abbfe77f975",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 26
+      }
+    },
+    "module_map_barcodes": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_map_barcodes.png",
+      "sha256": "57e78f055ba71c01dc1c49431d8ebe2961b6039e39ad5b7bc90c636ae2c82bdb",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 81
+      }
+    },
+    "module_barcode_qc": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_barcode_qc.png",
+      "sha256": "43fdc4898a4c80394a498a986bb0d3ce64dba87f44d32b0a185911964779eb32",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 227
+      }
+    },
+    "module_ops": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_ops.png",
+      "sha256": "8b9489ce3164b1920c8f462f39de0f14dcdcf873c09d482876cd9f3a072921bc",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 301
+      }
+    },
+    "module_regression": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_regression.png",
+      "sha256": "9c739639dbdedadb3a2da1381a4d1a90c084dda944ea3725302b66de4b32e9d5",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 341
+      }
+    },
+    "module_power": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_power.png",
+      "sha256": "32efd3b678f3eb99ab1727b6ef4c90c3bd34f0289f7855c64918b42c37928487",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 438
+      }
+    },
+    "module_experiment_design": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_experiment_design.png",
+      "sha256": "8000e2a70b0fb2f77ea62874c5b40a1b23238c7d448a336f09e87c2d578c5c7c",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 497
+      }
+    },
+    "module_dose_response": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_dose_response.png",
+      "sha256": "3c047bc3b287dbbad7da7415335d5719c2df97a7a32107ff76368e2ca794e09b",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 555
+      }
+    },
+    "module_run_compare": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_run_compare.png",
+      "sha256": "6737c07657a4613f6ed240804a2396c71f41d591f73d25b094959ea0c2b95424",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 604
+      }
+    },
+    "api_search_simulation": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/api_search_simulation.png",
+      "sha256": "354dbbd9a0d7297cfa9f7117015bdb825338a74231049f6de0ee9d76bcf80ae0",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 591
+      }
+    },
+    "module_simulation": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/module_simulation.png",
+      "sha256": "d07209734c6ffd3f1e1ae80c4e71266e5cccdef4588b76f7659e0d88ea478d4a",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 601
+      }
+    },
+    "home_summary": {
+      "path": "/mnt/firecuda2/codex/workflow-sequencing-capture.QE0NuL/captures/sequencing-navigation/home_summary.png",
+      "sha256": "ca636bcb6e70842b8bddad1ee045dff88ac4acd2be6befcf8cda9314a122f65d",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 610
+      }
+    }
+  },
+  "source_sha256": {
+    "tools/tutorials/capture_workflow_overview.py": "2835d6159f62b4962989ea6dcee185ea877ceb0d49040edb36fa9722507212f0",
+    "tools/tutorials/capture_refresh.py": "a9c0e53ae7f5c37967758c99dce7a5e5f0a13d183596971a2fbf4379d7b9f1f2",
+    "spacr/resources/module_workflows.json": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "tools/tutorials/lessons/81_sequencing_pathways.json": "4c43b1d6b1b3f28ad012ee9860cf1740f79e6aa914393033dc7005f44cdea9ba",
+    "spacr/sim.py": "e10e621544659487e40670b3bc859db2c0663aaeff90c0a6eecd94faf901c46a"
+  },
+  "presentation": [
+    "Actual Home/category buttons and folded Barcode QC/OPS controls",
+    "Actual Clear button removes the nonexistent default count-file placeholder",
+    "Actual splitter drags widen Power inputs and Dose-Response results",
+    "Native table row/column sizing makes experiment roles and regression inputs readable",
+    "OPS Actions collapsed through its actual heading for this navigation-only lesson",
+    "Simulation opens its genuine local API reference from the generated Help search; source text is checked unchanged"
+  ],
+  "visual_review": "Reviewed all distinct screens across the capture passes, including the final Power, Experiment Design, Dose-Response and empty Barcode QC input; retained final native 4K images.",
+  "analysis_requested": false,
+  "download_requested": false,
+  "narration_or_media_accepted": false,
+  "published": false,
+  "remaining": [
+    "Stage after preceding lesson identities",
+    "Thirteen translated scripts and fifty voices",
+    "Shared video, full caption/player/media checks",
+    "Complete-set publication"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr._lineage_measurements#0",
+      "source": "Measured values on lineage trees.",
+      "source_sha256": "161b7cdc292552b3888f1eb49abd1be87606f66522a20ebbbb76466e127846a9",
+      "context": "Measured values on lineage trees.",
+      "translation": "谱系树上的测量值。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_measurements#1",
+      "source": "Records which images and label stacks a tracking run used, so a later Measure run can join its per-object measurements onto the same tracks and colour the lineage trees by a measured column.",
+      "source_sha256": "5f7ed57768207cbf5c5b112009b1307820357d8159a6cd800af318207e6a555e",
+      "context": "Records which images and label stacks a tracking run used, so a later Measure run can join its per-object measurements onto the same tracks and colour the lineage trees by a measured column.",
+      "translation": "记录一次追踪运行使用了哪些图像和标签栈，以便之后的 Measure 运行能将其逐对象测量结果连接到相同的轨迹上，并按某个测量列为谱系树着色。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_trees#0",
+      "source": "Lineage trees built from tracked objects.",
+      "source_sha256": "c32fcc377f0527dae4669d3d2050b4a5640eee5174e3b496fe6ce69e8addfcef",
+      "context": "Lineage trees built from tracked objects.",
+      "translation": "由追踪对象构建的谱系树。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_trees#1",
+      "source": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
+      "source_sha256": "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca",
+      "context": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
+      "translation": "分裂事件从显式的父列中读取，或根据附近的轨迹起点推断，然后绘制为树形图、写成 Newick 文本，并汇总为按谱系的统计量，可选择校准为小时。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

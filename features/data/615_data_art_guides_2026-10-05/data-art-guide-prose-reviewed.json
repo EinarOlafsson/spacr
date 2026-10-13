@@ -1,0 +1,38 @@
+{
+  "sv": {
+    "title": "Teman med datakonst",
+    "intro": "Under **@Preferences@** → **@Appearance@** → **@Theme@** väljer var och en av tolv förinställningar med datakonst en gränssnittspalett och en animerad bakgrund. De ursprungliga tio nattemana och sju bakgrundsanimationerna finns kvar. Med **@Animation@** kan du välja bakgrund separat; välj **@None@** för en statisk bakgrund. Dessa bakgrunder är dekorativa och visar inte projektets mätningar."
+  },
+  "de": {
+    "title": "Themen mit Datenkunst",
+    "intro": "Unter **@Preferences@** → **@Appearance@** → **@Theme@** wählen die zwölf Datenkunst-Voreinstellungen jeweils eine Oberflächenpalette und einen animierten Hintergrund. Die ursprünglichen zehn Nachtthemen und sieben Hintergrundanimationen bleiben verfügbar. Mit **@Animation@** können Sie den Hintergrund unabhängig auswählen; wählen Sie **@None@** für einen statischen Hintergrund. Diese Hintergründe sind dekorativ und zeigen keine Projektmessungen an."
+  },
+  "es": {
+    "title": "Temas de arte de datos",
+    "intro": "En **@Preferences@** → **@Appearance@** → **@Theme@**, cada uno de los doce ajustes de arte de datos selecciona una paleta de interfaz y un fondo animado. Los diez temas nocturnos y las siete animaciones de fondo originales siguen disponibles. **@Animation@** permite elegir un fondo de forma independiente; seleccione **@None@** para usar un fondo estático. Estos fondos son decorativos y no muestran mediciones del proyecto."
+  },
+  "pt": {
+    "title": "Temas de arte de dados",
+    "intro": "Em **@Preferences@** → **@Appearance@** → **@Theme@**, cada uma das doze predefinições de arte de dados seleciona uma paleta de interface e um fundo animado. Os dez temas noturnos e as sete animações de fundo originais continuam disponíveis. **@Animation@** permite escolher um fundo de forma independente; selecione **@None@** para usar um fundo estático. Esses fundos são decorativos e não exibem medições do projeto."
+  },
+  "fr": {
+    "title": "Thèmes d’art de données",
+    "intro": "Dans **@Preferences@** → **@Appearance@** → **@Theme@**, chacun des douze préréglages d’art de données sélectionne une palette d’interface et un arrière-plan animé. Les dix thèmes nocturnes et les sept animations d’arrière-plan d’origine restent disponibles. **@Animation@** permet de choisir un arrière-plan indépendamment ; sélectionnez **@None@** pour un arrière-plan statique. Ces arrière-plans sont décoratifs et n’affichent pas les mesures du projet."
+  },
+  "is": {
+    "title": "Þemu með gagnalist",
+    "intro": "Undir **@Preferences@** → **@Appearance@** → **@Theme@** velur hver af tólf forstillingum með gagnalist litapallettu viðmóts og hreyfanlegan bakgrunn. Upprunalegu tíu næturþemun og sjö bakgrunnshreyfimyndirnar eru enn tiltæk. Með **@Animation@** má velja bakgrunn óháð þemanu; veldu **@None@** fyrir kyrrstæðan bakgrunn. Þessir bakgrunnar eru til skrauts og sýna ekki mælingar verkefnisins."
+  },
+  "zh_CN": {
+    "title": "数据艺术主题",
+    "intro": "在 **@Preferences@** → **@Appearance@** → **@Theme@** 中，十二个数据艺术预设各自选择一套界面配色和动态背景。原有的十个夜间主题和七种背景动画仍然可用。**@Animation@** 可独立选择背景；选择 **@None@** 可使用静态背景。这些背景仅作装饰，不显示项目测量数据。"
+  },
+  "ko": {
+    "title": "데이터 아트 테마",
+    "intro": "**@Preferences@** → **@Appearance@** → **@Theme@**에서 열두 가지 데이터 아트 사전 설정은 각각 인터페이스 색상 팔레트와 움직이는 배경을 선택합니다. 기존의 열 가지 야간 테마와 일곱 가지 배경 애니메이션도 계속 사용할 수 있습니다. **@Animation@**으로 배경을 독립적으로 선택할 수 있으며, 정적인 배경을 사용하려면 **@None@**을 선택하세요. 이러한 배경은 장식용이며 프로젝트 측정값을 표시하지 않습니다."
+  },
+  "hi": {
+    "title": "डेटा कला थीम",
+    "intro": "**@Preferences@** → **@Appearance@** → **@Theme@** में बारह डेटा कला पूर्वनिर्धारित विकल्पों में से प्रत्येक एक इंटरफ़ेस रंग-पैलेट और एनिमेटेड पृष्ठभूमि चुनता है। मूल दस रात्रि थीम और सात पृष्ठभूमि एनिमेशन अब भी उपलब्ध हैं। **@Animation@** से पृष्ठभूमि स्वतंत्र रूप से चुन सकते हैं; स्थिर पृष्ठभूमि के लिए **@None@** चुनें। ये पृष्ठभूमियाँ सजावटी हैं और परियोजना के मापन नहीं दिखातीं।"
+  }
+}

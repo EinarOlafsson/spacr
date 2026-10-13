@@ -1,0 +1,118 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Ten night palettes and twelve separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and twelve separate data-art presets.",
+      "source_sha256": "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
+      "translation": "열 가지 야간 팔레트와 별도의 데이터 아트 프리셋 열두 가지."
+    },
+    {
+      "context": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "label": "spacr.qt.night_themes#7",
+      "source": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "source_sha256": "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141",
+      "translation": "데이터 아트 카탈로그는 독립적인 팔레트 프리셋 열두 가지를 추가합니다. 각 키는 서로 다른 동적 배경 생성기와 기존 사운드 세트를 선택하며 원래 야간 테마 열 가지의 식별자를 바꾸지 않습니다. 명시적인 색상 재정의는 야간 팔레트의 안정적인 상태 색상을 유지하며 동일한 대비 및 페이지 구분 규칙으로 검사됩니다."
+    },
+    {
+      "context": "One palette preset: its label, colours, backdrop and sound set.",
+      "label": "spacr.qt.night_themes.NightTheme#0",
+      "source": "One palette preset: its label, colours, backdrop and sound set.",
+      "source_sha256": "1c2ef8f9986d2e9322b18cb7dfb3db66dc00c40d640c711236e2cd87550d464a",
+      "translation": "팔레트 프리셋 하나: 레이블, 색상, 배경 및 사운드 세트."
+    },
+    {
+      "context": "stable identifier in the theme preference and palette map.",
+      "label": "spacr.qt.night_themes.NightTheme#1",
+      "source": "stable identifier in the theme preference and palette map.",
+      "source_sha256": "0046349464d284760af5d7913fd6c60cd79f485c1a324b1cbc811a0acdc0b748",
+      "translation": "테마 환경 설정과 팔레트 매핑에서 사용하는 안정적인 식별자."
+    },
+    {
+      "context": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key.",
+      "label": "spacr.qt.night_themes.NightTheme#7",
+      "source": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key.",
+      "source_sha256": "2b3ed305dc872fc45a5a57bf346aa7d093c3b693d156dd1f551cca9aed43bac8",
+      "translation": "데이터 아트 프리셋에 사용할 기존 사운드 세트의 키; ``None`` 은 원래 야간 테마에 해당하는 사운드 키를 유지합니다."
+    },
+    {
+      "context": "Key of an existing sound set; night presets keep their own.",
+      "label": "spacr.qt.night_themes.NightTheme.sound#0",
+      "source": "Key of an existing sound set; night presets keep their own.",
+      "source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "translation": "기존 사운드 세트의 키; 야간 프리셋은 각자의 키를 유지합니다."
+    },
+    {
+      "context": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.",
+      "label": "spacr.qt.night_themes.ambient_for#1",
+      "source": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.",
+      "source_sha256": "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
+      "translation": ":data:`NIGHT_THEME_KEYS` 또는 :data:`DATA_ART_THEME_KEYS` 에 속하는 키 하나."
+    },
+    {
+      "context": "if ``name`` is unknown.",
+      "label": "spacr.qt.night_themes.ambient_for#3",
+      "source": "if ``name`` is unknown.",
+      "source_sha256": "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef",
+      "translation": "``name`` 을 알 수 없는 경우."
+    },
+    {
+      "context": "The night or data-art palette preset called ``name``.",
+      "label": "spacr.qt.night_themes.theme_for#0",
+      "source": "The night or data-art palette preset called ``name``.",
+      "source_sha256": "65c18e3f567ad212679dcddc8693d35a9cbe5796e4b65df593a851052110b6b4",
+      "translation": "``name`` 이라는 이름의 야간 또는 데이터 아트 팔레트 프리셋."
+    },
+    {
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
+      "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 의 야간 테마 열 가지 중 하나 | :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` 의 데이터 아트 프리셋 열두 가지 | ``\"system\"`` (기본값 ``\"dark\"``). ``\"system\"`` 은 운영 체제의 색상 구성을 따르지만 사용자가 선택한 이후에만 적용됩니다. 어두운 테마가 기본값이 되기 전(2026-09-21)에 저장된 ``\"system\"`` 은 사용자의 선택이 아닌 이전 기본값이므로 ``\"dark\"`` 로 읽습니다. :func:`get_theme` 을 참조하세요. ``\"cell\"`` 은 형광 이미지를 사용하고 ``\"glass\"`` 는 내장된 라이트 필드 위에 중립적인 다층 재질을 사용합니다. 야간 또는 데이터 아트 프리셋은 배경과 사운드 세트도 포함하며 선택 시 :func:`apply_night_theme` 이 이를 저장합니다. Space는 선택할 수 있는 테마가 아닙니다. 폐기된 ``space_variant`` 및 ``space_seed`` 값은 테마를 처음 읽을 때 이전 저장 설정에서 제거됩니다. :func:`get_theme` 을 참조하세요."
+    },
+    {
+      "context": "Write the backdrop and sound set a night or data-art preset brings.",
+      "label": "spacr.qt.preferences.apply_night_theme#0",
+      "source": "Write the backdrop and sound set a night or data-art preset brings.",
+      "source_sha256": "f9ac0d80836638ce394ab684cd6a9f49d323994be1a22210b246b3cd6aaf3317",
+      "translation": "야간 또는 데이터 아트 프리셋에 포함된 배경과 사운드 세트를 저장합니다."
+    },
+    {
+      "context": "a night or data-art preset key.",
+      "label": "spacr.qt.preferences.apply_night_theme#5",
+      "source": "a night or data-art preset key.",
+      "source_sha256": "cc315c65931748f6d2e96327957ee98642123b99d3632b13a06543de84e7c559",
+      "translation": "야간 또는 데이터 아트 프리셋의 키."
+    },
+    {
+      "context": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "label": "spacr.qt.preferences.set_theme_choice#1",
+      "source": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "source_sha256": "0fb2bea1e3cdaadaaab1b466d0c0ef18c6dbccd054a25c5cb5aaaf3c76ca59f4",
+      "translation": "야간 또는 데이터 아트 프리셋을 선택하면 해당 배경과 사운드 세트도 저장됩니다 — 이렇게 하는 이유를 설명하는 :func:`apply_night_theme` 을 참조하세요."
+    },
+    {
+      "context": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
+      "label": "spacr.qt.preferences.theme_choices#2",
+      "source": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
+      "source_sha256": "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1",
+      "translation": "야간 테마 열 가지는 :data:`spacr.qt.night_themes.NIGHT_THEMES` 의 순서에 따라 기존 팔레트 뒤에 배치됩니다. 따라서 앱이 항상 제공해 온 팔레트 네 가지는 기존 사용자가 찾는 위치에 그대로 유지되며 한 그룹으로 보입니다. 데이터 아트 프리셋 열두 가지는 그 뒤에 별도 블록으로 배치됩니다. 토큰은 변형이 없는 단순 키이므로 Cell처럼 여러 요소를 조합해 토큰을 만들 필요가 없습니다."
+    },
+    {
+      "context": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "label": "spacr.qt.preferences.theme_description#1",
+      "source": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "source_sha256": "8e48a03ac72820259a4703a7ca1d6ad0103661a926ad4451b4220ee09282599e",
+      "translation": "야간 테마와 데이터 아트 테마에는 각각 포함된 색상, 배경 및 사운드 세트를 설명하는 문장이 있습니다. 테마 컨트롤은 이 문장을 항목의 도구 설명으로 표시하며, 이는 사운드 세트 컨트롤이 :attr:`spacr.qt.sound_synth.SoundTheme.description` 을 표시하는 방식과 같습니다."
+    },
+    {
+      "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "label": "spacr.qt.theme#1",
+      "source": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "source_sha256": "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
+      "translation": "활성 위젯에 표시되는 색상에는 :func:`active_palette` 을, 앱의 스타일시트에는 :func:`stylesheet` 을 사용하세요. :data:`THEMES` 에는 선택 가능한 팔레트 ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` 와 :mod:`spacr.qt.night_themes` 의 야간 및 데이터 아트 프리셋이 포함됩니다. ``\"system\"`` 환경 설정은 팔레트를 조회하기 전에 어두운 테마 또는 밝은 테마로 해석됩니다. 기존 ``\"space\"`` 팔레트는 영구 저장된 설정에서 계속 읽을 수 있지만 선택할 수는 없습니다."
+    }
+  ],
+  "schema": 1
+}

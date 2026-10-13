@@ -1,0 +1,43 @@
+{
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "files": [
+    {
+      "path": "aggregate-113085039577.log.gz",
+      "raw_bytes": 177382,
+      "raw_sha256": "a31afa914c3f8744727c72b6e9285937702ae111ea9b16b5b289726fc075d161",
+      "gzip_bytes": 38884,
+      "gzip_sha256": "e031b9079595197d6914c7f20a7dabd4336462a9f520238b609cfe342f1a1f28"
+    },
+    {
+      "path": "coverage2-113058129605.log.gz",
+      "raw_bytes": 2123934,
+      "raw_sha256": "ccf769443c48ee9b399d925aa15d8c59378d7a44dfcc19b0b89f57c2837903c1",
+      "gzip_bytes": 290573,
+      "gzip_sha256": "b6a0565d2cced0c71cd53a516268a89001c159da05ca17539a91eabafe3a7b65"
+    },
+    {
+      "path": "focused-four.json.gz",
+      "raw_bytes": 330171,
+      "raw_sha256": "b1040b050117818ba66f9166b9b3e378e5ce2ee30e0cf279ed448601e564b99b",
+      "gzip_bytes": 54094,
+      "gzip_sha256": "98201d641599a518ba6ef0068fab9f7b1f4e7ef46e75fbc72e5965e4a75f5df0"
+    },
+    {
+      "path": "focused-four.log.gz",
+      "raw_bytes": 99,
+      "raw_sha256": "14343bdde405cd5ad268932d052c00da27b1ae89da96adbd1bdac584f0994582",
+      "gzip_bytes": 52,
+      "gzip_sha256": "42bccd76790eb7ee87bf2f99ad4aefe706175a549ff8e5ee173d8c3f3febc070"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1440,
+      "sha256": "53ab2f6bb47cd9670beeb7d73ae9f14a562f30bbc18305bfd3c7393fcdd6a9cc"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 3122,
+      "sha256": "56725fa25dd8acc6b710851ac0aa0c229bdcaf6a372387f0ab2941871a99b4e2"
+    }
+  ]
+}

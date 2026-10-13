@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "module-grid-caption",
+      "source_sha256": "70ab1f64ad81d99cca0143e261249ecb75f83069acc9e49eda16898ae022c5f4",
+      "source": "Every module spaCR ships, in the order the home screen lists them: the six pipeline modules first, then everything else. Select a tile to open that module's API page.",
+      "translation": "spaCR에 포함된 모든 모듈을 홈 화면에 나열되는 순서대로 보여 줍니다. 먼저 여섯 개의 파이프라인 모듈, 그다음 나머지 모듈입니다. 타일을 선택하면 해당 모듈의 API 페이지가 열립니다."
+    },
+    {
+      "label": "module-grid-feature-guide",
+      "source_sha256": "5be3793cb3bdce3dafb421a3b722c821a71aae50388526fb3e7131f1fa3dd8b2",
+      "source": "See the `feature guide <docs/source/features.rst>`_ for each tool.",
+      "translation": "각 도구에 대한 설명은 `기능 가이드 <docs/source/features.rst>`_ 문서를 참조하십시오."
+    }
+  ]
+}

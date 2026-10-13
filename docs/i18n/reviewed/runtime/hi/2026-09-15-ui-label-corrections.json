@@ -1,0 +1,20 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Object operations",
+      "source": "Object operations",
+      "source_sha256": "f35db0a3faf5bf6bfe20d3acfd8671647fa087543c2dae033eb0eb976c1495d5",
+      "table": "ui",
+      "translation": "ऑब्जेक्ट संचालन"
+    },
+    {
+      "key": "Overlap",
+      "source": "Overlap",
+      "source_sha256": "38b163f9be7c4f3be3d8ef89a23beff832e8dd9ed0a28308a47cefabca0e1c00",
+      "table": "ui",
+      "translation": "ओवरलैप"
+    }
+  ],
+  "schema": 1
+}

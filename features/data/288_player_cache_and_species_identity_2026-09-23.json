@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "base_commit": "392deacab8b673e979070c0775c9d5be2be37565",
+  "changes": [
+    "Pin the already shipped 20260923-unicode-captions player cache key from ee43d8530; keep the older key explicitly forbidden.",
+    "Declare the two Latin genus captions already specified as exact identities by the production catalog builder."
+  ],
+  "scientific_identities": [
+    "Candida spp.",
+    "Plasmodium spp."
+  ],
+  "validation": {
+    "player_before": {
+      "result": "1 failed",
+      "log_sha256": "d08004a83fad0dec3ade79470c1537a6c3c10a32739f5ef414412e17baac19a5"
+    },
+    "player_after": {
+      "result": "32 passed",
+      "log_sha256": "3c633f2ec1cc3b2144a07d5628e047eabc07f47f46bc6951304fc12068a70b6c"
+    },
+    "species_before": {
+      "result": "1 failed",
+      "log_sha256": "2051639e788cce9abbf715ef544ebca8cddb156b542499d187031c0b257eb99f"
+    },
+    "species_after": {
+      "result": "6 passed",
+      "log_sha256": "16b3b5475bf1ca9682b1a1628f28d4a9cbae84b2a547a4ef4a54a056c10e8a54"
+    }
+  },
+  "files": {
+    "tests/test_docs_media_budget.py": "3730527d4a15e876f025a703db39a2ea717784d048fed596f1857b65e450751e",
+    "tests/test_translation_correctness.py": "c5259ff61c10224d0e61156d19448dbace76b23401c829afd023a7f4d2e29ca5",
+    "docs/source/_extra/tutorials/index.html": "03c38ee89575d849ed4e7f7239b381b693d439312d3295a668f9398a32cbcbe8",
+    "docs/source/_extra/tutorials/app_v2.js": "3f0e6384184a162c1ac5b8a52d813107247b36c60f2931b366bf82b3b367b55e"
+  },
+  "runtime_player_and_catalog_behavior_unchanged": true,
+  "full_ci_passed": false,
+  "published": false
+}

@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "(int) Plane index of the tracked object's mask.",
+      "source_sha256": "de0f0b82e333dd2be4d35c04cfa31b4b9249d4f59f39ab86f4f1a42d1463fbdd",
+      "source": "(int) Plane index of the tracked object's mask.",
+      "translation": "(int) ट्रैक किए गए ऑब्जेक्ट के मास्क का तल सूचकांक।"
+    },
+    {
+      "table": "ui",
+      "key": "Ask a question about the table you are gating without leaving the screen.",
+      "source_sha256": "f5c1bc8a685d02d445647d36666ca5bac422aceb746e6889de07ceab20c640ce",
+      "source": "Ask a question about the table you are gating without leaving the screen.",
+      "translation": "जिस तालिका पर आप गेट लगा रहे हैं, उसके बारे में स्क्रीन छोड़े बिना प्रश्न पूछें।"
+    },
+    {
+      "table": "ui",
+      "key": "Field / plane changed — run the preview to read it.",
+      "source_sha256": "011760ea88e27887dec27ad59ea01e01a6bf8cf0e64b799b6e0e4abea6e86dac",
+      "source": "Field / plane changed — run the preview to read it.",
+      "translation": "क्षेत्र / तल बदल गया — इसे पढ़ने के लिए पूर्वावलोकन चलाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "How many arrows — the features best represented in this plane.",
+      "source_sha256": "dd31631cba9ad89738be11205b7a37f2b24d1c29af323fdf9f42aef246ece8eb",
+      "source": "How many arrows — the features best represented in this plane.",
+      "translation": "कितने तीर — वे विशेषताएँ जो इस तल में सर्वोत्तम रूप से प्रस्तुत होती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Image channel indices written to crop R, G and B planes.",
+      "source_sha256": "43148c1b4d65b1b4e00fd24b90f527a4f7b52708f536ff9f5c4b138f691fb70f",
+      "source": "Image channel indices written to crop R, G and B planes.",
+      "translation": "क्रॉप के R, G और B तलों में लिखे जाने वाले छवि चैनल सूचकांक।"
+    },
+    {
+      "table": "ui",
+      "key": "No objects found in the tracked mask plane.",
+      "source_sha256": "0d8c3b7596272d45b1fcd34a6e7d394d4a0993a2c1c718a63a26fdd43d3e6c3d",
+      "source": "No objects found in the tracked mask plane.",
+      "translation": "ट्रैक किए गए मास्क तल में कोई ऑब्जेक्ट नहीं मिला।"
+    },
+    {
+      "table": "ui",
+      "key": "No z-stacks here — every field has one plane per channel, so there is nothing to project.",
+      "source_sha256": "09b7edd6076f20a4367eab07785c150a8da6c539b4225d5c4f6218ee971144e9",
+      "source": "No z-stacks here — every field has one plane per channel, so there is nothing to project.",
+      "translation": "यहाँ कोई z-स्टैक नहीं है — प्रत्येक क्षेत्र में प्रति चैनल एक ही तल है, इसलिए प्रक्षेपित करने के लिए कुछ नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "Object-shaped crops follow the object's mask boundary and preserve its morphology. A source containing coordinates but no masks supports bounding-box crops only; object-shaped mode is disabled with an explanation for such sources.",
+      "source_sha256": "f39ee80316a4787ff22101cd607482bd4896139c62a9ae034c12ace5987be5bd",
+      "source": "Object-shaped crops follow the object's mask boundary and preserve its morphology. A source containing coordinates but no masks supports bounding-box crops only; object-shaped mode is disabled with an explanation for such sources.",
+      "translation": "ऑब्जेक्ट-आकार के क्रॉप ऑब्जेक्ट के मास्क की सीमा का अनुसरण करते हैं और उसकी आकृति-विज्ञान को सुरक्षित रखते हैं। ऐसा स्रोत जिसमें निर्देशांक तो हों पर मास्क न हों, केवल बाउंडिंग-बॉक्स क्रॉप का समर्थन करता है; ऐसे स्रोतों के लिए ऑब्जेक्ट-आकार मोड स्पष्टीकरण के साथ निष्क्रिय कर दिया जाता है।"
+    },
+    {
+      "table": "setting_labels",
+      "key": "surrogate_shap_max_samples",
+      "source_sha256": "fee2b8902e2b1b32d03f04db229b964a9b8cff2ff79a2620327e272331a7160e",
+      "source": "Surrogate shap max samples",
+      "translation": "सरोगेट shap अधिकतम नमूने"
+    },
+    {
+      "table": "setting_labels",
+      "key": "guide_permutation_seed",
+      "source_sha256": "13666d3c3d9ed1fd7d71d5a6ca040e48ef036c98d72c16b138c13f51c9ec4781",
+      "source": "Guide permutation seed",
+      "translation": "गाइड क्रमचय बीज"
+    },
+    {
+      "table": "categories",
+      "key": "Experimental volumetric handling: how the z-axis is read, whether planes are projected or stitched, and the physical voxel size used for calibration. Needed only for z-stacks — and the voxel size is what makes a 3-D measurement physically meaningful.",
+      "source_sha256": "00980020ad635c29f8e0eebf9b848f27f6c253370c78df619d64e01dcb278edd",
+      "source": "Experimental volumetric handling: how the z-axis is read, whether planes are projected or stitched, and the physical voxel size used for calibration. Needed only for z-stacks — and the voxel size is what makes a 3-D measurement physically meaningful.",
+      "translation": "प्रायोगिक आयतनी प्रबंधन: z-अक्ष कैसे पढ़ा जाता है, तल प्रक्षेपित किए जाते हैं या जोड़े जाते हैं, और अंशांकन के लिए प्रयुक्त भौतिक वॉक्सेल आकार। इसकी आवश्यकता केवल z-स्टैक के लिए होती है — और वॉक्सेल आकार ही वह चीज़ है जो त्रि-आयामी माप को भौतिक रूप से सार्थक बनाती है।"
+    }
+  ]
+}

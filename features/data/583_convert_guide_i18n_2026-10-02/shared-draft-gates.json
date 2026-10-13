@@ -1,0 +1,47 @@
+[
+  {
+    "language": "sv",
+    "messages": 4,
+    "invariant_and_ui_errors": 0,
+    "rst_warnings": 0,
+    "draft_sha256": "923bc6df0c0ed7fbf69b42b6ae727391403a54162b0af820840466c26ab127b9",
+    "reviewed_sha256": "923bc6df0c0ed7fbf69b42b6ae727391403a54162b0af820840466c26ab127b9",
+    "derivative": "unchanged draft"
+  },
+  {
+    "language": "zh_CN",
+    "messages": 4,
+    "invariant_and_ui_errors": 0,
+    "rst_warnings": 0,
+    "draft_sha256": "c2e891322fa7412d9c46c0eb100097a72aa72e2b1ee29f869bd9f1215dafbe71",
+    "reviewed_sha256": "c2e891322fa7412d9c46c0eb100097a72aa72e2b1ee29f869bd9f1215dafbe71",
+    "derivative": "unchanged draft"
+  },
+  {
+    "language": "hi",
+    "messages": 4,
+    "invariant_and_ui_errors": 0,
+    "rst_warnings": 0,
+    "draft_sha256": "5ddcf2597145969bbc294cff44cff11040b70877a1a6473b9ecde679720f6567",
+    "reviewed_sha256": "5ddcf2597145969bbc294cff44cff11040b70877a1a6473b9ecde679720f6567",
+    "derivative": "unchanged draft"
+  },
+  {
+    "language": "ko",
+    "messages": 4,
+    "invariant_and_ui_errors": 0,
+    "rst_warnings": 0,
+    "draft_sha256": "050ec2773b853288ca282ebffd5d62aa6c37d9c037b018498a08b1f8f264c475",
+    "reviewed_sha256": "e26d5beadb1041797739addf4a2e69341628682036226ecad1ff184b3ecce706",
+    "derivative": "Korean closing-bold boundary escaped spaces only"
+  },
+  {
+    "language": "is",
+    "messages": 4,
+    "invariant_and_ui_errors": 0,
+    "rst_warnings": 0,
+    "draft_sha256": "539ec02b59b53aeb4babfc35e865e819eb619ea80a263b4fa61cac91ec98fc83",
+    "reviewed_sha256": "539ec02b59b53aeb4babfc35e865e819eb619ea80a263b4fa61cac91ec98fc83",
+    "derivative": "unchanged draft"
+  }
+]

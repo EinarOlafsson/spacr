@@ -1,0 +1,39 @@
+{
+  "published_commit": "bd050ae04fe72100282a7ce2a16d0135b97875ab",
+  "accepted_worker_receipt": "features/data/664_665_changed_runtime_coverage_2026-10-08/receipt.json",
+  "production_sha256": {
+    "spacr/_mask_workers.py": "594781032ce365c1615b2ea902152da1bc575376ac73cf303b9fecd5d0c202f1",
+    "spacr/database_concurrency.py": "a0949ef51abf5911fe6e2f7c8823833947435c197a32887b23d328075961f0b5",
+    "spacr/deep_spacr.py": "530c9345dc7021d32b338df27c7b33729aa86f18403eaaed63a2738257535a5a",
+    "spacr/intensity_rescale.py": "fa8e4765aab4d81b6c9076551181696392020ef715911a56d6abaa0e774f892d",
+    "spacr/io.py": "880139012067c36fc5f2a7ae4bdadd68893d0f29de502f1b61bceedb483c82cc",
+    "spacr/measure.py": "bdb24560939e765544369f3a5807f2a9bccd2bcfee087aa86535d8b967053879",
+    "spacr/object.py": "6ebf9e4ad71d70b19e8c4822cf20771c6365fe706cd2443108193416b7a780a4",
+    "spacr/ops_engine.py": "555bb85fd806acb8b46067874fdddb912aeef3b330bf0f09233722d5c8b1fa9c",
+    "spacr/parameter_sweep.py": "78d76c6501f2ab421515737fd019392f3794f0cba511165f8d7f320282b1cdd7",
+    "spacr/qt/screens/graph_builder.py": "83d1adada73565b86d9494c8f5b26cb1f4f5400aa7134c8fe10a70bd55760579",
+    "spacr/resource_log.py": "a06fbaa5a49f18ca5dfcf4222c9c4d633f744ea88a0d59caef8aca3202759e7f",
+    "spacr/runctx.py": "7f96e63432f91b29db3efb7704fb48a59a5449d6df7bd335007f5eff245e26ac",
+    "spacr/sequencing.py": "eb9545ef33a8a646931dda8e78cb879b164100fc0ed499ec8362eafd76a71faa",
+    "spacr/sim.py": "a49b580bc97001176ee8935131bbfc6f8e02da1505ccb34cdb7355fdb18817f6",
+    "spacr/sweep_child.py": "0e49d7d0ba0c0cfe9a89389ea3d99c3a1ca7fb3babd86fd5e043183253adde64",
+    "spacr/tabular.py": "5181b88f315a92945cee422136054744ca3205dca0ff80517178bb1a932f6b4c",
+    "spacr/timelapse.py": "fdffebd070f70f01f447b00a431bc1f8533add04813840b16abd54202e18626e",
+    "spacr/utils.py": "edfbd2f1a770fb4cfda6b05a33511cc576805d1317b2becc6dbe304139272959"
+  },
+  "unchanged_queue_preferences_AST_sha256": {
+    "get_database_write_queue_gib": "854458437ec82c3a6696779afd9004d978d5b13e0f3e71ad1b00d825c0d9661e",
+    "set_database_write_queue_gib": "87d8a01aab76369e1dc09c8c240bcf54ee5017fad5ebfa5cceddaa584c308bec"
+  },
+  "queue_control_initialization_reset_and_save_present": true,
+  "published_artifact_binding": "features/data/ui_publication_source_binding_2026-10-08/receipt.json",
+  "API": 13232,
+  "runtime_total": 10066,
+  "runtime_UI": 7288,
+  "decision": "N664 and N665 functional implementation, focused verification, all-nine artifacts and publication complete. Earlier IMPLEMENTING/publication holds are stale.",
+  "limits": [
+    "N43 required green and N47 serial acceptance remain separate and open.",
+    "Focused cohorts overlap and are not summed.",
+    "39 unhit statements/23 arcs remain in the changed-coverage report; no100% coverage, GPU science or large-volume performance acceptance claimed."
+  ]
+}

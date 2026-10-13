@@ -1,0 +1,11 @@
+{
+  "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "current_english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
+  "previous_scene_objects_preserved": 45,
+  "new_yolo_scenes": 13,
+  "insert_index": 15,
+  "new_description_sentence": "Draw, edit and export separate class-labelled YOLO boxes without changing the image or segmentation mask.",
+  "new_objective": "Draw and edit separate class-labelled boxes, save their project and export normalized YOLO labels.",
+  "mask_07_sha256": "7027da121a5694335e2d91cfcd73312f8ec3a789f0e91d12990bf38c3ec47ac2",
+  "published": false
+}

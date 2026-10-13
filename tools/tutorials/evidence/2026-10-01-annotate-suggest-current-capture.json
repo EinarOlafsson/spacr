@@ -1,0 +1,169 @@
+{
+  "accepted": true,
+  "scope": "Lesson09 Suggest frames20/21 plus real cancellation; offscreen, not published video",
+  "source_database_sha256": "e7d11b52e9bf1e83897715648fcb77cac3f06b34f5dfc6cce8aa0a0b23fefb5e",
+  "source_unchanged": true,
+  "real_rows": 1423,
+  "real_pngs": 1423,
+  "completion_seconds_including_label_clicks": 44.74164377999841,
+  "cancel_seconds": 9.586986875001458,
+  "human_judgements_preserved_after_cancel": true,
+  "confirmed": 1,
+  "rejected": 1,
+  "frames": {
+    "18_before_suggest": {
+      "path": "18_before_suggest.png",
+      "sha256": "413fd422446372d94cf9871164ca84d5aab768959562492a979b07bffeed1096",
+      "width": 3840,
+      "height": 2160,
+      "qpa": "offscreen",
+      "status": "Ready."
+    },
+    "19_labels_for_suggest": {
+      "path": "19_labels_for_suggest.png",
+      "sha256": "3fbcb0be3fdb199bb998971ef6d67e817576d0eecbaaa50ca2d3e0b0cf8d8b26",
+      "width": 3840,
+      "height": 2160,
+      "qpa": "offscreen",
+      "status": "saved"
+    },
+    "19_suggest_menu": {
+      "path": "19_suggest_menu.png",
+      "sha256": "16cbf8a60f09760051106c96beced40e0528cd12e51f82a454a703456c8cc723",
+      "width": 3840,
+      "height": 2160,
+      "qpa": "offscreen",
+      "status": "saved"
+    },
+    "20_suggestions": {
+      "path": "20_suggestions.png",
+      "sha256": "69718d3c817747b157d11878e6f4195ef8e4313eb7cba3f99ed858a6bd49c667",
+      "width": 3840,
+      "height": 2160,
+      "qpa": "offscreen",
+      "status": "Ready."
+    },
+    "21_judged": {
+      "path": "21_judged.png",
+      "sha256": "17dbd36db577c5c89cb98de985aaa5f3217884332dc25551b24b1201d743a610",
+      "width": 3840,
+      "height": 2160,
+      "qpa": "offscreen",
+      "status": "2 unsaved change(s)"
+    },
+    "22_cancelled": {
+      "path": "22_cancelled.png",
+      "sha256": "3a3c97a203fb06c47d9bfac4ce06982505688c769dd8a209fd20203dd5993db3",
+      "width": 3840,
+      "height": 2160,
+      "qpa": "offscreen",
+      "status": "Ready."
+    }
+  },
+  "observations": [
+    {
+      "step": 3,
+      "total": 5,
+      "name": "fit",
+      "time": 39965.727307045
+    },
+    {
+      "step": 4,
+      "total": 5,
+      "name": "rank",
+      "time": 39967.66918971
+    },
+    {
+      "step": 5,
+      "total": 5,
+      "name": "write",
+      "time": 39967.66935799
+    },
+    {
+      "step": 2,
+      "total": 5,
+      "name": "features",
+      "time": 39979.509467741
+    },
+    {
+      "cancelled": true,
+      "time": 39985.968695227
+    }
+  ],
+  "console": "=== spaCR output  —  Annotate ===\nOpened /tmp/spacr-tutorials-610/run2/example_data/plate1/measurements/measurements.db\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_17_1_2.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_17_1_4.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_17_1_5.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_17_1_6.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_17_1_7.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_17_1_8.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_17_1_9.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_17_1_13.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_17_1_14.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_17_1_16.png | annotation=1\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_L02/cell_png/plate1_L02_17_1_18.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L02/cell_png/plate1_L02_17_1_22.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_9_1_1.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_9_1_2.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_9_1_3.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_9_1_4.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_9_1_6.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_9_1_7.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/multiple_nucleus/single_pathogen/plate1_E02/cell_png/plate1_E02_9_1_8.png | annotation=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_9_1_9.png | annotation=2\nSuggesting labels from a model fitted on the labels so far…\nThis classifier used a random split because too few laboratory wells have labels. Its accuracy may be overestimated. The suggestions are unaffected. Label crops from more wells for validation with independent wells. (A leakage-safe well-grouped split cannot put every class in both train and test. Independent groups per class: {'0': 1, '1': 2}. Add independent wells, choose a finer level, or collect another class-bearing group; a random fallback would report memorisation as transfer.)\nWrote 116 suggestions, most confident first. They are drawn with a dashed ring: answer the ones it got wrong, then keep or throw away the rest from the Suggest menu.\nJudge them one at a time: click or press Y to confirm a suggestion, right-click or press N to reject it.\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_9_1_10.png | confirmed=2\npath=/tmp/spacr-tutorials-610/run2/example_data/plate1/data/single_nucleus/multiple_pathogens/plate1_E02/cell_png/plate1_E02_9_1_14.png | rejected=2\nSuggesting labels from a model fitted on the labels so far…\nSuggest cancelled before writing new suggestions. Earlier suggestions may have been cleared and round scores may have been updated.\n",
+  "date": "2026-10-01",
+  "runtime_source_commit": "2892d75166dca6b9e3ff2190d8478969359497c8",
+  "source_sha256": {
+    "spacr/qt/screens/annotate.py": "9c6197b2f6459b7fef5421f641fa05a3dc032844df90680b942b5b0c321a0b00",
+    "spacr/active_learning.py": "a5346874761b32e8414210585d8e190c7025833391fdb63d9f1cc3151a7ac05b",
+    "spacr/suggest.py": "522ca720d7e8343c48f262ee0cc5e4842cf389981a55005c37086acba5b8f20e",
+    "spacr/classifier_evaluation.py": "1eba2586730a5ea9cd389c3446cad601dc9fc987a91d82c27294c49aa8b357e3",
+    "tools/tutorials/capture_suggest_segment.py": "a42ed59bc9f48fb6ce206431a4a6a52ee9c4fe174cd506ab81569e19d5de2335",
+    "tools/tutorials/capture_annotate.py": "4941b7b26f4bb9edcaf301b5302dce5be11ab9c6032b7403e38402f2ba672ce4",
+    "tools/tutorials/prepare_annotation_capture.py": "11e225b7f2f12c7d4b9356d4aa8a239515f57e22cfd7b07b382f9e8a2ae16e5b"
+  },
+  "data_provenance": {
+    "source_repository": "einarolafsson/spacr-example-annotate",
+    "revision": "99fe2f699d40aa0f9098b31df7b45956eb031853",
+    "downloaded_database_sha256": "d7ed57fe59cf105ff670f7ee1ac92a00d16f8fae4113d66c2505957f3ef08c92",
+    "original_rows": 2341,
+    "retained_rows": 1423,
+    "omitted_missing_crops": 918,
+    "subset_reason": "Existing local cache contains only1423of2341 PNGs; only private copy png_list is restricted to files actually present. All measurement tables and existing labels remain unaltered.",
+    "source_cache": "/home/carruthers/.cache/spacr/example_annotate",
+    "source_cache_written": false
+  },
+  "original_cached_images_independently_verified": 1423,
+  "resources": {
+    "command": [
+      "/home/carruthers/anaconda3/envs/spacr/bin/python",
+      "tools/tutorials/capture_suggest_segment.py",
+      "--source",
+      "/tmp/spacr-tutorials-610/raw-example",
+      "--stage",
+      "/tmp/spacr-tutorials-610/run2",
+      "--timeout",
+      "60"
+    ],
+    "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-rbedcb14dbc274fcda0b4472eb53dbc36.scope",
+    "limits": {
+      "memory.max": "4294967296",
+      "memory.swap.max": "0",
+      "cpu_affinity": [
+        0
+      ],
+      "cpu.max": null,
+      "systemd_properties": [
+        "CPUQuotaPerSecUSec=1s",
+        "MemoryMax=4294967296",
+        "MemorySwapMax=0"
+      ]
+    }
+  },
+  "private_media_directory": "/tmp/spacr-tutorials-610/run2/captures",
+  "accepted_scene_frames": [
+    "20_suggestions",
+    "21_judged",
+    "22_cancelled"
+  ],
+  "suggestions_written": 116,
+  "suggestions_visible_in_frame20": 99,
+  "limitations": [
+    "Actual Qt controls rendered offscreen; no native desktop or published-video acceptance.",
+    "Full-resolution images remain in the private staging directory; this receipt pins each original image SHA256. No existing tutorial master was overwritten.",
+    "Frame19_suggest_menu is a window-only diagnostic; detached QMenu is not composited and is not accepted as a tutorial menu frame.",
+    "Measurement merge reports four original rows without nucleus measurements; no missing measurements or images were fabricated.",
+    "Progress observer attached after early events: accepted run captured fit/rank/write and next-run features/cancelled, not every step of the first run.",
+    "Accepted runtime commit predates the pending Cancel-tooltip-only correction; Suggest logic is unchanged but no post-tooltip full rerun is claimed.",
+    "Lesson09 audio/full video publication and caption catalogs remain separate work."
+  ],
+  "failed_attempt": {
+    "stage": "/tmp/spacr-tutorials-610/run1",
+    "reason": "Harness asserted transient cancellation status after normal page reload set Ready, despite real cancellation; exception cleanup then aborted. Fixed harness observes cancelled signal and always closes/drains the screen.",
+    "product_hang": false
+  },
+  "log": {
+    "path": "/tmp/spacr-implementation-20261001/review/n610-capture-run2.log",
+    "sha256": "cff80b8580757f44292fb5a0840f7395299f9f730bba52eb4cdf5e0fbc9413ed"
+  }
+}

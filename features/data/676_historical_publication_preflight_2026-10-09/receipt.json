@@ -1,0 +1,78 @@
+{
+  "source_commit": "8c372c8bf9c6103e98412c1db33ced0f36236524",
+  "source_publication": "private checkpoint only; current public six-lesson5ab revision remains in use",
+  "source_sha256": {
+    "tools/tutorials/authoring/web/app_v2.js": "34df699e2c36c317a6a126596b51fba95dcd3a011668dc6d30557f4241746fd4",
+    "tools/tutorials/build_audio_patch_candidate.py": "15e10e0560378d32f1bb13492dd670135da74e44d232a3224a8d5b28fa1cfb5a",
+    "tools/tutorials/tests/test_audio_patch_candidate.py": "8de2e857eab7ef114ffc2e07cf1f503968bb1c7795928f0771d87fc91012a5dc",
+    "tools/tutorials/tests/test_player_legacy_visual_reference.py": "f1a81fd15ca2fda4d7c1fa63e8505d01594aa1244759cd3210e02250080b402c",
+    "tools/tutorials/tests/test_player_native_live_video.py": "c7e29f35bbedfc062a4135f6e865dbb77a2279195b6718217a222a237b135aed",
+    "tools/tutorials/tests/test_library_checkpoint.py": "19655b44bcbc08bdf207d16f340defd04c85abf701e614ffad65f937cd28d5c9",
+    "tools/tutorials/release_candidate/checkpoint.json": "16f9693bbb150a9b16cddcdfe65860ab56531275e4f1b8ac7a4ca9f5a7d24f3f",
+    "tools/tutorials/release_candidate/release-manifest.json": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423"
+  },
+  "owning": {
+    "passed": 35,
+    "seconds": 40.31
+  },
+  "preservation": {
+    "base_manifest_sha256": "fece6863b147babec9bebc411dcfb62a426ef135d6e496a6d0b357d87d07007f",
+    "new_manifest_sha256": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423",
+    "base_files": 5219,
+    "new_files": 5229,
+    "unchanged_original_records": 5105,
+    "changed_records": 114,
+    "new_legacy_timing_records": 10,
+    "catalogs_unchanged": 14,
+    "corrected_english_tracks": 56,
+    "six_current_lesson_media_unchanged": true,
+    "scope": "Exact manifests compare: only112 corrected English files,2 expected player index files and10 explicit old visual clocks differ. No new rendering or narration."
+  },
+  "payloads": [
+    {
+      "path": "payload/historical-tv-checkpoint-current-r1-tool.log.gz",
+      "raw_bytes": 1270,
+      "raw_sha256": "0c98acdacbd9965f3cbf5b3502d745afbb22447466811ed888525841a0f2618e",
+      "gzip_sha256": "80701a724c8497c1f1a0d3be085c8770c5c6da4574c1ed8294d95bfeddac4743"
+    },
+    {
+      "path": "payload/historical-tv-checkpoint-current-r1.log.gz",
+      "raw_bytes": 125,
+      "raw_sha256": "63584f3ecbb0807fe3c2b21f25dea68563c2e7137cda27b847aca9c1ba85e149",
+      "gzip_sha256": "d01f2c92afc98946f6b9776e51a9ef552a2e804a26901b55b49657e6d760c0ca"
+    },
+    {
+      "path": "payload/historical-tv-checkpoint-current-r2-tool.log.gz",
+      "raw_bytes": 826,
+      "raw_sha256": "9bc1d591a5178ac7c126a26d3e1a1575a813ac0093d88c99b9cc19f115291ef5",
+      "gzip_sha256": "df3b7c68057d573f8efe5738172d9cf6dac17ebe9bc5eb48be2cab1ba129b369"
+    },
+    {
+      "path": "payload/historical-tv-checkpoint-current-r2.log.gz",
+      "raw_bytes": 278,
+      "raw_sha256": "027eb5d5a9991cf9dbcc6a7d0ed245dc1b261a42221123d8b490737b93c86da3",
+      "gzip_sha256": "b451b048dd3409070f4a18845e6966ebd01c38fe02c91e16db60864811ae6e78"
+    },
+    {
+      "path": "payload/historical-tv-current-owning-r1-tool.log.gz",
+      "raw_bytes": 876,
+      "raw_sha256": "bae04b9cffe18da794c29793425a903c7dd590762b375f30c0b7b42f318e46dd",
+      "gzip_sha256": "9a20c52653fec05314e461d44e4e3a39dc34a7728b325084aae47908ab9c4480"
+    },
+    {
+      "path": "payload/historical-tv-current-owning-r1.log.gz",
+      "raw_bytes": 225,
+      "raw_sha256": "b3e2fdd450768def4b65a33a3cda90ae573fe38571796274625b47ea8406a466",
+      "gzip_sha256": "73785010fae8c6f3ed8efe5b82c4c1ca5b39d52f262afd8d59d450906c674675"
+    },
+    {
+      "path": "payload/historical-tv-current-preservation-r1.json.gz",
+      "raw_bytes": 613,
+      "raw_sha256": "c9f17fe4e6265ddf3bec177b9be60f468f06411d121a62f628aee591543cd080",
+      "gzip_sha256": "5ac81234f1d50b72d12620c82fe24f3d48a2e18bd70849052fe3d44a319fb461"
+    }
+  ],
+  "original_attempt": "R1 scratch launcher missed tools/tutorials import path. Preserved; R2 normal checkpoint passed without product changes.",
+  "upload_status_at_record": "normal uploader live; single transfer thread and readback worker; no success claim",
+  "qualification": "Full hosted readback, tagged revision, current Pages browser verification and source/site publication still pending. No new media synthesis or rendering."
+}

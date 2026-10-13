@@ -1,0 +1,35 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "695e0f965dd1e3c92a6dfd5ce337981d5df0ac777aab824d81cd0e39ea67a401",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Image Scatter: Messwerte und ihre Ausschnitte prüfen",
+  "description": "Stellen Sie zwei Messspalten dar, zeigen Sie Objektausschnitte in der Vorschau an und senden Sie ein ausgewähltes Objekt an Annotate.",
+  "objectives": [
+    "Messwerte laden und Achsen wählen.",
+    "Den Ausschnitt hinter einem Punkt prüfen.",
+    "Ein ausgewähltes Objekt an Annotate senden."
+  ],
+  "prerequisite": "Verwenden Sie eine spaCR-Messdatenbank mit passenden Objektausschnitten und Ausschnittformat-Dateien. Das herunterladbare Annotate-Beispiel liefert diese Eingaben.",
+  "scenes": [
+    "Öffnen Sie Image UMAP und dann Image Scatter, um zwei vorhandene Messgrößen darzustellen. Üben Sie mit der Datenbank aus dem Annotate-Beispiel und den passenden Zellausschnitten.",
+    "Klicken Sie auf Browse und öffnen Sie measurements.db. Halten Sie den Ordner data des Projekts und die Ausschnittformat-Dateien bei der Datenbank, damit die Miniaturen gefunden werden.",
+    "Wählen Sie cell in der Tabellenauswahl und klicken Sie auf Plot. Wenn Sie zu einer anderen Tabelle wechseln, klicken Sie erneut auf Plot, um deren Zeilen zu laden.",
+    "Setzen Sie x auf die Zellfläche und y auf die mittlere Intensität von Kanal 1 der Zelle. Die Achsenauswahl zeichnet die geladenen Zeilen sofort neu.",
+    "Bewegen Sie den Zeiger über einen Punkt, um seinen gespeicherten Ausschnitt und die vollständige Objektkennung zu sehen. Verstehen Sie anhand des Bildes die Messung hinter dem Punkt.",
+    "Bewegen Sie den Zeiger weg, um die vorübergehende Vorschau zu entfernen, und fahren Sie dann über einen anderen Punkt, um ihn zu prüfen.",
+    "Vertauschen Sie die Messgrößen für x und y, um den Zusammenhang aus einer anderen Sicht zu betrachten. Wählen Sie aussagekräftige Merkmale und prüfen Sie ihre Einheiten.",
+    "Wählen Sie eine andere Messgröße, etwa das Homogenitätsmerkmal. Zeilen ohne Koordinaten werden nicht dargestellt; die Zahl der Punkte kann daher von der Zahl der geladenen Zeilen abweichen.",
+    "Eine konstante Spalte, wie die Messdimension in diesem Beispiel, legt die Punkte auf eine Linie. Kehren Sie für die Objektprüfung zu einem Merkmal mit nützlicher Streuung zurück.",
+    "Um einen ausgewählten Ausschnitt in Annotate zu prüfen, öffnen Sie zuerst Annotate und laden dasselbe Projekt. Kehren Sie dann zur vorhandenen Image-Scatter-Ansicht zurück.",
+    "Klicken Sie auf den Punkt selbst, um seine Objektkennung an Annotate zu senden, und wechseln Sie dann zu dieser Seite. Das Überfahren zeigt nur eine Vorschau des Ausschnitts.",
+    "Prüfen Sie das ausgewählte Objekt in Annotate, bevor Sie ein Label vergeben. Verwenden Sie Database Browser für Tabellenexporte oder PCA für die Komponentenanalyse."
+  ]
+}

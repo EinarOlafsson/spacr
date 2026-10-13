@@ -1,0 +1,498 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, rolling pass 2026-10-04: items 643-655 (home-folder pruning and cache manager, update channel and What's new, proxy, portable mode, session reopen and crash-draft restore, read-only project windows, undo/redo, job progress, accessibility), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A PEM file of certificates to trust, for networks that inspect HTTPS with their own certificate authority. Empty uses the REQUESTS_CA_BUNDLE or SSL_CERT_FILE environment variable when it is set. Default empty.",
+      "source": "A PEM file of certificates to trust, for networks that inspect HTTPS with their own certificate authority. Empty uses the REQUESTS_CA_BUNDLE or SSL_CERT_FILE environment variable when it is set. Default empty.",
+      "source_sha256": "d0eebbe36a837857681a908b95db577f81afd83f93a8c6c232f7faa3c37f56e5",
+      "translation": "PEM-skrá með vottorðum til að treysta, fyrir net sem skoða HTTPS með eigin vottunaraðila. Tómt notar umhverfisbreytuna REQUESTS_CA_BUNDLE eða SSL_CERT_FILE þegar hún er skilgreind. Sjálfgefið tómt."
+    },
+    {
+      "table": "ui",
+      "key": "A run is in progress. Try again when it has finished.",
+      "source": "A run is in progress. Try again when it has finished.",
+      "source_sha256": "ab25d83561a20e325c6105130b113b0626d92471bb913161d030267c9cb8e562",
+      "translation": "Keyrsla er í gangi. Reyndu aftur þegar henni er lokið."
+    },
+    {
+      "table": "ui",
+      "key": "Another spaCR window (process {pid} on {host}) is using {path}.",
+      "source": "Another spaCR window (process {pid} on {host}) is using {path}.",
+      "source_sha256": "3eb5d96d0113cbdae0ded87fa9ff43a581260844da0b828196da92b51e1667ad",
+      "translation": "Annar spaCR-gluggi (ferli {pid} á {host}) notar {path}."
+    },
+    {
+      "table": "ui",
+      "key": "Cache",
+      "source": "Cache",
+      "source_sha256": "a76ce82a974999d815b24e30286466c727c9bdbe92c88e676362ce22878ad12d",
+      "translation": "Skyndiminni"
+    },
+    {
+      "table": "ui",
+      "key": "Caches",
+      "source": "Caches",
+      "source_sha256": "c4d5ec97a1bc02153ab77a0da42fb2dcf7dc9b2438497cce21db78b36500d4ee",
+      "translation": "Skyndiminnin"
+    },
+    {
+      "table": "ui",
+      "key": "Certificate bundle",
+      "source": "Certificate bundle",
+      "source_sha256": "eda56e2a10a4370d6c042f26b60f9d736687e1666a94a134b283aed811aabf2a",
+      "translation": "Vottorðabúnt"
+    },
+    {
+      "table": "ui",
+      "key": "Change {setting}",
+      "source": "Change {setting}",
+      "source_sha256": "d3adbae08e46131059336edf1084aac192732abf6b14d49a5b6e78240794634c",
+      "translation": "Breyta {setting}"
+    },
+    {
+      "table": "ui",
+      "key": "Clear cache",
+      "source": "Clear cache",
+      "source_sha256": "d33461e6c0b61742be9cc2dd67a6f86670bdae99791faa00f5b9e84c6a89ebce",
+      "translation": "Hreinsa skyndiminni"
+    },
+    {
+      "table": "ui",
+      "key": "Clear…",
+      "source": "Clear…",
+      "source_sha256": "281a59abd11a0865897b71bbd4015590b31c32679cb8f54d287925c71e980802",
+      "translation": "Hreinsa…"
+    },
+    {
+      "table": "ui",
+      "key": "Continue anyway",
+      "source": "Continue anyway",
+      "source_sha256": "873567be309f124e6edc194fcf510b5136d5b8b666e6215b62ce6e7868368d07",
+      "translation": "Halda samt áfram"
+    },
+    {
+      "table": "ui",
+      "key": "Delete everything inside {folder}? The folder stays. Other programs that share this cache download their files again too.",
+      "source": "Delete everything inside {folder}? The folder stays. Other programs that share this cache download their files again too.",
+      "source_sha256": "4680af27745cf1e4eeaf4fe8b51c391878c5a3b2ec71d2e561da4e6a5db9d8b3",
+      "translation": "Eyða öllu inni í {folder}? Mappan sjálf heldur sér. Önnur forrit sem deila þessu skyndiminni sækja líka skrárnar sínar aftur."
+    },
+    {
+      "table": "ui",
+      "key": "Deleted {count} item(s), freeing {size}.",
+      "source": "Deleted {count} item(s), freeing {size}.",
+      "source_sha256": "d7f257552f175abbe66bea1ed72fb8ed7bb7feb090f505043ca7afdb4e7fdbeb",
+      "translation": "Eyddi {count} atriðum og losaði {size}."
+    },
+    {
+      "table": "ui",
+      "key": "Edit gates",
+      "source": "Edit gates",
+      "source_sha256": "1a6e638b5c41cee2f3ec8f2cce695ef03e8f1807ae88e6da63923c63103024d4",
+      "translation": "Breyta gate-um"
+    },
+    {
+      "table": "ui",
+      "key": "Empty the selected cache after asking. Models and environments are downloaded again when next needed. Default nothing cleared.",
+      "source": "Empty the selected cache after asking. Models and environments are downloaded again when next needed. Default nothing cleared.",
+      "source_sha256": "cdf25979dcd2fbffea257a0d1a1c6d3a2c5212afad02841aa6a792264ed9034c",
+      "translation": "Tæmir valið skyndiminni eftir staðfestingu. Líkön og umhverfi eru sótt aftur næst þegar þeirra er þörf. Sjálfgefið ekkert hreinsað."
+    },
+    {
+      "table": "ui",
+      "key": "Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.",
+      "source": "Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.",
+      "source_sha256": "e8c6c51777940fcb456fb43b5d6f8ea39d601680d4224432c318f33921ed44aa",
+      "translation": "Hver ræsing opnar aftur eininguna sem var á skjánum þegar spaCR lokaðist eða hrundi síðast, með stillingum hennar og möppu. Opna upp á nýtt í stöðustikunni, eða ræsing með --fresh, sleppir þessu einu sinni. Slökkt ræsir alltaf á Heim. Sjálfgefið kveikt."
+    },
+    {
+      "table": "ui",
+      "key": "Folder",
+      "source": "Folder",
+      "source_sha256": "74ccd43303847f2655300641a934959cdb11689ce171aa0f00faa92917fbd340",
+      "translation": "Mappa"
+    },
+    {
+      "table": "ui",
+      "key": "Home folder",
+      "source": "Home folder",
+      "source_sha256": "6772da558a23e28185deb8d4bb7cdb20ae916f13a03eca9a9e5c0d4deffd4944",
+      "translation": "Heimamappa"
+    },
+    {
+      "table": "ui",
+      "key": "Keep: nothing modified within this many days is deleted. Cap: older entries are deleted, oldest first, only while the folder is bigger than this; no cap deletes every older entry. Pruning runs only when you press Prune now.",
+      "source": "Keep: nothing modified within this many days is deleted. Cap: older entries are deleted, oldest first, only while the folder is bigger than this; no cap deletes every older entry. Pruning runs only when you press Prune now.",
+      "source_sha256": "17d32d8e2ec555752fe2ef290b43a02343784c383ab44e3cc1fa4be1b30d8de3",
+      "translation": "Halda: engu sem breytt var innan þessa dagafjölda er eytt. Hámark: eldri færslum er eytt, elstu fyrst, aðeins meðan mappan er stærri en þetta; án hámarks er öllum eldri færslum eytt. Grisjun keyrir aðeins þegar þú ýtir á Grisja núna."
+    },
+    {
+      "table": "ui",
+      "key": "List what the caps above would delete from the spaCR home folder, then ask before deleting it. Nothing is deleted automatically. Default off.",
+      "source": "List what the caps above would delete from the spaCR home folder, then ask before deleting it. Nothing is deleted automatically. Default off.",
+      "source_sha256": "5249688c3f15465c4dbcff547d80efa1bee2c64d8db989641ba3b14263786505",
+      "translation": "Telur upp hvað hámörkin hér að ofan myndu eyða úr heimamöppu spaCR og spyr svo áður en því er eytt. Engu er eytt sjálfkrafa. Sjálfgefið slökkt."
+    },
+    {
+      "table": "ui",
+      "key": "Measure reads every cache's size, Clear empties the selected cache and Move puts it in another folder. Clear and Move ask first.",
+      "source": "Measure reads every cache's size, Clear empties the selected cache and Move puts it in another folder. Clear and Move ask first.",
+      "source_sha256": "1d98c54e3998b09b4460a40984b24b0c4cb3687f2063ab0a8615c27433876ddf",
+      "translation": "Measure les stærð hvers skyndiminnis, Hreinsa tæmir valið skyndiminni og Færa setur það í aðra möppu. Hreinsa og Færa spyrja fyrst."
+    },
+    {
+      "table": "ui",
+      "key": "Move cache",
+      "source": "Move cache",
+      "source_sha256": "ebf2d821276b8d956e5b8870ef0fef62cc795626d76a4a6e738724e0520c4765",
+      "translation": "Færa skyndiminni"
+    },
+    {
+      "table": "ui",
+      "key": "Move the cache into this folder",
+      "source": "Move the cache into this folder",
+      "source_sha256": "0d7ae14f2e3a91621377aab5f4127aa4c8940ef7bbd95f686ac545b67ddfa121",
+      "translation": "Færa skyndiminnið í þessa möppu"
+    },
+    {
+      "table": "ui",
+      "key": "Move the selected cache to another folder or drive after asking; spaCR uses the new place from then on. Default the standard folder.",
+      "source": "Move the selected cache to another folder or drive after asking; spaCR uses the new place from then on. Default the standard folder.",
+      "source_sha256": "8a9aada5a69d25d91545d1de250773fe9c0ece8c0d1cfb5001f6792a73dd9601",
+      "translation": "Færir valið skyndiminni í aðra möppu eða á annað drif eftir staðfestingu; spaCR notar nýja staðinn upp frá því. Sjálfgefið staðlaða mappan."
+    },
+    {
+      "table": "ui",
+      "key": "Move {source} to {target}? spaCR uses the new folder from now on; a program already holding the old path picks it up after a restart.",
+      "source": "Move {source} to {target}? spaCR uses the new folder from now on; a program already holding the old path picks it up after a restart.",
+      "source_sha256": "8b54e5ffae8c13cf555bac90ba75156c4d4fed0091e354d49416826ac31dbc63",
+      "translation": "Færa {source} í {target}? spaCR notar nýju möppuna héðan í frá; forrit sem heldur þegar í gömlu slóðina tekur breytinguna upp eftir endurræsingu."
+    },
+    {
+      "table": "ui",
+      "key": "Moved to {target}.",
+      "source": "Moved to {target}.",
+      "source_sha256": "ac3caf53e59e5606b705fda921ff172b6208cf4d15426e4cc4ce5b24f82142b9",
+      "translation": "Fært í {target}."
+    },
+    {
+      "table": "ui",
+      "key": "Nightly builds",
+      "source": "Nightly builds",
+      "source_sha256": "fd8516ef948c7b5adce00ebedd91cb121d296372c360aa6fb0c8cda2f8fe518d",
+      "translation": "Næturútgáfur"
+    },
+    {
+      "table": "ui",
+      "key": "No jobs are running.",
+      "source": "No jobs are running.",
+      "source_sha256": "f33087eff5691facf5d57bf39559c9a6dca8acb651a0e56c1154089ce4aae26f",
+      "translation": "Engin verk eru í gangi."
+    },
+    {
+      "table": "ui",
+      "key": "No release notes are available for this version.",
+      "source": "No release notes are available for this version.",
+      "source_sha256": "d29de90b0ad80e33023849aa14bbb0e35b9faf2e92b0380bba9bcc0f0f1dee4b",
+      "translation": "Engar útgáfuskýringar eru til fyrir þessa útgáfu."
+    },
+    {
+      "table": "ui",
+      "key": "Not moved: {reason}",
+      "source": "Not moved: {reason}",
+      "source_sha256": "ed5e51c0269dc184d1eaaf3c1ea457cd9854a176740fa08d42be7402ef13ca40",
+      "translation": "Ekki fært: {reason}"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing is over its caps; nothing was deleted.",
+      "source": "Nothing is over its caps; nothing was deleted.",
+      "source_sha256": "c5d6c3f05ab46799657a582c47c8eab477caef118c2450e7e9f37545ee06962d",
+      "translation": "Ekkert er yfir hámörkum sínum; engu var eytt."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to redo.",
+      "source": "Nothing to redo.",
+      "source_sha256": "5909b2dc60615bb6d4e55d67f47de85078cf2807503a5a2c64e670b76e6f24da",
+      "translation": "Ekkert til að endurgera."
+    },
+    {
+      "table": "ui",
+      "key": "Now",
+      "source": "Now",
+      "source_sha256": "fe18013d93d22f4f2a70344d30c00fe62d2ef29189ae5d25ccbda81fbd9c92b0",
+      "translation": "Núna"
+    },
+    {
+      "table": "ui",
+      "key": "Open fresh",
+      "source": "Open fresh",
+      "source_sha256": "c72c959a7efac4c6e2db13c5288dddcfc60128b42b6a766e054a42d19094ed58",
+      "translation": "Opna upp á nýtt"
+    },
+    {
+      "table": "ui",
+      "key": "Open read-only",
+      "source": "Open read-only",
+      "source_sha256": "95b971d67d83f23da842d17ee0237713b5cd5004f6463c3b230af487b3af2156",
+      "translation": "Opna aðeins til lestrar"
+    },
+    {
+      "table": "ui",
+      "key": "Opened read-only",
+      "source": "Opened read-only",
+      "source_sha256": "43a53bfb49f6d74068762b7ca2947254e6a9cd52a28275715bb0fb258031dcf7",
+      "translation": "Opnað aðeins til lestrar"
+    },
+    {
+      "table": "ui",
+      "key": "Portable mode: settings, caches, logs and runs are kept in {folder}.",
+      "source": "Portable mode: settings, caches, logs and runs are kept in {folder}.",
+      "source_sha256": "4f0532d8786d2787345f38419c35acd52b0a9cb2751c3f1ed51f738eaaf3e7b4",
+      "translation": "Ferðahamur: stillingar, skyndiminni, annálar og keyrslur eru geymd í {folder}."
+    },
+    {
+      "table": "ui",
+      "key": "Progress",
+      "source": "Progress",
+      "source_sha256": "4664827f8e89019280ba99cd889f9ea31eaeecf6fc1bb7541c4a0e546685599f",
+      "translation": "Framvinda"
+    },
+    {
+      "table": "ui",
+      "key": "Project open in another window",
+      "source": "Project open in another window",
+      "source_sha256": "7de69c0e0c7c866adeb505d32d3ebe6c3690f9e1339a3aa7358f45094b0f6cb2",
+      "translation": "Verkefnið er opið í öðrum glugga"
+    },
+    {
+      "table": "ui",
+      "key": "Proxy",
+      "source": "Proxy",
+      "source_sha256": "a68ee4167406a050681e0ea3b78907f56b7dd167eff9c9f77dc38026802f0b52",
+      "translation": "Milliþjónn"
+    },
+    {
+      "table": "ui",
+      "key": "Proxy for every download: model weights, updates, plug-ins, pip and backend installers. Empty uses the HTTPS_PROXY environment variable when it is set. spacr-doctor reports whether the proxy reaches PyPI. Default empty.",
+      "source": "Proxy for every download: model weights, updates, plug-ins, pip and backend installers. Empty uses the HTTPS_PROXY environment variable when it is set. spacr-doctor reports whether the proxy reaches PyPI. Default empty.",
+      "source_sha256": "8d7d75db3c2e76a7be1a0f068c3dc8f994ccace9d6145436354ae50dfc4d8553",
+      "translation": "Milliþjónn fyrir öll niðurhöl: líkanavigt, uppfærslur, viðbætur, pip og uppsetningarforrit bakenda. Tómt notar umhverfisbreytuna HTTPS_PROXY þegar hún er skilgreind. spacr-doctor greinir frá því hvort milliþjónninn nær til PyPI. Sjálfgefið tómt."
+    },
+    {
+      "table": "ui",
+      "key": "Prune home folder",
+      "source": "Prune home folder",
+      "source_sha256": "f6a03c4c5f4b91be8213581440c7f13b18a518848729f776738b81205ad6f00d",
+      "translation": "Grisja heimamöppu"
+    },
+    {
+      "table": "ui",
+      "key": "Prune now…",
+      "source": "Prune now…",
+      "source_sha256": "486f5b993b692739dddc992d26569cbb3ae3fd6816c01f738d7820b704f26df6",
+      "translation": "Grisja núna…"
+    },
+    {
+      "table": "ui",
+      "key": "Put back this module's default settings and go to Home. Preferences can turn reopening off for good.",
+      "source": "Put back this module's default settings and go to Home. Preferences can turn reopening off for good.",
+      "source_sha256": "fd0975d09933d11842de8b49b10b8df5920b9bb6170e5b392c7c4aff2de7837f",
+      "translation": "Endurheimtir sjálfgefnar stillingar þessarar einingar og fer á Heim. Í Kjörstillingum má slökkva á enduropnun fyrir fullt og allt."
+    },
+    {
+      "table": "ui",
+      "key": "Read the size of every cache. Default not measured.",
+      "source": "Read the size of every cache. Default not measured.",
+      "source_sha256": "aa54885c8cad403fd6be579d0e411696989724085c97f49bf25b9da4592b1ab1",
+      "translation": "Les stærð hvers skyndiminnis. Sjálfgefið ómælt."
+    },
+    {
+      "table": "ui",
+      "key": "Read-only: another spaCR window has this queue open.",
+      "source": "Read-only: another spaCR window has this queue open.",
+      "source_sha256": "f23318f62129b7fb76c76a22799577fdf71f84ff7c3ea415586e86bafa1a2d32",
+      "translation": "Aðeins til lestrar: annar spaCR-gluggi er með þessa biðröð opna."
+    },
+    {
+      "table": "ui",
+      "key": "Redone.",
+      "source": "Redone.",
+      "source_sha256": "fd083be17ff5c103b820e716626aeafe842db563e13862125c3803df7ae83b01",
+      "translation": "Endurgert."
+    },
+    {
+      "table": "ui",
+      "key": "Removed {count} item(s).",
+      "source": "Removed {count} item(s).",
+      "source_sha256": "722a62a73f6966742535025aa9a79b6d7bff2b0581a48eb087148cb5b7b0f443",
+      "translation": "Fjarlægði {count} atriði."
+    },
+    {
+      "table": "ui",
+      "key": "Reopen the last module, settings and folder on start",
+      "source": "Reopen the last module, settings and folder on start",
+      "source_sha256": "23b45c63a3f51ac27320a528303b96682ed5f301efdfdb2d66cd87746f4f9393",
+      "translation": "Opna síðustu einingu, stillingar og möppu aftur við ræsingu"
+    },
+    {
+      "table": "ui",
+      "key": "Reopened {module} as you left it.",
+      "source": "Reopened {module} as you left it.",
+      "source_sha256": "f9a6eaab5e2453936ae5d3e1293daa013edb56302ecec7b39c0bac03c8db6098",
+      "translation": "Opnaði {module} aftur eins og þú skildir við."
+    },
+    {
+      "table": "ui",
+      "key": "Reopened {module} from {folder}.",
+      "source": "Reopened {module} from {folder}.",
+      "source_sha256": "bfe1b1c7a1e4cbe404d813770cd593f6d260b4731a6684b6c9e4f487f4f01375",
+      "translation": "Opnaði {module} aftur úr {folder}."
+    },
+    {
+      "table": "ui",
+      "key": "Restore",
+      "source": "Restore",
+      "source_sha256": "a76e13b9839270eb73ed11417f7d8acca55df0ad52065799361631d0fff74f27",
+      "translation": "Endurheimta"
+    },
+    {
+      "table": "ui",
+      "key": "Restore unsaved settings",
+      "source": "Restore unsaved settings",
+      "source_sha256": "337b36dc281cdbc4d87e56d3574c08d0e13d97b1a67a050c54c96adb7a80b7e9",
+      "translation": "Endurheimta óvistaðar stillingar"
+    },
+    {
+      "table": "ui",
+      "key": "Session",
+      "source": "Session",
+      "source_sha256": "6959b4159575d8dd76d9f3bbe2c6437904f861e7860c35abd18deffb1c3425a0",
+      "translation": "Lota"
+    },
+    {
+      "table": "ui",
+      "key": "Show every running job with its progress and a Cancel button.",
+      "source": "Show every running job with its progress and a Cancel button.",
+      "source_sha256": "c96617ca3c1e09060ff39fbb2889bbf53b1c79f87eabda031d10454c23b1afe0",
+      "translation": "Sýnir hvert verk í gangi með framvindu þess og hnappnum Hætta við."
+    },
+    {
+      "table": "ui",
+      "key": "Stable releases",
+      "source": "Stable releases",
+      "source_sha256": "432d7d852d0e8e6d5bf8939053ba487d1c728962ab47e7c292ff9f0ba488e0b1",
+      "translation": "Stöðugar útgáfur"
+    },
+    {
+      "table": "ui",
+      "key": "This window has {path} open read-only, so it will not run a pipeline that writes there. Close the other spaCR window, then run again.",
+      "source": "This window has {path} open read-only, so it will not run a pipeline that writes there. Close the other spaCR window, then run again.",
+      "source_sha256": "28f36626663bc678487dab9da7ccee62ec887aaf017194759b63a0067619a7c1",
+      "translation": "Þessi gluggi er með {path} opið aðeins til lestrar, svo hann keyrir ekki verkferil sem skrifar þangað. Lokaðu hinum spaCR-glugganum og keyrðu svo aftur."
+    },
+    {
+      "table": "ui",
+      "key": "Two windows writing the same queue, measurements.db or results folder can corrupt them. Open it read-only to look without writing, or continue if you are sure the other window is idle.",
+      "source": "Two windows writing the same queue, measurements.db or results folder can corrupt them. Open it read-only to look without writing, or continue if you are sure the other window is idle.",
+      "source_sha256": "bebeb4652c8355b5931170e0ba68398742b5e2ce86c7cf89a71bdc1134f16a43",
+      "translation": "Tveir gluggar sem skrifa í sömu biðröð, measurements.db eða niðurstöðumöppu geta skemmt þær. Opnaðu aðeins til lestrar til að skoða án þess að skrifa, eða haltu áfram ef þú ert viss um að hinn glugginn sé aðgerðalaus."
+    },
+    {
+      "table": "ui",
+      "key": "Update channel",
+      "source": "Update channel",
+      "source_sha256": "d4fc4230730665f7ebdf52d3ae8071025bd92e41eb56efc7a0d8200d665addf4",
+      "translation": "Uppfærslurás"
+    },
+    {
+      "table": "ui",
+      "key": "What's new in spaCR",
+      "source": "What's new in spaCR",
+      "source_sha256": "c0ff0742c5c2762c0883c030754519d931ff45df038098ff831715d3a187635a",
+      "translation": "Nýtt í spaCR"
+    },
+    {
+      "table": "ui",
+      "key": "What's new…",
+      "source": "What's new…",
+      "source_sha256": "7fef761bcf4c592fb0cc7d968fd51054758634d36c4e2bb62f1aa7194abb5b30",
+      "translation": "Nýjungar…"
+    },
+    {
+      "table": "ui",
+      "key": "Which versions Help → Check for updates offers. Stable offers only full releases. Nightly also offers pre-releases and development builds, which arrive sooner and are tested less. After an update spaCR shows what changed. Default stable.",
+      "source": "Which versions Help → Check for updates offers. Stable offers only full releases. Nightly also offers pre-releases and development builds, which arrive sooner and are tested less. After an update spaCR shows what changed. Default stable.",
+      "source_sha256": "c0bbe79fbd0960dce106035bbc557d0991dd648063656496e2ef9e328c43ef68",
+      "translation": "Hvaða útgáfur Hjálp → Leita að uppfærslum býður. Stöðug býður aðeins fullar útgáfur. Nætur býður einnig forútgáfur og þróunarútgáfur, sem berast fyrr og eru minna prófaðar. Eftir uppfærslu sýnir spaCR hvað breyttist. Sjálfgefið stöðug."
+    },
+    {
+      "table": "ui",
+      "key": "You are running spaCR {new}.",
+      "source": "You are running spaCR {new}.",
+      "source_sha256": "ea59fcd805b077d3fd5abed159abb0e146bb0665b4e08fd607804828ca040931",
+      "translation": "Þú keyrir spaCR {new}."
+    },
+    {
+      "table": "ui",
+      "key": "days",
+      "source": "days",
+      "source_sha256": "ab51004e9d71a485f160f655fb9e72bcdef8f5ca4178b26938b49471456fd11c",
+      "translation": "dagar"
+    },
+    {
+      "table": "ui",
+      "key": "empty",
+      "source": "empty",
+      "source_sha256": "2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d",
+      "translation": "tómt"
+    },
+    {
+      "table": "ui",
+      "key": "no cap",
+      "source": "no cap",
+      "source_sha256": "0e4084b4cf48eb86a7c18f14fb681e32d409269e267d08d3178221eed5c500a5",
+      "translation": "ekkert hámark"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?",
+      "source": "spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?",
+      "source_sha256": "a8af6643d0fc1c522e8d7ac0ad366cb3970b38c8b5c4708f2b4c3a0b6e4cf393",
+      "translation": "spaCR lokaðist ekki eðlilega síðast. Óvistaðar stillingar voru geymdar fyrir: {modules}. Endurheimta þær?"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR keeps logs and a folder per run in its home folder. Pruning deletes the oldest of them once a folder is over its size cap, and never anything newer than the age you keep, the run in progress or a log that is open. You see the list before anything is deleted.",
+      "source": "spaCR keeps logs and a folder per run in its home folder. Pruning deletes the oldest of them once a folder is over its size cap, and never anything newer than the age you keep, the run in progress or a log that is open. You see the list before anything is deleted.",
+      "source_sha256": "63d4c3b320b2cf5339598d07a3391efc195a7b1e29980ded438c7413cb9a6596",
+      "translation": "spaCR geymir annála og eina möppu fyrir hverja keyrslu í heimamöppu sinni. Grisjun eyðir þeim elstu þegar mappa er komin yfir stærðarhámark sitt, og aldrei neinu nýrra en aldrinum sem þú heldur, keyrslunni í gangi eða annál sem er opinn. Þú sérð listann áður en nokkru er eytt."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR was updated from {old} to {new}.",
+      "source": "spaCR was updated from {old} to {new}.",
+      "source_sha256": "30f9b210d8d1b15f4209f41bc6825a3c562dccc3b7194f67440b3866f71b7828",
+      "translation": "spaCR var uppfært úr {old} í {new}."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's model, Hugging Face, Torch, backend and news caches with their sizes. Press Measure to read the sizes.",
+      "source": "spaCR's model, Hugging Face, Torch, backend and news caches with their sizes. Press Measure to read the sizes.",
+      "source_sha256": "873b55066c4f73e0bec03e51c3a4f34c5ff98daa62b53866ac3e0275f1b80514",
+      "translation": "Skyndiminni spaCR fyrir líkön, Hugging Face, Torch, bakenda og fréttir ásamt stærðum. Ýttu á Measure til að lesa stærðirnar."
+    },
+    {
+      "table": "ui",
+      "key": "{label}: delete {count} of {total} ({size} of {all})",
+      "source": "{label}: delete {count} of {total} ({size} of {all})",
+      "source_sha256": "07606d87d01507fe0a28acda1c4e82d66fd9d187b77fdde6e15bc4ebcb133a0d",
+      "translation": "{label}: eyða {count} af {total} ({size} af {all})"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "added": [
+    "spacr.qt.command_palette.CommandPalette._collect_commands.app_is_visible",
+    "spacr.tabular._write_workbook._write"
+  ],
+  "changed_existing": [],
+  "unchanged_setting_consumers": true,
+  "unchanged_preferences": true,
+  "sha256": "d2816cb825c150c522a64ee571e4f457050d364e3c2d3ea6db299d8da4fd4c9e"
+}

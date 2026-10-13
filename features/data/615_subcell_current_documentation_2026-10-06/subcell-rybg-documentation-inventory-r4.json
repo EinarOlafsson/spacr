@@ -1,0 +1,164 @@
+{
+  "baseline_commit": "58df6f5b9",
+  "integrated_Home_commit": "3ce39ac7b",
+  "source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "old_API_symbols": 13181,
+  "current_API_symbols": 13182,
+  "API_added": [
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+  ],
+  "API_changed": [
+    "spacr.embeddings.EmbeddingSpec",
+    "spacr.embeddings._foundation_encoder.run",
+    "spacr.embeddings._subcell_model.Pooled.forward",
+    "spacr.embeddings._subcell_model.forward"
+  ],
+  "API_removed": [],
+  "new_API_blocks": [
+    {
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping#0",
+      "source": "Store only a complete four-index choice, then close."
+    },
+    {
+      "label": "spacr.embeddings.EmbeddingSpec#1",
+      "source": "For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B), protein (G) order, and set ``normalize=False``. Crops must be at least 16 pixels in each spatial dimension. Native dimensions are preserved; the encoder applies the authors' whole-crop min-max normalization."
+    },
+    {
+      "label": "spacr.embeddings.EmbeddingSpec#2",
+      "source": "Name of a timm or registered foundation encoder."
+    },
+    {
+      "label": "spacr.embeddings._foundation_encoder.run#0",
+      "source": "Encode ``(n, h, w, k)`` crops in model-appropriate batches."
+    },
+    {
+      "label": "spacr.embeddings._foundation_encoder.run#1",
+      "source": "float32 crops, channels last. SubCell R/Y/B/G uses native intensity values; other foundations expect [0, 1]."
+    },
+    {
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined."
+    },
+    {
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels."
+    },
+    {
+      "label": "spacr.embeddings._subcell_model.forward#0",
+      "source": "Min-max scale the expected model planes, then encode."
+    }
+  ],
+  "new_runtime": [
+    "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+    "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
+    "Assign four different crop channels in SubCell's official order. No stain identity is guessed from channel position.",
+    "Channel {position} (index {index})",
+    "Channels…",
+    "Choose a crop channel for each SubCell plane: microtubules, ER, DNA and protein.",
+    "Choose channel…",
+    "Choose four different crop channels for SubCell.",
+    "Choose four distinct crop channels before running SubCell's four-plane model.",
+    "DNA (B)",
+    "ER (Y)",
+    "Four mapped planes (one pass)",
+    "Load crops with at least four channels before mapping SubCell's microtubules, ER, DNA and protein planes.",
+    "Map four crop channels to microtubules, ER, DNA and protein before running SubCell's four-plane model.",
+    "Microtubules (R)",
+    "Protein (G)",
+    "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+    "SubCell channel mapping saved in microtubules, ER, DNA, protein order.",
+    "SubCell four-plane channels",
+    "SubCell's four-plane model needs crops with at least four channels. Load a suitable crop source first.",
+    "The new crops have fewer channels. Reopen Channels… to map SubCell's four planes."
+  ],
+  "new_runtime_keys": [
+    [
+      "UI",
+      "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+    ],
+    [
+      "UI",
+      "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again."
+    ],
+    [
+      "UI",
+      "Assign four different crop channels in SubCell's official order. No stain identity is guessed from channel position."
+    ],
+    [
+      "UI",
+      "Channel {position} (index {index})"
+    ],
+    [
+      "UI",
+      "Channels…"
+    ],
+    [
+      "UI",
+      "Choose a crop channel for each SubCell plane: microtubules, ER, DNA and protein."
+    ],
+    [
+      "UI",
+      "Choose channel…"
+    ],
+    [
+      "UI",
+      "Choose four different crop channels for SubCell."
+    ],
+    [
+      "UI",
+      "Choose four distinct crop channels before running SubCell's four-plane model."
+    ],
+    [
+      "UI",
+      "DNA (B)"
+    ],
+    [
+      "UI",
+      "ER (Y)"
+    ],
+    [
+      "UI",
+      "Four mapped planes (one pass)"
+    ],
+    [
+      "UI",
+      "Load crops with at least four channels before mapping SubCell's microtubules, ER, DNA and protein planes."
+    ],
+    [
+      "UI",
+      "Map four crop channels to microtubules, ER, DNA and protein before running SubCell's four-plane model."
+    ],
+    [
+      "UI",
+      "Microtubules (R)"
+    ],
+    [
+      "UI",
+      "Protein (G)"
+    ],
+    [
+      "UI",
+      "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)"
+    ],
+    [
+      "UI",
+      "SubCell channel mapping saved in microtubules, ER, DNA, protein order."
+    ],
+    [
+      "UI",
+      "SubCell four-plane channels"
+    ],
+    [
+      "UI",
+      "SubCell's four-plane model needs crops with at least four channels. Load a suitable crop source first."
+    ],
+    [
+      "UI",
+      "The new crops have fewer channels. Reopen Channels… to map SubCell's four planes."
+    ]
+  ],
+  "retired_runtime": [
+    "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+  ],
+  "current_runtime_rows": 9880
+}

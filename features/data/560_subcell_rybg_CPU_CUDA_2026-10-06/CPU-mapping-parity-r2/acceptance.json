@@ -1,0 +1,214 @@
+{
+  "passed": true,
+  "application_source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "script_sha256": "1360bf0d8a065529fb19d2b1a7614324d7e3e7e2b68b951e4e76538af7832564",
+  "spec": {
+    "backbone": "subcell_rybg",
+    "channel_policy": "project",
+    "channels": [
+      4,
+      0,
+      2,
+      1
+    ],
+    "batch_size": 1,
+    "device": "cpu",
+    "normalize": false,
+    "channel_scale": null
+  },
+  "complete_ordered_model_state_sha256": "4e3d25fd7e5f05db96af5372f8b39bb3bf3a205a17159278eda6211776a1c809",
+  "checkpoint_sha256": "6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845",
+  "actual_normal_entry": {
+    "key": "encoder:subcell_rybg/project",
+    "name": "subcell_rybg (project)",
+    "kind": "encoder",
+    "source": "local",
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-subcell-rybg-preparation-r1/torch/hub/checkpoints/all_channels_ViT-ProtS-Pool.pth",
+    "uri": "https://czi-subcell-public.s3.amazonaws.com/models/all_channels_ViT-ProtS-Pool.pth",
+    "version": "1",
+    "sha256": "6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845",
+    "size_bytes": 349009018,
+    "trained_on": "unknown",
+    "trained_by": "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+    "metrics": {},
+    "notes": [
+      "Channel policy: project. Dimensions from different policies are not comparable.",
+      "No scorecard. Measure retrieval against labelled phenotype controls and attach the results."
+    ],
+    "verified": false,
+    "settings_path": "",
+    "licence": ""
+  },
+  "comparisons": {
+    "16x16": {
+      "original_shape": [
+        1,
+        16,
+        16,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        16,
+        16
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 1.430511474609375e-06,
+      "mean_abs_difference": 2.738873945418163e-07,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "48x64": {
+      "original_shape": [
+        1,
+        48,
+        64,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        48,
+        64
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 2.384185791015625e-06,
+      "mean_abs_difference": 1.707491463776023e-07,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "64x64": {
+      "original_shape": [
+        1,
+        64,
+        64,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        64,
+        64
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 9.5367431640625e-07,
+      "mean_abs_difference": 1.653643266763538e-07,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "512x512": {
+      "original_shape": [
+        1,
+        512,
+        512,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        512,
+        512
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 3.814697265625e-06,
+      "mean_abs_difference": 6.295712040582657e-08,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "constant-64x64": {
+      "original_shape": [
+        1,
+        64,
+        64,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        64,
+        64
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 1.9073486328125e-06,
+      "mean_abs_difference": 9.069075446177521e-08,
+      "predeclared_max_abs_guard": 1e-05
+    }
+  },
+  "peak_rss_KiB": 2012236,
+  "no_GPU_run_or_biological_accuracy_or_human_labels_claim": true,
+  "input_scope": "Five deterministic synthetic normalization/mapping fixtures; original five planes retained, four explicitly permuted selected planes, an unselected extreme plane, minimum/rectangular/native dimensions and constant input.",
+  "files": {
+    "16x16-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "352175adf7c197bd4955fea61a75ac36294932bcd043b99f9de7d50f1a0e0797"
+    },
+    "16x16-original.npy": {
+      "bytes": 5248,
+      "sha256": "a712671050326ba370d6636779bab6f01a96f81a5d96859266bb0f2f089608c2"
+    },
+    "16x16-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "6846700f3376ff06d02daa1b17903316d07b4d576dfaa899d485aecd0a583be1"
+    },
+    "48x64-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "86d215f10ec71defae2a3297934ee3b8615653b24a592b18daf1b9fd9977b30c"
+    },
+    "48x64-original.npy": {
+      "bytes": 61568,
+      "sha256": "d85f9158cd7499e051a493661a5d340c31c4c32f7ecbd0aeeb26b0071634725e"
+    },
+    "48x64-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "19de0afca97f4f1c1a43085e39432cd52f2af1d570aecf0a509f334704236410"
+    },
+    "512x512-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "3a19e73a6f4908f84a3d5bcc05ec6d52fe978152d6ec7b143973f456e3bd0af9"
+    },
+    "512x512-original.npy": {
+      "bytes": 5243008,
+      "sha256": "718a2d950180a094801a0046fd2f1fd3020cd01fae075028da56bae9b3572fa0"
+    },
+    "512x512-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "12fa4ab5f0417ffe4606ec5acb7f1c238fdfe519615ae32b2fae0aaef2f72ada"
+    },
+    "64x64-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "3300db598badbe0d414b220a692ceaaf87d81be029ea3cb4ca8e92d8f213d867"
+    },
+    "64x64-original.npy": {
+      "bytes": 82048,
+      "sha256": "e0dff75d786959a54a3d8f8bac223b4eb96990691f395d9a5dc2e529ecdcab76"
+    },
+    "64x64-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "1aa7c549547c26d517896f713ec6841815cb95d8f137fc2a517fb89a9a6ee86a"
+    },
+    "constant-64x64-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "e3d21be98ee087e8de7da806979ee520171d6c72d61d8ec767bd052a53480788"
+    },
+    "constant-64x64-original.npy": {
+      "bytes": 82048,
+      "sha256": "f5d8d0e844d5289fe65e45274a0596fb081131eafc540dc4bbbc23754bc7983e"
+    },
+    "constant-64x64-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "26648517d62f94fad16c7a27dae3d4012c77910ae79221183c46eb0965791373"
+    }
+  }
+}

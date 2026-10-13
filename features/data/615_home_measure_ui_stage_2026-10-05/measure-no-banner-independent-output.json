@@ -1,0 +1,271 @@
+{
+  "accepted": true,
+  "run_status": {
+    "run_id": "1afb9c8a6ead",
+    "name": "measure_crop",
+    "status": "complete",
+    "n_attempted": 16,
+    "n_succeeded": 16,
+    "n_failed": 0,
+    "failure_rate": 0.0,
+    "started_utc": "2026-10-05T19:24:46+00:00",
+    "stamped_utc": "2026-10-05T19:39:46+00:00",
+    "failures_json": "[]",
+    "summary": "==============================================================================\n spaCR run complete \u2014 measure_crop\n==============================================================================\n attempted : 16\n succeeded : 16\n failed    : 0  (0.0%)\n=============================================================================="
+  },
+  "database_sha256": "ad5bbf07d45dc861e1e63dfb6beaa7457110ef38abf74679beefe2a777a17eb1",
+  "database_bytes": 6410240,
+  "table_counts": {
+    "cell": 601,
+    "nucleus": 622,
+    "pathogen": 373,
+    "cytoplasm": 601,
+    "png_list": 601,
+    "intensity_rescale": 16
+  },
+  "field_checks": {
+    "plate1_E01_10_1": {
+      "objects_checked": 58,
+      "values_checked": 522,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": [
+        {
+          "survivor": 4,
+          "merged_raw_label": 12,
+          "source_bridges": [
+            {
+              "child_plane": 6,
+              "child_labels": [
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "plate1_E01_11_1": {
+      "objects_checked": 43,
+      "values_checked": 387,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_E01_1_1": {
+      "objects_checked": 32,
+      "values_checked": 288,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": [
+        {
+          "survivor": 7,
+          "merged_raw_label": 8,
+          "source_bridges": [
+            {
+              "child_plane": 5,
+              "child_labels": [
+                7
+              ]
+            },
+            {
+              "child_plane": 6,
+              "child_labels": [
+                6
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "plate1_E01_9_1": {
+      "objects_checked": 57,
+      "values_checked": 513,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_E02_10_1": {
+      "objects_checked": 35,
+      "values_checked": 315,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_E02_11_1": {
+      "objects_checked": 24,
+      "values_checked": 216,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": [
+        {
+          "survivor": 17,
+          "merged_raw_label": 18,
+          "source_bridges": [
+            {
+              "child_plane": 6,
+              "child_labels": [
+                28,
+                29,
+                31
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "plate1_E02_1_1": {
+      "objects_checked": 24,
+      "values_checked": 216,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_E02_9_1": {
+      "objects_checked": 15,
+      "values_checked": 135,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_L01_10_1": {
+      "objects_checked": 60,
+      "values_checked": 540,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_L01_11_1": {
+      "objects_checked": 48,
+      "values_checked": 432,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_L01_1_1": {
+      "objects_checked": 12,
+      "values_checked": 108,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_L01_9_1": {
+      "objects_checked": 59,
+      "values_checked": 531,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_L02_10_1": {
+      "objects_checked": 46,
+      "values_checked": 414,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": [
+        {
+          "survivor": 16,
+          "merged_raw_label": 30,
+          "source_bridges": [
+            {
+              "child_plane": 6,
+              "child_labels": [
+                12,
+                17
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "plate1_L02_11_1": {
+      "objects_checked": 20,
+      "values_checked": 180,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_L02_1_1": {
+      "objects_checked": 21,
+      "values_checked": 189,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": []
+    },
+    "plate1_L02_9_1": {
+      "objects_checked": 47,
+      "values_checked": 423,
+      "area_maximum_error": 0,
+      "integrated_intensity_maximum_error": 0,
+      "mean_intensity_maximum_error": 0.0,
+      "source_supported_merges": [
+        {
+          "survivor": 9,
+          "merged_raw_label": 12,
+          "source_bridges": [
+            {
+              "child_plane": 5,
+              "child_labels": [
+                18,
+                20
+              ]
+            },
+            {
+              "child_plane": 6,
+              "child_labels": [
+                10
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "source_file_sha256": {
+    "plate1_E01_10_1": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "plate1_E01_11_1": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "plate1_E01_1_1": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+    "plate1_E01_9_1": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e",
+    "plate1_E02_10_1": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+    "plate1_E02_11_1": "8a317cda286571afc0d8645dd3b14a124c77752452cd7320ca6547714246ae9d",
+    "plate1_E02_1_1": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+    "plate1_E02_9_1": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74",
+    "plate1_L01_10_1": "0293af80914ce0c8798aa008d8d1810aa98dd8d386e12711b1911e64c04d2a80",
+    "plate1_L01_11_1": "cdcf36ea2ea9dad988e54b7c206c4e3d87ed41d1330c8ce3603c955b4532cff0",
+    "plate1_L01_1_1": "0275196bf4dd62fdaa31688675ec712b96fd85a6a9cf7d9049e977f5f163c34e",
+    "plate1_L01_9_1": "84ad93b608a2bb6c27c550b27ba755ff922df76b6559fb688da2b7015b3ab8f6",
+    "plate1_L02_10_1": "72282abba9c0cad776621c5c676e7f90d4e8d2bf5ad79350e82a19f193faf1b6",
+    "plate1_L02_11_1": "1cfe960e9b0249fc0c2186421dde8eb66ebfb4e81df4de6b8cc87e797b5e3507",
+    "plate1_L02_1_1": "7143ca727ab080716353d059d87635b1305cba956cf94ae4e5d3add2672ec672",
+    "plate1_L02_9_1": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002"
+  },
+  "values_checked": 5409,
+  "decoded_rgb_crops": 601,
+  "crop_size": [
+    224,
+    224
+  ],
+  "preview_controls_verified": true,
+  "live_grid_counts": [
+    50,
+    50,
+    50
+  ],
+  "preview_source_arrays_preserved_after_batch": true,
+  "all_measurement_columns_validated": false,
+  "biological_segmentation_validated": false,
+  "registry_and_gui_staleness_accepted": false
+}

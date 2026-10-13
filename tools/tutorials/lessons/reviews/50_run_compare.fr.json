@@ -1,0 +1,32 @@
+{
+  "lesson": "50_run_compare",
+  "english_sha256": "60f9898197011e045f8be2667a3fa097b07841cc559845331e098f5e4de0a5cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Run Compare : comparer des exécutions enregistrées",
+  "description": "Choisissez deux exécutions enregistrées, examinez les différences de paramètres et d’effectifs, et vérifiez les comparaisons de résultats disponibles.",
+  "objectives": [
+    "Sélectionner l’exécution de référence et celle de comparaison.",
+    "Examiner les différences de paramètres et d’effectifs.",
+    "Localiser les comparaisons de résultats disponibles."
+  ],
+  "prerequisite": "Téléchargez et décompressez les instantanés associés. Suivez leur README pour lancer prepare_run_compare_download.py dans votre environnement spaCR avec un nouveau dossier de destination. Pour vos propres comparaisons, conservez les sorties de chaque exécution avant qu’elles soient écrasées.",
+  "scenes": [
+    "Dans la catégorie Data de Home, ouvrez Run Compare pour examiner les sorties enregistrées de deux exécutions.",
+    "Téléchargez et décompressez l’exemple d’instantanés. Suivez son README pour lancer le script de préparation avec un nouveau dossier de destination.",
+    "Cliquez sur Browse et sélectionnez le dossier de comparaison préparé. Gardez disponibles les projets d’origine et leurs instantanés d’exécution pour vos propres comparaisons.",
+    "Choisissez une exécution de référence comme A et l’exécution à comparer comme B, puis cliquez sur Compare. Vérifiez leurs noms de module et leurs versions enregistrées.",
+    "Activez Show unchanged settings pour inclure les valeurs identiques. Dépliez les entrées pour examiner la configuration utilisée par chaque exécution.",
+    "Ouvrez Counts pour comparer les totaux d’objets. Delta vaut B moins A. L’exemple a des effectifs identiques ; examinez les images et les mesures concernées lorsque vous devez comprendre une différence.",
+    "Ouvrez Hits lorsque les deux exécutions ont des résultats de régression enregistrés. L’exemple contient des instantanés de Measure, aucune comparaison de hits n’est donc disponible.",
+    "Choisissez deux exécutions distinctes. Si la même exécution est sélectionnée des deux côtés, utilisez l’avertissement pour corriger la sélection.",
+    "Conservez les deux instantanés de sortie et les paramètres qui expliquent leurs différences. Utilisez Run History pour les journaux individuels et Regression pour les résultats de hits sous-jacents."
+  ]
+}

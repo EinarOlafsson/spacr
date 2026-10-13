@@ -1,0 +1,14 @@
+{
+  "Barcode column": "Dálkur með strikamerki",
+  "CSV files (*.csv)": "CSV-skrár (*.csv)",
+  "Choose CSV…": "Velja CSV…",
+  "Column name in the CSV that contains the plate barcode.": "Heiti dálksins í CSV-skránni sem inniheldur strikamerki plötunnar.",
+  "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.": "Valfrjáls staðbundin CSV-skrá með lýsigögnum sýna. Skildu reitinn auðan til að sleppa tengingu við strikamerki. Ný mappa með heitinu plate_barcode_linkage er búin til á áfangastaðnum; upprunaskrár og fyrirliggjandi plötukort haldast óbreytt.",
+  "Output plate barcodes": "Strikamerki úttaksplatna",
+  "Plate barcode linkage (Alpha)": "Tenging plötustrikamerkja (alfa)",
+  "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}": "Tenging plötustrikamerkja: fjöldi brunna {wells}, fjöldi ósamræmisatriða {mismatches}.\nPlötukort: {map_path}\nÓsamræmi: {mismatch_path}",
+  "Sample records CSV": "CSV með sýnafærslum",
+  "Select sample records CSV": "Velja CSV með sýnafærslum",
+  "Showing {shown} of {total} mismatches; the CSV contains all rows.": "Sýni {shown} ósamræmisatriði af {total}; CSV-skráin inniheldur allar raðir.",
+  "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.": "Hægt er að lesa strikamerki úr barcode.txt í rótarmöppu upprunagagnanna eða í möppu upprunaplötu. Fyrir eina upprunaplötu skal nota strikamerkið eitt og sér, en fyrir margar upprunaplötur færslur á forminu source_plate=barcode. Fyllið hér inn strikamerki fyrir þær úttaksplötur sem eftir eru, til dæmis plate1=BC001; plate2=BC002. Nöfn úttaksplatna geta verið önnur en nöfn upprunamappna."
+}

@@ -1,0 +1,38 @@
+{
+  "item": "F542",
+  "date": "2026-10-01",
+  "status": "CSV dilution input implemented; overall colony feature remains alpha pending biological acceptance",
+  "format": {
+    "encoding": "UTF-8 including BOM",
+    "required_headers": [
+      "file",
+      "dilution"
+    ],
+    "maximum_bytes": 8388608,
+    "matching": "exact filename first, then stem; unknown plate retains counts without CFU/mL",
+    "validation": "whole CSV preflight; positive finite representable factors, unique nonempty filename/stem identifiers, well-formed headers/rows",
+    "snapshot": "one normalization per batch/preview before detection or output writes"
+  },
+  "backend_tests": {
+    "passed": 51,
+    "seconds": 3.9,
+    "selection": [
+      "tests/test_colony_dilution_csv_f542.py",
+      "tests/test_colony_cfu_finite_f542.py"
+    ],
+    "limits": "4GiB, zero swap, oneCPU affinity; configured CPUQuota100% not kernel-verified",
+    "log": "/tmp/spacr-implementation-20261001/review/f542-dilution-csv-tests.log"
+  },
+  "gui_tests": {
+    "passed": 2,
+    "seconds": 1.03,
+    "selection": "tests/qt/test_colony_dilution_setting_f542.py",
+    "limits": "1GiB, zero swap, oneCPU affinity",
+    "covers": [
+      "numeric default accepts CSV/dict/fraction edits",
+      "unopened deferred control retains CSV path"
+    ]
+  },
+  "scope": "Actual temporary TIFF batch writes SQLite/CSV and agrees with preview; segmentation is a deterministic two-object fixture. No real detector or biological accuracy claim. Existing public signatures/docstrings unchanged.",
+  "translations": "Completed source-bound tooltip and guide refresh in all nine languages; technical AI review with independent peer review. See 615_preview_controls_runtime_2026-10-01.json and preview-model-and-plugin-guides receipt."
+}

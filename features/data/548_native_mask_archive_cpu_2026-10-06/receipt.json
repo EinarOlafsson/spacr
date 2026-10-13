@@ -1,0 +1,149 @@
+{
+  "date": "2026-10-06",
+  "baseline_commit": "711999b77d1da51ca189fdf43f470021d1048037",
+  "source_commits": [
+    "e0ea321342",
+    "7f90125469"
+  ],
+  "apply_both_commits_together": true,
+  "accepted_object_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+  "accepted_core_sha256": "7dd588247aa6c55d458eee90d90d7900989acc38cf0940b95a54c9a75fbe4ab2",
+  "cpu_only": true,
+  "cap_bytes": 4294967296,
+  "model_scope": "Deterministic CPU model substitute with actual generator, original normalization/batching, complete NPY mask bytes, SQLite rows and archive completion callbacks; no actual Cellpose or GPU acceptance.",
+  "fixture_shape": [
+    8,
+    8,
+    512,
+    512,
+    2
+  ],
+  "fixture_dtype": "float32",
+  "numeric_payload_bytes": 134217728,
+  "batch_size": 2,
+  "pairs": {
+    "t": {
+      "exact_comparison_keys": [
+        "archive_sha256",
+        "batch_size",
+        "evaluations",
+        "mask_file_sha256",
+        "database_rows",
+        "completion",
+        "pipeline_stdout"
+      ],
+      "all_equal": true,
+      "before": {
+        "source_sha256": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+        "pipeline_seconds": 2.1315251019987045,
+        "vmhwm_kib": 1425156,
+        "sampled_peak_rss_kib": 1395092,
+        "sampled_peak_anon_kib": 912156,
+        "sampled_peak_cgroup_current_bytes": 984252416
+      },
+      "after": {
+        "source_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+        "pipeline_seconds": 2.5187216860067565,
+        "vmhwm_kib": 1289068,
+        "sampled_peak_rss_kib": 1258640,
+        "sampled_peak_anon_kib": 775644,
+        "sampled_peak_cgroup_current_bytes": 981581824
+      },
+      "hwm_reduction_mib": 132.8984375
+    },
+    "z": {
+      "exact_comparison_keys": [
+        "archive_sha256",
+        "batch_size",
+        "evaluations",
+        "mask_file_sha256",
+        "database_rows",
+        "completion",
+        "pipeline_stdout"
+      ],
+      "all_equal": true,
+      "before": {
+        "source_sha256": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+        "pipeline_seconds": 2.2826673989911797,
+        "vmhwm_kib": 1413704,
+        "sampled_peak_rss_kib": 1385140,
+        "sampled_peak_anon_kib": 902128,
+        "sampled_peak_cgroup_current_bytes": 969228288
+      },
+      "after": {
+        "source_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+        "pipeline_seconds": 2.6578964880027343,
+        "vmhwm_kib": 1280576,
+        "sampled_peak_rss_kib": 1250348,
+        "sampled_peak_anon_kib": 767304,
+        "sampled_peak_cgroup_current_bytes": 971915264
+      },
+      "hwm_reduction_mib": 130.0078125
+    }
+  },
+  "traceback_lifetime": {
+    "rejected_source_sha256": "dda73af15c03feeaf1fd158f88f69c2bd1ebcdce8cb043f27a1e7af5f6fddff1",
+    "rejected_subprocess_exit": 139,
+    "accepted_subprocess_exit": 0,
+    "retained_pixels_sum": 276.0,
+    "eventual_close_before_unlink": true,
+    "full_traceback_preserved": true,
+    "rlimit_core": [
+      0,
+      0
+    ],
+    "host_core_pattern": "apport pipe",
+    "repository_or_scratch_core_file_created": false,
+    "host_crash_handler_activity_not_asserted": true
+  },
+  "validation_phases": [
+    {
+      "phase": "broad native/archive/watch",
+      "passed": 269,
+      "seconds": 105.38,
+      "source_object_sha256": "da60dadf76eb8afb07a1c8e6d8e51da2153388eed2f049eb2d3feefc444d47a9",
+      "scope": "Before removing unreachable explicit-close fallback; scientific downstream AST unchanged."
+    },
+    {
+      "phase": "final native archive lifetime plus real Watch reserved scratch resume",
+      "passed": 71,
+      "seconds": 31.13,
+      "source_object_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e"
+    },
+    {
+      "phase": "pre-final cleanup doc/nested callable guards",
+      "passed": 255,
+      "seconds": 24.04
+    },
+    {
+      "phase": "final source callable/nested doc guards",
+      "passed": 255,
+      "seconds": 23.52,
+      "source_object_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e"
+    },
+    {
+      "phase": "fresh archived portable reproduction plus final ownership tests",
+      "passed": 71,
+      "seconds": 28.45,
+      "source_object_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+      "all_four_fresh_pipeline_probes_exact": true,
+      "script_exit": 0
+    }
+  ],
+  "phase_counts_overlap_not_summed": true,
+  "new_private_helper_statements": 96,
+  "new_private_helper_branch_destinations": 28,
+  "helper_missing_statements": 0,
+  "helper_missing_branch_destinations": 0,
+  "limitations": [
+    "Native-only; legacy movie/plain2D eager path and original batch cardinality preserved.",
+    "Private extracted numeric NPY requires reserved writable disk space; retained diagnostic views intentionally keep that bounded stage until released.",
+    "MADV_DONTNEED optional; no Windows RSS guarantee.",
+    "Map alone removes anonymous allocation but full-series file-backed RSS accumulates; source-page advice is applied only after independently owned np.take.",
+    "Clean file pages remain cgroup charged and reclaimable; these paired total-cgroup peaks show no material memory reduction.",
+    "Selected-channel batches, masks and raw intensity filters still scale with configured scientific batching and fields.",
+    "Single paired process-memory measurements, not speed acceptance or arbitrary large-volume support.",
+    "Native Watch prunes only reserved regular scratch directories after symlink rejection; unrelated hidden scientific outputs remain inventory-bound.",
+    "Parent F548 remains OPEN."
+  ]
+}

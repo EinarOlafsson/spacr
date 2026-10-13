@@ -1,0 +1,30 @@
+{
+  "scope": "Four source-current lessons; unchanged 81 lessons and prior redactions retained",
+  "candidate": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/release-candidate-append-lcunb10r",
+  "manifest_sha256": "9c38ec515af5a7556dcf87107c9981c628429aa8aa9367a064c53865132a6860",
+  "refreshed_lessons": [
+    "01_pypi_github",
+    "04_platform_installers",
+    "06_api",
+    "56_lineage"
+  ],
+  "media_commit": "73373db53118be2bc8bb6236a7eab635eb0a04a7",
+  "media_tag": "tutorials-four-lessons-20260927-lcunb10r",
+  "cache_key": "four-lessons-20260927-lcunb10r",
+  "readback_files": 4760,
+  "ready_lessons": 85,
+  "routes": 85,
+  "narration_tracks": 2295,
+  "selected_tracks": 108,
+  "source_bound_reviews": 52,
+  "previous_selected_tracks": 56,
+  "added_tracks": 52,
+  "preservation_sha256": "868b275beb77948d6e9dbe75f7aaa2d81e32da320d97125274aa15ba3fa3c81b",
+  "technical_acceptance_sha256": "6048718c79b9404f49248d08be739ddef350651c9a263d045d22dc95b2c8fb6e",
+  "visual_review_sha256": "633b21a022b7479d8fa86550d470587d9d6bc07b5f782763f5cb3c18156eee4f",
+  "local_and_hosted_browser_passed": true,
+  "gpu_used": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "live_pages_verified": false
+}

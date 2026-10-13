@@ -1,0 +1,29 @@
+{
+  "lesson": "09_annotate",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
+  "scene_count_per_catalog": 20,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 10590,
+    "duration_seconds": 353.0, "audio_streams": 0, "bytes": 46682838,
+    "sha256": "66f9bc1834493f6821e89756d0e94b9cd8858b82ae74bafb91ba94091faf72c1"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Scene links", "Placement in Main modules", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "real_data": "2,341 downloaded PNG crops and database rows; actual annotation-column creation, click/Next/Back save and clear, Class counts and Coverage; RGB/CMY/RGB display changes preserve source images and original columns",
+  "preserved_specialist_routes": ["23_agreement", "10_classify_cv", "11_classify_ml", "41_classify"],
+  "boundaries": "One temporary demonstration label, subsequently cleared; not a biological classification, model-training result, generated database or AI response",
+  "synthesis": "50 tracks generated using one CUDA synthesis process at a time, capped to 10% of video memory, two CPU threads and the 110 GiB host-memory guard",
+  "evidence_directory": "refresh_2026-09-09/production/09_annotate and refresh_2026-09-09/browser/09_annotate in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and real capture; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

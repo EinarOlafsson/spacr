@@ -1,0 +1,21 @@
+[Unit]
+Description=spaCR memory watchdog: freeze a runaway before it takes the desktop down
+Documentation=https://github.com/EinarOlafsson/spacr/blob/nightly/features/new/453_a_memory_watchdog_so_a_runaway_cannot_take_the_desktop.txt
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env python3 %h/.local/bin/spacr_memory_watchdog.py --act-gb 100 --kill-gb 112 --floor-gb 16 --interval 2
+Restart=always
+RestartSec=5
+
+# IT MUST NOT BE WHAT DIES. A watchdog that is chosen by the OOM killer is
+# a watchdog that was not there when it mattered. 256 MB is roughly ten
+# times what it uses, so this is a leak guard rather than a working limit.
+MemoryMax=256M
+
+# Reading /proc every two seconds costs nothing; being scheduled promptly
+# when the machine is thrashing is the whole job.
+Nice=-5
+
+[Install]
+WantedBy=default.target

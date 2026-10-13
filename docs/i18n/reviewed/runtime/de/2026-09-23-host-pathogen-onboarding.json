@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI-assisted source-context review of Host–Pathogen module caption and revised Toxoplasma introduction, retaining the individual-parasite counting limitation. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Host–Pathogen",
+      "source": "Host–Pathogen",
+      "source_sha256": "4c412cc95aa2cb17f6e0845eb10053d19c10cdd3303bd167cf972ce50362302e",
+      "translation": "Wirt–Pathogen"
+    },
+    {
+      "table": "ui",
+      "key": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source_sha256": "9e911ea8fe2901d8809fb0145ca76fb04d1288ad1a4227464425c899dd863134",
+      "translation": "Invasion Assay unterscheidet Parasiten, die an einer Wirtszelle haften, von bereits eingedrungenen Parasiten. Recruitment misst die Anreicherung von Wirtsproteinen um die parasitenhaltige Vakuole. Wirt–Pathogen kombiniert die Rekrutierung auf Vakuolenebene, Parasitenzahlen und Bezugsgrößen für Infektionsmaße der Wirtszellen in einer Analyse. Einzelne Parasiten lassen sich nur mit geeigneten Parasitenmasken oder einem validierten Schätzverfahren zählen; Masken ganzer Vakuolen allein liefern diese Zahlen nicht. Zusammen helfen die Module, eine Änderung des Eintritts von einer Änderung der Wirtsantwort nach dem Eintritt zu unterscheiden. Wählen Sie Bildkanäle und Markerdefinitionen, die beide Populationen unterscheidbar machen."
+    }
+  ]
+}

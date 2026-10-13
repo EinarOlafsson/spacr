@@ -1,0 +1,282 @@
+{
+  "parent_revision": "d127b4a904e1ef4f5dee534f7e969b97006eff34",
+  "before_sha256": "2f017b232ae9647df99e59f65a1f5b1ec803cf28d1f9a3995cb23da9eceb5d72",
+  "after_sha256": "a30979cce98c45a5ce66a7b67b53dafe77bccaebf934dd09727e6186aab3979a",
+  "candidate_changes": "Only completed parent lookup list and indexed ancestry lookup inside _FungalGrowthEngine.geometry. Same last-endpoint resolution; no geometry/sample/order/budget/palette changes.",
+  "extra_memory": "One ephemeral list of references, about160KiB at20.6k candidates; no persistent image/cache budget increase. Whole-process RSS varies separately.",
+  "focused_tests": {
+    "passed": 55,
+    "seconds": 342.09,
+    "rss_cap_gib": 4,
+    "files": [
+      "tests/qt/test_fungal_growth_engine.py",
+      "tests/qt/test_fungal_mature_raster_cache.py",
+      "tests/qt/test_fungal_scalar_path_overloads.py"
+    ]
+  },
+  "native_parity": {
+    "source_sha256": "2f017b232ae9647df99e59f65a1f5b1ec803cf28d1f9a3995cb23da9eceb5d72",
+    "candidate_method_sha256": "b3c1987cb5f9cd2ce28ed6785b40dd015c30514412b3473ea8ae5c4e59079189",
+    "controls": {
+      "native": [
+        3840,
+        2160
+      ],
+      "density": 3,
+      "detail": 2,
+      "size": 2.5
+    },
+    "geometry_samples_ms": [
+      [
+        85.42401000158861,
+        114.8823139956221,
+        81.59954298753291,
+        107.90816598455422,
+        84.02373298304155,
+        113.02567599341273,
+        78.54982602293603,
+        114.57473298651166,
+        86.07619200483896,
+        120.27066299924627,
+        119.96881500817835,
+        88.66241000941955,
+        128.58488300116733,
+        129.5840970124118,
+        147.05957201658748,
+        97.15610998682678,
+        141.90216298447922,
+        98.75582202221267,
+        99.33319198898971,
+        92.70365600241348,
+        126.32882202160545,
+        89.53850201214664,
+        154.86722902278416,
+        80.77103598043323
+      ],
+      [
+        98.93516101874411,
+        62.36348900711164,
+        91.61895897705108,
+        64.49916202109307,
+        94.35654600383714,
+        63.14324800041504,
+        93.53348400327377,
+        63.955121993785724,
+        102.39761701086536,
+        68.21514500188641,
+        66.64466499933042,
+        113.8941110111773,
+        69.54006498563103,
+        76.53213498997502,
+        82.38372599589638,
+        134.39582000137307,
+        77.03105200198479,
+        128.86853399686515,
+        118.6263499839697,
+        118.60379201243632,
+        76.48122301907279,
+        106.94873999455012,
+        90.39321300224401,
+        142.58434998919256
+      ]
+    ],
+    "geometry_median_ms": [
+      103.62067898677196,
+      91.00608598964754
+    ],
+    "geometry_counts": [
+      14503,
+      14503,
+      14513,
+      14517,
+      14529,
+      14546,
+      14555,
+      14559,
+      14560,
+      14566,
+      14574,
+      14591,
+      14610,
+      14611,
+      14612,
+      14616,
+      14624,
+      14636,
+      14654,
+      14669,
+      14674,
+      14672,
+      14677,
+      14683
+    ],
+    "frames": [
+      {
+        "density": 3,
+        "size": 2.5,
+        "palette": "spacr",
+        "background": "#101418",
+        "clock": 96.33,
+        "geometry_count": 14560,
+        "differing_pixels": 0,
+        "sha256": "d12cdbf7bc32bf619f29d9333e21f4c65b6fac332b3b0ca5b7344f0cd0b25f32"
+      },
+      {
+        "density": 3,
+        "size": 2.5,
+        "palette": "random",
+        "background": "#101418",
+        "clock": 168.25,
+        "geometry_count": 10359,
+        "differing_pixels": 0,
+        "sha256": "dd165350b853fabd4313b58819afb233533950d5534fee0dd09f0ac744072cdf"
+      },
+      {
+        "density": 1,
+        "size": 1,
+        "palette": "spacr",
+        "background": "#f4f4f0",
+        "clock": 96.33,
+        "geometry_count": 11903,
+        "differing_pixels": 0,
+        "sha256": "5c669b15828f4a59bbea599c4b53b7434a9308cc88e4936f3f4fa964060df595"
+      },
+      {
+        "density": 3,
+        "size": 1,
+        "palette": "random",
+        "background": "#f4f4f0",
+        "clock": 3600.33,
+        "geometry_count": 18116,
+        "differing_pixels": 0,
+        "sha256": "486ff0b1eb5fd376e55272190fb217e6c59db22ed8247cd86cf92b3d72193920"
+      }
+    ],
+    "load_average": [
+      1.49853515625,
+      2.283203125,
+      3.36181640625
+    ],
+    "peak_rss_kib": 310572,
+    "extra_storage": "one ephemeral reference list per geometry, no persistent cache",
+    "scope": "Exact full native frames and direct geometry timing only; no actual worker/24FPS acceptance"
+  },
+  "workers": [
+    {
+      "file": "data_art_fungal_growth-after-spacr-3.0-after-B.json.gz",
+      "variant": "after",
+      "records": [
+        {
+          "published_fps": 3.3827347168418336,
+          "distinct_published_clocks": 17,
+          "painted_fps": 24.276096203217865,
+          "distinct_displayed_fps": 3.3827347168418336,
+          "shade_median_ms": 305.29299000045285,
+          "gui_paint_median_ms": 7.7719605033053085,
+          "heartbeat_p95_ms": 42.96046702074818,
+          "load_average": [
+            3.12158203125,
+            2.48974609375,
+            3.32666015625
+          ]
+        }
+      ],
+      "peak_rss_kib": 346324,
+      "persistent_cache_array_bytes": 97216,
+      "cold_scope": "Initially sparse birth phase, not mature maximum work; cold24FPS is not steady mature24FPS acceptance.",
+      "all_workers_retired": true
+    },
+    {
+      "file": "data_art_fungal_growth-after-spacr-3.0-after-C.json.gz",
+      "variant": "after",
+      "records": [
+        {
+          "published_fps": 2.780950464279673,
+          "distinct_published_clocks": 14,
+          "painted_fps": 24.23399690300858,
+          "distinct_displayed_fps": 2.9795897831567926,
+          "shade_median_ms": 347.36761600652244,
+          "gui_paint_median_ms": 11.410772000090219,
+          "heartbeat_p95_ms": 49.667048995615914,
+          "load_average": [
+            3.41748046875,
+            2.5732421875,
+            3.34521484375
+          ]
+        }
+      ],
+      "peak_rss_kib": 355668,
+      "persistent_cache_array_bytes": 108232,
+      "cold_scope": "Initially sparse birth phase, not mature maximum work; cold24FPS is not steady mature24FPS acceptance.",
+      "all_workers_retired": true
+    },
+    {
+      "file": "data_art_fungal_growth-before-spacr-3.0-before-A.json.gz",
+      "variant": "before",
+      "records": [
+        {
+          "published_fps": 2.578072509521255,
+          "distinct_published_clocks": 13,
+          "painted_fps": 24.194218935507166,
+          "distinct_displayed_fps": 2.578072509521255,
+          "shade_median_ms": 395.8531300013419,
+          "gui_paint_median_ms": 8.324729511514306,
+          "heartbeat_p95_ms": 49.881149985594675,
+          "load_average": [
+            2.87451171875,
+            2.4208984375,
+            3.3134765625
+          ]
+        }
+      ],
+      "peak_rss_kib": 379164,
+      "persistent_cache_array_bytes": 86440,
+      "cold_scope": "Initially sparse birth phase, not mature maximum work; cold24FPS is not steady mature24FPS acceptance.",
+      "all_workers_retired": true
+    },
+    {
+      "file": "data_art_fungal_growth-before-spacr-3.0-before-D.json.gz",
+      "variant": "before",
+      "records": [
+        {
+          "published_fps": 2.578194230309908,
+          "distinct_published_clocks": 13,
+          "painted_fps": 24.393683871393744,
+          "distinct_displayed_fps": 2.578194230309908,
+          "shade_median_ms": 389.39920099801384,
+          "gui_paint_median_ms": 12.227428000187501,
+          "heartbeat_p95_ms": 52.77409899281338,
+          "load_average": [
+            3.513671875,
+            2.62109375,
+            3.3525390625
+          ]
+        }
+      ],
+      "peak_rss_kib": 346660,
+      "persistent_cache_array_bytes": 79520,
+      "cold_scope": "Initially sparse birth phase, not mature maximum work; cold24FPS is not steady mature24FPS acceptance.",
+      "all_workers_retired": true
+    }
+  ],
+  "limits": [
+    "Hard24FPS remains OPEN; current maximum connected-front worker published roughly2.6before versus2.8\u20133.4after FPS in these four processes.",
+    "ABBA improvements differ in size; no hardware-independent guarantee.",
+    "Four geometry/render control pairs include Random/light, but live quartet is spacr/dark only.",
+    "Profiling changes absolute timings;20-call cProfile is hotspot evidence, not cadence acceptance.",
+    "All phases overlap owning assertions; do not sum counts or infer whole-suite/GPU/user aesthetics acceptance."
+  ],
+  "source_test_commit": "846d92517f0818b350675493d81861e61abbe2f4",
+  "doc_guard": {
+    "passed": 3,
+    "seconds": 7.98,
+    "scope": "Existing package callable docstrings guard; no production callable/docstring/signature changes."
+  },
+  "enforced_lint": "Ruff --select E9,F63,F7,F82 passed. Ambient is not in the unchanged strict quality-target manifest; no generic full-Ruff cleanliness claimed.",
+  "balanced_order": [
+    "before-A",
+    "after-B",
+    "after-C",
+    "before-D"
+  ]
+}

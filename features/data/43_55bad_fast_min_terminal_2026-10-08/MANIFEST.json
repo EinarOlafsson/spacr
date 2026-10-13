@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "scope": "Original-55 six terminal Fast/Minimum-dependencies job phase; corrected acceptance remains separate.",
+  "files": [
+    {
+      "path": "README.txt",
+      "bytes": 3879,
+      "sha256": "3549f268a96db217fccec662c45c56db3895a5a16f408f859c361044318e369e"
+    },
+    {
+      "path": "archive_phase.py",
+      "bytes": 6107,
+      "sha256": "9c0a2639a3dc2aa712cb79f25408ee5827c90e02e6bc18c64dbeba3e07ac29fe"
+    },
+    {
+      "path": "case-guard-after.log.gz",
+      "bytes": 49,
+      "sha256": "ebed3e6ba3834cb92bc904d90e4659d66b1c61b2c5f22ad8e72d973a5f11b985"
+    },
+    {
+      "path": "case-repair-receipt.json",
+      "bytes": 2015,
+      "sha256": "0de36f4cec346bc18f9a566c4c9b60f0120fce545fa5dddb641d5dc16e0bcb62"
+    },
+    {
+      "path": "fast0-job.json",
+      "bytes": 3004,
+      "sha256": "8e9708086f62cc9442f74469f9a6f7d15f1be99204d24e1e4b4e28d3bd3659e5"
+    },
+    {
+      "path": "fast0.log.gz",
+      "bytes": 769463,
+      "sha256": "d809625363ccce45509c33e49338732eb8bc852da543e1b35f789311155e026c"
+    },
+    {
+      "path": "fast1-job.json",
+      "bytes": 3004,
+      "sha256": "9750f5061f76454b9c061ca4dcfab7d14cc010d2ef3edc4d655276a448244628"
+    },
+    {
+      "path": "fast1.log.gz",
+      "bytes": 551047,
+      "sha256": "d0780b8ccc9606e7d084a3984f1ec982f11fac6023d807cc09a9642b8844ff50"
+    },
+    {
+      "path": "fast2-job.json",
+      "bytes": 3004,
+      "sha256": "64a7009957fa7c08aa7d27faeec1a8077eecc8ab6ca6fc8e0403d970ec245850"
+    },
+    {
+      "path": "fast2.log.gz",
+      "bytes": 645838,
+      "sha256": "d6126dee4b56f0b2c255e6e149cb981d331cfb58b4b6e30d39e9e6c230e585a4"
+    },
+    {
+      "path": "min0-job.json",
+      "bytes": 2987,
+      "sha256": "fe87dd929cd3e5850ee49a44bb9c9932e795e71d3da777925fe94826296241c3"
+    },
+    {
+      "path": "min0.log.gz",
+      "bytes": 787058,
+      "sha256": "42856e5ba3828a896cbb3ed176f094c664ed02124d1c8d70aab3843dfb2eefb9"
+    },
+    {
+      "path": "min1-job.json",
+      "bytes": 2987,
+      "sha256": "e7a8cb41a8dee8524b5c82ab6eb2231a510bd2e0c95f1ca3bc823ca93da1f9eb"
+    },
+    {
+      "path": "min1.log.gz",
+      "bytes": 579492,
+      "sha256": "b2128609fe583c44368c5f2f0522258b234aa7843fa42905f1df03d19636fa78"
+    },
+    {
+      "path": "min2-job.json",
+      "bytes": 2987,
+      "sha256": "71f1c4beedb6ee9e6557d5b2f52ad4a64587e255d7fb67fb5bf8606f000c0226"
+    },
+    {
+      "path": "min2.log.gz",
+      "bytes": 674614,
+      "sha256": "ee2d28d9576de5e1caef5fd309e376995fd0ef0455ee8940e0bcbe3a0ca5ac8a"
+    },
+    {
+      "path": "plaque-mock-after.log.gz",
+      "bytes": 401,
+      "sha256": "e022da085c98b77e1734346325cf88b9af57d418f65079651b2f5e896622afb6"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 86986,
+      "sha256": "da933b387903d746f00110d9edd420ce85ee22ab87f10f80ae3595dacd29267a"
+    },
+    {
+      "path": "run.json",
+      "bytes": 12570,
+      "sha256": "b3361391a1c1335d77f00a522055c8af1d9a71cf31677d9dd0f33049375a7555"
+    },
+    {
+      "path": "verify_manifest.py",
+      "bytes": 2412,
+      "sha256": "738ca54e063b271328b02024e839fd77bfef1b91dc7f4dd000396f4a14564042"
+    }
+  ]
+}

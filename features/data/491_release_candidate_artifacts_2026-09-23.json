@@ -1,0 +1,16 @@
+{
+  "candidate": "e498dbecc4eec1ca31d25bc627d59eaa7706f17f",
+  "version": "1.5.1.0",
+  "sdist_required_fixtures": 5,
+  "absolute_readme_images": 50,
+  "artifacts": {
+    "spacr-1.5.1.0-py3-none-any.whl": {
+      "bytes": 38305440,
+      "sha256": "b586f69729acd022f934109a3aff8120a2d7a98ec7eab1b0fff84f6895da67a9"
+    },
+    "spacr-1.5.1.0.tar.gz": {
+      "bytes": 46117214,
+      "sha256": "6b4c8e7439fcc58385201b5c02c5900280cd8c1596ba0e09291c94338df94af8"
+    }
+  }
+}

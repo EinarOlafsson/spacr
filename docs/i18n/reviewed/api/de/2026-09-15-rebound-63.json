@@ -1,0 +1,13 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "**Views must disconnect in** ``closeEvent``. This object outlives every application view, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "label": "spacr.qt.linked_selection#5",
+      "source": "**Views must disconnect in** ``closeEvent``. This object outlives every screen, and holds plain references to whatever connected to it. A lambda would keep a destroyed page alive as a receiver — the exact leak :class:`spacr.qt.widgets.home.HomePage` documents for the run registry — so connect bound methods and drop them on close.",
+      "source_sha256": "8e1c9932e3c06a04fafdf07bd87066dfb59d4af6e890247bb8609e2181285bf7",
+      "translation": "**Ansichten müssen sich abmelden, und zwar in** ``closeEvent``. Dieses Objekt überlebt jede Ansicht und hält einfache Referenzen auf alle verbundenen Empfänger. Ein Lambda würde eine zerstörte Seite als Empfänger am Leben halten — genau das Speicherleck, das :class:`spacr.qt.widgets.home.HomePage` für die Laufregistrierung dokumentiert. Deshalb müssen gebundene Methoden verbunden und beim Schließen wieder entfernt werden."
+    }
+  ],
+  "schema": 1
+}

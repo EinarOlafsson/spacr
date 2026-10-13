@@ -1,0 +1,36 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "973d0e47bf1648e4e05e8f2d5d91f1f5f7a03c7be083695151927f4a71b5648a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Volcano Explorer: 결과 확인과 그림 저장",
+  "description": "Regression 결과를 불러오고, 그릴 값과 기준선을 고른 뒤 재사용할 스타일을 저장하고 그림을 내보냅니다.",
+  "objectives": [
+    "결과 패밀리를 열고 가이드의 식별자와 뒷받침을 확인합니다.",
+    "보정된 값, 표시 변환, 기준선을 고릅니다.",
+    "스타일을 저장하고 PDF 또는 PNG 그림을 내보냅니다."
+  ],
+  "prerequisite": "Volcano_real_guide_family.zip의 압축을 풀고 그 안의 results 폴더를 쓰세요. Regression 예제의 가이드 결과 434개가 들어 있습니다. 원래의 보정 P 임계값 0.05를 통과하는 가이드는 없습니다. 효과는 표준화된 한계 효과입니다. 원래 결과 표와 통계 임계값을 그림과 함께 보관하세요.",
+  "scenes": [
+    "Home에서 Regression을 연 뒤 Volcano Explorer를 여세요. 그릴 결과 표를 고르기 전에 연결된 예제 압축 파일을 푸세요.",
+    "Open results를 클릭하고 압축을 푼 results 폴더를 고르세요. 각 점은 검정 434개로 이루어진 이 패밀리의 가이드 하나입니다. 보정 패밀리가 다르면 따로 다루세요.",
+    "Save style을 클릭해 처음 그림 설정을 저장한 뒤 Load style을 클릭하고 그 파일을 고르세요. 이렇게 하면 그림을 편집하기 전에 컨트롤이 일치하는 저장된 출발점이 생깁니다.",
+    "alpha가 0.05, 배수가 3이고 음의 로그 변환이 켜져 있는지 확인하세요. 축 라벨을 읽으세요. 이 예제는 표준화된 한계 효과를 그립니다.",
+    "점을 클릭해 원본 행을 확인하세요. 가이드 식별자, 원래 P, 보정 P, 뒷받침하는 웰 수를 함께 읽으세요. 선택한 예제의 보정 P는 약 0.39입니다.",
+    "원래 순열 P 열을 골라 확인한 뒤 adjusted_p_value로 되돌리세요. 그리는 열을 바꿔도 바탕 분석과 저장된 유의성 플래그는 바뀌지 않습니다.",
+    "−log10을 켜고 끄며 변환된 P 값과 원래 P 값을 비교하세요. 변환을 켜면 작은 P 값이 더 위에 표시됩니다. 이 그림에서는 변환된 보정 P 보기로 되돌리세요.",
+    "alpha를 0.5로 옮겨 수평 기준선이 어떻게 움직이는지 본 뒤 0.05로 되돌리세요. 이 선을 바꿔도 통계 검정이나 저장된 유의성 플래그는 다시 계산되지 않습니다.",
+    "효과 컷오프를 0.1로, 배수를 3으로 명시적으로 설정하세요. 세로선이 −0.3과 +0.3에 나타납니다. 처음 효과선으로 돌아가려면 Auto로 되돌리세요.",
+    "색에 wells_with_guide를 골라 그린 가이드의 뒷받침을 확인하세요. 원래 표현을 원하면 최종 내보내기 전에 유의성 색으로 되돌리세요.",
+    "그림 크기, 글꼴 크기, 해상도를 설정하세요. 이 예제는 150dpi에서 7 × 5인치를 씁니다. 가독성을 확인하세요. 여백을 빠듯하게 자르면 저장되는 바깥 크기가 바뀔 수 있습니다.",
+    "최종 스타일을 JSON으로 저장하세요. 마커 크기를 바꾼 뒤 Load style로 저장된 모양을 복원하세요. 스타일 파일은 결과 표 옆에 두세요.",
+    "PDF와 PNG로 내보낸 뒤 파일을 열어 라벨, 대비, 자르기를 확인하세요. 출력을 입력 결과와 스타일과 함께 보관하세요. Python에서는 같은 렌더링 흐름에 VolcanoStyle과 render_volcano를 쓰세요."
+  ]
+}

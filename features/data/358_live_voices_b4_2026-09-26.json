@@ -1,0 +1,294 @@
+{
+  "source_commit": "4967c275b2a059b4c6ee36df6fc021eb8f9308ae",
+  "workflow": 36242559733,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "4967c275b2a059b4c6ee36df6fc021eb8f9308ae",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 629322545,
+    "media_files": 102
+  },
+  "candidate": "release-candidate-append-5bd5m2eg",
+  "media_revision": "a949b980a54132761942056cf4f02909ff7a039d",
+  "cache_key": "voices-b4p-20260926-5bd5m2eg",
+  "refreshed_lessons": [
+    "28_training_runs",
+    "33_plate_viewer",
+    "35_converter"
+  ],
+  "narration_voices": {
+    "28_training_runs": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "33_plate_viewer": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "35_converter": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    }
+  },
+  "hosted_web_lessons": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "05_home",
+    "14_make_masks",
+    "17_timelapse",
+    "26_invasion",
+    "27_replication",
+    "28_training_runs",
+    "33_plate_viewer",
+    "35_converter",
+    "71_investigate_hit",
+    "76_ops",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
+  ],
+  "hosted_web_bytes": {
+    "02_conda_install": 3743210,
+    "03_pip_install": 5405952,
+    "04_platform_installers": 6279964,
+    "05_home": 6051800,
+    "14_make_masks": 24818797,
+    "17_timelapse": 7322576,
+    "26_invasion": 7448334,
+    "27_replication": 6023172,
+    "28_training_runs": 11336983,
+    "33_plate_viewer": 6861968,
+    "35_converter": 8699538,
+    "71_investigate_hit": 13708815,
+    "76_ops": 7204723,
+    "78_spacr_screens": 6552139,
+    "79_module_inputs_outputs": 84732830,
+    "80_image_analysis_pathways": 16210344,
+    "81_sequencing_pathways": 8567417
+  },
+  "pages_copies_absent": true,
+  "live_catalog_sha256": "073ccd380cf96c819a3869cbcb48591cfe9c20eefa8344b6b2f0e6e06e662f91",
+  "catalog_matches_candidate": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "fb530ba9287d1763e5ffdd30eeda8ebceda126fdc5320decedc5129ed340f176"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "nightly/",
+      "lesson": "28_training_runs",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a949b980a54132761942056cf4f02909ff7a039d/28_training_runs/web/28_training_runs_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/5b463b0a-5ec6-44ff-af85-93d28dc22fd0",
+      "width": 2560,
+      "time": 24.955163,
+      "expected": 24.931940540431082,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "33_plate_viewer",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a949b980a54132761942056cf4f02909ff7a039d/33_plate_viewer/web/33_plate_viewer_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/093ca336-3ce1-4227-aee4-5b6e635e9cad",
+      "width": 2560,
+      "time": 21.686996,
+      "expected": 21.680224990673715,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "35_converter",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a949b980a54132761942056cf4f02909ff7a039d/35_converter/web/35_converter_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/09864f39-def1-4b1d-9b2d-73258f0b70f2",
+      "width": 2560,
+      "time": 21.982285,
+      "expected": 21.97075970815035,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "28_training_runs",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a949b980a54132761942056cf4f02909ff7a039d/28_training_runs/web/28_training_runs_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/b1064e12-af39-4960-a2d8-6b618d347651",
+      "width": 2560,
+      "time": 24.948252,
+      "expected": 24.931375509257286,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "33_plate_viewer",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a949b980a54132761942056cf4f02909ff7a039d/33_plate_viewer/web/33_plate_viewer_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/43b61a5d-cfa9-4857-96b4-066aa4ba1f9b",
+      "width": 2560,
+      "time": 21.694883,
+      "expected": 21.689125446428733,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "35_converter",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/a949b980a54132761942056cf4f02909ff7a039d/35_converter/web/35_converter_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/88b1bb94-3ded-4b5c-b0b3-0e94e82d17fb",
+      "width": 2560,
+      "time": 21.990299,
+      "expected": 21.984298849445064,
+      "error": null
+    }
+  ],
+  "passed": true
+}

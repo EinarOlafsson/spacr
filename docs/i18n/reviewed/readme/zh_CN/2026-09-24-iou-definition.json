@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_method": "Technical meaning and terminology reviewed against the current English definition; native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "iou-definition-and-threshold",
+      "source": "**IoU**, intersection over union, divides the overlap between predicted and reference objects by their combined area. Read scores with their threshold: \"F1 0.864 at IoU 0.5\" counts a vacuole as found when that overlap reaches half the combined area.",
+      "source_sha256": "12e926d2e3780c37078d042fb17a81202f12e57bd5bfd00ab55f9aff41f17f4e",
+      "translation": "**IoU**（交并比）是预测对象与参考对象的交集面积除以并集面积。解读分数时应同时查看阈值：“IoU 0.5 时 F1 为 0.864”表示，当交集面积达到并集面积的一半或以上时，该液泡才计为已检出。"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "sv": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "7e9da60cdec168b46438086c535fad8e3759afb8f9cca53245314616aae6a841"
+  },
+  "de": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "05e8d672d5032eb015da16bcaa38e5e569c4eec36df3c6fa0e96817d990e295e"
+  },
+  "es": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "992e9f2c1ca8e7d60ed2bf66409717bdd6ead34d4f1d1cc6639ad360f3234812"
+  },
+  "fr": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "c87bef97b31c9b54b2b3c1093a97b565f5625cf15d9b0a31d479a6bde5d65eb9"
+  },
+  "pt": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "07ccddef85f79311d9d8425fef96c6ae08be85a70efdc1f8498eff7bd2b7c45c"
+  },
+  "zh_CN": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "0192d3f28c3b73157602d8f0be5403013aecb126586758d55efffcef60f474e1"
+  },
+  "hi": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "4618dba73828b654b4c13cf37cc1bdf50871ec8f97a3a5c00589f8ad7d8f4e04"
+  },
+  "ko": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "f7ec5a7f1deab6e5fbf28cc169a7fc8a52cd33194ce0f9f40ba9208dd0fe97ec"
+  },
+  "is": {
+    "preserved_existing_rows": 9774,
+    "new_sources": 26,
+    "catalog_sha256": "bda8a68ac1d0ae58d070aba83a2929278da0c0224ba3a5a76952034384e4294f"
+  }
+}

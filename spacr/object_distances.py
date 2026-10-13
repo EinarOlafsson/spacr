@@ -1,0 +1,519 @@
+"""Measure distances within and between segmented objects.
+
+Other spaCR measurement families cover centroid-to-centroid neighbour
+distances within one object type (over a KD-tree) and the distance from a
+channel's intensity centre of mass to the nearest nucleus or pathogen
+surface. This module adds centre-to-centre, centre-to-surface and
+surface-to-surface distances between object types, overlap fractions,
+local-maximum distances, and each object's radial position relative to its
+own boundary.
+
+A Euclidean distance transform is computed once for each object-type mask. At
+every pixel it records the distance to the nearest pixel belonging to that
+object type, with zero inside an object. Centre-to-surface,
+surface-to-surface, and local-maximum distances can therefore be obtained by
+sampling or reducing the precomputed field rather than evaluating every pair
+of objects. The principal operations are::
+
+    centre -> nearest surface      dt_b[centroid_a]
+    surface -> surface             min(dt_b[a_boundary])
+    local maximum -> surface       dt_b[peak]
+
+The transform costs O(image pixels) per object type.
+
+Three different quantities are reported as distances between object types:
+
+    centre_to_centre     between the two centroids. Big for two large
+                         objects that are touching.
+    centre_to_surface    from a's centroid to the nearest point on ANY b.
+                         Asymmetric: a's centre to b's edge is not b's
+                         centre to a's edge, so both are emitted.
+    surface_to_surface   closest point to closest point. Zero when they
+                         touch; this is the gap between the two objects.
+
+Column names carry no object-type prefix. `measure` prefixes every
+measurement family with the object it belongs to, so a column called
+`distance_to_own_boundary` here reaches the database as
+`cell_distance_to_own_boundary`. A `cell_...` name here would become
+`cell_cell_...`.
+
+An object with no partner of the other type gets ``inf``, not NaN; NaN is
+reserved for "not measured".
+"""
+
+from __future__ import annotations
+
+import contextlib
+import logging
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+
+import numpy as np
+import pandas as pd
+
+LOG = logging.getLogger(__name__)
+
+#: How many local maxima are kept per object, per channel.
+#:
+#: A cap, not a target. An object whose channel is flat has hundreds of
+#: equal peaks and none of them means anything; twenty is past the point
+#: where a twenty-first changes any summary derived from them.
+MAX_PEAKS_PER_OBJECT = 20
+
+#: Minimum separation between two local maxima, in pixels.
+#:
+#: Without it `peak_local_max` returns a plateau's every pixel, so one
+#: bright blob becomes fifty "maxima" and `maxima_count` measures the
+#: blob's area rather than how many bright spots there are.
+PEAK_MIN_DISTANCE = 3
+
+
+def _as_spacing(spacing, ndim: int) -> Optional[Tuple[float, ...]]:
+    """Voxel size as a per-axis tuple, or None for pixel units."""
+    if spacing is None:
+        return None
+    if np.isscalar(spacing):
+        return tuple(float(spacing) for _ in range(ndim))
+    values = tuple(float(v) for v in spacing)
+    return values if len(values) == ndim else None
+
+
+_EDT_ON_GPU = {"on": False}
+
+
+@contextlib.contextmanager
+def _gpu_distance_transforms():
+    """Run the unspaced distance transforms inside the block on a CUDA GPU.
+
+    Used by Measure with ``measure_gpu`` on. CuPy's exact Euclidean distance
+    transform gives the same distances as SciPy's; any CuPy failure falls
+    back to SciPy for the rest of the block.
+    """
+    previous = _EDT_ON_GPU["on"]
+    _EDT_ON_GPU["on"] = True
+    try:
+        yield
+    finally:
+        _EDT_ON_GPU["on"] = previous
+
+
+def _edt(binary, cpu_transform, kwargs):
+    """``cpu_transform(binary, **kwargs)`` as float32, on the GPU when enabled.
+
+    The GPU path covers the unspaced transform only; a ``sampling`` keyword,
+    a missing CuPy or a CuPy error keep SciPy.
+    """
+    if _EDT_ON_GPU["on"] and not kwargs:
+        try:
+            from .measure import _preload_matching_nvrtc
+
+            _preload_matching_nvrtc()
+            import cupy
+            from cupyx.scipy.ndimage import distance_transform_edt as gpu_edt
+
+            return cupy.asnumpy(
+                gpu_edt(cupy.asarray(binary)).astype(cupy.float32))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("GPU distance transform failed; using SciPy",
+                      exc_info=True)
+            _EDT_ON_GPU["on"] = False
+    return cpu_transform(binary, **kwargs).astype(np.float32)
+
+
+def surface_distance_transform(mask, spacing=None):
+    """Distance from every point to the nearest object surface in ``mask``.
+
+    :param mask: label or binary image containing the target objects.
+
+    The result is zero inside an object. `distance_transform_edt` measures
+    distance to the nearest zero, so it is run on the inverted mask: the
+    result is 0 on any labelled pixel and grows outward. A lookup at another
+    object's centroid is therefore the distance to the nearest surface of
+    this type, and two touching objects have a distance of 0.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    binary = np.asarray(mask) > 0
+    if not binary.any():
+        return np.full(binary.shape, np.inf, dtype=np.float32)
+    kwargs = {}
+    step = _as_spacing(spacing, binary.ndim)
+    if step is not None:
+        kwargs["sampling"] = step
+    return _edt(~binary, distance_transform_edt, kwargs)
+
+
+def interior_distance_transform(mask, spacing=None):
+    """Distance from every point inside an object to that object's boundary.
+
+    :param mask: label or binary image containing the target objects.
+
+    The complement of :func:`surface_distance_transform`: run on the mask
+    itself, so it is 0 outside and peaks at each object's deepest point.
+    Read at a centroid it says how far the centre is from its own rim,
+    which is what makes a relative radial position possible.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    binary = np.asarray(mask) > 0
+    if not binary.any():
+        return np.zeros(binary.shape, dtype=np.float32)
+    kwargs = {}
+    step = _as_spacing(spacing, binary.ndim)
+    if step is not None:
+        kwargs["sampling"] = step
+    return _edt(binary, distance_transform_edt, kwargs)
+
+
+def _centroids(mask) -> Tuple[np.ndarray, np.ndarray]:
+    """``(labels, centroids)`` for ``mask``, centroids in array order."""
+    from skimage.measure import regionprops_table
+
+    labelled = np.asarray(mask)
+    if not labelled.any():
+        return np.empty(0, dtype=np.int64), np.empty((0, labelled.ndim))
+    props = regionprops_table(labelled, properties=("label", "centroid"))
+    labels = np.asarray(props["label"], dtype=np.int64)
+    axes = [props[f"centroid-{i}"] for i in range(labelled.ndim)]
+    return labels, np.column_stack([np.asarray(a, dtype=float) for a in axes])
+
+
+def _sample(field, points) -> np.ndarray:
+    """``field`` at each point, rounded to the containing voxel.
+
+    A point outside the field is ``inf`` rather than clipped to the edge:
+    clipping would invent a distance measured from somewhere the object is
+    not.
+    """
+    if len(points) == 0:
+        return np.empty(0, dtype=float)
+    index = np.round(np.asarray(points)).astype(int)
+    inside = np.ones(len(index), dtype=bool)
+    for axis, size in enumerate(field.shape):
+        inside &= (index[:, axis] >= 0) & (index[:, axis] < size)
+    out = np.full(len(index), np.inf, dtype=float)
+    if inside.any():
+        picked = tuple(index[inside, axis] for axis in range(index.shape[1]))
+        out[inside] = np.asarray(field)[picked]
+    return out
+
+
+def _boundary_pixels(mask) -> Dict[int, Tuple[np.ndarray, ...]]:
+    """Label -> the coordinates of that object's boundary pixels.
+
+    The boundary, not the whole object: the closest point of a to b is on
+    a's surface by definition, so scanning the interior would cost more and
+    find the same minimum.
+    """
+    from skimage.segmentation import find_boundaries
+
+    labelled = np.asarray(mask)
+    edges = find_boundaries(labelled, mode="inner")
+    coords = np.nonzero(edges)
+    if not len(coords[0]):
+        return {}
+    values = labelled[coords]
+    order = np.argsort(values, kind="stable")
+    values = values[order]
+    coords = tuple(axis[order] for axis in coords)
+    out: Dict[int, Tuple[np.ndarray, ...]] = {}
+    starts = np.searchsorted(values, np.unique(values), side="left")
+    ends = np.searchsorted(values, np.unique(values), side="right")
+    for label, start, end in zip(np.unique(values), starts, ends):
+        out[int(label)] = tuple(axis[start:end] for axis in coords)
+    return out
+
+
+def _min_over_boundary(field, boundary) -> float:
+    """The smallest value of ``field`` anywhere on one object's boundary."""
+    if boundary is None or not len(boundary[0]):
+        return float("inf")
+    return float(np.min(np.asarray(field)[boundary]))
+
+
+def local_maxima(image, mask, label: int, *, window=None,
+                 threshold=None) -> np.ndarray:
+    """Coordinates of the intensity peaks inside one object.
+
+    :param image: intensity image aligned with ``mask``.
+    :param mask: labelled object image that limits the peak search.
+    :param label: object label whose interior is searched.
+    :param window: optional tuple of slices (the object's bounding box, as
+        from ``scipy.ndimage.find_objects``). The search then runs on that
+        window only, which gives the same peaks as the whole image in a
+        fraction of the time; coordinates are still in whole-image indices.
+    :param threshold: optional lowest intensity a peak must exceed. Pass the
+        whole image's minimum with ``window`` so the window gives the same
+        peaks as the whole image. ``None`` uses the searched image's minimum.
+    :returns: an ``(n, ndim)`` array, possibly empty.
+    """
+    from skimage.feature import peak_local_max
+
+    mask = np.asarray(mask)
+    image = np.asarray(image)
+    if window is not None:
+        mask = mask[window]
+        image = image[window]
+    inside = mask == label
+    if not inside.any():
+        return np.empty((0, mask.ndim))
+    try:
+        peaks = peak_local_max(
+            np.asarray(image, dtype=float), labels=inside.astype(np.int32),
+            min_distance=PEAK_MIN_DISTANCE, num_peaks=MAX_PEAKS_PER_OBJECT,
+            threshold_abs=threshold, exclude_border=False)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("no local maxima for label %s", label, exc_info=True)
+        return np.empty((0, mask.ndim))
+    peaks = np.asarray(peaks, dtype=float)
+    if window is not None and len(peaks):
+        peaks = peaks + np.array([part.start for part in window], dtype=float)
+    return peaks
+
+
+def _pairwise_spread(points, spacing=None) -> float:
+    """Mean distance between every pair of ``points``. 0 for fewer than two.
+
+    What it is for: two bright spots at opposite ends of a cell and two
+    sitting on top of each other have the same count. This tells them
+    apart.
+    """
+    points = np.asarray(points, dtype=float)
+    if len(points) < 2:
+        return 0.0
+    step = _as_spacing(spacing, points.shape[1])
+    scaled = points * np.asarray(step) if step else points
+    from scipy.spatial.distance import pdist
+
+    return float(np.mean(pdist(scaled)))
+
+
+def between_object_types(masks: Dict[str, "np.ndarray"], *,
+                         primary: str, spacing=None) -> pd.DataFrame:
+    """Distances from every ``primary`` object to every other object type.
+
+    :param masks: object type -> label image, all the same shape.
+    :param primary: the type whose objects are the rows.
+    :param spacing: voxel size, so the numbers carry physical units.
+    :returns: one row per primary object, keyed on ``label``.
+
+    For each other object type, the row carries the centre-to-surface,
+    surface-to-surface and nearest centre-to-centre distances (see the
+    module docstring) and the fraction of the object's pixels that overlap
+    that type. Every row also carries ``distance_to_own_boundary``,
+    ``relative_radial_position`` and ``distance_to_field_edge``; a small
+    distance to the field edge indicates an object that may be clipped.
+    """
+    labelled = np.asarray(masks[primary])
+    labels, centroids = _centroids(labelled)
+    frame = pd.DataFrame({"label": labels})
+    if not len(labels):
+        return frame
+
+    boundaries = _boundary_pixels(labelled)
+    own_interior = interior_distance_transform(labelled, spacing)
+
+    own = _sample(own_interior, centroids)
+    frame["distance_to_own_boundary"] = own
+    deepest = np.array([
+        float(np.max(own_interior[boundaries.get(int(l), ((),))[0].size and
+                                  (labelled == l)])) if (labelled == l).any()
+        else np.nan for l in labels], dtype=float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        frame["relative_radial_position"] = np.where(
+            deepest > 0, 1.0 - (own / deepest), np.nan)
+
+    edge = np.full(len(labels), np.inf, dtype=float)
+    for axis, size in enumerate(labelled.shape):
+        here = np.minimum(centroids[:, axis], size - 1 - centroids[:, axis])
+        edge = np.minimum(edge, here)
+    frame["distance_to_field_edge"] = edge
+
+    for other, other_mask in masks.items():
+        if other == primary:
+            continue
+        other_mask = np.asarray(other_mask)
+        if other_mask.shape != labelled.shape:
+            continue
+        to_other = surface_distance_transform(other_mask, spacing)
+        frame[f"centre_to_{other}_surface"] = _sample(to_other,
+                                                                centroids)
+        frame[f"surface_to_{other}_surface"] = [
+            _min_over_boundary(to_other, boundaries.get(int(l)))
+            for l in labels]
+
+        other_labels, other_centroids = _centroids(other_mask)
+        if len(other_centroids):
+            from scipy.spatial import cKDTree
+
+            step = _as_spacing(spacing, labelled.ndim)
+            scale = np.asarray(step) if step else 1.0
+            tree = cKDTree(other_centroids * scale)
+            nearest, _idx = tree.query(centroids * scale, k=1)
+            frame[f"centre_to_nearest_{other}_centre"] = nearest
+        else:
+            frame[f"centre_to_nearest_{other}_centre"] = np.inf
+
+        overlap = []
+        for label in labels:
+            inside = labelled == label
+            area = int(inside.sum())
+            overlap.append(float((other_mask[inside] > 0).sum()) / area
+                           if area else np.nan)
+        frame[f"{other}_overlap_fraction"] = overlap
+    return frame
+
+
+def maxima_distances(masks: Dict[str, "np.ndarray"], images, *,
+                     primary: str, channels: Sequence[int] = (),
+                     spacing=None) -> pd.DataFrame:
+    """Where each object's intensity peaks are, and what they are near.
+
+    :param masks: object-type label images sharing the field geometry.
+    :param images: the field as ``(..., channel)``.
+    :param primary: object type whose labelled instances define output rows.
+    :param channels: which channels to find maxima in. Empty means all.
+    :returns: one row per primary object, keyed on ``label``.
+    """
+    labelled = np.asarray(masks[primary])
+    labels, centroids = _centroids(labelled)
+    frame = pd.DataFrame({"label": labels})
+    if not len(labels):
+        return frame
+
+    stack = np.asarray(images)
+    if stack.ndim == labelled.ndim:
+        stack = stack[..., None]
+    wanted = list(channels) if len(channels) else list(range(stack.shape[-1]))
+
+    from scipy import ndimage
+
+    windows = {index + 1: box for index, box
+               in enumerate(ndimage.find_objects(labelled.astype(np.int64)))
+               if box is not None}
+    own_interior = interior_distance_transform(labelled, spacing)
+    others = {name: surface_distance_transform(np.asarray(mask), spacing)
+              for name, mask in masks.items()
+              if name != primary
+              and np.asarray(mask).shape == labelled.shape}
+
+    for channel in wanted:
+        if channel >= stack.shape[-1]:
+            continue
+        plane = stack[..., channel]
+        floor = float(np.min(plane))
+        counts, spreads = [], []
+        to_own = {"min": [], "mean": []}
+        to_centre = {"min": [], "mean": []}
+        to_other = {name: {"min": [], "mean": []} for name in others}
+        for label, centre in zip(labels, centroids):
+            peaks = local_maxima(plane, labelled, int(label),
+                                 window=windows.get(int(label)),
+                                 threshold=floor)
+            counts.append(len(peaks))
+            spreads.append(_pairwise_spread(peaks, spacing))
+            if not len(peaks):
+                for holder in (to_own, to_centre, *to_other.values()):
+                    holder["min"].append(np.nan)
+                    holder["mean"].append(np.nan)
+                continue
+            own = _sample(own_interior, peaks)
+            to_own["min"].append(float(np.min(own)))
+            to_own["mean"].append(float(np.mean(own)))
+            step = _as_spacing(spacing, peaks.shape[1])
+            scale = np.asarray(step) if step else 1.0
+            radial = np.linalg.norm((peaks - centre) * scale, axis=1)
+            to_centre["min"].append(float(np.min(radial)))
+            to_centre["mean"].append(float(np.mean(radial)))
+            for name, field in others.items():
+                values = _sample(field, peaks)
+                to_other[name]["min"].append(float(np.min(values)))
+                to_other[name]["mean"].append(float(np.mean(values)))
+
+        stem = f"channel_{channel}_maxima"
+        frame[f"{stem}_count"] = counts
+        frame[f"{stem}_spread"] = spreads
+        frame[f"{stem}_to_own_boundary_min"] = to_own["min"]
+        frame[f"{stem}_to_own_boundary_mean"] = to_own["mean"]
+        frame[f"{stem}_to_centre_min"] = to_centre["min"]
+        frame[f"{stem}_to_centre_mean"] = to_centre["mean"]
+        for name, holder in to_other.items():
+            frame[f"{stem}_to_{name}_surface_min"] = holder["min"]
+            frame[f"{stem}_to_{name}_surface_mean"] = holder["mean"]
+    return frame
+
+
+def intensity_centre_offset(mask, images, *, primary: str,
+                            channels: Sequence[int] = (),
+                            spacing=None) -> pd.DataFrame:
+    """How far each channel's intensity centre sits from the geometric one.
+
+    :param mask: label image whose instances define rows and geometric
+        centroids.
+    :param images: aligned intensity field with channels on its final axis,
+        or a single intensity plane.
+    :param primary: name of the object type represented by ``mask``.
+
+    The offset is a single-number measure of polarisation. A uniformly
+    stained object has an offset of about zero; one whose signal is
+    concentrated at one end has a larger offset, which intensity summaries
+    such as the mean do not show.
+    """
+    from skimage.measure import regionprops_table
+
+    labelled = np.asarray(mask)
+    labels, centroids = _centroids(labelled)
+    frame = pd.DataFrame({"label": labels})
+    if not len(labels):
+        return frame
+
+    stack = np.asarray(images)
+    if stack.ndim == labelled.ndim:
+        stack = stack[..., None]
+    wanted = list(channels) if len(channels) else list(range(stack.shape[-1]))
+    step = _as_spacing(spacing, labelled.ndim)
+    scale = np.asarray(step) if step else 1.0
+
+    for channel in wanted:
+        if channel >= stack.shape[-1]:
+            continue
+        props = regionprops_table(
+            labelled, intensity_image=stack[..., channel],
+            properties=("label", "centroid_weighted"))
+        order = {int(l): i for i, l in enumerate(props["label"])}
+        weighted = np.column_stack([
+            np.asarray(props[f"centroid_weighted-{i}"], dtype=float)
+            for i in range(labelled.ndim)])
+        picked = np.array([weighted[order[int(l)]] if int(l) in order
+                           else [np.nan] * labelled.ndim for l in labels])
+        offset = np.linalg.norm((picked - centroids) * scale, axis=1)
+        frame[f"channel_{channel}_intensity_centre_offset"] = offset
+    return frame
+
+
+def object_distances(masks: Dict[str, "np.ndarray"], images=None, *,
+                     primary: str, channels: Sequence[int] = (),
+                     spacing=None, maxima: bool = True) -> pd.DataFrame:
+    """Every distance this module measures, for one object type.
+
+    The one call the measure pipeline makes. Joined on ``label`` so it
+    widens the object's row like any other measurement family.
+
+    :param masks: object type -> label image.
+    :param images: the field, for the intensity-derived families. None
+        skips them.
+    :param primary: object type whose instances define the returned rows.
+    :param maxima: whether to find local maxima. The most expensive part.
+    """
+    frame = between_object_types(masks, primary=primary, spacing=spacing)
+    if images is None:
+        return frame
+    for extra in (intensity_centre_offset(masks[primary], images,
+                                          primary=primary, channels=channels,
+                                          spacing=spacing),
+                  maxima_distances(masks, images, primary=primary,
+                                   channels=channels, spacing=spacing)
+                  if maxima else None):
+        if extra is not None and len(extra.columns) > 1:
+            frame = frame.merge(extra, on="label", how="left",
+                                validate="one_to_one")
+    return frame

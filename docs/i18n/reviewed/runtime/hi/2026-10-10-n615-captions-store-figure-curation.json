@@ -1,0 +1,662 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "export_vvvv",
+      "source": "Export vvvv",
+      "source_sha256": "e2f4fe6973b456adb9b5dedc333f14e22f2c7919574d2d743ab73f96ceb7eafd",
+      "translation": "vvvv निर्यात"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "export_vvvv",
+      "source": "Also write every processed 2-D field for vvvv gamma, one folder per field and object type: <stem>_labels.png (16-bit labels, 0 is background), <stem>_outlines.png, <stem>_image.png, <stem>_objects.csv (label, centroid, area, bounding box and mean intensity per channel in pixel coordinates; Measure appends its own per-object measurements), manifest.json, README.txt and <stem>.vl, a vvvv gamma project that shows them. Mask Generation writes to <src>/vvvv/mask/<object>, Measure to vvvv/measure/<object> beside merged/. Images and masks are only read. Default False.",
+      "source_sha256": "a6fd83911903716fc50fa6234ae01d1806c390b1bc4b079652d8ba33b38271f3",
+      "translation": "हर संसाधित 2-D फ़ील्ड को vvvv gamma के लिए भी लिखें, हर फ़ील्ड और ऑब्जेक्ट प्रकार के लिए एक फ़ोल्डर: <stem>_labels.png (16-बिट लेबल, 0 पृष्ठभूमि है), <stem>_outlines.png, <stem>_image.png, <stem>_objects.csv (हर ऑब्जेक्ट का लेबल, केंद्रक, क्षेत्रफल, बाउंडिंग बॉक्स और हर चैनल की माध्य तीव्रता, पिक्सेल निर्देशांकों में; Measure अपने प्रति-ऑब्जेक्ट माप जोड़ता है), manifest.json, README.txt और <stem>.vl (इन्हें दिखाने वाला vvvv gamma प्रोजेक्ट)। मास्क निर्माण <src>/vvvv/mask/<object> में लिखता है, Measure merged/ के बगल में vvvv/measure/<object> में। छवियाँ और मास्क केवल पढ़े जाते हैं। डिफ़ॉल्ट False।"
+    },
+    {
+      "table": "ui",
+      "key": ", allowing flips, rotations and contrast changes",
+      "source": ", allowing flips, rotations and contrast changes",
+      "source_sha256": "b11afbb300ee9b5588fe592b099c9d8ee6950143ad4ca5ac386bdad3ba734b2f",
+      "translation": ", फ्लिप्स, घूर्णन और विरोधाभास परिवर्तन की अनुमति देता है"
+    },
+    {
+      "table": "ui",
+      "key": "A mouse click on the background sends a ripple from where you clicked. A click that opens or closes a container sends only that container's ripple.",
+      "source": "A mouse click on the background sends a ripple from where you clicked. A click that opens or closes a container sends only that container's ripple.",
+      "source_sha256": "5af8a6a67144ebff700a4099fff4a7db19142c0f456d0190ee487edbf56fff25",
+      "translation": "पृष्ठभूमि पर माउस क्लिक करने से क्लिक वाली जगह से एक तरंग निकलती है। कंटेनर खोलने या बंद करने वाला क्लिक केवल उसी कंटेनर की तरंग भेजता है।"
+    },
+    {
+      "table": "ui",
+      "key": "A table finished copying.",
+      "source": "A table finished copying.",
+      "source_sha256": "5093d9b51692630dbea567dc4155bc72e9c4b8d6093e54d88d5afd6bf8a46f41",
+      "translation": "एक तालिका की कॉपी पूरी हुई।"
+    },
+    {
+      "table": "ui",
+      "key": "Add count store folder",
+      "source": "Add count store folder",
+      "source_sha256": "7a8a0468f672d8b4197bc804c6a642ba581aa97941558fc1363d443d89b18583",
+      "translation": "काउंट डेटा स्टोर फ़ोल्डर जोड़ें"
+    },
+    {
+      "table": "ui",
+      "key": "Add count store folder…",
+      "source": "Add count store folder…",
+      "source_sha256": "3db82321f11ef6588749e32360e84c560ea8a3465e2c48ae6ddae89e20e27d4e",
+      "translation": "गिनती स्टोर फ़ोल्डर जोड़ें…"
+    },
+    {
+      "table": "ui",
+      "key": "Add count tables",
+      "source": "Add count tables",
+      "source_sha256": "b245672d38984d71cfe8a0f171af2ee4216b624ad6ee15724ee90d43d167366c",
+      "translation": "काउंट तालिकाएँ जोड़ें"
+    },
+    {
+      "table": "ui",
+      "key": "Add count tables…",
+      "source": "Add count tables…",
+      "source_sha256": "574fa7c9bf0c601b0144f29930fe2f54e7bf4f58815f6062570b087fb2626fe5",
+      "translation": "गिनती तालिकाएँ जोड़ें…"
+    },
+    {
+      "table": "ui",
+      "key": "Add score store folder",
+      "source": "Add score store folder",
+      "source_sha256": "256a1843a30ef5bff947de1a6b29c678476175a88025940e89fc0c6d6c4da1c7",
+      "translation": "स्कोर डेटा स्टोर फ़ोल्डर जोड़ें"
+    },
+    {
+      "table": "ui",
+      "key": "Add score store folder…",
+      "source": "Add score store folder…",
+      "source_sha256": "b4ba1b5089bf86d3c800f0c73e9bc3923874cef273a77aad182fa499b5852eaa",
+      "translation": "स्कोर स्टोर फ़ोल्डर जोड़ें…"
+    },
+    {
+      "table": "ui",
+      "key": "Add score tables",
+      "source": "Add score tables",
+      "source_sha256": "1bde30f6ee928608e49a9824a9c827566b2c2c99a76f9c9e99dcc5c9ff866c72",
+      "translation": "स्कोर तालिकाएँ जोड़ें"
+    },
+    {
+      "table": "ui",
+      "key": "Add score tables…",
+      "source": "Add score tables…",
+      "source_sha256": "d7f3de41994b67541c25a7fb6b6eb01e748641116426574f2a538c85b445126a",
+      "translation": "स्कोर तालिकाएँ जोड़ें…"
+    },
+    {
+      "table": "ui",
+      "key": "Animation GPU",
+      "source": "Animation GPU",
+      "source_sha256": "76dad508adef129161c64b7d154920295f3f734d5c15c3d7c41d4bee01bca67d",
+      "translation": "एनिमेशन GPU"
+    },
+    {
+      "table": "ui",
+      "key": "Both source and destination are required.",
+      "source": "Both source and destination are required.",
+      "source_sha256": "7caaa3527f888b18e1d683460ced89da541249ffcb281dece94987ee7f8c2623",
+      "translation": "स्रोत और गंतव्य दोनों आवश्यक हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot read review status",
+      "source": "Cannot read review status",
+      "source_sha256": "96a23e17de081545c23eda346946b15f084b3b36e52cf4d48923cb4be30ea1ce",
+      "translation": "समीक्षा की स्थिति नहीं पढ़ी जा सकी"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a .parquetdb store folder.",
+      "source": "Choose a .parquetdb store folder.",
+      "source_sha256": "c37df959b86698b5dbe8262d7671add45a3bb89ab283056e8256fb614ff69241",
+      "translation": "एक .parquetdb स्टोर फ़ोल्डर चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the vvvv export folder",
+      "source": "Choose the vvvv export folder",
+      "source_sha256": "ce85ced1805a3a10b40c597f40f009b56002456ae990a68d9d38f686d8d46e76",
+      "translation": "vvvv निर्यात फ़ोल्डर का चयन करें"
+    },
+    {
+      "table": "ui",
+      "key": "Click ripples",
+      "source": "Click ripples",
+      "source_sha256": "d15f0e6a1dcf8093eac31ed5bcb3499b70dc16d43b8c780b78171742cc28ebb1",
+      "translation": "क्लिक तरंगें"
+    },
+    {
+      "table": "ui",
+      "key": "Confirm measurement copy",
+      "source": "Confirm measurement copy",
+      "source_sha256": "4278252051e2cb788841a9c8538fecdf7dee909e25d8e4524026490df1ad3974",
+      "translation": "माप की कॉपी की पुष्टि करें"
+    },
+    {
+      "table": "ui",
+      "key": "Copied {count} table(s). The original remains unchanged.",
+      "source": "Copied {count} table(s). The original remains unchanged.",
+      "source_sha256": "7424ce8d2c5b20cc13e4cc1ded8dcb13cade90aa8a9dbda28d4237ecfc5578c7",
+      "translation": "{count} तालिका(एँ) कॉपी की गईं। मूल अपरिवर्तित है।"
+    },
+    {
+      "table": "ui",
+      "key": "Copies tables into a new destination. The original is not changed; this does not switch the active measurement backend.",
+      "source": "Copies tables into a new destination. The original is not changed; this does not switch the active measurement backend.",
+      "source_sha256": "d8fcd221fede3d2ed2084efc65592a574e566e9b5675db23b5a4f10b267fae48",
+      "translation": "तालिकाओं को एक नए गंतव्य में कॉपी करता है। मूल नहीं बदला जाता; इससे सक्रिय माप बैकएंड नहीं बदलता।"
+    },
+    {
+      "table": "ui",
+      "key": "Copy every table from the selected source into a new destination? Existing local destinations are refused. A PostgreSQL destination must have no tables.",
+      "source": "Copy every table from the selected source into a new destination? Existing local destinations are refused. A PostgreSQL destination must have no tables.",
+      "source_sha256": "b7eecddcbc389099ef6a90fdc748c0a254df5311d2fef9d2919e0cef73a7ed13",
+      "translation": "चुने गए स्रोत की हर तालिका को एक नए गंतव्य में कॉपी करें? मौजूदा स्थानीय गंतव्य स्वीकार नहीं किए जाते। PostgreSQL गंतव्य में कोई तालिका नहीं होनी चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Copy tables",
+      "source": "Copy tables",
+      "source_sha256": "876b2f6cd3ff5137357bc4fd7b78ae313fdc54b5a4b08d559c14b118c4c6318e",
+      "translation": "तालिकाएँ कॉपी करें"
+    },
+    {
+      "table": "ui",
+      "key": "Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores.",
+      "source": "Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores.",
+      "source_sha256": "d905bfbe4763fc99de92b95c23e757d8a8dad550b0f72e16a68ad1fe1c2e73b4",
+      "translation": "SQLite, DuckDB, Parquet और PostgreSQL स्टोर के बीच तालिकाएँ कॉपी करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Copy to",
+      "source": "Copy to",
+      "source_sha256": "a8dd595b66f021ea306568c1a3e0e9e27e579faa4d4456cd9ab413fd1ba46b37",
+      "translation": "इसमें कॉपी करें"
+    },
+    {
+      "table": "ui",
+      "key": "Copying tables…",
+      "source": "Copying tables…",
+      "source_sha256": "aba3186b8b26540ee8d4449d5d1dd8077a159c8e7277aa256f9f0263d1630aa7",
+      "translation": "तालिकाएँ कॉपी की जा रही हैं…"
+    },
+    {
+      "table": "ui",
+      "key": "Could not read columns from {sources}",
+      "source": "Could not read columns from {sources}",
+      "source_sha256": "58cfa02a51c892fa82eb4176d5472cbf59e676d065dc2ad1894992ac9ef77db2",
+      "translation": "{sources} से स्तंभ नहीं पढ़े जा सके"
+    },
+    {
+      "table": "ui",
+      "key": "Count source",
+      "source": "Count source",
+      "source_sha256": "2456c0e51400b21ac5dac18a1bbdc90dfd98579fd81c1bdd354153590724b923",
+      "translation": "गिनती स्रोत"
+    },
+    {
+      "table": "ui",
+      "key": "Count table",
+      "source": "Count table",
+      "source_sha256": "e4b73b938f1698f30602698742ee0d41fd1726894b858b4ab7973ea4314ccbf1",
+      "translation": "गिनती तालिका"
+    },
+    {
+      "table": "ui",
+      "key": "Cut kept in object(s) {labels}; draw another line to finish dividing. Ctrl+Z to undo",
+      "source": "Cut kept in object(s) {labels}; draw another line to finish dividing. Ctrl+Z to undo",
+      "source_sha256": "6c8256555b9962ca15f67e7a6db69a3d2ac40f01e5503cd6caafbd927cd84e4e",
+      "translation": "ऑब्जेक्ट {labels} में कट रखा गया; विभाजन पूरा करने के लिए एक और रेखा खींचें। पूर्ववत करने के लिए Ctrl+Z"
+    },
+    {
+      "table": "ui",
+      "key": "Dynamic animation",
+      "source": "Dynamic animation",
+      "source_sha256": "00404dd4b4540aa5411fec10d844b49dfa4d19c8d8c5a7510ac12a03feb07757",
+      "translation": "गतिशील एनिमेशन"
+    },
+    {
+      "table": "ui",
+      "key": "Every image in this queue has Keep or Discard.",
+      "source": "Every image in this queue has Keep or Discard.",
+      "source_sha256": "1b8a62462eb92fca9a5957e5dd390c09545846a7e4d30201e093a00d9fcadbd2",
+      "translation": "इस कतार की हर छवि पर रखें या त्यागें का निर्णय हो चुका है।"
+    },
+    {
+      "table": "ui",
+      "key": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
+      "source": "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
+      "source_sha256": "c4ba2125608536b61c0895925372ab0a04411b91057bf597aabc97fcf795538d",
+      "translation": "मौजूदा .db, .duckdb, .parquetdb, या PostgreSQL URL"
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source": "Export for vvvv again every time a mask is saved, so a patch watching the export folder updates live.",
+      "source_sha256": "34605d49608db193fc1720df64d8f24abbc93ad6ab8dc95a6b6da5e48237ebdd",
+      "translation": "हर बार मास्क सहेजे जाने पर vvvv के लिए फिर से निर्यात करें, ताकि निर्यात फ़ोल्डर पर नज़र रखने वाला पैच लाइव अपडेट हो।"
+    },
+    {
+      "table": "ui",
+      "key": "Export for vvvv…",
+      "source": "Export for vvvv…",
+      "source_sha256": "ca2ddf0de427fcd43768d1e8bfe5633f84d9315421eac82f318787c8471d24fc",
+      "translation": "vvvv के लिए निर्यात करें…"
+    },
+    {
+      "table": "ui",
+      "key": "Export on save",
+      "source": "Export on save",
+      "source_sha256": "f92285a0d62006fed9ed718bc9c64978c538afbb5635a957082076a68c2692e7",
+      "translation": "सहेजने पर निर्यात"
+    },
+    {
+      "table": "ui",
+      "key": "Exported for vvvv → {path}",
+      "source": "Exported for vvvv → {path}",
+      "source_sha256": "4c4a4f491fba7a949f6be8d3a7c9c7c26605fb96c63f17b24a0ff89598b7bb71",
+      "translation": "vvvv के लिए निर्यात किया गया → {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Fill the left half of this screen's work area.",
+      "source": "Fill the left half of this screen's work area.",
+      "source_sha256": "35c845f2e3f75913f677c990de0edd3959cf0b65eaee82390aa4f1d8d5191771",
+      "translation": "इस स्क्रीन के कार्य क्षेत्र का बायाँ आधा भाग भरें।"
+    },
+    {
+      "table": "ui",
+      "key": "Fill the lower half of this screen's work area.",
+      "source": "Fill the lower half of this screen's work area.",
+      "source_sha256": "7a1e434162048b4aa55d7c04e1c413b429d333921491822e9cf15e0e94eaaa8a",
+      "translation": "इस स्क्रीन के कार्य क्षेत्र का निचला आधा भाग भरें।"
+    },
+    {
+      "table": "ui",
+      "key": "Fill the right half of this screen's work area.",
+      "source": "Fill the right half of this screen's work area.",
+      "source_sha256": "6643e352491cd61e03ace73d078c5e1acb67259ecb2b3d9bcedf28ad51dceb8e",
+      "translation": "इस स्क्रीन के कार्य क्षेत्र का दायाँ आधा भाग भरें।"
+    },
+    {
+      "table": "ui",
+      "key": "First unreviewed",
+      "source": "First unreviewed",
+      "source_sha256": "e6201ffe2d0b527ce2acf68411ae779a785700c09a53e3c6f3f0baeea9fa33d4",
+      "translation": "पहली असमीक्षित"
+    },
+    {
+      "table": "ui",
+      "key": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source": "Load a cut of the published TSG101 recruitment screen: 2,608 cells in 30 wells of plate 1 with their predictions and guide fractions, and a Regression run made from them that names GRA14 (239740) as the hit. About 28 MB, cached afterwards.",
+      "source_sha256": "235a030f6880899bdd582d779b6691c16049ab10b4cf49aedae1c7a264c49312",
+      "translation": "प्रकाशित TSG101 रिक्रूटमेंट स्क्रीनिंग का एक अंश लोड करें: प्लेट 1 के 30 वेल में 2,608 कोशिकाएँ, उनकी भविष्यवाणियों और गाइड अंशों के साथ, और उनसे बना एक रिग्रेशन रन जो GRA14 (239740) को हिट बताता है। लगभग 28 MB, बाद में कैश में रहता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source_sha256": "43d04f0fd02036ba7f5d48ab3e910d7b6fa601fcaabe433e18ff0109b9b733f5",
+      "translation": "एक सार्वजनिक प्लेट श्रृंखला लोड करें: Cell Painting Gallery (CC0) की 24 CPJUMP1 यौगिक प्लेटों के सभी वेल, DMSO और सकारात्मक नियंत्रण वेल चिह्नित सहित, और DMSO वेल को प्लेट-दर-प्लेट चार्ट में दिखाएँ। लगभग 2 MB, बाद में कैश किया जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source": "Loaded the example hit {gene}. Press Investigate hit.",
+      "source_sha256": "03d3fa239d0100288c638e6eba5bb680b722d9ee6e0ed941012c4c16815abe8a",
+      "translation": "उदाहरण हिट {gene} लोड हो गया। 'हिट की जाँच करें' दबाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Maximise to this screen's work area. Full screen is separate.",
+      "source": "Maximise to this screen's work area. Full screen is separate.",
+      "source_sha256": "7d382883b7a6710390c063835ef58120fe202a7106df08e97e7f5e4288f06a51",
+      "translation": "इस स्क्रीन के कार्य क्षेत्र तक अधिकतम करें। पूर्ण स्क्रीन एक अलग विकल्प है।"
+    },
+    {
+      "table": "ui",
+      "key": "Migrate measurement store",
+      "source": "Migrate measurement store",
+      "source_sha256": "c8034fa8bb3a116041ce7403d9c7559ee7a402748ae7f3a8d25e794f062b68a0",
+      "translation": "माप स्टोर माइग्रेट करें"
+    },
+    {
+      "table": "ui",
+      "key": "Migrate measurement store…",
+      "source": "Migrate measurement store…",
+      "source_sha256": "3061e256bc28ae56fa4a766fa2139ad6bed05791c4e05690a798f3a7341d0f39",
+      "translation": "माप स्टोर माइग्रेट करें…"
+    },
+    {
+      "table": "ui",
+      "key": "Migration stopped. The source is unchanged and no local destination was published.",
+      "source": "Migration stopped. The source is unchanged and no local destination was published.",
+      "source_sha256": "3f8c84039da9791f117f35f3fd6a6656bb6cd2defcb578aaf97a8fc955e14b96",
+      "translation": "माइग्रेशन रोका गया। स्रोत अपरिवर्तित है और कोई स्थानीय गंतव्य प्रकाशित नहीं किया गया।"
+    },
+    {
+      "table": "ui",
+      "key": "Migration stopped. The source is unchanged. The empty PostgreSQL destination may contain partial new tables.",
+      "source": "Migration stopped. The source is unchanged. The empty PostgreSQL destination may contain partial new tables.",
+      "source_sha256": "660664b550e6b34e107d27912032a78284c05855a841734d474f38cb9658bbda",
+      "translation": "माइग्रेशन रोका गया। स्रोत अपरिवर्तित है। खाली PostgreSQL गंतव्य में आंशिक रूप से बनी नई तालिकाएँ हो सकती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Name the table for {sources} before running.",
+      "source": "Name the table for {sources} before running.",
+      "source_sha256": "db7b344fd012090cb618c8de8bfd2d76e7a9952130911bd01b22b72b833c10ad",
+      "translation": "चलाने से पहले {sources} के लिए तालिका का नाम दें।"
+    },
+    {
+      "table": "ui",
+      "key": "New destination store",
+      "source": "New destination store",
+      "source_sha256": "238842a1464ed2169bdd04bd235276beb455558d58435cb6b6ec7792a7cba838",
+      "translation": "नया गंतव्य स्टोर"
+    },
+    {
+      "table": "ui",
+      "key": "No {what} {current!r} in the {kind}.",
+      "source": "No {what} {current!r} in the {kind}.",
+      "source_sha256": "c134f156813a17cf6c156050e3a15a0d42d5acf45d8df2f5972df699eda300d7",
+      "translation": "कोई {what} {current!r} {kind} में नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "No {what} {current!r} in the {kind}. Did you mean {suggestion!r}?",
+      "source": "No {what} {current!r} in the {kind}. Did you mean {suggestion!r}?",
+      "source_sha256": "6e3cf7a46e8ffecced8b56a575cc9e0ed04a6ef175e8d272d409468696d3c9e8",
+      "translation": "कोई {what} {current!r} {kind} में नहीं है। क्या आपका मतलब {suggestion!r} था?"
+    },
+    {
+      "table": "ui",
+      "key": "Off (CPU)",
+      "source": "Off (CPU)",
+      "source_sha256": "5f68f15cade8808f4cdaaae7088a72171ba72f3f0a8863dd3cf6a27fcc5416b7",
+      "translation": "बंद (CPU)"
+    },
+    {
+      "table": "ui",
+      "key": "On",
+      "source": "On",
+      "source_sha256": "130011756125313c72f2cab730db4347e2841526d236a89cb25f38789fa49229",
+      "translation": "चालू"
+    },
+    {
+      "table": "ui",
+      "key": "Open the first image in the queue that has neither Keep nor Discard. Verdicts saved in earlier sessions count. Unsaved edits are handled as when moving to any other image.",
+      "source": "Open the first image in the queue that has neither Keep nor Discard. Verdicts saved in earlier sessions count. Unsaved edits are handled as when moving to any other image.",
+      "source_sha256": "8011696f9c4763a8b06d83ece3a63e4d3c4d5429571011532f97edea87c487f6",
+      "translation": "कतार की वह पहली छवि खोलें जिस पर न रखें है न त्यागें। पिछले सत्रों में सहेजे गए निर्णय भी गिने जाते हैं। बिना सहेजे संपादनों को वैसे ही संभाला जाता है जैसे किसी अन्य छवि पर जाते समय।"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} and panel {prior_panel} in {prior_figure} show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+      "source": "Panel {panel} and panel {prior_panel} in {prior_figure} show overlapping regions of the same verified source pixels. This is a source reuse note, not an image manipulation verdict.",
+      "source_sha256": "7a9d5af7a6e926a80c4dfd464b6e3d5d5e35f67e945aa123b674ac8eb0ea4786",
+      "translation": "{panel} और {prior_panel} में पैनल {prior_figure} एक ही सत्यापित स्रोत पिक्सेल के अवरोधित क्षेत्रों को प्रदर्शित करता है. यह एक स्रोत पुन: उपयोग नोट है, एक छवि हेरफेर का फैसला नहीं है."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.",
+      "source": "Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.",
+      "source_sha256": "666c5f4c6a3a6c908481200656b43b9dbce3b88fcffc7cafdbb85c9372a11fac",
+      "translation": "पैनल {panel} पैनल के लिए एक समान प्रदर्शित क्षेत्र है {prior_panel} में {prior_figure}यह एक सीमित पिक्सेल समानता नोट है, एक खरीद या छवि हेरफेर का फैसला नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} shows a region of panel {other} (rows {top}-{bottom}, columns {left}-{right}) at {zoom}x magnification. If it is an inset or a zoom, mark the region and say so in the legend.",
+      "source": "Panel {panel} shows a region of panel {other} (rows {top}-{bottom}, columns {left}-{right}) at {zoom}x magnification. If it is an inset or a zoom, mark the region and say so in the legend.",
+      "source_sha256": "90507a300248e2974cfc3d6ee5929b012bd433d42c0df7dfc4760c6a976b2de3",
+      "translation": "पैनल {panel} एक पैनल क्षेत्र दिखाता है {other} रॉय {top}-{bottom}स्तंभों {left}-{right}) में {zoom}यदि यह एक सूअर या ज़ूम है, तो क्षेत्र को चिह्नित करें और पौराणिक कथा में ऐसा कहें।"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel} shows the same image as panel {prior_panel} in an earlier export ({prior_figure}){how}. If the reuse is intentional, explain it in the legend.",
+      "source": "Panel {panel} shows the same image as panel {prior_panel} in an earlier export ({prior_figure}){how}. If the reuse is intentional, explain it in the legend.",
+      "source_sha256": "e87ad0ed3345e6e192e2e24807d54bc9969ea58508c1482dcfcfb9c5077e4123",
+      "translation": "पैनल {panel} पैनल के रूप में एक ही छवि प्रदर्शित करता है {prior_panel} पहले की बात तो यह है कि ({prior_figure}){how}यदि पुन: उपयोग जानबूझकर है, तो इसे कथा में समझाएं।"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: a straight horizontal seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source": "Panel {panel}: a straight horizontal seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source_sha256": "b4dff4a3de8045aa35112bf2e63103643ce4711d9560b4f5293d43434d1719b3",
+      "translation": "पैनल {panel}: पिक्सेल {position} पर एक सीधी क्षैतिज जोड़-रेखा अलग पृष्ठभूमि स्तर या शोर वाले क्षेत्रों को अलग करती है, जैसा तब होता है जब दो छवियाँ सटाकर जोड़ी जाती हैं। यदि पैनल में कई छवियाँ जोड़ी गई हैं, तो उन्हें एक दिखाई देने वाली रेखा से अलग करें और चित्र विवरण में इसका उल्लेख करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: a straight vertical seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source": "Panel {panel}: a straight vertical seam at pixel {position} separates areas with a different background level or noise, as when two images are butted together. If the panel combines images, separate them with a visible line and say so in the legend.",
+      "source_sha256": "caa74df06cb5057633e230975e8866a3dfad51430ad30e7c0535f6e6f2e693b7",
+      "translation": "पैनल {panel}: पिक्सेल {position} पर एक सीधी ऊर्ध्वाधर जोड़-रेखा अलग पृष्ठभूमि स्तर या शोर वाले क्षेत्रों को अलग करती है, जैसा तब होता है जब दो छवियाँ सटाकर जोड़ी जाती हैं। यदि पैनल में कई छवियाँ जोड़ी गई हैं, तो उन्हें एक दिखाई देने वाली रेखा से अलग करें और चित्र विवरण में इसका उल्लेख करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: the region at rows {top}-{bottom}, columns {left}-{right} repeats {down} rows down and {across} columns across in the same image. Check the source image for a copied patch.",
+      "source": "Panel {panel}: the region at rows {top}-{bottom}, columns {left}-{right} repeats {down} rows down and {across} columns across in the same image. Check the source image for a copied patch.",
+      "source_sha256": "67fd40d15babeebd3a886f0e9a8b03d8ef22a7c79e6bb3e26e6368bec848cfcf",
+      "translation": "पैनल {panel}: पंक्तियों में क्षेत्र {top}-{bottom}, स्तंभों {left}- {right} {down} नीचे पंक्तियां दोहराते हैं और {across} को एक ही छवि में पार करते हैं. एक कॉपी पैच के लिए स्रोत छवि की जांच करें."
+    },
+    {
+      "table": "ui",
+      "key": "Panel {panel}: the source metadata ({metadata}) declares {bits}-bit camera data, but pixel values reach {peak}. The image was rescaled after acquisition or the metadata is wrong; saturation was checked against the storage type instead.",
+      "source": "Panel {panel}: the source metadata ({metadata}) declares {bits}-bit camera data, but pixel values reach {peak}. The image was rescaled after acquisition or the metadata is wrong; saturation was checked against the storage type instead.",
+      "source_sha256": "70a72f31fabe29b211e13e5e04098f463b4aa140d2261bf06add673d2188f4c3",
+      "translation": "पैनल {panel}: स्रोत मेटाडेटा ({metadata}) {bits}-बिट कैमरा डेटा घोषित करता है, लेकिन पिक्सेल मूल्य {peak} तक पहुंचते हैं. छवि को खरीद के बाद रिकॉर्ड किया गया था या मेटेडेटा गलत है; संतृप्ति के बजाय भंडारण प्रकार के खिलाफ जांच की गई थी."
+    },
+    {
+      "table": "ui",
+      "key": "Position of this image in the queue. Type a number and press Enter to open that image.",
+      "source": "Position of this image in the queue. Type a number and press Enter to open that image.",
+      "source_sha256": "9e08a4cf0ffeaef9b3444cb8eab57ca137c50883d3052eddbd6fae62f9be97de",
+      "translation": "कतार में इस छवि की स्थिति। उस छवि को खोलने के लिए कोई संख्या टाइप करें और Enter दबाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Read from",
+      "source": "Read from",
+      "source_sha256": "26da1ae26f4836d2f09fca20a31e30cf94f8f39f1fee159889215e2dc2661330",
+      "translation": "यहाँ से पढ़ें"
+    },
+    {
+      "table": "ui",
+      "key": "Read input table column names and choose a column.",
+      "source": "Read input table column names and choose a column.",
+      "source_sha256": "25a8d33d30b13ee51e29d9b15cd514be4333e685e68f47ffebdd15adba2558ed",
+      "translation": "इनपुट तालिका के स्तंभ नाम पढ़ें और एक स्तंभ चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Score source",
+      "source": "Score source",
+      "source_sha256": "f873df15ffb7861eac834ff31552eb79f8809a64632e503dbbc1250b6511fc82",
+      "translation": "स्कोर स्रोत"
+    },
+    {
+      "table": "ui",
+      "key": "Score table",
+      "source": "Score table",
+      "source_sha256": "85d977c1a71a7384106394ae97daa63fa42705c815ce22323720f3dcf5888357",
+      "translation": "स्कोर तालिका"
+    },
+    {
+      "table": "ui",
+      "key": "Snap down",
+      "source": "Snap down",
+      "source_sha256": "11e9ba100badc60369e4c3357963771f46d8f5da579ae6956148efee74173039",
+      "translation": "नीचे स्नैप करें"
+    },
+    {
+      "table": "ui",
+      "key": "Snap left",
+      "source": "Snap left",
+      "source_sha256": "75ad8bfe476cadc279eeabc97f6dce67e869e21d7f784d5e8c84419443b0a970",
+      "translation": "बाईं ओर स्नैप करें"
+    },
+    {
+      "table": "ui",
+      "key": "Snap right",
+      "source": "Snap right",
+      "source_sha256": "639801497b6ff07dcba3059ee081284d0e2dc6fe1cfc81fd92946622d63a1d3f",
+      "translation": "दाईं ओर स्नैप करें"
+    },
+    {
+      "table": "ui",
+      "key": "Snap up",
+      "source": "Snap up",
+      "source_sha256": "c9cad67449c7bcba1d2e49fa163800632dca0fa89b966b647ced118e0e016833",
+      "translation": "ऊपर स्नैप करें"
+    },
+    {
+      "table": "ui",
+      "key": "Source and destination must be different stores.",
+      "source": "Source and destination must be different stores.",
+      "source_sha256": "755c102c944adfbce02dd87e747f67cac1891fdefb748ba5cadf76775f399c51",
+      "translation": "स्रोत और गंतव्य अलग-अलग स्टोर होने चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Strength of ripples from clicks, opening or closing containers, popups and window snapping. Zero turns ripples off. Independent of mouse gravity and animation density.",
+      "source": "Strength of ripples from clicks, opening or closing containers, popups and window snapping. Zero turns ripples off. Independent of mouse gravity and animation density.",
+      "source_sha256": "a1e07ce9039068adfe06b134257619c8a95a5f783459f5661032542ca410b127",
+      "translation": "क्लिक, कंटेनर खोलने या बंद करने, पॉपअप और विंडो स्नैप करने से बनने वाली तरंगों की तीव्रता। शून्य पर तरंगें बंद हो जाती हैं। माउस गुरुत्वाकर्षण और एनिमेशन घनत्व से स्वतंत्र।"
+    },
+    {
+      "table": "ui",
+      "key": "Table name for store",
+      "source": "Table name for store",
+      "source_sha256": "7799f72b34405dcf86e55166bb5aa0c64f97b6e6bf87558cb9cde2d540810ab2",
+      "translation": "स्टोर के लिए तालिका का नाम"
+    },
+    {
+      "table": "ui",
+      "key": "The destination already exists. Choose a new store.",
+      "source": "The destination already exists. Choose a new store.",
+      "source_sha256": "4bb3b98ce1949f911f70d935cc1c08f7151ef8f4cf495542b9160629e801213a",
+      "translation": "गंतव्य पहले से मौजूद है। कोई नया स्टोर चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "The destination parent folder does not exist.",
+      "source": "The destination parent folder does not exist.",
+      "source_sha256": "ec1317175a9a1dd3b7c6b1adb09dc6cd9950cce849746d8ac3788fa69155d601",
+      "translation": "गंतव्य का पैरेंट फ़ोल्डर मौजूद नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "The source measurement store does not exist.",
+      "source": "The source measurement store does not exist.",
+      "source_sha256": "e573d127eff82af9cc2332dba468364be1adc9d075b9fa4c54e9347748dfd4dc",
+      "translation": "स्रोत माप स्टोर मौजूद नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "There are no images in the queue.",
+      "source": "There are no images in the queue.",
+      "source_sha256": "1c4ee5cf983027834faf5da21804269cfc30aa8fc0f3744b97e4c6c384dd7dae",
+      "translation": "कतार में कोई छवि नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "This is the first image without Keep or Discard.",
+      "source": "This is the first image without Keep or Discard.",
+      "source_sha256": "54592d219433ab56dcf79f365f535dc2abffce133e8cc7d8a2280a1103825060",
+      "translation": "यह रखें या त्यागें के बिना पहली छवि है।"
+    },
+    {
+      "table": "ui",
+      "key": "Type a number from 1 to {total} to open that image.",
+      "source": "Type a number from 1 to {total} to open that image.",
+      "source_sha256": "2ecdd8c943a6cf87be3d78ee4f33ebf9e0ea4461c167bdc5c4fd7d0b2824ecf0",
+      "translation": "उस छवि को खोलने के लिए 1 से {total} तक एक संख्या टाइप करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Unblind this session before exporting folders named after source images.",
+      "source": "Unblind this session before exporting folders named after source images.",
+      "source_sha256": "d9a11391072e926087aaa947ddbd696ef64bef096e7a7ebba4747cdfae5437ea",
+      "translation": "स्रोत छवियों के नाम वाले फ़ोल्डर निर्यात करने से पहले इस सत्र की ब्लाइंडिंग हटाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Use a database file, a .parquetdb folder, or a PostgreSQL URL.",
+      "source": "Use a database file, a .parquetdb folder, or a PostgreSQL URL.",
+      "source_sha256": "68fe654a98b656ae7942d0df6b63f832f58a06573e3ddc617dbc4bdab9862c51",
+      "translation": "एक डेटाबेस फ़ाइल, एक .parquetdb फ़ोल्डर या PostgreSQL URL का उपयोग करें।"
+    },
+    {
+      "table": "ui",
+      "key": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
+      "source": "Where animations are drawn. Off draws on the CPU. Automatic uses the GPU only for dense, high-resolution frames, where it measured faster. On uses the GPU whenever the theme has a GPU renderer. Unsupported graphics or a failed GPU start always fall back to the CPU.",
+      "source_sha256": "e723553a52f4ad2ac4ebdfd37bcf43e5bba7e3b6d293c27ad5f49169a311ba4d",
+      "translation": "एनिमेशन कहाँ बनाए जाते हैं। बंद: CPU पर बनाता है। स्वचालित: GPU का उपयोग केवल घने, उच्च-रिज़ॉल्यूशन फ़्रेम के लिए करता है, जहाँ मापने पर यह तेज़ निकला। चालू: जब भी थीम में GPU रेंडरर हो, GPU का उपयोग करता है। असमर्थित ग्राफ़िक्स या GPU शुरू न हो पाने पर हमेशा CPU पर लौट आता है।"
+    },
+    {
+      "table": "ui",
+      "key": "While a CPU-heavy job such as Measure runs, the animation pauses. While a GPU job such as mask generation runs, animations stop using the GPU. Your saved animation settings return when the jobs end. Off keeps animations running unchanged.",
+      "source": "While a CPU-heavy job such as Measure runs, the animation pauses. While a GPU job such as mask generation runs, animations stop using the GPU. Your saved animation settings return when the jobs end. Off keeps animations running unchanged.",
+      "source_sha256": "77ed737f7bc3faf8d170667338fbfe72b96af9c1aaa6aa610467a1c321c2b9a0",
+      "translation": "जब Measure जैसा CPU-भारी कार्य चलता है, तो एनिमेशन रुक जाता है। जब मास्क निर्माण जैसा GPU कार्य चलता है, तो एनिमेशन GPU का उपयोग बंद कर देते हैं। कार्य समाप्त होने पर आपकी सहेजी गई एनिमेशन सेटिंग्स लौट आती हैं। बंद पर एनिमेशन बिना बदलाव के चलते रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source": "Write this image's labels (16-bit PNG), outlines (RGBA PNG), one row per object (CSV) and a manifest into a folder named after the image, for a vvvv patch to read. Files are replaced whole, so a watching patch never reads half a file.",
+      "source_sha256": "6347a688735eda0a24506ee8fe503ae0e6dfa9c812b032fb626e83d2a5bd03f7",
+      "translation": "इस छवि के लेबल (16-bit PNG), आउटलाइन (RGBA PNG), प्रति ऑब्जेक्ट एक पंक्ति (CSV) और एक मैनिफ़ेस्ट को छवि के नाम वाले फ़ोल्डर में लिखें, ताकि vvvv पैच उन्हें पढ़ सके। फ़ाइलें पूरी की पूरी बदली जाती हैं, इसलिए देख रहा पैच कभी आधी फ़ाइल नहीं पढ़ता।"
+    },
+    {
+      "table": "ui",
+      "key": "vvvv export failed",
+      "source": "vvvv export failed",
+      "source_sha256": "99c8a97db1342f2f3cd11bcc83ff33ffb0faaf051cc8f34a75ce9b3995469544",
+      "translation": "vvvv निर्यात विफल रहा"
+    },
+    {
+      "table": "ui",
+      "key": "vvvv export is off while blinded",
+      "source": "vvvv export is off while blinded",
+      "source_sha256": "18d4900689741d5b0b638cf589b5f3c1f94f94e4ef0c349094703382753f6bb5",
+      "translation": "ब्लाइंड रहते vvvv निर्यात बंद है"
+    },
+    {
+      "table": "ui",
+      "key": "{count} column(s) in the {kind}:",
+      "source": "{count} column(s) in the {kind}:",
+      "source_sha256": "90e184bbe7ce0a7a62d6953512bebb12ee2f33a23c5f9becbe54d91134864d29",
+      "translation": "{count} स्तंभ ({kind} में):"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source": "'bundled' is the historical packaged plaque model. It is kept so an old run can be reproduced; it misses about a third of the plaques on literature images. toxoplasma_plaque_v3 is the current model.",
+      "source_sha256": "033974a0333a8d22dae58bb647b5e3e5944152cfe72220c27ca1ac7b892885c2",
+      "translation": "'bundled' पहले से पैक किया गया ऐतिहासिक प्लाक मॉडल है। पुराने रन दोहराने के लिए इसे रखा गया है; साहित्य के चित्रों पर यह लगभग एक-तिहाई प्लाक चूकता है। toxoplasma_plaque_v3 वर्तमान मॉडल है।",
+      "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v3' is cpsam_plaque_r5_geldoc, which also segments Gel Doc wells; 'toxoplasma_plaque_v2' is the previous default), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v3'.",
+      "source_sha256": "256a3da363e13c789bd2d75627b90461ce000635655c63c04293d08fb9fe07cd",
+      "translation": "प्लाक विभाजन के लिए Cellpose चेकपॉइंट। मॉडल संग्रह की कुंजी देने पर पहली बार उपयोग में चेकसम से सत्यापित चेकपॉइंट डाउनलोड होता है। 'toxoplasma_plaque_v3', cpsam_plaque_r5_geldoc है, जो Gel Doc वेल भी विभाजित करता है; 'toxoplasma_plaque_v2' पिछला डिफ़ॉल्ट है। फ़ाइल-सिस्टम पथ अपना चेकपॉइंट चुनता है। 'bundled' पैकेज के साथ आने वाला पुराना मॉडल है; यह Cellpose 3 चेकपॉइंट है और इसे Cellpose 3 चाहिए। मॉडल बदलने से सभी प्लाक गणनाएँ बदल सकती हैं, इसलिए दर्ज किए गए रन में चुना गया मान सुरक्षित रखना चाहिए। डिफ़ॉल्ट 'toxoplasma_plaque_v3'.",
+      "retired": "2026-10-11: English source changed when toxoplasma_plaque_v4 became the default plaque model; superseded by 2026-10-11-plaque-v4-default.json"
+    }
+  ]
+}

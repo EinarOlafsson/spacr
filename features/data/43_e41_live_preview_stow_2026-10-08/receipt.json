@@ -1,0 +1,62 @@
+{
+  "api_arrival": {
+    "docstring_sha256": "c8f3c56c75dad855d5b335b32ca4e88cf76470546f3d8c519c51002c1e2d4039",
+    "key": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close"
+  },
+  "failed_nodes": [
+    "tests/qt/test_no_live_preview_control_can_land_on_the_path_label.py::test_closing_the_settings_dialog_stows_rather_than_strands",
+    "tests/qt/test_no_live_preview_control_can_land_on_the_path_label.py::test_the_dialog_gives_back_everything_it_borrowed"
+  ],
+  "fixed_revision": "5b977a19bbdd2534adfc22135176dedb13ca41e4",
+  "focused_result": "23 passed in 16.48s; Qt 6.12.0; 4 GiB; offscreen; both new close-guard arcs executed",
+  "hosted_job": 113548884398,
+  "hosted_revision": "e41df27e0a37303cbbc81687d21f74738cc05e0b",
+  "manifest": {
+    "logs/e41-coverage9-full.log.gz": {
+      "bytes": 344502,
+      "original_bytes": 2438580,
+      "original_sha256": "68ee46d235ada1f804a6106bfa62e1dec6098d68c7995b6756696fdd0852bd19",
+      "sha256": "9c67bc3a4e066f2a736be67b6dc99552837af18a81cf363c342787c4c09f200c"
+    },
+    "logs/focused-final-23pass.log.gz": {
+      "bytes": 439,
+      "original_bytes": 790,
+      "original_sha256": "c4990e39ed085024800bb22af1baa2af30a14ab5259d890f99b90018c8b34dfa",
+      "sha256": "07decb033281c545edec51c8644b9c1a96173187cfab79d047d6710a19364b0b"
+    },
+    "logs/focused-final-coverage.json.gz": {
+      "bytes": 37513,
+      "original_bytes": 219205,
+      "original_sha256": "08909c5d7576b6672360c8d683137430b389352180e85a55bd553d7d5cab4b52",
+      "sha256": "883d5bb9239bd451b4f5ed941aea3ec2f9405c9d2bd3630ad84b93e8240af1c9"
+    },
+    "sources/fixed__spacr__qt__widgets__live_preview.py.gz": {
+      "bytes": 72684,
+      "original_bytes": 260093,
+      "original_sha256": "571663fb9d9b4d0abbe68fc76567cac20aaacf842aa70cb5125c0ee4bb4bb213",
+      "sha256": "c29bb5fc516265d8ad9737b4c8d37f454399f6c35aa7243d8062a493cb87e359"
+    },
+    "sources/fixed__tests__qt__test_no_live_preview_control_can_land_on_the_path_label.py.gz": {
+      "bytes": 4104,
+      "original_bytes": 10797,
+      "original_sha256": "c6ae355a50862c57b77bf962cfa94963b72c48d6add4dff5bde959ea2043d2ef",
+      "sha256": "d30c8a4135acc36b8fd6cf7e96eaca464bf2f46a302a6aded1794c47b96937a9"
+    },
+    "sources/hosted__spacr__qt__widgets__live_preview.py.gz": {
+      "bytes": 72503,
+      "original_bytes": 259524,
+      "original_sha256": "d4a0acd8aa28e8c12a189ffaa395ea9ad67b9b5244e478bbaa221812e367eded",
+      "sha256": "1bcb09e96b70531acb46fc892b7c0178d3f054790ad70157dae2a12415b172ef"
+    },
+    "sources/hosted__tests__qt__test_no_live_preview_control_can_land_on_the_path_label.py.gz": {
+      "bytes": 3728,
+      "original_bytes": 9269,
+      "original_sha256": "2d9021941ba80eb152cea0ce2e70b10bcbcc7a727b6e739debea61affc3f796f",
+      "sha256": "322c8ad26153f26aa8f1ab40e1038cf6ba5f22c095198793df4d86d139f051d8"
+    }
+  },
+  "source_paths": [
+    "spacr/qt/widgets/live_preview.py",
+    "tests/qt/test_no_live_preview_control_can_land_on_the_path_label.py"
+  ]
+}

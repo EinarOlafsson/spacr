@@ -1,0 +1,198 @@
+{
+  "parent_sha": "23a3d197c3c34e8cd2d7571965eaa1eaa1b5dbd2",
+  "hosted_source": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "hosted_run": 37698599898,
+  "test_commits": [
+    "48c85c163f6",
+    "942bba2b37c"
+  ],
+  "source_hashes": {
+    "spacr/plaque.py": "c3988be90964e58429fffeef6d19229e8d4bfbb39a0ab671383f289f7538f8ff",
+    "spacr/submodules.py": "aef3ca2a6bb8864850624a2d06e0a73d99f5e7f2b1df038e1f5cd848678e09e6",
+    "spacr/qt/mask_engine.py": "bc82fd12b84d33a8ace54a9fe3c577fb2b6048073ebe43f9e3dd54ffb7143253",
+    "spacr/qt/screens/plate_view.py": "285b17e87b2a35a6fa6fbe868454c9f76f67444c386992f5af7e6887217cc4a3"
+  },
+  "test_hashes": {
+    "tests/test_plaque_segmentation_diagnostics.py": "5fa53901ec63d4a466a51976b41c9cfdf806f62cbbd8dd0b93b73929674af484",
+    "tests/test_mask_engine_recovery_contracts.py": "2a37f30f4e68c63bcd2f305a4376123f05bbbc97b34263c9ff099176972c0c4c",
+    "tests/test_cov_8_plate_view.py": "7e87019f4ceaa38a1c984b43a02f89c3f008c582142b28752eadbcca65d5fc53"
+  },
+  "baseline_sha256": "7d4f27acf453f79006b7acd809a592fccec8267b9fe4142635873bca142ddf0a",
+  "hosted_complete_json_sha256": "b7ab0bf6fa2fb39f93f33c28660ae33173fb2a2b1c6d1f2615cfaeaa8cb68320",
+  "four_module_union": {
+    "spacr/plaque.py": {
+      "hosted_missing_statements": 1,
+      "hosted_missing_branches": 4,
+      "after_missing_statements": 0,
+      "after_missing_branches": 0,
+      "remaining_lines": [],
+      "remaining_branches": [],
+      "unchanged_baseline": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "since": "2026-09-15T11:54:08Z",
+        "uncovered_branches": 0,
+        "uncovered_statements": 0
+      }
+    },
+    "spacr/submodules.py": {
+      "hosted_missing_statements": 2,
+      "hosted_missing_branches": 0,
+      "after_missing_statements": 0,
+      "after_missing_branches": 0,
+      "remaining_lines": [],
+      "remaining_branches": [],
+      "unchanged_baseline": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "since": "2026-09-15T11:54:08Z",
+        "uncovered_branches": 0,
+        "uncovered_statements": 0
+      }
+    },
+    "spacr/qt/mask_engine.py": {
+      "hosted_missing_statements": 9,
+      "hosted_missing_branches": 12,
+      "after_missing_statements": 8,
+      "after_missing_branches": 11,
+      "remaining_lines": [
+        651,
+        1263,
+        2134,
+        3072,
+        3073,
+        3075,
+        3466,
+        4347
+      ],
+      "remaining_branches": [
+        [
+          650,
+          651
+        ],
+        [
+          1022,
+          1024
+        ],
+        [
+          1025,
+          1032
+        ],
+        [
+          1262,
+          1263
+        ],
+        [
+          1874,
+          1878
+        ],
+        [
+          2133,
+          2134
+        ],
+        [
+          2614,
+          2618
+        ],
+        [
+          3465,
+          3466
+        ],
+        [
+          4031,
+          4034
+        ],
+        [
+          4151,
+          4153
+        ],
+        [
+          4346,
+          4347
+        ]
+      ],
+      "unchanged_baseline": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "since": "2026-09-15T11:54:08Z",
+        "uncovered_branches": 11,
+        "uncovered_statements": 11
+      }
+    },
+    "spacr/qt/screens/plate_view.py": {
+      "hosted_missing_statements": 1,
+      "hosted_missing_branches": 2,
+      "after_missing_statements": 1,
+      "after_missing_branches": 1,
+      "remaining_lines": [
+        211
+      ],
+      "remaining_branches": [
+        [
+          210,
+          211
+        ]
+      ],
+      "unchanged_baseline": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "since": "2026-09-15T11:54:08Z",
+        "uncovered_branches": 1,
+        "uncovered_statements": 1
+      }
+    }
+  },
+  "phases": [
+    {
+      "scope": "initial targeted branch tests",
+      "passed": 11,
+      "seconds": 19.28
+    },
+    {
+      "scope": "initial three affected files before fixture correction",
+      "passed": 76,
+      "seconds": 9.91
+    },
+    {
+      "scope": "final targeted branch and return-protocol tests",
+      "passed": 13,
+      "seconds": 13.4
+    },
+    {
+      "scope": "final complete plaque file with actual Cellpose4.0.7 wheel, existing Python3.12 dependencies",
+      "passed": 21,
+      "seconds": 8.5
+    },
+    {
+      "scope": "final complete plaque file with installed Cellpose4.2.1.1",
+      "passed": 21,
+      "seconds": 7.9
+    }
+  ],
+  "counts": "phases overlap; no union/unique test count claimed",
+  "cpu_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "SPACR_DEVICE": "cpu",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg",
+    "process_cap": "4GiB",
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python"
+  },
+  "minimum_fixture": {
+    "hosted_job": 113058129342,
+    "hosted_log_sha256": "2899681daa8204fbbfd21a404982ee56682e91ef6c677a25ccaedf4cb12e0b06",
+    "cause": "test fixture unconditionally unpacked a two-channel array as tuple, discarding the channel axis",
+    "production_changed": false,
+    "wheel_sha256": "1cab108744ab95c6df1928b8624e527d1c1822a85e643771edd336f1bad1b2dd",
+    "negative_actual_minimum": "original first scientific metric test fails with actual4.0.7",
+    "negative_protocol": "correctly scoped array case fails; tuple case passes",
+    "discarded_probe": "initial wrapper left an artificial tuple slices=None installed for flow_error; both failed. Preserved minimum-fixture-before.log is harness failure only, not accepted scientific evidence."
+  },
+  "limits": [
+    "No app source, generated catalogs or ratchet ceiling changed.",
+    "Four-module union uses complete hosted rows plus focused real branch execution only because all four production files match byte-for-byte.",
+    "Remaining mask/plate gaps stay within original absolute allowances.",
+    "Local minimum-wheel replay uses Python3.12 with existing dependencies, not the full Python3.9 minimum stack.",
+    "No GPU/full Qt/whole GitHub acceptance claimed."
+  ]
+}

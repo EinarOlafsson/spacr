@@ -1,0 +1,33 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Plate Queue: eseguire più progetti preparati",
+  "description": "Aggiungi il progetto corrente o trascina cartelle preparate in una coda, esegui i lavori in ordine e riprendi dopo un arresto controllato.",
+  "objectives": [
+    "Aggiungere progetti preparati con le relative impostazioni di modulo salvate.",
+    "Eseguire la coda e fermarla tra un lavoro e l’altro.",
+    "Trovare i risultati di ogni progetto e rimuovere le voci completate."
+  ],
+  "prerequisite": "Prepara un progetto e le sue impostazioni di modulo salvate. Per esercitarti, usa due copie dell’esempio di Recruitment in cartelle separate; contengono gli stessi dati e non sono repliche biologiche.",
+  "scenes": [
+    "Prepara il primo progetto nel suo modulo di analisi. In Recruitment, scegli Import settings e apri il CSV delle impostazioni del progetto. L’esempio usa due copie separate degli stessi dati misurati per esercitarsi a eseguire più lavori.",
+    "Controlla Source, l’assegnazione dei canali e le etichette delle condizioni. Salva le impostazioni che vuoi far usare alla coda, poi lascia aperto questo progetto.",
+    "Apri Help e poi Plate queue. La coda esegue un elemento alla volta, nell’ordine dell’elenco.",
+    "Scegli Add current plate. Una nuova riga memorizza il modulo e le impostazioni correnti. Controlla modulo, origine ed etichetta prima di avviare la coda.",
+    "Trascina sulla coda un’altra cartella di progetto preparata. Le sue impostazioni salvate identificano il modulo e la cartella trascinata diventa la sua origine. Usa cartelle di progetto separate quando ogni lavoro deve avere i propri file di output.",
+    "Scegli Run queue. La prima riga passa a running mentre gli elementi successivi restano in queued. Osserva lo stato e il tempo trascorso per seguire l’avanzamento.",
+    "Premi Stop quando vuoi che la coda finisca l’elemento corrente e si fermi prima del successivo. Attendi la fine del lavoro attivo.",
+    "La riga completata ora indica success e la successiva resta in queued. Scegli di nuovo Run queue per proseguire con l’elemento rimanente.",
+    "Quando entrambi i lavori sono terminati, apri la cartella di output di ogni progetto. Per Recruitment, esamina i risultati CSV di cellule e pozzetti. Usa direttamente Recruitment quando vuoi il suo flusso di figure; questa coda non mostra né salva quei grafici.",
+    "Scegli Clear finished per rimuovere dall’elenco le voci completate. Le cartelle di progetto e i risultati salvati restano disponibili."
+  ]
+}

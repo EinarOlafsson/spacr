@@ -1,0 +1,918 @@
+{
+  "schema": 1,
+  "language": "en",
+  "lang_code": "a",
+  "dialect": "us",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "sample_rate": 24000,
+  "total_duration": 203.295,
+  "media_sha256": "c682ac3262a2e473083209949f17b66335cc6a8d770b8646938e6b0bfc35dfa2",
+  "media_bytes": 1337539,
+  "render_fingerprint": "d4aee14fb6d97733106c79490fd802fa80af60e36b1ec21adc1ac2faed0a764c",
+  "render_inputs": {
+    "renderer": "render_all_voices-v4",
+    "lesson": "04_platform_installers",
+    "language": "en",
+    "lang_code": "a",
+    "dialect": "us",
+    "voice": "af_heart",
+    "speed": 1.0,
+    "scenes": [
+      {
+        "narration": "Use the official spaCR GitHub release and match the installer to your operating system. The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required. For this Linux example, we checked the downloaded file against the release checksum before running it.",
+        "speech_text": [
+          "Use the official spacer [GitHub](/ɡˈɪthˌʌb/) release and match the installer to your operating system.",
+          "The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required.",
+          "For this Linux example, we checked the downloaded file against the release checksum before running it."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "On Windows, select the online setup executable. The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation. This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
+        "speech_text": [
+          "On Windows, select the online setup executable.",
+          "The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation.",
+          "This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "On macOS, select the universal online package for Intel and Apple silicon. The app launcher starts per-user setup if its runtime is missing. Verify the official source before approving security prompts, and allow time for downloads. This is source-reviewed guidance, not an executed macOS installation.",
+        "speech_text": [
+          "On [macOS](/mˈækOˌɛs/), select the universal online package for Intel and Apple silicon.",
+          "The app launcher starts per-user setup if its runtime is missing.",
+          "Verify the official source before approving security prompts, and allow time for downloads.",
+          "This is source-reviewed guidance, not an executed [macOS](/mˈækOˌɛs/) installation."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "On Linux, make the verified download executable and run it from its folder. Automatic accelerator selection is now the default; request the CPU backend explicitly if that is what you need. Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
+        "speech_text": [
+          "On Linux, make the verified download executable and run it from its folder.",
+          "Automatic accelerator selection is now the default; request the CPU back end explicitly if that is what you need.",
+          "Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Read the actual install profile rather than inferring the backend from a successful launch. Here the request was auto and the selected backend is CUDA on NVIDIA hardware. The installed Torch build is CUDA thirteen point two. This identifies the selection; it is not a GPU speed benchmark.",
+        "speech_text": [
+          "Read the actual install profile rather than inferring the back end from a successful launch.",
+          "Here the request was auto and the selected back end is [CUDA](/kˈudə/) on NVIDIA hardware.",
+          "The installed Torch build is [CUDA](/kˈuːdᵊ/) thirteen point two.",
+          "This identifies the selection; it is not a GPU speed benchmark."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Check the installed package version, Qt import and package path. This private runtime contains spaCR one point five point zero point five. Its files come from the installation, not an editable source checkout. Successful imports do not validate every analysis or optional file format.",
+        "speech_text": [
+          "Check the installed package version, Q T import and package path.",
+          "This private runtime contains spacer one point five point zero point five.",
+          "Its files come from the installation, not an editable source checkout.",
+          "Successful imports do not validate every analysis or optional file format."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup. Reports would be public, so read the explanation. This recording rejects the dialog with Escape, equivalent to Skip, keep all off. No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
+        "speech_text": [
+          "The real first launch asks about optional diagnostic sharing, public issue reports and account setup.",
+          "Reports would be public, so read the explanation.",
+          "This recording rejects the dialog with Escape, equivalent to Skip, keep all off.",
+          "No accounts are connected, and the private preferences confirm that sharing and issue actions remain off."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules. The window closes normally too. Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
+        "speech_text": [
+          "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules.",
+          "The window closes normally too.",
+          "Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Run spacr-doctor from the installed runtime and read warnings as well as passes. Here it confirms the installer backend but warns about a missing optional CZI dependency. This run skipped GPU allocation, database and settings checks. A skipped check is not a pass; assess the suggested repair before changing the environment.",
+        "speech_text": [
+          "Run spacer doctor from the installed runtime and read warnings as well as passes.",
+          "Here it confirms the installer back end but warns about a missing optional CZI dependency.",
+          "This run skipped GPU allocation, database and settings checks.",
+          "A skipped check is not a pass; assess the suggested repair before changing the environment."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      },
+      {
+        "narration": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem. Review logs for private information before sharing them. Record the version used for each analysis, and treat updates deliberately. The pip and Conda lessons describe the separate environment-based installation routes.",
+        "speech_text": [
+          "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem.",
+          "Review logs for private information before sharing them.",
+          "Record the version used for each analysis, and treat updates deliberately.",
+          "The pip and Conda lessons describe the separate environment-based installation routes."
+        ],
+        "authored_hold": 0.7,
+        "resolved_hold": 0.52,
+        "speed_multiplier": 1.0,
+        "effective_speed": 1.0
+      }
+    ],
+    "assembly": {
+      "version": "2026-08-11-natural-sentences-v1",
+      "sample_rate": 24000,
+      "lead_silence_seconds": 0.1,
+      "tail_silence_seconds": 0.18,
+      "sentence_pause_seconds": 0.12,
+      "scene_hold_min_seconds": 0.32,
+      "scene_hold_max_seconds": 0.52,
+      "default_scene_hold_seconds": 0.42,
+      "vad_frame_seconds": 0.005,
+      "vad_peak_ratio": 0.002,
+      "vad_absolute_floor": 2e-05
+    },
+    "cadence_profile": {
+      "version": "2026-08-11-af-heart-scene-cadence-v6",
+      "sha256": "4d728d67e73eea7e6203878879992f9050ae4a2677d717efdd68545104eb7812",
+      "bytes": 23008,
+      "enabled": false,
+      "targets": {
+        "slow_wpm": 125.0,
+        "fast_wpm": 145.0,
+        "calibration_wpm": 150.0
+      },
+      "safe_multiplier_bounds": {
+        "minimum": 0.68,
+        "maximum": 1.18
+      }
+    },
+    "mastering": {
+      "filters": [
+        "loudnorm=I=-16:TP=-3:LRA=11",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.7:attack=5:release=50:level=disabled",
+        "loudnorm=I=-16:TP=-5:LRA=11,alimiter=limit=0.5:attack=5:release=50:level=disabled"
+      ],
+      "codec": "aac",
+      "bitrate": "48k",
+      "channels": 1,
+      "maximum_decoded_true_peak_dbfs": -1.0
+    },
+    "pronunciation": {
+      "role": "pronunciation_profile",
+      "version": "2026-08-28-pype-v11",
+      "sha256": "8789f5eb4444a0ec85a592dcf3160a0ba521d8b356e83814b88aac7742e11423",
+      "bytes": 15302
+    },
+    "synthesis_runtime": {
+      "model": {
+        "repository": "hexgrad/Kokoro-82M",
+        "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+        "config": {
+          "role": "kokoro_config",
+          "name": "14a726edd3718279eac426630879ff743955b16a",
+          "bytes": 2351,
+          "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+        },
+        "weights": {
+          "role": "kokoro_weights",
+          "name": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+          "bytes": 327212226,
+          "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+        }
+      },
+      "voice_pack": {
+        "role": "kokoro_voice_pack",
+        "name": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b",
+        "loaded_tensor_sha256": "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"
+      },
+      "software": {
+        "kokoro": "0.9.4",
+        "misaki": "0.9.4",
+        "torch": "2.13.0",
+        "soundfile": "0.13.1",
+        "python": "3.12.13",
+        "implementation": "cpython"
+      },
+      "inference": {
+        "device": "cpu"
+      },
+      "mastering_tool": {
+        "version": "ffmpeg version 6.1.1-3ubuntu5+esm13 Copyright (c) 2000-2023 the FFmpeg developers",
+        "version_output_sha256": "1b302b8d4ef78f6694217011ce8af39e91b3548ab9a4903e170ada970fbf0b16",
+        "executable": {
+          "role": "ffmpeg_executable",
+          "name": "ffmpeg",
+          "bytes": 342488,
+          "sha256": "1d5081bc88516c140712a2a6eddd86b0922681bd114f5b3c481cb360634acbe3"
+        }
+      }
+    }
+  },
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 20.61,
+      "scene_end": 21.13,
+      "duration": 21.13,
+      "text": "Use the official spaCR GitHub release and match the installer to your operating system. The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required. For this Linux example, we checked the downloaded file against the release checksum before running it.",
+      "speech_text": "Use the official spacer [GitHub](/ɡˈɪthˌʌb/) release and match the installer to your operating system. The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required. For this Linux example, we checked the downloaded file against the release checksum before running it.",
+      "phonemes": "jˈuz ði əfˈɪʃᵊl spˈAsəɹ ɡˈɪthˌʌb ɹəlˈis ænd mˈæʧ ði ɪnstˈɔləɹ tə jʊɹ ˈɑpəɹˌATɪŋ sˈɪstəm. ði ˌɑnlˈIn ɪnstˈɔləɹz dˈWnlˌOd ɐ pɹˈIvət pˈIθˌɑn ɹˈʌntIm ænd sˌIəntˈɪfɪk dəpˈɛndᵊnsiz; ɐn ɪɡzˈɪstɪŋ kˈɑndə ənvˈIɹənmᵊnt ɪz nˌɑt ɹəkwˈIəɹd. fˌɔɹ ðɪs lˈɪnəks ɪɡzˈæmpəl, wi ʧˈɛkt ðə dˈWnlˌOdᵻd fˈIl əɡˈɛnst ðə ɹəlˈis ʧˈɛksˌʌm bəfˈɔɹ ɹˈʌnɪŋ ɪt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 0.0,
+          "speech_end": 5.665,
+          "audible_start": 0.1,
+          "audible_end": 5.485,
+          "duration": 5.665,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.29,
+          "text": "Use the official spaCR GitHub release and match the installer to your operating system.",
+          "speech_text": "Use the official spacer [GitHub](/ɡˈɪthˌʌb/) release and match the installer to your operating system.",
+          "phonemes": "jˈuz ði əfˈɪʃᵊl spˈAsəɹ ɡˈɪthˌʌb ɹəlˈis ænd mˈæʧ ði ɪnstˈɔləɹ tə jʊɹ ˈɑpəɹˌATɪŋ sˈɪstəm."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 5.785,
+          "speech_end": 14.64,
+          "audible_start": 5.885,
+          "audible_end": 14.46,
+          "duration": 8.855,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required.",
+          "speech_text": "The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required.",
+          "phonemes": "ði ˌɑnlˈIn ɪnstˈɔləɹz dˈWnlˌOd ɐ pɹˈIvət pˈIθˌɑn ɹˈʌntIm ænd sˌIəntˈɪfɪk dəpˈɛndᵊnsiz; ɐn ɪɡzˈɪstɪŋ kˈɑndə ənvˈIɹənmᵊnt ɪz nˌɑt ɹəkwˈIəɹd."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 14.76,
+          "speech_end": 20.61,
+          "audible_start": 14.86,
+          "audible_end": 20.43,
+          "duration": 5.85,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.285,
+          "text": "For this Linux example, we checked the downloaded file against the release checksum before running it.",
+          "speech_text": "For this Linux example, we checked the downloaded file against the release checksum before running it.",
+          "phonemes": "fˌɔɹ ðɪs lˈɪnəks ɪɡzˈæmpəl, wi ʧˈɛkt ðə dˈWnlˌOdᵻd fˈIl əɡˈɛnst ðə ɹəlˈis ʧˈɛksˌʌm bəfˈɔɹ ɹˈʌnɪŋ ɪt."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "speech_start": 21.13,
+      "speech_end": 40.489999999999995,
+      "scene_end": 41.01,
+      "duration": 19.88,
+      "text": "On Windows, select the online setup executable. The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation. This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
+      "speech_text": "On Windows, select the online setup executable. The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation. This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
+      "phonemes": "ˌɔn wˈɪndOz, səlˈɛkt ði ˌɑnlˈIn sˈɛTˌʌp ˈɛksəkjˌuTəbᵊl. ðə kˈɜɹənt ɪnstˈɔləɹ sˈɔɹs pɹˌisəlˈɛkts ˌɔTəmˈæTɪk əksˌɛləɹˈAʃən; ɪts ˈɑpʃənᵊl kəmpˈOnənt kæn bi ˌʌntˈɪkt fɔɹ sˌipˌijˈuˌOnli ˌɑpəɹˈAʃən. ðˌɪs kˈɑɹd ɪksplˈAnz ðæt ʧˈYs, bˌʌt ɪt ɪz nˌɑt ɐ wˈɪndOz ˌɪnztəlˈAʃən ɹəkˈɔɹdɪŋ ɔɹ ɐ kəmpˌæTəbˈɪləTi tˈɛst ˌɔn jʊɹ kəmpjˈuTəɹ.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 21.13,
+          "speech_end": 24.369999999999997,
+          "audible_start": 21.23,
+          "audible_end": 24.189999999999998,
+          "duration": 3.24,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.285,
+          "text": "On Windows, select the online setup executable.",
+          "speech_text": "On Windows, select the online setup executable.",
+          "phonemes": "ˌɔn wˈɪndOz, səlˈɛkt ði ˌɑnlˈIn sˈɛTˌʌp ˈɛksəkjˌuTəbᵊl."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 24.49,
+          "speech_end": 33.08,
+          "audible_start": 24.59,
+          "audible_end": 32.9,
+          "duration": 8.59,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.29,
+          "text": "The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation.",
+          "speech_text": "The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation.",
+          "phonemes": "ðə kˈɜɹənt ɪnstˈɔləɹ sˈɔɹs pɹˌisəlˈɛkts ˌɔTəmˈæTɪk əksˌɛləɹˈAʃən; ɪts ˈɑpʃənᵊl kəmpˈOnənt kæn bi ˌʌntˈɪkt fɔɹ sˌipˌijˈuˌOnli ˌɑpəɹˈAʃən."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 33.2,
+          "speech_end": 40.489999999999995,
+          "audible_start": 33.3,
+          "audible_end": 40.31,
+          "duration": 7.29,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.31,
+          "text": "This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
+          "speech_text": "This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
+          "phonemes": "ðˌɪs kˈɑɹd ɪksplˈAnz ðæt ʧˈYs, bˌʌt ɪt ɪz nˌɑt ɐ wˈɪndOz ˌɪnztəlˈAʃən ɹəkˈɔɹdɪŋ ɔɹ ɐ kəmpˌæTəbˈɪləTi tˈɛst ˌɔn jʊɹ kəmpjˈuTəɹ."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "speech_start": 41.01,
+      "speech_end": 60.23,
+      "scene_end": 60.75,
+      "duration": 19.740000000000002,
+      "text": "On macOS, select the universal online package for Intel and Apple silicon. The app launcher starts per-user setup if its runtime is missing. Verify the official source before approving security prompts, and allow time for downloads. This is source-reviewed guidance, not an executed macOS installation.",
+      "speech_text": "On [macOS](/mˈækOˌɛs/), select the universal online package for Intel and Apple silicon. The app launcher starts per-user setup if its runtime is missing. Verify the official source before approving security prompts, and allow time for downloads. This is source-reviewed guidance, not an executed [macOS](/mˈækOˌɛs/) installation.",
+      "phonemes": "ˌɔn mˈækOˌɛs, səlˈɛkt ðə jˌunəvˈɜɹsᵊl ˌɑnlˈIn pˈækɪʤ fɔɹ ˈɪntˌɛl ænd ˈæpᵊl sˈɪləkˌɑn. ði ˈæp lˈɔnʧəɹ stˈɑɹts pɜɹjˈuzəɹ sˈɛTˌʌp ɪf ɪts ɹˈʌntIm ɪz mˈɪsɪŋ. vˈɛɹəfˌI ði əfˈɪʃᵊl sˈɔɹs bəfˈɔɹ əpɹˈuvɪŋ səkjˈʊɹəTi pɹˈɑmpts, ænd əlˈW tˈIm fɔɹ dˈWnlˌOdz. ðˌɪs ɪz sˌɔɹsɹəvjˈud ɡˈIdəns, nˌɑt ɐn ˈɛksəkjˌuTᵻd mˈækOˌɛs ˌɪnztəlˈAʃən.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 41.01,
+          "speech_end": 46.19,
+          "audible_start": 41.11,
+          "audible_end": 46.01,
+          "duration": 5.18,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.23,
+          "trimmed_tail": 0.29,
+          "text": "On macOS, select the universal online package for Intel and Apple silicon.",
+          "speech_text": "On [macOS](/mˈækOˌɛs/), select the universal online package for Intel and Apple silicon.",
+          "phonemes": "ˌɔn mˈækOˌɛs, səlˈɛkt ðə jˌunəvˈɜɹsᵊl ˌɑnlˈIn pˈækɪʤ fɔɹ ˈɪntˌɛl ænd ˈæpᵊl sˈɪləkˌɑn."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 46.309999999999995,
+          "speech_end": 50.239999999999995,
+          "audible_start": 46.41,
+          "audible_end": 50.06,
+          "duration": 3.93,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "The app launcher starts per-user setup if its runtime is missing.",
+          "speech_text": "The app launcher starts per-user setup if its runtime is missing.",
+          "phonemes": "ði ˈæp lˈɔnʧəɹ stˈɑɹts pɜɹjˈuzəɹ sˈɛTˌʌp ɪf ɪts ɹˈʌntIm ɪz mˈɪsɪŋ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 50.36,
+          "speech_end": 55.765,
+          "audible_start": 50.459999999999994,
+          "audible_end": 55.584999999999994,
+          "duration": 5.405,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.205,
+          "trimmed_tail": 0.265,
+          "text": "Verify the official source before approving security prompts, and allow time for downloads.",
+          "speech_text": "Verify the official source before approving security prompts, and allow time for downloads.",
+          "phonemes": "vˈɛɹəfˌI ði əfˈɪʃᵊl sˈɔɹs bəfˈɔɹ əpɹˈuvɪŋ səkjˈʊɹəTi pɹˈɑmpts, ænd əlˈW tˈIm fɔɹ dˈWnlˌOdz."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 55.885,
+          "speech_end": 60.23,
+          "audible_start": 55.985,
+          "audible_end": 60.05,
+          "duration": 4.345,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.305,
+          "text": "This is source-reviewed guidance, not an executed macOS installation.",
+          "speech_text": "This is source-reviewed guidance, not an executed [macOS](/mˈækOˌɛs/) installation.",
+          "phonemes": "ðˌɪs ɪz sˌɔɹsɹəvjˈud ɡˈIdəns, nˌɑt ɐn ˈɛksəkjˌuTᵻd mˈækOˌɛs ˌɪnztəlˈAʃən."
+        }
+      ]
+    },
+    {
+      "scene": 4,
+      "speech_start": 60.75,
+      "speech_end": 82.14,
+      "scene_end": 82.66,
+      "duration": 21.909999999999997,
+      "text": "On Linux, make the verified download executable and run it from its folder. Automatic accelerator selection is now the default; request the CPU backend explicitly if that is what you need. Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
+      "speech_text": "On Linux, make the verified download executable and run it from its folder. Automatic accelerator selection is now the default; request the CPU back end explicitly if that is what you need. Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
+      "phonemes": "ˌɔn lˈɪnəks, mˌAk ðə vˈɛɹᵻfˌId dˈWnlˌOd ˈɛksəkjˌuTəbᵊl ænd ɹˈʌn ɪt fɹʌm ɪts fˈOldəɹ. ˌɔTəmˈæTɪk əksˈɛləɹˌATəɹ səlˈɛkʃən ɪz nˈW ðə dəfˈɔlt; ɹəkwˈɛst ðə sˌipˌijˈu bˈæk ˈɛnd ɪksplˈɪsətli ɪf ðˈæt ɪz wˌʌt ju nˈid. ˌWəɹ ˈIsəlˌATᵻd ɹˈʌn ɹijˈuzd ɪɡzˈɪstɪŋ sˈɪstəm lˈIbɹˌɛɹiz ænd jˈuzd pɹˈIvət pˈæðz, sˌO ɪt dˈɪd nˌɑt dˈɛmənstɹˌAt ɪnstˈɔlɪŋ sˈɪstəm dəpˈɛndᵊnsiz.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 60.75,
+          "speech_end": 65.355,
+          "audible_start": 60.85,
+          "audible_end": 65.175,
+          "duration": 4.605,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.295,
+          "text": "On Linux, make the verified download executable and run it from its folder.",
+          "speech_text": "On Linux, make the verified download executable and run it from its folder.",
+          "phonemes": "ˌɔn lˈɪnəks, mˌAk ðə vˈɛɹᵻfˌId dˈWnlˌOd ˈɛksəkjˌuTəbᵊl ænd ɹˈʌn ɪt fɹʌm ɪts fˈOldəɹ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 65.475,
+          "speech_end": 73.175,
+          "audible_start": 65.575,
+          "audible_end": 72.995,
+          "duration": 7.7,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.29,
+          "text": "Automatic accelerator selection is now the default; request the CPU backend explicitly if that is what you need.",
+          "speech_text": "Automatic accelerator selection is now the default; request the CPU back end explicitly if that is what you need.",
+          "phonemes": "ˌɔTəmˈæTɪk əksˈɛləɹˌATəɹ səlˈɛkʃən ɪz nˈW ðə dəfˈɔlt; ɹəkwˈɛst ðə sˌipˌijˈu bˈæk ˈɛnd ɪksplˈɪsətli ɪf ðˈæt ɪz wˌʌt ju nˈid."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 73.295,
+          "speech_end": 82.14,
+          "audible_start": 73.395,
+          "audible_end": 81.96000000000001,
+          "duration": 8.845,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.295,
+          "text": "Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
+          "speech_text": "Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
+          "phonemes": "ˌWəɹ ˈIsəlˌATᵻd ɹˈʌn ɹijˈuzd ɪɡzˈɪstɪŋ sˈɪstəm lˈIbɹˌɛɹiz ænd jˈuzd pɹˈIvət pˈæðz, sˌO ɪt dˈɪd nˌɑt dˈɛmənstɹˌAt ɪnstˈɔlɪŋ sˈɪstəm dəpˈɛndᵊnsiz."
+        }
+      ]
+    },
+    {
+      "scene": 5,
+      "speech_start": 82.66,
+      "speech_end": 101.46,
+      "scene_end": 101.97999999999999,
+      "duration": 19.319999999999993,
+      "text": "Read the actual install profile rather than inferring the backend from a successful launch. Here the request was auto and the selected backend is CUDA on NVIDIA hardware. The installed Torch build is CUDA thirteen point two. This identifies the selection; it is not a GPU speed benchmark.",
+      "speech_text": "Read the actual install profile rather than inferring the back end from a successful launch. Here the request was auto and the selected back end is [CUDA](/kˈudə/) on NVIDIA hardware. The installed Torch build is [CUDA](/kˈuːdᵊ/) thirteen point two. This identifies the selection; it is not a GPU speed benchmark.",
+      "phonemes": "ɹˈid ði ˈækʧəwəl ɪnstˈɔl pɹˈOfˌIl ɹˈæðəɹ ðən ɪnfˈɜɹɪŋ ðə bˈæk ˈɛnd fɹʌm ɐ səksˈɛsfᵊl lˈɔnʧ. hˈɪɹ ðə ɹəkwˈɛst wʌz ˈɔTO ænd ðə səlˈɛktᵻd bˈæk ˈɛnd ɪz kˈudə ˌɔn ɛnvˈɪdiə hˈɑɹdwˌɛɹ. ði ɪnstˈɔld tˈɔɹʧ bˈɪld ɪz kˈuːdᵊ θˌɜɹtˈin pˈYnt tˈu. ðˌɪs IdˈɛntəfˌIz ðə səlˈɛkʃən; ɪt ɪz nˌɑt ɐ ʤˌipˌijˈu spˈid bˈɛnʧmˌɑɹk.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 82.66,
+          "speech_end": 88.46,
+          "audible_start": 82.75999999999999,
+          "audible_end": 88.28,
+          "duration": 5.8,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.225,
+          "trimmed_tail": 0.275,
+          "text": "Read the actual install profile rather than inferring the backend from a successful launch.",
+          "speech_text": "Read the actual install profile rather than inferring the back end from a successful launch.",
+          "phonemes": "ɹˈid ði ˈækʧəwəl ɪnstˈɔl pɹˈOfˌIl ɹˈæðəɹ ðən ɪnfˈɜɹɪŋ ðə bˈæk ˈɛnd fɹʌm ɐ səksˈɛsfᵊl lˈɔnʧ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 88.58,
+          "speech_end": 93.59,
+          "audible_start": 88.67999999999999,
+          "audible_end": 93.41,
+          "duration": 5.01,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.18,
+          "trimmed_tail": 0.285,
+          "text": "Here the request was auto and the selected backend is CUDA on NVIDIA hardware.",
+          "speech_text": "Here the request was auto and the selected back end is [CUDA](/kˈudə/) on NVIDIA hardware.",
+          "phonemes": "hˈɪɹ ðə ɹəkwˈɛst wʌz ˈɔTO ænd ðə səlˈɛktᵻd bˈæk ˈɛnd ɪz kˈudə ˌɔn ɛnvˈɪdiə hˈɑɹdwˌɛɹ."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 93.71,
+          "speech_end": 96.94,
+          "audible_start": 93.81,
+          "audible_end": 96.75999999999999,
+          "duration": 3.23,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "The installed Torch build is CUDA thirteen point two.",
+          "speech_text": "The installed Torch build is [CUDA](/kˈuːdᵊ/) thirteen point two.",
+          "phonemes": "ði ɪnstˈɔld tˈɔɹʧ bˈɪld ɪz kˈuːdᵊ θˌɜɹtˈin pˈYnt tˈu."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 97.06,
+          "speech_end": 101.46,
+          "audible_start": 97.16,
+          "audible_end": 101.28,
+          "duration": 4.4,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.24,
+          "text": "This identifies the selection; it is not a GPU speed benchmark.",
+          "speech_text": "This identifies the selection; it is not a GPU speed benchmark.",
+          "phonemes": "ðˌɪs IdˈɛntəfˌIz ðə səlˈɛkʃən; ɪt ɪz nˌɑt ɐ ʤˌipˌijˈu spˈid bˈɛnʧmˌɑɹk."
+        }
+      ]
+    },
+    {
+      "scene": 6,
+      "speech_start": 101.97999999999999,
+      "speech_end": 120.44999999999999,
+      "scene_end": 120.96999999999998,
+      "duration": 18.989999999999995,
+      "text": "Check the installed package version, Qt import and package path. This private runtime contains spaCR one point five point zero point five. Its files come from the installation, not an editable source checkout. Successful imports do not validate every analysis or optional file format.",
+      "speech_text": "Check the installed package version, Q T import and package path. This private runtime contains spacer one point five point zero point five. Its files come from the installation, not an editable source checkout. Successful imports do not validate every analysis or optional file format.",
+      "phonemes": "ʧˈɛk ði ɪnstˈɔld pˈækɪʤ vˈɜɹʒən, kjˈu tˈi ˈɪmpˌɔɹt ænd pˈækɪʤ pˈæθ. ðˌɪs pɹˈIvət ɹˈʌntIm kəntˈAnz spˈAsəɹ wˈʌn pˈYnt fˈIv pˈYnt zˈɪɹO pˈYnt fˈIv. ˌɪts fˈIlz kˈʌm fɹʌm ði ˌɪnztəlˈAʃən, nˌɑt ɐn ˈɛdəTəbᵊl sˈɔɹs ʧˈɛkˌWt. səksˈɛsfᵊl ˈɪmpˌɔɹts dˈu nˌɑt vˈælɪdˌAt ˈɛvəɹi ənˈæləsɪs ɔɹ ˈɑpʃənᵊl fˈIl fˈɔɹmˌæt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 101.97999999999999,
+          "speech_end": 106.11999999999999,
+          "audible_start": 102.07999999999998,
+          "audible_end": 105.93999999999998,
+          "duration": 4.14,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.24,
+          "text": "Check the installed package version, Qt import and package path.",
+          "speech_text": "Check the installed package version, Q T import and package path.",
+          "phonemes": "ʧˈɛk ði ɪnstˈɔld pˈækɪʤ vˈɜɹʒən, kjˈu tˈi ˈɪmpˌɔɹt ænd pˈækɪʤ pˈæθ."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 106.24,
+          "speech_end": 110.90499999999999,
+          "audible_start": 106.33999999999999,
+          "audible_end": 110.725,
+          "duration": 4.665,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.265,
+          "text": "This private runtime contains spaCR one point five point zero point five.",
+          "speech_text": "This private runtime contains spacer one point five point zero point five.",
+          "phonemes": "ðˌɪs pɹˈIvət ɹˈʌntIm kəntˈAnz spˈAsəɹ wˈʌn pˈYnt fˈIv pˈYnt zˈɪɹO pˈYnt fˈIv."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 111.02499999999999,
+          "speech_end": 115.07,
+          "audible_start": 111.12499999999999,
+          "audible_end": 114.88999999999999,
+          "duration": 4.045,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.265,
+          "text": "Its files come from the installation, not an editable source checkout.",
+          "speech_text": "Its files come from the installation, not an editable source checkout.",
+          "phonemes": "ˌɪts fˈIlz kˈʌm fɹʌm ði ˌɪnztəlˈAʃən, nˌɑt ɐn ˈɛdəTəbᵊl sˈɔɹs ʧˈɛkˌWt."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 115.19,
+          "speech_end": 120.44999999999999,
+          "audible_start": 115.28999999999999,
+          "audible_end": 120.26999999999998,
+          "duration": 5.26,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.175,
+          "trimmed_tail": 0.265,
+          "text": "Successful imports do not validate every analysis or optional file format.",
+          "speech_text": "Successful imports do not validate every analysis or optional file format.",
+          "phonemes": "səksˈɛsfᵊl ˈɪmpˌɔɹts dˈu nˌɑt vˈælɪdˌAt ˈɛvəɹi ənˈæləsɪs ɔɹ ˈɑpʃənᵊl fˈIl fˈɔɹmˌæt."
+        }
+      ]
+    },
+    {
+      "scene": 7,
+      "speech_start": 120.96999999999998,
+      "speech_end": 141.88,
+      "scene_end": 142.4,
+      "duration": 21.43000000000002,
+      "text": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup. Reports would be public, so read the explanation. This recording rejects the dialog with Escape, equivalent to Skip, keep all off. No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
+      "speech_text": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup. Reports would be public, so read the explanation. This recording rejects the dialog with Escape, equivalent to Skip, keep all off. No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
+      "phonemes": "ðə ɹˈiᵊl fˈɜɹst lˈɔnʧ ˈæsks əbˈWt ˈɑpʃənᵊl dˌIəɡnˈɑstɪk ʃˈɛɹɪŋ, pˈʌblɪk ˈɪʃu ɹəpˈɔɹts ænd əkˈWnt sˈɛTˌʌp. ɹəpˈɔɹts wʊd bi pˈʌblɪk, sˌO ɹˈid ði ˌɛksplənˈAʃən. ðˌɪs ɹəkˈɔɹdɪŋ ɹəʤˈɛkts ðə dˈIəlˌɔɡ wɪð əskˈAp, əkwˈɪvᵊlənt tə skˈɪp, kˈip ˈɔl ˈɔf. nˈO əkˈWnts ɑɹ kənˈɛktᵻd, ænd ðə pɹˈIvət pɹˈɛfəɹənsᵻz kənfˈɜɹm ðæt ʃˈɛɹɪŋ ænd ˈɪʃu ˈækʃənz ɹəmˈAn ˈɔf.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 120.96999999999998,
+          "speech_end": 127.39999999999998,
+          "audible_start": 121.06999999999998,
+          "audible_end": 127.21999999999998,
+          "duration": 6.43,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.25,
+          "text": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup.",
+          "speech_text": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup.",
+          "phonemes": "ðə ɹˈiᵊl fˈɜɹst lˈɔnʧ ˈæsks əbˈWt ˈɑpʃənᵊl dˌIəɡnˈɑstɪk ʃˈɛɹɪŋ, pˈʌblɪk ˈɪʃu ɹəpˈɔɹts ænd əkˈWnt sˈɛTˌʌp."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 127.51999999999998,
+          "speech_end": 130.635,
+          "audible_start": 127.61999999999999,
+          "audible_end": 130.45499999999998,
+          "duration": 3.115,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.285,
+          "text": "Reports would be public, so read the explanation.",
+          "speech_text": "Reports would be public, so read the explanation.",
+          "phonemes": "ɹəpˈɔɹts wʊd bi pˈʌblɪk, sˌO ɹˈid ði ˌɛksplənˈAʃən."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 130.755,
+          "speech_end": 135.63,
+          "audible_start": 130.855,
+          "audible_end": 135.45,
+          "duration": 4.875,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.235,
+          "text": "This recording rejects the dialog with Escape, equivalent to Skip, keep all off.",
+          "speech_text": "This recording rejects the dialog with Escape, equivalent to Skip, keep all off.",
+          "phonemes": "ðˌɪs ɹəkˈɔɹdɪŋ ɹəʤˈɛkts ðə dˈIəlˌɔɡ wɪð əskˈAp, əkwˈɪvᵊlənt tə skˈɪp, kˈip ˈɔl ˈɔf."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 135.74999999999997,
+          "speech_end": 141.88,
+          "audible_start": 135.85,
+          "audible_end": 141.7,
+          "duration": 6.13,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.25,
+          "text": "No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
+          "speech_text": "No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
+          "phonemes": "nˈO əkˈWnts ɑɹ kənˈɛktᵻd, ænd ðə pɹˈIvət pɹˈɛfəɹənsᵻz kənfˈɜɹm ðæt ʃˈɛɹɪŋ ænd ˈɪʃu ˈækʃənz ɹəmˈAn ˈɔf."
+        }
+      ]
+    },
+    {
+      "scene": 8,
+      "speech_start": 142.4,
+      "speech_end": 159.625,
+      "scene_end": 160.145,
+      "duration": 17.745000000000005,
+      "text": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules. The window closes normally too. Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
+      "speech_text": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules. The window closes normally too. Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
+      "phonemes": "ˈæftəɹ ðˈæt ʧˈYs, ði ɪnstˈɔld ˌæpləkˈAʃən ˈOpᵊnz ɪts kˈɜɹənt hˈOm wɪð twˌɛntiwˈʌn tˈIlz ænd sˈɪks kˈɔɹ mˈɑʤulz. ðə wˈɪndO klˈOzᵻz nˈɔɹməli tˈu. kəntˈɪnju wɪð ðə hˈOm lˈɛsən tə lˈɜɹn ðə nˈɛstᵻd wˈɜɹkflˌOz ænd ðɛɹ ɪɡzˈæmpəl dˈATə; ˈOpᵊnɪŋ hˈOm əlˈOn ɪz nˌɑt ɐn ənˈæləsɪs tˈɛst.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 142.4,
+          "speech_end": 149.24,
+          "audible_start": 142.5,
+          "audible_end": 149.06,
+          "duration": 6.84,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.275,
+          "text": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules.",
+          "speech_text": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules.",
+          "phonemes": "ˈæftəɹ ðˈæt ʧˈYs, ði ɪnstˈɔld ˌæpləkˈAʃən ˈOpᵊnz ɪts kˈɜɹənt hˈOm wɪð twˌɛntiwˈʌn tˈIlz ænd sˈɪks kˈɔɹ mˈɑʤulz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 149.36,
+          "speech_end": 151.29500000000002,
+          "audible_start": 149.46,
+          "audible_end": 151.115,
+          "duration": 1.935,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.275,
+          "text": "The window closes normally too.",
+          "speech_text": "The window closes normally too.",
+          "phonemes": "ðə wˈɪndO klˈOzᵻz nˈɔɹməli tˈu."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 151.41500000000002,
+          "speech_end": 159.625,
+          "audible_start": 151.51500000000001,
+          "audible_end": 159.445,
+          "duration": 8.21,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.25,
+          "text": "Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
+          "speech_text": "Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
+          "phonemes": "kəntˈɪnju wɪð ðə hˈOm lˈɛsən tə lˈɜɹn ðə nˈɛstᵻd wˈɜɹkflˌOz ænd ðɛɹ ɪɡzˈæmpəl dˈATə; ˈOpᵊnɪŋ hˈOm əlˈOn ɪz nˌɑt ɐn ənˈæləsɪs tˈɛst."
+        }
+      ]
+    },
+    {
+      "scene": 9,
+      "speech_start": 160.145,
+      "speech_end": 181.19500000000002,
+      "scene_end": 181.71500000000003,
+      "duration": 21.57000000000002,
+      "text": "Run spacr-doctor from the installed runtime and read warnings as well as passes. Here it confirms the installer backend but warns about a missing optional CZI dependency. This run skipped GPU allocation, database and settings checks. A skipped check is not a pass; assess the suggested repair before changing the environment.",
+      "speech_text": "Run spacer doctor from the installed runtime and read warnings as well as passes. Here it confirms the installer back end but warns about a missing optional CZI dependency. This run skipped GPU allocation, database and settings checks. A skipped check is not a pass; assess the suggested repair before changing the environment.",
+      "phonemes": "ɹˈʌn spˈAsəɹ dˈɑktəɹ fɹʌm ði ɪnstˈɔld ɹˈʌntIm ænd ɹˈid wˈɔɹnɪŋz æz wˈɛl æz pˈæsᵻz. hˈɪɹ ɪt kənfˈɜɹmz ði ɪnstˈɔləɹ bˈæk ˈɛnd bˌʌt wˈɔɹnz əbˈWt ɐ mˈɪsɪŋ ˈɑpʃənᵊl sˌizˌiˈI dəpˈɛndᵊnsi. ðˌɪs ɹˈʌn skˈɪpt ʤˌipˌijˈu ˌæləkˈAʃən, dˈæTəbˌAs ænd sˈɛTɪŋz ʧˈɛks. ɐ skˈɪpt ʧˈɛk ɪz nˌɑt ɐ pˈæs; əsˈɛs ðə səɡʤˈɛstᵻd ɹəpˈɛɹ bəfˈɔɹ ʧˈAnʤɪŋ ði ənvˈIɹənmᵊnt.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 160.145,
+          "speech_end": 165.285,
+          "audible_start": 160.245,
+          "audible_end": 165.10500000000002,
+          "duration": 5.14,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.235,
+          "trimmed_tail": 0.275,
+          "text": "Run spacr-doctor from the installed runtime and read warnings as well as passes.",
+          "speech_text": "Run spacer doctor from the installed runtime and read warnings as well as passes.",
+          "phonemes": "ɹˈʌn spˈAsəɹ dˈɑktəɹ fɹʌm ði ɪnstˈɔld ɹˈʌntIm ænd ɹˈid wˈɔɹnɪŋz æz wˈɛl æz pˈæsᵻz."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 165.405,
+          "speech_end": 171.32500000000002,
+          "audible_start": 165.50500000000002,
+          "audible_end": 171.145,
+          "duration": 5.92,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.19,
+          "trimmed_tail": 0.315,
+          "text": "Here it confirms the installer backend but warns about a missing optional CZI dependency.",
+          "speech_text": "Here it confirms the installer back end but warns about a missing optional CZI dependency.",
+          "phonemes": "hˈɪɹ ɪt kənfˈɜɹmz ði ɪnstˈɔləɹ bˈæk ˈɛnd bˌʌt wˈɔɹnz əbˈWt ɐ mˈɪsɪŋ ˈɑpʃənᵊl sˌizˌiˈI dəpˈɛndᵊnsi."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 171.44500000000002,
+          "speech_end": 175.56,
+          "audible_start": 171.54500000000002,
+          "audible_end": 175.38,
+          "duration": 4.115,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.22,
+          "trimmed_tail": 0.24,
+          "text": "This run skipped GPU allocation, database and settings checks.",
+          "speech_text": "This run skipped GPU allocation, database and settings checks.",
+          "phonemes": "ðˌɪs ɹˈʌn skˈɪpt ʤˌipˌijˈu ˌæləkˈAʃən, dˈæTəbˌAs ænd sˈɛTɪŋz ʧˈɛks."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 175.68,
+          "speech_end": 181.19500000000002,
+          "audible_start": 175.78,
+          "audible_end": 181.01500000000001,
+          "duration": 5.515,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.26,
+          "text": "A skipped check is not a pass; assess the suggested repair before changing the environment.",
+          "speech_text": "A skipped check is not a pass; assess the suggested repair before changing the environment.",
+          "phonemes": "ɐ skˈɪpt ʧˈɛk ɪz nˌɑt ɐ pˈæs; əsˈɛs ðə səɡʤˈɛstᵻd ɹəpˈɛɹ bəfˈɔɹ ʧˈAnʤɪŋ ði ənvˈIɹənmᵊnt."
+        }
+      ]
+    },
+    {
+      "scene": 10,
+      "speech_start": 181.71500000000003,
+      "speech_end": 202.77500000000003,
+      "scene_end": 203.29500000000004,
+      "duration": 21.580000000000013,
+      "text": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem. Review logs for private information before sharing them. Record the version used for each analysis, and treat updates deliberately. The pip and Conda lessons describe the separate environment-based installation routes.",
+      "speech_text": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem. Review logs for private information before sharing them. Record the version used for each analysis, and treat updates deliberately. The pip and Conda lessons describe the separate environment-based installation routes.",
+      "phonemes": "kˈip ɪnstˈɔl dˈɑt lˈɔɡ ænd ɪnstˌɔlpɹˈOfˌIl dˈɑt ʤˈAsˈɑn fɹʌm ðə ʧˈOzᵊn ˌɪnztəlˈAʃən dəɹˈɛktəɹi wˌɛn dˌIəɡnˈOsɪŋ ɐ pɹˈɑbləm. ɹəvjˈu lˈɔɡz fɔɹ pɹˈIvət ˌɪnfəɹmˈAʃən bəfˈɔɹ ʃˈɛɹɪŋ ðˌɛm. ɹəkˈɔɹd ðə vˈɜɹʒən jˈuzd fɔɹ ˈiʧ ənˈæləsɪs, ænd tɹˈit ˈʌpdˌAts dəlˈɪbəɹətli. ðə pˈɪp ænd kˈɑndə lˈɛsənz dəskɹˈIb ðə sˈɛpəɹət ənvˈIɹənmᵊntbˌAst ˌɪnztəlˈAʃən ɹˈuts.",
+      "authored_hold_after": 0.7,
+      "hold_after": 0.52,
+      "base_speed": 1.0,
+      "speed_multiplier": 1.0,
+      "effective_speed": 1.0,
+      "sentences": [
+        {
+          "sentence": 1,
+          "speech_start": 181.71500000000003,
+          "speech_end": 189.48000000000002,
+          "audible_start": 181.81500000000003,
+          "audible_end": 189.30000000000004,
+          "duration": 7.765,
+          "gap_from_previous": null,
+          "trimmed_lead": 0.2,
+          "trimmed_tail": 0.31,
+          "text": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem.",
+          "speech_text": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem.",
+          "phonemes": "kˈip ɪnstˈɔl dˈɑt lˈɔɡ ænd ɪnstˌɔlpɹˈOfˌIl dˈɑt ʤˈAsˈɑn fɹʌm ðə ʧˈOzᵊn ˌɪnztəlˈAʃən dəɹˈɛktəɹi wˌɛn dˌIəɡnˈOsɪŋ ɐ pɹˈɑbləm."
+        },
+        {
+          "sentence": 2,
+          "speech_start": 189.60000000000002,
+          "speech_end": 192.87500000000003,
+          "audible_start": 189.70000000000005,
+          "audible_end": 192.69500000000002,
+          "duration": 3.275,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.215,
+          "trimmed_tail": 0.31,
+          "text": "Review logs for private information before sharing them.",
+          "speech_text": "Review logs for private information before sharing them.",
+          "phonemes": "ɹəvjˈu lˈɔɡz fɔɹ pɹˈIvət ˌɪnfəɹmˈAʃən bəfˈɔɹ ʃˈɛɹɪŋ ðˌɛm."
+        },
+        {
+          "sentence": 3,
+          "speech_start": 192.99500000000003,
+          "speech_end": 197.42500000000004,
+          "audible_start": 193.09500000000003,
+          "audible_end": 197.24500000000003,
+          "duration": 4.43,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.21,
+          "trimmed_tail": 0.285,
+          "text": "Record the version used for each analysis, and treat updates deliberately.",
+          "speech_text": "Record the version used for each analysis, and treat updates deliberately.",
+          "phonemes": "ɹəkˈɔɹd ðə vˈɜɹʒən jˈuzd fɔɹ ˈiʧ ənˈæləsɪs, ænd tɹˈit ˈʌpdˌAts dəlˈɪbəɹətli."
+        },
+        {
+          "sentence": 4,
+          "speech_start": 197.54500000000004,
+          "speech_end": 202.77500000000003,
+          "audible_start": 197.64500000000004,
+          "audible_end": 202.59500000000003,
+          "duration": 5.23,
+          "gap_from_previous": 0.4,
+          "trimmed_lead": 0.195,
+          "trimmed_tail": 0.275,
+          "text": "The pip and Conda lessons describe the separate environment-based installation routes.",
+          "speech_text": "The pip and Conda lessons describe the separate environment-based installation routes.",
+          "phonemes": "ðə pˈɪp ænd kˈɑndə lˈɛsənz dəskɹˈIb ðə sˈɛpəɹət ənvˈIɹənmᵊntbˌAst ˌɪnztəlˈAʃən ɹˈuts."
+        }
+      ]
+    }
+  ]
+}

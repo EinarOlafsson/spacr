@@ -1,0 +1,48 @@
+{
+  "lesson": "12_map_barcodes",
+  "stage": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/map-refresh-kpub0w",
+  "gui_source_commit": "6e72b16110b5654875a3aeac7656d346512ae333",
+  "version": "1.5.0.7",
+  "capture": "captures/map_verified",
+  "scene_count": 13,
+  "canonical_english_sha256": "fb39d2e0d47dadd275e617a1de465e547e44c298c7e1df9fd7efe98ae16edec3",
+  "dataset": "Downloaded SRR33531217, first 10,000 complete paired records",
+  "references": "Maintainer's primers_3 column/row and guide tables, not older bundled defaults",
+  "gui": {
+    "actual_live_search_recorded": true,
+    "actual_apply_button_recorded": true,
+    "search_did_not_change_settings_before_apply": true,
+    "read_view_recorded": true,
+    "separate_reversed_reference_selection_recorded": true,
+    "extracted_rows": 8611,
+    "mapped_reads": 7657,
+    "count_rows": 4099,
+    "count_sha256": "f8d6e3615b58cb824873338f252bc555389be4ba8bd9619ea2e9a2e1cfb3d709",
+    "annotated_reads_sha256": "d05ec949ff0c8825cdeafa274f50e68152b241c2092d055988935818310f13f1",
+    "qc_sha256": "978b8a1d5ea198379c2e7416af2b02a0f966f526e544fae3f9c0e2d0753f3579"
+  },
+  "api": {
+    "barcode_set": ["column", "grna"],
+    "requested_pairs": 1000,
+    "extracted_rows": 869,
+    "mapped_reads": 793,
+    "count_rows": 535,
+    "actual_terminal_and_figure_recorded": true,
+    "per_well_count_claimed": false,
+    "gui_barcode_set_editor_claimed": false
+  },
+  "checks": {
+    "every_saved_count_reconciled": true,
+    "every_saved_reference_assignment_reconciled": true,
+    "original_inputs_unchanged": true,
+    "reference_identity_guard_mutant_rejected": true,
+    "count_reconciliation_guard_mutant_rejected": true
+  },
+  "app_source_modified": false,
+  "ai_prompt_submitted": false,
+  "ai_response_generated": false,
+  "all_voices_complete": false,
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false
+}

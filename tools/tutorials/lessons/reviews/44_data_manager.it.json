@@ -1,0 +1,36 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "e442156c3d5154963bc72ce01be337bb0f19806767d7ebe8eae9e9572eef06ff",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Data Manager: esaminare l’uso, fare pulizia e archiviare",
+  "description": "Esamina lo spazio occupato dal progetto, visualizza in anteprima un piano di pulizia e sposta un progetto in una destinazione di archivio.",
+  "objectives": [
+    "Esaminare l’uso del disco del progetto.",
+    "Esaminare e applicare un piano di pulizia.",
+    "Spostare un progetto archiviato e analizzarlo di nuovo."
+  ],
+  "prerequisite": "Usa un progetto spaCR completato e conserva un backup indipendente prima della pulizia. L’esempio usa una copia del progetto prodotto da External Masks.",
+  "scenes": [
+    "Apri Help e poi Data manager. Scegli un progetto completato per esaminarne lo spazio occupato e pianificare pulizia o archiviazione.",
+    "Fai clic su Choose project e seleziona la radice del progetto. Leggi Usage per file, spazio su disco e artefatti registrati.",
+    "Apri Prune e seleziona i tipi di artefatti da considerare. Lascia deselezionati i database delle misure e i pesi dei modelli se vuoi conservarli, poi fai clic su Show what can be deleted.",
+    "Esamina i file proposti, lo spazio risparmiato e le informazioni di ripristino. L’esempio seleziona la cartella dei ritagli degli oggetti. Conserva gli input e le impostazioni necessari per rigenerare ciò che elimini.",
+    "Fai clic su Delete per esaminare l’elenco finale dei file. L’eliminazione non si può annullare, quindi controlla i percorsi e il backup prima di confermare il piano.",
+    "Usa Cancel se vuoi conservare i file o rivedere la selezione. Confermare l’elenco abilita l’azione finale Delete.",
+    "Conferma Delete quando il piano è corretto. Leggi nel risultato il numero di file rimossi e lo spazio recuperato.",
+    "Esamina l’analisi Usage aggiornata. Gli artefatti rimossi possono restare elencati come mancanti con la loro ricetta registrata; rigenerali con il modulo appropriato quando serve.",
+    "Apri Archive e scegli una destinazione vuota fuori dal progetto di origine. Fai clic su Show what would move ed esamina entrambi i percorsi.",
+    "Fai clic su Move per esaminare la conferma. Archive sposta il progetto, quindi fai prima qualsiasi backup separato ti serva.",
+    "Conferma Yes per spostare il progetto. Conserva il manifesto nella destinazione e il registro di archiviazione lasciato nella posizione originale.",
+    "Seleziona la destinazione come progetto e analizzala di nuovo. Controlla i file spostati e aggiorna i riferimenti esterni che puntano ancora alla vecchia posizione.",
+    "Usa Database Browser per esaminare le tabelle delle misure, Report per creare un riepilogo del progetto e Data Manager per la manutenzione dello spazio. Conserva i registri di archiviazione con la documentazione del progetto."
+  ]
+}

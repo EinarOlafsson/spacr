@@ -1,0 +1,32 @@
+{
+  "lesson": "62_feature_dictionary",
+  "english_sha256": "a4a0aa02083493fc8789469c86ef064f9a993896db6d7564c26d3625ca48639f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Feature Dictionary：定義と単位を調べる",
+  "description": "測定名や概念で検索し、定義と単位を読み、役に立つ参照テキストをコピーします。",
+  "objectives": [
+    "名前または概念で定義を見つける。",
+    "概念と物体のフィルターで結果を絞り込む。",
+    "単位と注記を読み、定義をコピーする。"
+  ],
+  "prerequisite": "測定列の名前を用意するか、大きさや強度のような考えから始めます。組み込みの辞書は、プロジェクトを読み込まなくても開けます。",
+  "scenes": [
+    "Helpを開き、Feature Dictionaryを選びます。結果の表やプロットにある測定列の意味を知りたいときに、このウィンドウを使います。",
+    "検索欄にsizeと入力し、結果からAreaを選びます。定義が右側に表示され、入力に合わせて一致する一覧が更新されます。",
+    "概念と物体の種類を選ぶと、定義を絞り込めます。intensityとcellを試してください。広く検索するには、選択欄をAny conceptとAny objectに戻します。",
+    "cell_channel_1_mean_intensityを検索し、Mean intensityを選びます。統計量と単位を読んで、その列が何を表すかを理解します。",
+    "下にスクロールして、Channel、Module、Computed byで詳しい情報を見ます。示された計算関数を、APIリファレンスを調べる手がかりにします。",
+    "cell_areaを調べてUnitを読みます。二次元の測定では面積を、三次元の測定では体積を表します。値を換算する前に、プロジェクトに記録された測定単位を確認します。",
+    "Noteには、すでに物理単位で表された値など、注意点が書かれています。データベースに実際にある列の辞書が必要なときは、Pythonからdescribe_databaseとexport_dictionaryを使います。",
+    "一致する定義がないときは、フィルターを解除し、より広い語か列の正確な名前で試します。独自の特徴量には、それを作ったワークフローの説明が必要な場合があります。",
+    "定義のテキストを選んで、メモにコピーします。プロジェクト専用の辞書ファイルが必要なときはPythonの書き出し関数を使い、表やプロットに戻ります。"
+  ]
+}

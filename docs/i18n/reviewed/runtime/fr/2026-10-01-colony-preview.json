@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Two Codex agents independently reviewed a narrow entity substitution from the existing reviewed plaque status to the colony status. The count, mean area, numeric formats and units are preserved. No new local-model draft was generated or rejected. Standard generator, normalization and quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "4da3cfaf9aaac46387051cf1b43cc7b25fb5d80db0e30b4aa84af01311643901",
+  "related_review": {
+    "path": "docs/i18n/reviewed/runtime/fr/2026-09-25-runtime-debt-messages.json",
+    "source": "{name}: {count} plaques, mean area {area:.0f} px.",
+    "translation": "{name} : {count} plages de lyse, aire moyenne {area:.0f} px.",
+    "entity_substitution": {
+      "from": "plages de lyse",
+      "to": "colonies"
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "{name}: {count} colonies, mean area {area:.0f} px.",
+      "source": "{name}: {count} colonies, mean area {area:.0f} px.",
+      "source_sha256": "83f936a105e536ce2ebc71f38936d30cf564f5c1fa8e30376406e4191e7bf40d",
+      "translation": "{name} : {count} colonies, aire moyenne {area:.0f} px."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-06 America/Detroit",
+  "source_sha256": {
+    "spacr/qt/widgets/timelapse_preview.py": "c5d75c91c9f5f1eaffd9405cc33564d866833ebebae9eb279f1d0a1b3ecc5d02",
+    "spacr/qt/screens/make_masks.py": "2134801f703bf5e13a382027472b2a057c056ba326cd33682d3b37874d9eda96",
+    "spacr/qt/widgets/flow.py": "cb974298adf663d93323528604290406a5356ee8107e32d79d1e1430d9eb7042",
+    "tests/qt/test_data_art_gravity_radius.py": "3dd2aecb4e29fca26e6c2d8deeba8afd12a2a55cec083c71ddd1139dfd3e0ef1",
+    "tests/qt/test_600_popup_layout_and_selection.py": "9456890a756e7ec5d8087f6b902c0f0a3a00a3e5cb8ee6fa2d28be1cb02a550a",
+    "tests/qt/test_the_results_header_wraps_instead_of_overlapping.py": "2697c4b2837093b7d892bbbfd97971ceb95cf239892fb1cab191649c3905203c",
+    "tests/qt/test_fungal_growth_engine.py": "dcf3734ef084e4c9dd64a26cc61d5e8f9d8e3dd667a56b8968ed8c56257a4f8c"
+  },
+  "checks": {
+    "combined_preview_mask_density": "81 passed in 18.41s",
+    "layout_and_shared_flow_neighbors": "190 passed in 12.31s",
+    "fungal_lineage": "9 passed; unchanged adjacent-edge assertions use Python3.9-compatible zip",
+    "fatal_ruff": "passed",
+    "diff_check": "passed"
+  },
+  "scope": [
+    "Preview uses established scaled_for with its actual target widget.",
+    "Missing mask returns before manual identity hashing; valid-mask history preserved.",
+    "Density counts all sampled values and retains strict increasing population and equal shapes.",
+    "QRect right is inclusive; exact-fit flow items no longer wrap one pixel early.",
+    "One-row test reserves actual preferred width, including 20px wider captions; all ordering, parent and alignment assertions retained.",
+    "Narrow windows still wrap; no promise of one row at1600px with every alpha control and arbitrary font."
+  ],
+  "hosted_acceptance": "OPEN; local checks do not establish all-green GitHub"
+}

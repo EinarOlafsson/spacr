@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, ninth pass 2026-09-30: the colony_detector setting label and tooltip (item 542), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "colony_detector",
+      "source": "Colony detector",
+      "source_sha256": "68beea6aa1d0b2ea9eb4f3cc498e2b290aa8cab4fe933d6173b59636693715a4",
+      "translation": "Þyrpingaskynjari"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_detector",
+      "source": "A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
+      "source_sha256": "715e9aa717e6aead1dcdb1df63413b1db968a50e249118e910a1a7570505ae20",
+      "translation": "YOLO-þyrpingaskynjari sem finnur þyrpingarnar í stað þröskuldunar: slóð að checkpoint-skrá eða lykill í Model Zoo. Hann þarf pakkann ultralytics. Skynjunin telur þyrpingar í keðjum og við skálarbrúnina sem þröskuldun sameinar eða missir; skautun, þröskuldur og lágmarksflatarmál eru þá ekki notuð. Autt þýðir þröskuldun. Sjálfgefið None."
+    }
+  ]
+}

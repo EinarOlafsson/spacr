@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "d1967b0bca293303c296238c1f57577e9f8679b4",
+  "scope": "targeted Import-demo coverage, not a passing full test-suite verdict",
+  "source_path": "spacr/qt/import_demo.py",
+  "source_sha256": "ea700fdabb32273ca9331fc43be188e5f8405473883ff49374c6010dd50e3334",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 114,
+    "num_statements": 114,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 34,
+    "num_partial_branches": 0,
+    "covered_branches": 34,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "missing_lines": [],
+  "missing_branches": [],
+  "new_test_file": "tests/qt/test_import_demo_completion.py",
+  "new_tests_passed": 10,
+  "combined_selection": {
+    "files": [
+      "tests/qt/test_import_test_data_chooser.py",
+      "tests/qt/test_import_demo_completion.py"
+    ],
+    "passed": 28,
+    "failed": 1,
+    "failed_node": "tests/qt/test_import_test_data_chooser.py::test_choosing_zeiss_downloads_fills_and_previews",
+    "reason": "spacr.convert._describe_czi reads CziFile.shape, absent in installed czifile 2026.8.16; independently reproduced on an actual pylibCZIrw-written CZI",
+    "present_in_previous_full_fixed_measurement": true
+  },
+  "optional_test_dependencies": {
+    "pylibCZIrw": "6.1.0",
+    "validators": "0.35.0",
+    "installed_in_private_directory": true
+  },
+  "baseline_changed": false,
+  "production_source_changed": false
+}

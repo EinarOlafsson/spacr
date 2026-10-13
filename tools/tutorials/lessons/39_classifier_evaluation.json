@@ -1,0 +1,185 @@
+{
+  "id": "39_classifier_evaluation",
+  "number": 39,
+  "slug": "classifier_evaluation",
+  "title": "Classifier Evaluation: inspect predictions and errors",
+  "series": 3,
+  "app_key": "classifier_evaluation",
+  "section": "Tools",
+  "host_app_key": "classify_merged",
+  "description": "Load a saved evaluation bundle, inspect leakage and confusion counts, and filter predictions for review.",
+  "objectives": [
+    "Load a bundle and review leakage.",
+    "Inspect confusion counts and confidence groups.",
+    "Filter predictions and locate saved figures."
+  ],
+  "example_files": [
+    "REAL_evaluation_known_overlap.zip"
+  ],
+  "prerequisite": "Download and unzip the linked saved-results example. It contains predictions, tables and figures; crops require your matching experiment in Annotate. The example shares wells between training and test data, so use it to learn the inspector rather than estimate independent-well accuracy.",
+  "scenes": [
+    {
+      "visual": "01_classify_host",
+      "narration": "Open Classify, then Classifier Evaluation. Use this inspector to explore a saved evaluation bundle after producing predictions.",
+      "focus": [
+        3510,
+        105,
+        320,
+        80
+      ],
+      "related_lessons": [
+        "41_classify"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_actual_bundle_folder",
+      "narration": "Download and unzip the example below. Click Browse and choose the folder containing evaluation manifest dot json.",
+      "focus": [
+        1563,
+        798,
+        1400,
+        950
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_actual_summary",
+      "narration": "Read Summary for the number of predictions and the recorded class names. The example contains two hundred thirty-four predictions across two classes.",
+      "focus": [
+        475,
+        650,
+        3335,
+        1170
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_actual_leakage_requires_review",
+      "narration": "Open Leakage audit before interpreting accuracy. This example flags wells shared between training and test data. For an independent-well evaluation, prepare a split with separate wells and rerun training and evaluation.",
+      "focus": [
+        475,
+        650,
+        3335,
+        1390
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_confusion_counts",
+      "narration": "Open Confusion matrix. Rows are recorded classes and columns are predictions. The diagonal shows agreement; off-diagonal cells identify disagreements to review.",
+      "focus": [
+        475,
+        600,
+        3335,
+        265
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_error_cell",
+      "narration": "Click a disagreement cell to list its examples. The selected cell contains eleven disagreements, grouped by confidence.",
+      "focus": [
+        475,
+        1090,
+        3335,
+        530
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_actual_confidence_threshold",
+      "narration": "Change Confidence threshold to choose which disagreements enter the high-confidence list. Raising it from zero point seven five to zero point nine five leaves two in the high list and nine in the low list.",
+      "focus": [
+        475,
+        1090,
+        3335,
+        700
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_error_cell",
+      "narration": "Review the selected examples alongside their images and annotations. Use the displayed explanations as prompts for investigation, and check the evidence before changing labels.",
+      "focus": [
+        475,
+        1170,
+        3335,
+        160
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_per_plate",
+      "narration": "Open Per-plate metrics to compare results by plate. This example has one plate; a multi-plate bundle provides separate rows for comparison.",
+      "focus": [
+        475,
+        595,
+        3335,
+        205
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_actual_calibration_table",
+      "narration": "Open Calibration to compare predicted probability with observed class frequency. Check each bin’s count when interpreting the differences.",
+      "focus": [
+        475,
+        595,
+        3335,
+        450
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_actual_prediction_filter",
+      "narration": "Open Predictions and type a sample or well identifier to filter the records. In the example, r five underscore c two selects one well’s predictions.",
+      "focus": [
+        475,
+        595,
+        3335,
+        400
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_actual_filter_cleared",
+      "narration": "Clear the filter to restore all records. To open crops in your own project, first load the matching experiment in Annotate; the downloadable results example contains no crops.",
+      "focus": [
+        475,
+        595,
+        2350,
+        460
+      ],
+      "related_lessons": [
+        "09_annotate"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_actual_summary",
+      "narration": "Find the saved calibration and confusion figures in the bundle folder. Check labels and readability before using them in a report.",
+      "focus": [
+        475,
+        650,
+        3335,
+        1170
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_actual_final_leakage",
+      "narration": "Keep the leakage audit with reported metrics. Use Training Runs to compare saved training progress, and return to Annotate when image or label review is needed.",
+      "focus": [
+        475,
+        650,
+        3335,
+        1390
+      ],
+      "related_lessons": [
+        "28_training_runs"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

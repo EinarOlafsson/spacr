@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Methods & Results: redactar y exportar un informe de ejecución",
+  "description": "Selecciona una ejecución terminada, genera su informe, revisa los ajustes y resultados registrados y exporta en Markdown.",
+  "objectives": [
+    "Seleccionar el proyecto, el diario de ejecución y la carpeta de resultados correspondiente.",
+    "Generar un resumen y revisar las pestañas Methods, Results y Caveats.",
+    "Copiar el texto del informe o exportar Markdown con el resumen de la ejecución."
+  ],
+  "prerequisite": "Completa primero el ejemplo de Regression. Mantén juntos su carpeta de proyecto, el diario de ejecución y los resultados de guide_permutation. Revisa los ajustes inferidos, las versiones del análisis y los umbrales estadísticos antes de usar el texto generado en un informe.",
+  "scenes": [
+    "Desde Home, abre Regression y luego Methods and Results. Usa esta herramienta para redactar un informe a partir de un análisis terminado. Este recorrido continúa con la ejecución guardada del ejemplo de Regression.",
+    "Elige la carpeta del proyecto, el diario de ejecución y la carpeta de resultados de regresión correspondiente. Deja Classifier vacío en este ejemplo de regresión. Confirma que todos los archivos seleccionados pertenecen a la ejecución que quieres describir.",
+    "Haz clic en Build digest y luego lee las pestañas Methods y Results. Comprueba la versión del análisis con el entorno de ejecución guardado; la versión del exportador puede ser distinta de la que realizó el análisis.",
+    "Lee Caveats y compara por nombre las entradas de semillas con los ajustes guardados. Una semilla de permutación y una semilla global se refieren a generadores distintos. Deja como desconocida una semilla histórica no registrada al editar el informe.",
+    "Abre Run digest para revisar los ajustes estructurados y los registros de origen. Compáralos con el texto y revisa los avisos sobre informes que faltan o valores predeterminados inferidos antes de compartir el borrador.",
+    "En Results, revisa juntos los tamaños del efecto y los valores q corregidos. Este ejemplo no tiene genes por debajo de un umbral de valor q de cero coma cero cinco. Describe las filas listadas como candidatos ordenados cuando edites un encabezado que las llame hits.",
+    "Haz clic en Copy sections para copiar los Methods y Results mostrados. Revisa el texto copiado con los registros de origen. Usa Export Markdown cuando también necesites el resumen estructurado de la ejecución.",
+    "Haz clic en Export Markdown y elige un nombre de archivo nuevo. El archivo contiene las dos secciones del informe y el resumen de la ejecución como apéndice. Conserva un borrador original y guarda aparte tus revisiones.",
+    "Draft with AI es opcional y envía el resumen a tu proveedor configurado. Revisa su contenido antes de usar esa opción y luego contrasta cualquier texto generado con el análisis guardado. También puedes usar build_digest, render_methods y render_results desde Python."
+  ]
+}

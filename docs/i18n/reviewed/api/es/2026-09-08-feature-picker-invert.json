@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.pca_view.FeaturePicker.invert#0",
+      "source_sha256": "24903ae9251db24a0f5ea98edc6ee200bce677bbddac31645b8701955559a1bf",
+      "source": "Tick what was unticked and untick what was ticked.",
+      "context": "Tick what was unticked and untick what was ticked.",
+      "translation": "Marca lo que estaba desmarcado y desmarca lo que estaba marcado."
+    }
+  ]
+}

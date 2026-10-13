@@ -1,0 +1,65 @@
+{
+  "commands": [
+    "PYTHONPATH=/mnt/wd4tb/scratch/ci/ext/lib/python3.12/site-packages CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly tests/test_measurement_backends.py tests/test_a_readonly_database_can_still_be_read.py tests/test_io_merge_measurement_stamp.py",
+    "PYTHONPATH=/mnt/wd4tb/scratch/ci/ext/lib/python3.12/site-packages CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly tests/test_measurement_backends.py tests/test_a_readonly_database_can_still_be_read.py tests/test_io_merge_measurement_stamp.py tests/test_io.py -k 'measurement or read_db or readonly or merge_data or locators or funnel or store or migration or backend or postgres_locator'"
+  ],
+  "duckdb_overlay": "/mnt/wd4tb/scratch/ci/ext/lib/python3.12/site-packages",
+  "inventory": {
+    "api": {
+      "canonical_sha256": [
+        "326c3468640916052387bce97c81dcc5bae61aa71bc4cae664a258c685c0cd09",
+        "326c3468640916052387bce97c81dcc5bae61aa71bc4cae664a258c685c0cd09"
+      ],
+      "changed_keys": [],
+      "changed_values": [],
+      "entries": [
+        13232,
+        13232
+      ]
+    },
+    "runtime": {
+      "canonical_sha256": [
+        "3b079b1c91f6c6e1682a1f11881ef6f2ad1a12ee968ed9f33991a24bf274da16",
+        "3b079b1c91f6c6e1682a1f11881ef6f2ad1a12ee968ed9f33991a24bf274da16"
+      ],
+      "changed_keys": [],
+      "changed_values": [],
+      "entries": [
+        6,
+        6
+      ]
+    }
+  },
+  "inventory_method": "Read complete tools.build_documentation_i18n.public_docstrings and tools.build_i18n_catalogs.canonical_sources from source commit and its parent, swapping only spacr/io.py in this isolated worktree and restoring it with a shell EXIT trap. JSON maps retained in task scratch; canonical SHA and exact delta archived here.",
+  "payload_sha256": {
+    "owning-27.log": "d866223ff1d6e988aee8681fc040681a207e7a18fd73ee3edce8d07a4eda611e",
+    "selected-30.log": "aba22c72f7a7508c06ab551c677f0bc9399f2dfd4304f6f6cc275ef36d1afbd1",
+    "source.patch": "c1867894c136b4a8462ecd4e73f0848abdb7a342d1ab0488e699782688776b81"
+  },
+  "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "results": {
+    "owning": "27 passed, 2 skipped",
+    "postgresql": "No real server; two real-server tests skipped. A DSN-preservation mock passes.",
+    "selected": "30 passed, 2 skipped, 8 deselected"
+  },
+  "source_base": "d8c60865e6001bb78dd3e23149683c8ffbb2069a",
+  "source_blobs": {
+    "spacr/io.py": "2dad4a1420de8fa565e682f5246799f93c9bc6bc",
+    "tests/test_measurement_backends.py": "f6cb8444d95d6da9828241f2f93aa5d909334e1f"
+  },
+  "source_commit": "71d60126711f05075d9d5b4c75344b1165abc210",
+  "test_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "QT_QPA_PLATFORM": "offscreen",
+    "memory_cap": "4G"
+  },
+  "versions": {
+    "duckdb": "1.5.6",
+    "numpy": "2.5.2",
+    "pyarrow": "25.0.1",
+    "python": "3.12.13"
+  }
+}

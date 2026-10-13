@@ -1,0 +1,99 @@
+{
+  "_meta": {"schema": 2, "source_language": "en", "reviewed_date": "2026-08-28", "review_scope": "Complete human review of Hindi, Japanese, and Simplified Chinese source-selection and native-installer lessons. Current conda-forge availability, product names, commands, flags, filenames, checksums, platforms, and single-syllable PyPI speech behavior are preserved exactly."},
+  "lessons": {
+    "01_pypi_github": {"languages": {
+      "hi": {
+        "description": "Python पैकेज, conda-forge पैकेज, डेस्कटॉप इंस्टॉलर या विकास शाखा के लिए आधिकारिक स्रोत चुनें।",
+        "prerequisite": "किसी इंस्टॉलेशन की आवश्यकता नहीं है।",
+        "objectives": ["आधिकारिक PyPI और conda-forge पैकेज पहचानें।", "स्थिर रिलीज़ और nightly शाखा में अंतर समझें।", "लक्षित वातावरण के लिए उचित इंस्टॉलेशन विकल्प चुनें।"],
+        "narrations": {
+          "1": "spaCR इंस्टॉल करने से पहले आधिकारिक वितरण विकल्प चुनें। PyPI और conda-forge प्रकाशित पैकेज देते हैं, जबकि GitHub स्रोत कोड, डेस्कटॉप इंस्टॉलर और रिलीज़ का रिकॉर्ड देता है।",
+          "2": "PyPI पर रिलीज़ हेडर वर्तमान स्थिर संस्करण और pip install spacr कमांड दिखाता है।",
+          "3": "Project links अनुभाग से दस्तावेज़, होमपेज, समस्या ट्रैकर और स्रोत रिपॉज़िटरी खोली जा सकती है।",
+          "4": "GitHub पर स्रोत शाखा चुनने के लिए branch selector का उपयोग करें। main प्रकाशित रिलीज़ की शाखा है; nightly में नया काम होता है जिसका अभी परीक्षण चल रहा है।",
+          "5": "GitHub Release में Assets खोलकर Windows, macOS या Linux इंस्टॉलर, Python पैकेज फ़ाइलें या चेकसम सूची डाउनलोड करें।",
+          "6": "आधिकारिक conda-forge पैकेज सक्रिय Conda वातावरण में spaCR और उसकी डेस्कटॉप निर्भरताएँ इंस्टॉल करता है। ठीक यही कमांड उपयोग करें: conda install conda-forge::spacr।",
+          "7": "प्रबंधित Python वातावरण के लिए conda-forge या PyPI, डेस्कटॉप इंस्टॉलर के लिए GitHub Releases और अप्रकाशित काम की आवश्यकता होने पर ही nightly उपयोग करें। इसके बाद अपने चुने मार्ग का इंस्टॉलेशन ट्यूटोरियल खोलें।"
+        }
+      },
+      "ja": {
+        "description": "Python パッケージ、conda-forge パッケージ、デスクトップインストーラー、開発ブランチについて、公式の入手元を選択します。",
+        "prerequisite": "事前のインストールは不要です。",
+        "objectives": ["公式 PyPI パッケージと conda-forge パッケージを特定する。", "安定版リリースと nightly ブランチを区別する。", "目的の環境に適したインストール方法を選択する。"],
+        "narrations": {
+          "1": "spaCR をインストールする前に、公式の配布方法を選択します。PyPI と conda-forge はリリース済みパッケージを提供し、GitHub はソースコード、デスクトップインストーラー、リリース履歴を提供します。",
+          "2": "PyPI のリリースヘッダーには、現在の安定版と pip install spacr コマンドが表示されます。",
+          "3": "Project links セクションから、ドキュメント、ホームページ、Issue Tracker、ソースリポジトリを開けます。",
+          "4": "GitHub では branch selector でソースブランチを選択します。main はリリース済みの系列で、nightly には現在テスト中の新しい変更が含まれます。",
+          "5": "GitHub Release で Assets を展開し、Windows、macOS、Linux のインストーラー、Python パッケージファイル、またはチェックサム一覧をダウンロードします。",
+          "6": "公式 conda-forge パッケージは、現在の Conda 環境に spaCR とデスクトップ用の依存パッケージをインストールします。正確なコマンド conda install conda-forge::spacr を使用してください。",
+          "7": "管理された Python 環境には conda-forge または PyPI、デスクトップインストーラーには GitHub Releases、未リリースの変更が必要な場合にだけ nightly を使用します。次に、選択した方法に対応するインストールチュートリアルへ進みます。"
+        }
+      },
+      "zh-CN": {
+        "description": "为 Python 软件包、conda-forge 软件包、桌面安装程序或开发分支选择官方来源。",
+        "prerequisite": "无需预先安装任何软件。",
+        "objectives": ["识别官方 PyPI 软件包和 conda-forge 软件包。", "区分稳定版本和 nightly 分支。", "为目标环境选择合适的安装方式。"],
+        "narrations": {
+          "1": "安装 spaCR 之前，请选择官方分发方式。PyPI 和 conda-forge 提供已发布的软件包，GitHub 则提供源代码、桌面安装程序和版本发布记录。",
+          "2": "PyPI 的版本标题会显示当前稳定版本和 pip install spacr 命令。",
+          "3": "Project links 部分可以打开文档、主页、问题跟踪器和源代码仓库。",
+          "4": "在 GitHub 上，使用 branch selector 选择源代码分支。main 是已发布版本所在分支；nightly 包含仍在测试的新工作。",
+          "5": "在 GitHub Release 中展开 Assets，即可下载 Windows、macOS 或 Linux 安装程序、Python 软件包文件或校验和列表。",
+          "6": "官方 conda-forge 软件包会将 spaCR 及其桌面依赖项安装到当前 Conda 环境中。请使用准确命令 conda install conda-forge::spacr。",
+          "7": "受管理的 Python 环境使用 conda-forge 或 PyPI，桌面安装程序使用 GitHub Releases；仅在需要未发布内容时使用 nightly。接下来，请选择与该安装途径对应的教程。"
+        }
+      }
+    }},
+    "04_platform_installers": {"languages": {
+      "hi": {
+        "description": "मौजूदा Python या Conda इंस्टॉलेशन के बिना Windows, macOS या Linux पर spaCR इंस्टॉल करें।",
+        "prerequisite": "आधिकारिक GitHub Release से अपने ऑपरेटिंग सिस्टम का इंस्टॉलर डाउनलोड करें।",
+        "objectives": ["Windows, macOS या Linux के लिए सही इंस्टॉलर चुनें।", "प्लेटफ़ॉर्म सुरक्षा और एक्सेलरेशन विकल्पों को संभालें।", "इंस्टॉलेशन विफल होने पर निदान का स्थान पहचानें।"],
+        "narrations": {
+          "1": "हल्के नेटिव इंस्टॉलर निजी Python 3.12 रनटाइम बनाते हैं, फिर Qt, PyTorch, spaCR और उसकी निर्भरताएँ डाउनलोड करते हैं।",
+          "2": "इंस्टॉलर केवल नवीनतम spaCR GitHub Release से डाउनलोड करें। फ़ाइल को अपने ऑपरेटिंग सिस्टम से मिलाएँ और डाउनलोड सत्यापित करना हो तो प्रकाशित SHA-256 फ़ाइल उपयोग करें।",
+          "3": "Windows 10 या 11 पर ऑनलाइन setup executable खोलें। स्वचालित हार्डवेयर एक्सेलरेशन डिफ़ॉल्ट रूप से चुना रहता है और संगत NVIDIA हार्डवेयर पर CUDA समर्थन इंस्टॉल करता है। केवल छोटा CPU-only इंस्टॉलेशन चाहिए तो इस घटक को हटाएँ।",
+          "4": "macOS 11 या नए संस्करण पर Intel और Apple silicon के लिए universal package खोलें। Gatekeeper यदि unnotarized package को रोकता है, तो Privacy & Security में Open Anyway चुनें और पैकेज दोबारा चलाएँ।",
+          "5": "64-bit Linux पर डाउनलोड की गई .run फ़ाइल को executable बनाएँ, फिर टर्मिनल से शुरू करें। डिफ़ॉल्ट स्वचालित backend चयन संगत NVIDIA हार्डवेयर मिलने पर CUDA समर्थन इंस्टॉल करता है।",
+          "6": "Linux पर छोटा CPU-only इंस्टॉलेशन आवश्यक हो तो --torch-backend cpu दें। अन्यथा डिफ़ॉल्ट स्वचालित चयन रखें, ताकि समर्थित होने पर CUDA एक्सेलरेशन उपयोग हो।",
+          "7": "हर इंस्टॉलर संस्करण बदलने से पहले प्रतिस्थापन सत्यापित करता है। बाधित अपडेट पिछले वातावरण को सुरक्षित छोड़ता है और install.log निजी spaCR इंस्टॉलेशन डायरेक्टरी में रहता है।",
+          "8": "Preferences में एक ही Performance level चयन है, जिसमें बढ़ते संसाधन उपयोग के क्रम में Laptop, Extra Performance, Performance, Balanced और Workstation हैं। इस कंप्यूटर के लिए उपयुक्त प्रोफ़ाइल चुनें; यह कैश, worker सीमा, सफ़ाई और animation का विवरण बदलता है, लेकिन वैज्ञानिक settings या results नहीं बदलता।",
+          "9": "इंस्टॉलेशन के बाद ऑपरेटिंग सिस्टम लॉन्चर उपयोग करें। अलग Python या Conda सेटअप की आवश्यकता नहीं है।"
+        }
+      },
+      "ja": {
+        "description": "既存の Python や Conda を必要とせず、Windows、macOS、Linux に spaCR をインストールします。",
+        "prerequisite": "公式 GitHub Release から使用中のオペレーティングシステム向けインストーラーをダウンロードします。",
+        "objectives": ["Windows、macOS、Linux に適したインストーラーを選択する。", "プラットフォームのセキュリティとアクセラレーションの選択肢に対応する。", "インストールに失敗した場合の診断情報を特定する。"],
+        "narrations": {
+          "1": "軽量なネイティブインストーラーは専用の Python 3.12 ランタイムを作成し、その後 Qt、PyTorch、spaCR とその依存関係をダウンロードします。",
+          "2": "インストーラーは最新の spaCR GitHub Release からのみダウンロードしてください。使用中のオペレーティングシステムに対応するファイルを選び、ダウンロードの検証が必要な場合は公開済み SHA-256 ファイルを使用します。",
+          "3": "Windows 10 または 11 ではオンライン setup executable を開きます。自動ハードウェアアクセラレーションが既定で選択され、対応する NVIDIA ハードウェアでは CUDA サポートがインストールされます。小容量の CPU-only インストールが必要な場合にだけ、このコンポーネントを解除します。",
+          "4": "macOS 11 以降では、Intel と Apple silicon に対応した universal package を開きます。Gatekeeper が未公証のパッケージを阻止した場合は、Privacy & Security で Open Anyway を選び、もう一度実行します。",
+          "5": "64-bit Linux では、ダウンロードした .run ファイルへ実行権限を付け、ターミナルから起動します。既定の自動 backend 選択は、対応する NVIDIA ハードウェアがある場合に CUDA サポートをインストールします。",
+          "6": "Linux で小容量の CPU-only インストールを必須にする場合は --torch-backend cpu を渡します。それ以外は既定の自動選択を維持し、対応環境で CUDA アクセラレーションを使用します。",
+          "7": "各インストーラーはバージョンを切り替える前に置き換え先を検証します。更新が中断されても以前の環境は維持され、install.log は spaCR 専用インストールディレクトリに残ります。",
+          "8": "Preferences には Performance level セレクターが 1 つあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation が並びます。このコンピューターに適したプロファイルを選択してください。キャッシュ、ワーカー数の上限、クリーンアップ、アニメーションの詳細度は変わりますが、科学的な設定や結果は変わりません。",
+          "9": "インストール後はオペレーティングシステムのランチャーを使用します。別途 Python や Conda を設定する必要はありません。"
+        }
+      },
+      "zh-CN": {
+        "description": "无需现有 Python 或 Conda 安装，即可在 Windows、macOS 或 Linux 上安装 spaCR。",
+        "prerequisite": "从官方 GitHub Release 下载适用于当前操作系统的安装程序。",
+        "objectives": ["为 Windows、macOS 或 Linux 选择正确的安装程序。", "处理各平台的安全设置和加速选项。", "安装失败时找到诊断信息。"],
+        "narrations": {
+          "1": "轻量级原生安装程序会创建私有 Python 3.12 运行环境，然后下载 Qt、PyTorch、spaCR 及其依赖项。",
+          "2": "请只从最新 spaCR GitHub Release 下载安装程序。选择与操作系统匹配的文件；需要验证下载时，请使用已发布的 SHA-256 文件。",
+          "3": "在 Windows 10 或 11 上，打开在线 setup executable。默认选中自动硬件加速，并在兼容的 NVIDIA 硬件上安装 CUDA 支持。只有需要体积更小的 CPU-only 安装时，才取消选择该组件。",
+          "4": "在 macOS 11 或更高版本上，打开适用于 Intel 和 Apple silicon 的 universal package。如果 Gatekeeper 阻止打开未经公证的安装包，请在 Privacy & Security 中选择 Open Anyway，然后再次运行安装包。",
+          "5": "在 64-bit Linux 上，先为下载的 .run 文件添加执行权限，然后从终端启动。默认的自动 backend 选择会在检测到兼容的 NVIDIA 硬件时安装 CUDA 支持。",
+          "6": "如果 Linux 必须使用体积更小的 CPU-only 安装，请传递 --torch-backend cpu。否则保留默认的自动选择，以便在受支持时使用 CUDA 加速。",
+          "7": "每个安装程序都会在切换版本之前验证替代环境。更新中断时，先前环境会保持完整；install.log 会保留在私有 spaCR 安装目录中。",
+          "8": "Preferences 中只有一个 Performance level 选择器，按资源用量从低到高依次为 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合此计算机的配置；它会调整缓存、工作进程上限、清理方式和动画细节，但不会改变科学设置或结果。",
+          "9": "安装后，使用操作系统启动器。无需另行配置 Python 或 Conda。"
+        }
+      }
+    }}
+  }
+}

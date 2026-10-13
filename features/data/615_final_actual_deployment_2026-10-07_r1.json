@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "actual_source_commit": "e1f54c80650f60942ba6c98d4e999b36a3fa2846",
+  "completed_docs_workflow": 37559626331,
+  "workflow_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37559626331",
+  "actual_site": "https://einarolafsson.github.io/spacr/nightly/",
+  "immutable_media_commit": "5b331d434e997e70264afd35b993b0ecc988d8e8",
+  "all_ten_deployed_API_catalogs_exact": true,
+  "actual_API_panels": 37,
+  "exact_reviewed_API_blocks": 55,
+  "exact_reviewed_guide_messages": 126,
+  "all_eight_actual_complete_videos_exact": true,
+  "decoded_frames_visually_inspected": 11,
+  "all_eight_phone_playback_seek_sync_layout_checks_passed": true,
+  "phone_start_scope": "Recorded synthetic tap attempt followed by direct video.play() fallback; physical-device gesture acceptance is not claimed.",
+  "all61_master_scene_fidelity_passed": true,
+  "strict_English_and_all_nine_guide_workflow_builds_passed": true,
+  "complete_terminal_workflow_log_preserved": true,
+  "complete_local_deployment_file_count": 13102,
+  "complete_local_deployment_bytes": 2107180066,
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "biological_accuracy_or_full_parent_task_closure_claimed": false,
+  "original_automated_receipts_unchanged": true,
+  "artifacts": {
+    "features/data/615_final_actual_deployment_2026-10-07_r1/actual-API-guide-browser.log.gz": {
+      "original_bytes": 16285,
+      "original_sha256": "43a7fe166cc64dd640e15303135349dbbb09eedd344bb8cd0de20b0d12f3eb97",
+      "stored_sha256": "eb677bfc82c4e965f5b16cf13d8ee476c4c1c5c53874bacda05b5d6d84f35eea"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/actual-current-channels.json.gz": {
+      "original_bytes": 511,
+      "original_sha256": "36fb855766d74f6678ec01f9e25ffffd0ee3dbf7c82461e60a933866d3993b16",
+      "stored_sha256": "81275911d06dcdf218dedad7adf32241286ceb0c822cbf8cd20fda354186012b"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/actual-full-video-current-frames.log.gz": {
+      "original_bytes": 1927,
+      "original_sha256": "c2707b5e3d29ae6cf53b0a114e18f45c342194d79d4adb96efdae887cdcbb03c",
+      "stored_sha256": "44ad2132c5ea5d436c86f686de373d5575f35c4ef8a01d2bab1efadce6e1bf7f"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/actual-phone-playback.json.gz": {
+      "original_bytes": 10698,
+      "original_sha256": "f37944f1f2233999d44ad83849ece9f6cab1f3b7dc51f1b79eb0c9caf9217a41",
+      "stored_sha256": "03c21204c04008674d44b9997e15dc90fc84a9aed70410266229f1124049edca"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/actual-phone-playback.log.gz": {
+      "original_bytes": 2409,
+      "original_sha256": "9aa924035d53bac6c8a0b24e9d913d5470251dd5ab91d200608a323a132c40b2",
+      "stored_sha256": "b4b2b4de62e7eb6cb46f18df34090f1c0028371be5b2ae2b3ef352f0b7ef2166"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/completed-workflow.json.gz": {
+      "original_bytes": 14935,
+      "original_sha256": "b0d1c2af668cdbeb63fa95f1c4ea24750f6f5acb7ba859c42558ab032c6bed6e",
+      "stored_sha256": "567321f81f7dc04ebbf2675113f87807db44cb99c0e8dd2840a3d42907fc6b86"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/decoded-frame-visual-review.json.gz": {
+      "original_bytes": 3740,
+      "original_sha256": "7a2b654b86abd072161d15a7f1ec5d1f1bf4708a09d4ace634b8d4b7806f304e",
+      "stored_sha256": "2feee0852524f485dc55961a8b007f40af3fa896d71208db32152e1a6bbbfaa2"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/normal-docs-channel-assembly.log.gz": {
+      "original_bytes": 1159,
+      "original_sha256": "b0adef62aaf4b5ec83d79a5ba98991d2ff19515e579c3c5c4d1d8321b44f5d51",
+      "stored_sha256": "fe8ba3fd03ff09423931d13b423c99fbaab88d336faf9ad71c9c467a88c95278"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/normal-workflow-artifact-download.log.gz": {
+      "original_bytes": 61,
+      "original_sha256": "19807acd47cb4a9caba1c32f11e91524f25ba9abde5a8c2cc3fd8e9df7515a15",
+      "stored_sha256": "f0546edd8a4d17505a221a1c4275a0074ce906e942d83c08b9e191a3ed9fd37a"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/API-guide-browser-acceptance.json.gz": {
+      "original_bytes": 30710,
+      "original_sha256": "bcddc85cec1ae46324b922e72a79c067ac88350b2afbdc8a0cdc8872c8e28b8a",
+      "stored_sha256": "55c7f6396b83c999531277db2cbf0235c9fe9121cdd1f47425b992db3eefeb59"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/tutorial-video-readback-acceptance.json.gz": {
+      "original_bytes": 8596,
+      "original_sha256": "9adfe41bf9d3e505ab857c988e9bcd9190338eb057f80cf54f91d0ce4c1bd945",
+      "stored_sha256": "ff52d0282bba02296b0da4c83b4069739606d5ec38180cefe041e200cb0f0353"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/final-e1-complete-docs-workflow.log.gz": {
+      "original_bytes": 2932238,
+      "original_sha256": "140f2c1636bef44bde18e11d53796171b4dc25771cdb8eed5d1b5b5dae59b723",
+      "stored_sha256": "22c667fe82c50e7f1f18f61dba586807f5ca674d7d7d31a8886040002196dd94"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/continue_final_e1_actual_deployment_r1.py.gz": {
+      "original_bytes": 4572,
+      "original_sha256": "e29adef70cfb60ff998acf4f639f5b462679b421338f87ec8c69e96f890524c6",
+      "stored_sha256": "61a71fa01f70362a37128cdef3c59182ce18b1ed3d70c127c8ee41d7d822de3f"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/verify_final_deployed_API_guide_browsers_r7.py.gz": {
+      "original_bytes": 10342,
+      "original_sha256": "78037be49de8cc9f6ae1e199762c1b5c870485913e799588dc95f5c40de624e6",
+      "stored_sha256": "12673b2b358fd045cd4245d723eb3e61b6f8674a0d269bd4a24be03f94c36097"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/verify_final_current_nightly_tutorials_r4.py.gz": {
+      "original_bytes": 5979,
+      "original_sha256": "7e1cc8d7c39c87568cf05c23c4161b367c66820b1b32b636984bf10d2ca5b178",
+      "stored_sha256": "73530a2726a92cb8d59341b7979bc3303ff1c5301fa5b9e447ad0f3c1a9a449c"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/archive_final_e1_actual_deployment_r1.py.gz": {
+      "original_bytes": 7756,
+      "original_sha256": "5c82a84684c60ab53d6df8df17550aea86c9050ede220613727f7835be363c1d",
+      "stored_sha256": "c2966615bcb8faf809d374a27bf4df68fd7e38034dbdff08678491a4b187fbc2"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/channels.json.gz": {
+      "original_bytes": 511,
+      "original_sha256": "36fb855766d74f6678ec01f9e25ffffd0ee3dbf7c82461e60a933866d3993b16",
+      "stored_sha256": "81275911d06dcdf218dedad7adf32241286ceb0c822cbf8cd20fda354186012b"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/nightly-publication.json.gz": {
+      "original_bytes": 179,
+      "original_sha256": "f3b09fb72e87b2891d543dcd83ce01e381442c2ba8716c27a5ce6d44794d40d7",
+      "stored_sha256": "4957c06c0797b835ef435c1d9777e664305f1b51b35a8b049aa3792bdc56bd7c"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/actual-hosted-video-frames-and-API-viewports.zip": {
+      "bytes": 8752518,
+      "sha256": "845b6b429a7a0a960c17f4bcc364ca686bda2d04c3781aefd05350023500d736"
+    },
+    "features/data/615_final_actual_deployment_2026-10-07_r1/complete-local-deployment-files.json.gz": {
+      "original_bytes": 3746364,
+      "original_sha256": "c5c0fc142a4f4016c26cbf8117b69eb7edd70abfada36b7e4d43e02965d2a7fe",
+      "stored_sha256": "e1bdf1d117256683646137159e2add68e28c8dfd16f79cf1d7cefabb2b40fe04"
+    }
+  }
+}

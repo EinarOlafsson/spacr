@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.regression_panels.write_box_jitter_package#0",
+      "source_sha256": "3bf217b72aee585433ba56c06f012fb473644aa5e73368e48221fc9f70ff743a",
+      "source": "Write one deterministic box-and-jitter four-file panel package.",
+      "context": "Write one deterministic box-and-jitter four-file panel package.",
+      "translation": "결정론적인 상자-지터 4개 파일 패널 패키지를 하나 작성합니다."
+    }
+  ]
+}

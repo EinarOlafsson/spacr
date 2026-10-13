@@ -1,0 +1,2091 @@
+"""
+Power / Design — estimate how many cells per well, and how many wells, a screen needs.
+
+The science has been in the tree since the spaCRPower port landed:
+:mod:`spacr.power_simulate` builds a screen you know the truth for, and
+:mod:`spacr.power_model` fits the horseshoe-Poisson model to it and scores how
+well the fit recovered the hits you planted. What has never existed is the
+surface where a screener asks the question they actually have, which is not
+"what is the AUROC of a design with well_abundance_factor_mu = 4.6" but::
+
+    I have 452 genes and four 384-well plates. My classifier is about
+    0.80 / 0.12. How many cells per well do I have to image before this
+    screen finds its hits, and would more wells be cheaper than more cells?
+
+Layout::
+
+    ┌────────────────────────┬───────────────────────────────────────────────┐
+    │ Library                │  At 123 cells per well and 4.6 constructs per │
+    │  genes           [452] │  well, 1536 wells detect a 6.7-fold effect in │
+    │  gRNAs/gene      [4]   │  67% of simulations — 2 of 3 replicates …     │
+    │  score per    [gene ▾] │                                               │
+    │  constructs/well [4.6] │  ! spaCRPower splits a well's cells evenly …  │
+    │ Plate                  │  ! a replicate whose fit failed counts as …   │
+    │  wells/plate  [384 ▾]  │  ! mean-field ADVI, not NUTS: the ranking …   │
+    │  plates          [4]   ├───────────────────────────────────────────────┤
+    │   → 1536 wells         │  detection probability vs cells per well      │
+    │ Effect                 │   1 ┤        ╭──●───────                      │
+    │  background     [0.12] │     │   ╭────╯                                │
+    │  effect (fold)  [6.67] │   0 ┼───╯                                     │
+    │   → 0.800 positive     │      15   31   62  123  246                   │
+    │  prevalence    [0.025] ├───────────────────────────────────────────────┤
+    │ …                      │  cells  power  mean AUROC  mean AP  n         │
+    └────────────────────────┴───────────────────────────────────────────────┘
+
+Design notes:
+
+* **The screen computes no statistics of its own.** Every number on it comes
+  out of :func:`spacr.power_model.scan_parameters`; the only arithmetic here
+  is counting how many replicates cleared the user's threshold. The
+  translation from "genes, plates, fold-change" to simulator keyword
+  arguments lives in one function,
+  :func:`spacr.qt.widgets.power_design.simulator_kwargs`, so a run started
+  here and the same run typed at a Python prompt are the same call. The test
+  suite asserts that byte for byte on a fixed seed.
+* **The caveats are next to the number, not in a docstring.** The port
+  departs from spaCRPower in ways that change the answer — most importantly
+  that R's even cell-split *overstates* power — and a power analysis whose
+  caveats are one import away is a power analysis that gets quoted without
+  them. The ones that move the number are rendered beside the sentence; the
+  rest are one click below it.
+* **Off the GUI thread, and the thread actually retires.** A full sweep is
+  minutes. It goes through :func:`spacr.qt.bridge.make_thread`, and every
+  ``thread.finished`` slot is a bound method — see
+  :meth:`PowerScreen._retire_finished_jobs` for what a closure does here and
+  why it is not a style preference.
+* **No modal dialogs.** Every failure lands in the inline status line.
+* ``threaded=False`` **runs the same code inline**, firing the same signals,
+  so the tested path and the shipped path differ only in where they run.
+"""
+from __future__ import annotations
+
+import logging
+import math
+import re
+import threading
+import warnings
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPainterPath, QPen
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QSpinBox,
+    QTableWidget,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ..app_catalog import declared_app, register_declared
+from ..i18n import tr
+from ..widgets.measurements_example import install_test_data_button
+from ..theme import (
+    SPACING,
+    active_palette,
+    make_transparent,
+    mark_surface,
+    paint_panel,
+    register_widget_qss,
+)
+from ..widgets.power_design import (
+    CAVEATS,
+    PLATE_FORMATS,
+    DesignSpec,
+    cells_grid,
+    changes_the_number,
+    estimate_runtime_s,
+    plain_sentence,
+    power_curve,
+    simulator_kwargs,
+    wells_grid,
+)
+from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
+from ..widgets.sortable_table import install_sorting, table_item
+from .app_screen import ModuleHeader
+
+__all__ = [
+    "APP_KEY",
+    "CaveatPanel",
+    "PowerCurveView",
+    "PowerScreen",
+    "make_power_screen",
+    "power_default_settings",
+    "register",
+    "register_settings",
+    "run_power_sweep",
+]
+
+
+def _arrayed_plan_mapping(value, name):
+    """Return ``value`` when it is a dictionary; otherwise reject the named field."""
+    if not isinstance(value, dict):
+        raise ValueError(f'{name} must be an object')
+    return value
+
+
+def _arrayed_plan_number(value, name, low=None, high=None, integer=False):
+    """Return finite numeric ``value`` within optional inclusive bounds.
+
+    ``integer`` requires an integer input; ``name`` identifies rejected fields.
+    """
+    if type(value) not in (int, float) or (integer and type(value) is not int):
+        raise ValueError(f'{name} must be a number' + (' (integer)' if integer else ''))
+    if not math.isfinite(value) or (low is not None and value < low) or (high is not None and value > high):
+        raise ValueError(f'{name} is outside its allowed range')
+    return value
+
+
+def _arrayed_plan_text(value, name, empty=True):
+    """Return string ``value``, optionally requiring nonblank text for the named field."""
+    if not isinstance(value, str) or (not empty and not value.strip()):
+        raise ValueError(f'{name} must be text' + (' (nonempty)' if not empty else ''))
+    return value
+
+
+def _arrayed_plan_finite_tree(value):
+    """Check decoded plan ``value`` recursively for non-finite floats.
+
+    Return None when valid; raise ValueError for a non-finite float.
+    """
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError('saved plan contains a non-finite number')
+    if isinstance(value, dict):
+        for child in value.values():
+            _arrayed_plan_finite_tree(child)
+    elif isinstance(value, list):
+        for child in value:
+            _arrayed_plan_finite_tree(child)
+
+
+def _arrayed_plan_unique_keys(pairs):
+    """Build a dictionary from decoded JSON key/value pairs, rejecting duplicate keys."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f'duplicate saved-plan key: {key}')
+        result[key] = value
+    return result
+
+
+LOG = logging.getLogger(__name__)
+
+#: Stable app id. Chosen once; `bridge`, `cli` and saved user state key off it.
+APP_KEY = "power"
+
+#: objectName of the headline sentence, so the stylesheet can find it.
+ANSWER_OBJECT = "spacrPowerAnswer"
+#: objectName of the caveat panel.
+CAVEAT_OBJECT = "spacrPowerCaveats"
+#: objectName of the inline status line.
+STATUS_OBJECT = "spacrPowerStatus"
+
+#: Backends offered in the combo. "auto" first because it is the library's own
+#: default and it says which one it picked; the rest are pinned choices for
+#: when two machines have to agree.
+_BACKEND_CHOICES = ("auto", "torch", "numpyro", "pymc")
+
+#: Matches the progress line the job prints. Deliberately the same shape
+#: ``bridge._PROGRESS_RE`` looks for, so one printed line drives both this
+#: screen's bar and the Home screen's.
+_PROGRESS_LINE = re.compile(r"\bProgress:\s*(\d+)\s*/\s*(\d+)")
+
+#: Header of the per-point results table.
+_TABLE_HEADERS = ("cells / well", "wells", "power", "detected",
+                  "mean AUROC", "mean AP", "AP baseline", "not converged",
+                  "failed")
+
+
+#: The :class:`DesignSpec` fields the form owns. Everything else is *held*,
+#: at the real screen's fitted value, and carried through
+#: :attr:`PowerScreen._held` so a spec set programmatically survives a
+#: round trip through the widget. Without that, ``set_spec`` would silently
+#: reset the library skew and the classifier variances to their defaults and
+#: a test — or a reloaded run — would be simulating a different screen from
+#: the one it asked for.
+_FORM_FIELDS = frozenset({
+    "n_genes", "n_grnas_per_gene", "score_per", "cells_per_well",
+    "wells_per_plate", "n_plates", "constructs_per_well",
+    "background_positive_rate", "effect_fold", "hit_rate", "reads_per_well",
+    "n_replicates", "detection_auroc", "seed", "backend",
+})
+
+#: The held fields, in the order the "held fixed" line lists them.
+#:
+#: Every :class:`DesignSpec` field the form does not ask for belongs here, or
+#: ``set_spec`` stops round-tripping: ``spec()`` rebuilds the dataclass from
+#: the form plus this dict, so a field in neither silently reverts to its
+#: default and the sweep runs a different screen from the one that was loaded.
+#: ``sequencing_error_rate`` and ``min_cells_per_well`` are listed for exactly
+#: that reason -- both default to the spaCRPower behaviour, and a run that
+#: turned either on has to still say so when it is reloaded.
+_HELD_FIELDS = (
+    "gene_abundance_alpha", "cells_per_well_var", "class_pos_var",
+    "class_neg_var", "well_abundance_var", "sequencing_cells_per_well",
+    "pcr_factor_mu", "pcr_factor_var", "read_depth_cv",
+    "sequencing_error_rate", "min_cells_per_well", "imaging_split",
+)
+
+
+
+def _power_qss(palette: dict, opacity: Optional[float] = None) -> str:
+    """QSS for this screen, contributed through :func:`register_widget_qss`.
+
+    Scoped to this screen's object names so it cannot reach another app's
+    labels. The caveat severities are a dynamic property rather than a
+    per-label ``setStyleSheet`` for one reason that matters: an inline
+    stylesheet is baked at construction and survives a theme switch, so a
+    warning-orange caveat set under the dark theme stays dark-theme orange
+    on a light background. Going through the registry means the colours are
+    re-rendered from the live palette every time the stylesheet is rebuilt.
+
+    :param palette: the live theme palette, surfaces already scrimmed.
+    :param opacity: the user's page-opacity preference; unused — none of
+        these rules paint a surface that should fade.
+    :returns: the QSS block.
+    """
+    return f"""
+#{ANSWER_OBJECT} {{
+    color: {palette['fg']};
+    background: {palette['surface_alt']};
+    border: 1px solid {palette['border']};
+    border-radius: 6px;
+    padding: {SPACING['sm']}px;
+}}
+#{CAVEAT_OBJECT} QLabel[spacrCaveatSeverity="high"] {{
+    color: {palette['warning']};
+}}
+#{CAVEAT_OBJECT} QLabel[spacrCaveatSeverity="note"] {{
+    color: {palette['fg_muted']};
+}}
+#{STATUS_OBJECT} {{ color: {palette['fg_muted']}; }}
+#{STATUS_OBJECT}[spacrError="true"] {{ color: {palette['error']}; }}
+"""
+
+
+register_widget_qss("PowerDesign", _power_qss, replace=True)
+
+
+
+def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Run both sweeps for ``payload['spec']`` and put the result in ``payload``.
+
+    Shaped as ``fn(settings)`` because that is what
+    :func:`spacr.qt.bridge.make_thread` calls. Everything it needs is in the
+    dict and everything it produces goes back into the same dict, so the GUI
+    thread reads the result from an object it already owns rather than from a
+    signal payload that would have to cross the thread boundary.
+
+    The well-count and cell-count axes are scanned separately. This measures
+    each marginal response without evaluating the Cartesian product of both
+    grids.
+
+    :param payload: mutable job dict with keys
+
+        ``spec``
+            the :class:`~spacr.qt.widgets.power_design.DesignSpec`.
+        ``cancel``
+            optional :class:`threading.Event`; set it and the sweep stops
+            after the fit in flight, keeping the rows it already has.
+        ``progress``
+            optional ``fn(done, total, label)`` called on the worker thread.
+        ``fit_kwargs``
+            optional extra keyword arguments for the fit, for tests that
+            need a sweep to finish in seconds.
+
+    :returns: the result dict, which is also stored at ``payload['result']``:
+        ``cells_scan``, ``wells_scan`` (raw
+        :func:`~spacr.power_model.scan_parameters` frames), ``cells_curve``,
+        ``wells_curve`` (from :func:`~spacr.qt.widgets.power_design.power_curve`),
+        ``cancelled``, ``n_clipped_screens`` and ``clip_message``.
+    """
+    from ... import power_model as pm
+
+    spec: DesignSpec = payload["spec"]
+    cancel: Optional[threading.Event] = payload.get("cancel")
+    progress: Optional[Callable[[int, int, str], None]] = payload.get("progress")
+    fit_kwargs = dict(payload.get("fit_kwargs") or {})
+
+    base = simulator_kwargs(spec)
+    cells = cells_grid(spec)
+    wells = wells_grid(spec)
+    replicates = max(1, int(spec.n_replicates))
+    total = (len(cells) + len(wells)) * replicates
+    done = [0]
+
+    def _make_hook(label: str):
+        """A ``scan_parameters`` on_point that reports progress and cancels.
+
+        Returns ``False`` — and only ``False`` — when the cancel event is
+        set, which is the contract ``scan_parameters`` documents for
+        stopping a sweep between points.
+        """
+        def _hook(point: Dict[str, Any]) -> Any:
+            """Report one completed point back to the progress bar."""
+            done[0] += 1
+            if progress is not None:
+                progress(done[0], total, label)
+            if cancel is not None and cancel.is_set():
+                return False
+            return None
+        return _hook
+
+    results: Dict[str, Any] = {"cancelled": False, "spec": spec}
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+
+        cells_scan = pm.scan_parameters(
+            **{**base, "imaging_n_cells_per_well_mu": cells},
+            n_replicates=replicates,
+            backend=str(spec.backend),
+            seed=int(spec.seed),
+            fit_kwargs=fit_kwargs or None,
+            on_point=_make_hook("cells per well"),
+        )
+        results["cells_scan"] = cells_scan
+        results["cancelled"] = bool(cells_scan.attrs.get("cancelled", False))
+
+        if results["cancelled"]:
+            wells_scan = cells_scan.iloc[0:0].copy()
+        else:
+            wells_scan = pm.scan_parameters(
+                **{**base, "n_wells_per_screen": [int(w) for w in wells]},
+                n_replicates=replicates,
+                backend=str(spec.backend),
+                seed=int(spec.seed),
+                fit_kwargs=fit_kwargs or None,
+                on_point=_make_hook("wells"),
+            )
+            results["cancelled"] = bool(wells_scan.attrs.get("cancelled", False))
+        results["wells_scan"] = wells_scan
+
+    clipped = [w for w in caught
+               if w.category.__name__ == "AbundanceClippedWarning"]
+    results["n_clipped_screens"] = len(clipped)
+    results["clip_message"] = str(clipped[0].message) if clipped else ""
+
+    results["cells_curve"] = power_curve(
+        cells_scan, "imaging_n_cells_per_well_mu", spec.detection_auroc)
+    results["wells_curve"] = power_curve(
+        wells_scan, "n_wells_per_screen", spec.detection_auroc)
+    payload["result"] = results
+    return results
+
+
+
+class PowerCurveView(QWidget):
+    """Detection probability against one swept axis, painted directly.
+
+    QPainter rather than a matplotlib canvas: the plot is two axes, five
+    points and a threshold line, and a FigureCanvas here would import
+    matplotlib's Qt backend, own a timer and need the deleted-C++-object
+    care :mod:`spacr.qt.widgets.umap_explorer` documents — for a drawing that
+    is thirty lines of ``drawLine``.
+
+    :meth:`describe` returns exactly what is drawn, as text, so a test can
+    assert the content of the plot without reading pixels.
+
+    :param title: the caption drawn above the curve. Empty draws none.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, title: str = "", parent: Optional[QWidget] = None):
+        """Create an empty curve view.
+
+        :param title: caption drawn above the curve.
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self._title = str(title)
+        self._points: List[Tuple[float, float]] = []
+        self._counts: List[Tuple[int, int]] = []
+        self._marker: Optional[float] = None
+        self._threshold: float = 0.8
+        self._x_label = ""
+        self._palette = active_palette()
+        make_transparent(self)
+        self.setMinimumHeight(180)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+
+    def set_curve(self, curve, x_label: str, marker: Optional[float] = None,
+                  threshold: float = 0.8) -> None:
+        """Show ``curve``, a frame from :func:`power_design.power_curve`.
+
+        :param curve: the curve, or ``None`` to clear.
+        :param x_label: what the x axis counts.
+        :param marker: x value of the user's own design, drawn as a rule so
+            the point they came for is findable on their own plot.
+        :param threshold: the detection AUROC, for the caption only.
+        """
+        self._points = []
+        self._counts = []
+        if curve is not None and len(curve):
+            for _, row in curve.iterrows():
+                self._points.append((float(row["value"]), float(row["power"])))
+                self._counts.append((int(row["n_detected"]),
+                                     int(row["n_replicates"])))
+        self._x_label = str(x_label)
+        self._marker = None if marker is None else float(marker)
+        self._threshold = float(threshold)
+        self.update()
+
+    def describe(self) -> str:
+        """The plotted values as one line of text, for tests and for export."""
+        if not self._points:
+            return f"{self._title}: no data"
+        parts = [f"{x:g}={p:.2f} ({d}/{n})"
+                 for (x, p), (d, n) in zip(self._points, self._counts)]
+        return f"{self._title} [{self._x_label}]: " + ", ".join(parts)
+
+    def is_empty(self) -> bool:
+        """Whether there is anything to draw."""
+        return not self._points
+
+
+    def paintEvent(self, event):  # noqa: N802 - Qt name
+        """Draw the power curve.
+
+        :param event: the Qt paint event.
+        """
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        palette = self._palette
+        metrics = QFontMetrics(self.font())
+
+        left = max(46, metrics.horizontalAdvance("100%") + 12)
+        right = 10
+        top = metrics.height() + 8
+        bottom = metrics.height() * 2 + 10
+        width = max(1, self.width() - left - right)
+        height = max(1, self.height() - top - bottom)
+
+        paint_panel(painter, self, role="surface", inset=0.5)
+        painter.setPen(QPen(QColor(palette["fg"]), 1))
+        painter.drawText(6, metrics.ascent() + 2, self._title)
+
+        if not self._points:
+            painter.setPen(QPen(QColor(palette["fg_muted"]), 1))
+            painter.drawText(self.rect(), Qt.AlignCenter,
+                             "Press Run to draw this curve")
+            painter.end()
+            return
+
+        xs = [x for x, _ in self._points]
+        x_lo, x_hi = min(xs), max(xs)
+        span = (x_hi - x_lo) or 1.0
+
+        def to_px(x: float, y: float) -> Tuple[float, float]:
+            """Data coordinates to pixels, clamping the vertical to the axis."""
+            return (left + width * (x - x_lo) / span,
+                    top + height * (1.0 - max(0.0, min(1.0, y))))
+
+        painter.setPen(QPen(QColor(palette["border_soft"]), 1, Qt.DotLine))
+        for level in (0.0, 0.5, 1.0):
+            _, py = to_px(x_lo, level)
+            painter.drawLine(int(left), int(py), int(left + width), int(py))
+        painter.setPen(QPen(QColor(palette["fg_muted"]), 1))
+        for level in (0.0, 0.5, 1.0):
+            _, py = to_px(x_lo, level)
+            painter.drawText(4, int(py + metrics.ascent() / 2 - 1),
+                             f"{level * 100:.0f}%")
+
+        if self._marker is not None and x_lo <= self._marker <= x_hi:
+            painter.setPen(QPen(QColor(palette["accent"]), 1, Qt.DashLine))
+            mx, _ = to_px(self._marker, 0.0)
+            painter.drawLine(int(mx), int(top), int(mx), int(top + height))
+
+        path = QPainterPath()
+        for index, (x, y) in enumerate(self._points):
+            px, py = to_px(x, y)
+            if index == 0:
+                path.moveTo(px, py)
+            else:
+                path.lineTo(px, py)
+        painter.setPen(QPen(QColor(palette["accent"]), 2))
+        painter.drawPath(path)
+
+        painter.setBrush(QColor(palette["accent"]))
+        for x, y in self._points:
+            px, py = to_px(x, y)
+            painter.drawEllipse(int(px) - 3, int(py) - 3, 6, 6)
+
+        painter.setPen(QPen(QColor(palette["fg_muted"]), 1))
+        baseline = self.height() - metrics.descent() - 2
+        for x, _ in self._points:
+            px, _py = to_px(x, 0.0)
+            text = f"{x:g}"
+            painter.drawText(int(px - metrics.horizontalAdvance(text) / 2),
+                             int(baseline - metrics.height()), text)
+        painter.drawText(int(left), int(baseline),
+                         f"{self._x_label} — detection = AUROC ≥ "
+                         f"{self._threshold:.2f}")
+        painter.end()
+
+
+
+class CaveatPanel(QWidget):
+    """The port's departures from spaCRPower, rendered where they are read.
+
+    The ones flagged ``changes_the_number`` are always visible; the rest are
+    behind a "show all" toggle, so a caveat that changes the result, such
+    as "the R version overstates power", is not listed at the same weight
+    as a minor one such as the COM-Poisson third moment.
+
+    :param parent: parent widget.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Build the caveat list, with the harmless ones folded away.
+
+        Caveats that change the reported power are always visible; the rest --
+        departures from spaCRPower that only affect how these numbers compare
+        with the R package's -- sit behind a toggle.
+
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self.setObjectName(CAVEAT_OBJECT)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["xs"])
+
+        self._labels: List[QLabel] = []
+        for caveat in changes_the_number():
+            label = self._make_label(caveat, "high")
+            layout.addWidget(label)
+            self._labels.append(label)
+
+        self._more = QPushButton("Show the rest of the caveats")
+        self._more.setCheckable(True)
+        self._more.setToolTip(
+            "Departures from spaCRPower that do not change the power on "
+            "screen, but do change how these numbers compare with the R "
+            "package's.")
+        self._more.toggled.connect(self._on_toggled)
+        layout.addWidget(self._more, 0, Qt.AlignLeft)
+
+        self._rest = QWidget()
+        rest_layout = QVBoxLayout(self._rest)
+        rest_layout.setContentsMargins(0, 0, 0, 0)
+        rest_layout.setSpacing(SPACING["xs"])
+        for caveat in CAVEATS:
+            if caveat.changes_the_number:
+                continue
+            label = self._make_label(caveat, "note")
+            rest_layout.addWidget(label)
+            self._labels.append(label)
+        self._rest.setVisible(False)
+        layout.addWidget(self._rest)
+
+    @staticmethod
+    def _make_label(caveat, severity: str) -> QLabel:
+        """Build one caveat line.
+
+        :param caveat: the caveat record; its headline becomes the text and its
+            detail the tooltip.
+        :param severity: style key, ``"high"`` for caveats that change the
+            number and ``"note"`` for the rest.
+        :returns: the label, ready to add to a layout.
+        """
+        label = QLabel(f"! {caveat.headline}")
+        label.setWordWrap(True)
+        label.setToolTip(caveat.detail)
+        label.setProperty("spacrCaveatSeverity", severity)
+        label.setProperty("caveatKey", caveat.key)
+        return label
+
+    def _on_toggled(self, checked: bool) -> None:
+        """Show or hide the harmless caveats and relabel the toggle.
+
+        :param checked: the button's new state.
+        """
+        self._rest.setVisible(bool(checked))
+        self._more.setText("Hide the rest of the caveats" if checked
+                           else "Show the rest of the caveats")
+
+    def visible_text(self) -> str:
+        """Every caveat line currently on screen, joined. For tests."""
+        return "\n".join(label.text() for label in self._labels
+                         if label.isVisibleTo(self))
+
+    def all_text(self) -> str:
+        """Every caveat line the panel holds, shown or not."""
+        return "\n".join(label.text() for label in self._labels)
+
+
+
+class PowerScreen(QWidget):
+    """The Power / Design app.
+
+    :param threaded: run sweeps on a :func:`~spacr.qt.bridge.make_thread`
+        worker (the shipped behaviour). ``False`` runs the identical code
+        inline and emits the identical signals, which is what the tests use
+        to get a deterministic result without pumping an event loop.
+    :param parent: Qt parent.
+    """
+
+    #: Emitted when a sweep settles, with whether it produced a result.
+    job_finished = Signal(bool)
+    #: Emitted on every progress tick, with ``(done, total)``.
+    progressed = Signal(int, int)
+
+    def __init__(self, threaded: bool = True,
+                 parent: Optional[QWidget] = None):
+        """Build the screen with the design form beside the curves and table.
+
+        :param threaded: run the sweep on a worker thread. Set ``False`` in
+            tests so ``run`` finishes before it returns.
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self._threaded = bool(threaded)
+        self._jobs: List[Tuple[Any, Any]] = []
+        self._pending: List[Dict[str, Any]] = []
+        self._busy = False
+        self._cancel: Optional[threading.Event] = None
+        self._result: Optional[Dict[str, Any]] = None
+        #: Extra fit arguments; tests lower the ADVI step count with this.
+        self.fit_kwargs: Dict[str, Any] = {}
+        #: The design fields that are not on the form, at the real screen's
+        #: fitted values. Shown, never hidden — see ``_held_note``.
+        self._held: Dict[str, Any] = {
+            name: getattr(DesignSpec(), name) for name in _HELD_FIELDS}
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(SPACING["md"], SPACING["md"],
+                                SPACING["md"], SPACING["md"])
+        root.setSpacing(SPACING["sm"])
+
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Describe the library and the effect you want to "
+                        "catch; the curves say how many wells.",
+        )
+        self._header = header
+        root.addWidget(header)
+
+        splitter = CollapsibleSplitter(Qt.Horizontal,
+                                       persist_key="power::body")
+        splitter.add_pane(self._build_form(), "Design", stretch=0)
+        splitter.add_pane(self._build_output(), "Answer", stretch=1)
+        self._body_splitter = splitter
+        root.addWidget(splitter, 1)
+
+        self._status = QLabel("")
+        self._status.setObjectName(STATUS_OBJECT)
+        self._status.setWordWrap(True)
+        root.addWidget(self._status)
+
+        self._sync_derived()
+        self._update_controls()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+
+    def _build_form(self) -> QWidget:
+        """Build the left column: library, plates, effect, acquisition and run.
+
+        Every simulator parameter the form does not ask for is printed in the
+        held-values note rather than left implicit -- a power analysis defended
+        in a methods section needs every number that went into it.
+
+        :returns: the scrollable form widget.
+        """
+        holder = QScrollArea()
+        holder.setWidgetResizable(True)
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(0, 0, SPACING["sm"], 0)
+        layout.setSpacing(SPACING["sm"])
+        defaults = DesignSpec()
+
+        library = QGroupBox("Library")
+        form = QFormLayout(library)
+        self._genes = self._int_box(2, 100000, defaults.n_genes)
+        self._genes.setToolTip(_setting_tooltip("power_n_genes"))
+        self._grnas = self._int_box(1, 100, defaults.n_grnas_per_gene)
+        self._grnas.setToolTip(_setting_tooltip("power_n_grnas_per_gene"))
+        self._score_per = QComboBox()
+        self._score_per.addItems(["gene", "guide"])
+        self._score_per.setToolTip(_setting_tooltip("power_score_per"))
+        self._constructs = self._float_box(0.1, 500.0, defaults.constructs_per_well,
+                                           decimals=2, step=0.1)
+        self._constructs.setToolTip(
+            _setting_tooltip("power_constructs_per_well"))
+        form.addRow("Genes", self._genes)
+        form.addRow("gRNAs / gene", self._grnas)
+        form.addRow("Score per", self._score_per)
+        form.addRow("Constructs / well", self._constructs)
+        self._library_note = QLabel("")
+        self._library_note.setWordWrap(True)
+        form.addRow(self._library_note)
+        layout.addWidget(library)
+
+        plate = QGroupBox("Plates")
+        form = QFormLayout(plate)
+        self._plate_format = QComboBox()
+        for fmt in PLATE_FORMATS:
+            self._plate_format.addItem(str(fmt), fmt)
+        self._plate_format.setCurrentText(str(defaults.wells_per_plate))
+        self._plate_format.setToolTip(
+            _setting_tooltip("power_wells_per_plate"))
+        self._plates = self._int_box(1, 200, defaults.n_plates)
+        self._plates.setToolTip(_setting_tooltip("power_n_plates"))
+        form.addRow("Wells / plate", self._plate_format)
+        form.addRow("Plates", self._plates)
+        self._wells_note = QLabel("")
+        form.addRow(self._wells_note)
+        layout.addWidget(plate)
+
+        effect = QGroupBox("Effect")
+        form = QFormLayout(effect)
+        self._background = self._float_box(
+            0.0001, 0.99, defaults.background_positive_rate, decimals=4, step=0.01)
+        self._background.setToolTip(
+            _setting_tooltip("power_background_positive_rate"))
+        self._effect = self._float_box(0.05, 50.0, defaults.effect_fold,
+                                       decimals=3, step=0.1)
+        self._effect.setToolTip(_setting_tooltip("power_effect_fold"))
+        self._prevalence = self._float_box(0.0001, 1.0, defaults.hit_rate,
+                                           decimals=4, step=0.005)
+        self._prevalence.setToolTip(_setting_tooltip("power_hit_rate"))
+        form.addRow("Background positive rate", self._background)
+        form.addRow("Effect size (fold)", self._effect)
+        form.addRow("Hit prevalence", self._prevalence)
+        self._effect_note = QLabel("")
+        self._effect_note.setWordWrap(True)
+        form.addRow(self._effect_note)
+        layout.addWidget(effect)
+
+        acquisition = QGroupBox("Imaging and sequencing")
+        form = QFormLayout(acquisition)
+        self._cells = self._float_box(1.0, 100000.0, defaults.cells_per_well,
+                                      decimals=1, step=10.0)
+        self._cells.setToolTip(_setting_tooltip("power_cells_per_well"))
+        self._reads = self._int_box(100, 10_000_000, int(defaults.reads_per_well))
+        self._reads.setToolTip(_setting_tooltip("power_reads_per_well"))
+        form.addRow("Cells imaged / well", self._cells)
+        form.addRow("Reads / well", self._reads)
+        self._held_note = QLabel("")
+        self._held_note.setWordWrap(True)
+        self._held_note.setToolTip(
+            "The simulator parameters this screen does not ask for, held at "
+            "the values fitted to the real T. gondii screen. Change them by "
+            "constructing a DesignSpec and calling set_spec().")
+        form.addRow(self._held_note)
+        layout.addWidget(acquisition)
+
+        run = QGroupBox("Run")
+        form = QFormLayout(run)
+        self._replicates = self._int_box(1, 50, defaults.n_replicates)
+        self._replicates.setToolTip(_setting_tooltip("power_n_replicates"))
+        self._threshold = self._float_box(0.5, 1.0, defaults.detection_auroc,
+                                          decimals=2, step=0.01)
+        self._threshold.setToolTip(
+            _setting_tooltip("power_detection_auroc"))
+        self._seed = self._int_box(0, 2_000_000_000, defaults.seed)
+        self._seed.setToolTip(_setting_tooltip("power_seed"))
+        self._backend = QComboBox()
+        self._backend.addItems(list(_BACKEND_CHOICES))
+        self._backend.setCurrentText(defaults.backend)
+        self._backend.setToolTip(_setting_tooltip("power_backend"))
+        form.addRow("Replicates / point", self._replicates)
+        form.addRow("Detect at AUROC ≥", self._threshold)
+        form.addRow("Seed", self._seed)
+        form.addRow("Backend", self._backend)
+        self._cost_note = QLabel("")
+        self._cost_note.setWordWrap(True)
+        form.addRow(self._cost_note)
+        layout.addWidget(run)
+
+        self._setting_fields = {
+            "power_n_genes": self._genes,
+            "power_n_grnas_per_gene": self._grnas,
+            "power_score_per": self._score_per,
+            "power_cells_per_well": self._cells,
+            "power_wells_per_plate": self._plate_format,
+            "power_n_plates": self._plates,
+            "power_constructs_per_well": self._constructs,
+            "power_background_positive_rate": self._background,
+            "power_effect_fold": self._effect,
+            "power_hit_rate": self._prevalence,
+            "power_reads_per_well": self._reads,
+            "power_n_replicates": self._replicates,
+            "power_detection_auroc": self._threshold,
+            "power_seed": self._seed,
+            "power_backend": self._backend,
+        }
+        for key, field in self._setting_fields.items():
+            source = _setting_tooltip(key)
+            field.setProperty("settingsAppKey", APP_KEY)
+            field.setProperty("settingKey", key)
+            field.setProperty("apiTooltipDescriptionSource", source)
+            field.setProperty("apiTooltipDescription", source)
+
+        buttons = QHBoxLayout()
+        self._btn_run = QPushButton("Run the power analysis")
+        self._btn_run.clicked.connect(self.run)
+        self._btn_stop = QPushButton("Stop")
+        self._btn_stop.clicked.connect(self.cancel)
+        buttons.addWidget(self._btn_run)
+        buttons.addWidget(self._btn_stop)
+        layout.addLayout(buttons)
+        layout.addWidget(self._build_arrayed_planner(inner))
+        layout.addStretch(1)
+
+        for widget in (self._genes, self._grnas, self._plates, self._reads,
+                       self._seed, self._replicates):
+            widget.valueChanged.connect(self._sync_derived)
+        for widget in (self._constructs, self._background, self._effect,
+                       self._prevalence, self._cells, self._threshold):
+            widget.valueChanged.connect(self._sync_derived)
+        self._score_per.currentTextChanged.connect(self._sync_derived)
+        self._plate_format.currentTextChanged.connect(self._sync_derived)
+
+        holder.setWidget(inner)
+        holder.setMinimumWidth(320)
+        return holder
+
+    def _build_output(self) -> QWidget:
+        """Build the right column: the answer line, caveats, both curves and the table.
+
+        Item 471: the caveats fold under their own heading, and the two
+        curves and the table are sections of one vertical
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``power::results``), so each folds by its heading and the edges
+        between them drag.
+
+        :returns: the output panel.
+        """
+        panel = QWidget()
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(SPACING["sm"])
+
+        self._answer = QLabel("No run yet — set the design and press Run.")
+        self._answer.setObjectName(ANSWER_OBJECT)
+        self._answer.setWordWrap(True)
+        self._answer.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        font = self._answer.font()
+        font.setPointSizeF(font.pointSizeF() * 1.15)
+        self._answer.setFont(font)
+        layout.addWidget(self._answer)
+
+        self._caveats = CaveatPanel()
+        layout.addWidget(FoldSection(self._caveats, "Caveats",
+                                     persist_key="power/Caveats", stretch=0))
+
+        self._cells_view = PowerCurveView("Detection probability vs cells per well")
+        self._wells_view = PowerCurveView("Detection probability vs wells")
+        results = CollapsibleSplitter(Qt.Vertical,
+                                      persist_key="power::results")
+        results.add_section(self._cells_view, "Power vs cells per well",
+                            persist_key="power/Power vs cells per well")
+        results.add_section(self._wells_view, "Power vs wells",
+                            persist_key="power/Power vs wells")
+        self._results_splitter = results
+        layout.addWidget(results, 1)
+
+        self._table = QTableWidget(0, len(_TABLE_HEADERS))
+        install_sorting(self._table)
+        self._table.setHorizontalHeaderLabels(list(_TABLE_HEADERS))
+        self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._table.setSelectionMode(QAbstractItemView.NoSelection)
+        self._table.verticalHeader().setVisible(False)
+        self._table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._table.setMinimumHeight(140)
+        mark_surface(self._caveats, self._table)
+        results.add_section(self._table, "Power table",
+                            persist_key="power/Power table")
+        return panel
+
+    def _build_arrayed_planner(self, parent: QWidget) -> QGroupBox:
+        """Build the arrayed-assay planner: pilot table in, designs out.
+
+        The planner reads a per-cell pilot table, splits its variance into
+        replicate, well, field and cell components and lists the cheapest
+        replicate, well and field counts that reach the target power for a
+        two-condition comparison, with the top design checked by simulation.
+
+        :param parent: the form the box sits in, so hiding it sticks.
+        :returns: the planner group box.
+
+        The effect may be negative, since a proportion's or a count's power
+        depends on the direction of the change.
+        """
+        box = QGroupBox(tr("Arrayed-assay planner"), parent)
+        box.setObjectName("PowerArrayedPlanner")
+        form = QFormLayout(box)
+        path_row = QHBoxLayout()
+        self._pilot_path = QLineEdit()
+        self._pilot_path.setToolTip(tr(
+            "Per-cell measurements from a pilot plate: a CSV, Parquet, Excel "
+            "or spaCR measurement database. Default empty."))
+        self._pilot_path.editingFinished.connect(self._refresh_pilot_columns)
+        browse = QPushButton(tr("Browse…"))
+        browse.clicked.connect(self._browse_pilot)
+        path_row.addWidget(self._pilot_path, 1)
+        path_row.addWidget(browse)
+        example = install_test_data_button(
+            self, path_row, lambda _folder, db: self._use_example_pilot(db))
+        example.setObjectName("PowerTestDataButton")
+        form.addRow(tr("Pilot table"), path_row)
+        self._pilot_table = QLineEdit("cell")
+        self._pilot_table.setToolTip(tr(
+            "Table to read when the pilot is a database. Default cell."))
+        form.addRow(tr("Database table"), self._pilot_table)
+        self._pilot_columns: Dict[str, QComboBox] = {}
+        for key, label, default, tip in (
+                ("value", tr("Measurement"), "",
+                 tr("Per-cell column the experiment will compare. "
+                    "Default empty.")),
+                ("well", tr("Well column"), "prc",
+                 tr("Column naming each well, unique across plates. "
+                    "Default prc.")),
+                ("field", tr("Field column"), "fieldID",
+                 tr("Column naming the field within its well. "
+                    "Default fieldID.")),
+                ("replicate", tr("Replicate column"), "",
+                 tr("Column naming the biological replicate, such as "
+                    "plateID when each plate is one; leave empty when the "
+                    "pilot has one replicate and the replicate variance "
+                    "cannot be estimated. Default empty.")),
+                ("condition", tr("Condition column"), "",
+                 tr("Column naming the treatment when the pilot holds more "
+                    "than one: components are pooled within conditions, "
+                    "and with a replicate column the replicate-by-condition "
+                    "variance, which pairing does not cancel, is estimated. "
+                    "Default empty."))):
+            combo = QComboBox()
+            combo.setEditable(True)
+            combo.setEditText(default)
+            combo.setToolTip(tip)
+            self._pilot_columns[key] = combo
+            form.addRow(label, combo)
+        self._plan_readout = QComboBox()
+        for key, label in (("continuous", tr("Continuous")),
+                           ("proportion", tr("Proportion (0 or 1 per cell)")),
+                           ("count", tr("Count per cell"))):
+            self._plan_readout.addItem(label, key)
+        self._plan_readout.setToolTip(tr(
+            "How the measurement behaves. A proportion's or a count's cell "
+            "variance follows its mean, so the effect is the signed change "
+            "from the pilot mean. Default Continuous."))
+        form.addRow(tr("Readout"), self._plan_readout)
+        self._plan_effect = self._float_box(-1e12, 1e12, 0.0, decimals=4)
+        self._plan_effect.setToolTip(tr(
+            "Difference between the two condition means to detect, in the "
+            "measurement's units. Default 0."))
+        form.addRow(tr("Effect to detect"), self._plan_effect)
+        self._plan_power = self._float_box(0.5, 0.99, 0.8, step=0.05)
+        self._plan_power.setToolTip(tr(
+            "Probability of a significant result the design must reach. "
+            "Default 0.8."))
+        form.addRow(tr("Target power"), self._plan_power)
+        self._plan_alpha = self._float_box(0.001, 0.2, 0.05, decimals=3,
+                                           step=0.01)
+        self._plan_alpha.setToolTip(tr(
+            "Two-sided significance level of the t-test on replicate means. "
+            "Default 0.05."))
+        form.addRow(tr("Significance level"), self._plan_alpha)
+        self._plan_paired = QCheckBox(tr("Both conditions on every replicate"))
+        self._plan_paired.setToolTip(tr(
+            "Analyse replicates as pairs, so replicate-to-replicate "
+            "variation cancels. Default off."))
+        form.addRow(self._plan_paired)
+        self._plan_costs: Dict[str, QDoubleSpinBox] = {}
+        for key, label, default in (
+                ("replicate", tr("Replicate cost"), 20.0),
+                ("well", tr("Well cost"), 1.0),
+                ("field", tr("Field cost"), 0.1)):
+            cost = self._float_box(0.0, 1e6, default, decimals=3)
+            cost.setToolTip(tr(
+                "Relative cost per condition: one replicate, one well "
+                "within a replicate, or one field within a well. Use common "
+                "units; zero ignores this cost. Default {default:g}.",
+                default=default))
+            self._plan_costs[key] = cost
+            form.addRow(label, cost)
+        self._plan_limits: Dict[str, QSpinBox] = {}
+        for key, label, low, high, default in (
+                ("replicates", tr("Maximum replicates"), 2, 24, 12),
+                ("wells", tr("Maximum wells per condition"), 1, 24, 12),
+                ("fields", tr("Maximum fields per well"), 1, 50, 25)):
+            limit = self._int_box(low, high, default)
+            limit.setToolTip(tr(
+                "Largest count considered: biological replicates per "
+                "condition, wells per condition per replicate, or fields "
+                "per well. Default {default}.", default=default))
+            self._plan_limits[key] = limit
+            form.addRow(label, limit)
+        plan = QPushButton(tr("Plan the design"))
+        plan.clicked.connect(self._plan_from_pilot)
+        form.addRow(plan)
+        self._plan_summary = QLabel("")
+        self._plan_summary.setWordWrap(True)
+        self._plan_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        form.addRow(self._plan_summary)
+        headers = [tr("Replicates"), tr("Wells"), tr("Fields"), tr("Power"),
+                   tr("Cost")]
+        self._plan_table = QTableWidget(0, len(headers))
+        install_sorting(self._plan_table)
+        self._plan_table.setHorizontalHeaderLabels(headers)
+        self._plan_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._plan_table.verticalHeader().setVisible(False)
+        self._plan_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._plan_table.setMinimumHeight(120)
+        form.addRow(self._plan_table)
+        self._arrayed_plan = None
+        self._save_plan = QPushButton(tr("Save plan…"))
+        self._save_plan.setEnabled(False)
+        self._save_plan.clicked.connect(self._save_arrayed_plan)
+        self._load_plan = QPushButton(tr("Load plan…"))
+        self._load_plan.clicked.connect(self._load_arrayed_plan)
+        plan_files = QHBoxLayout()
+        plan_files.addWidget(self._save_plan)
+        plan_files.addWidget(self._load_plan)
+        form.addRow(plan_files)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(box)
+        self._arrayed_planner = box
+        return box
+
+    def _browse_pilot(self) -> None:
+        """Ask for the pilot table and list its columns."""
+        path, _ = QFileDialog.getOpenFileName(self, tr("Pilot table"))
+        if path:
+            self._pilot_path.setText(path)
+            self._refresh_pilot_columns()
+
+    def _use_example_pilot(self, database) -> None:
+        """Use the example plate's cell table as the pilot measurements.
+
+        :param database: the example plate's ``measurements.db``.
+        """
+        self._pilot_path.setText(str(database))
+        self._pilot_table.setText("cell")
+        self._refresh_pilot_columns()
+
+    def _refresh_pilot_columns(self) -> None:
+        """Offer the pilot table's columns in the column pickers."""
+        from ...tabular import table_columns
+
+        path = self._pilot_path.text().strip()
+        if not path:
+            return
+        try:
+            columns = table_columns(path,
+                                    table=self._pilot_table.text().strip())
+        except Exception:
+            return
+        for key, combo in self._pilot_columns.items():
+            current = combo.currentText()
+            combo.clear()
+            if key in ("replicate", "condition"):
+                combo.addItem("")
+            combo.addItems(list(columns))
+            combo.setEditText(current)
+
+    def _plan_from_pilot(self):
+        """Estimate the pilot's variance components and list reachable designs.
+
+        :returns: the design table, cheapest first, or None when the pilot
+            could not be read or the effect is impossible for the readout;
+            the summary line says why.
+
+        The plan is compared with a simulation of exactly the same whole-cell
+        design, as the real-pilot validation does.
+        """
+        from ...sp_stats import (_default_cells, _nested_variance_components,
+                                 _plan_arrayed_design,
+                                 _simulate_arrayed_power)
+        from ...tabular import read_table
+        from pathlib import Path
+
+        self._arrayed_plan = None
+        self._save_plan.setEnabled(False)
+        column = {k: c.currentText().strip()
+                  for k, c in self._pilot_columns.items()}
+        pilot_path = self._pilot_path.text().strip()
+        pilot_table = self._pilot_table.text().strip()
+        try:
+            pilot = read_table(pilot_path, table=pilot_table, report=None)
+            components = _nested_variance_components(
+                pilot, column["value"], well=column["well"],
+                field=column["field"],
+                replicate=column["replicate"] or None,
+                condition=column["condition"] or None)
+        except Exception as exc:
+            self._plan_summary.setText(
+                tr("Could not read the pilot: {error}", error=exc))
+            self._plan_table.setRowCount(0)
+            return None
+        effect = self._plan_effect.value()
+        paired = self._plan_paired.isChecked()
+        alpha = self._plan_alpha.value()
+        readout = self._plan_readout.currentData() or "continuous"
+        cells = max(1, int(round(_default_cells(components))))
+        inputs = dict(effect=effect, power=self._plan_power.value(),
+                      alpha=alpha, paired=paired, cells=cells,
+                      max_replicates=self._plan_limits["replicates"].value(),
+                      max_wells=self._plan_limits["wells"].value(),
+                      max_fields=self._plan_limits["fields"].value(),
+                      costs=tuple(self._plan_costs[key].value()
+                                  for key in ("replicate", "well", "field")),
+                      readout=readout)
+        try:
+            designs = _plan_arrayed_design(components, **inputs)
+        except ValueError as exc:
+            self._plan_summary.setText(
+                tr("Could not plan the design: {error}", error=exc))
+            self._plan_table.setRowCount(0)
+            return None
+        variances = tr(
+            "Mean {mean:.4g}; variance between replicates {rep}, wells "
+            "{well:.4g}, fields {field:.4g}, cells {cell:.4g}; "
+            "{cells:.0f} cells per field.",
+            mean=components["mean"],
+            rep=(f"{components['replicate']:.4g}"
+                 if components["estimated"]["replicate"]
+                 else tr("not estimated (taken as 0)")),
+            well=components["well"], field=components["field"],
+            cell=components["cell"], cells=components["cells_per_field"])
+        variances += " " + tr(
+            "Replicate-by-condition variance {value}.",
+            value=(f"{components['replicate_condition']:.4g}"
+                   if components["estimated"]["replicate_condition"]
+                   else tr("not estimated (taken as 0)")))
+        simulation = None
+        if designs.empty:
+            summary = variances + " " + tr(
+                "No design within {replicates} replicates, {wells} wells "
+                "per condition and {fields} fields per well reaches the "
+                "target power.", replicates=inputs["max_replicates"],
+                wells=inputs["max_wells"], fields=inputs["max_fields"])
+            self._show_arrayed_designs(designs, summary)
+            return designs
+        best = designs.iloc[0]
+        simulated = _simulate_arrayed_power(
+            components, effect, replicates=int(best.replicates),
+            wells=int(best.wells), fields=int(best.fields), alpha=alpha,
+            cells=cells, paired=paired, n_sim=500, seed=0, readout=readout)
+        summary = variances + " " + tr(
+            "Cheapest design: {replicates} replicates, {wells} wells per "
+            "condition, {fields} fields per well; power {power:.2f}, "
+            "{simulated:.2f} in 500 simulated experiments.",
+            replicates=int(best.replicates), wells=int(best.wells),
+            fields=int(best.fields), power=best.power,
+            simulated=simulated)
+        simulation = {"design_index": 0, "n_sim": 500, "seed": 0,
+                      "cells_per_field": cells, "power": simulated}
+        self._show_arrayed_designs(designs, summary)
+        self._arrayed_plan = {
+            "schema": "spacr-arrayed-plan-v1",
+            "pilot": {"path": str(Path(pilot_path).expanduser().resolve()),
+                      "table": pilot_table,
+                      "columns": {**column,
+                                  "condition": column["condition"] or None}},
+            "variance_components": {
+                key: None if isinstance(value, float) and not math.isfinite(value)
+                else value for key, value in components.items()},
+            "design_inputs": inputs,
+            "designs": designs.to_dict(orient="records"),
+            "recommendation_index": 0,
+            "simulation": simulation,
+            "summary": summary,
+        }
+        self._save_plan.setEnabled(True)
+        return designs
+
+    def _show_arrayed_designs(self, designs, summary: str) -> None:
+        """Fill the design table with the ten cheapest rows and the summary.
+
+        :param designs: the design table, cheapest first.
+        :param summary: the summary line under the form.
+        """
+        self._plan_table.setRowCount(0)
+        self._plan_table.setRowCount(min(10, len(designs)))
+        for row, design in enumerate(designs.head(10).itertuples()):
+            for col, text in enumerate((
+                    str(design.replicates), str(design.wells),
+                    str(design.fields), f"{design.power:.3f}",
+                    f"{design.cost:.4g}")):
+                self._plan_table.setItem(row, col, table_item(text))
+        self._plan_summary.setText(summary)
+
+    def _validate_arrayed_plan(self, plan):
+        """Preflight a saved snapshot without changing any widget or result.
+
+        Silent QDoubleSpinBox rounding of a hand-edited saved form is rejected.
+        Earlier version 1 plans predate interaction estimation.
+        """
+        _arrayed_plan_mapping(plan, 'plan')
+        _arrayed_plan_finite_tree(plan)
+        if plan.get('schema') != 'spacr-arrayed-plan-v1':
+            raise ValueError('not a saved arrayed plan')
+        inputs = _arrayed_plan_mapping(plan['design_inputs'], 'design_inputs')
+        pilot = _arrayed_plan_mapping(plan['pilot'], 'pilot')
+        _arrayed_plan_text(pilot['path'], 'pilot path', empty=False)
+        _arrayed_plan_text(pilot.get('table', ''), 'pilot table')
+        columns = _arrayed_plan_mapping(pilot['columns'], 'pilot columns')
+        for key in self._pilot_columns:
+            value = columns.get(key)
+            if key in ('replicate', 'condition') and value is None:
+                continue
+            _arrayed_plan_text(value, f'pilot column {key}', empty=key in ('replicate', 'condition'))
+        _arrayed_plan_text(plan['summary'], 'summary')
+        readout = inputs.get('readout', 'continuous')
+        if readout not in ('continuous', 'count', 'proportion'):
+            raise ValueError(f'unknown readout {readout!r}')
+        if type(inputs.get('paired', False)) is not bool:
+            raise ValueError('paired must be a boolean')
+        values = []
+        for key, control in (('effect', self._plan_effect), ('power', self._plan_power),
+                             ('alpha', self._plan_alpha)):
+            values.append((control, _arrayed_plan_number(inputs[key], key, control.minimum(), control.maximum())))
+        costs = inputs['costs']
+        if not isinstance(costs, list) or len(costs) != 3:
+            raise ValueError('costs must contain exactly three numbers')
+        for (key, control), cost in zip(self._plan_costs.items(), costs):
+            values.append((control, _arrayed_plan_number(cost, f'{key} cost', control.minimum(), control.maximum())))
+        for key, control in self._plan_limits.items():
+            values.append((control, _arrayed_plan_number(inputs['max_' + key], 'max_' + key,
+                                          control.minimum(), control.maximum(), integer=True)))
+        for key in ('cells', 'baseline'):
+            if inputs.get(key) is not None:
+                _arrayed_plan_number(inputs[key], key, low=0 if key == 'cells' else None)
+                if key == 'cells' and inputs[key] == 0:
+                    raise ValueError('cells must be positive')
+        for control, value in values:
+            if isinstance(control, QDoubleSpinBox) and round(value, control.decimals()) != value:
+                raise ValueError('saved setting exceeds the control precision')
+        components = _arrayed_plan_mapping(plan['variance_components'], 'variance_components')
+        estimated = _arrayed_plan_mapping(components['estimated'], 'variance estimation flags')
+        for key in ('replicate', 'well', 'field', 'cell', 'replicate_condition'):
+            if key == 'replicate_condition' and key not in components:
+                continue
+            flag = estimated.get(key)
+            if type(flag) is not bool:
+                raise ValueError(f'{key} estimation flag must be a boolean')
+            value = components[key]
+            if value is None:
+                if flag:
+                    raise ValueError(f'{key} is estimated but has no variance')
+            else:
+                _arrayed_plan_number(value, f'{key} variance', 0)
+        _arrayed_plan_number(components['mean'], 'pilot mean')
+        for key in ('cells_per_field', 'cells_per_field_effective', 'fields_per_well',
+                    'wells_per_replicate', 'n_replicates', 'n_conditions', 'n_wells', 'n_cells'):
+            if key in components:
+                _arrayed_plan_number(components[key], key, 1, integer=key.startswith('n_'))
+        if readout != 'continuous':
+            baseline = inputs.get('baseline')
+            baseline = components['mean'] if baseline is None else baseline
+            if baseline <= 0 or (readout == 'proportion' and baseline >= 1):
+                raise ValueError('baseline is outside the readout range')
+            for mean in (baseline, baseline + inputs['effect']):
+                _arrayed_plan_number(mean, 'condition mean', 0, 1 if readout == 'proportion' else None)
+        rows = plan['designs']
+        if not isinstance(rows, list) or not rows:
+            raise ValueError('designs must be a nonempty list')
+        for row in rows:
+            _arrayed_plan_mapping(row, 'design')
+            for key in ('replicates', 'wells', 'fields', 'power', 'cost'):
+                if key not in row:
+                    raise ValueError(f'designs lack {key!r}')
+            for key in ('replicates', 'wells', 'fields'):
+                _arrayed_plan_number(row[key], key, 2 if key == 'replicates' else 1,
+                       inputs['max_' + key], integer=True)
+            _arrayed_plan_number(row['power'], 'design power', 0, 1)
+            _arrayed_plan_number(row['cost'], 'design cost', 0)
+            for key in ('cells_per_field', 'cells_per_condition'):
+                if key in row:
+                    _arrayed_plan_number(row[key], key, 1)
+        _arrayed_plan_number(plan['recommendation_index'], 'recommendation_index', 0, len(rows) - 1, integer=True)
+        simulation = _arrayed_plan_mapping(plan['simulation'], 'simulation')
+        _arrayed_plan_number(simulation['design_index'], 'simulation design_index', 0, len(rows) - 1, integer=True)
+        _arrayed_plan_number(simulation['n_sim'], 'simulation n_sim', 1, integer=True)
+        _arrayed_plan_number(simulation['seed'], 'simulation seed', 0, integer=True)
+        _arrayed_plan_number(simulation['cells_per_field'], 'simulation cells_per_field', 1, integer=True)
+        _arrayed_plan_number(simulation['power'], 'simulation power', 0, 1)
+        return inputs, pilot, columns, values, self._plan_readout.findData(readout)
+
+    def _load_arrayed_plan(self, path: Optional[str] = None) -> bool:
+        """Open a saved plan and put it back on the form and the table.
+
+        The form gets the plan's pilot, columns, readout, effect, power,
+        significance level, pairing, costs and search limits; the table and
+        summary show its saved designs as computed, without re-reading the
+        pilot, and the plan can be saved again as it was. A file that is not
+        a saved plan changes nothing and says why.
+
+        :param path: the plan to open; asks for one when None.
+        :returns: True when the plan was loaded.
+        """
+        import json
+
+        import pandas as pd
+
+        if not path:
+            path, _ = QFileDialog.getOpenFileName(
+                self, tr("Load plan…"), "", "JSON (*.json);;All files (*)")
+        if not path:
+            return False
+        try:
+            with open(path, encoding="utf-8") as handle:
+                plan = json.load(handle, object_pairs_hook=_arrayed_plan_unique_keys)
+            inputs, pilot, columns, values, index = self._validate_arrayed_plan(plan)
+            designs = pd.DataFrame(plan["designs"])
+        except (OSError, KeyError, TypeError, ValueError, OverflowError, RecursionError) as exc:
+            self._plan_summary.setText(
+                tr("Could not load the plan: {error}", error=exc))
+            return False
+        self._pilot_path.setText(str(pilot.get("path") or ""))
+        self._pilot_table.setText(str(pilot.get("table") or ""))
+        for key, combo in self._pilot_columns.items():
+            combo.setEditText(str(columns.get(key) or ""))
+        self._plan_readout.setCurrentIndex(index)
+        for control, value in values:
+            control.setValue(value)
+        self._plan_paired.setChecked(bool(inputs.get("paired", False)))
+        self._show_arrayed_designs(designs, str(plan.get("summary", ""))
+                                   + "\n" + path)
+        self._arrayed_plan = plan
+        self._save_plan.setEnabled(True)
+        return True
+
+    def _save_arrayed_plan(self) -> bool:
+        """Choose a JSON destination and atomically save the computed snapshot.
+
+        Unestimated variances are null with their estimation flags retained;
+        design inputs and candidate rows describe the completed computation,
+        even after the form changes. Cancelling or having no result writes
+        nothing. Write failures leave any existing destination intact.
+
+        :returns: True when the complete plan was saved.
+        """
+        import json
+        from PySide6.QtCore import QIODevice, QSaveFile
+
+        if self._arrayed_plan is None:
+            return False
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("Save plan…"), "arrayed_plan.json",
+            "JSON (*.json);;All files (*)")
+        if not path:
+            return False
+        try:
+            payload = (json.dumps(self._arrayed_plan, indent=2,
+                                  allow_nan=False) + "\n").encode("utf-8")
+            output = QSaveFile(path)
+            if not output.open(QIODevice.WriteOnly):
+                raise OSError(output.errorString())
+            if output.write(payload) != len(payload):
+                output.cancelWriting()
+                raise OSError(output.errorString())
+            if not output.commit():
+                raise OSError(output.errorString())
+        except (OSError, TypeError, ValueError) as exc:
+            self._plan_summary.setText(tr("Export failed") + ": " + str(exc))
+            return False
+        self._plan_summary.setText(self._arrayed_plan["summary"] + "\n" + path)
+        return True
+
+    @staticmethod
+    def _int_box(low: int, high: int, value: int) -> QSpinBox:
+        """Build a bounded integer spin box.
+
+        :param low: minimum accepted value.
+        :param high: maximum accepted value.
+        :param value: starting value.
+        :returns: the spin box.
+        """
+        box = QSpinBox()
+        box.setRange(int(low), int(high))
+        box.setValue(int(value))
+        return box
+
+    @staticmethod
+    def _float_box(low: float, high: float, value: float, *,
+                   decimals: int = 2, step: float = 0.1) -> QDoubleSpinBox:
+        """Build a bounded floating-point spin box.
+
+        :param low: minimum accepted value.
+        :param high: maximum accepted value.
+        :param value: starting value.
+        :param decimals: digits shown after the point.
+        :param step: how far one arrow click moves the value.
+        :returns: the spin box.
+        """
+        box = QDoubleSpinBox()
+        box.setDecimals(int(decimals))
+        box.setRange(float(low), float(high))
+        box.setSingleStep(float(step))
+        box.setValue(float(value))
+        return box
+
+
+    def spec(self) -> DesignSpec:
+        """The design currently on the form.
+
+        :returns: a :class:`~spacr.qt.widgets.power_design.DesignSpec`. This
+            is the only thing the sweep is given, which is what makes an
+            exported run re-runnable from the record.
+        """
+        return DesignSpec(
+            n_genes=int(self._genes.value()),
+            n_grnas_per_gene=int(self._grnas.value()),
+            score_per=self._score_per.currentText(),
+            cells_per_well=float(self._cells.value()),
+            wells_per_plate=int(self._plate_format.currentData()
+                                or self._plate_format.currentText()),
+            n_plates=int(self._plates.value()),
+            constructs_per_well=float(self._constructs.value()),
+            background_positive_rate=float(self._background.value()),
+            effect_fold=float(self._effect.value()),
+            hit_rate=float(self._prevalence.value()),
+            reads_per_well=float(self._reads.value()),
+            n_replicates=int(self._replicates.value()),
+            detection_auroc=float(self._threshold.value()),
+            seed=int(self._seed.value()),
+            backend=self._backend.currentText(),
+            **self._held,
+        )
+
+    def set_spec(self, spec: DesignSpec) -> None:
+        """Put ``spec`` on the form. For tests and for reloading a run.
+
+        The fields the form does not show are carried in :attr:`_held`, so a
+        spec round-trips: ``screen.set_spec(s); screen.spec() == s``. Dropping
+        them would quietly re-simulate a different screen from the one asked
+        for, with no visible difference on the form.
+
+        :param spec: the design to load; its shown fields fill the form and the
+            fields the form does not show are kept for :meth:`spec` to return.
+        """
+        self._held = {name: getattr(spec, name) for name in _HELD_FIELDS}
+        self._genes.setValue(int(spec.n_genes))
+        self._grnas.setValue(int(spec.n_grnas_per_gene))
+        self._score_per.setCurrentText(str(spec.score_per))
+        self._cells.setValue(float(spec.cells_per_well))
+        self._plate_format.setCurrentText(str(spec.wells_per_plate))
+        self._plates.setValue(int(spec.n_plates))
+        self._constructs.setValue(float(spec.constructs_per_well))
+        self._background.setValue(float(spec.background_positive_rate))
+        self._effect.setValue(float(spec.effect_fold))
+        self._prevalence.setValue(float(spec.hit_rate))
+        self._reads.setValue(int(spec.reads_per_well))
+        self._replicates.setValue(int(spec.n_replicates))
+        self._threshold.setValue(float(spec.detection_auroc))
+        self._seed.setValue(int(spec.seed))
+        self._backend.setCurrentText(str(spec.backend))
+        self._sync_derived()
+
+    def _sync_derived(self, *_args) -> None:
+        """Recompute every derived label. Cheap, so it runs on each edit."""
+        spec = self.spec()
+        units = spec.n_library_units
+        if spec.score_per == "guide":
+            self._library_note.setText(
+                f"{units} constructs get their own coefficient "
+                f"({spec.n_genes} genes x {spec.n_grnas_per_gene} guides). "
+                "Every guide of a hit gene is itself a hit, so this measures "
+                "the cost of a larger library, not the benefit of several "
+                "guides per gene.")
+        else:
+            self._library_note.setText(
+                f"{units} genes get a coefficient; the "
+                f"{spec.n_grnas_per_gene} guides are pooled before the model "
+                "sees them, exactly as spaCRPower and the real analysis do.")
+        self._wells_note.setText(f"{spec.n_wells} wells in the screen.")
+        self._held_note.setText(
+            "Held fixed at the real screen's fitted values: "
+            + ", ".join(f"{name}={getattr(spec, name)!s}"
+                        for name in _HELD_FIELDS) + ".")
+        self._effect_note.setText(
+            f"Hit-genotype cells are called positive "
+            f"{spec.hit_positive_rate:.3f} of the time against a background "
+            f"of {spec.background_positive_rate:.3f}; "
+            f"{spec.expected_hits:.1f} of the {units} library units are hits.")
+        seconds = estimate_runtime_s(spec)
+        self._cost_note.setText(
+            f"{(len(cells_grid(spec)) + len(wells_grid(spec))) * spec.n_replicates}"
+            f" fits — very roughly {self._humanise(seconds)}. Rough: the "
+            "estimate scales one measured fit by design size.")
+        self._update_controls()
+
+    @staticmethod
+    def _humanise(seconds: float) -> str:
+        """Render a duration as seconds, minutes or hours.
+
+        :param seconds: the duration.
+        :returns: a short string -- seconds below 90, minutes below 90 minutes,
+            hours above that.
+        """
+        if seconds < 90:
+            return f"{seconds:.0f} s"
+        if seconds < 5400:
+            return f"{seconds / 60:.0f} min"
+        return f"{seconds / 3600:.1f} h"
+
+
+    def run(self) -> bool:
+        """Start both sweeps. Returns whether one was started.
+
+        :returns: ``True`` if a sweep started (or, when ``threaded=False``,
+            ran to completion successfully).
+        """
+        if self._busy:
+            return False
+        spec = self.spec()
+        problems = spec.validate()
+        if problems:
+            self._set_status(problems[0], error=True)
+            return False
+
+        self._cancel = threading.Event()
+        payload: Dict[str, Any] = {
+            "spec": spec,
+            "cancel": self._cancel,
+            "progress": (self._worker_progress if self._threaded
+                         else self._inline_progress),
+            "fit_kwargs": dict(self.fit_kwargs),
+        }
+        self._set_status(
+            f"Running {(len(cells_grid(spec)) + len(wells_grid(spec))) * spec.n_replicates}"
+            f" fits on the {spec.backend} backend…")
+
+        if not self._threaded:
+            ok = True
+            try:
+                run_power_sweep(payload)
+                self._apply_result(payload.get("result"))
+            except Exception as exc:  # noqa: BLE001 - reported inline
+                LOG.info("power sweep failed", exc_info=True)
+                self._on_job_error(exc)
+                ok = False
+            self._busy = False
+            self._update_controls()
+            self.job_finished.emit(ok)
+            return ok
+
+        from ..bridge import make_thread
+
+        thread, worker = make_thread(run_power_sweep, payload,
+                                     app_key=APP_KEY, journal=False)
+        self._jobs.append((thread, worker))
+        self._pending.append(payload)
+        worker.error.connect(self._on_worker_error_text)
+        worker.line_ready.connect(self._on_worker_line)
+        worker.finished.connect(self._on_job_settled)
+        thread.finished.connect(self._retire_finished_jobs)
+        self._busy = True
+        self._update_controls()
+        thread.start()
+        return True
+
+    def cancel(self) -> None:
+        """Ask the running sweep to stop after the fit in flight.
+
+        The fit itself is atomic — there is no safe point inside an ADVI
+        optimisation to abandon — so this sets the event the sweep's
+        ``on_point`` hook checks between grid points, and asks the worker to
+        cancel as well so the run registry and Home see it too.
+        """
+        if self._cancel is not None:
+            self._cancel.set()
+        for _thread, worker in list(self._jobs):
+            try:
+                worker.request_cancel("cancelled from the Power screen")
+            except (RuntimeError, AttributeError):
+                pass
+        if self._busy:
+            self._set_status("Stopping after the fit in flight…")
+
+    def _worker_progress(self, done: int, total: int, label: str) -> None:
+        """Progress, called ON THE WORKER THREAD. Prints; emits nothing.
+
+        :class:`~spacr.qt.bridge.PipelineWorker` redirects the job's stdout
+        and re-emits it as ``line_ready``, which is the one mechanism the
+        whole Qt layer uses to get text out of a worker — and the only one
+        that is unambiguously safe, since a signal emitted from here and
+        connected somewhere with a DirectConnection would touch widgets off
+        the GUI thread, which has already aborted this process once (see the
+        removed idle-flush pump in ``bridge.PipelineWorker.run``).
+
+        The ``Progress: n/total`` spelling is what ``bridge._PROGRESS_RE``
+        parses, so this run's bar appears on the Home screen without
+        teaching Home anything about power analysis.
+        """
+        print(f"Progress: {int(done)}/{int(total)} ({label})", flush=True)
+
+    def _inline_progress(self, done: int, total: int, label: str) -> None:
+        """Progress for ``threaded=False``, where there is only one thread."""
+        self.progressed.emit(int(done), int(total))
+
+    def _on_worker_line(self, chunk: str) -> None:
+        """GUI thread: turn a worker's progress line back into a signal."""
+        for line in str(chunk).splitlines():
+            match = _PROGRESS_LINE.search(line)
+            if match:
+                self.progressed.emit(int(match.group(1)), int(match.group(2)))
+
+
+    def result(self) -> Optional[Dict[str, Any]]:
+        """The last sweep's result dict, or ``None``."""
+        return self._result
+
+    def _apply_result(self, result: Optional[Dict[str, Any]]) -> None:
+        """Render a finished sweep. GUI thread only.
+
+        Renders against the spec the sweep was RUN with, not the one on the
+        form: a sweep is minutes long, the form is editable throughout, and
+        labelling the result with a design that was never simulated is the
+        easiest way for this screen to lie.
+        """
+        self._result = result
+        if not result:
+            self._set_status("The sweep produced no result.", error=True)
+            return
+        spec = result.get("spec") or self.spec()
+        cells = result.get("cells_curve")
+        wells = result.get("wells_curve")
+
+        self._answer.setText(plain_sentence(spec, cells, wells))
+        self._cells_view.set_curve(cells, "cells imaged per well",
+                                   marker=float(round(spec.cells_per_well)),
+                                   threshold=spec.detection_auroc)
+        self._wells_view.set_curve(wells, "wells in the screen",
+                                   marker=float(spec.n_wells),
+                                   threshold=spec.detection_auroc)
+        self._fill_table(cells, wells, spec)
+
+        notes: List[str] = []
+        if result.get("cancelled"):
+            notes.append(
+                "Stopped early — the curves show only the points that "
+                "finished, not a design that ran out of power.")
+        clipped = int(result.get("n_clipped_screens", 0) or 0)
+        if clipped:
+            notes.append(
+                f"{clipped} simulated screen(s) clipped a gene-in-well "
+                f"probability above 1, so the realised constructs per well "
+                f"is below the {spec.constructs_per_well:g} you asked for. "
+                "Raise the library evenness or lower constructs per well.")
+        withheld = 0
+        for curve in (cells, wells):
+            if curve is not None and len(curve):
+                withheld += int(curve["n_not_converged"].sum())
+                withheld += int(curve["n_failed"].sum())
+        if withheld:
+            notes.append(
+                f"{withheld} replicate(s) produced no usable fit and are "
+                "counted as non-detections.")
+        self._set_status(" ".join(notes) if notes else "Done.")
+
+    def _fill_table(self, cells, wells, spec: DesignSpec) -> None:
+        """Fill the sample-size table from both sweeps.
+
+        :param cells: the cells-per-well sweep, or ``None``; each of its rows is
+            listed at the spec's well count.
+        :param wells: the wells sweep, or ``None``; each of its rows is listed at
+            the spec's cells per well.
+        :param spec: the design the sweeps were run around, for the value held
+            fixed in each half.
+        """
+        rows: List[Tuple[str, str, Any]] = []
+        if cells is not None:
+            for _, row in cells.iterrows():
+                rows.append((f"{row['value']:g}", f"{spec.n_wells}", row))
+        if wells is not None:
+            for _, row in wells.iterrows():
+                rows.append((f"{spec.cells_per_well:g}",
+                             f"{row['value']:g}", row))
+        self._table.setRowCount(len(rows))
+        for index, (cell_text, well_text, row) in enumerate(rows):
+            values = [
+                cell_text,
+                well_text,
+                f"{100.0 * float(row['power']):.0f}%",
+                f"{int(row['n_detected'])}/{int(row['n_replicates'])}",
+                self._fmt(row["mean_auroc"]),
+                self._fmt(row["mean_ap"]),
+                self._fmt(row["ap_baseline"], places=3),
+                str(int(row["n_not_converged"])),
+                str(int(row["n_failed"])),
+            ]
+            for column, text in enumerate(values):
+                item = table_item(text)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                self._table.setItem(index, column, item)
+
+    @staticmethod
+    def _fmt(value, places: int = 2) -> str:
+        """A metric as text; a withheld metric as an em dash, never as 0.5."""
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return "—"
+        return "—" if not math.isfinite(number) else f"{number:.{places}f}"
+
+    def table_rows(self) -> List[List[str]]:
+        """Every table cell as plain strings. For tests."""
+        return [[(self._table.item(r, c).text()
+                  if self._table.item(r, c) else "")
+                 for c in range(self._table.columnCount())]
+                for r in range(self._table.rowCount())]
+
+    def answer_text(self) -> str:
+        """The headline sentence currently on screen."""
+        return self._answer.text()
+
+    def caveat_text(self) -> str:
+        """Every caveat line on screen, shown or hidden."""
+        return self._caveats.all_text()
+
+    def visible_caveat_text(self) -> str:
+        """Only the caveat lines the user can see without clicking."""
+        return self._caveats.visible_text()
+
+    def status_text(self) -> str:
+        """The inline status line."""
+        return self._status.text()
+
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Apply the finished sweep on the GUI thread.
+
+        A partial result is rendered whether or not the worker reports
+        success. Cancelling mid-sweep leaves real, finished grid points in
+        the payload, and throwing them away because the run as a whole did
+        not complete would make Stop destructive — the user pressed it
+        because they had seen enough, not because they wanted the answer
+        deleted. The curves say they are partial; see :meth:`_apply_result`.
+        """
+        self._busy = False
+        payload = self._pending.pop(0) if self._pending else {}
+        result = payload.get("result")
+        ok = bool(ok)
+        if result is not None:
+            try:
+                self._apply_result(result)
+            except Exception as exc:  # noqa: BLE001 - reported inline
+                LOG.info("could not render the sweep", exc_info=True)
+                self._on_job_error(exc)
+                ok = False
+        elif self._cancel is not None and self._cancel.is_set():
+            self._set_status("Stopped before the first fit finished.")
+        elif ok:
+            self._set_status("The sweep produced no result.", error=True)
+        self._update_controls()
+        self.job_finished.emit(ok and result is not None)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread``'s own
+        docstring states and then relies on for ``handle.retire``. With a
+        closure PySide6 makes the QThread itself the receiver, and
+        ``make_thread`` connects ``thread.finished -> thread.deleteLater``
+        FIRST; slots run in connection order, so the DeferredDelete is posted
+        ahead of the closure's metacall and Qt discards queued events for a
+        destroyed receiver. The job is then never retired, ``active_jobs()``
+        never returns to zero, and every ``waitUntil(active_jobs() == 0)``
+        sits there until it times out with the QThread's C++ half already
+        gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
+
+    def active_jobs(self) -> int:
+        """How many sweep threads are still winding down."""
+        return len(self._jobs)
+
+    def is_busy(self) -> bool:
+        """Whether a sweep is in flight."""
+        return self._busy
+
+    def _on_worker_error_text(self, tb: str) -> None:
+        """Turn a worker traceback into one inline line (never a dialog)."""
+        line = ""
+        for candidate in reversed(str(tb).strip().splitlines()):
+            if candidate.strip():
+                line = candidate.strip()
+                break
+        self._set_status(f"The sweep failed: {line or 'unknown error'}",
+                         error=True)
+
+    def _on_job_error(self, exc: Exception) -> None:
+        """Report a failed sweep on the status line.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
+        message = str(exc) or exc.__class__.__name__
+        self._set_status(f"The sweep failed: {message}", error=True)
+
+    def _set_status(self, text: str, error: bool = False) -> None:
+        """Put one line under the form. Never a dialog — a modal hangs headless.
+
+        The colour is a dynamic property re-polished in place rather than an
+        inline stylesheet, so it comes from the live palette and survives a
+        theme switch. See :func:`_power_qss`.
+        """
+        self._status.setProperty("spacrError", "true" if error else "false")
+        style = self._status.style()
+        if style is not None:
+            style.unpolish(self._status)
+            style.polish(self._status)
+        self._status.setText(str(text))
+
+    def status_is_error(self) -> bool:
+        """Whether the status line is currently showing a failure. For tests."""
+        return self._status.property("spacrError") == "true"
+
+    def _update_controls(self) -> None:
+        """Enable Run and Stop to match the current design and run state.
+
+        Run is disabled while a sweep is in flight and while the design fails
+        validation -- in which case the first problem becomes its tooltip, so
+        the reason is reachable from the disabled button itself.
+        """
+        problems = self.spec().validate() if hasattr(self, "_genes") else []
+        self._btn_run.setEnabled(not self._busy and not problems)
+        self._btn_stop.setEnabled(self._busy)
+        if problems and not self._busy:
+            self._btn_run.setToolTip(problems[0])
+        else:
+            self._btn_run.setToolTip(
+                "Simulate the screen at each point on both sweeps, fit the "
+                "model to each, and report how often it found the hits.")
+
+
+    def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Let every in-flight sweep stop before the widget dies.
+
+        :param event: the close event; it is passed on to the base class after
+            the sweep is cancelled and running threads are waited on for up to
+            10 s each.
+        """
+        self.cancel()
+        for thread, _worker in list(self._jobs):
+            try:
+                if thread.isRunning():
+                    thread.quit()
+                    thread.wait(10000)
+            except RuntimeError:
+                pass
+        super().closeEvent(event)
+
+
+
+def make_power_screen(app_key: Optional[str] = None) -> QWidget:
+    """Factory handed to :func:`spacr.qt.app.register_app`."""
+    return PowerScreen()
+
+
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_TRANSLATIONS = _ROW.translations
+
+
+#: The settings this app has, as ``{key: (default, type, tooltip)}``.
+#:
+#: The screen's own form IS its settings — every one of these is a spin box
+#: on it — but the key still needs a record in :mod:`spacr.settings` for the
+#: generic machinery (``spacr-run power``, the settings diff, the
+#: per-app inventory tests) to see anything at all. Prefixed ``power_`` so
+#: none of the ~800 existing keys collide.
+_SETTINGS: Dict[str, Tuple[Any, Any, str]] = {
+    "power_n_genes": (
+        452, int,
+        '(int) - Number of genes in the design. In gene mode this is the number of simulated library units; in guide mode the simulator uses genes × guides-per-gene independent units. Larger libraries generally make recovery harder, but the simulator evaluates the resulting design directly rather than assuming a fixed scaling law. Default 452.'),
+    "power_n_grnas_per_gene": (
+        4, int,
+        "(int) - Guides per gene. Only reaches the simulation when power_score_per is 'guide'; there is no guide-efficiency layer in the port, so scoring per gene it changes no number. Default 4."),
+    "power_score_per": (
+        "gene", str,
+        "(str) - 'gene' simulates one aggregate library unit and coefficient per gene; 'guide' simulates genes × guides-per-gene independent guide-level units, each with its own coefficient and reads. The simulator has no guide-efficiency or within-gene grouping layer. Choices: 'gene' or 'guide'. Default 'gene'."),
+    "power_cells_per_well": (
+        123.0, float,
+        '(float) - Mean cells imaged per well. The real screen averaged 123. This is the parameter you buy with microscope time, and the first curve sweeps it. Default 123.0.'),
+    "power_wells_per_plate": (
+        384, int,
+        '(int) - Wells per plate. The GUI offers 96, 384 and 1536; programmatic designs are not restricted to those formats. This is multiplied by power_n_plates and only the resulting total well count reaches the simulator; no plate identity is modelled. Default 384.'),
+    "power_n_plates": (
+        4, int,
+        '(int) - Number of plates used to calculate total simulated wells: wells-per-plate × plates. The simulator and fitted model receive only that total and do not model plate identity or plate-to-plate variance. Default 4.'),
+    "power_constructs_per_well": (
+        4.6, float,
+        '(float) - Target mean distinct library units present per well (genes in gene mode, guides in guide mode), passed as well_abundance_factor_mu. Probability clipping can make the realised mean lower. Default 4.6.'),
+    "power_background_positive_rate": (
+        0.12, float,
+        "(float) - Mean probability that a non-hit cell is called positive. Rates vary across library-unit/well observations according to the held class_neg_var. Default 0.12."),
+    "power_effect_fold": (
+        6.667, float,
+        "(float) - Requested fold multiplier on the mean background positive-call rate. The simulator uses min(0.999, background rate × fold); the screen rejects folds below 1 and classifier mean/variance combinations that cannot define a beta distribution. Default 6.667, yielding 0.80004 at the default background."),
+    "power_hit_rate": (
+        0.025, float,
+        '(float) - Independent probability that each simulated library unit is a true hit; the realised hit fraction varies between replicates. In guide mode, guide units are assigned independently because no gene-grouping layer is modelled. Default 0.025.'),
+    "power_reads_per_well": (
+        30000, int,
+        '(int) - Target mean sequencing depth per well. Per-well targets vary according to the held read_depth_cv, and realised reads cannot exceed the amplified barcode pool. Default 30000.'),
+    "power_n_replicates": (
+        3, int,
+        '(int) - Simulated screens per grid point. One screen at one setting is a single draw from a noisy process. Default 3.'),
+    "power_detection_auroc": (
+        0.80, float,
+        '(float) - The AUROC a simulated screen must reach to count as a detection. There is no p-value here - the model ranks genes, so the bar is a ranking quality and you choose it. Default 0.8.'),
+    "power_seed": (
+        0, int,
+        '(int) - Master seed used to derive each grid-point replicate seed. Reproduction requires the complete DesignSpec, the same sweep grid and order, resolved backend, and software stack. Default 0.'),
+    "power_backend": (
+        "torch", str,
+        "(str) - Inference backend: 'torch' uses mean-field ADVI; 'numpyro' and 'pymc' use optional NUTS; 'auto' prefers numpyro, then pymc, then torch. An unavailable named backend raises. AUROC uses coefficient ordering, but ADVI can reach a local optimum and its intervals are not calibrated. Default 'torch'."),
+}
+
+
+def _setting_tooltip(key: str) -> str:
+    """Return the one authored tooltip for a Power form setting.
+
+    The hand-built form and the generic settings registry are two renderers
+    of the same controls. Reading both from :data:`_SETTINGS` prevents the
+    visible labels from retaining an older scientific claim after the
+    registry tooltip is corrected.
+
+    :param key: a key declared in :data:`_SETTINGS`.
+    :returns: its tooltip text.
+    """
+    return _SETTINGS[key][2]
+
+
+def power_default_settings(settings: Optional[Dict[str, Any]] = None
+                           ) -> Dict[str, Any]:
+    """The app's default settings dict, in :mod:`spacr.settings` shape.
+
+    :param settings: existing settings to fill in; a fresh dict if omitted.
+    :returns: ``settings``, with every missing ``power_`` key defaulted.
+    """
+    settings = dict(settings or {})
+    for key, (default, _type, _tip) in _SETTINGS.items():
+        settings.setdefault(key, default)
+    return settings
+
+
+def spec_from_settings(settings: Dict[str, Any]) -> DesignSpec:
+    """Build a :class:`DesignSpec` from a settings dict.
+
+    The bridge between the generic settings machinery and this screen, so a
+    design saved as settings and a design typed into the form are the same
+    object by the time either reaches the simulator.
+
+    :param settings: any mapping; missing keys take their defaults.
+    :returns: the design.
+    """
+    filled = power_default_settings(settings)
+    return DesignSpec(
+        n_genes=int(filled["power_n_genes"]),
+        n_grnas_per_gene=int(filled["power_n_grnas_per_gene"]),
+        score_per=str(filled["power_score_per"]),
+        cells_per_well=float(filled["power_cells_per_well"]),
+        wells_per_plate=int(filled["power_wells_per_plate"]),
+        n_plates=int(filled["power_n_plates"]),
+        constructs_per_well=float(filled["power_constructs_per_well"]),
+        background_positive_rate=float(filled["power_background_positive_rate"]),
+        effect_fold=float(filled["power_effect_fold"]),
+        hit_rate=float(filled["power_hit_rate"]),
+        reads_per_well=float(filled["power_reads_per_well"]),
+        n_replicates=int(filled["power_n_replicates"]),
+        detection_auroc=float(filled["power_detection_auroc"]),
+        seed=int(filled["power_seed"]),
+        backend=str(filled["power_backend"]),
+    )
+
+
+def register_settings(replace: bool = False) -> bool:
+    """Register this app's defaults through :func:`spacr.settings.register_defaults`.
+
+    Separate from :func:`register`, and called at the bottom of this module:
+    ``register_app(defaults_module=...)`` defers importing the screen until
+    its settings are requested, and that import must populate the same
+    process-wide ``expected_types``, ``tooltips`` and ``categories`` tables
+    regardless of which screen or test happened to import it first.
+
+    :param replace: overwrite an existing registration for this key.
+    :returns: ``True`` if this call registered it, ``False`` if it was
+        already there.
+    """
+    from ...settings import has_registered_defaults, register_defaults
+
+    if has_registered_defaults(APP_KEY) and not replace:
+        return False
+    register_defaults(
+        APP_KEY, power_default_settings, replace=replace,
+        expected_types={k: v[1] for k, v in _SETTINGS.items()},
+        tooltips={k: v[2] for k, v in _SETTINGS.items()},
+        categories={"Power analysis": list(_SETTINGS)},
+        description=APP_INTRO)
+    return True
+
+
+def register() -> bool:
+    """Put Power / Design in the app registry, through the public seam.
+
+    It claims :data:`spacr.qt.app.SECTION_DESIGN`, which is declared in
+    ``SECTION_ORDER`` and has never had an app — its note already reads
+    "Plan the experiment before it runs: power, sample size, plate layout,
+    controls and replicates", so registering makes that tab appear with the
+    description it was written for.
+
+    :returns: ``True`` if this call is what registered it. Safe to call
+        twice — a module imported from two paths must not raise.
+
+    Called from ``app.py``'s ``_SELF_REGISTERING_APPS`` table, at the bottom
+    of that module, which is the one point where a registration is visible to
+    everybody and happens on ``import spacr.qt.app`` rather than only at
+    launch. This module does not call it at its own import, so merely reading
+    the screen's code does not add a row.
+
+    **GUI-only, deliberately.** It passes ``cli_note`` and no ``entry``, so
+    ``spacr-run power`` answers with :data:`APP_CLI_NOTE` instead of "unknown
+    module". The reason is not that the sweep cannot run headless — it can,
+    and the note names the call — but that its *inputs* are not a settings
+    file. Every other ``spacr-run`` module takes a ``src`` and processes it;
+    this one takes a design, and its output is a curve you read by comparing
+    points on it. A settings.csv that pinned one point of that curve would be
+    a worse interface to :func:`spacr.power_model.scan_parameters` than
+    calling it, which is exactly what the note tells the user to do.
+    """
+    register_settings()
+    return register_declared(__name__) is not None
+
+
+register_settings()

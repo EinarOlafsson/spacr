@@ -1,0 +1,34 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Animation density",
+      "source": "Animation density",
+      "source_sha256": "a3c56b3b87f45cf9dbe6294877f282b65eb7ca56343ae0992bd43f1b1d917e58",
+      "table": "ui",
+      "translation": "Þéttleiki hreyfimyndar"
+    },
+    {
+      "key": "Animation detail",
+      "source": "Animation detail",
+      "source_sha256": "ce836d8fd2dcfba2b6a9cdd27a1fb4d2a78ae04040ea4538f0f1d88bcd8c93cc",
+      "table": "ui",
+      "translation": "Smáatriði hreyfimyndar"
+    },
+    {
+      "key": "Animation palette",
+      "source": "Animation palette",
+      "source_sha256": "6a318aca4fecde716fe6da4911c60e06f6c4f2a216a81547ac52002ffa15692f",
+      "table": "ui",
+      "translation": "Litapalletta hreyfimyndar"
+    },
+    {
+      "key": "Random",
+      "source": "Random",
+      "source_sha256": "67bc484430fe87babe3c35d2ba4827d029f1c7e415a92de44885a9c88536661f",
+      "table": "ui",
+      "translation": "Handahófskennt"
+    }
+  ],
+  "schema": 1
+}

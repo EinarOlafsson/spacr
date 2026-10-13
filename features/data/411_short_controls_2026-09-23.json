@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "source_base_commit": "28db90600fa29f72a0ced69e2ecf4cacdd73bd83",
+  "scope": "42 short UI controls; only the 275 missing or rejected positions from the current inventory are compiled.",
+  "publication": {
+    "records": 275,
+    "languages": [
+      {
+        "language": "sv",
+        "records": 26,
+        "catalog_sha256": "d5814349b91bd0e893b5e28811de886cfb932fa185b0e4b98908548adb6d904e",
+        "review_sha256": "9093953b68feef12e0a148081fadb29b242d60bdf6b23b65013918d717bd1c7c",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "de",
+        "records": 26,
+        "catalog_sha256": "c5030a9b29e6bfa107e67a62727074d24b957ed36db5e975c12caad51082d62c",
+        "review_sha256": "18168eb4ac6a95579f4dfa5fb22605876015cc38871de209bb6b31689504d1ba",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "es",
+        "records": 26,
+        "catalog_sha256": "62b42312555c7f977bf6b2ede2f1f4c8e5cbb1b680789ad5f66e84c22ee9ee43",
+        "review_sha256": "cc32aeb626e19b83b40d0702e5969aff847c8ca8a426d787c6a5e261338dc539",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "zh_CN",
+        "records": 26,
+        "catalog_sha256": "32b47ef4ea0caa0a56e033d0b1b60ba93d96d3f12bbcf9c568bf96bca032a3cf",
+        "review_sha256": "d941a2a71bfce374d304bd048d3efc0fdf7bfd7dc98372c2ce916750ff36a4c9",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "pt",
+        "records": 26,
+        "catalog_sha256": "d360127ede79a2e54c3842e2b651a4fa0b53764550afaab61142f774885fc7d7",
+        "review_sha256": "9692ea234c919a9687fa81eb0afc3d6c120af9d9534e5db0301ae4c3fae6804e",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "hi",
+        "records": 42,
+        "catalog_sha256": "1748e5f2ebb99cfa879ae5efcf78da6078d84d4433beae15cafbf759eb9adafe",
+        "review_sha256": "a30cb2d1130eca0cafb7df7df5c53a0c592885490f6a087d7f934fc0ba45beb4",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "ko",
+        "records": 35,
+        "catalog_sha256": "6ae0039929a64a0bea22d812ff9666ea48b4b6a556735bd7757c82e6fd41a771",
+        "review_sha256": "a60f9198ac768d4b96c0c06100e2d66d9534b3171d206d5f1d32cb4be8122b60",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "is",
+        "records": 42,
+        "catalog_sha256": "d3db5f66badf36101714f1f70b96dc1b9b6082df4da608395a79a4fc5ccd8280",
+        "review_sha256": "41567a4135466d38af096758049d3ea78009375b2f8425fa43ac8f77a7fd6c87",
+        "unrelated_entries_preserved": true
+      },
+      {
+        "language": "fr",
+        "records": 26,
+        "catalog_sha256": "4d8924b9a0e3248dced734862dec0ca586f1848d91fe92bbe44a5a73d5dafda1",
+        "review_sha256": "b3051208db90893b34318fe05a0b64d8083b70664a8073b7c9f83270ab1c08ad",
+        "unrelated_entries_preserved": true
+      }
+    ]
+  },
+  "verification": {
+    "source_commit": "28db90600fa29f72a0ced69e2ecf4cacdd73bd83",
+    "ui_count": 5016,
+    "api_count": 11402,
+    "languages": [
+      {
+        "language": "sv",
+        "review_records": 26,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "de",
+        "review_records": 26,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "es",
+        "review_records": 26,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "zh_CN",
+        "review_records": 26,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "pt",
+        "review_records": 26,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "hi",
+        "review_records": 42,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "ko",
+        "review_records": 35,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "is",
+        "review_records": 42,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      },
+      {
+        "language": "fr",
+        "review_records": 26,
+        "actual_formatted_tr": true,
+        "full_runtime_and_api_review_loaders": true
+      }
+    ],
+    "full_locale_acceptance": false,
+    "native_speaker_signoff": false
+  },
+  "tests": {
+    "file": "tests/test_reviewed_scientific_label_identities.py",
+    "passed": 13,
+    "log_sha256": "ea80e128162515484155ad8e345392332777e712572b8728925349b5fa917128"
+  },
+  "source_sha256": {
+    "tools/build_i18n_catalogs.py": "7507bfd5d97a19dc3828be86b630770adf933d0d0f4be3b2a7b6e7b5fc7e59b2",
+    "tests/test_reviewed_scientific_label_identities.py": "56cd27ff8fc9d1260ad69c377a46bf6ba6fbad42201e5d891aa2e5b2bb806ac2"
+  },
+  "scientific_identity_decisions": "13 specific source/language pairs retain correct scientific terms also used in English. Chinese copies and longer untranslated English remain rejected.",
+  "deferred": [
+    "Ambiguous Free label used for both reclaimable storage and unconstrained drawing",
+    "Plaque placement tokens consumed as parser syntax",
+    "Other missing runtime/tooltips and complete API reconstruction"
+  ],
+  "full_catalog_acceptance": false,
+  "native_speaker_signoff": false
+}

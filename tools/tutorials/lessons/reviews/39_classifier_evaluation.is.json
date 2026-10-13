@@ -1,0 +1,37 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "c9422e3e62380aac367c30389de6533c519bd2e7212353f5650aae238e314280",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Classifier Evaluation: skoðaðu spár og villur",
+  "description": "Hlaðu inn vistuðum matspakka, skoðaðu gagnaleka og ruglingsfjölda og síaðu spár til yfirferðar.",
+  "objectives": [
+    "Hlaða inn pakka og fara yfir gagnaleka.",
+    "Skoða ruglingsfjölda og öryggishópa.",
+    "Sía spár og finna vistuð myndrit."
+  ],
+  "prerequisite": "Sæktu og afþjappaðu tengda dæmið með vistuðum niðurstöðum. Það inniheldur spár, töflur og myndrit; úrklipp krefjast samsvarandi tilraunar í Annotate. Dæmið deilir brunnum milli þjálfunar- og prófunargagna, svo notaðu það til að læra á skoðarann en ekki til að meta nákvæmni með óháðum brunnum.",
+  "scenes": [
+    "Opnaðu Classify og svo Classifier Evaluation. Notaðu þennan skoðara til að kanna vistaðan matspakka eftir að spár hafa verið búnar til.",
+    "Sæktu og afþjappaðu dæmið hér fyrir neðan. Smelltu á Browse og veldu möppuna sem inniheldur evaluation_manifest.json.",
+    "Lestu Summary til að sjá fjölda spáa og skráð heiti flokka. Dæmið inniheldur 234 spár í tveimur flokkum.",
+    "Opnaðu Leakage audit áður en þú túlkar nákvæmni. Þetta dæmi merkir brunna sem deilt er milli þjálfunar- og prófunargagna. Fyrir mat með óháðum brunnum undirbýrðu skiptingu með aðskildum brunnum og keyrir þjálfun og mat aftur.",
+    "Opnaðu Confusion matrix. Línurnar eru skráðir flokkar og dálkarnir spár. Hornalínan sýnir samræmi; reitir utan hennar sýna ósamræmi sem þarf að fara yfir.",
+    "Smelltu á reit með ósamræmi til að birta dæmi hans. Valdi reiturinn inniheldur ellefu ósamræmi, flokkuð eftir öryggi.",
+    "Breyttu Confidence threshold til að velja hvaða ósamræmi fara á listann yfir mikið öryggi. Ef þú hækkar hann úr 0,75 í 0,95 verða tvö eftir á háa listanum og níu á þeim lága.",
+    "Farðu yfir valin dæmi ásamt myndum þeirra og merkingum. Notaðu birtu skýringarnar sem vísbendingar til rannsóknar og athugaðu gögnin áður en þú breytir merkjum.",
+    "Opnaðu Per-plate metrics til að bera saman niðurstöður eftir plötum. Þetta dæmi hefur eina plötu; pakki með mörgum plötum gefur aðskildar línur til samanburðar.",
+    "Opnaðu Calibration til að bera saman spáðar líkur og sýnilega tíðni flokka. Athugaðu fjöldann í hverju bili þegar þú túlkar muninn.",
+    "Opnaðu Predictions og sláðu inn auðkenni sýnis eða brunns til að sía færslurnar. Í dæminu velur r5_c2 spár eins brunns.",
+    "Hreinsaðu síuna til að fá allar færslur aftur. Til að opna úrklipp í eigin verkefni hleðurðu fyrst samsvarandi tilraun inn í Annotate; niðurhalanlega niðurstöðudæmið inniheldur engin úrklipp.",
+    "Finndu vistuð kvörðunar- og ruglingsmyndrit í möppu pakkans. Athugaðu merkingar og læsileika áður en þú notar þau í skýrslu.",
+    "Haltu lekaúttektinni með uppgefnum mælikvörðum. Notaðu Training Runs til að bera saman vistaða framvindu þjálfunar og farðu aftur í Annotate þegar fara þarf yfir myndir eða merki."
+  ]
+}

@@ -1,0 +1,1683 @@
+{
+  "scope": "Embeddings 1.5.0.7 real API preflight and GUI navigation only",
+  "accepted": true,
+  "runs": [
+    {
+      "accepted": true,
+      "version": "1.5.0.7",
+      "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png",
+      "sources": [
+        {
+          "name": "plate1_E02_10_1_1.png",
+          "sha256": "4a42a56e083a48aa7954eae54077cfc7df25445cf23d92f328b27233bb9f7767",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_15.png",
+          "sha256": "698bf94c8d8e8a22932bae78dd5a2ee832859e591f1bb1cff02c5f5aa3b199fc",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_16.png",
+          "sha256": "6b7dc75f6124531146d91149f99606c9134b8df70f6d7235b9c87839de937541",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_17.png",
+          "sha256": "48cfcefe467b4ea1afbb61ee49922798290b74040967907881a77fffa755d6ec",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_23.png",
+          "sha256": "f0a82aaf1ad3910c35b732761f00170e687dbae5886e389bd44b36a7b2bdfa79",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_28.png",
+          "sha256": "99dc7f537bdbee2b1747afcc63809561ece181304e445a232724ca474a15a527",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_30.png",
+          "sha256": "b9df4dc9bea40be4e67852b538cde3734330933796083e4d696596deecb0c6be",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_31.png",
+          "sha256": "3f214bbff9f04535fa3b272f6439fb256575977b0056510cad486b87381e15a1",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_37.png",
+          "sha256": "4d48d9f8ba6d1126e26226c59eb6a26619a2e6fe5041d0ec67b016f72060bad3",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_38.png",
+          "sha256": "05481d49733e9c0a1bc22e78c664602e1da31437bc09dc956fdcc4e8665816aa",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_40.png",
+          "sha256": "ebbac8d597cba1812318b51c93d7b377c308c82c1e5a2b017bf20346e9a43c5b",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_41.png",
+          "sha256": "19ed8e16de2dbeb9b7a6ad8304d6d33ab86b3405471c37313ad5231ff7f6cd72",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_6.png",
+          "sha256": "7843d641b3094c53ecefada0da9be5034bb2722474edab4182c8bc5b2e990558",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_7.png",
+          "sha256": "0ff2ad15d909934169dfa64572020dcd02573119237b61bf90fa1c57da655ea3",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_8.png",
+          "sha256": "5f818ff617e7526902fd51dd34ad47b80fb0bd12cc9c006c4091392c3b3714b3",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_11_1_10.png",
+          "sha256": "ed3866914fe87262261a0ef05f8322c01f9dfcbd2e73d2aaf9b218000d3d4199",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        }
+      ],
+      "source_unchanged": true,
+      "shape": [
+        16,
+        1536
+      ],
+      "spec": {
+        "backbone": "resnet18",
+        "channel_policy": "per_channel",
+        "channels": null,
+        "batch_size": 4,
+        "device": "cpu",
+        "normalize": true
+      },
+      "spec_fingerprint": "ee13fbde21d1062c",
+      "weights_sha256": "80c49dee3da4822c009c5a7fe591e9223c5a2cfcf95a4067ca4dfb5a7b89c612",
+      "packages": {
+        "numpy": "2.5.2",
+        "pandas": "2.3.3",
+        "torch": "2.13.0",
+        "timm": "1.0.29",
+        "Pillow": "12.3.0"
+      },
+      "helper_sha256": "afd77f8e3a6ce5db0ea74b6a6faa9172bd238e6fcfbe06a32ad1cada59434c6f",
+      "elapsed_seconds": 5.707379855099134,
+      "verification": {
+        "matrix_cells_checked": 24576,
+        "ordered_identities_match": true,
+        "npy_exact": true,
+        "csv_float32_exact": true
+      },
+      "gui_workflow_completed": false,
+      "biology_validated": false,
+      "stain_mapping_verified": false,
+      "artifacts": {
+        "input_crops.png": "0d54643f24d008c92192bbceb671bf33256d1e67b675de048dacf129776b401c",
+        "pca.png": "09c94f26de6d83964af0ea2b7fbc560518dc4911ca013c42a497c156ecefe4ca",
+        "pca_coordinates.npy": "1c0bcbf4fd8e2fae6d9a67d2c2a117112bade29d12914ff1d402a14c17f97c83",
+        "vectors.csv": "6f6265324457ccbe9f6612c1a0ebe214fe8aed4a87c06846450a7f6317289aa6",
+        "vectors.npy": "d5442bb673382c94f8bedcf14cf714eaae9f75eeadd590d2096964800d74b2d8"
+      }
+    },
+    {
+      "accepted": true,
+      "version": "1.5.0.7",
+      "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/single_nucleus/uninfected/plate1_E02/cell_png",
+      "sources": [
+        {
+          "name": "plate1_E02_10_1_1.png",
+          "sha256": "4a42a56e083a48aa7954eae54077cfc7df25445cf23d92f328b27233bb9f7767",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_15.png",
+          "sha256": "698bf94c8d8e8a22932bae78dd5a2ee832859e591f1bb1cff02c5f5aa3b199fc",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_16.png",
+          "sha256": "6b7dc75f6124531146d91149f99606c9134b8df70f6d7235b9c87839de937541",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_17.png",
+          "sha256": "48cfcefe467b4ea1afbb61ee49922798290b74040967907881a77fffa755d6ec",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_23.png",
+          "sha256": "f0a82aaf1ad3910c35b732761f00170e687dbae5886e389bd44b36a7b2bdfa79",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_28.png",
+          "sha256": "99dc7f537bdbee2b1747afcc63809561ece181304e445a232724ca474a15a527",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_30.png",
+          "sha256": "b9df4dc9bea40be4e67852b538cde3734330933796083e4d696596deecb0c6be",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_31.png",
+          "sha256": "3f214bbff9f04535fa3b272f6439fb256575977b0056510cad486b87381e15a1",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_37.png",
+          "sha256": "4d48d9f8ba6d1126e26226c59eb6a26619a2e6fe5041d0ec67b016f72060bad3",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_38.png",
+          "sha256": "05481d49733e9c0a1bc22e78c664602e1da31437bc09dc956fdcc4e8665816aa",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_40.png",
+          "sha256": "ebbac8d597cba1812318b51c93d7b377c308c82c1e5a2b017bf20346e9a43c5b",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_41.png",
+          "sha256": "19ed8e16de2dbeb9b7a6ad8304d6d33ab86b3405471c37313ad5231ff7f6cd72",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_6.png",
+          "sha256": "7843d641b3094c53ecefada0da9be5034bb2722474edab4182c8bc5b2e990558",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_7.png",
+          "sha256": "0ff2ad15d909934169dfa64572020dcd02573119237b61bf90fa1c57da655ea3",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_10_1_8.png",
+          "sha256": "5f818ff617e7526902fd51dd34ad47b80fb0bd12cc9c006c4091392c3b3714b3",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        },
+        {
+          "name": "plate1_E02_11_1_10.png",
+          "sha256": "ed3866914fe87262261a0ef05f8322c01f9dfcbd2e73d2aaf9b218000d3d4199",
+          "shape": [
+            224,
+            224,
+            3
+          ],
+          "dtype": "uint8"
+        }
+      ],
+      "source_unchanged": true,
+      "shape": [
+        16,
+        512
+      ],
+      "spec": {
+        "backbone": "resnet18",
+        "channel_policy": "project",
+        "channels": null,
+        "batch_size": 4,
+        "device": "cpu",
+        "normalize": true
+      },
+      "spec_fingerprint": "441c81a54b7039ec",
+      "weights_sha256": "80c49dee3da4822c009c5a7fe591e9223c5a2cfcf95a4067ca4dfb5a7b89c612",
+      "packages": {
+        "numpy": "2.5.2",
+        "pandas": "2.3.3",
+        "torch": "2.13.0",
+        "timm": "1.0.29",
+        "Pillow": "12.3.0"
+      },
+      "helper_sha256": "afd77f8e3a6ce5db0ea74b6a6faa9172bd238e6fcfbe06a32ad1cada59434c6f",
+      "elapsed_seconds": 4.096117691020481,
+      "verification": {
+        "matrix_cells_checked": 8192,
+        "ordered_identities_match": true,
+        "npy_exact": true,
+        "csv_float32_exact": true
+      },
+      "gui_workflow_completed": false,
+      "biology_validated": false,
+      "stain_mapping_verified": false,
+      "artifacts": {
+        "input_crops.png": "0d54643f24d008c92192bbceb671bf33256d1e67b675de048dacf129776b401c",
+        "pca.png": "526755c772cfa441d42bc3eaf3dabba1462ade03f30d31746f25ebf31165366f",
+        "pca_coordinates.npy": "00cafff5cc000a4c3728a6e4004d2937caacedcef4dca1aa47b785fa4a43a8d1",
+        "vectors.csv": "19ce1f768b7a50219ca9f91ef39e7e81a6f5201844cffc3239c083589afb9eb3",
+        "vectors.npy": "8414d65766d0205d35def428a02b1457a3eb4f334c647bbf8641385bdcebc159"
+      }
+    }
+  ],
+  "gui": {
+    "accepted": true,
+    "scope": "Actual Home route and channel policy choices only",
+    "gui_workflow_completed": false,
+    "crops_injected": false,
+    "policies_selected": [
+      "project",
+      "per_channel"
+    ],
+    "initial_source": "no crops loaded",
+    "embed_enabled": false,
+    "model_started": false,
+    "app_source_modified": false,
+    "published": false
+  },
+  "gui_frames": {
+    "00_home": {
+      "image": "00_home.png",
+      "capture_surface": "application_window",
+      "sha256": "e254516d957a6cc7e1cff811975aeca1620e82d0618ea1e5dda387250ff8ea22",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            208,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            254,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            300,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            346,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            392,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            438,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "mask"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            638,
+            288,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "measure"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            911,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "annotate"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1183,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1455,
+            288,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1728,
+            288,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "regression"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "foreign"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            638,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "embeddings"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            910,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "run_compare"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1182,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "experiment_design"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1454,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "power"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1726,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "dose_response"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1998,
+            514,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "qc_dashboard"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "make_masks"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            639,
+            740,
+            268,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "align"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            911,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "umap"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1184,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "gate_editor"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1457,
+            740,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "graph_builder"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            366,
+            966,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "analyze_plaques"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            639,
+            966,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "recruitment"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            912,
+            966,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "invasion"
+        },
+        {
+          "text": "",
+          "name": "AppTile",
+          "tooltip": "",
+          "rect": [
+            1185,
+            966,
+            269,
+            186
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": "replication"
+        },
+        {
+          "text": "Clear",
+          "name": "HomePanelAction",
+          "tooltip": "Hide the runs listed here. The run journal and Run History keep them.",
+          "rect": [
+            3773,
+            205,
+            43,
+            22
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3379,
+            240,
+            424,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3379,
+            290,
+            424,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3379,
+            340,
+            424,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "",
+          "tooltip": "",
+          "rect": [
+            3379,
+            390,
+            424,
+            46
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Check for updates…",
+          "name": "GhostButton",
+          "tooltip": "",
+          "rect": [
+            3379,
+            663,
+            424,
+            44
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Reset",
+          "name": "HomePanelAction",
+          "tooltip": "Start these counts from now. The run journal and Run History keep every run.",
+          "rect": [
+            3770,
+            728,
+            46,
+            22
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Refresh",
+          "name": "HomePanelAction",
+          "tooltip": "Re-read GPU, VRAM and disk now.",
+          "rect": [
+            3753,
+            896,
+            63,
+            22
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    },
+    "01_no_gui_crop_input": {
+      "image": "01_no_gui_crop_input.png",
+      "capture_surface": "application_window",
+      "sha256": "93bef828cd03ab3c5eeccd0a8b71c2075c3dd47e51fd23f4229642444e20270d",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            208,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            254,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            300,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            346,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            392,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            438,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "Embed",
+          "name": "PrimaryButton",
+          "tooltip": "Load crops first",
+          "rect": [
+            3726,
+            175,
+            102,
+            46
+          ],
+          "enabled": false,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    },
+    "02_channel_policies": {
+      "image": "02_channel_policies.png",
+      "capture_surface": "private_desktop",
+      "sha256": "729c8be51068e6fdd50dcc17a9203f33cc5d4a4be7824d63e53a2464fd6342f3",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            208,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            254,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            300,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            346,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            392,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            438,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "Embed",
+          "name": "PrimaryButton",
+          "tooltip": "Load crops first",
+          "rect": [
+            3726,
+            175,
+            102,
+            46
+          ],
+          "enabled": false,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    },
+    "03_project_selected": {
+      "image": "03_project_selected.png",
+      "capture_surface": "application_window",
+      "sha256": "775e6abb606560ffd20690edbf0e51b99e93887cfe14b38ec703153eb73f32a5",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            208,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            254,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            300,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            346,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            392,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            438,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "Embed",
+          "name": "PrimaryButton",
+          "tooltip": "Load crops first",
+          "rect": [
+            3726,
+            175,
+            102,
+            46
+          ],
+          "enabled": false,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    },
+    "04_per_channel_restored": {
+      "image": "04_per_channel_restored.png",
+      "capture_surface": "application_window",
+      "sha256": "858bffbb452519a862fb6b5553a2568ed6abfd1a14e0631e1fbf2fa2762414f3",
+      "buttons": [
+        {
+          "text": "",
+          "name": "MinimiseWindow",
+          "tooltip": "Minimise",
+          "rect": [
+            3765,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "FullScreenToggle",
+          "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+          "rect": [
+            3786,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "",
+          "name": "CloseWindow",
+          "tooltip": "Quit spaCR",
+          "rect": [
+            3807,
+            4,
+            19,
+            19
+          ],
+          "enabled": true,
+          "nav_key": null,
+          "module_key": null
+        },
+        {
+          "text": "Home",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            126,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "__home__",
+          "module_key": "__home__"
+        },
+        {
+          "text": "Mask",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            208,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "mask",
+          "module_key": "mask"
+        },
+        {
+          "text": "Measure",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            254,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "measure",
+          "module_key": "measure"
+        },
+        {
+          "text": "Annotate",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            300,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "annotate",
+          "module_key": "annotate"
+        },
+        {
+          "text": "Classify",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            346,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "classify_merged",
+          "module_key": "classify_merged"
+        },
+        {
+          "text": "Map Barcodes",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            392,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "map_barcodes",
+          "module_key": "map_barcodes"
+        },
+        {
+          "text": "Regression",
+          "name": "SidebarItem",
+          "tooltip": "",
+          "rect": [
+            7,
+            438,
+            316,
+            46
+          ],
+          "enabled": true,
+          "nav_key": "regression",
+          "module_key": "regression"
+        },
+        {
+          "text": "Embed",
+          "name": "PrimaryButton",
+          "tooltip": "Load crops first",
+          "rect": [
+            3726,
+            175,
+            102,
+            46
+          ],
+          "enabled": false,
+          "nav_key": null,
+          "module_key": null
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  "mutations": {
+    "helper_sha256": "afd77f8e3a6ce5db0ea74b6a6faa9172bd238e6fcfbe06a32ad1cada59434c6f",
+    "test_sha256": "ce954e0f405430a608018fd4f0508381d766756ed640006dd6f98dfaebff5381",
+    "source_files_modified": false,
+    "mutations": [
+      {
+        "mutation": "existing_destination",
+        "observed_red": true,
+        "failure": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/embeddings-mutant-2lcgjjxy/not_even_loaded'"
+      },
+      {
+        "mutation": "npy_values",
+        "observed_red": true,
+        "failure": "Failed: DID NOT RAISE any of (ValueError, AssertionError)"
+      },
+      {
+        "mutation": "ordered_ids",
+        "observed_red": true,
+        "failure": "Failed: DID NOT RAISE any of (ValueError, AssertionError)"
+      },
+      {
+        "mutation": "csv_values",
+        "observed_red": true,
+        "failure": "Failed: DID NOT RAISE any of (ValueError, AssertionError)"
+      }
+    ]
+  },
+  "video_complete": false,
+  "multilingual_audio_complete": false,
+  "published": false
+}

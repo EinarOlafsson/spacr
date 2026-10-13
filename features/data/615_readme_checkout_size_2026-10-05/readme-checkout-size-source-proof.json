@@ -1,0 +1,8 @@
+{
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "tracked_bytes_before_readme_edit": 1078922693,
+  "stated_MiB": 1029,
+  "historical_2026_09_15_download_claims_retained": true,
+  "normal_measurement_log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/clone-measure-20261005-r1.log",
+  "normal_measurement_download_columns_not_used": "The helper double-counts repeated 100% progress lines, clips full-clone totals at 32-bit limits and does not see checkout-triggered partial-clone downloads. Current checkout sizes and sparse exclusions were measured; download claims remain explicitly historical."
+}

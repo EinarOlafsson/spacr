@@ -1,0 +1,206 @@
+{
+  "scope": "Private 1440p pilot only; remaining web copies are in progress",
+  "accepted_pilot_lessons": [
+    "56_lineage",
+    "09_annotate",
+    "33_plate_viewer"
+  ],
+  "renditions": [
+    {
+      "lesson": "56_lineage",
+      "accepted": true,
+      "master_sha256": "30b9235870e5e075ff26bf6c3ccd4304c3a430cc579089495a6a0dcb38628d33",
+      "rendition_sha256": "aa1cedd2fc504ec61865fca98dbd922e406d177c7424447d8dca9e9630dc107a",
+      "bytes": 4537996,
+      "frames": 8020,
+      "dimensions": [
+        2560,
+        1440
+      ],
+      "all_frame_presentation_times_match": true,
+      "full_decode_passed": true,
+      "publisher_sha256": "8ff8af6394d46a2cf8afd8eca7a06d53136c50c819422968b6025750e7a3149d",
+      "encoder_arguments": [
+        "-threads",
+        "2",
+        "-filter_threads",
+        "2",
+        "-vf",
+        "scale='min(2560,iw)':-2",
+        "-vsync",
+        "0",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "26",
+        "-preset",
+        "veryfast",
+        "-pix_fmt",
+        "yuv420p",
+        "-an",
+        "-movflags",
+        "+faststart"
+      ],
+      "retained_published_sha256": null,
+      "elapsed_seconds": 72.96,
+      "visual_review_complete": false,
+      "narration_regenerated": false,
+      "original_master_changed": false,
+      "published": false
+    },
+    {
+      "lesson": "09_annotate",
+      "accepted": true,
+      "master_sha256": "66f9bc1834493f6821e89756d0e94b9cd8858b82ae74bafb91ba94091faf72c1",
+      "rendition_sha256": "2a6690e0b01754ea222a63703ad25507ad1cfe810caedd7f591e164d16c2ab0f",
+      "bytes": 11705995,
+      "frames": 10590,
+      "dimensions": [
+        2560,
+        1440
+      ],
+      "all_frame_presentation_times_match": true,
+      "full_decode_passed": true,
+      "publisher_sha256": "8ff8af6394d46a2cf8afd8eca7a06d53136c50c819422968b6025750e7a3149d",
+      "encoder_arguments": [
+        "-threads",
+        "2",
+        "-filter_threads",
+        "2",
+        "-vf",
+        "scale='min(2560,iw)':-2",
+        "-vsync",
+        "0",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "26",
+        "-preset",
+        "veryfast",
+        "-pix_fmt",
+        "yuv420p",
+        "-an",
+        "-movflags",
+        "+faststart"
+      ],
+      "retained_published_sha256": null,
+      "elapsed_seconds": 100.25,
+      "visual_review_complete": false,
+      "narration_regenerated": false,
+      "original_master_changed": false,
+      "published": false
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "accepted": true,
+      "master_sha256": "408590ceaa1af8bd140b8979a35f4a2f6a766a4ad632c300f637d17c14a32e41",
+      "rendition_sha256": "53f555853e70012f3783b930f0069c3a8cd8d6872f8ca405c047d97dda52a42d",
+      "bytes": 952202,
+      "frames": 1506,
+      "dimensions": [
+        2560,
+        1440
+      ],
+      "all_frame_presentation_times_match": true,
+      "full_decode_passed": true,
+      "publisher_sha256": "8ff8af6394d46a2cf8afd8eca7a06d53136c50c819422968b6025750e7a3149d",
+      "encoder_arguments": [
+        "-threads",
+        "2",
+        "-filter_threads",
+        "2",
+        "-vf",
+        "scale='min(2560,iw)':-2",
+        "-vsync",
+        "0",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "26",
+        "-preset",
+        "veryfast",
+        "-pix_fmt",
+        "yuv420p",
+        "-an",
+        "-movflags",
+        "+faststart"
+      ],
+      "retained_published_sha256": "53f555853e70012f3783b930f0069c3a8cd8d6872f8ca405c047d97dda52a42d",
+      "elapsed_seconds": 2.83,
+      "visual_review_complete": false,
+      "narration_regenerated": false,
+      "original_master_changed": false,
+      "published": false
+    }
+  ],
+  "visually_inspected_samples": [
+    {
+      "lesson": "56_lineage",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/web-renditions/56_lineage/pilot-sample.jpg",
+      "sha256": "c4e7a44cf745eca063e6489ed23d4092bfbc927ce5150b620ba86af4ecad0b5b"
+    },
+    {
+      "lesson": "09_annotate",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/web-renditions/09_annotate/pilot-sample.jpg",
+      "sha256": "19248a6d85eab07b9d7a6399b57397fa9be4661a58f7d0622175e6c1b3815003"
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/web-renditions/33_plate_viewer/pilot-sample.jpg",
+      "sha256": "e4099fd58e83f5bef02291923b89be7e66884cf65cf776112058f66ae8591b43"
+    }
+  ],
+  "browser_cases": [
+    {
+      "lesson": "56_lineage",
+      "language": "en",
+      "voice": "af_heart",
+      "report_sha256": "7f55665735e40a7f1e6b1121a9866f99a2287c49e92a223b6d5cd52fd4709ca6",
+      "loaded_video": {
+        "sha256": "aa1cedd2fc504ec61865fca98dbd922e406d177c7424447d8dca9e9630dc107a",
+        "width": 2560,
+        "height": 1440
+      }
+    },
+    {
+      "lesson": "56_lineage",
+      "language": "ja",
+      "voice": "jf_nezumi",
+      "report_sha256": "033d9a7bba380d7ed7bf9e7fd5d132a984d4c4456cd9eac7f8fc7b51f7601507",
+      "loaded_video": {
+        "sha256": "aa1cedd2fc504ec61865fca98dbd922e406d177c7424447d8dca9e9630dc107a",
+        "width": 2560,
+        "height": 1440
+      }
+    },
+    {
+      "lesson": "09_annotate",
+      "language": "en",
+      "voice": "af_heart",
+      "report_sha256": "b3b8496fe08f0e4f88ea059e96c74f96c0dea7a55eeac6d62dad19580fcf16bc",
+      "loaded_video": {
+        "sha256": "2a6690e0b01754ea222a63703ad25507ad1cfe810caedd7f591e164d16c2ab0f",
+        "width": 2560,
+        "height": 1440
+      }
+    },
+    {
+      "lesson": "33_plate_viewer",
+      "language": "en",
+      "voice": "af_heart",
+      "report_sha256": "579375154976cedbb753b64c47d1b6140c5dadb2d90246f6d50bfcc69edc6942",
+      "loaded_video": {
+        "sha256": "53f555853e70012f3783b930f0069c3a8cd8d6872f8ca405c047d97dda52a42d",
+        "width": 2560,
+        "height": 1440
+      }
+    }
+  ],
+  "focused_tests": {
+    "web_renditions": 11,
+    "staged_player_links": 10
+  },
+  "source_mutations_observed_red": 4,
+  "visual_scope": "One actual decoded 1440p frame per pilot: Lineage parent zoom; Annotate class-count dialog; Plate Viewer numeric display controls. Not whole-library frame-by-frame acceptance.",
+  "published": false
+}

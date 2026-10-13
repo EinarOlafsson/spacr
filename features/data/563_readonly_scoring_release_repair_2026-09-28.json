@@ -1,0 +1,24 @@
+{
+  "item": 563,
+  "date": "2026-09-28",
+  "source_revision_before": "64b733860d8f73fcbd14c4cba443578caba84206",
+  "ci_run": 36419911411,
+  "failure": "Six anomaly-scoring tests fail when modifying a pandas read-only array; the GUI catches the scoring exception.",
+  "repair": "Request a writable copy of the known-hit mask before accumulating hit matches. Preserve the requested Mask Generation Cloud category in its expected category order.",
+  "validation": {
+    "memory_cap": "4G",
+    "gpu_devices_hidden": true,
+    "pandas_copy_on_write": true,
+    "before": {"failed": 1, "node": "tests/test_anomaly_detection_vs_controls.py::test_known_hits_rank_above_controls[knn]", "error": "ValueError: output array is read-only", "seconds": 2.44, "junit_sha256": "cdd2e664e45d37f779b23f1f0cfb8814d32b81cc7d466b0908dccf314642be3f"},
+    "after": {"passed": 118, "failed": 0, "seconds": 10.85, "junit_sha256": "ccb7323960b990542e1d396695ef3c0f77dd9549a24febe2fc0ae023c4425063"},
+    "files": ["tests/test_anomaly_detection_vs_controls.py", "tests/qt/test_anomaly_alpha_gate.py", "tests/test_settings_categories.py", "tests/test_release_metadata_sync.py", "tests/test_instruction_index.py"]
+  },
+  "source_sha256": {
+    "spacr/sp_stats.py": "f62a636f59d94a5ad3dfc4fb48409d40e2667f9569cc49d6b0ab80d835edd824",
+    "tests/test_anomaly_detection_vs_controls.py": "d5d5e095fb2b32fb5c75ed6949629275bc23d3a8ef1528c0a63ce9d4afe8899d",
+    "tests/qt/test_anomaly_alpha_gate.py": "3214ecdb5e16c7551ade12f0e8dfdf7810e9409c3fe7f0110c4501267a084f32",
+    "tests/test_settings_categories.py": "a3802f35850dbd4a8cc67aba855b1380a126090b1e5046dd52ede6a2abe3feab"
+  },
+  "feature_complete": false,
+  "remaining": "Real-screen known-hit validation and final integrated CI. Alpha gate remains intact."
+}

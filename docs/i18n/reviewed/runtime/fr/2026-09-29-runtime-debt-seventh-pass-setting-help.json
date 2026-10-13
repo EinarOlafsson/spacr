@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_denoise",
+      "source": "Self-supervised denoising: train a Noise2Void (N2V2) network per segmentation channel on this run's own noisy fields, with no clean images, and denoise every field with it after illumination correction and before the PSF and the enhancement chain. Needs the CAREamics backend from the Model Zoo; training wants a GPU. The models' hashes and training losses are recorded with the run. Default False.",
+      "source_sha256": "efc3b7b0dc720a3935d90ad2379074396b6ebc091ebc11480954a3a10c59cc45",
+      "translation": "Débruitage auto-supervisé : entraîne un réseau Noise2Void (N2V2) par canal de segmentation sur les propres champs bruités de cette exécution, sans images propres, et débruite chaque champ avec lui après la correction d’éclairage et avant la PSF et la chaîne d’amélioration. Nécessite le moteur CAREamics de la Bibliothèque de modèles ; l’entraînement demande un GPU. Les hashes et pertes d’entraînement des modèles sont enregistrés avec l’exécution. Valeur par défaut : False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_epochs",
+      "source": "Training passes over the Noise2Void patches, at least 1. More epochs denoise better up to a point and take longer: on a CPU, 30 epochs over ten 512 x 512 crops took under four minutes, and eight full 2000 x 2000 fields take about twelve times as long per epoch, so train on a GPU. Changing it trains new models. Ignored when n2v_model names trained models. Default 20.",
+      "source_sha256": "8f357aff7eee3f55efe583a9c8da3e25f4d88a4a74b8f77080465b96229c23ca",
+      "translation": "Passes d’entraînement sur les patchs Noise2Void, au moins 1. Plus d’époques débruitent mieux jusqu’à un certain point et prennent plus de temps : sur un CPU, 30 époques sur dix découpes de 512 x 512 ont pris moins de quatre minutes, et huit champs complets de 2000 x 2000 prennent environ douze fois plus par époque, entraînez donc sur un GPU. Le modifier entraîne de nouveaux modèles. Ignoré quand n2v_model désigne des modèles entraînés. Valeur par défaut : 20."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "n2v_model",
+      "source": "Folder of trained Noise2Void models, one channel_<c>.ckpt per segmentation channel, such as the n2v folder of an earlier run on the same microscope. Blank trains new models on up to eight of this run's fields into its own n2v folder and reuses them when the run is resumed. Ignored unless n2v_denoise is on. Default blank.",
+      "source_sha256": "52a63c9477812252033191ae738f531aab048877758f24e624baf39c5bd01e8a",
+      "translation": "Dossier de modèles Noise2Void entraînés, un channel_<c>.ckpt par canal de segmentation, comme le dossier n2v d’une exécution antérieure sur le même microscope. Vide entraîne de nouveaux modèles sur jusqu’à huit champs de cette exécution dans son propre dossier n2v et les réutilise quand l’exécution reprend. Ignoré sauf si n2v_denoise est activé. Valeur par défaut : vide."
+    }
+  ]
+}

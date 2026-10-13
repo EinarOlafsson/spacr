@@ -1,0 +1,124 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "06_api",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Natural headless-workflow guidance and exact CLI entry points, module names, and flags."
+  },
+  "languages": {
+    "es": {
+      "description": "Ejecute flujos de trabajo reproducibles de spaCR desde Python o una consola de comandos, sin utilizar la interfaz de escritorio.",
+      "prerequisite": "Complete primero uno de los tutoriales de instalación.",
+      "objectives": [
+        "Confirmar que spaCR está disponible desde Python.",
+        "Elegir y configurar un flujo de trabajo de spacr-run.",
+        "Validar el plan resuelto antes de una ejecución completa sin interfaz gráfica."
+      ],
+      "narrations": [
+        "Importe spaCR y muestre su versión para confirmar que el entorno activo de Python puede utilizar el paquete.",
+        "Ejecute spacr-run con la opción list para consultar los puntos de entrada disponibles, entre ellos mask, measure, annotate, classify y report.",
+        "Inicie un módulo con spacr-run, el nombre del módulo y un archivo de ajustes exportado. spaCR valida las rutas, los canales, los procesos de trabajo y las opciones de hardware antes de comenzar.",
+        "Añada --dry-run para resolver los ajustes, mostrar el plan de ejecución y realizar la validación previa sin procesar datos. Corrija todos los problemas indicados antes de enviar una tarea desatendida.",
+        "Quite --dry-run únicamente después de que el plan y las comprobaciones previas sean correctos. Las tareas sin interfaz gráfica guardan los mismos resultados, ajustes, registros de versión y archivos de registro que el flujo de trabajo de escritorio."
+      ]
+    },
+    "fr": {
+      "description": "Exécutez des flux de travail spaCR reproductibles depuis Python ou un interpréteur de commandes, sans utiliser l’interface de bureau.",
+      "prerequisite": "Commencez par suivre l’un des tutoriels d’installation.",
+      "objectives": [
+        "Confirmer que spaCR est disponible depuis Python.",
+        "Choisir et configurer un flux de travail spacr-run.",
+        "Valider le plan résolu avant une exécution complète sans interface graphique."
+      ],
+      "narrations": [
+        "Importez spaCR et affichez sa version pour confirmer que l’environnement Python actif peut utiliser le paquet.",
+        "Exécutez spacr-run avec l’option list pour afficher les points d’entrée disponibles, notamment mask, measure, annotate, classify et report.",
+        "Démarrez un module avec spacr-run, le nom du module et un fichier de paramètres exporté. spaCR valide les chemins, les canaux, les processus de travail et les options matérielles avant le début du traitement.",
+        "Ajoutez --dry-run pour résoudre les paramètres, afficher le plan d’exécution et effectuer la validation préalable sans traiter les données. Corrigez tous les problèmes signalés avant de soumettre une tâche non surveillée.",
+        "Retirez --dry-run uniquement lorsque le plan et les contrôles préalables sont validés. Les tâches sans interface graphique enregistrent les mêmes résultats, paramètres, informations de version et journaux que le flux de travail de bureau."
+      ]
+    },
+    "it": {
+      "description": "Esegui flussi di lavoro spaCR riproducibili da Python o da una shell, senza utilizzare l’interfaccia desktop.",
+      "prerequisite": "Completa prima uno dei tutorial di installazione.",
+      "objectives": [
+        "Confermare che spaCR sia disponibile da Python.",
+        "Scegliere e configurare un flusso di lavoro spacr-run.",
+        "Convalidare il piano risolto prima di un’esecuzione completa senza interfaccia grafica."
+      ],
+      "narrations": [
+        "Importa spaCR e visualizzane la versione per confermare che l’ambiente Python attivo possa utilizzare il pacchetto.",
+        "Esegui spacr-run con l’opzione list per visualizzare i punti di ingresso disponibili, tra cui mask, measure, annotate, classify e report.",
+        "Avvia un modulo con spacr-run, il nome del modulo e un file di impostazioni esportato. spaCR convalida i percorsi, i canali, i processi di lavoro e le opzioni hardware prima di iniziare.",
+        "Aggiungi --dry-run per risolvere le impostazioni, visualizzare il piano di esecuzione ed eseguire la convalida preliminare senza elaborare dati. Correggi ogni problema segnalato prima di inviare un’attività non presidiata.",
+        "Rimuovi --dry-run solo dopo che il piano e i controlli preliminari sono stati convalidati. Le attività senza interfaccia grafica salvano gli stessi risultati, le impostazioni, le informazioni sulla versione e i file di registro del flusso di lavoro desktop."
+      ]
+    },
+    "hi": {
+      "description": "डेस्कटॉप इंटरफ़ेस के बिना Python या shell से पुनरुत्पाद्य spaCR पाइपलाइन चलाएँ।",
+      "prerequisite": "पहले कोई एक इंस्टॉलेशन ट्यूटोरियल पूरा करें।",
+      "objectives": [
+        "पुष्टि करें कि spaCR, Python से उपलब्ध है।",
+        "spacr-run पाइपलाइन चुनें और कॉन्फ़िगर करें।",
+        "पूर्ण हेडलेस रन से पहले तैयार योजना की जाँच करें।"
+      ],
+      "narrations": [
+        "spaCR को इम्पोर्ट करके उसका संस्करण प्रिंट करें, ताकि पुष्टि हो सके कि सक्रिय Python वातावरण पैकेज का उपयोग कर सकता है।",
+        "mask, measure, annotate, classify और report सहित उपलब्ध पाइपलाइन एंट्री पॉइंट देखने के लिए spacr-run को list विकल्प के साथ चलाएँ।",
+        "spacr-run, मॉड्यूल के नाम और एक्सपोर्ट की गई सेटिंग्स फ़ाइल से मॉड्यूल शुरू करें। काम शुरू होने से पहले spaCR पथ, चैनल, वर्कर और हार्डवेयर विकल्पों की जाँच करता है।",
+        "डेटा प्रोसेस किए बिना सेटिंग्स हल करने, निष्पादन योजना दिखाने और प्रारंभिक सत्यापन चलाने के लिए --dry-run जोड़ें। बिना निगरानी वाला काम भेजने से पहले बताई गई हर समस्या ठीक करें।",
+        "योजना और प्रारंभिक जाँच सफल होने के बाद ही --dry-run हटाएँ। हेडलेस कार्य डेस्कटॉप वर्कफ़्लो जैसे ही आउटपुट, सेटिंग्स, संस्करण अभिलेख और लॉग सहेजते हैं।"
+      ]
+    },
+    "ja": {
+      "description": "デスクトップインターフェースを使用せず、Python またはシェルから再現可能な spaCR パイプラインを実行します。",
+      "prerequisite": "先にいずれかのインストールチュートリアルを完了してください。",
+      "objectives": [
+        "Python から spaCR を利用できることを確認する。",
+        "spacr-run パイプラインを選択して設定する。",
+        "ヘッドレスで本実行する前に、解決済みの実行計画を検証する。"
+      ],
+      "narrations": [
+        "spaCR をインポートしてバージョンを表示し、現在の Python 環境からパッケージを使用できることを確認します。",
+        "spacr-run を list オプション付きで実行し、mask、measure、annotate、classify、report など、利用できるパイプラインのエントリーポイントを確認します。",
+        "spacr-run、モジュール名、エクスポートした設定ファイルを指定してモジュールを開始します。処理開始前に、spaCR がパス、チャネル、ワーカー、ハードウェアオプションを検証します。",
+        "--dry-run を追加すると、データを処理せずに設定を解決し、実行計画を表示して、事前検証を行えます。無人実行を開始する前に、報告された問題をすべて修正してください。",
+        "実行計画と事前検証に合格した後でのみ --dry-run を外します。ヘッドレスジョブでも、デスクトップワークフローと同じ出力、設定、バージョン記録、ログが保存されます。"
+      ]
+    },
+    "pt-BR": {
+      "description": "Execute pipelines reproduzíveis do spaCR pelo Python ou por um shell, sem usar a interface de desktop.",
+      "prerequisite": "Conclua primeiro um dos tutoriais de instalação.",
+      "objectives": [
+        "Confirmar que o spaCR está disponível no Python.",
+        "Escolher e configurar uma pipeline do spacr-run.",
+        "Validar o plano resolvido antes de uma execução completa sem interface gráfica."
+      ],
+      "narrations": [
+        "Importe o spaCR e mostre sua versão para confirmar que o ambiente Python ativo pode usar o pacote.",
+        "Execute spacr-run com a opção list para ver os pontos de entrada disponíveis, incluindo mask, measure, annotate, classify e report.",
+        "Inicie um módulo com spacr-run, o nome do módulo e um arquivo de configurações exportado. Antes do processamento, o spaCR valida caminhos, canais, processos de trabalho e opções de hardware.",
+        "Adicione --dry-run para resolver as configurações, mostrar o plano de execução e fazer a validação prévia sem processar dados. Corrija todos os problemas relatados antes de enviar um trabalho sem supervisão.",
+        "Remova --dry-run somente depois que o plano e as verificações prévias forem aprovados. Os trabalhos sem interface gráfica salvam os mesmos resultados, configurações, registros de versão e logs que o fluxo de trabalho de desktop."
+      ]
+    },
+    "zh-CN": {
+      "description": "不使用桌面界面，从 Python 或 shell 运行可重复的 spaCR 工作流程。",
+      "prerequisite": "请先完成任一安装教程。",
+      "objectives": [
+        "确认可从 Python 使用 spaCR。",
+        "选择并配置 spacr-run 工作流程。",
+        "在完整的无图形界面运行前验证解析后的执行计划。"
+      ],
+      "narrations": [
+        "导入 spaCR 并输出其版本，以确认当前 Python 环境可以使用该软件包。",
+        "使用 list 选项运行 spacr-run，查看可用的工作流程入口，包括 mask、measure、annotate、classify 和 report。",
+        "使用 spacr-run、模块名称和导出的设置文件启动模块。开始处理前，spaCR 会验证路径、通道、工作进程和硬件选项。",
+        "添加 --dry-run，可在不处理数据的情况下解析设置、输出执行计划并进行预运行验证。提交无人值守的任务前，请解决报告的所有问题。",
+        "只有在计划和预运行检查全部通过后，才移除 --dry-run。无图形界面任务会保存与桌面工作流程相同的输出、设置、版本记录和日志。"
+      ]
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "lesson": "25_recruitment",
+  "english_sha256": "a715d9ca58ce49398b497703e04145ed9542ac251e4ea8708650163b6d4478f8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Recruitment: medir el enriquecimiento de un marcador alrededor de los parásitos",
+  "description": "Elige un proyecto medido, asigna el canal del marcador y las condiciones, ajusta los filtros de objetos y revisa los cocientes de reclutamiento por célula huésped y por pozo.",
+  "objectives": [
+    "Seleccionar un proyecto con mediciones vinculadas de células, núcleos, patógenos y citoplasma.",
+    "Ajustar el canal del marcador, las condiciones de la placa y los filtros de objetos.",
+    "Ejecutar Recruitment y leer los resultados CSV por célula huésped y por pozo."
+  ],
+  "prerequisite": "Empieza con un proyecto de Measure que contenga measurements/measurements.db y las tablas vinculadas de células, núcleos, patógenos y citoplasma. Incluye las imágenes combinadas para mostrar superposiciones. El ejemplo usa un marcador de RE en el canal 1; usa la asignación de canales y las etiquetas de condición registradas para tu propio proyecto.",
+  "scenes": [
+    "Desde Home, abre Toxoplasma y luego elige Recruitment. Usa este análisis para comparar la intensidad del marcador en las regiones asociadas a los parásitos con el citoplasma circundante de la célula huésped. Empieza con un proyecto cuyos objetos y canales de intensidad ya se hayan medido.",
+    "Pon en Source la carpeta del proyecto que contiene measurements/measurements.db. Mantén juntas las tablas de células, núcleos, patógenos y citoplasma. Incluye la carpeta de imágenes combinadas si quieres superposiciones sobre las imágenes.",
+    "Pon en Channel of interest el marcador que quieres medir. Los canales se numeran desde cero: uno significa el segundo plano de imagen. Este ejemplo usa el canal uno para el marcador del retículo endoplasmático. Elige el canal que corresponde a tu adquisición.",
+    "Pon en Channel dims los canales necesarios para los resúmenes auxiliares de reclutamiento. En una primera ejecución, usa el mismo canal único que en Channel of interest, para que el cociente principal y los resúmenes de intensidad adicionales sean fáciles de comparar.",
+    "Comprueba la asignación de canales de célula, núcleo y patógeno con el proyecto medido. El ejemplo usa célula uno, núcleo cero y patógeno tres. Guarda la asignación con tus ajustes, para que las superposiciones y los filtros se refieran a las señales previstas.",
+    "Introduce las etiquetas de célula, patógeno y tratamiento, y luego asigna cada etiqueta a sus filas o columnas de la placa. Solo entran en el análisis los pozos anotados. Haz coincidir estas asignaciones con el diseño de tu placa, incluidos los controles positivos y negativos.",
+    "Usa los rangos de tamaño para excluir los objetos fuera de las áreas que quieres analizar. Las áreas están en píxeles y los límites son estrictos. En este análisis el área de patógeno se suma dentro de cada célula huésped, así que elige su rango para el total por célula.",
+    "Ajusta Nuclei limit y Pathogen limit para controlar qué células huésped se conservan. Un límite de núcleos de uno conserva las células con un solo núcleo. Sube un límite para incluir células con más objetos asociados y luego revisa cuántas células quedan.",
+    "Empieza con rangos de intensidad amplios para poder revisar los resultados iniciales. Estrecha un rango cuando tengas una regla de selección por intensidad bien definida. El mínimo de intensidad objetivo aplica un umbral adicional a la intensidad celular del marcador.",
+    "Comprueba el canal que usa cada filtro de intensidad antes de estrechar sus límites. Con la asignación del ejemplo, el filtro de intensidad nuclear usa el canal tres y el filtro de intensidad de patógenos usa el canal uno. Mantén los rangos amplios del ejemplo mientras aprendes el flujo de trabajo.",
+    "Pon en Cells per well el número mínimo de células de origen que necesita un pozo para seguir en el análisis. Este ajuste filtra pozos, mientras que los filtros de objetos seleccionan células. Revisa los recuentos finales conservados además del umbral.",
+    "Activa Plot para mostrar las superposiciones de imagen disponibles y usa Plot number para limitar cuántas se muestran. Deja activado Plot control si quieres las figuras de intensidad de los controles. Usa los gráficos para comprobar la elección de canales y el filtrado antes de interpretar los cocientes.",
+    "Pulsa Run. Sigue la consola mientras el módulo une las mediciones, aplica las condiciones y los filtros, calcula los cocientes y escribe los resultados. Espera a que termine el análisis antes de abrir las tablas de salida.",
+    "Revisa el gráfico de reclutamiento. El valor principal divide la intensidad media agregada de los patógenos de la célula huésped entre la intensidad media de su citoplasma en el canal del marcador seleccionado. Los valores mayores que uno indican enriquecimiento respecto a esa referencia. Consulta las exportaciones numéricas para los cocientes por debajo del rango representado o con denominadores no válidos.",
+    "Revisa el resumen por pozo y compara las condiciones de control. Cada pozo promedia los cocientes de sus células conservadas; los gráficos por condición resumen esos valores por pozo. Las barras de error muestran la desviación estándar entre pozos. La tabla de células representa células huésped con mediciones de patógenos agregadas.",
+    "Abre results/cells.csv para las mediciones de las células huésped conservadas y results/wells.csv para los resúmenes por pozo. Guarda ambos archivos con los ajustes guardados. Comprueba los recuentos de células, las etiquetas de condición y que los cocientes sean finitos antes de comparar experimentos, y usa pozos independientes como réplicas experimentales."
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "accepted": true,
+  "scope": "Source-frozen f4d6e8df3 YOLO API/guide/runtime completion checkpoint, prior to newer Home installation and X-shortcut integration. All ten API catalogs retain every complete prior record and add only the four named public helpers. Strict nine-language generation/audit and full all-language API Sphinx build pass.",
+  "source_commit": "f4d6e8df349603dda223d0572bb54342c2900114",
+  "public_symbols": 13181,
+  "prior_complete_api_records_retained": 13177,
+  "new_public_symbols_per_language": 4,
+  "translated_api_languages": 9,
+  "source_docstring_contract_tests": 134,
+  "runtime_caption_tests": 17,
+  "reviewed_new_runtime_captions": 33,
+  "guide_languages": 9,
+  "rendered_new_guide_passages_per_language": 7,
+  "normal_source_current_followup_after_nightly_integration_required": true,
+  "tutorial_yolo_authoring_and_publication_complete": false,
+  "artifacts": {
+    "features/data/662_api_docs_translation_2026-10-05/662-api-preservation-proof.json": {
+      "sha256": "418499ba215485b7a1c01612da8f2a8e1d8c60b859c51d6b693854933d309f24",
+      "bytes": 5416
+    },
+    "features/data/662_api_docs_translation_2026-10-05/check_662_api_preservation.py": {
+      "sha256": "979f14dfb0827fdf010ba0e026f4e2657fbc5be1a0a0a5e2b5e4c42c81629878",
+      "bytes": 2324
+    },
+    "features/data/662_api_docs_translation_2026-10-05/662-guide-rendered-proof.json": {
+      "sha256": "551319a79ebbd20d03daa18cc496f75f9dffa32a08c05aa257dc2b5792a63e08",
+      "bytes": 2944
+    },
+    "features/data/662_api_docs_translation_2026-10-05/verify_662_guides.py": {
+      "sha256": "9edad85fa62fe9a11a5acc6724069719324e3308df6db63e72b06883cc98327c",
+      "bytes": 3299
+    },
+    "features/data/662_api_docs_translation_2026-10-05/662-api-build-r2.log.gz": {
+      "sha256": "1a024e43c0339cc6efd6eed0dd2ed90736214d14395265ce4269e26ac58b2885",
+      "bytes": 313
+    },
+    "features/data/662_api_docs_translation_2026-10-05/662-sphinx-all-r1.log.gz": {
+      "sha256": "a64a28129bfe4282f550db98558a29d370ee4be46d638fe0778f9a887ca5ddcf",
+      "bytes": 23346
+    },
+    "features/data/662_api_docs_translation_2026-10-05/662-docstring-contract-full-r2.log.gz": {
+      "sha256": "4ed4c3deb12ee93b69c0ba40dc9ad947f4b79d69640681d532ae085be8b45b2b",
+      "bytes": 98
+    },
+    "features/data/662_api_docs_translation_2026-10-05/662-api-source-tests-r2.log.gz": {
+      "sha256": "0aab3347ea7df6710187daa306196b6e85c6bb0718e9f2f36b6f9bedf7ce079a",
+      "bytes": 89
+    },
+    "features/data/662_api_docs_translation_2026-10-05/662-runtime-tests-r2.log.gz": {
+      "sha256": "945caf579393193631d0b2bc0b6cbae666929fe040ccb20f5fba3bb30feb4548",
+      "bytes": 88
+    },
+    "features/data/662_api_docs_translation_2026-10-05/662-guide-rendered-check-r2.log.gz": {
+      "sha256": "8875046fb01d13156cffa382b685bf62f4e0b8d32b627e77b942bf633e7e57cb",
+      "bytes": 147
+    }
+  }
+}

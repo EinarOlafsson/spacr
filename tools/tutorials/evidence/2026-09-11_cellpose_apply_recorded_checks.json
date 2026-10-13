@@ -1,0 +1,480 @@
+{
+  "lesson": "20_cellpose_masks",
+  "status": "Corrected real batch and unobstructed native-filter recording; final replacement video checks pending",
+  "canonical_english_sha256": "a064e4d7ebc483b8020a43543e3ea982b1ab58a04af4fc9b72a08ca94350076f",
+  "scene_count": 11,
+  "narrated_words": 533,
+  "recorded_checks": {
+    "accepted": true,
+    "scope": "Verified batch demonstration and explicitly mismatching native preview; not accuracy or preview equivalence",
+    "native_observation": {
+      "lesson": "20_cellpose_masks",
+      "accepted": false,
+      "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu",
+      "original_inputs": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e"
+      },
+      "synthetic": false,
+      "accuracy_validated": false,
+      "ground_truth_used": false,
+      "app_source_modified": false,
+      "published": false,
+      "route": [
+        "make_masks",
+        "train_cellpose",
+        "Apply"
+      ],
+      "pipeline": {
+        "accepted": true,
+        "reasons": [],
+        "figure_count": 3,
+        "worker_finished": true,
+        "worker_ok": true
+      },
+      "outputs": [
+        {
+          "image": "cell_pair_01.tif",
+          "sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa",
+          "dtype": "uint16",
+          "shape": [
+            512,
+            512
+          ],
+          "objects": 9,
+          "foreground_pixels": 32783,
+          "label_areas": {
+            "1": 2421,
+            "2": 5506,
+            "3": 1145,
+            "4": 8313,
+            "5": 2929,
+            "6": 2047,
+            "7": 5948,
+            "8": 3998,
+            "9": 476
+          }
+        },
+        {
+          "image": "cell_pair_02.tif",
+          "sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8",
+          "dtype": "uint16",
+          "shape": [
+            512,
+            512
+          ],
+          "objects": 94,
+          "foreground_pixels": 190846,
+          "label_areas": {
+            "1": 651,
+            "2": 4111,
+            "3": 1093,
+            "4": 2834,
+            "5": 3243,
+            "6": 1141,
+            "7": 1751,
+            "8": 1231,
+            "9": 4324,
+            "10": 669,
+            "11": 779,
+            "12": 803,
+            "13": 1747,
+            "14": 2055,
+            "15": 908,
+            "16": 706,
+            "17": 1520,
+            "18": 2162,
+            "19": 1647,
+            "20": 960,
+            "21": 3205,
+            "22": 1734,
+            "23": 4971,
+            "24": 1189,
+            "25": 3526,
+            "26": 1224,
+            "27": 1143,
+            "28": 600,
+            "29": 1966,
+            "30": 3275,
+            "31": 2175,
+            "32": 881,
+            "33": 968,
+            "34": 3066,
+            "35": 2597,
+            "36": 914,
+            "37": 3987,
+            "38": 742,
+            "39": 2060,
+            "40": 743,
+            "41": 795,
+            "42": 1098,
+            "43": 4590,
+            "44": 1778,
+            "45": 2225,
+            "46": 1762,
+            "47": 761,
+            "48": 1926,
+            "49": 1844,
+            "50": 1252,
+            "51": 2088,
+            "52": 1134,
+            "53": 1043,
+            "54": 1251,
+            "55": 1542,
+            "56": 920,
+            "57": 2943,
+            "58": 603,
+            "59": 2022,
+            "60": 470,
+            "61": 890,
+            "62": 2829,
+            "63": 1373,
+            "64": 4339,
+            "65": 1847,
+            "66": 1315,
+            "67": 2544,
+            "68": 1068,
+            "69": 4265,
+            "70": 2681,
+            "71": 2773,
+            "72": 2445,
+            "73": 1114,
+            "74": 2929,
+            "75": 1399,
+            "76": 3505,
+            "77": 2477,
+            "78": 2881,
+            "79": 3426,
+            "80": 2425,
+            "81": 2332,
+            "82": 7737,
+            "83": 500,
+            "84": 2119,
+            "85": 2245,
+            "86": 3124,
+            "87": 2172,
+            "88": 2647,
+            "89": 2521,
+            "90": 3540,
+            "91": 3730,
+            "92": 1878,
+            "93": 236,
+            "94": 192
+          }
+        },
+        {
+          "image": "cell_pair_03.tif",
+          "sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89",
+          "dtype": "uint16",
+          "shape": [
+            512,
+            512
+          ],
+          "objects": 46,
+          "foreground_pixels": 174546,
+          "label_areas": {
+            "1": 4390,
+            "2": 3164,
+            "3": 3501,
+            "4": 379,
+            "5": 4903,
+            "6": 2078,
+            "7": 940,
+            "8": 5419,
+            "9": 6058,
+            "10": 6971,
+            "11": 1574,
+            "12": 2197,
+            "13": 4187,
+            "14": 5605,
+            "15": 3600,
+            "16": 5548,
+            "17": 3815,
+            "18": 4034,
+            "19": 7330,
+            "20": 7526,
+            "21": 4453,
+            "22": 636,
+            "23": 4637,
+            "24": 4175,
+            "25": 1799,
+            "26": 6595,
+            "27": 8122,
+            "28": 560,
+            "29": 6575,
+            "30": 7477,
+            "31": 154,
+            "32": 2601,
+            "33": 4418,
+            "34": 4434,
+            "35": 4441,
+            "36": 3472,
+            "37": 2241,
+            "38": 2774,
+            "39": 4752,
+            "40": 3006,
+            "41": 4161,
+            "42": 3024,
+            "43": 3437,
+            "44": 480,
+            "45": 2293,
+            "46": 610
+          }
+        }
+      ],
+      "figures": [
+        {
+          "path": "batch_figure_00.png",
+          "sha256": "1ea5b74360eb12e488584ff75155b4075d5ac1714c8cc99a853547c4a5170458"
+        },
+        {
+          "path": "batch_figure_01.png",
+          "sha256": "908c1ccaad6edf04e0fc3c3060f24a05b518019b0a0c2bfbca5e4b957b2fb4fa"
+        },
+        {
+          "path": "batch_figure_02.png",
+          "sha256": "8a2d065fdfdd8c4cfc8791f24a9eb33b58f99c9ee0d719d656bdf7b7a4cbcb98"
+        }
+      ],
+      "hold": "Native batch and preview recorded; independent reference/figure and narration checks remain.",
+      "preview_seed": {
+        "model": "cpsam",
+        "diameter": 30.0,
+        "flow_threshold": 0.4,
+        "cellprob": 0.0,
+        "object_types": [
+          "cell"
+        ],
+        "cell_channel": 0,
+        "nucleus_channel": 1,
+        "normalise": true,
+        "lo_pct": 2.0,
+        "hi_pct": 98.0,
+        "outline_thickness": 1,
+        "outline_colour": "color (random)",
+        "display_channel": null,
+        "fov": ""
+      },
+      "preview_explicit_controls": {
+        "model": "cpsam",
+        "diameter": 30.0,
+        "flow_threshold": 0.4,
+        "cellprob": 0.0,
+        "object_types": [
+          "cell"
+        ],
+        "cell_channel": 0,
+        "nucleus_channel": 1,
+        "normalise": true,
+        "lo_pct": 2.0,
+        "hi_pct": 99.0,
+        "outline_thickness": 1,
+        "outline_colour": "color (random)",
+        "display_channel": null,
+        "fov": "cell_pair_02.tif"
+      },
+      "preview": {
+        "status": "Found cell=95.",
+        "shape": [
+          512,
+          512
+        ],
+        "objects": 95,
+        "params": {
+          "model": "cpsam",
+          "diameter": 30.0,
+          "flow_threshold": 0.4,
+          "cellprob": 0.0,
+          "object_types": [
+            "cell"
+          ],
+          "cell_channel": 0,
+          "nucleus_channel": 1,
+          "normalise": true,
+          "lo_pct": 2.0,
+          "hi_pct": 99.0,
+          "outline_thickness": 1,
+          "outline_colour": "color (random)",
+          "display_channel": null,
+          "fov": "cell_pair_02.tif"
+        },
+        "batch_mask_equal": false
+      },
+      "native_zoom": [
+        {
+          "scene": "20a_actual_zoomed_preview",
+          "factor": 2.0736,
+          "viewport_height": 181,
+          "viewport_width": 1356,
+          "both_canvases_match": true
+        },
+        {
+          "scene": "22b_actual_zoomed_filtered_preview",
+          "factor": 2.0736,
+          "viewport_height": 181,
+          "viewport_width": 1356,
+          "both_canvases_match": true
+        },
+        {
+          "scene": "23b_actual_zoomed_restored_preview",
+          "factor": 2.0736,
+          "viewport_height": 181,
+          "viewport_width": 1356,
+          "both_canvases_match": true
+        }
+      ],
+      "filter": {
+        "before": 95,
+        "cutoff": 1838,
+        "after": 47,
+        "checked_pixels": 262144,
+        "raw_unchanged": true,
+        "restored": true
+      },
+      "original_inputs_preserved": true,
+      "private_inputs_preserved": true
+    },
+    "independent_reference": {
+      "accepted": true,
+      "scope": "input/output attribution, not segmentation accuracy",
+      "checkpoint": "/home/olafsson/.cellpose/models/cpsam",
+      "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+      "files": [
+        {
+          "name": "cell_pair_01.tif",
+          "checked_pixels": 262144,
+          "objects": 9,
+          "exact_mask_equal": true,
+          "source_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+          "saved_mask_sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa"
+        },
+        {
+          "name": "cell_pair_02.tif",
+          "checked_pixels": 262144,
+          "objects": 94,
+          "exact_mask_equal": true,
+          "source_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+          "saved_mask_sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8"
+        },
+        {
+          "name": "cell_pair_03.tif",
+          "checked_pixels": 262144,
+          "objects": 46,
+          "exact_mask_equal": true,
+          "source_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+          "saved_mask_sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89"
+        }
+      ],
+      "figures": [
+        {
+          "file": "batch_figure_00_arrays.npz",
+          "source_image": "cell_pair_03.tif",
+          "exact_values_checked": {
+            "original": 262144,
+            "overlay": 786432,
+            "flow": 262144
+          }
+        },
+        {
+          "file": "batch_figure_01_arrays.npz",
+          "source_image": "cell_pair_01.tif",
+          "exact_values_checked": {
+            "original": 262144,
+            "overlay": 786432,
+            "flow": 262144
+          }
+        },
+        {
+          "file": "batch_figure_02_arrays.npz",
+          "source_image": "cell_pair_02.tif",
+          "exact_values_checked": {
+            "original": 262144,
+            "overlay": 786432,
+            "flow": 262144
+          }
+        }
+      ],
+      "preview_default_reference": {
+        "checked_pixels": 262144,
+        "objects": 95,
+        "exact_mask_equal": true,
+        "differs_from_batch": true,
+        "meaning": "Matches raw-image Cellpose defaults, not the Apply preprocessing settings."
+      }
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/scientific_acceptance.json": "54885058570777cf7de3b8beff1760a4f22b35ec712c67af92141a45b797ff23",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/independent_reference.json": "e93adf899ef10787e533669d71188a22b048afa278d69ee5f73aae6453e07174",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/masks/cell_pair_01.tif": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/masks/cell_pair_02.tif": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-odbhoplu/masks/cell_pair_03.tif": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/preview_cell.npy": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/preview_cell_filtered.npy": "47f299a8a8563f0e6a4f9e51a85bff15092d240cd97222af5bacafc486046d15",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/preview_cell_restored.npy": "7250985b9275b73950031d986ae8b389ded26920eac0af929466c38b3f1253da",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/batch_figure_01_arrays.npz": "f7a67c9d284b50a98fab9606b11127cb3236b0da0eab2156553943c4a0f3f33a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/batch_figure_02_arrays.npz": "3b4b62b98f54055ee5356ca74a8dd90ece2c21abe44d6fb39631763a5a54bada",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/batch_figure_00_arrays.npz": "023e499c996c7a8e5805a774c1d2577cc2b2e503c87be84a6bc8a2dc4ebeb8a7",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/provenance.json": "a1d0177ef5b225f8d37db2ba2704e923045d7c07574976979816c485edec4e4a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/frames.json": "87b7771d870942cbd181ac57601c19ba5a212c20e8cb94ca1467c82df0029c00",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/00_home.png": "ed14828a5a14ed50d6b8c933353abfd26e1f1ee482d20e7f3730b8301f50bac9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/01_make_masks_host.png": "8646e41faf25b58fc60f74370333aa4a7f1430fee9401c78c299f8559ecb9bfd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/02_actual_train_and_apply_tabs.png": "60681b79391482bdf58baff2d713c36930fd6ae08976e22880ce59c347bdaf2e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/03_actual_apply_form.png": "293fa169ffba90e0a1e7bf0f4c03071cf0a847521e55df546a47b4b5cba83ed4",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/04_setting_src.png": "125b9669455c086d6a8fc064c0a465a851bb87ea1cb78e7bef2da5cabdbf5b04",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/05_setting_model_name.png": "9b9b9204e3d6d5a8ce702148d35d65317ad1a9e6e35ac4500847b5756bf462e7",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/06_setting_channels.png": "0b237e04896f28e4accfcf2558f1276568ac4bd2d55c898ef2a167f13a44d40a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/07_setting_normalize.png": "9379845819d79329a4b81097db1a20fb335fa2e3617e32b44f848a885d098087",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/08_setting_percentiles.png": "9c5c947e4a432000ccb5a16698ae65a02a020ca916fdf07f56773ca66b149c4e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/09_setting_diameter.png": "e507b997aa437729cb5373c322af512d9d412fd3b81c0ff3eea2d6806c2c204e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/10_setting_save.png": "dc458a033685930892d28246edf7d9a2bf0998d0ebb500ffe26549ed0fda524f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/11_setting_verbose.png": "249118e2f258c3598f1e17e5655be6bbfbdc06383053834ba47b5ba258e3b9bd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/12_ready_to_apply_stock_model.png": "12300ef7e8342cb5f2bf62cc8396cbd347fbd8e85da7fb401bbe784f7e16ab20",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/13_actual_inference_running.png": "cf71d39ef43f4ba032f0cabd5d47be69de0910aa4a363b8fdb993ddf7832251c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/14_actual_inference_outcome.png": "aca03227797e0e335e11324e01a70a034982c8f5113d71f4b5866ca3a3d462f5",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/15_actual_mask_and_flow_figures.png": "932da81a1f88b98d2a1998ae7df1835c0e0530069fc0eba5478390df7533f5f1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/16_native_preview_before_image.png": "878e37a2d6e0d22b199afa925a9b35a87ba092c7477e3f4725f64adb03a7472a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/17_actual_preview_image_picker.png": "95a4896a4a7acce52fa02080f24d0f5329a3a112ba1a45fc39107fafb95f7944",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/18_real_preview_image.png": "2b183ecbcfb2fd48066f23ffd5a9a21daeb1cca7a3d39e885263a4142c767f3e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/19_explicit_preview_channel_and_percentiles.png": "2f095b79bc4b6c9626f5858ed1b4d246e4260949bbb29a36a54ecbf6c79f74af",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/20_actual_preview_result.png": "49c8836a0a298dcd798e25077ff267090ecd6584352dfc68987f36c7d7204e7f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/20a_actual_zoomed_preview.png": "533aa046661fea8d44c0088be250c09ec3392e5fad5551902077724cf529263b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/21_native_filter_before.png": "c9b3f8835d304e4c088a44e9e86c1241e79a1524181c1eb4a28dfe47c75ed693",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/22_native_filter_reduces_objects.png": "a183f7f917cbd8d7e17ff9f795f5b67410ba19cc85ac13b8f3acee8335d7620c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/22a_filtered_preview_dialog_closed.png": "0375e88b5af99adccbdc71575c67b5554050f5dea1a538853e5ef2b3208b999e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/22b_actual_zoomed_filtered_preview.png": "5e1b224d6c701d6287309213dac1c884864c0e8f6177ec4e6b47963e81e1b71c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/23_native_filter_restored.png": "65356dd598739768af9ca0e7eebf1c85e071dfb550a4d75408688cf1cbb2ade8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/23a_restored_preview_dialog_closed.png": "c5d93f5ba9090930a5d84d4eb6cd1315703897918298588ffbf18fa13858c36d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_native_zoom_v2/23b_actual_zoomed_restored_preview.png": "4b160d9e57150405822e101ab263e15b284e867d970720ae83e4c4a7eba2682a"
+    },
+    "preview_equivalence_fixed": false,
+    "preview_card_height_fixed": false,
+    "accuracy_validated": false,
+    "app_source_modified": false,
+    "published": false
+  },
+  "tests": {
+    "focused_passed": 15,
+    "new_source_mutations_observed_red": 4,
+    "previous_arithmetic_mutations_observed_red": 7
+  },
+  "preview_equivalence_fixed": false,
+  "preview_card_height_fixed": false,
+  "accuracy_validated": false,
+  "application_source_modified": false,
+  "published": false,
+  "previous_dialog_failure_preserved": true,
+  "original_failed_dialog_capture_rejected_by_new_guard": true,
+  "bundle": {
+    "path": "docs/source/_extra/tutorials/examples/Apply_Cellpose_stock_example.zip",
+    "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db",
+    "recorded_settings_source": "cellpose_apply_native_zoom_v1/configured_settings.json",
+    "same_material_settings_as_v2": true
+  }
+}

@@ -1,0 +1,330 @@
+"""Small Multiples: one chart per group, in a grid, on shared axes.
+
+Assembles four things that already exist into one surface:
+
+* :class:`spacr.qt.widgets.trellis_view.TrellisPanelWidget` — the drop zones,
+  the scale options and the grid;
+* :class:`spacr.qt.widgets.data_filter_panel.DataFilterPanel` — the Local Data
+  Filter, unchanged, so narrowing here narrows every open view;
+* :class:`spacr.qt.widgets.formula_editor.FormulaPanel` — computed columns, so
+  ``ratio = area / perimeter ** 2`` can be faceted the moment it is defined;
+* :mod:`spacr.qt.linked_selection` — a brush on one panel highlights the same
+  objects in the UMAP, on the plate map and in the crop grid.
+
+Why it is a screen of its own and not a checkbox on the Graph Builder: the
+question a trellis answers is "does this shift hold in every plate?", and the
+options that make that answerable — which panels share a scale, how a long
+strip of levels wraps, what n each panel is built on — belong to the grid as
+a whole, not to a single chart.
+
+:func:`register` is not called at import; read its docstring.
+"""
+from __future__ import annotations
+
+import logging
+import os
+from typing import List, Optional
+
+import pandas as pd
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QPushButton,
+    QTabWidget, QVBoxLayout, QWidget,
+)
+
+from ..job_runner import JobRunner
+from ..theme import SPACING
+from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
+from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.data_filter_panel import DataFilterPanel
+from ..widgets.formula_editor import FormulaPanel
+from ..widgets.trellis_view import TrellisPanelWidget
+from ..widgets.trellis_spec import TrellisSpec
+from .graph_builder import read_table, table_names
+from .app_screen import ModuleHeader
+from ..app_catalog import declared_app, register_declared
+
+LOG = logging.getLogger("spacr.qt.screens.trellis")
+
+__all__ = ["TrellisScreen", "make_trellis_screen", "register",
+           "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO",
+           "APP_CLI_NOTE", "APP_NAME_TRANSLATIONS"]
+
+#: The registry key. Chosen once and never renamed.
+APP_KEY = "trellis"
+
+
+class TrellisScreen(QWidget):
+    """A table, a filter, computed columns, and a grid of small multiples.
+
+    :param link: a private :class:`~spacr.qt.linked_selection.LinkedSelection`
+        for tests. ``None`` joins the process-wide one.
+    :param parent: parent widget; ownership only.
+    :param threaded: ``False`` runs every table read inline instead of on the
+        job runner's thread. A test needs the result on the line after the
+        call; a user needs the window to keep painting while a large table
+        loads. The jobs are the same either way -- they still register, still
+        report failure through ``job_failed`` -- so only the waiting differs.
+    """
+
+    def __init__(self, parent=None, *, link=None, threaded: bool = True):
+        """Build the screen: the trellis panel beside the filter and column tabs.
+
+        The panel and the side tabs share a draggable edge in a
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``trellis::body``), and the side tabs fold by their heading.
+
+        :param parent: parent widget, or ``None``.
+        :param link: shared selection link, passed to the panel and the filter.
+        :param threaded: read the database on a worker thread. Set ``False`` in
+            tests so a load finishes before it returns.
+        """
+        super().__init__(parent)
+        self.setObjectName("TrellisScreen")
+        self._frame: Optional[pd.DataFrame] = None
+        self._path: Optional[str] = None
+        self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._jobs.job_failed.connect(self._on_load_failed)
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["md"], SPACING["md"],
+                                 SPACING["md"], SPACING["md"])
+        outer.setSpacing(SPACING["sm"])
+
+        head = QHBoxLayout()
+        head.setContentsMargins(0, 0, 0, 0)
+        head.setSpacing(SPACING["sm"])
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Load a table, drop columns on X and Y, then facet "
+                        "down or across.",
+        )
+        self._header = header
+        head.addWidget(header)
+
+        self._source = QLabel("no table loaded", self)
+        self._source.setObjectName("TrellisSourceLabel")
+        head.addWidget(self._source, 1)
+
+        self._table_picker = QComboBox(self)
+        self._table_picker.setObjectName("TrellisTablePicker")
+        self._table_picker.setToolTip("Which table of the database to plot")
+        self._table_picker.setVisible(False)
+        self._table_picker.currentTextChanged.connect(self._on_table_picked)
+        head.addWidget(self._table_picker)
+
+        load = QPushButton("Load table…", self)
+        load.setObjectName("PrimaryButton")
+        load.setToolTip("A measurements.db, or a CSV of measurements")
+        load.clicked.connect(self.choose_table)
+        head.addWidget(load)
+        example = install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
+        example.setObjectName("TrellisTestDataButton")
+        outer.addLayout(head)
+
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key="trellis::body")
+        self.panel = TrellisPanelWidget(self, link=link)
+        body.add_pane(self.panel, "Plot", stretch=1)
+
+        side = QTabWidget(self)
+        from ..preferences import scaled_px
+        side.setMaximumWidth(scaled_px(360))
+        self.filters = DataFilterPanel(self, link=link)
+        side.addTab(self.filters, "Filter")
+        self.formulas = FormulaPanel(self)
+        self.formulas.formulas_changed.connect(self._on_formulas_changed)
+        side.addTab(self.formulas, "Columns")
+        body.add_section(side, "Filter and columns",
+                         persist_key="trellis/Filter and columns", stretch=0)
+        self._body_splitter = body
+        outer.addWidget(body, 1)
+        from ..dnd import install_for
+        install_for(self, "trellis")
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+    def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
+        """Plot ``frame``. The one call a host needs.
+
+        :param frame: the table to plot; it is also handed to the formula
+            panel.
+        :param label: source caption; empty shows the row and column counts.
+        """
+        self._frame = frame
+        self.formulas.set_frame(frame)
+        self._push_frame()
+        self._source.setText(
+            label or f"{len(frame):,} rows × {len(frame.columns)} columns")
+
+    def _push_frame(self) -> None:
+        """Hand the table *plus its computed columns* to everything below.
+
+        One place, so a formula added later reaches the grid, the filter picker
+        and the column well by the same path the loaded table did — which is
+        the whole of what "computed columns participate in everything else"
+        means here.
+        """
+        frame = self.formulas.computed_frame()
+        if frame is None:
+            return
+        self.panel.set_frame(frame)
+        self.filters.set_frame(frame)
+
+    def _on_formulas_changed(self) -> None:
+        """Recompute the derived columns and push the frame back to the panel."""
+        self._push_frame()
+
+    def choose_table(self) -> None:
+        """Ask which table in the project to plot."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open a measurement table", "",
+            "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
+        if path:
+            self.load_path(path)
+
+    def load_path(self, path: str, table: Optional[str] = None) -> None:
+        """Load a CSV or one table of a SQLite measurement database.
+
+        The read runs on a worker thread through
+        :class:`spacr.qt.job_runner.JobRunner`; listing the table names stays
+        inline because the picker has to be populated before the read is
+        dispatched, to know which table to read.
+
+        :param path: a ``.csv``, ``.tsv`` or ``.txt`` table, or any other file
+            treated as a measurement database whose table names fill the
+            table picker.
+        :param table: the database table to read; ``None`` reads the table
+            currently chosen in the picker.
+        """
+        self._path = path
+        names: List[str] = []
+        if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
+            try:
+                names = table_names(path)
+            except Exception as exc:
+                LOG.info("could not list tables in %s", path, exc_info=True)
+                self._source.setText(
+                    f"could not read {os.path.basename(path)}: {exc}")
+                return
+        self._table_picker.blockSignals(True)
+        self._table_picker.clear()
+        self._table_picker.addItems(names)
+        self._table_picker.setVisible(bool(names))
+        if table and table in names:
+            self._table_picker.setCurrentText(table)
+        self._table_picker.blockSignals(False)
+        chosen = table or (self._table_picker.currentText() or None)
+        self._jobs.cancel()
+        self._source.setText(
+            f"loading {os.path.basename(path)}"
+            + (f" · {chosen}" if chosen else "") + "…")
+        self._jobs.submit(
+            lambda p=path, t=chosen: (t, read_table(p, t)),
+            self._on_frame_loaded)
+
+    def _on_frame_loaded(self, payload) -> None:
+        """Hand a worker-read frame to the panel. GUI thread only."""
+        chosen, frame = payload
+        path = self._path or ""
+        suffix = f" · {chosen}" if chosen else ""
+        self.set_frame(
+            frame,
+            label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
+                  f"× {len(frame.columns)} columns")
+
+    def _on_load_failed(self, message: str) -> None:
+        """Log and show a failed table load.
+
+        :param message: the failure text from the job runner.
+        """
+        path = self._path or ""
+        LOG.info("could not read %s: %s", path, message)
+        self._source.setText(
+            f"could not read {os.path.basename(path)}: {message}")
+
+    def _on_table_picked(self, name: str) -> None:
+        """Reload the current database at a newly chosen table.
+
+        :param name: the table to read; a blank one, or no loaded path, does
+            nothing.
+        """
+        if self._path and name:
+            self.load_path(self._path, table=name)
+
+    def active_jobs(self) -> int:
+        """How many background jobs this screen is running.
+
+        :returns: the job count.
+        """
+        return self._jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """Whether anything is still running.
+
+        :returns: True while work is outstanding.
+        """
+        return self._jobs.is_busy()
+
+    @property
+    def spec(self) -> TrellisSpec:
+        """The grid the screen is drawing.
+
+        :returns: the trellis spec.
+        """
+        return self.panel.spec
+
+    def set_spec(self, spec: TrellisSpec) -> None:
+        """Draw a different grid.
+
+        :param spec: the trellis spec.
+        """
+        self.panel.set_spec(spec)
+
+    def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Let the panel close first, so it can unlink its canvas.
+
+        :param event: the Qt close event.
+        """
+        self._jobs.shutdown()
+        self.panel.close()
+        super().closeEvent(event)
+
+
+def make_trellis_screen(app_key: Optional[str] = None) -> QWidget:
+    """Factory handed to :func:`spacr.qt.app.register_app`."""
+    return TrellisScreen()
+
+
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+APP_NAME_TRANSLATIONS = _ROW.translations
+
+
+def register() -> bool:
+    """Put Small Multiples in the app registry. Idempotent.
+
+    Called from :data:`spacr.qt.SELF_REGISTERING_MODULES`, which
+    :func:`spacr.qt.run` runs after ``spacr.qt.app`` is fully executed and
+    before ``MainWindow.__init__`` reads the registry — the position the
+    docstring there explains.
+
+    The row itself -- the key, the name, the blurb, the section, the "no
+    headless run" sentence, the API doc link and the nine translations of the
+    display name -- is declared in :mod:`spacr.qt.app_catalog`.
+    :func:`spacr.qt.app.register_app` distributes those into the four tables
+    each used to need a hand-edit in, and this function's whole job is to name
+    which row. That is what lets the app be registered without importing this
+    module at all: the launch reads the table, and the screen is imported when
+    somebody opens it.
+
+    :returns: ``True`` if this call is what registered it.
+    """
+    return register_declared(__name__) is not None

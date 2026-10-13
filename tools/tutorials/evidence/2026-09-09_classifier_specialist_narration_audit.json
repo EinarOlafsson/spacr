@@ -1,0 +1,33 @@
+{
+  "scope": "Two published classifier specialist lessons compared with their current GUI consumers",
+  "source_commit": "7b3aa5137",
+  "old_media_replaced": false,
+  "actual_encoded_videos_or_workflow_results_verified": false,
+  "lessons": [
+    {
+      "id": "28_training_runs", "host": "classify_merged",
+      "disposition": "Targeted narration and UI verification required, not regeneration merely for moving the route",
+      "findings": [
+        "Scene 2 permits a registry as input, but the current GUI accepts a directory and rejects non-directories before scanning",
+        "Scene 4 promises smoothing and selectable settings fields; the current screen offers Metric, Folds and Overlay selected, with an automatic settings diff",
+        "Scene 6 should distinguish the best and last epochs of an observed metric curve from loading or independently evaluating best/final checkpoint artifacts"
+      ],
+      "supported_workflow": "Discover run directories, list incomplete runs and warnings, select candidates, overlay per-fold/mean-SD curves, inspect automatically grouped settings differences",
+      "sources": ["spacr/qt/screens/train_compare.py:293", "spacr/qt/screens/train_compare.py:325", "spacr/qt/screens/train_compare.py:451", "spacr/train_compare.py:1464"]
+    },
+    {
+      "id": "39_classifier_evaluation", "host": "classify_merged",
+      "disposition": "Refresh the distinction between computing evaluation outputs and inspecting existing bundles",
+      "findings": [
+        "The current screen discovers and loads existing evaluation bundles; it does not provide the narrated general form for class order, calibration bins, grouping, bootstrap settings and leakage-check configuration",
+        "The visible confidence threshold belongs to inspection of confusion-matrix errors, not a general evaluation-run configuration",
+        "Current interactions include Summary, Confusion matrix, Per-plate metrics, Calibration, Predictions filtering and Leakage audit; confusion cells expose linked crop inspection",
+        "Loading reports must not be narrated as freshly producing discrimination/calibration/leakage/robustness analyses"
+      ],
+      "sources": ["spacr/qt/screens/classifier_evaluation.py:83", "spacr/qt/screens/classifier_evaluation.py:268", "spacr/qt/screens/classifier_evaluation.py:329", "spacr/qt/screens/classifier_evaluation.py:394"],
+      "scientific_caution": "High-confidence disagreement is not by itself proof of a wrong annotation; inspect provenance, images and possible model errors. Existing Classify tutorial artifacts have a separately recorded split-identity limitation and are not certified held-out biological validation."
+    }
+  ],
+  "other_classifier_lessons": "10, 11 and 16 were read but not certified unchanged by this bounded audit; their full consumer and data acceptance remain separate",
+  "publication": "Held; this record neither changes live lesson text nor approves historical media"
+}

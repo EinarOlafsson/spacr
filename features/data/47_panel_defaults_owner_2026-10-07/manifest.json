@@ -1,0 +1,16 @@
+{
+  "artifacts_sha256": {
+    "all-apps-node-after.jsonl.gz": "4c1ae1a2cebed27e60ef0cf8f2e156371154e108a0fbc348289b4e411b047e89",
+    "all-apps-node-before.jsonl.gz": "07b3c5865b603403dd0f305cd4c6f43a7d7aa9f4438dd908ac68bda031189e67",
+    "full-file-after.jsonl.gz": "fd3a9a23aa92f9b97cb0019e2069af29a493d44f3e282f72260a296a3bdaa02c",
+    "full-file-after.log.gz": "dcc4be721112a033b887e6eb6052bc8b2d0de8e8104572566901eb8865030f08"
+  },
+  "runtime_source_sha256": {
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7"
+  },
+  "source_parent_commit": "67ae0ed8fca97476e05eff0b111a00eefb4f0baf",
+  "test_after_sha256": "4a69b15fad6933c5b35eeefb438ed134248e9f30eec43e09600331e6be8aab2b",
+  "test_before_sha256": "b6b0a8bcf01c59f0f2b60ed03dd14c7be9a96b7ba517e73e744bd0a2fcfcd926"
+}

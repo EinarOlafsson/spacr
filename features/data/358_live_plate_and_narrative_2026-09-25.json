@@ -1,0 +1,112 @@
+{
+  "source_commit": "ac3c42dc3a9996c31d3094204ee07c97e79fc48c",
+  "workflow": 36159617800,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "ac3c42dc3a9996c31d3094204ee07c97e79fc48c",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 622283825,
+    "media_files": 87
+  },
+  "lessons": [
+    "33_plate_viewer",
+    "14_make_masks",
+    "26_invasion",
+    "27_replication",
+    "28_training_runs",
+    "35_converter",
+    "36_import",
+    "75_regression_diagnostics"
+  ],
+  "media_revision": "675c17b4654edc77b988ac0a047e81b71954e512",
+  "cache_key": "narrative-20260925-vfhvip5x",
+  "live_catalog_sha256": "d16ca8f96283cdc4b8e458e1cbd1c549381118918e12e6ac89f5a4a004273ff2",
+  "catalog_matches_source": true,
+  "narration_matches_lesson_source": true,
+  "published_video_urls": {
+    "33_plate_viewer": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/33_plate_viewer/video/33_plate_viewer_silent.mp4",
+    "14_make_masks": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/14_make_masks/video/14_make_masks_silent.mp4",
+    "26_invasion": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/26_invasion/video/26_invasion_silent.mp4",
+    "27_replication": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/27_replication/video/27_replication_silent.mp4",
+    "28_training_runs": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/28_training_runs/video/28_training_runs_silent.mp4",
+    "35_converter": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/35_converter/video/35_converter_silent.mp4",
+    "36_import": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/36_import/video/36_import_silent.mp4",
+    "75_regression_diagnostics": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/75_regression_diagnostics/video/75_regression_diagnostics_silent.mp4"
+  },
+  "video_urls_pinned_to_media_revision": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "d5546081498d2b32da8173cc6220248ccd4c32d6874297a074c0c6dab4c4478f"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/07_mask/video/07_mask_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/4a0e2ceb-82bd-43fa-8b49-88ac8eb0aac3",
+      "width": 3840,
+      "time": 29.124274,
+      "expected": 29.419573184131647,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "33_plate_viewer",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/33_plate_viewer/video/33_plate_viewer_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/e6e7d6d4-ea7a-4b13-92dd-1d60ebabfe21",
+      "width": 3840,
+      "time": 21.692332,
+      "expected": 22.03726129967188,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "14_make_masks",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/14_make_masks/video/14_make_masks_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/226495ef-db08-45dd-befd-14da88baed01",
+      "width": 3840,
+      "time": 21.700445,
+      "expected": 21.799327989209342,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "27_replication",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/27_replication/video/27_replication_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/4b90c24f-5fb5-446d-a053-eea78c533db5",
+      "width": 3840,
+      "time": 25.439563,
+      "expected": 25.616901158034807,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "75_regression_diagnostics",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/675c17b4654edc77b988ac0a047e81b71954e512/75_regression_diagnostics/video/75_regression_diagnostics_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/16acbdd2-7fa8-4d9f-bb4f-5aced8a8142c",
+      "width": 3840,
+      "time": 34.466378,
+      "expected": 34.56792346448214,
+      "error": null
+    }
+  ],
+  "passed": true
+}

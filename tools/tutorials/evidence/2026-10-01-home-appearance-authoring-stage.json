@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "item": 601,
+  "date": "2026-10-01",
+  "status": "private_authoring_preparation_not_publishable",
+  "lesson": "05_home",
+  "source": "tools/tutorials/lessons/05_home.json",
+  "source_sha256": "6afb98b447553e15b869f94b63cd3eccda408d2d9d787e24609da80c1a39bd17",
+  "previous_source_sha256": "e20157395526498d3fc5b1a6df67e91d93099b3ba2983cfe3dd1468f90b3f9c6",
+  "scene_count_before": 11,
+  "scene_count_after": 14,
+  "original_scenes_preserved": true,
+  "placement": "After 09_performance and before the final return to Home",
+  "private_capture_root": "/tmp/spacr-ui-evidence/601/preferences-final",
+  "capture_platform": "Qt offscreen, actual Preferences controls, isolated QSettings",
+  "capture_size": [3840, 2160],
+  "focus": [960, 200, 1920, 1080],
+  "frames_manifest_sha256": "178f5f9d9eea4dda099622b1634e21667431254be7c3b2143fd087a6ad33b6a5",
+  "capture_provenance_sha256": "102e6177f13cb30c7fda3525bd97dbb787e218a616490b0098e277d935e3c15e",
+  "scenes": [
+    {
+      "number": 11,
+      "visual": "10_appearance_categories",
+      "image": "10_appearance_categories.png",
+      "sha256": "55f505f5b14d7ea72cc94214f19a137333f944a2477e37e100945eccedc2422c",
+      "state": "Appearance tab, Theme and Animation folded"
+    },
+    {
+      "number": 12,
+      "visual": "11_appearance_theme",
+      "image": "11_appearance_theme.png",
+      "sha256": "821a5342517c46707d8a72d7ab90cbb9fa00744c4a4dcc325a48404ebd3da492",
+      "state": "Appearance tab, Theme expanded"
+    },
+    {
+      "number": 13,
+      "visual": "12_appearance_animation",
+      "image": "12_appearance_animation.png",
+      "sha256": "391608b8867418680544f56ad380f4dc8f86bc7e04046e6af4a4ffdb349c40b8",
+      "state": "Appearance tab, Animation expanded"
+    }
+  ],
+  "private_validation_stage": "/tmp/spacr-ui-evidence/601/home-authoring-stage",
+  "fragment": "appearance-fragment.en.json",
+  "capture_module": "preferences_appearance_601",
+  "validation_scope": "Only the three new scene/frame links; no complete fourteen-scene master claim",
+  "validation": {
+    "tool": "tools/tutorials/stage_lesson.py --check-only",
+    "memory_cap": "1G",
+    "output": "Validated 05_home: 3 real capture scenes; catalogs unchanged.",
+    "output_sha256": "c1ecb3cda13f818629ebb5ab6a7c6c5b89ff077eb43095bdf81cd0ea6270a58d",
+    "checks": ["Recorded PNG checksums", "Native 3840x2160 frame dimensions", "Focus geometry stays within frames", "Lesson identity and links", "Original eleven scenes and lesson metadata preserved"]
+  },
+  "published": false,
+  "audio_changed": false,
+  "published_catalog_changed": false,
+  "remaining": [
+    "Combine the current Home captures and these three frames into one complete private stage",
+    "Translate new narration and render matching captions/audio; retain all supported voices",
+    "Assemble and review the complete shared master, timing, decoding, caption and player behavior",
+    "Publish matching catalog and media through the established tutorial workflow"
+  ]
+}

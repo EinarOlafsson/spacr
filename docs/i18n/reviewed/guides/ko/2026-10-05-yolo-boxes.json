@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "source_commit": "d7522bcd71198539e0506388f25626ef68df85fb",
+  "method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Source-image identity, edit/save failures, negative labels, overlap, recrop and blinding reviewed. Actual runtime control names inserted with the normal glossary and import gates.",
+  "source_files": {
+    "docs/source/make_masks.rst": "9e5e3d4916a4d1e43082f2dd4d8e3bbfb95e2a3a3ce8a29ea06fb1fad8ac8bda"
+  },
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Draw bounding boxes for YOLO",
+      "source_sha256": "964b4faee868aca7e6e2aed2641d7c33613ec987569d8395bd0642a7cd79a35c",
+      "target": "YOLO용 경계 상자 그리기",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class.",
+      "source_sha256": "1899e53a6af3d0f90873206b85aa169c57c0222e8d41bce72a27f0431ed4790b",
+      "target": "원본 이미지 폴더를 열고 **그리기** 옆의 **상자** 버튼을 선택하거나 **X** 키를 누르세요. 클래스를 선택하거나 **클래스 추가** 버튼을 사용하여 다른 클래스에 이름을 지정하세요.",
+      "ui": {
+        "Box": "상자",
+        "Draw": "그리기",
+        "Add class": "클래스 추가"
+      },
+      "original_draft": "원본 이미지 폴더를 열고 **그리기** 옆의 **상자**를 선택하거나 **X**를 누르세요. 클래스를 선택하거나 **클래스 추가**를 사용하여 다른 클래스에 이름을 지정하세요.",
+      "formatting_review": "Use natural Korean nouns after control names and file literals so the actual RST closing delimiters render correctly; preserve exact runtime labels and technical meaning."
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box.",
+      "source_sha256": "501664e26a9cecbe7d13ce7156b5554ad88e8da892cc9f4673792c9a03af6d4a",
+      "target": "이미지 위에서 드래그하여 상자를 그리세요. 상자 내부를 드래그하여 이동하고, 모서리를 드래그하여 크기를 조절하며, 상자를 마우스 오른쪽 버튼으로 클릭하여 삭제하세요. 드래그하면서 **Ctrl** 키를 누르면 겹치는 상자나 다른 상자 안에 포함되는 상자를 추가합니다.",
+      "ui": {},
+      "original_draft": "이미지 위에서 드래그하여 상자를 그리세요. 상자 내부를 드래그하여 이동하고, 모서리를 드래그하여 크기를 조절하며, 상자를 마우스 오른쪽 버튼으로 클릭하여 삭제하세요. 드래그하면서 **Ctrl**을 누르면 겹치는 상자나 다른 상자 안에 포함되는 상자를 추가합니다.",
+      "formatting_review": "Use natural Korean nouns after control names and file literals so the actual RST closing delimiters render correctly; preserve exact runtime labels and technical meaning."
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open.",
+      "source_sha256": "ff916db5df097b53262aa56cea201cdb43352cb2353b2549cc8b7ea52abbfa60",
+      "target": "상자를 선택하여 클래스를 변경하세요. 상자 모드에서 **실행 취소** 및 **다시 실행** 버튼은 상자 편집에 적용됩니다. **상자 저장** 버튼 또는 상자 모드의 **Ctrl+S** 단축키를 사용하여 편집 가능한 주석을 저장하세요. 다른 이미지로 이동하거나 닫기 전에 변경된 상자를 먼저 저장하며, 저장에 실패하면 현재 이미지가 열린 상태로 유지됩니다.",
+      "ui": {
+        "Undo": "실행 취소",
+        "Redo": "다시 실행",
+        "Save boxes": "상자 저장"
+      },
+      "original_draft": "상자를 선택하여 클래스를 변경하세요. 상자가 선택된 동안 **실행 취소**와 **다시 실행**는 상자 편집에 적용됩니다. **상자 저장** 또는 상자 모드에서 **Ctrl+S**를 사용하여 편집 가능한 주석을 저장하세요. 다른 이미지로 이동하거나 닫기 전에 변경된 상자를 먼저 저장하며, 저장에 실패하면 현재 이미지가 열린 상태로 유지됩니다.",
+      "formatting_review": "Use natural Korean nouns after control names and file literals so the actual RST closing delimiters render correctly; preserve exact runtime labels and technical meaning."
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file.",
+      "source_sha256": "d80c2cc06f15caab05171357c224f93b4bf1dfa70683cda72af94e87465261da",
+      "target": "**YOLO 라벨 내보내기** 옵션을 선택하고 이미지의 ``.txt`` 라벨 파일을 저장하세요. 내보내기 폴더에는 클래스 이름 매핑을 포함하는 ``.classes.json`` 파일도 저장됩니다. 검토한 이미지에 상자가 없으면 빈 라벨 파일을 내보냅니다.",
+      "ui": {
+        "Export YOLO labels": "YOLO 라벨 내보내기"
+      },
+      "original_draft": "**YOLO 라벨 내보내기**를 선택하고 이미지의 ``.txt`` 라벨 파일을 저장하세요. 내보내기 폴더에는 클래스 이름 매핑을 포함하는 ``.classes.json``도 저장됩니다. 검토한 이미지에 상자가 없으면 빈 라벨 파일을 내보냅니다.",
+      "formatting_review": "Use natural Korean nouns after control names and file literals so the actual RST closing delimiters render correctly; preserve exact runtime labels and technical meaning."
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity.",
+      "source_sha256": "debcee5674a96d09fa81fb1d8fae2d6f7d04fb569aad290d044870dfad73906f",
+      "target": "YOLO 라벨 행은 클래스 ID 다음에 중심 X, 중심 Y, 너비 및 높이를 포함하며, 전체 원본 이미지에 대해 정규화됩니다. 학습 데이터셋을 준비할 때 각 라벨 파일을 원본 이미지와 짝지으세요. Make Masks는 원본 이미지 옆의 ``.spacr_yolo_annotations.json`` 파일에 편집 가능한 상자를 저장하며, 이 주석은 이미지 크기와 원본 식별 정보를 유지합니다.",
+      "ui": {},
+      "original_draft": "YOLO 라벨 행은 클래스 ID 다음에 중심 X, 중심 Y, 너비 및 높이를 포함하며, 전체 원본 이미지에 대해 정규화됩니다. 학습 데이터셋을 준비할 때 각 라벨 파일을 원본 이미지와 짝지으세요. Make Masks는 원본 이미지 옆의 ``.spacr_yolo_annotations.json``에 편집 가능한 상자를 저장하며, 이 주석은 이미지 크기와 원본 식별 정보를 유지합니다.",
+      "formatting_review": "Use natural Korean nouns after control names and file literals so the actual RST closing delimiters render correctly; preserve exact runtime labels and technical meaning."
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps.",
+      "source_sha256": "7f4b4fa38dcd9e909e534d0fe13652d51b07549d326377f3b9a1cf4a92a7f3a7",
+      "target": "상자를 추가하기 전에 **다시 자르기** 작업을 완료하세요. Cellpose ``_seg.npy`` 번들의 경우 먼저 독립된 이미지를 열거나 내보내세요. 눈가림 세션의 눈가림을 해제하면 원본 이름을 사용하는 YOLO 내보내기가 가능해집니다. 상자는 자체 편집 이력을 가지며 이미지 픽셀과 분할 마스크를 변경하지 않습니다. 데이터셋 분할과 YOLO 모델 학습은 별도 단계입니다.",
+      "ui": {
+        "Recrop": "다시 자르기"
+      },
+      "original_draft": "상자를 추가하기 전에 **다시 자르기**를 완료하세요. Cellpose ``_seg.npy`` 번들의 경우 먼저 독립된 이미지를 열거나 내보내세요. 눈가림 세션의 눈가림을 해제하면 원본 이름을 사용하는 YOLO 내보내기가 가능해집니다. 상자는 자체 편집 이력을 가지며 이미지 픽셀과 분할 마스크를 변경하지 않습니다. 데이터셋 분할과 YOLO 모델 학습은 별도 단계입니다.",
+      "formatting_review": "Use natural Korean nouns after control names and file literals so the actual RST closing delimiters render correctly; preserve exact runtime labels and technical meaning."
+    }
+  ],
+  "existing_guide_toolbar_retargets": [
+    {
+      "domain": "table_workflows",
+      "msgid": "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:",
+      "old_target": "**Draw** 모드에서는 모양 드롭다운에 3D로 그릴 수 있는 게이트가 나열됩니다.",
+      "msgstr": "**그리기** 모드에서는 모양 드롭다운에 3D로 그릴 수 있는 게이트가 나열됩니다.",
+      "ui": {
+        "Draw": "그리기"
+      }
+    }
+  ],
+  "preserved_previous_translations": 2958,
+  "formatting_followup": "The first actual Korean strict HTML build refused adjacent strong/literal particles; six new YOLO messages were rephrased through normal import. Older translations remain unchanged.",
+  "initial_source_files": {
+    "docs/source/make_masks.rst": "0ca312b0a05d2bb54d0e63a201b44468e5efbacb4ca3f99d5f5fa16e232ae40c"
+  },
+  "source_formatting_followup": "The English YOLO heading underline was lengthened after the first strict build. All seven exact English message hashes are unchanged."
+}

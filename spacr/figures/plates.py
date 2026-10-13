@@ -1,0 +1,660 @@
+"""Small-multiple heatmaps for plate-layout measurements.
+
+All plates for one measurement share a color scale and are arranged in a
+compact grid with square wells. Missing wells remain distinct from measured
+zeros and are excluded from color-limit estimation. Styling is scoped through
+:func:`spacr.figures.style.figure_style` so drawing a plate does not change
+global Matplotlib settings.
+"""
+
+from __future__ import annotations
+
+import math
+from typing import List, Optional, Sequence, Tuple
+
+import numpy as np
+
+from .panels import Panel
+from .style import (TYPE_SCALE, WEIGHTS, Palette, figure_style, resolve_ink,
+                    theme_target)
+
+#: The composite the small multiple aims at. Slightly wider than square
+#: because the colour bar takes a strip along the bottom; a tile in the
+#: figure grid is square-ish, so the closer the composite is to 1 the more
+#: of the tile the plates get.
+TARGET_ASPECT = 1.2
+
+#: Figure width in inches. The double-column measure the sheet uses, so a
+#: plate panel and a regression sheet are the same width on a page.
+WIDTH = 7.0
+
+#: Margins, in inches, measured from what the type actually needs: the row
+#: letters on the left, the column numbers and the colour bar below, the
+#: plate name above.
+#: The gaps are small because the labels are SHARED: only the left column
+#: carries row letters and only the bottom row carries column numbers, so
+#: nothing has to fit between two plates except the lower one's name. A
+#: small multiple should read as one block, not as four pictures that
+#: happen to be near each other.
+MARGIN = {"left": 0.28, "right": 0.10, "top": 0.20, "bottom": 0.58,
+          "wspace": 0.18, "hspace": 0.22}
+
+#: Where the shared colour bar sits, in inches from the bottom of the
+#: figure, and how thick it is. Below it go its own tick labels and the
+#: measurement's name, which is why it is not at the very bottom.
+BAR = {"bottom": 0.24, "height": 0.075, "width": 2.4}
+
+#: How dark the "no measurement here" wash is, as a fraction of the ink.
+#: Neutral, so an empty well differs from a measured one in HUE and not
+#: only in lightness -- a difference that survives a bad monitor and a
+#: greyscale print, which a lightness-only difference does not.
+EMPTY_WASH_ALPHA = 0.09
+
+
+
+def plate_ramp(target: str = "screen"):
+    """Create the sequential blue color map used for plate measurements.
+
+    Parameters
+    ----------
+    target : str, default="screen"
+        ``"print"`` selects the print ramp. Every other value selects the
+        screen ramp, which avoids the darkest print color so high values
+        remain distinct from a dark interface background.
+
+    Returns
+    -------
+    matplotlib.colors.Colormap
+        Color map with a transparent bad-value color for unmeasured wells.
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    if target == "print":
+        stops = ["#F7FAFD", Palette.BLUE_LIGHT, Palette.BLUE, Palette.NAVY]
+    else:
+        stops = ["#E8EDEE", Palette.BLUE_LIGHT, Palette.BLUE]
+    ramp = LinearSegmentedColormap.from_list(f"spacr_plate_{target}", stops)
+    ramp.set_bad("none")
+    return ramp
+
+
+def score_ramp(target: str = "screen"):
+    """Create the diverging color map used for signed plate scores.
+
+    A hit score (SSMD, robust z, B-score) is signed about the negative
+    control, which is what a diverging map is for. The ends are the house
+    ``down`` and ``up`` colours (:data:`spacr.figures.style.ROLES`), so a
+    well scored below the control reads rust and one above it green, the
+    same as on a volcano.
+
+    :param target: ``"print"`` centres on a near-white; every other value on
+        the light grey of the screen plate ramp.
+    :returns: A color map with a transparent bad-value color.
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    middle = "#F7F7F7" if target == "print" else "#E8EDEE"
+    ramp = LinearSegmentedColormap.from_list(
+        f"spacr_score_{target}", [Palette.RUST, Palette.CORAL, middle,
+                                  "#8FC2A2", Palette.GREEN])
+    ramp.set_bad("none")
+    return ramp
+
+
+
+def plate_names(frame) -> List[str]:
+    """Return distinct nonempty plate identifiers in first-occurrence order.
+
+    ``prc`` keys are parsed from the right: the final tokens are row and
+    column, while every preceding token belongs to the plate identifier.
+    This preserves plate identifiers that contain underscores.
+
+    Screens whose keys are the plain three-token form are unaffected: the plate
+    is still the first token because there is nothing in front of it.
+
+    :param frame: long-format table whose ``prc`` values identify wells.
+    :returns: Plate identifiers parsed from the right. Keys with fewer than
+        three underscore-delimited tokens are retained verbatim.
+    """
+    if "prc" not in getattr(frame, "columns", ()):
+        return []
+    seen, order = set(), []
+    for key in frame["prc"].astype(str):
+        parts = key.split("_")
+        if len(parts) < 3:
+            name = key
+        else:
+            name = "_".join(parts[:-2])
+        if name and name not in seen:
+            seen.add(name)
+            order.append(name)
+    return order
+
+def full_plate_grid(rows: Sequence[int], columns: Sequence[int]) -> Tuple[int, int]:
+    """Return the smallest standard plate shape containing every measured well.
+
+    Pivoting only the wells that carry data drops entirely unused columns, so a
+    screen that never used columns 1-3 (such as the tsg101 screen) would draw
+    its first measured column against the left spine and shift every edge
+    effect by the missing positions.
+
+    :param rows: measured 1-based plate row indices.
+    :param columns: measured 1-based plate column indices.
+    :returns: ``(n_rows, n_columns)`` of the smallest standard format that
+        contains every measured well, or the bounding box when the wells fit
+        no standard plate (a partial or non-standard layout).
+    """
+    from .. import schema as _schema
+
+    if not len(rows) or not len(columns):
+        return 0, 0
+    top, right = int(max(rows)), int(max(columns))
+    fmt = _schema.plate_format_for(top, right)
+    if fmt is None:
+        return top, right
+    n_rows, n_columns = _schema.PLATE_FORMATS[fmt]
+    return int(n_rows), int(n_columns)
+
+
+def well_matrices(frame, variable: str, *, grouping: str = "mean",
+                  min_count=0, plates: Optional[Sequence[str]] = None):
+    """One matrix per plate, on a shared grid, with absent wells as ``nan``.
+
+    Wraps :func:`spacr.plot.generate_plate_heatmap` -- which is where the prc
+    parsing, the letter walk past row P and the min_count filter live -- and
+    reverses its ``.fillna(0)``. A well with no rows and a well that measured
+    zero are the same cell afterwards, so the count map is fetched alongside
+    the value map and a well with a count of zero is masked back out.
+
+    A well with rows but nothing numeric in any of them is masked too. The
+    count map counts rows, and the aggregation coerces the variable with
+    ``errors='coerce'``, so such a well aggregates to NaN and is filled with
+    the same invented zero one step further in.
+
+    :param frame: long-format frame with a ``prc`` column.
+    :param variable: the measurement column to aggregate.
+    :param grouping: ``'mean'``, ``'sum'`` or ``'count'``.
+    :param min_count: wells with fewer rows than this are dropped, and then
+        read as absent rather than as zero.
+    :param plates: return only these plates, in this order.
+    :returns: ``(names, matrices, (n_rows, n_columns))`` with equally many
+        names and matrices on the smallest fitting standard plate grid.
+        Absent or unreadable wells and wells below ``min_count`` are ``nan``.
+    """
+    import pandas as pd
+
+    from ..plot import generate_plate_heatmap
+    from .. import schema as _schema
+
+    names = list(plates) if plates is not None else plate_names(frame)
+    if not names:
+        return [], [], (0, 0)
+
+    wanted = ["prc"] + ([variable] if variable in frame.columns else [])
+    work = frame.loc[:, wanted].copy()
+
+    text = work["prc"].astype(str)
+    head = None
+    if text.str.count(_schema.KEY_SEPARATOR).ge(2).all():
+        head = text.str.rsplit(_schema.KEY_SEPARATOR, n=2).str[0].to_numpy()
+
+    readable = None
+    if grouping != "count" and variable in work.columns:
+        numeric = pd.to_numeric(work[variable], errors="coerce").notna().to_numpy()
+        if not numeric.all():
+            readable = numeric
+
+    maps, counts = [], []
+    for name in names:
+        on_plate = None if head is None else head == str(name)
+        subset = work if on_plate is None else work[on_plate].copy()
+        values, _limits = generate_plate_heatmap(
+            subset, name, variable, grouping, "all", min_count)
+        if grouping == "count":
+            present = values
+        else:
+            present = generate_plate_heatmap(
+                subset, name, variable, "count", "all", min_count)[0]
+            if readable is not None:
+                present = _drop_unreadable_wells(
+                    generate_plate_heatmap, present, subset,
+                    readable if on_plate is None else readable[on_plate],
+                    name, variable)
+        maps.append(values)
+        counts.append(present)
+
+    rows = sorted({index for m in maps for index in
+                   (_schema.row_index(label) for label in m.index)
+                   if index is not None})
+    columns = sorted({index for m in maps for index in
+                      (_schema.column_index(label) for label in m.columns)
+                      if index is not None})
+    n_rows, n_columns = full_plate_grid(rows, columns)
+    if not n_rows or not n_columns:
+        return names, [], (0, 0)
+
+    row_ids = [_schema.row_id(i) for i in range(1, n_rows + 1)]
+    column_ids = [_schema.column_id(i) for i in range(1, n_columns + 1)]
+
+    matrices = []
+    for values, present in zip(maps, counts):
+        grid = values.reindex(index=row_ids, columns=column_ids)
+        seen = present.reindex(index=row_ids, columns=column_ids)
+        block = grid.to_numpy(dtype="float64", copy=True)
+        empty = ~(seen.to_numpy(dtype="float64") > 0)
+        block[empty] = np.nan
+        matrices.append(block)
+    return names, matrices, (n_rows, n_columns)
+
+
+def _drop_unreadable_wells(heatmap, present, subset, readable, name, variable):
+    """Zero the presence of a well that has rows but no number in any of them.
+
+    ``min_count`` KEEPS ITS MEANING -- it counts rows, as it always has, so
+    the readable-row map is taken at ``min_count`` 0 and used only to knock
+    out the wells that have nothing numeric at all. A well that is half
+    unreadable is still the mean of the half that is readable, which is what
+    ``generate_plate_heatmap`` computes.
+
+    :param heatmap: plate-aggregation callable used to count readable rows.
+    :param present: per-well row-count frame produced before numeric filtering.
+    :param subset: rows belonging to the plate being processed.
+    :param readable: boolean row mask, aligned with ``subset``, identifying
+        values that can be interpreted as numbers.
+    :param name: plate identifier passed to ``heatmap``.
+    :param variable: measurement column passed to ``heatmap``.
+    :returns: A presence frame aligned with ``present``, with zero only where
+        no readable numeric row exists.
+    """
+    measured = subset[readable].copy()
+    if not len(measured):
+        return present * 0
+    numbers = heatmap(measured, name, variable, "count", "all", 0)[0]
+    numbers = numbers.reindex(index=present.index, columns=present.columns,
+                              fill_value=0)
+    return present.where(numbers.to_numpy() > 0, 0)
+
+
+def shared_limits(matrices: Sequence[np.ndarray], min_max="allq"
+                  ) -> Tuple[float, float]:
+    """Return one ``(low, high)`` colour range for all plates' measured wells.
+
+    Plate heatmaps are read by comparing plates; independent scales would give
+    one colour a different value on each plate and hide batch effects.
+
+    :param matrices: per-plate value matrices; non-finite wells are excluded
+        from the shared scale.
+    :param min_max: A two-float sequence selects those quantiles; a two-item
+        sequence containing a non-float supplies absolute endpoints.
+        ``'allq'`` selects the 2nd and 98th percentiles, while every other
+        value selects the finite extrema.
+    :returns: ``(low, high)`` shared by every matrix. An empty finite pool
+        returns ``(0.0, 1.0)``; equal endpoints are widened by ``1e-6``.
+    """
+    pool = np.concatenate([m.ravel() for m in matrices]) if matrices \
+        else np.array([], dtype="float64")
+    pool = pool[np.isfinite(pool)]
+    if not pool.size:
+        return 0.0, 1.0
+
+    if isinstance(min_max, (list, tuple)) and len(min_max) == 2:
+        if all(isinstance(value, float) for value in min_max):
+            low, high = np.quantile(pool, [min_max[0], min_max[1]])
+        else:
+            low, high = float(min_max[0]), float(min_max[1])
+    elif min_max == "allq":
+        low, high = np.quantile(pool, [0.02, 0.98])
+    else:
+        low, high = float(np.nanmin(pool)), float(np.nanmax(pool))
+    low, high = float(low), float(high)
+    if low == high:
+        high = low + 1e-6
+    return low, high
+
+
+
+def small_multiple_layout(count: int, plate_aspect: float,
+                          target: float = TARGET_ASPECT) -> Tuple[int, int]:
+    """Rows and columns of plates that put the composite nearest square.
+
+    Four plates in a row is 4 x 1.5 = a 6:1 composite; four in a 2 x 2 is
+    1.5:1. Both hold the same picture; only one of them fills a tile.
+
+    :param count: number of plates to place. A non-positive count has no grid
+        and returns ``(0, 0)``.
+    :param plate_aspect: one plate's width over its height, in wells. For a
+        positive ``count``, this and ``target`` must be positive; unsupported
+        nonpositive ratios may propagate arithmetic domain or division errors.
+    :param target: the positive composite width-over-height to aim at.
+    :returns: ``(rows, columns)``.
+    """
+    if count <= 0:
+        return 0, 0
+    best, choice = None, (1, count)
+    for columns in range(1, count + 1):
+        rows = -(-count // columns)
+        aspect = (columns * plate_aspect) / rows
+        penalty = abs(math.log(aspect / target))
+        if best is None or penalty < best - 1e-12:
+            best, choice = penalty, (rows, columns)
+    return choice
+
+
+def plate_figure_name(variable: str, prefix: str = "plate_heatmap",
+                      suffix: str = ".pdf") -> str:
+    """Return the file name for a plate panel, built from its variable.
+
+    This does not use :func:`spacr.schema.escape_filename_component`, which
+    escapes the key separator (``log_pred`` would be written as
+    ``log%5Fpred``); in a file name the underscore is kept. Unicode
+    alphanumerics and ``-_.`` in ``variable`` are retained; every other
+    character is replaced with an underscore.
+
+    :param variable: measurement name to include in the file name.
+    :param prefix: filename prefix, used verbatim.
+    :param suffix: filename suffix, including any extension, used verbatim.
+    :returns: ``prefix``, a sanitized nonempty variable component, and
+        ``suffix`` joined into one filename.
+    """
+    text = "".join(character if character.isalnum() or character in "-_."
+                   else "_" for character in str(variable).strip())
+    return f"{prefix}_{text or 'value'}{suffix}"
+
+
+def _tick_step(n: int) -> int:
+    """Label every well, every other one, or every fourth.
+
+    Twenty-four column numbers under a plate that is two inches wide at
+    6.2 pt is a solid line of digits. The step is chosen from the count
+    rather than the width because the width is derived from the count.
+
+    :param n: number of row or column labels available.
+    :returns: ``1`` through 12 labels, ``2`` through 26, otherwise ``4``.
+    """
+    if n <= 12:
+        return 1
+    if n <= 26:
+        return 2
+    return 4
+
+
+
+def draw_plate(ax, matrix: np.ndarray, *, vmin: float, vmax: float, cmap,
+               ink: str, name: str = "", row_labels=None,
+               column_labels=None) -> None:
+    """One plate into one axes, with square wells and no gridlines.
+
+    :param ax: matplotlib axes that receives the wash, image, ticks and title.
+    :param matrix: ``(n_rows, n_columns)``, ``nan`` where no well was
+        measured.
+    :param vmin: lower endpoint shared by the plate's colour normalisation.
+    :param vmax: upper endpoint shared by the plate's colour normalisation.
+    :param cmap: matplotlib colormap (or registered colormap name) used for
+        measured wells.
+    :param ink: colour used for ticks, labels, spines and the plate wash.
+    :param name: optional plate title; false values leave the title unset.
+    :param row_labels: ``True`` to draw the row letters, ``False`` to leave
+        the axis bare (an inner plate of the small multiple shares the
+        outer one's).
+    :param column_labels: truthy to draw column numbers; false values leave
+        the axis bare when an outer plate already supplies them.
+    :returns: ``None``; artists are added to ``ax`` in place.
+    """
+    from matplotlib.patches import Rectangle
+
+    n_rows, n_columns = matrix.shape
+    ax.add_patch(Rectangle((0, 0), n_columns, n_rows,
+                           facecolor=_wash(ink), edgecolor="none", zorder=0))
+    ax.imshow(np.ma.masked_invalid(matrix), cmap=cmap, vmin=vmin, vmax=vmax,
+              origin="upper", extent=(0, n_columns, n_rows, 0),
+              interpolation="nearest", aspect="equal", zorder=1)
+
+    from .. import schema as _schema
+
+    row_step, column_step = _tick_step(n_rows), _tick_step(n_columns)
+    ax.set_yticks([i + 0.5 for i in range(0, n_rows, row_step)])
+    ax.set_xticks([i + 0.5 for i in range(0, n_columns, column_step)])
+    ax.set_yticklabels(
+        [_schema.letters_from_row_index(i + 1)
+         for i in range(0, n_rows, row_step)] if row_labels else [])
+    ax.set_xticklabels(
+        [str(i + 1) for i in range(0, n_columns, column_step)]
+        if column_labels else [])
+    ax.tick_params(length=1.6, width=WEIGHTS["spine"], pad=1.4, colors=ink,
+                   labelsize=TYPE_SCALE["tick"])
+    for spine in ax.spines.values():
+        spine.set_linewidth(WEIGHTS["spine"])
+        spine.set_color(ink)
+    if name:
+        ax.set_title(name, fontsize=TYPE_SCALE["annotation"], pad=2.0,
+                     color=ink)
+
+
+def _wash(ink: str) -> tuple:
+    """Return the translucent wash for a well that was never measured.
+
+    :param ink: colour to convert to RGBA.
+    :returns: RGBA tuple whose alpha is :data:`EMPTY_WASH_ALPHA`.
+    """
+    from matplotlib.colors import to_rgba
+
+    return to_rgba(ink, EMPTY_WASH_ALPHA)
+
+
+def build_plates(frame, variable: str, *, grouping: str = "mean",
+                 min_max="allq", min_count=0, cmap=None,
+                 target: Optional[str] = None, width: float = WIDTH,
+                 plates: Optional[Sequence[str]] = None,
+                 limits: Optional[Tuple[float, float]] = None,
+                 outline: Optional[str] = None):
+    """Every plate of a screen as one figure, on one colour scale.
+
+    :param frame: long-format frame with a ``prc`` column and ``variable``.
+    :param variable: the measurement to aggregate per well.
+    :param grouping: ``'mean'``, ``'sum'`` or ``'count'``.
+    :param min_count: minimum number of rows required for a well to be drawn.
+    :param min_max: colour-scale spec, as
+        :func:`spacr.plot.generate_plate_heatmap` defines it -- but applied
+        once, over every plate together.
+    :param cmap: a colormap to override the house ramp. ``None`` uses
+        :func:`plate_ramp`, which is what the style asks for.
+    :param target: ``'screen'`` or ``'print'``; defaults to the user's own
+        figure preference.
+    :param width: figure width in inches. The height is derived from it, so
+        that the wells come out square.
+    :param plates: draw only these plates, in this order.
+    :param limits: an explicit ``(vmin, vmax)``, overriding ``min_max``. To
+        draw one plate per figure on a common scale, compute
+        :func:`shared_limits` over every plate once and pass the same pair to
+        each figure.
+    :param outline: a column of ``frame``; every well whose mean of it is
+        above zero gets a square outline in the ink colour. A hit call drawn
+        on the score it was called from, without a second figure.
+    :returns: ``(figure, Panel)``. With no matrix the panel has ``drawn=False``
+        plus its missing requirements and reason. Otherwise its caption
+        records the actual aggregation, well counts, and shared limits.
+    """
+    import matplotlib.pyplot as plt
+
+    target = target or theme_target()
+    ink = resolve_ink(target)
+
+    with figure_style(target, frame="box"):
+        names, matrices, (n_rows, n_columns) = well_matrices(
+            frame, variable, grouping=grouping, min_count=min_count,
+            plates=plates)
+        if not matrices:
+            figure = plt.figure(figsize=(width, width / TARGET_ASPECT))
+            from .bundle import _register_figure_data
+            _register_figure_data(figure, frame, y=str(variable), kind="heatmap")
+            return figure, Panel(
+                "plates", "plate heatmaps", drawn=False,
+                reason=(f"no plate in this table carries a well grid for "
+                        f"{variable!r}"),
+                needs=("prc", variable))
+
+        measured = [int(np.isfinite(m).sum()) for m in matrices]
+        vmin, vmax = (float(limits[0]), float(limits[1])) if limits \
+            else shared_limits(matrices, min_max)
+        marks = [None] * len(matrices)
+        if outline and outline in frame.columns:
+            _marked, outlined, _shape = well_matrices(
+                frame, outline, grouping="mean", min_count=min_count,
+                plates=names)
+            marks = [m if m.shape == matrix.shape else None
+                     for m, matrix in zip(outlined, matrices)]
+        rows, columns = small_multiple_layout(
+            len(matrices), n_columns / max(n_rows, 1))
+
+        cell_w = (width - MARGIN["left"] - MARGIN["right"]
+                  - (columns - 1) * MARGIN["wspace"]) / columns
+        cell_h = cell_w * n_rows / n_columns
+        height = (MARGIN["top"] + MARGIN["bottom"] + rows * cell_h
+                  + (rows - 1) * MARGIN["hspace"])
+
+        figure = plt.figure(figsize=(width, height))
+        from .bundle import _register_figure_data
+        ramp = plate_ramp(target) if cmap is None else _named(cmap)
+
+        image = None
+        for index, (name, matrix) in enumerate(zip(names, matrices)):
+            row, column = divmod(index, columns)
+            left = (MARGIN["left"] + column * (cell_w + MARGIN["wspace"])) / width
+            bottom = (MARGIN["bottom"] + (rows - row - 1)
+                      * (cell_h + MARGIN["hspace"])) / height
+            ax = figure.add_axes([left, bottom, cell_w / width,
+                                  cell_h / height])
+            draw_plate(ax, matrix, vmin=vmin, vmax=vmax, cmap=ramp, ink=ink,
+                       name=str(name), row_labels=column == 0,
+                       column_labels=row == rows - 1
+                       or index + columns >= len(matrices))
+            if marks[index] is not None:
+                _outline_wells(ax, marks[index], ink)
+            if image is None:
+                image = ax.images[0]
+
+        _colour_bar(figure, image, variable, ink, width, height)
+        from .. import schema as _schema
+
+        recipes = []
+        for index, (name, ax) in enumerate(zip(names, figure.axes[:-1])):
+            coordinates = {}
+            for key in frame["prc"].astype(str).unique():
+                parts = key.rsplit("_", 2)
+                if len(parts) == 3 and parts[0] == str(name):
+                    row, column = _schema.row_index(parts[1]), _schema.column_index(parts[2])
+                    if row is not None and column is not None:
+                        coordinates[key] = [row, column]
+            recipes.append(dict(slot=index, rect=list(ax.get_position().bounds),
+                y=str(variable), measurement=f"{variable} ({name})", plate=dict(
+                    name=str(name), variable=str(variable), grouping=str(grouping),
+                    min_count=min_count if isinstance(min_count, (int, float)) else 0,
+                    coordinates=coordinates, shape=[n_rows, n_columns],
+                    limits=[vmin, vmax], colors=ramp(np.linspace(0, 1, ramp.N)).tolist(),
+                    bad_color=ramp.get_bad().tolist(), under_color=ramp.get_under().tolist(),
+                    over_color=ramp.get_over().tolist(), ink=ink, wash_alpha=EMPTY_WASH_ALPHA,
+                    linewidth=WEIGHTS["spine"], tick_fontsize=TYPE_SCALE["tick"],
+                    title_fontsize=TYPE_SCALE["annotation"],
+                    xticks=ax.get_xticks().tolist(), yticks=ax.get_yticks().tolist(),
+                    xticklabels=[tick.get_text() for tick in ax.get_xticklabels()],
+                    yticklabels=[tick.get_text() for tick in ax.get_yticklabels()],
+                    outline=str(outline) if outline and outline in frame.columns else "",
+                    outline_linewidth=WEIGHTS["data"] * 0.6)))
+        _register_figure_data(figure, frame, y=str(variable), kind="plate_heatmap",
+            grid=[rows, columns], panels=recipes, plates=[str(name) for name in names],
+            plate_colorbar=dict(rect=list(figure.axes[-1].get_position().bounds),
+                ticks=[vmin, vmax], ink=ink, linewidth=WEIGHTS["spine"],
+                fontsize=TYPE_SCALE["annotation"], text_position=[0.5, (BAR["bottom"] - 0.022) / height],
+                text=str(variable).replace("_", " ").lower()))
+        blank = sum(m.size for m in matrices) - sum(measured)
+        subject = ("objects per well, counted" if grouping == "count" else
+                   f"{variable} per well, "
+                   + ("summed" if grouping == "sum" else "averaged")
+                   + " over the objects in it")
+        plural = "" if len(matrices) == 1 else "s"
+        return figure, Panel(
+            "plates", "plate heatmaps",
+            caption=(
+                f"{subject}, for {len(matrices)} plate{plural} of "
+                f"{n_rows}x{n_columns} wells. All plates share one colour "
+                f"scale ({vmin:.3g} to {vmax:.3g}) so the same colour is the "
+                f"same number on every plate. {sum(measured)} wells were "
+                f"measured; the {blank} that were not are left as a neutral "
+                f"wash and are excluded from the scale."
+                + (f" {sum(int(np.nansum(m > 0)) for m in marks if m is not None)}"
+                   f" well(s) marked by {outline} are outlined."
+                   if outline else "")),
+            needs=("prc", variable))
+
+
+def _outline_wells(ax, marks: np.ndarray, ink: str) -> None:
+    """Draw a square outline round every well whose mark is above zero.
+
+    :param ax: the plate's axes, in well units as :func:`draw_plate` sets it.
+    :param marks: per-well matrix; NaN and non-positive wells are unmarked.
+    :param ink: outline colour.
+    :returns: ``None``; patches are added to ``ax``.
+    """
+    from matplotlib.patches import Rectangle
+
+    inset = 0.1
+    for r, c in zip(*np.nonzero(np.nan_to_num(marks) > 0)):
+        ax.add_patch(Rectangle((c + inset, r + inset), 1 - 2 * inset,
+                               1 - 2 * inset, fill=False, edgecolor=ink,
+                               linewidth=WEIGHTS["data"] * 0.6, zorder=3))
+
+
+def _named(cmap):
+    """Return a detached colormap with transparent missing values.
+
+    :param cmap: registered colormap name or colormap object.
+    :returns: A copy whose bad-value colour is transparent. The caller's
+        colormap object is not mutated.
+    """
+    if isinstance(cmap, str):
+        from matplotlib import colormaps
+
+        cmap = colormaps[cmap]
+    cmap = cmap.copy()
+    cmap.set_bad("none")
+    return cmap
+
+
+def _colour_bar(figure, image, variable: str, ink: str, width: float,
+                height: float) -> None:
+    """One thin horizontal bar under the whole small multiple.
+
+    One, because there is one scale. Horizontal and low, because the
+    composite is wider than it is tall and a bar down the right side would
+    steal a plate's width.
+
+    :param figure: figure receiving the colour-bar axes and variable label.
+    :param image: plotted image carrying the shared colour normalization.
+    :param variable: measurement name rendered below the bar.
+    :param ink: colour used for the outline, ticks, and label.
+    :param width: figure width in inches.
+    :param height: figure height in inches.
+    :returns: ``None``; one axes and one text artist are added to ``figure``.
+    """
+    bar_w = min(BAR["width"], width * 0.42)
+    cax = figure.add_axes([(width - bar_w) / 2 / width, BAR["bottom"] / height,
+                           bar_w / width, BAR["height"] / height])
+    cax.set_label("<colorbar>")
+    bar = figure.colorbar(image, cax=cax, orientation="horizontal")
+    bar.outline.set_linewidth(WEIGHTS["spine"])
+    bar.outline.set_edgecolor(ink)
+    cax.tick_params(length=1.6, width=WEIGHTS["spine"], pad=1.2,
+                    labelsize=TYPE_SCALE["annotation"], colors=ink)
+    bar.set_ticks([image.norm.vmin, image.norm.vmax])
+    cax.set_xticklabels([f"{image.norm.vmin:.3g}", f"{image.norm.vmax:.3g}"])
+    figure.text(0.5, (BAR["bottom"] - 0.022) / height,
+                str(variable).replace("_", " ").lower(),
+                ha="center", va="top", color=ink,
+                fontsize=TYPE_SCALE["annotation"])
+
+
+__all__ = ["BAR", "EMPTY_WASH_ALPHA", "MARGIN", "TARGET_ASPECT", "WIDTH",
+           "build_plates", "draw_plate", "full_plate_grid",
+           "plate_figure_name", "plate_names", "plate_ramp", "score_ramp",
+           "shared_limits",
+           "small_multiple_layout", "well_matrices"]

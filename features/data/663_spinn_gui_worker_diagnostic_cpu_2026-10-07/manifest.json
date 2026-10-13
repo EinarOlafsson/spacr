@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "source_commit": "254f3dd39f",
+  "ambient_sha256": "a3d1fed1d18b323fec6859e6ea72bad4ce273c8b60e8e87823ed751d7965eaff",
+  "no_product_change": true,
+  "payloads": [
+    {
+      "path": "README.txt",
+      "sha256": "7b49dc7aa579627d32e2b959dca2014e0cbe52fee4a891ce103103da521bf7a6",
+      "bytes": 4237
+    },
+    {
+      "path": "ambient-checkpoint.py.gz",
+      "sha256": "36814dcbb4cf07025acb69a901dbe57cb74aed6baf89c109e531d2fe9bbe2cf8",
+      "bytes": 103992
+    },
+    {
+      "path": "live_overhead.json",
+      "sha256": "8a5f0a5b37c9e992e67ae40cfdf35d4bd485f29aef240ab351a9d89522e6cde4",
+      "bytes": 34734
+    },
+    {
+      "path": "live_overhead.log.gz",
+      "sha256": "af02b80d7edc70db770d6d3c32f24d7daf4f002a6f86774842d49ce72ddc914d",
+      "bytes": 1292
+    },
+    {
+      "path": "live_overhead.py",
+      "sha256": "79688cbf755ade681eb47c5459e5ae6f6a65017caaf0b5eac25ffc747e1b3bfc",
+      "bytes": 4200
+    },
+    {
+      "path": "thread_accounting.json",
+      "sha256": "6108d54fc13af37b70a8f2066667e12b20578181dd8f00ba5407ec58f01c45f6",
+      "bytes": 1796
+    },
+    {
+      "path": "thread_accounting.log.gz",
+      "sha256": "843289a8ee037261a56fc9b986bd21c2cc79b9461c0b3a3f985be2046c013944",
+      "bytes": 512
+    },
+    {
+      "path": "thread_accounting.py",
+      "sha256": "e62b915c1b2707a4306832fa76e9acd4371f8a938122a6a9443143c5ce60a2ac",
+      "bytes": 2576
+    },
+    {
+      "path": "verify_manifest.py",
+      "sha256": "ea7f1b79d53a7da0599bda6765a59fc845d2b6712631811c5ec5416bd695f796",
+      "bytes": 1069
+    }
+  ]
+}

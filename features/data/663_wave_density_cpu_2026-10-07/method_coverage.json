@@ -1,0 +1,11 @@
+{
+  "source_sha256": "95d55c192d6d7bde70fa671666d3a2138fe30e5cb7e9bb0805c526c85b57f0e2",
+  "method": "_frame_point_atlas",
+  "range": [
+    5177,
+    5239
+  ],
+  "executable_statements": 46,
+  "missing_statements": [],
+  "missing_branches": []
+}

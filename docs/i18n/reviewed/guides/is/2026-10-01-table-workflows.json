@@ -1,0 +1,1245 @@
+{
+  "schema": 1,
+  "language": "is",
+  "method": "Direct Codex AI technical translation with independent Codex-agent technical review; no local-model generation or native-speaker/human signoff claimed. Normal guide worklist importer enforces protected literals, roles, URLs, substitutions and current exact UI bindings. Historical PO author attribution remains preserved.",
+  "draft_author": "Codex agent mask_editor",
+  "independent_technical_reviewer": "Codex agent shared_ui",
+  "worklist_sha256": "c9c10e83ed3593e79f03716b2c07a4627d54bf2bccf95f2e56d26256006b86b0",
+  "draft_sha256": "b531a9637e23bdc805f7d90f9adabf00a227f40a45d55e83bad60d6c3b38477d",
+  "peer_review_sha256": "73e2eda923ed62cf82e27d61c9088757b6663927a5a9fee0a49830918672f752",
+  "peer_review_corrections": [],
+  "source_files": {
+    "docs/source/installer_guide.rst": "8e3ae817ba7141674a6aaaa0ed7b808eef218858ec09e460ab78d5ebbc100ab3",
+    "docs/source/plaque_assay.rst": "d69525fef8a644487c8b3af58948b77eefe0c516c3f3df60416eff6be105d299",
+    "docs/source/plate_barcode_linkage.rst": "148cc9c0455c28d1dda86c315adfd063ae497b3d11420e7bd2cff143287f355c",
+    "docs/source/table_workflows.rst": "dc000bbd7c4ba0f9cf932e14933cb78e5c66e8235dfa31616a98ac7b9c479a1f"
+  },
+  "runtime_catalog_sha256": "e7c3f14f99032c5950fa8a8778a8093029e5c7c23c856f4541bed024bf7b630a",
+  "records": [
+    {
+      "domain": "installer_guide",
+      "source": "macOS online installation: update and reopen",
+      "source_sha256": "de9e4508bcbc5e4e37c952e2a030439f3d983740c374f39ea60bbff37893a6a2",
+      "original_ai_draft": "Netuppsetning á macOS: uppfæra og opna aftur",
+      "reviewed_translation": "Netuppsetning á macOS: uppfæra og opna aftur",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again.",
+      "source_sha256": "00503c9b2788b3e8dacd073ae089fe27f0f090a9c464aa1a49ebc6d4db52ba1a",
+      "original_ai_draft": "Veldu **Hjálp → Check for updates**, samþykktu tiltæka uppfærslu og staðfestu að spaCR verði sett upp aftur í núverandi umhverfi. spaCR lokast, notar ``uv`` sem fylgir uppsetningunni til að uppfæra fyrirliggjandi einkaumhverfi sitt, athugar uppsetta útgáfu og opnast sjálfkrafa aftur. Þessi leið heldur ræsiforriti og umhverfi forritsins á sínum stað. Hún keyrir ekki uppsetningarforrit fyrstu notkunar eða spyr aftur spurninga þess í skjáhermi.",
+      "reviewed_translation": "Veldu **Hjálp → Check for updates**, samþykktu tiltæka uppfærslu og staðfestu að spaCR verði sett upp aftur í núverandi umhverfi. spaCR lokast, notar ``uv`` sem fylgir uppsetningunni til að uppfæra fyrirliggjandi einkaumhverfi sitt, athugar uppsetta útgáfu og opnast sjálfkrafa aftur. Þessi leið heldur ræsiforriti og umhverfi forritsins á sínum stað. Hún keyrir ekki uppsetningarforrit fyrstu notkunar eða spyr aftur spurninga þess í skjáhermi.",
+      "ui_bindings": {
+        "Help": "Hjálp"
+      }
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow.",
+      "source_sha256": "5e3efa7262c2307e309d8291d3ad3a9d08ee70d8578ceab40da6a16448e5a759",
+      "original_ai_draft": "Skipunin er sú sama og endurheimtarskipunin fyrir macOS hér fyrir neðan, með raunverulegri uppsetningarmöppu. Ef uppfærsla eða útgáfuathugun mistekst er það skráð í ``~/.spacr/logs/update.log`` og endurræsing eftir heppnaða uppfærslu fer ekki fram. Uppfærslan stöðvast einnig ef spaCR nær ekki að ljúka lokun á öruggan hátt. Aðskildi sjálfstæði forritapakkinn notar verkflæði sem skiptir út pakkanum.",
+      "reviewed_translation": "Skipunin er sú sama og endurheimtarskipunin fyrir macOS hér fyrir neðan, með raunverulegri uppsetningarmöppu. Ef uppfærsla eða útgáfuathugun mistekst er það skráð í ``~/.spacr/logs/update.log`` og endurræsing eftir heppnaða uppfærslu fer ekki fram. Uppfærslan stöðvast einnig ef spaCR nær ekki að ljúka lokun á öruggan hátt. Aðskildi sjálfstæði forritapakkinn notar verkflæði sem skiptir út pakkanum.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Older installations and full installers",
+      "source_sha256": "8b46d93d57db34f7ec55e6dac2079ea3eb241252825e959adbbd0ab55ff25ba9",
+      "original_ai_draft": "Eldri uppsetningar og full uppsetningarforrit",
+      "reviewed_translation": "Eldri uppsetningar og full uppsetningarforrit",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update.",
+      "source_sha256": "31bbb9211b1ba571834a3614a3cb08f753a73e79765bd0a5b2301ed440dbe1ec",
+      "original_ai_draft": "Full uppsetningarforrit og aðrar uppfærsluleiðir uppsetningarforrita leita að spaCR-uppsetningum sem eldra uppsetningarforrit bjó til og fjarlægja þær. Þannig sitja tvær útgáfur ekki hlið við hlið með aðra þeirra í leitarslóðinni. Þau finna net- og ótengdar uppsetningar fyrir Windows, macOS-forritið og umhverfi þess fyrir hvern notanda, netuppsetningu Linux og Debian-pakkann, ásamt ræsiforritum, flýtileiðum, valmyndarfærslum og skráningum til fjarlægingar. Umhverfi sem þú bjóst sjálf(ur) til og vinnueintök frumkóða eru talin upp en aldrei fjarlægð, og verkefnamöppur og niðurstöður eru aldrei snertar. Ef ekki er hægt að fjarlægja eintak, til dæmis macOS-forrit í ``/Applications`` sem krefst stjórnandaréttinda, segir uppsetningarforritið hvert það er og setur ekkert upp. Þú situr því ekki uppi með hálfkláraða uppfærslu.",
+      "reviewed_translation": "Full uppsetningarforrit og aðrar uppfærsluleiðir uppsetningarforrita leita að spaCR-uppsetningum sem eldra uppsetningarforrit bjó til og fjarlægja þær. Þannig sitja tvær útgáfur ekki hlið við hlið með aðra þeirra í leitarslóðinni. Þau finna net- og ótengdar uppsetningar fyrir Windows, macOS-forritið og umhverfi þess fyrir hvern notanda, netuppsetningu Linux og Debian-pakkann, ásamt ræsiforritum, flýtileiðum, valmyndarfærslum og skráningum til fjarlægingar. Umhverfi sem þú bjóst sjálf(ur) til og vinnueintök frumkóða eru talin upp en aldrei fjarlægð, og verkefnamöppur og niðurstöður eru aldrei snertar. Ef ekki er hægt að fjarlægja eintak, til dæmis macOS-forrit í ``/Applications`` sem krefst stjórnandaréttinda, segir uppsetningarforritið hvert það er og setur ekkert upp. Þú situr því ekki uppi með hálfkláraða uppfærslu.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Preview colony counting (alpha)",
+      "source_sha256": "ff03710311d373bdc7e7756f702c1cbfe7b31f9fba7e22eda9b650b36b264753",
+      "original_ai_draft": "Forskoða talningu þyrpinga (alfa)",
+      "reviewed_translation": "Forskoða talningu þyrpinga (alfa)",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path.",
+      "source_sha256": "545e42e929b9520e7ef1925c215ef32e4af3456a9b9fbf5112fe9762b6c3d107",
+      "original_ai_draft": "Virkjaðu **Kjörstillingar → Sýna alfa-eiginleika** og kveiktu síðan á **Talning þyrpinga** í **Colony Counting (Alpha)** stillingum einingarinnar. Hafðu **Skella** ham valinn og ýttu á **Keyra forskoðun**. Forskoðunin notar stillingar þyrpingatalningar og upprunalega myndpunkta, sýnir yfirlag þyrpinga og birtir fjölda þeirra og meðalflatarmál í myndpunktum upprunamyndarinnar. Þegar brunnagreining er virk eru greindir brunnar taldir hver fyrir sig og sýndir á sínum stöðum á upprunamyndinni. Þessi leið þarf ekki líkan til hlutunar sýkingarskella.",
+      "reviewed_translation": "Virkjaðu **Kjörstillingar → Sýna alfa-eiginleika** og kveiktu síðan á **Talning þyrpinga** í **Colony Counting (Alpha)** stillingum einingarinnar. Hafðu **Skella** ham valinn og ýttu á **Keyra forskoðun**. Forskoðunin notar stillingar þyrpingatalningar og upprunalega myndpunkta, sýnir yfirlag þyrpinga og birtir fjölda þeirra og meðalflatarmál í myndpunktum upprunamyndarinnar. Þegar brunnagreining er virk eru greindir brunnar taldir hver fyrir sig og sýndir á sínum stöðum á upprunamyndinni. Þessi leið þarf ekki líkan til hlutunar sýkingarskella.",
+      "ui_bindings": {
+        "Preferences": "Kjörstillingar",
+        "Show alpha features": "Sýna alfa-eiginleika",
+        "Colony counting": "Talning þyrpinga",
+        "Plaque": "Skella",
+        "Run preview": "Keyra forskoðun"
+      }
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode.",
+      "source_sha256": "458811f9cae7a50afc7bda496b0d72ee0a791dfb001b0ae27b695ebad5b8ac77",
+      "original_ai_draft": "Hafðu reitinn fyrir þyrpingagreini auðan til að nota þröskuldun, eða veldu uppsettan þyrpingagreini. Forskoðunin tilkynnir ef vistunarpunkt eða hugbúnaðarháð greinis vantar í stað þess að skipta hljóðlega um aðferð. Lotukeyrslan getur hins vegar gripið til þröskuldunar þegar valkvætt hugbúnaðarháð greinis er ekki tiltækt. Athugaðu að fyrirhuguð aðferð sé tiltæk þegar þú berð saman forskoðun og lotuniðurstöður. Þyrpingatalning skilar hvorki flæði né frumulíkum, svo þær sýnir birta skilaboð um að úttakið sé ekki tiltækt. Forskoðunin skrifar ekki greiningargagnagrunn og breytir ekki upprunamyndinni. Þyrpingatalning er hunsuð í Figure-ham.",
+      "reviewed_translation": "Hafðu reitinn fyrir þyrpingagreini auðan til að nota þröskuldun, eða veldu uppsettan þyrpingagreini. Forskoðunin tilkynnir ef vistunarpunkt eða hugbúnaðarháð greinis vantar í stað þess að skipta hljóðlega um aðferð. Lotukeyrslan getur hins vegar gripið til þröskuldunar þegar valkvætt hugbúnaðarháð greinis er ekki tiltækt. Athugaðu að fyrirhuguð aðferð sé tiltæk þegar þú berð saman forskoðun og lotuniðurstöður. Þyrpingatalning skilar hvorki flæði né frumulíkum, svo þær sýnir birta skilaboð um að úttakið sé ekki tiltækt. Forskoðunin skrifar ekki greiningargagnagrunn og breytir ekki upprunamyndinni. Þyrpingatalning er hunsuð í Figure-ham.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Link plate barcodes to sample metadata",
+      "source_sha256": "44e2d0cb3798096fe7554760faa45b12d412e2e21b1d273b740599d0c0243358",
+      "original_ai_draft": "Tengja strikamerki platna við lýsigögn sýna",
+      "reviewed_translation": "Tengja strikamerki platna við lýsigögn sýna",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement.",
+      "source_sha256": "20e7ed4d020e572416717b1931d5d6fb68ebe0988217965b4bcd856096d6ec13",
+      "original_ai_draft": "Í **Mæling** skaltu virkja **Sýna alfa-eiginleika** í Preferences og opna **Plate Barcode Linkage (Alpha)**. Stilltu ``plate_barcode_source`` á töflu eða URL-slóð LIMS-þjónustu. Tengingin fer fram eftir mælingu.",
+      "reviewed_translation": "Í **Mæling** skaltu virkja **Sýna alfa-eiginleika** í Preferences og opna **Plate Barcode Linkage (Alpha)**. Stilltu ``plate_barcode_source`` á töflu eða URL-slóð LIMS-þjónustu. Tengingin fer fram eftir mælingu.",
+      "ui_bindings": {
+        "Measure": "Mæling",
+        "Show alpha features": "Sýna alfa-eiginleika"
+      }
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::",
+      "source_sha256": "232b1a454fac5c23976df96e842ebe4ba4900098adb1540f650173541179cd17",
+      "original_ai_draft": "Staðbundin CSV-, TSV-, Excel- eða Parquet-tafla þarf strikamerkjadálk, brunnadálk og þau lýsigögn sýna sem á að tengja við. Til dæmis::",
+      "reviewed_translation": "Staðbundin CSV-, TSV-, Excel- eða Parquet-tafla þarf strikamerkjadálk, brunnadálk og þau lýsigögn sýna sem á að tengja við. Til dæmis::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata.",
+      "source_sha256": "7fcede6a934cae46f467fdde4555ac094e10870cf1800cdb93ba58b68de8f404",
+      "original_ai_draft": "Stilltu ``plate_barcode_column`` ef strikamerkjadálkurinn heitir öðru nafni. ``plate_barcodes`` varpar nafni myndaðrar plötu á strikamerki hennar. Annars les spaCR ``barcode.txt`` í plötumöppunni eða notar nafn plötunnar. Haltu skýrum styrkleikaeiningum í lýsigögnunum.",
+      "reviewed_translation": "Stilltu ``plate_barcode_column`` ef strikamerkjadálkurinn heitir öðru nafni. ``plate_barcodes`` varpar nafni myndaðrar plötu á strikamerki hennar. Annars les spaCR ``barcode.txt`` í plötumöppunni eða notar nafn plötunnar. Haltu skýrum styrkleikaeiningum í lýsigögnunum.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Read records from a LIMS service",
+      "source_sha256": "c0a23cd8b5ed04a568c81761b0eae461c222a4f8a45f4131adde8ba4c847f189",
+      "original_ai_draft": "Lesa færslur úr LIMS-þjónustu",
+      "reviewed_translation": "Lesa færslur úr LIMS-þjónustu",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings.",
+      "source_sha256": "8ad434bde363eb3f21f8475acd71bd6204ba876e4d1273e27cec44e55c08e633",
+      "original_ai_draft": "Notaðu slóð á borð við ``https://lims.example/plates/{barcode}/wells``. spaCR setur kóðað strikamerki í staðinn. Án ``{barcode}`` bætir það við fyrirspurnarfæribreytunni ``barcode``. Ef auðkenningar er þörf skaltu setja auðkenningartáknið í umhverfisbreytu og færa nafn breytunnar í ``plate_barcode_token_env``. Ekki setja táknið sjálft í slóðina eða stillingarnar.",
+      "reviewed_translation": "Notaðu slóð á borð við ``https://lims.example/plates/{barcode}/wells``. spaCR setur kóðað strikamerki í staðinn. Án ``{barcode}`` bætir það við fyrirspurnarfæribreytunni ``barcode``. Ef auðkenningar er þörf skaltu setja auðkenningartáknið í umhverfisbreytu og færa nafn breytunnar í ``plate_barcode_token_env``. Ekki setja táknið sjálft í slóðina eða stillingarnar.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::",
+      "source_sha256": "6244ec071c830f9d6901864e977aa929fd44754a90f4df036be3e1c82c49a68c",
+      "original_ai_draft": "Þjónustan getur skilað lista af brunnafærslum eða hlut sem geymir listann undir ``wells``, ``records``, ``results``, ``data`` eða ``items``. Almennir reitir utan listans gefa sjálfgefin lýsigögn fyrir brunnana::",
+      "reviewed_translation": "Þjónustan getur skilað lista af brunnafærslum eða hlut sem geymir listann undir ``wells``, ``records``, ``results``, ``data`` eða ``items``. Almennir reitir utan listans gefa sjálfgefin lýsigögn fyrir brunnana::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata.",
+      "source_sha256": "f507435c5c47b43dc9aefd6be8165a2e4039f2bba6955fcecdc1b916ab398935",
+      "original_ai_draft": "spaCR fylgir ``next``, ``next_url``, ``@odata.nextLink`` eða ``links.next``. Tengillinn getur verið URL-strengur eða hlutur með ``href`` reit. Afstæðir tenglar eru leystir miðað við slóð svarsins. Vanti tengil, eða sé hann null eða tómur strengur, er listanum lokið. Sjálfgefin lýsigögn færast áfram á síðari síður; skýrt tilgreindir reitir á brunni ganga framar þeim. Reitir fyrir síðuskiptingu verða ekki að lýsigögnum sýna.",
+      "reviewed_translation": "spaCR fylgir ``next``, ``next_url``, ``@odata.nextLink`` eða ``links.next``. Tengillinn getur verið URL-strengur eða hlutur með ``href`` reit. Afstæðir tenglar eru leystir miðað við slóð svarsins. Vanti tengil, eða sé hann null eða tómur strengur, er listanum lokið. Sjálfgefin lýsigögn færast áfram á síðari síður; skýrt tilgreindir reitir á brunni ganga framar þeim. Reitir fyrir síðuskiptingu verða ekki að lýsigögnum sýna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter.",
+      "source_sha256": "97ee2f1a5e5a52c2ed6ac167d29c5655de55b4b826e4509b4a967a0a54031ad6",
+      "original_ai_draft": "Sérhver tengill og HTTP-framsending verða að halda sama samskiptasniði, hýsli og gátt og upphaflega þjónustan. Tenglar sem stangast á og endurteknar síður teljast villur. Söfnun takmarkast við 16 MiB í hverju svari, 64 MiB í allri uppflettingunni, 1.000 síðuslóðir á strikamerki og 100.000 færslur í allri uppflettingunni. Villa stöðvar lýsigagnauppflettinguna án þess að skila hálfkláruðu plötukorti. Fyrirliggjandi mælingarniðurstöður eru áfram tiltækar. Bendilsamskiptareglur einstakra birgja sem gefa ekki slóð næstu síðu þurfa sérstakan aðlaga.",
+      "reviewed_translation": "Sérhver tengill og HTTP-framsending verða að halda sama samskiptasniði, hýsli og gátt og upphaflega þjónustan. Tenglar sem stangast á og endurteknar síður teljast villur. Söfnun takmarkast við 16 MiB í hverju svari, 64 MiB í allri uppflettingunni, 1.000 síðuslóðir á strikamerki og 100.000 færslur í allri uppflettingunni. Villa stöðvar lýsigagnauppflettinguna án þess að skila hálfkláruðu plötukorti. Fyrirliggjandi mælingarniðurstöður eru áfram tiltækar. Bendilsamskiptareglur einstakra birgja sem gefa ekki slóð næstu síðu þurfa sérstakan aðlaga.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Inspect the result",
+      "source_sha256": "363e3d412470c6dd54ad52412672a831acc15a69fdbe833d89a6719f1c723968",
+      "original_ai_draft": "Skoða niðurstöðuna",
+      "reviewed_translation": "Skoða niðurstöðuna",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced.",
+      "source_sha256": "49a70757afd7a6730218f674ec09e24a4557331c2bd397dd145efd18a6838d31",
+      "original_ai_draft": "Útfyllta kortið er skrifað í ``measurements/plate_map_lims.csv``. Það fyllir út stillinguna ``profiling_metadata`` ef hún er auð. Þegar dálkar fyrir efnasamband og styrk eru til staðar fyllir það einnig út auða ``viability_plate_map`` stillingu. Kort sem notandi hefur þegar gefið upp er borið saman við niðurstöðuna en ekki skipt út hljóðlega.",
+      "reviewed_translation": "Útfyllta kortið er skrifað í ``measurements/plate_map_lims.csv``. Það fyllir út stillinguna ``profiling_metadata`` ef hún er auð. Þegar dálkar fyrir efnasamband og styrk eru til staðar fyllir það einnig út auða ``viability_plate_map`` stillingu. Kort sem notandi hefur þegar gefið upp er borið saman við niðurstöðuna en ekki skipt út hljóðlega.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons.",
+      "source_sha256": "5698a5c34c4657dde2609dc2a8e7133685c6c378847a04bff8a78389fc6fcf0c",
+      "original_ai_draft": "Skoðaðu ``measurements/plate_barcode_mismatches.csv`` og annálinn með tilliti til strikamerkja sem vantar, sameiginlegra strikamerkja, ósamsvarandi brunna, færslna sem stangast á og ósamræmis við fyrirliggjandi kort. Leystu úr þessu ósamræmi áður en þú túlkar samanburð meðferða.",
+      "reviewed_translation": "Skoðaðu ``measurements/plate_barcode_mismatches.csv`` og annálinn með tilliti til strikamerkja sem vantar, sameiginlegra strikamerkja, ósamsvarandi brunna, færslna sem stangast á og ósamræmis við fyrirliggjandi kort. Leystu úr þessu ósamræmi áður en þú túlkar samanburð meðferða.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combine measurement tables for plots and gates",
+      "source_sha256": "1300eddc7951b9ac3b501f2dec89bc071cc7ceada1a558141b2921fcb30da7c7",
+      "original_ai_draft": "Sameina mælingatöflur fyrir gröf og gates",
+      "reviewed_translation": "Sameina mælingatöflur fyrir gröf og gates",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`.",
+      "source_sha256": "fa4fc670ef8e642d3791bc8b14223ab8aaaf1377f1f9c0df7c181008223b665c",
+      "original_ai_draft": "Opnaðu **Graph Builder** eða **Gate Editor** frá Home til að kanna mælingar. Á báðum skjám er **Sameinuðu borðum** rétt við hlið töfluvalsins. Sama sameiningarskilgreining skilar sömu mælingum á hvorum skjánum sem er. Um verkflæðið í kring, sjá :doc:`workflows`.",
+      "reviewed_translation": "Opnaðu **Graph Builder** eða **Gate Editor** frá Home til að kanna mælingar. Á báðum skjám er **Sameina töflur** rétt við hlið töfluvalsins. Sama sameiningarskilgreining skilar sömu mælingum á hvorum skjánum sem er. Um verkflæðið í kring, sjá :doc:`workflows`.",
+      "ui_bindings": {
+        "Merge tables": "Sameina töflur"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose a source and an observation level",
+      "source_sha256": "fd8d7835e26141e11278364cd50fa58dafc0f6cdc57c335ebf755e5765d65392",
+      "original_ai_draft": "Velja uppruna og athugunareiningu",
+      "reviewed_translation": "Velja uppruna og athugunareiningu",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables.",
+      "source_sha256": "6156fa2643fba52e0d51b287610b3773efdfe34d48ccff3539e4d5ab97a39734",
+      "original_ai_draft": "**Load table** opnar SQLite-mælingargagnagrunn eða CSV/TSV-töflu. Efnisleg tafla er tafla sem þegar er í gagnagrunninum. Afleidd tafla er nafngreind niðurstaða sem reiknuð er úr efnislegum töflum með vistaðri sameiningarskilgreiningu. Upprunalegu mælingatöflurnar haldast óbreyttar þegar afleidd tafla er búin til.",
+      "reviewed_translation": "**Load table** opnar SQLite-mælingargagnagrunn eða CSV/TSV-töflu. Efnisleg tafla er tafla sem þegar er í gagnagrunninum. Afleidd tafla er nafngreind niðurstaða sem reiknuð er úr efnislegum töflum með vistaðri sameiningarskilgreiningu. Upprunalegu mælingatöflurnar haldast óbreyttar þegar afleidd tafla er búin til.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join.",
+      "source_sha256": "a17323cc6ee40ca694711fdbf722c523427ab6d172dd6ff741bd59a1eff217c1",
+      "original_ai_draft": "Sameining krefst eins SQLite-gagnagrunns. Hnappurinn er ekki tiltækur fyrir eina CSV/TSV-skrá eða Gate Editor-setu sem sameinar nokkra gagnagrunna. Hladdu einum gagnagrunni sem inniheldur töflurnar sem þú vilt tengja.",
+      "reviewed_translation": "Sameining krefst eins SQLite-gagnagrunns. Hnappurinn er ekki tiltækur fyrir eina CSV/TSV-skrá eða Gate Editor-setu sem sameinar nokkra gagnagrunna. Hladdu einum gagnagrunni sem inniheldur töflurnar sem þú vilt tengja.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships.",
+      "source_sha256": "18d1637b149858c659b68fb2d611ce2abf333c7a7d8ad79281f0b74be2a53d07",
+      "original_ai_draft": "Í Graph Builder breytir val á töflu uppruna grafsins. Gate Editor styður einnig vinnumengi samhæfra efnislegra hlutatöflna sem birtast sem fjarlægjanleg merki. Val á annarri samhæfri töflu bætir mælingum hennar við. Síðasta merkið helst á sínum stað svo ritillinn hafi alltaf uppruna. Nafngreind afleidd tafla er valin sem heildstæður uppruni. Notaðu sameiningargluggann þegar þú þarft nafngreinda, endurgeranlega niðurstöðu eða skýrt skilgreind sérsniðin tengsl.",
+      "reviewed_translation": "Í Graph Builder breytir val á töflu uppruna grafsins. Gate Editor styður einnig vinnumengi samhæfra efnislegra hlutatöflna sem birtast sem fjarlægjanleg merki. Val á annarri samhæfri töflu bætir mælingum hennar við. Síðasta merkið helst á sínum stað svo ritillinn hafi alltaf uppruna. Nafngreind afleidd tafla er valin sem heildstæður uppruni. Notaðu sameiningargluggann þegar þú þarft nafngreinda, endurgeranlega niðurstöðu eða skýrt skilgreind sérsniðin tengsl.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row.",
+      "source_sha256": "b6f1186a467ff6c4ab6bda35ae32e2448f4d05d8437b02cfefeee60f83631c8e",
+      "original_ai_draft": "**Tölur eftirliti útflutning** ákvarðar hvað ein niðurstöðuröð táknar. Niðurstaða á frumustigi hefur til dæmis eina röð fyrir hverja frumu, jafnvel þótt fruman innihaldi nokkra sýkla. Þá er hægt að bera saman fjölda frumukjarna, heildarflatarmál sýkla og styrkleika frumu í sömu röð.",
+      "reviewed_translation": "**Tafla úttaksathugana** ákvarðar hvað ein niðurstöðuröð táknar. Niðurstaða á frumustigi hefur til dæmis eina röð fyrir hverja frumu, jafnvel þótt fruman innihaldi nokkra sýkla. Þá er hægt að bera saman fjölda frumukjarna, heildarflatarmál sýkla og styrkleika frumu í sömu röð.",
+      "ui_bindings": {
+        "Output observation table": "Tafla úttaksathugana"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Create a standard spaCR merge",
+      "source_sha256": "d7f8553f0262ec95c5c53914fac2a4e326f47cdf2b60c15f63e0bf9b42f8cf62",
+      "original_ai_draft": "Búa til staðlaða spaCR-sameiningu",
+      "reviewed_translation": "Búa til staðlaða spaCR-sameiningu",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Load your measurement database and press **Merge tables**.",
+      "source_sha256": "943f30e115129bbebd878be10e6c200dba521d8587c2bf730e91534da640a041",
+      "original_ai_draft": "Hladdu mælingargagnagrunninum og ýttu á **Sameinuðu borðum**.",
+      "reviewed_translation": "Hladdu mælingargagnagrunninum og ýttu á **Sameina töflur**.",
+      "ui_bindings": {
+        "Merge tables": "Sameina töflur"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization.",
+      "source_sha256": "7c06e9ca10f4ede108a8a2bc0f29aa8c20569a027e20a0ce278882737c37d7ab",
+      "original_ai_draft": "Hakaðu við upprunatöflurnar og veldu **Tölur eftirliti útflutning**. Grunntaflan er sjálfkrafa tekin með. Staðlaðar sameiningar nota samhæfar spaCR-hlutatöflur og athuganir á frumu-/umfrymisstigi. Listinn sýnir einnig aðrar töflur þar sem gæti þurft að sérsníða tengslin.",
+      "reviewed_translation": "Hakaðu við upprunatöflurnar og veldu **Tafla úttaksathugana**. Grunntaflan er sjálfkrafa tekin með. Staðlaðar sameiningar nota samhæfar spaCR-hlutatöflur og athuganir á frumu-/umfrymisstigi. Listinn sýnir einnig aðrar töflur þar sem gæti þurft að sérsníða tengslin.",
+      "ui_bindings": {
+        "Output observation table": "Tafla úttaksathugana"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name.",
+      "source_sha256": "68f4e79c5e729b4d3c3bacdb4f9c2412da034d68a11f119bb44ef692b60c85ab",
+      "original_ai_draft": "Sláðu inn **Nafn á árangri**, til dæmis ``Cell and pathogen measurements``. Það verður að vera frábrugðið nafni allra efnislegra taflna.",
+      "reviewed_translation": "Sláðu inn **Heiti niðurstöðu**, til dæmis ``Cell and pathogen measurements``. Það verður að vera frábrugðið nafni allra efnislegra taflna.",
+      "ui_bindings": {
+        "Result name": "Heiti niðurstöðu"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed.",
+      "source_sha256": "b174926db0ee37fb959dbd246058838d2d86a1c3b6c9cbeb37334fff6d0480d7",
+      "original_ai_draft": "Farðu yfir samantektina **spaCR defaults active** og valmöguleika **Sjúkdómur** fyrir hvern dálk. Í venjulegum samhæfum gagnagrunni þarf ekki að varpa lyklum handvirkt.",
+      "reviewed_translation": "Farðu yfir samantektina **spaCR defaults active** og valmöguleika **Samantekt** fyrir hvern dálk. Í venjulegum samhæfum gagnagrunni þarf ekki að varpa lyklum handvirkt.",
+      "ui_bindings": {
+        "Aggregation": "Samantekt"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed.",
+      "source_sha256": "bd97d12dd20f09eb06790909df7b8f657ad4cce8f8cd7cfc6d153476a0ef4ee6",
+      "original_ai_draft": "Ýttu á **Sjálf og fyrirmynd**. Skoðaðu fjölda inntaks- og úttaksraða, tengilykla, ósamsvarandi færslur, afleidda lykla sem vantar, raðir með endurteknum afleiddum lyklum og fyrstu 12 úttaksraðirnar. Sannprófun skoðar allt inntakið þótt aðeins fáar niðurstöðuraðir séu sýndar.",
+      "reviewed_translation": "Ýttu á **Sannprófa og forskoða**. Skoðaðu fjölda inntaks- og úttaksraða, tengilykla, ósamsvarandi færslur, lykla undirtöflu sem vantar, raðir með endurteknum lyklum undirtöflu og fyrstu 12 úttaksraðirnar. Sannprófun skoðar allt inntakið þótt aðeins fáar niðurstöðuraðir séu sýndar.",
+      "ui_bindings": {
+        "Validate and preview": "Sannprófa og forskoða"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates.",
+      "source_sha256": "f6bed99671cb8a2675492fff57dad6635347bfdd29191ae9fabbba1891323541",
+      "original_ai_draft": "Ýttu á **Að búa til sameiginlegra borð** eftir að sannprófun tekst. Niðurstaðan er valin í venjulega töfluvalinu. Dálkar hennar eru tiltækir fyrir gröf og gates.",
+      "reviewed_translation": "Ýttu á **Búa til sameinaða töflu** eftir að sannprófun tekst. Niðurstaðan er valin í venjulega töfluvalinu. Dálkar hennar eru tiltækir fyrir gröf og gates.",
+      "ui_bindings": {
+        "Create merged table": "Búa til sameinaða töflu"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them.",
+      "source_sha256": "dff285d0c223c722eee3a1ef9e37890c369c81e34b46a624c25493fc0e6470be",
+      "original_ai_draft": "Breyting á töflu, nafni eða reglu ógildir forskoðunina. Sannprófaðu aftur áður en niðurstaðan er búin til. Val á annarri töflu eða grunntöflu endurstillir einnig sérsniðin tengsl og yfirskriftir, svo veldu upprunana áður en þú sérsníður þá.",
+      "reviewed_translation": "Breyting á töflu, nafni eða reglu ógildir forskoðunina. Sannprófaðu aftur áður en niðurstaðan er búin til. Val á annarri töflu eða grunntöflu endurstillir einnig sérsniðin tengsl og yfirskriftir, svo veldu upprunana áður en þú sérsníður þá.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "How the defaults combine measurements",
+      "source_sha256": "3f8bbf2e3053eecfb17f72c741ad6763e8cf32d4eb78d43f2e074564929db760",
+      "original_ai_draft": "Hvernig sjálfgefnu reglurnar sameina mælingar",
+      "reviewed_translation": "Hvernig sjálfgefnu reglurnar sameina mælingar",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity.",
+      "source_sha256": "5182a1d21f7773e0417bd43f30a29345648eabfdef739eb73ffd986eed48af04",
+      "original_ai_draft": "Sameiginlegar spaCR-reglur taka hverja undirtöflu saman sjálfstætt áður en hún er tengd við grunnathuganirnar. Ef bæði sýklum og frumulíffærum er bætt við margfaldast raðir þeirra ekki hver með annarri. Auðkenning notar tiltæk lýsigögn um plötu, brunn, sjónsvið og tíma ásamt viðeigandi auðkenni hlutar/foreldris. Númer hlutar eitt og sér er ekki algilt einkvæmt auðkenni.",
+      "reviewed_translation": "Sameiginlegar spaCR-reglur taka hverja undirtöflu saman sjálfstætt áður en hún er tengd við grunnathuganirnar. Ef bæði sýklum og frumulíffærum er bætt við margfaldast raðir þeirra ekki hver með annarri. Auðkenning notar tiltæk lýsigögn um plötu, brunn, sjónsvið og tíma ásamt viðeigandi auðkenni hlutar/foreldris. Númer hlutar eitt og sér er ekki algilt einkvæmt auðkenni.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Default aggregation for child measurements",
+      "source_sha256": "355c3446c127a77c39a80c94a57f1f5c750864771bef4c9772637677833b0d08",
+      "original_ai_draft": "Sjálfgefin samantekt afleiddra mælinga",
+      "reviewed_translation": "Sjálfgefin samantekt mælinga undirtöflu",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Measurement",
+      "source_sha256": "385165e2ff59804537e732dc51e2b6058a5a11016e0bb01febe8a738614ed728",
+      "original_ai_draft": "Mæling",
+      "reviewed_translation": "Mæling",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rule",
+      "source_sha256": "62845f31a2fe00be3ebaaeb93f5b27af82ab81dfcbaa1871c76f596cd98cf3c9",
+      "original_ai_draft": "Regla",
+      "reviewed_translation": "Regla",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Area, integrated/total intensity and counts",
+      "source_sha256": "c179d58e053b42c8abaaa518ecf4e850c30112190ac25c3a1c0c6fede0a1d832",
+      "original_ai_draft": "Flatarmál, heildaður/heildarstyrkleiki og fjöldatölur",
+      "reviewed_translation": "Flatarmál, heildaður/heildarstyrkleiki og fjöldatölur",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Sum the child values.",
+      "source_sha256": "f1c10d040b2a2f34721745b710a66fe7672f4523b8415ed4191c2c180970ef75",
+      "original_ai_draft": "Leggja saman afleiddu gildin.",
+      "reviewed_translation": "Leggja saman gildi undirtöflunnar.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Minimum intensity",
+      "source_sha256": "78b5b8d4cff61a7420d3bd0b32ae573261689e0b940c7c92b4fb81f4efc1c402",
+      "original_ai_draft": "Lágmarksstyrkleiki",
+      "reviewed_translation": "Lágmarksstyrkleiki",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the minimum child value.",
+      "source_sha256": "2ad720165339a35ea45fc398a31666cfe936eea573fbe58b406fa9a1a0bbf5ea",
+      "original_ai_draft": "Halda lægsta afleidda gildinu.",
+      "reviewed_translation": "Halda lægsta gildinu úr undirtöflunni.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Maximum intensity",
+      "source_sha256": "54361a85a53a5e337d24985acaff806d213f860d4738b26acce7cfea125d1a50",
+      "original_ai_draft": "Hámarksstyrkleiki",
+      "reviewed_translation": "Hámarksstyrkleiki",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the maximum child value.",
+      "source_sha256": "a4a34d4612df23ca3181b5b3ba804bb1d0127081d3ff8a89fe5db7881b4df1d9",
+      "original_ai_draft": "Halda hæsta afleidda gildinu.",
+      "reviewed_translation": "Halda hæsta gildinu úr undirtöflunni.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Median measurements",
+      "source_sha256": "30c85c03af7732fa87bfc1a634762faccd85a833f7dcf5bda09360f99fda3542",
+      "original_ai_draft": "Miðgildismælingar",
+      "reviewed_translation": "Miðgildismælingar",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the median of the child measurements.",
+      "source_sha256": "535c4b425445b54d6dff1745551f675fdd87595f79ff4cc3e14c8f2837044931",
+      "original_ai_draft": "Taka miðgildi afleiddu mælinganna.",
+      "reviewed_translation": "Taka miðgildi mælinganna í undirtöflunni.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Other numeric measurements, including means",
+      "source_sha256": "7922dbebd8af8e77a0aa5dc97022d5b17d860a25cb9ca2cbf960179adb9f76d1",
+      "original_ai_draft": "Aðrar tölulegar mælingar, þar á meðal meðaltöl",
+      "reviewed_translation": "Aðrar tölulegar mælingar, þar á meðal meðaltöl",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the mean of the child measurements.",
+      "source_sha256": "60223377fe3545d1265d76ec08dfde0812252f37d26c8f4b29813773f6a59242",
+      "original_ai_draft": "Taka meðaltal afleiddu mælinganna.",
+      "reviewed_translation": "Taka meðaltal mælinganna í undirtöflunni.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Text and identifiers",
+      "source_sha256": "257a74ad575a360eb386bb697513fb7dde408562606335ec62b50e54f49c59e0",
+      "original_ai_draft": "Texti og auðkenni",
+      "reviewed_translation": "Texti og auðkenni",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed.",
+      "source_sha256": "eb91a749839161d5a59b65178ebaf8ea0d918c5a0aa1f03fa3dc05cfb1dee9a6",
+      "original_ai_draft": "Sjálfgefið er fyrsta gildinu sem ekki vantar haldið í upprunalegri röð. Ekki er hægt að taka meðaltal eða summu auðkenna.",
+      "reviewed_translation": "Sjálfgefið er fyrsta gildinu sem ekki vantar haldið í upprunalegri röð. Ekki er hægt að taka meðaltal eða summu auðkenna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention.",
+      "source_sha256": "bbf284dd7b4a834e806dd56eae7e5def4245810cca385f1033e6b310e2237369",
+      "original_ai_draft": "Fyrir fjóra sýkla með flatarmál 1, 2, 4 og 8 er heildarflatarmál sýkla 15. Meðalstyrkleiki er meðaltal mælinganna á þessum fjórum hlutum en ekki styrkleiki endurreiknaður úr öllum myndpunktum þeirra saman. Skoðaðu regluna sem birtist fyrir hvern dálk þegar nafn hans lýsir ekki mæliaðferðinni.",
+      "reviewed_translation": "Fyrir fjóra sýkla með flatarmál 1, 2, 4 og 8 er heildarflatarmál sýkla 15. Meðalstyrkleiki er meðaltal mælinganna á þessum fjórum hlutum en ekki styrkleiki endurreiknaður úr öllum myndpunktum þeirra saman. Skoðaðu regluna sem birtist fyrir hvern dálk þegar nafn hans lýsir ekki mæliaðferðinni.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them.",
+      "source_sha256": "6cdd4f6399e4f1c6d59a18351817957a6530bada5f9cd14017d9b7001fd35b38",
+      "original_ai_draft": "Sjálfgefna tengingin við frumukjarna heldur aðeins grunnathugunum sem eiga samsvörun. Tengingar við sýkla og frumulíffæri halda ósýktum frumum. Mælingar sem vantar haldast vantar, þar með talin summa þar sem öll framlagandi gildi vantar. Styrkleikamælingu sem vantar er ekki breytt í mælt núll. Heiti afleiddra dálka eru auðkennd með töflunafni þegar þess þarf til að greina þá að.",
+      "reviewed_translation": "Sjálfgefna tengingin við frumukjarna heldur aðeins grunnathugunum sem eiga samsvörun. Tengingar við sýkla og frumulíffæri halda ósýktum frumum. Mælingar sem vantar haldast óútfylltar, þar með talin summa þar sem öll framlagandi gildi vantar. Styrkleikamælingu sem vantar er ekki breytt í mælt núll. Heiti dálka úr undirtöflum eru auðkennd með töflunafni þegar þess þarf til að greina þá að.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected.",
+      "source_sha256": "27997f400eb3ca7daa589a8e37e1d0a35846a8e64b0a98303dca8eb28eebdef6",
+      "original_ai_draft": "Tiltækar yfirskriftir ráðast af gildum og hlutverki dálksins. Tölulegar mælingar bjóða meðaltal, miðgildi, summu, lágmark, hámark, talningu og aðra samhæfa valkosti. Texti styður til dæmis fyrsta/síðasta gildi, talningu og talningu ólíkra gilda. Rökfræðileg gögn styðja einnig **Einhver** og **all**. **count** telur gildi sem ekki vantar. Sjálfgefnar einn-á-móti-einum raðir eru tengdar óbreyttar, svo samantektarstýringar þeirra eru óvirkar þar til sérsniðin sameining er valin.",
+      "reviewed_translation": "Tiltækar yfirskriftir ráðast af gildum og hlutverki dálksins. Tölulegar mælingar bjóða meðaltal, miðgildi, summu, lágmark, hámark, talningu og aðra samhæfa valkosti. Texti styður til dæmis fyrsta/síðasta gildi, talningu og talningu ólíkra gilda. Rökfræðileg gögn styðja einnig **Einhver** og **all**. **count** telur gildi sem ekki vantar. Sjálfgefnar einn-á-móti-einum raðir eru tengdar óbreyttar, svo samantektarstýringar þeirra eru óvirkar þar til sérsniðin sameining er valin.",
+      "ui_bindings": {
+        "any": "Einhver"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Customize an alternative schema",
+      "source_sha256": "40c5a0d561073a633ebfc4c0b5111516141bf0b2d2c67149bb97cce732829303",
+      "original_ai_draft": "Sérsníða fyrir annað skema",
+      "reviewed_translation": "Sérsníða fyrir annað skema",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables.",
+      "source_sha256": "833529de728577eb88cbbadcfbf9fc31472e2b723dc070157c789e3183b4f5f7",
+      "original_ai_draft": "Veldu **Customize samskipti** þegar gagnagrunnurinn notar önnur töflunöfn, auðkenni eða viljandi önnur tengsl. Veldu grunn- og undirtöflur fyrst í aðalglugganum. Vörpun raunverulegra dálka þeirra endurnefnir ekki eða breytir upprunatöflunum.",
+      "reviewed_translation": "Veldu **Sérsníða sameiningu** þegar gagnagrunnurinn notar önnur töflunöfn, auðkenni eða viljandi önnur tengsl. Veldu grunn- og undirtöflur fyrst í aðalglugganum. Vörpun raunverulegra dálka þeirra endurnefnir ekki eða breytir upprunatöflunum.",
+      "ui_bindings": {
+        "Customize merging": "Sérsníða sameiningu"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation.",
+      "source_sha256": "93c1ec840f46fb19b804a98a60fee9aad5a21c1b4bef8c4458e697440f6b95c0",
+      "original_ai_draft": "Viðvörunin útskýrir að röng tengsl geti tengt óskylda hluti, tvítekið eða sleppt athugunum og breytt mælingum sem notaðar eru í gröfum og gates. Lestu hana og hakaðu við **Ég skil varninn og ég mun athuga samningarnar.** áður en þú samþykkir sérsniðnu stillingarnar. Staðfesting kemur ekki í stað sannprófunar.",
+      "reviewed_translation": "Viðvörunin útskýrir að röng tengsl geti tengt óskylda hluti, tvítekið eða sleppt athugunum og breytt mælingum sem notaðar eru í gröfum og gates. Lestu hana og hakaðu við **Ég skil viðvörunina og mun skoða forskoðun sameiningarinnar.** áður en þú samþykkir sérsniðnu stillingarnar. Staðfesting kemur ekki í stað sannprófunar.",
+      "ui_bindings": {
+        "I understand the warning and will check the merge preview.": "Ég skil viðvörunina og mun skoða forskoðun sameiningarinnar."
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints.",
+      "source_sha256": "6976d56c448e4039af698b1eb63a1c596e5cf1af195e54b6840d378dd03fb5e4",
+      "original_ai_draft": "**Básamálið eftirlitshlut** auðkenna eina einkvæma grunnröð án vantaðra lykilgilda. Taktu sjónsviðs- og tímadálka með þegar auðkenni endurtaka sig milli mynda eða tímapunkta.",
+      "reviewed_translation": "**Lyklar grunnathugana** auðkenna eina einkvæma grunnröð án vantaðra lykilgilda. Taktu sjónsviðs- og tímadálka með þegar auðkenni endurtaka sig milli mynda eða tímapunkta.",
+      "ui_bindings": {
+        "Base observation keys": "Lyklar grunnathugana"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``.",
+      "source_sha256": "bbfecc3225fb288fb99962e7ac85e4432f95552eef50b236949e18f4226fa57c",
+      "original_ai_draft": "Hver röð fyrir undirtöflu í uppsetningunni tilgreinir **Keyfögn** og **Barnið keyfi**. Sláðu inn dálkanöfn aðskilin með kommum í samsvarandi röð. Til dæmis má varpa grunnlyklunum ``image_id, cell_id`` á afleiddu lyklana ``image_id, parent_cell_id``.",
+      "reviewed_translation": "Hver röð fyrir undirtöflu í uppsetningunni tilgreinir **Grunnlyklar** og **Lyklar undirtöflu**. Sláðu inn dálkanöfn aðskilin með kommum í samsvarandi röð. Til dæmis má varpa grunnlyklunum ``image_id, cell_id`` á lykla undirtöflunnar ``image_id, parent_cell_id``.",
+      "ui_bindings": {
+        "Base keys": "Grunnlyklar",
+        "Child keys": "Lyklar undirtöflu"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated.",
+      "source_sha256": "62d0b5ef44badd8da475cfe794a297afe6cc46f48379fdd24e31c3c9ee1c9dbe",
+      "original_ai_draft": "Veldu **one-to-one** þegar í mesta lagi ein afleidd röð tilheyrir hverjum grunnlykli, eða **one-to-many** þegar taka þarf nokkrar afleiddar raðir saman fyrst.",
+      "reviewed_translation": "Veldu **one-to-one** þegar í mesta lagi ein röð undirtöflu tilheyrir hverjum grunnlykli, eða **one-to-many** þegar taka þarf nokkrar raðir undirtöflu saman fyrst.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row.",
+      "source_sha256": "1486c2a942521198b467ee39b02b071bccd53548ae60f1fee9b659298cffc5ad",
+      "original_ai_draft": "**vinstri** tenging heldur grunnathugunum án samsvörunar með vöntun á afleiddum mælingum. **inner** tenging heldur aðeins athugunum sem eiga samsvörun. Afleiddar raðir sem vantar tengilykla samsvara ekki grunnröð.",
+      "reviewed_translation": "**vinstri** tenging heldur grunnathugunum án samsvörunar með vöntun á mælingum undirtöflu. **inner** tenging heldur aðeins athugunum sem eiga samsvörun. Raðir undirtöflu sem vantar tengilykla samsvara ekki grunnröð.",
+      "ui_bindings": {
+        "left": "vinstri"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping.",
+      "source_sha256": "6fd72e9f8d2b2823b8ab7a5ad2d78dbd9158a642dacb6d11d6df95049f4ac4bf",
+      "original_ai_draft": "Notaðu **Uppgötvaður** til að tilgreina aðra afleidda dálka sem ekki má meðhöndla sem samfelldar mælingar. Farðu yfir samantektarstýringar hvers dálks í aðalglugganum eftir að vörpunin hefur verið samþykkt.",
+      "reviewed_translation": "Notaðu **Auðkenni** til að tilgreina aðra dálka undirtöflu sem ekki má meðhöndla sem samfelldar mælingar. Farðu yfir samantektarstýringar hvers dálks í aðalglugganum eftir að vörpunin hefur verið samþykkt.",
+      "ui_bindings": {
+        "Identifiers": "Auðkenni"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one.",
+      "source_sha256": "556a8db14dc1ba6072d35196fc4e92aba0b7f107132eaf80b35e679bd7bfdf40",
+      "original_ai_draft": "Glugginn sýnir nú **Custom rules active**. Sannprófaðu og skoðaðu forskoðunina áður en niðurstaðan er búin til. Tvítekin grunnauðkenni, mótsagnakenndar einn-á-móti-einum varpanir, lyklar sem vantar og ósamhæfar aðgerðir valda villu. Endurteknir afleiddir lyklar geta verið eðlilegir í einn-á-móti-mörgum tengslum en þarf að rannsaka ef tengslin eiga að vera einn-á-móti-einum.",
+      "reviewed_translation": "Glugginn sýnir nú **Custom rules active**. Sannprófaðu og skoðaðu forskoðunina áður en niðurstaðan er búin til. Tvítekin grunnauðkenni, mótsagnakenndar einn-á-móti-einum varpanir, lyklar sem vantar og ósamhæfar aðgerðir valda villu. Endurteknir lyklar undirtöflu geta verið eðlilegir í einn-á-móti-mörgum tengslum en þarf að rannsaka ef tengslin eiga að vera einn-á-móti-einum.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults.",
+      "source_sha256": "e95f449d9a1453cd18642ceab6945c1d66b8a044b3cf648a2c97f9b820954e54",
+      "original_ai_draft": "**Hætta við** heldur fyrri uppsetningu óbreyttri. **Til baka á spaCR skammtur** fjarlægir sérsniðin tengsl og yfirskriftir. Breyting á upprunum eða úttakstöflu endurbyggir einnig sjálfgefnu stillingarnar.",
+      "reviewed_translation": "**Hætta við** heldur fyrri uppsetningu óbreyttri. **Endurstilla á sjálfgefin gildi spaCR** fjarlægir sérsniðin tengsl og yfirskriftir. Breyting á upprunum eða úttakstöflu endurbyggir einnig sjálfgefnu stillingarnar.",
+      "ui_bindings": {
+        "Cancel": "Hætta við",
+        "Reset to spaCR defaults": "Endurstilla á sjálfgefin gildi spaCR"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use, save and reload the result",
+      "source_sha256": "1b7458342f06a25b368a2b0c5649b7231b53eced379e53e1b58722ff7ebb067d",
+      "original_ai_draft": "Nota, vista og endurhlaða niðurstöðunni",
+      "reviewed_translation": "Nota, vista og endurhlaða niðurstöðunni",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table.",
+      "source_sha256": "c8b0a9df5e61aeb785e2e14f04ca441b4e28bd1b7d3020049018dc6363203c7c",
+      "original_ai_draft": "Í Graph Builder seturðu niðurstöðudálka á **X**, **Y**, lit, stærð eða reitaskiptingu. Í Gate Editor notarðu dálkana fyrir þröskulda, marghyrninga og önnur gate-form. Gate Editor kann að sýna úrtak samkvæmt stillingunum ``sample_fraction`` og ``max_points``, en útflutningur gates metur alla sameinuðu töfluna.",
+      "reviewed_translation": "Í Graph Builder seturðu niðurstöðudálka á **X**, **Y**, lit, stærð eða reitaskiptingu. Í Gate Editor notarðu dálkana fyrir þröskulda, marghyrninga og önnur gate-form. Gate Editor kann að sýna úrtak samkvæmt stillingunum ``sample_fraction`` og ``max_points``, en útflutningur gates metur alla sameinuðu töfluna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources.",
+      "source_sha256": "139b41870785e8b538921aed9433412adf50acca4fdd985e680417761945cdc9",
+      "original_ai_draft": "Nafngreinda skilgreiningin er vistuð við hlið gagnagrunnsins. Fyrir ``measurements.db`` heitir skráin ``measurements.db.spacr-merges.json``. Þegar uppruninn er endurnýjaður eða opnaður aftur verður niðurstaðan tiltæk á ný og er endurreiknuð úr upprunanum. Þetta er endurgeranleg uppskrift en ekki frosið afrit allra niðurstöðuraða. Við endurnotkun eru upprunaslóð og skemu valinna taflna athuguð. Annar gagnagrunnur eða breytt skema krefst nýrrar yfirfarinnar vörpunar. Skilgreiningar eru ekki hljóðlega notaðar á óskylda uppruna.",
+      "reviewed_translation": "Nafngreinda skilgreiningin er vistuð við hlið gagnagrunnsins. Fyrir ``measurements.db`` heitir skráin ``measurements.db.spacr-merges.json``. Þegar uppruninn er endurnýjaður eða opnaður aftur verður niðurstaðan tiltæk á ný og er endurreiknuð úr upprunanum. Þetta er endurgeranleg uppskrift en ekki frosið afrit allra niðurstöðuraða. Við endurnotkun eru upprunaslóð og skemu valinna taflna athuguð. Annar gagnagrunnur eða breytt skema krefst nýrrar yfirfarinnar vörpunar. Skilgreiningar eru ekki hljóðlega notaðar á óskylda uppruna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data.",
+      "source_sha256": "deca8d86ecde7ec405e14983b00669c0902584316c5947497a3244cbde963590",
+      "original_ai_draft": "**Sparað gráður** í Graph Builder vistar myndrásir, uppruna og alla sameiningarskilgreininguna í JSON. **Load gráður** endurgerir og sannprófar töfluna áður en graf er teiknað. **Vista gates…** felur líka í sér sameiningarskilgreininguna; hladdu upprunalega gagnagrunninum áður en þú notar **Hlaða gates…**. Þessar vistuðu skrár geta endurgert sameininguna þótt fylgiskrá hennar vanti. Þær þurfa samt upprunalegu gögnin.",
+      "reviewed_translation": "**Vista graf** í Graph Builder vistar rásir grafsins, uppruna og alla sameiningarskilgreininguna í JSON. **Hlaða grafi** endurgerir og sannprófar töfluna áður en graf er teiknað. **Vista gates…** felur líka í sér sameiningarskilgreininguna; hladdu upprunalega gagnagrunninum áður en þú notar **Hlaða gates…**. Þessar vistuðu skrár geta endurgert sameininguna þótt fylgiskrá hennar vanti. Þær þurfa samt upprunalegu gögnin.",
+      "ui_bindings": {
+        "Save chart": "Vista graf",
+        "Load chart": "Hlaða grafi",
+        "Save gates…": "Vista gates…",
+        "Load gates…": "Hlaða gates…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy.",
+      "source_sha256": "9f34e2594ebf0b5b3803d71fd46ba15a78b4067f83b445d2d206e57ff79b7c48",
+      "original_ai_draft": "**Flytja út gates…** skrifar dálka um gate-aðild í ``filters`` töflu gagnagrunnsins og varðveitir auðkenni grunnhlutarins. Þessi skýri útflutningur er skrif í gagnagrunn. Að setja upp og forskoða sameiningu skrifar ekki í upprunalegu mælingatöflurnar. **Vista graf** flytur mynd Gate Editor út sem PNG eða PDF, óháð vistun gate-stefnunnar.",
+      "reviewed_translation": "**Flytja út gates…** skrifar dálka um gate-aðild í ``filters`` töflu gagnagrunnsins og varðveitir auðkenni grunnhlutarins. Þessi skýri útflutningur er skrif í gagnagrunn. Að setja upp og forskoða sameiningu skrifar ekki í upprunalegu mælingatöflurnar. **Vista graf** flytur mynd Gate Editor út sem PNG eða PDF, óháð vistun gate-stefnunnar.",
+      "ui_bindings": {
+        "Export gates…": "Flytja út gates…",
+        "Save graph": "Vista graf"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects.",
+      "source_sha256": "889465c090a74781306176ec78cbd8c35976890b204b2b44b391645194874d68",
+      "original_ai_draft": "Sérsniðin niðurstaða án staðfestra upprunatengsla spaCR-mynda/hluta er áfram nothæf í gröfum og töflubundnu gating. Myndskoðun, myndmerkingar og útflutningur gates í mælingargagnagrunn eru ekki tiltæk fyrir þá niðurstöðu og viðmótið útskýrir hvers vegna. Geymdu vistaða grafið eða gate-stefnuna til að endurnota töfluna. Dálkanöfn ein og sér staðfesta ekki tengsl við smásjárhluti.",
+      "reviewed_translation": "Sérsniðin niðurstaða án staðfestra upprunatengsla spaCR-mynda/hluta er áfram nothæf í gröfum og töflubundnu gating. Myndskoðun, myndmerkingar og útflutningur gates í mælingargagnagrunn eru ekki tiltæk fyrir þá niðurstöðu og viðmótið útskýrir hvers vegna. Geymdu vistaða grafið eða gate-stefnuna til að endurnota töfluna. Dálkanöfn ein og sér staðfesta ekki tengsl við smásjárhluti.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Recover original filenames before labelling conditions",
+      "source_sha256": "3a46efccb6b5e1c3b23f2b7a82b92b1255153a3441a2bff0fafae77b27c5e8f9",
+      "original_ai_draft": "Endurheimta upprunaleg skráarnöfn áður en tilraunaskilyrði eru merkt",
+      "reviewed_translation": "Endurheimta upprunaleg skráarnöfn áður en tilraunaskilyrði eru merkt",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images.",
+      "source_sha256": "0c6ea6663bf8ab0b8a76f9fc0220f13cb5fbea99cfc28842f075bd78f27d6a3a",
+      "original_ai_draft": "Ef myndir voru endurnefndar á Yokogawa-snið skaltu nota **Sameinuðu upphaflega filename ...** innan **Sameinuðu borðum** til að endurheimta nöfnin sem skráð voru við umbreytingu. Veldu ``conversion_map.csv``, eldri ``rename_log.csv``, ``channel_sorting_manifest.csv`` eða SQLite-gagnagrunn með ``conversion_map`` töflu. Skráavalið opnast nálægt þekktri vörpun ef hún finnst við mælingargagnagrunninn eða í yfirmöppum hans. Vörpunin verður að innihalda skráð tengsl frá uppruna til úttaks. Þessi aðgerð ályktar ekki heiti meðferða út frá endurnefndum myndum.",
+      "reviewed_translation": "Ef myndir voru endurnefndar á Yokogawa-snið skaltu nota **Sameina upprunaleg skráarnöfn…** innan **Sameina töflur** til að endurheimta nöfnin sem skráð voru við umbreytingu. Veldu ``conversion_map.csv``, eldri ``rename_log.csv``, ``channel_sorting_manifest.csv`` eða SQLite-gagnagrunn með ``conversion_map`` töflu. Skráavalið opnast nálægt þekktri vörpun ef hún finnst við mælingargagnagrunninn eða í yfirmöppum hans. Vörpunin verður að innihalda skráð tengsl frá uppruna til úttaks. Þessi aðgerð ályktar ekki heiti meðferða út frá endurnefndum myndum.",
+      "ui_bindings": {
+        "Merge original filenames…": "Sameina upprunaleg skráarnöfn…",
+        "Merge tables": "Sameina töflur"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations.",
+      "source_sha256": "7ff200bcee646dfee5be676b9d7ee53970d6c23472607418c743c94792e44826",
+      "original_ai_draft": "Fyrir lýsigögn skráarnafna eingöngu skaltu aðeins velja töfluna sem á að merkja. Þá haldast allar raðir og fyrirliggjandi dálkar, einnig í töflum án spaCR-hlutaauðkenna. Fyrir fyrirliggjandi sameinaða niðurstöðu skaltu opna sameiningarglugga hennar til að halda yfirförnum tengslum og samantektum um leið og vörpun skráarnafna er bætt við. Þegar nokkrar upprunatöflur eru valdar eru mælingar fyrst sameinaðar og síðan eru upprunalegu nöfnin tengd við athuganirnar sem myndast.",
+      "reviewed_translation": "Fyrir lýsigögn skráarnafna eingöngu skaltu aðeins velja töfluna sem á að merkja. Þá haldast allar raðir og fyrirliggjandi dálkar, einnig í töflum án spaCR-hlutaauðkenna. Fyrir fyrirliggjandi sameinaða niðurstöðu skaltu opna sameiningarglugga hennar til að halda yfirförnum tengslum og samantektum um leið og vörpun skráarnafna er bætt við. Þegar nokkrar upprunatöflur eru valdar eru mælingar fyrst sameinaðar og síðan eru upprunalegu nöfnin tengd við athuganirnar sem myndast.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Merge original filenames…** and select the mapping.",
+      "source_sha256": "5d44468e33b05e15ec11b7a583e040485cd2676d214ef24b1adac551a95bddf9",
+      "original_ai_draft": "Ýttu á **Sameinuðu upphaflega filename ...** og veldu vörpunina.",
+      "reviewed_translation": "Ýttu á **Sameina upprunaleg skráarnöfn…** og veldu vörpunina.",
+      "ui_bindings": {
+        "Merge original filenames…": "Sameina upprunaleg skráarnöfn…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Set a new **Result name**, then press **Validate and preview**.",
+      "source_sha256": "f503607c91c854729d51e0e3fc13dd0dd3a4cd2c9e1d75a834d21294d1406421",
+      "original_ai_draft": "Stilltu nýtt **Nafn á árangri** og ýttu síðan á **Sjálf og fyrirmynd**.",
+      "reviewed_translation": "Stilltu nýtt **Heiti niðurstöðu** og ýttu síðan á **Sannprófa og forskoða**.",
+      "ui_bindings": {
+        "Result name": "Heiti niðurstöðu",
+        "Validate and preview": "Sannprófa og forskoða"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns.",
+      "source_sha256": "9b1d07979afddd65757e0d9c95d0d89d04185ddbc080d2d5485bc5946483c54c",
+      "original_ai_draft": "Skoðaðu fjölda raða með og án samsvörunar og dálkana ``original_filename`` og ``original_path`` í forskoðuninni.",
+      "reviewed_translation": "Skoðaðu fjölda raða með og án samsvörunar og dálkana ``original_filename`` og ``original_path`` í forskoðuninni.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column.",
+      "source_sha256": "43239788ae988d04aa28a76161dd92d004db537efcac89a247d06a07bdd64bb4",
+      "original_ai_draft": "Ýttu á **Að búa til sameiginlegra borð**, opnaðu síðan **Tilkynnt aðstæður** og veldu ``original_filename`` sem lýsigagnadálk reglu.",
+      "reviewed_translation": "Ýttu á **Búa til sameinaða töflu**, opnaðu síðan **Merkja tilraunaskilyrði** og veldu ``original_filename`` sem lýsigagnadálk reglu.",
+      "ui_bindings": {
+        "Create merged table": "Búa til sameinaða töflu",
+        "Annotate conditions": "Merkja tilraunaskilyrði"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them.",
+      "source_sha256": "085e6e107eece91b01fa51ab6a5ccd61bf2255cd46e8119f7c74fccc6dc9c89c",
+      "original_ai_draft": "Margar rásir eða z-plön sem tilheyra sama sjónsviði gefa raðaðan lista án tvítekninga, aðskilinn með semíkommu og bili, í nýju dálkunum. Þau margfalda ekki athuganir töflunnar. Auðkenni platna og tímapunkta haldast aðgreind; tvíræð eða mótsagnakennd auðkenni valda því að sannprófun bregst. Nöfn án samsvörunar haldast auð. Fyrirliggjandi ``original_filename`` eða ``original_path`` dálkar eru varðveittir með því að hafna yfirskrift.",
+      "reviewed_translation": "Margar rásir eða z-plön sem tilheyra sama sjónsviði gefa raðaðan lista án tvítekninga, aðskilinn með semíkommu og bili, í nýju dálkunum. Þau margfalda ekki athuganir töflunnar. Auðkenni platna og tímapunkta haldast aðgreind; tvíræð eða mótsagnakennd auðkenni valda því að sannprófun bregst. Nöfn án samsvörunar haldast auð. Fyrirliggjandi ``original_filename`` eða ``original_path`` dálkar eru varðveittir með því að hafna yfirskrift.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance.",
+      "source_sha256": "365f83e58365391aa025c350de7675c3cc7b538faf62fff04a75d46f2e62a32f",
+      "original_ai_draft": "``original_path`` er slóðin sem skráð er í vörpuninni; upprunalegu skrárnar þurfa ekki enn að vera á þeim stað. Þessi aðgerð endurnefnir aldrei eða endurskrifar myndskrár eða upprunalegar mælingatöflur. Að bæta við texta skráarnafna staðfestir ekki upprunatengsl smásjárhluta sem vantar.",
+      "reviewed_translation": "``original_path`` er slóðin sem skráð er í vörpuninni; upprunalegu skrárnar þurfa ekki enn að vera á þeim stað. Þessi aðgerð endurnefnir aldrei eða endurskrifar myndskrár eða upprunalegar mælingatöflur. Að bæta við texta skráarnafna staðfestir ekki upprunatengsl smásjárhluta sem vantar.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping.",
+      "source_sha256": "09c2a48f61321ed6edd6760cbfc35dc2fb3c291c56a251c5536e1aff3a906d3f",
+      "original_ai_draft": "Vistaða sameiningin skráir staðsetningu vörpunarinnar og gátsummu innihaldsins. Til að opna sameiningu eða graf aftur þarf vörpunin að vera áfram tiltæk og óbreytt. Fyrir innbyggða ``conversion_map`` töflu ógilda óskyldar breytingar á öðrum gagnagrunnstöflum ekki vörpunina. Ef vörpunin breytist skaltu velja hana aftur og sannprófa nýja niðurstöðu áður en hún er notuð. **Að fjarlægja filename mapping** fjarlægir viðbættu upplýsingarnar úr drögunum án þess að eyða skránni. **Til baka á spaCR skammtur** hreinsar einnig vörpunina.",
+      "reviewed_translation": "Vistaða sameiningin skráir staðsetningu vörpunarinnar og gátsummu innihaldsins. Til að opna sameiningu eða graf aftur þarf vörpunin að vera áfram tiltæk og óbreytt. Fyrir innbyggða ``conversion_map`` töflu ógilda óskyldar breytingar á öðrum gagnagrunnstöflum ekki vörpunina. Ef vörpunin breytist skaltu velja hana aftur og sannprófa nýja niðurstöðu áður en hún er notuð. **Fjarlægja vörpun skráarnafna** fjarlægir viðbættu upplýsingarnar úr drögunum án þess að eyða skránni. **Endurstilla á sjálfgefin gildi spaCR** hreinsar einnig vörpunina.",
+      "ui_bindings": {
+        "Remove filename mapping": "Fjarlægja vörpun skráarnafna",
+        "Reset to spaCR defaults": "Endurstilla á sjálfgefin gildi spaCR"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Annotate experimental conditions in Graph Builder",
+      "source_sha256": "006a60c49e2f3ebd422d545c4520cfd6e76286277d1aa7d4387f721ae53082bd",
+      "original_ai_draft": "Merkja tilraunaskilyrði í Graph Builder",
+      "reviewed_translation": "Merkja tilraunaskilyrði í Graph Builder",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations.",
+      "source_sha256": "1b49041603233ce97eb2a2ab884993688fae4a9f587f655167ec039055c517e2",
+      "original_ai_draft": "**Tilkynnt aðstæður** bætir merkingadálkum við vinnutöfluna í Graph Builder. Það virkar með efnislegri gagnagrunnstöflu, nafngreindri afleiddri töflu eða innfluttri CSV/TSV-skrá. Notaðu reglur til að úthluta merkimiðum eða draga út breytileg lýsigögn og settu síðan saman lokadálk úr þessum gildum. Allir myndaðir dálkar haldast. Þessar töfluaðgerðir þurfa ekki myndtengingar og skrifa ekki myndmerkingar.",
+      "reviewed_translation": "**Merkja tilraunaskilyrði** bætir merkingadálkum við vinnutöfluna í Graph Builder. Það virkar með efnislegri gagnagrunnstöflu, nafngreindri afleiddri töflu eða innfluttri CSV/TSV-skrá. Notaðu reglur til að úthluta merkimiðum eða draga út breytileg lýsigögn og settu síðan saman lokadálk úr þessum gildum. Allir myndaðir dálkar haldast. Þessar töfluaðgerðir þurfa ekki myndtengingar og skrifa ekki myndmerkingar.",
+      "ui_bindings": {
+        "Annotate conditions": "Merkja tilraunaskilyrði"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced.",
+      "source_sha256": "4a32bd1f0d92f2459d4df173e183c348f2e9581a98362e84963a3191648511a1",
+      "original_ai_draft": "Opnaðu **Tilkynnt aðstæður**, nefndu **Útflutningstólinn** og veldu **Úthluta gildum**, **Draga út texta** eða **Setja saman dálk**. Ekki er hægt að skipta út fyrirliggjandi upprunadálkum.",
+      "reviewed_translation": "Opnaðu **Merkja tilraunaskilyrði**, nefndu **Úttaksdálkur** og veldu **Úthluta gildum**, **Draga út texta** eða **Setja saman dálk**. Ekki er hægt að skipta út fyrirliggjandi upprunadálkum.",
+      "ui_bindings": {
+        "Annotate conditions": "Merkja tilraunaskilyrði",
+        "Output column": "Úttaksdálkur",
+        "Assign values": "Úthluta gildum",
+        "Extract text": "Draga út texta",
+        "Compose column": "Setja saman dálk"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together.",
+      "source_sha256": "d600b2e0cd6acd53d474b89475c2d7b0300de099f1c2ac89f12a636be910c448",
+      "original_ai_draft": "Skilgreindu gildisreglur, textaútdrátt eða samsetningu fyrir þetta úttak. Notaðu **Að bæta kolóni** fyrir annað úttak. Regluleg segð með nafngreindum hópum getur líka búið til nokkra lýsigagnadálka saman.",
+      "reviewed_translation": "Skilgreindu gildisreglur, textaútdrátt eða samsetningu fyrir þetta úttak. Notaðu **Bæta við dálki** fyrir annað úttak. Regluleg segð með nafngreindum hópum getur líka búið til nokkra lýsigagnadálka saman.",
+      "ui_bindings": {
+        "Add column": "Bæta við dálki"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview.",
+      "source_sha256": "d7253f2c56ddd51a733699ac4563652e09a249079fbec056c48aa67a69be3771",
+      "original_ai_draft": "Skoðaðu öll mynduð gildi við hlið upprunadálkanna. **Prófa verkefni** keyrir athugunina aftur; breytingar endurnýja einnig forskoðunina.",
+      "reviewed_translation": "Skoðaðu öll mynduð gildi við hlið upprunadálkanna. **Forskoða úthlutanir** keyrir athugunina aftur; breytingar endurnýja einnig forskoðunina.",
+      "ui_bindings": {
+        "Preview assignments": "Forskoða úthlutanir"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes.",
+      "source_sha256": "a198951df0a1fa58526be496cfa21363ba324e0f4f66171072a66fa6135e726f",
+      "original_ai_draft": "Leystu úr ógildum reglum, vöntun á nauðsynlegum dálkum og úthlutunum sem stangast á og veldu síðan **Beita skilyrðum**. Allir myndaðir dálkar verða tiltækir fyrir rásir grafa og síun. **Hætta við** hendir breytingum draganna.",
+      "reviewed_translation": "Leystu úr ógildum reglum, vöntun á nauðsynlegum dálkum og úthlutunum sem stangast á og veldu síðan **Beita skilyrðum**. Allir myndaðir dálkar verða tiltækir fyrir rásir grafa og síun. **Hætta við** hendir breytingum draganna.",
+      "ui_bindings": {
+        "Apply conditions": "Beita skilyrðum",
+        "Cancel": "Hætta við"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extract several metadata columns from a filename",
+      "source_sha256": "476d39e97a580e88b3a49d978965b71f2fdc856c7442e91e64ba23b01a7e37ca",
+      "original_ai_draft": "Draga nokkra lýsigagnadálka úr skráarnafni",
+      "reviewed_translation": "Draga nokkra lýsigagnadálka úr skráarnafni",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value.",
+      "source_sha256": "d4c480ab4bb730de91dd4f8405f968c1872a8f0c592155ce8b033e1d3c7cbbf5",
+      "original_ai_draft": "Veldu **Draga út texta** og upprunadálkinn, til dæmis ``original_filename``. Regluleg segð dregur samsvarandi texta út í úttaksdálkinn. Veldu nafngreindan eða númeraðan föngunarhóp til að velja hvaða hluti samsvörunarinnar verður gildið.",
+      "reviewed_translation": "Veldu **Draga út texta** og upprunadálkinn, til dæmis ``original_filename``. Regluleg segð dregur samsvarandi texta út í úttaksdálkinn. Veldu nafngreindan eða númeraðan föngunarhóp til að velja hvaða hluti samsvörunarinnar verður gildið.",
+      "ui_bindings": {
+        "Extract text": "Draga út texta"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:",
+      "source_sha256": "a6f7fdde181aff092d27e510af111034b6c4d19902023cc8995d70ce9a118fef",
+      "original_ai_draft": "Til dæmis lýsir þetta mynstur ``HeLa_rep2_24h_DMSO.tif``:",
+      "reviewed_translation": "Til dæmis lýsir þetta mynstur ``HeLa_rep2_24h_DMSO.tif``:",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it.",
+      "source_sha256": "004f0328bc2bbe334865d877a33f7e64bdc192c9eae469676db4b2fb9e183779",
+      "original_ai_draft": "Nafngreindu hóparnir lýsa fjórum úttaksdálkum: ``cell_type``, ``replicate``, ``timepoint`` og ``drug``. **Búa til dálka úr nafngreindum hópum** býr þessi úttök til saman. Dæmiröðin gefur ``HeLa``, ``rep2``, ``24h`` og ``DMSO``. Annað skráarnafn sem passar gefur sín eigin gildi; þau eru ekki fastir merkimiðar afritaðir úr dæminu. Aðlagaðu mynstrið að eigin skráarnöfnum og skoðaðu forskoðunina áður en þú beitir því.",
+      "reviewed_translation": "Nafngreindu hóparnir lýsa fjórum úttaksdálkum: ``cell_type``, ``replicate``, ``timepoint`` og ``drug``. **Búa til dálka úr nafngreindum hópum** býr þessi úttök til saman. Dæmiröðin gefur ``HeLa``, ``rep2``, ``24h`` og ``DMSO``. Annað skráarnafn sem passar gefur sín eigin gildi; þau eru ekki fastir merkimiðar afritaðir úr dæminu. Aðlagaðu mynstrið að eigin skráarnöfnum og skoðaðu forskoðunina áður en þú beitir því.",
+      "ui_bindings": {
+        "Create columns from named groups": "Búa til dálka úr nafngreindum hópum"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten.",
+      "source_sha256": "a04b979f4cee9bd86c99ed6684537edee9df1b997763aa35c446d1660b256178",
+      "original_ai_draft": "Útdráttur notar fyrstu samsvörun reglulegu segðarinnar. Raðir án samsvörunar og föng sem vantar eða eru tóm haldast auð. Ógild mynstur eða föngunarhópar stöðva forskoðun með villu. Ekki má skrifa yfir nöfn fyrirliggjandi upprunadálka.",
+      "reviewed_translation": "Útdráttur notar fyrstu samsvörun reglulegu segðarinnar. Raðir án samsvörunar og föng sem vantar eða eru tóm haldast auð. Ógild mynstur eða föngunarhópar stöðva forskoðun með villu. Ekki má skrifa yfir nöfn fyrirliggjandi upprunadálka.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assign values with readable rules",
+      "source_sha256": "4132ee4b18bbebb48df948025243b3f26096207971c21fcf6cb611c7adcb18db",
+      "original_ai_draft": "Úthluta gildum með læsilegum reglum",
+      "reviewed_translation": "Úthluta gildum með læsilegum reglum",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string.",
+      "source_sha256": "1611d19f699daa929a7ec862c34b2265a23e8ce4c615d3073b767f700df730db",
+      "original_ai_draft": "Veldu **Úthluta gildum** þegar raðir sem passa eiga að fá gildi sem þú slærð inn, til dæmis ``WildType`` eða ``control``. Hver regla velur dálk, virkja og samanburðargildi. Meðal virkja eru inniheldur, inniheldur ekki, jafnt, ekki jafnt, byrjar á, endar á og samsvörun við reglulega segð. Textavirkjar túlka greinarmerki bókstaflega; virkjar reglulegra segða túlka þau sem mynstur. Samsvörun er hástafanæm. Innihalds-, forskeytis-, viðskeytis- og regex-viðmið þurfa texta sem er ekki tómur. Notaðu skýrt tilgreinda ``.*`` segð til að samsvara öllum texta sem ekki vantar, eða jafngildisreglu með tómu gildi til að samsvara raunverulegum tómum streng.",
+      "reviewed_translation": "Veldu **Úthluta gildum** þegar raðir sem passa eiga að fá gildi sem þú slærð inn, til dæmis ``WildType`` eða ``control``. Hver regla velur dálk, virkja og samanburðargildi. Meðal virkja eru inniheldur, inniheldur ekki, jafnt, ekki jafnt, byrjar á, endar á og samsvörun við reglulega segð. Textavirkjar túlka greinarmerki bókstaflega; virkjar reglulegra segða túlka þau sem mynstur. Samsvörun er hástafanæm. Innihalds-, forskeytis-, viðskeytis- og regex-viðmið þurfa texta sem er ekki tómur. Notaðu skýrt tilgreinda ``.*`` segð til að samsvara öllum texta sem ekki vantar, eða jafngildisreglu með tómu gildi til að samsvara raunverulegum tómum streng.",
+      "ui_bindings": {
+        "Assign values": "Úthluta gildum"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly.",
+      "source_sha256": "c6ddd59741adfc48ac2ecc42955d17b0fcf1c81d0c3bb083d34697b1cdf082b9",
+      "original_ai_draft": "Veldu **allar reglur passa** þegar öll viðmið verða að passa, eða **að minnsta kosti ein regla passar** þegar að minnsta kosti eitt verður að passa. Viðmiðin mega skoða ólíka upprunadálka eða áður myndaða dálka. Til dæmis má úthluta ``control`` þegar ``drug`` jafngildir ``DMSO`` og ``cell_type`` jafngildir ``HeLa``. Upprunagildi sem vantar uppfylla ekki neikvætt viðmið. Raunverulegur tómur strengur er gildi og má samsvara honum sérstaklega.",
+      "reviewed_translation": "Veldu **allar reglur passa** þegar öll viðmið verða að passa, eða **að minnsta kosti ein regla passar** þegar að minnsta kosti eitt verður að passa. Viðmiðin mega skoða ólíka upprunadálka eða áður myndaða dálka. Til dæmis má úthluta ``control`` þegar ``drug`` jafngildir ``DMSO`` og ``cell_type`` jafngildir ``HeLa``. Upprunagildi sem vantar uppfylla ekki neikvætt viðmið. Raunverulegur tómur strengur er gildi og má samsvara honum sérstaklega.",
+      "ui_bindings": {
+        "all rules match": "allar reglur passa",
+        "any rule matches": "að minnsta kosti ein regla passar"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply.",
+      "source_sha256": "cddbbee8852ac03aeceb6bf603d28d63c31edcbe6b7513ff3c94d485bbb1d21b",
+      "original_ai_draft": "Nokkrar reglur mega úthluta sama gildi án áreksturs. Ef einni röð í sama úttaksdálki eru úthlutuð ólík gildi þarf að leysa úr því áður en breytingum er beitt.",
+      "reviewed_translation": "Nokkrar reglur mega úthluta sama gildi án áreksturs. Ef einni röð í sama úttaksdálki eru úthlutuð ólík gildi þarf að leysa úr því áður en breytingum er beitt.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Compose the final column",
+      "source_sha256": "1c3880c4d0e3f3987f658796eb6ef3a523dae94144ed167c54dd532f97382f1f",
+      "original_ai_draft": "Setja saman lokadálkinn",
+      "reviewed_translation": "Setja saman lokadálkinn",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values.",
+      "source_sha256": "c49ff5c82c4a5fe0a5a2d85f4bc13c1ac229783a45f63eaeecde25a8c57f476d",
+      "original_ai_draft": "Bættu við úttaksdálki, nefndu hann ``condition`` eða öðru nafni að eigin vali og veldu **Setja saman dálk**. Dragðu tiltæka dálka inn í samsetningarreitinn. Dragðu tákn hans til að breyta röð þeirra. Settu inn fastan texta til að bæta við skilum, forskeytum eða orðum á milli gildanna.",
+      "reviewed_translation": "Bættu við úttaksdálki, nefndu hann ``condition`` eða öðru nafni að eigin vali og veldu **Setja saman dálk**. Dragðu tiltæka dálka inn í samsetningarreitinn. Dragðu tákn hans til að breyta röð þeirra. Settu inn fastan texta til að bæta við skilum, forskeytum eða orðum á milli gildanna.",
+      "ui_bindings": {
+        "Compose column": "Setja saman dálk"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code.",
+      "source_sha256": "8eac6582cfd0f986149e9bae1c298bbc5ac089bc808e178ba25c09fba3bd8ae0",
+      "original_ai_draft": "Til dæmis gefa táknin ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` gildið ``HeLa_rep2_24h_DMSO`` fyrir dæmið hér að ofan. Breytt röð dálkatákna breytir niðurstöðunni án þess að breyta útdráttarreglum þeirra. Fastur texti er bókstaflegur og getur ekki keyrt kóða.",
+      "reviewed_translation": "Til dæmis gefa táknin ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` gildið ``HeLa_rep2_24h_DMSO`` fyrir dæmið hér að ofan. Breytt röð dálkatákna breytir niðurstöðunni án þess að breyta útdráttarreglum þeirra. Fastur texti er bókstaflegur og getur ekki keyrt kóða.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged.",
+      "source_sha256": "2ba90664638983dedd250700cc15f16503da22091b7a8bdd32a272cbc45bb97c",
+      "original_ai_draft": "Samsetning getur vísað í upprunalega dálka og áður myndaða dálka. Ef dálkgildi vantar eða er tómt verður samsetta gildið autt. Forskoðunin sýnir alla millidálka og lokadálkinn saman. Þegar breytingum er beitt, gögn flutt út eða ný SQLite-tafla vistuð haldast allir myndaðir dálkar og breytanlega uppskriftin. Upprunalegu mælingarnar eru óbreyttar.",
+      "reviewed_translation": "Samsetning getur vísað í upprunalega dálka og áður myndaða dálka. Ef dálkgildi vantar eða er tómt verður samsetta gildið autt. Forskoðunin sýnir alla millidálka og lokadálkinn saman. Þegar breytingum er beitt, gögn flutt út eða ný SQLite-tafla vistuð haldast allir myndaðir dálkar og breytanlega uppskriftin. Upprunalegu mælingarnar eru óbreyttar.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Build genotype, replicate and a combined condition",
+      "source_sha256": "578338f38c061a12e58cbce9ed4ff96001c78a241abe8f0f70926f0837c310af",
+      "original_ai_draft": "Búa til arfgerð, endurtekningu og sameinað tilraunaskilyrði",
+      "reviewed_translation": "Búa til arfgerð, endurtekningu og sameinað tilraunaskilyrði",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:",
+      "source_sha256": "b40fba7d5641ac718af3e19c0085e92469608c8a8f30abd8d68407769c9bf50e",
+      "original_ai_draft": "Nefndu fyrsta **Útflutningstólinn** ``genotype`` og hafðu ham hans á **Úthluta gildum**. Notaðu **Að bæta tilviljun** fyrir merkimiða hans. Ýttu á **Að bæta kolóni** til að búa til ``replicate`` með eigin reitum. Veldu **nákvæmur verðlaun** í hverjum reit til að slá inn lista lýsigagnagilda án þess að skrifa reglulega segð. Til dæmis:",
+      "reviewed_translation": "Nefndu fyrsta **Úttaksdálkur** ``genotype`` og hafðu ham hans á **Úthluta gildum**. Notaðu **Bæta við skilyrði** fyrir merkimiða hans. Ýttu á **Bæta við dálki** til að búa til ``replicate`` með eigin reitum. Veldu **Nákvæm gildi** í hverjum reit til að slá inn lista lýsigagnagilda án þess að skrifa reglulega segð. Til dæmis:",
+      "ui_bindings": {
+        "Output column": "Úttaksdálkur",
+        "Assign values": "Úthluta gildum",
+        "Add condition": "Bæta við skilyrði",
+        "Add column": "Bæta við dálki",
+        "Exact values": "Nákvæm gildi"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Example annotation rules",
+      "source_sha256": "7398a3452de45c41caaed97e175f51bc9c9986149be53b4e2ed786ec0036215f",
+      "original_ai_draft": "Dæmi um merkingarreglur",
+      "reviewed_translation": "Dæmi um merkingarreglur",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "original_ai_draft": "Úttaksdálkur",
+      "reviewed_translation": "Úttaksdálkur",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Metadata column",
+      "source_sha256": "20a3552adc5b2b8a6472197eb105902fb6d0ff89454967bfef004188d99e3b2a",
+      "original_ai_draft": "Lýsigagnadálkur",
+      "reviewed_translation": "Lýsigagnadálkur",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Included values",
+      "source_sha256": "213cdb0d334027b9c678a9e6820813919fb14f543b211ac13ea3eb3d0bc636de",
+      "original_ai_draft": "Gildi sem tekin eru með",
+      "reviewed_translation": "Gildi sem tekin eru með",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assigned label",
+      "source_sha256": "8d27c73d75545e7f3aaf1fdacb9575b20fe0dedc3d40319fc0ce63e6f202c58d",
+      "original_ai_draft": "Úthlutaður merkimiði",
+      "reviewed_translation": "Úthlutaður merkimiði",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate.",
+      "source_sha256": "bb480aa32277c86ce1a3383fb2ece9d92eb1055c500701999bcdd45fa5ad046c",
+      "original_ai_draft": "Endurteknar færslur eins og ``c1,c1`` eða ``r7,r7`` hafa engin viðbótaráhrif. Nákvæm samsvörun heldur ``c1`` aðgreindu frá ``c10``. Tvær reglur sem úthluta sama merkimiða mega velja sömu röð; tveir ólíkir merkimiðar í einum úttaksdálki krefjast leiðréttingar áður en breytingum er beitt. Hver úttaksdálkur hefur eigin úthlutanir, svo röð getur bæði haft arfgerð og endurtekningu.",
+      "reviewed_translation": "Endurteknar færslur eins og ``c1,c1`` eða ``r7,r7`` hafa engin viðbótaráhrif. Nákvæm samsvörun heldur ``c1`` aðgreindu frá ``c10``. Tvær reglur sem úthluta sama merkimiða mega velja sömu röð; tveir ólíkir merkimiðar í einum úttaksdálki krefjast leiðréttingar áður en breytingum er beitt. Hver úttaksdálkur hefur eigin úthlutanir, svo röð getur bæði haft arfgerð og endurtekningu.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment.",
+      "source_sha256": "4acda61613512a79cf540fe0e7da2d200957329b04de0679281a5c43ba51265b",
+      "original_ai_draft": "Ýttu á **Að bæta kolóni**, nefndu hann ``condition`` og veldu **Setja saman dálk**. Dragðu ``genotype`` inn í samsetningarreitinn, settu inn textatákn sem inniheldur ``_`` og dragðu síðan ``replicate`` inn. Röð táknanna ræður röð tengingarinnar. Röð merkt ``WildType`` og ``replicate 1`` fær þá ``WildType_replicate 1``. Bilið í merkimiðanum helst. Dálkanöfn, merkimiða, röð hluta og aðskiljara má breyta; dæmið fyrirskipar ekki nöfnin í þinni tilraun.",
+      "reviewed_translation": "Ýttu á **Bæta við dálki**, nefndu hann ``condition`` og veldu **Setja saman dálk**. Dragðu ``genotype`` inn í samsetningarreitinn, settu inn textatákn sem inniheldur ``_`` og dragðu síðan ``replicate`` inn. Röð táknanna ræður röð tengingarinnar. Röð merkt ``WildType`` og ``replicate 1`` fær þá ``WildType_replicate 1``. Bilið í merkimiðanum helst. Dálkanöfn, merkimiða, röð hluta og aðskiljara má breyta; dæmið fyrirskipar ekki nöfnin í þinni tilraun.",
+      "ui_bindings": {
+        "Add column": "Bæta við dálki",
+        "Compose column": "Setja saman dálk"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe.",
+      "source_sha256": "a7e58cd6468d9491f0b796ed241248cae56102fe11062b9709ac5106bb11b40d",
+      "original_ai_draft": "Samsetningarreglur geta notað upprunadálka eða áður búna merkingadálka. Hafðu dálka sem aðrir byggja á framar í dálkaröðinni. Ef hluta vantar verður sameinaða gildið autt; ekki verður til texti á borð við ``nan``. Forskoðaðu alla myndaða dálka áður en breytingum er beitt. Vistun grafs, útflutningur töflunnar eða vistun nýrrar merktrar SQLite-töflu varðveitir alla uppskriftina.",
+      "reviewed_translation": "Samsetningarreglur geta notað upprunadálka eða áður búna merkingadálka. Hafðu dálka sem aðrir byggja á framar í dálkaröðinni. Ef hluta vantar verður sameinaða gildið autt; ekki verður til texti á borð við ``nan``. Forskoðaðu alla myndaða dálka áður en breytingum er beitt. Vistun grafs, útflutningur töflunnar eða vistun nýrrar merktrar SQLite-töflu varðveitir alla uppskriftina.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rules and manual selection",
+      "source_sha256": "b2686f8c97e23d9160c1437c96e3ffdf0f7aef27396a8ecb07d80aac2e58be5c",
+      "original_ai_draft": "Reglur og handvirkt val",
+      "reviewed_translation": "Reglur og handvirkt val",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule.",
+      "source_sha256": "33bd26a475b9c1a4c1938ba81c27baa710a1c6be03f45b62f0d0483e5332a4dd",
+      "original_ai_draft": "Í **Úthluta gildum** skaltu velja **Reglulega útskýringu** í skilyrðareit til að nota Include- og Exclude-reiti hans. Veldu **Aðeins handvirkt úthlutaðar raðir** til að úthluta aðeins þeim röðum sem þú sleppir í þann reit, án samanburðarreglu.",
+      "reviewed_translation": "Í **Úthluta gildum** skaltu velja **Regluleg segð** í skilyrðareit til að nota Include- og Exclude-reiti hans. Veldu **Aðeins handvirkt úthlutaðar raðir** til að úthluta aðeins þeim röðum sem þú sleppir í þann reit, án samanburðarreglu.",
+      "ui_bindings": {
+        "Assign values": "Úthluta gildum",
+        "Regular expression": "Regluleg segð",
+        "Manual rows only": "Aðeins handvirkt úthlutaðar raðir"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically.",
+      "source_sha256": "f17bab0541d7173086b0e8010729a5c2f279fd14bf9e9c24bcba33bb75cbe5e7",
+      "original_ai_draft": "Ofan við skilyrðareitina býður **Ástæður fyrir kolumn** mynstur sem má afrita, byggð á gildum valda dálksins. Veldu tegund dæmis, skoðaðu eða breyttu textanum, ýttu á **Sjálfsögn regex** og límdu síðan í **Inniheldur** eða **Útiloka** reit skilyrðis. Afritun dæmis breytir ekki skilyrðareglunum. Bókstafleg greinarmerki í úrtaksgildunum eru sjálfkrafa varin með lausnarmerkjum.",
+      "reviewed_translation": "Ofan við skilyrðareitina býður **Dæmi fyrir dálk** mynstur sem má afrita, byggð á gildum valda dálksins. Veldu tegund dæmis, skoðaðu eða breyttu textanum, ýttu á **Afrita reglulega segð** og límdu síðan í **Taka með** eða **Útiloka** reit skilyrðis. Afritun dæmis breytir ekki skilyrðareglunum. Bókstafleg greinarmerki í úrtaksgildunum eru sjálfkrafa varin með lausnarmerkjum.",
+      "ui_bindings": {
+        "Examples for column": "Dæmi fyrir dálk",
+        "Copy regex": "Afrita reglulega segð",
+        "Include": "Taka með",
+        "Exclude": "Útiloka"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:",
+      "source_sha256": "0ec3d40be229cf507c39851a2a687873393c3e29b8e0838a1eeaa126bd92c120",
+      "original_ai_draft": "Fyrir upprunaleg nöfn eins og ``drug_A_rep1.tif`` og ``control_rep1.tif``:",
+      "reviewed_translation": "Fyrir upprunaleg nöfn eins og ``drug_A_rep1.tif`` og ``control_rep1.tif``:",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A|control`` matches either text.",
+      "source_sha256": "296e56b1058f15b74ae9b0af697f2061a0b664e1c4baf4392798df54070d8827",
+      "original_ai_draft": "``drug_A|control`` samsvarar öðrum hvorum textanum.",
+      "reviewed_translation": "``drug_A|control`` samsvarar öðrum hvorum textanum.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A_rep.`` allows one character after ``rep``.",
+      "source_sha256": "9a7482eca5b9274a46f8fe27209c240fa10068755b4f908f473e3ec86da39f87",
+      "original_ai_draft": "``drug_A_rep.`` leyfir einn staf á eftir ``rep``.",
+      "reviewed_translation": "``drug_A_rep.`` leyfir einn staf á eftir ``rep``.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A.*rep`` allows any intervening text, including none.",
+      "source_sha256": "ad9b2ba896fea76fbf1a28435722cf6b5d9bdc6bd527703c0ec1893548f6d60c",
+      "original_ai_draft": "``drug_A.*rep`` leyfir hvaða texta sem er þar á milli, líka engan.",
+      "reviewed_translation": "``drug_A.*rep`` leyfir hvaða texta sem er þar á milli, líka engan.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``^drug_A_rep1\\.tif$`` matches that entire value.",
+      "source_sha256": "94037beb8a22bd708f5282468cc4d0c678a5aff5b9c73226f3716c57994fe6f0",
+      "original_ai_draft": "``^drug_A_rep1\\.tif$`` samsvarar öllu því gildi.",
+      "reviewed_translation": "``^drug_A_rep1\\.tif$`` samsvarar öllu því gildi.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``(?i)drug_a`` ignores letter case.",
+      "source_sha256": "0afe46a5be8707706ace4be00e7d35cbbe2009bde4a5197b67cb4b24bd32338b",
+      "original_ai_draft": "``(?i)drug_a`` hunsar há- og lágstafi.",
+      "reviewed_translation": "``(?i)drug_a`` hunsar há- og lágstafi.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string.",
+      "source_sha256": "90fb96e0a62a5e60c9d04aa9656d84465242ab647c638c38191763f84345a68a",
+      "original_ai_draft": "Notaðu Include til að velja hópinn og Exclude til að fjarlægja undantekningar, til dæmis Include ``drug_A`` með Exclude ``failed|outlier``. Skráarnafnadálkur með nokkrum upprunalegum nöfnum aðskildum með semíkommum er leitaður sem einn strengur, svo innihaldsmynstur getur samsvarað hvaða skráðu nafni sem er. Akkeri fyrir heilt gildi á við allan sameinaða strenginn.",
+      "reviewed_translation": "Notaðu Include til að velja hópinn og Exclude til að fjarlægja undantekningar, til dæmis Include ``drug_A`` með Exclude ``failed|outlier``. Skráarnafnadálkur með nokkrum upprunalegum nöfnum aðskildum með semíkommum er leitaður sem einn strengur, svo innihaldsmynstur getur samsvarað hvaða skráðu nafni sem er. Akkeri fyrir heilt gildi á við allan sameinaða strenginn.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically.",
+      "source_sha256": "f741f84d7134a3217129b724f82b19ee8f27674185bf869515acd3c11123620c",
+      "original_ai_draft": "Mynstur leita í sýndum strenggildum valda dálksins. Þau eru hástafanæm nema segðin innihaldi flagg á borð við ``(?i)``. Notaðu akkeri þegar allt gildið verður að passa: ``^A0[1-3]$`` velur brunnana ``A01``, ``A02`` og ``A03``. ``.*`` tekur með öll gildi í valda dálkinum sem ekki vantar. Tóm Include-segð velur engar raðir sjálfkrafa.",
+      "reviewed_translation": "Mynstur leita í sýndum strenggildum valda dálksins. Þau eru hástafanæm nema segðin innihaldi flagg á borð við ``(?i)``. Notaðu akkeri þegar allt gildið verður að passa: ``^A0[1-3]$`` velur brunnana ``A01``, ``A02`` og ``A03``. ``.*`` tekur með öll gildi í valda dálkinum sem ekki vantar. Tóm Include-segð velur engar raðir sjálfkrafa.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually.",
+      "source_sha256": "1a0f065d2fe082c441dca25faa0acfc82b6bef224b968f250857d0a4e64fa253",
+      "original_ai_draft": "Handvirkum röðum er bætt við raðirnar sem Include samsvarar. Exclude fjarlægir síðan samsvaranir úr báðum mengjum, þar á meðal raðir sem þú slepptir inn handvirkt. Lýsigagnagildi sem vantar samsvara ekki reglulegri segð en má samt úthluta handvirkt.",
+      "reviewed_translation": "Handvirkum röðum er bætt við raðirnar sem Include samsvarar. Exclude fjarlægir síðan samsvaranir úr báðum mengjum, þar á meðal raðir sem þú slepptir inn handvirkt. Lýsigagnagildi sem vantar samsvara ekki reglulegri segð en má samt úthluta handvirkt.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment.",
+      "source_sha256": "5317f1b5c8183fe89141345c095a346d9f7842b87b360f61c586466d8d78fc46",
+      "original_ai_draft": "Veldu margar raðir í upprunatöflunni og dragðu þær í skilyrðareit. Notaðu Shift fyrir bil og Ctrl/Cmd fyrir stakar raðir. Röðun eftir dálki eða notkun **Filter upphæð meta gögnum eða fyrirmyndarverkefni** breytir því sem sést en úthlutanir vísa áfram í upprunalegu raðirnar. Síureiturinn leitar í texta án tillits til há- og lágstafa og er aðskilinn frá reglulegum segðum skilyrðanna. Að sleppa röð tvisvar í sama reit tvítekur ekki úthlutun hennar.",
+      "reviewed_translation": "Veldu margar raðir í upprunatöflunni og dragðu þær í skilyrðareit. Notaðu Shift fyrir bil og Ctrl/Cmd fyrir stakar raðir. Röðun eftir dálki eða notkun **Sía lýsigögn uppruna eða forskoðuð skilyrði** breytir því sem sést en úthlutanir vísa áfram í upprunalegu raðirnar. Síureiturinn leitar í texta án tillits til há- og lágstafa og er aðskilinn frá reglulegum segðum skilyrðanna. Að sleppa röð tvisvar í sama reit tvítekur ekki úthlutun hennar.",
+      "ui_bindings": {
+        "Filter source metadata or preview conditions": "Sía lýsigögn uppruna eða forskoðuð skilyrði"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules.",
+      "source_sha256": "c1d263671d4f88e38ab21b2160e64239289b3a0a35135b74f3dca2c3c11228d6",
+      "original_ai_draft": "Notaðu **Að fjarlægja valið handbók** eða **Klár handbók** til að fjarlægja aðild raða sem sleppt hefur verið inn. Include-regla getur enn samsvarað þessum röðum; breyttu reglunni eða bættu við Exclude-segð ef þær eiga að yfirgefa skilyrðið. **Að fjarlægja aðstæður** fjarlægir allan reitinn og reglur hans.",
+      "reviewed_translation": "Notaðu **Fjarlægja valdar handvirkar raðir** eða **Hreinsa handvirkar raðir** til að fjarlægja aðild raða sem sleppt hefur verið inn. Include-regla getur enn samsvarað þessum röðum; breyttu reglunni eða bættu við Exclude-segð ef þær eiga að yfirgefa skilyrðið. **Fjarlægja skilyrði** fjarlægir allan reitinn og reglur hans.",
+      "ui_bindings": {
+        "Remove selected manual rows": "Fjarlægja valdar handvirkar raðir",
+        "Clear manual rows": "Hreinsa handvirkar raðir",
+        "Remove condition": "Fjarlægja skilyrði"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table.",
+      "source_sha256": "3669165734ba3865f4d030298f6b62cddf4a01369b195276410a614ab83013c4",
+      "original_ai_draft": "Röð má aðeins fá einn aðgreindan merkimiða í hverjum merkingadálki. Ef reitir úthluta henni ólíkum merkimiðum sýnir forskoðunin þá merkimiða sem keppa og **Beita skilyrðum** helst óvirkt. Stilltu mynstrin sem taka með/útiloka eða handvirkar úthlutanir þar til fjöldi árekstra er núll. Ekkert skilyrði fær hljóðlega forgang. Raðir án samsvörunar verða auðar í úttaksdálkinum og haldast í töflunni.",
+      "reviewed_translation": "Röð má aðeins fá einn aðgreindan merkimiða í hverjum merkingadálki. Ef reitir úthluta henni ólíkum merkimiðum sýnir forskoðunin þá merkimiða sem keppa og **Beita skilyrðum** helst óvirkt. Stilltu mynstrin sem taka með/útiloka eða handvirkar úthlutanir þar til fjöldi árekstra er núll. Ekkert skilyrði fær hljóðlega forgang. Raðir án samsvörunar verða auðar í úttaksdálkinum og haldast í töflunni.",
+      "ui_bindings": {
+        "Apply conditions": "Beita skilyrðum"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reuse an annotation schema on another table",
+      "source_sha256": "01433562336c97ab7e3fee9f1c47d8fe764d2beeb40c7718d6405d18c729efa5",
+      "original_ai_draft": "Endurnota merkingaskema á annarri töflu",
+      "reviewed_translation": "Endurnota merkingaskema á annarri töflu",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values.",
+      "source_sha256": "bd83d7148ce0d61f3b8fe168d47155f8232e059489a8f115499c5008216ec645",
+      "original_ai_draft": "Veldu **Vista skema** eftir að forskoðunin er gild. JSON-skráin varðveitir nöfn og röð úttaksdálka, útdráttarmynstur og föngunarhópa, samsvörunarreglur, merkimiða og samsetningartákn. Hún inniheldur leiðbeiningarnar til að mynda gildi en ekki afrit af töflunni eða mynduðum gildum hennar.",
+      "reviewed_translation": "Veldu **Vista skema** eftir að forskoðunin er gild. JSON-skráin varðveitir nöfn og röð úttaksdálka, útdráttarmynstur og föngunarhópa, samsvörunarreglur, merkimiða og samsetningartákn. Hún inniheldur leiðbeiningarnar til að mynda gildi en ekki afrit af töflunni eða mynduðum gildum hennar.",
+      "ui_bindings": {
+        "Save schema": "Vista skema"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table.",
+      "source_sha256": "8e7f243ddee4e48bb7fd7cc3c35652e89f0126d14b66c0d53d68cff81ce04b5d",
+      "original_ai_draft": "Opnaðu aðra töflu, veldu **Tilkynnt aðstæður**, síðan **Hlaða inn skema** og veldu JSON-skrána. Nýja taflan má hafa aðrar raðir og gildi en verður að hafa dálkana sem skemað vísar í. Öll úttök eru forskoðuð gagnvart þessari töflu. Skoðaðu gildin og úthlutanir sem skarast áður en þú velur **Beita skilyrðum**. Hleðsla ein og sér breytir ekki vinnutöflunni.",
+      "reviewed_translation": "Opnaðu aðra töflu, veldu **Merkja tilraunaskilyrði**, síðan **Hlaða inn skema** og veldu JSON-skrána. Nýja taflan má hafa aðrar raðir og gildi en verður að hafa dálkana sem skemað vísar í. Öll úttök eru forskoðuð gagnvart þessari töflu. Skoðaðu gildin og úthlutanir sem skarast áður en þú velur **Beita skilyrðum**. Hleðsla ein og sér breytir ekki vinnutöflunni.",
+      "ui_bindings": {
+        "Annotate conditions": "Merkja tilraunaskilyrði",
+        "Load schema": "Hlaða inn skema",
+        "Apply conditions": "Beita skilyrðum"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead.",
+      "source_sha256": "0a89a72ed4624345c77188b5697072dbccd2c74e1d55bc8fb020be5ef34c7440",
+      "original_ai_draft": "Handvirkar úthlutanir með drætti raða eiga sérstaklega við upprunatöflu sína og eru ekki teknar með í endurnýtanleg skemu. Vistunarniðurstaðan segir hversu mörgum úthlutunum var sleppt. Reitir sem aðeins nota handvirkar raðir haldast sem tómir hópar til að fylla fyrir nýju töfluna. Notaðu **Sparað gráður** eða **Sparaðu notuð borð...** í staðinn til að varðveita handvirkar úthlutanir fyrir upprunalegu greininguna.",
+      "reviewed_translation": "Handvirkar úthlutanir með drætti raða eiga sérstaklega við upprunatöflu sína og eru ekki teknar með í endurnýtanleg skemu. Vistunarniðurstaðan segir hversu mörgum úthlutunum var sleppt. Reitir sem aðeins nota handvirkar raðir haldast sem tómir hópar til að fylla fyrir nýju töfluna. Notaðu **Vista graf** eða **Vista merkta töflu…** í staðinn til að varðveita handvirkar úthlutanir fyrir upprunalegu greininguna.",
+      "ui_bindings": {
+        "Save chart": "Vista graf",
+        "Save annotated table…": "Vista merkta töflu…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB.",
+      "source_sha256": "0253fd2bc29fcc74e60e7dc6792756c53adf9a9e81524933af6b4ae6d3e8f49b",
+      "original_ai_draft": "Gallaðar skrár, óstuddar útgáfur, dálkar sem vantar, ógild mynstur og ógild háð milli úttaka skilja fyrirliggjandi gluggadrög eftir óbreytt. Úttak skema má ekki skrifa yfir fyrirliggjandi upprunadálk. Skemaskrár eru skrifaðar í einni órofinni aðgerð; vistun skema yfir upprunatöfluna sjálfa er hafnað. Stærðarmörk skrár eru 8 MiB.",
+      "reviewed_translation": "Gallaðar skrár, óstuddar útgáfur, dálkar sem vantar, ógild mynstur og ógild háð milli úttaka skilja fyrirliggjandi gluggadrög eftir óbreytt. Úttak skema má ekki skrifa yfir fyrirliggjandi upprunadálk. Skemaskrár eru skrifaðar í einni órofinni aðgerð; vistun skema yfir upprunatöfluna sjálfa er hafnað. Stærðarmörk skrár eru 8 MiB.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Keep conditions with the analysis",
+      "source_sha256": "a70fc2d79873e608521539b1a50af663cd9f96640577e0ea11b6256ddeb8ff56",
+      "original_ai_draft": "Varðveita tilraunaskilyrði með greiningunni",
+      "reviewed_translation": "Varðveita tilraunaskilyrði með greiningunni",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels.",
+      "source_sha256": "f3813160466dcf9c2c4224acde05d1c020ff4f93c15051a7cb76cc12ff684896",
+      "original_ai_draft": "Opnaðu **Tilkynnt aðstæður** aftur til að breyta núverandi úthlutunum. Þær haldast við endurnýjun taflna í núverandi Graph Builder-setu ef uppruninn er óbreyttur. Notaðu **Sparað gráður** til að varðveita reglur, handvirkar úthlutanir, skilgreiningar úttaksdálka og sameiningarskilgreiningu með grafinu. **Load gráður** endurgerir upprunann og athugar auðkenni hans áður en merkimiðunum er beitt.",
+      "reviewed_translation": "Opnaðu **Merkja tilraunaskilyrði** aftur til að breyta núverandi úthlutunum. Þær haldast við endurnýjun taflna í núverandi Graph Builder-setu ef uppruninn er óbreyttur. Notaðu **Vista graf** til að varðveita reglur, handvirkar úthlutanir, skilgreiningar úttaksdálka og sameiningarskilgreiningu með grafinu. **Hlaða grafi** endurgerir upprunann og athugar auðkenni hans áður en merkimiðunum er beitt.",
+      "ui_bindings": {
+        "Annotate conditions": "Merkja tilraunaskilyrði",
+        "Save chart": "Vista graf",
+        "Load chart": "Hlaða grafi"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes.",
+      "source_sha256": "88df7609be398b1081c73a201d0afbae294e8060055bac6f83c25b00b1978ea5",
+      "original_ai_draft": "Vistuð skilyrði tilheyra nákvæmlega upprunatöflunni, þar á meðal röð raða, gildum og skema hennar. Breytt upprunagögn eða önnur sameiningarskilgreining krefjast þess að skilyrðin séu yfirfarin og búin til aftur. Röðun á sýn gluggans breytir ekki þessu upprunaauðkenni. Athugunin kemur í veg fyrir að vistað handvirkt val merki óskyldar raðir eftir að uppruni breytist.",
+      "reviewed_translation": "Vistuð skilyrði tilheyra nákvæmlega upprunatöflunni, þar á meðal röð raða, gildum og skema hennar. Breytt upprunagögn eða önnur sameiningarskilgreining krefjast þess að skilyrðin séu yfirfarin og búin til aftur. Röðun á sýn gluggans breytir ekki þessu upprunaauðkenni. Athugunin kemur í veg fyrir að vistað handvirkt val merki óskyldar raðir eftir að uppruni breytist.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables.",
+      "source_sha256": "fe835bc6b97298939c766006b989ce65c84e7e64323a13162b89b2d60feaab7a",
+      "original_ai_draft": "Fyrir SQLite-uppruna vistar **Sparaðu notuð borð...** vinnugildin sem nýja efnislega töflu í sama gagnagrunni. Reiturinn **Nýtt nafnið á borðinu (efir borðir eru geymdir)** leggur til núverandi töflunafn með ``_annotated`` á eftir. Ekki má skrifa yfir fyrirliggjandi töflur, sýnir eða nöfn vistaðra sameinaðra taflna; nöfn sem byrja á ``sqlite_`` eða ``_spacr_`` eru frátekin. Þessi aðgerð bætir við töflu og upprunaupplýsingum merkinga hennar en varðveitir upprunalegu mælingatöflurnar.",
+      "reviewed_translation": "Fyrir SQLite-uppruna vistar **Vista merkta töflu…** vinnugildin sem nýja efnislega töflu í sama gagnagrunni. Reiturinn **Nýtt töflunafn (fyrirliggjandi töflur haldast)** leggur til núverandi töflunafn með ``_annotated`` á eftir. Ekki má skrifa yfir fyrirliggjandi töflur, sýnir eða nöfn vistaðra sameinaðra taflna; nöfn sem byrja á ``sqlite_`` eða ``_spacr_`` eru frátekin. Þessi aðgerð bætir við töflu og upprunaupplýsingum merkinga hennar en varðveitir upprunalegu mælingatöflurnar.",
+      "ui_bindings": {
+        "Save annotated table…": "Vista merkta töflu…",
+        "New table name (existing tables are preserved)": "Nýtt töflunafn (fyrirliggjandi töflur haldast)"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance.",
+      "source_sha256": "54d5a9423ed60c393d69c62d296d18381b4370227db393816e85a372705732ab",
+      "original_ai_draft": "Vistaða taflan er valin í töfluvalinu og má hlaða hana í öðrum töfluskjám, þar á meðal Gate Editor. Hún inniheldur afrit af merktum gildum á vistunartíma, ólíkt afleiddri sameiningu sem er endurreiknuð úr inntökum sínum. Þegar hún er opnuð aftur í Graph Builder eru breytanlegar skilyrðareglur endurheimtar ef vistaðar raðir og skema eru óbreytt. Vistaðu endurskoðuð gildi undir nýju töflunafni. Breytt vistuð gögn eru enn læsileg en gamlar breytanlegar reglur eru ekki hljóðlega endurheimtar yfir þau. Myndbundnar aðgerðir þurfa áfram viðeigandi upprunatengsl hluta.",
+      "reviewed_translation": "Vistaða taflan er valin í töfluvalinu og má hlaða hana í öðrum töfluskjám, þar á meðal Gate Editor. Hún inniheldur afrit af merktum gildum á vistunartíma, ólíkt afleiddri sameiningu sem er endurreiknuð úr inntökum sínum. Þegar hún er opnuð aftur í Graph Builder eru breytanlegar skilyrðareglur endurheimtar ef vistaðar raðir og skema eru óbreytt. Vistaðu endurskoðuð gildi undir nýju töflunafni. Breytt vistuð gögn eru enn læsileg en gamlar breytanlegar reglur eru ekki hljóðlega endurheimtar yfir þau. Myndbundnar aðgerðir þurfa áfram viðeigandi upprunatengsl hluta.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules.",
+      "source_sha256": "84eda5b7ce75960b3766d612a8671a3475a5041706ad15dff9770a4fad74d18a",
+      "original_ai_draft": "**Tölur útlendingar...** skrifar vinnutöfluna, með öllum merkingadálkum, í nýja CSV-skrá og skráir uppruna hennar, sameiningarskilgreiningu og skilyrðareglur í ``<export>.csv.conditions.json``. Það flytur út vinnutöfluna en ekki aðeins val sem merkt hefur verið á grafinu. Upprunalegi gagnagrunnurinn eða innflutta skráin er varðveitt og útflutningi yfir þá upprunaslóð er hafnað. Ef CSV-skráin er opnuð aftur fást vistaðir merkimiðar hennar; notaðu vistaða grafið til að opna upprunalegu gögnin og breytanlegar skilyrðareglur aftur.",
+      "reviewed_translation": "**Flytja út töflu…** skrifar vinnutöfluna, með öllum merkingadálkum, í nýja CSV-skrá og skráir uppruna hennar, sameiningarskilgreiningu og skilyrðareglur í ``<export>.csv.conditions.json``. Það flytur út vinnutöfluna en ekki aðeins val sem merkt hefur verið á grafinu. Upprunalegi gagnagrunnurinn eða innflutta skráin er varðveitt og útflutningi yfir þá upprunaslóð er hafnað. Ef CSV-skráin er opnuð aftur fást vistaðir merkimiðar hennar; notaðu vistaða grafið til að opna upprunalegu gögnin og breytanlegar skilyrðareglur aftur.",
+      "ui_bindings": {
+        "Export table…": "Flytja út töflu…"
+      }
+    }
+  ]
+}

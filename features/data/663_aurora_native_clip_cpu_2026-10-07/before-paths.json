@@ -1,0 +1,294 @@
+{
+  "source": "/mnt/wd4tb/spacr-worktrees/codex-theme-integration-audit-20261007/spacr/qt/widgets/ambient.py",
+  "source_sha256": "95d55c192d6d7bde70fa671666d3a2138fe30e5cb7e9bb0805c526c85b57f0e2",
+  "rows": [
+    {
+      "width": 1280,
+      "height": 720,
+      "density": 1,
+      "size": 1,
+      "resolution": 1,
+      "warm_median_ms": 9.85,
+      "warm_max_ms": 10.42,
+      "cache_after_warm": [
+        [
+          7,
+          11
+        ],
+        [
+          7,
+          14
+        ],
+        [
+          8,
+          17
+        ],
+        [
+          9,
+          20
+        ],
+        [
+          10,
+          22
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          13,
+          28
+        ]
+      ],
+      "instrumented_components_all_10_frames": {
+        "geometry": {
+          "calls": 10,
+          "sum_ms": 1.03,
+          "median_ms": 0.083
+        },
+        "_sheet": {
+          "calls": 60,
+          "sum_ms": 0.86,
+          "median_ms": 0.013
+        },
+        "_tile": {
+          "calls": 30,
+          "sum_ms": 4.94,
+          "median_ms": 0.007
+        },
+        "drawPath_0": {
+          "calls": 30,
+          "sum_ms": 14.37,
+          "median_ms": 0.456
+        },
+        "_surge": {
+          "calls": 30,
+          "sum_ms": 3.17,
+          "median_ms": 0.104
+        },
+        "drawPath_1": {
+          "calls": 30,
+          "sum_ms": 15.64,
+          "median_ms": 0.493
+        },
+        "drawPath_2": {
+          "calls": 30,
+          "sum_ms": 21.39,
+          "median_ms": 0.698
+        },
+        "drawPath_3": {
+          "calls": 30,
+          "sum_ms": 20.22,
+          "median_ms": 0.645
+        },
+        "drawPath_4": {
+          "calls": 30,
+          "sum_ms": 3.81,
+          "median_ms": 0.119
+        },
+        "field": {
+          "calls": 10,
+          "sum_ms": 92.61,
+          "median_ms": 9.377
+        },
+        "_soften": {
+          "calls": 10,
+          "sum_ms": 0.02,
+          "median_ms": 0.002
+        }
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "density": 1,
+      "size": 1,
+      "resolution": 1,
+      "warm_median_ms": 58.51,
+      "warm_max_ms": 60.76,
+      "cache_after_warm": [
+        [
+          7,
+          11
+        ],
+        [
+          7,
+          14
+        ],
+        [
+          8,
+          17
+        ],
+        [
+          9,
+          20
+        ],
+        [
+          10,
+          22
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          13,
+          28
+        ]
+      ],
+      "instrumented_components_all_10_frames": {
+        "geometry": {
+          "calls": 10,
+          "sum_ms": 1.18,
+          "median_ms": 0.111
+        },
+        "_sheet": {
+          "calls": 60,
+          "sum_ms": 1.29,
+          "median_ms": 0.019
+        },
+        "_tile": {
+          "calls": 30,
+          "sum_ms": 17.71,
+          "median_ms": 0.013
+        },
+        "drawPath_0": {
+          "calls": 30,
+          "sum_ms": 66.54,
+          "median_ms": 2.02
+        },
+        "_surge": {
+          "calls": 30,
+          "sum_ms": 4.93,
+          "median_ms": 0.161
+        },
+        "drawPath_1": {
+          "calls": 30,
+          "sum_ms": 280.17,
+          "median_ms": 9.295
+        },
+        "drawPath_2": {
+          "calls": 30,
+          "sum_ms": 62.55,
+          "median_ms": 2.076
+        },
+        "drawPath_3": {
+          "calls": 30,
+          "sum_ms": 54.15,
+          "median_ms": 1.774
+        },
+        "drawPath_4": {
+          "calls": 30,
+          "sum_ms": 11.46,
+          "median_ms": 0.335
+        },
+        "field": {
+          "calls": 10,
+          "sum_ms": 514.5,
+          "median_ms": 52.444
+        },
+        "_soften": {
+          "calls": 10,
+          "sum_ms": 0.02,
+          "median_ms": 0.002
+        }
+      }
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "density": 3,
+      "size": 3,
+      "resolution": 2,
+      "warm_median_ms": 256.76,
+      "warm_max_ms": 279.67,
+      "cache_after_warm": [
+        [
+          17,
+          33
+        ],
+        [
+          21,
+          42
+        ],
+        [
+          23,
+          51
+        ],
+        [
+          27,
+          59
+        ],
+        [
+          30,
+          66
+        ],
+        [
+          35,
+          75
+        ],
+        [
+          38,
+          84
+        ]
+      ],
+      "instrumented_components_all_10_frames": {
+        "geometry": {
+          "calls": 10,
+          "sum_ms": 2.7,
+          "median_ms": 0.254
+        },
+        "_sheet": {
+          "calls": 180,
+          "sum_ms": 3.59,
+          "median_ms": 0.018
+        },
+        "_tile": {
+          "calls": 90,
+          "sum_ms": 289.04,
+          "median_ms": 0.017
+        },
+        "drawPath_0": {
+          "calls": 90,
+          "sum_ms": 258.35,
+          "median_ms": 2.758
+        },
+        "_surge": {
+          "calls": 90,
+          "sum_ms": 14.65,
+          "median_ms": 0.157
+        },
+        "drawPath_1": {
+          "calls": 90,
+          "sum_ms": 1433.5,
+          "median_ms": 15.763
+        },
+        "drawPath_2": {
+          "calls": 90,
+          "sum_ms": 241.25,
+          "median_ms": 2.685
+        },
+        "drawPath_3": {
+          "calls": 90,
+          "sum_ms": 198.1,
+          "median_ms": 2.146
+        },
+        "drawPath_4": {
+          "calls": 90,
+          "sum_ms": 74.5,
+          "median_ms": 0.42
+        },
+        "field": {
+          "calls": 10,
+          "sum_ms": 2550.33,
+          "median_ms": 248.773
+        },
+        "_soften": {
+          "calls": 10,
+          "sum_ms": 0.02,
+          "median_ms": 0.002
+        }
+      }
+    }
+  ]
+}

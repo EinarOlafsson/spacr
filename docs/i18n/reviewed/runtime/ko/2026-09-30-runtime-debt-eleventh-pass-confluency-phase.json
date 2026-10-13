@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: the confluency_channel, confluency_source and confluency_window tooltips that item 536's phase confluency source rewrote, re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7578bb1f6d42093da1b5b6e361d10e7890278a20b883516e0dcd7bd6deb80adf",
+      "translation": "질감, 강도 및 위상차 컨플루언시 소스가 읽는 병합 배열의 채널로, channels 설정과 같은 방식으로 셉니다. 비워 두면 channels 설정의 첫 항목을 사용합니다. 질감이나 위상차에는 명시야나 위상차 평면을, 강도에는 세포질이나 세포막 염색을 고르세요. confluency_source 설정이 마스크로 결정되면 무시됩니다. 기본값 None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "1ad7c53391ca65eafe218c43afc1b78b597ef9635c7d5c63fed1de29970f4436",
+      "translation": "컨플루언시를 정하는 방식입니다. auto는 실행에 세포 마스크가 있으면 세포 마스크를, 없으면 질감을 사용합니다. masks는 Measure 크기 필터를 적용하기 전의 모든 분할된 세포의 합집합입니다. texture는 confluency_channel 채널의 국소 변동을 자동 임계값으로 읽습니다. phase는 여덟 개 세포주의 위상차 이미지로 학습한 작은 모델로 confluency_channel 채널의 모든 픽셀을 분류하며, 위상차와 명시야용입니다. intensity는 형광 세포질이나 세포막 염색용으로, confluency_channel 채널에 자동으로 임계값을 적용합니다. 기본값 auto."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "b67b9aee3ea6ab1b6d9cfa65b4f72c2567c5d6d012d87cbce7c7b17169830eed",
+      "translation": "질감 컨플루언시 소스가 국소 변동을 측정하는 정사각형 창의 한 변 길이(픽셀)입니다. 덮인 것으로 셀 가장 가는 세포 돌기의 폭 정도로 잡으세요. 작을수록 가장자리를 더 가깝게 따르지만 매끈한 세포 내부가 구멍으로 남고, 클수록 좁은 틈을 메웁니다. 위상차에서는 시야를 먼저 15/창 크기 비율로 조정하므로, 세포가 분류기 학습 이미지보다 더 많은 픽셀에 걸치면 그 비율만큼 값을 키우세요. 마스크 및 강도 소스는 이 값을 무시합니다. 기본값 15."
+    }
+  ]
+}

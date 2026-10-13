@@ -1,0 +1,8 @@
+Type conversion already registered from type PySide::PyObjectWrapper to type int
+........................................................................ [ 77%]
+.....................                                                    [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.13-final-0 _______________
+
+Coverage JSON written to file /mnt/wd4tb/scratch/field-grab-cpu-20261007/coverage.json
+93 passed in 20.43s

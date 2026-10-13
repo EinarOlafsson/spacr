@@ -1,0 +1,6 @@
+set pagination off
+set confirm off
+handle SIGUSR1 stop print nopass
+run
+generate-core-file /mnt/wd4tb/scratch/native-core-phdr-probe-20261008/core.qt-science.elf
+quit

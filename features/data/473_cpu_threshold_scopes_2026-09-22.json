@@ -1,0 +1,146 @@
+{
+  "date": "2026-09-22",
+  "baseline": "7234c9eb2",
+  "before": {
+    "failed": 25,
+    "passed": 16
+  },
+  "new_regression_cases": 49,
+  "focused_checks": {"detector_run": 184, "magnifier_and_help_run": 159, "total": 343},
+  "image": "96x96 float32, NumPy default_rng(43).normal(100,5), central [20:76,20:76] +100.",
+  "settings": {
+    "correction": 1.1,
+    "smoothing": 0,
+    "fill_holes": false,
+    "split_touching": false,
+    "min_area": 0,
+    "window": 15,
+    "local_k": 0.35
+  },
+  "examples": [
+    {
+      "mode": "li",
+      "bright": true,
+      "fixed_foreground": 3136,
+      "old_foreground": 3136,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "li",
+      "bright": false,
+      "fixed_foreground": 6080,
+      "old_foreground": 6080,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "yen",
+      "bright": true,
+      "fixed_foreground": 3137,
+      "old_foreground": 3136,
+      "changed_pixels": 1
+    },
+    {
+      "mode": "yen",
+      "bright": false,
+      "fixed_foreground": 1222,
+      "old_foreground": 0,
+      "changed_pixels": 1222
+    },
+    {
+      "mode": "triangle",
+      "bright": true,
+      "fixed_foreground": 3136,
+      "old_foreground": 3136,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "triangle",
+      "bright": false,
+      "fixed_foreground": 4922,
+      "old_foreground": 3598,
+      "changed_pixels": 1608
+    },
+    {
+      "mode": "isodata",
+      "bright": true,
+      "fixed_foreground": 3136,
+      "old_foreground": 3136,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "isodata",
+      "bright": false,
+      "fixed_foreground": 6080,
+      "old_foreground": 6080,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "mean",
+      "bright": true,
+      "fixed_foreground": 3136,
+      "old_foreground": 3136,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "mean",
+      "bright": false,
+      "fixed_foreground": 6080,
+      "old_foreground": 6080,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "minimum",
+      "bright": true,
+      "fixed_foreground": 3136,
+      "old_foreground": 3136,
+      "changed_pixels": 0
+    },
+    {
+      "mode": "minimum",
+      "bright": false,
+      "fixed_foreground": 5973,
+      "old_foreground": 6080,
+      "changed_pixels": 107
+    },
+    {
+      "mode": "sauvola",
+      "bright": true,
+      "fixed_foreground": 0,
+      "old_foreground": 3887,
+      "changed_pixels": 3887
+    },
+    {
+      "mode": "sauvola",
+      "bright": false,
+      "fixed_foreground": 9216,
+      "old_foreground": 6384,
+      "changed_pixels": 2832
+    },
+    {
+      "mode": "niblack",
+      "bright": true,
+      "fixed_foreground": 1501,
+      "old_foreground": 1454,
+      "changed_pixels": 453
+    },
+    {
+      "mode": "niblack",
+      "bright": false,
+      "fixed_foreground": 7715,
+      "old_foreground": 1676,
+      "changed_pixels": 6053
+    }
+  ],
+  "source_changes": [
+    "Shared threshold engine in both magnifier scopes for eight named CPU thresholds",
+    "Otsu class/local controls disabled and ignored outside applicable modes, saved UI values retained",
+    "Minimum and other named CPU threshold failures propagate without Otsu substitution or permanent disablement",
+    "Threshold status descriptions use effective method settings"
+  ],
+  "runtime_captions_changed": [],
+  "remaining": [
+    "Full 473 API/tutorial/catalog reconciliation",
+    "Magnifier provenance audit for CPU settings and drag commits",
+    "Histogram preview still uses Otsu/raw-image levels for other selected thresholds; needs method/input-aware repair"
+  ]
+}

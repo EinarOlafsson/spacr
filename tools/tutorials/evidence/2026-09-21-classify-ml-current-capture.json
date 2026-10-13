@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "native_capture_and_english_review_master_verified_not_published",
+  "provenance": {
+    "commit": "78a8c4a3669e7820ca7abc34ebcf2b11c7409801",
+    "version": "1.5.0.8",
+    "module": "classify_merged",
+    "download_requested": true,
+    "dataset_cache": "/tmp/spacr-classify-ml/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "frame_count": 30,
+  "native_acceptance": {
+    "accepted": true,
+    "reasons": [],
+    "figure_count": 3,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "lineage": {
+    "accepted": true,
+    "reasons": [],
+    "rows": 2153,
+    "sample_counts": {
+      "train": 1118,
+      "test": 1035,
+      "not_used": 0
+    },
+    "actual_wells": {
+      "train": [
+        [
+          "plate1",
+          "r12",
+          "c1"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2"
+        ]
+      ],
+      "test": [
+        [
+          "plate1",
+          "r12",
+          "c2"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1"
+        ]
+      ]
+    },
+    "overlapping_actual_wells": [],
+    "labels_are_plate_columns_not_validated_phenotypes": true,
+    "all_saved_probabilities_checked": true,
+    "output": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-ml-current-v4/example_data/plate1/results/random_forest/channel_1/results.csv"
+  },
+  "independent_metrics": {
+    "confusion_matrix_true_rows_predicted_columns": [
+      [
+        467,
+        116
+      ],
+      [
+        277,
+        175
+      ]
+    ],
+    "class_zero": "columnID=c1",
+    "class_one": "columnID=c2",
+    "test_objects": 1035,
+    "accuracy": 0.6202898550724638,
+    "majority_class_accuracy_on_test": 0.5632850241545894,
+    "metrics_compared": 9,
+    "maximum_metric_error": 1.1102230246251565e-16,
+    "database_predictions_checked": 2153
+  },
+  "database_rows": 2341,
+  "unscored_objects": 188,
+  "original_database_unchanged": true,
+  "original_database_sha256": "d6a83da4672dab3653bebc4c12af6ba6937dce39d15649c049fcde3df56b6bb3",
+  "private_code_alias": "/tmp/spacr-code",
+  "private_home": "/tmp/spacr-classify-ml/user_state",
+  "warning_text_rewritten": false,
+  "ai_prompt_submitted": false,
+  "tools": {
+    "tools/tutorials/capture_refresh.py": "4931387d06e787b3ef9e07498b2a27f1cdc749b8cafc10d790b7df7c088869f7",
+    "tools/tutorials/capture_classify_ml.py": "d1b9750b330d60804427db315e02c8f82c97bf3f72abacf356ee6b520ba5708e"
+  },
+  "artifacts": {
+    "captures/classify_ml_current_20260921_v4/frames.json": "d6839290bb899c3ed094e1fef2f53f676c41a63cb13053b7f7418d1b1e12a6e0",
+    "captures/classify_ml_current_20260921_v4/scientific_acceptance.json": "0da1c8e24ad08c2b221fe1b6704681f112bbfb0b116457b59a84cba0544a79e2",
+    "example_data/plate1/results/random_forest/channel_1/results.csv": "066597100b496711f2eac551e29cb77f656dc547aa986285c03645e152bace7c",
+    "example_data/plate1/results/random_forest/channel_1/random_forest_model.csv": "47cd137d12c15325a4c8e68755d9c2fbe5ca75c69053fc04410488615b325995"
+  },
+  "remaining": [
+    "Audible narration acceptance",
+    "Full language/voice and caption acceptance",
+    "Publish only with the completed refreshed tutorial set"
+  ],
+  "visual_review": [
+    "18_source_folder_choice",
+    "25_ml_figure_02"
+  ],
+  "source_picker_confirmation": true,
+  "expanded_native_figure_pane": true,
+  "scene_count": 11,
+  "lesson_sha256": "a1a15e7dc3ddaa5d3c0f8bba33b9f22871706a191d119eed901bedc1c7231248",
+  "videos": [
+    {
+      "file": "11_classify_ml_silent.mp4",
+      "sha256": "c3830b589639af3ae9f1f0d5ecf7feb4d42d8781b8c0ce556a872921b79ee107",
+      "duration": 216.1,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "9f2a10e7db7315bb7058673bdfd63945d872b99cac38e9ae9bcf19a1c6990d56",
+      "duration": 216.1,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "b7f407b50e411c6c6db75e6131040635210c55929f7102317c600321e1b568df",
+    "freshness_timing_activity": "passed"
+  },
+  "browser": {
+    "lesson": "11_classify_ml",
+    "scope": "en/af_heart playback and scene links only",
+    "uploaded": false,
+    "translation_or_listening_review": false,
+    "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+    "navigation_contains_staged_lesson": true,
+    "host_app_key": "classify_merged",
+    "example_files": [],
+    "loaded_audio_sha256": "b7f407b50e411c6c6db75e6131040635210c55929f7102317c600321e1b568df",
+    "scene_count": 11,
+    "seek_playback_clocks": {
+      "audio": 93.681826,
+      "video": 93.731022,
+      "expectedVideo": 93.68832912326168,
+      "audioDuration": 216.1,
+      "videoDuration": 216.1,
+      "mediaError": null
+    },
+    "chapter_and_transcript_links": [
+      "06_api",
+      "08_measure",
+      "09_annotate",
+      "10_classify_cv",
+      "28_training_runs",
+      "41_classify",
+      "70_explain_cv"
+    ],
+    "passed": true,
+    "evidence_sha256": "0bb34870995e4ad0c7544b8fb736b0230c15b87092736ab6c2c3845ed2351395"
+  },
+  "encoded_visual_review": [
+    "First-scene poster: current tabular family control, dark mode, Blobs and neutral paths"
+  ]
+}

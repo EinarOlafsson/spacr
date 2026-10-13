@@ -1,0 +1,260 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A CSV or Excel table with a SMILES column and a compound name, and a well column (with a plate column when plates differ) or names matching the Treatment column. Hits are then drawn with their structures, clustered by similarity and exported as SAR tables. Clustering needs RDKit (pip install rdkit).",
+      "source": "A CSV or Excel table with a SMILES column and a compound name, and a well column (with a plate column when plates differ) or names matching the Treatment column. Hits are then drawn with their structures, clustered by similarity and exported as SAR tables. Clustering needs RDKit (pip install rdkit).",
+      "source_sha256": "56cb5f725058d614e06fc6f4f6d29467bf9fae6a13c5f08f9a0a00dcbed80837",
+      "translation": "Una tabla CSV o Excel con una columna SMILES y un nombre de compuesto, y una columna de pocillo (con una columna de placa cuando las placas difieren) o nombres que coincidan con la columna Treatment. Los hallazgos se dibujan entonces con sus estructuras, se agrupan por similitud y se exportan como tablas SAR. La agrupación requiere RDKit (pip install rdkit)."
+    },
+    {
+      "table": "ui",
+      "key": "Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.",
+      "source": "Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off.",
+      "source_sha256": "0235758f94e6345f99ea08b78ea7f02b8c95e3689827858d730d0efbf3a4a5b6",
+      "translation": "Analizar las réplicas por pares, para que se cancele la variación entre réplicas. Valor predeterminado: desactivado."
+    },
+    {
+      "table": "ui",
+      "key": "Assemble a submission package for the Image Data Resource or the BioImage Archive: MIHCSME and REMBI metadata taken from the settings spaCR saved, the images and a plate map, plus a short form for what spaCR cannot know, with the IDR study and library files, a BioStudies study and file list, and MD5 checksums. Nothing is uploaded and the run folder is not written to. Default not made.",
+      "source": "Assemble a submission package for the Image Data Resource or the BioImage Archive: MIHCSME and REMBI metadata taken from the settings spaCR saved, the images and a plate map, plus a short form for what spaCR cannot know, with the IDR study and library files, a BioStudies study and file list, and MD5 checksums. Nothing is uploaded and the run folder is not written to. Default not made.",
+      "source_sha256": "a87632713eb446abc42f0b48e8fc227bad78035ac96eb78ff71849c4135fa4e7",
+      "translation": "Prepara un paquete de envío para Image Data Resource o BioImage Archive: metadatos MIHCSME y REMBI tomados de la configuración que guardó spaCR, las imágenes y un mapa de placa, más un breve formulario para lo que spaCR no puede saber, con los archivos de estudio y biblioteca de IDR, un estudio y una lista de archivos de BioStudies y sumas MD5. No se sube nada y no se escribe en la carpeta de ejecución. Valor predeterminado: no creado."
+    },
+    {
+      "table": "ui",
+      "key": "Browse a catalogue of community plugins and assay recipes. A plugin is installed into its own folder with the libraries it needs, so it never replaces a package spaCR uses; a recipe is saved as a settings file you can load into its module.",
+      "source": "Browse a catalogue of community plugins and assay recipes. A plugin is installed into its own folder with the libraries it needs, so it never replaces a package spaCR uses; a recipe is saved as a settings file you can load into its module.",
+      "source_sha256": "e561ff52a97fe179376d60dbc713035f50a0cd5b23557abe4112a868c6f14414",
+      "translation": "Explore un catálogo de complementos y recetas de ensayo de la comunidad. Un complemento se instala en su propia carpeta con las bibliotecas que necesita, de modo que nunca sustituye un paquete que usa spaCR; una receta se guarda como un archivo de configuración que puede cargar en su módulo."
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source_sha256": "1d6230c16b5fa3946e5a4f086fcbdfeb4924ee62727ebb25d2b4272151347fe1",
+      "translation": "CellProfiler 4.2, ejecutado sin interfaz con la canalización .cppipe propia de un laboratorio desde Measure: spaCR le entrega los canales y máscaras de cada campo como TIFFs y trae sus mediciones por objeto a measurements.db, indexadas por los id de objeto de spaCR. Necesita un Python 3.8 o 3.9 en este equipo para crear su entorno."
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause (Broad Institute). They read images through Bio-Formats (GPL-2.0, shipped inside prokaryote) on a Java 11 development kit that the install fetches from Eclipse Adoptium (GPL-2.0 with the Classpath Exception) into the backend's own folder. CellProfiler's desktop interface (wxPython) and its MySQL export are not installed: pipelines run headless. spaCR ships none of it.",
+      "source": "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause (Broad Institute). They read images through Bio-Formats (GPL-2.0, shipped inside prokaryote) on a Java 11 development kit that the install fetches from Eclipse Adoptium (GPL-2.0 with the Classpath Exception) into the backend's own folder. CellProfiler's desktop interface (wxPython) and its MySQL export are not installed: pipelines run headless. spaCR ships none of it.",
+      "source_sha256": "d883e64c77616effcdec6fc434062f21448f86a427dcdebdd3c7cbfe4ca54ce5",
+      "translation": "CellProfiler 4.2.8.1 y cellprofiler-core tienen licencia BSD-3-Clause (Broad Institute). Leen imágenes mediante Bio-Formats (GPL-2.0, incluido en prokaryote) sobre un kit de desarrollo de Java 11 que la instalación descarga de Eclipse Adoptium (GPL-2.0 con la excepción Classpath) en la carpeta propia del motor. La interfaz de escritorio de CellProfiler (wxPython) y su exportación a MySQL no se instalan: las canalizaciones se ejecutan sin interfaz. spaCR no incluye nada de ello."
+    },
+    {
+      "table": "ui",
+      "key": "Cheapest design: {replicates} replicates, {wells} wells per condition, {fields} fields per well; power {power:.2f}, {simulated:.2f} in 500 simulated experiments.",
+      "source": "Cheapest design: {replicates} replicates, {wells} wells per condition, {fields} fields per well; power {power:.2f}, {simulated:.2f} in 500 simulated experiments.",
+      "source_sha256": "9e5b0bd44176d4e3118a24abd2232fbb33ceddd1f53865570a2d598b5447fa70",
+      "translation": "Diseño más barato: {replicates} réplicas, {wells} pocillos por condición, {fields} campos por pocillo; potencia {power:.2f}, {simulated:.2f} en 500 experimentos simulados."
+    },
+    {
+      "table": "ui",
+      "key": "Column naming each well, unique across plates. Default prc.",
+      "source": "Column naming each well, unique across plates. Default prc.",
+      "source_sha256": "510a6ad399800771152354781e7aafe4ff50b473597652c8c8e1c46a50d9fb09",
+      "translation": "Columna que nombra cada pocillo, única entre placas. Valor predeterminado: prc."
+    },
+    {
+      "table": "ui",
+      "key": "Column naming the biological replicate, such as plateID when each plate is one; leave empty when the pilot has one replicate and the replicate variance cannot be estimated. Default empty.",
+      "source": "Column naming the biological replicate, such as plateID when each plate is one; leave empty when the pilot has one replicate and the replicate variance cannot be estimated. Default empty.",
+      "source_sha256": "d70e4f59b6716a6f1695a0c90370ea58a242c9d0c766df796e1da31bad49e0df",
+      "translation": "Columna que nombra la réplica biológica, como plateID cuando cada placa es una; déjela vacía cuando el piloto tiene una sola réplica y no se puede estimar la varianza entre réplicas. Valor predeterminado: vacía."
+    },
+    {
+      "table": "ui",
+      "key": "Column naming the field within its well. Default fieldID.",
+      "source": "Column naming the field within its well. Default fieldID.",
+      "source_sha256": "b07341aaeccc73d42ad1296ba9a704d5ed069d67b604d02a5b50416c45a38c7b",
+      "translation": "Columna que nombra el campo dentro de su pocillo. Valor predeterminado: fieldID."
+    },
+    {
+      "table": "ui",
+      "key": "Could not search for similar crops: {msg}",
+      "source": "Could not search for similar crops: {msg}",
+      "source_sha256": "049bacfe9ab3f3b44f6111c8ea60ae87d2548fde59986216a29c5ba8e2cde086",
+      "translation": "No se pudo buscar recortes similares: {msg}"
+    },
+    {
+      "table": "ui",
+      "key": "Deposit this run on Zenodo so the analysis gets a citable DOI: the archive package, settings, run journal, report, result tables and, if asked, the masks, with the archive form as its metadata. Uses your own Zenodo token, kept in the system keyring or a private file. The sandbox, for trying it out, is on until you turn it off; a draft is left to publish on Zenodo unless you publish here. Default not deposited.",
+      "source": "Deposit this run on Zenodo so the analysis gets a citable DOI: the archive package, settings, run journal, report, result tables and, if asked, the masks, with the archive form as its metadata. Uses your own Zenodo token, kept in the system keyring or a private file. The sandbox, for trying it out, is on until you turn it off; a draft is left to publish on Zenodo unless you publish here. Default not deposited.",
+      "source_sha256": "e9970b3daf2a99cf15a7f5d60e2ee60f3f4868fe25f7db30168463594f520c9f",
+      "translation": "Deposite esta ejecución en Zenodo para que el análisis obtenga un DOI citable: el paquete de archivo, la configuración, el diario de ejecución, el informe, las tablas de resultados y, si se solicita, las máscaras, con el formulario de archivo como metadatos. Usa su propio token de Zenodo, guardado en el llavero del sistema o en un archivo privado. El entorno de pruebas, para ensayar, está activado hasta que lo desactive; queda un borrador para publicar en Zenodo salvo que lo publique aquí. Valor predeterminado: no depositado."
+    },
+    {
+      "table": "ui",
+      "key": "Deposited {count} files as a Zenodo draft at {url}; its reserved DOI is {doi}. Publish it there.",
+      "source": "Deposited {count} files as a Zenodo draft at {url}; its reserved DOI is {doi}. Publish it there.",
+      "source_sha256": "26dda6b30da6a58c21f3a4e884b52ba3797bbc969218995a36c135b8652c6bd2",
+      "translation": "Se depositaron {count} archivos como borrador de Zenodo en {url}; su DOI reservado es {doi}. Publíquelo allí."
+    },
+    {
+      "table": "ui",
+      "key": "Difference between the two condition means to detect, in the measurement's units. Default 0.",
+      "source": "Difference between the two condition means to detect, in the measurement's units. Default 0.",
+      "source_sha256": "32a7b6f6eb8a57b4b3df559636245a7543ca939b902565881cae286e8187b781",
+      "translation": "Diferencia entre las medias de las dos condiciones que se quiere detectar, en las unidades de la medición. Valor predeterminado: 0."
+    },
+    {
+      "table": "ui",
+      "key": "Load a compound table to draw the hits' structures.",
+      "source": "Load a compound table to draw the hits' structures.",
+      "source_sha256": "f22895422231b6e18304e56c53785fd377f4eb70abd5050a445c4a2d02b50fad",
+      "translation": "Cargue una tabla de compuestos para dibujar las estructuras de los hallazgos."
+    },
+    {
+      "table": "ui",
+      "key": "Mean {mean:.4g}; variance between replicates {rep}, wells {well:.4g}, fields {field:.4g}, cells {cell:.4g}; {cells:.0f} cells per field.",
+      "source": "Mean {mean:.4g}; variance between replicates {rep}, wells {well:.4g}, fields {field:.4g}, cells {cell:.4g}; {cells:.0f} cells per field.",
+      "source_sha256": "56489df9110ef95dc070b69630ebdc807ce3e048f8a4de4fa72b48c27bcaf2ee",
+      "translation": "Media {mean:.4g}; varianza entre réplicas {rep}, pocillos {well:.4g}, campos {field:.4g}, células {cell:.4g}; {cells:.0f} células por campo."
+    },
+    {
+      "table": "ui",
+      "key": "No design within 12 replicates, 12 wells and 25 fields reaches the target power.",
+      "source": "No design within 12 replicates, 12 wells and 25 fields reaches the target power.",
+      "source_sha256": "f9c34a0049e35e2c1c299b789376aeef18850ee8a1fa2dd529798eba5a016f93",
+      "translation": "Ningún diseño con hasta 12 réplicas, 12 pocillos y 25 campos alcanza la potencia objetivo."
+    },
+    {
+      "table": "ui",
+      "key": "Open an experiment source before searching it.",
+      "source": "Open an experiment source before searching it.",
+      "source_sha256": "063d431398e6f6b58c4d3974b8a54967718dff996e8637f2ea68085dd87a2702",
+      "translation": "Abra una fuente de experimento antes de buscar en ella."
+    },
+    {
+      "table": "ui",
+      "key": "Per-cell column the experiment will compare. Default empty.",
+      "source": "Per-cell column the experiment will compare. Default empty.",
+      "source_sha256": "a0c83a8b2b13d37a99ddef516216299efacffac214cbc8896bf9e5ac06c54edc",
+      "translation": "Columna por célula que el experimento va a comparar. Valor predeterminado: vacía."
+    },
+    {
+      "table": "ui",
+      "key": "Per-cell measurements from a pilot plate: a CSV, Parquet, Excel or spaCR measurement database. Default empty.",
+      "source": "Per-cell measurements from a pilot plate: a CSV, Parquet, Excel or spaCR measurement database. Default empty.",
+      "source_sha256": "83c31fc44cd90e3d9114ca13424ae4a3d7355b1419866baa9378f996f2cfc549",
+      "translation": "Mediciones por célula de una placa piloto: una base de datos de mediciones CSV, Parquet, Excel o de spaCR. Valor predeterminado: vacía."
+    },
+    {
+      "table": "ui",
+      "key": "Probability of a significant result the design must reach. Default 0.8.",
+      "source": "Probability of a significant result the design must reach. Default 0.8.",
+      "source_sha256": "7ecc6eda23ec84c7c4bcb45b50719f240bbe00fcffe0a974576092b9f48e1e5a",
+      "translation": "Probabilidad de un resultado significativo que el diseño debe alcanzar. Valor predeterminado: 0.8."
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Stirling et al., 'CellProfiler 4: improvements in speed, utility and usability', BMC Bioinformatics 2021 (doi:10.1186/s12859-021-04344-9). It measures what the pipeline says; spaCR scores nothing here.",
+      "source": "Published results: Stirling et al., 'CellProfiler 4: improvements in speed, utility and usability', BMC Bioinformatics 2021 (doi:10.1186/s12859-021-04344-9). It measures what the pipeline says; spaCR scores nothing here.",
+      "source_sha256": "90b563f40b41e0d9ecd123d78d26f2527ce00188352ba0a9066542e0f669ce7b",
+      "translation": "Resultados publicados: Stirling et al., artículo sobre CellProfiler 4 (mejoras de velocidad, utilidad y usabilidad), BMC Bioinformatics 2021 (doi:10.1186/s12859-021-04344-9). Mide lo que indica la canalización; spaCR no puntúa nada aquí."
+    },
+    {
+      "table": "ui",
+      "key": "Published {count} files on Zenodo: DOI {doi}, {url}",
+      "source": "Published {count} files on Zenodo: DOI {doi}, {url}",
+      "source_sha256": "263d80f0cb636465f4fa0b6cbf13ace5b8e86d858a0d41b82565fce8915aa259",
+      "translation": "Se publicaron {count} archivos en Zenodo: DOI {doi}, {url}"
+    },
+    {
+      "table": "ui",
+      "key": "Reading the measurements to compare crops by…",
+      "source": "Reading the measurements to compare crops by…",
+      "source_sha256": "32b00e699cd461ac2dc4dd5bc70e014fee6255895bd7abbe80b9c15843226fb9",
+      "translation": "Leyendo las mediciones para comparar recortes…"
+    },
+    {
+      "table": "ui",
+      "key": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source": "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run.",
+      "source_sha256": "da0d34506720d55cc8876250027d80a8293b64911ca9523eb8e1954dcf970a98",
+      "translation": "Muestra los 100 recortes cuyas mediciones más se parecen a las del recorte seleccionado, el del anillo, del más similar al menos, para que una clase rara encontrada una vez pueda etiquetarse muchas veces. La primera búsqueda en una fuente lee sus mediciones y tarda unos segundos; las siguientes son instantáneas. Para volver a todos los recortes, abra de nuevo la fuente. Valor predeterminado: no ejecutado."
+    },
+    {
+      "table": "ui",
+      "key": "Table to read when the pilot is a database. Default cell.",
+      "source": "Table to read when the pilot is a database. Default cell.",
+      "source_sha256": "ebb868e88f74f60a2598c8f9917c1ecb9ad3935de0976b0889835b4280762cb5",
+      "translation": "Tabla que se lee cuando el piloto es una base de datos. Valor predeterminado: cell."
+    },
+    {
+      "table": "ui",
+      "key": "Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)",
+      "source": "Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)",
+      "source_sha256": "2c66a2836fba74e2b705f1d7a067ea829ceebb32b88060fafb612e27df6cfcc2",
+      "translation": "Tablas (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)"
+    },
+    {
+      "table": "ui",
+      "key": "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit needs to a cluster's centre to join it; other compounds join the cluster of their most similar hit at the same similarity. Default 0.6.",
+      "source": "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit needs to a cluster's centre to join it; other compounds join the cluster of their most similar hit at the same similarity. Default 0.6.",
+      "source_sha256": "527ccbb0b6876260c2c2780691ba3ed243e7ecc255cf149ba07f70668d7521c2",
+      "translation": "La similitud de Tanimoto de huellas de Morgan (radio 2) que un hallazgo necesita respecto al centro de un grupo para unirse a él; los demás compuestos se unen al grupo de su hallazgo más similar con la misma similitud. Valor predeterminado: 0.6."
+    },
+    {
+      "table": "ui",
+      "key": "Two-sided significance level of the t-test on replicate means. Default 0.05.",
+      "source": "Two-sided significance level of the t-test on replicate means. Default 0.05.",
+      "source_sha256": "ab39f305cec18186d160eaf5d304b7082b1009326e84ba1a6e5f667eaf95a9c6",
+      "translation": "Nivel de significación bilateral de la prueba t sobre las medias de las réplicas. Valor predeterminado: 0.05."
+    },
+    {
+      "table": "ui",
+      "key": "Use the Zenodo sandbox (a test deposit, no real DOI)",
+      "source": "Use the Zenodo sandbox (a test deposit, no real DOI)",
+      "source_sha256": "182c332e88b1b4c6636ad69c72b5761cd0c65119c2a60ddf20a9a597c76041e6",
+      "translation": "Usar el entorno de pruebas de Zenodo (depósito de prueba, sin DOI real)"
+    },
+    {
+      "table": "ui",
+      "key": "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
+      "source": "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off.",
+      "source_sha256": "bcaa820b167d5741e0e090c1db582b046dbf0bb8d847e5acd016f44f9dc3133e",
+      "translation": "Al guardar una figura de imagen o un montaje, avisa si los paneles pensados para compararse usan rangos de visualización distintos, si hay píxeles saturados o recortados, si un panel se repite o si se eligió un formato con pérdida. Además escribe los archivos de origen, la configuración de visualización, los pasos de procesamiento y la versión de spaCR en los metadatos del archivo y en un archivo .provenance.json junto a él. Valor predeterminado: desactivado."
+    },
+    {
+      "table": "ui",
+      "key": "Where the catalogue is: a catalogue.json file, the folder holding one, or an http(s) address. It is remembered for next time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty.",
+      "source": "Where the catalogue is: a catalogue.json file, the folder holding one, or an http(s) address. It is remembered for next time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty.",
+      "source_sha256": "6e09af392fc6162edcd317d7aa993d2e45c4cfe551c4141381f4319962e2daed",
+      "translation": "Dónde está el catálogo: un archivo catalogue.json, la carpeta que lo contiene o una dirección http(s). Se recuerda para la próxima vez. Valor predeterminado: la variable SPACR_PLUGIN_CATALOGUE o, si no, vacío."
+    },
+    {
+      "table": "ui",
+      "key": "Write this run as a Snakemake or Nextflow workflow that runs the same module with the same settings once per plate, with spacr-run on this machine, a cluster, or the spaCR container image.",
+      "source": "Write this run as a Snakemake or Nextflow workflow that runs the same module with the same settings once per plate, with spacr-run on this machine, a cluster, or the spaCR container image.",
+      "source_sha256": "0464127a8e781326ef27cba4f841d33f2c4bf0868202280dd9c9d20beb7275d9",
+      "translation": "Escribir esta ejecución como un flujo de trabajo de Snakemake o Nextflow que ejecuta el mismo módulo con la misma configuración una vez por placa, con spacr-run en este equipo, un clúster o la imagen de contenedor de spaCR."
+    },
+    {
+      "table": "ui",
+      "key": "Wrote {path}, but it does not pass: {problems}",
+      "source": "Wrote {path}, but it does not pass: {problems}",
+      "source_sha256": "082824134d2a0a6a69574efc62b5cd33a3f66fa6acc30419fec9137ffaca51df",
+      "translation": "Se escribió {path}, pero no supera las comprobaciones: {problems}"
+    },
+    {
+      "table": "ui",
+      "key": "Wrote {path}. It passes the IDR, BioStudies and MIHCSME checks; nothing was uploaded.",
+      "source": "Wrote {path}. It passes the IDR, BioStudies and MIHCSME checks; nothing was uploaded.",
+      "source_sha256": "9a0f71d4bf641c6dcd2c50fe63e4569911e48f1998aa338eb9fdf7431f7fd3b2",
+      "translation": "Se escribió {path}. Supera las comprobaciones de IDR, BioStudies y MIHCSME; no se subió nada."
+    },
+    {
+      "table": "ui",
+      "key": "{name} and the {n} crops most like it, most similar first",
+      "source": "{name} and the {n} crops most like it, most similar first",
+      "source_sha256": "dbebf09b299ee4154abd444eaa9e4ab4105650ca147893ac2d670a05d6b3b05e",
+      "translation": "{name} y los {n} recortes más parecidos, del más similar al menos"
+    }
+  ]
+}

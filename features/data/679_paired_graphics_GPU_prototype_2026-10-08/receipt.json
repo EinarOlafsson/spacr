@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "item": 679,
+  "scope": "Paired scratch graphics-GPU scatter and owned QImage readback; no application backend.",
+  "passing": true,
+  "application_backend_implemented": false,
+  "cases": 24,
+  "pixel_exact_samples": 192,
+  "actual_renderer": "NVIDIA GeForce RTX 3090 Ti/PCIe/SSE2",
+  "actual_gl": "4.3.0 NVIDIA 580.178.04",
+  "qt": "6.12.0",
+  "application_source": "9a92ccfdb8c5ccd8550cb8cb352fd52745f6a7ab",
+  "ambient_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+  "gpu_slower_cases": 24,
+  "gpu_faster_cases": 0,
+  "GPU_to_CPU_paired_median_ratio_range": [
+    1.0914973813657518,
+    5.454401322339157
+  ],
+  "memory_cap": "8G",
+  "GPU_IDLE_S": 360,
+  "GPU_GAP_S": 600,
+  "limits": [
+    "Scratch-only persistent-buffer/QImage experiment; no application renderer or preferences changed.",
+    "GPU timing includes point preparation, uploads, dispatch and owned QImage readback. CPU and GPU are paired in alternating order on identical native-sized material inputs.",
+    "Only the default spaCR palette with zero dot flicker and no colour-wave event is in this first experiment; no random-palette or full native-widget acceptance claimed.",
+    "Other agents are active on CPU; these measurements alone do not establish production speedup.",
+    "Persistent buffers and direct owned QImage readback do not establish an acceleration benefit.",
+    "No default GPU switch or production graphics backend is justified by this result.",
+    "CPU agent activity and repeated immutable material inputs constrain interpretation; pixel equality is scoped to these exact inputs."
+  ],
+  "payloads": {
+    "prototype_packed_flow_GL_r2.py.gz": {
+      "raw_bytes": 9442,
+      "raw_sha256": "a1343fed39c9a9bd88222cf9a6d16f5fdf589b70b011d937e07f3ae9158eb3f5",
+      "gzip_bytes": 3249,
+      "gzip_sha256": "ae2fc638f485aab83f07e4a1620331e9344bb59fb47949ae0be8b1aab4865207"
+    },
+    "packed-flow-GL-prototype-r2.log.gz": {
+      "raw_bytes": 18720,
+      "raw_sha256": "b3278c9795565bdc89199e7396edef50c15724672c04deeeeecc0571dda4788c",
+      "gzip_bytes": 6364,
+      "gzip_sha256": "fdcbcb6a135797ae20a9d434186c3750e7deed2ca91a6209730c9d10e9d43f99"
+    },
+    "native-receipt.json.gz": {
+      "raw_bytes": 25440,
+      "raw_sha256": "01f295f6899dbfe6c40e5091ff1177b36b1bc259ae75be763b2e5ac194960849",
+      "gzip_bytes": 7003,
+      "gzip_sha256": "3dc980f550e3f9d0d12d2727efa67294b44aea34d7d7af1ee31cd3b0287e4119"
+    },
+    "ambient-source.py.gz": {
+      "raw_bytes": 416593,
+      "raw_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+      "gzip_bytes": 114603,
+      "gzip_sha256": "c112a3f26ae804475822ccafc83f95676ca3977df5a7078eb169e8e34d8bcd62"
+    },
+    "check_published_workers_and_paired_GL_r2.py.gz": {
+      "raw_bytes": 4458,
+      "raw_sha256": "88e4b2aa25f38cc74718369eb6756997ff1ba0f997c71e4bcc6ad5e07bb1fbb0",
+      "gzip_bytes": 1785,
+      "gzip_sha256": "e9cf2b5f57ae772baf62016e08dc8abeb50bc22302643390bf024d77292d7442"
+    }
+  }
+}

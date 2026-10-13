@@ -1,0 +1,189 @@
+{
+  "recorded_at_utc": "2026-09-23T05:45:54.335197+00:00",
+  "base_commit": "b6f15d1c9",
+  "changes": [
+    "SAMCell worker owns Torch and Hugging Face cache locations; inherited HF and legacy Transformers overrides removed.",
+    "Isolated install supplies matplotlib>=3.3.0 because SAMCell 1.2.0 imports it unconditionally but declares it only in optional extras."
+  ],
+  "cache_resolution_before_after": [
+    {
+      "versions": {
+        "torch": "2.6.0",
+        "transformers": "4.48.3",
+        "huggingface_hub": "0.36.2"
+      },
+      "paths": {
+        "torch_hub": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/shared/torch_home/hub",
+        "hf_hub": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/shared/hf_hub_cache",
+        "hf_assets": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/shared/hf_assets_cache",
+        "hf_xet": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/shared/hf_xet_cache",
+        "transformers": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/shared/transformers_cache",
+        "modules": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/shared/hf_modules_cache"
+      },
+      "cuda_available": false,
+      "arm": "before",
+      "environment": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/before/samcell",
+      "all_caches_within_environment": false
+    },
+    {
+      "versions": {
+        "torch": "2.6.0",
+        "transformers": "4.48.3",
+        "huggingface_hub": "0.36.2"
+      },
+      "paths": {
+        "torch_hub": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/after/samcell/torch/hub",
+        "hf_hub": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/after/samcell/huggingface/hub",
+        "hf_assets": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/after/samcell/huggingface/assets",
+        "hf_xet": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/after/samcell/huggingface/xet",
+        "transformers": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/after/samcell/huggingface/hub",
+        "modules": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/after/samcell/huggingface/modules"
+      },
+      "cuda_available": false,
+      "arm": "after",
+      "environment": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/cache-probe/after/samcell",
+      "all_caches_within_environment": true
+    }
+  ],
+  "real_install": {
+    "environment": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/backends/samcell",
+    "production_marker": {
+      "backend": "samcell",
+      "device": "cpu",
+      "installed": "2026-09-23 01:39:53",
+      "interpreter": [
+        "/home/olafsson/anaconda3/bin/python"
+      ],
+      "licence": "MIT",
+      "packages": {
+        "numpy": "2.5.3",
+        "samcell": "1.2.0",
+        "torch": "2.14.0+cpu"
+      },
+      "protocol": 1,
+      "python": "3.12.4",
+      "requirements": [
+        "samcell==1.2.0",
+        "matplotlib>=3.3.0"
+      ],
+      "torch": [
+        "torch"
+      ],
+      "torch_index": "https://download.pytorch.org/whl/cpu"
+    },
+    "versions": {
+      "samcell": "1.2.0",
+      "torch": "2.14.0+cpu",
+      "numpy": "2.5.3",
+      "transformers": "5.17.0",
+      "huggingface-hub": "1.32.0",
+      "matplotlib": "3.11.2"
+    },
+    "pip_check": "No broken requirements found.",
+    "requirements_sha256": "f58f105f6c8b32e224ab91c0b2de972107186f121a9b8a98a092a1cc2f413ae9",
+    "apparent_bytes_without_counting_symlinks": 2364303621,
+    "memory_max_gib": 6,
+    "swap_max_bytes": 0
+  },
+  "synthetic_pretrained_worker": {
+    "seconds": 42.32346638600575,
+    "shape": [
+      256,
+      256
+    ],
+    "dtype": "uint16",
+    "objects": 9,
+    "host_imported_samcell": false,
+    "weights_sha256": "d16deb01d7769af8d8c3e22fec68092d8ac197cfffd27958c29258f54eade2c1",
+    "weights_source": "/home/olafsson/.cache/torch/hub/checkpoints/samcell-generalist.pt",
+    "environment": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/backends/samcell",
+    "offline": true,
+    "device": "cpu",
+    "scope": "Actual pretrained weights, isolated worker, synthetic field only; no accuracy score."
+  },
+  "phase_timelapse_pipeline": {
+    "scope": "Three consecutive fixed center crops from a real phase-contrast movie, ordinary Mask generation through isolated SAMCell to IoU tracking and saved outputs. No held-out accuracy or whole-movie claim.",
+    "seconds": 123.79373472899897,
+    "inputs": [
+      {
+        "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_20x/Phase_contrast/ctc_phc_u373_timelapse/01/t000.tif",
+        "sha256": "b6666a03d00d5aefb905d2c19cc301a36b402e7870d2be1a99086bde888a7a2e",
+        "original_shape": [
+          520,
+          696
+        ],
+        "crop_yxhw": [
+          132,
+          220,
+          256,
+          256
+        ]
+      },
+      {
+        "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_20x/Phase_contrast/ctc_phc_u373_timelapse/01/t001.tif",
+        "sha256": "e41de988cbcc73a6d565179bfaf3b3376eb8b831034b3806aa54762f1981138f",
+        "original_shape": [
+          520,
+          696
+        ],
+        "crop_yxhw": [
+          132,
+          220,
+          256,
+          256
+        ]
+      },
+      {
+        "path": "/mnt/wd4tb/af3/projects/live_cell/datasets/Homo_sapiens/Masks/timelapse/Widefield_20x/Phase_contrast/ctc_phc_u373_timelapse/01/t002.tif",
+        "sha256": "0356860e2b7bb0334a97b5619c548b0a8f581bc673deff01d8b2c71ecf094697",
+        "original_shape": [
+          520,
+          696
+        ],
+        "crop_yxhw": [
+          132,
+          220,
+          256,
+          256
+        ]
+      }
+    ],
+    "source_files_unchanged": true,
+    "masks": [
+      "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/phase-smoke/masks/cell_mask_stack/plate1_A01_1_t000.npy",
+      "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/phase-smoke/masks/cell_mask_stack/plate1_A01_1_t001.npy",
+      "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/phase-smoke/masks/cell_mask_stack/plate1_A01_1_t002.npy"
+    ],
+    "objects_per_frame": [
+      5,
+      4,
+      4
+    ],
+    "track_csv": "/mnt/firecuda2/Claude/implementation-20260922/samcell-405/phase-smoke/tracks/trackpy_tracks_cell_phase.csv",
+    "track_rows": 13,
+    "tracks": 6,
+    "tracks_in_all_three_frames": 3,
+    "host_imported_samcell": false,
+    "device": "cpu",
+    "offline": true
+  },
+  "inference_memory_max_gib": 8,
+  "validation": {
+    "initial_backend_selection": "220 passed, two optional in-process package checks skipped; isolated real SAMCell was exercised separately.",
+    "final_isolated_backend_tests": "118 passed after matplotlib requirement addition.",
+    "fatal_ruff": "passed"
+  },
+  "log_sha256": {
+    "install-missing-matplotlib.log": "09b4017af367650560beedb0f93c736f4ecc263e1e17748f71eff38767f43038",
+    "install.log": "32cc6d3654fb99df76cb5c6b5516871279a316d8590e5d9a3406fbdd5fb74949",
+    "phase-timelapse.log": "90cf2a4a7c8f1e17919ce61d245d997981a98b40c094523d31003204499c7490",
+    "final-tests.log": "db81fbfa44239a608b7c836d0becd1abfe94c065d43d84370f69c2356cf15435"
+  },
+  "limitations": [
+    "Only Linux CPU installation and inference were exercised; no GPU/macOS/Windows acceptance.",
+    "Weights were copied from existing local caches into the private environment, not downloaded or deleted from the user cache.",
+    "Three fixed center crops are an integration smoke, not a whole movie or held-out accuracy evaluation.",
+    "No Cellpose comparison, split/merge scorecard, or recommendation claim.",
+    "An initial private inference script ran pip check with inherited PYTHONPATH and exposed the checkout metadata; rerun with -I passed without any package change."
+  ]
+}

@@ -1,0 +1,864 @@
+{
+  "lesson": "18_motility",
+  "status": "Native numbers and live filters verified; saved PDF readability and editorial production unresolved",
+  "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/motility_screen_export",
+  "preview_checks": {
+    "10_actual_uncalibrated_preview": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "11_actual_all_short": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 0,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "12_actual_length_restored": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "13_actual_straightness_filter": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 1,
+      "used_tracks": 1,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "14_actual_filter_restored": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "15_actual_one_unit_unknown": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "16_actual_hypothetical_calibration": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "µm/min",
+      "hypothetical_calibration": true,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    },
+    "17_actual_unknown_units_restored": {
+      "passed": true,
+      "pixel_observations": 128,
+      "mask_pixels": 524288,
+      "retained_tracks": 16,
+      "used_tracks": 16,
+      "velocity_unit": "px/frame",
+      "hypothetical_calibration": false,
+      "checked_summary_fields": 14,
+      "biological_validation": false
+    }
+  },
+  "batch_checks": {
+    "passed": true,
+    "objects": 128,
+    "centroid_coordinates": 256,
+    "raw_channel_means": 256,
+    "well_summary_fields": 7,
+    "hypothetical_mean_velocity": 0.7000720821077643,
+    "biological_validation": false
+  },
+  "coverage": {
+    "covered_lines": 120,
+    "num_statements": 120,
+    "percent_covered": 100,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 68,
+    "num_partial_branches": 0,
+    "covered_branches": 68,
+    "missing_branches": 0,
+    "percent_branches_covered": 100,
+    "percent_branches_covered_display": "100.00"
+  },
+  "provenance": {
+    "commit": "ee164c3b43c00647989c1e0efe4b0a5cf30d5599",
+    "version": "1.5.0.5",
+    "module": "motility",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "summary": {
+    "lesson": "18_motility",
+    "accepted": false,
+    "synthetic": true,
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82",
+    "source_manifest": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_2.npy": "6505560bfa42c2618533307b27306aead65f61a532c71f2f1526364d695e6acc",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_3.npy": "7252aa58eaf5486a78ca4e9f6733e7eda64c804d8f5f35bcbdfd1465c3437c16",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_4.npy": "24abf12dc50b88f070dc9ee0dbee573e966d87a68cf0f0a968222c1994e88696",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_5.npy": "ae3dbd01809bcdded72acc99e09a409370f73209e0a8c66439720e0a1daed76c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_6.npy": "44db48579b08ea6c7a8ddc224c6804e6e31625eca3bac2040283c5e7a4645314",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_7.npy": "4f2fbf44770a5379e4e22846ec7575c5eb328ee69ef94a83bee10ef8bc4769a8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_8.npy": "e5a16f3aedc5bfadb1cb47506df0edc13e6c2c5c0a8961da5c35dfea33a915a9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/.spacr_plane_layout.json": "795c553d71816f236c657dadc4e1461b1852361a182e7e849ad5d6b2b96ce368"
+    },
+    "copied_inputs": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_1.npy": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_2.npy": "6505560bfa42c2618533307b27306aead65f61a532c71f2f1526364d695e6acc",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_5.npy": "ae3dbd01809bcdded72acc99e09a409370f73209e0a8c66439720e0a1daed76c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_6.npy": "44db48579b08ea6c7a8ddc224c6804e6e31625eca3bac2040283c5e7a4645314",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_4.npy": "24abf12dc50b88f070dc9ee0dbee573e966d87a68cf0f0a968222c1994e88696",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_8.npy": "e5a16f3aedc5bfadb1cb47506df0edc13e6c2c5c0a8961da5c35dfea33a915a9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_3.npy": "7252aa58eaf5486a78ca4e9f6733e7eda64c804d8f5f35bcbdfd1465c3437c16",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/.spacr_plane_layout.json": "795c553d71816f236c657dadc4e1461b1852361a182e7e849ad5d6b2b96ce368",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_7.npy": "4f2fbf44770a5379e4e22846ec7575c5eb328ee69ef94a83bee10ef8bc4769a8"
+    },
+    "app_source_modified": false,
+    "published": false,
+    "actual_gui_run": true,
+    "figure_export_preference": {
+      "before": "print",
+      "after": "screen",
+      "actual_gui_saved": true,
+      "scope": "Private recorder preferences only; no desktop settings changed"
+    },
+    "unknown_batch_calibration_probe": {
+      "pixels_per_um": {
+        "widget": "QDoubleSpinBox",
+        "before": 1.78,
+        "none_accepted": false,
+        "after": 1.78
+      },
+      "seconds_per_frame": {
+        "widget": "QSpinBox",
+        "before": 60,
+        "none_accepted": false,
+        "after": 60
+      }
+    },
+    "calibration_scope": "Hypothetical unit-conversion exercise: 2 px/um and 60 s/frame; not an acquired or validated physical scale.",
+    "configured_settings": {
+      "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82",
+      "channels": [
+        0,
+        1
+      ],
+      "cell_channel": 1,
+      "nucleus_channel": 0,
+      "pathogen_channel": null,
+      "tracked_object": "cell",
+      "reuse_existing_measurements": false,
+      "infection_intensity_qc_scope": "none",
+      "n_jobs": 1,
+      "max_displacement": 50,
+      "zscore_thresh": 3,
+      "straightness_filter": false,
+      "straightness_threshold": 0.95,
+      "infection_intensity_strategy": "histogram",
+      "infection_intensity_mode": "relabel",
+      "db_table_name": "timelapse_object_measurements",
+      "infection_intensity_n_bins": 64,
+      "infection_intensity_qc_graphs": true,
+      "pixels_per_um": 2,
+      "seconds_per_frame": 60,
+      "motility_xlim": [
+        -30,
+        30
+      ],
+      "motility_ylim": [
+        -30,
+        30
+      ],
+      "infection_xgb_n_estimators": 200,
+      "infection_xgb_max_depth": 3,
+      "infection_xgb_learning_rate": 0.1,
+      "infection_xgb_subsample": 0.8,
+      "infection_xgb_colsample_bytree": 0.8,
+      "infection_xgb_reg_lambda": 1,
+      "infection_xgb_random_state": 42,
+      "infection_xgb_n_jobs": -1,
+      "infection_xgb_proba_threshold": 0.5,
+      "infection_xgb_margin": 0.15,
+      "infection_xgb_top_features": 20,
+      "infection_xgb_proba_column": "infection_xgb_proba",
+      "infection_xgb_drop_ambiguous": true,
+      "infection_xgb_ambiguous_low": 0.25,
+      "infection_xgb_ambiguous_high": 0.75,
+      "infection_xgb_min_cells_per_class": 10,
+      "infection_pca_n_clusters": 2,
+      "infection_pca_random_state": 42,
+      "infection_pca_pathogen_weight": 2,
+      "infection_pca_log_intensity": false,
+      "infection_pca_max_cells": 50000,
+      "infection_pca_min_gt_separation": 0.2,
+      "infection_pca_min_silhouette": 0.05,
+      "infection_pca_umap_search": true,
+      "infection_pca_umap_n_neighbors_grid": [
+        5,
+        10,
+        15,
+        30
+      ],
+      "infection_pca_umap_min_dist_grid": [
+        0,
+        0.05,
+        0.1,
+        0.3
+      ],
+      "infection_pca_umap_n_neighbors": 15,
+      "infection_pca_umap_min_dist": 0.1,
+      "infection_pca_tsne_search": true,
+      "infection_pca_tsne_perplexity_grid": [
+        15,
+        30,
+        45
+      ],
+      "infection_pca_tsne_learning_rate_grid": [
+        200,
+        500
+      ],
+      "infection_pca_tsne_perplexity": 30
+    },
+    "requested_settings": {
+      "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82",
+      "channels": [
+        0,
+        1
+      ],
+      "cell_channel": 1,
+      "nucleus_channel": 0,
+      "pathogen_channel": null,
+      "tracked_object": "cell",
+      "pixels_per_um": 2,
+      "seconds_per_frame": 60,
+      "reuse_existing_measurements": false,
+      "max_displacement": 50,
+      "straightness_filter": false,
+      "n_jobs": 1,
+      "infection_intensity_qc_scope": "none",
+      "infection_intensity_strategy": "histogram",
+      "infection_intensity_qc_graphs": true,
+      "motility_xlim": [
+        -30,
+        30
+      ],
+      "motility_ylim": [
+        -30,
+        30
+      ]
+    },
+    "outcome": {
+      "finished": true,
+      "ok": true,
+      "errors": []
+    },
+    "pipeline": {
+      "accepted": true,
+      "reasons": [],
+      "figure_count": 0,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "figure_count": 0,
+    "figures_visible": false,
+    "outputs": [
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_1.npy",
+        "bytes": 524416,
+        "sha256": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_2.npy",
+        "bytes": 524416,
+        "sha256": "6505560bfa42c2618533307b27306aead65f61a532c71f2f1526364d695e6acc"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_5.npy",
+        "bytes": 524416,
+        "sha256": "ae3dbd01809bcdded72acc99e09a409370f73209e0a8c66439720e0a1daed76c"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_6.npy",
+        "bytes": 524416,
+        "sha256": "44db48579b08ea6c7a8ddc224c6804e6e31625eca3bac2040283c5e7a4645314"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_4.npy",
+        "bytes": 524416,
+        "sha256": "24abf12dc50b88f070dc9ee0dbee573e966d87a68cf0f0a968222c1994e88696"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_8.npy",
+        "bytes": 524416,
+        "sha256": "e5a16f3aedc5bfadb1cb47506df0edc13e6c2c5c0a8961da5c35dfea33a915a9"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_3.npy",
+        "bytes": 524416,
+        "sha256": "7252aa58eaf5486a78ca4e9f6733e7eda64c804d8f5f35bcbdfd1465c3437c16"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/.spacr_plane_layout.json",
+        "bytes": 172,
+        "sha256": "795c553d71816f236c657dadc4e1461b1852361a182e7e849ad5d6b2b96ce368"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/merged/plate1_A01_1_7.npy",
+        "bytes": 524416,
+        "sha256": "4f2fbf44770a5379e4e22846ec7575c5eb328ee69ef94a83bee10ef8bc4769a8"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/motility_plots/plate1_A01.pdf",
+        "bytes": 32053,
+        "sha256": "48004b9b74d8bccb28ed47008a6bcd5bf737305a6fe57499942744b1c262651b"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/motility_plots/merged_planes_plate1_A01_1_1.pdf",
+        "bytes": 257690,
+        "sha256": "8235f2af981b95ffcd7da9787b7b98dca28e68574dad81f0ad2dfb67ac58cee1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/measurements/velocity_feature_correlations.csv",
+        "bytes": 11655,
+        "sha256": "086667de01aa64ac2c820e1a294e2d38de507bfe2d9acb359de17a11947da1f1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/measurements/timelapse_object_measurements_adjusted_histogram.csv",
+        "bytes": 127369,
+        "sha256": "37fde3ac0714954ad558cbd08a953009a6d96205b62e1670c936647f44164de6"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/motility_runs/SYNTHETIC-verified-tracks-s4y6da82/measurements/measurements.db",
+        "bytes": 102400,
+        "sha256": "2eef90f2ff306ecf4ec741311d4313216792356ff1eae5a17e2bbdcd91d0fded"
+      }
+    ],
+    "source_preserved": true,
+    "copied_inputs_preserved": true,
+    "next_gate": "Independent measurement, unit, filter and plot checks before narration"
+  },
+  "preview_summaries": {
+    "10_actual_uncalibrated_preview": {
+      "summary": {
+        "n_tracks": 16,
+        "n_used": 16,
+        "n_short": 0,
+        "min_length": 3,
+        "unit": "px/frame",
+        "calibrated": false,
+        "mean_velocity": 1.4001441642155288,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": 1.4001441642155288,
+        "mean_straightness": 0.9859852665311493,
+        "n_infected": 0,
+        "n_uninfected": 16,
+        "n_high_straightness": 15,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 3,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": false,
+        "pixels_per_um": 0,
+        "seconds_per_frame": 0,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 3,
+        "max_displacement": 50,
+        "unit": "px/frame",
+        "calibrated": false,
+        "n_tracks": 16,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "Calibration incomplete — pixel size (pixels_per_um) and frame interval (seconds_per_frame) not set. Velocities below are in px/frame, NOT µm/min; set both fields to convert.\n16 tracks · 16 at or above 3 frames (0 shorter, excluded) · 0 infected / 16 uninfected\nmean velocity 1.4 px/frame · infected n/a px/frame · uninfected 1.4 px/frame\nmean straightness 0.986 · 15 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    },
+    "11_actual_all_short": {
+      "summary": {
+        "n_tracks": 16,
+        "n_used": 0,
+        "n_short": 16,
+        "min_length": 9,
+        "unit": "px/frame",
+        "calibrated": false,
+        "mean_velocity": null,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": null,
+        "mean_straightness": null,
+        "n_infected": 0,
+        "n_uninfected": 0,
+        "n_high_straightness": 0,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 9,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": false,
+        "pixels_per_um": 0,
+        "seconds_per_frame": 0,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 9,
+        "max_displacement": 50,
+        "unit": "px/frame",
+        "calibrated": false,
+        "n_tracks": 16,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "Calibration incomplete — pixel size (pixels_per_um) and frame interval (seconds_per_frame) not set. Velocities below are in px/frame, NOT µm/min; set both fields to convert.\n16 tracks · 0 at or above 9 frames (16 shorter, excluded) · 0 infected / 0 uninfected\nmean velocity n/a px/frame · infected n/a px/frame · uninfected n/a px/frame\nmean straightness n/a · 0 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    },
+    "12_actual_length_restored": {
+      "summary": {
+        "n_tracks": 16,
+        "n_used": 16,
+        "n_short": 0,
+        "min_length": 3,
+        "unit": "px/frame",
+        "calibrated": false,
+        "mean_velocity": 1.4001441642155288,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": 1.4001441642155288,
+        "mean_straightness": 0.9859852665311493,
+        "n_infected": 0,
+        "n_uninfected": 16,
+        "n_high_straightness": 15,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 3,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": false,
+        "pixels_per_um": 0,
+        "seconds_per_frame": 0,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 3,
+        "max_displacement": 50,
+        "unit": "px/frame",
+        "calibrated": false,
+        "n_tracks": 16,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "Calibration incomplete — pixel size (pixels_per_um) and frame interval (seconds_per_frame) not set. Velocities below are in px/frame, NOT µm/min; set both fields to convert.\n16 tracks · 16 at or above 3 frames (0 shorter, excluded) · 0 infected / 16 uninfected\nmean velocity 1.4 px/frame · infected n/a px/frame · uninfected 1.4 px/frame\nmean straightness 0.986 · 15 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    },
+    "13_actual_straightness_filter": {
+      "summary": {
+        "n_tracks": 1,
+        "n_used": 1,
+        "n_short": 0,
+        "min_length": 3,
+        "unit": "px/frame",
+        "calibrated": false,
+        "mean_velocity": 0.3609756179979033,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": 0.3609756179979033,
+        "mean_straightness": 0.867609153697243,
+        "n_infected": 0,
+        "n_uninfected": 1,
+        "n_high_straightness": 0,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 3,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": true,
+        "pixels_per_um": 0,
+        "seconds_per_frame": 0,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 3,
+        "max_displacement": 50,
+        "unit": "px/frame",
+        "calibrated": false,
+        "n_tracks": 1,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "Calibration incomplete — pixel size (pixels_per_um) and frame interval (seconds_per_frame) not set. Velocities below are in px/frame, NOT µm/min; set both fields to convert.\n1 tracks · 1 at or above 3 frames (0 shorter, excluded) · 0 infected / 1 uninfected\nmean velocity 0.361 px/frame · infected n/a px/frame · uninfected 0.361 px/frame\nmean straightness 0.868 · 0 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    },
+    "14_actual_filter_restored": {
+      "summary": {
+        "n_tracks": 16,
+        "n_used": 16,
+        "n_short": 0,
+        "min_length": 3,
+        "unit": "px/frame",
+        "calibrated": false,
+        "mean_velocity": 1.4001441642155288,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": 1.4001441642155288,
+        "mean_straightness": 0.9859852665311493,
+        "n_infected": 0,
+        "n_uninfected": 16,
+        "n_high_straightness": 15,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 3,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": false,
+        "pixels_per_um": 0,
+        "seconds_per_frame": 0,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 3,
+        "max_displacement": 50,
+        "unit": "px/frame",
+        "calibrated": false,
+        "n_tracks": 16,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "Calibration incomplete — pixel size (pixels_per_um) and frame interval (seconds_per_frame) not set. Velocities below are in px/frame, NOT µm/min; set both fields to convert.\n16 tracks · 16 at or above 3 frames (0 shorter, excluded) · 0 infected / 16 uninfected\nmean velocity 1.4 px/frame · infected n/a px/frame · uninfected 1.4 px/frame\nmean straightness 0.986 · 15 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    },
+    "15_actual_one_unit_unknown": {
+      "summary": {
+        "n_tracks": 16,
+        "n_used": 16,
+        "n_short": 0,
+        "min_length": 3,
+        "unit": "px/frame",
+        "calibrated": false,
+        "mean_velocity": 1.4001441642155288,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": 1.4001441642155288,
+        "mean_straightness": 0.9859852665311493,
+        "n_infected": 0,
+        "n_uninfected": 16,
+        "n_high_straightness": 15,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 3,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": false,
+        "pixels_per_um": 2,
+        "seconds_per_frame": 0,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 3,
+        "max_displacement": 50,
+        "unit": "px/frame",
+        "calibrated": false,
+        "n_tracks": 16,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "Calibration incomplete — frame interval (seconds_per_frame) not set. Velocities below are in px/frame, NOT µm/min; set both fields to convert.\n16 tracks · 16 at or above 3 frames (0 shorter, excluded) · 0 infected / 16 uninfected\nmean velocity 1.4 px/frame · infected n/a px/frame · uninfected 1.4 px/frame\nmean straightness 0.986 · 15 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    },
+    "16_actual_hypothetical_calibration": {
+      "summary": {
+        "n_tracks": 16,
+        "n_used": 16,
+        "n_short": 0,
+        "min_length": 3,
+        "unit": "µm/min",
+        "calibrated": true,
+        "mean_velocity": 0.7000720821077644,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": 0.7000720821077644,
+        "mean_straightness": 0.9859852665311493,
+        "n_infected": 0,
+        "n_uninfected": 16,
+        "n_high_straightness": 15,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 3,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": false,
+        "pixels_per_um": 2,
+        "seconds_per_frame": 60,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 3,
+        "max_displacement": 50,
+        "unit": "µm/min",
+        "calibrated": true,
+        "n_tracks": 16,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "16 tracks · 16 at or above 3 frames (0 shorter, excluded) · 0 infected / 16 uninfected\nmean velocity 0.7 µm/min · infected n/a µm/min · uninfected 0.7 µm/min\nmean straightness 0.986 · 15 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    },
+    "17_actual_unknown_units_restored": {
+      "summary": {
+        "n_tracks": 16,
+        "n_used": 16,
+        "n_short": 0,
+        "min_length": 3,
+        "unit": "px/frame",
+        "calibrated": false,
+        "mean_velocity": 1.4001441642155288,
+        "mean_velocity_infected": null,
+        "mean_velocity_uninfected": 1.4001441642155288,
+        "mean_straightness": 0.9859852665311493,
+        "n_infected": 0,
+        "n_uninfected": 16,
+        "n_high_straightness": 15,
+        "straightness_threshold": 0.95,
+        "glitches_fixed": 0,
+        "tracks_dropped": 0
+      },
+      "knobs": {
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": -1,
+        "min_length": 3,
+        "max_displacement": 50,
+        "straightness": 0.95,
+        "straightness_filter": false,
+        "pixels_per_um": 0,
+        "seconds_per_frame": 0,
+        "propagate": false
+      },
+      "params": {
+        "tracked_object": "cell",
+        "n_channels": 2,
+        "tracked_plane": 2,
+        "pathogen_plane": null,
+        "min_length": 3,
+        "max_displacement": 50,
+        "unit": "px/frame",
+        "calibrated": false,
+        "n_tracks": 16,
+        "display_channel": 2,
+        "fov": "plate1 A01 f1 (8 frames)"
+      },
+      "stats_text": "Calibration incomplete — pixel size (pixels_per_um) and frame interval (seconds_per_frame) not set. Velocities below are in px/frame, NOT µm/min; set both fields to convert.\n16 tracks · 16 at or above 3 frames (0 shorter, excluded) · 0 infected / 16 uninfected\nmean velocity 1.4 px/frame · infected n/a px/frame · uninfected 1.4 px/frame\nmean straightness 0.986 · 15 tracks at or above 0.95 (drift/artefact candidates) · 0 centroid glitches fixed, 0 tracks dropped as impossible",
+      "plot_visible": true,
+      "plot_is_null": false
+    }
+  },
+  "tests": {
+    "passed": 53,
+    "isolated_red_mutations": [
+      {
+        "mutation": "point completeness",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "point infection",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "unit conversion",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "straightness filter direction",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "track conversion value",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "track inventory",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "summary arithmetic",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "saved channel means",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "saved centroid x",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "saved well arithmetic",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "saved undefined infection group",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "saved well units",
+        "exit_code": 1,
+        "result": "1 failed, 52 passed"
+      },
+      {
+        "mutation": "unknown units",
+        "exit_code": 1,
+        "result": "25 failed, 28 passed"
+      },
+      {
+        "mutation": "minimum length boundary",
+        "exit_code": 1,
+        "result": "25 failed, 28 passed"
+      },
+      {
+        "mutation": "preview plot visibility",
+        "exit_code": 1,
+        "result": "2 failed, 51 passed"
+      }
+    ]
+  },
+  "pdf_review": {
+    "default_print": "One-page native PDF inspected via Poppler: labels readable but mean markers and some fine marks have low contrast; native warning retained.",
+    "screen_probe": "Real Preferences Screen selection did not repair the PDF: transparent/light page still has near-white labels. Not an approved workaround.",
+    "screenshots": [
+      "tmp/pdfs/motility_plate.png",
+      "tmp/pdfs/motility_screen_plate.png"
+    ],
+    "pdf_skill_used": true
+  },
+  "calibration_scope": "2 px/um and 60 seconds/frame are hypothetical arithmetic inputs, not acquired calibration. Preview unknown/partial calibration stays px/frame; both supplied halves numerical velocities.",
+  "source_files_preserved": true,
+  "app_source_modified": false,
+  "english_staged": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

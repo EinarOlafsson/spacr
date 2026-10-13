@@ -1,0 +1,36 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Invasion Assay: pontuar a coloração externa e total",
+  "description": "Mapeie dois canais de coloração, escolha a referência de coloração, execute a análise e inspecione as classificações de invasão e a sensibilidade ao limiar.",
+  "objectives": [
+    "Escolher o banco de dados de medições e mapear as colorações externa e total.",
+    "Definir os poços de referência e os controles do limiar e executar a análise.",
+    "Inspecionar as distribuições, os denominadores por poço e as tabelas de resultados salvas."
+  ],
+  "prerequisite": "Extraia o exemplo sintético de Invasion Assay vinculado e use a referência de configurações dele. O banco de dados contém 1.800 medições sintéticas de parasitas; os nomes das condições e os resultados são ilustrativos. No seu próprio ensaio, use um desenho de coloração em duas cores validado, com coloração externa antes da permeabilização e coloração total depois, e revise imagens representativas.",
+  "scenes": [
+    "Na tela Home, abra Toxoplasma e escolha Invasion Assay. Comece com um banco de dados de medições que contenha as intensidades dos parasitas para as colorações externa e total. Use a amostra sintética vinculada para praticar o mapeamento de canais, a escolha do limiar e a inspeção dos resultados.",
+    "Extraia a amostra e defina Source como a pasta invasion dela, que contém measurements/measurements.db. Informe a referência de configurações que a acompanha e substitua o marcador de Source. A amostra contém poços de referência e duas condições do ensaio.",
+    "Defina Outside channel como um e Total channel como zero. A coloração externa é aplicada antes da permeabilização; a total, depois. Parasitas positivos para a coloração externa são classificados como aderidos, e os que ficam no limiar externo ou abaixo dele, como invadidos. Confira a ordem dos canais de aquisição ao usar suas próprias medições.",
+    "Selecione mean em Intensity statistic para corresponder às colunas do banco de dados de exemplo. No seu próprio ensaio, escolha uma estatística disponível adequada à coloração e inspecione objetos representativos. Mantenha Minimum total intensity em cem para esta amostra.",
+    "Defina Stain baseline wells como a coluna um, usando c1. Essas medições de coloração negativa estabelecem o corte e são excluídas dos denominadores do ensaio. Em Pathogen plate metadata, mapeie vehicle para a coluna dois e inhibitor para a coluna três.",
+    "Defina Control quantile como zero vírgula noventa e nove e deixe o Outside threshold fixo sem valor. Assim, as medições de referência determinam o corte, cerca de vinte e dois vírgula oito neste exemplo. Confira o limiar aplicado na saída antes de interpretar as classificações.",
+    "Defina Threshold sensitivity como zero vírgula vinte e cinco. Isso também avalia cortes vinte e cinco por cento abaixo e acima do limiar escolhido. Compare a faixa de eficiência de invasão resultante para ver o quanto o resultado depende da escolha do limiar.",
+    "Defina Extracellular class como classify para a amostra. Para objetos sem vínculo com uma célula hospedeira, classify usa a coloração, attached os atribui aos aderidos e exclude os remove da população pontuada. Escolha essa configuração considerando a qualidade das suas atribuições a células hospedeiras.",
+    "Mantenha Save ativado e clique em Run. Quando o processamento terminar, abra a figura do limiar. Ela mostra as distribuições por poço e o corte aplicado. Em um experimento, compare essas distribuições com imagens coradas representativas e investigue colorações externas fracas.",
+    "Se uma legenda ultrapassar a figura, abra Figure settings. Na aba axes, defina Legend position como best e confirme. Verifique se os rótulos continuam visíveis tanto na figura na tela quanto na exportada.",
+    "Abra a figura por poço. Cada barra mostra as frações de aderidos e invadidos, com o número de parasitas pontuados acima. Os poços de referência são excluídos. Leia as contagens junto com as frações ao comparar poços.",
+    "Abra o resumo por condição. Compare a fração de invasão agrupada com a média entre poços, já que elas usam ponderações diferentes. Verifique a variação nos resultados por poço antes de comparar condições.",
+    "Tudo é salvo em results/analyze_invasion dentro de Source. parasite_calls.csv traz a classificação de cada parasita, field_thresholds.csv os cortes por trás delas, well_invasion.csv as frações por poço e condition_summary.csv a comparação agrupada. Guarde as figuras e as configurações junto com eles e compare as condições entre réplicas independentes."
+  ]
+}

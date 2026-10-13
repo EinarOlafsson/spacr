@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI-assisted source-context review of Host–Pathogen module caption and revised Toxoplasma introduction, retaining the individual-parasite counting limitation. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Host–Pathogen",
+      "source": "Host–Pathogen",
+      "source_sha256": "4c412cc95aa2cb17f6e0845eb10053d19c10cdd3303bd167cf972ce50362302e",
+      "translation": "宿主–病原体"
+    },
+    {
+      "table": "ui",
+      "key": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source_sha256": "9e911ea8fe2901d8809fb0145ca76fb04d1288ad1a4227464425c899dd863134",
+      "translation": "Invasion Assay 区分附着于宿主细胞表面的寄生虫和已进入细胞的寄生虫。Recruitment 测量含寄生虫液泡周围宿主蛋白的富集程度。宿主–病原体将液泡水平的募集、寄生虫计数和宿主细胞感染指标的分母整合到一次分析中。单个寄生虫的计数需要适用的寄生虫掩膜或经过验证的估计方法；仅有整个液泡的掩膜无法提供这些计数。结合使用这些模块，有助于区分入侵过程的变化与入侵后宿主反应的变化。请选择能够区分这两类群体的图像通道和标记定义。"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native signoff",
+  "draft_author": "merge_interfaces",
+  "technical_reviewer": "root",
+  "source_file": "docs/source/workflows.rst",
+  "source_file_sha256": "317a2755c402e74c757450f5b0e48a84c1d807ab53822f534921127385a8d04e",
+  "records": [
+    {
+      "source": "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused.",
+      "source_sha256": "4c5222a0348b1e345f4f0a1b1e9680bac8448e95a8eb8a4a6258e1eb27dba974",
+      "translation": "Para colorir árvores com características medidas, efetue primeiro o rastreamento com ``timelapse_lineage`` ativado para que o spaCR guarde a correspondência entre quadros e ficheiros de origem. Em seguida, execute Medição no projeto combinado com ``timelapse=True``, os ``timelapse_objects`` correspondentes e ``timelapse_lineage=True``. Ative as funcionalidades alfa e a dimensão temporal para mostrar os controlos de linhagem. Defina ``timelapse_lineage_color_by`` como uma coluna numérica da tabela de medições do tipo de objeto selecionado. As médias dos segmentos usam os quadros medidos disponíveis; os segmentos sem valores medidos permanecem sem cor e a cobertura é indicada. Os resultados são guardados em ``tracks/lineage_measured`` sem substituir os resultados de linhagem anteriores. As trajetórias antigas sem essa correspondência exigem novo rastreamento. A calibração temporal explícita guardada é herdada; um intervalo contraditório é recusado."
+    }
+  ],
+  "review": "Checked setting identifiers, measured source/label mapping, partial observations and uncoloured segments, separate output, old-track requirement and timing calibration. Literal markup checked."
+}

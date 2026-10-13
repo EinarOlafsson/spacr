@@ -1,0 +1,43 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Layer Viewer: inspecionar imagens e sobreposições de rótulos",
+  "description": "Carregue uma imagem e a máscara correspondente, ajuste a sobreposição e amplie para inspecionar os contornos dos objetos.",
+  "objectives": [
+    "Abrir uma imagem e a máscara correspondente.",
+    "Ajustar a visibilidade, a opacidade, a mesclagem e a ordem das camadas.",
+    "Inspecionar os rótulos com zoom e deslocamento."
+  ],
+  "prerequisite": "Baixe e extraia Layer_Viewer_real_image_mask.zip. Use a imagem de intensidade incluída e a máscara de rótulos inteiros correspondente. Este exemplo não tem calibração física de pixels.",
+  "scenes": [
+    "Na tela Home, abra QC e depois Layer Viewer. Baixe e extraia o exemplo indicado de imagem e máscara. O visualizador tem seus próprios controles de arquivo para essas duas entradas.",
+    "Clique em mais Image e abra fov01_C1 ponto tif. A imagem em tons de cinza aparece na tela com um ajuste de contraste por percentis para exibição.",
+    "Clique em Fit para preencher o painel da imagem. O Fit pode esticar uma imagem quadrada num painel largo; ajuste o divisor para deixar o painel mais ou menos quadrado ao inspecionar formas.",
+    "Clique em mais Mask e abra fov01_cell_mask ponto tif. Os quarenta e quatro objetos rotulados aparecem sobre a imagem. O zero é o fundo e fica transparente.",
+    "Selecione mask na lista de camadas antes de mudar os controles dela. Marque e desmarque a caixa dela para comparar os contornos com a imagem por baixo.",
+    "Leve a Opacity de mask a zero para ocultar as cores mantendo a camada carregada. Confira a linha selecionada antes de ajustar outra camada.",
+    "Leve Opacity a cem por cento para inspecionar a forma dos rótulos. As cores cobrem a imagem dentro de cada objeto rotulado.",
+    "Volte Opacity para cinquenta por cento e escolha a mesclagem translucent para ver a textura da imagem através da máscara. Compare os contornos dos objetos com o sinal por baixo.",
+    "Escolha a mesclagem additive para somar as cores da máscara à imagem. Áreas claras podem saturar nesta exibição, então volte para translucent quando precisar de uma comparação mais clara.",
+    "Experimente as mesclagens multiply e minimum para comparar sobreposições mais escuras. Essas opções mudam a composição exibida, enquanto os valores de intensidade originais continuam disponíveis na imagem de origem.",
+    "Escolha opaque e ajuste o controle Opacity para comparar a aparência. Com esta máscara de inteiros, a mesclagem opaque a cinquenta por cento fica igual à translucent a cinquenta por cento. Volte para translucent para continuar.",
+    "Selecione image e escolha cyan no seletor de mapa de cores. A imagem de intensidade muda de cor, e a máscara mantém as cores dos rótulos. Escolha gray para voltar aos tons de cinza.",
+    "Selecione mask e pressione a seta para baixo para colocá-la atrás da imagem. A camada de cima aparece na frente. Suba a máscara de novo para inspecionar os rótulos.",
+    "Clique num objeto rotulado visível para ler a posição e o número do rótulo na linha de status. Use os metadados do seu projeto quando precisar identificar o campo, a placa ou o poço desse objeto.",
+    "Gire a roda do mouse sobre um objeto para ampliar em torno do ponteiro. Aproxime até que o contorno fique fácil de inspecionar.",
+    "Segure Shift e arraste com o botão esquerdo do mouse para se deslocar. Você também pode arrastar com o botão do meio. Percorra o campo mantendo o zoom atual.",
+    "Clique em Fit para voltar ao campo inteiro. Ajuste o formato do painel se a imagem ajustada parecer esticada.",
+    "Mais Points e mais Shapes adicionam camadas auxiliares vazias. Para desenhar ou editar máscaras de segmentação, continue no Make Masks; este visualizador não tem controles de desenho para essas camadas vazias.",
+    "Selecione uma camada e use Remove para tirá-la da visualização. O arquivo original continua no disco, pronto para ser carregado de novo.",
+    "O resultado é uma visualização de camadas inspecionada. Para exportar uma composição, use stack_from_paths e LayerStack.render_uint8 pelo Python. Continue no Make Masks para salvar edições de máscaras, ou no Measure para medições de objetos."
+  ]
+}

@@ -1,0 +1,610 @@
+{
+  "lesson": "50_run_compare",
+  "status": "Complete staged technical matrix, not published",
+  "canonical_english_sha256": "3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078",
+  "scene_count": 9,
+  "narrated_words": 461,
+  "native_verification": {
+    "lesson": "50_run_compare",
+    "status": "Real native comparison and portable snapshots verified; multilingual media pending",
+    "canonical_english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+    "scene_count": 9,
+    "narrated_words": 461,
+    "recorded_checks": {
+      "lesson": "50_run_compare",
+      "accepted": true,
+      "preparation": {
+        "accepted": true,
+        "scope": "Explicitly transported real Measure snapshots; not a new analysis or complete project archive",
+        "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1",
+        "source_hashes": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_fresh/example_data/plate1/artifacts.db": "bb2ff1d06f526c401422bdbd34b594b8b5dbaac7dd2f0691c155f1a8c83331ce",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_fresh/example_data/plate1/measurements/measurements.db": "310aab574a3b3911e37aa05a369fd973621872958c1aa8c83dddb05f1f4a35fc",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_production/example_data/plate1/artifacts.db": "06c189e2e7919ffdb57225cec9a8cf75751318200d789b95d617581ee40c5a2d",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_production/example_data/plate1/measurements/measurements.db": "902de93b799485cdb3d481cab85aaa4a3386c4abf64b8f1f8cf05ba2322bddfd"
+        },
+        "records": [
+          {
+            "original": {
+              "artifact_id": "a11c8c1623c9cc15",
+              "project": "/home/olafsson/.cache/spacr/example_data/plate1",
+              "kind": "measurements-db",
+              "role": "db",
+              "path": "/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db",
+              "module": "measure",
+              "run_id": "d86c136e7261",
+              "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+              "spacr_version": "1.5.0.5",
+              "created_ns": 1789097876682199655,
+              "created_utc": "2026-09-11T03:37:56.682199+00:00",
+              "fingerprint": "310aab574a3b3911e37aa05a369fd973621872958c1aa8c83dddb05f1f4a35fc",
+              "fingerprint_method": "sha256",
+              "size_bytes": 6369280,
+              "n_files": 1,
+              "status": "complete",
+              "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+              "extra_json": "{}",
+              "schema_version": 1
+            },
+            "transported": {
+              "artifact_id": "a11c8c1623c9cc15",
+              "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1",
+              "kind": "measurements-db",
+              "role": "db",
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1/snapshots/d86c136e7261/measurements.db",
+              "module": "measure",
+              "run_id": "d86c136e7261",
+              "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+              "spacr_version": "1.5.0.5",
+              "created_ns": 1789097876682199655,
+              "created_utc": "2026-09-11T03:37:56.682199+00:00",
+              "fingerprint": "310aab574a3b3911e37aa05a369fd973621872958c1aa8c83dddb05f1f4a35fc",
+              "fingerprint_method": "sha256",
+              "size_bytes": 6369280,
+              "n_files": 1,
+              "status": "complete",
+              "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+              "extra_json": "{\"tutorial_relocation\": {\"original_path\": \"/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db\", \"original_project\": \"/home/olafsson/.cache/spacr/example_data/plate1\", \"original_registry\": \"/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_fresh/example_data/plate1/artifacts.db\", \"original_registry_sha256\": \"bb2ff1d06f526c401422bdbd34b594b8b5dbaac7dd2f0691c155f1a8c83331ce\", \"scope\": \"Only the real measurements artifact is included; this is not a full project archive\"}}",
+              "schema_version": 1
+            }
+          },
+          {
+            "original": {
+              "artifact_id": "4d6b8b21f16af3bf",
+              "project": "/home/olafsson/.cache/spacr/example_data/plate1",
+              "kind": "measurements-db",
+              "role": "db",
+              "path": "/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db",
+              "module": "measure",
+              "run_id": "caa0bf7ca2ce",
+              "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+              "spacr_version": "1.5.0.5",
+              "created_ns": 1789099556762123056,
+              "created_utc": "2026-09-11T04:05:56.762123+00:00",
+              "fingerprint": "902de93b799485cdb3d481cab85aaa4a3386c4abf64b8f1f8cf05ba2322bddfd",
+              "fingerprint_method": "sha256",
+              "size_bytes": 6369280,
+              "n_files": 1,
+              "status": "complete",
+              "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+              "extra_json": "{}",
+              "schema_version": 1
+            },
+            "transported": {
+              "artifact_id": "4d6b8b21f16af3bf",
+              "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1",
+              "kind": "measurements-db",
+              "role": "db",
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1/snapshots/caa0bf7ca2ce/measurements.db",
+              "module": "measure",
+              "run_id": "caa0bf7ca2ce",
+              "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+              "spacr_version": "1.5.0.5",
+              "created_ns": 1789099556762123056,
+              "created_utc": "2026-09-11T04:05:56.762123+00:00",
+              "fingerprint": "902de93b799485cdb3d481cab85aaa4a3386c4abf64b8f1f8cf05ba2322bddfd",
+              "fingerprint_method": "sha256",
+              "size_bytes": 6369280,
+              "n_files": 1,
+              "status": "complete",
+              "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+              "extra_json": "{\"tutorial_relocation\": {\"original_path\": \"/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db\", \"original_project\": \"/home/olafsson/.cache/spacr/example_data/plate1\", \"original_registry\": \"/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_production/example_data/plate1/artifacts.db\", \"original_registry_sha256\": \"06c189e2e7919ffdb57225cec9a8cf75751318200d789b95d617581ee40c5a2d\", \"scope\": \"Only the real measurements artifact is included; this is not a full project archive\"}}",
+              "schema_version": 1
+            }
+          }
+        ],
+        "counts": {
+          "cell": 601,
+          "nucleus": 622,
+          "pathogen": 373,
+          "cytoplasm": 601,
+          "png_list": 601
+        },
+        "fields": [
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f1"
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f10"
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f11"
+          ],
+          [
+            "plate1",
+            "r12",
+            "c1",
+            "f9"
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f1"
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f10"
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f11"
+          ],
+          [
+            "plate1",
+            "r12",
+            "c2",
+            "f9"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f1"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f10"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f11"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c1",
+            "f9"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f1"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f10"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f11"
+          ],
+          [
+            "plate1",
+            "r5",
+            "c2",
+            "f9"
+          ]
+        ],
+        "object_identity_rows_checked": 4394,
+        "historical_metadata_preserved": true,
+        "settings_unchanged_between_runs": true,
+        "selected_artifacts_only": true,
+        "registry_paths_explicitly_relocated": true,
+        "original_sources_unchanged": true,
+        "synthetic_runs": false,
+        "scientific_accuracy_validated": false,
+        "app_source_modified": false,
+        "published": false
+      },
+      "synthetic_runs": false,
+      "new_analysis_started": false,
+      "app_source_modified": false,
+      "published": false,
+      "count_rows_checked": 15,
+      "rendered_count_cells_checked": 60,
+      "historical_metadata_preserved": true,
+      "unchanged_setting_values_checked": true,
+      "missing_hits_disclosed": true,
+      "same_run_warning_observed_and_cleared": true,
+      "original_and_snapshot_bytes_unchanged": true,
+      "registry_rows_unchanged": true,
+      "scientific_accuracy_validated": false
+    },
+    "portable_bundle": {
+      "accepted": true,
+      "bundle_sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453",
+      "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run-compare-download-bv69lsn0/relocated",
+      "records_exact": true,
+      "history_preserved": true,
+      "full_fingerprints_match": true,
+      "overwrite_refused": true
+    },
+    "focused_tests_passed": 3,
+    "deliberate_guard_mutations_observed_red": 3,
+    "published": false,
+    "native_speaker_reviewed": false,
+    "listening_reviewed": false
+  },
+  "final_artifact_checks": {
+    "lesson": "50_run_compare",
+    "passed": true,
+    "canonical_english_sha256": "3d7c880e6031605c7d7f8b4ae578c37f8e09eafd791ec541aea6c85e8f39f078",
+    "scene_count": 9,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "790d7e490f0b4fbd37fb097b567814e0b991c43319db7ab0f67cda35cdb7e515"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "c77e5825269097a6fb87a3f77606187eec4dfd1b407c0f78295dab2cf16da632"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "7ad3426a1c62eb15e57ada9feb99e31b6dbda7291ebfa3c74f2a232a40ba8022"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "096b6586f19ea99404ce079456ae419739c2ccd095c8170d70cbe52fb22fdefa"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "76b8083cad40da1b7873040ccadbd6ca240bdbbc899351fae171bb9023313d99"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "29c22fa750045f61b45bbee02a04fbcf5e28ffe387f1ff98085a1f2f03352589"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "915222fe2093eb5a2c7cce4a84836b89104639aa216301f8ffc24efe7c3a05f0"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "7863ec75dddd2e498635e20e4bed7e1cd98d7a62e7b7a32213087f0a23f3c2e6"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "b60c135a4f7efb889ea9487b10c4b59e2e70eadc7c34bdd3872bee2b644cda08"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "d7246f6f998d0c834e06541d40ca774634336d17c0603c3723ebe0311e78e22b"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "3359c86ea5a3d513dcdf58a10b748861c2a877408669a4080a229c0b5b23356b"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "a709bc75aac18a1ed931821fa49cb6a08021ae858cee34dedca55d119f2aba41"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "90c1484d80760c578ff2e9027ad5e43096c2dfbd491ace1dc1b5562470f1e18e"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "18c8069c177b72e6a1261eb34d196b76239b59e0d64ac02fef48108c5b0ebf14"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "0b9e2e1ba3bcf49e268580b3c7176b0efd6b6f6ffdc0b1c3dd59c06f16a0ed7a"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "f39237ae5dc14f621fe49ad11e444f845ecd6fe16875b1579e069a53cd4402da"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "b59f29bf6ac7013864dadeb2682a930e56dfc330e349072e80cf6ce28b83367f"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "e469b3ebb4540f5251a7df0cfe3f857e0e5add611bd4a85e654bcb78d781110a"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "e2b985f4f74e8bce3e758400cfad867782feab0f73dfc721b884c0241294fd84"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "124a7c495069d52a2361fc0b66dfc5bcc07bb30295d0a54f6ea79310dde76390"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "cdcd46a718941f1360b6e7a728d2ef1da600e29ad3fd3231f0ccae8a49a78ab7"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "34774f74f1fc48f3960fdb829adfaad271e8c9969e47011e289cce085e3b02a2"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "5cf216328e6292eb9d4e48229840f5232497c0e79c2f5bdf78746daa687f16eb"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "f10a733bccb8c8575f66624cda961c8dc61d49c56b314cdb141c32a130c271fd"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "b41f64b79f1ec2f3e4f502a40f0c1b23ab7af6bcf59c648598da7e561c9aeeaa"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "0a82842d8685f8a8d005b7afbb8afd433167537e3c97afaf667219eb25e3c324"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "b4a15bc19bc6767bdc0fb7d4396dcb4ed6e29ddd08e63d073aa6c4fd1e3a1f8a"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "c8462b02dc9962ac9ed0728e95e92d16c440cdbca29f2352098a7b8880f5c760"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "cf0462189e4655e45df296c6a18eaaed0a400a6bd1cc091d8327665ed46b42e1"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "8085d0af1ef8927dda25e68ffed45ea7be007e3e7c1bd99cf52508b90ae319b7"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "37ae328bc66d0c55eaf9814119a226877c764fe6855bf90a4aef114729237cbd"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "7f2577147fe972f97c91f3389f7536618ce11ef7d8135003245cb5c5fbcbd22a"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "ce4dfe6e442db9cdb874fdfe603f171a5f0919aadce93ba559f88e6e98b541fa"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "68c8e384ae0dfff2c8aaf4c59118b61b18b89ed590778ba496109529b3b68888"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "8013df0489de49c0bbe0fd59008173e7a2f5ed0800b3bf0e7ac679cfe01c8794"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "a8101c92adefe3581a8ba47eb94ab35b2ece7330930a3a99430de5879466c02e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "f1605f8397dfa92ba79f69579f67a7f5a7fe893a940762d47703e2b73108a993"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "3745378a407527198242e70b7628c5f3ab0a72540ea9ae95f8d2bd7dea8fe100"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "fa0cc25678cd5b8783f3a4711fbf275395718ee9598e3f8cf9398e29d48d5c88"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "10a0d7f18533dac36098337cc0455d9b8479105578e93174549361c4cb876501"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "36dfdc21d71324d6cf45a3a4c6dc77fedfa8b5ac2f5215a61983c9f932b4772c"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "31f9cd4bcd6c49c19d9005576e593426bb6b9e14773bb14501ebb5214846df12"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "80e759fffbf0e5b66f4ec4225ab28026f338eea5e4ee9f8d2791b41dbd5db4c6"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "ff5eeb9005df7d394ff7ff7bb9c9689bb84702f0079a50e0e03f05d7358be65d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "15dcabe450f580d76ed4728b606b9e3db61770e78208bec45a5f49df939475bb"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "a7b9e81c5a2eb7cdf1c40b5c1e7ccddd23855c14ebc7a41fd48c249ada91bf1e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "f761af12008a34d3b8c622a0d57c1511df383401e0764e03f033e3464f8a9a01"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "b072d9f8bafd0abf9ecc3b3f452f208f9bde9fd0a4fcca65599f902c28686d34"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "98432e3f2b0693591465c2d53d0300d19635078181f3075a4c41c05e0a5ff84d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "60ddcc32644eb801f794e7247c07490081388c0db2a205af79e2b753fbbcbb9d"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "6589049ea523a24d427cfb75664054eab8f08c16bb176a8023109f885d57a8ec"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "e517389831f50a64c492b868ef4aaaedd72b7d2724b7f57e2297a121975dadb0"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "cc284945e9c4011ab2ae9b64c395e72bccf5e5888b885b143e231a85ea6d720b"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "13c86cb7f80d397ddcf90c65d32a589878e9529a1d31144e59d575db657ee4ef"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "f063c41fd085e0d67eb75acd9127ee5c837d7929ab55b7d7e1e2edea5200d4b9"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "92146bb31e4dc9776c5f5ead59e142f2fe0ebd5d4864f58c4c7cdb696980f06d"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "42282316e619eb2ae36dbf25ed708452b57d02e7f343e6db187591500d260d56"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "577f748f6a35eb29f7ec7cce55172434771097f1dfcf5663a7898616cbc012b5"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "f41ec03bd0b451a10e9e7901b29a6097f45e76bbfb60f92e1fc6c894b878e8e4"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "8951f46a1508565b6381ff7236023640a61193cac516f7a25bf24b22ee16e6c0"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "ff570ea7905e43fb87f8ffcd93e0bb1a286b10811328a9077502fa6d3427efb5"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "04ce77b263dc0e92fa699dfac9b0d1453c51f1692bbaa546af4402a07d85dd0f"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "654d03947dcde3640a5cff1b4b121b9b974c5ce6459add961d577e2137596031"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "0a3ead6085089ed05c3275da7727c79a90d21cf1d71b12b6c4f2e6f7308fa79a"
+      }
+    ],
+    "master_sha256": "c54199f972597d5b3c5845c63d36e908ef0e26e2f055b1c10aaded8b9461ac0f",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "5662"
+        }
+      ],
+      "format": {
+        "duration": "188.733333",
+        "size": "7717717"
+      }
+    },
+    "poster_sha256": "4fb4b4b603d07dd2282d3ef3eae28f13d1abcaa23a6870d2c5b088930f22062f",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "full_master_decode_passed": true,
+  "all_nine_final_scene_midpoints_visually_inspected": true,
+  "editorial_translations": 13,
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "published": false,
+  "download_link_added": true,
+  "all_fourteen_browsers_download_exact_archive": true,
+  "narration_and_video_unchanged": true
+}

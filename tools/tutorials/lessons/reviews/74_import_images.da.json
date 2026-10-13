@@ -1,0 +1,34 @@
+{
+  "lesson": "74_import_images",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Import Images: tildel billedidentiteter og opret et projekt",
+  "description": "Scan billednavne og metadata, gennemgå den foreslåede tildeling af brønd, synsfelt og kanal, gem en plan, og importér kopier til et projekt.",
+  "objectives": [
+    "Scanne mikroskopbilleder og løse spørgsmål om navngivning.",
+    "Vælge destination, pladenavn og om filer skal kopieres eller linkes.",
+    "Gemme en genbrugelig plan og importere billeder til Mask."
+  ],
+  "prerequisite": "Hent først Mask-eksemplet. Gennemgangen bruger kopier af synsfelterne E01/F001 og L01/F009 med fire kanaler hver. De forberedte kopier udelader det overflødige token A lige før Z, men bevarer identiteterne for brønd, synsfelt og kanal. Behold originalerne, og brug optagelsesprotokollerne, når du fortolker ukendte tokens.",
+  "scenes": [
+    "Fra Home åbner du Data, vælger Import og derefter Import Images. Begynd med de mikroskopbilledfiler, du vil organisere i et projekt.",
+    "Når du også har masker, klikker du på Organize images and masks ved siden af billedmappen. Slip hver kanalmappe og maskemappen i deres kolonner, angiv maskens rolle, og vælg Mask Generation eller Measure under Write for. Filer med flere kanaler kan først opdeles i én kolonne pr. kanal; Apply flytter alt til det pågældende moduls struktur og registrerer hver flytning i et manifest.",
+    "Brug Mask-eksemplet i denne gennemgang. Vælg kopier af ét synsfelt fra hver af to brønde med fire kanaler pr. synsfelt. Lad den oprindelige download være uændret.",
+    "Klik på Scan. Hvis du bliver spurgt, hvad et token i filnavnet betyder, så tjek optagelsesprotokollerne, før du tildeler det. Fortsæt først, når de foreslåede identiteter skelner entydigt mellem synsfelter og kanaler.",
+    "Scan de forberedte eksempelkopier. Det overflødige optagelsestoken er fjernet, mens tokens for brønd, synsfelt og kanal er bevaret. Kontrollér, at forslaget viser otte billeder, to brønde, to synsfeltnumre og fire kanaler.",
+    "Sammenlign forslaget med filnavnene. Slå Read inside each file til, når du har brug for indlejrede aksemetadata. Sæt Sample højt nok til at undersøge de filer, du vil importere.",
+    "Vælg en destination uden for inputmappen, og indtast pladenavnet. Slå Link instead of copy fra for at få uafhængige kopier. Links sparer diskplads, men kræver, at de oprindelige filer forbliver tilgængelige.",
+    "Ved optagelser i felter vælger du, om felterne skal sættes sammen, holdes adskilt eller springes over. Gennemgå den resulterende organisering af synsfelter, før du måler. Disse eksempelbilleder er separate synsfelter og skal ikke sættes sammen.",
+    "Klik på Save plan for at gemme kilden og tildelingsvalgene som JSON. Behold planen sammen med optagelsesnoter og originalbilleder.",
+    "Klik på Load plan for at genindlæse kilden og de gemte svar. Gennemgå det nye forslag, før du importerer, især når kildefilerne er ændret.",
+    "Klik på Import, og læs oversigten. Eksemplet giver otte billedkopier uden oversprungne filer. Åbn det resulterende projekt i Mask, og undersøg Live preview, før du starter segmenteringen."
+  ]
+}

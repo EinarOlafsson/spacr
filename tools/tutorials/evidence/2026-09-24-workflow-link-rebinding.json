@@ -1,0 +1,139 @@
+{
+  "scope": "Metadata only; no translation, narration or timing changes",
+  "old_map_sha256": "3db1a4d718e4122d794f7b48be8880a17c9541649f3d6c4cebd45dae077319e4",
+  "new_map_sha256": "5b64aab07ba16e6f2fce4ee99f7b946a04f498ba29b261120d0aa37f4ba5d039",
+  "records": [
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.da.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.de.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.es.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.fr.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.hi.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.it.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.ja.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.nb.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.pt-BR.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.sv.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/79_module_inputs_outputs.zh-CN.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.da.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.de.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.es.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.fr.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.hi.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.it.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.ja.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.nb.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.pt-BR.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.sv.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/reviews/80_image_analysis_pathways.zh-CN.json",
+      "status": "rebound; translated prose unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/da.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/de.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/es.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/fr.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/hi.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/it.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/ja.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/nb.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/pt-BR.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/sv.json",
+      "status": "map links only; phrases unchanged"
+    },
+    {
+      "path": "tools/tutorials/lessons/workflow_phrases/zh-CN.json",
+      "status": "map links only; phrases unchanged"
+    }
+  ]
+}

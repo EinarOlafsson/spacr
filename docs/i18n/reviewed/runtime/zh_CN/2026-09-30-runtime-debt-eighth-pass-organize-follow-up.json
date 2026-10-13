@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eighth pass 2026-09-30: runtime (GUI) translation debt from items 600 and 592 (Organize for Measure popup, its regex teaching and drop-classification dialogs, the popup table's view options; 600's in-table drop hint and image-size slider), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Drag images or folders here",
+      "source": "Drag images or folders here",
+      "source_sha256": "ad4ccb9cbfdf011a0543bd5dda709de41bfd0f476b6f05c9e468885acf88175b",
+      "translation": "将图像或文件夹拖到这里"
+    },
+    {
+      "table": "ui",
+      "key": "The size of the images in the table.",
+      "source": "The size of the images in the table.",
+      "source_sha256": "683ccdde4807ed47ec306df258524f34faa46221468e6df6dad310ad6eb54a29",
+      "translation": "表格中图像的大小。"
+    }
+  ]
+}

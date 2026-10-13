@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Nothing to plot yet — build a table with at least one non-empty cell.",
+      "source_sha256": "9f5c938118dd338b01fc3e5801d7204bcb9a7211c740782e0de70d5ebd779160",
+      "source": "Nothing to plot yet — build a table with at least one non-empty cell.",
+      "translation": "아직 그릴 내용이 없습니다. 비어 있지 않은 셀이 하나 이상 있는 표를 만드세요."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to plot — build a table with at least one non-empty cell first.",
+      "source_sha256": "f07714249b3dc9d6510c9eeb76d3aaf404ba385f711b471d084243601c19a815",
+      "source": "Nothing to plot — build a table with at least one non-empty cell first.",
+      "translation": "그릴 내용이 없습니다. 먼저 비어 있지 않은 셀이 하나 이상 있는 표를 만드세요."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to sweep: merge the measurement databases first, and attach the count CSVs the run was fitted on.",
+      "source_sha256": "c2c11fa7cba6457e1a832f24eda1239d3a43b30cd9510f5339bb9eab1606b078",
+      "source": "Nothing to sweep: merge the measurement databases first, and attach the count CSVs the run was fitted on.",
+      "translation": "탐색할 항목이 없습니다. 먼저 측정 데이터베이스를 병합하고 분석 실행을 적합하는 데 사용한 카운트 CSVs 파일을 연결하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to sweep: this panel has no measurements and no counts wired to it.",
+      "source_sha256": "e56ab277ec17f9403e033ee416762c0961044e7064b3c91ee2d3214f929a8453",
+      "source": "Nothing to sweep: this panel has no measurements and no counts wired to it.",
+      "translation": "탐색할 항목이 없습니다. 이 패널에는 연결된 측정값도 카운트도 없습니다."
+    }
+  ]
+}

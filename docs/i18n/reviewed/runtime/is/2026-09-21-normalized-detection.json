@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Detect on the normalized image",
+      "source": "Detect on the normalized image",
+      "source_sha256": "b9419fd5aa6d352e2f2695d338337d3e7d3ba2acd0f3523f2b87281b361efab4",
+      "translation": "Greina á staðlaðri mynd"
+    },
+    {
+      "table": "ui",
+      "key": "Detection reads the image as drawn (normalized).",
+      "source": "Detection reads the image as drawn (normalized).",
+      "source_sha256": "3014b9208f241d848ac044fa6cfdeb6033b41cef39841149c861444b79af880b",
+      "translation": "Greining notar myndina eins og hún birtist (staðlaða)."
+    },
+    {
+      "table": "ui",
+      "key": "Detection reads the image as loaded.",
+      "source": "Detection reads the image as loaded.",
+      "source_sha256": "9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4",
+      "translation": "Greining notar myndina eins og hún var lesin inn."
+    },
+    {
+      "table": "ui",
+      "key": "Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.",
+      "source": "Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.",
+      "source_sha256": "9eed53b13f2726d64d04bafd35c4d0b31b3f2b05650e87e6edaba101c10c9d9e",
+      "translation": "Slökkt: Otsu, Cellpose og stækkunarglerið nota myndina eins og hún var lesin inn (viðsnúna ef Snúa við er virkt), og Neðri % / Efri % breyta aðeins birtingunni. Kveikt: þau nota myndina með styrkgildum teygðum á milli Neðri % og Efri %, nákvæmlega eins og hún birtist, og styrkurinn efst til vinstri sýnir það teygða gildi. Vistuðum gögnum er aldrei breytt."
+    },
+    {
+      "table": "ui",
+      "key": "x {x}, y {y}   intensity {value} (normalized, as detected)",
+      "source": "x {x}, y {y}   intensity {value} (normalized, as detected)",
+      "source_sha256": "a4e14490fc49f565f00140220ee671d5445fbc7f2140a574527151bb958ae9f6",
+      "translation": "x {x}, y {y}   styrkur {value} (staðlaður, eins og við greiningu)"
+    }
+  ]
+}

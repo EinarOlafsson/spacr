@@ -1,0 +1,11 @@
+........................................................................ [ 65%]
+......................................                                   [100%]
+=============================== warnings summary ===============================
+tests/test_figure_bundle_source_and_style.py::test_stale_group_annotation_is_omitted_when_recreating_filtered_data
+tests/test_figure_bundle_source_and_style.py::test_recreated_horizontal_group_plot_keeps_numeric_measurements[labels1-expected1]
+tests/test_figure_bundle_source_and_style.py::test_recreated_horizontal_group_plot_keeps_numeric_measurements[labels0-expected0]
+  /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/seaborn/categorical.py:700: MatplotlibDeprecationWarning: vert: bool was deprecated in Matplotlib 3.11 and will be removed in 3.13. Use orientation: {'vertical', 'horizontal'} instead.
+    artists = ax.bxp(**boxplot_kws)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+110 passed, 3 warnings in 28.16s

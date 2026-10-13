@@ -1,0 +1,313 @@
+{
+  "source": "abb48e24e3dfdcb3a1eabbcb4d14fecc29ef4672",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "00c33b7aaf041bd81be5ea7565dccd7feeb521a6",
+  "integrated_source": "a6747e44831ce6701f6860bf25aa4067ccbdd1a1",
+  "application_source_pushed": false,
+  "patch_cleanly_applies": true,
+  "original_tests_unchanged": true,
+  "original_view_negative": {
+    "failed": 2,
+    "seconds": 4.68
+  },
+  "original_capture_negative": {
+    "failed": 1,
+    "seconds": 3.27
+  },
+  "intermediate_view_scope": {
+    "passed": 163,
+    "seconds": 72.75,
+    "source": "8b7231a35"
+  },
+  "final": {
+    "passed": 164,
+    "seconds": 67.71,
+    "warnings": 100
+  },
+  "prior_integrated": {
+    "passed": 315,
+    "seconds": 183.63,
+    "warnings": 96,
+    "source": "4efdc6bcd"
+  },
+  "prior_api_equality": {
+    "symbols": 13223,
+    "source": "4efdc6bcd"
+  },
+  "scope": "Loaded per-panel limits/scales released when changing graph type, matching single-panel behaviour. Repeated Statistics Apply no longer expands axes cumulatively; hiding restores only its own headroom and preserves later manual limits. Captured recipe stores pre-annotation limits so recreation adds headroom exactly once. Final164 unchanged original-plus-new figure checks pass; exact app/test bytes integrated privately, combined regression running.",
+  "additional_module_findings": {
+    "source": "b13f2513a5d0c0806dd462dc84eb43d4f42da524",
+    "cases": [
+      {
+        "name": "regression sheet",
+        "original_populated_panels": 7,
+        "passed": false,
+        "source_csv_preserved": true,
+        "recorded_kind": "sheet",
+        "recorded_panels": 0,
+        "recreated_populated_panels": 1,
+        "error_type": "AssertionError",
+        "error": "1 recreated panels for 7 original panels"
+      },
+      {
+        "name": "four plate heatmaps",
+        "original_populated_panels": 4,
+        "passed": false,
+        "source_csv_preserved": true,
+        "recorded_kind": "heatmap",
+        "recorded_panels": 0,
+        "error_type": "KeyError",
+        "error": "None"
+      }
+    ],
+    "scope": "Read-only native producer to normal ZIP to actual standalone reconstruction. Original CSV values and missingness checked before reconstruction; CSV does not preserve pandas dtype; no app mutation or scientific accuracy acceptance."
+  },
+  "limitations": [
+    "Final integrated regression and canonical source check have their own pending verdict.",
+    "Application adoption, live publication and coherent serial/native acceptance remain coordinated with Home.",
+    "Broader producer audit confirms regression sheet loses six of seven panels and plate heatmap recreation raises KeyError. Both original CSV value sets preserved; fixes remain OPEN.",
+    "Initial module probe stopped at a CSV dtype guard for an all-null object column; corrected to value/missingness comparison because CSV does not retain pandas dtype. Original probe retained."
+  ],
+  "payloads": {
+    "logs/panel-view-limits-negative-r1.log.gz": {
+      "raw_bytes": 2946,
+      "raw_sha256": "f5296f8d8322dce39e727c5cc2e1867fad4ead18e071ccd3f5b1720be416266d",
+      "gzip_bytes": 1001,
+      "gzip_sha256": "812185886a379df378b44a4ef7d44dc8d715b7c6654a9882eaadeb04230650c6"
+    },
+    "logs/panel-view-limits-negative-r1-tool.log.gz": {
+      "raw_bytes": 2458,
+      "raw_sha256": "8bad4a76c23726f3ac6861f18a05188cb601969a8cf13876a31cc06ce7da202d",
+      "gzip_bytes": 803,
+      "gzip_sha256": "eef1863a0c589c199a2bb5b874f08c550fb4152c92e07164d651cd8f2e5f130b"
+    },
+    "logs/panel-view-limits-final-r1.log.gz": {
+      "raw_bytes": 6884,
+      "raw_sha256": "6f8e88ea200d71db1712392a89a0a462b75931ac47499f9834d3f96b53d6eb2f",
+      "gzip_bytes": 1686,
+      "gzip_sha256": "6e8fa2a73ae29283bc74d97903b796ee0cfd472839792a668faf370fe4931827"
+    },
+    "logs/panel-view-limits-final-r1-tool.log.gz": {
+      "raw_bytes": 5729,
+      "raw_sha256": "2e5324c6b9d53d49072b071755c372db43694d55763ff3d03889a3b2ca7eebf7",
+      "gzip_bytes": 1408,
+      "gzip_sha256": "235249f04d67d37b84dbb296f303e0125a223e0e3a51b52c5fb18e19fbf85db5"
+    },
+    "logs/panel-view-capture-negative-r1.log.gz": {
+      "raw_bytes": 1505,
+      "raw_sha256": "685838721016c036889538d4dfe491e87788887313f9ba151e0d86e2a8c941f8",
+      "gzip_bytes": 629,
+      "gzip_sha256": "a8ae4f4913d22def515072ffb1bc4687bbd875471afea1d61213eb785d2e5101"
+    },
+    "logs/panel-view-capture-negative-r1-tool.log.gz": {
+      "raw_bytes": 998,
+      "raw_sha256": "4448772c99df30a740c65b81911b852999fa47d5fd779c8065ff92eb21c47b30",
+      "gzip_bytes": 433,
+      "gzip_sha256": "97d65bb2cf4a1169fc368878f4347f059ed732801ac2b85a1ba83f3e54f4a1d7"
+    },
+    "logs/panel-view-capture-final-r1.log.gz": {
+      "raw_bytes": 6885,
+      "raw_sha256": "14619908f33f1b4524e867f62b59341920b022764b424b92478dc982e310a38c",
+      "gzip_bytes": 1687,
+      "gzip_sha256": "828f862012ddeb14919f10f49d4fac868389a1096b7fc847dac9a95d1ff3ae67"
+    },
+    "logs/panel-view-capture-final-r1-tool.log.gz": {
+      "raw_bytes": 5729,
+      "raw_sha256": "3c070d8246a756e5337869cac0f3fb980fc1ed890508b1e4e7b518f86cd8a0cd",
+      "gzip_bytes": 1408,
+      "gzip_sha256": "ac7bb4fd5c8ef66235bb1678c4f98cc1f9c826b572d80bbf3bcede94401c2483"
+    },
+    "logs/panel-statistics-integrated-r1.log.gz": {
+      "raw_bytes": 7380,
+      "raw_sha256": "521b738f0d66514ee2480f7babade707d409a1ce1b4be306ec9b9d94065a2dd5",
+      "gzip_bytes": 1821,
+      "gzip_sha256": "36d7eb0b93c34bf286aac1fdca759863b0c5113d8cea5f3911284444a102fb06"
+    },
+    "logs/panel-statistics-integrated-r1-tool.log.gz": {
+      "raw_bytes": 5841,
+      "raw_sha256": "3f4a5c2ff627a7e55b64697b7b0e09b34a5c8387fcbc0636f4b46789aaab19ff",
+      "gzip_bytes": 1410,
+      "gzip_sha256": "e6aae6afdcc7760de01f5373d71fbfb8d847e0217dd659196205c0a1d09b2e91"
+    },
+    "logs/panel-statistics-api-source-r1.log.gz": {
+      "raw_bytes": 664,
+      "raw_sha256": "21900d3b80023f270780a84c91275e5b2d5aadee7e65f94bd1fb8c4faeecfc90",
+      "gzip_bytes": 371,
+      "gzip_sha256": "566faf280c34ab41a69071eaafd447b18d164bad27173416c7eae20e10665dac"
+    },
+    "logs/panel-statistics-api-source-r1-tool.log.gz": {
+      "raw_bytes": 190,
+      "raw_sha256": "c5453b572400200ee0c0de3af5a2bf2eba4b0d11a4a2b102ef452b799025f771",
+      "gzip_bytes": 167,
+      "gzip_sha256": "37c42716f25573e814bd376cef6db5a67cf23fe48b0d0a0cd0f7a893903afb2d"
+    },
+    "logs/module-figure-recreation-r1.log.gz": {
+      "raw_bytes": 1822,
+      "raw_sha256": "bce8cfec363c169cee8c5b88417a4942460c4105e19ef1c32b8e5168be413fd7",
+      "gzip_bytes": 847,
+      "gzip_sha256": "5c63e08a543473674b79379294f2313448e1f75344deb2e1ce660f10403fb8bf"
+    },
+    "logs/module-figure-recreation-r1-tool.log.gz": {
+      "raw_bytes": 1317,
+      "raw_sha256": "df11e86ac7bde1f6f947bb4f6167b1f07cef2e3655597410511f590509c1b002",
+      "gzip_bytes": 722,
+      "gzip_sha256": "c666626bc12119d79718c4f8525d34733b00ec493c227e04d22a334ac519a20e"
+    },
+    "logs/module-figure-recreation-r2.log.gz": {
+      "raw_bytes": 1549,
+      "raw_sha256": "4468b5042101aa7f020a21a7d05419333dc445d10f92ca2dd8e74169519b3ee0",
+      "gzip_bytes": 668,
+      "gzip_sha256": "fae343962cd81d31b378fc97450f1075ab26c707249ea7a3551f6fcace784bae"
+    },
+    "logs/module-figure-recreation-r2-tool.log.gz": {
+      "raw_bytes": 1044,
+      "raw_sha256": "93aabe5bdf47f7fea82dd4fd87fb41f554714b091ed1fec01bf0fc31c561e029",
+      "gzip_bytes": 511,
+      "gzip_sha256": "8f036391cae96fa3d6eac4eb7136e8ec3e68fa528066e3b5588d1ae9683468e4"
+    },
+    "results/panel-statistics-api-source-r1.json.gz": {
+      "raw_bytes": 460,
+      "raw_sha256": "af96b0e4ee35b9b6b12acaa8d8ae9a0b50530de493d263b79ae0885343e48259",
+      "gzip_bytes": 338,
+      "gzip_sha256": "43fea00b7aec8cc7c7d961f4f3a8f4e9854e413bad843df94281bbdb2593ad0a"
+    },
+    "results/module-figure-recreation-r1.json.gz": {
+      "raw_bytes": 839,
+      "raw_sha256": "857da988d287e6db48b5b083792b99cc98a235c5efa5c8cdcc14ae01ae7a409a",
+      "gzip_bytes": 454,
+      "gzip_sha256": "8f64f78c0f2469f2c0d2e33f42f4e155b70fdf6a0bc030b2bef714dfc84c9c5d"
+    },
+    "results/module-figure-recreation-r2.json.gz": {
+      "raw_bytes": 923,
+      "raw_sha256": "4016fdad677c9ecd17de212c200fe4a00ab2321fb1ddba005bf167ffa2b9787d",
+      "gzip_bytes": 430,
+      "gzip_sha256": "deffde999d5b5e392b87ff6303d04dbdd404ab4d2f9ecb366e429f992f88e623"
+    },
+    "scripts/check_panel_statistics_api_source_r1.py.gz": {
+      "raw_bytes": 1278,
+      "raw_sha256": "6e61145e0a967e59955fd30fa2ccad4e0693251bca731fd5661b3b0e397aa4fd",
+      "gzip_bytes": 702,
+      "gzip_sha256": "df44ba89a05b8ef8febf2b6686a3c235cb6e906c00f25f327296176a6cd51ff3"
+    },
+    "scripts/check_module_figure_recreation_r1.py.gz": {
+      "raw_bytes": 3657,
+      "raw_sha256": "ec458da892c4dc440661a897327bd9e7861345256289e30440509758950617c3",
+      "gzip_bytes": 1560,
+      "gzip_sha256": "6d23bff7e1d8009a6cb87293051d21fc89cb4fe270c67b029eda89d5854b8743"
+    },
+    "scripts/check_module_figure_recreation_r2.py.gz": {
+      "raw_bytes": 3811,
+      "raw_sha256": "d362ab3dafef52675e3523f8369537343f743e8ef5c61e61d084f01fc7cbefa9",
+      "gzip_bytes": 1626,
+      "gzip_sha256": "a10d979e7836dc62a2c5dbabaa879d7988e639d198f00f64171a599223554c1a"
+    },
+    "scripts/archive_panel_view_limits_r1.py.gz": {
+      "raw_bytes": 8403,
+      "raw_sha256": "d36364175596b4dab47fafd3c75365fdb9ff4d7f34bd0a320653dd2ad3896aa9",
+      "gzip_bytes": 3313,
+      "gzip_sha256": "8147e5a23ef549e25a9fd78b973dac8fd23f8526d9ed83deb95900dd51e95b3f"
+    },
+    "coverage/panel-view-limits-final-coverage-r1.data.carruthers.pid60318.XWhAhf9x.HZCJh9rIKc6h.gz": {
+      "raw_bytes": 2359296,
+      "raw_sha256": "c141ba4e8d197a2bb6814f5de62710bb4ca52c62b61be883d718fad344bc62df",
+      "gzip_bytes": 983327,
+      "gzip_sha256": "54860aa3f9d3d1d217368f15015796f2a137437271f599bb19935664d71a7fe4"
+    },
+    "coverage/panel-view-capture-final-coverage-r1.data.carruthers.pid60964.X2pIVCDx.HrBMptPiVQuh.gz": {
+      "raw_bytes": 2351104,
+      "raw_sha256": "4e80f5fc51ccf3929dce3e9c442f0905d195436115a64a87833e4c8e023c9b70",
+      "gzip_bytes": 981785,
+      "gzip_sha256": "15cd2e933de9a8fd51e3fa731426d19336f6eb42bebc942af3d66f957043ff9d"
+    },
+    "coverage/panel-statistics-integrated-coverage-r1.data.carruthers.pid59208.XCcH4ZTx.Hj4U0qya1Gih.gz": {
+      "raw_bytes": 18735104,
+      "raw_sha256": "515b9639284e39984690ad25a6d181f60336015ce9c2e493cf8b17f4318724a9",
+      "gzip_bytes": 7054298,
+      "gzip_sha256": "4892deb2f1d92de68247160b4b9d216fa99a7dcd2da5d0782290dae333037a07"
+    },
+    "replacement-source-and-tests.patch.gz": {
+      "raw_bytes": 55269,
+      "raw_sha256": "95b34ec7622d3f937cc608f43e43e1d06883dfe1f6dca11a1d690152b84e2ae1",
+      "gzip_bytes": 11680,
+      "gzip_sha256": "142a5ebd3b6494e9b71d2c04030b822993da231d080472dffc76665a8852961b"
+    },
+    "delta-from-prior-statistics-candidate.patch.gz": {
+      "raw_bytes": 6993,
+      "raw_sha256": "16cea01cee1ec19ffafe752f2f861ac3fe825e9e1ca5dd7e7e1b8c2f92071800",
+      "gzip_bytes": 1984,
+      "gzip_sha256": "038c2d4ef04e23ca84cc97693e3eee08c2997e77086e078df694626a024091aa"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 38667,
+      "raw_sha256": "943b550d534bbe7085e6648432cd6f1d6e3ac5193820bebca5fb1948d1a43b54",
+      "gzip_bytes": 11344,
+      "gzip_sha256": "4fe1ddc33092e92c07dc3a88c3396521e90175ebd5b1ea4682cc918c047c2a02"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 344160,
+      "raw_sha256": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+      "gzip_bytes": 86664,
+      "gzip_sha256": "64df1c0d3c9ff4de31c1ce4535ba4ce2c113e37d227663c0d8e9e3ea90e58ceb"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119440,
+      "raw_sha256": "fb34dbd8212ff4384255623c4f0c343e441484a9e3d73bb8c6b7cb1f4aa05b78",
+      "gzip_bytes": 32088,
+      "gzip_sha256": "b2534dc6371a0badfbd5f243119d6e30ecf924e9fea39622f0329395a02db87b"
+    },
+    "source/tests/qt/test_panel_statistics_dialog.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "851e4d0bb1d04c8ecd30c2858fa9b2e8dae04e081c5891b27c68025eb7c13bd3",
+      "gzip_bytes": 1869,
+      "gzip_sha256": "4a2783b34f3cf9e1d718a7ba8e45469a9ba3d13e36f52ee7467cad24150729d9"
+    },
+    "source/tests/qt/test_panel_view_statistics_limits.py.gz": {
+      "raw_bytes": 3519,
+      "raw_sha256": "526c4b92806e93ad57740b989ed858a99cbd254c56f682a87653bd8c8b1b7cd1",
+      "gzip_bytes": 1050,
+      "gzip_sha256": "f694019049a9e30dad2e81a15674ca55b2de090d64cc8789e9742e5cb64bcb7f"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 38001,
+      "raw_sha256": "8c88914fb5fe23b09464a71efc8df2bf7261d61d3daa4ecbbafafb6f37448a77",
+      "gzip_bytes": 11240,
+      "gzip_sha256": "c41547d2d1958f92198842698ca26e12ffd8eb7f1db1e5673e33da502f4d688a"
+    },
+    "original-source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119236,
+      "raw_sha256": "5e170d39021b67cb561132a8ac12236c68a7ca4897db5bfeacbe19621aeea693",
+      "gzip_bytes": 32025,
+      "gzip_sha256": "01e3b4214acf49d5cac52bc8665dd5d643c51bc541dd82558fe8eb78aea97470"
+    },
+    "test-revisions/original-view-tests.py.gz": {
+      "raw_bytes": 1993,
+      "raw_sha256": "511714502f5973675809226ac27ff319dafa9f84c3f5d65f59e5d169696a698c",
+      "gzip_bytes": 778,
+      "gzip_sha256": "91e3136a3350eb9b44a7d60da30c4b46fc032946950a403a5639c0fface1a6b1"
+    },
+    "test-revisions/capture-negative-tests.py.gz": {
+      "raw_bytes": 3519,
+      "raw_sha256": "526c4b92806e93ad57740b989ed858a99cbd254c56f682a87653bd8c8b1b7cd1",
+      "gzip_bytes": 1050,
+      "gzip_sha256": "f694019049a9e30dad2e81a15674ca55b2de090d64cc8789e9742e5cb64bcb7f"
+    }
+  }
+}

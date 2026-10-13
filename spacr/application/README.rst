@@ -1,0 +1,261 @@
+spaCR lightweight installers
+============================
+
+Current version: ``1.5.1.4``
+
+New releases are added here without removing earlier versions.
+These small online installers download a private Python runtime and
+dependencies during installation. Every installer pins the spaCR
+version in its filename.
+
+spaCR 1.5.1.4 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.1.4-Linux-x86_64-Online.run``
+* Size: ``236185`` bytes
+* SHA-256: ``67cbde9b53a6deec65dad7fabedbacb81b21749cf75571bb0b933c161081c801``
+
+spaCR 1.5.1.4 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.1.4-macOS-Universal-Online.pkg``
+* Size: ``389726`` bytes
+* SHA-256: ``ff5cd25046e35d9fb14ef3c94776a8e98f9cd69874ae045e27bd82c4ad7a795c``
+
+spaCR 1.5.1.4 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.1.4-Windows-Online-Setup.exe``
+* Size: ``243842`` bytes
+* SHA-256: ``74f52040b747aa10127c7799de34d711b54e98302fd2b206bc42553454379015``
+
+spaCR 1.5.1.3 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.1.3-Linux-x86_64-Online.run``
+* Size: ``226601`` bytes
+* SHA-256: ``81c9806c8d80237c8d14de29e77980715d3628143afcb1a6f1aeb3a6d5562465``
+
+spaCR 1.5.1.3 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.1.3-macOS-Universal-Online.pkg``
+* Size: ``387038`` bytes
+* SHA-256: ``d8abfbbed08e8e00a22be2b0f6cc163d947babbf656a35982f1124284af481e0``
+
+spaCR 1.5.1.3 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.1.3-Windows-Online-Setup.exe``
+* Size: ``241249`` bytes
+* SHA-256: ``b0aa85b3c0d609f0f3c19d022266f9a0c5303f4f415dfc751a74232f1d209e5b``
+
+spaCR 1.5.1.2 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.1.2-Linux-x86_64-Online.run``
+* Size: ``226293`` bytes
+* SHA-256: ``1adee6a0af17a890018e6bcf480bbc04bda9e17443a5b4539e71f10fd3a7da90``
+
+spaCR 1.5.1.2 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.1.2-macOS-Universal-Online.pkg``
+* Size: ``386938`` bytes
+* SHA-256: ``a0c0bee320d716a4bd6d3f0b68bc955fa11aa7802f4fbfbdff32e2b5e36140dd``
+
+spaCR 1.5.1.2 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.1.2-Windows-Online-Setup.exe``
+* Size: ``241204`` bytes
+* SHA-256: ``4c57201b7ad98e6af98af46e37ffcac69b97ce01c324f532c7e6e0baba384527``
+
+spaCR 1.5.1.0 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.1.0-Linux-x86_64-Online.run``
+* Size: ``158656`` bytes
+* SHA-256: ``50c58d7f6e9e60f7a1e85fbe6c2be98f44be37a8eb5f61625c0c146d88571bbe``
+
+spaCR 1.5.1.0 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.1.0-macOS-Universal-Online.pkg``
+* Size: ``370254`` bytes
+* SHA-256: ``d6cc2ec35a4a5a567741bf1b89c993c3ca50595cb17925f1824657a9ee21a1c4``
+
+spaCR 1.5.1.0 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.1.0-Windows-Online-Setup.exe``
+* Size: ``226440`` bytes
+* SHA-256: ``e1d8b36597acff4b3a35849d74c42584b6114c67f4a913236fc9ac908177b6e0``
+
+spaCR 1.5.0.9 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.0.9-Linux-x86_64-Online.run``
+* Size: ``158656`` bytes
+* SHA-256: ``8cd67604e974b0ffcb189c4100ba870b877861c2e0bea3966f0041dba7e55a6a``
+
+spaCR 1.5.0.9 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.0.9-macOS-Universal-Online.pkg``
+* Size: ``366292`` bytes
+* SHA-256: ``4a5ac220eeedb063db1dc587eab7f9e43c80c8ab4c2f41f0f0457a0ca7669a6c``
+
+spaCR 1.5.0.9 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.0.9-Windows-Online-Setup.exe``
+* Size: ``226445`` bytes
+* SHA-256: ``a066847f5c6d08393f264b80768e4fa8499aa8403d4c210b1401b2cda6ffb2c6``
+
+spaCR 1.5.0.8 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.0.8-Linux-x86_64-Online.run``
+* Size: ``155764`` bytes
+* SHA-256: ``3a2f0ed488115d0a3eb0de17540cbfdf7304d53f75d8a033f26cad8b13b0ec92``
+
+spaCR 1.5.0.8 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.0.8-macOS-Universal-Online.pkg``
+* Size: ``365286`` bytes
+* SHA-256: ``d21183a15c3a0dcebfcafe98e04f77f9cf3d0ecf654b9663052897401f18f835``
+
+spaCR 1.5.0.8 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.0.8-Windows-Online-Setup.exe``
+* Size: ``225550`` bytes
+* SHA-256: ``26111a9970e7e63ae09c6b2bb74bbf100af5cc0976f13970d30ed65267db33a1``
+
+spaCR 1.5.0.7 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.0.7-Linux-x86_64-Online.run``
+* Size: ``79201`` bytes
+* SHA-256: ``4592c0e88ca4c254a3d6c05411d52af2744ecdd39ef68487725f6c323ccfd020``
+
+spaCR 1.5.0.7 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.0.7-macOS-Universal-Online.pkg``
+* Size: ``343121`` bytes
+* SHA-256: ``73eb2747ab747a28b7d5da956b173fa7f9456ccb61337c35a78e1b3c4398730d``
+
+spaCR 1.5.0.7 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.0.7-Windows-Online-Setup.exe``
+* Size: ``205998`` bytes
+* SHA-256: ``f7a27f0c618708d0ad47d5c4fb5a1a36584aff0c11751d6d3002398e0cf38e6e``
+
+spaCR 1.5.0.6 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.0.6-Linux-x86_64-Online.run``
+* Size: ``79207`` bytes
+* SHA-256: ``5f3fa49908f45ea8e3317cd66bb5b1bcdc63e8c196492fd83943c43ac28c4f62``
+
+spaCR 1.5.0.6 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.0.6-macOS-Universal-Online.pkg``
+* Size: ``343127`` bytes
+* SHA-256: ``abe122e483fcc8c6f65e14d9f0d1bd7caf7da63922c6020b7e4885009c682ece``
+
+spaCR 1.5.0.6 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.0.6-Windows-Online-Setup.exe``
+* Size: ``206100`` bytes
+* SHA-256: ``3f5a89b25c4944dabaf792bc0057e6951f1db3f843298b26a4e3499dfd3cac1f``
+
+spaCR 1.5.0.5 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.0.5-Linux-x86_64-Online.run``
+* Size: ``69453`` bytes
+* SHA-256: ``21e1040ef7bb3b372268d3504bd0028ff83bba363de46ab98f34de1329e32488``
+
+spaCR 1.5.0.5 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.0.5-macOS-Universal-Online.pkg``
+* Size: ``338658`` bytes
+* SHA-256: ``7bf19438d772cdabcf9b43f5afdb1f8e9d560e4b79ee36086d08bba86381edae``
+
+spaCR 1.5.0.5 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.0.5-Windows-Online-Setup.exe``
+* Size: ``203818`` bytes
+* SHA-256: ``66946b2d4dd574a5e55692deac8ae15a592ed9fdfbee8444ca6614b6bebd8d67``
+
+spaCR 1.5.0.4 — 64-bit Linux
+----------------------------
+
+* File: ``SpaCR-1.5.0.4-Linux-x86_64-Online.run``
+* Size: ``12194`` bytes
+* SHA-256: ``2ca2ce6a6478e1099968aaacedbba77d3f4797d453b28529985586802bbdf615``
+
+spaCR 1.5.0.4 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``SpaCR-1.5.0.4-macOS-Universal-Online.pkg``
+* Size: ``284932`` bytes
+* SHA-256: ``c3a9cb5cd41c6c4c858734120108436b40c49fa68ebf17d9cf1dbca34786b1a3``
+
+spaCR 1.5.0.4 — Windows 10/11
+-----------------------------
+
+* File: ``SpaCR-1.5.0.4-Windows-Online-Setup.exe``
+* Size: ``171580`` bytes
+* SHA-256: ``3a898ec07742589cdf389738e4946d9d3d331e30063006ef47a6a0b640ae24c2``
+
+spaCR 1.5.0.1 — 64-bit Linux
+----------------------------
+
+* File: ``SpaCR-1.5.0.1-Linux-x86_64-Online.run``
+* Size: ``12194`` bytes
+* SHA-256: ``5c6b011fa6804fca701097d40e0165c9dc05ca620aabc00d64152bc97aeeffb0``
+
+spaCR 1.5.0.1 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``SpaCR-1.5.0.1-macOS-Universal-Online.pkg``
+* Size: ``284949`` bytes
+* SHA-256: ``94fc85175694e309426358ee955c7fcd90a61ec07c241481d502137ac1e67bdc``
+
+spaCR 1.5.0.1 — Windows 10/11
+-----------------------------
+
+* File: ``SpaCR-1.5.0.1-Windows-Online-Setup.exe``
+* Size: ``171550`` bytes
+* SHA-256: ``2b6b07ad12926288f693c01945f2fc4555b0a37022fd73dce932e2d8b6e4ee76``
+
+spaCR 1.4.9.9 — 64-bit Linux
+----------------------------
+
+* File: ``SpaCR-1.4.9.9-Linux-x86_64-Online.run``
+* Size: ``11117`` bytes
+* SHA-256: ``9418a4e23a0d323eb6ab89c6821ec06336d317dc85c03fdb54a159d894d436a9``
+
+spaCR 1.4.9.9 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``SpaCR-1.4.9.9-macOS-Universal-Online.pkg``
+* Size: ``284112`` bytes
+* SHA-256: ``45b5df51a13fa9906abe6ac9ac75723c266d93db5f7c8f932f1ab45df29f5b6b``
+
+spaCR 1.4.9.9 — Windows 10/11
+-----------------------------
+
+* File: ``SpaCR-1.4.9.9-Windows-Online-Setup.exe``
+* Size: ``171483`` bytes
+* SHA-256: ``28dd8d61cb808ca0d471d0db82901eed2b2aae549082dd7d384bde473ef0c938``

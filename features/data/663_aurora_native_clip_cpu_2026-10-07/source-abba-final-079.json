@@ -1,0 +1,175 @@
+{
+  "source": "/mnt/wd4tb/spacr-worktrees/codex-theme-integration-audit-20261007/spacr/qt/widgets/ambient.py",
+  "current_source_sha256": "dd3d2a9f188d5eaee3bce055b3ba02763ca506cf52abcff22db7616f1bbafaca",
+  "old_method_git_sha": "ae7269a08c136ac35d488d9f657f82cbfd33c49a",
+  "rows": [
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1,
+      "size_control": 1,
+      "resolution": 1,
+      "mode": "old",
+      "median_ms": 42.31,
+      "max_ms": 54.77,
+      "durations_ms": [
+        54.77,
+        38.36,
+        42.1,
+        41.43,
+        43.53,
+        42.31,
+        42.81
+      ]
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1,
+      "size_control": 1,
+      "resolution": 1,
+      "mode": "new",
+      "median_ms": 39.26,
+      "max_ms": 41.53,
+      "durations_ms": [
+        41.2,
+        37.15,
+        39.26,
+        41.53,
+        39.17,
+        40.33,
+        39.24
+      ]
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1,
+      "size_control": 1,
+      "resolution": 1,
+      "mode": "new",
+      "median_ms": 39.76,
+      "max_ms": 44.15,
+      "durations_ms": [
+        44.15,
+        37.89,
+        40.21,
+        37.8,
+        38.57,
+        43.16,
+        39.76
+      ]
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 1,
+      "size_control": 1,
+      "resolution": 1,
+      "mode": "old",
+      "median_ms": 45.29,
+      "max_ms": 48.93,
+      "durations_ms": [
+        45.29,
+        45.0,
+        48.93,
+        45.65,
+        45.3,
+        44.19,
+        43.67
+      ]
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 3,
+      "size_control": 3,
+      "resolution": 2,
+      "mode": "old",
+      "median_ms": 213.68,
+      "max_ms": 227.13,
+      "durations_ms": [
+        208.48,
+        213.87,
+        193.45,
+        213.68,
+        227.13,
+        213.82,
+        210.23
+      ]
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 3,
+      "size_control": 3,
+      "resolution": 2,
+      "mode": "new",
+      "median_ms": 192.54,
+      "max_ms": 209.75,
+      "durations_ms": [
+        192.54,
+        190.75,
+        185.59,
+        209.75,
+        208.66,
+        203.06,
+        181.13
+      ]
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 3,
+      "size_control": 3,
+      "resolution": 2,
+      "mode": "new",
+      "median_ms": 196.05,
+      "max_ms": 201.01,
+      "durations_ms": [
+        196.71,
+        201.01,
+        193.28,
+        196.05,
+        188.36,
+        197.58,
+        183.64
+      ]
+    },
+    {
+      "size": [
+        3840,
+        2160
+      ],
+      "density": 3,
+      "size_control": 3,
+      "resolution": 2,
+      "mode": "old",
+      "median_ms": 221.25,
+      "max_ms": 241.36,
+      "durations_ms": [
+        217.19,
+        221.25,
+        218.34,
+        234.91,
+        241.36,
+        231.62,
+        210.93
+      ]
+    }
+  ]
+}

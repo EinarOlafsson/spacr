@@ -1,0 +1,41 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "34417ee0b35163e5d977b5ec2c4cb8f350c8b51afbb57c35816ffba537990b2b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Dose Response: Konzentrationskurven anpassen und ihre Intervalle lesen",
+  "description": "Laden Sie eine Konzentrationstabelle, gruppieren Sie Serien, passen Sie logistische Kurven an und bewahren Sie Schätzungen, Intervalle und Fit-Warnungen zusammen auf.",
+  "objectives": [
+    "Das synthetische Beispiel laden und Konzentrations-, Antwort- und Gruppierungsspalten wählen.",
+    "Kurven anpassen und Profile-Likelihood- und Wald-Intervalle vergleichen.",
+    "Unbeschränkte oder abgelehnte Ergebnisse lesen und den Bericht speichern."
+  ],
+  "prerequisite": "Laden Sie die verlinkte synthetische Dosis-Wirkungs-CSV herunter. Sie enthält vier Beispielserien, neun positive Konzentrationen und ein Vehikel mit Dosis null, mit drei Beobachtungen pro Konzentration. Geben Sie rohe Konzentrationswerte an und erledigen Sie Normierung oder Einheitenumrechnung, bevor Sie eigene Daten laden.",
+  "scenes": [
+    "Öffnen Sie von Home aus Data und wählen Sie Dose Response. Bereiten Sie eine Tabelle mit eindeutigen Konzentrations- und Antwortspalten für jede anzupassende Serie vor.",
+    "Laden Sie die verlinkte synthetische CSV herunter, klicken Sie auf Load table und öffnen Sie sie. Die benannten synthetischen Serien veranschaulichen die Steuerelemente und verschiedene Fit-Ergebnisse.",
+    "Die Tabelle hat 120 Zeilen in vier Serien. Jede umfasst neun positive Konzentrationen, ein Vehikel mit Dosis null und drei Beobachtungen je Konzentration.",
+    "Setzen Sie die Konzentrationsspalte auf concentration, die Antwortspalte auf response und One curve per auf series. Verwenden Sie rohe Konzentrationen statt ihrer Logarithmen.",
+    "Geben Sie die Konzentrationseinheit unter Unit ein. Verwenden Sie für dieses Beispiel µM. Dieses Feld beschriftet die Werte nur; rechnen Sie die Zahlen vorab um, wenn Sie eine andere Einheit brauchen.",
+    "Wählen Sie Profile likelihood, lassen Sie Fit non-monotone data aus und klicken Sie auf Fit. Prüfen Sie Kurvenfeld und Ergebnistabelle gemeinsam, einschließlich Serien mit Warnungen oder nicht verfügbaren Schätzungen.",
+    "Wählen Sie synthetic inhibition. Ihr Mittelpunkt ist 1,5 und ihre Hill-Steigung negativ. Das halbe Maximum liegt in der Mitte zwischen den angepassten Plateaus, hier 5 und 95.",
+    "Wählen Sie synthetic activation. Ihr Mittelpunkt ist 2 und ihre Hill-Steigung positiv. Die ausgewählte Kurve wird hervorgehoben, und der Bericht darunter folgt der ausgewählten Zeile.",
+    "Wählen Sie das Beispiel außerhalb des Bereichs. Seine getesteten Konzentrationen enden bei 100, sodass der Mittelpunkt nicht gestützt ist. Lesen Sie die angegebene Grenze; leere Zellen für Mittelpunkt und Intervall zeigen eine nicht verfügbare Schätzung an.",
+    "Wählen Sie die umkehrende Serie und lesen Sie, warum der Fit abgelehnt wird. Prüfen Sie Form der Antwort und experimentellen Kontext, bevor Sie entscheiden, ob ein monotones logistisches Modell passt.",
+    "Kehren Sie zu inhibition zurück und lesen Sie die Beobachtungszahlen. 27 Beobachtungen mit positiver Dosis gehen in den Fit ein. Drei Kontrollen mit Dosis null werden separat zusammengefasst, weil null nicht in den logarithmischen Fit eingehen kann.",
+    "Lesen Sie Residualfehler und Lack of Fit zusammen mit R². Berücksichtigen Sie bei der Interpretation der Unsicherheit die Replikatstruktur Ihres Experiments; wiederholte Zeilen allein belegen keine unabhängigen Experimente.",
+    "Wählen Sie Wald und klicken Sie erneut auf Fit, um die Intervallmethoden zu vergleichen. Eine Änderung der Auswahl erfordert einen neuen Fit. Das Intervall wird auf dem log-Mittelpunkt berechnet und in Konzentration zurücktransformiert.",
+    "Vergleichen Sie die Intervallgrenzen der gut eingegrenzten Serien. Die Mittelpunktschätzungen bleiben hier ähnlich; das Beispiel außerhalb des Bereichs hat weiterhin keine gestützte Mittelpunktschätzung.",
+    "Stellen Sie Profile likelihood wieder ein und klicken Sie auf Fit. Prüfen Sie die gewählte Methode und den zugehörigen Bericht, bevor Sie Ergebnisse kopieren.",
+    "Sortieren Sie die Tabelle erst nach Abschluss der Fit-Vergleiche. Dieser Build kann Zeilen verschieben, wenn Sie eine sortierte Tabelle neu anpassen. Wählen Sie inhibition und bestätigen Sie, dass der Bericht dieselbe Serie nennt.",
+    "Markieren Sie den Berichtstext und kopieren Sie ihn mit dem üblichen Tastenkürzel. Speichern Sie Warnungen, Intervallmethode und Eingangskonzentrationen zusammen mit dem Ergebnis.",
+    "Für tabellarische Ausgaben verwenden Sie in Python fit_frame und die Dosis-Wirkungs-Ergebnistabelle. Dieser Bildschirm hat keine Export-Schaltfläche. Behalten Sie unbeschränkte und abgelehnte Zeilen in Ihrer Ausgabe, damit jede Eingangsserie erfasst bleibt."
+  ]
+}

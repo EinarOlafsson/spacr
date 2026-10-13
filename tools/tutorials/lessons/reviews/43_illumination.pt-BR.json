@@ -1,0 +1,37 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Illumination: estimar e inspecionar um modelo de correção",
+  "description": "Escolha os canais de imagem, estime um campo de iluminação, inspecione a figura de controle de qualidade e reutilize o modelo salvo.",
+  "objectives": [
+    "Selecionar campos representativos e canais de intensidade.",
+    "Estimar e inspecionar um modelo de iluminação.",
+    "Aplicar o modelo salvo no Measure."
+  ],
+  "prerequisite": "Use uma pasta de imagens combinadas com campos representativos de cada grupo de aquisição. O exemplo usa os dezesseis campos do exemplo de placa baixado no Measure. Saiba quais planos salvos contêm intensidades e quais contêm rótulos.",
+  "scenes": [
+    "Abra o Measure e depois Illumination para estimar um modelo de correção do brilho irregular das imagens.",
+    "Defina Source como a pasta merged que contém os arranjos de imagem. Use campos representativos da sua aquisição; o exemplo usa dezesseis campos de uma placa.",
+    "Defina Channels como os planos de intensidade salvos que você quer corrigir. O exemplo usa o canal zero. Confira o mapeamento de canais e exclua os planos de máscaras de rótulos.",
+    "Ative Illumination correction antes de estimar um campo. Se estiver desativado, o Run termina sem criar um modelo de correção.",
+    "Escolha um estimador e as configurações dele. No exemplo polinomial, use grau quatro e deixe Illumination model vazio para estimar um campo novo. Procure no resultado estruturas que pertencem às células e não à iluminação.",
+    "Ative Illumination per plate para ajustar grupos de aquisição separadamente. Defina Maximum fields como uma amostra representativa; o exemplo inclui os dezesseis campos disponíveis.",
+    "Defina Illumination dark a partir da calibração da sua câmera, quando houver. É um deslocamento aditivo em contagens brutas; zero é o valor do exemplo.",
+    "Ative Illumination QC e escolha uma regra para modelos ausentes. Com error selecionado, a falta da correção de uma placa interrompe o processamento para que você possa resolver.",
+    "Pressione Run e leia no console o caminho do modelo salvo. Esta etapa estima o modelo; ative-o numa análise posterior para aplicar a correção.",
+    "Abra o PNG de controle de qualidade da iluminação salvo na pasta illumination. Use um visualizador de imagens se ele não aparecer no painel Figures.",
+    "Inspecione o campo de iluminação estimado: ele deve mostrar variação suave de brilho, sem estruturas indesejadas em forma de célula. A correção subtrai o deslocamento de escuro e divide por este campo de média um.",
+    "Compare os perfis radiais de antes e depois. Use campos adicionais para avaliar se a correção funciona bem além das imagens usadas no ajuste.",
+    "Guarde o modelo salvo com os canais, as identidades das placas e as configurações. Aplique-o uma única vez a um conjunto de intensidades; corrigir as mesmas intensidades duas vezes as distorce.",
+    "Para aplicar o modelo, abra o Measure e procure illumination nas configurações. Em Image Preprocessing, ative Illumination correction e defina Illumination model como o arquivo salvo. O Measure então divide os canais modelados pelo campo antes de medir; as máscaras não mudam."
+  ]
+}

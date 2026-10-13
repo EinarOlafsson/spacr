@@ -1,0 +1,36 @@
+{
+  "adjacent_result": {
+    "last_file_begin_cached_qt_top_levels": 166,
+    "last_file_begin_cached_qt_widgets": 447,
+    "last_file_begin_rss_mib": 1608.7,
+    "last_file_interval_s": 1.161,
+    "passed": 164,
+    "wall_seconds_reported_by_pytest": 21.86,
+    "warnings": 4
+  },
+  "artifacts_sha256": {
+    "adjacent-cd2-journal.jsonl.gz": "73a3408e971a4340bd4220c8ad9f78e645d3111df390128764f3a2630b26c862",
+    "isolated-node-cd2-journal.jsonl.gz": "242ae321bb8184b943374333d2691099096c75697d66474a308ba6e6ea8d4d7a"
+  },
+  "cuda_visible_devices": "",
+  "hard_cap": "4G",
+  "isolated_node_result": {
+    "last_file_begin_cached_qt_top_levels": null,
+    "last_file_begin_cached_qt_widgets": null,
+    "last_file_begin_rss_mib": 363.4,
+    "last_file_interval_s": 0.627,
+    "passed": 1,
+    "wall_seconds_reported_by_pytest": 1.38
+  },
+  "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "qt_platform": "offscreen",
+  "source_commit": "cd2c3397c557fdb1ad9735c364177c07c80df146",
+  "source_sha256": {
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+    "tests/qt/test_field_fade.py": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7"
+  }
+}

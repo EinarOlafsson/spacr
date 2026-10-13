@@ -1,0 +1,51 @@
+{
+  "languages": {
+    "sv": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "de": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "es": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "zh_CN": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "pt": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "hi": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "ko": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "is": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    },
+    "fr": {
+      "API": 13181,
+      "translated": 1,
+      "normal_build_functions_match_existing_CLI_generation_path": true
+    }
+  },
+  "source_sha256": "6284705a6f854d310781dff63e6842754d069b4db34b0c9ee1f69ae1980f0920",
+  "strict_normal_CLI_audits_required_separately_for_all_nine": true
+}

@@ -1,0 +1,138 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "03_pip_install",
+    "scene_count": 7,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Natural installation guidance and exact command, package, and platform identifiers."
+  },
+  "languages": {
+    "es": {
+      "description": "Instale spaCR en un entorno virtual estándar sin usar Conda.",
+      "prerequisite": "Instale una versión compatible de Python; se recomienda Python 3.12.",
+      "objectives": [
+        "Crear un entorno virtual en cada sistema operativo compatible.",
+        "Instalar la variante correcta del paquete spaCR.",
+        "Verificar el entorno antes de iniciar la aplicación."
+      ],
+      "narrations": [
+        "La instalación con pip funciona en Windows, macOS y Linux. Utilice siempre un entorno virtual aislado en lugar de modificar la instalación de Python del sistema operativo.",
+        "En macOS o Linux, cree el entorno con Python 3.12 y actívelo desde su directorio bin.",
+        "En Windows, utilice el iniciador de Python para crear el entorno y actívelo desde el directorio Scripts.",
+        "Actualice pip en el entorno activo. El comando python -m pip garantiza que la instalación se realice con el intérprete de Python que acaba de activar.",
+        "Instale el paquete spacr sin complementos para utilizarlo sin interfaz gráfica, o spacr con el complemento qt para la interfaz de escritorio.",
+        "Compruebe la versión importada y ejecute spacr-doctor. Resuelva cualquier comprobación fallida antes de abrir datos experimentales.",
+        "El entorno ya está preparado. Manténgalo activado siempre que utilice spaCR y ejecute python -m pip install --upgrade spacr cuando decida actualizarlo."
+      ]
+    },
+    "fr": {
+      "description": "Installez spaCR dans un environnement virtuel standard sans utiliser Conda.",
+      "prerequisite": "Installez une version compatible de Python ; Python 3.12 est recommandé.",
+      "objectives": [
+        "Créer un environnement virtuel sur chaque système d’exploitation pris en charge.",
+        "Installer la variante appropriée du paquet spaCR.",
+        "Vérifier l’environnement avant de lancer l’application."
+      ],
+      "narrations": [
+        "L’installation avec pip fonctionne sous Windows, macOS et Linux. Utilisez toujours un environnement virtuel isolé plutôt que de modifier l’installation Python du système d’exploitation.",
+        "Sous macOS ou Linux, créez l’environnement avec Python 3.12, puis activez-le depuis son répertoire bin.",
+        "Sous Windows, utilisez le lanceur Python pour créer l’environnement, puis activez-le depuis le répertoire Scripts.",
+        "Mettez pip à jour dans l’environnement actif. La commande python -m pip garantit que l’installation utilise l’interpréteur Python que vous venez d’activer.",
+        "Installez le paquet spacr sans option supplémentaire pour une utilisation sans interface graphique, ou spacr avec l’option qt pour l’interface de bureau.",
+        "Vérifiez la version importée et exécutez spacr-doctor. Corrigez tout contrôle en échec avant d’ouvrir des données expérimentales.",
+        "L’environnement est maintenant prêt. Gardez-le actif chaque fois que vous utilisez spaCR et exécutez python -m pip install --upgrade spacr lorsque vous souhaitez effectuer une mise à jour."
+      ]
+    },
+    "it": {
+      "description": "Installa spaCR in un ambiente virtuale standard senza usare Conda.",
+      "prerequisite": "Installa una versione di Python supportata; si consiglia Python 3.12.",
+      "objectives": [
+        "Creare un ambiente virtuale in ogni sistema operativo supportato.",
+        "Installare la variante corretta del pacchetto spaCR.",
+        "Verificare l’ambiente prima di avviare l’applicazione."
+      ],
+      "narrations": [
+        "L’installazione con pip funziona su Windows, macOS e Linux. Utilizza sempre un ambiente virtuale isolato invece di modificare l’installazione di Python del sistema operativo.",
+        "Su macOS o Linux, crea l’ambiente con Python 3.12, quindi attivalo dalla directory bin.",
+        "Su Windows, utilizza il launcher di Python per creare l’ambiente e attivalo dalla directory Scripts.",
+        "Aggiorna pip nell’ambiente attivo. Il comando python -m pip garantisce che l’installazione utilizzi l’interprete Python appena attivato.",
+        "Installa il pacchetto spacr senza componenti aggiuntivi per l’uso senza interfaccia grafica, oppure spacr con il componente qt per l’interfaccia desktop.",
+        "Controlla la versione importata ed esegui spacr-doctor. Risolvi ogni controllo non superato prima di aprire dati sperimentali.",
+        "L’ambiente è pronto. Mantienilo attivo ogni volta che utilizzi spaCR ed esegui python -m pip install --upgrade spacr quando decidi di aggiornarlo."
+      ]
+    },
+    "hi": {
+      "description": "Conda का उपयोग किए बिना spaCR को सामान्य वर्चुअल वातावरण में इंस्टॉल करें।",
+      "prerequisite": "Python का समर्थित संस्करण इंस्टॉल करें; Python 3.12 अनुशंसित है।",
+      "objectives": [
+        "हर समर्थित ऑपरेटिंग सिस्टम पर वर्चुअल वातावरण बनाएँ।",
+        "spaCR पैकेज का सही प्रकार इंस्टॉल करें।",
+        "एप्लिकेशन शुरू करने से पहले वातावरण की जाँच करें।"
+      ],
+      "narrations": [
+        "pip से इंस्टॉलेशन Windows, macOS और Linux पर काम करता है। ऑपरेटिंग सिस्टम की Python इंस्टॉलेशन बदलने के बजाय हमेशा पृथक वर्चुअल वातावरण का उपयोग करें।",
+        "macOS या Linux पर Python 3.12 से वातावरण बनाएँ, फिर उसकी bin डायरेक्टरी से उसे सक्रिय करें।",
+        "Windows पर वातावरण बनाने के लिए Python launcher का उपयोग करें और उसे Scripts डायरेक्टरी से सक्रिय करें।",
+        "सक्रिय वातावरण में pip को अपग्रेड करें। python -m pip कमांड इंस्टॉलेशन को उसी Python से संबद्ध रखता है जिसे आपने अभी सक्रिय किया है।",
+        "बिना ग्राफ़िकल इंटरफ़ेस के उपयोग के लिए मूल spacr पैकेज इंस्टॉल करें, या डेस्कटॉप इंटरफ़ेस के लिए qt अतिरिक्त सुविधा वाला spacr इंस्टॉल करें।",
+        "इम्पोर्ट किए गए संस्करण की पुष्टि करें और spacr-doctor चलाएँ। प्रयोगात्मक डेटा खोलने से पहले हर विफल जाँच का समाधान करें।",
+        "वातावरण अब तैयार है। spaCR का उपयोग करते समय इसे सक्रिय रखें, और जानबूझकर अपडेट करने के लिए python -m pip install --upgrade spacr चलाएँ।"
+      ]
+    },
+    "ja": {
+      "description": "Conda を使用せず、標準の仮想環境に spaCR をインストールします。",
+      "prerequisite": "対応している Python をインストールしてください。Python 3.12 を推奨します。",
+      "objectives": [
+        "対応する各オペレーティングシステムで仮想環境を作成する。",
+        "適切な spaCR パッケージ構成をインストールする。",
+        "アプリケーションを起動する前に環境を確認する。"
+      ],
+      "narrations": [
+        "pip によるインストールは Windows、macOS、Linux で利用できます。オペレーティングシステムの Python 環境を変更せず、必ず独立した仮想環境を使用してください。",
+        "macOS または Linux では、Python 3.12 で環境を作成し、bin ディレクトリから有効化します。",
+        "Windows では、Python launcher を使用して環境を作成し、Scripts ディレクトリから有効化します。",
+        "有効な環境で pip を更新します。python -m pip コマンドを使用すると、インストール先が現在有効な Python に固定されます。",
+        "グラフィカルインターフェースを使用しない場合は基本の spacr パッケージを、デスクトップインターフェースを使用する場合は qt オプションを含む spacr をインストールします。",
+        "インポートされたバージョンを確認して spacr-doctor を実行します。実験データを開く前に、失敗した検査をすべて解決してください。",
+        "これで環境の準備は完了です。spaCR を使用するときは環境を有効にしたままにし、意図的に更新するときは python -m pip install --upgrade spacr を実行します。"
+      ]
+    },
+    "pt-BR": {
+      "description": "Instale o spaCR em um ambiente virtual padrão sem usar Conda.",
+      "prerequisite": "Instale uma versão compatível do Python; recomenda-se o Python 3.12.",
+      "objectives": [
+        "Criar um ambiente virtual em cada sistema operacional compatível.",
+        "Instalar a variante correta do pacote spaCR.",
+        "Verificar o ambiente antes de iniciar o aplicativo."
+      ],
+      "narrations": [
+        "A instalação com pip funciona no Windows, no macOS e no Linux. Use sempre um ambiente virtual isolado, em vez de modificar a instalação do Python do sistema operacional.",
+        "No macOS ou Linux, crie o ambiente com Python 3.12 e ative-o pelo diretório bin.",
+        "No Windows, use o inicializador do Python para criar o ambiente e ative-o pelo diretório Scripts.",
+        "Atualize o pip no ambiente ativo. O comando python -m pip mantém a instalação vinculada ao Python que você acabou de ativar.",
+        "Instale o pacote spacr básico para uso sem interface gráfica ou o spacr com o complemento qt para a interface de desktop.",
+        "Confira a versão importada e execute spacr-doctor. Resolva todas as verificações com falha antes de abrir dados experimentais.",
+        "O ambiente está pronto. Mantenha-o ativo sempre que usar o spaCR e execute python -m pip install --upgrade spacr quando decidir atualizar o pacote."
+      ]
+    },
+    "zh-CN": {
+      "description": "不使用 Conda，将 spaCR 安装到标准虚拟环境中。",
+      "prerequisite": "请安装受支持的 Python 版本；推荐使用 Python 3.12。",
+      "objectives": [
+        "在每个受支持的操作系统上创建虚拟环境。",
+        "安装正确的 spaCR 软件包版本。",
+        "启动应用程序前验证环境。"
+      ],
+      "narrations": [
+        "pip 安装方式适用于 Windows、macOS 和 Linux。请始终使用独立虚拟环境，不要修改操作系统自带的 Python 安装。",
+        "在 macOS 或 Linux 上，使用 Python 3.12 创建环境，然后从其 bin 目录激活。",
+        "在 Windows 上，使用 Python launcher 创建环境，然后从 Scripts 目录激活。",
+        "在当前环境中升级 pip。python -m pip 命令可确保软件包安装到刚刚激活的 Python 中。",
+        "不使用图形界面时安装基础 spacr 软件包；使用桌面界面时安装带 qt 可选组件的 spacr。",
+        "检查导入的版本并运行 spacr-doctor。打开实验数据前，请解决所有失败的检查。",
+        "环境现已就绪。使用 spaCR 时应保持该环境处于激活状态；需要主动更新时，请运行 python -m pip install --upgrade spacr。"
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "68_power_design",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Estime o número de células e poços necessários para detectar um efeito sob premissas especificadas.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Power / Design.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Power / Design. Estime o número de células e poços necessários para detectar um efeito sob premissas especificadas.",
+        "Informe o tipo de desfecho, o efeito esperado, a variabilidade, o agrupamento e a análise planejada.",
+        "Na área principal de configuração, examine a significância, o poder estatístico pretendido, o agrupamento, as perdas e os intervalos de incerteza.",
+        "Calcule o desenho e use as análises de sensibilidade para identificar quais premissas determinam o tamanho da amostra.",
+        "Ao término do fluxo de trabalho, o relatório registra as premissas e a amostragem recomendada, em vez de apresentar um único número sem contexto."
+      ]
+    }
+  }
+}

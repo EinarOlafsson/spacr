@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-assisted linguistic and technical review against corrected CPU threshold and histogram contracts; no native-speaker sign-off",
+  "reused_review_sources": [
+    "Open a field first — a histogram needs an image."
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source_sha256": "e924c7c449871b9e8e06735b38d58c6a16d4c255501803fb96211f2335337ea8",
+      "translation": "Tröskelfaktor (standard 1; intervall 0.1 till 5), som används innan förgrunden väljs. För positiva globala trösklar och lokal Otsu behålls färre ljusa eller mörka pixlar när faktorn ökas. Sauvola och Niblack multiplicerar sina lokala nivåer direkt: vid positiva nivåer behålls färre ljusa men fler mörka pixlar när faktorn ökas; negativa nivåer vänder på riktningen. Multi-Otsu flyttar klassgränserna, så ett valt mellanband kan både få och förlora pixlar."
+    },
+    {
+      "table": "ui",
+      "key": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source_sha256": "5b68e468bb932052c654fd47ed0253554f685e9f89cd92fdf6092684c7265632",
+      "translation": "Dimensionslös vikt för lokal kontrast (standard 0.2; intervall -2 till 2). Niblack använder T=m-k*s: högre k sänker tröskeln och behåller fler ljusa men färre mörka pixlar. Sauvola använder T=m*(1+k*(s/R-1)), där m är det lokala medelvärdet och s dess standardavvikelse. Här är R=1 eftersom detektorn tar emot flyttal utan omskalning av värdeområdet; effekten av k beror på m och s/R. Kontrollera förhandsvisningen efter att intensitetsskalan har ändrats."
+    },
+    {
+      "table": "ui",
+      "key": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source_sha256": "5d06859f9f2e876e2669097b4ab2f168ccf73565eab91973e9a58a23f9ee03f4",
+      "translation": "Dras från det gaussiskt viktade lokala medelvärdet (standard 5). En större förskjutning sänker tröskeln och behåller fler förgrundspixlar före rensning; en negativ förskjutning är striktare. Enheterna följer den bearbetade bilden: utjämnad intensitet för adaptiv tröskling, åsfiltrets respons för ett åsfilter med adaptiv tröskel. En förskjutning anpassad till råintensiteter kan dominera en respons mellan 0 och 1."
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source_sha256": "df20e4ff6040325eab80c7bba5240243086ecad441ad0f65a75168df8e7fe0ad",
+      "translation": "Passar ojämn belysning när lokal kontrast skiljer objekten åt: medelvärdet viktas med den lokala kontrasten. Kontrollera bildens intensitetsskala: detektorn använder R=1 utan att skala om flyttalsindata. Ett fönster med konstant positivt värde kan bli förgrund när objekten är ljusa och k är positivt; tomma områden avvisas inte automatiskt."
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source_sha256": "f3c95763bc78580a1849b1c6a3666638e31397a3e345a1b884a9f02e6677ffcc",
+      "translation": "Passar ojämn belysning när lokal intensitetsstatistik skiljer objekten åt, med fönstrets medelvärde minus k gånger dess standardavvikelse. Högre k sänker tröskeln och behåller fler ljusa pixlar, även från bakgrunden; negativt k höjer den. För mörka objekt blir riktningen för vilka pixlar som tas med den omvända."
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source_sha256": "75f6c992f2d348554ad9cca515f18a0d87798a4947a578b0a988e3626cbb8016",
+      "translation": "Antal ljusstyrkeband att dela bildfältet i. 2 ger Otsus vanliga uppdelning, med en nivå mellan bakgrund och objekt. Öka antalet när bildfältet innehåller fler än två populationer — bakgrund, en svag halo och ljusa cellkärnor — så flyttas gränsen från kompromissnivån mellan alla tre till den gräns du vill ha, vald nedan. Multi-Otsu använder antalet i båda luppomfattningarna och vid detektering i hela bilden. Varje omfattning uppskattar trösklar från sina egna pixlar; ett litet område kan innehålla för få olika intensiteter för det begärda antalet klasser. I vanligt Otsu-läge gäller antalet fortfarande bara detektering i hela bilden."
+    },
+    {
+      "table": "ui",
+      "key": "Calculating threshold histogram…",
+      "source": "Calculating threshold histogram…",
+      "source_sha256": "9311940b1f0c43e1ff2af6b1e282f208ac26636371db2b22691664e03228ec9e",
+      "translation": "Beräknar tröskelhistogram…"
+    },
+    {
+      "table": "ui",
+      "key": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source_sha256": "0a2e984308728e976e6a33941563bf6bc703a32668a112babc2813e6c4ce9617",
+      "translation": "Nivåer: {levels} ({description}). Det här är trösklarna som detekteringsknappen använder på utjämnade detektorindata."
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source_sha256": "e3f08d69a58b793e17b05762304b482590fd5c8d444dae4905d95ad53d9d8349",
+      "translation": "Den lokala tröskeln varierar mellan pixlar ({description}); ingen enskild nivå ritas. Histogrammet visar utjämnade detektorindata före lokal tröskling."
+    },
+    {
+      "table": "ui",
+      "key": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source_sha256": "ab0ab5e43f2f379d1d4a4d06fc6b5958541e321dcfab5f6089db010a2702693c",
+      "translation": "Förhandsvisa detektorindata för hela bildfältet efter invertering, normalisering, bildförbättring och utjämning, med den valda metodens trösklar. Lokala metoder har ingen enskild tröskelmarkör. Beräkningen körs i bakgrunden; stäng fönstret för att kasta bort den. Öppna det igen för att uppdatera efter ändrade inställningar."
+    },
+    {
+      "table": "ui",
+      "key": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source_sha256": "d0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3",
+      "translation": "Ögonblicksbild av hela bildfältet och inställningarna när fönstret öppnades. Öppna histogrammet igen efter att bilden eller inställningarna har ändrats."
+    },
+    {
+      "table": "ui",
+      "key": "Threshold histogram failed: {error}",
+      "source": "Threshold histogram failed: {error}",
+      "source_sha256": "9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89",
+      "translation": "Tröskelhistogrammet misslyckades: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "{method} histogram",
+      "source": "{method} histogram",
+      "source_sha256": "cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e",
+      "translation": "Histogram: {method}"
+    }
+  ]
+}

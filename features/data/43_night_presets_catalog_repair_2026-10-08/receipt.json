@@ -1,0 +1,128 @@
+{
+  "baseline_source_sha": "c4c94a808a1d4ce79db3072d34cc52bf05b5f0b3",
+  "fixed_source_sha": "f363c2252dbcba2e7fd0ac1791723c09d2bc09cc",
+  "inventory": {
+    "counts": {
+      "categories": {
+        "after": 237,
+        "before": 237
+      },
+      "installer": {
+        "after": 65,
+        "before": 65
+      },
+      "module_summaries": {
+        "after": 77,
+        "before": 77
+      },
+      "setting_labels": {
+        "after": 1221,
+        "before": 1221
+      },
+      "setting_tooltips": {
+        "after": 1243,
+        "before": 1243
+      },
+      "ui": {
+        "after": 7288,
+        "before": 7288
+      }
+    },
+    "extractor": "tools.build_i18n_catalogs.canonical_sources",
+    "full_source_json_sha256_after": "84577f48e842bdc512230971b581c20af77882fc6506e75a65ce28b39c22ce9f",
+    "full_source_json_sha256_before": "595435f8132809337168d531766ecce6b2831c8488bb6b6d2004f1832bd0708b",
+    "other_sections_unchanged": true,
+    "runtime_ui_added": [
+      "A lit window in the dark: warm orange on near-black, a field of luminous points behind it, and a sound set in G minor at 118 BPM.",
+      "A teal horizon line with currents of light bending above it, and a sound set in A Dorian at 124 BPM.",
+      "The last colour in the sky: plum and dusty rose, currents of light moving overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "The long low light of a year's turn: olive and pale gold, luminous points through it, and a sound set in G Lydian at 112 BPM."
+    ],
+    "runtime_ui_removed": [
+      "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
+      "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM."
+    ]
+  },
+  "kind": "source_bound_night_preset_catalog_repair",
+  "owner_handoff": "Four changed runtime UI sentences require normal reviewed nine-locale catalog regeneration. No generated catalog or API artifact was edited here.",
+  "patch_file": "night_themes.patch",
+  "patch_sha256": "ae19b6909b6a8dfd67e4091ff9f6ac5fe01b5ff1ca7655559e04f71cb3a6b325",
+  "presets": {
+    "lantern": {
+      "after": {
+        "ambient": "data_art_impulse_lens",
+        "ambient_palette": "ember",
+        "description": "A lit window in the dark: warm orange on near-black, a field of luminous points behind it, and a sound set in G minor at 118 BPM."
+      },
+      "before": {
+        "ambient": "data_art_tissue_facets",
+        "ambient_palette": "ember",
+        "description": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM."
+      }
+    },
+    "meridian": {
+      "after": {
+        "ambient": "data_art_genetic_advection",
+        "ambient_palette": "ocean",
+        "description": "A teal horizon line with currents of light bending above it, and a sound set in A Dorian at 124 BPM."
+      },
+      "before": {
+        "ambient": "aurora",
+        "ambient_palette": "ocean",
+        "description": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM."
+      }
+    },
+    "solstice": {
+      "after": {
+        "ambient": "data_art_impulse_lens",
+        "ambient_palette": "lowsun",
+        "description": "The long low light of a year's turn: olive and pale gold, luminous points through it, and a sound set in G Lydian at 112 BPM."
+      },
+      "before": {
+        "ambient": "data_art_tissue_facets",
+        "ambient_palette": "lowsun",
+        "description": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM."
+      }
+    },
+    "vesper": {
+      "after": {
+        "ambient": "data_art_genetic_advection",
+        "ambient_palette": "dusk",
+        "description": "The last colour in the sky: plum and dusty rose, currents of light moving overhead, and a soft sound set in E flat minor at 114 BPM."
+      },
+      "before": {
+        "ambient": "aurora",
+        "ambient_palette": "dusk",
+        "description": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM."
+      }
+    }
+  },
+  "source_file": "spacr/qt/night_themes.py",
+  "source_sha256_after": "fb117121646983285f9ab8dd37eae16539ef50f9592008da3f500be1e2830c40",
+  "source_sha256_before": "fb2e350b80c405ad64eb426e62645a7865b80d9c693c0244168d6dc9ff013290",
+  "validation": {
+    "command": "xvfb-run -a -s '-screen 0 1920x1080x24 -nolisten tcp' env PYTHONPATH=.:<Qt6.12+pytest8.4.2 overlays> QT_QPA_PLATFORM=xcb CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G python -m pytest -q tests/qt/test_the_setup_asks_about_the_animation.py tests/qt/test_ten_night_themes.py -k 'not heavy'",
+    "logs": {
+      "fixed": {
+        "file": "fixed-pytest.log.gz",
+        "gzip_sha256": "862638b5e58606aa3065c27d0e3b3473b5973c8774466552a002d64b4fe6d508",
+        "raw_sha256": "32e0c2aaf454a1aace2599197e03c403f4ccadccae18b717d512b997335e115d",
+        "result": "206 passed, 20 deselected"
+      },
+      "original_c4": {
+        "file": "original_c4-pytest.log.gz",
+        "gzip_sha256": "9e7a9c68a101b57535196930ec4f5fe003964a9d5d0d19855c84bd8750f75d04",
+        "raw_sha256": "f144087d33862cc93cee3f73a13cac307418b9cfa065500776296fa5e71f59f9",
+        "result": "8 failed, 182 passed, 20 deselected"
+      }
+    },
+    "ruff_relative_to_baseline": {
+      "after_findings": 63,
+      "baseline_findings": 63,
+      "new_findings": 0,
+      "note": "The four-file Ruff invocation has pre-existing violations; matching code/message/file multisets show this patch adds none."
+    }
+  }
+}

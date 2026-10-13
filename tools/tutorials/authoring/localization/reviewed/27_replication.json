@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "27_replication",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Atribua parasitas a vacúolos e resuma a replicação intracelular por condição.",
+      "prerequisite": "Meça células hospedeiras, vacúolos e parasitas com relações revisadas e metadados das condições.",
+      "objectives": [
+        "Configurar a atribuição dos vacúolos.",
+        "Definir filtros e grupos de pontuação justificáveis.",
+        "Validar os resumos de replicação em relação às imagens."
+      ],
+      "narrations": [
+        "Replication Assay quantifica o número de parasitas por vacúolo usando relações e medições existentes. O console registra as configurações, a filtragem e as saídas.",
+        "Selecione a raiz do experimento e confirme que as células hospedeiras, os vacúolos e os parasitas possuem identificadores estáveis.",
+        "Essentials apresenta os controles de atribuição, condição, filtragem, pontuação e saída. Use Modified para revisar as alterações deliberadas.",
+        "Defina como os parasitas serão atribuídos aos vacúolos e como relações ambíguas ou distantes serão tratadas.",
+        "Filtre falhas de segmentação com base em distribuições e imagens revisadas, sem eliminar vacúolos incomuns, porém válidos.",
+        "Defina, antes de executar as estatísticas, os grupos de contagem de parasitas e os resumos que respondem à pergunta biológica.",
+        "Execute a análise depois de verificar as atribuições, as condições, os filtros e as definições de pontuação.",
+        "Examine vacúolos em toda a faixa de contagens e verifique máscaras fundidas ou fragmentadas. As distribuições e as estatísticas salvas permanecem vinculadas às evidências em nível de objeto."
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "Separate private legacy visual-reference support for the historical narration correction; current six-lesson candidate and immutable5ab media unchanged.",
+  "base_commit": "b75535be527dca0dbb0611745435bd2456e8b502",
+  "renderer_source_frozen": "8b64dbe247406ebf20e03ff35ea4ddf8dfc2ecf9",
+  "normal_tests_passed": 21,
+  "normal_tests_seconds": 61.58,
+  "real_browser_explicit_legacy_clock_case": true,
+  "real_browser_invalid_reference_negatives": 4,
+  "native_coverage_guard_retained": true,
+  "narration_rate": 1,
+  "visual_legacy_synchronization_retained": true,
+  "normal_builder_refresh_player_explicit_option": true,
+  "whole56_media_acceptance_pending": true,
+  "published": false,
+  "archive": {
+    "name": "legacy-clock-support.tar.gz",
+    "sha256": "491979c0597db3a6cca0183f14bcc8a07d64ffa42b5f5653bb4d2edb3ce5887a",
+    "bytes": 29292,
+    "members": 5,
+    "member_sha256": {
+      "closed_logs/historical-legacy-player-guards-r1.log": "9577fdcf2b4efb65676c82452ada0233bf3b7ab3b335d431f5df66cbb05698e0",
+      "tools/tutorials/authoring/web/app_v2.js": "34df699e2c36c317a6a126596b51fba95dcd3a011668dc6d30557f4241746fd4",
+      "tools/tutorials/build_audio_patch_candidate.py": "15e10e0560378d32f1bb13492dd670135da74e44d232a3224a8d5b28fa1cfb5a",
+      "tools/tutorials/tests/test_audio_patch_candidate.py": "8de2e857eab7ef114ffc2e07cf1f503968bb1c7795928f0771d87fc91012a5dc",
+      "tools/tutorials/tests/test_player_legacy_visual_reference.py": "f1a81fd15ca2fda4d7c1fa63e8505d01594aa1244759cd3210e02250080b402c"
+    },
+    "full_readback_verified": true
+  }
+}

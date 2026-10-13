@@ -1,0 +1,182 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "local official Cell-DINO weights file.",
+      "label": "spacr.embeddings.EmbeddingSpec#10",
+      "source": "local official Cell-DINO weights file.",
+      "source_sha256": "53386e74c46b50cecda27126272be98357fd9ec1dabc41b1648d3073357f9684",
+      "translation": "Fichier local de poids officiels Cell-DINO."
+    },
+    {
+      "context": "expected SHA-256 of those weights.",
+      "label": "spacr.embeddings.EmbeddingSpec#11",
+      "source": "expected SHA-256 of those weights.",
+      "source_sha256": "077f55c09feda8470f10dc7d6e501ae69fb13b4409ac44016562db19ff6be7cb",
+      "translation": "Empreinte SHA-256 attendue de ces poids."
+    },
+    {
+      "context": "pinned official Cell-DINO hub factory.",
+      "label": "spacr.embeddings.EmbeddingSpec#9",
+      "source": "pinned official Cell-DINO hub factory.",
+      "source_sha256": "4a20d4766be923e679f6f5357cc9fd026f1a0a738a64970aa498fa4164da2052",
+      "translation": "Fonction de création officielle Cell-DINO du hub, épinglée à une révision."
+    },
+    {
+      "context": "Return the official DINOv2 head output for each declared extracted image region.",
+      "label": "spacr.embeddings._cell_dino_model.forward#0",
+      "source": "Return the official DINOv2 head output for each declared crop.",
+      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+      "translation": "Renvoie la sortie de la tête officielle DINOv2 pour chaque image recadrée déclarée."
+    },
+    {
+      "context": "Encode declared Cell-DINO image layers at the official extracted image region size.",
+      "label": "spacr.embeddings._foundation_encoder.run#0",
+      "source": "Encode declared Cell-DINO planes at the official crop size.",
+      "source_sha256": "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+      "translation": "Encode les plans Cell-DINO déclarés à la taille officielle des images recadrées."
+    },
+    {
+      "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Cell-DINO uses the declared local checkpoint only when stable regular-file bytes match its expected SHA-256; changed or mismatched files leave no digest. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "label": "spacr.embeddings.encoder_entry#2",
+      "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Cell-DINO uses the declared local checkpoint only when stable regular-file bytes match its expected SHA-256; changed or mismatched files leave no digest. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "source_sha256": "756fd05b01a6407877721c11629ead97cc0c6add53dd8e0c4ca22768eabee756",
+      "translation": "L’entrée enregistre le réseau de base, la politique des canaux et l’empreinte des octets lisibles du point de contrôle local, sans télécharger ni charger de modèle. Les réseaux de base publics utilisent les métadonnées du cache de timm ; OpenPhenom et ChAda-ViT utilisent des révisions fixées de Hugging Face ; SubCell utilise son point de contrôle officiel de torch hub ; un encodeur DINO local utilise le chemin de point de contrôle configuré. Les entrées des modèles de fondation indiquent le fournisseur d’origine et l’URL du point de contrôle. Une somme de contrôle ne suffit pas à vérifier un modèle ni à établir la provenance de ses données d’entraînement. Cell-DINO utilise le point de contrôle local déclaré uniquement si les octets stables d’un fichier ordinaire correspondent à l’empreinte SHA-256 attendue ; un fichier modifié ou différent reste sans empreinte."
+    },
+    {
+      "context": "Ten night palettes and six separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and six separate data-art presets.",
+      "source_sha256": "6a3c505fd2f2c4c4dc8ecd8bbf827ae5dcba1a9d17f440d47a480cf1889d35eb",
+      "translation": "Dix palettes nocturnes et six préréglages distincts d’art de données."
+    },
+    {
+      "context": "The data-art catalog appends six independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "label": "spacr.qt.night_themes#7",
+      "source": "The data-art catalog appends six independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "source_sha256": "09a39a86949b19824039f60e3527119b3a05dcbc42c6ca0a9dd37d9c9e7ba1e5",
+      "translation": "Le catalogue d’art de données ajoute six préréglages de palette indépendants. Ses clés sélectionnent des générateurs de fonds animés distincts et des ensembles de sons existants sans modifier l’identité des dix thèmes nocturnes d’origine. Ses remplacements explicites de couleurs conservent les couleurs d’état stables des palettes nocturnes et sont vérifiés selon les mêmes règles de contraste et de séparation entre les pages."
+    },
+    {
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "cefb6727bdbc0558f7a7bdd4f51a2d7a06cf3da8e52906872c11ca5b516a0c3c",
+      "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | un des dix thèmes nocturnes de :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | les six préréglages d’art de données de :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (valeur par défaut ``\"dark\"``). ``\"system\"`` suit le schéma de couleurs du système d’exploitation, mais seulement après avoir été choisi : une valeur ``\"system\"`` enregistrée avant que le mode sombre devienne le mode par défaut (2026-09-21) correspondait à l’ancienne valeur par défaut, pas à un choix, et est lue comme ``\"dark\"`` ; voir :func:`get_theme`. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` des matériaux neutres superposés sur un champ lumineux intégré. Un préréglage nocturne ou d’art de données comprend également un fond et un ensemble de sons, enregistrés par :func:`apply_night_theme` lors de sa sélection. Space n’est pas un thème sélectionnable. Les valeurs abandonnées ``space_variant`` et ``space_seed`` sont supprimées des anciens paramètres enregistrés à la première lecture du thème ; voir :func:`get_theme`."
+    },
+    {
+      "context": "Select a local colour and activate the custom palette on save.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color#0",
+      "source": "Select a local colour and activate the custom palette on save.",
+      "source_sha256": "46d2013e31dda9b983a76b58e64b1bd21edcc18923acfb82b7920bb95c7b5cc9",
+      "translation": "Choisit une couleur locale et active la palette personnalisée lors de l’enregistrement."
+    },
+    {
+      "context": "Show the pending colour pair while preserving dialog cancellation.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors#0",
+      "source": "Show the pending colour pair while preserving dialog cancellation.",
+      "source_sha256": "3a1d9b7ed75dca141d330c4b70bd187fd97d2d9c0a86010261a356c2c4edb71f",
+      "translation": "Affiche la paire de couleurs en attente tout en préservant l’annulation de la boîte de dialogue."
+    },
+    {
+      "context": "Offer custom colours for the six procedural data-art scenes.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "source": "Offer custom colours for the six procedural data-art scenes.",
+      "source_sha256": "b909f4a7577a09c584074396f7c10ebab346d1196dab90042b165982a7f4ddc2",
+      "translation": "Propose des couleurs personnalisées pour les six scènes procédurales d’art de données."
+    },
+    {
+      "context": "Rebuild the new plate's grid before presenting its matches.",
+      "label": "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits#0",
+      "source": "Rebuild the new plate's grid before presenting its matches.",
+      "source_sha256": "b1454aa1cc23aff76b0d84ddfdb1a6079a902c719575dbf90257aad6feba83c5",
+      "translation": "Reconstruit la grille de la nouvelle plaque avant d’afficher ses correspondances."
+    },
+    {
+      "context": "A screen, not a script. The upstream Cell-DINO, OpenPhenom and SubCell models expose Python interfaces. This screen also accepts an explicitly mapped, digest-verified local official Cell-DINO checkpoint.",
+      "label": "spacr.qt.screens.embeddings#1",
+      "source": "A SCREEN, NOT A SCRIPT. The upstream Cell-DINO, OpenPhenom and SubCell models expose Python interfaces. This screen also accepts an explicitly mapped, digest-verified local official Cell-DINO checkpoint.",
+      "source_sha256": "86683c03831d2716325ffbd47fd72776568cdfa410d85311d5c17dfe44d296c7",
+      "translation": "UNE VUE, PAS UN SCRIPT. Les modèles originaux Cell-DINO, OpenPhenom et SubCell proposent des interfaces Python. Cette vue accepte aussi un point de contrôle officiel local Cell-DINO avec une correspondance explicite des canaux et une empreinte vérifiée."
+    },
+    {
+      "context": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two processing sessions' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. The preview shows the first few dimensions of the first fifty objects. The alpha Save for Similar extracted image regions action stores the complete matrix in the database that supplied the loaded objects, so Annotate can search those vectors. Folder and programmatically supplied extracted image regions have no database object identity and cannot use this action.",
+      "label": "spacr.qt.screens.embeddings#5",
+      "source": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two runs' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. The preview shows the first few dimensions of the first fifty objects. The alpha Save for Similar crops action stores the complete matrix in the database that supplied the loaded objects, so Annotate can search those vectors. Folder and programmatically supplied crops have no database object identity and cannot use this action.",
+      "source_sha256": "4ccc404722a0e9d9e860e72721d87359477adb0fd4f13a1685ca53ece8c63875",
+      "translation": "**Ce qu’elle produit.** Une ligne par objet et une colonne par dimension, nommées ``emb_c<channel>_<dimension>`` avec la politique par canal et ``emb_<dimension>`` avec la projection, accompagnées de l’entrée du catalogue de modèles qui les a produites : réseau de base, politique et somme de contrôle des poids sur cette machine. La dimension 17 de deux exécutions porte le même nom mais n’a le même sens que si ces trois éléments correspondent. C’est pourquoi l’entrée appartient au résultat plutôt qu’à une simple ligne de journal. L’aperçu montre les premières dimensions des cinquante premiers objets. L’action alpha Enregistrer pour les images similaires stocke la matrice complète dans la base de données ayant fourni les objets chargés, pour qu’Annotate puisse rechercher ces vecteurs. Les images recadrées provenant de dossiers ou fournies par du code n’ont pas d’identité d’objet dans la base de données et ne peuvent pas utiliser cette action."
+    },
+    {
+      "context": "Keep only plain configuration values after the form closes.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping#0",
+      "source": "Keep only plain configuration values after the form closes.",
+      "source_sha256": "8591452059e7055f6313220c494a847dadf8ba8e8e73a88687ff09ba6a66a06d",
+      "translation": "Ne conserve que des valeurs de configuration simples après la fermeture du formulaire."
+    },
+    {
+      "context": "Choose local weights without downloading or accepting terms.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file#0",
+      "source": "Choose local weights without downloading or accepting terms.",
+      "source_sha256": "11671e83d848d13acaf37d53c326e92ad29195643eba89c59259c7be4d86a9c9",
+      "translation": "Choisit des poids locaux sans téléchargement ni acceptation de conditions."
+    },
+    {
+      "context": "The fifth image layer belongs only to the Cell Painting factory.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width#0",
+      "source": "The fifth plane belongs only to the Cell Painting factory.",
+      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
+      "translation": "Le cinquième plan appartient uniquement à la fonction de création Cell Painting."
+    },
+    {
+      "context": "A newer extracted image region selection keeps its own status and controls.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished#0",
+      "source": "A newer crop selection keeps its own status and controls.",
+      "source_sha256": "036efa6e9a1898f018f2c164935673cc64590df8e21756a1c55c2d7da9cc94c0",
+      "translation": "Une sélection plus récente d’images recadrées conserve son propre état et ses commandes."
+    },
+    {
+      "context": "Persist vectors without blocking the graphical thread.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work#0",
+      "source": "Persist vectors without blocking the graphical thread.",
+      "source_sha256": "2cc5102e4547028891243e8bfd3e32b2122ef8c632d9f1d0d278361fe65bfd59",
+      "translation": "Enregistre durablement les vecteurs sans bloquer le thread de l’interface graphique."
+    },
+    {
+      "context": "Publish only to the extracted image region selection that produced the vectors.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished#0",
+      "source": "Publish only to the crop selection that produced the vectors.",
+      "source_sha256": "9b7c14669caf17d81909e0a80fc7e9091732a8af382f0f601b76259e28a95f6a",
+      "translation": "Publie uniquement dans la sélection d’images recadrées ayant produit les vecteurs."
+    },
+    {
+      "context": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
+      "label": "spacr.qt.widgets.ambient#11",
+      "source": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
+      "source_sha256": "4589ef5131fad8eb75ae52ff32c51ed2b3edb481945e5b697f6e44b0f3e54742",
+      "translation": "spaCR propose plusieurs thèmes, et des taches réglées uniquement pour une page presque noire deviennent indistinctes sur une page blanche. Le *mode de composition suit donc le fond* :"
+    },
+    {
+      "context": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
+      "label": "spacr.qt.widgets.ambient#2",
+      "source": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
+      "source_sha256": "bab01d52b8ab4d7ad2275976062103995d5e3d0aab50ab79cdb5f23985c0c1b7",
+      "translation": "Cinq thèmes classiques restent dans le menu aux côtés de six matières d’art de données, chacune choisie pour exprimer un mouvement différent :"
+    },
+    {
+      "context": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "label": "spacr.qt.widgets.ambient#5",
+      "source": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "source_sha256": "9f8ebf5cd677f5ef47e1da4d6fdafec8fdf0b1baa30d1f1cc5dfaa93ae1e3012",
+      "translation": "``aurora`` Trois rideaux de rayons verticaux qui se chevauchent, se plissant sur leur propre longueur. Les plis sont des ondes progressives — plusieurs fréquences superposées courant dans la longueur de l’arc — avec des sursauts de luminosité selon un calendrier distinct, un bord inférieur net, un sommet diffus et l’ordre vertical des couleurs du phénomène réel : vert dans le corps, rouge en hauteur, une frange violette en dessous. ``ripple`` Des anneaux concentriques qui s’élargissent à partir de trois sources fixes et s’estompent en grandissant, comme la pluie sur l’eau. Bords doux, pour ne jamais ressembler à un dessin au trait. ``drift`` Un champ d’étoiles lent en trois couches de parallaxe : petites, faibles et lentes à l’arrière ; plus grandes, plus lumineuses et plus rapides à l’avant. Le seul thème net. Il se déplace vers le haut, vers le bas ou dans tous les sens — voir :data:`DRIFT_DIRECTIONS`. ``cells`` Des cellules qui dérivent dans le champ en tournant sur elles-mêmes — un corps doux, une membrane un peu plus lumineuse là où le bord est vu presque par la tranche, et un noyau nettement plus lumineux décentré. Les anciennes classes :class:`BokehEngine` et :class:`ResonanceEngine` restent importables pour les appels directs, mais ne sont plus des options du menu ni des entrées du registre de création."
+    },
+    {
+      "context": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
+      "label": "spacr.qt.widgets.ambient#6",
+      "source": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
+      "source_sha256": "5cd70fb1942de055b76f914c68f1c3150eaec5ad056f43177191453c8f6a3e8c",
+      "translation": "Il existe aussi un moteur privé ``fractal`` : il ne figure pas dans :data:`AMBIENT_THEMES`, aucun menu ne le propose, aucune préférence ne peut le conserver et il n’est visible qu’en lançant l’application avec ``spaceout`` au lieu de ``spacr``. Voir :data:`SPACEOUT_THEME` et :class:`FractalEngine`."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

@@ -1,0 +1,421 @@
+{
+  "feature": 288,
+  "related_feature": 471,
+  "date": "2026-09-23",
+  "base_commit": "97588196f",
+  "baseline": "27 passed in62.75s",
+  "final": "43 passed in49.57s after all corrections",
+  "execution": "8GiB/no-swap/offscreen Linux CPU; isolated HOME/config; two BLAS/OpenMP threads; directory-scoped branch coverage",
+  "modules": {
+    "spacr/qt/gui_scale.py": {
+      "before": {
+        "covered_lines": 593,
+        "num_statements": 684,
+        "percent_covered": 85.48387096774194,
+        "percent_covered_display": "85.48",
+        "missing_lines": 91,
+        "excluded_lines": 0,
+        "percent_statements_covered": 86.69590643274854,
+        "percent_statements_covered_display": "86.70",
+        "num_branches": 184,
+        "num_partial_branches": 27,
+        "covered_branches": 149,
+        "missing_branches": 35,
+        "percent_branches_covered": 80.97826086956522,
+        "percent_branches_covered_display": "80.98"
+      },
+      "after": {
+        "covered_lines": 626,
+        "num_statements": 684,
+        "percent_covered": 90.55299539170507,
+        "percent_covered_display": "90.55",
+        "missing_lines": 58,
+        "excluded_lines": 0,
+        "percent_statements_covered": 91.52046783625731,
+        "percent_statements_covered_display": "91.52",
+        "num_branches": 184,
+        "num_partial_branches": 22,
+        "covered_branches": 160,
+        "missing_branches": 24,
+        "percent_branches_covered": 86.95652173913044,
+        "percent_branches_covered_display": "86.96"
+      },
+      "remaining_lines": [
+        102,
+        149,
+        159,
+        160,
+        167,
+        168,
+        186,
+        187,
+        306,
+        327,
+        353,
+        357,
+        358,
+        402,
+        425,
+        426,
+        500,
+        501,
+        541,
+        542,
+        581,
+        582,
+        698,
+        699,
+        704,
+        705,
+        756,
+        757,
+        761,
+        793,
+        796,
+        805,
+        816,
+        817,
+        818,
+        843,
+        867,
+        868,
+        874,
+        875,
+        970,
+        971,
+        991,
+        1030,
+        1031,
+        1122,
+        1151,
+        1152,
+        1170,
+        1171,
+        1176,
+        1177,
+        1179,
+        1181,
+        1183,
+        1184,
+        1185,
+        1197
+      ],
+      "remaining_branches": [
+        [
+          148,
+          149
+        ],
+        [
+          352,
+          353
+        ],
+        [
+          401,
+          402
+        ],
+        [
+          496,
+          502
+        ],
+        [
+          708,
+          -664
+        ],
+        [
+          710,
+          -664
+        ],
+        [
+          732,
+          734
+        ],
+        [
+          742,
+          738
+        ],
+        [
+          760,
+          761
+        ],
+        [
+          775,
+          773
+        ],
+        [
+          792,
+          793
+        ],
+        [
+          795,
+          796
+        ],
+        [
+          804,
+          805
+        ],
+        [
+          842,
+          843
+        ],
+        [
+          862,
+          853
+        ],
+        [
+          937,
+          942
+        ],
+        [
+          987,
+          991
+        ],
+        [
+          1082,
+          1084
+        ],
+        [
+          1096,
+          1101
+        ],
+        [
+          1121,
+          1122
+        ],
+        [
+          1174,
+          1176
+        ],
+        [
+          1176,
+          1177
+        ],
+        [
+          1176,
+          1179
+        ],
+        [
+          1194,
+          1197
+        ]
+      ],
+      "source_sha256": "33067d239b0a0a70c923b91a1d3d3ea348a845bf1d32484163477b6f87c1b284"
+    },
+    "spacr/qt/widgets/preview_scale.py": {
+      "before": {
+        "covered_lines": 463,
+        "num_statements": 523,
+        "percent_covered": 86.62068965517241,
+        "percent_covered_display": "86.62",
+        "missing_lines": 60,
+        "excluded_lines": 0,
+        "percent_statements_covered": 88.52772466539197,
+        "percent_statements_covered_display": "88.53",
+        "num_branches": 202,
+        "num_partial_branches": 25,
+        "covered_branches": 165,
+        "missing_branches": 37,
+        "percent_branches_covered": 81.68316831683168,
+        "percent_branches_covered_display": "81.68"
+      },
+      "after": {
+        "covered_lines": 489,
+        "num_statements": 530,
+        "percent_covered": 90.48913043478261,
+        "percent_covered_display": "90.49",
+        "missing_lines": 41,
+        "excluded_lines": 0,
+        "percent_statements_covered": 92.26415094339623,
+        "percent_statements_covered_display": "92.26",
+        "num_branches": 206,
+        "num_partial_branches": 23,
+        "covered_branches": 177,
+        "missing_branches": 29,
+        "percent_branches_covered": 85.92233009708738,
+        "percent_branches_covered_display": "85.92"
+      },
+      "remaining_lines": [
+        121,
+        122,
+        170,
+        183,
+        197,
+        212,
+        213,
+        349,
+        350,
+        360,
+        361,
+        367,
+        392,
+        393,
+        410,
+        427,
+        454,
+        679,
+        733,
+        734,
+        735,
+        736,
+        737,
+        739,
+        740,
+        742,
+        743,
+        783,
+        786,
+        800,
+        801,
+        802,
+        803,
+        804,
+        805,
+        819,
+        820,
+        831,
+        832,
+        836,
+        862
+      ],
+      "remaining_branches": [
+        [
+          169,
+          170
+        ],
+        [
+          182,
+          183
+        ],
+        [
+          196,
+          197
+        ],
+        [
+          366,
+          367
+        ],
+        [
+          409,
+          410
+        ],
+        [
+          426,
+          427
+        ],
+        [
+          453,
+          454
+        ],
+        [
+          455,
+          457
+        ],
+        [
+          478,
+          485
+        ],
+        [
+          497,
+          -467
+        ],
+        [
+          541,
+          -500
+        ],
+        [
+          647,
+          -645
+        ],
+        [
+          678,
+          679
+        ],
+        [
+          732,
+          733
+        ],
+        [
+          733,
+          734
+        ],
+        [
+          733,
+          735
+        ],
+        [
+          737,
+          739
+        ],
+        [
+          737,
+          742
+        ],
+        [
+          744,
+          746
+        ],
+        [
+          746,
+          752
+        ],
+        [
+          750,
+          752
+        ],
+        [
+          780,
+          787
+        ],
+        [
+          781,
+          786
+        ],
+        [
+          782,
+          783
+        ],
+        [
+          799,
+          800
+        ],
+        [
+          801,
+          799
+        ],
+        [
+          801,
+          802
+        ],
+        [
+          835,
+          836
+        ],
+        [
+          861,
+          862
+        ]
+      ],
+      "source_sha256": "162bc61c5a71a3b68325202bd35f24b896bcb7b26bed92d396cb2c15377f6827"
+    }
+  },
+  "bug": {
+    "reproduction": "Parent QLabel rule20px -> preview50%=10px; parent updated30px -> preview15px; reset100% removes temporary stylesheet but label remains15px after5s. Reproduced with a fresh child panel.",
+    "fix": "When resetting removes an empty-base preview override, repolish its subtree and invoke QWidget geometry/repaint methods explicitly. Restores30px without retaining a local stylesheet or changing the parent rule.",
+    "regression_caught": "Initial repolish draft called a QListView update overload with no index. Existing Measure/UMAP cases caught it; final code calls QWidget.update directly and all43checks pass."
+  },
+  "other_boundaries": [
+    "Expired weak listeners and failing live listeners do not prevent later notifications.",
+    "A failed window refresh does not block other windows.",
+    "Closing Keep/Revert restores scales and deletes the dialog even if the completion callback raises.",
+    "Already-applied gesture snapshots support Keep/Revert; unchanged requests do not prompt.",
+    "Horizontal/vertical inserted spacing and splitter read-back do not drift; saved scale reaches existing widgets.",
+    "Invalid saved preview values are clamped/defaulted; failing save/hook does not prevent live preview geometry updates."
+  ],
+  "limitations": [
+    "Coverage values combine statements and branches; individual branch percentages are recorded separately.",
+    "No baseline/exemption/threshold changes or full-suite/full-ratchet acceptance.",
+    "No cross-platform/physical-desktop or performance claim; runtimes include instrumentation/reporting and are not benchmarks."
+  ],
+  "api": "Only existing private PreviewScaler._scale_root_sheet body changes. No new settings, caption, public signature or docstring. Stale module introduction noted to docs lane separately.",
+  "report_sha256": "b56e2977da0014841991b3ffc1f54c3b50c98cd1d5d96bbf9e21ad84e7760766",
+  "tests_sha256": "26bff214bd6e96609fd15401319e58c88afb830f19f81d7d8716b3d7b56f70b6"
+}

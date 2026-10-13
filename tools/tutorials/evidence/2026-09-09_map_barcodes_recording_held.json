@@ -1,0 +1,14 @@
+{
+  "lesson": "12_map_barcodes",
+  "status": "Real bounded download verified; mapping produced no usable counts, narration held",
+  "application_commit": "f021b88c3",
+  "capture": "refresh_2026-09-09/captures/map_bounded",
+  "dataset": {"run": "SRR33531217", "library": "hilib_p4", "reads_per_mate": 10000, "mate_count": 2, "complete_fastq_records_checked": true, "paired_read_identities_match": true, "full_archive_requested": false},
+  "configuration": {"mode": "paired", "chunk_size": 1000, "n_jobs": 2, "test": false, "save_h5": true, "fill_na": false, "barcode_mismatches": 0, "references": "Unmodified bundled CSVs"},
+  "outputs": {"worker_ok": true, "unique_combinations_rows": 0, "extracted_consensus_rows": 8611, "missing_columnID": 8611, "missing_rowID": 8611, "missing_grna_name": 8610},
+  "reference_checks": {"column_direct": 0, "column_reverse_complement": 0, "row_direct": 0, "row_reverse_complement": 558, "grna_direct": 1, "grna_reverse_complement": 7782},
+  "accepted": false,
+  "next_step": "App/data owners must validate the correct example reference tables and orientation before this can be taught as a successful mapping workflow",
+  "app_source_modified": false,
+  "published": false
+}

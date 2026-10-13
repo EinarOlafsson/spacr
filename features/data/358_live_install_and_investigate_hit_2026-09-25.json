@@ -1,0 +1,310 @@
+{
+  "source_commit": "829a1832bc7f32f6d7d00bae6c6db941fb16f57c",
+  "workflow": 36201656240,
+  "channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "09383fb3570b5da5e7fc94a85e508056f345c8c4",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "829a1832bc7f32f6d7d00bae6c6db941fb16f57c",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 627744769,
+    "media_files": 102
+  },
+  "candidate": "release-candidate-append-iij8lm0r",
+  "media_revision": "006b95c49dde2403ad7674aa4b3f2501351416ec",
+  "cache_key": "install71-20260925-iij8lm0r",
+  "refreshed_lessons": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "71_investigate_hit"
+  ],
+  "narration_voices": {
+    "02_conda_install": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "03_pip_install": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "04_platform_installers": {
+      "en": [
+        "af_heart"
+      ],
+      "es": [
+        "ef_dora",
+        "em_alex",
+        "em_santa"
+      ],
+      "fr": [
+        "ff_siwis"
+      ],
+      "hi": [
+        "hf_alpha",
+        "hf_beta",
+        "hm_omega",
+        "hm_psi"
+      ],
+      "it": [
+        "if_sara",
+        "im_nicola"
+      ],
+      "ja": [
+        "jf_alpha",
+        "jf_gongitsune",
+        "jf_nezumi",
+        "jf_tebukuro",
+        "jm_kumo"
+      ],
+      "pt-BR": [
+        "pf_dora",
+        "pm_alex",
+        "pm_santa"
+      ],
+      "zh-CN": [
+        "zf_xiaobei",
+        "zf_xiaoni",
+        "zf_xiaoxiao",
+        "zf_xiaoyi",
+        "zm_yunjian",
+        "zm_yunxi",
+        "zm_yunxia",
+        "zm_yunyang"
+      ]
+    },
+    "71_investigate_hit": {
+      "en": [
+        "af_heart"
+      ]
+    }
+  },
+  "hosted_web_lessons": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers",
+    "17_timelapse",
+    "71_investigate_hit",
+    "76_ops",
+    "78_spacr_screens",
+    "79_module_inputs_outputs",
+    "80_image_analysis_pathways",
+    "81_sequencing_pathways"
+  ],
+  "hosted_web_bytes": {
+    "02_conda_install": 3743210,
+    "03_pip_install": 5405952,
+    "04_platform_installers": 6279964,
+    "17_timelapse": 7322576,
+    "71_investigate_hit": 13708815,
+    "76_ops": 7204723,
+    "78_spacr_screens": 6552139,
+    "79_module_inputs_outputs": 84732830,
+    "80_image_analysis_pathways": 16210344,
+    "81_sequencing_pathways": 8567417
+  },
+  "pages_copies_absent": true,
+  "live_catalog_sha256": "f7483a32cfb7a0beb94a13c52d3b4304c58f4338a1a53c4bb054f40fdcce6dfb",
+  "catalog_matches_candidate": true,
+  "player_cache_checks": [
+    {
+      "channel": "main",
+      "player_sha256": "1e4e7a50c0cae599b72afc4de938197bcfb0b3c4e633e227759befef7d659cff"
+    },
+    {
+      "channel": "nightly/",
+      "player_sha256": "17883d0d65aa7fffbaa9bc2baca0077ab77749ec2a38f34a607c34653ce27c65"
+    }
+  ],
+  "playback": [
+    {
+      "channel": "main",
+      "lesson": "07_mask",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f0ded2a75c41f9eada9383b5aa970e1a6a7bcd65/07_mask/video/07_mask_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/2aa9d570-f75b-4455-9598-3d2ff204eba5",
+      "width": 3840,
+      "time": 29.205209,
+      "expected": 29.57698116157032,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "02_conda_install",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec/02_conda_install/web/02_conda_install_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/a827e151-074a-416f-87c2-d93dec00994c",
+      "width": 2560,
+      "time": 22.876095,
+      "expected": 23.282573,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "03_pip_install",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec/03_pip_install/web/03_pip_install_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/9d9c10ae-e216-4fdf-b53c-46a817fc40bf",
+      "width": 2560,
+      "time": 22.639585,
+      "expected": 23.071008083877654,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec/04_platform_installers/web/04_platform_installers_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/6a9c8df0-2926-480c-96af-d158df0e155e",
+      "width": 2560,
+      "time": 34.961184,
+      "expected": 35.23856126815128,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "71_investigate_hit",
+      "language": "en",
+      "voice": "af_heart",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec/71_investigate_hit/web/71_investigate_hit_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/db3dbec4-3e53-41d4-9667-b2331bc1fdf0",
+      "width": 2560,
+      "time": 27.467818,
+      "expected": 27.85533658672008,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "02_conda_install",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec/02_conda_install/web/02_conda_install_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/bcd3c15f-7d14-46b3-aa54-df9d1bb257b1",
+      "width": 2560,
+      "time": 22.898552,
+      "expected": 23.378269001042753,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "03_pip_install",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec/03_pip_install/web/03_pip_install_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/0e54c1ad-a80a-452c-b7c1-6f67493e1be5",
+      "width": 2560,
+      "time": 22.614986,
+      "expected": 22.988227463502838,
+      "error": null
+    },
+    {
+      "channel": "nightly/",
+      "lesson": "04_platform_installers",
+      "language": "es",
+      "voice": "ef_dora",
+      "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/006b95c49dde2403ad7674aa4b3f2501351416ec/04_platform_installers/web/04_platform_installers_silent.mp4",
+      "audio": "blob:https://einarolafsson.github.io/61bd20f0-d40f-40e2-8757-0a84a200c5f3",
+      "width": 2560,
+      "time": 34.93676,
+      "expected": 34.91184776750406,
+      "error": null
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,30 @@
+{
+  "source_parent": "0324166b59da0ba4c31e01cf108087f05d3e5992",
+  "before_sha256": "13feb74a4c5650d523a2b5f758d9f20c8103af6dc7e93cab1ae04d912a4e27e3",
+  "after_sha256": "9aa57fcccc95b3888dec72af7713b9be6db8a581214b2957573ed95471b3a7b0",
+  "test_sha256": "de87751e539abae07036a57e8e2f14f6f178104c43f1aaebc9f3b95dbac811b3",
+  "native_before_exit": -6,
+  "native_after_exit": 0,
+  "focused_passed": 47,
+  "focused_seconds": 10.67,
+  "log_origin": "Pytest stdout copied from tool transcript; native before/after logs are subprocess-captured raw output.",
+  "hosted_source": "e1f54c80650f60942ba6c98d4e999b36a3fa2846",
+  "hosted_source_bytes_identical": true,
+  "changed_source_only": "Old drain statement is now conditional, plus one detach statement; every other source byte unchanged.",
+  "mapping": "Old endpoints with abs(line)>360 move one line forward; changed line360 is observed directly, both new arcs observed.",
+  "union_missing_lines": [],
+  "union_missing_branches": [],
+  "limits": [
+    "No full Qt suite acceptance.",
+    "Separate deferred-wrapper SIGSEGV remains unresolved.",
+    "No guard, deadline, GPU or source API inventory change."
+  ],
+  "runtime_sources": {
+    "spacr/qt/bridge.py": "11a988e3dc1e45d83abaa9eb0512dcdd1c971f3436186bcaab4eb37c19d39143",
+    "spacr/qt/plate_queue.py": "465fea2d56617d174ad2eaf887b79092039d8e08eba0fdeede9e115c27e8d379",
+    "spacr/cancellation.py": "d74e0020a354eaf966759c568e779dcbba3c61d5af4a2cfead9f623671f084e5",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf"
+  },
+  "independent_review": "coverage_gate reviewed source, lifetime tests, native before/after and direct execution of both new branches; no repeat tests."
+}

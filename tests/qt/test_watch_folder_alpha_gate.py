@@ -1,0 +1,217 @@
+"""The folder watch on Make Masks is an alpha feature.
+
+Everything built from the future-features list is hidden until Preferences ->
+Show alpha features is turned on. For the folder watch that is its
+settings on the Make Masks form and the progress line beside the Run button;
+a watch value saved while hidden still reaches the run.
+"""
+from __future__ import annotations
+
+import builtins
+import json
+import os
+
+import pytest
+
+pytest.importorskip("PySide6")
+pytest.importorskip("pytestqt")
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+from PySide6.QtCore import QSettings  # noqa: E402
+
+WATCH_SETTINGS = ("watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings",
+                  "watch_classify_settings",
+                  "watch_settle_seconds", "watch_poll_seconds",
+                  "watch_idle_minutes")
+
+
+@pytest.fixture
+def prefs(tmp_path, monkeypatch):
+    """Preferences read and written through a throwaway INI file."""
+    from spacr.qt import preferences
+
+    path = tmp_path / "alpha.ini"
+    monkeypatch.setattr(preferences, "_settings",
+                        lambda: QSettings(str(path), QSettings.IniFormat))
+    return preferences
+
+
+def test_every_part_of_the_watch_is_registered_under_its_item():
+    from spacr.settings import ALPHA_FEATURES, _is_alpha
+
+    entry = ALPHA_FEATURES[548]
+    assert set(entry["settings"]) == set(WATCH_SETTINGS)
+    assert entry["widgets"] == ("WatchFolderProgress", "WatchLivePlate")
+    for key in WATCH_SETTINGS:
+        assert _is_alpha("settings", key)
+
+
+def test_the_watch_settings_and_progress_follow_the_switch(qtbot, prefs, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
+
+    screen = AppScreen("mask")
+    try:
+        for key in WATCH_SETTINGS:
+            screen._open_the_heading_of(key)
+        screen._refresh_alpha_visibility()
+        line = "watch_folder: 2 analysed, 1 waiting, 0 failed\n"
+
+        assert not any(screen.setting_row_is_visible(key)
+                       for key in WATCH_SETTINGS)
+        screen._show_watch_progress(line)
+        assert screen._watch_progress.isHidden()
+        assert screen._watch_live_plate.isHidden()
+        assert screen._settings_model.set_value_for_key("watch_folder", True)
+        assert screen._settings_model.collect()["watch_folder"] is True
+
+        prefs._set_show_alpha_features(True)
+        screen._refresh_alpha_visibility()
+        assert all(screen.setting_row_is_visible(key)
+                   for key in WATCH_SETTINGS)
+        screen._show_watch_progress(line)
+        assert not screen._watch_progress.isHidden()
+        assert "2" in screen._watch_progress.text()
+        assert screen._watch_live_plate.isHidden()
+
+        screen._watch_live_plate.begin(str(tmp_path), "mask")
+        assert not screen._watch_live_plate.isHidden()
+
+        prefs._set_show_alpha_features(False)
+        screen._refresh_alpha_visibility()
+        assert not any(screen.setting_row_is_visible(key)
+                       for key in WATCH_SETTINGS)
+        assert screen._watch_progress.isHidden()
+        assert screen._watch_live_plate.isHidden()
+        prefs._set_show_alpha_features(True)
+        screen._refresh_alpha_visibility()
+        assert not screen._watch_live_plate.isHidden()
+    finally:
+        retire_pyqtgraph_menus(screen)
+        screen.close()
+        screen.deleteLater()
+
+
+def test_an_unstarted_watch_does_not_load_the_plate_analysis(qtbot, prefs,
+                                                            monkeypatch):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    imported = []
+    original_import = builtins.__import__
+
+    def recording_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "plate_view" and level == 1:
+            imported.append(name)
+        return original_import(name, globals, locals, fromlist, level)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, "__import__", recording_import)
+        screen = AppScreen("mask")
+        qtbot.addWidget(screen)
+        plate = screen._watch_live_plate
+        plate.refresh()
+        plate.finish()
+        plate.reset()
+        screen.close()
+    assert imported == []
+    assert plate.parent() is screen._console_wrap
+    assert not plate.is_active()
+
+
+def test_the_first_watch_builds_an_owned_plate_and_stops_it_on_close(
+        qtbot, prefs, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    prefs._set_show_alpha_features(True)
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    plate = screen._watch_live_plate
+    assert plate.isHidden()
+    plate.begin(str(tmp_path), "mask")
+    assert plate.is_active()
+    assert not plate.isHidden()
+    assert plate._plate.parent() is plate
+    assert plate._plate._timer.isActive()
+    work = tmp_path / "spacr_watch"
+    work.mkdir()
+    (work / "watch_ledger.json").write_text(json.dumps({
+        "fields": {"plate_A01_field": {"status": "done"}},
+    }))
+    plate.refresh()
+    assert plate._plate._summary.text() == "1 completed fields on plate"
+    owned = plate._plate
+    plate.reset()
+    assert plate.isHidden()
+    assert not plate.is_active()
+    assert not owned._timer.isActive()
+    plate.begin(str(tmp_path), "mask")
+    assert plate._plate is owned
+    assert plate.is_active()
+    screen.close()
+    assert not plate._plate._timer.isActive()
+
+
+def test_a_watch_started_while_alpha_is_hidden_appears_when_enabled(
+        qtbot, prefs, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    prefs._set_show_alpha_features(False)
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    plate = screen._watch_live_plate
+    plate.begin(str(tmp_path), "mask")
+    assert plate.is_active()
+    assert plate.isHidden()
+    assert plate._plate.isHidden()
+    prefs._set_show_alpha_features(True)
+    screen._refresh_alpha_visibility()
+    assert not plate.isHidden()
+    assert not plate._plate.isHidden()
+    screen.close()
+
+
+def test_output_without_a_watch_line_leaves_the_label_alone(qtbot, prefs):
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.screens.app_screen import AppScreen
+
+    class Host:
+        _watch_progress = QLabel()
+
+    host = Host()
+    host._watch_progress.setObjectName("WatchFolderProgress")
+    qtbot.addWidget(host._watch_progress)
+    prefs._set_show_alpha_features(True)
+    AppScreen._show_watch_progress(host, "Progress: 3/4\n")
+    assert host._watch_progress.text() == ""
+    AppScreen._show_watch_progress(
+        host, "watch_folder: 5 analysed, 0 waiting, 2 failed\n")
+    assert host._watch_progress.text() == (
+        "Watching: 5 analysed, 0 waiting, 2 failed")
+
+
+def test_classify_pipeline_is_selectable_in_the_alpha_mask_form(qtbot, prefs):
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
+    from spacr.settings_spec import convert_settings_dict_for_gui
+
+    kind, choices, default = convert_settings_dict_for_gui(
+        {"watch_pipeline": "mask"})["watch_pipeline"]
+    assert (kind, choices, default) == (
+        "combo", ["mask", "mask_measure", "mask_measure_classify"], "mask")
+
+    prefs._set_show_alpha_features(True)
+    screen = AppScreen("mask")
+    try:
+        screen._open_the_heading_of("watch_pipeline")
+        screen._refresh_alpha_visibility()
+        assert screen.setting_row_is_visible("watch_pipeline")
+        assert screen._settings_model.set_value_for_key(
+            "watch_pipeline", "mask_measure_classify")
+        assert screen._settings_model.collect()["watch_pipeline"] == (
+            "mask_measure_classify")
+    finally:
+        retire_pyqtgraph_menus(screen)
+        screen.close()
+        screen.deleteLater()

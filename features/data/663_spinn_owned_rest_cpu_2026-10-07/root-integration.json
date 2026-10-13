@@ -1,0 +1,11 @@
+{
+  "root_commit": "d6cbd5f81014f72918c8b8c6abfe523d6a582003",
+  "root_source_commit": "8aae",
+  "ambient_sha256": "a3d1fed1d18b323fec6859e6ea72bad4ce273c8b60e8e87823ed751d7965eaff",
+  "individual_candidate_sha256": "a3d1fed1d18b323fec6859e6ea72bad4ce273c8b60e8e87823ed751d7965eaff",
+  "changed_dispatchers_AST_identical": true,
+  "root_cohort_passed": 83,
+  "elapsed_seconds": 12.83,
+  "raw_log": "root-integration.log.gz",
+  "limits": "Root cohort is separately reported and overlaps individual86; no unique sum. Whole root ambient hash differs because other agents changes are integrated; only our two dispatchers are proven AST identical here."
+}

@@ -1,0 +1,132 @@
+{
+  "combine": {
+    "completed_at": "2026-10-08T04:26:46Z",
+    "conclusion": "failure",
+    "job_id": 113148253234
+  },
+  "coverage_failure": 4,
+  "coverage_shards": [
+    {
+      "completed_at": "2026-10-08T04:10:59Z",
+      "conclusion": "success",
+      "job_id": 113126751915,
+      "number": 0
+    },
+    {
+      "completed_at": "2026-10-08T03:33:38Z",
+      "conclusion": "success",
+      "job_id": 113126751742,
+      "number": 1
+    },
+    {
+      "completed_at": "2026-10-08T04:16:55Z",
+      "conclusion": "failure",
+      "job_id": 113126751786,
+      "number": 2
+    },
+    {
+      "completed_at": "2026-10-08T04:08:44Z",
+      "conclusion": "success",
+      "job_id": 113126751847,
+      "number": 3
+    },
+    {
+      "completed_at": "2026-10-08T04:04:20Z",
+      "conclusion": "success",
+      "job_id": 113126751868,
+      "number": 4
+    },
+    {
+      "completed_at": "2026-10-08T04:23:57Z",
+      "conclusion": "failure",
+      "job_id": 113126751953,
+      "number": 5
+    },
+    {
+      "completed_at": "2026-10-08T03:29:11Z",
+      "conclusion": "success",
+      "job_id": 113126751544,
+      "number": 6
+    },
+    {
+      "completed_at": "2026-10-08T04:03:23Z",
+      "conclusion": "success",
+      "job_id": 113126751871,
+      "number": 7
+    },
+    {
+      "completed_at": "2026-10-08T03:59:56Z",
+      "conclusion": "success",
+      "job_id": 113126752039,
+      "number": 8
+    },
+    {
+      "completed_at": "2026-10-08T04:07:06Z",
+      "conclusion": "failure",
+      "job_id": 113126751793,
+      "number": 9
+    },
+    {
+      "completed_at": "2026-10-08T04:12:15Z",
+      "conclusion": "failure",
+      "job_id": 113126751916,
+      "number": 10
+    },
+    {
+      "completed_at": "2026-10-08T03:49:27Z",
+      "conclusion": "success",
+      "job_id": 113126752005,
+      "number": 11
+    }
+  ],
+  "coverage_success": 8,
+  "failed_nodes": {
+    "10": [
+      "tests/test_test_suite_hygiene.py::test_the_cellpose_mock_ratchet_is_empty_and_stays_that_way",
+      "tests/test_test_suite_hygiene.py::test_the_cellpose_mocks_do_not_swallow_channel_axis"
+    ],
+    "2": [
+      "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor"
+    ],
+    "5": [
+      "tests/qt/test_dna_rain.py::test_a_broken_theme_lookup_does_not_break_the_switch"
+    ],
+    "9": [
+      "tests/test_no_two_packaged_files_differ_only_in_case.py::test_no_two_tracked_paths_differ_only_in_case"
+    ]
+  },
+  "interpretation": "The 55bad run is not green: four required shards failed; complete numerical measurement independently found one ambient branch regression. Later focused fixes are separate source revisions and cannot relabel this result.",
+  "numerical": {
+    "ambient_missing_branches": [
+      [
+        5957,
+        5960
+      ]
+    ],
+    "ambient_missing_statements": 0,
+    "failed_modules": 1,
+    "integrity": {
+      "checked": true,
+      "issues": [],
+      "loss_kinds": {},
+      "recovered": [],
+      "shard_count": 12,
+      "shards_with_records": 12,
+      "status": "complete"
+    },
+    "modules_checked": 664,
+    "status": "fail",
+    "unconfirmed_modules": 0
+  },
+  "ratchet_unchanged": true,
+  "report_artifact": {
+    "id": 11528168420,
+    "name": "spacr-module-coverage-report-37720484173-1",
+    "sha256": "c9c2f7f87b83a0df8c90503bfe6bcbd940bd2fd09befb019572097141a199982"
+  },
+  "run_id": 37720484173,
+  "schema": 1,
+  "snapshot_scope": "all coverage jobs terminal; parent tests run still in progress at snapshot",
+  "source_ambient_blob": "1850f306b712b9a936f9e3e42d5e214a153bff5b",
+  "source_sha": "55badc57ff25ef6a7e14721561773a412b515318"
+}

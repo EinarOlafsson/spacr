@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "local_review_candidate_not_published",
+  "source_commit": "32dd22440",
+  "artifact_root": "/tmp/spacr-tutorial-audio-20260921",
+  "inference": {
+    "device": "cpu",
+    "gpu_used": false,
+    "threads": 2,
+    "memory_limit_gib": 4,
+    "model": "hexgrad/Kokoro-82M",
+    "snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987"
+  },
+  "tracks": [
+    {
+      "lesson": "01_pypi_github",
+      "voice": "af_heart",
+      "language": "en",
+      "duration": 67.79,
+      "media_sha256": "48eed371f3513e6914069199de255a60e01bda08eab875c252db0c77cc4247f4",
+      "render_fingerprint": "9dce1e4bff9d6a28dcb4f069a2f0bc354d8ab959bd4ec85aa79d66a3edcc0feb",
+      "verification_errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "voice": "af_heart",
+      "language": "en",
+      "duration": 122.685,
+      "media_sha256": "f442e5711638f33c218a92804a839c69dd5445a3bfd54346557255dc15947388",
+      "render_fingerprint": "9213291649d2b3d46bbf78cb1da89139ccd34e6fbfc095c1134a538f3911cb79",
+      "verification_errors": []
+    },
+    {
+      "lesson": "05_home",
+      "voice": "af_heart",
+      "language": "en",
+      "duration": 92.835,
+      "media_sha256": "634860367c01a8f5437f5f75f47fdb6c4ba6adc73c57ae1f525dad00deabb0e5",
+      "render_fingerprint": "7b5cb43247ffefe9624d54f45c9836675e66dd76e7fcb901757ee42d49da3ced",
+      "verification_errors": []
+    }
+  ],
+  "home_video": {
+    "width": 3840,
+    "height": 2160,
+    "fps": 30,
+    "scene_count": 6,
+    "duration": 92.833333,
+    "sha256": "e791ed080e6bbd4f37afe60ae9bae2d83372d427e5efbdc123540a432a0453f9",
+    "bytes": 4279910,
+    "preview_sha256": "ac1f2cf9bec6b08a2a5dca1590aaf26f31027509143a282800100e8930fd15c3",
+    "full_decode": "passed",
+    "source_narration_matches_capture_spec": true,
+    "theme": "dark",
+    "backdrop": "blobs",
+    "sampled_frames": [
+      {
+        "file": "scene_01.png",
+        "sha256": "c3b3ac49d87cf712fca1409dde938b7825c09c8b6b8f70ae80bce7819a18114f"
+      },
+      {
+        "file": "scene_02.png",
+        "sha256": "fedac3032a4ed5026b255b9bdfc9079bc3c576364ff8fb622486d8ee56ea86c0"
+      },
+      {
+        "file": "scene_03.png",
+        "sha256": "c6021d0402442b7e2ba2ff4bf4bcb6331d92fe9ef1ca6ee4f7d3ee4a05ab9206"
+      },
+      {
+        "file": "scene_04.png",
+        "sha256": "8a0eb09a8923b9c79cc22016e18046c4c37b4ee6d71fd5e1bcd876779410296b"
+      },
+      {
+        "file": "scene_05.png",
+        "sha256": "c916d8ef19744496e3946e86227436fbacb9db58609ec9448f1776c41d158055"
+      },
+      {
+        "file": "scene_06.png",
+        "sha256": "8b24b0b54b9b51d0f718010cb359b5093743ccfe392d40f9c0f494f37858c907"
+      }
+    ],
+    "visual_review": "Six-scene contact sheet and encoded Performance scene inspected; dark/Blobs theme present. Detailed browser/mobile acceptance remains open."
+  },
+  "outstanding": [
+    "Full supported voice/language matrix is rendering; only the three af_heart pilot tracks have been fully verified here.",
+    "Audible PyPI/pype pronunciation review remains open; current af_heart phoneme records contain pˈIp for all three PyPI sentences.",
+    "Browser/mobile playback, captions and all-language matrix reconciliation remain open.",
+    "No live media publication or main merge performed."
+  ]
+}

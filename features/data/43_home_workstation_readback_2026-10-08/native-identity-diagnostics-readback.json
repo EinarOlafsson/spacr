@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "source": "59a6daebab5014c3ee4094791de8ed257cd9af8d",
+  "parent": "e50c4dee7fc0c97ea3488d40fcdc8359c482ed07",
+  "payloads_verified": 5,
+  "receipt_sha256": "72d4a6d5eb1e89825d400bec59edf6e437fc78906cccd2e82f0ffa306f8df519",
+  "local_root_result": "65 passed in 2.64s, exit0, hostpytest8.4.2, Python3.12.13, CPU/offscreen/4G",
+  "scope": "Lossless payload/source/full reported test-summary readback. Diagnostic source diff is separately reviewable; no native cause/extracted-core/required-green claim."
+}

@@ -1,0 +1,33 @@
+{
+  "lesson": "75_regression_diagnostics",
+  "english_sha256": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Regression Diagnostics：检查保存的分析报告",
+  "description": "打开已完成运行的设计和推断报告，检查支持度和依赖关系，并在选择下一次分析时运用这些发现。",
+  "objectives": [
+    "打开目标Regression运行的诊断文件夹。",
+    "阅读设计支持度、可识别性和推断的摘要。",
+    "把诊断结果与其设置放在一起，并在修改分析后重新运行。"
+  ],
+  "prerequisite": "使用四组分数与计数完成Regression示例。图示的置换运行使用199次置换，最少两个孔。解读诊断面板时，请把其设置和结果族放在一起。",
+  "scenes": [
+    "从Home打开Regression。分析完成后，点击Diagnostics。请检查文件夹路径：这个快捷方式会打开它在项目中找到的最新诊断文件夹。",
+    "按顺序阅读该文件夹中的诊断文件：先看设计可识别性，再看包含共线向导对的设计诊断，然后是推断诊断，最后是汇总前面内容的摘要。",
+    "从Design identifiability开始。比较孔的数量、参数数量和设计矩阵的秩。本例的参数多于秩所能支持的数量，因此无法为每个向导识别出唯一的联合系数。",
+    "检查每个向导在各孔中的支持度。本例包含许多只出现在一个孔中的向导。请把完整设计与实际检验的、经过过滤的向导族区分开。",
+    "打开Design diagnostics和共线对表。在分别归因各自的效应之前，先找出总是同时出现或支持度较弱的预测变量。",
+    "打开Inference diagnostics。检查P值分布、与零假设的比较，以及在不同校正阈值下的发现数。本例在所显示的阈值下没有发现。",
+    "解读P值时，请检查置换次数。在一百九十九次置换下，可以得到的最小经验P值是零点零零五。请根据多重检验校正的需要规划分辨率。",
+    "置换分析不会产生联合回归模型的拟合残差。当使用能提供观测值和拟合值的模式时，再查看残差面板。",
+    "把摘要与各个面板结合起来阅读。它的总体评估反映的是各面板中最差的评估，因此请打开对应的报告了解原因。",
+    "回到Regression，有针对性地修改输入或分析设置。运行修改后的分析，并检查新的诊断结果。请把之前的输出文件夹分开保存，让每份报告都与其设置保持对应。"
+  ]
+}

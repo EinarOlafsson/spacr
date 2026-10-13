@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "install-from-source-heading",
+      "source_sha256": "74f849ea06bc4af046e55ff72afed2aa1f6290a1b88ae4083d5e689b9610481f",
+      "source": "Install from source",
+      "translation": "Instalación desde el código fuente"
+    },
+    {
+      "label": "install-from-source-editable",
+      "source_sha256": "c33148b097195c22362ad078ff092a56da2155fb1b1d4fb5a34b72f9864132f6",
+      "source": "Clone the repository and install it in editable mode, so your working copy *is* the installed package and edits take effect without reinstalling",
+      "translation": "Clone el repositorio e instálelo en modo editable, de modo que su copia de trabajo *sea* el paquete instalado y los cambios surtan efecto sin reinstalar"
+    },
+    {
+      "label": "install-from-source-default-branch",
+      "source_sha256": "4956451e514a2ca0f97fc7162d565dbe06a73f7a566f8ef3e8ab613b8ff5a7e2",
+      "source": "This clones ``main``, the default branch, which carries the latest release. Development happens on ``nightly``; add ``--branch nightly`` to clone it instead. For a specific release",
+      "translation": "Así se clona ``main``, la rama predeterminada, que contiene la última versión publicada. El desarrollo se hace en ``nightly``; añada ``--branch nightly`` para clonar esa rama en su lugar. Para una versión concreta"
+    },
+    {
+      "label": "install-from-source-pull",
+      "source_sha256": "928dc99e5ff827fcb9449a9bd5a98ca4d74f5a7a055ca83f6edd8311ecaaacd3",
+      "source": "To pull later changes, from inside the clone",
+      "translation": "Para incorporar cambios posteriores, ejecute desde dentro del clon"
+    },
+    {
+      "label": "install-from-source-reinstall",
+      "source_sha256": "15799ef765ff328d379f7f2d140fa0bc1d5cdbf70aeb35afde6aa3b6af3fe6e5",
+      "source": "The second line is only needed when dependencies or entry points changed; Python code is picked up without it. If a command still runs old code after pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path, which is the usual cause.",
+      "translation": "La segunda línea solo hace falta cuando cambian las dependencias o los puntos de entrada; el código Python se actualiza sin ella. Si un comando sigue ejecutando código antiguo después de actualizar, ``spacr-doctor`` indica qué ``spacr`` está realmente en su ruta de búsqueda, lo que suele ser la causa."
+    },
+    {
+      "label": "light-install-heading",
+      "source_sha256": "bddf4cc2bac1aa1045594fb75afab7315be1db8c810130d3b0b40254dd98da38",
+      "source": "Install from source (light)",
+      "translation": "Instalación desde el código fuente (ligera)"
+    },
+    {
+      "label": "light-install-choice",
+      "source_sha256": "d83fd36e15eb8dca6f5c7ad97eaca34612e5a243e25cec6a699ce90e790199e7",
+      "source": "Contributors need the history; to only run spaCR, take one of these, measured 2026-09-15 by ``packaging/measure_clone_forms.sh``",
+      "translation": "Quien contribuye necesita el historial; para solo ejecutar spaCR, elija una de estas opciones, medidas el 2026-09-15 con ``packaging/measure_clone_forms.sh``"
+    },
+    {
+      "label": "light-install-full-clone",
+      "source_sha256": "2b7071e96e84c65a77c1231869bc65253be18e25dbf90d6163ae41810316b7de",
+      "source": "The full clone downloads 5.8 GB for a 1186 MB checkout. Adding ``--filter=blob:none`` to that clone saves nothing: the checkout fetches the blobs anyway.",
+      "translation": "El clon completo descarga 5,8 GB para una copia de trabajo de 1186 MB. Añadir ``--filter=blob:none`` a ese clon no ahorra nada: el checkout descarga los blobs de todos modos."
+    }
+  ]
+}

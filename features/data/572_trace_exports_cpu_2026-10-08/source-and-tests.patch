@@ -1,0 +1,594 @@
+diff --git a/spacr/plot.py b/spacr/plot.py
+index 0d7feb885d..1bc9ccfe9e 100644
+--- a/spacr/plot.py
++++ b/spacr/plot.py
+@@ -530,7 +530,8 @@ _SOURCE_HASH_LIMIT = 256 * 1024 * 1024
+ _LOSSY_FORMATS = frozenset({"jpg", "jpeg", "jpe", "jfif", "webp", "gif",
+                             "heic", "heif", "avif"})
+ _REPLAYABLE_OPS = frozenset({"select_channel", "crop", "max_project",
+-                             "rescale", "to_uint8"})
++                             "rescale", "to_uint8", "read_crop_png",
++                             "merged_crop"})
+ 
+ 
+ def _figure_integrity_enabled(explicit=None):
+@@ -913,7 +914,8 @@ def _figure_panels(fig):
+     return found
+ 
+ 
+-def _panel_record(index, axes_index, axes, artist, fig, dpi):
++def _panel_record(index, axes_index, axes, artist, fig, dpi,
++                  source_cache=None):
+     """The provenance and integrity measurements for one image panel.
+ 
+     :returns: ``(record, displayed_array)``; the record is JSON-ready.
+@@ -993,8 +995,14 @@ def _panel_record(index, axes_index, axes, artist, fig, dpi):
+                                      int(round(box.height * scale))]
+     except Exception:
+         record["exported_pixels"] = None
+-    record["source"] = [_source_record(path) for path in tag.get("source")
+-                        or ()]
++    record["source"] = []
++    for path in tag.get("source") or ():
++        if source_cache is None:
++            record["source"].append(_source_record(path))
++        else:
++            if path not in source_cache:
++                source_cache[path] = _source_record(path)
++            record["source"].append(source_cache[path])
+     ops = [str(step.get("op", "")) for step in record["steps"]]
+     record["reproducible"] = bool(record["source"]) and all(
+         op in _REPLAYABLE_OPS for op in ops)
+@@ -1339,10 +1347,10 @@ def _integrity_report(fig, *, fmt, requested_fmt=None, dpi=None,
+     import platform
+ 
+     dpi = float(dpi or fig.dpi)
+-    panels, arrays = [], []
++    panels, arrays, source_cache = [], [], {}
+     for axes_index, axes, artist in _figure_panels(fig):
+         record, data = _panel_record(len(panels), axes_index, axes, artist,
+-                                     fig, dpi)
++                                     fig, dpi, source_cache)
+         if data.ndim < 2 or min(data.shape[:2]) < _MIN_PANEL_SIDE:
+             continue
+         panels.append(record)
+@@ -1508,6 +1516,13 @@ def _replay_steps(image, steps):
+                                           _display_ranges(step["ranges"]))
+         elif op == "to_uint8":
+             image = (np.asarray(image) * 255).astype(np.uint8)
++        elif op == "read_crop_png":
++            from .crops import read_crop_png
++            image = read_crop_png(step["path"], fmt=int(step["format"]))
++        elif op == "merged_crop":
++            from .crops import CropSpec, extract_crop, png_view
++            spec = CropSpec(**step["spec"])
++            image = png_view(extract_crop(spec.merged_path, spec=spec))
+         else:
+             raise ValueError(f"step {op!r} cannot be replayed")
+     return np.asarray(image)
+@@ -1532,7 +1547,17 @@ def _reproduce_panel(sidecar, panel):
+     record = next(p for p in sidecar["panels"] if p["panel"] == int(panel))
+     if not record.get("source"):
+         raise ValueError(f"panel {panel} names no source file")
+-    image = _read_panel_source(record["source"][0]["path"])
++    path = os.path.abspath(record["source"][0]["path"])
++    for step in record.get("steps") or []:
++        if step.get("op") == "read_crop_png":
++            recorded = os.path.abspath(step["path"])
++        elif step.get("op") == "merged_crop":
++            recorded = os.path.abspath(step["spec"]["merged_path"])
++        else:
++            continue
++        if recorded != path:
++            raise ValueError("crop recipe names a different source file")
++    image = _read_panel_source(path)
+     rebuilt = _replay_steps(image, record.get("steps") or [])
+     return rebuilt, _array_digest(rebuilt) == record["displayed_sha256"]
+ 
+@@ -1787,7 +1812,7 @@ def plot_image_mask_overlay(
+             """Normalize the image based on given percentiles."""
+             v_min, v_max = np.percentile(image, percentiles)
+             image_normalized = np.clip((image - v_min) / (v_max - v_min + 1e-5), 0, 1)
+-            return image_normalized
++            return image_normalized, (float(v_min), float(v_max))
+ 
+         def _generate_contours(mask):
+             """Generate contours from the mask using OpenCV."""
+@@ -1820,7 +1845,8 @@ def plot_image_mask_overlay(
+ 
+             for v in range(num_channels):
+                 channel_image = image[..., v]
+-                channel_image_normalized = _normalize_image(channel_image, percentiles)
++                channel_image_normalized, display_range = _normalize_image(
++                    channel_image, percentiles)
+                 channel_image_rgb = np.dstack([channel_image_normalized] * 3)
+ 
+                 current_channel = channels[v]
+@@ -1873,7 +1899,27 @@ def plot_image_mask_overlay(
+                                 channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+ 
+                 title = channel_to_label.get(current_channel, f'channel {current_channel}')
+-                ax[v].imshow(channel_image_rgb)
++                artist = ax[v].imshow(channel_image_rgb)
++                _tag_panel(
++                    artist, source=file,
++                    steps=({"op": "overlay_composite",
++                            "channel": int(current_channel),
++                            "percentiles": [float(value) for value in percentiles],
++                            "mode": str(mode),
++                            "thickness": int(thickness),
++                            "all_on_all": bool(all_on_all),
++                            "all_outlines": bool(all_outlines),
++                            "outline_palette": str(outline_palette),
++                            "mask_order": [name for name, _channel, _color
++                                           in present_objects],
++                            "mask_channels": {name: int(channel)
++                                              for name, channel, _color
++                                              in present_objects},
++                            "mask_planes": {name: int(index)
++                                            for name, index in mask_dims.items()},
++                            "filters": filter_recipe},),
++                    display_range=display_range, channel=current_channel,
++                    raw=channel_image)
+                 ax[v].set_title(title)
+                 ax[v].axis('off')
+ 
+@@ -1894,7 +1940,15 @@ def plot_image_mask_overlay(
+                 blank_image = np.zeros((*combined_mask.shape, 3))
+                 filled_image = _overlay_mask(blank_image, mask)
+ 
+-                ax[-1].imshow(filled_image)
++                artist = ax[-1].imshow(filled_image)
++                _tag_panel(artist, source=file,
++                           steps=({"op": "combined_masks",
++                                   "mask_planes": {name: int(index)
++                                                   for name, index in mask_dims.items()},
++                                   "mask_order": [name for name, _channel, _color
++                                                  in present_objects],
++                                   "filters": filter_recipe,
++                                   "outline_palette": str(outline_palette)},))
+                 ax[-1].set_title('combined objects')
+                 ax[-1].axis('off')
+             else:
+@@ -2052,6 +2106,10 @@ def plot_image_mask_overlay(
+         if ch not in channel_to_label:
+             channel_to_label[ch] = f'channel {ch}'
+ 
++    filter_recipe = (None if filter_dict is None else {
++        name: [[float(value) for value in bounds] for bounds in filter_dict[name]]
++        for name in mask_dims if name in filter_dict})
++
+     fig = _plot_merged_plot(
+         image=image,
+         outlines=outlines,
+diff --git a/spacr/qt/widgets/cell_montage_view.py b/spacr/qt/widgets/cell_montage_view.py
+index 365055810f..e67ce511c0 100644
+--- a/spacr/qt/widgets/cell_montage_view.py
++++ b/spacr/qt/widgets/cell_montage_view.py
+@@ -23,7 +23,7 @@ from __future__ import annotations
+ import logging
+ import os
+ from concurrent.futures import CancelledError
+-from dataclasses import dataclass, field
++from dataclasses import asdict, dataclass, field
+ from threading import Event
+ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+ 
+@@ -413,6 +413,8 @@ class MontageLoad:
+     :param images: the crops, one list per plan, aligned with that plan's
+         ``objects`` rows. An entry is ``None`` only where a source returned
+         nothing for a row.
++    :param crop_sources: source path and exact crop recipe per loaded image,
++        aligned with ``images``; missing entries make no provenance claim.
+     :param sources: ``{experiment root: description}`` -- which crop source
+         drew each plate, in words.
+     :param error: why there is no montage, or ``''``. A SENTENCE, not an
+@@ -449,6 +451,7 @@ class MontageLoad:
+     shape_reason: str = ""
+     objects: Any = None
+     counts: Any = None
++    crop_sources: Tuple[Tuple[Any, ...], ...] = ()
+ 
+     @property
+     def ok(self) -> bool:
+@@ -808,10 +811,14 @@ def _load(request, step):
+             request=request, error=f"Could not select the montage: {error}")
+ 
+     images: List[Tuple[Any, ...]] = []
++    crop_sources: List[Tuple[Any, ...]] = []
+     for number, plan in enumerate(plans, 1):
+         step(tr('Reading crops for montage {number} of {total}…',
+                 number=number, total=len(plans)))
+-        images.append(_cut(plan, sources, request, troubles, step=step))
++        per_crop = [None] * len(plan.rows())
++        images.append(_cut(plan, sources, request, troubles, step=step,
++                           provenance=per_crop))
++        crop_sources.append(tuple(per_crop))
+ 
+     notes = tuple(route_notes) + tuple(f"NOTE {t}" for t in troubles)
+     if notes:
+@@ -827,7 +834,8 @@ def _load(request, step):
+             if not why and not req.offers(candidate):
+                 why = req.why_not(candidate)
+     return MontageLoad(request=request, plans=tuple(plans),
+-                       images=tuple(images), sources=described,
++                       images=tuple(images), crop_sources=tuple(crop_sources),
++                       sources=described,
+                        shapes=tuple(s for s in CROP_SHAPES
+                                     if s in (offered or set())),
+                        shape_reason=why,
+@@ -847,7 +855,8 @@ def _with_notes(plan, notes: Tuple[str, ...]):
+ 
+ 
+ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
+-         troubles: List[str], *, step=None) -> Tuple[Any, ...]:
++         troubles: List[str], *, step=None,
++         provenance=None) -> Tuple[Any, ...]:
+     """Cut every crop one plan names, bucketed by plate.
+ 
+     Bucketed because ``MergedCropSource.get_many`` opens each ``.npy`` once
+@@ -856,6 +865,7 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
+     crops arrive one field at a time.
+ 
+     :param step: optional cancellable stage callback before each source read.
++    :param provenance: optional list receiving one source recipe per crop.
+     """
+     rows = plan.rows()
+     out: List[Any] = [None] * len(rows)
+@@ -869,6 +879,32 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
+         if choice is None:
+             troubles.append(f"{root} has no crop source; its objects are blank")
+             continue
++        snapshots = {}
++        if provenance is not None:
++            for position in positions:
++                try:
++                    row = rows[position]
++                    if choice.source.kind == "png":
++                        from ...crops import crop_format_for_png
++                        path = choice.source.resolve(row)
++                        recipe = {"op": "read_crop_png",
++                                  "path": os.path.abspath(path),
++                                  "format": int(crop_format_for_png(
++                                      path, choice.source.db_path))}
++                    elif choice.source.kind == "merged":
++                        spec = choice.source.spec_for(row)
++                        path = spec.merged_path
++                        recipe = {"op": "merged_crop", "spec": asdict(spec)}
++                        recipe["spec"]["merged_path"] = os.path.abspath(path)
++                    else:
++                        continue
++                    info = os.stat(path)
++                    snapshots[position] = {
++                        "path": os.path.abspath(path), "step": recipe,
++                        "size": int(info.st_size),
++                        "mtime_ns": int(info.st_mtime_ns)}
++                except (OSError, ValueError, TypeError, AttributeError):
++                    LOG.debug("could not describe the crop source", exc_info=True)
+         try:
+             crops = choice.source.get_many([rows[i] for i in positions])
+         except Exception as error:                              # noqa: BLE001
+@@ -879,6 +915,15 @@ def _cut(plan, sources: Dict[str, Any], request: MontageRequest,
+             continue
+         for position, crop in zip(positions, crops):
+             out[position] = crop
++            record = snapshots.get(position)
++            if provenance is not None and crop is not None and record is not None:
++                try:
++                    info = os.stat(record["path"])
++                    if (info.st_size == record["size"]
++                            and info.st_mtime_ns == record["mtime_ns"]):
++                        provenance[position] = record
++                except OSError:
++                    continue
+     return tuple(out)
+ 
+ 
+@@ -1579,6 +1624,7 @@ class CellMontageView(QWidget):
+         self._effect: Optional[float] = None
+         self._plans: Tuple[Any, ...] = ()
+         self._images: Tuple[Tuple[Any, ...], ...] = ()
++        self._crop_sources: Tuple[Tuple[Any, ...], ...] = ()
+         #: The load signature the crops in `_images` answer, or None.
+         self._loaded_signature = None
+         self._sources: Dict[str, str] = {}
+@@ -2266,6 +2312,7 @@ class CellMontageView(QWidget):
+             return
+         self._plans = result.plans
+         self._images = result.images
++        self._crop_sources = result.crop_sources
+         self._loaded_signature = self._load_signature()
+         self._sources = dict(result.sources)
+         self._shown_key = self._key
+@@ -2696,6 +2743,26 @@ class CellMontageView(QWidget):
+ 
+         figure = montage_figure(self._plans, self._images,
+                                 columns=max(self._columns, 4))
++        from ...plot import _figure_integrity_enabled, _tag_panel
++        if _figure_integrity_enabled() and self._crop_sources:
++            artists = iter(artist for axes in figure.axes
++                           for artist in axes.images)
++            for crops, records in zip(self._images, self._crop_sources):
++                for crop, record in zip(crops, records):
++                    if crop is None:
++                        continue
++                    artist = next(artists)
++                    if record is None:
++                        continue
++                    try:
++                        info = os.stat(record["path"])
++                    except OSError:
++                        continue
++                    if (info.st_size != record["size"]
++                            or info.st_mtime_ns != record["mtime_ns"]):
++                        continue
++                    _tag_panel(artist, source=record["path"],
++                               steps=(record["step"],))
+         written = save_figure(figure, path, close=True)
+         self._set_status(f"{self._summary()} — saved to {written}")
+         return written
+@@ -3061,6 +3128,7 @@ class CellMontageView(QWidget):
+         must not survive it.
+         """
+         self._plans, self._images, self._sources = (), (), {}
++        self._crop_sources = ()
+         self._loaded_signature = None
+         self._shown_key = ""
+         self._caption.setPlainText("")
+diff --git a/spacr/qt/widgets/picture_export.py b/spacr/qt/widgets/picture_export.py
+index ebea538863..7e37d06817 100644
+--- a/spacr/qt/widgets/picture_export.py
++++ b/spacr/qt/widgets/picture_export.py
+@@ -104,9 +104,54 @@ def save_picture(picture, path, dpi: Optional[int] = None) -> bool:
+     if resolution <= 0:
+         resolution = FALLBACK_DPI
+     path = str(path)
+-    if path.lower().endswith(".pdf"):
+-        return _save_pdf(image, path, resolution)
+-    return _save_png(image, path, resolution)
++    fmt = "pdf" if path.lower().endswith(".pdf") else "png"
++    report = None
++    try:
++        flag = os.environ.get("SPACR_FIGURE_INTEGRITY", "").strip().lower()
++        if flag in ("1", "true", "yes", "on"):
++            enabled = True
++        elif flag in ("0", "false", "no", "off"):
++            enabled = False
++        else:
++            from ..preferences import _get_figure_integrity
++            enabled = bool(_get_figure_integrity())
++        if enabled:
++            import numpy as np
++            from matplotlib.figure import Figure
++            from ...plot import _PNG_PROVENANCE_KEY, _integrity_report
++
++            rgba = image.convertToFormat(QImage.Format.Format_RGBA8888)
++            pixels = np.frombuffer(bytes(rgba.constBits()), dtype=np.uint8)
++            pixels = pixels.reshape(rgba.height(), rgba.bytesPerLine())
++            pixels = pixels[:, :rgba.width() * 4].reshape(
++                rgba.height(), rgba.width(), 4).copy()
++            figure = Figure(figsize=(rgba.width() / resolution,
++                                     rgba.height() / resolution),
++                            dpi=resolution)
++            axes = figure.add_axes([0, 0, 1, 1])
++            axes.imshow(pixels, interpolation="nearest")
++            axes.set_axis_off()
++            report = _integrity_report(figure, fmt=fmt, dpi=resolution,
++                                       destination=path)
++            if report is not None:
++                report["panels"][0]["capture"] = "rendered QImage"
++                report["panels"][0]["reproducible"] = False
++                if fmt == "png":
++                    import json
++                    image = QImage(image)
++                    image.setText(_PNG_PROVENANCE_KEY, json.dumps(report))
++    except Exception:
++        LOG.debug("could not check the rendered picture", exc_info=True)
++        report = None
++    written = (_save_pdf(image, path, resolution) if fmt == "pdf"
++               else _save_png(image, path, resolution))
++    if written and report is not None:
++        try:
++            from ...plot import _finish_integrity
++            _finish_integrity(report, path)
++        except Exception:
++            LOG.debug("could not save picture provenance", exc_info=True)
++    return written
+ 
+ 
+ def _save_png(image: QImage, path: str, dpi: int) -> bool:
+diff --git a/tests/qt/test_cells_behind_the_dot_tab.py b/tests/qt/test_cells_behind_the_dot_tab.py
+index c9e1ae9eac..78620a2526 100644
+--- a/tests/qt/test_cells_behind_the_dot_tab.py
++++ b/tests/qt/test_cells_behind_the_dot_tab.py
+@@ -535,6 +535,89 @@ def test_the_figure_goes_through_save_figure_and_carries_the_caption(
+     assert any("INFERRED, not observed" in t for t in seen["texts"])
+ 
+ 
++@pytest.mark.parametrize("with_png,suffix", [(True, ".png"), (False, ".npy")])
++def test_checked_montage_replays_the_actual_loaded_crop_source(
++        qtbot, tmp_path, monkeypatch, with_png, suffix):
++    import json
++    from spacr.plot import _reproduce_panel
++
++    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
++    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=with_png)
++    view.set_coefficient(GENE_KEY)
++    view.build()
++    written = view.save(str(tmp_path / "checked-montage.png"))
++    with open(written + ".provenance.json", encoding="utf-8") as handle:
++        report = json.load(handle)
++    panel = report["panels"][0]
++    assert panel["source"][0]["path"].endswith(suffix)
++    assert panel["source"][0]["sha256"]
++    assert panel["reproducible"] is True
++    rebuilt, matches = _reproduce_panel(report, panel["panel"])
++    assert matches is True
++    assert rebuilt.shape == tuple(panel["shape"])
++    tampered = json.loads(json.dumps(report))
++    step = tampered["panels"][0]["steps"][0]
++    if with_png:
++        step["path"] = str(tmp_path / "other.png")
++    else:
++        step["spec"]["merged_path"] = str(tmp_path / "other.npy")
++    with pytest.raises(ValueError, match="different source"):
++        _reproduce_panel(tampered, panel["panel"])
++
++
++def test_montage_does_not_claim_a_crop_source_replaced_after_loading(
++        qtbot, tmp_path, monkeypatch):
++    import json
++    from pathlib import Path
++
++    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
++    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
++    view.set_coefficient(GENE_KEY)
++    view.build()
++    source = Path(view._crop_sources[0][0]["path"])
++    before = source.stat()
++    source.write_bytes(source.read_bytes() + b"changed after load")
++    os.utime(source, ns=(before.st_atime_ns, before.st_mtime_ns + 1_000_000_000))
++    written = view.save(str(tmp_path / "changed-montage.png"))
++    with open(written + ".provenance.json", encoding="utf-8") as handle:
++        report = json.load(handle)
++    assert report["panels"][0]["source"] == []
++    assert report["panels"][0]["reproducible"] is False
++
++
++def test_crop_replaced_during_read_is_not_recorded_as_its_source(tmp_path):
++    from pathlib import Path
++    from types import SimpleNamespace
++    from PIL import Image
++    from spacr.crops import read_crop_png
++    from spacr.qt.widgets import cell_montage_view as montage
++
++    path = Path(tmp_path / "crop.png")
++    Image.fromarray(np.full((24, 28, 3), 32, dtype=np.uint8)).save(path)
++
++    class Source:
++        kind = "png"
++        db_path = None
++
++        def resolve(self, _row):
++            return str(path)
++
++        def get_many(self, rows):
++            pixels = [read_crop_png(str(path)) for _row in rows]
++            before = path.stat()
++            path.write_bytes(path.read_bytes() + b"changed during read")
++            os.utime(path, ns=(before.st_atime_ns,
++                               before.st_mtime_ns + 1_000_000_000))
++            return pixels
++
++    plan = SimpleNamespace(rows=lambda: [{"montage_source_root": "root"}])
++    records = [None]
++    crops = montage._cut(plan, {"root": SimpleNamespace(source=Source())},
++                         None, [], provenance=records)
++    assert len(crops) == 1 and crops[0].shape == (24, 28, 3)
++    assert records == [None]
++
++
+ def test_the_figure_draws_a_panel_for_every_selected_object(qtbot, tmp_path):
+     view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+     view.set_coefficient(GENE_KEY)
+diff --git a/tests/qt/test_right_click_saves_the_picture.py b/tests/qt/test_right_click_saves_the_picture.py
+index e3a4f23d0a..11c3036762 100644
+--- a/tests/qt/test_right_click_saves_the_picture.py
++++ b/tests/qt/test_right_click_saves_the_picture.py
+@@ -14,6 +14,8 @@ nothing else.
+ """
+ from __future__ import annotations
+ 
++import hashlib
++import json
+ import os
+ import re
+ 
+@@ -78,6 +80,40 @@ def test_a_pdf_is_a_page_the_pictures_own_shape(app, tmp_path):
+     assert height / width == pytest.approx(2.0, rel=0.02)
+ 
+ 
++@pytest.mark.parametrize("suffix", ["png", "pdf"])
++def test_checked_picture_export_records_the_actual_rendered_pixels(
++        app, tmp_path, monkeypatch, suffix):
++    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
++    picture = a_picture(72, 48)
++    path = tmp_path / f"field.{suffix}"
++    assert picture_export.save_picture(picture, str(path), dpi=150)
++    report = json.loads((tmp_path / f"field.{suffix}.provenance.json").read_text())
++    assert report["figure_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
++    assert report["format"] == suffix
++    panel, = report["panels"]
++    assert panel["capture"] == "rendered QImage"
++    assert panel["source"] == []
++    assert panel["reproducible"] is False
++    assert panel["shape"] == [48, 72, 4]
++    if suffix == "png":
++        embedded = json.loads(QImage(str(path)).text("spaCR provenance"))
++        assert embedded["panels"][0]["displayed_sha256"] == panel["displayed_sha256"]
++    assert picture.size().width() == 72
++    assert picture.size().height() == 48
++
++
++def test_unchecked_or_failed_picture_export_never_publishes_a_sidecar(
++        app, tmp_path, monkeypatch):
++    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "0")
++    plain = tmp_path / "plain.png"
++    assert picture_export.save_picture(a_picture(), str(plain))
++    assert not (tmp_path / "plain.png.provenance.json").exists()
++    monkeypatch.setenv("SPACR_FIGURE_INTEGRITY", "1")
++    missing = tmp_path / "missing" / "field.png"
++    assert not picture_export.save_picture(a_picture(), str(missing))
++    assert not (tmp_path / "missing" / "field.png.provenance.json").exists()
++
++
+ def test_an_empty_view_saves_nothing_rather_than_an_empty_file(app, tmp_path):
+     """There is nothing to write before a run has drawn anything."""
+     path = tmp_path / "nothing.png"
+diff --git a/tests/test_figure_integrity_guard.py b/tests/test_figure_integrity_guard.py
+index 2cd823f42b..093b316e39 100644
+--- a/tests/test_figure_integrity_guard.py
++++ b/tests/test_figure_integrity_guard.py
+@@ -17,6 +17,7 @@ Pinned here:
+ """
+ from __future__ import annotations
+ 
++import hashlib
+ import json
+ import os
+ 
+@@ -346,3 +347,34 @@ def test_warnings_reach_the_open_run(tmp_path, monkeypatch, capsys):
+     assert any("display ranges" in text for text in run.warnings)
+     assert run.outputs == [plot._provenance_sidecar_path(written)]
+     assert "Figure integrity" in capsys.readouterr().out
++
++
++def test_overlay_provenance_names_immutable_source_and_actual_compositing_recipe(
++        tmp_path, monkeypatch):
++    from matplotlib import pyplot as plt
++
++    monkeypatch.setattr(plt, "show", lambda: None)
++    source = tmp_path / "field.npy"
++    stack = np.zeros((36, 40, 3), dtype=np.uint16)
++    stack[..., 0] = np.arange(40, dtype=np.uint16)[None, :] * 100
++    stack[..., 1] = np.arange(36, dtype=np.uint16)[:, None] * 70
++    stack[8:20, 10:25, 2] = 1
++    np.save(source, stack)
++    limits = {"cell": ((1, 1000), (0, 65000))}
++    figure = plot.plot_image_mask_overlay(
++        str(source), [0, 1], 0, None, None, save_pdf=False,
++        filter_dict=limits, mode="outlines")
++    before = [plot._array_digest(artist.get_array())
++              for axes in figure.axes for artist in axes.images]
++    limits["cell"] = ((1000, 2000), (0, 65000))
++    report = plot._integrity_report(figure, fmt="png", dpi=100)
++    assert len(report["panels"]) == 3
++    assert [panel["displayed_sha256"] for panel in report["panels"]] == before
++    for panel in report["panels"]:
++        assert panel["source"][0]["path"] == str(source)
++        assert panel["source"][0]["sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
++        assert panel["reproducible"] is False
++        assert panel["steps"][0]["filters"]["cell"] == [[1.0, 1000.0], [0.0, 65000.0]]
++    assert [panel["steps"][0]["channel"] for panel in report["panels"][:2]] == [0, 1]
++    assert report["panels"][0]["display_range_units"] == "source"
++    np.testing.assert_array_equal(np.load(source), stack)

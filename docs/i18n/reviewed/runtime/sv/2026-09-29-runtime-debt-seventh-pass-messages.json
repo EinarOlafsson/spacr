@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27, seventh pass 2026-09-29: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A regex with named groups sorts every image into a channel and a set (one field across all channels). chanID is the channel; plateID, wellID, fieldID and timeID say where a set goes; any other named group only tells sets apart. Images assigned to a channel by selection keep that channel.\nExamples:\nspaCR's Yokogawa default: {cellvoyager}\nwell, field and channel: {typical}\nnames made by Consolidate folders: {consolidated}",
+      "source": "A regex with named groups sorts every image into a channel and a set (one field across all channels). chanID is the channel; plateID, wellID, fieldID and timeID say where a set goes; any other named group only tells sets apart. Images assigned to a channel by selection keep that channel.\nExamples:\nspaCR's Yokogawa default: {cellvoyager}\nwell, field and channel: {typical}\nnames made by Consolidate folders: {consolidated}",
+      "source_sha256": "6f4160fa392124fc89a5330bc4dd83264bbfa698fc2ee52f00f5d047f6c773b7",
+      "translation": "Ett regex med namngivna grupper sorterar varje bild i en kanal och en uppsättning (ett bildfält över alla kanaler). chanID är kanalen; plateID, wellID, fieldID och timeID anger vart en uppsättning hör; varje annan namngiven grupp skiljer bara uppsättningar åt. Bilder som tilldelats en kanal genom markering behåller den kanalen.\nExempel:\nspaCR:s Yokogawa-standard: {cellvoyager}\nbrunn, bildfält och kanal: {typical}\nnamn skapade av Konsolidera mappar: {consolidated}"
+    },
+    {
+      "table": "ui",
+      "key": "Add a row that keeps only the objects whose measurement -- area, mean intensity, solidity or any other scalar region property -- falls between a minimum and a maximum. Fill in the column of every object it should apply to; a blank cell leaves that object unfiltered. Default no filters.",
+      "source": "Add a row that keeps only the objects whose measurement -- area, mean intensity, solidity or any other scalar region property -- falls between a minimum and a maximum. Fill in the column of every object it should apply to; a blank cell leaves that object unfiltered. Default no filters.",
+      "source_sha256": "95c0751388b47e13f8f3d11df5d917972cd7cc8cd6226b62b909913c51602a6a",
+      "translation": "Lägg till en rad som bara behåller de objekt vars mätvärde – yta, medelintensitet, soliditet eller någon annan skalär regionegenskap – ligger mellan ett minimum och ett maximum. Fyll i kolumnen för varje objekt den ska gälla; en tom cell lämnar det objektet ofiltrerat. Standard inga filter."
+    },
+    {
+      "table": "ui",
+      "key": "Assign the selected images to channel {n}.",
+      "source": "Assign the selected images to channel {n}.",
+      "source_sha256": "f435c7273e4a3c1707ffdcc14ae1a2a7a4700aa46f9ababc37ffc34bb9cc23b6",
+      "translation": "Tilldela de markerade bilderna kanal {n}."
+    },
+    {
+      "table": "ui",
+      "key": "CAREamics 0.3.4 is BSD-3-Clause (Copyright 2023, CAREamics contributors). It downloads no weights: every Noise2Void model is trained here, on the run's own images, and stays with the experiment.",
+      "source": "CAREamics 0.3.4 is BSD-3-Clause (Copyright 2023, CAREamics contributors). It downloads no weights: every Noise2Void model is trained here, on the run's own images, and stays with the experiment.",
+      "source_sha256": "adb0cb3cda2269eecf065b223313fa0405cc9eebea96b1b144f5f357f9946e64",
+      "translation": "CAREamics 0.3.4 är BSD-3-Clause (Copyright 2023, CAREamics contributors). Det laddar inte ned några vikter: varje Noise2Void-modell tränas här, på körningens egna bilder, och stannar med experimentet."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the plate folder in src to read the segmentation QC its mask run wrote.",
+      "source": "Choose the plate folder in src to read the segmentation QC its mask run wrote.",
+      "source_sha256": "45f1f1af68b2d6d3467ac59f3d260d96f3d334b1e60f4c98b5fe750e97fe6ebc",
+      "translation": "Välj plattmappen i src för att läsa den segmenterings-QC som dess maskkörning skrev."
+    },
+    {
+      "table": "ui",
+      "key": "Click to open the segmentation QC the mask run wrote for this plate: the verdict, the wells it flags and the likely cause. It is advisory and never stops Measure from running.",
+      "source": "Click to open the segmentation QC the mask run wrote for this plate: the verdict, the wells it flags and the likely cause. It is advisory and never stops Measure from running.",
+      "source_sha256": "e959ea6f1c45bf30c23dea5fbfd8bfe2df4cba367c67de8114f0345abb322ac3",
+      "translation": "Klicka för att öppna den segmenterings-QC som maskkörningen skrev för den här plattan: utlåtandet, de brunnar den flaggar och den troliga orsaken. Den är rådgivande och stoppar aldrig Measure."
+    },
+    {
+      "table": "ui",
+      "key": "Copied {n} image(s) into {output}; the mapping is in {manifest}.",
+      "source": "Copied {n} image(s) into {output}; the mapping is in {manifest}.",
+      "source_sha256": "8f6426329d93d98754d75b2a627eb1f460a86fdedf41afbcadf45243b19618ef",
+      "translation": "Kopierade {n} bild(er) till {output}; mappningen finns i {manifest}."
+    },
+    {
+      "table": "ui",
+      "key": "Detect sets needs at least two channels: assign images to channels first, by selection or with a chanID group.",
+      "source": "Detect sets needs at least two channels: assign images to channels first, by selection or with a chanID group.",
+      "source_sha256": "88bbea6ead6f4a70059c56f1b1085d1e7b388e23de2b478b58f428da2dc7bd32",
+      "translation": "Hitta uppsättningar kräver minst två kanaler: tilldela först bilder kanaler, genom markering eller med en chanID-grupp."
+    },
+    {
+      "table": "ui",
+      "key": "Find a regex that puts every image in exactly one complete set: the token that changes with the channel, and the tokens that name the field.",
+      "source": "Find a regex that puts every image in exactly one complete set: the token that changes with the channel, and the tokens that name the field.",
+      "source_sha256": "bb72ee3038de5c26188beed074af2d3e3d9a2770563b0eb5fa1d303b2b396de7",
+      "translation": "Hitta ett regex som placerar varje bild i exakt en fullständig uppsättning: den del som ändras med kanalen och de delar som namnger bildfältet."
+    },
+    {
+      "table": "ui",
+      "key": "Ignore the names' structure: pair each image with the most similar image of the same size in every other channel, then show three sets to check.",
+      "source": "Ignore the names' structure: pair each image with the most similar image of the same size in every other channel, then show three sets to check.",
+      "source_sha256": "318486c77be0447f975332eb156c18c3e0fba3d93c5824daeb022a673c23c59a",
+      "translation": "Ignorera namnens struktur: para ihop varje bild med den mest lika bilden av samma storlek i varje annan kanal och visa sedan tre uppsättningar att kontrollera."
+    },
+    {
+      "table": "ui",
+      "key": "Make the text in this column's panels larger or smaller. The setting is remembered. Default 100%.",
+      "source": "Make the text in this column's panels larger or smaller. The setting is remembered. Default 100%.",
+      "source_sha256": "dd4944e96947713383cceb162700e2ac6b59b46131b062ec714f415a83b94db7",
+      "translation": "Gör texten i den här kolumnens paneler större eller mindre. Inställningen sparas. Standard 100%."
+    },
+    {
+      "table": "ui",
+      "key": "Moved {moved} file(s); {stacks} stack(s) and {merged} merged array(s) written under {dest}. Every move is in {manifest}.",
+      "source": "Moved {moved} file(s); {stacks} stack(s) and {merged} merged array(s) written under {dest}. Every move is in {manifest}.",
+      "source_sha256": "09f77bbaa78d450e5fbe8c8a930fcd4e9423655842bf43d576c9f1879efce1aa",
+      "translation": "Flyttade {moved} fil(er); {stacks} stack(ar) och {merged} sammanslagna arrayer skrivna under {dest}. Varje flytt finns i {manifest}."
+    },
+    {
+      "table": "ui",
+      "key": "Pretrained {epochs} epochs (last loss {loss:.3f}). The checkpoint is chosen in the Foundation model picker; press Embed to use it.",
+      "source": "Pretrained {epochs} epochs (last loss {loss:.3f}). The checkpoint is chosen in the Foundation model picker; press Embed to use it.",
+      "source_sha256": "bd21f1f9a286692e042fcfd6564fea9e485787abcd78166e8e6a288c9c496781",
+      "translation": "Förtränade {epochs} epoker (sista förlust {loss:.3f}). Kontrollpunkten väljs i väljaren för grundmodeller; tryck på Bädda in för att använda den."
+    },
+    {
+      "table": "ui",
+      "key": "Published results: Krull, Buchholz and Jug, 'Noise2Void - learning denoising from single noisy images', CVPR 2019; Hock et al., 'N2V2 - fixing Noise2Void checkerboard artifacts with modified sampling strategies and a tweaked network architecture', ECCV 2022 workshops. spaCR has not scored it on its own data.",
+      "source": "Published results: Krull, Buchholz and Jug, 'Noise2Void - learning denoising from single noisy images', CVPR 2019; Hock et al., 'N2V2 - fixing Noise2Void checkerboard artifacts with modified sampling strategies and a tweaked network architecture', ECCV 2022 workshops. spaCR has not scored it on its own data.",
+      "source_sha256": "b6093596120b32e6e49d5b88d7e3af82527c81420ca1740c3356b890023e0bef",
+      "translation": "Publicerade resultat: Krull, Buchholz och Jug, 'Noise2Void - learning denoising from single noisy images', CVPR 2019; Hock et al., 'N2V2 - fixing Noise2Void checkerboard artifacts with modified sampling strategies and a tweaked network architecture', ECCV 2022 workshops. spaCR har inte poängsatt den på egna data."
+    },
+    {
+      "table": "ui",
+      "key": "Select images and assign them to a channel, or let a regex assign every image. On Apply the images and their masks are MOVED into one folder per channel under {dest}, renamed in Yokogawa format, and merged into merged/. Every move is written to a manifest.",
+      "source": "Select images and assign them to a channel, or let a regex assign every image. On Apply the images and their masks are MOVED into one folder per channel under {dest}, renamed in Yokogawa format, and merged into merged/. Every move is written to a manifest.",
+      "source_sha256": "9ac9e2fa64211fe5b0067f920090abaea0f99fe8bbaeb6d7ee0362cad7e8b656",
+      "translation": "Markera bilder och tilldela dem en kanal, eller låt ett regex tilldela varje bild. Vid Tillämpa FLYTTAS bilderna och deras masker till en mapp per kanal under {dest}, byter namn i Yokogawa-format och slås samman i merged/. Varje flytt skrivs till ett manifest."
+    },
+    {
+      "table": "ui",
+      "key": "Self-supervised (DINO) pretraining of a ResNet-18 on the loaded crops, no labels needed, under the chosen channel policy. Choose a checkpoint file; it is saved after every epoch, and choosing the same file again resumes the run. When it finishes the checkpoint is offered in the Foundation model picker. Slow without a GPU. Default 20 epochs from random weights at 64 px.",
+      "source": "Self-supervised (DINO) pretraining of a ResNet-18 on the loaded crops, no labels needed, under the chosen channel policy. Choose a checkpoint file; it is saved after every epoch, and choosing the same file again resumes the run. When it finishes the checkpoint is offered in the Foundation model picker. Slow without a GPU. Default 20 epochs from random weights at 64 px.",
+      "source_sha256": "2d3c3929383d5efb78d37d42f7c7e861725c861da9ca09a930c50c334b749b1d",
+      "translation": "Självövervakad (DINO-)förträning av en ResNet-18 på de inlästa utsnitten, utan etiketter, med den valda kanalstrategin. Välj en kontrollpunktsfil; den sparas efter varje epok, och att välja samma fil igen återupptar körningen. När den är klar erbjuds kontrollpunkten i väljaren för grundmodeller. Långsam utan GPU. Standard 20 epoker från slumpvikter vid 64 px."
+    },
+    {
+      "table": "ui",
+      "key": "Self-supervised denoising: CAREamics trains a Noise2Void (N2V2) network on a run's own noisy fields, with no clean images, and Make Masks denoises every segmentation channel with it before the enhancement chain. Training wants a GPU; a CPU trains a small model slowly. PyTorch is held below 2.12 and torchvision at 0.26 or older, the newest pair CAREamics 0.3.4 accepts.",
+      "source": "Self-supervised denoising: CAREamics trains a Noise2Void (N2V2) network on a run's own noisy fields, with no clean images, and Make Masks denoises every segmentation channel with it before the enhancement chain. Training wants a GPU; a CPU trains a small model slowly. PyTorch is held below 2.12 and torchvision at 0.26 or older, the newest pair CAREamics 0.3.4 accepts.",
+      "source_sha256": "c3294fe5fee4be29c326e8631826c907a9946b2efffcb9ddb7926ca0ff18dacf",
+      "translation": "Självövervakad brusreducering: CAREamics tränar ett Noise2Void-nätverk (N2V2) på en körnings egna brusiga bildfält, utan rena bilder, och Make Masks brusreducerar varje segmenteringskanal med det före förbättringskedjan. Träningen kräver en GPU; en CPU tränar långsamt en liten modell. PyTorch hålls under 2.12 och torchvision på 0.26 eller äldre, det nyaste paret som CAREamics 0.3.4 accepterar."
+    },
+    {
+      "table": "ui",
+      "key": "Sorting {n} image(s) into channels under {dest}…",
+      "source": "Sorting {n} image(s) into channels under {dest}…",
+      "source_sha256": "ce20457d0315d5ed9a23519941a76572e8507243e3b4f133417f490679e0e175",
+      "translation": "Sorterar {n} bild(er) i kanaler under {dest}…"
+    },
+    {
+      "table": "ui",
+      "key": "Take the selected images out of their channel, so the regex decides theirs.",
+      "source": "Take the selected images out of their channel, so the regex decides theirs.",
+      "source_sha256": "3d271d8b15439fb8bad0d9497e5d18bb65a076fb4aedac129f47d7c7dd92d0ae",
+      "translation": "Ta ut de markerade bilderna ur sin kanal, så att regex avgör deras kanal."
+    },
+    {
+      "table": "ui",
+      "key": "The names cannot be turned into Yokogawa names with the current regex: not every image maps to a unique set of plate, well and field plus a channel.\n\n{why}\n\nChange the regex?",
+      "source": "The names cannot be turned into Yokogawa names with the current regex: not every image maps to a unique set of plate, well and field plus a channel.\n\n{why}\n\nChange the regex?",
+      "source_sha256": "69ad23bed28f8decd568f3484be86385ac92a189a877eacd2822ffad3f98413c",
+      "translation": "Namnen kan inte göras om till Yokogawa-namn med nuvarande regex: inte varje bild motsvarar en unik uppsättning av platta, brunn och bildfält plus en kanal.\n\n{why}\n\nÄndra regex?"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR found no regex that puts every image in exactly one complete set. Assign channels by selection and try again, or use Detect sets.",
+      "source": "spaCR found no regex that puts every image in exactly one complete set. Assign channels by selection and try again, or use Detect sets.",
+      "source_sha256": "20925098ef6d20e70242e385496c065e0e7c15d5873ab56e811800a5636bc736",
+      "translation": "spaCR hittade inget regex som placerar varje bild i exakt en fullständig uppsättning. Tilldela kanaler genom markering och försök igen, eller använd Hitta uppsättningar."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR paired each image with the most similar image of the same size in every other channel. Here are three of the {n} sets it found, each channel with its mask in red. Are they right?",
+      "source": "spaCR paired each image with the most similar image of the same size in every other channel. Here are three of the {n} sets it found, each channel with its mask in red. Are they right?",
+      "source_sha256": "5b6f7a41d2c23d5080f036dd03dff52e8f31b8f3f55f434fa220a525c15ad956",
+      "translation": "spaCR parade ihop varje bild med den mest lika bilden av samma storlek i varje annan kanal. Här är tre av de {n} uppsättningar den hittade, varje kanal med sin mask i rött. Stämmer de?"
+    },
+    {
+      "table": "ui",
+      "key": "{error}\nEvery move made before the failure is listed in the manifest.",
+      "source": "{error}\nEvery move made before the failure is listed in the manifest.",
+      "source_sha256": "f2cab1dac4298fd69b84f6b843eae719875b7c409591bf74601452080e686044",
+      "translation": "{error}\nVarje flytt som gjordes före felet finns listad i manifestet."
+    },
+    {
+      "table": "ui",
+      "key": "{folder} has {n} image(s) in {m} subfolder(s). Copy them into one new folder, each named after the folders it was in (for example exp_nucleus_2.tif)? The originals are not touched. No opens the folder as it is.",
+      "source": "{folder} has {n} image(s) in {m} subfolder(s). Copy them into one new folder, each named after the folders it was in (for example exp_nucleus_2.tif)? The originals are not touched. No opens the folder as it is.",
+      "source_sha256": "2b306b4272a475609a592dc9fc8e0a04f88c7c40bc2bee20cd00cea2023ad83b",
+      "translation": "{folder} har {n} bild(er) i {m} undermapp(ar). Kopiera dem till en ny mapp, var och en namngiven efter mapparna den låg i (till exempel exp_nucleus_2.tif)? Originalen rörs inte. Nej öppnar mappen som den är."
+    },
+    {
+      "table": "ui",
+      "key": "{n} file(s) could not be copied; see the manifest.",
+      "source": "{n} file(s) could not be copied; see the manifest.",
+      "source_sha256": "e5ebf1ecb8e2df3dc9dce995cc49539cb649795308bb12ca4c360d48e57da6b0",
+      "translation": "{n} fil(er) kunde inte kopieras; se manifestet."
+    },
+    {
+      "table": "ui",
+      "key": "{n} image(s) are not a single grey plane:\n{names}\n\nConvert them? RGB images become grey (the mean of their colours) and z-stacks become their maximum projection. The originals are kept in originals/ of the sorted folder.",
+      "source": "{n} image(s) are not a single grey plane:\n{names}\n\nConvert them? RGB images become grey (the mean of their colours) and z-stacks become their maximum projection. The originals are kept in originals/ of the sorted folder.",
+      "source_sha256": "f4e02cf76a6730e4acad56cf925a93325fe6bad0128741758b7ab90b42820ecc",
+      "translation": "{n} bild(er) är inte ett enda gråskaleplan:\n{names}\n\nKonvertera dem? RGB-bilder blir grå (medelvärdet av deras färger) och z-stackar blir sin maxprojektion. Originalen behålls i originals/ i den sorterade mappen."
+    }
+  ]
+}

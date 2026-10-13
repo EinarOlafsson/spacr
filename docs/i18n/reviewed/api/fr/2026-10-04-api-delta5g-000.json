@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.measure._pin_cupy_cudart_headers._pinned#0",
+      "source": "The pinned runtime header directory for ``cudart``, else the finder's answer.",
+      "source_sha256": "0e3022285d5af1215038aa8862c4e6c1bf3591a8266600421c53ac35240843bc",
+      "context": "The pinned runtime header directory for ``cudart``, else the finder's answer.",
+      "translation": "Le répertoire épinglé des en-têtes d’exécution pour ``cudart``, sinon la réponse du chercheur.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_distances.local_maxima#4",
+      "source": "optional tuple of slices (the object's bounding box, as from ``scipy.ndimage.find_objects``). The search then runs on that window only, which gives the same peaks as the whole image in a fraction of the time; coordinates are still in whole-image indices.",
+      "source_sha256": "a47e77e2d65b720062000e800bab33244f6835f82334f102f14de7966f1b3aa9",
+      "context": "optional tuple of slices (the object's bounding box, as from ``scipy.ndimage.find_objects``). The search then runs on that window only, which gives the same peaks as the whole image in a fraction of the time; coordinates are still in whole-image indices.",
+      "translation": "tuple facultatif de slices (la boîte englobante de l’objet, telle que la renvoie ``scipy.ndimage.find_objects``). La recherche ne s’exécute alors que dans cette fenêtre, ce qui donne les mêmes pics que l’image entière en une fraction du temps ; les coordonnées restent exprimées en indices de l’image entière.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_distances.local_maxima#5",
+      "source": "optional lowest intensity a peak must exceed. Pass the whole image's minimum with ``window`` so the window gives the same peaks as the whole image. ``None`` uses the searched image's minimum.",
+      "source_sha256": "3bda373563984627dc62144f438fb53c07a8ac51527e1fa8c77a87e06c4069c3",
+      "context": "optional lowest intensity a peak must exceed. Pass the whole image's minimum with ``window`` so the window gives the same peaks as the whole image. ``None`` uses the searched image's minimum.",
+      "translation": "intensité minimale facultative qu’un pic doit dépasser. Passez le minimum de l’image entière avec ``window`` pour que la fenêtre donne les mêmes pics que l’image entière. ``None`` utilise le minimum de l’image parcourue.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild#1",
+      "source": "A control looked up by its object name is the dialog's wherever its page is, so what the builder, Save and a test find by name does not depend on which tabs have been chosen. The page it is on comes back into its tab, hidden unless its tab is current, as it was before pages waited: a caller that goes on to click or read the geometry of what it found is holding a widget in the window.",
+      "source_sha256": "553b3f736f70244f556ca82c704fe3ac1df4644c2cdac18d68b228a263016d3d",
+      "context": "A control looked up by its object name is the dialog's wherever its page is, so what the builder, Save and a test find by name does not depend on which tabs have been chosen. The page it is on comes back into its tab, hidden unless its tab is current, as it was before pages waited: a caller that goes on to click or read the geometry of what it found is holding a widget in the window.",
+      "translation": "Un contrôle recherché par son nom d’objet appartient à la boîte de dialogue où que se trouve sa page, de sorte que ce que le constructeur, Save et un test trouvent par nom ne dépend pas des onglets choisis. La page où il se trouve revient dans son onglet, masquée sauf si son onglet est l’onglet courant, comme avant que les pages n’attendent : un appelant qui clique ensuite sur ce qu’il a trouvé ou en lit la géométrie tient un widget dans la fenêtre.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

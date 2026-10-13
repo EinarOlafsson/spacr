@@ -1,0 +1,36 @@
+{
+  "language": "pt-BR",
+  "lesson": "78_spacr_screens",
+  "english_sha256": "9c69d3bd6bce92b72feef865100a92f462356235781349735280c3f6dbacb4f5",
+  "title": "spaCR screens",
+  "section": "Fluxos de trabalho",
+  "description": "Acompanhe uma triagem agrupada baseada em imagens desde a tela Home, passando pelas medições de imagens, pela classificação de fenótipos e pelas contagens de códigos de barras, até a regressão.",
+  "objectives": [
+    "Escolha um módulo inicial a partir dos dados que você já tem.",
+    "Identifique o que cada módulo lê e grava.",
+    "Siga as lições dos módulos e os contratos da API vinculados para a próxima etapa."
+  ],
+  "prerequisite": "Instale o spaCR e abra a tela Home. Escolha os dados iniciais do seu fluxo de trabalho e siga as lições de módulos vinculadas para ver os controles e os dados de exemplo.",
+  "scenes": [
+    "Uma triagem agrupada conta sua história duas vezes, uma em imagens e outra em leituras de sequenciamento, e o spaCR junta as duas no fim. No lado das imagens, Mask e Measure transformam seus campos de microscópio em células medidas, e Annotate e Classify transformam essas células em pontuações de fenótipo. No lado do sequenciamento, Map Barcodes transforma leituras em contagens de guias. O Regression junta os dois por placa e poço. Entre onde seus resultados começam.",
+    "Tudo começa com suas imagens de microscópio. Abra Mask em Home, escolha os canais e um modelo de segmentação e confira a pré-visualização antes de executar. O Mask encontra os objetos em cada campo e salva cada campo como uma matriz combinada, com os canais de imagem empilhados junto com as máscaras de rótulos. Essas matrizes combinadas são o que o Measure abre em seguida. O pequeno banco de contagens que o Mask deixa é só uma contagem, ainda não uma tabela de características.",
+    "Em seguida, abra Measure em Home e aponte-o para o mesmo projeto, com os índices de canal de imagem e de máscara definidos corretamente. O Measure lê cada matriz combinada, imagens e planos de rótulos juntos, e grava cada célula, núcleo ou parasita como uma linha em measurements.db. Ative o salvamento de recortes e ele também corta um pequeno PNG em volta de cada objeto, indexado em png_list. Daqui a história se divide. O Annotate mostra esses recortes para você rotular exemplos, e o Classify aprende com os recortes ou com as características medidas, então mantenha estáveis as identidades dos objetos.",
+    "Antes que um classificador aprenda qualquer coisa, ele precisa de exemplos. Abra Annotate em Home e ele mostra os recortes de objetos que o Measure salvou ou transmite. Percorra células representativas e rotule-as. Cada rótulo é gravado em uma coluna de anotação da tabela png_list, ligado à identidade daquele objeto. Use uma coluna separada para cada pergunta e reserve alguns objetos rotulados para a avaliação. Essa coluna de anotação é a que o Classify usa para treinar em seguida.",
+    "Abra Classify em Home, e aqui seus rótulos viram pontuações. O Classify tem duas famílias, e seus dados escolhem entre elas. Computer Vision aprende com os próprios recortes de objetos, enquanto Tabular Machine Learning aprende com as colunas de características medidas. De qualquer forma, ele treina com os rótulos que você criou no Annotate, se avalia nos objetos que você reservou e salva o modelo treinado, um pacote de avaliação e as pontuações, como arquivos CSV e, quando combinadas, em png_list. Escolha a coluna de pontuação CV ou ML que você pretende testar, mantenha intacta a identidade de placa e poço e leve-a para o Regression.",
+    "Enquanto as imagens seguem por um caminho, as leituras de sequenciamento seguem por outro. Abra Map Barcodes em Home, entregue a ele seus arquivos FASTQ e as referências de códigos de barras que codificam sua triagem, e ele conta quais guias apareceram em cada poço. Confira as contagens mapeadas e o QC dos códigos de barras antes de confiar nelas. O unique_combinations.csv que ele grava é a tabela de contagens de guias que o Regression associa às suas pontuações de fenótipo, poço a poço.",
+    "É aqui que as duas metades da triagem se encontram. Abra Regression em Home e entregue a ele as duas coisas: as pontuações de fenótipo do Classify e as contagens de guias do Map Barcodes. O Regression as associa por placa e poço, então essas chaves precisam coincidir nos dois arquivos. Escolha a coluna de resposta e seus controles, execute o ajuste e abra os diagnósticos antes de acreditar em qualquer hit. Se seus códigos de barras foram lidos opticamente com o OPS, primeiro junte e agregue os objetos decodificados aos seus dados de fenótipo e de guias; o OPS não entrega uma tabela de contagens pronta. O Regression também pode modelar uma resposta medida diretamente. Ele grava uma pasta de resultados com coeficientes, tabelas de hits, configurações e figuras de diagnóstico.",
+    "Assim, uma triagem agrupada corre como dois fluxos que se encontram em Regression. Antes de abri-lo, confira se os identificadores de placa e poço batem entre suas pontuações, suas contagens de guias e seu layout de placa, e mantenha com a execução a coluna de anotação, as configurações do classificador e as referências de códigos de barras. As lições de módulos vinculadas percorrem cada etapa; você também pode escolher o passo a passo da triagem agrupada em Home."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "8bcb4fe91663a837150f7f84508f6b32a77cac17966055488104c89adb646c12",
+    "corrections": [
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
+  }
+}

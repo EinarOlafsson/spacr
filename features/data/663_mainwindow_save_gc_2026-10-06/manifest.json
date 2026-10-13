@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-06",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "PySide6": "6.11.2",
+    "Qt": "6.11.2",
+    "cgroup_cap": "4G",
+    "numpy": "2.5.2",
+    "platform": "Xvfb xcb 3840x2160x24",
+    "python": "3.12.13"
+  },
+  "files": {
+    "REPRODUCE.txt": {
+      "bytes": 1358,
+      "sha256": "250c386c7ecb582c9041508eb6e8701c5792d55895aef12be020ce0872863faa"
+    },
+    "run-1-save.log": {
+      "bytes": 1011,
+      "sha256": "2d1e10ebc8e6b91be75c377387d5de9fc67ea97001a9c539991916a130c9d52e"
+    },
+    "run-1-save.py": {
+      "bytes": 3297,
+      "sha256": "e1f95f8d1948fcd0bf68696a2ec56fcb16d021d541c014c0f500584905ed40a8"
+    },
+    "run-2-owned.log": {
+      "bytes": 1304,
+      "sha256": "5783fd9a4be42f3437349d41921d7fc4abd2ff162cd18c0fc55d8ff144453ae4"
+    },
+    "run-2-owned.py": {
+      "bytes": 3725,
+      "sha256": "d8e9136128bb84039c3fe28b143cd3fccf53c5ff233c5858b16130eae4d4f79f"
+    },
+    "run-3-drained.log": {
+      "bytes": 1301,
+      "sha256": "58dbf2bc0583035147b7f186c7ebd3b4d27fb945deab7e5fe1aa39fcb93045c2"
+    },
+    "run-3-drained.py": {
+      "bytes": 3835,
+      "sha256": "1616010cf68ef71dbdf37b6b8788e8f4fbcc9a3d81f88ebc3e0c14d5447a9308"
+    },
+    "run-4-gc-counted.log": {
+      "bytes": 1382,
+      "sha256": "ea4cff0aa132fa1dc7d1037736e625d241ce5c6874e9275118d5f3b9a6a69e9a"
+    },
+    "run-4-gc-counted.py": {
+      "bytes": 4354,
+      "sha256": "f37a8d4ced073da4a8f0176bec514ba49ae20f48bb9e684dedab080e9f5d83ce"
+    },
+    "run-5-verified.log": {
+      "bytes": 1445,
+      "sha256": "914bafb76f1c3054f4b5f089b944d8cb845028af5585a27a02b39563155cec81"
+    },
+    "run-5-verified.py": {
+      "bytes": 4484,
+      "sha256": "b1f2c52c441574286318d47be4d6686976240a4d063135c9595a45a7056e65d7"
+    }
+  },
+  "final_observation": {
+    "active_ambient_pixels": [
+      3840,
+      2114
+    ],
+    "after_close_deferred_delete": {
+      "ambient_widgets": 0,
+      "live_workers": 0,
+      "widgets": 0
+    },
+    "gui_gc_all_on_gui_thread": true,
+    "gui_gc_callbacks": 9,
+    "modal_save_gravity_radius": [
+      0.0,
+      0.65,
+      0.0
+    ],
+    "modal_save_resolution": [
+      2.0,
+      1.0,
+      2.0
+    ],
+    "real_screens": [
+      "Home",
+      "Make Masks",
+      "Measure",
+      "Annotate"
+    ],
+    "settings_values_asserted_after_each_save": true
+  },
+  "limitations": [
+    "The reported native preference-Save SIGSEGV did not reproduce; its cause and repair remain OPEN.",
+    "This is a short Xvfb CPU-only application path, not the user machine, a whole-Qt serial run, or all-theme native4K frame-rate acceptance.",
+    "Qt DeferredDelete was explicitly drained after close because a manual processEvents harness alone does not dispatch all queued deletions.",
+    "The GUI-GC count observes natural policy callbacks; no forced gc.collect was used."
+  ],
+  "runs": [
+    {
+      "exit_code": 0,
+      "log": "run-1-save.log",
+      "scope": "initial three modal Save cycles and close",
+      "script": "run-1-save.py"
+    },
+    {
+      "exit_code": 0,
+      "log": "run-2-owned.log",
+      "scope": "active ambient dimensions and zero workers after close; manual event pumping left DeferredDelete queued",
+      "script": "run-2-owned.py"
+    },
+    {
+      "exit_code": 0,
+      "log": "run-3-drained.log",
+      "scope": "Qt DeferredDelete drain leaves zero widgets, ambient widgets and workers",
+      "script": "run-3-drained.py"
+    },
+    {
+      "exit_code": 0,
+      "log": "run-4-gc-counted.log",
+      "scope": "seven passive generation-zero GC callbacks, all on GUI thread, and zero widgets/workers after drain",
+      "script": "run-4-gc-counted.py"
+    },
+    {
+      "exit_code": 0,
+      "log": "run-5-verified.log",
+      "scope": "nine passive generation-zero GC callbacks, all on GUI thread; complete saved settings and close assertions",
+      "script": "run-5-verified.py"
+    }
+  ],
+  "source_commit": "9ad69bab29d9a4f1b2188dbe823cc52860793adf",
+  "source_sha256": {
+    "spacr/qt/app.py": "4a74bedf391e3f2666bcd73dbfabb4e29d619258c36254f33511d64128a45a05",
+    "spacr/qt/gc_policy.py": "3700585a2f8f6dd394d54aaf79c58c789a0caf4f054fed7cb7035d115eb59fa1",
+    "spacr/qt/preferences.py": "eca3a67095bf07360f9ee9c6349015a83b06f2d256878bd168c6a3963db21567",
+    "spacr/qt/widgets/ambient.py": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5"
+  }
+}

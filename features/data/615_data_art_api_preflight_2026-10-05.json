@@ -1,0 +1,44 @@
+{
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "first_GPU_turn_exit_code": 1,
+  "first_GPU_turn_not_accepted": true,
+  "first_turn_reason": "Fail-closed stale prior reviewed source before translation decoding.",
+  "historical_review_records_migrated": 131,
+  "original_sources_targets_hashes_and_reviewer_attribution_preserved": true,
+  "complete_current_review_loader_passed_languages": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ],
+  "new_source_requires_fresh_translation_and_review": true,
+  "next_GPU_label": "615-data-art-api-20261005-r2",
+  "final_API_acceptance_pending": true,
+  "artifacts": {
+    "features/data/615_data_art_api_preflight_2026-10-05/check_data_art_api_preservation.py": {
+      "sha256": "474b43c64db88255fa9df2a75d93160bd8e9b90af3e06b7b669a7f3d62239fd8",
+      "bytes": 1845
+    },
+    "features/data/615_data_art_api_preflight_2026-10-05/data-art-api-refresh-r1.log.gz": {
+      "sha256": "9554c415d776cc834a08f29f52cd846529d733053d0a74c9d72b52af69b828c5",
+      "bytes": 621
+    },
+    "features/data/615_data_art_api_preflight_2026-10-05/data-art-api-review-migration-proof.json": {
+      "sha256": "a0b0c485127f4d5bab8368cad8e95d1e9c0f0b6f201c6b2c687b657134edaec4",
+      "bytes": 60035
+    },
+    "features/data/615_data_art_api_preflight_2026-10-05/data-art-api-review-migration-r1.log.gz": {
+      "sha256": "0f29ae09d630c7ea87c6a8fac1b9d672f36a43c7b98589f367586bbd6cf7af80",
+      "bytes": 126
+    },
+    "features/data/615_data_art_api_preflight_2026-10-05/retire_data_art_api_reviews.py": {
+      "sha256": "41bf17302cdb385548b4ab568a326fc678d39e166a0e0d732e960923cde244ef",
+      "bytes": 3221
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "date": "2026-10-05",
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "note": "Source-bound YOLO box controls and notices. Drawing/moving/resizing/deleting, overlapping boxes, standalone sources, recrop ordering, blinding and export failures reviewed explicitly; keyboard keys, file patterns and placeholders preserved.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add box class",
+      "source": "Add box class",
+      "source_sha256": "7ee27ce26395ccc9a5a4a1f18094bc1d38ae92d5f7c81239e1febaf013cecbfb",
+      "translation": "상자 클래스 추가"
+    },
+    {
+      "table": "ui",
+      "key": "Add class",
+      "source": "Add class",
+      "source_sha256": "6d06d0a508ff7f72d9e6cdd0b5ae45982568841504141e563585b6fe5a4607d4",
+      "translation": "클래스 추가"
+    },
+    {
+      "table": "ui",
+      "key": "Box annotations need a standalone image. Export the image from this segmentation bundle first, then open it in Make Masks.",
+      "source": "Box annotations need a standalone image. Export the image from this segmentation bundle first, then open it in Make Masks.",
+      "source_sha256": "83e5bdf358a6d534b67f2757b397076485014d9087edb8ec66e05b7afcca78a4",
+      "translation": "상자 주석에는 독립된 이미지가 필요합니다. 먼저 이 분할 번들에서 이미지를 내보낸 다음 Make Masks에서 여세요."
+    },
+    {
+      "table": "ui",
+      "key": "Box annotations saved → {path}",
+      "source": "Box annotations saved → {path}",
+      "source_sha256": "59834f446de4552c4cc880290df422c013070f836705db3a017f79d09b081bdc",
+      "translation": "상자 주석 저장됨 → {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot edit box annotations",
+      "source": "Cannot edit box annotations",
+      "source_sha256": "1d3e4a3d1edd06d0a39327e0d776eb6fc383d1f27dda8c1512d78194ddad9318",
+      "translation": "상자 주석을 편집할 수 없음"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot export YOLO labels",
+      "source": "Cannot export YOLO labels",
+      "source_sha256": "a7d3d3936115b48cc99734d6fcc98e7827dd060f9bc91548cb0f596e62a50ed8",
+      "translation": "YOLO 라벨을 내보낼 수 없음"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot load box annotations",
+      "source": "Cannot load box annotations",
+      "source_sha256": "d711e0b9650892cf5aa0873dcbbc056129724e9244fc02f69d52fc8ed5740565",
+      "translation": "상자 주석을 불러올 수 없음"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot save box annotations",
+      "source": "Cannot save box annotations",
+      "source_sha256": "90943c0336c436a02f6f18ad451b207c89648e2b196dfa812e63de433754bc33",
+      "translation": "상자 주석을 저장할 수 없음"
+    },
+    {
+      "table": "ui",
+      "key": "Class for a selected box or the next box",
+      "source": "Class for a selected box or the next box",
+      "source_sha256": "667bb9c048e835fb44ab6f860493f8e42948b8df461be9d9f477fe3c0d5ca0dd",
+      "translation": "선택한 상자 또는 다음 상자의 클래스"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the box under the cursor",
+      "source": "Delete the box under the cursor",
+      "source_sha256": "fe5e150f9db06472c9cc1897a864e116e7f85788c90c69db92eb081cef31fb33",
+      "translation": "커서 아래 상자 삭제"
+    },
+    {
+      "table": "ui",
+      "key": "Draw YOLO bounding boxes",
+      "source": "Draw YOLO bounding boxes",
+      "source_sha256": "ba36428254f3f1861e26911495f1e0a9c11a39c3d69cd67efaf5b35a9244d6b0",
+      "translation": "YOLO 경계 상자 그리기"
+    },
+    {
+      "table": "ui",
+      "key": "Draw YOLO bounding boxes (X). Drag inside to move, drag a corner to resize, or right-click to delete. Ctrl-drag draws an overlapping box.",
+      "source": "Draw YOLO bounding boxes (X). Drag inside to move, drag a corner to resize, or right-click to delete. Ctrl-drag draws an overlapping box.",
+      "source_sha256": "b3f046dc678559dfb97a8c160a6374bccdb0e614b860839aff898a86ed5b0c8f",
+      "translation": "YOLO 경계 상자 그리기 (X). 내부를 드래그하여 이동하거나 모서리를 드래그하여 크기를 조절하고, 마우스 오른쪽 버튼을 클릭하여 삭제하세요. Ctrl을 누른 채 드래그하면 겹치는 상자를 그립니다."
+    },
+    {
+      "table": "ui",
+      "key": "Draw an overlapping box",
+      "source": "Draw an overlapping box",
+      "source_sha256": "13d77116bab8b45fc7ff2d2d0947c0b638c61393f131956cf4ce41a29c8db931",
+      "translation": "겹치는 상자 그리기"
+    },
+    {
+      "table": "ui",
+      "key": "Enter a unique, nonempty class name.",
+      "source": "Enter a unique, nonempty class name.",
+      "source_sha256": "f3a79c0dad85387f189d73b26ff6a4ccfc1f2b9ff1f001f88911bcbe6af8dee1",
+      "translation": "고유하고 비어 있지 않은 클래스 이름을 입력하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Export YOLO labels",
+      "source": "Export YOLO labels",
+      "source_sha256": "c14d4a67fa4b9b4109ac6fbdc2e5a47252d29ebdd4a6d536b6d2afe745b0ced1",
+      "translation": "YOLO 라벨 내보내기"
+    },
+    {
+      "table": "ui",
+      "key": "Export this image's boxes as a YOLO .txt label file with a class-name companion.",
+      "source": "Export this image's boxes as a YOLO .txt label file with a class-name companion.",
+      "source_sha256": "c5f48dc43b2cc76920d9545d55dc71cb3e4e14ad867ba21c806ab4bc8d6ea2d9",
+      "translation": "이 이미지의 상자를 클래스 이름 보조 파일과 함께 YOLO .txt 라벨 파일로 내보냅니다."
+    },
+    {
+      "table": "ui",
+      "key": "Finish recropping first",
+      "source": "Finish recropping first",
+      "source_sha256": "60d3c93c5bd01e0db55198a23928bdc482d30da56f33220e74b41ebf82e5bd5d",
+      "translation": "먼저 다시 자르기를 완료하세요"
+    },
+    {
+      "table": "ui",
+      "key": "Image has box annotations",
+      "source": "Image has box annotations",
+      "source_sha256": "4b60ac4ac03a247d34dd1699d26acdfc10ab33fadd77772f6b2b2461482e8e63",
+      "translation": "이미지에 상자 주석이 있음"
+    },
+    {
+      "table": "ui",
+      "key": "Invalid class",
+      "source": "Invalid class",
+      "source_sha256": "049fa9c9efa3171b7651323a600f0b5bec316373a1d7e66a60708583878e2523",
+      "translation": "잘못된 클래스"
+    },
+    {
+      "table": "ui",
+      "key": "Move to a cropped field before adding box annotations.",
+      "source": "Move to a cropped field before adding box annotations.",
+      "source_sha256": "f35c2aa037f8583616590adae834dd56ea68c180cbc498b03651304500166551",
+      "translation": "상자 주석을 추가하기 전에 잘라낸 시야로 이동하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Remove this image's box annotations before recropping it.",
+      "source": "Remove this image's box annotations before recropping it.",
+      "source_sha256": "32033eef3d4524e7c1d4b3a454e6d3ceb9d628dd1c9eb7145b72c3c1104952bd",
+      "translation": "이 이미지를 다시 자르기 전에 상자 주석을 제거하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Save boxes",
+      "source": "Save boxes",
+      "source_sha256": "44db33f3e8d48815516e448ce19a46a787ea900f42faccdbbb84b78b841248bf",
+      "translation": "상자 저장"
+    },
+    {
+      "table": "ui",
+      "key": "Unblind this session before exporting labels named after source images.",
+      "source": "Unblind this session before exporting labels named after source images.",
+      "source_sha256": "75bf47759b3aa6173af74ca3266268788e05368ad462c2280fc62761742bac70",
+      "translation": "원본 이미지 이름을 사용하는 라벨을 내보내기 전에 이 세션의 눈가림을 해제하세요."
+    },
+    {
+      "table": "ui",
+      "key": "YOLO export is off while blinded",
+      "source": "YOLO export is off while blinded",
+      "source_sha256": "d4bbbaa6a7f7c16fdb1fd731ef662ea75888afa6b94aee16a38b84fbbaca1b64",
+      "translation": "눈가림 중에는 YOLO 내보내기가 꺼짐"
+    },
+    {
+      "table": "ui",
+      "key": "YOLO labels (*.txt)",
+      "source": "YOLO labels (*.txt)",
+      "source_sha256": "1a74af8c8d591948f459768474145c9b69e3d0afdb1e0f7a370ea0a4fcf8deaf",
+      "translation": "YOLO 라벨 (*.txt)"
+    },
+    {
+      "table": "ui",
+      "key": "YOLO labels exported → {path}",
+      "source": "YOLO labels exported → {path}",
+      "source_sha256": "ed570d06bbc20a2df16aefaf5606f55b35eecac884f00147ba3c261305d80aa4",
+      "translation": "YOLO 라벨 내보냄 → {path}"
+    }
+  ]
+}

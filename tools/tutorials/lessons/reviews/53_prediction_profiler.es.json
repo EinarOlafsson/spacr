@@ -1,0 +1,33 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Prediction Profiler: explorar un modelo ajustado",
+  "description": "Carga los coeficientes de un modelo, varía una entrada manteniendo fijas las demás y revisa las respuestas predichas.",
+  "objectives": [
+    "Cargar los coeficientes con la función de enlace correcta.",
+    "Recorrer una entrada y ajustar los valores fijados.",
+    "Revisar las curvas de respuesta y la sensibilidad."
+  ],
+  "prerequisite": "Descarga el ejemplo sintético de coeficientes, o usa los coeficientes de un modelo ajustado adecuado. Haz coincidir su función de enlace y la codificación de las entradas. La vía del archivo de coeficientes supone rangos de entrada de cero a uno; los efectos marginales por separado no sustituyen a un modelo de predicción ajustado conjuntamente.",
+  "scenes": [
+    "Abre Regression y luego Prediction Profiler para explorar las respuestas predichas por un modelo ajustado. El ejemplo enlazado usa datos sintéticos.",
+    "Descarga y descomprime el ejemplo, y luego usa Browse para ir al CSV sintético de coeficientes OLS. Incluye la ordenada en el origen cuando proporciones tus propios coeficientes ajustados.",
+    "Pon en Link la función que usa el modelo ajustado. Deja identity en este ejemplo de mínimos cuadrados ordinarios.",
+    "Comprueba la información de rangos después de cargar. La vía del archivo de coeficientes supone que cada entrada va de cero a uno. Confirma que eso corresponde a tu uso previsto antes de interpretar las curvas.",
+    "Selecciona Input A para el recorrido. Mueve el control deslizante de Input B, que está fijado, a uno y revisa la curva de respuesta resultante.",
+    "Mueve B a cero y compara los valores de respuesta. Fíjate en la escala del eje además de en la línea, porque el gráfico puede reescalarse.",
+    "Haz clic en Reset held values para devolver los controles deslizantes a los puntos medios de sus rangos supuestos, un medio en este ejemplo.",
+    "Selecciona Input B en la lista ordenada para recorrer B manteniendo fija A. La clasificación resume la sensibilidad del modelo en sus rangos de entrada configurados.",
+    "Cambia Points para elegir cuántas posiciones se evalúan a lo largo de la curva. Once da una rejilla más gruesa que sesenta y uno, sin cambiar el modelo ajustado.",
+    "Ajusta los valores fijados para explorar otros escenarios y restablécelos al terminar. Interpreta las curvas como predicciones del modelo y evalúa los efectos experimentales reales con datos adecuados."
+  ]
+}

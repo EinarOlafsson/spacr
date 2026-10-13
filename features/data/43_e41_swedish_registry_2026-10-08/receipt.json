@@ -1,0 +1,35 @@
+{
+  "conclusion": "The first sv failure masks all nine missing runtime _ROWS translations. Generated UI maps already contain their translations; the catalog owner must reconcile the compact runtime registry. This receipt does not change catalogs or treat the generated UI maps as a fix.",
+  "date": "2026-10-08",
+  "full_log_bytes": 2093698,
+  "full_log_sha256": "412998522ac348c51956f666a62393e876602f01e7888756c344b4fcf35d0ccf",
+  "job_id": 113548884286,
+  "job_name": "Coverage shard 5 of 12",
+  "missing_from_runtime_catalogs": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "missing_from_runtime_rows": true,
+  "present_in_generated_ui_catalogs": {
+    "de": "Organismus",
+    "es": "Organismo",
+    "fr": "Organisme",
+    "hi": "जीव",
+    "is": "Lífvera",
+    "ko": "생물체",
+    "pt": "Organismo",
+    "sv": "Organism",
+    "zh_CN": "生物体"
+  },
+  "registry_source_bytes_unchanged_e41_to_c4": true,
+  "run_id": 37846367787,
+  "source_sha": "e41df27e0a37303cbbc81687d21f74738cc05e0b",
+  "test_node": "tests/qt/test_i18n.py::test_every_registered_module_and_section_has_an_exact_translation"
+}

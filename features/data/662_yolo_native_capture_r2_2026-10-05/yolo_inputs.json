@@ -1,0 +1,32 @@
+[
+  {
+    "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_10_1.npy",
+    "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "image": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/plate1_E01_10_1_ER.tif",
+    "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "mask": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/masks/plate1_E01_10_1_ER.tif",
+    "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+    "image_plane": 1,
+    "cell_mask_plane": 4,
+    "objects": 63,
+    "shape": [
+      1994,
+      1994
+    ]
+  },
+  {
+    "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_11_1.npy",
+    "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "image": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/plate1_E01_11_1_ER.tif",
+    "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+    "mask": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/masks/plate1_E01_11_1_ER.tif",
+    "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+    "image_plane": 1,
+    "cell_mask_plane": 4,
+    "objects": 51,
+    "shape": [
+      1994,
+      1994
+    ]
+  }
+]

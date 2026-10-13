@@ -1,0 +1,373 @@
+{
+  "lesson": "59_anndata_export",
+  "status": "Six API workaround exports independently verified; GUI defect and tutorial media still unresolved",
+  "exports": [
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/joined_keep.h5ad",
+      "sha256": "efd7c83db9ce357f5ee71d81f86227e0dfd78b1c1bfef8968e2bf0e35d66d7fe",
+      "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "source_unchanged": true,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um",
+        "annotate",
+        "al_prob_0",
+        "al_prob_1",
+        "tutorial_demo_01",
+        "tutorial_demo_02",
+        "tutorial_demo_03",
+        "tutorial_demo_04",
+        "tutorial_demo_05",
+        "tutorial_demo_06"
+      ],
+      "roundtrip": {
+        "matrix_values_checked": 2659376,
+        "missing_feature_values": 400320,
+        "metadata_columns_checked": 35,
+        "shape": [
+          2341,
+          1136
+        ]
+      },
+      "single_table": "",
+      "nan_policy": "keep",
+      "settings": {
+        "anndata_nan_policy": "keep",
+        "anndata_compute_umap": false,
+        "anndata_single_table": "",
+        "anndata_dtype": "float32"
+      },
+      "api_workaround": true,
+      "gui_defect_fixed": false,
+      "result_summary": "2341 objects x 1136 features (in memory)\n  400320 missing values (15.1%), policy 'keep'",
+      "published": false,
+      "independent_check": {
+        "accepted": true,
+        "shape": [
+          2341,
+          1136
+        ],
+        "matrix_cells_checked": 2659376,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 400320,
+        "missing_written": 400320,
+        "source_objects": 2341,
+        "policy": "keep",
+        "anchor": "cell",
+        "joined": true,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/joined_keep.h5ad",
+        "sha256": "efd7c83db9ce357f5ee71d81f86227e0dfd78b1c1bfef8968e2bf0e35d66d7fe",
+        "bytes": 8361705
+      }
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_keep.h5ad",
+      "sha256": "8a60aa84507aab8b800b5ea02a034818105b70e341c925a97883af02ef3e22e2",
+      "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "source_unchanged": true,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um",
+        "annotate",
+        "al_prob_0",
+        "al_prob_1",
+        "tutorial_demo_01",
+        "tutorial_demo_02",
+        "tutorial_demo_03",
+        "tutorial_demo_04",
+        "tutorial_demo_05",
+        "tutorial_demo_06"
+      ],
+      "roundtrip": {
+        "matrix_values_checked": 611001,
+        "missing_feature_values": 28,
+        "metadata_columns_checked": 27,
+        "shape": [
+          2341,
+          261
+        ]
+      },
+      "single_table": "cell",
+      "nan_policy": "keep",
+      "settings": {
+        "anndata_nan_policy": "keep",
+        "anndata_compute_umap": false,
+        "anndata_single_table": "cell",
+        "anndata_dtype": "float32"
+      },
+      "api_workaround": true,
+      "gui_defect_fixed": false,
+      "result_summary": "2341 objects x 261 features (in memory)\n  28 missing values (0.0%), policy 'keep'",
+      "published": false,
+      "independent_check": {
+        "accepted": true,
+        "shape": [
+          2341,
+          261
+        ],
+        "matrix_cells_checked": 611001,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 28,
+        "source_objects": 2341,
+        "policy": "keep",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_keep.h5ad",
+        "sha256": "8a60aa84507aab8b800b5ea02a034818105b70e341c925a97883af02ef3e22e2",
+        "bytes": 2478788
+      }
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_mean.h5ad",
+      "sha256": "2a48171ab62cb8f6ccaee79531ef1a72c1eff3f740c63368935fbe9dac18b425",
+      "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "source_unchanged": true,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um",
+        "annotate",
+        "al_prob_0",
+        "al_prob_1",
+        "tutorial_demo_01",
+        "tutorial_demo_02",
+        "tutorial_demo_03",
+        "tutorial_demo_04",
+        "tutorial_demo_05",
+        "tutorial_demo_06"
+      ],
+      "roundtrip": {
+        "matrix_values_checked": 611001,
+        "missing_feature_values": 0,
+        "metadata_columns_checked": 27,
+        "shape": [
+          2341,
+          261
+        ]
+      },
+      "single_table": "cell",
+      "nan_policy": "mean",
+      "settings": {
+        "anndata_nan_policy": "mean",
+        "anndata_compute_umap": false,
+        "anndata_single_table": "cell",
+        "anndata_dtype": "float32"
+      },
+      "api_workaround": true,
+      "gui_defect_fixed": false,
+      "result_summary": "2341 objects x 261 features (in memory)\n  28 missing values (0.0%), policy 'mean'",
+      "published": false,
+      "independent_check": {
+        "accepted": true,
+        "shape": [
+          2341,
+          261
+        ],
+        "matrix_cells_checked": 611001,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 0,
+        "source_objects": 2341,
+        "policy": "mean",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_mean.h5ad",
+        "sha256": "2a48171ab62cb8f6ccaee79531ef1a72c1eff3f740c63368935fbe9dac18b425",
+        "bytes": 2484153
+      }
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_drop_features.h5ad",
+      "sha256": "e539467e8f5f0e7f100d1e44bc6865e9f3efe737778f32e2c863ad6ef3bb1f16",
+      "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "source_unchanged": true,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um",
+        "annotate",
+        "al_prob_0",
+        "al_prob_1",
+        "tutorial_demo_01",
+        "tutorial_demo_02",
+        "tutorial_demo_03",
+        "tutorial_demo_04",
+        "tutorial_demo_05",
+        "tutorial_demo_06"
+      ],
+      "roundtrip": {
+        "matrix_values_checked": 601637,
+        "missing_feature_values": 0,
+        "metadata_columns_checked": 27,
+        "shape": [
+          2341,
+          257
+        ]
+      },
+      "single_table": "cell",
+      "nan_policy": "drop_features",
+      "settings": {
+        "anndata_nan_policy": "drop_features",
+        "anndata_compute_umap": false,
+        "anndata_single_table": "cell",
+        "anndata_dtype": "float32"
+      },
+      "api_workaround": true,
+      "gui_defect_fixed": false,
+      "result_summary": "2341 objects x 257 features (in memory)\n  28 missing values (0.0% of the 2341 x 261 matrix the policy was given), policy 'drop_features'\n  dropped features (nan_policy 'drop_features'): cell_channel_0_homogeneity_distance_32, cell_channel_1_homogeneity_distance_32, cell_channel_2_homogeneity_distance_32, cell_channel_3_homogeneity_distance_32",
+      "published": false,
+      "independent_check": {
+        "accepted": true,
+        "shape": [
+          2341,
+          257
+        ],
+        "matrix_cells_checked": 601637,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 0,
+        "source_objects": 2341,
+        "policy": "drop_features",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_drop_features.h5ad",
+        "sha256": "e539467e8f5f0e7f100d1e44bc6865e9f3efe737778f32e2c863ad6ef3bb1f16",
+        "bytes": 2443386
+      }
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_drop_objects.h5ad",
+      "sha256": "dbbef0e3279aa97708df4d8e8ee034bb30a3a5552a687465348003081b418ccb",
+      "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "source_unchanged": true,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um",
+        "annotate",
+        "al_prob_0",
+        "al_prob_1",
+        "tutorial_demo_01",
+        "tutorial_demo_02",
+        "tutorial_demo_03",
+        "tutorial_demo_04",
+        "tutorial_demo_05",
+        "tutorial_demo_06"
+      ],
+      "roundtrip": {
+        "matrix_values_checked": 609174,
+        "missing_feature_values": 0,
+        "metadata_columns_checked": 27,
+        "shape": [
+          2334,
+          261
+        ]
+      },
+      "single_table": "cell",
+      "nan_policy": "drop_objects",
+      "settings": {
+        "anndata_nan_policy": "drop_objects",
+        "anndata_compute_umap": false,
+        "anndata_single_table": "cell",
+        "anndata_dtype": "float32"
+      },
+      "api_workaround": true,
+      "gui_defect_fixed": false,
+      "result_summary": "2334 objects x 261 features (in memory)\n  28 missing values (0.0% of the 2341 x 261 matrix the policy was given), policy 'drop_objects'\n  dropped objects (nan_policy 'drop_objects'): 7",
+      "published": false,
+      "independent_check": {
+        "accepted": true,
+        "shape": [
+          2334,
+          261
+        ],
+        "matrix_cells_checked": 609174,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 0,
+        "source_objects": 2341,
+        "policy": "drop_objects",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23340,
+        "no_embedding_requested": true,
+        "image_bytes_included": false,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/cell_drop_objects.h5ad",
+        "sha256": "dbbef0e3279aa97708df4d8e8ee034bb30a3a5552a687465348003081b418ccb",
+        "bytes": 2472658
+      }
+    },
+    {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/nucleus_keep.h5ad",
+      "sha256": "7e5028df8b4376fcf60282b955201594d5edddbb17bf3737a63f192edaa3ffc7",
+      "source_database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "source_unchanged": true,
+      "empty_metadata_columns": [
+        "voxel_size_z_um",
+        "voxel_size_xy_um"
+      ],
+      "roundtrip": {
+        "matrix_values_checked": 914562,
+        "missing_feature_values": 1912,
+        "metadata_columns_checked": 20,
+        "shape": [
+          2682,
+          341
+        ]
+      },
+      "single_table": "nucleus",
+      "nan_policy": "keep",
+      "settings": {
+        "anndata_nan_policy": "keep",
+        "anndata_compute_umap": false,
+        "anndata_single_table": "nucleus",
+        "anndata_dtype": "float32"
+      },
+      "api_workaround": true,
+      "gui_defect_fixed": false,
+      "result_summary": "2682 objects x 341 features (in memory)\n  1912 missing values (0.2%), policy 'keep'",
+      "published": false,
+      "independent_check": {
+        "accepted": true,
+        "shape": [
+          2682,
+          341
+        ],
+        "matrix_cells_checked": 914562,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 1912,
+        "missing_written": 1912,
+        "source_objects": 2682,
+        "policy": "keep",
+        "anchor": "nucleus",
+        "joined": false,
+        "annotation_values_checked": 0,
+        "no_embedding_requested": true,
+        "image_bytes_included": false,
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata-api-verified-namp6_7v/nucleus_keep.h5ad",
+        "sha256": "7e5028df8b4376fcf60282b955201594d5edddbb17bf3737a63f192edaa3ffc7",
+        "bytes": 3421780
+      }
+    }
+  ],
+  "total_matrix_values_checked": 6006751,
+  "total_annotation_values_checked": 116980,
+  "focused_tests_passed": 12,
+  "source_string_mutations_observed_red": 5,
+  "original_gui_hold_preserved": true,
+  "gui_defect_fixed": false,
+  "all_missing_obs_encoding": "Empty categorical solely for storage; no known values converted, no calibration invented, X unaffected by metadata encoding",
+  "feature_nan_policies": "Explicit calls to the real build_anndata; keep, mean, drop_features and drop_objects independently compared with SQLite oracle",
+  "published": false,
+  "human_listening_review": false
+}

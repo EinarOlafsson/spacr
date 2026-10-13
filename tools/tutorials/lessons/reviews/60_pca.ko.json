@@ -1,0 +1,39 @@
+{
+  "lesson": "60_pca",
+  "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "PCA: 측정값 탐색과 주성분 내보내기",
+  "description": "측정된 객체를 불러오고, 특징을 고르고, 주성분을 비교한 뒤 점수, 적재값, 설명 분산을 내보냅니다.",
+  "objectives": [
+    "측정 데이터베이스나 CSV를 불러오고 특징을 선택합니다.",
+    "척도 조정, 결측값 처리, 필터를 고릅니다.",
+    "주성분 점수와 적재값을 확인한 뒤 결과 표 세 개를 내보냅니다."
+  ],
+  "prerequisite": "Annotate 튜토리얼의 예제를 내려받아 measurements.db 사본으로 작업하세요. 이 안내는 그 cell 표를 쓰며, 웰 4개에 걸친 측정 객체 2,341개가 들어 있습니다. 원본 데이터베이스를 보관하고, 특징 목록, 필터, 척도 조정, 결측값 정책을 기록하세요.",
+  "scenes": [
+    "Home에서 Image UMAP을 연 뒤 PCA를 선택하세요. PCA로 여러 측정 열을 주성분으로 요약합니다. 연결된 Annotate 예제의 측정 데이터베이스로 시작하세요.",
+    "PCA 제목 옆의 Load table을 클릭하세요. measurements.db를 열고 cell을 선택하세요. 표시된 표와 객체 수를 확인하세요. 측정 열이 있는 CSV를 불러올 수도 있습니다.",
+    "특징 검색을 지우고 None을 클릭해 보이는 특징의 선택을 모두 해제하세요. cell_area, cell_channel_1_mean_intensity, cell_perimeter를 선택하세요. 검색을 다시 지우고 Components를 3으로 둔 뒤 Run PCA를 클릭하세요.",
+    "Scale을 Standardise로 두어 각 특징을 중심화하고 표본 표준 편차로 나누세요. 스크리 그림을 읽으세요. 처음 두 주성분이 선택한 특징 분산의 약 65.7%와 31.7%를 설명합니다.",
+    "Colour에서 rowID를, X에서 PC 3을, Y에서 PC 1을 고르세요. 이 컨트롤은 적합된 결과를 다시 그립니다. 각 점은 세포 하나를 나타내며, 이 예제에서 rowID는 공간상의 행을 나타냅니다.",
+    "PC 1과 PC 2로 돌아가세요. Loadings biplot을 켜고 끄며 특징 화살표를 표시하거나 숨기세요. 화살표는 표시된 주성분과의 상관을 보여 주므로, 방향과 점선 기준 원을 이용해 특징을 비교하세요.",
+    "Centre only를 고르면 원래 측정 척도로 적합합니다. 이제 첫 번째 주성분이 약 90.1%를 설명합니다. 척도 조정에 따라 요약하는 질문이 달라집니다. 공통 척도로 특징을 비교하려면 Standardise로 되돌리세요.",
+    "오른쪽 필터에서 cell_area를 추가하고 최솟값을 21,925로 두세요. 패널은 남은 세포 1,171개로 PCA를 다시 적합하므로, 집단과 주성분 방향이 모두 바뀝니다.",
+    "필터의 Clear all을 클릭해 전체 집단으로 되돌리세요. 필터링 후 객체 수를 확인하세요. 원본 데이터베이스는 바뀌지 않으며, 표시된 결과만 선택한 집단에 대해 다시 계산됩니다.",
+    "네 번째 특징으로 cell_channel_0_homogeneity_distance_32를 선택하세요. Run PCA를 클릭해 결과에 포함하세요. 이 예제는 그 열에 측정값 7개가 비어 있으니, NaN으로 적합에서 이를 어떻게 처리할지 고르세요.",
+    "Auto에서는 행의 2%를 넘게 결측된 특징을 제거한 뒤 불완전한 행을 뺍니다. 여기서는 특징 4개가 모두 남고 세포 7개가 제외됩니다. 실제로 분석된 특징과 객체는 보고서에서 확인하세요.",
+    "Drop features를 고르면 결측값이 있는 선택 특징이 제거됩니다. 이 예제에서는 질감 특징이 제거되고 세포는 모두 남습니다. 체크박스가 켜져 있더라도, 제외된 특징은 결과 안내에 표시됩니다.",
+    "Mean-impute를 고르면 계산 중 결측값을 특징의 관측 평균으로 대체해 모든 세포와 특징을 유지합니다. 여기서는 값 7개가 대체됩니다. 대체된 값은 추정치이므로 결과를 발표할 때 이 선택을 기록하세요.",
+    "Complete cases를 고르면 선택한 특징을 유지하고 불완전한 행을 제외합니다. 원래 예제로 돌아가려면 Auto를 고르고, 질감 특징의 선택을 해제하고, 검색을 지운 뒤 Run PCA를 클릭하고 Colour를 none으로 두세요.",
+    "Export를 클릭하고 pca_example 같은 기본 이름을 고르세요. 패널은 CSV 파일 세 개를 씁니다. 분석한 객체의 점수, 특징의 적재값과 상관, 주성분별 설명 분산입니다. 점수 표에는 원본 측정 열도 포함됩니다.",
+    "내보낸 표를 열고 특징 목록, 필터, 분석 설정과 함께 보관하세요. 분리를 해석할 때는 세포를 각 웰 안의 관측값으로 다루세요. Python에서 재현 가능한 분석에는 spacr.qt.widgets.pca_model의 pca와 PCASpec을 쓰세요."
+  ]
+}

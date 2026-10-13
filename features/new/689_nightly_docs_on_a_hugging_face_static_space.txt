@@ -1,0 +1,88 @@
+================================================================================
+NIGHTLY DOCS ON A HUGGING FACE STATIC SPACE, MAIN DOCS STAY ON GITHUB PAGES
+================================================================================
+
+Status:    BUILT 2026-10-10 — live; CI upload waits on the HF_DOCS_TOKEN secret,
+           Pages stub ships with the next main merge (see notes)
+Requested: 2026-10-10 — "Can you host the docs on huggingface? Removing docs
+           from nightly sees like a bad idea as my process is to change nightly
+           (including docs) then push and merge with main"; chose "Nightly on
+           HF, main on GitHub".
+Owner:     Home (CI/deploy); WS (docs links, translations)
+Related:   WS HANDOFF note 2026-10-10 (combined Pages site 960 of 996 MB; 54c0b404e
+           serves nightly's identical catalogs from main as a stopgap); N686/N687
+           website links to docs channels.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+.github/workflows/docs.yml builds main and nightly docs and publishes both
+channels into one GitHub Pages site (concurrency docs-pages-channels). Each
+channel is ~590 MB, so the combined site sits at 960 MB against GitHub's
+~1 GB Pages limit, with ~36 MB margin that disappears as nightly's
+translation catalogs diverge from main.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The maintainer edits nightly first, docs included, then merges to main, so
+nightly docs must stay complete. When the combined site overflows, the docs
+deploy fails for both channels.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Create a public Hugging Face static Space (sdk: static) for nightly docs,
+   e.g. einarolafsson/spacr-docs-nightly, served at its *.static.hf.space URL.
+   Large binaries via Git LFS/Xet as HF requires.
+2. docs.yml: main builds deploy to GitHub Pages as now (main only); nightly
+   builds upload the full nightly site to the Space with huggingface_hub
+   (upload_folder with delete_patterns so removed pages disappear). Auth via
+   a repository secret (HF token scoped to that Space only, write).
+3. Keep the GitHub Pages /nightly/ path as a redirect stub to the Space so
+   existing links keep working; revert 54c0b404e's main-catalog sharing once
+   nightly no longer shares the Pages budget.
+4. Update every link to nightly docs: README channel links, docs version
+   switcher, tutorials portal, site-src (N687), tests that pin URLs.
+5. Size guard: a CI check that fails before deploy if the main Pages site
+   exceeds 900 MB, so the next overflow is caught early.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+- A nightly push updates the Space; its URL serves the new build.
+- A main push updates GitHub Pages; the Pages artifact holds main only.
+- The old /nightly/ URLs redirect to the Space.
+- The docs workflow's Pages size is reported and under the guard.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+- Nightly docs are not trimmed (maintainer: nightly docs stay complete).
+- Main docs do not move; their public URL stays unchanged.
+
+2026-10-10 — Built (Home, Claude). Space einarolafsson/spacr-docs-nightly
+(sdk: static, public) serves https://einarolafsson-spacr-docs-nightly.static.hf.space/.
+First upload by hand from run 38059494495's nightly artifact (nightly
+34e95ef1b): Space commits 43166fc04 then f62a351be; 3297 files, 438.6 MB.
+Commits 7711e079c (workflow + publisher) and d1dca29cb (index.html links).
+docs.yml builds only the pushed branch: main -> assemble-main -> Pages
+(main only, /nightly/ index stub plus 404.html redirect to the same Space
+path, PAGES_LIMIT 900,000,000 bytes fails before upload, size in the step
+summary); nightly -> assemble-nightly -> upload_folder(delete_patterns=["*"])
+with secret HF_DOCS_TOKEN. 54c0b404e's shared catalogs/deck PDF reverted;
+cross-channel deck image sharing dropped. A static Space serves files only
+(/tutorials/ is 404), so nightly directory links get index.html (871 links).
+Run 38064345381 (d1dca29cb) is the first run of the new workflow.
+Open: (1) maintainer adds HF_DOCS_TOKEN (fine-grained, write to this Space
+only), else deploy-space stops with that instruction; (2) main's own
+docs.yml is still the combined one until nightly merges into main, so the
+Pages /nightly/ stub appears with that merge; (3) WS: site-src
+src/projects/spacr/index.html line 158 "Docs: nightly" card still points at
+https://einarolafsson.github.io/spacr/nightly/ (redirects once (2) lands).
+README.rst and the 9 localized READMEs carry no nightly-docs link.

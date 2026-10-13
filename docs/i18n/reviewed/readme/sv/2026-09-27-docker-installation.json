@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_method": "AI technical review (Codex), no native-speaker signoff",
+  "readme_source_sha256": "de9db9502bd3f88ade1926a0f116c9e40471b4b89284f9c7376fa457a63a0690",
+  "translated_readme_sha256": "bca54e51e56ea76f78c6710245f32195a1b0dd13a4bd40de8a2df63c30884440",
+  "scope": "Docker installation section only: heading and two prose blocks; command, image tags and URLs retained exactly. All earlier sections and review files unchanged.",
+  "records": [
+    {
+      "label": "heading",
+      "source": "Docker installation",
+      "source_sha256": "64c2a591a9cae8cf03f230fe74c4f7ce222720199e03196a6dcf6b2cfa99c64b",
+      "translation": "Installation med Docker"
+    },
+    {
+      "label": "intro",
+      "source": "Run spaCR's command-line pipelines in a container using the published `Docker images on GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Install `Docker <https://docs.docker.com/get-started/get-docker/>`_, then list the available pipelines with this published CPU image:",
+      "source_sha256": "33da0a682cef1f28f0629dd566878a6f9c64de15a85b968b742ac4a9040ef3bd",
+      "translation": "Kör spaCR:s kommandoradsbaserade bearbetningsflöden i en container med de publicerade `Docker-avbildningarna på GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_. Installera `Docker <https://docs.docker.com/get-started/get-docker/>`_ och lista sedan de tillgängliga flödena med denna publicerade CPU-avbildning:"
+    },
+    {
+      "label": "gpu",
+      "source": "The matching NVIDIA GPU image is ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Both images target Linux x86-64 containers. See the `Docker installation guide <docs/source/installer_guide.rst#container-images>`_ for GPU prerequisites, data and model mounts, settings files, and complete pipeline commands.",
+      "source_sha256": "cbe2b796bc8f882e792bed76cd317d873178587daf20bff533f6f7b7dabcd575",
+      "translation": "Motsvarande avbildning för NVIDIA-GPU:er är ``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``. Båda avbildningarna är avsedda för Linux-containrar på x86-64. Se `installationsguiden för Docker <docs/source/installer_guide.rst#container-images>`_ för GPU-förutsättningar, montering av data och modeller, inställningsfiler och fullständiga kommandon för bearbetningsflödena."
+    }
+  ]
+}

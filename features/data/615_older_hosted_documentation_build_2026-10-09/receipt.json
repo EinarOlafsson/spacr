@@ -1,0 +1,33 @@
+{
+  "run": 37878095138,
+  "job": 113652641313,
+  "source_commit": "796428c8a33fb1fae47cb957ae257d6ae373edc8",
+  "result": "success",
+  "publication_status": "queued when checked",
+  "publication_guards": {
+    "passed": 26,
+    "skipped": 2,
+    "deselected": 72
+  },
+  "payloads": [
+    {
+      "path": "docs-796-nightly-terminal-job-r1.json.gz",
+      "raw_bytes": 4154,
+      "raw_sha256": "2ded13fe1380be6120d11964a6fbd6adfd51242e56a5c622739e13653078fda8",
+      "gzip_sha256": "a33747c5c32445fb7d657759a0309ca25537005d7771a82db6edb0aae53b1acc"
+    },
+    {
+      "path": "docs-796-nightly-terminal-r1.log.gz",
+      "raw_bytes": 578247,
+      "raw_sha256": "dec231845067b4861aafd14bfff0f363e08007265c2f5694a1f88b7f7f31ac45",
+      "gzip_sha256": "bd1899e5f3c7ffd039b70bda16602318f5994178dd1f130914649549fe6de682"
+    },
+    {
+      "path": "docs-796-artifacts-r1.json.gz",
+      "raw_bytes": 2805,
+      "raw_sha256": "738271ad6ce248fd8fd3006db04b86fc43295caa084fa687ea0b90dfc02fc52a",
+      "gzip_sha256": "19ae5e7f0e6aed2342f731f39fe33249dc1ca8095cc155ce992485ec4d403cc6"
+    }
+  ],
+  "qualification": "Actual completed older nightly build and terminal logs; not latest 6fb source/media acceptance or deployed website. Original source pin retained."
+}

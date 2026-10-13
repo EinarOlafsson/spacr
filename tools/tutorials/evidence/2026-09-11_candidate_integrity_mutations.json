@@ -1,0 +1,29 @@
+{
+  "validator_sha256": "52fd43466f5f62459c4ad171de3b3017b46b6b87ed9a394c79712f3a88203e03",
+  "test_sha256": "5257f6633ad050652cc350fe5f544ec21b1227fa393dfe80a726d0657645849a",
+  "mutations": [
+    {
+      "guard": "inventory",
+      "observed_red": true,
+      "baseline_before_and_after_passed": true
+    },
+    {
+      "guard": "byte identity",
+      "observed_red": true,
+      "baseline_before_and_after_passed": true
+    },
+    {
+      "guard": "browser coverage",
+      "observed_red": true,
+      "baseline_before_and_after_passed": true
+    },
+    {
+      "guard": "mutation evidence",
+      "observed_red": true,
+      "baseline_before_and_after_passed": true
+    }
+  ],
+  "passed": true,
+  "source_files_modified": false,
+  "scope": "Isolated source mutation checks, not media or listening acceptance"
+}

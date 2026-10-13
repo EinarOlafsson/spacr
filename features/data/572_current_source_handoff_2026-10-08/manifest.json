@@ -1,0 +1,9 @@
+{
+  "sha256": {
+    "final-inventory.json.gz": "4f2fe2c712147bbe2793cd2ee403995ff1952373eefff4ae78089ff7b45aa6f8",
+    "focused-167.log.gz": "9d9a33e819b2896505a65e650274c6eb02e50f19e41c48d57bb1cbd87d1f1d4a",
+    "frozen-child-proofs.tar.gz": "c7958fd7613f07aa39681851ab736713cb261eae8640dcb3f15366b9b7eaaef8",
+    "receipt.json": "537638abb970c843845a26baf656edb64e68c32f99318db8b4d3c8d46d9f4e52",
+    "source-tests-from-f0.patch": "296907b637fa8ee98fc2f676ce6e533d678accfce0fbf6e34c3c6e1634b6a8ec"
+  }
+}

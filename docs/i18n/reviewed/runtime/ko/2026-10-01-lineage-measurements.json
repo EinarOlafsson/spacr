@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct Codex AI technical translation; independent Codex technical review, no human or native-speaker signoff",
+  "draft_author": "mask_editor",
+  "technical_reviewer": "root",
+  "source_file": "spacr/settings.py",
+  "source_file_sha256": "3fa147bd9fc3e2002f5d962ecb8fdcef56573c57849b98d86b841e92b3136d6e",
+  "superseded_review_file": "docs/i18n/reviewed/runtime/ko/2026-09-27-runtime-debt-sixth-pass-setting-help.json",
+  "superseded_review_file_sha256": "3e998cb764f9c381a79ef21561de16c2d4f47f9565d0e3ef8a61882d8a6b2b6c",
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "After tracking each field, build lineage trees from the tracker's division links: a tree figure coloured by timelapse_lineage_color_by, Newick trees, a per-cell segment table and per-lineage statistics (generation time in frames, sibling correlation), written to tracks/lineage. Trackastra division links are used as reported; for other trackers a division is inferred where new tracks start beside a mother. Default False.",
+      "source_sha256": "ecb6c75371a4125fba3524b9c4b45ef62a1890c24473960e4c1f8fd65b2a9f72",
+      "translation": "각 시야를 추적한 뒤 추적기의 분열 연결로 계보 트리를 만듭니다. timelapse_lineage_color_by 설정으로 색을 입힌 트리 그림, Newick 트리, 세포별 구간 표, 계보별 통계(프레임 단위 세대 시간, 자매 세포 상관)를 tracks/lineage 폴더에 기록합니다. Trackastra의 분열 연결은 보고된 대로 쓰고, 다른 추적기에서는 어미 세포 옆에서 새 궤적이 시작되는 곳을 분열로 추론합니다. 기본값 False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "What colours each cell in the lineage trees: generation_time, generation, start_frame or n_frames, or the name of a numeric column of the tracks table, averaged over the cell's frames. An unknown name falls back to generation_time with a message. Ignored unless timelapse_lineage. Default generation_time.",
+      "source_sha256": "1bd4fa595b703657f0c044f166dd656279e0d28a4be5c12f52cdd50f67eeb132",
+      "translation": "계보 트리에서 각 세포의 색을 정하는 값입니다. generation_time, generation, start_frame, n_frames 또는 세포의 프레임에 걸쳐 평균한 궤적 표의 숫자 열 이름입니다. 알 수 없는 이름은 메시지와 함께 generation_time으로 대체됩니다. timelapse_lineage 설정이 켜져 있지 않으면 무시됩니다. 기본값 generation_time."
+    }
+  ],
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage",
+      "source": "Build lineage trees after tracking, preserving native division links and recording the actual frame filenames and final object labels. Measure can rebuild trees using a numeric measured feature, with outputs in tracks/lineage_measured; original tracks, measurements and pre-Measure lineage outputs remain unchanged. Measured colours require the saved frame/source mapping; rerun tracking with lineage enabled if it is missing. Frame quantities are retained, with hours added only when time_s or frame_interval_s supplies calibration. Default False.",
+      "source_sha256": "bd4f4882cfb159551d67ab7421adafcd618c5d4cf7b45b041a308715cf642204",
+      "translation": "추적 후 계보 트리를 만듭니다. 추적기가 제공한 분열 관계를 유지하고 실제 프레임 파일명과 최종 객체 레이블을 기록합니다. 측정에서는 수치형 측정 특성으로 트리를 다시 만들 수 있으며, 결과는 tracks/lineage_measured에 저장됩니다. 원래 추적 결과, 측정값, 측정 실행 전의 계보 출력은 변경되지 않습니다. 측정값에 따른 색상 표시에는 저장된 프레임/원본 매핑이 필요합니다. 매핑이 없으면 계보 기능을 활성화한 상태로 추적을 다시 실행하세요. 프레임 단위의 값은 유지되며, time_s 또는 frame_interval_s로 시간 보정이 제공된 경우에만 시간 단위의 값이 추가됩니다. 기본값은 False입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_color_by",
+      "source": "Colour each lineage segment by generation_time (frames), generation_time_hours, generation, start_frame or n_frames, or a numeric feature averaged over its observed frames. Tracking reads tracks-table columns; Measure reads the selected tracked object's measurement table using saved frame and label identities. Means use available measured frames; segments with no measured values remain uncoloured. Ambiguous identities or invalid features stop that field's measured-colour export. Default generation_time.",
+      "source_sha256": "6d9fee5227cdd647f3edf8e7f71858da9017cd2dd4c9c41f8734b1fcfce41ae2",
+      "translation": "각 계보 구간의 색상을 generation_time(프레임 단위), generation_time_hours, generation, start_frame, n_frames 또는 해당 구간에서 관측된 프레임에 걸쳐 평균한 수치형 특성에 따라 지정합니다. 추적에서는 tracks 테이블의 열을 읽고, 측정에서는 저장된 프레임 및 레이블 식별자를 사용하여 선택한 추적 객체의 측정 테이블을 읽습니다. 평균은 측정값이 있는 프레임을 사용합니다. 측정값이 전혀 없는 구간에는 색상을 지정하지 않습니다. 식별자가 모호하거나 특성이 유효하지 않으면 해당 시야의 측정값 기반 색상 내보내기를 중단합니다. 기본값은 generation_time입니다."
+    }
+  ],
+  "review": "Checked against source and code: actual saved frame/label mapping, only available measured frames in means, uncoloured missing values, ambiguity/invalid feature rejection, separate output, and calibration conditions. Settings IDs and exact output path preserved."
+}

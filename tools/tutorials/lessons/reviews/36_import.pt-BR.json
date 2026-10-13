@@ -1,0 +1,40 @@
+{
+  "lesson": "36_import",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Import Project: trazer imagens, máscaras e medições para o spaCR",
+  "description": "Escolha imagens, máscaras de instâncias e tabelas de medições correspondentes, revise o mapeamento e crie um projeto do spaCR.",
+  "objectives": [
+    "Associar imagens, máscaras e linhas de medições.",
+    "Revisar e salvar o mapeamento de colunas.",
+    "Importar o projeto e inspecionar as saídas."
+  ],
+  "prerequisite": "Prepare arquivos de imagem, máscaras de rótulos de instância e um CSV de medições que se correspondam. Mantenha a identidade original de placa e poço de cada campo e use unidades de medida documentadas.",
+  "scenes": [
+    "Na categoria Data da tela Home, abra Import. Use esta tela para trazer imagens, máscaras de instâncias e medições já existentes para um projeto do spaCR.",
+    "Escolha a ferramenta de importação de acordo com o que você tem: Import Images ou Format Converter para imagens sozinhas, External Masks para imagens com máscaras. Esta tela recebe imagens, máscaras e uma tabela de medições ao mesmo tempo.",
+    "Se suas imagens e máscaras ainda precisam ser organizadas, abra Import Images e clique em Organizar imagens e máscaras. Dê a cada canal e máscara uma coluna, escolha se vai gravar para Mask Generation ou para Measure, e divida os arquivos multicanal quando necessário. Apply os move para a estrutura que esse módulo lê, prontos para abrir lá.",
+    "Escolha a pasta de imagens. O exemplo usa dois campos de microscopia com um canal de intensidade e os rótulos de células correspondentes. Registre a placa, o poço e o campo originais de cada arquivo.",
+    "Escolha a pasta de Cell mask e aperte Add. Cada objeto precisa de um rótulo inteiro próprio. Adicione mais classes de máscara quando tiver rótulos correspondentes para os mesmos campos.",
+    "Escolha o CSV de medições. Associe ImageNumber a cada campo e ObjectNumber ao rótulo da máscara. Use os dois identificadores para distinguir objetos entre campos.",
+    "Informe os micrômetros por pixel se você souber a calibração; caso contrário, deixe em branco. Confira se as colunas de área e de intensidade mantêm as unidades documentadas.",
+    "Aperte Preview para inspecionar o mapeamento de colunas e as junções propostas antes de criar o projeto. Revise os nomes sugeridos com o prefixo foreign e o significado científico deles.",
+    "Selecione uma célula de destino e aperte F dois para editar o nome. Um conflito com um nome reservado desativa Import quando Refuse the import está selecionado; escolha um nome de destino diferente ou use a política Rename.",
+    "Leia o relatório de junção e resolva as linhas ou os objetos sem correspondência. No exemplo, todas as cento e três linhas de medições correspondem a objetos das máscaras.",
+    "Dê à área importada um nome claro, como foreign reviewed area pixels squared. Revise juntos a origem, o destino, a transformação e as unidades.",
+    "Use Save mapping para guardar as definições de colunas revisadas como um CSV. Mantenha o mapeamento com suas imagens, máscaras, tabela de medições e identidades de aquisição.",
+    "Use Load mapping para reaproveitar definições salvas. Revise o plano resultante sempre que as colunas de origem, os rótulos ou as unidades forem diferentes.",
+    "Aperte Import e leia o relatório final. O exemplo grava dois arquivos de imagem, duas máscaras e dois arranjos combinados, com cento e três linhas em cada uma das duas tabelas de objetos.",
+    "Abra o projeto e inspecione as medições importadas. A tabela de colunas foreign registra a origem delas. Use Measure quando quiser que o spaCR calcule novas características a partir das imagens.",
+    "Mantenha o mapa de conversão com o projeto e confira as atribuições de placa, poço e campo. Nomes de arquivo genéricos podem receber novas coordenadas, então resolva as identidades originais antes de uma análise no nível da placa.",
+    "Continue em Database Browser para inspecionar as tabelas ou em Annotate para revisar os recortes de objetos. Guarde o mapeamento revisado junto com o projeto concluído."
+  ]
+}

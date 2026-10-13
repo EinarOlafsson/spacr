@@ -1,0 +1,80 @@
+{
+  "argv": [
+    "prlimit",
+    "--core=0:0",
+    "--",
+    "tools/run_capped.sh",
+    "8G",
+    "gdb",
+    "-nx",
+    "-nh",
+    "-batch",
+    "-ex",
+    "set auto-load safe-path /dev/null",
+    "-ex",
+    "set debuginfod enabled off",
+    "-ex",
+    "set pagination off",
+    "-ex",
+    "run",
+    "-ex",
+    "thread apply all bt 30",
+    "--args",
+    "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "-m",
+    "pytest",
+    "-v",
+    "--tb=short",
+    "-p",
+    "no:randomly",
+    "-p",
+    "qt_thread_identity",
+    "-o",
+    "faulthandler_timeout=900",
+    "--timeout=1200",
+    "--timeout-method=thread",
+    "tests/qt/test_distributed_jobs_screen.py",
+    "tests/qt/test_distribution_smoke.py"
+  ],
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": "/mnt/wd4tb/scratch/b688-thread-identity-20261007:/mnt/wd4tb/spacr-worktrees/codex-b688-thread-id-20261007",
+    "QT_QPA_PLATFORM": "offscreen",
+    "QT_THREAD_IDENTITY_LOG": "/mnt/wd4tb/scratch/b688-thread-identity-20261007/identity.jsonl",
+    "XDG_CONFIG_HOME": "/mnt/wd4tb/scratch/b688-thread-identity-20261007/config"
+  },
+  "files": [
+    {
+      "bytes": 1184,
+      "path": "qt_thread_identity.py",
+      "sha256": "3c8a54a66ca118e1d20e319c3bd3400bf82afbe1a340ea5bddc3bb2d6dd5c79a"
+    },
+    {
+      "bytes": 27193,
+      "path": "identity.jsonl",
+      "sha256": "8ac710df4d0325adabb314ffdc38dfa9dba9ab46ba79b0e67ccf3d1c529b5a28"
+    },
+    {
+      "bytes": 15895,
+      "path": "gdb.log",
+      "sha256": "edf948c79e2a5c73f33a7b58eda3168581148e0b5c7079dd3cb597e6e26108ad"
+    }
+  ],
+  "interpretation": {
+    "application_cpp_pointer": 93825032251744,
+    "before_app_creation": 1,
+    "boundary_records": 108,
+    "gui_thread_cpp_pointer": 93825035579040,
+    "limits": "No extra event pumping, garbage collection or deletion was invoked by the observer. Sampling only at pytest hook boundaries cannot rule out an invalid wrapper between hooks or in other preceding tests. The hosted crash build ID and registers were unavailable.",
+    "scope": "Two ordered files only; this negative local probe does not reproduce or explain the b688 hosted original-order QEventLoop native fault.",
+    "valid_gui_thread_records": 107
+  },
+  "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "result": "27 passed, 2 warnings, gdb inferior exited normally; no SIGSEGV",
+  "source_commit": "c771b4627caaeda21ea473452a91a63a30d87828",
+  "source_worktree": "/mnt/wd4tb/spacr-worktrees/codex-b688-thread-id-20261007"
+}

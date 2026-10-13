@@ -1,0 +1,173 @@
+{
+  "source_sha256": {
+    "before": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+    "candidate": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4"
+  },
+  "rows": [
+    {
+      "palette": "spacr",
+      "resolution": 2,
+      "density": 3,
+      "background": "#101418",
+      "geometry_equal_cases": 7,
+      "native_pairs": [
+        {
+          "clock": 95,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "dff3ac3e10969adfe350f1831f399f1df8cc51cab61cfb1da2152478abdb95fc",
+            "candidate": "dff3ac3e10969adfe350f1831f399f1df8cc51cab61cfb1da2152478abdb95fc"
+          }
+        },
+        {
+          "clock": 98,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "a0f932e5c1436d04fdba9f7d04acc470e7dcaf57bc23ed3bc510440065f7b84e",
+            "candidate": "a0f932e5c1436d04fdba9f7d04acc470e7dcaf57bc23ed3bc510440065f7b84e"
+          }
+        },
+        {
+          "clock": 3600.33,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "c1db93b3c09270643c33eebd7d177595661d9a61bd2b6c7f945874da45ec50cb",
+            "candidate": "c1db93b3c09270643c33eebd7d177595661d9a61bd2b6c7f945874da45ec50cb"
+          }
+        }
+      ],
+      "geometry_median_ms": {
+        "before": 1.8215745076304302,
+        "candidate": 1.309733503148891
+      },
+      "shader_median_ms": {
+        "before": 55.64676699577831,
+        "candidate": 56.767865986330435
+      }
+    },
+    {
+      "palette": "random",
+      "resolution": 2,
+      "density": 3,
+      "background": "#101418",
+      "geometry_equal_cases": 7,
+      "native_pairs": [
+        {
+          "clock": 95,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "9e0a6311036c87f9c4931475eed75f096f2d5fb1f3c0009b92485a73741279e9",
+            "candidate": "9e0a6311036c87f9c4931475eed75f096f2d5fb1f3c0009b92485a73741279e9"
+          }
+        },
+        {
+          "clock": 98,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "1b99a06b2d2e024afff814e87288ddd17867529dfac9244e3ead04e25f0072df",
+            "candidate": "1b99a06b2d2e024afff814e87288ddd17867529dfac9244e3ead04e25f0072df"
+          }
+        },
+        {
+          "clock": 3600.33,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "5003cc226da2017b23949161061748379adfe15d9f91cb11112c0b1c94ae61c8",
+            "candidate": "5003cc226da2017b23949161061748379adfe15d9f91cb11112c0b1c94ae61c8"
+          }
+        }
+      ],
+      "geometry_median_ms": {
+        "before": 1.8263194942846894,
+        "candidate": 1.307138503761962
+      },
+      "shader_median_ms": {
+        "before": 54.13804949785117,
+        "candidate": 53.16999649221543
+      }
+    },
+    {
+      "palette": "custom",
+      "resolution": 1,
+      "density": 3,
+      "background": "#101418",
+      "geometry_equal_cases": 7,
+      "native_pairs": [
+        {
+          "clock": 95,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "a8f21204517d93f5a20cff08f7ba57e6e0b22af66fea984cc525999accb1c2f8",
+            "candidate": "a8f21204517d93f5a20cff08f7ba57e6e0b22af66fea984cc525999accb1c2f8"
+          }
+        },
+        {
+          "clock": 98,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "6ae75cdc43c18e922c40e223a1404b016fd786c281c14242bda13a33e6c05807",
+            "candidate": "6ae75cdc43c18e922c40e223a1404b016fd786c281c14242bda13a33e6c05807"
+          }
+        },
+        {
+          "clock": 3600.33,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "747ccf260cf22f338c29c28b8641004ce60753e394cb9f0099408c4d88a91977",
+            "candidate": "747ccf260cf22f338c29c28b8641004ce60753e394cb9f0099408c4d88a91977"
+          }
+        }
+      ],
+      "geometry_median_ms": {
+        "before": 3.626895006163977,
+        "candidate": 2.670861518708989
+      },
+      "shader_median_ms": {
+        "before": 91.50042649707757,
+        "candidate": 91.18542498617899
+      }
+    },
+    {
+      "palette": "spacr",
+      "resolution": 2,
+      "density": 0.01,
+      "background": "#ffffff",
+      "geometry_equal_cases": 7,
+      "native_pairs": [
+        {
+          "clock": 95,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "12ddb26d895e268deb253afe5870aacc63bd1e2817d638aeca4215af93ee2770",
+            "candidate": "12ddb26d895e268deb253afe5870aacc63bd1e2817d638aeca4215af93ee2770"
+          }
+        },
+        {
+          "clock": 98,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "1861d4abedf2f51ec1783e58f317d93f74c842db05288e6f434be4bf63259c62",
+            "candidate": "1861d4abedf2f51ec1783e58f317d93f74c842db05288e6f434be4bf63259c62"
+          }
+        },
+        {
+          "clock": 3600.33,
+          "different_pixels": 0,
+          "hashes": {
+            "before": "996def0eba6007d01fc1277837aeffe6afe1854445ffb70bfd4b034a7640f8d9",
+            "candidate": "996def0eba6007d01fc1277837aeffe6afe1854445ffb70bfd4b034a7640f8d9"
+          }
+        }
+      ],
+      "geometry_median_ms": {
+        "before": 0.1898500049719587,
+        "candidate": 0.182065021363087
+      },
+      "shader_median_ms": {
+        "before": 2.668571498361416,
+        "candidate": 2.715320006245747
+      }
+    }
+  ],
+  "scope": "One frame-invariant alpha hoist only; exact native geometry/frame qualification and balanced direct-stage/shader timing; not actual live FPS."
+}

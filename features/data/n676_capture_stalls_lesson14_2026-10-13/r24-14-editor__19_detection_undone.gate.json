@@ -1,0 +1,116 @@
+{
+  "video": "/tmp/spacr-tutorial-current/captures/make_masks/19_detection_undone.native.mp4",
+  "size": [
+    2560,
+    1440
+  ],
+  "fps": 30.0,
+  "duration_s": 18.4,
+  "frames": 552,
+  "passed": false,
+  "reasons": [
+    "choppy (capture loss): 26.6 distinct fps < 27.9 [capture loss in second(s) [0, 1, 2, 3, 4, 6, 7, 8, 10, 12, 14, 15, 16]]"
+  ],
+  "limits": {
+    "min_fps": 27.9,
+    "change_level": 10,
+    "change_pixels": 4,
+    "cursor_box": 72,
+    "peak_per_frame": 0.02,
+    "jump_margin": 1.5,
+    "min_cursor_found": 0.9,
+    "top_bar_height": 32,
+    "top_bar_every": 10
+  },
+  "field_window_s": null,
+  "distinct_fps": 26.62,
+  "distinct_fraction": 0.8875,
+  "longest_unchanged_run_frames": 2,
+  "distinct_per_second": [
+    26,
+    27,
+    25,
+    25,
+    26,
+    29,
+    24,
+    26,
+    26,
+    30,
+    27,
+    28,
+    23,
+    28,
+    27,
+    26,
+    26,
+    29
+  ],
+  "app_painted_per_second": [
+    141.1,
+    114.3,
+    113.6,
+    89.6,
+    109.6,
+    97.3,
+    105.2,
+    92.7,
+    99.8,
+    106.2,
+    111.2,
+    106.3,
+    118.6,
+    99.4,
+    102.8,
+    113.5,
+    109.1,
+    106.1
+  ],
+  "app_freeze_seconds": [],
+  "app_slow_seconds": [],
+  "capture_loss_seconds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    10,
+    12,
+    14,
+    15,
+    16
+  ],
+  "app_stall_windows_s": [],
+  "app_stall_video_offset_s": 0.0,
+  "unchanged_frames": 62,
+  "unchanged_frames_in_app_stalls": 0,
+  "exact_md5_distinct_fraction": 0.9964,
+  "cursor": {
+    "found_fraction": 1.0,
+    "shapes_seen": [
+      "left_ptr@32"
+    ],
+    "max_step_px": 46.2,
+    "p95_step_px": 16.1,
+    "bound_px": 76.8,
+    "jumps": [],
+    "jump_count": 0
+  },
+  "top_bar": {
+    "hidden": true,
+    "sampled_frames": 56,
+    "visible_in": [],
+    "first_sample": {
+      "frame": 0,
+      "visible": false,
+      "black_fraction": 0.0074,
+      "top_rows_black": 0.0,
+      "text_pixels": 0,
+      "below_black_fraction": 0.0
+    }
+  },
+  "adapter_bypasses": []
+}

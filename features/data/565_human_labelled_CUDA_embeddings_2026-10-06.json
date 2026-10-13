@@ -1,0 +1,111 @@
+{
+  "item": 565,
+  "actual_normal_pretrained_DINOv2_CUDA_embeddings_independently_accepted": true,
+  "dataset_primary_URL": "https://data.mendeley.com/datasets/snkd93bnjr/1",
+  "dataset_DOI": "10.17632/snkd93bnjr.1",
+  "original_expert_labelled_cells": 17092,
+  "unique_unambiguous_cells_encoded": 17074,
+  "dimensions": 384,
+  "model": "vit_small_patch14_dinov2.lvd142m",
+  "actual_required_whole_RGB_input_size": [
+    518,
+    518
+  ],
+  "all_original_file_pixels_keys_labels_and_independently_recomputed_derived_input_hashes_exact": true,
+  "actual_forward_batches": 534,
+  "every_real_model_parameter_and_forward_input_on_CUDA": true,
+  "actual_first_last_CUDA_profiles": [
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-embeddings-r2/batch-00000-profile.json",
+      "sha256": "5befc9fa26a0b141c4621091af67c182628ac53d73254507f25ae7651c0e3175",
+      "bytes": 510166,
+      "actual_CUDA_kernel_trace_events": 151,
+      "reported_profiler_CUDA_events": 154
+    },
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-embeddings-r2/batch-17056-profile.json",
+      "sha256": "5ac26eef31b5f01074d7cacfadc63e85022e446e7e3ef820fe5f357218afd092",
+      "bytes": 461682,
+      "actual_CUDA_kernel_trace_events": 136,
+      "reported_profiler_CUDA_events": 148
+    }
+  ],
+  "pretrained_weights_full_state_sha256": "da01dc066b2a6aea10165a09242353c4c9178032d76f9a5494e880cf5864dd92",
+  "actual_device": "NVIDIA GeForce RTX 3090 Ti",
+  "CUDA_version": "12.8",
+  "elapsed_embedding_seconds": 219.72251806902932,
+  "label_counts": {
+    "basophil": 1212,
+    "eosinophil": 3110,
+    "erythroblast": 1551,
+    "ig": 2892,
+    "lymphocyte": 1214,
+    "monocyte": 1419,
+    "neutrophil": 3328,
+    "platelet": 2348
+  },
+  "all_normal_model_source_and_plan_hashes_exact": true,
+  "no_production_environment_or_application_source_changed": true,
+  "earlier_failed_224_input_attempt_preserved_in_separate_preflight_receipt": true,
+  "normal_FAISS_GPU_class_retrieval_and_million_timing_pending_separate_turn": true,
+  "synthetic_million_scale_timing_fixture_not_acquired_cell_or_patient_accuracy_claim": true,
+  "GUI_pipeline_and_screen_wide_source_integration_remains_Home_owned": true,
+  "artifacts": {
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/FAISS-GPU-freeze-518-r2.json": {
+      "sha256": "0302672031edf884997f7876789acfe9daa44197e1d541228fcea3a3401a775c",
+      "bytes": 282
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/GPU-freeze-518-r2.json": {
+      "sha256": "c336243f6fd5e91b853c256876b56b331b2fbabc36e36c26e1910df10ad1c87c",
+      "bytes": 1191
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/acceptance.json.gz": {
+      "sha256": "24247d195384e3912fe800c43d22380138c0c12fddee5d5d82b84dd95abd52fb",
+      "bytes": 773795
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/archive_pbc_cuda_embeddings_r1.py": {
+      "sha256": "c373e9645927a6f627dc4be03ebeaa2705f575fbc6f68760c9862439c974daef",
+      "bytes": 5347
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/batch-00000-profile.json.gz": {
+      "sha256": "ae59e9c6d80ba56588c70094708eaeaf54d1ff4e7ba8712801c5b034bab501c4",
+      "bytes": 34569
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/batch-17056-profile.json.gz": {
+      "sha256": "3d80364f536437740ab48f27f14f0b29c9dd26107e11291103e01d21e7b60d42",
+      "bytes": 30598
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/benchmark_pbc_embeddings_gpu_r2.py": {
+      "sha256": "6583281402f4a1dfacbf7006ee0a7345b419ed6cef7e615e8324ca5952b81d60",
+      "bytes": 6854
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/benchmark_pbc_faiss_gpu_r2.py": {
+      "sha256": "4ef3b1af8f0c86b5588ba29f2ea14944674503f82a3be6eeb00179f8a664df59",
+      "bytes": 8424
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/embeddings.npy.gz": {
+      "sha256": "e73567b92cceb5df8fbfeeaab7755c9f00bb346897df885b76dd34e0c91794c6",
+      "bytes": 24335429
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/independent-CUDA-embedding-verification-r1.json": {
+      "sha256": "63db4ae4b519195e7f126ffdfc40c5131eed1e75ebe8dcf7a72c52899d0db997",
+      "bytes": 1652
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/keys-and-labels.npz": {
+      "sha256": "5f82af0b85bd5375db1ee895742c276bb171ce2b7b62714123c1eb0ab172045f",
+      "bytes": 92440
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/pbc-CUDA-embedding-independent-r1.log.gz": {
+      "sha256": "ede50133a847e9710535707809d3f24043b95d3e2dd0f4c5f897cadd592bd56e",
+      "bytes": 178
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/pbc-dinov2-embeddings-gpu-r2.log.gz": {
+      "sha256": "c5686842865f631222c241cb7ac494d4aa0c46236df363eb82228be9659ea119",
+      "bytes": 2296
+    },
+    "features/data/565_human_labelled_CUDA_embeddings_2026-10-06/verify_pbc_cuda_embeddings_r1.py": {
+      "sha256": "b4c5922e3cc531b963461025333a8aa943e1949339511373b62e426b4d491a9e",
+      "bytes": 5073
+    }
+  }
+}

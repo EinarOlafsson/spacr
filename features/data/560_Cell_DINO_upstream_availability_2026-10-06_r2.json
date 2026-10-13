@@ -1,0 +1,151 @@
+{
+  "item": 560,
+  "upstream_primary_availability_and_architecture_audit_complete": true,
+  "official_upstream_commit": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+  "source_files": {
+    "README.md": {
+      "primary_URL": "https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/README.md",
+      "SHA256": "d1bc2e9686522bbd66ed6123dc81eb36b3a98e8ea9a2ca97778f54a1c641c9e1",
+      "bytes": 32799
+    },
+    "dinov2/hub/cell_dino/backbones.py": {
+      "primary_URL": "https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/dinov2/hub/cell_dino/backbones.py",
+      "SHA256": "5e2be2a84f04bab20050f8e9c6e14870d5a2d3e7894631dd8747e00f3b5299d2",
+      "bytes": 5082
+    },
+    "LICENSE_CELL_DINO_CODE": {
+      "primary_URL": "https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/LICENSE_CELL_DINO_CODE",
+      "SHA256": "fe7b4ce83b8381cc5b216bbb4af73c570688d1b819c73bbaed8ca401f4677cd6",
+      "bytes": 18655
+    },
+    "LICENSE_CELL_DINO_MODELS": {
+      "primary_URL": "https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/LICENSE_CELL_DINO_MODELS",
+      "SHA256": "d779b47a4ef8bbfc6c90d14768fe6a0a2c1c08bbc3712084496058bfd83cef4f",
+      "bytes": 11487
+    }
+  },
+  "upstream_model_factories": {
+    "cell_dino_hpa_vitl16": {
+      "actual_upstream_keyword_defaults": {
+        "pretrained_url": null,
+        "pretrained_path": null,
+        "pretrained": true,
+        "in_channels": 4
+      },
+      "actual_upstream_architecture_constant_arguments": {
+        "arch_name": "vit_large",
+        "patch_size": 16,
+        "img_size": 224,
+        "num_register_tokens": 0,
+        "interpolate_antialias": false,
+        "interpolate_offset": 0.1,
+        "block_chunks": 4
+      }
+    },
+    "cell_dino_hpa_vitl14": {
+      "actual_upstream_keyword_defaults": {
+        "pretrained_url": null,
+        "pretrained_path": null,
+        "pretrained": true,
+        "in_channels": 4
+      },
+      "actual_upstream_architecture_constant_arguments": {
+        "arch_name": "vit_large",
+        "patch_size": 14,
+        "img_size": 518,
+        "num_register_tokens": 0,
+        "interpolate_antialias": false,
+        "interpolate_offset": 0.1,
+        "block_chunks": 4
+      }
+    },
+    "cell_dino_cp_vits8": {
+      "actual_upstream_keyword_defaults": {
+        "pretrained_url": null,
+        "pretrained_path": null,
+        "pretrained": true,
+        "in_channels": 5
+      },
+      "actual_upstream_architecture_constant_arguments": {
+        "arch_name": "vit_small",
+        "patch_size": 8,
+        "img_size": 128,
+        "num_register_tokens": 0,
+        "interpolate_antialias": false,
+        "interpolate_offset": 0.1,
+        "block_chunks": 4
+      }
+    }
+  },
+  "official_download_request_form": {
+    "primary_URL": "https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/",
+    "status": 200,
+    "final_URL": "https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/",
+    "SHA256": "290bfad78cfcf1b47b3d923880f4a1228cf7309f1da704b36afc43627fe5776a",
+    "bytes": 207715
+  },
+  "upstream_now_documents_Cell_DINO_checkpoint_download_request_and_local_path_loading": true,
+  "current_spacr_unsupported_reason_claiming_unpublished_weights_is_stale": true,
+  "application_source_SHA256": "563d49e5a21d21b710c6597a6b9925cec0ce06adc97e8f6b7867a35e71d334d5",
+  "no_form_submission_personal_information_license_acceptance_or_checkpoint_download": true,
+  "no_Cell_DINO_model_load_GPU_or_feature_support_claim": true,
+  "Human_Protein_Atlas_and_Cell_Painting_channels_must_follow_actual_model_not_arbitrary_RGB_stain_assignment": true,
+  "remaining_feature_source_implementation_owned_by_Home_GPU_and_docs_by_workstation": true,
+  "first_private_audit_failed_at_upstream_README_typo_license_filename_preserved": true,
+  "actual_weights_license_filename_verified_against_upstream_tree": "LICENSE_CELL_DINO_MODELS",
+  "artifacts": {
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06/LICENSE_CELL_DINO_CODE.gz": {
+      "sha256": "2335f99dac94724a15f9f13aa53c9a4befab3057180e1c015fc0a11b1d94f044",
+      "bytes": 5920
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06/README.md.gz": {
+      "sha256": "262424634d51c5c20c9745d4907ff57abda17b43cd414020946901aedc8263d0",
+      "bytes": 6803
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06/dinov2--hub--cell_dino--backbones.py.gz": {
+      "sha256": "30a99b748be434e9e56e512e2e0a2b10b55fe1010485e0941691e44c1814713a",
+      "bytes": 1087
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/LICENSE_CELL_DINO_CODE.gz": {
+      "sha256": "2335f99dac94724a15f9f13aa53c9a4befab3057180e1c015fc0a11b1d94f044",
+      "bytes": 5920
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/LICENSE_CELL_DINO_MODELS.gz": {
+      "sha256": "3ccd263f3e8ea2813ab85367df6bdce373468ec20c3cee2dc763daafaf17d335",
+      "bytes": 4542
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/README.md.gz": {
+      "sha256": "262424634d51c5c20c9745d4907ff57abda17b43cd414020946901aedc8263d0",
+      "bytes": 6803
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/cell-dino-upstream-availability-r1.log": {
+      "sha256": "833d886a938cb9743d208e21edd16c18d6b0dd098d7e425e4a5c427e59b50ade",
+      "bytes": 613
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/dinov2--hub--cell_dino--backbones.py.gz": {
+      "sha256": "30a99b748be434e9e56e512e2e0a2b10b55fe1010485e0941691e44c1814713a",
+      "bytes": 1087
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/official-download-request-form.html.gz": {
+      "sha256": "a5b448ff5e223efa82afb4ffcf9f4f0ad0ab54e5da549de971e1b608cf183f8c",
+      "bytes": 43724
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/verify_cell_dino_upstream_availability_r1.py": {
+      "sha256": "7b60b24fd2e53333080f1db67a0e103cf408c040e2d5ec13f99c3f6ce89d6ef1",
+      "bytes": 5682
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/verify_cell_dino_upstream_availability_r2.py": {
+      "sha256": "7d16cd1cb4f3debad9edb08a556b9b71d418158adfd4c314ec3003c32030f9e9",
+      "bytes": 6294
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/cell-dino-upstream-availability-r2.log.gz": {
+      "sha256": "60d907a8a4d0d819c7118f75073de3799569827ff60d04a6634710d11756e91d",
+      "bytes": 160
+    },
+    "features/data/560_Cell_DINO_upstream_availability_2026-10-06_r2/finalize_cell_dino_availability_receipt_r2.py": {
+      "sha256": "27b9e51fa3e99f09e40eddaf6789d73d477e7ded40320408bb6cdf23f96c79df",
+      "bytes": 2528
+    }
+  },
+  "corrected_private_audit_terminal_rc0_completed_log_retained": true
+}

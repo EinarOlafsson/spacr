@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "e7972eafe497e1c9a6f321b2d76a775972a5f311",
+  "scope": "targeted branch and statement coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/widgets/column_aligned_row.py",
+  "source_sha256": "6dfb5497408aba17135f3169ee1ce76e9200fa464e0f5eba2601ef4c351acdb8",
+  "coverage_json_sha256": "cd61345f0cb9aa587468647d33b16e9d414194d0d3be575b79fca94caf8d1a0b",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 127,
+    "num_statements": 134,
+    "percent_covered": 92.77777777777777,
+    "percent_covered_display": "92.78",
+    "missing_lines": 7,
+    "excluded_lines": 0,
+    "percent_statements_covered": 94.77611940298507,
+    "percent_statements_covered_display": "94.78",
+    "num_branches": 46,
+    "num_partial_branches": 6,
+    "covered_branches": 40,
+    "missing_branches": 6,
+    "percent_branches_covered": 86.95652173913044,
+    "percent_branches_covered_display": "86.96"
+  },
+  "missing_lines": [
+    69,
+    70,
+    132,
+    235,
+    283,
+    291,
+    298
+  ],
+  "missing_branches": [
+    [
+      112,
+      -90
+    ],
+    [
+      131,
+      132
+    ],
+    [
+      234,
+      235
+    ],
+    [
+      282,
+      283
+    ],
+    [
+      290,
+      291
+    ],
+    [
+      297,
+      298
+    ]
+  ],
+  "selection": [
+    "tests/qt/test_column_alignment_lifecycle.py",
+    "tests/qt/test_the_download_buttons_sit_over_their_columns.py"
+  ],
+  "passed": 21,
+  "failed": 0,
+  "elapsed_seconds": 18.4,
+  "memory_cap": "6G",
+  "cpu_threads": 1,
+  "gpu_used": false,
+  "production_source_changed": false,
+  "baseline_changed": false
+}

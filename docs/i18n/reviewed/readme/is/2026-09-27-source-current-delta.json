@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_method": "AI technical review (Codex), no native-speaker signoff",
+  "readme_source_sha256": "9d0fda10cabd97b52fb15570fd757bde3b43a36997655d9bb84b4523bb821445",
+  "scope": "Current-source delta only; prior translations and dated review records remain intact. Source-deleted duplicate paragraphs removed; section hierarchy aligned with English.",
+  "records": [
+    {
+      "label": "try",
+      "source": "Try spaCR",
+      "source_sha256": "2f251585454541a756ee2043266214a9b6c30cad902b126d3f9fe7b24bf7ae91",
+      "translation": "Prófa spaCR"
+    },
+    {
+      "label": "examples",
+      "source": "Use **Load test data…** in Import, Make Masks, Annotate or an assay screen to download example data. From a terminal, use ``spacr-download``.",
+      "source_sha256": "cfe651c03b06fd4f9f6c52576f21b4344383ad9d51b1e32ef09dc15a471445b7",
+      "translation": "Notaðu **Hlaða prófunargögnum…** í Import, Make Masks, Annotate eða á greiningarskjá til að sækja sýnigögn. Notaðu ``spacr-download`` í skipanalínu."
+    },
+    {
+      "label": "installer",
+      "source": "See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall, offline and troubleshooting instructions, and `system requirements <docs/source/system_requirements.rst>`_ for workstation and server recommendations and the GPU compatibility tables.",
+      "source_sha256": "52066500237d2bb17c251bc26bd7b31af81e7c66928b99f4df96dfa3b6c5e108",
+      "translation": "Sjá `uppsetningarleiðbeiningarnar <docs/source/installer_guide.rst>`_ fyrir leiðbeiningar um uppfærslu, fjarlægingu, notkun án nettengingar og bilanagreiningu. Í `kerfiskröfunum <docs/source/system_requirements.rst>`_ eru ráðleggingar um vinnustöðvar og netþjóna og töflur um GPU-samhæfi."
+    },
+    {
+      "label": "modules",
+      "source": "Every module with a Home tile, in Home's order: the six pipeline modules first, then the rest. Select a tile to open that module's API page.",
+      "source_sha256": "52d69df219fe19d55eeabc54bce5fe1fc6fc78253d68fc7a664682d47fbad11a",
+      "translation": "Allar einingar sem eiga reit á upphafsskjánum, í sömu röð og þar: fyrst sex einingar vinnslukeðjunnar, síðan hinar. Veldu reit til að opna API-síðu einingarinnar."
+    },
+    {
+      "label": "tutorials",
+      "source": "`Interactive tutorials <https://einarolafsson.github.io/spacr/tutorials/>`_ — guided workflows from installation through hit investigation.",
+      "source_sha256": "8f80fac28aa3b8cda7b7019ac0cfe955b0f881f0b4d2d72cebcf5e82c3ac3a68",
+      "translation": "`Gagnvirkt kennsluefni <https://einarolafsson.github.io/spacr/tutorials/>`_ — leiðsögn um verkferla frá uppsetningu til rannsóknar á niðurstöðum skimunar."
+    },
+    {
+      "label": "models",
+      "source": "Models are hosted on each author's own Hugging Face account; ``spacr.model_zoo.publish_model`` uploads one and prints the catalogue row to add.",
+      "source_sha256": "b44169274ea3259eb8fe6c5473fa04ebe2935ec60afa2b72c63bbe16b1870d93",
+      "translation": "Líkön eru hýst á eigin Hugging Face-reikningi hvers höfundar; ``spacr.model_zoo.publish_model`` hleður upp líkani og prentar færsluna sem bæta á í líkanaskrána."
+    },
+    {
+      "label": "performance",
+      "source": "Reads no project data. Times imports, numeric libraries, window construction and animation, and reports x86_64 emulation on Apple Silicon and NumPy's BLAS.",
+      "source_sha256": "1eb1d56ed0edb3b7714fe3d0049d5b5065c3b2574b1a343d606fdf507e27beb8",
+      "translation": "Les engin verkefnisgögn. Mælir tímann sem innflutningur, töluleg söfn, gerð glugga og hreyfimyndir taka og greinir frá x86_64-hermun á Apple Silicon og BLAS-útfærslu NumPy."
+    },
+    {
+      "label": "api_alt",
+      "source": "API Documentation",
+      "source_sha256": "1cc77e60fcee8c4392cc52a2fdd1d9129beed4e6af97aca1b78ea61362c85247",
+      "translation": "API-skjöl"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "baseline": "e31e19543ad2d056739c4a230766ec0b1c24875f",
+  "checkpoint": "0527ae6fa01a0b06544213169a706dfbac9b0f84",
+  "items": [
+    "N649",
+    "N674"
+  ],
+  "scope": "Incremental private source handoff after the accepted e31 N666-671 transfer. Includes N649 Edit menu and N674 Spaceout field default/effects/controls, with a real float32 hue-index boundary repair. App publication and final normal catalogs remain pending workstation refresh.",
+  "environment": {
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "PySide6": "6.11.2",
+    "pytest": "8.4.2 overlay",
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg",
+    "xdist": false
+  },
+  "sources": {
+    "spacr/qt/app.py": {
+      "payload": "source-00.gz",
+      "sha256": "df9b62e066bff1e35851e0350e7934eb5162f920090b1b1521c7876a63adddd3",
+      "raw_sha256": "5be77a2b1e89ead40c12622b89aee5717b74e23c26bfacb106c55b4009f1b1d1"
+    },
+    "spacr/qt/preferences.py": {
+      "payload": "source-01.gz",
+      "sha256": "52e5a794eea3baa76f4ae137709c0e8a6c6f2ceb87a9978456c863dbfc10cb0f",
+      "raw_sha256": "f5085905fc486ed6aebe267be4cac2e5444acfc433bb368e3d879c28c3963611"
+    },
+    "spacr/qt/spaceout.py": {
+      "payload": "source-02.gz",
+      "sha256": "a4533fe4a78e62d8a2d65f0c0b769cd062150ba0342e03841e608d793a4dbf91",
+      "raw_sha256": "c83b659412570495b22c38f0d205a2ec403bbc9e18350865b3a1852e82e23617"
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "payload": "source-03.gz",
+      "sha256": "c06151f281779e48fa1fcda458e182a0209862c0a99c08404c343a483863e976",
+      "raw_sha256": "b86a024776b77f8875f4113e52ae6c2e05b79224b61a890959cc5800c012bcdc"
+    },
+    "tests/qt/test_edit_menu_undo_redo.py": {
+      "payload": "source-04.gz",
+      "sha256": "8493f28f46942f59abf21fc7ff62396b56a6fcf89e6e98079389068f007fadb8",
+      "raw_sha256": "30e8b11ede2b146464b91d39386323008b0285466dcdb6c27c315b3cde3e4805"
+    },
+    "tests/qt/test_n668_spaceout_and_popup_motion.py": {
+      "payload": "source-05.gz",
+      "sha256": "ae1793f3af943a4c3fdfa0fac64786b48e4c60dfd5a685ad13e4821ec3efa10d",
+      "raw_sha256": "97ef5fbc8168841dd802193d31b183a768f7dd560d8410e2c65c026c0e163ff9"
+    },
+    "tests/qt/test_spaceout_field_effect_preferences.py": {
+      "payload": "source-06.gz",
+      "sha256": "32c8c65308d0c71727e9ad50dc67e6f5a1ae9007f68d88c252cddec7e3cebcbf",
+      "raw_sha256": "b30e44abc3b93251794b145fea65d140ec05f589a3b648870ac8c7518b983bc7"
+    },
+    "tests/qt/test_spaceout_field_launch_and_input.py": {
+      "payload": "source-07.gz",
+      "sha256": "b2fe31b7218abd1fc27dbce2addca09ac3588db16dc2eabf24c04829a8639857",
+      "raw_sha256": "af63b912426fd02b50d76c88c77973ae01c5c5d9f63ee8cd378c5ebdb2b70729"
+    },
+    "tests/qt/test_spaceout_field_phenomena.py": {
+      "payload": "source-08.gz",
+      "sha256": "64a0f9b73b10c9a23a6ffc36f70fe7fc5dfcf7e4ceeabe870ba27386f7dd3c9f",
+      "raw_sha256": "5b77eacf9d4814b4a8bb45a5c41c088de0cbbbe8f72ce2caefcd22a713bd7e25"
+    }
+  },
+  "patch": {
+    "payload": "source-and-tests.patch.gz",
+    "sha256": "03f3c4fd036420e6200ab12f1f33eb9ea80f2a8c7680f436df0e36b53565411d",
+    "raw_sha256": "4383954e842e2208b65eac645cad3e9b6f6b4a04aa6717ec189707bc68c33c05"
+  },
+  "inventory_diff": {
+    "payload": "normal-inventory-diff.json.gz",
+    "sha256": "5bc84e9214f40d22403fe5f7aa941baf6135cf4b9b1a332d0891ee9c37ffc03d",
+    "raw_sha256": "cf347a9d16ffd7b09f06961657aa4f85ae39c4f9df1c8d67224358b3d1ef4e13",
+    "api_baseline": 13215,
+    "api_current": 13221,
+    "ui_baseline": 7245,
+    "ui_current": 7261,
+    "combined_workstation_source_must_be_remeasured": true
+  },
+  "phases": [
+    {
+      "passed": 212,
+      "tested_checkpoint": "0527ae6fa01a0b06544213169a706dfbac9b0f84",
+      "scope": "Fourteen selected CPU/Qt files: final Spaceout phenomena, actual mouse/Preferences wiring, Edit Undo/Redo and transferred UI ripple/Gate/window/help/setup regressions.",
+      "payload": "home-ui-spaceout-undo-hue-final-20261008.log.gz",
+      "sha256": "081ea0604a1d2c061e209e69671c9f791f104eaddbc928153929e3e8831902e4",
+      "raw_sha256": "95e0ea079190aed7b29492cd6f581b65c6634255d7910386244f06d03e4ce924"
+    }
+  ],
+  "limits": [
+    "Phase totals overlap and must not be summed as unique tests.",
+    "No native compositor, GPU, full serial or human appearance acceptance.",
+    "Existing required CI green belongs to exact 07809d9264; protected fresh53ab run has a guide-browser timeout and does not test this source.",
+    "N672/N673 are registered open work and are not implemented in this patch.",
+    "No test ceiling, correctness assertion, workflow timeout or memory cap has been raised."
+  ]
+}

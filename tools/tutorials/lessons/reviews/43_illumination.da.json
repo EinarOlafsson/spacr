@@ -1,0 +1,37 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "ee0a3f65a8187f139da932acdc05b47f690b1315c6409c4fb47b03498cf7e04d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Illumination: estimér og undersøg en korrektionsmodel",
+  "description": "Vælg billedkanaler, estimér et belysningsfelt, undersøg dets QC-figur, og genbrug den gemte model.",
+  "objectives": [
+    "Vælge repræsentative synsfelter og intensitetskanaler.",
+    "Estimere og undersøge en belysningsmodel.",
+    "Anvende den gemte model i Measure."
+  ],
+  "prerequisite": "Brug en mappe med sammenlagte billeder med repræsentative synsfelter fra hver optagegruppe. Eksemplet bruger de seksten synsfelter fra pladeeksemplet, der blev hentet i Measure. Vid, hvilke gemte planer der indeholder intensiteter, og hvilke der indeholder labels.",
+  "scenes": [
+    "Åbn Measure og derefter Illumination for at estimere en korrektionsmodel for ujævn billedlysstyrke.",
+    "Sæt Source til mappen merged, der indeholder billedarrays. Brug repræsentative synsfelter fra din optagelse; eksemplet bruger seksten synsfelter fra én plade.",
+    "Sæt Channels til de gemte intensitetsplaner, du vil korrigere. Eksemplet bruger kanal 0. Kontrollér din kanaltilknytning, og udelad planer med labelmasker.",
+    "Slå Illumination correction til, før du estimerer et felt. Når den er slået fra, afsluttes Run uden at danne en korrektionsmodel.",
+    "Vælg en estimator og dens indstillinger. I polynomieksemplet bruger du grad 4 og lader Illumination model være tom for at estimere et nyt felt. Undersøg resultatet for strukturer, der tilhører celler frem for belysningen.",
+    "Slå Illumination per plate til for at tilpasse optagegrupper hver for sig. Sæt Maximum fields til en repræsentativ stikprøve; eksemplet medtager alle seksten tilgængelige synsfelter.",
+    "Indstil Illumination dark ud fra kameraets kalibrering, når den findes. Det er en additiv forskydning i råtællinger; 0 er eksemplets værdi.",
+    "Slå Illumination QC til, og vælg en politik for manglende modeller. Med error valgt stopper behandlingen, hvis en pladekorrektion mangler, så du kan løse det.",
+    "Tryk på Run, og læs stien til den gemte model i konsollen. Dette trin estimerer modellen; slå den til i en senere analyse for at anvende korrektionen.",
+    "Åbn den gemte QC-PNG-fil for belysning i mappen illumination. Brug en billedfremviser, hvis den ikke vises i panelet Figures.",
+    "Undersøg det estimerede belysningsfelt for jævn variation i lysstyrke og uønskede celleformede strukturer. Korrektionen trækker mørkeforskydningen fra og dividerer med dette felt med middelværdi 1.",
+    "Sammenlign de radiale profiler før og efter. Brug flere synsfelter til at vurdere, hvor godt korrektionen virker ud over de billeder, der blev brugt til tilpasningen.",
+    "Behold den gemte model sammen med dens kanaler, pladeidentiteter og indstillinger. Anvend den én gang på et sæt intensiteter; korrigerer du de samme intensiteter to gange, forvrænges de.",
+    "For at anvende modellen åbner du Measure og søger efter illumination i indstillingerne. Under Image Preprocessing slår du Illumination correction til og sætter Illumination model til den gemte fil. Measure dividerer derefter de modellerede kanaler med feltet, før der måles; maskerne ændres ikke."
+  ]
+}

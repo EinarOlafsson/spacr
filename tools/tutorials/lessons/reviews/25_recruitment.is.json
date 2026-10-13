@@ -1,0 +1,39 @@
+{
+  "lesson": "25_recruitment",
+  "english_sha256": "a715d9ca58ce49398b497703e04145ed9542ac251e4ea8708650163b6d4478f8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Recruitment: mældu auðgun merkis kringum sníkjudýr",
+  "description": "Veldu mælt verkefni, varpaðu merkisrás og aðstæðum, stilltu síur hluta og skoðaðu svo nýliðunarhlutföll eftir hýsilfrumum og brunnum.",
+  "objectives": [
+    "Velja verkefni með tengdum mælingum á frumum, kjörnum, sýklum og umfrymi.",
+    "Stilla merkisrás, aðstæður plötu og síur hluta.",
+    "Keyra Recruitment og lesa CSV-niðurstöður fyrir hýsilfrumur og brunna."
+  ],
+  "prerequisite": "Byrjaðu á verkefni úr Measure sem inniheldur measurements/measurements.db og tengdar töflur fyrir frumur, kjarna, sýkla og umfrymi. Taktu sameinaðar myndir með til að sýna yfirlagnir á myndum. Dæmið notar ER-merki á rás 1; notaðu rásavörpun og merki aðstæðna sem skráð voru fyrir þitt eigið verkefni.",
+  "scenes": [
+    "Frá Home opnarðu Toxoplasma og velur svo Recruitment. Notaðu þessa greiningu til að bera styrk merkisins á svæðum tengdum sníkjudýrum saman við umlykjandi umfrymi hýsilfrumunnar. Byrjaðu á verkefni þar sem hlutir og styrkleikarásir hafa þegar verið mæld.",
+    "Stilltu Source á verkefnismöppuna sem inniheldur measurements/measurements.db. Haltu töflum fyrir frumur, kjarna, sýkla og umfrymi saman. Taktu möppu sameinuðu myndanna með ef þú vilt yfirlagnir á myndum.",
+    "Stilltu Channel of interest á merkið sem þú vilt mæla. Rásir eru tölusettar frá 0: 1 þýðir annað myndlagið. Dæmið notar rás 1 fyrir ER-merkið. Veldu rásina sem samsvarar myndatökunni þinni.",
+    "Stilltu Channel dims á rásirnar sem þarf fyrir aukasamantektir nýliðunar. Í fyrstu keyrslu notarðu sömu stöku rásina og í Channel of interest svo auðvelt sé að bera saman meginhlutfallið og aukasamantektir styrks.",
+    "Berðu rásavörpun frumu, kjarna og sýkils saman við mælda verkefnið. Dæmið notar frumu 1, kjarna 0 og sýkil 3. Geymdu vörpunina með stillingunum svo yfirlagnir og síur vísi til réttu merkjanna.",
+    "Sláðu inn merki fyrir frumu, sýkil og meðferð og varpaðu svo hverju merki á sínar raðir eða dálka plötunnar. Aðeins merktir brunnar fara inn í greininguna. Samræmdu þessar úthlutanir við uppsetningu plötunnar, þar á meðal jákvæð og neikvæð viðmið.",
+    "Notaðu stærðarbilin til að útiloka hluti utan þess flatarmáls sem þú ætlar að greina. Flatarmál er í dílum og mörkin eru ströng. Flatarmál sýkla er lagt saman innan hverrar hýsilfrumu í þessari greiningu, svo veldu bil þess fyrir heildina á frumustigi.",
+    "Stilltu Nuclei limit og Pathogen limit til að ráða hvaða hýsilfrumur haldast. Kjarnamörk upp á 1 halda einkjarna frumum. Hækkaðu mörk til að taka með frumur með fleiri tengda hluti og athugaðu svo hversu margar frumur eru eftir.",
+    "Byrjaðu á breiðum styrkbilum svo þú getir skoðað fyrstu niðurstöðurnar. Þrengdu bil þegar þú hefur skýra valreglu byggða á styrk. Lágmarksstyrkur marks bætir við aukaþröskuldi á frumustyrk merkisins.",
+    "Athugaðu hvaða rás hver styrksía notar áður en þú þrengir mörk hennar. Með vörpun dæmisins notar kjarnastyrksían rás 3 og sýklastyrksían rás 1. Haltu breiðu bilum dæmisins meðan þú lærir ferlið.",
+    "Stilltu Cells per well á lágmarksfjölda upprunafrumna sem brunnur þarf til að haldast í greiningunni. Þessi stilling síar brunna, en síur hluta velja frumur. Skoðaðu endanlegan fjölda sem heldst, ekki aðeins þröskuldinn.",
+    "Virkjaðu Plot til að sýna tiltækar yfirlagnir á myndum og notaðu Plot number til að takmarka hversu margar birtast. Hafðu kveikt á Plot control ef þú vilt styrkmyndrit viðmiðanna. Notaðu gröfin til að athuga val á rásum og síun áður en þú túlkar hlutföllin.",
+    "Ýttu á Run. Fylgstu með stjórnborðinu meðan einingin tengir mælingarnar, beitir aðstæðum og síum, reiknar hlutföll og skrifar niðurstöðurnar. Bíddu þar til greiningunni lýkur áður en þú opnar úttakstöflurnar.",
+    "Skoðaðu nýliðunargrafið. Aðalgildið deilir samanlögðum meðalstyrk sýkla í hýsilfrumunni með meðalstyrk umfrymis hennar á valinni merkisrás. Gildi yfir 1 sýna auðgun miðað við þá viðmiðun. Lestu tölulegu útflutningana fyrir hlutföll undir teiknaða bilinu eða með ógilda nefnara.",
+    "Skoðaðu samantekt brunna og berðu saman viðmiðunaraðstæður. Hver brunnur tekur meðaltal hlutfalla frumnanna sem haldast; gröf aðstæðna taka saman þessi brunnagildi. Villustikur sýna staðalfrávik milli brunna. Frumutaflan sýnir hýsilfrumur með samanlögðum mælingum á sýklum.",
+    "Opnaðu results/cells.csv fyrir mælingar á hýsilfrumum sem haldast og results/wells.csv fyrir samantektir brunna. Geymdu báðar skrárnar með vistuðu stillingunum. Athugaðu fjölda frumna, merki aðstæðna og að hlutföllin séu endanleg áður en þú berð saman tilraunir, og notaðu óháða brunna sem tilraunaendurtekningar."
+  ]
+}

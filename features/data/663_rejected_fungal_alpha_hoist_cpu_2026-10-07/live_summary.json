@@ -1,0 +1,161 @@
+{
+  "scope": "Fresh actual native4K five-second steady ABBA per default/Random, requested24fps; full controls unchanged; unprofiled production shader with publication/heartbeat/paint measurement wrappers. Not a hardFPS acceptance.",
+  "rows": [
+    {
+      "palette": "spacr",
+      "runs": [
+        {
+          "file": "data_art_fungal_growth-before-spacr-2-3-A1.json",
+          "phase": "A1",
+          "variant": "before",
+          "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+          "published_fps": 19.598836444497714,
+          "shader_median_ms": 51.37480850680731,
+          "shader_p95_ms": 61.204358004033566,
+          "load": [
+            3.56005859375,
+            2.724609375,
+            2.24072265625
+          ],
+          "workers_stopped": true
+        },
+        {
+          "file": "data_art_fungal_growth-after-spacr-2-3-B1.json",
+          "phase": "B1",
+          "variant": "after",
+          "source_sha256": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4",
+          "published_fps": 19.583657011363215,
+          "shader_median_ms": 50.054662511684,
+          "shader_p95_ms": 63.20427299942821,
+          "load": [
+            3.623046875,
+            2.82373046875,
+            2.2978515625
+          ],
+          "workers_stopped": true
+        },
+        {
+          "file": "data_art_fungal_growth-after-spacr-2-3-B2.json",
+          "phase": "B2",
+          "variant": "after",
+          "source_sha256": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4",
+          "published_fps": 19.797359919098152,
+          "shader_median_ms": 50.11934498907067,
+          "shader_p95_ms": 60.337736998917535,
+          "load": [
+            3.34814453125,
+            2.826171875,
+            2.314453125
+          ],
+          "workers_stopped": true
+        },
+        {
+          "file": "data_art_fungal_growth-before-spacr-2-3-A2.json",
+          "phase": "A2",
+          "variant": "before",
+          "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+          "published_fps": 20.300642379239797,
+          "shader_median_ms": 49.58711451035924,
+          "shader_p95_ms": 57.889099000021815,
+          "load": [
+            4.88916015625,
+            3.271484375,
+            2.482421875
+          ],
+          "workers_stopped": true
+        }
+      ],
+      "means": {
+        "before": {
+          "published_fps": 19.949739411868755,
+          "shader_median_ms": 50.48096150858328,
+          "shader_p95_ms": 59.54672850202769
+        },
+        "after": {
+          "published_fps": 19.690508465230685,
+          "shader_median_ms": 50.087003750377335,
+          "shader_p95_ms": 61.771004999172874
+        }
+      },
+      "fps_change_percent": -1.299420214400615
+    },
+    {
+      "palette": "random",
+      "runs": [
+        {
+          "file": "data_art_fungal_growth-before-random-2-3-A1.json",
+          "phase": "A1",
+          "variant": "before",
+          "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+          "published_fps": 23.540460868455924,
+          "shader_median_ms": 41.02844498993363,
+          "shader_p95_ms": 48.36586199235171,
+          "load": [
+            4.14501953125,
+            3.2451171875,
+            2.50048828125
+          ],
+          "workers_stopped": true
+        },
+        {
+          "file": "data_art_fungal_growth-after-random-2-3-B1.json",
+          "phase": "B1",
+          "variant": "after",
+          "source_sha256": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4",
+          "published_fps": 23.59548626365207,
+          "shader_median_ms": 40.009368502069265,
+          "shader_p95_ms": 45.891914021922275,
+          "load": [
+            2.93310546875,
+            3.05029296875,
+            2.4755859375
+          ],
+          "workers_stopped": true
+        },
+        {
+          "file": "data_art_fungal_growth-after-random-2-3-B2.json",
+          "phase": "B2",
+          "variant": "after",
+          "source_sha256": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4",
+          "published_fps": 23.597067045048966,
+          "shader_median_ms": 40.71384250710253,
+          "shader_p95_ms": 45.28796501108445,
+          "load": [
+            2.32470703125,
+            2.87158203125,
+            2.4384765625
+          ],
+          "workers_stopped": true
+        },
+        {
+          "file": "data_art_fungal_growth-before-random-2-3-A2.json",
+          "phase": "A2",
+          "variant": "before",
+          "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+          "published_fps": 23.594661901122148,
+          "shader_median_ms": 41.07588549959473,
+          "shader_p95_ms": 46.16159398574382,
+          "load": [
+            2.5068359375,
+            2.8544921875,
+            2.44677734375
+          ],
+          "workers_stopped": true
+        }
+      ],
+      "means": {
+        "before": {
+          "published_fps": 23.567561384789038,
+          "shader_median_ms": 41.05216524476418,
+          "shader_p95_ms": 47.263727989047766
+        },
+        "after": {
+          "published_fps": 23.59627665435052,
+          "shader_median_ms": 40.361605504585896,
+          "shader_p95_ms": 45.589939516503364
+        }
+      },
+      "fps_change_percent": 0.12184234547072403
+    }
+  ]
+}

@@ -1,0 +1,2323 @@
+{
+  "scope": "Source-bound current native61 render and all50 normal audio acceptance; complete original failed stages retained locally by full-file identity, full original failure logs and bounded encoding diagnostics retained in repository.",
+  "audio_tracks": 50,
+  "spoken_languages": 8,
+  "accepted_native_scenes": 61,
+  "actual_current_native_captures": 79,
+  "unique_composed_native_PNGs": 59,
+  "unchanged_whole_and_focus_gate_dB": 30,
+  "normal_master_CRF": 1,
+  "browser_compatible_master_profile": "High",
+  "master_pixel_format": "yuv420p",
+  "minimum_whole_frame_PSNR_dB": 39.47008469466003,
+  "minimum_focus_PSNR_dB": 30.003077876370313,
+  "original_complete_failed_stages": {
+    "r1": {
+      "complete_local_stage": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-current-r1",
+      "files": {
+        "captures/make_masks_final_contained_r2/focus.json": {
+          "bytes": 8711,
+          "sha256": "11819132522260dca9d2029db5492d1189a819106a967133d1770c61cc5f368a"
+        },
+        "captures/make_masks_final_contained_r2/frames.json": {
+          "bytes": 1755236,
+          "sha256": "96c3ec9e7f354660ceefc2e76fcc6b41541527caae71c48324e23c3f56d306ec"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/01_module.png": {
+          "bytes": 283812,
+          "sha256": "5e990f8d31bcec34d8df25e1fbc527d06f35dfc03701cc2360ba979b4a0c825e"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/01b_test_data_menu.png": {
+          "bytes": 334891,
+          "sha256": "626cb2689308558d8119995ba7c3a8cd647e8d381dd6faa026c52b7028460d70"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/02_folder_picker.png": {
+          "bytes": 309984,
+          "sha256": "a27afa71ea076606f81dcc607718ae899b70618f29aea634ac2f480167826ae6"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/03_real_labels.png": {
+          "bytes": 1816392,
+          "sha256": "0b31c552615d902497a842505e0d358a7fa8d317cf7a83ef7bfe92cc4242baf4"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/04_erase_one_object.png": {
+          "bytes": 1936587,
+          "sha256": "41490be7b201a466138d7065c0da750aea2e18495d9461a22e3f09ce9d4edbc5"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/06_redo.png": {
+          "bytes": 1939120,
+          "sha256": "6b80b20903a96145951d006f1e7b446ba49971a68a14b45ce035e0b1d0bf6724"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/07_draw_demo_not_annotation.png": {
+          "bytes": 1956117,
+          "sha256": "dd5b77f266d724e674aa84efa2c41a29edd498f802d09f8e18c6a5e0d75282b9"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/07b_wand_add.png": {
+          "bytes": 1652011,
+          "sha256": "4bbe5395b552d8262ce371b468e78639ba638c76663758d5073aa2e2e6a40efe"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/07c_wand_ctrl_remove.png": {
+          "bytes": 1640948,
+          "sha256": "b5025c7648355dd7b7194367b5faeeab7404f393e137a864d7d784c85c4b0b96"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/08_divide_demo.png": {
+          "bytes": 1948713,
+          "sha256": "e0f4ef3dd5c4603faad454417de64131857d2be84f3952ac3b22ff1a5eddee7d"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/08b_contrast_only.png": {
+          "bytes": 1883738,
+          "sha256": "ebea8ac0b1712cd5b9fb4ede932f2d2df763e5a5d30b05eb62dd19da9568e7dd"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/08b_merge_demo.png": {
+          "bytes": 1952416,
+          "sha256": "6d0041232de8a2055d922c4cc0ab88c9943e99f9f3ab2120fa5978e2a1eab734"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/08c_filter_edits_labels.png": {
+          "bytes": 1875801,
+          "sha256": "f3f6b8ddef7e48999d855779d0a5d9a256521f488894969b3d5dada26ada2b12"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/08d_filter_removed.png": {
+          "bytes": 1901249,
+          "sha256": "e85806fad21f3565aac8336350c58be8125948fbfa65bb04205cda519da6b078"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/09_fold_model_zoo.png": {
+          "bytes": 1897681,
+          "sha256": "1cb9e391891d01cb03c183f60306af2254587392fd1d813ca8ed6a6fc0d714b0"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/09_fold_train_cellpose.png": {
+          "bytes": 1891887,
+          "sha256": "445d4d86566ae036da7c848b2ec5761ce2493a60ec0e1d2fbe2275ef5cf53879"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/11_saved_restored_mask.png": {
+          "bytes": 1908785,
+          "sha256": "37edfa52aa44173be041dd4b25274cd553df5c10448da7de8951cdea45b574cc"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/12_recrop_written.png": {
+          "bytes": 1912861,
+          "sha256": "2a19e33d804aeaa76c47e20975ccd8617dd7436581472876d0351a251e5d3507"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/13_child_and_recovery_archive.png": {
+          "bytes": 1076988,
+          "sha256": "3ca2a2ee35afbf0d823497a8651e24b13bfbac3dbba32761e1d2028e97e469ed"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/14_cellpose_settings.png": {
+          "bytes": 1088796,
+          "sha256": "4741105470dc42dd6296656fb83fb7b5c5dc2468622a321d02498f913a795ef4"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/15_cellpose_detected.png": {
+          "bytes": 1112267,
+          "sha256": "0d9ff7dd40b1a147d7dedd131dab8db07a730853ed3cc5ad6c2fcf8e6c0b01c8"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/16_cell_probability.png": {
+          "bytes": 1295485,
+          "sha256": "adc312d721c02025867351ce4d39180ce9bb76abe784e6ae673eaf0f9b2c695b"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/17_flows.png": {
+          "bytes": 1191691,
+          "sha256": "c2199d255deed495cf2a5cc19842e56f511717c3009a335f33dcd5ff4dcfb7d5"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/19_detection_undone.png": {
+          "bytes": 1100474,
+          "sha256": "c53bb0f958d738564e8c7424f96aacc354f98a1cc3cd9048cb2096fa9e9d8ebc"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/20_curate_keep.png": {
+          "bytes": 1655603,
+          "sha256": "301ef8357f259c59edcb806cfa282ae337215fc630ee418724e76a7e62517cc9"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/21_curate_discard.png": {
+          "bytes": 1658838,
+          "sha256": "3b1fe0d98f816747365219fc2d16f2ae493c0b74418f700b6629744e2ded1b93"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/22_upload_data.png": {
+          "bytes": 1414505,
+          "sha256": "dc8ee9e73ac348b3b8697fa2f2036d17cfe0d4a1b0bb0435746087207bfe8aff"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/23_consolidate_offer.png": {
+          "bytes": 1687898,
+          "sha256": "5d122e04eaffaa381df9a3271b0344f5d5f4f29ae8af0b067df9a7a8a0b3ff7f"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/24_consolidated_opened.png": {
+          "bytes": 1669143,
+          "sha256": "73ef9a1964c7a0a297f4bc23bb8a668f8e64889fbfadbbd210e9caace93b7d7f"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/25_organize_open.png": {
+          "bytes": 784822,
+          "sha256": "4ac4760b7a1f5375b47b909d18f8fddc896e85dd4a354c3ff2f4fe0fef7893f2"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/26_organize_table.png": {
+          "bytes": 815713,
+          "sha256": "7e26b506a571aa272a59c8a2500c104a316448fa81f09374e4d652d849c69713"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/27_detect_sets_check.png": {
+          "bytes": 1034307,
+          "sha256": "d54ad91c823eaf4141aa0ddca8ca502462376fc82d2783589efbd995703e3dbf"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/28_organize_images.png": {
+          "bytes": 1307986,
+          "sha256": "49e9800a5cb391073b6fdc2400573b61bdeb17e4277b52e5f551d4d38eaba0bd"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/29_move_and_merge.png": {
+          "bytes": 1335436,
+          "sha256": "a4c762f1d210f0324ae5e44e3703f9ef2e98f2438f58d8b1062bf7227fa419b5"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/30_organized_for_measure.png": {
+          "bytes": 1587468,
+          "sha256": "738e9e743fd129d5de5f8fadeae17da4a928e1ec6f48ad17945d0fda570f229d"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/puncta_01_raw_input.png": {
+          "bytes": 3140218,
+          "sha256": "1d5f3fac6a95a63a16ce7e59ef24d4760efe0aade758dadb5fc9a01408ab9481"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/puncta_02_parent_and_settings.png": {
+          "bytes": 3280901,
+          "sha256": "abc51ebce70b791ac0414908552155d48cc513fca2b70f02bf6c0a7a5a453aad"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/puncta_03_detected_centres.png": {
+          "bytes": 3279540,
+          "sha256": "c33bf294945e79b12898f87189244a0ab30b24fea0bd2357a8a3cd4ccf301ca3"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/puncta_04_saved_mask_and_measurements.png": {
+          "bytes": 3301015,
+          "sha256": "41b37aa2d99a5c648c48ebdb3e35689995747ea0aa87c06d833513fa9a8eb1c6"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/readouts_04_otsu_magnifier_settings.png": {
+          "bytes": 1896586,
+          "sha256": "b93013f1a421def6b8225631732802d620e58402ed226734a8c9593850f3441c"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/readouts_05_live_otsu_magnifier.png": {
+          "bytes": 1936174,
+          "sha256": "e8d4b4d695f078a82547adc059515990ebf6ea38989f5194b03b134e795c69a5"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/restoration_01_restoration_row.png": {
+          "bytes": 1716216,
+          "sha256": "7ebb9d8b8442196e2b1e18f82f72c7a81728bc8fa3c3202de2dec331efb48c1b"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/restoration_02_denoise_settings.png": {
+          "bytes": 1743143,
+          "sha256": "ac146f06536f716fb0f8d98d017c91c020ae15a0c283e7fe9797d02829f13f9d"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/restoration_03_model_ready.png": {
+          "bytes": 1807472,
+          "sha256": "68021d4ca856e9bb954dcc523e6a72f5caea3dcf0297d9e214772f366c565b80"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/restoration_04_compare.png": {
+          "bytes": 1980043,
+          "sha256": "a67dee767b6655f5556bf9fe597085f58ac97dc9c8c9c63e72c49fe1b3a8faae"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/restoration_05_apply.png": {
+          "bytes": 1971320,
+          "sha256": "316d653bd8b5d008d8710f461d77e9a66a017da4a9d7aadb753269176dd9efab"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_04_box_controls.png": {
+          "bytes": 1813446,
+          "sha256": "b45fd2f951da9817860c3b0888afcabeb6588a6c1079c5f631455f6e41bbb9cc"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_05_add_class.png": {
+          "bytes": 1799711,
+          "sha256": "bc604aa4f1c5686550cf8c36affcf5feb25cce53212bd51b441baa02cd7cf235"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_06_drawn_box.png": {
+          "bytes": 1812259,
+          "sha256": "dda9b2fc578bbbd782d0f7876127d35122db3e063e163a4e01be1bd24890c053"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_07_moved_box.png": {
+          "bytes": 1812821,
+          "sha256": "8021d5ba36e3fd2e18e63c3a4920f0f93129506f7c4786a4e7c1a2f95eb64859"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_08_resized_box.png": {
+          "bytes": 1814130,
+          "sha256": "b50faddad965ddc7016230c254032ca1e16af20c4cf50fb41b2974760eecb174"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_09_contained_box.png": {
+          "bytes": 1818124,
+          "sha256": "538e7bfd8ccaecd60121a08837d75013508eb40ebb5e78a7fcfbf18d46d551d3"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_10_deleted_box.png": {
+          "bytes": 1818546,
+          "sha256": "0ef8cf72e645d449d6abf53ef969962a5db466e319d269b0114abc103a78ead3"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_11_undo_boxes.png": {
+          "bytes": 1822381,
+          "sha256": "0eb5cd48aae4e11f146ef1aa2a1f459937b68a8c6791bbed298eab1be233f17b"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_12_redo_boxes.png": {
+          "bytes": 1823972,
+          "sha256": "cc9ba5922ce3b5b1eba0aac30e36e694fe2c4b19ee2c96082015ba876cfb9d40"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_13_saved_boxes.png": {
+          "bytes": 1861821,
+          "sha256": "372c9913027ff42fab9901d5194fdbcf9563a63965639906c57b19af8501f119"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_14_export_picker.png": {
+          "bytes": 1454174,
+          "sha256": "351f5f473889f0811df513f1fb3c6c640e6e17012e911fd2c9bf7ae0643cee58"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_17_negative_exported.png": {
+          "bytes": 1635615,
+          "sha256": "1ed6757e4a7d1444e59960a037eb51b9fa3b6d050d94cce9fef3193b364fd6c8"
+        },
+        "captures/make_masks_final_contained_r2/native_frames/yolo_18_reloaded_boxes.png": {
+          "bytes": 1878951,
+          "sha256": "a66cd4e58baa43738d219bf5fbcf8920940b93c689f0d0921e3448a0c1f93fd2"
+        },
+        "captures/make_masks_final_contained_r2/provenance.json": {
+          "bytes": 1706,
+          "sha256": "e8ba784f56147fefbc8e614eeabb7a2c2c0675d3f3cad04121db4d37e7e3fc0f"
+        },
+        "captures/make_masks_final_contained_r2/scientific_acceptance.json": {
+          "bytes": 103621,
+          "sha256": "f6994a62bd841be897173cb24ba4f6cff76b4ec30124f5bb7fd60c41c06880dd"
+        },
+        "captures/make_masks_final_current_r1/focus.json": {
+          "bytes": 8709,
+          "sha256": "cc5f55062e3dcebfbe8421c492b5c5103a89e76f6f71453d81b2c1777ed7ebbb"
+        },
+        "captures/make_masks_final_current_r1/frames.json": {
+          "bytes": 1748334,
+          "sha256": "47606a9597fb849f8b3e731502b3db80d8bd7c88fb4793a0c2c742fd4f428edc"
+        },
+        "captures/make_masks_final_current_r1/provenance.json": {
+          "bytes": 1706,
+          "sha256": "e8ba784f56147fefbc8e614eeabb7a2c2c0675d3f3cad04121db4d37e7e3fc0f"
+        },
+        "captures/make_masks_final_current_r1/scientific_acceptance.json": {
+          "bytes": 89403,
+          "sha256": "71f52db29b590c75afa32afe502b285dad597c457228c3538b6d1723d5e4c3a8"
+        },
+        "catalog/captions_da.json": {
+          "bytes": 701829,
+          "sha256": "4fd1837ec6cf9432f0dc5227c05a09a1d41a87d345dfa6c8ac002ab0505938a7"
+        },
+        "catalog/captions_de.json": {
+          "bytes": 749427,
+          "sha256": "ba6a8d552e10104d43780a75e4c3cde040260b77549dd4bbd7a4aa160d068827"
+        },
+        "catalog/captions_is.json": {
+          "bytes": 706698,
+          "sha256": "49333f43629c616dc589d83917e640900591c268c1419cf6c29c8cb87a4ff44d"
+        },
+        "catalog/captions_ko.json": {
+          "bytes": 743523,
+          "sha256": "1443d3b0c5afd3af2375256aab886e2398ff1672bea4bbc0616ae2ebf260b2e9"
+        },
+        "catalog/captions_nb.json": {
+          "bytes": 697626,
+          "sha256": "b750199b3c4d75ce4284168d88cca4961e26d23f7bca188a4f859e32b4c56b85"
+        },
+        "catalog/captions_sv.json": {
+          "bytes": 706810,
+          "sha256": "e9658bba4e3487b12882f7a00e790db76ce00a7b6429e4668efe1fc3eee927bd"
+        },
+        "catalog/lessons_en.json": {
+          "bytes": 677963,
+          "sha256": "a73534ea7b81295fd20e8fbca3124aa5dade00c9bfd45e0bba1a7f847dd4cd90"
+        },
+        "catalog/lessons_es.json": {
+          "bytes": 1116787,
+          "sha256": "706b1bdf2f296aa31f434ee495dbee7bfbf9f423be2b700504a8666e04270cc3"
+        },
+        "catalog/lessons_fr.json": {
+          "bytes": 1161278,
+          "sha256": "283b85af6ea48b2f40ebfffb1c816191db8920c487e69a249e06e3816a7e4a39"
+        },
+        "catalog/lessons_hi.json": {
+          "bytes": 1858825,
+          "sha256": "c49c79dfafd241c04e794eed03f421066f4f3fbd8792a97374d3ec7bee360848"
+        },
+        "catalog/lessons_it.json": {
+          "bytes": 1104614,
+          "sha256": "0ab6d3826ba8ddacf306585a0dcf91e6e83a52691a13f724ac531dd917a33158"
+        },
+        "catalog/lessons_ja.json": {
+          "bytes": 1236922,
+          "sha256": "13b58bc614429c9078062db11e35ad7d20e413cda099d26fa8008280502a4c95"
+        },
+        "catalog/lessons_pt-BR.json": {
+          "bytes": 1099851,
+          "sha256": "f19131ea1b24572aa8e364d54399cfc4dc6fcc82942415bdc81b70e4e5631805"
+        },
+        "catalog/lessons_zh-CN.json": {
+          "bytes": 959400,
+          "sha256": "7a101a2badce830ea2b1fe754132cb7a2ef1aecf96d6e275299daef39ccbb79c"
+        },
+        "current-catalog-preservation-contained.json": {
+          "bytes": 2066,
+          "sha256": "61b9b1c6617b6d82820ca4a4ab0ba0078f9c38224b026ba00bf593f9c20cf265"
+        },
+        "current-catalog-preservation-final.json": {
+          "bytes": 2066,
+          "sha256": "61b9b1c6617b6d82820ca4a4ab0ba0078f9c38224b026ba00bf593f9c20cf265"
+        },
+        "production/14_make_masks/audio/en/af_aoede.json": {
+          "bytes": 239854,
+          "sha256": "3655a01878148a7dfad437b0084323cba9de7dad015aa5f498e22b3a947bf9db"
+        },
+        "production/14_make_masks/audio/en/af_aoede.m4a": {
+          "bytes": 5503895,
+          "sha256": "c218b265b640ec61fe7c83bb8a249d2035e5dc10adb8fcaa7b02e8a4cf5a3788"
+        },
+        "production/14_make_masks/audio/en/af_bella.json": {
+          "bytes": 240328,
+          "sha256": "16f7a550762f4ed13459db04e24050563c3177e86f61e074c30e3e765078eefd"
+        },
+        "production/14_make_masks/audio/en/af_bella.m4a": {
+          "bytes": 5575783,
+          "sha256": "f797c354a0e7724b12e6b1920062faf3935a02982320d9ebb271b025b3091567"
+        },
+        "production/14_make_masks/audio/en/af_heart.json": {
+          "bytes": 239783,
+          "sha256": "a4a299d08ffae3ca628b6c7e5518a6773081d654930c385ec754204b7849db56"
+        },
+        "production/14_make_masks/audio/en/af_heart.m4a": {
+          "bytes": 5479447,
+          "sha256": "fadb3fa090b8ace83c700df5413c5387e0ca7325708572e05c9500beb780978b"
+        },
+        "production/14_make_masks/audio/en/af_jessica.json": {
+          "bytes": 240275,
+          "sha256": "50b322f04c08b1eabf104b50a0fc7bdc099f1b740fe5fe8c4a6d5ea1e5d4e88c"
+        },
+        "production/14_make_masks/audio/en/af_jessica.m4a": {
+          "bytes": 5418876,
+          "sha256": "4c272491e459c222f19b5e679448c518002ae71944a5a1a147774ad455373384"
+        },
+        "production/14_make_masks/audio/en/af_river.json": {
+          "bytes": 240201,
+          "sha256": "fe5a82335bfddab98380cfcfece56fa4c87dd22e5b3f91f677c373bf63b57c68"
+        },
+        "production/14_make_masks/audio/en/af_river.m4a": {
+          "bytes": 5468273,
+          "sha256": "22791b37708920816f8c0ea398db1a265dda0ad6614526203895e66707d640d2"
+        },
+        "production/14_make_masks/audio/en/af_sarah.json": {
+          "bytes": 239788,
+          "sha256": "c0b5a67a0a5569ff2bb08e03cb2ae51a474d1304d4f940cde86e7888726d1e56"
+        },
+        "production/14_make_masks/audio/en/af_sarah.m4a": {
+          "bytes": 5558247,
+          "sha256": "35831e5e3e69231949e4aac3d3ecf569a6a8b16c38836e1192b426abdffb14e6"
+        },
+        "production/14_make_masks/audio/en/af_sky.json": {
+          "bytes": 239808,
+          "sha256": "6e6e40b364f91bc9ffd687d610dd0485a49a77a73c9494509845866d8a3ea82f"
+        },
+        "production/14_make_masks/audio/en/af_sky.m4a": {
+          "bytes": 5657967,
+          "sha256": "b97d8addcceed7042eeb25995b09cde8f5cd25b5c54183b1148aacc64506ff96"
+        },
+        "production/14_make_masks/audio/en/am_adam.json": {
+          "bytes": 240014,
+          "sha256": "522af632045d209f8ab990c1b2c7b59c311951b73e9bccea2d49a7415343bcd3"
+        },
+        "production/14_make_masks/audio/en/am_adam.m4a": {
+          "bytes": 5558716,
+          "sha256": "72ab26bfef592a1de10b123e20efd95b34c02287e3800f0d39896f9788d5ec4f"
+        },
+        "production/14_make_masks/audio/en/am_echo.json": {
+          "bytes": 239435,
+          "sha256": "4a20909ae2fe529f03d755480a6d3ce64055844f7e7da1e821ee9cb770225307"
+        },
+        "production/14_make_masks/audio/en/am_echo.m4a": {
+          "bytes": 5794138,
+          "sha256": "c65c9cf855b239f1aac4e6731ccec684875a3e2341f41fc113157c31e1531d97"
+        },
+        "production/14_make_masks/audio/en/am_eric.json": {
+          "bytes": 239436,
+          "sha256": "ff7396c094537d3425ff5e9ce8902b53206bec1b8be766847d96339cc0b51a27"
+        },
+        "production/14_make_masks/audio/en/am_eric.m4a": {
+          "bytes": 5405933,
+          "sha256": "164778d13d233e02f4b6dab9448cfd58e2134de53ef76afdd745ede0b01737eb"
+        },
+        "production/14_make_masks/audio/en/am_fenrir.json": {
+          "bytes": 240106,
+          "sha256": "263713a14902bc10437bde7b57fffd42e472074e67f40a9c335c77a3c9a2b0d4"
+        },
+        "production/14_make_masks/audio/en/am_fenrir.m4a": {
+          "bytes": 5612294,
+          "sha256": "7804ab2a10f304a9c7da66a840aee1fc72b51a4a93f08ddca1a7cf318fca1e51"
+        },
+        "production/14_make_masks/audio/en/am_liam.json": {
+          "bytes": 239847,
+          "sha256": "26364f5fa6504b19ad795f327c2d258151f2218e5c17303b59a79352bd46feef"
+        },
+        "production/14_make_masks/audio/en/am_liam.m4a": {
+          "bytes": 5626179,
+          "sha256": "5841cc6b307c2e274e8aabe6ebee68854af0083cd4008d90e4f3a31e9c68d8c3"
+        },
+        "production/14_make_masks/audio/en/am_michael.json": {
+          "bytes": 239741,
+          "sha256": "4a522b32791991e75d3761aa766fe3ee8e1eb651c275cfe56c8812003b2f350e"
+        },
+        "production/14_make_masks/audio/en/am_michael.m4a": {
+          "bytes": 5943958,
+          "sha256": "aa55a08612d78302a898fbd60dd61c6fbeef2f7fd7dd5e1810efe3a9f5bc7fbb"
+        },
+        "production/14_make_masks/audio/en/am_onyx.json": {
+          "bytes": 239749,
+          "sha256": "bbb12d1016cc24e86de81a27ee1d1dc0fb30ace9cc97529a5dc6138504ceb393"
+        },
+        "production/14_make_masks/audio/en/am_onyx.m4a": {
+          "bytes": 5896237,
+          "sha256": "49d0e467a2e6bf6619806fc32888fa51c39cae012490ff74bbfd18a2af6bf58b"
+        },
+        "production/14_make_masks/audio/en/am_puck.json": {
+          "bytes": 239826,
+          "sha256": "253251e1707ac6dbab07545a7bfe95ef323ff9c0286094cc781b06c8845ab572"
+        },
+        "production/14_make_masks/audio/en/am_puck.m4a": {
+          "bytes": 5637250,
+          "sha256": "0271b7510fdf381796ec6108c43c2cc2bada1bd3665babb218c7cc77efdeab5b"
+        },
+        "production/14_make_masks/audio/en/am_santa.json": {
+          "bytes": 239737,
+          "sha256": "711d842df21ee782c299dd4a63c50f6c449e12f5e221b59d4b1c4744b7f53243"
+        },
+        "production/14_make_masks/audio/en/am_santa.m4a": {
+          "bytes": 6091155,
+          "sha256": "ed23843f6956f29149d58ab4937d12c4bd453bc43ca5bde705ca4ac1474d67ea"
+        },
+        "production/14_make_masks/audio/en/bf_alice.json": {
+          "bytes": 240208,
+          "sha256": "30e2a8a229b38af06ff04a3f2a479c595c80ac16010df7c820fdafd8d21d0744"
+        },
+        "production/14_make_masks/audio/en/bf_alice.m4a": {
+          "bytes": 5723246,
+          "sha256": "08508b9f12cd2c2038058b0939569410a5391ce4de5646d81b37ddd9dd6761c4"
+        },
+        "production/14_make_masks/audio/en/bf_emma.json": {
+          "bytes": 239864,
+          "sha256": "3e4ae9f16bdcf9c806ecd3e81e65d048e0ff1dd0f9d1af236d4d235a1221cfe6"
+        },
+        "production/14_make_masks/audio/en/bf_emma.m4a": {
+          "bytes": 5584325,
+          "sha256": "63f101618178b42cd3efc957de45a24a4caa15e27d572bc60c80dd658534ac09"
+        },
+        "production/14_make_masks/audio/en/bf_isabella.json": {
+          "bytes": 240147,
+          "sha256": "aae40565be6b1604f81856c828a00a6a8efd94fc1f9c8d85386203fcf0ca4e45"
+        },
+        "production/14_make_masks/audio/en/bf_isabella.m4a": {
+          "bytes": 5707832,
+          "sha256": "00aae63de048187f9bb7a05bc46d1a38984f4f04478ff4539cacf5789ff20999"
+        },
+        "production/14_make_masks/audio/en/bf_lily.json": {
+          "bytes": 239679,
+          "sha256": "d2932cd68f8e16c86ddc6423dbb5dd15ce196b360249cb31c28b9461c8292353"
+        },
+        "production/14_make_masks/audio/en/bf_lily.m4a": {
+          "bytes": 5913459,
+          "sha256": "001b52cb14ff6bd608b48816d20039739447f4dc512211de464b8bd5624765b7"
+        },
+        "production/14_make_masks/audio/en/bm_daniel.json": {
+          "bytes": 240394,
+          "sha256": "e75a22f4042f14ed7cbfaa5c453d764e34d634423fd0d53aa9350a5eb9694526"
+        },
+        "production/14_make_masks/audio/en/bm_daniel.m4a": {
+          "bytes": 5749429,
+          "sha256": "7851f5d82a3fb8fc2ce6d4736e2f6865d9238afc5cc29edd16c911beaa77ad3c"
+        },
+        "production/14_make_masks/audio/en/bm_fable.json": {
+          "bytes": 240059,
+          "sha256": "23e40d433cc5665cb73da2b00b1bbbe38d9f38dcae6d31a7b841d33dfe4e1dfe"
+        },
+        "production/14_make_masks/audio/en/bm_fable.m4a": {
+          "bytes": 5958020,
+          "sha256": "261195552acdef8653d9e1a9d687378090f881f0365330b84c8de879435fe2dc"
+        },
+        "production/14_make_masks/audio/en/bm_george.json": {
+          "bytes": 239689,
+          "sha256": "f3697663ad6f55a8fd45b0915603fbd78b88798fb94fb2686e2016eb7b7a82d8"
+        },
+        "production/14_make_masks/audio/en/bm_george.m4a": {
+          "bytes": 6372694,
+          "sha256": "380bd1663df8b3af38a19151afdb91567113ea173e0312ffce9f34e2238c0ef2"
+        },
+        "production/14_make_masks/audio/en/bm_lewis.json": {
+          "bytes": 240753,
+          "sha256": "e4b2d56ae477ad6ff292681eacb634e541615b03da70f0ada718377242a629d5"
+        },
+        "production/14_make_masks/audio/en/bm_lewis.m4a": {
+          "bytes": 5946355,
+          "sha256": "83583046283ba753652d49c8a5d7f9a432b437d0a8701bfce0b39f93ade422a9"
+        },
+        "production/14_make_masks/audio/es/ef_dora.json": {
+          "bytes": 208176,
+          "sha256": "239b9e7100ac1de2e75f519fba5f47f31d137f96e4ee8d547bb8f6e6bc828228"
+        },
+        "production/14_make_masks/audio/es/ef_dora.m4a": {
+          "bytes": 5834857,
+          "sha256": "01ecd820988e784e3b44d633ec56574d142ed7978b58ec9883b699294927f376"
+        },
+        "production/14_make_masks/audio/es/em_alex.json": {
+          "bytes": 208730,
+          "sha256": "5d7bea39e62df0147f1f38e42f020a0b9639feb6e59a667a96a4da5382920b75"
+        },
+        "production/14_make_masks/audio/es/em_alex.m4a": {
+          "bytes": 5880733,
+          "sha256": "5e61436f433603527949c7a780e7540ed95af288638b54ac8ee5a11fe7326f15"
+        },
+        "production/14_make_masks/audio/es/em_santa.json": {
+          "bytes": 208775,
+          "sha256": "67f220a7c6f4a6b7e61678155b51ec2ff40e90274d805ff0279a7faa5a4af2f3"
+        },
+        "production/14_make_masks/audio/es/em_santa.m4a": {
+          "bytes": 5901169,
+          "sha256": "0a79d73753a41866f88f3fa095eda6af89ab4efec7548e044f5d9f751ea7108e"
+        },
+        "production/14_make_masks/audio/fr/ff_siwis.json": {
+          "bytes": 210205,
+          "sha256": "2be9235c2da2d70749ed9ab6e5d6089ad0acbed30c2a4146b020d866641cffc2"
+        },
+        "production/14_make_masks/audio/fr/ff_siwis.m4a": {
+          "bytes": 5691042,
+          "sha256": "882bd93e0ccf8ae7e1b73e52f26d1ae6a6a86366a0bce9901d70a19e062eb9b7"
+        },
+        "production/14_make_masks/audio/hi/hf_alpha.json": {
+          "bytes": 327757,
+          "sha256": "517b610a0a60457c67451b91a84c10a8e92661773895bb19f8395ee6808a90bf"
+        },
+        "production/14_make_masks/audio/hi/hf_alpha.m4a": {
+          "bytes": 6338898,
+          "sha256": "bf0522a2a27671d6bb0e8278cc00ad5be6c595964c6f43d69659d07c731dfb1e"
+        },
+        "production/14_make_masks/audio/hi/hf_beta.json": {
+          "bytes": 328639,
+          "sha256": "ba16966425a54c448610707a35065cab38370f126263b77a6130d0dcd82abf18"
+        },
+        "production/14_make_masks/audio/hi/hf_beta.m4a": {
+          "bytes": 5587517,
+          "sha256": "9ef412d49c6a4243aa75a7ea1e6f70baa3f5ae755b46e64c4212f9983af1f8e6"
+        },
+        "production/14_make_masks/audio/hi/hm_omega.json": {
+          "bytes": 328579,
+          "sha256": "c24b84941caeda15824ef7069a97cda8b5cdad4cbff598a79ebdf146f9955c52"
+        },
+        "production/14_make_masks/audio/hi/hm_omega.m4a": {
+          "bytes": 6577603,
+          "sha256": "1d92c00740129883aa29647a3cedea525bf6fa9d4ff215fef756bb7fe4d9d236"
+        },
+        "production/14_make_masks/audio/hi/hm_psi.json": {
+          "bytes": 328699,
+          "sha256": "e09fb425cfcec632bc0a8ff42344387d3783eaa4a79bd8dd7358e07ced1bb502"
+        },
+        "production/14_make_masks/audio/hi/hm_psi.m4a": {
+          "bytes": 6678960,
+          "sha256": "f97a0f3a6862f5496d4fec7503e0066e0ddf5e2bd10ba1a45d9ec386897b94a8"
+        },
+        "production/14_make_masks/audio/it/if_sara.json": {
+          "bytes": 207888,
+          "sha256": "5e0588f1a8f17a59dbd2977e48c793c6081cffd8c209f7837287fb78958a7e9a"
+        },
+        "production/14_make_masks/audio/it/if_sara.m4a": {
+          "bytes": 5796722,
+          "sha256": "1043d67654337f331fe102d0c5354e56f07f523e4f18dae7560109fa7ee0797e"
+        },
+        "production/14_make_masks/audio/it/im_nicola.json": {
+          "bytes": 208158,
+          "sha256": "29ddc5b6c2646c39a3babf7e5a96b665ce75f270412ded9611337e72f747481a"
+        },
+        "production/14_make_masks/audio/it/im_nicola.m4a": {
+          "bytes": 6498782,
+          "sha256": "78d274e43cd1598981086c295e9fd457778dca4e1c602afedd2bcba2ef05e86a"
+        },
+        "production/14_make_masks/audio/ja/jf_alpha.json": {
+          "bytes": 220136,
+          "sha256": "886b7acd176dffe00d2928a5707da660d7e38d9ea193dee0a070e319777883cb"
+        },
+        "production/14_make_masks/audio/ja/jf_alpha.m4a": {
+          "bytes": 6426405,
+          "sha256": "2f593f6859d8f5ebf2dcf326f79376773be847000b0d2f45095958947788aecc"
+        },
+        "production/14_make_masks/audio/ja/jf_gongitsune.json": {
+          "bytes": 220423,
+          "sha256": "8e17cc67a97bd39ca2ffd861ae3683451df54257933fa2929da03d8bdcb2cb5d"
+        },
+        "production/14_make_masks/audio/ja/jf_gongitsune.m4a": {
+          "bytes": 8241766,
+          "sha256": "c60a33cc664d79883dc57440aa5a5e57f01c38e1cd955fec4653d71489cace36"
+        },
+        "production/14_make_masks/audio/ja/jf_nezumi.json": {
+          "bytes": 220588,
+          "sha256": "97c2cffeaf2b3a62ca1d930af19860eb8f1b51a133c1638aecec9c22a6c1b2c4"
+        },
+        "production/14_make_masks/audio/ja/jf_nezumi.m4a": {
+          "bytes": 8665945,
+          "sha256": "9840ab33bb146e076d6801f768d876a066636713190d47aa79e8471de8d875f8"
+        },
+        "production/14_make_masks/audio/ja/jf_tebukuro.json": {
+          "bytes": 220655,
+          "sha256": "d4aade56b460f811e5c0439856a149099d052b6dd80e2b2e484140a5018616f5"
+        },
+        "production/14_make_masks/audio/ja/jf_tebukuro.m4a": {
+          "bytes": 8319608,
+          "sha256": "ea23ffed428bbdca5c0b8bd34a453acc8cee64f456721d5dd74b872005b09668"
+        },
+        "production/14_make_masks/audio/ja/jm_kumo.json": {
+          "bytes": 220718,
+          "sha256": "facd2be82566724049229eb7475b2e1a76f433b32e80476aa9c746b1ec55ad4e"
+        },
+        "production/14_make_masks/audio/ja/jm_kumo.m4a": {
+          "bytes": 7133777,
+          "sha256": "767b9e057ed7638060ef2c0a045f7bf7db3ed081f177642cdcb7978447313598"
+        },
+        "production/14_make_masks/audio/pt-BR/pf_dora.json": {
+          "bytes": 211398,
+          "sha256": "c5939a0805567da8ac17884452d8ca7c3755eb03612bb32a2b157bdb8e76226f"
+        },
+        "production/14_make_masks/audio/pt-BR/pf_dora.m4a": {
+          "bytes": 5604140,
+          "sha256": "0e2e428266c40ab71a3152fb80ba950425a933de81c678fbfdba0a3200eead56"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_alex.json": {
+          "bytes": 210430,
+          "sha256": "dd8c8e6ba19c30286f41a80a247598cce591455f70900b795c641df56f166526"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_alex.m4a": {
+          "bytes": 5660656,
+          "sha256": "21f3ce2100b70d7a75fc2538735854288df4c07f120d4615ffeab768f9989601"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_santa.json": {
+          "bytes": 211426,
+          "sha256": "4707634a401121381997c53ee1ebf3d7a6f3b06f07e7f3611ab41b519849e01c"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_santa.m4a": {
+          "bytes": 5681979,
+          "sha256": "a016de6c26ddf1e2c6641ec38e09d9b9238698b0f8a1631ef8984b22c2fb70d9"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaobei.json": {
+          "bytes": 201243,
+          "sha256": "020accc980dad58230e561ff2b6e84cfa6ec7ad5a18a522c5ee06054ea18e4ac"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaobei.m4a": {
+          "bytes": 5550233,
+          "sha256": "23bf2b91597830539ec2ec69f8ce4d8d4f04b2ba7b38c4260536ba88a2780428"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoni.json": {
+          "bytes": 200714,
+          "sha256": "12c348f034fc92a71fc038c7b214c7a83ed5a80cfb776d1d00609ddeb0155a49"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoni.m4a": {
+          "bytes": 4821855,
+          "sha256": "514f9e709a4d40b85c76f0e69801a7584d9902b541b56d5007eb94d6d29b776d"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoxiao.json": {
+          "bytes": 200708,
+          "sha256": "6d3086361c455b30f39dc0fed030af2a30a7dbdb39a031ab7612b3ec5acd9878"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoxiao.m4a": {
+          "bytes": 4811573,
+          "sha256": "32f322eddd657860a16ba92b99fbe4746120ddbc65d91e9a41a6ad03898dd669"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoyi.json": {
+          "bytes": 201148,
+          "sha256": "07849a88e8199ab5b7208955e667f0105e20061daed59b89f19cd7af25b10aca"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoyi.m4a": {
+          "bytes": 4654214,
+          "sha256": "9842bba631ec4433806a45bb6db8396bf5ccde8bab9508e07d17939c6f5da1c9"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunjian.json": {
+          "bytes": 201034,
+          "sha256": "bbfa2b2b38e1c21948bbfaa73214184ce320763fc003daf11d83f8188c7e4425"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunjian.m4a": {
+          "bytes": 4604996,
+          "sha256": "1efd0d66868aaf2513b1cbe8c34e326d24dcc991bd9878de14024fb02481c648"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxi.json": {
+          "bytes": 201159,
+          "sha256": "3f15759db751f8047321f891d418295edc29c57907edd5c4103a77dd0000e24a"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxi.m4a": {
+          "bytes": 4391747,
+          "sha256": "174c2369f919b94a68f6912d4ba954e3bf9cf2c7f1c6fbcdd4e0ea5a84a4f488"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxia.json": {
+          "bytes": 201263,
+          "sha256": "89c9b49f4e874663a55971167b4ecd6d7fdc16b51476b65c52bf0aff002d1a86"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxia.m4a": {
+          "bytes": 4989325,
+          "sha256": "8f17cdf742af1f4126104f80648665ccc326c9d8274afe25a65b0cbe4361f1b7"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunyang.json": {
+          "bytes": 201292,
+          "sha256": "67ca681bfdd0dd0e895ce732629fe80d17828ab44fa6ee78943b807b3a14462a"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunyang.m4a": {
+          "bytes": 4391940,
+          "sha256": "53347a78bf3f9db0e130b15797dc6d7c9121c6215db939c1171650d7818f2693"
+        },
+        "production/14_make_masks/audio-checks.en+es+fr+hi+it+ja+pt-BR+zh-CN.json": {
+          "bytes": 9034,
+          "sha256": "f83fd61dcfbc6aa499cab7a57caa04a3bd9cbe8fa7641027357695be95692223"
+        },
+        "production/14_make_masks/captions/en/af_aoede.vtt": {
+          "bytes": 19622,
+          "sha256": "9e25e1299424c553a0f49212ca09a1642e9cf1e5286a48bd5b7e9355c380c168"
+        },
+        "production/14_make_masks/captions/en/af_bella.vtt": {
+          "bytes": 19622,
+          "sha256": "896123d347f3c262e635d8e4f3b33e7b721311bd8027c58314cd0ddf4d78ce69"
+        },
+        "production/14_make_masks/captions/en/af_heart.vtt": {
+          "bytes": 19622,
+          "sha256": "27a8c673ab0b9ea50d9ba9e12c49c40d8c8972e3169b1c95c005bb2d92257945"
+        },
+        "production/14_make_masks/captions/en/af_jessica.vtt": {
+          "bytes": 19622,
+          "sha256": "313c3e35deb5a4ac493ad4ac9f8665e2492193a9643efe6902adc56ca950ebfa"
+        },
+        "production/14_make_masks/captions/en/af_river.vtt": {
+          "bytes": 19622,
+          "sha256": "ed46630c661c20266d644119588ed4a01d54ebcbae8341ff2105099c320e919a"
+        },
+        "production/14_make_masks/captions/en/af_sarah.vtt": {
+          "bytes": 19622,
+          "sha256": "8ea6ce59842792a0c764dd44d5c5bf2174c45209bbb11c5c4ac1a4de3ba282bd"
+        },
+        "production/14_make_masks/captions/en/af_sky.vtt": {
+          "bytes": 19622,
+          "sha256": "229a0dfd614197c7c0bfc7d39024aa6b311e5d271c72f666adfee6a9083d943e"
+        },
+        "production/14_make_masks/captions/en/am_adam.vtt": {
+          "bytes": 19622,
+          "sha256": "c3fb6442c739889bb224221852533307f7cc45316195771321996b79116e5537"
+        },
+        "production/14_make_masks/captions/en/am_echo.vtt": {
+          "bytes": 19622,
+          "sha256": "a4a52661f2b2101f5cc54d694cc63f74deb372246882a50956280fc3caea2703"
+        },
+        "production/14_make_masks/captions/en/am_eric.vtt": {
+          "bytes": 19622,
+          "sha256": "d1958e9dc9c575beef82fe7f1f0aa6528d86b4c9e6ede1ddd3e16c6150bcac5b"
+        },
+        "production/14_make_masks/captions/en/am_fenrir.vtt": {
+          "bytes": 19622,
+          "sha256": "218d3d4e29df9dd247b2993b5aed75507f26835e3f3ae2a74483a7e32ce2e321"
+        },
+        "production/14_make_masks/captions/en/am_liam.vtt": {
+          "bytes": 19622,
+          "sha256": "353a3ae7ec6cede85f03796b040b4414f50f0858a3c0bc4bf17afb1ec9634e52"
+        },
+        "production/14_make_masks/captions/en/am_michael.vtt": {
+          "bytes": 19622,
+          "sha256": "19deeab20d39ff2b013c8694b01dc7313dca45c7a86e39a1b2cbbc98770bcc6f"
+        },
+        "production/14_make_masks/captions/en/am_onyx.vtt": {
+          "bytes": 19622,
+          "sha256": "a029be55ac4b1775ef61c14d2911e887ac929e08b0dbcaabc9e8b9579c42e2f4"
+        },
+        "production/14_make_masks/captions/en/am_puck.vtt": {
+          "bytes": 19622,
+          "sha256": "917c0047a2aca01f09d1728cb03ce1a4e78e49464b947b3fdf27cdc09e625d71"
+        },
+        "production/14_make_masks/captions/en/am_santa.vtt": {
+          "bytes": 19622,
+          "sha256": "da4025be6bbd840420e618cde7747620c90de18bbe937cfec89207aeb2138050"
+        },
+        "production/14_make_masks/captions/en/bf_alice.vtt": {
+          "bytes": 19622,
+          "sha256": "6863cefce39fbb3d9f6de8441b9bf6efc95745b5ed19927303f1c51677a60a1b"
+        },
+        "production/14_make_masks/captions/en/bf_emma.vtt": {
+          "bytes": 19622,
+          "sha256": "287e0944353c085c76837c87969b6ef0654a08922afe76163e0e072f5b39b128"
+        },
+        "production/14_make_masks/captions/en/bf_isabella.vtt": {
+          "bytes": 19622,
+          "sha256": "97145e6364a22dfac11cf365fbef81428a6dd596ec5e231fa7f38b749b0b04c0"
+        },
+        "production/14_make_masks/captions/en/bf_lily.vtt": {
+          "bytes": 19622,
+          "sha256": "5458de58eb0b010974abdd59caf34ec3f98540287a720ec073e3b5dd88525b29"
+        },
+        "production/14_make_masks/captions/en/bm_daniel.vtt": {
+          "bytes": 19622,
+          "sha256": "c8261ae0546b0a10c3c66f5181af421275fb527e71197d87482790d6b675e74f"
+        },
+        "production/14_make_masks/captions/en/bm_fable.vtt": {
+          "bytes": 19622,
+          "sha256": "56d24c6e9f0206942c14d56f04a818c7603d2a7718deda31dc49d95342cb6f45"
+        },
+        "production/14_make_masks/captions/en/bm_george.vtt": {
+          "bytes": 19622,
+          "sha256": "df4658d23f94a030d08537002c2904749d87c19228344e4db0851e4f959b43ec"
+        },
+        "production/14_make_masks/captions/en/bm_lewis.vtt": {
+          "bytes": 19622,
+          "sha256": "281ac96cc75feddc715f5e3d06f6262ed744928f4bc97fdd5b7bf7ce8dc8be86"
+        },
+        "production/14_make_masks/captions/es/ef_dora.vtt": {
+          "bytes": 18172,
+          "sha256": "15bd9d20b4a45f75c229a0bcefb3bdf7141deadafe61ab2f49ff78365485f71f"
+        },
+        "production/14_make_masks/captions/es/em_alex.vtt": {
+          "bytes": 18172,
+          "sha256": "0bb0d72e3753d4e4bd6fb9c77b8775c150472e460edc956f4e983facf42b66a3"
+        },
+        "production/14_make_masks/captions/es/em_santa.vtt": {
+          "bytes": 18172,
+          "sha256": "bee7aabee39fd2b0ea4b6471e565f38cd4f3b7cd9e77b751a685b041089f371d"
+        },
+        "production/14_make_masks/captions/fr/ff_siwis.vtt": {
+          "bytes": 19129,
+          "sha256": "e54ebd39f83a379e8032be23f8c8eb3fcbf4d07afc806e7fc74e3836151426b1"
+        },
+        "production/14_make_masks/captions/hi/hf_alpha.vtt": {
+          "bytes": 35977,
+          "sha256": "d6d410480913f8d1dced5afa093e483b2ea7f0c16f2f2cc34a79a8a171319361"
+        },
+        "production/14_make_masks/captions/hi/hf_beta.vtt": {
+          "bytes": 35977,
+          "sha256": "18e62b041dfeb42db2e86cb8a0fb3a0bf71d2eb3b761aa0894ea11c93b5433ad"
+        },
+        "production/14_make_masks/captions/hi/hm_omega.vtt": {
+          "bytes": 35977,
+          "sha256": "9a226124d6271e54488fb948d5846eef5bd9305cd1d6a7233bc6c987f2316150"
+        },
+        "production/14_make_masks/captions/hi/hm_psi.vtt": {
+          "bytes": 35977,
+          "sha256": "2d32c3ef415c99d66bd0fd083176a8958bb0fbe61d94879a269ecdfc04fe9637"
+        },
+        "production/14_make_masks/captions/it/if_sara.vtt": {
+          "bytes": 18267,
+          "sha256": "912f103772003d37a065db3d185b2e4d5c294083327b00179a4f2e061e9d3077"
+        },
+        "production/14_make_masks/captions/it/im_nicola.vtt": {
+          "bytes": 18267,
+          "sha256": "4142ca3c0be9778afcc99952c47b3ff86f72ab1bf478d5e4048ece103ba315ae"
+        },
+        "production/14_make_masks/captions/ja/jf_alpha.vtt": {
+          "bytes": 20682,
+          "sha256": "3f9ae273b45923ade0e0fae45e2e3d028ade53ec0db99226c809c06f4903597f"
+        },
+        "production/14_make_masks/captions/ja/jf_gongitsune.vtt": {
+          "bytes": 20682,
+          "sha256": "515185ea4d7778c06dd7a49d5adf67093e621be8ac51a62789152ab1d11e383e"
+        },
+        "production/14_make_masks/captions/ja/jf_nezumi.vtt": {
+          "bytes": 20682,
+          "sha256": "3d5bccb1f13e584f6b69c5abd12cdef5bbb1652a08f16f9f659c8a4391465062"
+        },
+        "production/14_make_masks/captions/ja/jf_tebukuro.vtt": {
+          "bytes": 20682,
+          "sha256": "bc904a755b07ab4205907be54641d3205cf1c93b3bc5a38af5c4e7ea5b60c14d"
+        },
+        "production/14_make_masks/captions/ja/jm_kumo.vtt": {
+          "bytes": 20682,
+          "sha256": "dbeb7aea2c0b93a35bf3362a890bf4015eae072351e2f3b845a182cddfb84a49"
+        },
+        "production/14_make_masks/captions/pt-BR/pf_dora.vtt": {
+          "bytes": 17709,
+          "sha256": "0bbfb6ade6f240e58c91fbd44cd74eb6853b4f460385bc3a9e442fe7df2a8fc2"
+        },
+        "production/14_make_masks/captions/pt-BR/pm_alex.vtt": {
+          "bytes": 17709,
+          "sha256": "d2c714dc169981314f925d40e8128aee4b6b475bc065882697633025ef388916"
+        },
+        "production/14_make_masks/captions/pt-BR/pm_santa.vtt": {
+          "bytes": 17709,
+          "sha256": "8f02ae2042c14f8d45962d13f6ace1e4f47269c0b8c6a8407ea3696647a7266b"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaobei.vtt": {
+          "bytes": 14882,
+          "sha256": "6032883d0399dc1006d18af157950d7ec87618e1397da594bbc3a17b9757bee8"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaoni.vtt": {
+          "bytes": 14882,
+          "sha256": "977aace37e9e58682c244c0910fb1eb7049e69c282a8262632d261d6aee068ab"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaoxiao.vtt": {
+          "bytes": 14882,
+          "sha256": "1e64841b41c7648d7666caaa6c0cf794adcbecee96b0c5a560294c682cd80f5e"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaoyi.vtt": {
+          "bytes": 14882,
+          "sha256": "eb23c9e4f39af027b127eb5cd3bf6a9725ae6df62fd1ca7ec930367290b8d0c7"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunjian.vtt": {
+          "bytes": 14882,
+          "sha256": "a3a4a24dac51b349749db54d22722aeb4786e2fc4320b02c7ffda8ced2561164"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunxi.vtt": {
+          "bytes": 14882,
+          "sha256": "de9a519ec9c20f7e91a19cf2251c17d8ef782ee7d5e2fb37d96368e8d58ada14"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunxia.vtt": {
+          "bytes": 14882,
+          "sha256": "df8e5768cb9ef8aa042ef480a53f04d28b3fb796af9f85418578aba6bde3c94b"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunyang.vtt": {
+          "bytes": 14882,
+          "sha256": "8439fbe38ef901389d5f548d990ef289ac550f5fbbaf9af96505ecc6c0877d38"
+        },
+        "production/14_make_masks/current-video-acceptance.json": {
+          "bytes": 3893,
+          "sha256": "33d21356def8389e8fa3b1c95b5444fc56c1930c8271fdb86d2df04168e0494d"
+        },
+        "production/14_make_masks/lesson.en.json": {
+          "bytes": 22655,
+          "sha256": "411ced7277df85e10cbb858ebd7ffb9babdae413989d6193cdc0df94f075d849"
+        },
+        "production/14_make_masks/poster.jpg": {
+          "bytes": 293241,
+          "sha256": "9fd59bc6d9ea35196a81c1107e78dfb63b5082609cf2f13dd8420362e228727b"
+        },
+        "production/14_make_masks/refresh-status.json": {
+          "bytes": 2128,
+          "sha256": "ccd388b9861281a0dce7099d9d8b8b0a37f530245d61c056e42961110cdd5924"
+        },
+        "production/14_make_masks/review.da.json": {
+          "bytes": 20001,
+          "sha256": "0df4fe50e6565276dc7643dc92583157571414da0a1fd16d141f9012f2771ca6"
+        },
+        "production/14_make_masks/review.de.json": {
+          "bytes": 22161,
+          "sha256": "9b51c8660f14967173d12d39b52db6605efa78dc2a9604eaec7f831ea73720b6"
+        },
+        "production/14_make_masks/review.es.json": {
+          "bytes": 21175,
+          "sha256": "c619d14faaaf26f67e9f507dd438e6ca4f053f6ce676d0e5c256746506306370"
+        },
+        "production/14_make_masks/review.fr.json": {
+          "bytes": 22271,
+          "sha256": "2a0cbe56868507a0487405f59d96b153155b8ca05d721a7ef12580ba423cb37f"
+        },
+        "production/14_make_masks/review.hi.json": {
+          "bytes": 40449,
+          "sha256": "cbd761c616afa11e60ed71f4546f34791c5cef907a74c2b3189a37874899bed9"
+        },
+        "production/14_make_masks/review.is.json": {
+          "bytes": 20318,
+          "sha256": "81122c4ac0f90b390e3fb5fde6eda81abc9fe4af4dd1e0130b2e213bb573a0b4"
+        },
+        "production/14_make_masks/review.it.json": {
+          "bytes": 21301,
+          "sha256": "90fa5140de1d9a83fd43d60895344920ec9282d9367fca6d6a6c3d0684b7b581"
+        },
+        "production/14_make_masks/review.ja.json": {
+          "bytes": 23935,
+          "sha256": "0e5d14a5adc1297934da6060ee8e40b5f272edaa45de0e9d38a1b06b4ac5ef34"
+        },
+        "production/14_make_masks/review.ko.json": {
+          "bytes": 22377,
+          "sha256": "549a86fa0fa24a13006c66b9bb9d07b060469a6153a446ba3627c8d0aba3e8f5"
+        },
+        "production/14_make_masks/review.nb.json": {
+          "bytes": 19782,
+          "sha256": "b81f8467817f8a7783bfbdc781ce7b23954954685f21b7092ceba94fcefeb2e1"
+        },
+        "production/14_make_masks/review.pt-BR.json": {
+          "bytes": 20677,
+          "sha256": "ff758bc9b24ada5917c69dce0440451da0ed8d9a8de6e237c3d51e3f74ac8d70"
+        },
+        "production/14_make_masks/review.sv.json": {
+          "bytes": 20101,
+          "sha256": "aa169ab17741da4df507acf4433594d7f524ec69a8b1406545346622758cb83f"
+        },
+        "production/14_make_masks/review.zh-CN.json": {
+          "bytes": 17640,
+          "sha256": "ac31d23bd43fd164c2f9eae8098146ea7ae09662cf5489b9d691e7e37ac7a6d8"
+        },
+        "production/14_make_masks/scenes.json": {
+          "bytes": 17330,
+          "sha256": "eff27d115a3ba4764c2d4306cbc4dc97517deb7238e509e2c93524693b5e5212"
+        },
+        "production/14_make_masks/video/14_make_masks_silent.mp4": {
+          "bytes": 72522952,
+          "sha256": "70c5d988edef4beea882213a8d8584833bb41ade8529a4101f40980f1a34650c"
+        },
+        "production/14_make_masks/visual.json": {
+          "bytes": 17330,
+          "sha256": "eff27d115a3ba4764c2d4306cbc4dc97517deb7238e509e2c93524693b5e5212"
+        },
+        "rendered-scene-review/14_make_masks-00.png": {
+          "bytes": 788788,
+          "sha256": "8f71ab803270b1928d459feed80efd4ff3c647737112b4c6adbb7733f7057a32"
+        },
+        "rendered-scene-review/14_make_masks-01.png": {
+          "bytes": 886114,
+          "sha256": "e1ecd9b44d85123c191ef7b5da389758164f200726d7b2a6cb6afb27879f1e02"
+        },
+        "rendered-scene-review/14_make_masks-02.png": {
+          "bytes": 780208,
+          "sha256": "54e9f1d2fe978dec83ffb1922829fc0682054f66e45ebc001eef93c3dc9c8891"
+        },
+        "rendered-scene-review/14_make_masks-03.png": {
+          "bytes": 2416481,
+          "sha256": "df441b711acf35af5f34e2032db63ead2208c12b06a228280a3b0579591ad195"
+        },
+        "rendered-scene-review/14_make_masks-04.png": {
+          "bytes": 2521569,
+          "sha256": "5a690c108449ffdbaa6e2a36602a231b92be414aafcd941f6d4989c09209b789"
+        },
+        "rendered-scene-review/14_make_masks-05.png": {
+          "bytes": 2440872,
+          "sha256": "8f8452fba0364d01940e7c4be03ccb1f1fb71970b69cd9a6d59e56185d892b88"
+        },
+        "rendered-scene-review/14_make_masks-06.png": {
+          "bytes": 1659994,
+          "sha256": "fac9e3fe16a5ad9f149dbc43d9fd5af0a45c2ce9f042cf0e2caa47819da32c40"
+        },
+        "rendered-scene-review/14_make_masks-07.png": {
+          "bytes": 2637735,
+          "sha256": "9139dcab31a440f79f16a173d0a8e9aee810968e2e5e56dbec1aac2798d45277"
+        },
+        "rendered-scene-review/14_make_masks-08.png": {
+          "bytes": 2646006,
+          "sha256": "4bbb83610c22ee74f665cae2509603a294e8cf629ed4b9901c69b7e46162bc24"
+        },
+        "rendered-scene-review/14_make_masks-09.png": {
+          "bytes": 2643183,
+          "sha256": "cfaf0700fd6ab699d55ec58d4363d8acd0467649b60688d0ec5995e68742da50"
+        },
+        "rendered-scene-review/14_make_masks-10.png": {
+          "bytes": 2201353,
+          "sha256": "f37dc08d4222ccfab9c892ee90d7a5a0be4a8136eb42bb151707ac8c0664e95d"
+        },
+        "rendered-scene-review/14_make_masks-11.png": {
+          "bytes": 2184305,
+          "sha256": "8540d3f097c0722d42244126d01c9a94e8799d523aac163a0c2394942bb834f8"
+        },
+        "rendered-scene-review/14_make_masks-12.png": {
+          "bytes": 2610805,
+          "sha256": "9c7da3223f72ef39a9aed1620c4ed64a88600a119556ef757e8fb4779bf5cc1f"
+        },
+        "rendered-scene-review/14_make_masks-13.png": {
+          "bytes": 2609205,
+          "sha256": "675e77a5a85cdf1c2c7ec0b1c71df7968f512b898e2a4e48b8e8f310dd3ea90b"
+        },
+        "rendered-scene-review/14_make_masks-14.png": {
+          "bytes": 2520973,
+          "sha256": "a1521d213d80ef5d851ef6920e2804c3bf9cce29ff107ab040a7c18cd36da9f9"
+        },
+        "rendered-scene-review/14_make_masks-15.png": {
+          "bytes": 2639569,
+          "sha256": "a5a7c98958a19c4825e3be1dcd588974824452a124af93198932ba86993b2665"
+        },
+        "rendered-scene-review/14_make_masks-16.png": {
+          "bytes": 2549440,
+          "sha256": "6f7943d5cf41ff7dedada0a36d2e36b5ea1b7670d0b389e1c903aef5fa2b8c1c"
+        },
+        "rendered-scene-review/14_make_masks-17.png": {
+          "bytes": 2577055,
+          "sha256": "d53f1fa2e6bbb2d4bc56b4483bb13e6d278c2fe182d9672b562b009581b0c7cb"
+        },
+        "rendered-scene-review/14_make_masks-18.png": {
+          "bytes": 1630096,
+          "sha256": "23835650b923134082ed22bc2abb33eeee65d7d72759f8d6d9f48cdc145202b0"
+        },
+        "web-renditions/14_make_masks/rendition-checks.json": {
+          "bytes": 1023,
+          "sha256": "f22860e7f454154928025993e5a0f48e6f21859eb40de78ecd0f89f79f124e6a"
+        },
+        "web-renditions/14_make_masks/video/14_make_masks_silent.mp4": {
+          "bytes": 61295507,
+          "sha256": "cc5b76b2ae0a780f446fe8cdcf2b4e7b36c8b0862d0cea24ebd7b927a4920236"
+        }
+      }
+    },
+    "r2": {
+      "complete_local_stage": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-current-r2",
+      "files": {
+        "captures/make_masks_latest_Home_contained_r2/focus.json": {
+          "bytes": 8717,
+          "sha256": "9113ff13ecd7498fd7c12ad38ab44b18c8737c8e80d68a38f2dfafa1f1895fad"
+        },
+        "captures/make_masks_latest_Home_contained_r2/frames.json": {
+          "bytes": 1758308,
+          "sha256": "f944ef177f37b3e48882fd362a42f3b09cfeab20a06ab5cfcde041e340a618a5"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/01_module.png": {
+          "bytes": 264036,
+          "sha256": "02cf56a430e447eb7c36ba26f68a87f989bc1600436e2f54d4ce481248f76613"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/01b_test_data_menu.png": {
+          "bytes": 322288,
+          "sha256": "29aa27c24a150dfe7dbcaeb57876dfef3e169b2c2f3d63a51b04cc8d1b1ca1cf"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/02_folder_picker.png": {
+          "bytes": 300840,
+          "sha256": "7274ce2184e2db29888a5b917dcb610ed7a6952f36e66c5be81da6a0c0606163"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/03_real_labels.png": {
+          "bytes": 1837041,
+          "sha256": "4f1da8482f86783704ba2b3c152a26d9a7ec0990ac352b0d4dcf0cc5204de591"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/04_erase_one_object.png": {
+          "bytes": 1949118,
+          "sha256": "b350f80ce989963ea7aab00a1b073991c5456f52905eef7e858745aa72333264"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/06_redo.png": {
+          "bytes": 1946006,
+          "sha256": "374ab8674b94a287776a76119f1c208aba2add0b3cf08fe0c444adf0db206955"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/07_draw_demo_not_annotation.png": {
+          "bytes": 1948797,
+          "sha256": "1eb817b906a92a0e11aa0136a1d688ec52be06417d9592e9424a130b957c74c6"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/07b_wand_add.png": {
+          "bytes": 1638519,
+          "sha256": "20f4b6dc52761d9a9db4e6a9d94be555007048a27b90d989432f35e48d00f166"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/07c_wand_ctrl_remove.png": {
+          "bytes": 1628187,
+          "sha256": "91ea1cddd6c0a89e0e1af5583d25898d8b956b9b5f9ddf69a9614b1e74e1580d"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/08_divide_demo.png": {
+          "bytes": 1946603,
+          "sha256": "8ee3f2758e5f988d4f6cfb29c7b2b4138da7f0cd9e7e1e10a758f2728e169c76"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/08b_contrast_only.png": {
+          "bytes": 1875672,
+          "sha256": "bfd984f6c94e5f9fef2e74b90e38e73c23890b02a33c550f1d54f73e84cef6af"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/08b_merge_demo.png": {
+          "bytes": 1956555,
+          "sha256": "8845d862203cf8f868e2a54afd07b6eef8a933c0aeef75707388627884f9833c"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/08c_filter_edits_labels.png": {
+          "bytes": 1861724,
+          "sha256": "4278385a06a664c924d041273133607cafe653d5c98cae69c8b9cea82a21dcef"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/08d_filter_removed.png": {
+          "bytes": 1890565,
+          "sha256": "6111386ac3c17f95a2a920f074b8e8d2b6dab6fba79b12d293257dcf5418e04b"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/09_fold_model_zoo.png": {
+          "bytes": 1891048,
+          "sha256": "505350346ac1dc91963fb7ebd48866a342c251eb4de95c9ec578cdc757c1798d"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/09_fold_train_cellpose.png": {
+          "bytes": 1880342,
+          "sha256": "d107d88c49fe72318fb2ce649329583279dacbf113b68bce491fa10b538aa728"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/11_saved_restored_mask.png": {
+          "bytes": 1907869,
+          "sha256": "448a8cea017234c857af129c1ea9b60ac26f84816ff5f2f6fc83c5cda6202eeb"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/12_recrop_written.png": {
+          "bytes": 1919268,
+          "sha256": "8b12b2f947bcd59c3cd20730c3ef204b27905bce0c802f2cc32b4dd4f02fee6c"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/13_child_and_recovery_archive.png": {
+          "bytes": 1083116,
+          "sha256": "89e5b794400925aeff068078844330a3302ddda70bd018b3310c0077a7571c56"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/14_cellpose_settings.png": {
+          "bytes": 1103090,
+          "sha256": "c01afa3f357884ecfea2f8f6754757015b8a1b033362e413c95876ca5295dfb4"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/15_cellpose_detected.png": {
+          "bytes": 1112913,
+          "sha256": "a7009bab8d1f13fc55e3e02e67b0653906280ae8dec325a8b3bea80970213dbe"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/16_cell_probability.png": {
+          "bytes": 1301407,
+          "sha256": "02dc9560827581210cde527e40acce2ca6783790e017e1fa9cea8f18bad7e3c1"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/17_flows.png": {
+          "bytes": 1203340,
+          "sha256": "a26201d2f39a4ad046c10ccefe6772b31e85bc4a11b66478a0e855c0d4e5ded0"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/19_detection_undone.png": {
+          "bytes": 1113604,
+          "sha256": "0cc780f0b46a5028cfcb0003d96e0bb17848502808533594463032fcf2abb6df"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/20_curate_keep.png": {
+          "bytes": 1662479,
+          "sha256": "1a68fdc01af2f22b2ac49a8cf2989b7d7694462b97223480d74a83becdebe7f8"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/21_curate_discard.png": {
+          "bytes": 1656836,
+          "sha256": "184f51f5df147eb4a609d7f79c11a92134b5d75d5203c75ceb6a02be254c5b37"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/22_upload_data.png": {
+          "bytes": 1415228,
+          "sha256": "9bc5fb5317c2cc19a60397b8543eb96c531e91746a53ff826f4ce4d566e9a586"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/23_consolidate_offer.png": {
+          "bytes": 1694435,
+          "sha256": "11ec05b7bdeb435d37f34e68457a4c984d90de610d2c015ea6970aed4a9fa94d"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/24_consolidated_opened.png": {
+          "bytes": 1679484,
+          "sha256": "8322e0d03b2f1dc85678a00f0740f6e1766344dcdd2e7ad4d22f0ddab410f820"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/25_organize_open.png": {
+          "bytes": 791447,
+          "sha256": "77a0f8a52591dd1ebc72440e3d45bd64b7dbd2fd7193009e1c64c0662e827b78"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/26_organize_table.png": {
+          "bytes": 822225,
+          "sha256": "f3f87e529dac3def035f1d28f3f4b4cecd34259d1166038a3f4a043a1c5f7fe3"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/27_detect_sets_check.png": {
+          "bytes": 1042730,
+          "sha256": "8243b04283d241b863f20a88bcdea2ed4abda7e7356aebd68911ad05deb5b338"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/28_organize_images.png": {
+          "bytes": 1310946,
+          "sha256": "d44a26a486c9ede6e9a689754551de5c36570b04bf011942a48e23014c3b0531"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/29_move_and_merge.png": {
+          "bytes": 1343553,
+          "sha256": "80e0628ea03d94fc6a618c9f5e755d7abb77ad3abefcbc6a9ebd18e183dc2da2"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/30_organized_for_measure.png": {
+          "bytes": 1601326,
+          "sha256": "da307716360ac01e344cfe22271e0d55572810ced5596c009a087db03840a9f1"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/puncta_01_raw_input.png": {
+          "bytes": 3131687,
+          "sha256": "00cb6233b7943148d06e287a6d0efdd4377513fd0a3ef9ceb00eeacd96114c18"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/puncta_02_parent_and_settings.png": {
+          "bytes": 3289287,
+          "sha256": "2b55052eef057fc0000582b47a8bbb34b552af768b7d113542bbc75caed9deef"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/puncta_03_detected_centres.png": {
+          "bytes": 3286699,
+          "sha256": "57519abdfa86c76cb3d6b49adde53839d0f7daa7d92c338c0106e79c59e72738"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/puncta_04_saved_mask_and_measurements.png": {
+          "bytes": 3310730,
+          "sha256": "0e28ad4f93037ccb790af30e35d5ea0946b7cc995239c37127efe794cd71fb3b"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/readouts_04_otsu_magnifier_settings.png": {
+          "bytes": 1921396,
+          "sha256": "dcd6754e47303bd9657d1719db115dca8d70214cace585cc629109a995fd1555"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/readouts_05_live_otsu_magnifier.png": {
+          "bytes": 1958195,
+          "sha256": "303594908f1755e009ec41451b6ce6b04776720c8f3b4193497a82a6adb57a08"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/restoration_01_restoration_row.png": {
+          "bytes": 1707549,
+          "sha256": "1af42045ef24dfbf315590d2f728c1eb3622f528e446626257d5f9b6eb2af527"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/restoration_02_denoise_settings.png": {
+          "bytes": 1717875,
+          "sha256": "77ca145f6e1a4f6e48e90d7abd1782cebfaa9d787aacd9abef672da10848bad7"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/restoration_03_model_ready.png": {
+          "bytes": 1788869,
+          "sha256": "56ff1d9f9464c672efd8727ed4d60763602e7442a3e981f60448ac9ed01c6e67"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/restoration_04_compare.png": {
+          "bytes": 1933922,
+          "sha256": "f1a94151d0c127389514a8c893a2f6f0ce4b8a7e19f424c75287f570b2e8d240"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/restoration_05_apply.png": {
+          "bytes": 1942880,
+          "sha256": "6d3d909e2bb568c39806deed9f08e6539e0b1c157691200fa6ea8ffab20faa42"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_04_box_controls.png": {
+          "bytes": 1827053,
+          "sha256": "ce18f5a630f85600e5c047b54d5d18580ba01729f509dc34b2d54872a47b4866"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_05_add_class.png": {
+          "bytes": 1817268,
+          "sha256": "58c20e0506cbefb209d3f0ee01a2d4e8f5a9cad9dbcd6556d950d9a7781f1d27"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_06_drawn_box.png": {
+          "bytes": 1833092,
+          "sha256": "dd40005c0629ede2cc568be7d951352af011bfd8ef1738b455c02e35c815e393"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_07_moved_box.png": {
+          "bytes": 1833881,
+          "sha256": "fd57075cdea8b780e80cf1567b7f9fb70e812f7cca6b0e5268ad7d4c981d3558"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_08_resized_box.png": {
+          "bytes": 1830629,
+          "sha256": "29f446ed62041bea373d691c0b8bf8e8451bf1ed800303c3ad9c04d74d9a80c0"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_09_contained_box.png": {
+          "bytes": 1833198,
+          "sha256": "98c29a2a2077d0653565f2839ab30a46399f3ac6807b524c0087de20cd4268d3"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_10_deleted_box.png": {
+          "bytes": 1829704,
+          "sha256": "aba3e5af00000c7da20e248c818bd5eb7b9c457a72f93452ff5881df708c60d4"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_11_undo_boxes.png": {
+          "bytes": 1831582,
+          "sha256": "1a9f53d3d6698e21a5c9f9038ddf9ba8752dd89218d975aac5a77427ca33a267"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_12_redo_boxes.png": {
+          "bytes": 1829618,
+          "sha256": "ad9234210f7cfa639f8d506ccfb072d376f73d2584a13d9ee280fefaca826726"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_13_saved_boxes.png": {
+          "bytes": 1866734,
+          "sha256": "da358b5ea2446f473f9c82c7b7674af6d174d9cf3c672dce6f4135e3bda7b54c"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_14_export_picker.png": {
+          "bytes": 1461979,
+          "sha256": "01e7979a87caa0310a4a13237f01033491ffa80bfa236dc8b5a74155774dc9bf"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_17_negative_exported.png": {
+          "bytes": 1637098,
+          "sha256": "8506a2bba30177d185b7016a3ceaf92af4d6b2631e11dcec44c8cbfc65c30336"
+        },
+        "captures/make_masks_latest_Home_contained_r2/native_frames/yolo_18_reloaded_boxes.png": {
+          "bytes": 1882413,
+          "sha256": "8996e4768ae359970c0ec1e779580a867ba62f81c782f3241342fd9a5fdd5061"
+        },
+        "captures/make_masks_latest_Home_contained_r2/provenance.json": {
+          "bytes": 1706,
+          "sha256": "5c828f49b3b3dde82dc8e4cc434663d12282119fd8a5bf5536ffb8af0acac76a"
+        },
+        "captures/make_masks_latest_Home_contained_r2/scientific_acceptance.json": {
+          "bytes": 109210,
+          "sha256": "666e264f740061789379862f07585cc1cbd440e816979c0d618182b0b5e26538"
+        },
+        "catalog/captions_da.json": {
+          "bytes": 701829,
+          "sha256": "4fd1837ec6cf9432f0dc5227c05a09a1d41a87d345dfa6c8ac002ab0505938a7"
+        },
+        "catalog/captions_de.json": {
+          "bytes": 749427,
+          "sha256": "ba6a8d552e10104d43780a75e4c3cde040260b77549dd4bbd7a4aa160d068827"
+        },
+        "catalog/captions_is.json": {
+          "bytes": 706698,
+          "sha256": "49333f43629c616dc589d83917e640900591c268c1419cf6c29c8cb87a4ff44d"
+        },
+        "catalog/captions_ko.json": {
+          "bytes": 743523,
+          "sha256": "1443d3b0c5afd3af2375256aab886e2398ff1672bea4bbc0616ae2ebf260b2e9"
+        },
+        "catalog/captions_nb.json": {
+          "bytes": 697626,
+          "sha256": "b750199b3c4d75ce4284168d88cca4961e26d23f7bca188a4f859e32b4c56b85"
+        },
+        "catalog/captions_sv.json": {
+          "bytes": 706810,
+          "sha256": "e9658bba4e3487b12882f7a00e790db76ce00a7b6429e4668efe1fc3eee927bd"
+        },
+        "catalog/lessons_en.json": {
+          "bytes": 677963,
+          "sha256": "a73534ea7b81295fd20e8fbca3124aa5dade00c9bfd45e0bba1a7f847dd4cd90"
+        },
+        "catalog/lessons_es.json": {
+          "bytes": 1116787,
+          "sha256": "706b1bdf2f296aa31f434ee495dbee7bfbf9f423be2b700504a8666e04270cc3"
+        },
+        "catalog/lessons_fr.json": {
+          "bytes": 1161278,
+          "sha256": "283b85af6ea48b2f40ebfffb1c816191db8920c487e69a249e06e3816a7e4a39"
+        },
+        "catalog/lessons_hi.json": {
+          "bytes": 1858825,
+          "sha256": "c49c79dfafd241c04e794eed03f421066f4f3fbd8792a97374d3ec7bee360848"
+        },
+        "catalog/lessons_it.json": {
+          "bytes": 1104614,
+          "sha256": "0ab6d3826ba8ddacf306585a0dcf91e6e83a52691a13f724ac531dd917a33158"
+        },
+        "catalog/lessons_ja.json": {
+          "bytes": 1236922,
+          "sha256": "13b58bc614429c9078062db11e35ad7d20e413cda099d26fa8008280502a4c95"
+        },
+        "catalog/lessons_pt-BR.json": {
+          "bytes": 1099851,
+          "sha256": "f19131ea1b24572aa8e364d54399cfc4dc6fcc82942415bdc81b70e4e5631805"
+        },
+        "catalog/lessons_zh-CN.json": {
+          "bytes": 959400,
+          "sha256": "7a101a2badce830ea2b1fe754132cb7a2ef1aecf96d6e275299daef39ccbb79c"
+        },
+        "latest-Home-stage-preservation.json": {
+          "bytes": 10018,
+          "sha256": "881fd3f329ee9b983f71ded9e962fead3ebb67b722e0e621043e157d00da3fe4"
+        },
+        "production/14_make_masks/audio/en/af_aoede.json": {
+          "bytes": 239854,
+          "sha256": "3655a01878148a7dfad437b0084323cba9de7dad015aa5f498e22b3a947bf9db"
+        },
+        "production/14_make_masks/audio/en/af_aoede.m4a": {
+          "bytes": 5503895,
+          "sha256": "c218b265b640ec61fe7c83bb8a249d2035e5dc10adb8fcaa7b02e8a4cf5a3788"
+        },
+        "production/14_make_masks/audio/en/af_bella.json": {
+          "bytes": 240328,
+          "sha256": "16f7a550762f4ed13459db04e24050563c3177e86f61e074c30e3e765078eefd"
+        },
+        "production/14_make_masks/audio/en/af_bella.m4a": {
+          "bytes": 5575783,
+          "sha256": "f797c354a0e7724b12e6b1920062faf3935a02982320d9ebb271b025b3091567"
+        },
+        "production/14_make_masks/audio/en/af_heart.json": {
+          "bytes": 239783,
+          "sha256": "a4a299d08ffae3ca628b6c7e5518a6773081d654930c385ec754204b7849db56"
+        },
+        "production/14_make_masks/audio/en/af_heart.m4a": {
+          "bytes": 5479447,
+          "sha256": "fadb3fa090b8ace83c700df5413c5387e0ca7325708572e05c9500beb780978b"
+        },
+        "production/14_make_masks/audio/en/af_jessica.json": {
+          "bytes": 240275,
+          "sha256": "50b322f04c08b1eabf104b50a0fc7bdc099f1b740fe5fe8c4a6d5ea1e5d4e88c"
+        },
+        "production/14_make_masks/audio/en/af_jessica.m4a": {
+          "bytes": 5418876,
+          "sha256": "4c272491e459c222f19b5e679448c518002ae71944a5a1a147774ad455373384"
+        },
+        "production/14_make_masks/audio/en/af_river.json": {
+          "bytes": 240201,
+          "sha256": "fe5a82335bfddab98380cfcfece56fa4c87dd22e5b3f91f677c373bf63b57c68"
+        },
+        "production/14_make_masks/audio/en/af_river.m4a": {
+          "bytes": 5468273,
+          "sha256": "22791b37708920816f8c0ea398db1a265dda0ad6614526203895e66707d640d2"
+        },
+        "production/14_make_masks/audio/en/af_sarah.json": {
+          "bytes": 239788,
+          "sha256": "c0b5a67a0a5569ff2bb08e03cb2ae51a474d1304d4f940cde86e7888726d1e56"
+        },
+        "production/14_make_masks/audio/en/af_sarah.m4a": {
+          "bytes": 5558247,
+          "sha256": "35831e5e3e69231949e4aac3d3ecf569a6a8b16c38836e1192b426abdffb14e6"
+        },
+        "production/14_make_masks/audio/en/af_sky.json": {
+          "bytes": 239808,
+          "sha256": "6e6e40b364f91bc9ffd687d610dd0485a49a77a73c9494509845866d8a3ea82f"
+        },
+        "production/14_make_masks/audio/en/af_sky.m4a": {
+          "bytes": 5657967,
+          "sha256": "b97d8addcceed7042eeb25995b09cde8f5cd25b5c54183b1148aacc64506ff96"
+        },
+        "production/14_make_masks/audio/en/am_adam.json": {
+          "bytes": 240014,
+          "sha256": "522af632045d209f8ab990c1b2c7b59c311951b73e9bccea2d49a7415343bcd3"
+        },
+        "production/14_make_masks/audio/en/am_adam.m4a": {
+          "bytes": 5558716,
+          "sha256": "72ab26bfef592a1de10b123e20efd95b34c02287e3800f0d39896f9788d5ec4f"
+        },
+        "production/14_make_masks/audio/en/am_echo.json": {
+          "bytes": 239435,
+          "sha256": "4a20909ae2fe529f03d755480a6d3ce64055844f7e7da1e821ee9cb770225307"
+        },
+        "production/14_make_masks/audio/en/am_echo.m4a": {
+          "bytes": 5794138,
+          "sha256": "c65c9cf855b239f1aac4e6731ccec684875a3e2341f41fc113157c31e1531d97"
+        },
+        "production/14_make_masks/audio/en/am_eric.json": {
+          "bytes": 239436,
+          "sha256": "ff7396c094537d3425ff5e9ce8902b53206bec1b8be766847d96339cc0b51a27"
+        },
+        "production/14_make_masks/audio/en/am_eric.m4a": {
+          "bytes": 5405933,
+          "sha256": "164778d13d233e02f4b6dab9448cfd58e2134de53ef76afdd745ede0b01737eb"
+        },
+        "production/14_make_masks/audio/en/am_fenrir.json": {
+          "bytes": 240106,
+          "sha256": "263713a14902bc10437bde7b57fffd42e472074e67f40a9c335c77a3c9a2b0d4"
+        },
+        "production/14_make_masks/audio/en/am_fenrir.m4a": {
+          "bytes": 5612294,
+          "sha256": "7804ab2a10f304a9c7da66a840aee1fc72b51a4a93f08ddca1a7cf318fca1e51"
+        },
+        "production/14_make_masks/audio/en/am_liam.json": {
+          "bytes": 239847,
+          "sha256": "26364f5fa6504b19ad795f327c2d258151f2218e5c17303b59a79352bd46feef"
+        },
+        "production/14_make_masks/audio/en/am_liam.m4a": {
+          "bytes": 5626179,
+          "sha256": "5841cc6b307c2e274e8aabe6ebee68854af0083cd4008d90e4f3a31e9c68d8c3"
+        },
+        "production/14_make_masks/audio/en/am_michael.json": {
+          "bytes": 239741,
+          "sha256": "4a522b32791991e75d3761aa766fe3ee8e1eb651c275cfe56c8812003b2f350e"
+        },
+        "production/14_make_masks/audio/en/am_michael.m4a": {
+          "bytes": 5943958,
+          "sha256": "aa55a08612d78302a898fbd60dd61c6fbeef2f7fd7dd5e1810efe3a9f5bc7fbb"
+        },
+        "production/14_make_masks/audio/en/am_onyx.json": {
+          "bytes": 239749,
+          "sha256": "bbb12d1016cc24e86de81a27ee1d1dc0fb30ace9cc97529a5dc6138504ceb393"
+        },
+        "production/14_make_masks/audio/en/am_onyx.m4a": {
+          "bytes": 5896237,
+          "sha256": "49d0e467a2e6bf6619806fc32888fa51c39cae012490ff74bbfd18a2af6bf58b"
+        },
+        "production/14_make_masks/audio/en/am_puck.json": {
+          "bytes": 239826,
+          "sha256": "253251e1707ac6dbab07545a7bfe95ef323ff9c0286094cc781b06c8845ab572"
+        },
+        "production/14_make_masks/audio/en/am_puck.m4a": {
+          "bytes": 5637250,
+          "sha256": "0271b7510fdf381796ec6108c43c2cc2bada1bd3665babb218c7cc77efdeab5b"
+        },
+        "production/14_make_masks/audio/en/am_santa.json": {
+          "bytes": 239737,
+          "sha256": "711d842df21ee782c299dd4a63c50f6c449e12f5e221b59d4b1c4744b7f53243"
+        },
+        "production/14_make_masks/audio/en/am_santa.m4a": {
+          "bytes": 6091155,
+          "sha256": "ed23843f6956f29149d58ab4937d12c4bd453bc43ca5bde705ca4ac1474d67ea"
+        },
+        "production/14_make_masks/audio/en/bf_alice.json": {
+          "bytes": 240208,
+          "sha256": "30e2a8a229b38af06ff04a3f2a479c595c80ac16010df7c820fdafd8d21d0744"
+        },
+        "production/14_make_masks/audio/en/bf_alice.m4a": {
+          "bytes": 5723246,
+          "sha256": "08508b9f12cd2c2038058b0939569410a5391ce4de5646d81b37ddd9dd6761c4"
+        },
+        "production/14_make_masks/audio/en/bf_emma.json": {
+          "bytes": 239864,
+          "sha256": "3e4ae9f16bdcf9c806ecd3e81e65d048e0ff1dd0f9d1af236d4d235a1221cfe6"
+        },
+        "production/14_make_masks/audio/en/bf_emma.m4a": {
+          "bytes": 5584325,
+          "sha256": "63f101618178b42cd3efc957de45a24a4caa15e27d572bc60c80dd658534ac09"
+        },
+        "production/14_make_masks/audio/en/bf_isabella.json": {
+          "bytes": 240147,
+          "sha256": "aae40565be6b1604f81856c828a00a6a8efd94fc1f9c8d85386203fcf0ca4e45"
+        },
+        "production/14_make_masks/audio/en/bf_isabella.m4a": {
+          "bytes": 5707832,
+          "sha256": "00aae63de048187f9bb7a05bc46d1a38984f4f04478ff4539cacf5789ff20999"
+        },
+        "production/14_make_masks/audio/en/bf_lily.json": {
+          "bytes": 239679,
+          "sha256": "d2932cd68f8e16c86ddc6423dbb5dd15ce196b360249cb31c28b9461c8292353"
+        },
+        "production/14_make_masks/audio/en/bf_lily.m4a": {
+          "bytes": 5913459,
+          "sha256": "001b52cb14ff6bd608b48816d20039739447f4dc512211de464b8bd5624765b7"
+        },
+        "production/14_make_masks/audio/en/bm_daniel.json": {
+          "bytes": 240394,
+          "sha256": "e75a22f4042f14ed7cbfaa5c453d764e34d634423fd0d53aa9350a5eb9694526"
+        },
+        "production/14_make_masks/audio/en/bm_daniel.m4a": {
+          "bytes": 5749429,
+          "sha256": "7851f5d82a3fb8fc2ce6d4736e2f6865d9238afc5cc29edd16c911beaa77ad3c"
+        },
+        "production/14_make_masks/audio/en/bm_fable.json": {
+          "bytes": 240059,
+          "sha256": "23e40d433cc5665cb73da2b00b1bbbe38d9f38dcae6d31a7b841d33dfe4e1dfe"
+        },
+        "production/14_make_masks/audio/en/bm_fable.m4a": {
+          "bytes": 5958020,
+          "sha256": "261195552acdef8653d9e1a9d687378090f881f0365330b84c8de879435fe2dc"
+        },
+        "production/14_make_masks/audio/en/bm_george.json": {
+          "bytes": 239689,
+          "sha256": "f3697663ad6f55a8fd45b0915603fbd78b88798fb94fb2686e2016eb7b7a82d8"
+        },
+        "production/14_make_masks/audio/en/bm_george.m4a": {
+          "bytes": 6372694,
+          "sha256": "380bd1663df8b3af38a19151afdb91567113ea173e0312ffce9f34e2238c0ef2"
+        },
+        "production/14_make_masks/audio/en/bm_lewis.json": {
+          "bytes": 240753,
+          "sha256": "e4b2d56ae477ad6ff292681eacb634e541615b03da70f0ada718377242a629d5"
+        },
+        "production/14_make_masks/audio/en/bm_lewis.m4a": {
+          "bytes": 5946355,
+          "sha256": "83583046283ba753652d49c8a5d7f9a432b437d0a8701bfce0b39f93ade422a9"
+        },
+        "production/14_make_masks/audio/es/ef_dora.json": {
+          "bytes": 208176,
+          "sha256": "239b9e7100ac1de2e75f519fba5f47f31d137f96e4ee8d547bb8f6e6bc828228"
+        },
+        "production/14_make_masks/audio/es/ef_dora.m4a": {
+          "bytes": 5834857,
+          "sha256": "01ecd820988e784e3b44d633ec56574d142ed7978b58ec9883b699294927f376"
+        },
+        "production/14_make_masks/audio/es/em_alex.json": {
+          "bytes": 208730,
+          "sha256": "5d7bea39e62df0147f1f38e42f020a0b9639feb6e59a667a96a4da5382920b75"
+        },
+        "production/14_make_masks/audio/es/em_alex.m4a": {
+          "bytes": 5880733,
+          "sha256": "5e61436f433603527949c7a780e7540ed95af288638b54ac8ee5a11fe7326f15"
+        },
+        "production/14_make_masks/audio/es/em_santa.json": {
+          "bytes": 208775,
+          "sha256": "67f220a7c6f4a6b7e61678155b51ec2ff40e90274d805ff0279a7faa5a4af2f3"
+        },
+        "production/14_make_masks/audio/es/em_santa.m4a": {
+          "bytes": 5901169,
+          "sha256": "0a79d73753a41866f88f3fa095eda6af89ab4efec7548e044f5d9f751ea7108e"
+        },
+        "production/14_make_masks/audio/fr/ff_siwis.json": {
+          "bytes": 210205,
+          "sha256": "2be9235c2da2d70749ed9ab6e5d6089ad0acbed30c2a4146b020d866641cffc2"
+        },
+        "production/14_make_masks/audio/fr/ff_siwis.m4a": {
+          "bytes": 5691042,
+          "sha256": "882bd93e0ccf8ae7e1b73e52f26d1ae6a6a86366a0bce9901d70a19e062eb9b7"
+        },
+        "production/14_make_masks/audio/hi/hf_alpha.json": {
+          "bytes": 327757,
+          "sha256": "517b610a0a60457c67451b91a84c10a8e92661773895bb19f8395ee6808a90bf"
+        },
+        "production/14_make_masks/audio/hi/hf_alpha.m4a": {
+          "bytes": 6338898,
+          "sha256": "bf0522a2a27671d6bb0e8278cc00ad5be6c595964c6f43d69659d07c731dfb1e"
+        },
+        "production/14_make_masks/audio/hi/hf_beta.json": {
+          "bytes": 328639,
+          "sha256": "ba16966425a54c448610707a35065cab38370f126263b77a6130d0dcd82abf18"
+        },
+        "production/14_make_masks/audio/hi/hf_beta.m4a": {
+          "bytes": 5587517,
+          "sha256": "9ef412d49c6a4243aa75a7ea1e6f70baa3f5ae755b46e64c4212f9983af1f8e6"
+        },
+        "production/14_make_masks/audio/hi/hm_omega.json": {
+          "bytes": 328579,
+          "sha256": "c24b84941caeda15824ef7069a97cda8b5cdad4cbff598a79ebdf146f9955c52"
+        },
+        "production/14_make_masks/audio/hi/hm_omega.m4a": {
+          "bytes": 6577603,
+          "sha256": "1d92c00740129883aa29647a3cedea525bf6fa9d4ff215fef756bb7fe4d9d236"
+        },
+        "production/14_make_masks/audio/hi/hm_psi.json": {
+          "bytes": 328699,
+          "sha256": "e09fb425cfcec632bc0a8ff42344387d3783eaa4a79bd8dd7358e07ced1bb502"
+        },
+        "production/14_make_masks/audio/hi/hm_psi.m4a": {
+          "bytes": 6678960,
+          "sha256": "f97a0f3a6862f5496d4fec7503e0066e0ddf5e2bd10ba1a45d9ec386897b94a8"
+        },
+        "production/14_make_masks/audio/it/if_sara.json": {
+          "bytes": 207888,
+          "sha256": "5e0588f1a8f17a59dbd2977e48c793c6081cffd8c209f7837287fb78958a7e9a"
+        },
+        "production/14_make_masks/audio/it/if_sara.m4a": {
+          "bytes": 5796722,
+          "sha256": "1043d67654337f331fe102d0c5354e56f07f523e4f18dae7560109fa7ee0797e"
+        },
+        "production/14_make_masks/audio/it/im_nicola.json": {
+          "bytes": 208158,
+          "sha256": "29ddc5b6c2646c39a3babf7e5a96b665ce75f270412ded9611337e72f747481a"
+        },
+        "production/14_make_masks/audio/it/im_nicola.m4a": {
+          "bytes": 6498782,
+          "sha256": "78d274e43cd1598981086c295e9fd457778dca4e1c602afedd2bcba2ef05e86a"
+        },
+        "production/14_make_masks/audio/ja/jf_alpha.json": {
+          "bytes": 220136,
+          "sha256": "886b7acd176dffe00d2928a5707da660d7e38d9ea193dee0a070e319777883cb"
+        },
+        "production/14_make_masks/audio/ja/jf_alpha.m4a": {
+          "bytes": 6426405,
+          "sha256": "2f593f6859d8f5ebf2dcf326f79376773be847000b0d2f45095958947788aecc"
+        },
+        "production/14_make_masks/audio/ja/jf_gongitsune.json": {
+          "bytes": 220423,
+          "sha256": "8e17cc67a97bd39ca2ffd861ae3683451df54257933fa2929da03d8bdcb2cb5d"
+        },
+        "production/14_make_masks/audio/ja/jf_gongitsune.m4a": {
+          "bytes": 8241766,
+          "sha256": "c60a33cc664d79883dc57440aa5a5e57f01c38e1cd955fec4653d71489cace36"
+        },
+        "production/14_make_masks/audio/ja/jf_nezumi.json": {
+          "bytes": 220588,
+          "sha256": "97c2cffeaf2b3a62ca1d930af19860eb8f1b51a133c1638aecec9c22a6c1b2c4"
+        },
+        "production/14_make_masks/audio/ja/jf_nezumi.m4a": {
+          "bytes": 8665945,
+          "sha256": "9840ab33bb146e076d6801f768d876a066636713190d47aa79e8471de8d875f8"
+        },
+        "production/14_make_masks/audio/ja/jf_tebukuro.json": {
+          "bytes": 220655,
+          "sha256": "d4aade56b460f811e5c0439856a149099d052b6dd80e2b2e484140a5018616f5"
+        },
+        "production/14_make_masks/audio/ja/jf_tebukuro.m4a": {
+          "bytes": 8319608,
+          "sha256": "ea23ffed428bbdca5c0b8bd34a453acc8cee64f456721d5dd74b872005b09668"
+        },
+        "production/14_make_masks/audio/ja/jm_kumo.json": {
+          "bytes": 220718,
+          "sha256": "facd2be82566724049229eb7475b2e1a76f433b32e80476aa9c746b1ec55ad4e"
+        },
+        "production/14_make_masks/audio/ja/jm_kumo.m4a": {
+          "bytes": 7133777,
+          "sha256": "767b9e057ed7638060ef2c0a045f7bf7db3ed081f177642cdcb7978447313598"
+        },
+        "production/14_make_masks/audio/pt-BR/pf_dora.json": {
+          "bytes": 211398,
+          "sha256": "c5939a0805567da8ac17884452d8ca7c3755eb03612bb32a2b157bdb8e76226f"
+        },
+        "production/14_make_masks/audio/pt-BR/pf_dora.m4a": {
+          "bytes": 5604140,
+          "sha256": "0e2e428266c40ab71a3152fb80ba950425a933de81c678fbfdba0a3200eead56"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_alex.json": {
+          "bytes": 210430,
+          "sha256": "dd8c8e6ba19c30286f41a80a247598cce591455f70900b795c641df56f166526"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_alex.m4a": {
+          "bytes": 5660656,
+          "sha256": "21f3ce2100b70d7a75fc2538735854288df4c07f120d4615ffeab768f9989601"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_santa.json": {
+          "bytes": 211426,
+          "sha256": "4707634a401121381997c53ee1ebf3d7a6f3b06f07e7f3611ab41b519849e01c"
+        },
+        "production/14_make_masks/audio/pt-BR/pm_santa.m4a": {
+          "bytes": 5681979,
+          "sha256": "a016de6c26ddf1e2c6641ec38e09d9b9238698b0f8a1631ef8984b22c2fb70d9"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaobei.json": {
+          "bytes": 201243,
+          "sha256": "020accc980dad58230e561ff2b6e84cfa6ec7ad5a18a522c5ee06054ea18e4ac"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaobei.m4a": {
+          "bytes": 5550233,
+          "sha256": "23bf2b91597830539ec2ec69f8ce4d8d4f04b2ba7b38c4260536ba88a2780428"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoni.json": {
+          "bytes": 200714,
+          "sha256": "12c348f034fc92a71fc038c7b214c7a83ed5a80cfb776d1d00609ddeb0155a49"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoni.m4a": {
+          "bytes": 4821855,
+          "sha256": "514f9e709a4d40b85c76f0e69801a7584d9902b541b56d5007eb94d6d29b776d"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoxiao.json": {
+          "bytes": 200708,
+          "sha256": "6d3086361c455b30f39dc0fed030af2a30a7dbdb39a031ab7612b3ec5acd9878"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoxiao.m4a": {
+          "bytes": 4811573,
+          "sha256": "32f322eddd657860a16ba92b99fbe4746120ddbc65d91e9a41a6ad03898dd669"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoyi.json": {
+          "bytes": 201148,
+          "sha256": "07849a88e8199ab5b7208955e667f0105e20061daed59b89f19cd7af25b10aca"
+        },
+        "production/14_make_masks/audio/zh-CN/zf_xiaoyi.m4a": {
+          "bytes": 4654214,
+          "sha256": "9842bba631ec4433806a45bb6db8396bf5ccde8bab9508e07d17939c6f5da1c9"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunjian.json": {
+          "bytes": 201034,
+          "sha256": "bbfa2b2b38e1c21948bbfaa73214184ce320763fc003daf11d83f8188c7e4425"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunjian.m4a": {
+          "bytes": 4604996,
+          "sha256": "1efd0d66868aaf2513b1cbe8c34e326d24dcc991bd9878de14024fb02481c648"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxi.json": {
+          "bytes": 201159,
+          "sha256": "3f15759db751f8047321f891d418295edc29c57907edd5c4103a77dd0000e24a"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxi.m4a": {
+          "bytes": 4391747,
+          "sha256": "174c2369f919b94a68f6912d4ba954e3bf9cf2c7f1c6fbcdd4e0ea5a84a4f488"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxia.json": {
+          "bytes": 201263,
+          "sha256": "89c9b49f4e874663a55971167b4ecd6d7fdc16b51476b65c52bf0aff002d1a86"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunxia.m4a": {
+          "bytes": 4989325,
+          "sha256": "8f17cdf742af1f4126104f80648665ccc326c9d8274afe25a65b0cbe4361f1b7"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunyang.json": {
+          "bytes": 201292,
+          "sha256": "67ca681bfdd0dd0e895ce732629fe80d17828ab44fa6ee78943b807b3a14462a"
+        },
+        "production/14_make_masks/audio/zh-CN/zm_yunyang.m4a": {
+          "bytes": 4391940,
+          "sha256": "53347a78bf3f9db0e130b15797dc6d7c9121c6215db939c1171650d7818f2693"
+        },
+        "production/14_make_masks/audio-checks.en+es+fr+hi+it+ja+pt-BR+zh-CN.json": {
+          "bytes": 9034,
+          "sha256": "f83fd61dcfbc6aa499cab7a57caa04a3bd9cbe8fa7641027357695be95692223"
+        },
+        "production/14_make_masks/captions/en/af_aoede.vtt": {
+          "bytes": 19622,
+          "sha256": "9e25e1299424c553a0f49212ca09a1642e9cf1e5286a48bd5b7e9355c380c168"
+        },
+        "production/14_make_masks/captions/en/af_bella.vtt": {
+          "bytes": 19622,
+          "sha256": "896123d347f3c262e635d8e4f3b33e7b721311bd8027c58314cd0ddf4d78ce69"
+        },
+        "production/14_make_masks/captions/en/af_heart.vtt": {
+          "bytes": 19622,
+          "sha256": "27a8c673ab0b9ea50d9ba9e12c49c40d8c8972e3169b1c95c005bb2d92257945"
+        },
+        "production/14_make_masks/captions/en/af_jessica.vtt": {
+          "bytes": 19622,
+          "sha256": "313c3e35deb5a4ac493ad4ac9f8665e2492193a9643efe6902adc56ca950ebfa"
+        },
+        "production/14_make_masks/captions/en/af_river.vtt": {
+          "bytes": 19622,
+          "sha256": "ed46630c661c20266d644119588ed4a01d54ebcbae8341ff2105099c320e919a"
+        },
+        "production/14_make_masks/captions/en/af_sarah.vtt": {
+          "bytes": 19622,
+          "sha256": "8ea6ce59842792a0c764dd44d5c5bf2174c45209bbb11c5c4ac1a4de3ba282bd"
+        },
+        "production/14_make_masks/captions/en/af_sky.vtt": {
+          "bytes": 19622,
+          "sha256": "229a0dfd614197c7c0bfc7d39024aa6b311e5d271c72f666adfee6a9083d943e"
+        },
+        "production/14_make_masks/captions/en/am_adam.vtt": {
+          "bytes": 19622,
+          "sha256": "c3fb6442c739889bb224221852533307f7cc45316195771321996b79116e5537"
+        },
+        "production/14_make_masks/captions/en/am_echo.vtt": {
+          "bytes": 19622,
+          "sha256": "a4a52661f2b2101f5cc54d694cc63f74deb372246882a50956280fc3caea2703"
+        },
+        "production/14_make_masks/captions/en/am_eric.vtt": {
+          "bytes": 19622,
+          "sha256": "d1958e9dc9c575beef82fe7f1f0aa6528d86b4c9e6ede1ddd3e16c6150bcac5b"
+        },
+        "production/14_make_masks/captions/en/am_fenrir.vtt": {
+          "bytes": 19622,
+          "sha256": "218d3d4e29df9dd247b2993b5aed75507f26835e3f3ae2a74483a7e32ce2e321"
+        },
+        "production/14_make_masks/captions/en/am_liam.vtt": {
+          "bytes": 19622,
+          "sha256": "353a3ae7ec6cede85f03796b040b4414f50f0858a3c0bc4bf17afb1ec9634e52"
+        },
+        "production/14_make_masks/captions/en/am_michael.vtt": {
+          "bytes": 19622,
+          "sha256": "19deeab20d39ff2b013c8694b01dc7313dca45c7a86e39a1b2cbbc98770bcc6f"
+        },
+        "production/14_make_masks/captions/en/am_onyx.vtt": {
+          "bytes": 19622,
+          "sha256": "a029be55ac4b1775ef61c14d2911e887ac929e08b0dbcaabc9e8b9579c42e2f4"
+        },
+        "production/14_make_masks/captions/en/am_puck.vtt": {
+          "bytes": 19622,
+          "sha256": "917c0047a2aca01f09d1728cb03ce1a4e78e49464b947b3fdf27cdc09e625d71"
+        },
+        "production/14_make_masks/captions/en/am_santa.vtt": {
+          "bytes": 19622,
+          "sha256": "da4025be6bbd840420e618cde7747620c90de18bbe937cfec89207aeb2138050"
+        },
+        "production/14_make_masks/captions/en/bf_alice.vtt": {
+          "bytes": 19622,
+          "sha256": "6863cefce39fbb3d9f6de8441b9bf6efc95745b5ed19927303f1c51677a60a1b"
+        },
+        "production/14_make_masks/captions/en/bf_emma.vtt": {
+          "bytes": 19622,
+          "sha256": "287e0944353c085c76837c87969b6ef0654a08922afe76163e0e072f5b39b128"
+        },
+        "production/14_make_masks/captions/en/bf_isabella.vtt": {
+          "bytes": 19622,
+          "sha256": "97145e6364a22dfac11cf365fbef81428a6dd596ec5e231fa7f38b749b0b04c0"
+        },
+        "production/14_make_masks/captions/en/bf_lily.vtt": {
+          "bytes": 19622,
+          "sha256": "5458de58eb0b010974abdd59caf34ec3f98540287a720ec073e3b5dd88525b29"
+        },
+        "production/14_make_masks/captions/en/bm_daniel.vtt": {
+          "bytes": 19622,
+          "sha256": "c8261ae0546b0a10c3c66f5181af421275fb527e71197d87482790d6b675e74f"
+        },
+        "production/14_make_masks/captions/en/bm_fable.vtt": {
+          "bytes": 19622,
+          "sha256": "56d24c6e9f0206942c14d56f04a818c7603d2a7718deda31dc49d95342cb6f45"
+        },
+        "production/14_make_masks/captions/en/bm_george.vtt": {
+          "bytes": 19622,
+          "sha256": "df4658d23f94a030d08537002c2904749d87c19228344e4db0851e4f959b43ec"
+        },
+        "production/14_make_masks/captions/en/bm_lewis.vtt": {
+          "bytes": 19622,
+          "sha256": "281ac96cc75feddc715f5e3d06f6262ed744928f4bc97fdd5b7bf7ce8dc8be86"
+        },
+        "production/14_make_masks/captions/es/ef_dora.vtt": {
+          "bytes": 18172,
+          "sha256": "15bd9d20b4a45f75c229a0bcefb3bdf7141deadafe61ab2f49ff78365485f71f"
+        },
+        "production/14_make_masks/captions/es/em_alex.vtt": {
+          "bytes": 18172,
+          "sha256": "0bb0d72e3753d4e4bd6fb9c77b8775c150472e460edc956f4e983facf42b66a3"
+        },
+        "production/14_make_masks/captions/es/em_santa.vtt": {
+          "bytes": 18172,
+          "sha256": "bee7aabee39fd2b0ea4b6471e565f38cd4f3b7cd9e77b751a685b041089f371d"
+        },
+        "production/14_make_masks/captions/fr/ff_siwis.vtt": {
+          "bytes": 19129,
+          "sha256": "e54ebd39f83a379e8032be23f8c8eb3fcbf4d07afc806e7fc74e3836151426b1"
+        },
+        "production/14_make_masks/captions/hi/hf_alpha.vtt": {
+          "bytes": 35977,
+          "sha256": "d6d410480913f8d1dced5afa093e483b2ea7f0c16f2f2cc34a79a8a171319361"
+        },
+        "production/14_make_masks/captions/hi/hf_beta.vtt": {
+          "bytes": 35977,
+          "sha256": "18e62b041dfeb42db2e86cb8a0fb3a0bf71d2eb3b761aa0894ea11c93b5433ad"
+        },
+        "production/14_make_masks/captions/hi/hm_omega.vtt": {
+          "bytes": 35977,
+          "sha256": "9a226124d6271e54488fb948d5846eef5bd9305cd1d6a7233bc6c987f2316150"
+        },
+        "production/14_make_masks/captions/hi/hm_psi.vtt": {
+          "bytes": 35977,
+          "sha256": "2d32c3ef415c99d66bd0fd083176a8958bb0fbe61d94879a269ecdfc04fe9637"
+        },
+        "production/14_make_masks/captions/it/if_sara.vtt": {
+          "bytes": 18267,
+          "sha256": "912f103772003d37a065db3d185b2e4d5c294083327b00179a4f2e061e9d3077"
+        },
+        "production/14_make_masks/captions/it/im_nicola.vtt": {
+          "bytes": 18267,
+          "sha256": "4142ca3c0be9778afcc99952c47b3ff86f72ab1bf478d5e4048ece103ba315ae"
+        },
+        "production/14_make_masks/captions/ja/jf_alpha.vtt": {
+          "bytes": 20682,
+          "sha256": "3f9ae273b45923ade0e0fae45e2e3d028ade53ec0db99226c809c06f4903597f"
+        },
+        "production/14_make_masks/captions/ja/jf_gongitsune.vtt": {
+          "bytes": 20682,
+          "sha256": "515185ea4d7778c06dd7a49d5adf67093e621be8ac51a62789152ab1d11e383e"
+        },
+        "production/14_make_masks/captions/ja/jf_nezumi.vtt": {
+          "bytes": 20682,
+          "sha256": "3d5bccb1f13e584f6b69c5abd12cdef5bbb1652a08f16f9f659c8a4391465062"
+        },
+        "production/14_make_masks/captions/ja/jf_tebukuro.vtt": {
+          "bytes": 20682,
+          "sha256": "bc904a755b07ab4205907be54641d3205cf1c93b3bc5a38af5c4e7ea5b60c14d"
+        },
+        "production/14_make_masks/captions/ja/jm_kumo.vtt": {
+          "bytes": 20682,
+          "sha256": "dbeb7aea2c0b93a35bf3362a890bf4015eae072351e2f3b845a182cddfb84a49"
+        },
+        "production/14_make_masks/captions/pt-BR/pf_dora.vtt": {
+          "bytes": 17709,
+          "sha256": "0bbfb6ade6f240e58c91fbd44cd74eb6853b4f460385bc3a9e442fe7df2a8fc2"
+        },
+        "production/14_make_masks/captions/pt-BR/pm_alex.vtt": {
+          "bytes": 17709,
+          "sha256": "d2c714dc169981314f925d40e8128aee4b6b475bc065882697633025ef388916"
+        },
+        "production/14_make_masks/captions/pt-BR/pm_santa.vtt": {
+          "bytes": 17709,
+          "sha256": "8f02ae2042c14f8d45962d13f6ace1e4f47269c0b8c6a8407ea3696647a7266b"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaobei.vtt": {
+          "bytes": 14882,
+          "sha256": "6032883d0399dc1006d18af157950d7ec87618e1397da594bbc3a17b9757bee8"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaoni.vtt": {
+          "bytes": 14882,
+          "sha256": "977aace37e9e58682c244c0910fb1eb7049e69c282a8262632d261d6aee068ab"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaoxiao.vtt": {
+          "bytes": 14882,
+          "sha256": "1e64841b41c7648d7666caaa6c0cf794adcbecee96b0c5a560294c682cd80f5e"
+        },
+        "production/14_make_masks/captions/zh-CN/zf_xiaoyi.vtt": {
+          "bytes": 14882,
+          "sha256": "eb23c9e4f39af027b127eb5cd3bf6a9725ae6df62fd1ca7ec930367290b8d0c7"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunjian.vtt": {
+          "bytes": 14882,
+          "sha256": "a3a4a24dac51b349749db54d22722aeb4786e2fc4320b02c7ffda8ced2561164"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunxi.vtt": {
+          "bytes": 14882,
+          "sha256": "de9a519ec9c20f7e91a19cf2251c17d8ef782ee7d5e2fb37d96368e8d58ada14"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunxia.vtt": {
+          "bytes": 14882,
+          "sha256": "df8e5768cb9ef8aa042ef480a53f04d28b3fb796af9f85418578aba6bde3c94b"
+        },
+        "production/14_make_masks/captions/zh-CN/zm_yunyang.vtt": {
+          "bytes": 14882,
+          "sha256": "8439fbe38ef901389d5f548d990ef289ac550f5fbbaf9af96505ecc6c0877d38"
+        },
+        "production/14_make_masks/current-video-acceptance.json": {
+          "bytes": 3893,
+          "sha256": "aebed68bf71e25b74e57a4a5b8009553223a4db8428b7375d7d46d6f5c9cc39e"
+        },
+        "production/14_make_masks/lesson.en.json": {
+          "bytes": 22655,
+          "sha256": "411ced7277df85e10cbb858ebd7ffb9babdae413989d6193cdc0df94f075d849"
+        },
+        "production/14_make_masks/poster.jpg": {
+          "bytes": 283521,
+          "sha256": "cc61880d04b8582da3619d584584c09bba55b99633b8fffa9da2997ad56db6db"
+        },
+        "production/14_make_masks/refresh-status.json": {
+          "bytes": 2128,
+          "sha256": "80363c327652159c8938dc7dfa9a1d9d9534d6f5c2b21ef67967d8b2e1807fcb"
+        },
+        "production/14_make_masks/review.da.json": {
+          "bytes": 20001,
+          "sha256": "0df4fe50e6565276dc7643dc92583157571414da0a1fd16d141f9012f2771ca6"
+        },
+        "production/14_make_masks/review.de.json": {
+          "bytes": 22161,
+          "sha256": "9b51c8660f14967173d12d39b52db6605efa78dc2a9604eaec7f831ea73720b6"
+        },
+        "production/14_make_masks/review.es.json": {
+          "bytes": 21175,
+          "sha256": "c619d14faaaf26f67e9f507dd438e6ca4f053f6ce676d0e5c256746506306370"
+        },
+        "production/14_make_masks/review.fr.json": {
+          "bytes": 22271,
+          "sha256": "2a0cbe56868507a0487405f59d96b153155b8ca05d721a7ef12580ba423cb37f"
+        },
+        "production/14_make_masks/review.hi.json": {
+          "bytes": 40449,
+          "sha256": "cbd761c616afa11e60ed71f4546f34791c5cef907a74c2b3189a37874899bed9"
+        },
+        "production/14_make_masks/review.is.json": {
+          "bytes": 20318,
+          "sha256": "81122c4ac0f90b390e3fb5fde6eda81abc9fe4af4dd1e0130b2e213bb573a0b4"
+        },
+        "production/14_make_masks/review.it.json": {
+          "bytes": 21301,
+          "sha256": "90fa5140de1d9a83fd43d60895344920ec9282d9367fca6d6a6c3d0684b7b581"
+        },
+        "production/14_make_masks/review.ja.json": {
+          "bytes": 23935,
+          "sha256": "0e5d14a5adc1297934da6060ee8e40b5f272edaa45de0e9d38a1b06b4ac5ef34"
+        },
+        "production/14_make_masks/review.ko.json": {
+          "bytes": 22377,
+          "sha256": "549a86fa0fa24a13006c66b9bb9d07b060469a6153a446ba3627c8d0aba3e8f5"
+        },
+        "production/14_make_masks/review.nb.json": {
+          "bytes": 19782,
+          "sha256": "b81f8467817f8a7783bfbdc781ce7b23954954685f21b7092ceba94fcefeb2e1"
+        },
+        "production/14_make_masks/review.pt-BR.json": {
+          "bytes": 20677,
+          "sha256": "ff758bc9b24ada5917c69dce0440451da0ed8d9a8de6e237c3d51e3f74ac8d70"
+        },
+        "production/14_make_masks/review.sv.json": {
+          "bytes": 20101,
+          "sha256": "aa169ab17741da4df507acf4433594d7f524ec69a8b1406545346622758cb83f"
+        },
+        "production/14_make_masks/review.zh-CN.json": {
+          "bytes": 17640,
+          "sha256": "ac31d23bd43fd164c2f9eae8098146ea7ae09662cf5489b9d691e7e37ac7a6d8"
+        },
+        "production/14_make_masks/scenes.json": {
+          "bytes": 17696,
+          "sha256": "93d0944cebfeed4857921e2ae1f050e1da143bfc45130c0bbe021f0c0b0b965f"
+        },
+        "production/14_make_masks/video/14_make_masks_silent.mp4": {
+          "bytes": 94363197,
+          "sha256": "6e38fb7c9380525ecc45a5076e661fb17632898d49f91a2c51fc3cb914125562"
+        },
+        "production/14_make_masks/visual.json": {
+          "bytes": 17696,
+          "sha256": "93d0944cebfeed4857921e2ae1f050e1da143bfc45130c0bbe021f0c0b0b965f"
+        },
+        "rendered-scene-review/14_make_masks-00.png": {
+          "bytes": 669509,
+          "sha256": "2687e71c10d2a4901236dfc13a922ba8af881f6c0b1c1882f6954dfa130184e8"
+        },
+        "rendered-scene-review/14_make_masks-01.png": {
+          "bytes": 797415,
+          "sha256": "982bd0c58709643f3cac1c2b894eebbf1c5794846ec912e76183ed4cc970e289"
+        },
+        "rendered-scene-review/14_make_masks-02.png": {
+          "bytes": 759982,
+          "sha256": "0ce69e73d6d18ca6e23a232a02f302a7a59e51a8a841a92e6810fc283f9d930b"
+        },
+        "rendered-scene-review/14_make_masks-03.png": {
+          "bytes": 2580769,
+          "sha256": "4d89d9c733b2e6a193ed440124bfc42f3f76345f1dd299ccbb6af497629c4cb7"
+        },
+        "rendered-scene-review/14_make_masks-04.png": {
+          "bytes": 2685027,
+          "sha256": "f047163ae4735de879cf57509042fb03f88811803737cee02ae313c2f8f2acd1"
+        },
+        "rendered-scene-review/14_make_masks-05.png": {
+          "bytes": 2512579,
+          "sha256": "95c4450eda35323d81ba06ae26bc6aa15ccdc0bb34cc15318879635b5a9d6430"
+        },
+        "rendered-scene-review/14_make_masks-06.png": {
+          "bytes": 1736869,
+          "sha256": "f80fec43ba770b394f3a26908b273e30a51b8147dba73e86ce1ef0428be533f2"
+        },
+        "rendered-scene-review/14_make_masks-07.png": {
+          "bytes": 2715005,
+          "sha256": "6f41878e1d5fda3b11a805a93fd57245c305e15890ac88a44afd02472b749226"
+        },
+        "rendered-scene-review/14_make_masks-08.png": {
+          "bytes": 2717128,
+          "sha256": "544554e8b3bfd3716b05d3de00d7fa688753ff1ce705d9cfe8506b582aedaa2e"
+        },
+        "rendered-scene-review/14_make_masks-09.png": {
+          "bytes": 2707433,
+          "sha256": "6c4d0c4f785b5a0b368eef493b22faf4b0bc2b4648fcba953517819421faef89"
+        },
+        "rendered-scene-review/14_make_masks-10.png": {
+          "bytes": 2233947,
+          "sha256": "c8a0fde039edc8ae85a16be42ae29b119ca15cb1f9a727907b9af547c3e71558"
+        },
+        "rendered-scene-review/14_make_masks-11.png": {
+          "bytes": 2232316,
+          "sha256": "748ce4a036885e8ded9566eaf38f856c217f3a171aa3695f4522c02e0e6100b0"
+        },
+        "rendered-scene-review/14_make_masks-12.png": {
+          "bytes": 2686854,
+          "sha256": "74289058524c177660ae3ee6d1510249a4fa0d4df4ddbfa95b6395500e8b145d"
+        },
+        "rendered-scene-review/14_make_masks-13.png": {
+          "bytes": 2692959,
+          "sha256": "81f4be42ba2967ec08d0bf0df22c0edea8c6232e7e925beeff4485bbf53e0eac"
+        },
+        "rendered-scene-review/14_make_masks-14.png": {
+          "bytes": 2622074,
+          "sha256": "ebeba402b14e9460b03ead00383c6757356f74fe12955d44a7c00ab0752afee2"
+        },
+        "rendered-scene-review/14_make_masks-15.png": {
+          "bytes": 2708302,
+          "sha256": "376e1b36b9ed55109b41e8395d91c28d6a167432694024eb035491527fb190c6"
+        },
+        "rendered-scene-review/14_make_masks-16.png": {
+          "bytes": 2650850,
+          "sha256": "4ac0a7379f21556f6efb2077201ed204b302c912c17da35a5ba8bf91670b433d"
+        },
+        "rendered-scene-review/14_make_masks-17.png": {
+          "bytes": 2685857,
+          "sha256": "3c65f3ffbc5e3f7aa37d95b6726475a33e2454ee0489cdbbe99f7f3132309ff4"
+        },
+        "rendered-scene-review/14_make_masks-18.png": {
+          "bytes": 1690423,
+          "sha256": "1ee104bf961fc35989abd6f3a78fc2e9124098ecad9c8e52acbcf819824d7191"
+        },
+        "web-renditions/14_make_masks/rendition-checks.json": {
+          "bytes": 1023,
+          "sha256": "aabb7b9d1d959e4e25744a037093136009d81a8b6f23f23b375c13ce9892e7bf"
+        },
+        "web-renditions/14_make_masks/video/14_make_masks_silent.mp4": {
+          "bytes": 61543117,
+          "sha256": "0a8bbb611fc180d0e435bfc2097c3be10e4be04e8bcef4fbfd1d063a4b6fcc99"
+        }
+      }
+    }
+  },
+  "accepted_media": {
+    "production/14_make_masks/video/14_make_masks_silent.mp4": {
+      "bytes": 175537762,
+      "sha256": "f569aa9d18b0708547c28456c3e2288fff85caac136bb5021052c092dd625854"
+    },
+    "web-renditions/14_make_masks/video/14_make_masks_silent.mp4": {
+      "bytes": 61825553,
+      "sha256": "2044da220701102a524c1f8bee45d182bc4ae76dde6cdc50b4c2b7e73acd4994"
+    }
+  },
+  "decoded_review_archive_sha256": "85785fd29cd09c6a8718d72493c50d6aa644e4162b13002c979f5d0e285279e9",
+  "decoded_review_archive_parts": [
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part00",
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part01",
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part02",
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part03"
+  ],
+  "artifacts": {
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-all50-audio-acceptance-r3.log.gz": {
+      "bytes": 397,
+      "sha256": "8f85decc72aab9debcfcc8a49c8a6ba25ce329211f117902b2ac77d2206c0c6a"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-native61-4K-master-r3.log.gz": {
+      "bytes": 182,
+      "sha256": "affb6268f7a84c41ebf9e98a1b36ff4aaaee3979636854fc46ca169d2ae0d8f0"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-native61-video-web-acceptance-r3.log.gz": {
+      "bytes": 287,
+      "sha256": "ddf40399c12741c16c505fff8c9fcd4c1cf9094f0c3b18564a48ed341133921e"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-native61-rendered-fidelity-r3.log.gz": {
+      "bytes": 180,
+      "sha256": "a64c926a6fe4f6e279ec22a63a4aefb6e9eadc9afe41aa18f9649c5816348fb4"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-native61-rendered-fidelity-r1.log.gz": {
+      "bytes": 122,
+      "sha256": "0eec919238694ce139c8ffeada523549f4cb05296a903e11b52f78ffc38b0eba"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-native61-rendered-fidelity-r2.log.gz": {
+      "bytes": 124,
+      "sha256": "3d6413eae6f1e3a1aadc0da44f13cc745700a06b058c810bb94ff813201f2cf0"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-native-scene19-encoding-diagnostic-r3.log.gz": {
+      "bytes": 198,
+      "sha256": "c709b9d6986ff3feaee4880a2c405c60463680ab8e41bc94487ef886ddb83065"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/final-native-scene19-encoding-diagnostic-r4.log.gz": {
+      "bytes": 214,
+      "sha256": "2955e57def3282325663e28e703751ed803f78da4ec91facf045f88a299b057a"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/probe_native_scene19_encoding_r3.py.gz": {
+      "bytes": 868,
+      "sha256": "4fd622f43377983538ab3cf72760ebf5d4ddd4a683914de7f63a6b0c42353eb7"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/probe_native_scene19_encoding_r4.py.gz": {
+      "bytes": 871,
+      "sha256": "735fbbec8f5f4c40738fdc9fe023ddab2025fbe32eb1ab6d5ae561e279fbe2b3"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/continue_latest_Home_tutorial_media_r3.py.gz": {
+      "bytes": 1227,
+      "sha256": "a4fe72fece58a4fcac0824a3fb1753bfff81e92e7bad25ee9bbf72a38f794f4e"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/finish_final_current_video_r3.py.gz": {
+      "bytes": 1365,
+      "sha256": "f72820c801aed4d45c4e93831aa02e1371305f73a9a2316521899b4a844d90ff"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/verify_final_current_rendered_scenes_r3.py.gz": {
+      "bytes": 1620,
+      "sha256": "c5a7d0935ec1e1f97ed930c9fe634e6b6d981aa8c9f824461595f9ff956f6558"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/archive_final_native61_render_acceptance_r4.py.gz": {
+      "bytes": 2041,
+      "sha256": "29838c8bad280ea5c62d7989d15c0f193315d33a61a1e67f26a5b573aaee8732"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/production__14_make_masks__visual.json.gz": {
+      "bytes": 3736,
+      "sha256": "c6d9a295b0ee85330bd8185188d5972f3edf7788fe6c4c3b40efae62d14cbee4"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/production__14_make_masks__current-video-acceptance.json.gz": {
+      "bytes": 1570,
+      "sha256": "234541778044b2d66e2d13e91dd71dfeb0b5995dc3b98d3c3ecf8d74ff0a8069"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/rendered-scene-fidelity.json.gz": {
+      "bytes": 7019,
+      "sha256": "3c965545a710cdfa4996e1005dc29a94507944f22723ab3f2dac9fea07223347"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/latest-Home-stage-preservation.json.gz": {
+      "bytes": 4843,
+      "sha256": "9ecf2e573652dda7117f98cae94b48d7de72d2038481e30242ff802e1d8d2a26"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/tools__tutorials__authoring__tools__render_visual_master.py.gz": {
+      "bytes": 3351,
+      "sha256": "f1bd1debcc1a786aa67cee5c669b24c4f8160180f4dbd9148fd0d879b0f93bc6"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/tools__tutorials__compose_make_masks_capture.py.gz": {
+      "bytes": 2583,
+      "sha256": "4824202dd5b3bf4c5b1766f3a5865b5d7e8726a83aa8de31a07969bd1be4807a"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part00": {
+      "bytes": 33554432,
+      "sha256": "dbf9828b169a0112ab6adf24d053ef7dd17201cd027b7aa0681a31c03dee277b"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part01": {
+      "bytes": 33554432,
+      "sha256": "c12bcf7d53698480d8f80a75f21f2b440f70ec8fb278db1a76e49a67973055ff"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part02": {
+      "bytes": 33554432,
+      "sha256": "acb7d9813c0cf32b8de403852b5c190ada284695b9e3742e0f84051d71cb5ac6"
+    },
+    "features/data/615_final_native61_render_acceptance_2026-10-07_r4/decoded61-and-quality-diagnostics.zip.part03": {
+      "bytes": 27605237,
+      "sha256": "19ae70939fafead9de0575d9dbb45a77181c6606565b0e9d7233572f46ed0fae"
+    }
+  },
+  "browser_or_publication_claimed": false,
+  "native_speaker_or_listening_signoff": false
+}

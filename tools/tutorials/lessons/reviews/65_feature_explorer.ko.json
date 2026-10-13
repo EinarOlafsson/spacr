@@ -1,0 +1,37 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Feature Explorer: 그룹 비교와 특징 순위 내보내기",
+  "description": "그룹 열을 고르고, 측정값을 AUC나 KS로 순위 매기고, 분포를 확인한 뒤 선택한 특징을 내보냅니다.",
+  "objectives": [
+    "측정값을 불러와 비교할 그룹을 고릅니다.",
+    "순위와 분포를 읽은 뒤 필터와 계산 열을 살펴봅니다.",
+    "원하는 개수의 순위 특징을 내보냅니다."
+  ],
+  "prerequisite": "Annotate 예제를 내려받아 그 measurements.db 작업 사본을 여세요. 세포 2,341개가 들어 있습니다. 이 안내에서는 플레이트의 공간상 행을 나타내는 rowID 그룹 r12와 r5를 비교합니다. 자신의 실험에 맞는 그룹 열을 고르고, 비교를 해석할 때 세포가 웰을 공유한다는 점을 고려하세요.",
+  "scenes": [
+    "Home에서 Classify를 연 뒤 Feature Explorer를 여세요. Annotate 예제의 측정 데이터베이스로 기존 특징을 그룹 간에 비교합니다.",
+    "Load table을 클릭하고 measurements.db를 고른 뒤 cell을 고르세요. Split by를 rowID로 설정하세요. 예제의 그룹은 플레이트의 공간상 행이므로, 그룹 열이 의도한 비교를 나타내는지 확인하세요.",
+    "Rank by에서 AUC를 고르세요. 분리도는 2 × AUC − 1의 절댓값입니다. Higher in은 방향을 보여 주고, min n은 더 작은 그룹의 유한한 측정값 개수입니다.",
+    "Top을 4로 설정하면 겹친 히스토그램 4개를 볼 수 있습니다. 각 특징 안에서 그룹은 구간 경계를 공유하며, 막대 높이는 개수를 나타냅니다. 분포와 순위 점수를 함께 읽으세요.",
+    "Export ranking을 클릭하면 표시된 상위 특징이 저장됩니다. Top이 4이면 내보낸 파일에는 특징 행 4개가 들어 있습니다. 더 긴 순위를 내보내기 전에 Top을 늘리세요.",
+    "Top을 500으로 설정하면 이 예제에서 점수를 매길 수 있는 특징 261개가 모두 포함됩니다. 내보낸 순위가 더 길어도 그래프에는 분포가 최대 8개만 표시됩니다.",
+    "Rank by를 KS로 바꾸면 누적 분포 사이의 가장 큰 차이로 비교합니다. KS는 AUC가 놓치는 퍼짐의 차이를 드러낼 수 있습니다. Higher in으로 방향을 보려면 AUC로 돌아가세요.",
+    "Filter에서 cell_area를 추가하고 최솟값을 21,925로 설정하세요. 집단이 세포 1,171개로 바뀌고 순위가 갱신됩니다.",
+    "Clear all을 클릭해 전체 집단과 순위로 돌아가세요. 필터를 바꾼 뒤에는 어떤 그룹을 비교하는지 알 수 있도록 Split by를 다시 확인하세요.",
+    "rowID를 r12로 필터링하면 두 번째 그룹이 사라집니다. 이 빌드에서는 그때 Split by가 자동으로 다른 열로 바뀝니다. 필터 때문에 그룹이 사라질 때마다 이 컨트롤을 확인하세요.",
+    "필터를 지우고 Split by에 rowID를 명시적으로 다시 설정하세요. 이 예제에서는 Shuffle test를 꺼 두세요. 세포가 웰을 공유하므로 세포 라벨을 제한 없이 섞는 것은 독립적인 실험 반복이 되지 않습니다.",
+    "Columns를 열고 계산 열 이름을 area_k로 하세요. cell_area를 1000으로 나누는 식을 입력하고, 대체를 끈 채로 Add column을 클릭하세요. Preview는 처음 2,000행을 보여 주며, 추가하면 식이 전체 표에 적용됩니다.",
+    "계산 열이 순위에 들어갑니다. 양의 배율로 척도를 바꾼 것이므로 AUC와 KS는 cell_area와 같습니다. 원래 특징으로 돌아가려면 식을 제거하세요.",
+    "집단, Split by, Top을 확인한 뒤 순위를 내보내세요. Python에서는 spacr.qt.widgets.feature_rank의 rank_features와 ExplorerSpec을 쓰세요. 선택한 특징을 더 자세히 그리려면 Graph Builder로 이어 가세요."
+  ]
+}

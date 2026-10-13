@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "source_file_sha256": "d52843fc365b69ef8f6accf58817013d11465983eb87bfe7679a90dac7282f8a",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Selection guidance translated directly, twelve labels/descriptions reused exactly from current source-bound runtime reviews and displayed UI glossary.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "Data-art themes",
+      "source_sha256": "cfb3e0bd24dcf3b4344c6c51a7bde4b8ff9e71cd7b6aa0970959e242d1770f84",
+      "target": "डेटा कला थीम",
+      "ui": {}
+    },
+    {
+      "domain": "features",
+      "source": "Under **Preferences** → **Appearance** → **Theme**, twelve data-art presets each select an interface palette and an animated background. The original ten night themes and seven background animations remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements.",
+      "source_sha256": "4df9b39b349362bbcd9b4842dfd7f4cba570b2be4bf9de9bfb996a84e1af5224",
+      "target": "**प्राथमिकताएं** → **रूप-रंग** → **थीम** में बारह डेटा कला पूर्वनिर्धारित विकल्पों में से प्रत्येक एक इंटरफ़ेस रंग-पैलेट और एनिमेटेड पृष्ठभूमि चुनता है। मूल दस रात्रि थीम और सात पृष्ठभूमि एनिमेशन अब भी उपलब्ध हैं। **एनिमेशन** से पृष्ठभूमि स्वतंत्र रूप से चुन सकते हैं; स्थिर पृष्ठभूमि के लिए **कोई नहीं** चुनें। ये पृष्ठभूमियाँ सजावटी हैं और परियोजना के मापन नहीं दिखातीं।",
+      "ui": {
+        "Preferences": "प्राथमिकताएं",
+        "Appearance": "रूप-रंग",
+        "Theme": "थीम",
+        "Animation": "एनिमेशन",
+        "None": "कोई नहीं"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Spatial point atlas** — A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
+      "source_sha256": "b675dc7dcd661f1e350c351c9fdbf680ece68d3fd6ba0c803baea20985b665e8",
+      "target": "**स्थानिक बिंदु मानचित्र** — बारीकी से नमूनाकृत त्रिविमीय बिंदु परिदृश्य, जिसमें गहराई और कर्सर से नियंत्रित लंबन है।",
+      "ui": {
+        "Spatial point atlas": "स्थानिक बिंदु मानचित्र"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Tissue facets** — A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
+      "source_sha256": "42f551d81fc2e694d8f17b8a45cd4beb419c56f93d6ffea97b36a53dc3b971b7",
+      "target": "**ऊतक फलक** — छायांकित ज्यामितीय फलकों से बना स्फटिक जैसा ऊतक मोज़ेक, जिसकी स्थानीय ऊँचाई-निचाई धीरे बदलती है।",
+      "ui": {
+        "Tissue facets": "ऊतक फलक"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Spatial strata** — Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail.",
+      "source_sha256": "65ca8488d8fb21f966577e7d037477ce9a824ec40fe27e833fa40b8c764e0cc5",
+      "target": "**स्थानिक परतें** — बारीक, एक के ऊपर एक रखी स्थलाकृतिक परतें गतिशील स्थानिक उभार बनाती हैं, जिसमें गहराई और समोच्च का सटीक विवरण है।",
+      "ui": {
+        "Spatial strata": "स्थानिक परतें"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Molecular helix** — A rotating molecular helix of shaded beads and paired bases, with perspective and depth.",
+      "source_sha256": "e99ab54426f2d4c768f2f1f1853f691edac4f22ef8e0a875870ebd5f493d21e3",
+      "target": "**आणविक कुंडलिनी** — छायांकित मोतियों और युग्मित क्षारकों से बनी घूमती आणविक कुंडलिनी, जिसमें परिप्रेक्ष्य और गहराई है।",
+      "ui": {
+        "Molecular helix": "आणविक कुंडलिनी"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Chromatin satin** — Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
+      "source_sha256": "a7727aa607626cff24878a9566dc9114b67e9dce7a414bfa64035077da868ed1",
+      "target": "**क्रोमैटिन साटन** — मुड़े हुए साटन जैसे क्रोमैटिन रिबन बारीक तंतुओं को कोमल, आपस में बुनी सतहों से गुज़ारते हैं।",
+      "ui": {
+        "Chromatin satin": "क्रोमैटिन साटन"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Genome mosaic** — A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field.",
+      "source_sha256": "acabd7ef946ae32fbbddd6bc56598ca1b5e114dc9cf3ef27086819c514c74549",
+      "target": "**जीनोम मोज़ेक** — छोटी कूटबद्ध टाइलों से बना परतदार जीनोम मोज़ेक एक स्थापत्य-जैसे अनुक्रम क्षेत्र में खिसकता है।",
+      "ui": {
+        "Genome mosaic": "जीनोम मोज़ेक"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Transcript rain** — Fine falling transcription marks stream through a layered field of genetic information.",
+      "source_sha256": "22c0631d933646d0c04e6ebe0a2dcf00be28f6ccb5184f605a06b8d23de1ae59",
+      "target": "**ट्रांसक्रिप्ट वर्षा** — गिरते हुए बारीक प्रतिलेखन चिह्न आनुवंशिक सूचना के परतदार क्षेत्र में बहते हैं।",
+      "ui": {
+        "Transcript rain": "ट्रांसक्रिप्ट वर्षा"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Regulatory circuit** — An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes.",
+      "source_sha256": "9e4f0e00a1bc0ea432856497274b47f0e1889a850a715b961288170deb2d9e5b",
+      "target": "**नियामक परिपथ** — एक उकेरा हुआ नियामक परिपथ सटीक समकोणीय पथों और छोटे नियंत्रण नोडों से स्पंदों को भेजता है।",
+      "ui": {
+        "Regulatory circuit": "नियामक परिपथ"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Genetic advection** — Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
+      "source_sha256": "b354702a1ae93f7ed7e8226620a5ae318bb016a4d3666df35f560852a4623b71",
+      "target": "**आनुवंशिक अभिवहन** — आनुवंशिक प्रवाह के हज़ारों बारीक कण हवा जैसे एक सतत क्षेत्र में चलते हैं, जो कर्सर के पास मुड़ता है।",
+      "ui": {
+        "Genetic advection": "आनुवंशिक अभिवहन"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Perturbation interference** — Smooth interference waves form a changing pearlescent field, distorted locally by the cursor.",
+      "source_sha256": "af0b3b7fa4279ab9e33161cdd0e019b68479946ccfc31ab2fd3352e287ed3975",
+      "target": "**विक्षोभ व्यतिकरण** — चिकनी व्यतिकरण तरंगें बदलता हुआ मोती जैसा चमकीला क्षेत्र बनाती हैं, जिसे कर्सर स्थानीय रूप से विकृत करता है।",
+      "ui": {
+        "Perturbation interference": "विक्षोभ व्यतिकरण"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Morphogenesis** — A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure.",
+      "source_sha256": "9ba4c742c6161c73f58ed8349608840c96682dd6db57643a7cb6297f4c861eef",
+      "target": "**आकारजनन** — बदलते धब्बों और भूलभुलैयों का बारीक जैविक पैटर्न जैविक संरचना के उभरने की याद दिलाता है।",
+      "ui": {
+        "Morphogenesis": "आकारजनन"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Perturbation lens** — A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
+      "source_sha256": "3d9bacec6645a5883e6b9ff2491f690471482bb89a067435ef40fa145c931574",
+      "target": "**विक्षोभ लेंस** — एक सटीक बिंदु जाल गतिमान स्पंदों और कर्सर के आसपास मुड़कर स्थानीय विक्षोभ दिखाता है।",
+      "ui": {
+        "Perturbation lens": "विक्षोभ लेंस"
+      }
+    }
+  ],
+  "previous_complete_translations_preserved": 2965
+}

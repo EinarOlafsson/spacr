@@ -1,0 +1,183 @@
+{
+  "passed": true,
+  "private_source_commit": "a7a465f5bb0f274dc7f6ca8762e41d78f043ba75",
+  "hosted_source_commit": "7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab",
+  "hosted_job_id": 113244305609,
+  "hosted_run_id": 37744767240,
+  "repair_scope": "One test assertion compares against the child Python class static Qt metaobject, adding strict object equality; original signal index, type lookup, virtual overrides, delivery and source/noise guards retained. No production change.",
+  "unchanged_function_bodies": 8,
+  "changed_test_functions": [
+    "test_a_child_parented_into_a_watched_host_keeps_its_wrapper"
+  ],
+  "local_py313_tests_passed": 16,
+  "local_py312_tests_passed": 16,
+  "controlled_base_metaobject_rejected": true,
+  "patch_applies_cleanly_to_current_base": true,
+  "original_native_poison_reproduced": false,
+  "hosted_qualified_native_name_reproduced_locally": false,
+  "terminal_statuses": {
+    "qt-metaobject-identity-py313-r1": 0,
+    "qt-metaobject-identity-py312-r1": 0,
+    "qt-metaobject-poison-control-py313-r1": 1,
+    "qt-metaobject-poison-control-py313-r2": 1,
+    "qt-metaobject-identity-controls-py313-r3": 1,
+    "qt-metaobject-identity-controls-py313-r4": 0
+  },
+  "payloads": {
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-py313-r1.log.gz": {
+      "raw_bytes": 674,
+      "raw_sha256": "9dd9709f87d0c01950fedb96bed2faff09a62022f49a98b9a8efe4667cea79e5",
+      "archive_bytes": 382,
+      "archive_sha256": "8037f5dc6ab3a40a00aca96c425e01074b7c7b47c0f36eeba453f1cfbfa776a6"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-py313-r1-tool.log.gz": {
+      "raw_bytes": 218,
+      "raw_sha256": "dca1950c926add3858baf9519e5fd7245015159aba713f09a8494f6898dffdff",
+      "archive_bytes": 151,
+      "archive_sha256": "3f8f4143c6b940778019414c37da5a70842327bb1b1e0a5943133a006cb32491"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-py312-r1.log.gz": {
+      "raw_bytes": 711,
+      "raw_sha256": "de188c628f2d3d213991ddd47e29c7747d8512e5b8e145c76af155c284adc2f2",
+      "archive_bytes": 373,
+      "archive_sha256": "3586bbe05ddeaa322403542d27fcd2f926da9c2dd226110c4eb8d293db47179f"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-py312-r1-tool.log.gz": {
+      "raw_bytes": 218,
+      "raw_sha256": "4d0ccc62c8ae117c69d3a6fb6d8da6631ff4dabdfe994a760e2ccd9f8cc37a68",
+      "archive_bytes": 151,
+      "archive_sha256": "c3a4d2e064aab42c38acb332cdc202d9050ad371e3eed30425dbeea0bc46c69b"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-poison-control-py313-r1.log.gz": {
+      "raw_bytes": 1430,
+      "raw_sha256": "2d7e4caf09287901c6827e4b906c185f9991b17ef2c937b6fa7e32b7504f884a",
+      "archive_bytes": 553,
+      "archive_sha256": "3814c79dc0d10a45ff41e74bba07f438041feca2f94fa8a8cfbcbaf71a8dcea0"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-poison-control-py313-r1-tool.log.gz": {
+      "raw_bytes": 119,
+      "raw_sha256": "af7a3deb1bcda02c8d0adf3f469a577656ee17f9d4b8513493bda7e4272deb43",
+      "archive_bytes": 122,
+      "archive_sha256": "4700b0f9209432588f1dcb5a1cbaf4bbd01571a77d57dd9c45e260935020558d"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-poison-control-py313-r2.log.gz": {
+      "raw_bytes": 1430,
+      "raw_sha256": "410b419552f9f28537dec92a8247d909025498b363360907778a110f743eea44",
+      "archive_bytes": 553,
+      "archive_sha256": "35e846d3a0fcb3a46819a05d8dee1a19803b81760a1356cbe8fb3cde1d5b3d5c"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-poison-control-py313-r2-tool.log.gz": {
+      "raw_bytes": 119,
+      "raw_sha256": "af7a3deb1bcda02c8d0adf3f469a577656ee17f9d4b8513493bda7e4272deb43",
+      "archive_bytes": 122,
+      "archive_sha256": "4700b0f9209432588f1dcb5a1cbaf4bbd01571a77d57dd9c45e260935020558d"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-controls-py313-r3.log.gz": {
+      "raw_bytes": 2002,
+      "raw_sha256": "32b8f3d0c402080a2ead90985125ddd2a43fbd258472565d93ca53d8584e6fcd",
+      "archive_bytes": 684,
+      "archive_sha256": "85ea1e30284338d2c41e80fe322ef0fa54a5c14925ef584cf095aa33b0b9af74"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-controls-py313-r3-tool.log.gz": {
+      "raw_bytes": 119,
+      "raw_sha256": "af7a3deb1bcda02c8d0adf3f469a577656ee17f9d4b8513493bda7e4272deb43",
+      "archive_bytes": 122,
+      "archive_sha256": "4700b0f9209432588f1dcb5a1cbaf4bbd01571a77d57dd9c45e260935020558d"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-controls-py313-r4.log.gz": {
+      "raw_bytes": 826,
+      "raw_sha256": "127d5dd416b9e8a4020bd498278d7e3f4f9417fef137fd88cdb64d58379ef6c6",
+      "archive_bytes": 391,
+      "archive_sha256": "023cac4c6eb786915582a2023e6f0d9377362755f8505e395044c876914492b5"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/logs/qt-metaobject-identity-controls-py313-r4-tool.log.gz": {
+      "raw_bytes": 228,
+      "raw_sha256": "6a02cebb3496612788b97310e71e24ec77c5306e6014ddebdd765f778a25e12a",
+      "archive_bytes": 187,
+      "archive_sha256": "47c56a2ae1a112bf3f71cf6967fb7b227cf9271b90b33241b86b13896fbdd7ef"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/scripts/check_metaobject_poison_control_r1.py.gz": {
+      "raw_bytes": 1947,
+      "raw_sha256": "128629747d5e6a5145cd121f06eb34589e6bbba33067523974dafbd321cd23d7",
+      "archive_bytes": 898,
+      "archive_sha256": "457dd7f9d265986871e0293c50dea382fdeea1d4479e2c6465b32390a57f5db7"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/scripts/check_metaobject_poison_control_r2.py.gz": {
+      "raw_bytes": 2109,
+      "raw_sha256": "04f47dbcf7ea4acdd00056cfe0682836feadb6720ec36e064f7db33821bf82d4",
+      "archive_bytes": 932,
+      "archive_sha256": "fe1483162435d74ad1f23dc0f9a82c293596e332ebdc469d094847544ed389ca"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/scripts/check_metaobject_identity_controls_r3.py.gz": {
+      "raw_bytes": 3024,
+      "raw_sha256": "d329416f67f6f5b43eb146746582c0efd8ae2d87055aff079e11b3db33a492f6",
+      "archive_bytes": 1234,
+      "archive_sha256": "357151f08f69222da65240f768f2caf59b3d5b556836ed8aca8658011378a92b"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/scripts/check_metaobject_identity_controls_r4.py.gz": {
+      "raw_bytes": 3088,
+      "raw_sha256": "8736475a454251cfe2d4ea151b938326983aa77c787372234777d659c24736e4",
+      "archive_bytes": 1266,
+      "archive_sha256": "43e76390a59d3a6074c0c4aa075aa191750a8f35458badd7c9c445593e270969"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/scripts/qt-metaobject-identity-controls-py313-r4.json.gz": {
+      "raw_bytes": 774,
+      "raw_sha256": "8fd39df6291074e71e542c1ac3c6f70700a218881c119f2421e60c7ae120e74c",
+      "archive_bytes": 408,
+      "archive_sha256": "db3455ea8f696fe10cb29bbbe407e799fb52344f679ce85d32d8102fe2e4fb56"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/scripts/archive_metaobject_identity_handoff_r1.py.gz": {
+      "raw_bytes": 7117,
+      "raw_sha256": "3f197b6dcdb865056a4607ab551221e5b65b33ce113cda64f45d495bfd62336f",
+      "archive_bytes": 2946,
+      "archive_sha256": "2f6780ddafd391f2fdc529fe6997b091071ae01d9e258c4805113ae10abd32ed"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/hosted/job.json.gz": {
+      "raw_bytes": 3106,
+      "raw_sha256": "6033cb1bcf1453b982c6e760e8a7384dd530238c56d7c2fb742813b8ea123b6b",
+      "archive_bytes": 782,
+      "archive_sha256": "cfa1d40368d84435c48a81a9f60f5ed133d823e6897ebfc54cf5d4373e3f46f7"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/hosted/full.log.gz": {
+      "raw_bytes": 2022169,
+      "raw_sha256": "e37f14a444697459fd2a42fc44b9c55c23638f633fc927f6a41e8c7e323583a4",
+      "archive_bytes": 283751,
+      "archive_sha256": "674056e45348c41bc56b5dffcd65243a91c00142c79b99f11db563e6845789f9"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/hosted/receipt.json.gz": {
+      "raw_bytes": 295,
+      "raw_sha256": "cd671eb9288565dd8f95a7e17fe8ba53405d60cf92145bfbed5623a272aebe8b",
+      "archive_bytes": 228,
+      "archive_sha256": "6905f2b39cf5eb12b5dc1d8e26bb53f3e362aab43298feaca7ffe0a34fa1c3aa"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/hosted/first-request-job.json.gz": {
+      "raw_bytes": 3106,
+      "raw_sha256": "6033cb1bcf1453b982c6e760e8a7384dd530238c56d7c2fb742813b8ea123b6b",
+      "archive_bytes": 782,
+      "archive_sha256": "cfa1d40368d84435c48a81a9f60f5ed133d823e6897ebfc54cf5d4373e3f46f7"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/source/tests/qt/test_the_pyside_slot_warning_is_fixed_not_filtered.py.gz": {
+      "raw_bytes": 8517,
+      "raw_sha256": "be8944efc679b9f2602efa6df8eaa3c5c8c84b2f2622abbe87ee8b6eff2995c7",
+      "archive_bytes": 3403,
+      "archive_sha256": "62135c4735586239e6d561c6845013d87007dd89a9b1f846bb2406ac8b59c98b"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/source/original-7a-wrapper-contract.py.gz": {
+      "raw_bytes": 8418,
+      "raw_sha256": "3d2c8e5bfd6bb4651dbd58a9a5fdfd6a50ee51786f9d98c8f3e01a183ec43b24",
+      "archive_bytes": 3385,
+      "archive_sha256": "78d5e37606b932498f568318fc6e3d06a5a8c99aea33bf9cf8dfdc2e266154a4"
+    },
+    "features/data/43_7a_metaobject_identity_2026-10-08/patch/test-only-metaobject-identity.patch.gz": {
+      "raw_bytes": 945,
+      "raw_sha256": "0c976e7edb69ea01af59acd21d93ffbe4b9f97b6f5256963d863114d3f87f68e",
+      "archive_bytes": 436,
+      "archive_sha256": "7b9c601cc0034e0ebd4054923cccd41959ca5039b6f8d8510994da0bcf533c11"
+    }
+  },
+  "limitations": [
+    "Full terminal hosted log reports the qualified Python subclass name, not QWidget, at the sole failed assertion in its 570-selection batch.",
+    "Real ChildAdded retention did not reproduce the old native defect on local bindings; two original failed controls retained. Qualified Python constructor control normalizes native className to Child; original failed assumption retained.",
+    "Current protected runs untouched. Private test-only patch is ready for Home review/adoption; no overall-green/native-crash-causality claim."
+  ]
+}

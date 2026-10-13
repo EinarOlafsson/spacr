@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "is",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "method": "Codex AI technical review of guide control-name alignment to the current runtime catalog. Existing prose retained. No independent peer or native-speaker signoff.",
+  "runtime_catalog_sha256": "bda8a68ac1d0ae58d070aba83a2929278da0c0224ba3a5a76952034384e4294f",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+      "source_sha256": "bfa21c5ee6fbafe2af955da8a4e630313ed409cea4751f2814aaf39618e1b467",
+      "original_translation": "**Edit figure…** breytir titli, ásamerkingum, mörkum, kvörðum, letri, litum, skýringu, stærð og upplausn myndarinnar. Breytingar birtast um leið og þú gerir þær.",
+      "target": "**Breyta mynd…** breytir titli, ásamerkingum, mörkum, kvörðum, letri, litum, skýringu, stærð og upplausn myndarinnar. Breytingar birtast um leið og þú gerir þær.",
+      "ui_replacements": {
+        "Edit figure…": "Breyta mynd…"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+      "source_sha256": "5a0f49c6b5a9bf999f49784736f6c07ae1494824f2d6c422d0f70bf64579d875",
+      "original_translation": "**Change graph type** teiknar myndina aftur sem annað línurit sem hæfir gögnum hennar. Hópa má sýna sem kassa-, fiðlu-, strip-, swarm-, súlu-, punkta- eða boxen-rit, sem kassa- eða súlurit með punktum, eða sem stuðlarit, KDE eða ECDF; tvær mælingar sem dreifi-, línu-, hexbin-, KDE- eða aðhvarfsrit; eina dreifingu sem stuðlarit, KDE, ECDF, kassa, fiðlu, strip eða boxen; talningar sem talningarrit eða hitakort; og fylki sem hitakort eða klasað hitakort. Myndin er teiknuð aftur úr gögnum sínum og heldur **Myndastillingar** þínum.",
+      "target": "**Breyta gerð grafs** teiknar myndina aftur sem annað línurit sem hæfir gögnum hennar. Hópa má sýna sem kassa-, fiðlu-, strip-, swarm-, súlu-, punkta- eða boxen-rit, sem kassa- eða súlurit með punktum, eða sem stuðlarit, KDE eða ECDF; tvær mælingar sem dreifi-, línu-, hexbin-, KDE- eða aðhvarfsrit; eina dreifingu sem stuðlarit, KDE, ECDF, kassa, fiðlu, strip eða boxen; talningar sem talningarrit eða hitakort; og fylki sem hitakort eða klasað hitakort. Myndin er teiknuð aftur úr gögnum sínum og heldur **Myndastillingar** þínum.",
+      "ui_replacements": {
+        "Change graph type": "Breyta gerð grafs"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+      "source_sha256": "b8d77eafc1606a6f7865b9065d1ed95b9658405294c8524c879ea3320895feb6",
+      "original_translation": "**Statistics…** sýnir prófið sem spaCR valdi fyrir gögnin og leyfir þér að hnekkja **Próf**, **Subject column**, **Paired / repeated measures** og **Multiple-comparison correction**. **Show on the plot** teiknar prófið og marktækniklofa á myndina.",
+      "target": "**Tölfræði…** sýnir prófið sem spaCR valdi fyrir gögnin og leyfir þér að hnekkja **Próf**, **Dálkur fyrir tilraunaeiningar**, **Pöruð gögn / endurteknar mælingar** og **Leiðrétting fyrir margar samanburðarprófanir**. **Sýna á grafinu** teiknar prófið og marktækniklofa á myndina.",
+      "ui_replacements": {
+        "Statistics…": "Tölfræði…",
+        "Subject column": "Dálkur fyrir tilraunaeiningar",
+        "Paired / repeated measures": "Pöruð gögn / endurteknar mælingar",
+        "Multiple-comparison correction": "Leiðrétting fyrir margar samanburðarprófanir",
+        "Show on the plot": "Sýna á grafinu"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+      "source_sha256": "881c1475e4224cb41fa9382a3ef69997a485a3b254d8acffe9db21e585133b51",
+      "original_translation": "**Save figure (zip)…** skrifar eina zip-skrá með myndinni á vistunarsniðinu þínu og sem PNG, ``data.csv`` með teiknuðu gögnunum, ``statistics.csv`` og ``statistics.txt``, ``spec.json`` með fullri uppskrift myndarinnar, og ``recreate_figure.py``, skriftu sem teiknar sömu mynd úr CSV- og JSON-skránum án spaCR.",
+      "target": "**Vista mynd (zip)…** skrifar eina zip-skrá með myndinni á vistunarsniðinu þínu og sem PNG, ``data.csv`` með teiknuðu gögnunum, ``statistics.csv`` og ``statistics.txt``, ``spec.json`` með fullri uppskrift myndarinnar, og ``recreate_figure.py``, skriftu sem teiknar sömu mynd úr CSV- og JSON-skránum án spaCR.",
+      "ui_replacements": {
+        "Save figure (zip)…": "Vista mynd (zip)…"
+      }
+    },
+    {
+      "domain": "run_history",
+      "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+      "source_sha256": "ea24b14679b2ca5ed54a6c5e3da24135a45d9f778e28787ef30d82faffb6005d",
+      "original_translation": "**Kjörstillingar → Annálaskráning → Log files** hefur **Clear all logs…**. Það telur upp daglega annála, keyrsluannála, hrunannála og ítarlega annála með fjölda skráa og stærð þeirra í hverjum flokki, og eyðir þeim aðeins eftir að þú staðfestir. Annáll sem spaCR-lotan sem er í gangi hefur opinn er tæmdur í stað þess að vera eytt, svo keyrslan sem er í gangi heldur annál sínum. Niðurstaðan segir hve mörgum skrám var eytt og hve margar voru tæmdar og hve mikið pláss losnaði.",
+      "target": "**Kjörstillingar → Annálaskráning → Annálsskrár** hefur **Tæma allar annálsskrár…**. Það telur upp daglega annála, keyrsluannála, hrunannála og ítarlega annála með fjölda skráa og stærð þeirra í hverjum flokki, og eyðir þeim aðeins eftir að þú staðfestir. Annáll sem spaCR-lotan sem er í gangi hefur opinn er tæmdur í stað þess að vera eytt, svo keyrslan sem er í gangi heldur annál sínum. Niðurstaðan segir hve mörgum skrám var eytt og hve margar voru tæmdar og hve mikið pláss losnaði.",
+      "ui_replacements": {
+        "Log files": "Annálsskrár",
+        "Clear all logs…": "Tæma allar annálsskrár…"
+      }
+    }
+  ]
+}

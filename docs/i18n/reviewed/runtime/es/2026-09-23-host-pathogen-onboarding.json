@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI-assisted source-context review of Host–Pathogen module caption and revised Toxoplasma introduction, retaining the individual-parasite counting limitation. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Host–Pathogen",
+      "source": "Host–Pathogen",
+      "source_sha256": "4c412cc95aa2cb17f6e0845eb10053d19c10cdd3303bd167cf972ce50362302e",
+      "translation": "Huésped–patógeno"
+    },
+    {
+      "table": "ui",
+      "key": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source": "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Host–Pathogen combines vacuole-level recruitment, parasite counts and host infection denominators in one analysis. Individual parasite counts require suitable parasite masks or a validated estimator; whole-vacuole masks alone cannot supply those counts. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "source_sha256": "9e911ea8fe2901d8809fb0145ca76fb04d1288ad1a4227464425c899dd863134",
+      "translation": "Invasion Assay distingue los parásitos adheridos a una célula huésped de los que han entrado en ella. Recruitment mide el enriquecimiento de proteínas del huésped alrededor de la vacuola que contiene los parásitos. Huésped–patógeno combina en un análisis el reclutamiento por vacuola, los recuentos de parásitos y los denominadores de las medidas de infección de las células huésped. Contar parásitos individuales requiere máscaras de parásitos adecuadas o un estimador validado; las máscaras de vacuolas completas por sí solas no proporcionan esos recuentos. Juntos, estos módulos ayudan a distinguir un cambio en la entrada de un cambio en la respuesta del huésped tras la entrada. Elija canales de imagen y definiciones de marcadores que permitan distinguir ambas poblaciones."
+    }
+  ]
+}

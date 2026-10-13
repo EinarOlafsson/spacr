@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted source-context review of primary and secondary mask class metadata and label-preserving hole filling. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.",
+      "source": "Object type represented by the primary masks. Choose a class or enter a custom name. This labels the saved relationship; it does not resegment the source mask.",
+      "source_sha256": "40ba693734df71522b1fc18dc318a3b98faa89d63aaea9bf9fbab7e2edd4b7b7",
+      "translation": "주 마스크가 나타내는 객체 유형입니다. 클래스를 선택하거나 사용자 지정 이름을 입력하세요. 저장된 관계에 이름을 붙이며 원본 마스크를 다시 분할하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.",
+      "source": "Object type assigned to the grown masks. Choose a class or enter a custom name different from the primary class. Growth is controlled by the other settings.",
+      "source_sha256": "a2c71ac7bf98d32fdc70718fb69a157856378ca6e3ffda3537229d48ceb80f2e",
+      "translation": "성장한 마스크에 지정할 객체 유형입니다. 클래스를 선택하거나 주 클래스와 다른 사용자 지정 이름을 입력하세요. 성장은 다른 설정에서 제어합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.",
+      "source": "Fill enclosed background holes within each secondary object after growth and before minimum-area filtering. Pixels belonging to another object are preserved.",
+      "source_sha256": "8ab2d752a5f4fdb31d41b5e49e416d74af767ba8427390e0fc4f1da869a208f8",
+      "translation": "성장 후 최소 면적 필터링 전에 각 보조 객체 내부의 닫힌 배경 구멍을 채웁니다. 다른 객체에 속한 픽셀은 보존합니다."
+    }
+  ]
+}

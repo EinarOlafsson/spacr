@@ -1,0 +1,13 @@
+.........                                                                [100%]
+============================= slowest 10 durations =============================
+83.23s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[zh_CN-Simplified Chinese]
+52.37s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[pt-Portuguese]
+51.72s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[is-Icelandic]
+50.77s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[fr-French]
+49.92s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[es-Spanish]
+48.60s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[de-German]
+47.95s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[hi-Hindi]
+47.31s setup    tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[sv-Swedish]
+47.11s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[sv-Swedish]
+46.41s call     tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[ko-Korean]
+9 passed in 526.07s (0:08:46)

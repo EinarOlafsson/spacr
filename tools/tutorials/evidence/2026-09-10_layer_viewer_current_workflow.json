@@ -1,0 +1,2095 @@
+{
+  "lesson": "57_layer_viewer",
+  "scope": "Verified actual GUI workflow; multilingual media not yet complete",
+  "capture": "layer_viewer_real_image_and_mask",
+  "provenance": {
+    "commit": "e1c04f70e2ade85ea1d8d89516d561a6b08d7aa1",
+    "version": "1.5.0.4",
+    "module": "layer_viewer",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "baa9efcdba48d277e8a0e1d5083527989563b55348b0eb88246a8eb655c6f978",
+  "scenes": 20,
+  "spoken_words": 1037,
+  "capture_frames": 33,
+  "workflow": {
+    "lesson": "57_layer_viewer",
+    "accepted": true,
+    "source": {
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_1_1.npy",
+      "source_sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+      "image": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/images/fov01_C1.tif",
+      "image_sha256": "cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c",
+      "mask": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/cell_masks/fov01_cell_mask.tif",
+      "mask_sha256": "bbc1d55c4fd57e0476bc3761ec385bede0a20b5895a8cb7b2d0b008ab75bd6ee",
+      "neutral_stem": "fov01",
+      "original_stem": "plate1_E01_1_1",
+      "image_plane": 1,
+      "mask_plane": 4,
+      "objects": 44,
+      "shape": [
+        1994,
+        1994
+      ]
+    },
+    "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/layer_viewer_runs/real-field-l6asa19m",
+    "original_bundles": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/foreign_release_v2/inputs.json": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/foreign_release_v2/inputs.json": {
+          "sha256": "6b7c7218e6b9e896731be185df24dd49c892fef03f4af93b9cf4e23f1241df09",
+          "signature": [
+            66306,
+            33963990,
+            2202,
+            1788977618408762600,
+            1788977618408762600
+          ]
+        }
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_1_1.npy": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_1_1.npy": {
+          "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+          "signature": [
+            66306,
+            33953162,
+            55664632,
+            1788963675817139200,
+            1788963675817139200
+          ]
+        }
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/images/fov01_C1.tif": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/images/fov01_C1.tif": {
+          "sha256": "cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c",
+          "signature": [
+            66306,
+            33963985,
+            7952328,
+            1788977618224012800,
+            1788977618224012800
+          ]
+        }
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/cell_masks/fov01_cell_mask.tif": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4/cell_masks/fov01_cell_mask.tif": {
+          "sha256": "bbc1d55c4fd57e0476bc3761ec385bede0a20b5895a8cb7b2d0b008ab75bd6ee",
+          "signature": [
+            66306,
+            33963986,
+            7952328,
+            1788977618228013000,
+            1788977618228013000
+          ]
+        }
+      }
+    },
+    "source_planes_independently_checked": [
+      1,
+      4
+    ],
+    "generated_measurements": false,
+    "app_source_modified": false,
+    "published": false,
+    "checks": {
+      "04_raw_image_in_wide_pane": {
+        "layers": 1,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -40.04809218950064
+          ],
+          "step": [
+            1.2249025398700533,
+            0.6638156209987197
+          ],
+          "shape": [
+            1693,
+            3124
+          ]
+        },
+        "status": "image (image) · translucent · 100% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          }
+        ]
+      },
+      "05_fit_after_actual_splitter_resize": {
+        "layers": 1,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "image (image) · translucent · 100% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          }
+        ]
+      },
+      "07_real_44_label_overlay": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "image (image) · translucent · 100% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "08_mask_hidden_source_visible": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": false,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "09_mask_visible_again": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "10_opacity_zero_not_deleted": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "11_full_label_colours": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "12_half_opacity_restored": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "13_blend_additive": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "additive"
+          }
+        ]
+      },
+      "14_blend_multiply": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "multiply"
+          }
+        ]
+      },
+      "15_blend_minimum": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "minimum"
+          }
+        ]
+      },
+      "16_blend_opaque": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "opaque"
+          }
+        ]
+      },
+      "18_cyan_image_not_changed_measurements": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "image (image) · translucent · 100% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "cyan"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "19_mask_under_image": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          },
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          }
+        ]
+      },
+      "20_mask_back_on_top": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "21_actual_label_no_field_identity": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "y 249.309 · x 505.959 · mask label 9",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "22_native_wheel_zoom_keeps_world_anchor": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 1579,
+        "outside_source_samples": 0,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            82.0195204655335,
+            190.14565126924674
+          ],
+          "step": [
+            0.7088556364988734,
+            0.7096940228223496
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "y 249.309 · x 505.959 · mask label 9",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "23_native_pan": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 1696,
+        "outside_source_samples": 0,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            50.121016823084204,
+            126.27318921523528
+          ],
+          "step": [
+            0.7088556364988734,
+            0.7096940228223496
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "y 249.309 · x 505.959 · mask label 9",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "24_fit_restores_original_view": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "y 249.309 · x 505.959 · mask label 9",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "25_empty_points_layer": {
+        "layers": 3,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          },
+          {
+            "name": "points",
+            "kind": "points",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "26_click_does_not_draw_points": {
+        "layers": 3,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "y 249.309 · x 505.959 · mask label 9",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          },
+          {
+            "name": "points",
+            "kind": "points",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "27_remove_empty_points": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "25_empty_shapes_layer": {
+        "layers": 3,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          },
+          {
+            "name": "shapes",
+            "kind": "shapes",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "26_click_does_not_draw_shapes": {
+        "layers": 3,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "y 249.309 · x 505.959 · mask label 9",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          },
+          {
+            "name": "shapes",
+            "kind": "shapes",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "27_remove_empty_shapes": {
+        "layers": 2,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "mask (labels) · translucent · 50% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          },
+          {
+            "name": "mask",
+            "kind": "labels",
+            "visible": true,
+            "opacity": 0.5,
+            "blending": "translucent"
+          }
+        ]
+      },
+      "28_remove_mask_only_from_view": {
+        "layers": 1,
+        "source_arrays_unchanged": true,
+        "contrast_limits": [
+          118,
+          23223
+        ],
+        "physical_calibration": false,
+        "field_key_assigned": false,
+        "sampled_screen_pixels": 5041,
+        "samples_on_source_labels": 932,
+        "outside_source_samples": 552,
+        "max_rgb_byte_error": 0,
+        "tolerance_rgb_bytes": 1,
+        "canvas": {
+          "origin": [
+            -39.76754873006497,
+            -39.76682436428149
+          ],
+          "step": [
+            1.2249025398700533,
+            1.2263512714370197
+          ],
+          "shape": [
+            1693,
+            1691
+          ]
+        },
+        "status": "image (image) · translucent · 100% · y 1, x 1 px",
+        "expected_layers": [
+          {
+            "name": "image",
+            "kind": "image",
+            "visible": true,
+            "opacity": 1,
+            "blending": "translucent",
+            "colormap": "gray"
+          }
+        ]
+      }
+    },
+    "initial_axis_step_ratio": 0.5419334186939821,
+    "label_pick": {
+      "layer": "mask",
+      "world": {
+        "y": 249.30945067926763,
+        "x": 505.9594914251923
+      },
+      "value": 9
+    },
+    "object_keys_published": [],
+    "layer_events": [
+      {
+        "kind": "inserted",
+        "detail": ""
+      },
+      {
+        "kind": "inserted",
+        "detail": ""
+      },
+      {
+        "kind": "selected",
+        "detail": ""
+      },
+      {
+        "kind": "changed",
+        "detail": "visible"
+      },
+      {
+        "kind": "changed",
+        "detail": "visible"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "opacity"
+      },
+      {
+        "kind": "changed",
+        "detail": "blending"
+      },
+      {
+        "kind": "changed",
+        "detail": "blending"
+      },
+      {
+        "kind": "changed",
+        "detail": "blending"
+      },
+      {
+        "kind": "changed",
+        "detail": "blending"
+      },
+      {
+        "kind": "changed",
+        "detail": "blending"
+      },
+      {
+        "kind": "selected",
+        "detail": ""
+      },
+      {
+        "kind": "changed",
+        "detail": "colormap"
+      },
+      {
+        "kind": "changed",
+        "detail": "colormap"
+      },
+      {
+        "kind": "selected",
+        "detail": ""
+      },
+      {
+        "kind": "moved",
+        "detail": "1"
+      },
+      {
+        "kind": "moved",
+        "detail": "0"
+      },
+      {
+        "kind": "inserted",
+        "detail": ""
+      },
+      {
+        "kind": "selected",
+        "detail": ""
+      },
+      {
+        "kind": "removed",
+        "detail": ""
+      },
+      {
+        "kind": "inserted",
+        "detail": ""
+      },
+      {
+        "kind": "selected",
+        "detail": ""
+      },
+      {
+        "kind": "removed",
+        "detail": ""
+      },
+      {
+        "kind": "removed",
+        "detail": ""
+      }
+    ],
+    "pipeline_run_requested": false,
+    "mask_objects": 44,
+    "source_pixel_count": 3976036,
+    "image_dtype": "uint16",
+    "original_files_unchanged": true,
+    "private_files_unchanged": true
+  },
+  "oracle_validation": {
+    "tests_passed": 19,
+    "initial_guard_bypass": {
+      "failed": 8,
+      "passed": 10,
+      "did_not_raise_failures": 7,
+      "wrong_exception_failure": 1
+    },
+    "additional_nonempty_shapes_guard_bypass": {
+      "failed": 1,
+      "deselected": 18
+    },
+    "restored_tests_passed": 19,
+    "named_raise_lines_executed": [
+      29,
+      34,
+      37,
+      41,
+      46,
+      49,
+      52,
+      55,
+      108
+    ],
+    "module": "tools/tutorials/layer_viewer_evidence.py",
+    "scope": "Independent uint16 histogram percentiles, full source arrays and layer-state checks, 71x71 actual screen samples in each of 26 display states, deterministic label colours and five blend modes; not every screen pixel or arbitrary multichannel/3D/soft-coverage layers."
+  },
+  "scope_limits": [
+    "Reuse the verified fov01 TIFF pair from the External Masks tutorial: a 1994×1994 uint16 intensity plane and aligned 44-object cell-label plane. They exactly match planes 1 and 4 of the preserved acquired plate1_E01_1_1 array, with 3,976,036 pixels and no physical calibration supplied. Neutral fov01 filenames are not acquisition metadata. Private copies and all originals remain byte-identical. Nineteen small oracle tests and observed-red mutations accompany independent checks of 5,041 actual screen pixels in each of 26 states, with zero RGB-byte discrepancy. Full source arrays, histogram-derived 2/98 contrast limits, layer properties and gesture geometry are also checked; this is not complete pixel-by-pixel validation of arbitrary layers, multichannel/3D data, soft coverage, biological segmentation accuracy or physical calibration. Fit can stretch the image to its pane. No pipeline, AI request, image editing, direct export, linked-view object handoff or Points/Shapes drawing was performed. This screen's controls differ from the other image previews.",
+    "The actual wide-pane Fit stretches the source: y step 1.2249025398700533 and x step 0.6638156209987197. Native divider resize yields an approximately square pane; no application fix is claimed.",
+    "A bare GUI-loaded mask has field=None and selected_label=0. The demonstrated click reports label9 and world coordinates, but emits no experiment-wide object selection.",
+    "Native Plus Points and Plus Shapes add empty layers; ordinary clicks add no geometry. Removing layers changes only this view. No drawing/export/pipeline/AI action is claimed."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

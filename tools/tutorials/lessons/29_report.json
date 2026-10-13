@@ -1,0 +1,116 @@
+{
+  "id": "29_report",
+  "number": 29,
+  "slug": "report",
+  "series": 4,
+  "app_key": "report",
+  "section": "Help",
+  "title": "Report: create a document from project results",
+  "description": "Choose a completed project, select the output format and figure limit, then generate and read its report.",
+  "objectives": [
+    "Choose a completed project and inspect its available report sections.",
+    "Set the format, figure limit and output filename.",
+    "Generate the report and inspect its results, settings and provenance."
+  ],
+  "prerequisite": "Start with a completed spaCR project containing its saved settings, measurements and figures. You can reuse the project from the External Masks tutorial. Report collects files already present in the project.",
+  "scenes": [
+    {
+      "visual": "00a_help_report_menu",
+      "narration": "Open Help, then Report. Use this tool to collect a completed project’s results, figures and settings into a document.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "31_external_masks",
+        "54_qc_dashboard"
+      ]
+    },
+    {
+      "visual": "02_existing_project_picker",
+      "narration": "Click Choose run folder and select your project. For this example, use the two-field project from External Masks, keeping its measurements, settings and figures together.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "31_external_masks"
+      ]
+    },
+    {
+      "visual": "03_actual_completion_not_qc_pass",
+      "narration": "Read the processing status after the scan. Complete means the recorded processing steps finished. Review the available quality-control results separately when assessing the analysis.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        275,
+        3000,
+        150
+      ]
+    },
+    {
+      "visual": "04_read_only_missing_sections",
+      "narration": "Check the section list to see which project artifacts are available. A missing section remains labelled in the report. Add the relevant analysis outputs to the project if you need that section.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        330,
+        2800,
+        350
+      ]
+    },
+    {
+      "visual": "05_actual_output_format_choices",
+      "narration": "Choose HTML, PDF or Both under Format. HTML opens in a browser; PDF provides a document version. This example uses HTML.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_figure_cap",
+      "narration": "Set Embed at most to limit the number of raster figures included in the document. Vector PDFs are listed as source files rather than embedded previews. Use a smaller limit for a compact report.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        1900,
+        1650,
+        130
+      ]
+    },
+    {
+      "visual": "07_separate_output_picker",
+      "narration": "Click Choose output and enter the destination filename. Check that the selected format and extension agree. Before sharing the report, review any project paths and metadata it includes.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_report_written",
+      "narration": "Press Generate report and wait for the written-file confirmation. Open the saved HTML file in a browser to inspect the result.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        1975,
+        3370,
+        160
+      ]
+    },
+    {
+      "visual": "browser_01_report_top_completion_and_contents",
+      "narration": "Use the contents links to jump between sections. Start with the processing summary, then review figures, result tables and saved settings.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "browser_06_figures",
+      "narration": "Open Key figures to find the project’s figures. Follow the listed file locations for vector PDFs, or inspect embedded raster previews when available.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "31_external_masks"
+      ]
+    },
+    {
+      "visual": "browser_07_statistics",
+      "narration": "Review Statistics and result tables for the available object tables and their row counts. This cell-only example has matching cell and cytoplasm regions, so treat them as measurements of the same cells.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "34_database",
+        "31_external_masks"
+      ]
+    },
+    {
+      "visual": "browser_09_settings_first_native_disclosure",
+      "narration": "Expand Saved settings to inspect the configuration retained with the project. Keep the report together with the project files when sharing an analysis that refers to external figures.",
+      "hold_after": 0.7
+    }
+  ]
+}

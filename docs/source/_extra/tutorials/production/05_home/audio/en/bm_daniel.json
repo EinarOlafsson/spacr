@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "bm_daniel",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 44.35,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 9.2,
+      "scene_end": 9.649999999999999,
+      "duration": 9.649999999999999,
+      "text": "This tutorial covers Home screen and navigation. Tour the application, its module groups, run summaries, maturity indicators, and navigation controls."
+    },
+    {
+      "scene": 2,
+      "speech_start": 9.649999999999999,
+      "speech_end": 16.825,
+      "scene_end": 17.275,
+      "duration": 7.625,
+      "text": "Open Home screen and navigation from the Home section. Launch the spaCR desktop application and begin on Home."
+    },
+    {
+      "scene": 3,
+      "speech_start": 17.275,
+      "speech_end": 25.0,
+      "scene_end": 25.45,
+      "duration": 8.175,
+      "text": "In the main configuration area, use the sidebar, category tabs, searchable app tiles, and command palette to reach a workflow."
+    },
+    {
+      "scene": 4,
+      "speech_start": 25.45,
+      "speech_end": 36.625,
+      "scene_end": 37.075,
+      "duration": 11.625000000000004,
+      "text": "Before the full run, review the visible settings and use a preview or test mode when one is available. Open a module only when you intend to interact with it; the pointer is shown only for real clicks."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.075,
+      "speech_end": 43.7,
+      "scene_end": 44.35,
+      "duration": 7.274999999999999,
+      "text": "When the workflow finishes, you can move through the application and understand the status information shown on Home."
+    }
+  ]
+}

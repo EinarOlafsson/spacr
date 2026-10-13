@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "The constructor for a caller that has no run to point it at. Regression seeds one instead — see :func:`spacr.qt.screens.regression.build_methods_export`, which fills in the project and the results folder that screen is already reading.",
+      "label": "spacr.qt.screens.methods_export.make_methods_export_screen#1",
+      "source": "The constructor for a caller that has no run to point it at. Regression seeds one instead — see :func:`spacr.qt.screens.regression.build_methods_export`, which fills in the project and the results folder that screen is already reading.",
+      "source_sha256": "42a9ee4c14090f252ed522c285984bf0ccfc470496f5683551735dd512109265",
+      "translation": "ऐसे कॉलर के लिए कंस्ट्रक्टर जिसके पास निर्दिष्ट करने हेतु कोई रन नहीं है। इसके बजाय Regression एक रन आरंभ करता है — :func:`spacr.qt.screens.regression.build_methods_export` देखें; यह उस प्रोजेक्ट और परिणाम फ़ोल्डर को भरता है जिसे संबंधित इंटरफ़ेस पहले से पढ़ रहा है।"
+    }
+  ],
+  "schema": 1
+}

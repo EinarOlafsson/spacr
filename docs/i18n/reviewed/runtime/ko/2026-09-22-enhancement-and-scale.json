@@ -1,0 +1,82 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "CLAHE (local histogram equalisation)",
+      "source": "CLAHE (local histogram equalisation)",
+      "source_sha256": "9f37b253a0a712e3825dc006a660c93d49c235279644d77387290fbdc7fa36ff",
+      "table": "ui",
+      "translation": "CLAHE (국소 히스토그램 평활화)"
+    },
+    {
+      "key": "Centre level is a percentile",
+      "source": "Centre level is a percentile",
+      "source_sha256": "16ded384729f13f11ad79d29bdf146245478485c4496a1350a42bc7d09067d1c",
+      "table": "ui",
+      "translation": "중심 임계값을 백분위수로 지정"
+    },
+    {
+      "key": "Drop centres near the edge",
+      "source": "Drop centres near the edge",
+      "source_sha256": "4e3ffdffda54979571ba14e0d2b39c5ba332430a7900e125cf271e5fbb257a38",
+      "table": "ui",
+      "translation": "가장자리 근처의 중심 제외"
+    },
+    {
+      "key": "GUI scale",
+      "source": "GUI scale",
+      "source_sha256": "581f9c8e0ea51f9d0ada1090d7255ee5d22e712b6f866a203f841a7f5c1ca1e8",
+      "table": "ui",
+      "translation": "GUI 배율"
+    },
+    {
+      "key": "Histogram equalisation (whole image)",
+      "source": "Histogram equalisation (whole image)",
+      "source_sha256": "60efae0b6a6ef2a9cd81474f185ba5728cab5b6eaa974b21810b1138876a9198",
+      "table": "ui",
+      "translation": "히스토그램 평활화 (전체 이미지)"
+    },
+    {
+      "key": "Reduce to a one-pixel skeleton",
+      "source": "Reduce to a one-pixel skeleton",
+      "source_sha256": "2bec27824e5334880825900054733f37fd7525d7af522706e8898e30c255fc2a",
+      "table": "ui",
+      "translation": "1픽셀 너비의 골격으로 축소"
+    },
+    {
+      "key": "Split touching spots",
+      "source": "Split touching spots",
+      "source_sha256": "3f81f796ea719d086839bac0c3043051fa28978599bca62a360d3088f44e6843",
+      "table": "ui",
+      "translation": "서로 맞닿은 점 분리"
+    },
+    {
+      "key": "Unsharp mask",
+      "source": "Unsharp mask",
+      "source_sha256": "d1041d04116cafd96c602625268d676850f5fd052aeabb87de0155d5d2510952",
+      "table": "ui",
+      "translation": "언샤프 마스크"
+    },
+    {
+      "key": "Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.",
+      "source": "Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.",
+      "source_sha256": "ef27671f0e9e14db10cb2f2f3a7e5ae9e1ea384f9300d7543ab36a33536e3670",
+      "table": "ui",
+      "translation": "인터페이스의 모든 부분 -- 컨트롤 크기, 간격, 아이콘, 그림 및 텍스트 -- 을 10 %에서 200 %까지 조절합니다. 작은 화면이나 해상도가 낮은 화면에서 더 많은 내용을 보려면 값을 낮추세요. 변경 사항은 즉시 적용되며, 이어서 유지 여부를 묻습니다. 응답하지 않으면 15초 후 자동으로 이전 설정으로 돌아갑니다. 글꼴 배율은 여기에 추가로 적용됩니다. GUI 50 %와 글꼴 200 %를 함께 사용하면 컨트롤은 절반 크기가 되고 텍스트는 평소 크기를 유지합니다. 어디서든 Ctrl+Alt+0을 누르면 GUI 배율과 글꼴 배율이 100 %로 돌아갑니다."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of the actual enhancement controls and multiplicative GUI/font scale; no native-speaker sign-off",
+  "schema": 1,
+  "superseded_records": [
+    {
+      "reason": "479: explicit Apply now gates enhancements for display and detection; Compare previews configured settings. Original reviewed text retained verbatim.",
+      "record": {
+        "key": "Show the enhanced image",
+        "source": "Show the enhanced image",
+        "source_sha256": "c7e42861b48c38362b9cad0b778a53a42db6ab9330912bf469583ff32f199f5d",
+        "table": "ui",
+        "translation": "보정된 이미지 표시"
+      }
+    }
+  ]
+}

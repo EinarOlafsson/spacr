@@ -1,0 +1,9 @@
+{
+  "phase": "after",
+  "exit_code": 0,
+  "seconds": 15.909823021007469,
+  "source_sha256": "b482da8a4e9201c373e0d570975bb8f50701308b4a1a7deff9fa3e4ca54b5644",
+  "existing_timeout_ms": 15000,
+  "core_limit_bytes": 0,
+  "scope": "Actual parented retrain QThread and screen close, CPU Event substitutes model work; separate from small-image Shiboken crash."
+}

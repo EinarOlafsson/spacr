@@ -1,0 +1,65 @@
+{
+  "environment": {
+    "config_root": "/mnt/wd4tb/scratch/ambient-flow-field-profile-20261008/config",
+    "cuda_visible_devices": "",
+    "memory_cap": "8G",
+    "numpy": "1.26.4",
+    "pyside": "6.10.0",
+    "python": "/home/olafsson/anaconda3/bin/python 3.12.4",
+    "qt_platform": "offscreen"
+  },
+  "payloads": {
+    "ambient.py.gz": {
+      "gzip_bytes": 114586,
+      "gzip_sha256": "4b1e9a4e09f7d0ef4ab458525535cf4f59540e5839f8d4232229e11dab54f10b",
+      "raw_bytes": 416531,
+      "raw_sha256": "272bd75f46bfa35ad56a8dd9f4dd0da75d96cc17f178a6a5d8675a6dd1a8bf6c"
+    },
+    "results.json.gz": {
+      "gzip_bytes": 2706,
+      "gzip_sha256": "b4967ef4835cd9fa832f466284b13d5bfc15f63ed1459c3eb764ef57570b43e8",
+      "raw_bytes": 16112,
+      "raw_sha256": "53b215699bf59d9813b9a48d09f04a8d0dde98813fa7f4c0e93a841fcf874258"
+    },
+    "spaceout.json.gz": {
+      "gzip_bytes": 1525,
+      "gzip_sha256": "77b05b972c7212b54eb8430b60f9f520616f9e34824b93c64ccc3811e99cb7bd",
+      "raw_bytes": 6023,
+      "raw_sha256": "09d899c6ba0d719b5610ab5964233ed6035e48f2f89f662ab7f0489e7f9f1271"
+    },
+    "spaceout.log.gz": {
+      "gzip_bytes": 1235,
+      "gzip_sha256": "367de7254282ba64f0c96b0309bd55836edbdf8768eb16f3b6f76b2d0d9582f7",
+      "raw_bytes": 4423,
+      "raw_sha256": "e0a1283c5f8ec96c69a82bf403451ca3ba2c82d2f212400960b69dbc1ca093f1"
+    },
+    "stage_probe.py.gz": {
+      "gzip_bytes": 1820,
+      "gzip_sha256": "1f0db99ccd2cd65a0464e2b21f5d7f4e0c160a5416a239731483d90d2fbfb858",
+      "raw_bytes": 4799,
+      "raw_sha256": "1bc86fd4ab9e14ff7a129971f781ba0421ad8a4122a18cc65983485832acaecc"
+    },
+    "steady-final.log.gz": {
+      "gzip_bytes": 2356,
+      "gzip_sha256": "61b6e2dacf3c7d898ab18b022b2609c5aecd2239b406877cd665cca1bba70fde",
+      "raw_bytes": 11707,
+      "raw_sha256": "eb2f9f0db80512a7d88d112c903a45039b1e7121b96fce2cdf6c08866d4a471c"
+    }
+  },
+  "policy": {
+    "case_count": 15,
+    "clock_advance_s": 0.041666666666666664,
+    "packed_scatter": "wait for ready before cases",
+    "spaceout_clock_s": 35,
+    "timed_frames_per_case": 5,
+    "warm_frames_per_case": 3
+  },
+  "probe_sha256": "1bc86fd4ab9e14ff7a129971f781ba0421ad8a4122a18cc65983485832acaecc",
+  "scope": "CPU-only QImage frame-stage profile; not live monitor FPS or GPU acceptance",
+  "source": {
+    "accepted_private_commit": "64de91a0ff9c3330dc9799125a13b6ad235ecfe1",
+    "ambient_git_blob": "daec12de9f91f0408eb8919c8dcaf5e055253412",
+    "ambient_path": "spacr/qt/widgets/ambient.py",
+    "ambient_sha256": "272bd75f46bfa35ad56a8dd9f4dd0da75d96cc17f178a6a5d8675a6dd1a8bf6c"
+  }
+}

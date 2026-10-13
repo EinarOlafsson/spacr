@@ -1,0 +1,37 @@
+{
+  "lesson": "67_experiment_design",
+  "english_sha256": "dcdd47c45e3948d1277938465185a3ca85f2a743d264d0ce8492f8b7a01477c8",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Experiment Design: pianificare una piastra ed esportare la mappa dei pozzetti",
+  "description": "Imposta condizioni e repliche, scegli una disposizione, esamina gli avvisi ed esporta le assegnazioni per l’acquisizione e l’analisi.",
+  "objectives": [
+    "Inserire condizioni, numero di repliche e ruoli dei controlli.",
+    "Scegliere un formato di piastra, una regola per i bordi e una disposizione casuale riproducibile.",
+    "Esportare le assegnazioni esatte dei pozzetti da unire poi alle misure."
+  ],
+  "prerequisite": "Prepara i nomi delle condizioni, i ruoli dei controlli e il numero di pozzetti previsto prima dell’acquisizione. L’esempio chiede sei pozzetti di controllo negativo, sei di controllo positivo e dodici di trattamento; scegli la replicazione per il tuo esperimento. Mantieni l’identificativo della piastra coerente con le immagini e le misure successive.",
+  "scenes": [
+    "Da Home, apri Data e scegli Experiment Design. Inizia inserendo le condizioni e i controlli da collocare sulla piastra.",
+    "Dai alla piastra l’identificativo che userai durante l’acquisizione. Controlla Condition, Replicates e Role nella tabella. Fai doppio clic sul bordo di una colonna per allargarla quando serve.",
+    "Scegli un formato di piastra con abbastanza pozzetti per le repliche richieste. Selezionare sei pozzetti per questo piano da ventiquattro mostra un errore di capacità. Cambia il formato o i conteggi richiesti per continuare.",
+    "Seleziona novantasei pozzetti per ripristinare la disposizione. Usa Add condition e Remove selected per modificare le righe delle condizioni, poi controlla la mappa della piastra aggiornata.",
+    "Per modificare un numero di repliche, seleziona la sua cella e premi F due. Un solo pozzetto di controllo negativo genera un avviso. Scegli una replicazione sperimentale indipendente adatta alla tua analisi.",
+    "Scegli Block layout per raggruppare le condizioni. Leggi gli avvisi di posizione ed esamina la mappa per individuare possibili confondimenti tra condizione e posizione.",
+    "Scegli Random layout, attiva Leave edge empty e imposta Seed su quarantadue. Questa piastra da novantasei pozzetti ha sessanta pozzetti interni disponibili, di cui ventiquattro assegnati dal piano d’esempio.",
+    "Cambia Seed in quarantatré per generare un’altra disposizione con gli stessi conteggi per condizione. Esamina la posizione di controlli e trattamenti sulla piastra.",
+    "Rimetti Seed a quarantadue per recuperare la disposizione precedente. Salva il seme insieme al formato, alla regola per i bordi e alla tabella delle condizioni.",
+    "Trascina sui pozzetti da B zero due a C zero quattro per selezionarli. Questa selezione serve per l’esame; usa la tabella delle condizioni e i comandi di disposizione per cambiare le assegnazioni.",
+    "Fai clic su Export plate map e scegli una cartella. Tieni insieme plate_map.csv, plate_map.json e plate_map_settings.json.",
+    "Apri il CSV per vedere una riga per ogni pozzetto assegnato. Uniscilo alle misure successive usando insieme plateID, rowID e columnID. Il JSON conserva il disegno e i suoi avvisi.",
+    "Per questa disposizione casuale, il file delle impostazioni riporta expressible come false. Usa la mappa esatta dei pozzetti del CSV per le etichette di condizione: impostazioni di trattamento per riga o colonna intera non possono rappresentare queste assegnazioni miste.",
+    "Controlla la mappa finale prima dell’acquisizione e conservala con l’esperimento. In Python, usa Condition e PlateDesign, seguiti da assign_wells, check_design e write_design da spacr.qt.widgets.plate_layout."
+  ]
+}

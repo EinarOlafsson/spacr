@@ -1,0 +1,31 @@
+{
+  "lesson": "34_database",
+  "english_sha256": "3bebf6edaf43b28bd7df9e243b43aec85e09f8dc8f1558bfb4f2607c3f3594ac",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Database Browser: filtrar y exportar mediciones",
+  "description": "Abre una base de datos de mediciones, selecciona columnas y filas y exporta el resultado.",
+  "objectives": [
+    "Abrir y recorrer una tabla de mediciones.",
+    "Seleccionar columnas y filtrar filas.",
+    "Exportar los registros que coinciden."
+  ],
+  "prerequisite": "Ten un archivo measurements.db de spaCR o una carpeta de ejecución que lo contenga. El proyecto de ejemplo de Measure proporciona una base de datos después de la medición.",
+  "scenes": [
+    "Abre Help y luego Database Browser para revisar y exportar tablas de mediciones.",
+    "Elige measurements.db, o la carpeta de ejecución que lo contiene, y abre la base de datos.",
+    "Selecciona la tabla que necesitas. Elige cell para las mediciones de células, u otra tabla de objetos para las características de ese objeto.",
+    "Lee el número total de filas y columnas y luego revisa la página mostrada. Usa los controles de página para recorrer tablas más grandes.",
+    "Busca en los nombres de columna para localizar una característica. Selecciona las columnas que quieres ver y exportar.",
+    "Crea un filtro eligiendo una columna, un operador y un valor. Aplícalo para seleccionar los registros que coinciden en toda la tabla.",
+    "Comprueba el número de filas filtradas y revisa los registros que coinciden. Ajusta o borra el filtro para cambiar tu selección.",
+    "Elige Export y un archivo de destino. La exportación incluye todas las filas que coinciden y las columnas seleccionadas, sin modificar la base de datos de origen."
+  ]
+}

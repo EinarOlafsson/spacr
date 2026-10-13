@@ -1,0 +1,35 @@
+{
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Report: búðu til skjal úr niðurstöðum verkefnis",
+  "description": "Veldu lokið verkefni, veldu úttakssnið og hámarksfjölda mynda og búðu svo til og lestu skýrsluna.",
+  "objectives": [
+    "Velja lokið verkefni og skoða tiltæka hluta skýrslunnar.",
+    "Stilla snið, hámarksfjölda mynda og heiti úttaksskrár.",
+    "Búa til skýrsluna og skoða niðurstöður hennar, stillingar og uppruna."
+  ],
+  "prerequisite": "Byrjaðu á loknu spaCR-verkefni sem inniheldur vistaðar stillingar, mælingar og myndir. Þú getur endurnýtt verkefnið úr kennsluefninu External Masks. Report safnar saman skrám sem eru þegar í verkefninu.",
+  "scenes": [
+    "Opnaðu Help og svo Report. Notaðu tólið til að safna niðurstöðum, myndum og stillingum lokins verkefnis í eitt skjal.",
+    "Smelltu á Choose run folder og veldu verkefnið þitt. Í þessu dæmi notarðu verkefnið með tveimur sjónsviðum úr External Masks og heldur mælingum, stillingum og myndum saman.",
+    "Lestu vinnslustöðuna eftir skönnunina. Complete þýðir að skráðum vinnsluskrefum er lokið. Farðu sérstaklega yfir tiltækar niðurstöður gæðaeftirlits þegar þú metur greininguna.",
+    "Skoðaðu lista hlutanna til að sjá hvaða efni verkefnisins er tiltækt. Hluti sem vantar er samt merktur í skýrslunni. Bættu viðeigandi greiningarúttaki við verkefnið ef þú þarft þann hluta.",
+    "Veldu HTML, PDF eða Both undir Format. HTML opnast í vafra; PDF gefur skjalaútgáfu. Dæmið notar HTML.",
+    "Stilltu Embed at most til að takmarka fjölda rastamynda í skjalinu. Vigur-PDF-skrár eru taldar upp sem upprunaskrár í stað innfelldra forskoðana. Notaðu lægra hámark fyrir hnitmiðaða skýrslu.",
+    "Smelltu á Choose output og sláðu inn heiti áfangaskrárinnar. Athugaðu að valið snið og skráarending passi saman. Áður en þú deilir skýrslunni skaltu fara yfir slóðir verkefnisins og lýsigögn sem hún inniheldur.",
+    "Ýttu á Generate report og bíddu eftir staðfestingu á að skráin hafi verið skrifuð. Opnaðu vistuðu HTML-skrána í vafra til að skoða niðurstöðuna.",
+    "Notaðu tenglana í efnisyfirlitinu til að fara á milli hluta. Byrjaðu á samantekt vinnslunnar og skoðaðu svo myndir, niðurstöðutöflur og vistaðar stillingar.",
+    "Opnaðu Key figures til að finna myndir verkefnisins. Fylgdu uppgefnum skráarstöðum fyrir vigur-PDF-skrár, eða skoðaðu innfelldar rastaforskoðanir þegar þær eru til.",
+    "Skoðaðu Statistics and result tables fyrir tiltækar töflur hluta og fjölda lína í þeim. Í þessu dæmi með frumum eingöngu eru frumusvæði og umfrymissvæði eins, svo líttu á þau sem mælingar á sömu frumum.",
+    "Opnaðu Saved settings til að skoða stillingarnar sem geymdar eru með verkefninu. Haltu skýrslunni með skrám verkefnisins þegar þú deilir greiningu sem vísar í ytri myndir."
+  ]
+}

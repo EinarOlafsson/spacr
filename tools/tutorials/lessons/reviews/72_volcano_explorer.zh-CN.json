@@ -1,0 +1,36 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "973d0e47bf1648e4e05e8f2d5d91f1f5f7a03c7be083695151927f4a71b5648a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Volcano Explorer：检查结果并保存图",
+  "description": "加载Regression结果，选择绘制的数值和参考线，然后保存可复用的样式并导出图。",
+  "objectives": [
+    "打开一个结果族，检查向导的身份和支持情况。",
+    "选择校正后的数值、显示变换和参考线。",
+    "保存样式并导出PDF或PNG图。"
+  ],
+  "prerequisite": "解压Volcano_real_guide_family.zip并使用其中的results文件夹。它包含来自Regression示例的434个向导结果。没有任何向导通过原始的校正P阈值0.05。效应为标准化的边际效应。请把原始结果表和统计阈值与图放在一起。",
+  "scenes": [
+    "从Home打开Regression，然后选择Volcano Explorer。在选择要绘制的结果表之前，先解压链接中的示例归档。",
+    "点击Open results并选择解压出的results文件夹。每个点代表这个包含四百三十四次检验的族中的一个向导。请把不同的校正族分开处理。",
+    "点击Save style保存初始的图设置，然后点击Load style并选择该文件。这样在编辑图之前，您就有了一个控件一致的已保存起点。",
+    "检查alpha是否为零点零五、乘数为三，并且负对数变换已开启。阅读坐标轴标签：本例绘制的是标准化的边际效应。",
+    "点击一个点查看其源行。请一起阅读向导标识符、原始P、校正P和提供支持的孔数。所选示例的校正P约为零点三九。",
+    "选择原始置换P列进行查看，然后恢复为adjusted_p_value。更改绘制的列不会改变底层分析及其保存的显著性标记。",
+    "切换负log十，比较变换后和原始的P值。开启变换时，较小的P值显示在更高的位置。为本图恢复变换后的校正P视图。",
+    "把alpha调到零点五，看看水平参考线如何移动，然后恢复为零点零五。编辑这条线不会重新计算统计检验或其保存的显著性标记。",
+    "设置明确的效应截断值零点一，乘数为三。竖线出现在负零点三和正零点三处。恢复Auto即可回到初始的效应线。",
+    "颜色选择wells_with_guide，查看所绘向导的支持情况。如果想要原始的呈现方式，请在最终导出前恢复显著性配色。",
+    "设置图的尺寸、字号和分辨率。本例使用七乘五英寸、每英寸一百五十点。请检查可读性；紧凑裁剪可能会改变保存后的外部尺寸。",
+    "把最终样式保存为JSON。更改标记大小，然后用Load style恢复保存的外观。请把样式文件放在结果表旁边。",
+    "导出PDF和PNG，然后打开文件检查标签、对比度和裁剪。把输出与输入结果和样式放在一起。在Python中，请使用VolcanoStyle和render_volcano完成相同的绘制流程。"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "artifact_sha256": {
+    "README.md": "cac9c7321c8365f6bef393686c00f3afa52174c291b3af08037c5779336291f9",
+    "coverage-param.data.gz": "6e2bc3724aeb947cadaecd022031158b619050998399e7b2208352235176ee65",
+    "hosted-coverage3.log.gz": "e6268f93d98420815a6e1d7a228d38860c919ed2783b97740219a497b79021ad",
+    "independent-review.json": "a4ddc25e8b2282e8be09fb1caeffa7d91f2db959b657f3b6826024b99737160c",
+    "pytest-output.txt": "6c59552216885cf3e5563b226f2dc9740f1a51c398d0800b0f8b0189bba82bda"
+  },
+  "elapsed_seconds": 526.07,
+  "git_objects": {
+    "08b497f9c8445fb5f1dad0738c2e3b3100008a84": {
+      "docs/i18n/REVIEW_SCOPE_2026-09-04.md": "68db3d779900bcf7f676e8bcb842677582f3a91f",
+      "docs/i18n/reviewed/api": "785f7e699f27937212099228fe6642e5cbe878e4",
+      "docs/i18n/reviewed/runtime": "082e0c8aa3183d35d4ded5e8e8b7651dda010e5b",
+      "docs/source/_static/i18n/api": "ead956a461689b2c07d410efc87d999908475575",
+      "packaging/i18n": "6e9d354d792517820f05d0c12e24370af1c99f96",
+      "spacr": "8fd7582ce1a14d32767efcae5579f1003bed15e7",
+      "tests/test_i18n_coverage_audit.py": "2c9129bdc0ffd5cb968dda201dc0c16347a28dc9",
+      "tools/audit_i18n_coverage.py": "7dd0c1822bdbe06e363d40290636a3a2bdb3575a",
+      "tools/build_documentation_i18n.py": "b451beb055c65b6c3d166e7537e5ab803cbd3c7f",
+      "tools/build_i18n_catalogs.py": "cfd814fe8860a1892a17132a9db2171a2c9a721e"
+    },
+    "28449ef0c84c4be92cf34be18d7372e3f0d9e2c8": {
+      "docs/i18n/REVIEW_SCOPE_2026-09-04.md": "68db3d779900bcf7f676e8bcb842677582f3a91f",
+      "docs/i18n/reviewed/api": "785f7e699f27937212099228fe6642e5cbe878e4",
+      "docs/i18n/reviewed/runtime": "082e0c8aa3183d35d4ded5e8e8b7651dda010e5b",
+      "docs/source/_static/i18n/api": "ead956a461689b2c07d410efc87d999908475575",
+      "packaging/i18n": "6e9d354d792517820f05d0c12e24370af1c99f96",
+      "spacr": "95412fede16e57b47c14baea76a1122a8d7f7e31",
+      "tests/test_i18n_coverage_audit.py": "f58019e35396414d765cc244f304e8c9e0e11f51",
+      "tools/audit_i18n_coverage.py": "7dd0c1822bdbe06e363d40290636a3a2bdb3575a",
+      "tools/build_documentation_i18n.py": "b451beb055c65b6c3d166e7537e5ab803cbd3c7f",
+      "tools/build_i18n_catalogs.py": "cfd814fe8860a1892a17132a9db2171a2c9a721e"
+    }
+  },
+  "passed": 9,
+  "published_comparison_commit": "28449ef0c84c4be92cf34be18d7372e3f0d9e2c8",
+  "schema": 1,
+  "test_commit": "08b497f9c8445fb5f1dad0738c2e3b3100008a84",
+  "test_exit_code": 0
+}

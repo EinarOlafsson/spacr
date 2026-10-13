@@ -1,0 +1,35 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
+  "review": {
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+  },
+  "language": "da",
+  "title": "Installer spaCR med pip",
+  "description": "Opret et isoleret Python-miljø, installer den offentlige pakke, kontrollér dens afhængigheder, og start det installerede Qt-program.",
+  "objectives": [
+    "Oprette og aktivere et virtuelt Python-miljø.",
+    "Installere spaCR og kontrollere dets afhængigheder.",
+    "Starte programmet og opdatere det tilsigtede miljø."
+  ],
+  "prerequisite": "Installer Python 3.12, og åbn en terminal. Brug aktiveringskommandoen til dit styresystem og din shell.",
+  "scenes": [
+    "Åbn en terminal, og kontrollér din Python-version. Denne gennemgang bruger Python 3.12. Hold spaCR i et dedikeret virtuelt miljø, så pakkerne er nemme at administrere.",
+    "Opret et virtuelt miljø med navnet .venv med kommandoen til dit styresystem. Det opretter en mappe med det Python-miljø, du skal bruge til spaCR.",
+    "Aktivér .venv med kommandoen til din shell. Windows PowerShell og Kommandoprompt har forskellige aktiveringskommandoer; macOS og Linux bruger normalt den shell-kommando, der vises her.",
+    "Kør python -m pip --version. Kontrollér, at den viste sti hører til .venv. Brug python -m pip til installationskommandoerne, så pip bruger denne fortolker.",
+    "Opgrader pip, og installer derefter spacr. Vent, til de videnskabelige pakker er downloadet og installeret. Den aktuelle pakke indeholder de skrivebordskomponenter, der skal til for at åbne programmet.",
+    "Kontrollér den installerede spaCR-version og pakkens placering med den viste kommando. Gem versionen sammen med dine analysenoter.",
+    "Kør python -m pip check. Hvis den rapporterer modstridende krav, skal du løse konflikterne, før du bruger miljøet.",
+    "Kør spacr-doctor for at undersøge installationen og se eventuelle manglende valgfrie funktioner. Følg kun den foreslåede reparation for de formater eller funktioner, du har brug for.",
+    "Start spacr fra det aktiverede miljø. Ved første opstart følger du opsætningsvejledningen og vælger dine indstillinger.",
+    "Denne optagelse installerer spaCR version et punkt fem punkt et punkt tre. Udgivne versioner kan vise et ældre Home-layout. Her vises Home i den aktuelle nightly-version med Core, Data, Tools og Assays. Fortsæt med Home screen and navigation for de aktuelle moduler.",
+    "For at opdatere lukker du spaCR og aktiverer dette miljø. Opgrader pakken, og kontrollér derefter version og afhængigheder igen. Behold det tidligere miljø, hvis du har brug for det til en igangværende analyse."
+  ]
+}

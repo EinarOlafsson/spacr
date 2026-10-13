@@ -1,0 +1,489 @@
+{
+  "lesson": "43_illumination",
+  "status": "Native off/on workflow, saved model, pixel formula and actual exported QC verified; multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/illumination_exported_qc_viewer",
+  "provenance": {
+    "commit": "d4266e1626c8f29e2b370aedcced6f8c3d475091",
+    "version": "1.5.0.5",
+    "module": "illumination",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "scene_count": 13,
+  "narrated_words": 553,
+  "acceptance": {
+    "lesson": "43_illumination",
+    "accepted": true,
+    "input_manifest": {
+      "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15",
+      "merged": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged",
+      "files": [
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_10_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E01_10_1.npy",
+          "sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_11_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E01_11_1.npy",
+          "sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_1_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E01_1_1.npy",
+          "sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E01_9_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E01_9_1.npy",
+          "sha256": "76de57b4239a8fd88ec32ec955a23e971a0727ccf7a4bf43ad75772151844b8e"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_10_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E02_10_1.npy",
+          "sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_11_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E02_11_1.npy",
+          "sha256": "8a317cda286571afc0d8645dd3b14a124c77752452cd7320ca6547714246ae9d"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_1_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E02_1_1.npy",
+          "sha256": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_E02_9_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_E02_9_1.npy",
+          "sha256": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_10_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L01_10_1.npy",
+          "sha256": "0293af80914ce0c8798aa008d8d1810aa98dd8d386e12711b1911e64c04d2a80"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_11_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L01_11_1.npy",
+          "sha256": "cdcf36ea2ea9dad988e54b7c206c4e3d87ed41d1330c8ce3603c955b4532cff0"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_1_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L01_1_1.npy",
+          "sha256": "0275196bf4dd62fdaa31688675ec712b96fd85a6a9cf7d9049e977f5f163c34e"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L01_9_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L01_9_1.npy",
+          "sha256": "84ad93b608a2bb6c27c550b27ba755ff922df76b6559fb688da2b7015b3ab8f6"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_10_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L02_10_1.npy",
+          "sha256": "72282abba9c0cad776621c5c676e7f90d4e8d2bf5ad79350e82a19f193faf1b6"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_11_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L02_11_1.npy",
+          "sha256": "1cfe960e9b0249fc0c2186421dde8eb66ebfb4e81df4de6b8cc87e797b5e3507"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_1_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L02_1_1.npy",
+          "sha256": "7143ca727ab080716353d059d87635b1305cba956cf94ae4e5d3add2672ec672"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate1/merged/plate1_L02_9_1.npy",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged/plate1_L02_9_1.npy",
+          "sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002"
+        }
+      ],
+      "synthetic_images": false,
+      "channel_indices": [
+        0
+      ],
+      "shape": [
+        1994,
+        1994,
+        7
+      ]
+    },
+    "actual_gui_run": true,
+    "app_source_modified": false,
+    "synthetic_images": false,
+    "physical_illumination_validated": false,
+    "biological_validation": false,
+    "published": false,
+    "runs": [
+      {
+        "name": "04_correction_off",
+        "outcome": {
+          "finished": true,
+          "ok": true,
+          "errors": []
+        },
+        "pipeline": {
+          "accepted": true,
+          "reasons": [],
+          "figure_count": 0,
+          "worker_finished": true,
+          "worker_ok": true
+        },
+        "console": [
+          "→ Starting illumination (prepare_illumination_correction) with src='/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged' + 11 settings…\nRecording reproducibility input hashes…\nReproducibility manifest: /home/olafsson/.spacr/runs/2026-09-10_172148_444fd78d__illumination\nillumination correction is OFF (illumination_correction is False), so no field was estimated and every intensity feature keeps its position-dependent bias.\n✓ Finished\n"
+        ]
+      },
+      {
+        "name": "06_correction_on",
+        "outcome": {
+          "finished": true,
+          "ok": true,
+          "errors": []
+        },
+        "pipeline": {
+          "accepted": true,
+          "reasons": [],
+          "figure_count": 0,
+          "worker_finished": true,
+          "worker_ok": true
+        },
+        "console": [
+          "→ Starting illumination (prepare_illumination_correction) with src='/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged' + 11 settings…\nRecording reproducibility input hashes…\nReproducibility manifest: /home/olafsson/.spacr/runs/2026-09-10_172148_444fd78d__illumination\nillumination correction is OFF (illumination_correction is False), so no field was estimated and every intensity feature keeps its position-dependent bias.\n✓ Finished\n→ Starting illumination (prepare_illumination_correction) with src='/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged' + 11 settings…\nRecording reproducibility input hashes…\nReproducibility manifest: /home/olafsson/.spacr/runs/2026-09-10_172158_8f757418__illumination\nplate plate1, channel 0: gain field 0.546-1.173 (mean 1.000), non-uniformity 39.5%, polynomial degree 4 over 16 field(s), dark=0\nplate plate1, channel 0: position-intensity slope -0.1814 -> +0.0264 per corner-radius (85.4% of the bias removed), field non-uniformity 39.5%\nillumination correction ENABLED from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/illumination/illumination_model.npz\n  workers install it themselves from SPACR_MEASURE_HOOKS='spacr.illumination:install' and SPACR_ILLUMINATION_MODEL='/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/illumination/illumination_model.npz', so a 'fork' pool is covered.\n✓ Finished\n"
+        ]
+      }
+    ],
+    "off_no_model_and_explicit_console_notice": true,
+    "saved_model_checks": {
+      "manifest": {
+        "index": {
+          "field0": {
+            "plate": "plate1",
+            "channels": [
+              0
+            ],
+            "dark": [
+              0
+            ],
+            "n_fields": 16,
+            "estimator": "polynomial",
+            "degree": 4,
+            "bin_size": 8,
+            "floored": 0,
+            "key": "plate1"
+          }
+        },
+        "meta": {
+          "src": [
+            "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/merged"
+          ],
+          "channels": [
+            0
+          ],
+          "per_plate": true,
+          "estimator": "polynomial",
+          "degree": 4,
+          "max_fields": 16,
+          "grid": 256,
+          "dark": 0,
+          "created": "2026-09-10 13:22:00",
+          "application_contract_version": 1,
+          "channel_index_space": "persisted-intensity-axis",
+          "estimated_from_intensity_state": "raw"
+        },
+        "format": 1
+      },
+      "pixels_checked": 3976036,
+      "mean": [
+        1.00000000001661
+      ],
+      "minimum": 0.5460565686225891,
+      "maximum": 1.172926664352417
+    },
+    "saved_model_sha256": "0dcf9d86a0cd8c50fa69d803c9e6b2768850c86194310d1402256609d9b2a0f4",
+    "offline_pixel_audit": [
+      {
+        "file": "plate1_E01_10_1.npy",
+        "pixels_checked": 3976036,
+        "unequal_pixels": 0
+      },
+      {
+        "file": "plate1_E01_11_1.npy",
+        "pixels_checked": 3976036,
+        "unequal_pixels": 0
+      }
+    ],
+    "input_files_preserved": 32,
+    "qc_files": [
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/illumination/illumination_qc_plate1.png",
+        "sha256": "0aeeff0ce216b77392ce17229c7113aee109f287618a2baf1af4a7253cd4abc3"
+      }
+    ],
+    "figure_count": 0,
+    "figures_visible": false,
+    "model_and_pixel_checks_passed": true,
+    "qc_system_viewer": {
+      "window_title": "illumination_qc_plate1.png",
+      "file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/illumination_runs/real-downloaded-fields-3ulacl15/plate1/illumination/illumination_qc_plate1.png",
+      "sha256": "0aeeff0ce216b77392ce17229c7113aee109f287618a2baf1af4a7253cd4abc3",
+      "native_external_window": true,
+      "embedded_spacr_panel": false
+    },
+    "qc_viewing_requires_exported_file": true
+  },
+  "independent_qc_metrics": {
+    "slope_before": -0.1814245802952636,
+    "slope_after": 0.02643481583555359,
+    "bias_removed_pct": 85.42930853551837,
+    "n_fields": 16,
+    "binned_shape": [
+      249,
+      249
+    ],
+    "in_sample_not_independent_validation": true
+  },
+  "independently_matched_console": "position-intensity slope -0.1814 -> +0.0264 per corner-radius (85.4% of the bias removed)",
+  "tests": {
+    "passed": 16,
+    "executed_verifier_lines": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      12,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      23,
+      48,
+      49,
+      50,
+      51,
+      52,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      76,
+      77,
+      78,
+      79,
+      84,
+      85,
+      86,
+      87,
+      90,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      113,
+      115,
+      116,
+      117,
+      119,
+      120,
+      121,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      134,
+      135,
+      136,
+      137,
+      139,
+      140
+    ],
+    "first_11_mutations_against_15_tests": [
+      "preservation: 2 failed, 13 passed in 0.22s",
+      "plane geometry: 2 failed, 13 passed in 0.19s",
+      "plane positivity: 2 failed, 13 passed in 0.19s",
+      "plane normalisation: 1 failed, 14 passed in 0.19s",
+      "model identity: 1 failed, 14 passed in 0.18s",
+      "field provenance: 1 failed, 14 passed in 0.18s",
+      "model provenance: 1 failed, 14 passed in 0.20s",
+      "reference geometry: 1 failed, 14 passed in 0.18s",
+      "rounding: 1 failed, 14 passed in 0.20s",
+      "pixel geometry: 2 failed, 13 passed in 0.18s",
+      "pixel values: 1 failed, 14 passed in 0.19s"
+    ],
+    "qc_mutations_against_16_tests": [
+      "QC inverse: 1 failed, 15 passed in 0.19s",
+      "QC radial sign: 1 failed, 15 passed in 0.19s",
+      "QC usable medians: 1 failed, 15 passed, 1 warning in 0.19s"
+    ]
+  },
+  "visual_checks": [
+    "Actual Measure fold, expanded category fields, off and on console states.",
+    "The unmodified saved QC PNG is readable in the real external image viewer on an isolated desktop; it is not an embedded spaCR panel."
+  ],
+  "limitations": [
+    "No optical or biological ground truth; in-sample QC is not independent validation.",
+    "The title gain describes the stored flat field here; correction divides by it. English explicitly explains this distinction.",
+    "Embedded Figures remains empty; this lesson accurately teaches opening the exported file. No application fix claimed.",
+    "Initial recorder assumed a top-level settings search on the folded page; replaced with genuine category-header interactions.",
+    "The earlier take rejected the missing embedded QC. Final take proves an explicit real system-viewer route, without injecting a figure into the application."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "artifacts": [
+    {
+      "file": "00_home.png",
+      "sha256": "ffe9569f2823e8a723878e854d4fa2aaaec31d30d2c334da5d7b155fafbe4ab1",
+      "bytes": 508818
+    },
+    {
+      "file": "01_measure_host.png",
+      "sha256": "34f61a6b45bcedf726f1f92eac1bb6b4cf91a863162a2595791da419b1b808f0",
+      "bytes": 480614
+    },
+    {
+      "file": "02_illumination_form.png",
+      "sha256": "39b3f9e1b08f422f55445658ae85240cd81f49da778c675cf62b6947603ea06e",
+      "bytes": 350255
+    },
+    {
+      "file": "03_downloaded_field_settings.png",
+      "sha256": "e6bea8855429daf7d5b3018a829b7cd809e41ec13494cb98e02c2d51a306bbea",
+      "bytes": 310247
+    },
+    {
+      "file": "04_correction_off_finished.png",
+      "sha256": "46fb96869dbe64815cc079ae1451817cee03abe8647cfdd6ca9339f6ab05459d",
+      "bytes": 397570
+    },
+    {
+      "file": "04_correction_off_running.png",
+      "sha256": "596fe70b10a73405a4085987faf9723336ea77f3df38e47f14947070dba37a9f",
+      "bytes": 354593
+    },
+    {
+      "file": "05_setting_channels.png",
+      "sha256": "42133188ff49e03f77d97deea1046ecc4146402084d9646b69f507fe795941da",
+      "bytes": 451685
+    },
+    {
+      "file": "05_setting_illumination_correction.png",
+      "sha256": "230b163774f90bda6ca7ae0c4b4cbefe3e021e9457b347dca869e2cdd813ea9e",
+      "bytes": 504053
+    },
+    {
+      "file": "05_setting_illumination_dark.png",
+      "sha256": "46cf70a27e2ed7ca178ee3a16b9f491ce73e1eaa9b8f360552f3bb52daa46cb0",
+      "bytes": 517477
+    },
+    {
+      "file": "05_setting_illumination_degree.png",
+      "sha256": "4c47f8fcf3089d213fdb243420297e93e0f63e278ccda16466eb766ecbe75a6b",
+      "bytes": 509270
+    },
+    {
+      "file": "05_setting_illumination_estimator.png",
+      "sha256": "a768f5ec74d614bd350fd40615936f9370190513f149a2dde91a2622988fdb57",
+      "bytes": 506848
+    },
+    {
+      "file": "05_setting_illumination_max_fields.png",
+      "sha256": "3430feda6fd7e1db525be9d78a8a45106e6fbd3b6f615a9b1fe8b3626a68eedf",
+      "bytes": 517862
+    },
+    {
+      "file": "05_setting_illumination_on_missing.png",
+      "sha256": "ff5700a8cfd12a005336054e6bc77a6dac86185ae11efac9aad7e557920fd8f3",
+      "bytes": 528168
+    },
+    {
+      "file": "05_setting_illumination_qc.png",
+      "sha256": "6a006a2c23c6f4539f61d7026bc07809132c743b75d59a7eddd57e1fdb961201",
+      "bytes": 529188
+    },
+    {
+      "file": "05_setting_src.png",
+      "sha256": "c60c18c064f1c87c9d70e9249e11dbdfe098dc21466d3de42f1a71d9c779702b",
+      "bytes": 449115
+    },
+    {
+      "file": "06_correction_on_finished.png",
+      "sha256": "089c1e1ffdc6a7e6f9693029f1c053efc8d00fa1ba7c555542533431ff1994b2",
+      "bytes": 679390
+    },
+    {
+      "file": "06_correction_on_running.png",
+      "sha256": "3091aaa2640c71a63394423dd68244a111e80a122b6cb691b318b66feea8acd9",
+      "bytes": 555762
+    },
+    {
+      "file": "08_exported_qc_system_viewer.png",
+      "sha256": "f17c9dfeb59f95e133c90f15123f45e797637339b72f42870ec3bba33aa8fc6e",
+      "bytes": 744383
+    },
+    {
+      "file": "09_return_to_illumination.png",
+      "sha256": "5ef53e39fe7f1f80b4c217104424ba971554ecb2c313d70230c7be488c5fb1ea",
+      "bytes": 682022
+    },
+    {
+      "file": "configured_settings.json",
+      "sha256": "98bd5959a1dfec98ae7b21def318ebac99a94a3744a65674e6b99826b8c0bd3a",
+      "bytes": 473
+    },
+    {
+      "file": "frames.json",
+      "sha256": "e970d550d9f9ad5bb1d88b8ff96b1a1c3052c3219ebc449f9e74bd705d101f42",
+      "bytes": 190208
+    },
+    {
+      "file": "provenance.json",
+      "sha256": "332681a71086da33c930232c454d2780f0a90f267281ea9ffbf72f45a9ee6362",
+      "bytes": 351
+    },
+    {
+      "file": "scientific_acceptance.json",
+      "sha256": "c710d09ba95c3345f07cc37a6c51f84f22420fe6e2d7906a5a27d858d461cec3",
+      "bytes": 12685
+    }
+  ]
+}

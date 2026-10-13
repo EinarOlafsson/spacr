@@ -1,0 +1,1899 @@
+{
+  "schema": 1,
+  "language": "de",
+  "source_language": "en",
+  "lessons": [
+    {
+      "id": "01_pypi_github",
+      "scenes": [
+        {
+          "narration": "Wählen Sie vor der Installation von spaCR einen offiziellen Vertriebsweg. PyPI und conda-forge stellen veröffentlichte Pakete bereit, während GitHub Quellcode, Desktop-Installationsprogramme und den Veröffentlichungsverlauf bereitstellt."
+        },
+        {
+          "narration": "Auf PyPI zeigt der Veröffentlichungskopf die aktuelle stabile Version und den Befehl pip install spacr."
+        },
+        {
+          "narration": "Der Abschnitt Project links öffnet die Dokumentation, die Homepage, die Problemverfolgung und das Quellcode-Repository."
+        },
+        {
+          "narration": "Auf GitHub bezeichnet main die freigegebene Quelllinie; nightly enthält neuere Änderungen, die noch getestet werden. Verwenden Sie nightly nur, wenn Sie ausdrücklich eine noch nicht veröffentlichte Änderung benötigen."
+        },
+        {
+          "narration": "Erweitern Sie in einem GitHub Release den Abschnitt Assets, um das Installationsprogramm für Windows, macOS oder Linux, die Python-Paketdateien oder die Prüfsummenliste herunterzuladen."
+        },
+        {
+          "narration": "Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigkeiten in der aktiven Conda-Umgebung. Verwenden Sie exakt den Befehl conda install conda-forge::spacr."
+        },
+        {
+          "narration": "Verwenden Sie conda-forge oder PyPI für eine verwaltete Python-Umgebung, GitHub Releases für ein Desktop-Installationsprogramm und nightly nur, wenn Sie unveröffentlichte Änderungen benötigen. Wählen Sie anschließend das Installations-Tutorial für Ihren Weg."
+        }
+      ]
+    },
+    {
+      "id": "02_conda_install",
+      "scenes": [
+        {
+          "narration": "Installieren Sie spaCR aus conda-forge in einer eigenen Conda-Umgebung. Das Paket enthält die Desktop-Oberfläche und deklariert die Abhängigkeiten von spaCR."
+        },
+        {
+          "narration": "Öffnen Sie ein Terminal mit Conda und erstellen Sie eine Umgebung namens spacr mit Python 3.12."
+        },
+        {
+          "narration": "Aktivieren Sie die Umgebung. Vergewissern Sie sich vor der Installation, dass Python zur Umgebung spacr gehört."
+        },
+        {
+          "narration": "Installieren Sie das offizielle Paket mit conda install conda-forge::spacr. Der kanalqualifizierte Befehl wählt ausdrücklich den conda-forge-Build aus."
+        },
+        {
+          "narration": "Prüfen Sie, dass Conda spaCR in der Umgebung aufführt; importieren Sie es anschließend und geben Sie die installierte Version aus."
+        },
+        {
+          "narration": "Führen Sie vor dem ersten Start spacr-doctor aus. Das Diagnoseprogramm prüft die aktive Installation, Qt, PyTorch, optionale Komponenten und die Hardware-Unterstützung und schlägt für jede fehlgeschlagene Prüfung eine Lösung vor."
+        },
+        {
+          "narration": "Wenn spacr-doctor alle Prüfungen bestanden hat, starten Sie spaCR mit dem Befehl spacr. Lassen Sie diese Umgebung bei jeder Verwendung von spaCR aktiviert."
+        }
+      ]
+    },
+    {
+      "id": "03_pip_install",
+      "scenes": [
+        {
+          "narration": "Die Installation mit pip funktioniert unter Windows, macOS und Linux. Verwenden Sie stets eine isolierte virtuelle Umgebung, statt die Python-Installation des Betriebssystems zu verändern."
+        },
+        {
+          "narration": "Erstellen Sie die Umgebung unter macOS oder Linux mit Python 3.12 und aktivieren Sie sie anschließend aus ihrem bin-Verzeichnis."
+        },
+        {
+          "narration": "Erstellen Sie die Umgebung unter Windows mit dem Python-Launcher und aktivieren Sie sie aus dem Scripts-Verzeichnis."
+        },
+        {
+          "narration": "Aktualisieren Sie pip in der aktiven Umgebung. Der Befehl python -m pip bindet die Installation an die soeben aktivierte Python-Version."
+        },
+        {
+          "narration": "Installieren Sie für den Betrieb ohne grafische Oberfläche das einfache spacr-Paket oder für die Desktop-Oberfläche spacr mit dem qt-Extra."
+        },
+        {
+          "narration": "Prüfen Sie die importierte Version und führen Sie spacr-doctor aus. Beheben Sie alle fehlgeschlagenen Prüfungen, bevor Sie experimentelle Daten öffnen."
+        },
+        {
+          "narration": "Die Umgebung ist nun einsatzbereit. Aktivieren Sie sie bei jeder Verwendung von spaCR und führen Sie python -m pip install --upgrade spacr nur aus, wenn Sie spaCR gezielt aktualisieren möchten."
+        }
+      ]
+    },
+    {
+      "id": "04_platform_installers",
+      "scenes": [
+        {
+          "narration": "Die schlanken nativen Installationsprogramme erstellen eine private Python-3.12-Laufzeit und laden anschließend Qt, PyTorch, spaCR und seine Abhängigkeiten herunter."
+        },
+        {
+          "narration": "Laden Sie Installationsprogramme ausschließlich aus der neuesten spaCR-Veröffentlichung auf GitHub herunter. Wählen Sie die Datei für Ihr Betriebssystem und verwenden Sie bei Bedarf die veröffentlichte SHA-256-Datei, um den Download zu prüfen."
+        },
+        {
+          "narration": "Öffnen Sie unter Windows 10 oder 11 die Online-Setup-Datei. Die automatische Hardwarebeschleunigung ist standardmäßig ausgewählt und installiert CUDA-Unterstützung auf kompatibler NVIDIA-Hardware. Deaktivieren Sie diese Komponente nur, wenn Sie eine kleinere reine CPU-Installation benötigen."
+        },
+        {
+          "narration": "Öffnen Sie unter macOS 11 oder neuer das Universalpaket für Intel- und Apple-Silicon-Systeme. Wenn Gatekeeper das nicht notarisierte Paket blockiert, wählen Sie unter Privacy & Security die Option Open Anyway und starten Sie es erneut."
+        },
+        {
+          "narration": "Machen Sie unter 64-Bit-Linux die heruntergeladene .run-Datei ausführbar und starten Sie sie in einem Terminal. Die standardmäßige automatische Backend-Auswahl installiert CUDA-Unterstützung, wenn kompatible NVIDIA-Hardware verfügbar ist."
+        },
+        {
+          "narration": "Wenn unter Linux ausdrücklich eine kleinere reine CPU-Installation erforderlich ist, verwenden Sie --torch-backend cpu. Behalten Sie andernfalls die automatische Standardauswahl bei, damit CUDA-Beschleunigung verwendet wird, wenn sie unterstützt wird."
+        },
+        {
+          "narration": "Jedes Installationsprogramm prüft die neue Version, bevor es auf sie umschaltet. Bei einer unterbrochenen Aktualisierung bleibt die vorherige Umgebung intakt; install.log verbleibt im privaten spaCR-Installationsverzeichnis."
+        },
+        {
+          "narration": "Unter Preferences gibt es genau einen Selektor Performance level mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Ressourcenreihenfolge. Wählen Sie das Profil für diesen Computer; es ändert Cache, Worker-Grenzen, Bereinigung und Animationsdetails, aber nicht wissenschaftliche Einstellungen oder Ergebnisse."
+        },
+        {
+          "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
+        }
+      ]
+    },
+    {
+      "id": "05_home",
+      "scenes": [
+        {
+          "narration": "Wenn alle Reifestufen sichtbar sind, zeigt Home alle vierundvierzig registrierten spaCR-Module. Die Registerkarte Home gruppiert sie unter Core, Data, Results & QC, Explore, Assays und Design; jede Kategorie-Registerkarte filtert dasselbe Register."
+        },
+        {
+          "narration": "Über die linke Seitenleiste sind Home und die sichtbaren Core-Module direkt erreichbar. Wenn alle Reifestufen aktiviert sind, ist dies die sechsstufige Core-Abfolge. Wählen Sie eine Kategorieüberschrift aus, um die übrigen sichtbaren Module einzublenden."
+        },
+        {
+          "narration": "Das Core-Band folgt der Arbeitsablaufreihenfolge: Mask, Measure, Annotate, Classify, Map Barcodes und Regression. Bewegen Sie den Mauszeiger über eine Kachel, um die Modulbeschreibung und die Reifestufenfarbe Alpha, Beta oder Stable anzuzeigen. Unter Preferences können Sie Alpha- oder Beta-Module in Home und der Navigation ausblenden; Stable-Module bleiben sichtbar."
+        },
+        {
+          "narration": "Unter Preferences gibt es genau einen Selektor Performance level mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Ressourcenreihenfolge. Wählen Sie das Profil für diesen Computer; es ändert Cache, Worker-Grenzen, Bereinigung und Animationsdetails, aber nicht wissenschaftliche Einstellungen oder Ergebnisse."
+        },
+        {
+          "narration": "Wählen Sie eine Modulkachel aus, um den Einstellungsbildschirm zu öffnen. Modulname und Beschreibung am oberen Rand bestätigen, welcher Arbeitsablauf aktiv ist."
+        }
+      ]
+    },
+    {
+      "id": "06_api",
+      "scenes": [
+        {
+          "narration": "Importieren Sie spaCR und drucken Sie seine Version aus, um zu bestätigen, dass die aktive Python-Umgebung das Paket verwenden kann."
+        },
+        {
+          "narration": "Führen Sie spacr-run mit der Liste-Option aus, um die verfügbaren Pipeline-Eingangspunkte einschließlich Maske, Messung, Anmerkung, Klassifizierung und Berichterstattung zu sehen."
+        },
+        {
+          "narration": "Starten Sie ein Modul mit spacr-run, dem Modulnamen und einer ausgeführten Einstellungsdatei. spaCR validiert Wege, Kanäle, Arbeiter und Hardwareoptionen, bevor die Arbeit beginnt."
+        },
+        {
+          "narration": "Fügen Sie die Testoption hinzu, um zuerst einen kleinen repräsentativen Teilsatz zu verarbeiten. Überprüfen Sie die Vorschau und das gespeicherte Protokoll, bevor Sie einen vollständigen unbeaufsichtigten Lauf einreichen."
+        },
+        {
+          "narration": "Entfernen Sie die Testoption für den vollen Betrieb. Headless Jobs speichern die gleichen Ausgänge, Einstellungen, Versionen und Logs wie der Desktop-Workflow."
+        }
+      ]
+    },
+    {
+      "id": "07_mask",
+      "scenes": [
+        {
+          "narration": "Die Maske setzt die Einstellungen links und die Laufzeitkonsole rechts. Die Konsole berichtet über Validierung, Fortschritt, Warnungen und gespeicherte Ausgänge."
+        },
+        {
+          "narration": "Lassen Sie den Ursprungsbildordner in Mask fallen. Bestätigen Sie das entdeckte Dateinamenmuster und die Metadaten, dann zeichnen Sie jeden Akquisitionskanal auf sein biologisches Signal ab. In diesem Beispiel enthalten die vier Kanäle Kerne, endoplasmisches Rettikulum, Lipidtropfen und Parasiten."
+        },
+        {
+          "narration": "Die Essentials zeigen die für einen typischen Lauf benötigten Kontrollen an. Verwenden Sie All nur, wenn Sie fortgeschrittene Optionen benötigen, Modified, um veränderte Werte zu überprüfen, und Rezepte, um eine Konfiguration zu speichern, die Sie erneut verwenden."
+        },
+        {
+          "narration": "In Input und Metadaten überprüfen Sie den Quellordner, die Kanalzuweisungen, die Vergrößerung und die Dateinamen-Metadaten, bevor Sie die Segmentierung konfigurieren."
+        },
+        {
+          "narration": "Workflow und Test Run kontrollieren, welche Masken erstellt werden, ob vorhandene Arbeiten wieder aufgenommen werden und wie viele repräsentative Felder für einen Test verwendet werden."
+        },
+        {
+          "narration": "Die Zelle, der Kern, das Krankheitserreger und die Organelle unterteilen jede Gruppe das Modell, den Kanal, die Kernschwelle und die Objektfilter für dieses Kompartiment. Ändern Sie nur die Einstellungen, die für die aktuellen Bilder erforderlich sind."
+        },
+        {
+          "narration": "Aktivieren Sie Live Preview, laden Sie ein repräsentatives Feld und wählen Sie das Objekt aus, das Sie abstimmen möchten. Dieses Beispiel zeigt das Zellsignal voraus."
+        },
+        {
+          "narration": "In Live-Einstellungen bestätigen Sie zuerst das Objekt und den Kanal. Passen Sie den Durchmesser, die Durchflussschwelle oder die Zellwahrscheinlichkeit nur an, wenn die Vorschau einen Grund gibt."
+        },
+        {
+          "narration": "Aktivieren Sie die Propagate-Einstellungen, damit die hier validierten Werte die Einstellungen des vollständigen Laufs werden."
+        },
+        {
+          "narration": "Führen Sie die Vorschau durch und überprüfen Sie die Überlagerung neben der Quelle. Die Grenzen sollten den sichtbaren Zellen folgen, ohne sich mit Nachbarn zu verbinden oder klare Objekte zu verpassen."
+        },
+        {
+          "narration": "Wechseln Sie zu Flüssen, um das von Cellpose verwendete Richtungsfeld zu überprüfen. Unregelmäßige Flussmuster können dazu beitragen, Masken zu erklären, die falsch aufgeteilt oder verschmolzen sind."
+        },
+        {
+          "narration": "Masken isolieren die letzten Etiketten gegen einen schwarzen Hintergrund. Verwenden Sie es, um die Abdeckung und Trennung von Objekten ohne das Quellbild unten zu überprüfen."
+        },
+        {
+          "narration": "Objektfilter aktualisieren die cached Vorschau sofort. Erhöhen Sie die Mindestfläche nur genug, um offensichtliche Fragmente zu entfernen; die richtige Abkürzung hängt von der Bildskala ab."
+        },
+        {
+          "narration": "Vergleichen Sie die gefilterte Überlagerung mit der ursprünglichen Vorschau. Die ursprünglichen Zellen sollten erhalten bleiben; wenn sie verschwinden, verringern Sie die Mindestfläche."
+        },
+        {
+          "narration": "Wählen Sie in Output und Storage die Masken und Zwischendateien aus, die Sie benötigen. Führen Sie zuerst einen kleinen Test durch, dann verarbeiten Sie die vollständige Quelle, nachdem die Vorschau- und Konsolenprüfungen vorbei sind."
+        }
+      ]
+    },
+    {
+      "id": "08_measure",
+      "scenes": [
+        {
+          "narration": "Messung der Einstellungen der Plätze links und der Laufzeitkonsole rechts. Die Konsole berichtet über die Quellvalidierung, den Fortschritt, Warnungen und die gespeicherte Messungsergebnis."
+        },
+        {
+          "narration": "Wählen Sie den von Mask erstellten Fusionen-Projektordner aus. Die Messung liest das gespeicherte Bild, die Maske und die Projektidaten direkt."
+        },
+        {
+          "narration": "Beginnen Sie mit Essentials. Verwenden Sie alle für fortgeschrittene Kontrollen, Modifiziert, um veränderte Werte zu überprüfen, und Rezepte, wenn die gleiche Messungsanordnung wiederverwendet wird."
+        },
+        {
+          "narration": "In der Maske und Kanalkarte überprüfen Sie die Bildkanäle und die Etiketten für Zellen, Kerne, Krankheitserreger, Organellen und abgeleitete Abteilungen."
+        },
+        {
+          "narration": "Messfunktionen wählen die für die Analyse erforderliche Intensität, Morphologie, Textur, Colocalization und räumliche Zusammenfassungen aus. Lassen Sie die ungenutzten Feature-Familien aus."
+        },
+        {
+          "narration": "Objektfilterung entfernt bekannte Artefakte, während Crop Output kontrolliert, ob repräsentative Objektbilder für Anmerkungen oder Klassifizierung gespeichert werden. Wählen Sie Filter und Ernte-Skala aus dem Experiment anstatt feste Werte zu kopieren."
+        },
+        {
+          "narration": "Die Vorsicht und Diagnose definiert eine kleine Testprobe. Verwenden Sie es, bevor Sie das gesamte Experiment messen."
+        },
+        {
+          "narration": "Aktivieren Sie Live-Vorsicht und laden Sie ein vollständiges zusammengesetztes Array. Die Galerie gruppiert echte Objektpflanzen, damit Sie die Maskenzuweisungen, den Kanal Inhalt und die Ernterahmen überprüfen können."
+        },
+        {
+          "narration": "Wechseln Sie die Galerie-Kanäle, um jedes biologische Signal zu untersuchen. Diese Anzeigenauswahl hilft bei der Qualitätskontrolle und begrenzt nicht, welche konfigurierten Kanäle gemessen werden."
+        },
+        {
+          "narration": "Wenn der Test erfolgreich ist, laufen Sie die volle Quelle aus. Die Maßnahme speichert nachvollziehbare Objektreihen in Messpunkten db und alle angeforderten Pflanzen neben den Projektausgaben."
+        }
+      ]
+    },
+    {
+      "id": "09_annotate",
+      "scenes": [
+        {
+          "narration": "Annotate priorisiert das Erntegitter. Öffnen Sie die Konsole nur, wenn Sie Datenbanknachrichten benötigen, Status, Warnungen oder lokale Hilfe speichern und sie dann verstecken, um Platz für die Bilder zurückzugeben."
+        },
+        {
+          "narration": "Öffnen Sie ein gemessenes Projekt, wählen Sie oder erstellen Sie eine Anmerkungspalte und bestätigen Sie, dass das erwartete Objekt die Last erzeugt. Definieren Sie, was jede Klasse bedeutet, bevor die Kennzeichnung beginnt."
+        },
+        {
+          "narration": "Einstellungen steuern die angezeigten Kanäle, das Erscheinungsbild, die Objektfilter und die optionelle Unsicherheitsreihen. Halten Sie die Ansicht für alle, die Beiträge auf Etiketten einfügen, einheitlich."
+        },
+        {
+          "narration": "Öffnen Sie die Tastaturreferenz für die kleine Reihe von Aktionen, die wiederholt verwendet werden: Zuordnen einer Klasse, Schieben Sie den Fokus, überspringen, widerlegen und Speichern oder vorwärts."
+        },
+        {
+          "narration": "Kennzeichnungen mit Nummern- oder Mausschlüssel zuordnen. Der Klassenfarbenring bestätigt das gespeicherte Etikett und die Fokusbildung macht so viele Objekte effizient überprüft werden können."
+        },
+        {
+          "narration": "Verwenden Sie Navigation und widerrufen, um eine kürzlich gewählte Option zu korrigieren, ohne andere gespeicherte Arbeiten zu löschen. Speichern Sie, bevor Sie auf eine andere Seite wechseln oder die Sitzung beenden."
+        },
+        {
+          "narration": "Die Abdeckung zeigt, ob die Etiketten Klassen, Platten, Brunnen, Quellen und Aktiv-Lernrunden umfassen. Fügen Sie vor dem Training Beispiele aus fehlenden Gruppen hinzu."
+        },
+        {
+          "narration": "Wenn genügend repräsentative Etiketten vorhanden sind, kann Retrain die verbleibenden Ernten bewerten und unsichere Beispiele priorisieren. Sie sollten diese Beihilfe als eine fakultative Überprüfungshilfe betrachten und nicht als Ersatz für die Deckung."
+        },
+        {
+          "narration": "Das Train CV sendet Bildpflanzen und diese Anmerkungenspalte an den Vision-Klassifikator. Train XG sendet den Funktionsbasierten Klassifikator die gleichen Etiketten; beide öffnen ein konfiguriertes Modul, ohne automatisch das Training zu starten."
+        },
+        {
+          "narration": "Die Annotationen bleiben in den Messungen dot db mit Objektidentifikatoren und Herkunft intakt. Weiter bis die Abdeckung für das beabsichtigte Modell oder die Entscheidung zur Qualitätskontrolle ausreichend ist."
+        }
+      ]
+    },
+    {
+      "id": "10_classify_cv",
+      "scenes": [
+        {
+          "narration": "Klassifizieren Sie Bildmodelle von Lebenslauf-Train-Bildungen auf Anmerkungen der Objektpflanzen. Die Konsole berichtet über Datensatzkontrollen, Trainingsfortschritt, ausgehaltenen Metriken, Abschluss, Warnungen und Ausgangswege."
+        },
+        {
+          "narration": "Plate Sources and Workflow wählt die gemessenen Projekte und die zu laufenden Phasen aus: Erstellen einer Spaltung, schulen, bewerten oder ein bestehendes Kontrollpunkt anwenden."
+        },
+        {
+          "narration": "Beginnen Sie mit Essentials, verwenden Sie Modified, um bewusste Änderungen zu überprüfen, und öffnen Sie All nur für die vom Experiment erforderlichen Kontrollen. Speichern Sie ein Rezept, wenn die Einrichtung wiederholt wird."
+        },
+        {
+          "narration": "Labels and Classes wählt das als Grundwahrheit verwendete Anmerkung- oder Metadatenfeld aus und kartiert seine gespeicherten Werte auf dokumentierte Klassennamen. Überprüfen Sie die Kartenvorbildung vor dem Training."
+        },
+        {
+          "narration": "Crops and Dataset Split wählt die Objektbilder, Kanäle, Balancing und ausgehaltenen Fraktionen aus. Gruppenbezogene Bilder nach Platten oder Bohrungen, so dass nahezu doppelte Bilder zwischen Ausbildung und Bewertung nicht durchlaufen können."
+        },
+        {
+          "narration": "Die Modellarchitektur wählt das Netzwerk, die Eingabechancen und die Größe, vorgeübte Gewichte und die von den Bildern erwartete Normalisierung aus. Beginnen Sie mit einer vernünftigen Ausgangslinie."
+        },
+        {
+          "narration": "Optimierung und Verlust beinhalten Lernrate, Erhöhung, Batches, Epochen und Frühstoppen. Ändern Sie eine kleine Anzahl von Kontrollen gleichzeitig und beurteilen Sie sie nach Validierungshandlung."
+        },
+        {
+          "narration": "Evaluation Workbench fügt eine gruppierte oder verschachtelte Bewertung, Kalibrierung und strenge Identitäts- und Inhaltsleckkontrollen hinzu. Die letzten ausgehaltenen Daten werden von der Modellwahl getrennt gehalten."
+        },
+        {
+          "narration": "Full Dataset and Inference verwendet den gewählten Checkpoint, schreibt Wahrscheinlichkeiten und Klassenanrufe und speichert repräsentative Beispiele mit hohem Vertrauen für die Überprüfung."
+        },
+        {
+          "narration": "Aktivieren Sie Hyperparameter-Suche, wenn mehrere plausible Konfigurationen einen Vergleich benötigen. Die Mini-Workbench führt gruppierte Tests durch und zeigt jede Punktzahl, Foldvariation, Parameter und Status an."
+        },
+        {
+          "narration": "Suchinstellungen definieren einen fokussierten Kandidatenraum, Ranking-Metriken, gruppierte Fold- und Testbudget. Vermeiden Sie breite Suchanfragen, die die Berechnung für Entscheidungen ausmachen, die das Experiment nicht unterscheiden kann."
+        },
+        {
+          "narration": "Run validiert zuerst Etiketten und Splits, dann trainiert und bewertet das konfigurierte Modell. Überprüfen Sie die ausgehaltenen Metriken und Beispiele, bevor Sie sie breit anwenden; spaCR speichert den Checkpoint, Vorhersagen, Einstellungen und den Laufregister."
+        }
+      ]
+    },
+    {
+      "id": "11_classify_ml",
+      "scenes": [
+        {
+          "narration": "Klassifizieren ML-Train ein klassisches Modell auf Messungen pro Objekt. Die Konsole berichtet über Datenbank-Ladung, Feature-Vorbereitung, Validierung, Bedeutung, Vorhersagen und Fehler."
+        },
+        {
+          "narration": "Daten und Kontrollen wählen das Messprojekt, das Kennzeichnungsschlachtfeld, die positiven und negativen Werte und die experimentelle Gruppierung aus. Überprüfen Sie die biologische Bedeutung dieser Kartierung, bevor Sie ein Modell montieren."
+        },
+        {
+          "narration": "Beginnen Sie mit Essentials und überprüfen Sie Änderungen in Modified. Öffnen Sie All nur für Kontrollen, die die Analyse benötigen, und speichern Sie ein Rezept für wiederholte Ausführungen."
+        },
+        {
+          "narration": "Die Vorbereitung wählt den Ansprechkanal aus und entfernt vor dem Training ausgeschlossen, ungültig, mit geringer Variante, stark korrelierte oder schlecht unterstützte Messungen."
+        },
+        {
+          "narration": "Die Platten- und Batchkorrektur kann jede Platte gegen ihre Steuerungen normalisieren. Verwenden Sie eine Korrektur, die den biologischen Kontrast bewahrt und konsequent auf zukünftige Daten angewendet werden kann."
+        },
+        {
+          "narration": "Classifier und Validierung wählt den Schätzer, die Komplexität, die ausgehaltenen Split und das Verhalten der Quervalidierung aus. Verwandte Gegenstände nach Platten oder Bohrungen zu gruppieren, um Leckage zu vermeiden."
+        },
+        {
+          "narration": "Merkmal Auswahl und Bedeutung prünt den Endmerkmal und schätzt, welche Messungen den Klassifizier unterstützen. Die Bedeutung erst nach einer ausgetretenen Leistung zu interpretieren ist akzeptabel."
+        },
+        {
+          "narration": "Die Ausgabe und die Datenbank kontrollieren, ob Wahrscheinlichkeiten, Klassenanrufe, Modelldateien und ausgewählte Funktionen auf das Messprojekt gespeichert oder zurückgeschrieben werden."
+        },
+        {
+          "narration": "Hyperparameter Search ist eine Mini-Workbank zum Vergleich einer fokussierten Reihe von Modellwahlmöglichkeiten mit gruppierten Falten. Die Ergebnisse der Tabelle sorgen für abgeschlossenen Studien und zeigen deren Variation."
+        },
+        {
+          "narration": "Suchinstellungen definieren Kandidatenwerte, Testbudget, Falten, Samen und Ranking-Metriken. Halten Sie den Suchbereich klein genug, um zu erklären und zu reproduzieren."
+        },
+        {
+          "narration": "Run validiert die Steuerungen, bereitet Funktionen vor, wendet jede Plattenkorrektur an, bewertet den Klassifizierer, berechnet die Bedeutung und speichert aktivierte Ausgänge. Überprüfen Sie das ausgehaltenes und pro Plate Verhalten, bevor Sie Vorhersagen biologisch verwenden."
+        }
+      ]
+    },
+    {
+      "id": "12_map_barcodes",
+      "scenes": [
+        {
+          "narration": "Karten Barcodes dekodieren Sequenzierung Lesen in Plattenpositionen und Führung Identitäten. Die Konsole berichtet über Probenentdeckung, Parservalidierung, Lesung von Fortschritten, Ausgangswege und Fehler."
+        },
+        {
+          "narration": "Sequenzierung Input wählt den FASTQ-Ordner aus und bearbeitet, ob Paare von Lesungen kombiniert werden oder eine Leserichtung alleine verarbeitet wird. Bestätigen Sie das Namensmuster vor einem großen Lauf."
+        },
+        {
+          "narration": "Essentials enthält die Eingabe- und Parsierungsteuerungen, die für einen ersten Lauf benötigt werden. Verwenden Sie Modified, um Bibliotheksspezifische Änderungen zu überprüfen, All für fortgeschrittene Steuerungen und Rezepte für ein wiederverwendbares Layout."
+        },
+        {
+          "narration": "Barcode References zeigt auf Suchtabellen für Führungen, Plattenreihen und Plattenkolumnen. Jede Tabelle muss einen einzigartigen Namen mit der erwarteten Sequenz vereinen."
+        },
+        {
+          "narration": "Read Parsing findet eine bekannte Anker, extrahiert das Barcodefenster und zugeordnet Namen für Zeilen-, Spalten- und Leitgruppen. Dieses Muster aus dem Bibliotheksdesign ableiten und auf Beispiellässen überprüfen."
+        },
+        {
+          "narration": "Runtime und Reliability bestimmen die Stückgröße, die Arbeiter und den Testmodus. Beginnen Sie mit einem kleinen Teststück; reduzieren Sie die Anzahl der Teilnehmer oder Arbeiter, wenn das Gedächtnis eingeschränkt ist."
+        },
+        {
+          "narration": "Run validiert Wege und Referenzen, entdeckt Proben, zählt Lesungen und startet die Stückkartierung. Die Anforderung einer ordentlichen Unterbrechung nach dem aktuellen sicheren Punkt."
+        },
+        {
+          "narration": "Beobachten Sie die aktive Probe, die Anzahl der Chargen, die entsprechende Fraktion und die Warnungen auf dem Fortschrittsbildschirm und der Konsole. Untersuchen Sie schlechte Kartierung, bevor Sie den kompletten Lauf akzeptieren."
+        },
+        {
+          "narration": "Ein erfolgreicher Lauf schreibt einzigartige Barcode-Kombinationen mit Zeile, Spalte, Guide und Count sowie einer Qualitätskontrollabteilung, Einstellungen und einem Manifest, die das Kartieren reproduzierbar machen."
+        }
+      ]
+    },
+    {
+      "id": "13_regression",
+      "scenes": [
+        {
+          "narration": "Regression setzt Phänotypwerte mit der aus Sequenzierungsdaten abgeleiteten Guide-Häufigkeit in Beziehung. Die Konsole meldet Tabellenabgleich, Filterung, das gewählte Inferenzverfahren, Diagnosen, Ergebnisse und Reproduzierbarkeitsnachweise."
+        },
+        {
+          "narration": "Input Tables wählt Phänotypwerte, Sequenzierungszählungen, optionale Genmetadaten und den Zielordner für die Ergebnisse aus. Lassen Sie den Zielordner leer, um neben der ersten Zähltabelle zu speichern; prüfen Sie vor der Analyse, ob die Platten- und Well-Kennungen übereinstimmen."
+        },
+        {
+          "narration": "Essentials enthält die Eingaben und Inferenzparameter für eine erste Analyse. Verwenden Sie Modified, um bewusste Änderungen zu prüfen, All für erweiterte Parameter und Recipes, um einen wiederverwendbaren Analyseplan zu speichern."
+        },
+        {
+          "narration": "Controls and Filters legt positive, negative und neutrale Kontrollen fest, schließt angegebene Guides, Wells oder Tabellenzeilen aus und definiert die Evidenz- und Normalisierungsregeln, nach denen Beobachtungen in die Analyse eingehen."
+        },
+        {
+          "narration": "Plate and Batch Correction kann technische Verschiebungen durch Zentrierung, robuste Skalierung, Referenzkontrollen oder Batch-Modelle entfernen. Wenden Sie eine Korrektur nur an, wenn das Versuchsdesign sie rechtfertigt."
+        },
+        {
+          "narration": "Response wählt die Phänotypspalte, die Analyseeinheit, die Aggregation, eine optionale Vorzeichenumkehr und die Transformation aus. Diese Entscheidungen definieren die Größe, die mit der Guide-Häufigkeit in Beziehung gesetzt wird."
+        },
+        {
+          "narration": "Model and Inference wählt zwischen einem nichtparametrischen Test pro Guide, einer parametrischen simultanen Regression und einer automatischen Auswahl. Außerdem werden die Berichtsebene, gegebenenfalls die Modellfamilie, die Korrektur für multiples Testen und die Signifikanzregel festgelegt."
+        },
+        {
+          "narration": "Estimator Tuning enthält Parameter für Kovarianz, Regularisierung, robuste Anpassung, Quantile, Bootstrap und Rangaggregation. Nur die vom gewählten Schätzer verwendeten Einstellungen beeinflussen die Analyse."
+        },
+        {
+          "narration": "Permutation Test konfiguriert die Guide-Statistik, die minimale Well-Unterstützung, Anzahl und Startwert der Permutationen, den Austauschbarkeitsblock, Störvariablen, den Präsenzschwellenwert und die speicherbegrenzte Batch-Größe."
+        },
+        {
+          "narration": "Run validiert Schemata und Well-Schlüssel, wendet Ausschlüsse und Korrekturen an, aggregiert die Response und führt das gewählte Inferenzverfahren aus. Das standardmäßige nichtparametrische Verfahren verwendet nach Platte blockierte Freedman–Lane-Permutationen und passt kein Regressionsmodell an."
+        },
+        {
+          "narration": "Das abgeschlossene Projekt enthält abgeglichene Analysedaten, Effektschätzungen auf Guide- und Genebene, empirische oder modellbasierte Signifikanztabellen, Diagnoseabbildungen, gespeicherte Einstellungen und ein erneut ausführbares Manifest."
+        }
+      ]
+    },
+    {
+      "id": "14_make_masks",
+      "scenes": [
+        {
+          "narration": "Öffnen Sie einen Ordner mit repräsentativen Mikroskopiebildern. Die entsprechenden Etiketten werden aus dem Ordner der Masken als farbige Überlagerungen geladen, während Bilder ohne Begleitermaske leer beginnen."
+        },
+        {
+          "narration": "Die Tools-Karten gruppieren Malerei, Löschen, Intensitätsbewusstsein und Zoom-Modus. Wählen Sie die kleinste Operation, die den beobachteten Maskenfehler korrigiert."
+        },
+        {
+          "narration": "Die Pinsel fügt einen vorne zu, der einen verstellbaren Radius hat. Verwenden Sie kurze Schläge, um fehlende Grenzen oder Objekte zu reparieren, ohne über benachbarte Strukturen zu malen."
+        },
+        {
+          "narration": "Löschen entfernt nur die gemalten Pixel, während das Löschenobjekt ein komplettes Etikett entfernt. Sofort aufgehoben, wenn die ausgewählte Region gültig war."
+        },
+        {
+          "narration": "Wand plus und Wand minus folgen verbundenen Bildintensitäten. Beginnen Sie mit einer konservativen Toleranz und einer Pixelgrenze, und überprüfen Sie dann die ausgewählte Region, bevor Sie weitermachen."
+        },
+        {
+          "narration": "Vergrößern Sie schwierige Grenzen und passen Sie die Anzeignormalität nur an, wenn sie die Sichtbarkeit verbessert. Die Kontraststeuerung ändert die Bilddaten oder die Maskengeometrie nicht, also wählen Sie sie aus dem aktuellen Feld anstatt festgelegten Tutorial-Prozentilen."
+        },
+        {
+          "narration": "Undo und Redo durchlaufen Maskenbearbeitungen unabhängig von Zoom und Kontrast, so dass eine Korrektur mit dem vorherigen Etikett sicher verglichen werden kann."
+        },
+        {
+          "narration": "Objekte können Löcher füllen, die verbundene Vordergrundmarkierung neu kennzeichnen, die Etiketten umdrehen oder die Maske löschen. Die Flächenfilterung wird nur mit einer Grenze verwendet, die durch Bildskala und erwartete Objektgröße gerechtfertigt ist."
+        },
+        {
+          "narration": "Save Mask umschriftet die angeschlossenen Komponenten und schreibt das Etikettbild unter dem Quellstamm. Bewegen Sie sich systematisch durch den Ordner, damit jedes Trainingfeld überprüft wird."
+        },
+        {
+          "narration": "Für ein Bild ohne Etiketten erstellen Sie Objekte mit Brush oder Wand plus, reinigen Sie die Grenzen und speichern Sie das neue Bild-Maskenpaar für das Modelltraining."
+        }
+      ]
+    },
+    {
+      "id": "15_image_umap",
+      "scenes": [
+        {
+          "narration": "Bild UMAP reduziert hochdimensionale Objekte auf zwei Koordinaten und stellt Mikroskopiepflanzen auf der Karte. Die Konsolen-Aufzeichnungen werden zusammengefasst, vorverarbeitet, eingebettet, gruppiert und ausgegeben."
+        },
+        {
+          "narration": "Paths wählt das gemessene Projekt aus. Bild UMAP lokalisiert Messpunkte db und verwendet bestehende Erntebilder oder baut Ernte aus verschmelzten Arrays auf, wenn sie unterstützt werden."
+        },
+        {
+          "narration": "Messungen wählen die verbundenen Objekttabellen und Feature-Familien aus, entfernen explizite Ausschlüsse und können redundante korrelierte Features fallen lassen. Diese Entscheidungen definieren die Geometrie der Karte."
+        },
+        {
+          "narration": "Plate Layout and Controls schließt fehlgeschlagene Wells, Kontrollen oder Metadatengruppen aus, die diese explorative Einbettung nicht gestalten sollten."
+        },
+        {
+          "narration": "Die Computer Vision-Datenquelle entscheidet, ob bildgebende Merkmale die gemessenen Merkmale ergänzen und woher ihre Ernte kommt. Verwenden Sie sie nur, wenn das Aussehen des Bildes Teil der Frage ist."
+        },
+        {
+          "narration": "Einbettung und Clustering wählt UMAP oder t-SNE, Nachbarschaftsverhalten, Entfernungsmetrik, Kompartiment und optionales Clustering aus. Vergleichen Sie reproduzierbare Einstellungen und behandeln Sie keine Layout als Grundwahrheit."
+        },
+        {
+          "narration": "UMAP Display steuert Punkt-Styling, Grafik-Zahl und Zoom, Hintergrund und gespeicherte Figuren. Halten Sie die Pflanzenglyphen nur etwas größer als die Punkte, damit die Einbeziehung sichtbar bleibt; diese Anzeigenauswahl ändert die angebrachten Koordinaten nicht."
+        },
+        {
+          "narration": "Vor dem vollständigen Lauf verwenden Sie Hyperparameter-Suche, um eine fokussierte Reihe von UMAP-Optionen zu vergleichen. Seine kleinen und vielfältigen Ergebnisse enthüllen Layouts, die instabil sind oder nützliche Strukturen verbergen."
+        },
+        {
+          "narration": "Wählen Sie ein überprüftes Suchergebnis aus und wählen Sie dann die Einstellungen \"Verbreiten\". Dies kopiert die Nachbarschaftsgröße, die Mindeststrecke und die Metrik in das Hauptbild-UMAP-Formular vor dem vollen Lauf."
+        },
+        {
+          "narration": "Run validiert die Datenbank und die Erntequelle, verbindet und filtert numerische Merkmale, Probenreihen, passt dem Reduktor und optionalen Clustern und schreibt dann ausgerichtete Ergebnisregister."
+        },
+        {
+          "narration": "Die ausgefüllte Karte hält die UMAP-Punktwolke sichtbar und überlagert kleine transparente Mikroskopiepflanzen in repräsentativen Positionen. Zu den gespeicherten Outputs gehören Koordinaten, Clusteretiketten, die Figur, Einstellungen und ein Reproduzierbarkeitsmanifest."
+        }
+      ]
+    },
+    {
+      "id": "16_activation",
+      "scenes": [
+        {
+          "narration": "Aktivierungskarten fragen, welche Bildregionen die Vorhersage eines Visionmodells beeinflussen. Die Konsole erfasst das Laden von Artefakten, Attributionspartien, Fortschritte, Ausgänge und Informationen zur Wiedergabe."
+        },
+        {
+          "narration": "Modell und Daten wählen das Erntearchiv, geschultes Artefakt, Architektur, Eingabegröße, Objekttyp und Kanalordnung aus. Diese müssen mit der Ausbildung übereinstimmen, sonst ist jede Zuteilung ungültig."
+        },
+        {
+          "narration": "Die Essentials enthalten die für einen ersten Lauf erforderlichen Kontrollen. Benutzen Sie Modified zur Prüfung von Änderungen, All für Validierungs- und Quantifizierungskontrollen und Rezepte für wiederholbare Vergleiche."
+        },
+        {
+          "narration": "Die Attributionsmethode wählt Grad-CAM, Ausstrahlung, integrierte Gradienten, Verstopfung oder eine andere registrierte Methode sowie alle kompatiblen Schichten oder Probenahme-Steuerungen aus."
+        },
+        {
+          "narration": "Die Validierung der Attributionsfunktion stellt Löschung, Einfügung, Basislinie und Modell-Randomisierungskontrollen zur Verfügung. Eine visuell ansprechende Karte ist nicht nützlich, wenn sie nach Zerstörung der Modellinformationen unverändert bleibt."
+        },
+        {
+          "narration": "Die Kartenanzeige verwendet eine mit dem Training kompatible Eingabevorbereitung und steuert Überlagerungen und Grids. Der Kontrast zeigt die Präsentation, nicht den Beweis, dass das Modell eine gültige Biologie gelernt hat."
+        },
+        {
+          "narration": "Die Kartenquantifizierung kann die Eingabechancen mit der Attributionsintensität vergleichen und diese Zusammenfassungen speichern. Nur dann aktivieren, wenn die Statistik eine bestimmte Frage beantwortet."
+        },
+        {
+          "narration": "Die Ausgangs- und Laufzeitsteuerungen speichern Karten, Ordnung, Chargen und Arbeiter. Verringern Sie die Batchgröße, wenn das Beschleunigungsspeicher begrenzt ist, und halten Sie die deterministische Bestellung für Vergleiche."
+        },
+        {
+          "narration": "Run validiert das Modell und die Ernte, erstellt das Training vorverarbeitung, berechnet Vorhersagen und Karten, stellt die angeforderten Grids dar und registriert die Einstellungen."
+        },
+        {
+          "narration": "Überprüfen Sie Karten für richtige, falsche, hochverlässige und niedrigverlässige Beispiele, zusammen mit Validierungskontrollen. Die biologischen Schlussfolgerungen werden nur aus einem validierten geschulten Klassifizierungsverfahren gezogen."
+        }
+      ]
+    },
+    {
+      "id": "17_timelapse",
+      "scenes": [
+        {
+          "narration": "Timelapse segmentiert jeden Rahmen und verbindet ausgewählte Objekte in stabile Strecken. Die Konsole erfasst die Vorverarbeitung, Masken, Trackingversuche, Qualitätskontrolle, Filme und Wiedergabefähige Dateien."
+        },
+        {
+          "narration": "Input und Metadata wählen den Bildordner aus, zugeordnet erworbene Kanäle zu Objekttypen und definiert, wie Plattene, Brunnen, Feld, Zeit, Tiefe und Kanalidentifikatoren analysiert werden."
+        },
+        {
+          "narration": "Die Essentials enthalten die für eine erste Sequenz erforderlichen Kontrollen. Benutzen Sie Modified, um Änderungen zu überprüfen, All für optional axes und backends und Rezepte für ein wiederholtes Akquisitionsdesign."
+        },
+        {
+          "narration": "Bildvorbearbeitung bezieht sich auf Normalisierung, Hintergrundbehandlung, Verweigerung und Umgrößerung. Verwenden Sie eine konsistente Transformation über alle Rahmen, damit die Vorverarbeitung keine künstliche Bewegung erzeugt."
+        },
+        {
+          "narration": "Konfiguration des Segmentierungsabschnitts für jedes Objekt, das vertuscht oder verfolgt werden muss. Validieren Sie Modell-, Kanal-, Skala- und Kernfilter auf repräsentativen frühen, mittleren und späten Rahmen."
+        },
+        {
+          "narration": "Qualitätskontrolle prüft die Anzahl, Größe, Grenzen, Vordergrundbedeckung, Split und akzeptablen Feldfehler. Beginnen Sie im Berichtsmodus, damit verdächtige Rahmen sichtbar bleiben."
+        },
+        {
+          "narration": "Tracking Setup wählt die Objekttypen, die Rahmenbereiche, die Filter für die gesamte Lebensdauer und die Filmrate aus. Halten Sie während der Validierung kurze Spuren, damit Fehler nicht verborgen sind."
+        },
+        {
+          "narration": "Tracking Backends bietet mehrere Linker mit unterschiedlichen Verlagerungen, Lügen, Teilen und Arbeitersteuerungen. Wählen Sie das einfachste Backend aus, das mit der Bewegung übereinstimmt und überprüfen Sie visuell ihre Identität."
+        },
+        {
+          "narration": "Visualisierung und Diagnose erzeugt Beispiele für die Prüfung der Segmentierung und der Spurkontinuität, während Output und Storage Masken, fusionierte Arrays, Filme und gehaltenen Zwischenprodukte auswählt."
+        },
+        {
+          "narration": "Runtime und Reliability umfassen Testmodus, Arbeiter, reproduzierbare Reihenfolge, Weiterlauf, Trockenlauf und Ausfallpolitik. Verarbeiten Sie ein repräsentatives Feld, bevor Sie auf die vollständige Zeitserie skalieren."
+        },
+        {
+          "narration": "Run validiert Dateinamen und Kanäle, segmentiert angeforderte Objekte, verknüpft Masken, berechnet Qualitätskontrolle und schreibt Filme und Arrays. Prüfen Sie vor der Analyse die abgeschlossenen Strecken auf Swaps, Lücken und unwahrscheinliche Sprünge."
+        },
+        {
+          "narration": "Ein erfolgreiches Projekt enthält zeitindexte Masken, stabile Track-Identitäten, Qualitätskontrollen, Filme, zusammengeschmolzenen Arrays, gespeicherte Einstellungen und ein wiederlaufenbares Manifest."
+        }
+      ]
+    },
+    {
+      "id": "18_motility",
+      "scenes": [
+        {
+          "narration": "Motility Assay baut Messungen aus verfolgten Arrays wieder auf und berechnet Verlagerung, Geschwindigkeit, Weglänge und Geradenheit. Die Konsolen erfassen Tabellen, Qualitätsprüfungen und Zahlen."
+        },
+        {
+          "narration": "Objekte und Kanäle wählen die verfolgte Quelle, sich bewegende Objekte und Kanäle aus, die Zell-, Kern- und Krankheitserregersignale tragen. Eine falsche Kartierung macht die Intensität und die Infektionsergebnisse ungültig."
+        },
+        {
+          "narration": "Die Essentials enthalten die für eine erste Prüfung erforderlichen Kontrollen. Benutzen Sie Modified zur Prüfung von Änderungen, All für optional klassifizierte und eingebettete und Rezepte für wiederholte Akquisitionen."
+        },
+        {
+          "narration": "Die räumliche und zeitliche Kalibrierung liefert das Rahmenintervall und die Pixelskala. Überprüfen Sie beide aus Metadaten, weil Fehler jede physische Verschiebung und Geschwindigkeit skalieren."
+        },
+        {
+          "narration": "Bewegungsschutz entfernt unwahrscheinliche Sprünge, gebrochene Spuren und optionale Funktions- oder Geschwindigkeitswerte. Inspektieren Sie ausgeschlossenen Bahnen, damit keine echte schnelle Bewegung entsorgt wird."
+        },
+        {
+          "narration": "Die Infektionsklassifizierung kann von einer Überlagerung von Krankheitserregern und Masken ausgehen und optional unsichere Spuren mit Intensitätsnachweisen verfeinern. Verwenden Sie die einfachste Regel, die von den Steuerungen unterstützt wird."
+        },
+        {
+          "narration": "Die optionalen Abschnitte XGBoost, Clustering und Embedding stellen alternative Infektionsklassifizierer zur Verfügung, wenn direkte Masken nicht ausreichen. Validieren Sie alle gelernten Regeln für gepflegte, gekennzeichnete Spuren."
+        },
+        {
+          "narration": "Motility Plots und QC wählen Trajektorie, Intensität, Position, Geschwindigkeit und Infektionspaneele aus. Die Graphengrenzen ändern die Darstellung, aber nicht die zugrunde liegenden Messungen."
+        },
+        {
+          "narration": "Führen Sie Messrahmen, Glatten und Filterspuren aus, geben Sie den Infektionsstatus zu, berechnen Sie kalibrierte Zusammenfassungen und Korrelationen und speichern Sie Tabellen und Zahlen."
+        },
+        {
+          "narration": "Überprüfung der Tabellen pro Rahmen und pro Strecke zusammen mit Flugbahn- und Qualitätskontrolle-Zahlen. Bestätigen Sie die Streckenkontinuität, Kalibrierungseinheiten und Gruppenetiketten, bevor Sie die Bedingungen vergleichen."
+        }
+      ]
+    },
+    {
+      "id": "19_train_cellpose",
+      "scenes": [
+        {
+          "narration": "Train Cellpose passt ein Segmentierungsmodell aus Paar-Mikroskopiebildern und Instanz-Label-Masken an. Die Konsole berichtet über die Datenvalidierung, den Fortschritt, den Checkpoint-Pfad und die Wiedergabe."
+        },
+        {
+          "narration": "Wählen Sie die Datenbank-Wurzel mit entsprechenden Trainingsbildern und Masken aus. Überprüfen Sie die Qualität des Etiketts und reservieren Sie repräsentative Felder, die nicht zum Modell passen."
+        },
+        {
+          "narration": "Die Essentials enthalten die für eine erste Kalibrierung notwendigen Kontrollen. Benutzen Sie Modified zur Prüfung von Änderungen, All für Vorverarbeitung und Laufzeitoptionen und Rezepte für ein wiederholbares Trainingsdesign."
+        },
+        {
+          "narration": "Startpunkt wählt die Modellfamilie, vorgebildete Kontrollstelle, Fein-Tuning oder Training von Grund auf und Ausgabe-Namen. Ein Fein-Tuning erfordert in der Regel weniger überarbeitete Bilder als ein zufälliger Start."
+        },
+        {
+          "narration": "Die Ausbildungsplanung setzt Lernrate, Regulierung, Batches, Erhöhung und Epochen fest. Erhöhen Sie die Ausbildung erst, wenn Bildmaskenpaare und ausgehaltenen Bewertungen korrekt sind."
+        },
+        {
+          "narration": "Bildgeometrie erfasst die Quelle und Zielgröße, erwartete Objektskala und Umgrößerung. Bilder und Masken müssen gleichzeitig die identische Kennzeichnung erhalten."
+        },
+        {
+          "narration": "Hintergrund und Verweigerung gilt vor dem Training eine optionale Intensitätsreinigung. Verwenden Sie ihn nur, wenn die gleiche Vorverarbeitung während der Anwendung des Modells reproduziert werden kann."
+        },
+        {
+          "narration": "Run validiert die entsprechenden Dateinamen, sieht die gepaarte Felder vor und beginnt das Training. Überprüfen Sie das Bild über der Maske im Bildschirm, bevor Sie einem langen Passvertrauen vertrauen."
+        },
+        {
+          "narration": "Nach der Ausbildung werden die Bewerber an den ausgehaltenen Feldern überprüft und Fehler, nicht nur Verluste, überprüft. spaCR speichert den Checkpoint, die Einstellungen, das Run Manifest und die Paarungs-Feld-Vorsichten zusammen."
+        }
+      ]
+    },
+    {
+      "id": "20_cellpose_masks",
+      "scenes": [
+        {
+          "narration": "Cellpose Masken wenden ein verpacktes Modell oder einen benutzerdefinierten Kontrollpunkt auf mikroskopische Bilder an. Die Konsole erfasst die Modelllösung, die Vorverarbeitung, den Fortschritt, die Diagnose und die Ausgabe."
+        },
+        {
+          "narration": "Input and Channels wählt den Bildordner, die Ebene, das Grauzal- oder Umkehrverhalten und die optionale Normalisierung aus. Überprüfen Sie zunächst den Kanal; verwenden Sie die Vorverarbeitung nur, wenn die repräsentativen Bilder dies erfordern."
+        },
+        {
+          "narration": "Die Essentials enthalten die für eine erste Anwendung erforderlichen Kontrollen. Verwenden Sie Modified zur Prüfung des aktuellen Modells und der Vorverarbeitung, All für Geometrie und Laufzeit und Rezepte für wiederholbare Ablüsse."
+        },
+        {
+          "narration": "Das Modell wählt die verpackten Gewichte oder einen benutzerdefinierten Checkpoint aus und erfasst die erwartete Objektskala. Die Kontrollstelle und die Kanalordnung sollten den während des Trainings verwendeten Bildern entsprechen."
+        },
+        {
+          "narration": "Die Erkennungsschwellen steuern die Wahrscheinlichkeit, die Strömungsvereinbarung, die Umschätzung, die Umprobung und die Ausfüllung von Löchern. Passen Sie sie erst nach Bestätigung des Bildes, Kanals, Modells und der Skala an."
+        },
+        {
+          "narration": "Die Bildgeometrie kann Felder zur Ableitung umgrößern und Masken in ursprüngliche Dimensionen wiederherstellen. Halten Sie das Bildverhältnis und halten Sie das Pixel-Skala im Einklang mit dem Training."
+        },
+        {
+          "narration": "Die Ausgangs- und Laufzeitsteuerungen speichern Masken, Batchgröße und Diagnosezahlen. Verringern Sie die Menge, wenn das Akcelerator-Speicher begrenzt ist."
+        },
+        {
+          "narration": "Run lädt den Checkpoint ein, setzt die konfigurierte Vorverarbeitung ein, prognostiziert Masken und Flüsse, führt ausgewählte Reinigungen durch und speichert jedes Etikettbild."
+        },
+        {
+          "narration": "Inspektieren Sie vor der Messung nach unten repräsentative Originale, Masken- und Flowfelder im Bildpaneel. Wählen Sie aus diesen Vorschauvorgaben Normung und Schwellenwerte aus, anstatt Tutorialwerte zu kopieren."
+        }
+      ]
+    },
+    {
+      "id": "21_model_compare",
+      "scenes": [
+        {
+          "narration": "Modellvergleich kombiniert Objektzahlen, Vordergrundvereinbarung, Übereinstimmung, Fragmentierung und Seite an Seite-überlagerungen, so dass zwei Segmentierungskandidaten auf den gleichen Feldern bewertet werden können."
+        },
+        {
+          "narration": "Wählen Sie einen kleinen, aber repräsentativen Bildordner und begrenzen Sie die Feldzahl für den interaktiven Vergleich. Nehmen Sie einfache und schwierige Beispiele ein, anstatt nur saubere Felder einzubeziehen."
+        },
+        {
+          "narration": "Konfiguration von Modell A und Modell B. Halten Sie die Kanäle, die Skala, die Vorverarbeitung und die geteilten Schwellenwerte übereinstimmend, es sei denn, diese Einstellung ist der beabsichtigte Unterschied."
+        },
+        {
+          "narration": "Vergleichen Sie Segmente jedes ausgewählten Feld mit beiden gelösten Konfigurationen. Erweiterte Argumente werden aufgezeichnet und nicht unterstützte Parameter werden gemeldet, anstatt schweigend als wirksam behandelt zu werden."
+        },
+        {
+          "narration": "Die Parameter, die jedes Modell erreicht haben, trennen die ausgezeichneten Werte von veralteten oder ignorierten Kontrollen. Bestätigen Sie, daß sich der Vergleich tatsächlich auf die beabsichtigte Weise unterscheidet."
+        },
+        {
+          "narration": "Die Feldtabellberichte zählen, in den Vordergrund einig werden, die überlappenden, Spalten, Fusionen, unübertroffene Objekte und unabhängige Qualitätskontrollen der Masken. Keine einzelne Metrik erfasst jeden Ausfallmodus."
+        },
+        {
+          "narration": "Wählen Sie eine Reihe aus, um beide Vorschau zu überprüfen. Suchen Sie nach neuen Erkennungen, Verfehlungen, Grenzänderungen, Splits und Fusionen, und wiederholen Sie sich dann über repräsentative Felder hinweg."
+        },
+        {
+          "narration": "Wählen Sie nur dann ein Modell, wenn die visuellen Unterschiede und Messwerte die Fehler verbessern, die für die Nachstumsanalyse wichtig sind. Gleiches Ergebnis ist informativ und zeigt keine Verbesserung."
+        }
+      ]
+    },
+    {
+      "id": "22_model_zoo",
+      "scenes": [
+        {
+          "narration": "Das Modell Zoo enthält eine Liste wiederverwendbarer Modelle, die aus gebündelten, lokalen oder deklarierten Katalogquellen verfügbar sind. Beginnen Sie mit der Abgleich der Aufgabe, Kanäle, Objektskala und erwarteter Vorverarbeitung."
+        },
+        {
+          "narration": "Wählen Sie einen Modellordner aus und scannen Sie ihn. Der Katalog hält lokale Wege und ferne Metadaten zusammen und vermeidet gleichzeitig duplizierte Einträge."
+        },
+        {
+          "narration": "Wählen Sie ein Modell aus, um seine Herkunft, Lizenz, Prüfsumme, Ausbildungskontext und erwartete Geometrie zu überprüfen. Ein erfolgreich geladenes Modell ist nicht automatisch für Ihre Bilder geeignet."
+        },
+        {
+          "narration": "Wählen Sie für einen begrenzten Benchmark eine kleine Reihe repräsentativer Felder, einschließlich schwieriger Beispiele."
+        },
+        {
+          "narration": "Test ein installiertes Modell. Die Benchmark berichtet über Geschwindigkeit, Objektezahl, Qualitätsflaggen und Vorschau, ohne diese Kontrollen als Grundwahrheit zu betrachten."
+        },
+        {
+          "narration": "Überprüfen Sie den Tisch und die Maskenvorführung zusammen. Untersuchen Sie die Warnungen im Bildkontext, bevor Sie ein Modell akzeptieren oder ablehnen."
+        },
+        {
+          "narration": "Wählen Sie zwei kompatible lokale Modelle aus, wenn Sie eine kontrollierte Seite an Seite-Basis-Evaluierung benötigen."
+        },
+        {
+          "narration": "Modellvergleich erhält sowohl Kontrollpunkte als auch die gleichen Felder, so dass Unterschiede in Masken und Qualitätsmessungen auf identischen Eingaben beurteilt werden können."
+        }
+      ]
+    },
+    {
+      "id": "23_agreement",
+      "scenes": [
+        {
+          "narration": "Annotator Agreement vergleicht kategorische Etikettkolonnen ohne Datenbankänderung. Verwenden Sie es für Rezensenten, Anmerkungen oder Rezensenten-Vergleiche-Checks."
+        },
+        {
+          "narration": "Öffnen Sie eine Messdatenbank oder führen Sie einen Ordner aus. spaCR entdeckt Anmerkungen und Vorhersage Spalten, die sich auf die gleichen Objekte beziehen."
+        },
+        {
+          "narration": "Wählen Sie mindestens zwei Spalten aus. Zusätzliche Spalten ermöglichen Paarevergleiche und eine Mehr-Rater-Übersicht."
+        },
+        {
+          "narration": "Die Abrechnungsabkommen richten die Etiketten nach Objekten aus. Die fehlenden Etiketten werden als Abstinenz berichtet, anstatt als Meinungsverschiedenheiten zu zählen."
+        },
+        {
+          "narration": "Lesen Sie zusammen die Rohvereinbarung, die Klassenbilanz, die Abstinenzen und Kappa. Kappa kann undefiniert sein, wenn eine Spalte nur eine Klasse enthält; das ist eine Prävalenzwarnung, nicht Nullvereinbarung."
+        },
+        {
+          "narration": "Verwenden Sie die Verwirrungsplatz, um zu sehen, welche Klassen verwirrt sind und ob Ungleichgewicht die Zusammenfassung dominiert."
+        },
+        {
+          "narration": "Die Tabelle der Meinungsverschiedenheiten zeigt die genauen Gegenstände an, die überarbeitet werden müssen."
+        },
+        {
+          "narration": "Inspektieren Sie repräsentative Kulturen, bevor Sie Etiketten oder Klassendefinitionen ändern. Aggregate Statistiken können nicht erklären, warum die Bewertungsleute nicht einverstanden waren."
+        }
+      ]
+    },
+    {
+      "id": "24_plaque",
+      "scenes": [
+        {
+          "narration": "Plaque Assay misst die bereinigten Regionen in Plattenbildern. Die Konsole erfasst gelöste Einstellungen, Fortschritte, Warnungen und Ausgangswege."
+        },
+        {
+          "narration": "Wählen Sie den Ordner für das Bild auf der Plaque und entscheiden Sie sich, ob Sie die Quellbilder segmentieren oder die korrekt benannten Etikettenmasken wiederverwenden möchten."
+        },
+        {
+          "narration": "Die Essentials enthalten die für einen ersten Lauf erforderlichen Kontrollen. Modifizierte Audits machen bewusste Änderungen, während All fortschrittliche Fehlerbehebungssteuerungen aufdeckt."
+        },
+        {
+          "narration": "Das Modell und die erwartete Plackenskala mit repräsentativen Bildern vergleichen, anstatt einen Tutorialwert zu kopieren."
+        },
+        {
+          "narration": "Die Erkennungsvorgaben beeinflussen die Kandidatenregionen, die Formkonsistenz, die Wiederprobe und die Reinigung. Sie werden aus mehreren Kontroll- und Behandlungsbrunnen abgestimmt."
+        },
+        {
+          "narration": "Verwenden Sie nur Hintergrundkorrektur oder Verweigerung, wenn die Vorsicht zeigt, dass die Übernahme dies erfordert."
+        },
+        {
+          "narration": "Laufen Sie nach der Überprüfung der Quelle, des Modells, des Skalens und des Ausgabeverhaltens. Beginnen Sie mit einem kleinen Validierungssatz, wenn die Segmentierung umkalibriert wird."
+        },
+        {
+          "narration": "Überlagerungen und Verteilungen der Plaque überprüfen, bevor Sie die Bedingungen vergleichen. Die Datenbank, Zusammenfassungen, Statistiken und Qualitätskontrolle sind weiterhin mit dem Betrieb verbunden."
+        }
+      ]
+    },
+    {
+      "id": "25_recruitment",
+      "scenes": [
+        {
+          "narration": "Die Rekrutierung liest bestehende Messungen und berechnet die Markerreicherung in den mit Parasiten assoziierten Regionen. Es segmentiert keine Bilder mehr."
+        },
+        {
+          "narration": "Wählen Sie die Experimentwurzel, die die Messdatenbank und die verschmelzten Felder enthält."
+        },
+        {
+          "narration": "Die Essentials enthalten Quelle, Kanalkarte, Filter, Plattenetiketten und diagnostische Kontrollen. Modified bietet eine kompakte Vorführungsaudit."
+        },
+        {
+          "narration": "Mappe jede Intensität und maskiere die Ebene sorgfältig, dann wähle den Channel des Interesses. Ein gültiger, aber falscher Kanalindex kann immer noch plausible Verhältnisse erzeugen."
+        },
+        {
+          "narration": "Objektfilter entfernen unwahrscheinliche Zellen, Kerne und Parasiten. Wählen Sie die Toren aus Verteilungen und Überlagerungen statt festgelegten Tutorialwerte."
+        },
+        {
+          "narration": "Kartenbedingungen und Kontrollen zu den korrekten Kennzeichen der Platte vor der Interpretation von Gruppenunterschieden."
+        },
+        {
+          "narration": "Run vereint Messungen, wendet die überprüften Toren an, berechnet Rekrutierung, gruppiert Brunnen und erstellt Diagnostik."
+        },
+        {
+          "narration": "Überprüfen Sie Segmentierungsschläge und kontrollieren Sie die Verteilung, bevor Sie Konditionssummaries vertrauen. Objekt- und Well-Level-Ausgänge behalten ihre Quell-Identifikatoren."
+        }
+      ]
+    },
+    {
+      "id": "26_invasion",
+      "scenes": [
+        {
+          "narration": "Invasion Assay bewertet die Messungen von Parasiten aus einem zweifarbigen Farbdesign. Die Konsole erfasst Einstellungen, Qualitätskontrollen und Ausgänge."
+        },
+        {
+          "narration": "Wählen Sie ein Experiment mit Parasitenmessungen, Fleckenkanälen, Kontrollen und Plattenmetadaten."
+        },
+        {
+          "narration": "Die Essentials zeigen die Eingaben, die Kanalkarte, die Schwellenwerte, die Kontrollen, Filter und die Ausgänge, die für eine erste Analyse erforderlich sind."
+        },
+        {
+          "narration": "Mappe der äußeren Fleck und der Gesamtparasitenfleck in der richtigen Reihenfolge. Das Austausch von diesen Wegen umkehrt die biologische Interpretation, ohne zwangsläufig einen Fehler zu verursachen."
+        },
+        {
+          "narration": "Ableiten Sie Klassifikationsschwellen aus geeigneten Kontrollen und überprüfen Sie die Empfindlichkeit um die gewählte Grenze."
+        },
+        {
+          "narration": "Definition von Farbkontrollen und Mindestbeweise für Felder und Brunnen, damit schwache Gruppen gemeldet werden, anstatt überinterpretert zu werden."
+        },
+        {
+          "narration": "Führen Sie nach Überprüfung von Fleckkarten, Steuerungen, Objektfiltern und Zustandmetadaten aus."
+        },
+        {
+          "narration": "Überprüfen Sie beigefügte, eingedrungen und unsichere Beispiele zusammen mit gut ausgebauten Zusammenfassungen. Die ausgeführten Ergebnisse behalten die Anwendungs- und Quellkennungswerte."
+        }
+      ]
+    },
+    {
+      "id": "27_replication",
+      "scenes": [
+        {
+          "narration": "Replikations-Assay-Score-Zählungen pro Vakuole von Parasiten aus bestehenden Beziehungen und Messungen. Die Konsole erfasst Einstellungen, Filterungen und Ausgänge."
+        },
+        {
+          "narration": "Wählen Sie die experimentelle Wurzel und bestätigen Sie, dass Gastzellen, Vakuolen und Parasiten stabile Identifikatoren haben."
+        },
+        {
+          "narration": "Essentials präsentiert die Zuordnung, Zustand, Filterung, Scoring und Ausgabe-Kontrollen. Verwenden Sie Modified, um absichtliche Änderungen zu überprüfen."
+        },
+        {
+          "narration": "Wählen Sie, wie Parasiten den Vakuolen zugeordnet werden und wie mit zweideutigen oder fernen Beziehungen umgehen."
+        },
+        {
+          "narration": "Filtersegmentierungsfehler aus überprüften Verteilungen und Bildern, ohne ungewöhnliche, aber gültige Vakuole zu löschen."
+        },
+        {
+          "narration": "Definition der Parasitenzahlgruppen und Zusammenfassungen, die die biologische Frage beantworten, bevor Statistiken durchgeführt werden."
+        },
+        {
+          "narration": "Laufen Sie nach der Prüfung von Aufgaben, Bedingungen, Filtern und Punkte-Definitionen."
+        },
+        {
+          "narration": "Inspektieren Sie die Vakuolen über den Zählbereich hinweg und überprüfen Sie die verschmolzenen oder fragmentierten Masken. Die gespeicherten Verteilungen und Statistiken bleiben mit Objektsprüfungen verbunden."
+        }
+      ]
+    },
+    {
+      "id": "28_training_runs",
+      "scenes": [
+        {
+          "narration": "Training Runs vergleicht mehrere Anpassungen, ohne die Modellwahl auf einen Verlustwert zu reduzieren."
+        },
+        {
+          "narration": "Wählen Sie einen Ordner oder ein Register aus, in dem kompatible Trainings ausgeführt werden, und scannen Sie ihn."
+        },
+        {
+          "narration": "Überprüfen Sie entdeckte Läufe, verfügbare Metriken, unvollständige Aufzeichnungen und Warnungen, bevor Sie Kandidaten auswählen."
+        },
+        {
+          "narration": "Wählen Sie die Messwerte, die Glanzungen, das Falten-Display und die Einstellungsfelder aus, die verglichen werden sollen."
+        },
+        {
+          "narration": "Überlagerung von Validierungsverhalten, um Konvergenz, Stabilität und Überpassungen auf den gleichen Achsen zu vergleichen."
+        },
+        {
+          "narration": "Vergleichen Sie den besten Checkpoint mit dem letzten Checkpoint, wenn die späte Ausbildung die Allgemeinheit beeinträchtigt hat."
+        },
+        {
+          "narration": "Die Fold-Überschnitte zeigen die Variation, die durch eine einzige Aggregatkurve verborgen ist."
+        },
+        {
+          "narration": "Verwenden Sie per Fold Kurven und die Einstellungen Diff mit ausgehaltenen Leistungen, um eine reproduzierbare Laufzeit auszuwählen."
+        }
+      ]
+    },
+    {
+      "id": "29_report",
+      "scenes": [
+        {
+          "narration": "Report stellt eine nachvollziehbare Projektübersicht zusammen, anstatt Sie zu bitten, Zahlen und Einstellungen manuell zu kopieren."
+        },
+        {
+          "narration": "Wählen Sie ein abgeschlossenes Projekt oder führen Sie einen Ordner aus und scannen Sie die verfügbaren Beweise."
+        },
+        {
+          "narration": "Überprüfen Sie das erkannte Qualitätsurteil und die fehlenden Eingabevorteile, bevor Sie die Berichtsbereiche wählen."
+        },
+        {
+          "narration": "Die Qualitätsprüfung, Zahlen, Statistiken, Einstellungen und Herkunft, die das Publikum benötigt, sind nur enthalten."
+        },
+        {
+          "narration": "Setze Titel, Urheberrecht, Ausgabeformat, Zifferbeschränkungen und alle für die Privatsphäre empfindlichen Ausschlüsse."
+        },
+        {
+          "narration": "Erstellen nach der Behebung fehlender Dateien und fehlender Qualitätskontrollen, die das Dokument irreführend machen würden."
+        },
+        {
+          "narration": "Überprüfen Sie den abgeschlossenen Bericht und überprüfen Sie die Schlussfolgerungen, Versionen und Links, bevor Sie ihn teilen."
+        }
+      ]
+    },
+    {
+      "id": "30_plate_queue",
+      "scenes": [
+        {
+          "narration": "Plate Queue setzt einen validierten Workflow auf mehreren Platten ein und hält den Zustand jeder Platte separat."
+        },
+        {
+          "narration": "Fügen Sie das aktuell konfigurierte Modul oder eine vorbereitete Plattenquelle in die Warteschlange hinzu."
+        },
+        {
+          "narration": "Fügen Sie weitere Platten hinzu und überprüfen Sie deren Quelle, Ziel, Einstellungen und Reihenfolge in der Tabelle."
+        },
+        {
+          "narration": "Wählen Sie die Grenzen für die Arbeiter, stoppen Sie das Verhalten und setzen Sie die Politik wieder auf. Der Warteschlang bleibt erhalten, sodass eine Unterbrechung den Plan nicht löscht."
+        },
+        {
+          "narration": "Testen Sie den Workflow auf einer begrenzten Platte oder einem Feld, bevor Sie die verbleibende Schlange starten."
+        },
+        {
+          "narration": "Beim Ausführen folgen Sie den Prozentsatz pro Plate und öffnen Sie Logs, wenn ein Element warnt oder fehlt."
+        },
+        {
+          "narration": "Fertiggefertigte Platten behalten isolierte Ausgänge und führen Aufzeichnungen; gestoppte oder fehlgeschlagenen Elemente bleiben identifizierbar und können wieder aufgenommen werden."
+        }
+      ]
+    },
+    {
+      "id": "31_external_masks",
+      "scenes": [
+        {
+          "narration": "External Masks importiert Quellbilder und externe Etiketten, bereitet das Projekt dann für die normale spaCR Messung und Anmerkung vor."
+        },
+        {
+          "narration": "Fügen Sie Bilder und Maskenquellen hinzu, und überprüfen Sie dann, ob spaCR die beabsichtigten Rollen erkannt hat."
+        },
+        {
+          "narration": "Mappe jeden Eingang in seine Objektklasse. Überprüfen Sie Dateinamen, Abmessungen und Feldpaare, anstatt sich auf eine abgeleitete Aufgabe zu verlassen."
+        },
+        {
+          "narration": "Input Mapping steuert die Kanal- und Masken-Flug-Bestellung, Benennung und Ziellösung."
+        },
+        {
+          "narration": "Die Messungseinrichtungen definieren, welche Objekte und Merkmale nach der Einfuhr hergestellt werden sollten."
+        },
+        {
+          "narration": "Halten Sie die Vorschau für den ersten Lauf aktiviert und wählen Sie ein neues Ziel."
+        },
+        {
+          "narration": "Überprüfen Sie Pairing, Kanalzählung, Objektklassen, Warnungen und Blockfehler, bevor Sie etwas schreiben."
+        },
+        {
+          "narration": "Führen Sie die überprüften Importe aus. Die daraus resultierenden Bilder, Masken, Messungen und Herkunft sind für die Abfassung im Nachstrom bereit."
+        }
+      ]
+    },
+    {
+      "id": "32_align_stitch",
+      "scenes": [
+        {
+          "narration": "Align und Stitch trennen die Registrierungsplanung vom Schreiben ab, damit zuerst die Platzierung und Ressourcenschätzungen überprüft werden können."
+        },
+        {
+          "narration": "Wählen Sie den Ordner und das Ziel, so dass die Quellverkäufe unverändert bleiben."
+        },
+        {
+          "narration": "Beschreiben Sie die Gridfolge, die Überlagerung, die Stufeninformationen und einen Referenzkanal, der nützliche Struktur enthält."
+        },
+        {
+          "narration": "Konfiguration von Match-Vertrauen, Nachbarbeschränkungen, Mischung und Speicherbudget für Ausgangsschichten."
+        },
+        {
+          "narration": "Plan schätzt Paarevergleichungen und löst akzeptierte Beschränkungen, ohne das Mosaik zu erstellen."
+        },
+        {
+          "narration": "Inspektieren Sie registrierte und fallback-Fliesen, Rückstände, Vertrauen, Leinwandgröße und schreiben Sie eine Schätzung."
+        },
+        {
+          "narration": "Wählen Sie schwache oder isolierte Fliesen aus, um ihre gelöste Position zu verstehen, bevor Sie die Ausgabe ausführen."
+        },
+        {
+          "narration": "Schreiben Sie erst, wenn der Plan akzeptabel ist. spaCR speichert das Mosaik, verwandelt, koordiniert und registriert."
+        }
+      ]
+    },
+    {
+      "id": "33_plate_viewer",
+      "scenes": [
+        {
+          "narration": "Plate Viewer verwandelt die Objekte in Wärmepläne mit Raumqualitätskontrollen."
+        },
+        {
+          "narration": "Öffnen Sie eine Messdatenbank oder führen Sie einen Ordner aus. Die Quelle ist nur für Lesen abrufbar."
+        },
+        {
+          "narration": "Wählen Sie die Objekttabelle, das Zahlenmerkmal und die zu anzeigende Platte aus."
+        },
+        {
+          "narration": "Wählen Sie Aggregation, Farbskalierung und die Mindestbeweise für einen Brunnen. Die Zahl ist nützlich, um Unterschiede zwischen Segmentierungen oder Aussaat zu erkennen."
+        },
+        {
+          "narration": "Darstellen Sie die Ansicht, vergleichen Sie die Heatmap mit Zeilen-, Spalten-, Ring- und Randdiagnostiken."
+        },
+        {
+          "narration": "Wählen Sie einen Brunnen aus, um den Kennzeichen, die Anzahl der Objekte, den angezeigten Wert und die Position zu überprüfen."
+        },
+        {
+          "narration": "Die Überschrift der Daten ist nicht zu erfassen."
+        },
+        {
+          "narration": "Exportieren Sie das aktuelle, ordentliche Brunnennetz mit Zählen und räumlichen Anmerkungen zur Prüfung oder Umgestaltung."
+        }
+      ]
+    },
+    {
+      "id": "34_database",
+      "scenes": [
+        {
+          "narration": "Der Datenbankbrowser überprüft große spaCR-Datenbanken in einer begrenzten, nur zu lesen Ansicht."
+        },
+        {
+          "narration": "Wählen Sie eine Messdatenbank oder den Ausführungsordner aus und öffnen Sie diese."
+        },
+        {
+          "narration": "Wählen Sie eine Tabelle aus, nachdem Sie ihren Zweck und den Status als nur zu lesen überprüft haben."
+        },
+        {
+          "narration": "Die Vorschau lädt eine begrenzte Seite auf und meldet die gesamte Zeile- und Spaltezahl separat."
+        },
+        {
+          "narration": "Suche nach Spalten, um breite Feature-Tabellen ohne Änderung der zugrunde liegenden Zeilen lesbar zu machen."
+        },
+        {
+          "narration": "Bauen Sie einen strukturierten Filter. Die Spaltennamen und -betreiber werden validiert und die Werte sind sicher gebunden."
+        },
+        {
+          "narration": "Die genaue Filterzahl beschreibt die gesamte Abfrage, obwohl nur eine Seite gezeichnet wird."
+        },
+        {
+          "narration": "Exportieren Sie den kompletten Stromfilter und die Auswahl der sichtbaren Spalten. Die Quelldatenbank bleibt unverändert."
+        }
+      ]
+    },
+    {
+      "id": "35_converter",
+      "scenes": [
+        {
+          "narration": "Format Converter verwendet einen Vorschau-erster Workflow, so dass Benennung und Dimensionalen Kartierung sichtbar sind, bevor Dateien geschrieben werden."
+        },
+        {
+          "narration": "Wählen Sie die Quelldateien und ein separates Ziel."
+        },
+        {
+          "narration": "Beschreiben Sie das Ordnerlayout, die Reihe, die Zeit, die Tiefe, die Plattenbenennung und das Wiederholungsverhalten. Projektionsoptionen entsorgen Informationen, also wählen Sie sie absichtlich aus."
+        },
+        {
+          "narration": "Die Vorschau scannt die Kopfzeilen und erstellt den Konversionsplan, ohne Bilder zu schreiben."
+        },
+        {
+          "narration": "Überprüfen Sie jede Quelle neben der Zielplatte, dem Brunnen, dem Feld, dem Kanal, der Zeit und der Tiefe."
+        },
+        {
+          "narration": "Nur wenn die Kartierung korrekt ist und die Kollisionsprüfungen bestehen. Quellen werden nie umbenannt oder ersetzt."
+        },
+        {
+          "narration": "Das Ergebnis umfasst standardisierte TIFFs und eine Herkunftskarte zu jeder ursprünglichen Datei und Identifikator."
+        },
+        {
+          "narration": "Das Lebenslauf validiert die abgeschlossenen Feldkontrollstellen, bevor man sie überspringt, so dass fehlende oder beschädigte Ausgänge wieder aufgebaut werden."
+        }
+      ]
+    },
+    {
+      "id": "36_import",
+      "scenes": [
+        {
+          "narration": "Import Project trennt abgeleitete Kartierungen von überprüften Entscheidungen, bevor ein spaCR-Projekt erstellt wird."
+        },
+        {
+          "narration": "Wählen Sie externe Bilder und einen neuen Zielort, wobei die Originaldateien erhalten bleiben."
+        },
+        {
+          "narration": "Fügen Sie jede Maskenklasse hinzu und überprüfen Sie, ob jedes Feld die erwarteten entsprechenden Etiketten hat."
+        },
+        {
+          "narration": "Fügen Sie Messungen, Kalibrierung, Identifikatoren und eine Konfliktpolitik für ausländische Spaltennamen hinzu."
+        },
+        {
+          "narration": "Die Vorschau überprüft Überschriften, Feldpaare, Etiketten, Verbindungen, Einheiten und Namenskonflikte, ohne Projektdaten zu schreiben."
+        },
+        {
+          "narration": "Überprüfen Sie jede vorgeschlagene Zielspalte, transformieren, vereinen und sich der Warnung anschließen."
+        },
+        {
+          "narration": "Korrigieren Sie direkt abgeleitete Kartierungen und führen Sie die Validierung erneut fort, bis der Plan das Quellversuch widerspiegelt."
+        },
+        {
+          "narration": "Importieren Sie nur den überarbeiteten Plan. spaCR schreibt kanonische Bilder, Masken, Messungen und Herkunft, während er externe Identifikatoren behält."
+        }
+      ]
+    },
+    {
+      "id": "37_batch",
+      "scenes": [
+        {
+          "narration": "Batch Runner stapelt willkürliche spaCR-Module und -Einstellungen in eine unbeaufsichtigte Warteschlange. Im Gegensatz zu Plate Queue, die eine Pipeline auf viele Platten anwendet, kann Batch Runner Module, Eingaben, Überschreitungen und Abhängigkeiten mischen. Jobs laufen streng eins nach dem anderen, also konkurrieren sie nicht um eine GPU."
+        },
+        {
+          "narration": "Wählen Sie ein Headless-Modul und die genaue Einstellungsdatei, die der Job erhalten sollte. Fügen Sie ein beschreibendes Etikett, optionelle Stellenanforderungen und optionelle Schlüssel-Gleich-Wert-Überschriften hinzu. Dieser erste Job führt eine echte Verlustfreie Umwandlung eines vierkanalen Feldes durch. Klicken Sie auf \"Arbeit hinzufügen\"."
+        },
+        {
+          "narration": "Der Job erhält den stabilen Identifikator convert-1 und wird sofort überprüft. Batch Runner löst Modulvorfälle, analysiert die Einstellungsdatei und überträgt, validiert Wege und Werte und weigert einen ungültigen Job jetzt, anstatt ihn während eines Übernachtungsuntergangs zu entdecken."
+        },
+        {
+          "narration": "Die zweite echte Konversionsname konvertiert-1 in After, so dass es nur läuft, wenn diese Voraussetzung erfolgreich ist. Seine plate_naming = Name-Override wird über die gespeicherten Einstellungen überlagert, ohne die Datei zu kopieren. Wenn Converter-1 fehlschlägt, wird dieser Job als übersprungen gekennzeichnet, anstatt auf unvollständiger Upstream-Ausgabe zu laufen. Klicken Sie auf \"Arbeit hinzufügen\"."
+        },
+        {
+          "narration": "Die dritte echte Umstellung hat keine Voraussetzung und kann immer noch laufen, wenn ein unabhängiger Job im Rahmen der Politik der Weiterführung gegen Fehler versagt. Fügen Sie es als unabhängigen Job hinzu. Diese Lektion verwendet drei übertragene Mikroskopiefelder, die von Byte zu Byte in isolierte Ordner kopiert werden; jeder in der Schlange verarbeiteten Prozess führt eine echte Konvertierung durch."
+        },
+        {
+          "narration": "Die Tabelle zeigt nun die Lauffolge, stabile Stellenanzeigen, Module, Etiketten, Abhängigkeiten, noch auf dem Laufenden, vergangene Zeit und das eigene Protokoll jedes Jobs. Wählen Sie eine Zeile aus, um die Einstellungen und das Protokoll zu überprüfen. Die Kontrollen Duplizieren, Entfernen und Bewegen erstellen und umordnen eine größere Arbeitsnacht."
+        },
+        {
+          "narration": "Wählen Sie die unabhängige dritte Stelle aus und klicken Sie auf \"Aufwärts\". Hier ist die Neuanordnung sicher, weil die abhängige Konvertierung unter dem Konvertierung-1-Wert bleibt. Wenn eine Voraussetzung unter ihrem Abhängigen bewegt wird, entsteht ein sichtbarer Validierungsfehler und der Lauf wird deaktiviert."
+        },
+        {
+          "narration": "Klicken Sie auf Validieren, nachdem Sie eine Schlange bearbeitet oder geladen haben. Die Validierung meldet jeden Fehler und jede Warnung zusammen: fehlende Einstellungen, unbekannte Module, ungültige Wege oder Werte, Duplikat-Identifikatoren, spätere Voraussetzungen und Abhängigkeitszyklen. Die Auslaufknopf bleibt deaktiviert, solange ein Blockproblem besteht."
+        },
+        {
+          "narration": "Alle drei Jobs sind gültig. Weiter auf dem Scheitern erlaubt unabhängige Jobs fortzusetzen, während Abhängige übersprungen werden; Halt am ersten Scheitern hält alles später. Die Grenze für die Folgeversagen hält eine Warteschlange, die aus demselben systematischen Grund wiederholt versagt. Hör auf, auf den aktuellen Job zu warten, um sicher zu sein, anstatt ihn zu schreiben."
+        },
+        {
+          "narration": "Klicken Sie auf Speichern der Warteschlange, bevor Sie sie unbeaufsichtigt lassen. Das lesbare JSON speichert Ordnung, Abhängigkeiten, Überschriften und Status. Batch Runner aktualisiert es nach jedem Übergang automatisch, so dass ein Neustart laufende oder nicht ausgeführte Aufgaben ohne Duplizierung der abgeschlossenen Arbeit wieder aufnehmen kann. Die Ladekarte stellt später das gleiche Ledger wieder her."
+        },
+        {
+          "narration": "Wenn die überprüfte Warteschlange gespeichert ist, klicken Sie auf Lauf-Warteschlange. Jeder Job startet als eigener Spacr-run-Prozess mit dieser spaCR-Umgebung. Ein Segmentierungskrash würde diesen Job eher beenden als die Schnittstelle oder später unabhängige Arbeit, und Standard-Ausgabe plus Fehler gehen in das separate Protokoll dieses Jobs."
+        },
+        {
+          "narration": "Alle drei wirklichen Subprozess-Jobs sind erfolgreich abgeschlossen. Die Progressleiste erreicht drei von drei, die Tabelle bewahrt jeden Status und die Dauer, die Zusammenfassung unterscheidet Erfolg, Misserfolg, Übersprung, Nicht-Run und teilweise Ergebnisse, und das Protokoll des ausgewählten Jobs enthält seinen genauen Befehl- und Konversionsbericht. Jedes Ziel enthält vier TIFFs und eine Herkunftskarte; alle Quell-Hashes bleiben unverändert."
+        }
+      ]
+    },
+    {
+      "id": "38_distributed_jobs",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt verteilte Jobs. Übermitteln und überwachen Sie die Arbeit von spaCR auf SSH-Arbeitsstationen, Slurm-Clustern oder auf Cloud- und HPC-Befehlen."
+        },
+        {
+          "narration": "Konfiguration eines Remote-Profilen, Verbindungsmethoden, Arbeitsverzeichnis, Umgebung und Datenwege."
+        },
+        {
+          "narration": "In der Hauptkonfiguration definieren Sie die Ressourcen des Planers, Befehlsvorlagen, Dateisinchronisierung, Anmeldeinformationen und Status-Umfragen."
+        },
+        {
+          "narration": "Vorlegen Sie einen kleinen Validierungsbeschluss, bevor Sie zu teuren Analysen gehen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, verfolgen lokale Aufzeichnungen Remote-Job-Identifikatoren, Logs, Zustand, übertragene Artefakte und Fehler."
+        }
+      ]
+    },
+    {
+      "id": "39_classifier_evaluation",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Bewertung von Klassifizierern. Prüfung von ausgehaltenen Vorhersagen, verknüpften Quervalidationen, Kalibrierung, Leckage und Performance pro Platte."
+        },
+        {
+          "narration": "Wählen Sie Vorhersagen mit Grundwahrheit, gespaltenen Metadaten, Plattenidentifikatoren, Wahrscheinlichkeiten und Modell-Rekord."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Klassenfolge, Schwellenwerte, Kalibrierungskörper, Gruppierung, Bootstrap-Unsicherheit und Leck-Checks."
+        },
+        {
+          "narration": "Bevor Sie einen Klassifikator für biologische Schlussfolgerungen verwenden, sollten Sie das ausgehaltene und pro Platt Verhalten bewerten."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, erstellt spaCR Diskriminierung, Kalibrierung, Verwirrung, Leckage und Robustkeitsberichte."
+        }
+      ]
+    },
+    {
+      "id": "40_run_history",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Laufgeschichte. Suchen Sie die Einstellungen, Dateien, Warnungen, Fehler und Leistungen jedes Jobs an einem Ort."
+        },
+        {
+          "narration": "Öffnen Sie das Ausführungsregister für den aktuellen Arbeitsplatz oder ausgewählte Projektwurzeln."
+        },
+        {
+          "narration": "Filtern Sie im Hauptkonfigurationsbereich nach Modul, Status, Datum, Projekt, Version, Warnung, Dauer oder Ressourcenverwendung."
+        },
+        {
+          "narration": "Öffnen Sie einen Run, um seine unveränderlichen Einstellungen, Logs, Ausgänge und Fehlerkontext zu überprüfen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können Sie vorherige Arbeiten reproduzieren, vergleichen, fortsetzen oder berichten, ohne zu raten, wie sie ausgeführt wurden."
+        }
+      ]
+    },
+    {
+      "id": "41_classify",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Classify. Wählen Sie einen Klassifizierungs-Workflow für Bildpflanzen oder gemessene Merkmale aus und bewerten Sie ihn, ohne verwandte Objekte über Splits zu verbreiten."
+        },
+        {
+          "narration": "Wählen Sie das Projekt, die Etiketten und den Bild- oder Funktionsarbeitsfluss aus."
+        },
+        {
+          "narration": "Überprüfen Sie im Hauptkonfigurationsbereich die gruppierten Splits, die Klassenbilanz, die Modellsteuerungen und die Metriken, die der Entscheidung entsprechen, die Sie treffen müssen."
+        },
+        {
+          "narration": "Führen Sie eine kleine, gruppierte Validierung durch, bevor Sie sich zu teuren Schulungen verpflichtet haben; die speziellen Kurse Classify CV und Classify ML zeigen ihre begrenzten Arbeitsplätze Hyperparameter Search."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, bleiben das Modell, die Vorhersagen, die Split-Date, die Messwerte und die Einstellungen mit dem Lauf verknüpft."
+        }
+      ]
+    },
+    {
+      "id": "42_curate",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Curate. Korrekt segmentierte Masken und Spuren manuell und dabei eine überprüfbare Aufzeichnung jedes Bearbeitens aufbewahren."
+        },
+        {
+          "narration": "Öffnen Sie ein Projekt und wählen Sie die Felder, Maskenklasse oder Spuren aus, die überarbeitet werden müssen."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich das Bearbeitungswerkzeug, das Etikettenverhalten, die Navigation und den Überprüfungsbereich vor dem Wechseln von Daten aus."
+        },
+        {
+          "narration": "Machen Sie eine kleine Korrektur, prüfen Sie die benachbarten Rahmen oder Objekte und speichern Sie nur, wenn die Bearbeitung korrekt ist."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden korrigierte Etiketten und Spuränderungen mit der Herkunft gespeichert, damit die nachgelagerten Messungen aktualisiert werden können."
+        }
+      ]
+    },
+    {
+      "id": "43_illumination",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Illumination. Schätzt und validiert die Flachfeldkorrektur, bevor die Intensitätsmerkmale gemessen werden."
+        },
+        {
+          "narration": "Wählen Sie repräsentative Fusionsfelder und die Kanäle, die korrigiert werden müssen."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden die Probenahme-, Glanzierungs-, Ausschluss- und Qualitätskontrollauswahlmöglichkeiten für jeden Kanal überprüft."
+        },
+        {
+          "narration": "Überprüfen Sie die geschätzten Beleuchtungsschichten und lehnen Sie die Korrekturen ab, die der biologischen Struktur folgen."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden genehmigte Korrekturfelder und Diagnosen für reproduzierbare Vorverarbeitung gespeichert."
+        }
+      ]
+    },
+    {
+      "id": "44_data_manager",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt den Datenmanager. Inspektieren Sie die Speicherung des Projekts und erholen Sie die abgeleiteten Dateien, ohne die ursprünglichen Akquisitionen zu berühren."
+        },
+        {
+          "narration": "Wählen Sie ein Projekt oder einen Arbeitsplatz aus und lassen Sie spaCR seine Artefakte inventarieren."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie Art, Größe, Herkunft, Wiederaufbaubarkeit und Abhängigkeitswarnungen, bevor Sie etwas auswählen."
+        },
+        {
+          "narration": "Überprüfen Sie den Reinigungsplan und entfernen Sie nur die von Ihnen erzeugten Artefakte, die Sie wieder aufbauen möchten."
+        },
+        {
+          "narration": "Wenn der Arbeitsfluss abgeschlossen ist, zeigt die aktualisierte Bestandsaufnahme und die Reinigungsunterlagen, was noch übrig ist und was wiederhergestellt werden kann."
+        }
+      ]
+    },
+    {
+      "id": "45_project_browser",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Project Browser. Finden Sie spaCR-Projekte und sehen Sie ihre Bühne, Größe, neueste Laufzeit und veraltete Ergebnisse in einem Tisch."
+        },
+        {
+          "narration": "Wählen Sie die Wurzeln aus, die Ihre Projekte enthalten, und scannen Sie sie."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden Filter und Sortierungen nach Stufe, Größe, Alter, Modulstatus oder veralteten Artefakten durchgeführt."
+        },
+        {
+          "narration": "Öffnen Sie ein ausgewähltes Projekt oder seine letzte Ausführung nach Überprüfung der Statusübersicht."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, verknüpft der Browser Sie mit den relevanten Dateien und Modulen, ohne die Projektdaten zu ändern."
+        }
+      ]
+    },
+    {
+      "id": "46_napari_bridge",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Napari Bridge. Überprüfen Sie eine Maske in Napari und geben Sie spaCR die korrigierten Etiketten mit Herkunft zurück."
+        },
+        {
+          "narration": "Wählen Sie ein Projekt, ein Feld und ein Maskenflugzeug aus, das Sie inspizieren möchten."
+        },
+        {
+          "narration": "In der Hauptkonfiguration bestätigen Sie die Kennzeichnungsklasse, die Quellbildschichten, die Bestimmungsort und die Überschriftungssicherheiten."
+        },
+        {
+          "narration": "Bearbeiten Sie die Etiketten in Napari, geben Sie sie an spaCR zurück und überprüfen Sie die Änderung vor der Annahme."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, bleiben die korrigierten Masken und die Kurationsakte mit dem ursprünglichen Feld verbunden."
+        }
+      ]
+    },
+    {
+      "id": "47_barcode_qc",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Barcode QC. Überprüfen Sie die Kartentiefe, die Abdeckung, die Kollisionen, die Positionswirkungen und eine auf Beweisen basierende Überflussschwelle."
+        },
+        {
+          "narration": "Öffnen Sie einen vollständigen Barcode-Mapping-Run mit Platten- und Bibliothekmetadaten."
+        },
+        {
+          "narration": "In der Hauptkonfiguration wird die vorgesehene Guide-Repräsentation, die Kontrollen, die Gruppierung und die Schwellenwaage überprüft."
+        },
+        {
+          "narration": "Erstellen Sie die Qualitätskontrolle-Ansichten und überprüfen Sie schwache Brunnen, unkartierte Lesungen und Bibliotheksdeckung zusammen."
+        },
+        {
+          "narration": "Wenn der Arbeitsfluss abgeschlossen ist, wird der Bericht die ausgewählte Überflussschwelle, die Diagnosen unterstützen und die betroffenen Brunnen aufzeichnen."
+        }
+      ]
+    },
+    {
+      "id": "48_hit_list",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Hit List. Rank und Review-Bildschirm-Schläge mit der Wirkung Größe, Unsicherheit, falsche Entdeckungsrate und Guide-Agreement."
+        },
+        {
+          "narration": "Wählen Sie eine abgeschlossenen Analyse und die Ergebnisspalten, die das Bildschirmergebnis definieren."
+        },
+        {
+          "narration": "In der Hauptkonfiguration konfigurieren Sie Kontrollen, Richtung, Bedeutung, Effektgröße, Anmerkungen und Vereinbarungsfilter."
+        },
+        {
+          "narration": "Überprüfen Sie die Rangliste und prüfen Sie einzelne Kandidaten, bevor Sie einen Enduntersatz exportieren."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, behalten die gefilterten Hitlisten Punkte, Beweise, Anmerkungen und Quellkennzeichen."
+        }
+      ]
+    },
+    {
+      "id": "49_methods_results",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Methoden und Ergebnisse. Entwerfen von nachverfolgbaren Methoden und Ergebnissen Text aus aufgezeichneten Laufen, anstatt Einstellungen aus dem Speicher zu rekonstruieren."
+        },
+        {
+          "narration": "Wählen Sie die Projekte und abgeschlossenen Laufzeiten aus, die das Dokument unterstützen sollten."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich Abschnitte, Vergleiche, Zahlen, Statistiken, Zitatenstil und Datenschutzempfindliche Felder aus."
+        },
+        {
+          "narration": "Erstellen Sie einen Entwurf und folgen Sie jeder Aussage zurück zu seinem Einstellungs-, Datei- oder berechneten Ergebnis."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden bearbeitbare Methoden und Ergebnissedokumente mit einer Übersicht über die Herkunft exportiert."
+        }
+      ]
+    },
+    {
+      "id": "50_run_compare",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Run Compare. Setzen Sie zwei Runs nebeneinander, um Änderungen in Einstellungen, Zählen, Ausgänge und Treffungen zu verstehen."
+        },
+        {
+          "narration": "Wählen Sie zwei kompatible Laufregister aus."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich aus, welche Einstellungen, Artefakte, Zählungen und Ergebnistabellen verglichen werden sollen."
+        },
+        {
+          "narration": "Berechnen Sie den Vergleich und prüfen Sie die Materialunterschiede, bevor Sie entscheiden, ob eine Prüfung die Analyse verbessert hat."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, verknüpft der Vergleichsbericht jeden Unterschied mit beiden Quellläufen."
+        }
+      ]
+    },
+    {
+      "id": "51_control_charts",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Kontrollkarten. Übertragung von Kontrollen über Platten und Erkennung von Drift gegen eine angegebene Basislinie."
+        },
+        {
+          "narration": "Wählen Sie wiederholte Kontrollmessungen mit Plattenreihenfolge und Basismetadaten aus."
+        },
+        {
+          "narration": "In der Hauptkonfigurationsfläche definieren Sie die Basislinie, die Gruppierung, die Zentrumlinie, die Grenzen und die Warnrichtlinie."
+        },
+        {
+          "narration": "Erstellen Sie das Diagramm und untersuchen Sie Schritte, Trends oder außer Kontrolle geratenen Platten im Kontext."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können die Diagramme, Warnungen und die Basisdefinition für die Kampagnenüberwachung exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "52_pipeline_graph",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Pipeline Graph. Siehe, welche Artefakte jedes Ergebnis hervorgebracht haben und welche nachgelagerten Ausgänge veraltet oder fehlen."
+        },
+        {
+          "narration": "Öffnen Sie ein spaCR-Projekt oder eine registrierte Laufkollektion."
+        },
+        {
+          "narration": "Filtern Sie im Hauptkonfigurationsbereich das Diagramm nach Modul, Art von Artefakt, Status oder Arbeitsflusszweig."
+        },
+        {
+          "narration": "Wählen Sie Knoten und Kanten aus, um ihre Einstellungen, Dateien, Abhängigkeiten und veraltete Gründe zu überprüfen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, wird die Grafik das genaue Modul identifiziert, das wieder ausgeführt werden sollte, um die Konsistenz wiederherzustellen."
+        }
+      ]
+    },
+    {
+      "id": "53_prediction_profiler",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt den Prognoseprofiler. Variablen Sie die Einträge eines Modells und beobachten Sie, wie eine geeignete Vorhersage reagiert."
+        },
+        {
+          "narration": "Wählen Sie ein passendes Modell, eine repräsentative Zeile und das Feature zu variieren."
+        },
+        {
+          "narration": "In der Hauptkonfigurationsfläche ist eine verteidigbare Funktionsbereichsbereiche festzulegen, während andere Eingaben absichtlich gehalten oder entnommen werden."
+        },
+        {
+          "narration": "Erstellen Sie das Profil und vergleichen Sie es zwischen relevanten Klassen oder Referenzobjekten."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, beschreibt die Reaktionskurve das Modellverhalten, nicht die kausalen biologischen Effekte, und kann mit seinen Einstellungen exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "54_qc_dashboard",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt das QC Dashboard. Kombinieren Sie Segmentierung, Einheit, Leckage, Plateneffekt und Anmerkungen in einer Überprüfung."
+        },
+        {
+          "narration": "Wählen Sie das Projekt und die Projekte, deren Qualitätsnachweise zusammengefasst werden sollten."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich wird überprüft, welche Kontrollen zur Verfügung stehen, deren Umfang und die Kriterien für jedes Urteil."
+        },
+        {
+          "narration": "Erneuern Sie das Dashboard und öffnen Sie die Warnkarten, um die zugrunde liegenden Beweise zu untersuchen."
+        },
+        {
+          "narration": "Wenn der Arbeitsfluss abgeschlossen ist, bleibt das kombinierte Urteil auf einzelne Berichte zurückzuführen, anstatt sie zu ersetzen."
+        }
+      ]
+    },
+    {
+      "id": "55_image_scatter",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Image Scatter. Erstellen Sie Abbildungen und überprüfen Sie das Bild hinter jedem Punkt."
+        },
+        {
+          "narration": "Wählen Sie eine Messtabelle, x und y-Funktionen und die Spalte der Bildbilder der Ernte oder des Feldes."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden Farbkonfigurationen, Gruppierungen, Filter, Probenahmen und Achsentransformationen durchgeführt, ohne ausgeschlossenen Zeilen zu verbergen."
+        },
+        {
+          "narration": "Darstellen Sie die Streuung, schweben Sie nach Bildkontext und klicken Sie auf repräsentative oder ungewöhnliche Punkte."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können ausgewählte Objekte und die Abbildung mit stabilen Quellidentifikatoren exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "56_lineage",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt die Linie. Überprüfen Sie die Kontinuitätsbeziehungen wie Zell-, Nukleus-, Krankheitserreger- und Organellenaufgaben."
+        },
+        {
+          "narration": "Öffnen von Messobjekten mit Beziehungsidentifikatoren."
+        },
+        {
+          "narration": "Wählen Sie in der Hauptkonfiguration die Eltern- und Kinderklassen, Filter, Felder und die zu angezeigenden Beziehungsattribute aus."
+        },
+        {
+          "narration": "Überprüfen Sie unerwartete fehlende, duplizierte oder grenzüberschreitende Beziehungen auf repräsentativen Bildern."
+        },
+        {
+          "narration": "Wenn der Arbeitsfluss abgeschlossen ist, hilft die überarbeitete Beziehungstabelle, die biologische Struktur von Zuweisungsfehlern zu unterscheiden."
+        }
+      ]
+    },
+    {
+      "id": "57_layer_viewer",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Layer Viewer. Überprüfen Sie Bilder, Masken, Punkte und Bereiche, die von Interesse sind, als ausgerichtete Schichten."
+        },
+        {
+          "narration": "Öffnen Sie ein Projekt oder kompatible Bild- und Anmerkungsschichten."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich Schichtsibilität, Kanäle, Farben, Unsichtbarkeit, Kontrast und Navigation aus."
+        },
+        {
+          "narration": "Schalten Sie Schichten aus und prüfen Sie Grenzen und Koordinaten, bevor Sie aus einer Überlagerung Schlussfolgerungen ziehen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können die Ansicht und ausgewählte Regionen ohne Änderung der Quellen exportiert werden, es sei denn, eine Bearbeitung wird explizit gespeichert."
+        }
+      ]
+    },
+    {
+      "id": "58_graph_builder",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Graph Builder. Erstellen Sie erforscherische Diagramme, indem Sie visuellen Rollen Spalten in Tabellenzuordnen."
+        },
+        {
+          "narration": "Wählen Sie eine Messtabelle und ziehen Sie die Merkmale auf X, Y, Farbe, Größe oder Facettenrollen."
+        },
+        {
+          "narration": "Wählen Sie in der Hauptkonfiguration Geometrie, Aggregation, Filtration, Transformationen und Gruppierung aus, die für die Frage geeignet sind."
+        },
+        {
+          "narration": "Gib den Diagramm zurück und überprüf die Zahlen, fehlende Werte und Quellreihen hinter Mustern."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows können die Spezifikation des Diagramms und die Auswahl der Daten wiederverwendet oder exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "59_anndata_export",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt AnnData Export. Schreiben Sie spaCR-Messungen als AnnData-Datei für Scanpy- oder scvi-Tools."
+        },
+        {
+          "narration": "Wählen Sie die Messtabelle, den Objekttyp, die Merkmale, die Beobachtungen und die Metadatenkolonnen aus."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden Überprüfungen vereint, fehlende Werte, Funktionsskalierungen, spärlicher Speicher und stabile Identifikatoren."
+        },
+        {
+          "narration": "Vorbereiten Sie die Dimensionen und Metadaten, bevor Sie die Datei schreiben."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, bewahrt die h5ad-Datei die ausgewählte Matrix, Anmerkungen und Herkunft für die Abwärtsanalyse."
+        }
+      ]
+    },
+    {
+      "id": "60_pca",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt PCA. Zusammenfassende Messungen mit den wichtigsten Komponenten und die Merkmale, die sie antreiben, überprüfen."
+        },
+        {
+          "narration": "Wählen Sie eine Messtabelle, numerische Merkmale und optional bestimmte Etiketten oder Gruppen aus."
+        },
+        {
+          "narration": "In der Hauptkonfigurationsfläche wird die Filterung, die Handhabung fehlender Werte, die Skalierung, die Komponenten und die Probenahme konfiguriert."
+        },
+        {
+          "narration": "Fitt PCA und Prüfscore, erklärt Variance, Ladungen und Bild-verknüpfte Ausmaßwerte zusammen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können Scores, Laden, Einstellungen und Plots für reproduzierbare Explorationen exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "61_tabulate",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Tabelle. Pivot-Messungen in gruppierte Zusammenfassungen, während die Beitragzahl sichtbar bleibt."
+        },
+        {
+          "narration": "Wählen Sie eine Tabelle und geben Sie Gruppenfelder, Wertspalten und Aggregationen zu."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden Filter, fehlende Werte, Kategoriefolge, Gesamtsätze und die Anzahl hinter jeder Zelle überprüft."
+        },
+        {
+          "narration": "Erstellen Sie den Tisch und prüfen Sie vor der Ausfuhr spärliche oder unerwartet leere Gruppen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, bleiben die Drehtabelle und ihre Spezifikation an die Auswahl der Quelle verknüpft."
+        }
+      ]
+    },
+    {
+      "id": "62_feature_dictionary",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial umfasst Feature Dictionary. Finden Sie heraus, was ein gemessenes Merkmal durch Name oder Konzept bedeutet."
+        },
+        {
+          "narration": "Suchen Sie nach einem Merkmalnamen, einer Messfamilie, einem Objekttyp oder einer biologischen Idee."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich wird nach Kompartiment, Kanal, Einheit, Berechnung oder Verfügbarkeit im aktuellen Projekt gefiltert."
+        },
+        {
+          "narration": "Öffnen Sie einen Eintrag, um seine Definition, erwartete Einheiten, Abhängigkeiten und Warnungen zu überprüfen."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können die ausgewählten Definitionen neben einer Analyse kopiert oder exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "63_small_multiples",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt kleine Multiples. Vergleichen Sie die gleiche Diagramm über Gruppen auf einem Raster mit ehrlichen gemeinsamen Achsen."
+        },
+        {
+          "narration": "Wählen Sie eine Tabelle, Chartvariablen und das Feld, das jedes Panel definiert."
+        },
+        {
+          "narration": "In der Hauptkonfigurationsfläche konfigurieren Sie das Layout, gemeinsame oder unabhängige Skala, Aggregation, Filterung und Panelordnung."
+        },
+        {
+          "narration": "Erstellen Sie das Raster und prüfen Sie die Probengröße und die Auswahl der Größenvorgaben, bevor Sie die Panels vergleichen."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows können die Aufstellungsbeschreibung und die Abbildung mit den ausgewählten Daten exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "64_gate_editor",
+      "scenes": [
+        {
+          "narration": "Gate Editor verwandelt Regionen einer Messtabelle in benannte, wiederverwendbare Population-Tore. Der Arbeitsbereich hält die Feature-Achsen, Zeichnungswerkzeuge, die vollständige Datenansicht und die Gate-Hierarchie zusammen."
+        },
+        {
+          "narration": "Wählen Sie in 2D X und Y für einen Scatter oder lassen Sie Y leer für ein Histogramm. Wählen Sie ein Schwellenwert oder ein Formenwerkzeug aus und ziehen Sie die beabsichtigte Population um. Die volle Wolke bleibt sichtbar, während die eingeschlossenen Objekte hervorgehoben werden."
+        },
+        {
+          "narration": "Wählen Sie eine 3D- und eine Z-Messung, um ein drehbares Volumen zu untersuchen. Die Achsenknopfen steuern die Drehrichtung und das Box-Gate registriert die Grenzen auf allen drei angezeigten Messungen."
+        },
+        {
+          "narration": "Wählen Sie xD, um die berechtigten Messungen in Hauptkomponenten zu projizieren. Die Quelllabelberichte erklärten die Variante, und PC1, PC2 und PC3 wurden zu gewöhnlichen Achsen für die gleichen Schließwerkzeuge."
+        },
+        {
+          "narration": "Die Gate-Hierarchie berichtet die Anzahl der Objekte, den Prozentsatz ihrer Eltern und den Prozentsatz aller Zeilen. Wählen Sie das Kontrollkästchen eines Tores aus, um es zu zeigen oder zu verbergen, und wählen Sie ein Tor aus, bevor Sie zeichnen, wann die nächste Bevölkerung darin eingebettet werden soll."
+        },
+        {
+          "narration": "Geben Sie jeder Bevölkerung einen bedeutenden Namen, dann speichern Sie die Gate-Strategie. Laden Sie es auf eine kompatible Tabelle, um die gleichen Merkmalnamen, Grenzen und Hierarchie wieder zu verwenden und die neuen Zahlen zu überprüfen, bevor Sie weitermachen."
+        },
+        {
+          "narration": "Cluster Walk sucht auf den angezeigten Messungen eine begrenzte Sequenz von DBSCAN-Radien und berichtet über den ausgewählten Radius, die Bevölkerungszahl und den ausgeschlossenen Bruchteil. Inspektieren Sie die daraus resultierenden Toren, notieren Sie dann oder exportieren Sie nur, nachdem die Populationen mit den sichtbaren Daten übereinstimmen."
+        }
+      ]
+    },
+    {
+      "id": "65_feature_explorer",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Feature Explorer. Die Rangliste zeigt, wie gut sie ausgewählte Klassen trennen und die Beweise hinter dem Ranking untersuchen."
+        },
+        {
+          "narration": "Wählen Sie eine Tabelle, Klassenkolonne, Vergleichsgruppen und Kandidatennummern."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden die Kontrollen für die Bewertung, Validierung, Filterung, Probenahme und Mehrfachvergleich durchgeführt."
+        },
+        {
+          "narration": "Berechnen Sie die Rangliste und prüfen Sie die Verteilung und Bildverknüpfungsbeispiele für führende Merkmale."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, beschreiben die geordneten Tabellen und Abbildungen die Assoziation zu den Klassen, nicht die ursächliche Bedeutung."
+        }
+      ]
+    },
+    {
+      "id": "66_outliers",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Ausnahmeregelungen. Vermerken Sie ungewöhnliche Objekte oder Brunnen mit robusten Regeln und bewahren Sie dabei jede Reihe."
+        },
+        {
+          "narration": "Wählen Sie die Tabelle, die Analysestufe, die Gruppierung und die zu bewertenden Merkmale aus."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich eine robuste Methode, Richtung, Schwelle, Handhabung fehlender Werte und Referenzgruppen aus."
+        },
+        {
+          "narration": "Vorsicht der markierten Zeilen und Überprüfung ihrer Messungen und Bilder, bevor Sie die Regel akzeptieren."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, schreibt spaCR eine Ausfallflagge und Diagnostik, anstatt die Beobachtungen still zu löschen."
+        }
+      ]
+    },
+    {
+      "id": "67_experiment_design",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Experiment Design. Erstellen Sie Bedingungen, Kontrollen und Replikationen vor der Übernahme."
+        },
+        {
+          "narration": "Wählen Sie das Plattenformat, die Bedingungen, die Steuerungen, den Replikationsplan und die Beschränkungen aus."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich überprüfen Sie die Randomisierung, das Blockieren, das Handling mit den Rändern, die Balance, die reservierten Brunnen und die Metadatenetiketten."
+        },
+        {
+          "narration": "Erstellen und prüfen Sie die vorgeschlagene Layout und überprüfen Sie dann Konflikte oder Ungleichgewichte."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows können die validierten Plattenkarte und Metadaten für die Erfassung und spätere spaCR-Analyse exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "68_power_design",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Power / Design. Schätzungsfähle und Bohrungen, die erforderlich sind, um eine Wirkung unter angegebenen Annahmen zu erkennen."
+        },
+        {
+          "narration": "Geben Sie den Ergebnistyp, die erwartete Wirkung, die Variabilität, die Gruppierung und die geplante Analyse ein."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden die Bedeutung, Zielleistung, Clustering, Abnutzung und Unsicherheitsbereiche überprüft."
+        },
+        {
+          "narration": "Berechnen Sie die Konstruktion und verwenden Sie Empfindlichkeitsschätzungen, um zu sehen, welche Annahmen die Probengröße beeinflussen."
+        },
+        {
+          "narration": "Wenn der Arbeitsfluss abgeschlossen ist, wird der Bericht Annahmen und empfohlene Stichproben erfassen, anstatt eine Zahl ohne Kontext zu präsentieren."
+        }
+      ]
+    },
+    {
+      "id": "69_dose_response",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt DoseResponse. Anpassung der Dosis-Reaktionskurven bei der Berichterstattung über Unsicherheit und Ablehnung nicht unterstützter EC50-Schätzungen."
+        },
+        {
+          "narration": "Wählen Sie die Kolumnen Konzentration, Reaktion, Replikation, Zustand und Steuerung aus."
+        },
+        {
+          "narration": "Im Hauptkonfigurationsbereich werden die Normalisierung, die Richtung, die Grenzen, die Gewichtung, die Gruppierung und die Mindestanforderungen an die Beweise überprüft."
+        },
+        {
+          "narration": "Bearbeiten und prüfen Sie die Kurve, die Restwerte, den Vertrauensintervall und jede Ablehnung oder einseitige Grenze."
+        },
+        {
+          "narration": "Wenn der Workflow abgeschlossen ist, können Kurvenparameter, Unsicherheit, Diagnose und Quelldaten zusammen exportiert werden."
+        }
+      ]
+    },
+    {
+      "id": "70_explain_cv",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Explain CV Model. Reproduzieren Sie Vorhersagen der Computer Vision anhand gemessener Merkmale und prüfen Sie, ob die daraus abgeleiteten Erklärungen zuverlässig und frei von Datenlecks sind."
+        },
+        {
+          "narration": "Wählen Sie die Vorhersagedatei auf Objektebene, die zugehörige Messdatenbank, die vorhergesagte Klasse oder Bewertung sowie die Gruppierung nach Mikroplatten-Well oder Platte, die vollständig erhalten bleiben muss."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich das Backend des Surrogatmodells, reservierte Validierungsgruppen, auszuschließende Merkmale, die Anzahl der Permutationswiederholungen und das begrenzte SHAP-Budget."
+        },
+        {
+          "narration": "Prüfen Sie die Ausschlüsse zum Schutz vor Datenlecks und die gruppierte Datenaufteilung. Passen Sie anschließend das Surrogatmodell an und vergleichen Sie seine Validierungstreue mit der Mehrheits-Baseline, bevor Sie die Merkmalsbedeutung interpretieren."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden Modelltreue, Permutationsbedeutung im Validierungssatz, SHAP-Zusammenfassungen, ausgeschlossene Spalten, Gruppierung, Backend und Provenienz protokolliert; eine geringe Modelltreue wird ausgewiesen und nicht verborgen."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Investigate Hit. Führen Sie einen ausgewählten Regressionsbefund auf Kandidatenzellen und quantitative Evidenz aus Mikroplatten-Wells zurück, ohne geprüfte Annotationen zu überschreiben."
+        },
+        {
+          "narration": "Wählen Sie den Regressionslauf, den ausgewählten Befund auf Gen- oder Guide-Ebene, die Phänotyprichtung, den Schwellenwert für die Falschentdeckungsrate, die Guide-Unterstützung und die zugehörige Messdatenbank."
+        },
+        {
+          "narration": "Prüfen Sie im Hauptkonfigurationsbereich die Objekttabelle, die Bewertungsspalte, die Gruppierung nach Mikroplatten-Well, die Evidenzschwellen, die Kovariaten und das optionale kreuzangepasste hierarchische Mischmodell."
+        },
+        {
+          "narration": "Zeigen Sie die nach Bewertung geordneten Kandidatenzellen und die Zusammenfassungen der Mikroplatten-Wells in der Vorschau an. Führen Sie das kreuzangepasste Modell nur aus, wenn der ausgewählte Befund und die Evidenzanforderungen korrekt sind."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows speichert spaCR geordnete Kandidatenzellen, Vergleiche unabhängiger Wells, optionale Wahrscheinlichkeiten dafür, dass jede Zelle dem ausgewählten Phänotyp entspricht, Unsicherheiten und einen versionierten Aufruf, der manuelle Annotationen niemals ersetzt."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Volcano Explorer. Öffnen Sie eine abgeschlossene Regression, untersuchen Sie jeden Punkt, gestalten Sie das Diagramm neu und exportieren Sie eine publikationsgerechte Vektorgrafik, ohne die Analyse erneut auszuführen."
+        },
+        {
+          "narration": "Wählen Sie einen Ordner mit einer abgeschlossenen Regression oder eine Ergebnis-CSV und bestätigen Sie das Ergebnis, die Tabelle auf Guide-Ebene, die Unterstützungsfamilie, die Effektspalte und die Spalte mit den adjustierten P-Werten."
+        },
+        {
+          "narration": "Prüfen Sie im Hauptkonfigurationsbereich Signifikanz- und Effektschwellen, Achsentransformationen, Beschriftungen, Farben, Formen, Annotationen, Achsenunterbrechungen, Schriftarten und Ausgabemaße."
+        },
+        {
+          "narration": "Klicken Sie auf repräsentative Punkte, um deren vollständige Zeilen zu prüfen, führen Sie optionale Annotationen zusammen und vergewissern Sie sich, dass gestalterische Änderungen die zugrunde liegenden Werte und Schwellen unverändert lassen."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows werden PDF- und PNG-Exporte aus den protokollierten Daten und der protokollierten Gestaltung in der angeforderten Größe neu gerendert, während die ursprünglichen Regressionsergebnisse unverändert bleiben."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "scenes": [
+        {
+          "narration": "Dieses Tutorial behandelt Parameter Sweep. Führen Sie eine begrenzte Untersuchung von Regressionseinstellungen durch und vergleichen Sie, welche Schlussfolgerungen gegenüber vertretbaren Analyseentscheidungen robust bleiben."
+        },
+        {
+          "narration": "Ordnen Sie für jede Platte die CSV-Datei mit Bewertungen pro Objekt der CSV-Datei mit Guide-Zählwerten zu, wählen Sie die Antwortspalte und legen Sie einen separaten Ausgabeordner fest."
+        },
+        {
+          "narration": "Wählen Sie im Hauptkonfigurationsbereich die zu variierenden Achsen aus, fixieren Sie alle anderen Werte, wählen Sie Raster- oder Zufallsstichproben, begrenzen Sie die Versuche, protokollieren Sie den Startwert und übernehmen Sie die speicherbegrenzte Anzahl paralleler Worker."
+        },
+        {
+          "narration": "Verwenden Sie zunächst Estimate, um die Größe und die Kosten des zulässigen Suchraums zu prüfen. Starten Sie anschließend eine kleine, begrenzte Untersuchung und überwachen Sie erfolgreiche, abgelehnte und fehlgeschlagene Versuche."
+        },
+        {
+          "narration": "Nach Abschluss des Workflows protokolliert die fortsetzbare Ergebnistabelle für jeden Versuch die Einstellungen, den Status, die Anzahl der Entdeckungen, den Rang der Positivkontrolle, die Dauer, den Ausgabeordner und den Fehlergrund."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "lesson": "53_prediction_profiler",
+  "english_sha256": "a79c1ae2ddf6dcea39111e611e0212fdb31f4cba4c294b291bdc81578972dd9a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Prediction Profiler: udforsk en tilpasset model",
+  "description": "Indlæs modelkoefficienter, variér ét input, mens de andre holdes fast, og undersøg de forudsagte responser.",
+  "objectives": [
+    "Indlæse koefficienter med den korrekte linkfunktion.",
+    "Gennemløbe ét input og justere de fastholdte værdier.",
+    "Undersøge responskurver og følsomhed."
+  ],
+  "prerequisite": "Hent det syntetiske koefficienteksempel, eller brug koefficienter fra en egnet tilpasset model. Afstem linkfunktion og kodning af input. Vejen via koefficientfil forudsætter inputintervaller fra 0 til 1; separate marginale effekter kan ikke erstatte en samlet tilpasset forudsigelsesmodel.",
+  "scenes": [
+    "Åbn Regression og derefter Prediction Profiler for at udforske forudsagte responser fra en tilpasset model. Det linkede eksempel bruger syntetiske data.",
+    "Hent og udpak eksemplet, og brug derefter Browse til at gå til den syntetiske CSV-fil med OLS-koefficienter. Medtag skæringspunktet, når du angiver dine egne tilpassede koefficienter.",
+    "Sæt Link til den funktion, den tilpassede model bruger. Behold identity i dette eksempel med almindelige mindste kvadrater.",
+    "Kontrollér intervaloplysningerne efter indlæsning. Vejen via koefficientfil forudsætter, at hvert input går fra 0 til 1. Bekræft, at det passer til den tiltænkte brug, før du fortolker kurverne.",
+    "Vælg Input A til gennemløbet. Flyt skyderen for det fastholdte Input B til 1, og undersøg den resulterende responskurve.",
+    "Flyt B til 0, og sammenlign responsværdierne. Hold øje med akseskalaen såvel som linjen, fordi plottet kan skaleres om.",
+    "Klik på Reset held values for at sætte skyderne tilbage til midtpunktet af deres antagne intervaller, 0,5 i dette eksempel.",
+    "Vælg Input B på den rangordnede liste for at gennemløbe B, mens A holdes fast. Rangordningen opsummerer modellens følsomhed over de konfigurerede inputintervaller.",
+    "Ændr Points for at vælge, hvor mange positioner langs kurven der beregnes. Elleve giver et grovere gitter end enogtres uden at ændre den tilpassede model.",
+    "Justér de fastholdte værdier for at udforske flere scenarier, og nulstil dem, når du er færdig. Fortolk kurverne som modelforudsigelser, og vurdér reelle eksperimentelle effekter med passende data."
+  ]
+}

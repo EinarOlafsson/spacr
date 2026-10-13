@@ -1,0 +1,55 @@
+638 -- Verbose logging is usable
+
+Status: DONE 2026-10-04
+
+Request (maintainer, verbatim):
+"verbose logging last time I used it would crash the program; make sure this
+feature is usable"
+
+Done when:
+- Every verbose/debug switch was turned on and Mask, Measure, Classify and
+  Plaque ran headless, and the GUI opened every module and ran short jobs.
+- Each crash or freeze found is fixed at its cause; third-party loggers stay
+  at WARNING; the console does not freeze on fast output.
+- Tests run a short pipeline with verbose on (headless) and open a module
+  with verbose on (Qt offscreen).
+
+Switches checked:
+- Per-module `verbose` setting (spacr/settings.py defaults; pipelines print
+  more and pass it as visualize=).
+- Preferences -> Modules "Verbose logging" (prefs/verbose_logging, default on;
+  spacr.qt.verbose_logger.apply_verbose_logging) and the Logging tab's
+  per-level file/console switches, DEBUG included.
+- SPACR_LOG_LEVEL / setup_logging(level=DEBUG) / enable_debug() headless.
+
+Reproduced (2026-10-04, CPU, synthetic demo data from spacr.qt.synthetic):
+- Headless with every switch on: Mask (Cellpose CPU), Measure (n_jobs 2),
+  Classify (resnet18, 1 epoch) and Plaque (masks=False) all finished.
+- GUI offscreen, verbose on, console showing DEBUG: all 92 module screens
+  opened; Measure and Classify runs finished from the Run button.
+- Freeze: the console's output block recomputed its height by walking every
+  paragraph on each new line (_StdoutBlock.sizeHint). 35 ms a line once the
+  block held its 200k-character cap, so output faster than ~30 lines/s
+  (verbose prints, DEBUG in the console) queued faster than the GUI could draw
+  it; the window froze and the queue grew. Now a running sum: 0.14 ms a line.
+- Volume: the root logger sat at DEBUG, so with verbose on every library's
+  DEBUG reached spacr.log and spacr-debug.log (2100 library lines for 300
+  calls). The root now stays at WARNING (higher if the user chose higher);
+  spaCR's loggers keep their own level, cellpose keeps its verbose INFO.
+- Huge reprs: the verbose call trace around every pipeline entry built the
+  full repr of the settings and of the return value before truncating it to
+  240 characters. Now reprlib-bounded while it is built.
+- Not reproduced on this tree: the earlier hard crashes (console widgets
+  built off the GUI thread, re-entrant console writes, the profile hook) were
+  already fixed by earlier items.
+
+Noticed, not verbose-related, left for the maintainer:
+- A run started from the GUI was 4-18x slower than the same call headless on
+  CPU, with verbose off as well (Classify 186 s vs 10 s).
+
+Tests:
+- tests/test_verbose_logging_is_usable.py (headless verbose Measure run,
+  library DEBUG kept out, bounded trace repr).
+- tests/qt/test_verbose_logging_is_usable_on_screen.py (Measure screen runs
+  a 1500-line noisy job with verbose and console DEBUG on; console block
+  height kept without a per-line walk, also after head trimming).

@@ -1,0 +1,86 @@
+[
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``",
+    "hint": "``ridge_sigmas`` — 기본값 ``(1.0, 2.0, 3.0)``",
+    "ui": {},
+    "msgstr": "``puncta_sigmas`` — 기본값 ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "scale-normalised LoG widths in image pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "이미지 픽셀 단위의 스케일 정규화 LoG 폭."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_k`` — default ``2.5``",
+    "hint": "``local_k`` — 기본값 ``0.2``",
+    "ui": {},
+    "msgstr": "``puncta_k`` — 기본값 ``2.5``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "candidate response threshold in propagated pixel-noise units.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "전파된 픽셀 노이즈 단위의 후보 응답 임계값."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_center_pixels`` — default ``20``",
+    "hint": "``psf_iterations`` — 기본값 ``20``",
+    "ui": {},
+    "msgstr": "``puncta_center_pixels`` — 기본값 ``20``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "가로세로 아홉 픽셀인 측정 창에서 각 서브픽셀 중심에 가장 가까운 픽셀 수로, 범위는 1부터 81까지입니다."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_corrected`` — default ``3.0``",
+    "hint": "``unet_threshold`` — 기본값 ``0.5``",
+    "ui": {},
+    "msgstr": "``puncta_min_corrected`` — 기본값 ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum centre mean minus local annulus median, in native intensity units. Equality is retained.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "중심 평균에서 국소 배경 고리의 중앙값을 뺀 값의 최솟값이며 원래 강도 단위를 사용합니다. 임계값과 같아도 유지됩니다."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_distance`` — default ``2``",
+    "hint": "``propagate_min_distance`` — 기본값 ``10``",
+    "ui": {},
+    "msgstr": "``puncta_min_distance`` — 기본값 ``2``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "픽셀 단위의 피크 국소 최댓값 이웃 영역으로, 이후 스케일에 따른 비최대 억제를 적용합니다."
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_edge_margin`` — default ``3.0``",
+    "hint": "``dog_sigma_high`` — 기본값 ``3.0``",
+    "ui": {},
+    "msgstr": "``puncta_edge_margin`` — 기본값 ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum distance from the parent boundary in pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "픽셀 단위의 부모 객체 경계까지 최소 거리."
+  }
+]

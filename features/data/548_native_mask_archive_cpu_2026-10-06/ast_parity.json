@@ -1,0 +1,12 @@
+{
+  "before_sha256": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+  "after_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+  "downstream_generator_ast_exact_after_undoing_storage_scopes": true,
+  "all_other_original_function_and_class_asts_exact": true,
+  "intentional_changes": [
+    "private native archive scope and borrowed alias cleanup",
+    "optional source-page release immediately after unchanged owned np.take",
+    "empty archive skips batch range but collection/completion follows source closure"
+  ],
+  "scientific_array_batch_filter_track_model_save_database_statements_changed": 0
+}

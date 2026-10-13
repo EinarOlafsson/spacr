@@ -1,0 +1,12 @@
+{
+  "source_sha256": "ca7cc348dc4e99e0413b2954839e309a6795c12f4ff9450af298b04baeadba8c",
+  "source_path": "/mnt/wd4tb/spacr-worktrees/codex-owned-growth-thore-20261006/spacr/qt/widgets/ambient.py",
+  "blocked_first_frames": 2,
+  "numba_and_scipy_absent_until_complete": true,
+  "compiled_full_frame_parity": true,
+  "compile_seconds_after_complete": 1.020799211008125,
+  "pixel_sha256": [
+    "8fee7dd493e1d20d7f35d71b208d13bcc71317ef7b212a425268d6d8c7d888bb",
+    "60dba59ae8f5228bead8344a53a45d06dc02b0be956df4e43018e673ba323e87"
+  ]
+}

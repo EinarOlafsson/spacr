@@ -1,0 +1,81 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "17_timelapse",
+    "scene_count": 12,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete time-resolved segmentation and tracking workflow, acquisition-axis semantics, exact settings labels, visual identity validation, and reproducible movie and trajectory outputs."
+  },
+  "languages": {
+    "es": {
+      "description": "Segmente imágenes con resolución temporal, enlace los objetos seleccionados para formar trayectorias y valide las películas y trayectorias resultantes.",
+      "prerequisite": "Prepare una serie temporal con identificadores fiables de tiempo, campo, profundidad y canal, y con un intervalo entre fotogramas conocido.",
+      "objectives": [
+        "Asignar los ejes de adquisición y segmentar de forma coherente fotogramas representativos.",
+        "Seleccionar y validar visualmente un backend de seguimiento adecuado.",
+        "Ejecutar una prueba pequeña antes de producir todas las trayectorias y películas."
+      ],
+      "narrations": [
+        "Timelapse segmenta cada fotograma y enlaza los objetos seleccionados para formar trayectorias estables. La consola registra el preprocesamiento, las máscaras, los intentos de seguimiento, el control de calidad, las películas y los archivos de reproducibilidad.",
+        "Input and Metadata permite seleccionar la carpeta de imágenes, asignar los canales adquiridos a los tipos de objeto y definir cómo se interpretan los identificadores de placa, pocillo, campo, tiempo, profundidad y canal.",
+        "Essentials contiene los controles necesarios para una primera secuencia. Utilice Modified para revisar los cambios, All para acceder a los ejes y backends opcionales y Recipes para guardar un diseño de adquisición repetido.",
+        "Image Preprocessing aplica la normalización, el tratamiento del fondo, la reducción de ruido y el cambio de tamaño. Utilice la misma transformación en todos los fotogramas para evitar que el preprocesamiento genere movimiento artificial.",
+        "Configure la sección de segmentación para cada objeto que deba enmascararse o seguirse. Valide el modelo, el canal, la escala y los filtros principales en fotogramas representativos del principio, la mitad y el final de la secuencia.",
+        "Quality Control comprueba los recuentos, los tamaños, los bordes, la cobertura de primer plano, las divisiones y los fallos de campo admisibles. Comience en modo de informe para mantener visibles los fotogramas sospechosos.",
+        "Tracking Setup permite seleccionar los tipos de objeto, el intervalo de fotogramas, los filtros de duración y la velocidad de reproducción de la película. Conserve las trayectorias cortas durante la validación para que los fallos no queden ocultos.",
+        "Tracking Backends ofrece varios algoritmos de enlace con diferentes controles de desplazamiento, interrupciones, divisiones y procesos de trabajo. Elija el backend más sencillo que se ajuste al movimiento y verifique visualmente la identidad de los objetos.",
+        "Visualization and Diagnostics crea ejemplos para comprobar la segmentación y la continuidad de las trayectorias, mientras que Output and Storage permite seleccionar las máscaras, las matrices fusionadas, las películas y los archivos intermedios que se conservarán.",
+        "Abra Track Preview con una secuencia representativa antes de la ejecución completa. Examine juntos fotogramas del principio, la mitad y el final; después, compruebe las máscaras, las identidades, las interrupciones, las divisiones y los saltos inverosímiles antes de propagar los ajustes optimizados.",
+        "Run valida los nombres de archivo y los canales, segmenta los objetos solicitados, enlaza las máscaras, calcula el control de calidad y guarda las películas y las matrices. Antes del análisis, examine las trayectorias terminadas para detectar intercambios de identidad, interrupciones y saltos inverosímiles.",
+        "Un proyecto correcto contiene máscaras indexadas por tiempo, identidades de trayectoria estables, registros de control de calidad, películas, matrices fusionadas, ajustes guardados y un manifiesto que permite repetir la ejecución."
+      ]
+    },
+    "fr": {
+      "description": "Segmentez des images résolues dans le temps, reliez les objets sélectionnés en trajectoires et validez les films et les trajectoires obtenus.",
+      "prerequisite": "Préparez une série temporelle comportant des identifiants fiables de temps, de champ, de profondeur et de canal, ainsi qu’un intervalle connu entre les images.",
+      "objectives": [
+        "Associer les axes d’acquisition et segmenter de manière cohérente des images représentatives.",
+        "Choisir et valider visuellement un backend de suivi approprié.",
+        "Exécuter un petit essai avant de produire l’ensemble des trajectoires et des films."
+      ],
+      "narrations": [
+        "Timelapse segmente chaque image et relie les objets sélectionnés en trajectoires stables. La console consigne le prétraitement, les masques, les tentatives de suivi, le contrôle qualité, les films et les fichiers de reproductibilité.",
+        "Input and Metadata permet de sélectionner le dossier d’images, d’associer les canaux acquis aux types d’objets et de définir l’interprétation des identifiants de plaque, de puits, de champ, de temps, de profondeur et de canal.",
+        "Essentials contient les commandes nécessaires à une première séquence. Utilisez Modified pour contrôler les changements, All pour accéder aux axes et aux backends facultatifs, et Recipes pour enregistrer un plan d’acquisition répété.",
+        "Image Preprocessing applique la normalisation, le traitement de l’arrière-plan, la réduction du bruit et le redimensionnement. Utilisez la même transformation pour toutes les images afin d’éviter que le prétraitement ne crée un mouvement artificiel.",
+        "Configurez la section de segmentation pour chaque objet qui doit être masqué ou suivi. Validez le modèle, le canal, l’échelle et les principaux filtres sur des images représentatives du début, du milieu et de la fin de la séquence.",
+        "Quality Control vérifie les comptages, les tailles, les bords, la couverture du premier plan, les divisions et les échecs de champ acceptables. Commencez en mode rapport afin que les images suspectes restent visibles.",
+        "Tracking Setup permet de choisir les types d’objets, la plage d’images, les filtres de durée de vie et la cadence du film. Conservez les trajectoires courtes pendant la validation afin que les échecs ne soient pas masqués.",
+        "Tracking Backends propose plusieurs algorithmes de liaison dotés de commandes différentes pour les déplacements, les interruptions, les divisions et les processus de travail. Choisissez le backend le plus simple qui corresponde au mouvement et vérifiez visuellement l’identité des objets.",
+        "Visualization and Diagnostics crée des exemples permettant de vérifier la segmentation et la continuité des trajectoires, tandis que Output and Storage permet de sélectionner les masques, les matrices fusionnées, les films et les fichiers intermédiaires à conserver.",
+        "Ouvrez Track Preview sur une séquence représentative avant l’exécution complète. Examinez ensemble des images du début, du milieu et de la fin, puis vérifiez les masques, les identités, les interruptions, les divisions et les sauts invraisemblables avant de propager les paramètres optimisés.",
+        "Run valide les noms de fichiers et les canaux, segmente les objets demandés, relie les masques, calcule le contrôle qualité et enregistre les films et les matrices. Avant l’analyse, examinez les trajectoires terminées afin de détecter les permutations d’identité, les interruptions et les sauts invraisemblables.",
+        "Un projet réussi contient des masques indexés dans le temps, des identités de trajectoire stables, des enregistrements de contrôle qualité, des films, des matrices fusionnées, les paramètres enregistrés et un manifeste qui permet de répéter l’exécution."
+      ]
+    },
+    "it": {
+      "description": "Segmenta immagini risolte nel tempo, collega gli oggetti selezionati in tracce e convalida i filmati e le traiettorie risultanti.",
+      "prerequisite": "Prepara una serie temporale con identificativi affidabili di tempo, campo, profondità e canale e con un intervallo noto tra i fotogrammi.",
+      "objectives": [
+        "Associare gli assi di acquisizione e segmentare in modo coerente fotogrammi rappresentativi.",
+        "Scegliere e convalidare visivamente un backend di tracciamento adeguato.",
+        "Eseguire una piccola prova prima di produrre tutte le tracce e i filmati."
+      ],
+      "narrations": [
+        "Timelapse segmenta ogni fotogramma e collega gli oggetti selezionati in tracce stabili. La console registra la pre-elaborazione, le maschere, i tentativi di tracciamento, il controllo qualità, i filmati e i file di riproducibilità.",
+        "Input and Metadata consente di selezionare la cartella delle immagini, associare i canali acquisiti ai tipi di oggetto e definire come interpretare gli identificativi di piastra, pozzetto, campo, tempo, profondità e canale.",
+        "Essentials contiene i controlli necessari per una prima sequenza. Usa Modified per verificare le modifiche, All per accedere agli assi e ai backend facoltativi e Recipes per salvare un disegno di acquisizione ripetuto.",
+        "Image Preprocessing applica la normalizzazione, la gestione dello sfondo, la riduzione del rumore e il ridimensionamento. Usa la stessa trasformazione per tutti i fotogrammi, affinché la pre-elaborazione non crei movimento artificiale.",
+        "Configura la sezione di segmentazione per ogni oggetto che deve essere mascherato o tracciato. Convalida il modello, il canale, la scala e i filtri principali su fotogrammi rappresentativi dell’inizio, della metà e della fine della sequenza.",
+        "Quality Control verifica conteggi, dimensioni, bordi, copertura del primo piano, divisioni ed errori di campo accettabili. Inizia in modalità rapporto, in modo che i fotogrammi sospetti rimangano visibili.",
+        "Tracking Setup consente di scegliere i tipi di oggetto, l’intervallo dei fotogrammi, i filtri di durata e la frequenza del filmato. Conserva le tracce brevi durante la convalida, affinché gli errori non vengano nascosti.",
+        "Tracking Backends offre diversi algoritmi di collegamento con controlli differenti per spostamenti, interruzioni, divisioni e processi di lavoro. Scegli il backend più semplice adatto al movimento e verifica visivamente l’identità degli oggetti.",
+        "Visualization and Diagnostics crea esempi per controllare la segmentazione e la continuità delle tracce, mentre Output and Storage consente di selezionare le maschere, le matrici unite, i filmati e i file intermedi da conservare.",
+        "Apri Track Preview su una sequenza rappresentativa prima dell’esecuzione completa. Esamina insieme fotogrammi dell’inizio, della metà e della fine, quindi controlla le maschere, le identità, le interruzioni, le divisioni e i salti non plausibili prima di propagare le impostazioni ottimizzate.",
+        "Run convalida i nomi dei file e i canali, segmenta gli oggetti richiesti, collega le maschere, calcola il controllo qualità e salva filmati e matrici. Prima dell’analisi, esamina le tracce completate per rilevare scambi di identità, interruzioni e salti non plausibili.",
+        "Un progetto riuscito contiene maschere indicizzate nel tempo, identità di traccia stabili, registri del controllo qualità, filmati, matrici unite, impostazioni salvate e un manifesto che consente di ripetere l’esecuzione."
+      ]
+    }
+  }
+}

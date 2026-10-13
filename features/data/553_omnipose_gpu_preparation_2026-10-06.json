@@ -1,0 +1,59 @@
+{
+  "item": 553,
+  "normal_isolated_installer_complete": true,
+  "installer_selected_default_torch_index": "https://download.pytorch.org/whl/cu128",
+  "actual_private_torch": "2.11.0+cu128",
+  "actual_private_python": "3.12.14",
+  "actual_Omnipose": "1.1.4",
+  "cpu_baseline_normal_mask_pipeline_passed": true,
+  "acquired_fields": 7,
+  "saved_reference_objects": 621,
+  "predicted_objects": 644,
+  "cpu_f1_50": 0.9518,
+  "cpu_f1_75": 0.9265,
+  "reference_labels_from_upstream_Omnipose_not_independent_human_truth": true,
+  "benchmark_derives_reference_diameter_but_adapter_declares_it_unsupported": true,
+  "actual_cpu_outputs_and_all_14_pinned_upstream_files_retained": true,
+  "cuda_inference_accepted": false,
+  "queued_label": "553-omnipose-current-cuda-20261006-r1",
+  "queue_scope": "Same normal seven-field Mask pipeline, isolated real worker, actual torch.profiler CUDA evidence; no model double.",
+  "three_dimensional_path_validated": false,
+  "artifacts": {
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/archive_omnipose_preparation.py": {
+      "sha256": "97d637b40129ad95043d880f805f83ddfa7662f415bc7d2efed7006b8aa2a38a",
+      "bytes": 4872
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/benchmark_omnipose_current.py": {
+      "sha256": "174bfcd36902397a8826791da81fbd1af919771ef5ba3be31f912e0ec69f8266",
+      "bytes": 5120
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/cpu-acceptance.json": {
+      "sha256": "29c11629e2e86369e261f9c35046d907a887630f31f28e115cd8938ea976c95e",
+      "bytes": 15302
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/fresh-cpu-reference.zip": {
+      "sha256": "9962c5e87216094ea334c9e7c4de4e8735987336231b0b12fc823c1c9591eeba",
+      "bytes": 1581681
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/installation.json": {
+      "sha256": "5e7990179ce138dfeff5cbcdf436eab693ca9e2c512d4301f266020991f56f54",
+      "bytes": 1039
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/omnipose-current-cpu-r1.log.gz": {
+      "sha256": "4f2400736c0fb43c271441d2d187c72ae6d88fc50a466f5df6d4dc2437a90cd3",
+      "bytes": 665
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/omnipose-gpu-environment-r1.log.gz": {
+      "sha256": "e1c40432d8b6371574f0226509893500439024e58382ffc1d5cb8d7186842964",
+      "bytes": 7599
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/omnipose_worker_profile.py": {
+      "sha256": "fd8c99952f8ed203e91a2ae0c94eac22ae8494461952a5e4750bbbfaf2b625d4",
+      "bytes": 2263
+    },
+    "features/data/553_omnipose_gpu_preparation_2026-10-06/prepare_omnipose_gpu_environment.py": {
+      "sha256": "826aac08d0de9d0324a3c08d50e42f944b6f970beee4a34d211be3b5f82c2ba2",
+      "bytes": 1174
+    }
+  }
+}

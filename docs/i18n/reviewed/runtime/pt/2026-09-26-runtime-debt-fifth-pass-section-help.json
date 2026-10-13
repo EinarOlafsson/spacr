@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source_sha256": "c8d9b232b7bf1a2312e404c9e3d43842f09ab8aeadeb6e6d9cd60dff7df7e4ed",
+      "translation": "Um ensaio de risco ou de cicatrização de feridas medido ao longo de uma série temporal: a ferida aberta em cada quadro, a partir da textura de um canal de campo claro ou de fase, de uma coloração fluorescente ou das máscaras de células; sua área e sua largura média e mínima; e, por poço e por condição, a curva de fechamento, a taxa de fechamento e o tempo de meio fechamento, gravados em measurements.db com figuras e um mapa de placa."
+    },
+    {
+      "table": "categories",
+      "key": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source_sha256": "cfea2162db719cbcc1dcea3c459a861cc99e484c69430112f43900eeae410c4f",
+      "translation": "Perfilamento baseado em imagem após o Measure: um perfil por poço a partir das tabelas de objetos, anotado com um mapa de placa, normalizado por placa em relação aos controles negativos, com seleção de variáveis, reunido em um perfil de consenso por tratamento e pontuado quanto à reprodutibilidade das réplicas como precisão média média e porcentagem de replicação. Gravado como arquivos CSV, Parquet e GCT que pycytominer, copairs e Morpheus leem."
+    },
+    {
+      "table": "categories",
+      "key": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source_sha256": "e19f4a6c38c6d6ff7efdc14f1e6b6a4c0a9e1efb7d740d9d305240dff0a9d859",
+      "translation": "A fase do ciclo celular de cada núcleo, definida após a medição a partir da coloração de DNA de uma de três maneiras intercambiáveis: gates no histograma ajustado de conteúdo de DNA de cada placa, um classificador de boosting nas medições dos núcleos ou um classificador de imagens nos recortes de núcleos. Cada uma grava a mesma coluna de fase em measurements.db, com as frações de fase por poço entre células infectadas e não infectadas."
+    }
+  ]
+}

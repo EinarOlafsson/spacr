@@ -1,0 +1,212 @@
+GPU SIMILARITY SEARCH: "FIND CELLS LIKE THIS" OVER MILLIONS OF CROPS
+
+Status: DONE (alpha) 2026-10-06 — GUI storage, multi-plate navigation,
+        strict checkpoint identity, cache freshness and automatic FAISS selection.
+Previous status: DONE (alpha) 2026-09-27 (evidence f8ba5d412)
+VERIFIED 2026-10-04: test_similarity_search, qt find-similar gate + similarity options pass (nightly 85c3e41c2, CPU).
+Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
+
+REQUEST (the maintainer, 2026-09-26, verbatim)
+    "Add to future features list: B1,2,3,4,(in its own env like cellpose 3),
+    B5 (if this isn't the same as magnifier),B7(if this is connecting
+    objects over frames), B8,B9,B10,B11B12,B13,B14,B15,B16,B17,B19,B20"
+
+EVIDENCE
+    No image.sc thread; from the literature / general practice.
+
+WHAT TO BUILD
+    Index crop embeddings with FAISS (GPU when available) so a user can pick
+    one cell and retrieve the most similar cells across a whole screen in
+    under a second; feed the hits to Annotate to seed rare classes for
+    active learning.
+
+DONE WHEN
+    A query over 1M+ embeddings returns in under a second; retrieved cells
+    share the query's labelled class at a high rate on a labelled set.
+
+ALPHA: 2026-09-27 -- Annotate's "Like this" button (ALPHA_FEATURES[565],
+    widget AnnotateFindSimilar), hidden until Preferences -> Show alpha
+    features is on.
+
+WHAT WAS BUILT (2026-09-27)
+    spacr/active_learning.py: _SimilarityIndex (exact cosine search over
+    median-centred, SD-scaled, row-normalised features; FAISS IndexFlatIP,
+    moved to every visible GPU when FAISS has GPU support, else a blocked
+    NumPy matrix product), _similarity_index (reads the measurement features
+    through round_features, dropping position/bookkeeping columns, or takes
+    any feature frame such as an embeddings.embed_array result),
+    _similarity_agreement (precision@k of labelled neighbours vs chance, per
+    class) and _similarity_columns.
+    Annotate: "Like this" searches from the selected crop off the GUI thread,
+    caches the index per source, and pins the grid to the query plus its 100
+    nearest crops (most similar first) through open_object_request, so hits
+    are labelled in place to seed rare classes for active learning.
+
+MEASURED (CPU only; the GPU was held by a training job, FAISS not installed)
+    Query time: 1.2M x 128 random float32 vectors, NumPy backend, one query
+    for 100 neighbours 0.07-0.13 s (index build 13 s, once per source).
+    tests/test_similarity_search.py pins a 1M x 32 query under 1 s.
+    Labelled set: datasets_/plate1 (2185 crops, 878 measurement features;
+    class = the crop folder's infection state, which spaCR derived from
+    object counts, so partly circular with the features). precision@10:
+    all 0.79 vs chance 0.39; uninfected 0.96 (chance 0.53), multiple
+    pathogens 0.72 (0.22), single pathogen 0.47 (0.25). Rarest classes:
+    multiple nuclei + multiple pathogens (2 %) 0.52, lift 25x.
+    That plate is an old-format database (prcfo carries a leading "p"), so
+    round_features joins nothing on it and the check passed the features in
+    directly.
+
+WHAT IS LEFT
+    - Measure on a human-annotated set and on crop embeddings (DINOv2 /
+      timm via spacr.embeddings) rather than measurements; embeddings are
+      not stored in measurements.db yet, so the button uses measurements.
+    - A GPU FAISS timing (pip install faiss-cpu or faiss-gpu; optional,
+      not in setup.py) and a multi-plate/screen-wide index across databases.
+
+FOLLOW-UP IMPLEMENTED 2026-10-01 — SEARCH CONTROLS
+    Annotate now exposes "Similar crops" (1–1,000,000, default 100) and
+    "Unlabelled only" beside Like this, under the same alpha preference.
+    k counts neighbours; the selected reference remains visible separately,
+    including when the reference already has a human label. Search results
+    remain ranked by similarity and filtering fills up to k eligible hits.
+    Unlabelled follows Annotate's own unanswered convention: NULL, cleared
+    zero and unanswered model proposals are eligible. Committed nonzero class
+    labels are excluded in the currently selected annotation column/table.
+    The worker re-reads labels on every query even when reusing the feature
+    index, overlays unsaved local labels and waits off the GUI thread for
+    already-submitted label batches. Save failures are actionable, and late
+    replies after a source/table/annotation-column/image-type change are ignored.
+    Writer startup failures with zero pending batches are also refused, so
+    a stopped writer cannot make an unanswered-only search silently use stale labels.
+    Focused evidence: tests/qt/test_similarity_options_f565.py plus existing
+    tests/qt/test_find_similar_alpha_gate.py — 13 passed on CPU, offscreen,
+    under a 4 GiB cap with two compute threads. No GPU run or biological
+    validation is claimed; the acceptance gaps above remain open.
+
+2026-10-02 — WHAT-IS-LEFT AUDIT
+    Done on nightly: Like-this controls 2026-10-01 note.
+    BLOCKED / open: human-annotated set (data); GPU FAISS timing (GPU, optional dependency). OPEN code over 1 h: screen-wide index. (Embedding storage done 2026-10-02, below.)
+
+2026-10-02 — CROP EMBEDDINGS STORED IN measurements.db (alpha, CPU)
+    spacr/active_learning.py: _store_crop_embeddings(db, prcfo, embedding)
+    writes an EmbeddingResult / array / frame to table crop_embedding keyed by
+    prcfo via spacr.tabular (same-prcfo rows replaced; a different encoder's
+    columns replace the table). _stored_embeddings joins it to png_list;
+    _similarity_index (so Annotate's alpha "Like this") uses it when present,
+    else falls back to measurement features. Test (stub vectors, CPU):
+    tests/test_similarity_search.py. Still open: a GUI/pipeline step that
+    runs spacr.embeddings and stores the result; measuring retrieval on real
+    DINOv2/timm embeddings; human-annotated set; GPU FAISS; screen-wide index.
+    test_real_screen_count_unlabelled_filter_and_reference failed once under
+    -n 4 with eight files, passed alone and on rerun (timing flake).
+
+2026-10-06 workstation human-labelled retrieval GPU preparation: original public PBC archive (DOI 10.17632/snkd93bnjr.1, CC BY 4.0) matches its published 281,366,219 bytes and SHA256. Independent complete archive inventory verifies all 17,092 original RGB cells/eight expert-labelled classes and seven actual geometries. All originals remain intact. One cross-label pixel-identical group (neutrophil/eosinophil, two images) is excluded in full before embedding; sixteen additional same-label copies are excluded without choosing labels, leaving 17,074 unique unambiguous cells. Failed hidden-file/geometry/conflicting-label preflights are retained. Actual pretrained DINOv2 weights and full normal CPU model state are frozen in a private timm venv; no production environment or application source was changed. Normal spaCR embed_array will use its real pretrained encoder cached once, with explicit whole-RGB resize/scale and actual first/last CUDA profiles. Planned normal GPU turn 565-pbc-dinov2-embeddings-20261006-r1 follows the already queued 578 robustness/558 virtual staining turns with real HOME, 24 GiB and unchanged idle/handoff. GPU execution, independent class retrieval and FAISS million-scale timing remain pending; random million-scale timing vectors will be labelled synthetic. FAISS's current package rejects Python 3.13; the terminal failed solve is retained and an isolated Python 3.12 retry is preparing. Receipt 565_human_label_retrieval_preparation_2026-10-06.json archives accepted inputs/model/benchmark and failed preflights. Home retains CPU CI/coverage/Qt and remaining screen-wide GUI/pipeline source integration; workstation retains all GPU, API, documentation, translations and tutorials. Protected livecell/cellposeTIME jobs remain untouched. No patient-split or medical accuracy claim is made.
+
+2026-10-06 workstation FAISS environment ready: the isolated official FAISS-GPU 1.15.1/Python 3.12 install is terminal rc=0. CUDA-hidden preflight imports the actual current spaCR similarity code, builds its normal FAISS CPU index, and passes Like-this; actual shared-library/package/source hashes and the genuine CUDA human-class/million-timing benchmark are frozen. The failed unsupported Python 3.13 solve remains archived. Receipt 565_FAISS_GPU_environment_preparation_2026-10-06.json records this environment and planned independent NumPy class/neighbour controls. Actual DINOv2 embedding turn 565-pbc-dinov2-embeddings-20261006-r1 is queued after virtual staining; FAISS will queue after that exact handle completes, not before its embeddings exist. No GPU FAISS speed or human-class performance verdict is asserted yet. Home retains remaining screen-wide GUI/pipeline/source and CPU CI/Qt; workstation retains every GPU process and its documentation lanes.
+
+2026-10-06 workstation DINOv2 input preflight correction: actual normal turn r1 is terminal rc=1 on the first forward; the current pretrained timm model requires 518x518, whereas the private preparation supplied 224x224. No completed embedding or FAISS result is claimed. A CUDA-hidden normal _backbone_encoder/embed_array run on the first original acquired cell verifies the actual 518x518 model input and 384 finite features. The separate plan-518-r2, source-bound benchmark and CPU verification are frozen, with whole-RGB PIL bilinear resize and batches of 32. All 17,092 original files, 17,074 unique unambiguous labels, duplicate/conflict policy, source and full pretrained weight freeze stay exact. The historical plan/freeze/failed turn are retained; no application source or normal encoder change is made. Receipt 565_pretrained_input_size_retry_2026-10-06.json archives this preflight and planned normal retry 565-pbc-dinov2-embeddings-20261006-r2, real HOME, 24 GiB and unchanged idle/handoff. The separately frozen FAISS r2 will queue only after the exact embedding handle finishes and its actual arrays are verified. Home should honour each actual timm model input size in the remaining embedding GUI/pipeline integration. All GPU processes and API/docs/tutorial/translation work stay workstation-owned; protected jobs remain untouched.
+
+2026-10-06 workstation human-labelled DINOv2 CUDA acceptance: corrected normal turn 565-pbc-dinov2-embeddings-20261006-r2 is terminal rc=0 at 07:47:40 UTC. All 17,074 unique unambiguous expert-labelled original PBC cells now have 384 finite features from actual normal spaCR embed_array and the frozen real pretrained DINOv2 encoder, using its actual 518x518 whole-RGB input. Independent CPU readback rechecks all 17,092 original file hashes, every retained key/label/original pixel array, all 17,074 resized-pixel hashes, all 534 model/input CUDA forwards, complete positive first/last CUDA traces and source/plan/full pretrained model-state hashes. Receipt 565_human_labelled_CUDA_embeddings_2026-10-06.json archives all actual feature arrays, ordered labels/keys, complete compressed traces, raw terminal log, independent verifier and frozen next benchmark. The failed original 224-input run remains separately archived. This completes genuine crop-embedding GPU execution on the human-labelled cohort; class agreement and million-scale FAISS timing are separate and pending. Next planned turn is 565-pbc-FAISS-human-labels-million-20261006-r1, private official FAISS-GPU/Python3.12 environment, real HOME, 24 GiB and unchanged six-minute idle/ten-minute handoff; the 1.2M timing fixture is explicitly synthetic. Home retains remaining embedding GUI/pipeline/screen-wide source integration and CPU CI/Qt. Workstation retains all GPU/API/docs/tutorial/translation tasks; protected jobs remain untouched.
+
+2026-10-06 workstation human-labelled FAISS GPU acceptance: normal turn 565-pbc-FAISS-human-labels-million-20261006-r1 is terminal rc=0 at 07:58:00 UTC. The actual normal spaCR similarity index is faiss-gpu/GpuIndexFlat (official FAISS1.15.1), with no CPU fallback. All 17,074 unique unambiguous expert-labelled original PBC DINOv2 feature rows have self-excluded exact top-ten neighbours. Overall precision@10 is 0.8568876654562493 versus chance 0.14397477263482286; each of eight classes beats its prevalence baseline, including monocyte 0.719662 versus 0.083055 and platelet 0.983475 versus 0.137469. The normal independent NumPy class agreement matches exactly, and every sampled neighbour index matches. The separately declared synthetic seed-zero 1.2M x128 index returns all twenty synchronous top100 queries in 0.002894-0.003926 seconds (build 3.243079 seconds); it is not 1.2M acquired cells. Independent CPU readback recomputes all 170,740 saved human neighbour scores, labels/hits/class rows and canonical CSV, reproduces the 64 real queries, and reconstructs the entire synthetic matrix/normalization and all twenty top100 searches with exact neighbour-index matches. Source/input/actual feature/FAISS-library/plan hashes remain exact. Receipt 565_human_label_FAISS_GPU_acceptance_2026-10-06.json archives all actual neighbours/scores, full class/timing records, raw terminal log, frozen benchmark and independent replay. This closes the genuine human-labelled embedding/GPU-FAISS/million-timing gaps; item565 remains open for Home's remaining embedding GUI/pipeline and multi-plate screen-wide index integration. No patient split, clinical diagnosis accuracy or million acquired cell claim is made. No GPU turn remains live from this benchmark; all further GPU processes stay workstation-owned and protected livecell/cellposeTIME jobs remain untouched. Home retains CPU CI/coverage/Qt/source and workstation retains API/docs/tutorial/translations.
+
+2026-10-06 workstation complete expert-labelled DINOv2 baseline scorecard: all 17,074 original unique unambiguous PBC cells and their accepted actual CUDA features run through normal _scored_encoder_entry. kNN accuracy is 0.9279020733278669, mAP 0.4630365058482782 and precision@10 0.8568876654562493, with mAP/precision chance 0.14397477263482286. Independent blocked ranking over the full unchanged cohort reproduces every aggregate kNN/AP/vote/chance metric exactly and retains all original per-cell AP/precision values. The normal Model Zoo entry attaches the scorecard and hashes the actual cached 88,240,510-byte pretrained weights. Normal five-fold stratified crop logistic-regression diagnostic gives accuracy 0.9681974918537998, SD 0.0034559488664303163, versus majority chance 0.19491624692514936; scaling/fitting are inside each training fold. Patient identifiers are unavailable, so this is within-cohort crop performance, not a patient/plate/well holdout or clinical accuracy claim. Receipt 560_human_labelled_DINOv2_baseline_scorecard_2026-10-06.json archives actual normal scorecard, full independent per-cell replay, entry, raw logs and scripts. Source/input/model/GPU feature hashes remain exact; there is no further GPU inference or source/environment change.
+
+The first two ordinary two-thread attempts terminate rc=139 at _retrieval_scorecard's full float64 product. An independent bare NumPy ones-matrix diagnostic reproduces rc=139 at the same 17074x384 product with two BLAS threads, while the same full-size diagnostic and full normal scorecard pass with one thread. Actual NumPy/OpenBLAS0.3.31.dev configuration and all failed/passed logs are retained. The cohort and scientific parameters are unchanged, and no memory ceiling or guard is raised. One-thread success is a workaround, not resolution of the default two-thread failure. Home owns its CPU/source/environment investigation and should make the normal full-cohort scorecard robust before broader application acceptance. This establishes the genuine human-labelled DINOv2 comparison baseline; the foundation-model comparisons and remaining Cell-DINO/GUI/pipeline/screen-wide source work remain open. All GPU/API/docs/tutorial/translation work stays workstation-owned; protected jobs remain untouched.
+
+2026-10-06 — SOURCE-BOUND EMBEDDING GUI STORAGE IMPLEMENTED ON CPU
+Checkpoint b290b734d adds the reachable alpha EmbeddingsSaveForSimilarity
+button, Save for Similar crops. Load database crops, embed and press Save:
+the complete result is written through spacr.tabular into its actual source
+measurements.db and is consumed by the existing Annotate Like this search.
+The database/object keys are frozen from the successful load, including only
+loaded leading pages after a stop; changing path/backbone controls cannot
+write to another database or relabel vectors. Folder/programmatic crops lack
+an object binding and cannot save; replacing crops clears old save state and
+late results from the previous generation are ignored. Persistence runs on
+the normal JobRunner; a save error preserves the result for a later retry.
+
+Stored specified results include their actual EmbeddingSpec and fingerprint
+beside each object. Matching specifications/columns replace matching keys
+and retain other compatible rows. A different specification replaces the
+table even when dimensionality is identical, preventing obvious cross-model
+mixing; unspecified vectors cannot append to a specified table. Metadata is
+removed before neighbour indexing. This preserves specification identity;
+it does not yet establish identity of different checkpoint bytes at the same
+model/path, and the multi-plate implementation must guard model provenance.
+The workstation's _retrieval_scorecard, _weights_on_disk and encoder_entry
+are unchanged. Alpha visibility has a literal registered object name.
+
+All 46 bounded GUI-storage/loader/alpha/search cases pass under 4 GiB,
+CUDA hidden and Qt offscreen. New cases press real Load/Embed/Save controls,
+read the actual SQLite rows, verify original source/spec after control
+changes, exercise late results/save failure/alpha hiding and reject mixing
+same-width different-backbone vectors. No new GPU result is claimed; retain
+the workstation's accepted human-labelled retrieval/FAISS benchmark above.
+Item 565 remains OPEN for the explicit multi-plate/screen-wide source search
+and cross-database hit navigation/annotation, now assigned to a reused CPU
+agent. Workstation owns normal source-current API/runtime/docs translation
+refresh for the new captions and storage docstring.
+
+2026-10-06 — STORAGE RACES AND ACTUAL ENCODER PROVENANCE FOLLOW-UP
+Root65-case integrated cohort passes at28766ac3c. Sixteen independent real
+SQLite/source boundary cases also pass, followed by twenty focused cases
+including folder sources and pending new loads. Missing/NULL/blank/NaN or
+repeated object keys cannot enable Save. Old successful or failed inference/
+save completions cannot overwrite a newer crop selection or enable Save
+while its load is pending; save failures keep the original result retryable.
+The actual successful ModelEntry is frozen off the GUI thread immediately
+after inference, using the result's actual specification, and passed to
+_store_crop_embeddings(..., encoder_entry=entry). Storage records its actual
+weightsSHA, key, source and backbone alongside each object; an unavailable
+checksum stays empty. No workstation-owned provenance helper is modified.
+The reused multi-plate agent is strengthening same-database byte-identity
+merge checks and requires nonempty matching actual digests across databases.
+That remaining integration is not yet accepted; item565 remains OPEN.
+
+2026-10-06 — MULTI-PLATE SOURCE AND HIT NAVIGATION INTEGRATED
+Source 58b585d68/9988fd042 adds an explicit source-aware multi-plate index
+and Annotate navigation. Database aliases, incompatible feature columns,
+mixed feature kinds, missing provenance and different actual checkpoints
+are refused. An explicit Measurements selection uses compatible measured
+columns. Results are grouped by plate; selecting a hit opens its own source
+and writes annotation there, with return to the query plate. Pending saves
+are flushed before switching. Blind mode refuses cross-plate search.
+The complete seven-file root integration passes 61 cases under 4 GiB,
+including after merging the workstation's accepted checkpoint/chance-AP
+helpers. Existing genuine human-labelled CUDA/FAISS receipts are retained.
+Added-line/branch coverage and cached-index freshness review remain underway;
+item 565 is OPEN until those boundaries are verified. Source-current normal
+API/runtime/docs generation remains workstation-owned.
+
+2026-10-06 — SAVED VECTOR CACHE FRESHNESS REPAIRED
+Source 43418b29b records actual DB/WAL identity/mtime/ctime/size before index
+construction and invalidates on subsequent changes. If files change while
+building, caching keeps the old token so the next Similar query rebuilds;
+legitimate concurrent SQLite activity does not reject the current result.
+A real GUI test replaces same-model stored vectors and proves the next
+query rebuilds with the new vector. Agent 72 focused cases pass, with every
+added backend line/arc exercised. The remaining Annotate lifecycle/failure
+coverage audit is ongoing. No ratchet, cap or provenance requirement moves.
+
+2026-10-06 — REMAINING APPLICATION SCOPE COMPLETE (ALPHA)
+Source 5f6517b57 completes source-bound GUI Save, compatible same-plate
+merge/replacement, strict source-qualified multi-plate indexes, hit navigation
+and original-source annotations, stale worker/cache protection and automatic
+FAISS selection. Actual expert-labelled retrieval and genuine FAISS-GPU
+acceptance already appear in the preserved workstation receipts; the 1.2M
+timing matrix remains explicitly synthetic, not a million acquired cells.
+The final root seven-file cohort passes 76 with no warnings under 4 GiB,
+CUDA hidden and Qt offscreen. Fake FAISS proves auto GPU/CPU selection and
+explicit NumPy behavior without running any root GPU process. Every added
+backend executable line/arc is exercised. Annotate retains three uncovered
+lines/two arcs only for missing combo data or reselecting the already-open
+source; normal populated combo transitions cannot emit those defenses.
+Exact source hashes, raw bounded coverage and reproduction are archived in
+data/565_gui_multiplate_cpu_2026-10-06/. No guard or ratchet is weakened.
+
+Item 565 is DONE as alpha. Final global GitHub/coverage/serial Qt acceptance
+stays in 43/288/47, and normal new-source API/runtime/docs generation stays
+workstation-owned in 615. The newly added Cell-DINO's unknown ModelEntry SHA
+correctly refuses cross-plate comparison; its checkpoint/provenance acceptance
+is the explicit remaining F560 scope, not an unverified similarity fallback.

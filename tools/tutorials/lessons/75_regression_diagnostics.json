@@ -1,0 +1,87 @@
+{
+  "id": "75_regression_diagnostics",
+  "number": 75,
+  "slug": "regression_diagnostics",
+  "title": "Regression Diagnostics: inspect the saved analysis reports",
+  "series": 2,
+  "app_key": "regression_diagnostics",
+  "host_app_key": "regression",
+  "section": "spaCR",
+  "description": "Open a completed run’s design and inference reports, inspect support and dependencies, and use the findings when choosing the next analysis.",
+  "objectives": [
+    "Open the diagnostic folder for the intended Regression run.",
+    "Read design support, identifiability and inference summaries.",
+    "Keep diagnostics with their settings and rerun after changing an analysis."
+  ],
+  "prerequisite": "Complete the Regression example using its four score/count pairs. The illustrated permutation run uses 199 permutations and a minimum of two wells. Keep its settings and result families together when interpreting the diagnostic panels.",
+  "scenes": [
+    {
+      "visual": "02_diagnostics_button",
+      "narration": "From Home, open Regression. After an analysis completes, click Diagnostics. Check the folder path: this shortcut opens the newest diagnostics folder it finds in the project.",
+      "hold_after": 0.7,
+      "focus_buttons": "FoldButton",
+      "related_lessons": [
+        "13_regression"
+      ]
+    },
+    {
+      "visual": "03_diagnostics_folder",
+      "narration": "Read the diagnostic files in that folder in order: design identifiability, then design diagnostics with the collinear guide pairs, then inference diagnostics, and last the summary that pulls them together.",
+      "hold_after": 0.7,
+      "focus": [
+        535,
+        230,
+        1420,
+        285
+      ]
+    },
+    {
+      "visual": "04_design_identifiability",
+      "narration": "Start with Design identifiability. Compare the number of wells, parameters and the design rank. This example has more parameters than its rank supports, so it cannot identify a unique simultaneous coefficient for every guide.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_design_identifiability",
+      "narration": "Inspect guide support across wells. The example includes many guides found in only one well. Distinguish the full design from the filtered family of guides actually tested.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_design_diagnostics",
+      "narration": "Open Design diagnostics and the collinear-pairs table. Identify predictors that always occur together or have weak support before attributing their effects separately.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_inference_diagnostics",
+      "narration": "Open Inference diagnostics. Inspect the P-value distribution, null comparison and discoveries across adjusted thresholds. This example has no discoveries at the displayed threshold.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_inference_diagnostics",
+      "narration": "Check the number of permutations when interpreting P values. With one hundred ninety-nine permutations, the smallest attainable empirical P value is zero point zero zero five. Plan the resolution needed for your multiple-testing correction.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_diagnostics_folder",
+      "narration": "A permutation analysis does not produce fitted residuals from a simultaneous regression model. Look for residual panels when using a mode that supplies observed and fitted values.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_diagnostics_folder",
+      "narration": "Read the summary alongside the individual panels. Its overall assessment reflects the worst panel assessment, so open the corresponding report to understand the reason.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api"
+      ]
+    },
+    {
+      "visual": "07_back_to_regression",
+      "narration": "Return to Regression to revise inputs or analysis settings deliberately. Run the revised analysis and inspect its new diagnostics. Keep earlier output folders separate so each report remains associated with its settings.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "13_regression",
+        "48_hit_list",
+        "72_volcano_explorer"
+      ]
+    }
+  ]
+}

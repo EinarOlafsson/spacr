@@ -1,0 +1,121 @@
+{
+  "passed": true,
+  "scope": "Narrow CI test-fixture repair. No application source, equality assertion, numeric ceiling or memory guard changes.",
+  "hosted_failure": {
+    "source": "4133beafcd0ae427795617a4a01e295fd40539b7",
+    "run": 37728397690,
+    "job": 113154247583
+  },
+  "source_bindings": {
+    "tests/qt/test_idle_time_builds_the_closed_categories.py": "2f1cf55457305852e78daff418a09652cee6f17da8f5b7831846cc958e9ba515"
+  },
+  "diagnosis": "MainWindow restored a saved module before the helper installed its eager/idle controls. The alleged eager comparison could already be a partially built lazy screen. Explicit initial Home skips ordinary and forced session restoration through the actual supported constructor.",
+  "acceptance": {
+    "original_node_seeded_negative": 1,
+    "new_counterexamples_negative": 2,
+    "original_node_seeded_positive": 1,
+    "complete_file_branch_coverage_passed": 14,
+    "complete_file_seconds": 75.24
+  },
+  "environment": {
+    "python": "3.12.14",
+    "pytest": "8.4.2",
+    "PySide6": "6.11.2",
+    "cap": "8G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen"
+  },
+  "limitations": "The original hosted last-session record was not retained, so this is a deterministic demonstrated failure mechanism and fixture repair, not proof of that precise persisted record or native crash causality. Initial standalone passes are negative reproductions. The first traced attempt could not find pytest-cov and exited4; no acceptance is claimed for it.",
+  "payloads": {
+    "urgent-idle-category-parity-r1.log.gz": {
+      "bytes": 728,
+      "sha256": "d861bc391704ebe3aa6fbc073c36c5a02ad731ef80bbe04fb3300d35b0f8754c",
+      "raw_bytes": 1438,
+      "raw_sha256": "340c169d10db67846f3ee32ebe171ae14ec60bae5603eb29c06528ba065f6522"
+    },
+    "urgent-idle-category-parity-traced-r1.log.gz": {
+      "bytes": 496,
+      "sha256": "a898e558fc68d0f0726a9b2e9fc66ad73926ce7fd1b0bb9e2845b67923373784",
+      "raw_bytes": 1038,
+      "raw_sha256": "b3e9fad06745e9a0fc69d69bcb6ffcf0cdffbdb5799a9fafadeb64b7d6f6c354"
+    },
+    "urgent-idle-category-parity-traced-r2.log.gz": {
+      "bytes": 745,
+      "sha256": "d56289abf6ff96424de4a0f96f0e2194cefe1759c8f46296be417df9d39389e3",
+      "raw_bytes": 1524,
+      "raw_sha256": "f44eef8146b5a264b4704e8b36dea35c99f334028ec675174a643aa2558cbdb6"
+    },
+    "urgent-idle-saved-session-negative-r1.log.gz": {
+      "bytes": 1084,
+      "sha256": "40fc95e7a582a7be0cbbdf5242def102a2b3f8391a0057be31d0afc9a361ebc5",
+      "raw_bytes": 4181,
+      "raw_sha256": "1648f3d98888b19b84ab4536896bd66546f6c07d99723f63866e531ffc6441ac"
+    },
+    "urgent-idle-original-node-prior-session-negative-r1.log.gz": {
+      "bytes": 1133,
+      "sha256": "9998e147d4585f3758bcdf47b9fe5e6a6ff9ede07034fde98bc86326b533556a",
+      "raw_bytes": 2645,
+      "raw_sha256": "5c4174bc4644d2787014fa62ca38caba1a845e5fa471d3f9503ad5e8dad6d77f"
+    },
+    "urgent-idle-original-node-prior-session-positive-r1.log.gz": {
+      "bytes": 742,
+      "sha256": "4a5b1411fd5788566d84773dace1e36b849ea423f28192aa3b6cf0604088421d",
+      "raw_bytes": 1416,
+      "raw_sha256": "60954508a1c7f72869cbba2aeed4ae9434cda61a41bab9aef5074f306cfc6382"
+    },
+    "urgent-idle-saved-session-full-traced-r1.log.gz": {
+      "bytes": 545,
+      "sha256": "601e8c6a025785aa40bbf230d3a62b7cc4bb0b47521f1984265efb07d96b05f9",
+      "raw_bytes": 1056,
+      "raw_sha256": "8f19d768a5f13e9563a48187c85beb529ddf8062f9a2e7b63e710014b78e59c3"
+    },
+    "before-test.py.gz": {
+      "bytes": 4677,
+      "sha256": "5820b725dce5ece0af6aa2e5ada0db5504f46e40eae4d14a4d4b0492a347d218",
+      "raw_bytes": 16596,
+      "raw_sha256": "efa0bbf62a5f6e285757683af5e61eabd12f86a821c09e6a4d35677a62dce3d0"
+    },
+    "after-test.py.gz": {
+      "bytes": 4852,
+      "sha256": "bbbe9391c75cca2e3f8528721a5fbbacd41f5fcb6f8697e54048f3ee7a1b8c56",
+      "raw_bytes": 17298,
+      "raw_sha256": "2f1cf55457305852e78daff418a09652cee6f17da8f5b7831846cc958e9ba515"
+    },
+    "reproduce_idle_prior_session_r1.py.gz": {
+      "bytes": 401,
+      "sha256": "f4d4b3ed2d1c809a02fdefa724ae8e858af0110cb37705be17edaee129c44fec",
+      "raw_bytes": 806,
+      "raw_sha256": "51684435e764182d000496b5e410116c6bad2158df030630cdcbf5f97c121948"
+    },
+    "negative-counterexample-test.py.gz": {
+      "bytes": 4827,
+      "sha256": "b79ef6205aa9ebc6e1dfe24c123f16bf10a99e43a99e109d2a39a07cce9599e0",
+      "raw_bytes": 17236,
+      "raw_sha256": "2fc7e55e47c2aa45aa31a6900103f355334c8f29dbe97a550e0cfc7ed1d7c08f"
+    },
+    "spacr--qt--app.py.gz": {
+      "bytes": 90029,
+      "sha256": "ef1ad8031184b6202adc3f7047f56c96e2ce91d561ba8120ce87f0a3d9790c7a",
+      "raw_bytes": 318095,
+      "raw_sha256": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7"
+    },
+    "spacr--qt--screens--app_screen.py.gz": {
+      "bytes": 150581,
+      "sha256": "21cc15b1a2dda6e03c11335541e57a78e95b225d91f44604452c6e2263c93b1c",
+      "raw_bytes": 569319,
+      "raw_sha256": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1"
+    },
+    "spacr--qt--screens--settings_model.py.gz": {
+      "bytes": 153436,
+      "sha256": "7a11fea7ec19544c0cfd83d74f664eb66e0e4a8b3dbf9a33919a7400f0540ac6",
+      "raw_bytes": 544484,
+      "raw_sha256": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305"
+    },
+    "spacr--restart_state.py.gz": {
+      "bytes": 4399,
+      "sha256": "00406064e802d6baf5b1940ebee1e791cf2d4a360d321ac7aab7780ef32559bb",
+      "raw_bytes": 13920,
+      "raw_sha256": "30c9fe336b729a662104331d5829df8c016768868bcfc2d9e516a6ab5e030bc4"
+    }
+  }
+}

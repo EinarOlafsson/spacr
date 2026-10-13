@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "note": "Exact standard-install command preserved; figure means a scientific image/plot, not a digit; existing noninteractive figure generation remains available.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "source_sha256": "2352735cfdd52e8dc466f404e2fce718a83ef7f787834f491f73563fd5d625c6",
+      "translation": "इंटरैक्टिव ग्राफ़ के लिए pyqtgraph आवश्यक है।\n\nइसे python -m pip install spacr से स्थापित करें, फिर यह मॉड्यूल दोबारा खोलें।\n\nबाकी सभी सुविधाएँ इसके बिना भी काम करती हैं: प्रक्रिया अब भी सभी चित्र बनाती है और वे कंसोल के ऊपर ग्रिड में दिखाई देते हैं।"
+    }
+  ]
+}

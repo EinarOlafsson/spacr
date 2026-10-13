@@ -1,0 +1,40 @@
+Please update the puncta methods to reflect the independently verified spaCR
+implementation on nightly, commit 963fc9963 (feature 661). The original
+analysis was performed with the external Python detector; its detection and
+centre-measurement results have now been reproduced through the actual spaCR
+Make Masks interface. Keep that provenance distinction in the manuscript.
+
+Existing cyst masks, previously generated using spaCR/Cellpose, were retained
+unchanged. In Make Masks, choose “Centre-pixel puncta within parent masks”,
+load the original single-channel images and separate cyst masks, and use
+whole-image Replace followed by Save mask. The detector uses scale-normalised
+LoG at sigma 1.5, 2, 3, 4 and 6 pixels; per-parent pixel-noise normalization
+from the robust sigma-1 high-pass MAD estimate divided by 0.87; candidate
+threshold 2.5 noise units; peak spacing 2 pixels; scale-dependent nonmaximum
+suppression; and a 3-pixel parent-edge margin.
+
+Each punctum's intensity is the mean of the 20 pixels nearest its subpixel
+intensity-weighted centre in a 9-by-9 window. The local background is the
+same-parent annulus median, with inner radius max(4, 2.5 sigma + 2), width
+4 pixels, candidate exclusions and the reference fallback rules. Puncta are
+included when centre mean minus local background is >=3 native AU. Display
+normalization, inversion and enhancement do not affect these calculations.
+
+Independent reference and GUI replays covered all 39 fields: 62,317 candidates
+and 24,145 included puncta (ME49 12,757; ATG2 KO 10,085; ATG2' KO 1,303),
+with 58 cysts contributing included puncta. Candidate positions and inclusion
+flags matched exactly; reference measurement columns matched the published
+rounding precision. Original images and cyst masks remained unchanged.
+
+Save exports individual-label puncta masks plus .puncta.csv and .puncta.json.
+Use center_mean/local_bg/center_corrected, or center20/corrected20, from the
+CSV for this analysis. The legacy corrected column is the reference's 3-by-3
+measurement. Overlapping centre samples remain exact in the CSV, whereas
+mask pixels have one deterministic label owner; ordinary Measure mask means
+therefore need not equal the original centre means.
+
+Keep noise-null estimation, hierarchical statistics, Games-Howell/Fisher
+tests and Figure final attributed to the external analysis unless those
+steps are separately rerun and validated in spaCR. This implementation
+verifies puncta masks and exact centre/annulus measurements, not the entire
+downstream publication pipeline.

@@ -1,0 +1,1 @@
+{"preview_track_params": {"displacement": 50.0, "iou_threshold": 0.1, "memory": 3, "mode": "trackastra", "trackastra_linking": "ilp", "trackastra_model": "audit-model"}, "ui_linking": ["entry", null, "ilp"], "ui_mode": ["combo", ["trackastra", "ultrack", "trackpy", "iou", "btrack", "timeflows", "sam2"], "trackastra"], "ui_model": ["entry", null, "audit-model"]}

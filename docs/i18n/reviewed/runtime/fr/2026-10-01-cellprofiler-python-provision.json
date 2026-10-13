@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native-speaker signoff",
+  "draft_author": "merge_interfaces",
+  "technical_reviewer": "root",
+  "source_file": "spacr/_segmentation_backends.py and spacr/qt/widgets/model_zoo_picker.py",
+  "superseded_review_file": "docs/i18n/reviewed/runtime/fr/2026-09-27-runtime-debt-sixth-pass-messages.json",
+  "superseded_review_file_sha256": "8a67fe7be740d6391391b7a4047aa78faf55a71bdee090e4efdcd34fc34b1869",
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source_sha256": "1d6230c16b5fa3946e5a4f086fcbdfeb4924ee62727ebb25d2b4272151347fe1",
+      "translation": "CellProfiler 4.2, exécuté sans interface sur le pipeline .cppipe propre à un laboratoire depuis Measure : spaCR lui transmet les canaux et masques de chaque champ sous forme de TIFFs et rapatrie ses mesures par objet dans measurements.db, indexées par les identifiants d’objet de spaCR. Il faut un Python 3.8 ou 3.9 sur cet ordinateur pour construire son environnement."
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Prepare compatible Python",
+      "source": "Prepare compatible Python",
+      "source_sha256": "4a8714bad0a1c96c525cd374d6c219f4048ef8f17fbafbf46157c32e11fe9918",
+      "translation": "Préparer une version compatible de Python"
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9. If neither is available, bundled or PATH uv downloads a private Python 3.9 for this backend.",
+      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9. If neither is available, bundled or PATH uv downloads a private Python 3.9 for this backend.",
+      "source_sha256": "459840fc0093c097e65d293fe02a3e5cf3a83d4879001568a3883328659a13c4",
+      "translation": "CellProfiler 4.2 exécute le pipeline .cppipe propre au laboratoire sans interface graphique depuis Mesure : spaCR lui transmet les canaux et les masques de chaque champ sous forme de TIFFs, puis récupère ses mesures par objet dans measurements.db, associées aux identifiants d’objet de spaCR. Python 3.8 ou 3.9 est nécessaire. Si aucune de ces versions n’est disponible, uv, fourni avec l’application ou accessible via PATH, télécharge une installation privée de Python 3.9 pour ce backend."
+    }
+  ],
+  "review": "Checked CellProfiler4.2, headless own .cppipe, TIFF channels/masks, spaCR object-keyed measurements.db, Python3.8/3.9, and bundled/PATH uv provisioning of private Python3.9 only when compatible local Python is absent."
+}

@@ -1,0 +1,123 @@
+name: Bug report
+description: Something in spaCR behaves incorrectly, crashes, or produces a wrong result
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this.
+
+        **If spaCR filed this report for you from inside the application**, its
+        title names the *crash*. Please use the first box below to say what you
+        were actually trying to do — the crash is often not the problem you hit
+        first, and that first problem is usually the more useful one.
+
+        **Do not report security problems here.** See
+        [SECURITY.md](https://github.com/EinarOlafsson/spacr/blob/main/SECURITY.md).
+
+  - type: textarea
+    id: doing
+    attributes:
+      label: What were you trying to do?
+      description: The task, in your own words. Which module, on what kind of data.
+      placeholder: I was running the measure module on a four-plate CellVoyager screen, after masks finished.
+    validations:
+      required: true
+
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened instead?
+      description: |
+        What you saw. If spaCR produced a *wrong number* rather than an error,
+        say what you expected and why — that is the hardest kind of bug to find
+        without you.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: How can it be reproduced?
+      description: |
+        Steps, settings, or a command. If you can share a small piece of data
+        that shows it, that is the single most useful thing in this form.
+      placeholder: |
+        1. Open Measure
+        2. Load test data
+        3. Set cell_min_size to 2000
+        4. Run — it fails at the merge step
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Which part of spaCR?
+      multiple: true
+      options:
+        - Mask generation
+        - Measure
+        - Classify
+        - Regression
+        - Sequencing
+        - Annotate
+        - Image UMAP / Gate editor
+        - Import / Format conversion
+        - Plate viewer
+        - Installation or updating
+        - The interface itself (theme, layout, language)
+        - Something else / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: spaCR version
+      description: "`python -c \"import spacr; print(spacr.__version__)\"`, or Help → About"
+      placeholder: 1.5.0.4
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - pip
+        - conda / conda-forge
+        - Windows installer
+        - macOS installer
+        - Linux installer
+        - From source (git clone)
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system, Python version, and GPU if relevant
+      placeholder: macOS 15.3 on an M4 Pro, Python 3.12, Metal
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Traceback or log
+      description: |
+        Paste the traceback if there is one. spaCR's log lives at
+        `~/.spacr/logs/spacr.log` and records timing spans, so a slow or stuck
+        step usually names itself there.
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I am on the latest release, or I have said above which older version this is
+          required: true
+        - label: I searched existing issues
+          required: false

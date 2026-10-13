@@ -1,0 +1,23 @@
+{
+  "model_load_seconds": 9.119727758021327,
+  "apply_seconds": 0.14674310199916363,
+  "qt_ticks": 973,
+  "maximum_tick_gap_seconds": 0.05696462400374003,
+  "mask_labels": 5,
+  "model_output_matches_host_on_editor_input": true,
+  "source_unchanged": true,
+  "input_loading": "Existing editor conversion of float TIFF to uint16 before enhancement",
+  "wand_matches_detection": true,
+  "compare_succeeded": true,
+  "saved_provenance": {
+    "backend": "cellpose3",
+    "model": "denoise_nuclei",
+    "device": "cpu",
+    "weights_sha256": "da6dacca6c44367cb9180e4251f7f25273559e7dfb68884a608b62b9cca41d0e",
+    "cellpose_version": "3.1.1.3",
+    "diameter_px": 25.0,
+    "normalization": "Cellpose 1st/99th percentile",
+    "intensity_units": "normalized model output",
+    "intensity_source_for_measurement": "original image"
+  }
+}

@@ -1,0 +1,592 @@
+================================================================================
+364 -- ANNOTATE AND MAP BARCODES SETTINGS AUDIT, MEASURED 2026-09-02
+PROPOSALS FOR REVIEW. Nothing here has been changed.
+================================================================================
+
+Annotate     (set_annotate_default_settings)          23 settings
+             + the screen's own AnnotateSettings              31
+             + the Cells-tab picture panel                    44
+Map Barcodes (set_default_generate_barecode_mapping)  18 settings
+             + 2 the pipeline reads and never declares        20
+             + get_map_barcodes_default_settings, uncalled     5
+
+The same three questions the four previous audits asked, in the same order,
+against the same standard of evidence: every claim below is either a
+quotation from the setting's own tooltip or a line of code that reads it.
+
+These two modules break the pattern of the first four. Mask, Measure,
+Regression and Classify were single, well-registered settings dicts whose
+problems were redundancy and naming. Annotate has THREE default tables that
+disagree with each other, and Map Barcodes has the first genuinely dead
+settings found in five modules.
+
+--------------------------------------------------------------------------------
+FINDING 0 -- SOMETHING IS DEAD AT LAST, AND THE NAME-BASED SCAN CANNOT SEE IT
+--------------------------------------------------------------------------------
+
+The scan the other four audits used -- count the files under spacr/ that name
+each key -- returns NOTHING DEAD here either. The lowest count in Annotate is
+3 files (`queue_limit`, `queue_measure`, `queue_diversity`,
+`threshold_direction`, `blue_channel`, `green_channel`); the lowest in Map
+Barcodes is 4. `barcodes` is named in 46 files and `grna` in 66.
+
+  AND BOTH OF THEM ARE DEAD. The 46 and the 66 are `barcodes_column.csv`,
+  `grna_csv`, `grna_barcodes.csv` and the DataFrame column `df['grna']` --
+  the same collision `tests/test_dead_settings.py` already documents for the
+  two-letter keys `nc` and `pc`:
+
+      #: Keys whose SPELLING collides with a live string literal that has
+      #: nothing to do with the setting. The scan is deliberately name-based
+      #: -- that is what makes it impossible to fool by an indirect read --
+      #: but a two-letter name is cheap enough that another meaning exists.
+
+  `barcodes` and `grna` are five and four letters, and the same thing
+  happened. A grep for the actual settings read returns nothing:
+  `settings['grna']`, `settings.get('grna')`, `settings['barcodes']` and
+  `settings.get('barcodes')` appear NOWHERE under spacr/. Every `['grna']`
+  in the package is a pandas column.
+
+  SO THE METHOD USED IN THE FIRST FOUR AUDITS HAS A HOLE, and this is where
+  it shows. "Nothing is dead" in mask, measure, regression and classify is
+  still the right answer -- their keys are long and distinctive -- but the
+  scan proves LESS than it appeared to. What found these two was reading the
+  tooltips. See Finding 1.
+
+--------------------------------------------------------------------------------
+FINDING 1 -- MAP BARCODES: TWO SETTINGS WHOSE OWN TOOLTIPS SAY THEY DO NOTHING
+--------------------------------------------------------------------------------
+
+PROPOSE: RETIRE `barcodes` and `grna` into RETIRED_SETTINGS, and delete
+`get_map_barcodes_default_settings` with them.
+
+This is the `intermedeate_save` shape from Classify turned inside out. There
+the tooltip said "no effect" and the code plainly honoured the setting. Here
+the tooltip says "no effect" and it is TELLING THE TRUTH:
+
+    "barcodes": "(str) - Path to a CSV of screen/plate barcodes for the
+    legacy barcode-mapping helper. Nothing in the current code reads this
+    key: get_map_barcodes_default_settings, the only place it is defined, is
+    never called by any pipeline, so setting it has no effect. The live
+    equivalents consumed by generate_barecode_mapping are row_csv,
+    column_csv and grna_csv."
+
+    "grna": "(str) - Path to a CSV of gRNA barcode sequences for the legacy
+    barcode-mapping helper. Like 'barcodes' it exists only in
+    get_map_barcodes_default_settings, which no pipeline calls, so changing
+    it has no effect on any run. The live equivalent, read by
+    generate_barecode_mapping, is grna_csv."
+
+Both claims check out. `get_map_barcodes_default_settings` is DEFINED at
+spacr/settings.py:1952 and called from nowhere under spacr/ -- only from
+tests. Its own comment concedes the point:
+
+    # These legacy keys are retained for older callers, but their defaults
+    # must be portable. The active Qt workflow uses the corresponding
+    # row_csv/column_csv/grna_csv keys populated from these same resources.
+
+  WHAT IT COSTS TO LEAVE THEM. spaCR gives both keys a type in
+  `expected_types`, a tooltip, a place in the "Paths" category, and a
+  translated tooltip in EVERY ONE of the ten i18n catalogs -- ten reviewed
+  sentences per key whose content is "this setting does nothing".
+  `verbose` is a third casualty: it is in the dead factory and not in the
+  live one, and its tooltip still tells the user "The default is True for
+  mask, UMAP, screen analysis, barcode mapping and Cellpose training". There
+  is no `verbose` in the live barcode mapper and `spacr/sequencing.py` never
+  reads one.
+
+  THE THREE SURVIVORS (`src`, `test`, `verbose`) are all live keys of other
+  modules, so retiring the factory retires nothing a user has.
+
+--------------------------------------------------------------------------------
+FINDING 2 -- ANNOTATE HAS TWO DEFAULT TABLES AND THEY DISAGREE
+--------------------------------------------------------------------------------
+
+PROPOSE: this is the item to look at first. It is not untidiness -- it is
+every "Default X" sentence in Annotate's tooltips describing a value the
+Annotate screen never uses, and one of the disagreements silently reverses a
+decision the maintainer made under instructions 170 and 171.
+
+`spacr/settings.py:set_annotate_default_settings` is the documented contract:
+it is what the tooltips describe, what `picture_defaults()` seeds the Cells
+tab from, and what a notebook or `spacr-run` gets. The Annotate SCREEN does
+not consult it. `spacr/qt/screens/annotate.py:2237` is the whole story:
+
+    self._settings = AnnotateSettings()
+
+-- the bare dataclass defaults from `spacr/qt/annotate_engine.py`. A grep for
+`set_annotate_default_settings` in `spacr/qt/screens/annotate.py` returns
+nothing.
+
+The two tables share 21 keys and give a different value for 15 of them. Five
+of those are cosmetic (`'r,g,b'` against `['r','g','b']`, `100` against
+`100.0`, `''` against `None` twice, and the `src` placeholder). These ten are
+not:
+
+    setting                    factory ships    the screen starts at
+    ------------------------------------------------------------------
+    crop_source                'png'            'auto'
+    annotation_column          'test'           'annotate'
+    percentiles                [2, 98]          (1.0, 99.0)
+    outline_sigma              4                1.0
+    outline_threshold_factor   1.25             1.0
+    edge_thickness             0.1              1.0
+    edge_image                 'False' (str)    False (bool)
+    image_type                 'cell_png'       None
+    threshold_direction        'higher'         None
+    normalize_channels         None (off)       ['r','g','b'] (all three)
+
+  `crop_source` IS THE ONE THAT MATTERS, because the factory's value is not a
+  preference -- it is a decision, recorded in settings.py in capitals:
+
+      # LOAD IMAGES BY DEFAULT, BY NAME (instructions 170 and 171).
+      #
+      # This shipped 'auto', which takes the PNG folder whenever one exists
+      # -- the right answer for the wrong reason, and unaskable when a user
+      # wants the other. Asked 2026-08-19: "in the annotation app how do i
+      # choose to stream images from database or dataset". The answer was
+      # that you did not: the setting was here and the choice was never
+      # offered.
+      settings.setdefault('crop_source', 'png')
+
+  And the dataclass, thirty lines of comment away in another file:
+
+      # 'auto' | 'png' | 'merged' -- see spacr.crops.resolve_crop_source.
+      # 'auto' prefers the PNG folder, so existing projects are unaffected.
+      crop_source: str = "auto"
+
+  So the fix landed in the factory and the SCREEN -- the only place a user
+  annotates -- still starts at 'auto', which is the exact behaviour 170 and
+  171 were written to remove.
+
+  `outline_sigma` and `outline_threshold_factor` are the ones a user would
+  notice next: the tooltips say "Default 4." and "Default 1.25.", the screen
+  opens at 1.0 and 1.0, and those two numbers are the whole shape of the
+  outline the annotator draws.
+
+  PROPOSAL: ONE TABLE. `AnnotateSettings` should be constructed from
+  `set_annotate_default_settings`, not from its own field defaults, so there
+  is one answer to "what is the default" and the tooltips are it. Which
+  values win is the maintainer's call and should be taken deliberately per
+  row -- `crop_source` clearly goes to 'png' (that is what 170 decided);
+  `annotation_column` is less obvious, since 'test' looks like a placeholder
+  and 'annotate' looks like the intended column name.
+
+--------------------------------------------------------------------------------
+FINDING 3 -- ANNOTATE ASKS "HOW BIG" TWICE, IN TWO SPELLINGS AND TWO TYPES
+--------------------------------------------------------------------------------
+
+PROPOSE: COMBINE. Keep `image_size`; accept `img_size` as a legacy spelling
+the way `toxo` already is.
+
+    img_size     set_annotate_default_settings, int, default 200
+                 "(int) - How many pixels across each cell is drawn. One
+                 number: the crop is square."
+    image_size   AnnotateSettings, Tuple[int, int], default (200, 200)
+
+One question. The screen's own widget is even NAMED after the loser:
+
+    spacr/qt/screens/annotate.py:1199   self._img_size = QSpinBox()
+    spacr/qt/screens/annotate.py:1504       self._img_size: "image_size",
+
+  AND IT IS ALREADY COSTING A USER SOMETHING. The Annotate screen can fill
+  its form from a settings CSV shipped with a dataset, through a named map:
+
+      _EXAMPLE_SETTING_WIDGETS = {
+          "annotation_column": "_ann_col",
+          "image_size": "_img_size",
+          ...
+
+  The key it looks for is `image_size`. The key spaCR's own annotate
+  defaults factory writes is `img_size`. So a settings file generated from
+  spaCR's defaults sets no image size at all, silently, and the field stays
+  where the dataclass left it. That map has 8 entries; the module has 44
+  settings.
+
+--------------------------------------------------------------------------------
+FINDING 4 -- ANNOTATE IS NOT REGISTERED AS A SETTINGS MODULE AT ALL
+--------------------------------------------------------------------------------
+
+This is the reason Findings 2 and 3 could happen and stay happened, and it is
+worth stating separately because it is what a future audit will trip over.
+
+    spacr/qt/screens/settings_model.py:295
+        if app_key in ("annotate", "make_masks"):
+            # These are interactive apps; return minimal placeholder.
+            return {"src": "path to images"}
+
+Annotate is not in `GUI_MODULE_DEFAULTS` in `tests/test_settings_categories.py`
+either, so `test_every_setting_a_module_offers_has_a_category` never runs for
+it. The consequences, counted over the 44 keys of its full surface:
+
+    28 have no entry in `settings.categories`
+    28 have no entry in `settings.expected_types`
+     7 are declared NOWHERE -- no tooltip, no type, no category:
+
+        object_filters   outline_method   grid_rows   grid_cols
+        stored_channel_order   display_order   display_primaries
+
+  THE 7 ARE REAL CONTROLS, not internals. `stored_channel_order`,
+  `display_order` and `outline_method` are combo boxes on the Annotate
+  settings form (annotate.py:1246, :1269, :1347), each carrying a hand-
+  written `setToolTip` string instead of an entry in `settings.tooltips`.
+  This is the case the open instruction calls the worst one -- "an unnamed,
+  undocumented setting ... is invisible in a count of settings that need
+  work".
+
+  NO EXPECTED_TYPE IS ALSO WHY `edge_image` STAYS A STRING. `check_settings`
+  cannot coerce a key it has no declared type for, so the shipped `'False'`
+  survives, and a non-empty string is TRUE. The workaround is already written
+  down, in the one place that hit it:
+
+      # OWN_DEFAULTS WINS WHERE IT SPEAKS ... `set_annotate_default_settings`
+      # ships the STRING 'False' for `edge_image`, and a non-empty string is
+      # TRUE -- so the flag read as on everywhere it was used as one, and
+      # this dialog drew a text box containing the word False instead of a
+      # checkbox.
+      (spacr/qt/widgets/picture_settings_dialog.py:45)
+
+  and `spacr/picture_settings.py:706` still does `bool(items.get("edge_image"))`
+  on whatever it is given. One panel patched itself; the setting is still
+  wrong at the source.
+
+  PROPOSE: give Annotate the same registration every other module has -- an
+  entry in `GUI_MODULE_DEFAULTS`, categories for its keys, `expected_types`
+  for its 28, and tooltips for the 7. That is not a rename batch; it is
+  making the module visible to the machinery that would have caught
+  Findings 2, 3 and 6 on its own.
+
+--------------------------------------------------------------------------------
+FINDING 5 -- THREE NAMES FOR "WHICH OBJECT AM I LOOKING AT"
+--------------------------------------------------------------------------------
+
+PROPOSE: NEEDS THE MAINTAINER, then probably COMBINE.
+
+    image_type    'cell_png' / 'nucleus_png' / ...   used when crops are
+                                                     LOADED from disk
+    object_array  'cell' / 'nucleus' / ...           used when crops are
+                                                     STREAMED from merged/
+    object_type   'cell' / 'nucleus' / ...           used when crops come
+                                                     from the DATABASE
+
+`spacr/picture_settings.py` files them one per mode -- LOAD_ONLY,
+STREAM_ONLY, DATABASE_ONLY -- so exactly one of the three is live at a time
+and the other two are greyed. And the module already translates one into
+another:
+
+    if mode == STREAM_FROM_DB:
+        object_type = str(items.get("object_type") or "").strip().lower()
+        if object_type:
+            out["object_array"] = object_type
+
+A setting whose only job is to be copied into another setting under one
+condition is that setting under another name.
+
+  THE JUDGEMENT THE AUDIT CANNOT MAKE is whether a user ever wants the three
+  to hold DIFFERENT answers -- to read the `cell_png` folder while streaming
+  nucleus crops is incoherent, but there may be a route history here the code
+  does not show. If they must always agree, this is one question with a
+  per-route spelling, and one setting plus the route already known would say
+  it.
+
+  `object_type`'S TOOLTIP IS A DIFFERENT MODULE'S. Whatever is decided about
+  the merge, this should be fixed on its own:
+
+    "object_type": "(str) - Mask used to define an object when the pointing
+    game scores an attribution map: 'cell', 'nucleus', 'pathogen' or
+    'cytoplasm'. The metric checks only whether the map's maximum-valued
+    pixel lies inside that mask..."
+
+  That is the Activation Maps setting -- it is filed under the "Activation
+  Maps" category -- and it is the tooltip a user gets on the Cells tab, where
+  the setting means "which object-table columns the database route reads its
+  coordinates from". The panel's own table says so in a sentence the tooltip
+  never shows. The tooltip also lists four objects; the panel offers eight
+  (`picture_settings.py:904` adds organelle, organelleb, organellec,
+  organelled).
+
+--------------------------------------------------------------------------------
+FINDING 6 -- `threshold`'s TOOLTIP PROMISES A FEATURE THAT DOES NOT EXIST
+--------------------------------------------------------------------------------
+
+PROPOSE: CORRECT THE TOOLTIP NOW. This is the `intermedeate_save` case again
+-- misinformation rather than untidiness -- except that acting on this one
+raises an exception instead of merely wasting the reader's time.
+
+    "threshold": "... Accepts a number or a quantile code 'q1'-'q9' (q3 =
+    the 30th percentile of that column), or one entry per measurement when
+    measurement is a list."
+
+NOTHING PARSES A QUANTILE CODE. There is no such parser anywhere in the
+package; the string "q1'-'q9" occurs in this tooltip and in nine of its ten
+translations, and nowhere else. What actually applies the threshold is:
+
+    def _apply_threshold(df, column: str, threshold: float, direction: str):
+        if column is None or column not in df.columns or threshold is None:
+            return df
+        if direction == "higher":
+            return df[df[column] > float(threshold)]
+        if direction == "lower":
+            return df[df[column] < float(threshold)]
+        return df
+    (spacr/qt/annotate_engine.py:1094)
+
+`float('q3')` raises `ValueError`, on a worker thread, after the annotator
+has opened a source and pressed apply.
+
+  AND THE SAME FIVE LINES CONTRADICT `threshold_direction`'s TOOLTIP, which
+  says "'higher' keeps rows whose measurement is >= the threshold, 'lower'
+  keeps rows <= it". The code is strictly `>` and `<`. An object sitting
+  exactly on the cutoff is dropped by both directions, and both tooltips
+  promise it is kept by both.
+
+  A THIRD CLAIM IN THE SAME TOOLTIP IS ALSO WRONG FOR THIS MODULE: "Default
+  2000 where a numeric cutoff is used". Annotate's default is `''`.
+
+--------------------------------------------------------------------------------
+FINDING 7 -- THE ANNOTATE MODULE'S OWN DOCSTRING SAYS A LIVE SETTING IS INERT
+--------------------------------------------------------------------------------
+
+PROPOSE: DELETE THE PARAGRAPH. `spacr/qt/screens/annotate.py`, in the module
+docstring, tells the reader:
+
+    The Qt screen does not currently provide the UMAP window, Deep spaCR
+    training launcher, or measurement-threshold filtering. A threshold can be
+    entered in settings, but page queries do not apply it.
+
+The page query applies it. `_compute_total` in the same file:
+
+    if filter_active:
+        # Cache the filtered set once so pagination + total agree
+        rows = fetch_filtered_paths(
+            s.db_path, s.annotation_column,
+            s.measurement if isinstance(s.measurement, list) else [s.measurement],
+            ...
+
+and the screen's own comment two hundred lines below measures how expensive
+it is -- "With a threshold filter set it reaches `fetch_filtered_paths` ...
+2.6 s of frozen window". Three settings (`measurement`, `threshold`,
+`threshold_direction`) are documented as dead by the module that reads them.
+Same shape as Classify's `intermedeate_save`, and same cost: whoever wanted
+to label only the bright cells read that and gave up.
+
+--------------------------------------------------------------------------------
+FINDING 8 -- TWO ANNOTATE SETTINGS THAT ARE GENUINELY UNNECESSARY
+--------------------------------------------------------------------------------
+
+PROPOSE: RETIRE both. These are the first two settings in five modules that
+meet the open instruction's own test for "unnecessary" -- read but never
+acted on by the module that offers them.
+
+    cv_group_by   in `set_annotate_default_settings`, and nothing on the
+                  annotate path reads it. Its API target is
+                  `('spacr.deep_spacr', 'train_test_model')`. The annotate
+                  screen's only training call is:
+
+                      worker = _RetrainWorker(
+                          self._settings.db_path, self._settings.annotation_column,
+                          {"round_index": self._round_index,
+                           "measure": self._settings.queue_measure,
+                           "diversity": self._settings.queue_diversity,
+                           "image_type": self._settings.image_type},
+
+                  -- no `group_by`, so `retrain_round`'s own `group_by="well"`
+                  default is what every active-learning round uses, whatever
+                  the setting says. A Classify question filed on Annotate,
+                  answered and ignored.
+
+    object_size   superseded by `object_filters`, and the screen ZEROES it:
+
+                      s.object_size = (0, 0)      (annotate.py:1809)
+
+                  The dataclass says why -- "THE OLD ONE-WINDOW-FOR-EVERY-
+                  PLANE size filter, kept so a settings file written against
+                  it still means what it meant. It is migrated onto the three
+                  area rows of `object_filters`; the screen writes the new
+                  fields." That is exactly what RETIRED_SETTINGS is for. Its
+                  tooltip still presents it as a current control ("The
+                  smallest object, in pixels, that is outlined at all"), and
+                  its replacement `object_filters` has no tooltip at all.
+
+--------------------------------------------------------------------------------
+FINDING 9 -- MAP BARCODES: `expected_end` IS A LENGTH
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME `expected_end` -> `window_length`.
+
+The code has to correct the name in its own parameter documentation, twice:
+
+    :param expected_end: window *length*, not an end coordinate. A window
+    (spacr/sequencing.py:454, and again at :547)
+
+    r1_end = min(r1_start + expected_end, len(r1_sequence))   (:487)
+
+and the demo generator names the same value what it is:
+
+    "expected_end": SEQ_WINDOW_LENGTH,          (spacr/qt/synthetic.py:1127)
+
+The tooltip then has to spend its first clause undoing the name -- "(int) -
+Number of bases sliced out of each read starting at offset_start" -- which is
+the open instruction's stated test for a name that is wrong: "where the
+tooltip has to explain what the word means before it can explain the setting,
+the word is wrong."
+
+  THE COST OF THE MISREADING IS SILENT. A user who reads "end" as a read
+  coordinate and enters 115 for an 89-base window gets a longer window,
+  padded with 'N', which still matches; one who enters a smaller number gets
+  a window that truncates the row barcode and the regex stops matching, and
+  the tooltip says what happens next: "the regex stops matching and reads are
+  dropped". Zero counts, no error.
+
+--------------------------------------------------------------------------------
+FINDING 10 -- MAP BARCODES: FOUR SETTINGS DESCRIBE ONE READ LAYOUT, UNCHECKED
+--------------------------------------------------------------------------------
+
+PROPOSE: NOT a merge -- a CROSS-CHECK. Recorded so the next audit does not
+re-open it as redundancy.
+
+    target_sequence  'TGCTGTTTCCAGCATAGCTCTTAAAC'   the anchor, found with
+                                                    str.find
+    offset_start     -8                             where the window starts
+                                                    relative to the anchor
+    expected_end     89                             how long the window is
+    regex            '^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})
+                      AACTT.*AGAAG(?P<rowID>.{8}).*'
+
+THE ANCHOR IS WRITTEN TWICE. `TGCTG.*TAAAC` in the regex is the first and
+last five bases of `target_sequence`, and the `.{8}` before it is
+`-offset_start`. `spacr/qt/synthetic.py` lays the agreement out base by base
+because it had to build a read that satisfies all four:
+
+    #   [ 0: 8]  column barcode        8
+    #   [ 8:34]  SEQ_TARGET           26   <- the anchor; supplies TGCTG…TAAAC
+    #   [34:55]  gRNA barcode         21
+    ...
+    # and the anchor sits `-offset_start` = 8 bases into the window, which is
+    # why the column barcode is exactly 8 long.
+
+NOTHING CHECKS THAT AGREEMENT AT RUNTIME. The regex editor
+(`spacr/qt/widgets/barcode_regex.py`) compiles the pattern and tests it
+against a pasted read; it never looks at `target_sequence`, `offset_start` or
+`expected_end` -- those three names do not appear in the file. Change one and
+not the others and every read is dropped, silently, exactly as three of the
+four tooltips warn.
+
+  These are four genuinely different questions and merging them would make
+  the module harder to configure, not easier -- so this is a validation gap,
+  not a redundancy. But `target_sequence` is the one that could go: it is
+  derivable from the regex's own literal run, and the pair can already
+  disagree.
+
+--------------------------------------------------------------------------------
+FINDING 11 -- MAP BARCODES: THE TOOLTIP RECOMMENDS A VALUE THAT RAISES
+--------------------------------------------------------------------------------
+
+PROPOSE: give `n_jobs` a per-module sentence, the way `crop_source`,
+`percentiles` and `verbose` already carry one.
+
+`n_jobs` is on the Map Barcodes screen, under "Runtime & Reliability". Its
+tooltip is a general one:
+
+    "(int) - CPU workers for parallel stages: measurement, mask adjustment,
+    DataLoader loading, and the sklearn/UMAP calls where -1 means every core.
+    ... Note the measure-and-crop pipeline overrides your value with
+    cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None."
+
+Map Barcodes is none of those stages, and -1 does not mean every core here:
+
+    def _chunk_worker_count(n_jobs):
+        """Return a valid process count while preserving three CPUs when possible."""
+        if n_jobs is None:
+            return max(1, cpu_count() - 3)
+        count = int(n_jobs)
+        if count < 1:
+            raise ValueError(f"n_jobs must be at least 1; received {n_jobs!r}.")
+        return count
+    (spacr/sequencing.py:680)
+
+So the tooltip on the screen tells the user to type the one value that stops
+the run, and does not mention the `cpu_count() - 3` this module actually uses.
+
+  `percentiles` AND `channels` HAVE THE SAME PROBLEM ON ANNOTATE, and are
+  worth listing here rather than as findings of their own because the fix is
+  the same sentence. `percentiles`'s tooltip is about segmentation ("used to
+  rescale each channel of each image to 0-1 before segmentation ... Default
+  None in the Cellpose steps"); on Annotate it is the display stretch and the
+  default is [2, 98]. `channels`'s tooltip is about `measure_crop` ("(list of
+  int) - Zero-indexed image channels kept in merged/*.npy ... Default
+  [0,1,2,3]"); on Annotate the value is the STRING 'r,g,b' and it names which
+  colours are drawn. One key, two types, two meanings, one tooltip.
+
+--------------------------------------------------------------------------------
+FINDING 12 -- MAP BARCODES: TWO SETTINGS THE PIPELINE READS AND NEVER OFFERS
+--------------------------------------------------------------------------------
+
+PROPOSE: add both to `set_default_generate_barecode_mapping` and to the
+module's category spec, or say in the tooltips that they belong to Barcode QC.
+
+`generate_barecode_mapping` reads two keys that `set_default_generate_
+barecode_mapping` does not define, and its own docstring admits it:
+
+    - ``barcode_qc`` — when true, QC each finished sample with
+      :func:`spacr.sequencing_qc.barcode_qc`, writing plots and a
+      report into ``<dst>/barcode_qc`` (default False; not filled in
+      by the settings defaults).
+    - ``target_grnas_per_well`` — expected gRNAs per well, from which
+      that QC step derives its abundance threshold (default 1).
+
+    if not settings.get('barcode_qc', False):        (sequencing.py:1006)
+        ...
+    'target_grnas_per_well': settings.get('target_grnas_per_well', 1),
+
+Neither has a tooltip, a type, or a category. Neither is in the Map Barcodes
+category spec, so neither appears on the screen. The only way to run barcode
+QC as part of a mapping run is to hand-edit a settings file with a key spaCR
+does not document.
+
+  This is the mirror image of Finding 1: there, two settings that are
+  declared everywhere and read nowhere; here, two that are read and declared
+  nowhere. Both are the same defect -- the declaration and the code have
+  drifted apart -- and the module has one of each.
+
+--------------------------------------------------------------------------------
+WHAT WAS CHECKED AND IS NOT A FINDING
+--------------------------------------------------------------------------------
+
+Recorded so the next reader does not re-open them.
+
+* `save_h5` / `comp_type` / `comp_level` and `mode` / `single_direction` are
+  conditionals, not redundancies, and both tooltips say so in the setting
+  that is conditioned ("Ignored when save_h5 is False", "Ignored when mode is
+  'paired'"). This is the right shape.
+* `column_csv` / `row_csv` / `grna_csv` are three references to three
+  different tables. Their tooltips are the best-written in either module --
+  each names the required columns, warns about orientation, and names the
+  helper that flips a file.
+* Annotate's four `queue_*` settings are one question and its three
+  parameters, the way `cross_validation_folds` is a parameter of
+  cross-validation in Classify. Not redundant.
+* `outline`, `outline_sigma`, `outline_threshold_factor`, `edge_thickness`,
+  `edge_transparency`, `edge_image` are six controls of one picture and read
+  as a family. Only `edge_image`'s shipped TYPE is wrong (Finding 4).
+* `barcode_mismatches` is read once, into a module-level global
+  (`sequencing.py:1105`), with a comment explaining why the value has to be
+  set before any worker forks. That is a threading decision, not a settings
+  one, and it is documented.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+The six core modules are audited. spaCR Preferences and spaceout Preferences
+are what the request asks for next, followed by the sub-surfaces the request
+named explicitly and this pass did not cover: the live previews, the
+hyperparameter searches (train_test_model 50, check_cellpose_models 18,
+identify_masks_finetune 23) and the assay sub-modules (motility 55,
+recruitment 30, plaques 22).
+
+  AND ONE THING THIS AUDIT OWES THE EARLIER FOUR. Finding 0 shows the
+  file-count scan can miss a dead setting whose name is a common substring.
+  Before "nothing is dead" is relied on for mask, measure, regression and
+  classify, the short and generic keys in those modules are worth re-checking
+  by the stricter test used here: grep for `settings['<key>']` and
+  `settings.get('<key>')` rather than for the bare word.

@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Methods & Results：実行レポートの下書きを作って書き出す",
+  "description": "完了した実行を選び、レポートを作成し、記録された設定と結果を確認して、Markdownで書き出します。",
+  "objectives": [
+    "プロジェクト、実行ジャーナル、対応する結果フォルダーを選ぶ。",
+    "ダイジェストを作成し、Methods、Results、Caveatsのタブを確認する。",
+    "レポートの文章をコピーするか、実行ダイジェスト付きのMarkdownを書き出す。"
+  ],
+  "prerequisite": "先にRegressionの例を完了します。そのプロジェクトのフォルダー、実行ジャーナル、guide_permutationの結果は一緒にしておきます。生成された文章をレポートに使う前に、推定された設定、解析のバージョン、統計的なしきい値を確認します。",
+  "scenes": [
+    "HomeからRegressionを開き、続いてMethods and Resultsを開きます。完了した解析からレポートの下書きを作るのに使います。このチュートリアルは、Regressionの例で保存した実行の続きです。",
+    "プロジェクトのフォルダー、実行ジャーナル、対応する回帰の結果フォルダーを選びます。この回帰の例では、Classifierは空のままにします。選んだファイルがすべて、説明したい実行のものであることを確認します。",
+    "Build digestをクリックし、MethodsとResultsのタブを読みます。解析のバージョンを、保存された実行環境と照らし合わせます。書き出し側のバージョンは、解析を行ったバージョンと異なることがあります。",
+    "Caveatsを読み、シードの項目を名前で保存された設定と比べます。並べ替えのシードと全体のシードは、別々の乱数生成器を指します。記録されていない過去のシードは、レポートを編集するときも不明のままにします。",
+    "Run digestを開いて、構造化された設定と元の記録を確認します。それらを文章と比べ、下書きを共有する前に、欠けているレポートや推定された既定値についての警告を確認します。",
+    "Resultsでは、効果量と補正後のq値を合わせて確認します。この例では、q値のしきい値ゼロ点ゼロ五を下回る遺伝子はありません。見出しでこれらの行をhitsと呼んでいる場合は、編集するときに順位付けされた候補として説明します。",
+    "Copy sectionsをクリックすると、表示されているMethodsとResultsがコピーされます。コピーした文章を元の記録と照らし合わせます。構造化された実行ダイジェストも必要な場合は、Export Markdownを使います。",
+    "Export Markdownをクリックし、新しいファイル名を選びます。ファイルには、レポートの二つのセクションと、付録としての実行ダイジェストが含まれます。元の下書きは残し、確認した修正版は別に保存します。",
+    "Draft with AIは任意の機能で、ダイジェストを設定したプロバイダーに送ります。この機能を使う前に内容を確認し、生成された文章は保存された解析と照らし合わせます。Pythonからbuild_digest、render_methods、render_resultsを使うこともできます。"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "command": "env CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python -m pytest -q tests/test_column_name_canonicalization.py tests/test_cov_stable_a_live_residuals.py tests/test_database_schema_versions.py tests/test_database_write_queue.py",
+  "hosted_failures": {
+    "tests/test_column_name_canonicalization.py::test_a_migrated_database_matches_a_freshly_written_one_exactly": "private journal schema differed",
+    "tests/test_column_name_canonicalization.py::test_legacy_database_is_migrated_on_read": "private writer table field renamed to fieldID; 103 vs 102",
+    "tests/test_cov_stable_a_live_residuals.py::test_contained_trial_result_is_registered_only_by_the_main_process": "stale seeded output removed before child launch; fake child wrote none",
+    "tests/test_cov_stable_a_live_residuals.py::test_parallel_sweep_refills_after_each_completed_future": "executor now receives pacing wrapper of spawn context"
+  },
+  "hosted_revision": "e41df27e0a37303cbbc81687d21f74738cc05e0b",
+  "manifest": {
+    "logs/e41-coverage2-full.log.gz": {
+      "bytes": 294622,
+      "original_bytes": 2149947,
+      "original_sha256": "66284ed77c8e633091929e1e2ee596ad9513fda11829c65a9c86dac0cd3eff84",
+      "sha256": "936f8747e47cadb6cd2c973ac2200ba60b096607ddacb4fdcaaf9ea2ef2cf25c"
+    },
+    "logs/four-hosted-nodes-positive.log.gz": {
+      "bytes": 532,
+      "original_bytes": 1286,
+      "original_sha256": "5ab923dd02e95f9735db7278f987b09711935014a3905de3cf9f30c829567d95",
+      "sha256": "ed8d3c93e25de432a53b6d7487955505dda816fb2cd296781d276245a193b947"
+    },
+    "logs/owning-adjacent-89pass.log.gz": {
+      "bytes": 534,
+      "original_bytes": 1341,
+      "original_sha256": "1957c8a70161c032942577e64237e6a3fc548eff536a7644c9ab73759b8e336a",
+      "sha256": "394418eda477d82e4809b22c7a638244fb6b45e0cb1b3a4f4659c08b55036aab"
+    },
+    "sources/e41__spacr__database_concurrency.py.gz": {
+      "bytes": 15517,
+      "original_bytes": 53377,
+      "original_sha256": "a0949ef51abf5911fe6e2f7c8823833947435c197a32887b23d328075961f0b5",
+      "sha256": "7c445525380bfd77f99bb3ecb9323e5e28c50da0bc8748c46999539b2efa7964"
+    },
+    "sources/e41__spacr__database_schema.py.gz": {
+      "bytes": 5202,
+      "original_bytes": 16758,
+      "original_sha256": "afe7fac8358944900b95c3f6b8565394698634a0a7e17ac71ef5136a49ee3119",
+      "sha256": "316b17ab78a36802460bda5ef28f6fe800b41ed8353bd75253aab4a78455e892"
+    },
+    "sources/e41__spacr__parameter_sweep.py.gz": {
+      "bytes": 18627,
+      "original_bytes": 63592,
+      "original_sha256": "78d76c6501f2ab421515737fd019392f3794f0cba511165f8d7f320282b1cdd7",
+      "sha256": "2cd18c05ddab0e88bf09c92af6f38b45157e30b350043032a665cccf4b98b734"
+    },
+    "sources/e41__spacr__resource_log.py.gz": {
+      "bytes": 20984,
+      "original_bytes": 77461,
+      "original_sha256": "a06fbaa5a49f18ca5dfcf4222c9c4d633f744ea88a0d59caef8aca3202759e7f",
+      "sha256": "f28f9b64740409a147b1d6d587df41c9ea9580b7de83c7aadba6ca9d4b917576"
+    },
+    "sources/e41__tests__test_column_name_canonicalization.py.gz": {
+      "bytes": 6614,
+      "original_bytes": 23685,
+      "original_sha256": "bff54f70b2cce99259e2b82923bb4602f50f0168502e16f0768ada25940694b7",
+      "sha256": "9932dc739e91f69ed41f0d699c055c20f61e95e9de90ba4dd410d8f648049dcf"
+    },
+    "sources/e41__tests__test_cov_stable_a_live_residuals.py.gz": {
+      "bytes": 1477,
+      "original_bytes": 4257,
+      "original_sha256": "8b9f4ddb503adcd3a80e1d97216b5ec8315d2825f2cdfd457dd9b7194372b09c",
+      "sha256": "43abf930439a5a9afc6431ee21140ce48100f127c4b98d3776d86ecf997f4de9"
+    },
+    "sources/final__spacr__database_concurrency.py.gz": {
+      "bytes": 15517,
+      "original_bytes": 53377,
+      "original_sha256": "a0949ef51abf5911fe6e2f7c8823833947435c197a32887b23d328075961f0b5",
+      "sha256": "7c445525380bfd77f99bb3ecb9323e5e28c50da0bc8748c46999539b2efa7964"
+    },
+    "sources/final__spacr__database_schema.py.gz": {
+      "bytes": 5221,
+      "original_bytes": 16835,
+      "original_sha256": "ff304a2c9468129b99ec7ad8205468a3b0ce2f867024ffcabcfc53f107164f28",
+      "sha256": "f57b2f2cde5a980f7e20fec915e4d57fe24fa6299eb46f894201d756002a1f5f"
+    },
+    "sources/final__spacr__parameter_sweep.py.gz": {
+      "bytes": 18627,
+      "original_bytes": 63592,
+      "original_sha256": "78d76c6501f2ab421515737fd019392f3794f0cba511165f8d7f320282b1cdd7",
+      "sha256": "2cd18c05ddab0e88bf09c92af6f38b45157e30b350043032a665cccf4b98b734"
+    },
+    "sources/final__spacr__resource_log.py.gz": {
+      "bytes": 20984,
+      "original_bytes": 77461,
+      "original_sha256": "a06fbaa5a49f18ca5dfcf4222c9c4d633f744ea88a0d59caef8aca3202759e7f",
+      "sha256": "f28f9b64740409a147b1d6d587df41c9ea9580b7de83c7aadba6ca9d4b917576"
+    },
+    "sources/final__tests__test_column_name_canonicalization.py.gz": {
+      "bytes": 6807,
+      "original_bytes": 24402,
+      "original_sha256": "97c1fba1cdd290b7ffee1b35320dd6642231fb15395ed78ce45442e35ca5109a",
+      "sha256": "a3db6cd4fee8f91c3747f081e27091232b4b37bd863f62794c9f2719d2596d64"
+    },
+    "sources/final__tests__test_cov_stable_a_live_residuals.py.gz": {
+      "bytes": 1570,
+      "original_bytes": 4505,
+      "original_sha256": "06d32dd6b96fb7b64bed439b8445cfc0019a2abddb671d42f3db5faaa2c3400a",
+      "sha256": "7c2a5e304ff80bd48d1cf135fcc3edc9e83e47c1184f4fff2cd92f5771f30a8d"
+    }
+  },
+  "production_scope": "database_schema.py body-only two-line reserved internal table exclusion; queue journal remains ticket,field and actual post-migration write/replay succeeds",
+  "resource_scope": "test doubles updated to create fresh child output and assert paced spawn context; production resource_log.py and parameter_sweep.py remain e41-identical",
+  "result": "89 passed, 5 warnings in 27.47s across owning and adjacent files; four exact hosted nodes pass separately",
+  "source_commit": "746326d44a8b02ddaf527f23a7ece94ef7f6e881",
+  "source_paths": [
+    "spacr/database_schema.py",
+    "spacr/database_concurrency.py",
+    "spacr/parameter_sweep.py",
+    "spacr/resource_log.py",
+    "tests/test_column_name_canonicalization.py",
+    "tests/test_cov_stable_a_live_residuals.py"
+  ],
+  "test_commit": "7779deaf9c979ec5b3c3ce949eeb017a06547ee5"
+}

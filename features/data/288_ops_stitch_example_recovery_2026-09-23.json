@@ -1,0 +1,61 @@
+{
+  "feature": 288,
+  "related_features": [
+    461,
+    472
+  ],
+  "date": "2026-09-23",
+  "base_commit": "8b59bca36",
+  "tests": "23 passed, 2 explicitly gated live-download tests skipped in86.24s",
+  "execution": "8GiB/no-swap/offscreen CPU, isolated HOME/config, two BLAS/OpenMP threads, SPACR_OPS_EXAMPLE_LIVE=0",
+  "module": "spacr/qt/ops_stitch_demo.py",
+  "coverage": {
+    "covered_lines": 100,
+    "num_statements": 100,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 16,
+    "num_partial_branches": 0,
+    "covered_branches": 16,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "remaining_lines": [],
+  "remaining_branches": [],
+  "recovery": [
+    "Invalid UTF-8, unnamed paths and wrong manifest headers never count as complete cached samples.",
+    "Pending downloads leave settings untouched and disable the button; cancellation/unknown error/incomplete completion restores it.",
+    "Each failure path retries through actual local archive extraction and then fills sample settings.",
+    "Default download routing chooses the corresponding OPS/Stitch worker and shared progress dialog; complete caches do not request another transfer."
+  ],
+  "real_archive_checks": [
+    "Staged real nine-tile stitch archive unpacks and builds a plan with nine placed tiles, no nominal/unplaced tiles.",
+    "Staged real OPS archive unpacks to two sites across eleven cycles; library has20,445eleven-base prefixes."
+  ],
+  "archives": [
+    {
+      "path": "/mnt/wd4tb/spacr_testdata/ops/upload/spacr-example-ops/spacr-example-ops.tar",
+      "bytes": 395448320,
+      "sha256": "3dbe272e2134fa70c945cd6a3720b34241e1cfeaaa7815856a45ae87f0f28595"
+    },
+    {
+      "path": "/mnt/wd4tb/spacr_testdata/ops/upload/spacr-example-stitch/spacr-example-stitch.tar",
+      "bytes": 197212160,
+      "sha256": "e5bd38b835360ba83ab08a760a12d42cefaf708405f94635a95ddd1e11a11680"
+    }
+  ],
+  "limits": [
+    "No live network, model inference, GPU, full OPS run or claim about public remote availability.",
+    "No runtime/API/UI, coverage baseline, exclusion, exemption or threshold changes; not full CI acceptance."
+  ],
+  "report_sha256": "c0e324c2afea7e111e8997bd956fba52207ef569c7c78ddea1278e9d8efdcdb2",
+  "source_sha256": {
+    "spacr/qt/ops_stitch_demo.py": "47e90c294cafc56299c19cd9f973c6c819d11a83481589af7cc246a071598f11",
+    "tests/qt/test_ops_and_stitch_test_data.py": "78e4e4f50b73d36033f4522978c747b6cb049d8039d6930295ed092168865d2e"
+  }
+}

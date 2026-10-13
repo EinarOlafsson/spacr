@@ -1,0 +1,101 @@
+{
+  "head_sha": "69ba4e462f2ea60924a977b192d006ce9b70f42c",
+  "run_id": 37737743925,
+  "run_attempt": 1,
+  "event": "workflow_dispatch",
+  "scope": "Six Fast/Minimum jobs only, cancelled before full phase completion",
+  "verdict": {
+    "cancelled": 6,
+    "success": 0,
+    "failure": 0
+  },
+  "supersession": {
+    "actor": "Parent/root explicitly authorized and requested cancellation",
+    "reason": "Source predates positive persisted-session fixture correctness repairs; latest required source is 0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+    "replacement_run_id": 37741615330
+  },
+  "jobs": [
+    {
+      "phase": "fast0",
+      "id": 113181068848,
+      "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 0 of 3",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-08T06:33:41Z",
+      "completed_at": "2026-10-08T07:10:13Z",
+      "raw_log_bytes": 2138068,
+      "raw_log_sha256": "d84bbcccc5c43515d7e92ec859a931406261fbf566ede5306691e3aba9384993",
+      "observed_failure_text": []
+    },
+    {
+      "phase": "fast1",
+      "id": 113181068733,
+      "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 1 of 3",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-08T06:28:00Z",
+      "completed_at": "2026-10-08T07:10:48Z",
+      "raw_log_bytes": 2442216,
+      "raw_log_sha256": "c290f86d908e3ea539d37087f4a0d005e8bb23e81db097b57cf1791c45077485",
+      "observed_failure_text": []
+    },
+    {
+      "phase": "fast2",
+      "id": 113181068558,
+      "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-08T06:27:59Z",
+      "completed_at": "2026-10-08T07:10:47Z",
+      "raw_log_bytes": 2013172,
+      "raw_log_sha256": "6652805a2ef171bcfe16ee73ec2ef844ef21e0b9d151d0edd096060418af4fc9",
+      "observed_failure_text": []
+    },
+    {
+      "phase": "min0",
+      "id": 113181068844,
+      "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 0 of 3",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-08T06:39:47Z",
+      "completed_at": "2026-10-08T07:10:06Z",
+      "raw_log_bytes": 3565311,
+      "raw_log_sha256": "7a5abcf5885cb01bfd7175a47c6bc6eeb60e2754c826d53a0269c8c09de0b805",
+      "observed_failure_text": []
+    },
+    {
+      "phase": "min1",
+      "id": 113181068879,
+      "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 1 of 3",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-08T06:42:26Z",
+      "completed_at": "2026-10-08T07:10:12Z",
+      "raw_log_bytes": 1627858,
+      "raw_log_sha256": "53380e9addd297fdd7a43f8129c25085d365ba733385ef3a979ea516c127866c",
+      "observed_failure_text": []
+    },
+    {
+      "phase": "min2",
+      "id": 113181068777,
+      "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-08T06:27:59Z",
+      "completed_at": "2026-10-08T07:10:48Z",
+      "raw_log_bytes": 2432919,
+      "raw_log_sha256": "c1d0cbdb6c28cce1395e7a93357d2fd1d9c0f9d000412db563b5a257b3adede7",
+      "observed_failure_text": []
+    }
+  ],
+  "unchanged_production_sha256": {
+    "spacr/plaque.py": "c3988be90964e58429fffeef6d19229e8d4bfbb39a0ab671383f289f7538f8ff",
+    "spacr/submodules.py": "aef3ca2a6bb8864850624a2d06e0a73d99f5e7f2b1df038e1f5cd848678e09e6",
+    "spacr/qt/mask_engine.py": "bc82fd12b84d33a8ace54a9fe3c577fb2b6048073ebe43f9e3dd54ffb7143253",
+    "spacr/qt/screens/plate_view.py": "285b17e87b2a35a6fa6fbe868454c9f76f67444c386992f5af7e6887217cc4a3",
+    "spacr/qt/widgets/ambient.py": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1"
+  },
+  "limits": "All six job cancellations are PARTIAL, never test-phase acceptance or true test failure conclusions. No matching failed-node/native-fault text was observed in these complete cancellation logs; that absence is not a pass, whole Qt acceptance, or historical crash-causation closure. Existing old4133 Qt1 and latest protected required/serial remain outside this archive."
+}

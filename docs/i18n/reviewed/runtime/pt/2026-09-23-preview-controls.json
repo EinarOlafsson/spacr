@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted source-context review of cancellation, asynchronous saving, enhancement comparisons and optional scale/time estimates. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "An annotation or legend save is already in progress.",
+      "source": "An annotation or legend save is already in progress.",
+      "source_sha256": "d4299c22caf1a431e84aa5805537eabda3886582ed26ffc84e33c71f1e574897",
+      "translation": "Já está em curso a gravação das anotações ou da legenda."
+    },
+    {
+      "table": "ui",
+      "key": "Discard this preview. A model call already running finishes in the background before another preview can start.",
+      "source": "Discard this preview. A model call already running finishes in the background before another preview can start.",
+      "source_sha256": "2d6ecca1a19ef9b68d4b16b75ec9f7be6f20436bb6442e2769ca9a25066737d0",
+      "translation": "Descartar esta pré-visualização. Uma execução do modelo já em curso termina em segundo plano antes de se poder iniciar outra pré-visualização."
+    },
+    {
+      "table": "ui",
+      "key": "Estimate scale / time (experimental)",
+      "source": "Estimate scale / time (experimental)",
+      "source_sha256": "09e96cf331da1d5835e1b91b7fd5285f4c087ab263e8d0e09f7d6134a48fe989",
+      "translation": "Estimar escala / tempo (experimental)"
+    },
+    {
+      "table": "ui",
+      "key": "Experimental suggestion; measured values are retained. See the reference and assumptions below.",
+      "source": "Experimental suggestion; measured values are retained. See the reference and assumptions below.",
+      "source_sha256": "95af9d7a28567c2703266c1a1abe077815d2f2556ccd512fe8afc0ceb9ecace2",
+      "translation": "Sugestão experimental; os valores medidos são mantidos. Consulte a referência e os pressupostos abaixo."
+    },
+    {
+      "table": "ui",
+      "key": "Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.",
+      "source": "Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background.",
+      "source_sha256": "66668744c88856c7147d3c1dbe8993f3d16349bf70ef4439ba81dc948a0c309e",
+      "translation": "A preparar a imagem melhorada… Cancelar fecha esta comparação; um filtro em execução termina em segundo plano."
+    },
+    {
+      "table": "ui",
+      "key": "Saving review…",
+      "source": "Saving review…",
+      "source_sha256": "ecccc3f1f8dd1bea9674ca24d4157c2eb4112dafe505b99088ad210d14178557",
+      "translation": "A guardar a revisão…"
+    },
+    {
+      "table": "ui",
+      "key": "The image or enhancement settings changed. Choose Compare again.",
+      "source": "The image or enhancement settings changed. Choose Compare again.",
+      "source_sha256": "285e73dd77995589e407786245fce666c995bf350b58a1a3148fccd3f1da7192",
+      "translation": "A imagem ou as definições de melhoria foram alteradas. Selecione Comparar novamente."
+    },
+    {
+      "table": "ui",
+      "key": "The previous preview is still finishing. Run preview will be available when it exits.",
+      "source": "The previous preview is still finishing. Run preview will be available when it exits.",
+      "source_sha256": "63ea86dc036b431a6b1e235df29739496b3ecbcb2db1b45a8d85a29e498d27fa",
+      "translation": "A pré-visualização anterior ainda está a terminar. Executar pré-visualização ficará disponível quando terminar."
+    },
+    {
+      "table": "ui",
+      "key": "Updating conditions with the new text settings…",
+      "source": "Updating conditions with the new text settings…",
+      "source_sha256": "7afcdcbd2283fc070de1c98e08b2a62b97c978ec71799e29c61d00e71644b237",
+      "translation": "A atualizar as condições experimentais com as novas definições de texto…"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+R version 4.6.0 (2026-04-24)
+R version 4.6.0 (2026-04-24)
+Platform: wasm32-unknown-emscripten (32-bit)
+Running under: emscripten
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] en_US.UTF-8 C           en_US.UTF-8 en_US.UTF-8 en_US.UTF-8 C          
+
+time zone: America/Detroit
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+[1] webr_0.6.0

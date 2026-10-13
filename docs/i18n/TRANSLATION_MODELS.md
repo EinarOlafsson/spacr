@@ -1,0 +1,46 @@
+# Translation model attribution
+
+spaCR's English source text is authoritative. The external locale catalogs
+were drafted with permissively licensed OPUS-MT and M2M100 models, then checked by spaCR's
+placeholder, source-freshness, terminology, and contextual-review tooling.
+They are not copied into Python function docstrings.
+
+| spaCR locale | Model | Upstream license |
+|---|---|---|
+| Swedish | [`Helsinki-NLP/opus-mt-en-sv`](https://huggingface.co/Helsinki-NLP/opus-mt-en-sv) | Apache-2.0 |
+| German | [`Helsinki-NLP/opus-mt-en-de`](https://huggingface.co/Helsinki-NLP/opus-mt-en-de) | CC-BY-4.0 |
+| Spanish | [`Helsinki-NLP/opus-mt-en-es`](https://huggingface.co/Helsinki-NLP/opus-mt-en-es) | Apache-2.0 |
+| Simplified Chinese | [`facebook/m2m100_418M`](https://huggingface.co/facebook/m2m100_418M), normalized with [OpenCC `t2s`](https://github.com/BYVoid/OpenCC) | MIT; Apache-2.0 |
+| Portuguese | [`Helsinki-NLP/opus-mt-tc-big-en-pt`](https://huggingface.co/Helsinki-NLP/opus-mt-tc-big-en-pt) | CC-BY-4.0 |
+| Hindi | [`facebook/m2m100_418M`](https://huggingface.co/facebook/m2m100_418M) | MIT |
+| Korean | [`facebook/m2m100_418M`](https://huggingface.co/facebook/m2m100_418M) | MIT |
+| Icelandic | [`facebook/m2m100_418M`](https://huggingface.co/facebook/m2m100_418M) | MIT |
+| French | [`Helsinki-NLP/opus-mt-en-fr`](https://huggingface.co/Helsinki-NLP/opus-mt-en-fr) | Apache-2.0 |
+
+CC-BY-4.0 model attribution is retained both here and in the generated locale
+metadata.
+
+Entries that remain invalid after the primary model's whole-sentence, clause,
+and protected-fragment passes are retried locally with
+[`google/madlad400-7b-mt`](https://huggingface.co/google/madlad400-7b-mt)
+(Apache-2.0). MADLAD is a secondary candidate generator, not a gate bypass:
+its output must preserve the same literals and pass the same source-freshness,
+target-script, copied-English, and reviewed scientific-sense checks. Generated
+catalog metadata records both the primary and secondary model identities.
+
+Simplified-Chinese model output is normalized with OpenCC's conservative
+Traditional-to-Simplified (`t2s`) configuration after protected code, RST,
+URLs, identifiers, and product names have been isolated. The catalog metadata
+records this normalizer separately from the M2M100 generator. Generation and
+audit require OpenCC 1.1 plus its `t2s.json` data and verify that a second pass
+is a no-op; they never use the locale-expanding `tw2sp` configuration.
+
+The research-only NLLB checkpoint used by the separate tutorial-production
+workspace is deliberately not used for the shipped application, installer,
+README, or API catalogs.
+
+The exact source-bound semantic-review subset, reviewed English identities,
+fallback behavior, sampling method, and unreviewed remainder at the 1.5.0.5
+release gate are recorded in
+[`REVIEW_SCOPE_2026-08-30.md`](REVIEW_SCOPE_2026-08-30.md). That report is an
+evidence boundary, not an exhaustive fluent-speaker-review claim.

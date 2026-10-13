@@ -1,0 +1,46 @@
+{
+  "lesson": "82_toxoplasma",
+  "english_sha256": "dcc70fed94df66f7694d0d07128c5d22b869a518d284d5ba5cd9f4ca911c7be9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scenes 3 and 5 revised for N678 (interactive diagram; Plaque Assay tutorial title); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      3,
+      5
+    ],
+    "previous_english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+    "previous_review_sha256": "98460f1a79ad7af3a7fdc67cd0ad9ad21ddec21a9ecd9ccc1b533dd53fbe9f35",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  },
+  "language": "zh-CN",
+  "title": "Toxoplasma 生物体：指南、示意图和实验分析",
+  "description": "打开该生物的页面，探索细胞示意图，并选择一个可用的检测。",
+  "objectives": [
+    "从Home打开页面并找到主要控件。",
+    "识别可用的输入、操作和输出。",
+    "选择下一个可用的分析或参考资料。"
+  ],
+  "prerequisite": "打开spaCR的Home。生物指南不需要任何输入文件。每种检测都有各自的输入和链接的演示。",
+  "scenes": [
+    "在 Home 中选择 Organism 类别，再选择 Toxoplasma。本页面结合了生物体指南、交互式细胞示意图，以及可用的 Toxoplasma 实验分析流程。请先探索页面，再选择分析。",
+    "先从信息面板中的简介开始。每个面板都可以单独滚动，拖动分隔条可以给指南或检测磁贴留出更多空间。",
+    "示意图是交互式的。把指针悬停在某个细胞组分上，就会显示它的说明。选择多个组分可以让它们保持高亮，点击Clear components即可恢复图像。",
+    "Plaque Assay统计蚀斑数量并测量其面积。Recruitment测量标记物在含寄生虫液泡处的富集程度，Replication Assay统计每个液泡中的寄生虫数量。请根据要测量的量及所需输入选择分析方法。",
+    "单击Plaque Assay打开分析界面。设置面板指定图像来源、掩膜和检测选项。Load test data提供一个示例。在启动Run前，请检查输入和预览；Plaque Assay教程介绍完整流程。",
+    "返回Toxoplasma指南，将信息面板滚动到参考资料。ToxoDB、Toxoplasma的hyperLOPIT图谱、UniProt和NCBI Taxonomy链接到相关生物资源。这些链接在浏览器中打开；指南本身不执行数据库搜索，也不预测蛋白质定位。",
+    "生物体指南不会生成分析表。请返回 Home 准备图像、进行分割或测量，然后选择与已准备输入相匹配的实验分析。每项分析都有各自的要求和链接的操作教程。"
+  ]
+}

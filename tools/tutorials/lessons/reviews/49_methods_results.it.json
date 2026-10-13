@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Methods & Results: redigere ed esportare un report dell’esecuzione",
+  "description": "Seleziona un’esecuzione completata, genera il report, esamina impostazioni e risultati registrati ed esporta in Markdown.",
+  "objectives": [
+    "Selezionare il progetto, il diario dell’esecuzione e la cartella dei risultati corrispondente.",
+    "Generare un riepilogo ed esaminare le schede Methods, Results e Caveats.",
+    "Copiare il testo del report o esportare in Markdown con il riepilogo dell’esecuzione."
+  ],
+  "prerequisite": "Completa prima l’esempio di Regression. Tieni insieme la cartella del progetto, il diario dell’esecuzione e i risultati guide_permutation. Controlla le impostazioni dedotte, le versioni dell’analisi e le soglie statistiche prima di usare il testo generato in un report.",
+  "scenes": [
+    "Da Home, apri Regression e poi Methods and Results. Usa questo strumento per redigere un report a partire da un’analisi completata. Questa guida prosegue con l’esecuzione salvata dell’esempio di Regression.",
+    "Scegli la cartella del progetto, il diario dell’esecuzione e la cartella dei risultati della regressione corrispondente. Lascia vuoto Classifier per questo esempio di regressione. Verifica che tutti i file selezionati appartengano all’esecuzione che vuoi descrivere.",
+    "Fai clic su Build digest, poi leggi le schede Methods e Results. Confronta la versione dell’analisi con l’ambiente di esecuzione salvato; la versione dell’esportatore può differire da quella che ha eseguito l’analisi.",
+    "Leggi Caveats e confronta per nome le voci dei semi con le impostazioni salvate. Un seme di permutazione e un seme globale si riferiscono a generatori diversi. Lascia sconosciuto un seme storico non registrato quando modifichi il report.",
+    "Apri Run digest per esaminare le impostazioni strutturate e i record di origine. Confrontali con il testo ed esamina gli avvisi su report mancanti o valori predefiniti dedotti prima di condividere la bozza.",
+    "In Results, esamina insieme le dimensioni dell’effetto e i valori q corretti. Questo esempio non ha geni sotto una soglia di valore q di zero virgola zero cinque. Descrivi le righe elencate come candidati ordinati quando modifichi un’intestazione che li chiama hits.",
+    "Fai clic su Copy sections per copiare Methods e Results visualizzati. Confronta il testo copiato con i record di origine. Usa Export Markdown quando ti serve anche il riepilogo strutturato dell’esecuzione.",
+    "Fai clic su Export Markdown e scegli un nuovo nome di file. Il file contiene entrambe le sezioni del report e il riepilogo dell’esecuzione in appendice. Conserva una bozza originale e salva separatamente le revisioni.",
+    "Draft with AI è facoltativo e invia il riepilogo al fornitore configurato. Esaminane il contenuto prima di usare questa opzione, poi verifica ogni testo generato rispetto all’analisi salvata. Puoi anche usare build_digest, render_methods e render_results da Python."
+  ]
+}

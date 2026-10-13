@@ -1,0 +1,41 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Handle frameless-window menu-bar drag and double-click gestures.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#0",
+      "source": "Handle frameless-window menu-bar drag and double-click gestures.",
+      "source_sha256": "b00664c1b22cfbf8edd039f82125e2da64c717b3951584d75d08ef51aaab7341",
+      "translation": "프레임 없는 창에서 메뉴 모음 끌기와 두 번 클릭 제스처를 처리합니다."
+    },
+    {
+      "context": "Teardown can invalidate the Qt menu bar while events are still queued. This filter returns ``False`` instead of allowing that condition to escape through PySide's callback boundary.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#1",
+      "source": "Teardown can invalidate the Qt menu bar while events are still queued. This filter returns ``False`` instead of allowing that condition to escape through PySide's callback boundary.",
+      "source_sha256": "dbdf20cacca05ae1e6bcc37cb2ca216f7b297155029f7c854b7c303e0f092fd7",
+      "translation": "종료 정리 중에는 이벤트가 여전히 대기열에 있는 동안 Qt 메뉴 모음이 무효화될 수 있습니다. 이 필터는 해당 상태가 PySide 콜백 경계를 넘어 예외로 빠져나가게 하지 않고 ``False``를 반환합니다."
+    },
+    {
+      "context": "Qt object receiving the event.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#2",
+      "source": "Qt object receiving the event.",
+      "source_sha256": "8fe45311219e52b340f6f8e613ec09e18fbd7e76d91b7c1ed10cded9a82d731e",
+      "translation": "이벤트를 받는 Qt 객체입니다."
+    },
+    {
+      "context": "Qt event delivered to the main window's filter.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#3",
+      "source": "Qt event delivered to the main window's filter.",
+      "source_sha256": "3838783d00b033943a3c11023cecd4ab012891ad2d87f84a1e673d9dff441659",
+      "translation": "메인 창의 필터로 전달되는 Qt 이벤트입니다."
+    },
+    {
+      "context": "``True`` when a menu-bar mouse gesture is consumed; otherwise ``False``.",
+      "label": "spacr.qt.app.MainWindow.eventFilter#4",
+      "source": "``True`` when a menu-bar mouse gesture is consumed; otherwise ``False``.",
+      "source_sha256": "14da03a34432ee44e2b2061d7c4fdf318956316dac2a36b08a20c12389060c7a",
+      "translation": "메뉴 모음 마우스 제스처를 처리했으면 ``True``이고, 그렇지 않으면 ``False``입니다."
+    }
+  ],
+  "schema": 1
+}

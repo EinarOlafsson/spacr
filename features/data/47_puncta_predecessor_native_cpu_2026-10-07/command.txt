@@ -1,0 +1,2 @@
+ulimit -c 0
+CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg tools/run_capped.sh 8G gdb -q -nx -nh -batch -iex 'set auto-load safe-path /dev/null' -iex 'set debuginfod enabled off' -ex 'set pagination off' -ex run -ex 'thread apply all bt 30' --args /home/olafsson/anaconda3/envs/spacr/bin/python -X faulthandler -m pytest -vv -p no:randomly tests/qt/test_make_masks_loader_shutdown.py tests/qt/test_model_sharing_dialog.py tests/qt/test_every_table_asks_for_the_sorting_contract.py tests/qt/test_make_masks_center_pixel_puncta.py

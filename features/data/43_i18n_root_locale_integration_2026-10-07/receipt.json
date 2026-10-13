@@ -1,0 +1,21 @@
+{
+  "source": "295e42fc3f70f7a28727fa5c3862ad6572cd0fa1",
+  "node": "tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence[sv-Swedish]",
+  "passed": 1,
+  "seconds": 46.23,
+  "cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "git_objects": {
+    "spacr": "95412fede16e57b47c14baea76a1122a8d7f7e31",
+    "tests/test_i18n_coverage_audit.py": "2c9129bdc0ffd5cb968dda201dc0c16347a28dc9",
+    "tools/build_documentation_i18n.py": "b451beb055c65b6c3d166e7537e5ab803cbd3c7f",
+    "tools/build_i18n_catalogs.py": "cfd814fe8860a1892a17132a9db2171a2c9a721e",
+    "docs/i18n/REVIEW_SCOPE_2026-09-04.md": "68db3d779900bcf7f676e8bcb842677582f3a91f",
+    "docs/i18n/reviewed/api": "785f7e699f27937212099228fe6642e5cbe878e4",
+    "docs/i18n/reviewed/runtime": "082e0c8aa3183d35d4ded5e8e8b7651dda010e5b",
+    "docs/source/_static/i18n/api": "ead956a461689b2c07d410efc87d999908475575",
+    "packaging/i18n": "6e9d354d792517820f05d0c12e24370af1c99f96"
+  },
+  "scope": "Independent one-locale current-source integration; the separately archived nine-case branch-coverage run is source-bound to08b with identical review inputs/builders and a declared two-file production difference. No nine-case current-source rerun or fresh hosted/full-suite/serial acceptance claim. An initial sparse-tree attempt lacked the checked-in report; this pass followed materialization of existing Git files, with no artifact edits."
+}

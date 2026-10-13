@@ -1,0 +1,10 @@
+{
+  "sha256": {
+    "README.md": "e3f490c39e9584dcf189f691155bf340f2d9828a2b7bcd1aef2e94b1555ac811",
+    "focused-eleven.json.gz": "8a5077e674479dfe823d6e942baa4daead951291ef5f137d29141e013ae43063",
+    "hosted-eleven.json.gz": "aec2437ca3b944d239543439ab35c3d84932518ba135da5d41cab6bed944e6fc",
+    "receipt.json": "69d03a20c12666dfda6b4e3a35a109dc83846bfde04a85178b84819d77a56b71",
+    "verify_manifest.py": "b12532b804215381eaa6395a6019b8f3a69b172aebbade5c20d302554edca576",
+    "verify_union.py": "7ed9fc692ef8b0c74a327616491f836646f1b6d0e8efba318c0d1aabfb91904a"
+  }
+}

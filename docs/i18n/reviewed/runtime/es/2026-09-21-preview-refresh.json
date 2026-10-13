@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Read the source setting again and reload this preview from it. Use it after changing the folder's contents or fixing the path.",
+      "source": "Read the source setting again and reload this preview from it. Use it after changing the folder's contents or fixing the path.",
+      "source_sha256": "a0bb95c1f76ff9dc13fba3cff355aa37df16014952550f875d285322253ec2d9",
+      "translation": "Volver a leer el ajuste de origen y recargar esta vista previa desde él. Úselo después de cambiar el contenido de la carpeta o corregir la ruta."
+    },
+    {
+      "table": "ui",
+      "key": "Refresh: reloading the preview from {path}",
+      "source": "Refresh: reloading the preview from {path}",
+      "source_sha256": "bb42cad24533e58a96e881a3e41f7baadeeef8328136b0df9661eebf21a17f1d",
+      "translation": "Actualizar: recargando la vista previa desde {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Refresh: the source setting is empty.",
+      "source": "Refresh: the source setting is empty.",
+      "source_sha256": "b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b",
+      "translation": "Actualizar: el ajuste de origen está vacío."
+    },
+    {
+      "table": "ui",
+      "key": "Refresh: {path} does not exist.",
+      "source": "Refresh: {path} does not exist.",
+      "source_sha256": "b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc",
+      "translation": "Actualizar: {path} no existe."
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source_sha256": "d5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5",
+      "translation": "Mostrar u ocultar la vista previa de placas de lisis sobre la consola. En modo Plaque se segmenta una imagen; en modo Figure se localizan las imágenes de placas de lisis dentro de una figura, se leen sus etiquetas y se segmentan."
+    }
+  ]
+}

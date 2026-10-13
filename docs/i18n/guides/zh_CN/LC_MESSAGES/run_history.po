@@ -1,0 +1,79 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Unified run history"
+msgstr "统一运行历史"
+
+msgid "Open **Help → Run History** (or type *Run History* in the command palette, Ctrl+K) to search every pipeline recorded by spaCR. Refreshing a large journal happens on a background worker and does not create another run record."
+msgstr "打开 **帮助 → 运行历史** （或在命令面板 Ctrl+K 中输入 *运行历史*），即可搜索 spaCR 记录的所有流程。刷新大型日志在后台工作线程中进行，不会创建新的运行记录。"
+
+msgid "The dashboard combines:"
+msgstr "该面板汇总了："
+
+msgid "module, status, start/end time, wall time and process CPU time;"
+msgstr "模块、状态、开始/结束时间、实际耗时和进程 CPU 时间；"
+
+msgid "exact resolved settings;"
+msgstr "确切的解析后设置；"
+
+msgid "SHA-256 records for inputs, outputs and models;"
+msgstr "输入、输出和模型的 SHA-256 记录；"
+
+msgid "structured warnings, provenance warnings and failure tracebacks;"
+msgstr "结构化警告、来源警告和失败回溯；"
+
+msgid "package, spaCR, Git and platform versions;"
+msgstr "软件包、spaCR、Git 和平台版本；"
+
+msgid "declared seeds and runtime random-state identifiers."
+msgstr "声明的随机种子和运行时随机状态标识。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Search terms are combined: ``adamw plate_03 warning`` shows only records containing all three terms anywhere in settings, paths, warnings, failures or environment data. Module and status filters can be applied at the same time. Interrupted and corrupt run folders remain listed, with status ``running`` or ``corrupt`` and diagnostic warnings."
+msgstr "搜索词会组合使用：``adamw plate_03 warning`` 只显示在设置、路径、警告、失败或环境数据中任意位置同时包含这三个词的记录。模块和状态过滤器可以同时应用。中断和损坏的运行文件夹仍会列出，其状态为 ``running`` 或 ``corrupt``，并附有诊断警告。"
+
+msgid "Select a row to inspect its details. **Load settings in module** opens the original module and propagates the exact recorded settings into its controls; it does not start a run. **Open run folder** and **Copy path** expose the underlying ``~/.spacr/runs/...`` folder."
+msgstr "选择一行即可查看其详细信息。**在模块中加载设置** 会打开原始模块，并将记录的确切设置填入其控件；它不会启动运行。**打开运行文件夹** 和 **复制路径** 可访问底层的 ``~/.spacr/runs/...`` 文件夹。"
+
+msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
+msgstr "右键单击所选行可打开或删除其文件夹；**全部清除** 会删除表中列出的所有运行。删除前会先询问，并且只删除日志文件夹；写入项目中的输出不会受到影响。"
+
+msgid "Storage: pruning and caches"
+msgstr "存储：清理与缓存"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Preferences → Storage** sets the limits used when pruning the spaCR home folder. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**偏好 → 存储** 设置清理 spaCR 主文件夹时使用的限制。对于每日日志、运行日志（``~/.spacr/logs/runs``）和运行文件夹（``~/.spacr/runs``），它设有两个限制：**保留**，即以天为单位的期限，期限内的内容绝不删除；以及 **上限**，即大小上限，超过时会删除较早条目中最旧的部分（**无上限** 会删除所有较早条目）。正在进行的运行和打开的日志文件绝不会被删除。**立即清理…** 会列出这些限制将删除的内容，并在删除前询问；不会自动清理任何内容。"
+
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
+msgstr "缓存表列出 spaCR 模型、Cellpose、Hugging Face、Torch、后端环境和新闻缓存。**测量** 读取它们的大小，**清空…** 在询问后清空所选缓存，**移动…** 将其移动到另一个驱动器上的 ``<folder>/spacr-<cache>``。新位置记录在 ``~/.spacr/cache_locations.json`` 中，并在每次启动时使用；其变量（例如 ``HF_HOME``）已在 spaCR 外部设置的缓存不会被移动。清除和移动会等到没有运行在进行时才执行。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
+msgstr "**偏好 → 日志记录 → 日志文件** 中有 **清空所有日志…** 。它列出每日日志、运行日志、崩溃日志和详细日志，以及每组的文件数和大小，并且只在你确认后才删除。当前 spaCR 会话正在打开的日志会被清空而不是删除，因此正在进行的运行仍保留其日志。结果会说明删除和清空了多少个文件以及释放了多少空间。"
+
+msgid "Headless search"
+msgstr "无界面搜索"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid ":func:`spacr.run_journal.search_runs` returns the same records as the dashboard, including corrupt and interrupted runs, without Qt:"
+msgstr ":func:`spacr.run_journal.search_runs` 在不使用 Qt 的情况下返回与仪表板相同的记录，包括损坏和中断的运行："
+

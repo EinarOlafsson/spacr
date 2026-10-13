@@ -1,0 +1,449 @@
+"""Contracts for the mutually exclusive GitHub Actions pytest suites."""
+
+import ast
+import re
+from pathlib import Path
+
+from tests.conftest import _automatic_ci_markers, _ci_file_shard
+
+ROOT = Path(__file__).resolve().parents[1]
+WORKFLOW = ROOT / ".github" / "workflows" / "tests.yml"
+REUSABLE = ROOT / ".github" / "workflows" / "_pytest-suite.yml"
+TIMELAPSE = ROOT / "spacr" / "timelapse.py"
+
+PARALLEL_MEMORY_AMPLIFIERS = {
+    "test_no_tensorflow_guard.py": {
+        "test_importing_spacr_does_not_load_tensorflow",
+    },
+    "test_group_lasso_keeps_the_gene_together.py": {
+        "test_lasso_splits_a_gene_where_group_lasso_cannot",
+    },
+    "test_cov_submodules_vision_model.py": {
+        "test_shap_sample_explains_one_percent_of_the_objects",
+    },
+    "test_plate_position_is_a_setting.py": {
+        "test_regression_levels_passes_the_setting_through_to_both_fits",
+    },
+    "test_core_umap_graphs.py": {
+        "test_generate_image_umap_embedding_by_controls",
+    },
+    "test_core_umap_validation.py": {
+        "test_screen_graphs_over_two_sources_writes_three_result_sets",
+    },
+    "test_core_mask_orchestration.py": {
+        "test_test_mode_plots_every_merged_field",
+        "test_missing_merged_folder_reports_and_continues",
+    },
+    "test_all_plotting_functions.py": {
+        "test_plot_image_mask_overlay",
+    },
+    "test_object_tstack_wiring.py": {
+        "test_verbose_reports_what_the_4d_run_actually_did",
+    },
+}
+
+SERIAL_TIMING_NODES = {
+    "test_fast_plots.py": {
+        "test_the_plain_volcano_is_immediate",
+        "test_colouring_does_not_cost_a_brush_per_point",
+    },
+}
+
+
+def _is_heavy_marker(node):
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "heavy"
+        and isinstance(node.value, ast.Attribute)
+        and node.value.attr == "mark"
+        and isinstance(node.value.value, ast.Name)
+        and node.value.value.id == "pytest"
+    )
+
+
+def _is_slow_marker(node):
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "slow"
+        and isinstance(node.value, ast.Attribute)
+        and node.value.attr == "mark"
+        and isinstance(node.value.value, ast.Name)
+        and node.value.value.id == "pytest"
+    )
+
+
+def test_qt_modules_are_classified_automatically():
+    markers = _automatic_ci_markers(
+        Path("/workspace/tests/qt/test_home.py"))
+
+    assert markers == {"qt"}
+
+
+def test_end_to_end_qt_module_has_both_structural_markers():
+    markers = _automatic_ci_markers(
+        Path("/workspace/tests/qt/test_e2e_pipeline.py"))
+
+    assert markers == {"qt", "integration"}
+
+
+def test_pipeline_and_real_data_modules_are_integrations():
+    for name in (
+        "test_pipeline_training_analysis.py",
+        "test_hf_e2e_integration.py",
+        "test_real_data_image_modules.py",
+        "test_e2e_real_dataset.py",
+    ):
+        assert _automatic_ci_markers(
+            Path("/workspace/tests") / name) == {"integration"}
+
+
+def test_ordinary_unit_module_has_no_structural_marker():
+    assert _automatic_ci_markers(
+        Path("/workspace/tests/test_schema.py")) == set()
+
+
+def test_workflow_has_one_job_per_declared_suite():
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+
+    for job in ("fast", "integration", "slow", "qt", "gpu", "network", "nas"):
+        assert f"\n  {job}:" in workflow
+    assert workflow.count("uses: ./.github/workflows/_pytest-suite.yml") == 6
+
+
+def test_marker_expressions_partition_resource_and_structural_suites():
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+
+    expected = (
+        "not integration and not slow and not heavy and not qt and not gpu "
+        "and not network and not nas and not gui",
+        "integration and not slow and not heavy and not qt and not gpu and "
+        "not network and not nas and not gui",
+        "(slow or heavy) and not gpu and not network and not nas and not gui",
+        "qt and not slow and not heavy and not gpu and not network and not nas "
+        "and not gui",
+        'marker_expression: "gpu and not gui"',
+        "network and not nas and not gpu and not gui",
+        "nas and not gpu and not gui",
+    )
+    for expression in expected:
+        assert expression in workflow
+
+
+def test_the_real_nas_pipeline_is_owned_by_the_gpu_suite():
+    """A mounted NAS must not make hosted CPU CI run Cellpose SAM."""
+    path = ROOT / "tests" / "test_e2e_real_pipeline.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    assignment = next(
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(getattr(target, "id", None) == "pytestmark"
+                for target in node.targets)
+    )
+    assert isinstance(assignment.value, (ast.List, ast.Tuple))
+    markers = {
+        element.attr
+        for element in assignment.value.elts
+        if isinstance(element, ast.Attribute)
+    }
+
+    assert {"slow", "nas", "gpu"} <= markers
+
+
+def test_the_nas_suite_keeps_a_bounded_non_gpu_availability_node():
+    """The NAS lane must remain non-empty without owning GPU inference."""
+    path = ROOT / "tests" / "test_nas_resource_availability.py"
+    source = path.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    assignment = next(
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(getattr(target, "id", None) == "pytestmark"
+                for target in node.targets)
+    )
+    assert isinstance(assignment.value, ast.Attribute)
+
+    assert assignment.value.attr == "nas"
+    assert "pytest.mark.gpu" not in source
+    assert "paths_available" in source
+    assert "timeout=5.0" in source
+
+
+def test_parallel_memory_amplifiers_are_assigned_to_the_serial_suite():
+    """Measured high-RSS nodes must not overlap in the parallel fast job."""
+    missing = []
+    for filename, expected_names in PARALLEL_MEMORY_AMPLIFIERS.items():
+        tree = ast.parse((ROOT / "tests" / filename).read_text(encoding="utf-8"))
+        functions = {
+            node.name: node
+            for node in tree.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        for name in expected_names:
+            function = functions.get(name)
+            if function is None or not any(
+                    _is_heavy_marker(marker)
+                    for marker in function.decorator_list):
+                missing.append(f"{filename}::{name}")
+
+    assert not missing, "heavy marker missing from: " + ", ".join(missing)
+
+
+def test_fast_suites_fit_on_a_standard_hosted_runner():
+    """Small worker batches release accumulated scientific-library memory."""
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+
+    assert workflow.count("tools/run_pytest_batches.py") == 2
+    assert workflow.count("--batch-size 32 --workers 2") == 2
+    assert "-n 3 --dist loadfile" not in workflow
+
+
+def test_wall_clock_measurements_run_in_the_serial_suite():
+    """Timing thresholds must not measure contention from xdist siblings."""
+    missing = []
+    for filename, expected_names in SERIAL_TIMING_NODES.items():
+        tree = ast.parse((ROOT / "tests" / filename).read_text(encoding="utf-8"))
+        functions = {
+            node.name: node
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        for name in expected_names:
+            function = functions.get(name)
+            if function is None or not any(
+                    _is_slow_marker(marker)
+                    for marker in function.decorator_list):
+                missing.append(f"{filename}::{name}")
+
+    assert not missing, "slow marker missing from: " + ", ".join(missing)
+
+
+def test_reusable_suite_auto_detects_resources_and_current_actions():
+    workflow = REUSABLE.read_text(encoding="utf-8")
+
+    assert "actions/checkout@v7" in workflow
+    assert "actions/setup-python@v7" in workflow
+    assert "nvidia-smi" in workflow
+    assert "cuda_available" in workflow
+    assert "endpoint_available" in workflow
+    assert "NUMBA_CACHE_DIR" in workflow
+    assert "SPACR_HF_E2E_STUB" in workflow
+    # Qt collects the external-catalog fixed-point contract. Chinese source
+    # normalization is deliberately OpenCC-backed, so the reusable runner
+    # must provide the same audited normalizer as docs and release jobs.
+    assert "libopencc1.1" in workflow
+    assert "libopencc-data" in workflow
+
+
+def test_qt_measurement_suites_run_after_xdist_workers_exit():
+    """Cursor, event-loop, frame-time, and RSS measurements need an idle process.
+
+    The offscreen Qt platform exposes one synthetic cursor across workers,
+    and event-loop/RSS budgets become measurements of sibling-worker load
+    when these files run inside xdist.  The reusable suite must exclude each
+    file from the parallel pass and run it explicitly in the serial tail.
+    """
+    workflow = (ROOT / ".github" / "workflows" /
+                "_pytest-suite.yml").read_text(encoding="utf-8")
+    for path in (
+        "tests/test_perf_guard.py",
+        "tests/qt/test_641_module_first_open_timing.py",
+        "tests/qt/test_gui_responsiveness.py",
+        "tests/qt/test_home_stage_and_dock.py",
+        "tests/qt/test_figure_queue.py",
+        "tests/qt/test_pca.py",
+        "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py",
+        # The backdrop's per-frame cost is asserted against the frame
+        # budget while a Python worker runs. Beside three sibling xdist
+        # workers that measures the runner, and it did: the assertion
+        # passes alone and serially in its own batch, and fails under -n 4.
+        "tests/qt/test_the_backdrop_survives_a_run.py",
+    ):
+        assert f"--ignore={path}" in workflow
+        assert workflow.count(path) >= 2
+
+    timing = "tests/qt/test_641_module_first_open_timing.py"
+    run = workflow.split('if [ "${{ inputs.run_serial_tail }}" = "true" ]', 1)
+    assert run[0].count(f"--ignore={timing}") == 2
+    assert run[1].count(timing) == 1
+    coverage = WORKFLOW.read_text(encoding="utf-8")
+    assert f"--exclude-file {timing}" in coverage
+    structural = "tests/qt/test_641_module_first_open_budgets.py"
+    assert f"--ignore={structural}" not in workflow
+    assert f"--exclude-file {structural}" not in coverage
+
+
+def test_qt_suite_has_room_for_its_measured_runtime():
+    """The budget must outlive shard 0, and still be able to name a hang."""
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    qt_block = workflow.split("\n  qt:", 1)[1].split("\n  gpu:", 1)[0]
+
+    # 120 -> 180, AND THE HALF THAT NEEDED IT WAS MEASURED RATHER THAN
+    # GUESSED. Dispatch 34639565357 is the first run that lived long enough
+    # to show it: shard 1 finished and reported its failures while shard 0
+    # was killed by the 120-minute budget. GitHub reports a budget kill as
+    # "cancelled", which reads exactly like a superseded push, so a blocking
+    # job had been failing to finish in silence -- a required check that
+    # could never pass whatever the tests said.
+    #
+    # Shard 0 is the expensive half by construction, not by luck, and this
+    # tree says by how much. Bucketing the Qt modules through
+    # `_ci_file_shard` gives shard 0 522 parallel files carrying 6,995 test
+    # functions against shard 1's 524 files and 6,699 -- near enough even --
+    # and then `run_serial_tail`, true for shard 0 only, hands shard 0 a
+    # further seven measurement files and 115 tests that run one at a time
+    # with the four xdist workers gone. Two hours covered the parallel half
+    # on both shards. It did not cover that serial tail.
+    #
+    # The split is three shards since 2026-09-15 and its shape is asserted in
+    # test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail.
+    assert "timeout_minutes: 180" in qt_block
+
+    # A BIGGER BUDGET ON ITS OWN ONLY BUYS A HANG MORE ROOM TO HIDE IN. A job
+    # killed by `timeout_minutes` prints no summary at all, so the extra
+    # hour of silence would buy nothing but a later kill; the per-test
+    # ceiling is what turns that into one named failure. It is asserted here,
+    # beside the budget it makes safe, and asserted to be the smaller of the
+    # two, because a ceiling at or above the job budget can never fire.
+    budget = re.search(r"^\s*timeout_minutes:\s*(\d+)\s*$", qt_block, re.M)
+    ceiling = re.search(
+        r"^\s*per_test_timeout_seconds:\s*(\d+)\s*$", qt_block, re.M)
+    assert budget is not None
+    assert ceiling is not None
+    assert 0 < int(ceiling.group(1)) < int(budget.group(1)) * 60
+
+
+#: Qt shards in tests.yml. Two became three on 2026-09-15: on dispatched run
+#: 35012948690 Qt shard 0 of 2 climbed to used=14,939 MiB of the runner's
+#: 15,989 with 2,035 MiB swapped, and twice that day shard 0 lost its runner.
+QT_SHARD_COUNT = 3
+
+
+def _qt_job():
+    import yaml
+
+    return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["qt"]
+
+
+def test_the_qt_suite_is_three_shards_and_exactly_one_runs_the_serial_tail():
+    """The matrix, the file split and the name agree, and the serial tail runs
+    once. Two shards with the tail would run it twice; none would drop it."""
+    job = _qt_job()
+    given = job["with"]
+    shards = job["strategy"]["matrix"]["shard"]
+
+    assert given["file_shard_count"] == QT_SHARD_COUNT
+    assert shards == list(range(QT_SHARD_COUNT))
+    assert given["file_shard_index"] == "${{ matrix.shard }}"
+    assert given["suite_name"] == (
+        "Qt shard ${{ matrix.shard }} of " + str(QT_SHARD_COUNT)
+    )
+
+    tail = re.fullmatch(
+        r"\$\{\{ matrix\.shard == (\d+) \}\}", str(given["run_serial_tail"]))
+    assert tail, given["run_serial_tail"]
+    assert [shard for shard in shards if shard == int(tail.group(1))] == [
+        int(tail.group(1))
+    ]
+
+
+def _file_shard_counts():
+    return sorted({2, QT_SHARD_COUNT, int(_qt_job()["with"]["file_shard_count"])})
+
+
+def _files_in_shards(files, count):
+    shards: dict[int, set[Path]] = {index: set() for index in range(count)}
+    for path in files:
+        shards[_ci_file_shard(path, count)].add(path)
+    return list(shards.values())
+
+
+def test_file_shards_are_disjoint_and_cover_every_test_module():
+    files = sorted((ROOT / "tests").rglob("test_*.py"))
+    qt_files = {path for path in files if "qt" in _automatic_ci_markers(path)}
+    assert qt_files
+
+    for count in _file_shard_counts():
+        shards = _files_in_shards(files, count)
+        # Every file in exactly one shard: none twice, none dropped.
+        assert sum(len(shard) for shard in shards) == len(files)
+        assert set().union(*shards) == set(files)
+        # And every shard carries Qt files, so none of the matrix is idle.
+        assert all(shard & qt_files for shard in shards)
+
+
+def test_file_shards_are_stable_across_absolute_and_relative_paths():
+    files = sorted((ROOT / "tests").rglob("test_*.py"))
+    assert files
+    for count in _file_shard_counts():
+        assert all(
+            _ci_file_shard(path, count)
+            == _ci_file_shard(path.relative_to(ROOT), count)
+            for path in files
+        )
+
+
+def test_reusable_suite_resets_sharding_for_the_serial_qt_tail():
+    workflow = REUSABLE.read_text(encoding="utf-8")
+
+    assert "SPACR_PYTEST_FILE_SHARD_INDEX" in workflow
+    assert "SPACR_PYTEST_FILE_SHARD_COUNT" in workflow
+    assert 'if [ "${{ inputs.run_serial_tail }}" = "true" ]' in workflow
+    assert "SPACR_PYTEST_FILE_SHARD_COUNT=1 python -m pytest" in workflow
+
+
+def test_informational_windows_sweep_cannot_cancel_the_matrix():
+    """Slow advisory audits retain their own margin and skip ordinary pushes."""
+    import yaml
+
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" /
+                               "compat-matrix.yml").read_text(encoding="utf-8"))
+    job = workflow["jobs"]["install"]
+    steps = {step.get("name"): step for step in job["steps"]}
+    sweep = steps["Full suite (informational, never decides)"]
+    assert sweep["continue-on-error"] is True
+    assert sweep["timeout-minutes"] < job["timeout-minutes"]
+    assert "--maxfail=25" in sweep["run"]
+    assert "python -m pytest tests/" in sweep["run"]
+    assert "python -m pytest tests/test_perf_guard.py" in sweep["run"]
+    for name in ("Install and smoke the exact wheel and sdist",
+                 "Packaging + smoke subset (decides this cell)"):
+        step = steps[name]
+        assert not step.get("if")
+        assert not step.get("continue-on-error", False)
+
+
+def test_informational_windows_sweep_runs_only_in_advisory_cells():
+    """The slow full suite cannot run on ordinary pushes or Linux."""
+    import yaml
+
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" /
+                               "compat-matrix.yml").read_text(encoding="utf-8"))
+    triggers = workflow.get("on", workflow.get(True))
+    assert "schedule" in triggers and "workflow_dispatch" in triggers
+    sweep = next(step for step in workflow["jobs"]["install"]["steps"]
+                 if step.get("name") == "Full suite (informational, never decides)")
+    expression = sweep["if"].replace("runner.os", "platform").replace(
+        "github.event_name", "event").replace("&&", " and ").replace(
+        "||", " or ")
+    for platform in ("Linux", "Windows", "macOS"):
+        for event in ("push", "pull_request", "schedule", "workflow_dispatch"):
+            allowed = eval(expression, {"__builtins__": {}},
+                           {"platform": platform, "event": event})
+            assert allowed == (platform != "Linux" and event in (
+                "schedule", "workflow_dispatch"))
+
+
+def test_timelapse_does_not_download_btrack_data_during_collection():
+    """The dataset registry belongs inside tracking, never at module import."""
+    tree = ast.parse(TIMELAPSE.read_text(encoding="utf-8"))
+    top_level_imports = [
+        node for node in tree.body
+        if isinstance(node, (ast.Import, ast.ImportFrom))
+    ]
+
+    assert not any(
+        isinstance(node, ast.ImportFrom)
+        and node.module == "btrack"
+        and any(alias.name == "datasets" for alias in node.names)
+        for node in top_level_imports
+    )

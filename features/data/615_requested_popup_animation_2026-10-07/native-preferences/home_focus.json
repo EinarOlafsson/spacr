@@ -1,0 +1,36 @@
+{
+  "13e_session_updates": {
+    "viewport_h": 206,
+    "toggle_y": 246,
+    "channel_bottom": 126,
+    "dialog_h": 367,
+    "restore_last_session": true,
+    "update_channel": "Stable releases"
+  },
+  "13g_storage_prune": {
+    "question": [
+      "Prune home folder",
+      "Nothing is over its caps; nothing was deleted.\nDaily logs: delete 0 of 1 (0 B of 0 B)\nRun logs: delete 0 of 0 (0 B of 0 B)\nRun folders: delete 0 of 0 (0 B of 0 B)",
+      ""
+    ],
+    "cancel_method": "dismiss confirmation without accepting deletion",
+    "cancelled": true
+  },
+  "13h_preferences_apply": {
+    "original_opacity": 0.6,
+    "question": [
+      1715,
+      871,
+      370,
+      258
+    ],
+    "preferences": [
+      1310,
+      290,
+      1200,
+      1500
+    ],
+    "revert_verified": true,
+    "keep_verified": true
+  }
+}

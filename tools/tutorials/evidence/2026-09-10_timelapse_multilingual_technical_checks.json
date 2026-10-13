@@ -1,0 +1,619 @@
+{
+  "lesson": "17_timelapse",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "canonical_english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "scene_count": 16,
+  "narrated_words": 684,
+  "native_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/timelapse_verified_explicit_relink",
+  "native_capture_receipt": "2026-09-10_timelapse_native_tracking_and_preview_checks.json",
+  "full_master_decode_exit_code": 0,
+  "all_50_voices_decoded_and_fingerprints_checked": true,
+  "decoded_scene_samples": [
+    {
+      "scene": 1,
+      "sha256": "4134ddb63221a02b9858d92c121e4b2b73e161e968045bbeacab84be7336186e"
+    },
+    {
+      "scene": 2,
+      "sha256": "8687ce88d3cdfcc317de2975614068a1ccff111fac8f5a205f04b38957eba8c0"
+    },
+    {
+      "scene": 3,
+      "sha256": "c60c97ce10b302caa54b6b79938aba55f93ec4ee70fe12d83b3778bdfb06b23d"
+    },
+    {
+      "scene": 4,
+      "sha256": "e440cc9318ea47b536562acad30b11b7a2f520fc18c4af662d8f1e153d1ed078"
+    },
+    {
+      "scene": 5,
+      "sha256": "942dfa04b72ac853e282a008432650dd30b7e09d5d56e1b81dce86bd36737146"
+    },
+    {
+      "scene": 6,
+      "sha256": "b57afb3b7b4087bade7e65b11ae4b632cef15461177e66126ecefa2678d6d0a3"
+    },
+    {
+      "scene": 7,
+      "sha256": "51d65df483c3a1f81e6fd04d624fac9fb6d4a923c270dab647134db9d5e9f333"
+    },
+    {
+      "scene": 8,
+      "sha256": "375ffac9d8870a221b3022219e17240fda45e0a01844bf84f52a62efbe5a61f0"
+    },
+    {
+      "scene": 9,
+      "sha256": "17239553c7defd1c5107c98a21406e0802b0693cc1e9ae04366ee7564aea020e"
+    },
+    {
+      "scene": 10,
+      "sha256": "5a4e2066618847397df99bdf9ca7c036e687742cff47d92ca9833d7b75e49d1c"
+    },
+    {
+      "scene": 11,
+      "sha256": "0878306969a70bc8f86b723e23f448e7a2edcf081b919ecbfa081267da78373b"
+    },
+    {
+      "scene": 12,
+      "sha256": "7ca68f7bc0f948fb1d9e624a3e32dc3bdf275c4f01a79e9f56e79e9ce58e8daa"
+    },
+    {
+      "scene": 13,
+      "sha256": "6d8b5d7332192fd021df134b36a9afd744f5ec31ef423aff96ebb9a7bd525d8e"
+    },
+    {
+      "scene": 14,
+      "sha256": "b8c3e810c9a3a1bd20f06ab55996d1ab52e6754871180c2244752b706a2d8586"
+    },
+    {
+      "scene": 15,
+      "sha256": "a5ed397ef07bdbe23377a9b3d2f038f16880f048e4cf8ac00e67024c9d935d53"
+    },
+    {
+      "scene": 16,
+      "sha256": "21fc84741b91c75126636aca85b10e72b92077e3331012f98df839a190177a40"
+    }
+  ],
+  "visually_inspected_decoded_scenes": [
+    1,
+    9,
+    13,
+    14,
+    15,
+    16
+  ],
+  "final_artifact_reconciliation": {
+    "lesson": "17_timelapse",
+    "passed": true,
+    "canonical_english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+    "scene_count": 16,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "14b0dc54eefa376fca76346c7f813037cf0b543820504edb17ef5ecf6c1cd6bf"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "c6f1f1937c1ff60cba01e8a69a8ececeac3a5e407a932b4937137e3550dd76e5"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "712a21a680f4e8fbcb8b2a92189761a47ddef7f2d245e3dffa2bed9be3ddf146"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "d076ceaf7c867ec461ae70cc926acbe06edb84eefce6337a659d3ba1b76354b2"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "b916b7e37129b0f3ba832828cc731b62f17c7044b133a4d8e6a15fbe6291c5eb"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "c5d2a24fdc906c1b9cf0febe9cee4ac0b36c00d696dd2f108c7764915c147fd4"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "1703228d565c5a5cf89af121f2a97863c083bfea248af2b943652fb748119e78"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "49e61fa8938c835a914f7604c948147b99ae8f9fb82d75074d7067b6cd9f9098"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "1ace4f3a605e613bb66bb7e40faea1d69b5c0946a7c766fc17027634375876eb"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "d1592ce954264cccc7c6df9b906126762d044e22825b7001f08bc99749dd7985"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "5c46a398a159a9f90ee247013ad4317d2416ea82dcd1d9cdea1ff10be8d48617"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "5d9159584701f622da57608aac56356747535ef7caec451e7819642dbf076a09"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "6211084aeece2093ed7d4ab1ec4fd4921d3bf3539da37bcc3bf7b43277d9d09a"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "d31d55bf43a0a06e47422948f17fa4b67143f3982be1c0641f5536376912569d"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "f44d29a4ecc86fd7538751a419ebdc7f68fbcafd3ce24237869e08396914b59a"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "3a92830066fc9720ea8ef32333ae2e5f0a5855f0fcd103ddc6742297af53e7a4"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "ae7148f81b04cb2b9eb31fa3b0742bfc56e6423d38374985ab59c2903e11b30d"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "d1273294ee5b3922d7aa53c340371feba0c5b99c4c279741e1e86adc41678015"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "1f4127b8bb938c83a965e6e1a8b29872f7d845c461f0094edc8ac0678fe3ab28"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "726dfdbe812e77b1c078bb4388887bcc23560430bd6bfa84d03a1dc51e1a7f57"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "3b1198836ee49ff66c1cd104b254bfda66a0f46c088522615d488929fa57b878"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "a3637972fe3d0943a154809ff757aaca1d6f1481bd1934981867986acaac94a1"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "24b5b07b9a85bf7f82c478c53dcb84dfa9b6cf9bb44092c3218e297c33b278ce"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "2bd62b682deeddd0a1649ff791747c95adde8cf0d153c8556bae2451e9651201"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "91c316a2a7f27724616376dbd44cd24b8d2545e6fa0e59dcd23e17688230b9e6"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "23b1fdc53aed136f6868c280832395041a680a860e7aa6f2e8451050f1b577c0"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "370f9ef6de4fd1197f5804392d22c31dce50dee5f27e4f809acc3621761b5dfe"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "74f30c1d2f763258bde9e0d6bfb043340e3ae34800cb67a7c9a805992acf2147"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "965248d5bf5bb7c2d177715c07f724af0d70be398d906d182824a03e776d0386"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "511d4537f5095405bc184510b0c1c3305ca484739c440cd2002d95ebba85ffc8"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "063ec5a8982cb6d3c3584db4c98f73a29d3a7a164a942be2d084ace09287a60e"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "e53ee22fc3b904987eb4379252b929672b0812d8b6504123d156b17e1e496c6e"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "1dfffa0966175e5807e082a1a12f15f1b4539f2a40b1272772acebc0449f1d84"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "50d5e25bb3464228bd976a2300d3a013026e346a4f8dda0de898f602c2b1541e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "d0b431090bf3e674b79923e511d31220c9bbc903c4a0e64cc135f7b9b12c8e6e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "1f739dafe6d2e9ecd7dbaf735cd33f7e7911e29fb450265d9efbf95d45161703"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "c0c11802cb70d53596b2794d2a9b51d846d7696f2723eae3cb30035da0fcd7c1"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "d384758f14a4770aac7f72e0aa8f83713c71b817b43574842856f32923e4a55f"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "b4dd9fe70f7a364aa84e8284677485e8d00e56e845a9af44bd0e7998eba7ceac"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "3f80a2a127f8bd52ef7985d9d617358fe876704af87e5376bbc9458bb00e9b63"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "7982bb6bb9b53e9d2a492176e771a89da69a7690bb01d029fe21ce969fdc518e"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "f61a9b16be53943fa80ccadea126dc37623d0f8d464ed9f7d95070e84b126fda"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "f5226ccbc645041030ad7535d03761bd23f06f05ca107d7bbb4f7fd4d3cbdb05"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "cb3f8af8a4410ded8f4eb66b3b5b9695f25483669ccc7d5f0b60b01779bd17eb"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "2e4b6b798ff3b97fe70952622e617ef146f2383d0ed45347783d0191cc51d021"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "dbd6068de3d289115ebcb7271fe054a02ff31ca199b3d462d1317c0f07aff0f8"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "2e7d6cdb29883f1e5268b920850828cf4805404358336ecb37106770acbc28a0"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "cfd26b70bcc23609e36458463e31bfdf95281c73434168f78f56e4a6ae9bcf52"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "beb2555c29d75e38e639df4624b8a2aff138129b46979348692e962b4d7d52c7"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "3c65b90763d39a0f87472d7b87710d627796eb41e16e330d32ec383ca2226c87"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "93740b2c97e6fee54a53d9a88aaf7e1b3091ef0d0f7509a78e590a02df9af566"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "b926e8c3cd7e81efe208e246b094d00063b41a4a88163f374451df461ca278e7"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "d155b52771768749abfac865373f1f64d2e52e90691597cc0a2170b2a9012f5b"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "879d232cee1e8ef870d7bf70cbcbd03574b981f9ccdebf06b84dfa5031a8a9ae"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "53cbf77ab66f556ac806bfa5e0b43d3c1644dc54232078c5d5185fbde00c3a29"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "f3b4fca6c3a6ed4d8ba673bf871176df97fe249ffbfb036cb5194f0c16e95680"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "18f342304d324d1782e95abd637bed4829d2f564e1e00c31edf304999e14cb3b"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "114e5784b5523dad612864eff5ebe2d304e88a9e1a03bdf49c379e63c086d785"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "a5dc91890d3075e3e52eecbceb172fa83b7d354ae4753ead7b7664084e70aa4f"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "cd199bf817e0132a96bfc320a8ac33c45dfe82bb5e51beebdc81357c218212d3"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "bc3f6dc969a5e2293f33c9c63822ff48470758a2f88027d63674729abc78d1ed"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "6f54d3233be74e39d5e77f55b12cfed5cb838782958603823262d50670169b73"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "1204941aa263c63d62a5b569396612d67bdcd8496427004258cce9059aae22b2"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "2431853fe4b30618c16cb15d327f523ace466a06b09e452f2794ccad87252c72"
+      }
+    ],
+    "master_sha256": "aa1a14e1a673df6b3be62ee92511861bdfe18acb673e6635e4ea303449779990",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "8646"
+        }
+      ],
+      "format": {
+        "duration": "288.200000",
+        "size": "17303655"
+      }
+    },
+    "poster_sha256": "4134ddb63221a02b9858d92c121e4b2b73e161e968045bbeacab84be7336186e",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "catalog_preservation": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 75,
+    "scene_count": 842,
+    "refreshed_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "09_annotate",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "17_timelapse",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "37_batch",
+      "40_run_history",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "57_layer_viewer",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "69_dose_response",
+      "74_import_images",
+      "75_regression_diagnostics"
+    ],
+    "retained_lesson_ids": [
+      "07_mask",
+      "08_measure",
+      "10_classify_cv",
+      "11_classify_ml",
+      "12_map_barcodes",
+      "16_activation",
+      "18_motility",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "21_model_compare",
+      "22_model_zoo",
+      "33_plate_viewer",
+      "38_distributed_jobs",
+      "39_classifier_evaluation",
+      "41_classify",
+      "42_curate",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "48_hit_list",
+      "49_methods_results",
+      "50_run_compare",
+      "53_prediction_profiler",
+      "56_lineage",
+      "58_graph_builder",
+      "59_anndata_export",
+      "68_power_design",
+      "70_explain_cv",
+      "71_investigate_hit",
+      "72_volcano_explorer",
+      "73_parameter_sweep"
+    ],
+    "visual_only_lesson_ids": [
+      "34_database"
+    ],
+    "retained_count": 30,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "2e0cb2f8bdb2a14347af27a42f561e66c074154fbcecc311e041a2b1dc7b4179"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "c6032303b2cf425ab047830f6cc639f11c9dcb0af4b3cc6587fbb52cc1cf3f46"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "f540d57150287735dc2365d987845a215180bacd898041e8f341b8022ced2f8d"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "e5036083b997cba79ae9a20f2ed79f616eb1a00c5f2f307cc3b3896abb354742"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "792dfd57e69fac40378aec80d1f3fdc83894aaadd6a09f3a69062182f080dc38"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "39978313a79c0671d4afeef93585d03375cca2f5da2a2f77157d5e159418dcba"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "b33ec00c06771be745676ad61b06ea5e98718fe42a5c217b19c2875b2da74197"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "c9cbb580b0c1c72af8939e2d7153991437aa70e9fcd3b8ced10d998c0357807a"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "2199c54600f5921d1d0c435183455f32ad4bfb80b0a0fe31a8a95a262c11a404"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "7cc3daef6c3955283766157acedafffff737e9124a6b9798a8c3513a37bb46bb"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "a9c71999a3b76365d969103c6f09743d8b2dbaea9c9c06432568b07c2f136e7c"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "c164ac83df6f62e3cec6777d4c6ee44c54fc586b6b7871c9f5dd7b0c3a940ecd"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "6120805da1d6cedf2e23c9c093477b6838a614f15ba47b4602eba1ee83c92b24"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 30,
+        "retained_content_sha256": "d6e461a62140f25a535291643baa8c4eed6acb7b9db15675ae1bd6d2e0e11a4e"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "guard_tests": {
+    "passed": 36,
+    "isolated_red_mutations": 14,
+    "checker_statements": 85,
+    "checker_branches": 54,
+    "checker_coverage_percent": 100
+  },
+  "editorial_review": {
+    "source_pinned_translations": 13,
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "technical_staging_totals": {
+    "lessons": 46,
+    "voice_tracks": 2300,
+    "retained_tracks": 100,
+    "browser_cases": 644
+  },
+  "limitations": [
+    "Synthetic teaching images, not acquired biology or segmentation ground truth.",
+    "The supplied preview masks are exact batch outputs; no preview inference or accuracy claim.",
+    "Actual threshold worker signals checked: baseline 0.1, strict 1.0 and restored final 0.1 after explicit Re-link.",
+    "Known application warnings and the final-value preview workaround are narrated and handed off; no application fix claimed.",
+    "Figure display is normalized; raw native-figure pixel equivalence is not claimed.",
+    "No publication, release approval, biological validation, physical speed calibration or human listening sign-off."
+  ]
+}

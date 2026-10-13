@@ -1,0 +1,89 @@
+{
+  "benchmark": {
+    "device": "cpu",
+    "method": "spaCR Mask strategy runner",
+    "metrics": {
+      "cp3_nuclei": {
+        "model_setting": "cellpose3:nuclei",
+        "pooled": {
+          "eval_s_mean": 9.6,
+          "eval_s_median": 9.6,
+          "f1_50": 0.9547,
+          "f1_75": 0.9053,
+          "fields": 1,
+          "fn50": 9,
+          "fn75": 15,
+          "fp50": 2,
+          "fp75": 8,
+          "iou_mean": 0.862,
+          "mean_field_f1_50": 0.9547,
+          "n_pred": 118,
+          "n_truth": 125,
+          "negative_field_fp": 0,
+          "precision50": 0.9831,
+          "precision75": 0.9322,
+          "prep_s_mean": 0.95,
+          "recall50": 0.928,
+          "recall75": 0.88,
+          "tp50": 116,
+          "tp75": 110
+        },
+        "result_sha256": "53a0afa66c2f11773ed44836fcbda0e4023cf5be750832733d9dd44141ba66c4"
+      },
+      "stardist_fluo": {
+        "model_setting": "stardist:2D_versatile_fluo",
+        "pooled": {
+          "eval_s_mean": 3.04,
+          "eval_s_median": 3.04,
+          "f1_50": 0.9717,
+          "f1_75": 0.8907,
+          "fields": 1,
+          "fn50": 5,
+          "fn75": 15,
+          "fp50": 2,
+          "fp75": 12,
+          "iou_mean": 0.8473,
+          "mean_field_f1_50": 0.9717,
+          "n_pred": 122,
+          "n_truth": 125,
+          "negative_field_fp": 0,
+          "precision50": 0.9836,
+          "precision75": 0.9016,
+          "prep_s_mean": 0.95,
+          "recall50": 0.96,
+          "recall75": 0.88,
+          "tp50": 120,
+          "tp75": 110
+        },
+        "result_sha256": "fae1558f7beae2ba950aff64101f6bb1c8c4f2ba635802d08888743a41fb3495"
+      }
+    }
+  },
+  "data": {
+    "annotated_mask_sha256": "59ad5e820b7982ca9d13e946fa6e7f64e2714899e00a2ae6c69aa79aad53d46f",
+    "image_sha256": "f9ccc1571b92c861ff87e28463068b43f61bd47357ed0503f711e5cd1eb97750",
+    "image_shape": [
+      512,
+      512
+    ],
+    "independent_annotated_objects": 125,
+    "official_source": "https://github.com/stardist/stardist",
+    "source": "stardist 0.9.2 package test_image_nuclei_2d(return_mask=True)"
+  },
+  "date": "2026-10-02",
+  "install": {
+    "cpu_only": true,
+    "elapsed_s": 41.4372775554657,
+    "python": "3.13.14",
+    "stardist": "0.9.2",
+    "state": "installed",
+    "tensorflow": "2.21.0"
+  },
+  "item": "F551",
+  "limits": [
+    "One official independently annotated 2-D test image, not a multi-study holdout.",
+    "No 3-D model or volumetric Mask path has been wired.",
+    "The 2-D result alone does not complete F551."
+  ],
+  "status": "partial: real 2-D CPU acceptance; 3-D volumetric path remains open"
+}

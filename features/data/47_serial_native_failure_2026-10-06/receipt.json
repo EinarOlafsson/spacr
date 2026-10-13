@@ -1,0 +1,42 @@
+{
+  "run_id": 37457998285,
+  "job_id": 112250232405,
+  "artifact_id": 11425588571,
+  "source_sha": "23750631790924590490e356144c8da72ac805af",
+  "conclusion": "failure",
+  "exit": 139,
+  "last_node": "tests/qt/test_make_masks_center_pixel_puncta.py::test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values[False]",
+  "last_boundary": {
+    "event": "file_begin",
+    "file": "tests/qt/test_make_masks_center_pixel_puncta.py",
+    "first_nodeid": "tests/qt/test_make_masks_center_pixel_puncta.py::test_region_requires_parents_and_bypasses_display_enhancement",
+    "hwm_bytes": 5560434688,
+    "pid": 4066,
+    "rss_bytes": 5432274944,
+    "threads": 20,
+    "time_ns": 1791302327525800776
+  },
+  "last_boundary_rss_gib": 5.0592,
+  "guard_gib": 10.8,
+  "hard_scope_gib": 12,
+  "explicit_failed_nodes_before_native_death": [
+    "tests/qt/test_cov_g2_tooltip_policy.py::test_invalidating_forgets_a_hover_whose_object_is_gone",
+    "tests/qt/test_cov_w2_2_app.py::test_a_build_with_no_logging_helper_still_writes_a_crash_dump",
+    "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_raises_falls_back_under_the_home_directory",
+    "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_answers_with_nothing_falls_back_too",
+    "tests/qt/test_crash_recovery_drops_the_backdrop.py::test_the_marker_folder_falls_back_when_the_log_dir_is_unavailable",
+    "tests/qt/test_distribution_smoke.py::test_source_ui_integration_runs_real_measurement",
+    "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_the_completion_handler_runs_on_the_gui_thread",
+    "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_all_worker_handlers_keep_gui_affinity_with_plain_spies",
+    "tests/qt/test_loaded_schema_rules_do_not_overlap_n637.py::test_loaded_schema_rows_have_disjoint_geometry"
+  ],
+  "limits": [
+    "Old terminal log lacks failed assertion details and native traceback.",
+    "All nine failures and puncta pass narrowly at the exact old source.",
+    "Original-order 17-file windows pass 268 and 159 cases at lower RSS.",
+    "The protected failure is not accepted as fixed.",
+    "Missing traceback redirection reproduced with actual app crash helper.",
+    "Diagnostic repair preserves failures and a dedicated fatal signal FD.",
+    "No full local Qt run, GC change, test-order change or guard waiver."
+  ]
+}

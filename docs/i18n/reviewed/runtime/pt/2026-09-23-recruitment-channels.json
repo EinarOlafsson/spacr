@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted linguistic and implementation-context review: merged image-channel indices, overlays, explicit auxiliary-ratio channel identity and independent channel measurements. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "channel_dims",
+      "source": "Recruitment analysis only: image-channel indices in the merged arrays. They determine the channels used for overlays and recruitment measurements, each auxiliary recruitment ratio records its channel explicitly, so measurements from different channels remain separate. Default [0, 1, 2, 3].",
+      "source_sha256": "bfd2a8078abfa2e4fa88833b0b7b379c5d351d366a45ba51b803b3f73a8f8bef",
+      "translation": "Somente para a análise de recrutamento: índices dos canais de imagem nas matrizes combinadas. Determinam os canais usados nas sobreposições e nas medições de recrutamento. Cada razão auxiliar de recrutamento registra explicitamente seu canal, mantendo separadas as medições de canais diferentes. Padrão [0, 1, 2, 3]."
+    }
+  ]
+}

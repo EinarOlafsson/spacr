@@ -1,0 +1,163 @@
+{
+  "lesson": "62_feature_dictionary",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-09_feature_dictionary_current_workflow.json",
+  "canonical_english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
+  "scene_count": 9,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "ae42d5e3d40da041716f8bfd995fe4da78fa19f4",
+    "version": "1.5.0.4",
+    "module": "feature_dict",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "62_feature_dictionary.da.json": "03e2fd18a2b77cfd42121df6f7abf11e50f4788ea1fb8e8257df071c0c68a2cc",
+    "62_feature_dictionary.de.json": "34280e74921b8feb8dba909eb8613b48c3c507842ed548ff8e4662ab5676061d",
+    "62_feature_dictionary.es.json": "fe852bf2b62cfe46196ed1788128cdcec0f049a05267df47af5becbdf8b108e3",
+    "62_feature_dictionary.fr.json": "bf69720549f6da3f1804e958513c443087bf1482b26c29c80af8e918f589c64f",
+    "62_feature_dictionary.hi.json": "25a6bd56a3a38fcb9829d739eee5687043d880b8c618093e5aeb732fbff3bc65",
+    "62_feature_dictionary.is.json": "5f25d31c8c5e3a15c812f812010cf7eda060a924e266ce9df96ad25736ba06f7",
+    "62_feature_dictionary.it.json": "263387a5dbbbe4f406eb57de1d253c0183c9b19896fc1c1ac80fd91f91527383",
+    "62_feature_dictionary.ja.json": "da45db44d8b79a7f198b80828571faa1781629371f750f6f9ea71ec664647a5d",
+    "62_feature_dictionary.ko.json": "db483c98dcca63167fee4880ecc7da8074cb115eda976a880fef278d66ff7e07",
+    "62_feature_dictionary.nb.json": "c7d99f3cfb01575136e39bb0de516b374391fb6ab3021ed6ac03aef235e5d711",
+    "62_feature_dictionary.pt-BR.json": "5215dd397608fd54bb4c6cb2ed3e18ae4941cd4ab9dfb3be48a33e53d3eb5bdb",
+    "62_feature_dictionary.sv.json": "a0dd6d4d4c347bfac38a82b056c10b86b44f7760f9439846b476e067a2598b11",
+    "62_feature_dictionary.zh-CN.json": "dd7c02989372d4545e2ba3683af6893b5b7af3b3deb11d5d1e05f79eb43d32e2"
+  },
+  "review_scope": "Parent editorial review against frozen English and actual UI; independent peer and native-speaker review not claimed",
+  "master": {
+    "sha256": "19a4480160b74bc211099c7c58a793c3fe1d53f9f928c1aa901faa344f787be5",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "4804"
+        }
+      ],
+      "format": {
+        "duration": "160.133333",
+        "size": "18987491"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 70,
+        "content": "Actual computing-function reference visible within the highlight"
+      },
+      {
+        "seconds": 90,
+        "content": "Conditional area-versus-volume units visible within the highlight"
+      }
+    ]
+  },
+  "poster_sha256": "1ad9e1c36ce2b72d99e7586638e3bc6855964a1dbc1aba7c21bf1dfd3b1a61af",
+  "final_artifact_checks_sha256": "ca1f6bfe41d3431d2d8aa4562d7dafc402a81a21f58c29b5c7ce06b7e59be878",
+  "audio_reports": {
+    "audio-checks.en+es+fr.json": "fe0bde9d1f7fdfcf6172712d720a87aeb64e2c2d539b989bbec341245486ed9d",
+    "audio-checks.it+pt-BR+zh-CN+ja+hi.json": "49ebf83465503ebfe133c6b8559c41259a7ddb3bf34cc449d5769d18ec4e30ae"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "a9620fba606c10cdc1b31469aae5badc6541e05ee48d783bb28c84c2397ae549"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "876b7c2bb6bcd6aec367d0caa96c3f6c32f4a5d435c92b4d5744bd6d51711fb3"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "fddf1b5c15e70a76ebd21571b41a0682c7898e2e0c7f942b07d3ae574b50c444"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "cd2869fca5f5d1dba6bb8c5df2c6feb0e26d9bf2216d1a58df82a670d3c06ee0"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "ef927313ff647dc5bf4d8a432c3fd24f0dc106e5208a957fb1941fa1f15e5a65"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "49e988485dc46af7b88fea8278a4c4fe0cb25d09547d56526c22f7d8d00cd687"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "853cd23cde2a71814dc7da01ea819d75eed7e9c9e8af8231367d2f89113a28da"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "69be9fb0813b0a93e5ed7328703970d83bfe79436abda9878939a718d2821c88"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "7133d7470d91487a6b0c6e2544d0431f5c0783a44ac023f60cf5cea144b26b67"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "08078a70bdfe69033a748a16bd25b5de0ffc16ef49530cd0842aa73babfa8f4e"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "18a8a4dcb58ce8b4bf90b7f85026fdc8f5093a2f33472247425c9b716ba9c934"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "d3cf4359cff5217ed707722f69d09548ca18dc2f50a7b0ef264d9a8a74f5f777"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "d73c781f0b8d468d14f88d176ea1830b3e33e26647d3cd0c8d7de570c85cef49"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "f1477b19ef99a6cb9a79588f5497b15b17aed4a8aec4cb5f0c645d0618bbbbdf"
+    }
+  ],
+  "crosslinks": [
+    "06_api",
+    "34_database"
+  ],
+  "actual_workflow_summary": {
+    "help_dialog_non_modal": true,
+    "initial_definitions": 158,
+    "intensity_cell_filtered_definitions": 13,
+    "known_query_restored_after_no_match": true,
+    "copied_actual_selection_characters": 10575,
+    "project_loaded": false,
+    "analysis_performed": false,
+    "export_performed": false,
+    "gpu_analysis_performed": false,
+    "ai_request_sent": false
+  },
+  "catalog_preservation": {
+    "catalogs": 14,
+    "lessons": 75,
+    "scenes": 674,
+    "refreshed": 20,
+    "unselected_unchanged": 55,
+    "includes_separately_verified_whole_media_retention": "33_plate_viewer"
+  },
+  "technical_totals": {
+    "lessons": 21,
+    "new_tracks": 950,
+    "retained_tracks": 100,
+    "browser_cases": 294
+  },
+  "human_listening_review": false,
+  "native_speaker_signoff": false,
+  "independent_peer_review": false,
+  "published": false
+}

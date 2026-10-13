@@ -1,0 +1,35 @@
+{
+  "lesson": "12_map_barcodes",
+  "english_sha256": "7402e3485399ce5b847c3b955761c012fc92be1c2bf6d5bae1e2db305d6ab139",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Map Barcodes: de las lecturas de secuenciación a los recuentos",
+  "description": "Carga lecturas pareadas y referencias de la biblioteca, encuentra las posiciones de los códigos de barras, aplica los ajustes y guarda los recuentos de guías.",
+  "objectives": [
+    "Descargar un pequeño ejemplo de lecturas pareadas y seleccionar las tablas de referencia correspondientes.",
+    "Revisar las posiciones y la orientación de los códigos de barras antes de aplicar una propuesta.",
+    "Ejecutar el mapeo y revisar los recuentos y las salidas de control de calidad."
+  ],
+  "prerequisite": "Elige Load test data en Map Barcodes. El ejemplo usa las lecturas SRR33531217, las tablas de columnas y filas primers_3 correspondientes y las referencias de guías. Usa tablas de referencia que correspondan a tu propia biblioteca cuando proceses otras lecturas.",
+  "scenes": [
+    "Desde Home, abre Map Barcodes. Las entradas son lecturas de secuenciación y tablas de referencia que nombran los códigos de barras de tu biblioteca. La salida cuenta cada combinación observada, lista para el control de calidad de la secuenciación y el análisis posterior.",
+    "Haz clic en Load test data y selecciona las dos lecturas pareadas de la primera ejecución del archivo. Limita cada archivo a diez mil lecturas para este ejemplo y espera a que se descargue la muestra pareada.",
+    "Selecciona las tablas de referencia de columnas, filas y guías correspondientes. Cada tabla asocia nombres de códigos de barras con secuencias. Mantén esos nombres coherentes con el diseño de la placa y los identificadores de guías que usa el resto de tu análisis.",
+    "Abre Find barcodes e inicia la búsqueda. La vista previa toma muestras de las dos lecturas del par y comprueba las posiciones y orientaciones de los códigos de barras. Espera los resultados antes de cambiar el formulario principal.",
+    "Compara Observed con By chance y luego revisa la orientación, el desplazamiento y el veredicto propuestos para cada código de barras. Prefiere posiciones respaldadas por muchas lecturas y por referencias esperadas bien diferenciadas. Abre la explicación del veredicto si el resultado es incierto.",
+    "Revisa los resultados de la guía para las dos lecturas del par. En este ejemplo, la lectura uno respalda la secuencia de la guía en complemento inverso y la lectura dos respalda la orientación guardada. Usa los resultados de tu biblioteca y de tu par de lecturas al elegir una orientación.",
+    "Comprueba también el código de barras de fila. Aquí, la lectura uno respalda su complemento inverso y la lectura dos respalda la secuencia guardada. Revisa columna, guía y fila juntas, para que la combinación completa identifique el pozo y la guía correctos.",
+    "Abre el visor de lecturas para revisar lecturas individuales. Usa la leyenda de colores para encontrar los segmentos de columna, guía, fila y anclaje. Comprueba que las posiciones propuestas coinciden con la estructura esperada de la biblioteca.",
+    "Revisa los ajustes de extracción propuestos y luego haz clic en Apply these settings para copiarlos al formulario. El ejemplo usa una ventana de extracción de ochenta y nueve bases. Revisa los campos actualizados antes de iniciar la ejecución.",
+    "Sigue las notas de orientación al seleccionar tus archivos de referencia finales. En este ejemplo, selecciona copias en complemento inverso de las referencias de filas y de guías, y deja la referencia de columnas tal como está guardada. Conserva todos los nombres de los códigos de barras al preparar esas copias.",
+    "Elige el par de lecturas descargado, dos procesos de trabajo y bloques de mil lecturas. Activa el guardado de lecturas anotadas si quieres revisar asignaciones individuales. Haz clic en Run; este flujo de mapeo usa la CPU.",
+    "Cuando termine el mapeo, revisa unique_combinations.csv y las salidas de control de calidad. La tabla de recuentos vincula los nombres de columna, fila y guía con el número de lecturas. Revisa las asignaciones sin coincidencia y ambiguas en Barcode QC, y luego combina estos recuentos con las puntuaciones de fenotipo en Regression."
+  ]
+}

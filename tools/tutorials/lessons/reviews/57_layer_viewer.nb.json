@@ -1,0 +1,43 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Layer Viewer: undersøk bilder og etikettoverlegg",
+  "description": "Last inn et tilhørende bilde og en maske, juster overlegget og zoom inn for å undersøke objektgrenser.",
+  "objectives": [
+    "Åpne et bilde og den tilhørende masken.",
+    "Justere synlighet, opasitet, blanding og lagrekkefølge.",
+    "Undersøke etiketter med zoom og panorering."
+  ],
+  "prerequisite": "Last ned og pakk ut Layer_Viewer_real_image_mask.zip. Bruk det medfølgende intensitetsbildet og den tilhørende masken med heltallsetiketter. Eksemplet har ingen fysisk pikselkalibrering.",
+  "scenes": [
+    "Fra Home åpner du QC og deretter Layer Viewer. Last ned og pakk ut det lenkede eksemplet med bilde og maske. Visningen har egne filkontroller for disse to inndataene.",
+    "Klikk på + Image og åpne fov01_C1.tif. Gråtonebildet vises på lerretet med persentilbasert kontraststrekk for visningen.",
+    "Klikk på Fit for å fylle bildepanelet. Fit kan strekke et kvadratisk bilde i et bredt panel; juster skillelinjen slik at panelet blir omtrent kvadratisk når du undersøker former.",
+    "Klikk på + Mask og åpne fov01_cell_mask.tif. De 44 merkede objektene vises over bildet. 0 er bakgrunn og forblir gjennomsiktig.",
+    "Velg mask i lagoversikten før du endrer kontrollene. Slå avmerkingsboksen av og på for å sammenligne grensene med bildet under.",
+    "Sett Opacity for mask til 0 for å skjule fargene mens laget forblir lastet inn. Kontroller den valgte raden før du justerer et annet lag.",
+    "Sett Opacity til 100 % for å undersøke formene på etikettene. Fargene dekker bildet innenfor hvert merket objekt.",
+    "Sett Opacity tilbake til 50 % og velg blandingen translucent for å se bildets tekstur gjennom masken. Sammenlign objektgrensene med det underliggende signalet.",
+    "Velg blandingen additive for å legge maskefargene til bildet. Lyse områder kan bli mettet i denne visningen, så gå tilbake til translucent når du trenger en tydeligere sammenligning.",
+    "Prøv blandingene multiply og minimum for å sammenligne mørkere overlegg. Valgene endrer den viste sammensetningen, mens de opprinnelige intensitetsverdiene fortsatt finnes i kildebildet.",
+    "Velg opaque og juster glidebryteren Opacity for å sammenligne utseendet. Med denne heltallsmasken ser opaque ved 50 % ut som translucent ved 50 %. Sett tilbake translucent for å fortsette.",
+    "Velg image og velg cyan i fargekartvelgeren. Intensitetsbildet skifter farge, mens masken beholder etikettfargene. Velg gray for å gå tilbake til gråtonevisningen.",
+    "Velg mask og trykk på pil ned for å flytte den bak bildet. Det øverste laget vises foran. Flytt masken opp igjen for å undersøke etikettene.",
+    "Klikk på et synlig merket objekt for å lese posisjonen og etikettnummeret i statuslinjen. Bruk prosjektets metadata når du må identifisere objektets synsfelt, plate eller brønn.",
+    "Rull musehjulet over et objekt for å zoome rundt pekeren. Gå nærmere til grensen er lett å undersøke.",
+    "Hold nede Shift og dra med venstre museknapp for å panorere. Du kan også dra med midtknappen. Beveg deg over synsfeltet mens gjeldende zoom beholdes.",
+    "Klikk på Fit for å gå tilbake til hele synsfeltet. Juster formen på panelet hvis det tilpassede bildet ser strukket ut.",
+    "+ Points og + Shapes legger til tomme hjelpelag. For å tegne eller redigere segmenteringsmasker fortsetter du i Make Masks; denne visningen har ingen tegneverktøy for de tomme lagene.",
+    "Velg et lag og bruk Remove for å fjerne det fra visningen. Den opprinnelige filen ligger fortsatt på disken, klar til å lastes inn igjen.",
+    "Resultatet er en gjennomgått lagvisning. For en eksportert sammensetning bruker du stack_from_paths og LayerStack.render_uint8 fra Python. Fortsett til Make Masks for lagrede maskeendringer eller Measure for objektmålinger."
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "required_head": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "required_run": 37728397690,
+  "failed_job": 113154247469,
+  "failed_node": "tests/test_cellpose_api_contract.py::test_every_converted_double_declares_the_installed_signature",
+  "sole_offender": "tests/test_plaque_segmentation_diagnostics.py:258 Model.eval",
+  "complete_raw_log_sha256": "4efdb05dd2c7374880ae34b2f559b8ae1e5c38743f7a6d18d5c52a55bc2adee3",
+  "complete_raw_log_bytes": 3933469,
+  "raw_log_location": "/mnt/wd4tb/scratch/ci-4133-fast-min-20261008/fast1.log",
+  "failed_batch": 62,
+  "selected_batches": 122,
+  "repair": "Declare full literal Cellpose 4.2 signature, preserving sentinel/check and hard fail if model evaluation is reached.",
+  "production_changed": false,
+  "guard_changed": false,
+  "focused": {
+    "passed": 4,
+    "warnings": 3,
+    "seconds": 30.84,
+    "memory_cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "nodes": [
+      "tests/test_cellpose_api_contract.py::test_every_converted_double_declares_the_installed_signature",
+      "tests/test_test_suite_hygiene.py::test_the_cellpose_mocks_do_not_swallow_channel_axis",
+      "tests/test_test_suite_hygiene.py::test_the_cellpose_mock_ratchet_is_empty_and_stays_that_way",
+      "tests/test_plaque_segmentation_diagnostics.py::test_incompatible_flow_and_metric_returns_refuse_before_model_evaluation"
+    ]
+  },
+  "actual_cellpose_version": "4.2.1.1",
+  "native_signature_probe": {
+    "cellpose": "4.2.1.1",
+    "double_signature": "(self, x, batch_size=8, resample=True, channels=None, channel_axis=<no channel_axis passed>, z_axis=None, normalize=True, rescale=None, diameter=None, flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False, anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0, min_size=15, max_size_fraction=0.4, niter=None, augment=False, tile_overlap=0.1, bsize=None, compute_masks=True, progress=None)",
+    "native_signature": "(self, x, batch_size=8, resample=True, channels=None, channel_axis=None, z_axis=None, normalize=True, rescale=None, diameter=None, flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False, anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0, min_size=15, max_size_fraction=0.4, niter=None, augment=False, tile_overlap=0.1, bsize=None, compute_masks=True, progress=None)",
+    "exact_names_order_defaults_except_channel_axis_sentinel": true
+  },
+  "fail_before_evaluation": "Original pytest.raises(ValueError, match=\"not both\") remains. segment_plaque_image rejects before eval and does not catch evaluation exceptions. Model helper AssertionError/pytest.fail cannot become that expected ValueError.",
+  "source_bindings": {
+    "tests/test_plaque_segmentation_diagnostics.py": "284cc745d08c438e846542155a9afc811332e82ffb1b6c79ccf6267a3243fb8c",
+    "tests/test_cellpose_api_contract.py": "f213e1adbbdbc8f4bc627e194fc76d3aa3c234df46396ae1ba99109d1c42c5fe",
+    "tests/test_test_suite_hygiene.py": "ed9736f83f069d7c43e965805735a14ce03bed6591356765652d47ab5503871d",
+    "tests/cellpose_api_contract.py": "4eb17083adabeb82fd2d1253479431911e00e014222833501512305b3fc77888",
+    "spacr/plaque.py": "c3988be90964e58429fffeef6d19229e8d4bfbb39a0ab671383f289f7538f8ff"
+  },
+  "limitations": [
+    "Local focused repair only; required run remains genuinely failed.",
+    "No GPU/model weights or whole-suite acceptance.",
+    "Initial metadata probe omitted PYTHONPATH and failed before imports; retained error is harness setup only. Corrected PYTHONPATH=. probe passes."
+  ]
+}

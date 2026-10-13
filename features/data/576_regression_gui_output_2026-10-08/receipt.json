@@ -1,0 +1,117 @@
+{
+  "api_before_after": [
+    13233,
+    13233
+  ],
+  "api_changed": [
+    "spacr.ml.generate_ml_scores",
+    "spacr.ml.interpret_vision_model",
+    "spacr.ml.load_regression_input_pairs",
+    "spacr.predictions.merge_prediction_results",
+    "spacr.predictions.migrate_prediction_columns",
+    "spacr.qt.screens.settings_model.regression_design_scan",
+    "spacr.qt.widgets.file_list.PairedFileTableWidget",
+    "spacr.refit.destination"
+  ],
+  "foreign_imports_before_after": [
+    {},
+    {}
+  ],
+  "merge_base_with_public": "f800cca399344bca0e3c7d11ad28786d871384b6",
+  "payload_sha256": {
+    "f800-to-private-f576.patch.gz": "b6621fb94caf76d01389b4f5f0053c4960ffbf7ddd784e532e9174f4d5b95820",
+    "normal-inventory-reader.py.gz": "c85812b8375811a6e4ad9df01b218ff79f041e46d912f732f475df6b5726b983",
+    "owning-cohort.log.gz": "572227d8b6f1a834860a519ced41ffadfac4d17b6f87084593c270632fa6b027",
+    "private-final-normal-inventory.json.gz": "17d28d5d12c2aedc148ad3bb6578e2d189d963ff7e70f04e9e5618a20f8dc4a4",
+    "public-f800-normal-inventory.json.gz": "6edf2b0d40e16b2f93357dbe4db48dd44c37b5f1c9c3ce9f90bcda78f22484fb"
+  },
+  "private_head": "67603530d0171fa3f644af66d479ba41ac41d646",
+  "public_base": "f800cca399344bca0e3c7d11ad28786d871384b6",
+  "runtime_changed": [
+    "ui"
+  ],
+  "runtime_counts_after": {
+    "categories": 237,
+    "installer": 65,
+    "module_summaries": 77,
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "ui": 7300
+  },
+  "runtime_counts_before": {
+    "categories": 237,
+    "installer": 65,
+    "module_summaries": 77,
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "ui": 7287
+  },
+  "scope": "Private F576 alternate-store backend, paired Regression GUI, explicit local PostgreSQL output roots and alpha gating. No generated catalogs modified. PostgreSQL server was root-owned scratch infrastructure; no external database claim.",
+  "source_blobs": {
+    "spacr/io.py": "2dad4a1420de8fa565e682f5246799f93c9bc6bc",
+    "spacr/ml.py": "526a2cdf163b9f71382d1ae490b00b68af17e284",
+    "spacr/predictions.py": "578df9c9dd42d01777ab759e2d4e50e7e7722edd",
+    "spacr/qt/screens/app_screen.py": "1b4bc4e4d310f8db092d84552710be82056655c5",
+    "spacr/qt/screens/settings_model.py": "e4d49400d4d623136723594ca260e6c8ede5ff69",
+    "spacr/qt/widgets/file_list.py": "1b9ed692a6a35de1a893da2ab4575c8b0ce7267a",
+    "spacr/qt/widgets/measurement_scan_panel.py": "bccbd58ca2c41fff6a105c2bb53aa24981943157",
+    "spacr/refit.py": "35cca25e10fada5e6b258b85d178aa5c4b96c6cd",
+    "spacr/settings.py": "a9124fafd288fea8a4bca14fbf1ce8d00b7f82c3",
+    "spacr/tabular.py": "0e5217589fb8edfad6df7aefe3fb85178aee4c8b"
+  },
+  "source_code_last_commit": "66ab7e9017451a86ad26796c4eb2c2c56355147c",
+  "source_sha256": {
+    "spacr/io.py": "c819fff913447d7d4396527c32b636b4497c62e6e4b10b1495a27f2966463c32",
+    "spacr/ml.py": "91d5f7b31c40a9f90c2d4749b954d9f5bf23748b99733c5b321fadfb1b65e27c",
+    "spacr/predictions.py": "dbc3c6039bcfa9c0c4ca0b41c0546b220d4bec83605e56d27702bfc85b9f72df",
+    "spacr/qt/screens/app_screen.py": "1c4cfeabca6c641d38ba0fabbdcfdb628a278f6878755465db8ec33e351f5483",
+    "spacr/qt/screens/settings_model.py": "665bf80b24e33783fd4dd03edfca57e72d2ca52fd94b72f6ebd62742bab64400",
+    "spacr/qt/widgets/file_list.py": "e50514e5c99d1deb37160f6ce08fbf64b5ac9b9fe5150a6116717f0827e5730d",
+    "spacr/qt/widgets/measurement_scan_panel.py": "99c6eac3d433ac7eeda24617f2fc33c0d08f1cc45e8dda9bdde1941ae7714790",
+    "spacr/refit.py": "71666d915f35ba7dd280753a60f99ade18b9841816ed08a3102b87432f6a566d",
+    "spacr/settings.py": "9b66d9ba802d2f6950037c5d8e4d3cc687521c3942f75187f511c459632536de",
+    "spacr/tabular.py": "114a60373a77d7cac8ee9b3b1f885debfb4602918a1c6f4e3e5911b6f51a46ea"
+  },
+  "test_log": "owning-cohort.log.gz",
+  "test_result": "376 passed in 38.31s",
+  "test_runtime": "/home/olafsson/anaconda3/envs/spacr/bin/python, CUDA hidden, Qt offscreen, run_capped.sh 4G, -p no:randomly; actual root-owned PostgreSQL 18.4 scratch DSN present",
+  "test_selector": [
+    "tests/test_measurement_backends.py",
+    "tests/test_predictions_merge.py",
+    "tests/test_one_parse_per_file.py",
+    "tests/test_regression_workbench.py",
+    "tests/test_a_refit_is_a_new_run.py",
+    "tests/test_regression_offers_its_own_src.py",
+    "tests/test_cov_14_refit.py",
+    "tests/test_the_measurements_tab_reaches_a_regression.py",
+    "tests/qt/test_f576_regression_backend_inputs.py",
+    "tests/qt/test_measurement_backend_alpha_gate.py"
+  ],
+  "ui_added": [
+    "Add count store folder\u2026",
+    "Add count tables\u2026",
+    "Add score store folder\u2026",
+    "Add score tables\u2026",
+    "Add {side} store folder",
+    "Add {side} tables",
+    "Choose a .parquetdb store folder.",
+    "Could not read columns from {sources}",
+    "Count source",
+    "Count table",
+    "Name the table for {sources} before running.",
+    "No {what} {current!r} in the {kind}.",
+    "No {what} {current!r} in the {kind}. Did you mean {suggestion!r}?",
+    "Read input table column names and choose a column.",
+    "Score source",
+    "Score table",
+    "Table name for store",
+    "{count} column(s) in the {kind}:"
+  ],
+  "ui_removed": [
+    "Add count CSVs\u2026",
+    "Add score CSVs\u2026",
+    "Count CSV",
+    "Read the header row of the input CSVs and choose a column.",
+    "Score CSV"
+  ]
+}

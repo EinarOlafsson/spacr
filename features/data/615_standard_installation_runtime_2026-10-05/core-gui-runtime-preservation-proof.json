@@ -1,0 +1,68 @@
+{
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "languages": {
+    "sv": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "Interaktiva diagram kräver pyqtgraph.\n\nInstallera det med python -m pip install spacr och öppna sedan modulen igen.\n\nAllt annat fungerar utan det: körningen skapar fortfarande alla figurer, och de visas i rutnätet ovanför konsolen.",
+      "catalog_sha256": "a3f985ed551fb08166fa8adb41e5ab1a1968552d685c3f3772ebaba3ecd39416"
+    },
+    "de": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "Interaktive Diagramme benötigen pyqtgraph.\n\nInstallieren Sie es mit python -m pip install spacr und öffnen Sie dieses Modul erneut.\n\nAlles andere funktioniert auch ohne dieses Paket: Der Lauf erstellt weiterhin sämtliche Abbildungen, die im Raster über der Konsole erscheinen.",
+      "catalog_sha256": "0ca353e0eab32576d73af7b89c0721616c442e98e8e15fd6ea3fd5911e664369"
+    },
+    "es": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "Las gráficas interactivas necesitan pyqtgraph.\n\nInstálalo con python -m pip install spacr y vuelve a abrir este módulo.\n\nTodo lo demás funciona sin ese paquete: la ejecución sigue generando todas las figuras, que aparecen en la cuadrícula situada encima de la consola.",
+      "catalog_sha256": "dcb6b1498ff59aa72abf32f17311f1c9f85cf214594e4eccf2e30ea28b36f1a2"
+    },
+    "zh_CN": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "交互式图表需要 pyqtgraph。\n\n使用 python -m pip install spacr 安装，然后重新打开此模块。\n\n其他功能无需此包即可运行：运行仍会生成所有图，并将它们显示在控制台上方的网格中。",
+      "catalog_sha256": "ae6470139f436fe6d4aa080f368629040dc1496df8ba5a548d43b10f6aa5613e"
+    },
+    "pt": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "Os gráficos interativos precisam de pyqtgraph.\n\nInstale com python -m pip install spacr e reabra este módulo.\n\nTodo o restante funciona sem esse pacote: a execução continua gerando todas as figuras, que aparecem na grade acima do console.",
+      "catalog_sha256": "b8a96a3fd61ba7f42c303c54871e52c0afd63e997d1a52599b0f096d520944e6"
+    },
+    "hi": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "इंटरैक्टिव ग्राफ़ के लिए pyqtgraph आवश्यक है।\n\nइसे python -m pip install spacr से स्थापित करें, फिर यह मॉड्यूल दोबारा खोलें।\n\nबाकी सभी सुविधाएँ इसके बिना भी काम करती हैं: प्रक्रिया अब भी सभी चित्र बनाती है और वे कंसोल के ऊपर ग्रिड में दिखाई देते हैं।",
+      "catalog_sha256": "921d7138cd7a19326ea7b83586cf881045eb7729930dca448964065029087a27"
+    },
+    "ko": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "대화형 그래프에는 pyqtgraph가 필요합니다.\n\npython -m pip install spacr 명령으로 설치한 다음 이 모듈을 다시 여세요.\n\n그 외의 기능은 pyqtgraph 없이도 작동합니다. 실행하면 모든 그림이 생성되고 콘솔 위의 그리드에 표시됩니다.",
+      "catalog_sha256": "38a8a24170a779ed6ef852b9d0d312695a700c17b4ce2b9d561ccb83a9e48ed4"
+    },
+    "is": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "Gagnvirk línurit þurfa pyqtgraph.\n\nSettu það upp með python -m pip install spacr og opnaðu síðan þessa einingu aftur.\n\nAllt annað virkar án þess: keyrslan býr enn til allar myndir og þær birtast í reitanetinu fyrir ofan stjórnborðið.",
+      "catalog_sha256": "d89ab6ae996c54d013b941b8bcd93e69a512f890af2b1575f1747f3547dd46aa"
+    },
+    "fr": {
+      "all_other_complete_rows_and_hashes_preserved": 9832,
+      "retired_source": "Interactive plots need pyqtgraph.\n\nInstall it with  pip install 'spacr[qt]'  and reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "current_reviewed_target": "Les graphiques interactifs nécessitent pyqtgraph.\n\nInstallez-le avec python -m pip install spacr, puis rouvrez ce module.\n\nTout le reste fonctionne sans ce paquet : l’exécution produit toujours toutes les figures, qui apparaissent dans la grille au-dessus de la console.",
+      "catalog_sha256": "32bcbd5f8f923a85c90f38122337d1b988067d5a394036f482883ded188a9fe6"
+    }
+  }
+}

@@ -1,0 +1,168 @@
+================================================================================
+364 -- CLASSIFY SETTINGS AUDIT, MEASURED 2026-09-02
+PROPOSALS FOR REVIEW. Nothing here has been changed.
+================================================================================
+
+Classify (set_default_classify)   114 settings
+
+Same three questions, same standard: every claim is either the setting's own
+tooltip or the line of code that reads it.
+
+--------------------------------------------------------------------------------
+FINDING 0 -- STILL NOTHING DEAD, BUT ONE SETTING IS TOLD IT IS
+--------------------------------------------------------------------------------
+
+All 114 keys are named in more than one file, as in mask, measure and
+regression. What this module has instead is worse than a dead setting: a live
+one whose own description says it does nothing. See finding 2.
+
+--------------------------------------------------------------------------------
+FINDING 1 -- TWO SWITCHES FOR CROSS-VALIDATION
+--------------------------------------------------------------------------------
+
+PROPOSE: COMBINE. This is the `organelle_min_size` / `organelle_min_area`
+shape again -- two settings, one question, and the answer depends on which
+one the reader found first.
+
+    cross_validation          "(bool) Score the classifier with 5-fold
+                              stratified cross-validation instead of a single
+                              train/test split..."
+    cross_validation_enabled  "(bool) Enable k-fold validation for Classify.
+                              If cross_validation_folds is 0 or 1, enabling
+                              this uses 5 folds..."
+
+Both are booleans, both turn on k-fold cross-validation, and both default the
+fold count to five. A user who sets one and not the other has said something
+the form cannot represent.
+
+  `cross_validation_folds`, `nested_cv_inner_folds` and `cv_group_by` are the
+  parameters of that one question and are NOT redundant with it.
+
+--------------------------------------------------------------------------------
+FINDING 2 -- `intermedeate_save` IS MISSPELLED, AND ITS TOOLTIP IS FALSE
+--------------------------------------------------------------------------------
+
+PROPOSE: (a) correct the tooltip NOW -- it is misinformation, not untidiness;
+(b) rename to `intermediate_save`, with the old spelling accepted as a legacy
+key the way `toxo` already is.
+
+Its tooltip currently reads:
+
+    "It currently has no effect: train_model passes that threshold list to
+    the saver unconditionally, so those checkpoints are written regardless
+    of this flag."
+
+THAT IS NOT TRUE OF THE CODE. `spacr/io.py:_save_model` branches on it:
+
+    if intermedeate_save is True or intermedeate_save is None:
+        thresholds = [0.99, 0.98, 0.95, 0.94]
+    elif intermedeate_save is False:
+        thresholds = []
+    else:
+        thresholds = sorted({float(v) for v in intermedeate_save}, reverse=True)
+
+with a comment saying "``False`` disables archival snapshots while best/last
+checkpoints remain available", `spacr/deep_spacr.py` passes the setting
+straight through, and four test files exercise `intermedeate_save=False`.
+
+  SO THE SETTING WORKS AND THE DOCUMENTATION TELLS EVERY USER IT DOES NOT.
+  Whoever wanted to stop the extra checkpoints read that and gave up. This is
+  the only defect in any of the four audits so far that is actively
+  misleading rather than merely confusing, which is why it is proposed for
+  immediate correction rather than for the next rename batch.
+
+  The spelling is a separate, smaller thing: it is the only misspelled key in
+  the 114, and it appears in every settings file a user has ever saved.
+
+--------------------------------------------------------------------------------
+FINDING 3 -- A FLAG AND THE NUMBER THAT ALREADY SAYS IT
+--------------------------------------------------------------------------------
+
+PROPOSE: RETIRE `gradient_accumulation`, keep `gradient_accumulation_steps`.
+
+    gradient_accumulation        (bool) "Sum gradients over several batches
+                                 before each optimizer step..."
+    gradient_accumulation_steps  (int)  "How many batches are summed per
+                                 optimizer step when gradient_accumulation
+                                 is on..."
+
+`steps = 1` IS the off state -- one batch per optimizer step is ordinary
+training -- so the boolean adds a second way to say the same thing and a
+state the pair can disagree about (on with one step; off with eight).
+
+--------------------------------------------------------------------------------
+FINDING 4 -- `normalize` AND `normalization` ARE ONE CHARACTER APART
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME. Three different questions whose names do not distinguish
+them at all:
+
+    normalize            (bool or list) percentile normalisation for DISPLAY
+                         and crop export
+    normalization        (str) which statistics the MODEL INPUT is normalised
+                         by: 'imagenet' or 'dataset'
+    normalization_scope  (str) whether those statistics are per image, per
+                         batch or over the dataset
+
+The first two differ by two letters and mean different things at different
+stages of the pipeline. A user reading a settings file cannot tell which is
+which, and neither can a reviewer.
+
+  SUGGESTED: `crop_percentile_normalisation`, `model_input_normalisation`,
+  `model_input_normalisation_scope` -- the last two then read as a family,
+  which they are.
+
+--------------------------------------------------------------------------------
+FINDING 5 -- `min_max` IS NOT A NORMALISATION
+--------------------------------------------------------------------------------
+
+PROPOSE: RENAME to `heatmap_colour_limits`.
+
+    "(str) Color limits for the plate heatmap: 'allq' scales to the 2nd-98th
+    percentile of well values..."
+
+Every reader who knows the term will read `min_max` as min-max scaling, which
+is a normalisation method and is what the three settings above are about. It
+sits in the same settings file as them.
+
+--------------------------------------------------------------------------------
+FINDING 6 -- THE TWO FAMILIES NAME THEIR SETTINGS ASYMMETRICALLY
+--------------------------------------------------------------------------------
+
+    model_type      the Torch backbone      model_type_ml   the tabular model
+    test_split      crops held out          test_size       tabular rows held
+                                                            out
+
+One of each pair says which family it belongs to and the other does not, so
+the unmarked one reads as the general case when it is not. With
+`classifier_family` now spelled out on screen as "Computer Vision (Torch)"
+and "Tabular Machine Learning", the settings could follow the same words.
+
+  NOT PROPOSED AS A RENAME YET, because it is four keys in the most-saved
+  settings file in the package and the benefit is symmetry rather than a
+  defect anyone has hit. Recorded so the decision is deliberate.
+
+--------------------------------------------------------------------------------
+FINDING 7 -- TWO WAYS TO DEFINE A CLASS, AND THEY MAY BE THE SAME WAY
+--------------------------------------------------------------------------------
+
+NEEDS THE MAINTAINER.
+
+    classes         (dict) "Class definitions in the form class name ->
+                    {column, value}"
+    class_metadata  (list of lists) "One inner list per training class,
+                    holding the metadata values that select that class's
+                    objects"
+
+Both select objects for a class by metadata value; one names the column and
+the classes, the other is positional. `class_folder_names` is a third route
+(folders on disk) and is genuinely different. Whether `classes` and
+`class_metadata` are one question with two spellings is a question about the
+training path's history that the audit cannot answer from the code alone.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+Annotate and Map Barcodes are the remaining core modules. Then preferences
+and spaceout, as the request asks.

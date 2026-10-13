@@ -1,0 +1,1907 @@
+"""Branch coverage for :func:`spacr.ml.perform_regression`.
+
+``perform_regression`` is the ~750-line pooled-CRISPR screen entry point: it
+reads per-well score CSVs and per-well sgRNA count CSVs, aligns them on
+plate/row/column, fits a regression of phenotype on gRNA/gene abundance and
+emits results + hit tables + (optionally) toxo reports.
+
+These tests drive it end to end on tiny synthetic CSVs.  Only the purely
+visual helpers are stubbed (``plot_plates``, ``plot_histogram``,
+``plot_data_from_csv``, the toxo plots) plus ``minimum_cell_simulation``
+(a Monte-Carlo resampler that contributes nothing to this function's own
+branches); everything else -- metadata correction, plate recovery, control
+filtering, ``process_scores`` / ``process_reads``, the statsmodels /
+sklearn fits, the coefficient bookkeeping and every CSV that gets written --
+runs for real.
+"""
+from __future__ import annotations
+
+import json
+import os
+
+import numpy as np
+import pandas as pd
+import pytest
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+
+
+# ---------------------------------------------------------------------------
+# Synthetic screen builders
+# ---------------------------------------------------------------------------
+
+GENES = ("000000", "233460", "239740", "111111")
+N_GRNA_PER_GENE = 3
+ROWS = ("r1", "r2", "r3")
+COLS = ("c1", "c2", "c3", "c4", "c5", "c6")   # c1..c3 are dropped as controls
+KEPT_COLS = ("c4", "c5", "c6")
+CONTROLS = [f"000000_{i}" for i in (1, 2, 3)]
+
+
+def _grnas():
+    """Full gRNA name list in the org_gene_grna form spacr splits on."""
+    return [f"TGGT1_{g}_{i}" for g in GENES for i in range(1, N_GRNA_PER_GENE + 1)]
+
+
+def parametric_settings(screen, **over):
+    """`base_settings` for a run that actually FITS the model it names.
+
+    The suite's default inference became `nonparametric` on 2026-08-19, and
+    under `analysis_mode='guide_permutation'` the permutation test IS the
+    analysis: `regression_type` is never read, no model is fitted, and none
+    of the parametric artefacts -- the statsmodels summary, bootstrap
+    selection frequencies, the effect-size cut on coefficients, the toxo
+    volcanoes -- are produced at all.
+
+    Twenty tests in this file are about those artefacts and were reading
+    their absence as a defect. A test of the parametric path has to ASK for
+    the parametric path; that is what this is. It is not a workaround for a
+    bug -- the permutation default is deliberate and is what a user gets.
+    """
+    over.setdefault("inference", "parametric")
+    over.setdefault("analysis_mode", "regression")
+    return base_settings(screen, **over)
+
+
+def results_dir(count_csv, regression_type="ols", settings=None):
+    """Where a run writes: ``<count data folder>/results/<what named it>``.
+
+    Asked for on 2026-08-16 -- "just store everything in the same location as
+    the first count data ... then the type so for me .../claude/results/ols".
+
+    Every expectation in this file used to spell the path that replaced:
+    ``<src>/results/<score file stem>/<type>/list``. When the layout changed
+    the tests kept reading a folder nothing writes to any more, so
+    twenty-three of them failed on a missing CSV while the run that wrote it
+    was fine -- a suite reporting the wrong defect, which is worse than a
+    silent one because it sends the reader to the wrong file.
+
+    One helper rather than a literal per test, so the next layout change
+    costs one line here instead of another twenty-three red marks.
+
+    AND IT HAPPENED AGAIN, for the reason the paragraph above describes: the
+    leaf stopped being the regression type. Under
+    `analysis_mode='guide_permutation'` -- the default these tests run with --
+    the run names the folder after the INFERENCE, because the regression type
+    is never read and a folder called `ridge` would name something the run
+    did not do. 39 tests in this file went red on missing CSVs that had been
+    written all along.
+
+    So the rule is no longer re-derived here. `spacr.ml.results_folder_kind`
+    is the one copy and this asks it, which is the only version of this
+    helper that cannot go stale a third time.
+    """
+    from spacr.ml import results_folder_kind
+    from spacr.settings import get_perform_regression_default_settings
+
+    if settings is None:
+        # THE SAME DEFAULTS THE RUN GETS, for the same reason `base_settings`
+        # finishes its dict with this builder: a helper that assumed
+        # parametric inference would answer for a run nobody performs.
+        settings = get_perform_regression_default_settings({})
+        settings["regression_type"] = regression_type
+    kind = results_folder_kind(settings)
+    return os.path.join(os.path.dirname(count_csv), "results", kind)
+
+
+def _score_records(plate, seed, n_cells=6, with_path=False, plate_token=None,
+                   n_bad_paths=0, rows=ROWS, cols=COLS):
+    rng = np.random.default_rng(seed)
+    recs = []
+    made = 0
+    for r in rows:
+        for c in cols:
+            base = float(rng.uniform(0.2, 0.8))
+            for k in range(n_cells):
+                rec = {
+                    "plateID": plate,
+                    "rowID": r,
+                    "columnID": c,
+                    "fieldID": "f1",
+                    "pred": float(np.clip(base + rng.normal(0, 0.1), 0.02, 0.98)),
+                    "recruitment": float(rng.normal(50.0, 12.0)),
+                }
+                if with_path:
+                    letter = chr(ord("A") + int(r[1:]) - 1)
+                    token = plate_token or plate.upper()
+                    # spacr anchors its well regexes at the start of the
+                    # string, so these are bare basenames.
+                    if made < n_bad_paths:
+                        rec["path"] = f"no_plate_prefix_{made}.png"
+                    else:
+                        rec["path"] = (f"{token}_{letter}{int(c[1:]):02d}"
+                                       f"_1_1_{k}.png")
+                recs.append(rec)
+                made += 1
+    return recs
+
+
+def write_scores(path, plate="plate1", seed=0, n_cells=6, with_path=False,
+                 plate_token=None, n_bad_paths=0, drop=(), row_prefix=None,
+                 rows=ROWS, cols=COLS):
+    """Write a per-object score CSV and return its path."""
+    df = pd.DataFrame(_score_records(plate, seed, n_cells, with_path,
+                                     plate_token, n_bad_paths, rows, cols))
+    if row_prefix:
+        df["rowID"] = row_prefix + "_" + df["rowID"]
+    for col in drop:
+        df = df.drop(columns=[col])
+    df.to_csv(path, index=False)
+    return str(path)
+
+
+def write_counts(path, plate="plate1", seed=1, grnas=None, sparse_grna=None,
+                 sparse_well=("r1", "c4"), row_prefix=None, rows=ROWS,
+                 cols=COLS, drop=()):
+    """Write a per-well sgRNA count CSV and return its path.
+
+    ``sparse_grna`` is present in exactly one (kept) well, which makes it an
+    outlier for ``get_outlier_reference_values``.
+    """
+    rng = np.random.default_rng(seed)
+    grnas = list(grnas if grnas is not None else _grnas())
+    recs = []
+    for r in rows:
+        for c in cols:
+            for g in grnas:
+                if sparse_grna is not None and g == sparse_grna:
+                    if (r, c) != tuple(sparse_well):
+                        continue
+                recs.append({"plateID": plate, "rowID": r, "columnID": c,
+                             "grna": g, "count": int(rng.integers(20, 400))})
+    df = pd.DataFrame(recs)
+    if row_prefix:
+        df["rowID"] = row_prefix + "_" + df["rowID"]
+    for col in drop:
+        df = df.drop(columns=[col])
+    df.to_csv(path, index=False)
+    return str(path)
+
+
+def write_metadata(path):
+    """Write a gene-metadata CSV shaped like the toxo TGGT1/TGME49 summaries."""
+    rows = []
+    for g in GENES:
+        rows.append({
+            "Gene ID": f"TGGT1_{g}",
+            "Gene Name": f"gene_{g}",
+            "T.gondii GT1 CRISPR Phenotype - Mean Phenotype": 0.5,
+            "T.gondii GT1 CRISPR Phenotype - Standard Error": 0.1,
+            "sense - Tachyzoites": 1.0,
+            "sense - Tissue cysts": 2.0,
+            "sense - EES1": 3.0,
+            "sense - EES2": 4.0,
+            "sense - EES3": 5.0,
+            "sense - EES4": 6.0,
+            "sense - EES5": 7.0,
+        })
+    pd.DataFrame(rows).to_csv(path, index=False)
+    return str(path)
+
+
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(autouse=True)
+def _no_figure_leak():
+    yield
+    plt.close("all")
+
+
+@pytest.fixture
+def screen(tmp_path):
+    """One-plate screen: score CSV, count CSV, metadata CSV + expected paths."""
+    sdir = tmp_path / "scores"
+    cdir = tmp_path / "counts"
+    sdir.mkdir()
+    cdir.mkdir()
+    score = write_scores(sdir / "xgb_scores.csv")
+    count = write_counts(cdir / "counts.csv")
+    meta = write_metadata(tmp_path / "TGME49_Summary.csv")
+    return {
+        "root": tmp_path,
+        "score": score,
+        "count": count,
+        "meta": meta,
+        "res": results_dir(count),
+        "count_dir": str(cdir),
+    }
+
+
+def base_settings(screen, **over):
+    """Settings dict exactly as a dispatcher builds it, plus this suite's choices.
+
+    The dict is finished by the SAME defaults builder all three entry points
+    use -- ``gui_core.setup_settings_panel`` (Tk),
+    ``qt.screens.settings_model.resolve_default_settings`` (Qt) and
+    ``cli.module_defaults`` (``spacr-run regression``) -- so anything the
+    builder fails to supply is missing here too, and the tests below fail the
+    way a user's run fails.
+
+    This fixture used to hand-write ``score_column``, ``tolerance``,
+    ``verbose``, ``invert_dependent_variable`` and ``y_lims`` on top of a
+    literal dict. ``get_perform_regression_default_settings`` supplied none of
+    them while ``perform_regression`` indexed all of them, so every test in
+    this file passed against a dict no entry point could produce, and the real
+    pipeline died on ``KeyError: 'verbose'`` at ml.py:1409 -- after both input
+    CSVs had been read and ``settings/regression.csv`` had been written.
+
+    Only keys that are a deliberate *test* choice belong in the literal below:
+    the tiny synthetic wells (``min_cells_per_well``), a fixed threshold instead of
+    the sweep (``fraction_threshold``), the toxo reports off by default. Adding
+    a key here that the builder is supposed to supply hides the next such bug.
+    """
+    from spacr.settings import get_perform_regression_default_settings
+
+    settings = {
+        "score_data": [screen["score"]],
+        "count_data": [screen["count"]],
+        "dependent_variable": "pred",
+        "regression_type": "ols",
+        "min_cells_per_well": 3,
+        "fraction_threshold": 0.005,
+        "metadata_files": [screen["meta"], screen["meta"]],
+        "toxo": False,
+        "controls": list(CONTROLS),
+        "outlier_detection": False,
+        "alpha": 1.0,
+    }
+    settings.update(over)
+    # Last, so a test that picks its own dependent_variable also gets the
+    # score_column that follows it.
+    return get_perform_regression_default_settings(settings)
+
+
+@pytest.fixture
+def heavy_stubs(monkeypatch):
+    """Stub the slow visual helpers; record every call for assertions."""
+    import spacr.plot as P
+    import spacr.ml as ML
+    # perform_regression imports these lazily on every call; warm them here so
+    # the one-off import cost is not charged to whichever test runs first.
+    import spacr.toxo  # noqa: F401
+    import spacr.sequencing  # noqa: F401
+    import spacr.settings  # noqa: F401
+
+    rec = {"plates": [], "histograms": [], "sim": [], "house_plates": []}
+
+    def fake_plot_plates(df, **kwargs):
+        rec["plates"].append({"n_rows": len(df), "kwargs": dict(kwargs),
+                              "columns": list(df.columns)})
+        return None
+
+    def fake_show_plates(df, variable, dst):
+        # THE HOUSE-STYLE PLATE PANEL IS THE ONE A RUN DRAWS NOW.
+        # `plot_plates` is still there as the fallback, so both are recorded
+        # and the test can say which path was taken rather than only that
+        # something was called.
+        rec["house_plates"].append({"n_rows": len(df), "variable": variable,
+                                    "dst": dst,
+                                    "columns": list(df.columns)})
+        return True
+
+    def fake_plot_histogram(df, column, dst=None):
+        rec["histograms"].append((column, dst))
+        return None
+
+    def fake_sim(settings, **kwargs):
+        rec["sim"].append(dict(kwargs))
+        return 3
+
+    monkeypatch.setattr(P, "plot_plates", fake_plot_plates)
+    monkeypatch.setattr(P, "plot_histogram", fake_plot_histogram)
+    monkeypatch.setattr(ML, "_show_plates", fake_show_plates)
+    monkeypatch.setattr(ML, "minimum_cell_simulation", fake_sim)
+    return rec
+
+
+@pytest.fixture
+def stubs(monkeypatch, heavy_stubs):
+    """heavy_stubs plus a recording stand-in for plot_data_from_csv."""
+    import spacr.plot as P
+
+    heavy_stubs["csv_plots"] = []
+
+    def fake_plot_data_from_csv(settings):
+        heavy_stubs["csv_plots"].append(dict(settings))
+        return None, None
+
+    monkeypatch.setattr(P, "plot_data_from_csv", fake_plot_data_from_csv)
+    return heavy_stubs
+
+
+@pytest.fixture
+def toxo_stubs(monkeypatch, stubs):
+    """Stub the toxo reporting plots and let the test choose the gene list."""
+    import spacr.toxo as T
+
+    stubs["volcano"] = []
+    stubs["phenotypes"] = []
+    stubs["heatmaps"] = []
+    stubs["gene_list"] = ["TGGT1_239740"]
+
+    def fake_volcano(data, metadata_path, **kwargs):
+        stubs["volcano"].append({"n_rows": len(data),
+                                 "metadata_path": metadata_path,
+                                 "kwargs": dict(kwargs)})
+        return stubs["gene_list"]
+
+    def fake_phenotypes(data, gene_list, **kwargs):
+        stubs["phenotypes"].append({"gene_list": gene_list,
+                                    "kwargs": dict(kwargs)})
+        return None
+
+    def fake_heatmaps(data, gene_list, columns, **kwargs):
+        stubs["heatmaps"].append({"gene_list": gene_list,
+                                  "columns": list(columns)})
+        return None
+
+    monkeypatch.setattr(T, "custom_volcano_plot", fake_volcano)
+    monkeypatch.setattr(T, "plot_gene_phenotypes", fake_phenotypes)
+    monkeypatch.setattr(T, "plot_gene_heatmaps", fake_heatmaps)
+    return stubs
+
+
+# ---------------------------------------------------------------------------
+# _perform_regression_read_data
+# ---------------------------------------------------------------------------
+
+def test_scalar_score_and_count_paths_are_wrapped_in_lists(screen, stubs):
+    """A bare string for score_data/count_data is normalised to a 1-list."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, score_data=screen["score"],
+                             count_data=screen["count"])
+    out = perform_regression(settings)
+
+    assert settings["score_data"] == [screen["score"]]
+    assert settings["count_data"] == [screen["count"]]
+    # The coefficient table and the hits, plus what is needed to judge the
+    # fit: without the model there is no R-squared and no residual to test,
+    # and without the design there is no way to count what reached it.
+    assert {"results", "significant"} <= set(out)
+    assert {"model", "model_data"} <= set(out), \
+        "the fit and its design must come back, or no diagnostic can be computed"
+    assert os.path.isfile(os.path.join(results_dir(screen["count"], settings=settings), "results.csv"))
+
+
+@pytest.mark.parametrize("level", ["grna", "gene", "both"])
+@pytest.mark.parametrize("layout", ["long", "wide"])
+def test_regression_returns_prepared_data_separate_from_annotated_coefficients(
+        screen, stubs, level, layout):
+    import json
+    from spacr.ml import perform_regression
+    from spacr.regression_summary import build_run_summary
+    from spacr.trial_metrics import design_summary
+
+    settings = parametric_settings(
+        screen, regression_type="ridge", level=level, model_data_layout=layout,
+        regression_qc=False, model_plate_position=False)
+    output = perform_regression(settings)
+    prepared = output["model_data"]
+    saved = pd.read_csv(os.path.join(output["res_folder"], "regression_data.csv"),
+                        dtype={"gene": str, "grna": str, "prc": str})
+    pd.testing.assert_frame_equal(prepared.reset_index(drop=True), saved,
+                                  check_dtype=False)
+    assert {"prc", "grna", "gene", "fraction"} <= set(prepared.columns)
+    assert "coefficient" not in prepared
+    assert "coefficient" in output["results"]
+    expected_levels = {"grna", "gene"} if level == "both" else {level}
+    assert set(output["fit_designs"]) == expected_levels
+    expected_rows = len(prepared) if layout == "long" else prepared["prc"].nunique()
+    for counts in output["fit_designs"].values():
+        assert counts["n_rows_fitted"] == expected_rows
+        assert counts["n_wells"] == prepared["prc"].nunique()
+    summary = design_summary(output)
+    assert summary["n_rows_prepared"] == len(prepared)
+    assert summary["n_rows_fitted"] == expected_rows
+    with open(os.path.join(output["res_folder"], "regression_fit_designs.json")) as handle:
+        assert json.load(handle) == output["fit_designs"]
+    reopened = build_run_summary(res_folder=output["res_folder"], settings=settings)
+    assert reopened.field("n_rows_prepared").value.startswith(f"{len(prepared):,} rows")
+    for one in expected_levels:
+        assert f"{one}: {expected_rows:,}" in reopened.field("n_rows_fitted").value
+
+
+def test_legacy_score_list_longer_than_count_list_migrates(screen):
+    """An unpaired tail remains legal because the final join is by well."""
+    from spacr.ml import normalize_regression_input_pairs
+
+    settings = base_settings(
+        screen, score_data=[screen["score"], screen["score"]])
+    pairs, migrated = normalize_regression_input_pairs(settings)
+    assert migrated
+    assert pairs[1] == {"score": screen["score"], "count": None,
+                        "plate": None}
+
+
+def test_legacy_count_list_longer_than_score_list_migrates(screen):
+    """The opposite unpaired tail is retained too."""
+    from spacr.ml import normalize_regression_input_pairs
+
+    settings = base_settings(
+        screen, count_data=[screen["count"], screen["count"]])
+    pairs, migrated = normalize_regression_input_pairs(settings)
+    assert migrated
+    assert pairs[1] == {"score": None, "count": screen["count"],
+                        "plate": None}
+
+
+def test_paired_input_copies_plate_identity_from_its_partner(tmp_path, stubs):
+    """A score file without plateID inherits the count file's declared plate."""
+    from spacr.ml import perform_regression
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    score = write_scores(sdir / "scores.csv", plate="ignored",
+                         drop=("plateID",))
+    count = write_counts(cdir / "counts.csv", plate="plate2")
+    meta = write_metadata(tmp_path / "md.csv")
+    scr = {"score": score, "count": count, "meta": meta}
+
+    settings = base_settings(
+        scr, paired_data=[{"score": score, "count": count}])
+    out = perform_regression(settings)
+
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
+    assert set(data["plateID"].unique()) == {"plate2"}
+    assert data["prc"].str.startswith("plate2_").all()
+    assert len(out["results"]) > 0
+
+
+def test_missing_dependent_variable_raises(screen, stubs):
+    """A dependent_variable absent from the score CSV is rejected."""
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, dependent_variable="not_a_column")
+    # The message names the setting and the columns actually present, and --
+    # when the score slot holds a count table -- says the inputs look swapped,
+    # which is how this error is usually reached.
+    with pytest.raises(ValueError, match="'not_a_column' is not a column"):
+        perform_regression(settings)
+
+
+def test_missing_pred_names_the_file_and_says_how_to_get_it(screen, stubs):
+    """The error names the score file and points at Classify's output."""
+    from spacr.ml import perform_regression
+
+    table = pd.read_csv(screen["score"]).rename(columns={"pred": "measured"})
+    table.to_csv(screen["score"], index=False)
+    settings = base_settings(screen, dependent_variable="pred")
+    with pytest.raises(ValueError) as caught:
+        perform_regression(settings)
+    message = str(caught.value)
+    assert os.path.basename(screen["score"]) in message
+    assert "Run Classify" in message
+    assert "_result.csv" in message
+
+
+def test_other_missing_response_names_the_file_without_the_pred_advice(
+        screen, stubs):
+    """A misspelt response names the file but does not talk about Classify."""
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, dependent_variable="not_a_column")
+    with pytest.raises(ValueError) as caught:
+        perform_regression(settings)
+    assert os.path.basename(screen["score"]) in str(caught.value)
+    assert "Classify" not in str(caught.value)
+
+
+def test_shortest_distance_dependent_variable_is_exempt_from_the_check(screen, stubs):
+    """'pathogen_nucleus_shortest_distance' skips the column check ...
+
+    ... and therefore only fails later, in process_scores, when the column is
+    genuinely absent.
+    """
+    from spacr.ml import perform_regression
+
+    settings = base_settings(
+        screen, dependent_variable="pathogen_nucleus_shortest_distance")
+    with pytest.raises(KeyError):
+        perform_regression(settings)
+
+
+def test_unsupported_regression_type_raises(screen, stubs):
+    """regression_type is validated against the supported list."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, regression_type="banana")
+    with pytest.raises(ValueError, match="Unsupported regression type banana"):
+        perform_regression(settings)
+
+
+# ---------------------------------------------------------------------------
+# plate / row / column recovery
+# ---------------------------------------------------------------------------
+
+def test_rowid_with_plate_prefix_is_split(tmp_path, stubs):
+    """A count-CSV rowID of the 'plate1_r2' form is reduced to 'r2'."""
+    from spacr.ml import perform_regression
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    score = write_scores(sdir / "scores.csv")
+    count = write_counts(cdir / "counts.csv", row_prefix="plate1")
+    meta = write_metadata(tmp_path / "md.csv")
+
+    settings = base_settings({"score": score, "count": count, "meta": meta})
+    out = perform_regression(settings)
+
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
+    assert set(data["rowID"].unique()) <= set(ROWS)
+    assert len(out["results"]) > 0
+
+
+def test_one_multiplate_score_file_can_be_paired_to_plate_count_files(tmp_path):
+    """A consolidated score export may be reused without duplicating plates."""
+    from spacr.ml import load_regression_input_pairs
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    score_path = sdir / "scores.csv"
+    pd.concat([
+        pd.DataFrame(_score_records("plate1", 3)),
+        pd.DataFrame(_score_records("plate2", 4)),
+    ], ignore_index=True).to_csv(score_path, index=False)
+    c1 = write_counts(cdir / "c1.csv", plate="plate1", seed=5)
+    c2 = write_counts(cdir / "c2.csv", plate="plate2", seed=6)
+
+    counts, scores, audit = load_regression_input_pairs([
+        {"score": str(score_path), "count": c1},
+        {"score": str(score_path), "count": c2},
+    ])
+    assert set(scores["plateID"]) == {"plate1", "plate2"}
+    assert len(scores) == 2 * len(_score_records("plate1", 3))
+    assert set(counts["plateID"]) == {"plate1", "plate2"}
+    assert all("subset" in row["rule"] for row in audit)
+
+
+def test_path_is_not_used_to_guess_missing_well_columns(tmp_path, stubs):
+    """Filename parsing is a picker hint, not runtime metadata authority."""
+    from spacr.ml import perform_regression
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    s1 = write_scores(sdir / "s1.csv", plate="p", seed=3, with_path=True,
+                      plate_token="PLATE1", drop=("rowID", "columnID"))
+    c1 = write_counts(cdir / "c1.csv", plate="p", seed=5)
+    meta = write_metadata(tmp_path / "md.csv")
+
+    settings = base_settings({"score": s1, "count": c1, "meta": meta})
+    with pytest.raises(ValueError, match="rowID.*columnID"):
+        perform_regression(settings)
+
+
+def test_declared_plate_is_kept_without_inspecting_image_paths(
+        tmp_path, stubs, capsys):
+    """Runtime identity comes from CSV columns even when paths are malformed."""
+    from spacr.ml import perform_regression
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    score = write_scores(sdir / "scores.csv", plate="plate1", with_path=True,
+                         plate_token="PLATE1", n_bad_paths=6)
+    count = write_counts(cdir / "counts.csv", plate="plate1")
+    meta = write_metadata(tmp_path / "md.csv")
+
+    settings = base_settings({"score": score, "count": count, "meta": meta},
+                             verbose=True)
+    out = perform_regression(settings)
+    printed = capsys.readouterr().out
+    assert "PLATEn_ prefix" not in printed
+
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
+    assert set(data["plateID"].unique()) == {"plate1"}
+    assert len(out["results"]) > 0
+
+
+def test_missing_plate_column_defaults_to_file_position(tmp_path, stubs):
+    """CSVs with no plateID column at all fall back to 'plate{i+1}'."""
+    from spacr.ml import perform_regression
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    score = write_scores(sdir / "scores.csv", drop=("plateID",))
+    count = write_counts(cdir / "counts.csv", drop=("plateID",))
+    meta = write_metadata(tmp_path / "md.csv")
+
+    assert "plateID" not in pd.read_csv(score).columns
+    assert "plateID" not in pd.read_csv(count).columns
+
+    settings = base_settings({"score": score, "count": count, "meta": meta})
+    out = perform_regression(settings)
+
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
+    assert set(data["plateID"].unique()) == {"plate1"}
+    assert len(out["results"]) > 0
+
+
+def test_non_list_filter_value_disables_control_well_removal(screen, stubs):
+    """A scalar filter_value clears the count-side filter, keeping every well."""
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, filter_value="c4")
+    perform_regression(settings)
+
+    data = pd.read_csv(os.path.join(screen["res"], "regression_data.csv"))
+    # nothing was dropped: all six columns (including 'c4') survive
+    assert set(data["columnID"].unique()) == set(COLS)
+    assert len(data) == len(ROWS) * len(COLS) * len(GENES) * N_GRNA_PER_GENE
+
+
+# ---------------------------------------------------------------------------
+# threshold / simulation / sequencing-stats wiring
+# ---------------------------------------------------------------------------
+
+def test_min_cells_per_well_none_is_filled_from_the_simulation(screen, stubs):
+    """min_cells_per_well=None takes the elbow point returned by the simulation."""
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, min_cells_per_well=None)
+    perform_regression(settings)
+
+    assert settings["min_cells_per_well"] == 3
+    # `dst` joined `tolerance` on 2026-08-17. It is not decoration: the curve
+    # used to be drawn into <count folder>/results/, one path shared by every
+    # run of the screen, and `run_sweep_parallel` fits n_jobs trials of that
+    # one screen at once -- so the workers overwrote each other's figure and
+    # the copy-back could file a neighbour's curve as this trial's. The run
+    # folder is unique per run, so naming it removes the collision rather
+    # than racing it. Pinned as an exact dict, not a subset, so a future
+    # caller cannot quietly send the figure somewhere else again.
+    assert stubs["sim"] == [{"tolerance": 0.02, "dst": screen["res"]}]
+
+
+def test_fraction_threshold_none_is_filled_from_graph_sequencing_stats(
+        screen, stubs, monkeypatch):
+    """fraction_threshold=None delegates the cutoff to graph_sequencing_stats."""
+    from spacr.ml import perform_regression
+    seen = []
+
+    def fake_stats(settings):
+        seen.append(settings["count_data"])
+        return 0.004
+
+    # Patch the callable's actual global. Package lazy-loader tests can replace
+    # ``spacr.sequencing`` in sys.modules while this already-imported function
+    # still resolves names from its original module object.
+    monkeypatch.setitem(
+        perform_regression.__globals__, "_graph_sequencing_stats", fake_stats,
+    )
+
+    settings = base_settings(screen, fraction_threshold=None)
+    perform_regression(settings)
+
+    assert settings["fraction_threshold"] == 0.004
+    assert seen == [[screen["count"]]]
+
+
+def test_missing_gene_column_raises_keyerror(tmp_path, stubs):
+    """gRNA names without the org_gene_grna form leave no 'gene' column."""
+    from spacr.ml import perform_regression
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    score = write_scores(sdir / "scores.csv")
+    count = write_counts(cdir / "counts.csv",
+                         grnas=[f"guide{i}" for i in range(1, 8)])
+    meta = write_metadata(tmp_path / "md.csv")
+
+    settings = base_settings({"score": score, "count": count, "meta": meta})
+    with pytest.raises(KeyError, match="Column 'gene' not found in independent_df"):
+        perform_regression(settings)
+
+
+# ---------------------------------------------------------------------------
+# the QC block (regression_data.csv / grna_well.csv / well_grna.csv)
+# ---------------------------------------------------------------------------
+
+def test_qc_block_writes_the_three_well_level_tables(screen, stubs):
+    """The QC block saves regression data + gRNA/well metrics and plots each."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen)
+    perform_regression(settings)
+
+    res = results_dir(screen["count"], settings=settings)
+    data = pd.read_csv(os.path.join(res, "regression_data.csv"))
+    grna_well = pd.read_csv(os.path.join(res, "grna_well.csv"))
+    well_grna = pd.read_csv(os.path.join(res, "well_grna.csv"))
+
+    assert set(data.columns) >= {"prc", "grna", "gene", "fraction", "pred",
+                                 "cell_count", "plateID", "rowID", "columnID"}
+    assert set(grna_well.columns) == {"grna", "plateID", "grna_well_count",
+                                      "gene_well_count"}
+    # 12 gRNAs on one plate, each seen in all 9 non-control wells.
+    assert len(grna_well) == len(GENES) * N_GRNA_PER_GENE
+    assert (grna_well["grna_well_count"] == len(ROWS) * len(KEPT_COLS)).all()
+    assert (grna_well["gene_well_count"] == len(ROWS) * len(KEPT_COLS)).all()
+    # one row per well, each holding all 4 genes
+    assert len(well_grna) == len(ROWS) * len(KEPT_COLS)
+    assert (well_grna["gene_count"] == len(GENES)).all()
+
+    names = [c["graph_name"] for c in stubs["csv_plots"]]
+    assert names == ["cell_count", "wells_per_gene", "gene_per_well"]
+    assert stubs["csv_plots"][1]["src"].endswith("grna_well.csv")
+    assert stubs["csv_plots"][2]["src"].endswith("well_grna.csv")
+    # plot_plates got the merged frame and the *original* dependent variable.
+    # The house-style panel got the merged frame and the ORIGINAL dependent
+    # variable -- not the transformed one, because a plate heatmap of
+    # log(pred) is a heatmap of a different quantity than the screen measured.
+    assert stubs["house_plates"], (
+        "no plate panel was drawn; neither the house-style path nor the "
+        "fallback ran")
+    assert stubs["house_plates"][0]["variable"] == "pred"
+    assert stubs["house_plates"][0]["dst"] == res
+    assert not stubs["plates"], (
+        "the legacy plot_plates ran as well; a run should draw its plates "
+        "once, in one idiom")
+
+
+def test_batch_correction_runs_before_regression_and_writes_report(
+        screen, stubs):
+    """Regression consumes corrected scores and persists its diagnostics."""
+    from spacr.ml import perform_regression
+
+    perform_regression(base_settings(
+        screen,
+        batch_correction="center",
+        batch_column="plateID",
+    ))
+
+    path = os.path.join(screen["res"], "batch_correction.json")
+    with open(path, encoding="utf-8") as stream:
+        report = json.load(stream)
+    assert report["method"] == "center"
+    assert report["batch_column"] == "plateID"
+    assert report["rows"] > 0
+    assert report["warnings"] == [
+        "Only 1 batch was present; correction was a no-op.",
+    ]
+
+
+def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs,
+                                                         capsys):
+    """outlier_detection removes gRNAs whose well coverage is an IQR outlier.
+
+    And leaves the two QC tables on disk while doing it. Dropping the outlier
+    rebinds ``merged_df`` to a SLICE, and ``grna_metricks`` assigns
+    plate/row/column onto whatever it is handed, so the second pass wrote to a
+    copy: SettingWithCopyWarning, promoted to an error by this suite's
+    pytest.ini and caught by the blanket handler at the end of the QC block.
+    ``grna_well.csv`` and ``well_grna.csv`` were then never written, and the
+    only trace was the warning's text printed on a line of its own -- the run
+    itself completed and produced every other output, which is why it read as
+    a broken test rather than a broken run.
+    """
+    from spacr.ml import perform_regression
+
+    sdir = tmp_path / "s"
+    cdir = tmp_path / "c"
+    sdir.mkdir()
+    cdir.mkdir()
+    sparse = "TGGT1_111111_3"
+    s1 = write_scores(sdir / "s1.csv", plate="plate1", seed=3)
+    s2 = write_scores(sdir / "s2.csv", plate="plate2", seed=4)
+    c1 = write_counts(cdir / "c1.csv", plate="plate1", seed=5,
+                      sparse_grna=sparse, sparse_well=("r1", "c4"))
+    c2 = write_counts(cdir / "c2.csv", plate="plate2", seed=6)
+    meta = write_metadata(tmp_path / "md.csv")
+
+    settings = base_settings({"score": s1, "count": c1, "meta": meta},
+                             score_data=[s1, s2], count_data=[c1, c2],
+                             outlier_detection=True)
+    perform_regression(settings)
+    printed = capsys.readouterr().out
+
+    res = results_dir(c1)
+    grna_well = pd.read_csv(os.path.join(res, "grna_well.csv"))
+    data = pd.read_csv(os.path.join(res, "regression_data.csv"))
+
+    assert "111111_3" not in set(grna_well["grna"])
+    assert "111111_3" not in set(data["grna"])
+    # the outlier gRNA is removed from *both* plates
+    assert len(grna_well) == 2 * (len(GENES) * N_GRNA_PER_GENE - 1)
+    # Both QC tables, and the run said so. The file check alone passes if the
+    # write is skipped and a stale file is left behind by an earlier run.
+    assert os.path.isfile(os.path.join(res, "well_grna.csv"))
+    assert "Saved grna per well data to" in printed
+    assert "Saved well per grna data to" in printed
+    # Nothing was swallowed on the way. The block that writes these tables
+    # catches everything and prints it, so a bare warning text on its own
+    # line IS the failure report.
+    assert "A value is trying to be set on a copy of a slice" not in printed
+
+
+def test_qc_plot_failure_does_not_cost_the_qc_tables(screen, heavy_stubs,
+                                                     monkeypatch, capsys):
+    """A failing QC *plot* is reported; the QC *tables* are still written.
+
+    The tables are data outputs interleaved with the plots inside one big
+    try/except, so a single bad plot used to take out every write that came
+    after it.
+    """
+    from spacr.ml import perform_regression
+    import spacr.plot as P
+
+    def boom(settings):
+        raise RuntimeError("qc plot exploded")
+
+    monkeypatch.setattr(P, "plot_data_from_csv", boom)
+
+    out = perform_regression(base_settings(screen))
+    printed = capsys.readouterr().out
+    assert "qc plot exploded" in printed
+    assert "Skipping QC plot 'cell_count'" in printed
+    # every QC table still made it to disk ...
+    assert os.path.isfile(os.path.join(screen["res"], "grna_well.csv"))
+    assert os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))
+    # ... and the regression itself still completed.
+    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
+    assert len(out["results"]) > 0
+
+
+def test_qc_block_failure_is_swallowed_and_the_run_continues(screen, heavy_stubs,
+                                                             monkeypatch, capsys):
+    """A non-plot failure inside the QC block is printed, not propagated."""
+    from spacr.ml import perform_regression
+
+    real_to_csv = pd.DataFrame.to_csv
+
+    def exploding_to_csv(self, path_or_buf=None, *args, **kwargs):
+        if isinstance(path_or_buf, str) and path_or_buf.endswith("grna_well.csv"):
+            raise RuntimeError("qc table exploded")
+        return real_to_csv(self, path_or_buf, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "to_csv", exploding_to_csv)
+
+    out = perform_regression(base_settings(screen))
+    assert "qc table exploded" in capsys.readouterr().out
+    # the QC tables produced after the failing write were never written ...
+    assert not os.path.exists(os.path.join(screen["res"], "well_grna.csv"))
+    # ... but the regression itself still completed.
+    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
+    assert len(out["results"]) > 0
+
+
+# ---------------------------------------------------------------------------
+# control-derived significance threshold
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("method", ["var", "variance", "std",
+                                    "standard_deveation"])
+def test_threshold_methods_are_supported(screen, stubs, method):
+    """Both the variance- and std-based control thresholds run to completion."""
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, threshold_method=method, verbose=True)
+    out = perform_regression(settings)
+
+    sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
+    assert list(sig.columns) == list(out["significant"].columns)
+    assert len(sig) == len(out["significant"])
+    assert not sig["feature"].str.contains("row|column").any()
+
+
+def test_unsupported_threshold_method_raises(screen, stubs):
+    """An unknown threshold_method is rejected, and the message names the list.
+
+    This asked for ``"mad"`` until 2026-08-17, when the arithmetic moved into
+    ``spacr.thresholds`` and grew from two methods to seven -- the maintainer
+    asked for "at least 4 more" -- so ``mad`` became a SUPPORTED method and
+    the test was asserting a refusal the code had deliberately stopped making.
+    It failed at HEAD for that reason and for no other.
+
+    An unsupported spelling is what it was always about, so it asks for one
+    that is genuinely not offered, and pins the half that matters: a refusal
+    that does not say what IS available leaves the user guessing, which is why
+    ``canonical`` raises instead of falling back to a default nobody chose.
+    """
+    from spacr.ml import perform_regression
+    from spacr.thresholds import METHODS
+
+    assert "mad" in METHODS, (
+        "mad is a supported method now; the old spelling of this test would "
+        "pass only by accident")
+    settings = base_settings(screen, threshold_method="banana")
+    with pytest.raises(ValueError, match="Unsupported threshold method") as err:
+        perform_regression(settings)
+    for name in METHODS:
+        assert name in str(err.value), name
+
+
+def test_controls_none_skips_the_threshold_block(screen, stubs, capsys):
+    """With controls=None every q<alpha coefficient survives unfiltered.
+
+    This used to assert against the RAW p value, and passed only because the
+    Intercept -- p = 1.7e-18, and not a hypothesis about any guide -- was
+    being counted as a screen hit. The correction is now applied across the
+    tested coefficients only, so the intercept and the row/column nuisance
+    terms are excluded from both the family and the hit list.
+
+    And the run SAYS there is no cut. A screen with controls prints its cut
+    and the rule behind it; a screen without them printed nothing at all, so
+    "no effect-size cut was applied" was indistinguishable from that line
+    having scrolled past -- and a hit list called on the corrected P value
+    alone is a different claim from one that also cleared a width.
+    """
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, controls=None,
+                             multiple_testing_method="none")
+    out = perform_regression(settings)
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): level='both' fits
+    # two models and each measures its OWN cut on its own controls, so the
+    # line has to say WHICH fit it is about. Both of them must say it -- a
+    # run that announced the guide fit's absent cut and stayed quiet about the
+    # gene fit's would be exactly the silence this test was written for.
+    printed = capsys.readouterr().out
+    for level in ("grna", "gene"):
+        assert f"Effect-size cut ({level}): no control gRNAs were named" in \
+            printed
+
+    results = out["results"]
+    tested = ~results["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
+    sig = out["significant"]
+    assert len(sig) == int((results.loc[tested, "q_value"] < 0.05).sum())
+    assert (sig["q_value"] < 0.05).all()
+    # No nuisance term can reach the hit list, whatever its p value.
+    assert not sig["feature"].astype(str).str.contains(
+        "Intercept", case=False).any()
+
+
+def test_the_correction_is_actually_applied_to_the_parametric_fit():
+    """multiple_testing_method must change the parametric hit list.
+
+    It existed as a setting, was offered in the panel and named in Methods
+    sections, while this branch called hits on the raw OLS p value. On the
+    real screen that is 56 uncorrected hits against 10 under
+    Benjamini-Hochberg -- the defect behind a published volcano that drew a
+    P = 0.05 line while its Methods claimed BH q < 0.05.
+    """
+    import numpy as np
+    from spacr.multiple_testing import adjust_p_values
+
+    # 1,200 coefficients, 60 of which beat 0.05 by chance alone.
+    rng = np.random.default_rng(0)
+    p = rng.uniform(0, 1, 1200)
+    raw = int((p <= 0.05).sum())
+    corrected, _ = adjust_p_values(p, "fdr_bh", 0.05)
+    assert raw > 40, "the premise is that uncorrected testing finds noise"
+    assert int((corrected < 0.05).sum()) == 0
+
+
+def test_min_observations_per_hit_filters_the_significant_hits(screen, stubs):
+    """results_significant_filtered.csv keeps only well-covered features."""
+    from spacr.ml import perform_regression
+
+    # alpha=1 makes every tested coefficient a hit, so there is something for
+    # min_n to filter. The fixture's only sub-0.05 p value belonged to the
+    # Intercept, which is now correctly excluded from the tested family --
+    # so a filter test can no longer borrow it, and asks for hits explicitly
+    # instead of depending on one arriving by accident.
+    #
+    # threshold_method='none' was added on 2026-08-17, when the effect-size
+    # cut started actually cutting. This screen's three controls have a
+    # standard deviation of 0.259 and the default multiplier is 3, so the cut
+    # is 0.57 -- wider than every coefficient the fixture produces (the
+    # largest is 0.370). Leaving it on would empty the hit list and this test
+    # would then pass for the wrong reason, asserting that a filter kept
+    # nothing out of nothing. The cut has its own tests below; this one is
+    # about min_n, so it says out loud that it does not want a cut.
+    settings = parametric_settings(screen, min_observations_per_hit=1000,
+                             multiple_testing_method="none",
+                             fdr_alpha=0.999,
+                             threshold_method="none")
+    out = perform_regression(settings)
+
+    sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
+    filt = pd.read_csv(
+        os.path.join(results_dir(screen["count"], settings=settings), "results_significant_filtered.csv"))
+    # hits exist, but none has >1000 wells of gRNA or gene support
+    assert len(sig) == len(out["significant"]) > 0
+    assert len(filt) == 0
+    # And no nuisance term reached the hit list even at alpha=0.999.
+    assert not sig["feature"].astype(str).str.contains(
+        "Intercept|row|column", case=False).any()
+
+
+# ---------------------------------------------------------------------------
+# the effect-size cut, on the parametric path
+#
+# It was a pair of one-sided masks whose union was every row, so the cut
+# filtered nothing at all and results_significant.csv disagreed with the
+# volcano drawn from the same number. Fixed 2026-08-17; these pin the three
+# ways it went wrong, each measured on this fixture before the change.
+# ---------------------------------------------------------------------------
+
+def _measured_cut(screen, multiplier, method="std", settings=None):
+    """The cut this run's own controls produce, from the module that sets it.
+
+    Recomputed from ``results_grna.csv`` through the same
+    ``spacr.thresholds.coefficient_threshold`` the run calls, rather than
+    hard-coded: the point of the assertions below is that the hit list and the
+    volcano select on ONE number, so the test has to ask for that number the
+    way both of them do.
+
+    :param settings: the settings the run used, so the right results folder is
+        read. ``screen["res"]`` is computed from the SUITE defaults, which are
+        nonparametric -- a parametric run writes somewhere else entirely, and
+        reading the default folder finds nothing.
+    """
+    from spacr.thresholds import coefficient_threshold
+
+    folder = (results_dir(screen["count"], settings=settings)
+              if settings is not None else screen["res"])
+    grna = pd.read_csv(os.path.join(folder, "results_grna.csv"),
+                       dtype={"grna": str})
+    controls = grna.loc[grna["grna"].isin(CONTROLS), "coefficient"]
+    threshold, _rule = coefficient_threshold(controls, method=method,
+                                             multiplier=multiplier,
+                                             centre=None)
+    return threshold
+
+
+def test_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
+    """A guide that pushes the phenotype DOWN past the cut is a hit too.
+
+    The cut was applied as ``coefficient >= t`` OR ``coefficient <= t``, and
+    ``t`` is ``|median| + k x spread`` and so never negative -- so the union
+    was every row and the cut removed nothing. ``custom_volcano_plot``, handed
+    the same ``t``, marks hits with ``|coefficient| >= t``, so the figure and
+    results_significant.csv described different experiments.
+
+    Whichever direction the cut had been written one-sided, it would call half
+    a screen: on this fixture the strongest effect of all is NEGATIVE.
+    """
+    from spacr.ml import perform_regression
+
+    # multiplier=0 puts the cut at the controls' median (0.104) rather than
+    # three spreads out (0.570), which is wider than anything this small
+    # fixture produces. That is the only reason for the 0: it lands the cut in
+    # the middle of the coefficients so both sides of it have rows.
+    settings = parametric_settings(screen, multiple_testing_method="none",
+                             fdr_alpha=0.999, threshold_method="std",
+                             threshold_multiplier=0)
+    out = perform_regression(settings)
+
+    cut = _measured_cut(screen, multiplier=0, settings=settings)
+    results = out["results"]
+    # CHANGED BY INSTRUCTION 132: `_measured_cut` is built from the control
+    # GUIDES, so it is the GUIDE fit's cut. The gene fit measures its own on
+    # the control gene, and mixing the two would test one fit's rows against
+    # the other fit's number.
+    guides = results.loc[results["level"] == "grna"]
+    tested = ~guides["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
+    coefficients = guides.loc[tested, "coefficient"]
+
+    # THE FIXTURE HAS TO BE ABLE TO FAIL THIS, and the bug being caught says
+    # exactly how. `t` is `|median| + k x spread` and so is never negative,
+    # so `coefficient >= t OR coefficient <= t` is EVERY row: the one-sided
+    # writing selects the whole screen and removes nothing. Two things
+    # therefore have to hold, and the first is what the bug broke:
+    #
+    #   * something is BELOW the cut -- otherwise the rule is selecting
+    #     everything and passes any assertion about the hits;
+    #   * the hits carry BOTH SIGNS -- otherwise a rule written one-sided in
+    #     the other direction would satisfy them.
+    #
+    # The stronger form -- both signs on both SIDES -- was demanded here
+    # until 2026-08-19 and is a property of the fit, not of the cut: on this
+    # 12-guide fixture only one coefficient now falls below the cut, and it
+    # happens to be negative. Asserting it made the test fail for the fit
+    # having changed rather than for the rule being wrong.
+    hits = coefficients[coefficients.abs() >= cut]
+    assert len(coefficients[coefficients.abs() < cut]), (
+        "nothing is below the cut, so a one-sided rule would pass every "
+        "assertion below -- this fixture can no longer detect the bug")
+    assert (hits > 0).any()
+    assert (hits < 0).any()
+    # THE LARGEST EFFECT IN THE SCREEN IS A HIT, whichever way it points.
+    # Its SIGN was asserted here ("the strongest effect of all is NEGATIVE")
+    # until 2026-08-19; that was a fact about one fit on one fixture, and it
+    # flipped to +0.41 when this test started running the parametric path it
+    # is about. What the cut has to guarantee is that the biggest effect
+    # survives it -- a rule that dropped the strongest result in the screen
+    # would be wrong in either direction, and the both-signs check above
+    # already stops a one-sided rule from passing.
+    strongest = coefficients.loc[coefficients.abs().idxmax()]
+    assert abs(strongest) >= cut
+
+    sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
+    assert (sig.loc[sig["level"] == "grna", "coefficient"].abs()
+            >= cut).all()
+    # EVERY hit clears ITS OWN fit's cut, and the cut it cleared is recorded
+    # on the row -- a hit list that mixes two families with two cuts is
+    # unreadable unless each row says which number it passed.
+    own = sig["effect_size_threshold"].fillna(0.0).to_numpy(dtype=float)
+    assert (sig["coefficient"].abs().to_numpy(dtype=float) >= own).all()
+    assert sig.loc[sig["level"] == "grna",
+                   "effect_size_threshold"].unique().tolist() == [cut]
+    guide_hits = sig.loc[sig["level"] == "grna"]
+    assert set(guide_hits["feature"]) == set(
+        guides.loc[tested & (guides["coefficient"].abs() >= cut), "feature"])
+    # And it really cut: every tested coefficient passed correction at
+    # alpha=0.999, so the old union kept all of them.
+    assert len(guide_hits) < int(tested.sum())
+    assert len(sig) == len(out["significant"])
+
+
+def test_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
+                                                            capsys):
+    """A hit list shorter than the corrected list must account for itself.
+
+    Every other number this module drops is announced, and a coefficient that
+    passed multiple-testing correction and is then removed on effect size is
+    the one a reader is most likely to go looking for.
+    """
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, multiple_testing_method="none",
+                             fdr_alpha=0.999, threshold_method="std",
+                             threshold_multiplier=0)
+    out = perform_regression(settings)
+    printed = capsys.readouterr().out
+
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): each fit is its own
+    # family with its own cut, so the sentence is per fit and the counts are
+    # that fit's. Measured on the guide fit, which is the one `_measured_cut`
+    # describes -- it is built from the control GUIDES.
+    results = out["results"]
+    guides = results.loc[results["level"] == "grna"]
+    tested = ~guides["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
+    called = int(tested.sum())          # every one of them, at alpha=0.999
+    hits = out["significant"]
+    removed = called - int((hits["level"] == "grna").sum())
+    cut = _measured_cut(screen, multiplier=0, settings=settings)
+    assert removed > 0, "nothing was cut, so there is nothing to announce"
+    assert f"Effect-size cut (grna) removed {removed} of {called}" in printed
+    assert f"{cut:.3g}" in printed
+
+
+def test_asking_for_no_effect_size_cut_keeps_the_hits_it_had(screen, stubs):
+    """threshold_method='none' means no cut -- not no hits.
+
+    ``coefficient_threshold`` answers None when no cut can be made, and that
+    None reached ``significant['coefficient'] >= reg_threshold``. pandas 2.x
+    evaluates a comparison against None as all-False instead of raising, so
+    BOTH one-sided masks were empty and the run wrote an empty
+    results_significant.csv: measured on this fixture, 16 of 16 corrected hits
+    lost, with nothing in the log to say a hit list had been thrown away.
+    """
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, multiple_testing_method="none",
+                             fdr_alpha=0.999, threshold_method="none")
+    out = perform_regression(settings)
+
+    results = out["results"]
+    tested = ~results["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
+    assert int(tested.sum()) == 16
+    sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
+    assert len(sig) == len(out["significant"]) == 16
+
+
+def test_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits(
+        screen, stubs, capsys):
+    """A screen with a single named control loses its whole hit list.
+
+    The same None as above, reached the way a real screen reaches it rather
+    than by asking for it: one control coefficient is not a spread, so
+    ``coefficient_threshold`` refuses to invent one. Refusing is right;
+    turning the refusal into an empty hit list is not.
+    """
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, controls=[CONTROLS[0]],
+                             multiple_testing_method="none", fdr_alpha=0.999)
+    out = perform_regression(settings)
+    printed = capsys.readouterr().out
+
+    assert "is not enough to measure a spread" in printed
+    assert len(out["significant"]) == 16
+
+
+def test_no_cut_still_hands_the_volcano_a_number(screen, stubs, monkeypatch):
+    """The toxo volcano does abs(threshold), and None has no abs().
+
+    Reached after the fit, every results CSV and every QC panel were written,
+    so the run was reported as a failure while its coefficients were already
+    on disk. ``custom_volcano_plot`` is deliberately NOT stubbed here: the
+    TypeError came from inside it, and a stand-in would test the stand-in.
+    """
+    import spacr.toxo as T
+    from spacr.ml import perform_regression
+
+    # The two OPTIONAL reports built from the returned gene list are stubbed;
+    # they are not on the path this test is about and they read curated
+    # Toxoplasma tables the fixture only imitates.
+    monkeypatch.setattr(T, "plot_gene_phenotypes", lambda *a, **k: None)
+    monkeypatch.setattr(T, "plot_gene_heatmaps", lambda *a, **k: None)
+
+    settings = base_settings(screen, toxo=True, threshold_method="none")
+    out = perform_regression(settings)
+
+    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
+    assert len(out["results"]) > 0
+
+
+# ---------------------------------------------------------------------------
+# regression back-ends
+# ---------------------------------------------------------------------------
+
+def test_ols_results_tables_carry_grna_and_gene_annotations(screen, stubs):
+    """results/gene/grna CSVs split the patsy feature names back apart."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen)
+    out = perform_regression(settings)
+
+    res = results_dir(screen["count"], settings=settings)
+    ids = {"gene": str, "grna": str}
+    results = pd.read_csv(os.path.join(res, "results.csv"), dtype=ids)
+    gene = pd.read_csv(os.path.join(res, "results_gene.csv"), dtype=ids)
+    grna = pd.read_csv(os.path.join(res, "results_grna.csv"), dtype=ids)
+
+    assert {"feature", "coefficient", "p_value", "grna", "gene",
+            "n_grna", "n_gene"} <= set(results.columns)
+    # every gene-level row is a gene_fraction term with a non-null count
+    assert gene["feature"].str.startswith("gene_fraction:gene[").all()
+    assert gene["n_gene"].notna().all()
+    assert set(gene["gene"]) == set(GENES)
+    assert grna["feature"].str.startswith("fraction:grna[").all()
+    assert grna["n_grna"].notna().all()
+    assert len(grna) == len(GENES) * N_GRNA_PER_GENE
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): level='both' fits
+    # TWO models, so results.csv carries TWO intercepts -- one per fit -- not
+    # one. It used to be a single design containing both levels, which is the
+    # collinear model that instruction removed (`gene_fraction` is the sum of
+    # the gene's guide fractions, so the gene block was an exact linear
+    # combination of the guide block).
+    assert len(results) == len(gene) + len(grna) + 2   # one Intercept per fit
+    assert (results["feature"] == "Intercept").sum() == 2
+    assert set(results["level"]) == {"grna", "gene"}
+    assert set(gene["level"]) == {"gene"}
+    assert set(grna["level"]) == {"grna"}
+
+
+def test_verbose_ols_writes_the_model_summary(screen, stubs):
+    """verbose + ols dumps the statsmodels summary next to the results.
+
+    RUN PARAMETRIC, EXPLICITLY. The suite's default inference is
+    `guide_permutation`, which fits no model at all -- so this test was
+    asking a permutation run for a statsmodels summary and reading its
+    perfectly correct "the permutation test fits no model" as a failure.
+    A test of the statsmodels path has to ask for the statsmodels path.
+    """
+    from spacr.ml import perform_regression
+
+    # `inference='parametric'` AS WELL AS the mode: with `inference='auto'`
+    # (the default) `resolve_auto_inference` re-picks the permutation test
+    # from the design and quietly overrides `analysis_mode` -- correctly, for
+    # a screen with more guides than wells, which this fixture is.
+    settings = base_settings(screen, verbose=True, inference="parametric",
+                             analysis_mode="regression",
+                             regression_type="ols")
+    perform_regression(settings)
+
+    # THE NAME MOVED AND THIS TEST DID NOT. `mode_summary.csv` was wrong
+    # twice over -- "mode" is a typo for "model" and the content is the
+    # statsmodels TEXT summary, never CSV -- so runs write
+    # `model_summary.txt` now. Asked for by name from `spacr.ml` rather than
+    # spelled again here, so the next rename cannot leave this behind.
+    from spacr.ml import SUMMARY_FILENAME, SUMMARY_FILENAMES
+
+    res = results_dir(screen["count"], settings=settings)
+    summary = os.path.join(res, SUMMARY_FILENAME)
+    assert os.path.isfile(summary), (
+        f"looked for {summary}; found {sorted(os.listdir(res))}")
+    with open(summary) as fh:
+        text = fh.read()
+    assert "OLS Regression Results" in text
+
+    # And the old names are still READ, so a run finished last month keeps
+    # its summary.
+    assert "mode_summary.csv" in SUMMARY_FILENAMES
+
+
+def test_ridge_regression_backend(screen, stubs):
+    """regression_type='ridge' produces coefficients for every design column."""
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, regression_type="ridge", alpha=1.0)
+    out = perform_regression(settings)
+
+    res = results_dir(screen["count"], "ridge")
+    assert os.path.isfile(os.path.join(res, "results.csv"))
+    assert out["results"]["coefficient"].notna().all()
+    assert (out["results"]["feature"].str.contains("grna\\[").sum()
+            == len(GENES) * N_GRNA_PER_GENE)
+
+
+def test_regression_type_none_uses_the_auto_results_folder(screen, stubs, capsys):
+    """regression_type=None auto-detects the model and writes under 'auto'."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, regression_type=None)
+    out = perform_regression(settings)
+
+    printed = capsys.readouterr().out
+    # a per-well mean score strictly inside (0, 1) -> beta regression
+    assert "Using regression type: beta" in printed
+    res = results_dir(screen["count"], settings=settings)
+    assert os.path.isfile(os.path.join(res, "results.csv"))
+    assert {"std_err", "wald_stat"} <= set(out["results"].columns)
+    assert len(out["results"]) > 0
+
+
+def test_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
+    """'quantile' fits end to end instead of dying at the last statement.
+
+    It used to pass the entry-point whitelist, get its own agg_type handling
+    in get_perform_regression_default_settings and its own volcano-filename
+    rule, and then raise "Unsupported regression type quantile" from
+    regression_model - after both input CSVs had been read, the QC plots drawn
+    and regression_data.csv written.
+    """
+    from spacr.ml import perform_regression
+
+    # PARAMETRIC, because that is the path this test is about. Under the
+    # default `inference='nonparametric'` the permutation test IS the
+    # analysis and regression_type is never read -- so there is no quantile
+    # fit to check, and agg_type deliberately stays 'mean' there.
+    settings = base_settings(screen, regression_type="quantile", quantile=0.75,
+                             inference="parametric",
+                             analysis_mode="regression")
+    out = perform_regression(settings)
+
+    # agg_type is forced to None for quantile, so the fit is on objects.
+    assert settings["agg_type"] is None
+    res = results_dir(screen["count"], settings=settings)
+    assert os.path.isfile(os.path.join(res, "results.csv"))
+    assert out["results"]["coefficient"].notna().all()
+    assert out["results"]["p_value"].notna().all()
+    assert (out["results"]["feature"].str.contains("grna\\[").sum()
+            == len(GENES) * N_GRNA_PER_GENE)
+
+
+def test_quantile_regression_refuses_the_old_alpha_spelling(screen, stubs):
+    """alpha used to double as the quantile; the overload is refused, not ignored.
+
+    A settings CSV written before the split says alpha=0.75 and means "the
+    75th percentile". Silently dropping it would fit the median and label the
+    output folder as a quantile run.
+    """
+    from spacr.ml import perform_regression
+
+    with pytest.raises(ValueError, match=r"does not use alpha"):
+        perform_regression(base_settings(screen, regression_type="quantile",
+                                         alpha=0.75))
+
+
+def test_lasso_uses_bootstrap_selection_frequencies(screen, stubs):
+    """Lasso hits are ranked by bootstrap selection frequency, not p-values."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, regression_type="lasso", alpha=1e-7,
+                             lasso_n_boot=3, lasso_selection_threshold=0.5)
+    out = perform_regression(settings)
+
+    results = out["results"]
+    assert {"selection_frequency", "mean_coefficient"} <= set(results.columns)
+    freq = results["selection_frequency"].dropna()
+    assert len(freq) > 0
+    assert ((freq >= 0) & (freq <= 1)).all()
+    sig = out["significant"]
+    assert (sig["coefficient"] != 0).all()
+    assert (sig["selection_frequency"] >= 0.5).all()
+    # SORTED WITHIN EACH LEVEL, not across the two of them. Since the guide
+    # and gene fits became separate families (128/132) the hit list is their
+    # concatenation: each part is ordered by |coefficient| descending, and
+    # the join between them is a step back up. Asserting one global ordering
+    # tested that the two fits were one fit.
+    for level, block in sig.groupby("level", sort=False):
+        assert list(block["coefficient"].abs()) == sorted(
+            block["coefficient"].abs(), reverse=True), level
+
+
+def test_lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to(
+        screen, stubs):
+    """alpha='auto' switches the fit to LassoCV -- and says what CV found.
+
+    THIS FIXTURE IS A NULL SCREEN FOR CROSS-VALIDATION. 12 guides over a
+    handful of synthetic wells: no gRNA predicts held-out wells better than
+    their mean does, so LassoCV picks a penalty that zeroes everything. That
+    is not a defect in the fixture and not one in the fit.
+
+    What matters is what spaCR does with it. Writing the result out would
+    report "0 significant gRNAs", which a reader cannot tell apart from a
+    screen that was tested and found nothing -- so the fit is REFUSED, by
+    name, with the two things a user can act on: check the dependent
+    variable, or fit an unpenalised model to see what the penalty is
+    shrinking away.
+
+    The refusal is also the proof that CV ran: the message names the
+    cross-validated empty model, which nothing else could have discovered.
+    """
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, regression_type="lasso",
+                                   alpha="auto", lasso_n_boot=2,
+                                   lasso_selection_threshold=0.0)
+
+    with pytest.raises(ValueError) as excinfo:
+        perform_regression(settings)
+
+    message = str(excinfo.value)
+    assert "cross-validated" in message
+    assert "null screen" in message
+    assert "0 significant gRNAs" in message      # the thing it refuses to be
+    assert "'ols'" in message                    # and what to do instead
+
+
+def test_lasso_bootstrap_raises_when_every_resample_fails(screen, stubs,
+                                                          monkeypatch):
+    """If no bootstrap resample can be designed the helper refuses to guess."""
+    import spacr.ml as ML
+    from spacr.ml import perform_regression
+
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): the RESAMPLES have
+    # to be the calls that fail, and a run builds more designs before them
+    # than it used to. level='both' fits the guide model and the gene model
+    # separately, so there are two main designs, and then
+    # `bootstrap_selection_frequencies` builds its own reference design before
+    # resampling anything. Failing from call 3 would kill that reference
+    # design instead and the run would die of a different error -- the test
+    # would still be red, but for the wrong reason, which is the failure mode
+    # a stale count produces.
+    #
+    # ALLOWED = the two level fits plus the bootstrap's own reference design;
+    # every call after that is a resample and every one of them fails.
+    ALLOWED = 3
+    real = ML.dmatrices
+    state = {"n": 0}
+
+    def flaky(formula, data=None, return_type=None, **kwargs):
+        state["n"] += 1
+        if state["n"] > ALLOWED:
+            raise ValueError("factor level vanished from resample")
+        return real(formula, data=data, return_type=return_type, **kwargs)
+
+    settings = parametric_settings(screen, regression_type="lasso", alpha=1e-7,
+                             lasso_n_boot=4)
+    monkeypatch.setattr(ML, "dmatrices", flaky)
+    with pytest.raises(RuntimeError, match="All bootstrap resamples failed"):
+        perform_regression(settings)
+    assert state["n"] > ALLOWED
+
+
+# ---------------------------------------------------------------------------
+# metadata merge + toxo reporting block
+# ---------------------------------------------------------------------------
+
+def test_metadata_file_string_is_wrapped_and_merged(screen, stubs):
+    """A single metadata_files string is wrapped and merged into every table."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, metadata_files=screen["meta"])
+    perform_regression(settings)
+
+    assert settings["metadata_files"] == [screen["meta"]]
+    name = os.path.splitext(os.path.basename(screen["meta"]))[0]
+    for stem in ("results", "results_gene", "results_grna",
+                 "results_significant"):
+        merged = os.path.join(results_dir(screen["count"], settings=settings), f"{stem}{name}.csv")
+        assert os.path.isfile(merged), merged
+    merged_df = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), f"results{name}.csv"),
+                            dtype={"gene": str})
+    assert "Gene Name" in merged_df.columns
+    assert merged_df.loc[merged_df["gene"] == "239740", "Gene Name"].iloc[0] \
+        == "gene_239740"
+
+
+@pytest.mark.parametrize("volcano", ["all", "gene", "grna"])
+def test_toxo_block_renders_the_requested_volcano(screen, toxo_stubs, volcano):
+    """Each volcano mode feeds a different merged table to the toxo plot."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, toxo=True, volcano=volcano)
+    perform_regression(settings)
+
+    assert len(toxo_stubs["volcano"]) == 1
+    call = toxo_stubs["volcano"][0]
+    assert call["metadata_path"].endswith(os.path.join("resources", "data",
+                                                       "lopit.csv"))
+    assert call["kwargs"]["save_path"].endswith("volcano_plot.pdf")
+    assert call["kwargs"]["metadata_column"] == "tagm_location"
+    # the duplicated tail block calls the phenotype/heatmap plots twice
+    # Once, not twice. The phenotype/heatmap block used to be duplicated
+    # verbatim, so every report was built twice and the second copy was
+    # unguarded -- a run with fewer than two metadata files died in it after
+    # the volcano had already been drawn.
+    assert len(toxo_stubs["phenotypes"]) == 1
+    assert len(toxo_stubs["heatmaps"]) == 1
+    assert toxo_stubs["heatmaps"][0]["columns"][0] == "sense - Tachyzoites"
+
+
+# `test_toxo_block_skips_unknown_volcano_mode` lived here. It asserted that an
+# unrecognised `volcano` setting skipped the plot -- and the setting was
+# removed on 2026-08-17 as redundant, because the interactive volcano filters
+# genes/guides by right-click on the same fit. There is no unrecognised mode
+# to skip any more: the toxo block always draws the gene table.
+# tests/test_the_volcano_setting_is_retired.py holds what replaced it.
+def test_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
+    """An empty gene list from the volcano plot skips the phenotype figures."""
+    from spacr.ml import perform_regression
+
+    toxo_stubs["gene_list"] = []
+    settings = parametric_settings(screen, toxo=True)
+    perform_regression(settings)
+
+    printed = capsys.readouterr().out
+    assert "No gene_list produced" in printed
+    # An empty gene list draws nothing; there is no second unguarded copy.
+    assert toxo_stubs["phenotypes"] == []
+
+
+# ---------------------------------------------------------------------------
+# filter_column shapes
+# ---------------------------------------------------------------------------
+
+def test_filter_column_may_be_a_list(screen, stubs):
+    """process_reads accepts a list of filter columns; so should the caller.
+
+    The list used to reach clean_controls' `column in df.columns` membership
+    test and raise "unhashable type: 'list'".
+    """
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, filter_column=["columnID"])
+    out = perform_regression(settings)
+    assert len(out["results"]) > 0
+
+
+def test_filter_column_may_be_none(screen, stubs, capsys):
+    """filter_column=None means 'drop no control wells'.
+
+    The local `filter_column` was only bound in the `isinstance(..., str)`
+    branch, so None fell through and the process_reads call below raised
+    UnboundLocalError before any filtering decision was made.
+    """
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, filter_column=None)
+    out = perform_regression(settings)
+
+    assert len(out["results"]) > 0
+    # clean_controls announces every value it drops; None must drop nothing.
+    assert "Removed data from" not in capsys.readouterr().out
+
+
+def test_qc_tables_are_written_with_the_real_plot_helper(screen, heavy_stubs):
+    """The gRNA-coverage QC tables must survive a real plot_data_from_csv."""
+    from spacr.ml import perform_regression
+
+    perform_regression(base_settings(screen))
+    assert os.path.isfile(os.path.join(screen["res"], "grna_well.csv"))
+    assert os.path.isfile(os.path.join(screen["res"], "well_grna.csv"))
+
+
+def test_toxo_volcano_without_controls(screen, toxo_stubs):
+    """A screen with no control gRNAs should still be able to plot a volcano."""
+    from spacr.ml import perform_regression
+
+    settings = parametric_settings(screen, toxo=True, controls=None)
+    perform_regression(settings)
+    assert len(toxo_stubs["volcano"]) == 1
+
+
+# ---------------------------------------------------------------------------
+# manifest-driven publication packages (instruction 343)
+# ---------------------------------------------------------------------------
+
+def _finished_panel_run(tmp_path, analysis_mode):
+    folder = tmp_path / analysis_mode
+    folder.mkdir()
+    paths = {}
+    for level in ("grna", "gene"):
+        path = folder / f"results_{level}.csv"
+        pd.DataFrame(
+            {level: [f"item_{level}"], "coefficient": [0.25]}
+        ).to_csv(path, index=False)
+        paths[f"results_{level}"] = str(path)
+    outcome = {"res_folder": str(folder), "analysis_mode": analysis_mode}
+    if analysis_mode == "guide_permutation":
+        outcome["paths"] = paths
+    return outcome, paths
+
+
+def _panel_settings(dependent_variable="pred", **overrides):
+    """Return the smallest settings mapping that requests panel packaging."""
+    settings = {
+        "regression_panel_manifest": {"figure_id": "Figure_7", "panels": [{}]},
+        "dependent_variable": dependent_variable,
+    }
+    settings.update(overrides)
+    return settings
+
+
+def test_publication_panels_require_a_mapping_outcome_and_results_folder(
+    tmp_path,
+):
+    """Validation names both malformed return shapes before reading a table."""
+    import spacr.ml as ML
+
+    settings = _panel_settings()
+    with pytest.raises(TypeError, match="mapping outcome"):
+        ML._write_regression_panel_packages(object(), settings)
+    assert settings["_regression_stage"] == "writing publication panel packages"
+
+    with pytest.raises(ValueError, match="results folder"):
+        ML._write_regression_panel_packages({}, _panel_settings())
+
+
+def test_publication_panels_name_every_missing_result_file(tmp_path):
+    """An incomplete run is refused before a partial panel package is built."""
+    import spacr.ml as ML
+
+    folder = tmp_path / "incomplete"
+    folder.mkdir()
+    with pytest.raises(FileNotFoundError) as raised:
+        ML._write_regression_panel_packages(
+            {"res_folder": str(folder), "paths": None},
+            _panel_settings(),
+        )
+
+    message = str(raised.value)
+    assert str(folder / "results_grna.csv") in message
+    assert str(folder / "results_gene.csv") in message
+
+
+@pytest.mark.parametrize("dependent_variable", [None, [], ["pred", " "]])
+def test_publication_panels_require_named_phenotypes(
+    tmp_path, dependent_variable,
+):
+    """Missing, empty and partly blank phenotype requests share one clear error."""
+    import spacr.ml as ML
+
+    outcome, _paths = _finished_panel_run(tmp_path, "regression")
+    with pytest.raises(ValueError, match="one or more named"):
+        ML._write_regression_panel_packages(
+            outcome,
+            _panel_settings(dependent_variable),
+        )
+
+
+def test_multi_phenotype_panels_require_an_outcome_column(tmp_path):
+    """Two requested phenotypes cannot be inferred from an unlabelled table."""
+    import spacr.ml as ML
+
+    outcome, _paths = _finished_panel_run(tmp_path, "regression")
+    with pytest.raises(ValueError, match="has no 'outcome' column"):
+        ML._write_regression_panel_packages(
+            outcome,
+            _panel_settings(["first", "second"]),
+        )
+
+
+def test_multi_phenotype_panels_require_rows_for_every_request(tmp_path):
+    """A named but absent phenotype is an error, not an empty publication panel."""
+    import spacr.ml as ML
+
+    outcome, paths = _finished_panel_run(tmp_path, "guide_permutation")
+    for path in paths.values():
+        pd.DataFrame({
+            "outcome": ["present"],
+            "coefficient": [0.25],
+        }).to_csv(path, index=False)
+
+    with pytest.raises(ValueError, match="no rows for phenotype 'missing'"):
+        ML._write_regression_panel_packages(
+            outcome,
+            _panel_settings(["present", "missing"]),
+        )
+
+
+def test_multi_phenotype_panels_use_the_saved_folder_and_default_fdr(
+    tmp_path, monkeypatch,
+):
+    """The settings-folder fallback builds one filtered artifact per level/value."""
+    import spacr.ml as ML
+    import spacr.regression_panels as RP
+
+    folder = tmp_path / "saved-result-folder"
+    folder.mkdir()
+    for level in ("grna", "gene"):
+        pd.DataFrame({
+            "outcome": ["first", "second"],
+            level: [f"first_{level}", f"second_{level}"],
+            "coefficient": [0.25, -0.5],
+        }).to_csv(folder / f"results_{level}.csv", index=False)
+
+    captured = {}
+
+    def fake_builder(manifest, artifacts, destination):
+        captured.update(artifacts)
+        assert manifest["figure_id"] == "Figure_7"
+        assert destination == str(folder / "publication_panels")
+        return "built"
+
+    monkeypatch.setattr(RP, "build_manifest_packages", fake_builder)
+    settings = _panel_settings(
+        [" first ", "second"],
+        _regression_folder=str(folder),
+    )
+
+    assert ML._write_regression_panel_packages({}, settings) == "built"
+    assert settings["_regression_folder"] == str(folder)
+    assert set(captured) == {
+        "first_grna", "second_grna", "first_gene", "second_gene",
+    }
+    for key, artifact in captured.items():
+        assert len(artifact["data"]) == 1, key
+        assert artifact["data"].iloc[0]["outcome"] == artifact["phenotype"]
+        assert artifact["fdr_alpha"] == pytest.approx(0.05)
+
+
+@pytest.mark.parametrize("analysis_mode", ["regression", "guide_permutation"])
+def test_public_regression_builds_panels_after_each_result_path_exists(
+    tmp_path, monkeypatch, analysis_mode
+):
+    """Both OLS and Freedman-Lane returns reach one post-success writer."""
+    import spacr.ml as ML
+    import spacr.regression_panels as RP
+
+    events = []
+    returned = {"figure_pdf": tmp_path / "publication" / "Figure_7.pdf"}
+
+    def fake_perform(_settings):
+        events.append("performing")
+        outcome, paths = _finished_panel_run(tmp_path, analysis_mode)
+        assert all(os.path.isfile(path) for path in paths.values())
+        events.append("results-written")
+        return outcome
+
+    def fake_builder(manifest, artifacts, destination):
+        events.append("writer")
+        assert manifest == {"figure_id": "Figure_7", "panels": [{}]}
+        assert set(artifacts) == {"pred_grna", "pred_gene"}
+        assert os.fspath(destination) == os.path.join(
+            os.fspath(tmp_path / analysis_mode), "publication_panels"
+        )
+        for level in ("grna", "gene"):
+            artifact = artifacts[f"pred_{level}"]
+            assert artifact["level"] == level
+            assert artifact["phenotype"] == "pred"
+            assert artifact["dependent_variable"] == "pred"
+            assert artifact["fdr_alpha"] == 0.025
+            assert artifact["res_folder"] == os.fspath(tmp_path / analysis_mode)
+            assert artifact["run_artifact_path"] == os.path.join(
+                os.fspath(tmp_path / analysis_mode), f"results_{level}.csv"
+            )
+            assert os.path.isfile(artifact["run_artifact_path"])
+            assert len(artifact["data"]) == 1
+        return returned
+
+    monkeypatch.setattr(ML, "_perform_regression", fake_perform)
+    monkeypatch.setattr(ML, "_write_fit_resources", lambda *_args: "")
+    monkeypatch.setattr(RP, "build_manifest_packages", fake_builder)
+    settings = {
+        "regression_panel_manifest": {"figure_id": "Figure_7", "panels": [{}]},
+        "dependent_variable": "pred",
+        "fdr_alpha": 0.025,
+    }
+
+    outcome = ML.perform_regression(settings)
+
+    assert events == ["performing", "results-written", "writer"]
+    assert outcome["publication_panels"] is returned
+
+
+def test_public_regression_without_a_manifest_preserves_the_outcome(
+    tmp_path, monkeypatch,
+):
+    """The shipped None default neither imports nor calls the panel writer."""
+    import spacr.ml as ML
+    import spacr.regression_panels as RP
+
+    expected = {"results": "unchanged", "res_folder": str(tmp_path / "untouched")}
+    monkeypatch.setattr(ML, "_perform_regression", lambda _settings: expected)
+    monkeypatch.setattr(ML, "_write_fit_resources", lambda *_args: "")
+    monkeypatch.setattr(
+        RP,
+        "build_manifest_packages",
+        lambda *_args, **_kwargs: pytest.fail("no manifest must not call writer"),
+    )
+
+    outcome = ML.perform_regression(
+        {"regression_panel_manifest": None, "dependent_variable": "pred"}
+    )
+
+    assert outcome is expected
+    assert outcome == {
+        "results": "unchanged", "res_folder": str(tmp_path / "untouched")
+    }
+
+
+def test_publication_writer_failure_uses_the_regression_failure_report(
+    tmp_path, monkeypatch,
+):
+    """An explicit package is part of the run and uses its existing reporter."""
+    import spacr.ml as ML
+    import spacr.regression_failure as RF
+    import spacr.regression_panels as RP
+
+    outcome, _paths = _finished_panel_run(tmp_path, "regression")
+    failure = RuntimeError("panel composition failed")
+    reports = []
+    monkeypatch.setattr(ML, "_perform_regression", lambda _settings: outcome)
+    monkeypatch.setattr(
+        RP,
+        "build_manifest_packages",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(failure),
+    )
+    monkeypatch.setattr(RF, "describe_failure", lambda *_args, **_kwargs: "report")
+
+    def fake_report(folder, error, **details):
+        reports.append((folder, error, details))
+        return ""
+
+    monkeypatch.setattr(RF, "write_failure_report", fake_report)
+    settings = {
+        "regression_panel_manifest": {"figure_id": "Figure_7", "panels": [{}]},
+        "dependent_variable": "pred",
+        "fdr_alpha": 0.05,
+    }
+
+    with pytest.raises(RuntimeError, match="panel composition failed") as raised:
+        ML.perform_regression(settings)
+
+    assert raised.value is failure
+    assert len(reports) == 1
+    folder, error, details = reports[0]
+    assert folder == os.fspath(tmp_path / "regression")
+    assert error is failure
+    assert details["stage"] == "writing publication panel packages"

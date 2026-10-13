@@ -1,0 +1,486 @@
+{
+  "scope": "Scratch-only instrumented admission counters, not FPS or a parity rerun.",
+  "limits": {
+    "cache_entries": 64,
+    "sparse_array_bytes": 8388608
+  },
+  "rows": [
+    {
+      "source": "before",
+      "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+      "palette": "spacr",
+      "viewport": [
+        3840,
+        2160
+      ],
+      "resolution": 2,
+      "density": 3,
+      "size": 2.5,
+      "seed": 42,
+      "frames": 72,
+      "counts": {
+        "path_groups": 13969,
+        "mature_groups": 1368,
+        "key_miss": 12842,
+        "observed_changed_or_missing": 72,
+        "observation_pending": 128,
+        "observed_unchanged": 98,
+        "observation_ready": 42,
+        "warm_calls": 42,
+        "raster_evictions": 0,
+        "reuse_hit": 1005,
+        "path_mismatch": 122
+      },
+      "observed_operations": {
+        "lookup": 340,
+        "key_miss": 38,
+        "insert": 19,
+        "key_hit": 302,
+        "replace": 151
+      },
+      "stroke_operations": null,
+      "samples": [
+        {
+          "frame": 0,
+          "clock": 95.0,
+          "counts": {
+            "path_groups": 212,
+            "mature_groups": 19,
+            "key_miss": 212,
+            "observed_changed_or_missing": 19,
+            "observation_pending": 19
+          },
+          "raster_entries": 0,
+          "raster_array_bytes": 0,
+          "observed_entries": 19,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 2,
+          "clock": 95.08333333333333,
+          "counts": {
+            "path_groups": 634,
+            "mature_groups": 57,
+            "key_miss": 634,
+            "observed_changed_or_missing": 20,
+            "observation_pending": 38,
+            "observed_unchanged": 19,
+            "observation_ready": 1,
+            "warm_calls": 1,
+            "raster_evictions": 0
+          },
+          "raster_entries": 1,
+          "raster_array_bytes": 10200,
+          "observed_entries": 19,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 7,
+          "clock": 95.29166666666667,
+          "counts": {
+            "path_groups": 1679,
+            "mature_groups": 152,
+            "key_miss": 1664,
+            "observed_changed_or_missing": 21,
+            "observation_pending": 40,
+            "observed_unchanged": 25,
+            "observation_ready": 6,
+            "warm_calls": 6,
+            "raster_evictions": 0,
+            "reuse_hit": 15
+          },
+          "raster_entries": 6,
+          "raster_array_bytes": 125000,
+          "observed_entries": 19,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 23,
+          "clock": 95.95833333333333,
+          "counts": {
+            "path_groups": 5003,
+            "mature_groups": 456,
+            "key_miss": 4788,
+            "observed_changed_or_missing": 28,
+            "observation_pending": 53,
+            "observed_unchanged": 46,
+            "observation_ready": 21,
+            "warm_calls": 21,
+            "raster_evictions": 0,
+            "reuse_hit": 206,
+            "path_mismatch": 9
+          },
+          "raster_entries": 19,
+          "raster_array_bytes": 698496,
+          "observed_entries": 19,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 47,
+          "clock": 96.95833333333333,
+          "counts": {
+            "path_groups": 9602,
+            "mature_groups": 912,
+            "key_miss": 8931,
+            "observed_changed_or_missing": 50,
+            "observation_pending": 89,
+            "observed_unchanged": 69,
+            "observation_ready": 30,
+            "warm_calls": 30,
+            "raster_evictions": 0,
+            "reuse_hit": 610,
+            "path_mismatch": 61
+          },
+          "raster_entries": 19,
+          "raster_array_bytes": 734016,
+          "observed_entries": 19,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 71,
+          "clock": 97.95833333333333,
+          "counts": {
+            "path_groups": 13969,
+            "mature_groups": 1368,
+            "key_miss": 12842,
+            "observed_changed_or_missing": 72,
+            "observation_pending": 128,
+            "observed_unchanged": 98,
+            "observation_ready": 42,
+            "warm_calls": 42,
+            "raster_evictions": 0,
+            "reuse_hit": 1005,
+            "path_mismatch": 122
+          },
+          "raster_entries": 19,
+          "raster_array_bytes": 760976,
+          "observed_entries": 19,
+          "stroke_entries": 0
+        }
+      ]
+    },
+    {
+      "source": "before",
+      "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+      "palette": "random",
+      "viewport": [
+        3840,
+        2160
+      ],
+      "resolution": 2,
+      "density": 3,
+      "size": 2.5,
+      "seed": 42,
+      "frames": 72,
+      "counts": {
+        "path_groups": 15327,
+        "mature_groups": 2016,
+        "key_miss": 13810,
+        "observed_changed_or_missing": 77,
+        "observation_pending": 146,
+        "observed_unchanged": 124,
+        "observation_ready": 55,
+        "warm_calls": 55,
+        "raster_evictions": 0,
+        "reuse_hit": 1378,
+        "path_mismatch": 139
+      },
+      "observed_operations": {
+        "lookup": 402,
+        "key_miss": 56,
+        "insert": 28,
+        "key_hit": 346,
+        "replace": 173
+      },
+      "stroke_operations": null,
+      "samples": [
+        {
+          "frame": 0,
+          "clock": 95.0,
+          "counts": {
+            "path_groups": 231,
+            "mature_groups": 28,
+            "key_miss": 231,
+            "observed_changed_or_missing": 28,
+            "observation_pending": 28
+          },
+          "raster_entries": 0,
+          "raster_array_bytes": 0,
+          "observed_entries": 28,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 2,
+          "clock": 95.08333333333333,
+          "counts": {
+            "path_groups": 691,
+            "mature_groups": 84,
+            "key_miss": 691,
+            "observed_changed_or_missing": 29,
+            "observation_pending": 56,
+            "observed_unchanged": 28,
+            "observation_ready": 1,
+            "warm_calls": 1,
+            "raster_evictions": 0
+          },
+          "raster_entries": 1,
+          "raster_array_bytes": 10200,
+          "observed_entries": 28,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 7,
+          "clock": 95.29166666666667,
+          "counts": {
+            "path_groups": 1831,
+            "mature_groups": 224,
+            "key_miss": 1816,
+            "observed_changed_or_missing": 30,
+            "observation_pending": 58,
+            "observed_unchanged": 34,
+            "observation_ready": 6,
+            "warm_calls": 6,
+            "raster_evictions": 0,
+            "reuse_hit": 15
+          },
+          "raster_entries": 6,
+          "raster_array_bytes": 115464,
+          "observed_entries": 28,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 23,
+          "clock": 95.95833333333333,
+          "counts": {
+            "path_groups": 5452,
+            "mature_groups": 672,
+            "key_miss": 5233,
+            "observed_changed_or_missing": 32,
+            "observation_pending": 62,
+            "observed_unchanged": 52,
+            "observation_ready": 22,
+            "warm_calls": 22,
+            "raster_evictions": 0,
+            "reuse_hit": 213,
+            "path_mismatch": 6
+          },
+          "raster_entries": 20,
+          "raster_array_bytes": 509408,
+          "observed_entries": 28,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 47,
+          "clock": 96.95833333333333,
+          "counts": {
+            "path_groups": 10507,
+            "mature_groups": 1344,
+            "key_miss": 9662,
+            "observed_changed_or_missing": 55,
+            "observation_pending": 104,
+            "observed_unchanged": 88,
+            "observation_ready": 39,
+            "warm_calls": 39,
+            "raster_evictions": 0,
+            "reuse_hit": 786,
+            "path_mismatch": 59
+          },
+          "raster_entries": 28,
+          "raster_array_bytes": 737088,
+          "observed_entries": 28,
+          "stroke_entries": 0
+        },
+        {
+          "frame": 71,
+          "clock": 97.95833333333333,
+          "counts": {
+            "path_groups": 15327,
+            "mature_groups": 2016,
+            "key_miss": 13810,
+            "observed_changed_or_missing": 77,
+            "observation_pending": 146,
+            "observed_unchanged": 124,
+            "observation_ready": 55,
+            "warm_calls": 55,
+            "raster_evictions": 0,
+            "reuse_hit": 1378,
+            "path_mismatch": 139
+          },
+          "raster_entries": 28,
+          "raster_array_bytes": 766952,
+          "observed_entries": 28,
+          "stroke_entries": 0
+        }
+      ]
+    },
+    {
+      "source": "candidate",
+      "source_sha256": "708b4f91e909d7d003154ec7af9f5053a12bac7e0630c2075b03b2e1187fa52f",
+      "palette": "spacr",
+      "viewport": [
+        3840,
+        2160
+      ],
+      "resolution": 2,
+      "density": 3,
+      "size": 2.5,
+      "seed": 42,
+      "frames": 72,
+      "counts": {
+        "path_groups": 13969,
+        "mature_groups": 1368,
+        "key_miss": 12842,
+        "observed_changed_or_missing": 72,
+        "observation_pending": 128,
+        "observed_unchanged": 98,
+        "observation_ready": 42,
+        "warm_calls": 42,
+        "raster_evictions": 0,
+        "reuse_hit": 1005,
+        "path_mismatch": 122
+      },
+      "observed_operations": {
+        "lookup": 340,
+        "key_miss": 38,
+        "insert": 19,
+        "key_hit": 302,
+        "replace": 151
+      },
+      "stroke_operations": {
+        "lookup": 12964,
+        "key_miss": 12964,
+        "insert": 12964,
+        "delete": 12900
+      },
+      "samples": [
+        {
+          "frame": 0,
+          "clock": 95.0,
+          "counts": {
+            "path_groups": 212,
+            "mature_groups": 19,
+            "key_miss": 212,
+            "observed_changed_or_missing": 19,
+            "observation_pending": 19
+          },
+          "raster_entries": 0,
+          "raster_array_bytes": 0,
+          "observed_entries": 19,
+          "stroke_entries": 64
+        },
+        {
+          "frame": 2,
+          "clock": 95.08333333333333,
+          "counts": {
+            "path_groups": 634,
+            "mature_groups": 57,
+            "key_miss": 634,
+            "observed_changed_or_missing": 20,
+            "observation_pending": 38,
+            "observed_unchanged": 19,
+            "observation_ready": 1,
+            "warm_calls": 1,
+            "raster_evictions": 0
+          },
+          "raster_entries": 1,
+          "raster_array_bytes": 10200,
+          "observed_entries": 19,
+          "stroke_entries": 64
+        },
+        {
+          "frame": 7,
+          "clock": 95.29166666666667,
+          "counts": {
+            "path_groups": 1679,
+            "mature_groups": 152,
+            "key_miss": 1664,
+            "observed_changed_or_missing": 21,
+            "observation_pending": 40,
+            "observed_unchanged": 25,
+            "observation_ready": 6,
+            "warm_calls": 6,
+            "raster_evictions": 0,
+            "reuse_hit": 15
+          },
+          "raster_entries": 6,
+          "raster_array_bytes": 125000,
+          "observed_entries": 19,
+          "stroke_entries": 64
+        },
+        {
+          "frame": 23,
+          "clock": 95.95833333333333,
+          "counts": {
+            "path_groups": 5003,
+            "mature_groups": 456,
+            "key_miss": 4788,
+            "observed_changed_or_missing": 28,
+            "observation_pending": 53,
+            "observed_unchanged": 46,
+            "observation_ready": 21,
+            "warm_calls": 21,
+            "raster_evictions": 0,
+            "reuse_hit": 206,
+            "path_mismatch": 9
+          },
+          "raster_entries": 19,
+          "raster_array_bytes": 698496,
+          "observed_entries": 19,
+          "stroke_entries": 64
+        },
+        {
+          "frame": 47,
+          "clock": 96.95833333333333,
+          "counts": {
+            "path_groups": 9602,
+            "mature_groups": 912,
+            "key_miss": 8931,
+            "observed_changed_or_missing": 50,
+            "observation_pending": 89,
+            "observed_unchanged": 69,
+            "observation_ready": 30,
+            "warm_calls": 30,
+            "raster_evictions": 0,
+            "reuse_hit": 610,
+            "path_mismatch": 61
+          },
+          "raster_entries": 19,
+          "raster_array_bytes": 734016,
+          "observed_entries": 19,
+          "stroke_entries": 64
+        },
+        {
+          "frame": 71,
+          "clock": 97.95833333333333,
+          "counts": {
+            "path_groups": 13969,
+            "mature_groups": 1368,
+            "key_miss": 12842,
+            "observed_changed_or_missing": 72,
+            "observation_pending": 128,
+            "observed_unchanged": 98,
+            "observation_ready": 42,
+            "warm_calls": 42,
+            "raster_evictions": 0,
+            "reuse_hit": 1005,
+            "path_mismatch": 122
+          },
+          "raster_entries": 19,
+          "raster_array_bytes": 760976,
+          "observed_entries": 19,
+          "stroke_entries": 64
+        }
+      ]
+    }
+  ],
+  "files_sha256": {
+    "probe.py": "e5ee51943109d524bda34d6e684c1a30b2e48f42b5b2a11969d9d86b335ded47",
+    "probe.log": "dda5fc7653916af18abd1f68a0fbf2cc4f3105826e4000cfa7bc3918b56f007a"
+  },
+  "interpretation": {
+    "production_admission": "No eviction or headroom refusal observed. Sparse and observation caches remain below both original limits.",
+    "rejected_stroke_admission": "Zero stroke hits: 12964 lookups/insertions and12900 evictions. Restricting admission to unchanged mature groups duplicates existing sparse reuse; skipping changing groups restores original Qt work.",
+    "conclusion": "No materially different production optimization justified by this diagnostic.",
+    "limits": "72 evolving frames per case at one native extreme seed/time window; instrumented counters are not live worker timing or a fresh parity proof. Additional stroke path storage is not counted by the production sparse-array8MiB guard."
+  }
+}

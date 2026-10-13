@@ -1,0 +1,34 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "divide each image data channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one image data channel as noise.",
+      "label": "spacr.embeddings.EmbeddingSpec#6",
+      "source": "divide each channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one channel as noise.",
+      "source_sha256": "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
+      "translation": "인코딩 전에 각 채널을 고정된 스케일로 나누고 [0, 1] 범위로 자릅니다. 현미경 영상의 동적 범위는 염색마다 몇 자릿수씩 다르므로, 그렇지 않으면 사진으로 학습한 인코더가 한 채널을 잡음으로 봅니다."
+    },
+    {
+      "context": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the laboratory microplate. The same numbers for every extracted image region mean an object's embedding does not depend on which extracted image regions share its batch. ``None`` lets :func:`embed_array` estimate it from the extracted image regions it is given.",
+      "label": "spacr.embeddings.EmbeddingSpec#7",
+      "source": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the plate. The same numbers for every crop mean an object's embedding does not depend on which crops share its batch. ``None`` lets :func:`embed_array` estimate it from the crops it is given.",
+      "source_sha256": "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed",
+      "translation": "그 스케일로, 인코딩 순서에 따라 인코딩되는 채널마다 값 하나 -- 보통 플레이트의 무작위 표본에서 구한 각 채널의 99번째 백분위수입니다. 모든 크롭에 같은 수를 쓰므로 객체의 임베딩은 어떤 크롭과 같은 배치에 들어가는지에 좌우되지 않습니다. ``None`` 이면 :func:`embed_array` 가 전달받은 크롭에서 추정합니다."
+    },
+    {
+      "context": "when ``channel_policy`` is not one of :data:`CHANNEL_POLICIES`, ``batch_size`` is below one, or ``channel_scale`` is set without ``normalize``, holds a negative or non-finite value, or does not give one value per channel in ``channels``.",
+      "label": "spacr.embeddings.EmbeddingSpec.__post_init__#2",
+      "source": "when ``channel_policy`` is not one of :data:`CHANNEL_POLICIES`, ``batch_size`` is below one, or ``channel_scale`` is set without ``normalize``, holds a negative or non-finite value, or does not give one value per channel in ``channels``.",
+      "source_sha256": "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7",
+      "translation": "``channel_policy`` 가 :data:`CHANNEL_POLICIES` 중 하나가 아니거나, ``batch_size`` 가 하나보다 작거나, ``channel_scale`` 이 ``normalize`` 없이 설정되었거나 음수 또는 유한하지 않은 값을 담고 있거나 ``channels`` 의 채널마다 값을 하나씩 주지 않을 때."
+    },
+    {
+      "context": "Every extracted image region is divided by the same per-channel scale, ``spec.channel_scale``, so an extracted image region's embedding does not depend on the other extracted image regions in ``crops``. When the spec carries none, one is estimated from a random sample of ``crops`` -- the stack is treated as the whole laboratory microplate -- and a warning is logged. To embed one laboratory microplate in several calls, pass the same scale to each: the returned ``spec`` carries it.",
+      "label": "spacr.embeddings.embed_array#1",
+      "source": "Every crop is divided by the same per-channel scale, ``spec.channel_scale``, so a crop's embedding does not depend on the other crops in ``crops``. When the spec carries none, one is estimated from a random sample of ``crops`` -- the stack is treated as the whole plate -- and a warning is logged. To embed one plate in several calls, pass the same scale to each: the returned ``spec`` carries it.",
+      "source_sha256": "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
+      "translation": "모든 크롭은 같은 채널별 스케일 ``spec.channel_scale`` 로 나뉘므로, 크롭의 임베딩은 ``crops`` 에 있는 다른 크롭에 좌우되지 않습니다. 사양에 스케일이 없으면 ``crops`` 의 무작위 표본에서 추정하고 -- 이때 스택 전체를 플레이트 전체로 간주합니다 -- 경고를 기록합니다. 한 플레이트를 여러 번의 호출로 임베딩하려면 각 호출에 같은 스케일을 넘기십시오. 반환된 ``spec`` 에 그 값이 들어 있습니다."
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,148 @@
+{
+  "baseline_commit": "f4d6e8df349603dda223d0572bb54342c2900114",
+  "languages": {
+    "en": {
+      "catalog_sha256": "faa228324ceba67472956ac03e0fcd4df5402ff3494c7eeeed799352eaf56ed3",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "sv": {
+      "catalog_sha256": "79e78f7821e218e938895f4d3f387641bede92baf7a70220e6b6afdcf7ea7c64",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "de": {
+      "catalog_sha256": "068f5f54087ca5576fa170fcc18ec0c9725a3a63ff898ffae16e87eb51693374",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "es": {
+      "catalog_sha256": "68d358a24fba768c0aa94f3e29a9e0e161af9c41a774ac5d5764cdc1461ee336",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "zh_CN": {
+      "catalog_sha256": "8369bb4015b6a645fed050f5e6d09eea64288c9514df12cf2898d41a08731b8a",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "pt": {
+      "catalog_sha256": "6c48f809fba6be127765dddd63c2375eb39784ff31c98894870786098cd7bb24",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "hi": {
+      "catalog_sha256": "b0194b8ec26ef13298da28f133099eed0e7e10a2d6d79013d3bd99961d383bf9",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "ko": {
+      "catalog_sha256": "d5a9c9fc583d2980edf246468d0aab448a2cd0e1a85d0cd6b88d55e20e144650",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "is": {
+      "catalog_sha256": "7f75c6847d93d13fbc1dc77fa566424ce3a9a62d11efe53ca0a66f2564c3c861",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "fr": {
+      "catalog_sha256": "5785246c2e63d3884db7e7cf3117e074dfab51be93337e0d2e6388cbdf16ec7b",
+      "previous": 13177,
+      "current": 13181,
+      "added": [
+        "spacr.qt.mask_engine.export_yolo_boxes",
+        "spacr.qt.mask_engine.load_yolo_boxes",
+        "spacr.qt.mask_engine.save_yolo_boxes",
+        "spacr.qt.mask_engine.yolo_box_lines"
+      ],
+      "removed": [],
+      "all_previous_complete_records_preserved": true,
+      "new_source_and_translation_context_hashes_current": true
+    }
+  },
+  "final_strict_generator_audit_pending": false,
+  "strict_nine_language_generator_audit_passed": true,
+  "strict_all_api_sphinx_passed": true
+}

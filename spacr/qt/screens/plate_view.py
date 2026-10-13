@@ -1,0 +1,1467 @@
+"""
+Plate Viewer — any measurement as a plate heatmap, with the edge-effect
+test beside it.
+
+The edge-effect statistic is the main output; the heatmap shows where it
+comes from. A screen hit in row A or column 24 is more likely to be an
+evaporation artefact than biology, and the test reports such an edge
+effect.
+
+Layout::
+
+    ┌───────────────────────────────────────────────────────────────────┐
+    │ /data/plate1/measurements/measurements.db   [DB…] [Run folder…]   │
+    │ Table [cell ▾] Value [cell_area ▾] Plate [plate1 ▾] [mean ▾]      │
+    │ Colour [2–98 % ▾]  Min objects/well [20]            [Render]      │
+    ├───────────────────────────────────┬───────────────────────────────┤
+    │      1  2  3  4 …             24  │ Plate plate1 — mean cell_area │
+    │  A  ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓  │ 384-well, 384 wells tested    │
+    │  B  ▓▓ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░ ▓▓  │                               │
+    │  C  ▓▓ ░░ ▒▒ ▒▒ ▒▒ ▒▒ ▒▒ ░░ ░░ ▓▓  │ Edge effect: the outer ring   │
+    │  …                                │ reads +31.2 % vs the interior │
+    │  P  ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓  │ (δ = 0.78, p < 1e-4).         │
+    ├───────────────────────────────────┴───────────────────────────────┤
+    │ C07 · 142 objects · mean cell_area = 1204.53 · ring 2 (interior)  │
+    │ scale 812.4 → 1655.9 (viridis, 2–98 %)     [Export well grid CSV…]│
+    └───────────────────────────────────────────────────────────────────┘
+
+Design notes:
+
+* **Read-only, structurally.** Every query goes through
+  :mod:`spacr.plate_qc`. It opens the file with ``file:…?mode=ro`` and
+  ``PRAGMA query_only = ON``, the same approach the Database Browser
+  takes.
+* **The statistics live outside the GUI.** All of the analysis is in
+  :mod:`spacr.plate_qc`, which imports neither torch nor cellpose, so it
+  is testable headless and the screen stays a view.
+* **An empty well is drawn as empty.** Wells with no objects, or fewer
+  than ``min_count``, are hatched — never coloured as if they measured
+  zero. The count of dropped wells is on screen, because a heatmap
+  quietly missing a third of its wells looks exactly like data.
+* **Only the columns needed are read.** A spaCR feature table is 500
+  columns wide; the query pulls the well identifiers plus the one
+  measurement being plotted.
+* **No modal dialogs on any error path.** "That column isn't in this
+  table", "that file isn't a database", "this plate has no interior" —
+  all of it lands in the inline status label. A QMessageBox would hang a
+  headless run.
+"""
+from __future__ import annotations
+
+import os
+import json
+import re
+import sqlite3
+from collections import Counter
+from contextlib import closing
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import pandas as pd
+
+from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPen
+from PySide6.QtWidgets import (
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPlainTextEdit,
+    QPushButton,
+    QSizePolicy,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ... import plate_qc as pqc
+from ...selection import DataFilter
+from ..bridge import make_thread
+from ..linked_selection import LinkedView
+from ..theme import SPACING, active_palette, make_transparent, paint_panel
+from ..widgets import Card, Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.measurements_example import (
+    EXAMPLE_MEASUREMENT, install_test_data_button,
+)
+from .db_browser import resolve_db_path
+
+__all__ = [
+    "COLOUR_SCALES",
+    "DEFAULT_CMAP",
+    "PlateGridWidget",
+    "PlateViewScreen",
+    "PREFERRED_TABLES",
+]
+
+
+#: Colour-scale choices, mapping the label to the ``min_max`` spec
+#: :func:`spacr.plate_qc.colour_limits` understands. The quantile scale is
+#: the default: one dead well at 40x the plate median would otherwise
+#: flatten every other well to the same colour.
+COLOUR_SCALES: Tuple[Tuple[str, Any], ...] = (
+    ("2–98 % (robust)", "allq"),
+    ("Full range", "all"),
+)
+
+#: Colormap used for the wells. Perceptually uniform and colour-blind
+#: safe; :func:`spacr.qt.preferences.color_blind_continuous_cmap` swaps it
+#: for cividis when a colour-vision mode is on.
+DEFAULT_CMAP = "viridis"
+
+#: How long an option change waits for the next one before recomputing, in ms.
+#: The aggregation behind a tick is 487 ms and the spin box emits about every
+#: 50 ms while its arrow is held, so without this a drag queues a job per tick
+#: and the plate the user stopped on is drawn last, after every plate they
+#: passed through. Short enough that a single click still feels immediate.
+RECOMPUTE_COALESCE_MS = 120
+
+#: Tables tried first when a database opens, in order of usefulness.
+PREFERRED_TABLES: Tuple[str, ...] = ("cell", "object", "nucleus", "pathogen",
+                                     "cytoplasm", "png_list")
+
+#: Pixels reserved for the row letters and the column numbers.
+_ROW_LABEL_W = 30
+_COL_LABEL_H = 20
+_GRID_PAD = 6
+
+
+def _watch_plate_well(key: str) -> Optional[Tuple[str, int, int]]:
+    """Find the plate and well in a watch field key, including custom plate IDs."""
+    parts = str(key).split("_")
+    for index in range(len(parts) - 1, 0, -1):
+        if not re.fullmatch(r"[A-Za-z]{1,2}0*[1-9][0-9]?", parts[index]):
+            continue
+        well = pqc._parse_well_label(parts[index])
+        if well is not None:
+            return "_".join(parts[:index]), *well
+    return None
+
+
+class _WatchLivePlate(QWidget):
+    """Show committed watch fields by well while Make Masks watches a folder."""
+
+    def __init__(self, parent=None):
+        """Build a live well grid with polling stopped until a watch begins.
+
+        :param parent: owning widget, or ``None`` for a standalone card.
+        """
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self.setObjectName("WatchLivePlate")
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        self._card = Card(title=tr("Live plate"), parent=self)
+        outer.addWidget(self._card)
+        self._source = ""
+        self._pipeline = "mask"
+        self._wells = {}
+        self._unplaced = 0
+        self._plate = QComboBox(self)
+        self._plate.view()
+        self._plate.currentTextChanged.connect(self._render)
+        self._card.body_layout.addWidget(self._plate)
+        self._grid = PlateGridWidget(self)
+        self._grid.setMinimumSize(240, 155)
+        self._grid.setToolTip(tr("Colour shows completed fields per well."))
+        self._card.body_layout.addWidget(self._grid, 1)
+        self._summary = QLabel(tr("Waiting for completed fields"), self)
+        self._card.body_layout.addWidget(self._summary)
+        self._timer = QTimer(self)
+        self._timer.setInterval(1500)
+        self._timer.timeout.connect(self.refresh)
+        self.setVisible(False)
+
+    def is_active(self) -> bool:
+        """Whether this card belongs to the current watch run."""
+        return bool(self._source)
+
+    def begin(self, source: str, pipeline: str) -> None:
+        """Start polling the ledger and the combined database for a watch run."""
+        from ..preferences import _is_alpha_visible
+
+        self._source = os.path.abspath(os.fspath(source))
+        self._pipeline = str(pipeline or "mask")
+        self._wells = {}
+        self._unplaced = 0
+        self._plate.clear()
+        self._render()
+        self.setVisible(_is_alpha_visible("widgets", self.objectName()))
+        self.refresh()
+        self._timer.start()
+
+    def finish(self) -> None:
+        """Keep the last plate visible after a run, but stop disk polling."""
+        if self.is_active():
+            self.refresh()
+        self._timer.stop()
+
+    def reset(self) -> None:
+        """Hide old watch results when an ordinary Make Masks run starts."""
+        self._timer.stop()
+        self._source = ""
+        self._wells = {}
+        self.setVisible(False)
+
+    def refresh(self) -> None:
+        """Read one atomic ledger snapshot and show only committed field keys."""
+        if not self._source:
+            return
+        work = os.path.join(self._source, "spacr_watch")
+        try:
+            with open(os.path.join(work, "watch_ledger.json"),
+                      encoding="utf-8") as handle:
+                ledger = json.load(handle)
+            fields = ledger.get("fields", {})
+            if not isinstance(fields, dict):
+                return
+        except (OSError, ValueError, AttributeError):
+            return
+        done = {key for key, entry in fields.items()
+                if isinstance(key, str) and isinstance(entry, dict)
+                and entry.get("status") == "done"}
+        if self._pipeline in ("mask_measure", "mask_measure_classify"):
+            database = os.path.join(work, "measurements", "measurements.db")
+            if not os.path.isfile(database):
+                done.clear()
+            else:
+                from ... import tabular
+
+                try:
+                    uri = Path(database).resolve().as_uri() + "?mode=ro"
+                    with closing(sqlite3.connect(uri, uri=True,
+                                                 timeout=0.1)) as connection:
+                        connection.execute("PRAGMA query_only = ON")
+                        committed = tabular._read_query(
+                            connection, "SELECT field FROM spacr_watch_fields",
+                            canonicalise=False, report=None)
+                    done.intersection_update(committed["field"])
+                except (OSError, sqlite3.Error, KeyError):
+                    return
+        wells = Counter()
+        unplaced = 0
+        for key in done:
+            location = _watch_plate_well(key)
+            if location is None:
+                unplaced += 1
+                continue
+            wells[location] += 1
+        if wells == self._wells and unplaced == self._unplaced:
+            return
+        selected = self._plate.currentText()
+        self._wells = wells
+        self._unplaced = unplaced
+        plates = sorted({plate for plate, _row, _col in wells})
+        self._plate.blockSignals(True)
+        self._plate.clear()
+        self._plate.addItems(plates)
+        if selected in plates:
+            self._plate.setCurrentText(selected)
+        self._plate.blockSignals(False)
+        self._render()
+
+    def _render(self, _selected: str = "") -> None:
+        """Paint field counts for the selected plate and leave other wells blank."""
+        from ..i18n import tr
+
+        selected = self._plate.currentText()
+        wells = [(row, column, count)
+                 for (plate, row, column), count in self._wells.items()
+                 if plate == selected]
+        layout = pd.DataFrame(
+            [(row, column, count, count) for row, column, count in wells],
+            columns=("row_index", "column_index", "n", "value"))
+        rows = max(8, max((row for row, _col, _count in wells), default=0))
+        columns = max(12, max((col for _row, col, _count in wells), default=0))
+        self._grid.set_plate(layout, vmin=0, vmax=max(
+            (count for _row, _col, count in wells), default=1),
+            n_rows=rows, n_cols=columns)
+        count = sum(field_count for _row, _col, field_count in wells)
+        if selected:
+            self._summary.setText(tr("{count} completed fields on {plate}").format(
+                count=count, plate=selected))
+        else:
+            self._summary.setText(tr("Waiting for completed fields"))
+        if self._unplaced:
+            self._summary.setText(self._summary.text() + " · " + tr(
+                "{count} fields have no plate well").format(count=self._unplaced))
+
+
+def _cmap_lut(name: str, size: int = 256) -> List[QColor]:
+    """Return ``size`` QColors sampled across the named matplotlib colormap.
+
+    Sampling once into a lookup table keeps the paint loop free of any
+    matplotlib call — a 1536-well plate would otherwise make 1536 of them
+    on every repaint. Imported lazily so simply importing this module
+    costs nothing.
+    """
+    try:
+        from matplotlib import colormaps
+        cmap = colormaps[name]
+    except Exception:
+        try:
+            from matplotlib import cm
+            cmap = cm.get_cmap(name)
+        except Exception:
+            cmap = None
+    out: List[QColor] = []
+    for i in range(size):
+        t = i / (size - 1)
+        if cmap is None:
+            level = int(round(255 * t))
+            out.append(QColor(level, level, level))
+        else:
+            r, g, b = cmap(t)[:3]
+            out.append(QColor(int(round(r * 255)), int(round(g * 255)),
+                              int(round(b * 255))))
+    return out
+
+
+
+class PlateGridWidget(QWidget):
+    """A plate drawn as coloured wells, with row letters and column numbers.
+
+    Painted directly rather than embedded as a matplotlib canvas because a
+    click has to map back to exactly one *well*; a painted grid gives that
+    directly instead of through a figure's data transform.
+
+    :param parent: parent widget.
+    :ivar well_clicked: emitted with ``(row_index, column_index)``
+        (1-based) whenever the user clicks inside the grid.
+    """
+
+    #: emitted with the 1-based ``(row_index, column_index)`` of a click
+    well_clicked = Signal(int, int)
+
+    def __init__(self, parent=None):
+        """Create an empty plate grid.
+
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self._values: Dict[Tuple[int, int], float] = {}
+        self._counts: Dict[Tuple[int, int], int] = {}
+        self._n_rows = 0
+        self._n_cols = 0
+        self._vmin = 0.0
+        self._vmax = 1.0
+        self._lut = _cmap_lut(DEFAULT_CMAP)
+        self._cmap_name = DEFAULT_CMAP
+        self._selected: Optional[Tuple[int, int]] = None
+        self._placeholder = ("Choose a database, a table and a measurement, "
+                             "then press Render.")
+        self.setMinimumSize(320, 220)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        make_transparent(self)
+
+
+    def set_plate(self, layout: Optional[pd.DataFrame],
+                  vmin: float = 0.0, vmax: float = 1.0,
+                  cmap: str = DEFAULT_CMAP,
+                  n_rows: Optional[int] = None,
+                  n_cols: Optional[int] = None) -> None:
+        """Show ``layout`` (a :func:`spacr.plate_qc.plate_layout` frame).
+
+        :param layout: tidy well frame, or ``None`` to clear.
+        :param vmin: value mapped to the bottom of the colormap.
+        :param vmax: value mapped to the top.
+        :param cmap: matplotlib colormap name.
+        :param n_rows: nominal plate rows; taken from ``layout.attrs``
+            when omitted.
+        :param n_cols: nominal plate columns; likewise.
+        """
+        self._values.clear()
+        self._counts.clear()
+        self._selected = None
+        if cmap != self._cmap_name:
+            self._lut = _cmap_lut(cmap)
+            self._cmap_name = cmap
+        meta = dict(getattr(layout, "attrs", {}) or {}) if layout is not None else {}
+        self._n_rows = int(n_rows or meta.get("n_rows") or 0)
+        self._n_cols = int(n_cols or meta.get("n_cols") or 0)
+        if layout is not None and len(layout):
+            for r, c, n, v in zip(layout["row_index"], layout["column_index"],
+                                  layout["n"], layout["value"]):
+                key = (int(r), int(c))
+                self._counts[key] = int(n)
+                if pd.notna(v):
+                    self._values[key] = float(v)
+            self._n_rows = max(self._n_rows, int(layout["row_index"].max()))
+            self._n_cols = max(self._n_cols, int(layout["column_index"].max()))
+        self._vmin = float(vmin)
+        self._vmax = float(vmax) if float(vmax) != float(vmin) else float(vmin) + 1e-6
+        self.update()
+
+    def clear(self) -> None:
+        """Drop the current plate and repaint empty."""
+        self.set_plate(None)
+
+    def set_placeholder(self, text: str) -> None:
+        """Text shown when there is no plate to draw.
+
+        :param text: the message painted in place of the grid.
+        """
+        self._placeholder = text
+        self.update()
+
+    def grid_size(self) -> Tuple[int, int]:
+        """Return ``(n_rows, n_cols)`` of the grid currently drawn."""
+        return self._n_rows, self._n_cols
+
+    def has_plate(self) -> bool:
+        """True when there is something to paint."""
+        return self._n_rows > 0 and self._n_cols > 0
+
+    def well_value(self, row_index: int, column_index: int) -> Optional[float]:
+        """Value behind a well, or ``None`` when the well is blank.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        """
+        return self._values.get((int(row_index), int(column_index)))
+
+    def well_count(self, row_index: int, column_index: int) -> int:
+        """Objects behind a well; ``0`` when nothing survived filtering.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        """
+        return self._counts.get((int(row_index), int(column_index)), 0)
+
+    def selected_well(self) -> Optional[Tuple[int, int]]:
+        """The highlighted ``(row_index, column_index)``, if any."""
+        return self._selected
+
+    def select(self, row_index: Optional[int],
+               column_index: Optional[int] = None) -> None:
+        """Highlight a well (or clear the highlight with ``None``).
+
+        :param row_index: 1-based plate row, or ``None`` to clear.
+        :param column_index: 1-based plate column; ``None`` also clears.
+        """
+        if row_index is None or column_index is None:
+            self._selected = None
+        else:
+            self._selected = (int(row_index), int(column_index))
+        self.update()
+
+
+    def _cell_size(self) -> float:
+        """Edge length of a square well, in pixels."""
+        if not self.has_plate():
+            return 0.0
+        avail_w = max(self.width() - _ROW_LABEL_W - 2 * _GRID_PAD, 1)
+        avail_h = max(self.height() - _COL_LABEL_H - 2 * _GRID_PAD, 1)
+        return max(min(avail_w / self._n_cols, avail_h / self._n_rows), 1.0)
+
+    def cell_rect(self, row_index: int, column_index: int) -> QRectF:
+        """Return the rectangle a well occupies, in widget coordinates.
+
+        Public because it is what makes a click testable: a test can aim
+        at the centre of ``cell_rect(3, 7)`` instead of guessing at pixel
+        arithmetic that would have to be kept in sync by hand.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        """
+        size = self._cell_size()
+        x = _GRID_PAD + _ROW_LABEL_W + (int(column_index) - 1) * size
+        y = _GRID_PAD + _COL_LABEL_H + (int(row_index) - 1) * size
+        return QRectF(x, y, size, size)
+
+    def well_at(self, point) -> Optional[Tuple[int, int]]:
+        """Map a widget-coordinate point to a 1-based ``(row, column)``.
+
+        :param point: ``QPoint``/``QPointF`` in widget coordinates.
+        :returns: the well under the point, or ``None`` when the point is
+            in the margins or off the grid.
+        """
+        if not self.has_plate():
+            return None
+        size = self._cell_size()
+        pt = QPointF(point)
+        col = int((pt.x() - _GRID_PAD - _ROW_LABEL_W) // size) + 1
+        row = int((pt.y() - _GRID_PAD - _COL_LABEL_H) // size) + 1
+        if pt.x() < _GRID_PAD + _ROW_LABEL_W or pt.y() < _GRID_PAD + _COL_LABEL_H:
+            return None
+        if not (1 <= row <= self._n_rows and 1 <= col <= self._n_cols):
+            return None
+        return row, col
+
+
+    def mousePressEvent(self, event) -> None:  # noqa: N802 (Qt naming)
+        """Select the well under the pointer.
+
+        :param event: the Qt mouse event.
+        """
+        well = self.well_at(event.position() if hasattr(event, "position")
+                            else event.pos())
+        if well is not None:
+            self.select(*well)
+            self.well_clicked.emit(well[0], well[1])
+        super().mousePressEvent(event)
+
+
+    def _colour(self, value: float) -> QColor:
+        """Map a value onto the current colour scale.
+
+        :param value: the well's aggregated measurement.
+        :returns: its colour, clamped to the ends of the scale; a zero-width
+            range maps everything to the low end rather than dividing by zero.
+        """
+        span = self._vmax - self._vmin
+        t = 0.0 if span == 0 else (value - self._vmin) / span
+        t = min(max(t, 0.0), 1.0)
+        return self._lut[int(round(t * (len(self._lut) - 1)))]
+
+    def paintEvent(self, event) -> None:  # noqa: N802 (Qt naming)
+        """Draw the plate: one cell per well, coloured by its value.
+
+        :param event: the Qt paint event.
+        """
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        palette = active_palette()
+        paint_panel(painter, self, role="surface", inset=0.5)
+
+        if not self.has_plate():
+            painter.setPen(QColor(palette["fg_muted"]))
+            painter.drawText(self.rect().adjusted(12, 12, -12, -12),
+                             Qt.AlignCenter | Qt.TextWordWrap,
+                             self._placeholder)
+            painter.end()
+            return
+
+        size = self._cell_size()
+        font = QFont(self.font())
+        font.setPointSizeF(max(min(size * 0.42, 11.0), 5.0))
+        painter.setFont(font)
+
+        palette = active_palette()
+        painter.setPen(QColor(palette["fg_muted"]))
+        for c in range(1, self._n_cols + 1):
+            rect = QRectF(_GRID_PAD + _ROW_LABEL_W + (c - 1) * size, _GRID_PAD,
+                          size, _COL_LABEL_H)
+            painter.drawText(rect, Qt.AlignCenter, str(c))
+        for r in range(1, self._n_rows + 1):
+            rect = QRectF(_GRID_PAD, _GRID_PAD + _COL_LABEL_H + (r - 1) * size,
+                          _ROW_LABEL_W, size)
+            painter.drawText(rect, Qt.AlignCenter, pqc.row_label(r))
+
+        empty_pen = QPen(QColor(palette["border"]))
+        empty_pen.setWidth(1)
+        empty_brush = QBrush(QColor(palette["surface_alt"]))
+        brushes: Dict[int, QBrush] = {}
+        left = _GRID_PAD + _ROW_LABEL_W + 0.5
+        top = _GRID_PAD + _COL_LABEL_H + 0.5
+        side = size - 1.0
+        values = self._values
+        pen_is_empty = None
+        for r in range(1, self._n_rows + 1):
+            y = top + (r - 1) * size
+            for c in range(1, self._n_cols + 1):
+                rect = QRectF(left + (c - 1) * size, y, side, side)
+                value = values.get((r, c))
+                if value is None:
+                    if pen_is_empty is not True:
+                        painter.setPen(empty_pen)
+                        painter.setBrush(empty_brush)
+                        pen_is_empty = True
+                    painter.drawRect(rect)
+                    painter.drawLine(rect.topLeft(), rect.bottomRight())
+                else:
+                    if pen_is_empty is not False:
+                        painter.setPen(Qt.NoPen)
+                        pen_is_empty = False
+                    colour = self._colour(value)
+                    brush = brushes.get(id(colour))
+                    if brush is None:
+                        brush = brushes[id(colour)] = QBrush(colour)
+                    painter.setBrush(brush)
+                    painter.drawRect(rect)
+
+        if self._selected is not None:
+            r, c = self._selected
+            if 1 <= r <= self._n_rows and 1 <= c <= self._n_cols:
+                pen = QPen(QColor(palette["accent"]))
+                pen.setWidth(2)
+                painter.setPen(pen)
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(self.cell_rect(r, c).adjusted(1, 1, -1, -1))
+        painter.end()
+
+
+
+class PlateViewScreen(LinkedView, QWidget):
+    """Plate heatmap + edge-effect QC for a spaCR measurements database.
+
+    Joins the shared population through :class:`~spacr.qt.linked_selection.
+    LinkedView`: narrowing the Local Data Filter anywhere narrows the heatmap
+    too. It subscribes for the *filter* only — a selection highlights
+    individual objects, and a well is an aggregate of many, so there is
+    nothing here for one to light up.
+
+    :param parent: parent widget.
+    :param threaded: run database work on a worker thread (the default).
+        Tests pass ``False`` for deterministic, synchronous behaviour.
+    :ivar last_error: text of the most recent failure, ``""`` when the
+        last operation succeeded. Errors are *only* ever reported here
+        and in the inline status label — never in a modal dialog.
+    """
+
+    #: emitted with the resolved path whenever a database opens
+    database_opened = Signal(str)
+    #: emitted after a plate has been drawn
+    plate_rendered = Signal(str)
+    #: emitted after every job settles (ok or not)
+    job_finished = Signal(bool)
+    #: private. Re-emitted from ``PipelineWorker.finished`` purely to hop
+    #: back onto the GUI thread — see :meth:`_run_job`.
+    _job_settled = Signal(bool)
+
+    def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen, arm its drop zone and join the shared selection.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run reads and aggregations on a worker thread. Set
+            ``False`` in tests, which also removes the recompute coalescing
+            timer, so an option change recomputes on the spot.
+        """
+        super().__init__(parent)
+        self._threaded = bool(threaded)
+        self._db_path: str = ""
+        self._frame: Optional[pd.DataFrame] = None
+        self._frame_key: Tuple[str, str, str] = ("", "", "")
+        self._layout_df: Optional[pd.DataFrame] = None
+        self._report: Optional[pqc.EdgeEffectReport] = None
+        #: Appended to the status line whenever the shared filter is narrowing
+        #: what this heatmap draws. Set by :meth:`recompute`.
+        self._filter_note = ""
+        self._busy = False
+        self._jobs: List[tuple] = []
+        self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
+        self._thread = None
+        self._worker = None
+        self._loading = False
+        self.last_error: str = ""
+
+        self._job_settled.connect(self._on_job_settled)
+        self._recompute_timer = QTimer(self)
+        self._recompute_timer.setSingleShot(True)
+        self._recompute_timer.setInterval(RECOMPUTE_COALESCE_MS)
+        self._recompute_timer.timeout.connect(self.recompute)
+        self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("plate_view"), self)
+        self._set_status(
+            "Choose a measurements.db, or a run folder containing "
+            "measurements/measurements.db.")
+        self._update_controls()
+
+        self.link_selection("plate_view")
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+    def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
+        """Re-draw for a new filter, without re-reading the database.
+
+        Silent when nothing is loaded: a filter change is not a reason to
+        show an error on a screen the user has not pointed at a database yet.
+
+        :param data_filter: the filter that was published; not read here, as
+            the redraw reads the link's current filter itself.
+        """
+        if self._frame is not None:
+            self.recompute()
+
+    def closeEvent(self, event):
+        """Stop listening to the process-wide filter before going away.
+
+        The `except` is the one thing :meth:`LinkedView.unlink_selection` does
+        not do for us: it is flag-guarded, so a double close is already
+        silent, but during interpreter teardown the C++ side of the
+        process-wide `LinkedSelection` can be gone before this widget's
+        `closeEvent` runs, and PySide raises on the disconnect then.
+
+        :param event: the close event; passed on unchanged to the base class.
+        """
+        try:
+            self.unlink_selection()
+        except (RuntimeError, TypeError):
+            pass
+        super().closeEvent(event)
+
+
+    def _build_ui(self) -> None:
+        """Lay out the source row, the pickers, the heatmap and the edge-effect report.
+
+        Item 471: the heatmap ("Plate map") and the report ("Edge-effect
+        report") are sections of one
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``plate_view::body``): each folds by its heading and the edge
+        between them drags, opening at the old 620 / 520 split.
+        """
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
+                                 SPACING["lg"], SPACING["lg"])
+        outer.setSpacing(SPACING["md"])
+
+        title = QLabel("Plate Viewer")
+        title.setObjectName("DisplayHeading")
+        outer.addWidget(title)
+
+        subtitle = QLabel(
+            "Any measurement as a plate heatmap, with the edge-effect test "
+            "beside it. The outer ring of a plate evaporates faster than the "
+            "interior — a hit sitting in it is more likely to be an artefact "
+            "than biology. Read-only: the database is opened with mode=ro.")
+        subtitle.setObjectName("Muted")
+        subtitle.setWordWrap(True)
+        outer.addWidget(subtitle)
+
+        outer.addWidget(Divider())
+
+        src_row = QHBoxLayout()
+        src_row.setSpacing(SPACING["sm"])
+        self._path_edit = QLineEdit(self)
+        self._path_edit.setPlaceholderText(
+            "…/measurements/measurements.db  — or a run folder")
+        self._path_edit.setClearButtonEnabled(True)
+        self._path_edit.returnPressed.connect(self._on_open_typed_path)
+        self._btn_pick_db = QPushButton("Choose database…", self)
+        self._btn_pick_db.clicked.connect(self._pick_database)
+        self._btn_pick_src = QPushButton("Choose run folder…", self)
+        self._btn_pick_src.clicked.connect(self._pick_run_folder)
+        self._btn_open = QPushButton("Open", self)
+        self._btn_open.clicked.connect(self._on_open_typed_path)
+        src_row.addWidget(self._path_edit, 1)
+        src_row.addWidget(self._btn_pick_db)
+        src_row.addWidget(self._btn_pick_src)
+        src_row.addWidget(self._btn_open)
+        install_test_data_button(
+            self, src_row, self._open_the_example,
+            say=lambda message: self._set_status(message, error=True))
+        outer.addLayout(src_row)
+
+        pick_row = QHBoxLayout()
+        pick_row.setSpacing(SPACING["sm"])
+        pick_row.addWidget(QLabel("Table", self))
+        self._table_combo = QComboBox(self)
+        self._table_combo.setMinimumWidth(140)
+        self._table_combo.setToolTip("(str) Measurement table to read.")
+        self._table_combo.currentIndexChanged.connect(self._on_table_changed)
+        pick_row.addWidget(self._table_combo)
+
+        pick_row.addWidget(QLabel("Measurement", self))
+        self._value_combo = QComboBox(self)
+        self._value_combo.setMinimumWidth(240)
+        self._value_combo.setToolTip(
+            "(str) Numeric column aggregated per well and drawn as colour.")
+        pick_row.addWidget(self._value_combo, 1)
+
+        pick_row.addWidget(QLabel("Plate", self))
+        self._plate_combo = QComboBox(self)
+        self._plate_combo.setMinimumWidth(120)
+        self._plate_combo.setToolTip("(str) Which plate to draw.")
+        self._plate_combo.currentIndexChanged.connect(self._on_view_changed)
+        pick_row.addWidget(self._plate_combo)
+        outer.addLayout(pick_row)
+
+        opt_row = QHBoxLayout()
+        opt_row.setSpacing(SPACING["sm"])
+        opt_row.addWidget(QLabel("Per well", self))
+        self._grouping_combo = QComboBox(self)
+        self._grouping_combo.addItems(list(pqc.GROUPINGS))
+        self._grouping_combo.setToolTip(
+            "(str) How the objects in a well are collapsed to one number. "
+            "'median' limits the influence of outlying objects; 'count' plots "
+            "objects per well and ignores the measurement.")
+        self._grouping_combo.currentIndexChanged.connect(self._on_view_changed)
+        opt_row.addWidget(self._grouping_combo)
+
+        opt_row.addWidget(QLabel("Colour scale", self))
+        self._scale_combo = QComboBox(self)
+        for label, _spec in COLOUR_SCALES:
+            self._scale_combo.addItem(label)
+        self._scale_combo.setToolTip(
+            "(str) The 'Robust' range clips colours to the 2nd–98th percentile "
+            "so one extreme well cannot flatten the plate.")
+        self._scale_combo.currentIndexChanged.connect(self._on_view_changed)
+        opt_row.addWidget(self._scale_combo)
+
+        opt_row.addWidget(QLabel("Min objects / well", self))
+        self._min_count_box = QSpinBox(self)
+        self._min_count_box.setRange(0, 100000)
+        self._min_count_box.setValue(0)
+        self._min_count_box.setToolTip(
+            "(int) Wells with fewer objects than this are dropped. They are "
+            "drawn blank, never as zero, and the number dropped is reported.")
+        self._min_count_box.valueChanged.connect(self._on_view_changed)
+        opt_row.addWidget(self._min_count_box)
+
+        opt_row.addStretch(1)
+        self._btn_render = QPushButton("Render", self)
+        self._btn_render.setObjectName("Primary")
+        self._btn_render.clicked.connect(self.render_plate)
+        opt_row.addWidget(self._btn_render)
+        outer.addLayout(opt_row)
+
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="plate_view::body")
+        self._grid = PlateGridWidget()
+        self._grid.well_clicked.connect(self._on_well_clicked)
+        split.add_section(self._grid, "Plate map",
+                          persist_key="plate_view/Plate map", extent=620)
+
+        self._report_view = QPlainTextEdit()
+        self._report_view.setReadOnly(True)
+        self._report_view.setLineWrapMode(QPlainTextEdit.NoWrap)
+        mono = QFont("monospace")
+        mono.setStyleHint(QFont.Monospace)
+        self._report_view.setFont(mono)
+        self._report_view.setPlaceholderText(
+            "The outer-ring test, the ring-by-ring profile and the "
+            "row/column gradients appear here once a plate is rendered.")
+        split.add_section(self._report_view, "Edge-effect report",
+                          persist_key="plate_view/Edge-effect report",
+                          extent=520)
+        self._body_splitter = split
+        outer.addWidget(split, 1)
+
+        self._well_label = QLabel("Click a well to see what is behind it.", self)
+        self._well_label.setWordWrap(True)
+        self._well_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        outer.addWidget(self._well_label)
+
+        foot_row = QHBoxLayout()
+        foot_row.setSpacing(SPACING["sm"])
+        self._scale_label = QLabel("", self)
+        self._scale_label.setObjectName("Caption")
+        foot_row.addWidget(self._scale_label, 1)
+        self._btn_export = QPushButton("Export well grid CSV…", self)
+        self._btn_export.clicked.connect(self._pick_export_path)
+        foot_row.addWidget(self._btn_export)
+        outer.addLayout(foot_row)
+
+        self._status = QLabel("", self)
+        self._status.setObjectName("Muted")
+        self._status.setWordWrap(True)
+        self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        outer.addWidget(self._status)
+
+
+    def _set_status(self, text: str, error: bool = False) -> None:
+        """Report inline. Deliberately never a QMessageBox — a modal dialog
+        would hang a headless run (and did, in MakeMasksScreen)."""
+        self.last_error = text if error else ""
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
+        self._status.setStyleSheet(f"color: {colour};")
+        self._status.setText(text)
+
+    def status_text(self) -> str:
+        """Current inline status message (test/introspection helper)."""
+        return self._status.text()
+
+    def report_text(self) -> str:
+        """The rendered edge-effect report (test/introspection helper)."""
+        return self._report_view.toPlainText()
+
+    def well_info_text(self) -> str:
+        """The per-well readout line (test/introspection helper)."""
+        return self._well_label.text()
+
+    def _update_controls(self) -> None:
+        """Enable the pickers, Render and Export to match what is loaded.
+
+        Everything but Export needs a database and no job in flight; Export
+        needs a rendered well grid, which is a different condition -- the CSV is
+        of what is drawn, not of what could be drawn.
+        """
+        has_db = bool(self._db_path)
+        ready = has_db and not self._busy
+        self._btn_render.setEnabled(ready and self._value_combo.count() > 0)
+        self._table_combo.setEnabled(ready)
+        self._value_combo.setEnabled(ready)
+        self._plate_combo.setEnabled(ready and self._plate_combo.count() > 0)
+        self._grouping_combo.setEnabled(ready)
+        self._scale_combo.setEnabled(ready)
+        self._min_count_box.setEnabled(ready)
+        self._btn_export.setEnabled(self._layout_df is not None
+                                    and len(self._layout_df) > 0)
+
+
+    def _pick_database(self) -> None:
+        """Ask for a measurements database and open it."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Choose a measurements database", self._path_edit.text() or
+            os.path.expanduser("~"), "SQLite databases (*.db);;All files (*)")
+        if path:
+            self._path_edit.setText(path)
+            self.open_database(path)
+
+    def _pick_run_folder(self) -> None:
+        """Ask for a run folder and open the database inside it."""
+        path = QFileDialog.getExistingDirectory(
+            self, "Choose a run folder", self._path_edit.text() or
+            os.path.expanduser("~"))
+        if path:
+            self._path_edit.setText(path)
+            self.open_database(path)
+
+    def _on_open_typed_path(self) -> None:
+        """Open whatever path is currently typed in the source box."""
+        self.open_database(self._path_edit.text())
+
+    def _open_the_example(self, _folder, database) -> None:
+        """Put the example plate's database in the source box and open it.
+
+        Cell area is drawn as soon as the table's columns arrive, because the
+        column the measurement box would otherwise default to is the object
+        label -- a number, and meaningless as a colour.
+
+        :param _folder: the example plate folder; the database is what opens.
+        :param database: its ``measurements/measurements.db``.
+        """
+        self._measurement_to_render = EXAMPLE_MEASUREMENT
+        self._path_edit.setText(str(database))
+        if not self.open_database(str(database)):
+            self._measurement_to_render = ""
+
+    def open_database(self, path: str) -> bool:
+        """Open ``path`` read-only and list the tables it holds.
+
+        :param path: a ``measurements.db`` or a run folder containing one.
+        :returns: True when the database opened.
+        """
+        try:
+            resolved = resolve_db_path(path)
+            names = pqc.tables(resolved)
+        except Exception as e:
+            self._db_path = ""
+            self._frame = None
+            self._layout_df = None
+            self._grid.clear()
+            self._report_view.setPlainText("")
+            self._set_status(str(e) or e.__class__.__name__, error=True)
+            self._update_controls()
+            return False
+
+        self._db_path = resolved
+        self._path_edit.setText(resolved)
+        self._frame = None
+        self._frame_key = ("", "", "")
+        self._layout_df = None
+        self._report = None
+        self._grid.clear()
+        self._report_view.setPlainText("")
+
+        self._loading = True
+        try:
+            self._table_combo.clear()
+            self._table_combo.addItems(names)
+            default = next((t for t in PREFERRED_TABLES if t in names),
+                           names[0] if names else "")
+            if default:
+                self._table_combo.setCurrentText(default)
+        finally:
+            self._loading = False
+
+        self.database_opened.emit(resolved)
+        if not names:
+            self._set_status(
+                f"{os.path.basename(resolved)} has no tables.", error=True)
+            self._update_controls()
+            return True
+        self._on_table_changed()
+        return True
+
+    def current_table(self) -> str:
+        """The table currently selected."""
+        return self._table_combo.currentText()
+
+    def current_value_column(self) -> str:
+        """The measurement column currently selected."""
+        return self._value_combo.currentText()
+
+    def set_table(self, table: str) -> None:
+        """Select ``table`` and reload its numeric columns.
+
+        :param table: name of a table in the table box, converted with
+            ``str``.
+        """
+        self._table_combo.setCurrentText(str(table))
+        self._on_table_changed()
+
+    def set_value_column(self, column: str) -> None:
+        """Select ``column`` as the measurement to draw.
+
+        A name that is not in the current table is *accepted* and selected
+        anyway — it is exactly what happens when a user picks a column and
+        then switches to a table that does not have it. Rendering then
+        fails with an inline explanation rather than the combo silently
+        snapping back to something the user did not choose.
+
+        :param column: the measurement column name, converted with ``str``.
+        """
+        name = str(column)
+        if self._value_combo.findText(name) < 0:
+            self._value_combo.addItem(name)
+        self._value_combo.setCurrentText(name)
+
+    def _on_table_changed(self, *_args) -> None:
+        """Offer the newly chosen table's numeric columns.
+
+        The read runs off the GUI thread, and the refill is flag-guarded so
+        repopulating the measurement box does not re-enter this.
+
+        :param _args: whatever the combo box passes; ignored, since the current
+            text is re-read either way.
+        :returns: the job handle from :meth:`_run_job`.
+        """
+        if self._loading or not self._db_path:
+            return
+        table = self._table_combo.currentText()
+        if not table:
+            return
+        self._frame = None
+        self._frame_key = ("", "", "")
+
+        def _job():
+            """Read the table's numeric columns. Off the GUI thread."""
+            return pqc.numeric_columns(self._db_path, table)
+
+        def _done(columns: List[str]) -> None:
+            """Offer the columns, guarded so refilling does not re-trigger this."""
+            self._loading = True
+            try:
+                self._value_combo.clear()
+                self._value_combo.addItems(columns)
+            finally:
+                self._loading = False
+            wanted = getattr(self, "_measurement_to_render", "")
+            self._measurement_to_render = ""
+            if wanted and wanted in columns:
+                self._value_combo.setCurrentText(wanted)
+                self.render_plate()
+                return
+            if columns:
+                self._set_status(
+                    f"{table}: {len(columns)} numeric column(s). Pick a "
+                    f"measurement and press Render.")
+            else:
+                self._set_status(
+                    f"{table} has no numeric columns to plot — pick another "
+                    f"table.", error=True)
+
+        return self._run_job(_job, _done)
+
+
+    def _on_view_changed(self, *_args) -> None:
+        """Plate / grouping / scale / min_count changed — recompute only.
+
+        No database round-trip: the long frame is already in memory, and a
+        user dragging the min-objects spin box should not re-query a
+        500 000-row table on every tick.
+
+        Nor should it start an aggregation on every tick. Holding the spin
+        box's arrow emits ``valueChanged`` about every 50 ms and the groupby
+        behind it takes ten times that, so the ticks used to queue up faster
+        than they could be served and the last one the user actually wanted
+        was the last to be drawn. Coalescing here means one aggregation for
+        one gesture, dispatched when the value stops moving.
+        """
+        if self._loading or self._frame is None:
+            return
+        if not self._threaded:
+            self.recompute()
+            return
+        self._recompute_timer.start()
+
+    def render_plate(self) -> bool:
+        """Read the chosen measurement and draw the plate.
+
+        The database is only touched when the table or measurement
+        changed; otherwise this is the same recompute the option controls
+        trigger.
+
+        :returns: True when the render was started/completed.
+        """
+        if not self._db_path:
+            self._set_status("Open a measurements database first.", error=True)
+            return False
+        table = self._table_combo.currentText()
+        value_col = self._value_combo.currentText()
+        if not table:
+            self._set_status("Pick a table first.", error=True)
+            return False
+        if not value_col:
+            self._set_status(
+                "Pick a measurement column first — this table exposed no "
+                "numeric columns.", error=True)
+            return False
+
+        key = (self._db_path, table, value_col)
+        if self._frame is not None and self._frame_key == key:
+            return self.recompute()
+
+        def _job():
+            """Load the plate frame. Off the GUI thread."""
+            return pqc.load_plate_frame(self._db_path, table, value_col)
+
+        def _done(frame: pd.DataFrame) -> None:
+            """Keep the frame and draw it, remembering what it was keyed on."""
+            self._frame = frame
+            self._frame_key = key
+            self._refresh_plate_combo(frame)
+            self.recompute()
+
+        return self._run_job(_job, _done)
+
+    def _refresh_plate_combo(self, frame: pd.DataFrame) -> None:
+        """Repopulate the plate list, keeping the current choice if valid."""
+        plates = pqc.plates_in(frame)
+        previous = self._plate_combo.currentText()
+        self._loading = True
+        try:
+            self._plate_combo.clear()
+            self._plate_combo.addItems(plates)
+            if previous and previous in plates:
+                self._plate_combo.setCurrentText(previous)
+        finally:
+            self._loading = False
+
+    def recompute(self) -> bool:
+        """Rebuild the well grid + report from the frame already in memory.
+
+        The aggregation runs off the GUI thread. ``pqc.plate_layout`` is a
+        full-frame groupby and ``detect_edge_effect`` a second pass over the
+        result: **487 ms** on a real measurement table, measured, and it fired
+        on every tick of the min-objects spin box. Dragging that box was a
+        sequence of half-second freezes.
+
+        ``recompute()`` returns a bool that a caller reads, and
+        it means "a plate was drawn **or is being drawn**" rather than "a
+        plate was drawn". The refusals -- no frame yet, and a failed
+        aggregation -- are unchanged and still synchronous, because the first
+        does no work and the second is reported by the completion handler in
+        exactly the place it was reported before. So the only caller-visible
+        difference is that ``True`` may arrive before the grid is painted.
+
+        ``threaded=False``
+        (which every test in ``test_plate_view.py`` and
+        ``test_plate_view_linked_filter.py`` constructs the screen with) runs
+        the job inline through :meth:`_run_job`, so those callers still get
+        the old meaning exactly. A caller that needs to know the grid is up
+        waits on :meth:`active_jobs`, as ``render_plate``'s callers already
+        do -- ``render_plate`` has returned "started, not finished" since the
+        database read was threaded, and this is the same promise.
+
+        :returns: True when a plate was drawn, or a draw was started.
+        """
+        if self._frame is None:
+            self._set_status("Nothing loaded yet — press Render.", error=True)
+            return False
+        grouping = self._grouping_combo.currentText()
+        plate = self._plate_combo.currentText() or None
+        min_count = int(self._min_count_box.value())
+        value_col = self._frame_key[2] or None
+        frame = self._frame
+
+        note = ""
+        narrow = None
+        try:
+            data_filter = self.link.filter
+            if not data_filter.is_empty:
+                narrow = self.linked_visible
+                note = f" · filtered: {data_filter.describe()}"
+        except Exception as exc:
+            note = f" · filter ignored ({exc.__class__.__name__})"
+
+        def _job():
+            """Recompute the plate summary. Off the GUI thread."""
+            source = frame
+            filter_note = note
+            if narrow is not None:
+                try:
+                    source = narrow(frame)
+                except Exception as exc:
+                    source = frame
+                    filter_note = f" · filter ignored ({exc.__class__.__name__})"
+            try:
+                layout = pqc.plate_layout(
+                    source, value_col=value_col, plate=plate,
+                    grouping=grouping, min_count=min_count)
+                report = pqc.detect_edge_effect(
+                    layout, value_col=value_col, grouping=grouping)
+            except Exception as exc:
+                return {"error": exc}
+            return {"layout": layout, "report": report, "note": filter_note}
+
+        return self._run_job(
+            _job,
+            lambda result: self._draw_plate(result, min_count))
+
+    def _draw_plate(self, result: Dict[str, Any], min_count: int) -> None:
+        """Paint one worker-computed plate layout. GUI thread only."""
+        error = result.get("error")
+        if error is not None:
+            self._layout_df = None
+            self._report = None
+            self._grid.clear()
+            self._report_view.setPlainText("")
+            self._set_status(str(error) or error.__class__.__name__,
+                             error=True)
+            self._update_controls()
+            return
+        layout, report = result["layout"], result["report"]
+        self._filter_note = result["note"]
+        self._layout_df = layout
+        self._report = report
+        spec = COLOUR_SCALES[max(self._scale_combo.currentIndex(), 0)][1]
+        vmin, vmax = pqc.colour_limits(layout, spec)
+        cmap = self._colormap_name()
+        self._grid.set_plate(layout, vmin, vmax, cmap)
+        if not len(layout):
+            self._grid.set_placeholder(
+                "No wells survived filtering — lower 'Min objects / well', or "
+                "pick another plate.")
+        self._report_view.setPlainText(pqc.format_edge_report(report))
+        self._scale_label.setText(
+            f"colour scale {vmin:.4g} → {vmax:.4g} "
+            f"({cmap}, {self._scale_combo.currentText()}) · "
+            f"crossed wells are blank, not zero")
+        self._well_label.setText("Click a well to see what is behind it.")
+
+        n_blank = self._blank_well_count(layout)
+        message = (f"{report.n_wells} well(s) drawn"
+                   + (f", {report.n_dropped_min_count} dropped for holding "
+                      f"fewer than {min_count} objects"
+                      if report.n_dropped_min_count else "")
+                   + (f", {n_blank} of the grid left blank" if n_blank else "")
+                   + ". " + report.summary
+                   + getattr(self, "_filter_note", ""))
+        self._set_status(message, error=False)
+        self._update_controls()
+        self.plate_rendered.emit(str(report.plate or ""))
+
+    def _blank_well_count(self, layout: pd.DataFrame) -> int:
+        """Wells on the nominal grid with nothing behind them."""
+        meta = dict(getattr(layout, "attrs", {}) or {})
+        total = int(meta.get("n_rows") or 0) * int(meta.get("n_cols") or 0)
+        return max(total - int(len(layout)), 0)
+
+    def _colormap_name(self) -> str:
+        """Colormap honouring the user's colour-vision preference."""
+        try:
+            from ..preferences import color_blind_continuous_cmap
+            return color_blind_continuous_cmap()
+        except Exception:
+            return DEFAULT_CMAP
+
+
+    def _on_well_clicked(self, row_index: int, column_index: int) -> None:
+        """Select the well the user clicked in the heatmap.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        """
+        self.select_well(row_index, column_index)
+
+    def select_well(self, row_index: int, column_index: int) -> str:
+        """Report what is behind a well, and return the text shown.
+
+        :param row_index: 1-based plate row.
+        :param column_index: 1-based plate column.
+        :returns: the readout line.
+        """
+        self._grid.select(row_index, column_index)
+        well = pqc.well_id(row_index, column_index)
+        layout = self._layout_df
+        row = None
+        if layout is not None and len(layout):
+            match = layout[(layout["row_index"] == int(row_index))
+                           & (layout["column_index"] == int(column_index))]
+            if len(match):
+                row = match.iloc[0]
+        if row is None:
+            min_count = int(self._min_count_box.value())
+            reason = (f" — no objects, or fewer than the {min_count} required"
+                      if min_count else " — no objects measured here")
+            text = f"{well} · blank{reason}."
+        else:
+            grouping = self._grouping_combo.currentText()
+            value_col = self._frame_key[2]
+            what = ("objects per well" if grouping == "count"
+                    else f"{grouping} {value_col}")
+            ring = int(row["ring"])
+            where = "outer ring (edge)" if ring == 0 else f"ring {ring} (interior)"
+            value = row["value"]
+            shown = "no value" if pd.isna(value) else f"{float(value):.6g}"
+            text = (f"{well} · {int(row['n'])} object(s) · {what} = {shown} "
+                    f"· {where}")
+        self._well_label.setText(text)
+        return text
+
+
+    def _pick_export_path(self) -> None:
+        """Ask where to write the well grid CSV, then write it."""
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Export well grid", os.path.join(
+                os.path.expanduser("~"), "plate_wells.csv"),
+            "CSV files (*.csv);;All files (*)")
+        if path:
+            self.export_csv(path)
+
+    def export_csv(self, out_path: str) -> bool:
+        """Write the well grid to ``out_path`` as CSV.
+
+        The tidy grid is exported — one row per well with its object
+        count, value, ring index and edge flag — because that is what
+        anybody re-analysing the plate outside spaCR needs.
+
+        :param out_path: destination file.
+        :returns: True on success; on failure the reason lands in the
+            inline status label and ``last_error``.
+        """
+        if self._layout_df is None or not len(self._layout_df):
+            self._set_status("Nothing to export — render a plate first.",
+                             error=True)
+            return False
+        try:
+            written = pqc.write_layout_csv(self._layout_df, out_path)
+        except Exception as e:
+            self._set_status(f"Export failed: {e}", error=True)
+            return False
+        self._set_status(f"Exported {len(self._layout_df)} well(s) → {written}")
+        return True
+
+
+    def _run_job(self, fn: Callable[[], Any],
+                 on_done: Callable[[Any], None]) -> bool:
+        """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
+
+        Mirrors ``DbBrowserScreen._run_job`` — one threading idiom for the
+        whole Qt layer — with one difference that matters here.
+        ``PipelineWorker.finished`` is emitted *in the worker thread*, and
+        PySide6 invokes a plain closure connected to it directly, on that
+        same thread. The Database Browser gets away with it because its
+        completion handler only pokes a table model; this screen's fills a
+        QPlainTextEdit, and building a QTextDocument's children off the
+        GUI thread is undefined behaviour (Qt says so out loud:
+        "Cannot create children for a parent that is in a different
+        thread"). So ``finished`` is chained through :attr:`_job_settled`
+        into a *bound method* of this widget, which has GUI-thread
+        affinity — Qt then queues the call and the completion handler runs
+        where every other widget call runs.
+
+        With ``threaded=False`` the call runs inline and the same signals
+        fire, so both paths behave identically from outside.
+        """
+        if not self._threaded:
+            ok = True
+            try:
+                on_done(fn())
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+            self._update_controls()
+            self.job_finished.emit(ok)
+            return ok
+
+        box: Dict[str, Any] = {}
+
+        def _job(payload: Dict[str, Any]) -> None:
+            """Call the wrapped function, stashing its result in the payload.
+
+            The payload is how a value crosses back from the worker: a return would
+            be swallowed by the runner.
+            """
+            payload["result"] = fn()
+
+        thread, worker = make_thread(_job, box)
+        self._jobs.append((thread, worker))
+        self._thread, self._worker = thread, worker
+        self._pending.append((box, on_done))
+        worker.error.connect(self._on_worker_error_text)
+        worker.finished.connect(self._job_settled)
+        thread.finished.connect(self._retire_finished_jobs)
+        self._busy = True
+        self._update_controls()
+        thread.start()
+        return True
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Finish the oldest in-flight job. Always on the GUI thread."""
+        self._busy = False
+        box, on_done = self._pending.pop(0) if self._pending else ({}, None)
+        ok = bool(ok)
+        if ok and on_done is not None:
+            try:
+                on_done(box.get("result"))
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
+
+    def _retire_job(self, thread) -> None:
+        """Release *this* job's refs once its own event loop has exited."""
+        self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
+        if self._thread is thread:
+            self._thread = None
+            self._worker = None
+
+    def active_jobs(self) -> int:
+        """How many worker threads are still winding down."""
+        return len(self._jobs)
+
+    def is_busy(self) -> bool:
+        """True while a database job is in flight."""
+        return self._busy
+
+    def _on_job_error(self, exc: Exception) -> None:
+        """Clear the busy flag and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
+        self._busy = False
+        self._set_status(str(exc) or exc.__class__.__name__, error=True)
+
+    def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy flag and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
+        line = (text or "").strip().splitlines()[-1] if text else "unknown error"
+        self._busy = False
+        self._set_status(f"Plate view failed: {line}", error=True)

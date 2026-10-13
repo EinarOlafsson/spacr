@@ -1,0 +1,638 @@
+{
+  "source_sha256": {
+    "before": "d1d714b66e8d30a75c3fdf2e97fe7a89f79f71cbd78c8c48de28711e780d333b",
+    "after": "9279866afb2fc047ffcb66be224e6cc896cd412c3ce3bdaf1cff48fb43eede19"
+  },
+  "scope": "Actual 3840x2160 display; native DataArt, existing classic buffer sizes; CPU NumPy fallback. Pixel sum/occupancy are descriptive, not acceptance thresholds.",
+  "density": [
+    {
+      "theme": "blobs",
+      "density": 0.01,
+      "raster_size": [
+        480,
+        270
+      ],
+      "rgb_sum": 18078,
+      "ink_pixels": 3207,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "bac0e72eb3f4ad8372887b9dc7ed73ce69c296bf25790b570a50917170ec2cb4"
+    },
+    {
+      "theme": "blobs",
+      "density": 0.1,
+      "raster_size": [
+        480,
+        270
+      ],
+      "rgb_sum": 132390,
+      "ink_pixels": 3707,
+      "changed_pixels_previous": 3707,
+      "pixel_sha256": "41f9e92eb703b3e3da9b825a89fbe97496bfcc35d48b0052493c862276978ffa"
+    },
+    {
+      "theme": "blobs",
+      "density": 0.5,
+      "raster_size": [
+        480,
+        270
+      ],
+      "rgb_sum": 4108232,
+      "ink_pixels": 56916,
+      "changed_pixels_previous": 56916,
+      "pixel_sha256": "4afe92d8ae4a08729ad68574581ad20956b72550be21ae4bee3d2724812a435f"
+    },
+    {
+      "theme": "aurora",
+      "density": 0.01,
+      "raster_size": [
+        1920,
+        1080
+      ],
+      "rgb_sum": 758962,
+      "ink_pixels": 324070,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "eddbdac9dee32d43459bc8fa41805360d5840f1914d539cc5c23116fcd9d7907"
+    },
+    {
+      "theme": "aurora",
+      "density": 0.1,
+      "raster_size": [
+        1920,
+        1080
+      ],
+      "rgb_sum": 9258732,
+      "ink_pixels": 627485,
+      "changed_pixels_previous": 627485,
+      "pixel_sha256": "413826ca15d4fd4373e107212be9d4cabfae68b04aeacffc64f628932647b437"
+    },
+    {
+      "theme": "aurora",
+      "density": 0.5,
+      "raster_size": [
+        1920,
+        1080
+      ],
+      "rgb_sum": 58068757,
+      "ink_pixels": 823889,
+      "changed_pixels_previous": 823628,
+      "pixel_sha256": "67ef207a6e39c85a244891c872eeb55f6dcd455359ec993bd3b3dc1ae5798bd0"
+    },
+    {
+      "theme": "drift",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 1095,
+      "ink_pixels": 14,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "8d5f1f6b84ac9af614613c8213c20f514413cf01d0585ac586db2b293ce8d1aa"
+    },
+    {
+      "theme": "drift",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 32622,
+      "ink_pixels": 266,
+      "changed_pixels_previous": 252,
+      "pixel_sha256": "2cd806708e7bdea0abcddcc355660eb1788a031d7bd2672e06b6c4fcaa6b5186"
+    },
+    {
+      "theme": "drift",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 163013,
+      "ink_pixels": 1299,
+      "changed_pixels_previous": 1033,
+      "pixel_sha256": "b84d0a1bbed4a33bc30468077bf6ecd8d18989efbbda4eb6af2993871df1ec24"
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 5929375,
+      "ink_pixels": 34510,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "d003ca952df0bfa980e775973bd2a712668cc4cdcee05cfd219002af6df68abd"
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 57802092,
+      "ink_pixels": 335572,
+      "changed_pixels_previous": 364413,
+      "pixel_sha256": "8f6729c48f7065f6aba4f1cc52970f13569b1c5deda9cd5aadb8a979b56f7282"
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 209022845,
+      "ink_pixels": 1219659,
+      "changed_pixels_previous": 1433144,
+      "pixel_sha256": "182ca1997fbb7fba83b8ccd9d0135b2c3d809ca41fe5c8b3cada7b521bd2300e"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 810337705,
+      "ink_pixels": 4952937,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "eda677cec2dfb663db2eccdfe32403dc59c81011089d00e2d4d4d9fce3f0d7ac"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 818222819,
+      "ink_pixels": 5055903,
+      "changed_pixels_previous": 7002782,
+      "pixel_sha256": "0ed259f2be3f637d58cd350501e29932a1112b2cd872a9055bfb6c201722defe"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 833084134,
+      "ink_pixels": 5211312,
+      "changed_pixels_previous": 7087269,
+      "pixel_sha256": "3bb4e10dc73915b0a8e7845ab800598ae3dad207e79d6d0d1be9dd2be892d879"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 2848894,
+      "ink_pixels": 352560,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "2a2489b7716179ef8da01559a4d6b92a57acc2dd133b344af7dfe94d57562dd2"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 31671897,
+      "ink_pixels": 360523,
+      "changed_pixels_previous": 360523,
+      "pixel_sha256": "4a5123f9404571792a3b7983a9201f15105f3ed4a4d936b46ae3035b8384f090"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 248288829,
+      "ink_pixels": 1777065,
+      "changed_pixels_previous": 1776736,
+      "pixel_sha256": "bd9e6ecbc2472b8b71ddb99935eb4ef3ad125710062f91b15ddac41247a4dddc"
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 481028,
+      "ink_pixels": 4078,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "67303d108eb7b21841e46f3c544f913ac8b4016b2901414041813731c470a6e9"
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 4732677,
+      "ink_pixels": 40530,
+      "changed_pixels_previous": 36468,
+      "pixel_sha256": "070ce4a955645209feb19ccc55571917c48846fcb27dc3b5e14ae6dc4ba570dd"
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 23347630,
+      "ink_pixels": 198682,
+      "changed_pixels_previous": 159003,
+      "pixel_sha256": "78f6c860a15c5ffffa9fc02e6e48078369e7b1caaafd096b9878728e9bb0a140"
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 1671490,
+      "ink_pixels": 12049,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "159c5df45b56ffa1bd73485d4b254f36e8f3b4cb4f44b9cd907a86b043ebc0ed"
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 16191105,
+      "ink_pixels": 117220,
+      "changed_pixels_previous": 128977,
+      "pixel_sha256": "b0fdef73d9136deca4191415149aebc184dd2d6c5e04985128fdcca33779b1ca"
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 80879517,
+      "ink_pixels": 585784,
+      "changed_pixels_previous": 690847,
+      "pixel_sha256": "f2c47c727ea5ccc699731e33734edc62841a58f52e9d0ae6059921ba927963fc"
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 1523104,
+      "ink_pixels": 10722,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "3961da1c721b2481b40a4bcca4de172db211ae7db35ca903228abed24216b7cf"
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 1858450,
+      "ink_pixels": 14518,
+      "changed_pixels_previous": 3841,
+      "pixel_sha256": "cf24ece6e8e3996b7cf9d470b5814507dc05334dd9357dba52dcc248cd21142b"
+    },
+    {
+      "theme": "data_art_fungal_growth",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 3648865,
+      "ink_pixels": 34586,
+      "changed_pixels_previous": 20450,
+      "pixel_sha256": "bef7c0e3700384334ef21338a06d47ffc0047bdf1f9dd2eb41f1d085531ca55a"
+    },
+    {
+      "theme": "data_art_thore",
+      "density": 0.01,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 5346,
+      "ink_pixels": 110,
+      "changed_pixels_previous": null,
+      "pixel_sha256": "ad8426c696da8e8a59028b723aafed7b25fb6df083219117e2094748d77af325"
+    },
+    {
+      "theme": "data_art_thore",
+      "density": 0.1,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 40028,
+      "ink_pixels": 990,
+      "changed_pixels_previous": 880,
+      "pixel_sha256": "dbd22f876c366808a6f7a9de2906fa4f7d210363175a9a1f4071f1b5824b9755"
+    },
+    {
+      "theme": "data_art_thore",
+      "density": 0.5,
+      "raster_size": [
+        3840,
+        2160
+      ],
+      "rgb_sum": 216886,
+      "ink_pixels": 5273,
+      "changed_pixels_previous": 4283,
+      "pixel_sha256": "7545a057346ffdb122d0ca0f0eec839cc85f2e2fa4a402871dece4b626dab0d0"
+    }
+  ],
+  "unchanged_default_higher_pairs": [
+    {
+      "theme": "blobs",
+      "background": "#101418",
+      "density": 0.5,
+      "pixel_sha256": "4afe92d8ae4a08729ad68574581ad20956b72550be21ae4bee3d2724812a435f"
+    },
+    {
+      "theme": "blobs",
+      "background": "#101418",
+      "density": 1,
+      "pixel_sha256": "d1724fb28d76b45320bda8a5150d9de84e36452f34a65749a08204ea2ab0119b"
+    },
+    {
+      "theme": "blobs",
+      "background": "#101418",
+      "density": 2,
+      "pixel_sha256": "d1724fb28d76b45320bda8a5150d9de84e36452f34a65749a08204ea2ab0119b"
+    },
+    {
+      "theme": "blobs",
+      "background": "#f6f7f9",
+      "density": 0.5,
+      "pixel_sha256": "186a36b9a781b892e2c140cb9ef26c3eacc599d332a7fd43ee0b08683ea4b9bd"
+    },
+    {
+      "theme": "blobs",
+      "background": "#f6f7f9",
+      "density": 1,
+      "pixel_sha256": "293e7764c75dd98aef0182f6807ec4d3b6455b47d9d1c7bf589b25cab54b7493"
+    },
+    {
+      "theme": "blobs",
+      "background": "#f6f7f9",
+      "density": 2,
+      "pixel_sha256": "293e7764c75dd98aef0182f6807ec4d3b6455b47d9d1c7bf589b25cab54b7493"
+    },
+    {
+      "theme": "aurora",
+      "background": "#101418",
+      "density": 0.5,
+      "pixel_sha256": "67ef207a6e39c85a244891c872eeb55f6dcd455359ec993bd3b3dc1ae5798bd0"
+    },
+    {
+      "theme": "aurora",
+      "background": "#101418",
+      "density": 1,
+      "pixel_sha256": "ae85607b1fd10da0ced45cdfc5af096fb4a6ed6fe96a90013072f7975981bdd5"
+    },
+    {
+      "theme": "aurora",
+      "background": "#101418",
+      "density": 2,
+      "pixel_sha256": "ae85607b1fd10da0ced45cdfc5af096fb4a6ed6fe96a90013072f7975981bdd5"
+    },
+    {
+      "theme": "aurora",
+      "background": "#f6f7f9",
+      "density": 0.5,
+      "pixel_sha256": "77be15d1a92ec284773dd62046f91c5ca64d362131a68c4fffc438ec1ff728cf"
+    },
+    {
+      "theme": "aurora",
+      "background": "#f6f7f9",
+      "density": 1,
+      "pixel_sha256": "7de518189cf3baa0c1590a8f596cbd7c0e0af9dbd6fd2d45e3248586f2ef1dcd"
+    },
+    {
+      "theme": "aurora",
+      "background": "#f6f7f9",
+      "density": 2,
+      "pixel_sha256": "7de518189cf3baa0c1590a8f596cbd7c0e0af9dbd6fd2d45e3248586f2ef1dcd"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#101418",
+      "density": 0.5,
+      "pixel_sha256": "3bb4e10dc73915b0a8e7845ab800598ae3dad207e79d6d0d1be9dd2be892d879"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#101418",
+      "density": 1,
+      "pixel_sha256": "22a42ebc08564a6861b0fa077e0be0a87cba8a8046e0727d304a2e1e23430813"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#101418",
+      "density": 2,
+      "pixel_sha256": "22a42ebc08564a6861b0fa077e0be0a87cba8a8046e0727d304a2e1e23430813"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#f6f7f9",
+      "density": 0.5,
+      "pixel_sha256": "3eb3b0a95dbde23e274a067f3898d83699d62bbf4e7fdad5e0c1d17845ab1eb6"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#f6f7f9",
+      "density": 1,
+      "pixel_sha256": "aa7d190ee68776bcaec3328d64932319c88d90e7723b3bcd815933faef713b65"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "background": "#f6f7f9",
+      "density": 2,
+      "pixel_sha256": "aa7d190ee68776bcaec3328d64932319c88d90e7723b3bcd815933faef713b65"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "background": "#101418",
+      "density": 0.5,
+      "pixel_sha256": "bd9e6ecbc2472b8b71ddb99935eb4ef3ad125710062f91b15ddac41247a4dddc"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "background": "#101418",
+      "density": 1,
+      "pixel_sha256": "0cdb174fb6c85a642d1525b451889c6a999dc19417602fa399314edd016342e8"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "background": "#101418",
+      "density": 2,
+      "pixel_sha256": "0cdb174fb6c85a642d1525b451889c6a999dc19417602fa399314edd016342e8"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "background": "#f6f7f9",
+      "density": 0.5,
+      "pixel_sha256": "e73d0517765ba0f98b4c08a105926160a210c0586319124a1ee8be4da246c941"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "background": "#f6f7f9",
+      "density": 1,
+      "pixel_sha256": "b0dd845ab0ac303c0d9d5548464ab9875cb85df578a969aa37507590e65fc6e8"
+    },
+    {
+      "theme": "data_art_chromatin_ribbon",
+      "background": "#f6f7f9",
+      "density": 2,
+      "pixel_sha256": "b0dd845ab0ac303c0d9d5548464ab9875cb85df578a969aa37507590e65fc6e8"
+    },
+    {
+      "theme": "data_art_thore",
+      "background": "#101418",
+      "density": 0.5,
+      "pixel_sha256": "7545a057346ffdb122d0ca0f0eec839cc85f2e2fa4a402871dece4b626dab0d0"
+    },
+    {
+      "theme": "data_art_thore",
+      "background": "#101418",
+      "density": 1,
+      "pixel_sha256": "02f34c7676aac39eadda027010e8d27b7b1272722e630fd9800849934b190532"
+    },
+    {
+      "theme": "data_art_thore",
+      "background": "#101418",
+      "density": 2,
+      "pixel_sha256": "876541dadcfecbe63e3fc156b551eb2cb18cd9cff7230ed09f4289a26b283a67"
+    },
+    {
+      "theme": "data_art_thore",
+      "background": "#f6f7f9",
+      "density": 0.5,
+      "pixel_sha256": "7cc80d446b5e698830538b8d661c36f9d7c1a2d7c526c04778aab3bb3b5e87e2"
+    },
+    {
+      "theme": "data_art_thore",
+      "background": "#f6f7f9",
+      "density": 1,
+      "pixel_sha256": "077cdcfe1aa66b0123bf3cad251d5fc1810872435e053ef559236cac6e7a52d6"
+    },
+    {
+      "theme": "data_art_thore",
+      "background": "#f6f7f9",
+      "density": 2,
+      "pixel_sha256": "7153a35a9b1045483047410169ad444ed608319a6dec09516631324541cec000"
+    }
+  ],
+  "gravity_radius": [
+    {
+      "theme": "data_art_point_atlas",
+      "radius": 0.01,
+      "changed_pixels": 116,
+      "changed_fraction": 1.398533950617284e-05,
+      "pixel_sha256": "e4815fe441643038e062a8621336b5e947143e51742935cf3f939643adddcf33"
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "radius": 0.1,
+      "changed_pixels": 16426,
+      "changed_fraction": 0.001980372299382716,
+      "pixel_sha256": "f78806df5b2f0d70c66a10a54501e768c7645c98d69becf5b0af69ce02333062"
+    },
+    {
+      "theme": "data_art_point_atlas",
+      "radius": 0.5,
+      "changed_pixels": 766921,
+      "changed_fraction": 0.09246250482253086,
+      "pixel_sha256": "815749db82e8966c24e5cf7a13a273c28651d53bc03e07aa7d181305ddd990dc"
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "radius": 0.01,
+      "changed_pixels": 131,
+      "changed_fraction": 1.5793788580246915e-05,
+      "pixel_sha256": "2b2ada481b8dbb5c2eb95c170db1254127f3e02b7ceff520f4a71c463465ca77"
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "radius": 0.1,
+      "changed_pixels": 16824,
+      "changed_fraction": 0.0020283564814814817,
+      "pixel_sha256": "b0dcbf46d9ff92646cbc93f2c7d9c72bcd6127b4046ea262248e7b88741d5f2e"
+    },
+    {
+      "theme": "data_art_genetic_advection",
+      "radius": 0.5,
+      "changed_pixels": 302784,
+      "changed_fraction": 0.03650462962962963,
+      "pixel_sha256": "386bf856a60f05f8dc2df26293b82f6451faf43bd37139873e3f8162f05b61bc"
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "radius": 0.01,
+      "changed_pixels": 429,
+      "changed_fraction": 5.172164351851852e-05,
+      "pixel_sha256": "ccf4e918fd8b99dd6239bd0b7a05f63055cf236f94bc3a4702a561908eac8e79"
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "radius": 0.1,
+      "changed_pixels": 39503,
+      "changed_fraction": 0.004762610918209877,
+      "pixel_sha256": "a8e5261aade6247e6868e461d6d69f58fb966d7a11761d865abf580f7b201623"
+    },
+    {
+      "theme": "data_art_impulse_lens",
+      "radius": 0.5,
+      "changed_pixels": 798633,
+      "changed_fraction": 0.09628580729166666,
+      "pixel_sha256": "d97cc6f9865be5d1b35890de5718db6bd76a283b7c9f6820bf88184d701ae3fb"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "radius": 0.01,
+      "changed_pixels": 0,
+      "changed_fraction": 0.0,
+      "pixel_sha256": "22a42ebc08564a6861b0fa077e0be0a87cba8a8046e0727d304a2e1e23430813"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "radius": 0.1,
+      "changed_pixels": 21759,
+      "changed_fraction": 0.002623336226851852,
+      "pixel_sha256": "8047ef6d164607567c3f836a9806b975e8969fdf6c26e68c1abc5011af0f5398"
+    },
+    {
+      "theme": "data_art_tissue_facets",
+      "radius": 0.5,
+      "changed_pixels": 676372,
+      "changed_fraction": 0.0815456211419753,
+      "pixel_sha256": "5abc41e7f5357b0b8779d8315be11b5832370b5d6f4d36d8edf15ad19f8cbe9f"
+    }
+  ],
+  "peak_rss_kib": 939528
+}

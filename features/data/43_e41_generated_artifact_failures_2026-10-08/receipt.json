@@ -1,0 +1,62 @@
+{
+  "failures": [
+    {
+      "extra_indexed_symbol": "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent",
+      "generated_index": "spacr/qt/help_api_index.py",
+      "nodeid": "tests/test_the_help_index_is_generated_not_typed.py::test_the_api_rows_are_the_published_symbols",
+      "published_manifest": "docs/source/_static/i18n/api/en.json"
+    },
+    {
+      "generated_index": "spacr/qt/screens/settings_flow_index.py",
+      "generated_page": "docs/source/_generated/settings_flow.rst",
+      "missing_count": 9,
+      "missing_keys": [
+        "count",
+        "database_write_queue_gib",
+        "linestyle",
+        "max_tasks_per_child",
+        "melt",
+        "pair",
+        "stats",
+        "x",
+        "y"
+      ],
+      "nodeid": "tests/test_the_settings_flow_artefacts_are_current.py::test_the_page_draws_a_section_for_every_setting_read_today",
+      "stranded_count": 0
+    },
+    {
+      "first_ten_keys_reported": [
+        "_psf_measurement_signature",
+        "anisotropy",
+        "bystander_measurements",
+        "bystander_reach_in_diameters",
+        "calculate_correlation",
+        "cell_mask_dim",
+        "cell_max_size",
+        "cell_min_area",
+        "cell_min_size",
+        "channels"
+      ],
+      "generated_index": "spacr/qt/screens/settings_flow_index.py",
+      "generated_page": "docs/source/_generated/settings_flow.rst",
+      "generator": "tools/settings_flow.py --rst",
+      "nodeid": "tests/test_the_settings_flow_artefacts_are_current.py::test_every_section_says_today_what_the_source_says_today",
+      "shared_sections": 1327,
+      "stale_shared_sections": 78
+    }
+  ],
+  "interpretation": "Source-bound stale generated artifacts on e41, not application acceptance or proof about a later commit. Refresh with normal generators on the final source; do not edit generated outputs by hand.",
+  "job": "Coverage shard 9 of 12",
+  "job_conclusion": "failure",
+  "job_id": 113548884398,
+  "kind": "hosted_generated_artifact_freshness_handoff",
+  "log": {
+    "file": "coverage9-job.log.gz",
+    "gzip_sha256": "e31237ca83888a16af8d35f7de50a0b641c8b803dadf53e1c7d7cf48d74c628c",
+    "raw_bytes": 2438580,
+    "raw_sha256": "68ee46d235ada1f804a6106bfa62e1dec6098d68c7995b6756696fdd0852bd19"
+  },
+  "run_attempt": 1,
+  "run_id": 37846367787,
+  "source_sha": "e41df27e0a37303cbbc81687d21f74738cc05e0b"
+}

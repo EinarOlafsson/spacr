@@ -1,0 +1,39 @@
+{
+  "lesson": "60_pca",
+  "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "PCA : explorer des mesures et exporter des composantes",
+  "description": "Chargez des objets mesurés, choisissez des caractéristiques, comparez des composantes principales et exportez les scores, les contributions et la variance expliquée.",
+  "objectives": [
+    "Charger une base de données de mesures ou un CSV et sélectionner des caractéristiques.",
+    "Choisir la mise à l’échelle, le traitement des valeurs manquantes et les filtres.",
+    "Examiner les scores et contributions des composantes, puis exporter trois tables de résultats."
+  ],
+  "prerequisite": "Téléchargez l’exemple du tutoriel Annotate et travaillez sur une copie de measurements.db. Cette démonstration utilise sa table cell, avec 2341 objets mesurés répartis sur quatre puits. Conservez la base de données d’origine et notez votre liste de caractéristiques, vos filtres, votre mise à l’échelle et votre règle pour les valeurs manquantes.",
+  "scenes": [
+    "Depuis Home, ouvrez Image UMAP, puis choisissez PCA. La PCA résume plusieurs colonnes de mesures sous forme de composantes principales. Commencez avec la base de données de mesures de l’exemple Annotate associé.",
+    "Cliquez sur Load table à côté du titre PCA. Ouvrez measurements.db et sélectionnez cell. Vérifiez la table affichée et le nombre d’objets. Vous pouvez aussi charger un CSV contenant des colonnes de mesures.",
+    "Effacez la recherche de caractéristiques et cliquez sur None pour décocher toutes les caractéristiques visibles. Sélectionnez cell_area, cell_channel_1_mean_intensity et cell_perimeter. Effacez de nouveau la recherche, réglez Components sur trois, puis cliquez sur Run PCA.",
+    "Laissez Scale sur Standardise pour centrer chaque caractéristique et la diviser par son écart-type d’échantillon. Lisez l’éboulis des valeurs propres : les deux premières composantes expliquent environ soixante-cinq virgule sept et trente et un virgule sept pour cent de la variance des caractéristiques sélectionnées.",
+    "Choisissez rowID dans Colour, PC trois sur X et PC un sur Y. Ces réglages redessinent le résultat ajusté. Chaque point représente une cellule ; dans cet exemple, rowID identifie une ligne spatiale.",
+    "Revenez à PC un et PC deux. Activez ou désactivez Loadings biplot pour afficher ou masquer les flèches des caractéristiques. Les flèches montrent les corrélations avec les composantes affichées ; utilisez leurs directions et le cercle de référence en pointillés pour comparer les caractéristiques.",
+    "Choisissez Centre only pour ajuster sur les échelles de mesure d’origine. La première composante explique alors environ quatre-vingt-dix virgule un pour cent. La mise à l’échelle change la question résumée. Revenez à Standardise pour comparer les caractéristiques sur une échelle commune.",
+    "Dans le filtre de droite, ajoutez cell_area et réglez le minimum sur vingt et un mille neuf cent vingt-cinq. Le panneau réajuste la PCA sur les mille cent soixante et onze cellules restantes ; la population et les directions des composantes changent donc toutes les deux.",
+    "Cliquez sur Clear all dans le filtre pour retrouver la population complète. Vérifiez le nombre d’objets après filtrage. La base de données source reste inchangée ; le résultat affiché est recalculé pour la population choisie.",
+    "Sélectionnez cell_channel_0_homogeneity_distance_32 comme quatrième caractéristique. Cliquez sur Run PCA pour l’inclure dans le résultat. Cet exemple compte sept mesures manquantes dans cette colonne ; utilisez NaN pour choisir comment l’ajustement les traite.",
+    "Avec Auto, les caractéristiques manquantes dans plus de deux pour cent des lignes sont retirées, puis les lignes incomplètes sont écartées. Ici, les quatre caractéristiques restent et sept cellules sont exclues. Lisez le rapport pour voir les caractéristiques et les objets réellement analysés.",
+    "Choisissez Drop features pour retirer toute caractéristique sélectionnée qui contient des valeurs manquantes. Dans cet exemple, la caractéristique de texture est retirée et toutes les cellules restent. L’avis de résultat indique les caractéristiques exclues, même si leurs cases restent cochées.",
+    "Choisissez Mean-impute pour garder toutes les cellules et caractéristiques en remplaçant, pendant le calcul, les valeurs manquantes par la moyenne observée de la caractéristique. Ici, sept valeurs sont remplacées. Mentionnez ce choix en présentant le résultat ; les valeurs remplacées sont des estimations.",
+    "Choisissez Complete cases pour garder les caractéristiques sélectionnées et exclure les lignes incomplètes. Pour revenir à l’exemple d’origine, choisissez Auto, décochez la caractéristique de texture, effacez la recherche, cliquez sur Run PCA et réglez Colour sur none.",
+    "Cliquez sur Export et choisissez un nom de base, par exemple pca_example. Le panneau écrit trois fichiers CSV : les scores des objets analysés, les contributions et corrélations des caractéristiques, et la variance expliquée des composantes. La table des scores contient aussi les colonnes de mesures sources.",
+    "Ouvrez les tables exportées et conservez-les avec votre liste de caractéristiques, vos filtres et vos paramètres d’analyse. Considérez les cellules comme des observations au sein de leurs puits lorsque vous interprétez une séparation. Pour une analyse Python reproductible, utilisez pca et PCASpec de spacr.qt.widgets.pca_model."
+  ]
+}

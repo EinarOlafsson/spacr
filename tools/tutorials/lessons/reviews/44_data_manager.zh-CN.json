@@ -1,0 +1,36 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "e442156c3d5154963bc72ce01be337bb0f19806767d7ebe8eae9e9572eef06ff",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Data Manager：查看占用、清理并归档",
+  "description": "查看项目存储情况，预览清理计划，并把项目移动到归档目标位置。",
+  "objectives": [
+    "查看项目的磁盘占用。",
+    "检查并执行清理计划。",
+    "移动归档的项目并重新扫描。"
+  ],
+  "prerequisite": "使用已完成的spaCR项目，并在清理之前保留一份独立备份。示例使用External Masks生成的项目的副本。",
+  "scenes": [
+    "打开Help，然后打开Data manager。选择一个已完成的项目，查看其存储情况，并规划清理或归档。",
+    "点击Choose project并选择项目根目录。阅读Usage，了解其文件、磁盘空间和已登记的产物。",
+    "打开Prune，选择要考虑的产物类型。如果要保留测量数据库和模型权重，请不要勾选它们，然后点击Show what can be deleted。",
+    "检查建议删除的文件、可节省的空间和恢复信息。示例选择的是对象裁剪文件夹。请保留重新生成所删内容所需的输入和设置。",
+    "点击Delete查看最终的文件列表。删除无法撤销，因此在确认计划之前，请检查路径和您的备份。",
+    "如果想保留文件或修改选择，请使用Cancel。确认列表后，最终的Delete操作才会启用。",
+    "计划无误后确认Delete。在结果中查看删除的文件数量和回收的空间。",
+    "查看更新后的Usage扫描。已删除的产物可能仍以缺失状态连同其记录的生成方法一起列出；需要时请通过相应模块重新生成。",
+    "打开Archive，在源项目之外选择一个空的目标位置。点击Show what would move，检查两个路径。",
+    "点击Move查看确认信息。Archive会移动项目，因此在继续之前请保留好所需的独立备份。",
+    "确认Yes以移动项目。保留目标位置的清单文件，以及原位置留下的归档日志。",
+    "把目标位置选为项目并重新扫描。检查移动后的文件，并更新仍指向旧位置的外部引用。",
+    "用Database Browser查看测量表，用Report生成项目汇总，用Data Manager维护存储。把归档记录与项目文档一起保存。"
+  ]
+}

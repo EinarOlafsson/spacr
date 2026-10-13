@@ -1,0 +1,28 @@
+{
+ "item": "F574",
+ "checked": "2026-10-10T22:50-04:00",
+ "cpu_only": true,
+ "nightly_base": "origin/nightly a6526c9ab",
+ "tests": {
+  "files": [
+   "test_archive_destination_f574.py",
+   "test_archive_study_multi_screen.py",
+   "test_cli_archive_package_f574.py",
+   "test_archive_package.py",
+   "test_cov_g2_archive_validation.py",
+   "test_cov_g2_archive_writer_edges.py",
+   "+ files holding test_further_screens_in_the_form_make_one_study / test_known_screen_terms_get_their_accessions"
+  ],
+  "result": "88 passed",
+  "wall_s": 17.59,
+  "flags": "-n 4, CUDA_VISIBLE_DEVICES='', QT offscreen, 8G cap"
+ },
+ "cli_end_to_end": {
+  "cmd": "python -m spacr.cli archive-package --src <2 cached plate1 tifs> --out <dir> --metadata metadata.json [--copy-images]",
+  "rc": 0,
+  "local_checks": "PASS both modes",
+  "md5sum_c": "PASS with --copy-images; without it the image lines are relative to the source run, so md5sum -c only passes when run from there"
+ },
+ "official_idr_parser": "not rerun today (running a fresh clone of idr-utils was refused by this session's sandbox); 2026-10-02 receipt stands",
+ "uploaded": false
+}

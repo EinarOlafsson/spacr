@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI-assisted linguistic and technical review against the plaque preview controls; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Plaques",
+      "source": "Plaques",
+      "source_sha256": "0c97cbb9a378699cf8e92b5f9895fdd61902adeb6746d6468ff47e12d2d7f46e",
+      "translation": "Lyseplaques"
+    },
+    {
+      "table": "ui",
+      "key": "Plaques ({n})",
+      "source": "Plaques ({n})",
+      "source_sha256": "aa0216b1cb6a66fb1f16a428af9b6f1ce67fe589834431b61390a79685d238f5",
+      "translation": "Lyseplaques ({n})"
+    },
+    {
+      "table": "ui",
+      "key": "Well {n}",
+      "source": "Well {n}",
+      "source_sha256": "b15985103e329626691525f8274ee1e15ee6c1ffbb123bbe1b20773db2294ce4",
+      "translation": "Vertiefung {n}"
+    },
+    {
+      "table": "ui",
+      "key": "panel {p}",
+      "source": "panel {p}",
+      "source_sha256": "1310203403e5b686482e2459530d6c5d9c207a1dddde680958c2474331f52caf",
+      "translation": "Teilabbildung {p}"
+    },
+    {
+      "table": "ui",
+      "key": "Random colour per object",
+      "source": "Random colour per object",
+      "source_sha256": "dbd2147878854de6cd0b5e733f7b6339374130726364c5d88fce962a9f7e2aae",
+      "translation": "Zufällige Farbe pro Objekt"
+    },
+    {
+      "table": "ui",
+      "key": "Overlay settings…",
+      "source": "Overlay settings…",
+      "source_sha256": "8044e57d4e3d68e26c261ca3eec2b84cd0880ae39f89ef79833a83f5ec6e4cc3",
+      "translation": "Überlagerungseinstellungen…"
+    },
+    {
+      "table": "ui",
+      "key": "Find plaques in all wells",
+      "source": "Find plaques in all wells",
+      "source_sha256": "2784c488f5273ba3d29971101b550c92a7bf88f5531ae20263702e6e43fa278a",
+      "translation": "Plaques in allen Vertiefungen finden"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate by hand",
+      "source": "Annotate by hand",
+      "source_sha256": "1114f54209e1c9560b10638b22bc2150113f331e96cab7e6b884db94e1947174",
+      "translation": "Manuell annotieren"
+    },
+    {
+      "table": "ui",
+      "key": "Read the text around each well",
+      "source": "Read the text around each well",
+      "source_sha256": "77cadd4d9a771c84ae440df6ba24c257042b8befcbd6cc59fb6a6797e5147726",
+      "translation": "Text um jede Vertiefung lesen"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque preview",
+      "source": "Plaque preview",
+      "source_sha256": "2d47d01057846ccdf104381e2c4ebd51231372641d9a85880d25582c79568181",
+      "translation": "Plaque-Vorschau"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque model",
+      "source": "Plaque model",
+      "source_sha256": "448b50814371110210fba6100e1cf139a7675aeca72747487a6a98f274b35348",
+      "translation": "Plaque-Modell"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_model",
+      "source": "Plaque model",
+      "source_sha256": "448b50814371110210fba6100e1cf139a7675aeca72747487a6a98f274b35348",
+      "translation": "Plaque-Modell"
+    }
+  ]
+}

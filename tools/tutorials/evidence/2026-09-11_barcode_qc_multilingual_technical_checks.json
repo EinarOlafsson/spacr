@@ -1,0 +1,846 @@
+{
+  "lesson": "47_barcode_qc",
+  "status": "Complete staged technical matrix for verified saved-file workflow; not published",
+  "canonical_english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+  "scene_count": 11,
+  "narrated_words": 582,
+  "native_verification": {
+    "lesson": "47_barcode_qc",
+    "native_scope": "Successful worker and verified saved plots opened in actual system viewer; not a repaired GUI",
+    "provenance": {
+      "commit": "c46b7d6b793066b8e55ffe436a63b99906956a12",
+      "version": "1.5.0.6",
+      "module": "barcode_qc",
+      "download_requested": false,
+      "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+      "app_source_modified": false,
+      "cache_isolated_with_bind_mount": true,
+      "completed_capture": true
+    },
+    "workflow": {
+      "lesson": "47_barcode_qc",
+      "accepted": true,
+      "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq",
+      "inputs": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data/plate_1_unique_combinations.csv": {
+          "bytes": 4325565,
+          "mtime_ns": 1788965780086229800,
+          "sha256": "9bbfd6de409ec501b94abd2f20230611a695b142228892f5c3b8b2b564ba1f13"
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/plate_1_unique_combinations.csv": {
+          "bytes": 4325565,
+          "mtime_ns": 1788965780086229800,
+          "sha256": "9bbfd6de409ec501b94abd2f20230611a695b142228892f5c3b8b2b564ba1f13"
+        }
+      },
+      "input_rows": 172756,
+      "app_source_modified": false,
+      "target_is_demonstration_not_experiment_design": true,
+      "omitted_optional_inputs": [
+        "qc_data",
+        "grna_csv",
+        "row_csv",
+        "column_csv"
+      ],
+      "provider_contacted": false,
+      "published": false,
+      "defaults": {
+        "count_data": [
+          "/mnt/firecuda2/codex/repo/spacr/path to unique_combinations.csv"
+        ],
+        "qc_data": null,
+        "grna_csv": "",
+        "row_csv": "",
+        "column_csv": "",
+        "target_grnas_per_well": 5,
+        "target_statistic": "median",
+        "min_reads_per_well": 0,
+        "starved_read_fraction": 0.1,
+        "exclude_starved_wells": true,
+        "position_effect_ratio": 2,
+        "collision_max_distance": 1,
+        "sweep_span": 4,
+        "sweep_points": 25,
+        "dst": null,
+        "plot": true,
+        "save": true,
+        "verbose": true
+      },
+      "settings": {
+        "count_data": [
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/plate_1_unique_combinations.csv"
+        ],
+        "qc_data": null,
+        "grna_csv": "",
+        "row_csv": "",
+        "column_csv": "",
+        "target_grnas_per_well": 5,
+        "target_statistic": "median",
+        "min_reads_per_well": 0,
+        "starved_read_fraction": 0.1,
+        "exclude_starved_wells": true,
+        "position_effect_ratio": 2,
+        "collision_max_distance": 1,
+        "sweep_span": 4,
+        "sweep_points": 25,
+        "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/results",
+        "plot": true,
+        "save": true,
+        "verbose": true
+      },
+      "live_preview_control_present": false,
+      "run": {
+        "outcome": {
+          "finished": true,
+          "ok": true,
+          "errors": []
+        },
+        "console": [
+          "Recording reproducibility input hashes…\n",
+          "Reproducibility manifest: /home/olafsson/.spacr/runs/2026-09-11_044535_29d58e9a__barcode_qc\n",
+          "[settings] ERROR [src]: src is missing from the settings.\n",
+          "[settings]     Set src to the folder holding the images (or, for measure, the merged folder).\n",
+          "Target: 5 gRNAs per well (median). Derived abundance threshold: 0.0121 (1.21% of a well's reads).\n",
+          "At 0.0121 the median well carries 5.0 gRNAs and 100% of wells are retained (384 of 384); 40% of wells hold more than 5 gRNAs and so cannot have a phenotype attributed to a single guide. 58% of mapped reads survive.\n",
+          "Every cutoff from 0.0112 to 0.0132 gives the same median of 5.0; 0.0121 is the geometric middle of that range and so the point least sensitive to a re-run. The collision rate does still vary across the range — see the sweep — which is why the middle is the number to quote and not either edge.\n",
+          "Relaxing to 0.0086 takes the median to 8.0 gRNAs per well and the collision rate to 72%, for +0 percentage points of well retention.\n",
+          "Tightening to 0.0172 drops the median to 4.0 gRNAs per well and retention to 100%.\n",
+          "Below 0.0121 the collision rate rises sharply: 40% at 0.0121 becomes 72% at 0.0086. That is the floor worth defending.\n"
+        ],
+        "gui_figure_count": 0,
+        "figures_card_visible": false,
+        "figures": [],
+        "settings_errors": [
+          "[settings] ERROR [src]: src is missing from the settings.\n"
+        ]
+      },
+      "independent_csv_check": {
+        "checks": {
+          "per_well": {
+            "rows": 384,
+            "fields_checked": 2304,
+            "maximum_numeric_error": 0
+          },
+          "positions": {
+            "rows": 40,
+            "fields_checked": 320,
+            "maximum_numeric_error": 0
+          },
+          "starved": {
+            "rows": 0,
+            "fields_checked": 0,
+            "maximum_numeric_error": 0
+          },
+          "sweep": {
+            "rows": 26,
+            "fields_checked": 260,
+            "maximum_numeric_error": 0
+          }
+        },
+        "total_reads": 49464341,
+        "wells": 384,
+        "observed_guides": 1379,
+        "starved_wells": 0,
+        "starvation_cutoff": 12574.45,
+        "source_unchanged": true
+      },
+      "saved_files": {
+        "results/barcode_qc.png": {
+          "bytes": 256208,
+          "mtime_ns": 1789101942015170800,
+          "sha256": "e4de0233924a6e42122e2f40266dfee6c83563153e96a5d4d393ff172917230a"
+        },
+        "results/position_effects.csv": {
+          "bytes": 2563,
+          "mtime_ns": 1789101936327565300,
+          "sha256": "18427f1e9f6ba1f661cf78cd7f423fa260fcdc77b53111cddf5a1333b7076cb4"
+        },
+        "results/reads_per_well.csv": {
+          "bytes": 15051,
+          "mtime_ns": 1789101936326907000,
+          "sha256": "571d2d4eeb086a5a156129b5a891b3621ee5f39adf1b776bbe19ca1e3b0ab6f3"
+        },
+        "results/starved_wells.csv": {
+          "bytes": 41,
+          "mtime_ns": 1789101936327200300,
+          "sha256": "1599e72b4fb30612fc2a5a42e5d8283c4c80150ff5cf456524cd346bfe216725"
+        },
+        "results/threshold_recommendation.txt": {
+          "bytes": 946,
+          "mtime_ns": 1789101936328087300,
+          "sha256": "eaeca9b1f8a9c2efdba1f847d48976f79d4bc5868f70a96631fe85e739ac2eeb"
+        },
+        "results/threshold_sweep.csv": {
+          "bytes": 2486,
+          "mtime_ns": 1789101936326353200,
+          "sha256": "e7da7f93e2655157fd1079a67bef22bfe59211b5aac6a57ffcf6b42bd70fc70f"
+        },
+        "results/threshold_sweep.png": {
+          "bytes": 164253,
+          "mtime_ns": 1789101941148145200,
+          "sha256": "a319b9416f33cec2fd565c54676611c3a03a595db2b87c0df2eebcf53abf79f7"
+        }
+      },
+      "saved_plot_viewer": {
+        "accepted": true,
+        "saved_plots": [
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/results/barcode_qc.png",
+            "sha256": "e4de0233924a6e42122e2f40266dfee6c83563153e96a5d4d393ff172917230a",
+            "dimensions": [
+              3903,
+              2704
+            ],
+            "window_title": "barcode_qc.png",
+            "viewer": "eog",
+            "actual_desktop_capture": true
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/barcode_qc_runs/real-plate1-dy0ygmbq/results/threshold_sweep.png",
+            "sha256": "a319b9416f33cec2fd565c54676611c3a03a595db2b87c0df2eebcf53abf79f7",
+            "dimensions": [
+              2279,
+              1850
+            ],
+            "window_title": "threshold_sweep.png",
+            "viewer": "eog",
+            "actual_desktop_capture": true
+          }
+        ],
+        "saved_files_unchanged": true,
+        "application_figures_fixed": false,
+        "scope": "External system viewer, not spaCR Figures"
+      },
+      "scope": "Verified CSV outputs and real external plot viewer; GUI defects remain",
+      "gui_figure_workflow_accepted": false,
+      "settings_preflight_fixed": false,
+      "inputs_unchanged": true,
+      "active_jobs_after_close": 0
+    },
+    "frames": {
+      "00_home": {
+        "image": "00_home.png",
+        "capture_surface": "application_window",
+        "sha256": "848d98c4a96ae525e22aac03de90513290d3406994f34cb49baf42370df9d1da"
+      },
+      "01_map_barcodes_host": {
+        "image": "01_map_barcodes_host.png",
+        "capture_surface": "application_window",
+        "sha256": "87b962354d78d5b9d61fb1c80c3c04dfd9bdb208f7427113d982a23d020a5a76"
+      },
+      "02_barcode_qc_fold": {
+        "image": "02_barcode_qc_fold.png",
+        "capture_surface": "application_window",
+        "sha256": "528d48e933679f2bde69e080e87f64ea19bd8014dc87964d583c1cb010418f93"
+      },
+      "03_choose_published_plate1": {
+        "image": "03_choose_published_plate1.png",
+        "capture_surface": "application_window",
+        "sha256": "651bb4afa8b66fb9704ee9e7afe0c92880f5501d4d186fdcb27e4b7ad70f4c49"
+      },
+      "04_actual_count_input": {
+        "image": "04_actual_count_input.png",
+        "capture_surface": "application_window",
+        "sha256": "e4df114e91f93dc206f249a3e4e0184572f18fb040f3c7f35e53b0d79a2df142"
+      },
+      "05_00_dst": {
+        "image": "05_00_dst.png",
+        "capture_surface": "application_window",
+        "sha256": "7f16fb3da11051d848648b5eab2bb4f6c048d746ceb0c09010e51eff869c3b4e"
+      },
+      "05_01_target_grnas_per_well": {
+        "image": "05_01_target_grnas_per_well.png",
+        "capture_surface": "application_window",
+        "sha256": "1ad61b1db1bf829132789171e00d6403db2b2dc4171dd67c6b6480725298e23f"
+      },
+      "05_04_starved_read_fraction": {
+        "image": "05_04_starved_read_fraction.png",
+        "capture_surface": "application_window",
+        "sha256": "05d69f574c30dc21f327476471056287d6d9e9e6a6c8b7930288d8259b61f048"
+      },
+      "05_09_plot": {
+        "image": "05_09_plot.png",
+        "capture_surface": "application_window",
+        "sha256": "a77f71dcd4f2b7ee66bdcf61fe3a823c271bf3383158bbe287bc73b6a82442b6"
+      },
+      "06_running": {
+        "image": "06_running.png",
+        "capture_surface": "application_window",
+        "sha256": "c679eef49c20fd73d8317cd71c075226c7c6f44077bf8873ca15bcc8e9dc4a75"
+      },
+      "07_finished_console": {
+        "image": "07_finished_console.png",
+        "capture_surface": "application_window",
+        "sha256": "41d3b26bb0029e8db1b8cf13b81019c45f36eab9d6a54f51385524b481a3a9e3"
+      },
+      "08_actual_figures_state": {
+        "image": "08_actual_figures_state.png",
+        "capture_surface": "application_window",
+        "sha256": "e1b0db0504267b976d7c30e20de4afc74bd5c80b051c1aa1d7bbfaf2b9804765"
+      },
+      "09_saved_barcode_qc": {
+        "image": "09_saved_barcode_qc.png",
+        "capture_surface": "private_desktop",
+        "sha256": "4754c221f483d23d71f52b9cb45dc20d329e41dd9c3830a54dd23f13e8d9955d"
+      },
+      "10_saved_threshold_sweep": {
+        "image": "10_saved_threshold_sweep.png",
+        "capture_surface": "private_desktop",
+        "sha256": "edd3f2ad12c0617245a79cf0c040780eb8c1efd3b7ca4b733b97c8e38c59e96e"
+      },
+      "11_back_to_actual_gui": {
+        "image": "11_back_to_actual_gui.png",
+        "capture_surface": "application_window",
+        "sha256": "9a29feaa9b0093fd637762f6922cffdf3fb24b6e8c9ead1a6125c15325397cd0"
+      }
+    },
+    "guard_tests_passed": 6,
+    "guard_mutations_observed_red": 2,
+    "visual_inspection": [
+      "07_finished_console",
+      "09_saved_barcode_qc",
+      "10_saved_threshold_sweep"
+    ],
+    "published": false,
+    "lesson_technical_matrix_complete": false
+  },
+  "final_artifact_checks": {
+    "lesson": "47_barcode_qc",
+    "passed": true,
+    "canonical_english_sha256": "faf91389430d4f90d8e26b9c30c08ad98cbfe88bcd20364cd1a3a6eb25887c6f",
+    "scene_count": 11,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "162fb11a80ded2a332be2b151b00a57264414e60f59f3a2ab8c903a4e22a5009"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "6035f52fbd207b94bb414eff8e9aa152fbda34a49efb29966a97cdc4cff90ca4"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "acec3d453bfe7dd09a2775e059ba0ae7cce1b5eb65400fa668f5086b72fdd6a6"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "2d4fc0f31eddc2195fdbd0e406c8edff36247adb8f2d81b2950de48f78204e49"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "7e46b6d88db3a991a7e2f37b088f9382c79838820318b000261fe8cc4369aecf"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "2f128beb270ebc52ea88136e8e5cb832ec935f230b8893633d4ae8049222e1ce"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "128245a1ebcb460f439e4c296fb15abdfa0884ca42cffa7dbce126481c3a48f4"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "6b2c730daef7a674f4061a842af7cb6b582e9b034fc2460e08bc32c85aeab25a"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "4add4407901daef1c434abbe4dc270f243b609a549ddfc5dd68c44c40e391450"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "231e1a52a54859e0e9b20854b57b81cfb6ec28c44e797aaa995593152dbea12e"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "40b001f04e305f2227d3dac7d5ad96c2015a78047a5dcbd3780ef391f3191dbe"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "c2f2447ec40caa46f850c66fd0165964a6d9fd0e4e254ea91e8eb8c11c3f34e9"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "7685ce522120bb1f7c4f7be9fe978489f5831f051ef20918392ae6fec5d48ed0"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "19cd9837ba666f9ce4565a057585c2d6aa0e27a080136f174f0ba97282e2f056"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "580d9f87f360591c28e3da15f143534dbd72e4ee3ff3976a67c56a0ed310cf48"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "2e8c038262dd198ace15471fca9f48be4c30b80cf4507d885a503a596ec89a12"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "af9695d00fe4e775ff6674f0d9997bf09622d2715ce39bec39f6a1dc1a2f138b"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "7404f936b68c9e96cfbf80c1f8ed2d9869794364be97b014a1be9a07832c03c5"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "08a71932aeb65fdff4cdc5c22031f78977f4e3fafc01882173a9553f93463fdd"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "20fa43bc6a4656be98351e31b47a1ca6047193a214eea55209b9bd27008fbf39"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "cb5f997dc2ca0104d77eb79988fea6bb4c6a66dc8d3b82bbc09e8cd43a09b456"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "474e3bba86dde75e8aa73ff3faa4437607c90efcfccde4e485d8f5d91de003c9"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "0cb61ffef24f83e2dd9d53a6d0c833fe7101274cd1847c043eb4c31a48b5a66f"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "fb76ce20a7520b05c5027ccb6fa13e43a3d489891f2d1b04b778689cf148d2fb"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "565bcee60d67535ff16667172f5e053ed94ef26ada784b365ef09f1cfef87002"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "d6aa255c4bfb8dfd6150ced62a3a1e84be42b7fec44486fbd5ff7ddd5e7bbc7a"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "61a8ba3d6220ad0d18f6546a02348a99ed1d192b9ed764ebe5078c2865de2eaf"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "b51bd03f67d539167fdce93f31503c1c9691b37af3a36acb922cdb4b619b9b53"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "fde4f82eebd1ce48f509d97eb7d944b1abc223b9d72f43920168b050a1ac231d"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "2e3c9fb8e8792c8858c2b46b2c8bc72ff218eb5a0d11170696db621ed25d1292"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "6eb29d44c245f5b600cf4d3e810465e569930b731d7662fe0bcab0319bc2d13d"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "6e6c14af7f0aaaf4c580c5f0f9a72730565df06e86caf9a31d95b48dbab83f7a"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "94186bbc4a85e7f91e80e7708615ceb6a2ea12a80564a96805aef38ab8a2d3c6"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "6fc500a9de3668531c481184d3d064a78dc95d13fa43e66a231c75cce5d1e640"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "4dc68836a3088752d2a0c3051deb660764573c52293f4f622115d5c2e106a0ce"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "3838e2660a711c806edb7d0ae3bec5f79f53b2cc611a754ba9257c7cf5293fb7"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "630e5b390efc55725f25f61dbafc0eecf3acca026a9d6a4b37afd78e9900fdf6"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "04b1b56702674a2b4e2ce0f48c74e7759bb00600c893276654e77907fc6b6de5"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "0da80ebbda741dd4461e08167fe3d5067cb6a936a6ec646495e948800bf85152"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "f8ca712cec82fee351b67efa0e4e5ab22c46296c613245d4950a407d2d71d8e3"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "e5f359fefd53943c96eddc48e578cb29c881c6648ce45711128daeed98a4fc0e"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "9a799ec6a0a0d23a9f3aa3d556fd93430ab6083db919d6825b792a60635a54fc"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "0b967cad9c0d9f7cf381d0fcb83c9a55c6a1f87035ce5e1e9e909748894cbda7"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "c652cc0d4939959b861225256860a5dc0dbeda0bdb1b693f02d610a0c023fe85"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "1b525a36033477ed819460400c99cd369fa5ddf8c7a9d1dd8f1bf7c06054957f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "67d02422dc5bdd639a4013809440efcd022b78664feda009fd9cb61b43d8930f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "fe303479e838a8443896ebc696de65ed0e7f20a251b717764b7d7be5d925010a"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "657b36829a2c9f09070e69e4af0369a18b5488f695a245db70dc61e914213584"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "bab29875cac55cf18632afcb6e2cf07c0453905e3a1e6887864c1fe9c01c0675"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "09276abee6cecaf5f1530dca076bc5d336077ea6888e1e5d1d3e7e2634400ef0"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "e5dbf57dc1a6be9ff6aec282fbecba750d453d708b96de6c2b29111d8de0671b"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "de85de44d8f906ee1f244a276f671b95062c62a28d19446c3daa9e1334004238"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "7ef70f9d4c7550cfa0e1f0f5e9a74d5f25358096ad4861519244370850f93887"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "a9c95ebbab10099c82d29377908f6e8d8330594bb51d54dbde3eaebfe09a9af0"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "eb640e5749aef70c7da9d53c7ebde1b322e09644a3745dc4dc6d99dd060731cb"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "7a959cace57ab993657bf79f482f6bb1d50956339b54e4d5895156150a67cad5"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "e5c7308a83bf88f057d1ba45fd0adc1d34312bd3be24ddafc623451801731dc7"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "8df399ff560bc382233c4794bd2ef302e41e9ea44f084f229d2b28833050f6a0"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "4cbf161de7f013247647ac7ff17eac3d37dc946d1297b98004cd76209e3175c3"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "a9fb69351baf20a3ef58b2ba5a673e51283939fccf6a524b9c69a86a28c18b48"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "1473836e8fd0265108696807e4217a0effb8e8471edfad0dd91f9a6e81f257e9"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "1756ce8075215f6ff8324ea006abee60581f1c8addd0558cb084aa2a4dc3f371"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "f3ddec2ff43fe7c7b95378458b7b18b132cf5aece91cd9dbe3adfd8a7ba59997"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "f15d1cdc2a95b4699e72c15f185ac1619160c24d4285e3542a548558bc1e104d"
+      }
+    ],
+    "master_sha256": "9899e509124d36845c668e794c37b57b644124c678cb0cd50c71d9fad2940b89",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "7194"
+        }
+      ],
+      "format": {
+        "duration": "239.800000",
+        "size": "14058152"
+      }
+    },
+    "poster_sha256": "ea7a008a41fcc1eaa763f1c7fa1d31f4c479bee1ee514ca54375b9fe13f7a6a4",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "catalog_preservation": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 75,
+    "scene_count": 894,
+    "refreshed_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "08_measure",
+      "09_annotate",
+      "11_classify_ml",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "17_timelapse",
+      "18_motility",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "37_batch",
+      "38_distributed_jobs",
+      "39_classifier_evaluation",
+      "40_run_history",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "53_prediction_profiler",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "57_layer_viewer",
+      "59_anndata_export",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "69_dose_response",
+      "70_explain_cv",
+      "73_parameter_sweep",
+      "74_import_images",
+      "75_regression_diagnostics"
+    ],
+    "retained_lesson_ids": [
+      "07_mask",
+      "10_classify_cv",
+      "12_map_barcodes",
+      "16_activation",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "21_model_compare",
+      "22_model_zoo",
+      "33_plate_viewer",
+      "41_classify",
+      "42_curate",
+      "48_hit_list",
+      "49_methods_results",
+      "50_run_compare",
+      "56_lineage",
+      "58_graph_builder",
+      "68_power_design",
+      "71_investigate_hit",
+      "72_volcano_explorer"
+    ],
+    "visual_only_lesson_ids": [
+      "34_database"
+    ],
+    "retained_count": 19,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "f4e9aab20fed32bc39ebf2fc0291ed0a19c8529b9b9b97e82ba9e6b372d7021b"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "6a7ee8c4fead250672c0b62eee9cd7b31059764a5b9f34d9134c9904e253c508"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "cd9ebf9e5799ba92a388e84f61a626340194d5ba0c6b9851ebe2a4089a2d9d7c"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "4928cd1d77945db445d2084cc63383d3780d0a189493e67b1881d233c614b271"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "4612ecc1fca46dea2a25f324dd0bcba72abded3ef86562d3a11b3877e7ff6517"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "11b6fe82ff798341a86f2cdbdcc2e648400ba7d8037207b933e761688ea0adf9"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "c0b81aab790cae342c6b17aea6e3fe7ba3d7570f1c89da101767d460de5bcddd"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "6c34ad85ae86871bf49a0c8df8bf6d9ce41aa63b95c3f6188f0f4d7619a385a8"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "dd53023839dbe3228a9297ee983057b1439aa7f65e7e62dd5d4f64587c371dfc"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "653d22f092ee5241c2964b274b30c39cde24c7b3303d61b6d6cf8effee3c3074"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "f97eb80432bf1ec90b56f0e92544b410b96f7d04204a67d1d25eeee95f0eeb0d"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "5d729cc0711e47b424c190a64cc6bbeb756e70cfd32a204251edf11e9af7a60f"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "ed9a6012794f52c9eb19f9ff9c375fbf1c3564b79c8b6b14bc33b71f7b03ece2"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 19,
+        "retained_content_sha256": "776a6dcbd6954a1e751d397222aedb4250848cee263319f00c967164d7a52442"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "catalog_audit_includes_inflight_not_completed": [
+    "08_measure"
+  ],
+  "visual_verification": {
+    "all_scene_midpoints_inspected": 11,
+    "full_master_decode_passed": true,
+    "plots_shown_in_actual_external_viewer": true,
+    "original_GUI_warning_and_empty_figures_visible": true
+  },
+  "tests": {
+    "saved_plot_scope_passed": 6,
+    "barcode_independent_evidence_previously_passed": 27,
+    "saved_scope_mutations_observed_red": 2,
+    "mobile_layout_passed": 4,
+    "mobile_prior_failure": {
+      "viewport": 390,
+      "scroll_width": 487
+    },
+    "restored_old_css_mutation_observed_red": true
+  },
+  "overall_progress": {
+    "existing_lessons_technically_complete": 56,
+    "existing_lesson_total": 75,
+    "remaining_existing": 19,
+    "held_new_OPS_lesson": 1,
+    "completed_lesson_voice_tracks": 2800,
+    "retained_tracks_included": 100,
+    "completed_lesson_browser_cases": 784
+  },
+  "GUI_figures_fixed": false,
+  "src_preflight_fixed": false,
+  "application_source_modified": false,
+  "published": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false
+}

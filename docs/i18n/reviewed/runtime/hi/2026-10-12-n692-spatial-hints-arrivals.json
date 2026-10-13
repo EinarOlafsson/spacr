@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How cells and nuclei are found in the slide image: the segmenter, which stain it reads, the Cellpose model and diameter, how far a nucleus is grown to make its cell, and whether the graphics card is used.",
+      "source": "How cells and nuclei are found in the slide image: the segmenter, which stain it reads, the Cellpose model and diameter, how far a nucleus is grown to make its cell, and whether the graphics card is used.",
+      "source_sha256": "cbe017c165dd6104f20d2339b93dfbca45e62f148471b2fc7605d10e0575452a",
+      "translation": "स्लाइड इमेज में कोशिकाएँ और केंद्रक कैसे खोजे जाते हैं: सेग्मेंटर, वह कौन-सा स्टेन पढ़ता है, Cellpose मॉडल और व्यास, केंद्रक को उसकी कोशिका बनाने के लिए कितना बढ़ाया जाता है, और ग्राफ़िक्स कार्ड का उपयोग होता है या नहीं।"
+    },
+    {
+      "table": "categories",
+      "key": "How much of the slide image is segmented and in what pieces: the pyramid level, an optional window, and the tile size and overlap the image is cut into so a whole slide fits in memory.",
+      "source": "How much of the slide image is segmented and in what pieces: the pyramid level, an optional window, and the tile size and overlap the image is cut into so a whole slide fits in memory.",
+      "source_sha256": "2de45a2dfb92dee763f4db671532e99c93587be802bee2c65569f4654f90161d",
+      "translation": "स्लाइड इमेज का कितना हिस्सा और किन टुकड़ों में सेग्मेंट किया जाता है: पिरामिड स्तर, एक वैकल्पिक विंडो, और टाइल का आकार तथा ओवरलैप जिनमें इमेज काटी जाती है ताकि पूरी स्लाइड मेमोरी में समा सके।"
+    },
+    {
+      "table": "categories",
+      "key": "How transcripts or bins are counted into the segmented objects: the Visium HD bin size, the minimum Xenium quality value, which objects receive counts, the gene drawn on the overlay, and whether an AnnData file is written.",
+      "source": "How transcripts or bins are counted into the segmented objects: the Visium HD bin size, the minimum Xenium quality value, which objects receive counts, the gene drawn on the overlay, and whether an AnnData file is written.",
+      "source_sha256": "235a7274c2deb9d086c7e6191182b77c14f45e33e0fc95c6c447de68c89dc7e0",
+      "translation": "ट्रांसक्रिप्ट या बिन सेग्मेंट किए गए ऑब्जेक्ट में कैसे गिने जाते हैं: Visium HD बिन आकार, न्यूनतम Xenium गुणवत्ता मान, किन ऑब्जेक्ट को गिनती मिलती है, ओवरले पर दिखाया जाने वाला जीन, और AnnData फ़ाइल लिखी जाती है या नहीं।"
+    },
+    {
+      "table": "categories",
+      "key": "Which genes belong to the pathogen and how many of their transcripts make an object infected. Every object's distance to the nearest infected one is measured from this call.",
+      "source": "Which genes belong to the pathogen and how many of their transcripts make an object infected. Every object's distance to the nearest infected one is measured from this call.",
+      "source_sha256": "79cf624c8ec11877ff7adfb033d493301602073cd28b41463fc03a651b3b8882",
+      "translation": "कौन-से जीन रोगाणु के हैं और उनके कितने ट्रांसक्रिप्ट किसी ऑब्जेक्ट को संक्रमित बनाते हैं। हर ऑब्जेक्ट की निकटतम संक्रमित ऑब्जेक्ट से दूरी इसी निर्धारण से मापी जाती है।"
+    },
+    {
+      "table": "categories",
+      "key": "Which spatial transcriptomics run is read and where its results go: the Xenium or Visium HD output folder, the platform that wrote it, and either the folder the segmented fields are written to or the masks folder the barcodes are mapped onto. Set these first; every other spatial group assumes they are right.",
+      "source": "Which spatial transcriptomics run is read and where its results go: the Xenium or Visium HD output folder, the platform that wrote it, and either the folder the segmented fields are written to or the masks folder the barcodes are mapped onto. Set these first; every other spatial group assumes they are right.",
+      "source_sha256": "97e5730edd5da6fa69c434115b964218a43c60b118d0d3f9a48658b12a8f2d3d",
+      "translation": "कौन-सा स्थानिक ट्रांसक्रिप्टोमिक्स रन पढ़ा जाता है और उसके परिणाम कहाँ जाते हैं: Xenium या Visium HD आउटपुट फ़ोल्डर, उसे लिखने वाला प्लेटफ़ॉर्म, और या तो वह फ़ोल्डर जिसमें सेग्मेंट किए गए दृश्य-क्षेत्र लिखे जाते हैं या वह मास्क फ़ोल्डर जिस पर बारकोड मैप किए जाते हैं। इन्हें पहले सेट करें; हर अन्य स्थानिक समूह मानकर चलता है कि ये सही हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "3D images (*.tif *.tiff *.mrc *.rec *.map)",
+      "source": "3D images (*.tif *.tiff *.mrc *.rec *.map)",
+      "source_sha256": "9dff4721f9599e84b851ec7d77fe08aeb8e11255b29fe0e4f4e0d1ede571045a",
+      "translation": "3D इमेज (*.tif *.tiff *.mrc *.rec *.map)"
+    },
+    {
+      "table": "ui",
+      "key": "Assign 3D objects",
+      "source": "Assign 3D objects",
+      "source_sha256": "e00851153787acd7927dcacae8868b4f049e40c22de33e63b70c048f32dc649a",
+      "translation": "3D ऑब्जेक्ट असाइन करें"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a positive object ID that the mask can store.",
+      "source": "Choose a positive object ID that the mask can store.",
+      "source_sha256": "9eba23ec5ef419efe4e8c1b3371f897ab93343b0687537f2788567b0361c044b",
+      "translation": "ऐसी धनात्मक ऑब्जेक्ट ID चुनें जिसे मास्क संग्रहीत कर सके।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose an object drawn on at least two slices to interpolate.",
+      "source": "Choose an object drawn on at least two slices to interpolate.",
+      "source_sha256": "67426b66eca8a75fd2953e8f45ccdf99ba446b255f42fb2f7e0e97e856cbc9ad",
+      "translation": "इंटरपोलेट करने के लिए ऐसा ऑब्जेक्ट चुनें जो कम से कम दो स्लाइस पर बना हो।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the X, Y or Z axis for a volume section.",
+      "source": "Choose the X, Y or Z axis for a volume section.",
+      "source_sha256": "71814ff76ce7e55c3779435ec3101e865f6e8c805cd8afa10155097c2a34b940",
+      "translation": "वॉल्यूम सेक्शन के लिए X, Y या Z अक्ष चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Download a FIB-SEM volume of a HeLa cell (about 25 MB, EMPIAR-10982, CC0) and open it unsegmented in the 3D mask editor. Cached after the first download.",
+      "source": "Download a FIB-SEM volume of a HeLa cell (about 25 MB, EMPIAR-10982, CC0) and open it unsegmented in the 3D mask editor. Cached after the first download.",
+      "source_sha256": "b08409e0ab32fa75e44ccfafc5f16f7e992f83128ef72e69f6832bb1ff7773d8",
+      "translation": "HeLa कोशिका का FIB-SEM वॉल्यूम (लगभग 25 MB, EMPIAR-10982, CC0) डाउनलोड करें और उसे बिना सेग्मेंट किए 3D मास्क संपादक में खोलें। पहले डाउनलोड के बाद कैश हो जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the Make Masks FIB-SEM test data",
+      "source": "Downloading the Make Masks FIB-SEM test data",
+      "source_sha256": "413cbc15f071bd0fc3fdb43032614a978f9dc1da2729feaea6487ba744a0e0b7",
+      "translation": "Make Masks का FIB-SEM परीक्षण डेटा डाउनलोड हो रहा है"
+    },
+    {
+      "table": "ui",
+      "key": "FIB-SEM volume with masks, 3D (test data)",
+      "source": "FIB-SEM volume with masks, 3D (test data)",
+      "source_sha256": "5f665dbfea65800b4e5e982f5114b63f6445f388e91836311addcf704818fa0a",
+      "translation": "मास्क सहित FIB-SEM वॉल्यूम, 3D (परीक्षण डेटा)"
+    },
+    {
+      "table": "ui",
+      "key": "FIB-SEM volume, 3D (test data)",
+      "source": "FIB-SEM volume, 3D (test data)",
+      "source_sha256": "7bdce57b2f98527e1523b3d13f88c787087fa60a9dc6b7613a43635971700e11",
+      "translation": "FIB-SEM वॉल्यूम, 3D (परीक्षण डेटा)"
+    },
+    {
+      "table": "ui",
+      "key": "Fill the empty sections between sections where the chosen object is drawn, blending its outline from one to the next.",
+      "source": "Fill the empty sections between sections where the chosen object is drawn, blending its outline from one to the next.",
+      "source_sha256": "b56a5262ad58a23af113bb8a867317faaae5722c54819cb07dcf35c517b7d69f",
+      "translation": "चुना गया ऑब्जेक्ट जिन सेक्शन पर बना है उनके बीच के खाली सेक्शन भरें, उसकी रूपरेखा को एक से अगले में मिलाते हुए।"
+    },
+    {
+      "table": "ui",
+      "key": "Give every separate 3D object its own ID: parts of one ID that do not touch in 3D become new objects.",
+      "source": "Give every separate 3D object its own ID: parts of one ID that do not touch in 3D become new objects.",
+      "source_sha256": "0f4808c65183a5b771eb548cd72cd7350bb5bacf759770997ba8f8d5906b6207",
+      "translation": "हर अलग 3D ऑब्जेक्ट को उसकी अपनी ID दें: किसी एक ID के जो हिस्से 3D में एक-दूसरे को नहीं छूते वे नए ऑब्जेक्ट बन जाते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "How cells and nuclei are found in the slide image: the segmenter, which stain it reads, the Cellpose model and diameter, how far a nucleus is grown to make its cell, and whether the graphics card is used.",
+      "source": "How cells and nuclei are found in the slide image: the segmenter, which stain it reads, the Cellpose model and diameter, how far a nucleus is grown to make its cell, and whether the graphics card is used.",
+      "source_sha256": "cbe017c165dd6104f20d2339b93dfbca45e62f148471b2fc7605d10e0575452a",
+      "translation": "स्लाइड इमेज में कोशिकाएँ और केंद्रक कैसे खोजे जाते हैं: सेग्मेंटर, वह कौन-सा स्टेन पढ़ता है, Cellpose मॉडल और व्यास, केंद्रक को उसकी कोशिका बनाने के लिए कितना बढ़ाया जाता है, और ग्राफ़िक्स कार्ड का उपयोग होता है या नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "How much of the slide image is segmented and in what pieces: the pyramid level, an optional window, and the tile size and overlap the image is cut into so a whole slide fits in memory.",
+      "source": "How much of the slide image is segmented and in what pieces: the pyramid level, an optional window, and the tile size and overlap the image is cut into so a whole slide fits in memory.",
+      "source_sha256": "2de45a2dfb92dee763f4db671532e99c93587be802bee2c65569f4654f90161d",
+      "translation": "स्लाइड इमेज का कितना हिस्सा और किन टुकड़ों में सेग्मेंट किया जाता है: पिरामिड स्तर, एक वैकल्पिक विंडो, और टाइल का आकार तथा ओवरलैप जिनमें इमेज काटी जाती है ताकि पूरी स्लाइड मेमोरी में समा सके।"
+    },
+    {
+      "table": "ui",
+      "key": "How transcripts or bins are counted into the segmented objects: the Visium HD bin size, the minimum Xenium quality value, which objects receive counts, the gene drawn on the overlay, and whether an AnnData file is written.",
+      "source": "How transcripts or bins are counted into the segmented objects: the Visium HD bin size, the minimum Xenium quality value, which objects receive counts, the gene drawn on the overlay, and whether an AnnData file is written.",
+      "source_sha256": "235a7274c2deb9d086c7e6191182b77c14f45e33e0fc95c6c447de68c89dc7e0",
+      "translation": "ट्रांसक्रिप्ट या बिन सेग्मेंट किए गए ऑब्जेक्ट में कैसे गिने जाते हैं: Visium HD बिन आकार, न्यूनतम Xenium गुणवत्ता मान, किन ऑब्जेक्ट को गिनती मिलती है, ओवरले पर दिखाया जाने वाला जीन, और AnnData फ़ाइल लिखी जाती है या नहीं।"
+    },
+    {
+      "table": "ui",
+      "key": "Interpolate slices",
+      "source": "Interpolate slices",
+      "source_sha256": "99a4bd294af0021a3355cf03e911ed985b0d682e023f1b3a518f539668db6867",
+      "translation": "स्लाइस इंटरपोलेट करें"
+    },
+    {
+      "table": "ui",
+      "key": "Interpolated {n} voxels between the drawn slices.",
+      "source": "Interpolated {n} voxels between the drawn slices.",
+      "source_sha256": "61e5d93dc10603de19cfdda4ce8aac95148f237f4677c0cbdaf719aaf16d016c",
+      "translation": "बनाई गई स्लाइस के बीच {n} वॉक्सेल इंटरपोलेट किए गए।"
+    },
+    {
+      "table": "ui",
+      "key": "MRC volumes need the optional mrcfile package: pip install \"spacr[tem]\"",
+      "source": "MRC volumes need the optional mrcfile package: pip install \"spacr[tem]\"",
+      "source_sha256": "5b944c0eadec9b6ea7fe11830552ba2c7c9b8160ba3071913defd2fb3e116bdc",
+      "translation": "MRC वॉल्यूम के लिए वैकल्पिक mrcfile पैकेज चाहिए: pip install \"spacr[tem]\""
+    },
+    {
+      "table": "ui",
+      "key": "Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.",
+      "source": "Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.",
+      "source_sha256": "7a53e1db1f0b41a64c0d555c52a4b1df0a30238779dc1eb303607c4f0ef4361f",
+      "translation": "z-स्टैक या वॉल्यूम (TIFF, OME-TIFF या MRC) खोलें और स्लाइस दर स्लाइस 3D मास्क बनाएँ, स्लाइस के बीच इंटरपोलेट करें और 3D लेबल TIFF सहेजें। वर्तमान 2D इमेज और मास्क अपरिवर्तित रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Open the FIB-SEM volume in the 3D mask editor with its mitochondria masks loaded for correction. Corrections are saved in corrected_masks; the published masks stay unchanged.",
+      "source": "Open the FIB-SEM volume in the 3D mask editor with its mitochondria masks loaded for correction. Corrections are saved in corrected_masks; the published masks stay unchanged.",
+      "source_sha256": "0d567954161f1b57405ac463b2e4ec9fc1221ceb2e6b15838c1f76f6bb543df0",
+      "translation": "सुधार के लिए माइटोकॉन्ड्रिया मास्क लोड किए हुए FIB-SEM वॉल्यूम को 3D मास्क संपादक में खोलें। सुधार corrected_masks में सहेजे जाते हैं; प्रकाशित मास्क अपरिवर्तित रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "The drawn section does not match the volume section.",
+      "source": "The drawn section does not match the volume section.",
+      "source_sha256": "bed1ebdb42163502f31d881fbfd7ec07aa89ab1714b47b78061b6714f53f3312",
+      "translation": "बनाया गया सेक्शन वॉल्यूम के सेक्शन से मेल नहीं खाता।"
+    },
+    {
+      "table": "ui",
+      "key": "The section index lies outside the volume.",
+      "source": "The section index lies outside the volume.",
+      "source_sha256": "ed7ff49fb8a747314138448ab4d09c70d292134f7b5a43c0aa1e7ac0eba0e621",
+      "translation": "सेक्शन इंडेक्स वॉल्यूम के बाहर है।"
+    },
+    {
+      "table": "ui",
+      "key": "This MRC file holds one section, not a volume; open it as a 2D image.",
+      "source": "This MRC file holds one section, not a volume; open it as a 2D image.",
+      "source_sha256": "a8cec4fa79d821e537abcfb58c9b28a17c09244624b01e414870412f1d70f020",
+      "translation": "इस MRC फ़ाइल में एक सेक्शन है, वॉल्यूम नहीं; इसे 2D इमेज के रूप में खोलें।"
+    },
+    {
+      "table": "ui",
+      "key": "This volume exceeds the native volume memory budget.",
+      "source": "This volume exceeds the native volume memory budget.",
+      "source_sha256": "0fcf2cd0f69d4086d161838328f6e7781beaee56074336c049bea00205f61214",
+      "translation": "यह वॉल्यूम नेटिव वॉल्यूम मेमोरी बजट से अधिक है।"
+    },
+    {
+      "table": "ui",
+      "key": "Which genes belong to the pathogen and how many of their transcripts make an object infected. Every object's distance to the nearest infected one is measured from this call.",
+      "source": "Which genes belong to the pathogen and how many of their transcripts make an object infected. Every object's distance to the nearest infected one is measured from this call.",
+      "source_sha256": "79cf624c8ec11877ff7adfb033d493301602073cd28b41463fc03a651b3b8882",
+      "translation": "कौन-से जीन रोगाणु के हैं और उनके कितने ट्रांसक्रिप्ट किसी ऑब्जेक्ट को संक्रमित बनाते हैं। हर ऑब्जेक्ट की निकटतम संक्रमित ऑब्जेक्ट से दूरी इसी निर्धारण से मापी जाती है।"
+    },
+    {
+      "table": "ui",
+      "key": "Which spatial transcriptomics run is read and where its results go: the Xenium or Visium HD output folder, the platform that wrote it, and either the folder the segmented fields are written to or the masks folder the barcodes are mapped onto. Set these first; every other spatial group assumes they are right.",
+      "source": "Which spatial transcriptomics run is read and where its results go: the Xenium or Visium HD output folder, the platform that wrote it, and either the folder the segmented fields are written to or the masks folder the barcodes are mapped onto. Set these first; every other spatial group assumes they are right.",
+      "source_sha256": "97e5730edd5da6fa69c434115b964218a43c60b118d0d3f9a48658b12a8f2d3d",
+      "translation": "कौन-सा स्थानिक ट्रांसक्रिप्टोमिक्स रन पढ़ा जाता है और उसके परिणाम कहाँ जाते हैं: Xenium या Visium HD आउटपुट फ़ोल्डर, उसे लिखने वाला प्लेटफ़ॉर्म, और या तो वह फ़ोल्डर जिसमें सेग्मेंट किए गए दृश्य-क्षेत्र लिखे जाते हैं या वह मास्क फ़ोल्डर जिस पर बारकोड मैप किए जाते हैं। इन्हें पहले सेट करें; हर अन्य स्थानिक समूह मानकर चलता है कि ये सही हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "{objects} objects in 3D; {n} voxels received new IDs.",
+      "source": "{objects} objects in 3D; {n} voxels received new IDs.",
+      "source_sha256": "f4bd70aeef32ed4c484679480ceac756f7a325a3c6f25998a7053ac57eb2d403",
+      "translation": "3D में {objects} ऑब्जेक्ट; {n} वॉक्सेल को नई ID मिलीं।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spatial_platform",
+      "source": "Which 10x platform wrote spatial_source: auto, xenium, visium_hd (Visium HD bins) or visium (standard spot-based Visium). auto reads it from the files present; set it only when a folder holds more than one layout. Default auto.",
+      "source_sha256": "a80812be0b7269626171fdec705fb27aac11cacf28fb46eb4ec1ac558d179c0a",
+      "translation": "किस 10x प्लेटफ़ॉर्म ने spatial_source लिखा: auto, xenium, visium_hd (Visium HD बिन) या visium (मानक स्पॉट-आधारित Visium)। auto इसे मौजूद फ़ाइलों से पढ़ता है; इसे तभी सेट करें जब किसी फ़ोल्डर में एक से अधिक लेआउट हों। डिफ़ॉल्ट auto।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "3D anchors",
+      "source": "3D anchors",
+      "source_sha256": "a7b767b4a59790bd5ec32a2ffdebd36618c6c3ae76354ffc12b60e10dc7ab8e2",
+      "translation": "3D एंकर",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Brush radius in screen pixels.",
+      "source": "Brush radius in screen pixels.",
+      "source_sha256": "adeac54d9f88781b572e4d4a4160fe2ea7cd7652543e03c11357250fa00efa0a",
+      "translation": "मॉनिटर पिक्सेल में ब्रश की त्रिज्या।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Brush size",
+      "source": "Brush size",
+      "source_sha256": "da6f847e1715b04d162799cb6846e45fbf155baa1b820490d6ac95c9b5b60558",
+      "translation": "ब्रश का आकार",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Choose an object, then draw it on a few slices; Interpolate slices fills the slices between. Drag anchors in the 3D anchors tab.",
+      "source": "Choose an object, then draw it on a few slices; Interpolate slices fills the slices between. Drag anchors in the 3D anchors tab.",
+      "source_sha256": "db981d846c309fca009d718e82856b3ca4674cbf3eebee943eb27b218921c019",
+      "translation": "कोई ऑब्जेक्ट चुनें, फिर उसे कुछ स्लाइस पर बनाएँ; स्लाइस इंटरपोलेट करें बीच की स्लाइस भर देता है। 3D एंकर टैब में एंकर खींचें।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Draw on XY sections, or on the XZ and YZ side views through the volume.",
+      "source": "Draw on XY sections, or on the XZ and YZ side views through the volume.",
+      "source_sha256": "b660c3c624665e8618caf12b983df584237f81d8b6787ebc20e2d9bd5689556c",
+      "translation": "XY सेक्शन पर बनाएँ, या वॉल्यूम के आर-पार XZ और YZ पार्श्व दृश्यों पर।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Draw slices",
+      "source": "Draw slices",
+      "source_sha256": "aaa8c5c7f317683bbc57b36d91b6cf31307e7d0cf47c76f4fba1e0ccb0edffbf",
+      "translation": "स्लाइस बनाएँ",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Erase every object under the brush on this section.",
+      "source": "Erase every object under the brush on this section.",
+      "source_sha256": "fe7012ccda35984dc2158df0ec1b4f18590872f7d7ce3db317c56164ede76edc",
+      "translation": "इस सेक्शन पर ब्रश के नीचे के सभी ऑब्जेक्ट मिटाएँ।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Paint the chosen object on this section. Other objects are never overwritten.",
+      "source": "Paint the chosen object on this section. Other objects are never overwritten.",
+      "source_sha256": "0a7544deb2cabf0827ce2e761e2db6b04d6f7e9f32943eee0679435fb4f01672",
+      "translation": "चुने गए ऑब्जेक्ट को इस सेक्शन पर रंगें। अन्य ऑब्जेक्ट कभी अधिलेखित नहीं होते।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "Slice",
+      "source": "Slice",
+      "source_sha256": "87bd786502645b41722cc9421c3b8b79c1a64b1ab6e44eb856cdf1c1efc54b1d",
+      "translation": "स्लाइस",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "The section being drawn. Page Up and Page Down step through the volume.",
+      "source": "The section being drawn. Page Up and Page Down step through the volume.",
+      "source_sha256": "ede8c16e9eb7c7c2353ad617e04e7b655111efeb002f340ee5278cdd5feb7c71",
+      "translation": "जो सेक्शन बनाया जा रहा है। Page Up और Page Down वॉल्यूम में आगे-पीछे ले जाते हैं।",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "View",
+      "source": "View",
+      "source_sha256": "dcc839a4015c4b7dd9db959a8f757833b8adb92462a751b973386e453c6d58a3",
+      "translation": "दृश्य",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "XY (top)",
+      "source": "XY (top)",
+      "source_sha256": "4897115b6ed884788c5220e97d404afe1a96b859c0513dd9c6fbb719594a7598",
+      "translation": "XY (ऊपर)",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "XZ (side)",
+      "source": "XZ (side)",
+      "source_sha256": "48beaf99e8cfc2dee4beedfa4dd195106aeb738c71e0ed1b505331c9e5c85284",
+      "translation": "XZ (पार्श्व)",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "YZ (side)",
+      "source": "YZ (side)",
+      "source_sha256": "13cd8dda079c45d8713736e5c178851b029c75ff3222b13e2d3c7e5dcf140737",
+      "translation": "YZ (पार्श्व)",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    },
+    {
+      "table": "ui",
+      "key": "of {n}",
+      "source": "of {n}",
+      "source_sha256": "a2eabdeb19290bf8a0e8a3c2a17c1209c55e40e17e9999ec0b56ec6717daf3a9",
+      "translation": "{n} में से",
+      "retired": "2026-10-12: English caption removed by the N673 follow-up (the separate 3D mask editor window was retired; volumes open in the Make Masks view); superseded by its new captions, awaiting review."
+    }
+  ]
+}

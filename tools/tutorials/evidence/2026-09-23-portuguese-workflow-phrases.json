@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "language": "pt-BR",
+  "phrase_count": 238,
+  "phrase_bank_sha256": "47b86d7c8450979c82a524df3d2d951ce8fac839576c3c5244688bb7ba206287",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "gui_publication": {
+    "language": "pt",
+    "review_records": 211,
+    "map_ui_sources": 215,
+    "newly_fresh": 209,
+    "values_changed": 210,
+    "catalog_sha256": "d8f44bac9acdca1992d41a295634bb7074349d235f897ca9e0737b1f2e70d9de",
+    "review_sha256": "565e9b77e1d6f1e05066b558ebeb3bd5fca19182a5d98256e2d731f13229290f",
+    "unrelated_entries_preserved": true
+  },
+  "live_tr_sources": 215,
+  "ui_current": 4626,
+  "ui_sources": 5017,
+  "ui_current_percent": 92.2,
+  "english_ui_and_api_manifests_current": true,
+  "full_portuguese_runtime_and_api_review_loaders": true,
+  "tutorials": [
+    {
+      "lesson": "78_spacr_screens",
+      "scenes": 8,
+      "review_sha256": "466b74cf6d175b5ceef228528eb3776e9f3f7736c2e9aa5ebaf7a0e210708eec",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "scenes": 79,
+      "review_sha256": "d88a619b4375e5cf3d92066f108aee5977d69e9c7fbe84558dfd6e9205f35c39",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "scenes": 18,
+      "review_sha256": "5c77b374493da7dbaf1dadf2d0d00525e68810e8cf1faecec40e1d4cd18303d6",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "scenes": 11,
+      "review_sha256": "ee1244a6bacff4383c1328e064748362d4fec5347c73008e88c8786baf011c9e",
+      "staged_translation_current": true
+    }
+  ],
+  "unrelated_staged_lessons_preserved": true,
+  "tests": {
+    "preview_help_translation_and_promotion": 102,
+    "literal_boundary": 7
+  },
+  "native_speaker_signoff": false,
+  "listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "The other9 shared phrase languages, including5 GUI locales",
+    "Complete video,voice,caption and browser matrix",
+    "Listening acceptance and complete-set publication"
+  ]
+}

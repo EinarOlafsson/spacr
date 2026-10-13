@@ -1,0 +1,60 @@
+{
+  "immutable_media_commit": "5abf35929844697a46ffb3a7802c24f6774dc07f",
+  "files_full_download_hash_verified": 5077,
+  "bytes_full_download_hash_verified": 6125100132,
+  "actual_browser_routes": 84,
+  "publication_source_commit_private": "a42dc0285",
+  "root_integrated_source_private": "0fbbd1e47cd3115819b2c351bb8c6b5fc1d41119",
+  "repository_pages_pushed": false,
+  "qualification": "Immutable media upload/full readback, all84 actual published-media routes and normal record PASS. Root integrated owning run retains3FAIL104PASS: stale installer directories, unconditional publication manifest identity and scene-boundary observation race; agent owns fixes before repo publication.",
+  "payloads": {
+    "publish_tutorial_candidate_serial_r1.py.gz": {
+      "bytes": 308,
+      "sha256": "9f8eab9532d6a2c894122fcb11e522dce92eca97cb0d4676f2e221228e023282",
+      "raw_bytes": 500,
+      "raw_sha256": "300738e547d028b7f0dce358002a103336d852bcc7331bca7d2606e5e16951e2"
+    },
+    "tutorial-six-lessons-upload-r1-tool.log.gz": {
+      "bytes": 1097,
+      "sha256": "b40f2ac2658d822880b5c8e8d96b9ca000d82fdf58b02e9099fdce6dc52a8877",
+      "raw_bytes": 2601,
+      "raw_sha256": "98fced4a4bd5b79295add7e4d316c7840d84a0558d4bd9ddab1c679809fd8d3f"
+    },
+    "tutorial-six-lessons-pages-r1-tool.log.gz": {
+      "bytes": 707,
+      "sha256": "26c2b21e6ff45b2b5ccae55193a2ce4474776491ba4faab6f0e9d50d197f2665",
+      "raw_bytes": 1447,
+      "raw_sha256": "730eb99f0e441749c949509a70bcadf993bd80d730d7373f7aa71cc36e4404a2"
+    },
+    "tutorial-six-lessons-published-browser-r1-tool.log.gz": {
+      "bytes": 1105,
+      "sha256": "cfe0ebb7b3778a75f8fc651b126e35c738658da0a9f2fcb4efd6853fe226563a",
+      "raw_bytes": 3762,
+      "raw_sha256": "a796fdd75e76aaa5d6d6106e923c8e985d84e6f253f0757dc6d81911727453d2"
+    },
+    "tutorial-six-lessons-record-r1-tool.log.gz": {
+      "bytes": 332,
+      "sha256": "236246e5eb8a307b4d656931fed14f10c412bab7fdd70298c097e663200e9d86",
+      "raw_bytes": 531,
+      "raw_sha256": "0c41f87fb923f87469f79d5ef62576ada3e77c6b6ee4800f744b625c4cf34d7d"
+    },
+    "tutorial-publication-owning-r1.log.gz": {
+      "bytes": 3697,
+      "sha256": "5838d9f29e416130dcd8a0ae9ad8f92f0ed6a271972c0dc344a4469a84d01864",
+      "raw_bytes": 11107,
+      "raw_sha256": "48e83cf2f10cfb1f771f5202ea153566f752c780a083d18c40449217db392eb7"
+    },
+    "publication-receipt.json.gz": {
+      "bytes": 10865,
+      "sha256": "f8cfa3dc29190e94bdfb3f6d8b43521475e669f2f2c4786f55a7e5577008cac5",
+      "raw_bytes": 153595,
+      "raw_sha256": "da2c13c8eea8052f1f85b871f888caa6ff9f29613366478ca182d0437de476b2"
+    },
+    "published-media-browser-checks.json.gz": {
+      "bytes": 21293,
+      "sha256": "9af9dc6c4cd8a8ec912138cbb9a29180cdbb99076ae41521975b8e0dfea64ecc",
+      "raw_bytes": 134441,
+      "raw_sha256": "2329559992c2e9323fe9305fbd67db1afe921d1006cbd491dcd4e1a992cf9ea6"
+    }
+  }
+}

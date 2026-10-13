@@ -1,0 +1,34 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "208c8a5dd5c9ccc6722844b31fe174655526038d88b386f7f231f2859b4cb0fa",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Project Browser: trovare ed esaminare progetti",
+  "description": "Cerca cartelle di progetto, esamina le fasi registrate e individua lo strumento successivo da aprire.",
+  "objectives": [
+    "Trovare progetti tramite radici e profondità di ricerca.",
+    "Esaminare artefatti e fasi registrate.",
+    "Scegliere lo strumento pertinente successivo."
+  ],
+  "prerequisite": "Scegli cartelle che contengono i tuoi progetti spaCR. Per esercitarti puoi usare gli esempi completati di External Masks e Format Converter.",
+  "scenes": [
+    "Apri Help e poi Project browser per trovare cartelle di progetto ed esaminarne gli output registrati.",
+    "Fai clic su Add folder e scegli una radice di ricerca. La profondità zero controlla solo quella cartella; aumentala quando i progetti sono in sottocartelle.",
+    "Imposta Depth su uno e fai clic su Scan per includere le cartelle subito sotto la radice. Esamina le righe di progetto ottenute.",
+    "Leggi State e Stage insieme ai file trovati sul disco. Una cartella senza registro degli artefatti può mostrare unknown anche se contiene immagini convertite.",
+    "Aggiungi altre radici di ricerca per includere altri progetti. Seleziona una riga per esaminarla; se dopo una nuova scansione i dettagli sono vuoti, seleziona un’altra riga e torna indietro.",
+    "Trascina il divisore per allargare i dettagli. Esamina gli artefatti registrati, i file non registrati e l’origine dell’orario dell’ultima esecuzione.",
+    "Apri Stages per vedere quali output attesi sono presenti. Usa What could run next per scegliere un flusso adatto, poi controlla gli input richiesti da quel modulo.",
+    "Fai clic sull’intestazione di una colonna, come Size, per ordinare i progetti. Fai di nuovo clic per invertire l’ordine.",
+    "Regola Depth ed esegui di nuovo la scansione quando ti serve una ricerca più ristretta o più ampia. Un progetto selezionato direttamente resta individuabile a profondità zero.",
+    "Seleziona una radice e fai clic su Remove per smettere di cercarvi. La posizione di ricerca viene tolta dall’elenco mentre i file restano sul disco.",
+    "Apri Run History per i record dei lavori, Database Browser per le misure o Data Manager per pulizia e archiviazione. Usa il tutorial del modulo pertinente per proseguire l’analisi."
+  ]
+}

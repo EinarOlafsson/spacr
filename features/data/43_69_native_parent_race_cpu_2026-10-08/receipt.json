@@ -1,0 +1,93 @@
+{
+  "capture": {
+    "coverage0_process_artifact_id": 11533764590,
+    "coverage_process_upload": "success",
+    "job_conclusion": "cancelled",
+    "native_collector_step": "skipped",
+    "native_upload_step": "skipped",
+    "ordinary_native_artifacts_observed": 0,
+    "scope": "Artifact API snapshot after cancellation; no native journal PID or C++ trace is recoverable from these uploaded artifacts. Coverage data archive was not downloaded."
+  },
+  "current_sha256": {
+    "spacr/qt/bridge.py": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a",
+    "spacr/qt/screens/make_masks.py": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+    "spacr/qt/widgets/primary_mask_selector.py": "38a79dea542ff89b96264d00878f73349f9b1fc58bfe288ae5579d611ecc481b",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+    "tests/qt/test_live_preview_remove_background.py": "c2179ffaef96d0c40a269fdb7f647a4801673c1cb3fd3bb3fbd53bab526e6dd5",
+    "tests/qt/test_make_masks_parent_source_race_guards.py": "5dc81d71d91ae5f4b4b63a8b0009d33748527ebfb88ccde2973c62d0629799d7"
+  },
+  "current_source_anchor": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "frozen_sources": {
+    "spacr/qt/bridge.py": "frozen-2-bridge.py.gz",
+    "spacr/qt/screens/make_masks.py": "frozen-0-make_masks.py.gz",
+    "spacr/qt/widgets/primary_mask_selector.py": "frozen-1-primary_mask_selector.py.gz",
+    "tests/conftest.py": "frozen-5-conftest.py.gz",
+    "tests/qt/conftest.py": "frozen-6-conftest.py.gz",
+    "tests/qt/test_live_preview_remove_background.py": "frozen-4-test_live_preview_remove_background.py.gz",
+    "tests/qt/test_make_masks_parent_source_race_guards.py": "frozen-3-test_make_masks_parent_source_race_guards.py.gz"
+  },
+  "head_sha": "69ba4e462f2ea60924a977b192d006ce9b70f42c",
+  "hosted_fault": {
+    "cpp_stack": null,
+    "crashed_process_pid": null,
+    "excerpt_original_line_range_inclusive": [
+      5410,
+      5570
+    ],
+    "node": "tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[parent]",
+    "observed_utc": "2026-10-08T07:04:00.006410Z",
+    "primary_batch_summary": "1 failed, 442 passed, 1 warning in 271.88s",
+    "python_location": "_load_parent line 36: Qt waitUntil event loop, before detector mutation",
+    "signal": "SIGSEGV",
+    "worker": "gw1"
+  },
+  "job_id": 113181069132,
+  "local_replay": {
+    "actual_nodes": 12,
+    "core_limit": [
+      0,
+      0
+    ],
+    "count_correction": "Original launcher says 13-node; actual file has nine tests plus three selected source-race tests, 12 collected/passed. Original provenance is preserved unchanged.",
+    "cuda_visible_devices": "",
+    "ended_utc": "2026-10-08T07:19:41.209507+00:00",
+    "gdb_exit_code": 1,
+    "gdb_exit_reason": "Post-exit $_siginfo is void; following bt full command reports No stack. Inferior itself exited normally.",
+    "hosted_pytest_version": "8.4.2",
+    "hosted_python_version": "3.12.15",
+    "hosted_qt_version": "6.11.2",
+    "inferior_exited_normally": true,
+    "inferior_pid": 3815218,
+    "limitations": "One serial original-order two-file replay; does not recreate whole long-order or two-worker xdist context. Negative reproduction is not a fix or whole native acceptance.",
+    "native_signal": false,
+    "passed": 12,
+    "planned_node_count_in_original_provenance": 13,
+    "pytest_seconds": 77.7,
+    "pytest_version": "8.4.2",
+    "python_version": "3.12.13",
+    "qt_qpa_platform": "offscreen",
+    "qt_version": "6.11.2",
+    "ram_cap": "8G",
+    "spacr_device": "cpu",
+    "started_utc": "2026-10-08T07:18:19.776665+00:00"
+  },
+  "raw_logs": {
+    "coverage0.log.gz": {
+      "bytes": 742603,
+      "sha256": "47837948241f3160f6f024dcac912e3372b1ded19a41426cf4ad6bcea6749d6f"
+    },
+    "gdb.log.gz": {
+      "bytes": 10980,
+      "sha256": "08e17e1d04563d9ec30d4c9cff82a0ed236ffb949391acf92adf75da349e00ae"
+    }
+  },
+  "run_id": 37737743925,
+  "unarchived_full_focused_coverage": {
+    "bytes": 24483374,
+    "scope": "Only three relevant source records archived compactly; no numerical ratchet or full-module acceptance claimed.",
+    "sha256": "a5b527323b33f445c359595d98753c2db01f30a4fa4c947e21aa795b3eab3973"
+  },
+  "verdict": "HOSTED NATIVE CAUSE OPEN; BOUNDED LOCAL REPLAY NEGATIVE; NO PRODUCT CHANGE",
+  "workflow_sha256": "9563dde566fc3a3ea639a457c44a6cf610b937584ed4826bececccd02ea0c4ac"
+}

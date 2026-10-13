@@ -1,0 +1,32 @@
+{
+  "lesson": "77_embeddings",
+  "english_sha256": "fa2d38e241cdc746d2971e944f97e9f10198b0c9615f3fd3ea439452efa44871",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Embeddings: last inn utklipp og sammenlign kanalpolicyer",
+  "description": "Last inn bildeutklipp fra Home, velg koder og kanalpolicy, kjør Embed og undersøk forhåndsvisningen av egenskaper.",
+  "objectives": [
+    "Laste inn en utklippsmappe via skjermen Embeddings.",
+    "Velge grunnnettverk, batchstørrelse og kanalpolicy.",
+    "Undersøke vektorforhåndsvisningen og lagre fullstendige resultater med det medfølgende Python-hjelpeskriptet."
+  ],
+  "prerequisite": "Installer spaCR med tillegget embeddings. Last ned Annotate-eksemplet og finn plate1/data/single_nucleus/uninfected/plate1_E02/cell_png. For det lille eksemplet som vises her, kopierer du de første 16 PNG-filene i sortert filnavnrekkefølge til en ny mappe. Første kjøring av koderen laster ned forhåndstrente vekter hvis de ikke er hurtigbufret. Den valgfrie filen Embeddings_API_example.zip inneholder et hjelpeskript for å lagre fullstendige matriser.",
+  "scenes": [
+    "Fra Home åpner du Embeddings under Data. Du laster inn bildeutklipp, velger hvordan kanalene kodes, og lager én numerisk egenskapsvektor per objekt.",
+    "Velg crop folder under Crops from. Du kan også bruke en måledatabase når du vil velge en objektklasse, plate eller betingelse. Gjennomgangen bruker utklippsmappen fra Annotates nedlastbare eksempel.",
+    "Kopier 16 eksempel-PNG-filer til en arbeidsmappe. Skriv inn mappens bane og trykk Enter, eller bruk Browse. Sett At most til 16, og klikk deretter på Load crops.",
+    "Les antall innlastede utklipp, størrelsen og antall kanaler. Eksemplet inneholder 16 bilder, hvert på 224 × 224 piksler med tre lagrede kanaler. Kontroller kanalkoblingen i utklippseksporten før du sammenligner resultater.",
+    "Velg Per channel for å kode hver kanal separat og slå sammen egenskapene. Behold resnet18 som Backbone og sett Batch til 4 for denne lille kjøringen. Mindre batcher reduserer minnebruken.",
+    "Klikk på Embed og vent på forhåndsvisningen. Eksemplet gir 16 objektvektorer med 1 536 dimensjoner. Tabellen viser bare de første dimensjonene og, ved større kjøringer, opptil 50 objekter.",
+    "Velg Project to three og klikk på Embed igjen. Da kodes det kombinerte bildet i stedet for hver kanal separat. Bruk de samme utklippene og det samme grunnnettverket når du sammenligner de to policyene.",
+    "Det projiserte eksemplet har 512 dimensjoner per objekt. Behold kanalpolicyen og koderinnstillingene sammen med resultatene. Bruk de fullstendige vektorene i videre analyse; enkeltdimensjoner er ikke biologiske målinger.",
+    "Skjermen gir foreløpig en forhåndsvisning uten eksportknapp. For å lagre fullstendige matriser laster du ned det lenkede Python-hjelpeskriptet og følger README-filen. Det skriver vektorer, objektfilnavn, innstillinger og utforskende plott til en ny utdatamappe."
+  ]
+}

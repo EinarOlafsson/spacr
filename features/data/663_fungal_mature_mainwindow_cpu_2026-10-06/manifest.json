@@ -1,0 +1,26 @@
+{
+  "files": {
+    "README.txt": {
+      "sha256": "e616fc4107775e4d27c0755944f716bb1832d4052e057e41e65d675ebe07a536",
+      "bytes": 2932
+    },
+    "probe.log": {
+      "sha256": "31f77f861d78a3e5420e81e81341765daeb12eafd906b24c53e74fc77a30c432",
+      "bytes": 13488
+    },
+    "receipt.json": {
+      "sha256": "178f376a9c7f8e3717afdc46480be685ad2489af4ef36e35f1327307b77ce9ba",
+      "bytes": 5504
+    },
+    "receipt.raw.json": {
+      "sha256": "8705aea819c0191f7a3daf0467deaf926a1b3e0ffbd4325c07ac7339bae4d635",
+      "bytes": 3175
+    },
+    "repro_mainwindow_fungal_cache.py": {
+      "sha256": "a7253c2156be62e203aaf89d228b7b11388c259b045cf95426ed49501546e346",
+      "bytes": 12001
+    }
+  },
+  "payload_count": 5,
+  "payload_bytes": 37100
+}

@@ -1,0 +1,32 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Napari Bridge: breyttu merkjagrímu og sæktu hana aftur",
+  "description": "Opnaðu mynd og grímu hennar í napari, breyttu merkjum og vistaðu leiðréttu grímuna aftur í spaCR.",
+  "objectives": [
+    "Opna samsvarandi mynd- og merkjaskrár.",
+    "Gera breytingar í napari og afturkalla þær.",
+    "Sækja vistuðu grímuna aftur og skoða hana."
+  ],
+  "prerequisite": "Settu upp valfrjálsu napari-kvöðina og afþjappaðu tilbúna dæmið í nýja möppu. Haltu ósnertu öryggisafriti: Take the mask back skrifar yfir valda vinnugrímu. Lokaðu skoðaranum og opnaðu hann aftur milli vistaðra breytingalotna.",
+  "scenes": [
+    "Opnaðu Make Masks og svo Napari Bridge. Notaðu þetta til að breyta fyrirliggjandi merkjagrímu með styrkleikamyndina sem viðmið. Haltu ósnertu öryggisafriti af grímunni.",
+    "Sæktu og afþjappaðu tilbúna dæmið. Veldu mask.tif fyrir Mask og image.tif fyrir Image og ýttu svo á Open in napari.",
+    "Veldu Labels-lag grímunnar í napari. Merki 0 er bakgrunnur; hvert hlutarmerki hefur birtingarlit. Gerðu breytingar á merkjalaginu.",
+    "Farðu aftur í spaCR og notaðu Take the mask back til að flytja inn núverandi merki skoðarans. Ef þú hefur engu breytt sýnir staðan að gríman sé óbreytt.",
+    "Til æfingar velurðu merki 18, velur Fill og smellir á hlutinn með merkið 2. Skoðaðu breytta merkið áður en þú flytur það inn.",
+    "Notaðu Undo til að afturkalla síðustu breytingu í skoðaranum. Endurtaktu Fill þegar þú ert tilbúin að halda breytingunni.",
+    "Smelltu á Take the mask back í spaCR. Farðu yfir fjölda breyttra díla og skoðaðu svo vistuðu grímuna og fylgiskrá hennar með leiðréttingasögu.",
+    "Smelltu á Close viewer og opnaðu grímuna aftur fyrir næstu breytingalotu. Þá verður vistaða gríman upphafspunktur síðari leiðréttinga.",
+    "Eftir næstu breytingu sækirðu grímuna aftur og skoðar niðurstöðuna á ný. Lokaðu skoðaranum þegar þú ert búin, haltu leiðréttingasögunni og keyrðu aftur mælingar sem breyttu merkin hafa áhrif á."
+  ]
+}

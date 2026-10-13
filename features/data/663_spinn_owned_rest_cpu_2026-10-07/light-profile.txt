@@ -1,0 +1,32 @@
+         77229 function calls in 0.251 seconds
+
+   Ordered by: cumulative time
+   List reduced from 41 to 24 due to restriction <24>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        4    0.000    0.000    0.251    0.063 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:5230(shade)
+        4    0.000    0.000    0.251    0.063 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:1413(shade)
+        4    0.000    0.000    0.236    0.059 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:5218(_shade)
+        4    0.000    0.000    0.236    0.059 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:1394(_shade)
+        4    0.000    0.000    0.224    0.056 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:5238(_paint_field)
+        4    0.033    0.008    0.224    0.056 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:5312(_paint_tissue_facets)
+    10608    0.174    0.000    0.174    0.000 {method 'drawImage' of 'PySide6.QtGui.QPainter' objects}
+        4    0.014    0.004    0.014    0.004 {method 'copy' of 'PySide6.QtGui.QImage' objects}
+        4    0.012    0.003    0.012    0.003 {method 'fillRect' of 'PySide6.QtGui.QPainter' objects}
+     4332    0.004    0.000    0.005    0.000 {method 'setRenderHint' of 'PySide6.QtGui.QPainter' objects}
+    21236    0.003    0.000    0.003    0.000 {built-in method builtins.max}
+     4328    0.002    0.000    0.002    0.000 {method 'translate' of 'PySide6.QtGui.QPainter' objects}
+    10620    0.002    0.000    0.002    0.000 {built-in method builtins.min}
+     4328    0.002    0.000    0.002    0.000 {method 'restore' of 'PySide6.QtGui.QPainter' objects}
+     4328    0.002    0.000    0.002    0.000 {method 'save' of 'PySide6.QtGui.QPainter' objects}
+     4340    0.001    0.000    0.001    0.000 /home/olafsson/anaconda3/envs/spacr/lib/python3.12/enum.py:202(__get__)
+     4328    0.001    0.000    0.001    0.000 {method 'rotate' of 'PySide6.QtGui.QPainter' objects}
+     4328    0.001    0.000    0.001    0.000 {built-in method math.sin}
+     4340    0.000    0.000    0.000    0.000 /home/olafsson/anaconda3/envs/spacr/lib/python3.12/enum.py:1291(value)
+        4    0.000    0.000    0.000    0.000 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:4987(_ensure_buffer)
+        4    0.000    0.000    0.000    0.000 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:1367(_ensure_buffer)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        4    0.000    0.000    0.000    0.000 {method 'setCompositionMode' of 'PySide6.QtGui.QPainter' objects}
+        4    0.000    0.000    0.000    0.000 /mnt/wd4tb/spacr-worktrees/codex-spinn-native-performance-20261007/spacr/qt/widgets/ambient.py:4975(buffer_size)
+
+

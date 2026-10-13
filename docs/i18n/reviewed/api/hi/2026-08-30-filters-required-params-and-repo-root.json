@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.filters.read_identity#2",
+      "source": "path to the SQLite measurement database. It is opened read-only, so a missing file raises :class:`sqlite3.OperationalError` instead of being created as an empty database.",
+      "context": "path to the SQLite measurement database. It is opened read-only, so a missing file throws :class:`sqlite3.OperationalError` instead of being created as an empty database.",
+      "source_sha256": "c5d181e3f778dfb37b7fbd27d65cc6b3e29393fd96ede48b7e0d19d9e65858a9",
+      "translation": "SQLite माप डेटाबेस का पथ। इसे केवल-पठन मोड में खोला जाता है, इसलिए अनुपस्थित फ़ाइल को खाली डेटाबेस के रूप में बनाने के बजाय :class:`sqlite3.OperationalError` त्रुटि उठती है।"
+    },
+    {
+      "label": "spacr.filters.ensure_filters_table#1",
+      "source": "the measurement database. An existing table is read without modification; the first call, or a rebuild, writes the identity table derived from the database's object relationships.",
+      "context": "the measurement database. An existing table is read without modification; the first call, or a rebuild, writes the identity table derived from the database's object relationships.",
+      "source_sha256": "6ba46d5560c2af41f1d045f5a9f314e9f7e90f7c4b11b5ae50c5f94564e1173a",
+      "translation": "माप डेटाबेस। मौजूदा तालिका को बिना बदलाव के पढ़ा जाता है; पहली कॉल या पुनर्निर्माण डेटाबेस के ऑब्जेक्ट संबंधों से प्राप्त पहचान तालिका लिखता है।"
+    },
+    {
+      "label": "spacr.filters.export_gate#1",
+      "source": "the measurement database whose ``filters`` table is created when absent and then rewritten with the gate column.",
+      "context": "the measurement database whose ``filters`` table is created when absent and then rewritten with the data-selection boundary column.",
+      "source_sha256": "8897f0d9e9a73b44760ef25c267f6e9ea1a084865302492b6db8e3e07276f7c5",
+      "translation": "वह माप डेटाबेस जिसकी ``filters`` तालिका अनुपस्थित होने पर बनाई जाती है और फिर डेटा-चयन सीमा कॉलम के साथ दोबारा लिखी जाती है।"
+    },
+    {
+      "label": "spacr.filters.gate_mask_over_table#2",
+      "source": "path to the SQLite measurement database, opened read-only.",
+      "context": "path to the SQLite measurement database, opened read-only.",
+      "source_sha256": "d71450359d1c8d2eb8562735077c00c709a836dc0af71ad5101e5bc2bae28c12",
+      "translation": "SQLite माप डेटाबेस का पथ, जिसे केवल-पठन मोड में खोला गया है।"
+    },
+    {
+      "label": "spacr.filters.gate_mask_over_table#3",
+      "source": "the object table to evaluate. Only its identity columns and the measurement columns used by the selected gate path are read.",
+      "context": "the object table to evaluate. Only its identity columns and the measurement columns used by the selected data-selection boundary path are read.",
+      "source_sha256": "1f12a14ce35b6822d92fb12f0018e98db27a0e77d3e4a0e2e2c803ea4b38ade4",
+      "translation": "मूल्यांकन की जाने वाली ऑब्जेक्ट तालिका। केवल उसके पहचान कॉलम और चुने गए डेटा-चयन सीमा पथ में उपयोग होने वाले माप कॉलम पढ़े जाते हैं।"
+    },
+    {
+      "label": "spacr.filters.annotate_from_gates#2",
+      "source": "the objects to label. It must contain every measurement column referenced by the selected gates; the returned Series keeps this frame's index and row order.",
+      "context": "the objects to label. It must contain every measurement column referenced by the selected data-selection boundaries; the returned Series keeps this frame's index and row order.",
+      "source_sha256": "9648f5acd4ab98628bc376c09a84e7604a03f9259bede536960ec3f167686423",
+      "translation": "लेबल किए जाने वाले ऑब्जेक्ट। इसमें चुनी गई डेटा-चयन सीमाओं में संदर्भित प्रत्येक माप कॉलम होना चाहिए; लौटाई गई Series इस फ्रेम के सूचकांक और पंक्ति क्रम को बनाए रखती है।"
+    },
+    {
+      "label": "spacr.filters.read_sampled#3",
+      "source": "the table to read. Its name is quoted as one SQLite identifier; a missing table raises :class:`sqlite3.OperationalError`.",
+      "context": "the table to read. Its name is quoted as one SQLite identifier; a missing table throws :class:`sqlite3.OperationalError`.",
+      "source_sha256": "9f1912f8409ff7f5cd054e80a8101c69254f77a67f68f8c9a4b2e803e2b33294",
+      "translation": "पढ़ी जाने वाली तालिका। इसका नाम एक SQLite पहचानकर्ता के रूप में उद्धृत किया जाता है; अनुपस्थित तालिका :class:`sqlite3.OperationalError` त्रुटि उठाती है।"
+    }
+  ]
+}

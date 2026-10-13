@@ -1,0 +1,38 @@
+{
+  "lesson": "15_image_umap",
+  "english_sha256": "7bac1430804e1ef0a549c246acc0af1c62b3992281f9cf5213013b4f800890e9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Image UMAP: udforsk målinger med billedudsnit",
+  "description": "Vælg måletabeller, byg en UMAP-indlejring, og klik på punkter for at undersøge de tilsvarende objekter.",
+  "objectives": [
+    "Indlæse et målt projekt og vælge dets egenskabstabeller.",
+    "Styre nabolagets størrelse, afstanden mellem punkter og antallet af udvalgte rækker.",
+    "Køre indlejringen, undersøge udsnit og finde gemte resultater."
+  ],
+  "prerequisite": "Følg Annotate, og vælg Load test data og derefter Load for at få det målte eksempel og dets billedudsnit. Behold den hentede plademappe. Til dine egne data gennemfører du Measure med gemte udsnit, før du åbner Image UMAP.",
+  "scenes": [
+    "Fra Home åbner du Image UMAP. Brug det til at udforske ligheder mellem målte objekter, mens du ser deres billedudsnit. Begynd med et projekt, der indeholder en måledatabase og de udsnit, Measure har gemt.",
+    "Under Source vælger du Add project folders og vælger eksemplets plademappe, der blev hentet via Annotate. Gennemgå de tilgængelige databaser, rækker og fælles kolonner. Du kan tilføje flere projektmapper, når du vil sammenligne flere datasæt.",
+    "Vælg de tabeller, hvis egenskaber du vil sammenligne. I dette eksempel vælger du målingerne cell, cytoplasm, nucleus og pathogen. Lad Resnet features være slået fra for at bruge de eksisterende målinger. Gennemgå indstillingerne for manglende data og korrelerede egenskaber, før du kører.",
+    "Sæt Row limit til 400 for en hurtig første visning, og brug to arbejdsprocesser. Row limit styrer, hvor mange objekter der indgår i indlejringen. Øg værdien, når du vil udforske mere af datasættet.",
+    "Vælg UMAP som reduktionsmetode. Hvert punkt repræsenterer et objekt med to plottede koordinater. Du kan udforske PCA via dets tilknyttede værktøj, når du vil have en lineær projektion og egenskabsladninger.",
+    "Sæt Neighbours til 15 og Minimum distance til 0,1. Neighbours styrer størrelsen af det nabolag, der bruges til at bygge kortet. Minimum distance styrer, hvor tæt punkterne kan pakkes i den viste indlejring.",
+    "Sæt Random seed til 42, så gentagne kørsler med de samme input og indstillinger er lettere at sammenligne. Gem de valgte egenskabstabeller og forbehandlingsindstillinger sammen med seedet.",
+    "Klyngedannelsen tildeler grupper labels, efter at indlejringen er bygget. Eksemplet bruger DBSCAN med støjfjernelse slået fra. Undersøg udsnittene i en gruppe, før du bruger dens label i en senere analyse.",
+    "Slå Plot images og Plot points til. Brug tolv små udsnitsbilleder, så overblikket forbliver læsbart. Efter tilpasningen kan du undersøge enkelte objekter nærmere i den interaktive visning.",
+    "Tryk på Run, og følg i konsollen forberedelsen af egenskaber og indlejringens fremskridt. Vent på det færdige resultat. Hvis du ændrer inputtabellerne eller reduktionsindstillingerne, kører du igen for at få et nyt kort.",
+    "Undersøg indlejringen i Figures, og åbn den resultatmappe, konsollen angiver. Hold den gemte figur, de valgte målerækker, metadata og klyngelabels samlet, så du kan spore en interessant gruppe tilbage til dens objekter.",
+    "Slå Interactive til for at udforske det tilpassede kort. Zoom ind på et område, og klik på dets punkter. Visningen bruger den færdige indlejring, så du kan undersøge forskellige objekter uden at tilpasse den igen.",
+    "Klik på et punkt for at vise dets udsnit i sidepanelet. Brug den viste objektsti til at knytte billedet til dets kildepost. Sammenlign morfologien mellem nærliggende punkter og mellem fjerne områder af kortet.",
+    "Klik på et andet punkt for at sammenligne dets udsnit. Sidebjælken giver også mulighed for at mærke en markering og sprede klyngelabels. Disse kontroller gemmer annoteringer, så vælg den ønskede label og markering, før du anvender dem.",
+    "Åbn Image Scatter fra overskriften i Image UMAP for at sammenligne valgte egenskaber direkte, eller åbn PCA for en lineær projektion. Fortsæt med de tilknyttede vejledninger for deres inputindstillinger og gemte output."
+  ]
+}

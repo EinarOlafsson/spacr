@@ -1,0 +1,43 @@
+================================================================================
+SETTINGS PROFILES
+================================================================================
+
+Status:    DONE 2026-10-04 — See the closing section.
+Requested: 2026-10-04, by the maintainer, who approved this program-level
+           feature in the step-4 review ("is the program itself missing
+           something?"), from the gap audit of the same day.
+
+WHAT TO BUILD
+  Named settings profiles that can be saved, exported, imported and shared.
+
+DONE WHEN
+  The feature works on Linux, macOS and Windows, is reachable from the GUI
+  where it applies, has tests, and is documented.
+
+DONE 2026-10-04
+  Built on the existing settings templates (spacr/qt/recipes.py), which
+  already saved, applied, deleted, shared (JSON export) and imported named
+  per-module profiles. Added: Rename… (moves the file, refuses a name already
+  taken) and import of a settings CSV — the file every run writes, read by
+  the same reader as "Import settings…" — as a profile named after the file.
+  Reached from the settings strip button and Ctrl+Shift+R.
+  Tests: tests/qt/test_rebindable_shortcuts_and_settings_profiles.py.
+  Left: a user-docs page and translations of the new captions.
+
+2026-10-06 — USER-REQUESTED SAVED SETTINGS LOCATION
+  Templates -> Save now selects the template that was written and displays
+  its full absolute JSON path beneath the list, including when a different
+  template sorts first. The path is selectable plain text for copying.
+  The actual97 template, dialog, profile and shortcut cases pass; fatal Ruff
+  and whitespace checks pass. Lossless complete log/source identity:
+  data/657_template_saved_full_path_2026-10-06.json. This is Linux offscreen
+  Qt acceptance, not a native cross-platform recording. Saved to: {path}
+  and the two changed RecipeDialog docstrings await the normal source-current
+  multilingual/API refresh. This receipt does not close that remaining work.
+
+2026-10-08 — COMPLETION AUDIT: 100% of this item is published.
+  docs/source/shortcuts_and_templates.rst covers Save, Apply, Share, Import,
+  Rename and Delete, including the selectable full saved path. All nine
+  runtime catalogs contain source-bound "Saved to: {path}" and "Rename
+  template" captions. The 2026-10-06 Qt receipt retains its Linux/offscreen
+  scope; this note does not invent native other-OS recordings.

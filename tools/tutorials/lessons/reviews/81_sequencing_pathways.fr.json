@@ -1,0 +1,39 @@
+{
+  "language": "fr",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "e5335413a37e795563110b03c5e417f7f684ee5761afaa68bc261c9930146608",
+  "title": "Modules de séquençage et leurs liens",
+  "section": "Parcours de travail",
+  "description": "Reliez les flux de séquençage et de codes-barres optiques aux scores de phénotype, à la régression, à la planification d’expériences, aux estimations de puissance, à l’analyse dose-réponse et à la comparaison des exécutions.",
+  "objectives": [
+    "Choisissez un module de départ selon les données dont vous disposez déjà.",
+    "Identifiez ce que chaque module lit et écrit.",
+    "Suivez les leçons des modules et les contrats d’API associés pour l’étape suivante."
+  ],
+  "prerequisite": "Installez spaCR et ouvrez Home. Choisissez les données de départ de votre flux de travail, puis suivez les leçons de modules liées pour les commandes et les données d’exemple.",
+  "scenes": [
+    "Le séquençage est la façon dont un criblage groupé apprend quel guide se trouve dans quel puits ou quelle cellule, et spaCR le lit de deux manières. Les lectures d’un séquenceur vont dans Map Barcodes. Les codes-barres imagés cycle par cycle vont dans OPS, qui se trouve dans Mask. Dans les deux cas, les identités des codes-barres finissent à côté de vos phénotypes dans Regression. Autour de ce noyau se trouvent les outils de planification, Experiment Design et Power, pour avant l’acquisition, et Dose–Response et Run Compare pour vos résultats.",
+    "Commencez par les lectures de séquençage. Ouvrez Map Barcodes depuis Home et donnez-lui vos fichiers FASTQ, simples ou appariés, avec les tables de référence de codes-barres qui encodent votre expérience. Map Barcodes associe chaque lecture à ses codes-barres et compte les guides dans chaque puits, en enregistrant unique_combinations.csv et annotated_reads.h5 dans son dossier d’exécution. Avant de faire confiance à ces comptages, ouvrez-les dans Barcode QC. Une fois validés, ce sont les comptages de guides que Regression associe aux scores de phénotype, avec les mêmes clés de plaque et de puits.",
+    "Barcode QC se trouve dans Map Barcodes : ouvrez Map Barcodes depuis Home et choisissez-le là. Il lit les comptages de guides que vous venez d’obtenir et montre la profondeur d’alignement, la couverture, les collisions de codes-barres et les effets de position. Il enregistre les résultats de QC avec des figures et des tables exportables, afin que vous puissiez décider quels guides filtrer avant d’aller plus loin.",
+    "Les criblages optiques suivent une autre voie. Ouvrez Mask depuis Home, puis choisissez OPS. Au lieu de lectures, OPS prend les images de chaque cycle de séquençage, les aligne sur les images de phénotype et décode un code-barres pour chaque noyau. Les résultats arrivent dans le measurements.db d’OPS, avec des tables pour la géométrie, l’alignement du phénotype, les noyaux et les codes-barres. Cette base n’est toutefois pas une table de comptages FASTQ. Pour l’utiliser dans Regression, reliez et agrégez d’abord les identités décodées avec vos données de phénotype, afin que chaque objet ou puits porte les deux.",
+    "Quelle que soit votre méthode de séquençage, les codes-barres rejoignent les phénotypes dans Regression. Ouvrez-le depuis Home. Pour un criblage groupé, il prend les scores de phénotype de Classify et les comptages de guides de Map Barcodes. Pour un criblage optique, il prend les objets OPS décodés une fois que vous les avez vous-même reliés et agrégés ; ce n’est pas une transmission directe de fichiers. Il peut aussi modéliser une réponse mesurée directement. Dans tous les cas, les identifiants de plaque et de puits doivent concorder entre les entrées. Choisissez la réponse et les témoins, lancez l’ajustement et lisez les diagnostics avant de qualifier quoi que ce soit de hit. Le dossier de résultats qu’il écrit, avec coefficients, tables de hits, paramètres et figures, est celui qu’ouvre Run Compare lorsque vous voulez comparer cette exécution à une autre.",
+    "Revenez maintenant avant l’expérience. Ouvrez Power / Design depuis Home pour estimer l’échantillonnage nécessaire pour voir un effet, d’après les tailles d’effet et la variabilité que vous choisissez. Des mesures pilotes peuvent étayer ces hypothèses, mais elles sont facultatives. Le plan issu d’Experiment Design alimente ces estimations, qui peuvent à leur tour vous amener à revoir ce plan.",
+    "Ouvrez Experiment Design depuis Home pour organiser les plaques avant toute acquisition. Saisissez les conditions, les témoins, les réplicats et les contraintes de plaque, en tenant compte de vos estimations de puissance, et exportez le plan expérimental. Ce plan va loin. Power / Design l’utilise pour fixer les hypothèses d’échantillonnage et, plus tard, une fois l’expérience acquise et mesurée, Dose–Response utilise ses identités de dose et de condition ; gardez-les donc inchangées tout au long.",
+    "Dose–Response répond à la question « combien », pas « quel guide » ; il n’a donc besoin d’aucun séquençage. Ouvrez-le depuis Home et apportez vos réponses mesurées avec les identités de dose et de condition issues d’Experiment Design. Définissez les colonnes de dose et de réponse, les témoins et les unités, puis ajustez les courbes. Il enregistre les résultats de l’essai avec des figures et des tables à exporter.",
+    "Dès que vous avez plus d’une analyse, ouvrez Run Compare depuis Home. Il lit vos enregistrements d’exécution et vos résultats de Regression et place côte à côte leurs paramètres, comptages et listes de hits. Si les données d’entrée ont changé entre les exécutions, les différences ne constituent pas une comparaison contrôlée de modèles ; lisez-les en gardant cela à l’esprit.",
+    "Un autre outil de planification n’existe qu’en Python : le balayage de simulations de criblage groupé, spacr.sim.run_multiple_simulations, sans tuile Home ni entrée de menu. Vous lui donnez un dictionnaire de paramètres contenant vos hypothèses, comme la taille du criblage, l’occupation, l’exactitude du classificateur et le séquençage. Il développe toutes les combinaisons, simule chacune dans un pool de processus et ajoute des lignes de résumé synthétiques à simulations.db ; l’appel lui-même renvoie None. Gardez la grille de paramètres petite et fixez max_workers explicitement avant de le lancer. Ce qui en sort est un élément de planification, pas des données, et cela ne peut remplacer ni les mesures ni les comptages de codes-barres dans Regression. Lisez les résumés, notez vos hypothèses et reportez-les à la main dans Power / Design ou Experiment Design, car aucun de ces outils n’importe la base de simulation.",
+    "Le volet codes-barres d’un criblage se termine donc toujours de la même façon : des identités reliées aux phénotypes par plaque et par puits. Conservez les références de codes-barres et les plans de plaque avec vos tables de comptage et, pour un criblage optique, reliez les objets décodés à leurs phénotypes et agrégez-les avant Regression. Les leçons de modules liées montrent les paramètres et les sorties de chaque étape."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "e8f38c9d076f01551f51f3d98c15c9e15cfc96e6b77a83b2754693695d246890",
+    "corrections": [
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
+  }
+}

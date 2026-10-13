@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source_sha256": "98e442532c56044e2aca2f66f22cf008ca9c149676e55c0ab3211bc2dafd6b65",
+      "translation": "Fínstilling í Cellpose 4 notar AdamW. Byrjaðu með 100 umferðir, lærdómshraða 0.00001, þyngdarrýrnun 0.1 og smálotustærð 1."
+    },
+    {
+      "table": "categories",
+      "key": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source_sha256": "13105e7ae7024e883b3f8dca9456225007943d9b2c11c4ab35ac3d71949a3cf2",
+      "translation": "Veldu töflu yfir einstök sníkjudýr með skýrum tengingum við móðursafabólu, eða mældan talningardálk á hverri safabólu. Ekki gefa hvort tveggja upp. Án talningargagna helst fjölgun ómæld í stað þess að vera ályktuð út frá söfnun eða auðkenni hýsils."
+    },
+    {
+      "table": "categories",
+      "key": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source_sha256": "28d5ad28bdefea580a16d38e4739bbc5bb55822f453670d5546e875e1e2ccece",
+      "translation": "Veldu beina talningu sníkjudýra eða eldri flatarmálsnálgun sem er tekin saman fyrir hvern hýsil. Djúpnámsflokkari fyrir heilar safabólur kemur bráðlega og getur ekki keyrt fyrr en þjálfað líkan er til staðar."
+    },
+    {
+      "table": "categories",
+      "key": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source_sha256": "f9f27be334385474852d77b130f190a56369e08640b1909b3bdfb8b5336c8f8a",
+      "translation": "Veldu hvar þjálfaðar vogir eru vistaðar og hvort millivistunarpunktum umferða er haldið."
+    },
+    {
+      "table": "categories",
+      "key": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source_sha256": "942a690aaf94696a0c0e39a77f0f5237ff323c230926d67e8188f27ea1a20ff8",
+      "translation": "Berðu styrk merkis í hverri safabólu saman við viðmiðunarhólf hýsilsins og flokkaðu sameiginleg merkjaástönd með skýrum hlutfallsþröskuldum. Kvarðaðu þröskulda með viðmiðum prófsins; viðmið sem vantar eða eru ógild haldast óþekkt."
+    },
+    {
+      "table": "categories",
+      "key": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source_sha256": "181a6d6dcb6feafb389528d1881bbfd2799b37f890843e2dc0b6f2540235cbce",
+      "translation": "Stilltu flatarmálsbil og kvarða fyrir eldra fjölgunarmatið. Það sameinar flatarmál sýkla innan hýsils og er hvorki bein talning sníkjudýra né mælt þrívítt rúmmál."
+    },
+    {
+      "table": "categories",
+      "key": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source_sha256": "90d1efbd2c76c9df20d6b7209f50ff0b73f1a49592c17f22d1d78bef1ea3632f",
+      "translation": "Stýrðu síun strjálla sjónsviða, stærð gagnasafns og slembinni kvarðagagnaaukningu Cellpose meðan á þjálfun stendur án þess að búa til tvítekin myndafrit."
+    },
+    {
+      "table": "categories",
+      "key": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source_sha256": "438ffe2486a47178e78c2753cbe756d3d9ab35e7556c9b9e036c487953b9d812",
+      "translation": "Fínstilltu stöðluðu Cellpose-SAM eða fyrirliggjandi vistunarpunkt; gefðu nýja þjálfaða líkaninu sérstakt heiti."
+    },
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca",
+      "translation": "Hvernig blettur verður að basa: hvaða rás ber hvaða staf, hversu miklu bjartari en umhverfið blettur þarf að vera til að teljast lestur yfirhöfuð, og hversu langt frá kjarna lestur má liggja og samt tilheyra þeim kjarna. Þetta eru mældir eiginleikar myndatökunnar frekar en smekksatriði og keyrslan greinir frá samsvörunarhlutfalli við safnið sem segir til um hvort þeir séu réttir."
+    },
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5",
+      "translation": "Hvernig reitirnir eru settir saman og hvernig kjarnar hvers saumaðs brunns eru hlutaðir: skörunin sem smásjáin skildi eftir milli aðliggjandi reita, skörunin sem hlutunargluggarnir deila og líkanið. Hver lestur er eignaður kjarnanum sem hann lendir á eða rétt við, svo líkanið og þvermálið hér ráða því hvaða hlutir geta fengið strikamerki."
+    },
+    {
+      "table": "categories",
+      "key": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source_sha256": "d9cce8c2fdd211143c253bf43bcd68377a010872613fe0279ad95295a987c4ea",
+      "translation": "Valfrjálsir snúningar og speglanir við spá svipgerðar. Sameinaðu spár með meðaltali eða kosningu, haltu upprunalegu spánni og merktu ósamræmi til yfirferðar. Allir rofar gagnaaukningar eru sjálfgefið óvirkir; samræmi mælir stöðugleika gagnvart stefnu, ekki kvarðaða vissu eða líffræðilega nákvæmni."
+    },
+    {
+      "table": "categories",
+      "key": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source_sha256": "9fc32374a0b052ef77ce0ec86653b68a05edfbb17ed4d142c7cfa2aa013cad01",
+      "translation": "Paraðu smásjármyndir við heiltölugrímur með hlutamerkjum og tilgreindu valfrjálst sérstakt prófunarsafn."
+    },
+    {
+      "table": "categories",
+      "key": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source_sha256": "6e08ff71703b82990f1492044eb89a24852852501e9e15c2b604022bdbd52b0b",
+      "translation": "Skimaðu hrá sjónsvið fyrir hlutun með rásarbundnum viðmiðum um skerpu, mettun og óendanlega pixla. Veldu yfirferð með skýrslu eingöngu eða skýrar vistaðar útilokanir; kvarðaðu þröskulda fyrir myndatökuna. Skimun er sjálfgefið óvirk og útilokar aldrei myndir vegna fárra hluta."
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2",
+      "translation": "Hvaðan reitirnir eru lesnir og hvert niðurstöðurnar eru skrifaðar: raðgreiningarmappan sem leitað er í, undirmöppur meðtaldar, að reitum nefndum eftir stækkun, umferð, brunni, rásum og staðsetningu, svipgerðarmappan sem lögð er ofan á hana, leiðarasafnið sem köllin eru borin saman við, og mappan sem tekur við measurements.db og skýrslu fyrir hvern brunn. Stilltu þetta fyrst; allir aðrir OPS-hópar gera ráð fyrir að þetta sé rétt."
+    }
+  ]
+}

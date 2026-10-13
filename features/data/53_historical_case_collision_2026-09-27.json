@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-27",
+  "item": 53,
+  "failed_run": "https://github.com/EinarOlafsson/spacr/actions/runs/36357823752/job/108729261519",
+  "source_commit": "d33fa4fa0a712cca7f7460fb1536a40db70ec2f2",
+  "original_installer": "Released 1.5.0.1 installed successfully; actual installed Help action reproduced the missing-pip subprocess failure.",
+  "repair_failure": "uv0.11.32 rejected conflicting GIF names in the public 1.5.0.5 wheel before the repair completed.",
+  "archive_evidence": {
+    "entries": 819,
+    "exact_duplicate_names": 0,
+    "case_collision_pairs": 3,
+    "directory": "spacr/resources/setting_animations/gifs",
+    "pairs": [
+      ["cell_Signal_to_noise.gif", "cell_signal_to_noise.gif"],
+      ["nucleus_Signal_to_noise.gif", "nucleus_signal_to_noise.gif"],
+      ["pathogen_Signal_to_noise.gif", "pathogen_signal_to_noise.gif"]
+    ],
+    "different_contents": true,
+    "scope": "Complete central directory from an HTTP206 byte range; full1.5.0.5 wheel digest not reverified. Case-insensitive extraction is supported by the names and uv error, not a recorded filesystem-case probe."
+  },
+  "selected_repair": {
+    "linux": "1.5.0.5",
+    "macos_windows": "1.5.0.6",
+    "reason": "Use the next genuine public release on platforms where .5 filename collisions prevent extraction; retain the proven Linux .5 chain and all failure evidence.",
+    "wheel_sha256": "79dd4e97e7e518a4eeca0fb82ef48cd770898f25e2a0506a7db6ffd8d73899d1",
+    "wheel_bytes": 37505619,
+    "full_digest_verified_against_pypi": true,
+    "case_collisions": 0,
+    "updater_and_qt_initialization_identical_to_1_5_0_5": true,
+    "source_pins": "tools/historical_upgrade_sources.json"
+  },
+  "verifier": "Explicit selected repair version, exact public source pins, same private environment, missing pip, real installed Help action/subprocess, CPU backend, and a strictly newer final public target remain required.",
+  "validation": {
+    "passed": 41,
+    "seconds": 9.23,
+    "scope": "Named verifier, native-workflow, disk-report and two cold-start theme checks; no native update execution in this local batch."
+  },
+  "raw_evidence": "/mnt/wd4tb/scratch/spacr-completion/53-historical-upgrade/ci-36357823752",
+  "native_rerun_pending": true,
+  "item_closed": false
+}

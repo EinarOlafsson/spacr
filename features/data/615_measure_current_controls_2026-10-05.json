@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "scope": "Current native Measure controls only; complete batch, templates, media and publication remain open",
+  "source_commit": "7b01b31292ed84af638083e668479ec7dd7f5ec3",
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-controls-current/captures/measure_controls_20261005_r4",
+  "capture_frames": 12,
+  "desktop": [
+    3840,
+    2160
+  ],
+  "platform": "xcb",
+  "source_unchanged": true,
+  "batch_settings_restored": true,
+  "accepted": true,
+  "checks_log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/measure-navigation-current-tests.log",
+  "tests_passed": 47,
+  "existing_report_only_diagnostic": "Published navigation localization remains pending the next verified candidate",
+  "kernel_failure_preserved": {
+    "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-run-current/captures/measure_run_20261005_r2",
+    "exit_code": 143,
+    "memory_max_bytes": 8589934592,
+    "oom_kill": 1,
+    "memory_events": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/measure-run-r2-kernel-memory-events.txt",
+    "memory_peak": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/measure-run-r2-kernel-memory-peak.txt"
+  },
+  "original_capture_and_failure_modified": false,
+  "media_published": false,
+  "recording_tool_sha256": "52016796583dc0f987f054dfc07054ebad5e0ab0561120f7d62e635ff34b222a",
+  "scientific_acceptance_sha256": "66381bfeaa65a566bb26f6c64aa2bde2f5cf4ada5235cf410755917522f20096"
+}

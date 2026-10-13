@@ -1,0 +1,36 @@
+{
+  "lesson": "72_volcano_explorer",
+  "english_sha256": "973d0e47bf1648e4e05e8f2d5d91f1f5f7a03c7be083695151927f4a71b5648a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Volcano Explorer: undersøg resultater og gem en figur",
+  "description": "Indlæs Regression-resultater, vælg viste værdier og referencelinjer, og gem derefter en genbrugelig stil, og eksportér figuren.",
+  "objectives": [
+    "Åbne en resultatfamilie og undersøge guidernes identitet og støtte.",
+    "Vælge justerede værdier, visningstransformationer og referencelinjer.",
+    "Gemme stilen og eksportere figurer som PDF eller PNG."
+  ],
+  "prerequisite": "Pak Volcano_real_guide_family.zip ud, og brug dens mappe results. Den indeholder 434 guideresultater fra Regression-eksemplet. Ingen guide klarer den oprindelige tærskel for justeret P på 0,05. Effekterne er standardiserede marginale effekter. Behold den oprindelige resultattabel og de statistiske tærskler sammen med figuren.",
+  "scenes": [
+    "Fra Home åbner du Regression og derefter Volcano Explorer. Pak det linkede eksempelarkiv ud, før du vælger de resultattabeller, der skal plottes.",
+    "Klik på Open results, og vælg den udpakkede mappe results. Hvert punkt er en guide i denne familie på 434 test. Hold forskellige korrektionsfamilier adskilt.",
+    "Klik på Save style for at gemme figurens startindstillinger, derefter på Load style, og vælg filen. Så har du et gemt udgangspunkt med tilsvarende kontroller, før du redigerer figuren.",
+    "Kontrollér, at alpha er 0,05, multiplikatoren 3, og at den negative logtransformation er slået til. Læs akselabels: eksemplet plotter standardiserede marginale effekter.",
+    "Klik på et punkt for at undersøge dets kilderække. Læs guide-id, rå P, justeret P og antallet af understøttende brønde samlet. Det valgte eksempel har en justeret P omkring 0,39.",
+    "Vælg kolonnen for rå permutations-P for at undersøge den, og sæt derefter adjusted_p_value tilbage. At skifte den plottede kolonne ændrer hverken den underliggende analyse eller dens gemte signifikansflag.",
+    "Slå −log10 til og fra for at sammenligne transformerede og oprindelige P-værdier. Med transformationen slået til vises mindre P-værdier højere oppe. Gendan visningen med transformeret justeret P til denne figur.",
+    "Flyt alpha til 0,5 for at se, hvordan den vandrette referencelinje flytter sig, og sæt derefter 0,05 tilbage. At redigere linjen genberegner hverken statistiske test eller deres gemte signifikansflag.",
+    "Angiv en eksplicit effektgrænse på 0,1 med multiplikator 3. De lodrette linjer vises ved −0,3 og +0,3. Sæt Auto tilbage for at vende tilbage til den oprindelige effektlinje.",
+    "Vælg wells_with_guide som farve for at undersøge støtten for de plottede guides. Gendan signifikansfarverne før den endelige eksport, hvis du vil have den oprindelige præsentation.",
+    "Angiv figurstørrelse, skriftstørrelser og opløsning. Eksemplet bruger 7 × 5 tommer ved 150 dpi. Kontrollér læsbarheden; stram beskæring kan ændre de gemte ydre mål.",
+    "Gem den endelige stil som JSON. Skift markørstørrelsen, og brug derefter Load style til at gendanne det gemte udseende. Behold stilfilen ved siden af resultattabellen.",
+    "Eksportér PDF og PNG, og åbn filerne for at kontrollere labels, kontrast og beskæring. Gem outputtet sammen med inputresultaterne og stilen. I Python bruger du VolcanoStyle og render_volcano til det samme renderingsforløb."
+  ]
+}

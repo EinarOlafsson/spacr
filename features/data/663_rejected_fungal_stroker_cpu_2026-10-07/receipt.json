@@ -1,0 +1,80 @@
+{
+  "status": "complete/rejected",
+  "app_source_changed": false,
+  "hard_24_fps_accepted": false,
+  "source_sha256": {
+    "before": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+    "candidate": "708b4f91e909d7d003154ec7af9f5053a12bac7e0630c2075b03b2e1187fa52f"
+  },
+  "parity": {
+    "unrestricted_size_2_5_different_pixels": 0,
+    "unrestricted_size_1_different_pixels": 61750,
+    "cached_native_pairs": 12,
+    "cached_different_pixels": 0,
+    "stroke_eligible_pairs": 9,
+    "thin_bypass_control_pairs": 3
+  },
+  "shader_medians": [
+    {
+      "palette": "spacr",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 64.97937699896283,
+        "candidate": 69.63694200385362
+      },
+      "change_percent": 7.16775878747673
+    },
+    {
+      "palette": "random",
+      "size": 2.5,
+      "resolution": 2,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 38.20001349959057,
+        "candidate": 41.96751750714611
+      },
+      "change_percent": 9.862572450650898
+    },
+    {
+      "palette": "spacr",
+      "size": 2.0,
+      "resolution": 1,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 113.05586699745618,
+        "candidate": 118.40056150685996
+      },
+      "change_percent": 4.727480891835567
+    },
+    {
+      "palette": "spacr",
+      "size": 1.0,
+      "resolution": 2,
+      "density": 3,
+      "shader_median_ms": {
+        "before": 8.465631995932199,
+        "candidate": 8.429573499597609
+      },
+      "change_percent": -0.4259398040443618
+    }
+  ],
+  "provenance": {
+    "initial_probe_and_cached_probe": "/mnt/wd4tb/scratch/fungal-stroker-parity-20261007",
+    "initial_probe_logs": "No separate raw log was saved; original scripts and JSON receipts are preserved unchanged.",
+    "admission_probe": "/mnt/wd4tb/scratch/fungal-cache-admission-20261007",
+    "admission_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python /mnt/wd4tb/scratch/fungal-cache-admission-20261007/probe.py",
+    "admission_cwd": "/mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007",
+    "admission_window": "72 evolving native4K frames95 to97.9583333333 at24fps offline time increments per case; counters, not live cadence.",
+    "log": "admission.log",
+    "original_source_guard": "The production sparse raster remains64 entries/8MiB; no guard changes. Candidate adds64 stroke paths whose native storage is not included in that sparse-array bound."
+  },
+  "limitations": [
+    "Direct shader medians are not actual widget or producer FPS.",
+    "One seed/time window and dark default/Random presets do not qualify all contexts/palettes.",
+    "Thin unrestricted fill mismatch is not attributed to the cached candidate, which bypasses those strokes.",
+    "No GPU, app/docs/API changes, new acceptance tests, or hard24FPS claim."
+  ],
+  "conclusion": "Existing sparse/observation caches had no eviction or headroom refusal; rejected stroke cache had zero hits and12900 evictions. No distinct justified optimization remains from this admission lead."
+}

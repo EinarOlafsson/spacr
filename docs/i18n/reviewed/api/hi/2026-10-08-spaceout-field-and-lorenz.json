@@ -1,0 +1,41 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "If True, drop names whose number of observations falls outside a fence extending 1.5 times the 5th-to-95th-percentile spread of group sizes. Count values do not enter this filter. Default ``False``.",
+      "label": "spacr.plot.plot_lorenz_curves#7",
+      "source": "If True, drop names whose number of observations falls outside a fence extending 1.5 times the 5th-to-95th-percentile spread of group sizes. Count values do not enter this filter. Default ``False``.",
+      "source_sha256": "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
+      "translation": "यदि True है, तो उन नामों को हटाएँ जिनके अवलोकनों की संख्या समूह आकारों के 5वें और 95वें प्रतिशतक के बीच के फैलाव के 1.5 गुने तक विस्तारित सीमा से बाहर है। गणना मान स्वयं इस फ़िल्टर में शामिल नहीं होते। डिफ़ॉल्ट ``False``।"
+    },
+    {
+      "context": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and evolving field animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "label": "spacr.qt.spaceout#1",
+      "source": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and evolving field animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "source_sha256": "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d",
+      "translation": "यह कमांड कंट्रास्ट-जाँचे गए स्पेक्ट्रल पैलेट और विकसित होते फ़ील्ड ऐनिमेशन के साथ मानक :func:`spacr.qt.run` ऐप्लिकेशन शुरू करता है। यह मोड केवल वर्तमान प्रक्रिया तक सीमित है: इसे प्राथमिकता के रूप में सहेजा नहीं जाता और यह बाद के मानक लॉन्च को नहीं बदलता। पृष्ठभूमि ऐनिमेशन बंद करने के विकल्प सहित मौजूदा ऐनिमेशन प्राथमिकताएँ प्रभावी रहती हैं। यह ध्वनि वाला एकमात्र मोड भी है: प्राथमिकताएँ केवल यहाँ अपना ध्वनि टैब और फ्रैक्टल टैब दिखाती हैं, और सामान्य spaCR सहेजी गई ध्वनि सेटिंग्स चाहे जो हों, कोई ध्वनि नहीं बजाता।"
+    },
+    {
+      "context": "Apply saved Spaceout field switches under the renderer's lock.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects#0",
+      "source": "Apply saved Spaceout field switches under the renderer's lock.",
+      "source_sha256": "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+      "translation": "रेंडरर के लॉक के तहत सहेजे गए Spaceout फ़ील्ड स्विच लागू करें।"
+    },
+    {
+      "context": "saved field-effect switches keyed by effect name.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects#1",
+      "source": "saved field-effect switches keyed by effect name.",
+      "source_sha256": "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+      "translation": "प्रभाव के नामों को कुंजी के रूप में रखने वाले सहेजे गए फ़ील्ड प्रभाव स्विच।"
+    },
+    {
+      "context": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the evolving field before one is saved.",
+      "label": "spacr.qt.widgets.ambient.dressed#1",
+      "source": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the evolving field before one is saved.",
+      "source_sha256": "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+      "translation": "मानक लॉन्च अनुरोधित जोड़ी बनाए रखते हैं। Spaceout लॉन्च अपने सहेजे गए चयन का उपयोग करता है, या कोई चयन सहेजे जाने तक डिफ़ॉल्ट रूप से विकसित होते फ़ील्ड का।"
+    }
+  ],
+  "schema": 1
+}

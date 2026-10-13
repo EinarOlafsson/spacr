@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex technical review/correction of existing runtime catalog drafts followed by an independent Codex peer review. Covers the 14 current descendants of N610 original 11 captions: stage boundaries, no new proposals before final write, possible earlier clears and score updates, unchanged human annotations, statistical model fitting, plate wells, and potentially overestimated classifier accuracy. Normal source, syntax and translation gates are unchanged. No local-model or human/native-language review is claimed.",
+  "reviewed_candidate_sha256": "8809deeb63740baddf48208866813f85fe1de3732adba89cc90d4f290ba7dc0c",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Suggest cancelled.",
+      "source": "Suggest cancelled.",
+      "source_sha256": "2bac47458de0cb090c6d92f102f6e9f13bfce3ea58aac990b0ff5cf1294b58db",
+      "translation": "Génération de suggestions annulée."
+    },
+    {
+      "table": "ui",
+      "key": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
+      "source": "Stop the suggestion run at its next step. No new suggestions are written if it stops before the writing step; earlier suggestions may have been cleared and round scores may have been updated. Your annotations are unchanged. Shown only while a run is going.",
+      "source_sha256": "39d0236989856f1c0170d43495754316970125719276d651dfe12a1d11a6c692",
+      "translation": "Arrêtez la génération de suggestions à l’étape suivante. Aucune nouvelle suggestion n’est écrite si l’exécution s’arrête avant l’étape d’écriture ; les suggestions précédentes peuvent déjà avoir été effacées et les scores de l’itération mis à jour. Vos annotations restent inchangées. Affiché uniquement pendant une exécution."
+    },
+    {
+      "table": "ui",
+      "key": "Suggest cancelled before writing new suggestions. Earlier suggestions may have been cleared and round scores may have been updated.",
+      "source": "Suggest cancelled before writing new suggestions. Earlier suggestions may have been cleared and round scores may have been updated.",
+      "source_sha256": "d578e497f66626cf81509eb531b341dc3c3ef3ba03cdcc3208d50dce45969232",
+      "translation": "La génération de suggestions a été annulée avant l’écriture de nouvelles suggestions. Les suggestions précédentes peuvent avoir été effacées et les scores de l’itération mis à jour."
+    },
+    {
+      "table": "ui",
+      "key": "Cancelling the suggestion run after its current step…",
+      "source": "Cancelling the suggestion run after its current step…",
+      "source_sha256": "eaf8468302294f0ea0c6bfb49e29adf565b6b9fbd0584ed73342d349153f7e32",
+      "translation": "Annulation de la génération de suggestions après l’étape en cours…"
+    },
+    {
+      "table": "ui",
+      "key": "Its accuracy may be overestimated.",
+      "source": "Its accuracy may be overestimated.",
+      "source_sha256": "7fbf93011814c372ee212a72c1412dd4aa43a6af869205dd19ad3587a98c0818",
+      "translation": "Son exactitude peut être surestimée."
+    },
+    {
+      "table": "ui",
+      "key": "Label crops from more wells for validation with independent wells. ({why})",
+      "source": "Label crops from more wells for validation with independent wells. ({why})",
+      "source_sha256": "ec5bbd1669a1c39ae74e29b3cf16355f5e0b9c8ec89d8632cc5c5ed6f0623bd3",
+      "translation": "Annotez des images recadrées provenant d’un plus grand nombre de puits pour une validation avec des puits indépendants. ({why})"
+    },
+    {
+      "table": "ui",
+      "key": "This classifier used a random split because too few laboratory wells have labels.",
+      "source": "This classifier used a random split because too few laboratory wells have labels.",
+      "source_sha256": "cdb62ce37b37ac980857d20eebf4a20a2ce7b19f2b9da3a858fdb1eb26935701",
+      "translation": "Ce classificateur a utilisé une répartition aléatoire, car trop peu de puits de laboratoire contiennent des exemples annotés."
+    },
+    {
+      "table": "ui",
+      "key": "clearing the outstanding suggestions",
+      "source": "clearing the outstanding suggestions",
+      "source_sha256": "b1a380f9537124c0a9e7c7910b1e0adaf512a5774b44cc3675f45f6002e0f4ce",
+      "translation": "effacement des suggestions en attente"
+    },
+    {
+      "table": "ui",
+      "key": "writing the suggestions",
+      "source": "writing the suggestions",
+      "source_sha256": "ddf52ebe8b06648167597fe102d9ed040021bc6f60bc586b1f0f5397c94df160",
+      "translation": "écriture des suggestions"
+    },
+    {
+      "table": "ui",
+      "key": "Suggest: step {n} of {total} — {what}…",
+      "source": "Suggest: step {n} of {total} — {what}…",
+      "source_sha256": "a10009a9eb5d71c47212e3600076a394557c7b585a69882ee1fa5f5c5640c9b1",
+      "translation": "Suggérer : étape {n} sur {total} — {what}…"
+    },
+    {
+      "table": "ui",
+      "key": "ranking the proposals",
+      "source": "ranking the proposals",
+      "source_sha256": "8986692b3af459a44311042b26e2d6a95e262287688053798fc7734ba79e5520",
+      "translation": "classement des propositions"
+    },
+    {
+      "table": "ui",
+      "key": "reading the measurements",
+      "source": "reading the measurements",
+      "source_sha256": "b9317c763b7219a2dee3dc186763c5dbb8b1cf5710d41845886bc92cc673a431",
+      "translation": "lecture des mesures"
+    },
+    {
+      "table": "ui",
+      "key": "fitting on the labels so far",
+      "source": "fitting on the labels so far",
+      "source_sha256": "0f778181faca998d8aa6e6ea071f66a12a59e0b30e8b0e2a7bd8b9f81bf89679",
+      "translation": "ajustement du modèle aux annotations disponibles jusqu’ici"
+    },
+    {
+      "table": "ui",
+      "key": "The suggestions are unaffected.",
+      "source": "The suggestions are unaffected.",
+      "source_sha256": "417fd23c20fa91f2b6baa60c0f7bda605d6614e8a270d9c34881f459e9591b73",
+      "translation": "Les suggestions ne sont pas modifiées."
+    }
+  ]
+}

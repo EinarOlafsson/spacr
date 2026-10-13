@@ -1,0 +1,81 @@
+{
+  "item": 567,
+  "passed": true,
+  "CPU_only": true,
+  "scope": "Declared synthetic two-field plumbing test; not biological accuracy",
+  "actual_model_classes": [
+    "none",
+    "host_death",
+    "mitosis"
+  ],
+  "video_feature_width": 768,
+  "actual_saved_provenance": {
+    "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+    "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+    "files_sha256": {
+      "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+      "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+      "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+    },
+    "weights_license": "CC-BY-NC-4.0",
+    "frames": 16,
+    "feature_width": 768,
+    "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+    "frame_sampling": "rounded evenly spaced indices including endpoints",
+    "pooling": "mean patch tokens followed by pretrained fc_norm",
+    "channel_map": [
+      0,
+      0,
+      0
+    ],
+    "device": "cpu",
+    "transformers": "4.48.3",
+    "torch": "2.11.0+cpu"
+  },
+  "held_out_scores": [
+    {
+      "event": "host_death",
+      "annotated": 2,
+      "detected": 0,
+      "true_positives": 0,
+      "precision": NaN,
+      "recall": 0.0,
+      "f1": 0.0,
+      "mean_abs_timing_error": NaN,
+      "max_abs_timing_error": NaN,
+      "tolerance_frames": 2
+    },
+    {
+      "event": "mitosis",
+      "annotated": 2,
+      "detected": 0,
+      "true_positives": 0,
+      "precision": NaN,
+      "recall": 0.0,
+      "f1": 0.0,
+      "mean_abs_timing_error": NaN,
+      "max_abs_timing_error": NaN,
+      "tolerance_frames": 2
+    },
+    {
+      "event": "all",
+      "annotated": 4,
+      "detected": 0,
+      "true_positives": 0,
+      "precision": NaN,
+      "recall": 0.0,
+      "f1": 0.0,
+      "mean_abs_timing_error": NaN,
+      "max_abs_timing_error": NaN,
+      "tolerance_frames": 2
+    }
+  ],
+  "saved_model_weights_only_reload": true,
+  "trained_reload_events_exact": true,
+  "wrong_source_channel_rejected": "VideoMAE needs three explicit ordered source-channel indices",
+  "seconds": 94.04847884178162,
+  "source_sha256": {
+    "spacr/_segmentation_backends.py": "4c99802ab54cf694b6d40bbbbf1ebba8ad191bba2fdf64af165c092956530143",
+    "spacr/timelapse.py": "df54908687d66cecc1971a463afe116194e0454e8387c05d0e2bb5569ce2d88d"
+  }
+}

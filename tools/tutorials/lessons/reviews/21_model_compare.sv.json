@@ -1,0 +1,29 @@
+{
+  "lesson": "21_model_compare",
+  "english_sha256": "2e2af2044db01642db76b3e444c2b4d0c162c8d05b4fb245e8af6def09705a54",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Model Compare: jämför sparade segmenteringsmasker",
+  "description": "Läs in två masker av samma bild, kör det nedladdningsbara jämförelseskriptet och granska överlappspoäng och överlagringar.",
+  "objectives": [
+    "Välja masker av samma synfält med matchande pixelgeometri.",
+    "Köra exemplet för jämförelse av sparade masker.",
+    "Läsa överensstämmelsetabellen och granska skillnader i gränser."
+  ],
+  "prerequisite": "Hämta och packa upp det länkade Model Compare-exemplet. Det innehåller en bild, två sparade masker och ett Python-hjälpskript. Använd en miljö där spaCR är installerat och välj en ny utdatamapp utanför de uppackade indata. Exemplet jämför två förbehandlingsval med samma cpsam-vikter; för att bedöma noggrannhet krävs granskade referensetiketter.",
+  "scenes": [
+    "Från Home öppnar du Make Masks och väljer Model Compare. Använd flödet för att granska segmenteringsskillnader på samma bild. Genomgången använder det länkade exemplet med sparade masker och dess Python-hjälpskript.",
+    "Spara modellvikterna och förbehandlingsinställningarna tillsammans med varje uppsättning masker. När du förbereder en egen jämförelse använder du samma synfält och samma pixelgeometri så att objektöverlapp avser motsvarande bildpositioner.",
+    "Packa upp det länkade exemplet. Indata är image.tif, batch.tif och preview.npy. Båda maskerna beskriver samma synfält; de togs fram med samma modell och olika förbehandlingsinställningar. Behåll de ursprungliga filnamnen för det medföljande skriptet.",
+    "Kör det medföljande hjälpskriptet i din spaCR-Pythonmiljö. Ställ källan på exemplets indatamapp och utdata på en ny resultatmapp. Den utskrivna sammanfattningen visar antal objekt, matchade objekt, genomsnittligt överlapp för matchade objekt och justerat Rand-index. Högre överensstämmelse betyder att maskerna liknar varandra mer; det visar inte i sig vilken mask som är korrekt.",
+    "Öppna comparison.png. Jämför de två maskövertäckningarna med bilden och granska delningar, sammanslagningar och förskjutna gränser. Den högra panelen markerar pixlar där tillhörigheten till förgrunden skiljer sig. Kontrollera även gränserna mellan objekt som ligger an mot varandra i överlagringarna.",
+    "Öppna comparison.csv för de numeriska resultaten och behåll den tillsammans med comparison.png, indata och de registrerade inställningarna. Använd granskade referensmasker och representativa synfält när du jämför segmenteringens noggrannhet eller väljer en modell för ditt experiment."
+  ]
+}

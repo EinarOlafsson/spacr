@@ -1,0 +1,100 @@
+{
+ "item": "447",
+ "lesson": "44_data_manager",
+ "date": "2026-09-27",
+ "published": false,
+ "scope": "Replace all 12 unique images in 13 existing scenes with one genuine neutral capture of usage, cleanup, cancellation and archive on an independently bound private copy of the lesson31 project.",
+ "capture": {
+  "directory": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/data_manager_neutral_20260927b",
+  "provenance": {
+   "commit": "dc689b9940847dbd4dcbc64a523d5ff0f69ad772",
+   "version": "1.5.1.0",
+   "module": "data_manager",
+   "download_requested": false,
+   "dataset_cache": "/tmp/spacr-tutorials/example_data",
+   "app_source_modified": false,
+   "cache_isolated_with_bind_mount": true,
+   "completed_capture": true
+  },
+  "acceptance_sha256": "fe9188d898582c8413b61057581051e5637ef3c27a2229f8321717f45b233416",
+  "original_preservation": {
+   "files": 132,
+   "byte_identical": true
+  },
+  "private_files_deleted": 104,
+  "archive_executed": true,
+  "cancel_preserves_every_file": true,
+  "archive_cancel_preserves_every_file": true,
+  "worker_outcomes": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "remaining_workers": 0
+ },
+ "diagnostic_attempt": {
+  "capture": "data_manager_neutral_20260927",
+  "adopted": false,
+  "reason": "Recorder required old Data manager capitalization; stopped before selecting any project. Case-insensitive exact match retains the unique genuine Help action check."
+ },
+ "preservation": {
+  "english_sha256": "8b3d7553cab8a7890c729aa6234414aed63a805bd9d5c68ff2e229342d4a931e",
+  "english_bytes_unchanged": true,
+  "scene_count": 13,
+  "voices": 27,
+  "audio_timing_caption_files_unchanged": 81,
+  "backup": "/mnt/firecuda2/codex/scratch-docs/t447/backup-44-before-neutral-20260927",
+  "alpha_features_disabled": true
+ },
+ "focus_adjustment": {
+  "scene": "05_real_prune_plan",
+  "before": [
+   345,
+   320,
+   3450,
+   160
+  ],
+  "after": [
+   345,
+   320,
+   3450,
+   205
+  ],
+  "reason": "Include the actual proposed-crops row below the current controls."
+ },
+ "media": {
+  "master_sha256": "b0a3472f48944d4c399966e446684668838e197f572a580166eaa69a4f312a83",
+  "poster_sha256": "a83cbcb5a7f2ba63a6a93a3711b2d14ee23ace9beeae896d4ad9fdfb67e095cd",
+  "web_sha256": "151626b2d4361930f548f04810d3485ddd1058efabe883026254a8a6a9f27652",
+  "web_bytes": 5784583,
+  "frames": 3502,
+  "narration_regenerated": false
+ },
+ "checks": {
+  "master_sentence_cues": true,
+  "web_sentence_cues": true,
+  "browser_report_hashes": {
+   "browser": "fb7feea3dde72f681108ff5bee8f2b9fc63c1b88975f6026c0c0928baf0bea54",
+   "browser-web": "421aba895eb8d2ef3fe571cc1841fe4af5c1b801810aef4350118f7ae40d1254"
+  },
+  "frame_sweep": {
+   "images_checked": 22,
+   "path_offenders": [],
+   "errors": {},
+   "receipt": "/mnt/firecuda2/codex/scratch-docs/t447/sweep_staged_44_neutral.json",
+   "sha256": "a1d5122a9721392fa68d18be5582801dfc170e3ffd35a5bd2fa067fdcfe64ee1"
+  },
+  "visual_manifest_sha256": "56a4199332c389bcc6c8b81d7aa0ad063c54c2b49c1a9c2ce621cbeb2c774a5e"
+ },
+ "renderer": {
+  "path": "/mnt/wd4tb/scratch/spacr-completion/worktree/tools/tutorials/authoring/tools/render_visual_master.py",
+  "sha256": "3bbffeccb13e5cf0156a8812b5a1dfbb9000da11be250b0e9f6cb7a4402a548f"
+ },
+ "review": "AI technical review: genuine neutral confirmation dialogs and cleanup/archive outcomes are readable. No native-speaker or listening signoff."
+}

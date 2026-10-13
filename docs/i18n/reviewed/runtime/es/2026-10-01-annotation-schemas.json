@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 11 local-model schema UI drafts in each locale. Technical errors and omissions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair, including load-without-apply, no restored manual memberships, portable rules/extraction/composition, omission counts and placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "9fe7e139de5fbd6b8324c6667fbaf9672eeff5bbb2c6fa1a9398d58122f4e2e6",
+  "original_local_model_drafts": [
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "translation": "Guarde las reglas validadas, los patrones de extracción y la composición de columnas como reutilizables JSON. Se omiten las asignaciones de filas arrastradas manualmente."
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "translation": "Se omitió el esquema guardado en {path}. Se omitieron las asignaciones de filas manuales {count:,}."
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "method": "Codex root AI technical correction after local-model draft review; shared_ui precision review"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source_sha256": "a643c6cc5eb94070c609badd6bee8466e85ad53c842d5c0d7f47b007cc134f4d",
+      "translation": "Guarde las reglas validadas, los patrones de extracción y la composición de columnas en un archivo JSON reutilizable. Se omiten las asignaciones de filas realizadas mediante arrastre manual."
+    },
+    {
+      "table": "ui",
+      "key": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source_sha256": "4e6fe802043854fd29e948165ba9ff6c57a62c3a4745ec5c7b0ad2bfe9c49e3f",
+      "translation": "Esquema guardado en {path}. Se omitieron {count:,} asignaciones manuales de filas."
+    }
+  ]
+}

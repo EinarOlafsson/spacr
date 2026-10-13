@@ -1,0 +1,83 @@
+{
+  "sv": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "bb55b77c9b6466e4efe67945b7d05b6ad8b7533b02dd7cd6e11a3a6dec7fcc82"
+  },
+  "de": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "9a05a6a4d2eefe29ff2dc5e5a5cf8322697181558dcca69e1eaeffdc625bee0d"
+  },
+  "es": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "92f5ffa2c898e27737d0dd1b27bcd95b20be43c77a98034e22cb125e463e7e57"
+  },
+  "zh_CN": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "ed0e49dbadd6934d85d46b9e30cf8f937cb08a9ea38af460b54167e5827f8532"
+  },
+  "pt": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "52cf09d4ffc144590981328fd533a0984d46bc3c40406ece7f246cba7ad564d2"
+  },
+  "hi": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "5fafd9a1b14b139f6633539e2121da5a71a083fb53e4b1e56e6e4e1111dbfbb1"
+  },
+  "ko": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "e7e0fa50bc10dd18a03428f4842b9a9b2209c2c62f58a34904666c96ad2b836d"
+  },
+  "is": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "2cc8496920b1f3b5cd805f43e4d76f87d79afe933edbe1f5dc41ebd6c472a257"
+  },
+  "fr": {
+    "added": [
+      "spacr.qt.widgets.calibration_preview"
+    ],
+    "removed": [],
+    "changed_existing": [],
+    "unchanged_symbols": 12035,
+    "sha256": "7af31859607cac422261a501e762a0a0ca88e4fa0ee6e9a79e7e4e5df066846b"
+  }
+}

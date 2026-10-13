@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "Temporary disabled-control note while asynchronous GPU capability discovery is pending. It describes checking, not completed compatibility or active computation. Direct AI translation and technical review against the current source; no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Checking compatible GPUs…",
+      "source": "Checking compatible GPUs…",
+      "source_sha256": "0be88fc90d7ae7a0728cb2beff7841728ac07e123bddf4ea6d8d4d0caf2b1efb",
+      "translation": "Vérification des GPUs compatibles…"
+    }
+  ]
+}

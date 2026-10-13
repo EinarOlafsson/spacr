@@ -1,0 +1,62 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Walkthrough",
+      "source": "Walkthrough",
+      "source_sha256": "b463b316cebfc24441413d705d65e7707fae189ff880ff9e704aad73c5353be6",
+      "table": "ui",
+      "translation": "Genomgång"
+    },
+    {
+      "key": "Modules, in order: {names}",
+      "source": "Modules, in order: {names}",
+      "source_sha256": "fae5a56b3884a34bf71a0844166d262580f79903bc609031ff2844d08390493a",
+      "table": "ui",
+      "translation": "Moduler, i ordning: {names}"
+    }
+  ],
+  "schema": 1,
+  "superseded_records": [
+    {
+      "reason": "2026-09-23: 483 replaced the sample-project dialog captions with Pipeline overviews and Start example; original record retained verbatim.",
+      "record": {
+        "key": "Start a sample project",
+        "source": "Start a sample project",
+        "source_sha256": "5b9dfc722a3a4819857d022b3803627d772fb413e68a777c89f115e70b5fcac5",
+        "table": "ui",
+        "translation": "Starta ett exempelprojekt"
+      }
+    },
+    {
+      "reason": "2026-09-23: 483 replaced the sample-project dialog captions with Pipeline overviews and Start example; original record retained verbatim.",
+      "record": {
+        "key": "Start a sample project…",
+        "source": "Start a sample project…",
+        "source_sha256": "c50a24a7657ef468672f44f1dd31cbcdbba3b8ffe673d5cc5e9ea3721610afcf",
+        "table": "ui",
+        "translation": "Starta ett exempelprojekt…"
+      }
+    },
+    {
+      "reason": "2026-09-23: 483 replaced the sample-project dialog captions with Pipeline overviews and Start example; original record retained verbatim.",
+      "record": {
+        "key": "Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.",
+        "source": "Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.",
+        "source_sha256": "656145cc460919c9a99834c49f8d14080f65a5c13cc9445db5149c59527967b2",
+        "table": "ui",
+        "translation": "Välj den typ av experiment du har. spaCR öppnar den första modulen i arbetsflödet med exempeldata, så att du kan se hur den fungerar innan du använder dina egna bilder."
+      }
+    },
+    {
+      "reason": "2026-09-23: 483 replaced the sample-project dialog captions with Pipeline overviews and Start example; original record retained verbatim.",
+      "record": {
+        "key": "Start",
+        "source": "Start",
+        "source_sha256": "e4bb9f1ece9af9264a3b9e3913bbdb2cf497457167b14ced5f85688bfde74644",
+        "table": "ui",
+        "translation": "Starta"
+      }
+    }
+  ]
+}

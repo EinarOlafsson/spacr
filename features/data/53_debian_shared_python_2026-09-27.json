@@ -1,0 +1,18 @@
+{
+  "item": 53,
+  "date": "2026-09-27",
+  "run": 36343749550,
+  "job": 108688826669,
+  "source_commit": "683e35639392c6b06bb0551bce526efe08f22a5d",
+  "build_platform": "ubuntu:22.04",
+  "failure": "PyInstaller could not find libpython3.10.so.1.0",
+  "log_sha256": "419772b9f815044e462158eea692fad7dea40ce7c80988fa95ee7a6b63d434c3",
+  "change": "Install libpython3-dev in the Debian builder; its versioned dependency supplies the shared Python runtime.",
+  "primary_package_sources": [
+    "https://packages.ubuntu.com/fr/jammy/libpython3-dev",
+    "https://packages.ubuntu.com/fr/jammy/libpython3.10-dev"
+  ],
+  "shell_syntax_passed": true,
+  "native_build_verified": false,
+  "installed_artifact_verified": false
+}

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Filter",
+      "source": "Filter",
+      "source_sha256": "638e249f4a15ebb84957da130701d138a6e06d88dceeaa2e6dcd91db70cc1381",
+      "translation": "Filtern"
+    },
+    {
+      "table": "ui",
+      "key": "Swap object and background",
+      "source": "Swap object and background",
+      "source_sha256": "5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be",
+      "translation": "Objekt und Hintergrund vertauschen"
+    }
+  ]
+}

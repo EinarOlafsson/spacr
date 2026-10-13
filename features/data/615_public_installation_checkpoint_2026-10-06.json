@@ -1,0 +1,154 @@
+{
+  "accepted_clean_installations": {
+    "pip": {
+      "passed": 6,
+      "receipt": "features/data/615_public_installation_checkpoint_2026-10-06/pip/receipt.json"
+    },
+    "linux_cpu": {
+      "passed": 3,
+      "receipt": "features/data/615_public_installation_checkpoint_2026-10-06/linux_cpu/receipt.json"
+    }
+  },
+  "public_version": "1.5.1.3",
+  "actual_recorded_capture_provenance": {
+    "pip_public_1513_r1": {
+      "frames": 11,
+      "inner_capture_complete": true,
+      "application_modified": false,
+      "published": false
+    },
+    "linux_public_1513_r2": {
+      "frames": 12,
+      "inner_capture_complete": true,
+      "application_modified": false,
+      "published": false
+    },
+    "release_1513_r1": {
+      "frames": 1,
+      "inner_capture_complete": true,
+      "application_modified": false,
+      "published": false
+    }
+  },
+  "scoped_helper_tests_passed": 18,
+  "helper_source_sha256": {
+    "tools/tutorials/check_linux_installation.py": "48444aab70a8846e2144e1b5229f1867ad11019caf1aee17caede2999a5aae7f",
+    "tools/tutorials/capture_pip_installation.py": "3b29b13ff0e46304aa5fac5a4aec31ef19009d23bc225a3a4e6bdce08b6ba2fc",
+    "tools/tutorials/render_installer_instruction_cards.py": "7ecd69541a9a068f9810b23833a14cd19236803125c62e977c2f2b5168b1b237",
+    "tools/tutorials/render_pip_instruction_cards.py": "197a894f5bd34d4ec5dae3c3316b25e7a25a02a24b68869f3997ddac8ce5c525"
+  },
+  "linux_backend_explicitly_requested": "cpu",
+  "cuda_install_acceptance": false,
+  "linux_capture_outer_returncode": 143,
+  "linux_inner_gui_returncode": 0,
+  "linux_outer_shutdown_unresolved": true,
+  "linux_capture_receipt_saved_before_outer_exit": true,
+  "public_release_home_has_21_tiles": true,
+  "current_standard_home_has_19_tiles": true,
+  "public_home_native_frames_admitted_to_standard_tutorials": false,
+  "tutorial_source_narration_and_publication_pending": true,
+  "windows_or_macos_native_install_claimed": false,
+  "Mask_07_and_Conda_02_unchanged": true,
+  "artifacts": {
+    "features/data/615_public_installation_checkpoint_2026-10-06/archive_current_installation_checkpoint.py": {
+      "sha256": "0b7c7cd359d42e10aab65c26e5b3a348829a87ec78b817ded92cbe7e895e86c2",
+      "bytes": 6339
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-installation-helper-tests-r1.log.gz": {
+      "sha256": "77f2d1566d67a2f2d15344a723735b38334bf0477db36a86d0f839f1b1263308",
+      "bytes": 52
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-neutral-public-linux-capture-r1.log.gz": {
+      "sha256": "e0c0fd0c25dd1593985c0ebf10f90b20b09df8bfe13bba69239a2973153d17da",
+      "bytes": 843
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-neutral-public-linux-capture-r2.log.gz": {
+      "sha256": "b41f03fc640cf11e48163e09dfa800c43cdbbf19bd36b1c836689d189a9e3795",
+      "bytes": 687
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-neutral-public-linux-installation-r2.log.gz": {
+      "sha256": "1b62f76de12711c43112a44780ac7b206c130e6b965cc102e368e285aeb34d0d",
+      "bytes": 180
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-neutral-public-pip-capture-r1.log.gz": {
+      "sha256": "d3fb96e083233f7d2cecdbf5f22e4fd5d272715d7e42966595d0314998c0c1c5",
+      "bytes": 674
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-neutral-public-pip-cards-r1.log.gz": {
+      "sha256": "be707bcbcba0bc3726b06c0e617f15e2a2222005ae98c4432e2dba0df674b31c",
+      "bytes": 93
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-neutral-public-pip-installation-r1.log.gz": {
+      "sha256": "4ea07d81aed631dd746c43efb5533955675cc4971c7b32d6fce63ddc3eb552b2",
+      "bytes": 231
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-public-linux-cards-r1.log.gz": {
+      "sha256": "8f8345ffb762009bc0d1de251708dc213d4fc70664cdac905202a7f084e8e2b8",
+      "bytes": 127
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-public-linux-cards-r2.log.gz": {
+      "sha256": "a6f3fc01935e49a9b3abb24a552983bfbdda5df84595566f35b95563b30bed85",
+      "bytes": 93
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-public-linux-installation-r1.log.gz": {
+      "sha256": "d50923f2a09d06394504aad69f804547a7e59d895e359d9a72e91ee1e68608a2",
+      "bytes": 2531
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/current-public-release-capture-r1.log.gz": {
+      "sha256": "d16503d524175a26da4104cbf81274a37a5039865624c6c756e00b77e01cd39e",
+      "bytes": 106
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/linux_cpu/01_installer.log.gz": {
+      "sha256": "e68897fd673b7e9c8c147739be904afc8e4b7ad3a36ddf17bdc08d6121d9a4b8",
+      "bytes": 3164
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/linux_cpu/02_import.log.gz": {
+      "sha256": "7c12d04989aa687dc93a282c6900c3efc1a6dbc542206f598614e7b2ab2b97f5",
+      "bytes": 180
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/linux_cpu/03_doctor.log.gz": {
+      "sha256": "465428d556490f3170ee2e61b4ce624c6661367300541c81d3d2efd86eb9fec0",
+      "bytes": 1352
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/linux_cpu/receipt.json": {
+      "sha256": "5cf0d1ebcf8c5f7dc3c30c90951887f05ebe0be174314efa0375d24585bf4efc",
+      "bytes": 2860
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/native-captures.zip": {
+      "sha256": "6f2288344454f5d9033b7fe1fe576c4e4af46ff8cbb411ab138749839c89dad6",
+      "bytes": 3830016
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/pip/01_create.log.gz": {
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "bytes": 20
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/pip/02_upgrade_pip.log.gz": {
+      "sha256": "435d9ac7d6b55f8e96bf49a0557d1596b12352a3f7c85194bc98335ebce236dd",
+      "bytes": 253
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/pip/03_install.log.gz": {
+      "sha256": "38652b941253aea097884c0726f8d1152f6310c860f93012e1ed49994737c17d",
+      "bytes": 7590
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/pip/04_dependency_check.log.gz": {
+      "sha256": "cac4f0717e5b68b63c7376bcc07dfc607a5589b09374b45251bdcf31a6bece75",
+      "bytes": 50
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/pip/05_import.log.gz": {
+      "sha256": "64ee1d3429c25d08e85a02669580cafec955e583d1439b445c5eb6ea71588f38",
+      "bytes": 207
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/pip/06_doctor.log.gz": {
+      "sha256": "5092ca4648812b814d29070ad4684d1b1db46e8ae6fa5d9caeedb91ea68d71a5",
+      "bytes": 1388
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/pip/receipt.json": {
+      "sha256": "2129bba5f00a729f15c2fea989c06b179d9cb3ab9c2f7ad5965fa00af4171c9f",
+      "bytes": 5252
+    },
+    "features/data/615_public_installation_checkpoint_2026-10-06/verified-release-installer.json": {
+      "sha256": "bb07420512768426472885d6583189ac40edf541f8c7d128fbce34f76bcdb0d9",
+      "bytes": 3627
+    }
+  }
+}

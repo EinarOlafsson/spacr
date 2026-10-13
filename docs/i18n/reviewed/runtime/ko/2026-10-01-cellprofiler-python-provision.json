@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native-speaker signoff",
+  "draft_author": "mask_editor",
+  "technical_reviewer": "root",
+  "source_file": "spacr/_segmentation_backends.py and spacr/qt/widgets/model_zoo_picker.py",
+  "superseded_review_file": "docs/i18n/reviewed/runtime/ko/2026-09-27-runtime-debt-sixth-pass-messages.json",
+  "superseded_review_file_sha256": "0d0116e5af53ae0205a739bb3105ae18f26f125e694155cbe603ddf26149fce1",
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment.",
+      "source_sha256": "1d6230c16b5fa3946e5a4f086fcbdfeb4924ee62727ebb25d2b4272151347fe1",
+      "translation": "CellProfiler 4.2를 Measure에서 실험실 자체 .cppipe 파이프라인으로 화면 없이 실행합니다. spaCR이 각 시야의 채널과 마스크를 TIFFs로 넘기고, 객체별 측정값을 spaCR 객체 id를 키로 measurements.db 파일로 다시 가져옵니다. 환경을 만들려면 이 컴퓨터에 Python 3.8 또는 3.9가 필요합니다."
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Prepare compatible Python",
+      "source": "Prepare compatible Python",
+      "source_sha256": "4a8714bad0a1c96c525cd374d6c219f4048ef8f17fbafbf46157c32e11fe9918",
+      "translation": "호환되는 Python 준비"
+    },
+    {
+      "table": "ui",
+      "key": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9. If neither is available, bundled or PATH uv downloads a private Python 3.9 for this backend.",
+      "source": "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9. If neither is available, bundled or PATH uv downloads a private Python 3.9 for this backend.",
+      "source_sha256": "459840fc0093c097e65d293fe02a3e5cf3a83d4879001568a3883328659a13c4",
+      "translation": "측정에서 연구실의 자체 .cppipe 파이프라인으로 CellProfiler 4.2를 그래픽 인터페이스 없이 실행합니다. spaCR은 각 시야의 채널과 마스크를 TIFF로 전달하고, 객체별 측정값을 spaCR의 객체 ID에 연결하여 measurements.db 파일로 가져옵니다. Python 3.8 또는 3.9가 필요합니다. 둘 다 없으면 번들에 포함된 uv 또는 PATH에서 찾은 uv가 이 백엔드 전용 Python 3.9를 다운로드합니다."
+    }
+  ],
+  "review": "Checked exact technical IDs and installed Python behavior. Korean source-bound database name uses a separate Korean noun after measurements.db so the protected identifier remains byte-for-byte."
+}

@@ -1,0 +1,32 @@
+{
+  "payloads": {
+    "README.md": {
+      "bytes": 536,
+      "sha256": "bd1b772e093daf0d9a097d151744ed57e597e3137373ddc9efab269056184fd7"
+    },
+    "ambient.py.gz": {
+      "bytes": 99267,
+      "sha256": "72ce6f0904dced432b552853446df6de99f1e862972e6af0afcf88a1daecb2e6"
+    },
+    "archive_phase.py": {
+      "bytes": 2819,
+      "sha256": "a1a24d52e836263f0589970c5e52af1f8124415faf082c8baf5c2aafbf613986"
+    },
+    "integrated-phases.log.gz": {
+      "bytes": 52,
+      "sha256": "2076e2374cebbf50fb31e89f4fbc564eb4c40de8d4c1dbf35b5a9144957d5869"
+    },
+    "receipt.json": {
+      "bytes": 1144,
+      "sha256": "ee7d2e1f75de41e2ef6ea14cdad1741787101a2b9a25f2564164f2bb1186faa3"
+    },
+    "test_ambient.py.gz": {
+      "bytes": 13216,
+      "sha256": "3d94860cd3c7ed3f35bc34bae6849f573c1a4c558e5d96dbeb64d321d68e0a74"
+    },
+    "test_fungal_growth_engine.py.gz": {
+      "bytes": 2665,
+      "sha256": "23b599c294d7ef063ee36e8e2d46cb655c35116ba0835d1c9d2508c8c0f32ce9"
+    }
+  }
+}

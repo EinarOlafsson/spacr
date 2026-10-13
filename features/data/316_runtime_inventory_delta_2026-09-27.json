@@ -1,0 +1,3661 @@
+{
+  "schema": 1,
+  "date": "2026-09-27",
+  "baseline_commit": "6ba9eba0f308fc468c1e934c5035967b5f8bbee9",
+  "baseline_pin_reproduced": "d9bacf1ad450423806f5680b05246e842b5d0d894e042deb645cdd5558feceff",
+  "current_digest": "5a560d33398485b2fc51e086960b8a205bb79dbe2cdc2c51e9d4f26fdef0091b",
+  "before_counts": {
+    "SETTING_LABELS": 1086,
+    "SETTING_TOOLTIPS": 1108,
+    "CATEGORY_HELP": 211,
+    "UI": 5472,
+    "MODULE_SUMMARIES": 72
+  },
+  "after_counts": {
+    "SETTING_LABELS": 1194,
+    "SETTING_TOOLTIPS": 1216,
+    "CATEGORY_HELP": 229,
+    "UI": 6014,
+    "MODULE_SUMMARIES": 72
+  },
+  "added": [
+    [
+      "CATEGORY_HELP",
+      "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed."
+    ],
+    [
+      "CATEGORY_HELP",
+      "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event."
+    ],
+    [
+      "CATEGORY_HELP",
+      "How much of each field is covered by cells, measured per field and per well into measurements.db with a monolayer QC flag: from the cell masks, from the texture of a brightfield or phase channel, or from a fluorescent stain. Plaque and infection results from a thin or torn monolayer can then be dropped or divided by the covered fraction."
+    ],
+    [
+      "CATEGORY_HELP",
+      "How the fitted model is judged: cross-validation and the held-out plate, the evaluation report with its calibration curve and bins, the score threshold that turns a score into a call, and the leakage audit that checks train and test share no object. Shared by both classifier families."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Mitosis, egress, invasion and host death detected on tracks by a small network trained on annotated events, with held-out precision and recall, division links re-made from mitoses and time to each event per condition."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Per-object intensity statistics, GLCM homogeneity and Zernike moments computed for all objects of a field at once on a CUDA GPU, matching the CPU values within float tolerance. Without a GPU the CPU path runs."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working."
+    ],
+    [
+      "CATEGORY_HELP",
+      "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db."
+    ],
+    [
+      "CATEGORY_HELP",
+      "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells."
+    ],
+    [
+      "CATEGORY_HELP",
+      "The random seed that fixes the split and the initialisation, how many workers load the crops and whether they pin memory, how much the run prints, and how many failed items it tolerates. Fix the seed when two runs have to be compared."
+    ],
+    [
+      "CATEGORY_HELP",
+      "What the run writes and draws once the model is fitted: the plots, the top-scoring example crops, TensorBoard logs, intermediate checkpoints and, for the tabular model, the heatmap. Change these for what you want to look at afterwards; none of them changes the model."
+    ],
+    [
+      "SETTING_LABELS",
+      "anndata_format"
+    ],
+    [
+      "SETTING_LABELS",
+      "anndata_tidy_dir"
+    ],
+    [
+      "SETTING_LABELS",
+      "bleach_correction"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_channel"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_epochs"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_fucci_channels"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_gates"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_labels"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_method"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_mitotic_ratio"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_cycle_model"
+    ],
+    [
+      "SETTING_LABELS",
+      "cellprofiler_pipeline"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_anonymous"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_cache"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_endpoint"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_fields"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_level"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_profile"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_results"
+    ],
+    [
+      "SETTING_LABELS",
+      "cloud_wells"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_counting"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_dilution"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_min_area_px"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_plated_volume_ul"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_polarity"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_threshold"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_too_few"
+    ],
+    [
+      "SETTING_LABELS",
+      "colony_too_many"
+    ],
+    [
+      "SETTING_LABELS",
+      "confluency"
+    ],
+    [
+      "SETTING_LABELS",
+      "confluency_channel"
+    ],
+    [
+      "SETTING_LABELS",
+      "confluency_qc_threshold"
+    ],
+    [
+      "SETTING_LABELS",
+      "confluency_source"
+    ],
+    [
+      "SETTING_LABELS",
+      "confluency_window"
+    ],
+    [
+      "SETTING_LABELS",
+      "illumination_vendor_profile"
+    ],
+    [
+      "SETTING_LABELS",
+      "intensity_calibration"
+    ],
+    [
+      "SETTING_LABELS",
+      "intensity_calibration_offset"
+    ],
+    [
+      "SETTING_LABELS",
+      "intensity_calibration_statistic"
+    ],
+    [
+      "SETTING_LABELS",
+      "intensity_calibration_wells"
+    ],
+    [
+      "SETTING_LABELS",
+      "mask_gpu_indices"
+    ],
+    [
+      "SETTING_LABELS",
+      "mask_parallel"
+    ],
+    [
+      "SETTING_LABELS",
+      "measure_gpu"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_driver"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_event_query"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_event_table"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_feedback"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_interval_seconds"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_max_events"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_positions"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_simulated_folder"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_stage_transform"
+    ],
+    [
+      "SETTING_LABELS",
+      "microscope_timepoints"
+    ],
+    [
+      "SETTING_LABELS",
+      "plate_barcode_column"
+    ],
+    [
+      "SETTING_LABELS",
+      "plate_barcode_source"
+    ],
+    [
+      "SETTING_LABELS",
+      "plate_barcode_token_env"
+    ],
+    [
+      "SETTING_LABELS",
+      "plate_barcodes"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_correlation_threshold"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_databases"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_feature_selection"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_metadata"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_negative_control"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_normalization"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_phenotype_column"
+    ],
+    [
+      "SETTING_LABELS",
+      "profiling_treatment_column"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_cellprob_thresholds"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_crop"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_diameter_factors"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_enhancement"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_fields"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_flow_thresholds"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_report"
+    ],
+    [
+      "SETTING_LABELS",
+      "robustness_tolerance"
+    ],
+    [
+      "SETTING_LABELS",
+      "surrogate_importance_methods"
+    ],
+    [
+      "SETTING_LABELS",
+      "surrogate_shap_explainer"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_column"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_conditions"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_covariates"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_group"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_hours_per_frame"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_min_frames"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_mode"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_object"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_origin"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_persist"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_reference"
+    ],
+    [
+      "SETTING_LABELS",
+      "time_to_event_threshold"
+    ],
+    [
+      "SETTING_LABELS",
+      "timeflows_model"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_events"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_events_annotations"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_events_conditions"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_events_model"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_events_threshold"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_events_window"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_lineage"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_lineage_color_by"
+    ],
+    [
+      "SETTING_LABELS",
+      "timelapse_lineage_max_distance"
+    ],
+    [
+      "SETTING_LABELS",
+      "unmix"
+    ],
+    [
+      "SETTING_LABELS",
+      "unmix_background_percentile"
+    ],
+    [
+      "SETTING_LABELS",
+      "unmix_controls"
+    ],
+    [
+      "SETTING_LABELS",
+      "viability"
+    ],
+    [
+      "SETTING_LABELS",
+      "viability_dead_channel"
+    ],
+    [
+      "SETTING_LABELS",
+      "viability_live_channel"
+    ],
+    [
+      "SETTING_LABELS",
+      "viability_negative_wells"
+    ],
+    [
+      "SETTING_LABELS",
+      "viability_plate_map"
+    ],
+    [
+      "SETTING_LABELS",
+      "viability_positive_wells"
+    ],
+    [
+      "SETTING_LABELS",
+      "viability_thresholds"
+    ],
+    [
+      "SETTING_LABELS",
+      "watch_folder"
+    ],
+    [
+      "SETTING_LABELS",
+      "watch_idle_minutes"
+    ],
+    [
+      "SETTING_LABELS",
+      "watch_measure_settings"
+    ],
+    [
+      "SETTING_LABELS",
+      "watch_pipeline"
+    ],
+    [
+      "SETTING_LABELS",
+      "watch_poll_seconds"
+    ],
+    [
+      "SETTING_LABELS",
+      "watch_settle_seconds"
+    ],
+    [
+      "SETTING_LABELS",
+      "wound_channel"
+    ],
+    [
+      "SETTING_LABELS",
+      "wound_closure"
+    ],
+    [
+      "SETTING_LABELS",
+      "wound_conditions"
+    ],
+    [
+      "SETTING_LABELS",
+      "wound_hours_per_frame"
+    ],
+    [
+      "SETTING_LABELS",
+      "wound_source"
+    ],
+    [
+      "SETTING_LABELS",
+      "wound_window"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "anndata_format"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "anndata_tidy_dir"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "bleach_correction"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_channel"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_epochs"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_fucci_channels"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_gates"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_labels"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_method"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_mitotic_ratio"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_cycle_model"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cellprofiler_pipeline"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_anonymous"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_cache"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_endpoint"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_fields"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_level"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_profile"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_results"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cloud_wells"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_counting"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_dilution"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_min_area_px"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_plated_volume_ul"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_polarity"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_threshold"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_too_few"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "colony_too_many"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "confluency"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "confluency_channel"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "confluency_qc_threshold"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "confluency_source"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "confluency_window"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "illumination_vendor_profile"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "intensity_calibration"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "intensity_calibration_offset"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "intensity_calibration_statistic"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "intensity_calibration_wells"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "mask_gpu_indices"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "mask_parallel"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "measure_gpu"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_driver"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_event_query"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_event_table"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_feedback"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_interval_seconds"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_max_events"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_positions"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_simulated_folder"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_stage_transform"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "microscope_timepoints"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "plate_barcode_column"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "plate_barcode_source"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "plate_barcode_token_env"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "plate_barcodes"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_correlation_threshold"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_databases"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_feature_selection"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_metadata"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_negative_control"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_normalization"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_phenotype_column"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "profiling_treatment_column"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_cellprob_thresholds"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_crop"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_diameter_factors"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_enhancement"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_fields"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_flow_thresholds"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_report"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "robustness_tolerance"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "surrogate_importance_methods"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "surrogate_shap_explainer"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_column"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_conditions"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_covariates"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_group"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_hours_per_frame"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_min_frames"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_mode"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_object"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_origin"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_persist"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_reference"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "time_to_event_threshold"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timeflows_model"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_events"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_events_annotations"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_events_conditions"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_events_model"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_events_threshold"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_events_window"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_lineage"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_lineage_color_by"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "timelapse_lineage_max_distance"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "unmix"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "unmix_background_percentile"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "unmix_controls"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "viability"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "viability_dead_channel"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "viability_live_channel"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "viability_negative_wells"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "viability_plate_map"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "viability_positive_wells"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "viability_thresholds"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "watch_folder"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "watch_idle_minutes"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "watch_measure_settings"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "watch_pipeline"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "watch_poll_seconds"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "watch_settle_seconds"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "wound_channel"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "wound_closure"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "wound_conditions"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "wound_hours_per_frame"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "wound_source"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "wound_window"
+    ],
+    [
+      "UI",
+      "A CSV or Excel table with a SMILES column and a compound name, and a well column (with a plate column when plates differ) or names matching the Treatment column. Hits are then drawn with their structures, clustered by similarity and exported as SAR tables. Clustering needs RDKit (pip install rdkit)."
+    ],
+    [
+      "UI",
+      "A Zenodo token is needed."
+    ],
+    [
+      "UI",
+      "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone)."
+    ],
+    [
+      "UI",
+      "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map."
+    ],
+    [
+      "UI",
+      "A spaCR label mask (.npy or image) of this object type, made from the image above. Default empty."
+    ],
+    [
+      "UI",
+      "A token is kept; type one to replace it"
+    ],
+    [
+      "UI",
+      "A well is a hit when its score reaches this value. SSMD 3 is a strong effect; 3 for robust z and B-score is three robust standard deviations."
+    ],
+    [
+      "UI",
+      "Add an image to annotate."
+    ],
+    [
+      "UI",
+      "Add images…"
+    ],
+    [
+      "UI",
+      "Add object"
+    ],
+    [
+      "UI",
+      "Add the outline micro-SAM drew as one new object: one edit, undone by one Ctrl+Z, written by Save mask and recorded in the field's curation ledger with the prompt, the model and the micro-SAM version. Enter on the image does the same. Default unavailable until an outline is shown."
+    ],
+    [
+      "UI",
+      "Adhesion opens the Invasion Assay, whose attached and invaded counts give the fungal cells bound to a host-cell monolayer. The planned Biofilm module will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint."
+    ],
+    [
+      "UI",
+      "Affiliation"
+    ],
+    [
+      "UI",
+      "An access token, for a server or topic that needs one. Kept like a password. Leave empty to keep the saved one. Default empty."
+    ],
+    [
+      "UI",
+      "An images folder and a masks folder"
+    ],
+    [
+      "UI",
+      "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99."
+    ],
+    [
+      "UI",
+      "Analyse replicates as pairs, so replicate-to-replicate variation cancels. Default off."
+    ],
+    [
+      "UI",
+      "Analysis locked: {sha} at {time}."
+    ],
+    [
+      "UI",
+      "Annotate this image for spaCR's community training data and send it to Hugging Face. Figure mode: box every well, for the well detector. Plaque mode: paint every plaque, for the next plaque model."
+    ],
+    [
+      "UI",
+      "Announce every run that finishes or fails, by the ways switched on below, with its name, duration, outcome, a short QC summary and where its output is. Runs from the app and from the command line are both announced. A run you cancel is not. Default off."
+    ],
+    [
+      "UI",
+      "Anomalies"
+    ],
+    [
+      "UI",
+      "Antifungal response opens Dose–Response to fit fungal growth or a morphology score against drug concentration. Combining it with Morphology or Biofilm would help describe which image features change during treatment. Filamentation, Germ tube formation, Biofilm and Morphology are planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation."
+    ],
+    [
+      "UI",
+      "Anything that helps: microscope, magnification, cell line, what counts as one object."
+    ],
+    [
+      "UI",
+      "Archive package"
+    ],
+    [
+      "UI",
+      "Archive package…"
+    ],
+    [
+      "UI",
+      "Arrayed-assay planner"
+    ],
+    [
+      "UI",
+      "Assemble a submission package for the Image Data Resource or the BioImage Archive: MIHCSME and REMBI metadata taken from the settings spaCR saved, the images and a plate map, plus a short form for what spaCR cannot know, with the IDR study and library files, a BioStudies study and file list, and MD5 checksums. Nothing is uploaded and the run folder is not written to. Default not made."
+    ],
+    [
+      "UI",
+      "Assign and write"
+    ],
+    [
+      "UI",
+      "Author"
+    ],
+    [
+      "UI",
+      "Authors (Last First; …)"
+    ],
+    [
+      "UI",
+      "Auto (TreeSHAP, else KernelSHAP)"
+    ],
+    [
+      "UI",
+      "Before your first contribution"
+    ],
+    [
+      "UI",
+      "Bleach Correction (Alpha)"
+    ],
+    [
+      "UI",
+      "Bleed-through correction: how much of each dye is read in the other channels is estimated from single-stain control wells, and every field is unmixed with that matrix before it is segmented or measured. The matrix is printed and recorded with the run."
+    ],
+    [
+      "UI",
+      "Blind"
+    ],
+    [
+      "UI",
+      "Blinded {count} crops under key {key}."
+    ],
+    [
+      "UI",
+      "Blinded · {page}"
+    ],
+    [
+      "UI",
+      "Blinded: the source, plates, wells, conditions and file names are hidden, and the crops are in a shuffled order."
+    ],
+    [
+      "UI",
+      "Blinded: {count} fields, named by code and in a shuffled order."
+    ],
+    [
+      "UI",
+      "Both conditions on every replicate"
+    ],
+    [
+      "UI",
+      "Browse a catalogue of community plugins and assay recipes. A plugin is installed into its own folder with the libraries it needs, so it never replaces a package spaCR uses; a recipe is saved as a settings file you can load into its module."
+    ],
+    [
+      "UI",
+      "Browse cloud storage"
+    ],
+    [
+      "UI",
+      "Browse cloud storage…"
+    ],
+    [
+      "UI",
+      "COCO JSON (*.json)"
+    ],
+    [
+      "UI",
+      "Call hits above the negative control, below it, or both."
+    ],
+    [
+      "UI",
+      "Call hits by"
+    ],
+    [
+      "UI",
+      "Catalogue"
+    ],
+    [
+      "UI",
+      "Catalogue file, folder or address"
+    ],
+    [
+      "UI",
+      "Cell Cycle (Alpha)"
+    ],
+    [
+      "UI",
+      "Cell line"
+    ],
+    [
+      "UI",
+      "Cell mask"
+    ],
+    [
+      "UI",
+      "Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)"
+    ],
+    [
+      "UI",
+      "CellProfiler"
+    ],
+    [
+      "UI",
+      "CellProfiler (Alpha)"
+    ],
+    [
+      "UI",
+      "CellProfiler 4.2, run headless on a lab's own .cppipe pipeline from Measure: spaCR hands it each field's channels and masks as TIFFs and brings its per-object measurements back into measurements.db keyed by spaCR's object ids. It needs a Python 3.8 or 3.9 on this computer to build its environment."
+    ],
+    [
+      "UI",
+      "CellProfiler 4.2.8.1 and cellprofiler-core are BSD-3-Clause (Broad Institute). They read images through Bio-Formats (GPL-2.0, shipped inside prokaryote) on a Java 11 development kit that the install fetches from Eclipse Adoptium (GPL-2.0 with the Classpath Exception) into the backend's own folder. CellProfiler's desktop interface (wxPython) and its MySQL export are not installed: pipelines run headless. spaCR ships none of it."
+    ],
+    [
+      "UI",
+      "ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)"
+    ],
+    [
+      "UI",
+      "Cheapest design: {replicates} replicates, {wells} wells per condition, {fields} fields per well; power {power:.2f}, {simulated:.2f} in 500 simulated experiments."
+    ],
+    [
+      "UI",
+      "Check figure integrity on export"
+    ],
+    [
+      "UI",
+      "Choose a per-cell table with a 'well' column, a 'well_label' column (1 for treated or knockout wells, 0 for controls) and embedding or numeric feature columns. An attention model learns from the well labels alone which cells carry the phenotype. Two tables are written beside the input: each cell's attention and each well's probability. Runs on the CPU. Default 4-fold cross-validation over wells."
+    ],
+    [
+      "UI",
+      "Choose a per-cell table with well labels"
+    ],
+    [
+      "UI",
+      "Choose a run folder first."
+    ],
+    [
+      "UI",
+      "Choose the gRNAs the plot is about. It opens on the regression's top significant hits; the selected wells are derived from the gRNAs again whenever they change."
+    ],
+    [
+      "UI",
+      "Choose the images folder"
+    ],
+    [
+      "UI",
+      "Choose the masks folder"
+    ],
+    [
+      "UI",
+      "Choose the platform output folder first."
+    ],
+    [
+      "UI",
+      "Click an object to remove it whole. Backspace undoes the last delete. Press Brush to paint again."
+    ],
+    [
+      "UI",
+      "Click on one object, or drag a box round it, and micro-SAM outlines it. Right-click marks what is not the object. Enter adds the outline as a new object."
+    ],
+    [
+      "UI",
+      "Cluster similarity"
+    ],
+    [
+      "UI",
+      "Colony Counting (Alpha)"
+    ],
+    [
+      "UI",
+      "Column naming each well, unique across plates. Default prc."
+    ],
+    [
+      "UI",
+      "Column naming the biological replicate, such as plateID when each plate is one; leave empty when the pilot has one replicate and the replicate variance cannot be estimated. Default empty."
+    ],
+    [
+      "UI",
+      "Column naming the field within its well. Default fieldID."
+    ],
+    [
+      "UI",
+      "Compound table with SMILES"
+    ],
+    [
+      "UI",
+      "Compounds…"
+    ],
+    [
+      "UI",
+      "Confluency"
+    ],
+    [
+      "UI",
+      "Confluency (Alpha)"
+    ],
+    [
+      "UI",
+      "Confluency failed: {error}"
+    ],
+    [
+      "UI",
+      "Confluency {percent} ({source}), {verdict}"
+    ],
+    [
+      "UI",
+      "Contact email"
+    ],
+    [
+      "UI",
+      "Contribute images and masks"
+    ],
+    [
+      "UI",
+      "Contribute images and masks…"
+    ],
+    [
+      "UI",
+      "Contribute training data"
+    ],
+    [
+      "UI",
+      "Contribute training data…"
+    ],
+    [
+      "UI",
+      "Copy the images into the package"
+    ],
+    [
+      "UI",
+      "Cost"
+    ],
+    [
+      "UI",
+      "Could not assign: {error}"
+    ],
+    [
+      "UI",
+      "Could not export the workflow: {error}"
+    ],
+    [
+      "UI",
+      "Could not forget the saved secrets."
+    ],
+    [
+      "UI",
+      "Could not load: {error}"
+    ],
+    [
+      "UI",
+      "Could not open the diameter estimate."
+    ],
+    [
+      "UI",
+      "Could not read the catalogue: {error}"
+    ],
+    [
+      "UI",
+      "Could not read the pilot: {error}"
+    ],
+    [
+      "UI",
+      "Could not search for similar crops: {msg}"
+    ],
+    [
+      "UI",
+      "Count bacterial or fungal colonies on plate or dish photos instead of plaques: the dish is found, colonies are thresholded against the agar and touching ones split, and each plate gets a count, CFU/mL from the dilution and plated volume, a too-many or too-few flag, and colony areas and diameters, in millimetres when Scale & Time says how large the dish is."
+    ],
+    [
+      "UI",
+      "Curate blind: name every field by a code instead of its file name and folder, and show the fields in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off."
+    ],
+    [
+      "UI",
+      "DOI or citation of the paper these figures come from"
+    ],
+    [
+      "UI",
+      "Database table"
+    ],
+    [
+      "UI",
+      "Delete object"
+    ],
+    [
+      "UI",
+      "Delete the saved mail password, Slack webhook and ntfy topic and token from the keyring and from spaCR's own file, at once. Default kept."
+    ],
+    [
+      "UI",
+      "Deposit on Zenodo"
+    ],
+    [
+      "UI",
+      "Deposit on Zenodo…"
+    ],
+    [
+      "UI",
+      "Deposit this run on Zenodo so the analysis gets a citable DOI: the archive package, settings, run journal, report, result tables and, if asked, the masks, with the archive form as its metadata. Uses your own Zenodo token, kept in the system keyring or a private file. The sandbox, for trying it out, is on until you turn it off; a draft is left to publish on Zenodo unless you publish here. Default not deposited."
+    ],
+    [
+      "UI",
+      "Deposited {count} files as a Zenodo draft at {url}; its reserved DOI is {doi}. Publish it there."
+    ],
+    [
+      "UI",
+      "Depositing on Zenodo…"
+    ],
+    [
+      "UI",
+      "Description"
+    ],
+    [
+      "UI",
+      "Desktop"
+    ],
+    [
+      "UI",
+      "Detect"
+    ],
+    [
+      "UI",
+      "Difference between the two condition means to detect, in the measurement's units. Default 0."
+    ],
+    [
+      "UI",
+      "Dock width"
+    ],
+    [
+      "UI",
+      "Download about {size} MB of SYNTHETIC test data: two-colour images drawn by spaCR, segmented by Mask with Cellpose-SAM, then measured by Measure. No real cells were imaged. A staining-control column and two conditions have a known share of invaded parasites; ground truth records the drawn objects, not the segmented masks. Settings are filled in, so Run is the next step. Cached after the first download."
+    ],
+    [
+      "UI",
+      "Drag to make the dock wider or narrower. Double-click to fit it to the names again."
+    ],
+    [
+      "UI",
+      "Draw a box around every well on each page: drag on the page to add one, drag a box or its corner to fix it, right-click or Delete to remove it. Orange boxes are spaCR's guesses you have not touched yet."
+    ],
+    [
+      "UI",
+      "Effect to detect"
+    ],
+    [
+      "UI",
+      "Email"
+    ],
+    [
+      "UI",
+      "Encryption"
+    ],
+    [
+      "UI",
+      "Epithelial invasion opens the Invasion Assay to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis opens Host–Pathogen Analysis to measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout."
+    ],
+    [
+      "UI",
+      "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without saturating the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for."
+    ],
+    [
+      "UI",
+      "Event Detection (Alpha)"
+    ],
+    [
+      "UI",
+      "Every curated image here with its saved mask ({n})"
+    ],
+    [
+      "UI",
+      "Every image has its mask. Ready."
+    ],
+    [
+      "UI",
+      "Export ROIs"
+    ],
+    [
+      "UI",
+      "Export anomalies…"
+    ],
+    [
+      "UI",
+      "Export every field as ImageJ RoiSets…"
+    ],
+    [
+      "UI",
+      "Export every field as QuPath GeoJSON…"
+    ],
+    [
+      "UI",
+      "Export every field as one COCO JSON…"
+    ],
+    [
+      "UI",
+      "Export hits…"
+    ],
+    [
+      "UI",
+      "Export the masks as QuPath GeoJSON, an ImageJ RoiSet or COCO JSON, one outline per object with its id and class, or import one of those files back as masks."
+    ],
+    [
+      "UI",
+      "Export this field as COCO JSON…"
+    ],
+    [
+      "UI",
+      "Export this field as QuPath GeoJSON…"
+    ],
+    [
+      "UI",
+      "Export this field as an ImageJ RoiSet…"
+    ],
+    [
+      "UI",
+      "Export workflow into folder"
+    ],
+    [
+      "UI",
+      "Export workflow…"
+    ],
+    [
+      "UI",
+      "Feature importance (gain)"
+    ],
+    [
+      "UI",
+      "Field column"
+    ],
+    [
+      "UI",
+      "Fill the plate map from sample records by plate barcode: each imaged plate is looked up by its barcode in a table or a LIMS service, its wells get the strain, compound, concentration, passage and operator recorded there, and every mismatch between the records and the images is listed."
+    ],
+    [
+      "UI",
+      "Finding crops like this one…"
+    ],
+    [
+      "UI",
+      "Folder for the ROI files"
+    ],
+    [
+      "UI",
+      "Folder of ROI files"
+    ],
+    [
+      "UI",
+      "Forget saved secrets"
+    ],
+    [
+      "UI",
+      "Foundation model:"
+    ],
+    [
+      "UI",
+      "From"
+    ],
+    [
+      "UI",
+      "GPU Measurement (Alpha)"
+    ],
+    [
+      "UI",
+      "GPU {device}: {done}/{total} {state}"
+    ],
+    [
+      "UI",
+      "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging opens Dose–Response to fit an image readout against concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number."
+    ],
+    [
+      "UI",
+      "Give at least one mask and the measurement database."
+    ],
+    [
+      "UI",
+      "Gliding motility opens the Motility Assay to measure the speed and straightness of extracellular parasite tracks. The planned Egress module will focus on vacuole rupture and parasite exit. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These three are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout."
+    ],
+    [
+      "UI",
+      "Growth protocol"
+    ],
+    [
+      "UI",
+      "Hit threshold"
+    ],
+    [
+      "UI",
+      "How SSMD is estimated from the negative control: method of moments, the unbiased estimate, or the median and MAD."
+    ],
+    [
+      "UI",
+      "How long each tracked object of a timelapse lasts until an event such as death, lysis, egress, division or first detection, with objects still waiting at the end of their track censored there. Conditions are compared with Kaplan-Meier curves, median times, log-rank tests and a Cox model, written to measurements.db and drawn under results/time_to_event."
+    ],
+    [
+      "UI",
+      "How much of each field is covered by cells, measured per field and per well into measurements.db with a monolayer QC flag: from the cell masks, from the texture of a brightfield or phase channel, or from a fluorescent stain. Plaque and infection results from a thin or torn monolayer can then be dropped or divided by the covered fraction."
+    ],
+    [
+      "UI",
+      "How the connection to the mail server is encrypted. None sends the password in the clear and is only for a server on your own network. Default STARTTLS."
+    ],
+    [
+      "UI",
+      "How the fitted model is judged: cross-validation and the held-out plate, the evaluation report with its calibration curve and bins, the score threshold that turns a score into a call, and the leakage audit that checks train and test share no object. Shared by both classifier families."
+    ],
+    [
+      "UI",
+      "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis."
+    ],
+    [
+      "UI",
+      "Hypotheses"
+    ],
+    [
+      "UI",
+      "I agree that they and my annotations are shared under {licence}."
+    ],
+    [
+      "UI",
+      "I have the right to share these images: I made them, or their source (for a paper figure, the paper's licence) allows it."
+    ],
+    [
+      "UI",
+      "If you can read this, spaCR can tell you when a run finishes or fails."
+    ],
+    [
+      "UI",
+      "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. A careful mask makes a good model: every object, hugging its edge."
+    ],
+    [
+      "UI",
+      "Image level"
+    ],
+    [
+      "UI",
+      "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read."
+    ],
+    [
+      "UI",
+      "ImageJ RoiSet (*.zip)"
+    ],
+    [
+      "UI",
+      "Images ({patterns})"
+    ],
+    [
+      "UI",
+      "Images folder"
+    ],
+    [
+      "UI",
+      "Images to annotate"
+    ],
+    [
+      "UI",
+      "Imaging method"
+    ],
+    [
+      "UI",
+      "Import COCO JSON for every field…"
+    ],
+    [
+      "UI",
+      "Import ImageJ RoiSets for every field…"
+    ],
+    [
+      "UI",
+      "Import QuPath GeoJSON for every field…"
+    ],
+    [
+      "UI",
+      "Import ROIs"
+    ],
+    [
+      "UI",
+      "Import ROIs into this field…"
+    ],
+    [
+      "UI",
+      "Importance methods"
+    ],
+    [
+      "UI",
+      "Include the masks"
+    ],
+    [
+      "UI",
+      "Install or update"
+    ],
+    [
+      "UI",
+      "Installed"
+    ],
+    [
+      "UI",
+      "Installed {name} {version}."
+    ],
+    [
+      "UI",
+      "InstanSeg"
+    ],
+    [
+      "UI",
+      "InstanSeg (instanseg-torch 0.1.1) is Apache-2.0, and so are its fluorescence_nuclei_and_cells and brightfield_nuclei models, which InstanSeg downloads itself from the instanseg/instanseg GitHub release (instanseg_models_v0.1.1) into the backend's own folder. spaCR ships none of it."
+    ],
+    [
+      "UI",
+      "InstanSeg, embedding-based segmentation of nuclei and cells that reads any number of fluorescence channels, with its fluorescence_nuclei_and_cells and brightfield_nuclei models or an InstanSeg TorchScript file. A nucleus object keeps its nuclei, every other object its cells. It runs in an environment of its own."
+    ],
+    [
+      "UI",
+      "Intensity Calibration (Alpha)"
+    ],
+    [
+      "UI",
+      "Its settings are in {path}."
+    ],
+    [
+      "UI",
+      "KernelSHAP"
+    ],
+    [
+      "UI",
+      "Keywords (; between several)"
+    ],
+    [
+      "UI",
+      "Known hits"
+    ],
+    [
+      "UI",
+      "Landmarks"
+    ],
+    [
+      "UI",
+      "Learn from well labels…"
+    ],
+    [
+      "UI",
+      "Learning from well labels…"
+    ],
+    [
+      "UI",
+      "Leave this image out"
+    ],
+    [
+      "UI",
+      "Licence"
+    ],
+    [
+      "UI",
+      "License"
+    ],
+    [
+      "UI",
+      "Like this"
+    ],
+    [
+      "UI",
+      "Lineage Trees (Alpha)"
+    ],
+    [
+      "UI",
+      "Lineage trees drawn from the tracker's division links after each field is tracked, coloured by a measurement, with Newick and CSV export and per-lineage generation times and sibling correlation."
+    ],
+    [
+      "UI",
+      "List"
+    ],
+    [
+      "UI",
+      "Live and dead cells, called after measuring from a dead stain, a live stain, both, or nuclear morphology, with thresholds fitted per plate or set by hand. Writes per-well viability, a live-cell index and a cytotoxicity index scaled to the control wells, each plate's Z', and with a plate map the dose-response of viability beside that of infection, so parasite killing can be told from host toxicity."
+    ],
+    [
+      "UI",
+      "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility opens the Motility Assay for gliding tracks, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately."
+    ],
+    [
+      "UI",
+      "Load a compound table to draw the hits' structures."
+    ],
+    [
+      "UI",
+      "Load and register"
+    ],
+    [
+      "UI",
+      "Lock"
+    ],
+    [
+      "UI",
+      "Lock analysis"
+    ],
+    [
+      "UI",
+      "Lock analysis…"
+    ],
+    [
+      "UI",
+      "Locked {sha} at {time}. Runs of these settings on this source are checked against it."
+    ],
+    [
+      "UI",
+      "Map this field's uncertainty"
+    ],
+    [
+      "UI",
+      "Mapping segmentation uncertainty: four detection runs…"
+    ],
+    [
+      "UI",
+      "Mask generation: segment batches on every GPU allocated to the job"
+    ],
+    [
+      "UI",
+      "Masks folder"
+    ],
+    [
+      "UI",
+      "Mean {mean:.4g}; variance between replicates {rep}, wells {well:.4g}, fields {field:.4g}, cells {cell:.4g}; {cells:.0f} cells per field."
+    ],
+    [
+      "UI",
+      "Measure diameters"
+    ],
+    [
+      "UI",
+      "Measure diameters…"
+    ],
+    [
+      "UI",
+      "Measure the cell, nucleus and pathogen diameters from a few fields of your own images, and write them into Mask generation's settings. API: spacr.qt.prerun.DiameterDialog."
+    ],
+    [
+      "UI",
+      "Measurement database"
+    ],
+    [
+      "UI",
+      "Microscope"
+    ],
+    [
+      "UI",
+      "Minimum transcript QV"
+    ],
+    [
+      "UI",
+      "Mitosis, egress, invasion and host death detected on tracks by a small network trained on annotated events, with held-out precision and recall, division links re-made from mitoses and time to each event per condition."
+    ],
+    [
+      "UI",
+      "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off."
+    ],
+    [
+      "UI",
+      "More than one file with the same name: {names}"
+    ],
+    [
+      "UI",
+      "Name the dataset first."
+    ],
+    [
+      "UI",
+      "Name the dataset: what the images show, and how."
+    ],
+    [
+      "UI",
+      "Narrow the wells that carry the chosen gRNAs. Only these wells' objects are drawn under 'gRNAs + other datapoints in selected wells'."
+    ],
+    [
+      "UI",
+      "Needs the {backend} backend, which runs in an environment of its own and is not installed — press Install to install it."
+    ],
+    [
+      "UI",
+      "Needs two or more compatible CUDA or ROCm GPUs; {count} found on this computer. Cluster Distribution runs use the GPUs allocated to the job."
+    ],
+    [
+      "UI",
+      "Nextflow…"
+    ],
+    [
+      "UI",
+      "No analysis lock applies to these settings yet."
+    ],
+    [
+      "UI",
+      "No crop is selected to match."
+    ],
+    [
+      "UI",
+      "No design within 12 replicates, 12 wells and 25 fields reaches the target power."
+    ],
+    [
+      "UI",
+      "No gRNA is selected."
+    ],
+    [
+      "UI",
+      "No image here has a saved mask yet."
+    ],
+    [
+      "UI",
+      "No image with the same name for: {names}"
+    ],
+    [
+      "UI",
+      "No mask with the same name for: {names}"
+    ],
+    [
+      "UI",
+      "No scratch found: the largest open area is {percent} of the field"
+    ],
+    [
+      "UI",
+      "No well carries the chosen gRNAs, so there are no wells to narrow."
+    ],
+    [
+      "UI",
+      "None (use the backbone)"
+    ],
+    [
+      "UI",
+      "Not applicable to {model}: {reason}"
+    ],
+    [
+      "UI",
+      "Not applicable: {reason}"
+    ],
+    [
+      "UI",
+      "Not ready: {why}."
+    ],
+    [
+      "UI",
+      "Not sent. Every image needs at least one annotation, and these have none: {names}. Annotate them or leave them out."
+    ],
+    [
+      "UI",
+      "Not sent: the licence was not agreed to."
+    ],
+    [
+      "UI",
+      "Not sent: {channels}"
+    ],
+    [
+      "UI",
+      "Not sent: {why}"
+    ],
+    [
+      "UI",
+      "Notes"
+    ],
+    [
+      "UI",
+      "Nothing scored yet."
+    ],
+    [
+      "UI",
+      "Nothing was added: under the Overlap rule the outline leaves nothing that is not already an object."
+    ],
+    [
+      "UI",
+      "Notify me"
+    ],
+    [
+      "UI",
+      "Nucleus mask"
+    ],
+    [
+      "UI",
+      "Omnipose"
+    ],
+    [
+      "UI",
+      "Omnipose is NOT open source: omnipose 1.1.4 carries the Omnipose NonCommercial License (Copyright 2021 University of Washington), which permits use, modification and redistribution for noncommercial purposes only; commercial use needs a licence from UW CoMotion (license@uw.edu). That is not the licence spaCR carries. Its models are downloaded by Omnipose itself from the kevinjohncutler/omnipose-models GitHub repository, which names no licence of its own, into the backend's own folder. spaCR ships none of it. Read the licence before using Omnipose for anything commercial."
+    ],
+    [
+      "UI",
+      "Omnipose, for bacteria and other elongated or filamentous cells, with its bact_phase_omni, bact_fluor_omni, worm and cyto2_omni models or an Omnipose checkpoint. It runs in an environment of its own; its masks, flows and distance field come back in Cellpose-SAM's shapes. Noncommercial use only."
+    ],
+    [
+      "UI",
+      "Only runs that took at least this long are announced, so a quick run you are watching does not send anything. 0 announces every run. Default 5 min."
+    ],
+    [
+      "UI",
+      "Only when a run fails"
+    ],
+    [
+      "UI",
+      "Open a folder before mapping segmentation uncertainty."
+    ],
+    [
+      "UI",
+      "Open a folder before ranking fields by uncertainty."
+    ],
+    [
+      "UI",
+      "Open a folder of images before curating it blind."
+    ],
+    [
+      "UI",
+      "Open an experiment source before scoring it blind."
+    ],
+    [
+      "UI",
+      "Open an experiment source before searching it."
+    ],
+    [
+      "UI",
+      "OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)"
+    ],
+    [
+      "UI",
+      "Optional label image of regions; each object is summarised under the region its centre falls in. Default empty."
+    ],
+    [
+      "UI",
+      "Optional table of landmark pairs, with columns source_x, source_y (platform image pixels), target_x and target_y (your image's pixels); three or more pairs give an affine fit. Default empty."
+    ],
+    [
+      "UI",
+      "Organism (; between several)"
+    ],
+    [
+      "UI",
+      "Organism, object type, stain: e.g. toxoplasma vacuoles GFP"
+    ],
+    [
+      "UI",
+      "Outlier quantile"
+    ],
+    [
+      "UI",
+      "Paint every plaque on each image: left-drag paints the plaque in Label, right-drag erases, New starts another plaque, [ and ] change the brush size. spaCR's own plaques are already painted for you to correct."
+    ],
+    [
+      "UI",
+      "Parasitaemia opens Host–Pathogen Analysis, which reports infected red blood cells relative to all measured red cells. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them."
+    ],
+    [
+      "UI",
+      "Parasitaemia, Sporozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms."
+    ],
+    [
+      "UI",
+      "Pathogen mask"
+    ],
+    [
+      "UI",
+      "Per-cell column the experiment will compare. Default empty."
+    ],
+    [
+      "UI",
+      "Per-cell measurements from a pilot plate: a CSV, Parquet, Excel or spaCR measurement database. Default empty."
+    ],
+    [
+      "UI",
+      "Per-object intensity statistics, GLCM homogeneity and Zernike moments computed for all objects of a field at once on a CUDA GPU, matching the CPU values within float tolerance. Without a GPU the CPU path runs."
+    ],
+    [
+      "UI",
+      "Permutation importance"
+    ],
+    [
+      "UI",
+      "Personal access token with deposit:write"
+    ],
+    [
+      "UI",
+      "Photobleaching correction for timelapse intensities, per field and channel: a simple ratio to the first timepoint, a fitted exponential decay, or histogram matching. Corrected intensities are written beside the measured ones with the method, and the fitted decay is plotted."
+    ],
+    [
+      "UI",
+      "Pick the control column and the negative control to score anomalies against."
+    ],
+    [
+      "UI",
+      "Pick the control column and the negative control to score hits against."
+    ],
+    [
+      "UI",
+      "Pilot table"
+    ],
+    [
+      "UI",
+      "Plan the design"
+    ],
+    [
+      "UI",
+      "Plate Barcode Linkage (Alpha)"
+    ],
+    [
+      "UI",
+      "Plate map (optional)"
+    ],
+    [
+      "UI",
+      "Platform"
+    ],
+    [
+      "UI",
+      "Platform output"
+    ],
+    [
+      "UI",
+      "Plugin"
+    ],
+    [
+      "UI",
+      "Post to a Slack channel through an incoming webhook. Default off."
+    ],
+    [
+      "UI",
+      "Power"
+    ],
+    [
+      "UI",
+      "Preregister the analysis: freeze these settings, your hypotheses and thresholds, and the model and gate files they name, with a hash and a timestamp, before the results are seen. Every later run on the same source is checked against the lock, and a change is flagged in its manifest, the report and the methods text, as post-hoc once the blinding key has been opened. Default no lock."
+    ],
+    [
+      "UI",
+      "Probability of a significant result the design must reach. Default 0.8."
+    ],
+    [
+      "UI",
+      "Profiling (Alpha)"
+    ],
+    [
+      "UI",
+      "Prompt with micro-SAM"
+    ],
+    [
+      "UI",
+      "Prompt-based segmentation runs micro-SAM, which is not installed yet."
+    ],
+    [
+      "UI",
+      "Prompting needs micro-SAM, which is not installed."
+    ],
+    [
+      "UI",
+      "Prompting off. The objects it added stay in the mask."
+    ],
+    [
+      "UI",
+      "Prompting on: click the object, right-click what is not it, or drag a box round it; Enter adds the outline."
+    ],
+    [
+      "UI",
+      "Public data (no credentials)"
+    ],
+    [
+      "UI",
+      "Public release date"
+    ],
+    [
+      "UI",
+      "Publish now (the DOI becomes permanent)"
+    ],
+    [
+      "UI",
+      "Publish to an ntfy topic, which the ntfy phone app or web page shows as a push notification. Default off."
+    ],
+    [
+      "UI",
+      "Published results: Archit et al., 'Segment Anything for Microscopy', Nature Methods 2025 (doi:10.1038/s41592-024-02580-4). spaCR has not scored this backend on its own data."
+    ],
+    [
+      "UI",
+      "Published results: Cutler et al., 'Omnipose: a high-precision morphology-independent solution for bacterial cell segmentation', Nature Methods 2022 (doi:10.1038/s41592-022-01639-4). spaCR has not scored it against those results; item 553 scores it on Omnipose's own bacteria test images."
+    ],
+    [
+      "UI",
+      "Published results: Dominguez Mantes et al., 'Spotiflow: accurate and efficient spot detection for fluorescence microscopy with deep stereographic flow regression', Nature Methods 2025 (doi:10.1038/s41592-025-02662-x). spaCR has not scored it against those results; it compared it with the native OPS detector and SpotNet on two real sequencing fields."
+    ],
+    [
+      "UI",
+      "Published results: Goldsborough et al., 'InstanSeg: an embedding-based instance segmentation algorithm optimized for accurate, efficient and portable cell segmentation', arXiv 2024 (arXiv:2408.15954). spaCR has not scored it against those results; item 532 scores it on spaCR's own fields."
+    ],
+    [
+      "UI",
+      "Published results: Schmidt, Weigert, Broaddus and Myers, 'Cell Detection with Star-convex Polygons', MICCAI 2018 (arXiv:1806.03535). The README publishes no results table. spaCR has not scored it against those results; item 532 scores it on spaCR's own fields."
+    ],
+    [
+      "UI",
+      "Published results: Stirling et al., 'CellProfiler 4: improvements in speed, utility and usability', BMC Bioinformatics 2021 (doi:10.1186/s12859-021-04344-9). It measures what the pipeline says; spaCR scores nothing here."
+    ],
+    [
+      "UI",
+      "Published {count} files on Zenodo: DOI {doi}, {url}"
+    ],
+    [
+      "UI",
+      "Put a point on the object, or drag a box round it, before points off it."
+    ],
+    [
+      "UI",
+      "Pyramid level of the Xenium morphology image or the full resolution Visium image the masks were segmented on; each level halves the resolution. Default 0."
+    ],
+    [
+      "UI",
+      "QuPath GeoJSON (*.geojson)"
+    ],
+    [
+      "UI",
+      "ROI files (*.geojson *.json *.zip *.roi)"
+    ],
+    [
+      "UI",
+      "ROIs exported → {path}"
+    ],
+    [
+      "UI",
+      "ROIs imported for {n} field(s)"
+    ],
+    [
+      "UI",
+      "ROIs…"
+    ],
+    [
+      "UI",
+      "Rank the fields, most uncertain first"
+    ],
+    [
+      "UI",
+      "Ranked {count} fields by segmentation uncertainty, the most uncertain first."
+    ],
+    [
+      "UI",
+      "Ranking by uncertainty would undo the blind order. Unblind first."
+    ],
+    [
+      "UI",
+      "Ranking {count} fields by segmentation uncertainty: four detection runs each…"
+    ],
+    [
+      "UI",
+      "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to."
+    ],
+    [
+      "UI",
+      "Read 10x Visium, Visium HD or Xenium output, place its spots or transcripts on the image spaCR segmented, and write gene counts per object beside the measurements. Default hidden."
+    ],
+    [
+      "UI",
+      "Reading the measurements to compare crops by…"
+    ],
+    [
+      "UI",
+      "Reading…"
+    ],
+    [
+      "UI",
+      "Ready: {name} and its mask."
+    ],
+    [
+      "UI",
+      "Ready: {n} images, each with its saved mask."
+    ],
+    [
+      "UI",
+      "Recipe"
+    ],
+    [
+      "UI",
+      "Record this field as one that cannot be curated and move to the next. It is written to the session's curate_status.csv as skip, so the next session does not offer it again. No mask is written."
+    ],
+    [
+      "UI",
+      "Recrop is off while blinded, because the new fields are named after the field they are cut from."
+    ],
+    [
+      "UI",
+      "Reference"
+    ],
+    [
+      "UI",
+      "Region mask"
+    ],
+    [
+      "UI",
+      "Register Visium spots or Xenium transcripts to the segmented image and count each gene per cell, nucleus, pathogen and vacuole."
+    ],
+    [
+      "UI",
+      "Remember the token"
+    ],
+    [
+      "UI",
+      "Replace the saved mask of every field that has ROIs in {path}?"
+    ],
+    [
+      "UI",
+      "Replicate column"
+    ],
+    [
+      "UI",
+      "Runs a lab's own CellProfiler pipeline on this run's fields after measuring, headless in CellProfiler's own environment from the Model Zoo, and writes its per-object measurements beside spaCR's, matched to spaCR's objects, so existing pipelines keep working."
+    ],
+    [
+      "UI",
+      "Runs longer than"
+    ],
+    [
+      "UI",
+      "Runs through the {backend} backend, which is installed. Use this model writes {prefix}{model} into the object's model setting, which runs that object through {backend} with its usual Mask generation settings."
+    ],
+    [
+      "UI",
+      "S3-compatible endpoint (blank for Amazon S3)"
+    ],
+    [
+      "UI",
+      "SHAP explainer"
+    ],
+    [
+      "UI",
+      "SMTP password"
+    ],
+    [
+      "UI",
+      "SMTP port"
+    ],
+    [
+      "UI",
+      "SMTP server"
+    ],
+    [
+      "UI",
+      "SMTP user name"
+    ],
+    [
+      "UI",
+      "SSMD estimator"
+    ],
+    [
+      "UI",
+      "Sample preparation"
+    ],
+    [
+      "UI",
+      "Saved secrets"
+    ],
+    [
+      "UI",
+      "Saved secrets forgotten."
+    ],
+    [
+      "UI",
+      "Saved; type to replace"
+    ],
+    [
+      "UI",
+      "Scale every imaging session to the same intensities before measuring, from fluorescent beads or reference wells imaged on every plate: each plate's intensity channels are multiplied by the gain that makes its reference wells match the first plate's, and the gains are recorded in measurements.db."
+    ],
+    [
+      "UI",
+      "Score anomalies against the negative control"
+    ],
+    [
+      "UI",
+      "Score blind: hide the source, plates, wells, conditions and file names, and show the crops in a shuffled order. The key is kept beside the run journal, outside the data folder. Turning it off unblinds, and the journal records who unblinded and when. Default off."
+    ],
+    [
+      "UI",
+      "Score each well against its own plate's negative control, or against the negative control of every plate together."
+    ],
+    [
+      "UI",
+      "Score every well against the negative control and call hits. Needs the negative control picked above and well positions in the table (prc, rowID and columnID, or well)."
+    ],
+    [
+      "UI",
+      "Score hits (SSMD, robust z, B-score)"
+    ],
+    [
+      "UI",
+      "Screen technology"
+    ],
+    [
+      "UI",
+      "Screen type"
+    ],
+    [
+      "UI",
+      "Searched {n} crops in {ms} ms."
+    ],
+    [
+      "UI",
+      "Segment by prompt"
+    ],
+    [
+      "UI",
+      "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field."
+    ],
+    [
+      "UI",
+      "Segmentation Robustness (Alpha)"
+    ],
+    [
+      "UI",
+      "Segmentation uncertainty {value} over {count} objects."
+    ],
+    [
+      "UI",
+      "Send a test"
+    ],
+    [
+      "UI",
+      "Send a test message now by every way switched on above, using what is typed here, and say which got through. Nothing is saved. Default not sent."
+    ],
+    [
+      "UI",
+      "Send an email through the SMTP server below. Your institution's or mail provider's server works; many need an app password rather than your usual one. Default off."
+    ],
+    [
+      "UI",
+      "Send the images and your annotations to {repo} on Hugging Face, as a contribution the maintainer reviews."
+    ],
+    [
+      "UI",
+      "Send these images and masks for review. Enabled when the dataset has a name and every image has a mask."
+    ],
+    [
+      "UI",
+      "Sending…"
+    ],
+    [
+      "UI",
+      "Sent: {channels}"
+    ],
+    [
+      "UI",
+      "Show a notification on this computer, from the system tray while the app is open, or through the desktop's own notifications for a command-line run. Default on."
+    ],
+    [
+      "UI",
+      "Show alpha features"
+    ],
+    [
+      "UI",
+      "Show the 100 crops whose measurements are most like the selected crop, the one with the ring, most similar first, so a rare class found once can be labelled many times. The first search on a source reads its measurements and takes a few seconds; later ones are instant. Back to all crops by opening the source again. Default not run."
+    ],
+    [
+      "UI",
+      "Show the area of this field Measure would count as covered by cells, using the Confluency settings of the run."
+    ],
+    [
+      "UI",
+      "Show the open wound Measure would start a wound-closure series from if this field were its first frame, using the Wound Closure settings of the run."
+    ],
+    [
+      "UI",
+      "Show the settings, controls, screens and models built from the future-features list that are not yet released. Off hides them; saved values still reach every run."
+    ],
+    [
+      "UI",
+      "Skip failed"
+    ],
+    [
+      "UI",
+      "Slack"
+    ],
+    [
+      "UI",
+      "Slack webhook"
+    ],
+    [
+      "UI",
+      "Snakemake…"
+    ],
+    [
+      "UI",
+      "Source paper"
+    ],
+    [
+      "UI",
+      "Spatial transcriptomics"
+    ],
+    [
+      "UI",
+      "Spectral Unmixing (Alpha)"
+    ],
+    [
+      "UI",
+      "Spotiflow"
+    ],
+    [
+      "UI",
+      "Spotiflow 0.6.5 is BSD-3-Clause (Copyright 2023 Albert Dominguez Mantes and Martin Weigert). Its general, hybiss, synth_complex and fluo_live models are downloaded by Spotiflow itself from the weigertlab/spotiflow-models GitHub releases (BSD-3-Clause) into the backend's own folder. spaCR ships none of it."
+    ],
+    [
+      "UI",
+      "Spotiflow finds SPOTS -- puncta, foci, FISH and sequencing spots, small parasites -- with sub-pixel coordinates. It runs in an environment of its own. Chosen by an object's model setting, each spot becomes a small disc in that object's mask, so spots are counted per cell like any other object; in OPS it is one of the sequencing-spot detectors."
+    ],
+    [
+      "UI",
+      "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment."
+    ],
+    [
+      "UI",
+      "Stage the files in"
+    ],
+    [
+      "UI",
+      "StarDist"
+    ],
+    [
+      "UI",
+      "StarDist 0.9.2 is BSD-3-Clause (Copyright 2018-2025 Uwe Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause and TensorFlow 2.21 Apache-2.0. The pretrained models are downloaded by StarDist itself from the stardist/stardist-models GitHub release (BSD-3-Clause), checked against the digest StarDist pins, into the backend's own folder. spaCR ships none of it."
+    ],
+    [
+      "UI",
+      "StarDist, star-convex polygons for nuclei, with its 2D_versatile_fluo, 2D_versatile_he and 2D_paper_dsb2018 models or a StarDist model folder of your own. It runs on TensorFlow in an environment of its own; its masks and object probability come back in Cellpose-SAM's shapes."
+    ],
+    [
+      "UI",
+      "Step {step} of {steps}: building the table, plots and diagnostics for {rows} rows…"
+    ],
+    [
+      "UI",
+      "Step {step} of {steps}: reading {name} (file {done} of {total})…"
+    ],
+    [
+      "UI",
+      "Step {step} of {steps}: searching {folder} for a results table…"
+    ],
+    [
+      "UI",
+      "Structures and SAR"
+    ],
+    [
+      "UI",
+      "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)"
+    ],
+    [
+      "UI",
+      "Submits mask_parallel on with a blank mask_gpu_indices, so the job uses exactly the GPUs its scheduler allocates, one model per GPU. Request them in the execution profile, for example --gres=gpu:2. A job given one GPU runs on that one."
+    ],
+    [
+      "UI",
+      "Switch on at least one way to be told first."
+    ],
+    [
+      "UI",
+      "Table to read when the pilot is a database. Default cell."
+    ],
+    [
+      "UI",
+      "Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"
+    ],
+    [
+      "UI",
+      "Tables (*.csv *.tsv *.txt *.xlsx *.xls *.parquet)"
+    ],
+    [
+      "UI",
+      "Target power"
+    ],
+    [
+      "UI",
+      "Thank you. Your contribution is waiting for review: <a href=\"{url}\">{url}</a>"
+    ],
+    [
+      "UI",
+      "The Space Ranger outs folder (Visium or Visium HD) or the Xenium output bundle. Default empty."
+    ],
+    [
+      "UI",
+      "The Tanimoto similarity of Morgan fingerprints (radius 2) a hit needs to a cluster's centre to join it; other compounds join the cluster of their most similar hit at the same similarity. Default 0.6."
+    ],
+    [
+      "UI",
+      "The Visium HD bin size read from binned_outputs; ignored for Visium and Xenium. Default 8 µm."
+    ],
+    [
+      "UI",
+      "The Zenodo deposit failed: {error}"
+    ],
+    [
+      "UI",
+      "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells."
+    ],
+    [
+      "UI",
+      "The column naming what is in each well. Wells sharing a treatment are replicates and get one replicate SSMD in the export. Leave empty for a screen without replicates."
+    ],
+    [
+      "UI",
+      "The file holds several object types. Which one goes on this field?"
+    ],
+    [
+      "UI",
+      "The gene the overlay is coloured by. Default the most counted gene."
+    ],
+    [
+      "UI",
+      "The image on screen and its mask: {name}"
+    ],
+    [
+      "UI",
+      "The image on screen has no mask yet: segment or paint it first. No mask, no upload."
+    ],
+    [
+      "UI",
+      "The image the masks were segmented on. Empty or hires uses Visium's high-resolution image; lowres or full name the others; Xenium uses its morphology image. A file of your own microscope image of the same section is registered to the platform image, through the landmarks when given, else by image content. Default empty."
+    ],
+    [
+      "UI",
+      "The least certain is object {label} ({value})."
+    ],
+    [
+      "UI",
+      "The mail server password. Kept in the system keyring, or without one in a file only you can read, and never written to a log. Leave empty to keep the saved one. Default empty."
+    ],
+    [
+      "UI",
+      "The measurements.db the counts are written into, keyed by prcfo beside the object measurements. Default empty."
+    ],
+    [
+      "UI",
+      "The name you sign in to the mail server with, often your email address. Leave empty for a server that needs no sign-in. Default empty."
+    ],
+    [
+      "UI",
+      "The outgoing mail server, for example smtp.example.org. Default empty."
+    ],
+    [
+      "UI",
+      "The plot opens on the regression's top hits. The selected wells follow the gRNAs ticked here."
+    ],
+    [
+      "UI",
+      "The population box is set aside for this contrast: it compares against wells outside the selection."
+    ],
+    [
+      "UI",
+      "The random seed that fixes the split and the initialisation, how many workers load the crops and whether they pin memory, how much the run prints, and how many failed items it tolerates. Fix the seed when two runs have to be compared."
+    ],
+    [
+      "UI",
+      "The sender address. Empty uses the user name. Default empty."
+    ],
+    [
+      "UI",
+      "The server's port: usually 587 with STARTTLS, 465 with SSL. Default 587."
+    ],
+    [
+      "UI",
+      "The statistic that calls and ranks the hits. B-score removes row and column effects by median polish first."
+    ],
+    [
+      "UI",
+      "The thresholds and gates that decide a call, one per line."
+    ],
+    [
+      "UI",
+      "The topic to publish to. On a public server anyone who knows the topic can read it, so choose one nobody would guess; it is kept like a password. Leave empty to keep the saved one. Default empty."
+    ],
+    [
+      "UI",
+      "There are no image and mask pairs to send."
+    ],
+    [
+      "UI",
+      "These object rows name no gRNA, so there is nothing to choose between."
+    ],
+    [
+      "UI",
+      "These wells carry the chosen gRNAs. A well left out is not drawn at all."
+    ],
+    [
+      "UI",
+      "Thresholds and gates"
+    ],
+    [
+      "UI",
+      "Throw away the points, the box and the outline, and start again on another object. Nothing had been added to the mask. Escape on the image does the same. Default unavailable until there is a prompt."
+    ],
+    [
+      "UI",
+      "Time To Event (Alpha)"
+    ],
+    [
+      "UI",
+      "To"
+    ],
+    [
+      "UI",
+      "Treatment"
+    ],
+    [
+      "UI",
+      "Treatment protocol"
+    ],
+    [
+      "UI",
+      "TreeSHAP"
+    ],
+    [
+      "UI",
+      "Try it"
+    ],
+    [
+      "UI",
+      "Turn on anomaly scoring and name the negative control."
+    ],
+    [
+      "UI",
+      "Turn on hit scoring and name the negative control."
+    ],
+    [
+      "UI",
+      "Two-sided significance level of the t-test on replicate means. Default 0.05."
+    ],
+    [
+      "UI",
+      "Unblind?"
+    ],
+    [
+      "UI",
+      "Unblinded key {key}; the journal recorded who and when."
+    ],
+    [
+      "UI",
+      "Unblinding shows every field's file name and folder again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?"
+    ],
+    [
+      "UI",
+      "Unblinding shows where every crop is from again, and the run journal records who unblinded and when. An analysis lock on this folder treats any later change as post-hoc. Unblind now?"
+    ],
+    [
+      "UI",
+      "Uncertainty"
+    ],
+    [
+      "UI",
+      "Uncertainty failed"
+    ],
+    [
+      "UI",
+      "Uncertainty map discarded because the field changed."
+    ],
+    [
+      "UI",
+      "Uncertainty saved; the open fields changed while ranking, so their order was left alone."
+    ],
+    [
+      "UI",
+      "Uncertainty scores not saved: {error}"
+    ],
+    [
+      "UI",
+      "Uncertainty…"
+    ],
+    [
+      "UI",
+      "Unchanged, nothing rewritten → {path}"
+    ],
+    [
+      "UI",
+      "Uninstalled {name}."
+    ],
+    [
+      "UI",
+      "Upload"
+    ],
+    [
+      "UI",
+      "Upload failed: {why}"
+    ],
+    [
+      "UI",
+      "Uploading…"
+    ],
+    [
+      "UI",
+      "Use the Zenodo sandbox (a test deposit, no real DOI)"
+    ],
+    [
+      "UI",
+      "Use this location"
+    ],
+    [
+      "UI",
+      "Used only when mask_parallel is on. {count} GPUs found."
+    ],
+    [
+      "UI",
+      "Vacuole mask"
+    ],
+    [
+      "UI",
+      "Viability (Alpha)"
+    ],
+    [
+      "UI",
+      "Visium"
+    ],
+    [
+      "UI",
+      "Visium HD"
+    ],
+    [
+      "UI",
+      "Visium HD bin"
+    ],
+    [
+      "UI",
+      "Watching: {done} analysed, {waiting} waiting, {failed} failed"
+    ],
+    [
+      "UI",
+      "Well column"
+    ],
+    [
+      "UI",
+      "Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table."
+    ],
+    [
+      "UI",
+      "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty."
+    ],
+    [
+      "UI",
+      "What is it?"
+    ],
+    [
+      "UI",
+      "What the accepted object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip adds nothing if it touches an existing object. Replace lets it take every pixel it covers, which is how an object a model split into pieces is made one again. Default Clip."
+    ],
+    [
+      "UI",
+      "What the run writes and draws once the model is fitted: the plots, the top-scoring example crops, TensorBoard logs, intermediate checkpoints and, for the tabular model, the heatmap. Change these for what you want to look at afterwards; none of them changes the model."
+    ],
+    [
+      "UI",
+      "What you contribute is published openly on Hugging Face, so that anyone can train and check a model on it. It is reviewed before it is used."
+    ],
+    [
+      "UI",
+      "What you expect to find, and what would count against it."
+    ],
+    [
+      "UI",
+      "When"
+    ],
+    [
+      "UI",
+      "When a run finishes or fails"
+    ],
+    [
+      "UI",
+      "When an image figure or montage is saved, warn if panels meant for comparison use different display ranges, if pixels are saturated or clipped, if a panel is repeated, or if a lossy format was chosen. Also writes the source files, display settings, processing steps and spaCR version into the file's metadata and a .provenance.json file beside it. Default off."
+    ],
+    [
+      "UI",
+      "Where the catalogue is: a catalogue.json file, the folder holding one, or an http(s) address. It is remembered for next time. Default the SPACR_PLUGIN_CATALOGUE variable, else empty."
+    ],
+    [
+      "UI",
+      "Which gRNAs to plot"
+    ],
+    [
+      "UI",
+      "Which platform wrote the folder. Detect reads it from the files present. Default Detect."
+    ],
+    [
+      "UI",
+      "Which runs are announced: every run that ends, or only the ones that fail. Default when a run finishes or fails."
+    ],
+    [
+      "UI",
+      "Which selected wells to draw"
+    ],
+    [
+      "UI",
+      "While on, a left click on the image marks the object, a right click marks what is not the object and a left drag draws a box round it. micro-SAM runs in an environment of its own; the first click on a field waits while it embeds the field, and later clicks reuse that embedding. If micro-SAM is not installed, turning this on offers to install it. The Live magnifier is turned off while this is on. Default off."
+    ],
+    [
+      "UI",
+      "Who is told, one or more addresses separated by commas. Default empty."
+    ],
+    [
+      "UI",
+      "Workflow written: {path}"
+    ],
+    [
+      "UI",
+      "Wound"
+    ],
+    [
+      "UI",
+      "Wound Closure (Alpha)"
+    ],
+    [
+      "UI",
+      "Wound failed: {error}"
+    ],
+    [
+      "UI",
+      "Wound {percent} open, mean width {mean} {unit}, narrowest {narrowest} {unit}"
+    ],
+    [
+      "UI",
+      "Write the anomaly report into"
+    ],
+    [
+      "UI",
+      "Write the hit report into"
+    ],
+    [
+      "UI",
+      "Write the package into"
+    ],
+    [
+      "UI",
+      "Write the ranked hit table, every well's scores and the plate summary as CSV, and one plate heatmap per statistic, into a folder"
+    ],
+    [
+      "UI",
+      "Write the ranked wells, every object's score, the top outliers and the review figure into a folder."
+    ],
+    [
+      "UI",
+      "Write this run as a Snakemake or Nextflow workflow that runs the same module with the same settings once per plate, with spacr-run on this machine, a cluster, or the spaCR container image."
+    ],
+    [
+      "UI",
+      "Writing the archive package…"
+    ],
+    [
+      "UI",
+      "Wrote counts for {objects} objects to {db}; results in {output}."
+    ],
+    [
+      "UI",
+      "Wrote {path}, but it does not pass: {problems}"
+    ],
+    [
+      "UI",
+      "Wrote {path}. It passes the IDR, BioStudies and MIHCSME checks; nothing was uploaded."
+    ],
+    [
+      "UI",
+      "Xenium"
+    ],
+    [
+      "UI",
+      "Xenium transcripts with a lower quality value (QV) are dropped, as Xenium's own cell-feature matrix drops them. Default 20."
+    ],
+    [
+      "UI",
+      "Zenodo token"
+    ],
+    [
+      "UI",
+      "[issue] Waiting up to {seconds} s for spaCR AI's answer, so the report carries it…"
+    ],
+    [
+      "UI",
+      "an upload is already running"
+    ],
+    [
+      "UI",
+      "and {n} more"
+    ],
+    [
+      "UI",
+      "anomaly report written to {folder}"
+    ],
+    [
+      "UI",
+      "available"
+    ],
+    [
+      "UI",
+      "below the monolayer QC threshold"
+    ],
+    [
+      "UI",
+      "done"
+    ],
+    [
+      "UI",
+      "gRNAs ({n}): {names}"
+    ],
+    [
+      "UI",
+      "gRNAs…"
+    ],
+    [
+      "UI",
+      "hit report written to {folder}"
+    ],
+    [
+      "UI",
+      "incompatible"
+    ],
+    [
+      "UI",
+      "micro-SAM"
+    ],
+    [
+      "UI",
+      "micro-SAM 1.8.14 is MIT (computational-cell-analytics). It builds on Meta's Segment Anything, Apache-2.0. Its light-microscopy model, vit_b_lm ('SAM LM Generalist (ViT-B)', 375 MB), is CC-BY-4.0 on bioimage.io and is downloaded into the backend's own folder the first time a field is prompted. micro-SAM itself is installed without its declared dependencies -- napari, PyQt6, bioimageio.core and trackastra, whose tracking solver pulls in the proprietary gurobipy -- because the prompt path spaCR runs imports none of them."
+    ],
+    [
+      "UI",
+      "micro-SAM added object {ids} — Ctrl+Z to undo"
+    ],
+    [
+      "UI",
+      "micro-SAM could not segment: {error}"
+    ],
+    [
+      "UI",
+      "micro-SAM embedded this field in {embed:.1f} s on {device}; the prompt then took {prompt:.2f} s."
+    ],
+    [
+      "UI",
+      "micro-SAM is embedding this field; the first prompt on a field waits for it…"
+    ],
+    [
+      "UI",
+      "micro-SAM is starting in its own environment…"
+    ],
+    [
+      "UI",
+      "micro-SAM outlined nothing; add a point or draw a box."
+    ],
+    [
+      "UI",
+      "micro-SAM outlined {pixels} px in {seconds:.2f} s. Enter adds it, Backspace takes the last prompt back, Escape discards it."
+    ],
+    [
+      "UI",
+      "micro-SAM, Segment Anything fine-tuned for microscopy, for prompt-based segmentation in Make Masks: click points on one object, or drag a box round it, and it returns that object's mask. Each field is embedded once and every later click on it is answered from the cached embedding."
+    ],
+    [
+      "UI",
+      "monolayer QC passed"
+    ],
+    [
+      "UI",
+      "needs the {backend} backend"
+    ],
+    [
+      "UI",
+      "no compound table"
+    ],
+    [
+      "UI",
+      "no source is open, so none of them can be shown. Open the experiment first."
+    ],
+    [
+      "UI",
+      "not estimated (taken as 0)"
+    ],
+    [
+      "UI",
+      "ntfy"
+    ],
+    [
+      "UI",
+      "ntfy access token"
+    ],
+    [
+      "UI",
+      "ntfy server"
+    ],
+    [
+      "UI",
+      "ntfy topic"
+    ],
+    [
+      "UI",
+      "running"
+    ],
+    [
+      "UI",
+      "s3://bucket/folder, gs://, az:// or https://"
+    ],
+    [
+      "UI",
+      "selected wells ({n}): {names}"
+    ],
+    [
+      "UI",
+      "selected wells…"
+    ],
+    [
+      "UI",
+      "spaCR can tell you when a long run finishes or fails: on this computer's desktop, by email, in Slack or through ntfy. Nothing is sent until you switch it on here. Passwords and addresses that work like passwords are kept in the system keyring."
+    ],
+    [
+      "UI",
+      "spaCR could not make a first guess for {name} ({why}); annotate it from scratch."
+    ],
+    [
+      "UI",
+      "spaCR test notification"
+    ],
+    [
+      "UI",
+      "spaCR's upload service could not take it ({why}). You can send it with a free Hugging Face login instead: run 'huggingface-cli login', or set HF_TOKEN, then press Upload again. Your annotations are kept while this window is open."
+    ],
+    [
+      "UI",
+      "starting"
+    ],
+    [
+      "UI",
+      "stopped"
+    ],
+    [
+      "UI",
+      "table"
+    ],
+    [
+      "UI",
+      "this model"
+    ],
+    [
+      "UI",
+      "uncoded field"
+    ],
+    [
+      "UI",
+      "update available"
+    ],
+    [
+      "UI",
+      "yes"
+    ],
+    [
+      "UI",
+      "{backend} · {model}"
+    ],
+    [
+      "UI",
+      "{count} entries in the catalogue."
+    ],
+    [
+      "UI",
+      "{done}/{total} {role} batches done, {failed} failed"
+    ],
+    [
+      "UI",
+      "{images} images, {masks} masks."
+    ],
+    [
+      "UI",
+      "{judged} skipped, and will not be offered again  —  now on {now}"
+    ],
+    [
+      "UI",
+      "{judged} skipped, and will not be offered again  —  that was the last field in this session"
+    ],
+    [
+      "UI",
+      "{name} and the {n} crops most like it, most similar first"
+    ],
+    [
+      "UI",
+      "{name} failed: {error}"
+    ],
+    [
+      "UI",
+      "{name} is a backend, not a checkpoint file. Install it here, then choose one of its models listed with it and press Use this model, which writes {prefix}<model> into the object's model setting."
+    ],
+    [
+      "UI",
+      "{name}: finding a first guess…"
+    ],
+    [
+      "UI",
+      "{name}: not annotated yet"
+    ],
+    [
+      "UI",
+      "{name}: {count} boxes"
+    ],
+    [
+      "UI",
+      "{name}: {count} compound(s)"
+    ],
+    [
+      "UI",
+      "{name}: {count} plaques"
+    ],
+    [
+      "UI",
+      "{n} ROI file(s) written → {path}"
+    ],
+    [
+      "UI",
+      "{n} object(s) imported from {path}; save to keep them"
+    ],
+    [
+      "UI",
+      "{platform}: {points} positions and {genes} genes, registered by {method}."
+    ]
+  ],
+  "removed": [
+    [
+      "CATEGORY_HELP",
+      "How the fitted model is judged and how the result is shown — cross-validation, calibration, the leakage audit, the heatmap, and where the scores are written. Shared by both classifier families."
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_max_area"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_max_intensity"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_min_area"
+    ],
+    [
+      "SETTING_LABELS",
+      "cell_min_intensity"
+    ],
+    [
+      "SETTING_LABELS",
+      "nucleus_max_area"
+    ],
+    [
+      "SETTING_LABELS",
+      "nucleus_max_intensity"
+    ],
+    [
+      "SETTING_LABELS",
+      "nucleus_min_area"
+    ],
+    [
+      "SETTING_LABELS",
+      "nucleus_min_intensity"
+    ],
+    [
+      "SETTING_LABELS",
+      "pathogen_max_area"
+    ],
+    [
+      "SETTING_LABELS",
+      "pathogen_max_intensity"
+    ],
+    [
+      "SETTING_LABELS",
+      "pathogen_min_area"
+    ],
+    [
+      "SETTING_LABELS",
+      "pathogen_min_intensity"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_max_area"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_max_intensity"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_min_area"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "cell_min_intensity"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "nucleus_max_area"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "nucleus_max_intensity"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "nucleus_min_area"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "nucleus_min_intensity"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "pathogen_max_area"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "pathogen_max_intensity"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "pathogen_min_area"
+    ],
+    [
+      "SETTING_TOOLTIPS",
+      "pathogen_min_intensity"
+    ],
+    [
+      "UI",
+      "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms."
+    ],
+    [
+      "UI",
+      "An excluded well is removed from both groups; it is not moved into the comparison group."
+    ],
+    [
+      "UI",
+      "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation."
+    ],
+    [
+      "UI",
+      "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download."
+    ],
+    [
+      "UI",
+      "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout."
+    ],
+    [
+      "UI",
+      "Equalise the histogram inside each tile rather than over the whole field, with a limit on how much any one level may be stretched. It is what brings out objects in a dim corner without blowing out the bright middle. It also amplifies noise in empty tiles, which is what the clip limit is for."
+    ],
+    [
+      "UI",
+      "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number."
+    ],
+    [
+      "UI",
+      "How the fitted model is judged and how the result is shown — cross-validation, calibration, the leakage audit, the heatmap, and where the scores are written. Shared by both classifier families."
+    ],
+    [
+      "UI",
+      "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately."
+    ],
+    [
+      "UI",
+      "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout."
+    ],
+    [
+      "UI",
+      "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint."
+    ],
+    [
+      "UI",
+      "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them."
+    ]
+  ],
+  "awaiting_owner_classification": {
+    "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone).": [
+      "external"
+    ],
+    "A spaCR label mask (.npy or image) of this object type, made from the image above. Default empty.": [
+      "external"
+    ],
+    "Assign and write": [
+      "external"
+    ],
+    "Cell mask": [
+      "external"
+    ],
+    "Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)": [
+      "external"
+    ],
+    "ChAda-ViT (channel-adaptive ViT-T/16, IDRCell100k)": [
+      "external"
+    ],
+    "Choose a per-cell table with a 'well' column, a 'well_label' column (1 for treated or knockout wells, 0 for controls) and embedding or numeric feature columns. An attention model learns from the well labels alone which cells carry the phenotype. Two tables are written beside the input: each cell's attention and each well's probability. Runs on the CPU. Default 4-fold cross-validation over wells.": [
+      "external"
+    ],
+    "Choose a per-cell table with well labels": [
+      "external"
+    ],
+    "Choose the platform output folder first.": [
+      "external"
+    ],
+    "Could not assign: {error}": [
+      "external"
+    ],
+    "Could not load: {error}": [
+      "external"
+    ],
+    "Detect": [
+      "external"
+    ],
+    "Download about {size} MB of SYNTHETIC test data: two-colour images drawn by spaCR, segmented by Mask with Cellpose-SAM, then measured by Measure. No real cells were imaged. A staining-control column and two conditions have a known share of invaded parasites; ground truth records the drawn objects, not the segmented masks. Settings are filled in, so Run is the next step. Cached after the first download.": [
+      "external"
+    ],
+    "Foundation model:": [
+      "external"
+    ],
+    "Give at least one mask and the measurement database.": [
+      "external"
+    ],
+    "Image level": [
+      "external"
+    ],
+    "Landmarks": [
+      "external"
+    ],
+    "Learn from well labels…": [
+      "external"
+    ],
+    "Learning from well labels…": [
+      "external"
+    ],
+    "Load and register": [
+      "external"
+    ],
+    "Map this field's uncertainty": [
+      "external"
+    ],
+    "Mapping segmentation uncertainty: four detection runs…": [
+      "external"
+    ],
+    "Measurement database": [
+      "external"
+    ],
+    "Minimum transcript QV": [
+      "external"
+    ],
+    "Mitosis, egress, invasion and host death detected on tracks by a small network trained on annotated events, with held-out precision and recall, division links re-made from mitoses and time to each event per condition.": [
+      "external"
+    ],
+    "None (use the backbone)": [
+      "external"
+    ],
+    "Nucleus mask": [
+      "external"
+    ],
+    "Open": [
+      "compact"
+    ],
+    "Open a folder before mapping segmentation uncertainty.": [
+      "external"
+    ],
+    "Open a folder before ranking fields by uncertainty.": [
+      "external"
+    ],
+    "OpenPhenom (Recursion, channel-agnostic MAE ViT-S/16)": [
+      "external"
+    ],
+    "Optional label image of regions; each object is summarised under the region its centre falls in. Default empty.": [
+      "external"
+    ],
+    "Optional table of landmark pairs, with columns source_x, source_y (platform image pixels), target_x and target_y (your image's pixels); three or more pairs give an affine fit. Default empty.": [
+      "external"
+    ],
+    "Pathogen mask": [
+      "external"
+    ],
+    "Per-object intensity statistics, GLCM homogeneity and Zernike moments computed for all objects of a field at once on a CUDA GPU, matching the CPU values within float tolerance. Without a GPU the CPU path runs.": [
+      "external"
+    ],
+    "Platform": [
+      "external"
+    ],
+    "Platform output": [
+      "external"
+    ],
+    "Pyramid level of the Xenium morphology image or the full resolution Visium image the masks were segmented on; each level halves the resolution. Default 0.": [
+      "external"
+    ],
+    "Rank the fields, most uncertain first": [
+      "external"
+    ],
+    "Ranked {count} fields by segmentation uncertainty, the most uncertain first.": [
+      "external"
+    ],
+    "Ranking by uncertainty would undo the blind order. Unblind first.": [
+      "external"
+    ],
+    "Ranking {count} fields by segmentation uncertainty: four detection runs each…": [
+      "external"
+    ],
+    "Re-segments a few sampled fields with the diameter, the thresholds and contrast enhancement each moved a little, and reports how much object counts, areas and intensities change, flagging the settings the results are fragile to.": [
+      "external"
+    ],
+    "Read 10x Visium, Visium HD or Xenium output, place its spots or transcripts on the image spaCR segmented, and write gene counts per object beside the measurements. Default hidden.": [
+      "external"
+    ],
+    "Region mask": [
+      "external"
+    ],
+    "Register Visium spots or Xenium transcripts to the segmented image and count each gene per cell, nucleus, pathogen and vacuole.": [
+      "external"
+    ],
+    "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.": [
+      "external"
+    ],
+    "Segmentation uncertainty {value} over {count} objects.": [
+      "external"
+    ],
+    "Spatial transcriptomics": [
+      "external"
+    ],
+    "Spotiflow": [
+      "external",
+      "identity"
+    ],
+    "Spotiflow's general model, run in its own environment; its spots go through the same base calls and nucleus assignment.": [
+      "external"
+    ],
+    "SubCell (CZI / Lundberg lab ViT-B/16, DNA + protein)": [
+      "external"
+    ],
+    "Tables (*.csv *.tsv *.parquet *.feather *.xlsx)": [
+      "external"
+    ],
+    "The Space Ranger outs folder (Visium or Visium HD) or the Xenium output bundle. Default empty.": [
+      "external"
+    ],
+    "The Visium HD bin size read from binned_outputs; ignored for Visium and Xenium. Default 8 µm.": [
+      "external"
+    ],
+    "The gene the overlay is coloured by. Default the most counted gene.": [
+      "external"
+    ],
+    "The image the masks were segmented on. Empty or hires uses Visium's high-resolution image; lowres or full name the others; Xenium uses its morphology image. A file of your own microscope image of the same section is registered to the platform image, through the landmarks when given, else by image content. Default empty.": [
+      "external"
+    ],
+    "The least certain is object {label} ({value}).": [
+      "external"
+    ],
+    "The measurements.db the counts are written into, keyed by prcfo beside the object measurements. Default empty.": [
+      "external"
+    ],
+    "Uncertainty": [
+      "external"
+    ],
+    "Uncertainty failed": [
+      "external"
+    ],
+    "Uncertainty map discarded because the field changed.": [
+      "external"
+    ],
+    "Uncertainty saved; the open fields changed while ranking, so their order was left alone.": [
+      "external"
+    ],
+    "Uncertainty scores not saved: {error}": [
+      "external"
+    ],
+    "Uncertainty…": [
+      "external"
+    ],
+    "Vacuole mask": [
+      "external"
+    ],
+    "Visium": [
+      "external",
+      "identity"
+    ],
+    "Visium HD": [
+      "external",
+      "identity"
+    ],
+    "Visium HD bin": [
+      "external"
+    ],
+    "Well-label model: held-out well AUROC {mil:.2f} (mean-feature baseline {mean:.2f}) over {wells} wells. Cell attention and well probabilities were written beside the table.": [
+      "external"
+    ],
+    "Which platform wrote the folder. Detect reads it from the files present. Default Detect.": [
+      "external"
+    ],
+    "Wrote counts for {objects} objects to {db}; results in {output}.": [
+      "external"
+    ],
+    "Xenium": [
+      "external",
+      "identity"
+    ],
+    "Xenium transcripts with a lower quality value (QV) are dropped, as Xenium's own cell-feature matrix drops them. Default 20.": [
+      "external"
+    ],
+    "s3://bucket/folder, gs://, az:// or https://": [
+      "external"
+    ],
+    "{platform}: {points} positions and {genes} genes, registered by {method}.": [
+      "external"
+    ]
+  },
+  "missing_awaiting_owners": [],
+  "catalog_acceptance": "not established by this read-only inventory measurement"
+}

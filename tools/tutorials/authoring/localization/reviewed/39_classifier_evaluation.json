@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "39_classifier_evaluation",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Audite previsões em dados reservados, validação cruzada aninhada, calibração, vazamento de dados e desempenho por placa.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Classifier Evaluation.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Classifier Evaluation. Audite previsões em dados reservados, validação cruzada aninhada, calibração, vazamento de dados e desempenho por placa.",
+        "Selecione previsões que incluam os rótulos de referência, os metadados da divisão, os identificadores das placas, as probabilidades e os registros das execuções do modelo.",
+        "Na área principal de configuração, defina a ordem das classes, os limiares, os intervalos de calibração, o agrupamento, a incerteza por bootstrap e as verificações de vazamento.",
+        "Avalie o comportamento nos dados reservados e em cada placa antes de usar o classificador para tirar conclusões biológicas.",
+        "Ao término do fluxo de trabalho, o spaCR produz relatórios de discriminação, calibração, confusão, vazamento e robustez."
+      ]
+    }
+  }
+}

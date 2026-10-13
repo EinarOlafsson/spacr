@@ -1,0 +1,36 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Invasion Assay: gefðu ytri og heildarlitun stig",
+  "description": "Tengdu tvær litunarrásir, veldu grunnlínu litunar, keyrðu greininguna og skoðaðu flokkun innrásar og næmi fyrir þröskuldi.",
+  "objectives": [
+    "Velja mæligagnagrunninn og tengja ytri litun og heildarlitun.",
+    "Stilla grunnlínubrunna og þröskuldsstillingar og keyra svo greininguna.",
+    "Skoða dreifingar, nefnara hvers brunns og vistaðar niðurstöðutöflur."
+  ],
+  "prerequisite": "Afþjappaðu tengda tilbúna Invasion Assay-dæmið og notaðu stillingatilvísun þess. Gagnagrunnurinn inniheldur 1.800 tilbúnar mælingar á sníkjudýrum; nöfn skilyrða og niðurstöður eru aðeins til skýringar. Fyrir eigin greiningu skaltu nota staðfesta tveggja lita litunarhönnun með ytri litun fyrir gegndræpismeðferð og heildarlitun á eftir, og skoða dæmigerðar myndir.",
+  "scenes": [
+    "Frá Home opnarðu Toxoplasma og velur síðan Invasion Assay. Byrjaðu á mæligagnagrunni sem inniheldur styrk sníkjudýra fyrir ytri litun og heildarlitun. Notaðu tengda tilbúna sýnið til að æfa tengingu rása, val á þröskuldi og skoðun niðurstaðna.",
+    "Afþjappaðu sýnið og stilltu Source á möppuna invasion, sem inniheldur measurements/measurements.db. Sláðu inn meðfylgjandi stillingatilvísun og skiptu út staðgengli hennar fyrir Source. Sýnið inniheldur grunnlínubrunna og tvö greiningarskilyrði.",
+    "Stilltu Outside channel á 1 og Total channel á 0. Ytri litunin er sett á fyrir gegndræpismeðferð en heildarlitunin á eftir. Sníkjudýr sem eru jákvæð fyrir ytri litun flokkast sem áföst og þau sem eru við eða undir ytri þröskuldinum sem komin inn. Athugaðu röð myndatökurásanna þegar þú notar eigin mælingar.",
+    "Veldu mean undir Intensity statistic svo það passi við dálkana í dæmagagnagrunninum. Fyrir eigin greiningu velurðu tiltæka tölfræði sem hentar lituninni og skoðar dæmigerða hluti. Haltu Minimum total intensity í 100 fyrir þetta sýni.",
+    "Stilltu Stain baseline wells á dálk 1 með c1. Þessar mælingar án litunar ákvarða mörkin og eru útilokaðar frá nefnurum greiningarinnar. Undir Pathogen plate metadata tengirðu vehicle við dálk 2 og inhibitor við dálk 3.",
+    "Stilltu Control quantile á 0,99 og hafðu fasta Outside threshold tóman. Þá ákvarða grunnlínumælingarnar mörkin, um það bil 22,8 í þessu dæmi. Athugaðu þröskuldinn sem var notaður í úttakinu áður en þú túlkar flokkunina.",
+    "Stilltu Threshold sensitivity á 0,25. Þá eru líka metin mörk sem liggja 25 prósentum undir og yfir völdum þröskuldi. Berðu saman bilið í skilvirkni innrásar sem fæst til að sjá hversu mikið niðurstaðan veltur á vali þröskuldsins.",
+    "Stilltu Extracellular class á classify fyrir sýnið. Fyrir hluti án tengingar við hýsilfrumu notar classify litunina, attached flokkar þá sem áfasta og exclude fjarlægir þá úr hópnum sem fær stig. Veldu þessa stillingu með hliðsjón af gæðum úthlutunar þinnar á hýsilfrumur.",
+    "Hafðu kveikt á Save og smelltu á Run. Opnaðu þröskuldsmyndina þegar vinnslu lýkur. Hún sýnir dreifingu eftir brunnum og mörkin sem voru notuð. Í tilraun berðu þessar dreifingar saman við dæmigerðar litaðar myndir og kannar veika ytri litun.",
+    "Ef skýringartexti nær út fyrir myndina opnarðu Figure settings. Á flipanum axes stillirðu Legend position á best og staðfestir. Athugaðu að merkingarnar sjáist bæði á skjánum og í útfluttu myndinni.",
+    "Opnaðu myndina fyrir hvern brunn. Hver súla sýnir hlutföll áfastra sníkjudýra og þeirra sem eru komin inn, með fjölda sníkjudýra sem fengu stig fyrir ofan. Grunnlínubrunnar eru útilokaðir. Lestu fjöldann með hlutföllunum þegar þú berð saman brunna.",
+    "Opnaðu samantektina eftir skilyrðum. Berðu sameinaða innrásarhlutfallið saman við meðaltal brunnanna, því þau eru vegin á ólíkan hátt. Athugaðu breytileikann í niðurstöðum hvers brunns áður en þú berð saman skilyrði.",
+    "Allt vistast í results/analyze_invasion innan Source. parasite_calls.csv geymir flokkun hvers sníkjudýrs, field_thresholds.csv mörkin að baki henni, well_invasion.csv hlutföll hvers brunns og condition_summary.csv sameinaða samanburðinn. Geymdu myndir og stillingar með þeim og berðu skilyrði saman yfir óháðar endurtekningar."
+  ]
+}

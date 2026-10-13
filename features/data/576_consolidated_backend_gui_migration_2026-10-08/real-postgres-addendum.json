@@ -1,0 +1,56 @@
+{
+  "current_head": "09895fcdac06406b2889ebb9e957a006c0b59a9f",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": "/mnt/wd4tb/scratch/ci/ext/lib/python3.12/site-packages",
+    "QT_QPA_PLATFORM": "offscreen",
+    "SPACR_TEST_POSTGRES_DSN": "postgresql:///spacr_f576_20261008?host=/mnt/wd4tb/scratch/f576-owned-postgres-20261008-root/socket&port=65476"
+  },
+  "exit_code": 0,
+  "note": "Same eight-file cohort and unchanged source as prior 136 pass/4 skip receipt, now with root-owned real PostgreSQL18.4 scratch server. Pytest session hygiene printed a non-failing SpawnProcess-1 child-alive-at-exit note; process exited0. This does not claim an unrelated whole-suite or GPU result.",
+  "payload_sha256": "fa1944a386d74637fa531010873ad273fe36abbd6fd6b7f35cfc1638b6386928",
+  "prior_receipt_commit": "09895fcdac06406b2889ebb9e957a006c0b59a9f",
+  "prior_receipt_sha256": "d3367d6559ad54ffae74ece5b85dd86c815e1f3ee7de6f765513f60d6bfded70",
+  "pytest_args": [
+    "-q",
+    "-p",
+    "no:randomly",
+    "tests/qt/test_measurement_backend_alpha_gate.py",
+    "tests/qt/test_f576_regression_backend_inputs.py",
+    "tests/test_measurement_backends.py",
+    "tests/test_the_measurements_tab_reaches_a_regression.py",
+    "tests/qt/test_regression_offers_its_diagnostics.py",
+    "tests/test_regression_offers_its_own_src.py",
+    "tests/test_cov_14_refit.py",
+    "tests/test_one_parse_per_file.py"
+  ],
+  "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "raw_log": "combined-owning-real-postgres.log.gz",
+  "raw_log_sha256": "eb19e968212cf48c7b4a5f31cd39b5da4a5a458292fc54bdb7e4a86da57759d2",
+  "result": "140 passed in 20.00s",
+  "runner": "tools/run_capped.sh 4G",
+  "source_blobs": {
+    "spacr/ml.py": "98ba73c329a0b638b4e5f1203fd41c46c0fde83b",
+    "spacr/predictions.py": "578df9c9dd42d01777ab759e2d4e50e7e7722edd",
+    "spacr/qt/screens/app_screen.py": "1b4bc4e4d310f8db092d84552710be82056655c5",
+    "spacr/qt/screens/settings_model.py": "9f93b43591d29e8aa0031349e9a48f68226f5eaa",
+    "spacr/qt/widgets/file_list.py": "1b9ed692a6a35de1a893da2ab4575c8b0ce7267a",
+    "spacr/refit.py": "35cca25e10fada5e6b258b85d178aa5c4b96c6cd",
+    "spacr/settings.py": "5a1a00c475dd93863f268156b83b802f431e7768",
+    "spacr/tabular.py": "0e5217589fb8edfad6df7aefe3fb85178aee4c8b"
+  },
+  "source_code_commit": "6727c694a16a9b47171be3834eebe0dda6014b07",
+  "source_sha256": {
+    "spacr/ml.py": "e6d3996feced18a07b7d6d2ff94d7c49a538fa6e0656956b17ef25debba5db2f",
+    "spacr/predictions.py": "dbc3c6039bcfa9c0c4ca0b41c0546b220d4bec83605e56d27702bfc85b9f72df",
+    "spacr/qt/screens/app_screen.py": "1c4cfeabca6c641d38ba0fabbdcfdb628a278f6878755465db8ec33e351f5483",
+    "spacr/qt/screens/settings_model.py": "daf7d1ed565e55fab78cb0801fea97e58444fd1886305aff50fcc76d4a068e76",
+    "spacr/qt/widgets/file_list.py": "e50514e5c99d1deb37160f6ce08fbf64b5ac9b9fe5150a6116717f0827e5730d",
+    "spacr/refit.py": "71666d915f35ba7dd280753a60f99ade18b9841816ed08a3102b87432f6a566d",
+    "spacr/settings.py": "40f2140144d14298c6fb23bc4f2070ce2ffe4bbd8db418d4a89957b0097af589",
+    "spacr/tabular.py": "114a60373a77d7cac8ee9b3b1f885debfb4602918a1c6f4e3e5911b6f51a46ea"
+  }
+}

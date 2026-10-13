@@ -1,0 +1,36 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "06b5815a18d009a2826aafcfb7c6dbbaa50bc9eb6fefc99cc49208e9a18fc800",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Invasion Assay : évaluer la coloration externe et totale",
+  "description": "Associez deux canaux de coloration, choisissez la référence de coloration, lancez l’analyse et inspectez les classifications d’invasion et la sensibilité au seuil.",
+  "objectives": [
+    "Choisir la base de données de mesures et associer les colorations externe et totale.",
+    "Définir les puits de référence et les réglages du seuil, puis lancer l’analyse.",
+    "Inspecter les distributions, les dénominateurs par puits et les tables de résultats enregistrées."
+  ],
+  "prerequisite": "Extrayez l’exemple synthétique Invasion Assay lié et utilisez sa référence de paramètres. La base de données contient 1 800 mesures synthétiques de parasites ; les noms des conditions et les résultats sont illustratifs. Pour votre propre essai, utilisez un protocole de coloration bicolore validé, avec une coloration externe avant la perméabilisation et une coloration totale après, et examinez des images représentatives.",
+  "scenes": [
+    "Depuis Home, ouvrez Toxoplasma, puis choisissez Invasion Assay. Partez d’une base de données de mesures contenant les intensités des parasites pour les colorations externe et totale. Utilisez l’échantillon synthétique lié pour vous exercer à l’association des canaux, au choix du seuil et à l’inspection des résultats.",
+    "Extrayez l’échantillon et réglez Source sur son dossier invasion, qui contient measurements/measurements.db. Saisissez la référence de paramètres fournie et remplacez son espace réservé Source. L’échantillon contient des puits de référence et deux conditions d’essai.",
+    "Réglez Outside channel sur un et Total channel sur zéro. La coloration externe est appliquée avant la perméabilisation ; la coloration totale, après. Les parasites positifs pour la coloration externe sont classés comme attachés, et ceux au niveau du seuil externe ou en dessous, comme envahisseurs. Vérifiez l’ordre de vos canaux d’acquisition lorsque vous utilisez vos propres mesures.",
+    "Sélectionnez mean dans Intensity statistic pour correspondre aux colonnes de la base de données d’exemple. Pour votre propre essai, choisissez une statistique disponible adaptée à la coloration et inspectez des objets représentatifs. Laissez Minimum total intensity à cent pour cet échantillon.",
+    "Réglez Stain baseline wells sur la colonne un, avec c1. Ces mesures de coloration négative fixent le seuil et sont exclues des dénominateurs de l’essai. Dans Pathogen plate metadata, associez vehicle à la colonne deux et inhibitor à la colonne trois.",
+    "Réglez Control quantile sur zéro virgule quatre-vingt-dix-neuf et laissez le Outside threshold fixe vide. Les mesures de référence déterminent alors le seuil, d’environ vingt-deux virgule huit dans cet exemple. Vérifiez le seuil appliqué dans la sortie avant d’interpréter les classifications.",
+    "Réglez Threshold sensitivity sur zéro virgule vingt-cinq. Cela évalue aussi des seuils inférieurs et supérieurs de vingt-cinq pour cent au seuil choisi. Comparez la plage d’efficacité d’invasion obtenue pour voir à quel point votre résultat dépend du choix du seuil.",
+    "Réglez Extracellular class sur classify pour l’échantillon. Pour les objets sans lien avec une cellule hôte, classify utilise la coloration, attached les classe comme attachés et exclude les retire de la population évaluée. Choisissez ce réglage en tenant compte de la qualité de vos attributions aux cellules hôtes.",
+    "Laissez Save activé et cliquez sur Run. Ouvrez la figure du seuil une fois le traitement terminé. Elle montre les distributions par puits et le seuil appliqué. Pour une expérience, comparez ces distributions à des images colorées représentatives et examinez les colorations externes faibles.",
+    "Si une légende dépasse de la figure, ouvrez Figure settings. Dans l’onglet axes, réglez Legend position sur best, puis confirmez. Vérifiez que les étiquettes restent visibles à l’écran comme dans la figure exportée.",
+    "Ouvrez la figure par puits. Chaque barre montre les fractions attachées et envahissantes, avec au-dessus le nombre de parasites évalués. Les puits de référence sont exclus. Lisez les effectifs en même temps que les fractions lorsque vous comparez des puits.",
+    "Ouvrez le résumé par condition. Comparez la fraction d’invasion regroupée à la moyenne des puits, car elles n’utilisent pas la même pondération. Vérifiez la variation des résultats par puits avant de comparer des conditions.",
+    "Tout est enregistré dans results/analyze_invasion à l’intérieur de Source. parasite_calls.csv contient la classification de chaque parasite, field_thresholds.csv les seuils correspondants, well_invasion.csv les fractions par puits et condition_summary.csv la comparaison regroupée. Conservez avec eux les figures et les paramètres, et comparez les conditions sur des réplicats indépendants."
+  ]
+}

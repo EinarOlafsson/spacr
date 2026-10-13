@@ -1,0 +1,368 @@
+{
+  "item": "F585",
+  "candidate_worktree": "/tmp/spacr-implementation-20261001/planner-f585",
+  "base": "d73732173",
+  "status": "integrated and accepted as alpha",
+  "initial_cohort": {
+    "passed": 76,
+    "failed": 3,
+    "failures": [
+      "Two test oracle tuple/list normalization mismatches corrected without product changes",
+      "One actual numeric defect: NaN lower noncentral-t CDF falsely clamped to power1"
+    ]
+  },
+  "final_cohort_so_far": {
+    "passed": 108,
+    "log": "/tmp/spacr-implementation-20261001/review/f585-final-tests.log",
+    "selection": [
+      "tests/test_arrayed_power_f585.py",
+      "tests/test_arrayed_sample_size_planner.py",
+      "tests/qt/test_arrayed_plan_validation_f585.py"
+    ]
+  },
+  "prior_legacy_qt_checks": {
+    "passed": 25,
+    "log": "/tmp/spacr-implementation-20261001/review/f585-validation-tests.log",
+    "selection": "tests/qt/test_arrayed_planner_alpha_gate.py"
+  },
+  "scope_limits": {
+    "memory_max_bytes": 1073741824,
+    "memory_swap_max_bytes": 0,
+    "actual_cpu_affinity_count": 1,
+    "configured_cpu_quota_percent": 100,
+    "kernel_cpu_quota_verified": false,
+    "numerical_threads": 1,
+    "gpu": false
+  },
+  "original_source_contract": {
+    "existing_function_signatures_unchanged": true,
+    "existing_docstrings_unchanged": true,
+    "runtime_captions_unchanged": true
+  },
+  "historical_real_pilot_receipt": "features/data/585_real_pilot_check_2026-09-30.json",
+  "scientific_limits": [
+    "Proportion plans can exceed model-free resampling bound; historical receipt documents it",
+    "Single-condition pilot cannot estimate replicate-condition interaction; two-condition synthetic UI and historical actual components cover this limit"
+  ],
+  "runtime_caption_audit": {
+    "source_keys": 54,
+    "locales": [
+      {
+        "locale": "sv",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "de",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "es",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "pt",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "zh_CN",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "hi",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "ko",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "is",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      },
+      {
+        "locale": "fr",
+        "missing": [],
+        "chrome_rows": [
+          "Browse\u2026",
+          "Measurement"
+        ],
+        "stale_source_hash": []
+      }
+    ],
+    "claim": "Source presence/nonempty translations and source hashes only; no native-speaker semantic signoff."
+  },
+  "unique_passing_checks": 134,
+  "affected_control_cohort": {
+    "passed": 29,
+    "log": "/tmp/spacr-implementation-20261001/review/f585-whole-cell-tests.log",
+    "selection": [
+      "tests/qt/test_arrayed_plan_validation_f585.py::test_actual_plan_and_simulation_use_same_whole_cell_design",
+      "tests/qt/test_arrayed_plan_validation_f585.py::test_actual_plan_save_load_roundtrip_and_legacy_defaults",
+      "tests/qt/test_arrayed_planner_alpha_gate.py"
+    ]
+  },
+  "real_control_receipt": "/tmp/spacr-implementation-20261001/review/f585-real-controls/receipt.json",
+  "real_control_harness": "/tmp/spacr-implementation-20261001/review/f585_real_controls.py",
+  "real_pilot_result": "All five reachable paired/unpaired recommendations agree with500 simulation within0.022909; unpaired proportion unreachable and Save disabled; Plan/Save/Load/resave verified for each reachable design.",
+  "fixes": [
+    "Full saved-plan schema, numeric type, range, finite, precision, and readout preflight before form/table/snapshot mutation",
+    "Mirrored noncentral-t survival tail avoids negative-CDF NaN; remaining nonfinite computation fails honestly instead of returning100% power",
+    "GUI plans and simulates the same whole-cell-per-field design and saves that resolved count"
+  ],
+  "actual_controls_harness_corrections": [
+    "Initial harness wrongly expected every saved candidate displayed; corrected to existing ten-row display contract. No product error or cap failure."
+  ],
+  "full_feature_acceptance": "Original DONE WHEN and implemented alpha scope supported after integration; no claim of promotion out of alpha, native desktop review, or eliminating documented model assumptions.",
+  "integration_commit": "59d846293",
+  "integration_tests": {
+    "passed": 134,
+    "seconds": 13.29,
+    "log_sha256": "a949aea69c5243b43816e1b75139613daa971248eb4cab9ee485bec28b1fe123",
+    "selection": [
+      "tests/test_arrayed_power_f585.py",
+      "tests/test_arrayed_sample_size_planner.py",
+      "tests/qt/test_arrayed_plan_validation_f585.py",
+      "tests/qt/test_arrayed_planner_alpha_gate.py"
+    ]
+  },
+  "real_controls": {
+    "source": "/media/carruthers/mnt3/claude/toxoplasma_projects/tsg101_screen",
+    "rows_all_controls": 27386,
+    "rows_negative_control_pilot": 14200,
+    "source_databases_read_only": true,
+    "source_size_mtime_unchanged": true,
+    "pilot_scratch_csv": "/tmp/spacr-implementation-20261001/review/f585-real-controls/pilot-controls.csv",
+    "actual_affinity": [
+      0
+    ],
+    "configured_cpu_quota_percent": 100,
+    "kernel_cpu_quota_verified": false,
+    "memory_limit_bytes": 1073741824,
+    "swap_limit_bytes": 0,
+    "checks": [
+      {
+        "readout": "continuous",
+        "paired": false,
+        "effect": 3405.0,
+        "design": {
+          "replicates": 14,
+          "wells": 8,
+          "fields": 9,
+          "cells_per_field": 4,
+          "cells_per_condition": 4032,
+          "power": 0.8019544524568665,
+          "cost": 492.80000000000007
+        },
+        "simulation": {
+          "design_index": 0,
+          "n_sim": 500,
+          "seed": 0,
+          "cells_per_field": 4,
+          "power": 0.796
+        },
+        "absolute_gap": 0.0059544524568664325,
+        "actual_buttons": [
+          "Plan the design",
+          "Save plan\u2026",
+          "Load plan\u2026"
+        ],
+        "same_snapshot_after_load_and_resave": true
+      },
+      {
+        "readout": "continuous",
+        "paired": true,
+        "effect": 3405.0,
+        "design": {
+          "replicates": 7,
+          "wells": 11,
+          "fields": 9,
+          "cells_per_field": 4,
+          "cells_per_condition": 2772,
+          "power": 0.8030911906074449,
+          "cost": 286.3
+        },
+        "simulation": {
+          "design_index": 0,
+          "n_sim": 500,
+          "seed": 0,
+          "cells_per_field": 4,
+          "power": 0.826
+        },
+        "absolute_gap": 0.02290880939255502,
+        "actual_buttons": [
+          "Plan the design",
+          "Save plan\u2026",
+          "Load plan\u2026"
+        ],
+        "same_snapshot_after_load_and_resave": true
+      },
+      {
+        "readout": "count",
+        "paired": false,
+        "effect": 0.1674,
+        "design": {
+          "replicates": 6,
+          "wells": 11,
+          "fields": 10,
+          "cells_per_field": 4,
+          "cells_per_condition": 2640,
+          "power": 0.8001965157828592,
+          "cost": 252.0
+        },
+        "simulation": {
+          "design_index": 0,
+          "n_sim": 500,
+          "seed": 0,
+          "cells_per_field": 4,
+          "power": 0.798
+        },
+        "absolute_gap": 0.0021965157828591764,
+        "actual_buttons": [
+          "Plan the design",
+          "Save plan\u2026",
+          "Load plan\u2026"
+        ],
+        "same_snapshot_after_load_and_resave": true
+      },
+      {
+        "readout": "count",
+        "paired": true,
+        "effect": 0.1674,
+        "design": {
+          "replicates": 8,
+          "wells": 10,
+          "fields": 10,
+          "cells_per_field": 4,
+          "cells_per_condition": 3200,
+          "power": 0.8344079699894211,
+          "cost": 320.0
+        },
+        "simulation": {
+          "design_index": 0,
+          "n_sim": 500,
+          "seed": 0,
+          "cells_per_field": 4,
+          "power": 0.834
+        },
+        "absolute_gap": 0.00040796998942116414,
+        "actual_buttons": [
+          "Plan the design",
+          "Save plan\u2026",
+          "Load plan\u2026"
+        ],
+        "same_snapshot_after_load_and_resave": true
+      },
+      {
+        "readout": "proportion",
+        "paired": false,
+        "no_reachable_design": true,
+        "save_disabled": true
+      },
+      {
+        "readout": "proportion",
+        "paired": true,
+        "effect": 0.0322,
+        "design": {
+          "replicates": 10,
+          "wells": 11,
+          "fields": 10,
+          "cells_per_field": 4,
+          "cells_per_condition": 4400,
+          "power": 0.8126633270703589,
+          "cost": 420.0
+        },
+        "simulation": {
+          "design_index": 0,
+          "n_sim": 500,
+          "seed": 0,
+          "cells_per_field": 4,
+          "power": 0.806
+        },
+        "absolute_gap": 0.006663327070358882,
+        "actual_buttons": [
+          "Plan the design",
+          "Save plan\u2026",
+          "Load plan\u2026"
+        ],
+        "same_snapshot_after_load_and_resave": true
+      }
+    ],
+    "limitations": [
+      "Offscreen Qt; no native desktop review",
+      "500 model simulations per displayed recommendation; historical 2000-simulation and hierarchical-bootstrap receipt remains separate",
+      "Negative-control-only pilot cannot estimate replicate-by-condition interaction; actual synthetic two-condition UI regression covers interaction estimation"
+    ]
+  },
+  "integrated_file_hashes": {
+    "spacr/qt/screens/power.py": "d666e933bd7982800f0e416ca1cce18bbbbc7eb0a279156238511006903576f1",
+    "spacr/sp_stats.py": "122acbc48a515705ffb555ae0c84a5fac7097caacf60d1e0d53a7d7685b7f835",
+    "tests/qt/test_arrayed_plan_validation_f585.py": "08fe70673c57a32c4595a718cc4d56a9bda5de43ffe9ee9327d31a07568be4f0",
+    "tests/test_arrayed_power_f585.py": "3516e71b4710f88560a4cf756828cc08730e00a43d814fd6fa87421f9c076c3d"
+  },
+  "documentation_guard_followup": {
+    "commit": "42f9a3558502d6af710125925dc63d8a9dbb41bb",
+    "change": "Move five saved-plan validation helpers to documented private module functions.",
+    "guard": {
+      "nested_missing_after": [],
+      "budget": 0,
+      "moved_helpers": [
+        "_arrayed_plan_finite_tree",
+        "_arrayed_plan_mapping",
+        "_arrayed_plan_number",
+        "_arrayed_plan_text",
+        "_arrayed_plan_unique_keys"
+      ],
+      "runtime_ast": "identical after exact relocation/rename and doc removal",
+      "existing_docs_signatures": "unchanged",
+      "actual_extractor_private_visibility": "all five excluded",
+      "limits": "1 GiB, one CPU, no swap"
+    },
+    "regression": {
+      "selection": "tests/qt/test_arrayed_plan_validation_f585.py",
+      "passed": 61,
+      "elapsed_seconds": 7.45,
+      "log": "/tmp/spacr-implementation-20261001/review/f585-helper-regression.log",
+      "limits": "1 GiB, zero swap, one CPU affinity; configured CPUQuota=100% not independently enforced by cpu.max"
+    }
+  }
+}

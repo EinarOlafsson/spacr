@@ -1,0 +1,25 @@
+{
+  "lessons": ["21_model_compare", "22_model_zoo"],
+  "scope": "Current installed API signature binding; no new inference or GUI run",
+  "cellpose_version": "4.2.1.1",
+  "application_files_sha256": {
+    "spacr/model_compare.py": "533c4e345cd55f2b775fb90e9c2e3778ad4a03282ca1a36b9a33307690260234",
+    "spacr/model_zoo.py": "363185966adc243f225d9516eb1de3b9e0af81c6dcaae3f64ad2aae198ff2e80"
+  },
+  "method": "inspect.signature(CellposeModel.eval).bind(None, x=[], **ModelConfig().eval_kwargs())",
+  "unsupported_default_keywords": ["invert"],
+  "exception": "TypeError",
+  "message": "got an unexpected keyword argument 'invert'",
+  "positive_counterpart": "Binding the same signature with only its accepted keyword names succeeds. This is an inert argument-binding check, not an inference workaround or evidence that dropping one argument fully repairs the application.",
+  "existing_gui_failure_evidence": "2026-09-09_model_zoo_current_api_failure.json",
+  "old_assembly_problem": "Both existing eight-scene recipes still point every scene at keyframes/01_module.png, an empty overview. Original populated historical keyframes remain preserved, but cannot establish current backend success.",
+  "new_model_zoo_source_since_previous_receipt": true,
+  "shared_model_compare_backend_unchanged": true,
+  "inference_run": false,
+  "weights_loaded": false,
+  "application_modified": false,
+  "environment_downgraded": false,
+  "historical_results_injected": false,
+  "current_workflow_accepted": false,
+  "published": false
+}

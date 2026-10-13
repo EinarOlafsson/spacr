@@ -1,0 +1,36 @@
+{
+  "lesson": "19_train_cellpose",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Cellpose 모델 학습",
+  "description": "이미지와 마스크 쌍을 준비하고, Cellpose Workbench에서 분할 모델을 미세 조정한 뒤 저장된 체크포인트를 적용합니다.",
+  "objectives": [
+    "Make Masks에서 이미지와 그에 맞는 객체 라벨 마스크를 확인합니다.",
+    "학습 폴더, 시작 모델, 학습 일정, 출력 위치를 고릅니다.",
+    "학습을 실행하고, 체크포인트를 찾아 별도의 이미지에 적용합니다."
+  ],
+  "prerequisite": "연결된 예제를 내려받아 압축을 푸세요. 마스크가 있는 학습 이미지 6개와 Apply용 별도 이미지 3개가 들어 있습니다. 또는 자신의 이미지와 그에 맞는 정수 라벨 마스크를 준비하고, 학습 전에 Make Masks에서 확인하세요.",
+  "scenes": [
+    "Home에서 Tools를 연 뒤 Make Masks를 여세요. 도구 모음에서 Cellpose Workbench를 열면 Train 탭에서 시작합니다. 이미지와 객체 라벨 마스크로 학습한 다음, 저장된 모델을 Apply에서 씁니다.",
+    "연결된 예제의 압축을 푸세요. training 폴더에는 이미지 6개와 masks 하위 폴더가 있고, apply 폴더에는 나중에 쓸 별도 이미지 3개가 있습니다. Image source folder 옆의 폴더 버튼을 클릭하고 training을 고르세요. masks 하위 폴더를 쓰려면 Mask source folder를 비워 두고, 아니면 다른 마스크 폴더를 고르세요.",
+    "각 이미지에는 높이와 너비가 같은 마스크가 하나 필요합니다. 0은 배경이고 각 객체는 고유한 양수 번호를 가집니다. 학습 전에 학습 폴더를 Make Masks에서 열어 라벨을 확인하고 수정하세요. 이 이미지에는 라벨이 붙은 세포가 95개 있습니다.",
+    "이 예제는 회색조이므로 Channels를 비워 두세요. 다채널 이미지에서는 0부터 세는 채널 번호를 최대 3개까지 추가하세요. 예를 들어 첫째와 셋째 채널이면 0과 2입니다. 자동 감지가 채널 차원을 찾지 못할 때만 Channel axis를 설정하세요.",
+    "Cellpose-SAM에서 시작하려면 Base model을 cpsam으로 두고, 이전 모델의 학습을 이어 가려면 체크포인트 경로를 입력하세요. Model name을 입력하세요. 여기서는 tutorial cells입니다. 원본 폴더 안에 저장하려면 Checkpoint folder를 비워 두고, 아니면 다른 폴더를 고르세요.",
+    "N epochs와 Batch size를 설정하세요. 이 빠른 실행은 배치 크기 1로 10 에포크를 씁니다. 에포크가 많을수록 학습 업데이트가 늘고, 배치가 클수록 메모리를 더 씁니다. 처음에는 표시된 학습률을 그대로 두세요.",
+    "처음에는 1번째와 99번째 백분위수로 Normalize를 켜 두세요. 이 값이 각 채널에 쓰는 강도 범위를 정합니다. Scale range는 학습 중 이미지 크기를 바꾸고, Min train masks는 라벨이 붙은 객체가 적은 이미지를 건너뜁니다.",
+    "검증 손실을 보려면 별도의 Validation image folder와 그 Validation mask folder를 고르세요. 거기에 학습 이미지를 다시 쓰면 안 됩니다. 이 예제처럼 별도로 라벨을 붙인 세트가 없으면 둘 다 비워 두세요.",
+    "폴더, 모델 이름, 출력 위치를 확인한 뒤 Run을 누르세요. Figures 패널에는 학습 이미지가 마스크 위에 표시되고, 콘솔에서 진행 상황을 볼 수 있습니다. 이 GPU에서는 이미지 6개로 10 에포크 학습이 1분도 안 되어 끝났습니다.",
+    "학습이 끝나면 콘솔에 체크포인트 경로가 표시됩니다. 기본 위치에서는 원본 폴더의 models/cellpose_model/models 아래에 있습니다. 파일 이름은 모델 이름에 아키텍처와 에포크 수를 덧붙입니다. 학습 설정과 함께 보관하세요.",
+    "Apply 탭을 여세요. Custom model은 이제 학습한 체크포인트를 가리킵니다. Source를 예제의 apply 폴더로 설정하세요. 그 이미지는 학습에 쓰지 않은 웰에서 나온 것입니다. Channels를 0으로, Percentiles를 2와 99로 설정하세요. 맞닿은 세포가 분리된 채로 남도록 Fill in을 끄고, Save와 Verbose를 켜세요.",
+    "Live preview를 열고 이미지 하나를 고른 뒤, 같은 채널과 백분위수로 Run preview를 누르세요. 체크포인트로 그 이미지를 분할하며, 여기서는 세포 78개를 찾습니다. 폴더 전체를 실행하기 전에 여기서 설정을 조정하세요.",
+    "Run을 누르세요. Apply는 이미지마다 마스크 하나를 그 이미지 옆의 masks 하위 폴더에 기록하고, Verbose는 각 결과를 그림으로 보여 줍니다. 여기서 세 마스크에는 세포가 각각 79개, 50개, 55개 있습니다. 모델을 실험 전체에 쓰기 전에 그 마스크를 별도로 라벨을 붙인 시야와 비교하세요."
+  ]
+}

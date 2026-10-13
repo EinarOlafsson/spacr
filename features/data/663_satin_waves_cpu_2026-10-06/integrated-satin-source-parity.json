@@ -1,0 +1,71 @@
+{
+  "integrated_commit": "9ad69bab29d9a4f1b2188dbe823cc52860793adf",
+  "source_sha256": {
+    "accepted_satin": "9ea17982c07bcb3bbea6dd141da13f48e3cba67d1b8e26388754533edf258752",
+    "accepted_points": "2017f255047a9c7d29a766d98df3d2f50b2a5225348ab7d667dbb13b9be20cbe",
+    "integrated": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5"
+  },
+  "checks": [
+    {
+      "reference": "accepted_satin",
+      "node": "_warp_satin_columns",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_satin",
+      "node": "_numpy_satin_columns",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_satin",
+      "node": "_copy_wave_batch",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_satin",
+      "node": "_WaveCopyWorker",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_satin",
+      "node": "_SatinCompiler",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_satin",
+      "node": "_DataArtEngine._paint_chromatin_ribbon",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_points",
+      "node": "_DataArtEngine._shade",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_points",
+      "node": "_DataArtEngine.shade",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_points",
+      "node": "_DataArtEngine._frame_point_atlas",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_points",
+      "node": "_DataArtEngine._frame_impulse_lens",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_points",
+      "node": "_DataArtEngine._frame_genetic_advection",
+      "ast_equal": true
+    },
+    {
+      "reference": "accepted_points",
+      "node": "_DataArtEngine._point_material",
+      "ast_equal": true
+    }
+  ],
+  "scope": "read-only private AST parity; functional native ownership/lifecycle tests reported separately"
+}

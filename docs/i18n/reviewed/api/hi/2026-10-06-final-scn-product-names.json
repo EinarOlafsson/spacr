@@ -1,0 +1,20 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Read a Bio-Rad Image Lab ``.scn`` (Gel Doc, ChemiDoc) image.",
+      "label": "spacr.convert.read_scn#0",
+      "source": "Read a Bio-Rad Image Lab ``.scn`` (Gel Doc, ChemiDoc) image.",
+      "source_sha256": "d36bf00cc901a6644cfa8d9617125456a0793bab18ff6a09e14f98426abe6d6a",
+      "translation": "Bio-Rad Image Lab (Gel Doc, ChemiDoc) की ``.scn`` छवि पढ़ें।"
+    },
+    {
+      "context": "A Bio-Rad Image Lab ``.scn`` is read by :func:`spacr.convert.read_scn` (``uint16``, inverted so it looks like Image Lab's own exports); every other format goes through :func:`imageio.v2.imread`.",
+      "label": "spacr.qt.mask_engine.read_image#1",
+      "source": "A Bio-Rad Image Lab ``.scn`` is read by :func:`spacr.convert.read_scn` (``uint16``, inverted so it looks like Image Lab's own exports); every other format goes through :func:`imageio.v2.imread`.",
+      "source_sha256": "07214f9eceb6c1b1c29a597e1d813b5f37ac337e2e3104dccdffdcc5f94c37c8",
+      "translation": "Bio-Rad Image Lab की ``.scn`` छवि :func:`spacr.convert.read_scn` से पढ़ी जाती है (``uint16``, तीव्रता उलटकर ताकि वह Image Lab के अपने निर्यात जैसी दिखे); बाकी सभी प्रारूप :func:`imageio.v2.imread` से पढ़े जाते हैं।"
+    }
+  ],
+  "schema": 1
+}

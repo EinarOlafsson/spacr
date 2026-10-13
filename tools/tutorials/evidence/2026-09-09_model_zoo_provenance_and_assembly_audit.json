@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "lesson": "22_model_zoo",
+  "audit_date": "2026-09-09",
+  "scope": "Bounded read-only inspection of retained Model Zoo source provenance, capture code, selected keyframes, current consumers and one decoded silent-master sample; not a new app or inference run",
+  "author_root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials",
+  "data_provenance": {
+    "classification": "Real acquired-microscopy crops, not synthetically generated images",
+    "preparation_script": "tools/prepare_train_cellpose_tutorial_data.py",
+    "copy_script": "tools/prepare_cellpose_masks_tutorial_data.py",
+    "preparation_manifest": "derived/train_cellpose/source_manifest.json",
+    "copy_manifest": "derived/cellpose_masks/source_manifest.json",
+    "current_source_root": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged",
+    "historical_source_root_in_manifest": "/media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged",
+    "source_shape": [2000, 2000, 7],
+    "image_channel_index_zero_based": 1,
+    "recorded_signal": "ER/cell channel, as identified by the preparation records; no new independent marker validation",
+    "crop_shape": [512, 512],
+    "crop_dtype": "uint16",
+    "training_mask_plane_index_zero_based": 6,
+    "training_images": "derived/train_cellpose/train/images",
+    "benchmark_images": "derived/cellpose_masks",
+    "verification": "Read source arrays with mmap_mode=r; compare only the three selected channel-1 crops against the existing training and benchmark TIFFs; compare TIFF file SHA-256 values; do not regenerate assets",
+    "fields": [
+      {
+        "file": "cell_pair_01.tif",
+        "source": "plate1_B01_1_1.npy",
+        "origin_yx": [120, 180],
+        "slice_yx": [[120, 632], [180, 692]],
+        "image_range": [92, 3101],
+        "all_source_crop_training_and_benchmark_pixels_equal": true,
+        "training_and_benchmark_tiff_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+        "source_crop_uint16_c_order_pixel_sha256": "01e2a8d5f313bc41df8637d1b2afd069f15d856b48c8d8dcfd29f8e1a8afd68a"
+      },
+      {
+        "file": "cell_pair_02.tif",
+        "source": "plate1_B01_2_1.npy",
+        "origin_yx": [520, 240],
+        "slice_yx": [[520, 1032], [240, 752]],
+        "image_range": [103, 4847],
+        "all_source_crop_training_and_benchmark_pixels_equal": true,
+        "training_and_benchmark_tiff_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+        "source_crop_uint16_c_order_pixel_sha256": "3057f1a23b3a416dab8f61a52c5ff0fc79023d72281cabcb2013334797c59aaa"
+      },
+      {
+        "file": "cell_pair_03.tif",
+        "source": "plate1_B01_3_1.npy",
+        "origin_yx": [940, 520],
+        "slice_yx": [[940, 1452], [520, 1032]],
+        "image_range": [98, 4866],
+        "all_source_crop_training_and_benchmark_pixels_equal": true,
+        "training_and_benchmark_tiff_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+        "source_crop_uint16_c_order_pixel_sha256": "4357b21d9e0dba970db72c4fc59358e1b340511bc665c3deef90b7769b74fecf"
+      }
+    ],
+    "critical_limit": "These are reused training examples, not held-out validation fields. The generator also states that production training requires independently reviewed masks and held-out evaluation. Pixel identity is not evidence of biological marker validity or segmentation accuracy."
+  },
+  "historical_benchmark": {
+    "capture_script": "tools/capture_model_zoo_experiment.py",
+    "source_manifest": "production/22_model_zoo/source_manifest.json",
+    "manifest_generated_utc": "2026-08-05T06:11:23.503786+00:00",
+    "selected_checkpoint": "derived/train_cellpose/models/cellpose_model/models/new_model_cpsam_e1_X256_Y256.CP_model",
+    "actual_test_path": "The capture script loads three existing fields, clicks screen._btn_test at line 125, waits for screen.result(), and records that result. It does not call set_segment_fn or inject a replacement segmentation function.",
+    "current_default_backend": "spacr.model_compare.segment_with_cellpose, selected by spacr.model_zoo.benchmark when segment_fn is None",
+    "recorded_field_count": 3,
+    "recorded_object_count": 151,
+    "recorded_segmentation_seconds": 6.6,
+    "recorded_rows": [
+      {"field": "cell_pair_01", "objects": 10, "severity": "fail", "flags": ["low_object_count", "high_border_fraction"]},
+      {"field": "cell_pair_02", "objects": 95, "severity": "ok", "flags": []},
+      {"field": "cell_pair_03", "objects": 46, "severity": "ok", "flags": []}
+    ],
+    "recorded_qc_ok_fields": 2,
+    "recorded_qc_failed_fields": 1,
+    "selected_frames_and_manifest_agree": true,
+    "fresh_inference_performed_in_this_audit": false,
+    "accuracy_or_generalization_validated": false,
+    "comparison_limit": "10_compare_handoff shows populated comparison inputs, not a completed two-model comparison."
+  },
+  "current_text_and_catalogue_limits": {
+    "gui_default_benchmark": "Cellpose segmentation, not classifier benchmarking",
+    "provenance_card_has_license_field": false,
+    "provenance_source": "spacr/model_zoo.py:618",
+    "benchmark_source": "spacr/model_zoo.py:2341",
+    "retired_model_visible_in_historical_frames": "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
+    "retired_catalogue_sources": ["spacr/model_zoo.py:443", "spacr/model_zoo.py:1678"],
+    "retirement_scope": "Filtered from current catalogue suggestions, not deleted from disk; historical frames must not imply current recommendation or availability in the catalogue."
+  },
+  "assembly": {
+    "recipe": "production/22_model_zoo/scenes.json",
+    "scene_count": 8,
+    "all_eight_current_recipe_images": "keyframes/01_module.png",
+    "shared_image_content": "Newer Make Masks host with the Model Zoo fold open, but no scanned models, loaded fields, benchmark rows or comparison result",
+    "meaningful_saved_keyframes": ["01_overview", "02_scanned", "03_provenance", "04_fields", "05_test", "07_benchmark", "09_two_selected", "10_compare_handoff"],
+    "silent_master": "production/22_model_zoo/video/22_model_zoo_silent.mp4",
+    "codec": "h264",
+    "size": [3840, 2160],
+    "frames_per_second": "30/1",
+    "frame_count": 2171,
+    "duration_seconds": 72.366667,
+    "size_bytes": 3363905,
+    "decoded_sample_seconds": 45,
+    "decoded_sample_content": "Blank newer Make Masks/Model Zoo overview with a focus overlay, not the meaningful historical benchmark frame",
+    "sample_method": "Decode one existing-video frame in memory through ffmpeg image2pipe; no saved frame or video output",
+    "limit": "Only one encoded frame was visually inspected. The all-eight identical image binding is established from scenes.json; no claim that every encoded frame was individually inspected.",
+    "finding": "The incorrect overview-only assembly is present in the encoded master, not merely in an unused authoring recipe."
+  },
+  "minimum_update": [
+    "Correct metadata that implies classifier benchmarking and remove the nonexistent license-field claim.",
+    "State that the demonstrated real crops were reused from training and are not held-out validation.",
+    "Restore meaningful saved workflow keyframes instead of binding every scene to the blank host-fold image.",
+    "Treat the old catalogue listing as historical, or use a bounded fresh current-GUI capture if current catalogue availability must be shown.",
+    "Do not rerun training or inference merely because navigation moved. The original crop provenance is now verified."
+  ],
+  "limits": {
+    "whole_lesson_completion_claimed": false,
+    "native_speaker_signoff": false,
+    "human_listening_signoff": false,
+    "app_run": false,
+    "model_inference_run": false,
+    "downloads_or_training": false,
+    "original_assets_modified": false,
+    "media_regenerated": false,
+    "catalogues_or_translations_changed": false
+  }
+}

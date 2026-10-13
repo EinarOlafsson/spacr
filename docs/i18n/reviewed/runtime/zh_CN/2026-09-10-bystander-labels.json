@@ -1,0 +1,20 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "bystander_measurements",
+      "source": "Bystander measurements",
+      "source_sha256": "4e86dde71a4ffd515f06033a4d7eb6bec25553aedfc96c38797fd7368cb10118",
+      "translation": "旁观细胞测量"
+    },
+    {
+      "table": "setting_labels",
+      "key": "bystander_reach_in_diameters",
+      "source": "Bystander reach in diameters",
+      "source_sha256": "7551fc0ca7aa7bbaff2d4065cfc3d7590579b083405d36f19eafc99fa24a221f",
+      "translation": "旁观细胞范围（以细胞直径计）"
+    }
+  ],
+  "schema": 1
+}

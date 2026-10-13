@@ -1,0 +1,17 @@
+{
+  "source_sha256": "9ea17982c07bcb3bbea6dd141da13f48e3cba67d1b8e26388754533edf258752",
+  "scope": "independent read-only coverage_gate measurements, default3840x2160, capped4GiB/offscreen/CUDA hidden; communicated in team review, not a new integrated live benchmark",
+  "retained_owned_wave_metadata_bytes": 374724,
+  "fallback": {
+    "idle_rss_kib": 209716,
+    "peak_rss_kib": 240232,
+    "native_frame_sha256": "b721377402c90eefcf075df89c829c2452ca0ce9e01d8f99b99183c808a2961d"
+  },
+  "compiled": {
+    "idle_rss_kib": 365284,
+    "peak_rss_kib": 395580,
+    "native_frame_sha256": "b721377402c90eefcf075df89c829c2452ca0ce9e01d8f99b99183c808a2961d"
+  },
+  "comparison": "Both final strip paths equal the prior full-target scene exactly. JIT contributes process RSS beyond wave cache metadata.",
+  "reproduction": "Committed native geometry/weakref test reproduces cache/target ownership; independent review process RSS measurements are reported observations, without a separately archived original RSS probe."
+}

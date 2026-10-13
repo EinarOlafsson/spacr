@@ -1,0 +1,1720 @@
+{
+  "lesson": "69_dose_response",
+  "status": "Native fit-before-sort demonstration accepted; sorted-refit defect remains in application lane",
+  "english_sha256": "f5f1a3f649e5b4c7d83a6a340ed9a86783f720d44f3cad82146dc1e813fb8bad",
+  "scenes": 18,
+  "narrated_words": 783,
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/dose_response_fit_before_sort",
+  "capture_provenance": {
+    "commit": "57d62385c429f4e73e148a358bb773ccd506e694",
+    "version": "1.5.0.5",
+    "module": "dose_response",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "frames": 16,
+  "raw_workflow_sha256": "60688ed5adc2f4c3fc997b2bebd2ef597087f53a1ff3daa1f418e73963862a60",
+  "workflow": {
+    "lesson": "69_dose_response",
+    "accepted": true,
+    "inputs": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/dose_response_runs/disclosed-synthetic-s2ltkl31/SYNTHETIC_dose_response_examples.csv",
+      "sha256": "26725a0f1728f67299b7da14455c7344b37ea72096613563a38cc75e9694ea1e",
+      "rows": 120,
+      "synthetic": true,
+      "random": false,
+      "offsets": [
+        -0.5,
+        0,
+        0.5
+      ],
+      "biological_claim": false
+    },
+    "runs": [
+      {
+        "name": "profile",
+        "spec": {
+          "concentration": "concentration",
+          "response": "response",
+          "group": "series",
+          "ci_method": "profile",
+          "confidence": 0.95,
+          "unit": "uM",
+          "direction": "auto",
+          "allow_non_monotone": false,
+          "max_reversal": 0.3
+        },
+        "groups": {
+          "SYNTHETIC activation": {
+            "status": "fitted",
+            "record": {
+              "group": "SYNTHETIC activation",
+              "bottom": 10.000000000148324,
+              "top": 90.00000000008046,
+              "log10_ec50": 0.3010299956721001,
+              "hill": 0.999999999991938,
+              "ec50": 2.0000000000373888,
+              "ec50_unconstrained": 2.0000000000373888,
+              "ec50_bounded": true,
+              "bound_direction": "bounded",
+              "ec50_low": 1.9445672376537473,
+              "ec50_high": 2.0570129552197063,
+              "log10_ec50_ci": [
+                0.2888229644221001,
+                0.3132370269221001
+              ],
+              "hill_ci": [
+                0.9738449608258698,
+                1.0261550391580063
+              ],
+              "top_ci": [
+                89.43709165019649,
+                90.56290834996443
+              ],
+              "bottom_ci": [
+                9.607682403897513,
+                10.392317596399135
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.9998264707791008,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  10.398009950248756,
+                  11.182266009852215,
+                  13.80952380952381,
+                  20.43478260869565,
+                  36.66666666666667,
+                  58,
+                  76.66666666666667,
+                  85,
+                  88.43137254901961
+                ],
+                "span": 78.03336259877085,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": 1,
+                "threshold": 23.410008779631255,
+                "is_monotone": true
+              },
+              "ci_method": "profile",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "activation",
+              "vehicle_response": 10,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "fitted"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 2,
+                "status": "fitted"
+              },
+              "interval": {
+                "target_sse": 5.337263017006562,
+                "centre_sse": 4.5,
+                "endpoints": [
+                  {
+                    "field": "ec50_low",
+                    "midpoint": 1.9445672376537473,
+                    "sse": 5.396631422504793,
+                    "independent_midpoint": 1.9464029823214637,
+                    "log10_error": 0.00040979693672993367
+                  },
+                  {
+                    "field": "ec50_high",
+                    "midpoint": 2.0570129552197063,
+                    "sse": 5.384201240167338,
+                    "independent_midpoint": 2.055452174119013,
+                    "log10_error": 0.0003296507718444919
+                  }
+                ],
+                "log10_error_tolerance": 0.0005
+              }
+            }
+          },
+          "SYNTHETIC beyond range": {
+            "status": "unbounded",
+            "record": {
+              "group": "SYNTHETIC beyond range",
+              "bottom": 5.00000000000001,
+              "top": 94.99999999991594,
+              "log10_ec50": 2.6989700043342033,
+              "hill": 1.0000000000000522,
+              "ec50": null,
+              "ec50_unconstrained": 499.9999999979098,
+              "ec50_bounded": false,
+              "bound_direction": "above",
+              "ec50_low": null,
+              "ec50_high": null,
+              "log10_ec50_ci": [
+                null,
+                null
+              ],
+              "hill_ci": [
+                0.5937131396732445,
+                1.40628686032686
+              ],
+              "top_ci": [
+                -242.79615430268314,
+                432.796154302515
+              ],
+              "bottom_ci": [
+                4.7327043587820485,
+                5.267295641217971
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.992457169997815,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  5.00179996400072,
+                  5.005399676019439,
+                  5.017996400719856,
+                  5.053967619428343,
+                  5.179640718562874,
+                  5.536779324055666,
+                  6.764705882352941,
+                  10.09433962264151,
+                  20
+                ],
+                "span": 14.998200035999279,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": 1,
+                "threshold": 4.499460010799783,
+                "is_monotone": true
+              },
+              "ci_method": "profile",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "activation",
+              "vehicle_response": 5,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "unbounded"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 500,
+                "status": "unbounded"
+              }
+            }
+          },
+          "SYNTHETIC inhibition": {
+            "status": "fitted",
+            "record": {
+              "group": "SYNTHETIC inhibition",
+              "bottom": 5.000000000000002,
+              "top": 94.99999999999999,
+              "log10_ec50": 0.1760912590556815,
+              "hill": -1.2000000000000004,
+              "ec50": 1.5000000000000009,
+              "ec50_unconstrained": 1.5000000000000009,
+              "ec50_bounded": true,
+              "bound_direction": "bounded",
+              "ec50_low": 1.4716023673548588,
+              "ec50_high": 1.5289456241119532,
+              "log10_ec50_ci": [
+                0.1677904778056815,
+                0.18439204030568146
+              ],
+              "hill_ci": [
+                -1.2263516333750042,
+                -1.1736483666249966
+              ],
+              "top_ci": [
+                94.63741396372507,
+                95.3625860362749
+              ],
+              "bottom_ci": [
+                4.565176822506234,
+                5.43482317749377
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.9998775931010079,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  94.78027906415512,
+                  94.18431127799823,
+                  91.63948117884924,
+                  83.60564535874423,
+                  60.73657530287888,
+                  32.29425905206349,
+                  13.377586893440403,
+                  7.405691284330249,
+                  5.579093352693672
+                ],
+                "span": 89.20118571146145,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": -1,
+                "threshold": 26.760355713438432,
+                "is_monotone": true
+              },
+              "ci_method": "profile",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "inhibition",
+              "vehicle_response": 95,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "fitted"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 1.5,
+                "status": "fitted"
+              },
+              "interval": {
+                "target_sse": 5.337263017006562,
+                "centre_sse": 4.5,
+                "endpoints": [
+                  {
+                    "field": "ec50_low",
+                    "midpoint": 1.4716023673548588,
+                    "sse": 5.3038251008548825,
+                    "independent_midpoint": 1.4710237791947096,
+                    "log10_error": 0.0001707846229669352
+                  },
+                  {
+                    "field": "ec50_high",
+                    "midpoint": 1.5289456241119532,
+                    "sse": 5.30142731095724,
+                    "independent_midpoint": 1.529592555295154,
+                    "log10_error": 0.00018372086973894586
+                  }
+                ],
+                "log10_error_tolerance": 0.0005
+              }
+            }
+          },
+          "SYNTHETIC reversal": {
+            "status": "refused",
+            "error": "this series is not monotone, so a four-parameter logistic is the wrong model for it and no EC50 fitted to it would mean anything. The response turns around at 1 uM: the reversal against the trend is 100% of the response span (Spearman rho -0.03, 1 sign change(s)). A bell shape in a concentration series is almost always cytotoxicity at the top dose killing the signal that was being measured. Re-fit without the top dose, or use a biphasic model — spaCR does not have one. Set allow_non_monotone=True to force a fit, and expect the EC50 to be an artefact of where the curve turns."
+          }
+        },
+        "table": [
+          {
+            "group": "SYNTHETIC activation",
+            "status": "fitted",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": 2.0000000000373888,
+            "ec50_low": 1.9445672376537473,
+            "ec50_high": 2.0570129552197063,
+            "ec50_unconstrained": 2.0000000000373888,
+            "hill": 0.999999999991938,
+            "top": 90.00000000008046,
+            "bottom": 10.000000000148324,
+            "r_squared": 0.9998264707791008,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": ""
+          },
+          {
+            "group": "SYNTHETIC beyond range",
+            "status": "unbounded",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": null,
+            "ec50_low": null,
+            "ec50_high": null,
+            "ec50_unconstrained": 499.9999999979098,
+            "hill": 1.0000000000000522,
+            "top": 94.99999999991594,
+            "bottom": 5.00000000000001,
+            "r_squared": 0.992457169997815,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": "EC50 > 100 uM, the highest concentration tested"
+          },
+          {
+            "group": "SYNTHETIC inhibition",
+            "status": "fitted",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": 1.5000000000000009,
+            "ec50_low": 1.4716023673548588,
+            "ec50_high": 1.5289456241119532,
+            "ec50_unconstrained": 1.5000000000000009,
+            "hill": -1.2000000000000004,
+            "top": 94.99999999999999,
+            "bottom": 5.000000000000002,
+            "r_squared": 0.9998775931010079,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": ""
+          },
+          {
+            "group": "SYNTHETIC reversal",
+            "status": "refused",
+            "n": 30,
+            "concentrations": 0,
+            "ec50": null,
+            "ec50_low": null,
+            "ec50_high": null,
+            "ec50_unconstrained": null,
+            "hill": null,
+            "top": null,
+            "bottom": null,
+            "r_squared": null,
+            "rse": null,
+            "lack_of_fit_p": null,
+            "note": "this series is not monotone, so a four-parameter logistic is the wrong model for it and no EC50 fitted to it would mean anything. The response turns around at 1 uM: the reversal against the trend is 100% of the response span (Spearman rho -0.03, 1 sign change(s)). A bell shape in a concentration series is almost always cytotoxicity at the top dose killing the signal that was being measured. Re-fit without the top dose, or use a biphasic model — spaCR does not have one. Set allow_non_monotone=True to force a fit, and expect the EC50 to be an artefact of where the curve turns."
+          }
+        ],
+        "drawn": [
+          {
+            "group": "SYNTHETIC inhibition",
+            "points": 27,
+            "curve_points": 200
+          },
+          {
+            "group": "SYNTHETIC activation",
+            "points": 27,
+            "curve_points": 200
+          },
+          {
+            "group": "SYNTHETIC beyond range",
+            "points": 27,
+            "curve_points": 200
+          }
+        ]
+      },
+      {
+        "name": "wald",
+        "spec": {
+          "concentration": "concentration",
+          "response": "response",
+          "group": "series",
+          "ci_method": "wald",
+          "confidence": 0.95,
+          "unit": "uM",
+          "direction": "auto",
+          "allow_non_monotone": false,
+          "max_reversal": 0.3
+        },
+        "groups": {
+          "SYNTHETIC activation": {
+            "status": "fitted",
+            "record": {
+              "group": "SYNTHETIC activation",
+              "bottom": 10.000000000148324,
+              "top": 90.00000000008046,
+              "log10_ec50": 0.3010299956721001,
+              "hill": 0.999999999991938,
+              "ec50": 2.0000000000373888,
+              "ec50_unconstrained": 2.0000000000373888,
+              "ec50_bounded": true,
+              "bound_direction": "bounded",
+              "ec50_low": 1.9462325526349402,
+              "ec50_high": 2.0552528497861613,
+              "log10_ec50_ci": [
+                0.2891947322796664,
+                0.3128652590645338
+              ],
+              "hill_ci": [
+                0.9738449608258698,
+                1.0261550391580063
+              ],
+              "top_ci": [
+                89.43709165019649,
+                90.56290834996443
+              ],
+              "bottom_ci": [
+                9.607682403897513,
+                10.392317596399135
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.9998264707791008,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  10.398009950248756,
+                  11.182266009852215,
+                  13.80952380952381,
+                  20.43478260869565,
+                  36.66666666666667,
+                  58,
+                  76.66666666666667,
+                  85,
+                  88.43137254901961
+                ],
+                "span": 78.03336259877085,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": 1,
+                "threshold": 23.410008779631255,
+                "is_monotone": true
+              },
+              "ci_method": "wald",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "activation",
+              "vehicle_response": 10,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "fitted"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 2,
+                "status": "fitted"
+              },
+              "interval": {
+                "independent_endpoints": {
+                  "ec50_low": 1.94623255265693,
+                  "ec50_high": 2.055252849686096
+                },
+                "parameter": "log10_ec50",
+                "dof": 23,
+                "tolerance": 0.00001
+              }
+            }
+          },
+          "SYNTHETIC beyond range": {
+            "status": "unbounded",
+            "record": {
+              "group": "SYNTHETIC beyond range",
+              "bottom": 5.00000000000001,
+              "top": 94.99999999991594,
+              "log10_ec50": 2.6989700043342033,
+              "hill": 1.0000000000000522,
+              "ec50": null,
+              "ec50_unconstrained": 499.9999999979098,
+              "ec50_bounded": false,
+              "bound_direction": "above",
+              "ec50_low": null,
+              "ec50_high": null,
+              "log10_ec50_ci": [
+                null,
+                null
+              ],
+              "hill_ci": [
+                0.5937131396732445,
+                1.40628686032686
+              ],
+              "top_ci": [
+                -242.79615430268314,
+                432.796154302515
+              ],
+              "bottom_ci": [
+                4.7327043587820485,
+                5.267295641217971
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.992457169997815,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  5.00179996400072,
+                  5.005399676019439,
+                  5.017996400719856,
+                  5.053967619428343,
+                  5.179640718562874,
+                  5.536779324055666,
+                  6.764705882352941,
+                  10.09433962264151,
+                  20
+                ],
+                "span": 14.998200035999279,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": 1,
+                "threshold": 4.499460010799783,
+                "is_monotone": true
+              },
+              "ci_method": "wald",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "activation",
+              "vehicle_response": 5,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "unbounded"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 500,
+                "status": "unbounded"
+              }
+            }
+          },
+          "SYNTHETIC inhibition": {
+            "status": "fitted",
+            "record": {
+              "group": "SYNTHETIC inhibition",
+              "bottom": 5.000000000000002,
+              "top": 94.99999999999999,
+              "log10_ec50": 0.1760912590556815,
+              "hill": -1.2000000000000004,
+              "ec50": 1.5000000000000009,
+              "ec50_unconstrained": 1.5000000000000009,
+              "ec50_bounded": true,
+              "bound_direction": "bounded",
+              "ec50_low": 1.471003935580705,
+              "ec50_high": 1.5295676276432089,
+              "log10_ec50_ci": [
+                0.16761383465730362,
+                0.18456868345405936
+              ],
+              "hill_ci": [
+                -1.2263516333750042,
+                -1.1736483666249966
+              ],
+              "top_ci": [
+                94.63741396372507,
+                95.3625860362749
+              ],
+              "bottom_ci": [
+                4.565176822506234,
+                5.43482317749377
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.9998775931010079,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  94.78027906415512,
+                  94.18431127799823,
+                  91.63948117884924,
+                  83.60564535874423,
+                  60.73657530287888,
+                  32.29425905206349,
+                  13.377586893440403,
+                  7.405691284330249,
+                  5.579093352693672
+                ],
+                "span": 89.20118571146145,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": -1,
+                "threshold": 26.760355713438432,
+                "is_monotone": true
+              },
+              "ci_method": "wald",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "inhibition",
+              "vehicle_response": 95,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "fitted"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 1.5,
+                "status": "fitted"
+              },
+              "interval": {
+                "independent_endpoints": {
+                  "ec50_low": 1.4710039357075395,
+                  "ec50_high": 1.529567627511323
+                },
+                "parameter": "log10_ec50",
+                "dof": 23,
+                "tolerance": 0.00001
+              }
+            }
+          },
+          "SYNTHETIC reversal": {
+            "status": "refused",
+            "error": "this series is not monotone, so a four-parameter logistic is the wrong model for it and no EC50 fitted to it would mean anything. The response turns around at 1 uM: the reversal against the trend is 100% of the response span (Spearman rho -0.03, 1 sign change(s)). A bell shape in a concentration series is almost always cytotoxicity at the top dose killing the signal that was being measured. Re-fit without the top dose, or use a biphasic model — spaCR does not have one. Set allow_non_monotone=True to force a fit, and expect the EC50 to be an artefact of where the curve turns."
+          }
+        },
+        "table": [
+          {
+            "group": "SYNTHETIC activation",
+            "status": "fitted",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": 2.0000000000373888,
+            "ec50_low": 1.9462325526349402,
+            "ec50_high": 2.0552528497861613,
+            "ec50_unconstrained": 2.0000000000373888,
+            "hill": 0.999999999991938,
+            "top": 90.00000000008046,
+            "bottom": 10.000000000148324,
+            "r_squared": 0.9998264707791008,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": ""
+          },
+          {
+            "group": "SYNTHETIC beyond range",
+            "status": "unbounded",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": null,
+            "ec50_low": null,
+            "ec50_high": null,
+            "ec50_unconstrained": 499.9999999979098,
+            "hill": 1.0000000000000522,
+            "top": 94.99999999991594,
+            "bottom": 5.00000000000001,
+            "r_squared": 0.992457169997815,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": "EC50 > 100 uM, the highest concentration tested"
+          },
+          {
+            "group": "SYNTHETIC inhibition",
+            "status": "fitted",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": 1.5000000000000009,
+            "ec50_low": 1.471003935580705,
+            "ec50_high": 1.5295676276432089,
+            "ec50_unconstrained": 1.5000000000000009,
+            "hill": -1.2000000000000004,
+            "top": 94.99999999999999,
+            "bottom": 5.000000000000002,
+            "r_squared": 0.9998775931010079,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": ""
+          },
+          {
+            "group": "SYNTHETIC reversal",
+            "status": "refused",
+            "n": 30,
+            "concentrations": 0,
+            "ec50": null,
+            "ec50_low": null,
+            "ec50_high": null,
+            "ec50_unconstrained": null,
+            "hill": null,
+            "top": null,
+            "bottom": null,
+            "r_squared": null,
+            "rse": null,
+            "lack_of_fit_p": null,
+            "note": "this series is not monotone, so a four-parameter logistic is the wrong model for it and no EC50 fitted to it would mean anything. The response turns around at 1 uM: the reversal against the trend is 100% of the response span (Spearman rho -0.03, 1 sign change(s)). A bell shape in a concentration series is almost always cytotoxicity at the top dose killing the signal that was being measured. Re-fit without the top dose, or use a biphasic model — spaCR does not have one. Set allow_non_monotone=True to force a fit, and expect the EC50 to be an artefact of where the curve turns."
+          }
+        ],
+        "drawn": [
+          {
+            "group": "SYNTHETIC inhibition",
+            "points": 27,
+            "curve_points": 200
+          },
+          {
+            "group": "SYNTHETIC activation",
+            "points": 27,
+            "curve_points": 200
+          },
+          {
+            "group": "SYNTHETIC beyond range",
+            "points": 27,
+            "curve_points": 200
+          }
+        ]
+      },
+      {
+        "name": "profile_restored",
+        "spec": {
+          "concentration": "concentration",
+          "response": "response",
+          "group": "series",
+          "ci_method": "profile",
+          "confidence": 0.95,
+          "unit": "uM",
+          "direction": "auto",
+          "allow_non_monotone": false,
+          "max_reversal": 0.3
+        },
+        "groups": {
+          "SYNTHETIC activation": {
+            "status": "fitted",
+            "record": {
+              "group": "SYNTHETIC activation",
+              "bottom": 10.000000000148324,
+              "top": 90.00000000008046,
+              "log10_ec50": 0.3010299956721001,
+              "hill": 0.999999999991938,
+              "ec50": 2.0000000000373888,
+              "ec50_unconstrained": 2.0000000000373888,
+              "ec50_bounded": true,
+              "bound_direction": "bounded",
+              "ec50_low": 1.9445672376537473,
+              "ec50_high": 2.0570129552197063,
+              "log10_ec50_ci": [
+                0.2888229644221001,
+                0.3132370269221001
+              ],
+              "hill_ci": [
+                0.9738449608258698,
+                1.0261550391580063
+              ],
+              "top_ci": [
+                89.43709165019649,
+                90.56290834996443
+              ],
+              "bottom_ci": [
+                9.607682403897513,
+                10.392317596399135
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.9998264707791008,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  10.398009950248756,
+                  11.182266009852215,
+                  13.80952380952381,
+                  20.43478260869565,
+                  36.66666666666667,
+                  58,
+                  76.66666666666667,
+                  85,
+                  88.43137254901961
+                ],
+                "span": 78.03336259877085,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": 1,
+                "threshold": 23.410008779631255,
+                "is_monotone": true
+              },
+              "ci_method": "profile",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "activation",
+              "vehicle_response": 10,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "fitted"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 2,
+                "status": "fitted"
+              },
+              "interval": {
+                "target_sse": 5.337263017006562,
+                "centre_sse": 4.5,
+                "endpoints": [
+                  {
+                    "field": "ec50_low",
+                    "midpoint": 1.9445672376537473,
+                    "sse": 5.396631422504793,
+                    "independent_midpoint": 1.9464029823214637,
+                    "log10_error": 0.00040979693672993367
+                  },
+                  {
+                    "field": "ec50_high",
+                    "midpoint": 2.0570129552197063,
+                    "sse": 5.384201240167338,
+                    "independent_midpoint": 2.055452174119013,
+                    "log10_error": 0.0003296507718444919
+                  }
+                ],
+                "log10_error_tolerance": 0.0005
+              }
+            }
+          },
+          "SYNTHETIC beyond range": {
+            "status": "unbounded",
+            "record": {
+              "group": "SYNTHETIC beyond range",
+              "bottom": 5.00000000000001,
+              "top": 94.99999999991594,
+              "log10_ec50": 2.6989700043342033,
+              "hill": 1.0000000000000522,
+              "ec50": null,
+              "ec50_unconstrained": 499.9999999979098,
+              "ec50_bounded": false,
+              "bound_direction": "above",
+              "ec50_low": null,
+              "ec50_high": null,
+              "log10_ec50_ci": [
+                null,
+                null
+              ],
+              "hill_ci": [
+                0.5937131396732445,
+                1.40628686032686
+              ],
+              "top_ci": [
+                -242.79615430268314,
+                432.796154302515
+              ],
+              "bottom_ci": [
+                4.7327043587820485,
+                5.267295641217971
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.992457169997815,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  5.00179996400072,
+                  5.005399676019439,
+                  5.017996400719856,
+                  5.053967619428343,
+                  5.179640718562874,
+                  5.536779324055666,
+                  6.764705882352941,
+                  10.09433962264151,
+                  20
+                ],
+                "span": 14.998200035999279,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": 1,
+                "threshold": 4.499460010799783,
+                "is_monotone": true
+              },
+              "ci_method": "profile",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "activation",
+              "vehicle_response": 5,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "unbounded"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 500,
+                "status": "unbounded"
+              }
+            }
+          },
+          "SYNTHETIC inhibition": {
+            "status": "fitted",
+            "record": {
+              "group": "SYNTHETIC inhibition",
+              "bottom": 5.000000000000002,
+              "top": 94.99999999999999,
+              "log10_ec50": 0.1760912590556815,
+              "hill": -1.2000000000000004,
+              "ec50": 1.5000000000000009,
+              "ec50_unconstrained": 1.5000000000000009,
+              "ec50_bounded": true,
+              "bound_direction": "bounded",
+              "ec50_low": 1.4716023673548588,
+              "ec50_high": 1.5289456241119532,
+              "log10_ec50_ci": [
+                0.1677904778056815,
+                0.18439204030568146
+              ],
+              "hill_ci": [
+                -1.2263516333750042,
+                -1.1736483666249966
+              ],
+              "top_ci": [
+                94.63741396372507,
+                95.3625860362749
+              ],
+              "bottom_ci": [
+                4.565176822506234,
+                5.43482317749377
+              ],
+              "n_obs": 27,
+              "n_doses": 9,
+              "dof": 23,
+              "dose_min": 0.01,
+              "dose_max": 100,
+              "sse": 4.5,
+              "rse": 0.4423258684646914,
+              "r_squared": 0.9998775931010079,
+              "lack_of_fit_f": 0,
+              "lack_of_fit_p": 1,
+              "lack_of_fit_df": [
+                5,
+                18
+              ],
+              "covariance_ok": true,
+              "check": {
+                "doses": [
+                  0.01,
+                  0.03,
+                  0.1,
+                  0.3,
+                  1,
+                  3,
+                  10,
+                  30,
+                  100
+                ],
+                "medians": [
+                  94.78027906415512,
+                  94.18431127799823,
+                  91.63948117884924,
+                  83.60564535874423,
+                  60.73657530287888,
+                  32.29425905206349,
+                  13.377586893440403,
+                  7.405691284330249,
+                  5.579093352693672
+                ],
+                "span": 89.20118571146145,
+                "reversal": 0,
+                "reversal_fraction": 0,
+                "sign_changes": 0,
+                "turning_points": [],
+                "spearman_rho": -1,
+                "threshold": 26.760355713438432,
+                "is_monotone": true
+              },
+              "ci_method": "profile",
+              "confidence": 0.95,
+              "unit": "uM",
+              "direction": "inhibition",
+              "vehicle_response": 95,
+              "n_vehicle": 3,
+              "n_excluded": 0,
+              "optimizer_notes": [],
+              "notes": [],
+              "status": "fitted"
+            },
+            "checks": {
+              "planted": {
+                "observations_checked": 27,
+                "source_values_checked": 54,
+                "planted_midpoint": 1.5,
+                "status": "fitted"
+              },
+              "interval": {
+                "target_sse": 5.337263017006562,
+                "centre_sse": 4.5,
+                "endpoints": [
+                  {
+                    "field": "ec50_low",
+                    "midpoint": 1.4716023673548588,
+                    "sse": 5.3038251008548825,
+                    "independent_midpoint": 1.4710237791947096,
+                    "log10_error": 0.0001707846229669352
+                  },
+                  {
+                    "field": "ec50_high",
+                    "midpoint": 1.5289456241119532,
+                    "sse": 5.30142731095724,
+                    "independent_midpoint": 1.529592555295154,
+                    "log10_error": 0.00018372086973894586
+                  }
+                ],
+                "log10_error_tolerance": 0.0005
+              }
+            }
+          },
+          "SYNTHETIC reversal": {
+            "status": "refused",
+            "error": "this series is not monotone, so a four-parameter logistic is the wrong model for it and no EC50 fitted to it would mean anything. The response turns around at 1 uM: the reversal against the trend is 100% of the response span (Spearman rho -0.03, 1 sign change(s)). A bell shape in a concentration series is almost always cytotoxicity at the top dose killing the signal that was being measured. Re-fit without the top dose, or use a biphasic model — spaCR does not have one. Set allow_non_monotone=True to force a fit, and expect the EC50 to be an artefact of where the curve turns."
+          }
+        },
+        "table": [
+          {
+            "group": "SYNTHETIC activation",
+            "status": "fitted",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": 2.0000000000373888,
+            "ec50_low": 1.9445672376537473,
+            "ec50_high": 2.0570129552197063,
+            "ec50_unconstrained": 2.0000000000373888,
+            "hill": 0.999999999991938,
+            "top": 90.00000000008046,
+            "bottom": 10.000000000148324,
+            "r_squared": 0.9998264707791008,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": ""
+          },
+          {
+            "group": "SYNTHETIC beyond range",
+            "status": "unbounded",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": null,
+            "ec50_low": null,
+            "ec50_high": null,
+            "ec50_unconstrained": 499.9999999979098,
+            "hill": 1.0000000000000522,
+            "top": 94.99999999991594,
+            "bottom": 5.00000000000001,
+            "r_squared": 0.992457169997815,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": "EC50 > 100 uM, the highest concentration tested"
+          },
+          {
+            "group": "SYNTHETIC inhibition",
+            "status": "fitted",
+            "n": 27,
+            "concentrations": 9,
+            "ec50": 1.5000000000000009,
+            "ec50_low": 1.4716023673548588,
+            "ec50_high": 1.5289456241119532,
+            "ec50_unconstrained": 1.5000000000000009,
+            "hill": -1.2000000000000004,
+            "top": 94.99999999999999,
+            "bottom": 5.000000000000002,
+            "r_squared": 0.9998775931010079,
+            "rse": 0.4423258684646914,
+            "lack_of_fit_p": 1,
+            "note": ""
+          },
+          {
+            "group": "SYNTHETIC reversal",
+            "status": "refused",
+            "n": 30,
+            "concentrations": 0,
+            "ec50": null,
+            "ec50_low": null,
+            "ec50_high": null,
+            "ec50_unconstrained": null,
+            "hill": null,
+            "top": null,
+            "bottom": null,
+            "r_squared": null,
+            "rse": null,
+            "lack_of_fit_p": null,
+            "note": "this series is not monotone, so a four-parameter logistic is the wrong model for it and no EC50 fitted to it would mean anything. The response turns around at 1 uM: the reversal against the trend is 100% of the response span (Spearman rho -0.03, 1 sign change(s)). A bell shape in a concentration series is almost always cytotoxicity at the top dose killing the signal that was being measured. Re-fit without the top dose, or use a biphasic model — spaCR does not have one. Set allow_non_monotone=True to force a fit, and expect the EC50 to be an artefact of where the curve turns."
+          }
+        ],
+        "drawn": [
+          {
+            "group": "SYNTHETIC inhibition",
+            "points": 27,
+            "curve_points": 200
+          },
+          {
+            "group": "SYNTHETIC activation",
+            "points": 27,
+            "curve_points": 200
+          },
+          {
+            "group": "SYNTHETIC beyond range",
+            "points": 27,
+            "curve_points": 200
+          }
+        ]
+      }
+    ],
+    "app_source_modified": false,
+    "provider_contacted": false,
+    "published": false,
+    "synthetic": true,
+    "gui_export_action_present": false,
+    "job_errors": [],
+    "sort_before_refit_reproduction": false,
+    "last_native_table": [
+      [
+        "SYNTHETIC activation",
+        "fitted",
+        "27",
+        "9",
+        "2",
+        "1.945",
+        "2.057",
+        "1",
+        "0.9998",
+        "1",
+        ""
+      ],
+      [
+        "SYNTHETIC beyond range",
+        "unbounded",
+        "27",
+        "9",
+        "—",
+        "—",
+        "—",
+        "1",
+        "0.9925",
+        "1",
+        "EC50 > 100 uM, the highest concentration tested"
+      ],
+      [
+        "SYNTHETIC inhibition",
+        "fitted",
+        "27",
+        "9",
+        "1.5",
+        "1.472",
+        "1.529",
+        "-1.2",
+        "0.9999",
+        "1",
+        ""
+      ],
+      [
+        "SYNTHETIC reversal",
+        "refused",
+        "30",
+        "0",
+        "—",
+        "—",
+        "—",
+        "—",
+        "—",
+        "—",
+        "this series is not monotone, so a four-parameter logistic is the wrong model for it and no…"
+      ]
+    ],
+    "selected_reports": {
+      "07_inhibition_midpoint": {
+        "group": "SYNTHETIC inhibition",
+        "report": "4PL dose–response · SYNTHETIC inhibition (27 observations, 9 concentrations from 0.01 uM to 100 uM).\n\n  EC50 = 1.5 uM (95% profile CI 1.47 uM – 1.53 uM, a factor of 1 either way); Hill slope -1.20 (inhibition); plateaus 5 to 95; 27 observations at 9 concentrations.\n\n  residual SE 0.4423 on 23 df; R² 0.9999\n  lack of fit vs pure error: F = 0 on 5, 18 df, p = 1 — consistent with a 4PL\n\n  ! R² is 0.9999, and it is nearly useless here: almost any monotone curve through a dose–response scores above 0.95, because the total sum of squares is dominated by the gap between the plateaus. Read the residual standard error (0.4423, in response units) and the lack-of-fit test instead.\n  ! 3 vehicle observation(s) at concentration 0 were excluded from the fit (log10(0) has no value) and averaged 95. Compare that with the fitted low-dose plateau: they should agree, and a gap means the series never got back to control."
+      },
+      "08_activation_midpoint": {
+        "group": "SYNTHETIC activation",
+        "report": "4PL dose–response · SYNTHETIC activation (27 observations, 9 concentrations from 0.01 uM to 100 uM).\n\n  EC50 = 2 uM (95% profile CI 1.94 uM – 2.06 uM, a factor of 1 either way); Hill slope +1.00 (activation); plateaus 10 to 90; 27 observations at 9 concentrations.\n\n  residual SE 0.4423 on 23 df; R² 0.9998\n  lack of fit vs pure error: F = 0 on 5, 18 df, p = 1 — consistent with a 4PL\n\n  ! R² is 0.9998, and it is nearly useless here: almost any monotone curve through a dose–response scores above 0.95, because the total sum of squares is dominated by the gap between the plateaus. Read the residual standard error (0.4423, in response units) and the lack-of-fit test instead.\n  ! 3 vehicle observation(s) at concentration 0 were excluded from the fit (log10(0) has no value) and averaged 10. Compare that with the fitted low-dose plateau: they should agree, and a gap means the series never got back to control."
+      },
+      "09_unbounded_not_a_point_estimate": {
+        "group": "SYNTHETIC beyond range",
+        "report": "4PL dose–response · SYNTHETIC beyond range (27 observations, 9 concentrations from 0.01 uM to 100 uM).\n\n  This experiment does not bound the EC50: EC50 > 100 uM, the highest concentration tested. The unconstrained fit puts it at 500 uM, but that number is set by the shape of the model where the measurements ran out rather than by the measurements, so it must not be quoted as an EC50 (activation, Hill +1.00, 27 observations at 9 concentrations).\n  ec50_bounded = False · EC50 > 100 uM, the highest concentration tested.\n\n  residual SE 0.4423 on 23 df; R² 0.9925\n  lack of fit vs pure error: F = 0 on 5, 18 df, p = 1 — consistent with a 4PL\n\n  ! The point estimate is deliberately withheld (`ec50` is None): the fitted midpoint is outside what the experiment measured, so its value is set by the shape of the model rather than by data. Extend the dilution series past the midpoint before quoting a potency.\n  ! R² is 0.9925, and it is nearly useless here: almost any monotone curve through a dose–response scores above 0.95, because the total sum of squares is dominated by the gap between the plateaus. Read the residual standard error (0.4423, in response units) and the lack-of-fit test instead.\n  ! 3 vehicle observation(s) at concentration 0 were excluded from the fit (log10(0) has no value) and averaged 5. Compare that with the fitted low-dose plateau: they should agree, and a gap means the series never got back to control."
+      },
+      "10_refused_reversing_series": {
+        "group": "SYNTHETIC reversal",
+        "report": "SYNTHETIC reversal: REFUSED\n\nthis series is not monotone, so a four-parameter logistic is the wrong model for it and no EC50 fitted to it would mean anything. The response turns around at 1 uM: the reversal against the trend is 100% of the response span (Spearman rho -0.03, 1 sign change(s)). A bell shape in a concentration series is almost always cytotoxicity at the top dose killing the signal that was being measured. Re-fit without the top dose, or use a biphasic model — spaCR does not have one. Set allow_non_monotone=True to force a fit, and expect the EC50 to be an artefact of where the curve turns."
+      },
+      "14_wald_results": {
+        "group": "SYNTHETIC inhibition",
+        "report": "4PL dose–response · SYNTHETIC inhibition (27 observations, 9 concentrations from 0.01 uM to 100 uM).\n\n  EC50 = 1.5 uM (95% Wald CI 1.47 uM – 1.53 uM, a factor of 1 either way); Hill slope -1.20 (inhibition); plateaus 5 to 95; 27 observations at 9 concentrations.\n\n  residual SE 0.4423 on 23 df; R² 0.9999\n  lack of fit vs pure error: F = 0 on 5, 18 df, p = 1 — consistent with a 4PL\n\n  ! R² is 0.9999, and it is nearly useless here: almost any monotone curve through a dose–response scores above 0.95, because the total sum of squares is dominated by the gap between the plateaus. Read the residual standard error (0.4423, in response units) and the lack-of-fit test instead.\n  ! 3 vehicle observation(s) at concentration 0 were excluded from the fit (log10(0) has no value) and averaged 95. Compare that with the fitted low-dose plateau: they should agree, and a gap means the series never got back to control."
+      },
+      "15_profile_restored": {
+        "group": "SYNTHETIC inhibition",
+        "report": "4PL dose–response · SYNTHETIC inhibition (27 observations, 9 concentrations from 0.01 uM to 100 uM).\n\n  EC50 = 1.5 uM (95% profile CI 1.47 uM – 1.53 uM, a factor of 1 either way); Hill slope -1.20 (inhibition); plateaus 5 to 95; 27 observations at 9 concentrations.\n\n  residual SE 0.4423 on 23 df; R² 0.9999\n  lack of fit vs pure error: F = 0 on 5, 18 df, p = 1 — consistent with a 4PL\n\n  ! R² is 0.9999, and it is nearly useless here: almost any monotone curve through a dose–response scores above 0.95, because the total sum of squares is dominated by the gap between the plateaus. Read the residual standard error (0.4423, in response units) and the lack-of-fit test instead.\n  ! 3 vehicle observation(s) at concentration 0 were excluded from the fit (log10(0) has no value) and averaged 95. Compare that with the fitted low-dose plateau: they should agree, and a gap means the series never got back to control."
+      },
+      "16_select_after_sorting": {
+        "group": "SYNTHETIC inhibition",
+        "report": "4PL dose–response · SYNTHETIC inhibition (27 observations, 9 concentrations from 0.01 uM to 100 uM).\n\n  EC50 = 1.5 uM (95% profile CI 1.47 uM – 1.53 uM, a factor of 1 either way); Hill slope -1.20 (inhibition); plateaus 5 to 95; 27 observations at 9 concentrations.\n\n  residual SE 0.4423 on 23 df; R² 0.9999\n  lack of fit vs pure error: F = 0 on 5, 18 df, p = 1 — consistent with a 4PL\n\n  ! R² is 0.9999, and it is nearly useless here: almost any monotone curve through a dose–response scores above 0.95, because the total sum of squares is dominated by the gap between the plateaus. Read the residual standard error (0.4423, in response units) and the lack-of-fit test instead.\n  ! 3 vehicle observation(s) at concentration 0 were excluded from the fit (log10(0) has no value) and averaged 95. Compare that with the fitted low-dose plateau: they should agree, and a gap means the series never got back to control."
+      }
+    },
+    "report_copied": "4PL dose–response · SYNTHETIC inhibition (27 observations, 9 concentrations from 0.01 uM to 100 uM).\n\n  EC50 = 1.5 uM (95% profile CI 1.47 uM – 1.53 uM, a factor of 1 either way); Hill slope -1.20 (inhibition); plateaus 5 to 95; 27 observations at 9 concentrations.\n\n  residual SE 0.4423 on 23 df; R² 0.9999\n  lack of fit vs pure error: F = 0 on 5, 18 df, p = 1 — consistent with a 4PL\n\n  ! R² is 0.9999, and it is nearly useless here: almost any monotone curve through a dose–response scores above 0.95, because the total sum of squares is dominated by the gap between the plateaus. Read the residual standard error (0.4423, in response units) and the lack-of-fit test instead.\n  ! 3 vehicle observation(s) at concentration 0 were excluded from the fit (log10(0) has no value) and averaged 95. Compare that with the fitted low-dose plateau: they should agree, and a gap means the series never got back to control.",
+    "source_unchanged": true,
+    "active_jobs_after_close": 0
+  },
+  "downloadable_example": {
+    "path": "docs/source/_extra/tutorials/examples/SYNTHETIC_dose_response_examples.csv",
+    "sha256": "ecf1527399e55a8a4efdde53ee1c7b536259209173bc4aec7d422bd6b543838d",
+    "rows_match_recorded_input": true,
+    "byte_difference": "Download uses LF, capture input CRLF; all 120 parsed CSV records are identical.",
+    "synthetic": true,
+    "biological_claim": false
+  },
+  "oracle_scope": "Closed-form planted curves, raw observations, independent SVD/profile roots, analytic-Jacobian Wald intervals and actual plotted artists; no app fitting helper used as its own expected answer.",
+  "profile_precision": "Implementation declares 0.001-wide log10 root brackets. Midpoint endpoint checks allow half that width, not an SSE tolerance or statistical coverage guarantee.",
+  "guard_tests": {
+    "restored_passed": 43,
+    "coverage": {
+      "covered_lines": 119,
+      "num_statements": 119,
+      "percent_covered": 100,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 52,
+      "num_partial_branches": 0,
+      "covered_branches": 52,
+      "missing_branches": 0,
+      "percent_branches_covered": 100,
+      "percent_branches_covered_display": "100.00"
+    },
+    "executed_lines": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      13,
+      14,
+      19,
+      22,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      46,
+      47,
+      48,
+      51,
+      53,
+      54,
+      55,
+      56,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      70,
+      71,
+      72,
+      73,
+      74,
+      77,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      95,
+      98,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      124,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      136,
+      138,
+      139,
+      140,
+      141,
+      142,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      153,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172
+    ],
+    "mutations": [
+      {
+        "line": 48,
+        "exit_code": 1,
+        "summary": "22 failed, 21 passed in 1.56s"
+      },
+      {
+        "line": 61,
+        "exit_code": 1,
+        "summary": "2 failed, 41 passed in 1.50s"
+      },
+      {
+        "line": 67,
+        "exit_code": 1,
+        "summary": "4 failed, 39 passed in 1.51s"
+      },
+      {
+        "line": 68,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.46s"
+      },
+      {
+        "line": 70,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.45s"
+      },
+      {
+        "line": 73,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.44s"
+      },
+      {
+        "line": 121,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.61s"
+      },
+      {
+        "line": 130,
+        "exit_code": 1,
+        "summary": "2 failed, 41 passed in 1.45s"
+      },
+      {
+        "line": 133,
+        "exit_code": 1,
+        "summary": "2 failed, 41 passed in 1.45s"
+      },
+      {
+        "line": 156,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.45s"
+      },
+      {
+        "line": 159,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.45s"
+      },
+      {
+        "line": 162,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.48s"
+      },
+      {
+        "line": 166,
+        "exit_code": 1,
+        "summary": "1 failed, 42 passed in 1.46s"
+      }
+    ]
+  },
+  "download_guard_tests": {
+    "restored_passed": 12,
+    "filter_bypassed_failed": 10,
+    "filter_bypassed_passed": 2,
+    "actual_javascript_executed": true
+  },
+  "known_application_defect": {
+    "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/dose_response_sort_refit_reproduction",
+    "raw_workflow_sha256": "318e890a742eee504a8ac48d5584bb0d6d0538b02dcb72a1594e542cdaafd2a1",
+    "failure_screenshot_sha256": "d52ef8d4ea1c55ea1e86ed4bffcefd7fd48c2099ecee65e251cc8015235d1e35",
+    "accepted": false,
+    "reproduction": "Load synthetic CSV; Fit profile; sort Group; choose Wald; Fit. _on_fitted repopulates while sorting remains enabled; inserted group names move rows before remaining cells are assigned.",
+    "displayed_rows": [
+      [
+        "SYNTHETIC reversal",
+        "fitted",
+        "27",
+        "9",
+        "2",
+        "1.945",
+        "2.057",
+        "1",
+        "0.9998",
+        "1",
+        ""
+      ],
+      [
+        "SYNTHETIC inhibition",
+        "refused",
+        "30",
+        "0",
+        "—",
+        "—",
+        "—",
+        "—",
+        "—",
+        "—",
+        "this series is not monotone, so a four-parameter logistic is the wrong model for it and no…"
+      ],
+      [
+        "SYNTHETIC inhibition",
+        "fitted",
+        "27",
+        "9",
+        "2",
+        "1.946",
+        "2.055",
+        "1",
+        "0.9998",
+        "1",
+        ""
+      ],
+      [
+        "SYNTHETIC beyond range",
+        "refused",
+        "30",
+        "0",
+        "—",
+        "—",
+        "—",
+        "—",
+        "—",
+        "—",
+        "this series is not monotone, so a four-parameter logistic is the wrong model for it and no…"
+      ]
+    ],
+    "failure": "GUI duplicates or omits a result identity",
+    "tutorial_sequence": "Finish profile, Wald, profile refits before any manual sorting. Then sort, select the matching inhibition row and copy its verified report. Scene 16 and all 14 prerequisites explicitly warn about the unsafe order.",
+    "application_fix_made": false
+  },
+  "visual_review": "Native complete table and selected reports inspected; decoded master scenes 7, 9, 10, 16 and 18 inspected.",
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

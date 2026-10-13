@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Methods & Results : rédiger et exporter un rapport d’exécution",
+  "description": "Sélectionnez une exécution terminée, construisez son rapport, examinez les paramètres et résultats enregistrés et exportez en Markdown.",
+  "objectives": [
+    "Sélectionner le projet, le journal d’exécution et le dossier de résultats correspondant.",
+    "Construire un condensé et examiner les onglets Methods, Results et Caveats.",
+    "Copier le texte du rapport ou exporter en Markdown avec le condensé d’exécution."
+  ],
+  "prerequisite": "Terminez d’abord l’exemple Regression. Gardez ensemble son dossier de projet, son journal d’exécution et les résultats guide_permutation. Vérifiez les paramètres déduits, les versions d’analyse et les seuils statistiques avant d’utiliser le texte généré dans un rapport.",
+  "scenes": [
+    "Depuis Home, ouvrez Regression, puis Methods and Results. Cet outil permet de rédiger un rapport à partir d’une analyse terminée. Cette démonstration reprend l’exécution enregistrée de l’exemple Regression.",
+    "Choisissez le dossier du projet, le journal d’exécution et le dossier de résultats de régression correspondant. Laissez Classifier vide pour cet exemple de régression. Vérifiez que tous les fichiers sélectionnés appartiennent à l’exécution que vous voulez décrire.",
+    "Cliquez sur Build digest, puis lisez les onglets Methods et Results. Comparez la version d’analyse avec l’environnement d’exécution enregistré ; la version de l’exportateur peut différer de celle qui a réalisé l’analyse.",
+    "Lisez Caveats et comparez par leur nom les entrées de graines avec les paramètres enregistrés. Une graine de permutation et une graine globale désignent des générateurs différents. Laissez inconnue une graine historique non enregistrée lorsque vous modifiez le rapport.",
+    "Ouvrez Run digest pour examiner les paramètres structurés et les enregistrements sources. Comparez-les au texte et examinez les avertissements sur les rapports manquants ou les valeurs par défaut déduites avant de partager le brouillon.",
+    "Dans Results, examinez ensemble les tailles d’effet et les valeurs q corrigées. Cet exemple n’a aucun gène sous un seuil de valeur q de zéro virgule zéro cinq. Décrivez les lignes listées comme des candidats classés lorsque vous modifiez un titre qui les appelle hits.",
+    "Cliquez sur Copy sections pour copier les Methods et Results affichés. Comparez le texte copié aux enregistrements sources. Utilisez Export Markdown lorsque vous avez aussi besoin du condensé structuré de l’exécution.",
+    "Cliquez sur Export Markdown et choisissez un nouveau nom de fichier. Le fichier contient les deux sections du rapport et le condensé d’exécution en annexe. Gardez un brouillon d’origine et enregistrez séparément vos révisions.",
+    "Draft with AI est facultatif et envoie le condensé à votre fournisseur configuré. Examinez son contenu avant d’utiliser cette option, puis vérifiez tout texte généré au regard de l’analyse enregistrée. Vous pouvez aussi utiliser build_digest, render_methods et render_results depuis Python."
+  ]
+}

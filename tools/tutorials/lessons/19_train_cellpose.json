@@ -1,0 +1,160 @@
+{
+  "id": "19_train_cellpose",
+  "number": 19,
+  "slug": "train_cellpose",
+  "series": 3,
+  "app_key": "train_cellpose",
+  "host_app_key": "make_masks",
+  "section": "Tools",
+  "title": "Train a Cellpose model",
+  "description": "Prepare image/mask pairs, fine-tune a segmentation model in the Cellpose Workbench and apply the saved checkpoint.",
+  "objectives": [
+    "Inspect matching images and object-label masks in Make Masks.",
+    "Choose the training folder, starting model, schedule and output location.",
+    "Run training, find the checkpoint and apply it to separate images."
+  ],
+  "example_files": [
+    "Cellpose_training_images_masks.zip"
+  ],
+  "prerequisite": "Download and extract the linked example: six training images with masks, plus three separate images for Apply. Or prepare your own images and matching integer-label masks, and inspect them in Make Masks before training.",
+  "scenes": [
+    {
+      "visual": "home_make_masks",
+      "narration": "From Home, open Tools, then Make Masks. Open Cellpose Workbench from its toolbar; it starts on the Train tab. You will train from images and their object-label masks, then use the saved model in Apply.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "14_make_masks"
+      ]
+    },
+    {
+      "visual": "train_source",
+      "narration": "Extract the linked example. Its training folder holds six images and a masks subfolder, and its apply folder holds three separate images for later. Click the folder button beside Image source folder and choose training. Leave Mask source folder empty to use the masks subfolder, or choose another folder of masks.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "train_pairs",
+      "narration": "Each image needs one mask with the same height and width. Zero is background, and each object has its own positive number. Open the training folder in Make Masks to inspect the labels and correct them before training. This image has ninety-five labelled cells.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "14_make_masks"
+      ]
+    },
+    {
+      "visual": "train_channels",
+      "narration": "This example is grayscale, so leave Channels empty. For a multichannel image, add up to three zero-based channel numbers, such as zero and two for the first and third channels. Set Channel axis only if automatic detection cannot find the channel dimension.",
+      "hold_after": 0.7,
+      "focus": [
+        366,
+        632,
+        1165,
+        241
+      ]
+    },
+    {
+      "visual": "train_model_output",
+      "narration": "Keep Base model at cpsam to start from Cellpose-SAM, or enter a checkpoint path to continue training an earlier model. Enter a Model name; here it is tutorial cells. Leave Checkpoint folder empty to save inside the source folder, or choose another folder.",
+      "hold_after": 0.7,
+      "focus": [
+        366,
+        632,
+        1165,
+        496
+      ]
+    },
+    {
+      "visual": "train_schedule",
+      "narration": "Set N epochs and Batch size. This quick run uses ten epochs with a batch size of one. More epochs give the model more training updates, and larger batches use more memory. Keep the displayed learning rate to begin.",
+      "hold_after": 0.7,
+      "focus": [
+        366,
+        757,
+        1165,
+        264
+      ]
+    },
+    {
+      "visual": "train_normalization",
+      "narration": "Keep Normalize on, with the first and ninety-ninth percentiles as a starting point. These set the intensity range used for each channel. Scale range varies the image size during training, and Min train masks skips images with fewer labelled objects.",
+      "hold_after": 0.7,
+      "focus": [
+        366,
+        820,
+        1165,
+        561
+      ]
+    },
+    {
+      "visual": "train_validation",
+      "narration": "To follow validation loss, choose a separate Validation image folder and its Validation mask folder. Never reuse training images there. Leave both empty when you have no separate labelled set, as in this example.",
+      "hold_after": 0.7,
+      "focus": [
+        366,
+        632,
+        1165,
+        158
+      ]
+    },
+    {
+      "visual": "train_run_console",
+      "narration": "Check the folders, model name and output location, then press Run. The Figures panel shows the training images above their masks, and the console follows progress. On this GPU, ten epochs on six images finished in under a minute.",
+      "hold_after": 0.7,
+      "focus": [
+        390,
+        520,
+        3410,
+        1260
+      ]
+    },
+    {
+      "visual": "train_checkpoint",
+      "narration": "When training finishes, the console gives the checkpoint path. With the default location it is in the source folder, under models, cellpose model, models. The file name adds the architecture and epoch count to your model name. Keep it with your training settings.",
+      "hold_after": 0.7,
+      "focus": [
+        390,
+        960,
+        3410,
+        700
+      ]
+    },
+    {
+      "visual": "apply_checkpoint",
+      "narration": "Open the Apply tab. Custom model now points to the checkpoint you trained. Set Source to the example apply folder, whose images come from wells that were not used for training. Set Channels to zero and Percentiles to two and ninety-nine. Turn off Fill in so touching cells stay separate, and turn on Save and Verbose.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "20_cellpose_masks"
+      ],
+      "focus": [
+        366,
+        607,
+        1165,
+        1156
+      ]
+    },
+    {
+      "visual": "apply_preview",
+      "narration": "Open Live preview, choose one image and press Run preview, with the same channel and percentiles. It segments that image with your checkpoint, here finding seventy-eight cells. Adjust settings here before running the whole folder.",
+      "hold_after": 0.7,
+      "focus": [
+        390,
+        520,
+        3410,
+        1240
+      ]
+    },
+    {
+      "visual": "apply_result",
+      "narration": "Press Run. Apply writes one mask per image into a masks subfolder beside those images, and Verbose shows each result as a figure. Here the three masks hold seventy-nine, fifty and fifty-five cells. Before using a model on a whole experiment, compare its masks with separately labelled fields.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "20_cellpose_masks",
+        "14_make_masks"
+      ],
+      "focus": [
+        390,
+        500,
+        3410,
+        390
+      ]
+    }
+  ]
+}

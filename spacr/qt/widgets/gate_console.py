@@ -1,0 +1,346 @@
+"""A console and a chat box beside the gating surface.
+
+Two panes with one job between them: let the user ask a question about the
+table they are gating without leaving the screen to do it.
+
+``Console``
+    Runs an expression against the CURRENT frame and prints the answer. Not a
+    Python shell -- a Python shell in a GUI is a way to hang the GUI, and the
+    questions that come up while gating are all of one shape: "how many
+    objects satisfy this", "what is the median of that". So it evaluates
+    pandas expressions with the frame in scope and nothing else.
+
+``Chat``
+    The same box, addressed in English. It is wired to whatever assistant the
+    host provides and is EMPTY when none is configured -- it says so rather
+    than pretending to think, because a chat box that silently ignores you is
+    worse than one that is honestly unavailable.
+
+Both write into one transcript, so the record of what was asked and what came
+back reads in order regardless of which pane asked.
+"""
+from __future__ import annotations
+
+import logging
+import traceback
+from typing import Any, Callable, Optional
+
+import pandas as pd
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QHBoxLayout, QLabel, QLineEdit, QPlainTextEdit, QPushButton, QTextEdit,
+    QVBoxLayout, QWidget,
+)
+
+from ..theme import SPACING, register_widget_qss
+
+#: Floor for the console transcript. Roughly ten lines at the default font,
+#: which is enough to read a traceback without scrolling -- the case where
+#: scrolling is most unwelcome.
+CONSOLE_MIN_HEIGHT = 180
+
+#: Narrowest the console is worth showing. It lives in a HORIZONTAL
+#: splitter, so it can be dragged thin as easily as short -- and it was:
+#: measured at 126px, about fifteen characters, which wraps every line into
+#: a ribbon and reads as "the console is still one line" even though the
+#: transcript is 549px tall. Height was never the whole problem.
+CONSOLE_MIN_WIDTH = 320
+
+#: Visible lines in the chat box before it scrolls. Three is enough for a
+#: sentence that wraps without stealing the transcript's room.
+CHAT_VISIBLE_LINES = 3
+
+
+class _ChatInput(QPlainTextEdit):
+    """A chat box that is several lines tall and still sends on Enter.
+
+    :ivar submitted: emitted when the user presses Enter without Shift.
+
+    :param parent: parent widget; ownership only.
+    """
+
+    submitted = Signal()
+
+    def __init__(self, parent=None):
+        """Build the input, sized from the font rather than a fixed number."""
+        super().__init__(parent)
+        self.setTabChangesFocus(True)
+        metrics = self.fontMetrics()
+        self.setFixedHeight(
+            metrics.lineSpacing() * CHAT_VISIBLE_LINES
+            + self.frameWidth() * 2 + 10)
+
+    def setPlaceholderText(self, text):     # noqa: N802 (Qt naming)
+        """QPlainTextEdit spells this the same; kept for clarity."""
+        super().setPlaceholderText(text)
+
+    def keyPressEvent(self, event):         # noqa: N802 (Qt naming)
+        """Enter sends; Shift+Enter inserts a newline."""
+        if (event.key() in (Qt.Key_Return, Qt.Key_Enter)
+                and not (event.modifiers() & Qt.ShiftModifier)):
+            self.submitted.emit()
+            return
+        super().keyPressEvent(event)
+
+LOG = logging.getLogger("spacr.qt.gate_console")
+
+QSS_NAME = "GateConsole"
+
+#: Names an expression may use, beyond the frame itself. Deliberately short:
+#: this is a question box, not a scripting environment, and every name added
+#: here is one more thing that can be typed by accident.
+SAFE_NAMES = ("pd", "np", "len", "abs", "min", "max", "sum", "round",
+              "sorted", "True", "False", "None")
+
+
+def _console_qss(palette, opacity=None) -> str:
+    """Build the gate console's stylesheet.
+
+    :param palette: the active palette.
+    :param opacity: the page opacity, blended into the console's surface.
+    :returns: the QSS.
+    """
+    return f"""
+    QTextEdit#GateConsoleLog {{
+        background: transparent;
+        color: {palette['fg']};
+        border: none;
+        font-family: monospace;
+    }}
+    QLineEdit#GateConsoleInput, QPlainTextEdit#GateChatInput {{
+        background: {palette['surface_alt']};
+        color: {palette['fg']};
+        border: 1px solid {palette['border']};
+        border-radius: 4px;
+        padding: 3px 6px;
+    }}
+    QLabel#GateConsoleHint {{
+        color: {palette['fg_muted']};
+        background: transparent;
+    }}
+    QWidget#GateConsole {{
+        background: transparent;
+    }}
+    """
+
+
+register_widget_qss(QSS_NAME, _console_qss, replace=True)
+
+
+def evaluate(expression: str, frame: Optional[pd.DataFrame]) -> str:
+    """Answer one question about ``frame``.
+
+    The frame is in scope as ``df``, and every column as itself, so
+    ``area.mean()`` and ``df['area'].mean()`` both work -- the first is what
+    people type.
+
+    Errors come back as text rather than exceptions: this is a question box,
+    and a typo is a normal thing to do in one.
+
+    :param expression: a Python expression, stripped; empty returns ``""``.
+        It is evaluated with ``df``, ``pd``, ``np`` and every column whose
+        name is an identifier in scope, and a restricted set of builtins.
+    :param frame: the table to question; ``None`` or an empty frame returns
+        ``"no table loaded"``.
+    """
+    text = str(expression or "").strip()
+    if not text:
+        return ""
+    if frame is None or frame.empty:
+        return "no table loaded"
+
+    import numpy as np
+
+    scope = {"df": frame, "pd": pd, "np": np}
+    for column in frame.columns:
+        name = str(column)
+        if name.isidentifier() and name not in scope:
+            scope[name] = frame[column]
+
+    try:
+        value = eval(text, {"__builtins__": _builtins()}, scope)  # noqa: S307
+    except Exception as exc:
+        LOG.debug("console expression failed", exc_info=True)
+        return f"{type(exc).__name__}: {exc}"
+
+    if isinstance(value, pd.DataFrame):
+        return f"{len(value):,} rows × {len(value.columns)} columns"
+    if isinstance(value, pd.Series):
+        if value.dtype == bool:
+            return f"{int(value.sum()):,} of {len(value):,} objects"
+        return str(value.describe())
+    return str(value)
+
+
+def _builtins() -> dict:
+    """The handful of builtins an expression may use.
+
+    An allowlist rather than the real builtins: `__import__` and `open` in a
+    box the user types into is a way to lose a dataset by typo, and none of
+    the questions this box exists for need them.
+    """
+    import builtins
+
+    return {name: getattr(builtins, name)
+            for name in ("len", "abs", "min", "max", "sum", "round", "sorted",
+                         "list", "dict", "set", "tuple", "float", "int", "str",
+                         "bool", "range", "zip", "enumerate", "any", "all")
+            if hasattr(builtins, name)}
+
+
+class GateConsole(QWidget):
+    """The console and the chat box, sharing one transcript.
+
+    :param parent: parent widget.
+    """
+
+    #: A question was asked of the assistant. The host answers by calling
+    #: :meth:`reply`; nothing here talks to a network.
+    asked = Signal(str)
+
+    def __init__(self, parent=None):
+        """Build the console that answers questions about the gated table.
+
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self.setObjectName("GateConsole")
+        self._frame: Optional[pd.DataFrame] = None
+        self._responder: Optional[Callable[[str], str]] = None
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(SPACING["xs"])
+
+        self.log = QTextEdit(self)
+        self.log.setObjectName("GateConsoleLog")
+        self.log.setReadOnly(True)
+        self.log.setMinimumHeight(CONSOLE_MIN_HEIGHT)
+        self.setMinimumWidth(CONSOLE_MIN_WIDTH)
+        outer.addWidget(self.log, 1)
+
+        hint = QLabel("Ask with an expression — area.mean(), (area > 500).sum()",
+                      self)
+        hint.setObjectName("GateConsoleHint")
+        hint.setWordWrap(True)
+        outer.addWidget(hint)
+
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        self.input = QLineEdit(self)
+        self.input.setObjectName("GateConsoleInput")
+        self.input.setPlaceholderText("expression")
+        self.input.returnPressed.connect(self.run_input)
+        row.addWidget(self.input, 1)
+        run = QPushButton("Run", self)
+        run.clicked.connect(self.run_input)
+        row.addWidget(run)
+        outer.addLayout(row)
+
+        chat_row = QHBoxLayout()
+        chat_row.setContentsMargins(0, 0, 0, 0)
+        self.chat = _ChatInput(self)
+        self.chat.setObjectName("GateChatInput")
+        self.chat.setPlaceholderText("ask in words — Shift+Enter for a new line")
+        self.chat.submitted.connect(self.send_chat)
+        chat_row.addWidget(self.chat, 1)
+        send = QPushButton("Ask", self)
+        send.clicked.connect(self.send_chat)
+        chat_row.addWidget(send)
+        outer.addLayout(chat_row)
+
+    def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Point the console at a table to gate.
+
+        :param frame: the rows, or None to clear.
+        """
+        self._frame = frame
+
+    def set_responder(self, responder: Optional[Callable[[str], str]]) -> None:
+        """Give the chat box something to answer with.
+
+        Without one it says it is not configured rather than staying silent:
+        a chat box that ignores you is worse than one that is honestly
+        unavailable.
+
+        :param responder: a callable taking the question text and returning
+            the answer, or ``None`` to remove it. An exception it raises is
+            shown as the answer.
+        """
+        self._responder = responder
+
+    def transcript(self) -> str:
+        """Everything the console has printed.
+
+        :returns: the transcript as plain text.
+        """
+        return self.log.toPlainText()
+
+    def write(self, line: str, *, prefix: str = "") -> None:
+        """Append one line to the log.
+
+        :param line: the text.
+        :param prefix: an optional marker put in front of it.
+        """
+        self.log.append(f"{prefix}{line}" if prefix else line)
+
+    def run(self, expression: str) -> str:
+        """Evaluate ``expression`` and record both halves.
+
+        :param expression: a Python expression over the loaded table, as
+            :func:`evaluate` takes it; stripped, and empty does nothing and
+            returns ``""``.
+        """
+        text = str(expression or "").strip()
+        if not text:
+            return ""
+        self.write(text, prefix="› ")
+        answer = evaluate(text, self._frame)
+        self.write(answer)
+        return answer
+
+    def run_input(self) -> None:
+        """Run whatever is typed, clearing the box only if it was accepted.
+
+        CLEARED ONLY ON SUCCESS, so a refused expression stays where the
+        user can fix it rather than having to be retyped from memory.
+        """
+        if self.run(self.input.text()):
+            self.input.clear()
+
+    def ask(self, question: str) -> str:
+        """Put a question to the assistant, or say there is not one.
+
+        :param question: the question text, stripped; empty does nothing and
+            returns ``""``. It is written to the console, emitted on
+            :attr:`asked` and passed to the responder, if one is set.
+        """
+        text = str(question or "").strip()
+        if not text:
+            return ""
+        self.write(text, prefix="? ")
+        self.asked.emit(text)
+        if self._responder is None:
+            answer = ("no assistant is configured for this build — the "
+                      "expression box above works without one")
+        else:
+            try:
+                answer = str(self._responder(text))
+            except Exception as exc:
+                LOG.debug("responder failed", exc_info=True)
+                answer = f"the assistant could not answer: {exc}"
+        self.write(answer)
+        return answer
+
+    def send_chat(self) -> None:
+        """Send the chat box to the assistant, clearing it only if accepted."""
+        if self.ask(self.chat.toPlainText()):
+            self.chat.clear()
+
+    def reply(self, answer: str) -> None:
+        """Record an answer that arrived later, from an async host.
+
+        :param answer: the answer text, written to the console as given
+            (converted with ``str``).
+        """
+        self.write(str(answer))

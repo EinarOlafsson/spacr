@@ -1,0 +1,10 @@
+{
+  "language": "ko",
+  "source": "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+  "original": "소스 루트 폴더 또는 소스 플레이트 폴더의 barcode.txt에서 바코드를 읽을 수 있습니다. 소스 플레이트가 하나이면 바코드만 입력하고, 여러 개이면 source_plate=barcode 항목을 사용하세요. 나머지 출력 플레이트의 바코드는 여기에 입력하세요. 예: plate1=BC001; plate2=BC002. 출력 플레이트 이름은 소스 폴더 이름과 다를 수 있습니다.",
+  "accepted_derivative": "소스 루트 폴더 또는 소스 플레이트 폴더의 barcode.txt 파일에서 바코드를 읽을 수 있습니다. 소스 플레이트가 하나이면 바코드만 입력하고, 여러 개이면 source_plate=barcode 항목을 사용하세요. 나머지 출력 플레이트의 바코드는 여기에 입력하세요. 예: plate1=BC001; plate2=BC002. 출력 플레이트 이름은 소스 폴더 이름과 다를 수 있습니다.",
+  "draft_sha256": "cfd706f358216c2514f3b632b95300d7bb83a72d89abd53cf98e2813e0b29bd2",
+  "proposed_by": "Codex AI shared_ui",
+  "reviewed_by": "Codex AI root",
+  "review": "Parent independently accepted barcode.txt 파일에서: it preserves the meaning and gives the protected literal a clean boundary. No native/human signoff; no gate changes."
+}

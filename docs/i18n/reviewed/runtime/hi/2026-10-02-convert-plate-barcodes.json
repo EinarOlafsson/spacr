@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct Codex AI technical translation with independent Codex AI peer review; no human/native-speaker signoff",
+  "draft_author": "shared_ui",
+  "technical_reviewer": "root",
+  "draft_sha256": "55d4b5124f3f52db55a5d916b14dd87f9d1da088f74585f65f58cc77cf594188",
+  "peer_review_sha256": "0cb74629207ccfa052dca31cfb8718a1a6938c7ad885ab49c3e4ad29ccdee65b",
+  "review": "Reviewed all twelve source/target pairs for output-plate barcode assignment, sample-record CSV, optional/non-destructive behavior, mismatch counts and file paths. Root count-neutral summary proposals applied for de/es/fr/pt; independent shared_ui technical review confirms unchanged meaning. Original drafts remain immutable. Normal context and release gates preserved.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Barcode column",
+      "source": "Barcode column",
+      "source_sha256": "f3bf8e47eb7e7775e900e4de325da8ad5fabb33c3ad4964de9dde4c1cec26ad0",
+      "translation": "बारकोड कॉलम"
+    },
+    {
+      "table": "ui",
+      "key": "CSV files (*.csv)",
+      "source": "CSV files (*.csv)",
+      "source_sha256": "29066b3f61ae7ae09727b017c386f9364d4219baf3c15049a3cd529ca8db827d",
+      "translation": "CSV फ़ाइलें (*.csv)"
+    },
+    {
+      "table": "ui",
+      "key": "Choose CSV…",
+      "source": "Choose CSV…",
+      "source_sha256": "d0ac7ebdb20c83f4cd521c77fbac8b9773e5e58983807768784e9b1a899e6fe0",
+      "translation": "CSV चुनें…"
+    },
+    {
+      "table": "ui",
+      "key": "Column name in the CSV that contains the plate barcode.",
+      "source": "Column name in the CSV that contains the plate barcode.",
+      "source_sha256": "11eded339a419892e9d472995112a09decb96bd3dd5938254227b6be7537429f",
+      "translation": "CSV में प्लेट का बारकोड रखने वाले कॉलम का नाम।"
+    },
+    {
+      "table": "ui",
+      "key": "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.",
+      "source": "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.",
+      "source_sha256": "aa3ddf671e56c37dc7d156f4254edaf20eab46bfd946da19e32319acd7ad9470",
+      "translation": "सैंपल मेटाडेटा की वैकल्पिक स्थानीय CSV फ़ाइल। बारकोड लिंकिंग छोड़ने के लिए खाली छोड़ें। गंतव्य पर नया plate_barcode_linkage फ़ोल्डर बनाया जाता है; स्रोत फ़ाइलें और मौजूदा प्लेट मैप सुरक्षित रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Output plate barcodes",
+      "source": "Output plate barcodes",
+      "source_sha256": "4d23d976bb4464431d9665ebb9ce253c12474680deb45642e60dbd658d0487dd",
+      "translation": "आउटपुट प्लेट के बारकोड"
+    },
+    {
+      "table": "ui",
+      "key": "Plate barcode linkage (Alpha)",
+      "source": "Plate barcode linkage (Alpha)",
+      "source_sha256": "8a735c27079fb8dbbd71c2a9d5e5b9031310d215a33c00bcf11ef3f32d03a08f",
+      "translation": "प्लेट बारकोड लिंकिंग (अल्फ़ा)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}",
+      "source": "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}",
+      "source_sha256": "60f916aba668ca25ec214eaad0975767bc2416b3565f6e52dc42dc0780222f87",
+      "translation": "प्लेट बारकोड लिंकिंग: वेल की संख्या {wells}, बेमेल प्रविष्टियों की संख्या {mismatches}।\nप्लेट मैप: {map_path}\nबेमेल प्रविष्टियाँ: {mismatch_path}"
+    },
+    {
+      "table": "ui",
+      "key": "Sample records CSV",
+      "source": "Sample records CSV",
+      "source_sha256": "d47731225028e022ef2ca3424fcd0f6699d68561bf616651631240423698d5ba",
+      "translation": "सैंपल रिकॉर्ड CSV"
+    },
+    {
+      "table": "ui",
+      "key": "Select sample records CSV",
+      "source": "Select sample records CSV",
+      "source_sha256": "b4b660b714d822e1821d511efdf4fc3578cc08753b9f8429c50fc382e9ca1e37",
+      "translation": "सैंपल रिकॉर्ड CSV चुनें"
+    },
+    {
+      "table": "ui",
+      "key": "Showing {shown} of {total} mismatches; the CSV contains all rows.",
+      "source": "Showing {shown} of {total} mismatches; the CSV contains all rows.",
+      "source_sha256": "45cd400d4de566878fccf18ec74784d7316c96dafe14b4f5e7d1b1072e49e26a",
+      "translation": "{shown} बेमेल प्रविष्टियाँ दिखाई जा रही हैं, कुल {total}; CSV में सभी पंक्तियाँ हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source": "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source_sha256": "8a313df4bc5c22d2e4cc8cf2a1f6085781d7562bedb2aae4dbb0dbf302ec5bb4",
+      "translation": "बारकोड स्रोत के मूल फ़ोल्डर या स्रोत प्लेट के फ़ोल्डर में मौजूद barcode.txt से पढ़े जा सकते हैं। एक स्रोत प्लेट के लिए केवल बारकोड लिखें, या कई स्रोत प्लेटों के लिए source_plate=barcode प्रविष्टियाँ लिखें। शेष आउटपुट प्लेटों के बारकोड यहाँ भरें, उदाहरण के लिए plate1=BC001; plate2=BC002। आउटपुट प्लेटों के नाम स्रोत फ़ोल्डरों के नामों से अलग हो सकते हैं।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source": "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source_sha256": "bf55297c95f7ea100c29631cdf1b1cc7c28974387ee4ca60e9cfb53fd00f96cd",
+      "translation": "पूर्वावलोकन में दिखाई गई हर आउटपुट प्लेट को बारकोड दें, जैसे plate1=BC001; plate2=BC002। आउटपुट प्लेट के नाम स्रोत फ़ोल्डरों के नामों से अलग हो सकते हैं।"
+    }
+  ],
+  "retirement_reason": "Replaced inaccurate pre-discovery assignment guidance before first publication; original accepted AI target and source hash retained.",
+  "sidecar_guidance_review": {
+    "author": "Codex AI shared_ui",
+    "reviewer": "Codex AI root",
+    "draft_sha256": "cfd706f358216c2514f3b632b95300d7bb83a72d89abd53cf98e2813e0b29bd2",
+    "peer_review_sha256": "ef69d95d3426ce6faef9a55d5a567260ba2644b83b613974dc7a6ee4997df756",
+    "korean_identifier_boundary_review_sha256": "fc95d197348cf0d282e7ad491daba48c4eca1c013b5330e883a2dbdaf233816c",
+    "scope": "Replacement source-bound sidecar discovery tooltip; AI technical review, no human/native signoff."
+  }
+}

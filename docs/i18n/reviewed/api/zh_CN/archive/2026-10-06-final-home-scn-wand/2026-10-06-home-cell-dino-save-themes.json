@@ -1,0 +1,184 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "local official Cell-DINO weights file.",
+      "label": "spacr.embeddings.EmbeddingSpec#10",
+      "source": "local official Cell-DINO weights file.",
+      "source_sha256": "53386e74c46b50cecda27126272be98357fd9ec1dabc41b1648d3073357f9684",
+      "translation": "本地的官方 Cell-DINO 权重文件。"
+    },
+    {
+      "context": "expected SHA-256 of those weights.",
+      "label": "spacr.embeddings.EmbeddingSpec#11",
+      "source": "expected SHA-256 of those weights.",
+      "source_sha256": "077f55c09feda8470f10dc7d6e501ae69fb13b4409ac44016562db19ff6be7cb",
+      "translation": "这些权重的预期 SHA-256 摘要。"
+    },
+    {
+      "context": "pinned official Cell-DINO hub factory.",
+      "label": "spacr.embeddings.EmbeddingSpec#9",
+      "source": "pinned official Cell-DINO hub factory.",
+      "source_sha256": "4a20d4766be923e679f6f5357cc9fd026f1a0a738a64970aa498fa4164da2052",
+      "translation": "固定修订版本的官方 Cell-DINO hub 模型构建函数。"
+    },
+    {
+      "context": "Return the official DINOv2 head output for each declared extracted image region.",
+      "label": "spacr.embeddings._cell_dino_model.forward#0",
+      "source": "Return the official DINOv2 head output for each declared crop.",
+      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+      "translation": "返回每个指定裁剪图像的官方 DINOv2 输出头结果。"
+    },
+    {
+      "context": "Encode declared Cell-DINO image layers at the official extracted image region size.",
+      "label": "spacr.embeddings._foundation_encoder.run#0",
+      "source": "Encode declared Cell-DINO planes at the official crop size.",
+      "source_sha256": "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+      "translation": "按官方裁剪尺寸编码指定的 Cell-DINO 图像平面。"
+    },
+    {
+      "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Cell-DINO uses the declared local checkpoint only when stable regular-file bytes match its expected SHA-256; changed or mismatched files leave no digest. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "label": "spacr.embeddings.encoder_entry#2",
+      "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Cell-DINO uses the declared local checkpoint only when stable regular-file bytes match its expected SHA-256; changed or mismatched files leave no digest. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "source_sha256": "756fd05b01a6407877721c11629ead97cc0c6add53dd8e0c4ca22768eabee756",
+      "translation": "此条目记录骨干网络、通道策略和可读取的本地检查点字节的摘要，不下载或加载模型。公开的骨干网络使用 timm 缓存元数据；OpenPhenom 和 ChAda-ViT 使用固定的 Hugging Face 修订版本；SubCell 使用其官方 torch hub 检查点；本地 DINO 编码器使用其配置的检查点路径。基础模型条目注明原始提供者及检查点 URL。仅有校验和并不能验证模型，也不能确定其训练数据的来源。 Cell-DINO 仅在普通文件的字节保持稳定且与预期 SHA-256 匹配时使用声明的本地检查点；文件被修改或不匹配时不记录摘要。"
+    },
+    {
+      "context": "Ten night palettes and six separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home radius/native-watch source replaces this exact block; complete original review is archived byte-exact.",
+      "source": "Ten night palettes and six separate data-art presets.",
+      "source_sha256": "6a3c505fd2f2c4c4dc8ecd8bbf827ae5dcba1a9d17f440d47a480cf1889d35eb",
+      "translation": "十种夜间配色和六种独立的数据艺术预设。"
+    },
+    {
+      "context": "The data-art catalog appends six independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "label": "spacr.qt.night_themes#7",
+      "source": "The data-art catalog appends six independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "source_sha256": "09a39a86949b19824039f60e3527119b3a05dcbc42c6ca0a9dd37d9c9e7ba1e5",
+      "translation": "数据艺术目录增加了六种独立的配色预设。其键用于选择不同的动态背景生成器和已有声音集，不改变原有十种夜间主题的标识。其显式颜色覆盖保留了夜间配色稳定的状态颜色，并接受相同的对比度与页面区分规则检查。"
+    },
+    {
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "cefb6727bdbc0558f7a7bdd4f51a2d7a06cf3da8e52906872c11ca5b516a0c3c",
+      "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 中的十种夜间主题之一 | :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` 中的六种数据艺术预设 | ``\"system\"`` （默认值 ``\"dark\"``）。``\"system\"`` 跟随操作系统的配色方案，但只有用户选择过它后才会生效：在深色成为默认值之前（2026-09-21）写入的 ``\"system\"`` 是旧默认值，而非用户选择，读取时视为 ``\"dark\"``；参见 :func:`get_theme`。``\"cell\"`` 使用荧光图像，``\"glass\"`` 在内置光场上使用中性的分层材质。夜间或数据艺术预设也包含背景和声音集，选择预设时由 :func:`apply_night_theme` 写入。Space 不是可选主题。首次读取主题时，会从旧的已存储设置中移除已废弃的 ``space_variant`` 和 ``space_seed`` 值；参见 :func:`get_theme`。"
+    },
+    {
+      "context": "Select a local colour and activate the custom palette on save.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color#0",
+      "source": "Select a local colour and activate the custom palette on save.",
+      "source_sha256": "46d2013e31dda9b983a76b58e64b1bd21edcc18923acfb82b7920bb95c7b5cc9",
+      "translation": "选择本地颜色，并在保存时启用自定义调色板。"
+    },
+    {
+      "context": "Show the pending colour pair while preserving dialog cancellation.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors#0",
+      "source": "Show the pending colour pair while preserving dialog cancellation.",
+      "source_sha256": "3a1d9b7ed75dca141d330c4b70bd187fd97d2d9c0a86010261a356c2c4edb71f",
+      "translation": "显示待保存的颜色组合，同时保留取消对话框的行为。"
+    },
+    {
+      "context": "Offer custom colours for the six procedural data-art scenes.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "source": "Offer custom colours for the six procedural data-art scenes.",
+      "source_sha256": "b909f4a7577a09c584074396f7c10ebab346d1196dab90042b165982a7f4ddc2",
+      "translation": "为六个程序生成的数据艺术场景提供自定义颜色。"
+    },
+    {
+      "context": "Rebuild the new plate's grid before presenting its matches.",
+      "label": "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits#0",
+      "source": "Rebuild the new plate's grid before presenting its matches.",
+      "source_sha256": "b1454aa1cc23aff76b0d84ddfdb1a6079a902c719575dbf90257aad6feba83c5",
+      "translation": "显示匹配项前，重新构建新板的图像网格。"
+    },
+    {
+      "context": "A screen, not a script. The upstream Cell-DINO, OpenPhenom and SubCell models expose Python interfaces. This screen also accepts an explicitly mapped, digest-verified local official Cell-DINO checkpoint.",
+      "label": "spacr.qt.screens.embeddings#1",
+      "source": "A SCREEN, NOT A SCRIPT. The upstream Cell-DINO, OpenPhenom and SubCell models expose Python interfaces. This screen also accepts an explicitly mapped, digest-verified local official Cell-DINO checkpoint.",
+      "source_sha256": "86683c03831d2716325ffbd47fd72776568cdfa410d85311d5c17dfe44d296c7",
+      "translation": "图形界面，而非脚本。原始 Cell-DINO、OpenPhenom 和 SubCell 模型提供 Python 接口。此界面也支持明确映射通道且已验证摘要的本地官方 Cell-DINO 检查点。"
+    },
+    {
+      "context": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two processing sessions' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. The preview shows the first few dimensions of the first fifty objects. The alpha Save for Similar extracted image regions action stores the complete matrix in the database that supplied the loaded objects, so Annotate can search those vectors. Folder and programmatically supplied extracted image regions have no database object identity and cannot use this action.",
+      "label": "spacr.qt.screens.embeddings#5",
+      "source": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two runs' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. The preview shows the first few dimensions of the first fifty objects. The alpha Save for Similar crops action stores the complete matrix in the database that supplied the loaded objects, so Annotate can search those vectors. Folder and programmatically supplied crops have no database object identity and cannot use this action.",
+      "source_sha256": "4ccc404722a0e9d9e860e72721d87359477adb0fd4f13a1685ca53ece8c63875",
+      "translation": "**生成的结果。** 每个对象一行，每个维度一列；逐通道策略下命名为 ``emb_c<channel>_<dimension>``，投影策略下命名为 ``emb_<dimension>``，并附带生成这些数据的模型目录条目：骨干网络、通道策略以及本机权重的校验和。两次运行的维度 17 名称相同，但只有这三项全部匹配时含义才相同，因此模型条目属于结果本身，而非仅写入日志。预览显示前五十个对象的前几个维度。Alpha 功能“保存以搜索相似裁剪图像”将完整矩阵存入提供已加载对象的数据库，以便 Annotate 搜索这些向量。来自文件夹或通过代码提供的裁剪图像没有数据库对象标识，无法使用此功能。"
+    },
+    {
+      "context": "Keep only plain configuration values after the form closes.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping#0",
+      "source": "Keep only plain configuration values after the form closes.",
+      "source_sha256": "8591452059e7055f6313220c494a847dadf8ba8e8e73a88687ff09ba6a66a06d",
+      "translation": "表单关闭后仅保留普通配置值。"
+    },
+    {
+      "context": "Choose local weights without downloading or accepting terms.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file#0",
+      "source": "Choose local weights without downloading or accepting terms.",
+      "source_sha256": "11671e83d848d13acaf37d53c326e92ad29195643eba89c59259c7be4d86a9c9",
+      "translation": "选择本地权重，不下载文件或接受条款。"
+    },
+    {
+      "context": "The fifth image layer belongs only to the Cell Painting factory.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width#0",
+      "source": "The fifth plane belongs only to the Cell Painting factory.",
+      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
+      "translation": "第五个图像平面仅适用于 Cell Painting 模型构建函数。"
+    },
+    {
+      "context": "A newer extracted image region selection keeps its own status and controls.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished#0",
+      "source": "A newer crop selection keeps its own status and controls.",
+      "source_sha256": "036efa6e9a1898f018f2c164935673cc64590df8e21756a1c55c2d7da9cc94c0",
+      "translation": "较新的裁剪图像选择保留其自己的状态和控件。"
+    },
+    {
+      "context": "Persist vectors without blocking the graphical thread.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work#0",
+      "source": "Persist vectors without blocking the graphical thread.",
+      "source_sha256": "2cc5102e4547028891243e8bfd3e32b2122ef8c632d9f1d0d278361fe65bfd59",
+      "translation": "持久保存向量，避免阻塞图形界面线程。"
+    },
+    {
+      "context": "Publish only to the extracted image region selection that produced the vectors.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished#0",
+      "source": "Publish only to the crop selection that produced the vectors.",
+      "source_sha256": "9b7c14669caf17d81909e0a80fc7e9091732a8af382f0f601b76259e28a95f6a",
+      "translation": "仅将结果发布到生成这些向量的裁剪图像选择。"
+    },
+    {
+      "context": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
+      "label": "spacr.qt.widgets.ambient#11",
+      "source": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
+      "source_sha256": "4589ef5131fad8eb75ae52ff32c51ed2b3edb481945e5b697f6e44b0f3e54742",
+      "translation": "spaCR 提供多种主题；仅针对近黑色页面调好的团块效果在白色页面上会显得模糊。因此，*合成模式随背景变化*："
+    },
+    {
+      "context": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
+      "label": "spacr.qt.widgets.ambient#2",
+      "source": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
+      "source_sha256": "bab01d52b8ab4d7ad2275976062103995d5e3d0aab50ab79cdb5f23985c0c1b7",
+      "translation": "菜单中保留五个经典主题和六种数据艺术材质，各自呈现不同的运动形式："
+    },
+    {
+      "context": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "label": "spacr.qt.widgets.ambient#5",
+      "source": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "source_sha256": "9f8ebf5cd677f5ef47e1da4d6fdafec8fdf0b1baa30d1f1cc5dfaa93ae1e3012",
+      "translation": "``aurora`` 三层相互重叠的垂直光线帘幕，沿自身长度方向折叠。这些褶皱是行波——若干叠加的频率沿弧的长度方向传播——亮度按单独的节奏涌动，下边缘清晰，顶部弥散，并且具有真实极光的垂直颜色顺序：主体为绿色，高处为红色，下方有一道紫色边缘。``ripple`` 同心圆环从三个固定的源点向外扩展，并在扩大过程中逐渐淡出，就像雨滴落在水面上。边缘柔和，因此绝不会看起来像线稿。``drift`` 由三层视差组成的缓慢星空：后面是小而暗、移动缓慢的星星；前面是更大、更亮、更快的星星。这是唯一清晰锐利的主题。它可以向上、向下或向四面八方移动——参见 :data:`DRIFT_DIRECTIONS`。``cells`` 细胞在视野中漂移并随之转动——柔和的胞体，在边缘几乎侧向可见处略亮的细胞膜，以及偏离中心、明显更亮的细胞核。原有的 :class:`BokehEngine` 和 :class:`ResonanceEngine` 仍可由直接调用者导入，但不再是菜单选项或引擎构建注册项。"
+    },
+    {
+      "context": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
+      "label": "spacr.qt.widgets.ambient#6",
+      "source": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
+      "source_sha256": "5cd70fb1942de055b76f914c68f1c3150eaec5ad056f43177191453c8f6a3e8c",
+      "translation": "还有一个私有的 ``fractal`` 引擎：它不在 :data:`AMBIENT_THEMES` 中，任何菜单都不会列出它，任何偏好设置都不能存储它；只有使用 ``spaceout`` 命令而非 ``spacr`` 启动应用才能看到它。参见 :data:`SPACEOUT_THEME` 和 :class:`FractalEngine`。"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

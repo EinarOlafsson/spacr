@@ -1,0 +1,13 @@
+{
+  "detail": "tests/qt/test_641_module_first_open_timing.py:45: in test_a_module_first_open_stays_inside_its_budget\n    assert key not in window._screens\nE   AssertionError: assert 'replication' not in {'align': <spacr.qt.screens.align.AlignScreen(0x565517659750) at 0x7fe7f8431d00>, 'analyze_plaques': <spacr.qt.screens.app_screen.AppScreen(0x56551befc0e0) at 0x7fe7f93cff00>, 'annotate': <spacr.qt.screens.annotate.AnnotateScreen(0x56551dec1a80) at 0x7fe8093ea2c0>, 'batch': <spacr.qt.screens.batch.BatchScreen(0x56551f183d00) at 0x7fe80809ce40>, ...}\nE    +  where {'align': <spacr.qt.screens.align.AlignScreen(0x565517659750) at 0x7fe7f8431d00>, 'analyze_plaques': <spacr.qt.screens.app_screen.AppScreen(0x56551befc0e0) at 0x7fe7f93cff00>, 'annotate': <spacr.qt.screens.annotate.AnnotateScreen(0x56551dec1a80) at 0x7fe8093ea2c0>, 'batch': <spacr.qt.screens.batch.BatchScreen(0x56551f183d00) at 0x7fe80809ce40>, ...} = <spacr.qt.app.MainWindow(0x565515932720) at 0x7fe810537340>._screens",
+  "detail_chars": 976,
+  "detail_truncated": false,
+  "event": "test_failure",
+  "hwm_bytes": 2586718208,
+  "nodeid": "tests/qt/test_641_module_first_open_timing.py::test_a_module_first_open_stays_inside_its_budget[replication]",
+  "pid": 4213,
+  "rss_bytes": 2586718208,
+  "threads": 14,
+  "time_ns": 1791440480137195244,
+  "when": "call"
+}

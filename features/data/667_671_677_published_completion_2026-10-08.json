@@ -1,0 +1,100 @@
+{
+  "source_commit": "b0361b97829df2260382b43dcb6819e0857e17f1",
+  "published_application": "4d09944509a331ee8ac0f94a7856c1c980970bc3",
+  "all_application_python_hashes_verified": 669,
+  "accepted_api_entries": 13232,
+  "completed_items": [
+    "N667",
+    "N671",
+    "N677"
+  ],
+  "runtime_and_api_locale_bindings": {
+    "sv": {
+      "api_sha256": "ec0ffcb93988b533b5083d12b106a967a158dbc880c2516dd746625112a5cc7a",
+      "runtime_sha256": "c41aab0cf84a7aa3d2f447b2256972d7bccd18516c1a8f9e9721e05ce5f635fa",
+      "organism_captions": {
+        "Organism": "Organism",
+        "Organism-specific image analysis and quantitative assay readouts.": "Organismspecifik bildanalys och kvantitativa resultat från biologiska analyser."
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "de": {
+      "api_sha256": "8471aa2c865ead22f29ae412e2e66fdf4b2f819e976184590b8ded900372ec1c",
+      "runtime_sha256": "4f6b7da103b34d3a5973a4c6d8f68e9cd28e5b1e1629ffec7f76e7b2c33bb5b5",
+      "organism_captions": {
+        "Organism": "Organismus",
+        "Organism-specific image analysis and quantitative assay readouts.": "Organismusspezifische Bildanalyse und quantitative Assay-Ergebnisse."
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "es": {
+      "api_sha256": "34d23b255c16ea080f9bab31334c549f943dd98e855a123e3c12427a8680a54f",
+      "runtime_sha256": "9f663555e8568efd39766286f5036f6415c46a063016a1cccfeed0064d9d7fac",
+      "organism_captions": {
+        "Organism": "Organismo",
+        "Organism-specific image analysis and quantitative assay readouts.": "Análisis de imágenes específico del organismo y resultados cuantitativos de ensayos."
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "zh_CN": {
+      "api_sha256": "f30bf8aed01eba460825791b54eb5181b5f6bc71d0195e1b23327e25fd7f2a5f",
+      "runtime_sha256": "8f541f4201ef25e4dff6846a927518e1a4cbcb62877a088da093dd5a91a7bbfe",
+      "organism_captions": {
+        "Organism": "生物体",
+        "Organism-specific image analysis and quantitative assay readouts.": "针对特定生物体的图像分析和定量实验测定结果。"
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "pt": {
+      "api_sha256": "38ec0974d1c417d31dd42860cd71b37afb894b212989ab14ed8dde2c74a9decc",
+      "runtime_sha256": "075fab9a87f216836c47d20c627f8f90236004b6b272d82ee7b30b006abd2436",
+      "organism_captions": {
+        "Organism": "Organismo",
+        "Organism-specific image analysis and quantitative assay readouts.": "Análise de imagens específica do organismo e resultados quantitativos de ensaios."
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "hi": {
+      "api_sha256": "f5b349c6d4902abe90e8095ce6672e6a960bc527634d51e8dd682c080bc547c3",
+      "runtime_sha256": "9f38357958d69a36d7d67ba6f96219bd76f267d055b25677aacef55edf3558cb",
+      "organism_captions": {
+        "Organism": "जीव",
+        "Organism-specific image analysis and quantitative assay readouts.": "जीव-विशिष्ट छवि विश्लेषण और परिमाणात्मक परीक्षण परिणाम।"
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "ko": {
+      "api_sha256": "78cbede36f56ab76dee3fa9779ea0ea4ce9f049afff3edf1072e579d14275c20",
+      "runtime_sha256": "1f29cdeef8c601613e1cddb7118613d7d9b87e9f7dca4eca0e02860533722bc9",
+      "organism_captions": {
+        "Organism": "생물체",
+        "Organism-specific image analysis and quantitative assay readouts.": "생물체별 이미지 분석과 정량적 분석 결과."
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "is": {
+      "api_sha256": "401ee6521e7d152e01c733052e751591a33718a59a0cf680f4ec896b7750ab57",
+      "runtime_sha256": "f38f6cecbd5890e48e55522cbe60ad5d790f4e3bca86f1676e8c24e38aef080e",
+      "organism_captions": {
+        "Organism": "Lífvera",
+        "Organism-specific image analysis and quantitative assay readouts.": "Myndgreining fyrir tilteknar lífverur og megindlegar niðurstöður líffræðilegra prófana."
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    },
+    "fr": {
+      "api_sha256": "e66dd49562563f41a4e4136451476e03f1d747d21747fffb64fdb2931a836843",
+      "runtime_sha256": "2ee78edb23ad5ed227113bdb5375e12c8f2d93997eec5c958bc6aa97d429373e",
+      "organism_captions": {
+        "Organism": "Organisme",
+        "Organism-specific image analysis and quantitative assay readouts.": "Analyse d’images spécifique à l’organisme et résultats quantitatifs des essais."
+      },
+      "plot_backing_source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94"
+    }
+  },
+  "acceptance_sources": [
+    "features/data/667_677_root_combined_acceptance_2026-10-08/receipt.json",
+    "features/data/649_674_667_677_documentation_acceptance_2026-10-08/receipt.json",
+    "features/data/666_671_ui_source_handoff_2026-10-08/receipt.json"
+  ],
+  "limits": "Local CPU/Qt functional and source-bound documentation acceptance; N43 hosted CI, N47 original-order suite, N663 native/GPU termination and N676 video production remain independently open. No new OS/GPU or native-speaker claim."
+}

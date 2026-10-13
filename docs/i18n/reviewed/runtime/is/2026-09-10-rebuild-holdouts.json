@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "stream_method",
+      "source": "Method used to locate objects for streamed crops. 'column' uses coordinates stored in the object table and requires object_array and channel_arrays. 'array' uses labelled objects in the same object_array plane and additionally requires bounding_box. Settings that do not apply to the selected method are ignored. Default 'column'.",
+      "source_sha256": "29fc31a0fba370965ac1842d23f01bc2b6e99a6251abf223d6763554e111133c",
+      "translation": "Aðferð sem notuð er til að finna hluti fyrir streymda útskurði. 'column' notar hnit sem geymd eru í hlutatöflunni og krefst object_array og channel_arrays. 'array' notar merkta hluti í sama object_array-fleti og krefst að auki bounding_box. Stillingar sem eiga ekki við valda aðferð eru hunsaðar. Sjálfgefið 'column'."
+    }
+  ],
+  "schema": 1
+}

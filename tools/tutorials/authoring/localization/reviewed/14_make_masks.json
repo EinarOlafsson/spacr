@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "14_make_masks",
+    "scene_count": 10,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete interactive mask-editing workflow, exact tool labels, image-versus-display semantics, connected-component behavior, and scientifically bounded filtering guidance."
+  },
+  "languages": {
+    "es": {
+      "description": "Cree y corrija etiquetas de segmentación de forma interactiva para el control de calidad o para preparar pares de entrenamiento de Cellpose.",
+      "prerequisite": "Prepare imágenes de microscopía representativas y, cuando estén disponibles, las máscaras correspondientes en una copia de trabajo aislada.",
+      "objectives": [
+        "Seleccionar una herramienta de edición adecuada para cada error de la máscara.",
+        "Utilizar el contraste y los filtros de objetos sin copiar valores específicos de otro conjunto de datos.",
+        "Guardar pares de imagen y máscara revisados de forma coherente."
+      ],
+      "narrations": [
+        "Abra una carpeta de imágenes de microscopía representativas. Las etiquetas correspondientes se cargan desde la carpeta masks como superposiciones de color; las imágenes sin una máscara asociada comienzan vacías.",
+        "La tarjeta Tools agrupa los modos para pintar, borrar, utilizar la varita sensible a la intensidad y ampliar la imagen. Elija la operación más pequeña que corrija el error observado en la máscara.",
+        "Brush añade primer plano con un radio ajustable. Utilice trazos cortos para reparar límites u objetos ausentes sin pintar sobre estructuras vecinas.",
+        "Erase elimina únicamente los píxeles pintados, mientras que Erase object elimina una etiqueta completa. Utilice Undo de inmediato si la región seleccionada era válida.",
+        "Wand plus y Wand minus siguen intensidades conectadas de la imagen. Comience con una tolerancia y un límite de píxeles conservadores; después, examine la región seleccionada antes de continuar.",
+        "Amplíe los límites difíciles y ajuste la normalización de la visualización solo cuando mejore la visibilidad. Los controles de contraste no modifican los datos de la imagen ni la geometría de la máscara; ajústelos para el campo actual en lugar de copiar percentiles fijos del tutorial.",
+        "Undo y Redo recorren las modificaciones de la máscara de forma independiente al zoom y al contraste, por lo que permiten comparar con seguridad una corrección con la etiqueta anterior.",
+        "Las operaciones de objetos pueden rellenar huecos, volver a etiquetar el primer plano conectado, invertir las etiquetas o borrar la máscara. Utilice el filtro por área únicamente con un umbral justificado por la escala de la imagen y el tamaño esperado de los objetos.",
+        "Save mask vuelve a etiquetar los componentes conectados y guarda la imagen de etiquetas con el nombre base del archivo de origen. Recorra la carpeta de forma sistemática para revisar todos los campos de entrenamiento.",
+        "En una imagen sin etiquetas, cree objetos con Brush o Wand plus, corrija los límites y guarde el nuevo par de imagen y máscara para entrenar el modelo."
+      ]
+    },
+    "fr": {
+      "description": "Créez et corrigez de manière interactive des étiquettes de segmentation pour le contrôle qualité ou la préparation de paires d’entraînement de Cellpose.",
+      "prerequisite": "Préparez des images de microscopie représentatives et, lorsqu’ils sont disponibles, les masques correspondants dans une copie de travail isolée.",
+      "objectives": [
+        "Sélectionner un outil d’édition adapté à chaque erreur du masque.",
+        "Utiliser le contraste et les filtres d’objets sans recopier de valeurs propres à un autre jeu de données.",
+        "Enregistrer des paires image-masque examinées de manière cohérente."
+      ],
+      "narrations": [
+        "Ouvrez un dossier d’images de microscopie représentatives. Les étiquettes correspondantes sont chargées depuis le dossier masks sous forme de superpositions colorées ; les images dépourvues de masque associé sont initialement vides.",
+        "La carte Tools regroupe les modes de peinture, d’effacement, de baguette sensible à l’intensité et de zoom. Choisissez l’opération la plus limitée qui corrige l’erreur observée dans le masque.",
+        "Brush ajoute du premier plan avec un rayon réglable. Utilisez des traits courts pour réparer des limites ou des objets manquants sans peindre sur les structures voisines.",
+        "Erase supprime uniquement les pixels peints, tandis que Erase object supprime une étiquette entière. Utilisez immédiatement Undo si la région sélectionnée était valide.",
+        "Wand plus et Wand minus suivent les intensités connectées de l’image. Commencez par une tolérance et une limite de pixels prudentes, puis examinez la région sélectionnée avant de continuer.",
+        "Zoomez sur les limites difficiles et ne modifiez la normalisation de l’affichage que si elle améliore la visibilité. Les commandes de contraste ne changent ni les données de l’image ni la géométrie du masque ; réglez-les d’après le champ actuel plutôt qu’en recopiant des percentiles fixes du tutoriel.",
+        "Undo et Redo parcourent les modifications du masque indépendamment du zoom et du contraste, ce qui permet de comparer sans risque une correction à l’étiquette précédente.",
+        "Les opérations sur les objets peuvent combler les trous, réétiqueter le premier plan connecté, inverser les étiquettes ou effacer le masque. N’utilisez le filtrage par aire qu’avec un seuil justifié par l’échelle de l’image et la taille attendue des objets.",
+        "Save mask réétiquette les composantes connexes et enregistre l’image d’étiquettes sous le nom de base du fichier source. Parcourez le dossier de manière systématique afin d’examiner tous les champs d’entraînement.",
+        "Pour une image sans étiquette, créez des objets avec Brush ou Wand plus, corrigez les limites et enregistrez la nouvelle paire image-masque destinée à l’entraînement du modèle."
+      ]
+    },
+    "it": {
+      "description": "Crea e correggi interattivamente le etichette di segmentazione per il controllo qualità o per preparare coppie di addestramento di Cellpose.",
+      "prerequisite": "Prepara immagini di microscopia rappresentative e, quando disponibili, le maschere corrispondenti in una copia di lavoro isolata.",
+      "objectives": [
+        "Selezionare uno strumento di modifica adatto a ciascun errore della maschera.",
+        "Utilizzare il contrasto e i filtri degli oggetti senza copiare valori specifici di un altro set di dati.",
+        "Salvare coppie immagine-maschera esaminate in modo coerente."
+      ],
+      "narrations": [
+        "Apri una cartella di immagini di microscopia rappresentative. Le etichette corrispondenti vengono caricate dalla cartella masks come sovrapposizioni colorate; le immagini prive di una maschera associata iniziano vuote.",
+        "La scheda Tools raggruppa le modalità per dipingere, cancellare, usare la bacchetta sensibile all’intensità e ingrandire l’immagine. Scegli l’operazione più limitata che corregge l’errore osservato nella maschera.",
+        "Brush aggiunge il primo piano con un raggio regolabile. Usa tratti brevi per riparare limiti o oggetti mancanti senza dipingere sulle strutture vicine.",
+        "Erase rimuove solo i pixel dipinti, mentre Erase object rimuove un’etichetta completa. Usa immediatamente Undo se la regione selezionata era valida.",
+        "Wand plus e Wand minus seguono le intensità connesse dell’immagine. Inizia con una tolleranza e un limite di pixel prudenti, quindi esamina la regione selezionata prima di continuare.",
+        "Ingrandisci i limiti difficili e modifica la normalizzazione della visualizzazione solo quando migliora la visibilità. I controlli del contrasto non cambiano i dati dell’immagine né la geometria della maschera; impostali in base al campo corrente anziché copiare percentili fissi dal tutorial.",
+        "Undo e Redo scorrono le modifiche della maschera indipendentemente dallo zoom e dal contrasto, consentendo di confrontare in sicurezza una correzione con l’etichetta precedente.",
+        "Le operazioni sugli oggetti possono riempire i fori, rietichettare il primo piano connesso, invertire le etichette o cancellare la maschera. Usa il filtro per area solo con una soglia giustificata dalla scala dell’immagine e dalla dimensione prevista degli oggetti.",
+        "Save mask rietichetta i componenti connessi e salva l’immagine delle etichette con il nome base del file di origine. Procedi sistematicamente nella cartella per esaminare tutti i campi di addestramento.",
+        "Per un’immagine priva di etichette, crea gli oggetti con Brush o Wand plus, correggi i limiti e salva la nuova coppia immagine-maschera per l’addestramento del modello."
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "item": 585,
+  "date": "2026-09-27",
+  "status": "save implementation verified; whole item remains open",
+  "base_commit": "f9d5af988ec34d9432fbf01372cd8ee9263d3cef",
+  "source_sha256": {
+    "spacr/qt/screens/power.py": "7c45d3fc8dbb5a105c982961d896b49f0ef5449728fa0e46a8ee7c7870304281",
+    "tests/qt/test_arrayed_planner_alpha_gate.py": "699b0039166b146ac15d5327e023185dfa6a62c38aeb5b810deb70f0fd279064"
+  },
+  "computed_snapshot": {
+    "binding": "Export uses the last successful computation, including its original pilot path/table/column mapping and inputs even after form edits.",
+    "contents": [
+      "variance components, pilot counts and estimation flags",
+      "effect, target power, alpha, pairing, cells assumption, search limits and cost weights",
+      "all candidate designs and recommended row index",
+      "simulation design index, rounded cells per field, seed, count and observed power"
+    ],
+    "unestimated_variances": "JSON null plus estimated=false, preserving the distinction from an estimated zero.",
+    "write": "QSaveFile commits complete strict JSON atomically; cancellation/no result writes nothing; failure preserves the destination and allows retry."
+  },
+  "preserved": {
+    "alpha": "Save control remains inside the existing PowerArrayedPlanner alpha-gated box.",
+    "api": "No public signatures/docstrings changed. New ordinary private method is excluded by the existing API extractor; no nested helper.",
+    "captions": "Existing translated Save plan… and Export failed; existing JSON file-dialog filter.",
+    "engine": "Unchanged source and statistical calculations; explicit UI defaults and simulation seed match the previous engine defaults.",
+    "sorting": "Shared row-fill sorting protection retained; row-integrity test added."
+  },
+  "validation": {
+    "static_diff_whitespace": "passed",
+    "engine_matches_base": true,
+    "engine_sha256": "020ba52d516c99618068470ec280d7b68ef2233ea8a9aa3cbb01f94e78301fc0",
+    "runtime_status": "passed",
+    "test_file": "tests/qt/test_arrayed_planner_alpha_gate.py",
+    "case_count": 9,
+    "cases": [
+      {
+        "name": "test_the_planner_is_hidden_until_alpha_features_are_shown",
+        "status": "passed"
+      },
+      {
+        "name": "test_a_plan_made_while_hidden_uses_the_form",
+        "status": "passed"
+      },
+      {
+        "name": "test_save_preserves_the_computed_design_after_form_edits",
+        "status": "passed"
+      },
+      {
+        "name": "test_cancelling_save_keeps_the_result_and_writes_nothing",
+        "status": "passed"
+      },
+      {
+        "name": "test_no_result_cannot_open_a_save_dialog[initial]",
+        "status": "passed"
+      },
+      {
+        "name": "test_no_result_cannot_open_a_save_dialog[unreadable]",
+        "status": "passed"
+      },
+      {
+        "name": "test_no_result_cannot_open_a_save_dialog[unreachable]",
+        "status": "passed"
+      },
+      {
+        "name": "test_replanning_with_an_active_sort_preserves_whole_design_rows",
+        "status": "passed"
+      },
+      {
+        "name": "test_failed_save_preserves_the_destination_and_allows_retry",
+        "status": "passed"
+      }
+    ],
+    "result": {
+      "passed": 71,
+      "exit_status": 0,
+      "seconds": 83.02,
+      "cap": "4G",
+      "private_home": true,
+      "cuda_hidden": true,
+      "qt_platform": "offscreen",
+      "cases_by_file": {
+        "tests.qt.test_arrayed_planner_alpha_gate": 9,
+        "tests.qt.test_i18n_caption_ratchet": 12,
+        "tests.qt.test_run_compare_screen": 35,
+        "tests.test_docstring_correctness": 2,
+        "tests.test_documentation_i18n": 1,
+        "tests.qt.test_run_history_screen": 12
+      },
+      "log": "/mnt/wd4tb/scratch/spacr-completion/small-ui-checks-20260927/pytest.log",
+      "log_sha256": "1c1a95fb59e05458dd3521fdb0c2ac4f80592b11d2ca80e7f260f9924db7b31a",
+      "junit": "/mnt/wd4tb/scratch/spacr-completion/small-ui-checks-20260927/results.xml",
+      "junit_sha256": "be19d1cdaea08bce61b21dbd6045f65838f2135f81e09624fa8629ecd0dc0abf"
+    }
+  },
+  "remaining": [
+    "GUI cost weights and search limits remain fixed.",
+    "Normal-theory outcomes only; no count/proportion model or replicate-by-condition interaction.",
+    "This is an export of reloadable engine inputs/results, not a new GUI load-plan control."
+  ]
+}

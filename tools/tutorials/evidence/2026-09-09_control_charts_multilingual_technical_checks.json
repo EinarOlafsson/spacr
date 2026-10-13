@@ -1,0 +1,139 @@
+{
+  "lesson": "51_control_charts",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-09_control_charts_current_workflow.json",
+  "canonical_english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "scene_count": 10,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "f595f643ba183cee1c1e10830defc16250cb7979",
+    "version": "1.5.0.4",
+    "module": "control_chart",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "51_control_charts.da.json": "6602e86a2b02347918dd399b7a414f6f8626f1b147c04ea8c6d2c374334164e1",
+    "51_control_charts.de.json": "767aad6946098c3d1c5206e8950680540dfa63187a2065ffff9c712a755a9112",
+    "51_control_charts.es.json": "2c1d67ad72d33de662df643d1e8490fe76b1ce40f0658302922f12f2e07ca9ba",
+    "51_control_charts.fr.json": "cc4c4b9e2632180e1b918d7b7874141cb44f6c950e105bfde388f1b4a17c646f",
+    "51_control_charts.hi.json": "27f416bcb1a2430dfea5c64d417a6753153acf606c12178526eacdf8aa4e82ca",
+    "51_control_charts.is.json": "bdc08caff7587a1be028b1c0b25b8487f921dfc0294babe4bc56118ec41de532",
+    "51_control_charts.it.json": "eb714194874c5b493c25e46e30cf97d71436b615f01ed174dd8ca0f9c4f732cd",
+    "51_control_charts.ja.json": "fda6e7bd57d066d7a70158f2611544a21d10f025545d62db74d5503912226266",
+    "51_control_charts.ko.json": "11c77480f98cec8f00a0d88d46916ccc54a18f6df9eb272da2783c0590388f0b",
+    "51_control_charts.nb.json": "e26d33bea8191b0a27fb1a00d5cdfac31a4acf71e3aae80188f23e18fae54d83",
+    "51_control_charts.pt-BR.json": "3a876a6a0d3b4bbb287829f31af40bb692fc461233e1c9cf08be5774fc894761",
+    "51_control_charts.sv.json": "c469289f7b12f08f226326b1e30c7efbe204f80fc219320d393233a9de4c464f",
+    "51_control_charts.zh-CN.json": "97224681113ea1846cded2f2193fd514fd190d66a956eaa894411cc78bf3f616"
+  },
+  "review_scope": "Parent editorial review against frozen English and actual UI; independent peer and native-speaker review not claimed",
+  "master": {
+    "sha256": "760e1a0e06f9368e54eeef3a3d1b117b6772e8b5daa16756d6332b8d83a06bf8",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "5440"
+        }
+      ],
+      "format": {
+        "duration": "181.333333",
+        "size": "9401397"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 66,
+        "content": "Actual open Sigma from choices visible inside highlight"
+      },
+      {
+        "seconds": 100,
+        "content": "Actual thirty-plate chart, baseline, nine rule-one alerts and report visible"
+      }
+    ]
+  },
+  "poster_sha256": "4cdedbce42b808c692850be164ef5872f3d92506910ac8cdde5ff39fba36d6b8",
+  "final_artifact_checks_sha256": "3bbbfd774adf4ad342b639c2ebfe9b6a5cdbd781ad991dabf3fca99fd2f7a9d3",
+  "audio_reports": {
+    "audio-checks.en+es+fr+it+pt-BR.json": "b2b17a88135da55ec7586f5899f043a1b0e5d88149cc7e8596bb706f620c146f",
+    "audio-checks.hi+ja+zh-CN.json": "3023007c4b5375fb8770a562f2af0b7390d9beb12256bd46faa4e2df73152d7f"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "5f76e214f9b8c2360ee0432ca29d42399283ca9d40f5241958943a1b9541156f"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "ebeaa07420de3189adb6ca51727b90950a25ea1a7eceb0d8923ae139d98c6977"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "3385d601d0a5bc485b915335a0a033fb6a35098234c61bd964f96213d0144621"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "c465b296e5c84e2eea6458f345de7e82644fa599ac57138984430205af6add3b"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "643ba969f986170b61c427b5a32366cf7bf3076e1ff1867fe51cea19cd503e35"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "477507d35b498e37417651a38f549748e0277499209bbf30d1a88c4b7b35f6c4"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "3e3f7d2fc420598464f54bd53f638f6482b90489f8c3cc3a5fafe0e6607edf75"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "bfb6ffcd53d45da90d2a521fdfda398c64cf196f3378659ef33ccce710aec427"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "f90337db31fda87581faf63b1d71cb8f3e5a086b2de99745bee4447360fdccb2"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "bc78bba5b517626bab41a0f2e42351d652d26053871c97aee836ed3850eb797d"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "2af1889626a566ad6ac4c3058bb439da7336e85e39c3946a1343b6d40907b84c"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "80818f9a617735c018d0af06ae3389701c4c357946df6248b3ae230873ed7a0b"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "98c1f0e95654bb29c89bbd7cee36643153b9db9d6b4352edcbe8eedf2069e1b4"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "8486554800290a9bd58215f1fe435a9f83a4b11227b8f24f8a179307cbdba45a"
+    }
+  ],
+  "catalog_preservation_sha256": "7b2b382a2b28b42094779e65111d3fa6053cd468311b6e15345b3e9f12990a4c",
+  "shared_english_video_only": true,
+  "pronunciation_rules_version_unchanged": "v11",
+  "synthetic_data_disclosed": true,
+  "biological_validation": false,
+  "original_input_unchanged": true,
+  "independent_peer_review": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

@@ -1,0 +1,23 @@
+{
+  "run": 37728397371,
+  "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37728397371",
+  "trigger_sha": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "resolved_build_sources": {
+    "Build nightly documentation": "4133beafcd0ae427795617a4a01e295fd40539b7",
+    "Build main documentation": "91ab2b8ae7e9beed617b0c8ec9ec5cb7e9938ca1"
+  },
+  "status": "completed",
+  "conclusion": "success",
+  "all_four_jobs_succeeded": true,
+  "scope": "Complete hosted documentation build and publication; not missing engine API projection acceptance or full required-tests acceptance.",
+  "payloads": {
+    "run.log.gz": {
+      "bytes": 308134,
+      "sha256": "5e91842366d441ed1a341ce6eca775627fe0779b06c59bef83859da70c229f9e"
+    },
+    "run.json": {
+      "bytes": 15022,
+      "sha256": "8dab114f19eac935a66ae8db883dd4e94cd20e2211df7afbf7ba5a262ac2e2a9"
+    }
+  }
+}

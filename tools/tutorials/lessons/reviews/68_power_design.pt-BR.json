@@ -1,0 +1,34 @@
+{
+  "lesson": "68_power_design",
+  "english_sha256": "50ffe28cafc59c00ff0e0552315128c1e4cd478a2a41e9ac0ebe3d151410882c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Power & Design: explorar curvas de detecção simuladas",
+  "description": "Defina premissas de biblioteca e de desenho, execute simulações e inspecione as frações de detecção, os ajustes que falharam e as ressalvas.",
+  "objectives": [
+    "Definir a biblioteca, a unidade de pontuação e as premissas de desenho.",
+    "Executar varreduras de número de células e de poços com as configurações registradas.",
+    "Ler as frações de detecção e as ressalvas antes de interpretar um desenho."
+  ],
+  "prerequisite": "Prepare premissas sobre o tamanho da biblioteca, guias por gene, fundo, efeito e prevalência. Este módulo simula dados. O exemplo indicado usa só duas réplicas por ponto para mostrar os controles; use repetições suficientes e premissas adequadas para planejar. Nesta versão, inspecione a tabela em vez de confiar em um título que pode recomendar o mesmo número de poços de referência.",
+  "scenes": [
+    "Na tela Home, abra Power & Design. Comece pelas premissas que você quer explorar e depois use as curvas de detecção simuladas para comparar as opções de número de células e de poços exibidas.",
+    "Defina o tamanho da biblioteca e as guias por gene e escolha a unidade de pontuação. Com quarenta genes e quatro guias por gene, a pontuação por guia usa cento e sessenta unidades; a pontuação por gene reúne as informações das guias.",
+    "Revise juntos os controles de placa, fundo, efeito e prevalência. A taxa de chamadas positivas é uma probabilidade de classificação assumida. Escolha valores que descrevam a análise que você planeja.",
+    "Se um efeito menor que um desativar Run, leia o aviso de direção não suportada. Restaure um valor suportado para continuar; este simulador não cobre todas as direções de efeito possíveis.",
+    "Defina repetições, semente, mecanismo de cálculo e limiar de detecção. O limiar usa a área sob a curva ROC. O exemplo usa duas réplicas por ponto para uma execução curta; escolha mais repetições ao estimar a probabilidade de detecção.",
+    "Clique em Run e acompanhe o progresso. O simulador varre separadamente o número de células e o número de poços. Guarde as configurações junto com os resultados concluídos.",
+    "Leia as contagens de detecção junto com os denominadores. Ajustes que falharam ou não convergiram contam como não detecções. Com duas réplicas pedidas, cem por cento significa apenas duas detecções em duas.",
+    "Use a tabela de resultados para inspecionar as frações de detecção, o desempenho médio entre os ajustes utilizáveis e a falta de convergência. Valores médios indisponíveis são resultados ausentes. Interprete a precisão média em relação à prevalência assumida.",
+    "Compare diretamente os valores de desenho pedidos. Esta versão pode recomendar aumentar para o mesmo número de poços de referência, porque as duas varreduras usam sorteios aleatórios diferentes. Ignore esse título e use a tabela e a incerteza para avaliar a comparação.",
+    "Expanda as ressalvas e inspecione os ajustes que falharam ou as probabilidades cortadas. Ajuste as premissas quando elas gerarem resultados incompatíveis com o experimento que você quer modelar.",
+    "Mantenha juntas as configurações e os resultados das réplicas. O arquivo indicado contém a execução de exemplo para inspeção. Para saída por programa, use o adaptador de desenho e as APIs de simulação; avalie as premissas e a incerteza antes de escolher um desenho experimental."
+  ]
+}

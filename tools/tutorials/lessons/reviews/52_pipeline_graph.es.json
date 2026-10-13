@@ -1,0 +1,34 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "bf0c6dac571bc3ffd103198c0eaa0c23ba38b289ef5090da9df64295ed67932f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Pipeline Graph: revisar salidas y dependencias",
+  "description": "Abre el grafo de artefactos de un proyecto, revisa las salidas que faltan y copia su diagrama de dependencias.",
+  "objectives": [
+    "Abrir el grafo de artefactos de un proyecto.",
+    "Revisar rutas, estados y dependencias.",
+    "Copiar el diagrama y actualizar sus registros."
+  ],
+  "prerequisite": "Elige un proyecto de spaCR con salidas registradas. El ejemplo de External Masks aporta mediciones y recortes; la lección de Data Manager muestra cómo aparece un artefacto eliminado.",
+  "scenes": [
+    "Abre Help y luego Pipeline graph para revisar las salidas y dependencias registradas de un proyecto.",
+    "Ve a la carpeta del proyecto con Browse. Si el grafo está vacío, comprueba si esa carpeta tiene artefactos registrados; puede haber archivos sin registros correspondientes.",
+    "Elige el proyecto medido para mostrar sus cuadros de artefactos. El ejemplo incluye mediciones, recortes y un registro de recursos, con una carpeta de recortes eliminada marcada como ausente.",
+    "Haz clic en un artefacto y ensancha los detalles con el divisor. Revisa su ruta, su función, el identificador de ejecución, la hora de producción y la versión del software.",
+    "Selecciona un artefacto Missing para encontrar su ruta registrada. El tamaño mostrado describe el registro guardado, así que comprueba la ubicación real al investigar archivos ausentes.",
+    "Revisa los enlaces de entrada y posteriores donde estén registrados. Algunos artefactos, como los registros de recursos, pueden estar fuera de la carpeta del proyecto.",
+    "Usa Current, Stale y Missing para elegir qué estados de artefacto se ven. Por ejemplo, oculta Current para centrarte en las salidas que faltan.",
+    "Si no se ve ningún cuadro, comprueba los filtros de visualización y el total de artefactos. Restaura los estados que quieras revisar.",
+    "Haz clic en Copy Graphviz para copiar el diagrama completo como texto DOT, incluidos los nodos ocultos por los filtros. Pégalo en una herramienta de Graphviz para representarlo o guardarlo.",
+    "Restaura los filtros deseados y vuelve a seleccionar un artefacto para revisar sus detalles. Usa su ruta registrada y el flujo de trabajo anterior para decidir qué necesita atención.",
+    "Haz clic en Redraw tras cambios en el proyecto para releer el registro. Abre Run History para los ajustes y registros guardados, o Data Manager para la limpieza y el archivado."
+  ]
+}

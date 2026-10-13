@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, rolling pass 2026-10-04: Help > Window, now routed through tr(): the submenu title and the machine-translated actions and status tip that were wrong in sense, written and technically reviewed by AI. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Window",
+      "source": "Window",
+      "source_sha256": "19734a1b58cabc22cae1f88493289ee94f40ff2b350f7f1b9f7011ea84096916",
+      "translation": "Fönster"
+    },
+    {
+      "table": "ui",
+      "key": "Close the main window. spaCR quits with it.",
+      "source": "Close the main window. spaCR quits with it.",
+      "source_sha256": "1a92595feb1d4f5d1b95c6f615ed4872235fb60ecbb6799cc921dcc764cc6f18",
+      "translation": "Stänger huvudfönstret. spaCR avslutas samtidigt."
+    }
+  ]
+}

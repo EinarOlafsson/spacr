@@ -1,0 +1,52 @@
+{
+  "feature": 288,
+  "related_feature": 426,
+  "date": "2026-09-23",
+  "defect": "The evaluator used hashlib.file_digest, absent in supported Python3.9, failing five tests in minimum-dependency CI.",
+  "change": "Stream SHA256 using1MiB reads with APIs available on older Python; identical digest values and bounded memory.",
+  "validation": {
+    "before": {
+      "failed": 3,
+      "deselected": 12,
+      "seconds": 2.23,
+      "condition": "file_digest removed; empty, small and >2MiB files"
+    },
+    "after": {
+      "passed": 45,
+      "seconds": 9.42,
+      "scope": "Evaluator and training-loop validation files"
+    },
+    "actual_older_interpreter": {
+      "python": "3.8.20 (default, Oct  3 2024, 15:24:27) \n[GCC 11.2.0]",
+      "scope": "AST-extracted digest function on a real older interpreter; no full evaluator-import or Python3.9 environment claim.",
+      "cases": [
+        {
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "size": 3,
+          "sha256": "250fccd5f5f76c7c866647d737ea3af37a8404744a5fc7c2628245194242304d"
+        },
+        {
+          "size": 2097169,
+          "sha256": "2611d84989d5099844ff1699ecd5ccdb3e41109910bc5e66ea77d10f57cf63d7"
+        }
+      ]
+    }
+  },
+  "source_sha256": {
+    "tools/evaluate_timeflows.py": "e344929e24bd84c83d48a6647e1c534c561e6fe24ebe9b773991244120a8a870",
+    "tests/test_timeflows_evaluation.py": "8a6eec10b7e3da457245bcb28596c023cac185108744c6de1021d7e87721a5a6"
+  },
+  "evidence_sha256": {
+    "timeflows-py39-before.log": "608c88d29949fc3dc8f16832e9ababdb1cd9cc87c1adb6fd58be7bda982e59b4",
+    "timeflows-py39-after.log": "bc110c9e8a04758144e9314936a1ddffd84c2cc8e946675850b1c2e361a3f3a5",
+    "timeflows-digest-py38.json": "e962beef375e2f079fb7213af0be350594ae93465792b8ece868e5b9fd70f3fb"
+  },
+  "limits": [
+    "No new full Python3.9 dependency-matrix run yet.",
+    "Real Python3.8 check executes the extracted digest function, not scientific imports or inference.",
+    "No completed benchmark is rerun and no saved report hash is rewritten."
+  ]
+}

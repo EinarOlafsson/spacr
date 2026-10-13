@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 11 local-model schema UI drafts in each locale. Technical errors and omissions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair, including load-without-apply, no restored manual memberships, portable rules/extraction/composition, omission counts and placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "9fe7e139de5fbd6b8324c6667fbaf9672eeff5bbb2c6fa1a9398d58122f4e2e6",
+  "original_local_model_drafts": [
+    {
+      "source": "Checking annotation schema for this table…",
+      "translation": "이 테이블에 대한 기록을 확인하십시오 ..."
+    },
+    {
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "translation": "현재 테이블에 대한 JSON 스케줄을 업로드하고 생성된 모든 열을 미리 볼 수 있습니다. 업로드에는 변경 사항이 적용되지 않거나 수동 순서 명령을 복원하지 않습니다."
+    },
+    {
+      "source": "Load schema",
+      "translation": "로드 스케줄"
+    },
+    {
+      "source": "Save schema",
+      "translation": "스케줄 저장"
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "translation": "유효한 규칙, 추출 패턴 및 열 구성을 재사용 가능한 JSON로 저장합니다."
+    },
+    {
+      "source": "Saving annotation schema…",
+      "translation": "녹화 계획을 세우기 위해..."
+    },
+    {
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "translation": "Schema loaded for preview. 생성된 열을 검토하고 준비가 되었을 때 적용합니다."
+    },
+    {
+      "source": "Schema saved to {path}.",
+      "translation": "스케줄은 {path}로 저장되었습니다."
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "translation": "스케줄은 {path}로 저장되었습니다. {count:,} 수동 순서 작업은 놓치지 않았습니다."
+    },
+    {
+      "source": "Schema was not loaded: {reason}",
+      "translation": "스케줄이 충전되지 않았습니다: {reason}"
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Checking annotation schema for this table…",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Load schema",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Save schema",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Saving annotation schema…",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema saved to {path}.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Schema was not loaded: {reason}",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Checking annotation schema for this table…",
+      "source": "Checking annotation schema for this table…",
+      "source_sha256": "4681621c288c930cb332f4eb55caf32d5b1b2638016b41a5f1096e0a687a3038",
+      "translation": "이 표의 어노테이션 스키마를 확인하는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "source": "Load a JSON schema for the current table and preview all generated columns. Loading does not apply changes or restore manual row assignments.",
+      "source_sha256": "ca1c69215670bb54d50daebc437262d0d70ce8e6c8b0708c775d2059d50b0f11",
+      "translation": "현재 표에 사용할 JSON 스키마를 불러와 생성된 모든 열을 미리 봅니다. 불러오기는 변경 사항을 적용하지 않으며 수동 행 할당도 복원하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Load schema",
+      "source": "Load schema",
+      "source_sha256": "4f6d03c427e38e5ece1897d5f714150b5eaf727cad06c532a2c5f35c49f1c7c7",
+      "translation": "스키마 불러오기"
+    },
+    {
+      "table": "ui",
+      "key": "Save schema",
+      "source": "Save schema",
+      "source_sha256": "325690c52bc76c499473b9fd574c47647ddf986a7a752e0fca37edc7e6052359",
+      "translation": "스키마 저장"
+    },
+    {
+      "table": "ui",
+      "key": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source": "Save the validated rules, extraction patterns and column composition as reusable JSON. Manually dragged row assignments are omitted.",
+      "source_sha256": "a643c6cc5eb94070c609badd6bee8466e85ad53c842d5c0d7f47b007cc134f4d",
+      "translation": "검증된 규칙, 추출 패턴 및 열 조합을 재사용 가능한 JSON으로 저장합니다. 수동으로 드래그하여 만든 행 할당은 제외됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Saving annotation schema…",
+      "source": "Saving annotation schema…",
+      "source_sha256": "1b9f2e064c9c3a8ca9ed9dd90af0eb0d293be314a2027fd458c2b98b6e99eb60",
+      "translation": "어노테이션 스키마를 저장하는 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "source": "Schema loaded for preview. Review the generated columns, then apply when ready.",
+      "source_sha256": "c31647ee49dedba524246fab2602b806daba4887dc1fd42554833d96cc82f8ea",
+      "translation": "미리보기를 위해 스키마를 불러왔습니다. 생성된 열을 검토하고 준비되면 적용하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Schema saved to {path}.",
+      "source": "Schema saved to {path}.",
+      "source_sha256": "25f13205287c530732c7f40a227c436d52966ceb9cb2356d40624310bb45dc06",
+      "translation": "스키마를 {path}에 저장했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source": "Schema saved to {path}. {count:,} manual row assignments were omitted.",
+      "source_sha256": "4e6fe802043854fd29e948165ba9ff6c57a62c3a4745ec5c7b0ad2bfe9c49e3f",
+      "translation": "스키마를 {path}에 저장했습니다. {count:,}개의 수동 행 할당은 제외되었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Schema was not loaded: {reason}",
+      "source": "Schema was not loaded: {reason}",
+      "source_sha256": "6c4a959a5e9a0b671136a7b9b272b36c7a7f9abfb806c1c46ea0bd8a1bb10530",
+      "translation": "스키마를 불러오지 못했습니다: {reason}"
+    }
+  ]
+}

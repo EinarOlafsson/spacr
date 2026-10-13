@@ -1,0 +1,7 @@
+{
+  "source": "bc84a444fb74766bd8d3bf5c5f155533058a9af7",
+  "receipt": "features/data/615_664_665_final_local_publication_2026-10-08/receipt.json",
+  "payloads_verified": 71,
+  "raw_and_archive_sha256_verified": true,
+  "scope": "Private local publication proof only; final built-contract batch and live/hosted acceptance remain pending."
+}

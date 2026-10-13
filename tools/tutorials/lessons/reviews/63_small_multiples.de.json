@@ -1,0 +1,40 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Small Multiples: Gruppen mit gemeinsamen oder getrennten Achsen vergleichen",
+  "description": "Laden Sie Messwerte, ordnen Sie gruppierte Streudiagramme an, wählen Sie Achsenskalen und Filter und fügen Sie eine abgeleitete Spalte hinzu.",
+  "objectives": [
+    "Messwerte laden und Achsen und Facetten zuweisen.",
+    "Gemeinsame, unabhängige oder gruppierte Achsengrenzen wählen.",
+    "Filter und angezeigte Gruppen prüfen und dann eine abgeleitete Spalte hinzufügen oder entfernen."
+  ],
+  "prerequisite": "Laden Sie das Messbeispiel aus dem Annotate-Tutorial herunter und arbeiten Sie mit einer Kopie von measurements.db. Diese Anleitung verwendet die Tabelle cell mit 2.341 Objekten aus vier Wells. Small Multiples zeigt Diagramme an; verwenden Sie Tabulate, um gruppierte CSV-Übersichten zu exportieren.",
+  "scenes": [
+    "Öffnen Sie von Home aus Graph Builder und dann Small Multiples. In dieser Ansicht vergleichen Sie dieselben Messwerte zwischen Gruppen. Dieses Beispiel verwendet die Messdatenbank aus dem verlinkten Annotate-Tutorial.",
+    "Klicken Sie neben der Überschrift Small Multiples auf Load table. Öffnen Sie eine Kopie von measurements.db und wählen Sie cell. Prüfen Sie die Tabelle und ihre 2.341 Objekte, bevor Sie Diagrammkanäle zuweisen.",
+    "Ziehen Sie cell_area auf X und cell_channel_1_mean_intensity auf Y und wählen Sie dann Scatter. Legen Sie rowID auf Facet down und columnID auf Facet across. Die Suche hilft beim Finden von Spaltennamen; jeder Punkt steht für eine gemessene Zelle.",
+    "Wählen Sie shared für beide Skalen, damit alle vier Felder dieselben Achsengrenzen verwenden. Lesen Sie die Gruppentitel und Objektzahlen. In diesem Beispiel kennzeichnen die Facettenlabels räumliche Zeilen und Spalten.",
+    "Wählen Sie free für X scale und Y scale, damit jedes Feld eigene Grenzen erhält. So werden Muster innerhalb einer Gruppe leichter sichtbar. Vergleichen Sie die Achsenbeschriftungen sorgfältig, da sich die Bereiche jetzt zwischen den Feldern unterscheiden.",
+    "Wählen Sie per row für beide Skalen, damit die Felder einer Rasterzeile gemeinsame Grenzen haben. Verschiedene Zeilen können unterschiedliche Bereiche haben. Nutzen Sie dies, wenn Vergleiche innerhalb der Zeilen Vorrang haben.",
+    "Wählen Sie per column, um die Grenzen innerhalb jeder Rasterspalte zu teilen. X und Y lassen sich getrennt einstellen. Stellen Sie auf beiden Achsen wieder shared ein, wenn Sie alle vier Wells auf gemeinsamen Skalen vergleichen möchten.",
+    "Fügen Sie unter Filter cell_area hinzu und setzen Sie das Minimum auf 21.925. Das Raster aktualisiert sich sofort für die verbleibenden 1.171 Objekte. Prüfen Sie die neuen Anzahlen je Feld.",
+    "Klicken Sie unter Filter auf Clear all, um die gesamte Population wiederherzustellen. Verwenden Sie links Clear all channels, wenn Sie stattdessen die Diagrammzuweisungen entfernen möchten. Beide Vorgänge lassen die Quelldatenbank unverändert.",
+    "Filtern Sie columnID auf c2 und fieldID auf f20 und f21. Legen Sie fieldID auf Facet across und behalten Sie rowID auf Facet down. Das Feld für Zeile 5, Bildfeld 20 hat keine Objekte; dieses leere Feld steht für eine fehlende Gruppe.",
+    "Löschen Sie die Filter und legen Sie columnID wieder auf Facet across. Setzen Sie Wrap at auf 5. Der Umbruch gilt nur für einen einzelnen Facettenkanal, daher bleibt das aktuelle zweidimensionale Raster zwei mal zwei.",
+    "Leeren Sie Facet down und legen Sie fieldID auf Facet across. Mit Wrap at 5 füllen die angezeigten Bildfelder Zeilen mit bis zu fünf Feldern. Ungenutzte Plätze am Ende werden ausgeblendet.",
+    "Lesen Sie den Hinweis unter dem Raster, bevor Sie Gruppen vergleichen. Diese Ansicht zeigt 12 Bildfeldstufen; Bildfeld 21 fehlt in den Feldern. Die Anzahl geladener Zeilen schließt dieses Bildfeld ein, prüfen Sie also, welche Gruppen tatsächlich sichtbar sind.",
+    "Schalten Sie den Umbruch aus und stellen Sie rowID und columnID als die beiden Facetten wieder her. Benennen Sie unter Columns eine abgeleitete Spalte area_k und geben Sie cell_area geteilt durch 1000 ein. Prüfen Sie die Vorschau und klicken Sie dann auf Add column, um sie für die gesamte Tabelle zu berechnen.",
+    "Ziehen Sie area_k auf X, um die Fläche in Tausend der ursprünglichen Einheiten anzuzeigen. Die vertikalen Koordinaten und Gruppen bleiben gleich. Das skaliert nur die Zahlen; eine Umrechnung in physikalische Fläche erfordert die korrekte Bildkalibrierung.",
+    "Legen Sie cell_area wieder auf X. Wählen Sie area_k unter Columns und klicken Sie auf Remove, um die abgeleitete Spalte aus dieser Ansicht zu löschen. Dokumentieren Sie Ihre Variablen, Facetten, Filter und Skalenwahl.",
+    "Verwenden Sie Tabulate, wenn Sie eine exportierte CSV-Übersicht benötigen. Für skriptgesteuerte Small-Multiple-Diagramme verwenden Sie trellis und TrellisSpec aus spacr.qt.widgets.trellis_spec zusammen mit GraphSpec für die Diagrammkanäle. Interpretieren Sie die Gruppen auf der passenden Ebene experimenteller Replikate."
+  ]
+}

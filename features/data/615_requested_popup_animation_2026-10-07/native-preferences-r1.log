@@ -1,0 +1,7 @@
+Command: ['bash', 'tools/tutorials/run_neutral_capture.sh', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/native-preferences-r1', '/home/carruthers/anaconda3/envs/spacr/bin/python', '--module', 'home', '--home-preferences-only', '--capture-name', 'requested_popup_controls_20261007_r1']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+alpha features off: /media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/native-preferences-r1/profile/.config/spacr/qt.conf
+no remembered session or drafts: /media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/native-preferences-r1/profile/.config/spacr/qt.conf
+env: ‘xvfb-run’: No such file or directory
+
+Terminal exit status: 127

@@ -1,0 +1,68 @@
+{
+  "after_revision": "cc8db83917",
+  "before_revision": "76b72a836b",
+  "blobs": {
+    "70668186e5": {
+      "tests/qt/test_cov_r4_settings_model.py": "5ef90712a490f96c21b57d302f651fd497c481fc",
+      "tests/qt/test_cov_r5_settings_model.py": "9cdc96a55f3108ade9761ee6a37b6c7a8a15c4f1"
+    },
+    "76b72a836b": {
+      "tests/qt/test_cov_r4_settings_model.py": "5ef90712a490f96c21b57d302f651fd497c481fc",
+      "tests/qt/test_cov_r5_settings_model.py": "9cdc96a55f3108ade9761ee6a37b6c7a8a15c4f1"
+    },
+    "cc8db83917": {
+      "tests/qt/test_cov_r4_settings_model.py": "068db3127004e2d3e2e028dbb130c31731aefb43",
+      "tests/qt/test_cov_r5_settings_model.py": "9cdc96a55f3108ade9761ee6a37b6c7a8a15c4f1"
+    }
+  },
+  "cap_gib": 4,
+  "cuda_hidden": true,
+  "final_parent_revision": "70668186e5",
+  "pyside6": "6.11.2",
+  "python": "3.12.13",
+  "qt_platform": "offscreen",
+  "raw_files": {
+    "owner-next-before.jsonl": {
+      "bytes": 25974,
+      "sha256": "64ec13263280e78f9df8aaf4e1742169b90826c5e7550b38dad36f01e0cdf8d2"
+    },
+    "owner-next-before.log": {
+      "bytes": 99,
+      "sha256": "beb735d40b987526f1b8f6a7693309d053fb79e212bbaa8905e9e2b0840e84a5"
+    },
+    "owner-next-nodes.txt": {
+      "bytes": 1209,
+      "sha256": "2b3e33378fa54e05ed84ccee2a36742b1ca4add3059eda920d8a3358a58d4714"
+    },
+    "owner-r4-only-final.jsonl": {
+      "bytes": 22476,
+      "sha256": "b6f2f30ec06926f577c264e739f91f3fd0865699ea15686b315b9ecb9a715e9d"
+    },
+    "owner-r4-only-final.log": {
+      "bytes": 99,
+      "sha256": "4bb479f380d0a45c336eaec1d8fd298584646b1d80d924f0b8fcdc71b1b4e8ce"
+    },
+    "owner-r5-before.jsonl": {
+      "bytes": 20604,
+      "sha256": "f15c867df0c4036344877426ec5e2a442c5783a22c8e4e87ae1dcc7fece8672e"
+    },
+    "owner-r5-before.log": {
+      "bytes": 99,
+      "sha256": "25ffec5e6843c7a841cf84df8cc33d6f745efce106c099334ea622ec871855b8"
+    }
+  },
+  "relevant_source_blobs": {
+    "70668186e5": {
+      "spacr/qt/screens/settings_model.py": "b85bb32a3a67ea10f9651bbeb36b5fe198586a27",
+      "tests/qt/test_field_fade.py": "87a2798a513987d67de7de1b2b8ad0a164163a2e"
+    },
+    "76b72a836b": {
+      "spacr/qt/screens/settings_model.py": "b85bb32a3a67ea10f9651bbeb36b5fe198586a27",
+      "tests/qt/test_field_fade.py": "87a2798a513987d67de7de1b2b8ad0a164163a2e"
+    },
+    "cc8db83917": {
+      "spacr/qt/screens/settings_model.py": "b85bb32a3a67ea10f9651bbeb36b5fe198586a27",
+      "tests/qt/test_field_fade.py": "87a2798a513987d67de7de1b2b8ad0a164163a2e"
+    }
+  }
+}

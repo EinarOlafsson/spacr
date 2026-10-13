@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-09-30: the confluency_channel, confluency_source and confluency_window tooltips that item 536's phase confluency source rewrote, re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_channel",
+      "source": "The merged-array channel that the texture, intensity and phase confluency sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture or phase, or the cytoplasm or membrane stain for intensity. Ignored when confluency_source resolves to masks. Default None.",
+      "source_sha256": "7578bb1f6d42093da1b5b6e361d10e7890278a20b883516e0dcd7bd6deb80adf",
+      "translation": "纹理、强度和相差三种汇合度来源所读取的合并数组通道，编号方式与 channels 相同。留空则使用 channels 的第一项。纹理或相差请选择明场或相差平面，强度请选择细胞质或细胞膜染色。当 confluency_source 解析为掩膜时忽略此项。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_source",
+      "source": "How confluency is decided. auto uses the cell masks when the run has cell masks and texture otherwise. masks is the union of every segmented cell, before Measure's size filters. texture reads the local variation of confluency_channel with an automatic threshold. phase classifies every pixel of confluency_channel with a small model, for phase contrast and brightfield; weights trained on LIVECell, CC BY-NC 4.0, non-commercial use. intensity thresholds confluency_channel automatically, for fluorescent cytoplasm or membrane stains. Default auto.",
+      "source_sha256": "1ad7c53391ca65eafe218c43afc1b78b597ef9635c7d5c63fed1de29970f4436",
+      "translation": "汇合度的判定方式。auto 在运行有细胞掩膜时使用细胞掩膜，否则使用纹理。masks 是所有已分割细胞的并集，在 Measure 的大小过滤之前。texture 以自动阈值读取 confluency_channel 的局部变化。phase 用一个在八种细胞系的相差图像上训练的小模型对 confluency_channel 的每个像素分类，适用于相差和明场。intensity 自动对 confluency_channel 取阈值，适用于荧光细胞质或细胞膜染色。默认值 auto。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confluency_window",
+      "source": "Side of the square window, in pixels, over which the texture confluency source measures local variation. Roughly the width of the thinnest cell process that should count as covered: smaller follows edges more closely but leaves smooth cell interiors as holes, larger bridges narrow gaps. For phase, the field is first resized by 15/window, so raise it in proportion when cells are more pixels across than in the classifier's training images. Ignored by the masks and intensity sources. Default 15.",
+      "source_sha256": "b67b9aee3ea6ab1b6d9cfa65b4f72c2567c5d6d012d87cbce7c7b17169830eed",
+      "translation": "纹理汇合度来源测量局部变化所用正方形窗口的边长（像素）。大致为应计为覆盖的最细细胞突起的宽度：较小时更贴合边缘，但会把平滑的细胞内部留作孔洞；较大时可跨过狭窄间隙。对于相差来源，视野会先按 15/窗口 缩放，因此当细胞所占像素比分类器训练图像中更多时，请按比例调大此值。掩膜和强度来源会忽略此项。默认值 15。"
+    }
+  ]
+}

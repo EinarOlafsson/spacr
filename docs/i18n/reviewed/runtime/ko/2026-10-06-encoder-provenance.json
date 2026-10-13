@@ -1,0 +1,28 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+      "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+      "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+      "table": "ui",
+      "translation": "채널 정책: {policy}. 서로 다른 정책의 차원은 비교할 수 없습니다."
+    },
+    {
+      "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+      "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+      "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+      "table": "ui",
+      "translation": "체크섬 없음: 이 환경에서 읽을 수 있는 로컬 체크포인트를 찾을 수 없습니다."
+    },
+    {
+      "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+      "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+      "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+      "table": "ui",
+      "translation": "평가 결과 없음. 라벨이 있는 표현형 대조군을 대상으로 검색 성능을 측정하고 결과를 첨부하세요."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

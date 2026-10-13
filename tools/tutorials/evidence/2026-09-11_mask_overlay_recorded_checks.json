@@ -1,0 +1,357 @@
+{
+  "lesson": "07_mask",
+  "status": "Real preview and disclosed native failure plus recorded API/viewer workaround; multilingual production pending",
+  "helper_sha256": "9090a6a69c6b05b7cb2b8823a2f56d696f7e14b4731f4f8192480fbf10e316a4",
+  "composition": {
+    "accepted": true,
+    "scope": "Verified live preview plus explicitly disclosed partial native plotting and a separate complete per-file API export",
+    "preview": {
+      "before": 51,
+      "minimum_area": 5642,
+      "after": 25,
+      "restored": 51,
+      "parameter_variant_objects": 42,
+      "preserved_native_observation_not_new_inference": true,
+      "segmentation_quality_ranking_claimed": false,
+      "source_hashes": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/preview_cell.npy": "77e4c9ec3cf840589cb3b149e4f1e6859f704255602c8b71e6ebb4bd3556225b",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/preview_cell_diameter_variant.npy": "ada8c2f92a022f23fe0e66a55778d2c8090488f9e77042c7535bfbe45e570475",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/preview_outputs.json": "999d9fdd18dfa1edb6d1c99686d5d90cebd194ca78bba078a5c75cfd13332427",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/live_variants.json": "7ab6afa040a86e1bb9832cf9671e170818538459c92b424862a08f1b511f71fc"
+      }
+    },
+    "live_preview_implementation_unchanged": {
+      "spacr/qt/widgets/live_preview.py": "a4078f9b61d0bc4b6a6b7fa8e78c4fda3b7246a9daab6fd0b60f1a4d2298ef69",
+      "spacr/qt/widgets/preview_contract.py": "724813492afc65f765804fb1a0d07bfac9863b3ef29006bcc0bf17b77d2a27aa"
+    },
+    "native_batch_accepted": false,
+    "native_failure_disclosed": true,
+    "native_batch_rejection": {
+      "accepted": false,
+      "reasons": [
+        "The console reports partial artifacts despite the GUI completion status."
+      ],
+      "figure_count": 9,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "native_worker_outcome": {
+      "finished": true,
+      "ok": true,
+      "errors": []
+    },
+    "native_journal": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/runs/2026-09-11_071752_9f9ee05b__mask/manifest.json",
+    "merged_arrays_match_native_journal": true,
+    "qc_rows": [
+      {
+        "field": "plate1_E01_17_1",
+        "object_type": "cell",
+        "n_objects": "23",
+        "severity": "ok",
+        "flags": "",
+        "border_fraction": "0.217391",
+        "count_ratio": "",
+        "diameter_ratio": "",
+        "foreground_fraction": "0.130019",
+        "mad_diameter": "40.7721",
+        "max_object_fraction": "0.0121264",
+        "median_area": "24802.5",
+        "median_diameter": "177.666",
+        "n_interior": "18",
+        "outlier_fraction": "0",
+        "split_ratio": "",
+        "tiny_fraction": "0.0555556",
+        "note": "23 cell(s), median diameter 177.7 px, 22% on the border, foreground 13.0%. Nothing wrong with this field."
+      },
+      {
+        "field": "plate1_L02_18_1",
+        "object_type": "cell",
+        "n_objects": "54",
+        "severity": "ok",
+        "flags": "",
+        "border_fraction": "0.240741",
+        "count_ratio": "",
+        "diameter_ratio": "",
+        "foreground_fraction": "0.204699",
+        "mad_diameter": "21.412",
+        "max_object_fraction": "0.0106065",
+        "median_area": "16203",
+        "median_diameter": "143.633",
+        "n_interior": "41",
+        "outlier_fraction": "0",
+        "split_ratio": "",
+        "tiny_fraction": "0",
+        "note": "54 cell(s), median diameter 143.6 px, 24% on the border, foreground 20.5%. Nothing wrong with this field."
+      },
+      {
+        "field": "plate1_E01_17_1",
+        "object_type": "nucleus",
+        "n_objects": "19",
+        "severity": "ok",
+        "flags": "",
+        "border_fraction": "0.157895",
+        "count_ratio": "",
+        "diameter_ratio": "",
+        "foreground_fraction": "0.037093",
+        "mad_diameter": "9.89492",
+        "max_object_fraction": "0.0032306",
+        "median_area": "8362.5",
+        "median_diameter": "103.105",
+        "n_interior": "16",
+        "outlier_fraction": "0",
+        "split_ratio": "",
+        "tiny_fraction": "0",
+        "note": "19 nucleus(s), median diameter 103.1 px, 16% on the border, foreground 3.7%. Nothing wrong with this field."
+      },
+      {
+        "field": "plate1_L02_18_1",
+        "object_type": "nucleus",
+        "n_objects": "50",
+        "severity": "ok",
+        "flags": "",
+        "border_fraction": "0.22",
+        "count_ratio": "",
+        "diameter_ratio": "",
+        "foreground_fraction": "0.0806673",
+        "mad_diameter": "9.48052",
+        "max_object_fraction": "0.00317703",
+        "median_area": "6401",
+        "median_diameter": "90.2774",
+        "n_interior": "39",
+        "outlier_fraction": "0",
+        "split_ratio": "",
+        "tiny_fraction": "0",
+        "note": "50 nucleus(s), median diameter 90.3 px, 22% on the border, foreground 8.1%. Nothing wrong with this field."
+      },
+      {
+        "field": "plate1_E01_17_1",
+        "object_type": "pathogen",
+        "n_objects": "8",
+        "severity": "warn",
+        "flags": "near_empty_field",
+        "border_fraction": "0",
+        "count_ratio": "",
+        "diameter_ratio": "",
+        "foreground_fraction": "0.00261995",
+        "mad_diameter": "",
+        "max_object_fraction": "0.000853362",
+        "median_area": "732.5",
+        "median_diameter": "30.4833",
+        "n_interior": "8",
+        "outlier_fraction": "",
+        "split_ratio": "",
+        "tiny_fraction": "",
+        "note": "8 pathogen(s), median diameter 30.5 px, 0% on the border, foreground 0.3%. only 8 object(s), below the 10 needed for per-field statistics, so the size checks above were not run."
+      },
+      {
+        "field": "plate1_L02_18_1",
+        "object_type": "pathogen",
+        "n_objects": "58",
+        "severity": "ok",
+        "flags": "",
+        "border_fraction": "0.103448",
+        "count_ratio": "",
+        "diameter_ratio": "",
+        "foreground_fraction": "0.0219731",
+        "mad_diameter": "11.1953",
+        "max_object_fraction": "0.00122107",
+        "median_area": "1681.5",
+        "median_diameter": "46.2468",
+        "n_interior": "52",
+        "outlier_fraction": "0",
+        "split_ratio": "",
+        "tiny_fraction": "0",
+        "note": "58 pathogen(s), median diameter 46.2 px, 10% on the border, foreground 2.2%. Nothing wrong with this field."
+      }
+    ],
+    "cell_qc_precedes_mask_adjustment": true,
+    "command": {
+      "accepted": true,
+      "overlay": {
+        "accepted": true,
+        "scope": "Explicit per-array PNG workaround, not the native plotting loop",
+        "plotting_api_source": {
+          "path": "/mnt/firecuda2/codex/repo/spacr/spacr/plot.py",
+          "sha256": "6579a80351a01e61578c3e1e47658cd248b7ee158f62de8c37a90119af84d77f"
+        },
+        "source_hashes": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/.spacr_plane_layout.json": "e473ec9f540c3bb302a5f2121711f7349587fb9774be9178ed444ba9054f0de8",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_E01_17_1.npy": "f16ac19e23d16f9b7454327eea82177e4a57bda436abccfe4eb430e64e173ef9",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_L02_18_1.npy": "862062d0ad9d61744ba54dd4da81776232db9d37b44c7830887d8fb1aa99b1b6"
+        },
+        "reports": [
+          {
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_E01_17_1.npy",
+            "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque/plate1_E01_17_1.png",
+            "png_sha256": "936e15569c33d544315bb3d320d012883a1affe513ab19fb63b16f743f004253",
+            "channel_rgb_values_checked": 47712432,
+            "combined_foreground_pixels_checked": 3976036,
+            "counts": {
+              "cell": 25,
+              "nucleus": 19,
+              "pathogen": 8
+            },
+            "segmentation_accuracy_certified": false
+          },
+          {
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_L02_18_1.npy",
+            "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque/plate1_L02_18_1.png",
+            "png_sha256": "0f4f098365a572c0e3e2bd973745ab88202df036f15b0dc9fae7b9a1ec2efebd",
+            "channel_rgb_values_checked": 47712432,
+            "combined_foreground_pixels_checked": 3976036,
+            "counts": {
+              "cell": 52,
+              "nucleus": 50,
+              "pathogen": 58
+            },
+            "segmentation_accuracy_certified": false
+          }
+        ],
+        "original_inputs_unchanged": true,
+        "app_source_modified": false,
+        "native_plotting_loop_fixed": false,
+        "segmentation_accuracy_certified": false,
+        "published": false
+      },
+      "helper_sha256": "9090a6a69c6b05b7cb2b8823a2f56d696f7e14b4731f4f8192480fbf10e316a4",
+      "native_plotting_loop_fixed": false,
+      "segmentation_accuracy_certified": false,
+      "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque",
+      "published": false
+    },
+    "external_viewer": {
+      "accepted": true,
+      "command": {
+        "accepted": true,
+        "overlay": {
+          "accepted": true,
+          "scope": "Explicit per-array PNG workaround, not the native plotting loop",
+          "plotting_api_source": {
+            "path": "/mnt/firecuda2/codex/repo/spacr/spacr/plot.py",
+            "sha256": "6579a80351a01e61578c3e1e47658cd248b7ee158f62de8c37a90119af84d77f"
+          },
+          "source_hashes": {
+            "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/.spacr_plane_layout.json": "e473ec9f540c3bb302a5f2121711f7349587fb9774be9178ed444ba9054f0de8",
+            "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_E01_17_1.npy": "f16ac19e23d16f9b7454327eea82177e4a57bda436abccfe4eb430e64e173ef9",
+            "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_L02_18_1.npy": "862062d0ad9d61744ba54dd4da81776232db9d37b44c7830887d8fb1aa99b1b6"
+          },
+          "reports": [
+            {
+              "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_E01_17_1.npy",
+              "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque/plate1_E01_17_1.png",
+              "png_sha256": "936e15569c33d544315bb3d320d012883a1affe513ab19fb63b16f743f004253",
+              "channel_rgb_values_checked": 47712432,
+              "combined_foreground_pixels_checked": 3976036,
+              "counts": {
+                "cell": 25,
+                "nucleus": 19,
+                "pathogen": 8
+              },
+              "segmentation_accuracy_certified": false
+            },
+            {
+              "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/example_data/plate1/test/merged/plate1_L02_18_1.npy",
+              "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque/plate1_L02_18_1.png",
+              "png_sha256": "0f4f098365a572c0e3e2bd973745ab88202df036f15b0dc9fae7b9a1ec2efebd",
+              "channel_rgb_values_checked": 47712432,
+              "combined_foreground_pixels_checked": 3976036,
+              "counts": {
+                "cell": 52,
+                "nucleus": 50,
+                "pathogen": 58
+              },
+              "segmentation_accuracy_certified": false
+            }
+          ],
+          "original_inputs_unchanged": true,
+          "app_source_modified": false,
+          "native_plotting_loop_fixed": false,
+          "segmentation_accuracy_certified": false,
+          "published": false
+        },
+        "helper_sha256": "9090a6a69c6b05b7cb2b8823a2f56d696f7e14b4731f4f8192480fbf10e316a4",
+        "native_plotting_loop_fixed": false,
+        "segmentation_accuracy_certified": false,
+        "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque",
+        "published": false
+      },
+      "viewer": {
+        "accepted": true,
+        "saved_plots": [
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque/plate1_E01_17_1.png",
+            "sha256": "936e15569c33d544315bb3d320d012883a1affe513ab19fb63b16f743f004253",
+            "dimensions": [
+              4000,
+              1000
+            ],
+            "window_title": "plate1_E01_17_1.png",
+            "viewer": "eog",
+            "actual_desktop_capture": true
+          },
+          {
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/overlay_api_recorded_opaque/plate1_L02_18_1.png",
+            "sha256": "0f4f098365a572c0e3e2bd973745ab88202df036f15b0dc9fae7b9a1ec2efebd",
+            "dimensions": [
+              4000,
+              1000
+            ],
+            "window_title": "plate1_L02_18_1.png",
+            "viewer": "eog",
+            "actual_desktop_capture": true
+          }
+        ],
+        "saved_files_unchanged": true,
+        "application_figures_fixed": false,
+        "scope": "External system viewer, not spaCR Figures"
+      },
+      "native_plotting_loop_fixed": false,
+      "segmentation_accuracy_certified": false,
+      "published": false
+    },
+    "source_hashes": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/provenance.json": "c4356f9fcab635007f86427399c25494d3103c4d3bbaa71a5cc20dc7d670c77a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/frames.json": "0d629ab0c10abac928f392396b21f087e1188d8a63546de7092343168abcc10b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/00_home.png": "740c3dd5ca9e7ef324755a9ade4a3a78a0a825dda128128dcd0a482f2702ee55",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/01_module.png": "46330261165a0af93f76e2a0f9217cd9d5294232d74769f99a11086993c4c5fe",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/02_download.png": "2859c75659f5d1cbc3affb2c83efd166db99e1946228eb12a3da3a203ced3c1c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/03_data_ready.png": "f80ac1a5ea24409cbe429bfb46e49aa5a5420323a60494897250a2b5a6eb3a8a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/20_batch_settings.png": "abfb8288bb637b0650de850fa8b48c501b080dbbc6f8d667e59d8e9cfadf31a2",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/mask_fresh_v1/captures/mask_bounded_native/23_batch_finished.png": "a87e3d7dcacb9fef6a3ed86a38efe2c7fd277110228e6682e026cf2053f83ee6",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/provenance.json": "c955753c2ceeab0728d940e8a530f8d4e1d383291f80bee3f0bc70983f2fa17f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/frames.json": "38bba490bd9bf276ab3bf84e67b61495ee392c53dffb0bfab07a29eb23c8b7a0",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/04_live_image.png": "0a88b3123cef3ab42d1364f77cc7ab59c690c18d528c50698815cebca513bcaa",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/05_live_settings.png": "777bf0972d2f07be60e84fbdd59d9e0867893e6149f03d23d2773a087894a4ce",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/07_preview_result.png": "8b452a3d67d0a7ac6d49a98b3cafa63f0fdd76a326c465e3abe2d54cf67f8a00",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/08_filters_before.png": "84e918785c85641c535ebdc8ae689d03751f9e4f868f2343b12350f5fc76e62f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/09_filters_after.png": "4ec8b452341384ff0f0b84b0cb80c4095984401db81299cf7b4cd2e6ddc01033",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/10_filters_restored.png": "31294745873457082c4488549892c41bf5c80b664da1c57906e06c7f59231825",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/11_model_diameter.png": "702138ef67af6e9931e497dd1f169b381b3c43dc3d8d67b3c6318500de840e2c",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask/12_model_result.png": "ea3a2f5df1535791a1e9c90b39ad0c21289a0663bbc6287d965b6f087101d2b4",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_command_opaque/provenance.json": "561db440f81549dc175953c0a2643488fa0ca2b2d3ee57424f3f63b08c6ca08e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_command_opaque/frames.json": "de1c6cf62897ae5b6e7063f9ae50c99834e0179ac686bd3ae1f2b118ac3c74ba",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_command_opaque/01_explicit_numeric_inputs.png": "b49c632e3f157a462205c581c1cfbd4c4856276b96b84e88458af5cb501f7ce1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_command_opaque/02_explicit_plotting_api.png": "64f6b72893b4896152c6205658fa71c213bf29a2c8dbc795b62e83d0a40364c6",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_command_opaque/03_verified_saved_overlays.png": "d62b6a44ce4596533e393626890cfd5f7a42bc2b60a401fb197191b7236efa8a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_viewer_opaque/provenance.json": "4ee9172b014da9916333e3889be98fe4604477b679a5cbb9f960d44c7f3757c1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_viewer_opaque/frames.json": "c56c2fac3e53eb7f15f34e5ac2d5ac199c6d128ac7d42a9d751767ba7433ef0b",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_viewer_opaque/09_saved_plate1_E01_17_1.png": "61aa5fc6533c68c4125b5157449872f8263578ccb2e44e052447bdcdcf844c4d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_viewer_opaque/10_saved_plate1_L02_18_1.png": "0565e2653c6d4b12b3d9870bdcee6f7beb470996668cb79862836fa8b68717a7",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/mask_explicit_overlay_viewer_opaque/30_ai_unsent_question.png": "2071a167d978009d9dac3308f17b634540cb55993d13fe81cc25e431d4ef3756"
+    },
+    "native_plotting_loop_fixed": false,
+    "segmentation_accuracy_certified": false,
+    "transparent_probes_preserved_but_not_used": true,
+    "published": false
+  },
+  "english_sha256": "7f8ea6e13af64e34ac9829822434445ea17429666a9d38b1a45aa4ba756084fe",
+  "scene_count": 16,
+  "narrated_words": 813,
+  "tests": {
+    "preview_passed": 6,
+    "overlay_passed": 7,
+    "mutations_observed_red": 4
+  },
+  "opaque_exports_visually_inspected": true,
+  "published": false
+}

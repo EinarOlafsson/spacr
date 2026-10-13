@@ -1,0 +1,60 @@
+{
+  "lesson": "08_measure",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
+  "review": {
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    },
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
+  },
+  "language": "ja",
+  "title": "Measure：物体の特徴量と切り出し画像を抽出する",
+  "description": "マスク付きの画像を読み込み、物体を確認し、切り出しの設定を選んで、アノテーションと分類のための測定値を保存します。",
+  "objectives": [
+    "例の強度チャネルとマスクの面を確認する。",
+    "視野を確認し、保存する切り出し画像の正規化を意識して選ぶ。",
+    "Measureを実行し、データベース、物体の切り出し画像、図を見つける。"
+  ],
+  "prerequisite": "Maskの結合出力を使うか、MeasureでLoad test dataを選びます。この例には十六の視野があり、強度の面0～3と、面4、5、6に細胞、核、病原体のマスクが入っています。",
+  "scenes": [
+    "Home から Measure を開きます。Input and Experiment の Source で画像とオブジェクトマスクを含む統合フォルダーを選択するか、Load test data をクリックします。ここではすでに例を読み込んでいます。Measure は面積や輝度などの特徴を抽出し、関連するオブジェクトを対応付け、Annotate と Classify 用にオブジェクトの切り出し画像を保存できます。",
+    "Load test dataをクリックして例が読み込まれるのを待つか、自分の結合済みプロジェクトを選びます。面の対応を確認します。この例では、四つの強度チャネルの後に、面四、五、六に細胞、核、病原体のマスクが続きます。 Runを押すと、Measureはこれらのマスクプレーンをフォルダーに保存されたレイアウトと比較します。一致しない場合はUse stored image layoutを提示し、マッピングを確認してから再実行するよう求めます。",
+    "この十六ビットの例の切り出し画像を確認するには、Liveを開く前にNormalizeをオンにします。これでプレビューが見やすくなります。ただし、この主設定は保存される切り出し画像にも影響します。このバッチ実行の前にはオフに戻します。",
+    "Liveをオンにして、視野を選びます。物体の切り出し画像と、マスク同士の関係を確認します。カテゴリーをスクロールし、必要ならプレビューを拡大して境界をはっきり見ます。",
+    "表示チャネルの選択を使うと、強度チャネルを一つずつ確認できます。チャネルゼロではグレースケールで表示され、All channelsで合成表示に戻ります。この選択はプレビューだけを変え、ラベルやバッチのチャネル対応は変えません。",
+    "別のフィールドを選んで、そのオブジェクトを比べます。マスクが欠けていたり誤ってつながっていたりする場合は、先に進む前に修正するか、Maskを調整します。",
+    "フィールドを並べて比較するには、Checked imagesを開いて目的のフィールドにチェックを入れます。グリッドは切り出し画像を元のフィールドごとにまとめます。切り出し画像にカーソルを合わせるとパスが表示され、ダブルクリックするとそのフィールドが開きます。Uncheck all imagesでグリッドが空になります。変わるのはプレビューだけで、Measureが処理する内容は変わりません。",
+    "測定の前にプロジェクト全体のセグメンテーション品質を確認するには、Actions行の3DとTimeの隣にあるQCをオンにします。ポップアップには、プレートのほかの部分よりオブジェクトがずっと少ないなど、マスクが通常と異なるフィールドやウェルが一覧され、確認用のリンクが付きます。この確認は参考情報で、Measureを止めることはありません。ポップアップを閉じるとスイッチはオフになります。",
+    "All settingsのImage Preprocessingには、測定の前にMeasureが各フィールドに適用できる補正がまとまっています。点像分布関数を使うImage Deconvolutionと、事前に推定したモデルを使うIllumination Correctionです。これらはこの実行で測定するピクセルを変えますが、マスクやディスク上の配列は変わりません。",
+    "Liveをオフにし、この例ではNormalizeもオフに戻します。切り出し画像を保存するときの正規化は意識して選びます。切り出し画像ごとのスケーリングは、後で画像分類器が見る強度の差を変えてしまいます。定量的な測定には、元の結合配列を残しておきます。",
+    "設定が整ったら保存しておきましょう。設定バーの Templates を開くか Ctrl+Shift+R を押し、Save current settings を選びます。声に出して言えるような名前を付ければ、次回は入力し直す代わりにそのテンプレートを適用できます。",
+    "Import では、各実行が結果の横に書き出す設定 CSV も読み込めます。以前の実行や同僚の設定が、ファイル名の付いたテンプレートになります。",
+    "Rename で、取り込んだテンプレートに分かりやすい名前を付けられます。Share は選んだテンプレートを他の人向けにファイルへ書き出し、Apply は Measure に読み込みます。",
+    "Ctrl+Shift+R のようなキーは変更できます。Help から Keyboard shortcuts を開き、Change shortcuts を選びます。任意の操作に新しいキーを入力します。ほかの操作と重なると spaCR が競合を示し、解消するまで Save は押せません。",
+    "測定値とオブジェクトの切り出し画像の保存をオンにし、Plotはオンのままにして、切り出しのサイズと出力チャネルを選びます。最初の実行では、Test modeが一つのフィールドだけを測定します。付属の十六フィールドすべてを処理するにはオフにします。Runをクリックし、実行が終わるまでコンソールを確認してから、先に進む前にどのフィールドが成功したかを確認します。",
+    "切り出し画像の図を確認したら、measurementsフォルダーのmeasurements.dbと、プロジェクトの切り出し出力に保存された物体画像を探します。データベースと画像のパスは一緒に保管します。例の物体にラベルを付けるにはAnnotateへ、ラベル付きの学習データがすでにあればClassifyへ進みます。",
+    "このメモリ使用量のデモでは、同じサンプル視野をタイル状に並べて大きな配列を作っています。測定は開始しません。 実行を始める前に、spaCRはプロジェクトの1つの視野から、各ワーカーが必要とするメモリを見積もります。つなぎ合わせたモザイクのような非常に大きな視野では、指定したワーカーが空きRAMに収まらないことがあり、その場合spaCRは先に確認します。推奨されたワーカー数を選ぶか、指定した数のままにしてメモリが不足する間はMeasureに新しい視野を待たせるか、ほかのプログラムを閉じてメモリを空けます。"
+  ]
+}

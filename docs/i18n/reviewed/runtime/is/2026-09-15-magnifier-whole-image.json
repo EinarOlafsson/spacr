@@ -1,0 +1,146 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Exclude objects touching the box border",
+      "source": "Exclude objects touching the box border",
+      "source_sha256": "03bb8f4fd736ec938c23ab4d7817750a0a60e04a625b3d2ac3969bb1641b5659",
+      "table": "ui",
+      "translation": "Útiloka hluti sem snerta brún reitsins"
+    },
+    {
+      "key": "Magnifier added {n} object(s) — Ctrl+Z to undo",
+      "source": "Magnifier added {n} object(s) — Ctrl+Z to undo",
+      "source_sha256": "9c3a2c9b5b058197132a18eb5977bc0d38890fcd1ec702429086422cf1da9403",
+      "table": "ui",
+      "translation": "Stækkunarglerið bætti við {n} hlut/hlutum — Ctrl+Z til að afturkalla"
+    },
+    {
+      "key": "Magnifier could not segment the whole image: {error}",
+      "source": "Magnifier could not segment the whole image: {error}",
+      "source_sha256": "03c3c396ca5c571747290a3e64c25c66f7a273d2bbe3aeed79c0ee4ccc8468d4",
+      "table": "ui",
+      "translation": "Stækkunarglerið gat ekki hlutað alla myndina: {error}"
+    },
+    {
+      "key": "Magnifier on: a click adds the object under it and a right-click removes the mask object under it; the mouse wheel changes its zoom.",
+      "source": "Magnifier on: a click adds the object under it and a right-click removes the mask object under it; the mouse wheel changes its zoom.",
+      "source_sha256": "1f6d5c5ffffe854f28342359003a6dd787ac114a15487b0cdb6b9000dd2fa4c5",
+      "table": "ui",
+      "translation": "Kveikt á stækkunargleri: smellur bætir við hlutnum undir því og hægrismellur fjarlægir grímuhlutinn undir því; músarhjólið breytir aðdrætti þess."
+    },
+    {
+      "key": "Magnifier removed object {label} — Ctrl+Z to undo",
+      "source": "Magnifier removed object {label} — Ctrl+Z to undo",
+      "source_sha256": "069fee658e51ecfd73558dce2987f1be32556ccf1778fa3856614b9ba451fce2",
+      "table": "ui",
+      "translation": "Stækkunarglerið fjarlægði hlut {label} — Ctrl+Z til að afturkalla"
+    },
+    {
+      "key": "Magnifier: nothing was added — the Overlap rule or Min area leaves nothing of the object under the click.",
+      "source": "Magnifier: nothing was added — the Overlap rule or Min area leaves nothing of the object under the click.",
+      "source_sha256": "50a7df9fb220f2f28663092861fd13785cadcbbdc53bc55333baebe3b379b817",
+      "table": "ui",
+      "translation": "Stækkunargler: engu var bætt við — reglan í Skörun eða Min area skilur ekkert eftir af hlutnum undir smellinum."
+    },
+    {
+      "key": "Magnifier: segmenting the whole image…",
+      "source": "Magnifier: segmenting the whole image…",
+      "source_sha256": "7ee95d1161b68b04d363b452c92352573eaf2ccf73c4458089795630ca155b7f",
+      "table": "ui",
+      "translation": "Stækkunargler: hlutar alla myndina…"
+    },
+    {
+      "key": "Magnifier: the settings changed, so the whole-image objects were discarded. Segmenting the whole image again…",
+      "source": "Magnifier: the settings changed, so the whole-image objects were discarded. Segmenting the whole image again…",
+      "source_sha256": "dca2a0d70887cd5e10c051c7f3b034832776e4422322fa36779ec4f7e2e572fb",
+      "table": "ui",
+      "translation": "Stækkunargler: stillingarnar breyttust, svo hlutunum úr allri myndinni var hent. Hlutar alla myndina aftur…"
+    },
+    {
+      "key": "Magnifier: the whole image is still being segmented — nothing was added.",
+      "source": "Magnifier: the whole image is still being segmented — nothing was added.",
+      "source_sha256": "1e63c00283d7ac637b35d42b845825e952afdb7d4fdca0a6f9039e72d5ae2230",
+      "table": "ui",
+      "translation": "Stækkunargler: enn er verið að hluta alla myndina — engu var bætt við."
+    },
+    {
+      "key": "Magnifier: there is no mask object under the click — nothing was removed.",
+      "source": "Magnifier: there is no mask object under the click — nothing was removed.",
+      "source_sha256": "ed84f5d3610e78a512d1392d494504ca8433a4c850b3d60cb86a761e7a4c5d05",
+      "table": "ui",
+      "translation": "Stækkunargler: enginn grímuhlutur er undir smellinum — ekkert var fjarlægt."
+    },
+    {
+      "key": "Magnifier: there is no object under the click — nothing was added.",
+      "source": "Magnifier: there is no object under the click — nothing was added.",
+      "source_sha256": "0829cb8a51727da6556e97143c6a285152c47ad2bdce4f6243eff3944875b158",
+      "table": "ui",
+      "translation": "Stækkunargler: enginn hlutur er undir smellinum — engu var bætt við."
+    },
+    {
+      "key": "Magnifier: whole-image segmentation cancelled. Click the image to start it again.",
+      "source": "Magnifier: whole-image segmentation cancelled. Click the image to start it again.",
+      "source_sha256": "ecbc07077466bfc5ba51ce5fbeb57a9f4d72da6e324d84279888e22c16ed2989",
+      "table": "ui",
+      "translation": "Stækkunargler: hætt var við hlutun allrar myndarinnar. Smelltu á myndina til að ræsa hana aftur."
+    },
+    {
+      "key": "Magnifier: {n} object(s) found in the whole image. Click one to add it; right-click an object in the mask to remove it.",
+      "source": "Magnifier: {n} object(s) found in the whole image. Click one to add it; right-click an object in the mask to remove it.",
+      "source_sha256": "7d981517e126b57b34d875680482291fd0bb8e79d331b8e99b524f33c62a432f",
+      "table": "ui",
+      "translation": "Stækkunargler: {n} hlutur/hlutir fundust í allri myndinni. Smelltu á einn til að bæta honum við; hægrismelltu á hlut í grímunni til að fjarlægja hann."
+    },
+    {
+      "key": "Region under the mouse",
+      "source": "Region under the mouse",
+      "source_sha256": "c3f6da21b7160833a34a097f59e265209a2676b79bf37f073424edf25023f3df",
+      "table": "ui",
+      "translation": "Svæðið undir músinni"
+    },
+    {
+      "key": "Segment",
+      "source": "Segment",
+      "source_sha256": "29ee089ccecadf9d4eaccb22512a3eece8cb15230412bda3b5d648c92abe154e",
+      "table": "ui",
+      "translation": "Hluta"
+    },
+    {
+      "key": "Segments the region under the mouse, or the whole image once, and shows its objects magnified. A click adds objects to the mask.",
+      "source": "Segments the region under the mouse, or the whole image once, and shows its objects magnified. A click adds objects to the mask.",
+      "source_sha256": "305ef8dbbae81aa47d7372285d0d122ae200668b667ae3aaef6c8ba53a3f9463",
+      "table": "ui",
+      "translation": "Hlutar svæðið undir músinni, eða alla myndina einu sinni, og sýnir hluti þess stækkaða. Smellur bætir hlutum við grímuna."
+    },
+    {
+      "key": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined. A click adds them to the mask as new objects — under Whole image, only the object clicked — one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source": "Show a box under the mouse with the region around it magnified and the objects a model finds in it outlined. A click adds them to the mask as new objects — under Whole image, only the object clicked — one undo step per click. While it is on, the mouse wheel changes the box's zoom rather than the view's.",
+      "source_sha256": "0cf8a38d7718560fe01ac862c439cf51776cbbe84a5d07b3f25bfc63b5955076",
+      "table": "ui",
+      "translation": "Sýnir reit undir músinni þar sem svæðið í kring er stækkað og hlutirnir sem líkan finnur þar eru afmarkaðir. Smellur bætir þeim við grímuna sem nýjum hlutum — með Öll myndin aðeins hlutnum sem smellt var á — eitt afturköllunarskref á smell. Á meðan kveikt er á því breytir músarhjólið aðdrætti reitsins í stað yfirlitsins."
+    },
+    {
+      "key": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
+      "source": "What the model segments. Region under the mouse runs it on the box as the mouse moves, and a click adds every object the box outlines. Whole image runs it once on the entire image in the background; the box then shows those objects, a click adds the object under it, and a right-click removes the mask object under it. Changing a setting the model reads discards the whole-image objects and segments the image again.",
+      "source_sha256": "1a3b29a22afd721b9ed4ec028eeb151a0c21281c1e85aecde24a31f4b427c332",
+      "table": "ui",
+      "translation": "Hvað líkanið hlutar. Svæðið undir músinni keyrir það á reitnum á meðan músin hreyfist, og smellur bætir við hverjum hlut sem reiturinn afmarkar. Öll myndin keyrir það einu sinni á allri myndinni í bakgrunni; reiturinn sýnir síðan þá hluti, smellur bætir við hlutnum undir honum og hægrismellur fjarlægir grímuhlutinn undir honum. Ef stillingu sem líkanið les er breytt er hlutunum úr allri myndinni hent og myndin hlutuð aftur."
+    },
+    {
+      "key": "When ticked, an object that touches an edge of the box inside the image is not offered, because the box may have cut it off. Untick it to offer and add such objects too, as far as the box sees them. Objects at the image border are offered either way. It applies to Region under the mouse; Whole image never cuts an object.",
+      "source": "When ticked, an object that touches an edge of the box inside the image is not offered, because the box may have cut it off. Untick it to offer and add such objects too, as far as the box sees them. Objects at the image border are offered either way. It applies to Region under the mouse; Whole image never cuts an object.",
+      "source_sha256": "4908e03ee7d3a4857a3a7dc2dde24d286abbb071bf688a8063494ef6eb0ca87c",
+      "table": "ui",
+      "translation": "Þegar hakað er við þetta er hlutur sem snertir brún reitsins innan myndarinnar ekki í boði, því reiturinn gæti hafa skorið hann. Taktu hakið af til að bjóða og bæta líka við slíkum hlutum, eins langt og reiturinn sér þá. Hlutir við brún myndarinnar eru í boði hvort sem er. Þetta gildir um Svæðið undir músinni; Öll myndin sker aldrei hlut."
+    },
+    {
+      "key": "Whole image",
+      "source": "Whole image",
+      "source_sha256": "7b823236b6caba32faa641d11967fc10592879baa2dde60d077dca08ee57c3d3",
+      "table": "ui",
+      "translation": "Öll myndin"
+    }
+  ],
+  "schema": 1
+}

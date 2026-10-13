@@ -1,0 +1,11 @@
+{
+  "source_sha256": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+  "statements": 3451,
+  "branches": 726,
+  "missing_lines": [],
+  "missing_branches": [],
+  "baseline_statement_allowance": 1,
+  "baseline_branch_allowance": 0,
+  "within_existing_baseline": true,
+  "scope": "Mapped hosted392 unchanged source outside the changed fungal class plus exact-b2a targeted runs; not a fresh complete-suite or hosted verdict"
+}

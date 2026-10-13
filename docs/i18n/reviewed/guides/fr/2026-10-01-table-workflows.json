@@ -1,0 +1,1255 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "method": "Direct Codex AI technical translation with independent Codex-agent technical review; no local-model generation or native-speaker/human signoff claimed. Normal guide worklist importer enforces protected literals, roles, URLs, substitutions and current exact UI bindings. Historical PO author attribution remains preserved.",
+  "draft_author": "Codex agent merge_interfaces",
+  "independent_technical_reviewer": "Codex agent shared_ui",
+  "worklist_sha256": "6df43194e7464034f106e4de398d45d873b6200a0311ed2aee36434ccbbe5e56",
+  "draft_sha256": "d1149334801c328c80dfd91fa770f222cbb098ddd04f909e06a252f6327e113b",
+  "peer_review_sha256": "48457c469e8833b8747857241ee46a3803ccff9540f3c2b4d867c8a47be5ccfc",
+  "peer_review_corrections": [
+    {
+      "index": 58,
+      "proposed_translation": "**Clés d'observation de base** identifient une ligne de base unique et non manquante. Incluez les colonnes de champ et de temps lorsque les identifiants se répètent entre images ou instants.",
+      "reason": "Plural agreement; identifiers preserve singular unique row meaning."
+    },
+    {
+      "index": 108,
+      "proposed_translation": "Appuyez sur **Ajouter une colonne**, nommez-la ``condition`` et choisissez **Composer une colonne**. Glissez ``genotype`` dans le champ de composition, insérez un jeton de texte contenant ``_``, puis glissez ``replicate``. L’ordre des jetons détermine l’ordre de jonction. Une ligne étiquetée ``WildType`` et ``replicate 1`` reçoit alors ``WildType_replicate 1``. L’espace de l’étiquette est conservé. Noms de colonnes, étiquettes, ordre des composants et séparateur sont modifiables ; l’exemple n’impose pas les noms de votre expérience.",
+      "reason": "Space in the label remains preserved; grammatical agreement only."
+    }
+  ],
+  "source_files": {
+    "docs/source/installer_guide.rst": "8e3ae817ba7141674a6aaaa0ed7b808eef218858ec09e460ab78d5ebbc100ab3",
+    "docs/source/plaque_assay.rst": "d69525fef8a644487c8b3af58948b77eefe0c516c3f3df60416eff6be105d299",
+    "docs/source/plate_barcode_linkage.rst": "148cc9c0455c28d1dda86c315adfd063ae497b3d11420e7bd2cff143287f355c",
+    "docs/source/table_workflows.rst": "dc000bbd7c4ba0f9cf932e14933cb78e5c66e8235dfa31616a98ac7b9c479a1f"
+  },
+  "runtime_catalog_sha256": "3edf4fa2f1f288e645f3dc6ac756c1203c185a0d5845c0a4c64407d170e0c8d9",
+  "records": [
+    {
+      "domain": "installer_guide",
+      "source": "macOS online installation: update and reopen",
+      "source_sha256": "de9e4508bcbc5e4e37c952e2a030439f3d983740c374f39ea60bbff37893a6a2",
+      "original_ai_draft": "Installation en ligne sur macOS : mettre à jour et rouvrir",
+      "reviewed_translation": "Installation en ligne sur macOS : mettre à jour et rouvrir",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again.",
+      "source_sha256": "00503c9b2788b3e8dacd073ae089fe27f0f090a9c464aa1a49ebc6d4db52ba1a",
+      "original_ai_draft": "Choisissez **Aide → Check for updates**, acceptez la mise à jour disponible et confirmez la réinstallation de spaCR dans son environnement actuel. spaCR se ferme, utilise le ``uv`` fourni avec l’installation pour mettre à niveau son environnement privé existant, vérifie la version installée et se rouvre automatiquement. Cette procédure conserve le lanceur de l’application et l’environnement. Elle n’exécute pas le programme de première installation et ne répète pas ses questions dans le terminal.",
+      "reviewed_translation": "Choisissez **Aide → Check for updates**, acceptez la mise à jour disponible et confirmez la réinstallation de spaCR dans son environnement actuel. spaCR se ferme, utilise le ``uv`` fourni avec l’installation pour mettre à niveau son environnement privé existant, vérifie la version installée et se rouvre automatiquement. Cette procédure conserve le lanceur de l’application et l’environnement. Elle n’exécute pas le programme de première installation et ne répète pas ses questions dans le terminal.",
+      "ui_bindings": {
+        "Help": "Aide"
+      }
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow.",
+      "source_sha256": "5e3efa7262c2307e309d8291d3ad3a9d08ee70d8578ceab40da6a16448e5a759",
+      "original_ai_draft": "La commande est identique à la commande de récupération macOS ci-dessous, avec le répertoire d’installation réel. Un échec de mise à niveau ou de vérification de version est consigné dans ``~/.spacr/logs/update.log`` et ne déclenche pas la réouverture prévue après une mise à jour réussie. La mise à jour s’arrête également si spaCR ne peut pas terminer sa fermeture en toute sécurité. Le paquet d’application figé distinct utilise sa procédure de remplacement du paquet.",
+      "reviewed_translation": "La commande est identique à la commande de récupération macOS ci-dessous, avec le répertoire d’installation réel. Un échec de mise à niveau ou de vérification de version est consigné dans ``~/.spacr/logs/update.log`` et ne déclenche pas la réouverture prévue après une mise à jour réussie. La mise à jour s’arrête également si spaCR ne peut pas terminer sa fermeture en toute sécurité. Le paquet d’application figé distinct utilise sa procédure de remplacement du paquet.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Older installations and full installers",
+      "source_sha256": "8b46d93d57db34f7ec55e6dac2079ea3eb241252825e959adbbd0ab55ff25ba9",
+      "original_ai_draft": "Anciennes installations et programmes d’installation complets",
+      "reviewed_translation": "Anciennes installations et programmes d’installation complets",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update.",
+      "source_sha256": "31bbb9211b1ba571834a3614a3cb08f753a73e79765bd0a5b2301ed440dbe1ec",
+      "original_ai_draft": "Les programmes d’installation complets et les autres procédures de mise à jour des installateurs recherchent les installations de spaCR créées par un installateur antérieur et les suppriment. Ainsi, deux versions ne coexistent jamais avec l’une d’elles dans le chemin de recherche. Ils détectent les installations Windows en ligne et hors ligne, l’application macOS et son environnement par utilisateur, l’installation Linux en ligne et le paquet Debian, ainsi que leurs lanceurs, raccourcis, entrées de menu et enregistrements de désinstallation. Les environnements créés par vos soins et les copies du code source sont répertoriés, mais jamais supprimés ; vos dossiers de projets et résultats restent intacts. Si une copie ne peut pas être supprimée -- par exemple une application macOS dans ``/Applications`` nécessitant des droits d’administration --, l’installateur l’indique et n’installe rien, évitant ainsi une mise à jour incomplète.",
+      "reviewed_translation": "Les programmes d’installation complets et les autres procédures de mise à jour des installateurs recherchent les installations de spaCR créées par un installateur antérieur et les suppriment. Ainsi, deux versions ne coexistent jamais avec l’une d’elles dans le chemin de recherche. Ils détectent les installations Windows en ligne et hors ligne, l’application macOS et son environnement par utilisateur, l’installation Linux en ligne et le paquet Debian, ainsi que leurs lanceurs, raccourcis, entrées de menu et enregistrements de désinstallation. Les environnements créés par vos soins et les copies du code source sont répertoriés, mais jamais supprimés ; vos dossiers de projets et résultats restent intacts. Si une copie ne peut pas être supprimée -- par exemple une application macOS dans ``/Applications`` nécessitant des droits d’administration --, l’installateur l’indique et n’installe rien, évitant ainsi une mise à jour incomplète.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Preview colony counting (alpha)",
+      "source_sha256": "ff03710311d373bdc7e7756f702c1cbfe7b31f9fba7e22eda9b650b36b264753",
+      "original_ai_draft": "Aperçu du comptage des colonies (alpha)",
+      "reviewed_translation": "Aperçu du comptage des colonies (alpha)",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path.",
+      "source_sha256": "545e42e929b9520e7ef1925c215ef32e4af3456a9b9fbf5112fe9762b6c3d107",
+      "original_ai_draft": "Activez **Préférences → Afficher les fonctionnalités alpha**, puis **Comptage des colonies** dans les paramètres **Colony Counting (Alpha)** du module. Gardez le mode **Plaque** sélectionné et appuyez sur **Exécuter l'aperçu**. L’aperçu utilise les paramètres de comptage des colonies et les pixels d’origine de l’image, affiche la superposition des colonies et indique leur nombre et leur aire moyenne en pixels de l’image d’origine. Si la détection des puits est activée, les puits détectés sont comptés séparément et affichés à leur emplacement sur la photo d’origine. Cette procédure ne nécessite aucun modèle de segmentation des plages de lyse.",
+      "reviewed_translation": "Activez **Préférences → Afficher les fonctionnalités alpha**, puis **Comptage des colonies** dans les paramètres **Colony Counting (Alpha)** du module. Gardez le mode **Plaque** sélectionné et appuyez sur **Exécuter l'aperçu**. L’aperçu utilise les paramètres de comptage des colonies et les pixels d’origine de l’image, affiche la superposition des colonies et indique leur nombre et leur aire moyenne en pixels de l’image d’origine. Si la détection des puits est activée, les puits détectés sont comptés séparément et affichés à leur emplacement sur la photo d’origine. Cette procédure ne nécessite aucun modèle de segmentation des plages de lyse.",
+      "ui_bindings": {
+        "Preferences": "Préférences",
+        "Show alpha features": "Afficher les fonctionnalités alpha",
+        "Colony counting": "Comptage des colonies",
+        "Run preview": "Exécuter l'aperçu"
+      }
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode.",
+      "source_sha256": "458811f9cae7a50afc7bda496b0d72ee0a791dfb001b0ae27b695ebad5b8ac77",
+      "original_ai_draft": "Laissez le détecteur de colonies vide pour utiliser le seuillage ou sélectionnez un détecteur de colonies installé. L’aperçu signale l’absence d’un fichier de poids du modèle ou d’une dépendance du détecteur au lieu de changer discrètement de méthode ; le traitement par lots peut revenir au seuillage si sa dépendance facultative du détecteur est indisponible. Vérifiez que la méthode souhaitée est disponible lorsque vous comparez les résultats de l’aperçu et du traitement par lots. Le comptage des colonies ne produit ni sortie de flux ni sortie de probabilité cellulaire ; ces vues indiquent donc que la sortie est indisponible. L’aperçu n’écrit aucune base de données d’analyse et ne modifie pas l’image source. Le comptage des colonies est ignoré en mode Figure.",
+      "reviewed_translation": "Laissez le détecteur de colonies vide pour utiliser le seuillage ou sélectionnez un détecteur de colonies installé. L’aperçu signale l’absence d’un fichier de poids du modèle ou d’une dépendance du détecteur au lieu de changer discrètement de méthode ; le traitement par lots peut revenir au seuillage si sa dépendance facultative du détecteur est indisponible. Vérifiez que la méthode souhaitée est disponible lorsque vous comparez les résultats de l’aperçu et du traitement par lots. Le comptage des colonies ne produit ni sortie de flux ni sortie de probabilité cellulaire ; ces vues indiquent donc que la sortie est indisponible. L’aperçu n’écrit aucune base de données d’analyse et ne modifie pas l’image source. Le comptage des colonies est ignoré en mode Figure.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Link plate barcodes to sample metadata",
+      "source_sha256": "44e2d0cb3798096fe7554760faa45b12d412e2e21b1d273b740599d0c0243358",
+      "original_ai_draft": "Relier les codes-barres des plaques aux métadonnées des échantillons",
+      "reviewed_translation": "Relier les codes-barres des plaques aux métadonnées des échantillons",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement.",
+      "source_sha256": "20e7ed4d020e572416717b1931d5d6fb68ebe0988217965b4bcd856096d6ec13",
+      "original_ai_draft": "Dans **Mesure**, activez **Afficher les fonctionnalités alpha** dans les préférences et ouvrez **Plate Barcode Linkage (Alpha)**. Définissez ``plate_barcode_source`` sur une table ou sur l’URL d’un service LIMS. La liaison s’exécute après la mesure.",
+      "reviewed_translation": "Dans **Mesure**, activez **Afficher les fonctionnalités alpha** dans les préférences et ouvrez **Plate Barcode Linkage (Alpha)**. Définissez ``plate_barcode_source`` sur une table ou sur l’URL d’un service LIMS. La liaison s’exécute après la mesure.",
+      "ui_bindings": {
+        "Measure": "Mesure",
+        "Show alpha features": "Afficher les fonctionnalités alpha"
+      }
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::",
+      "source_sha256": "232b1a454fac5c23976df96e842ebe4ba4900098adb1540f650173541179cd17",
+      "original_ai_draft": "Une table locale CSV, TSV, Excel ou Parquet doit contenir une colonne de code-barres, une colonne de puits et les métadonnées d’échantillons à joindre. Par exemple::",
+      "reviewed_translation": "Une table locale CSV, TSV, Excel ou Parquet doit contenir une colonne de code-barres, une colonne de puits et les métadonnées d’échantillons à joindre. Par exemple::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata.",
+      "source_sha256": "7fcede6a934cae46f467fdde4555ac094e10870cf1800cdb93ba58b68de8f404",
+      "original_ai_draft": "Définissez ``plate_barcode_column`` si votre colonne de code-barres porte un autre nom. ``plate_barcodes`` associe le nom d’une plaque imagée à son code-barres. Sinon, spaCR lit ``barcode.txt`` dans le dossier de la plaque ou utilise le nom de la plaque. Conservez des unités de concentration significatives dans vos métadonnées.",
+      "reviewed_translation": "Définissez ``plate_barcode_column`` si votre colonne de code-barres porte un autre nom. ``plate_barcodes`` associe le nom d’une plaque imagée à son code-barres. Sinon, spaCR lit ``barcode.txt`` dans le dossier de la plaque ou utilise le nom de la plaque. Conservez des unités de concentration significatives dans vos métadonnées.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Read records from a LIMS service",
+      "source_sha256": "c0a23cd8b5ed04a568c81761b0eae461c222a4f8a45f4131adde8ba4c847f189",
+      "original_ai_draft": "Lire les enregistrements d’un service LIMS",
+      "reviewed_translation": "Lire les enregistrements d’un service LIMS",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings.",
+      "source_sha256": "8ad434bde363eb3f21f8475acd71bd6204ba876e4d1273e27cec44e55c08e633",
+      "original_ai_draft": "Utilisez une URL telle que ``https://lims.example/plates/{barcode}/wells``. spaCR y insère le code-barres encodé. Sans ``{barcode}``, il ajoute un paramètre de requête ``barcode``. Si une authentification est nécessaire, placez le jeton dans une variable d’environnement et indiquez le nom de cette variable dans ``plate_barcode_token_env``. Ne placez pas le jeton dans l’URL ni dans les paramètres.",
+      "reviewed_translation": "Utilisez une URL telle que ``https://lims.example/plates/{barcode}/wells``. spaCR y insère le code-barres encodé. Sans ``{barcode}``, il ajoute un paramètre de requête ``barcode``. Si une authentification est nécessaire, placez le jeton dans une variable d’environnement et indiquez le nom de cette variable dans ``plate_barcode_token_env``. Ne placez pas le jeton dans l’URL ni dans les paramètres.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::",
+      "source_sha256": "6244ec071c830f9d6901864e977aa929fd44754a90f4df036be3e1c82c49a68c",
+      "original_ai_draft": "Le service peut renvoyer une liste d’enregistrements de puits ou un objet contenant cette liste sous ``wells``, ``records``, ``results``, ``data`` ou ``items``. Les champs simples hors de la liste fournissent les valeurs de métadonnées par défaut pour ses puits::",
+      "reviewed_translation": "Le service peut renvoyer une liste d’enregistrements de puits ou un objet contenant cette liste sous ``wells``, ``records``, ``results``, ``data`` ou ``items``. Les champs simples hors de la liste fournissent les valeurs de métadonnées par défaut pour ses puits::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata.",
+      "source_sha256": "f507435c5c47b43dc9aefd6be8165a2e4039f2bba6955fcecdc1b916ab398935",
+      "original_ai_draft": "spaCR suit ``next``, ``next_url``, ``@odata.nextLink`` ou ``links.next``. Le lien peut être une chaîne URL ou un objet doté d’un champ ``href``. Les liens relatifs sont résolus par rapport à l’URL de la réponse. Un lien absent, null ou une chaîne vide termine la liste. Les valeurs de métadonnées par défaut sont conservées pour les pages suivantes ; les champs explicites d’un puits remplacent ces valeurs. Les champs de pagination ne deviennent pas des métadonnées d’échantillons.",
+      "reviewed_translation": "spaCR suit ``next``, ``next_url``, ``@odata.nextLink`` ou ``links.next``. Le lien peut être une chaîne URL ou un objet doté d’un champ ``href``. Les liens relatifs sont résolus par rapport à l’URL de la réponse. Un lien absent, null ou une chaîne vide termine la liste. Les valeurs de métadonnées par défaut sont conservées pour les pages suivantes ; les champs explicites d’un puits remplacent ces valeurs. Les champs de pagination ne deviennent pas des métadonnées d’échantillons.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter.",
+      "source_sha256": "97ee2f1a5e5a52c2ed6ac167d29c5655de55b4b826e4509b4a967a0a54031ad6",
+      "original_ai_draft": "Chaque lien et redirection HTTP doit conserver le même schéma, le même hôte et le même port que le service initial. Des liens contradictoires ou des pages répétées constituent des erreurs. La collecte est limitée à 16 MiB par réponse, 64 MiB pour la recherche complète, 1 000 adresses de pages par code-barres et 100 000 enregistrements pour la recherche complète. Une erreur arrête la recherche de métadonnées sans renvoyer de plan de plaque partiel. Les résultats de mesure existants restent disponibles. Les protocoles de curseur propres à un fournisseur qui ne donnent pas d’URL pour la page suivante nécessitent un adaptateur distinct.",
+      "reviewed_translation": "Chaque lien et redirection HTTP doit conserver le même schéma, le même hôte et le même port que le service initial. Des liens contradictoires ou des pages répétées constituent des erreurs. La collecte est limitée à 16 MiB par réponse, 64 MiB pour la recherche complète, 1 000 adresses de pages par code-barres et 100 000 enregistrements pour la recherche complète. Une erreur arrête la recherche de métadonnées sans renvoyer de plan de plaque partiel. Les résultats de mesure existants restent disponibles. Les protocoles de curseur propres à un fournisseur qui ne donnent pas d’URL pour la page suivante nécessitent un adaptateur distinct.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Inspect the result",
+      "source_sha256": "363e3d412470c6dd54ad52412672a831acc15a69fdbe833d89a6719f1c723968",
+      "original_ai_draft": "Examiner le résultat",
+      "reviewed_translation": "Examiner le résultat",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced.",
+      "source_sha256": "49a70757afd7a6730218f674ec09e24a4557331c2bd397dd145efd18a6838d31",
+      "original_ai_draft": "Le plan rempli est écrit dans ``measurements/plate_map_lims.csv``. Il renseigne le paramètre ``profiling_metadata`` si celui-ci est vide. Lorsque des colonnes de composé et de concentration existent, il renseigne aussi ``viability_plate_map`` si celui-ci est vide. Un plan existant fourni par l’utilisateur est comparé, et non remplacé discrètement.",
+      "reviewed_translation": "Le plan rempli est écrit dans ``measurements/plate_map_lims.csv``. Il renseigne le paramètre ``profiling_metadata`` si celui-ci est vide. Lorsque des colonnes de composé et de concentration existent, il renseigne aussi ``viability_plate_map`` si celui-ci est vide. Un plan existant fourni par l’utilisateur est comparé, et non remplacé discrètement.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons.",
+      "source_sha256": "5698a5c34c4657dde2609dc2a8e7133685c6c378847a04bff8a78389fc6fcf0c",
+      "original_ai_draft": "Consultez ``measurements/plate_barcode_mismatches.csv`` et le journal pour repérer les codes-barres absents ou partagés, les puits sans correspondance, les enregistrements contradictoires et les divergences avec un plan existant. Résolvez ces divergences avant d’interpréter les comparaisons entre traitements.",
+      "reviewed_translation": "Consultez ``measurements/plate_barcode_mismatches.csv`` et le journal pour repérer les codes-barres absents ou partagés, les puits sans correspondance, les enregistrements contradictoires et les divergences avec un plan existant. Résolvez ces divergences avant d’interpréter les comparaisons entre traitements.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combine measurement tables for plots and gates",
+      "source_sha256": "1300eddc7951b9ac3b501f2dec89bc071cc7ceada1a558141b2921fcb30da7c7",
+      "original_ai_draft": "Combiner des tables de mesures pour les graphiques et les gates",
+      "reviewed_translation": "Combiner des tables de mesures pour les graphiques et les gates",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`.",
+      "source_sha256": "fa4fc670ef8e642d3791bc8b14223ab8aaaf1377f1f9c0df7c181008223b665c",
+      "original_ai_draft": "Ouvrez **Graph Builder** ou **Gate Editor** depuis l’accueil pour explorer les mesures. Les deux écrans proposent **Fusionner les tableaux** juste à côté du sélecteur de tables. Une même définition de fusion produit les mêmes mesures dans les deux écrans. Pour le déroulement général, consultez :doc:`workflows`.",
+      "reviewed_translation": "Ouvrez **Graph Builder** ou **Gate Editor** depuis l’accueil pour explorer les mesures. Les deux écrans proposent **Fusionner les tableaux** juste à côté du sélecteur de tables. Une même définition de fusion produit les mêmes mesures dans les deux écrans. Pour le déroulement général, consultez :doc:`workflows`.",
+      "ui_bindings": {
+        "Merge tables": "Fusionner les tableaux"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose a source and an observation level",
+      "source_sha256": "fd8d7835e26141e11278364cd50fa58dafc0f6cdc57c335ebf755e5765d65392",
+      "original_ai_draft": "Choisir une source et un niveau d’observation",
+      "reviewed_translation": "Choisir une source et un niveau d’observation",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables.",
+      "source_sha256": "6156fa2643fba52e0d51b287610b3773efdfe34d48ccff3539e4d5ab97a39734",
+      "original_ai_draft": "**Load table** ouvre une base de mesures SQLite ou une table CSV/TSV. Une table physique est une table existante dans cette base. Une table dérivée est un résultat nommé, calculé à partir de tables physiques selon une définition de fusion enregistrée. Créer une table dérivée préserve les tables de mesures d’origine.",
+      "reviewed_translation": "**Load table** ouvre une base de mesures SQLite ou une table CSV/TSV. Une table physique est une table existante dans cette base. Une table dérivée est un résultat nommé, calculé à partir de tables physiques selon une définition de fusion enregistrée. Créer une table dérivée préserve les tables de mesures d’origine.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join.",
+      "source_sha256": "a17323cc6ee40ca694711fdbf722c523427ab6d172dd6ff741bd59a1eff217c1",
+      "original_ai_draft": "La fusion nécessite une seule base de données SQLite. Le bouton est indisponible pour un CSV/TSV isolé ou une session de Gate Editor combinant plusieurs bases. Chargez la base unique qui contient les tables à joindre.",
+      "reviewed_translation": "La fusion nécessite une seule base de données SQLite. Le bouton est indisponible pour un CSV/TSV isolé ou une session de Gate Editor combinant plusieurs bases. Chargez la base unique qui contient les tables à joindre.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships.",
+      "source_sha256": "18d1637b149858c659b68fb2d611ce2abf333c7a7d8ad79281f0b74be2a53d07",
+      "original_ai_draft": "Dans Graph Builder, choisir une table change la source du graphique. Gate Editor permet également un ensemble de travail de tables physiques d’objets compatibles, représentées par des pastilles amovibles ; sélectionner une autre table compatible ajoute ses mesures. La dernière pastille restante est conservée pour que l’éditeur dispose toujours d’une source. Une table dérivée nommée est sélectionnée comme source complète. Utilisez la fenêtre de fusion lorsqu’il vous faut un résultat nommé reproductible ou des relations personnalisées explicites.",
+      "reviewed_translation": "Dans Graph Builder, choisir une table change la source du graphique. Gate Editor permet également un ensemble de travail de tables physiques d’objets compatibles, représentées par des pastilles amovibles ; sélectionner une autre table compatible ajoute ses mesures. La dernière pastille restante est conservée pour que l’éditeur dispose toujours d’une source. Une table dérivée nommée est sélectionnée comme source complète. Utilisez la fenêtre de fusion lorsqu’il vous faut un résultat nommé reproductible ou des relations personnalisées explicites.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row.",
+      "source_sha256": "b6f1186a467ff6c4ab6bda35ae32e2448f4d05d8437b02cfefeee60f83631c8e",
+      "original_ai_draft": "La **Tableau d ' observation des produits** détermine ce que représente une ligne du résultat. Par exemple, un résultat au niveau cellulaire comporte une ligne par cellule, même si celle-ci contient plusieurs pathogènes. Le nombre de noyaux, l’aire totale des pathogènes et l’intensité cellulaire peuvent alors être comparés sur la même ligne.",
+      "reviewed_translation": "La **Table des observations de sortie** détermine ce que représente une ligne du résultat. Par exemple, un résultat au niveau cellulaire comporte une ligne par cellule, même si celle-ci contient plusieurs pathogènes. Le nombre de noyaux, l’aire totale des pathogènes et l’intensité cellulaire peuvent alors être comparés sur la même ligne.",
+      "ui_bindings": {
+        "Output observation table": "Table des observations de sortie"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Create a standard spaCR merge",
+      "source_sha256": "d7f8553f0262ec95c5c53914fac2a4e326f47cdf2b60c15f63e0bf9b42f8cf62",
+      "original_ai_draft": "Créer une fusion spaCR standard",
+      "reviewed_translation": "Créer une fusion spaCR standard",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Load your measurement database and press **Merge tables**.",
+      "source_sha256": "943f30e115129bbebd878be10e6c200dba521d8587c2bf730e91534da640a041",
+      "original_ai_draft": "Chargez votre base de mesures et appuyez sur **Fusionner les tableaux**.",
+      "reviewed_translation": "Chargez votre base de mesures et appuyez sur **Fusionner les tableaux**.",
+      "ui_bindings": {
+        "Merge tables": "Fusionner les tableaux"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization.",
+      "source_sha256": "7c06e9ca10f4ede108a8a2bc0f29aa8c20569a027e20a0ce278882737c37d7ab",
+      "original_ai_draft": "Cochez les tables sources et choisissez **Tableau d ' observation des produits**. La table de base est incluse automatiquement. Les fusions standard utilisent des tables d’objets spaCR compatibles et des niveaux d’observation cellule/cytoplasme ; la liste affiche aussi d’autres tables dont les relations peuvent nécessiter une personnalisation.",
+      "reviewed_translation": "Cochez les tables sources et choisissez **Table des observations de sortie**. La table de base est incluse automatiquement. Les fusions standard utilisent des tables d’objets spaCR compatibles et des niveaux d’observation cellule/cytoplasme ; la liste affiche aussi d’autres tables dont les relations peuvent nécessiter une personnalisation.",
+      "ui_bindings": {
+        "Output observation table": "Table des observations de sortie"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name.",
+      "source_sha256": "68f4e79c5e729b4d3c3bacdb4f9c2412da034d68a11f119bb44ef692b60c85ab",
+      "original_ai_draft": "Saisissez un **Nom du résultat**, par exemple ``Cell and pathogen measurements``. Il doit différer de tous les noms de tables physiques.",
+      "reviewed_translation": "Saisissez un **Nom du résultat**, par exemple ``Cell and pathogen measurements``. Il doit différer de tous les noms de tables physiques.",
+      "ui_bindings": {
+        "Result name": "Nom du résultat"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed.",
+      "source_sha256": "b174926db0ee37fb959dbd246058838d2d86a1c3b6c9cbeb37334fff6d0480d7",
+      "original_ai_draft": "Consultez le résumé **spaCR defaults active** et les choix **Agrégation** de chaque colonne. Pour une base compatible ordinaire, aucun mappage manuel des clés n’est nécessaire.",
+      "reviewed_translation": "Consultez le résumé **spaCR defaults active** et les choix **Agrégation** de chaque colonne. Pour une base compatible ordinaire, aucun mappage manuel des clés n’est nécessaire.",
+      "ui_bindings": {
+        "Aggregation": "Agrégation"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed.",
+      "source_sha256": "bd97d12dd20f09eb06790909df7b8f657ad4cce8f8cd7cfc6d153476a0ef4ee6",
+      "original_ai_draft": "Appuyez sur **Valider et prévisualiser**. Examinez le nombre de lignes en entrée et en sortie, les clés de jointure, les enregistrements sans correspondance, les clés enfants absentes, les lignes aux clés enfants répétées et les 12 premières lignes du résultat. La validation examine toute l’entrée, même si seules quelques lignes du résultat sont affichées.",
+      "reviewed_translation": "Appuyez sur **Valider et prévisualiser**. Examinez le nombre de lignes en entrée et en sortie, les clés de jointure, les enregistrements sans correspondance, les clés enfants absentes, les lignes aux clés enfants répétées et les 12 premières lignes du résultat. La validation examine toute l’entrée, même si seules quelques lignes du résultat sont affichées.",
+      "ui_bindings": {
+        "Validate and preview": "Valider et prévisualiser"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates.",
+      "source_sha256": "f6bed99671cb8a2675492fff57dad6635347bfdd29191ae9fabbba1891323541",
+      "original_ai_draft": "Appuyez sur **Créer une table fusionnée** après une validation réussie. Le résultat est sélectionné dans le sélecteur habituel de tables. Ses colonnes sont disponibles pour les graphiques et les gates.",
+      "reviewed_translation": "Appuyez sur **Créer une table fusionnée** après une validation réussie. Le résultat est sélectionné dans le sélecteur habituel de tables. Ses colonnes sont disponibles pour les graphiques et les gates.",
+      "ui_bindings": {
+        "Create merged table": "Créer une table fusionnée"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them.",
+      "source_sha256": "dff285d0c223c722eee3a1ef9e37890c369c81e34b46a624c25493fc0e6470be",
+      "original_ai_draft": "Modifier une table, un nom ou une règle invalide l’aperçu. Validez de nouveau avant de créer le résultat. Sélectionner une autre table ou base réinitialise également les relations personnalisées et les réglages remplacés : choisissez donc vos sources avant de les personnaliser.",
+      "reviewed_translation": "Modifier une table, un nom ou une règle invalide l’aperçu. Validez de nouveau avant de créer le résultat. Sélectionner une autre table ou base réinitialise également les relations personnalisées et les réglages remplacés : choisissez donc vos sources avant de les personnaliser.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "How the defaults combine measurements",
+      "source_sha256": "3f8bbf2e3053eecfb17f72c741ad6763e8cf32d4eb78d43f2e074564929db760",
+      "original_ai_draft": "Comment les réglages par défaut combinent les mesures",
+      "reviewed_translation": "Comment les réglages par défaut combinent les mesures",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity.",
+      "source_sha256": "5182a1d21f7773e0417bd43f30a29345648eabfdef739eb73ffd986eed48af04",
+      "original_ai_draft": "Les règles partagées de spaCR agrègent chaque table enfant indépendamment avant de la joindre aux observations de base. Ajouter à la fois des pathogènes et des organites ne multiplie pas leurs lignes entre elles. L’identité comprend les métadonnées disponibles de plaque, puits, champ et temps ainsi que l’identifiant d’objet/parent pertinent ; un numéro d’objet seul n’est pas une identité globalement unique.",
+      "reviewed_translation": "Les règles partagées de spaCR agrègent chaque table enfant indépendamment avant de la joindre aux observations de base. Ajouter à la fois des pathogènes et des organites ne multiplie pas leurs lignes entre elles. L’identité comprend les métadonnées disponibles de plaque, puits, champ et temps ainsi que l’identifiant d’objet/parent pertinent ; un numéro d’objet seul n’est pas une identité globalement unique.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Default aggregation for child measurements",
+      "source_sha256": "355c3446c127a77c39a80c94a57f1f5c750864771bef4c9772637677833b0d08",
+      "original_ai_draft": "Agrégation par défaut des mesures enfants",
+      "reviewed_translation": "Agrégation par défaut des mesures enfants",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Measurement",
+      "source_sha256": "385165e2ff59804537e732dc51e2b6058a5a11016e0bb01febe8a738614ed728",
+      "original_ai_draft": "Mesure",
+      "reviewed_translation": "Mesure",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rule",
+      "source_sha256": "62845f31a2fe00be3ebaaeb93f5b27af82ab81dfcbaa1871c76f596cd98cf3c9",
+      "original_ai_draft": "Règle",
+      "reviewed_translation": "Règle",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Area, integrated/total intensity and counts",
+      "source_sha256": "c179d58e053b42c8abaaa518ecf4e850c30112190ac25c3a1c0c6fede0a1d832",
+      "original_ai_draft": "Aire, intensité intégrée/totale et comptages",
+      "reviewed_translation": "Aire, intensité intégrée/totale et comptages",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Sum the child values.",
+      "source_sha256": "f1c10d040b2a2f34721745b710a66fe7672f4523b8415ed4191c2c180970ef75",
+      "original_ai_draft": "Additionner les valeurs enfants.",
+      "reviewed_translation": "Additionner les valeurs enfants.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Minimum intensity",
+      "source_sha256": "78b5b8d4cff61a7420d3bd0b32ae573261689e0b940c7c92b4fb81f4efc1c402",
+      "original_ai_draft": "Intensité minimale",
+      "reviewed_translation": "Intensité minimale",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the minimum child value.",
+      "source_sha256": "2ad720165339a35ea45fc398a31666cfe936eea573fbe58b406fa9a1a0bbf5ea",
+      "original_ai_draft": "Conserver la plus petite valeur enfant.",
+      "reviewed_translation": "Conserver la plus petite valeur enfant.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Maximum intensity",
+      "source_sha256": "54361a85a53a5e337d24985acaff806d213f860d4738b26acce7cfea125d1a50",
+      "original_ai_draft": "Intensité maximale",
+      "reviewed_translation": "Intensité maximale",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the maximum child value.",
+      "source_sha256": "a4a34d4612df23ca3181b5b3ba804bb1d0127081d3ff8a89fe5db7881b4df1d9",
+      "original_ai_draft": "Conserver la plus grande valeur enfant.",
+      "reviewed_translation": "Conserver la plus grande valeur enfant.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Median measurements",
+      "source_sha256": "30c85c03af7732fa87bfc1a634762faccd85a833f7dcf5bda09360f99fda3542",
+      "original_ai_draft": "Mesures de médiane",
+      "reviewed_translation": "Mesures de médiane",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the median of the child measurements.",
+      "source_sha256": "535c4b425445b54d6dff1745551f675fdd87595f79ff4cc3e14c8f2837044931",
+      "original_ai_draft": "Calculer la médiane des mesures enfants.",
+      "reviewed_translation": "Calculer la médiane des mesures enfants.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Other numeric measurements, including means",
+      "source_sha256": "7922dbebd8af8e77a0aa5dc97022d5b17d860a25cb9ca2cbf960179adb9f76d1",
+      "original_ai_draft": "Autres mesures numériques, y compris les moyennes",
+      "reviewed_translation": "Autres mesures numériques, y compris les moyennes",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the mean of the child measurements.",
+      "source_sha256": "60223377fe3545d1265d76ec08dfde0812252f37d26c8f4b29813773f6a59242",
+      "original_ai_draft": "Calculer la moyenne des mesures enfants.",
+      "reviewed_translation": "Calculer la moyenne des mesures enfants.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Text and identifiers",
+      "source_sha256": "257a74ad575a360eb386bb697513fb7dde408562606335ec62b50e54f49c59e0",
+      "original_ai_draft": "Texte et identifiants",
+      "reviewed_translation": "Texte et identifiants",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed.",
+      "source_sha256": "eb91a749839161d5a59b65178ebaf8ea0d918c5a0aa1f03fa3dc05cfb1dee9a6",
+      "original_ai_draft": "Conserver par défaut la première valeur non manquante dans l’ordre de la source ; les identifiants ne peuvent être ni moyennés ni additionnés.",
+      "reviewed_translation": "Conserver par défaut la première valeur non manquante dans l’ordre de la source ; les identifiants ne peuvent être ni moyennés ni additionnés.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention.",
+      "source_sha256": "bbf284dd7b4a834e806dd56eae7e5def4245810cca385f1033e6b310e2237369",
+      "original_ai_draft": "Pour quatre pathogènes d’aires 1, 2, 4 et 8, l’aire totale des pathogènes vaut 15. Une intensité moyenne est la moyenne des quatre mesures d’objets, et non une intensité recalculée à partir de tous leurs pixels regroupés. Examinez la règle de chaque colonne lorsque son nom ne précise pas la convention de mesure.",
+      "reviewed_translation": "Pour quatre pathogènes d’aires 1, 2, 4 et 8, l’aire totale des pathogènes vaut 15. Une intensité moyenne est la moyenne des quatre mesures d’objets, et non une intensité recalculée à partir de tous leurs pixels regroupés. Examinez la règle de chaque colonne lorsque son nom ne précise pas la convention de mesure.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them.",
+      "source_sha256": "6cdd4f6399e4f1c6d59a18351817957a6530bada5f9cd14017d9b7001fd35b38",
+      "original_ai_draft": "La jointure de noyaux par défaut ne conserve que les observations de base correspondantes. Les jointures de pathogènes et d’organites conservent les cellules non infectées. Les mesures manquantes restent manquantes, y compris une somme dont toutes les valeurs contributrices sont absentes. Une mesure d’intensité absente n’est pas convertie en zéro mesuré. Les colonnes enfants portent des noms qualifiés par leur table lorsque cela est nécessaire pour les distinguer.",
+      "reviewed_translation": "La jointure de noyaux par défaut ne conserve que les observations de base correspondantes. Les jointures de pathogènes et d’organites conservent les cellules non infectées. Les mesures manquantes restent manquantes, y compris une somme dont toutes les valeurs contributrices sont absentes. Une mesure d’intensité absente n’est pas convertie en zéro mesuré. Les colonnes enfants portent des noms qualifiés par leur table lorsque cela est nécessaire pour les distinguer.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected.",
+      "source_sha256": "27997f400eb3ca7daa589a8e37e1d0a35846a8e64b0a98303dca8eb28eebdef6",
+      "original_ai_draft": "Les réglages de remplacement disponibles dépendent des valeurs et du rôle de la colonne. Les mesures numériques proposent moyenne, médiane, somme, minimum, maximum, comptage et d’autres choix compatibles ; le texte permet notamment première/dernière valeur, comptage et comptage des valeurs distinctes ; les données booléennes acceptent aussi **n'importe lequel** et **all**. **count** compte les valeurs non manquantes. Les lignes un-à-un par défaut sont jointes intactes ; leurs contrôles d’agrégation restent donc désactivés jusqu’à la sélection d’une fusion personnalisée.",
+      "reviewed_translation": "Les réglages de remplacement disponibles dépendent des valeurs et du rôle de la colonne. Les mesures numériques proposent moyenne, médiane, somme, minimum, maximum, comptage et d’autres choix compatibles ; le texte permet notamment première/dernière valeur, comptage et comptage des valeurs distinctes ; les données booléennes acceptent aussi **n'importe lequel** et **all**. **count** compte les valeurs non manquantes. Les lignes un-à-un par défaut sont jointes intactes ; leurs contrôles d’agrégation restent donc désactivés jusqu’à la sélection d’une fusion personnalisée.",
+      "ui_bindings": {
+        "any": "n'importe lequel"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Customize an alternative schema",
+      "source_sha256": "40c5a0d561073a633ebfc4c0b5111516141bf0b2d2c67149bb97cce732829303",
+      "original_ai_draft": "Personnaliser un autre schéma",
+      "reviewed_translation": "Personnaliser un autre schéma",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables.",
+      "source_sha256": "833529de728577eb88cbbadcfbf9fc31472e2b723dc070157c789e3183b4f5f7",
+      "original_ai_draft": "Choisissez **Personnaliser la fusion** lorsque la base utilise d’autres noms de tables, identifiants ou des relations volontairement différentes. Choisissez d’abord les tables de base et enfants dans la fenêtre principale. Mapper leurs colonnes réelles ne renomme ni ne modifie les tables sources.",
+      "reviewed_translation": "Choisissez **Personnaliser la fusion** lorsque la base utilise d’autres noms de tables, identifiants ou des relations volontairement différentes. Choisissez d’abord les tables de base et enfants dans la fenêtre principale. Mapper leurs colonnes réelles ne renomme ni ne modifie les tables sources.",
+      "ui_bindings": {
+        "Customize merging": "Personnaliser la fusion"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation.",
+      "source_sha256": "93c1ec840f46fb19b804a98a60fee9aad5a21c1b4bef8c4458e697440f6b95c0",
+      "original_ai_draft": "L’avertissement explique que des relations incorrectes peuvent relier des objets sans rapport, dupliquer ou omettre des observations et modifier les mesures utilisées dans les graphiques et les gates. Lisez-le et cochez **Je comprends l'avertissement et je vais vérifier l'aperçu de fusion.** avant d’accepter les paramètres personnalisés. Cette confirmation ne contourne pas la validation.",
+      "reviewed_translation": "L’avertissement explique que des relations incorrectes peuvent relier des objets sans rapport, dupliquer ou omettre des observations et modifier les mesures utilisées dans les graphiques et les gates. Lisez-le et cochez **Je comprends l'avertissement et je vais vérifier l'aperçu de fusion.** avant d’accepter les paramètres personnalisés. Cette confirmation ne contourne pas la validation.",
+      "ui_bindings": {
+        "I understand the warning and will check the merge preview.": "Je comprends l'avertissement et je vais vérifier l'aperçu de fusion."
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints.",
+      "source_sha256": "6976d56c448e4039af698b1eb63a1c596e5cf1af195e54b6840d378dd03fb5e4",
+      "original_ai_draft": "**Clés d'observation de base** identifie une ligne de base unique et non manquante. Incluez les colonnes de champ et de temps lorsque les identifiants se répètent entre images ou instants.",
+      "reviewed_translation": "**Clés d'observation de base** identifient une ligne de base unique et non manquante. Incluez les colonnes de champ et de temps lorsque les identifiants se répètent entre images ou instants.",
+      "ui_bindings": {
+        "Base observation keys": "Clés d'observation de base"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``.",
+      "source_sha256": "bbfecc3225fb288fb99962e7ac85e4432f95552eef50b236949e18f4226fa57c",
+      "original_ai_draft": "Chaque ligne enfant de la configuration précise **Clés de base** et **Clés pour enfants**. Saisissez des noms de colonnes séparés par des virgules dans l’ordre correspondant. Par exemple, les clés de base ``image_id, cell_id`` peuvent correspondre aux clés enfants ``image_id, parent_cell_id``.",
+      "reviewed_translation": "Chaque ligne enfant de la configuration précise **Clés de base** et **Clés de la table enfant**. Saisissez des noms de colonnes séparés par des virgules dans l’ordre correspondant. Par exemple, les clés de base ``image_id, cell_id`` peuvent correspondre aux clés enfants ``image_id, parent_cell_id``.",
+      "ui_bindings": {
+        "Base keys": "Clés de base",
+        "Child keys": "Clés de la table enfant"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated.",
+      "source_sha256": "62d0b5ef44badd8da475cfe794a297afe6cc46f48379fdd24e31c3c9ee1c9dbe",
+      "original_ai_draft": "Choisissez **one-to-one** lorsqu’au plus une ligne enfant correspond à chaque clé de base, ou **one-to-many** lorsque plusieurs lignes enfants doivent d’abord être agrégées.",
+      "reviewed_translation": "Choisissez **one-to-one** lorsqu’au plus une ligne enfant correspond à chaque clé de base, ou **one-to-many** lorsque plusieurs lignes enfants doivent d’abord être agrégées.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row.",
+      "source_sha256": "1486c2a942521198b467ee39b02b071bccd53548ae60f1fee9b659298cffc5ad",
+      "original_ai_draft": "Une jointure **gauche** conserve les observations de base sans correspondance, avec des mesures enfants manquantes. Une jointure **inner** conserve uniquement les observations correspondantes. Les lignes enfants dont les clés de jointure sont manquantes ne correspondent à aucune ligne de base.",
+      "reviewed_translation": "Une jointure **gauche** conserve les observations de base sans correspondance, avec des mesures enfants manquantes. Une jointure **inner** conserve uniquement les observations correspondantes. Les lignes enfants dont les clés de jointure sont manquantes ne correspondent à aucune ligne de base.",
+      "ui_bindings": {
+        "left": "gauche"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping.",
+      "source_sha256": "6fd72e9f8d2b2823b8ab7a5ad2d78dbd9158a642dacb6d11d6df95049f4ac4bf",
+      "original_ai_draft": "Utilisez **Identificateurs** pour désigner les colonnes enfants supplémentaires qui ne doivent pas être traitées comme des mesures continues. Examinez les contrôles d’agrégation par colonne dans la fenêtre principale après avoir accepté le mappage.",
+      "reviewed_translation": "Utilisez **Identificateurs** pour désigner les colonnes enfants supplémentaires qui ne doivent pas être traitées comme des mesures continues. Examinez les contrôles d’agrégation par colonne dans la fenêtre principale après avoir accepté le mappage.",
+      "ui_bindings": {
+        "Identifiers": "Identificateurs"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one.",
+      "source_sha256": "556a8db14dc1ba6072d35196fc4e92aba0b7f107132eaf80b35e679bd7bfdf40",
+      "original_ai_draft": "La fenêtre indique maintenant **Custom rules active**. Validez et examinez l’aperçu avant de créer le résultat. Les identités de base dupliquées, les mappages un-à-un contradictoires, les clés manquantes et les opérations incompatibles provoquent une erreur. Des clés enfants répétées peuvent être attendues dans une relation un-à-plusieurs ; elles nécessitent une vérification lorsque la relation est censée être un-à-un.",
+      "reviewed_translation": "La fenêtre indique maintenant **Custom rules active**. Validez et examinez l’aperçu avant de créer le résultat. Les identités de base dupliquées, les mappages un-à-un contradictoires, les clés manquantes et les opérations incompatibles provoquent une erreur. Des clés enfants répétées peuvent être attendues dans une relation un-à-plusieurs ; elles nécessitent une vérification lorsque la relation est censée être un-à-un.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults.",
+      "source_sha256": "e95f449d9a1453cd18642ceab6945c1d66b8a044b3cf648a2c97f9b820954e54",
+      "original_ai_draft": "**Annuler** conserve la configuration précédente. **Réinitialiser à spaCR par défaut** supprime les relations personnalisées et les réglages remplacés. Changer les sources ou la table de sortie reconstruit également les réglages par défaut.",
+      "reviewed_translation": "**Annuler** conserve la configuration précédente. **Réinitialiser à spaCR par défaut** supprime les relations personnalisées et les réglages remplacés. Changer les sources ou la table de sortie reconstruit également les réglages par défaut.",
+      "ui_bindings": {
+        "Cancel": "Annuler",
+        "Reset to spaCR defaults": "Réinitialiser à spaCR par défaut"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use, save and reload the result",
+      "source_sha256": "1b7458342f06a25b368a2b0c5649b7231b53eced379e53e1b58722ff7ebb067d",
+      "original_ai_draft": "Utiliser, enregistrer et recharger le résultat",
+      "reviewed_translation": "Utiliser, enregistrer et recharger le résultat",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table.",
+      "source_sha256": "c8b0a9df5e61aeb785e2e14f04ca441b4e28bd1b7d3020049018dc6363203c7c",
+      "original_ai_draft": "Dans Graph Builder, placez les colonnes du résultat sur **X**, **Y**, la couleur, la taille ou les canaux de facettes. Dans Gate Editor, utilisez les colonnes pour les seuils, polygones et autres formes de gate. Gate Editor peut afficher un échantillon selon ses paramètres ``sample_fraction`` et ``max_points`` ; l’exportation des gates évalue la table fusionnée complète.",
+      "reviewed_translation": "Dans Graph Builder, placez les colonnes du résultat sur **X**, **Y**, la couleur, la taille ou les canaux de facettes. Dans Gate Editor, utilisez les colonnes pour les seuils, polygones et autres formes de gate. Gate Editor peut afficher un échantillon selon ses paramètres ``sample_fraction`` et ``max_points`` ; l’exportation des gates évalue la table fusionnée complète.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources.",
+      "source_sha256": "139b41870785e8b538921aed9433412adf50acca4fdd985e680417761945cdc9",
+      "original_ai_draft": "La définition nommée est stockée à côté de sa base. Pour ``measurements.db``, le fichier est ``measurements.db.spacr-merges.json``. Actualiser ou rouvrir la source rend le résultat de nouveau disponible et le recalcule à partir de la source. Il s’agit d’une recette reproductible, pas d’une copie figée de toutes les lignes du résultat. La réutilisation vérifie le chemin source et les schémas des tables sélectionnées. Une autre base ou un schéma modifié exige un mappage nouvellement vérifié ; les définitions ne sont pas appliquées discrètement à des sources sans rapport.",
+      "reviewed_translation": "La définition nommée est stockée à côté de sa base. Pour ``measurements.db``, le fichier est ``measurements.db.spacr-merges.json``. Actualiser ou rouvrir la source rend le résultat de nouveau disponible et le recalcule à partir de la source. Il s’agit d’une recette reproductible, pas d’une copie figée de toutes les lignes du résultat. La réutilisation vérifie le chemin source et les schémas des tables sélectionnées. Une autre base ou un schéma modifié exige un mappage nouvellement vérifié ; les définitions ne sont pas appliquées discrètement à des sources sans rapport.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data.",
+      "source_sha256": "deca8d86ecde7ec405e14983b00669c0902584316c5947497a3244cbde963590",
+      "original_ai_draft": "**Enregistrer le graphique** dans Graph Builder enregistre les canaux du graphique, la source et la définition complète de fusion en JSON. **Tableau de chargement** reconstruit et valide la table avant le tracé. **Enregistrer les gates…** intègre également la définition de fusion ; chargez la base d’origine avant d’utiliser **Charger les gates…**. Ces fichiers enregistrés peuvent reconstruire la fusion même si son fichier annexe est absent. Les données sources d’origine restent nécessaires.",
+      "reviewed_translation": "**Enregistrer le graphique** dans Graph Builder enregistre les canaux du graphique, la source et la définition complète de fusion en JSON. **Charger le graphique** reconstruit et valide la table avant le tracé. **Enregistrer les gates…** intègre également la définition de fusion ; chargez la base d’origine avant d’utiliser **Charger les gates…**. Ces fichiers enregistrés peuvent reconstruire la fusion même si son fichier annexe est absent. Les données sources d’origine restent nécessaires.",
+      "ui_bindings": {
+        "Save chart": "Enregistrer le graphique",
+        "Load chart": "Charger le graphique",
+        "Save gates…": "Enregistrer les gates…",
+        "Load gates…": "Charger les gates…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy.",
+      "source_sha256": "9f34e2594ebf0b5b3803d71fd46ba15a78b4067f83b445d2d206e57ff79b7c48",
+      "original_ai_draft": "**Exporter des gates...** écrit les colonnes d’appartenance aux gates dans la table ``filters`` de la base, en préservant l’identité de l’objet de base. Cette exportation explicite écrit dans la base ; construire et prévisualiser une fusion n’écrit pas dans les tables de mesures sources. **Enregistrer le graphique** exporte la figure de Gate Editor en PNG ou PDF, indépendamment de l’enregistrement de sa stratégie de sélection par gates.",
+      "reviewed_translation": "**Exporter des gates...** écrit les colonnes d’appartenance aux gates dans la table ``filters`` de la base, en préservant l’identité de l’objet de base. Cette exportation explicite écrit dans la base ; construire et prévisualiser une fusion n’écrit pas dans les tables de mesures sources. **Enregistrer le graphique** exporte la figure de Gate Editor en PNG ou PDF, indépendamment de l’enregistrement de sa stratégie de sélection par gates.",
+      "ui_bindings": {
+        "Export gates…": "Exporter des gates...",
+        "Save graph": "Enregistrer le graphique"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects.",
+      "source_sha256": "889465c090a74781306176ec78cbd8c35976890b204b2b44b391645194874d68",
+      "original_ai_draft": "Un résultat personnalisé sans provenance d’image/objet spaCR vérifiée reste utilisable pour les graphiques et la sélection tabulaire par gates. La navigation dans les images, l’annotation d’images et l’exportation des gates vers la base de mesures sont indisponibles pour ce résultat, avec une explication dans l’interface. Conservez le graphique ou la stratégie de gates enregistrés pour une réutilisation tabulaire ; les noms de colonnes seuls ne peuvent établir des liens vers des objets de microscopie.",
+      "reviewed_translation": "Un résultat personnalisé sans provenance d’image/objet spaCR vérifiée reste utilisable pour les graphiques et la sélection tabulaire par gates. La navigation dans les images, l’annotation d’images et l’exportation des gates vers la base de mesures sont indisponibles pour ce résultat, avec une explication dans l’interface. Conservez le graphique ou la stratégie de gates enregistrés pour une réutilisation tabulaire ; les noms de colonnes seuls ne peuvent établir des liens vers des objets de microscopie.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Recover original filenames before labelling conditions",
+      "source_sha256": "3a46efccb6b5e1c3b23f2b7a82b92b1255153a3441a2bff0fafae77b27c5e8f9",
+      "original_ai_draft": "Retrouver les noms de fichiers d’origine avant d’étiqueter les conditions",
+      "reviewed_translation": "Retrouver les noms de fichiers d’origine avant d’étiqueter les conditions",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images.",
+      "source_sha256": "0c6ea6663bf8ab0b8a76f9fc0220f13cb5fbea99cfc28842f075bd78f27d6a3a",
+      "original_ai_draft": "Si les images ont été renommées au format Yokogawa, utilisez **Fusionner les noms de fichiers originaux...** dans **Fusionner les tableaux** pour retrouver les noms consignés pendant la conversion. Sélectionnez ``conversion_map.csv``, un ancien ``rename_log.csv``, un ``channel_sorting_manifest.csv`` ou une base SQLite contenant la table ``conversion_map``. Le sélecteur de fichiers s’ouvre près d’un mappage connu lorsqu’il en trouve un à côté de la base de mesures ou dans ses dossiers parents. Le mappage doit contenir des relations enregistrées entre source et sortie ; cette action ne déduit pas les noms de traitements à partir d’images renommées.",
+      "reviewed_translation": "Si les images ont été renommées au format Yokogawa, utilisez **Fusionner les noms de fichiers originaux...** dans **Fusionner les tableaux** pour retrouver les noms consignés pendant la conversion. Sélectionnez ``conversion_map.csv``, un ancien ``rename_log.csv``, un ``channel_sorting_manifest.csv`` ou une base SQLite contenant la table ``conversion_map``. Le sélecteur de fichiers s’ouvre près d’un mappage connu lorsqu’il en trouve un à côté de la base de mesures ou dans ses dossiers parents. Le mappage doit contenir des relations enregistrées entre source et sortie ; cette action ne déduit pas les noms de traitements à partir d’images renommées.",
+      "ui_bindings": {
+        "Merge original filenames…": "Fusionner les noms de fichiers originaux...",
+        "Merge tables": "Fusionner les tableaux"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations.",
+      "source_sha256": "7ff200bcee646dfee5be676b9d7ee53970d6c23472607418c743c94792e44826",
+      "original_ai_draft": "Pour ajouter uniquement des métadonnées de noms de fichiers, sélectionnez seulement la table à annoter. Toutes les lignes et colonnes existantes sont conservées, même pour les tables sans identifiants d’objets spaCR. Pour un résultat déjà fusionné, ouvrez sa fenêtre de fusion afin de conserver les relations et l’agrégation vérifiées tout en ajoutant le mappage des noms de fichiers. Si plusieurs tables sources sont sélectionnées, les mesures sont fusionnées d’abord, puis les noms d’origine sont joints aux observations résultantes.",
+      "reviewed_translation": "Pour ajouter uniquement des métadonnées de noms de fichiers, sélectionnez seulement la table à annoter. Toutes les lignes et colonnes existantes sont conservées, même pour les tables sans identifiants d’objets spaCR. Pour un résultat déjà fusionné, ouvrez sa fenêtre de fusion afin de conserver les relations et l’agrégation vérifiées tout en ajoutant le mappage des noms de fichiers. Si plusieurs tables sources sont sélectionnées, les mesures sont fusionnées d’abord, puis les noms d’origine sont joints aux observations résultantes.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Merge original filenames…** and select the mapping.",
+      "source_sha256": "5d44468e33b05e15ec11b7a583e040485cd2676d214ef24b1adac551a95bddf9",
+      "original_ai_draft": "Appuyez sur **Fusionner les noms de fichiers originaux...** et sélectionnez le mappage.",
+      "reviewed_translation": "Appuyez sur **Fusionner les noms de fichiers originaux...** et sélectionnez le mappage.",
+      "ui_bindings": {
+        "Merge original filenames…": "Fusionner les noms de fichiers originaux..."
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Set a new **Result name**, then press **Validate and preview**.",
+      "source_sha256": "f503607c91c854729d51e0e3fc13dd0dd3a4cd2c9e1d75a834d21294d1406421",
+      "original_ai_draft": "Définissez un nouveau **Nom du résultat**, puis appuyez sur **Valider et prévisualiser**.",
+      "reviewed_translation": "Définissez un nouveau **Nom du résultat**, puis appuyez sur **Valider et prévisualiser**.",
+      "ui_bindings": {
+        "Result name": "Nom du résultat",
+        "Validate and preview": "Valider et prévisualiser"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns.",
+      "source_sha256": "9b1d07979afddd65757e0d9c95d0d89d04185ddbc080d2d5485bc5946483c54c",
+      "original_ai_draft": "Examinez les nombres de lignes avec et sans correspondance ainsi que les colonnes ``original_filename`` et ``original_path`` de l’aperçu.",
+      "reviewed_translation": "Examinez les nombres de lignes avec et sans correspondance ainsi que les colonnes ``original_filename`` et ``original_path`` de l’aperçu.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column.",
+      "source_sha256": "43239788ae988d04aa28a76161dd92d004db537efcac89a247d06a07bdd64bb4",
+      "original_ai_draft": "Appuyez sur **Créer une table fusionnée**, puis ouvrez **Conditions annotées** et choisissez ``original_filename`` comme colonne de métadonnées d’une règle.",
+      "reviewed_translation": "Appuyez sur **Créer une table fusionnée**, puis ouvrez **Annoter les conditions** et choisissez ``original_filename`` comme colonne de métadonnées d’une règle.",
+      "ui_bindings": {
+        "Create merged table": "Créer une table fusionnée",
+        "Annotate conditions": "Annoter les conditions"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them.",
+      "source_sha256": "085e6e107eece91b01fa51ab6a5ccd61bf2255cd46e8119f7c74fccc6dc9c89c",
+      "original_ai_draft": "Plusieurs canaux ou plans z appartenant au même champ produisent dans les nouvelles colonnes une liste triée, sans doublons, séparée par un point-virgule et une espace. Ils ne multiplient pas les observations de la table. Les identités de plaque et d’instant restent distinctes ; les identités ambiguës ou contradictoires font échouer la validation. Les noms sans correspondance restent vides. Les colonnes ``original_filename`` ou ``original_path`` existantes sont préservées, car leur écrasement est refusé.",
+      "reviewed_translation": "Plusieurs canaux ou plans z appartenant au même champ produisent dans les nouvelles colonnes une liste triée, sans doublons, séparée par un point-virgule et une espace. Ils ne multiplient pas les observations de la table. Les identités de plaque et d’instant restent distinctes ; les identités ambiguës ou contradictoires font échouer la validation. Les noms sans correspondance restent vides. Les colonnes ``original_filename`` ou ``original_path`` existantes sont préservées, car leur écrasement est refusé.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance.",
+      "source_sha256": "365f83e58365391aa025c350de7675c3cc7b538faf62fff04a75d46f2e62a32f",
+      "original_ai_draft": "``original_path`` est le chemin consigné dans le mappage ; les fichiers d’origine n’ont pas besoin d’exister encore à cet emplacement. Cette action ne renomme ni ne réécrit jamais les fichiers d’images ou les tables de mesures sources. Ajouter du texte de noms de fichiers n’établit pas une provenance d’objets de microscopie manquante.",
+      "reviewed_translation": "``original_path`` est le chemin consigné dans le mappage ; les fichiers d’origine n’ont pas besoin d’exister encore à cet emplacement. Cette action ne renomme ni ne réécrit jamais les fichiers d’images ou les tables de mesures sources. Ajouter du texte de noms de fichiers n’établit pas une provenance d’objets de microscopie manquante.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping.",
+      "source_sha256": "09c2a48f61321ed6edd6760cbfc35dc2fb3c291c56a251c5536e1aff3a906d3f",
+      "original_ai_draft": "La fusion enregistrée consigne l’emplacement du mappage et une somme de contrôle de son contenu. Rouvrir une fusion ou un graphique nécessite que ce mappage reste disponible et inchangé. Pour une table ``conversion_map`` intégrée, les modifications sans rapport apportées à d’autres tables de la base n’invalident pas le mappage. Si celui-ci change, sélectionnez-le de nouveau et validez un nouveau résultat avant de l’appliquer. **Supprimer le mappage du nom de fichier** retire l’enrichissement du brouillon sans supprimer le fichier. **Réinitialiser à spaCR par défaut** retire également le mappage du brouillon.",
+      "reviewed_translation": "La fusion enregistrée consigne l’emplacement du mappage et une somme de contrôle de son contenu. Rouvrir une fusion ou un graphique nécessite que ce mappage reste disponible et inchangé. Pour une table ``conversion_map`` intégrée, les modifications sans rapport apportées à d’autres tables de la base n’invalident pas le mappage. Si celui-ci change, sélectionnez-le de nouveau et validez un nouveau résultat avant de l’appliquer. **Supprimer le mappage du nom de fichier** retire l’enrichissement du brouillon sans supprimer le fichier. **Réinitialiser à spaCR par défaut** retire également le mappage du brouillon.",
+      "ui_bindings": {
+        "Remove filename mapping": "Supprimer le mappage du nom de fichier",
+        "Reset to spaCR defaults": "Réinitialiser à spaCR par défaut"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Annotate experimental conditions in Graph Builder",
+      "source_sha256": "006a60c49e2f3ebd422d545c4520cfd6e76286277d1aa7d4387f721ae53082bd",
+      "original_ai_draft": "Annoter les conditions expérimentales dans Graph Builder",
+      "reviewed_translation": "Annoter les conditions expérimentales dans Graph Builder",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations.",
+      "source_sha256": "1b49041603233ce97eb2a2ab884993688fae4a9f587f655167ec039055c517e2",
+      "original_ai_draft": "**Conditions annotées** ajoute des colonnes d’annotation à la table de travail dans Graph Builder. Cette fonction s’applique à une table physique de base de données, à une table dérivée nommée ou à un CSV/TSV importé. Utilisez des règles pour attribuer des étiquettes ou extraire des métadonnées variables, puis composez une colonne finale à partir de ces valeurs. Chaque colonne générée est conservée. Ces opérations tabulaires n’exigent aucun lien vers des images et n’écrivent pas d’annotations d’images.",
+      "reviewed_translation": "**Annoter les conditions** ajoute des colonnes d’annotation à la table de travail dans Graph Builder. Cette fonction s’applique à une table physique de base de données, à une table dérivée nommée ou à un CSV/TSV importé. Utilisez des règles pour attribuer des étiquettes ou extraire des métadonnées variables, puis composez une colonne finale à partir de ces valeurs. Chaque colonne générée est conservée. Ces opérations tabulaires n’exigent aucun lien vers des images et n’écrivent pas d’annotations d’images.",
+      "ui_bindings": {
+        "Annotate conditions": "Annoter les conditions"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced.",
+      "source_sha256": "4a32bd1f0d92f2459d4df173e183c348f2e9581a98362e84963a3191648511a1",
+      "original_ai_draft": "Ouvrez **Conditions annotées**, nommez la **Colonne de sortie** et choisissez **Attribuer des valeurs**, **Extraire du texte** ou **Composer une colonne**. Les colonnes sources existantes ne peuvent pas être remplacées.",
+      "reviewed_translation": "Ouvrez **Annoter les conditions**, nommez la **Colonne de sortie** et choisissez **Attribuer des valeurs**, **Extraire du texte** ou **Composer une colonne**. Les colonnes sources existantes ne peuvent pas être remplacées.",
+      "ui_bindings": {
+        "Annotate conditions": "Annoter les conditions",
+        "Output column": "Colonne de sortie",
+        "Assign values": "Attribuer des valeurs",
+        "Extract text": "Extraire du texte",
+        "Compose column": "Composer une colonne"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together.",
+      "source_sha256": "d600b2e0cd6acd53d474b89475c2d7b0300de099f1c2ac89f12a636be910c448",
+      "original_ai_draft": "Définissez les règles de valeurs, l’extraction de texte ou la composition de cette sortie. Utilisez **Ajouter une colonne** pour une autre sortie. Une expression régulière à groupes nommés peut également créer plusieurs colonnes de métadonnées ensemble.",
+      "reviewed_translation": "Définissez les règles de valeurs, l’extraction de texte ou la composition de cette sortie. Utilisez **Ajouter une colonne** pour une autre sortie. Une expression régulière à groupes nommés peut également créer plusieurs colonnes de métadonnées ensemble.",
+      "ui_bindings": {
+        "Add column": "Ajouter une colonne"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview.",
+      "source_sha256": "d7253f2c56ddd51a733699ac4563652e09a249079fbec056c48aa67a69be3771",
+      "original_ai_draft": "Examinez toutes les valeurs générées à côté des colonnes sources. **Aperçu des missions** relance la vérification ; les modifications actualisent également l’aperçu.",
+      "reviewed_translation": "Examinez toutes les valeurs générées à côté des colonnes sources. **Prévisualiser les attributions** relance la vérification ; les modifications actualisent également l’aperçu.",
+      "ui_bindings": {
+        "Preview assignments": "Prévisualiser les attributions"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes.",
+      "source_sha256": "a198951df0a1fa58526be496cfa21363ba324e0f4f66171072a66fa6135e726f",
+      "original_ai_draft": "Résolvez les règles invalides, les dépendances manquantes et les attributions contradictoires, puis choisissez **Appliquer les conditions**. Chaque colonne générée devient disponible pour les canaux de graphiques et le filtrage. **Annuler** abandonne les modifications du brouillon.",
+      "reviewed_translation": "Résolvez les règles invalides, les dépendances manquantes et les attributions contradictoires, puis choisissez **Appliquer les conditions**. Chaque colonne générée devient disponible pour les canaux de graphiques et le filtrage. **Annuler** abandonne les modifications du brouillon.",
+      "ui_bindings": {
+        "Apply conditions": "Appliquer les conditions",
+        "Cancel": "Annuler"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extract several metadata columns from a filename",
+      "source_sha256": "476d39e97a580e88b3a49d978965b71f2fdc856c7442e91e64ba23b01a7e37ca",
+      "original_ai_draft": "Extraire plusieurs colonnes de métadonnées d’un nom de fichier",
+      "reviewed_translation": "Extraire plusieurs colonnes de métadonnées d’un nom de fichier",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value.",
+      "source_sha256": "d4c480ab4bb730de91dd4f8405f968c1872a8f0c592155ce8b033e1d3c7cbbf5",
+      "original_ai_draft": "Choisissez **Extraire du texte** et sélectionnez la colonne source, par exemple ``original_filename``. Une expression régulière extrait le texte correspondant dans la colonne de sortie. Sélectionnez un groupe de capture nommé ou numéroté pour choisir quelle partie de la correspondance devient la valeur.",
+      "reviewed_translation": "Choisissez **Extraire du texte** et sélectionnez la colonne source, par exemple ``original_filename``. Une expression régulière extrait le texte correspondant dans la colonne de sortie. Sélectionnez un groupe de capture nommé ou numéroté pour choisir quelle partie de la correspondance devient la valeur.",
+      "ui_bindings": {
+        "Extract text": "Extraire du texte"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:",
+      "source_sha256": "a6f7fdde181aff092d27e510af111034b6c4d19902023cc8995d70ce9a118fef",
+      "original_ai_draft": "Par exemple, ce motif décrit ``HeLa_rep2_24h_DMSO.tif`` :",
+      "reviewed_translation": "Par exemple, ce motif décrit ``HeLa_rep2_24h_DMSO.tif`` :",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it.",
+      "source_sha256": "004f0328bc2bbe334865d877a33f7e64bdc192c9eae469676db4b2fb9e183779",
+      "original_ai_draft": "Les groupes nommés décrivent quatre colonnes de sortie : ``cell_type``, ``replicate``, ``timepoint`` et ``drug``. **Créer des colonnes à partir de groupes nommés** crée ces sorties ensemble. La ligne d’exemple produit ``HeLa``, ``rep2``, ``24h`` et ``DMSO``. Un autre nom de fichier correspondant produit ses propres valeurs ; ce ne sont pas des étiquettes fixes copiées de l’exemple. Adaptez le motif à vos noms de fichiers et examinez l’aperçu avant de l’appliquer.",
+      "reviewed_translation": "Les groupes nommés décrivent quatre colonnes de sortie : ``cell_type``, ``replicate``, ``timepoint`` et ``drug``. **Créer des colonnes à partir de groupes nommés** crée ces sorties ensemble. La ligne d’exemple produit ``HeLa``, ``rep2``, ``24h`` et ``DMSO``. Un autre nom de fichier correspondant produit ses propres valeurs ; ce ne sont pas des étiquettes fixes copiées de l’exemple. Adaptez le motif à vos noms de fichiers et examinez l’aperçu avant de l’appliquer.",
+      "ui_bindings": {
+        "Create columns from named groups": "Créer des colonnes à partir de groupes nommés"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten.",
+      "source_sha256": "a04b979f4cee9bd86c99ed6684537edee9df1b997763aa35c446d1660b256178",
+      "original_ai_draft": "L’extraction utilise la première correspondance de l’expression régulière. Les lignes sans correspondance et les captures absentes ou vides restent vides. Les motifs ou groupes de capture invalides arrêtent l’aperçu avec une erreur. Les noms de colonnes sources existants ne peuvent pas être écrasés.",
+      "reviewed_translation": "L’extraction utilise la première correspondance de l’expression régulière. Les lignes sans correspondance et les captures absentes ou vides restent vides. Les motifs ou groupes de capture invalides arrêtent l’aperçu avec une erreur. Les noms de colonnes sources existants ne peuvent pas être écrasés.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assign values with readable rules",
+      "source_sha256": "4132ee4b18bbebb48df948025243b3f26096207971c21fcf6cb611c7adcb18db",
+      "original_ai_draft": "Attribuer des valeurs avec des règles lisibles",
+      "reviewed_translation": "Attribuer des valeurs avec des règles lisibles",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string.",
+      "source_sha256": "1611d19f699daa929a7ec862c34b2265a23e8ce4c615d3073b767f700df730db",
+      "original_ai_draft": "Choisissez **Attribuer des valeurs** lorsque les lignes correspondantes doivent recevoir une valeur saisie, par exemple ``WildType`` ou ``control``. Chaque règle sélectionne une colonne, un opérateur et une valeur de comparaison. Les opérateurs comprennent contient, ne contient pas, égal, différent, commence par, finit par et correspondance d’expression régulière. Les opérateurs textuels interprètent la ponctuation littéralement ; les opérateurs d’expression régulière l’interprètent comme un motif. La comparaison distingue les majuscules des minuscules. Les critères de contenu, préfixe, suffixe et expression régulière nécessitent un texte non vide. Utilisez explicitement ``.*`` pour correspondre à tout texte non manquant, ou une égalité avec une valeur vide pour correspondre à une chaîne réellement vide.",
+      "reviewed_translation": "Choisissez **Attribuer des valeurs** lorsque les lignes correspondantes doivent recevoir une valeur saisie, par exemple ``WildType`` ou ``control``. Chaque règle sélectionne une colonne, un opérateur et une valeur de comparaison. Les opérateurs comprennent contient, ne contient pas, égal, différent, commence par, finit par et correspondance d’expression régulière. Les opérateurs textuels interprètent la ponctuation littéralement ; les opérateurs d’expression régulière l’interprètent comme un motif. La comparaison distingue les majuscules des minuscules. Les critères de contenu, préfixe, suffixe et expression régulière nécessitent un texte non vide. Utilisez explicitement ``.*`` pour correspondre à tout texte non manquant, ou une égalité avec une valeur vide pour correspondre à une chaîne réellement vide.",
+      "ui_bindings": {
+        "Assign values": "Attribuer des valeurs"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly.",
+      "source_sha256": "c6ddd59741adfc48ac2ecc42955d17b0fcf1c81d0c3bb083d34697b1cdf082b9",
+      "original_ai_draft": "Choisissez **toutes les règles sont satisfaites** lorsque chaque critère doit correspondre, ou **au moins une règle est satisfaite** lorsqu’au moins un doit correspondre. Les critères peuvent examiner différentes colonnes sources ou des colonnes générées précédemment. Par exemple, attribuez ``control`` lorsque ``drug`` est égal à ``DMSO`` et ``cell_type`` à ``HeLa``. Les valeurs sources manquantes ne satisfont pas un critère négatif. Une chaîne réellement vide est une valeur et peut être comparée explicitement.",
+      "reviewed_translation": "Choisissez **toutes les règles sont satisfaites** lorsque chaque critère doit correspondre, ou **au moins une règle est satisfaite** lorsqu’au moins un doit correspondre. Les critères peuvent examiner différentes colonnes sources ou des colonnes générées précédemment. Par exemple, attribuez ``control`` lorsque ``drug`` est égal à ``DMSO`` et ``cell_type`` à ``HeLa``. Les valeurs sources manquantes ne satisfont pas un critère négatif. Une chaîne réellement vide est une valeur et peut être comparée explicitement.",
+      "ui_bindings": {
+        "all rules match": "toutes les règles sont satisfaites",
+        "any rule matches": "au moins une règle est satisfaite"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply.",
+      "source_sha256": "cddbbee8852ac03aeceb6bf603d28d63c31edcbe6b7513ff3c94d485bbb1d21b",
+      "original_ai_draft": "Plusieurs règles peuvent attribuer la même valeur sans conflit. Des valeurs différentes attribuées à une ligne dans la même colonne de sortie nécessitent une résolution avant l’application.",
+      "reviewed_translation": "Plusieurs règles peuvent attribuer la même valeur sans conflit. Des valeurs différentes attribuées à une ligne dans la même colonne de sortie nécessitent une résolution avant l’application.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Compose the final column",
+      "source_sha256": "1c3880c4d0e3f3987f658796eb6ef3a523dae94144ed167c54dd532f97382f1f",
+      "original_ai_draft": "Composer la colonne finale",
+      "reviewed_translation": "Composer la colonne finale",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values.",
+      "source_sha256": "c49ff5c82c4a5fe0a5a2d85f4bc13c1ac229783a45f63eaeecde25a8c57f476d",
+      "original_ai_draft": "Ajoutez une colonne de sortie, nommez-la ``condition`` ou choisissez un autre nom, puis sélectionnez **Composer une colonne**. Glissez les colonnes disponibles dans le champ de composition. Déplacez ses jetons pour changer leur ordre. Insérez du texte fixe pour ajouter des séparateurs, préfixes ou mots entre les valeurs.",
+      "reviewed_translation": "Ajoutez une colonne de sortie, nommez-la ``condition`` ou choisissez un autre nom, puis sélectionnez **Composer une colonne**. Glissez les colonnes disponibles dans le champ de composition. Déplacez ses jetons pour changer leur ordre. Insérez du texte fixe pour ajouter des séparateurs, préfixes ou mots entre les valeurs.",
+      "ui_bindings": {
+        "Compose column": "Composer une colonne"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code.",
+      "source_sha256": "8eac6582cfd0f986149e9bae1c298bbc5ac089bc808e178ba25c09fba3bd8ae0",
+      "original_ai_draft": "Par exemple, les jetons ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produisent ``HeLa_rep2_24h_DMSO`` pour l’exemple ci-dessus. Réordonner les jetons de colonnes change le résultat sans modifier leurs règles d’extraction. Le texte fixe est littéral ; il ne peut exécuter aucun code.",
+      "reviewed_translation": "Par exemple, les jetons ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produisent ``HeLa_rep2_24h_DMSO`` pour l’exemple ci-dessus. Réordonner les jetons de colonnes change le résultat sans modifier leurs règles d’extraction. Le texte fixe est littéral ; il ne peut exécuter aucun code.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged.",
+      "source_sha256": "2ba90664638983dedd250700cc15f16503da22091b7a8bdd32a272cbc45bb97c",
+      "original_ai_draft": "Une composition peut référencer des colonnes sources d’origine et des colonnes générées précédemment. Une valeur de colonne manquante ou vide laisse la valeur composée vide. L’aperçu présente ensemble toutes les colonnes intermédiaires et la colonne finale. Appliquer, exporter ou enregistrer une nouvelle table SQLite conserve chaque colonne générée et la recette modifiable. Les mesures d’origine restent inchangées.",
+      "reviewed_translation": "Une composition peut référencer des colonnes sources d’origine et des colonnes générées précédemment. Une valeur de colonne manquante ou vide laisse la valeur composée vide. L’aperçu présente ensemble toutes les colonnes intermédiaires et la colonne finale. Appliquer, exporter ou enregistrer une nouvelle table SQLite conserve chaque colonne générée et la recette modifiable. Les mesures d’origine restent inchangées.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Build genotype, replicate and a combined condition",
+      "source_sha256": "578338f38c061a12e58cbce9ed4ff96001c78a241abe8f0f70926f0837c310af",
+      "original_ai_draft": "Créer un génotype, un réplicat et une condition combinée",
+      "reviewed_translation": "Créer un génotype, un réplicat et une condition combinée",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:",
+      "source_sha256": "b40fba7d5641ac718af3e19c0085e92469608c8a8f30abd8d68407769c9bf50e",
+      "original_ai_draft": "Nommez la première **Colonne de sortie** ``genotype`` et gardez le mode **Attribuer des valeurs**. Utilisez **Ajouter l'état** pour ses étiquettes. Appuyez sur **Ajouter une colonne** pour créer ``replicate`` avec ses propres cases. Dans chaque case, choisissez **Valeurs exactes** pour saisir des listes de valeurs de métadonnées sans écrire d’expression régulière. Par exemple :",
+      "reviewed_translation": "Nommez la première **Colonne de sortie** ``genotype`` et gardez le mode **Attribuer des valeurs**. Utilisez **Ajouter une condition** pour ses étiquettes. Appuyez sur **Ajouter une colonne** pour créer ``replicate`` avec ses propres cases. Dans chaque case, choisissez **Valeurs exactes** pour saisir des listes de valeurs de métadonnées sans écrire d’expression régulière. Par exemple :",
+      "ui_bindings": {
+        "Output column": "Colonne de sortie",
+        "Assign values": "Attribuer des valeurs",
+        "Add condition": "Ajouter une condition",
+        "Add column": "Ajouter une colonne",
+        "Exact values": "Valeurs exactes"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Example annotation rules",
+      "source_sha256": "7398a3452de45c41caaed97e175f51bc9c9986149be53b4e2ed786ec0036215f",
+      "original_ai_draft": "Exemples de règles d’annotation",
+      "reviewed_translation": "Exemples de règles d’annotation",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "original_ai_draft": "Colonne de sortie",
+      "reviewed_translation": "Colonne de sortie",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Metadata column",
+      "source_sha256": "20a3552adc5b2b8a6472197eb105902fb6d0ff89454967bfef004188d99e3b2a",
+      "original_ai_draft": "Colonne de métadonnées",
+      "reviewed_translation": "Colonne de métadonnées",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Included values",
+      "source_sha256": "213cdb0d334027b9c678a9e6820813919fb14f543b211ac13ea3eb3d0bc636de",
+      "original_ai_draft": "Valeurs incluses",
+      "reviewed_translation": "Valeurs incluses",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assigned label",
+      "source_sha256": "8d27c73d75545e7f3aaf1fdacb9575b20fe0dedc3d40319fc0ce63e6f202c58d",
+      "original_ai_draft": "Étiquette attribuée",
+      "reviewed_translation": "Étiquette attribuée",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate.",
+      "source_sha256": "bb480aa32277c86ce1a3383fb2ece9d92eb1055c500701999bcdd45fa5ad046c",
+      "original_ai_draft": "Les entrées répétées comme ``c1,c1`` ou ``r7,r7`` n’ont aucun effet supplémentaire. La correspondance exacte distingue ``c1`` de ``c10``. Deux règles attribuant la même étiquette peuvent sélectionner la même ligne ; deux étiquettes différentes dans une colonne de sortie nécessitent une correction avant l’application. Chaque colonne de sortie possède ses propres attributions : une ligne peut donc avoir à la fois un génotype et un réplicat.",
+      "reviewed_translation": "Les entrées répétées comme ``c1,c1`` ou ``r7,r7`` n’ont aucun effet supplémentaire. La correspondance exacte distingue ``c1`` de ``c10``. Deux règles attribuant la même étiquette peuvent sélectionner la même ligne ; deux étiquettes différentes dans une colonne de sortie nécessitent une correction avant l’application. Chaque colonne de sortie possède ses propres attributions : une ligne peut donc avoir à la fois un génotype et un réplicat.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment.",
+      "source_sha256": "4acda61613512a79cf540fe0e7da2d200957329b04de0679281a5c43ba51265b",
+      "original_ai_draft": "Appuyez sur **Ajouter une colonne**, nommez-la ``condition`` et choisissez **Composer une colonne**. Glissez ``genotype`` dans le champ de composition, insérez un jeton de texte contenant ``_``, puis glissez ``replicate``. L’ordre des jetons détermine l’ordre de jonction. Une ligne étiquetée ``WildType`` et ``replicate 1`` reçoit alors ``WildType_replicate 1``. L’espace de l’étiquette est conservée. Noms de colonnes, étiquettes, ordre des composants et séparateur sont modifiables ; l’exemple n’impose pas les noms de votre expérience.",
+      "reviewed_translation": "Appuyez sur **Ajouter une colonne**, nommez-la ``condition`` et choisissez **Composer une colonne**. Glissez ``genotype`` dans le champ de composition, insérez un jeton de texte contenant ``_``, puis glissez ``replicate``. L’ordre des jetons détermine l’ordre de jonction. Une ligne étiquetée ``WildType`` et ``replicate 1`` reçoit alors ``WildType_replicate 1``. L’espace de l’étiquette est conservé. Noms de colonnes, étiquettes, ordre des composants et séparateur sont modifiables ; l’exemple n’impose pas les noms de votre expérience.",
+      "ui_bindings": {
+        "Add column": "Ajouter une colonne",
+        "Compose column": "Composer une colonne"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe.",
+      "source_sha256": "a7e58cd6468d9491f0b796ed241248cae56102fe11062b9709ac5106bb11b40d",
+      "original_ai_draft": "Les règles de combinaison peuvent utiliser des colonnes sources ou des colonnes d’annotation créées précédemment. Placez les dépendances plus tôt dans l’ordre des colonnes. Des composants manquants laissent la valeur combinée vide ; ils ne produisent pas de texte tel que ``nan``. Prévisualisez toutes les colonnes générées avant l’application. Enregistrer un graphique, exporter la table ou enregistrer une nouvelle table SQLite annotée conserve la recette complète.",
+      "reviewed_translation": "Les règles de combinaison peuvent utiliser des colonnes sources ou des colonnes d’annotation créées précédemment. Placez les dépendances plus tôt dans l’ordre des colonnes. Des composants manquants laissent la valeur combinée vide ; ils ne produisent pas de texte tel que ``nan``. Prévisualisez toutes les colonnes générées avant l’application. Enregistrer un graphique, exporter la table ou enregistrer une nouvelle table SQLite annotée conserve la recette complète.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rules and manual selection",
+      "source_sha256": "b2686f8c97e23d9160c1437c96e3ffdf0f7aef27396a8ecb07d80aac2e58be5c",
+      "original_ai_draft": "Règles et sélection manuelle",
+      "reviewed_translation": "Règles et sélection manuelle",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule.",
+      "source_sha256": "33bd26a475b9c1a4c1938ba81c27baa710a1c6be03f45b62f0d0483e5332a4dd",
+      "original_ai_draft": "Dans **Attribuer des valeurs**, choisissez **Expression régulière** dans une case de condition pour utiliser ses champs Include et Exclude. Choisissez **Uniquement les lignes attribuées manuellement** pour attribuer uniquement les lignes déposées dans cette case, sans règle de comparaison.",
+      "reviewed_translation": "Dans **Attribuer des valeurs**, choisissez **Expression régulière** dans une case de condition pour utiliser ses champs Include et Exclude. Choisissez **Uniquement les lignes attribuées manuellement** pour attribuer uniquement les lignes déposées dans cette case, sans règle de comparaison.",
+      "ui_bindings": {
+        "Assign values": "Attribuer des valeurs",
+        "Regular expression": "Expression régulière",
+        "Manual rows only": "Uniquement les lignes attribuées manuellement"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically.",
+      "source_sha256": "f17bab0541d7173086b0e8010729a5c2f279fd14bf9e9c24bcba33bb75cbe5e7",
+      "original_ai_draft": "Au-dessus des cases de conditions, **Exemples pour la colonne** propose des motifs copiables fondés sur les valeurs de la colonne sélectionnée. Choisissez un type d’exemple, examinez ou modifiez son texte, appuyez sur **Copier le régex**, puis collez-le dans le champ **Inclure** ou **Exclure** d’une condition. Copier un exemple ne modifie pas les règles des conditions. Les signes de ponctuation littéraux des valeurs échantillonnées sont automatiquement échappés.",
+      "reviewed_translation": "Au-dessus des cases de conditions, **Exemples pour la colonne** propose des motifs copiables fondés sur les valeurs de la colonne sélectionnée. Choisissez un type d’exemple, examinez ou modifiez son texte, appuyez sur **Copier le régex**, puis collez-le dans le champ **Inclure** ou **Exclure** d’une condition. Copier un exemple ne modifie pas les règles des conditions. Les signes de ponctuation littéraux des valeurs échantillonnées sont automatiquement échappés.",
+      "ui_bindings": {
+        "Examples for column": "Exemples pour la colonne",
+        "Copy regex": "Copier le régex",
+        "Include": "Inclure",
+        "Exclude": "Exclure"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:",
+      "source_sha256": "0ec3d40be229cf507c39851a2a687873393c3e29b8e0838a1eeaa126bd92c120",
+      "original_ai_draft": "Pour des noms d’origine tels que ``drug_A_rep1.tif`` et ``control_rep1.tif`` :",
+      "reviewed_translation": "Pour des noms d’origine tels que ``drug_A_rep1.tif`` et ``control_rep1.tif`` :",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A|control`` matches either text.",
+      "source_sha256": "296e56b1058f15b74ae9b0af697f2061a0b664e1c4baf4392798df54070d8827",
+      "original_ai_draft": "``drug_A|control`` correspond à l’un ou l’autre texte.",
+      "reviewed_translation": "``drug_A|control`` correspond à l’un ou l’autre texte.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A_rep.`` allows one character after ``rep``.",
+      "source_sha256": "9a7482eca5b9274a46f8fe27209c240fa10068755b4f908f473e3ec86da39f87",
+      "original_ai_draft": "``drug_A_rep.`` autorise un caractère après ``rep``.",
+      "reviewed_translation": "``drug_A_rep.`` autorise un caractère après ``rep``.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A.*rep`` allows any intervening text, including none.",
+      "source_sha256": "ad9b2ba896fea76fbf1a28435722cf6b5d9bdc6bd527703c0ec1893548f6d60c",
+      "original_ai_draft": "``drug_A.*rep`` autorise n’importe quel texte intermédiaire, y compris aucun.",
+      "reviewed_translation": "``drug_A.*rep`` autorise n’importe quel texte intermédiaire, y compris aucun.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``^drug_A_rep1\\.tif$`` matches that entire value.",
+      "source_sha256": "94037beb8a22bd708f5282468cc4d0c678a5aff5b9c73226f3716c57994fe6f0",
+      "original_ai_draft": "``^drug_A_rep1\\.tif$`` correspond exactement à cette valeur entière.",
+      "reviewed_translation": "``^drug_A_rep1\\.tif$`` correspond exactement à cette valeur entière.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``(?i)drug_a`` ignores letter case.",
+      "source_sha256": "0afe46a5be8707706ace4be00e7d35cbbe2009bde4a5197b67cb4b24bd32338b",
+      "original_ai_draft": "``(?i)drug_a`` ignore la casse.",
+      "reviewed_translation": "``(?i)drug_a`` ignore la casse.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string.",
+      "source_sha256": "90fb96e0a62a5e60c9d04aa9656d84465242ab647c638c38191763f84345a68a",
+      "original_ai_draft": "Utilisez Include pour sélectionner le groupe et Exclude pour retirer des exceptions, par exemple Include ``drug_A`` avec Exclude ``failed|outlier``. Une colonne de noms de fichiers contenant plusieurs noms d’origine séparés par des points-virgules est recherchée comme une seule chaîne : un motif de contenu peut correspondre à n’importe quel nom enregistré, tandis qu’un ancrage de valeur entière s’applique à toute la chaîne combinée.",
+      "reviewed_translation": "Utilisez Include pour sélectionner le groupe et Exclude pour retirer des exceptions, par exemple Include ``drug_A`` avec Exclude ``failed|outlier``. Une colonne de noms de fichiers contenant plusieurs noms d’origine séparés par des points-virgules est recherchée comme une seule chaîne : un motif de contenu peut correspondre à n’importe quel nom enregistré, tandis qu’un ancrage de valeur entière s’applique à toute la chaîne combinée.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically.",
+      "source_sha256": "f741f84d7134a3217129b724f82b19ee8f27674185bf869515acd3c11123620c",
+      "original_ai_draft": "Les motifs recherchent dans les valeurs affichées sous forme de chaînes de la colonne choisie. Ils distinguent les majuscules des minuscules, sauf si l’expression contient un indicateur tel que ``(?i)``. Utilisez des ancrages lorsque la valeur entière doit correspondre : ``^A0[1-3]$`` sélectionne les puits ``A01``, ``A02`` et ``A03``. ``.*`` inclut toutes les valeurs non manquantes de la colonne choisie. Une expression Include vide ne sélectionne aucune ligne automatiquement.",
+      "reviewed_translation": "Les motifs recherchent dans les valeurs affichées sous forme de chaînes de la colonne choisie. Ils distinguent les majuscules des minuscules, sauf si l’expression contient un indicateur tel que ``(?i)``. Utilisez des ancrages lorsque la valeur entière doit correspondre : ``^A0[1-3]$`` sélectionne les puits ``A01``, ``A02`` et ``A03``. ``.*`` inclut toutes les valeurs non manquantes de la colonne choisie. Une expression Include vide ne sélectionne aucune ligne automatiquement.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually.",
+      "source_sha256": "1a0f065d2fe082c441dca25faa0acfc82b6bef224b968f250857d0a4e64fa253",
+      "original_ai_draft": "Les lignes manuelles sont ajoutées aux lignes correspondant à Include. Exclude retire ensuite les correspondances des deux ensembles, y compris les lignes déposées manuellement. Les valeurs de métadonnées manquantes ne correspondent pas à une expression régulière ; elles peuvent néanmoins être attribuées manuellement.",
+      "reviewed_translation": "Les lignes manuelles sont ajoutées aux lignes correspondant à Include. Exclude retire ensuite les correspondances des deux ensembles, y compris les lignes déposées manuellement. Les valeurs de métadonnées manquantes ne correspondent pas à une expression régulière ; elles peuvent néanmoins être attribuées manuellement.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment.",
+      "source_sha256": "5317f1b5c8183fe89141345c095a346d9f7842b87b360f61c586466d8d78fc46",
+      "original_ai_draft": "Sélectionnez plusieurs lignes dans la table source et glissez-les dans une case de condition. Utilisez Maj pour une plage et Ctrl/Cmd pour des lignes individuelles. Trier par colonne ou utiliser **Métadonnées de la source du filtre ou conditions d'aperçu** change la vue affichée, mais les attributions désignent toujours les lignes sources d’origine. Le filtre effectue une recherche textuelle insensible à la casse, distincte des règles d’expression régulière des conditions. Déposer deux fois une ligne dans la même case ne duplique pas son attribution.",
+      "reviewed_translation": "Sélectionnez plusieurs lignes dans la table source et glissez-les dans une case de condition. Utilisez Maj pour une plage et Ctrl/Cmd pour des lignes individuelles. Trier par colonne ou utiliser **Filtrer les métadonnées sources ou les conditions de l’aperçu** change la vue affichée, mais les attributions désignent toujours les lignes sources d’origine. Le filtre effectue une recherche textuelle insensible à la casse, distincte des règles d’expression régulière des conditions. Déposer deux fois une ligne dans la même case ne duplique pas son attribution.",
+      "ui_bindings": {
+        "Filter source metadata or preview conditions": "Filtrer les métadonnées sources ou les conditions de l’aperçu"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules.",
+      "source_sha256": "c1d263671d4f88e38ab21b2160e64239289b3a0a35135b74f3dca2c3c11228d6",
+      "original_ai_draft": "Utilisez **Supprimer les lignes manuelles sélectionnées** ou **Effacer les lignes manuelles** pour retirer les appartenances ajoutées par glisser-déposer. Une règle Include peut toujours correspondre à ces lignes ; modifiez-la ou ajoutez une expression Exclude si elles doivent quitter la condition. **Supprimer l' état** retire la case entière et ses règles.",
+      "reviewed_translation": "Utilisez **Supprimer les lignes manuelles sélectionnées** ou **Effacer les lignes manuelles** pour retirer les appartenances ajoutées par glisser-déposer. Une règle Include peut toujours correspondre à ces lignes ; modifiez-la ou ajoutez une expression Exclude si elles doivent quitter la condition. **Supprimer la condition** retire la case entière et ses règles.",
+      "ui_bindings": {
+        "Remove selected manual rows": "Supprimer les lignes manuelles sélectionnées",
+        "Clear manual rows": "Effacer les lignes manuelles",
+        "Remove condition": "Supprimer la condition"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table.",
+      "source_sha256": "3669165734ba3865f4d030298f6b62cddf4a01369b195276410a614ab83013c4",
+      "original_ai_draft": "Une ligne ne peut recevoir qu’une seule étiquette distincte dans chaque colonne d’annotation. Si des cases lui attribuent différentes étiquettes, l’aperçu affiche ces étiquettes concurrentes et **Appliquer les conditions** reste désactivé. Ajustez les motifs d’inclusion/exclusion ou les attributions manuelles jusqu’à ce que le nombre de chevauchements soit nul. Aucune condition ne l’emporte discrètement. Les lignes sans correspondance restent vides dans la colonne de sortie et demeurent dans la table.",
+      "reviewed_translation": "Une ligne ne peut recevoir qu’une seule étiquette distincte dans chaque colonne d’annotation. Si des cases lui attribuent différentes étiquettes, l’aperçu affiche ces étiquettes concurrentes et **Appliquer les conditions** reste désactivé. Ajustez les motifs d’inclusion/exclusion ou les attributions manuelles jusqu’à ce que le nombre de chevauchements soit nul. Aucune condition ne l’emporte discrètement. Les lignes sans correspondance restent vides dans la colonne de sortie et demeurent dans la table.",
+      "ui_bindings": {
+        "Apply conditions": "Appliquer les conditions"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reuse an annotation schema on another table",
+      "source_sha256": "01433562336c97ab7e3fee9f1c47d8fe764d2beeb40c7718d6405d18c729efa5",
+      "original_ai_draft": "Réutiliser un schéma d’annotation sur une autre table",
+      "reviewed_translation": "Réutiliser un schéma d’annotation sur une autre table",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values.",
+      "source_sha256": "bd83d7148ce0d61f3b8fe168d47155f8232e059489a8f115499c5008216ec645",
+      "original_ai_draft": "Choisissez **Enregistrer le schéma** une fois l’aperçu valide. Le fichier JSON conserve les noms et l’ordre des colonnes de sortie, les motifs d’extraction et groupes de capture, les règles de correspondance, les étiquettes et les jetons de composition. Il contient les instructions pour générer des valeurs, et non une copie de la table ou de ses valeurs générées.",
+      "reviewed_translation": "Choisissez **Enregistrer le schéma** une fois l’aperçu valide. Le fichier JSON conserve les noms et l’ordre des colonnes de sortie, les motifs d’extraction et groupes de capture, les règles de correspondance, les étiquettes et les jetons de composition. Il contient les instructions pour générer des valeurs, et non une copie de la table ou de ses valeurs générées.",
+      "ui_bindings": {
+        "Save schema": "Enregistrer le schéma"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table.",
+      "source_sha256": "8e7f243ddee4e48bb7fd7cc3c35652e89f0126d14b66c0d53d68cff81ce04b5d",
+      "original_ai_draft": "Ouvrez une autre table, choisissez **Conditions annotées**, puis **Charger le schéma** et sélectionnez le fichier JSON. La nouvelle table peut avoir des lignes et valeurs différentes, mais doit fournir les colonnes référencées par le schéma. Toutes les sorties sont prévisualisées sur cette table. Examinez les valeurs et les attributions qui se chevauchent avant de choisir **Appliquer les conditions**. Le chargement seul ne modifie pas la table de travail.",
+      "reviewed_translation": "Ouvrez une autre table, choisissez **Annoter les conditions**, puis **Charger le schéma** et sélectionnez le fichier JSON. La nouvelle table peut avoir des lignes et valeurs différentes, mais doit fournir les colonnes référencées par le schéma. Toutes les sorties sont prévisualisées sur cette table. Examinez les valeurs et les attributions qui se chevauchent avant de choisir **Appliquer les conditions**. Le chargement seul ne modifie pas la table de travail.",
+      "ui_bindings": {
+        "Annotate conditions": "Annoter les conditions",
+        "Load schema": "Charger le schéma",
+        "Apply conditions": "Appliquer les conditions"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead.",
+      "source_sha256": "0a89a72ed4624345c77188b5697072dbccd2c74e1d55bc8fb020be5ef34c7440",
+      "original_ai_draft": "Les attributions de lignes glissées manuellement sont propres à leur table source et sont omises des schémas réutilisables. Le résultat de l’enregistrement indique combien d’attributions ont été omises. Les cases de conditions exclusivement manuelles restent disponibles comme groupes vides à remplir pour la nouvelle table. Pour conserver les attributions manuelles de l’analyse initiale, utilisez plutôt **Enregistrer le graphique** ou **Enregistrer la table annotée...**.",
+      "reviewed_translation": "Les attributions de lignes glissées manuellement sont propres à leur table source et sont omises des schémas réutilisables. Le résultat de l’enregistrement indique combien d’attributions ont été omises. Les cases de conditions exclusivement manuelles restent disponibles comme groupes vides à remplir pour la nouvelle table. Pour conserver les attributions manuelles de l’analyse initiale, utilisez plutôt **Enregistrer le graphique** ou **Enregistrer la table annotée...**.",
+      "ui_bindings": {
+        "Save chart": "Enregistrer le graphique",
+        "Save annotated table…": "Enregistrer la table annotée..."
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB.",
+      "source_sha256": "0253fd2bc29fcc74e60e7dc6792756c53adf9a9e81524933af6b4ae6d3e8f49b",
+      "original_ai_draft": "Les fichiers mal formés, versions non prises en charge, colonnes indisponibles, motifs invalides et dépendances de sortie invalides laissent le brouillon actuel de la fenêtre inchangé. Une sortie de schéma ne peut écraser une colonne source existante. Les fichiers de schéma sont écrits de façon atomique ; enregistrer un schéma à la place de la table source elle-même est refusé. La taille maximale du fichier est de 8 MiB.",
+      "reviewed_translation": "Les fichiers mal formés, versions non prises en charge, colonnes indisponibles, motifs invalides et dépendances de sortie invalides laissent le brouillon actuel de la fenêtre inchangé. Une sortie de schéma ne peut écraser une colonne source existante. Les fichiers de schéma sont écrits de façon atomique ; enregistrer un schéma à la place de la table source elle-même est refusé. La taille maximale du fichier est de 8 MiB.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Keep conditions with the analysis",
+      "source_sha256": "a70fc2d79873e608521539b1a50af663cd9f96640577e0ea11b6256ddeb8ff56",
+      "original_ai_draft": "Conserver les conditions avec l’analyse",
+      "reviewed_translation": "Conserver les conditions avec l’analyse",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels.",
+      "source_sha256": "f3813160466dcf9c2c4224acde05d1c020ff4f93c15051a7cb76cc12ff684896",
+      "original_ai_draft": "Rouvrez **Conditions annotées** pour modifier les attributions actuelles. Elles sont conservées lors des actualisations de table dans la session Graph Builder actuelle si la source est inchangée. Utilisez **Enregistrer le graphique** pour conserver avec le graphique les règles, attributions manuelles, définitions de colonnes de sortie et toute définition de fusion. **Tableau de chargement** reconstruit la source et vérifie son identité avant d’appliquer ces étiquettes.",
+      "reviewed_translation": "Rouvrez **Annoter les conditions** pour modifier les attributions actuelles. Elles sont conservées lors des actualisations de table dans la session Graph Builder actuelle si la source est inchangée. Utilisez **Enregistrer le graphique** pour conserver avec le graphique les règles, attributions manuelles, définitions de colonnes de sortie et toute définition de fusion. **Charger le graphique** reconstruit la source et vérifie son identité avant d’appliquer ces étiquettes.",
+      "ui_bindings": {
+        "Annotate conditions": "Annoter les conditions",
+        "Save chart": "Enregistrer le graphique",
+        "Load chart": "Charger le graphique"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes.",
+      "source_sha256": "88df7609be398b1081c73a201d0afbae294e8060055bac6f83c25b00b1978ea5",
+      "original_ai_draft": "Les conditions enregistrées appartiennent à la table source exacte, y compris son ordre de lignes, ses valeurs et son schéma. Des données sources modifiées ou une autre définition de fusion nécessitent de vérifier et recréer les conditions. Trier la vue de la fenêtre ne change pas cette identité source. Cette vérification empêche des sélections manuelles enregistrées d’étiqueter des lignes sans rapport après une modification de la source.",
+      "reviewed_translation": "Les conditions enregistrées appartiennent à la table source exacte, y compris son ordre de lignes, ses valeurs et son schéma. Des données sources modifiées ou une autre définition de fusion nécessitent de vérifier et recréer les conditions. Trier la vue de la fenêtre ne change pas cette identité source. Cette vérification empêche des sélections manuelles enregistrées d’étiqueter des lignes sans rapport après une modification de la source.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables.",
+      "source_sha256": "fe835bc6b97298939c766006b989ce65c84e7e64323a13162b89b2d60feaab7a",
+      "original_ai_draft": "Pour une source SQLite, **Enregistrer la table annotée...** enregistre les valeurs de travail dans une nouvelle table physique de la même base. L’invite **Nouveau nom de table (les tables existantes sont conservées)** propose le nom de la table actuelle suivi de ``_annotated``. Les tables, vues et noms de tables fusionnées enregistrées existants ne peuvent pas être écrasés ; les noms commençant par ``sqlite_`` ou ``_spacr_`` sont réservés. Cette action ajoute une table et la provenance de ses annotations tout en conservant les tables de mesures d’origine.",
+      "reviewed_translation": "Pour une source SQLite, **Enregistrer la table annotée...** enregistre les valeurs de travail dans une nouvelle table physique de la même base. L’invite **Nouveau nom de table (les tables existantes sont conservées)** propose le nom de la table actuelle suivi de ``_annotated``. Les tables, vues et noms de tables fusionnées enregistrées existants ne peuvent pas être écrasés ; les noms commençant par ``sqlite_`` ou ``_spacr_`` sont réservés. Cette action ajoute une table et la provenance de ses annotations tout en conservant les tables de mesures d’origine.",
+      "ui_bindings": {
+        "Save annotated table…": "Enregistrer la table annotée...",
+        "New table name (existing tables are preserved)": "Nouveau nom de table (les tables existantes sont conservées)"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance.",
+      "source_sha256": "54d5a9423ed60c393d69c62d296d18381b4370227db393816e85a372705732ab",
+      "original_ai_draft": "La table enregistrée est sélectionnée dans le sélecteur et peut être chargée dans d’autres écrans tabulaires, notamment Gate Editor. Elle contient un instantané des valeurs annotées, contrairement à une fusion dérivée recalculée à partir de ses entrées. La rouvrir dans Graph Builder restaure les règles de conditions modifiables lorsque les lignes et le schéma enregistrés sont inchangés. Enregistrez les valeurs révisées sous un nouveau nom de table. Des données enregistrées modifiées restent lisibles, mais les anciennes règles modifiables n’y sont pas restaurées discrètement. Les actions propres aux images nécessitent toujours une provenance d’objets appropriée.",
+      "reviewed_translation": "La table enregistrée est sélectionnée dans le sélecteur et peut être chargée dans d’autres écrans tabulaires, notamment Gate Editor. Elle contient un instantané des valeurs annotées, contrairement à une fusion dérivée recalculée à partir de ses entrées. La rouvrir dans Graph Builder restaure les règles de conditions modifiables lorsque les lignes et le schéma enregistrés sont inchangés. Enregistrez les valeurs révisées sous un nouveau nom de table. Des données enregistrées modifiées restent lisibles, mais les anciennes règles modifiables n’y sont pas restaurées discrètement. Les actions propres aux images nécessitent toujours une provenance d’objets appropriée.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules.",
+      "source_sha256": "84eda5b7ce75960b3766d612a8671a3475a5041706ad15dff9770a4fad74d18a",
+      "original_ai_draft": "**Tableau des exportations...** écrit la table de travail, avec toutes les colonnes d’annotation, dans un nouveau CSV et consigne sa source, sa définition de fusion et ses règles de conditions dans ``<export>.csv.conditions.json``. L’exportation porte sur la table de travail, pas uniquement sur une sélection surlignée interactivement. La base d’origine ou le fichier importé est préservé et exporter vers ce même chemin source est refusé. Rouvrir le CSV permet de retrouver les étiquettes enregistrées ; utilisez le graphique enregistré pour rouvrir la source d’origine et les règles de conditions modifiables.",
+      "reviewed_translation": "**Exporter la table…** écrit la table de travail, avec toutes les colonnes d’annotation, dans un nouveau CSV et consigne sa source, sa définition de fusion et ses règles de conditions dans ``<export>.csv.conditions.json``. L’exportation porte sur la table de travail, pas uniquement sur une sélection surlignée interactivement. La base d’origine ou le fichier importé est préservé et exporter vers ce même chemin source est refusé. Rouvrir le CSV permet de retrouver les étiquettes enregistrées ; utilisez le graphique enregistré pour rouvrir la source d’origine et les règles de conditions modifiables.",
+      "ui_bindings": {
+        "Export table…": "Exporter la table…"
+      }
+    }
+  ]
+}

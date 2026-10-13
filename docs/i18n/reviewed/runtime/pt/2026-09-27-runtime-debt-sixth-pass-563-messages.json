@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source_sha256": "359b2331bf33d304486fd930e9edbe819d82b168ed5f34e5e1dc9a79c26eed3c",
+      "translation": "Um objeto é atípico quando sua pontuação passa deste quantil dos objetos de controle, de modo que essa fração dos controles é normal por construção. Os poços são ordenados pela fração de atípicos. Padrão 0.99."
+    },
+    {
+      "table": "ui",
+      "key": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source_sha256": "b5e7b7f4fba304a07fa7e00a0518f23de2c5cf945fcdae550c0a73180e8bc157",
+      "translation": "Quão diferente dos controles um objeto é: distância de Mahalanobis robusta, distância média aos objetos de controle mais próximos, uma floresta de isolamento ou baixa densidade sob uma mistura gaussiana. Todos rodam na CPU. Padrão Robust Mahalanobis."
+    },
+    {
+      "table": "ui",
+      "key": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source_sha256": "ba71d351bd2ebefb0f24b62e3abb60e02e0547396ffaa7ff22714640875b1635",
+      "translation": "Modela os objetos do controle negativo como normais e pontua cada objeto e poço pelo quanto difere deles, em cada variável numérica (ou nas colunas de incorporação emb_, quando existirem). Requer uma tabela por objeto, o controle negativo escolhido acima e as posições dos poços. Padrão desativado."
+    },
+    {
+      "table": "ui",
+      "key": "Pick the control column and the negative control to score anomalies against.",
+      "source": "Pick the control column and the negative control to score anomalies against.",
+      "source_sha256": "27c4bf39f456613c55b5a32ae036688bb36822f72a223954638aa3b2015f8f85",
+      "translation": "Escolha a coluna de controle e o controle negativo contra os quais pontuar as anomalias."
+    },
+    {
+      "table": "ui",
+      "key": "Score anomalies against the negative control",
+      "source": "Score anomalies against the negative control",
+      "source_sha256": "7e9de04bbee97f24ce0311a895f10dafe5b37304a3c778e0c5e1d88338eee257",
+      "translation": "Pontuar anomalias contra o controle negativo"
+    },
+    {
+      "table": "ui",
+      "key": "Turn on anomaly scoring and name the negative control.",
+      "source": "Turn on anomaly scoring and name the negative control.",
+      "source_sha256": "aa4bfc88a6b38a2be33b74967e598f9973a39485c8798db18cbea60d8582896c",
+      "translation": "Ative a pontuação de anomalias e indique o controle negativo."
+    },
+    {
+      "table": "ui",
+      "key": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source_sha256": "4294eaa8e152a4d7862f95f1be47a6987567ed8f31419ed16f80851b53ed0537",
+      "translation": "Poços (A01), poços de placa (prc) ou nomes de tratamento que são acertos conhecidos, separados por vírgulas. Com o controle positivo, eles dão a AUROC da classificação contra o controle negativo. Padrão vazio."
+    },
+    {
+      "table": "ui",
+      "key": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source_sha256": "daa5eb71b5812c9d808c3937b40253c108dad1884ac9b908dbd4f2bd9a01ecae",
+      "translation": "Gravar em uma pasta os poços ordenados, a pontuação de cada objeto, os principais atípicos e a figura de revisão."
+    }
+  ]
+}

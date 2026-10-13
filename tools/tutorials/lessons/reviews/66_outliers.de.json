@@ -1,0 +1,40 @@
+{
+  "lesson": "66_outliers",
+  "english_sha256": "11fc8373bff222df7688c809af9a0f13ee7ffe05927b59ef7fbdf36f1c883ca7",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Outliers: Messwerte zur Prüfung markieren",
+  "description": "Wählen Sie Merkmale und eine robuste Regel, prüfen Sie Ergebnisse je Objekt und Well und exportieren Sie Markierungen mit der vollständigen Eingabetabelle.",
+  "objectives": [
+    "Messwerte laden und die zu prüfenden Merkmale auswählen.",
+    "MAD-, IQR- und log-transformierte Regeln vergleichen.",
+    "Einschränkungen der Bewertung lesen und Zeilen, Markierungen und einen Bericht exportieren."
+  ],
+  "prerequisite": "Verwenden Sie eine Arbeitskopie von measurements.db aus dem Annotate-Beispiel. Markierungen kennzeichnen Beobachtungen zur Prüfung; wählen Sie Schwellen passend zu Ihrer Analyse. Das Beispiel hat vier Wells, weniger als die fünf, die für den Vergleich zwischen Wells nötig sind. Unterscheiden Sie nicht bewertete Wells von Wells, die ohne Markierung bewertet wurden.",
+  "scenes": [
+    "Öffnen Sie von Home aus QC und dann Outliers. Verwenden Sie die Datenbank aus dem Annotate-Beispiel, um ungewöhnliche Messwerte zur Prüfung zu markieren.",
+    "Klicken Sie auf Load table und wählen Sie die Tabelle cell. Beim Laden werden die ausgewählten stetigen Merkmale automatisch gescannt. Prüfen Sie die ausgewählten Merkmale, bevor Sie dieses breite erste Ergebnis interpretieren.",
+    "Klicken Sie bei leerer Merkmalssuche auf None, um alle Auswahlen aufzuheben. Suchen Sie cell_area, haken Sie dieses Merkmal an und klicken Sie auf Scan. Eine geänderte Auswahl erfordert einen neuen Scan.",
+    "Wählen Sie MAD, lassen Sie Transform auf none und setzen Sie k auf 3,5. Klicken Sie auf Scan. Die Regel misst den Abstand zum Median mit einer robusten Skala und markiert in diesem Beispiel 26 Objekte.",
+    "Öffnen Sie Wells und lesen Sie well_scored und die Spalte reason. Diese vier Wells sind nicht bewertet, weil der Vergleich mindestens fünf geeignete Wells benötigt. Flagged share fasst die Objektmarkierungen separat zusammen.",
+    "Öffnen Sie Report, um Regel, Zentrum und Skala zu lesen. In diesem Build ist die allgemeine Erklärung zur Well-Anzahl für dieses Beispiel falsch; verwenden Sie den konkreten Grund in der Tabelle Wells: zu wenige geeignete Wells.",
+    "Senken Sie k, um kleinere Abweichungen vom Zentrum zu markieren. Bei 0,5 hat das Beispiel 1.479 Markierungen. Die Objekttabelle zeigt nur 500 Zeilen, verwenden Sie also die Anzahl der Markierungen statt der sichtbaren Zeilen.",
+    "Wählen Sie Export und einen neuen Dateinamen. Die objects-CSV behält alle Eingabezeilen mit Markierungen; flagged enthält nur markierte Objekte. Wells und report speichern die Well-Übersichten und den Analysetext.",
+    "Wählen Sie IQR, setzen Sie c auf 1,5 und klicken Sie auf Scan. Dies wendet Grenzen auf Basis des Interquartilsabstands an und markiert 55 Objekte für die rohe Zellfläche.",
+    "Lesen Sie die Grenzen im IQR-Bericht. Das angezeigte Zentrum ist der Mittelpunkt zwischen erstem und drittem Quartil, obwohl dieser Build es als median bezeichnet. Verwenden Sie die Quelldaten, wenn Sie den tatsächlichen Median brauchen.",
+    "Wählen Sie log10 und scannen Sie erneut. Zentren, Skalen und Abstandsregel gelten jetzt für log-transformierte Werte. Probieren Sie MAD mit 3,5, um das Ergebnis mit der IQR-Regel zu vergleichen.",
+    "Setzen Sie Transform wieder auf none, heben Sie die Merkmalsauswahl auf und wählen Sie nur cell_channel_0_min_intensity. Scannen Sie die Rohwerte, bevor Sie eine logarithmische Transformation versuchen.",
+    "Wählen Sie log10 und klicken Sie auf Scan. Dieses Merkmal enthält eine Null, daher wird die Transformation abgelehnt und der Export deaktiviert. Lesen Sie den Fehler: Noch sichtbare alte Zeilen gehören zum vorherigen Ergebnis.",
+    "Stellen Sie rohe cell_area, MAD und k = 3,5 wieder her und klicken Sie auf Scan. Wenn Sie Min objects per well auf 700 erhöhen, werden drei Wells ungeeignet. Das verbleibende Well reicht weiterhin nicht für den Vergleich über fünf Wells.",
+    "Setzen Sie Min objects per well wieder auf 20. Schalten Sie Score wells too aus und klicken Sie auf Scan, um nur Objektmarkierungen zu erhalten. Schalten Sie es wieder ein und scannen Sie erneut, um die Well-Übersichten einzuschließen.",
+    "Exportieren Sie die wiederhergestellte Regel unter einem eigenen Dateinamen. Bewahren Sie den Bericht mit seinen 26 markierten Zeilen, der vollständigen Objekttabelle und den vier Well-Übersichten auf, damit Sie die verwendeten Einstellungen nachvollziehen können.",
+    "Verwenden Sie in Python detect_outliers und OutlierSpec aus spacr.qt.widgets.outlier_model. Fahren Sie mit Feature Explorer fort, um Verteilungen zu untersuchen, oder mit Annotate, um passende Bilder zu prüfen, bevor Sie über den Umgang mit markierten Objekten entscheiden."
+  ]
+}

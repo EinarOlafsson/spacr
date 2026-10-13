@@ -1,0 +1,254 @@
+{
+  "lesson": "50_run_compare",
+  "status": "Real native comparison and portable snapshots verified; multilingual media pending",
+  "canonical_english_sha256": "d2ec203015682d6ea5e04b5605223c99f248880c2aa529986668ce1186fe9c00",
+  "scene_count": 9,
+  "narrated_words": 461,
+  "recorded_checks": {
+    "lesson": "50_run_compare",
+    "accepted": true,
+    "preparation": {
+      "accepted": true,
+      "scope": "Explicitly transported real Measure snapshots; not a new analysis or complete project archive",
+      "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1",
+      "source_hashes": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_fresh/example_data/plate1/artifacts.db": "bb2ff1d06f526c401422bdbd34b594b8b5dbaac7dd2f0691c155f1a8c83331ce",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_fresh/example_data/plate1/measurements/measurements.db": "310aab574a3b3911e37aa05a369fd973621872958c1aa8c83dddb05f1f4a35fc",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_production/example_data/plate1/artifacts.db": "06c189e2e7919ffdb57225cec9a8cf75751318200d789b95d617581ee40c5a2d",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_production/example_data/plate1/measurements/measurements.db": "902de93b799485cdb3d481cab85aaa4a3386c4abf64b8f1f8cf05ba2322bddfd"
+      },
+      "records": [
+        {
+          "original": {
+            "artifact_id": "a11c8c1623c9cc15",
+            "project": "/home/olafsson/.cache/spacr/example_data/plate1",
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db",
+            "module": "measure",
+            "run_id": "d86c136e7261",
+            "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+            "spacr_version": "1.5.0.5",
+            "created_ns": 1789097876682199655,
+            "created_utc": "2026-09-11T03:37:56.682199+00:00",
+            "fingerprint": "310aab574a3b3911e37aa05a369fd973621872958c1aa8c83dddb05f1f4a35fc",
+            "fingerprint_method": "sha256",
+            "size_bytes": 6369280,
+            "n_files": 1,
+            "status": "complete",
+            "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+            "extra_json": "{}",
+            "schema_version": 1
+          },
+          "transported": {
+            "artifact_id": "a11c8c1623c9cc15",
+            "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1",
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1/snapshots/d86c136e7261/measurements.db",
+            "module": "measure",
+            "run_id": "d86c136e7261",
+            "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+            "spacr_version": "1.5.0.5",
+            "created_ns": 1789097876682199655,
+            "created_utc": "2026-09-11T03:37:56.682199+00:00",
+            "fingerprint": "310aab574a3b3911e37aa05a369fd973621872958c1aa8c83dddb05f1f4a35fc",
+            "fingerprint_method": "sha256",
+            "size_bytes": 6369280,
+            "n_files": 1,
+            "status": "complete",
+            "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+            "extra_json": "{\"tutorial_relocation\": {\"original_path\": \"/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db\", \"original_project\": \"/home/olafsson/.cache/spacr/example_data/plate1\", \"original_registry\": \"/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_fresh/example_data/plate1/artifacts.db\", \"original_registry_sha256\": \"bb2ff1d06f526c401422bdbd34b594b8b5dbaac7dd2f0691c155f1a8c83331ce\", \"scope\": \"Only the real measurements artifact is included; this is not a full project archive\"}}",
+            "schema_version": 1
+          }
+        },
+        {
+          "original": {
+            "artifact_id": "4d6b8b21f16af3bf",
+            "project": "/home/olafsson/.cache/spacr/example_data/plate1",
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db",
+            "module": "measure",
+            "run_id": "caa0bf7ca2ce",
+            "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+            "spacr_version": "1.5.0.5",
+            "created_ns": 1789099556762123056,
+            "created_utc": "2026-09-11T04:05:56.762123+00:00",
+            "fingerprint": "902de93b799485cdb3d481cab85aaa4a3386c4abf64b8f1f8cf05ba2322bddfd",
+            "fingerprint_method": "sha256",
+            "size_bytes": 6369280,
+            "n_files": 1,
+            "status": "complete",
+            "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+            "extra_json": "{}",
+            "schema_version": 1
+          },
+          "transported": {
+            "artifact_id": "4d6b8b21f16af3bf",
+            "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1",
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run_compare_verified_snapshots_v1/snapshots/caa0bf7ca2ce/measurements.db",
+            "module": "measure",
+            "run_id": "caa0bf7ca2ce",
+            "settings_hash": "a6277d70c40606349d00da08c2dcd846723cfee19065ff5e468066454912659e",
+            "spacr_version": "1.5.0.5",
+            "created_ns": 1789099556762123056,
+            "created_utc": "2026-09-11T04:05:56.762123+00:00",
+            "fingerprint": "902de93b799485cdb3d481cab85aaa4a3386c4abf64b8f1f8cf05ba2322bddfd",
+            "fingerprint_method": "sha256",
+            "size_bytes": 6369280,
+            "n_files": 1,
+            "status": "complete",
+            "settings_json": "{\"_intensity_rescale_plan\":{\"failures\":{},\"plates\":{\"plate1\":65535.0},\"version\":1},\"anisotropy\":null,\"bystander_measurements\":false,\"bystander_reach_in_diameters\":1.0,\"calculate_correlation\":true,\"cell_mask_dim\":4,\"cell_max_size\":null,\"cell_min_size\":8000,\"channels\":[0,1,2,3],\"crop_mode\":[\"cell\"],\"cytoplasm\":true,\"cytoplasm_min_size\":0,\"dialate_png_ratios\":[0.2],\"dialate_pngs\":false,\"distance_gaussian_sigma\":10,\"experiment\":\"experiment\",\"hash_inputs\":true,\"homogeneity\":true,\"homogeneity_distances\":[8,16,32],\"illumination_correction\":false,\"illumination_dark\":0.0,\"illumination_degree\":4,\"illumination_estimator\":\"polynomial\",\"illumination_max_fields\":50,\"illumination_model\":null,\"illumination_on_missing\":\"error\",\"illumination_per_plate\":true,\"illumination_qc\":true,\"max_failure_rate\":null,\"merge_edge_pathogen_cells\":true,\"normalize\":false,\"normalize_by\":\"png\",\"nucleus_mask_dim\":5,\"nucleus_max_size\":null,\"nucleus_min_size\":2000,\"number_of_organelles\":0,\"object_distance_intensity\":true,\"object_distance_maxima\":true,\"object_distances\":true,\"organelle_mask_dim\":null,\"organelle_min_area\":0,\"organelle_type\":\"custom\",\"pathogen_mask_dim\":6,\"pathogen_max_size\":null,\"pathogen_min_size\":500,\"png_channel_mapping\":{\"b\":0,\"g\":1,\"r\":2},\"png_size\":[224,224],\"radial_dist\":true,\"save_arrays\":false,\"save_measurements\":true,\"save_png\":true,\"spatial_measurements\":true,\"spatial_neighbor_radius\":50,\"summarize_organelles_by\":\"cell\",\"timelapse\":false,\"timelapse_objects\":[\"cell\"],\"uninfected\":true,\"use_bounding_box\":false,\"voxel_size_xy_um\":null,\"voxel_size_z_um\":null}",
+            "extra_json": "{\"tutorial_relocation\": {\"original_path\": \"/home/olafsson/.cache/spacr/example_data/plate1/measurements/measurements.db\", \"original_project\": \"/home/olafsson/.cache/spacr/example_data/plate1\", \"original_registry\": \"/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_production/example_data/plate1/artifacts.db\", \"original_registry_sha256\": \"06c189e2e7919ffdb57225cec9a8cf75751318200d789b95d617581ee40c5a2d\", \"scope\": \"Only the real measurements artifact is included; this is not a full project archive\"}}",
+            "schema_version": 1
+          }
+        }
+      ],
+      "counts": {
+        "cell": 601,
+        "nucleus": 622,
+        "pathogen": 373,
+        "cytoplasm": 601,
+        "png_list": 601
+      },
+      "fields": [
+        [
+          "plate1",
+          "r12",
+          "c1",
+          "f1"
+        ],
+        [
+          "plate1",
+          "r12",
+          "c1",
+          "f10"
+        ],
+        [
+          "plate1",
+          "r12",
+          "c1",
+          "f11"
+        ],
+        [
+          "plate1",
+          "r12",
+          "c1",
+          "f9"
+        ],
+        [
+          "plate1",
+          "r12",
+          "c2",
+          "f1"
+        ],
+        [
+          "plate1",
+          "r12",
+          "c2",
+          "f10"
+        ],
+        [
+          "plate1",
+          "r12",
+          "c2",
+          "f11"
+        ],
+        [
+          "plate1",
+          "r12",
+          "c2",
+          "f9"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1",
+          "f1"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1",
+          "f10"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1",
+          "f11"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1",
+          "f9"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2",
+          "f1"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2",
+          "f10"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2",
+          "f11"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2",
+          "f9"
+        ]
+      ],
+      "object_identity_rows_checked": 4394,
+      "historical_metadata_preserved": true,
+      "settings_unchanged_between_runs": true,
+      "selected_artifacts_only": true,
+      "registry_paths_explicitly_relocated": true,
+      "original_sources_unchanged": true,
+      "synthetic_runs": false,
+      "scientific_accuracy_validated": false,
+      "app_source_modified": false,
+      "published": false
+    },
+    "synthetic_runs": false,
+    "new_analysis_started": false,
+    "app_source_modified": false,
+    "published": false,
+    "count_rows_checked": 15,
+    "rendered_count_cells_checked": 60,
+    "historical_metadata_preserved": true,
+    "unchanged_setting_values_checked": true,
+    "missing_hits_disclosed": true,
+    "same_run_warning_observed_and_cleared": true,
+    "original_and_snapshot_bytes_unchanged": true,
+    "registry_rows_unchanged": true,
+    "scientific_accuracy_validated": false
+  },
+  "portable_bundle": {
+    "accepted": true,
+    "bundle_sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453",
+    "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/run-compare-download-bv69lsn0/relocated",
+    "records_exact": true,
+    "history_preserved": true,
+    "full_fingerprints_match": true,
+    "overwrite_refused": true
+  },
+  "focused_tests_passed": 3,
+  "deliberate_guard_mutations_observed_red": 3,
+  "published": false,
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false
+}

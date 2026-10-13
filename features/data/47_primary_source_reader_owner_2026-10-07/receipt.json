@@ -1,0 +1,80 @@
+{
+  "source_parent": "28449ef0c84c4be92cf34be18d7372e3f0d9e2c8",
+  "source_commit": "6aa514f5b2",
+  "before_source_sha256": "01f816ccf9f3fc93b3ee0fb5e3a80faf930c56de7e7e05db08130d0fed660a8d",
+  "after_source_sha256": "eaeb0e6867861dfaefbff29b32138e71d5f144a2eb3fd76b83e3364914be4dc6",
+  "test_sha256": "e7b20595ee1b13011391bd4e16b233bbfc07348746379bb8b084d4e45a945b93",
+  "runtime_sources": {
+    "spacr/qt/bridge.py": "11a988e3dc1e45d83abaa9eb0512dcdd1c971f3436186bcaab4eb37c19d39143",
+    "spacr/qt/secondary_masks.py": "1c010d6fe40f7ea314730a1841261893dab3d599796b3a1dced73520f9519511",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf"
+  },
+  "baseline_sha256": "7d4f27acf453f79006b7acd809a592fccec8267b9fe4142635873bca142ddf0a",
+  "baseline_module_entry": null,
+  "baseline_policy": "No module-specific allowance exists; unchanged numerical floor applies. The exact hosted/focused union reaches 0 statements and 0 branches uncovered.",
+  "insertion_only_source_verified": true,
+  "unchanged_old_universe": {
+    "statements": 142,
+    "branches": 28
+  },
+  "current_universe": {
+    "statements": 144,
+    "branches": 30
+  },
+  "new_guard_executed_lines": [
+    227,
+    228
+  ],
+  "new_guard_executed_branches": [
+    [
+      227,
+      228
+    ],
+    [
+      227,
+      -218
+    ]
+  ],
+  "focused_counts": {
+    "covered_lines": 141,
+    "num_statements": 144,
+    "percent_covered": 97.70114942528735,
+    "percent_covered_display": "97.70",
+    "missing_lines": 3,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.91666666666667,
+    "percent_statements_covered_display": "97.92",
+    "num_branches": 30,
+    "num_partial_branches": 1,
+    "covered_branches": 29,
+    "missing_branches": 1,
+    "percent_branches_covered": 96.66666666666667,
+    "percent_branches_covered_display": "96.67"
+  },
+  "union_missing_lines": [],
+  "union_missing_branches": [],
+  "focused_result": "23 passed in 19.66s, primary selector plus secondary source tests, CUDA hidden/offscreen/capped4G",
+  "new_tests": [
+    "test_timeout_parks_an_independent_reader_without_publishing_after_close",
+    "test_successful_shutdown_keeps_normal_worker_ownership",
+    "test_native_selector_deletion_preserves_reader_past_real_shutdown_timeout"
+  ],
+  "before_native_exit": -6,
+  "after_native_exit": 0,
+  "gdb_diagnostic": {
+    "original_three_file_order_preserved": true,
+    "signal": "SIGSEGV",
+    "top_frame": "Shiboken::BindingManager::releaseWrapper",
+    "path": "Object::destroy -> QtCore wrapper destructor -> QObject::event -> sendPostedEvents -> QEventLoop::exec",
+    "gdb_exit": 0,
+    "note": "GDB command success is not pytest success; inferior stopped on native signal, coverage incomplete."
+  },
+  "limits": [
+    "The independent five-second parked-thread parent deletion SIGABRT is repaired.",
+    "The separate hosted/local parent-loading deferred-wrapper-deletion SIGSEGV remains unresolved.",
+    "No full-suite, whole application memory, GPU, documentation/API or source-current hosted acceptance claim."
+  ],
+  "hosted_source_commit": "e1f54c80650f60942ba6c98d4e999b36a3fa2846",
+  "hosted_source_bytes_verified": true
+}

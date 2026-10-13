@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "owner": "Root/workstation",
+  "hosted": {
+    "run": 37698599898,
+    "job": 113058129287,
+    "source": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+    "node": "tests/qt/test_idle_time_builds_the_closed_categories.py::test_a_category_built_in_idle_time_equals_one_built_by_a_click",
+    "result": "failure; original regression row equality remains unreproduced"
+  },
+  "local": {
+    "source": "5c2082ff51173d01d38e994c40b88689cad7468f",
+    "passed": 501,
+    "seconds": 164.69,
+    "collected": 501,
+    "workers": 2,
+    "marker": "not gui",
+    "batch": 3,
+    "file_count": 32,
+    "lost_workers": [],
+    "recovered_files": [],
+    "python": "3.13.14",
+    "qt": "6.11.1",
+    "pytest": "8.4.2",
+    "random_seed": 447420278,
+    "full_file": {
+      "passed": 12,
+      "seconds": 46.73
+    }
+  },
+  "unchanged_relevant_sources": {
+    "spacr/qt/screens/app_screen.py": "3dc8ee9027f39dc76604422a9185620e9c7981a81fffa3f4b46a37acbe6b680d",
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "tests/qt/test_idle_time_builds_the_closed_categories.py": "efa0bbf62a5f6e285757683af5e61eabd12f86a821c09e6a4d35677a62dce3d0"
+  },
+  "limits": [
+    "This local batch has the same 32 file arguments, but pytest-randomly is installed locally and absent on the hosted job.",
+    "Hosted Python 3.12.15 and Qt 6.11.2 differ from this first local reproduction.",
+    "No application change, assertion change, hard threshold reduction or failure waiver is made.",
+    "Ordered reproductions pass in both local environments; the hosted machine mismatch is still unexplained. No further repetition without new evidence is justified. Current hosted and original-order native acceptance remain open."
+  ],
+  "artifacts": {
+    "logs/idle-category-equality-r1.log.gz": {
+      "raw_bytes": 1378,
+      "raw_sha256": "eca8df79ab07cc0460fe1ea1329db5400920a0678dd82980a367e8dd6795e2b5",
+      "gzip_sha256": "f2ac20cc6112af56466463a9adc924a305e6de8a09d6fc6b8a6dc65387049350"
+    },
+    "logs/idle-hosted-batch-r2.log.gz": {
+      "raw_bytes": 49126,
+      "raw_sha256": "c3a586ac4c464f675cb01fb37365ce6dec025218c25946e10cce5fc4d91ce14b",
+      "gzip_sha256": "e8ab0d6bc030d17aa1f75a7f5e3d830b30bb251165e52d5b964985805db76f25"
+    },
+    "logs/idle-hosted-batch-r3.log.gz": {
+      "raw_bytes": 117901,
+      "raw_sha256": "ac5ac609305ff5846ba235a44e72d83a1ff4b984b2c1fa1ecdba16c839d4fa75",
+      "gzip_sha256": "8a5e5d7c698eb7aed75ccad458cbf5bff00de71e27a4240894abf048b0f22bca"
+    },
+    "logs/ci-plugins-install-r1.log.gz": {
+      "raw_bytes": 1090,
+      "raw_sha256": "3d835a469da2df698fc11e75b93e7ab2418ae7f1689c8929a8e04e373eca8a61",
+      "gzip_sha256": "b078952e91e66c524ffaf46857a8695fb5f3dc59c3009cf7cb0e1b372b599582"
+    },
+    "logs/ci-pytest-version-install-r2.log.gz": {
+      "raw_bytes": 874,
+      "raw_sha256": "5dea07e6ec3ee93c8b3f7f37497678cdb01deefcaae67410662a8714e87e6277",
+      "gzip_sha256": "1c07e13fe792b96e44d384ccf519ca75590cca4f200da2e1dd18baddb9d2e8cd"
+    },
+    "journals/process-3838788-1791418524985008375.jsonl.gz": {
+      "raw_bytes": 534,
+      "raw_sha256": "1ed420612f4d3e4c5ded5c408b81c2f1db95a87b2c12380b7473f44e4a9e66b6",
+      "gzip_sha256": "beeff55a03d5d4ff56eee028eaa60a758dda63bd3de572c56553a1c9ee0e24d1"
+    },
+    "journals/process-3838812-1791418526919981639.jsonl.gz": {
+      "raw_bytes": 527,
+      "raw_sha256": "2654d73670685db6b1db6ed1f45b6a82012852908d262ef55680658638366512",
+      "gzip_sha256": "27cf6f6d89c987f29f16aed47d11a15d401634b536eaa576118f2ee9bd2a6bf9"
+    },
+    "journals/process-3838815-1791418526964053569.jsonl.gz": {
+      "raw_bytes": 527,
+      "raw_sha256": "ea723c1d0688cc8f76e31f85fd8f37414c0bd9147b0ce5e2d680d0a2a7176168",
+      "gzip_sha256": "3568a3bc8e87f602d20110acffcce5c8aac12929313f2be3bf62b7ea9b15f884"
+    },
+    "batch/result.json.gz": {
+      "raw_bytes": 209,
+      "raw_sha256": "618d498ec103ae822dd32dd06f3302d684680f31e67735ea6a2000f71776adb8",
+      "gzip_sha256": "202506c76b170e94a486038b5b173afab1b1855fe9d9fee664430432a1fad13d"
+    },
+    "batch/spacr-xdist-ledger.shard-00.batch-003.json.gz": {
+      "raw_bytes": 2208,
+      "raw_sha256": "6be38b2ca5285744c99536b322f77c02567575b97120743e7c9d018daf223545",
+      "gzip_sha256": "175c8ba97bc6e6fd9a4d8ac0ad7d6dfd09ef3b3cd44a0cbe440eee37067d83c4"
+    },
+    "scripts/reproduce_idle_hosted_batch.py.gz": {
+      "raw_bytes": 1386,
+      "raw_sha256": "77a060533a9ac23d55da635d802b58322b876a9a32e431376d83249168d52b4e",
+      "gzip_sha256": "c61d56802b74739cee552cc0ac07676247bcfe8b997f544567080a1222ce0001"
+    },
+    "scripts/archive_idle_reproduction.py.gz": {
+      "raw_bytes": 3708,
+      "raw_sha256": "c6d74382db6e37eb64c1215e95b6930195c1752fe1dcd617537b0bb922a349f1",
+      "gzip_sha256": "53ca42d06591dee62a7f3406a66cb46cf22220a76a209319f38bca77f6409781"
+    },
+    "logs/idle-hosted-batch-r4.log.gz": {
+      "raw_bytes": 117556,
+      "raw_sha256": "da558c0cc180430ed72aa1807c6c1db6a5b63bfef771f53dd2e1a396e17209c8",
+      "gzip_sha256": "a2836b78205792baee1fb2c2effc76b51717399fc01659de6ad1ebf7f1a09adb"
+    },
+    "logs/idle-hosted-batch-r5.log.gz": {
+      "raw_bytes": 117390,
+      "raw_sha256": "ed8c7d6e2ccbb2ccb6064c600e5299ba22e297f7501dd7d0289ef5cf09e470ac",
+      "gzip_sha256": "cbbb4d8db8dc97d2cf6555da4c7232cf7832bcc79bab3e2d417ebf9a809de952"
+    },
+    "logs/ci-py312-plugins-install-r1.log.gz": {
+      "raw_bytes": 2368,
+      "raw_sha256": "c31d7d5f0807b3351e9fa35a3d9aa633574d2b5f23eeaa03b0019092a08cf802",
+      "gzip_sha256": "18229a6ea362166041bf6a2251507bafcbf7cc2d7411b948f489ab6349e684a7"
+    },
+    "batch/r4/result.json.gz": {
+      "raw_bytes": 209,
+      "raw_sha256": "618d498ec103ae822dd32dd06f3302d684680f31e67735ea6a2000f71776adb8",
+      "gzip_sha256": "202506c76b170e94a486038b5b173afab1b1855fe9d9fee664430432a1fad13d"
+    },
+    "batch/r4/spacr-xdist-ledger.shard-00.batch-003.json.gz": {
+      "raw_bytes": 2208,
+      "raw_sha256": "c9f82d93b3563ee7b360e10044644069b992bd92081f7fe6560a90c73e4b6afa",
+      "gzip_sha256": "bb9074347485d9be155f421b384667baa23ebbfae69479dceb3bbd78db806e3a"
+    },
+    "journals/r4/process-3842215-1791418891267197815.jsonl.gz": {
+      "raw_bytes": 534,
+      "raw_sha256": "5ff88ac71a0c2739f192a79610dffe4c29d8695054168a90bb13e1bfb27eb7fe",
+      "gzip_sha256": "6761c19682bb06707b2b212424eac3a902701ab40e5de8c4cb1599ec378bfc76"
+    },
+    "journals/r4/process-3842230-1791418892597407450.jsonl.gz": {
+      "raw_bytes": 527,
+      "raw_sha256": "e43cb570f89f546d0c32b48dd656b27af9530c41a6792589d3e083cb91f70ab7",
+      "gzip_sha256": "01de27a5e87f6c5f49e92f472d92fcd138af336af5aa29ac9f2297adfee66a5a"
+    },
+    "journals/r4/process-3842233-1791418892634934129.jsonl.gz": {
+      "raw_bytes": 527,
+      "raw_sha256": "30fae4a08c0a21b00475397eee4b670d79ab1cfc8a54082eff9dc8b110fd9392",
+      "gzip_sha256": "0c5fe5bfc152ec47d4817b06267a354093a99207ca73daf81b8e90e060f881b3"
+    },
+    "batch/r5/result.json.gz": {
+      "raw_bytes": 209,
+      "raw_sha256": "618d498ec103ae822dd32dd06f3302d684680f31e67735ea6a2000f71776adb8",
+      "gzip_sha256": "202506c76b170e94a486038b5b173afab1b1855fe9d9fee664430432a1fad13d"
+    },
+    "batch/r5/spacr-xdist-ledger.shard-00.batch-003.json.gz": {
+      "raw_bytes": 2208,
+      "raw_sha256": "3c7b5e03bbaa8cb3b733d1e57302ee41088c80a39a176a6f4c80b6c79a16b839",
+      "gzip_sha256": "6d5fd482c2508acc7dad559e46ce81ab5fbe1ca64ce53ccf080ca53c91bad0a3"
+    },
+    "journals/r5/process-3844385-1791419025267293926.jsonl.gz": {
+      "raw_bytes": 536,
+      "raw_sha256": "c9dbbd4ef2c74177fc3b0bbcb2a43ea7ad56df21fa0387c24a106a3be8f069b8",
+      "gzip_sha256": "a50eef37fb8fb892a61df52e23719eee69d98bc91c60e4520c9bc15e6a45d9f4"
+    },
+    "journals/r5/process-3844397-1791419026583184877.jsonl.gz": {
+      "raw_bytes": 529,
+      "raw_sha256": "b182ac1de2a0a1f84b752284ea5c1368bfab89a4a4908579012d5b1a6b2fe408",
+      "gzip_sha256": "0e6587654cf3eccc19e2fa46b80d24c15b74f928307c60b6e355a8ed014d93c4"
+    },
+    "journals/r5/process-3844400-1791419026619817659.jsonl.gz": {
+      "raw_bytes": 529,
+      "raw_sha256": "906ce08733834f461b556bb2b89b86b99ddede29ba5fc94c684a8622aca632fb",
+      "gzip_sha256": "53ed5924d4947ca6a877aa9b34baca9b76477e9af242e5cc66a0f91148ed907b"
+    },
+    "scripts/reproduce_idle_hosted_batch_ordered.py.gz": {
+      "raw_bytes": 1386,
+      "raw_sha256": "1daf7a66b36557bbcde2c8ad50f92b8fe8d0697147ea8923f6fc4a76cda39121",
+      "gzip_sha256": "4ab7f77827ec45f16598626b45360979c164e836670d8b19feb1544990989fd2"
+    },
+    "scripts/reproduce_idle_hosted_batch_py312.py.gz": {
+      "raw_bytes": 1386,
+      "raw_sha256": "c6f99a2045dc05918e89e5e29385d70e6400b534acd7ef397d6de399b854207d",
+      "gzip_sha256": "5dfa8ac1b0416979989d97ece94849c2663d66fb48e81861cffc096596d7d82e"
+    },
+    "scripts/archive_idle_ordered_followups.py.gz": {
+      "raw_bytes": 2987,
+      "raw_sha256": "79ec8351d4173a60da6cf9bddac9f4386a301baf887c58c3c34ab3e47411eb1a",
+      "gzip_sha256": "3d6d6fba9cf69eb3ed490ceaceea29a0591ce22922b89c6c31edfd5d021215c9"
+    }
+  },
+  "ordered_followups": [
+    {
+      "attempt": "r4",
+      "source": "23a3d197c3c34e8cd2d7571965eaa1eaa1b5dbd2",
+      "python": "3.13.14",
+      "qt": "6.11.1",
+      "pytest": "8.4.2",
+      "ci": true,
+      "randomly_disabled": true,
+      "passed": 501,
+      "seconds": 169.11,
+      "result": "not reproduced"
+    },
+    {
+      "attempt": "r5",
+      "source": "23a3d197c3c34e8cd2d7571965eaa1eaa1b5dbd2",
+      "python": "3.12.14",
+      "qt": "6.11.2",
+      "pytest": "8.4.2",
+      "ci": true,
+      "randomly_disabled": true,
+      "passed": 501,
+      "seconds": 213.66,
+      "result": "not reproduced; hosted Python is 3.12.15 and other dependency versions differ"
+    }
+  ]
+}

@@ -1,0 +1,635 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Codex agents reviewed all 59 new local-model UI drafts in each locale. Incorrect technical meanings and omitted instructions were corrected as source-bound targets. Another Codex agent independently reviewed every corrected source/target pair. The two named-group instructions are explicitly AI-authored translations of previously uncatalogued prose, with literal examples retained as placeholders. Standard generator, normalization and translation quality gates remain unchanged.",
+  "reviewed_candidate_sha256": "4ce6d66d97adfb1e41c65387e14f51b8497b03418ff5551e57cc1c8e645f3c12",
+  "original_local_model_drafts": [
+    {
+      "source": "Add another metadata comparison to this condition box.",
+      "translation": "इस स्थिति बॉक्स में एक और मेटाडेटा तुलना जोड़ें।"
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "translation": "सभी के लिए प्रत्येक मानदंड की आवश्यकता होती है; प्रत्येक के लिए कम से कम एक मापदंड आवश्यक है।"
+    },
+    {
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "translation": "पाठ टोकन को स्वतंत्र रूप से संपादित या स्थानांतरित किया जा सकता है।"
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "translation": "एक निश्चित मूल्य निर्दिष्ट करें, एक पकड़ समूह का उपयोग करके पाठ निकाल दें, या आदेश दिए गए स्तंभ और पाठ टोकन से एक मूल्य बनाएं।"
+    },
+    {
+      "source": "Assign this value when",
+      "translation": "इस मूल्य को निर्धारित करें जब"
+    },
+    {
+      "source": "Assign values",
+      "translation": "मूल्य निर्धारित करें"
+    },
+    {
+      "source": "Capture group",
+      "translation": "पकड़ समूह"
+    },
+    {
+      "source": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "translation": "फ़ाइल नाम या मेटाडेटा मूल्य का एक हिस्सा पकड़ो. पूर्वावलोकन पकड़े गए पाठ को दिखाता है; स्रोत मूल्य अपरिवर्तित रहता है."
+    },
+    {
+      "source": "Choose a filename or another source or earlier generated column.",
+      "translation": "फ़ाइल नाम या किसी अन्य स्रोत या पहले उत्पन्न स्तंभ का चयन करें।"
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "translation": "एक नामित पकड़ या इसकी संख्या चुनें. समूह 0 पूरे रीगेक्स मैच को बनाए रखता है."
+    },
+    {
+      "source": "Choose a source column or an earlier generated column.",
+      "translation": "एक स्रोत स्तंभ या एक पहले उत्पन्न स्तंर का चयन करें।"
+    },
+    {
+      "source": "Compose column",
+      "translation": "स्तंभ बनाएं"
+    },
+    {
+      "source": "Composition order",
+      "translation": "कॉम्प्लेक्स ऑर्डर"
+    },
+    {
+      "source": "Create columns from named groups",
+      "translation": "नामित समूहों से स्तंभ बनाएं"
+    },
+    {
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "translation": "प्रत्येक नामित रिकॉर्डिंग के लिए एक आउटपुट स्तंभ बनाएं, पैटर्न क्रम में. मौजूदा आउथपुट और स्रोत स्तंद नाम संरक्षित हैं."
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "translation": "संरचना में एक स्तंभ खींचें, या इसे जोड़ने के लिए डबल-क्लिक करें. केवल स्रोत और पहले से उत्पन्न स्तंद उपलब्ध हैं."
+    },
+    {
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "translation": "स्तंभ टोकन को वांछित क्रम में खींचें और निश्चित पाठ या विभाजन दर्ज करें. पहले उत्पन्न स्तंदों का पुन: उपयोग किया जा सकता है."
+    },
+    {
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "translation": "परीक्षण करने के लिए पाठ दर्ज करें. समान एक खाली पंक्ति से मेल खा सकते हैं; खोए हुए मूल्यों कभी मेल नहीं खाते हैं."
+    },
+    {
+      "source": "Extract text",
+      "translation": "निकालने का पाठ"
+    },
+    {
+      "source": "Extraction regex",
+      "translation": "Regex का उपयोग करें"
+    },
+    {
+      "source": "Fixed text or separator",
+      "translation": "निश्चित पाठ या अलगाव"
+    },
+    {
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "translation": "संपादित करने के लिए डबल-क्लिक करें; रीसेट पर लटकाएं।"
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "translation": "लिखित पाठ दर्ज करने के लिए, जैसे एक उपस्कोर, अंतरिक्ष, या उपचार पूर्वानुमान।"
+    },
+    {
+      "source": "Manual rows only",
+      "translation": "केवल मैन्युअल रेंज"
+    },
+    {
+      "source": "Move token down",
+      "translation": "टोकन डाउनलोड करें"
+    },
+    {
+      "source": "Move token up",
+      "translation": "टोकन उतारें"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "translation": "निर्दिष्ट करने के लिए मूल्य का नाम, फिर चुनें कि मेटाडेटा नियमों को फिट होना चाहिए. आप एक बॉक्स में स्रोत पंक्तियों को भी खींच सकते हैं."
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "translation": "केवल रेगेक्स ऑपरेटर पैटर्न की व्याख्या करते हैं. अन्य ऑपराटर सचमुच पाठ की तुलना करते हैं और मामले की संवेदनशीलता रखते हैं."
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "translation": "टोकन बाईं ओर से दाईं तक जोड़े जाते हैं. हाथों को स्तंभ मूल्य पहचानते हैं. इसे संपादित करने के लिए फिर से आदेश या दोगुना क्लिक करके निश्चित पाठ को खींचें. खोए हुए स्तंर मूल्य परिणाम खाली छोड़ देते हैं."
+    },
+    {
+      "source": "Value to assign",
+      "translation": "सौंपने का मूल्य"
+    },
+    {
+      "source": "all rules match",
+      "translation": "सभी नियम मैच"
+    },
+    {
+      "source": "any rule matches",
+      "translation": "किसी भी खेल का नियम"
+    },
+    {
+      "source": "contains",
+      "translation": "शामिल हैं"
+    },
+    {
+      "source": "does not contain",
+      "translation": "इसमें शामिल नहीं है"
+    },
+    {
+      "source": "does not equal",
+      "translation": "समान नहीं है"
+    },
+    {
+      "source": "does not match regex",
+      "translation": "Regex के बारे में नहीं"
+    },
+    {
+      "source": "ends with",
+      "translation": "के साथ समाप्त"
+    },
+    {
+      "source": "equals",
+      "translation": "बराबर"
+    },
+    {
+      "source": "matches regex",
+      "translation": "Regex खेलने के लिए"
+    },
+    {
+      "source": "starts with",
+      "translation": "शुरुआत के साथ"
+    }
+  ],
+  "authorship": [
+    {
+      "source": "Add another metadata comparison to this condition box.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Assign this value when",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Assign values",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture group",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a filename or another source or earlier generated column.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Choose a source column or an earlier generated column.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Compose column",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Composition order",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Create columns from named groups",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Extract text",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Extraction regex",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Fixed text or separator",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Manual rows only",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Move token down",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Move token up",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Value to assign",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "all rules match",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "any rule matches",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "contains",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "does not contain",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "does not equal",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "does not match regex",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "ends with",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "equals",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "matches regex",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "starts with",
+      "method": "Codex shared_ui AI technical correction after local-model draft review"
+    },
+    {
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    },
+    {
+      "source": "Add named captures such as {example} before creating columns.",
+      "method": "Codex shared_ui AI technical translation; source prose was previously excluded as regex code"
+    }
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add another metadata comparison to this condition box.",
+      "source": "Add another metadata comparison to this condition box.",
+      "source_sha256": "adf45c6f83dc0a90b00dab62988cdc916001ebe011b619e3383a212a7832223c",
+      "translation": "इस शर्त बॉक्स में मेटाडेटा की एक और तुलना जोड़ें।"
+    },
+    {
+      "table": "ui",
+      "key": "All requires every criterion; any requires at least one criterion.",
+      "source": "All requires every criterion; any requires at least one criterion.",
+      "source_sha256": "d2fdbb0cf59573659db3efdc7314c1fa482f7ce8710e794e9ea8647ef000b6ea",
+      "translation": "सभी नियमों के लिए हर मानदंड पूरा होना चाहिए; किसी एक नियम के लिए कम से कम एक मानदंड पूरा होना चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "Append this literal text. Text tokens can be edited or moved independently.",
+      "source": "Append this literal text. Text tokens can be edited or moved independently.",
+      "source_sha256": "2d2e3a231945eeb0775503a1ba2d015573fea54efb8fbc4acc5cb742de5ab5ec",
+      "translation": "यह पाठ ज्यों का त्यों जोड़ें। पाठ टोकन को अलग-अलग संपादित या स्थानांतरित किया जा सकता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source": "Assign a fixed value, extract text using a capture group, or compose a value from ordered column and text tokens.",
+      "source_sha256": "30ac1e8d96173ac641dc9c5e30ceea9b0ac5855c0d515e4d83dccb53754a9742",
+      "translation": "एक स्थिर मान दें, कैप्चर समूह से पाठ निकालें, या क्रम में रखे स्तंभ और पाठ टोकन जोड़कर एक मान बनाएं।"
+    },
+    {
+      "table": "ui",
+      "key": "Assign this value when",
+      "source": "Assign this value when",
+      "source_sha256": "c2808897d4fd029f072f611366fa75097c250f197005960a8197c4f3ef69a0a4",
+      "translation": "यह मान तब दें जब"
+    },
+    {
+      "table": "ui",
+      "key": "Assign values",
+      "source": "Assign values",
+      "source_sha256": "026e665530bc3f9325a1c5f240eea7764ce4e888474a943e34049d1baffced56",
+      "translation": "मान दें"
+    },
+    {
+      "table": "ui",
+      "key": "Capture group",
+      "source": "Capture group",
+      "source_sha256": "934ff0c6bd2c54f1b286477125c638b9f895e3163900ed92f93ccf1ee7c86313",
+      "translation": "कैप्चर समूह"
+    },
+    {
+      "table": "ui",
+      "key": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "source": "Capture part of a filename or metadata value. Preview shows the captured text; the source value stays unchanged.",
+      "source_sha256": "1278da2fd125658345809ba27bea8a0a51269d83dad041853cf0f338cc04417c",
+      "translation": "फ़ाइल नाम या मेटाडेटा मान का एक हिस्सा निकालें। पूर्वावलोकन निकाला गया पाठ दिखाता है; स्रोत मान नहीं बदलता।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a filename or another source or earlier generated column.",
+      "source": "Choose a filename or another source or earlier generated column.",
+      "source_sha256": "f8a7c4746e714af344ee4ee181921742a55a61af329e3f21f00c7da11e6cb183",
+      "translation": "फ़ाइल नाम वाला स्तंभ, कोई अन्य स्रोत स्तंभ या पहले बनाया गया स्तंभ चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source": "Choose a named capture or its number. Group 0 keeps the whole regex match.",
+      "source_sha256": "20046c00a2f1979885f23be17f795e561451ce52a08cceec7c6f9df6ecbfdb95",
+      "translation": "कैप्चर समूह को उसके नाम या नंबर से चुनें। समूह 0 पूरे रेगेक्स मिलान को रखता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a source column or an earlier generated column.",
+      "source": "Choose a source column or an earlier generated column.",
+      "source_sha256": "b58e0c6ac53b07939ea6792dc83b0eba2479b9adf2f8de1bb8bd23d1bd8f2547",
+      "translation": "स्रोत स्तंभ या पहले बनाया गया स्तंभ चुनें।"
+    },
+    {
+      "table": "ui",
+      "key": "Compose column",
+      "source": "Compose column",
+      "source_sha256": "98f9d5df8c099ac5944d9988653bad8aefacfb021af225845d447cdaf6bf2ea1",
+      "translation": "स्तंभ जोड़कर बनाएं"
+    },
+    {
+      "table": "ui",
+      "key": "Composition order",
+      "source": "Composition order",
+      "source_sha256": "82f75f945dafc7303ac39d9b5c40955864998da0b7a46f99b392bac4b85864b3",
+      "translation": "जोड़ने का क्रम"
+    },
+    {
+      "table": "ui",
+      "key": "Create columns from named groups",
+      "source": "Create columns from named groups",
+      "source_sha256": "9338e731b7c3a11ea274b3add1a01d190fedafc60fdaba23dd25e7d817224a5f",
+      "translation": "नाम वाले कैप्चर समूहों से स्तंभ बनाएं"
+    },
+    {
+      "table": "ui",
+      "key": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "source": "Create one output column for each named capture, in pattern order. Existing output and source column names are protected.",
+      "source_sha256": "ee38604215d0f417217383991d66643b74ee48e1d92fb521802bf3baa945b193",
+      "translation": "पैटर्न के क्रम में हर नाम वाले कैप्चर समूह के लिए एक आउटपुट स्तंभ बनाएं। मौजूदा आउटपुट और स्रोत स्तंभों के नाम सुरक्षित रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source": "Drag a column into the composition, or double-click to append it. Only source and earlier generated columns are available.",
+      "source_sha256": "02cb54d7af4c3610a970f4e4baf06a5083f7dc71c6b5be2f3814dd7726a15fe4",
+      "translation": "स्तंभ को संयोजन में खींचें या जोड़ने के लिए उस पर डबल-क्लिक करें। केवल स्रोत और पहले बनाए गए स्तंभ उपलब्ध हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "source": "Drag column tokens into the desired order and insert fixed text or separators. Earlier generated columns can be reused.",
+      "source_sha256": "6fa31cbacdbdb3f663088dd1eef6080b51db3db53b3aa21eef440b8f9189cd74",
+      "translation": "स्तंभ टोकन को इच्छित क्रम में खींचें और स्थिर पाठ या विभाजक जोड़ें। पहले बनाए गए स्तंभों का दोबारा उपयोग किया जा सकता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "source": "Enter the text to test. Equals can match an empty string; missing values never match.",
+      "source_sha256": "1377c1dd04a3d7a24d80ee825d677cc202660e77b79f5c67537a95c2d19c9df0",
+      "translation": "जांचने के लिए पाठ दर्ज करें। बराबरी की तुलना खाली स्ट्रिंग से मेल खा सकती है; अनुपस्थित मान कभी मेल नहीं खाते।"
+    },
+    {
+      "table": "ui",
+      "key": "Extract text",
+      "source": "Extract text",
+      "source_sha256": "18ee0698578bb3064a33b2ec3c7007f63a5d2003b2c46bc22742563eb8a82891",
+      "translation": "पाठ निकालें"
+    },
+    {
+      "table": "ui",
+      "key": "Extraction regex",
+      "source": "Extraction regex",
+      "source_sha256": "2d81680cea3b7cf6c9af56c6ad1594cef84300112f43ff63d6bcd8a70170e048",
+      "translation": "पाठ निकालने का रेगेक्स"
+    },
+    {
+      "table": "ui",
+      "key": "Fixed text or separator",
+      "source": "Fixed text or separator",
+      "source_sha256": "043683d41545d02cdfe1740c9d977a7358937853504a96d682139e714f9be51d",
+      "translation": "स्थिर पाठ या विभाजक"
+    },
+    {
+      "table": "ui",
+      "key": "Fixed text. Double-click to edit; drag to reorder.",
+      "source": "Fixed text. Double-click to edit; drag to reorder.",
+      "source_sha256": "a71b716f6ace949f4d14c3322e3e158d171910ad6de72cc9e1928fc6b910a9e3",
+      "translation": "स्थिर पाठ। संपादित करने के लिए डबल-क्लिक करें; क्रम बदलने के लिए खींचें।"
+    },
+    {
+      "table": "ui",
+      "key": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source": "Literal text to insert, such as an underscore, space, or treatment prefix.",
+      "source_sha256": "6a0e2fd434e83c6dff4583b11f8086befb08416f4c1a0cf2990a233a287ab99c",
+      "translation": "ज्यों का त्यों जोड़ने वाला पाठ, जैसे अंडरस्कोर, खाली स्थान या उपचार का उपसर्ग।"
+    },
+    {
+      "table": "ui",
+      "key": "Manual rows only",
+      "source": "Manual rows only",
+      "source_sha256": "34f132193a9a222c16038235980dbfc9699b67f3015e33a7cf6cd97390078b0e",
+      "translation": "केवल हाथ से सौंपी गई पंक्तियां"
+    },
+    {
+      "table": "ui",
+      "key": "Move token down",
+      "source": "Move token down",
+      "source_sha256": "22ef233a546805afd8707458c7a6372730e5c2fec1f08567ae0157bc71ed3d64",
+      "translation": "टोकन नीचे ले जाएं"
+    },
+    {
+      "table": "ui",
+      "key": "Move token up",
+      "source": "Move token up",
+      "source_sha256": "d9fd305fbf6039c44dcbdb70072a9867bded43f53db073c3692c741fd667fbc3",
+      "translation": "टोकन ऊपर ले जाएं"
+    },
+    {
+      "table": "ui",
+      "key": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source": "Name the value to assign, then choose which metadata rules must match. You can also drag source rows into a box.",
+      "source_sha256": "94aa4d9b77ebee37ee203f95d76151c88f150c4ce9093100c06a3363d6a82077",
+      "translation": "दिया जाने वाला मान दर्ज करें, फिर चुनें कि कौन-से मेटाडेटा नियम पूरे होने चाहिए। आप स्रोत तालिका की पंक्तियों को बॉक्स में खींच भी सकते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source": "Only the regex operators interpret patterns. Other operators compare literal text and are case-sensitive.",
+      "source_sha256": "47e158a17ef7eba70e6982637ad9b17ca857ce47b225791c7f86d040a54b1a02",
+      "translation": "केवल रेगेक्स ऑपरेटर पैटर्न की व्याख्या करते हैं। अन्य ऑपरेटर पाठ की ज्यों का त्यों तुलना करते हैं और बड़े तथा छोटे अक्षरों में अंतर करते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source": "Tokens are joined from left to right. Braces identify column values. Drag to reorder or double-click fixed text to edit it. Missing column values leave the result empty.",
+      "source_sha256": "5fae60cc2a8319762c87ae5ba555a771dbc38a9d3fbdf93580509b9f7586a8b3",
+      "translation": "टोकन बाएं से दाएं जोड़े जाते हैं। घुंघराले कोष्ठक स्तंभ मानों को पहचानते हैं। क्रम बदलने के लिए खींचें या स्थिर पाठ संपादित करने के लिए डबल-क्लिक करें। कोई स्तंभ मान अनुपस्थित हो तो परिणाम खाली रहता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Value to assign",
+      "source": "Value to assign",
+      "source_sha256": "dcaf708fbaf0dccb87fa453e0a953ed6e67dcd08138e349a8a45e2d5885b28d4",
+      "translation": "दिया जाने वाला मान"
+    },
+    {
+      "table": "ui",
+      "key": "all rules match",
+      "source": "all rules match",
+      "source_sha256": "4b311bf231e84dcfc1337dab5c782e8954938a13118817a01d682dfc5345cfb4",
+      "translation": "सभी नियम मेल खाते हैं"
+    },
+    {
+      "table": "ui",
+      "key": "any rule matches",
+      "source": "any rule matches",
+      "source_sha256": "63934bbadf2bd2daf4b9c197821c5299f127dc7aec3390821d8f712e8deb2cd3",
+      "translation": "कम से कम एक नियम मेल खाता है"
+    },
+    {
+      "table": "ui",
+      "key": "contains",
+      "source": "contains",
+      "source_sha256": "beeb20fbd67695085c26c5dfa7b5ece4d1985d201cb6f0dd9aa66a36ed987ce5",
+      "translation": "में शामिल है"
+    },
+    {
+      "table": "ui",
+      "key": "does not contain",
+      "source": "does not contain",
+      "source_sha256": "80ccd8c9b9af87acd9ce5bea7f8b6c9978971ca8f81888ab1d2ab3a3de6d2c06",
+      "translation": "में शामिल नहीं है"
+    },
+    {
+      "table": "ui",
+      "key": "does not equal",
+      "source": "does not equal",
+      "source_sha256": "e6f694aa9aed3ad19828853286ef0a7a0a262e074aff48281a1724f089d445d1",
+      "translation": "के बराबर नहीं है"
+    },
+    {
+      "table": "ui",
+      "key": "does not match regex",
+      "source": "does not match regex",
+      "source_sha256": "f61ae0058149acd17060629b4e3cac50386c7be8f4da5cee3486ec88c3ea12cb",
+      "translation": "रेगेक्स से मेल नहीं खाता है"
+    },
+    {
+      "table": "ui",
+      "key": "ends with",
+      "source": "ends with",
+      "source_sha256": "19ecc104ac1b52b3645832bd247ae9fc353060b435aa391e707deb92db017728",
+      "translation": "पर समाप्त होता है"
+    },
+    {
+      "table": "ui",
+      "key": "equals",
+      "source": "equals",
+      "source_sha256": "e93cb41d4a7d2395d9bdfe4d8616f9b52762523bb44e75bf7701cd9d2e0d1cb7",
+      "translation": "के बराबर है"
+    },
+    {
+      "table": "ui",
+      "key": "matches regex",
+      "source": "matches regex",
+      "source_sha256": "ad700316746ce65c272561a3206c268405d87c3402b65ab2b87bc140682e41aa",
+      "translation": "रेगेक्स से मेल खाता है"
+    },
+    {
+      "table": "ui",
+      "key": "starts with",
+      "source": "starts with",
+      "source_sha256": "97862730c3a13cd957b766b03489cdf46b415e9d465b67812974158d631d6107",
+      "translation": "से शुरू होता है"
+    },
+    {
+      "table": "ui",
+      "key": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source": "Capture the text to keep in parentheses. Name captures with {example} to create several output columns at once.",
+      "source_sha256": "eb73bfa40caa774bc65f8c66af10fb5e29a1e49f807733260187d2d5d835c4fb",
+      "translation": "जिस पाठ को रखना है, उसे कोष्ठकों में कैप्चर करें। एक साथ कई आउटपुट कॉलम बनाने के लिए {example} से कैप्चर समूहों को नाम दें।"
+    },
+    {
+      "table": "ui",
+      "key": "Add named captures such as {example} before creating columns.",
+      "source": "Add named captures such as {example} before creating columns.",
+      "source_sha256": "2f7f5d075a67fe31f72c88b1aff3ef3e55a84493063fb3a80ab1c000a10cff86",
+      "translation": "कॉलम बनाने से पहले {example} जैसे नाम वाले कैप्चर समूह जोड़ें।"
+    }
+  ]
+}

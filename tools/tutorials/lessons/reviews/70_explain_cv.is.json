@@ -1,0 +1,33 @@
+{
+  "lesson": "70_explain_cv",
+  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Explain CV Model: berðu spár saman við mælda eiginleika",
+  "description": "Hlaða inn samsvarandi spám og mælingum, aðlaga staðgengilslíkan og lesa tryggð þess áður en skýringar eiginleika eru notaðar.",
+  "objectives": [
+    "Para mælingagagnagrunninn við vistaðar spár flokkarans.",
+    "Velja spádálka, reiknivél og hópa sem haldið er utan við.",
+    "Lesa tryggð, ruglingsfylki og vistaðar samantektir eiginleika."
+  ],
+  "prerequisite": "Notaðu measurements.db og spá-CSV-skrána fyrir sömu hluti úr Annotate/Classify-dæminu. Veldu flokkaákvarðanir vistaða líkansins sem markgildi. Tryggð staðgengilsins er takmörkuð í þessu dæmi, svo ekki ætti að nota eiginleikaeignanir þess til að skýra myndlíkanið. Mettu upprunalega flokkarann sérstaklega með óháðum gögnum.",
+  "scenes": [
+    "Frá Home opnarðu Classify og velur svo Explain CV Model efst til hægri. Undirbúðu mælingagagnagrunninn og vistaðar spár fyrir sömu útklipptu hlutina.",
+    "Veldu measurements.db og samsvarandi spá-CSV. Athugaðu skráarheiti og auðkenni hluta áður en þú heldur áfram. Dæmið notar 234 vistaðar spár.",
+    "Staðfestu slóð spánna með Enter ef dálkavalið hefur ekki uppfærst. Veldu filename fyrir slóð úrklippunnar og predicted_label fyrir flokkaákvarðanir líkansins. Veldu Random Forest, flokkun eftir brunni og nýja úttaksmöppu.",
+    "Smelltu á Explain model. Staðgengillinn notar mælda eiginleika til að endurskapa vistuðu flokkaákvarðanirnar. Veldu reiknivél og flokkun á þessu eyðublaði; notaðu Python-API fyrir fleiri aðlögunarkosti.",
+    "Lestu Fidelity fyrst. Hér hafa 89 línur fullgerða eiginleika; 68 eru notaðar til aðlögunar og 21 úr öðrum brunni er haldið utan við. Berðu samræmið saman við grunnlínuna og skoðaðu hvaða línur voru útilokaðar.",
+    "Opnaðu Importance. Í þessu dæmi heldur tryggðarathugunin röðuninni eftir. Skoðaðu líka heiti útilokaðra eiginleika: viðvörun um leka byggða á heiti þarf að bera saman við það sem mælingin inniheldur í raun.",
+    "Opnaðu Confusion til að bera ákvarðanir staðgengilsins saman við ákvarðanir myndlíkansins. Hér fær hver hlutur sem haldið var utan við flokk 1, sem gefur 17 samsvaranir og 4 frávik. Athugaðu frammistöðu eftir flokkum fremur en að treysta aðeins á heildarsamræmi.",
+    "Per-cell SHAP lýsir aðlagaða staðgenglinum. Þegar tryggð er ófullnægjandi geta þessi gildi ekki skýrt myndlíkanið á áreiðanlegan hátt. Haltu þessari takmörkun með hverri útfluttri eignartöflu.",
+    "Opnaðu Correlations og Feature distributions til að skoða mælingarnar. Þessar töflur í viðmótinu sýna allt að 1.000 línur. Notaðu vistaðar CSV-skrár þeirra til að skoða allar samantektirnar.",
+    "Opnaðu Held-out cells til að sjá auðkenni hluta og báðar spárnar. Geymdu úttaksskrár, stillingar og tryggðarskýrslu saman. Haltu áfram með Evaluation-kennsluefnið þegar þú þarft að meta upprunalega flokkarann."
+  ]
+}

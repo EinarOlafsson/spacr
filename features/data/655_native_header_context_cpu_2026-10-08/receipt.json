@@ -1,0 +1,256 @@
+{
+  "source_commit": "61782da9e0eac238bc258e75161558bbd05d195c",
+  "source_blobs": {
+    "spacr/qt/i18n.py": "09a396ce3029d0ce609b25d0cccfe9d75624d492",
+    "spacr/qt/preferences.py": "c153b2cca3327437cccd8413e1c7685b41a3644d"
+  },
+  "source_sha256": {
+    "spacr/qt/i18n.py": "b505989ecd543b9857049ae48f21fe9f007007daf7226a50daf85b3e8582fa26",
+    "spacr/qt/preferences.py": "f1e6661461a2b735cf00aebccfcad025dd03e3cc82b9717d3f5c48433d5ca7c3"
+  },
+  "memory_cap": "4G",
+  "GPU": "hidden; Xvfb/software rendering",
+  "observations": [
+    {
+      "language": "sv",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "Cacheminne",
+          "columns": [
+            "Cacheminne",
+            "Storlek",
+            "Mapp"
+          ],
+          "column_header_children": [
+            "Cacheminne",
+            "Storlek",
+            "Mapp"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "de",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "Zwischenspeicher",
+          "columns": [
+            "Zwischenspeicher",
+            "Gr\u00f6\u00dfe",
+            "Ordner"
+          ],
+          "column_header_children": [
+            "Zwischenspeicher",
+            "Gr\u00f6\u00dfe",
+            "Ordner"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "es",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "Cach\u00e9",
+          "columns": [
+            "Cach\u00e9",
+            "Tama\u00f1o",
+            "Carpeta"
+          ],
+          "column_header_children": [
+            "Cach\u00e9",
+            "Tama\u00f1o",
+            "Carpeta"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "\u7f13\u5b58",
+          "columns": [
+            "\u7f13\u5b58",
+            "\u5c3a\u5bf8",
+            "\u6587\u4ef6\u5939"
+          ],
+          "column_header_children": [
+            "\u7f13\u5b58",
+            "\u5c3a\u5bf8",
+            "\u6587\u4ef6\u5939"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "pt",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "Cache local",
+          "columns": [
+            "Cache local",
+            "Tamanho",
+            "Pasta"
+          ],
+          "column_header_children": [
+            "Cache local",
+            "Tamanho",
+            "Pasta"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "hi",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "\u0915\u0948\u0936",
+          "columns": [
+            "\u0915\u0948\u0936",
+            "\u0906\u0915\u093e\u0930",
+            "\u092b\u093c\u094b\u0932\u094d\u0921\u0930"
+          ],
+          "column_header_children": [
+            "\u0915\u0948\u0936",
+            "\u0906\u0915\u093e\u0930",
+            "\u092b\u093c\u094b\u0932\u094d\u0921\u0930"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "ko",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "\uce90\uc2dc",
+          "columns": [
+            "\uce90\uc2dc",
+            "\ud06c\uae30",
+            "\ud3f4\ub354"
+          ],
+          "column_header_children": [
+            "\uce90\uc2dc",
+            "\ud06c\uae30",
+            "\ud3f4\ub354"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "is",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "Skyndiminni",
+          "columns": [
+            "Skyndiminni",
+            "St\u00e6r\u00f0",
+            "Mappa"
+          ],
+          "column_header_children": [
+            "Skyndiminni",
+            "St\u00e6r\u00f0",
+            "Mappa"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "fr",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "M\u00e9moire cache",
+          "columns": [
+            "M\u00e9moire cache",
+            "Taille",
+            "Dossier"
+          ],
+          "column_header_children": [
+            "M\u00e9moire cache",
+            "Taille",
+            "Dossier"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    },
+    {
+      "language": "en",
+      "qt": "6.12.0",
+      "platform": "xcb",
+      "results": [
+        {
+          "view": "StorageCacheTable",
+          "name": "Cache",
+          "columns": [
+            "Cache",
+            "Size",
+            "Folder"
+          ],
+          "column_header_children": [
+            "Cache",
+            "Size",
+            "Folder"
+          ],
+          "accessible_role": "Role.Table",
+          "child_count": 28
+        }
+      ]
+    }
+  ],
+  "payloads": {
+    "n655-native-header-context-20261008.py.gz": {
+      "sha256": "390dd5339773c853f335c28f8fed539bdc0eb78e2c304b22eb8dd98a3aca73f4",
+      "raw_sha256": "e2cd7f4e6b1d389eed6545880c414764832abcdd47a427563c48b505a696c992"
+    },
+    "n655-native-header-context-xcb-20261008.log.gz": {
+      "sha256": "b029f47a054c2b12d40c4781be20fcd4892debbd64e70152573e5347e340e15c",
+      "raw_sha256": "b8e38821638f76f0780a747b3cfeaba21d23e14a670ca9a3b095c789280d845f"
+    }
+  },
+  "scope": "Actual native Linux/xcb QAccessible column-header children of the Preferences Storage table in nine translated languages and English. Confirms header semantics, not an OS screen-reader narration or Windows/macOS acceptance."
+}

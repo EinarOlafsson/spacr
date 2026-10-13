@@ -1,0 +1,31 @@
+{
+  "plan": {
+    "env": "/mnt/wd4tb/spacr_testdata/backends_sandbox/cellpose3",
+    "model": "denoise_nuclei",
+    "diameter": 25.0,
+    "device": "cpu",
+    "weights_sha256": "da6dacca6c44367cb9180e4251f7f25273559e7dfb68884a608b62b9cca41d0e",
+    "cellpose_version": "3.1.1.3"
+  },
+  "provenance": {
+    "backend": "cellpose3",
+    "model": "denoise_nuclei",
+    "cellpose_version": "3.1.1.3",
+    "weights_sha256": "da6dacca6c44367cb9180e4251f7f25273559e7dfb68884a608b62b9cca41d0e",
+    "device": "cpu",
+    "diameter_px": 25.0,
+    "normalization": "Cellpose 1st/99th percentile",
+    "intensity_units": "normalized model output",
+    "dtype": "float32",
+    "shape": [
+      128,
+      128
+    ]
+  },
+  "model_load_seconds": 11.173091728007421,
+  "inference_seconds": 0.45196839500567876,
+  "source_sha256": "0a9c3f27563e71c02ca1f5e971be02d336b6703bc7f704dac8b5a123c366d67d",
+  "source_unchanged": true,
+  "matches_direct_inference": true,
+  "rejects_changed_model": true
+}

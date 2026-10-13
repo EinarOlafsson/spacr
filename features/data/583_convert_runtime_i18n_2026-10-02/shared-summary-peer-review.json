@@ -1,0 +1,11 @@
+{
+  "artifact_sha256": "b0adec7b9d2792e66dd4bacb20ac13d98d3ac2c1149a6282ff5aef67f873ffea",
+  "reviewer": "Codex AI shared_ui independent technical review",
+  "accepted_languages": [
+    "de",
+    "es",
+    "fr",
+    "pt"
+  ],
+  "finding": "All four count-neutral summaries preserve numbers of wells and mismatches, exact formatted placeholders and map/mismatch paths. No native or human linguistic signoff."
+}

@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "lesson": "34_database",
+  "audit_date": "2026-09-09",
+  "verdict": "Retain the eight narration sentences as a baseline; historical visuals and the sorting footer need current-layout review before release. Keep the Help route; do not automatically regenerate.",
+  "retention_scope": "Content audit only, not approval of the historical media as the current GUI experience. Whole-table SQL sorting changes an internal behavior explicitly contradicted by the old visible footer, so this is not solely a navigation move. A decision about a current capture or other targeted visual correction remains with the parent workflow.",
+  "scope": "Read-only review of the published English entry, existing assembly recipe, historical source manifest and recorder, current read-only GUI/API consumers, two original keyframes and representative decoded local video frames. Only this evidence file was created.",
+  "author_root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials",
+  "english": {
+    "published_source": "docs/source/_extra/tutorials/catalog/lessons_en.json",
+    "author_source": "catalog/lessons_en.json",
+    "canonical_lesson_sha256": "ecc2920e5657b8cedad33eb4bf090450238fb86c69281c8787e4c954fee98c6f",
+    "canonical_method": "SHA-256 of json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode()",
+    "published_and_author_entries_equal": true,
+    "scene_count": 8,
+    "objectives": 3,
+    "all_eight_narrations_match_recipe": true,
+    "spoken_obsolete_navigation_claim": false,
+    "spoken_sorting_claim": false,
+    "scientific_or_operational_narration_correction_identified": false
+  },
+  "assembly": {
+    "recipe": "production/34_database/scenes.json",
+    "recipe_sha256": "adb5149cdfbbba93cd94c990fd43072cb31edd263b0083de2e07695bbea9cac2",
+    "distinct_referenced_images": 8,
+    "missing_referenced_images": [],
+    "generic_01_module_image_referenced": false,
+    "bindings": [
+      {"scene": 1, "image": "keyframes/01_overview.png", "sha256": "107b4cce7e21c8c8bd3a71b19ba748c65802cc0507652f1c3b320dee6a3bd982"},
+      {"scene": 2, "image": "keyframes/02_open.png", "sha256": "732715dd2fe662bba3868b021290a468660bf43fb3e5a3ede429f1027364142d"},
+      {"scene": 3, "image": "keyframes/03_tables.png", "sha256": "c6f489b966a6b33bb87fb2bca5ccd105e62e16fc4c990e9be972623ede38b37a"},
+      {"scene": 4, "image": "keyframes/04_cell_table.png", "sha256": "ebbd64184209047a20d1f840983f8883d896ff3d3935ba2592fc6fb2b64f7047"},
+      {"scene": 5, "image": "keyframes/05_column_search.png", "sha256": "78190189643facdabdb5842a6111153d73dbf4fe2fe65e3c152eca92d8fbfd52"},
+      {"scene": 6, "image": "keyframes/08_filter.png", "sha256": "f6e291a66d717788ded8a1225417b0a44140d37f378e7603328570d44857fe0f"},
+      {"scene": 7, "image": "keyframes/09_filtered.png", "sha256": "6ecb35574f704cc82dbe5e87b77fa2e78e6490054b1bc9f2b15740f4eedbc64d"},
+      {"scene": 8, "image": "keyframes/10_export.png", "sha256": "77ee90c62b961f6c1e32d65670f29413a794f165fadb51938a7a8806733db0d1"}
+    ],
+    "master": {"path": "production/34_database/video/34_database_silent.mp4", "sha256": "a4e3b84c807be9c413799d5a0d6d1c1a6239dd6bf760b6da52e14ae293b01985", "bytes": 4506011, "codec": "h264", "size": [3840, 2160], "fps": "30/1", "frames": 1382, "duration_seconds": 46.066667},
+    "derived_local_web_video": {"path": "docs/source/_extra/tutorials/production/34_database/video/34_database_silent.mp4", "sha256": "ca18f8905b64e13284f50ee9899ad8594eeb09b358700c37b217375da6dfc9a1", "bytes": 1770212, "codec": "h264", "size": [2560, 1440], "fps": "30/1", "frames": 1382, "duration_seconds": 46.066667},
+    "decoded_samples": [
+      {"video": "master", "seconds": 17, "scene": 4, "observed": "Populated cell table, 218 columns, showing 100 of 81,969 rows; read-only state remains visible. The broad preview focus contains real measurement values, not an empty start panel."},
+      {"video": "master", "seconds": 36, "scene": 7, "observed": "Populated filtered table; footer explicitly reads cell: 12,907 rows, 218 columns, filter cell_area >= 10000, read-only. Preview shows 250 of 12,907."},
+      {"video": "master", "seconds": 42, "scene": 8, "observed": "The actual Export filtered CSV button is highlighted beside the active area filter and populated table. This frame is before export, not a shown completion confirmation."},
+      {"video": "derived_local_web_video", "seconds": 36, "scene": 7, "observed": "The same populated filtered table and exact 12,907-row status are present in the local 1440p web copy."}
+    ],
+    "sample_method": "ffmpeg with two threads decoded selected existing frames into image2pipe in memory; JPEG display copies were scaled to width 1920. No extracted frame, new master or other media file was saved.",
+    "additional_original_keyframes_viewed": [
+      {"image": "keyframes/05_column_search.png", "observed": "cell_channel_1_mean search shows only cell_channel_1_mean_intensity, explicitly 1 of 218 columns, with real numeric rows."},
+      {"image": "keyframes/11_exported.png", "sha256": "e205ae725bf4bdc2985a506c942abc933277e9a9bca13de870ccfba7d609e1c8", "observed": "Actual historical status reports Exported 12,907 rows x 218 columns to the derived cell_area_ge_10000.csv. This original capture is not bound into the published eight-scene master."}
+    ],
+    "readability": "Representative populated table values, column-search result, selected export control and highlighted exact-count status are discernible. The retained focus treatment dims non-target controls; it is historical footage, not a claim of current-layout or mobile playback acceptance. No empty-results or all-scenes-one-generic-image defect was found."
+  },
+  "historical_provenance": {
+    "manifest": "production/34_database/source_manifest.json",
+    "manifest_sha256": "b9e5803d48528d04ac652fb5f0a619e4ce76a875cb2231a5bca4cf6f0d66c332",
+    "manifest_generated_utc": "2026-08-05T09:51:41.511797+00:00",
+    "recorded_source": "/media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/measurements/measurements.db",
+    "recorded_database_sha256_before_and_after": "9028eabff2bab4d7ef5447e1870f7e0aa3879fa641497ae150ad31b8d2f97d5d",
+    "recorded_tables": 10,
+    "recorded_cell_rows": 81969,
+    "recorded_cell_columns": 218,
+    "recorded_filter": {"column": "cell_area", "operator": ">=", "value": 10000, "rows": 12907},
+    "recorded_export": {"rows": 12907, "columns": 218},
+    "synthetic_results_identified": false,
+    "basis": "The preserved recorder opens the real tutorial measurements database and invokes the actual bounded query, filter and streamed-export consumers; it does not fabricate table rows. The original populated keyframes and counts agree with its manifest.",
+    "recorder": "tools/tutorials/authoring/tools/capture_database_browser_experiment.py",
+    "recorder_sha256": "bea139310458581aa4835aa9ecbad10c0d8036d18528bb74815616a5f981505c",
+    "legacy_capture_limits": [
+      "The historical recorder sets screen._threaded=False for deterministic execution of the actual query consumer; it is not a fresh threaded-workflow acceptance run.",
+      "The historical recorder substitutes QFileDialog.getSaveFileName with the private export path. The actual export callback writes the CSV, but no genuine interactive Save picker was captured or validated by this audit.",
+      "measurements.db-wal and measurements.db-shm appear in both recorded directory inventories. The evidence shows no new sibling names, not that WAL/SHM files were absent or byte-identical. Only the main database has recorded before/after hashes.",
+      "This audit did not reopen or rehash the large source database, reread the exported CSV, or establish new biological validity. The counts and source identity above are historical evidence, not a newly repeated analysis."
+    ]
+  },
+  "current_support": {
+    "sources": [
+      {"path": "spacr/qt/screens/db_browser.py", "sha256": "45221e44854df8735194b94bd5878eadcfeb0fdf2d6281979f3c8bab862f4311"},
+      {"path": "spacr/database_concurrency.py", "sha256": "4e769d773bb74eaa80efc397ff3513452ebfacdb7972c4a54353ddd95371f216"},
+      {"path": "spacr/qt/app.py", "sha256": "2828f527abc52802af7297db7712096e6f347600cf0da634e4036b32b8068974"}
+    ],
+    "checks": [
+      {"scenes": [1, 3], "evidence": "db_browser.py:1841 set_database disables edit mode and uses ReadOnlyDb; ReadOnlyDb.connect delegates readonly=True to database_concurrency.py:98, which uses mode=ro and query_only=ON. Editing remains a separate opt-in path."},
+      {"scenes": [2], "evidence": "db_browser.py:191 resolve_db_path accepts a database, a run folder containing measurements/measurements.db, or the measurements directory; the visible Choose database, Choose run folder and Open controls remain at 1613 onward."},
+      {"scenes": [4, 7], "evidence": "db_browser.py:2157 onward fetches bounded chunks separately from asynchronous exact counts. _count_text labels estimates, and _report_table_status reports full count, total columns, active predicate and read-only state."},
+      {"scenes": [5], "evidence": "db_browser.py:1980 set_column_filter changes displayed columns without a database re-query or row deletion."},
+      {"scenes": [6], "evidence": "db_browser.py:297 build_where checks the schema column and permitted operator and returns bound parameters; apply_filter and _collect_filter at 2572 onward pass the actual predicate to the read-only query consumer."},
+      {"scenes": [8], "evidence": "db_browser.py:2930 export_csv captures the whole current table/filter and visible columns, and ReadOnlyDb.export_csv at 886 streams cursor batches through a read-only connection. It does not export only loaded preview rows."}
+    ],
+    "navigation": "app.py TILELESS_APPS includes db_browser and _HELP_MODULES exposes Help > Database browser. The existing module_navigation.js already assigns 34_database kind=help. Database Browser hosts lineage and tabulate; it is not a new child of another Home module.",
+    "changed_but_not_taught_by_the_eight_scene_script": "Current db_browser.py:2299 onward supports whole-table SQL sorting from a column-header click, including partial previews. The old footage's footer still says sorting is off until fully loaded. Although the eight narration sentences neither repeat that claim nor demonstrate sorting, the visible instruction is obsolete. The historical GUI therefore needs current-layout review before release; this content pass does not approve the whole lesson as current."
+  },
+  "do_not_promote_the_unused_long_override": {
+    "path": "tools/tutorials/authoring/catalog/34_database_override.json",
+    "sha256": "7bd5eac5fb844224499bd61b48a307d1b29403308a643bbbb3e7cefcd2b29901",
+    "reason": "This is a different thirteen-scene draft. Its Results and quality control navigation and scene-7 sorting-disabled instruction are obsolete. It is not the current published eight-scene English entry and was not used to judge that entry."
+  },
+  "actions": [
+    "Keep lesson ID34_database and the eight narration sentences as the baseline, with its existing Help route and deep links. Preserve existing assets untouched while deciding the required visual correction; do not count this as whole-lesson media acceptance.",
+    "Review the historical layout and obsolete sorting footer against the current GUI before release. Current header sorting operates on the full table; this internal change prevents an unqualified move-only media-retention verdict. Do not automatically recapture or regenerate without a scoped decision; no asset or contextual note was changed in this audit.",
+    "Retain the historical manifest and completed-export keyframe as provenance. Do not claim the short master itself displays the export completion or a genuine Save dialog.",
+    "Treat the unused long override separately if anyone proposes to publish it; it needs targeted correction first."
+  ],
+  "new_app_run": false,
+  "network_or_remote_object_verification": false,
+  "audio_listening_or_caption_language_review": false,
+  "native_speaker_certification": false,
+  "full_release_approval": false,
+  "old_assets_modified": false
+}

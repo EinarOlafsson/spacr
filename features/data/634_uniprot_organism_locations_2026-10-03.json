@@ -1,0 +1,811 @@
+{
+ "date": "2026-10-03",
+ "feature": 634,
+ "uniprot_release": "2026_03 (02-September-2026), from the X-UniProt-Release header of rest.uniprot.org",
+ "vocabulary": "https://rest.uniprot.org/locations/stream?query=*&format=tsv&fields=id,name,category (Cellular component category)",
+ "query": "https://rest.uniprot.org/uniprotkb/stream?query=taxonomy_id:<taxon>[+AND+reviewed:true]&format=tsv&fields=accession,cc_subcellular_location",
+ "method": "Count entries per UniProt location term in each taxon's subcellular-location comments; keep the attested terms that the SwissBioPics artwork draws; curate a 10-14 label subset (Giardia: Mitochondrion and Golgi apparatus excluded, Giardia has mitosomes and no stacked Golgi).",
+ "artwork": "https://www.swissbiopics.org/api/image/<name> (CC BY 4.0, Philippe Le Mercier, SIB)",
+ "taxa": {
+  "trypanosoma": {
+   "taxon": 5690,
+   "entries": "reviewed",
+   "entry_count": 458,
+   "artwork": "Trypanosoma.svg",
+   "attested_and_drawn": [
+    {
+     "sl": "SL0086",
+     "name": "Cytoplasm",
+     "entries": 113
+    },
+    {
+     "sl": "SL0191",
+     "name": "Nucleus",
+     "entries": 78
+    },
+    {
+     "sl": "SL0039",
+     "name": "Cell membrane",
+     "entries": 50
+    },
+    {
+     "sl": "SL0173",
+     "name": "Mitochondrion",
+     "entries": 38
+    },
+    {
+     "sl": "SL0090",
+     "name": "Cytoskeleton",
+     "entries": 30
+    },
+    {
+     "sl": "SL0280",
+     "name": "Cell projection",
+     "entries": 19
+    },
+    {
+     "sl": "SL0129",
+     "name": "Glycosome",
+     "entries": 17
+    },
+    {
+     "sl": "SL0117",
+     "name": "Flagellum",
+     "entries": 17
+    },
+    {
+     "sl": "SL0150",
+     "name": "Kinetoplast",
+     "entries": 9
+    },
+    {
+     "sl": "SL0091",
+     "name": "Cytosol",
+     "entries": 8
+    },
+    {
+     "sl": "SL0188",
+     "name": "Nucleolus",
+     "entries": 8
+    },
+    {
+     "sl": "SL0114",
+     "name": "Flagellum axoneme",
+     "entries": 5
+    },
+    {
+     "sl": "SL0190",
+     "name": "Nucleoplasm",
+     "entries": 3
+    },
+    {
+     "sl": "SL0308",
+     "name": "Flagellum basal body",
+     "entries": 2
+    },
+    {
+     "sl": "SL0095",
+     "name": "Endoplasmic reticulum",
+     "entries": 1
+    },
+    {
+     "sl": "SL0204",
+     "name": "Peroxisome",
+     "entries": 1
+    },
+    {
+     "sl": "SL0158",
+     "name": "Lysosome",
+     "entries": 1
+    }
+   ]
+  },
+  "leishmania": {
+   "taxon": 5658,
+   "entries": "reviewed",
+   "entry_count": 258,
+   "artwork": "Trypanosoma.svg",
+   "attested_and_drawn": [
+    {
+     "sl": "SL0086",
+     "name": "Cytoplasm",
+     "entries": 78
+    },
+    {
+     "sl": "SL0191",
+     "name": "Nucleus",
+     "entries": 49
+    },
+    {
+     "sl": "SL0039",
+     "name": "Cell membrane",
+     "entries": 18
+    },
+    {
+     "sl": "SL0173",
+     "name": "Mitochondrion",
+     "entries": 16
+    },
+    {
+     "sl": "SL0188",
+     "name": "Nucleolus",
+     "entries": 12
+    },
+    {
+     "sl": "SL0129",
+     "name": "Glycosome",
+     "entries": 10
+    },
+    {
+     "sl": "SL0190",
+     "name": "Nucleoplasm",
+     "entries": 9
+    },
+    {
+     "sl": "SL0091",
+     "name": "Cytosol",
+     "entries": 8
+    },
+    {
+     "sl": "SL0090",
+     "name": "Cytoskeleton",
+     "entries": 7
+    },
+    {
+     "sl": "SL0095",
+     "name": "Endoplasmic reticulum",
+     "entries": 5
+    },
+    {
+     "sl": "SL0280",
+     "name": "Cell projection",
+     "entries": 4
+    },
+    {
+     "sl": "SL0117",
+     "name": "Flagellum",
+     "entries": 4
+    },
+    {
+     "sl": "SL0150",
+     "name": "Kinetoplast",
+     "entries": 2
+    },
+    {
+     "sl": "SL0158",
+     "name": "Lysosome",
+     "entries": 1
+    }
+   ]
+  },
+  "giardia": {
+   "taxon": 5740,
+   "entries": "all entries with a subcellular-location comment (only 96 reviewed)",
+   "entry_count": 2045,
+   "artwork": "Eukaryota_cells.svg",
+   "attested_and_drawn": [
+    {
+     "sl": "SL0086",
+     "name": "Cytoplasm",
+     "entries": 1106
+    },
+    {
+     "sl": "SL0090",
+     "name": "Cytoskeleton",
+     "entries": 835
+    },
+    {
+     "sl": "SL0191",
+     "name": "Nucleus",
+     "entries": 491
+    },
+    {
+     "sl": "SL0188",
+     "name": "Nucleolus",
+     "entries": 111
+    },
+    {
+     "sl": "SL0280",
+     "name": "Cell projection",
+     "entries": 75
+    },
+    {
+     "sl": "SL0066",
+     "name": "Cilium",
+     "entries": 72
+    },
+    {
+     "sl": "SL0039",
+     "name": "Cell membrane",
+     "entries": 52
+    },
+    {
+     "sl": "SL0304",
+     "name": "Cilium axoneme",
+     "entries": 49
+    },
+    {
+     "sl": "SL0114",
+     "name": "Flagellum axoneme",
+     "entries": 38
+    },
+    {
+     "sl": "SL0117",
+     "name": "Flagellum",
+     "entries": 37
+    },
+    {
+     "sl": "SL0308",
+     "name": "Flagellum basal body",
+     "entries": 23
+    },
+    {
+     "sl": "SL0095",
+     "name": "Endoplasmic reticulum",
+     "entries": 22
+    },
+    {
+     "sl": "SL0484",
+     "name": "Microtubule organizing center",
+     "entries": 18
+    },
+    {
+     "sl": "SL0132",
+     "name": "Golgi apparatus",
+     "entries": 15
+    },
+    {
+     "sl": "SL0190",
+     "name": "Nucleoplasm",
+     "entries": 13
+    },
+    {
+     "sl": "SL0048",
+     "name": "Centrosome",
+     "entries": 12
+    },
+    {
+     "sl": "SL0091",
+     "name": "Cytosol",
+     "entries": 11
+    },
+    {
+     "sl": "SL0243",
+     "name": "Secreted",
+     "entries": 8
+    },
+    {
+     "sl": "SL0173",
+     "name": "Mitochondrion",
+     "entries": 8
+    },
+    {
+     "sl": "SL0072",
+     "name": "Coated pit",
+     "entries": 8
+    },
+    {
+     "sl": "SL0067",
+     "name": "cis-Golgi network",
+     "entries": 7
+    },
+    {
+     "sl": "SL0182",
+     "name": "Nucleus membrane",
+     "entries": 6
+    },
+    {
+     "sl": "SL0046",
+     "name": "Centriole",
+     "entries": 4
+    },
+    {
+     "sl": "SL0198",
+     "name": "Perinuclear region",
+     "entries": 2
+    }
+   ]
+  },
+  "virus": {
+   "taxon": 10239,
+   "entries": "reviewed",
+   "entry_count": 17529,
+   "artwork": "HostAnimal_cell.svg",
+   "attested_and_drawn": [
+    {
+     "sl": "SL0274",
+     "name": "Virion",
+     "entries": 4934
+    },
+    {
+     "sl": "SL0414",
+     "name": "Host nucleus",
+     "entries": 4051
+    },
+    {
+     "sl": "SL0381",
+     "name": "Host cytoplasm",
+     "entries": 3688
+    },
+    {
+     "sl": "SL0275",
+     "name": "Virion membrane",
+     "entries": 2342
+    },
+    {
+     "sl": "SL0375",
+     "name": "Host cell membrane",
+     "entries": 1427
+    },
+    {
+     "sl": "SL0395",
+     "name": "Host Golgi apparatus",
+     "entries": 456
+    },
+    {
+     "sl": "SL0412",
+     "name": "Host nucleolus",
+     "entries": 352
+    },
+    {
+     "sl": "SL0273",
+     "name": "Virion tegument",
+     "entries": 297
+    },
+    {
+     "sl": "SL0382",
+     "name": "Host perinuclear region",
+     "entries": 288
+    },
+    {
+     "sl": "SL0407",
+     "name": "Host mitochondrion",
+     "entries": 282
+    },
+    {
+     "sl": "SL0391",
+     "name": "Host endoplasmic reticulum-Golgi intermediate compartment",
+     "entries": 200
+    },
+    {
+     "sl": "SL0383",
+     "name": "Host cytoskeleton",
+     "entries": 168
+    },
+    {
+     "sl": "SL0393",
+     "name": "Host endosome",
+     "entries": 163
+    },
+    {
+     "sl": "SL0463",
+     "name": "Host trans-Golgi network",
+     "entries": 148
+    },
+    {
+     "sl": "SL0388",
+     "name": "Host endoplasmic reticulum",
+     "entries": 147
+    },
+    {
+     "sl": "SL0453",
+     "name": "Host multivesicular body",
+     "entries": 147
+    },
+    {
+     "sl": "SL0461",
+     "name": "Host early endosome",
+     "entries": 84
+    },
+    {
+     "sl": "SL0384",
+     "name": "Host cytosol",
+     "entries": 76
+    },
+    {
+     "sl": "SL0422",
+     "name": "Host rough endoplasmic reticulum",
+     "entries": 73
+    },
+    {
+     "sl": "SL0398",
+     "name": "Host endomembrane system",
+     "entries": 67
+    },
+    {
+     "sl": "SL0425",
+     "name": "Host extracellular space",
+     "entries": 53
+    },
+    {
+     "sl": "SL0428",
+     "name": "Host caveola",
+     "entries": 47
+    },
+    {
+     "sl": "SL0401",
+     "name": "Host lipid droplet",
+     "entries": 45
+    },
+    {
+     "sl": "SL0386",
+     "name": "Host cytoplasmic vesicle",
+     "entries": 40
+    },
+    {
+     "sl": "SL0377",
+     "name": "Host cell projection",
+     "entries": 25
+    },
+    {
+     "sl": "SL0379",
+     "name": "Host filopodium",
+     "entries": 25
+    },
+    {
+     "sl": "SL0413",
+     "name": "Host nucleoplasm",
+     "entries": 20
+    },
+    {
+     "sl": "SL0396",
+     "name": "Host cis-Golgi network",
+     "entries": 15
+    },
+    {
+     "sl": "SL0415",
+     "name": "Host nucleus envelope",
+     "entries": 8
+    },
+    {
+     "sl": "SL0416",
+     "name": "Host nucleus lamina",
+     "entries": 7
+    },
+    {
+     "sl": "SL0475",
+     "name": "Host peroxisome",
+     "entries": 2
+    },
+    {
+     "sl": "SL0403",
+     "name": "Host lysosome",
+     "entries": 2
+    }
+   ]
+  },
+  "mammalian": {
+   "taxon": 40674,
+   "entries": "reviewed",
+   "entry_count": 67992,
+   "artwork": "Animal_cells.svg",
+   "attested_and_drawn": [
+    {
+     "sl": "SL0086",
+     "name": "Cytoplasm",
+     "entries": 19985
+    },
+    {
+     "sl": "SL0191",
+     "name": "Nucleus",
+     "entries": 16770
+    },
+    {
+     "sl": "SL0039",
+     "name": "Cell membrane",
+     "entries": 11683
+    },
+    {
+     "sl": "SL0243",
+     "name": "Secreted",
+     "entries": 8898
+    },
+    {
+     "sl": "SL0090",
+     "name": "Cytoskeleton",
+     "entries": 4621
+    },
+    {
+     "sl": "SL0280",
+     "name": "Cell projection",
+     "entries": 3809
+    },
+    {
+     "sl": "SL0168",
+     "name": "Mitochondrion inner membrane",
+     "entries": 3752
+    },
+    {
+     "sl": "SL0091",
+     "name": "Cytosol",
+     "entries": 2462
+    },
+    {
+     "sl": "SL0173",
+     "name": "Mitochondrion",
+     "entries": 2261
+    },
+    {
+     "sl": "SL0132",
+     "name": "Golgi apparatus",
+     "entries": 2030
+    },
+    {
+     "sl": "SL0484",
+     "name": "Microtubule organizing center",
+     "entries": 1630
+    },
+    {
+     "sl": "SL0048",
+     "name": "Centrosome",
+     "entries": 1573
+    },
+    {
+     "sl": "SL0188",
+     "name": "Nucleolus",
+     "entries": 1551
+    },
+    {
+     "sl": "SL0112",
+     "name": "Extracellular space",
+     "entries": 1410
+    },
+    {
+     "sl": "SL0095",
+     "name": "Endoplasmic reticulum",
+     "entries": 1148
+    },
+    {
+     "sl": "SL0111",
+     "name": "Extracellular matrix",
+     "entries": 1049
+    },
+    {
+     "sl": "SL0198",
+     "name": "Perinuclear region",
+     "entries": 1046
+    },
+    {
+     "sl": "SL0066",
+     "name": "Cilium",
+     "entries": 1040
+    },
+    {
+     "sl": "SL0170",
+     "name": "Mitochondrion matrix",
+     "entries": 884
+    },
+    {
+     "sl": "SL0186",
+     "name": "Nucleus speckle",
+     "entries": 730
+    },
+    {
+     "sl": "SL0190",
+     "name": "Nucleoplasm",
+     "entries": 716
+    },
+    {
+     "sl": "SL0158",
+     "name": "Lysosome",
+     "entries": 693
+    },
+    {
+     "sl": "SL0172",
+     "name": "Mitochondrion outer membrane",
+     "entries": 634
+    },
+    {
+     "sl": "SL0101",
+     "name": "Endosome",
+     "entries": 499
+    },
+    {
+     "sl": "SL0094",
+     "name": "Early endosome",
+     "entries": 488
+    },
+    {
+     "sl": "SL0171",
+     "name": "Mitochondrion membrane",
+     "entries": 485
+    },
+    {
+     "sl": "SL0087",
+     "name": "Cilium basal body",
+     "entries": 451
+    },
+    {
+     "sl": "SL0304",
+     "name": "Cilium axoneme",
+     "entries": 413
+    },
+    {
+     "sl": "SL0161",
+     "name": "Melanosome",
+     "entries": 412
+    },
+    {
+     "sl": "SL0182",
+     "name": "Nucleus membrane",
+     "entries": 374
+    },
+    {
+     "sl": "SL0046",
+     "name": "Centriole",
+     "entries": 370
+    },
+    {
+     "sl": "SL0138",
+     "name": "Cell cortex",
+     "entries": 356
+    },
+    {
+     "sl": "SL0118",
+     "name": "Focal adhesion",
+     "entries": 342
+    },
+    {
+     "sl": "SL0266",
+     "name": "trans-Golgi network",
+     "entries": 288
+    },
+    {
+     "sl": "SL0281",
+     "name": "Cytoplasmic granule",
+     "entries": 268
+    },
+    {
+     "sl": "SL0465",
+     "name": "PML body",
+     "entries": 263
+    },
+    {
+     "sl": "SL0154",
+     "name": "Lipid droplet",
+     "entries": 243
+    },
+    {
+     "sl": "SL0204",
+     "name": "Peroxisome",
+     "entries": 226
+    },
+    {
+     "sl": "SL0152",
+     "name": "Late endosome",
+     "entries": 214
+    },
+    {
+     "sl": "SL0230",
+     "name": "P-body",
+     "entries": 207
+    },
+    {
+     "sl": "SL0035",
+     "name": "Caveola",
+     "entries": 206
+    },
+    {
+     "sl": "SL0023",
+     "name": "Autophagosome",
+     "entries": 169
+    },
+    {
+     "sl": "SL0286",
+     "name": "Filopodium",
+     "entries": 143
+    },
+    {
+     "sl": "SL0069",
+     "name": "Clathrin-coated pit",
+     "entries": 133
+    },
+    {
+     "sl": "SL0070",
+     "name": "Clathrin-coated vesicle",
+     "entries": 129
+    },
+    {
+     "sl": "SL0031",
+     "name": "Cajal body",
+     "entries": 121
+    },
+    {
+     "sl": "SL0466",
+     "name": "Extracellular exosome",
+     "entries": 117
+    },
+    {
+     "sl": "SL0485",
+     "name": "Centriolar satellite",
+     "entries": 114
+    },
+    {
+     "sl": "SL0235",
+     "name": "Rough endoplasmic reticulum",
+     "entries": 105
+    },
+    {
+     "sl": "SL0174",
+     "name": "Multivesicular body",
+     "entries": 99
+    },
+    {
+     "sl": "SL0206",
+     "name": "Phagosome",
+     "entries": 97
+    },
+    {
+     "sl": "SL0295",
+     "name": "Podosome",
+     "entries": 93
+    },
+    {
+     "sl": "SL0501",
+     "name": "Stress fiber",
+     "entries": 91
+    },
+    {
+     "sl": "SL0098",
+     "name": "Endoplasmic reticulum-Golgi intermediate compartment",
+     "entries": 90
+    },
+    {
+     "sl": "SL0473",
+     "name": "Phagocytic cup",
+     "entries": 75
+    },
+    {
+     "sl": "SL0067",
+     "name": "cis-Golgi network",
+     "entries": 69
+    },
+    {
+     "sl": "SL0072",
+     "name": "Coated pit",
+     "entries": 66
+    },
+    {
+     "sl": "SL0135",
+     "name": "Golgi stack",
+     "entries": 34
+    },
+    {
+     "sl": "SL0494",
+     "name": "Nuclear body",
+     "entries": 32
+    },
+    {
+     "sl": "SL0127",
+     "name": "Gem",
+     "entries": 32
+    },
+    {
+     "sl": "SL0061",
+     "name": "Chromaffin granule",
+     "entries": 31
+    },
+    {
+     "sl": "SL0148",
+     "name": "Invadopodium",
+     "entries": 22
+    },
+    {
+     "sl": "SL0180",
+     "name": "Nucleus lamina",
+     "entries": 16
+    },
+    {
+     "sl": "SL0077",
+     "name": "COPII-coated vesicle",
+     "entries": 10
+    },
+    {
+     "sl": "SL0075",
+     "name": "COPI-coated vesicle",
+     "entries": 8
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,90 @@
+{
+  "source_sha256": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+  "scope": "actual native widget/producer show, hide, delete and GC; compiler warmed",
+  "records": [
+    {
+      "mode": "fallback",
+      "native_size": [
+        3840,
+        2160
+      ],
+      "shaded_frames": 8,
+      "palette_cache_bytes": 98304,
+      "temporary_array_views": 0,
+      "empty_rank_arguments": [],
+      "worker_stopped": true,
+      "widget_engine_frame_tables_released": true,
+      "temporary_views_released": true,
+      "idle_rss_kib": 336928
+    },
+    {
+      "mode": "compiled",
+      "native_size": [
+        3840,
+        2160
+      ],
+      "shaded_frames": 9,
+      "palette_cache_bytes": 98304,
+      "temporary_array_views": 20,
+      "empty_rank_arguments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "worker_stopped": true,
+      "widget_engine_frame_tables_released": true,
+      "temporary_views_released": true,
+      "idle_rss_kib": 336928
+    },
+    {
+      "mode": "compiled",
+      "native_size": [
+        3840,
+        2160
+      ],
+      "shaded_frames": 9,
+      "palette_cache_bytes": 98304,
+      "temporary_array_views": 22,
+      "empty_rank_arguments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "worker_stopped": true,
+      "widget_engine_frame_tables_released": true,
+      "temporary_views_released": true,
+      "idle_rss_kib": 336928
+    },
+    {
+      "mode": "fallback",
+      "native_size": [
+        3840,
+        2160
+      ],
+      "shaded_frames": 8,
+      "palette_cache_bytes": 98304,
+      "temporary_array_views": 0,
+      "empty_rank_arguments": [],
+      "worker_stopped": true,
+      "widget_engine_frame_tables_released": true,
+      "temporary_views_released": true,
+      "idle_rss_kib": 336972
+    }
+  ],
+  "peak_rss_kib": 471356
+}

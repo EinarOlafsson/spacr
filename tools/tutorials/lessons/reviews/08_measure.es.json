@@ -1,0 +1,60 @@
+{
+  "lesson": "08_measure",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
+  "review": {
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    },
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
+  },
+  "language": "es",
+  "title": "Measure: extraer características y recortes de objetos",
+  "description": "Carga imágenes con máscaras, revisa los objetos, elige los ajustes de recorte y guarda las mediciones para la anotación y la clasificación.",
+  "objectives": [
+    "Identificar los canales de intensidad y los planos de máscara del ejemplo.",
+    "Revisar los campos y elegir de forma deliberada la normalización de los recortes guardados.",
+    "Ejecutar Measure y encontrar la base de datos, los recortes de objetos y las figuras."
+  ],
+  "prerequisite": "Usa las salidas combinadas de Mask o elige Load test data en Measure. El ejemplo aporta dieciséis campos con planos de intensidad 0–3 y máscaras de células, núcleos y patógenos en los planos 4, 5 y 6.",
+  "scenes": [
+    "Desde Home, abre Measure. En Input and Experiment, usa Source para seleccionar la carpeta combinada que contiene tus imágenes y máscaras de objetos, o haz clic en Load test data. Aquí el ejemplo ya está cargado. Measure extrae características como el área y la intensidad, empareja objetos relacionados y puede guardar recortes de objetos para Annotate y Classify.",
+    "Haz clic en Load test data y espera a que se cargue el ejemplo, o selecciona tu propio proyecto combinado. Comprueba la asignación de planos: este ejemplo tiene cuatro canales de intensidad seguidos de las máscaras de células, núcleos y patógenos en los planos cuatro, cinco y seis. Al pulsar Run, Measure compara estos planos de máscara con el diseño guardado para la carpeta; si no coinciden, ofrece Use stored image layout y le pide que revise la asignación y vuelva a ejecutar.",
+    "Para revisar estos recortes de ejemplo de dieciséis bits, activa Normalize antes de abrir Live. Así la vista previa se ve mejor. Recuerda que este ajuste principal también afecta a los recortes guardados; lo desactivaremos antes de esta ejecución por lotes.",
+    "Activa Live y elige un campo. Revisa los recortes de los objetos y la relación entre sus máscaras. Recorre las categorías y amplía la vista previa si hace falta para ver bien los bordes.",
+    "Usa el selector de canal mostrado para revisar un canal de intensidad cada vez. El canal cero muestra una vista en escala de grises; All channels restablece la vista combinada. Este selector cambia la vista previa sin cambiar las etiquetas ni la asignación de canales del lote.",
+    "Elija otro campo y compare sus objetos. Si faltan máscaras o hay objetos unidos por error, corríjalas o ajuste Mask antes de continuar.",
+    "Para comparar campos uno junto a otro, abra Checked images y marque los campos que desee. La cuadrícula agrupa los recortes por su campo de origen; pase el cursor sobre un recorte para ver su ruta o haga doble clic para abrir ese campo exacto. Uncheck all images vacía la cuadrícula. Esto solo cambia la vista previa, no lo que procesa Measure.",
+    "Para revisar la calidad de la segmentación en todo el proyecto antes de medir, active QC en la fila Actions, junto a 3D y Time. Su ventana enumera los campos y pocillos cuyas máscaras parecen inusuales, por ejemplo con muchos menos objetos que el resto de la placa, con enlaces para revisarlos. La revisión es solo orientativa y nunca detiene Measure; al cerrar la ventana, el interruptor se desactiva.",
+    "En All settings, Image Preprocessing reúne las correcciones que Measure puede aplicar a cada campo antes de medir: Image Deconvolution con una función de dispersión de punto e Illumination Correction con un modelo estimado previamente. Cambian los píxeles que se miden en esta ejecución; las máscaras y los arrays en disco no se modifican.",
+    "Desactiva Live y vuelve a desactivar Normalize para este ejemplo. Elige la normalización con cuidado al guardar recortes: el escalado por recorte cambia las diferencias de intensidad que verá después un clasificador de imágenes. Conserva los arreglos combinados originales para las mediciones cuantitativas.",
+    "Cuando los ajustes estén bien, consérvelos. Abra Templates en la barra de ajustes, o pulse Ctrl+Mayús+R, y elija Save current settings. Dé a la plantilla un nombre que diría en voz alta; la próxima vez la aplica en lugar de volver a escribirlo todo.",
+    "Import también lee el CSV de ajustes que cada ejecución escribe junto a sus resultados. La configuración de una ejecución anterior, o la de un colega, se convierte en una plantilla con el nombre del archivo.",
+    "Rename da a una plantilla importada un nombre más claro. Share guarda la seleccionada en un archivo para otras personas, y Apply la carga en Measure.",
+    "Las teclas como Ctrl+Mayús+R se pueden cambiar. Abra Help, luego Keyboard shortcuts, y elija Change shortcuts. Escriba una tecla nueva para cualquier acción; si choca con otra, spaCR nombra el conflicto y mantiene Save desactivado hasta que lo resuelva.",
+    "Active el guardado de mediciones y recortes de objetos, deje Plot activado y elija el tamaño del recorte y los canales de salida. En una primera ejecución, Test mode mide un campo; desactívelo para procesar los dieciséis campos incluidos. Haga clic en Run, siga la consola hasta que termine la ejecución y compruebe qué campos se completaron antes de continuar.",
+    "Revisa la figura de recortes y luego localiza measurements.db en la carpeta measurements y las imágenes de objetos guardadas en la salida de recortes del proyecto. Mantén juntas la base de datos y las rutas de las imágenes. Continúa con Annotate para etiquetar objetos de ejemplo, o con Classify si ya tienes datos de entrenamiento etiquetados.",
+    "En esta demostración de memoria, el mismo campo de ejemplo se repite en mosaico para formar un array más grande; no se inicia ninguna medición. Antes de iniciar cualquier ejecución, spaCR estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y spaCR pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla."
+  ]
+}

@@ -1,0 +1,7 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/growth-final-r9-tool.log', 'pytest', '-q', 'tests/qt/test_fungal_growth_engine.py', 'tests/qt/test_magnifier_instant_accept_and_fuse.py', 'tests/qt/test_aurora_borealis_curtains.py']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+......................................                                   [100%]
+38 passed in 72.94s (0:01:12)
+
+Terminal exit status: 0

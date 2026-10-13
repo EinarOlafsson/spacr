@@ -1,0 +1,34 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "A second dose column, for a two-compound checkerboard. The curves then use only the wells without it, and each group's combination wells are scored against the chosen model.",
+      "source": "A second dose column, for a two-compound checkerboard. The curves then use only the wells without it, and each group's combination wells are scored against the chosen model.",
+      "source_sha256": "480279b86228df193a81c313b0a58eaab6504ec018cd403e8060015e03f94b7b",
+      "table": "ui",
+      "translation": "두 화합물 체커보드를 위한 두 번째 용량 열입니다. 이 경우 곡선은 이 화합물이 없는 웰만 사용하고, 각 그룹의 조합 웰은 선택한 모델에 대해 평가됩니다."
+    },
+    {
+      "key": "Bliss independence",
+      "source": "Bliss independence",
+      "source_sha256": "13b2f8c9929b5b33b40c25f044da056b88f7776654eb14e98f971b8f7a44e7ef",
+      "table": "ui",
+      "translation": "Bliss 독립성"
+    },
+    {
+      "key": "Loewe additivity",
+      "source": "Loewe additivity",
+      "source_sha256": "69d7c5f446ceeef8038a43d8914901e6b2ade156a3f11a36bcfa1ff830509c90",
+      "table": "ui",
+      "translation": "Loewe 가산성"
+    },
+    {
+      "key": "Second compound",
+      "source": "Second compound",
+      "source_sha256": "12ed80bdef69b5d1cf08f2dc6354bb5b3e9111ed2dd00889290e9098fd62d563",
+      "table": "ui",
+      "translation": "두 번째 화합물"
+    }
+  ],
+  "schema": 1
+}

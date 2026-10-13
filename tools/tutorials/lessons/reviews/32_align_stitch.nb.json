@@ -1,0 +1,33 @@
+{
+  "lesson": "32_align_stitch",
+  "english_sha256": "27f9e618f9817f04594ab412127feb5838e54ca0b840abf32b25df5dceb5cbb3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Align & Stitch: planlegg og skriv en bildemosaikk",
+  "description": "Velg bildefliser, angi opptaksoppsettet, undersøk registreringsplanen og skriv mosaikken med koordinatene.",
+  "objectives": [
+    "Velge fliser og angi rutenett, overlapp og registreringskanal.",
+    "Undersøke de planlagte posisjonene og registreringskvaliteten.",
+    "Skrive mosaikken og beholde koordinatdatabasen."
+  ],
+  "prerequisite": "Last ned og pakk ut eksemplet med ni fliser nedenfor, eller forbered bildefliser med kjent opptaksrekkefølge, kjent overlapp og en nyttig registreringskanal. Eksemplet bruker overlappende utsnitt fra ett mikroskopisynsfelt som øvingsoppsett.",
+  "scenes": [
+    "I kategorien Tools på Home åpner du Align and Stitch. Velg flisene, se gjennom oppsettet med Plan, og bruk deretter Write stack for å lage mosaikken.",
+    "Last ned og pakk ut eksemplet nedenfor, og velg deretter mappen tiles. Den inneholder ni overlappende utsnitt i et 3 × 3-rutenett. For ditt eget opptak holder du den opprinnelige flisrekkefølgen og bordmetadataene tilgjengelige.",
+    "Vil du heller øve på publiserte data, trykker du på Load test data. spaCR laster ned ni overlappende fliser fra en optisk poolet screening og fyller ut flismappen, rutenettet, rekkefølgen, overlappingen og utdatamappen, så du kan trykke på Plan med en gang. De neste trinnene bruker innstillingene fra eksemplet som kan lastes ned.",
+    "Sett rutenettet til 3 × 3, radvis rekkefølge og overlapp 0,25 for dette eksemplet. Tilpass innstillingene til opptaket ditt; bruk serpentinrekkefølge når annenhver rad ble tatt opp i motsatt retning.",
+    "Sett Reference channel til bildeplanet som brukes til registreringen. Eksemplet bruker kanal 1, det andre planet ved nummerering fra 0. Velg en kanal med synlig struktur i overlappene; den resulterende plasseringen gjelder alle bildekanalene.",
+    "Angi Minimum confidence for å godta en registrering og Neighbour radius for nabofliser som sammenlignes. Eksemplet bruker 0,3 og 1, med myk overgang i overlappene. Budsjettet for båndbufferen styrer minnet som bildeskriveren bruker.",
+    "Trykk på Plan. Undersøk antallet registrerte, nominelle og uplasserte fliser og den foreslåtte lerretsstørrelsen. Oppsettet viser flisenes posisjoner. Gå gjennom eventuelle nominelle reserveplasseringer eller uplasserte fliser før du skriver mosaikken.",
+    "Klikk på en flis for å undersøke koordinater, konfidens, residual og bidragende par. Bruk detaljene til å undersøke uventede posisjoner, og juster deretter registreringsinnstillingene og planlegg på nytt ved behov.",
+    "Velg en utdatamappe og en bane for koordinatdatabasen. La Overwrite være av når du lager et nytt resultat. Når planen og målet er klare, trykker du på Write stack.",
+    "Vent på fullføringssammendraget og åpne utdatastabelen. Undersøk overlappene og objektgrensene i mosaikken. Behold koordinatdatabasen og kildeflisene sammen med den, slik at senere posisjoner kan spores tilbake til opptaket."
+  ]
+}

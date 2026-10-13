@@ -1,0 +1,242 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "4b1a0803f59faa8bfc8c7aed1d08917b92bee556",
+  "scope": "Targeted statement and branch coverage; not a whole-suite verdict.",
+  "source_path": "spacr/qt/sound.py",
+  "source_sha256": "2886779d64676d7d787460e081053908e8f5acc8864eab22fe5859887cd0cc5e",
+  "coverage_json_sha256": "aa2d1d737f59d8cb9b75bb381256830208fec797f5445a02c6de21d2d7820570",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 712,
+    "num_statements": 764,
+    "percent_covered": 91.43145161290323,
+    "percent_covered_display": "91.43",
+    "missing_lines": 52,
+    "excluded_lines": 0,
+    "percent_statements_covered": 93.19371727748691,
+    "percent_statements_covered_display": "93.19",
+    "num_branches": 228,
+    "num_partial_branches": 29,
+    "covered_branches": 195,
+    "missing_branches": 33,
+    "percent_branches_covered": 85.52631578947368,
+    "percent_branches_covered_display": "85.53"
+  },
+  "missing_lines": [
+    102,
+    103,
+    216,
+    217,
+    255,
+    257,
+    260,
+    261,
+    292,
+    293,
+    294,
+    416,
+    475,
+    476,
+    477,
+    478,
+    479,
+    480,
+    481,
+    555,
+    580,
+    581,
+    583,
+    605,
+    648,
+    649,
+    667,
+    747,
+    793,
+    800,
+    823,
+    830,
+    861,
+    898,
+    899,
+    901,
+    938,
+    939,
+    1047,
+    1048,
+    1051,
+    1057,
+    1058,
+    1164,
+    1206,
+    1268,
+    1281,
+    1322,
+    1326,
+    1327,
+    1330,
+    1447
+  ],
+  "missing_branches": [
+    [
+      254,
+      255
+    ],
+    [
+      256,
+      257
+    ],
+    [
+      268,
+      -264
+    ],
+    [
+      308,
+      -297
+    ],
+    [
+      415,
+      416
+    ],
+    [
+      476,
+      477
+    ],
+    [
+      476,
+      478
+    ],
+    [
+      604,
+      605
+    ],
+    [
+      647,
+      648
+    ],
+    [
+      666,
+      667
+    ],
+    [
+      746,
+      747
+    ],
+    [
+      792,
+      793
+    ],
+    [
+      799,
+      800
+    ],
+    [
+      822,
+      823
+    ],
+    [
+      829,
+      830
+    ],
+    [
+      845,
+      848
+    ],
+    [
+      860,
+      861
+    ],
+    [
+      865,
+      867
+    ],
+    [
+      872,
+      -851
+    ],
+    [
+      1045,
+      1047
+    ],
+    [
+      1048,
+      1051
+    ],
+    [
+      1048,
+      1059
+    ],
+    [
+      1163,
+      1164
+    ],
+    [
+      1205,
+      1206
+    ],
+    [
+      1231,
+      1233
+    ],
+    [
+      1236,
+      1238
+    ],
+    [
+      1267,
+      1268
+    ],
+    [
+      1280,
+      1281
+    ],
+    [
+      1301,
+      -1294
+    ],
+    [
+      1321,
+      1322
+    ],
+    [
+      1329,
+      1330
+    ],
+    [
+      1439,
+      1445
+    ],
+    [
+      1446,
+      1447
+    ]
+  ],
+  "validation": {
+    "passed": 85,
+    "skipped": 0,
+    "seconds": 216.41,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/qt/test_sound_failures_remain_silent.py",
+      "tests/qt/test_sound_is_silent_until_asked.py",
+      "tests/qt/test_sound_lives_only_in_spaceout.py",
+      "tests/qt/test_the_sound_tab_is_last_and_off.py"
+    ],
+    "log_sha256": "f740b1e1983ad586c552092a6891645b9e1e373ff0960a6b0d665dd558b6a304",
+    "test_sha256": {
+      "tests/qt/test_sound_failures_remain_silent.py": "ae6301b503b2c00750b36c495673f27e8943d98af72b03011e24272bd8ef9e60",
+      "tests/qt/test_sound_is_silent_until_asked.py": "81a0ad8c43ab4fb1170810ed67943b8eb39eaf59059b263dbefd7716900abc9d",
+      "tests/qt/test_sound_lives_only_in_spaceout.py": "39df4c8c71ac5a44e236c7bcbe21e9f49948ec3223c16e1e5ae6480e39e94390",
+      "tests/qt/test_the_sound_tab_is_last_and_off.py": "349c3e5c26451e494214b13d8cec43aaa3bd1fbc3cbe92ab3cbe1c062180b758"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Audio sinks are simulated; no real device playback is claimed. Existing thread-shutdown test uses short real WAV files in place of full music synthesis, retaining real worker/GUI ownership and shutdown assertions.",
+    "The previous selection and isolated unchanged shutdown test both timed out waiting for bed preparation; their logs are retained privately."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_method": "Context review preserving historical network measurements and distinguishing the new tracked-file size; native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source_sha256": "385d9fe03748af093bf1acb966263cca19b52db8c0161e48a0b662f69b1cb893",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1607 MB checkout (measured 2026-09-24), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 1607 MB를 차지합니다(2026-09-24 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다."
+    }
+  ]
+}

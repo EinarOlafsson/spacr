@@ -1,0 +1,6 @@
+Functional accepted command (from isolated repo):
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen COVERAGE_FILE=/mnt/wd4tb/scratch/fungal-parent-repro/.coverage tools/run_capped.sh 4G python -m pytest -q -p no:randomly tests/qt/test_fungal_growth_engine.py tests/qt/test_fungal_mature_raster_cache.py tests/qt/test_fungal_scalar_path_overloads.py --cov=spacr.qt.widgets.ambient --cov-branch --cov-report=json:/mnt/wd4tb/scratch/fungal-parent-repro/coverage.json
+
+Native timing reproduction: extract ambient-before.py.gz as before.py, ambient-after.py.gz as after.py, and worker_probe.py.gz into a new reserved scratch directory. Set SPACR_PROOF_REPO to the isolated repo path. Use CUDA_VISIBLE_DEVICES='', QT_QPA_PLATFORM=xcb and a3840x2160x24 Xvfb, tools/run_capped.sh 4G python worker_probe.py data_art_fungal_growth before --density 3 --run-id before-A; repeat variants after-B, after-C, before-D in fresh sequential processes. The probe uses requested24FPS, Detail2, Size2.5, clock97+, and preserves all controls. Parse records rather than treating every GUI repaint as a distinct scene frame.
+
+Parity reproduction: extract ambient-before.py.gz as ambient-frozen.py and parent-probe.py.gz next to it; CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python parent-probe.py ISOLATED_REPO.

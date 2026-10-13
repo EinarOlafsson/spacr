@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: the runtime strings nightly added in items 633-634 (test data on Convert, Layer Viewer and External Masks; the alpha organism pages for Trypanosoma, Leishmania, Giardia, viruses and mammalian cells) and the real-object classifier settings, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Further screens",
+      "source": "Further screens",
+      "source_sha256": "05f82c4453a09deecdfba8dd61a30b786ee9858e860c5e3892d0c35cddbffc22",
+      "translation": "更多筛选"
+    },
+    {
+      "table": "ui",
+      "key": "A schematic enveloped virus with an icosahedral capsid, tegument and spiked envelope, beside an infected host cell with nascent capsids in the nucleus, an internalised virion and budding particles. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins. Virion structure and replication sites differ between virus families.",
+      "source": "A schematic enveloped virus with an icosahedral capsid, tegument and spiked envelope, beside an infected host cell with nascent capsids in the nucleus, an internalised virion and budding particles. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins. Virion structure and replication sites differ between virus families.",
+      "source_sha256": "0dc8f51211266a670dd150c0d5f3fc2cdf3f3d962f5a6a2c476734f5b985739b",
+      "translation": "一个有包膜病毒的示意图，带有二十面体衣壳、皮层和带刺突的包膜，旁边是一个受感染的宿主细胞，细胞核中有新生衣壳，还有一个已内化的病毒粒子和正在出芽的颗粒。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为病毒蛋白注释的病毒粒子和宿主细胞定位。病毒粒子结构和复制位点因病毒科而异。"
+    },
+    {
+      "table": "ui",
+      "key": "Tables or measurements.db (*.csv *.tsv *.parquet *.feather *.xlsx *.db)",
+      "source": "Tables or measurements.db (*.csv *.tsv *.parquet *.feather *.xlsx *.db)",
+      "source_sha256": "9b6ea46c7d08a22f2102ebab71619c22eb923328cbdfc73adf5cf91e6894118c",
+      "translation": "表格或 measurements.db (*.csv *.tsv *.parquet *.feather *.xlsx *.db)"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub: this run stopped on a path in its settings, not on a fault in spaCR. Correct the path and run again. To send a report anyway, press File as issue.",
+      "source": "[issue] Nothing was sent to GitHub: this run stopped on a path in its settings, not on a fault in spaCR. Correct the path and run again. To send a report anyway, press File as issue.",
+      "source_sha256": "039b602095b86c79d193857cd754c2c0a452c6a2d6ab8c76201bd4ac8c71add3",
+      "translation": "[issue] 未向 GitHub 发送任何内容：此次运行因其设置中的路径而停止，而不是因为 spaCR 的故障。请更正路径后重新运行。如仍要发送报告，请按“提交为问题”。"
+    },
+    {
+      "table": "ui",
+      "key": "Show the organism pages that are not yet released: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus and Mammalian cells. Separate from Show alpha features. Toxoplasma is always shown. Default off.",
+      "source": "Show the organism pages that are not yet released: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus and Mammalian cells. Separate from Show alpha features. Toxoplasma is always shown. Default off.",
+      "source_sha256": "7c89beb6be4ebac32b09e633f5cc465ff4a40c32edef3bd739a98f32bd78f783",
+      "translation": "显示尚未发布的生物页面：Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、病毒和哺乳动物细胞。与“显示 Alpha 功能”相互独立。Toxoplasma 始终显示。默认关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "A schematic Leishmania promastigote, with its free anterior flagellum leaving the flagellar pocket, the kinetoplast just behind it and a central nucleus, above the rounded amastigote. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins.",
+      "source": "A schematic Leishmania promastigote, with its free anterior flagellum leaving the flagellar pocket, the kinetoplast just behind it and a central nucleus, above the rounded amastigote. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins.",
+      "source_sha256": "23f825b40033cebf89d0a2a649c39a3409291f6fe7f92a4c23ab324cc262175c",
+      "translation": "一个 Leishmania 前鞭毛体的示意图，其游离的前端鞭毛从鞭毛袋中伸出，动基体紧邻其后，细胞核位于中央，下方是圆形的无鞭毛体。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为 Leishmania 蛋白注释的亚细胞定位。"
+    },
+    {
+      "table": "ui",
+      "key": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram shows UniProt vocabulary, not the measured location of a Leishmania protein.",
+      "source": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram shows UniProt vocabulary, not the measured location of a Leishmania protein.",
+      "source_sha256": "b140600cf48cbb859f253835896b62571c9fcfe973a0b1ad3c86d0b55c369626",
+      "translation": "巨噬细胞感染、巨噬细胞结合、前鞭毛体运动性和药物反应成像会打开现有的 spaCR 模块；其余四个图块为计划功能，标记为“即将推出”。TriTrypDB 提供基因组背景信息，UniProt 提供蛋白质注释。示意图展示的是 UniProt 术语，而不是 Leishmania 蛋白的测量位置。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the well-label table for the stored embeddings",
+      "source": "Choose the well-label table for the stored embeddings",
+      "source_sha256": "5833baf39bbdf389bfb0d769b8a69737556497205e999dc7d7b437d2ddd78cae",
+      "translation": "为已存储的嵌入选择孔标签表"
+    },
+    {
+      "table": "ui",
+      "key": "A schematic adherent mammalian cell spread on extracellular matrix, with its nucleus and nucleoli, endoplasmic reticulum, Golgi apparatus beside the centrosome and primary cilium, mitochondria and cytoskeleton. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins. Cell shape and organelle arrangement vary between cell types.",
+      "source": "A schematic adherent mammalian cell spread on extracellular matrix, with its nucleus and nucleoli, endoplasmic reticulum, Golgi apparatus beside the centrosome and primary cilium, mitochondria and cytoskeleton. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins. Cell shape and organelle arrangement vary between cell types.",
+      "source_sha256": "ed2613e51e501b94d8f22ef4722754ae892b3b83f2146a32213b54e06e54f740",
+      "translation": "一个贴壁哺乳动物细胞的示意图，铺展在细胞外基质上，带有细胞核和核仁、内质网、位于中心体和初级纤毛旁的高尔基体、线粒体和细胞骨架。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为哺乳动物蛋白注释的亚细胞定位。细胞形状和细胞器排布因细胞类型而异。"
+    },
+    {
+      "table": "ui",
+      "key": "A schematic Giardia trophozoite seen from above: a pear-shaped cell with two nuclei, the ventral adhesive disc, the median bodies and four pairs of flagella. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins. Giardia has mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
+      "source": "A schematic Giardia trophozoite seen from above: a pear-shaped cell with two nuclei, the ventral adhesive disc, the median bodies and four pairs of flagella. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins. Giardia has mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
+      "source_sha256": "71304410cc1bfd6bfb1657b4b45ebbd7c6bfd207b82592892a7fb9151bc470c7",
+      "translation": "一个从上方观察的 Giardia 滋养体示意图：梨形细胞，带有两个细胞核、腹吸盘、中体和四对鞭毛。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为 Giardia 蛋白注释的定位。Giardia 具有纺锤剩体而非线粒体，也没有堆叠的高尔基体，因此不提供这些选项。"
+    },
+    {
+      "table": "ui",
+      "key": "Show alpha species (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus, Mammalian)",
+      "source": "Show alpha species (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus, Mammalian)",
+      "source_sha256": "773f7b1b9e5fed9dd545da004131628c6a4481cc7478e153069bab2b2229837d",
+      "translation": "显示 Alpha 物种（Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、病毒、哺乳动物）"
+    },
+    {
+      "table": "ui",
+      "key": "Optional: further run folders, one per line, each becoming another screen of the same study.",
+      "source": "Optional: further run folders, one per line, each becoming another screen of the same study.",
+      "source_sha256": "b15694075c5eb31463ac0e8ad3ddcd93f440083b31db8d6b473312be2c069b8b",
+      "translation": "可选：更多运行文件夹，每行一个，每个文件夹成为同一研究中的另一个筛选。"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_target",
+      "source": "Counterfactual target",
+      "source_sha256": "74a5f869b63ce148daa6259996dfd760608fa5fa00abd16b13a4197d4f86e35b",
+      "translation": "反事实目标"
+    },
+    {
+      "table": "setting_labels",
+      "key": "illumination_vendor_channel_map",
+      "source": "Illumination vendor channel map",
+      "source_sha256": "28f0828a4ef5a9893b0703c928a498e4735a14486c2a1ec821b525ae3f50000e",
+      "translation": "厂商照明通道映射"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_target",
+      "source": "Which class or condition every counterfactual morphs toward: a class index such as 1 when counterfactual_condition is 'class', otherwise a condition name as read from the crop file names, such as a well. Cells already in the target are left out. Empty morphs each cell to the next class or condition in sorted order. Ignored unless counterfactuals is on. Default ''.",
+      "source_sha256": "a1a2533447136ecaa6417436c3aa0f6feb132b41d7f2f2a3790b25242063badf",
+      "translation": "每个反事实朝哪个类别或条件变形：当 counterfactual_condition 为 'class' 时，填写类别索引，例如 1；否则填写从裁剪图像文件名中读取的条件名称，例如一个孔。已处于目标中的细胞会被排除。留空时，每个细胞会变形为排序后的下一个类别或条件。除非开启 counterfactuals，否则忽略。默认：''。"
+    }
+  ]
+}

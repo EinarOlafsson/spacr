@@ -1,0 +1,469 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A lesson number, slug or screen name, such as 7, make_masks or measure. Without one, the whole tutorial library opens.",
+      "source": "A lesson number, slug or screen name, such as 7, make_masks or measure. Without one, the whole tutorial library opens.",
+      "source_sha256": "f71d8aac70f716a5e1835ac970d00c5124660f635fb3428ef1920775db24be63",
+      "translation": "Ett lektionsnummer, en slug eller ett fönsternamn, till exempel 7, make_masks eller measure. Utan något öppnas hela handledningsbiblioteket."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the object to delete in the Object ID list.",
+      "source": "Choose the object to delete in the Object ID list.",
+      "source_sha256": "be4a703d71e2707cce8b91a9d7cb55552b881a7b46a9fb8475710e29d832019e",
+      "translation": "Välj objektet som ska tas bort i listan Objekt-ID."
+    },
+    {
+      "table": "ui",
+      "key": "Classify and ML scores (*_result.csv *results.csv)",
+      "source": "Classify and ML scores (*_result.csv *results.csv)",
+      "source_sha256": "226f5bc45d7401590c3109c96531033d1a24fb184997c4bc92416499ee597355",
+      "translation": "Classify- och ML-poäng (*_result.csv *results.csv)"
+    },
+    {
+      "table": "ui",
+      "key": "Click to enlarge",
+      "source": "Click to enlarge",
+      "source_sha256": "ac169cea45b55e0017b32de824695e833e099c004f19ed612272cad4d9f551ee",
+      "translation": "Klicka för att förstora"
+    },
+    {
+      "table": "ui",
+      "key": "Could not save the settings: {error}",
+      "source": "Could not save the settings: {error}",
+      "source_sha256": "77c62fd6a7c092add1262c57dbef697bc81a5ec8ec8b95a71fa1ad35be597690",
+      "translation": "Det gick inte att spara inställningarna: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through the crosshair; the middle button moves it. True 3D shows the volume and its objects in 3D, to draw and reshape them with anchors.",
+      "source": "Default draws on one slice at a time. Orthogonal adds the XZ and YZ side views through the crosshair; the middle button moves it. True 3D shows the volume and its objects in 3D, to draw and reshape them with anchors.",
+      "source_sha256": "2bcf7434f4b3d9476392d596175574541a0cadb6a22aef4208bad41a504fda6c",
+      "translation": "Standardvärde ritar på ett snitt i taget. Orthogonal lägger till sidovyerna XZ och YZ genom hårkorset; mittenknappen flyttar det. True 3D visar volymen och dess objekt i 3D, för att rita och omforma dem med ankare."
+    },
+    {
+      "table": "ui",
+      "key": "Deleted object {label}: {n} voxels.",
+      "source": "Deleted object {label}: {n} voxels.",
+      "source_sha256": "688b4ba9aad8353faa7108d9c6a7abf650107192eb17bd8c0ddd9d38a4edfd2e",
+      "translation": "Objekt {label} borttaget: {n} voxlar."
+    },
+    {
+      "table": "ui",
+      "key": "Did you mean: {names}?",
+      "source": "Did you mean: {names}?",
+      "source_sha256": "a66bba52bdee7d4dec8d42cd733c42fa04d131fe95254512139bc11a96b80cd1",
+      "translation": "Menade du: {names}?"
+    },
+    {
+      "table": "ui",
+      "key": "Draw a thick outline round the control that has keyboard focus, so you can follow Tab from control to control.",
+      "source": "Draw a thick outline round the control that has keyboard focus, so you can follow Tab from control to control.",
+      "source_sha256": "684bf18f4c1dc1f197fd5c2c5a00fa10fe92af8fd851b2fb62b1610755673b7d",
+      "translation": "Rita en tjock kontur runt kontrollen som har tangentbordsfokus, så att du kan följa Tab från kontroll till kontroll."
+    },
+    {
+      "table": "ui",
+      "key": "Export settings CSV",
+      "source": "Export settings CSV",
+      "source_sha256": "cf3dcf835c7aec6313bab5fdee891ee9f6a5cbcf9f36dd523a5569ae037fa99f",
+      "translation": "Exportera inställnings-CSV"
+    },
+    {
+      "table": "ui",
+      "key": "Fact",
+      "source": "Fact",
+      "source_sha256": "2558566c5e58d4c6547af738cca32029a083177a654fdd0561d2d5c0407a3e72",
+      "translation": "Uppgift"
+    },
+    {
+      "table": "ui",
+      "key": "Focus outlines",
+      "source": "Focus outlines",
+      "source_sha256": "3847062881400cb60f5aacd848d3b3526012d9cd044d5526dc3779b7f0713a63",
+      "translation": "Fokuskonturer"
+    },
+    {
+      "table": "ui",
+      "key": "Hold every animated backdrop still and turn off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back.",
+      "source": "Hold every animated backdrop still and turn off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back.",
+      "source_sha256": "10e81bb454a479807f9d033c99b222c878a042569cec247936a936cbd8c8e6f9",
+      "translation": "Håll alla animerade bakgrunder stilla och stäng av krusningar, klickkrusningar, popup-vågor och musgravitation. Avmarkera för att få tillbaka dina tidigare rörelseinställningar."
+    },
+    {
+      "table": "ui",
+      "key": "Keyboard",
+      "source": "Keyboard",
+      "source_sha256": "2316810a5de343dd59d15e5f5c4f47e4c5177540f68bc4747286cce83bfd5d39",
+      "translation": "Tangentbord"
+    },
+    {
+      "table": "ui",
+      "key": "Lesson",
+      "source": "Lesson",
+      "source_sha256": "6e2b26d9de4033b952bd242f69b798420ee887151b937f394efc23252c78af74",
+      "translation": "Lektion"
+    },
+    {
+      "table": "ui",
+      "key": "List the spaCR tutorial lessons and open them in your web browser.",
+      "source": "List the spaCR tutorial lessons and open them in your web browser.",
+      "source_sha256": "e7d98befe35c2affd1c312846cfb16d9cdd1adfa7261df9d93b077fe434ac4e3",
+      "translation": "Lista lektionerna i spaCR-handledningen och öppna dem i din webbläsare."
+    },
+    {
+      "table": "ui",
+      "key": "Loading the card images…",
+      "source": "Loading the card images…",
+      "source_sha256": "bb93f7bd9b81f501b31078ee2619b0866b328f2063e55eb58a5d77f656205aeb",
+      "translation": "Laddar kortets bilder…"
+    },
+    {
+      "table": "ui",
+      "key": "Make all text in spaCR larger or smaller. This is the same setting as Font scale on the General tab.",
+      "source": "Make all text in spaCR larger or smaller. This is the same setting as Font scale on the General tab.",
+      "source_sha256": "6ce767970fa395d725a934e8d8bca6ec0bdbc09e5bfb725950dbd28f78b41964",
+      "translation": "Gör all text i spaCR större eller mindre. Det är samma inställning som Textskala under fliken Allmänt."
+    },
+    {
+      "table": "ui",
+      "key": "Middle button",
+      "source": "Middle button",
+      "source_sha256": "f971c1b522118df48cf8bc6f604ab7a6720894bdcc754ec7303a29d92565406e",
+      "translation": "Mittenknapp"
+    },
+    {
+      "table": "ui",
+      "key": "Move the 3D crosshair",
+      "source": "Move the 3D crosshair",
+      "source_sha256": "c1e900ad6c00ab8a1aa4537da98b1fe985b15c882cc695edc9e016bbebfa3118",
+      "translation": "Flytta 3D-hårkorset"
+    },
+    {
+      "table": "ui",
+      "key": "No lesson matches '{name}'.",
+      "source": "No lesson matches '{name}'.",
+      "source_sha256": "9e656e7673eb5b092b14b229128a2498bf7073b0d7e0f521812350c70b6656a9",
+      "translation": "Ingen lektion matchar '{name}'."
+    },
+    {
+      "table": "ui",
+      "key": "No web browser could be opened. Open this address yourself: {url}",
+      "source": "No web browser could be opened. Open this address yourself: {url}",
+      "source_sha256": "4418753d5331af38bcb40b32c69328be50cd0e5dabec76dc4e1275deba911e82",
+      "translation": "Ingen webbläsare kunde öppnas. Öppna den här adressen själv: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "No.",
+      "source": "No.",
+      "source_sha256": "38178a20b470cfd18299fb1593dd4ba706f1a83321dac051d01086efd8b7a96f",
+      "translation": "Nr"
+    },
+    {
+      "table": "ui",
+      "key": "Object {label}: drag its anchors or surfaces to reshape it.",
+      "source": "Object {label}: drag its anchors or surfaces to reshape it.",
+      "source_sha256": "9db523a0f01e8af1569335687799cc12559ebcae8b89f10381b5e7d03a8b4cfd",
+      "translation": "Objekt {label}: dra i dess ankare eller ytor för att omforma det."
+    },
+    {
+      "table": "ui",
+      "key": "Object {label}: {n} voxels",
+      "source": "Object {label}: {n} voxels",
+      "source_sha256": "6b74e0c1e5281aa67b457daf7b88c3093b1ff7aa7ee011205afa43f949878db8",
+      "translation": "Objekt {label}: {n} voxlar"
+    },
+    {
+      "table": "ui",
+      "key": "On (blue): the mouse wheel changes the slice. Off: the wheel zooms.",
+      "source": "On (blue): the mouse wheel changes the slice. Off: the wheel zooms.",
+      "source_sha256": "085b40542e30582e695aa94dd1bd59c2f063a6a3a5d33727efe937be7c32a657",
+      "translation": "På (blå): mushjulet byter snitt. Av: hjulet zoomar."
+    },
+    {
+      "table": "ui",
+      "key": "Open on Hugging Face",
+      "source": "Open on Hugging Face",
+      "source_sha256": "8d104ae20486b8eebdfa478e24fcb47a9ae8529a5eec6099fea45eb14af0bd67",
+      "translation": "Öppna på Hugging Face"
+    },
+    {
+      "table": "ui",
+      "key": "Open one lesson with 'spacr-tutorial <number, slug or screen>', for example 'spacr-tutorial mask'.",
+      "source": "Open one lesson with 'spacr-tutorial <number, slug or screen>', for example 'spacr-tutorial mask'.",
+      "source_sha256": "64815bd4d6d8914ef6aef4da79e4ea6da7120a1006a13bf09cae2162a4c8aa2a",
+      "translation": "Öppna en lektion med 'spacr-tutorial <number, slug or screen>', till exempel 'spacr-tutorial mask'."
+    },
+    {
+      "table": "ui",
+      "key": "Opened {url}",
+      "source": "Opened {url}",
+      "source_sha256": "fe93e5827f08bbf3177e13c3433f67a1fbaf8e5c807bf4fbf839071fa6844bdf",
+      "translation": "Öppnade {url}"
+    },
+    {
+      "table": "ui",
+      "key": "Orthogonal",
+      "source": "Orthogonal",
+      "source_sha256": "25a9fd0249f906f4133ad5338b381cfb0e21fd6902344603db2082a0d676579e",
+      "translation": "Ortogonal"
+    },
+    {
+      "table": "ui",
+      "key": "Page Up / Page Down",
+      "source": "Page Up / Page Down",
+      "source_sha256": "d9f7dcaaeb636115c27f6c3e95e180544aa2860b272225f752b783babe759216",
+      "translation": "Page Up / Page Down"
+    },
+    {
+      "table": "ui",
+      "key": "Preparing the anchors of object {label}…",
+      "source": "Preparing the anchors of object {label}…",
+      "source_sha256": "3e6112d2b10a35cab3305916d90c591412c8cc4ac7ec5251b26f59f5a511fd12",
+      "translation": "Förbereder ankarna för objekt {label}…"
+    },
+    {
+      "table": "ui",
+      "key": "Previous",
+      "source": "Previous",
+      "source_sha256": "a57b08a480b822a0a572b993391c292ede593bf8000b406675b180bbb16260fa",
+      "translation": "Föregående"
+    },
+    {
+      "table": "ui",
+      "key": "Previous / next 3D slice",
+      "source": "Previous / next 3D slice",
+      "source_sha256": "5ba0ff462347f7b776463db98755a25ed0cc117ae43165958be902b747668f4e",
+      "translation": "Föregående / nästa 3D-snitt"
+    },
+    {
+      "table": "ui",
+      "key": "Print the lessons and open nothing.",
+      "source": "Print the lessons and open nothing.",
+      "source_sha256": "289b35ad01aae5eb413b5ceb6749b4ff8605497a2362585cb3a9b1c0afb5381e",
+      "translation": "Skriv ut lektionerna och öppna ingenting."
+    },
+    {
+      "table": "ui",
+      "key": "Print the web address instead of opening a browser.",
+      "source": "Print the web address instead of opening a browser.",
+      "source_sha256": "833a93cb17e932208d8f6fd0bd26d27ce2486935c7e1ac162552c3c28aedbae7",
+      "translation": "Skriv ut webbadressen i stället för att öppna en webbläsare."
+    },
+    {
+      "table": "ui",
+      "key": "Reduce motion",
+      "source": "Reduce motion",
+      "source_sha256": "297ef4c79b4b21dd8fe7d32df1ad5dbeaeb3c70193ec7386f67d597140bf1537",
+      "translation": "Minska rörelse"
+    },
+    {
+      "table": "ui",
+      "key": "Remove the chosen object from every slice. Undo brings it back.",
+      "source": "Remove the chosen object from every slice. Undo brings it back.",
+      "source_sha256": "2a33aea5b334e2ad215eecb327aedf19d605d1a7540c8338a0f2d2c15c567750",
+      "translation": "Ta bort det valda objektet från alla snitt. Ångra tar tillbaka det."
+    },
+    {
+      "table": "ui",
+      "key": "Run 'spacr-tutorial --list' to see every lesson.",
+      "source": "Run 'spacr-tutorial --list' to see every lesson.",
+      "source_sha256": "44a62fbc9430c0c335d3b1746898df1f81aa33725a36d4ad76d47f30b9e457cf",
+      "translation": "Kör 'spacr-tutorial --list' för att se alla lektioner."
+    },
+    {
+      "table": "ui",
+      "key": "Save settings CSV…",
+      "source": "Save settings CSV…",
+      "source_sha256": "9bbf7b95a11e8f386c683a77244343b25e8dffc7b1522faa91e41f02e6f6b750",
+      "translation": "Spara inställnings-CSV…"
+    },
+    {
+      "table": "ui",
+      "key": "Save the settings snapshot sent by Submit remote… as a settings CSV, to copy to a cluster and run with spacr-run --settings.",
+      "source": "Save the settings snapshot sent by Submit remote… as a settings CSV, to copy to a cluster and run with spacr-run --settings.",
+      "source_sha256": "8cc178bc207cfaabcfc5945d0e3eb310f3dbde24e69466abdf086d3b936f9cb9",
+      "translation": "Spara inställningsögonblicksbilden som skickades av Skicka till fjärrsystem… som en inställnings-CSV, för att kopiera till ett kluster och köra med spacr-run --settings."
+    },
+    {
+      "table": "ui",
+      "key": "Save this form's current settings to a CSV without running anything. Import settings reads it back, and spacr-run --settings runs it on a cluster.",
+      "source": "Save this form's current settings to a CSV without running anything. Import settings reads it back, and spacr-run --settings runs it on a cluster.",
+      "source_sha256": "e3449e48c4068e8338aa3d4775b73decd3ef4067a22cf9700582ad0fe33b9901",
+      "translation": "Spara formulärets nuvarande inställningar i en CSV utan att köra något. Importera inställningar läser tillbaka den, och spacr-run --settings kör den på ett kluster."
+    },
+    {
+      "table": "ui",
+      "key": "Saved the settings to {path}. On the cluster run: spacr-run {module} --settings {name}",
+      "source": "Saved the settings to {path}. On the cluster run: spacr-run {module} --settings {name}",
+      "source_sha256": "4d52a4452b638cf128ee3e8108d62ba4ee71f3e64e37aa07216834b4a305bc3e",
+      "translation": "Sparade inställningarna i {path}. Kör på klustret: spacr-run {module} --settings {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Saved {count} settings to {path}",
+      "source": "Saved {count} settings to {path}",
+      "source_sha256": "89eeff4b24ce3644141583562e12cfa4ff3244b47dbfaf542dd301e24665d613",
+      "translation": "Sparade {count} inställningar i {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Score",
+      "source": "Score",
+      "source_sha256": "38e5a46cbc5ad32842ac60a4f1425ac9b31c06bac685f446a06ab72b87de31ed",
+      "translation": "Poäng"
+    },
+    {
+      "table": "ui",
+      "key": "Screen",
+      "source": "Screen",
+      "source_sha256": "6e56137e21d3222a2e3135fc3458286fc3fb6b2e2c679e9ae28db268fe982af7",
+      "translation": "Skärmbild"
+    },
+    {
+      "table": "ui",
+      "key": "See every keyboard shortcut and change the key for any of them.",
+      "source": "See every keyboard shortcut and change the key for any of them.",
+      "source_sha256": "bed4a1c6a40045de57dee15a4018f7b4a1853254b4faf640820ed3ddd9ec93c4",
+      "translation": "Se alla tangentbordsgenvägar och ändra tangenten för vilken som helst av dem."
+    },
+    {
+      "table": "ui",
+      "key": "Settings that make spaCR easier to see, read and use from the keyboard. Screen readers announce every control by name.",
+      "source": "Settings that make spaCR easier to see, read and use from the keyboard. Screen readers announce every control by name.",
+      "source_sha256": "04dda1eada503116d7c5703bb79cb54ea78cf82dfe0665979c4fdf3e2e3018f4",
+      "translation": "Inställningar som gör spaCR lättare att se, läsa och använda från tangentbordet. Skärmläsare säger upp varje kontroll med namn."
+    },
+    {
+      "table": "ui",
+      "key": "Shift+E / Shift+S / Shift+D",
+      "source": "Shift+E / Shift+S / Shift+D",
+      "source_sha256": "fa38a667b2eb4d630cb5b1ae89dfdae07205a32664141e267a89420220117d2f",
+      "translation": "Shift+E / Shift+S / Shift+D"
+    },
+    {
+      "table": "ui",
+      "key": "Shift+X / Shift+Y / Shift+Z",
+      "source": "Shift+X / Shift+Y / Shift+Z",
+      "source_sha256": "2da233d6e620a8d911d6c417e5daa33a048e11bbdd490c7818bd696a50445779",
+      "translation": "Shift+X / Shift+Y / Shift+Z"
+    },
+    {
+      "table": "ui",
+      "key": "Startup animation",
+      "source": "Startup animation",
+      "source_sha256": "c6013d4786bb822dcd3c1f02d2d67ec0ace86385ce63c92ab9b8f1115633a84b",
+      "translation": "Startanimation"
+    },
+    {
+      "table": "ui",
+      "key": "Stronger focus outlines",
+      "source": "Stronger focus outlines",
+      "source_sha256": "0885d12a1d7a8575da9c32cb259718d6476391849b894dfa4c51e3047c083965",
+      "translation": "Starkare fokuskonturer"
+    },
+    {
+      "table": "ui",
+      "key": "The card images could not be downloaded. Showing the card data stored with spaCR.",
+      "source": "The card images could not be downloaded. Showing the card data stored with spaCR.",
+      "source_sha256": "2f99341f9c856812b279beb6a72ce00b1d1680b85db004fbb974c100ad725433",
+      "translation": "Kortets bilder kunde inte laddas ned. Visar kortdata som lagras med spaCR."
+    },
+    {
+      "table": "ui",
+      "key": "The lesson list is not available in this installation.",
+      "source": "The lesson list is not available in this installation.",
+      "source_sha256": "9d70353a6ba484e239a925e88c3d21da57fe123b5c9da743dc875b702ec2433f",
+      "translation": "Lektionslistan finns inte i den här installationen."
+    },
+    {
+      "table": "ui",
+      "key": "The slice on screen. Page Up and Page Down step through the volume.",
+      "source": "The slice on screen. Page Up and Page Down step through the volume.",
+      "source_sha256": "33a1e7200512743925036ffc215baf8b0518befd0b2561bee4c019a65fe2fc72",
+      "translation": "Snittet på skärmen. Page Up och Page Down stegar genom volymen."
+    },
+    {
+      "table": "ui",
+      "key": "This model (stock base)",
+      "source": "This model (stock base)",
+      "source_sha256": "04062affc76b15ebfbfa657a79df35126401fb3c39b035bfd51d7f7280ded3ad",
+      "translation": "Den här modellen (standardbas)"
+    },
+    {
+      "table": "ui",
+      "key": "True 3D",
+      "source": "True 3D",
+      "source_sha256": "37b8dccd126bbfd9aa05d174f678223ab4e0bb054201f5ed3319e96783d73bf4",
+      "translation": "True 3D"
+    },
+    {
+      "table": "ui",
+      "key": "True 3D: edit, spin, draw",
+      "source": "True 3D: edit, spin, draw",
+      "source_sha256": "7937256b6331fb9d0bd65c63fa8ed6c319b05ae63a18d4a70862f9f838985a45",
+      "translation": "True 3D: redigera, snurra, rita"
+    },
+    {
+      "table": "ui",
+      "key": "True 3D: plane; after Shift+S, spin axis",
+      "source": "True 3D: plane; after Shift+S, spin axis",
+      "source_sha256": "6612eb109075360757b3c75ed03bedcd4901bd6b187b8a8ea181dd76e6dbbb21",
+      "translation": "True 3D: plan; efter Shift+S, snurraxel"
+    },
+    {
+      "table": "ui",
+      "key": "Updated {n} voxels in the volume.",
+      "source": "Updated {n} voxels in the volume.",
+      "source_sha256": "51ebe73d1467c188e10771da5f6faff0fe601878fdde5de70e840f819178a06f",
+      "translation": "Uppdaterade {n} voxlar i volymen."
+    },
+    {
+      "table": "ui",
+      "key": "Use the High contrast theme: white text and outlines on black with a yellow accent. Clear it to go back to the theme you had. The Theme control under Appearance shows the same choice.",
+      "source": "Use the High contrast theme: white text and outlines on black with a yellow accent. Clear it to go back to the theme you had. The Theme control under Appearance shows the same choice.",
+      "source_sha256": "80a8dfd1c4bd236a679c952261dbd3fd32cb1764fa68e3b802f3d4de23cb8b09",
+      "translation": "Använd temat Hög kontrast: vit text och vita konturer på svart med en gul accent. Avmarkera för att gå tillbaka till temat du hade. Reglaget Tema under Utseende visar samma val."
+    },
+    {
+      "table": "ui",
+      "key": "When spaCR starts, the logo photomosaic blows away tile by tile to reveal the window. Off shows the mosaic without the animation. Reduce motion also turns it off. A click or a key skips it.",
+      "source": "When spaCR starts, the logo photomosaic blows away tile by tile to reveal the window. Off shows the mosaic without the animation. Reduce motion also turns it off. A click or a key skips it.",
+      "source_sha256": "2b6557a4f76db526ab933d744a2f782bdef518a0fad1de80f1e5c531a9a78969",
+      "translation": "När spaCR startar blåser logotypens fotomosaik bort bricka för bricka och avslöjar fönstret. Av visar mosaiken utan animationen. Minska rörelse stänger också av den. Ett klick eller en tangent hoppar över den."
+    },
+    {
+      "table": "ui",
+      "key": "{files} has no 'pred' column. 'pred' is the classifier probability that Classify writes to <date>_<dataset>_<model>_result.csv next to the tar (ML scoring writes results/<model>/<features>/results.csv). Run Classify and point the score file at that output, or pick a response from the list. Columns you can use: {columns}.",
+      "source": "{files} has no 'pred' column. 'pred' is the classifier probability that Classify writes to <date>_<dataset>_<model>_result.csv next to the tar (ML scoring writes results/<model>/<features>/results.csv). Run Classify and point the score file at that output, or pick a response from the list. Columns you can use: {columns}.",
+      "source_sha256": "c3c3594b8fbe46f282a7528f0a3f8f3de7c292467b77e4df9466faa5adbfbc08",
+      "translation": "{files} har ingen 'pred'-kolumn. 'pred' är klassificerarens sannolikhet som Classify skriver till <date>_<dataset>_<model>_result.csv bredvid tar-filen (ML-poängsättning skriver results/<model>/<features>/results.csv). Kör Classify och peka poängfilen mot den utdatan, eller välj ett svar i listan. Kolumner du kan använda: {columns}."
+    },
+    {
+      "table": "ui",
+      "key": "{name!r} is not a numeric column of the score file. Columns you can use: {columns}.",
+      "source": "{name!r} is not a numeric column of the score file. Columns you can use: {columns}.",
+      "source_sha256": "de2e12b690f0668d0f77fd7e029a332dd96e2891f0381d5d6a89ce8f1603e82d",
+      "translation": "{name!r} är inte en numerisk kolumn i poängfilen. Kolumner du kan använda: {columns}."
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {n} slices, voxel size {spacing} {unit}. Page Up and Page Down change the slice.",
+      "source": "{name}: {n} slices, voxel size {spacing} {unit}. Page Up and Page Down change the slice.",
+      "source_sha256": "f5da3d83e385b7b05063fa34b3a61ad060070cabb1a0f90f87528420ee0715e2",
+      "translation": "{name}: {n} snitt, voxelstorlek {spacing} {unit}. Page Up och Page Down byter snitt."
+    },
+    {
+      "table": "ui",
+      "key": "{n} objects in the volume",
+      "source": "{n} objects in the volume",
+      "source_sha256": "54f0656294bbec4d9df8eb76ba71d572229fa05d13d19b8ba4af4dddae849eff",
+      "translation": "{n} objekt i volymen"
+    }
+  ]
+}

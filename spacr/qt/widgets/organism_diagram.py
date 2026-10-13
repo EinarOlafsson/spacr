@@ -1,0 +1,658 @@
+"""Offline SwissBioPics cells with selectable UniProt compartment labels.
+
+The Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's ParaScape
+``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea).
+Artwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany
+the SVGs. Only the rendered copy loses hidden metadata and its credit logo;
+the original asset and visible attribution are retained. No PyQt6 import,
+network request or measured localization data is involved.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+from copy import deepcopy
+import xml.etree.ElementTree as ET
+import numpy as np
+
+from PySide6.QtCore import QByteArray, QEvent, QRect, QRectF, Qt, Signal
+from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
+from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtWidgets import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget
+
+from ..i18n import tr
+from ..preferences import scaled_px
+
+
+COMPARTMENT_SL = {
+    "rhoptries 1": "SL0233", "rhoptries 2": "SL0233",
+    "micronemes": "SL0163", "dense granules": "SL0281",
+    "apicoplast": "SL0018", "IMC": "SL0362",
+    "mitochondrion - soluble": "SL0173",
+    "mitochondrion - membranes": "SL0171",
+    "Golgi": "SL0132", "ER": "SL0095", "ER 2": "SL0095",
+    "nucleus - chromatin": "SL0191", "nucleus - non-chromatin": "SL0191",
+    "nucleolus": "SL0188", "cytosol": "SL0091",
+    "PM - integral": "SL0039", "PM - peripheral 1": "SL0039",
+    "PM - peripheral 2": "SL0039", "tubulin cytoskeleton": "SL0090",
+}
+"""Toxoplasma hyperLOPIT display labels mapped to UniProt SL identifiers.
+
+Several labels share a location. The mitochondrial membrane label retains
+``SL0171`` as its identifier and uses the ``SL0173`` outline when drawn.
+"""
+APICOMPLEXAN_LABELS = {
+    "Rhoptries": "SL0233", "Micronemes": "SL0163", "Apicoplast": "SL0018",
+    "Inner membrane complex": "SL0362", "Mitochondrion": "SL0173",
+    "Golgi apparatus": "SL0132", "Endoplasmic reticulum": "SL0095",
+    "Nucleus": "SL0191", "Nucleolus": "SL0188", "Cytosol": "SL0091",
+    "Cell membrane": "SL0039", "Microtubule cytoskeleton": "SL0090",
+}
+"""Shared apicomplexan compartment labels mapped to UniProt SL identifiers."""
+YEAST_LABELS = {
+    "Bud": "SL0027", "Bud neck": "SL0029", "Cell wall": "SL0041",
+    "Cell membrane": "SL0039", "Nucleus": "SL0191", "Nucleolus": "SL0188",
+    "Mitochondrion": "SL0173", "Golgi apparatus": "SL0132",
+    "Endoplasmic reticulum": "SL0095", "Vacuole": "SL0272",
+}
+"""Generic budding-yeast compartment labels mapped to UniProt SL identifiers."""
+_TRYPANOSOMA_LABELS = {
+    "Flagellum": "SL0117", "Flagellum axoneme": "SL0114",
+    "Flagellum basal body": "SL0308", "Kinetoplast": "SL0150",
+    "Mitochondrion": "SL0173", "Glycosome": "SL0129", "Nucleus": "SL0191",
+    "Nucleolus": "SL0188", "Endoplasmic reticulum": "SL0095",
+    "Lysosome": "SL0158", "Cell membrane": "SL0039",
+    "Cytoskeleton": "SL0090", "Cytosol": "SL0091",
+}
+_LEISHMANIA_LABELS = {
+    "Flagellum": "SL0117", "Kinetoplast": "SL0150",
+    "Mitochondrion": "SL0173", "Glycosome": "SL0129", "Nucleus": "SL0191",
+    "Nucleolus": "SL0188", "Endoplasmic reticulum": "SL0095",
+    "Lysosome": "SL0158", "Cell membrane": "SL0039",
+    "Cytoskeleton": "SL0090", "Cytosol": "SL0091",
+}
+_GIARDIA_LABELS = {
+    "Flagellum": "SL0117", "Flagellum axoneme": "SL0114",
+    "Flagellum basal body": "SL0308", "Cytoskeleton": "SL0090",
+    "Microtubule organizing center": "SL0484", "Nucleus": "SL0191",
+    "Nucleolus": "SL0188", "Endoplasmic reticulum": "SL0095",
+    "Cell membrane": "SL0039", "Cytosol": "SL0091",
+}
+_VIRUS_LABELS = {
+    "Virion": "SL0274", "Virion membrane": "SL0275",
+    "Virion tegument": "SL0273", "Host cell membrane": "SL0375",
+    "Host cytoplasm": "SL0381", "Host perinuclear region": "SL0382",
+    "Host cytoskeleton": "SL0383", "Host endoplasmic reticulum": "SL0388",
+    "Host Golgi apparatus": "SL0395", "Host endosome": "SL0393",
+    "Host mitochondrion": "SL0407", "Host nucleus": "SL0414",
+    "Host nucleolus": "SL0412",
+}
+_MAMMALIAN_LABELS = {
+    "Cell membrane": "SL0039", "Extracellular matrix": "SL0111",
+    "Cilium": "SL0066", "Centrosome": "SL0048", "Cytoskeleton": "SL0090",
+    "Cytosol": "SL0091", "Nucleus": "SL0191", "Nucleolus": "SL0188",
+    "Nucleus speckle": "SL0186", "Mitochondrion": "SL0173",
+    "Endoplasmic reticulum": "SL0095", "Golgi apparatus": "SL0132",
+    "Endosome": "SL0101", "Lysosome": "SL0158",
+}
+_ORGANISM_LABELS = {
+    "toxoplasma": COMPARTMENT_SL, "plasmodium": APICOMPLEXAN_LABELS,
+    "candida": YEAST_LABELS, "trypanosoma": _TRYPANOSOMA_LABELS,
+    "leishmania": _LEISHMANIA_LABELS, "giardia": _GIARDIA_LABELS,
+    "virus": _VIRUS_LABELS, "mammalian": _MAMMALIAN_LABELS,
+}
+"""Each organism page's selectable labels, keyed by its app key.
+
+The trypanosomatid, Giardia, virus and mammalian sets keep the UniProt
+location names and are the locations UniProt annotates for that taxon
+(Trypanosoma 5690, Leishmania 5658, Giardia 5740, Viruses 10239, Mammalia
+40674) that are drawn in the bundled artwork.
+"""
+_PORTRAIT_ORGANISMS = frozenset({"toxoplasma", "plasmodium", "leishmania"})
+
+
+def _compartment_labels(app_key: str) -> dict:
+    """The compartment labels one organism page offers.
+
+    :param app_key: the organism page key.
+    :returns: display label to UniProt SL identifier; the shared
+        apicomplexan set for an unknown key.
+    """
+    return _ORGANISM_LABELS.get(app_key, APICOMPLEXAN_LABELS)
+_SVG = "{http://www.w3.org/2000/svg}"
+_COMPARTMENT_COLOURS = {
+    "SL0091": "#eee6d9", "SL0233": "#df96af", "SL0163": "#e2bc70",
+    "SL0281": "#b9a2ce", "SL0018": "#8ec7ae", "SL0362": "#9bc8cb",
+    "SL0173": "#e8ae87", "SL0171": "#d18e6f", "SL0132": "#87bfcf",
+    "SL0095": "#b0c4ce", "SL0191": "#b8b6d9", "SL0188": "#9998c6",
+    "SL0039": "#9daec0", "SL0090": "#b7c88e", "SL0027": "#b5d2ba",
+    "SL0029": "#99b5a8", "SL0041": "#d6c6a4", "SL0272": "#b4d4d4",
+    "SL0117": "#c9b37e", "SL0114": "#d8c48f", "SL0308": "#a99a6c",
+    "SL0150": "#d48f8f", "SL0129": "#a6c98f", "SL0158": "#cf9bc0",
+    "SL0484": "#b7a6d6", "SL0274": "#e39a8a", "SL0275": "#d7b17c",
+    "SL0273": "#c49ad0", "SL0375": "#9daec0", "SL0381": "#eee6d9",
+    "SL0382": "#d8cbb4", "SL0383": "#b7c88e", "SL0388": "#b0c4ce",
+    "SL0395": "#87bfcf", "SL0393": "#a4b9d9", "SL0407": "#e8ae87",
+    "SL0414": "#b8b6d9", "SL0412": "#9998c6", "SL0111": "#c8bba0",
+    "SL0066": "#c9b37e", "SL0048": "#b7a6d6", "SL0186": "#a9a7e0",
+    "SL0101": "#a4b9d9",
+}
+
+
+def _clean_tree(source: str):
+    """Remove metadata and canvas decoration while retaining compartment geometry."""
+    root = ET.fromstring(source)
+    canvas_width = float(root.get("viewBox").split()[2])
+    for parent in list(root.iter()):
+        for child in list(parent):
+            tag = child.tag.removeprefix(_SVG)
+            if (tag in {"text", "a"} or child.get("id") == "sib_copyright"
+                    or child.get("id") == "path_1_"
+                    or (tag == "rect" and float(child.get("width", "0"))
+                        >= canvas_width * 0.95)
+                    or (tag == "g" and not len(child) and not child.get("id"))):
+                parent.remove(child)
+            elif tag == "path" and child.get("d", "").startswith("M0,0"):
+                child.set("fill", "none")
+                child.set("stroke", "none")
+    return root
+
+
+def _render_tree(root, *, portrait: bool, solid: bool = False) -> bytes:
+    """Build white outlines or solid hit geometry, with the apical end upward."""
+    root = deepcopy(root)
+    for node in root.iter():
+        if node.tag.removeprefix(_SVG) not in {
+                "path", "rect", "circle", "ellipse", "polygon", "polyline", "line"}:
+            continue
+        if node.get("d", "").startswith("M0,0"):
+            node.set("style", "fill:none;stroke:none")
+            continue
+        fill = "#ffffff" if solid and node.get("fill") not in {"none", "transparent"} else "none"
+        node.set("style", f"fill:{fill};stroke:#ffffff;stroke-width:1.4;stroke-opacity:1;fill-opacity:1")
+        node.set("fill", fill)
+        node.set("stroke", "#ffffff")
+    if portrait:
+        x, y, width, height = map(float, root.get("viewBox").split())
+        group = ET.Element(_SVG + "g", {"transform": f"rotate(90) translate({-x:g} {-(y + height):g})"})
+        for child in list(root):
+            root.remove(child)
+            group.append(child)
+        root.append(group)
+        root.set("viewBox", f"0 0 {height:g} {width:g}")
+    return ET.tostring(root, encoding="utf-8")
+
+
+def _diagram_svg(source: str, *, portrait: bool = True) -> bytes:
+    """Return upright white outlines.
+
+    Interactive fills are painted from compartment masks by _CellArtwork,
+    so no selection changes or replaces the original bundled artwork.
+    """
+    return _render_tree(_clean_tree(source), portrait=portrait)
+
+
+_PREPARED: dict = {}
+
+
+def _prepared_artwork(source: str, portrait: bool):
+    """The cleaned tree and the outline SVG of ``source``, computed once.
+
+    Pages that share a drawing, and a second visit to one page, reuse the
+    first parse instead of cleaning and re-serialising the markup again on
+    the GUI thread. Nothing here touches Qt, so the background warm-up can
+    fill it.
+
+    :param source: the SVG markup as bundled.
+    :param portrait: whether the page draws the cell upright.
+    :returns: ``(tree, outline_bytes)``; callers must not change the tree.
+    """
+    key = (source, bool(portrait))
+    found = _PREPARED.get(key)
+    if found is None:
+        tree = _clean_tree(source)
+        found = (tree, _render_tree(tree, portrait=portrait))
+        _PREPARED[key] = found
+    return found
+
+
+_DESCRIPTIONS: dict = {}
+
+
+def _compartment_descriptions(source: str) -> dict:
+    """Each compartment's description text from ``source``, parsed once.
+
+    :param source: the SVG markup as bundled.
+    :returns: compartment id to its description; callers copy it.
+    """
+    found = _DESCRIPTIONS.get(source)
+    if found is None:
+        root = ET.fromstring(source)
+        found = {node.get("id"): " ".join(text.itertext()).strip()
+                 for node in root.iter() for text in node.findall(_SVG + "text")
+                 if text.get("property") == "description"}
+        _DESCRIPTIONS[source] = found
+    return found
+
+
+def _warm_the_artwork() -> int:
+    """Prepare every organism page's drawing ahead of its first open.
+
+    Safe on a worker thread: it reads the bundled SVGs and fills
+    :func:`_prepared_artwork`'s cache, and builds no Qt object.
+
+    :returns: how many drawings were prepared.
+    """
+    from ..organisms import ORGANISMS
+
+    images = Path(__file__).resolve().parents[2] / "resources" / "images"
+    done = 0
+    for app_key, organism in ORGANISMS.items():
+        name = organism.get("diagram") if isinstance(organism, dict) else None
+        if not name:
+            continue
+        try:
+            source = (images / name).read_text(encoding="utf-8")
+            _prepared_artwork(source, app_key in _PORTRAIT_ORGANISMS)
+            _compartment_descriptions(source)
+        except Exception:                                    # noqa: BLE001
+            continue
+        done += 1
+    return done
+
+
+class _CellArtwork(QWidget):
+    """White compartment outlines, colored selections and pixel-accurate hover."""
+
+    hovered = Signal(str)
+    clicked = Signal(str)
+
+    def __init__(self, source: str, parent=None, *, portrait=True, locations=()):
+        """Keep original markup and render it without hidden annotations."""
+        super().__init__(parent)
+        self.source = source
+        self.portrait = portrait
+        self.tree, outline = _prepared_artwork(source, portrait)
+        self._art = None
+        self._art_key = None
+        self.locations = tuple(dict.fromkeys("SL0173" if code == "SL0171" else code for code in locations))
+        self.selected = set()
+        self.hover_location = ""
+        self._masks = {}
+        self._masks_size = None
+        self.renderer = QSvgRenderer(self)
+        self.renderer.load(QByteArray(outline))
+        self.setMinimumHeight(scaled_px(360))
+        self.setMaximumHeight(scaled_px(560))
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.setMouseTracking(True)
+
+    def select(self, locations) -> None:
+        """Keep any number of SL locations filled until they are deselected."""
+        if isinstance(locations, str):
+            locations = [locations] if locations else []
+        self.selected = {"SL0173" if code == "SL0171" else code for code in locations}
+        self.update()
+
+    def _target(self) -> QRectF:
+        """Fit the rotated artwork inside the rounded panel with a small margin."""
+        size = self.renderer.viewBoxF().size()
+        scale = min(max(1, self.width()-24) / size.width(), max(1, self.height()-24) / size.height())
+        width, height = size.width() * scale, size.height() * scale
+        return QRectF((self.width()-width)/2, (self.height()-height)/2, width, height)
+
+    def masks(self) -> dict:
+        """Cache each compartment's real painted pixels, not its bounding box."""
+        size = (self.width(), self.height())
+        if self._masks_size == size:
+            return self._masks
+        groups = {node.get("id"): node for node in self.tree.iter()}
+        masks = {}
+        for code in self.locations:
+            if code not in groups:
+                continue
+            root = ET.Element(self.tree.tag, self.tree.attrib)
+            for defs in self.tree.findall(_SVG + "defs"):
+                root.append(deepcopy(defs))
+            root.append(deepcopy(groups[code]))
+            renderer = QSvgRenderer(QByteArray(_render_tree(root, portrait=self.portrait, solid=True)))
+            picture = QImage(max(1, size[0]), max(1, size[1]), QImage.Format_RGBA8888)
+            picture.fill(Qt.transparent)
+            painter = QPainter(picture)
+            renderer.render(painter, self._target())
+            painter.end()
+            pixels = np.frombuffer(picture.bits(), dtype=np.uint8).reshape(picture.height(), picture.bytesPerLine())
+            covered = pixels[:, 3:picture.width()*4:4] > 40
+            masks[code] = (picture, covered.copy(), int(covered.sum()))
+        self._masks, self._masks_size = masks, size
+        return masks
+
+    def organelle_at(self, x: float, y: float) -> str:
+        """Hit the smallest actual shape under the pointer, including nested organelles."""
+        x, y = int(x), int(y)
+        if not (0 <= x < self.width() and 0 <= y < self.height()):
+            return ""
+        hits = [(area, code) for code, (_, covered, area) in self.masks().items() if covered[y, x]]
+        return min(hits)[1] if hits else ""
+
+    def set_hover(self, location: str) -> None:
+        """Update transient highlighting without changing persistent selections."""
+        location = "SL0173" if location == "SL0171" else location
+        if self.hover_location != location:
+            self.hover_location = location
+            self.hovered.emit(location)
+            self.update()
+
+    def mouseMoveEvent(self, event) -> None:
+        """Link the compartment under the pointer to the legend below."""
+        self.set_hover(self.organelle_at(event.position().x(), event.position().y()))
+
+    def leaveEvent(self, event) -> None:
+        """Clear transient color while keeping checked compartments filled."""
+        self.set_hover("")
+        super().leaveEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:
+        """Toggle the clicked anatomical component without clearing other selections."""
+        if event.button() == Qt.LeftButton:
+            location = self.organelle_at(event.position().x(), event.position().y())
+            if location:
+                self.clicked.emit(location)
+
+    def paintEvent(self, event) -> None:
+        """Paint, timed on the timing timeline when timing is on."""
+        from .. import timing as _timing
+
+        with _timing.span("paint", "organism artwork"):
+            self._paint_organism_artwork(event)
+
+    def _paint_organism_artwork(self, event) -> None:
+        """Paint colored masks under white outlines on a translucent black panel."""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setPen(QPen(QColor(255, 255, 255, 35), 1))
+        painter.setBrush(self.panel_color())
+        painter.drawRoundedRect(QRectF(self.rect()).adjusted(1, 1, -1, -1), scaled_px(14), scaled_px(14))
+        active = self.selected | ({self.hover_location} if self.hover_location else set())
+        masks = self.masks() if active else {}
+        for code in sorted(active, key=lambda key: masks.get(key, (None,None,0))[2], reverse=True):
+            if code not in masks:
+                continue
+            colored = masks[code][0].copy()
+            tint = QPainter(colored)
+            tint.setCompositionMode(QPainter.CompositionMode_SourceIn)
+            tint.fillRect(colored.rect(), QColor(_COMPARTMENT_COLOURS.get(code, "#73cfce")))
+            tint.end()
+            painter.setOpacity(0.75)
+            painter.drawImage(0, 0, colored)
+        painter.setOpacity(1)
+        painter.drawPixmap(0, 0, self._outline_pixmap())
+        painter.end()
+
+    def _outline_pixmap(self) -> QPixmap:
+        """The outlines drawn once per size and pixel density, then reused.
+
+        Every repaint (a hover, a breath while a page opens, the backdrop
+        moving behind it) used to render the whole SVG again.
+        """
+        ratio = max(1.0, float(self.devicePixelRatioF()))
+        key = (self.width(), self.height(), ratio)
+        if self._art is None or self._art_key != key:
+            art = QPixmap(max(1, round(self.width() * ratio)),
+                          max(1, round(self.height() * ratio)))
+            art.setDevicePixelRatio(ratio)
+            art.fill(Qt.transparent)
+            painter = QPainter(art)
+            painter.setRenderHint(QPainter.Antialiasing)
+            self.renderer.render(painter, self._target())
+            painter.end()
+            self._art, self._art_key = art, key
+        return self._art
+
+    @staticmethod
+    def panel_color() -> QColor:
+        """Keep the black panel as transparent as the current Home module tiles."""
+        from ..preferences import get_pane_opacity, resolve_effective_theme
+        from ..theme import panel_alpha
+
+        alpha = panel_alpha(resolve_effective_theme(), "tile", get_pane_opacity())
+        return QColor(0, 0, 0, round(alpha * 255))
+
+
+class _ReservedColumn(QVBoxLayout):
+    """The diagram's column, which answers its height before it is resized.
+
+    A parent layout asks a widget with a layout for that LAYOUT's height at
+    a width, not the widget's, and a plain column adds up the heights its
+    rows were last fixed to -- the heights for the previous width. So a pane
+    made wider laid the diagram out at its old height and only corrected it
+    in a second pass, after :meth:`OrganismDiagram.resizeEvent` had fixed
+    the rows: in between, the diagram was 157 px too tall with the artwork
+    52 px low inside it, and the first hover was what let the page settle,
+    so the text under the model jumped on a hover.
+
+    :param owner: the diagram whose reserved heights this column reports.
+    """
+
+    def __init__(self, owner: "OrganismDiagram"):
+        """Lay out ``owner`` and answer for its reserved heights."""
+        super().__init__(owner)
+        self._owner = owner
+
+    def hasHeightForWidth(self) -> bool:
+        """Yes, once the rows exist: both follow the width."""
+        return hasattr(self._owner, "caption")
+
+    def heightForWidth(self, width: int) -> int:
+        """The model row, the spacing and the reserved caption at ``width``.
+
+        :param width: the width the parent is about to give the diagram.
+        :returns: the height the rows will be fixed to at that width.
+        """
+        if not hasattr(self._owner, "caption"):
+            return super().heightForWidth(width)
+        row, caption = self._owner._reserved_heights(width)
+        return row + max(0, self.spacing()) + caption
+
+
+class OrganismDiagram(QWidget):
+    """A cell illustration and keyboard-accessible compartment selector.
+
+    :param app_key: organism key; only Toxoplasma uses hyperLOPIT labels,
+        and only the apicomplexan and Leishmania pages are turned upright.
+    :param path: bundled SVG path; no external resource is fetched.
+    :param parent: owning Qt widget.
+    """
+
+    def __init__(self, app_key: str, path: Path, parent=None):
+        """Build upright artwork, a multi-select legend and compartment descriptions."""
+        super().__init__(parent)
+        self.labels = _compartment_labels(app_key)
+        self.setObjectName("OrganismDiagram")
+        layout = _ReservedColumn(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self._layout_width = None
+        self._model_row = QWidget(self)
+        row = QHBoxLayout(self._model_row)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(scaled_px(10))
+        self._legend = QWidget(self._model_row)
+        self._legend.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        legend_layout = QVBoxLayout(self._legend)
+        legend_layout.setContentsMargins(0, 0, 0, 0)
+        row.addWidget(self._legend, 45)
+        layout.addWidget(self._model_row)
+        source = path.read_text(encoding="utf-8")
+        self.descriptions = dict(_compartment_descriptions(source))
+        self.artwork = _CellArtwork(source, self, portrait=app_key in _PORTRAIT_ORGANISMS, locations=self.labels.values())
+        self.artwork.setAccessibleName(tr("Cell compartments"))
+        row.addWidget(self.artwork, 55)
+        label = QLabel(tr("hyperLOPIT compartment") if app_key == "toxoplasma"
+                       else tr("UniProt compartment"))
+        self.selector = QListWidget(self)
+        self.selector.setSelectionMode(QAbstractItemView.NoSelection)
+        self.selector.setMouseTracking(True)
+        self.selector.viewport().installEventFilter(self)
+        self.selector.setWordWrap(True)
+        self.selector.setTextElideMode(Qt.ElideNone)
+        self.selector.setMinimumWidth(0)
+        self.selector.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
+        self.selector.setAccessibleName(label.text())
+        label.setBuddy(self.selector)
+        for name, location in self.labels.items():
+            item = QListWidgetItem(tr(name), self.selector)
+            item.setData(Qt.UserRole, location)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Unchecked)
+            item.setToolTip(tr(self.descriptions.get(location, "")))
+        label.setWordWrap(True)
+        label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        legend_layout.addWidget(label)
+        legend_layout.addWidget(self.selector, 1)
+        self.clear_button = QPushButton(tr("Clear components"), self)
+        self.clear_button.clicked.connect(self.clear_components)
+        legend_layout.addWidget(self.clear_button)
+        self.caption = QLabel()
+        self.caption.setTextFormat(Qt.PlainText)
+        self.caption.setWordWrap(True)
+        self.caption.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.caption.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        self.caption.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(self.caption)
+        self.selector.itemChanged.connect(self._select)
+        self.selector.itemEntered.connect(lambda item: self.artwork.set_hover(item.data(Qt.UserRole)))
+        self.artwork.hovered.connect(self._describe)
+        self.artwork.clicked.connect(self._toggle_location)
+        self._select()
+
+    def resizeEvent(self, event) -> None:
+        """Reserve the longest caption once per width; hover never changes geometry.
+
+        :param event: Qt resize event forwarded to the parent widget.
+        :returns: None.
+        """
+        super().resizeEvent(event)
+        self._fit_width()
+
+    def _reserved_heights(self, width: int) -> tuple:
+        """Timed wrapper of :meth:`_measure_reserved_heights`."""
+        from .. import timing as _timing
+
+        with _timing.span("organism heights", str(width)):
+            return self._measure_reserved_heights(width)
+
+    def _measure_reserved_heights(self, width: int) -> tuple:
+        """The model row's and the caption's heights at ``width``.
+
+        The caption reserves the longest description any compartment can
+        show, so hovering never changes the height.
+
+        :param width: the diagram's width in pixels.
+        :returns: ``(model row height, caption height)``.
+        """
+        cached = getattr(self, "_reserved_cache", None)
+        if cached is not None and cached[0] == width:
+            return cached[1]
+        artwork_width = max(1, (width - scaled_px(10)) * 0.55)
+        row = min(scaled_px(560), max(scaled_px(360), round(artwork_width * 1.25 + 24)))
+        metrics = self.caption.fontMetrics()
+        locations = {"", *self.labels.values()}
+        heights = [metrics.boundingRect(QRect(0, 0, max(1, width), 100000), Qt.TextWordWrap,
+                                       self._description_text(code)).height()
+                   for code in locations]
+        answer = (row, max(heights) + scaled_px(6))
+        self._reserved_cache = (width, answer)
+        return answer
+
+    def _fit_width(self) -> None:
+        """Size the model row and all possible descriptions using this width and font.
+
+        The column is laid out again at once: Qt placed the rows at their
+        old heights before this resize reached the diagram, and waiting for
+        the posted relayout would show the artwork and caption there for a
+        frame.
+        """
+        if not hasattr(self, "caption") or self.width() == self._layout_width:
+            return
+        self._layout_width = self.width()
+        row, caption = self._reserved_heights(self.width())
+        self._model_row.setFixedHeight(row)
+        self.caption.setFixedHeight(caption)
+        self.layout().activate()
+
+    def changeEvent(self, event) -> None:
+        """Recompute reserved text space after an explicit font or language change.
+
+        :param event: Qt change event; font and language changes invalidate the layout.
+        :returns: None.
+        """
+        super().changeEvent(event)
+        if event.type() in (QEvent.FontChange, QEvent.LanguageChange):
+            self._layout_width = None
+            self._reserved_cache = None
+            self._fit_width()
+            self.updateGeometry()
+
+    def clear_components(self) -> None:
+        """Clear all persistent selections and the transient compartment highlight."""
+        self.selector.blockSignals(True)
+        for index in range(self.selector.count()):
+            self.selector.item(index).setCheckState(Qt.Unchecked)
+        self.selector.blockSignals(False)
+        self.artwork.set_hover("")
+        self._select()
+
+    def _select(self, *_args) -> None:
+        """Update all checked compartments while retaining independent selections."""
+        items = [self.selector.item(i) for i in range(self.selector.count())]
+        selected = [item.data(Qt.UserRole) for item in items if item.checkState() == Qt.Checked]
+        self.artwork.select(selected)
+        location = self.artwork.hover_location or (selected[-1] if selected else "")
+        self._describe(location)
+
+    def _toggle_location(self, location: str) -> None:
+        """Toggle a shared anatomical shape; individual LOPIT classes remain selectable below."""
+        matches = [self.selector.item(i) for i in range(self.selector.count())
+                   if ("SL0173" if self.selector.item(i).data(Qt.UserRole) == "SL0171"
+                       else self.selector.item(i).data(Qt.UserRole)) == location]
+        checked = any(item.checkState() == Qt.Checked for item in matches)
+        for item in matches:
+            item.setCheckState(Qt.Unchecked if checked else Qt.Checked)
+
+    def _describe(self, location: str) -> None:
+        """Color matching legend entries and explain the hovered UniProt/LOPIT location."""
+        self.selector.blockSignals(True)
+        for i in range(self.selector.count()):
+            item = self.selector.item(i)
+            code = item.data(Qt.UserRole)
+            target = "SL0173" if code == "SL0171" else code
+            active = item.checkState() == Qt.Checked or target == location
+            item.setForeground(QColor(_COMPARTMENT_COLOURS.get(target, "#73cfce")) if active else self.palette().text())
+        self.selector.blockSignals(False)
+        self.caption.setText(self._description_text(location))
+
+    def _description_text(self, location: str) -> str:
+        """Return one location's description without changing the current layout."""
+        if not location:
+            return tr("Hover over the cell to identify a compartment. Check several labels to keep them highlighted.")
+        shared = [tr(name) for name, code in self.labels.items() if code == location]
+        text = f'{location[:2]}-{location[2:]} · ' + " / ".join(shared)
+        description = self.descriptions.get(location, "")
+        if description:
+            text += "\n" + tr(description)
+        if len(shared) > 1:
+            text += "\n" + tr("These LOPIT classes share one anatomical outline; the diagram does not distinguish their protein populations.")
+        if location == "SL0171":
+            text += "\n" + tr("The membrane label uses the mitochondrial outline; it has no separate shape.")
+        return text
+
+    def eventFilter(self, watched, event):
+        """End the legend's transient highlight when the pointer leaves it.
+
+        :param watched: object receiving the event; only the legend viewport
+            triggers highlight removal.
+        :param event: Qt event, inspected for a pointer-leave notification.
+        :returns: the parent widget's event-filter result.
+        """
+        if watched is self.selector.viewport() and event.type() == QEvent.Leave:
+            self.artwork.set_hover("")
+        return super().eventFilter(watched, event)

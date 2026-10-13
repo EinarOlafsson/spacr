@@ -1,0 +1,34 @@
+{
+  "lesson": "47_barcode_qc",
+  "english_sha256": "189d9466d15df859444f28e70fed0f6ef73597559efd8b96ef17b7e7e2930940",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Barcode QC: Lesetiefe prüfen und einen Schwellenwert wählen",
+  "description": "Laden Sie zugeordnete Zählungen, prüfen Sie die Abdeckung von Wells und Guides und vergleichen Sie Häufigkeitsschwellen.",
+  "objectives": [
+    "Zähleingaben und QC-Einstellungen wählen.",
+    "Abdeckung und Positionseffekte prüfen.",
+    "Schwellenwerte vergleichen und die entstandenen Tabellen und Diagramme aufbewahren."
+  ],
+  "prerequisite": "Verwenden Sie plate_1_unique_combinations.csv aus den im Regression-Tutorial heruntergeladenen Beispiel-Screen-Daten oder Ihre eigene Tabelle zugeordneter Zählungen. Wählen Sie einen neuen Ausgabeordner. Stellen Sie Mapping-QC- und Barcode-Referenzdateien bereit, wenn Sie Prüfungen benötigen, die von nicht zugeordneten Reads oder der erwarteten Bibliothek abhängen.",
+  "scenes": [
+    "Öffnen Sie Map Barcodes und dann Barcode QC. Beginnen Sie mit einer Tabelle zugeordneter Zählungen; das verlinkte Regression-Beispiel liefert eine zum Üben.",
+    "Setzen Sie Count data auf Ihre Zähltabelle und wählen Sie ein neues Ausgabeziel. Das Beispiel enthält zugeordnete Reads über 384 Wells.",
+    "Legen Sie Target gRNAs per well nach Ihrem Versuchsplan fest und wählen Sie die Zusammenfassungsmethode, aus der der Schwellenwert abgeleitet wird. Das Beispiel verwendet 5 und median.",
+    "Legen Sie Starved read fraction fest, um Wells mit wenigen Reads im Verhältnis zum Plattenmedian zu markieren. Das Beispiel verwendet 0,1. Prüfen Sie markierte Wells, bevor Sie sie ausschließen.",
+    "Aktivieren Sie Plot und Save und drücken Sie dann Run. Fügen Sie Mapping-QC- oder Referenzeingaben hinzu, wenn Sie die entsprechenden Prüfungen möchten; die Zähltabelle allein beschreibt die beobachteten zugeordneten Reads.",
+    "Lesen Sie das Abschlussprotokoll und die gespeicherten Ausgabepfade. Untersuchen Sie Fehler anhand der gewählten Eingaben, bevor Sie die Ergebnisse verwenden.",
+    "Öffnen Sie barcode_qc.png und threshold_sweep.png im Ausgabeordner. Verwenden Sie einen Bildbetrachter, wenn der Bereich Figures leer ist.",
+    "Prüfen Sie Lesetiefe, Zeilen- und Spalteneffekte und die Repräsentation der Guides. Vergleichen Sie mit einer Referenzbibliothek, wenn Sie erwartete Guides finden müssen, die vollständig fehlen.",
+    "Prüfen Sie den Schwellenwert-Sweep. In diesem Beispiel ergibt ein Schwellenwert von etwa 1,21 % der Reads jedes Wells einen Median von fünf Guides und behält etwa 58 % der zugeordneten Reads.",
+    "Vergleichen Sie beim Verändern des Schwellenwerts behaltene Reads, behaltene Wells und Wells oberhalb des Guide-Ziels. Wählen Sie einen für Ihr Design geeigneten Schwellenwert; das Guide-Ziel belegt keine Zuordnung zu einem einzelnen Guide.",
+    "Bewahren Sie Empfehlung, Sweep-Tabelle, Diagramme und Einstellungen zusammen mit den Quellzählungen auf. Verwenden Sie den gewählten Schwellenwert in der weiteren Analyse einheitlich und dokumentieren Sie den Grund Ihrer Wahl."
+  ]
+}

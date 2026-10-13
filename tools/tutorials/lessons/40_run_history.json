@@ -1,0 +1,151 @@
+{
+  "id": "40_run_history",
+  "number": 40,
+  "slug": "run_history",
+  "series": 5,
+  "app_key": "run_history",
+  "section": "Data and batch runs",
+  "title": "Run History: inspect past jobs and restore settings",
+  "description": "Find saved runs, inspect settings and logs, and load a previous configuration into its module.",
+  "objectives": [
+    "Find runs using filters and search.",
+    "Inspect saved settings, files and problems.",
+    "Restore settings for a new run."
+  ],
+  "prerequisite": "Complete a spaCR job to create a local run record. The example browses records from conversion, Recruitment and Regression runs.",
+  "scenes": [
+    {
+      "visual": "01_help_history",
+      "narration": "Open Help, then Run History to browse the run records saved on this computer.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "37_batch",
+        "25_recruitment"
+      ]
+    },
+    {
+      "visual": "02_loaded_history",
+      "narration": "Click Refresh to load available records. Select a run to inspect its details, and drag the divider if you need more room.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_batch_search",
+      "narration": "Choose a module and status, then enter a search term to narrow the list. For example, select convert and Success to find completed conversions.",
+      "hold_after": 0.7,
+      "focus": [
+        340,
+        175,
+        3480,
+        180
+      ]
+    },
+    {
+      "visual": "04_batch_empty_inventory",
+      "narration": "Open Files and models for recorded input and output details. Runs that skipped file hashing can have an empty inventory; use the output paths in settings or logs to find their results.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        710,
+        1500,
+        580
+      ],
+      "related_lessons": [
+        "37_batch"
+      ]
+    },
+    {
+      "visual": "05_no_match",
+      "narration": "Clear or adjust the filters if the table is empty. Search terms and status selections work together.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_recruitment_overview",
+      "narration": "Select a Recruitment run and read Overview for its elapsed time and recorded file counts. These summarize that saved execution.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        710,
+        2200,
+        580
+      ],
+      "related_lessons": [
+        "25_recruitment"
+      ]
+    },
+    {
+      "visual": "09_settings_source",
+      "narration": "Open Settings to inspect its source folder, channels and object filters. Scroll through the saved configuration before deciding to reuse it.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        710,
+        3000,
+        1380
+      ]
+    },
+    {
+      "visual": "10_recorded_files",
+      "narration": "Open Files and models to inspect recorded paths, sizes and hashes. Keep the referenced project files available when you need to revisit the analysis.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        710,
+        3000,
+        1380
+      ]
+    },
+    {
+      "visual": "12_hashes_and_seeds",
+      "narration": "Open Environment for recorded software versions and seeds. Use Copy path to locate the run’s journal folder.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        710,
+        2650,
+        1380
+      ]
+    },
+    {
+      "visual": "14_recorded_warning",
+      "narration": "Open Warnings and failure to read warnings attached to a completed run. Investigate relevant warnings before using its results.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        710,
+        3400,
+        340
+      ],
+      "related_lessons": [
+        "13_regression"
+      ]
+    },
+    {
+      "visual": "16_failure_exception",
+      "narration": "Choose Failed to find unsuccessful jobs. Read the traceback and software versions when diagnosing a problem or preparing a bug report.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        710,
+        2450,
+        730
+      ]
+    },
+    {
+      "visual": "18_restored_recruitment",
+      "narration": "Return to the desired run and choose Load settings in module. Review the restored controls and current input paths before pressing Run.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "25_recruitment"
+      ]
+    },
+    {
+      "visual": "17_ready_to_restore",
+      "narration": "Keep the journals you need with your project records. Use Clear all only when you intend to delete run records. Open Report to create a project summary.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "29_report"
+      ]
+    }
+  ]
+}

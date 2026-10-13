@@ -1,0 +1,204 @@
+{
+  "item": 552,
+  "normal_four_field_cuda_mask_execution_accepted": true,
+  "terminal_turn_exit_code": 0,
+  "turn_label": "552-instanseg-current-cuda-20261006-r1",
+  "same_actual_inputs_model_source_and_parameters": true,
+  "fresh_cpu_and_cuda_scored_outputs_independently_recomputed": true,
+  "exact_cpu_cuda_label_parity": false,
+  "cpu_pooled": {
+    "fields": 4,
+    "tp50": 198,
+    "fp50": 11,
+    "fn50": 25,
+    "precision50": 0.9474,
+    "recall50": 0.8879,
+    "f1_50": 0.9167,
+    "tp75": 187,
+    "fp75": 22,
+    "fn75": 36,
+    "precision75": 0.8947,
+    "recall75": 0.8386,
+    "f1_75": 0.8657,
+    "mean_field_f1_50": 0.9091,
+    "n_truth": 223,
+    "n_pred": 209,
+    "negative_field_fp": 0,
+    "iou_mean": 0.8717,
+    "eval_s_median": 2.54,
+    "eval_s_mean": 2.76,
+    "prep_s_mean": 1.05
+  },
+  "cuda_pooled": {
+    "fields": 4,
+    "tp50": 198,
+    "fp50": 10,
+    "fn50": 25,
+    "precision50": 0.9519,
+    "recall50": 0.8879,
+    "f1_50": 0.9188,
+    "tp75": 187,
+    "fp75": 21,
+    "fn75": 36,
+    "precision75": 0.899,
+    "recall75": 0.8386,
+    "f1_75": 0.8677,
+    "mean_field_f1_50": 0.9109,
+    "n_truth": 223,
+    "n_pred": 208,
+    "negative_field_fp": 0,
+    "iou_mean": 0.8714,
+    "eval_s_median": 2.01,
+    "eval_s_mean": 2.12,
+    "prep_s_mean": 1.04
+  },
+  "fields": [
+    {
+      "field": "plate1_E01_10_1",
+      "cpu_objects": 65,
+      "cuda_objects": 64,
+      "exact_label_array_equal": false,
+      "foreground_pixel_agreement": 0.9990357230165924,
+      "cpu_to_cuda_instance_match": {
+        "tp50": 64,
+        "fp50": 0,
+        "fn50": 1,
+        "f1_50": 0.9922,
+        "precision50": 1.0,
+        "recall50": 0.9846,
+        "iou_sum": 63.95234681169719,
+        "iou_mean": 0.9993,
+        "n_truth": 65,
+        "n_pred": 64,
+        "tp75": 64,
+        "fp75": 0,
+        "fn75": 1,
+        "f1_75": 0.9922,
+        "precision75": 1.0,
+        "recall75": 0.9846
+      },
+      "reference_identical": true,
+      "model_parameters_identical": true,
+      "cuda_kernel_events": 1601
+    },
+    {
+      "field": "plate1_E01_11_1",
+      "cpu_objects": 48,
+      "cuda_objects": 48,
+      "exact_label_array_equal": false,
+      "foreground_pixel_agreement": 0.9999386323463872,
+      "cpu_to_cuda_instance_match": {
+        "tp50": 48,
+        "fp50": 0,
+        "fn50": 0,
+        "f1_50": 1.0,
+        "precision50": 1.0,
+        "recall50": 1.0,
+        "iou_sum": 47.962213002875636,
+        "iou_mean": 0.9992,
+        "n_truth": 48,
+        "n_pred": 48,
+        "tp75": 48,
+        "fp75": 0,
+        "fn75": 0,
+        "f1_75": 1.0,
+        "precision75": 1.0,
+        "recall75": 1.0
+      },
+      "reference_identical": true,
+      "model_parameters_identical": true,
+      "cuda_kernel_events": 1528
+    },
+    {
+      "field": "plate1_E01_9_1",
+      "cpu_objects": 58,
+      "cuda_objects": 58,
+      "exact_label_array_equal": false,
+      "foreground_pixel_agreement": 0.9998747496250034,
+      "cpu_to_cuda_instance_match": {
+        "tp50": 58,
+        "fp50": 0,
+        "fn50": 0,
+        "f1_50": 1.0,
+        "precision50": 1.0,
+        "recall50": 1.0,
+        "iou_sum": 57.93545191780325,
+        "iou_mean": 0.9989,
+        "n_truth": 58,
+        "n_pred": 58,
+        "tp75": 58,
+        "fp75": 0,
+        "fn75": 0,
+        "f1_75": 1.0,
+        "precision75": 1.0,
+        "recall75": 1.0
+      },
+      "reference_identical": true,
+      "model_parameters_identical": true,
+      "cuda_kernel_events": 1437
+    },
+    {
+      "field": "plate1_E02_10_1",
+      "cpu_objects": 38,
+      "cuda_objects": 38,
+      "exact_label_array_equal": false,
+      "foreground_pixel_agreement": 0.9999836520594884,
+      "cpu_to_cuda_instance_match": {
+        "tp50": 38,
+        "fp50": 0,
+        "fn50": 0,
+        "f1_50": 1.0,
+        "precision50": 1.0,
+        "recall50": 1.0,
+        "iou_sum": 37.989885867148544,
+        "iou_mean": 0.9997,
+        "n_truth": 38,
+        "n_pred": 38,
+        "tp75": 38,
+        "fp75": 0,
+        "fn75": 0,
+        "f1_75": 1.0,
+        "precision75": 1.0,
+        "recall75": 1.0
+      },
+      "reference_identical": true,
+      "model_parameters_identical": true,
+      "cuda_kernel_events": 1563
+    }
+  ],
+  "comparison_scope": "Actual CPU/CUDA instance agreement; differences are retained and no numerical parity threshold is invented.",
+  "reference_labels_from_Cellpose_SAM_not_independent_human_truth": true,
+  "reference_label_diameters_used_for_reproducible_execution": true,
+  "brightfield_model_validated": false,
+  "multiplex_gpu_validated": false,
+  "artifacts": {
+    "features/data/552_instanseg_gpu_acceptance_2026-10-06/accept_instanseg_gpu.py": {
+      "sha256": "d75e33b9704b137f5f4eba7e36fed9df0bff1e944c5504492304261a08a4d7f3",
+      "bytes": 7082
+    },
+    "features/data/552_instanseg_gpu_acceptance_2026-10-06/actual-cpu-cuda-outputs.zip": {
+      "sha256": "21babcd26dd946981a2e98fe6b7e9799ec6213ee7b252cce8f1d137a9031ec56",
+      "bytes": 977287
+    },
+    "features/data/552_instanseg_gpu_acceptance_2026-10-06/benchmark_instanseg_current.py": {
+      "sha256": "3d7506c29bed77cb4df8159dea1faa01ce037ab17ebf4af7d7c3cf92a397bd89",
+      "bytes": 5100
+    },
+    "features/data/552_instanseg_gpu_acceptance_2026-10-06/cpu-acceptance.json": {
+      "sha256": "30e984405c5724223797dd478ff8756f3729390b05ce60972106c3240c28e0eb",
+      "bytes": 11310
+    },
+    "features/data/552_instanseg_gpu_acceptance_2026-10-06/cuda-acceptance.json": {
+      "sha256": "266a02c38acb9a1afe8e698426a0efbb26a27d53e0c82797e55553aef81c7a8a",
+      "bytes": 275123
+    },
+    "features/data/552_instanseg_gpu_acceptance_2026-10-06/instanseg-current-cuda-r1.log.gz": {
+      "sha256": "1598ab2ec36c5525c9398403b42ef1e1a1b9b3492d969895cf5b8ca51516efe9",
+      "bytes": 851
+    },
+    "features/data/552_instanseg_gpu_acceptance_2026-10-06/instanseg_worker_profile.py": {
+      "sha256": "e9c8fbd0b7c1a39716a236993daafafbbc635428851e85490ceb09160634c5f6",
+      "bytes": 2264
+    }
+  }
+}

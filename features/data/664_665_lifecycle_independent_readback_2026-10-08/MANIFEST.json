@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.txt": {
+      "sha256": "6f23bbd3c1aa827544df75473fd1f0b65971105c877bb368e43417dbfee883ba",
+      "bytes": 2212
+    },
+    "readback.json": {
+      "sha256": "42e76d03cf0d46cc02f5f03d239ce5c39fcb202316a7aa030837109a0a64e93b",
+      "bytes": 32453
+    },
+    "readback.log": {
+      "sha256": "6c2cc3bdb850fe84091e3195e2b20e2faca4c8e0633360d3644b6fdd578db724",
+      "bytes": 457
+    },
+    "reproduction.json": {
+      "sha256": "cb71d7c845479cdf978a809956401eb1b88cf788bef985f66069c2f58dc34e91",
+      "bytes": 754
+    },
+    "verify_manifest.py": {
+      "sha256": "74f24d1111f4b5401ee41dddfe699cd54c2045eb8456c357b2dc99a0072d9cb4",
+      "bytes": 1661
+    },
+    "verify_readback.py": {
+      "sha256": "fface8d1bb11dab26c562a69306c5a6eecbce5717c5a6fb6a903307896fdb548",
+      "bytes": 10828
+    },
+    "write_manifest.py": {
+      "sha256": "aa4b01f7d461476b163f9f95880d667ea8ff707ac6fdbf5f383c7ef37461cad4",
+      "bytes": 482
+    }
+  }
+}

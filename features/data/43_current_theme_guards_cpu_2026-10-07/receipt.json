@@ -1,0 +1,97 @@
+{
+  "schema": "spacr-current-theme-guard-acceptance-v1",
+  "date": "2026-10-07",
+  "base": "b7d085e6ca40f056bd70910057edf453cada7a92",
+  "painter_test_parent": "ae717fe394",
+  "source_commit": "a5838b2634",
+  "geometry_test_commit": "04b183d8ca",
+  "aurora_contract_commit": "9ce35eae13",
+  "ambient_sha256": "829acd05cd6da2c5524ef6ecd4b9286be7988578ec753040ff12abff6daca595",
+  "test_sha256": {
+    "tests/qt/test_data_art_renderer.py": "ddd679f63a75320dd6b7b4f88ff2455c940edeb257014389ed1677adcbfce911",
+    "tests/qt/test_data_art_gravity_and_geometry.py": "b5a8f849f0d583c93ada471d7873319a2bfa8a225033ad4bc95a2f6cd051b1cb",
+    "tests/qt/test_data_art_waves_and_vortices.py": "883d3545ab7efeea030cb8bcad27fec83b73ee802213355458c4b1c3271a0717",
+    "tests/qt/test_data_art_advection_gravity.py": "9a3895321d1e681e5e236b654384b876e33df298577fc49381f43af2d4566135",
+    "tests/qt/test_data_art_advection_evolution.py": "d7b8c2d840a8d5dce599d82739d63a7f289e6fdc0694c86945dd10634d60dca6",
+    "tests/qt/test_cov_7_ambient.py": "569af375d15c0be6edd12400a45a467136d39a40a624401b14b669f40ddcaf68",
+    "tests/qt/test_ambient_motion.py": "f30a81d619e55c84b524ad662df050199c070e55add083ca64c79837a3b8e8a3",
+    "tests/qt/test_aurora_borealis_curtains.py": "8e816f82c5f236e2141a504376be565ff12a5a3de3d81b08ad27066e8c5e60b6"
+  },
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "SPACR_DEVICE": "cpu",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg",
+    "cap": "4G",
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python"
+  },
+  "phases": [
+    {
+      "scope": "current original-order dino/display/distributed/distribution fourfile native diagnosis",
+      "result": "50 passed in47.53s",
+      "native_fault_reproduced": false,
+      "source": "b7d085e6ca"
+    },
+    {
+      "scope": "old Aurora short-column failure in affected sixfile cohort",
+      "result": "exit139 during terminal GC; QPaintDevice Cannot destroy paint device that is being painted",
+      "cause_scope": "unguarded short-column exception leaves test _paint QPainter unended; does not identify protected QEventLoop fault",
+      "source_import": "ae717fe394 ambient; working source guard was inserted while imported test process ran, so final disk hash is not an execution hash"
+    },
+    {
+      "scope": "sourceguard original short-column node plus Aurora frame regression file",
+      "result": "11 passed in2.08s"
+    },
+    {
+      "scope": "final sixfile geometry/native culling/privatewave/particle/cache cohort except separately owned widget control",
+      "result": "147 passed,1deselected in25.30s"
+    },
+    {
+      "scope": "three current foldedAurora actual shader/native tests after final local-import/memory changes",
+      "result": "3 passed in1.97s"
+    },
+    {
+      "scope": "covered sourceguard originalnode+Aurora file",
+      "result": "11passed in4.58s",
+      "new_lines": [
+        2390,
+        2391
+      ],
+      "observed_arcs": [
+        [
+          2390,
+          2391
+        ],
+        [
+          2390,
+          2392
+        ]
+      ],
+      "missing_new_lines_or_arcs": 0
+    }
+  ],
+  "count_policy": "Phases overlap; do not sum as unique cases. No full-suite/hosted/whole-module coverage claim.",
+  "native_protected": {
+    "artifact_id": 11497584383,
+    "run_id": 37639050274,
+    "source_sha": "b6885af4feb45d9c88c1aaa84ff9d3b49ce9c40c",
+    "zip_sha256": "746d6ecbf1a5f8b513bd63b54d4c77a85840df5a0c02c4d743e61f0e26a53ee8",
+    "original_native_frame": "QEventLoop::exec below faulthandler reraising",
+    "python_node": "tests/qt/test_distribution_smoke.py::test_source_ui_integration_runs_real_measurement line172",
+    "last_rss_bytes": 4235780096,
+    "last_cached_widgets": 13590,
+    "last_cached_top_levels": 253,
+    "causation": "UNRESOLVED; independent Aurora test-helper teardown fault is not this protected failure"
+  },
+  "ordinary_57b": {
+    "run_id": 37648558986,
+    "source_sha": "57b33a67de75cc70120a2a998867b2c4e16b080e",
+    "jobs": [
+      112892329137,
+      112892329510,
+      112892329531
+    ],
+    "native_marker_scan": "No Fatal Python/SIGSEGV/xdist-worker-crash markers in downloaded full logs; all three exit1 assertion failures. Distribution realmeasurement node passes shard1 in35.45s."
+  },
+  "guard_policy": "No ceilings, skips, xfails, Qt/GPU controls, density/nativequality or publicfactory changed. Removed chromatin remains private tests."
+}

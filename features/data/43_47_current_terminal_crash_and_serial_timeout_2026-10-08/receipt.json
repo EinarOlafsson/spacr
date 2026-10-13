@@ -1,0 +1,154 @@
+{
+  "required_source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "required_run": 37763414112,
+  "failed_job": 113289789342,
+  "failed_gate_job": 113324168943,
+  "fatal": "SIGSEGV",
+  "node": "tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[parent]",
+  "python_stack": "pytestqt waitUntil/exec -> _load_parent line36; does not establish native cause",
+  "numerical_summary_lines": [
+    "2026-10-08T13:04:00.7615944Z spaCR shipped-module coverage ratchet: PASS",
+    "2026-10-08T13:04:00.7619049Z Modules checked: 664 of 664",
+    "2026-10-08T13:04:00.7624042Z Modules at 100%: 455",
+    "2026-10-08T13:04:00.7624540Z Modules below the 90% floor: 1",
+    "2026-10-08T13:04:00.7743121Z IMPROVED: spacr/qt/screens/regression.py: uncovered statements fell from 19 to 7; tighten the baseline with --update-baseline --reason",
+    "2026-10-08T13:04:00.7744102Z IMPROVED: spacr/qt/screens/regression.py: uncovered branches fell from 6 to 2; tighten the baseline with --update-baseline --reason",
+    "2026-10-08T13:04:00.7809111Z IMPROVED: spacr/regression_panels.py: uncovered statements fell from 47 to 17; tighten the baseline with --update-baseline --reason",
+    "2026-10-08T13:04:00.7810040Z IMPROVED: spacr/regression_panels.py: uncovered branches fell from 42 to 20; tighten the baseline with --update-baseline --reason",
+    "2026-10-08T13:04:00.8051215Z GAP: spacr/regression_panels.py: 94.83%, 17 uncovered statements, 20 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 47/42/0/0 since 2026-09-15T11:54:08Z)",
+    "2026-10-08T13:04:00.8215048Z GAP: spacr/qt/screens/regression.py: 97.90%, 7 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 19/6/0/0 since 2026-09-15T11:54:08Z)",
+    "2026-10-08T13:04:00.8269272Z GAP: spacr/regression_diagnostics.py: 98.87%, 3 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/4/0/0 since 2026-09-15T11:54:08Z)",
+    "2026-10-08T13:04:00.8320904Z GAP: spacr/regression_annotation.py: 99.57%, 1 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/4/0/0 since 2026-09-15T11:54:08Z)",
+    "2026-10-08T13:04:00.8363077Z GAP: spacr/regression_qc.py: 99.77%, 3 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/2/0/0 since 2026-09-15T11:54:08Z)",
+    "2026-10-08T13:04:00.8383894Z GAP: spacr/regression_summary.py: 99.87%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)"
+  ],
+  "serial_run": 37741618120,
+  "serial_job": 113193780177,
+  "serial_source": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "serial_conclusion": "cancelled",
+  "confirmed_serial_reason": "Maximum execution time6h0m0s exceeded; check-run annotation",
+  "scope": "Completed job logs only, exact original raw bytes and metadata preserved. Required run terminalFAILURE at archived snapshot:26/29 jobsSUCCESS, all3 ordinaryQtSUCCESS; Coverage0/aggregate/release gateFAIL. Workstation did not dispatch/retry/cancel/modify protected jobs. Old SIGABRT remains separate from this current SIGSEGV.",
+  "limitations": [
+    "Initial gh log download refused terminal escape sequences; empty log and stderr preserved. Successful second download used --allow-escape-sequences into files only.",
+    "One earlier wrong actions/jobs annotations endpoint returned404; tool output not retained in a standalone file. Correct check-runs annotation confirms timeout.",
+    "Serial initial receipt says reason pending; it is original and retained unchanged. New annotation establishes timeout.",
+    "No native cause/cure, full serial acceptance, or required-green claim."
+  ],
+  "payloads": {
+    "5636-current-coverage-terminal-r1/coverage0-download.stderr.gz": {
+      "raw_bytes": 99,
+      "raw_sha256": "8b6407b2fdbca54bf3d53fb93e79a3560dbe59567fa5044cfee4bed1b5b6e467",
+      "gzip_bytes": 95,
+      "gzip_sha256": "0718a171587c7f36b5105650fc5d3776494bd72fa061117d0835859e55fbbbd5"
+    },
+    "5636-current-coverage-terminal-r1/coverage0-full.log.gz": {
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "5636-current-coverage-terminal-r1/coverage0-job.json.gz": {
+      "raw_bytes": 3106,
+      "raw_sha256": "6205e9b4431b634de26cc9fc04e257f59bd971543cfb1a5dbca08cd00fc3da35",
+      "gzip_bytes": 781,
+      "gzip_sha256": "a33f0e71aac226b69b3105659937379ee997c5857dc40e3cd8bd04c2a2a74e59"
+    },
+    "5636-current-coverage-terminal-r2/coverage-gate-download.stderr.gz": {
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "5636-current-coverage-terminal-r2/coverage-gate-full.log.gz": {
+      "raw_bytes": 175347,
+      "raw_sha256": "01f440ba1f672dd7ff675fbba9822d31f8d055d44cc54c3b91d71f7513aa6f99",
+      "gzip_bytes": 38747,
+      "gzip_sha256": "42931eb8062468212504852723b9443b623c998dc7bb403213c0ac44c5e61e4b"
+    },
+    "5636-current-coverage-terminal-r2/coverage-gate-job.json.gz": {
+      "raw_bytes": 3225,
+      "raw_sha256": "d3de62c215edc4b57b6bf7ef556d8cb78390a51cef71aadc25cfaeaef6aa1fe2",
+      "gzip_bytes": 841,
+      "gzip_sha256": "05f8b4141b2ea30eece1d31e37efaef4e85d65bf2f0d9106a9404d4a318ff074"
+    },
+    "5636-current-coverage-terminal-r2/coverage0-download.stderr.gz": {
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "5636-current-coverage-terminal-r2/coverage0-full.log.gz": {
+      "raw_bytes": 3490580,
+      "raw_sha256": "eedd4620069de48f1fc652286b140f1ea43dd465dd4af0f0e857cb40a368d2bb",
+      "gzip_bytes": 386838,
+      "gzip_sha256": "6110c5515cc7e0dff15139943061efb0d45d8ec618bbe600c4b926935f640daf"
+    },
+    "5636-current-coverage-terminal-r2/coverage0-job.json.gz": {
+      "raw_bytes": 3106,
+      "raw_sha256": "6205e9b4431b634de26cc9fc04e257f59bd971543cfb1a5dbca08cd00fc3da35",
+      "gzip_bytes": 781,
+      "gzip_sha256": "a33f0e71aac226b69b3105659937379ee997c5857dc40e3cd8bd04c2a2a74e59"
+    },
+    "5636-current-coverage-terminal-r2/receipt.json.gz": {
+      "raw_bytes": 1039,
+      "raw_sha256": "3f6434724ea300c13e267170d4a218a341390efd18e9568c4011c2952c8f9e92",
+      "gzip_bytes": 484,
+      "gzip_sha256": "d5b14ff92150f02163accf0cfa47556059b1028cd09eb1b5910a5672f6b01850"
+    },
+    "serial-0b-terminal-r1/download.stderr.gz": {
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "serial-0b-terminal-r1/full.log.gz": {
+      "raw_bytes": 3248648,
+      "raw_sha256": "b134a8dcb2a20d408f9438c388703dee03ef2ade8240a020fa8c9d2c15843d33",
+      "gzip_bytes": 551368,
+      "gzip_sha256": "915ac9045132b992bb3c56743292bf5c47796d3ba86ebf818d51966c768cfe5c"
+    },
+    "serial-0b-terminal-r1/job.json.gz": {
+      "raw_bytes": 3037,
+      "raw_sha256": "ab43366fde7fe190c11af0300e9eaa49961d12f40fda1e269ff40464741e136d",
+      "gzip_bytes": 827,
+      "gzip_sha256": "362e7d7964155abad6311d0dfe5f88a79397b45af60b0d86502be11ae9ed058d"
+    },
+    "serial-0b-terminal-r1/receipt.json.gz": {
+      "raw_bytes": 465,
+      "raw_sha256": "f1dc043d895d0386857dfd645e7d36f617aef7cb4658d1d9d4fe6550a2e7aded",
+      "gzip_bytes": 324,
+      "gzip_sha256": "6b5d7224eb57f6d0c5e7b678cebff6c21a83555ab2f214620e01f87a21fbce6a"
+    },
+    "scripts/archive_actual_repairs_and_terminal_ci_r1.py.gz": {
+      "raw_bytes": 15680,
+      "raw_sha256": "b7a6ce3b8cc3a62702d1638e87d2ef539b37eb7be702763734125ecc83171d38",
+      "gzip_bytes": 5778,
+      "gzip_sha256": "9c437ce05bdf3359d9e74431c3906fff3dea8e4df57d49b00f6b4dae4a4779d2"
+    },
+    "snapshot/serial-check-annotations.json.gz": {
+      "raw_bytes": 617,
+      "raw_sha256": "3837ce08a4a0ba28822fbbe5839240bd0495013132614e20d2efafb2df1fccf4",
+      "gzip_bytes": 276,
+      "gzip_sha256": "d11e84d64c143dbe679218e1da56be293646599c905588d517feb7c887580073"
+    },
+    "snapshot/serial-check.json.gz": {
+      "raw_bytes": 3094,
+      "raw_sha256": "91905fe789ce7a79a609dcae3244265b47ca6b5b70b65529e69b53c65eaf376c",
+      "gzip_bytes": 1187,
+      "gzip_sha256": "c2e865355a4ff570c9fcae54aa0157e09242da21f8b6c835f668d2fe99ace45c"
+    },
+    "snapshot/required-run.json.gz": {
+      "raw_bytes": 12539,
+      "raw_sha256": "cd36ad86e8f46aadae425dbf3a23fe985dacf08bb3a0f6ff0f501590f9fd723f",
+      "gzip_bytes": 1594,
+      "gzip_sha256": "ad0876daed9078748b83fa5bcbd009ea197a7603d45b50ecc6a5b8820ea993fc"
+    },
+    "snapshot/required-jobs.json.gz": {
+      "raw_bytes": 94570,
+      "raw_sha256": "a2a763f6622ed7be026a1cd4f87bbd8d2303067250efbfd6f6957937b44e0993",
+      "gzip_bytes": 5687,
+      "gzip_sha256": "0b52087c5b55f64d832a121c676dad67a1a7dabe97626327fdfa8816bc9b8f24"
+    }
+  },
+  "archive_metadata_correction": "Before first publication, scope corrected to match terminal snapshot captured14:28UTC; original generator included earlier running-state prose. Original generator and all raw inputs retained unchanged."
+}

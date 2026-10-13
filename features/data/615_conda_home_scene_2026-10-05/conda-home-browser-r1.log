@@ -1,0 +1,658 @@
+{
+  "lesson": "02_conda_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 58.804206,
+    "video": 58.848531,
+    "expectedVideo": 58.804206,
+    "audioDuration": 113.4,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "sentence_cue_checks": [
+    {
+      "requested_audio_time": 1.0075,
+      "text": "Open a Conda-enabled terminal.",
+      "audio": 1.0075,
+      "video": 1.0075,
+      "cues": [
+        "Open a Conda-enabled terminal."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 5.72,
+      "text": "You will create an environment for spaCR, install the conda-forge package and launch the application from that environment.",
+      "audio": 5.72,
+      "video": 5.72,
+      "cues": [
+        "You will create an environment for spaCR, install the conda-forge package and launch the application from that environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 13.882499999999999,
+      "text": "Create an environment named spacr-conda with Python three point twelve and spaCR from conda-forge, using the displayed command.",
+      "audio": 13.882499,
+      "video": 13.882499,
+      "cues": [
+        "Create an environment named spacr-conda with Python three point twelve and spaCR from conda-forge, using the displayed command."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 20.197499999999998,
+      "text": "Choose another name if you already use that name for a different environment.",
+      "audio": 20.197499,
+      "video": 20.197499,
+      "cues": [
+        "Choose another name if you already use that name for a different environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 24.509999999999998,
+      "text": "Conda solves the environment and lists its package plan.",
+      "audio": 24.509999,
+      "video": 24.509999,
+      "cues": [
+        "Conda solves the environment and lists its package plan."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 28.8,
+      "text": "Review it, type y to accept, then wait for the download and installation to finish.",
+      "audio": 28.8,
+      "video": 28.8,
+      "cues": [
+        "Review it, type y to accept, then wait for the download and installation to finish."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 32.67,
+      "text": "Activate spacr-conda.",
+      "audio": 32.67,
+      "video": 32.67,
+      "cues": [
+        "Activate spacr-conda."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 37.085,
+      "text": "Run the displayed Python command to see the environment path, and check that it is the environment you just created.",
+      "audio": 37.085,
+      "video": 37.085,
+      "cues": [
+        "Run the displayed Python command to see the environment path, and check that it is the environment you just created."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 44.097500000000004,
+      "text": "Run conda list spacr to see the installed version and confirm that it comes from conda-forge.",
+      "audio": 44.0975,
+      "video": 44.0975,
+      "cues": [
+        "Run conda list spacr to see the installed version and confirm that it comes from conda-forge."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 52.265,
+      "text": "Installing Python and spaCR in one command lets Conda resolve every package together, which is much faster than adding spaCR to an existing environment.",
+      "audio": 52.265,
+      "video": 52.265,
+      "cues": [
+        "Installing Python and spaCR in one command lets Conda resolve every package together, which is much faster than adding spaCR to an existing environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 59.53750000000001,
+      "text": "Check the installed spaCR version and package location.",
+      "audio": 59.5375,
+      "video": 59.5375,
+      "cues": [
+        "Check the installed spaCR version and package location."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 63.95750000000001,
+      "text": "Keep that version with your analysis notes so you can return to the same environment later.",
+      "audio": 63.9575,
+      "video": 63.9575,
+      "cues": [
+        "Keep that version with your analysis notes so you can return to the same environment later."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 68.48750000000001,
+      "text": "Run spacr-doctor to check the installation.",
+      "audio": 68.4875,
+      "video": 68.4875,
+      "cues": [
+        "Run spacr-doctor to check the installation."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 73.01,
+      "text": "Here it reports that vispy, a core dependency, is missing, and shows the command that installs it.",
+      "audio": 73.01,
+      "video": 73.01,
+      "cues": [
+        "Here it reports that vispy, a core dependency, is missing, and shows the command that installs it."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 77.6275,
+      "text": "Run that command, then run spacr-doctor again.",
+      "audio": 77.6275,
+      "video": 77.6275,
+      "cues": [
+        "Run that command, then run spacr-doctor again."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 81.58000000000001,
+      "text": "Follow other suggested steps only for the file formats or features you need.",
+      "audio": 81.58,
+      "video": 81.58,
+      "cues": [
+        "Follow other suggested steps only for the file formats or features you need."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 85.64500000000001,
+      "text": "Enter spacr to launch the application.",
+      "audio": 85.645,
+      "video": 85.645,
+      "cues": [
+        "Enter spacr to launch the application."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 90.4425,
+      "text": "Complete any first-launch choices, then continue with the Home tutorial to find modules and their example data.",
+      "audio": 90.4425,
+      "video": 90.4425,
+      "cues": [
+        "Complete any first-launch choices, then continue with the Home tutorial to find modules and their example data."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 97.2525,
+      "text": "To update later, close spaCR, activate this environment and update the conda-forge package.",
+      "audio": 97.2525,
+      "video": 97.2525,
+      "cues": [
+        "To update later, close spaCR, activate this environment and update the conda-forge package."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 103.36999999999999,
+      "text": "When conda-forge has no newer build, Conda reports that all requested packages are already installed.",
+      "audio": 103.369999,
+      "video": 103.369999,
+      "cues": [
+        "When conda-forge has no newer build, Conda reports that all requested packages are already installed."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 109.75,
+      "text": "Check the installed version afterwards; the pip and installer lessons cover the other installation routes.",
+      "audio": 109.75,
+      "video": 109.75,
+      "cues": [
+        "Check the installed version afterwards; the pip and installer lessons cover the other installation routes."
+      ],
+      "seek_attempts": 1
+    }
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "es/ef_dora playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "5dfaa490713cdaea13adc920e2354dd308635acbe85cae793e50370a1b1eff90",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 56.288219,
+    "video": 58.814178,
+    "expectedVideo": 58.76139768421053,
+    "audioDuration": 113.1,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "fr/ff_siwis playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "8af89015c4b17501bcc8edf8877c94bacea78576796f3d789d1912cc845d5dc6",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 61.221887,
+    "video": 58.722562,
+    "expectedVideo": 58.69458037307692,
+    "audioDuration": 118,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "hi/hf_alpha playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "d42ec892f9c53ee3e2461fa3c808cde2ccd1f7ca38786497b64877131f1356cf",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 70.451845,
+    "video": 58.633418,
+    "expectedVideo": 58.59535923436837,
+    "audioDuration": 136,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "it/if_sara playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "7695bfb4e020eed9d78f16949090e9d72d5271e326737332edcbca95f7d960cc",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 56.517956,
+    "video": 58.731618,
+    "expectedVideo": 58.68843981395348,
+    "audioDuration": 111,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "ja/jf_alpha playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "214ecc63076a0b609fe3996d759c951c6cc80e08214634745a077fa7852871fa",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 72.15853,
+    "video": 58.668951,
+    "expectedVideo": 58.62554536842106,
+    "audioDuration": 142.6,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "pt-BR/pf_dora playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "884191076f5ba7f47db68a46c3fa190b2721830eb1a1ead14bd42a44696f4fbf",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 56.076325,
+    "video": 58.834489,
+    "expectedVideo": 58.78436509433961,
+    "audioDuration": 112.3,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "zh-CN/zf_xiaobei playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "0d020880dd6013db4e09c6f012e76604c704860f87f87a14742a1354c87eeb4f",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 60.772646,
+    "video": 58.79272,
+    "expectedVideo": 58.74897049087221,
+    "audioDuration": 116.9,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+  "caption_language": "da",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "b4abd88640046c67dfd5c66e660c1369dcd4eccd425ffa318849468c948a8e52",
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 58.819335,
+    "video": 58.855627,
+    "expectedVideo": 58.819335,
+    "audioDuration": 113.4,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+  "caption_language": "de",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "376a279265875b69711c80fb3c2192a445c14a4af334770e4a32cb5c8070ee28",
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 58.818395,
+    "video": 58.854218,
+    "expectedVideo": 58.818395,
+    "audioDuration": 113.4,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+  "caption_language": "is",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "9005a832b32aef40091c792462d8651f8acb920fefdf32f40e5f9072f3e4318e",
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 58.80814,
+    "video": 58.843239,
+    "expectedVideo": 58.80814,
+    "audioDuration": 113.4,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+  "caption_language": "ko",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "9b63eedf7b5623eacd21fdc41e00fc8a017f9722234ab926381b244828f13dda",
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 58.8061,
+    "video": 58.84137,
+    "expectedVideo": 58.806099999999994,
+    "audioDuration": 113.4,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+  "caption_language": "nb",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "15efb8ec35e3bc4aa46ae1d664fb21703affd48d385f3ad39c91b34f7b897eb4",
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 58.818056,
+    "video": 58.858629,
+    "expectedVideo": 58.818056,
+    "audioDuration": 113.4,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+{
+  "lesson": "02_conda_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+  "caption_language": "sv",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "9a990762c985b8e8f640b777cd373ed5a986c3db1dd76e9592de61088c581e33",
+  "scene_count": 9,
+  "seek_playback_clocks": {
+    "audio": 58.807603,
+    "video": 58.841362,
+    "expectedVideo": 58.807603,
+    "audioDuration": 113.4,
+    "videoDuration": 113.4,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}
+Conda one-scene replacement: all fourteen language/caption routes pass desktop/mobile checks; publication remains.

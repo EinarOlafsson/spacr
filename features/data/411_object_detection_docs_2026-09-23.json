@@ -1,0 +1,1122 @@
+{
+  "schema": 1,
+  "source_base_commit": "ee43d8530b161810d05d0f68481ac69981c42138",
+  "scope": "407 asynchronous detection/CPU precision guide, current English API/UI inventory and nine-language status captions; existing reviewed runtime decisions compiled.",
+  "inventory": {
+    "schema": 1,
+    "source_commit": "ee43d8530b161810d05d0f68481ac69981c42138",
+    "api_before": 11402,
+    "api_after": 11402,
+    "api_added": [],
+    "api_removed": [],
+    "api_changed": [
+      "spacr.accelerator.cellpose_gpu",
+      "spacr.accelerator.cellpose_kwargs",
+      "spacr.model_compare.segment_with_cellpose",
+      "spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose"
+    ],
+    "ui_before": 5013,
+    "ui_after": 5016,
+    "ui_added": [
+      "Detection result discarded because the field or mask changed. Run detection again to use the current field.",
+      "Object detection ({model}) running…",
+      "Object detection failed"
+    ],
+    "ui_removed": [],
+    "full_catalog_acceptance": false
+  },
+  "caption_reviews": 27,
+  "compiled_existing_runtime_decisions": {
+    "records": 113,
+    "languages": [
+      {
+        "language": "sv",
+        "compiled_existing_decisions": 9,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "Annoteringskolumn",
+            "old": "Anmärkningskolumn",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "Kantgenomskinlighet",
+            "old": "Kanttransparens",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "folders",
+            "source": "Folders",
+            "translation": "Mappar",
+            "old": "Kataloger",
+            "source_sha256": "c4d6bb200f4c058a9b16e900cb5495e59b52fda24cf011eedef8645c90051a8c"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "lower_percentile",
+            "source": "Lower percentile",
+            "translation": "Nedre percentil",
+            "old": "Lägre percentil",
+            "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "max_displacement",
+            "source": "Max displacement",
+            "translation": "Maximal förflyttning",
+            "old": "Max förskjutning",
+            "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "scores",
+            "source": "Scores",
+            "translation": "Poängvärden",
+            "old": "Poäng",
+            "source_sha256": "c5f09715dba8604df4066110f56801bcb05d9f66c247cae1b412976456d6813d"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "56177e9bddb1e824accca8f96a5deae9bf6f5692ee49f281b29c603558e59f32"
+      },
+      {
+        "language": "de",
+        "compiled_existing_decisions": 12,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "Annotationsspalte",
+            "old": "Anmerkungsspalte",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_thickness",
+            "source": "Edge thickness",
+            "translation": "Randstärke",
+            "old": "Kantendicke",
+            "source_sha256": "d0090325df46c933e0e544051e38e0fc11260612ab86c3f3b4f8f01f1d50c949"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "Randtransparenz",
+            "old": "Kantentransparenz",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "external_masks.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Nicht infizierte Zellen behalten",
+            "old": "Nicht infizierte Zellen aufbewahren",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "level",
+            "source": "Level",
+            "translation": "Niveau",
+            "old": "Ebene",
+            "source_sha256": "1709305c9fa966d14f56f0da3c3614bbc10adcf53d72f90341bb96d24afcfca3"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "lower_percentile",
+            "source": "Lower percentile",
+            "translation": "Unteres Perzentil",
+            "old": "Untere Prozentzahl",
+            "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "max_displacement",
+            "source": "Max displacement",
+            "translation": "Maximale Verschiebung",
+            "old": "Maximale Verdrängung",
+            "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "measure.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Nicht infizierte Zellen behalten",
+            "old": "Nicht infizierte Zellen aufbewahren",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "scores",
+            "source": "Scores",
+            "translation": "Bewertungswerte",
+            "old": "Ergebnisse",
+            "source_sha256": "c5f09715dba8604df4066110f56801bcb05d9f66c247cae1b412976456d6813d"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "5c68fcba76ef90af53a16e7c254b17251de50bbaf3368a8db553ada7ab8c8a65"
+      },
+      {
+        "language": "es",
+        "compiled_existing_decisions": 11,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "adjust_cells",
+            "source": "Adjust cells",
+            "translation": "Ajustar células",
+            "old": "Ajustar celdas",
+            "source_sha256": "4dcbef0d8cb9734149360fffdb03b8a1177e18ca8def2afda7051de7745969ce"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "Columna de anotaciones",
+            "old": "Columna de la anotación",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "cell_channel",
+            "source": "Cell channel",
+            "translation": "Canal celular",
+            "old": "Canal de la celda",
+            "source_sha256": "709cb3038f13c782306486a138ba3fd53afc0ebe27233ed3d08a61d6cbbc58ca"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_thickness",
+            "source": "Edge thickness",
+            "translation": "Grosor del borde",
+            "old": "Espesor del borde",
+            "source_sha256": "d0090325df46c933e0e544051e38e0fc11260612ab86c3f3b4f8f01f1d50c949"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "external_masks.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Conservar células no infectadas",
+            "old": "Mantener las células no infectadas",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "image_source",
+            "source": "Image source",
+            "translation": "Origen de las imágenes",
+            "old": "Fuente de la imagen",
+            "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "measure.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Conservar células no infectadas",
+            "old": "Mantener las células no infectadas",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "scores",
+            "source": "Scores",
+            "translation": "Puntuaciones",
+            "old": "Puntuación",
+            "source_sha256": "c5f09715dba8604df4066110f56801bcb05d9f66c247cae1b412976456d6813d"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "f30193e7036a6bfb9c2ddd44c98edcf63fe60dff7a0d1fb3929b960e107f8257"
+      },
+      {
+        "language": "zh_CN",
+        "compiled_existing_decisions": 15,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "标注列",
+            "old": "标签列",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "cell_channel",
+            "source": "Cell channel",
+            "translation": "细胞通道",
+            "old": "细胞频道",
+            "source_sha256": "709cb3038f13c782306486a138ba3fd53afc0ebe27233ed3d08a61d6cbbc58ca"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_thickness",
+            "source": "Edge thickness",
+            "translation": "边缘粗细",
+            "old": "Edge 厚度",
+            "source_sha256": "d0090325df46c933e0e544051e38e0fc11260612ab86c3f3b4f8f01f1d50c949"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "边缘透明度",
+            "old": "Edge 透明度",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "external_masks.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "保留未感染细胞",
+            "old": "保持不感染的细胞",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "image_source",
+            "source": "Image source",
+            "translation": "图像来源",
+            "old": "图片来源",
+            "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "level",
+            "source": "Level",
+            "translation": "级别",
+            "old": "水平",
+            "source_sha256": "1709305c9fa966d14f56f0da3c3614bbc10adcf53d72f90341bb96d24afcfca3"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "lower_percentile",
+            "source": "Lower percentile",
+            "translation": "下限百分位数",
+            "old": "低百分比",
+            "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "max_displacement",
+            "source": "Max displacement",
+            "translation": "最大位移",
+            "old": "麦克斯转移",
+            "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "measure.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "保留未感染细胞",
+            "old": "保持不感染的细胞",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "mode",
+            "source": "Mode",
+            "translation": "模式",
+            "old": "时尚",
+            "source_sha256": "5e23ec6a300dc60a79641769017e16e9bf042cbd8fd0a54586a048ab9da972ff"
+          },
+          {
+            "table": "UI",
+            "key": "Surrogate model",
+            "source": "Surrogate model",
+            "translation": "Surrogate 模型",
+            "old": null,
+            "source_sha256": "aa627947b7b4237f2e3d3cdfdcadc8972547dd5b85ab85cc63abe7d519e0d17f"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "8aeb29c8c55afef7283698f20e0d13760af7a3268d04bca5fc09fab6c72363c3"
+      },
+      {
+        "language": "pt",
+        "compiled_existing_decisions": 9,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "adjust_cells",
+            "source": "Adjust cells",
+            "translation": "Ajustar células",
+            "old": "Ajustar as células",
+            "source_sha256": "4dcbef0d8cb9734149360fffdb03b8a1177e18ca8def2afda7051de7745969ce"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "Coluna de anotações",
+            "old": "Coluna de anotação",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "Transparência da borda",
+            "old": "Transparência de borda",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "external_masks.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Manter células não infectadas",
+            "old": "Manter as células não infectadas",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "image_source",
+            "source": "Image source",
+            "translation": "Origem das imagens",
+            "old": "Fonte da imagem",
+            "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "measure.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Manter células não infectadas",
+            "old": "Manter as células não infectadas",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "e2ff3ced6e5156d5345557d5b9498db2b31678988ed210502d8ff154e148f3e1"
+      },
+      {
+        "language": "hi",
+        "compiled_existing_decisions": 15,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "adjust_cells",
+            "source": "Adjust cells",
+            "translation": "कोशिकाएँ समायोजित करें",
+            "old": "कोशिकाओं को समायोजित करें",
+            "source_sha256": "4dcbef0d8cb9734149360fffdb03b8a1177e18ca8def2afda7051de7745969ce"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "एनोटेशन स्तंभ",
+            "old": "Annotation स्तंभ",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "cell_channel",
+            "source": "Cell channel",
+            "translation": "कोशिका चैनल",
+            "old": "सेल चैनल",
+            "source_sha256": "709cb3038f13c782306486a138ba3fd53afc0ebe27233ed3d08a61d6cbbc58ca"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "crop_size",
+            "source": "Crop size",
+            "translation": "चित्रांश का आकार",
+            "old": null,
+            "source_sha256": "b4d2334985812a15fdfbe331d8abca0330ae4bb5424623b3c20fa72111ad85fa"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_thickness",
+            "source": "Edge thickness",
+            "translation": "किनारे की मोटाई",
+            "old": "मोटाई एंड्रॉयड",
+            "source_sha256": "d0090325df46c933e0e544051e38e0fc11260612ab86c3f3b4f8f01f1d50c949"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "किनारे की पारदर्शिता",
+            "old": "एज पारदर्शिता",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "external_masks.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "असंक्रमित कोशिकाएँ रखें",
+            "old": "अवांछित कोशिकाओं को बनाए रखें",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "image_source",
+            "source": "Image source",
+            "translation": "चित्र स्रोत",
+            "old": "Image स्रोत",
+            "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "lower_percentile",
+            "source": "Lower percentile",
+            "translation": "निचला प्रतिशतक",
+            "old": "कम प्रतिशत",
+            "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "max_displacement",
+            "source": "Max displacement",
+            "translation": "अधिकतम विस्थापन",
+            "old": "मैक्स विस्थापन",
+            "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "measure.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "असंक्रमित कोशिकाएँ रखें",
+            "old": "अवांछित कोशिकाओं को बनाए रखें",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "mode",
+            "source": "Mode",
+            "translation": "मोड",
+            "old": "फैशन",
+            "source_sha256": "5e23ec6a300dc60a79641769017e16e9bf042cbd8fd0a54586a048ab9da972ff"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "31eb3de44d40f15b76fd6029abc5215436ab35882d1b734b1bf988df2b4b02ba"
+      },
+      {
+        "language": "ko",
+        "compiled_existing_decisions": 13,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "어노테이션 열",
+            "old": "Annotation 컬러",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "cell_channel",
+            "source": "Cell channel",
+            "translation": "세포 채널",
+            "old": "셀 채널",
+            "source_sha256": "709cb3038f13c782306486a138ba3fd53afc0ebe27233ed3d08a61d6cbbc58ca"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_thickness",
+            "source": "Edge thickness",
+            "translation": "가장자리 두께",
+            "old": "Edge 두께",
+            "source_sha256": "d0090325df46c933e0e544051e38e0fc11260612ab86c3f3b4f8f01f1d50c949"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "가장자리 투명도",
+            "old": "Edge 투명성",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "external_masks.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "비감염 세포 유지",
+            "old": "감염되지 않은 세포를 유지",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "image_source",
+            "source": "Image source",
+            "translation": "이미지 소스",
+            "old": "사진 출처",
+            "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "level",
+            "source": "Level",
+            "translation": "수준",
+            "old": "레벨",
+            "source_sha256": "1709305c9fa966d14f56f0da3c3614bbc10adcf53d72f90341bb96d24afcfca3"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "lower_percentile",
+            "source": "Lower percentile",
+            "translation": "하위 백분위수",
+            "old": "낮은 비율",
+            "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "max_displacement",
+            "source": "Max displacement",
+            "translation": "최대 변위",
+            "old": "맥스 퇴원",
+            "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "measure.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "비감염 세포 유지",
+            "old": "감염되지 않은 세포를 유지",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "a00a783ca6064f435be5353ecc79f87b0505b783169ba84f6db2eca0048e0b22"
+      },
+      {
+        "language": "is",
+        "compiled_existing_decisions": 19,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "adjust_cells",
+            "source": "Adjust cells",
+            "translation": "Aðlaga frumur",
+            "old": "Hugsanlegur celler",
+            "source_sha256": "4dcbef0d8cb9734149360fffdb03b8a1177e18ca8def2afda7051de7745969ce"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "Merkingardálkur",
+            "old": "Skólinn fyrir notkun",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "cell_channel",
+            "source": "Cell channel",
+            "translation": "Frumurás",
+            "old": "Sjálf kanna",
+            "source_sha256": "709cb3038f13c782306486a138ba3fd53afc0ebe27233ed3d08a61d6cbbc58ca"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "crop_size",
+            "source": "Crop size",
+            "translation": "Stærð myndskurðar",
+            "old": null,
+            "source_sha256": "b4d2334985812a15fdfbe331d8abca0330ae4bb5424623b3c20fa72111ad85fa"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_thickness",
+            "source": "Edge thickness",
+            "translation": "Þykkt jaðars",
+            "old": "Sjöfli þyngd",
+            "source_sha256": "d0090325df46c933e0e544051e38e0fc11260612ab86c3f3b4f8f01f1d50c949"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "Gegnsæi jaðars",
+            "old": "Áhugleika á Edge",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "experiment",
+            "source": "Experiment",
+            "translation": "Tilraun",
+            "old": "reynslu",
+            "source_sha256": "72bf6e495cc8a5b59d1f64e1f03b3fe6449599adb1e7e1d0b84fe1914376941d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "external_masks.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Halda ósýktum frumum",
+            "old": "Haldið óþreyttum cellerum",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "folders",
+            "source": "Folders",
+            "translation": "Möppur",
+            "old": "Fólkur",
+            "source_sha256": "c4d6bb200f4c058a9b16e900cb5495e59b52fda24cf011eedef8645c90051a8c"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "image_source",
+            "source": "Image source",
+            "translation": "Uppruni mynda",
+            "old": "Myndin hliðar",
+            "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "level",
+            "source": "Level",
+            "translation": "Stig",
+            "old": "Námskeið",
+            "source_sha256": "1709305c9fa966d14f56f0da3c3614bbc10adcf53d72f90341bb96d24afcfca3"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "lower_percentile",
+            "source": "Lower percentile",
+            "translation": "Neðra hundraðshlutamark",
+            "old": "Færri hlutfall",
+            "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "max_displacement",
+            "source": "Max displacement",
+            "translation": "Hámarkstilfærsla",
+            "old": "Max að flytja",
+            "source_sha256": "922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "measure.uninfected",
+            "source": "Keep uninfected cells",
+            "translation": "Halda ósýktum frumum",
+            "old": "Haldið óþreyttum cellerum",
+            "source_sha256": "0f3793536e643405231c71c1437fc6dffceb4b063ff78eade1b94daa7a9d5b03"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "mode",
+            "source": "Mode",
+            "translation": "Hamur",
+            "old": "Móður",
+            "source_sha256": "5e23ec6a300dc60a79641769017e16e9bf042cbd8fd0a54586a048ab9da972ff"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "scores",
+            "source": "Scores",
+            "translation": "Stigagildi",
+            "old": "skóreð",
+            "source_sha256": "c5f09715dba8604df4066110f56801bcb05d9f66c247cae1b412976456d6813d"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "47895c4d6882341dc089a57a1aad4d740d79236d4d1d6aa5f32a8439b1d37fab"
+      },
+      {
+        "language": "fr",
+        "compiled_existing_decisions": 10,
+        "changes": [
+          {
+            "table": "SETTING_LABELS",
+            "key": "annotation_column",
+            "source": "Annotation column",
+            "translation": "Colonne d’annotation",
+            "old": "Colonne d'annotation",
+            "source_sha256": "b4a3067f5babd64c4253fba8b4fd7f5ce274d67ef37f73f0e9a73e3cbdbf7beb"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "cell_channel",
+            "source": "Cell channel",
+            "translation": "Canal cellulaire",
+            "old": "Voie cellulaire",
+            "source_sha256": "709cb3038f13c782306486a138ba3fd53afc0ebe27233ed3d08a61d6cbbc58ca"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "edge_transparency",
+            "source": "Edge transparency",
+            "translation": "Transparence du bord",
+            "old": "Transparence des bords",
+            "source_sha256": "6b7080d6521fc74d919e80cbb2dcb10f89b285252bf7eacd8b5824f03fb97158"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "image_source",
+            "source": "Image source",
+            "translation": "Source des images",
+            "old": "Source de l'image",
+            "source_sha256": "671ab39386a9ffe7719d72b74406095db09a0f7e804580416b897ac46216238d"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "lower_percentile",
+            "source": "Lower percentile",
+            "translation": "Percentile inférieur",
+            "old": "Pourcentage inférieur",
+            "source_sha256": "d5283e509e12034fa92d46dcf22a36047d67218abfdd82a436cb4014fa113580"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "mode",
+            "source": "Mode",
+            "translation": "Mode de fonctionnement",
+            "old": "Modes",
+            "source_sha256": "5e23ec6a300dc60a79641769017e16e9bf042cbd8fd0a54586a048ab9da972ff"
+          },
+          {
+            "table": "SETTING_LABELS",
+            "key": "scores",
+            "source": "Scores",
+            "translation": "Valeurs des scores",
+            "old": "Les scores",
+            "source_sha256": "c5f09715dba8604df4066110f56801bcb05d9f66c247cae1b412976456d6813d"
+          },
+          {
+            "table": "UI",
+            "key": "cellprob_threshold",
+            "source": "cellprob_threshold",
+            "translation": "cellprob_threshold",
+            "old": null,
+            "source_sha256": "cb4aee79d409573b9929f0655f4cd1fcdab76681b6af9b5acfea56e91ae2c2e8"
+          },
+          {
+            "table": "UI",
+            "key": "flow_threshold",
+            "source": "flow_threshold",
+            "translation": "flow_threshold",
+            "old": null,
+            "source_sha256": "a1ea128a445191e5113a3977b2d6b7cd362c96cb7fdbc06eaf072cb6f58104cd"
+          },
+          {
+            "table": "UI",
+            "key": "min_size",
+            "source": "min_size",
+            "translation": "min_size",
+            "old": null,
+            "source_sha256": "431b9a4d2094e97e40330152620b803ede3f0154b2abb16bb51cd7fb053c4bad"
+          }
+        ],
+        "unrelated_entries_preserved": true,
+        "sha256": "317a238874dc090fee2f7b15f60983eb1c9feca844848d94ed9e9076961f91b5"
+      }
+    ]
+  },
+  "additional_german_api_review_records": 115,
+  "total_german_reconstruction_records": 778,
+  "validation": {
+    "sphinx_warnings_as_errors": true,
+    "resolved_internal_guide_links": 17,
+    "served_english_api_matches": true,
+    "language_source_and_live_tr": {
+      "source_commit": "ee43d8530b161810d05d0f68481ac69981c42138",
+      "ui_count": 5016,
+      "api_count": 11402,
+      "languages": [
+        {
+          "language": "sv",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "de",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "es",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "zh_CN",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "pt",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "hi",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "ko",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "is",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "fr",
+          "review_records": 3,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        }
+      ],
+      "full_locale_acceptance": false,
+      "native_speaker_signoff": false
+    },
+    "focused_checks_passed": 59,
+    "remaining_catalog_checks_failed": [
+      "test_api_doc_catalog_is_symbol_keyed_and_source_hashed",
+      "test_runtime_catalogs_have_no_unreviewed_exact_english_fallbacks",
+      "test_chinese_and_scientific_runtime_terms_are_contextual",
+      "test_runtime_catalogs_resolve_all_reviewed_false_friend_variants",
+      "test_all_external_catalogs_preserve_runtime_placeholders",
+      "test_external_runtime_catalogs_have_exact_current_source_keys",
+      "test_runtime_catalogs_need_no_incremental_repairs",
+      "test_runtime_tooltips_have_no_exact_english_prose_fallbacks"
+    ],
+    "full_locale_acceptance": false
+  },
+  "files_sha256": {
+    "docs/source/make_masks.rst": "9676ab0ac0ca46da1a34114bd701e838fdac6df938103d40819a14447e71861a",
+    "docs/source/_static/i18n/api/en.json": "099de7ea34e6d3612a5d569c2b6b630127a4efdfe4c20950616dd9c968179541",
+    "docs/i18n/api_source_history.json": "f2f2283c52beacc98e40ffe418cdcffdd7104c0749ccc97a275b476893be4910",
+    "spacr/qt/help_api_index.py": "96ebd69c9040a2e5323d265be33d7631357e37e4d598c3a3b087859877a2ed99",
+    "spacr/qt/i18n_catalogs/en.py": "8bb7e9ccb03226123050c2acb07feb7e72a90aff975ac8d141d1062157997c8b",
+    "docs/i18n/reviewed/api/de/2026-09-23-api-reconstruction-04.json": "8fab78b8ab76a41e2127ec72c382ba65a9a52753e1dfb9469da1090037b4d916",
+    "spacr/qt/i18n_catalogs/sv.py": "56177e9bddb1e824accca8f96a5deae9bf6f5692ee49f281b29c603558e59f32",
+    "docs/i18n/reviewed/runtime/sv/2026-09-23-object-detection.json": "a8e8a3647768a15e9e05758d782306d42e81fc57736fd51dd21792148f787d85",
+    "spacr/qt/i18n_catalogs/de.py": "5c68fcba76ef90af53a16e7c254b17251de50bbaf3368a8db553ada7ab8c8a65",
+    "docs/i18n/reviewed/runtime/de/2026-09-23-object-detection.json": "6e9ff3d2df378c1095c6e0b272f3e99ffe251e8a3e970b18735f0d3a2141b680",
+    "spacr/qt/i18n_catalogs/es.py": "f30193e7036a6bfb9c2ddd44c98edcf63fe60dff7a0d1fb3929b960e107f8257",
+    "docs/i18n/reviewed/runtime/es/2026-09-23-object-detection.json": "b7b7feb3e4a8086be0c44e9ad9f1d4d34ff968d9881fa9bfb2559405295ee8e3",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "8aeb29c8c55afef7283698f20e0d13760af7a3268d04bca5fc09fab6c72363c3",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-object-detection.json": "61db145dd00f58f0045bb5e98bf29e2f276295a95c91c18e241521471c307860",
+    "spacr/qt/i18n_catalogs/pt.py": "e2ff3ced6e5156d5345557d5b9498db2b31678988ed210502d8ff154e148f3e1",
+    "docs/i18n/reviewed/runtime/pt/2026-09-23-object-detection.json": "07a1a5252d86ff82e742cbe57b295f45abe6bdb11f707a6e8a9a5d587bc015be",
+    "spacr/qt/i18n_catalogs/hi.py": "31eb3de44d40f15b76fd6029abc5215436ab35882d1b734b1bf988df2b4b02ba",
+    "docs/i18n/reviewed/runtime/hi/2026-09-23-object-detection.json": "b9584e5d2304fc5d6948a12bceec32e95e95e7d09d982ff7d2892331b0cd5db1",
+    "spacr/qt/i18n_catalogs/ko.py": "a00a783ca6064f435be5353ecc79f87b0505b783169ba84f6db2eca0048e0b22",
+    "docs/i18n/reviewed/runtime/ko/2026-09-23-object-detection.json": "0674e6deacf48ac58177e8ce793880b15e6c7fc2a648273318ae3961f46140a5",
+    "spacr/qt/i18n_catalogs/is.py": "47895c4d6882341dc089a57a1aad4d740d79236d4d1d6aa5f32a8439b1d37fab",
+    "docs/i18n/reviewed/runtime/is/2026-09-23-object-detection.json": "11512a6c11186e8f79fa55b7f0707e7765ab2e278da449401f6f2b7af198c95b",
+    "spacr/qt/i18n_catalogs/fr.py": "317a238874dc090fee2f7b15f60983eb1c9feca844848d94ed9e9076961f91b5",
+    "docs/i18n/reviewed/runtime/fr/2026-09-23-object-detection.json": "dfae7e0a1f23a5960bfd733b98ae0eabca4a2427197c15ed1685cc6611b3e5aa"
+  },
+  "remaining": [
+    "Whole locale/API catalog reconstruction",
+    "Current Make Masks tutorial recapture and narration"
+  ]
+}

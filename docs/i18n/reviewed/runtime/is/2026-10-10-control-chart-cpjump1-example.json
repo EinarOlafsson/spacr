@@ -1,0 +1,14 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source": "Load a public plate series: every well of the 24 CPJUMP1 compound plates of the Cell Painting Gallery (CC0), with DMSO and positive-control wells marked, and chart the DMSO wells plate by plate. About 2 MB, cached afterwards.",
+      "source_sha256": "43d04f0fd02036ba7f5d48ab3e910d7b6fa601fcaabe433e18ff0109b9b733f5",
+      "table": "ui",
+      "translation": "Hlaða opinberri plöturöð: allir brunnar 24 CPJUMP1-efnaplatna úr Cell Painting Gallery (CC0), með DMSO- og jákvæðum viðmiðunarbrunnum merktum, og DMSO-brunnarnir sýndir á riti plötu fyrir plötu. Um 2 MB, geymt í skyndiminni eftir það."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

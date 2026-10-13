@@ -1,0 +1,24 @@
+{
+  "item": 472,
+  "date": "2026-09-22",
+  "request": "Start an optical pooled sample in Mask Generation's OPS page instead of Align & Stitch",
+  "route": {"home_app": "mask", "first_module": "ops", "generic_alignment": "optional"},
+  "validation": {
+    "focused_tests_passed": 78,
+    "workflow_modules_verified": 74,
+    "workflow_pathways_verified": 9,
+    "real_main_window_ops_page": true,
+    "reuses_and_reselects_existing_ops_page": true,
+    "uses_ops_example_loader": true,
+    "seeded_and_restart_settings_target_ops": true,
+    "synthetic_sample_cycles": 11,
+    "analysis_started": false,
+    "network_example_download": false
+  },
+  "handoff": {
+    "new_helper": "spacr.qt.app._opened_module_screen",
+    "changed_runtime": ["spacr.qt.app.MainWindow._start_a_sample_project", "spacr.qt.app.MainWindow._switch_a_fold_on", "spacr.qt.app.MainWindow.resume_after_restart", "spacr.qt.app.MainWindow._on_train_requested", "spacr.qt.widgets.sample_project.SampleProjectDialog.accept", "spacr.qt.widgets.sample_project.offer_a_sample_project", "spacr.qt.widgets.sample_project.start_example", "spacr.qt.chaining._SUCCEEDED_BY"],
+    "locale_followup": "Expanded optical_screen pathway note",
+    "api_source_binding_refresh": "Other Codex lane"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "status": "accepted deployed guide/catalog scope",
+  "deployed_source": "1a4df538c88cb5efa2ef848bdd709d5b2b4c8bf1",
+  "docs_workflow": 37726770838,
+  "workflow_trigger_source": "28186e3cae8ee4db9662fb910a9b01088f6b4083",
+  "resolved_source_differs_from_trigger": true,
+  "api_symbols_per_language": 13215,
+  "languages": 10,
+  "guide_checks": 64,
+  "scope": "Complete deployed catalog files equal immutable repository catalogs at source1a4df538c;32 repaired paragraphs in actual desktop/mobile deployed browsers. Full catalogue raw downloads retained in scratch and reconstructible from repository source; their original SHA/byte counts are in catalog receipt. No new engine-page visibility, human/native review or tutorial acceptance.",
+  "artifacts": [
+    {
+      "payload": "check_deployed_current_catalogs_r1.py.gz",
+      "bytes": 2099,
+      "sha256": "6fc3b1c783e68602f403011274d7768cfd48565de0934e33dd9eb58cd1e49559"
+    },
+    {
+      "payload": "check_deployed_current_guide_browsers_r1.py.gz",
+      "bytes": 4943,
+      "sha256": "c33dfec3bc086cbbc2ecd979c738da152030bdccc9e6f541143ee91c7f195de4"
+    },
+    {
+      "payload": "deployed-current-catalogs-r1/channels.json.gz",
+      "bytes": 511,
+      "sha256": "5d6dd5662556deabea0fef53a663bea49fd96d1eeaaa1be53053119159a86b86"
+    },
+    {
+      "payload": "deployed-current-catalogs-r1/nightly/publication.json.gz",
+      "bytes": 179,
+      "sha256": "4ccd29a15a86bc97237980fcb8265fc2985d7e43cdc9c7c30861000e1c69b997"
+    },
+    {
+      "payload": "deployed-current-catalogs-r1/receipt.json.gz",
+      "bytes": 2396,
+      "sha256": "a6dc0a75771edd4ea0b2aa2f27472f657c468aaac8cc75d5f4827b085c88e407"
+    },
+    {
+      "payload": "deployed-current-catalogs-r1.log.gz",
+      "bytes": 1033,
+      "sha256": "4b1e144edddaeff9dd73b25c30114efe92815ed0598a0a050fa9cd6c9fa3e38f"
+    },
+    {
+      "payload": "deployed-current-guide-browsers-r1/ko-1440.png.gz",
+      "bytes": 2189152,
+      "sha256": "1d517f52ed5125b774ddf15634eb8f079ab470d3916f780533003aa80e3fcde1"
+    },
+    {
+      "payload": "deployed-current-guide-browsers-r1/ko-393.png.gz",
+      "bytes": 1884874,
+      "sha256": "2ff40e2e7ee58b820a916945b9303585c59d55bb43726073cdb7e342b896297e"
+    },
+    {
+      "payload": "deployed-current-guide-browsers-r1/receipt.json.gz",
+      "bytes": 21812,
+      "sha256": "8c4eaca208f81a64c864f896f38bca10bcfd6c5ab3e30eff586a5a2a2e3bdfa9"
+    },
+    {
+      "payload": "deployed-current-guide-browsers-r1/zh_CN-1440.png.gz",
+      "bytes": 2574515,
+      "sha256": "9e1119eb8168aa6dba0d63804fea193a3e88a9ca011357472fbc68de98070842"
+    },
+    {
+      "payload": "deployed-current-guide-browsers-r1/zh_CN-393.png.gz",
+      "bytes": 2230441,
+      "sha256": "7bbaee71aae2b0fbe1a46ec244d3ce82094dbb5f126b2206095d065f3f074860"
+    },
+    {
+      "payload": "deployed-current-guide-browsers-r1.log.gz",
+      "bytes": 1355,
+      "sha256": "b0ca9f5d77bc909b373cb109eb461842d887e9c1a343f9757ccbe909e0614b11"
+    }
+  ]
+}

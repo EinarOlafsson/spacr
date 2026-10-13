@@ -1,0 +1,56 @@
+{
+  "sv": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "d495c3a27e1d9261faea4b437b4c69aacb9497fdecd333822b77410aac3d3c44",
+    "review_sha256": "4df1b787380857cef378ecbfcf19c28df6c42bb8accc415e00797284231d666e"
+  },
+  "de": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "0cb7002377ee6b9f3acc23f637cbc5f9e9a615a30a091d381a646e85bcff33d0",
+    "review_sha256": "de5c8dc35cd1a15c67bf2e3ebb030f224689cbbc19dbc37312497b46937ac8bd"
+  },
+  "es": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "f16fe8f9215eb9feb2903aa19efe25f2212706ecdc1791b8a8d279f5f72501f4",
+    "review_sha256": "8c2db2e46a4a304f90dca9175b5260d455196514b669f378f01dcc8c2092dc58"
+  },
+  "pt": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "9fcbfac19afcf8e2234635cc98761eb65fb862b31fa93cc722f72ebf4ae4c1a8",
+    "review_sha256": "05e34fe361e5f50bc3c2df75b3cb9718f3bf96b9b7ebdeef9421c6a0fe65e679"
+  },
+  "fr": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "f9045277675dc376fc6e22dd3b3bc0d627740b365a8b09aaee7774d0b0b23b27",
+    "review_sha256": "557624130d5315dbaadada2167b9241a09199b4159356880c4d999cdd0fd550b"
+  },
+  "is": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "da6daa4d829aa2aa72f9a979e8f0f7fa6f6ef243e7af5286599dbf60a24623c3",
+    "review_sha256": "ba179c981623fed519d58db78d731d95060247257b6d78f249234b070d5f9954"
+  },
+  "zh_CN": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "3af6703e44213f49f679487754d29b1526df6080e948f0776a61bebcbd5ce553",
+    "review_sha256": "a6a1a88a1fefa569e7bcee4d1acacb8a3baa53442a97a99818ded36af880f290"
+  },
+  "ko": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "4a40314bd8351f4e3a0637853be201506b6961fdb3fcb02af5e6a3a175357067",
+    "review_sha256": "f7b5b7591a7a04d4a0fb130a78f36de9fbbab1d55a8594037c5d2bc90d474360"
+  },
+  "hi": {
+    "applied": 6,
+    "existing_translations_preserved": 11,
+    "po_sha256": "b56b2b1d2832a52ffa4adc14286da3f19d397713fd16d8c2e82fbfb79c10d8c4",
+    "review_sha256": "4f97f59a0be70be0a4dc853b57e0c47d0b675810c15f85f86e40e8056f8c4d83"
+  }
+}

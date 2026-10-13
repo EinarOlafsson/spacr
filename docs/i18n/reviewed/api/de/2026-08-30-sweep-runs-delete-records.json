@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.delete_runs_from_disk#2",
+      "source": "run-row mappings whose distinct, existing ``folder`` paths are candidates for deletion. A running record refuses the whole operation.",
+      "context": "run-row mappings whose distinct, existing ``folder`` paths are candidates for deletion. A running record refuses the whole operation.",
+      "source_sha256": "973136da1a5c0ad7fac96d338c3a032b55a72fba21decf09e09df570bf4c2d1d",
+      "translation": "Zuordnungen von Zeilen zu Verarbeitungsläufen, deren unterschiedliche, vorhandene ``folder``-Pfade zum Löschen vorgesehen sind. Ein Datensatz eines laufenden Verarbeitungslaufs bricht den gesamten Vorgang ab."
+    }
+  ]
+}

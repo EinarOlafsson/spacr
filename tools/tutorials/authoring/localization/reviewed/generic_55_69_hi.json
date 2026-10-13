@@ -1,0 +1,107 @@
+{
+  "_meta": {
+    "schema": 2,
+    "reviewer": "human scientific-language review",
+    "scope": "Complete Hindi narration review for application lessons 55–69, excluding separately reviewed Gate Editor."
+  },
+  "lessons": {
+    "55_image_scatter": {"languages": {"hi": {"description": "Measurements को plot करें और प्रत्येक point से संबंधित image की जाँच करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Image Scatter शामिल है। Measurements को plot करें और प्रत्येक point से संबंधित image की जाँच करें।",
+      "2": "Explore अनुभाग से Image Scatter खोलें। Measurement table, x और y features तथा crop या field image column चुनें।",
+      "3": "मुख्य configuration क्षेत्र में excluded rows को छिपाए बिना colour, grouping, filters, sampling और axis transforms सेट करें।",
+      "4": "Scatter plot बनाएँ, image context देखने के लिए points पर cursor रखें और representative या unusual points पर click करें।",
+      "5": "Workflow पूरा होने पर चुने हुए objects और plot को स्थिर source identifiers सहित export किया जा सकता है।"
+    }}}},
+    "56_lineage": {"languages": {"hi": {"description": "Cell, nucleus, pathogen और organelle assignments जैसे containment relationships की जाँच करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Lineage शामिल है। Cell, nucleus, pathogen और organelle assignments जैसे containment relationships की जाँच करें।",
+      "2": "Explore अनुभाग से Lineage खोलें। Relationship identifiers वाले measured objects खोलें।",
+      "3": "मुख्य configuration क्षेत्र में parent और child classes, filters, fields तथा दिखाए जाने वाले relationship attributes चुनें।",
+      "4": "Representative images पर अनपेक्षित missing, duplicate या boundary पार करने वाले relationships जाँचें।",
+      "5": "Workflow पूरा होने पर reviewed relationship table biological structure और assignment errors के बीच अंतर करने में सहायक होती है।"
+    }}}},
+    "57_layer_viewer": {"languages": {"hi": {"description": "Images, masks, points और regions of interest को aligned layers के रूप में जाँचें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Layer Viewer शामिल है। Images, masks, points और regions of interest को aligned layers के रूप में जाँचें।",
+      "2": "Explore अनुभाग से Layer Viewer खोलें। Project या compatible image और annotation layers खोलें।",
+      "3": "मुख्य configuration क्षेत्र में layer visibility, channels, colors, opacity, contrast और navigation चुनें।",
+      "4": "Overlay के आधार पर निष्कर्ष निकालने से पहले layers को चालू और बंद करके boundaries और coordinates जाँचें।",
+      "5": "Workflow पूरा होने पर view और selected regions को source बदले बिना export किया जा सकता है, जब तक कि कोई edit स्पष्ट रूप से save न किया जाए।"
+    }}}},
+    "58_graph_builder": {"languages": {"hi": {"description": "Table columns को visual roles देकर exploratory charts बनाएँ।", "narrations": {
+      "1": "इस ट्यूटोरियल में Graph Builder शामिल है। Table columns को visual roles देकर exploratory charts बनाएँ।",
+      "2": "Explore अनुभाग से Graph Builder खोलें। Measurement table चुनें और features को x, y, colour, size या facet roles पर खींचें।",
+      "3": "मुख्य configuration क्षेत्र में वैज्ञानिक प्रश्न के अनुरूप geometry, aggregation, filtering, transforms और grouping चुनें।",
+      "4": "Chart बनाएँ और दिखाई देने वाले patterns के पीछे counts, missing values तथा source rows जाँचें।",
+      "5": "Workflow पूरा होने पर chart specification और data selection को पुनः उपयोग या export किया जा सकता है।"
+    }}}},
+    "59_anndata_export": {"languages": {"hi": {"description": "scanpy या scvi-tools में उपयोग के लिए spaCR measurements को AnnData file में लिखें।", "narrations": {
+      "1": "इस ट्यूटोरियल में AnnData Export शामिल है। scanpy या scvi-tools में उपयोग के लिए spaCR measurements को AnnData file में लिखें।",
+      "2": "Explore अनुभाग से AnnData Export खोलें। Measurement table, object type, features, observations और metadata columns चुनें।",
+      "3": "मुख्य configuration क्षेत्र में joins, missing values, feature scaling, sparse storage और stable identifiers की समीक्षा करें।",
+      "4": "File लिखने से पहले dimensions और metadata का Preview देखें।",
+      "5": "Workflow पूरा होने पर h5ad file downstream analysis के लिए चुनी गई matrix, annotations और provenance को सुरक्षित रखती है।"
+    }}}},
+    "60_pca": {"languages": {"hi": {"description": "Principal components से correlated measurements का सारांश बनाएँ और उन्हें प्रभावित करने वाली features जाँचें।", "narrations": {
+      "1": "इस ट्यूटोरियल में PCA शामिल है। Principal components से correlated measurements का सारांश बनाएँ और उन्हें प्रभावित करने वाली features जाँचें।",
+      "2": "Explore अनुभाग से PCA खोलें। Measurement table, numeric features और वैकल्पिक labels या groups चुनें।",
+      "3": "मुख्य configuration क्षेत्र में filtering, missing-value handling, scaling, components और sampling सेट करें।",
+      "4": "PCA fit करें और scores, explained variance, loadings तथा image-linked outliers को एक साथ जाँचें।",
+      "5": "Workflow पूरा होने पर reproducible exploration के लिए scores, loadings, settings और plots export किए जा सकते हैं।"
+    }}}},
+    "61_tabulate": {"languages": {"hi": {"description": "योगदान देने वाली observations की संख्या दिखाते हुए measurements को grouped summaries में pivot करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Tabulate शामिल है। योगदान देने वाली observations की संख्या दिखाते हुए measurements को grouped summaries में pivot करें।",
+      "2": "Explore अनुभाग से Tabulate खोलें। Table चुनें और grouping fields, value columns तथा aggregations निर्धारित करें।",
+      "3": "मुख्य configuration क्षेत्र में filters, missing values, category order, totals और प्रत्येक cell के पीछे की count की समीक्षा करें।",
+      "4": "Table बनाएँ और export करने से पहले sparse या अनपेक्षित रूप से खाली groups की जाँच करें।",
+      "5": "Workflow पूरा होने पर pivoted table और उसका specification source selection से जुड़े रहते हैं।"
+    }}}},
+    "62_feature_dictionary": {"languages": {"hi": {"description": "नाम या अवधारणा से किसी measured feature का अर्थ पता करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Feature Dictionary शामिल है। नाम या अवधारणा से किसी measured feature का अर्थ पता करें।",
+      "2": "Explore अनुभाग से Feature Dictionary खोलें। Feature name, measurement family, object type या biological concept खोजें।",
+      "3": "मुख्य configuration क्षेत्र में compartment, channel, unit, computation या वर्तमान project में availability के अनुसार filter करें।",
+      "4": "किसी entry की definition, expected units, dependencies और caveats की समीक्षा के लिए उसे खोलें।",
+      "5": "Workflow पूरा होने पर चुनी हुई definitions को analysis के साथ copy या export किया जा सकता है।"
+    }}}},
+    "63_small_multiples": {"languages": {"hi": {"description": "उचित shared axes वाले grid पर groups के बीच समान chart की तुलना करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Small Multiples शामिल है। उचित shared axes वाले grid पर groups के बीच समान chart की तुलना करें।",
+      "2": "Explore अनुभाग से Small Multiples खोलें। Table, chart variables और प्रत्येक panel निर्धारित करने वाला field चुनें।",
+      "3": "मुख्य configuration क्षेत्र में layout, shared या independent scales, aggregation, filtering और panel order सेट करें।",
+      "4": "Grid बनाएँ और panels की तुलना से पहले sample sizes तथा scale choices जाँचें।",
+      "5": "Workflow पूरा होने पर trellis specification और figure को selected data सहित export किया जा सकता है।"
+    }}}},
+    "65_feature_explorer": {"languages": {"hi": {"description": "Selected classes को अलग करने की क्षमता के आधार पर features को rank करें और ranking के evidence की जाँच करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Feature Explorer शामिल है। Selected classes को अलग करने की क्षमता के आधार पर features को rank करें और ranking के evidence की जाँच करें।",
+      "2": "Explore अनुभाग से Feature Explorer खोलें। Table, class column, तुलना किए जाने वाले groups और candidate numeric features चुनें।",
+      "3": "मुख्य configuration क्षेत्र में scoring, validation, filtering, sampling और multiple-comparison controls की समीक्षा करें।",
+      "4": "Ranking की गणना करें और प्रमुख features के distributions तथा image-linked examples जाँचें।",
+      "5": "Workflow पूरा होने पर ranked table और plots classes के साथ association दर्शाते हैं, causal importance नहीं।"
+    }}}},
+    "66_outliers": {"languages": {"hi": {"description": "प्रत्येक row को सुरक्षित रखते हुए robust rules से unusual objects या wells को flag करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Outliers शामिल है। प्रत्येक row को सुरक्षित रखते हुए robust rules से unusual objects या wells को flag करें।",
+      "2": "Explore अनुभाग से Outliers खोलें। जाँच के लिए table, analysis level, grouping और features चुनें।",
+      "3": "मुख्य configuration क्षेत्र में robust method, direction, threshold, missing-value handling और reference groups चुनें।",
+      "4": "Rule स्वीकार करने से पहले flagged rows का Preview देखें और उनके measurements तथा images जाँचें।",
+      "5": "Workflow पूरा होने पर spaCR observations को बिना बताए हटाने के बजाय outlier flag और diagnostics लिखता है।"
+    }}}},
+    "67_experiment_design": {"languages": {"hi": {"description": "Acquisition से पहले conditions, controls और replicates का layout निर्धारित करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Experiment Design शामिल है। Acquisition से पहले conditions, controls और replicates का layout निर्धारित करें।",
+      "2": "Design अनुभाग से Experiment Design खोलें। Plate format, conditions, controls, replicate plan और constraints चुनें।",
+      "3": "मुख्य configuration क्षेत्र में randomization, blocking, edge handling, balance, reserved wells और metadata labels की समीक्षा करें।",
+      "4": "प्रस्तावित layout बनाएँ और जाँचें, फिर conflicts या imbalances सुधारें।",
+      "5": "Workflow पूरा होने पर validated plate map और metadata को acquisition तथा बाद के spaCR analysis के लिए export किया जा सकता है।"
+    }}}},
+    "68_power_design": {"languages": {"hi": {"description": "स्पष्ट assumptions के अंतर्गत effect पहचानने के लिए आवश्यक cells और wells की संख्या का अनुमान लगाएँ।", "narrations": {
+      "1": "इस ट्यूटोरियल में Power / Design शामिल है। स्पष्ट assumptions के अंतर्गत effect पहचानने के लिए आवश्यक cells और wells की संख्या का अनुमान लगाएँ।",
+      "2": "Design अनुभाग से Power / Design खोलें। Outcome type, expected effect, variability, grouping और planned analysis दर्ज करें।",
+      "3": "मुख्य configuration क्षेत्र में significance, target power, clustering, attrition और uncertainty ranges की समीक्षा करें।",
+      "4": "Design की गणना करें और sensitivity views से देखें कि कौन-से assumptions sample size को सबसे अधिक प्रभावित करते हैं।",
+      "5": "Workflow पूरा होने पर report संदर्भहीन एक संख्या देने के बजाय assumptions और recommended sampling दर्ज करती है।"
+    }}}},
+    "69_dose_response": {"languages": {"hi": {"description": "Uncertainty की सूचना देते हुए dose-response curves fit करें और evidence से असमर्थित EC50 estimates स्वीकार न करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Dose–Response शामिल है। Uncertainty की सूचना देते हुए dose-response curves fit करें और evidence से असमर्थित EC50 estimates स्वीकार न करें।",
+      "2": "Design अनुभाग से Dose–Response खोलें। Concentration, response, replicate, condition और control columns चुनें।",
+      "3": "मुख्य configuration क्षेत्र में normalization, direction, bounds, weighting, grouping और minimum evidence requirements की समीक्षा करें।",
+      "4": "Curve fit करें और curve, residuals, confidence interval तथा किसी अस्वीकृत estimate या one-sided bound की जाँच करें।",
+      "5": "Workflow पूरा होने पर curve parameters, uncertainty, diagnostics और source data को एक साथ export किया जा सकता है।"
+    }}}}
+  }
+}

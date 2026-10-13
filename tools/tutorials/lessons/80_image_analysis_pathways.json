@@ -1,0 +1,117 @@
+{
+  "id": "80_image_analysis_pathways",
+  "number": 80,
+  "slug": "image_analysis_pathways",
+  "title": "Image analysis modules and how they relate",
+  "series": 1,
+  "app_key": null,
+  "section": "Workflows",
+  "description": "Follow the current image-to-measurement routes and choose exploration, labeling, comparison or organism-specific analyses.",
+  "objectives": [
+    "Choose a starting module from the data you already have.",
+    "Identify what each module reads and writes.",
+    "Follow the linked module lessons and API contracts for the next step."
+  ],
+  "prerequisite": "Install spaCR and open Home. Choose the starting data for your workflow, then follow the linked module lessons for controls and example data.",
+  "scenes": [
+    {
+      "visual": "00_home",
+      "narration": "Start with the question and the data you already have. The current Home rows separate Core analysis, Data preparation and comparison, Tools, and the Toxoplasma Organism page. A module is one step; its output becomes another module’s input.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "module_foreign",
+      "narration": "Import organizes incoming microscopy files and metadata. If your acquisition contains overlapping tiles, Align & Stitch can prepare a mosaic with its coordinate records. Keep channel identities and source metadata with the project.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "36_import",
+        "32_align_stitch"
+      ]
+    },
+    {
+      "visual": "module_mask",
+      "narration": "Mask produces object labels from microscopy images. Make Masks lets you create or review masks manually. Image-mask pairs must keep the same field identity; a loose mask file is not automatically the combined project arrays Measure needs.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask",
+        "14_make_masks"
+      ]
+    },
+    {
+      "visual": "module_measure",
+      "narration": "Measure reads the prepared images and mask planes together. It writes measurements.db with object identities and feature columns, and can save object crops. Keep the source project and channel mapping with those tables.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "module_annotate",
+      "narration": "Annotate displays object crops so you can add reviewed labels. Classify trains a model on the selected label column, using crop images or measured features. Keep evaluation objects separate from training objects and carry the score column and object identities into later analyses.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate",
+        "41_classify"
+      ]
+    },
+    {
+      "visual": "module_embeddings",
+      "narration": "Embeddings encodes crops into numerical features. Image UMAP projects compatible features for exploration. Inspect representative crops before assigning meaning to a cluster; a cluster alone is not a validated phenotype.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "77_embeddings",
+        "15_image_umap"
+      ]
+    },
+    {
+      "visual": "module_gate_editor",
+      "narration": "Gate Editor selects objects using real feature columns or compatible projection coordinates. Review the selected objects before writing labels. Those labels can become reviewed examples for Annotate or Classify.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "64_gate_editor"
+      ]
+    },
+    {
+      "visual": "module_qc_dashboard",
+      "narration": "QC reports the quality checks that are present and the evidence that is missing. Run Compare inspects saved runs side by side. Graph Builder plots measurement tables with the columns and grouping you choose.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "54_qc_dashboard",
+        "50_run_compare",
+        "58_graph_builder"
+      ]
+    },
+    {
+      "visual": "module_experiment_design",
+      "narration": "Experiment Design plans conditions and sample identities. Power / Design explores statistical planning assumptions. Dose-Response analyzes an endpoint across concentrations. Keep the measurement endpoint, controls and experimental unit explicit.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "67_experiment_design",
+        "68_power_design",
+        "69_dose_response"
+      ]
+    },
+    {
+      "visual": "module_toxoplasma",
+      "narration": "The Toxoplasma page groups organism-specific assays. Their inputs differ: a plaque image, compartment measurements or explicit parasite-to-vacuole links are not interchangeable. Choose the matching assay and follow its own input requirements.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "82_toxoplasma"
+      ]
+    },
+    {
+      "visual": "module_map_barcodes",
+      "narration": "For pooled screens, Map Barcodes produces guide counts from sequencing reads. Regression combines those counts with compatible phenotype scores. Preserve plate, well and guide identity when joining the two routes.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "12_map_barcodes",
+        "13_regression"
+      ]
+    },
+    {
+      "visual": "home_summary",
+      "narration": "Return Home and choose the next step from the output you actually have. Use the linked module lessons for a complete run. Keep the input identity, settings, installed version and output location together so the workflow can be checked later.",
+      "hold_after": 0.7
+    }
+  ]
+}

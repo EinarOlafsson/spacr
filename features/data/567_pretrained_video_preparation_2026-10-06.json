@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "item": 567,
+  "scope": "Actual pinned publicly acquired pretrained VideoMAE CPU loading and deterministic synthetic preparation, with byte-exact original output and stdout archival. No application backend, biological event accuracy, GPU training or GPU inference acceptance.",
+  "official_model": "MCG-NJU/videomae-base-finetuned-kinetics",
+  "actual_revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+  "model_weights_license": "cc-by-nc-4.0",
+  "actual_weights_bytes": 346161616,
+  "actual_weights_sha256": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+  "private_weights_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-videomae-preparation-r1/model/model.safetensors",
+  "strict_loading_missing_unexpected_mismatched_errors": {
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "mismatched_keys": [],
+    "error_msgs": []
+  },
+  "finite_actual_cpu_features_shape": [
+    1,
+    768
+  ],
+  "finite_actual_cpu_logits_shape": [
+    1,
+    400
+  ],
+  "original_cpu_classifier_reconstruction_bit_exact": true,
+  "fresh_archive_verification": "Rehashed every original model file/output/script, checked finite original arrays, and verified every compressed archive decodes byte-exact. The original model run was not repeated during archival.",
+  "files": {
+    "acceptance.json": {
+      "original_sha256": "8053ffd8f985c1b928d66b93d5b675b7b1112735c9f8e41a10c57f8c58934bd6",
+      "archived_sha256": "8053ffd8f985c1b928d66b93d5b675b7b1112735c9f8e41a10c57f8c58934bd6",
+      "original_bytes": 3543,
+      "archived_bytes": 3543
+    },
+    "primary-model-metadata.json": {
+      "original_sha256": "51e89ec24c9bfd9e7630852548747a36a08bcabdae7ef857955a31928560fde6",
+      "archived_sha256": "51e89ec24c9bfd9e7630852548747a36a08bcabdae7ef857955a31928560fde6",
+      "original_bytes": 3685,
+      "archived_bytes": 3685
+    },
+    "prepare_pretrained_event_video_model_r1.py": {
+      "original_sha256": "c73b2eac4c47e7e3671a93f433b74f05577af9c2d595afc4333dad891b17b7ad",
+      "archived_sha256": "c73b2eac4c47e7e3671a93f433b74f05577af9c2d595afc4333dad891b17b7ad",
+      "original_bytes": 6100,
+      "archived_bytes": 6100
+    },
+    "567-videomae-acquisition-and-CPU-r1.log.gz": {
+      "original_sha256": "d51ed6fa52572af738ad3b720eabad799d4539d3195dbeb69f47155ed9386e91",
+      "archived_sha256": "821b738ac0faf1d18fc5e68f5ff4084278db2b7cdb43744fef74c156fbc043c9",
+      "original_bytes": 686,
+      "archived_bytes": 400
+    },
+    "synthetic-16-frame-RGB-uint8.npy.gz": {
+      "original_sha256": "65771238502126c862fc20d5ae78c5908bb909d9814eb0e32e69499416953465",
+      "archived_sha256": "ea592fe48441b70ba56a94ae8931dc12cfd8d36c6c2f92257ffc6931fd6882b3",
+      "original_bytes": 2408576,
+      "archived_bytes": 20161
+    },
+    "synthetic-CPU-kinetics-logits.npy.gz": {
+      "original_sha256": "9189a0066b7ffc95fd025536a6888a146a246342bc544bdeb6748c1c0816ebf6",
+      "archived_sha256": "425bf732fe4cbe8a07d8063b845f5e74042f817ceae87b9cb49b4b4559c2ecac",
+      "original_bytes": 1728,
+      "archived_bytes": 1628
+    },
+    "synthetic-CPU-pooled-features.npy.gz": {
+      "original_sha256": "c9858d49e03802c838537b42b3af62d86f1623c9319a7181ca8ccdb483d05d47",
+      "archived_sha256": "8ec20140d1d8d121f6a2307ef1fed5f108de04710586b76c72c6704db9922e6f",
+      "original_bytes": 3200,
+      "archived_bytes": 2979
+    },
+    "synthetic-CPU-processor-pixels.npy.gz": {
+      "original_sha256": "3dc4b7ee9f08a2527fdc2bfe780eb4f513d0ee79674a69f3c4dbf9a47ea6395f",
+      "archived_sha256": "b0e48016e134d0406b33bfb7bbd9acb2f82a4a74b484c34af6e8a29fb193a61e",
+      "original_bytes": 9633920,
+      "archived_bytes": 124615
+    },
+    "config.json": {
+      "original_sha256": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+      "archived_sha256": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+      "original_bytes": 22865,
+      "archived_bytes": 22865
+    },
+    "preprocessor_config.json": {
+      "original_sha256": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2",
+      "archived_sha256": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2",
+      "original_bytes": 271,
+      "archived_bytes": 271
+    },
+    "README.md": {
+      "original_sha256": "b2ef77f0f4f2e729af4f4a874f6c7aff68e2f4c0dccb921cdcc5d4a7164ad3fb",
+      "archived_sha256": "b2ef77f0f4f2e729af4f4a874f6c7aff68e2f4c0dccb921cdcc5d4a7164ad3fb",
+      "original_bytes": 3584,
+      "archived_bytes": 3584
+    }
+  },
+  "remaining": [
+    "Integrate a real isolated pretrained video backend with the application track/event pipeline.",
+    "Provide and validate real annotated Toxoplasma egress/invasion microscopy.",
+    "Run source-bound GPU acceptance and compare held-out event precision/recall/timing with the existing baseline.",
+    "Complete the open GUI event annotation work without confusing it with this CPU preparation."
+  ],
+  "full_item_complete": false,
+  "gpu_started": false,
+  "shared_environment_modified": false
+}

@@ -1,0 +1,56 @@
+{
+  "feature": 468,
+  "related_features": [
+    288,
+    452,
+    464
+  ],
+  "date": "2026-09-23",
+  "base_commit": "d6ce81f7171128e8b5299249d5302fcff70801fc",
+  "source_sha256": "5d300b20705122e6ab531a5a3fccf91e4ec2fd84625367f0783b06f44eb6c710",
+  "reproduction": "Four failures: late segmentation overwrites new image/mode/empty source, and empty source leaves stale Objects mask. Real QThread worker held by event, then released after selection change.",
+  "fix": "Cancel/invalidate pending preview on source or image/mode load; empty listing clears figure/tables/plaque tabs; stale callback cannot change a newer run busy state.",
+  "final": "143 passed in48.31s;6 added recovery cases",
+  "updated_existing_tests": "Refresh is one per preview including folded previews. Plaque Live stays beside Actions when closed and moves to its card when opened; no AppScreen runtime change.",
+  "execution": "8GiB/no swap; offscreen Linux; CUDA hidden; isolated HOME/config; two BLAS/OpenMP threads; directory-scoped coverage",
+  "before": {
+    "covered_lines": 1844,
+    "num_statements": 2128,
+    "percent_covered": 83.07233407904549,
+    "percent_covered_display": "83.07",
+    "missing_lines": 284,
+    "excluded_lines": 0,
+    "percent_statements_covered": 86.65413533834587,
+    "percent_statements_covered_display": "86.65",
+    "num_branches": 554,
+    "num_partial_branches": 108,
+    "covered_branches": 384,
+    "missing_branches": 170,
+    "percent_branches_covered": 69.31407942238268,
+    "percent_branches_covered_display": "69.31"
+  },
+  "after": {
+    "covered_lines": 1863,
+    "num_statements": 2136,
+    "percent_covered": 83.84101040118871,
+    "percent_covered_display": "83.84",
+    "missing_lines": 273,
+    "excluded_lines": 0,
+    "percent_statements_covered": 87.21910112359551,
+    "percent_statements_covered_display": "87.22",
+    "num_branches": 556,
+    "num_partial_branches": 100,
+    "covered_branches": 394,
+    "missing_branches": 162,
+    "percent_branches_covered": 70.86330935251799,
+    "percent_branches_covered_display": "70.86"
+  },
+  "limitations": [
+    "Plaque preview combined coverage remains below90percent; this fixes observed behavior, not the entire288 gate",
+    "Models are injected CPU fixtures, not pretrained segmentation accuracy",
+    "Public signatures/docstrings/captions/settings unchanged",
+    "Initial regression used job_finished for a cancelled job; fixed to wait for actual QThread retirement since cancelled results deliberately emit no completion callback",
+    "Corrected a test-only array-method invocation before final verification"
+  ],
+  "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/plaque-preview-coverage"
+}

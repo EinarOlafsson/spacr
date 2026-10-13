@@ -1,0 +1,29 @@
+{
+  "source": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "rows": [
+    {
+      "cached_qt_top_levels": 348,
+      "cached_qt_widgets": 13560,
+      "event": "file_begin",
+      "file": "tests/qt/test_field_fade.py",
+      "first_nodeid": "tests/qt/test_field_fade.py::test_the_curve_is_a_cubic_ease_in_on_transparency",
+      "hwm_bytes": 4688273408,
+      "pid": 4001,
+      "rss_bytes": 4554657792,
+      "threads": 29,
+      "time_ns": 1791453618619130288
+    },
+    {
+      "cached_qt_top_levels": 348,
+      "cached_qt_widgets": 13604,
+      "event": "file_end",
+      "file": "tests/qt/test_field_fade.py",
+      "hwm_bytes": 4688273408,
+      "pid": 4001,
+      "rss_bytes": 4593803264,
+      "threads": 25,
+      "time_ns": 1791455442892249295
+    }
+  ],
+  "cached_counts_are_not_a_current_native_widget_census": true
+}

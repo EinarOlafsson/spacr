@@ -1,0 +1,126 @@
+{
+ "agent": "a3-install-tables",
+ "files": {
+  "docs/source/table_workflows.rst": {
+   "paragraphs_read": 67,
+   "paragraphs_changed": 0
+  },
+  "docs/source/installer_guide.rst": {
+   "paragraphs_read": 83,
+   "paragraphs_changed": 9
+  },
+  "docs/source/system_requirements.rst": {
+   "paragraphs_read": 14,
+   "paragraphs_changed": 0
+  }
+ },
+ "changes": [
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "Use a :ref:`container image <container-images>` when the install itself is the problem: a cluster node, a cloud instance, a shared machine you cannot change, or an analysis that has to be re-runnable years from now. The images are for the CLI and the pipelines; the desktop interface in a container is a Linux-only extra and is documented as one.",
+   "after": "Use a :ref:`container image <container-images>` when spaCR cannot be installed directly on the host, such as a cluster node, a cloud instance or a shared machine you cannot change, or when an analysis must be rerun later with the same software versions. The images are for the CLI and the pipelines; running the desktop interface in a container is supported only on Linux and is described separately below.",
+   "kind": "vague",
+   "evidence": "informal framing; Linux-only GUI matches 'The desktop interface in a container' section of same file"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "It installs a CUDA-capable PyTorch build on compatible NVIDIA systems and falls back safely elsewhere.",
+   "after": "It installs a CUDA-capable PyTorch build on compatible NVIDIA systems. On other systems it installs the PyTorch build that ``uv`` selects for the detected hardware, which is the CPU build when no supported GPU is detected.",
+   "kind": "vague",
+   "evidence": "packaging/online/install_spacr_windows.ps1:46-49 sets TorchBackend='auto', passed to 'uv pip install --torch-backend' at :227"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "**Release news** is on and the network answers.",
+   "after": "**Release news** is on and GitHub can be reached.",
+   "kind": "precision",
+   "evidence": "spacr/qt/app.py:4474-4513 fetch of GitHub releases; preference spacr/qt/preferences.py:9152"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "remove them, so two versions never sit side by side with one of them on the path.",
+   "after": "remove them, so that only one installer-made copy remains.",
+   "kind": "metaphor",
+   "evidence": "spacr/install_cleanup.py:1-8 docstring"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "the installer says which, and installs nothing, so you are never left with half an update.",
+   "after": "the installer names it and does not install the new version.",
+   "kind": "filler",
+   "evidence": "spacr/install_cleanup.py:7-8 'runs the install only after step 2 removed every installer-made copy'; did not claim earlier copies are untouched since partial removal is possible"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "checked before it is pushed — it must report the version its tag claims, it must not be running as root, and it must complete one real pipeline — so an image that exists is an image that ran. An image that fails a check is not published, and the release run that built it is red.",
+   "after": "checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails.",
+   "kind": "promotional",
+   "evidence": ".github/workflows/docker-images.yml:32-42,296-336; packaging/docker/smoke_pipeline.py:1-20 (32x32 synthetic field)"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "They exist for the headless half of spaCR: the CLI, the pipelines, a cluster job and a reviewer re-running an analysis a year later. They are not a way to install the desktop application, which the platform installers above do better.",
+   "after": "The images run spaCR without a display: the CLI, the pipelines, cluster jobs and reruns of an earlier analysis with a pinned version. Use the platform installers above to install the desktop application.",
+   "kind": "vague",
+   "evidence": "unverifiable comparative 'do better' removed"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "Models and data are mounted, never baked in. A cpsam checkpoint is about 1.2 GB and goes stale between releases,",
+   "after": "Models and data are mounted at run time; neither is included in the image. A cpsam checkpoint is about 1.2 GB and may be updated between releases,",
+   "kind": "metaphor",
+   "evidence": "packaging/docker/Dockerfile.cpu:26; packaging/docker/README.md:53 (1.2 GB figure kept)"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "before": "Qt complains about it on every start;",
+   "after": "Qt prints a warning about it at every start;",
+   "kind": "metaphor",
+   "evidence": "anthropomorphism"
+  }
+ ],
+ "left_as_is_notable": [
+  {
+   "file": "docs/source/system_requirements.rst",
+   "text": "Python 3.12 is the practical starting point for the broadest spaCR extras.",
+   "reason": "consistent with setup.py:225-228 (rapids extra limited to Python 3.11-3.12) and pyproject.toml:68; mildly informal but factual"
+  },
+  {
+   "file": "docs/source/system_requirements.rst",
+   "text": "spaCR's declared Python range is 3.9–3.14, excluding 3.14.1 ... ``rapids`` extra currently requests CUDA 12 packages on Python 3.11–3.12 ... worker selection checks CUDA/ROCm, then MPS, then CPU",
+   "reason": "verified: pyproject.toml:68, setup.py:225-228, spacr/_segmentation_backends.py:5013-5024; referenced modules accelerator/object/ops_accel/gpu_reduce exist"
+  },
+  {
+   "file": "docs/source/table_workflows.rst",
+   "text": "whole file",
+   "reason": "already operational and factual; spot-checked 8 MiB schema limit (spacr/condition_annotations.py:453,568). No wording changes needed outside Gate Editor sections"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "text": "*Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less;",
+   "reason": "factual description of channel tradeoff"
+  }
+ ],
+ "out_of_scope_skipped": [
+  {
+   "file": "docs/source/table_workflows.rst",
+   "text": "Gate Editor in three dimensions (section) and Gate Editor paragraphs on gate drawing/export",
+   "area": "Gate Editor"
+  },
+  {
+   "file": "docs/source/table_workflows.rst",
+   "text": "**Save graph** exports the Gate Editor figure as PNG or PDF",
+   "area": "figure export / Gate Editor"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "text": "A container rarely has a usable OpenGL context, so the animated backdrop may not draw. ``safespacr`` starts the same application with the backdrop and GL switched off, and is the right command when the window is slow or blank:",
+   "area": "animations"
+  },
+  {
+   "file": "docs/source/installer_guide.rst",
+   "text": "every cache moved from **Preferences → Storage**",
+   "area": "storage settings"
+  }
+ ]
+}

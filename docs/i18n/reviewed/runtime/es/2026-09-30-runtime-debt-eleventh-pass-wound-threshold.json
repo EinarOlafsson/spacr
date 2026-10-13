@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: the wound_threshold setting label and help (wound-healing assay), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "wound_threshold",
+      "source": "Wound threshold",
+      "source_sha256": "409afe2cf64ce07ae1b98793428c1f701969d710d2ad8da03c2a1ccf34b97ebb",
+      "translation": "Umbral de herida"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "wound_threshold",
+      "source": "Sets the cut between open wound and monolayer by hand, on the scale of the wound_level column of the wound table: for texture the local variance over the field's median, for intensity a share of the frame's 95th percentile. Use it when the automatic cut misreads a series: run once, read wound_level, then set a value. Higher counts more of the field as open. Used on every frame, with no recalibration of later frames. Blank or 0 keeps the automatic cut. Ignored by the masks source. Default None.",
+      "source_sha256": "432e21916913adc355038e6fee1b0ffa7a2962cb487fda57830c2b9fc28e0f67",
+      "translation": "Fija a mano el corte entre herida abierta y monocapa, en la escala de la columna wound_level de la tabla de heridas: para textura, la varianza local sobre la mediana del campo; para intensidad, una fracción del percentil 95 del fotograma. Úselo cuando el corte automático lee mal una serie: ejecute una vez, lea wound_level y luego fije un valor. Un valor mayor cuenta más parte del campo como abierta. Se aplica a cada fotograma, sin recalibrar los fotogramas posteriores. En blanco o 0 mantiene el corte automático. La fuente masks lo ignora. Valor predeterminado: None."
+    }
+  ]
+}

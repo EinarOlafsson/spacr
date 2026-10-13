@@ -1,0 +1,167 @@
+================================================================================
+INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08
+Owner:     Workstation tutorial agent; workstation root integration and publication;
+           API/docs/runtime agents supporting current source and translations;
+           Home owns the actual Home Organism category and module layout.
+Related:   N615 tutorial publication, N649 Edit menu, N667 inline help,
+           N674 current Home/Spaceout controls, N675 conda-forge package update.
+
+WHAT THE USER REQUESTED
+
+Replace Install spaCR with Pip and Install spaCR with Conda with one tutorial
+called Install spaCR. Show pip in a Python venv, pip in a Conda environment,
+and conda-forge in a Conda environment. A conda-forge package requires a Conda
+environment; do not imply Conda installs packages into a plain Python venv.
+Keep concrete environment creation, activation, installation, launch, version
+checking, updating and uninstall commands clear for each route.
+
+Add uninstall instructions to every installation tutorial. Remove all
+user-facing sha256sum/hash instructions from the desktop-installer tutorial.
+Internal artifact integrity records remain available for reproducibility.
+Preserve accepted old material as archived evidence; remove the two superseded
+standalone lessons from the current picker and update links/redirects through
+the normal catalog and publication tools.
+
+Remake Home screen and navigation with every current ordinary module described
+left to right, without skipping modules. Use the current Organism category
+instead of Assays. Use a brief generic Make Masks walkthrough to explain the
+shared module interface elements; do not make that walkthrough primarily a
+specialized mask-generation workflow. Do not place the Classify explanation
+after the organism overview in a way that misrepresents the module order.
+
+Replace Image analysis modules and how they relate for the changed modules.
+Add a Toxoplasma organism tutorial and skip other organisms. Capture the actual
+current UI, preserving the alpha-species visibility rules.
+
+Use the Blobs animation at relatively high density in mask scenes. Pronounce
+live as in live television, not as the verb to live, wherever that is the
+intended UI meaning. Apply this through the normal speech-plan renderer.
+
+HOW TO KNOW IT WORKED
+
+Current source, lesson index, player, redirects, related-lesson references and
+all supported language catalogs agree on the merged installation identity.
+Each route uses genuine commands and clearly reports installed versus current
+nightly version boundaries. Uninstall instructions are present for every
+installer route; desktop-installer user-facing content has no hash commands.
+All current ordinary Home modules appear once in the actual left-to-right
+order and the current Organism label matches captured source. Image-analysis
+relationships and Toxoplasma content reflect the current module inventory.
+
+Normal fresh native captures, reviewed translations, pinned narration, full
+video decode, source/frame fidelity, desktop/mobile player checks and immutable
+hosted readback cover the changed lessons. Retain unaffected accepted lessons
+and original retired content/evidence. Do not accept partial narration or
+reading-time-only reviews as final published video acceptance.
+
+2026-10-08 workstation ownership handoff:
+All three completion agents remain active. Tutorial agent switches from the
+older Home-only refresh to this explicit user scope; only its four obsolete
+owned renderers are stopped, with complete terminal logs and atomic completed
+tracks retained. Shared pinned model assets and reusable speech segments stay.
+Home: please transfer actual Assays-to-Organism source/module-order changes
+with the pending Help/AppScreen packet. Workstation owns all requested tutorial
+authoring, captures, normal multilingual generation, integration and publication.
+No native capture, final narration or publication acceptance is claimed yet.
+
+2026-10-08 actual animated video request and benchmark:
+The user prefers actual recorded application footage over still screenshots
+because the default spaCR field is animated. General scenes use spaCR field;
+the requested relatively dense Blobs appearance remains for mask scenes.
+An isolated Linux Xvfb/x11grab benchmark records the actual current Qt app:
+12.0s,360 frames at30fps,12.10s capture/encode and18.73s including independent
+framehash/full decode. Animation event processing and changing image regions
+were verified. Capture real footage at its original speed; do not synthesize
+animation from stills or speed up sparse frames to claim a higher frame rate.
+Normal per-scene recording/staging/render support is in progress. Revised
+five-lesson ETA6–10h remains provisional; translations, finished narration,
+final browser review and publication remain unaccepted.
+
+2026-10-08 17:49 EDT — Portable partial native tutorial checkpoint3c91 adopted; Root verifiesall788tar members. ActualHome39/all50duration/native1x and adjacent01 matrices accepted; fournewlesson voices/finalencoding/publication remain open.
+
+2026-10-08 22:20 EDT — Six refreshed lessons accepted for normal source publication.
+Source afa437697 includes merged Install spaCR (venv/pip, Conda/pip and
+conda-forge, each with uninstall), desktop install/uninstall without user-facing
+hashes, complete ordered Home navigation and generic module walkthrough, current
+image-analysis relationships and Toxoplasma. Six lessons use59 native moving
+clips with dense Blobs for masks, current field elsewhere,300 current voices
+and14 catalogs. Hosted5077 files are fully read back at immutable5abf359298.
+Normal strict English and all9 guides pass; current13233 API/10065 runtime
+source is equal to normal extraction and all9 source-compatible. Owning166
+tests pass. Normal main+nightly site is977236449 bytes under unchanged950MiB.
+Actual combined-site mobile playback, audio identity, chapter seek and layout
+pass all6 lessons. Earlier scratch checks used a nonexistent Toxoplasma ID;
+original failures retained, corrected catalog-derived check passes unchanged.
+Proof: data/676_current_tutorial_site_acceptance_2026-10-09/receipt.json
+Source publication is the next normal nightly push; deployed-site acceptance
+remains pending. Historical56-track publication, other legacy tutorials and
+N615 broader coherent application integration remain open. Only Root is active;
+all3 subagents are completed. No new media rendering/upload or broad work begun.
+
+2026-10-08 EDT — Source611feca5b actually pushed to nightly and remote
+HEAD verified. Additional5 owning files50PASS0.49s on exact611: player links,
+translation promotion, withdrawn-page preservation, current Home speech and
+verified sentence cache. Exact command/source/terminal logs are in current
+676 receipt (23 fully hash-verified payloads). Current fulltests37874032049
+is queued; docs37874031783 pending. Home original-orderQt37868900922 on4944
+is still live in its guarded test step. No green/deployed acceptance or
+duplicate hosted dispatch. Only Root works locally; user low-token scope kept.
+
+2026-10-08 22:23 EDT — Current docs publication workflow cohort terminal0:
+26PASS79.55s,2 intentional mode/opt-in skips,72 real-catalog browser cases
+deselected by the unchanged workflow selection. Actual full built-site
+tooltip links, constructor parameter pages, nested helper targets/translation
+isolation and English publication fixture contracts pass on sourcee9fd92ea9.
+Receipt retains explicit skipped/deselected scope, command/source/terminal
+logs and four actual Git test-source hashes (25 verified payloads total).
+Current611 source fulltests/docs/compat queued; Home4944 serialQt is still
+in_progress. No hosted green or deployment verdict. Only Root remains active.
+
+2026-10-08 22:54 EDT — Root continues existing historical56 English live-TV packet.
+Private current-source worktreehistorical-voice-publication-20261009 has
+accepted checkpoint8c372c8bf; normal complete5229-file validation passes,
+4 owning files35PASS40.31s. Exact manifest comparison preserves14 catalogs
+and5105 original records. Only112 corrected English files,2 required player
+index files and10 explicit original visual clocks change; six refreshed
+current lessons retain all their media. Public5ab media remains in use.
+Normal existing single-transfer uploader/readback is LIVE (owned handle65256)
+on branch tutorial-live-tv-20261008-r1; do not duplicate/restart from a stale
+log. Not yet uploaded/tagged/published acceptance. No fresh voice generation
+or video recording. Proofdata/676_historical_publication_preflight_2026-10-09
+retains7 payloads and8 actual Git source bindings. Root is the sole local agent.
+Current728 fulltests/docs await runners; Home4944 serialQt stilllive.
+
+2026-10-08 23:39 EDT — Existing56 historical English TV-pronunciation tracks
+normalpublication completed: immutable1b5880b95,5087 hosted files fully
+readback-hashed,84 actual hosted playback cases,35 complete owner tests and
+normalrecord pass. Current6 native lessons unchanged. Normalcombinedsite
+fits unchanged950MiB limit after normalmedia staging; first scratchoverage
+retained. Source/API/runtime exactchecks pass. Evidence:
+data/676_historical_media_publication_2026-10-09/receipt.json
+Deployment/currentGitHub and otherlegacy/native scope remainOPEN.
+
+2026-10-11 — PHASE 1 RE-RECORD PUBLISHED (after 63228d27a: Actions card,
+no Make Masks spinner, subtle ripples). Maintainer rules of 2026-10-10:
+every lesson records the spaCR field (data_art_impulse_lens, density 0.25,
+palette spacr, set and verified per frame), as live video, alpha off,
+--fresh, CPU. Lessons 05_home, 04_platform_installers,
+80_image_analysis_pathways, 82_toxoplasma and 14_make_masks; 14 is now a
+native live-video lesson (59 clips, replay hashes equal to the accepted
+662 results). 05 scene 39 shows the Spaceout field because it demonstrates
+Spaceout mode (agreed with Home). Narration: 14 "Clear all objects", the
+678 a6 fixes for 05/80/82, 05 scene 33 on the N684 ripple controls;
+reviewed translations in all caption languages; 50 voices per lesson.
+Checks: audio 50/50, browser matrix 71 runs per lesson, completed matrix
+5/5, candidate and published tree 84/84 routes, placeholder mutations,
+tools/tutorials/tests 2920 passed. Media: HF dataset
+einarolafsson/spacr-tutorials commit 037c3032 (tag
+tutorial-n676-phase1-20261011-r1-verified), 5087/5087 files read back.
+Pages +2.4 MB, media host +530 MB. H.264 kept (single-source player;
+VP9 was not smaller). Receipt:
+data/676_phase1_rerecord_publication_2026-10-11/receipt.json
+Phase 2 (~40 still-frame AppScreen lessons to live video, 08 and 17
+first) is next. Not done: native-speaker review, listening review.

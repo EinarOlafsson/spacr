@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "cb2c0743d67580dc878aa62c0856ed173041c930",
+  "scope": "targeted model-sharing behavior and dialog coverage, not a whole-repository verdict",
+  "tests_passed": 26,
+  "test_files": [
+    "tests/qt/test_model_sharing_contract.py",
+    "tests/qt/test_model_sharing_dialog.py"
+  ],
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "modules": [
+    {
+      "path": "spacr/qt/widgets/model_share.py",
+      "source_sha256": "a4c6bb7e983c1ed20c893bea8fd65276553f49c65d823ef6b165f6dff24769d9",
+      "summary": {
+        "covered_lines": 124,
+        "num_statements": 126,
+        "percent_covered": 98.6842105263158,
+        "percent_covered_display": "98.68",
+        "missing_lines": 2,
+        "excluded_lines": 0,
+        "percent_statements_covered": 98.41269841269842,
+        "percent_statements_covered_display": "98.41",
+        "num_branches": 26,
+        "num_partial_branches": 0,
+        "covered_branches": 26,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "missing_lines": [
+        144,
+        145
+      ],
+      "missing_branches": []
+    },
+    {
+      "path": "spacr/qt/widgets/model_share_dialog.py",
+      "source_sha256": "eaa612e7dd6da3e260068535adca633b4e2773f451ea5e7b707a8882f7242557",
+      "summary": {
+        "covered_lines": 45,
+        "num_statements": 45,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "covered_branches": 4,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  ],
+  "network": "HTTP and Hugging Face API boundaries replaced; no external calls or publication",
+  "baseline_changed": false
+}

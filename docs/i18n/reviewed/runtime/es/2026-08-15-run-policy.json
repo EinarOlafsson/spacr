@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "es",
+  "reviewed_at": "2026-08-15",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "on_error",
+      "source_sha256": "76d4dc13227f86dcf496876b19faa30290aa3622dbef2fcb321ccd707e9e7970",
+      "source": "What a failed unit of work does to the run, checked at every batch boundary (field, well, plate). 'stop' aborts on the first failure - the default, because a run that quietly drops a third of its plates produces a number that looks exactly like a good one. 'skip' records the unit, the stage and the reason, then carries on; what was skipped is listed at the end and stamped into the run ledger. 'retry' re-attempts the unit on_error_attempts times with a doubling backoff and then behaves like 'stop'. Default 'stop'.",
+      "translation": "Define qué hace la ejecución cuando falla una unidad de trabajo; se comprueba en cada límite de batch (campo, pozo, placa). 'stop' cancela al primer fallo —el valor predeterminado— porque una ejecución que omite silenciosamente un tercio de sus placas produce un número que parece tan válido como uno correcto. 'skip' registra la unidad, la etapa y el motivo y después continúa; lo omitido se enumera al final y se guarda en el registro de la ejecución. 'retry' vuelve a intentar la unidad on_error_attempts veces con una espera que se duplica y después actúa como 'stop'. El valor predeterminado es 'stop'."
+    }
+  ]
+}

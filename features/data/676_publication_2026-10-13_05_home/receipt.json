@@ -1,0 +1,267 @@
+{
+  "lesson": "05_home",
+  "recorded_with": "GNOME capture host, 2560x1440, 30 fps, --fresh, real pointer/keyboard (mutter RemoteDesktop)",
+  "app_and_recorder_commit": "4c0c2b4fd4c11a8c1f0cb3b98b5631ef17a9a2e4",
+  "nightly_base": "386444b92 (release candidate)",
+  "clip_gate": {
+    "r20-05-navigation": {
+      "clips": {
+        "home_module_measure": {
+          "passed": true,
+          "distinct_fps": 29.88,
+          "accepted_near_miss": null
+        },
+        "home_module_mask": {
+          "passed": true,
+          "distinct_fps": 29.64,
+          "accepted_near_miss": null
+        },
+        "home_module_annotate": {
+          "passed": true,
+          "distinct_fps": 29.75,
+          "accepted_near_miss": null
+        },
+        "home_module_map_barcodes": {
+          "passed": true,
+          "distinct_fps": 29.83,
+          "accepted_near_miss": null
+        },
+        "00_home": {
+          "passed": true,
+          "distinct_fps": 29.6,
+          "accepted_near_miss": null
+        },
+        "home_module_foreign": {
+          "passed": true,
+          "distinct_fps": 29.85,
+          "accepted_near_miss": null
+        },
+        "home_module_regression": {
+          "passed": true,
+          "distinct_fps": 29.49,
+          "accepted_near_miss": null
+        },
+        "home_module_run_compare": {
+          "passed": true,
+          "distinct_fps": 29.66,
+          "accepted_near_miss": null
+        },
+        "home_module_align": {
+          "passed": true,
+          "distinct_fps": 29.75,
+          "accepted_near_miss": null
+        },
+        "home_module_make_masks": {
+          "passed": true,
+          "distinct_fps": 29.84,
+          "accepted_near_miss": null
+        },
+        "home_module_power": {
+          "passed": true,
+          "distinct_fps": 29.64,
+          "accepted_near_miss": null
+        },
+        "home_module_graph_builder": {
+          "passed": true,
+          "distinct_fps": 30.0,
+          "accepted_near_miss": null
+        },
+        "home_module_umap": {
+          "passed": true,
+          "distinct_fps": 29.73,
+          "accepted_near_miss": null
+        },
+        "06_mask_host": {
+          "passed": true,
+          "distinct_fps": 29.33,
+          "accepted_near_miss": null
+        },
+        "06b_mask_settings": {
+          "passed": true,
+          "distinct_fps": 28.78,
+          "accepted_near_miss": null
+        },
+        "06c_mask_actions": {
+          "passed": false,
+          "distinct_fps": 27.23,
+          "accepted_near_miss": "capture loss"
+        },
+        "14_resize_panels": {
+          "passed": false,
+          "distinct_fps": 27.74,
+          "accepted_near_miss": "capture loss"
+        },
+        "11_column_folded": {
+          "passed": true,
+          "distinct_fps": 29.93,
+          "accepted_near_miss": null
+        },
+        "10_home_column": {
+          "passed": true,
+          "distinct_fps": 29.89,
+          "accepted_near_miss": null
+        },
+        "08_help_search": {
+          "passed": true,
+          "distinct_fps": 29.47,
+          "accepted_near_miss": null
+        },
+        "12_command_palette": {
+          "passed": true,
+          "distinct_fps": 29.4,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [],
+      "accepted_near_miss": [
+        "06c_mask_actions",
+        "14_resize_panels"
+      ]
+    },
+    "r20-05-navigation-b": {
+      "clips": {
+        "14_resize_panels": {
+          "passed": false,
+          "distinct_fps": 26.44,
+          "accepted_near_miss": null
+        },
+        "06c_mask_actions": {
+          "passed": true,
+          "distinct_fps": 28.12,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [
+        "14_resize_panels"
+      ],
+      "accepted_near_miss": []
+    },
+    "r20-05-preferences": {
+      "clips": {
+        "13_preferences_general": {
+          "passed": true,
+          "distinct_fps": 29.7,
+          "accepted_near_miss": null
+        },
+        "09_performance": {
+          "passed": true,
+          "distinct_fps": 28.7,
+          "accepted_near_miss": null
+        },
+        "00_home": {
+          "passed": true,
+          "distinct_fps": 29.57,
+          "accepted_near_miss": null
+        },
+        "13b_preferences_appearance": {
+          "passed": true,
+          "distinct_fps": 29.34,
+          "accepted_near_miss": null
+        },
+        "13c_appearance_theme": {
+          "passed": true,
+          "distinct_fps": 29.75,
+          "accepted_near_miss": null
+        },
+        "13i_preferences_kept": {
+          "passed": true,
+          "distinct_fps": 29.48,
+          "accepted_near_miss": null
+        },
+        "13h_preferences_apply": {
+          "passed": true,
+          "distinct_fps": 28.36,
+          "accepted_near_miss": null
+        },
+        "13e_session_updates": {
+          "passed": true,
+          "distinct_fps": 29.74,
+          "accepted_near_miss": null
+        },
+        "13d_appearance_animation": {
+          "passed": true,
+          "distinct_fps": 29.45,
+          "accepted_near_miss": null
+        },
+        "13f_storage": {
+          "passed": true,
+          "distinct_fps": 29.52,
+          "accepted_near_miss": null
+        },
+        "13g_storage_prune": {
+          "passed": true,
+          "distinct_fps": 29.06,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [],
+      "accepted_near_miss": []
+    },
+    "r20-05-spaceout": {
+      "clips": {
+        "02_spaceout_field_effects": {
+          "passed": true,
+          "distinct_fps": 28.7,
+          "accepted_near_miss": null
+        }
+      },
+      "failed": [],
+      "accepted_near_miss": []
+    }
+  },
+  "composition_picks": {
+    "r20-05-navigation/captures/home": [
+      "00_home",
+      "06_mask_host",
+      "06b_mask_settings",
+      "08_help_search",
+      "10_home_column",
+      "11_column_folded",
+      "12_command_palette",
+      "14_resize_panels",
+      "home_module_align",
+      "home_module_annotate",
+      "home_module_foreign",
+      "home_module_graph_builder",
+      "home_module_make_masks",
+      "home_module_map_barcodes",
+      "home_module_mask",
+      "home_module_measure",
+      "home_module_power",
+      "home_module_regression",
+      "home_module_run_compare",
+      "home_module_umap"
+    ],
+    "r20-05-navigation-b/captures/home": [
+      "06c_mask_actions"
+    ],
+    "r20-05-preferences/captures/home": [
+      "09_performance",
+      "13_preferences_general",
+      "13b_preferences_appearance",
+      "13c_appearance_theme",
+      "13d_appearance_animation",
+      "13e_session_updates",
+      "13f_storage",
+      "13g_storage_prune",
+      "13h_preferences_apply",
+      "13i_preferences_kept"
+    ],
+    "r20-05-spaceout/captures/home": [
+      "02_spaceout_field_effects"
+    ]
+  },
+  "near_miss_rule": "capture loss only, >= 27.0 distinct fps (coordinator, 2026-10-13); maintainer review pending",
+  "candidate": "release-candidate-append-hf8omkgo",
+  "hf": {
+    "repository": "datasets/einarolafsson/spacr-tutorials",
+    "branch": "tutorial-05-home-20261013-r20",
+    "tag": "tutorial-05-home-20261013-r20-verified",
+    "commit": "93592c9271477ef2f4570d444e67381b09eccdb3",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/93592c9271477ef2f4570d444e67381b09eccdb3",
+    "media_files": 5087,
+    "media_bytes": 6789646075
+  },
+  "pages_cache_key": "tutorial-05-home-20261013-r20-verified",
+  "published_browser_check": "84 playback cases PASS"
+}

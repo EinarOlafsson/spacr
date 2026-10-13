@@ -1,0 +1,2023 @@
+{
+  "lesson": "48_hit_list",
+  "status": "Complete staged technical matrix with explicit external companion; not published",
+  "native_verification": {
+    "accepted": true,
+    "scope": "Unmodified Hit List widget in an explicit EXTERNAL companion; native shortcut remains broken",
+    "workflow": {
+      "lesson": "48_hit_list",
+      "accepted": true,
+      "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation",
+      "source_files": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_significant.csv": "e31b6eb7c0fb9132bcf73cd703d30aa92d8d3e84e82ec350ab71d17fcf6dcb36",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/model_summary.txt": "3d5a0bcb7b85d6e655aecb6950c8b04dcecc094a5463dd51d7c228d06b27abcc",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results.csv": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_results_long.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_grna.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/plate_heatmap_unique_counts.png": "38cac46a12f57b93e61477c0fb650fc88c3e65e15ed84a0c6b4e779bf85bedff",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/fraction_threshold.png": "a81ebca32662a7f6c8838cc5d2e751fb54eae2e2f1842bbf57a40d2441859971",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_gene.csv": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.png": "53253d808ba5822edfeee1f2879a810272315bd5f5ebb56a19b6634bc2d1b599",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.pdf": "c3f6d6b65d179703329f365f4f0066015d7ea520631e0896c5942d67de8de48a",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/regression_data.csv": "3cee24356bfa81a33882dc76a6a107e35345421feecf9c7866a8169c0516ea76",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/fit_resources.txt": "c482cf09cd93bf57644fbec5c6bd8c00937fe7f3dbed690ad41da3711c60d930",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/well_grna.csv": "bf6d4269329e2f037cccbc2f7584dde5523286b57bf288b83401b15f0132f7b1",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/grna_well.csv": "a88ddabb9898281b2cd2cff51a7b0d2a4e4e2942adcae551424669cc9b276869",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_diagnostics.png": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/collinear_guide_pairs.csv": "87cf6127c5016c0eba8df5ccf1c33944d2b3632aeb3d8e672ba75f8e8d9bbe67",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_identifiability.png": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/inference_diagnostics.png": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/diagnostic_summary.csv": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar.png": "2325261405749cdb24092696d6d30dc966702e77583b1e2e3d6a098a246460e1",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_stats.csv": "96b49414728c97c813cde0373fb1185d1a546ea1685dd96c79f933cabbb672f8",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_data.csv": "dfaab4139ded2a85a7969a8f5ef62c89e7e5848b27b7a4ee5bf7eeaa5ed10d4f",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_summary.csv": "2c246824b1c6489890575b3b08277e41bb5749588e2f230f9bdfae7563ed8802",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_summary.csv": "b765d07311621c879145ead984940e7dd437930ddde35f20a5e2152115a63336",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_stats.csv": "2923e0da92efb16b3e391e5b0771e0f4b5db6a3c2f9a7cf0eb4b2ff99dd8f8f3",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_data.csv": "a88ddabb9898281b2cd2cff51a7b0d2a4e4e2942adcae551424669cc9b276869",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar.png": "bb19f9a527e7d7b05668597a0537bb05747a5cfc31238f659519d99ac18335c8",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_stats.csv": "48863668aff61fa35de68680b870774efad82c4cf96ede8690100e81a282b49f",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_summary.csv": "109729b506bb9b367c9dab497cd3b58536c26598702727e7d572b8f4bcf5d804",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_data.csv": "176e12e25ddbe781993341a80143f21f722ee8c723d9d0e5a563592189c28995",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar.png": "a02c1f12fb1d802bd6d556829f34b3cfd2bac49889b00b710e28edbe19744b63"
+      },
+      "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7",
+      "private_input_hashes": {
+        "results_gene.csv": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132",
+        "results_grna.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+        "results.csv": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+        "results_significant.csv": "e31b6eb7c0fb9132bcf73cd703d30aa92d8d3e84e82ec350ab71d17fcf6dcb36",
+        "model_summary.txt": "3d5a0bcb7b85d6e655aecb6950c8b04dcecc094a5463dd51d7c228d06b27abcc"
+      },
+      "synthetic_results": false,
+      "app_source_modified": false,
+      "regression_recomputed": false,
+      "published": false,
+      "native_fold_state": {
+        "results_panel_exists": true,
+        "figures_card_visible": false,
+        "hits_exists": true,
+        "hits_visible": false,
+        "hits_selected": true,
+        "results_page_selected": true
+      },
+      "route_failure": [
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "MainWindow",
+          "visible": true,
+          "title": "spaCR"
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "StageLegend",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QWidget",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "ViewBoxMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QFrame",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        },
+        {
+          "type": "QMenu",
+          "visible": false,
+          "title": ""
+        }
+      ],
+      "companion": {
+        "explicit_external_launcher": true,
+        "launcher_sha256": "33280fce3db6e86d95681189876f9e75696f4cd7fe7bca9cb1e96d2322f0863d",
+        "title": "Tutorial companion — Hit List (not the Regression shortcut)",
+        "native_shortcut_fixed": false,
+        "app_widget_modified": false
+      },
+      "native_header_autosize_columns": [
+        1,
+        3,
+        5,
+        6,
+        9
+      ],
+      "checks": {
+        "03_all_325_ranked_genes_not_discoveries": {
+          "rows": 325,
+          "values_checked": 6175,
+          "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {}
+        },
+        "04_no_genes_pass_q_point05": {
+          "rows": 0,
+          "values_checked": 0,
+          "summary": "0 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "max_q": 0.05
+          }
+        },
+        "05_all_candidates_restored": {
+          "rows": 325,
+          "values_checked": 6175,
+          "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {}
+        },
+        "06_at_least_two_tested_guides": {
+          "rows": 117,
+          "values_checked": 2223,
+          "summary": "117 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "min_guides": 2
+          }
+        },
+        "07_all_tested_guides_same_sign": {
+          "rows": 57,
+          "values_checked": 1083,
+          "summary": "57 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "min_agreement": 1.0,
+            "min_guides": 2
+          }
+        },
+        "08_hide_controls_not_recalculate_q": {
+          "rows": 56,
+          "values_checked": 1064,
+          "summary": "56 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "min_agreement": 1.0,
+            "min_guides": 2,
+            "exclude_controls": true
+          }
+        },
+        "09_positive_effect_not_significance": {
+          "rows": 162,
+          "values_checked": 3078,
+          "summary": "162 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "direction": "up"
+          }
+        },
+        "10_positive_effect_magnitude_cut": {
+          "rows": 16,
+          "values_checked": 304,
+          "summary": "16 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "min_effect": 0.1,
+            "direction": "up"
+          }
+        },
+        "11_search_actual_positive_control": {
+          "rows": 1,
+          "values_checked": 19,
+          "summary": "1 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "query": "239740"
+          }
+        },
+        "12_no_search_match": {
+          "rows": 0,
+          "values_checked": 0,
+          "summary": "0 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "query": "not_a_gene_in_this_example"
+          }
+        },
+        "13_real_gene_returns": {
+          "rows": 1,
+          "values_checked": 19,
+          "summary": "1 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "query": "239740"
+          }
+        },
+        "14_all_genes_restored": {
+          "rows": 325,
+          "values_checked": 6175,
+          "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {}
+        },
+        "15_candidate_subset_for_export": {
+          "rows": 57,
+          "values_checked": 1083,
+          "summary": "57 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {
+            "min_agreement": 1.0,
+            "min_guides": 2
+          }
+        },
+        "18_original_ranked_population_restored": {
+          "rows": 325,
+          "values_checked": 6175,
+          "summary": "325 of 325 genes shown; 0 up, 0 down; 0 corroborated by two or more agreeing guides.",
+          "filters": {}
+        }
+      },
+      "family": {
+        "genes": 325,
+        "guides": 434,
+        "mixed_result_rows": 759,
+        "min_gene_q": 0.2708333333333333,
+        "significant_genes": 0,
+        "first_gene": "239740",
+        "first_effect": 0.4087575827959975,
+        "source_well_support": [
+          13,
+          3,
+          6,
+          5,
+          7,
+          5,
+          7,
+          3,
+          3,
+          8,
+          3,
+          6,
+          7,
+          4,
+          7,
+          4,
+          6,
+          2,
+          2,
+          6,
+          7,
+          4,
+          5,
+          6,
+          5,
+          2,
+          2,
+          5,
+          6,
+          7,
+          2,
+          5,
+          6,
+          5,
+          15,
+          2,
+          6,
+          3,
+          4,
+          3,
+          9,
+          3,
+          9,
+          2,
+          2,
+          3,
+          8,
+          6,
+          5,
+          6,
+          3,
+          7,
+          12,
+          3,
+          7,
+          11,
+          4,
+          2,
+          3,
+          5,
+          2,
+          18,
+          5,
+          5,
+          4,
+          2,
+          2,
+          4,
+          2,
+          4,
+          3,
+          2,
+          5,
+          8,
+          8,
+          6,
+          4,
+          2,
+          3,
+          2,
+          11,
+          2,
+          2,
+          14,
+          2,
+          6,
+          2,
+          3,
+          6,
+          13,
+          3,
+          6,
+          6,
+          7,
+          10,
+          4,
+          10,
+          11,
+          9,
+          6,
+          7,
+          9,
+          17,
+          6,
+          10,
+          2,
+          12,
+          2,
+          6,
+          3,
+          7,
+          3,
+          4,
+          2,
+          8,
+          8,
+          12,
+          12,
+          7,
+          2,
+          2,
+          2,
+          7,
+          5,
+          3,
+          3,
+          2,
+          4,
+          5,
+          6,
+          5,
+          3,
+          4,
+          2,
+          4,
+          12,
+          2,
+          3,
+          5,
+          2,
+          5,
+          4,
+          2,
+          6,
+          7,
+          3,
+          3,
+          3,
+          5,
+          6,
+          2,
+          2,
+          5,
+          2,
+          3,
+          6,
+          3,
+          7,
+          6,
+          7,
+          8,
+          5,
+          5,
+          5,
+          4,
+          6,
+          6,
+          3,
+          2,
+          3,
+          7,
+          3,
+          2,
+          6,
+          9,
+          2,
+          3,
+          4,
+          2,
+          5,
+          5,
+          7,
+          3,
+          3,
+          3,
+          2,
+          5,
+          2,
+          8,
+          4,
+          12,
+          2,
+          4,
+          4,
+          6,
+          4,
+          3,
+          3,
+          6,
+          2,
+          4,
+          10,
+          3,
+          48,
+          10,
+          2,
+          10,
+          6,
+          7,
+          2,
+          3,
+          6,
+          2,
+          3,
+          3,
+          9,
+          2,
+          5,
+          4,
+          3,
+          3,
+          16,
+          3,
+          2,
+          7,
+          6,
+          8,
+          2,
+          14,
+          10,
+          5,
+          4,
+          5,
+          3,
+          3,
+          2,
+          6,
+          6,
+          8,
+          14,
+          2,
+          3,
+          10,
+          7,
+          5,
+          4,
+          5,
+          3,
+          2,
+          2,
+          9,
+          4,
+          2,
+          3,
+          2,
+          9,
+          9,
+          2,
+          7,
+          3,
+          9,
+          4,
+          4,
+          4,
+          3,
+          3,
+          4,
+          4,
+          2,
+          2,
+          8,
+          32,
+          5,
+          4,
+          10,
+          7,
+          3,
+          3,
+          2,
+          7,
+          2,
+          9,
+          11,
+          9,
+          2,
+          8,
+          3,
+          5,
+          5,
+          2,
+          3,
+          6,
+          2,
+          10,
+          4,
+          5,
+          3,
+          4,
+          2,
+          7,
+          3,
+          4,
+          7,
+          2,
+          2,
+          3,
+          4,
+          10,
+          4,
+          5,
+          2,
+          2,
+          5,
+          3,
+          6,
+          5,
+          8,
+          4,
+          5,
+          3,
+          4,
+          6,
+          2,
+          3,
+          8
+        ],
+        "hit_n_obs_values": [
+          0
+        ]
+      },
+      "exports": {
+        "csv": {
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7/ranked_candidates.csv",
+          "sha256": "fa7581f4c5541f5c64fd68fdc20bff89f229c1260e9423ea552962f0068bee3d",
+          "bytes": 7710,
+          "values_checked": 1083
+        },
+        "md": {
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7/ranked_candidates.md",
+          "sha256": "f6975866cbe1cbc38c4c39bb734676b42b26aa4ae43ba1bbe24a0a6a77bee2cd",
+          "bytes": 4176
+        },
+        "html": {
+          "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-ou3qu1b7/ranked_candidates.html",
+          "sha256": "3c90d58a1ef28205c1639119dd2d4357701f8c3d3d95834d343cfb1d6f5f4885",
+          "bytes": 7878
+        }
+      },
+      "export_filters": {
+        "min_agreement": 1.0,
+        "min_guides": 2
+      },
+      "all_originals_unchanged": true,
+      "all_private_inputs_unchanged": true,
+      "active_jobs_after_close": 0
+    },
+    "export_values_checked": {
+      "csv": 1083,
+      "markdown": 513,
+      "html": 513
+    },
+    "download_sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb",
+    "native_shortcut_fixed": false,
+    "application_files_modified": false,
+    "published": false
+  },
+  "final_reconciliation": {
+    "lesson": "48_hit_list",
+    "passed": true,
+    "canonical_english_sha256": "0739d12c16e4f2cbf17c485b4f84447f95f7d1c3c7a6dffdd2cf8c8ecfb206e8",
+    "scene_count": 11,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "0e544a73e257b0e08347dfea8c7b7aed141f5c3c33fb07706cc37b3f4fad33bf"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "22307bd49566a6f85ea8a410bd835035d5f4dcac3fce81ae33f1ab6c6dd808f5"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "f92cd76c66cd70ec88771812552e83430c0245578855ecd70e9eb4adc226e7f5"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "5dbc2ab19da5ad5c497c9d0c3d5db8affe537ad0254f934f087d8194311a8e74"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "61bcf87503110c15bed0fe57581794119ac9573dac85a66e8c856bea1f113c6a"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "a5c1e700f45762eba7d145dcc1425169d3c0ababfde82c009664a664f46f273a"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "16ecdde7480854776ca35327ccafbbec40cf5e380ae21d7dbc197860caa98ca5"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "fa5e5b919f36942fcb9fa16ae7ce33b32077787c060f90e6f91c1f82c383defc"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "fc0b19a332552f99e87a5a5cd20ee938e86a2a2c183f0a41a39ff0d5f255f531"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "9a3d4d46325149ffeffc1e52ee6e0d1edba6e0e380042fe5217c717352f83b24"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "16ae46bb279507ea31001c67092526569014172abe8331fd27795fc705706fd8"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "fc6bd0bc60b9432c65f500ed8ddb67c505d22e602fca2f334f8553cee95b3c15"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "90bdeac272fb450979a3abff587f98263a816ba4147231018a3691829cc3f113"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "05b45d7b86ef35a5897f301e7171a764f1332c84c11af1e11eaca4bc5a43273c"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "6ccf0b42bfaafeb7c8d80f94b3a73e8558b747d4a48369e8907724f66ce40d5f"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "0167f360e9d4daca8cae92d9d228cc88c28e93d0b87105051fc32e458b8788c3"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "ea9da6e237294bbede203f16f71bd8494f3248b6425431ca66b27df6f7b2f970"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "2457e26e483ddffc61410984e2ea6b70fca7270e7e00f05ac73169238fa663cb"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "743a99750572e52266c6d76ceec1ce56255bc78f08e40882c1fb2f921dbd7726"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "1c92949bf75fedd53a594dc57dc27122991cecbf59f9ceaf27e34d05266d25bf"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "b3bcba9733c42011e077787f58384da5f5a2dd602d035e57cd771c26b746e688"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "1a2c0f968e50337bff4c5749caa63855f665b36229b4a05f13a673b2089913b5"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "d245ce01c190adc3037d589303b47448879517a287069a5dcd013e69e6b9bf5b"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "d078e258092e000124e4aed0a0ffeaeaf79aaab73d2a0e3b4d0c74cb38372f54"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "c120ca3e5cc7ff81a7196a9d9983cbf3660acb5e4e0808e5bca4394d60ce6541"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "240ca56b3d0929ae61f007bf88757dc8c079ceea20f21ccb5cd36a5f09efff36"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "73d216db8e6caf19ad71408339a402996bf67a6a2d7b8a940b4d93cedd2c249a"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "b3ed7b6c9c605af083b1cd5baf7c5e97fcf788fefb21e69bae3ca33b50b7257d"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "cdfccc9a6a2d732fe23fddbccf67de4dd46d13768ec57b22ad3332096013d121"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "c7d07543cc7598f7aa41342f88d7e78398d8457cf7363c47e2a0916896d01f40"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "aff57379aa1c20e34982039f6ae8d67a2f8c426fcfa7dcb2357e0adfc8cdb485"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "97560314a23c6cd7f13417e38ad50673e310853147c671ac7c66b1c6cf9f146e"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "bf52cf2f0598cda45b5349b08d79aaf33c854be9f84bff5d5e98360d5dcc8a3d"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "0b873fe604da4aaf2c89f2802bf9557f342ee322971ed2a8bbecccf49ae939a7"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "282c8bcb40c0f332a6d9baa2c533cf593061256f59b22dc5454083dc38534c69"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "1915a23a3f99efb70acaa315690d3acb850e32a856b8183569365f7231fb3543"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "0c328ee65903d7f7fbcfb254f888db62b133ed83858a495f9142fc24296132b7"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "c256b2b4f51c8995a72519dfd49ac0ebaac856cc1f9d1ef02898752a24ed1cb2"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "c469cd1f322862671f1280b83f55e73038d4c0fe73d9cd7ac6e102c544107ed0"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "aefc9b4137a3cdbd01bfbb6c5c45a4a1c6cb0d49bd11be24dc039a56c0b19c2a"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "a79e9d3397a13ad18a56dda882743c5e6350ca38e2f7c9469b7603e8c5df4180"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "fb83e09751f775883fe84cf0b86fb7ba319b50e8ee9c2a61d17043b385a1e41d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "3951d086d6226ce694d438aaa0eb121e30a3353aa0a5b1c9edc9521ff2763d9f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "529c1406acdfa475035cb0a1486e1ecc9c355ce5252c8db6cf27dfe580c2796a"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "bfd972595593e857f356ead2754e33c5117b107b1bd0f44b09d2d671acc06018"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "2b3498feba9158517103372589730e2e101e0aeac4fe09cfc286a6d3b4a8ade6"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "72f9e40af3a4a83f50e03d94ad764cf98bc7a38140191724bf817cff5103e1a0"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "8e53b01c1d318f373a7ec91f1c3827dea95f20f5b2790cf7b9592d8389842b04"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "2ad2dfff277a30b2fef7149e732dcc93f4b4634cde8e8c82e913f1ebfdea6e36"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "714ad8fd115dc438676ae361e0cbf25850c9aab1600de105f0682a031a0c66c4"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "aa5150e7d8be478c410c10a565af3e7e5a1418abe8d6fc3871514424cfd1a7f7"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "1024ce1b5dba61ac54f9a81aa6643276314234ed0d099cac426c8b49ab87eac2"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "8a6be51b5fe0288d0798fff06c0399cf168621705e987827f9030ec4655fded5"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "b5d98adb68ca7967c76843cb4a0831d92334828c7369145ba07c7312812f24f1"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "5d53235b03c045c4367b65dad1565258d57ffc78beec23b76218798a55d740d1"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "e676ace05c47a58e430c7aa7c8588629b90fa9cf15f46dcef69ba2cdd4672734"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "08525623924c0e98aa97cfa5f980cb4b2bdbab7a5e42ef301ba6f3110e8fdbf6"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "929508c6392af2d15c8f986b97d38b67cb3476f89ac7aa1c397a9d09ffa96077"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "f5036a146622054844dba77ec3288d6a11d8a2eb575bcf1ee68df3e3c49a977f"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "9f74edf3a5343dd6c1d411bba3c7bf274ca1e19f3ebb2a0a1ac8d0a79d615256"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "5c57888c0bbda32a060bc4af32b160792f22e13b749b63734eaeb21762db7023"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "d3cf8d84e82dc87b8fd544509ab83a3c672b8c7c24b30d508a864ee464bead1a"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "6176114d7fc7554eddd9f534fb6d647dec4a97a3cc143f516cee29c21a3f3a35"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "6dfd71d3660bb1c4c1d46d1145ca5094189b08b0c477bb061f705696eb03af14"
+      }
+    ],
+    "master_sha256": "9dab27e36d9d07864a40095871f6f0479248b1912774a5c3f2cd3fb7b67cdb36",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "6328"
+        }
+      ],
+      "format": {
+        "duration": "210.933333",
+        "size": "11157432"
+      }
+    },
+    "poster_sha256": "3dc1e91643525cce4b9636d70da35d52f9b35073278645b1286ab04b9c5e29fa",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "full_master_decode_passed": true,
+  "final_scene_midpoints_visually_inspected": [
+    {
+      "scene": "01",
+      "sha256": "3dc1e91643525cce4b9636d70da35d52f9b35073278645b1286ab04b9c5e29fa"
+    },
+    {
+      "scene": "02",
+      "sha256": "af768498be75d1dcfc7ebc46a3bd115e465c5c9718d58be0fd9aa4041fe0d275"
+    },
+    {
+      "scene": "03",
+      "sha256": "1a609a4ac9314822bb8f0e113e3f528e2cba521b7287a4c3f1283c00b5d3b290"
+    },
+    {
+      "scene": "04",
+      "sha256": "1ffc0c7118f3f46c320ae3c12fc19b039d69c58465904b0ba8d9bb5b98d11706"
+    },
+    {
+      "scene": "05",
+      "sha256": "f9849aeaadac5e5d83d9a0026c880ee8331be6c1147ddd372368f1dca44a5042"
+    },
+    {
+      "scene": "06",
+      "sha256": "e5ad47c8e4550083c1bfea7e94023aedebb44120f1ed732d54ce4f5bb78e1c26"
+    },
+    {
+      "scene": "07",
+      "sha256": "dcff2f49a782cc5ae07e945a1b4fef351dfe1130f3b7bb4fa795c097fa25f00e"
+    },
+    {
+      "scene": "08",
+      "sha256": "54d62e33f2ddfa40d3ff37d864fae8482d85524eb56952b290d4dbfce9a53c0f"
+    },
+    {
+      "scene": "09",
+      "sha256": "c9a5ba4c7b1e764a2f52d5cefa73aaec8e53659d5fd3ec7aee8c7d6a214b0ad3"
+    },
+    {
+      "scene": "10",
+      "sha256": "cb366c20d205a0ead114e5c9e4ff7bee44508438b00bd687e573fcbf94bc5b84"
+    },
+    {
+      "scene": "11",
+      "sha256": "0fa5b28319936c975790a2ecfc9059c216159150d54e0cb4b7cd0af1ff6fb9ec"
+    }
+  ],
+  "editorial_translations": 13,
+  "focused_tests_passed": 34,
+  "new_mutations_observed_red": 5,
+  "companion_main_bootstrap_and_close_verified": true,
+  "native_speaker_reviewed": false,
+  "listening_reviewed": false,
+  "native_shortcut_fixed": false,
+  "app_source_modified": false,
+  "published": false
+}

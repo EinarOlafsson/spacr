@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "headless-module-list",
+      "source_sha256": "ba692202a90d45cc9c603ecd4496cc0dc0ab15e50cb585983e67a3e4c576dee3",
+      "source": "``spacr-run --list`` lists modules with headless command-line entry points. GUI-only annotation, curation, comparison and exploration modules are omitted.",
+      "translation": "``spacr-run --list`` उन मॉड्यूलों की सूची दिखाता है जिनके पास ग्राफ़िकल इंटरफ़ेस के बिना चलाने के लिए कमांड-लाइन प्रवेश बिंदु हैं। केवल GUI में उपलब्ध एनोटेशन, क्यूरेशन, तुलना और अन्वेषण मॉड्यूल इस सूची में शामिल नहीं होते।"
+    },
+    {
+      "label": "host-modules-heading",
+      "source_sha256": "8974e5e3d47e0eecbbbc6339f970a9f05e5c855e0bc0aa42bfa6e25a5577b722",
+      "source": "Modules available from host screens",
+      "translation": "होस्ट स्क्रीन से उपलब्ध मॉड्यूल"
+    },
+    {
+      "label": "host-modules-introduction",
+      "source_sha256": "12a5d01d329b5b5525d7816855f4e3f214c4e91a729b3173a6c5d734097bf4b9",
+      "source": "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+      "translation": "बीस मॉड्यूल अलग-अलग Home टाइलों के रूप में दिखने के बजाय उनसे संबंधित होस्ट स्क्रीन में समाहित हैं। प्रत्येक मॉड्यूल अपनी होस्ट स्क्रीन की शीर्ष पट्टी से खुलता है और सक्रिय प्रोजेक्ट का उपयोग करता है। Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP और Make Masks में ये समाहित मॉड्यूल उपलब्ध हैं। इनके सहायता और API दस्तावेज़ उपलब्ध रहते हैं, और पाइपलाइन प्रवेश बिंदु वाले मॉड्यूल अब भी ग्राफ़िकल इंटरफ़ेस के बिना चलाए जा सकते हैं। `फ़ीचर गाइड <docs/source/features.rst>`_ में प्रत्येक समाहित मॉड्यूल और उसकी होस्ट स्क्रीन सूचीबद्ध है।"
+    },
+    {
+      "label": "make-masks-heading",
+      "source_sha256": "3b6b87a84692b587aa2299fc27a05cbe60c36d7c0c53f37d68e9e3e7e3d780e3",
+      "source": "Make Masks",
+      "translation": "Make Masks"
+    },
+    {
+      "label": "make-masks-tools",
+      "source_sha256": "cf42b5d15a73956955227f308b7278340d7169c0dcd43c4b8b782ce04b030ded",
+      "source": "Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.",
+      "translation": "Make Masks **Data** के अंतर्गत उपलब्ध है और सेगमेंटेशन मास्क को मैन्युअल रूप से सुधारने की सुविधा देता है। इसकी शीर्ष पट्टी से Cellpose कार्यप्रवाह भी खोले जा सकते हैं। कैनवस में नौ टूल हैं: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** और **Recrop**। Draw स्वतंत्र रूप से खींची गई बंद रूपरेखा से एक भरा हुआ लेबल बनाता है। Divide उपयोगकर्ता द्वारा निर्धारित रेखा के सहारे मर्ज हुए ऑब्जेक्ट को अलग करता है और अन्य सभी ऑब्जेक्ट लेबल सुरक्षित रखता है।"
+    },
+    {
+      "label": "make-masks-recrop",
+      "source_sha256": "c5dc0f507fac105cec72a090640d29182dcb99677f21a2d3f4e0d5f43e659d83",
+      "source": "Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.",
+      "translation": "Recrop क्यूरेशन के लिए तैयार की गई, अनेक ऑब्जेक्ट वाली छवि से एकल-ऑब्जेक्ट फ़ील्ड निकालता है। किसी ऑब्जेक्ट के चारों ओर बाउंडिंग बॉक्स बनाने पर उससे संबंधित छवि और मास्क क्षेत्र नए फ़ील्ड के रूप में लिखे जाते हैं, वह फ़ील्ड वर्तमान फ़ील्ड के बाद कतार में रखा जाता है और मूल बहु-ऑब्जेक्ट फ़ील्ड क्यूरेशन कतार से हटा दिया जाता है। Recrop लेबल पिक्सेल संपादित करने के बजाय सक्रिय फ़ील्ड बदलता है।"
+    },
+    {
+      "label": "make-masks-cellpose-sam",
+      "source_sha256": "0a66d7dfcafc418b8d544c33f766ee40df8a6dcb12ec4aa855c992c64beba969",
+      "source": "Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.",
+      "translation": "Make Masks से Cellpose-SAM चलाने पर मास्क के पास दो मध्यवर्ती आउटपुट दिखते हैं: **कोशिका-प्रायिकता मानचित्र** और **प्रवाह क्षेत्र**। मास्क प्रायिकता मानचित्र पर लगाए गए थ्रेशहोल्ड से निर्धारित होता है, और प्रवाह-संगति जाँच उन ऑब्जेक्ट को अस्वीकार कर सकती है जिनके व्युत्पन्न प्रवाह अनुमानित क्षेत्र से भिन्न हों। किसी गलत या अधूरे मास्क का मूल्यांकन करते समय कम कोशिका प्रायिकता और असंगत प्रवाह में अंतर करने के लिए इन आउटपुट की जाँच करें।"
+    },
+    {
+      "label": "objects-settings-heading",
+      "source_sha256": "5320cf91af838c922615828f8276df4446d13c513c12bfa245d9b3f09de909fd",
+      "source": "Objects and settings",
+      "translation": "ऑब्जेक्ट और सेटिंग्स"
+    },
+    {
+      "label": "objects-settings-inventory",
+      "source_sha256": "24b939c6e8e38f0b312c7f55263277e8dca9da0d4405aa2cc83722f6e7628e9c",
+      "source": "spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.",
+      "translation": "spaCR कोशिका, केंद्रक और रोगजनक ऑब्जेक्ट, उनके मास्क से निकला साइटोप्लाज़्म और शून्य से छब्बीस तक ऑर्गेनेल स्लॉट समर्थित करता है। प्रत्येक ऑर्गेनेल स्लॉट का अपना चैनल, व्यास, मॉर्फ़ोलॉजी प्रीसेट और पहचान विधि होती है।"
+    },
+    {
+      "label": "objects-settings-visibility",
+      "source_sha256": "2e03aefa953cc86eac19f424339cca26dc2e704c5ef13485a756f95018e8fd63",
+      "source": "The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.",
+      "translation": "सेटिंग पैनल किसी नियंत्रण को तभी दिखाता है जब वह लागू हो। निर्धारित संख्या से अधिक ऑर्गेनेल स्लॉट छिपे रहते हैं, जिस ऑब्जेक्ट को कोई चैनल नहीं दिया गया है वह रन में शामिल नहीं होता, और मॉर्फ़ोलॉजी-विशिष्ट नियंत्रण केवल चुनी गई विधि के लिए दिखते हैं। **3D** और **Time** स्विच विमाओं को निर्धारित करते हैं: ``z_stack`` आयतनी सेटिंग्स सक्षम करता है, ``timelapse`` ट्रैकिंग सेटिंग्स सक्षम करता है, और दोनों के सक्षम होने पर चार-विमीय सेटिंग्स दिखाई देती हैं।"
+    },
+    {
+      "label": "performance-heading",
+      "source_sha256": "3cca4da3c2a1c9529adaa3e2b0e38b7a94d84eb65fc08e0429484abc75276b3a",
+      "source": "Diagnosing performance",
+      "translation": "प्रदर्शन का निदान"
+    },
+    {
+      "label": "performance-report-heading",
+      "source_sha256": "f84f94d824bd95e3df7b1c4c3dff1fc57dff13079e145c43b00e83f6fd35786e",
+      "source": "Generate a hardware report and attach it to a performance-related issue",
+      "translation": "हार्डवेयर रिपोर्ट बनाएँ और उसे प्रदर्शन-संबंधी इश्यू के साथ संलग्न करें"
+    },
+    {
+      "label": "performance-report-location",
+      "source_sha256": "ea84a760589415ed93d0dd9086ecdd13b5d2e32e0c2d75c6aa019c15b3e1b021",
+      "source": "The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.",
+      "translation": "यह कमांड रिपोर्ट को प्रदर्शित करता है और उसकी एक प्रति ``~/.spacr/reports`` में सहेजता है; अंतिम पंक्ति सहेजे गए पथ की पहचान करती है। ``--quick`` लंबे बेंचमार्क छोड़ देता है, और ``--out PATH`` किसी अन्य आउटपुट स्थान को चुनता है।"
+    },
+    {
+      "label": "performance-report-scope",
+      "source_sha256": "f7a25b53879a3d74d166fbc6eeeeb3a83608aaf21e42749381eca6467ff1c0a1",
+      "source": "The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.",
+      "translation": "रिपोर्ट कोई प्रोजेक्ट नहीं खोलती और प्रोजेक्ट डेटा नहीं पढ़ती। यह इम्पोर्ट और संख्यात्मक लाइब्रेरी की टाइमिंग, डिस्प्ले स्केलिंग, सक्रिय प्राथमिकताएँ, मुख्य विंडो और मॉड्यूल स्क्रीन का निर्माण तथा ऐनिमेशन प्रदर्शन रिकॉर्ड करती है। यह केवल रिपोर्ट फ़ाइल को आउटपुट के रूप में बनाती है।"
+    },
+    {
+      "label": "performance-report-platform",
+      "source_sha256": "c9d044f42e7b846be8dc37dbc88d2b39a7a7b0dd86044e4b2545ed5bb33fc49d",
+      "source": "It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.",
+      "translation": "यह प्रोसेसर आर्किटेक्चर के अनुकरण—जैसे Apple Silicon पर x86_64 Python बिल्ड—और NumPy द्वारा उपयोग किए जाने वाले BLAS कार्यान्वयन की भी पहचान करती है। इनमें से कोई भी प्रदर्शन को काफी प्रभावित कर सकता है।"
+    },
+    {
+      "label": "support-performance-context",
+      "source_sha256": "75d5a4b6f9960ae3ac303786f491da789e21b9b4eafe434645aa44d1a542e3ba",
+      "source": "Submit bug reports and focused feature requests through `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_. When reporting a failure, include the spaCR version, operating system, Python version, module settings and the relevant log excerpt. ``spacr-doctor`` collects most of this information; include the hardware report when reporting performance problems.",
+      "translation": "बग रिपोर्ट और स्पष्ट रूप से सीमित फ़ीचर अनुरोध `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_ के माध्यम से भेजें। किसी विफलता की रिपोर्ट करते समय spaCR संस्करण, ऑपरेटिंग सिस्टम, Python संस्करण, मॉड्यूल सेटिंग्स और संबंधित लॉग अंश शामिल करें। ``spacr-doctor`` इनमें से अधिकांश जानकारी एकत्र करता है; प्रदर्शन संबंधी समस्या की रिपोर्ट करते समय हार्डवेयर रिपोर्ट भी शामिल करें।"
+    },
+    {
+      "label": "debug-log-location",
+      "source_sha256": "0de8a1be0b0750ef6a744a16c65c099aa9518fc71609d05bfcf6174668b9ca87",
+      "source": "Set ``SPACR_LOG_LEVEL=DEBUG`` when troubleshooting. Rotating logs are written to ``~/.spacr/logs/spacr.log``.",
+      "translation": "समस्या निवारण के समय ``SPACR_LOG_LEVEL=DEBUG`` सेट करें। रोटेटिंग लॉग ``~/.spacr/logs/spacr.log`` में लिखे जाते हैं।"
+    },
+    {
+      "label": "primary-workflow-introduction",
+      "source_sha256": "7316054874b435fb4973b106b8f88d2d3c5aab456a43e2db41954aafb6d94a26",
+      "source": "The primary workflow comprises six modules:",
+      "translation": "मुख्य कार्यप्रवाह में छह मॉड्यूल हैं:"
+    },
+    {
+      "label": "additional-project-capabilities",
+      "source_sha256": "8c884d15546a2332066e175a59b258b23bf0af33a09dcd833eda7e15f1ff13fd",
+      "source": "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.",
+      "translation": "उसी प्रोजेक्ट में प्रायोगिक प्लेटें डिज़ाइन की जा सकती हैं, सांख्यिकीय पावर का अनुमान लगाया जा सकता है, बैच प्रभाव सुधारे जा सकते हैं, सेगमेंटेशन गुणवत्ता की जाँच की जा सकती है, परस्पर जुड़े प्लॉट और क्रॉप देखे जा सकते हैं, AnnData निर्यात किया जा सकता है, बाधित काम फिर शुरू किया जा सकता है और प्रत्येक परिणाम के लिए प्रयुक्त सेटिंग्स दर्ज की जा सकती हैं।"
+    }
+  ]
+}

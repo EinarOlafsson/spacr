@@ -1,0 +1,92 @@
+{
+  "source_sha256": "a72bae23af4e5a6dce1753685aed5139d9dbd684aa4e95b0c60c60c12b091e8d",
+  "before_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "scope": "Actual native 4K renderer only; eight direct active samples per family/background, not worker/GUI FPS acceptance",
+  "controls": {
+    "resolution": 1,
+    "size": 1,
+    "density": 1,
+    "blur": 0,
+    "radius": 0.5
+  },
+  "cuda_visible_devices": "",
+  "records": [
+    {
+      "family": "point_atlas",
+      "background": "#101418",
+      "native": [
+        3840,
+        2160
+      ],
+      "cold_direct_shade_ms": 148.17183898412623,
+      "changed_default_pixels_vs_previous": 2178277,
+      "clock_motion_pixels": 2117716,
+      "mouse_changed_pixels": 2134581,
+      "stationary_mouse_animation_pixels": 2112951,
+      "direct_active_shade_median_ms": 94.70691002206877,
+      "direct_active_shade_max_ms": 215.04329799790867,
+      "frame_sha256": "d6280bd0fe0bb7461c7a8d6013d8e6a497586d54763f6967094a905a6f93f1ab"
+    },
+    {
+      "family": "tissue_facets",
+      "background": "#101418",
+      "native": [
+        3840,
+        2160
+      ],
+      "cold_direct_shade_ms": 549.4805669877678,
+      "changed_default_pixels_vs_previous": 0,
+      "clock_motion_pixels": 0,
+      "mouse_changed_pixels": 946738,
+      "stationary_mouse_animation_pixels": 792282,
+      "direct_active_shade_median_ms": 99.95918699132744,
+      "direct_active_shade_max_ms": 108.89472300186753,
+      "frame_sha256": "ee8ad4286610bde108225b577ec6cfbd11c0af4639cf5a536d4a3cbd7f1df30b",
+      "cached_facets": 920,
+      "spinning_facets": 354,
+      "owned_angle_count": 920,
+      "owned_resting_tile_bytes": 40941680,
+      "zero_radius_restores_default": true
+    },
+    {
+      "family": "point_atlas",
+      "background": "#f6f7f9",
+      "native": [
+        3840,
+        2160
+      ],
+      "cold_direct_shade_ms": 56.365833996096626,
+      "changed_default_pixels_vs_previous": 2164132,
+      "clock_motion_pixels": 2091694,
+      "mouse_changed_pixels": 2110824,
+      "stationary_mouse_animation_pixels": 2087049,
+      "direct_active_shade_median_ms": 53.28207049751654,
+      "direct_active_shade_max_ms": 58.15315101062879,
+      "frame_sha256": "ebeec13969653593a592d4e378f73395cd7b0348a842b9206647fb2486739f23"
+    },
+    {
+      "family": "tissue_facets",
+      "background": "#f6f7f9",
+      "native": [
+        3840,
+        2160
+      ],
+      "cold_direct_shade_ms": 459.287867997773,
+      "changed_default_pixels_vs_previous": 0,
+      "clock_motion_pixels": 0,
+      "mouse_changed_pixels": 919596,
+      "stationary_mouse_animation_pixels": 771403,
+      "direct_active_shade_median_ms": 126.88316701678559,
+      "direct_active_shade_max_ms": 167.17660299036652,
+      "frame_sha256": "6610f41adb0dd921553e76741029fe8f788bc05d889928aa5b81a1213bcd8048",
+      "cached_facets": 920,
+      "spinning_facets": 354,
+      "owned_angle_count": 920,
+      "owned_resting_tile_bytes": 40941680,
+      "zero_radius_restores_default": true
+    }
+  ],
+  "peak_rss_kib": 717376,
+  "hard_24fps_acceptance": false,
+  "human_aesthetic_acceptance": false
+}

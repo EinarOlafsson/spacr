@@ -1,0 +1,60 @@
+{
+  "lesson": "08_measure",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
+  "review": {
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    },
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
+  },
+  "language": "it",
+  "title": "Measure: estrarre caratteristiche e ritagli degli oggetti",
+  "description": "Carica immagini con maschere, esamina gli oggetti, scegli le impostazioni dei ritagli e salva le misure per annotazione e classificazione.",
+  "objectives": [
+    "Identificare i canali di intensità e i piani delle maschere nell’esempio.",
+    "Esaminare i campi e scegliere con attenzione la normalizzazione dei ritagli salvati.",
+    "Eseguire Measure e trovare il database, i ritagli degli oggetti e le figure."
+  ],
+  "prerequisite": "Usa gli output uniti di Mask oppure scegli Load test data in Measure. L’esempio fornisce sedici campi con i piani di intensità 0–3 e le maschere di cellule, nuclei e patogeni nei piani 4, 5 e 6.",
+  "scenes": [
+    "Da Home, apri Measure. In Input and Experiment, usa Source per selezionare la cartella unita contenente immagini e maschere degli oggetti, oppure fai clic su Load test data. Qui l’esempio è già caricato. Measure estrae caratteristiche come area e intensità, associa oggetti correlati e può salvare ritagli degli oggetti per Annotate e Classify.",
+    "Fai clic su Load test data e attendi il caricamento dell’esempio, oppure seleziona un tuo progetto unito. Controlla l’assegnazione dei piani: questo esempio ha quattro canali di intensità seguiti dalle maschere di cellule, nuclei e patogeni nei piani quattro, cinque e sei. Quando preme Run, Measure confronta questi piani di maschera con il layout salvato per la cartella; se non coincidono, propone Use stored image layout e le chiede di rivedere la mappatura e rieseguire.",
+    "Per esaminare questi ritagli di esempio a sedici bit, attiva Normalize prima di aprire Live. Così l’anteprima è più leggibile. Ricorda che questa impostazione principale influisce anche sui ritagli salvati; la disattiveremo prima di questa esecuzione in batch.",
+    "Attiva Live e scegli un campo. Esamina i ritagli degli oggetti e le relazioni tra le loro maschere. Scorri le categorie e ingrandisci l’anteprima se serve per vedere bene i bordi.",
+    "Usa il selettore del canale visualizzato per esaminare un canale di intensità alla volta. Il canale zero mostra una vista in scala di grigi; All channels ripristina la vista combinata. Questo selettore cambia l’anteprima senza modificare le etichette né l’assegnazione dei canali del batch.",
+    "Scegli un altro campo e confrontane gli oggetti. Se mancano maschere o ci sono oggetti uniti per errore, correggile o regola Mask prima di proseguire.",
+    "Per confrontare i campi affiancati, apra Checked images e spunti i campi desiderati. La griglia raggruppa i ritagli per campo di origine; passi il cursore su un ritaglio per vederne il percorso, oppure faccia doppio clic per aprire proprio quel campo. Uncheck all images svuota la griglia. Cambia solo l’anteprima, non ciò che Measure elabora.",
+    "Per controllare la qualità della segmentazione di tutto il progetto prima di misurare, attiva QC nella riga Actions, accanto a 3D e Time. La sua finestra elenca i campi e i pozzetti le cui maschere sembrano insolite, ad esempio con molti meno oggetti del resto della piastra, con collegamenti per esaminarli. Il controllo è solo indicativo e non ferma mai Measure; chiudendo la finestra l’interruttore si spegne.",
+    "In All settings, Image Preprocessing raccoglie le correzioni che Measure può applicare a ogni campo prima di misurare: Image Deconvolution con una funzione di dispersione del punto e Illumination Correction con un modello stimato in precedenza. Cambiano i pixel misurati in questa esecuzione; le maschere e gli array su disco non vengono modificati.",
+    "Disattiva Live e rimetti Normalize su disattivato per questo esempio. Scegli con cura la normalizzazione quando salvi i ritagli: il ridimensionamento per singolo ritaglio cambia le differenze di intensità che vedrà poi un classificatore di immagini. Conserva gli array uniti originali per le misure quantitative.",
+    "Quando le impostazioni sono giuste, le conservi. Apra Templates nella barra delle impostazioni, oppure prema Ctrl+Maiusc+R, e scelga Save current settings. Dia al modello un nome che direbbe ad alta voce; la volta successiva lo applica invece di riscrivere tutto.",
+    "Import legge anche il CSV delle impostazioni che ogni esecuzione scrive accanto ai risultati. La configurazione di un’esecuzione precedente, o di un collega, diventa un modello con il nome del file.",
+    "Rename dà a un modello importato un nome più chiaro. Share scrive quello selezionato in un file per altre persone, e Apply lo carica in Measure.",
+    "Tasti come Ctrl+Maiusc+R si possono cambiare. Apra Help, poi Keyboard shortcuts, e scelga Change shortcuts. Digiti un nuovo tasto per qualsiasi azione; se entra in conflitto con un’altra, spaCR indica il conflitto e lascia Save disattivato finché non lo risolve.",
+    "Attiva il salvataggio delle misurazioni e dei ritagli degli oggetti, lascia attivo Plot e scegli la dimensione dei ritagli e i canali di uscita. Per una prima esecuzione, Test mode misura un solo campo; disattivalo per elaborare tutti e sedici i campi forniti. Fai clic su Run, segui la console fino al termine dell’esecuzione, poi controlla quali campi sono riusciti prima di proseguire.",
+    "Esamina la figura dei ritagli, poi individua measurements.db nella cartella measurements e le immagini degli oggetti salvate nell’output dei ritagli del progetto. Tieni insieme il database e i percorsi delle immagini. Prosegui con Annotate per etichettare oggetti di esempio, oppure con Classify se hai già dati di addestramento etichettati.",
+    "Per questa dimostrazione della memoria, lo stesso campo di esempio viene ripetuto a mosaico in un array più grande; non viene avviata alcuna misurazione. Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
+  ]
+}

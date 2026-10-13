@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "note": "F570 B-score convergence and rounded R MAD factor; direct adaptation of the prior reviewed overview, independently peer-reviewed by root Codex AI.",
+  "records": [
+    {
+      "label": "spacr.sp_stats#5",
+      "source": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation. B-scores use R's rounded factor 1.4826 to match cellHTS2. ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01) for general median polish. B-scores use cellHTS2's tighter stopping settings: 200 iterations and a tolerance of 1e-5.",
+      "source_sha256": "0dad8590518b6a5b3f6b2d62a09367f2cbefaa421f17d02036ddccf85fd25ad2",
+      "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation. B-scores use R's rounded factor 1.4826 to match cellHTS2. ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01) for general median polish. B-scores use cellHTS2's tighter stopping settings: 200 iterations and a tolerance of 1e-5.",
+      "translation": "常量：``MAD_SCALE`` 为 ``1 / Phi^-1(0.75)`` = 1.4826，使正态样本的 MAD 能估计其标准差。 B 分数使用 R 中四舍五入后的系数 1.4826，以与 cellHTS2 保持一致。``SSMD_ESTIMATORS`` 为 ``mm``（矩估计法）、``umvue``（一致最小方差无偏）和 ``robust``（中位数/MAD，SSMD*）。``DEFAULT_HIT_THRESHOLDS`` 对每种统计量都是 3：SSMD 3 是 Zhang 所说的 \"strong\" 效应，3 个稳健 sigma 是稳健 z 和 B 分数的常用临界值。``MEDIAN_POLISH_MAX_ITER`` 和 ``MEDIAN_POLISH_EPS`` 是 R 的 ``medpolish`` 默认值（10 和 0.01），用于一般的中位数迭代拟合。B 分数使用 cellHTS2 更严格的停止设置：200 次迭代，容差为 1e-5。",
+      "draft_translation": "常量：``MAD_SCALE`` 为 ``1 / Phi^-1(0.75)`` = 1.4826，使正态样本的 MAD 能估计其标准差。 B 分数使用 R 中四舍五入后的系数 1.4826，以与 cellHTS2 保持一致。``SSMD_ESTIMATORS`` 为 ``mm``（矩估计法）、``umvue``（一致最小方差无偏）和 ``robust``（中位数/MAD，SSMD*）。``DEFAULT_HIT_THRESHOLDS`` 对每种统计量都是 3：SSMD 3 是 Zhang 所说的 \"strong\" 效应，3 个稳健 sigma 是稳健 z 和 B 分数的常用临界值。``MEDIAN_POLISH_MAX_ITER`` 和 ``MEDIAN_POLISH_EPS`` 是 R 的 ``medpolish`` 默认值（10 和 0.01），用于一般的中位数迭代拟合。B 分数使用 cellHTS2 更严格的停止设置：200 次迭代，容差为 1e-5。",
+      "review_basis": "Direct Codex AI technical adaptation preserving the existing reviewed statistical descriptions. Root Codex AI independently accepted all nine numeric/algorithm distinctions and protected identifiers. Hindi agreement refined to R के राउंड किए गए गुणक after review; no meaning change. No local-model draft, human or native-speaker review claimed."
+    }
+  ]
+}

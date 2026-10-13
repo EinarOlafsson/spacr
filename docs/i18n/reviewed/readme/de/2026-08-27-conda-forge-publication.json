@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "label": "conda-forge-installation",
+      "source_sha256": "4b2cd6b1eb576ee3f64abdfdb078b9154b84265a455e9b1856b37045155ffdfa",
+      "source": "The official conda-forge package installs spaCR and its desktop dependencies into the active environment:",
+      "translation": "Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigkeiten in der aktiven Umgebung:"
+    },
+    {
+      "label": "pypi-installation",
+      "source_sha256": "b30f236fe4a61fe7f3fc14052db8090148e28ff41acd9a139edf9bb515a16b6c",
+      "source": "For the PyPI release, install spaCR with pip inside a Conda environment. Python 3.12 has the widest choice of optional scientific packages:",
+      "translation": "Installieren Sie die PyPI-Veröffentlichung von spaCR mit pip in einer Conda-Umgebung. Python 3.12 bietet die größte Auswahl an optionalen wissenschaftlichen Paketen:"
+    }
+  ]
+}

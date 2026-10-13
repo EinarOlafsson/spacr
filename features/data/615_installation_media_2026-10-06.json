@@ -1,0 +1,351 @@
+{
+  "item": 615,
+  "current_r2_installation_prepublication_media_accepted": true,
+  "lessons": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "source_bound_tracks_verified": 150,
+  "spoken_languages": 8,
+  "voices_per_lesson": 50,
+  "caption_and_narration_catalog_languages": 14,
+  "exact_source_bound_four_k_scene_start_frames": 30,
+  "native_originals_visually_and_privacy_alpha_checked": 30,
+  "desktop_mobile_narration_caption_cases_passed": 42,
+  "normal_default_English_sentence_cues_verified": true,
+  "candidate_routes_passed": 85,
+  "placeholder_mutation_guards_observed_red": 2,
+  "all_82_other_complete_lesson_objects_preserved_per_catalog": true,
+  "other_media_records_preserved": 4730,
+  "Mask_07_Conda_02_Home_05_Measure_08_YOLO_14_preserved": true,
+  "prior_r1_old_Home_privacy_visual_rejected": true,
+  "r2_privacy_scene_uses_original_unmodified_all_false_consent_profile": true,
+  "recorded_public_1513_and_conda_1508_distinction_preserved": true,
+  "Windows_macOS_guidance_not_claimed_as_native_capture": true,
+  "no_native_speaker_or_independent_listening_review_claimed": true,
+  "private_candidate_missing_default_voice_and_missing_directory_attempts_retained": true,
+  "immutable_upload_hosted_and_actual_nightly_deployment_pending": true,
+  "artifacts": {
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-current-browser-acceptance.json": {
+      "sha256": "3da987ae028f0a8d56a330506950b6c7f65bc52733198c39403e9534542af1b6",
+      "bytes": 2211
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-current-video-acceptance.json": {
+      "sha256": "e18b08ab22303ac18126de97c6c58d3a399b1e6e812b1c1877bd5fa958daac44",
+      "bytes": 3867
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-en-af_heart-captions-da-playback.json": {
+      "sha256": "f2edc3528cc131ff356834c60a36fbd9d71c3c17227c7d990e6acfe3a2b945a9",
+      "bytes": 1083
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-en-af_heart-captions-de-playback.json": {
+      "sha256": "a543d0b917b75d9aec7cb1e1056afb530cfa9f2c24e34dde0f3234f58e5d14dc",
+      "bytes": 1083
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-en-af_heart-captions-is-playback.json": {
+      "sha256": "228fa79d452c251939a998c1831d89daa907824525f39b163e5741ba7f58b6e1",
+      "bytes": 1083
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-en-af_heart-captions-ko-playback.json": {
+      "sha256": "0912236369588891af92b909ddab560e56fe7dc4f93fce592783f546bf3b8722",
+      "bytes": 1082
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-en-af_heart-captions-nb-playback.json": {
+      "sha256": "9836dc0f50e9b416108c367b924a5c14ebcf81bf107a9dcc26f8bec63ab237bb",
+      "bytes": 1083
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-en-af_heart-captions-sv-playback.json": {
+      "sha256": "ee2428502aaeb17c4c1fe61cecbd70d82a81bd622b82bd79ba73fc52aab53965",
+      "bytes": 1083
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-en-af_heart-sentence-cues-playback.json": {
+      "sha256": "d7edaf814bde9f0c5b61c9a7f5798c3f045925eed0c7578427665b91b5d2d937",
+      "bytes": 7742
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-es-ef_dora-playback.json": {
+      "sha256": "e7a5c9b06f36584149e8110968c86ba2e2e032194a0a7ed61f82b0a3e3a89cd4",
+      "bytes": 972
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-fr-ff_siwis-playback.json": {
+      "sha256": "8fa59ea3f59ed5d9e1266b4d8cf5d124d0f750c443b6348d7036e16fbc0ffbe7",
+      "bytes": 972
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-hi-hf_alpha-playback.json": {
+      "sha256": "a9c82225d4d3891e4ea59baef6234cdb668b74268262ea0653c6c14f3e39fd84",
+      "bytes": 972
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-it-if_sara-playback.json": {
+      "sha256": "ac69dce858da9d15e33b7dfd7373b43eb6c750c75e9bfca2e10e65a753120cbb",
+      "bytes": 972
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-ja-jf_alpha-playback.json": {
+      "sha256": "418f63129869a2bb49a214c5ec5d53fe80f2b0c96e260110c40f1c44d0bf9d49",
+      "bytes": 972
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-pt-BR-pf_dora-playback.json": {
+      "sha256": "33f1a666e35427fed45c35620dbf35f4eda12ba9e7144102a004a85c53787261",
+      "bytes": 975
+    },
+    "features/data/615_installation_media_2026-10-06/01_pypi_github-zh-CN-zf_xiaobei-playback.json": {
+      "sha256": "06f18aeaa5d762b9a9e6ee0cb210a161b950af77fd46c0a380c0d5a219bccc75",
+      "bytes": 978
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-current-browser-acceptance.json": {
+      "sha256": "b1949aac21d98dcf60bed0119c8faa7efb8d83cccc50c50d7db2e73ba4fb6a62",
+      "bytes": 2211
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-current-video-acceptance.json": {
+      "sha256": "1a00313089b9041efc1d56e5da10234346b82d448372ce1ba4fc990cbaa3c962",
+      "bytes": 3872
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-en-af_heart-captions-da-playback.json": {
+      "sha256": "b6129c7e68150a7e880cb7bdb15c5c688ea08832c8e1b89a88260a1068fba83b",
+      "bytes": 1079
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-en-af_heart-captions-de-playback.json": {
+      "sha256": "54f3cde12d529a7a24e059e70b222bec9cf4e5b7e42e8fb2baec52750e0b00ab",
+      "bytes": 1079
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-en-af_heart-captions-is-playback.json": {
+      "sha256": "67141a1c2527430fe45d3548073d650eab4f282e5273f18776343c7133020d89",
+      "bytes": 1077
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-en-af_heart-captions-ko-playback.json": {
+      "sha256": "a3ef392ed25dd019e52dab06c2b0fcb2b4dd4af1bbe762331f11470661d2a6ce",
+      "bytes": 1079
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-en-af_heart-captions-nb-playback.json": {
+      "sha256": "20ee62b7652ccd35f68de5d766bdac29a58df648fdfc6fc03fc731bef31151ec",
+      "bytes": 1075
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-en-af_heart-captions-sv-playback.json": {
+      "sha256": "b618695b815adb5d8322dd61aa479689ab6b3d633964b32a9cb49b0aa9e4fbea",
+      "bytes": 1077
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-en-af_heart-sentence-cues-playback.json": {
+      "sha256": "e3945ce89e600c145beecf0e7b2a6c8f9769c069a437819cdc2e0bdb30e26505",
+      "bytes": 9895
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-es-ef_dora-playback.json": {
+      "sha256": "4d7a43abf7351297754cb1cc385fcb92979dc503787116e40fc7c2cc40009506",
+      "bytes": 964
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-fr-ff_siwis-playback.json": {
+      "sha256": "cc262daef7b18e3aa245f9211048d2414635c2cc022a565221f814dd65fc9199",
+      "bytes": 966
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-hi-hf_alpha-playback.json": {
+      "sha256": "377a31f3919a3776106ac3d26fe11d99b1a4e4b4cf2ef15bcbb8bd612022fa80",
+      "bytes": 965
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-it-if_sara-playback.json": {
+      "sha256": "d9d1927eb73b935a184ea5adcd49a9159230cfffeb1f470e0e9d4d76910420ef",
+      "bytes": 964
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-ja-jf_alpha-playback.json": {
+      "sha256": "b68952937d9e55c6bb5091e8848d46e4ed1358626416c8abadbdef8de0fb3d62",
+      "bytes": 966
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-pt-BR-pf_dora-playback.json": {
+      "sha256": "af0824af64ad8360e8971c427328aa07dc0a2b608fe93f9338c685df3c9b1fed",
+      "bytes": 965
+    },
+    "features/data/615_installation_media_2026-10-06/03_pip_install-zh-CN-zf_xiaobei-playback.json": {
+      "sha256": "a6c19a6e9033ea97a3dd76a69c9589ca6ca6c1832092a79014d594cc31aec1eb",
+      "bytes": 970
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-current-browser-acceptance.json": {
+      "sha256": "a43a200f6a58c1f47f527f893989fcfe5cb12d4335fce06e548f47ce02674987",
+      "bytes": 2331
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-current-video-acceptance.json": {
+      "sha256": "5304bd9fa453b577cf1d060130b6269a6470c9aa7443f34766a24b8265a72b57",
+      "bytes": 3904
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-en-af_heart-captions-da-playback.json": {
+      "sha256": "341385e0622b854938a4839e567c927257158f4ac628c68e15b748bf7c969ef9",
+      "bytes": 1106
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-en-af_heart-captions-de-playback.json": {
+      "sha256": "e368308f932056fb01af1265004bbfa215fcf9ae102031308fb7873ba77d2135",
+      "bytes": 1106
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-en-af_heart-captions-is-playback.json": {
+      "sha256": "8fb91ba18f4d2272690ed3ef797db31bb2adaad5a4b61530ce19a571cfd91df2",
+      "bytes": 1106
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-en-af_heart-captions-ko-playback.json": {
+      "sha256": "c6e5383aba386cd563d44fa0309d55c02b9187d4774e421dc7ba9adabd8e509d",
+      "bytes": 1105
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-en-af_heart-captions-nb-playback.json": {
+      "sha256": "1331e9acc565532e5187f05b8bcaf1fc66992d0fed75690dc9ee37df0a9ed90d",
+      "bytes": 1106
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-en-af_heart-captions-sv-playback.json": {
+      "sha256": "c8f5b13f10e45f130246149f89024797722607a7c32e2d0f7de1f917636588e0",
+      "bytes": 1103
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-en-af_heart-sentence-cues-playback.json": {
+      "sha256": "2ef266fb742f00415bc1461c38f79183b242432934eb1a44e82fa7916bb6c01c",
+      "bytes": 12049
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-es-ef_dora-playback.json": {
+      "sha256": "afc51e9599e0f8dd49b3f5c06d8382cd5cf70af19e24a94dce89a5f9461c139b",
+      "bytes": 993
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-fr-ff_siwis-playback.json": {
+      "sha256": "74320c74b236f5fdd192db958fc0ae09bab12a1e9c98b6cbc3a935371077bc38",
+      "bytes": 995
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-hi-hf_alpha-playback.json": {
+      "sha256": "971daa17c746a29c63f73242d9e3ce59747d365a6e7ec03ca26784452f867f68",
+      "bytes": 993
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-it-if_sara-playback.json": {
+      "sha256": "c353f9e668b470efcdc3795435311d5b6b9cd902a712d7eb1ef19ee2e7103bb2",
+      "bytes": 989
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-ja-jf_alpha-playback.json": {
+      "sha256": "80dbdcbe4bbad61546db6b027c3cd67fd9d5f19528bcf2d109d4c3b4d92f19a9",
+      "bytes": 995
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-pt-BR-pf_dora-playback.json": {
+      "sha256": "c93bfeed8a618657d86969dceb274495c124988b0bce6cdd840b452836caac5b",
+      "bytes": 997
+    },
+    "features/data/615_installation_media_2026-10-06/04_platform_installers-zh-CN-zf_xiaobei-playback.json": {
+      "sha256": "7032b8a50e284595b1a5e850c8bd1139c6f88b5942cd68ef930dd813bd13c29e",
+      "bytes": 1000
+    },
+    "features/data/615_installation_media_2026-10-06/accepted-r2-source-media-freeze.json": {
+      "sha256": "b36a239647a362780d6c1c066da25458c632c6cc529fe334cb8f6dd57f2d7aa6",
+      "bytes": 71771
+    },
+    "features/data/615_installation_media_2026-10-06/archive_installation_media_r2.py": {
+      "sha256": "d2e9132d0d2e4bf4549608988678d2e2d15abe9029cb307edef8ea7f4b72a673",
+      "bytes": 8603
+    },
+    "features/data/615_installation_media_2026-10-06/candidate-browser-checks.json": {
+      "sha256": "8bc4a19ff9b208dcf418aef42c7505b23940fdc0390858b592210230e6e8a041",
+      "bytes": 124859
+    },
+    "features/data/615_installation_media_2026-10-06/check_installation_video_frames_r2.py": {
+      "sha256": "ba319fa9d970135800f694e37d194339bd1243f06c7ec7ae05c2134fb6b8e5ec",
+      "bytes": 4082
+    },
+    "features/data/615_installation_media_2026-10-06/current-complete-audio-acceptance.json": {
+      "sha256": "0ef0f5234926dfcfdc19a891946834b921066b319f53535f2799e9617ff18119",
+      "bytes": 44816
+    },
+    "features/data/615_installation_media_2026-10-06/current-frame-fidelity.json": {
+      "sha256": "0f0676161efea485895ff53ea21a16bdcf2053bf487825423c8c838cf1795371",
+      "bytes": 17268
+    },
+    "features/data/615_installation_media_2026-10-06/current-native-frame-path-and-alpha-acceptance.json": {
+      "sha256": "fecc3c18c9b7fb187ad0dafc92f980fb2d6a24e074231115f4cda69c4d0afd29",
+      "bytes": 16921
+    },
+    "features/data/615_installation_media_2026-10-06/current-native-frames-provenance-source-reviews-and-fidelity.zip": {
+      "sha256": "bfc2c159d23ee4219e4b87dcc62120c1035595d958205f926b4cf8b3eaa671a3",
+      "bytes": 39707886
+    },
+    "features/data/615_installation_media_2026-10-06/current-original-frame-visual-review.json": {
+      "sha256": "7b24d9ac083dea469800a133515027b4e679076c60ef31cf0fd8572073b2ef88",
+      "bytes": 11060
+    },
+    "features/data/615_installation_media_2026-10-06/installation-01_pypi_github-default-browser-r1.log.gz": {
+      "sha256": "a846dc904879e0b3a7487d774b112b1ed6687b8460b8664d804b2642de394f25",
+      "bytes": 1851
+    },
+    "features/data/615_installation_media_2026-10-06/installation-03_pip_install-default-browser-r1.log.gz": {
+      "sha256": "665a178184e0e6a7501c645ba8fc59c937f50fd6765045ea4d5fe48a781c1e2a",
+      "bytes": 2235
+    },
+    "features/data/615_installation_media_2026-10-06/installation-04_platform_installers-default-browser-r1.log.gz": {
+      "sha256": "7908dc00f853b781c31963818d7e6c89168ed493e62bc37248737d00bd032289",
+      "bytes": 2683
+    },
+    "features/data/615_installation_media_2026-10-06/installation-candidate-r2.log.gz": {
+      "sha256": "89d8c0c894227e09b90f1c59259f0e1df61f55b8c44700caba806015bf15f8a8",
+      "bytes": 458
+    },
+    "features/data/615_installation_media_2026-10-06/installation-candidate-r3.log.gz": {
+      "sha256": "a8d2c6c61b040b9fec4dbc600e02a67e65d0b4c405cadb078b46a1fae9845f7b",
+      "bytes": 690
+    },
+    "features/data/615_installation_media_2026-10-06/installation-candidate-r4.log.gz": {
+      "sha256": "2c498eec6ea9bc4ec2b2d2057b06548b0dfda3ada06753079cd902d5e5052b41",
+      "bytes": 523
+    },
+    "features/data/615_installation_media_2026-10-06/installation-candidate-r5.log.gz": {
+      "sha256": "45781e5b1ba6abe928009789f8870060d83bc4f2297b16aee09d3779f90c54fd",
+      "bytes": 1049
+    },
+    "features/data/615_installation_media_2026-10-06/installation-frame-fidelity-r2.log.gz": {
+      "sha256": "3c60a006edc33f69cc858f0cb4679b1e0cbd2dab16f7f3086ad8ed248df679a4",
+      "bytes": 135
+    },
+    "features/data/615_installation_media_2026-10-06/installation-installer-browsers-r2.log.gz": {
+      "sha256": "68060ef4568b61f18cfdbbbbfa272f05db51d597e8bc6f84a30d42838052f7d7",
+      "bytes": 4105
+    },
+    "features/data/615_installation_media_2026-10-06/installation-installer-video-r2.log.gz": {
+      "sha256": "79ae093b5fd96c0d2d839ed938bd28f5fb13e78acfa104d3de49ed0b95b6c997",
+      "bytes": 403
+    },
+    "features/data/615_installation_media_2026-10-06/installation-installer-video-r3.log.gz": {
+      "sha256": "ccbf9673eefe15e109eaa545a33af1a52ff2bcbb0bf146ddfeeab0e684f43249",
+      "bytes": 256
+    },
+    "features/data/615_installation_media_2026-10-06/installation-native-frame-verification-r2.log.gz": {
+      "sha256": "4932de2caf89ebd6c53f7d1614dd40c1c33481c93597b6757c1e86d804eae4ea",
+      "bytes": 1186
+    },
+    "features/data/615_installation_media_2026-10-06/installation-pip-browsers-r2.log.gz": {
+      "sha256": "bb94a595e6bb60c5b6bfc0a45e08c1313d32efdc0c7f5ddfb2779e7b05c27e13",
+      "bytes": 3643
+    },
+    "features/data/615_installation_media_2026-10-06/installation-preservation.json": {
+      "sha256": "b237bde3bd52e2df460fcbe100c7fe05d37faa1be3ee39ca81ba5fe8954e485d",
+      "bytes": 998
+    },
+    "features/data/615_installation_media_2026-10-06/installation-source-browsers-r2.log.gz": {
+      "sha256": "551ea8dbd2de6f9f66ef4e73746c09908660a3bc58fd2e00ea929e7488505b6d",
+      "bytes": 3233
+    },
+    "features/data/615_installation_media_2026-10-06/placeholder-mutation-checks.json": {
+      "sha256": "4f6c6c5b06fca0ddff03ecf20fb5663550295a8e088d8b81d54c8f7b17c61bb8",
+      "bytes": 510
+    },
+    "features/data/615_installation_media_2026-10-06/prepare_installation_candidate_r2.py": {
+      "sha256": "3aeefc31f0d718d0c291d789af6909004ca7db046a846e728b90f3697681a854",
+      "bytes": 3446
+    },
+    "features/data/615_installation_media_2026-10-06/privacy-correction-preservation.json": {
+      "sha256": "b37593c624dc7fe661a9f75ef0b8c02022eb222155733e9a4033d5f00a588755",
+      "bytes": 32031
+    },
+    "features/data/615_installation_media_2026-10-06/record_installation_visual_review_r2.py": {
+      "sha256": "6e321e56a41900b52d8a2f5849cc754aeffcea0589147531c090f89c7f25af91",
+      "bytes": 2169
+    },
+    "features/data/615_installation_media_2026-10-06/render_and_finish_installation_video_r2.py": {
+      "sha256": "952ac12f53504503f797943569bbee4a7d8d447c91d1d212b6f179eef3f69fc2",
+      "bytes": 3496
+    },
+    "features/data/615_installation_media_2026-10-06/update_installation_default_browser_receipts.py": {
+      "sha256": "ec86f1b549954f97836daa302fc5d9a0d5942a101c3d5094d562c6e8422cd72c",
+      "bytes": 1470
+    },
+    "features/data/615_installation_media_2026-10-06/verify_installation_browsers_r2.py": {
+      "sha256": "8aa58c72555e43d4e412b461b18a666206838c505085ce000615f8677e351364",
+      "bytes": 2882
+    },
+    "features/data/615_installation_media_2026-10-06/verify_installation_native_frames_r2.py": {
+      "sha256": "1cb662a9243efa501e28a3a1727046e9a94a3caf8d44a76f086d120d350b8935",
+      "bytes": 2628
+    }
+  }
+}

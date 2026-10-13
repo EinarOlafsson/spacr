@@ -1,0 +1,57 @@
+{
+  "source_commit": "dd17bab1b",
+  "measurement_source": "6fdced907cef879e753ae369525818d5dd4ef1b4",
+  "tracked_bytes": 3582359908,
+  "README_checkout_MB": 3416,
+  "all9_normal_writer": "PASS",
+  "all9_native_hardware_and_outside_paragraph_bytes": "exact",
+  "full_light_install_guard_scope": "17PASS89.14s/15unrelatedpresentationcasesexplicitlydeselected",
+  "existing_15_percent_tolerance": "unchanged",
+  "historical_network_downloads": "preserved as previous dated measurements, not remeasured",
+  "proofs": {
+    "author_readme_checkout_size_r1.py.gz": {
+      "bytes": 1288,
+      "sha256": "510437eaff7266c1fb6f1ebcbd6d946034e0576f5c56169da73bcda231e96220",
+      "raw_bytes": 3191,
+      "raw_sha256": "a023190dfe906e52f3e41b661f244374fe7eea7f230ce25695cd55dd6c011a5b"
+    },
+    "readme-checkout-measurement-r1.json.gz": {
+      "bytes": 360,
+      "sha256": "a02a2e32ba740b298389a44cb1bdb9e3984adfa3cc3ea0de308fb3443d314708",
+      "raw_bytes": 558,
+      "raw_sha256": "36a9fa518d7cf20b124fe761da87722ba89a1aaf4a42598acc1d0f987535290a"
+    },
+    "readme-checkout-independent-preservation-r1.json.gz": {
+      "bytes": 738,
+      "sha256": "e7d35fd3af2495bfa25af79928787f515c547138caca848ee384d8ff3cadb32b",
+      "raw_bytes": 1920,
+      "raw_sha256": "4c9abe532afbf300512dcbde2df5b7e14dc980e607aeb2dec180bd1b84cd73cb"
+    },
+    "readme-checkout-normal-writer-r1.log.gz": {
+      "bytes": 347,
+      "sha256": "27d9af5bc9d4a6e8633c2d83bf39f7d6598815935b3dd193c0b3902ed643fce4",
+      "raw_bytes": 1010,
+      "raw_sha256": "fdbde0e85c559efab2cf72dccede81b514f6aff6016189477bfbac403c71606f"
+    },
+    "readme-checkout-normal-writer-r1-tool.log.gz": {
+      "bytes": 586,
+      "sha256": "264f98dc7974260ce5641f2798f929c702bbd2e652d16470600bcedbc336c8df",
+      "raw_bytes": 1521,
+      "raw_sha256": "c76eaa7cebc04729fe7144015e3296fc51389afc688bfc861fd2fdcf8762e973"
+    },
+    "readme-checkout-owning-r1.log.gz": {
+      "bytes": 351,
+      "sha256": "123449520d2d2ba986ede0b0f52d01ae96e44f77155895f7e65eaf33ae0e58aa",
+      "raw_bytes": 1077,
+      "raw_sha256": "3b6e0bed81c8eb616c8c2ea0846ff5d87cbd3acc2d232c2747b08ec3986035bf"
+    },
+    "readme-checkout-owning-r1-tool.log.gz": {
+      "bytes": 644,
+      "sha256": "1d1982a98c41ebba9f276e3c5e10e868942788f57a87ce918ffdf0e981b8281e",
+      "raw_bytes": 1795,
+      "raw_sha256": "e8dad8066ffa4e3feb4af1d3a30c9602e1965fef875f7c97fd9d2748588a3112"
+    }
+  },
+  "application_source": "unchanged",
+  "API_runtime_catalogs": "unchanged"
+}

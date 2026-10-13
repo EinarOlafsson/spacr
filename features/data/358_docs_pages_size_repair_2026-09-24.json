@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "scope": "Local assembly of the actual main CI artifact and current strict-built nightly docs plus accepted data tutorial candidate; not a live deployment claim.",
+  "failed_run": 35948635800,
+  "failed_size_bytes": 1081843213,
+  "limit_bytes": 996147200,
+  "assembly": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "79d71a92f7204c8b839b7b8c7aff5de7302394ef",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "working-tree-after-efbd35a33",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 682878218,
+    "media_files": 133
+  },
+  "browser": {
+    "passed": true,
+    "cases": [
+      {
+        "channel": "main",
+        "lesson": "07_mask",
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/e35b2c12f00260629d9d5353b86dcd4577b9b617/07_mask/video/07_mask_silent.mp4",
+        "width": 3840,
+        "height": 2160,
+        "time": 44.776635,
+        "expected": 44.90059922543473,
+        "error": null
+      },
+      {
+        "channel": "nightly/",
+        "lesson": "32_align_stitch",
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/948fd55c6d13ee107b8bce22c26957178e7415dd/32_align_stitch/video/32_align_stitch_silent.mp4",
+        "width": 3840,
+        "height": 2160,
+        "time": 23.619707,
+        "expected": 23.901464337088875,
+        "error": null
+      },
+      {
+        "channel": "nightly/",
+        "lesson": "85_host_pathogen",
+        "url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/948fd55c6d13ee107b8bce22c26957178e7415dd/85_host_pathogen/video/85_host_pathogen_silent.mp4",
+        "width": 3840,
+        "height": 2160,
+        "time": 24.339993,
+        "expected": 24.728390856557233,
+        "error": null
+      }
+    ]
+  },
+  "focused_tests": 15,
+  "video_policy": "Use verified full-resolution hosted recording only for a manifest-matching local rendition; other media stays local."
+}

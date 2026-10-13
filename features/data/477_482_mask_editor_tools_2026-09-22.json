@@ -1,0 +1,86 @@
+{
+  "date": "2026-09-22",
+  "features": [
+    477,
+    478,
+    479,
+    480,
+    481,
+    482
+  ],
+  "source_baseline": "9dc13701132ba303ca4ed2a1a997b47ce5bb65b6",
+  "additional_change": "This commit adds applied Wand input and explicit pending/error handling.",
+  "commits": {
+    "apply_adaptive_clear": "16fec57b9",
+    "magnifier_lock": "9733f50f7",
+    "levels": "9be2d3d72",
+    "ruler": "9dc137011"
+  },
+  "execution": {
+    "memory_cap": "8G",
+    "qt_platform": "offscreen",
+    "gpu_analysis": false,
+    "isolated_home": true
+  },
+  "focused_runs": [
+    {
+      "log": "new-mask-final2.log",
+      "passed": 209,
+      "seconds": 39.28
+    },
+    {
+      "log": "lock-final.log",
+      "passed": 151,
+      "seconds": 31.7
+    },
+    {
+      "log": "levels-final.log",
+      "passed": 52,
+      "seconds": 14.73
+    },
+    {
+      "log": "levels-layout-final.log",
+      "passed": 4,
+      "seconds": 2.35
+    },
+    {
+      "log": "ruler-final.log",
+      "passed": 208,
+      "seconds": 40.67
+    },
+    {
+      "log": "ruler-scroll-final.log",
+      "passed": 68,
+      "seconds": 13.23
+    },
+    {
+      "log": "wand-apply-first.log",
+      "passed": 126,
+      "seconds": 15.6
+    },
+    {
+      "log": "wand-apply-final.log",
+      "passed": 71,
+      "seconds": 12.51
+    }
+  ],
+  "counts_note": "Runs overlap; do not sum them as unique tests.",
+  "private_evidence_directory": "/mnt/firecuda2/Claude/implementation-20260922/ci-followup",
+  "visual_checks": {
+    "levels.png": "560x520 themed dialog; histogram and controls do not overlap",
+    "ruler-shell.png": "Actual MainWindow1366x768;100px ruler and readable scrolling shortcuts",
+    "ruler-live-preview.png": "1100x700 paired preview; both canvases show the same100px line",
+    "mask-apply.png": "Loaded-field Compare/Apply bottom row; blue active Apply"
+  },
+  "semantics": [
+    "Levels clips/stretches intensity; it does not directly create binary masks.",
+    "Ruler defaults to image pixels; physical spacing must be explicitly supplied, never inferred.",
+    "Applied Wand reads the enhanced picture in source-dtype intensity units; post-detection morphology and splitting remain automatic-detector operations.",
+    "Original source pixels, measurements and existing masks are preserved until an explicit mask edit."
+  ],
+  "full_ci": {
+    "run": 35807838039,
+    "revision": "6006a0608",
+    "status_at_receipt": "in_progress with known failed coverage/Qt shards; not a green-CI claim for this work"
+  }
+}

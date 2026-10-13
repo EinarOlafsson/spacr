@@ -1,0 +1,34 @@
+{
+  "lesson": "35_converter",
+  "status": "Staged technical checks passed; publication remains held",
+  "canonical_english_sha256": "1421e92b000cf817acdc77701e253d0dc5f85cae67edcd6abb0c5058935d24eb",
+  "scene_count_per_catalog": 16,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "all_track_hashes_rechecked_after_verification": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 9230,
+    "duration_seconds": 307.666667, "audio_streams": 0, "bytes": 21801571,
+    "sha256": "4b122a528a72208904de14f37c46483fffbb88558a27a2852ac71e82245543b8"
+  },
+  "browser_checks": {
+    "spoken_languages": 8, "independent_caption_languages": 6, "all_passed": true,
+    "checks": ["Actual fetched audio bytes match final tracks", "Chapter seeking and mapped audio/video clocks", "Retained scene links", "Current Import parent and Converter submodule navigation", "Desktop and 390px mobile layout", "No JavaScript errors", "All caption scenes and generated WebVTT without changing voice"]
+  },
+  "recording": {
+    "app_commit": "d80be5420a0c0b12a301df353369ebc26b62099f", "version": "1.5.0.4", "font_scale": 2,
+    "capture": "refresh_2026-09-09/captures/converter_readable",
+    "private_destination": "refresh_2026-09-09/converter_runs/example-txlxxtxn/converted",
+    "source_fields": 2, "output_tiffs": 2, "shape_each": [1994, 1994], "dtype": "uint16",
+    "output_sha256": ["cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c", "e9ae8fe15224699a3148a5459649fa9cdc6bf5dd5f9a2b0bcfae45713c39a6f0"],
+    "independent_checks": ["Every output pixel, shape and dtype", "Exact source and target identities and reader metadata", "Preview wrote nothing", "First Convert wrote two targets", "Resume reused both unchanged fields with zero new writes", "Original files and provenance hashes unchanged", "Full checkpoint message visible through native summary scrolling"],
+    "important_limits": ["Neutral source names and plate1/A01 assignments are not original well metadata", "Original array plane1, single-channel TIFF plane0 and output one-based channel1 are distinct", "Two-dimensional TIFFs do not validate vendor readers, Z projection or time series", "Resume checks readable TIFF metadata, not every pixel", "The newest empty ledger entry preserves the earlier complete entry", "Preview table keeps planned status after conversion; actual results are in the summary and CSV"],
+    "app_source_modified": false
+  },
+  "catalog_preservation": {"catalogs": 14, "lessons": 75, "scenes": 637, "refreshed_scripts": 15, "unselected_unchanged": 60, "unselected_media_replaced": false},
+  "technical_matrices_completed_so_far": 15,
+  "synthesis": "One CUDA job, 10% VRAM cap, two CPU threads, 110 GiB host-memory guard",
+  "translation_review": "Editorial translation plus independent cross-check; not native-speaker sign-off",
+  "human_listening_review": false, "published": false, "whole_refresh_complete": false
+}

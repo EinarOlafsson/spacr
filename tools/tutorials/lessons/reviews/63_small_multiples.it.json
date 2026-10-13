@@ -1,0 +1,40 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "d291d2bec588b4f07344f2b9022b60e6a1e298e17ef5e7f894531e132a71985f",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Small Multiples: confrontare gruppi con assi condivisi o separati",
+  "description": "Carica le misure, disponi grafici a dispersione per gruppi, scegli scale degli assi e filtri e aggiungi una colonna derivata.",
+  "objectives": [
+    "Caricare le misure e assegnare assi e sfaccettature.",
+    "Scegliere limiti degli assi condivisi, indipendenti o per gruppo.",
+    "Esaminare i filtri e i gruppi mostrati, poi aggiungere o rimuovere una colonna derivata."
+  ],
+  "prerequisite": "Scarica l’esempio di misure del tutorial di Annotate e lavora su una copia di measurements.db. Questa guida usa la sua tabella cell, con 2341 oggetti in quattro pozzetti. Small Multiples mostra grafici; usa Tabulate per esportare riepiloghi raggruppati in CSV.",
+  "scenes": [
+    "Da Home, apri Graph Builder e poi Small Multiples. Usa questa vista per confrontare le stesse misure tra gruppi. Questo esempio usa il database di misure disponibile nel tutorial di Annotate collegato.",
+    "Fai clic su Load table accanto al titolo Small Multiples. Apri una copia di measurements.db e seleziona cell. Controlla la tabella e i suoi duemilatrecentoquarantuno oggetti prima di assegnare i canali del grafico.",
+    "Trascina cell_area su X e cell_channel_1_mean_intensity su Y, poi scegli Scatter. Metti rowID su Facet down e columnID su Facet across. La ricerca aiuta a trovare i nomi delle colonne; ogni punto rappresenta una cellula misurata.",
+    "Scegli shared per entrambe le scale, così i quattro pannelli usano gli stessi limiti degli assi. Leggi i titoli dei gruppi e i conteggi degli oggetti. In questo esempio le etichette delle sfaccettature identificano righe e colonne spaziali.",
+    "Scegli free per X scale e Y scale per dare a ogni pannello i propri limiti. Così è più facile vedere gli andamenti all’interno di ciascun gruppo. Confronta con attenzione le etichette delle tacche, perché ora gli intervalli cambiano da un pannello all’altro.",
+    "Scegli per row per entrambe le scale per condividere i limiti tra i pannelli di ogni riga della griglia. Righe diverse possono avere intervalli diversi. Usalo quando la priorità sono i confronti all’interno delle righe.",
+    "Scegli per column per condividere i limiti all’interno di ogni colonna della griglia. Puoi impostare X e Y in modo indipendente. Rimetti shared su entrambi gli assi quando vuoi confrontare i quattro pozzetti su scale comuni.",
+    "In Filter, aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. La griglia si aggiorna subito per i millecentosettantuno oggetti rimanenti. Controlla i nuovi conteggi dei pannelli.",
+    "Fai clic su Clear all in Filter per ripristinare l’intera popolazione. Usa Clear all channels a sinistra quando vuoi invece rimuovere le assegnazioni del grafico. Nessuna delle due operazioni modifica il database di origine.",
+    "Filtra columnID su c due e fieldID su f venti e f ventuno. Metti fieldID su Facet across e lascia rowID su Facet down. Il pannello della riga cinque e del campo venti non ha oggetti; quel pannello vuoto rappresenta un gruppo mancante.",
+    "Azzera i filtri e rimetti columnID su Facet across. Imposta Wrap at su cinque. L’andare a capo si applica a un solo canale di sfaccettatura, quindi la griglia attuale a due vie resta di due per due.",
+    "Svuota Facet down e metti fieldID su Facet across. Con Wrap at a cinque, i campi mostrati riempiono righe di al massimo cinque pannelli. Le posizioni inutilizzate alla fine restano nascoste.",
+    "Leggi l’avviso sotto la griglia prima di confrontare i gruppi. Questa vista mostra dodici livelli di campo; il campo ventuno è escluso dai pannelli. Il conteggio delle righe caricate include quel campo, quindi controlla quali gruppi sono davvero visibili.",
+    "Disattiva l’andare a capo e rimetti rowID e columnID come le due sfaccettature. In Columns, chiama area_k una colonna derivata e inserisci cell_area diviso mille. Controlla l’anteprima, poi fai clic su Add column per calcolarla su tutta la tabella.",
+    "Trascina area_k su X per mostrare l’area in migliaia di unità originali. Le coordinate verticali e i gruppi restano uguali. Si tratta solo di riscalare i numeri; la conversione in area fisica richiede la corretta calibrazione dell’immagine.",
+    "Rimetti cell_area su X. Seleziona area_k in Columns e fai clic su Remove per eliminare la colonna derivata da questa vista. Tieni traccia di variabili, sfaccettature, filtri e scelte di scala.",
+    "Usa Tabulate quando ti serve un riepilogo esportato in CSV. Per grafici a piccoli multipli da script, usa trellis e TrellisSpec da spacr.qt.widgets.trellis_spec con GraphSpec per i canali del grafico. Interpreta i gruppi al livello di replica sperimentale appropriato."
+  ]
+}

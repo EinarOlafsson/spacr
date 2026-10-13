@@ -1,0 +1,120 @@
+{
+  "files": {
+    "README.txt": {
+      "sha256": "91ebb035f3ed3989536a64d0b4dfaec4202adc1ed3ed30e9d8f540b3fd36543a",
+      "bytes": 4091
+    },
+    "acceptance.json": {
+      "sha256": "e6cb23e2599bc678858ef8f373b58aea878bdfd82aac00b5ee709fe6316baac9",
+      "bytes": 2389
+    },
+    "after_ambient.py.gz": {
+      "sha256": "7b826fbdb3534ae8151f308f3acdc0e2819b2a964449fe338e3c6f1d181a9f9b",
+      "bytes": 99153
+    },
+    "balanced_stages.json": {
+      "sha256": "14d776c6e09deeedd86cd066077bf0533638cc05655cd7a5a6741b5617eddc44",
+      "bytes": 10111
+    },
+    "balanced_stages.py": {
+      "sha256": "6c20cfd107220d31f8383a07b4fdfe2a85305987dbf7ebd684263c4536e938ad",
+      "bytes": 3933
+    },
+    "balanced_worker.json": {
+      "sha256": "17ceeb21088afc6ab0402715762b18a9822215a7d14b5a0c40b9b4469d10a8ca",
+      "bytes": 4796
+    },
+    "balanced_worker.py": {
+      "sha256": "dbb4da562cc4c3bb52a85b264f623d338b8fc7394128d911c70fa58ce4214028",
+      "bytes": 5307
+    },
+    "before_ambient.py.gz": {
+      "sha256": "bd4a8aafc46f4620e4f3a27b5ea422672190d4ae65f42c88b44f9ba12658242a",
+      "bytes": 99277
+    },
+    "coverage.json": {
+      "sha256": "0d745488897948afc720ef6b354b6eb700b473529a4776b02e56ad780859c4e9",
+      "bytes": 292711
+    },
+    "data_art_genetic_advection-dark.png": {
+      "sha256": "a631a34ab18c1a8d725b459e7bf2864245ad89fe1f3b3b1fd6edb071573a6aae",
+      "bytes": 1868562
+    },
+    "data_art_genetic_advection-light.png": {
+      "sha256": "4dc410d152057e9b0afdf211d63680502f24b67f1a515b22bcd6c5db3359c3c1",
+      "bytes": 2637822
+    },
+    "gc_probe.py": {
+      "sha256": "661e5aaf7f99cfb4e9c321c40651d8917c78a7cb4ed867d3f4212a970c16901a",
+      "bytes": 3715
+    },
+    "gc_receipt.json": {
+      "sha256": "23e2e467ad2602b9fd1859740c382226b3c5b98d74add83a21f4bf9658b55743",
+      "bytes": 1979
+    },
+    "native_proof.py": {
+      "sha256": "182d10dca0d1d3ab75a474b12f6d93121eb1e844df7fba3aded9d807f8247f67",
+      "bytes": 5166
+    },
+    "native_receipt.json": {
+      "sha256": "7ea0955253b58ed4f208f78fba037b87c07904533c810b5963550e7b75bb0257",
+      "bytes": 18862
+    },
+    "portable_startup_receipt.json": {
+      "sha256": "28842bc9edfc4e7e9f30594141a5ad20be7a95302c202f8c18f916e1b17b416f",
+      "bytes": 667
+    },
+    "primitive_proof.py": {
+      "sha256": "07280219d4c78a9c7ded55f2f6a5c075872da9ab5fe998d9f4655b35c64d1f60",
+      "bytes": 3814
+    },
+    "primitive_receipt.json": {
+      "sha256": "b050ae23f6311c410f3c9183aa6315af363335dd824da23e77497b03a781f259",
+      "bytes": 1568
+    },
+    "repeat1-after-worker.json": {
+      "sha256": "8a637a512541876c9e8420718a7b3e4e3d0b868a9b749184a5acfe73bde596b2",
+      "bytes": 4034
+    },
+    "repeat1-before-worker.json": {
+      "sha256": "a27f00cb5f52db0841f898682055beaac19ff87074d194c289078e3135a96892",
+      "bytes": 4038
+    },
+    "repeat2-after-worker.json": {
+      "sha256": "b09d6905f2519c4237eec4d3d7bb05e6a56523ebbfcaa858e6dc3cc665320589",
+      "bytes": 4042
+    },
+    "repeat2-before-worker.json": {
+      "sha256": "76ca738c62bc8d20e2dd6467169583d5453350d6c185161940b575739b86f499",
+      "bytes": 4041
+    },
+    "reproduce.py": {
+      "sha256": "615515b4c73cd72e28958ffbaca80c149cdefdc027c271a6f587ac7b8414da64",
+      "bytes": 2056
+    },
+    "source.diff": {
+      "sha256": "29182bfdda706b9f70a6fe81480854e11e279f53bcd9b8e52a80dea0bfa49ebc",
+      "bytes": 3522
+    },
+    "source_coverage.json": {
+      "sha256": "0ee56fd3e653544419eb0137ce39e5d28c5ad58504fcfb4fe5bd551b8b029587",
+      "bytes": 283
+    },
+    "startup_probe.py": {
+      "sha256": "905d432035547b97f8b056170ac17f08dc0621ef684643399635cabc5b269770",
+      "bytes": 2344
+    },
+    "startup_receipt.json": {
+      "sha256": "b1e0347f4ccbfb0cae259e75c3439fd0b11d77164ef4c69c0d122276be0d868f",
+      "bytes": 650
+    },
+    "test_data_art_random_palette.py": {
+      "sha256": "7e2afe89d98622c0acd49c3727eb5cfd0c1a7e6360a75449cabcd0b537f81242",
+      "bytes": 16127
+    },
+    "worker_probe.py": {
+      "sha256": "75db9f6ff935383a947ba206f3acc5a6125e94639ac966d2dcf56c8f3dd37c4c",
+      "bytes": 9228
+    }
+  }
+}

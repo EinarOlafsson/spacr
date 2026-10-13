@@ -1,0 +1,51 @@
+{
+  "language": "da",
+  "lesson": "80_image_analysis_pathways",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
+  "title": "Billedanalysemoduler og deres sammenhænge",
+  "section": "Arbejdsgange",
+  "description": "Følg de aktuelle veje fra billeder til målinger, og vælg udforskning, mærkning, sammenligning eller organismespecifikke analyser.",
+  "objectives": [
+    "Vælg et startmodul ud fra de data, du allerede har.",
+    "Find ud af, hvad hvert modul læser og skriver.",
+    "Følg de tilknyttede modullektioner og API-kontrakter til næste trin."
+  ],
+  "prerequisite": "Installer spaCR, og åbn Home. Vælg startdata til dit workflow, og følg derefter de linkede modullektioner for kontroller og eksempeldata.",
+  "scenes": [
+    "Begynd med spørgsmålet og de data, du allerede har. De aktuelle rækker på Home adskiller Core analysis, Data preparation and comparison, Tools og Toxoplasmas Organism-side. Et modul er ét trin; dets output bliver et andet moduls input.",
+    "Import organiserer indgående mikroskopifiler og metadata. Hvis din optagelse indeholder overlappende billedfelter, kan Align & Stitch forberede en mosaik med tilhørende koordinatposter. Bevar kanalernes identiteter og kildemetadata sammen med projektet.",
+    "Mask fremstiller objektetiketter fra mikroskopibilleder. Make Masks lader dig oprette eller gennemgå masker manuelt. Billede-maske-par skal bevare samme feltidentitet; en løs maskefil er ikke automatisk de kombinerede projektarrays, som Measure kræver.",
+    "Measure læser de forberedte billeder og maskeplanerne sammen. Det skriver measurements.db med objektidentiteter og egenskabskolonner og kan gemme objektudsnit. Bevar kildeprojektet og kanaltilknytningen sammen med disse tabeller.",
+    "Annotate viser objektudsnit, så du kan tilføje gennemgåede etiketter. Classify træner en model på den valgte etiketkolonne ved hjælp af udsnitsbilleder eller målte egenskaber. Hold evalueringsobjekter adskilt fra træningsobjekter, og før scorekolonnen og objektidentiteterne videre til senere analyser.",
+    "Embeddings koder udsnit til numeriske egenskaber. Image UMAP projicerer kompatible egenskaber til udforskning. Undersøg repræsentative udsnit, før du tillægger en klynge betydning; en klynge alene er ikke en valideret fænotype.",
+    "Gate Editor vælger objekter ved hjælp af faktiske egenskabskolonner eller kompatible projektionskoordinater. Gennemgå de valgte objekter, før du skriver etiketter. Disse etiketter kan blive gennemgåede eksempler til Annotate eller Classify.",
+    "QC rapporterer de kvalitetskontroller, der findes, og den evidens, der mangler. Run Compare undersøger gemte kørsler side om side. Graph Builder plotter måletabeller med de kolonner og den gruppering, du vælger.",
+    "Experiment Design planlægger betingelser og prøveidentiteter. Power / Design udforsker antagelser for statistisk planlægning. Dose-Response analyserer et endepunkt ved forskellige koncentrationer. Angiv tydeligt det målte endepunkt, kontrollerne og den eksperimentelle enhed.",
+    "Toxoplasma-siden samler organismespecifikke assays. Deres input er forskellige: et plakbillede, kompartmentmålinger og eksplicitte parasit-vakuole-forbindelser er ikke indbyrdes udskiftelige. Vælg det passende assay, og følg dets egne inputkrav.",
+    "For poolede screeninger fremstiller Map Barcodes guideoptællinger fra sekventeringsreads. Regression kombinerer disse optællinger med kompatible fænotypescorer. Bevar plade-, brønd- og guideidentitet, når du forbinder de to veje.",
+    "Gå tilbage til Home, og vælg næste trin ud fra det output, du faktisk har. Brug de tilknyttede modullektioner til en komplet kørsel. Bevar inputidentitet, indstillinger, installeret version og outputplacering samlet, så arbejdsgangen senere kan kontrolleres."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "9d7f17e1568481bbd4e654ed265ed3b043d2002247fdf52feb5c0a7d3ccc9291",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
+}

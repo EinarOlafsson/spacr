@@ -1,0 +1,19 @@
+{
+  "command": "env CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg PYTHONPATH=. tools/run_capped.sh 4G /mnt/wd4tb/scratch/item47-memory-codex-20261005/ci-near-parity-venv/bin/python -m pytest -q -p no:randomly --tb=short tests/test_cov_deep_spacr_train_model.py tests/test_best_checkpoint_is_persisted.py tests/test_deep_spacr_checkpointing.py::test_training_artifact_round_trips_optimizer_scheduler_and_rng tests/test_deep_spacr_checkpointing.py::test_atomic_save_leaves_existing_checkpoint_on_failure tests/test_per_class_and_model_cards.py::test_training_writes_a_card_whose_metrics_match_a_recomputation tests/test_per_class_and_model_cards.py::test_a_card_that_cannot_be_written_does_not_lose_the_weights",
+  "cwd": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006",
+  "date": "2026-10-08",
+  "limits": "One focused CPU cohort; not full GitHub or numerical coverage acceptance.",
+  "raw_log_sha256": "bb03203df1d6f63101c5e495f2bfee000a7694221fc132854e8e00c76e3149a4",
+  "result": "44 passed in 9.95s",
+  "scope": [
+    "complete CPU train_model test file",
+    "complete best-checkpoint persistence test file",
+    "optimizer/scheduler/RNG artifact roundtrip",
+    "atomic checkpoint-save failure",
+    "model-card persistence and failure"
+  ],
+  "source_blob": "4375815a365a15ebabcc28a2ab12c733949e29cd",
+  "source_commit": "94f9995b896adfc7ff4ec19e5ae689fcf64545a9",
+  "source_file": "spacr/deep_spacr.py",
+  "source_sha256": "198f08a49ba2bbad93aa411f57924d5d1d7ee5fed196210e350a093452658b53"
+}

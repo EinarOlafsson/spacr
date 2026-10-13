@@ -1,0 +1,46 @@
+{
+  "lesson": "09_annotate",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Annotate: merktu hluti og vistaðu merkingarnar",
+  "description": "Hlaðu inn dæmaúrklippum, veldu merkingardálk, merktu hluti, stilltu yfirlitið og undirbúðu merkingarnar fyrir flokkun.",
+  "objectives": [
+    "Hlaða inn vistuðum úrklippum eða lesa úrklipp beint úr sameinuðum myndum.",
+    "Velja merkingardálk, setja og fjarlægja merki og vista breytingarnar.",
+    "Stilla liti rása og skoða fjölda í hverjum flokki og þekju.",
+    "Finna Agreement og leiðirnar til þjálfunar með myndum og með eiginleikum."
+  ],
+  "prerequisite": "Opnaðu Annotate frá Home. Notaðu Load test data og veldu Load fyrir dæmaúrklippin og mælingagagnagrunninn. Fyrir þitt eigið verkefni notarðu möppuna sem geymir mælingagagnagrunn þess og úrklippin eða sameinuðu myndirnar.",
+  "scenes": [
+    "Opnaðu Annotate frá Home. Hnitanetið sýnir einstaka hluti úr verkefninu þínu. Þú merkir þessa hluti og vistar merkin í mælingagagnagrunninum.",
+    "Smelltu á Load test data og veldu Load. Þá eru dæmaúrklippin og mælingagagnagrunnur þeirra sótt og opnuð í Annotate.",
+    "Veldu Stream þegar þú vilt lesa úrklipp beint úr sameinuðum myndum. Veldu Load fyrir úrklipp sem þegar hafa verið flutt út. Í þessari yfirferð notum við Load.",
+    "Til að opna þín eigin gögn smellirðu á Open source og velur plötumöppuna sem geymir mælingarnar og myndgögnin. Hnitanetið hleður þá inn hlutum úr því verkefni.",
+    "Skoðaðu hnitanet úrklippanna. Notaðu síðustýringarnar til að fletta í gegnum hlutina. Stilltu stærð úrklippanna ef þú þarft nánari sýn eða vilt fleiri hluti á hverri síðu.",
+    "Opnaðu Settings og veldu merkingardálk. Búðu til nýjan dálk til að halda þessu merkingarverki aðskildu frá fyrri merkingum. Ákveddu hvað hver flokkur táknar áður en þú byrjar.",
+    "Vinstrismelltu á úrklipp til að setja flokk 1. Hægrismellur setur flokk 2. Smelltu aftur á sama flokk til að fjarlægja hann. Litaði hringurinn sýnir merkið og hvíti hringurinn merkir valið úrklipp.",
+    "Ýttu á Next til að fara á næstu síðu og senda merkin til vistunar. Bíddu þar til vistun lýkur áður en þú lokar forritinu.",
+    "Ýttu á Back til að fara aftur á fyrri síðu og yfirfara merkin. Þú getur líka notað lyklana 1 til 9 til að setja flokka og 0 til að fjarlægja merki. Skýringin á skjánum sýnir flýtilykla fyrir flakk og afturköllun.",
+    "Opnaðu Class counts til að sjá hversu marga hluti þú hefur merkt í hverjum flokki. Notaðu það til að finna flokka sem þurfa fleiri dæmi.",
+    "Opnaðu Coverage til að sjá hvernig merkingarnar dreifast yfir verkefnið. Taktu með dæmi úr þeim aðstæðum og myndhópum sem flokkarinn á að þekkja.",
+    "Til að fjarlægja merki smellirðu aftur á sama flokk. Farðu á næstu síðu til að vista breytinguna og svo aftur til baka til að athuga hreinsaða úrklippið.",
+    "Í Settings velur Channel colours litaspjaldið fyrir birtingu. Display order úthlutar upprunarásum á litasætin. Veldu yfirlit þar sem auðvelt er að greina flokkana í sundur.",
+    "Hér er CMY-litaspjaldið. Þú getur farið aftur í RGB í sömu stillingum. Haltu sama yfirliti meðan þú berð saman og merkir hluti.",
+    "Opnaðu Annotator Agreement frá tákninu efst til hægri til að bera saman merkingardálka. Notaðu það til að finna hluti þar sem yfirlesarar settu mismunandi merki.",
+    "Þegar merkin eru tilbúin opnarðu Train. Veldu myndir fyrir myndflokkara eða mælda eiginleika fyrir töfluflokkara. Tengdu Classify-kennslustundirnar útskýra þjálfunarstillingarnar.",
+    "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í fjórum brunnum og Next vistar þær.",
+    "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú ber hver úrklippa á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
+    "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
+    "Generate annotation database býr til safn úrklippa úr hentugum upprunagögnum. Notaðu það þegar þú undirbýrð nýtt merkingarverkefni; sótta dæmið inniheldur þegar úrklippin og gagnagrunninn sem þarf hér.",
+    "Opnaðu Console til að athuga skilaboð um innlestur upprunans og vistun. Merkingardálkurinn þinn er geymdur í gagnagrunni verkefnisins og hægt er að velja hann þegar þú undirbýrð þjálfunargögn í Classify.",
+    "Til að fá hjálp með stillingu opnarðu spaCR AI í Console eftir að hafa sett upp þjónustuaðila í Preferences. Þegar þú hefur lokið merkingunni heldurðu áfram í Classify með verkefnið og valda merkingardálkinn."
+  ]
+}

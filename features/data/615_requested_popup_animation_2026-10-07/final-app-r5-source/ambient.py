@@ -1,0 +1,8445 @@
+"""Ambient animated backdrop — soft motion behind every module screen.
+
+The sequencing screen has its own backdrop (:mod:`spacr.qt.widgets.dna_rain`,
+the ATGC cascade). This is the one for *everything else*: a slow, diffuse
+animation that sits behind the settings form and the console, takes no focus
+and no mouse events, and can be switched off entirely in Preferences.
+
+Five data-art materials and three classic themes remain in the menu.
+The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices
+are spaCR advection, spaCR growth, spaCR waves and spaCR spinn.
+The classic choices provide softer motion:
+
+``blobs``
+    Big and small colour blobs drifting over the page, each pulsing in size on
+    its own period. They overlap and blend, so the result reads as soft colour
+    *fields* rather than as a bag of circles.
+``aurora``
+    Three overlapping curtains of vertical rays, folding along their own
+    length. The folds are travelling waves — several superposed frequencies
+    running lengthwise along the arc — with brightness surges on a separate
+    schedule, a sharp lower edge, a diffuse top, and the real thing's
+    vertical colour order: green through the body, red high up, a violet
+    fringe underneath.
+``drift``
+    A slow starfield in three parallax layers: small, dim, slow ones behind;
+    bigger, brighter, faster ones in front. The one crisp theme. It travels
+    up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.
+
+The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine`
+and :class:`ResonanceEngine` remain importable for direct callers, but are
+no longer menu choices or factory entries.
+
+There is also a private ``fractal`` engine: it is
+not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,
+and the only way to see it is to start the application with the ``spaceout``
+command instead of ``spacr``. See :data:`SPACEOUT_THEME` and
+:class:`FractalEngine`.
+
+The ``random`` direction of ``drift`` produces Brownian-style motion without
+duplicating the starfield as a separate theme. Themes dominated by many
+antialiased lines or per-pixel noise are omitted because their raster cost is
+too high for an always-running backdrop.
+
+Palettes
+--------
+Every theme declares the palettes it offers (:func:`palettes_for`), because a
+palette that works as a 400 px blob does not necessarily work as a 2 px star.
+:data:`PALETTE_SETS` holds the colours themselves; ``spacr`` uses the three
+brand hues from the module-maturity legend, and ``okabe`` is the Okabe–Ito set
+for red–green colour deficiency (see its note).
+
+Both dark and light
+-------------------
+spaCR ships several themes, and a blob set tuned only for a near-black page turns
+to mud on a white one. So the *composition mode follows the background*:
+
+* dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,
+  which is what makes two circles read as one colour field. Additive over a
+  light page just clips to white and the whole effect vanishes.
+* light page -> ``CompositionMode_Multiply``, with the palette colour mixed
+  toward white first. Multiply is the exact dual: overlaps get *darker* and
+  still blend hue-wise, so the same geometry reads the same way.
+  ``SourceOver`` would let later blobs cover earlier ones, producing discrete
+  discs instead of a blended field.
+
+:func:`AmbientWidget.set_background_color` re-derives all of that, so a live
+theme switch is one call.
+
+Cost
+----
+This paints behind every module screen, on machines that are simultaneously
+running Cellpose on a GPU and a 40-plate pipeline, so cost is a correctness
+requirement rather than a nicety. Two things get it there:
+
+1. *The timer stops whenever the widget is not on screen* — hidden, on another
+   tab, or in a minimised window. Zero frames, zero CPU. These screens stay
+   open for hours, so this is the whole ball game.
+2. *Diffuse themes are painted into a small reusable QImage and scaled up*.
+   The buffer's long edge is whatever the theme declares
+   (:attr:`_BufferedEngine.base_edge`) times the user's resolution setting,
+   so diffuse fields shade ~37 000 pixels instead of ~2 000 000. The aurora
+   and data-art materials preserve native display detail within the actual
+   screen-pixel budget. Aurora returns an owned frame, avoiding a second
+   full-size copy when a shading worker publishes it.
+3. *The shading happens on its own thread* (:class:`_FrameProducer`), so the
+   GUI thread's whole share of a frame is one ``drawImage``. That is the next
+   section, and it is the one that matters while a pipeline is running.
+
+While a run is going
+--------------------
+The animation can lag while a job is running, and the cause is not the obvious
+one. Measurements on a real X server at 1920x1080 with a real ``ConsolePanel``
+under the real stylesheet and a real Qt event loop, ``blobs`` at the shipped
+24 fps cap, best of five interleaved rounds:
+
+==============================================  ==========  ==========
+ condition                                       delivered   GUI paint
+==============================================  ==========  ==========
+ idle                                             25.0 fps     2.04 ms
+ a numpy thread (1024² matmul + FFT), flat out    24.5 fps     2.10 ms
+ 200 console lines a second, nothing else         24.9 fps     1.27 ms
+ **one pure-Python thread**                       24.5 fps  **17.21 ms**
+ a worker doing Python work *and* printing        17.3 fps    17.16 ms
+==============================================  ==========  ==========
+
+So **CPU saturation is not a cause**: numpy releases the interpreter lock and
+a core burning flat out costs this module nothing. **A signal flood is not a
+cause on its own**: 200 lines a second are free, and it only bites in the
+thousands, where the console's own per-line work saturates the GUI thread and
+nothing in *this* module can help. What is left is **the interpreter lock**:
+identical drawing work, eleven times slower, because the shading pass is
+Python and numpy and something else is holding the lock.
+
+Translucent overlays can also trigger repaints outside the animation timer.
+The console sits over this widget, so each new line can expose it and request
+a full frame even while the animation timer is stopped. Expensive shading must
+therefore remain off the GUI thread even when the frame rate is capped.
+
+The frame is split at the seam where the cost occurs. The following historical
+measurements predate native-resolution Aurora and serve as a comparison, not
+as a current frame-rate claim. Per theme, milliseconds, idle against one
+Python thread, min of nine interleaved rounds:
+
+=========  =====================  =====================
+theme      shading (moved)        soften + blit (stays)
+=========  =====================  =====================
+blobs      0.240 ->  0.572        0.651 -> 1.097
+aurora     1.396 ->  7.176        0.797 -> 1.043
+ripple     0.367 ->  0.589        0.644 -> 1.196
+bokeh      0.663 ->  3.533        0.679 -> 1.008
+cells      0.538 -> 26.179        0.663 -> 0.909
+drift      0.528 ->  1.084        (no buffer)
+resonance  1.072 -> see below     0.842 -> 1.115
+=========  =====================  =====================
+
+``resonance`` is the one row whose contended figure is a range rather than a
+number, and the shape of its shading is the reason. The others are one long
+pass of ``QPainter`` calls; the plate is dozens of small NumPy calls, and
+each one gives the lock back and then queues for it again, so what the cell
+would measure is how often the shading thread was descheduled rather than
+how much work the theme does. Four nine-round repeats of the protocol above
+gave medians of 10, 174, 286 and 407 ms on the same machine. Two things make
+that liveable and both are already here: the cost is paid on the producer
+thread, so a late frame is a *repeated* frame
+(:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and
+while a run is going the process holds
+:data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6
+to 24 ms. Its row was taken later than the rest and on a busier machine —
+``blobs`` read 0.262 and 0.749 -> 1.002 in the same run — so read it against
+those rather than against the table.
+
+The shading pass is sensitive to interpreter-lock contention, whereas the Qt
+blit remains inexpensive. :meth:`_BufferedEngine.shade` therefore runs in
+:class:`_FrameProducer`, while :meth:`_BufferedEngine.blit` stays on the GUI
+thread. If a shaded frame is not ready, the widget repeats the previous frame
+instead of blocking the interface.
+
+In that historical ``blobs`` benchmark, the rate goes from 17.3 fps to 24.7 on
+the same worker. What this
+does **not** address is a genuinely chatty run: at 200 lines a second both
+land at about 4 fps, because by then the GUI thread is inside ``ConsolePanel``
+and not in here at all. Two levers finish the job and neither is in this file —
+``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured independently:
+32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and
+coalescing ``PipelineWorker.line_ready``.
+
+Three constraints shape the implementation. Animation periods are sampled
+from continuous ranges rather than replayed from a precomputed loop, avoiding
+visible jumps and large frame caches. Shading runs outside the GUI thread; if
+a frame is late, the previous frame is repeated and counted by
+:attr:`AmbientWidget.repeated_frames`. The animation clock remains on the GUI
+thread, and rendered frames remain deterministic functions of
+``(seed, clock, size)``.
+
+``drift`` keeps synchronous drawing at full Detail. Lower Detail renders the
+same particle population through a bounded image buffer; it does not reduce
+Density. Its historical row above predates that buffer path.
+
+Performance depends on hardware, display size, theme, and concurrent work.
+Density controls population independently of Detail. Detail controls sampling
+resolution, and buffers stay within the actual screen-pixel budget. Increasing
+Detail does not trim the selected population. Legacy direct engine callers may
+still set blur, but Preferences exposes no Blur control. Hidden widgets stop
+rendering entirely. Historical timings above do not establish native 24 FPS
+at current maximum controls.
+
+The private growth producer uses ``_lineage`` to index reproducible wandering
+tips and recursive front forks. Daughter branches remain connected to their
+parent filaments; older trails recede as new colonies begin. This is decorative
+mycelial artwork, not a model fitted to project measurements.
+
+The field's background-only left drag uses ``_set_field_grab`` and
+``_step_field_grab`` for a bounded local spring with continuous release
+velocity. ``AmbientWidget._offer_field_grab`` publishes the latest handle
+without waiting for shading, and ``AmbientWidget._field_grab_background``
+excludes scientific canvases and interactive controls. Release returns the
+patch without moving or reseeding its underlying material.
+
+Aurora's ``buffer_size`` and ``buffer_scale`` retain crisp display sampling;
+its private ``_shade`` returns a freshly owned frame. Drift's ``buffer_size``
+bounds lower-Detail drawing, while its private ``_paint_dots`` paints the same
+selected population into that buffer or directly at full Detail.
+"""
+from __future__ import annotations
+
+import logging
+import math
+import random
+import sys
+import threading
+import time
+import weakref
+from dataclasses import dataclass
+from functools import partial
+from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
+                    Tuple, Union)
+
+from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
+                            QRect, QRectF, Qt, QTimer)
+from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
+                           QLinearGradient, QPainter, QPainterPath, QPen,
+                           QPixmap, QPolygonF, QRadialGradient, QTransform)
+from PySide6.QtWidgets import QApplication, QFrame, QSizePolicy, QWidget
+
+from ..theme import (advance_spaceout_drift, page_colour, palette_for,
+                     relative_luminance, spaceout_enabled)
+
+LOG = logging.getLogger(__name__)
+
+__all__ = [
+    "AMBIENT_THEMES", "ANIMATION_CHOICES", "NO_ANIMATION",
+    "animation_label", "animation_note", "is_animation_choice",
+    "total_frames_painted",
+    "DEFAULT_THEME", "DEFAULT_PALETTE", "PALETTE_SETS",
+    "SPACEOUT_THEME", "SPACEOUT_PALETTE", "dressed",
+    "AmbientWidget", "install_ambient", "theme_label", "theme_note",
+    "palettes_for", "palette_label", "palette_note", "palette_colors",
+    "default_palette_for", "is_valid_theme", "is_valid_palette",
+    "BLUR_RANGE", "SPEED_RANGE", "SIZE_RANGE", "RESOLUTION_RANGE",
+    "DENSITY_RANGE", "DEFAULT_BLUR", "DEFAULT_SPEED", "DEFAULT_SIZE",
+    "DEFAULT_RESOLUTION", "DEFAULT_DENSITY", "DRIFT_DIRECTIONS",
+    "DEFAULT_DRIFT_DIRECTION", "drift_direction_label",
+    "drift_direction_note", "is_valid_drift_direction", "Motion",
+    "preferred_motion",
+]
+
+
+
+#: Every theme, in the order a menu should list them.
+#:
+#: These are the *paintable* ones — every name here has an engine behind it.
+AMBIENT_THEMES: Tuple[str, ...] = (
+    "data_art_impulse_lens",
+    "data_art_genetic_advection",
+    "data_art_fungal_growth",
+    "data_art_point_atlas",
+    "blobs",
+    "aurora",
+    "drift",
+    "data_art_tissue_facets",
+)
+
+#: The animation the ``spaceout`` entry point paints, and the palette it
+#: paints it in.
+#:
+#: **Deliberately absent from :data:`AMBIENT_THEMES`**, which is the whole
+#: mechanism by which this cannot be chosen: that tuple is what the
+#: Preferences dropdown is built from, what :func:`is_valid_theme` accepts,
+#: and what ``preferences.get_ambient_theme`` validates a stored value
+#: against — so the name appears in no menu, cannot be persisted, and cannot
+#: come back out of a settings file. It is paintable
+#: (:data:`_PAINTABLE_THEMES`) and reachable only through
+#: :func:`spacr.qt.theme.enable_spaceout`, which only the entry point calls.
+SPACEOUT_THEME = "fractal"
+SPACEOUT_PALETTE = "rainbow"
+
+#: The animation choice that draws nothing and runs no timer.
+#:
+#: Not one more engine that happens to paint an empty frame — that would
+#: still be a timer, a repaint and a composite sixty times a second for a
+#: picture that is identical every time. It is the absence of the widget:
+#: :func:`spacr.qt.preferences.get_ambient_enabled` reports ``False`` while
+#: it is selected, and the three install sites (``AppScreen``, Home and
+#: ``MainWindow._theme_screen``) all read that *before* they construct
+#: anything. The cost is zero because nothing exists, which is the only kind
+#: of zero worth claiming.
+NO_ANIMATION = "none"
+
+ANIMATION_CHOICES: Tuple[str, ...] = AMBIENT_THEMES + (NO_ANIMATION,)
+
+#: Default ambient animation theme.
+DEFAULT_THEME = "data_art_impulse_lens"
+
+#: spaCR's own colours, likewise.
+DEFAULT_PALETTE = "spacr"
+
+_THEME_LABELS = {
+    "blobs": "spaCR blobs",
+    "aurora": "spaCR aurora",
+    "drift": "spaCR stratified",
+    "data_art_impulse_lens": "spaCR field",
+    "data_art_genetic_advection": "spaCR advection",
+    "data_art_fungal_growth": "spaCR growth",
+    "data_art_point_atlas": "spaCR waves",
+    "data_art_tissue_facets": "spaCR spinn",
+    SPACEOUT_THEME: "spaCR fractals",
+}
+
+_THEME_NOTES = {
+    "blobs": 'Soft colour blobs, large and small, drifting and slowly changing size.',
+    "aurora": 'Fine curtains of northern light ripple through softly layered folds.',
+    "drift": 'A slow starfield in three layers of depth.',
+    "data_art_impulse_lens": 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
+    "data_art_genetic_advection": 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
+    "data_art_fungal_growth": 'Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.',
+    "data_art_point_atlas": 'An edge-free landscape of round points carries wide travelling waves.',
+    "data_art_tissue_facets": 'Fine paper facets move gently and respond locally to the mouse.',
+    SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
+                     "the backdrop the spaceout launcher dresses the "
+                     "application in."),
+}
+
+
+
+
+class PaletteSpec(NamedTuple):
+    """One named colour set: what to call it and what it is made of."""
+
+    label: str
+    colors: Tuple[str, ...]
+    note: str
+
+
+#: The colour sets, shared across themes. A palette is a *set of hues*; how
+#: strongly they are applied is the theme's business (a 2 px star needs a very
+#: different alpha from a 400 px blob), which is why the alphas live in the
+#: engines and not here.
+PALETTE_SETS: Dict[str, PaletteSpec] = {
+    "custom": PaletteSpec(
+        "Custom colours", ("#3b82f6", "#ff00ff"),
+        "Your chosen primary and accent colours."),
+    "random": PaletteSpec(
+        "Random colours", tuple(QColor.fromHsv((index * 137 + 17) % 360,
+                                               175 + index % 45,
+                                               225 + index % 30).name()
+                                for index in range(32)),
+        "Stable varied colours for individual elements."),
+    "spacr": PaletteSpec(
+        "spaCR",
+        ("#3B82F6", "#FF00FF", "#00CEC8"),
+        "spaCR's own three colours — the blue, magenta and green-cyan that "
+        "mark a module stable, beta or alpha."),
+    "ember": PaletteSpec(
+        "Ember",
+        ("#FF6B35", "#FFB020", "#E2374A", "#FF8FA3"),
+        "Warm — orange, amber and rose."),
+    "ocean": PaletteSpec(
+        "Ocean",
+        ("#0EA5E9", "#22D3EE", "#2DD4BF", "#3B82F6"),
+        "Cool — teal, aqua and deep blue."),
+    "pastel": PaletteSpec(
+        "Pastel",
+        ("#A8D8EA", "#FFB5E8", "#B5EAD7", "#FFDAC1"),
+        "Pale and low contrast, for when the backdrop should be barely "
+        "there."),
+    "mono": PaletteSpec(
+        "Monochrome",
+        ("#A3A3A3", "#CFCFCF", "#707070"),
+        "Greys only — motion without colour, for when colour is a "
+        "distraction."),
+    "okabe": PaletteSpec(
+        "Colour-blind safe",
+        ("#0072B2", "#E69F00", "#009E73", "#56B4E9", "#D55E00", "#F0E442"),
+        "The Okabe–Ito set. Its colours stay distinguishable under "
+        "protanopia and deuteranopia — red–green deficiency, the common "
+        "kind — because no pair in it differs by red versus green alone."),
+    "borealis": PaletteSpec(
+        "Aurora borealis",
+        ("#7CFC9E", "#FF3C5A", "#5B6BFF", "#D9FFA8"),
+        "The real thing's emission lines: atomic oxygen at 557.7 nm (the "
+        "dominant green), atomic oxygen at 630.0 nm (the red that only "
+        "appears high up), ionised nitrogen at 427.8 nm (the blue-violet "
+        "lower fringe), and the pale yellow-green where the green and the "
+        "red overlap."),
+    "rainbow": PaletteSpec(
+        "Rainbow",
+        ("#FF0040", "#FF7A00", "#FFE000", "#00E05A", "#00C8FF", "#4030FF",
+         "#C02BFF"),
+        "The spectrum, closed into a ring: red through orange, yellow, "
+        "green, cyan and blue to violet, and back round to red."),
+    "fluor": PaletteSpec(
+        "Fluorescence",
+        ("#3AA0FF", "#3DFF6E", "#FF5A3C", "#FFD24A"),
+        "The standard filter set as the eyepiece sees it: DAPI at 461 nm "
+        "(blue), FITC at 519 nm (green), TRITC at 576 nm (orange-red), and "
+        "the yellow where green and red overlap."),
+    "midnight": PaletteSpec(
+        "Midnight",
+        ("#7185F4", "#B775F0", "#5EC8F8", "#C9CFFF"),
+        "A clear night: indigo, violet, ice blue and the pale periwinkle "
+        "a sky keeps long after the sun has gone."),
+    "dusk": PaletteSpec(
+        "Dusk",
+        ("#EE779F", "#E87DDA", "#F6B98A", "#8C5BC7"),
+        "The last colour in the sky — rose and magenta over dusty gold, "
+        "with the plum the horizon goes just before dark."),
+    "lowsun": PaletteSpec(
+        "Low sun",
+        ("#F6D46F", "#F2A65A", "#E2D583", "#A8C46A"),
+        "A sun close to the horizon and the matter it shines through: "
+        "gold, amber, pale gold and moss."),
+    "deepwater": PaletteSpec(
+        "Deep water",
+        ("#3CD296", "#7EE7BD", "#2AA5C4", "#17A08A"),
+        "Under the surface: sea green, mint, and the teal that is the last "
+        "colour left when everything warm has been absorbed."),
+}
+
+_THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
+    "blobs": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
+              "borealis", "fluor", "midnight", "dusk", "lowsun",
+              "deepwater"),
+    "aurora": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
+               "borealis", "midnight", "dusk"),
+    "ripple": ("spacr", "ember", "ocean", "mono", "okabe", "deepwater",
+               "midnight"),
+    "drift": ("spacr", "ember", "ocean", "mono", "okabe", "borealis",
+              "fluor", "midnight"),
+    "cells": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor",
+              "lowsun", "deepwater"),
+    SPACEOUT_THEME: (SPACEOUT_PALETTE,),
+}
+for _data_art_key in (key for key in AMBIENT_THEMES if key.startswith("data_art_")):
+    _THEME_PALETTES[_data_art_key] = tuple(
+        palette for palette in PALETTE_SETS
+        if palette != SPACEOUT_PALETTE)
+for _classic_key in ("blobs", "aurora", "drift"):
+    _THEME_PALETTES[_classic_key] += ("random",)
+
+_PAINTABLE_THEMES: Tuple[str, ...] = AMBIENT_THEMES + (SPACEOUT_THEME,)
+
+
+def is_valid_theme(name) -> bool:
+    """True when ``name`` is one of :data:`AMBIENT_THEMES`.
+
+    The predicate exists so a caller validating stored preferences does not
+    have to catch :class:`ValueError` from the strict accessors below.
+
+    :param name: the value to test, typically a stored preference.
+    """
+    return name in AMBIENT_THEMES
+
+
+def is_valid_palette(theme, palette) -> bool:
+    """True when ``palette`` is offered by ``theme``. Never raises.
+
+    :param theme: the theme name; an unknown theme offers nothing.
+    :param palette: the palette name to look for among ``theme``'s palettes.
+    """
+    return palette in _THEME_PALETTES.get(theme, ())
+
+
+def _require_theme(name: str) -> str:
+    """Validate a name that is about to be *painted*.
+
+    Against :data:`_PAINTABLE_THEMES`, not :data:`AMBIENT_THEMES`: the
+    spaceout fractal has an engine and must pass here, while
+    :func:`is_valid_theme` — which is what a stored preference is checked
+    with — goes on rejecting it.
+    """
+    if name not in _PAINTABLE_THEMES:
+        raise ValueError(
+            f"unknown ambient theme {name!r}; expected one of "
+            f"{', '.join(_PAINTABLE_THEMES)}")
+    return name
+
+
+def _require_palette(theme: str, name: str) -> str:
+    """Validate ``name`` *for this theme*, loudly.
+
+    Two different failures, and they are worth telling apart in the message:
+    a palette nobody has ever heard of, and a real palette this theme does
+    not offer.
+    """
+    _require_theme(theme)
+    offered = _THEME_PALETTES[theme]
+    if name in offered:
+        return name
+    if name in PALETTE_SETS:
+        raise ValueError(
+            f"the {theme!r} ambient theme does not offer the {name!r} "
+            f"palette; expected one of {', '.join(offered)}")
+    raise ValueError(
+        f"unknown ambient palette {name!r}; the {theme!r} theme expects one "
+        f"of {', '.join(offered)}")
+
+
+def theme_label(name: str) -> str:
+    """Human label for ``name``, for a menu. Raises on an unknown theme.
+
+    :param name: a paintable theme name; any other raises
+        :class:`ValueError`.
+    """
+    return _THEME_LABELS[_require_theme(name)]
+
+
+def theme_note(name: str) -> str:
+    """One-line description of ``name``, for a tooltip.
+
+    :param name: a paintable theme name; any other raises
+        :class:`ValueError`.
+    """
+    return _THEME_NOTES[_require_theme(name)]
+
+
+def is_animation_choice(name) -> bool:
+    """True for anything the Animation preference may hold — including
+    :data:`NO_ANIMATION`, which :func:`is_valid_theme` rejects because it
+    cannot be painted.
+
+    :param name: the value to test, typically a stored preference.
+    """
+    return name in ANIMATION_CHOICES
+
+
+def animation_label(name: str) -> str:
+    """Human label for an entry of :data:`ANIMATION_CHOICES`.
+
+    "None" rather than "Off": the row is called Animation and this is one of
+    the animations it can be set to, the way a font size can be set to zero.
+
+    :param name: :data:`NO_ANIMATION` or a paintable theme name; any other
+        name raises :class:`ValueError`.
+    """
+    if name == NO_ANIMATION:
+        return "None"
+    return theme_label(name)
+
+
+def animation_note(name: str) -> str:
+    """One-line description of an animation choice, for a tooltip.
+
+    The note for "None" states the cost, because that is the only reason a
+    reader picks it — and the claim is asserted rather than advertised: see
+    ``tests/qt/test_ambient_none.py``, which counts painted frames over a
+    real second instead of trusting this sentence.
+
+    :param name: :data:`NO_ANIMATION` or a paintable theme name; any other
+        name raises :class:`ValueError`.
+    """
+    if name == NO_ANIMATION:
+        return ("No backdrop at all: nothing is drawn behind the module "
+                "pages and no animation timer runs anywhere in spaCR, so "
+                "the cost while idle is exactly zero rather than nearly "
+                "nothing. The page keeps its ordinary theme colour.")
+    return theme_note(name)
+
+
+def palettes_for(theme: str) -> Tuple[str, ...]:
+    """The palette names ``theme`` offers, in menu order.
+
+    Never empty. Raises :class:`ValueError` on an unknown theme rather than
+    returning ``()``, because an empty tuple reads as "this theme has no
+    palettes" and would quietly leave a settings menu blank.
+
+    :param theme: a paintable theme name.
+    """
+    return _THEME_PALETTES[_require_theme(theme)]
+
+
+def default_palette_for(theme: str) -> str:
+    """The palette ``theme`` falls back to — :data:`DEFAULT_PALETTE` when it
+    is on offer, otherwise the first one listed.
+
+    :param theme: a paintable theme name; an unknown one raises
+        :class:`ValueError`.
+    """
+    offered = palettes_for(theme)
+    return DEFAULT_PALETTE if DEFAULT_PALETTE in offered else offered[0]
+
+
+def palette_label(theme: str, palette: str) -> str:
+    """Human label for ``palette`` as offered by ``theme``.
+
+    :param theme: a paintable theme name.
+    :param palette: a palette ``theme`` offers; an unknown theme, or a
+        palette the theme does not offer, raises :class:`ValueError`.
+    """
+    return PALETTE_SETS[_require_palette(theme, palette)].label
+
+
+def palette_note(theme: str, palette: str) -> str:
+    """One-line description of ``palette``, for a tooltip.
+
+    :param theme: a paintable theme name.
+    :param palette: a palette ``theme`` offers; an unknown theme, or a
+        palette the theme does not offer, raises :class:`ValueError`.
+    """
+    return PALETTE_SETS[_require_palette(theme, palette)].note
+
+
+def palette_colors(theme: str, palette: str) -> Tuple[str, ...]:
+    """The ``#rrggbb`` colours behind ``palette``, for ``theme``.
+
+    :param theme: a paintable theme name.
+    :param palette: a palette ``theme`` offers; an unknown theme, or a
+        palette the theme does not offer, raises :class:`ValueError`.
+    """
+    selected = _require_palette(theme, palette)
+    if selected == "custom":
+        from ..preferences import _ambient_custom_colors
+        return _ambient_custom_colors()
+    return PALETTE_SETS[selected].colors
+
+
+def coerce_palette(theme: str, palette: str) -> str:
+    """``palette`` if ``theme`` offers it, else that theme's default.
+
+    Only for *stored* values — a preferences file that still names the
+    palette the user picked under a different theme should not stop a screen
+    from being built. An unknown name is still an error: it is a bug, not a
+    stale setting.
+    """
+    _require_theme(theme)
+    if palette not in PALETTE_SETS:
+        raise ValueError(
+            f"unknown ambient palette {palette!r}; expected one of "
+            f"{', '.join(sorted(PALETTE_SETS))}")
+    return palette if is_valid_palette(theme, palette) \
+        else default_palette_for(theme)
+
+
+def dressed(theme: str, palette: str) -> Tuple[str, str]:
+    """Resolve the ambient theme and palette for the current launch mode.
+
+    Standard launches preserve the requested pair. Spaceout launches return
+    :data:`SPACEOUT_THEME` and :data:`SPACEOUT_PALETTE`.
+
+    :param theme: the requested theme name; returned as given unless the
+        spaceout dressing is on. It is not validated here.
+    :param palette: the requested palette name, treated the same way.
+    """
+    if spaceout_enabled():
+        return SPACEOUT_THEME, SPACEOUT_PALETTE
+    return theme, palette
+
+
+
+#: Frame-rate cap. Nothing here moves fast enough to need more, and this
+#: matches the DNA rain so the app has one animation cadence.
+DEFAULT_FPS = 24
+_RUN_FPS = 4
+MIN_FPS = 1
+MAX_FPS = 60
+
+#: The ordinary application installs a backdrop on every live screen.  Its
+#: motion is deliberately slow and diffuse, so spending the direct widget's
+#: full 24-frame budget while the application is otherwise idle only feeds
+#: repaints that are visually redundant.  Keep ``AmbientWidget``'s public
+#: default unchanged for callers that explicitly construct one; the shared
+#: production installer uses this lower idle budget unless a caller asks for
+#: a particular rate.
+_INSTALLED_FPS = 12
+
+#: Largest simulation step accepted from the wall clock, in seconds. If the
+#: app was busy for two seconds the animation resumes where it was instead of
+#: teleporting.
+MAX_DT = 0.25
+
+#: Longest edge, at resolution 1.0, of the buffer a soft theme shades into.
+#: This is the *diffuse* themes' figure. 256 px upscales to 1920 with nothing
+#: measurably lost — a frame of ``blobs`` shaded here differs from the same
+#: frame shaded at 1920x1080 by at most 2.9 luminance levels out of 255, and
+#: ``ripple`` by 3.2 — because a diffuse gradient has no detail to lose.
+#: Themes with an edge or a fine repeat in them declare their own, larger,
+#: figure; see :attr:`_BufferedEngine.base_edge` and
+#: :data:`AURORA_BUFFER_EDGE`.
+BUFFER_MAX_EDGE = 256
+
+#: Hard limits on the derived buffer edge. The low end is where bilinear
+#: upscaling stops looking like softness and starts looking like blocks; the
+#: high end is where a 4K canvas would be shaded at full resolution.
+BUFFER_MIN_EDGE = 96
+BUFFER_EDGE_CEILING = 2048
+
+#: A second, absolute cost ceiling on the buffer, in pixels. The edge is a
+#: *ratio* to the canvas, and a ratio alone lets a 5K display quietly ask for
+#: a five-megapixel shading pass. Shading is per buffer pixel, so this is the
+#: number that actually bounds the frame.
+#:
+#: 1920x1080 is the FALLBACK, and it is a guess at a monitor rather than a
+#: measurement of one. What an engine actually uses is
+#: :attr:`AmbientEngine.max_pixels`, which :class:`AmbientWidget` sets from
+#: the screen the window is really on — see :func:`screen_pixels`. This is
+#: what an engine built with no widget behind it gets: the tests, the theme
+#: preview, and anything constructed before there is a window to ask.
+BUFFER_MAX_PIXELS = 1920 * 1080
+
+
+def screen_pixels(widget: Optional[QWidget] = None) -> int:
+    """Return the device-pixel count of the screen containing ``widget``.
+
+    The primary screen is used when no widget screen is available. Headless
+    or invalid screen information falls back to :data:`BUFFER_MAX_PIXELS`.
+    """
+    try:
+        from ..hidpi import screen_for_widget
+        screen = screen_for_widget(widget)
+        if screen is None:
+            return BUFFER_MAX_PIXELS
+        size = screen.size()
+        ratio = float(screen.devicePixelRatio() or 1.0)
+        pixels = int(size.width() * ratio) * int(size.height() * ratio)
+    except Exception:
+        return BUFFER_MAX_PIXELS
+    return pixels if pixels >= BUFFER_MIN_EDGE ** 2 else BUFFER_MAX_PIXELS
+
+
+
+#: How much detail is computed, as a multiplier on the theme's own buffer
+#: edge. Above 1.0 costs quadratically more (shading is per buffer pixel);
+#: below 1.0 is the escape hatch for a machine that cannot afford the
+#: backdrop at all.
+RESOLUTION_RANGE = (0.25, 2.0)
+DEFAULT_RESOLUTION = 1.0
+
+#: How soft the result is, in units of :data:`BLUR_UNIT_PX` screen pixels of
+#: area averaging. 0.0 — the default — is no softening pass at all, which is
+#: also why the default frame is still byte-for-byte the shipped one.
+#:
+#: This is *not* the old blur. The old one ran from 0.25 (sharp) through 1.0
+#: (as shipped) to 3.0 (soft) and sharpened by enlarging the buffer; that job
+#: now belongs to :data:`RESOLUTION_RANGE`, and this control only ever
+#: softens. The rename of the meaning is deliberate and is called out in the
+#: preferences module, which migrates a stored value from the old scale.
+BLUR_RANGE = (0.0, 3.0)
+DEFAULT_BLUR = 0.0
+
+#: What one unit of blur is worth, in screen pixels. 8 is not arbitrary: it
+#: is exactly the smoothing the diffuse themes shipped with, when a 240x135
+#: buffer was stretched over 1920x1080. So blur 1.0 asks for "the softness
+#: the backdrop always had" and gets it at whatever resolution is set —
+#: which is the sharp-and-soft frame that could not be asked for before.
+#:
+#: Expressed in *screen* pixels rather than buffer pixels on purpose: in
+#: buffer pixels the two controls would still be coupled, and raising the
+#: resolution would silently sharpen the picture again.
+BLUR_UNIT_PX = 8.0
+
+#: A multiplier on the animation clock, so every per-theme period, drift rate
+#: and travel speed scales together and nothing has to be re-tuned. Applied
+#: in :meth:`AmbientEngine.advance`, never in :meth:`geometry` — changing the
+#: speed must not teleport an animation that is already on screen.
+SPEED_RANGE = (0.1, 4.0)
+DEFAULT_SPEED = 1.0
+
+#: A multiplier on each theme's own size range: blob radius, aurora curtain
+#: height and ray spacing, ripple wavelength, starfield dot diameter.
+SIZE_RANGE = (0.25, 2.5)
+DEFAULT_SIZE = 1.0
+
+#: A multiplier on how many *elements* a theme draws: blobs, curtains, ripple
+#: sources, stars, bokeh discs, cells. Every engine rolls a pool big enough
+#: for the top of this range once, at construction, and then paints a prefix
+#: of it — so turning the slider never re-rolls the field and never makes the
+#: animation jump.
+DENSITY_RANGE = (0.01, 3.0)
+DEFAULT_DENSITY = 0.1
+BLINK_PERCENT_RANGE = (0.0, 10.0)
+DEFAULT_BLINK_PERCENT = 0.0
+
+WORK_BUDGET = 4.0
+
+#: Which way the starfield goes.
+#:
+#: A preference on the theme rather than three entries in the theme menu.
+#: They are one animation with one constant changed — the same particles,
+#: pool, parallax layers, sway and twinkle — so three menu entries would put
+#: two thirds of a list in front of the user to express one axis, and would
+#: then have to answer what a palette or a density means "for Starfield
+#: (down)" separately three times. It also composes: direction is orthogonal
+#: to speed, size and density, and a menu entry is not.
+DRIFT_DIRECTIONS: Tuple[str, ...] = ("up", "down", "random")
+DEFAULT_DRIFT_DIRECTION = "up"
+
+_DRIFT_DIRECTION_LABELS = {
+    "up": "Up",
+    "down": "Down",
+    "random": "Every which way",
+}
+
+_DRIFT_DIRECTION_NOTES = {
+    "up": "Everything rises, the way the shipped starfield always did.",
+    "down": "Everything falls, like snow.",
+    "random": ("Each speck goes its own way and wanders as it goes — "
+               "Brownian motion rather than one shared current."),
+}
+
+
+def is_valid_drift_direction(name) -> bool:
+    """True when ``name`` is one of :data:`DRIFT_DIRECTIONS`. Never raises.
+
+    :param name: the value to test.
+    """
+    return name in DRIFT_DIRECTIONS
+
+
+def _require_drift_direction(name: str) -> str:
+    """Validate a starfield drift direction.
+
+    :param name: the direction.
+    :returns: it unchanged.
+    :raises ValueError: if it is not one of the known directions, naming
+        them -- a mistyped direction would otherwise drift nowhere and look
+        like the animation had stopped.
+    """
+    if name not in DRIFT_DIRECTIONS:
+        raise ValueError(
+            f"unknown starfield direction {name!r}; expected one of "
+            f"{', '.join(DRIFT_DIRECTIONS)}")
+    return name
+
+
+def drift_direction_label(name: str) -> str:
+    """Human label for a starfield direction, for a menu.
+
+    :param name: one of :data:`DRIFT_DIRECTIONS`; any other value raises
+        :class:`ValueError`.
+    """
+    return _DRIFT_DIRECTION_LABELS[_require_drift_direction(name)]
+
+
+def drift_direction_note(name: str) -> str:
+    """One-line description of a starfield direction, for a tooltip.
+
+    :param name: one of :data:`DRIFT_DIRECTIONS`; any other value raises
+        :class:`ValueError`.
+    """
+    return _DRIFT_DIRECTION_NOTES[_require_drift_direction(name)]
+
+#: A background at or below this WCAG relative luminance is treated as dark,
+#: which selects additive compositing. The five shipped themes measure 0.000
+#: (dark), 0.002 (space), 0.002 (cell), 0.004 (glass) and 0.956 (light), so
+#: the exact threshold only ever matters for a custom mid-grey; it sits high
+#: because additive is the more forgiving of the two on a mid tone.
+DARK_LUMINANCE_MAX = 0.30
+
+#: How far a palette colour is mixed toward white before it is multiplied
+#: onto a light page. Undiluted saturated hues multiply to something muddy
+#: and far too strong.
+LIGHT_TINT = 0.55
+
+
+
+def _as_color(value: Union[QColor, str, None], fallback: QColor) -> QColor:
+    """Coerce ``value`` to a valid opaque QColor, or fall back to a colour
+    that is one."""
+    if value is None:
+        color = QColor(fallback)
+    else:
+        color = QColor(value)
+        if not color.isValid():
+            color = QColor(fallback)
+    color.setAlpha(255)
+    return color
+
+
+def _as_pixmap(value) -> Optional[QPixmap]:
+    """Coerce a path / QPixmap / QImage to a usable QPixmap, or ``None``.
+
+    Never raises and never returns a null pixmap: a wallpaper deleted between
+    the stylesheet being built and this widget being constructed is a cosmetic
+    miss, not a crash.
+    """
+    if value is None:
+        return None
+    try:
+        if isinstance(value, QPixmap):
+            pixmap = value
+        elif isinstance(value, QImage):
+            pixmap = QPixmap.fromImage(value)
+        else:
+            pixmap = QPixmap(str(value))
+    except Exception:
+        return None
+    return None if pixmap.isNull() else pixmap
+
+
+def _mix(a: QColor, b: QColor, t: float) -> QColor:
+    """Linear RGB mix, ``t=0`` -> ``a``, ``t=1`` -> ``b``."""
+    t = max(0.0, min(1.0, float(t)))
+    return QColor(
+        int(round(a.red() + (b.red() - a.red()) * t)),
+        int(round(a.green() + (b.green() - a.green()) * t)),
+        int(round(a.blue() + (b.blue() - a.blue()) * t)),
+    )
+
+
+def _with_alpha(color: QColor, alpha: float) -> QColor:
+    """Return a copy of a colour at a given alpha.
+
+    :param color: the colour to copy.
+    :param alpha: the alpha, clamped to ``[0, 1]``.
+    :returns: the new colour; the original is not modified.
+    """
+    out = QColor(color)
+    out.setAlphaF(max(0.0, min(1.0, float(alpha))))
+    return out
+
+
+def is_dark_background(color: Union[QColor, str]) -> bool:
+    """True when ``color`` is dark enough for additive compositing."""
+    return relative_luminance(_as_color(color, QColor("#000000")).name()) \
+        <= DARK_LUMINANCE_MAX
+
+
+def _clamp_int(value, low: int, high: int) -> int:
+    """Clamp a value into an integer range.
+
+    :param value: the value.
+    :param low: the lower bound.
+    :param high: the upper bound.
+    :returns: the clamped integer.
+    """
+    return max(low, min(high, int(value)))
+
+
+def _clamp(value: float, low: float, high: float) -> float:
+    """Clamp a value into a float range.
+
+    :param value: the value.
+    :param low: the lower bound.
+    :param high: the upper bound.
+    :returns: the clamped float.
+    """
+    return max(low, min(high, float(value)))
+
+
+def _pool_size(base: int) -> int:
+    """How many elements to roll for a theme whose own count is ``base``.
+
+    Enough for the top of :data:`DENSITY_RANGE`, rolled once at construction.
+    Density then paints a prefix of the pool, so the slider never re-rolls
+    the field, never makes what is on screen jump, and — because the extra
+    draws happen *after* the originals — never disturbs the numbers the
+    shipped elements were built from.
+    """
+    return max(1, int(math.ceil(base * DENSITY_RANGE[1])))
+
+
+def _theme_background() -> QColor:
+    """The current theme's flat page colour, or the dark one if unavailable.
+
+    ``page``, not ``bg``. The docstring said "page colour" all along and
+    the code read the *window* colour, which on the dark theme is
+    ``#000000`` — so the flat fill under the animation was pure black,
+    and on the frames and in the gaps where the animation is thin that is
+    what reached the eye. See the ``page`` block in :mod:`spacr.qt.theme`.
+    """
+    try:
+        from ..theme import active_page_colour
+        return QColor(active_page_colour())
+    except Exception:
+        return QColor(page_colour("dark"))
+
+
+#: NumPy, once it has been imported. See :func:`_numpy`.
+_NUMPY = None
+
+
+def _numpy():
+    """NumPy, imported on first use rather than at module import.
+
+    :class:`FractalEngine` and the data-art materials need it only when their
+    producers shade a frame. This module is imported on the way to every
+    module screen, so an ordinary ``spacr`` start should not pay for NumPy
+    before a matching animation is selected.
+    """
+    global _NUMPY
+    if _NUMPY is None:
+        import numpy
+        _NUMPY = numpy
+    return _NUMPY
+
+
+
+class AmbientEngine:
+    """Base class: a deterministic, time-parameterised painter.
+
+    An engine owns no widget and no timer. It holds the constants rolled once
+    from its seed, a clock (:attr:`time`), and whatever reusable buffer it
+    paints through. Everything it draws is a pure function of ``(seed, time,
+    width, height, colours, background)`` — which is what lets a test render
+    the same frame twice and compare it byte for byte, and what lets
+    :meth:`AmbientWidget.set_theme` swap engines without the animation
+    jumping.
+
+    Positions are rolled in *normalised* 0..1 units and multiplied up at paint
+    time, so a resize re-frames the animation instead of re-rolling it.
+
+    Every numeric parameter below is CLAMPED to its range rather than
+    rejected: these arrive from saved preferences, and a value that has drifted
+    outside its range should slow the animation down, not refuse to draw it.
+
+    :param colors: the palette to paint from, as :class:`QColor` or as any
+        string :class:`QColor` accepts.
+    :param background: the colour behind the palette.
+    :param seed: the roll that fixes this engine's constants. The same seed
+        gives the same animation, which is what lets a test compare two
+        renders byte for byte. ``None`` rolls a new one.
+    :param blur: softness of the painted shapes, 0.0 to 3.0.
+    :param speed: how fast :attr:`time` advances the animation, 0.1 to 4.0.
+    :param size: scale of the painted shapes, 0.25 to 2.5.
+    :param resolution: scale of the buffer painted through, 0.25 to 2.0.
+        Below 1.0 paints fewer pixels and scales them up, which is the lever
+        that makes the backdrop affordable on a weak GPU.
+    :param density: how many shapes are rolled, 0.01 to 3.0.
+    :param direction: which way the animation drifts. An unrecognised name
+        falls back to the default rather than raising, for the same reason
+        the numbers are clamped.
+    """
+
+    name = ""
+
+    def __init__(self, colors: Sequence[Union[QColor, str]],
+                 background: Union[QColor, str],
+                 seed: Optional[int] = None,
+                 blur: float = DEFAULT_BLUR,
+                 speed: float = DEFAULT_SPEED,
+                 size: float = DEFAULT_SIZE,
+                 resolution: float = DEFAULT_RESOLUTION,
+                 density: float = DEFAULT_DENSITY,
+                 direction: str = DEFAULT_DRIFT_DIRECTION):
+        """Roll the constants this engine paints from.
+
+        :param colors: the palette to paint with.
+        :param background: the colour behind the shapes.
+        :param seed: what makes the animation reproducible.
+        :param blur: how soft the shapes are drawn.
+        :param speed: the animation rate multiplier.
+        :param size: the shape scale.
+        :param resolution: the render resolution.
+        :param density: how many shapes there are.
+        :param direction: which way the field drifts.
+        """
+        self.seed = seed
+        self.time = 0.0
+        self.frames = 0
+        #: Most pixels this engine's buffer may hold. The screen's, once a
+        #: widget has told it; :data:`BUFFER_MAX_PIXELS` until then.
+        self.max_pixels = BUFFER_MAX_PIXELS
+        self.blur = _clamp(blur, *BLUR_RANGE)
+        self.speed = _clamp(speed, *SPEED_RANGE)
+        self.size = _clamp(size, *SIZE_RANGE)
+        self.resolution = _clamp(resolution, *RESOLUTION_RANGE)
+        self.density = _clamp(density, *DENSITY_RANGE)
+        self.blink_percent = DEFAULT_BLINK_PERCENT
+        self.popup_wave_frequency = 0.0
+        self._blink_seed = random.Random(seed).randrange(2 ** 32)
+        self.direction = direction if is_valid_drift_direction(direction) \
+            else DEFAULT_DRIFT_DIRECTION
+        self._colors = self._coerce_colors(colors)
+        self._background = _as_color(background, QColor("#000000"))
+        self._configure(random.Random(seed))
+        self._restyle()
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll the per-element constants. Called exactly once."""
+
+    def set_blink_percent(self, value: float) -> None:
+        """Set the percentage of dot centres flashing white, without reseeding."""
+        value = float(value)
+        self.blink_percent = _clamp(
+            value if math.isfinite(value) else DEFAULT_BLINK_PERCENT,
+            *BLINK_PERCENT_RANGE)
+
+    def _blinking_indices(self, count: int):
+        """Select dot identities with fractional counts and a seeded clock."""
+        np = _numpy()
+        tick = int(math.floor(self.time * 4.0))
+        key = (tick, int(count), self.blink_percent)
+        cached = getattr(self, "_blink_selection", None)
+        if cached is None or cached[0] != key:
+            rng = np.random.default_rng((self._blink_seed + tick) % (2 ** 32))
+            expected = count * self.blink_percent / 100.0
+            amount = int(expected) + int(rng.random() < expected % 1.0)
+            cached = (key, rng.choice(count, size=amount, replace=False))
+            self._blink_selection = cached
+        return cached[1]
+
+    def set_popup_wave_frequency(self, value: float) -> None:
+        """Set popup-origin waves per minute; zero disables automatic waves."""
+        value = float(value)
+        value = _clamp(value if math.isfinite(value) else 0.0, 0.0, 60.0)
+        if value != self.popup_wave_frequency:
+            self.popup_wave_frequency = value
+            if hasattr(self, "_popup_waves"):
+                self._popup_waves.clear()
+                self._popup_wave_elapsed = 0.0
+
+    def _restyle(self) -> None:
+        """Re-derive everything that depends on the colours or background."""
+        self.dark = is_dark_background(self._background)
+        self.mode = (QPainter.CompositionMode_Plus if self.dark
+                     else QPainter.CompositionMode_Multiply)
+        #: The colour that leaves the layer underneath untouched under
+        #: :attr:`mode` — 0 adds nothing, white multiplies to identity.
+        self.identity = QColor(0, 0, 0) if self.dark else QColor(255, 255, 255)
+        self.paint_colors = [self._tint(c) for c in self._colors]
+        self._random_palette = tuple(c.name() for c in self._colors) \
+            == PALETTE_SETS["random"].colors
+        self._spacr_palette = tuple(c.name() for c in self._colors) \
+            == tuple(color.lower() for color in PALETTE_SETS["spacr"].colors)
+
+    def _tint(self, color: QColor) -> QColor:
+        """The colour as actually painted, given the background."""
+        return QColor(color) if self.dark \
+            else _mix(color, QColor(255, 255, 255), LIGHT_TINT)
+
+    @staticmethod
+    def _coerce_colors(colors: Sequence[Union[QColor, str]]) -> List[QColor]:
+        """Turn whatever the palette gave us into QColors.
+
+        Accepts names, hex and RGB tuples because the palette is written by
+        hand and a colour spelled the wrong way should not stop the backdrop.
+
+        :param colors: the palette entries.
+        :returns: one QColor per entry.
+        """
+        out = [QColor(c) for c in colors or ()]
+        out = [c for c in out if c.isValid()]
+        return out or [QColor("#808080")]
+
+    @property
+    def colors(self) -> List[QColor]:
+        """The palette this engine paints with.
+
+        COPIES, so a caller cannot recolour the engine by mutating what it
+        was handed.
+
+        :returns: one QColor per palette entry.
+        """
+        return [QColor(c) for c in self._colors]
+
+    @property
+    def background(self) -> QColor:
+        """The colour behind the shapes.
+
+        A copy, for the same reason as :meth:`colors`.
+
+        :returns: the background colour.
+        """
+        return QColor(self._background)
+
+    def set_colors(self, colors: Sequence[Union[QColor, str]]) -> None:
+        """Swap the palette without disturbing the motion."""
+        self._colors = self._coerce_colors(colors)
+        self._restyle()
+
+    def set_background(self, color: Union[QColor, str]) -> None:
+        """Tell the engine what it is painting onto — this is what decides
+        additive versus multiply, so it must be called on a theme switch."""
+        self._background = _as_color(color, self._background)
+        self._restyle()
+
+    def set_blur(self, value: float) -> None:
+        """How much the finished picture is softened. 0.0 is untouched.
+
+        Clamped to :data:`BLUR_RANGE`. Engines that cache anything sized by
+        it drop that cache here, never per frame.
+        """
+        value = _clamp(value, *BLUR_RANGE)
+        if value == self.blur:
+            return
+        self.blur = value
+        self._reblur()
+
+    def set_resolution(self, value: float) -> None:
+        """How many pixels the scene is shaded into, as a multiplier on this
+        theme's own buffer edge. Clamped to :data:`RESOLUTION_RANGE`."""
+        value = _clamp(value, *RESOLUTION_RANGE)
+        if value == self.resolution:
+            return
+        self.resolution = value
+        self._reresolve()
+
+    def set_density(self, value: float) -> None:
+        """How many elements the theme draws, as a multiplier on its own
+        count. Clamped to :data:`DENSITY_RANGE`.
+
+        Never re-rolls anything: the pool was built for the top of the range
+        at construction and this only changes how much of it is painted, so
+        the elements that were on screen stay exactly where they were.
+        """
+        value = _clamp(value, *DENSITY_RANGE)
+        if value == self.density:
+            return
+        self.density = value
+        self._redensify()
+
+    def set_direction(self, name: str) -> None:
+        """Which way the elements travel, for the themes that have a way.
+
+        Silently ignores an unknown name rather than raising: this reaches
+        every engine, and most of them have nothing to do with it.
+        """
+        if is_valid_drift_direction(name) and name != self.direction:
+            self.direction = name
+            self._redirect()
+
+    @property
+    def work(self) -> float:
+        """What this engine is asking for, as a multiple of its own default.
+
+        Shading cost is buffer pixels times elements. Resolution is a linear
+        scale on the buffer's edge, so it enters squared; density is linear
+        in the elements. Overridden by the one engine that has no buffer.
+        """
+        return self.resolution ** 2 * self.density
+
+    def effective_density(self) -> float:
+        """The requested population, independently of render resolution.
+
+        Buffered engines enforce the work budget on pixel sampling instead
+        of removing elements when the user increases Detail.
+        """
+        return self.density
+
+    def element_count(self, base: int, pool: int) -> int:
+        """How many of a pool of ``pool`` elements to draw, when the theme's
+        own count is ``base``. At least one: a density slider that can empty
+        the screen is an off switch wearing a disguise."""
+        return _clamp_int(round(base * self.effective_density()), 1, pool)
+
+    def alpha_scale(self) -> float:
+        """What to multiply every element's peak alpha by, given the density.
+
+        Additive compositing means N overlapping shapes are N times the
+        light, so a density control with no compensation is a *brightness*
+        control wearing a misleading name. Measured, on a page at 0.076:
+        mean frame lightness went from 0.135 at density 1.0 to 0.288 at 3.0.
+        The backdrop would have become the loudest thing behind a settings
+        form — which the alphas in this module were set on a rendered frame
+        specifically to prevent (see :data:`AURORA_ALPHA_DARK`).
+
+        So above 1.0 the field's light is *divided among* more elements
+        rather than added to it. Below 1.0 nothing is done: quadrupling the
+        alpha of a quarter as many blobs clips to white rather than
+        compensating, and a sparser field being a quieter one is the right
+        answer anyway.
+
+        Density therefore changes the *texture* of the field — how many
+        shapes it is made of, and how strongly each one states itself — and
+        not how loud the field is. That is the only reading of the control
+        that leaves the backdrop legible at both ends of its range.
+        """
+        return 1.0 / max(1.0, self.effective_density())
+
+    def _fractional_alpha_scale(self, base: int) -> float:
+        """Represent a fractional population when a coarse scene keeps one shape."""
+        return self.alpha_scale() * min(1.0, base * self.effective_density())
+
+    def set_max_pixels(self, pixels: int) -> None:
+        """Set the display-pixel ceiling used to size the render buffer."""
+        pixels = max(BUFFER_MIN_EDGE ** 2, int(pixels))
+        if pixels == self.max_pixels:
+            return
+        self.max_pixels = pixels
+        self._reresolve()
+
+    def set_speed(self, value: float) -> None:
+        """Multiply every motion in the theme. Clamped to :data:`SPEED_RANGE`.
+
+        Deliberately a clock multiplier rather than a factor inside
+        :meth:`geometry`: a user dragging the slider in Preferences changes
+        how fast the animation goes *from here*, and never makes what is
+        already on screen jump to a different place.
+        """
+        self.speed = _clamp(value, *SPEED_RANGE)
+
+    def set_size(self, value: float) -> None:
+        """Scale every element's size. Clamped to :data:`SIZE_RANGE`."""
+        value = _clamp(value, *SIZE_RANGE)
+        if value == self.size:
+            return
+        self.size = value
+        self._resize()
+
+    def _reblur(self) -> None:
+        """Drop whatever the blur setting sized. Default: nothing to do."""
+
+    def _reresolve(self) -> None:
+        """Drop whatever the resolution setting sized. Default: nothing."""
+
+    def _redensify(self) -> None:
+        """Drop whatever the density setting sized. Default: nothing."""
+
+    def _redirect(self) -> None:
+        """React to a direction change. Default: nothing."""
+
+    def _resize(self) -> None:
+        """Drop whatever the size setting sized. Default: nothing to do."""
+
+    def advance(self, dt: float) -> None:
+        """Step the clock by ``dt`` seconds. Negative steps are ignored.
+
+        The step is scaled by :attr:`speed`, so the clock counts *animation*
+        seconds rather than wall-clock ones: every period, rate and travel
+        speed in every theme is expressed against this clock and therefore
+        scales with one multiplier.
+
+        :attr:`frames` counts every call, including the ignored ones, so a
+        test can prove a hidden widget stopped *asking* for frames rather
+        than only proving that its clock stood still.
+        """
+        if dt > 0:
+            self.time += float(dt) * self.speed
+        self.frames += 1
+
+    def set_time(self, seconds: float) -> None:
+        """Jump the clock — used by the tests, and to carry the clock across
+        a theme change."""
+        self.time = float(seconds)
+
+    def paint(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw this engine's current frame.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
+        raise NotImplementedError
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """What this engine would draw right now, in pixels.
+
+        Every engine answers this and every engine paints *from* it, so a
+        test can assert on the geometry and know it is asserting on the
+        frame. The tuple shape is per engine and documented there.
+        """
+        raise NotImplementedError
+
+
+class _BufferedEngine(AmbientEngine):
+    """An engine that paints a soft field into a small reusable QImage.
+
+    The buffer is allocated on the first paint and then only when the widget
+    size changes — never per frame. The field is composited into it with the
+    same mode used to composite the buffer onto the page, which is what makes
+    the layer background-agnostic: addition and multiplication are both
+    associative, so ``(black + blobs) + page`` and ``(white * blobs) * page``
+    give exactly the result of drawing the blobs straight onto the page. That
+    is what lets the same code paint over the flat themes *and* over the Space
+    and Cell wallpapers without hiding them.
+    """
+
+    #: Longest buffer edge this theme wants at resolution 1.0. Diffuse
+    #: themes keep :data:`BUFFER_MAX_EDGE`; a theme with an edge or a fine
+    #: repeat in it raises its own.
+    base_edge = BUFFER_MAX_EDGE
+
+    def __init__(self, *args, **kwargs):
+        """Start with no buffer -- the first shade allocates one."""
+        self._buffer: Optional[QImage] = None
+        super().__init__(*args, **kwargs)
+
+    def _reresolve(self) -> None:
+        """A new resolution means a new buffer size — drop the old one now
+        rather than leaving the next paint to notice."""
+        self._buffer = None
+
+    def resolution_edge(self) -> int:
+        """Longest buffer edge under the current resolution setting."""
+        detail = min(self.resolution, math.sqrt(WORK_BUDGET / self.density))
+        return _clamp_int(int(self.base_edge * detail),
+                          BUFFER_MIN_EDGE, BUFFER_EDGE_CEILING)
+
+    def buffer_scale(self, width: int, height: int) -> int:
+        """Screen pixels per buffer pixel, for a ``width`` x ``height``
+        canvas. Always a whole number: a fractional one puts the upscale
+        lattice on a beat with itself instead of on the pixel grid.
+
+        The second loop is :attr:`AmbientEngine.max_pixels` — the screen's
+        own pixel count once a widget has supplied it, and
+        :data:`BUFFER_MAX_PIXELS` until then. That is the ceiling that
+        actually bounds the cost: the edge alone is a ratio, and a ratio
+        does not know how big the display is.
+        """
+        width, height = max(1, int(width)), max(1, int(height))
+        scale = max(1, int(math.ceil(max(width, height)
+                                     / self.resolution_edge())))
+        while scale < 64 and \
+                (width // scale) * (height // scale) > self.max_pixels:
+            scale += 1
+        return scale
+
+    def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Buffer dimensions for a ``width`` x ``height`` canvas."""
+        scale = self.buffer_scale(width, height)
+        return (max(1, int(width) // scale), max(1, int(height) // scale))
+
+    def blur_scale(self, width: int, height: int) -> float:
+        """How far the shaded buffer is averaged down before it goes to the
+        canvas, in buffer pixels. 1.0 means "untouched", and the default
+        setting means exactly that.
+
+        :data:`BLUR_UNIT_PX` is in *screen* pixels, so this divides by the
+        upscale factor: the same blur setting asks for the same softness on
+        screen whatever resolution it is shaded at, which is the property
+        that makes the two controls independent. It never returns less than
+        1.0 — the upscale on its own already softens by ``scale`` pixels, and
+        a downscale below 1.0 would be a sharpen, which no amount of
+        arithmetic can deliver.
+        """
+        if self.blur <= 0.0:
+            return 1.0
+        return max(1.0, BLUR_UNIT_PX * self.blur
+                   / self.buffer_scale(width, height))
+
+    def _ensure_buffer(self, width: int, height: int) -> QImage:
+        """The reusable frame buffer, reallocated only when the size changes.
+
+        ONCE ON RESIZE AND NEVER PER FRAME. A buffer allocated each frame is a
+        full-size QImage of garbage per tick at the frame rate, which is the cost
+        this whole class exists to avoid.
+        """
+        bw, bh = self.buffer_size(width, height)
+        buf = self._buffer
+        if buf is None or buf.width() != bw or buf.height() != bh:
+            buf = QImage(bw, bh, QImage.Format_RGB32)
+            self._buffer = buf
+        return buf
+
+    def paint(self, painter: QPainter, width: int, height: int) -> None:
+        """Shade a frame and put it on the canvas, both here and now.
+
+        This calls :meth:`_shade` followed by :meth:`blit` directly. The
+        default buffered path reuses its image until the canvas size changes.
+        Aurora, point, growth and rain subclasses return a freshly owned
+        image each frame. Both paths can draw synchronously without an
+        additional publication copy.
+        """
+        if width <= 0 or height <= 0:
+            return
+        self.blit(painter, self._shade(width, height), width, height)
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """The finished field, in the engine's *own* buffer.
+
+        The default implementation returns its reusable buffer when blur is
+        off, so that result is only valid until the next call. Aurora, point,
+        growth and rain overrides return freshly owned images. Callers that
+        keep a frame use :meth:`shade`, which handles either ownership path.
+        """
+        buf = self._ensure_buffer(width, height)
+        inner = QPainter(buf)
+        try:
+            inner.fillRect(buf.rect(), self.identity)
+            inner.setCompositionMode(self.mode)
+            inner.setPen(Qt.NoPen)
+            self._paint_field(inner, buf.width(), buf.height())
+        finally:
+            inner.end()
+        return self._soften(buf, width, height)
+
+    def shade(self, width: int, height: int) -> Optional[QImage]:
+        """One finished frame as an image the caller owns. **Any thread.**
+
+        This is the half of a frame that does not have to happen on the GUI
+        thread, and the half that a Python worker makes expensive: a
+        ``blobs`` field costs 0.240 ms idle and 0.572 ms with one Python
+        thread running, ``cells`` 0.538 ms and **26.179 ms** — 48.7 times —
+        because it is Python and numpy under the interpreter lock. Splitting
+        it out is what lets :class:`_FrameProducer` pay that on a thread
+        nobody is looking at. See the module docstring for the whole table.
+
+        A ``QImage`` and a ``QPainter`` over it are legal off the GUI thread
+        (a ``QWidget`` is not, and nothing here touches one), and the result
+        is byte-identical to the same clock shaded on the GUI thread — which
+        ``test_the_backdrop_survives_a_run.py`` asserts for every buffered
+        theme rather than trusting this paragraph.
+
+        Returns ``None`` for an empty canvas. A reusable buffer is copied
+        before publication so a later shade cannot change the caller's frame.
+        A freshly owned subclass image is returned directly. On the default
+        buffered path, the copy costs 0.003 ms
+        for a soft theme such as ``blobs``. Native Aurora returns an owned
+        image instead of paying for a second full-screen copy.
+        """
+        if width <= 0 or height <= 0:
+            return None
+        image = self._shade(width, height)
+        return image.copy() if image is self._buffer else image
+
+    def blit(self, painter: QPainter, image: Optional[QImage],
+             width: int, height: int) -> None:
+        """Put a frame from :meth:`shade` on the canvas. **GUI thread only.**
+
+        The fixed remainder of a frame, and the half that has to stay here:
+        it is Qt's C++ raster engine with the interpreter lock released, so
+        it is bounded at ~1.2 ms even while a Python worker is running (1.7x
+        its idle cost, against 48.7x for the shading it replaces).
+
+        A ``None`` or empty image draws nothing rather than raising, because
+        the one caller that can hand it one is a widget whose shading thread
+        has not published yet.
+        """
+        if image is None or image.isNull() or width <= 0 or height <= 0:
+            return
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setCompositionMode(self.mode)
+        painter.drawImage(QRect(0, 0, int(width), int(height)), image)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+    def _soften(self, buf: QImage, width: int, height: int) -> QImage:
+        """The blur: one area-averaging pass over the finished buffer.
+
+        ``QImage.scaled(..., SmoothTransformation)`` box-filters on the way
+        down — it is a real low-pass, not a resample — and the blit that was
+        already there carries the result back up. So the whole blur is *one*
+        extra read of the buffer and a small write, and the picture makes
+        exactly two trips through a filter rather than the three a
+        down-up-blit would take.
+
+        A separable box blur at the buffer size was written and measured
+        first, because it is the honest answer: NumPy, two cumulative sums
+        per axis, 12.8 ms a frame on a 640x360 buffer at 1920x1080. That is
+        nine times this whole module's budget, so it is not what ships. The
+        cost of what does ship is 0.01-0.11 ms, which on most themes is
+        inside the run-to-run spread; see the table in the module docstring.
+
+        Returns the buffer itself when there is nothing to do, which is the
+        default and costs nothing.
+        """
+        factor = self.blur_scale(width, height)
+        if factor <= 1.0:
+            return buf
+        return buf.scaled(max(2, int(round(buf.width() / factor))),
+                          max(2, int(round(buf.height() / factor))),
+                          Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Shade one frame into ``painter``. Subclasses implement it."""
+        raise NotImplementedError
+
+
+
+#: How many blobs. Cheap enough to raise (the shading happens over 37 000
+#: buffer pixels), but past about twenty the fields merge into a single wash
+#: and the individual motion stops being readable.
+BLOB_COUNT = 14
+
+#: Every third blob is a small one, so the field has a sense of scale.
+BLOB_SMALL_EVERY = 3
+BLOB_LARGE_RADIUS = (0.22, 0.46)
+BLOB_SMALL_RADIUS = (0.07, 0.16)
+
+#: Drift, as a fraction of the canvas, and the period of that drift. Long
+#: periods are the point: this must never look like it is *moving*, only like
+#: it has moved when you look back at it.
+BLOB_DRIFT = (0.04, 0.12)
+BLOB_DRIFT_PERIOD = (24.0, 70.0)
+
+#: The pulse — "changing size" — as a fraction of the base radius.
+BLOB_PULSE = (0.12, 0.35)
+BLOB_PULSE_PERIOD = (7.0, 19.0)
+
+#: Peak alpha at a blob's centre. Light needs more than dark because the
+#: colour has been mixed 55 % toward white before it is multiplied — but not
+#: as much more as the arithmetic suggests, because multiply keeps its
+#: contrast where additive runs out of headroom.
+BLOB_ALPHA_DARK = 0.30
+BLOB_ALPHA_LIGHT = 0.46
+
+#: The falloff, as ``(stop, alpha multiplier)``. Roughly Gaussian; the point
+#: is that it reaches zero *before* the edge of the ellipse, so no blob ever
+#: shows a rim.
+BLOB_FALLOFF = ((0.0, 1.0), (0.35, 0.60), (0.70, 0.18), (1.0, 0.0))
+
+
+@dataclass
+class Blob:
+    """One drifting, pulsing blob, in normalised units."""
+
+    x: float
+    y: float
+    drift_x: float
+    drift_y: float
+    rate_x: float
+    rate_y: float
+    phase_x: float
+    phase_y: float
+    radius: float
+    pulse: float
+    pulse_rate: float
+    pulse_phase: float
+    color: int
+
+
+class BlobsEngine(_BufferedEngine):
+    """Diffuse colour blobs, drifting and pulsing.
+
+    Motion is two independent sines per blob rather than a random walk, so
+    position is a pure function of the clock: no accumulated error, and
+    ``set_time`` can jump anywhere.
+
+    :meth:`geometry` yields ``(cx, cy, radius)`` per blob, in pixels.
+    """
+
+    name = "blobs"
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
+        cols, rows = 5, 3
+        cells = list(range(cols * rows))
+        rng.shuffle(cells)
+        self.blobs: List[Blob] = []
+        for i in range(_pool_size(BLOB_COUNT)):
+            cell = cells[i % len(cells)]
+            col, row = cell % cols, cell // cols
+            small = (i % BLOB_SMALL_EVERY) == 0
+            lo, hi = BLOB_SMALL_RADIUS if small else BLOB_LARGE_RADIUS
+            self.blobs.append(Blob(
+                x=(col + 0.15 + 0.7 * rng.random()) / cols,
+                y=(row + 0.15 + 0.7 * rng.random()) / rows,
+                drift_x=rng.uniform(*BLOB_DRIFT),
+                drift_y=rng.uniform(*BLOB_DRIFT),
+                rate_x=2 * math.pi / rng.uniform(*BLOB_DRIFT_PERIOD),
+                rate_y=2 * math.pi / rng.uniform(*BLOB_DRIFT_PERIOD),
+                phase_x=rng.uniform(0.0, 2 * math.pi),
+                phase_y=rng.uniform(0.0, 2 * math.pi),
+                radius=rng.uniform(lo, hi),
+                pulse=rng.uniform(*BLOB_PULSE),
+                pulse_rate=2 * math.pi / rng.uniform(*BLOB_PULSE_PERIOD),
+                pulse_phase=rng.uniform(0.0, 2 * math.pi),
+                color=i,
+            ))
+
+    def count(self) -> int:
+        """How many blobs are painted right now."""
+        return self.element_count(BLOB_COUNT, len(self.blobs))
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
+        t = self.time
+        short = min(width, height)
+        out = []
+        for blob in self.blobs[:self.count()]:
+            cx = (blob.x + blob.drift_x
+                  * math.sin(blob.rate_x * t + blob.phase_x)) * width
+            cy = (blob.y + blob.drift_y
+                  * math.sin(blob.rate_y * t + blob.phase_y)) * height
+            radius = blob.radius * short * self.size * (
+                1.0 + blob.pulse
+                * math.sin(blob.pulse_rate * t + blob.pulse_phase))
+            out.append((cx, cy, max(1.0, radius)))
+        return tuple(out)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
+        peak = (BLOB_ALPHA_DARK if self.dark else BLOB_ALPHA_LIGHT) \
+            * self._fractional_alpha_scale(BLOB_COUNT)
+        colors = self.paint_colors
+        for blob, (cx, cy, radius) in zip(self.blobs,
+                                          self.geometry(width, height)):
+            color = colors[blob.color % len(colors)]
+            gradient = QRadialGradient(cx, cy, radius)
+            for stop, scale in BLOB_FALLOFF:
+                gradient.setColorAt(stop, _with_alpha(color, peak * scale))
+            painter.setBrush(gradient)
+            painter.drawEllipse(QPointF(cx, cy), radius, radius)
+
+
+
+#: Three curtains at different depths. Two read as one curtain and a copy;
+#: four stop being separable at these alphas.
+AURORA_CURTAINS = 3
+
+AURORA_BUFFER_EDGE = 960
+
+#: Ray length — how far up the sheet is lit — as a fraction of the canvas
+#: height, scaled by the size setting. Comfortably deeper than the fold
+#: reaches, or a fold crest would lift the sheet's lower edge past the green
+#: and out of the top of its own colour ramp.
+AURORA_THICKNESS = (0.32, 0.57)
+
+#: Where each curtain's lower edge rests, as a fraction of the canvas height,
+#: and the jitter around it. Spread down the frame so the three overlap in
+#: depth rather than sitting on top of one another.
+AURORA_BASE = (0.67, 0.48, 0.84)
+AURORA_BASE_JITTER = 0.05
+
+#: How far down the extra curtains a raised density asks for are pushed,
+#: per tier of three. Slightly under half the spacing between the three
+#: shipped bases, so a denser aurora interleaves with itself instead of
+#: doubling up on the same three altitudes.
+AURORA_TIER_OFFSET = 0.055
+
+#: The arc's slope across the frame, as a fraction of the canvas height. An
+#: arc that is exactly level reads as a horizon line. Small, because the
+#: colour ramp is anchored to altitude: a steeply tilted arc would have one
+#: end of it sitting in a different colour from the other.
+AURORA_TILT = 0.06
+
+#: How much wider than the canvas the arc is drawn. The folds have to enter
+#: and leave the frame rather than terminating at its edges.
+AURORA_OVERHANG = 1.12
+
+#: The slow bob of the whole arc's altitude, and its period. This is the only
+#: bulk motion the curtain has, and it is vertical: the folds do the rest.
+AURORA_DRIFT = (0.05, 0.18)
+AURORA_DRIFT_PERIOD = (30.0, 90.0)
+AURORA_HUE_PERIOD = (18.0, 46.0)
+
+#: The fold, as three superposed travelling waves: ``(amplitude as a fraction
+#: of the canvas height, wavelength as a fraction of the arc's length, travel
+#: speed in arc-lengths per second)``. Long slow fold, medium ripple, fine
+#: ripple — the ratio between them is what stops it reading as a single sine,
+#: and the speeds differ so the pattern never repeats itself.
+AURORA_FOLDS = (
+    (0.080, 0.85, 0.012),
+    (0.043, 0.33, 0.027),
+    (0.018, 0.17, 0.043),
+)
+
+#: How far the fold can reach either way, which is what the colour ramp has
+#: to be anchored below.
+AURORA_FOLD_REACH = sum(amp for amp, _wl, _v in AURORA_FOLDS)
+
+#: The brightness surge running along the arc — faster than any fold and on
+#: its own wavelength. ``(depth, wavelength, speed)``.
+AURORA_PULSE = (0.62, 0.34, 0.075)
+
+#: How far up the curtain a surge reaches, as a share of the ray length, and
+#: how strong it is against the curtain's own peak alpha. Surges brighten the
+#: base of the sheet; the diffuse top does not pulse.
+#:
+#: The surge is painted over its own shorter path rather than over the whole
+#: sheet. Above :data:`AURORA_PULSE_HEIGHT` its texture is transparent, and a
+#: transparent source pixel still costs a read and a write of the destination
+#: — 45 % of the curtain's area, for nothing. That one change took the pass
+#: from 0.49 ms to 0.20.
+AURORA_PULSE_HEIGHT = 0.55
+AURORA_PULSE_GAIN = 0.85
+
+#: Resolution of the per-frame surge image. It is stretched over the curtain
+#: with bilinear filtering, so it only has to resolve the pulse: 16 samples
+#: across an arc holding three wavelengths is five per wavelength, and the
+#: gradient's linear interpolation between them is under 5 % off a sine. It
+#: started at 40x16 and that cost 0.27 ms a frame in ``setColorAt`` calls
+#: alone — three quarters of it thrown away by the bilinear filter.
+AURORA_PULSE_TEXTURE = (16, 16)
+
+#: How far past the curtain, as a share of the ray length, that image is
+#: stretched. A texture brush *wraps*, and a bilinear sample taken on the
+#: image's first row blends it with its last one — which drew a bright
+#: hairline straight across the top of every curtain until this padding put
+#: both rows outside the sheet, where nothing can sample them.
+AURORA_PULSE_PAD = 0.1
+
+#: How finely the surge image is cached. Its content is a pure function of
+#: the pulse's phase, so it does not have to be rebuilt every frame — and
+#: rebuilding it was 0.15 ms of a frame, nearly all of it spent constructing
+#: gradient stops. 64 steps is one every 0.07 s at the shipped pulse speed,
+#: which moves the pattern half a percent of the arc at a time.
+AURORA_PULSE_STEPS = 64
+AURORA_PULSE_CACHE = 256
+
+#: Per curtain: ``(rate multiplier, ray-spacing multiplier, alpha
+#: multiplier)``. Different rates are what stop the three from reading as one
+#: thick curtain; the further ones have finer rays and less of them.
+AURORA_DEPTHS = (
+    (1.00, 1.00, 1.00),
+    (0.62, 0.74, 0.72),
+    (1.45, 1.36, 0.55),
+)
+
+#: Spacing between ray centres as a fraction of the canvas width, scaled by
+#: the size setting. Expressed against the *canvas*, not the buffer, so the
+#: blur setting changes how soft the rays are and not how many there are.
+AURORA_RAY_SPACING = 0.019
+AURORA_RAY_MIN_PX = 1.5
+
+#: Samples along the arc. 40 resolves the 0.17 fold (Nyquist wants 12) with
+#: room to spare, and every one of them is Python arithmetic on every frame.
+AURORA_COLUMNS = 40
+
+#: The tile: three rays of different widths, so the comb repeats every third
+#: ray instead of every ray and never reads as a picket fence. The rays sit
+#: on a floor rather than on nothing, because the sheet between them still
+#: glows — rays are a modulation of a curtain, not a row of separate bars.
+#: ``(centre, half width, intensity)``, all as fractions of the tile.
+#: Narrower half-widths and a lower floor create a sharper edge. Both are
+#: needed: narrowing alone leaves thin rays sitting on a bright sheet, which
+#: reads as a lighter curtain rather than as a defined ray.
+AURORA_TILE_RAYS = ((0.17, 0.075, 1.00), (0.49, 0.055, 0.86),
+                    (0.80, 0.065, 0.94))
+AURORA_TILE_FLOOR = 0.34
+
+#: How long each ray in the tile is, as a fraction of the full ray length,
+#: and how fast it breathes. One entry per entry in AURORA_TILE_RAYS.
+#:
+#: Periods are deliberately not multiples of one another, or the three
+#: would return to the same arrangement on a short cycle and the eye would
+#: find it. 11, 17 and 7 seconds beat against each other for 21 minutes.
+#:
+#: Never reaching 1.0 for the longest, nor 0 for the shortest: a ray that
+#: touches the full height reads as the curtain itself rather than as a ray
+#: in it, and one that vanishes leaves a gap that looks like a rendering
+#: fault rather than like weather.
+AURORA_RAY_LIFE = ((11.0, 0.00), (17.0, 0.37), (7.0, 0.71))
+AURORA_RAY_LENGTH = (0.55, 0.98)
+
+#: Quantisation of the breathing, for the same reason the shimmer is
+#: quantised: the tile is a cached texture, and a length that follows the
+#: clock exactly would rebuild all three tiles every frame. Eight steps
+#: across the range is about 5% of the ray length per step, which is below
+#: what the eye resolves on a slow fade at this size.
+AURORA_LENGTH_STEPS = 8
+
+#: How much of a ray's tip is taper, as a fraction of the FULL ray length.
+#: A square cut gives a shortened ray a flat top, which reads as a broken
+#: ray and measurably sharpens the curtain's upper edge -- the asymmetry
+#: between the hard lower edge and the diffuse top is as recognisable as
+#: the colour, and there is a test on it.
+AURORA_RAY_FEATHER = 0.22
+
+#: Where in the tile the colour ramp sits, as fractions of its height. What
+#: is left over at each end is a transparent guard band. A tiled brush
+#: *repeats*, so the instant the sheet reached past the ramp it would wrap
+#: round and paint the violet fringe along the top of the curtain. The guards
+#: make that impossible rather than unlikely.
+#:
+#: There is no tile *size* here on purpose. The tile is built at exactly the
+#: pixel size it will be painted at — one tile per ray period across, one ray
+#: length plus its guards down — so the brush needs a translation and nothing
+#: else. Measured, per curtain fill at 1920x1080: a brush carrying a scale
+#: costs 0.106 ms, a pre-scaled one carrying only a translation costs 0.061,
+#: which is what a flat colour costs. Qt's raster engine has a fast tiled
+#: blit for ``TxTranslate`` brushes and a per-pixel inverse transform for
+#: everything else, and this is the whole difference between them.
+AURORA_TILE_RAMP = (0.10, 0.90)
+
+#: Smallest tile, in pixels. Below about this the ray comb is finer than the
+#: buffer can hold and turns into noise.
+AURORA_TILE_MIN_PX = 3
+
+#: How many distinct tiles to keep. Three curtains times twelve shimmer steps
+#: is 36, and nine curtains — the top of the density range — times twelve is
+#: 108, which is why this is not the 96 it started at: a cache one short of
+#: the working set is a cache that is cleared every frame. The rest of the
+#: headroom is for a window being resized, which changes the pixel size the
+#: tiles are built at.
+#: Raised for the breathing: the working set is now curtains x shimmer
+#: steps x length steps, and a cache one short of the working set is a
+#: cache that is cleared every frame -- which is the mistake this number
+#: already carries a comment about.
+#: 9 curtains x 12 shimmer steps x 8 length steps = 864, plus headroom for
+#: a window being resized. 768 was the first guess and it was 96 SHORT of
+#: the densest working set -- exactly the mistake the paragraph above
+#: describes, made again while adding a dimension to it.
+AURORA_TILE_CACHE = 1024
+
+#: The vertical structure, lower edge upward: ``(height fraction, palette
+#: role, alpha)``. Full strength immediately at the bottom — the sheet's lower
+#: edge is a hard cut, and it is made by the polygon, not by the ramp. Above
+#: the middle it fades out over half the ray length, which is the diffuse top.
+#: The asymmetry between those two edges is as recognisable as the colour.
+AURORA_RAMP = (
+    (0.00, "fringe", 0.66),
+    (0.05, "fringe", 0.92),
+    (0.11, "main", 1.00),
+    (0.42, "main", 0.74),
+    (0.62, "blend", 0.48),
+    (0.82, "high", 0.27),
+    (1.00, "high", 0.00),
+)
+
+#: How far the curtain's body colour is allowed to wander towards another
+#: entry in the palette. Small on purpose: the body of an aurora is one
+#: emission line and stays that colour — it shimmers, it does not turn red.
+AURORA_HUE_BLEND = 0.28
+
+#: Quantisation of that shimmer, so the ray tile is built a few dozen times
+#: in the life of the widget instead of three times a frame.
+AURORA_HUE_STEPS = 12
+
+#: Higher than the old flat bands needed, because the ray comb, the ramp and
+#: the depth multiplier each take a bite out of it before anything reaches
+#: the page. Set on the mean lightness of a rendered frame rather than by
+#: eye, because "does it look too strong" is exactly the judgement that goes
+#: wrong on somebody else's monitor: 0.168 here, against 0.161 for blobs and
+#: 0.151 for ripple on a page at 0.078. This paints behind a settings form
+#: and is not allowed to be the loudest thing on it.
+AURORA_ALPHA_DARK = 0.35
+AURORA_ALPHA_LIGHT = 0.52
+
+
+@dataclass
+class Curtain:
+    """One aurora curtain, in normalised units."""
+
+    y: float
+    height: float
+    tilt: float
+    drift: float
+    rate: float
+    phase: float
+    hue_rate: float
+    hue_phase: float
+    fold_phase: Tuple[float, ...]
+    pulse_phase: float
+    depth: int
+    color: int
+
+
+class AuroraEngine(_BufferedEngine):
+    """Folded curtains of vertical rays, rippling along their own length.
+
+    Rays rise from an irregular folded lower edge, fan gently toward the
+    sky, and breathe at different rates. A diffuse sheet joins the rays
+    without a flat rectangular top or repeated texture tiles. The frame
+    raster is native at ordinary Detail, within the
+    physical screen-pixel budget, and is returned with independent ownership.
+    :data:`AURORA_BUFFER_EDGE` remains the legacy comparison edge; it no
+    longer caps the active buffer.
+
+    :meth:`geometry` yields ``(x, y_bottom, visible_height, brightness)`` per
+    sampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them
+    per curtain in curtain order. The painter builds its paths from exactly
+    those numbers, so a test that tracks a fold crest through ``geometry`` is
+    tracking the crest that is on screen. ``brightness`` is the travelling
+    surge. Seeded irregular ray positions and independent continuous length
+    and brightness cycles modulate the sampled sheet, with tapered tops.
+    """
+
+    name = "aurora"
+    base_edge = AURORA_BUFFER_EDGE
+
+    def __init__(self, *args, **kwargs):
+        """Roll the aurora's bands and their drift."""
+        self._tiles: Dict[Tuple[int, int], QImage] = {}
+        self._surges: Dict[int, QImage] = {}
+        self._pulse_mask: Optional[QImage] = None
+        self._ray_material = {}
+        super().__init__(*args, **kwargs)
+
+    def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Sample native display pixels within the actual screen budget."""
+        detail = min(1.0, self.resolution)
+        bw, bh = max(1, int(width * detail)), max(1, int(height * detail))
+        scale = min(1.0, math.sqrt(self.max_pixels / (bw * bh)))
+        return max(1, int(bw * scale)), max(1, int(bh * scale))
+
+    def buffer_scale(self, width: int, height: int) -> float:
+        """Report the aurora sampling ratio for explicit detail controls."""
+        bw, bh = self.buffer_size(width, height)
+        return max(1.0, width / bw, height / bh)
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Clear the owned raster before painting the current curtains."""
+        bw, bh = self.buffer_size(width, height)
+        buf = QImage(bw, bh, QImage.Format_RGB32)
+        buf.fill(self.identity)
+        inner = QPainter(buf)
+        try:
+            inner.setCompositionMode(self.mode)
+            inner.setPen(Qt.NoPen)
+            self._paint_field(inner, buf.width(), buf.height())
+        finally:
+            inner.end()
+        return self._soften(buf, width, height)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
+        self.curtains: List[Curtain] = []
+        self._aurora_seed = rng.randrange(2 ** 32)
+        for i in range(_pool_size(AURORA_CURTAINS)):
+            base = (AURORA_BASE[i % len(AURORA_BASE)]
+                    + (i // len(AURORA_BASE)) * AURORA_TIER_OFFSET)
+            self.curtains.append(Curtain(
+                y=base + rng.uniform(-AURORA_BASE_JITTER, AURORA_BASE_JITTER),
+                height=rng.uniform(*AURORA_THICKNESS),
+                tilt=rng.uniform(-AURORA_TILT, AURORA_TILT),
+                drift=rng.uniform(*AURORA_DRIFT),
+                rate=2 * math.pi / rng.uniform(*AURORA_DRIFT_PERIOD),
+                phase=rng.uniform(0.0, 2 * math.pi),
+                hue_rate=2 * math.pi / rng.uniform(*AURORA_HUE_PERIOD),
+                hue_phase=rng.uniform(0.0, 2 * math.pi),
+                fold_phase=tuple(rng.uniform(0.0, 2 * math.pi)
+                                 for _ in AURORA_FOLDS),
+                pulse_phase=rng.uniform(0.0, 2 * math.pi),
+                depth=i,
+                color=i,
+            ))
+
+    def _restyle(self) -> None:
+        """Re-roll the colours after a palette change."""
+        super()._restyle()
+        self._tiles = {}
+        self._surges = {}
+
+    def _resize(self) -> None:
+        """Re-lay the bands for a new widget size."""
+        self._tiles = {}
+        self._surges = {}
+
+    def count(self) -> int:
+        """How many curtains are painted right now."""
+        return self.element_count(AURORA_CURTAINS, len(self.curtains))
+
+    def _rate(self, curtain: Curtain) -> float:
+        """How fast the bands drift, given the current speed setting.
+
+        :returns: the drift rate.
+        """
+        return AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][0]
+
+    def fold(self, curtain: Curtain, u: float, t: float) -> float:
+        """Fold displacement at position ``u`` along the arc, as a fraction
+        of the canvas height.
+
+        ``u`` runs 0..1 from one end of the arc to the other. Each component
+        is ``sin(2*pi*(u - v*t)/lambda)``: at a fixed time it is a shape in
+        ``u``, and as ``t`` advances that shape *slides along u* at ``v``
+        while the arc itself goes nowhere. That is the whole difference
+        between an aurora and a curtain being dragged sideways, and it is the
+        one property of this engine worth testing directly.
+
+        Scaled by the size setting along with everything else: a curtain half
+        the height with folds the same depth is a different phenomenon, not a
+        smaller one.
+        """
+        rate = self._rate(curtain)
+        total = 0.0
+        for (amp, wavelength, speed), phase in zip(AURORA_FOLDS,
+                                                   curtain.fold_phase):
+            total += amp * math.sin(
+                2 * math.pi * (u - speed * rate * t) / wavelength + phase)
+        return total * self.size
+
+    def pulse(self, curtain: Curtain, u: float, t: float) -> float:
+        """The surge's brightness at ``u``, in 0..1. Another travelling wave,
+        deliberately faster and shorter than every fold."""
+        depth, wavelength, speed = AURORA_PULSE
+        travelling = 0.5 + 0.5 * math.sin(
+            2 * math.pi * (u - speed * self._rate(curtain) * t) / wavelength
+            + curtain.pulse_phase)
+        return 1.0 - depth + depth * travelling
+
+    def anchor(self, curtain: Curtain, height: int) -> Tuple[float, float]:
+        """``(ramp zero, ray length)`` for one curtain, in pixels.
+
+        The ramp's zero is the altitude the emission stops at, so it sits
+        below everything the fold and the tilt can do — that is what keeps
+        every column of the sheet inside its own colour ramp.
+        """
+        base = curtain.y + curtain.drift * math.sin(
+            curtain.rate * self.time + curtain.phase)
+        reach = (AURORA_FOLD_REACH + abs(curtain.tilt) * 0.5) * self.size
+        return ((base + reach) * height,
+                max(1.0, curtain.height * self.size * height))
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Every travelling wave, evaluated along every arc.
+
+        The loop body is :meth:`fold` and :meth:`pulse` written out with
+        their constant parts hoisted — ``sin(2*pi*(u - v*t)/lambda + phi)``
+        is ``sin(k*u + (phi - k*v*t))``, and ``k`` and the bracket do not
+        depend on the column. It is the same arithmetic; it is here rather
+        than behind those two calls because this runs a hundred and twenty
+        times a frame and a Python call is not free. ``test_aurora_geometry_
+        is_the_model_it_documents`` holds the two forms together.
+        """
+        t = self.time
+        out = []
+        sin = math.sin
+        two_pi = 2 * math.pi
+        span = width * AURORA_OVERHANG
+        left = (width - span) * 0.5
+        columns = AURORA_COLUMNS
+        p_depth, p_wavelength, p_speed = AURORA_PULSE
+        for curtain in self.curtains[:self.count()]:
+            rate = self._rate(curtain)
+            depth_alpha = AURORA_DEPTHS[
+                curtain.depth % len(AURORA_DEPTHS)][2]
+            zero, ray = self.anchor(curtain, height)
+            base = curtain.y + curtain.drift * math.sin(
+                curtain.rate * t + curtain.phase)
+            top = zero - ray
+            tilt = curtain.tilt * self.size
+            folds = [(amp * self.size, two_pi / wavelength,
+                      phase - two_pi * speed * rate * t / wavelength)
+                     for (amp, wavelength, speed), phase
+                     in zip(AURORA_FOLDS, curtain.fold_phase)]
+            p_k = two_pi / p_wavelength
+            p_phase = (curtain.pulse_phase
+                       - two_pi * p_speed * rate * t / p_wavelength)
+            for i in range(columns + 1):
+                u = i / columns
+                displacement = base + tilt * (u - 0.5)
+                for amp, k, phase in folds:
+                    displacement += amp * sin(k * u + phase)
+                y = displacement * height
+                bright = depth_alpha * (
+                    1.0 - p_depth + p_depth
+                    * (0.5 + 0.5 * sin(p_k * u + p_phase)))
+                out.append((left + u * span, y,
+                            y - top if y > top else 0.0, bright))
+        return tuple(out)
+
+    def hue_phase(self, curtain: Curtain) -> float:
+        """Where this curtain's slow colour shimmer stands, in 0..1."""
+        return 0.5 + 0.5 * math.sin(
+            curtain.hue_rate * self.time + curtain.hue_phase)
+
+    def curtain_color(self, curtain: Curtain, quantised: bool = False
+                      ) -> QColor:
+        """The curtain's body colour right now.
+
+        Always built from the palette's *first* colour, wandering up to
+        :data:`AURORA_HUE_BLEND` of the way towards one of the others and
+        back. Every curtain shares that body colour on purpose: the body of
+        an aurora is a single emission line — 557.7 nm oxygen — and the
+        palette's remaining entries are the top and the fringe, which the
+        ramp puts above and below it. Giving curtain two a red body and
+        curtain three a violet one, which is what indexing the palette by
+        curtain would do, is the one thing that stops the whole theme reading
+        as an aurora.
+
+        :param curtain: simulated curtain whose colour index and shimmer phase
+            choose the palette target and its current blend toward it.
+        :param quantised: snap the shimmer to :data:`AURORA_HUE_STEPS` so the
+            ray tile can be cached.
+        """
+        colors = self.paint_colors
+        body = colors[0]
+        wander = colors[1 + curtain.color % (len(colors) - 1)] \
+            if len(colors) > 1 else body
+        u = self.hue_phase(curtain)
+        if quantised:
+            u = round(u * (AURORA_HUE_STEPS - 1)) / (AURORA_HUE_STEPS - 1)
+        return _mix(body, wander, AURORA_HUE_BLEND * u)
+
+    def ramp_colors(self, curtain: Curtain, quantised: bool = False
+                    ) -> Dict[str, QColor]:
+        """The four palette roles for one curtain: the body, the high red,
+        the low fringe, and the overlap between body and high.
+
+        Fixed roles rather than a rotation, because the vertical order is
+        physics. With ``borealis``, ``main`` is the 557.7 nm green, ``high``
+        the 630.0 nm red, ``fringe`` the 427.8 nm violet and ``blend`` the
+        pale yellow-green where the first two overlap. A palette with fewer
+        than four colours reuses what it has.
+        """
+        colors = self.paint_colors
+        n = len(colors)
+        main = self.curtain_color(curtain, quantised=quantised)
+        high = colors[1 % n]
+        fringe = colors[2 % n]
+        blend = colors[3] if n > 3 else _mix(main, high, 0.5)
+        return {"main": main, "high": high, "fringe": fringe, "blend": blend}
+
+    def ray_lengths(self, curtain: Curtain) -> Tuple[float, ...]:
+        """Each ray's current length, as a fraction of the full one.
+
+        One value per entry in :data:`AURORA_TILE_RAYS`, quantised into
+        :data:`AURORA_LENGTH_STEPS` so the tile stays cacheable -- a length
+        that followed the clock exactly would rebuild every tile every
+        frame, which is the cost the tile cache exists to avoid.
+
+        The periods in :data:`AURORA_RAY_LIFE` are deliberately not
+        multiples of one another, and the curtain's own phase is added, so
+        two curtains never breathe together either.
+        """
+        low, high = AURORA_RAY_LENGTH
+        out = []
+        for period, offset in AURORA_RAY_LIFE:
+            angle = (2 * math.pi * (self.time / period + offset)
+                     + curtain.pulse_phase)
+            unit = 0.5 * (1.0 + math.sin(angle))
+            stepped = round(unit * (AURORA_LENGTH_STEPS - 1)) \
+                / (AURORA_LENGTH_STEPS - 1)
+            out.append(low + (high - low) * stepped)
+        return tuple(out)
+
+    def _tile(self, curtain: Curtain, peak: float, width: int,
+              height: int) -> QImage:
+        """The ray comb crossed with the vertical colour ramp, as a tiling
+        texture, built at the exact pixel size it will be painted at.
+
+        Cached per (curtain, quantised shimmer, size). Nothing about it
+        changes from frame to frame: the ray period and the ray length are
+        fixed for a given canvas, and the curtain's slow colour shimmer is
+        quantised into :data:`AURORA_HUE_STEPS`. Three dozen of these get
+        built in the life of the widget, against three a frame if the tile
+        followed the clock.
+        """
+        step = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
+        lengths = self.ray_lengths(curtain)
+        key = (curtain.depth, step, width, height, lengths, peak)
+        tile = self._tiles.get(key)
+        if tile is not None:
+            return tile
+        if len(self._tiles) >= AURORA_TILE_CACHE:
+            self._tiles = {}
+
+        top_f, bottom_f = AURORA_TILE_RAMP
+        ramp_top = int(round(top_f * height))
+        ramp_bottom = max(ramp_top + 1, int(round(bottom_f * height)))
+        tile = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        tile.fill(Qt.transparent)
+        roles = self.ramp_colors(curtain, quantised=True)
+        alpha = peak * AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][2]
+        inner = QPainter(tile)
+        inner.setPen(Qt.NoPen)
+        gradient = QLinearGradient(0.0, float(ramp_bottom), 0.0,
+                                   float(ramp_top))
+        for stop, role, scale in AURORA_RAMP:
+            gradient.setColorAt(stop, _with_alpha(roles[role], alpha * scale))
+        inner.setBrush(gradient)
+        inner.drawRect(0, ramp_top, width, ramp_bottom - ramp_top)
+        inner.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        comb = QLinearGradient(0.0, 0.0, float(width), 0.0)
+        floor = QColor(0, 0, 0, int(round(255 * AURORA_TILE_FLOOR)))
+        comb.setColorAt(0.0, floor)
+        for centre, half, strength in AURORA_TILE_RAYS:
+            comb.setColorAt(max(0.0, centre - half), floor)
+            comb.setColorAt(centre,
+                            QColor(0, 0, 0, int(round(255 * strength))))
+            comb.setColorAt(min(1.0, centre + half), floor)
+        comb.setColorAt(1.0, floor)
+        inner.setBrush(comb)
+        inner.drawRect(0, 0, width, height)
+
+        for (centre, half, _strength), length in zip(AURORA_TILE_RAYS,
+                                                     lengths):
+            if length >= 1.0:
+                continue
+            left = int(round(max(0.0, centre - half) * width))
+            right = int(round(min(1.0, centre + half) * width))
+            if right <= left:
+                continue
+            kept = int(round((ramp_bottom - ramp_top) * length))
+            cut_bottom = ramp_bottom - kept
+            feather = max(1, int(round(
+                (ramp_bottom - ramp_top) * AURORA_RAY_FEATHER)))
+            if cut_bottom <= 0:
+                continue
+            fade = QLinearGradient(0.0, float(max(0, cut_bottom - feather)),
+                                   0.0, float(cut_bottom))
+            fade.setColorAt(0.0, QColor(0, 0, 0, 0))
+            fade.setColorAt(1.0, QColor(0, 0, 0, 255))
+            inner.setBrush(fade)
+            inner.drawRect(left, 0, right - left, cut_bottom)
+        inner.end()
+        self._tiles[key] = tile
+        return tile
+
+    def _mask(self) -> QImage:
+        """The surge's vertical profile: solid along the lower edge, gone by
+        :data:`AURORA_PULSE_HEIGHT` of the way up. Built once, then reused as
+        the alpha of every per-frame surge image.
+
+        Positioned in the *padded* band (see :data:`AURORA_PULSE_PAD`), which
+        is why the stops are not at 0 and ``AURORA_PULSE_HEIGHT``: the
+        curtain's lower edge sits a padding's worth up from the bottom of the
+        image, and the ray length is a padded fraction of its height.
+        """
+        if self._pulse_mask is None:
+            width, height = AURORA_PULSE_TEXTURE
+            pad = AURORA_PULSE_PAD
+            band = 1.0 + 2 * pad
+            edge = pad / band
+            reach = AURORA_PULSE_HEIGHT / band
+            mask = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+            mask.fill(Qt.transparent)
+            inner = QPainter(mask)
+            inner.setPen(Qt.NoPen)
+            fade = QLinearGradient(0.0, float(height), 0.0, 0.0)
+            fade.setColorAt(0.0, QColor(0, 0, 0, 255))
+            fade.setColorAt(edge, QColor(0, 0, 0, 255))
+            fade.setColorAt(edge + reach * 0.45, QColor(0, 0, 0, 185))
+            fade.setColorAt(min(1.0, edge + reach), QColor(0, 0, 0, 0))
+            fade.setColorAt(1.0, QColor(0, 0, 0, 0))
+            inner.setBrush(fade)
+            inner.drawRect(0, 0, width, height)
+            inner.end()
+            self._pulse_mask = mask
+        return self._pulse_mask
+
+    def _surge(self, curtain: Curtain, peak: float) -> QImage:
+        """The travelling surge for one curtain, as a small image.
+
+        Horizontally it is the pulse; vertically it is the cached fade. It
+        has to be a two-dimensional texture rather than a gradient brush: a
+        horizontal gradient alone has no vertical falloff, so it would cut
+        off in a hard line across the curtain, and putting the falloff in the
+        path instead only moves the hard line somewhere else.
+
+        Cached on the pulse's phase, quantised, plus the curtain's shimmer
+        step — which is everything its content depends on, so the cache is a
+        memo and not an approximation of the model. It still steps in time,
+        and :data:`AURORA_PULSE_STEPS` is what decides how finely.
+        """
+        width, height = AURORA_PULSE_TEXTURE
+        _depth, wavelength, speed = AURORA_PULSE
+        phase = (curtain.pulse_phase
+                 - 2 * math.pi * speed * self._rate(curtain) * self.time
+                 / wavelength)
+        step = int(round(phase % (2 * math.pi)
+                         / (2 * math.pi) * AURORA_PULSE_STEPS))
+        hue = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
+        key = (curtain.depth, step % AURORA_PULSE_STEPS, hue, peak)
+        image = self._surges.get(key)
+        if image is not None:
+            return image
+        if len(self._surges) >= AURORA_PULSE_CACHE:
+            self._surges = {}
+
+        image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        image.fill(Qt.transparent)
+        inner = QPainter(image)
+        inner.setPen(Qt.NoPen)
+        color = self.curtain_color(curtain, quantised=True)
+        gain = peak * AURORA_PULSE_GAIN
+        depth_alpha = AURORA_DEPTHS[curtain.depth % len(AURORA_DEPTHS)][2]
+        quantised = step % AURORA_PULSE_STEPS * 2 * math.pi \
+            / AURORA_PULSE_STEPS
+        gradient = QLinearGradient(0.0, 0.0, float(width), 0.0)
+        stops = width
+        for k in range(stops):
+            u = k / (stops - 1)
+            bright = depth_alpha * self._pulse_at(u, quantised)
+            gradient.setColorAt(u, _with_alpha(color, gain * bright))
+        inner.setBrush(gradient)
+        inner.drawRect(0, 0, width, height)
+        inner.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+        inner.drawImage(0, 0, self._mask())
+        inner.end()
+        self._surges[key] = image
+        return image
+
+    @staticmethod
+    def _pulse_at(u: float, phase: float) -> float:
+        """The surge profile at ``u`` for a given travelling phase."""
+        depth, wavelength, _speed = AURORA_PULSE
+        return 1.0 - depth + depth * (
+            0.5 + 0.5 * math.sin(2 * math.pi * u / wavelength + phase))
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw an irregular ray texture warped along the luminous folds.
+
+        The texture has native horizontal sampling and a smooth vertical
+        emission profile. Affine strips bend it along the sheet without
+        painting hundreds of separate full-height gradients.
+        """
+        np = _numpy()
+        peak = (0.80 if self.dark else 0.65) * self.alpha_scale() * math.sqrt(
+            min(1.0, AURORA_CURTAINS * self.effective_density()))
+        samples = self.geometry(width, height)
+        stride = AURORA_COLUMNS + 1
+        texture_height = 192
+        vertical = np.linspace(1.0, 0.0, texture_height, dtype=np.float32)[:, None]
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        for index, curtain in enumerate(self.curtains[:self.count()]):
+            columns = samples[index * stride:(index + 1) * stride]
+            left, right = columns[0][0], columns[-1][0]
+            texture_width = max(1, math.ceil(right - left))
+            count = max(96, min(960, int(width / max(2.0, self.size * 4.0))))
+            key = (index, texture_width, count)
+            material = self._ray_material.get(key)
+            if material is None:
+                rng = random.Random(f"aurora:{self._aurora_seed}:{index}:{count}")
+                positions = np.array([(i + rng.uniform(0.1, 0.9)) / count
+                                      for i in range(count)], dtype=np.float32)
+                coordinates = (np.arange(texture_width, dtype=np.float32) + 0.5) / texture_width
+                upper = np.clip(np.searchsorted(positions, coordinates), 0, count - 1)
+                lower = np.maximum(0, upper - 1)
+                nearest = np.where(abs(coordinates - positions[lower]) <
+                                   abs(coordinates - positions[upper]), lower, upper)
+                distance = (coordinates - positions[nearest]) * count
+                constants = np.array([(rng.uniform(0.50, 1.0),
+                                       rng.uniform(0.4, 1.35),
+                                       rng.uniform(0.0, math.tau),
+                                       rng.uniform(0.045, 0.19))
+                                      for _ in range(count)], dtype=np.float32)
+                material = (coordinates, distance, constants[nearest])
+                if len(self._ray_material) >= 24:
+                    self._ray_material.clear()
+                self._ray_material[key] = material
+            coordinates, distance, constants = material
+            length, weight, phase, rate = constants.T
+            ray_length = length * (0.82 + 0.18 * np.sin(self.time * rate + phase))
+            rise = vertical / ray_length[None, :]
+            beam_width = 0.14 + 0.28 * (1.0 - np.clip(rise, 0.0, 1.0))
+            rays = np.exp(-(distance[None, :] / beam_width) ** 2)
+            emission = (0.15 + 0.85 * np.maximum(0.0, 1.0 - rise) ** 0.8)
+            emission *= np.clip((1.0 - rise) / 0.12, 0.0, 1.0)
+            emission *= np.minimum(1.0, rise / 0.045)
+            shimmer = 0.72 + 0.28 * np.sin(self.time * rate * 1.7 + phase)
+            surge = np.interp(coordinates, np.linspace(0.0, 1.0, stride),
+                              [column[3] for column in columns]).astype(np.float32)
+            alpha = emission * (0.20 + 0.80 * rays) * (
+                peak * weight * shimmer * surge * np.sin(math.pi * coordinates) ** 0.65)[None, :]
+            roles = self.ramp_colors(curtain, quantised=False)
+            if self._spacr_palette:
+                roles = {"main": QColor("#6dff9d"), "blend": QColor("#b6ffc8"),
+                         "high": QColor("#df69c6")}
+            colors = [roles[role] for role in ("blend", "main", "main", "high", "high")]
+            ramp = np.array([[color.red(), color.green(), color.blue()]
+                             for color in colors], dtype=np.float32)
+            ramp_positions = (0.0, 0.12, 0.42, 0.75, 1.0)
+            values = np.arange(256, dtype=np.float32) / 255.0
+            lookup = np.stack([np.interp(values, ramp_positions, ramp[:, channel])
+                               for channel in range(3)], axis=1).astype(np.float32)
+            color_index = np.clip(rise * 255.0, 0, 255).astype(np.uint8)
+            if not self.dark:
+                lookup = 255.0 - lookup
+            if self._random_palette:
+                colors = np.array([[color.red(), color.green(), color.blue()]
+                                   for color in self.paint_colors], dtype=np.float32)
+                color_ids = (phase * 1000).astype(np.int32) % len(colors)
+                lookup = colors
+                color_index = np.broadcast_to(color_ids, alpha.shape)
+                if not self.dark:
+                    lookup = 255.0 - lookup
+            levels = np.arange(256, dtype=np.float32) / 255.0
+            rgb = (lookup[None, :, :] * levels[:, None, None]).astype(np.uint32)
+            packed = (np.uint32(0xff000000) | (rgb[:, :, 0] << 16)
+                      | (rgb[:, :, 1] << 8) | rgb[:, :, 2])
+            if not self.dark:
+                packed = packed ^ np.uint32(0x00ffffff)
+            alpha_index = np.clip(alpha * 255.0, 0, 255).astype(np.uint8)
+            words = packed[alpha_index, color_index]
+            words = np.ascontiguousarray(words)
+            texture = QImage(words.data, texture_width, texture_height,
+                             words.strides[0], QImage.Format_RGB32)
+            _, ray_height = self.anchor(curtain, height)
+            lean = width * 0.12 * math.sin(curtain.phase + self.time * 0.04)
+            for first, second in zip(columns, columns[1:]):
+                x0, bottom0 = first[:2]
+                x1, bottom1 = second[:2]
+                extent = x1 - x0
+                shear = (bottom1 - bottom0) / extent
+                source_x = (x0 - left) / (right - left) * texture_width
+                source_width = extent / (right - left) * texture_width
+                painter.save()
+                painter.setTransform(QTransform(
+                    extent / source_width, shear * extent / source_width,
+                    -lean / texture_height, ray_height / texture_height,
+                    x0 + lean, bottom0 - ray_height), True)
+                painter.drawImage(QRectF(0.0, 0.0, source_width + 0.5, texture_height),
+                                  texture, QRectF(source_x, 0.0, source_width + 0.5, texture_height))
+                painter.restore()
+
+    @staticmethod
+    def _sheet(columns, top: float) -> QPainterPath:
+        """The sheet as a closed path: along its folded lower edge, then
+        straight back across a flat top.
+
+        The top is flat, and that is not a shortcut. It sits exactly where
+        the colour ramp has faded to nothing, so the polygon's upper boundary
+        is invisible — which is the only way to get a *diffuse* top out of a
+        hard-edged polygon. All the visible shape is in the lower edge, which
+        is where a real curtain keeps it too.
+        """
+        path = QPainterPath()
+        path.moveTo(columns[0][0], columns[0][1])
+        for x, y, _h, _b in columns[1:]:
+            path.lineTo(x, y)
+        path.lineTo(columns[-1][0], top)
+        path.lineTo(columns[0][0], top)
+        path.closeSubpath()
+        return path
+
+
+RIPPLE_SOURCES = 3
+RIPPLE_RINGS = 4
+RIPPLE_PERIOD = (14.0, 26.0)
+RIPPLE_REACH = (0.55, 0.95)
+
+#: Ring thickness, as a fraction of its own radius. Started at 0.38, which
+#: drew four crisp concentric circles per source and read as a dartboard.
+#: Wide and soft is the point — it should look like something moved through
+#: the page, not like a diagram.
+RIPPLE_BAND = 0.72
+RIPPLE_ALPHA_DARK = 0.20
+RIPPLE_ALPHA_LIGHT = 0.38
+
+
+@dataclass
+class Source:
+    """One ripple origin, in normalised units."""
+
+    x: float
+    y: float
+    period: float
+    phase: float
+    reach: float
+    color: int
+
+
+class RippleEngine(_BufferedEngine):
+    """Concentric rings expanding from a few sources and fading as they grow.
+
+    Each ring is a radial gradient annulus rather than a stroked circle: a
+    stroked one is line work, which is both expensive and far too crisp for
+    something meant to sit behind a settings form.
+
+    :meth:`geometry` yields ``(cx, cy, radius, fade)`` per ring, in pixels,
+    with ``fade`` in 0..1 — 0 as the ring is born and as it dies at the
+    edge of its reach, 1 halfway.
+    """
+
+    name = "ripple"
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
+        anchors = ((0.24, 0.28), (0.76, 0.22), (0.5, 0.82))
+        self.sources: List[Source] = []
+        for i in range(_pool_size(RIPPLE_SOURCES)):
+            if i < len(anchors):
+                ax, ay = anchors[i]
+            else:
+                angle = 2 * math.pi * (i - len(anchors)) \
+                    / max(1, _pool_size(RIPPLE_SOURCES) - len(anchors))
+                ax = 0.5 + 0.36 * math.cos(angle)
+                ay = 0.5 + 0.30 * math.sin(angle)
+            self.sources.append(Source(
+                x=ax + rng.uniform(-0.08, 0.08),
+                y=ay + rng.uniform(-0.08, 0.08),
+                period=rng.uniform(*RIPPLE_PERIOD),
+                phase=rng.random(),
+                reach=rng.uniform(*RIPPLE_REACH),
+                color=i,
+            ))
+
+    def count(self) -> int:
+        """How many ripple sources are painted right now."""
+        return self.element_count(RIPPLE_SOURCES, len(self.sources))
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
+        t = self.time
+        half_diagonal = 0.5 * math.hypot(width, height)
+        out = []
+        for source in self.sources[:self.count()]:
+            cx, cy = source.x * width, source.y * height
+            reach = source.reach * half_diagonal * self.size
+            for k in range(RIPPLE_RINGS):
+                u = (t / source.period + source.phase
+                     + k / RIPPLE_RINGS) % 1.0
+                out.append((cx, cy, max(1.0, u * reach),
+                            math.sin(math.pi * u)))
+        return tuple(out)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
+        peak = (RIPPLE_ALPHA_DARK if self.dark else RIPPLE_ALPHA_LIGHT) \
+            * self.alpha_scale()
+        colors = self.paint_colors
+        inner = max(0.0, 1.0 - RIPPLE_BAND)
+        for index, (cx, cy, radius, fade) in enumerate(
+                self.geometry(width, height)):
+            color = colors[(index // RIPPLE_RINGS) % len(colors)]
+            gradient = QRadialGradient(cx, cy, radius)
+            gradient.setColorAt(0.0, _with_alpha(color, 0.0))
+            gradient.setColorAt(inner, _with_alpha(color, 0.0))
+            gradient.setColorAt(1.0 - RIPPLE_BAND * 0.5,
+                                _with_alpha(color, peak * fade))
+            gradient.setColorAt(1.0, _with_alpha(color, 0.0))
+            painter.setBrush(gradient)
+            painter.drawEllipse(QPointF(cx, cy), radius, radius)
+
+
+
+#: The particle pool. The whole pool is rolled once; how many of them are
+#: actually painted depends on the canvas (see :data:`DRIFT_AREA_PER_PARTICLE`)
+#: so that a small screen is not a snowstorm — but the pool itself never
+#: changes, which keeps a resize from re-rolling the field.
+DRIFT_POOL = 240
+DRIFT_AREA_PER_PARTICLE = 9500
+DRIFT_MIN_PARTICLES = 40
+
+#: Three depth layers: ``(dot diameter in px, alpha, speed in canvas heights
+#: per second)``. The parallax is the whole effect — one layer looks like
+#: dust on the lens.
+DRIFT_LAYERS = (
+    (1.4, 0.35, 0.006),
+    (2.4, 0.55, 0.011),
+    (3.6, 0.80, 0.018),
+)
+
+#: Sideways sway, as a fraction of the canvas width, and its period.
+DRIFT_SWAY = (0.01, 0.05)
+DRIFT_SWAY_PERIOD = (18.0, 52.0)
+
+#: Slow per-layer breathing, quantised into this many alpha steps so the pen
+#: cache stays small — a pen rebuilt per particle per frame is the one way to
+#: make this theme expensive.
+DRIFT_TWINKLE = 0.25
+DRIFT_TWINKLE_PERIOD = (9.0, 17.0)
+DRIFT_ALPHA_STEPS = 8
+
+#: On a light page the dots are darkened instead of brightened, or they are
+#: invisible; they are also drawn a little harder, since a dark dot on white
+#: has less room than a bright dot on black.
+DRIFT_DARKEN_ON_LIGHT = 0.35
+DRIFT_LIGHT_BOOST = 1.25
+
+#: Blur, for the one theme that is not painted through the blur buffer. A dot
+#: cannot be softened by shading it over fewer pixels — it *is* one pixel — so
+#: above 1.0 each one gets a second, wider, dimmer pass around it: a halo.
+#: The widening and the dimming are tied together so the dot's total light
+#: stays roughly constant, which is what "the same star, out of focus" means.
+DRIFT_HALO_SPREAD = 1.6
+DRIFT_HALO_ALPHA = 0.34
+#: A cap, because this is the one theme whose cost is *area* rather than a
+#: fixed buffer: two hundred dots at maximum blur and maximum size would
+#: otherwise light a quarter of the page and cost 3.2 ms a frame, which is
+#: more than the whole module is allowed. Blurrier than this looks the same
+#: anyway — the dot is already a soft disc by then.
+DRIFT_HALO_MAX_PX = 14.0
+#: Below this *resolution*, the dots stop being antialiased: they lose their
+#: soft rim entirely, which is the only way left to make a 2 px dot
+#: harder-edged, and is the only thing a resolution setting can mean for a
+#: theme with no buffer to resolve. (It used to hang off the blur control,
+#: which is exactly the conflation this pair of settings exists to undo.)
+DRIFT_HARD_EDGE_RESOLUTION = 0.8
+
+#: The ``random`` direction's wander: how far a speck slides sideways off its
+#: own heading, as a fraction of the canvas, and over what period. Two
+#: incommensurate sines per axis, so the path never closes and never
+#: repeats — which is what "Brownian-ish" has to mean here, because every
+#: position in this module is a pure function of the clock and an accumulated
+#: random walk is not.
+DRIFT_WANDER = (0.02, 0.07)
+DRIFT_WANDER_PERIOD = (11.0, 37.0)
+
+
+@dataclass
+class Particle:
+    """One drifting dot, in normalised units."""
+
+    x: float
+    y: float
+    layer: int
+    speed: float
+    sway: float
+    sway_rate: float
+    sway_phase: float
+    color: int
+    #: Heading for the ``random`` direction, in radians. Unused by ``up``
+    #: and ``down``, which share one heading between all of them.
+    heading: float = 0.0
+    wander: float = 0.0
+    wander_rate: float = 0.0
+    wander_phase: float = 0.0
+
+
+class DriftEngine(AmbientEngine):
+    """A slow starfield in three parallax layers.
+
+    At full Detail dots are drawn directly and stay crisp. Lower Detail
+    samples the same canvas population through a bounded image buffer.
+    Everything is batched into one ``drawPoints`` call per (colour, layer,
+    alpha step) bucket with a cached pen; the per-call overhead of a pen
+    change dominates this theme, not the pixels.
+
+    :meth:`geometry` yields ``(x, y, diameter)`` per painted particle, in
+    pixels.
+    """
+
+    name = "drift"
+
+    def __init__(self, *args, **kwargs):
+        """Roll the starfield's three parallax layers."""
+        self._pens: Dict[Tuple[int, int, int], QPen] = {}
+        self._detail_buffer: Optional[QImage] = None
+        super().__init__(*args, **kwargs)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
+        self.particles: List[Particle] = []
+
+        def roll(i: int) -> Particle:
+            """One particle, on the drift layer its index falls in."""
+            layer = i % len(DRIFT_LAYERS)
+            _, _, speed = DRIFT_LAYERS[layer]
+            return Particle(
+                x=rng.random(),
+                y=rng.random(),
+                layer=layer,
+                speed=speed * rng.uniform(0.8, 1.25),
+                sway=rng.uniform(*DRIFT_SWAY),
+                sway_rate=2 * math.pi / rng.uniform(*DRIFT_SWAY_PERIOD),
+                sway_phase=rng.uniform(0.0, 2 * math.pi),
+                color=i,
+            )
+
+        for i in range(DRIFT_POOL):
+            self.particles.append(roll(i))
+        self.twinkle_rates = [
+            2 * math.pi / rng.uniform(*DRIFT_TWINKLE_PERIOD)
+            for _ in DRIFT_LAYERS]
+        self.twinkle_phases = [rng.uniform(0.0, 2 * math.pi)
+                               for _ in DRIFT_LAYERS]
+        for i in range(DRIFT_POOL, _pool_size(DRIFT_POOL)):
+            self.particles.append(roll(i))
+        for particle in self.particles:
+            particle.heading = rng.uniform(0.0, 2 * math.pi)
+            particle.wander = rng.uniform(*DRIFT_WANDER)
+            particle.wander_rate = 2 * math.pi / rng.uniform(
+                *DRIFT_WANDER_PERIOD)
+            particle.wander_phase = rng.uniform(0.0, 2 * math.pi)
+
+    def _restyle(self) -> None:
+        """Re-roll the star colours after a palette change."""
+        super()._restyle()
+        self._pens = {}
+
+    def _reblur(self) -> None:
+        """Rebuild the blur used on the far layers."""
+        self._pens = {}
+
+    def _reresolve(self) -> None:
+        """Rebuild the buffers after a resolution change."""
+        self._pens = {}
+        self._detail_buffer = None
+
+    def _resize(self) -> None:
+        """Re-lay the layers for a new widget size."""
+        self._pens = {}
+
+    def _tint(self, color: QColor) -> QColor:
+        """The colour one star is drawn in, by layer depth.
+
+        :param color: the layer's base colour.
+        :returns: the colour.
+        """
+        return QColor(color) if self.dark \
+            else _mix(color, QColor(0, 0, 0), DRIFT_DARKEN_ON_LIGHT)
+
+    def dot_size(self, layer: int) -> float:
+        """Diameter of a ``layer`` dot, in pixels, under the size setting."""
+        return DRIFT_LAYERS[layer][0] * self.size
+
+    def halo_size(self, layer: int) -> float:
+        """Diameter of the soft pass around a dot. Equal to the dot itself
+        at blur 0, which is how the default frame stays exactly what it
+        was."""
+        dot = self.dot_size(layer)
+        return min(DRIFT_HALO_MAX_PX,
+                   dot * (1.0 + DRIFT_HALO_SPREAD * max(0.0, self.blur)))
+
+    @property
+    def work(self) -> float:
+        """Density only: sampling is capped at native display resolution."""
+        return self.density
+
+    def alpha_scale(self) -> float:
+        """Untouched, unlike every buffered theme.
+
+        The compensation on the base class exists because overlapping
+        translucent *fields* pile up additively. A starfield does not have
+        that problem — measured, its mean frame lightness moves from 0.076
+        to 0.077 across the whole density range, because a couple of hundred
+        dots light 0.65 % of the page and almost never land on each other.
+        Dividing their alpha by three would not un-brighten anything; it
+        would hide two thirds of the stars in the background.
+        """
+        return 1.0
+
+    def count_for(self, width: int, height: int) -> int:
+        """How many of the pool this canvas gets.
+
+        Area-based, so a small window is not a snowstorm, and then scaled by
+        the density setting — which is the only one of the two the user
+        controls.
+        """
+        wanted = int(width) * int(height) // DRIFT_AREA_PER_PARTICLE
+        wanted = _clamp_int(wanted, min(DRIFT_MIN_PARTICLES, DRIFT_POOL),
+                            DRIFT_POOL)
+        return self.element_count(wanted, len(self.particles))
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """``(x, y, diameter)`` per painted particle, in pixels.
+
+        Three directions, one expression each, and all three are pure
+        functions of the clock — no accumulated state, so ``set_time`` still
+        jumps anywhere and two engines on the same seed still agree.
+
+        ``up`` and ``down`` are the same shared vector with opposite signs.
+        ``random`` gives every speck its own heading and adds a slow wander
+        across it, which is a smooth wandering path rather than a straight
+        line with a wobble; the headings are isotropic, so the field spreads
+        and mixes instead of travelling.
+        """
+        t = self.time
+        out = []
+        random_walk = self.direction == "random"
+        sign = 1.0 if self.direction == "down" else -1.0
+        for particle in self.particles[:self.count_for(width, height)]:
+            sway = particle.sway * math.sin(
+                particle.sway_rate * t + particle.sway_phase)
+            if random_walk:
+                travel = particle.speed * t
+                wander = particle.wander * math.sin(
+                    particle.wander_rate * t + particle.wander_phase)
+                x = (particle.x + math.cos(particle.heading) * travel
+                     + sway + wander * math.sin(particle.heading))
+                y = (particle.y + math.sin(particle.heading) * travel
+                     - wander * math.cos(particle.heading))
+            else:
+                x = particle.x + sway
+                y = particle.y + sign * particle.speed * t
+            out.append((x % 1.0 * width, y % 1.0 * height,
+                        self.dot_size(particle.layer)))
+        return tuple(out)
+
+    def _alpha_step(self, layer: int) -> int:
+        """The quantised alpha for ``layer`` right now, as a 0..N-1 step."""
+        _, alpha, _ = DRIFT_LAYERS[layer]
+        breath = 1.0 - DRIFT_TWINKLE + DRIFT_TWINKLE * (
+            0.5 + 0.5 * math.sin(self.twinkle_rates[layer] * self.time
+                                 + self.twinkle_phases[layer]))
+        if not self.dark:
+            breath *= DRIFT_LIGHT_BOOST
+        value = _clamp(alpha * breath, 0.0, 1.0)
+        return _clamp_int(round(value * (DRIFT_ALPHA_STEPS - 1)),
+                          0, DRIFT_ALPHA_STEPS - 1)
+
+    def _pen(self, color_index: int, layer: int, step: int,
+             halo: bool = False) -> QPen:
+        """The pen one star is drawn with.
+
+        :param layer: which parallax layer.
+        :returns: the pen.
+        """
+        key = (color_index, layer, step, halo)
+        pen = self._pens.get(key)
+        if pen is None:
+            colors = self.paint_colors
+            alpha = step / (DRIFT_ALPHA_STEPS - 1)
+            if halo:
+                alpha *= DRIFT_HALO_ALPHA
+            pen = QPen(_with_alpha(colors[color_index % len(colors)], alpha))
+            pen.setWidthF(self.halo_size(layer) if halo
+                          else self.dot_size(layer))
+            pen.setCapStyle(Qt.RoundCap)
+            self._pens[key] = pen
+        return pen
+
+    def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Sample dots at the chosen Detail within the display pixel ceiling."""
+        detail = min(1.0, self.resolution)
+        bw, bh = max(1, int(width * detail)), max(1, int(height * detail))
+        scale = min(1.0, math.sqrt(self.max_pixels / (bw * bh)))
+        return max(1, int(bw * scale)), max(1, int(bh * scale))
+
+    def paint(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw the same population through the selected pixel resolution."""
+        if width <= 0 or height <= 0:
+            return
+        bw, bh = self.buffer_size(width, height)
+        if (bw, bh) == (width, height):
+            self._paint_dots(painter, width, height)
+            return
+        image = self._detail_buffer
+        if image is None or (image.width(), image.height()) != (bw, bh):
+            image = QImage(bw, bh, QImage.Format_RGB32)
+            self._detail_buffer = image
+        inner = QPainter(image)
+        try:
+            inner.fillRect(image.rect(), self.identity)
+            inner.setCompositionMode(self.mode)
+            inner.scale(bw / width, bh / height)
+            self._paint_dots(inner, width, height)
+        finally:
+            inner.end()
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setCompositionMode(self.mode)
+        painter.drawImage(QRect(0, 0, int(width), int(height)), image)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+    def _paint_dots(self, painter: QPainter, width: int, height: int) -> None:
+        """Batch dots in canvas coordinates so Detail never changes population."""
+        painter.setRenderHint(QPainter.Antialiasing,
+                              self.resolution > DRIFT_HARD_EDGE_RESOLUTION)
+        n_colors = len(self.paint_colors)
+        steps = [self._alpha_step(i) for i in range(len(DRIFT_LAYERS))]
+        buckets: Dict[Tuple[int, int, int], List[QPointF]] = {}
+        geometry = self.geometry(width, height)
+        blinking = set(int(value) for value in self._blinking_indices(len(geometry)))
+        flashes = {}
+        for index, (particle, (x, y, _size)) in enumerate(zip(
+                self.particles, geometry)):
+            if index in blinking:
+                flashes.setdefault(particle.layer, []).append(QPointF(x, y))
+                continue
+            key = (particle.color % n_colors, particle.layer,
+                   steps[particle.layer])
+            buckets.setdefault(key, []).append(QPointF(x, y))
+        if self.blur > 0.0:
+            for key, points in buckets.items():
+                painter.setPen(self._pen(*key, halo=True))
+                painter.drawPoints(points)
+        for key, points in buckets.items():
+            painter.setPen(self._pen(*key))
+            painter.drawPoints(points)
+        for layer, points in flashes.items():
+            pen = QPen(QColor("white"))
+            pen.setWidthF(self.dot_size(layer))
+            pen.setCapStyle(Qt.RoundCap)
+            painter.setPen(pen)
+            painter.drawPoints(points)
+
+
+
+#: How many discs. Fewer than blobs on purpose: each one has to stay
+#: readable *as a disc*, and past about a dozen the rims start crossing
+#: often enough that the field reads as a mesh.
+BOKEH_COUNT = 11
+
+#: Disc radius, as a fraction of the short edge. The wide range is the depth
+#: of field: the far ones are big and flat, the near ones small and tight.
+BOKEH_RADIUS = (0.05, 0.30)
+
+#: Focus, 0 = far out of focus (flat, no rim), 1 = nearly sharp (bright
+#: narrow rim, dark middle). Rolled per disc and *correlated with radius* in
+#: :meth:`_configure`, because a big sharp-rimmed disc is not a thing an
+#: objective can produce.
+BOKEH_FOCUS = (0.15, 0.95)
+
+#: Where the rim sits, as a fraction of the radius, and how far the disc
+#: fades out past it. A real aperture image has a hard edge; this keeps a
+#: couple of per-cent of softness so it does not alias.
+BOKEH_RIM = 0.88
+BOKEH_EDGE = 0.99
+
+#: How much brighter the rim is than the middle, at full focus. At focus 0
+#: the two are equal and the disc is flat.
+BOKEH_RIM_GAIN = 2.4
+
+#: Drift and its period, plus the slow independent brightness breathing that
+#: keeps the field from looking like a still photograph.
+BOKEH_DRIFT = (0.02, 0.09)
+BOKEH_DRIFT_PERIOD = (26.0, 80.0)
+BOKEH_BREATH = 0.30
+BOKEH_BREATH_PERIOD = (9.0, 23.0)
+
+#: Peak alpha. Lower than blobs: there are rims here, and a rim carries far
+#: more attention per unit of alpha than a gradient does.
+BOKEH_ALPHA_DARK = 0.22
+BOKEH_ALPHA_LIGHT = 0.34
+
+#: A rim is an edge, so this theme wants more resolution than the diffuse
+#: ones — but much less than the aurora, because a rim is one edge per disc
+#: at a radius of tens of pixels, not a comb repeating every 36.
+BOKEH_BUFFER_EDGE = 512
+
+
+@dataclass
+class Disc:
+    """One out-of-focus point source, in normalised units."""
+
+    x: float
+    y: float
+    drift_x: float
+    drift_y: float
+    rate_x: float
+    rate_y: float
+    phase_x: float
+    phase_y: float
+    radius: float
+    focus: float
+    breath_rate: float
+    breath_phase: float
+    color: int
+
+
+class BokehEngine(_BufferedEngine):
+    """Defocused points of light: flat discs with bright rims.
+
+    :meth:`geometry` yields ``(cx, cy, radius, focus)`` per disc, in pixels,
+    with ``focus`` in 0..1 — the same tuple the painter builds its gradients
+    from, so a test that asserts on it is asserting on the frame.
+    """
+
+    name = "bokeh"
+    base_edge = BOKEH_BUFFER_EDGE
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
+        cols, rows = 4, 3
+        cells = list(range(cols * rows))
+        rng.shuffle(cells)
+        self.discs: List[Disc] = []
+        for i in range(_pool_size(BOKEH_COUNT)):
+            cell = cells[i % len(cells)]
+            col, row = cell % cols, cell // cols
+            lo, hi = BOKEH_RADIUS
+            radius = rng.uniform(lo, hi)
+            near = 1.0 - (radius - lo) / max(1e-6, hi - lo)
+            flo, fhi = BOKEH_FOCUS
+            focus = flo + (fhi - flo) * (0.35 + 0.65 * near) * rng.uniform(
+                0.75, 1.0)
+            self.discs.append(Disc(
+                x=(col + 0.12 + 0.76 * rng.random()) / cols,
+                y=(row + 0.12 + 0.76 * rng.random()) / rows,
+                drift_x=rng.uniform(*BOKEH_DRIFT),
+                drift_y=rng.uniform(*BOKEH_DRIFT),
+                rate_x=2 * math.pi / rng.uniform(*BOKEH_DRIFT_PERIOD),
+                rate_y=2 * math.pi / rng.uniform(*BOKEH_DRIFT_PERIOD),
+                phase_x=rng.uniform(0.0, 2 * math.pi),
+                phase_y=rng.uniform(0.0, 2 * math.pi),
+                radius=radius,
+                focus=_clamp(focus, 0.0, 1.0),
+                breath_rate=2 * math.pi / rng.uniform(*BOKEH_BREATH_PERIOD),
+                breath_phase=rng.uniform(0.0, 2 * math.pi),
+                color=i,
+            ))
+
+    def count(self) -> int:
+        """How many discs are painted right now."""
+        return self.element_count(BOKEH_COUNT, len(self.discs))
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
+        t = self.time
+        short = min(width, height)
+        out = []
+        for disc in self.discs[:self.count()]:
+            cx = (disc.x + disc.drift_x
+                  * math.sin(disc.rate_x * t + disc.phase_x)) * width
+            cy = (disc.y + disc.drift_y
+                  * math.sin(disc.rate_y * t + disc.phase_y)) * height
+            out.append((cx, cy, max(1.0, disc.radius * short * self.size),
+                        disc.focus))
+        return tuple(out)
+
+    @staticmethod
+    def _stops(focus: float, peak: float):
+        """The radial profile of one defocused point, as gradient stops.
+
+        At ``focus`` 0 it is a flat disc: middle and rim the same, a soft
+        shoulder at the edge. At 1 the middle has dropped to a third and the
+        rim is :data:`BOKEH_RIM_GAIN` times brighter than it — the classic
+        doughnut an out-of-focus point makes through a clear aperture.
+        """
+        middle = peak * (1.0 - 0.62 * focus)
+        rim = peak * (1.0 + (BOKEH_RIM_GAIN - 1.0) * focus)
+        return ((0.0, middle * 0.92), (0.55, middle),
+                (BOKEH_RIM, rim), (BOKEH_EDGE, rim * 0.35), (1.0, 0.0))
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        base = (BOKEH_ALPHA_DARK if self.dark else BOKEH_ALPHA_LIGHT) \
+            * self.alpha_scale()
+        colors = self.paint_colors
+        t = self.time
+        for disc, (cx, cy, radius, focus) in zip(
+                self.discs, self.geometry(width, height)):
+            breath = 1.0 - BOKEH_BREATH + BOKEH_BREATH * (
+                0.5 + 0.5 * math.sin(disc.breath_rate * t + disc.breath_phase))
+            color = colors[disc.color % len(colors)]
+            gradient = QRadialGradient(cx, cy, radius)
+            for stop, alpha in self._stops(focus, base * breath):
+                gradient.setColorAt(stop, _with_alpha(color, alpha))
+            painter.setBrush(gradient)
+            painter.drawEllipse(QPointF(cx, cy), radius, radius)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+
+
+
+#: How many cells. Nine reads as a sparse field at 1080p; the density
+#: control is there for anyone who wants a confluent one.
+CELL_COUNT = 9
+
+#: Body radius along the major axis, as a fraction of the short edge, and how
+#: much shorter the minor axis is.
+CELL_RADIUS = (0.07, 0.17)
+CELL_FLATTEN = (0.55, 0.92)
+
+#: Drift and turn. The turn is a rate in radians per second, signed, so half
+#: of them go one way.
+CELL_DRIFT = (0.03, 0.11)
+CELL_DRIFT_PERIOD = (30.0, 85.0)
+CELL_TURN = (0.010, 0.055)
+
+#: The nucleus: radius as a share of the body's minor axis, how far off
+#: centre it sits as a share of the major axis, and how much brighter it is.
+CELL_NUCLEUS = (0.34, 0.52)
+CELL_NUCLEUS_OFFSET = 0.28
+CELL_NUCLEUS_GAIN = 1.9
+
+#: The membrane: where the body's own gradient brightens again before it
+#: fades, and by how much. Small — a membrane that reads as an outline turns
+#: the field into clip art.
+CELL_MEMBRANE = 0.86
+CELL_MEMBRANE_GAIN = 1.45
+
+CELL_ALPHA_DARK = 0.20
+CELL_ALPHA_LIGHT = 0.32
+
+#: Same reasoning as bokeh: there is a rim in here, so it wants more than a
+#: pure gradient field does and much less than the aurora.
+CELL_BUFFER_EDGE = 512
+
+
+@dataclass
+class Cell:
+    """One drifting cell, in normalised units."""
+
+    x: float
+    y: float
+    drift_x: float
+    drift_y: float
+    rate_x: float
+    rate_y: float
+    phase_x: float
+    phase_y: float
+    radius: float
+    flatten: float
+    angle: float
+    turn: float
+    nucleus: float
+    nucleus_angle: float
+    color: int
+
+
+class CellsEngine(_BufferedEngine):
+    """Cells drifting through the field, turning as they go.
+
+    :meth:`geometry` yields ``(cx, cy, major, minor, angle)`` per cell, in
+    pixels and radians.
+    """
+
+    name = "cells"
+    base_edge = CELL_BUFFER_EDGE
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
+        cols, rows = 4, 3
+        cells = list(range(cols * rows))
+        rng.shuffle(cells)
+        self.cells: List[Cell] = []
+        for i in range(_pool_size(CELL_COUNT)):
+            cell = cells[i % len(cells)]
+            col, row = cell % cols, cell // cols
+            self.cells.append(Cell(
+                x=(col + 0.15 + 0.7 * rng.random()) / cols,
+                y=(row + 0.15 + 0.7 * rng.random()) / rows,
+                drift_x=rng.uniform(*CELL_DRIFT),
+                drift_y=rng.uniform(*CELL_DRIFT),
+                rate_x=2 * math.pi / rng.uniform(*CELL_DRIFT_PERIOD),
+                rate_y=2 * math.pi / rng.uniform(*CELL_DRIFT_PERIOD),
+                phase_x=rng.uniform(0.0, 2 * math.pi),
+                phase_y=rng.uniform(0.0, 2 * math.pi),
+                radius=rng.uniform(*CELL_RADIUS),
+                flatten=rng.uniform(*CELL_FLATTEN),
+                angle=rng.uniform(0.0, 2 * math.pi),
+                turn=rng.choice((-1.0, 1.0)) * rng.uniform(*CELL_TURN),
+                nucleus=rng.uniform(*CELL_NUCLEUS),
+                nucleus_angle=rng.uniform(0.0, 2 * math.pi),
+                color=i,
+            ))
+
+    def count(self) -> int:
+        """How many cells are painted right now."""
+        return self.element_count(CELL_COUNT, len(self.cells))
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """The shapes to draw at the current time, for a widget this size.
+
+        GEOMETRY, NOT PAINTING, so the layout can be computed on a worker
+        thread and tested without a QPainter -- an engine owns no widget and
+        no timer, which is what makes the animation deterministic.
+
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        :returns: one tuple per shape, in draw order.
+        """
+        t = self.time
+        short = min(width, height)
+        out = []
+        for cell in self.cells[:self.count()]:
+            cx = (cell.x + cell.drift_x
+                  * math.sin(cell.rate_x * t + cell.phase_x)) * width
+            cy = (cell.y + cell.drift_y
+                  * math.sin(cell.rate_y * t + cell.phase_y)) * height
+            major = max(1.0, cell.radius * short * self.size)
+            out.append((cx, cy, major, major * cell.flatten,
+                        cell.angle + cell.turn * t))
+        return tuple(out)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        peak = (CELL_ALPHA_DARK if self.dark else CELL_ALPHA_LIGHT) \
+            * self.alpha_scale()
+        colors = self.paint_colors
+        for cell, (cx, cy, major, minor, angle) in zip(
+                self.cells, self.geometry(width, height)):
+            color = colors[cell.color % len(colors)]
+            painter.save()
+            painter.translate(cx, cy)
+            painter.rotate(math.degrees(angle))
+            body = QRadialGradient(0.0, 0.0, major)
+            body.setColorAt(0.0, _with_alpha(color, peak * 0.55))
+            body.setColorAt(0.62, _with_alpha(color, peak * 0.72))
+            body.setColorAt(CELL_MEMBRANE,
+                            _with_alpha(color, peak * CELL_MEMBRANE_GAIN))
+            body.setColorAt(0.97, _with_alpha(color, peak * 0.30))
+            body.setColorAt(1.0, _with_alpha(color, 0.0))
+            painter.setBrush(body)
+            painter.save()
+            painter.scale(1.0, minor / major)
+            painter.drawEllipse(QPointF(0.0, 0.0), major, major)
+            painter.restore()
+
+            offset = CELL_NUCLEUS_OFFSET * major
+            nx = offset * math.cos(cell.nucleus_angle)
+            ny = offset * math.sin(cell.nucleus_angle) * (minor / major)
+            radius = max(1.0, cell.nucleus * minor)
+            nucleus = QRadialGradient(nx, ny, radius)
+            nucleus.setColorAt(0.0,
+                               _with_alpha(color, peak * CELL_NUCLEUS_GAIN))
+            nucleus.setColorAt(0.6,
+                               _with_alpha(color, peak * CELL_NUCLEUS_GAIN
+                                           * 0.6))
+            nucleus.setColorAt(1.0, _with_alpha(color, 0.0))
+            painter.setBrush(nucleus)
+            painter.drawEllipse(QPointF(nx, ny), radius, radius)
+            painter.restore()
+        painter.setRenderHint(QPainter.Antialiasing, False)
+
+
+
+#: Longest buffer edge the fractal shades into at resolution 1.0, before
+#: the guard.
+#:
+#: ABOVE the diffuse themes' :data:`BUFFER_MAX_EDGE`, and it is the one
+#: theme in the module that has to be. A blob is a gradient and has no
+#: detail to lose to a small buffer; a fractal carries structure at every
+#: scale, so the buffer's edge is visible in it as coarseness — which is the
+#: whole of "the pattern needs to be higher resolution".
+#:
+#: 448 puts a 1920-wide canvas on a 384x216 buffer, four times the pixels
+#: the edge below it shaded, and a 3840-wide one on 426x240. THE NUMBER IS
+#: AN ASK, NOT A PROMISE: an escape-time field is shaded per pixel in NumPy,
+#: so four times the pixels is four times the frame, and what is actually
+#: allocated is this trimmed by :meth:`FractalEngine.afford` until the pass
+#: fits :data:`FRACTAL_FRAME_SHARE`. On a machine that cannot pay for 448 it
+#: settles lower on its own, which is what the request asks the guard to do
+#: rather than stuttering.
+FRACTAL_BUFFER_EDGE = 448
+
+#: How many times the map is iterated per pixel.
+#:
+#: This is the fractal's *element count*, and it is what the density control
+#: scales — which is the honest reading of that control here, because the
+#: cost of a frame really is (buffer pixels) x (iterations). That is exactly
+#: the shape :attr:`AmbientEngine.work` already assumes: resolution enters
+#: squared, the element count enters linearly, and :data:`WORK_BUDGET`
+#: therefore bounds this engine without a line of its own.
+#:
+#: Twenty is where the Julia boundary stops gaining structure at this buffer
+#: size: the filaments a 40th iteration resolves are thinner than the ten
+#: screen pixels each buffer pixel is stretched over on a 1080p canvas.
+FRACTAL_ITERATIONS = 20
+
+#: ``|z|^2`` past which the orbit is considered gone. 4.0 is |z| > 2, the
+#: standard escape radius for ``z^2 + c``.
+FRACTAL_BAILOUT = 4.0
+
+#: Half the height of the view, in units of the complex plane, at size 1.0.
+#: The interesting part of every Julia set in this family fits inside |z| < 2.
+FRACTAL_SPAN = 1.6
+
+#: Seconds for the Julia constant to travel once around the cardioid, and
+#: how far inside it the constant is held, oscillating on its own period.
+#:
+#: The path is the boundary of the Mandelbrot set's main cardioid, pulled a
+#: little way in toward the origin. That is not decoration: *on* the boundary
+#: the Julia set is a dendrite with no interior, and outside it the set falls
+#: apart into dust. Just inside, it is connected and filled for every angle,
+#: so the animation morphs continuously through the whole family instead of
+#: passing through stretches where there is nothing on screen.
+FRACTAL_C_PERIOD = 96.0
+FRACTAL_INSET = (0.035, 0.16)
+FRACTAL_INSET_PERIOD = 41.0
+
+#: Seconds per turn of the view, and the slow zoom: a swing of this fraction
+#: of the span, on this period. Both are long, for the reason the blob drift
+#: is long — a backdrop must never look like it is *moving*, only like it has
+#: moved when you look back at it.
+FRACTAL_SPIN_PERIOD = 240.0
+FRACTAL_BREATH = 0.16
+FRACTAL_BREATH_PERIOD = 57.0
+
+#: How many iterations of escape one full traversal of the palette is worth,
+#: and how many seconds one full scroll of those bands takes.
+#:
+#: The colour index is CYCLIC — ``survived`` modulo the ring rather than
+#: ``survived`` divided by the iteration count — and that is what makes the
+#: picture read as a rainbow instead of as one purple wash. The escape count
+#: is violently skewed: at this view most of the canvas is gone inside two
+#: iterations and the whole 0..20 range lives in a thin collar around the
+#: set, so a palette stretched linearly over it spends 90 % of the screen on
+#: one colour. Wrapped instead, every band of the collar is a different
+#: colour AND the wide outer field gets its own sweep, which is what the
+#: fractional first iteration below is for.
+FRACTAL_ITERS_PER_CYCLE = 3.0
+FRACTAL_CYCLE_PERIOD = 14.0
+
+#: ``|z|^2`` at which an iteration stops contributing anything.
+#:
+#: Each iteration is worth a FRACTION of a count rather than a yes/no: one
+#: while the orbit is inside :data:`FRACTAL_BAILOUT`, ramping to zero as it
+#: passes this. That makes the escape field a continuous function of the
+#: pixel, and continuity is not a nicety here — the buffer is upscaled
+#: tenfold on a 1080p canvas, so an integer count puts a hard step every
+#: ten screen pixels and the backdrop reads as a contour map with visibly
+#: stepped edges. It also gives the far field, which at this view is most of
+#: the canvas and escapes before the map has been applied at all, a real
+#: gradient instead of one flat value.
+FRACTAL_SOFT_LIMIT = 16.0
+
+#: How far ``z`` is allowed to run before it is clamped, in each component.
+#: Big enough to be far outside any escape test and small enough that its
+#: square, and the sum of two of them, stay inside float32 by twenty orders
+#: of magnitude.
+FRACTAL_REACH = 1.0e9
+
+#: What is left of the light inside the set. It is a solid region and would
+#: otherwise be the loudest single shape on the screen; at a fifth of the
+#: peak it reads as the silhouette it is.
+FRACTAL_CORE = 0.20
+
+#: Peak alpha of the field. Light needs more than dark for the reason every
+#: other theme here does: the colour has been mixed toward white before it is
+#: multiplied.
+#:
+#: Lower than the other themes' peaks look on the dark page, and it has to
+#: be: those draw discrete shapes over a mostly-empty page, and this covers
+#: every pixel of it. What reaches the eye is the whole canvas at this
+#: alpha, not a few blobs at it.
+FRACTAL_ALPHA_DARK = 0.30
+FRACTAL_ALPHA_LIGHT = 0.40
+
+#: How far a palette colour is mixed toward white before it is MULTIPLIED
+#: onto a light page — this theme's own figure, well below the shared
+#: :data:`LIGHT_TINT`.
+#:
+#: That constant is 0.55 because undiluted saturated hues multiply to
+#: something muddy when shapes OVERLAP, and every other theme here is made
+#: of overlapping shapes. This one is a single field with no overlap at all,
+#: so most of that dilution buys nothing and costs the colour: measured on a
+#: real frame over the dressed light page, 0.55 left every hue within
+#: thirteen levels of neutral and the rainbow rendered as four neighbouring
+#: pinks.
+#:
+#: This pair is where the sweep of (tint, alpha) lands with colour AND
+#: headroom. The bar was the shipped default: text over the worst
+#: text-line-sized region of a `blobs` frame on the same page clears its
+#: WCAG minimum by a factor of 0.654, and this clears it by 0.689 while
+#: carrying seven of the twelve hue families instead of four.
+FRACTAL_LIGHT_TINT = 0.40
+
+#: Entries in the colour table a frame is looked up through, and the last
+#: one, which is reserved.
+#:
+#: 256 so the table is indexed by a ``uint8`` and the whole per-pixel
+#: colouring pass is one cast and one gather. Entries 0..254 are the colour
+#: ring; 255 is the *interior* of the set, which is why the ring is 255 long
+#: and not 256 — the wrapped index can never land on it by accident.
+FRACTAL_LEVELS = 256
+FRACTAL_INTERIOR_LEVEL = 255
+
+
+#: The wander's octaves, as ``(seconds per cell, weight)``.
+#:
+#: WHY THIS IS NOT A LOOP, in the strong sense rather than the "very long
+#: period" sense. Each octave is a value hashed from ``(seed, channel, cell
+#: number)`` and smoothed across the cell boundary, and the cell number
+#: counts up forever — so the sequence is not a cycle at all and there is no
+#: period to find, however long a watcher looks. Three octaves an octave and
+#: a half apart give the shape a state should have: a slow tide, a swell on
+#: it, and a little chop on that.
+FRACTAL_STATE_OCTAVES: Tuple[Tuple[float, float], ...] = (
+    (73.0, 1.00), (29.0, 0.52), (11.0, 0.24))
+
+#: The four states, as channel numbers into the wander.
+#:
+#: They are separate channels rather than one number because they have to be
+#: able to disagree: deep and quiet, flat and busy, and every other corner.
+#: One shared state would make the picture pass through the same handful of
+#: looks, which is the fault this whole block exists to avoid.
+FRACTAL_STATE_DEPTH = 0
+FRACTAL_STATE_BUSY = 1
+FRACTAL_STATE_PACE = 2
+FRACTAL_STATE_CROWD = 3
+
+#: The vortex, from flat to deep, as the ``depth`` state runs 0 to 1.
+#:
+#: TWO TERMS, and it takes both to read as a tunnel rather than as a spiral
+#: drawn on a wall:
+#:
+#: * :data:`FRACTAL_SWIRL` twists the *sampling*, in radians per e-fold of
+#:   radius. It is a conformal map — the picture is turned by an amount that
+#:   grows as the centre is approached — so the fractal's own detail is not
+#:   distorted, it is wound into a spiral that converges at the middle. At
+#:   0.0 it is exactly the plain rotation the engine had before, which is
+#:   what makes "sometimes not" free.
+#: * :data:`FRACTAL_TUNNEL` puts the colour bands on the *log* of the
+#:   radius, in full traversals of the palette per e-fold. Bands spaced
+#:   geometrically are what perspective does to evenly spaced rings, and
+#:   scrolling them (:data:`FRACTAL_TUNNEL_RATE`) is what makes them travel
+#:   down it. This is the term that supplies the depth; the swirl supplies
+#:   the turning.
+FRACTAL_SWIRL = (0.0, 1.25)
+FRACTAL_TUNNEL = (0.0, 2.6)
+
+#: Where the view is, and how wide, at the two ends of the depth state.
+#:
+#: THE DEEP STATE IS A DIFFERENT VIEW, and it has to be. A spiral twist
+#: alone does not make a tunnel out of this picture, because at
+#: :data:`FRACTAL_SPAN` the middle of the screen is the filled INTERIOR of
+#: the set — a flat silhouette with no structure in it, and a vortex needs
+#: something to converge into. So as the depth rises the view slides onto
+#: the set's REPELLING FIXED POINT and closes in on it.
+#:
+#: That point is not a taste: ``beta = (1 + sqrt(1 - 4c)) / 2`` is on the
+#: Julia set for every ``c``, and the set is asymptotically SELF-SIMILAR
+#: around it — the map is locally ``z -> lambda(z - beta) + beta`` with
+#: ``lambda = 2*beta``, so the structure repeats at a fixed ratio of scale
+#: with a fixed turn between the copies. That is a logarithmic spiral of
+#: fractals, drawn by the mathematics rather than by the shader, and
+#: closing in on it is looking down it.
+#:
+#: THE VIEW IS ALWAYS ON THAT POINT and only the SPAN moves. Sliding the
+#: centre with the depth was tried first and is worse: at half depth the
+#: middle of the screen sits between the origin and ``beta``, which is
+#: inside the filled set, so the closer the view got the more of the screen
+#: was one flat silhouette. Anchored on the boundary the middle of the
+#: picture always has structure in it, and the depth is free to be purely
+#: how far INTO that structure the view is.
+#:
+#: At depth zero the span is the whole set and the swirl is nothing, which
+#: is the "and sometimes not" half of the request.
+FRACTAL_SPAN_DEEP = 0.16
+#: How far along the way to that point the view is centred, so that the
+#: middle of the screen is ON the boundary rather than a little inside it.
+#: One, because the point itself is the boundary — the fraction is here to
+#: be turned down if a future palette makes the exact point read badly.
+FRACTAL_ORIGIN_DEEP = 1.0
+
+#: The window of the raw wander that the depth state actually spends, and
+#: what is outside it.
+#:
+#: A sum of smoothed noise is a bell: left alone it spends nearly all its
+#: time in the middle of its range, so the picture would always be half
+#: deep and would never be either thing. Stretching the middle two thirds
+#: over the whole range and clamping the tails gives what "STATES it moves
+#: between" means — real time spent flat, real time spent deep, and a
+#: gradual transition between them rather than a permanent average.
+FRACTAL_DEPTH_WINDOW = (0.30, 0.68)
+
+#: E-folds of radius the tunnel's rings travel per second, before the pace
+#: state. Slow: the rings should be noticed to have moved, not watched
+#: moving.
+FRACTAL_TUNNEL_RATE = 0.045
+
+#: How fast the vortex turns, in turns per second, from the flattest state to
+#: the deepest. Added to the view's own :data:`FRACTAL_SPIN_PERIOD`, which
+#: goes on being the slow drift underneath.
+FRACTAL_TURN = (0.004, 0.055)
+
+#: How far the pace state may push a phase, in turns.
+#:
+#: THE PACE IS A PHASE OFFSET, NOT A RATE. A rate that wanders has to be
+#: integrated to get a phase, and hashed noise has no closed-form integral —
+#: so an engine that did it that way would have to accumulate, which is the
+#: one thing this module cannot do (see the block above). A wandering offset
+#: added to the phase gives the same thing at the eye: the apparent speed is
+#: the base rate plus the offset's own slope, so the motion runs ahead,
+#: falls back, stalls and briefly reverses, and never jumps.
+FRACTAL_PACE_SWING = 0.35
+
+#: The beat: base rate in beats per second, and the wander on that rate as
+#: ``(share, period in seconds, phase in turns)``.
+#:
+#: Thirty-seven a minute at rest. The wander is applied to the RATE and the
+#: phase is its integral in closed form — ``∫ R(1 + Σ a cos(2πt/P)) dt`` —
+#: which is what lets the beat speed up and slow down while its phase stays
+#: continuous through every change of speed. A heart does not skip when it
+#: quickens, and neither does this.
+FRACTAL_BEAT_RATE = 0.62
+FRACTAL_BEAT_WANDER: Tuple[Tuple[float, float, float], ...] = (
+    (0.34, 41.0, 0.31), (0.19, 17.3, 0.77))
+
+#: The beat's shape, as ``(position in the cycle, width, height)``.
+#:
+#: TWO THUMPS, not a sine. A sine spends as long rising as falling and reads
+#: as breathing; a beat is a short strike, a shorter second one, and then
+#: nothing until the next. The second thump at a little over half the first
+#: is the systole/diastole shape, and it is the thing that makes a pulse
+#: recognisable as a pulse.
+FRACTAL_BEAT_THUMP: Tuple[Tuple[float, float, float], ...] = (
+    (0.00, 0.052, 1.00), (0.20, 0.080, 0.55))
+
+#: What the beat moves: the zoom, as a share of the span, and the light, as a
+#: share of the peak alpha it is allowed to take AWAY.
+#:
+#: The alpha only ever dips. The peak is where every readability measurement
+#: of this backdrop was taken (see :data:`FRACTAL_ALPHA_DARK`), so a beat
+#: that brightened past it would be quietly raising the ceiling those were
+#: made against; a beat that darkens from it cannot.
+FRACTAL_BEAT_ZOOM = 0.055
+FRACTAL_BEAT_DIP = 0.22
+
+#: How much the busy state moves the iteration count, as a multiplier range.
+#: Below one is a smoother, softer field; above it, finer filaments. It rides
+#: on top of the density control rather than replacing it.
+FRACTAL_BUSY = (0.55, 1.45)
+
+#: Extra iterations at full depth, as a share of the count.
+#:
+#: NOT DECORATION. The escape count is what resolves the boundary, and how
+#: fine the boundary is depends on how far in the view is: at
+#: :data:`FRACTAL_SPAN` twenty iterations resolve everything there is to
+#: see, and at :data:`FRACTAL_SPAN_DEEP` they leave the spiral as a flat
+#: wash because the orbits that separate its arms have not been given long
+#: enough to separate. So the count follows the depth. It costs what it
+#: costs and the guard is what pays for it.
+FRACTAL_DEPTH_ITERS = 0.85
+
+#: The iteration pool, which is what the density control paints a prefix of.
+#:
+#: :func:`_pool_size` sizes a pool for the top of :data:`DENSITY_RANGE` and
+#: nothing else, which was right when the count was a constant. It is not
+#: now: the busy state and the depth both multiply it before the density
+#: does, and a pool that ignored them would clamp — a user at density 3.0
+#: would get the same count as one at 2.0 whenever the picture happened to
+#: be deep, which is a control that silently stops working.
+FRACTAL_ITERATION_POOL = _pool_size(
+    int(math.ceil(FRACTAL_ITERATIONS * FRACTAL_BUSY[1]
+                  * (1.0 + FRACTAL_DEPTH_ITERS))))
+
+#: How many buds the engine can have in the air at once, and the seconds one
+#: slot takes to come round.
+#:
+#: SLOTS RATHER THAN A LIST, because the bud population has to be a pure
+#: function of the clock: slot ``k`` is on its own cycle, and which cycle it
+#: is in — and therefore which bud, with which numbers — follows from the
+#: time alone. The cycles are all different and mutually incommensurate, so
+#: the population wanders between one form and six without ever repeating a
+#: pattern of arrivals.
+FRACTAL_BUD_SLOTS = 5
+FRACTAL_BUD_CYCLE = (19.0, 47.0)
+
+#: The share of its cycle a bud is alive for, and the chance a slot takes the
+#: cycle at all.
+#:
+#: THE SKIP IS THE POINT. "Sometimes there is more happening than the thing
+#: in the middle. Not always." A slot that always produced a bud would give a
+#: population that breathed between four and six; one that may sit a cycle
+#: out gives screens with one form on them, which is a state the picture is
+#: supposed to pass through.
+FRACTAL_BUD_LIFE = (0.30, 0.72)
+FRACTAL_BUD_TAKES = 0.62
+
+#: A bud's size and how far it travels, both as a share of the parent's rim.
+#: It leaves at the rim and drifts outward for the rest of its life.
+FRACTAL_BUD_RADIUS = (0.28, 0.62)
+FRACTAL_BUD_TRAVEL = (0.35, 1.30)
+
+#: Where the parent's rim is, as a share of half the buffer's short edge.
+#: This is the circle a bud is born ON, which is what makes it read as having
+#: separated from the form in the middle rather than faded in beside it.
+FRACTAL_BUD_RIM = 0.62
+
+#: How soft a bud's edge is, as a share of its radius.
+#:
+#: A BUBBLE, not a cut-out. The bud is the parent's own field re-sampled
+#: through the bud's scale and vortex, and the two samplings are blended
+#: across this band — so the rim refracts rather than clipping, which is what
+#: the eye reads as a bubble sitting in front of the picture.
+FRACTAL_BUD_FEATHER = 0.30
+
+#: How much bigger a bud's scale is than its parent's, as a multiplier range
+#: rolled per bud. Under one is a magnifier: fewer units of the plane across
+#: the bud, so it holds a close-up of the same set.
+FRACTAL_BUD_ZOOM = (0.35, 1.6)
+
+
+
+#: What one shading pass may cost, as a share of the frame interval at
+#: :data:`DEFAULT_FPS`.
+#:
+#: 9 % is 3.75 ms of a 41.7 ms frame. Chosen against what the backdrop is:
+#: it runs on :class:`_FrameProducer` rather than the GUI thread, so the cost
+#: is a share of one core and never a stutter — but it is Python holding the
+#: interpreter lock in bursts, and a job running in the same process feels
+#: that. The aurora, the most expensive theme on the Animation menu, measures
+#: 1.3-2.6 ms; this engine is allowed rather more because a fractal carries
+#: detail at every scale and is the one thing in the module that shows the
+#: buffer's edge.
+FRACTAL_FRAME_SHARE = 0.09
+
+#: How far the guard may trim the buffer, as a share of its pixels.
+#:
+#: 0.15 of the pixels is 0.39 of the edge — 175 px on the 448 asked for,
+#: which is where this engine was before the resolution was raised and is
+#: therefore a floor with a measurement behind it rather than a guess. Below
+#: that the answer is not a smaller buffer, it is a slower machine that
+#: should turn the Animation preference down.
+FRACTAL_AFFORD_FLOOR = 0.15
+
+#: How fast the guard gives ground and how slowly it takes it back, as a
+#: share of the gap closed per second of animation.
+#:
+#: ASYMMETRIC ON PURPOSE. An overrun is evidence about the machine and is
+#: acted on quickly; an underrun may just be a quiet moment, and climbing
+#: back at the same speed would make the buffer size oscillate — which is
+#: visible, because the whole picture resamples when it changes.
+FRACTAL_AFFORD_EASE = (6.0, 0.12)
+
+
+def _hash01(salt: int, channel: int, index: int) -> float:
+    """A repeatable 0..1 value for ``(salt, channel, index)``.
+
+    Integer avalanche rather than :mod:`random`, because it is called with a
+    cell number that counts up forever and has to answer for any of them
+    without keeping a sequence — which is exactly what makes the state
+    machine above a pure function of the clock.
+    """
+    value = (salt * 0x9E3779B1) ^ (channel * 0x85EBCA77) ^ (index * 0xC2B2AE3D)
+    value &= 0xFFFFFFFF
+    value ^= value >> 15
+    value = (value * 0x2C1B3C6D) & 0xFFFFFFFF
+    value ^= value >> 12
+    value = (value * 0x297A2D39) & 0xFFFFFFFF
+    value ^= value >> 15
+    return value / 4294967296.0
+
+
+def _lerp(span: Tuple[float, float], amount: float) -> float:
+    """``span[0]`` at 0, ``span[1]`` at 1, clamped."""
+    amount = _clamp(float(amount), 0.0, 1.0)
+    return span[0] + (span[1] - span[0]) * amount
+
+
+class Form(NamedTuple):
+    """Sampling geometry for the primary fractal or a derived bud.
+
+    :param cx: Centre x-coordinate in buffer pixels.
+    :param cy: Centre y-coordinate in buffer pixels.
+    :param scale: Buffer pixels per unit of the complex plane.
+    :param angle: Sampling rotation in radians.
+    :param c_re: Real component of the Julia-set constant.
+    :param c_im: Imaginary component of the Julia-set constant.
+    :param iterations: Number of map iterations.
+    :param origin_re: Real component of the sampled complex-plane origin.
+    :param origin_im: Imaginary component of the sampled origin.
+    :param swirl: Angular twist per logarithmic radius interval.
+    :param tunnel: Palette traversals per logarithmic radius interval.
+    :param scroll: Palette-ring offset.
+    :param radius: Form radius in buffer pixels.
+    :param age: Normalised bud age; zero for the primary form.
+    :param bud: Whether this geometry describes a bud.
+    """
+
+    cx: float
+    cy: float
+    scale: float
+    angle: float
+    c_re: float
+    c_im: float
+    iterations: int
+    origin_re: float
+    origin_im: float
+    swirl: float
+    tunnel: float
+    scroll: float
+    radius: float
+    age: float
+    bud: bool
+
+
+class FractalEngine(_BufferedEngine):
+    """Render a deterministic, animated Julia-set field.
+
+    The engine evaluates ``z <- z**2 + c`` for a primary form and optional
+    derived buds. Hashed continuous state controls depth, density, motion,
+    and population as a pure function of seed and animation time. Render cost
+    is measured between frames and used to reduce buffer resolution and bud
+    count when necessary. :meth:`geometry` returns the primary
+    :class:`Form` first.
+    """
+
+    name = "fractal"
+    base_edge = FRACTAL_BUFFER_EDGE
+
+    def _tint(self, color: QColor) -> QColor:
+        """The colour as painted. Overridden for the light page only — see
+        :data:`FRACTAL_LIGHT_TINT`."""
+        return QColor(color) if self.dark \
+            else _mix(color, QColor(255, 255, 255), FRACTAL_LIGHT_TINT)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll this theme's constants from the seed.
+
+        ONCE, at construction: an engine is deterministic, so the same seed and
+        the same call sequence always produce the same animation.
+        """
+        self._phase_c = rng.random()
+        self._phase_inset = rng.random()
+        self._phase_spin = rng.random()
+        self._phase_breath = rng.random()
+        self._phase_cycle = rng.random()
+        self._phase_beat = rng.random()
+        self._spin = 1.0 if rng.random() < 0.5 else -1.0
+        #: What the wander and the bud schedule are hashed from. An int
+        #: rather than the seed itself because the seed may be None.
+        self._salt = rng.getrandbits(30) or 1
+        #: Polar grids, keyed by the buffer size they were built for.
+        #: Rebuilt on a resize and never per frame.
+        self._plane: Optional[Tuple[object, object, object]] = None
+        self._plane_size: Tuple[int, int] = (0, 0)
+        #: The 0..1 ramp the colour table is built over. Constant, so it
+        #: is built once and reused.
+        self._ring = None
+        #: What share of the asked-for buffer this machine can afford, and
+        #: the shading costs measured since the last :meth:`advance`.
+        self._afford = 1.0
+        self._spent: List[float] = []
+
+    def wander(self, channel: int, at: Optional[float] = None) -> float:
+        """Return continuous deterministic state noise for one channel.
+
+        :param channel: Independent state-channel index.
+        :param at: Animation time in seconds. ``None`` uses the engine clock.
+        :returns: Value in ``[0, 1]``.
+        """
+        moment = self.time if at is None else float(at)
+        total = 0.0
+        weights = 0.0
+        for octave, (cell, weight) in enumerate(FRACTAL_STATE_OCTAVES):
+            seat = channel * 8 + octave
+            position = moment / cell + _hash01(self._salt, seat, -1)
+            index = math.floor(position)
+            fraction = position - index
+            low = _hash01(self._salt, seat, int(index))
+            high = _hash01(self._salt, seat, int(index) + 1)
+            ease = fraction * fraction * (3.0 - 2.0 * fraction)
+            total += weight * (low + (high - low) * ease)
+            weights += weight
+        return total / weights
+
+    def swing(self, channel: int) -> float:
+        """Return :meth:`wander` for ``channel`` mapped to ``[-1, 1]``."""
+        return 2.0 * self.wander(channel) - 1.0
+
+    def depth(self) -> float:
+        """Return the smoothed vortex-depth state in ``[0, 1]``."""
+        low, high = FRACTAL_DEPTH_WINDOW
+        raw = _clamp((self.wander(FRACTAL_STATE_DEPTH) - low)
+                     / max(1e-6, high - low), 0.0, 1.0)
+        return raw * raw * (3.0 - 2.0 * raw)
+
+    def beat_phase(self) -> float:
+        """Return the continuously integrated beat phase in cycles."""
+        moment = self.time
+        phase = moment * FRACTAL_BEAT_RATE
+        for share, period, offset in FRACTAL_BEAT_WANDER:
+            phase += FRACTAL_BEAT_RATE * share * period / (2.0 * math.pi) * (
+                math.sin(2.0 * math.pi * (moment / period + offset))
+                - math.sin(2.0 * math.pi * offset))
+        return phase + self._phase_beat
+
+    def beat(self) -> float:
+        """Return beat intensity from zero between peaks to one at a peak."""
+        position = self.beat_phase() % 1.0
+        value = 0.0
+        for at, width, height in FRACTAL_BEAT_THUMP:
+            gap = ((position - at + 0.5) % 1.0) - 0.5
+            value += height * math.exp(-(gap / width) ** 2)
+        return _clamp(value, 0.0, 1.0)
+
+    def frame_budget(self) -> float:
+        """Return the target duration of one shading pass in milliseconds."""
+        return FRACTAL_FRAME_SHARE * 1000.0 / DEFAULT_FPS
+
+    def afford(self) -> float:
+        """Return the guarded render-capacity fraction in
+        ``[FRACTAL_AFFORD_FLOOR, 1]``."""
+        return self._afford
+
+    def advance(self, dt: float) -> None:
+        """Advance the clock and adapt render capacity from recent costs."""
+        super().advance(dt)
+        spent, self._spent = self._spent, []
+        if not spent or dt <= 0:
+            return
+        over = max(spent) / max(0.001, self.frame_budget())
+        ease = FRACTAL_AFFORD_EASE[0] if over > 1.0 else FRACTAL_AFFORD_EASE[1]
+        step = _clamp(float(dt) * ease, 0.0, 1.0)
+        want = _clamp(self._afford / over, FRACTAL_AFFORD_FLOOR, 1.0)
+        self._afford = _clamp(self._afford + (want - self._afford) * step,
+                              FRACTAL_AFFORD_FLOOR, 1.0)
+
+    def resolution_edge(self) -> int:
+        """Return the guarded maximum render-buffer edge in pixels."""
+        return _clamp_int(round(self.base_edge * self.resolution
+                                * math.sqrt(self._afford)),
+                          BUFFER_MIN_EDGE, BUFFER_EDGE_CEILING)
+
+    def iterations(self) -> int:
+        """Return the guarded Julia-map iteration count for this frame."""
+        busy = _lerp(FRACTAL_BUSY, self.wander(FRACTAL_STATE_BUSY))
+        busy *= 1.0 + FRACTAL_DEPTH_ITERS * self.depth()
+        want = max(1, int(round(FRACTAL_ITERATIONS * busy)))
+        return self.element_count(want, FRACTAL_ITERATION_POOL)
+
+    def constant(self) -> Tuple[float, float]:
+        """Return the current Julia-set constant as ``(real, imaginary)``.
+
+        The constant follows an inset path along the main cardioid, with
+        continuous pace modulation.
+        """
+        travel = (self.time / FRACTAL_C_PERIOD + self._phase_c
+                  + FRACTAL_PACE_SWING * self.swing(FRACTAL_STATE_PACE))
+        theta = 2.0 * math.pi * travel
+        swing = 0.5 * (1.0 - math.cos(
+            2.0 * math.pi * (self.time / FRACTAL_INSET_PERIOD
+                             + self._phase_inset)))
+        inside = 1.0 - (FRACTAL_INSET[0]
+                        + swing * (FRACTAL_INSET[1] - FRACTAL_INSET[0]))
+        return (inside * (0.5 * math.cos(theta) - 0.25 * math.cos(2 * theta)),
+                inside * (0.5 * math.sin(theta) - 0.25 * math.sin(2 * theta)))
+
+    def fixed_point(self) -> Tuple[float, float]:
+        """Return the repelling fixed point of the current Julia set.
+
+        The selected root is ``(1 + sqrt(1 - 4c)) / 2`` with
+        ``|2 * beta| > 1``.
+        """
+        c_re, c_im = self.constant()
+        real, imaginary = 1.0 - 4.0 * c_re, -4.0 * c_im
+        modulus = math.hypot(real, imaginary)
+        root_re = math.sqrt(max(0.0, (modulus + real) / 2.0))
+        root_im = math.copysign(math.sqrt(max(0.0, (modulus - real) / 2.0)),
+                                imaginary or 1.0)
+        return ((1.0 + root_re) / 2.0, root_im / 2.0)
+
+    def view(self, height: int) -> Tuple[float, float, float]:
+        """Return ``(origin_re, origin_im, scale)`` for the primary form."""
+        deep = self.depth()
+        breath = 1.0 + FRACTAL_BREATH * math.sin(
+            2.0 * math.pi * (self.time / FRACTAL_BREATH_PERIOD
+                             + self._phase_breath))
+        breath *= 1.0 - FRACTAL_BEAT_ZOOM * self.beat()
+        span = (_lerp((FRACTAL_SPAN, FRACTAL_SPAN_DEEP), deep) * breath
+                / max(0.01, self.size))
+        beta_re, beta_im = self.fixed_point()
+        return (beta_re * FRACTAL_ORIGIN_DEEP, beta_im * FRACTAL_ORIGIN_DEEP,
+                max(1.0, height / 2.0) / span)
+
+    def bud_slots(self) -> int:
+        """Return the number of bud slots allowed by state and render cost."""
+        room = int(round(FRACTAL_BUD_SLOTS * self._afford))
+        crowd = self.wander(FRACTAL_STATE_CROWD)
+        return _clamp_int(int(round(FRACTAL_BUD_SLOTS * crowd)), 0, room)
+
+    def buds(self, width: int, height: int) -> Tuple[Form, ...]:
+        """Return active bud geometries for a render-buffer size."""
+        if width <= 0 or height <= 0:
+            return ()
+        eligible = self.bud_slots()
+        if eligible <= 0:
+            return ()
+        rim = FRACTAL_BUD_RIM * min(width, height) / 2.0
+        centre = (width / 2.0, height / 2.0)
+        turn = self.turn()
+        c_re, c_im = self.constant()
+        iterations = self.iterations()
+        deep = self.depth()
+        beta_re, beta_im = self.fixed_point()
+        out: List[Form] = []
+        for slot in range(eligible):
+            cycle = _lerp(FRACTAL_BUD_CYCLE,
+                          _hash01(self._salt, 100 + slot, 0))
+            position = self.time / cycle + _hash01(self._salt, 100 + slot, 1)
+            number = int(math.floor(position))
+            through = position - number
+            if _hash01(self._salt, 200 + slot, number) > FRACTAL_BUD_TAKES:
+                continue
+            life = _lerp(FRACTAL_BUD_LIFE,
+                         _hash01(self._salt, 300 + slot, number))
+            if through >= life:
+                continue
+            age = through / life
+            heading = 2.0 * math.pi * _hash01(self._salt, 400 + slot, number)
+            travel = _lerp(FRACTAL_BUD_TRAVEL,
+                           _hash01(self._salt, 500 + slot, number))
+            away = rim + rim * travel * age * age * (3.0 - 2.0 * age)
+            bulge = math.sin(math.pi * age) ** 0.65
+            radius = (rim * _lerp(FRACTAL_BUD_RADIUS,
+                                  _hash01(self._salt, 600 + slot, number))
+                      * bulge)
+            if radius < 2.0:
+                continue
+            zoom = _lerp(FRACTAL_BUD_ZOOM,
+                         _hash01(self._salt, 700 + slot, number))
+            spin = (1.0 if _hash01(self._salt, 800 + slot, number) < 0.5
+                    else -1.0)
+            out.append(Form(
+                cx=centre[0] + away * math.cos(heading),
+                cy=centre[1] + away * math.sin(heading),
+                scale=max(1.0, radius / (FRACTAL_SPAN_DEEP * zoom)),
+                angle=heading + spin * 2.0 * math.pi * turn
+                * (1.0 + 2.0 * _hash01(self._salt, 900 + slot, number)),
+                c_re=c_re, c_im=c_im, iterations=iterations,
+                origin_re=beta_re * FRACTAL_ORIGIN_DEEP,
+                origin_im=beta_im * FRACTAL_ORIGIN_DEEP,
+                swirl=spin * _lerp(FRACTAL_SWIRL, max(deep, 0.5)),
+                tunnel=_lerp(FRACTAL_TUNNEL, max(deep, 0.5)),
+                scroll=-spin * FRACTAL_TUNNEL_RATE * turn * 8.0,
+                radius=radius, age=age, bud=True))
+        return tuple(out)
+
+    def turn(self) -> float:
+        """Return the current vortex rotation in turns."""
+        rate = _lerp(FRACTAL_TURN, self.depth())
+        return (self.time / FRACTAL_SPIN_PERIOD + self._phase_spin
+                + self.time * rate
+                + FRACTAL_PACE_SWING * self.swing(FRACTAL_STATE_PACE))
+
+    def geometry(self, width: int, height: int) -> Tuple[Form, ...]:
+        """Return frame geometries with the primary form first."""
+        deep = self.depth()
+        origin_re, origin_im, scale = self.view(height)
+        turn = self.turn()
+        c_re, c_im = self.constant()
+        main = Form(cx=width / 2.0, cy=height / 2.0, scale=scale,
+                    angle=self._spin * 2.0 * math.pi * turn,
+                    c_re=c_re, c_im=c_im, iterations=self.iterations(),
+                    origin_re=origin_re, origin_im=origin_im,
+                    swirl=self._spin * _lerp(FRACTAL_SWIRL, deep),
+                    tunnel=_lerp(FRACTAL_TUNNEL, deep),
+                    scroll=-self._spin * FRACTAL_TUNNEL_RATE * self.time,
+                    radius=FRACTAL_BUD_RIM * min(width, height) / 2.0,
+                    age=0.0, bud=False)
+        return (main,) + self.buds(width, height)
+
+    def _resize(self) -> None:
+        """Nothing is cached by the size setting — the span is recomputed
+        every frame — but the grid is cached by the *buffer* size, and that
+        is what this hook's siblings drop."""
+
+    def _reresolve(self) -> None:
+        """Rebuild the buffers after a resolution change."""
+        super()._reresolve()
+        self._plane = None
+        self._plane_size = (0, 0)
+
+    def _grid(self, width: int, height: int):
+        """The polar grids the sampling is built from, as three float32
+        arrays: radius in buffer pixels, its natural log, and the angle.
+
+        POLAR RATHER THAN CARTESIAN, and cached, because the vortex is a
+        function of the radius and the angle and of nothing else: with these
+        in hand a frame's whole mapping is two multiply-adds and one
+        ``cos``/``sin`` pair. Built on the first frame and on a resize,
+        never per frame.
+        """
+        np = _numpy()
+        if self._plane is None or self._plane_size != (width, height):
+            rows, cols = np.mgrid[0:height, 0:width]
+            dx = (cols + 0.5 - width / 2.0).astype(np.float32)
+            dy = (rows + 0.5 - height / 2.0).astype(np.float32)
+            radius = np.hypot(dx, dy).astype(np.float32)
+            self._plane = (
+                np.ascontiguousarray(radius),
+                np.ascontiguousarray(np.log(radius + np.float32(1.0)),
+                                     dtype=np.float32),
+                np.ascontiguousarray(np.arctan2(dy, dx), dtype=np.float32))
+            self._plane_size = (width, height)
+        return self._plane
+
+    def _sample(self, form: "Form", radius, log_radius, angle):
+        """``(zr, zi, bands)`` for one form, over whatever grids it is given.
+
+        THE VORTEX IS HERE, and it is two lines of it. ``angle + swirl *
+        log(radius)`` is a conformal log-spiral map: the picture is turned by
+        an amount that grows without bound as the centre is approached, so
+        the fractal's own structure winds into a spiral that never stops
+        converging — a tunnel, and one that turns as ``angle`` advances.
+        ``bands`` puts the colour on the same log, so the rings are spaced
+        the way perspective spaces evenly spaced rings and travel down the
+        tunnel as ``scroll`` moves.
+
+        At ``swirl`` and ``tunnel`` zero this is exactly the plain rotation
+        the engine had before, which is what makes "sometimes not" cost
+        nothing.
+        """
+        np = _numpy()
+        theta = angle + np.float32(form.angle)
+        if form.swirl:
+            theta = theta + log_radius * np.float32(form.swirl)
+        rho = radius * np.float32(1.0 / form.scale)
+        bands = None
+        if form.tunnel:
+            bands = ((log_radius + np.float32(form.scroll))
+                     * np.float32(form.tunnel * FRACTAL_INTERIOR_LEVEL))
+        return (rho * np.cos(theta) + np.float32(form.origin_re),
+                rho * np.sin(theta) + np.float32(form.origin_im),
+                bands)
+
+    def _impress(self, form: "Form", zr, zi, bands, width: int, height: int):
+        """Blend one bud's sampling into the main form's, and return
+        ``bands`` — which the bud may have had to create.
+
+        THE RIM IS A BLEND, NOT A CLIP. The bud is the same field sampled
+        through its own scale and vortex, and the two samplings are crossed
+        over :data:`FRACTAL_BUD_FEATHER` of its radius, so the edge refracts
+        the way the edge of a bubble does. A hard swap gives a sticker.
+
+        Only the bud's own window is touched, so a bud costs its own area
+        and not the buffer's.
+        """
+        np = _numpy()
+        reach = form.radius * (1.0 + FRACTAL_BUD_FEATHER)
+        left = max(0, int(math.floor(form.cx - reach)))
+        right = min(width, int(math.ceil(form.cx + reach)) + 1)
+        top = max(0, int(math.floor(form.cy - reach)))
+        bottom = min(height, int(math.ceil(form.cy + reach)) + 1)
+        if right - left < 2 or bottom - top < 2:
+            return bands
+        cols = (np.arange(left, right, dtype=np.float32)
+                + np.float32(0.5 - form.cx))[None, :]
+        rows = (np.arange(top, bottom, dtype=np.float32)
+                + np.float32(0.5 - form.cy))[:, None]
+        radius = np.hypot(cols, rows).astype(np.float32)
+        share = np.clip((reach - radius)
+                        / np.float32(max(1e-3, reach - form.radius)),
+                        0.0, 1.0)
+        share = share * share * (np.float32(3.0)
+                                 - np.float32(2.0) * share)
+        share = share.astype(np.float32)
+        if not share.any():
+            return bands
+        keep = np.float32(1.0) - share
+        log_radius = np.log(radius + np.float32(1.0)).astype(np.float32)
+        angle = np.arctan2(rows, cols).astype(np.float32)
+        bud_zr, bud_zi, bud_bands = self._sample(form, radius, log_radius,
+                                                 angle)
+        window = (slice(top, bottom), slice(left, right))
+        zr[window] = zr[window] * keep + bud_zr * share
+        zi[window] = zi[window] * keep + bud_zi * share
+        if bud_bands is not None:
+            if bands is None:
+                bands = np.zeros_like(zr)
+            bands[window] = bands[window] * keep + bud_bands * share
+        elif bands is not None:
+            bands[window] = bands[window] * keep
+        return bands
+
+    def _colour_table(self):
+        """The colour-index -> pixel table for this frame.
+
+        Everything that varies per pixel is decided here, over 256 entries,
+        so the per-pixel pass is one cast and one gather. Entries are packed
+        ``0xffRRGGBB`` — what ``Format_RGB32`` holds — and are already
+        composed against :attr:`identity`, so blitting the result under
+        :attr:`mode` gives exactly what painting that colour at that alpha
+        onto the page would have given, additive or multiply alike.
+
+        Entries 0..254 are the palette ring, rotated by the scroll phase;
+        entry :data:`FRACTAL_INTERIOR_LEVEL` is the inside of the set, at
+        :data:`FRACTAL_CORE` of the peak.
+
+        THE BEAT IS APPLIED HERE, and only downward: it takes away up to
+        :data:`FRACTAL_BEAT_DIP` of the peak between thumps and gives it
+        back at one. The peak itself is where the readability of this
+        backdrop was measured, so a beat that brightened past it would be
+        raising the ceiling those measurements were made against.
+        """
+        np = _numpy()
+        if self._ring is None:
+            self._ring = (np.arange(FRACTAL_INTERIOR_LEVEL, dtype=np.float32)
+                          / float(FRACTAL_INTERIOR_LEVEL))
+        ring = self._ring
+        peak = FRACTAL_ALPHA_DARK if self.dark else FRACTAL_ALPHA_LIGHT
+        peak *= 1.0 - FRACTAL_BEAT_DIP * (1.0 - self.beat())
+
+        colours = np.array([[c.red(), c.green(), c.blue()]
+                            for c in self.paint_colors], dtype=np.float32)
+        count = colours.shape[0]
+        phase = self.time / FRACTAL_CYCLE_PERIOD + self._phase_cycle
+        position = ((ring + phase) % 1.0) * count
+        low = position.astype(np.int32) % count
+        high = (low + 1) % count
+        blend = (position - np.floor(position))[:, None]
+        wheel = colours[low] * (1.0 - blend) + colours[high] * blend
+
+        identity = np.float32(0.0 if self.dark else 255.0)
+        table = np.empty(FRACTAL_LEVELS, dtype=np.uint32)
+        table[:FRACTAL_INTERIOR_LEVEL] = self._pack(
+            identity + np.float32(peak) * (wheel - identity))
+        table[FRACTAL_INTERIOR_LEVEL] = self._pack(
+            identity + np.float32(peak * FRACTAL_CORE)
+            * (wheel[:1] - identity))[0]
+        return table
+
+    @staticmethod
+    def _pack(rgb):
+        """``(n, 3)`` of 0..255 floats -> ``(n,)`` of ``0xffRRGGBB``."""
+        np = _numpy()
+        levels = np.clip(rgb, 0.0, 255.0).astype(np.uint32)
+        return (np.uint32(0xFF000000) | (levels[:, 0] << 16)
+                | (levels[:, 1] << 8) | levels[:, 2])
+
+    def _paint_field(self, painter: QPainter, width: int,
+                     height: int) -> None:
+        """Draw one frame's field of shapes.
+
+        :param painter: the painter to draw with.
+        :param width: the widget's width in pixels.
+        :param height: its height in pixels.
+        """
+        np = _numpy()
+        started = time.perf_counter()
+        forms = self.geometry(width, height)
+        main = forms[0]
+        iterations = main.iterations
+        radius, log_radius, angle = self._grid(width, height)
+        zr, zi, bands = self._sample(main, radius, log_radius, angle)
+        for form in forms[1:]:
+            bands = self._impress(form, zr, zi, bands, width, height)
+
+        survived = np.zeros((height, width), dtype=np.float32)
+        magnitude = np.empty_like(zr)
+        cross = np.empty_like(zr)
+        share = np.empty_like(zr)
+        c_re32, c_im32 = np.float32(main.c_re), np.float32(main.c_im)
+        soft_top = np.float32(FRACTAL_SOFT_LIMIT)
+        soft_scale = np.float32(1.0 / (FRACTAL_SOFT_LIMIT - FRACTAL_BAILOUT))
+        reach = np.float32(FRACTAL_REACH)
+        for _ in range(iterations):
+            zr2 = zr * zr
+            zi2 = zi * zi
+            np.add(zr2, zi2, out=magnitude)
+            np.subtract(soft_top, magnitude, out=share)
+            share *= soft_scale
+            np.clip(share, 0.0, 1.0, out=share)
+            survived += share
+            np.multiply(zr, zi, out=cross)
+            cross *= np.float32(2.0)
+            cross += c_im32
+            np.subtract(zr2, zi2, out=zr)
+            zr += c_re32
+            zi = cross
+            np.clip(zr, -reach, reach, out=zr)
+            np.clip(zi, -reach, reach, out=zi)
+
+        interior = survived >= np.float32(iterations - 0.5)
+        survived *= np.float32(FRACTAL_INTERIOR_LEVEL
+                               / FRACTAL_ITERS_PER_CYCLE)
+        if bands is not None:
+            survived += bands
+        np.mod(survived, np.float32(FRACTAL_INTERIOR_LEVEL), out=survived)
+        survived[interior] = np.float32(FRACTAL_INTERIOR_LEVEL)
+        frame = self._colour_table()[survived.astype(np.uint8)]
+        painter.drawImage(0, 0, QImage(frame.data, width, height,
+                                       int(frame.strides[0]),
+                                       QImage.Format_RGB32))
+        self._spent.append((time.perf_counter() - started) * 1000.0)
+        if len(self._spent) > 16:
+            del self._spent[:-16]
+
+
+#: Longest buffer edge the Resonance plate is shaded at, at resolution 1.0.
+#: Higher than the diffuse fields because the picture is made of POINTS and
+#: a point in a 240 px buffer is an eighth of the screen's width across.
+#: At 1080p this gives a 320x180 buffer and a particle six screen pixels
+#: wide, which is what a grain of sand ought to look like.
+RESONANCE_EDGE = 360
+
+#: Particles on the plate at density 1.0. Enough that the nodal lines are
+#: continuous where they gather and the field still reads as individual
+#: grains where it does not; the cost is linear and small, so the ceiling
+#: here is legibility rather than time.
+RESONANCE_PARTICLES = 1300
+
+#: Edge of the lattice :func:`spacr.qt.resonance.lattice` is evaluated on.
+#: 128 puts a lattice point every 0.8 % of the plate, which is finer than
+#: one buffer pixel at every size measured.
+RESONANCE_GRID = 128
+
+#: Relaxation rounds per frame. Each is one Newton step onto the nodal
+#: line; eight takes ``|w|`` from 0.203 to 0.013 on the reference figure,
+#: and more only moves particles that have already arrived.
+RESONANCE_ROUNDS = 8
+
+#: What the plate is doing when nothing is playing, and how much it
+#: breathes, and over what period. THE SILENT CASE IS THE DEFAULT CASE:
+#: sound is off on a fresh install, so almost everybody who ever sees this
+#: backdrop sees this and nothing else. It has to be worth looking at on
+#: its own.
+RESONANCE_IDLE = 0.30
+RESONANCE_IDLE_SWELL = 0.12
+RESONANCE_IDLE_PERIOD = 23.0
+
+#: Seconds the idle plate spends on each entry of
+#: :data:`spacr.qt.resonance.MODES`. Long, for the reason every period in
+#: this module is long: a backdrop must never look like it is MOVING, only
+#: like it has moved when you look back at it.
+RESONANCE_MODE_PERIOD = 17.0
+
+#: How far up :data:`spacr.qt.resonance.MODES` a bright passage pushes the
+#: figure. The spectral centroid is the driver, so brighter music draws a
+#: busier figure -- which is the physical relation as well as the pretty
+#: one: a plate driven at a higher frequency resonates in a higher mode.
+RESONANCE_MODE_SPAN = 3.0
+
+#: How far a particle's starting point wanders, as a fraction of the
+#: plate, and over what range of periods. This is what keeps a figure alive
+#: while the mode is unchanged: the relaxation is deterministic, so without
+#: it a held figure would be a still photograph.
+RESONANCE_WANDER = 0.085
+RESONANCE_WANDER_PERIOD = (19.0, 53.0)
+
+#: How far an onset throws the sand off the lines, as a fraction of the
+#: plate. The bounce the request asks for, and the one thing in the picture
+#: that is not a smooth function of anything.
+RESONANCE_THROW = 0.06
+
+#: How much of the plate the figure occupies at size 1.0, as a fraction of
+#: the canvas's shorter edge. A SQUARE, because the field being solved is a
+#: square plate's: stretching it to 16:9 would draw the nodal set of a
+#: plate nobody has.
+RESONANCE_PLATE = 0.78
+
+#: Peak brightness of one particle. Light needs more than dark for the
+#: reason given at :data:`BLOB_ALPHA_DARK`, and needs proportionally more
+#: here because a point has no area over which to accumulate.
+RESONANCE_ALPHA_DARK = 1.55
+RESONANCE_ALPHA_LIGHT = 2.05
+
+#: Brightness of the floor the sand lies on -- a soft pool of light under
+#: the plate, and the only thing in this theme that is not a particle.
+RESONANCE_FLOOR_DARK = 0.17
+RESONANCE_FLOOR_LIGHT = 0.30
+
+#: How sharply the floor falls off from the middle of the plate.
+RESONANCE_FLOOR_FALLOFF = 2.4
+
+
+class ResonanceEngine(_BufferedEngine):
+    """Chladni figures: sand on a plate that is driven by what is playing.
+
+    A floor with particles on it, and the particles are sand on a vibrating
+    plate. The physics is in :mod:`spacr.qt.resonance` and is worth one
+    paragraph here because it is what makes this theme different from a
+    particle system with a music-shaped wobble: a plate driven at one of
+    its resonances has lines that do not move, sand is thrown off
+    everywhere else and comes to rest along them, and the figure IS the
+    nodal set. So there is a right answer for where a particle goes, and
+    the drive decides which figure it is and how hard the sand is being
+    shaken rather than deciding the motion directly.
+
+    WHAT DRIVES IT. :func:`spacr.qt.resonance.playing_moment` -- the music
+    bed's own precomputed envelope and spectrum, read at the position the
+    bed is at. Nothing captures the machine's audio; nothing here can hear
+    anything spaCR is not playing. With sound off it returns silence and
+    the plate idles on its own clock, which is the case almost everybody
+    sees because sound is off on a fresh install.
+
+    WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED.
+    Every other engine promises that a frame is a pure function of
+    ``(seed, clock, size)``, and two tests hold it down: one shades the same
+    clock on two threads and compares the bytes, another steps one engine
+    twelve times and jumps a second straight to the same clock. Reading a
+    real-time signal inside :meth:`shade` would break both, and it would
+    break them on the SHADING THREAD, where the failure is a picture that
+    differs from the one the GUI thread would have drawn. So the drive is
+    an INPUT, set on the GUI thread between frames under the engine lock
+    exactly as :meth:`set_palette` is, and the promise becomes "a pure
+    function of ``(seed, clock, size, drive)``" -- which is the same
+    promise while nothing is playing, and that is when the tests run.
+
+    :meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in
+    pixels.
+    """
+
+    name = "resonance"
+    base_edge = RESONANCE_EDGE
+
+    def __init__(self, *args, **kwargs):
+        """Start with no floor and no canvas; the first shade builds both."""
+        self._floor = None
+        self._canvas = None
+        self._surface: Optional[Tuple[int, int]] = None
+        super().__init__(*args, **kwargs)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll the sand: where each grain starts, how it wanders, which
+        band it answers to and which way a beat throws it.
+
+        ONCE, at construction, exactly as every other engine rolls its
+        elements -- and here it matters more than usual, because these are
+        the fixed starting points the relaxation runs from every frame.
+        Move them and the figure would be a different figure; keep them and
+        the same seed always draws the same sand.
+        """
+        np = _numpy()
+        from ..resonance import BANDS, silence
+
+        pool = _pool_size(RESONANCE_PARTICLES)
+        gen = np.random.default_rng(rng.getrandbits(63))
+        self.pool = pool
+        self.home_x = gen.random(pool).astype(np.float32)
+        self.home_y = gen.random(pool).astype(np.float32)
+        self.wander_phase = (gen.random(pool)
+                             * (2.0 * math.pi)).astype(np.float32)
+        low, high = RESONANCE_WANDER_PERIOD
+        self.wander_rate = (2.0 * math.pi
+                            / (low + (high - low)
+                               * gen.random(pool))).astype(np.float32)
+        angle = gen.random(pool) * (2.0 * math.pi)
+        self.throw_x = np.cos(angle).astype(np.float32)
+        self.throw_y = np.sin(angle).astype(np.float32)
+        self.spark = (0.55 + 0.45 * gen.random(pool)).astype(np.float32)
+        self.loose = (gen.random(pool) ** np.float32(1.7)).astype(np.float32)
+        self.band = (np.arange(pool) % len(BANDS)).astype(np.int32)
+        self.tone = np.arange(pool, dtype=np.int32)
+        self.drive = silence()
+
+    def _restyle(self) -> None:
+        """Re-derive the palette as numbers, and drop the floor it tinted."""
+        super()._restyle()
+        np = _numpy()
+        self._rgb = np.array([[c.red(), c.green(), c.blue()]
+                              for c in self.paint_colors], dtype=np.float32)
+        self._floor = None
+
+    def _reresolve(self) -> None:
+        """A new buffer size is a new floor and a new canvas."""
+        super()._reresolve()
+        self._floor = None
+        self._canvas = None
+        self._surface = None
+
+    def _resize(self) -> None:
+        """The size setting scales the plate, so the floor moves with it."""
+        self._floor = None
+
+    def advance(self, dt: float) -> None:
+        """Step the clock and read what is playing.
+
+        The one place a real-time signal enters this engine, and it is here
+        because this runs on the GUI thread between frames while the
+        shading thread is locked out -- see the class docstring. It costs a
+        lock, an index and two array reads; measured at 6.8 us with the
+        music bed playing, against the 41 ms a frame the cap allows.
+
+        What is read is damped by :meth:`answering` before it is stored, so
+        the Speed preference reaches the music-driven half of the theme as
+        well as the clock.
+        """
+        super().advance(dt)
+        from ..resonance import playing_moment
+        self.drive = self.answering(playing_moment())
+
+    def answering(self, moment):
+        """``moment`` scaled by how much of it the Speed setting lets in.
+
+        THE CLOCK IS NOT THE WHOLE ANIMATION HERE, WHICH IS WHY THIS
+        EXISTS. :meth:`AmbientEngine.advance` multiplies ``dt`` by
+        :attr:`speed`, and that is the whole of the Speed preference for
+        every other theme, because every other theme's motion is a function
+        of the clock alone. Half of this one is a function of the music
+        instead: the throw on an onset, the per-band brightness and the
+        figure the spectrum's centre of mass asks for. At the bottom of
+        :data:`SPEED_RANGE` the breath, the mode walk and the wander all
+        crawl at a tenth, and a kick would still have thrown the sand
+        :data:`RESONANCE_THROW` of the plate twice a second -- leaving the
+        busiest movement in the theme running at full rate for somebody who
+        set the slider to its minimum precisely to stop that.
+
+        So the share let in is ``min(1, speed)``: the shipped setting and
+        anything above it hear the music in full, and turning the animation
+        down turns the reaction down with it, until at the minimum the
+        plate is the idle plate. Above 1.0 it is *not* scaled up, because
+        every field of a
+        :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the
+        loop's own loudest: there is nothing above full to give.
+
+        :param moment: what :func:`spacr.qt.resonance.playing_moment`
+            returned.
+        :returns: the same moment at speed 1.0 or above, a damped copy
+            below it.
+        """
+        share = min(1.0, float(self.speed))
+        if share >= 1.0:
+            return moment
+        return moment._replace(
+            level=moment.level * share,
+            bands=tuple(band * share for band in moment.bands),
+            centroid=moment.centroid * share,
+            onset=moment.onset * share)
+
+    def energy(self) -> float:
+        """How hard the plate is being driven, 0 to 1.
+
+        The louder of what is playing and the idle breath, so a quiet
+        passage never takes the picture below what silence would have
+        drawn. That is the rule that makes "it idles beautifully in
+        silence" and "it reacts to the music" the same code path.
+        """
+        idle = RESONANCE_IDLE + RESONANCE_IDLE_SWELL * math.sin(
+            2.0 * math.pi * self.time / RESONANCE_IDLE_PERIOD)
+        return float(max(idle, self.drive.level))
+
+    def mode_position(self) -> float:
+        """Where along :data:`spacr.qt.resonance.MODES` the figure sits."""
+        return (self.time / RESONANCE_MODE_PERIOD
+                + self.drive.centroid * RESONANCE_MODE_SPAN)
+
+    def plate(self, width: int, height: int) -> Tuple[float, float, float]:
+        """The square the figure is drawn in: ``(left, top, side)`` in px."""
+        span = _clamp(RESONANCE_PLATE * self.size, 0.25, 1.0)
+        side = min(max(1, int(width)), max(1, int(height))) * span
+        return ((width - side) / 2.0, (height - side) / 2.0, side)
+
+    def sand(self, count: Optional[int] = None):
+        """Where the sand is now, and how brightly each grain shows.
+
+        The whole simulation, and it is four numpy passes: wander the
+        seeded starting points, build the lattice for the mode the drive
+        asks for, relax onto its nodal lines, and throw the result off them
+        by whatever the last onset was worth.
+
+        :param count: how many grains; the density setting's own count by
+            default.
+        :returns: ``(x, y, brightness)`` in plate units, x and y in 0..1.
+        """
+        np = _numpy()
+        from .. import resonance as rs
+
+        n = int(self._count() if count is None else count)
+        moment = self.drive
+        energy = self.energy()
+        first, second, blend = rs.mode_blend(self.mode_position())
+        field, dx, dy = rs.lattice(first, second, blend, RESONANCE_GRID)
+        phase = self.wander_phase[:n] + self.wander_rate[:n] * self.time
+        start_x = np.clip(self.home_x[:n]
+                          + RESONANCE_WANDER * np.sin(phase), 0.0, 1.0)
+        start_y = np.clip(self.home_y[:n]
+                          + RESONANCE_WANDER * np.cos(phase), 0.0, 1.0)
+        tight = (0.24 + 0.68 * energy) * (0.12 + 0.88 * self.loose[:n])
+        x, y = rs.settle(start_x, start_y, field, dx, dy,
+                         RESONANCE_ROUNDS, tight)
+        throw = RESONANCE_THROW * moment.onset
+        if throw > 0.0:
+            x = np.clip(x + throw * self.throw_x[:n], 0.0, 1.0)
+            y = np.clip(y + throw * self.throw_y[:n], 0.0, 1.0)
+        rest = np.minimum(np.abs(rs.sample(field, x, y)) * 3.0, 1.0)
+        bands = np.asarray(moment.bands, dtype=np.float32)
+        gain = (0.78 + 0.58 * bands)[self.band[:n]]
+        bright = (self.spark[:n] * (0.30 + 0.70 * energy) * gain
+                  * (1.0 - 0.45 * rest) * self.alpha_scale())
+        return x, y, bright.astype(np.float32)
+
+    def _count(self) -> int:
+        """How many grains the density setting asks for."""
+        return self.element_count(RESONANCE_PARTICLES, self.pool)
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Every grain as ``(x, y, brightness)`` in pixels.
+
+        :param width: canvas width in pixels.
+        :param height: canvas height.
+        :returns: one tuple per painted grain.
+        """
+        if width <= 0 or height <= 0:
+            return ()
+        left, top, side = self.plate(width, height)
+        x, y, bright = self.sand()
+        return tuple((float(left + px * side), float(top + py * side),
+                      float(b)) for px, py, b in zip(x, y, bright))
+
+    def _ensure_floor(self, width: int, height: int):
+        """The pool of light the sand lies on, as a contribution map.
+
+        Held between frames and rebuilt only when the buffer size, the
+        palette, the background or the plate's size changes -- never per
+        frame. It is stored as ``weight * (colour - identity)`` so the
+        frame is one multiply by the glow and then the grains added on top,
+        with no branch anywhere for dark against light.
+        """
+        np = _numpy()
+        if self._floor is not None and self._surface == (width, height):
+            return self._floor
+        left, top, side = self.plate(width, height)
+        ys = (np.arange(height, dtype=np.float32) - (top + side / 2.0)) \
+            / max(side, 1.0)
+        xs = (np.arange(width, dtype=np.float32) - (left + side / 2.0)) \
+            / max(side, 1.0)
+        radius = (xs[None, :] ** 2) * 0.82 + (ys[:, None] ** 2)
+        weight = np.exp(-RESONANCE_FLOOR_FALLOFF * 4.0 * radius)
+        peak = RESONANCE_FLOOR_DARK if self.dark else RESONANCE_FLOOR_LIGHT
+        identity = np.float32(0.0 if self.dark else 255.0)
+        tint = self._rgb.mean(axis=0) if self._rgb.size else \
+            np.zeros(3, dtype=np.float32)
+        self._floor = (weight[:, :, None] * np.float32(peak)
+                       * (tint - identity)).astype(np.float32)
+        self._canvas = np.empty((height, width, 3), dtype=np.float32)
+        self._surface = (width, height)
+        return self._floor
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Shade one frame: the floor, then every grain added onto it.
+
+        Built as numbers and handed to Qt once, for the same reason
+        :class:`FractalEngine` does it: a per-particle ``drawPoint`` is a
+        Python call per grain and nine hundred of them is the whole frame
+        budget, where ``np.add.at`` puts all nine hundred in one call.
+
+        Everything is accumulated as ``colour - identity`` and added to
+        ``identity`` at the end, which is the arithmetic that makes the same
+        code paint additively over a dark page and multiplicatively over a
+        light one -- see the module docstring.
+        """
+        np = _numpy()
+        if width <= 0 or height <= 0:
+            return
+        floor = self._ensure_floor(width, height)
+        canvas = self._canvas
+        glow = np.float32(0.55 + 0.45 * self.energy())
+        np.multiply(floor, glow, out=canvas)
+
+        left, top, side = self.plate(width, height)
+        x, y, bright = self.sand()
+        peak = RESONANCE_ALPHA_DARK if self.dark else RESONANCE_ALPHA_LIGHT
+        identity = np.float32(0.0 if self.dark else 255.0)
+        columns = np.clip((left + x * side).astype(np.int32), 0, width - 1)
+        rows = np.clip((top + y * side).astype(np.int32), 0, height - 1)
+        count = x.size
+        tint = self._rgb[self.tone[:count] % max(1, self._rgb.shape[0])]
+        weight = (bright * np.float32(peak))[:, None]
+        np.add.at(canvas.reshape(-1, 3), rows * width + columns,
+                  weight * (tint - identity))
+
+        frame = np.empty((height, width), dtype=np.uint32)
+        levels = np.clip(canvas + identity, 0.0, 255.0).astype(np.uint32)
+        np.bitwise_or(np.uint32(0xFF000000), levels[:, :, 0] << 16, out=frame)
+        np.bitwise_or(frame, levels[:, :, 1] << 8, out=frame)
+        np.bitwise_or(frame, levels[:, :, 2], out=frame)
+        painter.drawImage(0, 0, QImage(frame.data, width, height,
+                                       int(frame.strides[0]),
+                                       QImage.Format_RGB32))
+
+
+_PACKED_SCATTER = None
+_COLORED_SCATTER = None
+_COLORED_SCATTER_FAILED = False
+_PACKED_SCATTER_STARTED = False
+_PACKED_SCATTER_FAILED = False
+_PACKED_SCATTER_LOCK = threading.Lock()
+_AMBIENT_STARTUP_READY = threading.Event()
+_AMBIENT_STARTUP_READY.set()
+
+
+def _begin_ambient_startup() -> None:
+    """Defer optional compiler imports until the application's first paint."""
+    _AMBIENT_STARTUP_READY.clear()
+
+
+def _complete_ambient_startup() -> None:
+    """Permit lazy CPU compilation after the actual interactive checkpoint."""
+    _AMBIENT_STARTUP_READY.set()
+
+
+def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
+                           width, height, dark):
+    """Combine nine round-grain samples with duplicate-safe integer max/min.
+
+    Centres have already been clipped by the material adapter. Every offset
+    retains its original palette/coverage lookup; max/min is commutative, so
+    point-major traversal preserves the NumPy scatter's exact packed pixels.
+    """
+    for i in range(px.size):
+        x, y = px[i], py[i]
+        level = intensities[i]
+        destination = y * width + x
+        color = lookup[level]
+        if (dark and color > flat[destination]) or (not dark and color < flat[destination]):
+            flat[destination] = color
+        for sy in range(-1, 2):
+            ny = y + sy
+            if ny < 0 or ny >= height:
+                continue
+            for sx in range(-1, 2):
+                if sx == 0 and sy == 0:
+                    continue
+                nx = x + sx
+                if nx < 0 or nx >= width:
+                    continue
+                color = diagonal[level] if sx and sy else axial[level]
+                destination = ny * width + nx
+                if ((dark and color > flat[destination])
+                        or (not dark and color < flat[destination])):
+                    flat[destination] = color
+
+
+def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagonal,
+                            width, height, dark, spread):
+    """Keep exact intensity/colour ordering in a private packed working word."""
+    for i in range(px.size):
+        x, y = px[i], py[i]
+        level = indices[i]
+        destination = y * width + x
+        color = lookup[level]
+        if (dark and color > flat[destination]) or (not dark and color < flat[destination]):
+            flat[destination] = color
+        if not spread:
+            continue
+        for dy in range(-1, 2):
+            ny = y + dy
+            if ny < 0 or ny >= height:
+                continue
+            for dx in range(-1, 2):
+                if dx == 0 and dy == 0:
+                    continue
+                nx = x + dx
+                if nx < 0 or nx >= width:
+                    continue
+                color = diagonal[level] if dx and dy else axial[level]
+                destination = ny * width + nx
+                if ((dark and color > flat[destination])
+                        or (not dark and color < flat[destination])):
+                    flat[destination] = color
+
+
+def _warm_packed_scatter():
+    """Compile once using tiny owned CPU arrays, without Qt or package writes.
+
+    The renderer continues using its exact NumPy path while this daemon works.
+    Import/compiler errors and NUMBA_DISABLE_JIT leave that path active. Some
+    import/compiler phases hold the GIL briefly; this is not a no-stall claim.
+    """
+    global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
+    global _COLORED_SCATTER, _COLORED_SCATTER_FAILED
+    if not _AMBIENT_STARTUP_READY.is_set():
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER_STARTED = False
+        return
+    try:
+        from numba import njit
+
+        np = _numpy()
+        flat = np.zeros(1, dtype=np.uint32)
+        coordinates = np.zeros(1, dtype=np.int32)
+        intensity = np.zeros(1, dtype=np.uint8)
+        lookup = np.arange(256, dtype=np.uint32)
+        kernel = njit(nogil=True, cache=False)(_scatter_packed_grains)
+        kernel(flat, coordinates, coordinates, intensity, lookup, lookup, lookup,
+               1, 1, True)
+        if not getattr(kernel, 'nopython_signatures', ()):
+            raise RuntimeError('Packed grain compiler did not produce a CPU kernel')
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER = kernel
+        try:
+            colored = njit(nogil=True, cache=False)(_scatter_colored_grains)
+            table = lookup
+            colored(flat, np.zeros(1, dtype=np.uint8), coordinates, coordinates,
+                    np.zeros(1, dtype=np.uint16), table, table, table, 1, 1, True, True)
+            if getattr(colored, 'nopython_signatures', ()):
+                with _PACKED_SCATTER_LOCK:
+                    _COLORED_SCATTER = colored
+            else:
+                _COLORED_SCATTER_FAILED = True
+        except Exception:
+            _COLORED_SCATTER_FAILED = True
+            return
+    except Exception:
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER_FAILED = True
+
+
+def _ready_packed_scatter():
+    """Offer an already-compiled kernel, starting at most one CPU warmup thread.
+
+    A first frame may be shaded synchronously on the GUI thread. No import or
+    compilation occurs here, and a contended startup lock returns immediately.
+    """
+    global _PACKED_SCATTER_STARTED, _PACKED_SCATTER_FAILED
+    if not _AMBIENT_STARTUP_READY.is_set():
+        return _PACKED_SCATTER
+    if (_PACKED_SCATTER is None and not _PACKED_SCATTER_STARTED
+            and not _PACKED_SCATTER_FAILED and _PACKED_SCATTER_LOCK.acquire(blocking=False)):
+        try:
+            if not _PACKED_SCATTER_STARTED and not _PACKED_SCATTER_FAILED:
+                _PACKED_SCATTER_STARTED = True
+                try:
+                    threading.Thread(target=_warm_packed_scatter,
+                                     name='spacr-grain-compile', daemon=True).start()
+                except Exception:
+                    _PACKED_SCATTER_FAILED = True
+        finally:
+            _PACKED_SCATTER_LOCK.release()
+    return _PACKED_SCATTER
+
+
+def _ready_colored_scatter():
+    """Reuse the same gated warmup for the optional multi-hue CPU kernel."""
+    if _COLORED_SCATTER_FAILED:
+        return None
+    if _COLORED_SCATTER is None:
+        _ready_packed_scatter()
+    return _COLORED_SCATTER
+
+
+def _warp_satin_columns(source, target, shifts, tops, bottoms, padding):
+    """Move native premultiplied pixels along each column without filtering."""
+    height, width = target.shape
+    for start in range(0, width, 32):
+        end = min(width, start + 32)
+        lower, upper = height, 0
+        for column in range(start, end):
+            lower = min(lower, tops[column] + shifts[column] + padding)
+            upper = max(upper, bottoms[column] + shifts[column] + padding)
+        for row in range(max(0, lower), min(height, upper)):
+            for column in range(start, end):
+                source_row = row - shifts[column] - padding
+                if tops[column] <= source_row < bottoms[column]:
+                    target[row, column] = source[source_row, column]
+
+
+def _numpy_satin_columns(source, target, shifts, padding):
+    """Restore the complete native wave layer using exact indexed CPU pixels."""
+    np = _numpy()
+    rows = (np.arange(target.shape[0], dtype=np.int32)[:, None]
+            - shifts[None, :] - padding)
+    inside = (rows >= 0) & (rows < source.shape[0])
+    np.clip(rows, 0, source.shape[0] - 1, out=rows)
+    rows *= source.shape[1]
+    rows += np.arange(source.shape[1], dtype=np.int32)[None, :]
+    np.take(source.ravel(), rows, out=target, mode="clip")
+    target[~inside] = 0
+
+
+def _copy_wave_batch(kernel, tasks):
+    """Finish a finite immutable group of independently owned pixel arrays."""
+    for arguments in tasks:
+        kernel(*arguments)
+
+
+class _WaveCopyWorker:
+    """Own one bounded CPU queue without retaining completed scene arrays."""
+
+    def __init__(self):
+        """Start one bounded daemon without importing any compiler packages."""
+        from concurrent.futures import Future
+        from queue import Queue
+
+        self._future_type = Future
+        self._pending = Queue(maxsize=1)
+        threading.Thread(target=self._run, name="spacr-satin-copy",
+                         daemon=True).start()
+
+    def submit(self, function, *arguments):
+        """Offer one pure CPU job and return its completion ownership fence."""
+        future = self._future_type()
+        self._pending.put_nowait((function, arguments, future))
+        return future
+
+    def _run(self):
+        """Complete or cancel each CPU job and release all submitted arrays."""
+        while True:
+            function, arguments, future = self._pending.get()
+            try:
+                if future.set_running_or_notify_cancel():
+                    try:
+                        future.set_result(function(*arguments))
+                    except BaseException as error:
+                        future.set_exception(error)
+            finally:
+                self._pending.task_done()
+                del function, arguments, future
+
+
+class _SatinCompiler:
+    """Compile one CPU wave-copy signature once away from the GUI thread."""
+
+    def __init__(self):
+        """Keep one lazy compilation attempt and a shared bounded copy worker."""
+        self.kernel = None
+        self.started = False
+        self.failed = False
+        self.lock = threading.Lock()
+        self.copy_gate = threading.Lock()
+        self.pool = None
+
+    def _warm(self):
+        """Compile owned tiny arrays only after application readiness permits it."""
+        if not _AMBIENT_STARTUP_READY.is_set():
+            with self.lock:
+                self.started = False
+            return
+        try:
+            from numba import njit
+
+            np = _numpy()
+            kernel = njit(nogil=True, cache=False)(_warp_satin_columns)
+            source = np.zeros((1, 1), dtype=np.uint32)
+            coordinates = np.zeros(1, dtype=np.int32)
+            kernel(source, source.copy(), coordinates, coordinates, coordinates + 1, 0)
+            strided = np.zeros((2, 2), dtype=np.uint32)[:, :1]
+            kernel(strided, np.zeros((2, 1), dtype=np.uint32), coordinates,
+                   coordinates, coordinates + 2, 0)
+            if not getattr(kernel, 'nopython_signatures', ()):
+                raise RuntimeError("native wave compiler is disabled")
+            self.pool = _WaveCopyWorker()
+            self.kernel = kernel
+        except Exception:
+            self.failed = True
+
+    def ready(self):
+        """Offer the exact fallback while startup defers compiler imports."""
+        if not _AMBIENT_STARTUP_READY.is_set():
+            return self.kernel
+        if self.kernel is not None or self.started or self.failed:
+            return self.kernel
+        if not self.lock.acquire(blocking=False):
+            return None
+        try:
+            if not self.started and not self.failed:
+                self.started = True
+                try:
+                    threading.Thread(target=self._warm, name="spacr-satin-compile",
+                                     daemon=True).start()
+                except Exception:
+                    self.failed = True
+        finally:
+            self.lock.release()
+        return self.kernel
+
+    def copy_waves(self, kernel, tasks):
+        """Join at most one shared CPU batch before any Qt painter sees it.
+
+        One nonblocking gate bounds the global executor queue to one job.
+        Other producers use their synchronous kernel instead of queueing.
+        Both paths finish their owned arrays under the existing engine lock.
+        """
+        if self.pool is None or len(tasks) < 2 or not self.copy_gate.acquire(blocking=False):
+            _copy_wave_batch(kernel, tasks)
+            return
+        try:
+            try:
+                future = self.pool.submit(_copy_wave_batch, kernel, tasks[::2])
+            except RuntimeError:
+                _copy_wave_batch(kernel, tasks)
+            else:
+                try:
+                    _copy_wave_batch(kernel, tasks[1::2])
+                finally:
+                    future.result()
+        finally:
+            self.copy_gate.release()
+
+
+_SATIN_COMPILER = _SatinCompiler()
+
+
+class _DataArtEngine(_BufferedEngine):
+    """Retained crisp procedural materials with native display sampling.
+
+    The existing producer owns every shade pass. Reusable coordinates and
+    static material layers are cached per buffer size, while the clock and an
+    optional immutable local pointer shape the small moving layer.
+
+    :param family: one of the five retained data-art materials.
+    """
+
+    base_edge = 2048
+    _families = ("point_atlas", "tissue_facets", "chromatin_ribbon",
+                 "genetic_advection", "impulse_lens")
+    _interactive = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
+                              "impulse_lens"))
+
+    def __init__(self, *args, family: str, **kwargs):
+        """Choose a material before the seeded configuration is rolled."""
+        if family not in self._families:
+            raise ValueError(f"unknown data art family {family!r}")
+        self.family = family
+        self.name = f"data_art_{family}"
+        self.interactive = family in self._interactive
+        self.pointer: Optional[Tuple[float, float]] = None
+        self.gravity_radius = 0.0
+        super().__init__(*args, **kwargs)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Keep a bounded seed pool and stable material identity."""
+        self._art_seed = rng.randrange(2 ** 32)
+        self._anchors = tuple((rng.random(), rng.random(), rng.random())
+                              for _ in range(192))
+        self._material_cache: Dict[tuple, object] = {}
+        self._gravity_impulses = []
+        self._popup_waves = []
+        self._popup_wave_origin = None
+        self._popup_wave_elapsed = 0.0
+        self._pointer_impulse_time = -math.inf
+        self._pointer_impulse_origin = None
+        self._field_grab_origin = None
+        self._field_grab_center = None
+        self._field_grab_offset = (0.0, 0.0)
+        self._field_grab_velocity = (0.0, 0.0)
+        self._field_grab_target = (0.0, 0.0)
+        self._field_grab_held = False
+        self._field_grab_time = self.time
+
+    def _set_field_grab(self, grab, *, reset=False) -> None:
+        """Offer a finite local handle without moving or reseeding material.
+
+        ``grab`` is a normalized origin and shorter-edge displacement pair.
+        The displacement is bounded to 18 percent of that edge. A release
+        changes only the spring target; lifecycle cancellation clears state.
+        The caller holds the engine lock, including queued worker consumers.
+        """
+        if self.family != "impulse_lens":
+            return
+        if reset:
+            self._field_grab_origin = self._field_grab_center = None
+            self._field_grab_offset = self._field_grab_velocity = (0.0, 0.0)
+            self._field_grab_time = self.time
+        self._field_grab_held = grab is not None
+        self._field_grab_target = (0.0, 0.0)
+        if grab is None:
+            return
+        origin, target = grab
+        if not all(math.isfinite(value) for value in (*origin, *target)):
+            self._field_grab_held = False
+            return
+        origin = tuple(max(0.0, min(1.0, value)) for value in origin)
+        length = math.hypot(*target)
+        scale = min(1.0, 0.18 / length) if length else 1.0
+        self._field_grab_target = tuple(value * scale for value in target)
+        if self._field_grab_center is None:
+            self._field_grab_center = origin
+            self._field_grab_time = self.time
+        self._field_grab_origin = origin
+
+    def _step_field_grab(self) -> None:
+        """Evolve a bounded critically damped handle in animation seconds.
+
+        The exact constant-target spring solution uses frequency 6/s and
+        retained velocity, so release is continuous and splitting elapsed
+        time does not change it. A new handle center eases toward its origin
+        instead of teleporting a returning patch. No Qt objects are touched.
+        """
+        elapsed = self.time - self._field_grab_time
+        self._field_grab_time = self.time
+        if self._field_grab_center is None or elapsed <= 0.0:
+            return
+        if not math.isfinite(elapsed) or elapsed > 120.0:
+            elapsed = 120.0
+        decay = math.exp(-6.0 * elapsed)
+        values, velocities = [], []
+        for value, velocity, target in zip(self._field_grab_offset,
+                                           self._field_grab_velocity,
+                                           self._field_grab_target):
+            difference = value - target
+            tangent = velocity + 6.0 * difference
+            values.append(target + (difference + tangent * elapsed) * decay)
+            velocities.append((velocity - 6.0 * tangent * elapsed) * decay)
+        length = math.hypot(*values)
+        scale = min(1.0, 0.18 / length) if length else 1.0
+        self._field_grab_offset = tuple(value * scale for value in values)
+        self._field_grab_velocity = tuple(value * scale for value in velocities)
+        self._field_grab_center = tuple(
+            target + (value - target) * decay
+            for value, target in zip(self._field_grab_center, self._field_grab_origin))
+        if (not self._field_grab_held and length < 1e-6
+                and math.hypot(*velocities) < 1e-6):
+            self._set_field_grab(None, reset=True)
+
+    def _restyle(self) -> None:
+        """Invalidate rendered material when its palette or page changes."""
+        super()._restyle()
+        self._material_cache.clear()
+
+    def _reresolve(self) -> None:
+        """Resize the producer buffer and discard size-bound coordinates."""
+        super()._reresolve()
+        self._material_cache.clear()
+
+    def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Sample native display pixels within the actual screen budget."""
+        detail = min(1.0, self.resolution)
+        bw, bh = max(1, int(width * detail)), max(1, int(height * detail))
+        scale = min(1.0, math.sqrt(self.max_pixels / (bw * bh)))
+        return max(1, int(bw * scale)), max(1, int(bh * scale))
+
+    def buffer_scale(self, width: int, height: int) -> float:
+        """Report the native art sampling ratio for explicit blur controls."""
+        bw, bh = self.buffer_size(width, height)
+        return max(1.0, width / bw, height / bh)
+
+    def _ensure_buffer(self, width: int, height: int) -> QImage:
+        """Release old-size material grids when the canvas is resized."""
+        previous = self._buffer
+        buffer = super()._ensure_buffer(width, height)
+        if buffer is not previous:
+            self._material_cache.clear()
+        return buffer
+
+    def _redensify(self) -> None:
+        """Rebuild material density without rerolling its seed."""
+        self._material_cache.clear()
+
+    def _resize(self) -> None:
+        """Rebuild size-dependent marks without rerolling the scene."""
+        self._material_cache.clear()
+
+    def set_pointer(self, point: Optional[Tuple[float, float]]) -> None:
+        """Accept one finite normalized local pointer for interactive art."""
+        if not self.interactive:
+            return
+        if point is None:
+            self.pointer = None
+            return
+        x, y = point
+        self.pointer = (max(0.0, min(1.0, float(x))),
+                        max(0.0, min(1.0, float(y)))) if (
+                            math.isfinite(x) and math.isfinite(y)) else None
+        if (self.gravity_radius > 0.0 and self.family == "impulse_lens"
+                and self.pointer is not None):
+            previous = self._pointer_impulse_origin
+            moved = previous is None or math.hypot(
+                self.pointer[0] - previous[0], self.pointer[1] - previous[1]) > 0.006
+            if moved and self.time - self._pointer_impulse_time >= 0.06:
+                self._add_impulse(self.pointer, 0.24)
+                self._pointer_impulse_time = self.time
+                self._pointer_impulse_origin = self.pointer
+
+    def _add_impulse(self, point, strength: float = 1.0) -> None:
+        """Remember a bounded, finite gravity burst in animation time."""
+        if (self.gravity_radius <= 0.0 or self.family != "impulse_lens"
+                or point is None):
+            return
+        x, y = point
+        if not all(math.isfinite(value) for value in (x, y, strength)):
+            return
+        point = (max(0.0, min(1.0, float(x))),
+                 max(0.0, min(1.0, float(y))))
+        strength = max(0.0, min(2.0, float(strength)))
+        if strength == 0.0:
+            return
+        recent = [event for event in self._gravity_impulses
+                  if 0.0 <= self.time - event[0] < 5.0]
+        self._gravity_impulses = (recent + [(self.time, point, strength)])[-24:]
+
+    def _set_popup_wave_origin(self, point) -> None:
+        """Accept a GUI-resolved popup centre without reading Qt on the worker."""
+        if point is not None:
+            x, y = point
+            point = ((float(x), float(y)) if all(
+                math.isfinite(value) and 0.0 <= value <= 1.0 for value in (x, y)) else None)
+        if point is None:
+            self._popup_wave_elapsed = 0.0
+        self._popup_wave_origin = point
+
+    def advance(self, dt: float) -> None:
+        """Advance material motion and bounded popup waves at their real-time rate."""
+        super().advance(dt)
+        self._popup_waves = [wave for wave in self._popup_waves
+                             if 0.0 <= self.time - wave[0] < 5.0]
+        if (dt <= 0.0 or self.family != "impulse_lens"
+                or self.popup_wave_frequency <= 0.0
+                or self._popup_wave_origin is None):
+            return
+        period = 60.0 / self.popup_wave_frequency
+        self._popup_wave_elapsed += dt
+        if self._popup_wave_elapsed >= period:
+            self._popup_wave_elapsed %= period
+            self._popup_waves = (self._popup_waves + [
+                (self.time, self._popup_wave_origin)])[-6:]
+
+    def set_gravity_radius(self, radius: float) -> None:
+        """Set finite mouse reach in fractions of the shorter screen edge."""
+        radius = float(radius)
+        radius = max(0.0, min(1.0, radius)) if math.isfinite(radius) else 0.0
+        if radius == self.gravity_radius:
+            return
+        self.gravity_radius = radius
+        self._gravity_impulses.clear()
+        self._pointer_impulse_time = -math.inf
+        self._pointer_impulse_origin = None
+        for key, material in tuple(self._material_cache.items()):
+            if key[0] == "impulse_lens":
+                material[2].clear()
+            elif key[0] == "point_atlas":
+                del self._material_cache[key]
+
+    def _pointer_field(self, x, y, width, height):
+        """Return compact smooth reach and shorter-edge pointer distances."""
+        np = _numpy()
+        shorter = max(1, min(width, height))
+        dx = (x - self.pointer[0]) * width / shorter
+        dy = (y - self.pointer[1]) * height / shorter
+        squared = dx * dx + dy * dy
+        weight = np.maximum(0.0, 1.0 - squared / self.gravity_radius ** 2) ** 3
+        return dx, dy, squared, weight
+
+    def _bend_pointer(self, x, y, width, height):
+        """Apply local gravity without changing any sample outside its reach."""
+        if self.pointer is None or self.gravity_radius <= 0.0:
+            return x, y
+        np = _numpy()
+        dx, dy, squared, weight = self._pointer_field(x, y, width, height)
+        direction = 1.0 if self.family == "point_atlas" else -1.0
+        strength = direction * 0.055 * weight / np.sqrt(squared + 0.013)
+        shorter = max(1, min(width, height))
+        return (x + dx * strength * shorter / width,
+                y + dy * strength * shorter / height)
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Return deterministic sampled material anchors for the engine API.
+
+        :param width: destination width in pixels.
+        :param height: destination height in pixels.
+        :returns: bounded ``(x, y, depth)`` samples in seed order.
+        """
+        if width <= 0 or height <= 0:
+            return ()
+        count = self.element_count(64, len(self._anchors))
+        family_phase = self._families.index(self.family) * 0.17
+        drift = self.time * 0.006
+        return tuple(((u + 0.015 * math.sin(drift + v * 8.0 + family_phase))
+                      * width, (v + 0.014 * math.cos(drift + u * 7.0))
+                      * height, depth) for u, v, depth in self._anchors[:count])
+
+    def _ink(self, index: int, alpha: float) -> QColor:
+        """Return a page-aware palette colour with bounded transparency."""
+        return _with_alpha(self.paint_colors[index % len(self.paint_colors)],
+                           alpha * self.alpha_scale())
+
+    def _point_material(self, width: int, height: int, x, y, light,
+                        spread: bool = False) -> QImage:
+        """Stamp circular antialiased grains without a full-size float field."""
+        if self._random_palette:
+            image = self._colored_point_material(width, height, x, y, light, spread)
+            self._flicker_field_dots(image, x, y)
+            return image
+        np = _numpy()
+        px = np.asarray(x, dtype=np.int32)
+        py = np.asarray(y, dtype=np.int32)
+        values = np.clip(np.asarray(light, dtype=np.float32)
+                         * self.alpha_scale(), 0.0, 1.0)
+        inside = ((px >= 0) & (px < width) & (py >= 0) & (py < height))
+        px, py, values = px[inside], py[inside], values[inside]
+        intensities = np.rint(values * 255).astype(np.uint8)
+        levels = np.arange(256, dtype=np.float32) / 255.0
+        palette = self.paint_colors
+        lookup = np.full(256, np.uint32(0xFF000000), dtype=np.uint32)
+        for channel, shift in (("red", 16), ("green", 8), ("blue", 0)):
+            primary = getattr(palette[0], channel)()
+            accent = getattr(palette[min(1, len(palette) - 1)], channel)()
+            ink = 0.78 * primary + 0.22 * accent
+            value = ink * levels if self.dark else 255.0 - (255.0 - ink) * levels
+            lookup |= np.asarray(value, dtype=np.uint32) << shift
+        image = QImage(width, height, QImage.Format_RGB32)
+        flat = np.frombuffer(image.bits(), dtype=np.uint32,
+                             count=width * height)
+        flat.fill(lookup[0])
+        if spread:
+            kernel = _ready_packed_scatter()
+            if kernel is not None:
+                level_ids = np.arange(256, dtype=np.uint8)
+                axial = np.rint(level_ids * 0.68).astype(np.uint8)
+                diagonal = np.rint(level_ids * 0.24).astype(np.uint8)
+                kernel(flat, px, py, intensities, lookup, lookup[axial], lookup[diagonal],
+                       width, height, self.dark)
+                self._flicker_field_dots(image, px, py)
+                return image
+        combine = np.maximum.at if self.dark else np.minimum.at
+        combine(flat, py * width + px, lookup[intensities])
+        if spread:
+            for shift_y, shift_x in ((-1, -1), (-1, 0), (-1, 1),
+                                    (0, -1), (0, 1),
+                                    (1, -1), (1, 0), (1, 1)):
+                shifted_x = px + shift_x
+                shifted_y = py + shift_y
+                valid = ((shifted_x >= 0) & (shifted_x < width)
+                         & (shifted_y >= 0) & (shifted_y < height))
+                coverage = 0.24 if shift_x and shift_y else 0.68
+                intensity = np.rint(intensities[valid] * coverage).astype(np.uint8)
+                destinations = shifted_y[valid] * width + shifted_x[valid]
+                combine(flat, destinations, lookup[intensity])
+        self._flicker_field_dots(image, px, py)
+        return image
+
+    def _colored_point_material(self, width, height, x, y, light, spread):
+        """Colour stable grain identities with exact intensity-ranked overlap."""
+        global _COLORED_SCATTER, _COLORED_SCATTER_FAILED
+        np = _numpy()
+        px, py = np.asarray(x, np.int32), np.asarray(y, np.int32)
+        count = px.shape[-1]
+        identity_cache = self._material_cache.get("random_grain_identities")
+        if identity_cache is None or identity_cache[0] != count:
+            identities = np.arange(count, dtype=np.uint32)
+            mixed = identities * np.uint32(0x9e3779b1) + np.uint32(self._art_seed & 0xffffffff)
+            mixed ^= mixed >> 16
+            identity_cache = count, (mixed % len(self.paint_colors)).astype(np.uint16)
+            self._material_cache["random_grain_identities"] = identity_cache
+        values = np.clip(np.asarray(light, np.float32) * self.alpha_scale(), 0.0, 1.0)
+        inside = (px >= 0) & (px < width) & (py >= 0) & (py < height)
+        px, py = px[inside], py[inside]
+        hues = np.broadcast_to(identity_cache[1], inside.shape)[inside]
+        intensities = np.rint(values[inside] * 255).astype(np.uint16)
+        indices = hues * np.uint16(256) + intensities
+        key = ("random_grain_palette", self.dark)
+        tables = self._material_cache.get(key)
+        if tables is None:
+            colors = np.asarray([[color.red(), color.green(), color.blue()]
+                                 for color in self.paint_colors], np.float32)
+            levels = np.arange(256, dtype=np.float32) / 255.0
+            channels = colors[:, None, :] * levels[None, :, None] if self.dark else (
+                255.0 - (255.0 - colors[:, None, :]) * levels[None, :, None])
+            channels = channels.astype(np.uint32)
+            table = (channels[:, :, 0] << np.uint32(16)
+                     | channels[:, :, 1] << np.uint32(8) | channels[:, :, 2])
+            ranks = np.arange(256, dtype=np.uint32)
+            table |= (ranks if self.dark else 255 - ranks)[None, :] << np.uint32(24)
+            table = table.ravel()
+            slots = np.arange(len(colors), dtype=np.uint16)[:, None] * np.uint16(256)
+            axial = table[(slots + np.rint(ranks * .68).astype(np.uint16)).ravel()]
+            diagonal = table[(slots + np.rint(ranks * .24).astype(np.uint16)).ravel()]
+            tables = table, axial, diagonal
+            self._material_cache[key] = tables
+        table, axial, diagonal = tables
+        image = QImage(width, height, QImage.Format_RGB32)
+        output = np.frombuffer(image.bits(), np.uint32, count=width * height)
+        output.fill(table[0])
+        kernel = _ready_colored_scatter()
+        if kernel is not None:
+            ranks = np.empty(0, dtype=np.uint8)
+            try:
+                kernel(output, ranks, px, py, indices, table, axial, diagonal,
+                       width, height, self.dark, spread)
+                np.bitwise_or(output, np.uint32(0xff000000), out=output)
+                return image
+            except Exception:
+                _COLORED_SCATTER = None
+                _COLORED_SCATTER_FAILED = True
+        output.fill(table[0])
+        packed = output
+        combine = np.maximum.at if self.dark else np.minimum.at
+        combine(packed, py * width + px, table[indices])
+        if spread:
+            for dy, dx in ((-1, -1), (-1, 0), (-1, 1), (0, -1),
+                           (0, 1), (1, -1), (1, 0), (1, 1)):
+                nx, ny = px + dx, py + dy
+                valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+                selected = diagonal if dx and dy else axial
+                combine(packed, ny[valid] * width + nx[valid], selected[indices[valid]])
+        np.bitwise_or(output, np.uint32(0xff000000), out=output)
+        return image
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Publish owned native points or a copy-on-write resting paper frame.
+
+        Paper has no autonomous motion at zero pointer influence. Reusing its
+        exact resting image does not skip clock/input acknowledgement: the
+        rotation timestamp follows each shade. Active paper is always drawn
+        into a fresh image, so previously published frames remain untouched.
+        The resting marker adds no raster storage and existing material-cache
+        invalidations discard it with palette, size, density or resolution.
+        """
+        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection",
+                               "tissue_facets"):
+            return super()._shade(width, height)
+        bw, bh = self.buffer_size(width, height)
+        previous = self._buffer
+        if previous is None or previous.width() != bw or previous.height() != bh:
+            self._material_cache.clear()
+        if self.family == "tissue_facets":
+            resting = self.pointer is None or self.gravity_radius == 0.0
+            key = ("tissue_resting", bw, bh, self.size, self.density)
+            if resting and key in self._material_cache:
+                rotation_key = ("tissue_rotation", bw, bh, self.size, self.density)
+                _, angles = self._material_cache[rotation_key]
+                self._material_cache[rotation_key] = (self.time, angles)
+                return self._soften(QImage(previous), width, height)
+            self._material_cache.pop(key, None)
+            image = QImage(bw, bh, QImage.Format_RGB32)
+            inner = QPainter(image)
+            try:
+                inner.fillRect(image.rect(), self.identity)
+                inner.setCompositionMode(self.mode)
+                inner.setPen(Qt.NoPen)
+                self._paint_field(inner, bw, bh)
+            finally:
+                inner.end()
+            self._buffer = image
+            if resting:
+                self._material_cache[key] = True
+            return self._soften(QImage(image), width, height)
+        image = getattr(self, f"_frame_{self.family}")(bw, bh)
+        self._buffer = image
+        return self._soften(image, width, height)
+
+    def shade(self, width: int, height: int) -> Optional[QImage]:
+        """Return an independently owned point frame or the buffered material."""
+        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection",
+                               "tissue_facets"):
+            return super().shade(width, height)
+        if width <= 0 or height <= 0:
+            return None
+        return self._shade(width, height)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Dispatch to one material painter without crossing into the GUI."""
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        getattr(self, f"_paint_{self.family}")(painter, width, height)
+
+    def _paint_point_atlas(self, painter: QPainter, width: int,
+                              height: int) -> None:
+        """Blit the owned point frame for synchronous material callers."""
+        painter.drawImage(0, 0, self._frame_point_atlas(width, height))
+
+    def _frame_point_atlas(self, width: int,
+                           height: int) -> QImage:
+        """Light an unbounded waving terrain of densely sampled round grains."""
+        np = _numpy()
+        key = ("point_atlas", width, height, self.size, self.density)
+        points = self._material_cache.get(key)
+        if points is None:
+            spacing = max(2.4, 4.6 * self.size
+                          / math.sqrt(DENSITY_RANGE[1]))
+            columns = min(900, max(48, math.ceil(width * 1.65 / spacing)))
+            rows = min(520, max(32, math.ceil(height * 1.85 / spacing)))
+            population = math.sqrt(self.effective_density() / DENSITY_RANGE[1])
+            columns = max(3, math.ceil(columns * population))
+            rows = max(3, math.ceil(rows * population))
+            xx, zz = np.meshgrid(np.linspace(-0.33, 1.33, columns,
+                                            dtype=np.float32),
+                                 np.linspace(-0.43, 1.43, rows,
+                                             dtype=np.float32))
+            rng = np.random.default_rng(self._art_seed)
+            jitter = rng.uniform(-0.17, 0.17, size=(2, xx.size)).astype(np.float32)
+            xx = xx.ravel() + jitter[0] / columns
+            zz = zz.ravel() + jitter[1] / rows
+            shorter = max(1, min(width, height))
+            reach = 0.055 if self.gravity_radius > 0.0 else 0.0
+            margin_x = 0.062370 + 1.0 / width + reach * shorter / width
+            margin_z = 0.161001 + 1.0 / height + reach * shorter / height
+            visible = ((xx >= -margin_x) & (xx <= 1.0 + margin_x)
+                       & (zz >= -margin_z) & (zz <= 1.0 + margin_z))
+            xx, zz = xx[visible], zz[visible]
+            points = (xx, zz, 9.0 * xx + 6.1 * zz,
+                      12.3 * zz - 4.2 * xx,
+                      18.0 * xx + 8.0 * zz + self._anchors[0][0] * math.tau)
+            self._material_cache[key] = points
+        xx, zz, base_a, base_b, base_c = points
+        warp_a = base_b - self.time * 0.11
+        warp_b = base_c + self.time * 0.09
+        phase_a = base_a + self.time * 0.25 + 0.32 * np.sin(warp_a)
+        phase_b = base_b - self.time * 0.17 + 0.24 * np.sin(warp_b)
+        phase_c = base_c + self.time * 0.12
+        amplitude_a = 0.085 * (0.80 + 0.20 * math.sin(self.time * 0.21))
+        amplitude_b = 0.060 * (0.78 + 0.22 * math.cos(self.time * 0.17))
+        sine_b = np.sin(phase_b)
+        cosine_c = np.cos(phase_c)
+        crest = (amplitude_a * np.sin(phase_a) + amplitude_b * np.cos(phase_b)
+                 + 0.016 * np.sin(phase_c))
+        cosine_a = np.cos(phase_a)
+        warp_cosine_a = np.cos(warp_a)
+        warp_cosine_b = np.cos(warp_b)
+        slope_x = (amplitude_a * cosine_a * (9.0 - 1.344 * warp_cosine_a)
+                   - amplitude_b * sine_b * (-4.2 + 4.32 * warp_cosine_b)
+                   + 0.288 * cosine_c)
+        slope_z = (amplitude_a * cosine_a * (6.1 + 3.936 * warp_cosine_a)
+                   - amplitude_b * sine_b * (12.3 + 1.92 * warp_cosine_b)
+                   + 0.128 * cosine_c)
+        normal = (0.90 - 0.30 * slope_x - 0.48 * slope_z) / np.sqrt(
+            1.0 + slope_x * slope_x + slope_z * slope_z)
+        light = np.clip(0.30 + 0.62 * normal, 0.20, 0.95)
+        sx, sy = self._bend_pointer(xx + 0.034 * slope_z, zz + crest,
+                                   width, height)
+        sx, sy = sx * width, sy * height
+        gain = max(1.0, self.effective_density())
+        return self._point_material(
+            width, height, sx, sy, light * gain, spread=True)
+
+    def _paint_tissue_facets(self, painter: QPainter, width: int,
+                             height: int) -> None:
+        """Spin crisp cached paper locally while mouse gravity is enabled."""
+        key = ("tissue_facets", width, height, self.size, self.density)
+        material = self._material_cache.get(key)
+        if material is None:
+            rng = random.Random(self._art_seed)
+            scale = math.sqrt(self.effective_density()) / self.size
+            columns = max(3, min(66, round(38 * scale)))
+            rows = max(2, min(42, round(columns * height / width)))
+            cell_width = width / columns
+            cell_height = height / rows
+            cells = []
+            for row in range(-1, rows + 1):
+                for column in range(-1, columns + 1):
+                    cx = (column + 0.5 * (row % 2) + 0.25
+                          + rng.uniform(-0.18, 0.18)) * cell_width
+                    cy = (row + 0.45 + rng.uniform(-0.18, 0.18)) * cell_height
+                    rx = cell_width * rng.uniform(0.40, 0.56)
+                    ry = cell_height * rng.uniform(0.40, 0.56)
+                    peak = rng.uniform(0.20, 0.55)
+                    height_scale = min(rx, ry)
+                    corners = []
+                    sides = rng.randrange(6, 10)
+                    for side in range(sides):
+                        angle = math.tau * side / sides + 0.12 * (row % 2)
+                        reach = rng.uniform(0.82, 1.15)
+                        corners.append((math.cos(angle) * rx * reach,
+                                        math.sin(angle) * ry * reach,
+                                        rng.uniform(-0.05, 0.09) * height_scale))
+                    centre = (rx * rng.uniform(-0.22, 0.22),
+                              ry * rng.uniform(-0.22, 0.22) - peak * ry * 0.42,
+                              peak * height_scale * 1.4)
+                    triangles = []
+                    for side, a in enumerate(corners):
+                        b = corners[(side + 1) % len(corners)]
+                        vx, vy, vz = (a[index] - centre[index] for index in range(3))
+                        wx, wy, wz = (b[index] - centre[index] for index in range(3))
+                        nx, ny, nz = (vy * wz - vz * wy,
+                                      vz * wx - vx * wz,
+                                      vx * wy - vy * wx)
+                        norm = math.sqrt(nx * nx + ny * ny + nz * nz) or 1.0
+                        light = max(0.0, min(1.0,
+                                             0.49 + (0.43 * nx - 0.49 * ny
+                                                     + 0.73 * nz) / norm * 0.46))
+                        tone = ((row * columns + column) * 37 + self._art_seed) \
+                            % len(self.paint_colors) if self._random_palette else (
+                                1 if (row * columns + column) % 7 == 0 else 0)
+                        color = _mix(self.identity, self.paint_colors[tone],
+                                     0.040 + 0.64 * light ** 3)
+                        triangle = QPolygonF((QPointF(*centre[:2]),
+                                              QPointF(*a[:2]), QPointF(*b[:2])))
+                        triangles.append((triangle, color))
+                    outline = QPolygonF([QPointF(x, y) for x, y, _ in corners])
+                    extent_x = math.ceil(max(abs(x) for x, _, _ in corners) + 2)
+                    extent_y = math.ceil(max(abs(y) for _, y, _ in corners) + 2)
+                    tile = QImage(extent_x * 2 + 1, extent_y * 2 + 1,
+                                  QImage.Format_RGB32)
+                    tile.fill(self.identity)
+                    inner = QPainter(tile)
+                    inner.setRenderHint(QPainter.Antialiasing, True)
+                    inner.setCompositionMode(self.mode)
+                    inner.translate(extent_x, extent_y)
+                    inner.setPen(Qt.NoPen)
+                    for triangle, color in triangles:
+                        inner.setBrush(color)
+                        inner.drawPolygon(triangle)
+                    inner.setBrush(Qt.NoBrush)
+                    inner.setPen(QPen(self._ink(0, 0.23), 0.65))
+                    inner.drawPolygon(outline)
+                    inner.end()
+                    cells.append((cx, cy, rx, ry, rng.uniform(0, math.tau),
+                                  tile, extent_x, extent_y))
+            material = tuple(cells)
+            self._material_cache[key] = material
+        rotation_key = ("tissue_rotation", width, height, self.size, self.density)
+        rotation = self._material_cache.get(rotation_key)
+        if rotation is None:
+            rotation = (self.time, [0.0] * len(material))
+        previous_time, angles = rotation
+        step = max(0.0, min(MAX_DT * self.speed, self.time - previous_time))
+        active = self.pointer is not None and self.gravity_radius > 0.0
+        if not active or self.time < previous_time:
+            angles[:] = [0.0] * len(material)
+        self._material_cache[rotation_key] = (self.time, angles)
+        for index, cell in enumerate(material):
+            cx, cy, rx, ry, phase, tile, extent_x, extent_y = cell
+            dx = dy = 0.0
+            if active:
+                shorter = max(1, min(width, height))
+                distance_x = (cx - self.pointer[0] * width) / shorter
+                distance_y = (cy - self.pointer[1] * height) / shorter
+                squared = distance_x ** 2 + distance_y ** 2
+                reach = max(0.0, 1.0 - squared / self.gravity_radius ** 2) ** 3
+                if reach > 0.0:
+                    lift = reach * (0.55 + 0.15 * math.sin(phase))
+                    dx = -distance_x * rx * lift
+                    dy = -distance_y * ry * lift - ry * 0.28 * reach
+                    proximity = max(0.0, 1.0 - math.sqrt(squared) / self.gravity_radius)
+                    angles[index] = (angles[index] + step * 240.0 * proximity ** 2) % 360.0
+            if angles[index] == 0.0:
+                painter.drawImage(QPointF(cx + dx - extent_x,
+                                          cy + dy - extent_y), tile)
+            else:
+                painter.save()
+                try:
+                    painter.translate(cx + dx, cy + dy)
+                    painter.rotate(angles[index])
+                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+                    painter.drawImage(QPointF(-extent_x, -extent_y), tile)
+                finally:
+                    painter.restore()
+
+
+
+    def _paint_chromatin_ribbon(self, painter: QPainter, width: int,
+                                height: int) -> None:
+        """Deform fine native satin fibres into travelling transverse waves."""
+        np = _numpy()
+        key = ("chromatin_native_folds", width, height, self.resolution,
+               self.size, self.density)
+        ribbons = self._material_cache.get(key)
+        if ribbons is None:
+            count = self.element_count(7, 15)
+            seed_phase = self._anchors[1][0] * math.tau
+            samples = max(128, min(640, int(width / 5)))
+            along = np.linspace(-0.08, 1.08, samples, dtype=np.float32)
+            x = along * width
+            fibres = max(20, int(28 * self.resolution))
+            ratios = np.arange(1, fibres, dtype=np.float32)[:, None] / fibres
+            ribbons = []
+            for ribbon in range(count):
+                centre = height * (0.16 + 0.115 * ribbon)
+                thickness = height * (0.042 + 0.013 * (ribbon % 3)) * self.size
+                slope = height * (0.19 * ((ribbon % 3) - 1))
+                wave = (np.sin(7.0 * along + ribbon * 1.19 + seed_phase)
+                        + 0.47 * np.sin(19.0 * along - ribbon * 0.66
+                                        + seed_phase * 0.71))
+                middle = slope * (along - 0.5) + height * 0.058 * wave
+                fold = thickness * (0.55 + 0.45 * np.cos(
+                    11.0 * along + ribbon * 1.7))
+                upper_y, lower_y = middle - fold, middle + fold
+                upper = QPolygonF([QPointF(float(xx), float(yy))
+                                   for xx, yy in zip(x, upper_y)])
+                lower = [QPointF(float(xx), float(yy))
+                         for xx, yy in zip(x[::-1], lower_y[::-1])]
+                origin_x = math.floor(float(x[0])) - 2
+                origin_y = math.floor(float(np.minimum(upper_y, lower_y).min())) - 2
+                tile_width = math.ceil(float(x[-1])) - origin_x + 3
+                tile_height = math.ceil(float(np.maximum(upper_y, lower_y).max())) - origin_y + 3
+                picture = QImage(tile_width, tile_height,
+                                 QImage.Format_ARGB32_Premultiplied)
+                picture.fill(Qt.transparent)
+                inner = QPainter(picture)
+                inner.setRenderHint(QPainter.Antialiasing, True)
+                inner.setCompositionMode(self.mode)
+                inner.translate(-origin_x, -origin_y)
+                shade = QLinearGradient(0, -thickness * 2.1,
+                                        0, thickness * 2.1)
+                shade.setColorAt(0.0, self._ink(ribbon, 0.02))
+                shade.setColorAt(0.22, self._ink(ribbon, 0.42))
+                shade.setColorAt(0.47, self._ink(ribbon + 1, 0.15))
+                shade.setColorAt(0.74, self._ink(ribbon + 2, 0.50))
+                shade.setColorAt(1.0, self._ink(ribbon, 0.015))
+                inner.setPen(Qt.NoPen)
+                inner.setBrush(QBrush(shade))
+                inner.drawPolygon(QPolygonF(list(upper) + lower))
+                inner.setBrush(Qt.NoBrush)
+                inner.setPen(QPen(self._ink(ribbon + 2, 0.51),
+                                  max(0.5, self.size * 0.75)))
+                inner.drawPolyline(upper)
+                positions = upper_y[None, :] + ratios * (2.0 * fold[None, :])
+                for fibre, ys in enumerate(positions, 1):
+                    inner.setPen(QPen(self._ink(ribbon + fibre, 0.11), 0.55))
+                    inner.drawPolyline(QPolygonF([
+                        QPointF(float(xx), float(yy)) for xx, yy in zip(x, ys)]))
+                inner.end()
+                ribbons.append((centre, ribbon * 1.19 + seed_phase,
+                                picture, origin_x, origin_y))
+            ribbons = tuple(ribbons)
+            self._material_cache[key] = ribbons
+        warp_key = ("chromatin_native_waves", width, height, self.resolution,
+                    self.size, self.density)
+        warps = self._material_cache.get(warp_key)
+        if warps is None:
+            warps = []
+            padding = math.ceil(height * 0.035) + 2
+            for _, _, picture, origin_x, _ in ribbons:
+                source = np.frombuffer(picture.bits(), dtype=np.uint32).reshape(
+                    picture.height(), picture.width())
+                along = (np.arange(source.shape[1], dtype=np.float32)
+                         + origin_x) / width
+                occupied = source != 0
+                present = np.any(occupied, axis=0)
+                tops = np.where(present, np.argmax(occupied, axis=0),
+                                source.shape[0]).astype(np.int32)
+                bottoms = np.where(present, source.shape[0] - np.argmax(
+                    occupied[::-1], axis=0), 0).astype(np.int32)
+                warps.append((source, along, tops, bottoms, padding))
+            self._material_cache[warp_key] = warps
+        kernel = _SATIN_COMPILER.ready()
+        tasks = []
+        images = []
+        for ribbon, warp in zip(ribbons, warps):
+            centre, phase, picture, origin_x, origin_y = ribbon
+            source, along, tops, bottoms, padding = warp
+            travel = height * 0.024 * (
+                np.sin(math.tau * along * 1.1 - self.time * 0.55 + phase)
+                + 0.35 * np.sin(math.tau * along * 2.6
+                                + self.time * 0.31 + phase * 0.63))
+            shifts = np.rint(travel).astype(np.int32)
+            for start in range(0, source.shape[1], 128):
+                end = min(source.shape[1], start + 128)
+                strip_shifts = shifts[start:end]
+                strip_tops, strip_bottoms = tops[start:end], bottoms[start:end]
+                lower = max(0, int(np.min(strip_tops + strip_shifts + padding)))
+                upper = min(source.shape[0] + 2 * padding,
+                            int(np.max(strip_bottoms + strip_shifts + padding)))
+                target = np.zeros((max(1, upper - lower), end - start), dtype=np.uint32)
+                image = QImage(target.data, target.shape[1], target.shape[0],
+                               target.strides[0], QImage.Format_ARGB32_Premultiplied)
+                images.append((target, image, origin_x + start,
+                               centre + origin_y - padding + lower))
+                strip_source = source[:, start:end]
+                strip_padding = padding - lower
+                if kernel is not None:
+                    tasks.append((strip_source, target, strip_shifts, strip_tops,
+                                  strip_bottoms, strip_padding))
+                else:
+                    _numpy_satin_columns(strip_source, target, strip_shifts, strip_padding)
+        if kernel is not None:
+            try:
+                _SATIN_COMPILER.copy_waves(kernel, tuple(tasks))
+            except Exception:
+                _SATIN_COMPILER.kernel = None
+                _SATIN_COMPILER.failed = True
+                for source, target, shifts, _, _, padding in tasks:
+                    _numpy_satin_columns(source, target, shifts, padding)
+        opacity = painter.opacity()
+        painter.setOpacity(opacity * min(1.0, 7 * self.effective_density()))
+        try:
+            for _target, image, origin_x, origin_y in images:
+                painter.drawImage(QPointF(origin_x, origin_y), image)
+        finally:
+            painter.setOpacity(opacity)
+
+
+
+
+    def _paint_genetic_advection(self, painter: QPainter, width: int,
+                              height: int) -> None:
+        """Blit the owned point frame for synchronous material callers."""
+        painter.drawImage(0, 0, self._frame_genetic_advection(width, height))
+
+    def _frame_genetic_advection(self, width, height) -> QImage:
+        """Advect trails through vortices and short cursor-attracted histories."""
+        np = _numpy()
+        key = ("wind_grains", width, height, self.size, self.density)
+        grains = self._material_cache.get(key)
+        if grains is None:
+            rng = np.random.default_rng(self._art_seed)
+            grains = (rng.random(60000, dtype=np.float32),
+                      rng.random(60000, dtype=np.float32),
+                      rng.random(60000, dtype=np.float32))
+            self._material_cache[key] = grains
+        u, v, depth = grains
+        density = self.density
+        count = round(34000 * density) if density <= 1.0 else round(
+            34000 + (density - 1.0) * 13000)
+        count = max(1, min(len(u), count))
+        u, v, depth = u[:count], v[:count], depth[:count]
+        phase = self._anchors[0][0] * math.tau
+        travel = (self.time * (0.013 + 0.009 * depth)
+                  + 0.046 * (np.sin(self.time * 0.23 + 4.0 * depth + phase)
+                             - np.sin(4.0 * depth + phase)))
+        q = u + travel
+        samples = np.arange(3, dtype=np.float32)[:, None]
+        t = q[None, :] - samples * (0.0015 + 0.0012 * depth) * self.size
+        x = t - np.floor(t)
+        breathing = self.time * 0.11
+        y = (v + (0.10 + 0.045 * math.sin(breathing)) * np.sin(
+            math.tau * x + 7.0 * v + phase + breathing)
+             + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v
+                            + phase * 0.7 - breathing * 0.83)
+             + 0.035 * np.sin(5.0 * math.tau * x + 11.0 * v
+                             + breathing * 1.31))
+        y -= np.floor(y)
+        for vortex, (anchor_x, anchor_y, spin) in enumerate(self._anchors[2:5]):
+            cx = anchor_x + 0.12 * math.sin(self.time * 0.071 + spin * math.tau)
+            cy = anchor_y + 0.12 * math.cos(self.time * 0.063 + spin * math.tau)
+            dx, dy = x - cx, y - cy
+            dx -= np.rint(dx)
+            dy -= np.rint(dy)
+            reach = 0.15 + 0.025 * math.sin(self.time * 0.14 + vortex)
+            weight = np.maximum(0.0, 1.0 - (dx * dx + dy * dy) / reach ** 2) ** 2
+            rotation = weight * (2.7 + 1.4 * math.sin(
+                self.time * 0.19 + spin * math.tau)) * (1 if vortex % 2 else -1)
+            cosine, sine = np.cos(rotation), np.sin(rotation)
+            x = cx + dx * cosine - dy * sine
+            y = cy + dx * sine + dy * cosine
+            x -= np.floor(x)
+            y -= np.floor(y)
+        trails = np.arange(12, dtype=np.float32)[:, None]
+        positions = []
+        for coordinates in (x, y):
+            tangent = coordinates[0] - coordinates[1]
+            tangent -= np.rint(tangent)
+            previous = coordinates[1] - coordinates[2]
+            previous -= np.rint(previous)
+            curvature = np.clip(tangent - previous, -0.0003, 0.0003)
+            curve = (coordinates[0][None, :] - trails * tangent[None, :]
+                     + 0.5 * trails * (trails - 1.0) * curvature[None, :])
+            positions.append(curve - np.floor(curve))
+        x, y = positions
+        if self.pointer is not None and self.gravity_radius > 0.0:
+            dx, dy, _, weight = self._pointer_field(x, y, width, height)
+            exposure = weight.copy()
+            exposure[:-3] += weight[3:]
+            exposure[-3:] += weight[-1]
+            exposure[:-6] += weight[6:]
+            exposure[-6:] += weight[-1]
+            pull = 0.72 * np.sqrt(weight * exposure / 3.0)
+            shorter = max(1, min(width, height))
+            x -= dx * pull * shorter / width
+            y -= dy * pull * shorter / height
+        columns = np.clip((x * width).astype(np.int32), 0, width - 1)
+        rows = np.clip((y * height).astype(np.int32), 0, height - 1)
+        gain = 1.0 if density <= 1.0 else 34000 * density / count
+        intensity = ((0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
+                     * gain)
+        return self._point_material(
+            width, height, columns, rows, intensity)
+
+
+
+
+    def _paint_impulse_lens(self, painter: QPainter, width: int,
+                              height: int) -> None:
+        """Blit the owned point frame for synchronous material callers."""
+        painter.drawImage(0, 0, self._frame_impulse_lens(width, height))
+
+    def _frame_impulse_lens(self, width: int,
+                            height: int) -> QImage:
+        """Bend a round-dot gravity field with cursor wakes and burst waves."""
+        self._step_field_grab()
+        np = _numpy()
+        key = ("impulse_lens", width, height, self.size, self.density)
+        lattice = self._material_cache.get(key)
+        if lattice is None:
+            side = max(3.5, 8.0 * self.size
+                       / math.sqrt(self.effective_density()))
+            xx, yy = np.meshgrid(np.arange(-side, width + side, side,
+                                           dtype=np.float32),
+                                 np.arange(-side, height + side, side,
+                                           dtype=np.float32))
+            lattice = (xx.ravel() / width, yy.ravel() / height, {}, {})
+            self._material_cache[key] = lattice
+        x, y, impulse_fields, popup_fields = lattice
+        shorter = max(1, min(width, height))
+        aspect_x, aspect_y = width / shorter, height / shorter
+        cx = 0.5 + 0.20 * math.sin(
+            self.time * 0.10 + self._anchors[0][0])
+        cy = 0.5 + 0.18 * math.cos(
+            self.time * 0.083 + self._anchors[0][1])
+        dx, dy = (x - cx) * aspect_x, (y - cy) * aspect_y
+        radius = np.sqrt(dx * dx + dy * dy + 1e-6)
+        envelope = np.exp(-(radius / 0.34) ** 2)
+        gravity = -0.052 * envelope / np.sqrt(radius * radius + 0.013)
+        px = x + dx / aspect_x * gravity
+        py = y + dy / aspect_y * gravity
+        px, py = self._bend_pointer(px, py, width, height)
+        energy = envelope * 0.12
+        active_origins = {origin for started, origin, _ in self._gravity_impulses
+                          if 0.0 <= self.time - started < 5.0}
+        for origin in tuple(impulse_fields):
+            if origin not in active_origins:
+                del impulse_fields[origin]
+        for started, origin, strength in self._gravity_impulses:
+            age = self.time - started
+            if age < 0.0 or age >= 5.0:
+                continue
+            field = impulse_fields.get(origin)
+            if field is None:
+                ex = (x - origin[0]) * aspect_x
+                ey = (y - origin[1]) * aspect_y
+                distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+                selected = np.flatnonzero(distance < self.gravity_radius)
+                distance = distance[selected]
+                reach = np.maximum(0.0, 1.0 - (distance / self.gravity_radius) ** 2) ** 3
+                field = (selected, ex[selected] / aspect_x, ey[selected] / aspect_y,
+                         distance, reach * np.exp(-(distance / 0.32) ** 2),
+                         np.sqrt(distance * distance + 0.02), reach)
+                impulse_fields[origin] = field
+            selected, ex, ey, distance, burst_envelope, burst_softening, reach = field
+            decay = math.exp(-age * 0.90) * strength
+            burst = (-0.12 * decay * math.exp(-age * 3.0)
+                     * burst_envelope / burst_softening)
+            front = distance - age * 0.26
+            packet = np.exp(-(front / 0.075) ** 2) * reach
+            ripple = 0.045 * decay * packet * np.sin(front * 58.0)
+            displacement = burst + ripple / np.maximum(distance, 0.055)
+            px[selected] += ex * displacement
+            py[selected] += ey * displacement
+            energy[selected] += decay * packet * 0.40
+        active_popups = {origin for started, origin in self._popup_waves
+                         if 0.0 <= self.time - started < 5.0}
+        for origin in tuple(popup_fields):
+            if origin not in active_popups:
+                del popup_fields[origin]
+        for started, origin in self._popup_waves:
+            age = self.time - started
+            if not 0.0 <= age < 5.0:
+                continue
+            field = popup_fields.get(origin)
+            if field is None:
+                ex = (x - origin[0]) * aspect_x
+                ey = (y - origin[1]) * aspect_y
+                distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+                field = (ex / aspect_x, ey / aspect_y, distance)
+                popup_fields[origin] = field
+            ex, ey, distance = field
+            front = distance - age * 0.26
+            packet = np.exp(-(front / 0.06) ** 2)
+            decay = math.exp(-age * 0.65)
+            displacement = (0.025 * decay * packet * np.sin(front * 58.0)
+                            / np.maximum(distance, 0.055))
+            px += ex * displacement
+            py += ey * displacement
+            energy += decay * packet * 0.30
+        if self._field_grab_offset != (0.0, 0.0):
+            center_x, center_y = self._field_grab_center
+            gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
+            reach = np.maximum(0.0, 1.0 - (gx * gx + gy * gy) / 0.34 ** 2) ** 3
+            px += self._field_grab_offset[0] / aspect_x * reach
+            py += self._field_grab_offset[1] / aspect_y * reach
+        brilliance = np.clip(0.57 + energy, 0.48, 1.0)
+        gain = max(1.0, self.effective_density())
+        image = self._point_material(
+            width, height, px * width, py * height, brilliance * gain,
+            spread=True)
+        return image
+
+    def _flicker_field_dots(self, image, x, y) -> None:
+        """Flash the selected percentage of visible point-theme dots white.
+
+        Fractional expected counts are sampled rather than rounded up to one
+        dot. Very low percentages therefore give rare flashes, even in a
+        sparse field. Selection changes at four ticks per animation second.
+        """
+        np = _numpy()
+        width, height = image.width(), image.height()
+        px, py = np.asarray(x, dtype=np.int32), np.asarray(y, dtype=np.int32)
+        visible = np.flatnonzero((px >= 0) & (px < width)
+                                 & (py >= 0) & (py < height))
+        tick = int(math.floor(self.time * 4.0))
+        selection = self._blinking_indices(len(visible))
+        count = len(selection)
+        if not count:
+            return
+        key = (tick, len(visible), count)
+        cached = getattr(self, "_field_flicker", None)
+        if cached is None or cached[0] != key:
+            cached = (key, selection)
+            self._field_flicker = cached
+        chosen = visible[cached[1]]
+        px, py = px[chosen], py[chosen]
+        flat = np.frombuffer(image.bits(), dtype=np.uint32, count=width * height)
+        np.maximum.at(flat, py * width + px, np.uint32(0xffffffff))
+        for dx, dy, ink in ((-1, 0, 0xffadadad), (1, 0, 0xffadadad),
+                            (0, -1, 0xffadadad), (0, 1, 0xffadadad),
+                            (-1, -1, 0xff3d3d3d), (1, -1, 0xff3d3d3d),
+                            (-1, 1, 0xff3d3d3d), (1, 1, 0xff3d3d3d)):
+            nx, ny = px + dx, py + dy
+            inside = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+            np.maximum.at(flat, ny[inside] * width + nx[inside], np.uint32(ink))
+
+
+class _FungalGrowthEngine(_BufferedEngine):
+    """Fine connected mycelial fans branch from common origins continuously.
+
+    Bright tips advance along irregular filaments and fork progressively.
+    Older connected colonies recede as new origins start, without a full
+    frame reset. Indexed finite trees make arbitrary clock seeks reproducible
+    without accumulating a simulation history.
+    """
+
+    name = "data_art_fungal_growth"
+    base_edge = 2048
+    _interval = 30.0
+    _edge_lifetime = 75.0
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Render the unchanged native field into a freshly owned image."""
+        bw, bh = self.buffer_size(width, height)
+        image = QImage(bw, bh, QImage.Format_RGB32)
+        painter = QPainter(image)
+        self._owned_fungal_image = image
+        try:
+            painter.fillRect(image.rect(), self.identity)
+            painter.setCompositionMode(self.mode)
+            painter.setPen(Qt.NoPen)
+            self._paint_field(painter, bw, bh)
+        finally:
+            self._owned_fungal_image = None
+            painter.end()
+        return self._soften(image, width, height)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll the first common origin and a seed for all indexed colonies."""
+        self._fungal_seed = rng.randrange(2 ** 63)
+        self._origin = (0.05, rng.uniform(0.43, 0.57))
+        self._lineage_cache: Dict[tuple, tuple] = {}
+        self._fungal_rasters: Dict[tuple, tuple] = {}
+        self._fungal_observed: Dict[tuple, tuple] = {}
+        self._fungal_raster_failed = False
+        self._owned_fungal_image = None
+
+    def _resize(self) -> None:
+        """Rebuild paths at the chosen physical branch length."""
+        self._lineage_cache.clear()
+        self._fungal_rasters.clear()
+        self._fungal_observed.clear()
+
+    def buffer_scale(self, width: int, height: int) -> int:
+        """Draw crisp native pixels when the physical screen budget allows."""
+        width, height = max(1, int(width)), max(1, int(height))
+        scale = max(1, int(math.ceil(1.0 / self.resolution)))
+        scale = min(scale, max(1, min(width, height) // BUFFER_MIN_EDGE))
+        while scale < 64 and (width // scale) * (height // scale) > self.max_pixels:
+            scale += 1
+        return scale
+
+    def blur_scale(self, width: int, height: int) -> float:
+        """Allow a little softness without turning filaments into a wash."""
+        return min(1.3, super().blur_scale(width, height))
+
+    def _lineage(self, block: int, width: int, height: int) -> tuple:
+        """Index persistent wandering tips and their recursive front forks."""
+        key = (block, width, height, self.size)
+        cached = self._lineage_cache.get(key)
+        if cached is not None:
+            return cached
+        seed = (self._fungal_seed ^ (block * 0xD1B54A32D192ED03)) & (2 ** 128 - 1)
+        rng = random.Random(seed)
+        direction = block % 4
+        center = self._origin[1] if block == 0 else rng.uniform(0.43, 0.57)
+        headings = (0.0, math.pi, math.pi / 2.0, -math.pi / 2.0)
+        start_heading = headings[direction]
+        colony_turn = (headings[(direction + 1) % 4] - start_heading
+                       + math.pi) % math.tau - math.pi
+        if abs(colony_turn + math.pi) < 1e-9 and block % 2 == 0:
+            colony_turn = math.pi
+        along = math.cos(start_heading), math.sin(start_heading)
+        frontier = []
+        for front, lane in enumerate((center - 0.05, center, center + 0.05)):
+            lane = max(0.10, min(0.90, lane + rng.uniform(-0.02, 0.02)))
+            if direction == 0:
+                x, y = 0.05 * width, lane * height
+            elif direction == 1:
+                x, y = 0.95 * width, lane * height
+            elif direction == 2:
+                x, y = lane * width, 0.05 * height
+            else:
+                x, y = lane * width, 0.95 * height
+            angle = math.atan2(along[1], along[0]) + rng.uniform(-1.1, 1.1)
+            frontier.append((x, y, math.cos(angle), math.sin(angle),
+                             -1, front, 0, front * 128 + 1, -math.inf))
+        edges = []
+        axis = width if direction < 2 else height
+        for tick in range(48):
+            following = []
+            progress = min(1.0, tick / 35.0)
+            bias = 0.07 + 0.35 * progress ** 1.5
+            transition = max(0.0, min(1.0, (tick - 14) / 34.0))
+            transition = transition * transition * (3.0 - 2.0 * transition)
+            heading = start_heading + colony_turn * transition
+            target_x, target_y = math.cos(heading), math.sin(heading)
+            proposals = []
+            for x0, y0, vx, vy, rank, front, depth, code, ready in frontier:
+                branch_rng = random.Random(seed ^ (code * 0x9E3779B97F4A7C15)
+                                           ^ (tick * 0xD1B54A32D192ED03))
+                local_bias = bias / (1.0 + 0.15 * depth)
+                step_turn = branch_rng.uniform(-0.58, 0.58) * (1.0 - 0.40 * local_bias)
+                cosine, sine = math.cos(step_turn), math.sin(step_turn)
+                turned_x, turned_y = vx * cosine - vy * sine, vx * sine + vy * cosine
+                edge_x = (max(0.0, (0.20 * width - x0) / (0.20 * width))
+                          - max(0.0, (x0 - 0.80 * width) / (0.20 * width)))
+                edge_y = (max(0.0, (0.20 * height - y0) / (0.20 * height))
+                          - max(0.0, (y0 - 0.80 * height) / (0.20 * height)))
+                heading_x = ((1.0 - local_bias) * turned_x + local_bias * target_x
+                             + 1.8 * edge_x)
+                heading_y = ((1.0 - local_bias) * turned_y + local_bias * target_y
+                             + 1.8 * edge_y)
+                norm = math.hypot(heading_x, heading_y)
+                heading_x, heading_y = heading_x / norm, heading_y / norm
+                length = axis * self.size ** 0.3 / 43.0 * branch_rng.uniform(0.85, 1.45)
+                x1, y1 = x0 + heading_x * length, y0 + heading_y * length
+                if x1 < width * 0.025:
+                    x1 = width * 0.05 - x1
+                    heading_x = abs(heading_x)
+                elif x1 > width * 0.975:
+                    x1 = width * 1.95 - x1
+                    heading_x = -abs(heading_x)
+                if y1 < height * 0.025:
+                    y1 = height * 0.05 - y1
+                    heading_y = abs(heading_y)
+                elif y1 > height * 0.975:
+                    y1 = height * 1.95 - y1
+                    heading_y = -abs(heading_y)
+                if math.hypot(x1 - x0, y1 - y0) < 0.4:
+                    if rank == -1:
+                        following.append((x0, y0, target_x, target_y,
+                                          rank, front, depth, code, ready))
+                    continue
+                bend = branch_rng.uniform(-0.25, 0.25)
+                control_x = (x0 + x1) * 0.5 - (y1 - y0) * bend
+                control_y = (y0 + y1) * 0.5 + (x1 - x0) * bend
+                born = max(ready, block * self._interval - 0.55
+                           + tick * self._interval / 36.0
+                           + branch_rng.uniform(-0.04, 0.04))
+                duration = branch_rng.uniform(0.68, 0.82)
+                edges.append((rank, x0, y0, control_x, control_y, x1, y1,
+                              born, duration, front, depth))
+                following.append((x1, y1, heading_x, heading_y,
+                                  rank, front, depth, code, born + duration))
+                chance = 0.10 + 0.34 * progress ** 1.5 if tick < 44 else 0.0
+                if depth < 9 and branch_rng.random() < chance:
+                    side = -1 if branch_rng.random() < 0.5 else 1
+                    fork = side * branch_rng.uniform(0.42, 1.05)
+                    cosine, sine = math.cos(fork), math.sin(fork)
+                    child_x = heading_x * cosine - heading_y * sine
+                    child_y = heading_x * sine + heading_y * cosine
+                    child_rank = max(rank, int(branch_rng.random() * 1000))
+                    proposals.append((x1, y1, child_x, child_y, child_rank,
+                                      front, depth + 1, code * 131 + tick + 1,
+                                      born + duration))
+            rng.shuffle(proposals)
+            quota = min(len(proposals), round(1 + 7 * progress ** 1.5))
+            for child in proposals[:quota]:
+                if len(following) >= 48:
+                    replace = min((i for i, tip in enumerate(following)
+                                   if tip[4] != -1),
+                                  key=lambda i: (following[i][6], following[i][8]),
+                                  default=None)
+                    if replace is None:
+                        break
+                    following.pop(replace)
+                following.append(child)
+            frontier = following
+        result = tuple(edges)
+        self._lineage_cache[key] = result
+        if len(self._lineage_cache) > 8:
+            del self._lineage_cache[next(iter(self._lineage_cache))]
+        return result
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Visible front-first branches within a sparse pixel footprint."""
+        if width <= 0 or height <= 0:
+            return ()
+        width, height = int(width), int(height)
+        latest = max(0, math.floor((self.time + 0.55) / self._interval))
+        earliest = max(0, math.floor((self.time - self._edge_lifetime)
+                                     / self._interval))
+        stroke = max(0.65, min(2.0, 1.45 * self.size
+                              * (min(width, height) / 1080.0) ** 0.35))
+        density = self.density
+        branch_count = round(50 + 800 * density) if density <= 1.0 else round(
+            850 + (density - 1.0) * 75)
+        branch_count = max(1, min(1000, branch_count))
+        density_alpha = min(1.0, 60.0 * density) / math.sqrt(max(1.0, density))
+        candidates = []
+        for block in range(earliest, latest + 1):
+            colony_age = self.time - (block * self._interval - 0.55)
+            colony_fade = min(1.0, (self._edge_lifetime - colony_age) / 32.0)
+            if colony_fade <= 0.0:
+                continue
+            for (index, x0, y0, cx, cy, x1, y1, born, duration,
+                 hue, depth) in self._lineage(block, width, height):
+                if index >= branch_count:
+                    continue
+                age = self.time - born
+                if age <= 0.0:
+                    continue
+                progress = min(1.0, age / duration)
+                fade = min(1.0, age / 0.35) * colony_fade
+                trailing_age = max(0.0, age - duration)
+                alpha = (0.50 + 0.75 * max(0.0, 1.0 - trailing_age / 9.0)) \
+                    * fade * density_alpha
+                if alpha >= 0.006:
+                    candidates.append((x0, y0, cx, cy, x1, y1, progress,
+                                       alpha, max(0.4, stroke * 0.90 ** depth), hue))
+        budget = width * height * 0.26
+        selected = []
+        for edge in reversed(candidates):
+            x0, y0, cx, cy, x1, y1, progress, _, thick, _ = edge
+            control_x = x0 + progress * (cx - x0)
+            control_y = y0 + progress * (cy - y0)
+            end_x = ((1.0 - progress) ** 2 * x0
+                     + 2.0 * (1.0 - progress) * progress * cx
+                     + progress ** 2 * x1)
+            end_y = ((1.0 - progress) ** 2 * y0
+                     + 2.0 * (1.0 - progress) * progress * cy
+                     + progress ** 2 * y1)
+            length = math.hypot(control_x - x0, control_y - y0) \
+                + math.hypot(end_x - control_x, end_y - control_y)
+            radius = thick * 0.5 + 1.5
+            footprint = 2.0 * radius * length + math.pi * radius ** 2
+            if progress < 1.0:
+                footprint += math.pi * (thick * 0.8 + 1.5) ** 2
+            if footprint > budget:
+                continue
+            selected.append(edge)
+            budget -= footprint
+        return tuple(reversed(selected))
+
+    def _fungal_paths(self, width: int, height: int) -> tuple:
+        """Group the unchanged partial Béziers in their original paint order."""
+        colors = self.paint_colors
+        paths = {}
+        mature = {}
+        stable_alpha = (0.50 * min(1.0, 60.0 * self.density)
+                        / math.sqrt(max(1.0, self.density)))
+        tips = []
+        for (x0, y0, cx, cy, x1, y1, progress,
+             alpha, stroke, hue) in self.geometry(width, height):
+            control_x = x0 + progress * (cx - x0)
+            control_y = y0 + progress * (cy - y0)
+            end_x = ((1.0 - progress) ** 2 * x0
+                     + 2.0 * (1.0 - progress) * progress * cx
+                     + progress ** 2 * x1)
+            end_y = ((1.0 - progress) ** 2 * y0
+                     + 2.0 * (1.0 - progress) * progress * cy
+                     + progress ** 2 * y1)
+            key = (hue % len(colors), stroke, alpha)
+            mature[key] = mature.get(key, True) and progress == 1.0 and alpha == stable_alpha
+            path = paths.get(key)
+            if path is None:
+                path = QPainterPath()
+                paths[key] = path
+            path.moveTo(x0, y0)
+            path.quadTo(control_x, control_y, end_x, end_y)
+            if progress < 1.0:
+                tips.append((end_x, end_y, stroke, hue, alpha))
+        return paths, mature, tips
+
+    def _can_reuse_fungal_raster(self, painter: QPainter, width: int, height: int) -> bool:
+        """Allow exact sparse additions only within this frame's private native image."""
+        device = painter.device()
+        return (not self._fungal_raster_failed and self.dark and self.size >= 2.0
+                and device is self._owned_fungal_image
+                and isinstance(device, QImage) and device.format() == QImage.Format_RGB32
+                and device.width() == width and device.height() == height
+                and painter.worldTransform().isIdentity()
+                and painter.deviceTransform().isIdentity()
+                and painter.opacity() == 1.0 and not painter.hasClipping()
+                and painter.compositionMode() == self.mode)
+
+    def _reuse_fungal_raster(self, key: tuple, path: QPainterPath,
+                            color: QColor, target) -> bool:
+        """Add an owned contribution only when Qt Plus cannot reach saturation."""
+        entry = self._fungal_rasters.get(key)
+        if entry is None or entry[0] != path:
+            return False
+        np = _numpy()
+        indices, source = entry[1], entry[2]
+        destination = target[indices]
+        ceiling = tuple(math.ceil(channel * color.alphaF() * 255.0) + 1
+                        for channel in (color.blueF(), color.greenF(), color.redF()))
+        if not all(np.all(((destination >> shift) & 255) <= 255 - high)
+                   for shift, high in zip((0, 8, 16), ceiling)):
+            return False
+        output = np.full(destination.shape, 0xff000000, dtype=np.uint32)
+        for shift in (0, 8, 16):
+            channel = ((destination >> shift) & 255) + ((source >> shift) & 255)
+            output |= np.minimum(channel, 255) << shift
+        target[indices] = output
+        del self._fungal_rasters[key]
+        self._fungal_rasters[key] = entry
+        return True
+
+    def _observe_fungal_path(self, key: tuple, path: QPainterPath) -> bool:
+        """Require three unchanged observations and retain at most sixty-four paths."""
+        previous = self._fungal_observed.get(key)
+        stable = previous[1] + 1 if previous is not None and previous[0] == path else 1
+        self._fungal_observed[key] = (QPainterPath(path), stable)
+        if len(self._fungal_observed) > 64:
+            del self._fungal_observed[next(iter(self._fungal_observed))]
+        return stable >= 3
+
+    def _warm_fungal_raster(self, key: tuple, path: QPainterPath,
+                           color: QColor, stroke: float, width: int, height: int) -> bool:
+        """Cache exact native Qt pixels as owned sparse arrays within eight MiB."""
+        margin = math.ceil(stroke) + 2
+        region = path.boundingRect().toAlignedRect().adjusted(-margin, -margin, margin, margin)
+        region = region.intersected(QRect(0, 0, width, height))
+        if region.isEmpty():
+            return False
+        stage = QImage(width, height, QImage.Format_RGB32)
+        warm = QPainter(stage)
+        try:
+            warm.setClipRect(region)
+            warm.setCompositionMode(QPainter.CompositionMode_Source)
+            warm.fillRect(region, self.identity)
+            warm.setCompositionMode(self.mode)
+            warm.setRenderHint(QPainter.Antialiasing, True)
+            warm.setBrush(Qt.NoBrush)
+            warm.setPen(QPen(color, stroke, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            warm.drawPath(path)
+        finally:
+            warm.end()
+        np = _numpy()
+        pixels = np.frombuffer(stage.constBits(), dtype=np.uint32).reshape(height, width)
+        crop = pixels[region.y():region.y() + region.height(),
+                      region.x():region.x() + region.width()]
+        yy, xx = np.nonzero(crop & 0x00ffffff)
+        indices = ((yy + region.y()) * width + xx + region.x()).astype(np.int32)
+        values = (crop[yy, xx] & 0x00ffffff).astype(np.uint32)
+        self._fungal_rasters[key] = (QPainterPath(path), indices, values)
+        while (len(self._fungal_rasters) > 64
+               or sum(v[1].nbytes + v[2].nbytes for v in self._fungal_rasters.values())
+               > 8 * 1024 ** 2):
+            del self._fungal_rasters[next(iter(self._fungal_rasters))]
+        return True
+
+    def _paint_fungal_paths(self, painter: QPainter, paths: dict) -> None:
+        """Draw every original group using its unmodified Qt pen and insertion order."""
+        colors = self.paint_colors
+        for (hue, stroke, alpha), path in paths.items():
+            color = _with_alpha(colors[hue], alpha)
+            painter.setPen(QPen(color, stroke, Qt.SolidLine,
+                                Qt.RoundCap, Qt.RoundJoin))
+            painter.drawPath(path)
+
+    def _paint_cached_fungal_paths(self, painter: QPainter, width: int, height: int,
+                                   paths: dict, mature: dict) -> None:
+        """Reuse stable contributions or draw their original Qt groups, in order."""
+        device = painter.device()
+        np = _numpy()
+        target = np.frombuffer(device.bits(), dtype=np.uint32).reshape(height, width).ravel()
+        created = 0
+        colors = self.paint_colors
+        for group, path in paths.items():
+            hue, stroke, alpha = group
+            color = _with_alpha(colors[hue], alpha)
+            painter.setPen(QPen(color, stroke, Qt.SolidLine,
+                                Qt.RoundCap, Qt.RoundJoin))
+            key = (group, color.getRgbF(), width, height)
+            if self._reuse_fungal_raster(key, path, color, target):
+                continue
+            painter.drawPath(path)
+            if (created < 1 and mature[group] and self._observe_fungal_path(key, path)):
+                created += self._warm_fungal_raster(key, path, color, stroke, width, height)
+
+    def _paint_fungal_tips(self, painter: QPainter, tips: list) -> None:
+        """Paint the original live-tip discs after all of their filament groups."""
+        colors = self.paint_colors
+        painter.setPen(Qt.NoPen)
+        for end_x, end_y, stroke, hue, alpha in tips:
+            painter.setBrush(_with_alpha(colors[(hue + 1) % len(colors)],
+                                         min(0.85, alpha * 1.8)))
+            radius = max(0.45, stroke * 0.8)
+            painter.drawEllipse(QPointF(end_x, end_y), radius, radius)
+        painter.setBrush(Qt.NoBrush)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Trace the original native filaments, recovering from optional-cache errors."""
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(Qt.NoBrush)
+        paths, mature, tips = self._fungal_paths(width, height)
+        if self._can_reuse_fungal_raster(painter, width, height):
+            device = painter.device()
+            try:
+                painter.save()
+                try:
+                    self._paint_cached_fungal_paths(painter, width, height, paths, mature)
+                finally:
+                    painter.restore()
+            except Exception:
+                self._fungal_raster_failed = True
+                self._fungal_rasters.clear()
+                self._fungal_observed.clear()
+                painter.setCompositionMode(QPainter.CompositionMode_Source)
+                painter.fillRect(device.rect(), self.identity)
+                painter.setCompositionMode(self.mode)
+                self._paint_fungal_paths(painter, paths)
+        else:
+            self._paint_fungal_paths(painter, paths)
+        self._paint_fungal_tips(painter, tips)
+
+
+class _ThoreEngine(_BufferedEngine):
+    """A cool rain field with occasional branching, restrained lightning.
+
+    Drops wrap independently, while each bolt is generated from its indexed
+    event seed. Neither the rain nor the sky has a frame-wide reset.
+    """
+
+    name = "data_art_thore"
+    base_edge = 2048
+    _event_interval = 8.4
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Render the unchanged native field into a freshly owned image."""
+        bw, bh = self.buffer_size(width, height)
+        image = QImage(bw, bh, QImage.Format_RGB32)
+        painter = QPainter(image)
+        try:
+            painter.fillRect(image.rect(), self.identity)
+            painter.setCompositionMode(self.mode)
+            painter.setPen(Qt.NoPen)
+            self._paint_field(painter, bw, bh)
+        finally:
+            painter.end()
+        return self._soften(image, width, height)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Keep immutable rain particles and one seed for indexed bolts."""
+        self._thore_seed = rng.randrange(2 ** 63)
+        self._rain = tuple((rng.random(), rng.random(),
+                            rng.uniform(0.65, 1.45),
+                            rng.uniform(0.65, 1.5), rng.randrange(5))
+                           for _ in range(340))
+        self._bolt_cache: Dict[int, tuple] = {}
+
+    def buffer_scale(self, width: int, height: int) -> int:
+        """Retain distinct streaks and fine bolt forks at native detail."""
+        return _FungalGrowthEngine.buffer_scale(self, width, height)
+
+    def _bolt(self, index: int) -> tuple:
+        """One compact deterministic lightning tree, cached four events."""
+        cached = self._bolt_cache.get(index)
+        if cached is not None:
+            return cached
+        rng = random.Random((self._thore_seed ^
+                             (index * 0xD1B54A32D192ED03)) & (2 ** 128 - 1))
+        horizontal = index % 3 == 1
+        along = (1.0, 0.0) if horizontal else (0.0, 1.0)
+        across = (0.0, 1.0) if horizontal else (1.0, 0.0)
+        x = -0.035 if horizontal else rng.uniform(0.21, 0.79)
+        y = rng.uniform(0.21, 0.79) if horizontal else -0.035
+        trunk = [(x, y)]
+        forks = []
+        for step in range(32):
+            stride = rng.uniform(0.018, 0.027)
+            zigzag = rng.uniform(-0.025, 0.025)
+            x += along[0] * stride + across[0] * zigzag
+            y += along[1] * stride + across[1] * zigzag
+            trunk.append((x, y))
+            if step in (9, 17, 24):
+                direction = rng.choice((-1, 1))
+                bx, by = x, y
+                branch = [(bx, by)]
+                for _ in range(7):
+                    stride = rng.uniform(0.007, 0.018)
+                    fork = direction * rng.uniform(0.010, 0.038)
+                    bx += along[0] * stride + across[0] * fork
+                    by += along[1] * stride + across[1] * fork
+                    branch.append((bx, by))
+                forks.append(tuple(branch))
+        result = (tuple(trunk), tuple(forks))
+        self._bolt_cache[index] = result
+        if len(self._bolt_cache) > 4:
+            del self._bolt_cache[next(iter(self._bolt_cache))]
+        return result
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Colour-independent rain positions and the active lightning tree."""
+        if width <= 0 or height <= 0:
+            return ()
+        amount = min(len(self._rain), max(1, round(105 * self.density)))
+        length = min(width, height) * 0.025 * self.size
+        drops = []
+        for x0, phase, fall, span, hue in self._rain[:amount]:
+            progress = (phase + self.time * (0.085 + 0.040 * fall)) % 1.0
+            wind = (0.012 * math.sin(self.time * 0.23 + fall * math.tau)
+                    + 0.006 * math.sin(progress * math.tau + x0 * 9.0))
+            x = (x0 + wind) * width
+            y = progress * (height + 2.0 * length) - length
+            slant = length * (0.15 + 0.12 * math.sin(
+                self.time * 0.23 + fall * math.tau))
+            fade = min(1.0, progress / 0.018, (1.0 - progress) / 0.018)
+            drops.append((x, y, slant, length, (0.14 + 0.10 * span)
+                          * self.alpha_scale() * fade, hue))
+        index = math.floor(self.time / self._event_interval)
+        age = self.time - index * self._event_interval
+        flash = ((math.sin(math.pi * age / 0.34) ** 2, *self._bolt(index))
+                 if 0.0 <= age < 0.34 else ())
+        return tuple(drops), flash
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw tapered advected rain and narrow, pale branching lightning."""
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        palette = self.paint_colors
+        drops, flash = self.geometry(width, height)
+        for x, y, slant, length, alpha, hue in drops:
+            color = palette[hue % len(palette)]
+            taper = QLinearGradient(x, y, x + slant, y + length)
+            taper.setColorAt(0.0, _with_alpha(color, 0.0))
+            taper.setColorAt(0.55, _with_alpha(color, alpha * 0.34))
+            taper.setColorAt(1.0, _with_alpha(color, alpha))
+            painter.setPen(QPen(QBrush(taper), max(0.55, 0.72 * self.size), Qt.SolidLine,
+                                Qt.RoundCap))
+            painter.drawLine(QPointF(x, y), QPointF(x + slant, y + length))
+        if flash:
+            pulse, trunk, forks = flash
+            wash = QLinearGradient(0.0, 0.0, 0.0, float(height))
+            wash.setColorAt(0.0, _with_alpha(palette[0], 0.018 * pulse))
+            wash.setColorAt(1.0, _with_alpha(palette[0], 0.0))
+            painter.setPen(Qt.NoPen)
+            painter.fillRect(0, 0, width, height, wash)
+            for points, fine in ((trunk, False),
+                                 *((branch, True) for branch in forks)):
+                path = QPainterPath(QPointF(points[0][0] * width,
+                                            points[0][1] * height))
+                for px, py in points[1:]:
+                    path.lineTo(px * width, py * height)
+                bolt_color = _mix(palette[0], QColor("#ffffff"),
+                                  0.48 if self.dark else 0.0)
+                painter.setPen(QPen(_with_alpha(bolt_color,
+                                               (0.29 if fine else 0.49)
+                                               * pulse * self.alpha_scale()),
+                                    (0.70 if fine else 1.35) * self.size,
+                                    Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                painter.drawPath(path)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+
+
+_ENGINES = {
+    "blobs": BlobsEngine,
+    "aurora": AuroraEngine,
+    "ripple": RippleEngine,
+    "drift": DriftEngine,
+    "cells": CellsEngine,
+    "data_art_point_atlas": partial(_DataArtEngine, family="point_atlas"),
+    "data_art_tissue_facets": partial(_DataArtEngine, family="tissue_facets"),
+    "data_art_genetic_advection": partial(_DataArtEngine, family="genetic_advection"),
+    "data_art_impulse_lens": partial(_DataArtEngine, family="impulse_lens"),
+    "data_art_fungal_growth": _FungalGrowthEngine,
+    SPACEOUT_THEME: FractalEngine,
+}
+
+
+def make_engine(theme: str, palette: str, background: Union[QColor, str],
+                seed: Optional[int] = None,
+                blur: float = DEFAULT_BLUR,
+                speed: float = DEFAULT_SPEED,
+                size: float = DEFAULT_SIZE,
+                resolution: float = DEFAULT_RESOLUTION,
+                density: float = DEFAULT_DENSITY,
+                direction: str = DEFAULT_DRIFT_DIRECTION,
+                blink_percent: float = DEFAULT_BLINK_PERCENT,
+                popup_wave_frequency: float = 0.0) -> AmbientEngine:
+    """Build the engine for ``theme``/``palette``. Raises on unknown names.
+
+    Everything after ``seed`` is a user control; the defaults are the shipped
+    animation exactly.
+    """
+    _require_theme(theme)
+    _require_palette(theme, palette)
+    engine = _ENGINES[theme](palette_colors(theme, palette), background,
+                           seed=seed, blur=blur, speed=speed, size=size,
+                           resolution=resolution, density=density,
+                           direction=direction)
+    engine.set_blink_percent(blink_percent)
+    engine.set_popup_wave_frequency(popup_wave_frequency)
+    return engine
+
+
+class Motion(NamedTuple):
+    """Every user control that shapes the animation, in one value.
+
+    A named tuple rather than five arguments because the set grows: it went
+    from three to five in one change, and every install site that had
+    unpacked a plain tuple would have broken.
+
+    :param blur: softness of the painted shapes; the widget clamps it to
+        :data:`BLUR_RANGE`.
+    :param speed: animation-clock multiplier, clamped to :data:`SPEED_RANGE`.
+    :param size: element-size multiplier, clamped to :data:`SIZE_RANGE`.
+    :param resolution: detail (render buffer) multiplier, clamped to
+        :data:`RESOLUTION_RANGE`.
+    :param density: element-count multiplier, clamped to
+        :data:`DENSITY_RANGE`.
+    :param direction: starfield drift direction, one of
+        :data:`DRIFT_DIRECTIONS`; an unknown name falls back to the default.
+    """
+
+    blur: float
+    speed: float
+    size: float
+    resolution: float
+    density: float
+    direction: str
+
+
+def preferred_motion() -> Motion:
+    """The animation controls, from the user's preferences.
+
+    Read here rather than passed in by every install site, for the same
+    reason :func:`_theme_background` is: the two callers that build ambient
+    widgets are a module screen and Home, and neither of them has any
+    business knowing what the animation's knobs are called. Falls back to
+    the shipped defaults if preferences cannot be read at all.
+    """
+    fallback = Motion(DEFAULT_BLUR, DEFAULT_SPEED, DEFAULT_SIZE,
+                      DEFAULT_RESOLUTION, DEFAULT_DENSITY,
+                      DEFAULT_DRIFT_DIRECTION)
+    try:
+        from ..preferences import (get_ambient_density,
+                                   get_ambient_drift_direction,
+                                   get_ambient_resolution, get_ambient_size,
+                                   get_ambient_speed)
+        return Motion(DEFAULT_BLUR, get_ambient_speed(),
+                      get_ambient_size(), get_ambient_resolution(),
+                      get_ambient_density(), get_ambient_drift_direction())
+    except Exception:
+        return fallback
+
+
+def _preferred_gravity_radius() -> float:
+    """Read the optional pointer radius without requiring Preferences at import."""
+    try:
+        from ..preferences import _ambient_gravity_radius
+
+        return _clamp(_ambient_gravity_radius(), 0.0, 1.0)
+    except Exception:
+        return 0.0
+
+
+
+#: Frames painted by every ambient backdrop in this process, ever.
+#:
+#: Process-wide and not per widget, because the claim "None costs nothing"
+#: is about the *application*, and the widget it would be counted on is the
+#: one that does not exist. A test selects None, drives a real screen, and
+#: asserts this number does not move.
+_TOTAL_FRAMES = 0
+
+
+def total_frames_painted() -> int:
+    """How many ambient frames this process has painted. For tests."""
+    return _TOTAL_FRAMES
+
+
+#: How long :func:`_retire_producer` waits for a shading thread to notice it
+#: has been asked to stop, in seconds.
+#:
+#: One loop iteration is at most one shading pass, and the sleep between
+#: passes wakes on the stop event rather than expiring — so a healthy thread
+#: is gone in microseconds and this only bounds a pathological one. A thread
+#: that has not stopped by then is a daemon that will exit on its own, and
+#: waiting longer for it on the GUI thread would be a worse bug than the one
+#: it is guarding.
+#:
+#: The wait is on the GUI thread, in ``hideEvent`` — i.e. on every tab switch
+#: — and it does cost something when the machine is busy: **47 ms worst of
+#: eight**, hiding a ``cells`` backdrop at 1080p while a Python worker runs,
+#: which is one shading pass already in flight finishing. That is the trade
+#: this whole change makes and it is strongly the right way round: a one-off
+#: 47 ms on a tab switch against 18-33 ms on *every frame* beforehand.
+PRODUCER_JOIN_S = 2.0
+
+
+class _QueuedArtInput:
+    """Publish bounded immutable GUI input for consumption between frames.
+
+    Only the GUI offers snapshots. The cumulative elapsed counter and latest
+    pointer share one immutable tuple with at most sixteen numbered clicks.
+    A consumer holds the engine lock, whether it is the GUI or the producer;
+    its applied serials prevent advancing the same tick or click twice.
+    """
+
+    def __init__(self):
+        """Initialize bounded cumulative tick and click ownership counters."""
+        self._serial = 0
+        self._elapsed = 0.0
+        self._click_serial = 0
+        self._clicks = ()
+        self._snapshot = (0, 0.0, None, ())
+        self._applied_serial = 0
+        self._applied_elapsed = 0.0
+        self._applied_click_serial = 0
+        self._grab_snapshot = (0, None)
+        self._applied_grab_serial = 0
+        self._popup_snapshot = (0, None)
+
+    def _offer(self, step, pointer, clicks, *, grab=None, popup_origin=None) -> None:
+        """Publish one GUI tick without taking or waiting for an engine lock."""
+        self._elapsed += step
+        for point in clicks:
+            self._click_serial += 1
+            self._clicks = (self._clicks + ((self._click_serial, point),))[-16:]
+        self._serial += 1
+        self._grab_snapshot = (self._serial, grab)
+        self._popup_snapshot = (self._serial, popup_origin)
+        self._snapshot = (self._serial, self._elapsed, pointer, self._clicks)
+
+    def _consume(self, engine, *, discard_clicks=False, preserve_grab=False) -> None:
+        """Apply newly offered GUI input while the caller owns the engine lock.
+
+        Lifecycle discards reset the handle; turning hover gravity off can
+        discard clicks while preserving an explicitly held material patch.
+        """
+        serial, elapsed, pointer, clicks = self._snapshot
+        if isinstance(engine, _DataArtEngine) and engine.family == "impulse_lens":
+            popup_serial, popup_origin = self._popup_snapshot
+            if discard_clicks and not preserve_grab:
+                engine._set_popup_wave_origin(None)
+            elif popup_serial == serial:
+                engine._set_popup_wave_origin(popup_origin)
+            grab_serial, grab = self._grab_snapshot
+            if discard_clicks and not preserve_grab:
+                engine._set_field_grab(None, reset=True)
+            elif self._applied_grab_serial < grab_serial <= serial:
+                engine._set_field_grab(grab)
+                self._applied_grab_serial = grab_serial
+        if serial <= self._applied_serial:
+            return
+        if (isinstance(engine, _DataArtEngine) and engine.interactive
+                and not discard_clicks):
+            engine.set_pointer(pointer)
+        delta = elapsed - self._applied_elapsed
+        if delta > 0:
+            engine.advance(delta)
+        for click_serial, point in clicks:
+            if (click_serial > self._applied_click_serial and not discard_clicks
+                    and engine.name == "data_art_impulse_lens"):
+                engine._add_impulse(point, strength=1.0)
+        if clicks:
+            self._applied_click_serial = clicks[-1][0]
+        self._applied_elapsed = elapsed
+        self._applied_serial = serial
+
+
+class _FrameProducer:
+    """The shading thread: turns ``(engine, size)`` into finished frames.
+
+    One thread per running backdrop, one frame deep. It calls
+    :meth:`_BufferedEngine.shade` under ``engine_lock`` and publishes the
+    result into a single slot; the GUI thread takes whatever is in that slot
+    and blits it. Nothing here touches a ``QWidget`` — a widget painted off
+    the GUI thread is undefined behaviour, and a ``QImage`` painted off it is
+    supported and is the whole reason this works.
+
+    The GUI owns elapsed time and input. Buffered themes publish bounded immutable
+    tick snapshots, which either the GUI or this producer consumes under the
+    engine lock before shading. Numbered cumulative counters prevent double
+    advancement. Consuming on the producer lets the clock and pointer keep
+    changing even when every shade exceeds the frame interval; a nonblocking
+        GUI lock attempt alone can otherwise lose every opportunity to advance.
+        No wall clock, widget or application is queried by this thread. Explicit
+    clock changes and controls flush offered input under the same lock.
+
+    A plain :class:`threading.Thread` and not a ``QThread``: it owns no
+    object with Qt thread affinity, it emits no signals, and
+    :mod:`spacr.qt.bridge` is a standing record of what QThread lifetime
+    costs when the thing on it does not need one.
+
+    **What it does not do is speed the shading up.** It is the same Python
+    under the same interpreter lock, so it takes the same 26 ms for ``cells``
+    under load that the GUI thread took. What changes is *who waits*: the GUI
+    thread stops shading, so its frame costs one ``drawImage`` (0.24-0.32 ms
+    at every load measured) and the animation degrades by repeating a frame
+    instead of by blocking the interface. That distinction is the fix.
+
+    :param engine: a :class:`_BufferedEngine`. Unbuffered engines
+        (``drift``) have no frame to hand over and keep the synchronous path.
+    :param engine_lock: the widget's lock over the engine. Held across the
+        shading pass here, and taken by every widget setter that mutates the
+        engine, so a live Preferences change cannot land in the middle of a
+        frame.
+    :param fps: frame-rate cap, matching the widget's timer.
+    :param size: ``(width, height)`` of the canvas.
+    :param queued_input: optional immutable GUI tick handoff for data art.
+    """
+
+    def __init__(self, engine: "_BufferedEngine", engine_lock,
+                 fps: int, size: Tuple[int, int], queued_input=None):
+        """Prepare the shading thread: engine, lock, beat and size."""
+        self._engine = engine
+        self._engine_lock = engine_lock
+        self._queued_input = queued_input
+        self._interval = 1.0 / max(1, int(fps))
+        #: Canvas size, written by the GUI thread and read by this one.
+        #: A plain attribute holding an immutable tuple, deliberately: the
+        #: assignment is a single bytecode and the reader either sees the old
+        #: pair or the new one, never half of each, so a lock here would buy
+        #: nothing but a chance for the GUI thread to wait on it.
+        self.size: Tuple[int, int] = (int(size[0]), int(size[1]))
+        #: Frames actually shaded. Under load this falls below the frame
+        #: rate, which is the degradation this design chooses.
+        self.frames_shaded = 0
+        self._frame_lock = threading.Lock()
+        self._frame: Optional[QImage] = None
+        self._stop = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+
+    def start(self) -> None:
+        """Begin shading. A second call is a no-op."""
+        if self._thread is not None:
+            return
+        self._thread = threading.Thread(
+            target=self._run, name="spacr-ambient-shade", daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        """Ask the thread to finish the frame it is on and exit, then wait
+        up to :data:`PRODUCER_JOIN_S` for it.
+
+        The thread reference is *kept*, not cleared, so :meth:`is_alive` goes
+        on answering about the operating system's thread rather than about a
+        variable this method set to ``None`` — otherwise "the backdrop stopped
+        its thread" is a claim nothing can check. A producer is never
+        restarted (:meth:`AmbientWidget._start_producer` builds a new one), so
+        there is nothing to gain by forgetting it.
+        """
+        self._stop.set()
+        thread = self._thread
+        if thread is not None and thread.is_alive():
+            thread.join(timeout=PRODUCER_JOIN_S)
+
+    def is_alive(self) -> bool:
+        """Whether the shading thread is actually running."""
+        thread = self._thread
+        return bool(thread is not None and thread.is_alive())
+
+    def set_fps(self, fps: int) -> None:
+        """Shade no faster than ``fps`` frames a second. Takes effect after
+        the frame in flight."""
+        self._interval = 1.0 / max(1, int(fps))
+
+    def publish(self, image: QImage) -> None:
+        """Make ``image`` the frame the next paint will use."""
+        with self._frame_lock:
+            self._frame = image
+
+    def latest(self) -> Optional[QImage]:
+        """The newest published frame, or ``None``. **Never blocks.**
+
+        ``None`` means "ask again next frame" and covers both cases the
+        caller has to survive: nothing has been shaded yet, and the slot is
+        being written this instant. Neither is worth waiting for — the
+        caller already holds the previous frame and repeating it is a frame
+        of animation, where waiting is a frozen interface.
+        """
+        if not self._frame_lock.acquire(blocking=False):
+            return None
+        try:
+            return self._frame
+        finally:
+            self._frame_lock.release()
+
+    def _run(self) -> None:
+        """Shade frames on the beat until stopped.
+
+        Waits on the STOP EVENT rather than sleeping, so stopping returns at once
+        instead of at the end of the beat. A pass that overran its beat gets no
+        wait at all, which is how this degrades under load: it keeps shading as
+        fast as it can rather than falling further behind a schedule it cannot
+        keep.
+        """
+        while not self._stop.is_set():
+            started = time.monotonic()
+            width, height = self.size
+            image = None
+            if width > 0 and height > 0:
+                with self._engine_lock:
+                    if self._queued_input is not None:
+                        self._queued_input._consume(self._engine)
+                    image = self._engine.shade(width, height)
+            if image is not None:
+                self.publish(image)
+                self.frames_shaded += 1
+            remaining = self._interval - (time.monotonic() - started)
+            self._stop.wait(remaining if remaining > 0 else 0.0)
+
+
+def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
+    """Stop and join whatever shading thread is in ``box``, and empty it.
+
+    A module function over a one-element list rather than a method, because
+    :attr:`QWidget.destroyed` is connected to it: a slot that captured the
+    widget would run against a Python wrapper whose C++ half is already gone,
+    which is the crash :mod:`spacr.qt.bridge` documents in another guise. The
+    box holds nothing but the thread, so the closure is safe to outlive
+    everything else.
+    """
+    producer = box[0] if box else None
+    if box:
+        box[0] = None
+    if producer is not None:
+        producer.stop()
+
+
+class AmbientWidget(QWidget):
+    """The live backdrop: paints an :class:`AmbientEngine` at a capped rate.
+
+    Screen content sits in front of it, so it never takes focus, is
+    transparent to mouse events, and lowers itself to the bottom of the
+    sibling stacking order. It is fully opaque — it paints the page colour (or
+    the theme wallpaper) itself and the animation on top — so the widget it
+    covers has nothing to repaint underneath.
+
+    :param parent: parent widget; :meth:`follow_parent` sizes it to that.
+    :param theme: one of :data:`AMBIENT_THEMES`.
+    :param palette: one of :func:`palettes_for` for that theme. A palette
+        that exists but is not offered by the theme is downgraded to the
+        theme's default (stale preferences must not break a screen); an
+        unknown name raises.
+    :param background: the flat colour under the animation; defaults to the
+        current theme's page colour.
+    :param backdrop: an image to paint under the animation instead of the
+        flat colour — a path, a ``QPixmap``/``QImage``, or ``None``. Give it
+        the Space/Cell wallpaper and the animation composites over the
+        picture rather than replacing it.
+    :param fps: frame-rate cap.
+    :param seed: RNG seed, for a reproducible animation.
+    :param blur: retained for older callers; displayed themes ignore blur.
+    :param speed: motion multiplier; ``None`` reads Preferences.
+    :param size: element-size multiplier; ``None`` reads Preferences.
+    :param resolution: how much detail is shaded, as a multiplier on the
+        theme's own buffer; ``None`` reads Preferences.
+    :param density: how many elements are drawn, as a multiplier on the
+        theme's own count; ``None`` reads Preferences.
+    :param gravity_radius: pointer influence radius, as a fraction of the
+        shorter screen edge; zero disables it. ``None`` reads Preferences.
+    :param direction: which way the starfield travels, one of
+        :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to
+        the other themes, and kept anyway so switching away and back does
+        not lose it.
+    :param corner_radius: round the backdrop's own corners by this many px;
+        ``0`` leaves it square. CLIPPED, not masked -- a mask region gives
+        stair-stepped corners against the card's anti-aliased rim -- and
+        applied before the base fill so the flat page colour is rounded with
+        the animation rather than showing at the corners behind it.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None, *,
+                 theme: str = DEFAULT_THEME,
+                 palette: str = DEFAULT_PALETTE,
+                 background: Union[QColor, str, None] = None,
+                 backdrop=None,
+                 fps: int = DEFAULT_FPS,
+                 seed: Optional[int] = None,
+                 blur: Optional[float] = None,
+                 speed: Optional[float] = None,
+                 size: Optional[float] = None,
+                 resolution: Optional[float] = None,
+                 density: Optional[float] = None,
+                 gravity_radius: Optional[float] = None,
+                 blink_percent: Optional[float] = None,
+                 popup_wave_frequency: Optional[float] = None,
+                 direction: Optional[str] = None,
+                 corner_radius: int = 0):
+        """Build the widget and start its engine.
+
+        :param parent: parent widget.
+        """
+        super().__init__(parent)
+        #: Corner radius the backdrop is clipped to; 0 leaves it square.
+        #:
+        #: A backdrop normally fills a rectangular screen and wants no
+        #: rounding. The setup dialog is the case that does: it is a
+        #: frameless translucent window holding ONE rounded card, and a
+        #: square backdrop behind a rounded card is visible as a second
+        #: surface -- which is exactly what it looked like.
+        self._corner_radius = max(0, int(corner_radius))
+        #: Guards every touch of the engine, because :class:`_FrameProducer`
+        #: shades it on another thread while the GUI thread's setters change
+        #: it. :meth:`paintEvent` never *waits* on this lock — see there.
+        self._engine_lock = threading.RLock()
+        #: One-element box holding the shading thread, so ``destroyed`` can
+        #: retire it through a closure that captures no widget.
+        self._producer_box: List[Optional[_FrameProducer]] = [None]
+        #: The frame currently on screen. Held so a paint with nothing new
+        #: to show can put it up again instead of waiting for one.
+        self._last_frame: Optional[QImage] = None
+        #: Paints that showed the previous frame again because the shading
+        #: thread had not finished a new one. This counter *is* the
+        #: "degrade rather than stutter" promise: it is what rises when the
+        #: machine is busy, in place of the frame interval.
+        self.repeated_frames = 0
+        #: Clock time a tick could not apply because the shading thread had
+        #: the engine, carried to the next tick. See :meth:`_on_tick`.
+        self._pending_dt = 0.0
+        self._legacy_input = _QueuedArtInput()
+        self._art_input = None
+        self._pending_art_impulses: List[Tuple[float, float]] = []
+        self._interaction_app = None
+        self._field_grab = None
+        box = self._producer_box
+        self.destroyed.connect(lambda *_: _retire_producer(box))
+
+        theme, palette = dressed(theme, palette)
+        self._theme = _require_theme(theme)
+        self._palette = coerce_palette(self._theme, palette)
+        self._seed = seed
+        asked = (blur, speed, size, resolution, density, direction)
+        stored = preferred_motion() if None in asked else None
+        self._blur = DEFAULT_BLUR
+        self._speed = _clamp(stored.speed if speed is None else speed,
+                             *SPEED_RANGE)
+        self._size = _clamp(stored.size if size is None else size, *SIZE_RANGE)
+        self._resolution = _clamp(
+            stored.resolution if resolution is None else resolution,
+            *RESOLUTION_RANGE)
+        self._density = _clamp(
+            stored.density if density is None else density, *DENSITY_RANGE)
+        radius = float(_preferred_gravity_radius()
+                       if gravity_radius is None else gravity_radius)
+        self._gravity_radius = _clamp(
+            radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
+        if blink_percent is None:
+            from ..preferences import _ambient_blink_percent
+
+            blink_percent = _ambient_blink_percent()
+        blink_percent = float(blink_percent)
+        self._blink_percent = _clamp(
+            blink_percent if math.isfinite(blink_percent) else DEFAULT_BLINK_PERCENT,
+            *BLINK_PERCENT_RANGE)
+        if popup_wave_frequency is None:
+            from ..preferences import _field_popup_wave_frequency
+
+            popup_wave_frequency = _field_popup_wave_frequency()
+        popup_wave_frequency = float(popup_wave_frequency)
+        self._popup_wave_frequency = _clamp(
+            popup_wave_frequency if math.isfinite(popup_wave_frequency) else 0.0,
+            0.0, 60.0)
+        wanted = stored.direction if direction is None else direction
+        self._direction = wanted if is_valid_drift_direction(wanted) \
+            else DEFAULT_DRIFT_DIRECTION
+        self._background_explicit = background is not None
+        self._background = _as_color(background, _theme_background())
+        self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
+
+        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+        self._engine = make_engine(self._theme, self._palette,
+                                   self._background, seed=seed,
+                                   blur=self._blur, speed=self._speed,
+                                   size=self._size,
+                                   resolution=self._resolution,
+                                   density=self._density,
+                                   blink_percent=self._blink_percent,
+                                   popup_wave_frequency=self._popup_wave_frequency,
+                                   direction=self._direction)
+        radius_setter = getattr(self._engine, "set_gravity_radius", None)
+        if radius_setter is not None:
+            radius_setter(self._gravity_radius)
+
+        if self._theme.startswith("data_art_"):
+            self._art_input = _QueuedArtInput()
+
+        self._animating = True
+        #: Frames this backdrop has actually painted. The activity spinner
+        #: carries the same counter for the same reason: "it costs nothing
+        #: while it is off" is a claim about frames, and a test that reads a
+        #: flag instead would pass just as happily on a timer that is
+        #: running and drawing something invisible.
+        self.frames_painted = 0
+        self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
+        self._auto_art_fps = False
+        self._run_paced = False
+        self._clock = QElapsedTimer()
+        self._timer = QTimer(self)
+        self._timer.setTimerType(Qt.PreciseTimer)
+        self._timer.setInterval(max(1, 1000 // self._fps))
+        self._timer.timeout.connect(self._on_tick)
+        self._watched: Optional[weakref.ReferenceType] = None
+
+    def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
+        """Reject even programmatic focus; this widget is decorative only.
+
+        :param event: the focus event; it is ignored and focus is cleared.
+        """
+        event.ignore()
+        self.clearFocus()
+
+    @property
+    def engine(self) -> AmbientEngine:
+        """The live engine. Replaced wholesale by :meth:`set_theme`."""
+        return self._engine
+
+    def theme(self) -> str:
+        """Which ambient theme is being painted.
+
+        :returns: the theme's name.
+        """
+        return self._theme
+
+    def palette_name(self) -> str:
+        """The ambient palette's name.
+
+        Not ``palette()`` — :class:`QWidget` already owns that name and it
+        returns a ``QPalette``.
+        """
+        return self._palette
+
+    def set_theme(self, name: str) -> None:
+        """Switch animation, live. Raises :class:`ValueError` on an unknown
+        name.
+
+        The clock carries over and the old engine is dropped — there is no
+        second timer and no second engine, so a user flipping through the
+        menu cannot leave anything ticking behind them. If the current
+        palette is not one this theme offers, it downgrades to the theme's
+        default (see :func:`palettes_for` for why the lists differ).
+
+        Under the ``spaceout`` dressing every request lands on the fractal,
+        whoever asked and for whatever — including
+        :func:`spacr.qt.preferences.apply_ambient_preferences`, which calls
+        this with the *stored* animation on every settings save. See
+        :func:`dressed`.
+
+        :param name: a paintable theme name.
+        """
+        name, palette = dressed(name, self._palette)
+        name = _require_theme(name)
+        if name == self._theme and palette == self._palette:
+            return
+        self._theme = name
+        self._palette = coerce_palette(name, palette)
+        self._rebuild_engine()
+
+    def set_palette(self, name: str) -> None:
+        """Switch colour set, live, keeping the motion exactly where it is.
+
+        Raises :class:`ValueError` if the current theme does not offer
+        ``name`` — an explicit request for a palette is not something to
+        silently substitute. The one exception is the ``spaceout`` dressing,
+        where the request is replaced rather than refused, for the reason
+        given in :func:`dressed`.
+
+        :param name: a palette the current theme offers.
+        """
+        name = dressed(self._theme, name)[1]
+        name = _require_palette(self._theme, name)
+        if name == self._palette and name != "custom":
+            return
+        self._palette = name
+        self._mutate_engine(
+            lambda: self._engine.set_colors(palette_colors(self._theme, name)))
+
+    def _mutate_engine(self, change: Callable[[], None]) -> None:
+        """Apply ``change`` to the engine with the shading thread locked out,
+        re-shade once, and repaint.
+
+        Every live control goes through here, because
+        :func:`spacr.qt.preferences.apply_ambient_preferences` walks
+        ``app.allWidgets()`` and calls eight of them on every backdrop that
+        happens to be alive — a settings change is the one moment a widget is
+        mutated *while* it is running, so it is the one the lock exists for.
+
+        The re-shade is what keeps the promise every setter has always made:
+        change it, and the next paint shows the change. Without it the next
+        paint would blit the frame the shading thread finished *before* the
+        change, and a caller that sets something and grabs the widget would
+        get the old picture — which is a real regression and not a subtle
+        one, because :meth:`set_background_color` flips the composition mode
+        and a dark-shaded frame blitted onto a light page is inverted, not
+        stale.
+
+        Bounded and one-off: a single shading pass on the GUI thread (0.24 ms
+        for ``blobs``, 1.5 ms for the aurora, idle) when somebody moves a
+        slider, against zero per frame. It is deliberately *not* on the timer
+        path — see :meth:`_on_tick`.
+        """
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine)
+            else:
+                self._legacy_input._consume(self._engine)
+                self._pending_dt = 0.0
+            change()
+            self._republish()
+        self.update()
+
+    def _republish(self) -> None:
+        """Re-shade the current clock and make it the frame on screen.
+
+        Called with :attr:`_engine_lock` held. A no-op with no shading
+        thread, where the next ``paintEvent`` shades synchronously anyway.
+        """
+        producer = self._producer_box[0]
+        if producer is None:
+            return
+        width, height = producer.size
+        fresh = self._engine.shade(width, height)
+        if fresh is not None:
+            producer.publish(fresh)
+            self._last_frame = fresh
+
+    def _rebuild_engine(self) -> None:
+        """Replace the engine, preserving the clock. The old one is dropped
+        on the next line and collected; it owns no Qt parent and no timer.
+
+        The shading thread holds the *old* engine, so it is retired and a new
+        one started around the swap. That join is bounded by one shading pass
+        — worst measured 26 ms, for ``cells`` under a Python worker — and it
+        happens when somebody picks a different animation from a menu, not
+        per frame.
+        """
+        running = self._producer_box[0] is not None
+        _retire_producer(self._producer_box)
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine, discard_clicks=True)
+            else:
+                self._legacy_input._consume(self._engine)
+        engine = make_engine(self._theme, self._palette, self._background,
+                             seed=self._seed, blur=self._blur,
+                             speed=self._speed, size=self._size,
+                             resolution=self._resolution,
+                             density=self._density,
+                             blink_percent=self._blink_percent,
+                             popup_wave_frequency=self._popup_wave_frequency,
+                             direction=self._direction)
+        radius_setter = getattr(engine, "set_gravity_radius", None)
+        if radius_setter is not None:
+            radius_setter(self._gravity_radius)
+        with self._engine_lock:
+            engine.set_max_pixels(self._engine.max_pixels)
+            engine.set_time(self._engine.time)
+            self._engine = engine
+            self._art_input = (_QueuedArtInput()
+                               if self._theme.startswith("data_art_") else None)
+            self._legacy_input = _QueuedArtInput()
+            self._pending_dt = 0.0
+        self._last_frame = None
+        self._pending_art_impulses.clear()
+        self._field_grab = None
+        self._sync_interaction_filter()
+        if self._auto_art_fps:
+            self._fps = DEFAULT_FPS if self._theme.startswith("data_art_") else _INSTALLED_FPS
+            self._apply_rate()
+        if running:
+            self._start_producer()
+        self.update()
+
+    def blur(self) -> float:
+        """How much the picture is softened; 0.0 is the shipped animation."""
+        return self._blur
+
+    def set_blur(self, value: float) -> None:
+        """Keep the retired softening control compatible with older callers.
+
+        :param value: a legacy value; displayed themes remain unsoftened.
+        """
+        if self._blur == DEFAULT_BLUR and self._engine.blur == DEFAULT_BLUR:
+            return
+        self._blur = DEFAULT_BLUR
+        self._mutate_engine(lambda: self._engine.set_blur(DEFAULT_BLUR))
+
+    def resolution(self) -> float:
+        """How much detail is shaded; 1.0 is each theme's own buffer."""
+        return self._resolution
+
+    def set_resolution(self, value: float) -> None:
+        """Set the detail multiplier. Clamped to :data:`RESOLUTION_RANGE`.
+
+        :param value: the resolution multiplier, converted with ``float``.
+        """
+        value = _clamp(value, *RESOLUTION_RANGE)
+        if value == self._resolution and value == self._engine.resolution:
+            return
+        self._resolution = value
+        self._mutate_engine(
+            lambda: self._engine.set_resolution(self._resolution))
+
+    def density(self) -> float:
+        """How many elements are drawn; 1.0 is each theme's own count."""
+        return self._density
+
+    def gravity_radius(self) -> float:
+        """The normalized reach of local pointer gravity; zero disables it."""
+        return self._gravity_radius
+
+    def blink_percent(self) -> float:
+        """The selected percentage of visible dots that flash white."""
+        return self._blink_percent
+
+    def popup_wave_frequency(self) -> float:
+        """Automatic waves per minute from the centre of an open popup."""
+        return self._popup_wave_frequency
+
+    def set_popup_wave_frequency(self, value: float) -> None:
+        """Change popup waves without changing pointer reach or dot population."""
+        value = float(value)
+        value = _clamp(value if math.isfinite(value) else 0.0, 0.0, 60.0)
+        if value != self._popup_wave_frequency:
+            self._popup_wave_frequency = value
+            self._mutate_engine(lambda: self._engine.set_popup_wave_frequency(value))
+
+    def set_blink_percent(self, value: float) -> None:
+        """Update dot flashes through the normal serialized engine mutation."""
+        value = float(value)
+        value = _clamp(value if math.isfinite(value) else DEFAULT_BLINK_PERCENT,
+                       *BLINK_PERCENT_RANGE)
+        if value != self._blink_percent:
+            self._blink_percent = value
+            self._mutate_engine(lambda: self._engine.set_blink_percent(value))
+
+    def set_gravity_radius(self, value: float) -> None:
+        """Apply local pointer reach while excluding a concurrent shade pass.
+
+        :param value: fraction of the shorter screen edge, clamped to [0, 1];
+            zero disables hover gravity; the explicit field handle remains available.
+        """
+        radius = float(value)
+        radius = _clamp(radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
+        if radius == self._gravity_radius:
+            return
+        self._gravity_radius = radius
+        if radius == 0.0:
+            self._pending_art_impulses.clear()
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine, discard_clicks=radius == 0.0,
+                                         preserve_grab=True)
+            radius_setter = getattr(self._engine, "set_gravity_radius", None)
+            if radius_setter is not None:
+                radius_setter(radius)
+            if radius == 0.0 and isinstance(self._engine, _DataArtEngine):
+                self._engine.set_pointer(None)
+            self._republish()
+        self._sync_interaction_filter()
+        self.update()
+
+    def set_density(self, value: float) -> None:
+        """Set the element-count multiplier. Clamped to
+        :data:`DENSITY_RANGE`.
+
+        :param value: the density multiplier, converted with ``float``.
+        """
+        value = _clamp(value, *DENSITY_RANGE)
+        if value == self._density and value == self._engine.density:
+            return
+        self._density = value
+        self._mutate_engine(lambda: self._engine.set_density(self._density))
+
+    def direction(self) -> str:
+        """Which way the starfield travels. Meaningless to the others, and
+        kept anyway, so switching themes and back does not lose it."""
+        return self._direction
+
+    def set_direction(self, name: str) -> None:
+        """Set the starfield direction. An unknown name is ignored.
+
+        :param name: one of :data:`DRIFT_DIRECTIONS`.
+        """
+        if not is_valid_drift_direction(name):
+            return
+        if name == self._direction and name == self._engine.direction:
+            return
+        self._direction = name
+        self._mutate_engine(lambda: self._engine.set_direction(name))
+
+    def speed(self) -> float:
+        """The motion multiplier; 1.0 is the shipped animation."""
+        return self._speed
+
+    def set_speed(self, value: float) -> None:
+        """Set the motion multiplier. Clamped to :data:`SPEED_RANGE`.
+
+        Takes effect on the next step, so nothing already on screen moves.
+
+        :param value: the speed multiplier, converted with ``float``.
+        """
+        value = _clamp(value, *SPEED_RANGE)
+        if value == self._speed and value == self._engine.speed:
+            return
+        self._speed = value
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine)
+            self._engine.set_speed(self._speed)
+
+    def size_scale(self) -> float:
+        """The element-size multiplier; 1.0 is the shipped animation.
+
+        Not ``size()`` — :class:`QWidget` already owns that name and it
+        returns a ``QSize``.
+        """
+        return self._size
+
+    def set_size_scale(self, value: float) -> None:
+        """Set the element-size multiplier. Clamped to :data:`SIZE_RANGE`.
+
+        :param value: the size multiplier, converted with ``float``.
+        """
+        value = _clamp(value, *SIZE_RANGE)
+        if value == self._size and value == self._engine.size:
+            return
+        self._size = value
+        self._mutate_engine(lambda: self._engine.set_size(self._size))
+
+    def background_color(self) -> QColor:
+        """The colour painted behind the animation.
+
+        A copy, so a caller cannot recolour this widget in place.
+
+        :returns: the background colour.
+        """
+        return QColor(self._background)
+
+    def set_background_color(self, color: Union[QColor, str]) -> None:
+        """Set the flat fill under the animation.
+
+        This is also what tells the engine whether it is painting on a dark
+        or a light page, which picks additive versus multiply compositing —
+        so it must be called on a live theme switch, or a dark-tuned frame
+        ends up on a white page.
+
+        :param color: a ``QColor`` or any string ``QColor`` accepts; an
+            invalid colour keeps the current one, and alpha is forced opaque.
+            The widget then stops following the application theme.
+        """
+        self._apply_background(color, explicit=True)
+
+    def _apply_background(self, color, explicit: bool) -> None:
+        """Re-derive the page colour, and re-shade *now* rather than next
+        frame.
+
+        The one setter that cannot let a published frame stand for a frame.
+        A dark page composites additively and a light one multiplies (see the
+        module docstring), so a frame shaded for dark and blitted onto light
+        is not one frame stale, it is inverted — a white flash across the
+        whole window on every theme switch. One shading pass on the GUI
+        thread, at the moment somebody changes the application theme, buys
+        that away.
+        """
+        self._background = _as_color(color, self._background)
+        if explicit:
+            self._background_explicit = True
+        self._mutate_engine(
+            lambda: self._engine.set_background(self._background))
+
+    def backdrop(self) -> Optional[QPixmap]:
+        """The image painted under the animation, or ``None``."""
+        return self._backdrop
+
+    def set_backdrop(self, source) -> None:
+        """Paint ``source`` under the animation instead of the flat colour.
+
+        The animation composites (adds on dark, multiplies on light), so a
+        wallpaper handed in here shows *through* it rather than being
+        replaced. ``None`` goes back to the flat fill.
+
+        :param source: an image path, ``QPixmap`` or ``QImage``, or ``None``;
+            anything that does not load as a non-null pixmap also gives the
+            flat fill.
+        """
+        self._backdrop = _as_pixmap(source)
+        self.update()
+
+    def changeEvent(self, event) -> None:
+        """Follow a live theme switch when nobody else is going to.
+
+        A host that passed its own ``background`` owns that colour and is
+        expected to re-set it (that is what ``app_screen`` does, because it
+        also has to re-resolve the wallpaper). A host that did not gets this
+        for free instead of a stale dark rectangle on a white page.
+
+        :param event: the change event; it goes to the base class first, and
+            only an ``ApplicationPaletteChange`` is acted on.
+        """
+        super().changeEvent(event)
+        if event.type() == QEvent.ApplicationPaletteChange \
+                and not self._background_explicit:
+            self._apply_background(_theme_background(), explicit=False)
+
+    def fps(self) -> int:
+        """The cap on repaints per second.
+
+        A CAP, NOT A RATE. This is a backdrop and must not take frames from
+        whatever the user is doing in front of it.
+
+        :returns: the frame cap.
+        """
+        return self._fps
+
+    def set_fps(self, fps: int) -> None:
+        """Cap the frame rate. Caps the shading thread with it, so a lowered
+        cap actually reduces the work rather than just how much of it is
+        shown.
+
+        :param fps: frames per second, converted with ``int`` and clamped to
+            :data:`MIN_FPS` to :data:`MAX_FPS`.
+        """
+        self._auto_art_fps = False
+        self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
+        self._apply_rate()
+
+    def _rate(self) -> int:
+        """The frame cap in force: :attr:`fps`, or less while a run goes.
+
+        Every backdrop frame repaints the whole window above it, and each
+        widget there that draws itself in Python takes the interpreter lock
+        from the run to do it. While a pipeline holds
+        :func:`spacr.qt.gil_priority.active`, the backdrop moves at no more
+        than :data:`_RUN_FPS`.
+        """
+        return min(self._fps, _RUN_FPS) if self._run_paced else self._fps
+
+    def _apply_rate(self) -> None:
+        """Set the timer and the shading thread to :meth:`_rate`."""
+        rate = self._rate()
+        self._timer.setInterval(max(1, 1000 // rate))
+        producer = self._producer_box[0]
+        if producer is not None:
+            producer.set_fps(rate)
+
+    def _follow_the_run(self) -> None:
+        """Slow down when a run starts and speed up when it ends."""
+        from ..gil_priority import active
+
+        paced = bool(active())
+        if paced != self._run_paced:
+            self._run_paced = paced
+            self._apply_rate()
+
+    def is_running(self) -> bool:
+        """True while the animation timer is ticking."""
+        return self._timer.isActive()
+
+    def is_animating(self) -> bool:
+        """The requested state, whether or not the widget is on screen."""
+        return self._animating
+
+    def set_animating(self, on: bool) -> None:
+        """Pause or resume without destroying anything.
+
+        A paused widget keeps its last frame on screen and its engine in
+        memory; its timer stops ticking. This is the "off" switch for the
+        Preferences toggle when the user wants the colours but not the
+        motion — turning the feature off entirely is the install site's job,
+        not this widget's.
+
+        :param on: truthy to animate, falsy to pause.
+        """
+        on = bool(on)
+        if on == self._animating:
+            return
+        self._animating = on
+        self._sync_run_state()
+
+    def start(self) -> None:
+        """Start the animation timer and shading worker if not already running.
+
+        The timer and worker share one lifetime. Hiding the widget, switching
+        tabs, minimizing the window, or disabling ambient animation stops both.
+        A widget that is never shown uses the synchronous rendering path.
+        """
+        if not self._timer.isActive():
+            self._clock.restart()
+            self._timer.start()
+        self._start_producer()
+        self._sync_interaction_filter()
+
+    def stop(self) -> None:
+        """Stop ticking and retire the shading thread. Costs exactly nothing
+        while stopped — no timer, no thread, and no frame held in memory.
+
+        Dropping the published frame matters because these screens stay
+        built: a dozen module screens the user has visited would otherwise
+        each keep a slot warm behind a tab nobody is on, which is 2 MiB apiece
+        for the aurora. The next :meth:`start` shades a replacement before it
+        starts the thread, so there is nothing to show for it.
+        """
+        self._field_grab = None
+        self._timer.stop()
+        self._sync_interaction_filter()
+        _retire_producer(self._producer_box)
+        if self._art_input is not None:
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._art_input._consume(self._engine, discard_clicks=True)
+                finally:
+                    self._engine_lock.release()
+            self._art_input = _QueuedArtInput()
+        else:
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._legacy_input._consume(self._engine)
+                finally:
+                    self._engine_lock.release()
+            self._legacy_input = _QueuedArtInput()
+            self._pending_dt = 0.0
+        self._last_frame = None
+
+    def _start_producer(self) -> None:
+        """Put the shading on its own thread, if this engine has a frame to
+        hand over.
+
+        ``drift`` is deliberately left out, and the number is the reason: it
+        is the one engine with no buffer, it degrades the least of the seven
+        under a Python worker (0.528 -> 1.084 ms, 2.1x, against 48.7x for
+        ``cells``), and threading it would mean publishing a full-resolution
+        ARGB32 frame — 7.91 MiB a slot at 1080p against 126.6 KiB for
+        ``blobs`` — to buy the smallest improvement on the list.
+
+        The first frame is shaded here, synchronously, so the first paint
+        after a show has a picture to blit rather than a flat rectangle.
+        That is the pass the first ``paintEvent`` used to do anyway, moved a
+        few microseconds earlier.
+        """
+        if self._producer_box[0] is not None:
+            return
+        engine = self._engine
+        if not isinstance(engine, _BufferedEngine):
+            return
+        size = self._art_render_size(self.width(), self.height())
+        producer = _FrameProducer(engine, self._engine_lock, self._rate(),
+                                  size, queued_input=self._art_input or self._legacy_input)
+        if size[0] > 0 and size[1] > 0:
+            with self._engine_lock:
+                if engine.name == "data_art_impulse_lens" and self._field_grab is None:
+                    engine._set_field_grab(None, reset=True)
+                first = engine.shade(*size)
+            if first is not None:
+                producer.publish(first)
+        self._last_frame = None
+        self._producer_box[0] = producer
+        producer.start()
+
+    def shading_thread_alive(self) -> bool:
+        """Whether a shading thread is running for this backdrop.
+
+        The CPU guarantee used to be a claim about a timer and is now also a
+        claim about a thread, so it needs something to assert on: a backdrop
+        behind a screen nobody is looking at must not be keeping a core warm.
+        """
+        producer = self._producer_box[0]
+        return bool(producer is not None and producer.is_alive())
+
+    def frames_shaded(self) -> int:
+        """Frames the shading thread has finished for this backdrop.
+
+        Below :attr:`frames_painted` under load, by design: the difference is
+        :attr:`repeated_frames`.
+        """
+        producer = self._producer_box[0]
+        return 0 if producer is None else producer.frames_shaded
+
+    def _should_run(self) -> bool:
+        """Whether the animation is worth advancing right now.
+
+        FALSE WHEN HIDDEN OR OFF-SCREEN. This is a backdrop: it must not take
+        frames from whatever the user is doing in front of it, and a widget
+        nobody can see has nothing to show for the cost.
+
+        :returns: True when the timer should keep firing.
+        """
+        if not self._animating or not self.isVisible():
+            return False
+        window = self.window()
+        if window is not None and window.isMinimized():
+            return False
+        return True
+
+    def _sync_run_state(self) -> None:
+        """Start or stop the timer to match visibility. The CPU guarantee."""
+        if self._should_run():
+            self.start()
+        else:
+            self.stop()
+        self._sync_interaction_filter()
+
+    def _art_render_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Keep procedural art sharp on displays with fractional or high DPI."""
+        ratio = self.devicePixelRatioF() if self._theme.startswith("data_art_") else 1.0
+        return max(0, round(width * ratio)), max(0, round(height * ratio))
+
+    def _sync_interaction_filter(self) -> None:
+        """Observe unconsumed field input while its visible animation runs."""
+        app = QApplication.instance()
+        wanted = (self._theme == "data_art_impulse_lens"
+                  and self._should_run()
+                  and self._timer.isActive())
+        if wanted and self._interaction_app is None and app is not None:
+            app.installEventFilter(self)
+            self._interaction_app = weakref.ref(app)
+        elif not wanted and self._interaction_app is not None:
+            observed = self._interaction_app()
+            if observed is not None:
+                observed.removeEventFilter(self)
+            self._interaction_app = None
+            self._pending_art_impulses.clear()
+            self._field_grab = None
+
+    def _offer_field_grab(self) -> None:
+        """Publish the latest bounded handle without waiting for shading."""
+        if self._art_input is None:
+            return
+        self._art_input._offer(0.0, self._art_input._snapshot[2], (),
+                               grab=self._field_grab,
+                               popup_origin=self._art_input._popup_snapshot[1])
+        if self._engine_lock.acquire(blocking=False):
+            try:
+                self._art_input._consume(self._engine)
+            finally:
+                self._engine_lock.release()
+        self.update()
+
+    def _field_grab_background(self, obj) -> bool:
+        """Permit host or plain container space, excluding interactive ancestors.
+
+        Custom scientific canvases, controls, clickable cards and scroll
+        viewports are not backdrop space. No event is captured or consumed.
+        """
+        host = self.parentWidget()
+        while obj is not host:
+            if type(obj) not in (QWidget, QFrame) or obj.focusPolicy() != Qt.NoFocus:
+                return False
+            obj = obj.parentWidget()
+            if obj is None:
+                return False
+        return host is not None
+
+    def showEvent(self, event):
+        """Start animating, and follow the window this widget belongs to.
+
+        :param event: the Qt show event.
+        """
+        super().showEvent(event)
+        window = self.window()
+        watched = self._watched() if self._watched is not None else None
+        if window is not None and window is not watched:
+            if watched is not None:
+                watched.removeEventFilter(self)
+            window.installEventFilter(self)
+            self._watched = weakref.ref(window)
+        self._follow_screen()
+        self._sync_run_state()
+
+    def _follow_screen(self) -> None:
+        """Tell the engine how many pixels the display it is on really has.
+
+        Called when the widget is shown and whenever the window it is in
+        moves to another screen. That second case is the one a constant
+        cannot answer: a laptop docked to a 4K panel is two different
+        ceilings for the same running widget, and the buffer has to follow
+        the window rather than the machine.
+
+        Silent on failure. This is a *ceiling*, and a backdrop that cannot
+        work out which screen it is on should go on painting at the
+        fallback rather than not painting at all.
+        """
+        pixels = screen_pixels(self)
+        if pixels == self._engine.max_pixels:
+            return
+        try:
+            self._mutate_engine(lambda: self._engine.set_max_pixels(pixels))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not follow the screen", exc_info=True)
+
+    def hideEvent(self, event):
+        """The whole performance story: a screen the user is not looking at
+        costs nothing. Qt sends this to the children of a hidden parent too,
+        so switching tabs stops the animation on the tab you left.
+
+        :param event: the hide event; passed on to the base class before the
+            animation stops.
+        """
+        super().hideEvent(event)
+        if getattr(self, "_timer", None) is not None:
+            self.stop()
+            self._sync_interaction_filter()
+
+    def eventFilter(self, obj, event):
+        """Follow the parent's size; pause when the window is minimised.
+
+        :param obj: the object the event is for — the parent (whose resize
+            this widget follows) or the watched top-level window.
+        :param event: the event; resize, window-state, hide, show, move and
+            screen-change types are acted on, and every event is still passed
+            on to the base-class filter.
+        """
+        etype = event.type()
+        ref = getattr(self, "_watched", None)
+        watched = ref() if ref is not None else None
+        grab = getattr(self, "_field_grab", None)
+        if (etype == QEvent.MouseButtonPress
+                and getattr(self, "_interaction_app", None) is not None
+                and isinstance(obj, QWidget) and obj.window() is self.window()
+                and self._should_run() and event.button() == Qt.LeftButton):
+            local = self.mapFromGlobal(event.globalPosition().toPoint())
+            if self.rect().contains(local):
+                point = ((local.x() + 0.5) / max(1, self.width()),
+                         (local.y() + 0.5) / max(1, self.height()))
+                if (self._gravity_radius > 0.0 and (not self._pending_art_impulses
+                        or self._pending_art_impulses[-1] != point)):
+                    self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
+                hit = self.window().childAt(
+                    self.window().mapFromGlobal(event.globalPosition().toPoint()))
+                if (self._field_grab_background(obj)
+                        and self._field_grab_background(hit if hit is not None else obj)):
+                    self._field_grab = (point, (0.0, 0.0))
+                    self._offer_field_grab()
+        elif etype == QEvent.MouseMove and grab is not None:
+            if event.buttons() & Qt.LeftButton:
+                origin, _ = grab
+                local = self.mapFromGlobal(event.globalPosition().toPoint())
+                shorter = max(1, min(self.width(), self.height()))
+                target = ((local.x() + .5 - origin[0] * self.width()) / shorter,
+                          (local.y() + .5 - origin[1] * self.height()) / shorter)
+                length = math.hypot(*target)
+                scale = min(1.0, .18 / length) if length else 1.0
+                self._field_grab = (origin, tuple(value * scale for value in target))
+            else:
+                self._field_grab = None
+            self._offer_field_grab()
+        elif (etype == QEvent.MouseButtonRelease and grab is not None
+              and event.button() == Qt.LeftButton):
+            self._field_grab = None
+            self._offer_field_grab()
+        elif (etype == QEvent.WindowDeactivate and obj is watched
+              and grab is not None):
+            self._field_grab = None
+            self._offer_field_grab()
+        elif etype == QEvent.Resize and obj is self.parent():
+            if grab is not None:
+                self._field_grab = None
+                self._offer_field_grab()
+            self.setGeometry(obj.rect())
+        elif watched is not None and obj is watched and etype in (
+                QEvent.WindowStateChange, QEvent.Hide, QEvent.Show):
+            self._sync_run_state()
+        elif watched is not None and obj is watched and etype in (
+                QEvent.Move, QEvent.ScreenChangeInternal):
+            self._follow_screen()
+        return super().eventFilter(obj, event)
+
+    def follow_parent(self) -> None:
+        """Track the parent's geometry and sit below its other children."""
+        parent = self.parent()
+        if isinstance(parent, QWidget):
+            parent.installEventFilter(self)
+            self.setGeometry(parent.rect())
+        self.lower()
+
+    def _data_art_pointer_for_tick(self) -> Optional[Tuple[float, float]]:
+        """Poll a local pointer only for an active visible data-art backdrop."""
+        try:
+            if not self._animating or not self.isVisible():
+                return None
+            window = self.window()
+            if window.isMinimized() or QApplication.activeWindow() is not window:
+                return None
+            cursor = QCursor.pos()
+            hovered = QApplication.widgetAt(cursor)
+            if hovered is None or hovered.window() is not window:
+                return None
+            local = self.mapFromGlobal(cursor)
+            if not self.rect().contains(local):
+                return None
+            return ((local.x() + 0.5) / max(1, self.width()),
+                    (local.y() + 0.5) / max(1, self.height()))
+        except RuntimeError:
+            return None
+
+    def _popup_wave_origin_for_tick(self):
+        """Resolve this window's active popup centre on the GUI thread only."""
+        from PySide6.QtWidgets import QDialog
+
+        if (self._theme != "data_art_impulse_lens"
+                or self._popup_wave_frequency <= 0.0 or not self._should_run()):
+            return None
+        popup = QApplication.activePopupWidget() or QApplication.activeModalWidget()
+        if popup is None:
+            active = QApplication.activeWindow()
+            popup = active if isinstance(active, QDialog) else None
+        if popup is None or not popup.isVisible() or popup is self.window():
+            return None
+        parent = popup.parentWidget()
+        while parent is not None and parent is not self.window():
+            parent = parent.parentWidget()
+        if parent is None:
+            return None
+        centre = self.mapFromGlobal(popup.mapToGlobal(popup.rect().center()))
+        if not self.rect().contains(centre):
+            return None
+        return ((centre.x() + 0.5) / max(1, self.width()),
+                (centre.y() + 0.5) / max(1, self.height()))
+
+    def _on_tick(self) -> None:
+        """One beat: step the clock, ask for a repaint. Never waits.
+
+        The timer path deliberately does *not* go through
+        :meth:`advance_frame`, and the difference is the whole point of the
+        shading thread: this steps the clock (two attribute stores) and
+        leaves the shading to the thread, where ``advance_frame`` shades
+        synchronously for the callers that need the frame back immediately.
+
+        The lock is taken without blocking. Data art first offers cumulative
+        elapsed time, the latest pointer and bounded numbered clicks as one
+        immutable snapshot. The GUI consumes it immediately when it can;
+        otherwise the producer consumes it before its next frame, so slow
+        shading cannot starve clock advancement or mouse feedback. Classic
+        themes offer elapsed time through a separate queue consumed by the
+        GUI or shading worker, including when shading overruns its interval.
+        """
+        self._follow_the_run()
+        dt = self._clock.restart() / 1000.0
+        step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._rate()
+        advance_spaceout_drift(step)
+        pointer = (self._data_art_pointer_for_tick()
+                   if isinstance(self._engine, _DataArtEngine)
+                   and self._engine.interactive and self._gravity_radius > 0.0 else None)
+        if self._art_input is not None:
+            self._art_input._offer(step, pointer, tuple(self._pending_art_impulses),
+                                   grab=self._field_grab,
+                                   popup_origin=self._popup_wave_origin_for_tick())
+            self._pending_art_impulses.clear()
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._art_input._consume(self._engine)
+                finally:
+                    self._engine_lock.release()
+        else:
+            self._pending_dt += step
+            self._legacy_input._offer(step, None, ())
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._legacy_input._consume(self._engine)
+                    self._pending_dt = 0.0
+                finally:
+                    self._engine_lock.release()
+        self.update()
+
+    def advance_frame(self, dt: float) -> None:
+        """Step the animation by ``dt`` seconds and schedule a repaint.
+
+        Called directly by the tests and by the tutorial recorder, so no
+        caller ever waits on a real clock. Re-shades before it returns, so
+        the next paint shows the frame that was asked for rather than
+        whatever the shading thread last finished — the timer does not come
+        through here for exactly that reason (:meth:`_on_tick`).
+
+        :param dt: seconds to step; the engine scales the step by its speed,
+            and a step that is not positive leaves the clock where it is.
+        """
+        self._mutate_engine(lambda: self._engine.advance(dt))
+
+    def time(self) -> float:
+        """The animation clock, in seconds."""
+        return self._engine.time
+
+    def set_time(self, seconds: float) -> None:
+        """Jump the animation clock and repaint.
+
+        :param seconds: the new clock value, in animation seconds (the clock
+            :meth:`advance_frame` steps, already scaled by speed).
+        """
+        self._mutate_engine(lambda: self._engine.set_time(seconds))
+
+    def _paint_base(self, painter: QPainter, rect: QRect) -> None:
+        """Whatever sits *under* the animation: the flat colour, or the
+        matching piece of the backdrop over it.
+
+        Any part of ``rect`` the backdrop does not reach — a window wider
+        than the wallpaper — still gets the flat colour, so the widget stays
+        fully opaque and ``WA_OpaquePaintEvent`` remains honest.
+        """
+        pixmap = self._backdrop
+        if pixmap is None:
+            painter.fillRect(rect, self._background)
+            return
+        origin = self._backdrop_origin()
+        covered = rect.intersected(
+            QRect(origin.x(), origin.y(), pixmap.width(), pixmap.height()))
+        if covered != rect:
+            painter.fillRect(rect, self._background)
+        if not covered.isEmpty():
+            painter.drawPixmap(covered, pixmap,
+                               covered.translated(-origin.x(), -origin.y()))
+
+    def _backdrop_origin(self) -> QPoint:
+        """Top-left of the backdrop in this widget's own coordinates.
+
+        The window paints its wallpaper centred on itself
+        (``background-position: center center`` in the QSS, which does not
+        repeat), and this has to land on exactly the same pixels or the
+        picture visibly jumps at the widget's edge.
+        """
+        pixmap = self._backdrop
+        window = self.window()
+        x = (window.width() - pixmap.width()) // 2
+        y = (window.height() - pixmap.height()) // 2
+        offset = self.mapTo(window, QPoint(0, 0))
+        return QPoint(x - offset.x(), y - offset.y())
+
+    def paintEvent(self, event) -> None:
+        """Paint, timed on the timing timeline when timing is on.
+
+        :param event: the Qt paint event, passed on to the painter.
+        """
+        from .. import timing as _timing
+
+        with _timing.span("paint", "ambient"):
+            self._paint_ambient(event)
+
+    def _paint_ambient(self, event):
+        """Put the page down, then the newest frame the shading thread has.
+
+        **This method never waits for anything.** That is the requirement the
+        whole change exists to meet — "a frame that is not ready is a
+        repeated frame, never a blocked GUI thread" — and it is met the only
+        way it can be: :meth:`_FrameProducer.latest` refuses the slot rather
+        than blocking on it, the widget keeps a reference to the frame it is
+        already showing, and a paint with nothing new blits that one again
+        and counts it in :attr:`repeated_frames`.
+
+        With a shading thread the engine lock is never *waited* on here, and
+        with no shading thread it cannot be contended — the one path that
+        takes it is the case where nothing has been published yet (a widget
+        shown at zero size and resized in the same tick), and it takes it
+        without blocking, settling for the flat page if the thread is
+        mid-frame.
+
+        Repainting is not only the timer's doing: every console line the
+        window paints over a translucent surface exposes this widget and Qt
+        asks it for a whole frame. Measured on a real X server with the real
+        stylesheet, **one ambient repaint per console line** — 0.99 of them,
+        with the animation timer stopped. That is the fps cap being bypassed
+        entirely, and it is why the cost of a repaint matters more than the
+        cap suggests: shading it cost 1.7 ms idle and 22 ms under a Python
+        worker, and blitting an already-shaded frame costs 0.24-0.32 ms at
+        every load measured.
+
+        :param event: the paint event; a new frame is taken from the shading
+            thread only when its ``rect()`` covers the whole widget, otherwise
+            the current frame is repainted.
+        """
+        global _TOTAL_FRAMES
+        self.frames_painted += 1
+        _TOTAL_FRAMES += 1
+        painter = QPainter(self)
+        rect = self.rect()
+        if self._corner_radius > 0:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            path = QPainterPath()
+            path.addRoundedRect(QRectF(rect), self._corner_radius,
+                                self._corner_radius)
+            painter.setClipPath(path)
+        self._paint_base(painter, rect)
+        width, height = rect.width(), rect.height()
+
+        producer = self._producer_box[0]
+        if producer is None:
+            self._engine.paint(painter, width, height)
+            return
+
+        producer.size = self._art_render_size(width, height)
+        whole = event.rect().contains(rect)
+        fresh = producer.latest() if whole else None
+        if fresh is not None and fresh is not self._last_frame:
+            self._last_frame = fresh
+        else:
+            self.repeated_frames += 1
+        if self._last_frame is not None:
+            self._engine.blit(painter, self._last_frame, width, height)
+        elif self._engine_lock.acquire(blocking=False):
+            try:
+                self._engine.paint(painter, width, height)
+            finally:
+                self._engine_lock.release()
+
+
+
+def _retire_fractals_on(host) -> int:
+    """Shut down and unparent any fractal backdrop already on ``host``.
+
+    :returns: how many were retired, so a test can assert a number instead of
+        counting children by eye.
+
+    Called before a new one is installed. Never raises: failing to clean up
+    an old backdrop must not stop the new screen from getting one.
+    """
+    retired = 0
+    try:
+        for child in list(host.findChildren(QWidget)):
+            if not hasattr(child, "backend_name"):
+                continue
+            try:
+                child.shutdown()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not stop an old fractal", exc_info=True)
+            try:
+                child.setParent(None)
+                child.deleteLater()
+            except Exception:                                # noqa: BLE001
+                pass
+            retired += 1
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not look for old fractals", exc_info=True)
+    return retired
+
+
+def _the_heavy_import_lock_is_free() -> bool:
+    """Whether the heavy-import lock could be taken right now.
+
+    Asked without blocking and released immediately: a peek, not a
+    reservation. The spaceout backdrop's own constructor still takes the
+    lock properly, so the guarantee that a GL context is never built
+    while the preloader is bringing CUDA up is unchanged -- all this
+    decides is whether to try at all on this event-loop turn.
+
+    A tree with no lock to ask (the widget module is absent, or its
+    import failed) answers yes, so a machine without the backdrop
+    behaves exactly as it did before.
+
+    This is the cheap half of the pair. It cannot close the race on its
+    own -- the preloader re-takes the lock between two imports -- which
+    is what :func:`_the_backdrop_wants_a_retry` is for. Peeking first is
+    still worth it because it keeps a retry timer from paying the
+    bounded wait on every tick while a long import runs.
+    """
+    if "spacr.qt.widgets.fractal_travel" not in sys.modules:
+        return True
+    try:
+        from .fractal_travel import _heavy_import_lock
+
+        lock = _heavy_import_lock()
+    except Exception:                                        # noqa: BLE001
+        return True
+    if lock is None:
+        return True
+    if not lock.acquire(blocking=False):
+        return False
+    lock.release()
+    return True
+
+
+def _the_backdrop_wants_a_retry(error: BaseException) -> bool:
+    """Whether ``error`` from :func:`install_ambient` means "not yet".
+
+    The spaceout backdrop refuses to build while a heavy import holds
+    the lock its GL context needs, because waiting for it on the GUI
+    thread is a multi-second freeze. That refusal arrives as an
+    exception like any other, and a caller whose handler cannot tell it
+    apart would treat a two-second import as a permanently broken
+    backdrop -- which is a spaceout launch that quietly loses its
+    artwork for the rest of the session.
+
+    :param error: whatever :func:`install_ambient` raised.
+    :returns: ``True`` when the install should simply be attempted
+        again shortly, ``False`` for a real failure.
+    """
+    try:
+        from .fractal_travel import _HeavyImportInProgress
+    except Exception:                                        # noqa: BLE001
+        return False
+    return isinstance(error, _HeavyImportInProgress)
+
+
+def _the_spaceout_fractal(host):
+    """The spaceout backdrop, or None when this is an ordinary launch.
+
+    Returns a widget already parented to ``host`` and lowered behind it, so
+    the caller can hand it straight back as though `install_ambient` had
+    built it. None means "not spaceout, or it could not be built" -- and the
+    caller then installs the ambient engine it always did, so a machine that
+    cannot draw the fractal still gets an animation.
+    """
+    try:
+        from ..theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            return None
+    except Exception:                                        # noqa: BLE001
+        return None
+
+    _retire_fractals_on(host)
+
+    try:
+        from ..preferences import get_fractal_settings
+        from .fractal_travel import _HeavyImportInProgress
+
+        widget = _build_the_spaceout_fractal(get_fractal_settings())
+        _place_the_spaceout_fractal(widget, host)
+        return widget
+    except _HeavyImportInProgress:
+        raise
+    except Exception:                                        # noqa: BLE001
+        LOG.exception("Could not install the spaceout fractal")
+        return None
+
+
+_BUILT_FROM_SETTINGS = ("pattern", "backend", "quality", "scale",
+                       "supersampling", "max_iterations", "precision_digits")
+"""The fractal settings a spaceout backdrop is BUILT from.
+
+The pattern picks the shader and the backend picks GPU or CPU; quality and
+scale go into the frozen `Settings` the renderer sizes itself from;
+supersampling is compiled into the shader's sample grid and sizes the CPU
+engine's (item 531); the Mandelbrot reference orbit is iterated once, at construction, to
+`max_iterations` at `precision_digits`. Every other setting is either on the
+`RuntimeControls` the canvas reads each frame or read from the store each
+frame, so it needs no rebuild. See item 530.
+"""
+
+
+def _built_from(values: dict) -> tuple:
+    """The construction-time part of ``values``, comparable with ``==``."""
+    return tuple(values.get(name) for name in _BUILT_FROM_SETTINGS)
+
+
+def _build_the_spaceout_fractal(values: dict, controls=None):
+    """Construct the spaceout backdrop from ``values``, unparented.
+
+    :param values: :func:`~spacr.qt.preferences.get_fractal_settings`.
+    :param controls: the `RuntimeControls` to hand it, or ``None`` for new
+        ones made from ``values``. A rebuild passes the old backdrop's, so
+        a zoom rate nudged with the arrow keys survives a pattern change.
+    :returns: the widget, remembering what it was built from.
+    """
+    from .fractal_travel import (RuntimeControls, Settings,
+                                 create_fractal_widget)
+
+    if controls is None:
+        controls = RuntimeControls(
+            speed=values["speed"], dream=values["dream"],
+            variable_speed=values["variable_speed"],
+            speed_min=values["speed_min"],
+            speed_max=values["speed_max"],
+            speed_period=values["speed_period"],
+            follow_pointer=bool(values["pointer_gravity"]),
+            pointer_size=values["pointer_size"],
+            pointer_strength=values["pointer_strength"],
+            magnifier_size=values["magnifier_size"],
+            zoom_rate=values["zoom_rate"])
+    widget = create_fractal_widget(
+        Settings(pattern=values["pattern"], backend=values["backend"],
+                 quality=values["quality"], scale=values["scale"],
+                 supersampling=values.get("supersampling", 2)),
+        controls,
+    )
+    widget._spaceout_controls = controls
+    widget._spaceout_built_from = _built_from(values)
+    return widget
+
+
+def _place_the_spaceout_fractal(widget, host) -> None:
+    """Parent ``widget`` to ``host``, fill it, lower it and keep it filling."""
+    widget.setParent(host)
+    widget.setGeometry(host.rect())
+    widget.lower()
+    widget.show()
+    host.installEventFilter(_FractalTracksItsHost(widget, host))
+
+
+def _live_spaceout_fractals() -> list:
+    """Every spaceout backdrop currently parented to something."""
+    from PySide6.QtWidgets import QApplication
+
+    if QApplication.instance() is None:
+        return []
+    found = []
+    for widget in QApplication.allWidgets():
+        try:
+            if (getattr(widget, "_spaceout_built_from", None) is not None
+                    and widget.parentWidget() is not None):
+                found.append(widget)
+        except Exception:                                    # noqa: BLE001
+            continue
+    return found
+
+
+def _point_holders_at(old, new, host) -> int:
+    """Swap every attribute that held ``old`` on ``host`` or its window.
+
+    The screens keep their backdrop as ``_ambient`` and the main window as
+    ``_dock_backdrop``; pausing it for a run, retiring it and the screens'
+    "is there one already" guard all go through those names, so a rebuild
+    that left them on the retired widget would be a backdrop nothing can
+    pause and a second one built on top of it.
+
+    :returns: how many attributes were moved.
+    """
+    moved = 0
+    holders = [host]
+    try:
+        window = host.window()
+        if window is not None and window is not host:
+            holders.append(window)
+    except Exception:                                        # noqa: BLE001
+        pass
+    for holder in holders:
+        try:
+            names = [name for name, value in vars(holder).items()
+                     if value is old]
+        except TypeError:
+            continue
+        for name in names:
+            setattr(holder, name, new)
+            moved += 1
+    return moved
+
+
+def _retire_one_fractal(old, host) -> None:
+    """Stop ``old``, drop the filter that sized it, and let Qt free it."""
+    try:
+        old.shutdown()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not stop an old fractal", exc_info=True)
+    try:
+        for follower in host.findChildren(_FractalTracksItsHost):
+            if follower._widget is old:
+                host.removeEventFilter(follower)
+                follower._widget = None
+                follower.deleteLater()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not drop an old fractal's filter", exc_info=True)
+    try:
+        old.setParent(None)
+        old.deleteLater()
+    except Exception:                                        # noqa: BLE001
+        pass
+
+
+def rebuild_the_spaceout_backdrops() -> int:
+    """Rebuild every running spaceout backdrop whose build settings changed.
+
+    :returns: how many were rebuilt.
+
+    WHY A SAVED PATTERN USED TO WAIT FOR A RESTART. The window
+    builds ONE backdrop behind the dock and the page and keeps it for the
+    session. Saving Preferences pushed the runtime numbers into it
+    (`apply_saved_controls`) but the pattern, backend, quality and scale are
+    fixed when it is constructed, and nothing constructed it again -- the
+    old note that "changing a screen" would do it stopped being true when
+    the backdrop moved from the screens to the window.
+
+    The replacement is built BEFORE the old one is retired, so a GPU that
+    cannot be had right now leaves the running backdrop on screen rather
+    than none. It inherits the old one's `RuntimeControls`, its paused
+    state and its visibility, and every reference to the old one on its
+    host or window is moved to it. A heavy import holding the GL lock is
+    waited out on a timer, as at startup.
+    """
+    try:
+        from ..theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            return 0
+        from ..preferences import get_fractal_settings
+        from .fractal_travel import _HeavyImportInProgress
+
+        values = get_fractal_settings()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the fractal settings", exc_info=True)
+        return 0
+
+    wanted = _built_from(values)
+    rebuilt = 0
+    for old in _live_spaceout_fractals():
+        if getattr(old, "_spaceout_built_from", None) == wanted:
+            continue
+        host = old.parentWidget()
+        try:
+            paused = bool(old.is_paused())
+        except Exception:                                    # noqa: BLE001
+            paused = False
+        hidden = old.isHidden()
+        try:
+            new = _build_the_spaceout_fractal(
+                values, getattr(old, "_spaceout_controls", None))
+        except _HeavyImportInProgress:
+            QTimer.singleShot(400, rebuild_the_spaceout_backdrops)
+            continue
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("Could not rebuild the spaceout fractal")
+            continue
+        _retire_one_fractal(old, host)
+        _place_the_spaceout_fractal(new, host)
+        if hidden:
+            new.hide()
+        if paused:
+            try:
+                new.pause()
+            except Exception:                                # noqa: BLE001
+                pass
+        _point_holders_at(old, new, host)
+        rebuilt += 1
+    return rebuilt
+
+
+class _FractalTracksItsHost(QObject):
+    """Keeps the spaceout backdrop the size of what it sits behind.
+
+    :param widget: the backdrop to resize.
+    :param host: the widget whose resizes drive it, and THE QOBJECT PARENT
+        -- so this dies with the host it follows rather than with the
+        backdrop it moves.
+    """
+
+    def __init__(self, widget, host) -> None:
+        """Take the host as parent and remember the widget to resize."""
+        super().__init__(host)
+        self._widget = widget
+
+    def eventFilter(self, watched, event) -> bool:
+        """Resize the backdrop to match the widget it sits behind.
+
+        :param watched: the host being followed.
+        :param event: the event.
+        :returns: ``False`` -- the resize is observed, never consumed.
+        """
+        try:
+            if event.type() == QEvent.Type.Resize:
+                self._widget.setGeometry(watched.rect())
+        except Exception:                                    # noqa: BLE001
+            pass
+        return False
+
+
+def install_ambient(host: QWidget, layout=None, *,
+                    theme: str = DEFAULT_THEME,
+                    palette: str = DEFAULT_PALETTE,
+                    backdrop=None, corner_radius: int = 0,
+                    **kwargs) -> AmbientWidget:
+    """Put a live ambient backdrop behind ``host``.
+
+    The widget becomes a child of ``host``, tracks its geometry, and is
+    lowered to the bottom of the sibling stacking order so every screen
+    widget paints in front of it. It takes no focus and no mouse events, and
+    it does not tick until ``host`` is actually on screen.
+
+    Note that a backdrop is only as visible as its siblings are transparent:
+    under dark and light every container is an opaque page colour, and an
+    animation behind them reaches the eye through nothing but the few pixels
+    of layout spacing. The caller is responsible for clearing those surfaces
+    first — see ``AppScreen._clear_page_surfaces``.
+
+    :param host: the screen the animation sits behind.
+    :param layout: accepted for signature compatibility with
+        :func:`spacr.qt.widgets.dna_rain.install_dna_rain`, which appends its
+        settings bar to it. The ambient backdrop has no on-screen controls —
+        it is configured in Preferences — so nothing is added here, and the
+        two installers stay interchangeable at a call site.
+    :param theme: one of :data:`AMBIENT_THEMES`.
+    :param palette: one of :func:`palettes_for` for that theme.
+    :param backdrop: wallpaper to composite over; see
+        :meth:`AmbientWidget.set_backdrop`.
+    :param corner_radius: Radius in pixels used to clip the backdrop. The
+        default of zero leaves square corners. For a frameless dialog
+        containing a rounded card, use the card's radius so the backdrop does
+        not extend beyond its corners.
+    :param kwargs: forwarded to :class:`AmbientWidget` (``background``,
+        ``fps``, ``seed``, ``blur``, ``speed``, ``size``, ``resolution``,
+        ``density``, ``direction``). Everything from ``blur`` on defaults to
+        the user's preferences, so a caller that does not care about them
+        should not pass them.
+    :returns: the widget, already shown and lowered.
+    """
+    replacement = _the_spaceout_fractal(host)
+    if replacement is not None:
+        return replacement
+
+    auto_art_fps = "fps" not in kwargs
+    kwargs.setdefault("fps", DEFAULT_FPS if theme.startswith("data_art_") else _INSTALLED_FPS)
+    widget = AmbientWidget(host, theme=theme, palette=palette,
+                           backdrop=backdrop, corner_radius=corner_radius,
+                           **kwargs)
+    widget._auto_art_fps = auto_art_fps
+    widget.follow_parent()
+    widget.show()
+    return widget

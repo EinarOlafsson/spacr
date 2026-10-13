@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "language": "es",
+  "source_commit": "",
+  "method": "Claude Opus 5.5 AI technical translation of the N649/N656/N672/N673/N680 user-guide paragraphs; runtime glossary alignment, no native-speaker signoff.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The **Edit** menu has **Undo** and **Redo** for the editor on screen. They act on a focused text field first, otherwise on the screen's own history, and are greyed out when there is nothing to undo or redo.",
+      "source_sha256": "077470804c448faf65cbd5ed51394f860f6d9204076ec5e8fecb435e8902e27a",
+      "target": "El menú **Editar** tiene **Deshacer** y **Rehacer** para el editor en pantalla. Actúan primero sobre un campo de texto que tenga el foco y, si no, sobre el historial propio de la pantalla, y aparecen atenuados cuando no hay nada que deshacer o rehacer."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Save on navigation**, after **Next image**, saves an edited mask before **Keep**, **Discard**, **Next image** or **Previous image** moves on. It is off by default and remembered between sessions. If the save fails, the image stays open and no verdict is recorded. **Skip** never writes a mask.",
+      "source_sha256": "4524949580ab17c8d1a64bc0dc9b4f3fe227a4d5935958d5eaefa9726846504a",
+      "target": "**Guardar al navegar**, situado después de **Imagen siguiente**, guarda una máscara editada antes de que **Mantener**, **Descartar**, **Imagen siguiente** o **Imagen anterior** avance. Está desactivado de forma predeterminada y se recuerda entre sesiones. Si el guardado falla, la imagen sigue abierta y no se registra ningún veredicto. **Omitir** nunca escribe una máscara."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Open 3D image…** opens a TIFF with three spatial axes in the 3D mask editor; time, channel and RGB stacks are refused. Rotate the view, draw an object, then drag its anchors or select surfaces (Ctrl-click for several) and drag them or turn the mouse wheel. **Anchor density** sets how many anchors each edge and surface gets, and **Show anchors** hides them. Edits change the mask voxels themselves, keep the image's axis order and voxel spacing, and never overwrite another object. **Save 3D mask** writes the labels and their editable boundary; the 2D image and mask stay unchanged.",
+      "source_sha256": "cb4470d40e1764921ea8a3bfe13fb389df68aa6b671414c61308ae907d567d50",
+      "target": "**Abrir imagen 3D…** abre un TIFF con tres ejes espaciales en el editor de máscaras 3D; se rechazan las pilas de tiempo, de canal y RGB. Gire la vista, dibuje un objeto y luego arrastre sus anclas, o seleccione superficies (Ctrl-click para varias) y arrástrelas o gire la rueda del ratón. **Densidad de anclas** establece cuántas anclas recibe cada arista y cada superficie, y **Mostrar anclas** permite ocultarlas. Las ediciones cambian los propios vóxeles de la máscara, conservan el orden de ejes y el espaciado de vóxel de la imagen y nunca sobrescriben otro objeto. **Guardar máscara 3D** escribe las etiquetas y su contorno editable; la imagen y la máscara 2D no cambian."
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key.",
+      "source_sha256": "8bf4d2be4a40dedfe4a84839bb9a13f867aff18aaf88de235f17c608853297c7",
+      "target": "Para cambiar una tecla, elija **Cambiar atajos…** en la hoja de referencia. La ventana **Cambiar atajos** tiene una fila por cada acción, con su tecla **Predeterminado** y el **Atajo** en uso. Haga clic en un atajo y pulse la nueva tecla, o bórrelo para dejar la acción sin tecla. **Restaurar valores predeterminados** restablece la tecla predeterminada de todas las filas."
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "If a key is already used by another action that is active at the same time, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows.",
+      "source_sha256": "a1d529819091548f6df5fa73b71be396fdc2826d4aa84a3a64b6cde165c7b0e5",
+      "target": "Si una tecla ya la usa otra acción que está activa al mismo tiempo, la línea bajo la tabla indica las acciones que la comparten, y **Guardar** sigue sin estar disponible hasta que se resuelva el conflicto. Las teclas guardadas se aplican de inmediato, también a los elementos de menú correspondientes, y la hoja de referencia las muestra. Se guardan con sus preferencias y se leen igual en Linux, macOS y Windows."
+    },
+    {
+      "domain": "shortcuts_and_templates",
+      "source": "Keys that belong to one screen, such as Annotate's labelling keys, the Make Masks editing keys and the field browser's keys, have their own rows, with the screen named in the **Scope** column. A screen key may match a key of another screen, but not a window-wide key or another key on the same screen. Changed screen keys apply at once to screens that are open and to screens opened later, and the screen's key legend shows them.",
+      "source_sha256": "feb905403228e3bfa138101b001a37be98ebb035243a4fd61fdfce88f26d8cc9",
+      "target": "Las teclas que pertenecen a una pantalla, como las teclas de etiquetado de Annotate, las teclas de edición de Make Masks y las teclas del explorador de campos, tienen sus propias filas, con la pantalla indicada en la columna **Ámbito**. Una tecla de pantalla puede coincidir con una tecla de otra pantalla, pero no con una tecla de toda la ventana ni con otra tecla de la misma pantalla. Las teclas de pantalla modificadas se aplican de inmediato a las pantallas abiertas y a las que se abran después, y la leyenda de teclas de la pantalla las muestra."
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Edit** next to **Spin** and **Draw** to change a drawn 3D gate's shape. Every edge and surface carries evenly spaced anchors, including along the depth axis. Drag an anchor, or click a surface (Ctrl-click for several) and drag or turn the mouse wheel to move the selected surfaces together. The axis list beside **Edit** limits the movement to X, Y, Z or the view plane. **Anchor density** and **Show gate anchors** in the gate settings set how many anchors appear and whether they show; neither changes the gate. A curved gate becomes a piecewise-linear boundary at its first edit, and counts and exports use that edited boundary. Edited gates are saved and loaded with the gate file, and **Undo** and **Redo** step through the edits.",
+      "source_sha256": "ef20d1ba9299391fec30b0d48f2355a04457b160abaefe87eea7f586839d5aee",
+      "target": "Elija **Editar** junto a **Girar** y **Dibujar** para cambiar la forma de una región de selección 3D dibujada. Cada arista y cada superficie llevan anclas espaciadas uniformemente, también a lo largo del eje de profundidad. Arrastre un ancla, o haga clic en una superficie (Ctrl-click para varias) y arrastre o gire la rueda del ratón para mover juntas las superficies seleccionadas. La lista de ejes junto a **Editar** limita el movimiento a X, Y, Z o al plano de la vista. **Densidad de anclas** y **Mostrar anclas de las regiones de selección**, en la configuración de las regiones de selección, establecen cuántas anclas aparecen y si se muestran; ninguno de los dos cambia la región de selección. Una región de selección curva se convierte en un contorno lineal por tramos en su primera edición, y los recuentos y las exportaciones usan ese contorno editado. Las regiones de selección editadas se guardan y se cargan con el archivo de regiones de selección, y **Deshacer** y **Rehacer** recorren las ediciones paso a paso."
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review against each complete English source message, current UI labels, mask undo/identity/overlap behavior and probability/flow definitions. Model draft meaning errors corrected before normal import. No native-speaker signoff.",
+  "original_model_drafts_sha256": "47db3f62cf2d7003ec3445b476317ac7fb8cae7bee7f9f1358b1df6f1ea07479",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order.",
+      "source_sha256": "6fb84bd480f9e89ef3b07883c746de76e6c0ee12656701877c6dd6b0359c9df3",
+      "original_model_translation": "Animeringsmenyn listar **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** och **spaCR spinn**, i den ordningen.",
+      "target": "Animeringsmenyn listar **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** och **spaCR spinn**, i den ordningen."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen.",
+      "source_sha256": "d58dcef411de016b2e4ed40ee79814985354d7bfa195d086fd58ed61d24e9552",
+      "original_model_translation": "**spaCR growth** – Korta mycelsegment växer från en utgångspunkt per koloni och gaffel upprepade gånger. Varje gaffel omdirigerar det fortsatta tipset och startar en dotter tips, så den grenade fronten avancerar över skärmen. Densitet kontrollerar antalet levande tips. Äldre spår bleknar när nya kolonier börjar; synligt bläck stannar inom en fjärdedel av skärmen.",
+      "target": "**spaCR growth** — Korta mycelsegment växer från en gemensam utgångspunkt per koloni och förgrenas upprepade gånger. Vid varje förgrening ändrar den fortsatta tillväxtspetsen riktning och en ny sidospets bildas, så att den förgrenade fronten rör sig över skärmen. Tätheten styr antalet aktiva tillväxtspetsar. Äldre spår bleknar när nya kolonier börjar växa; de synliga linjerna täcker högst en fjärdedel av skärmen."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius.",
+      "source_sha256": "6ae907186874ad1d8d67abe6cbc17d3c687afab0840db8dd2dc86dc61aaa17e4",
+      "original_model_translation": "**spaCR waves** – Runda punkter medför vandringsvågor och rör sig bort från musen inom dess aktiverade radie.",
+      "target": "**spaCR waves** — Runda punkter bär vandrande vågor och rör sig bort från muspekaren inom dess aktiverade påverkansradie."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size.",
+      "source_sha256": "f6142a51583ab29ac1bbc90e0ddf4e45ec9e4c71ba2b53f73640ea16d9013181",
+      "original_model_translation": "**spaCR blobs** – Mjuka färgfläckar, stora och små, avdrift och ändrar långsamt storlek.",
+      "target": "**spaCR blobs** — Mjuka färgfläckar i olika storlekar driver omkring och ändrar långsamt storlek."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available.",
+      "source_sha256": "05fbec1af1efc5636715a6a358398d589e36be2f82319aeeb41ccf3b9033ed78",
+      "original_model_translation": "**spaCR aurora** — Oregelbundna gardiner av fina strålar stiger från lysande veck, fläkt mot himlen och ändrar längd och ljusstyrka oberoende. paletten spaCR använder grönt med rosa övre ljus för detta tema; andra utvalda paletter förblir tillgängliga.",
+      "target": "**spaCR aurora** — Oregelbundna draperier av fina ljusstrålar stiger från lysande veck, breder ut sig mot himlen och ändrar längd och ljusstyrka oberoende av varandra. spaCR-paletten använder grönt med rosa ljus upptill för detta tema; de andra valbara paletterna kan också användas."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "source_sha256": "a1f74b899259cb37b049b1c165df96ef8c80b752d47dd238fc787f8ef3949fb6",
+      "original_model_translation": "**spaCR stratified** – Ett långsamt stjärnfält rör sig i tre djupskikt; **Riktning för spaCR stratified** väljer uppåt, nedåt eller slumpmässigt.",
+      "target": "**spaCR stratified** — Ett långsamt stjärnfält rör sig i tre djuplager; **Riktning för spaCR stratified** väljer rörelse uppåt, nedåt eller i slumpmässig riktning."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.",
+      "source_sha256": "d6c57d8434371dbfd65e097e5dde3aab56fe6fbc246535bc005d7a1123a92480",
+      "original_model_translation": "**spaCR spinn** – Fina pappersfacetter rör sig försiktigt och snurrar lokalt som svar på musen. Rotation är snabbast bredvid pekaren och bleknar smidigt till noll vid musgravitationsradien; att ändra radien ändrar det drabbade området.",
+      "target": "**spaCR spinn** — Små pappersfacetter rör sig försiktigt och roterar lokalt som svar på muspekaren. Rotationen är snabbast nära pekaren och avtar jämnt till noll vid musgravitationens radie; radien bestämmer vilket område som påverkas."
+    },
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset.",
+      "source_sha256": "f1d600d93414e2c79b01d468668f3b6245b9ebae12d8c49bb9b0d7a19a2aba1d",
+      "original_model_translation": "**Musgravitationens radie** anger det drabbade området som en procentandel av den kortare skärmkanten. Dess standardvärde är **15%**; ställer in det till **0** för att inaktivera muspåverkan. **Animationstäthet** ändrar antalet element oberoende av **Animationsdetaljer**, vilket ändrar ritningsupplösningen. Densitet har minst **1%**; ökande Detalj trimmar inte den valda populationen. Rendern begränsar sitt provtagningsarbete inom skärmens pixelbudget. Välj **Slumpmässig** i **Animeringspalett** för per-elementfärger. Nya installationer använder **Mörkt**, **spaCR field** och **spaCR** animeringspaletten, med Density **10%**, Gravity **15%**, Detalj, Hastighet och storlek **100%** och Page opacitet **60%**. **Blinkande punkter** kontrollerar procentandelen synliga punkter som blinkar vitt: **0** stänger av den (standardvärdet), och nonnollvärden varierar från 0,00001% till 10%. Inställningen gäller spaCR fältet, spaCR advektion, spaCR vågor och spaCR stratifierade. Fältet bleknar. Den blå fälgen använder en relativ omkretslängd på **17%**, Chase **50%**, centrerad inställning, **Beat** läge och en **1.5 s** cykel. Befintliga sparade inställningar förblir i kraft tills de ändras eller återställs.",
+      "target": "**Musgravitationens radie** anger det påverkade området som en procentandel av skärmens kortare kant. Standardvärdet är **15%**; välj **0** för att stänga av musens påverkan. **Animationstäthet** ändrar antalet element oberoende av **Animationsdetaljer**, som ändrar ritupplösningen. Täthetens lägsta värde är **1%**; ökad detaljnivå minskar inte det valda antalet element. Renderaren begränsar sitt samplingsarbete till skärmens pixelbudget. Välj **Slumpmässig** i **Animeringspalett** för individuella färger. Nya installationer använder **Mörkt**, **spaCR field** och animeringspaletten **spaCR**, med täthet **10%**, gravitation **15%**, detaljnivå, hastighet och storlek **100%** samt sidopacitet **60%**. **Blinkande punkter** anger andelen synliga punkter som blinkar vitt: **0** stänger av blinkningen och är standardvärdet; värden över noll ligger mellan 0.00001% och 10%. Inställningen gäller spaCR field, spaCR advection, spaCR waves och spaCR stratified. Fältets toning är på. Den blå kanten använder en relativ omkretslängd på **17%**, följsamhet **50%**, centrerad placering, läget **Beat** och en cykel på **1.5 s**. Befintliga sparade inställningar gäller tills de ändras eller återställs."
+    },
+    {
+      "domain": "features",
+      "source": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "source_sha256": "bc4b37e953592d552059f66aac7427eb3308a93996586bfe4b7300ad4e93c80d",
+      "original_model_translation": "**Frekvens för popupvågor** ställer in automatiska vågor per minut i **spaCR field**. Standardvärdet är **5 vågor/minut**; **0** inaktiverar popupvågor. När det är aktiverat, startar en popup omedelbart den första vågen från dess centrum, följt av vågor med den valda hastigheten. Att flytta popup-fönstret flyttar upphovet till nya vågor; att stänga den stoppar nya vågor medan befintliga vågor bleknar. Kontrollen är oberoende av musgravitation, blinkande punkt, densitet och ritningsdetaljer.",
+      "target": "**Frekvens för popupvågor** anger antalet automatiska vågor per minut i **spaCR field**. Standardvärdet är **5 vågor/minut**; **0** stänger av popupvågor. När funktionen är på startar den första vågen direkt från mitten av ett popupfönster när det öppnas, följd av vågor med vald frekvens. Om fönstret flyttas följer ursprunget för nya vågor med; när fönstret stängs upphör nya vågor medan befintliga vågor tonas bort. Inställningen är oberoende av musgravitation, punktblinkning, täthet och ritdetaljer."
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_model_translation": "**Bakgrund för inställningar** förblir oberoende av huvudanimeringen under både Verkställ och Spara. **Ingen** inaktiverar popup-rörelse samtidigt som den blå fälgen behålls. **Mörker i inställningsbakgrunden** styr inställningskortets opacitet över dess animering, från **0%** till **100%** (standard **85%**), kombinerat med **Sidopacitet**. Sidoopacity gäller också när Inställningsbakgrunden är **Ingen**. Högre mörkervärden täcker mer av animeringen för att göra texten lättare att läsa. Popups förblir ovanför sitt eget spaCR fönster utan att använda en global alltid-på-topp-flagga, så att andra program kan täcka dem.",
+      "target": "**Bakgrund för inställningar** är oberoende av huvudfönstrets animering både när Verkställ och Spara används. **Ingen** stänger av rörelse i popupfönstret men behåller den blå kanten. **Mörker i inställningsbakgrunden** styr inställningskortets opacitet över dess animering, från **0%** till **100%**, med standardvärdet **85%**, i kombination med **Sidopacitet**. Sidopacitet gäller även när inställningsbakgrunden är **Ingen**. Högre mörkervärden täcker mer av animeringen så att texten blir lättare att läsa. Popupfönster ligger över sitt eget spaCR-fönster utan en global inställning som håller dem över alla andra fönster; andra program kan därför täcka dem."
+    },
+    {
+      "domain": "features",
+      "source": "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available.",
+      "source_sha256": "d5e22805593c3cde4e6d34ff9dd279e1d192c5a8bc36e1cff2d3b64b9b9bb511",
+      "original_model_translation": "I **spaCR field**, vänsterdra ett oanvänt bakgrundsområde för att dra en lokal punktplåster. Genom att ta bort knappen kan den glida tillbaka smidigt utan att starta om mönstret. Denna bakgrundsgest lämnar vetenskaplig duk och kontrollgester tillgängliga.",
+      "target": "I **spaCR field** kan du dra med vänster musknapp i ett tomt bakgrundsområde för att dra i en lokal grupp punkter. När du släpper knappen återgår punkterna mjukt utan att mönstret startas om. Bakgrundsgesten hindrar inte gester i den vetenskapliga bildytan eller i kontrollerna."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "source_sha256": "634a10eb8471b8a67bd4d81639c291ad3362d89ed1ce0990c72f3ea6f05cca7e",
+      "original_model_translation": "Växla **Förstoringsglas** eller tryck **M** för att inspektera föreslagna objekt runt pekaren. Dess hjul ändrar rutan zoom; **Shift + wheel** ändrar rutans storlek. **Ctrl+L+högerklick** låser eller låser upp rutan. Vänta på en uppdateringsförhandsgranskning innan objekten tas emot manuellt.",
+      "target": "Slå på **Förstoringsglas** eller tryck **M** för att granska föreslagna objekt runt pekaren. Mushjulet ändrar rutans zoom; **Shift + wheel** ändrar rutans storlek. **Ctrl+L+högerklick** låser eller låser upp rutan. Vänta tills den uppdaterade förhandsgranskningen är klar innan du godkänner objekten manuellt."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "source_sha256": "5a8bdbfe56a759b843b1b9637502650ca5d55525b059bb9540cb565cbacefcbc",
+      "original_model_translation": "Under **Objektdetektering** → **Förstoringsinställningar**, slå på **Godkänn föreslagna objekt direkt** för att acceptera ett aktuellt förslag utan att klicka. Det här är normalt av. Regionläge följer **Objekt som läggs till**; helbildsläge accepterar bara objektet under pekaren. Flytta utanför bilden eller inaktivera förstoringsanordningen förhindrar automatiskt godkännande. Varje godkännande kan inte ångras, och ett ångra accepterar inte omedelbart samma förslag igen. Använd **Spara** eller **Save & Next** för skrivning av accepterade masker.",
+      "target": "Under **Objektdetektering** → **Förstoringsinställningar** kan du slå på **Godkänn föreslagna objekt direkt** för att godkänna ett aktuellt förslag utan att klicka. Funktionen är av som standard. Regionläget följer **Objekt som läggs till**; helbildsläget godkänner bara objektet under pekaren. Automatisk acceptans förhindras om pekaren flyttas utanför bilden eller förstoringsglaset stängs av. Varje godkännande går att ångra; efter en ångring godkänns inte samma förslag omedelbart igen. Använd **Spara** eller **Save & Next** för att skriva de godkända maskerna till disk."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "source_sha256": "af54d2452c6f782e2b8ed4d97939a0a37a5fb5bf50bb8ec2f089c664967203d9",
+      "original_model_translation": "**Överlappning** väljer vad som händer när ett förslag överlappar en befintlig mask:",
+      "target": "**Överlappning** väljer vad som händer när ett förslag överlappar en befintlig mask:"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "source_sha256": "1f85feed35d5327911d4c26e71ad0211c01da0b25dacfeef4587ce720096d064",
+      "original_model_translation": "**Sammanfoga med befintligt objekt** lägger till förslaget till det befintliga ID-kortet och behåller det gamla objektets bildpunkter, inklusive bildpunkter utanför rutan. Ett förslag som överlappar flera objekt sammanfogar dem till det minsta gamla ID. Ett bakgrundsförslag blir ett nytt objekt.",
+      "target": "**Sammanfoga med befintligt objekt** lägger till förslaget i det befintliga ID:t och behåller det gamla objektets pixlar, även dem utanför rutan. Ett förslag som överlappar flera objekt sammanfogar dem under det minsta gamla ID:t. Ett förslag på bakgrunden blir ett nytt objekt."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "source_sha256": "5c6740518691a9b115fac6f8c56f4f25206f0978e7d2615399ac3b1e426c82a9",
+      "original_model_translation": "**Lägg till pixlar utan överlappning** bevarar befintliga objekt och lägger till förslagets största återstående anslutna del som ett nytt objekt.",
+      "target": "**Lägg till pixlar utan överlappning** bevarar befintliga objekt och lägger till den största återstående sammanhängande delen av förslaget som ett nytt objekt."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "source_sha256": "153e787e83bebe08d300e34f410af14ec52096d8c9e8eccc9e6d27ea26dafcd1",
+      "original_model_translation": "**Ersätt överlappande objekt** tar bort överlappande gamla objekt i sin helhet innan förslaget läggs till. Avvisade små förslag tar inte bort någonting.",
+      "target": "**Ersätt överlappande objekt** tar bort överlappande gamla objekt helt innan förslaget läggs till. Små förslag som avvisas tar inte bort något."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "source_sha256": "94c92b2fd888685cb2c6bfe40f217d3e9b9997b017e1c6c49cf9d35570618fa1",
+      "original_model_translation": "**Hoppa över överlappande objekt** ignorerar förslag som överlappar befintliga masker.",
+      "target": "**Hoppa över överlappande objekt** ignorerar förslag som överlappar befintliga masker."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step.",
+      "source_sha256": "f34e5e79f3c51a76c21475f5e6d2214e13b870ad02096d6b1a2a8a7e36891242",
+      "original_model_translation": "Sekundärt läge bevarar primära ID och tillåter inte sammanfogning av identiteter. Explicit klick-och-drag redigering behåller sin enda ångra steg.",
+      "target": "Sekundärläget bevarar primära ID:n och tillåter inte sammanfogning av identiteter. Explicit redigering genom att klicka och dra behåller ett enda ångringssteg."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Saved segmentation diagnostics",
+      "source_sha256": "0638dcc7f961ff9681d512553184a84a0f4f7cc08c0d3434b71569b11878a011",
+      "original_model_translation": "Sparad segmenteringsdiagnostik",
+      "target": "Sparad segmenteringsdiagnostik"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "source_sha256": "3822bf413fac16acc6f480cd9c20831605010b47254b8255401e416e3b461696",
+      "original_model_translation": "Pliktläget skriver dessa kolumner för varje plack ``per_plaque`` och ``details`` i ``<src>/masks/plaques_analysis.db`` och exporterar ``<src>/masks/per_plaque.csv``. Figurläget skriver samma kolumner i ``plaques`` tabellen ``plaque_figures.db``.",
+      "target": "Plackläget skriver dessa kolumner för varje plack till ``per_plaque`` och ``details`` i ``<src>/masks/plaques_analysis.db`` och exporterar ``<src>/masks/per_plaque.csv``. Figurläget skriver samma kolumner till tabellen ``plaques`` i ``plaque_figures.db``."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Meaning",
+      "source_sha256": "1f5d64b92820f8238635b90ae69a38c12661a7b03c6d0d7f689711f12af7b7f9",
+      "original_model_translation": "Innebörd",
+      "target": "Betydelse"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages.",
+      "source_sha256": "e318e7b610960e98116b4586514c3d69a92460cc43942e3764ed67056e13513c",
+      "original_model_translation": "Medelvärdet för råa Cellpose cellsannolikhet poäng över plackets pixlar. Dessa poäng är logiter, kan vara negativa och är inte kalibrerade sannolikheter eller konfidensnivåer.",
+      "target": "Medelvärdet av Cellposes råa cellsannolikhetspoäng över plackets pixlar. Poängen är logiter, kan vara negativa och är varken kalibrerade sannolikheter eller konfidensprocent."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask.",
+      "source_sha256": "40cfc84921155fb9be3bc65f2ef3374f3cefc80885504d58e6b713c1f32343ce",
+      "original_model_translation": "Cellpose s summan av de två komponenten genomsnittliga kvadratfel mellan mask-härledd diffusion flöden och förutspådda flöden dividerat med fem. Lägre värden innebär bättre flöde avtal med den sparade masken.",
+      "target": "Cellposes summa av de två komponenternas medelkvadratfel mellan diffusionsflöden härledda från masken och förutsagda flöden dividerade med fem. Lägre värden innebär bättre överensstämmelse mellan flödet och den sparade masken."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation.",
+      "source_sha256": "e7829a710a5592ed2c033e1bbdbfbbdf0eb0bf491fa11adabddbb6131a300825",
+      "original_model_translation": "Genomsnittlig förutsagd flödesvektorlängd inom placket, dividerad med fem för att använda Cellpose maskflödesskala. Detta beskriver flödesstyrka; högre värden i sig innebär inte en bättre segmentering.",
+      "target": "Medellängden för de förutsagda flödesvektorerna inom placket, dividerad med fem för att använda Cellposes maskflödesskala. Värdet beskriver flödesstyrkan; ett högre värde innebär inte i sig bättre segmentering."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions.",
+      "source_sha256": "c34d264d5cb90ea679181fb6f3e17b30ef9b41f736415493a1750723e2e6fd32",
+      "original_model_translation": "Genomsnittlig riktning cosinus mellan förutsagda och mask-härledda flöden, exklusive noll-längd vektorer. Värden varierar från -1 till 1; 1 innebär matchande riktningar och -1 betyder motsatta riktningar.",
+      "target": "Medelvärdet av riktningscosinus mellan förutsagda och maskhärledda flöden, med vektorer av längd noll uteslutna. Värdena ligger mellan -1 och 1; 1 betyder samma riktning och -1 motsatt riktning."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage.",
+      "source_sha256": "7a7509927cc78bf11411b43bb20d108ef905242b56cdde33a7dad3207afe35ad",
+      "original_model_translation": "Fraction av plack pixlar med ändliga sannolikhet poäng eller ändlig tvåkomponentsflöde vektorer. Dessa beskriver utdatatäckning.",
+      "target": "Andelen plackpixlar med ändliga sannolikhetspoäng eller ändliga flödesvektorer med två komponenter. Värdena beskriver hur stor del av utdata som täcks."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation.",
+      "source_sha256": "deeb1d334a43acb08405a871ed67d62da48ee2e37d443352c172160ada75fc84",
+      "original_model_translation": "Flödesavtal kan hjälpa flagga sammanslagna eller dåligt delade plack, men fastställer inte biologisk noggrannhet; inspektera bilden och masken tillsammans. Saknade utgångar, inkompatibla utdatanät och otillgängliga jämförelser sparas som tomma CSV celler eller SQL NULL, snarare än noll. Sannolikhet och flödesstorlek betyder att använda finita bildpunkter. Flödesfel och justering kräver finita förutsedda flöden i förgrunden; ett jämförelsefel lämnar dem tomma. Jämförelser körs på CPU och ändrar inte modellens segmentering.",
+      "target": "Flödesöverensstämmelse kan hjälpa till att upptäcka sammanfogade eller dåligt uppdelade plack men fastställer inte biologisk noggrannhet; granska bild och mask tillsammans. Saknade utdata, inkompatibla utdataraster och jämförelser som inte kan göras sparas som tomma CSV-celler eller SQL NULL, inte som noll. Medelvärden för sannolikhet och flödesmagnitud beräknas från ändliga pixlar. Flödesfel och riktningsöverensstämmelse kräver ändliga förutsagda flöden över hela förgrunden; vid ett jämförelsefel lämnas värdena tomma. Jämförelserna körs på CPU och ändrar inte modellens segmentering."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank.",
+      "source_sha256": "938ae04b654aac15980290073541a5f9355ce5fbd450c3c6fe60f8901729c027",
+      "original_model_translation": "Varje genererad mask har också en ``<image>.diagnostics.csv`` sidvagn som bär den ursprungliga per-plaque-diagnostiken och ett maskfingeravtryck. En körning med ``masks=False`` återanvänder den bara när den sparade masken fortfarande matchar. Att redigera en mask upphäver dessa modelldiagnostiker; regenererar masker för att få nya. Befintliga masker utan sidvagn behåller sina mätningar och har tomma diagnostiska kolumner. Figurflöden med en anpassad callback returnerar endast etiketter lämnar också de diagnostiska kolonnerna tomma.",
+      "target": "Varje genererad mask har också en sidofil, ``<image>.diagnostics.csv``, med den ursprungliga diagnostiken per plack och ett maskfingeravtryck. En körning med ``masks=False`` återanvänder filen bara om den sparade masken fortfarande matchar. Redigering av en mask ogiltigförklarar modellens diagnostik; generera masker på nytt för att få nya värden. Befintliga masker utan sidofil behåller sina mätningar och har tomma diagnostikkolumner. Figurflöden med en egen callback som endast returnerar etiketter lämnar också diagnostikkolumnerna tomma."
+    }
+  ]
+}

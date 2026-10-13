@@ -1,0 +1,23 @@
+{
+  "reviewer": "Codex AI root, independent of shared_ui author",
+  "scope": "All nine technical source/target pairs",
+  "draft_sha256": "377589c1f93ae31642c8b09af2c91d3627f2b61b4c2250ed4569e62f00d0e124",
+  "accepted_languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "correction": {
+    "language": "pt",
+    "original": "Percentil de controlo",
+    "accepted": "Percentil dos controles",
+    "reason": "Brazilian Portuguese wording consistent with existing guide voice and negative controls."
+  },
+  "method": "AI technical peer review; no human/native-speaker signoff."
+}

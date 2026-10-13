@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex context review of table-merge and annotation controls during guide drafting, independently peer-reviewed by a second Codex agent. Corrects concrete relational/table, action and Boolean-operator mistranslations. Existing candidate gates and normal generator remain unchanged. Original proposals and replaced generated targets retained here.",
+  "author": "merge_interfaces",
+  "peer_reviewer": "root",
+  "original_proposals": {
+    "Child keys": "Chaves da tabela secundária",
+    "Load chart": "Carregar gráfico",
+    "Export table": "Exportar tabela"
+  },
+  "replaced_generated_targets": {
+    "Child keys": "Chaves de criança",
+    "Load chart": "Gráfico de carga",
+    "Export table": "Quadro de exportação"
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Child keys",
+      "source": "Child keys",
+      "source_sha256": "742a9fafde02f1bf710c88966a21e45c5f9f02358f15b2035501d6a81f06ea3d",
+      "translation": "Chaves da tabela secundária"
+    },
+    {
+      "table": "ui",
+      "key": "Load chart",
+      "source": "Load chart",
+      "source_sha256": "57f075809c4e9fcf268f2967808bd6566fc0027d91816d595f52f1f0c0137c0c",
+      "translation": "Carregar gráfico"
+    },
+    {
+      "table": "ui",
+      "key": "Export table",
+      "source": "Export table",
+      "source_sha256": "e6249e8219c3648af58d4305db14d624153474640b98fbd482d6b9fc573a733a",
+      "translation": "Exportar tabela"
+    }
+  ]
+}

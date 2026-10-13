@@ -1,0 +1,42 @@
+16 file(s) would be written from 4 source(s).
+1 plate(s), 1 well(s), 4 channel id(s).
+4 source(s) hold z planes (8 in total); z_handling='keep' writes each plane as its own file with its own Z index.
+4 source(s) hold multiple timepoints; each becomes its own file with its own T index.
+Converted 16 file(s) into /mnt/wd4tb/scratch/f548-stream-proto-20261006/tmp6u6m3m0_/converted.
+Map file: /mnt/wd4tb/scratch/f548-stream-proto-20261006/tmp6u6m3m0_/converted/conversion_map.csv
+Checkpoint: /mnt/wd4tb/scratch/f548-stream-proto-20261006/tmp6u6m3m0_/converted/.spacr_conversion.checkpoint.json
+Processing channel 3: background=100, signal_threshold=1000, remove_background=False
+Channel 3: global_lower=697.0, global_upper=4014.0, Signal-to-noise=5.75896700143472
+Progress: 1/2, operation_type: Normalizing, Time/image: 0.149sec, Time_left: 0.002 min.
+Processing channel 1: background=100, signal_threshold=1000, remove_background=False
+Channel 1: global_lower=696.0, global_upper=4014.0, Signal-to-noise=5.767241379310345
+Progress: 2/2, operation_type: Normalizing, Time/image: 0.145sec, Time_left: 0.000 min.
+{
+  "variant": "baseline",
+  "source": "/mnt/wd4tb/scratch/f548-stream-proto-20261006/baseline_io.py",
+  "source_sha256": "32c291b23b819b2b2ce1ca853e31026411d343f1dd41e7805a3cdda08ea4e3f4",
+  "archive_sha256": "37be3fd9789580363ea0116a638b259cdf1f5d847d4341f53f46a9631a14b0fa",
+  "archive_bytes": 31779821,
+  "shape": [
+    2,
+    2,
+    1280,
+    1280,
+    2
+  ],
+  "dtype": "float32",
+  "elapsed_s": 2.7576720749930246,
+  "max_rss_kib": 1342432,
+  "max_anon_kib": 878900,
+  "max_file_kib": 479156,
+  "last_status": {
+    "VmHWM": 1338916,
+    "VmRSS": 1190864,
+    "RssAnon": 727268,
+    "RssFile": 463596
+  },
+  "selected_roles": [
+    0,
+    1
+  ]
+}

@@ -1,0 +1,69 @@
+{
+ "item": 586,
+ "date": "2026-09-27",
+ "host": {
+  "os": "Ubuntu, kernel 7.0.0-34",
+  "unprivileged_userns": true,
+  "newuidmap": false,
+  "root_used": false
+ },
+ "apptainer": {
+  "version": "1.5.4",
+  "install": "official apptainer_1.5.4_amd64.deb extracted with dpkg-deb -x (no root); etc/ moved under usr/ for the relocatable layout; libsubid.so.4 from Ubuntu libsubid4 deb, reached via patchelf rpath on apptainer and starter",
+  "build_flags": [
+   "--ignore-subuid"
+  ],
+  "why_ignore_subuid": "/etc/subuid lists the user but newuidmap (uidmap package) is not installed"
+ },
+ "definition": "packaging/apptainer/spacr.def",
+ "findings_fixed_in_definition": [
+  "%post under unprivileged fakeroot failed on the CUDA base: libfakeroot.so needs GLIBC_2.38, Ubuntu 22.04 has 2.35. %post removed; %files keeps the git executable bit.",
+  "%test run as mapped root with HOME=/root on the read-only image: spacr-run could not create ~/.spacr/runs (Errno 30). %test now goes through entrypoint.sh, whose writable-HOME fallback handles it.",
+  "entrypoint.sh would have linked the user's real ~/.cellpose/models and ~/.spacr/models to an image-only /models under Apptainer; it now links nothing there and hands /models to Cellpose only when it is a mount point."
+ ],
+ "images": {
+  "cpu": {
+   "source": "docker-daemon://spacr:cpu-586 (Dockerfile.cpu built from this branch, legacy builder)",
+   "sif_bytes": 1542778880,
+   "build_wall_s": 160.6,
+   "percent_test": "7/7 (external_masks smoke)",
+   "spacr": "1.5.1.0"
+  },
+  "cuda": {
+   "source": "docker-daemon://spacr:cuda-425-3bcac5fd6 (item 425 local CUDA 12.4 image)",
+   "sif_bytes": 5572145152,
+   "build_wall_s": 207.4,
+   "percent_test": "7/7 (external_masks smoke)",
+   "spacr": "1.5.0.9"
+  }
+ },
+ "mask_measure_smoke": {
+  "command": "apptainer run [--nv] --bind /mnt/wd4tb/scratch/586 <sif> python /opt/spacr/smoke_pipeline.py --mask --workspace ...",
+  "field": "synthetic 256x256, 2 channels, 3 cells + 3 nuclei; cpsam from the host ~/.cellpose/models via the mounted home",
+  "cpu_image_cpu": {
+   "checks": "10/10",
+   "accelerator": "cpu",
+   "cells": 3,
+   "nuclei": 3,
+   "wall_s": 168.4,
+   "log_sha256": "3b5e60f95e57a6c1313315afa50e1e476c966ed44e890984afd2c2888c561b48"
+  },
+  "cuda_image_cpu": {
+   "checks": "10/10",
+   "accelerator": "cpu (no --nv, CUDA_VISIBLE_DEVICES empty)",
+   "cells": 3,
+   "nuclei": 3,
+   "wall_s": 288.7,
+   "log_sha256": "bf685ffea2161a2f130be8cbb5894d95b52822c18285e2d3005885129d6946b4"
+  },
+  "cuda_image_nv": "PENDING: queued via tools/gpu_turn.sh as 586-apptainer-nv; GPU held by another session's training job"
+ },
+ "env_checks": {
+  "uid_inside": 1000,
+  "home": "host home",
+  "CELLPOSE_LOCAL_MODELS_PATH_unbound": "unset",
+  "CELLPOSE_LOCAL_MODELS_PATH_with_--bind_x:/models:ro": "/models",
+  "host_~/.cellpose/models_after_runs": "still a directory, not a link"
+ },
+ "published": false
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_method": "Context review preserving historical network measurements and distinguishing the new tracked-file size; native-speaker signoff not claimed.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source_sha256": "385d9fe03748af093bf1acb966263cca19b52db8c0161e48a0b662f69b1cb893",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1607 MB checkout (measured 2026-09-24), excluding Git history. Download sizes and times vary with the branch.",
+      "translation": "2026-09-15 के मापन में पूरे क्लोन ने 5.8 GB डाउनलोड किया। एक कमिट वाले क्लोन में ``--filter=blob:none`` जोड़ने से उसके मापे गए डाउनलोड में कमी नहीं आई। nightly की ट्रैक की गई फ़ाइलों का चेकआउट 1607 MB है (मापन: 2026-09-24), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+diff --git a/spacr/qt/widgets/ambient.py b/spacr/qt/widgets/ambient.py
+index 11206be5c2..d534a5bf3d 100644
+--- a/spacr/qt/widgets/ambient.py
++++ b/spacr/qt/widgets/ambient.py
+@@ -4606,2 +4606,14 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
+-        start, stop = (-1, 2) if spread else (0, 1)
+-        for dy in range(start, stop):
++        destination = y * width + x
++        encoded = lookup[level]
++        score = encoded >> 32 if dark else 255 - (encoded >> 32)
++        color = encoded & 0xffffffff
++        if score > ranks[destination]:
++            ranks[destination] = score
++            flat[destination] = color
++        elif score == ranks[destination] and (
++                (dark and color > flat[destination])
++                or (not dark and color < flat[destination])):
++            flat[destination] = color
++        if not spread:
++            continue
++        for dy in range(-1, 2):
+@@ -4611 +4623,3 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
+-            for dx in range(start, stop):
++            for dx in range(-1, 2):
++                if dx == 0 and dy == 0:
++                    continue
+@@ -4615,2 +4629 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
+-                encoded = lookup[level] if dx == 0 and dy == 0 else (
+-                    diagonal[level] if dx and dy else axial[level])
++                encoded = diagonal[level] if dx and dy else axial[level]
+@@ -5087,3 +5100,8 @@ class _DataArtEngine(_BufferedEngine):
+-        identities = np.broadcast_to(np.arange(px.shape[-1], dtype=np.uint32), px.shape)
+-        mixed = identities * np.uint32(0x9e3779b1) + np.uint32(self._art_seed & 0xffffffff)
+-        mixed ^= mixed >> 16
++        count = px.shape[-1]
++        identity_cache = self._material_cache.get("random_grain_identities")
++        if identity_cache is None or identity_cache[0] != count:
++            identities = np.arange(count, dtype=np.uint32)
++            mixed = identities * np.uint32(0x9e3779b1) + np.uint32(self._art_seed & 0xffffffff)
++            mixed ^= mixed >> 16
++            identity_cache = count, (mixed % len(self.paint_colors)).astype(np.uint16)
++            self._material_cache["random_grain_identities"] = identity_cache
+@@ -5093 +5111 @@ class _DataArtEngine(_BufferedEngine):
+-        hues = (mixed[inside] % len(self.paint_colors)).astype(np.uint16)
++        hues = np.broadcast_to(identity_cache[1], inside.shape)[inside]

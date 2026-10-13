@@ -1,0 +1,78 @@
+{
+  "lesson": "44_data_manager",
+  "status": "Actual plan capture verified; deletion, archive execution and updated media not yet performed",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/data_manager_verified_plan",
+  "current_capture": {
+    "commit": "ac5b05d92952bf18ebb8dd6ec5c2c40d0ed0b71d",
+    "version": "1.5.0.4",
+    "module": "data_manager",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "capture_count": 9,
+  "evidence_sha256": {
+    "manager_acceptance.json": "137e9ec8b3f33578dd547012263bdeb5a04957c0b1870297bccd0b252badf33f",
+    "frames.json": "7cfbc4c13d397fabd0ea40a0a4201ed0d0d145a71cbb14f6b9d270b62b4e74cd"
+  },
+  "original": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project",
+  "private_copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/data_manager_runs/real-project-m04osqhn/project",
+  "original_file_count": 131,
+  "all_original_files_byte_identical_inside_and_outside_namespace": true,
+  "registry_provenance_rewritten": false,
+  "fake_artifacts_registered": false,
+  "usage": {
+    "total_bytes": 91113254,
+    "total_files": 129,
+    "unregistered_bytes": 87277273,
+    "unregistered_files": 24
+  },
+  "verified_candidate": {
+    "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project/data",
+    "files": 104,
+    "bytes": 3369037,
+    "token": "e10f91b59ddd5a70"
+  },
+  "candidate_meaning": "103 actual acquired-data object crops plus their crop-format JSON; 104 files is not 104 cells",
+  "kept_table": [
+    [
+      "466.9 kB",
+      "measurements/measurements.db",
+      "measurement databases are kept by default; name the kind explicitly to consider them"
+    ]
+  ],
+  "archive_plan": {
+    "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project",
+    "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/data_manager_runs/real-project-m04osqhn/archive",
+    "total_bytes": 91113254,
+    "total_files": 129,
+    "whole_project": true,
+    "token": "7bce9f9296d6d288",
+    "created_utc": "2026-09-10T04:42:00.143113+00:00"
+  },
+  "archive_top_level_entries": 10,
+  "worker_outcomes": [
+    true,
+    true,
+    true
+  ],
+  "remaining_workers": 0,
+  "source_preservation": {
+    "files": 131,
+    "byte_identical": true
+  },
+  "tests": {
+    "positive_and_negative_tests_passed": 14,
+    "actual_source_comparison_bypass_failed": 13,
+    "bypass_still_passed": 1,
+    "restored_passed": 14
+  },
+  "earlier_attempt": "data_manager_real_plan stopped before deletion because the tutorial verifier treated file_list() as paths instead of (paths, truncated); corrected and pinned by tests. Not an application defect. Both attempts preserved original files.",
+  "sqlite_note": "The copied registry lost its zero-byte WAL and 32768-byte SHM after normal SQLite access: scan saw129 files/91113254 bytes, original snapshot131 files/91146022 bytes. No crop or measurement was deleted.",
+  "visual_check": "Parent inspected actual usage, complete prune row and archive listing; no text or widget policy replaced",
+  "deleted_files": [],
+  "archive_executed": false,
+  "published": false
+}

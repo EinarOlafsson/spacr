@@ -1,0 +1,254 @@
+{
+  "feature": 570,
+  "date": "2026-10-01",
+  "status": "DONE AS ALPHA: final independent B-score reference acceptance met",
+  "acceptance_scope": "Four public CPJUMP1 384-well U2OS compound plates, two measured readouts, per-plate and pooled scoring. 6144scores and every eligible hit call compared; current per-plate plots inspected. Earlier robust-z/SSMD/known-active acceptance retained in563_570_real_screen_validation_2026-09-30.json. No claim that a single readout detects every biologically active compound.",
+  "dataset": {
+    "pinned_repository_commit": "635a1beeea0e5dedf9dea6d216eb40fd47f08d06",
+    "files": {
+      "BR00117010": {
+        "url": "https://media.githubusercontent.com/media/jump-cellpainting/pilot-cpjump1-data/635a1beeea0e5dedf9dea6d216eb40fd47f08d06/profiles/2020_11_04_CPJUMP1/BR00117010/BR00117010_augmented.csv.gz",
+        "sha256": "72162df076e9a578073ca3f397fa21d1588f330516e3b7ddc8b64b7d5a490c92",
+        "bytes": 7064935
+      },
+      "BR00117011": {
+        "url": "https://media.githubusercontent.com/media/jump-cellpainting/pilot-cpjump1-data/635a1beeea0e5dedf9dea6d216eb40fd47f08d06/profiles/2020_11_04_CPJUMP1/BR00117011/BR00117011_augmented.csv.gz",
+        "sha256": "de55e06cbaa51017f4edb9ecc058443f389183147b66e97b60e5ffbb52a0fc8f",
+        "bytes": 7066335
+      },
+      "BR00117012": {
+        "url": "https://media.githubusercontent.com/media/jump-cellpainting/pilot-cpjump1-data/635a1beeea0e5dedf9dea6d216eb40fd47f08d06/profiles/2020_11_04_CPJUMP1/BR00117012/BR00117012_augmented.csv.gz",
+        "sha256": "6b5a87f6e2acaa3859df6d5a428f6220821440a757044852e77a71a3415bdcd3",
+        "bytes": 7067611
+      },
+      "BR00117013": {
+        "url": "https://media.githubusercontent.com/media/jump-cellpainting/pilot-cpjump1-data/635a1beeea0e5dedf9dea6d216eb40fd47f08d06/profiles/2020_11_04_CPJUMP1/BR00117013/BR00117013_augmented.csv.gz",
+        "sha256": "ba7662782bb1975a225ce40331625258d4cdb9055066c9f6912f896a47b47bcf",
+        "bytes": 7065134
+      }
+    },
+    "wells": 1536,
+    "roles": {
+      "sample": 1040,
+      "negcon": 256,
+      "poscon_diverse": 112,
+      "poscon_cp": 104,
+      "poscon_orf": 24
+    },
+    "transformation": "Select original plate/well/control metadata and Cells_Number_Object_Number/Nuclei_AreaShape_Area, rename columns, sort plate/well. No synthetic values or numerical normalization before either implementation. negcon is excluded from fitting; all other measured wells are samples for both implementations.",
+    "known_positive_controls": {
+      "cell_count_proxy_plate": {
+        "annotated_positive_wells": 112,
+        "called_positive_wells": 53,
+        "meaning": "Recovery of annotated diverse positive-control wells only. Unlabelled compounds are not treated as negatives; this is not a false-positive/precision estimate."
+      },
+      "cell_count_proxy_pooled": {
+        "annotated_positive_wells": 112,
+        "called_positive_wells": 54,
+        "meaning": "Recovery of annotated diverse positive-control wells only. Unlabelled compounds are not treated as negatives; this is not a false-positive/precision estimate."
+      },
+      "nuclear_area_plate": {
+        "annotated_positive_wells": 112,
+        "called_positive_wells": 50,
+        "meaning": "Recovery of annotated diverse positive-control wells only. Unlabelled compounds are not treated as negatives; this is not a false-positive/precision estimate."
+      },
+      "nuclear_area_pooled": {
+        "annotated_positive_wells": 112,
+        "called_positive_wells": 52,
+        "meaning": "Recovery of annotated diverse positive-control wells only. Unlabelled compounds are not treated as negatives; this is not a false-positive/precision estimate."
+      }
+    }
+  },
+  "reference": {
+    "package": "cellHTS2 2.69.0",
+    "source_commit": "88e87ebc294490547a2f224eca75a6de14dafea3",
+    "upstream_sources": {
+      "perPlateScaling.R": {
+        "url": "https://raw.githubusercontent.com/bioconductor-source/cellHTS2/88e87ebc294490547a2f224eca75a6de14dafea3/R/perPlateScaling.R",
+        "sha256": "4e9dde5dfed38162814130d1801deae8f1a5d0c2e27cd4e11822d8e051472650",
+        "unchanged_original": true
+      },
+      "adjustVariance.R": {
+        "url": "https://raw.githubusercontent.com/bioconductor-source/cellHTS2/88e87ebc294490547a2f224eca75a6de14dafea3/R/adjustVariance.R",
+        "sha256": "bdf1bf95da2deb13e2a2ce706cefde86da39782c52c56e01d64e66b9e60a0b47",
+        "unchanged_original": true
+      }
+    },
+    "numerical_functions": [
+      "Bscore",
+      "adjustVariancebyPlate",
+      "adjustVariancebyExperiment"
+    ],
+    "runtime": "Actual R4.6.0 via private WebR0.6.0 WASM, original R stats::medpolish and stats::mad. No Python reference port.",
+    "runtime_package": {
+      "url": "https://registry.npmjs.org/webr/-/webr-0.6.0.tgz",
+      "sha256": "5821c8bd87484add59064fa13fa62a65f686032f3f64dacf4b0aa34c4325e959",
+      "sha512_integrity_verified": "sha512-M2b8m3/ZBk7XMIR7LD97s5k/9jUla83Z0Hl4b+WnrK7XmSMpZdajCiP3XkSzHKHDUgscHKe+lVUvk3aym8q0bw=="
+    },
+    "adapter": "reference.R supplies only a small S4 data container/accessors with values, plate layout/IDs, well annotations and state. Both original downloaded R source files are sourced unmodified. This exercises the actual numerical functions, not the entire Bioconductor package import/configuration/reporting stack.",
+    "reference_code_and_output": "570_cellhts2_reference_2026-10-01/reference.R and reference.csv",
+    "source_files_retained_at": "/tmp/spacr-implementation-20261001/f570-reference"
+  },
+  "defect": {
+    "cause": "b_scores used general R median-polish defaults10/.01 instead of cellHTS2 overrides200/1e-5, and used precise normal MAD factor instead of R rounded1.4826.",
+    "before": {
+      "cell_count_proxy_plate": {
+        "n": 1536,
+        "sample_wells": 1280,
+        "finite_mask_equal": true,
+        "max_absolute_difference": 0.35682157680819115,
+        "spearman_all": 0.9969529787103439,
+        "sample_spearman_abs": 0.9921832611508586,
+        "calls_actual": 219,
+        "calls_reference": 213,
+        "call_disagreements": 12,
+        "all_scores_equal_1e_10": false
+      },
+      "cell_count_proxy_pooled": {
+        "n": 1536,
+        "sample_wells": 1280,
+        "finite_mask_equal": true,
+        "max_absolute_difference": 0.33793517587501865,
+        "spearman_all": 0.9969976741319624,
+        "sample_spearman_abs": 0.9922660976430763,
+        "calls_actual": 218,
+        "calls_reference": 218,
+        "call_disagreements": 6,
+        "all_scores_equal_1e_10": false
+      },
+      "nuclear_area_plate": {
+        "n": 1536,
+        "sample_wells": 1280,
+        "finite_mask_equal": true,
+        "max_absolute_difference": 1.0074882755081767,
+        "spearman_all": 0.9975313770498405,
+        "sample_spearman_abs": 0.9942892617811365,
+        "calls_actual": 253,
+        "calls_reference": 252,
+        "call_disagreements": 1,
+        "all_scores_equal_1e_10": false
+      },
+      "nuclear_area_pooled": {
+        "n": 1536,
+        "sample_wells": 1280,
+        "finite_mask_equal": true,
+        "max_absolute_difference": 0.5536646384307389,
+        "spearman_all": 0.9978192816046706,
+        "sample_spearman_abs": 0.9950224410656783,
+        "calls_actual": 256,
+        "calls_reference": 255,
+        "call_disagreements": 3,
+        "all_scores_equal_1e_10": false
+      }
+    },
+    "fix": "B-score explicitly uses max_iter200/eps1e-5 and1.4826 for both plate and pooled residual MAD. General median_polish, MAD, robust-z and SSMD behavior remains unchanged.",
+    "historical_metrics": "The Sep30 B-score call/recovery numbers were measured before this correction and remain historical evidence, not post-fix performance claims."
+  },
+  "final": {
+    "cell_count_proxy_plate": {
+      "n": 1536,
+      "sample_wells": 1280,
+      "finite_mask_equal": true,
+      "max_absolute_difference": 8.881784197001252e-15,
+      "spearman_all": 0.9999838097972571,
+      "sample_spearman_abs": 0.9999638420407877,
+      "calls_actual": 213,
+      "calls_reference": 213,
+      "call_disagreements": 0,
+      "all_scores_equal_1e_10": true,
+      "sample_spearman_abs_numeric_ties_1e_10": 0.9999999999999999,
+      "distinct_reference_rank_inversions_over_1e_10": 0
+    },
+    "cell_count_proxy_pooled": {
+      "n": 1536,
+      "sample_wells": 1280,
+      "finite_mask_equal": true,
+      "max_absolute_difference": 5.773159728050814e-15,
+      "spearman_all": 0.999987241989957,
+      "sample_spearman_abs": 0.9999731229820779,
+      "calls_actual": 218,
+      "calls_reference": 218,
+      "call_disagreements": 0,
+      "all_scores_equal_1e_10": true,
+      "sample_spearman_abs_numeric_ties_1e_10": 0.9999999999999999,
+      "distinct_reference_rank_inversions_over_1e_10": 0
+    },
+    "nuclear_area_plate": {
+      "n": 1536,
+      "sample_wells": 1280,
+      "finite_mask_equal": true,
+      "max_absolute_difference": 1.4921397450962104e-13,
+      "spearman_all": 0.9999966157548321,
+      "sample_spearman_abs": 0.9999941448397107,
+      "calls_actual": 252,
+      "calls_reference": 252,
+      "call_disagreements": 0,
+      "all_scores_equal_1e_10": true,
+      "sample_spearman_abs_numeric_ties_1e_10": 1.0,
+      "distinct_reference_rank_inversions_over_1e_10": 0
+    },
+    "nuclear_area_pooled": {
+      "n": 1536,
+      "sample_wells": 1280,
+      "finite_mask_equal": true,
+      "max_absolute_difference": 5.3290705182007514e-14,
+      "spearman_all": 0.9999951860578027,
+      "sample_spearman_abs": 0.999982530260566,
+      "calls_actual": 255,
+      "calls_reference": 255,
+      "call_disagreements": 0,
+      "all_scores_equal_1e_10": true,
+      "sample_spearman_abs_numeric_ties_1e_10": 1.0,
+      "distinct_reference_rank_inversions_over_1e_10": 0
+    }
+  },
+  "rank_tolerance": "Reference output is rounded by R CSV serialization and exact-zero residuals can differ at floating-point precision. Every score matches at1e-10relative/absolute; observed maxdifference1.4921397450962104e-13. No distinct-reference-score ordering is reversed at1e-10. Spearman after numerical ties is1.0; raw tie-sensitive Spearman is retained honestly in final.json.",
+  "plots": "Actual write_hit_report rendered both four-plate B-score heatmaps and CSV tables. Both PNGs were inspected: all four plates, row/column labels, score colour scale and hit outlines are visible.",
+  "validation": {
+    "tests": "47 passed,1 existing optional pycytominer import skip in8.66s; includes four public-screen golden cases and existing statistical/Control Charts tests.",
+    "pycytominer": "Not installed in this isolated app environment; existing independent real-screen pycytominer1.7.1 robust-z comparison remains valid evidence for unchanged robust-z implementation. No new pycytominer run claimed.",
+    "caps": "Original R reference under1GiB; comparison/render/tests under4GiB. All use CPU0 affinity, zero swap, requested CPUQuota100%; kernel cpu controller unavailable as disclosed in limit receipts.",
+    "source_contracts": {
+      "existing_public_callable_signatures_docstrings_unchanged": true,
+      "base_commit": "eca3435d6c1cc55905953ec903dbd25426d77eb1",
+      "sp_stats_sha256": "c682f2016bde91103428d71711c913e312c9be09cb5cc30900beb1821d800d8a",
+      "module_docstring_changed": "One constants paragraph now distinguishes general R median-polish defaults from cellHTS2 B-score stopping settings and rounded MAD factor.",
+      "ruff": "Same six pre-existing module findings; new/changed test files pass."
+    },
+    "incidental_harness_failure": "Initial render rejected an unsupported120DPI preference before rendering; rerun used documented100DPI. Original private failure log retained. No production change or gate relaxation."
+  },
+  "evidence": {
+    "features/data/570_cellhts2_reference_2026-10-01/after-limits.json": "b0886e997a07cf5daa6a325da759315a006c30d9283373da378e9cf95c1b5d91",
+    "features/data/570_cellhts2_reference_2026-10-01/after.json": "3047404e51880649e434e7e14b1687d0c78b8af863af993f948f3e50dbe6e94e",
+    "features/data/570_cellhts2_reference_2026-10-01/after.log": "3047404e51880649e434e7e14b1687d0c78b8af863af993f948f3e50dbe6e94e",
+    "features/data/570_cellhts2_reference_2026-10-01/before-limits.json": "2b0c35acbac537a6b1330fe0e077cccb77d0cc4637351aab3b6128d6b48ded24",
+    "features/data/570_cellhts2_reference_2026-10-01/before.json": "17e030aeed3bee7bffc531ddcaabb3c503fe75a3abd6489f35d37aef92b57411",
+    "features/data/570_cellhts2_reference_2026-10-01/before.log": "17e030aeed3bee7bffc531ddcaabb3c503fe75a3abd6489f35d37aef92b57411",
+    "features/data/570_cellhts2_reference_2026-10-01/cellHTS2-DESCRIPTION": "ab801522a564eca740d0e148b387f0ea6f1bc7c0de9f1fb5483d8a85fd1c2d29",
+    "features/data/570_cellhts2_reference_2026-10-01/cell_count_proxy_b_score.png": "067e942957484a022ad31a536bc78065b35d21151ef2a3a392cbd939a29d2e7f",
+    "features/data/570_cellhts2_reference_2026-10-01/compare.py": "c6de9df71a965be8243af721d54c77681c984fe77502e66c9db7b0c83f444ae0",
+    "features/data/570_cellhts2_reference_2026-10-01/final-limits.json": "6b6051c02e210b556447f0c80286b4333bb77baefcf4abd6b31f4f6a74eec70b",
+    "features/data/570_cellhts2_reference_2026-10-01/final.json": "d582a5a8ff0575e048b5a6a57e49eb5580e0c13fd4791e53a58b1bc7b7b72f47",
+    "features/data/570_cellhts2_reference_2026-10-01/final.log": "d582a5a8ff0575e048b5a6a57e49eb5580e0c13fd4791e53a58b1bc7b7b72f47",
+    "features/data/570_cellhts2_reference_2026-10-01/input-hashes.json": "b1e4a2563847fe8e1bcfa3f78fb2eb94b781f4868a2aea5f1a7ac95d76016a9e",
+    "features/data/570_cellhts2_reference_2026-10-01/nuclear_area_b_score.png": "366631eda47327967226f30ce75e417b330413cc19f27c8dd26b7316649beabe",
+    "features/data/570_cellhts2_reference_2026-10-01/plots.json": "6abb32276eeb087d979a2dc40c1ee72e023d20ef55a8f0f90a2cc6d15672fe60",
+    "features/data/570_cellhts2_reference_2026-10-01/prepare.py": "281e9b47e01848473574fe184900ccd1fbd94ac1041a9ee184132cd4db346d09",
+    "features/data/570_cellhts2_reference_2026-10-01/reference-limits.json": "95513a4cf8908d380d729d5ef09ef3188bf2cb78ed67a7fdf2d1bc6e6e138329",
+    "features/data/570_cellhts2_reference_2026-10-01/reference-session.txt": "4b6a420d209e2cb84914d0ada2fb668a5f638276295b7c7a77b08e5696ae9bdb",
+    "features/data/570_cellhts2_reference_2026-10-01/reference.R": "62928520e839eb95ff635c08420b4e904113bbf25e546945cf653e46d6cef503",
+    "features/data/570_cellhts2_reference_2026-10-01/reference.csv": "88f402a1b8d6e8ab23f9c192a2e626592fd1d15147e83e4c6720006e00de321d",
+    "features/data/570_cellhts2_reference_2026-10-01/reference.log": "778787fc0c00e03b92f50c5c34371c0caf0be439934e26a5e314271603985806",
+    "features/data/570_cellhts2_reference_2026-10-01/reference.mjs": "57904abc51d710590b7317e893f884d514a9daae163add38814b638775ed1762",
+    "features/data/570_cellhts2_reference_2026-10-01/render-limits.json": "3100a1beaae5ee7e8d2df65b21a27759d35241065bcd6b894497a37afb252ee0",
+    "features/data/570_cellhts2_reference_2026-10-01/render.log": "6abb32276eeb087d979a2dc40c1ee72e023d20ef55a8f0f90a2cc6d15672fe60",
+    "features/data/570_cellhts2_reference_2026-10-01/render.py": "9b14412f54d99b3d2c1827f247ea6fdb707dae0c04673c377551ce097ce2debe",
+    "features/data/570_cellhts2_reference_2026-10-01/ruff-baseline.txt": "6058d75b94edc70077b70890afd2b062875fc324bc4e39849cdcfb22849dbad4",
+    "features/data/570_cellhts2_reference_2026-10-01/ruff-current.txt": "9355f5a45753a2e6f521b86ada27644fb9b2d2becf530593e1f50f6cb99f3b28",
+    "features/data/570_cellhts2_reference_2026-10-01/screen.csv": "e3dacc28590b3bbbda14ac7b340d7310b173475c381842c4b9739e71952e3b9a",
+    "features/data/570_cellhts2_reference_2026-10-01/source-contracts.json": "e348f60ef7e02e89063590ee9ff6595c6a766bd4e6de8530e21490e2b29dc011",
+    "features/data/570_cellhts2_reference_2026-10-01/tests-limits.json": "8015e76550b9d0757a7b735e1206e852a47809128bfd65fc7984f5d761bb97e1",
+    "features/data/570_cellhts2_reference_2026-10-01/tests.log": "c39b14447b17bda75b97fe1cf15a233386b6fc252e9e00ae45f6b8ebee811e19",
+    "features/data/570_cellhts2_reference_2026-10-01/webr-package.json": "69989661b4158bfac2921b60fa5014825797563b3904385bb845f09102487d87"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "files": {
+    "pytest.log.gz": {
+      "bytes": 50,
+      "sha256": "88bbc5e07ef24ca9bbcfcf9db28b014de1118884a9959f55ccc90abf2d046c7b"
+    },
+    "receipt.json": {
+      "bytes": 1468,
+      "sha256": "f6de29cdc595f28f0a8b33d962bef73e04335ece33e6f9d9d842f78523610c64"
+    }
+  }
+}

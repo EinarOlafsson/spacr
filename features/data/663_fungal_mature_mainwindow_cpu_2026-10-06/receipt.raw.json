@@ -1,0 +1,116 @@
+{
+  "source_commit": "1534cf84185c9877a872e7772773f3d7e561fbee",
+  "source_sha256": {
+    "ambient": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+    "preferences": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "app": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7"
+  },
+  "source_paths": {
+    "ambient": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/widgets/ambient.py",
+    "preferences": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/preferences.py",
+    "app": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/app.py"
+  },
+  "qt_platform": "xcb",
+  "cuda_visible_devices": "",
+  "saves": [
+    {
+      "index": 0,
+      "palette": "random",
+      "resolution": 2.0,
+      "density": 3.0,
+      "size": 2.5,
+      "native_viewport": [
+        3840,
+        2104
+      ],
+      "frame_size": [
+        3840,
+        2104
+      ],
+      "max_pixels": 8294400,
+      "cache_hits": 16,
+      "cache_entries": 6,
+      "cache_array_bytes": 66136,
+      "alpha255": true,
+      "frame_sha256": "b71013416b9bac9b81458df45ef0a012f8d8d32290ae78bc972c08b305f43aa3",
+      "prior_frames_unchanged": true,
+      "memory_kib": {
+        "VmHWM": 965824,
+        "VmRSS": 965824,
+        "RssAnon": 782148,
+        "RssFile": 151024
+      }
+    },
+    {
+      "index": 1,
+      "palette": "spacr",
+      "resolution": 1.0,
+      "density": 3.0,
+      "size": 2.5,
+      "native_viewport": [
+        3840,
+        2104
+      ],
+      "frame_size": [
+        3840,
+        2104
+      ],
+      "max_pixels": 8294400,
+      "cache_hits": 414,
+      "cache_entries": 28,
+      "cache_array_bytes": 648088,
+      "alpha255": true,
+      "frame_sha256": "f477adff0703559c4cdea1179fad8b94575443cc81c3518593bffa9cace22971",
+      "prior_frames_unchanged": true,
+      "memory_kib": {
+        "VmHWM": 1116968,
+        "VmRSS": 1116968,
+        "RssAnon": 930444,
+        "RssFile": 153872
+      }
+    },
+    {
+      "index": 2,
+      "palette": "random",
+      "resolution": 2.0,
+      "density": 3.0,
+      "size": 2.5,
+      "native_viewport": [
+        3200,
+        1744
+      ],
+      "frame_size": [
+        3200,
+        1744
+      ],
+      "max_pixels": 8294400,
+      "cache_hits": 623,
+      "cache_entries": 47,
+      "cache_array_bytes": 1063448,
+      "alpha255": true,
+      "frame_sha256": "bee02618d7f0f039b0f8f54154cee175e7c6b1164e7e77860a1b1748c0813ab7",
+      "prior_frames_unchanged": true,
+      "memory_kib": {
+        "VmHWM": 1173352,
+        "VmRSS": 1173352,
+        "RssAnon": 986808,
+        "RssFile": 153892
+      }
+    }
+  ],
+  "gui_gc_count": 11,
+  "all_gc_on_gui_thread": true,
+  "after_close": {
+    "widgets": 0,
+    "ambient": 0,
+    "live_workers": 0,
+    "ambient_threads": [],
+    "memory_kib": {
+      "VmHWM": 1264156,
+      "VmRSS": 1130688,
+      "RssAnon": 976416,
+      "RssFile": 154020
+    }
+  },
+  "scope": "actual fresh native4K softwareXvfb MainWindow Home/Mask/Measure/Annotate; three real modal Preferences Saves; maxdensity3/size2.5, detail200/100/200, Random/default/Random; no GPU/inference/manualgc/hardFPS/crashfix claim"
+}

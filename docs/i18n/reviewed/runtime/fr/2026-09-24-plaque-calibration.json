@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI-assisted source-context review. Preserves pixels per micrometer, hours, independent scale/time requirement, approximate estimates and strain/host/imaging validation. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
+      "source": "Record the image scale in pixels per micrometer and the plaque formation time in hours. Measured well diameters are saved in pixels; a known physical well diameter can calibrate the image scale. These values give physical meaning to plaque sizes.",
+      "source_sha256": "6a49d414bf9a8b6220d6c9aa0fb5fad0e6dfbdf6f45353f01463013d42a42704",
+      "translation": "Indiquez l’échelle de l’image en pixels par micromètre et le temps de formation des plages de lyse en heures. Les diamètres mesurés des puits sont enregistrés en pixels ; un diamètre physique connu du puits permet de calibrer l’échelle de l’image. Ces valeurs donnent une signification physique à la taille des plages de lyse."
+    },
+    {
+      "table": "categories",
+      "key": "Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.",
+      "source": "Optionally compare plaque sizes with an experimental reference growth curve. An independently known scale is needed to estimate time, or a known time to estimate scale: plaque size alone cannot determine both. Estimates are approximate and require validation for the parasite strain, host cells and imaging conditions.",
+      "source_sha256": "86df272ad69995197fb1eb7cfce1c801456f2e0cb919e5449b8465a267515f16",
+      "translation": "Vous pouvez comparer la taille des plages de lyse à une courbe expérimentale de croissance de référence. Pour estimer le temps, il faut une échelle connue indépendamment ; pour estimer l’échelle, il faut un temps connu : la taille des plages de lyse ne permet pas à elle seule de déterminer les deux. Les estimations sont approximatives et doivent être validées pour la souche du parasite, les cellules hôtes et les conditions d’imagerie."
+    },
+    {
+      "table": "ui",
+      "key": "Scale & Time",
+      "source": "Scale & Time",
+      "source_sha256": "3d8bfa4c21fedcb75c6fd4e20bef851e5529627d02e6a2c6f57f61140d0e585e",
+      "translation": "ÉCHELLE ET TEMPS"
+    },
+    {
+      "table": "ui",
+      "key": "Experimental Growth Estimates",
+      "source": "Experimental Growth Estimates",
+      "source_sha256": "52bd2fb39c8ae283ca0f8e33d15fe349aa662b7762991417c3a3c17b82ab2e54",
+      "translation": "ESTIMATIONS EXPÉRIMENTALES DE CROISSANCE"
+    }
+  ]
+}

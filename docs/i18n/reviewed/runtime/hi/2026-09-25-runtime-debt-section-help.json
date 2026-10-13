@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source": "Cellpose 4 fine-tuning uses AdamW. Start with 100 epochs, learning rate 0.00001, weight decay 0.1 and minibatch size 1.",
+      "source_sha256": "98e442532c56044e2aca2f66f22cf008ca9c149676e55c0ab3211bc2dafd6b65",
+      "translation": "Cellpose 4 की फ़ाइन-ट्यूनिंग AdamW का उपयोग करती है। 100 एपॉक, लर्निंग रेट 0.00001, वेट डिके 0.1 और मिनीबैच आकार 1 से शुरू करें।"
+    },
+    {
+      "table": "categories",
+      "key": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source": "Choose an individual-parasite table with explicit parent-vacuole links, or a measured count column on each vacuole. Do not supply both. Without count inputs, replication remains unmeasured rather than being inferred from recruitment or host identity.",
+      "source_sha256": "13105e7ae7024e883b3f8dca9456225007943d9b2c11c4ab35ac3d71949a3cf2",
+      "translation": "स्पष्ट मूल-रिक्तिका लिंक वाली एकल-परजीवी तालिका चुनें, या प्रत्येक रिक्तिका पर मापा गया गणना स्तंभ। दोनों न दें। गणना इनपुट के बिना प्रतिकृति अमापित रहती है; उसका अनुमान रिक्रूटमेंट या पोषक कोशिका की पहचान से नहीं लगाया जाता।"
+    },
+    {
+      "table": "categories",
+      "key": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source": "Choose direct parasite counts or the legacy host-aggregated area proxy. The whole-vacuole deep-learning classifier is coming soon and cannot run until a trained model is available.",
+      "source_sha256": "28d5ad28bdefea580a16d38e4739bbc5bb55822f453670d5546e875e1e2ccece",
+      "translation": "सीधी परजीवी गणना या पुराना, पोषक कोशिका के स्तर पर एकत्रित क्षेत्रफल-आधारित प्रॉक्सी चुनें। पूरी रिक्तिका वाला डीप-लर्निंग वर्गीकारक जल्द आ रहा है और प्रशिक्षित मॉडल उपलब्ध होने तक नहीं चल सकता।"
+    },
+    {
+      "table": "categories",
+      "key": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source": "Choose where trained weights are saved and whether intermediate epoch checkpoints are retained.",
+      "source_sha256": "f9f27be334385474852d77b130f190a56369e08640b1909b3bdfb8b5336c8f8a",
+      "translation": "चुनें कि प्रशिक्षित वेट कहाँ सहेजे जाएँ और मध्यवर्ती एपॉक चेकपॉइंट रखे जाएँ या नहीं।"
+    },
+    {
+      "table": "categories",
+      "key": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source": "Compare each vacuole's marker intensity with its host reference compartment and classify joint marker states using explicit ratio thresholds. Calibrate thresholds with assay controls; missing or invalid references remain unknown.",
+      "source_sha256": "942a690aaf94696a0c0e39a77f0f5237ff323c230926d67e8188f27ea1a20ff8",
+      "translation": "प्रत्येक रिक्तिका की मार्कर तीव्रता की तुलना उसकी पोषक कोशिका के संदर्भ कक्ष से करें और स्पष्ट अनुपात सीमा मानों से संयुक्त मार्कर अवस्थाओं को वर्गीकृत करें। सीमा मानों को परीक्षण नियंत्रणों से अंशांकित करें; अनुपस्थित या अमान्य संदर्भ अज्ञात रहते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source": "Configure area bins and scale for the legacy replication estimate. It combines pathogen area within a host and is neither a direct parasite count nor a measured three-dimensional volume.",
+      "source_sha256": "181a6d6dcb6feafb389528d1881bbfd2799b37f890843e2dc0b6f2540235cbce",
+      "translation": "पुराने प्रतिकृति अनुमान के लिए क्षेत्रफल बिन और स्केल कॉन्फ़िगर करें। यह एक पोषक कोशिका के भीतर रोगजनक का क्षेत्रफल जोड़ता है और न तो सीधी परजीवी गणना है, न ही मापा गया त्रि-आयामी आयतन।"
+    },
+    {
+      "table": "categories",
+      "key": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source": "Control sparse-field filtering, dataset size and Cellpose's online random scale augmentation without creating duplicate images.",
+      "source_sha256": "90d1efbd2c76c9df20d6b7209f50ff0b73f1a49592c17f22d1d78bef1ea3632f",
+      "translation": "विरल दृश्य क्षेत्रों की फ़िल्टरिंग, डेटासेट का आकार और Cellpose का ऑनलाइन यादृच्छिक स्केल संवर्धन नियंत्रित करें, बिना डुप्लिकेट छवियाँ बनाए।"
+    },
+    {
+      "table": "categories",
+      "key": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
+      "source_sha256": "438ffe2486a47178e78c2753cbe756d3d9ab35e7556c9b9e036c487953b9d812",
+      "translation": "मूल Cellpose-SAM या किसी मौजूदा चेकपॉइंट को फ़ाइन-ट्यून करें; नए प्रशिक्षित मॉडल को अलग नाम दें।"
+    },
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca",
+      "translation": "एक स्पॉट बेस कैसे बनता है: कौन-सा चैनल कौन-सा अक्षर दर्शाता है, रीड माने जाने के लिए किसी स्पॉट को अपने आसपास से कितना अधिक चमकीला होना चाहिए, और कोई रीड नाभिक से कितनी दूर होकर भी उसी नाभिक का माना जाए। ये पसंद नहीं, बल्कि अधिग्रहण के मापे गए गुण हैं, और रन लाइब्रेरी मिलान दर बताता है, जिससे पता चलता है कि वे सही हैं या नहीं।"
+    },
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5",
+      "translation": "टाइलें कैसे जोड़ी जाती हैं और प्रत्येक जोड़े गए वेल के नाभिकों का विभाजन कैसे होता है: माइक्रोस्कोप द्वारा पड़ोसी टाइलों के बीच छोड़ा गया ओवरलैप, विभाजन विंडो का आपसी ओवरलैप, और मॉडल। प्रत्येक रीड उस नाभिक को दिया जाता है जिस पर या जिसके ठीक पास वह पड़ता है, इसलिए यहाँ का मॉडल और व्यास तय करते हैं कि किन ऑब्जेक्ट को बारकोड मिल सकता है।"
+    },
+    {
+      "table": "categories",
+      "key": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source": "Optional rotations and reflections during phenotype prediction. Combine predictions by averaging or voting, retain the original prediction, and flag disagreement for review. All augmentation switches are off by default; agreement measures orientation stability, not calibrated confidence or biological accuracy.",
+      "source_sha256": "d9cce8c2fdd211143c253bf43bcd68377a010872613fe0279ad95295a987c4ea",
+      "translation": "फ़ीनोटाइप पूर्वानुमान के दौरान वैकल्पिक घूर्णन और परावर्तन। पूर्वानुमानों को औसत या मतदान से संयोजित करें, मूल पूर्वानुमान रखें, और असहमति को समीक्षा के लिए चिह्नित करें। सभी संवर्धन स्विच डिफ़ॉल्ट रूप से बंद हैं; सहमति अभिविन्यास की स्थिरता मापती है, अंशांकित विश्वास या जैविक सटीकता नहीं।"
+    },
+    {
+      "table": "categories",
+      "key": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
+      "source_sha256": "9fc32374a0b052ef77ce0ec86653b68a05edfbb17ed4d142c7cfa2aa013cad01",
+      "translation": "माइक्रोस्कोपी छवियों को पूर्णांक ऑब्जेक्ट-लेबल मास्क के साथ जोड़ें, और चाहें तो एक अलग सत्यापन सेट दें।"
+    },
+    {
+      "table": "categories",
+      "key": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source": "Screen raw fields before segmentation using channel-specific focus, saturation and nonfinite-pixel criteria. Choose report-only review or explicit saved exclusions; calibrate thresholds for the acquisition. Screening is off by default and never excludes images for low object counts.",
+      "source_sha256": "6e08ff71703b82990f1492044eb89a24852852501e9e15c2b604022bdbd52b0b",
+      "translation": "विभाजन से पहले कच्चे दृश्य क्षेत्रों की जाँच चैनल-विशिष्ट फ़ोकस, संतृप्ति और अपरिमित-पिक्सेल मानदंडों से करें। केवल रिपोर्ट वाली समीक्षा या स्पष्ट, सहेजे गए बहिष्करण चुनें; सीमा मानों को इस अधिग्रहण के लिए अंशांकित करें। जाँच डिफ़ॉल्ट रूप से बंद रहती है और कम ऑब्जेक्ट संख्या के कारण कभी छवियाँ बाहर नहीं करती।"
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2",
+      "translation": "टाइलें कहाँ से पढ़ी जाती हैं और परिणाम कहाँ लिखे जाते हैं: सीक्वेंसिंग फ़ोल्डर, जिसमें सबफ़ोल्डर सहित आवर्धन, चक्र, वेल, चैनल और साइट के नाम वाली टाइलें खोजी जाती हैं; उसके ऊपर रखा जाने वाला फ़ीनोटाइप फ़ोल्डर; वह गाइड लाइब्रेरी जिससे कॉल का मिलान होता है; और वह फ़ोल्डर जिसमें measurements.db और प्रत्येक वेल की रिपोर्ट लिखी जाती है। इन्हें पहले सेट करें; OPS का हर दूसरा समूह मानता है कि ये सही हैं।"
+    }
+  ]
+}

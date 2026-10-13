@@ -1,0 +1,133 @@
+{
+  "combine": {
+    "completed_at": "2026-10-08T06:10:42Z",
+    "conclusion": "failure",
+    "job_id": 113175377484,
+    "numerical_gate_step": "success",
+    "required_shards_step": "failure"
+  },
+  "coverage_failure": 4,
+  "coverage_shards": [
+    {
+      "completed_at": "2026-10-08T06:06:40Z",
+      "conclusion": "failure",
+      "job_id": 113154247583,
+      "number": 0
+    },
+    {
+      "completed_at": "2026-10-08T06:05:44Z",
+      "conclusion": "failure",
+      "job_id": 113154247444,
+      "number": 1
+    },
+    {
+      "completed_at": "2026-10-08T05:52:11Z",
+      "conclusion": "failure",
+      "job_id": 113154247593,
+      "number": 2
+    },
+    {
+      "completed_at": "2026-10-08T05:28:42Z",
+      "conclusion": "success",
+      "job_id": 113154247453,
+      "number": 3
+    },
+    {
+      "completed_at": "2026-10-08T06:07:57Z",
+      "conclusion": "success",
+      "job_id": 113154247465,
+      "number": 4
+    },
+    {
+      "completed_at": "2026-10-08T05:38:57Z",
+      "conclusion": "success",
+      "job_id": 113154247518,
+      "number": 5
+    },
+    {
+      "completed_at": "2026-10-08T05:22:56Z",
+      "conclusion": "success",
+      "job_id": 113154247485,
+      "number": 6
+    },
+    {
+      "completed_at": "2026-10-08T05:37:50Z",
+      "conclusion": "failure",
+      "job_id": 113154247553,
+      "number": 7
+    },
+    {
+      "completed_at": "2026-10-08T05:56:52Z",
+      "conclusion": "success",
+      "job_id": 113154247519,
+      "number": 8
+    },
+    {
+      "completed_at": "2026-10-08T05:41:00Z",
+      "conclusion": "success",
+      "job_id": 113154247592,
+      "number": 9
+    },
+    {
+      "completed_at": "2026-10-08T05:31:38Z",
+      "conclusion": "success",
+      "job_id": 113154247539,
+      "number": 10
+    },
+    {
+      "completed_at": "2026-10-08T05:21:36Z",
+      "conclusion": "success",
+      "job_id": 113154247478,
+      "number": 11
+    }
+  ],
+  "coverage_success": 8,
+  "failed_nodes": {
+    "0": [
+      "tests/qt/test_idle_time_builds_the_closed_categories.py::test_a_category_built_in_idle_time_equals_one_built_by_a_click"
+    ],
+    "1": [
+      "tests/test_cellpose_api_contract.py::test_every_converted_double_declares_the_installed_signature"
+    ],
+    "2": [
+      "tests/qt/test_the_mandelbrot_camera_glides_to_detail.py::test_the_canvas_surveys_off_the_frame_and_drops_a_stale_survey"
+    ],
+    "7": [
+      "tests/qt/test_641_module_first_open_budgets.py::test_a_module_first_open_stays_inside_its_budget[mask]"
+    ]
+  },
+  "failed_shard_process_artifact": {
+    "archived_here": false,
+    "id": 11530852234,
+    "name": "spacr-coverage-data-37728397690-1-7",
+    "sha256": "b80d1440a9b5ba42daec6015bad854dba54fe6b04ee97159f2fc27c4129dcb57"
+  },
+  "interpretation": "The numerical ratchet passed with complete coverage input, but the required tests run is not green: four selected shard test batches failed. Later source revisions cannot relabel the 4133 result.",
+  "numerical": {
+    "failed_modules": 0,
+    "improved_modules": 99,
+    "integrity": {
+      "checked": true,
+      "issues": [],
+      "loss_kinds": {},
+      "recovered": [],
+      "shard_count": 12,
+      "shards_with_records": 12,
+      "status": "complete"
+    },
+    "modules_at_100_percent": 455,
+    "modules_checked": 664,
+    "status": "pass",
+    "unconfirmed_modules": 0
+  },
+  "report_artifact": {
+    "id": 11531244445,
+    "name": "spacr-module-coverage-report-37728397690-1",
+    "sha256": "b16aae81c21127bc1cdfbc652c7aeef7ac4549e9d1f7ddd3270557073e8c8015"
+  },
+  "run_id": 37728397690,
+  "schema": 1,
+  "snapshot_scope": "all 12 coverage shards and combine terminal; parent tests run still in progress at snapshot",
+  "source_ambient_blob": "1850f306b712b9a936f9e3e42d5e214a153bff5b",
+  "source_sha": "4133beafcd0ae427795617a4a01e295fd40539b7"
+}

@@ -1,0 +1,44 @@
+{
+  "lesson": "08_measure",
+  "technical_media_checks_passed": true,
+  "visual_acceptance": false,
+  "application_layout_fixed": false,
+  "status": "Held for native crop-settings geometry; no completed-lesson increment",
+  "dialog": {
+    "normalization": {
+      "dialog_position": [
+        60,
+        -17011
+      ],
+      "dialog_size": [
+        1350,
+        18415
+      ],
+      "control_screen_y": 1079
+    },
+    "propagation": {
+      "dialog_position": [
+        60,
+        -17279
+      ],
+      "dialog_size": [
+        1350,
+        18415
+      ],
+      "control_screen_y": 1079
+    },
+    "actual_window_moved": true,
+    "application_layout_fixed": false,
+    "controls_hidden_or_reparented": false
+  },
+  "original_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/measure_readable_native",
+  "diagnostic_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/measure_production/captures/measure_preview_window_move",
+  "diagnostic_is_replacement_media": false,
+  "notes": [
+    "Original scene 04_live_crops showed a count before its grid painted.",
+    "Original Object crops panel cuts off Normalise crops and Propagate settings.",
+    "Moving the actual window exposes the controls but requires negative Y near -17000; this is a diagnostic, not a normal-user workflow approval.",
+    "Later diagnostic sampled E02_9_1 rather than narrated E02_1_1; it must not be substituted into the existing 27-to-13 narration.",
+    "No application source changed. Original files and all rendered voice tracks retained."
+  ]
+}

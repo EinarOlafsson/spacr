@@ -1,0 +1,34 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "208c8a5dd5c9ccc6722844b31fe174655526038d88b386f7f231f2859b4cb0fa",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Project Browser: Projekte finden und prüfen",
+  "description": "Durchsuchen Sie Projektordner, prüfen Sie erfasste Stufen und bestimmen Sie das nächste zu öffnende Werkzeug.",
+  "objectives": [
+    "Projekte über Suchwurzeln und Suchtiefe finden.",
+    "Artefakte und erfasste Stufen prüfen.",
+    "Das nächste passende Werkzeug wählen."
+  ],
+  "prerequisite": "Wählen Sie Ordner, die Ihre spaCR-Projekte enthalten. Die abgeschlossenen Beispiele aus External Masks und Format Converter eignen sich zum Üben.",
+  "scenes": [
+    "Öffnen Sie Help und dann Project browser, um Projektordner zu finden und ihre erfassten Ausgaben zu prüfen.",
+    "Klicken Sie auf Add folder und wählen Sie eine Suchwurzel. Tiefe 0 prüft nur diesen Ordner selbst; erhöhen Sie die Tiefe, wenn Projekte in Unterordnern liegen.",
+    "Setzen Sie Depth auf 1 und klicken Sie auf Scan, um die Ordner direkt unter der Wurzel einzubeziehen. Prüfen Sie die gefundenen Projektzeilen.",
+    "Lesen Sie State und Stage zusammen mit den auf der Festplatte gefundenen Dateien. Ein Ordner ohne Artefaktregister kann unknown anzeigen, obwohl er konvertierte Bilder enthält.",
+    "Fügen Sie weitere Suchwurzeln hinzu, um andere Projekte einzubeziehen. Wählen Sie eine Zeile, um sie zu prüfen; sind die Details nach einem erneuten Scan leer, wählen Sie eine andere Zeile und kehren Sie zurück.",
+    "Ziehen Sie den Trenner, um die Details zu verbreitern. Prüfen Sie erfasste Artefakte, nicht registrierte Dateien und die Herkunft des Zeitstempels des letzten Laufs.",
+    "Öffnen Sie Stages, um zu sehen, welche erwarteten Ausgaben vorhanden sind. Wählen Sie mit What could run next einen passenden Ablauf und prüfen Sie dann die erforderlichen Eingaben dieses Moduls.",
+    "Klicken Sie auf eine Spaltenüberschrift wie Size, um die Projekte zu sortieren. Ein weiterer Klick kehrt die Reihenfolge um.",
+    "Passen Sie Depth an und scannen Sie erneut, wenn Sie eine engere oder breitere Suche brauchen. Ein direkt ausgewähltes Projekt bleibt bei Tiefe 0 auffindbar.",
+    "Wählen Sie eine Wurzel und klicken Sie auf Remove, um sie nicht mehr zu durchsuchen. Damit wird der Suchort aus der Liste entfernt, die Dateien bleiben auf der Festplatte.",
+    "Öffnen Sie Run History für Job-Einträge, Database Browser für Messwerte oder Data Manager für Bereinigung und Archivierung. Setzen Sie die Analyse mit dem Tutorial des jeweiligen Moduls fort."
+  ]
+}

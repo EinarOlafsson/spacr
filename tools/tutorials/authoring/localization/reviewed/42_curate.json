@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "42_curate",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Corrija manualmente máscaras de segmentação e trajetórias, preservando um registro auditável de todas as edições.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Curate.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Curate. Corrija manualmente máscaras de segmentação e trajetórias, preservando um registro auditável de todas as edições.",
+        "Abra um projeto e selecione os campos, a classe de máscara ou as trajetórias que precisam ser revisadas.",
+        "Na área principal de configuração, selecione a ferramenta de edição, o comportamento dos rótulos, a navegação e o escopo da revisão antes de alterar os dados.",
+        "Faça uma pequena correção, examine os quadros ou objetos vizinhos e salve somente quando a edição estiver correta.",
+        "Ao término do fluxo de trabalho, os rótulos corrigidos e as alterações nas trajetórias são armazenados com proveniência, permitindo atualizar as medições subsequentes."
+      ]
+    }
+  }
+}

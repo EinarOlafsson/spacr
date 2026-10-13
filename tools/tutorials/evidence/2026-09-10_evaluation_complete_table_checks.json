@@ -1,0 +1,171 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "capture_sha256": "61715ce8968a18afbf7ab0d5997ece5dc649f1ceeaef153a64f84af5c0d793da",
+  "checks": {
+    "04_actual_summary": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      }
+    },
+    "05_actual_leakage_requires_review": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      }
+    },
+    "06_actual_confusion_counts": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      }
+    },
+    "07_actual_error_cell": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 6,
+        "low": 5,
+        "threshold": 0.75,
+        "causal_diagnosis_validated": false
+      }
+    },
+    "08_actual_confidence_threshold": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 2,
+        "low": 9,
+        "threshold": 0.95,
+        "causal_diagnosis_validated": false
+      }
+    },
+    "09_actual_per_plate": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 2,
+        "low": 9,
+        "threshold": 0.95,
+        "causal_diagnosis_validated": false
+      }
+    },
+    "10_actual_calibration_table": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 2,
+        "low": 9,
+        "threshold": 0.95,
+        "causal_diagnosis_validated": false
+      }
+    },
+    "11_actual_all_predictions": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 2,
+        "low": 9,
+        "threshold": 0.95,
+        "causal_diagnosis_validated": false
+      }
+    },
+    "12_actual_prediction_filter": {
+      "predictions": {
+        "passed": true,
+        "rows": 128,
+        "checked_cells": 2304,
+        "filter_text": "r5_c2"
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 2,
+        "low": 9,
+        "threshold": 0.95,
+        "causal_diagnosis_validated": false
+      }
+    },
+    "13_actual_filter_cleared": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 2,
+        "low": 9,
+        "threshold": 0.95,
+        "causal_diagnosis_validated": false
+      }
+    },
+    "14_actual_final_leakage": {
+      "predictions": {
+        "passed": true,
+        "rows": 234,
+        "checked_cells": 4212,
+        "filter_text": ""
+      },
+      "confidence": {
+        "passed": true,
+        "error_cell_count": 11,
+        "high": 2,
+        "low": 9,
+        "threshold": 0.95,
+        "causal_diagnosis_validated": false
+      }
+    }
+  },
+  "total_prediction_cells": 44424,
+  "tests_passed": 27,
+  "new_red_mutations": [
+    "filter",
+    "text check",
+    "confidence threshold",
+    "confidence order",
+    "confidence values",
+    "confidence names"
+  ],
+  "biological_validation": false,
+  "crop_navigation_validated": false,
+  "published": false
+}

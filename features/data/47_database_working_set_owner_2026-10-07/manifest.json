@@ -1,0 +1,14 @@
+{
+  "artifacts_sha256": {
+    "file-sentinel-after.jsonl.gz": "dca11822166a53fd60655d567b81bae0dbbd5ae544be799beb64d95ae35774e0",
+    "file-sentinel-before.jsonl.gz": "ed79bd261f53886fa00cd99705cb43fe0fafdd4443777c87008ccc5cf77041ca"
+  },
+  "runtime_source_sha256": {
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7"
+  },
+  "source_parent_commit": "0db2a02686df7b56814992b0987bfec4afad9d1e",
+  "test_after_sha256": "0b71d0d65b2bd35565aabb513b0acb83b0f41f2c5645c1f97ee1bfcb4d9489a1",
+  "test_before_sha256": "6cb06f24b2cc9d8d9cb2765ab9da20f477f9b5bf55661bf1ca6f30999287ddd2"
+}

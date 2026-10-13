@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "am_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 96.375,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 10.35,
+      "scene_end": 11.049999999999999,
+      "duration": 11.049999999999999,
+      "text": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spaCR, and its scientific dependencies.",
+      "speech_text": "The lightweight native installers create a private Python three point twelve runtime, then download Qt, PyTorch, spacer, and its scientific dependencies.",
+      "phonemes": "ðə lˈItwˌAt nˈATɪv ɪnstˈɔləɹz kɹiˈAt ɐ pɹˈIvət pˈIθˌɑn θɹˈi pˈYnt twˈɛlv ɹˈʌntIm, ðˈɛn dˈWnlˌOd kjˌutˈi, pˈI tˈɔɹʧ, spˈAsəɹ, ænd ɪts sˌIəntˈɪfɪk dəpˈɛndᵊnsiz."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.049999999999999,
+      "speech_end": 23.5,
+      "scene_end": 24.2,
+      "duration": 13.15,
+      "text": "Download installers only from the latest spaCR GitHub Release. Match the file to your operating system and use the published SHA-256 file when you need to verify the download.",
+      "speech_text": "Download installers only from the latest spacer GitHub Release. Match the file to your operating system and use the published S H A two fifty six file when you need to verify the download.",
+      "phonemes": "dˈWnlˌOd ɪnstˈɔləɹz ˈOnli fɹʌm ðə lˈATᵻst spˈAsəɹ ɡˌɪthˈʌb ɹəlˈis. mˈæʧ ðə fˈIl tə jʊɹ ˈɑpəɹˌATɪŋ sˈɪstəm ænd jˈuz ðə pˈʌblɪʃt ˈɛs ˈAʧ ɐ tˈu fˈɪfti sˈɪks fˈIl wˌɛn ju nˈid tə vˈɛɹəfˌI ðə dˈWnlˌOd."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.2,
+      "speech_end": 36.05,
+      "scene_end": 36.75,
+      "duration": 12.55,
+      "text": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component.",
+      "speech_text": "On Windows ten or eleven, open the online setup executable. The portable CPU installation is the default; NVIDIA acceleration is an optional installer component.",
+      "phonemes": "ˌɔn wˈɪndOz tˈɛn ɔɹ əlˈɛvᵊn, ˈOpᵊn ði ˌɑnlˈIn sˈɛTˌʌp ˈɛksəkjˌuTəbᵊl. ðə pˈɔɹTəbᵊl sˌipˌijˈu ˌɪnztəlˈAʃən ɪz ðə dəfˈɔlt; ɛnvˈɪdiə əksˌɛləɹˈAʃən ɪz ɐn ˈɑpʃənᵊl ɪnstˈɔləɹ kəmpˈOnənt."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.75,
+      "speech_end": 49.9,
+      "scene_end": 50.6,
+      "duration": 13.850000000000001,
+      "text": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+      "speech_text": "On macOS eleven or newer, open the universal package for Intel and Apple silicon. If Gatekeeper blocks the unnotarized package, use Privacy and Security, Open Anyway, then run it again.",
+      "phonemes": "ˌɔn mˌækˌOˈɛs əlˈɛvᵊn ɔɹ nˈuəɹ, ˈOpᵊn ðə jˌunəvˈɜɹsᵊl pˈækɪʤ fɔɹ ˈɪntˌɛl ænd ˈæpᵊl sˈɪləkˌɑn. ˌɪf ɡˈAtkˌipəɹ blˈɑks ði ʌnnˈɑTəɹɹˌIzd pˈækɪʤ, jˈuz pɹˈIvəsi ænd səkjˈʊɹəTi, ˈOpᵊn ˈɛniwˌA, ðˈɛn ɹˈʌn ɪt əɡˈɛn."
+    },
+    {
+      "scene": 5,
+      "speech_start": 50.6,
+      "speech_end": 61.375,
+      "scene_end": 62.075,
+      "duration": 11.475000000000001,
+      "text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch.",
+      "speech_text": "On sixty four bit Linux, make the downloaded .run file executable, then start it from a terminal. The default installation uses CPU-compatible PyTorch.",
+      "phonemes": "ˌɔn sˈɪksti fˈɔɹ bˈɪt lˈɪnəks, mˌAk ðə dˈWnlˌOdᵻd ɹˈʌn fˈIl ˈɛksəkjˌuTəbᵊl, ðˈɛn stˈɑɹt ɪt fɹʌm ɐ tˈɜɹmənəl. ðə dəfˈɔlt ˌɪnztəlˈAʃən jˈuzᵻz sipijˌukəmpˈæTəbᵊl pˈI tˈɔɹʧ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 62.075,
+      "speech_end": 73.7,
+      "scene_end": 74.4,
+      "duration": 12.325000000000003,
+      "text": "For supported NVIDIA hardware on Linux, pass --torch-backend auto. This selects acceleration when available without making CUDA libraries the silent default.",
+      "speech_text": "For supported NVIDIA hardware on Linux, pass dash dash torch backend auto. This selects acceleration when available without making CUDA libraries the silent default.",
+      "phonemes": "fˌɔɹ səpˈɔɹTᵻd ɛnvˈɪdiə hˈɑɹdwˌɛɹ ˌɔn lˈɪnəks, pˈæs dˈæʃ dˈæʃ tˈɔɹʧ bˈækənd ˈɔTO. ðˌɪs səlˈɛkts əksˌɛləɹˈAʃən wˌɛn əvˈAləbᵊl wɪðˈWt mˈAkɪŋ sˌijˌudˌiˈA lˈIbɹˌɛɹiz ðə sˈIlənt dəfˈɔlt."
+    },
+    {
+      "scene": 7,
+      "speech_start": 74.4,
+      "speech_end": 87.525,
+      "scene_end": 88.22500000000001,
+      "duration": 13.825000000000003,
+      "text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install.log remains in the private spaCR installation directory.",
+      "speech_text": "Each installer validates the replacement before switching versions. An interrupted update leaves the previous environment intact, and install dot log remains in the private spacer installation directory.",
+      "phonemes": "ˈiʧ ɪnstˈɔləɹ vˈælɪdˌAts ðə ɹəplˈAsmᵊnt bəfˈɔɹ swˈɪʧɪŋ vˈɜɹʒənz. ɐn ˌɪntəɹˈʌptᵻd ˈʌpdˌAt lˈivz ðə pɹˈiviəs ənvˈIɹənmᵊnt ɪntˈækt, ænd ɪnstˈɔl dˈɑt lˈɔɡ ɹəmˈAnz ɪn ðə pɹˈIvət spˈAsəɹ ˌɪnztəlˈAʃən dəɹˈɛktəɹi."
+    },
+    {
+      "scene": 8,
+      "speech_start": 88.22500000000001,
+      "speech_end": 95.67500000000001,
+      "scene_end": 96.37500000000001,
+      "duration": 8.150000000000006,
+      "text": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+      "speech_text": "After installation, use the operating system launcher. No separate Python or Conda setup is required.",
+      "phonemes": "ˈæftəɹ ˌɪnztəlˈAʃən, jˈuz ði ˈɑpəɹˌATɪŋ sˈɪstəm lˈɔnʧəɹ. nˈO sˈɛpəɹət pˈIθˌɑn ɔɹ kˈɑndə sˈɛTˌʌp ɪz ɹəkwˈIəɹd."
+    }
+  ]
+}

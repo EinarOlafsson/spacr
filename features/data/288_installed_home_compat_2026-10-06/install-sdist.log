@@ -1,0 +1,19 @@
+Processing ./dist/spacr-1.5.1.3.tar.gz
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: spacr
+  Building wheel for spacr (pyproject.toml): started
+  Building wheel for spacr (pyproject.toml): finished with status 'done'
+  Created wheel for spacr: filename=spacr-1.5.1.3-py3-none-any.whl size=43004121 sha256=07b1640141a311bad8dffc13c4ced9451a62f6a4ce759ddd4da4c2d8d76ea3b4
+  Stored in directory: /home/olafsson/.cache/pip/wheels/06/11/d9/5ee7c7ca0784251e8e8d0f232d582ae36929a06c285953437c
+Successfully built spacr
+Installing collected packages: spacr
+  Attempting uninstall: spacr
+    Found existing installation: spacr 1.5.1.3
+    Uninstalling spacr-1.5.1.3:
+      Successfully uninstalled spacr-1.5.1.3
+Successfully installed spacr-1.5.1.3

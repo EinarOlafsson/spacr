@@ -1,0 +1,43 @@
+{
+  "source": "59a6daebab5014c3ee4094791de8ed257cd9af8d",
+  "parent": "e50c4dee7fc0c97ea3488d40fcdc8359c482ed07",
+  "agent_source": "79d8311908fe1081a0aceeefca9bd52eb668644b",
+  "local_root_result": "65 passed in 2.64s, exit0, hostpytest8.4.2, Python3.12.13, CPU/offscreen/4G",
+  "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest tests/test_qt_native_core_extraction.py -q",
+  "behavior": "Emit bounded ELF identity refusal reasons before rejecting/deleting extracted core. Identity conditions, existing program-header/note-byte ceilings and extraction/time/size limits remain unchanged.",
+  "hosted_limit": "Old7a artifact does not contain internal refusal details/core. No false-rejection or native-cause claim. Current queued5636 source predates this diagnostic repair.",
+  "payloads": {
+    "original-collect_qt_native_backtrace.py.gz": {
+      "sha256": "536b70ef693177dc1aef3af0888043b3fdf5092ff17c48491d56f6644a1bf905",
+      "raw_sha256": "a8853e2a229aab9d0f6a6c72cfa0f10fc27ee0ef20e445f425fc24d46fd0797a",
+      "bytes": 6617,
+      "raw_bytes": 23183
+    },
+    "repaired-collect_qt_native_backtrace.py.gz": {
+      "sha256": "1fc4eb7cd541102f49b8a12b05d62db200567435613e9579f2092df918f34c15",
+      "raw_sha256": "05a83dd8ca205146e9968858fb9a8c957caddf3320470aac16830b203f57e28a",
+      "bytes": 7044,
+      "raw_bytes": 24908
+    },
+    "original-test_qt_native_core_extraction.py.gz": {
+      "sha256": "850bf3691f83b34f4e543612c530a9b4ff01762446ad090b12af181775f8da28",
+      "raw_sha256": "a558eda866539a606be3010ab1dda1affd43f24044acc7b3bfa028edcb8b9dc1",
+      "bytes": 6652,
+      "raw_bytes": 24891
+    },
+    "repaired-test_qt_native_core_extraction.py.gz": {
+      "sha256": "282c03554630838ab60f4744edeb2de4251b370aa3624d64b474107ef4c489bd",
+      "raw_sha256": "1264698754b9de7f6749ea0299aa1530f2dc12b1b9a4168e3e4ca074fa0be796",
+      "bytes": 7348,
+      "raw_bytes": 28074
+    },
+    "root-host-pytest.log.gz": {
+      "sha256": "15628eda7327e27922f6d9493cb6dd65c912525bb3271e00475712f300fa6f79",
+      "raw_sha256": "599ae3e9da651df159034aff23caa31c7cbe952a8dbf5c7f19ecd76faf934f48",
+      "bytes": 52,
+      "raw_bytes": 99
+    }
+  },
+  "unpublished_pre_rebase_source": "30d99224a712f233718d76cf6f6e8a9c98c0bfc6",
+  "rebase_note": "Metadata-only workstation rebase; source bound to published rebased tool commit, original/repaired frozen bytes unchanged."
+}

@@ -1,0 +1,1251 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "method": "Direct Codex AI technical translation with independent Codex-agent technical review; no local-model generation or native-speaker/human signoff claimed. Normal guide worklist importer enforces protected literals, roles, URLs, substitutions and current exact UI bindings. Historical PO author attribution remains preserved.",
+  "draft_author": "Codex agent shared_ui",
+  "independent_technical_reviewer": "Codex agent root",
+  "worklist_sha256": "013d675c1de2739cefdd663f4d3353506496782e97f4d4d37aed15994248894e",
+  "draft_sha256": "5e46b64fc425721cd40ce1e7c102465816d68578c6e258aa9b88531b852dc827",
+  "peer_review_sha256": "bf34b07a31fa73e4bb17d770450e53b70ecdfeae6b7170043e87f222550ad22b",
+  "peer_review_corrections": [
+    {
+      "index": 16,
+      "reason": "Independent root review: localized thousands grouping without changing numeric values.",
+      "proposed_translation": "Varje länk och HTTP-omdirigering måste ha samma schema, värd och port som den ursprungliga tjänsten. Motstridiga länkar och upprepade sidor är fel. Insamlingen begränsas till 16 MiB per svar, 64 MiB för hela uppslagningen, 1 000 sidadresser per streckkod och 100 000 poster för hela uppslagningen. Ett fel avbryter metadatauppslagningen utan att returnera en ofullständig plattkarta. Befintliga mätresultat förblir tillgängliga. Leverantörsspecifika markörprotokoll som inte ger en URL till nästa sida behöver en separat adapter."
+    }
+  ],
+  "source_files": {
+    "docs/source/installer_guide.rst": "8e3ae817ba7141674a6aaaa0ed7b808eef218858ec09e460ab78d5ebbc100ab3",
+    "docs/source/plaque_assay.rst": "d69525fef8a644487c8b3af58948b77eefe0c516c3f3df60416eff6be105d299",
+    "docs/source/plate_barcode_linkage.rst": "148cc9c0455c28d1dda86c315adfd063ae497b3d11420e7bd2cff143287f355c",
+    "docs/source/table_workflows.rst": "dc000bbd7c4ba0f9cf932e14933cb78e5c66e8235dfa31616a98ac7b9c479a1f"
+  },
+  "runtime_catalog_sha256": "e9b3e51a12c742e81db31c5682f946c370ee57c9266ddad27eb631585971f907",
+  "records": [
+    {
+      "domain": "installer_guide",
+      "source": "macOS online installation: update and reopen",
+      "source_sha256": "de9e4508bcbc5e4e37c952e2a030439f3d983740c374f39ea60bbff37893a6a2",
+      "original_ai_draft": "macOS-onlineinstallation: uppdatera och öppna igen",
+      "reviewed_translation": "macOS-onlineinstallation: uppdatera och öppna igen",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Choose **Help → Check for updates**, accept the available update, and confirm that spaCR will be reinstalled in its current environment. spaCR closes, uses the installation's bundled ``uv`` to upgrade its existing private environment, checks the installed version, and reopens automatically. This path keeps the application launcher and environment in place. It does not run the first-use installer or ask its terminal questions again.",
+      "source_sha256": "00503c9b2788b3e8dacd073ae089fe27f0f090a9c464aa1a49ebc6d4db52ba1a",
+      "original_ai_draft": "Välj **Hjälp → Check for updates**, godkänn den tillgängliga uppdateringen och bekräfta att spaCR ska installeras om i sin nuvarande miljö. spaCR stängs, använder installationens medföljande ``uv`` för att uppgradera den befintliga privata miljön, kontrollerar den installerade versionen och öppnas automatiskt igen. Den här vägen behåller programstartaren och miljön på plats. Den kör inte förstagångsinstallationen eller ställer dess terminalfrågor igen.",
+      "reviewed_translation": "Välj **Hjälp → Check for updates**, godkänn den tillgängliga uppdateringen och bekräfta att spaCR ska installeras om i sin nuvarande miljö. spaCR stängs, använder installationens medföljande ``uv`` för att uppgradera den befintliga privata miljön, kontrollerar den installerade versionen och öppnas automatiskt igen. Den här vägen behåller programstartaren och miljön på plats. Den kör inte förstagångsinstallationen eller ställer dess terminalfrågor igen.",
+      "ui_bindings": {
+        "Help": "Hjälp"
+      }
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow.",
+      "source_sha256": "5e3efa7262c2307e309d8291d3ad3a9d08ee70d8578ceab40da6a16448e5a759",
+      "original_ai_draft": "Kommandot är samma som återställningskommandot för macOS nedan, med den faktiska installationskatalogen. En misslyckad uppgradering eller versionskontroll registreras i ``~/.spacr/logs/update.log`` och utlöser ingen omstart för en lyckad uppdatering. Uppdateringen avbryts också om spaCR inte kan stängas säkert. Det separata frysta programpaketet använder sitt arbetsflöde för paketbyte.",
+      "reviewed_translation": "Kommandot är samma som återställningskommandot för macOS nedan, med den faktiska installationskatalogen. En misslyckad uppgradering eller versionskontroll registreras i ``~/.spacr/logs/update.log`` och utlöser ingen omstart för en lyckad uppdatering. Uppdateringen avbryts också om spaCR inte kan stängas säkert. Det separata frysta programpaketet använder sitt arbetsflöde för paketbyte.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "Older installations and full installers",
+      "source_sha256": "8b46d93d57db34f7ec55e6dac2079ea3eb241252825e959adbbd0ab55ff25ba9",
+      "original_ai_draft": "Äldre installationer och fullständiga installationsprogram",
+      "reviewed_translation": "Äldre installationer och fullständiga installationsprogram",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so two versions never sit side by side with one of them on the path. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer says which, and installs nothing, so you are never left with half an update.",
+      "source_sha256": "31bbb9211b1ba571834a3614a3cb08f753a73e79765bd0a5b2301ed440dbe1ec",
+      "original_ai_draft": "De fullständiga installationsprogrammen och andra uppdateringsvägar söker efter spaCR-installationer som ett tidigare installationsprogram skapade och tar bort dem, så att två versioner aldrig finns sida vid sida medan en av dem ligger i sökvägen. De hittar Windows online- och offlineinstallationer, macOS-programmet och dess användarspecifika miljö, Linux-onlineinstallationen och Debian-paketet, tillsammans med deras startprogram, genvägar, menyposter och avinstallationsregistreringar. Miljöer som du själv skapat och källkodskopior listas men tas aldrig bort, och dina projektmappar och resultat berörs aldrig. Om en kopia inte kan tas bort — exempelvis ett macOS-program i ``/Applications`` som kräver administratörsbehörighet — anger installationsprogrammet vilken och installerar ingenting, så att du aldrig lämnas med en halvfärdig uppdatering.",
+      "reviewed_translation": "De fullständiga installationsprogrammen och andra uppdateringsvägar söker efter spaCR-installationer som ett tidigare installationsprogram skapade och tar bort dem, så att två versioner aldrig finns sida vid sida medan en av dem ligger i sökvägen. De hittar Windows online- och offlineinstallationer, macOS-programmet och dess användarspecifika miljö, Linux-onlineinstallationen och Debian-paketet, tillsammans med deras startprogram, genvägar, menyposter och avinstallationsregistreringar. Miljöer som du själv skapat och källkodskopior listas men tas aldrig bort, och dina projektmappar och resultat berörs aldrig. Om en kopia inte kan tas bort — exempelvis ett macOS-program i ``/Applications`` som kräver administratörsbehörighet — anger installationsprogrammet vilken och installerar ingenting, så att du aldrig lämnas med en halvfärdig uppdatering.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Preview colony counting (alpha)",
+      "source_sha256": "ff03710311d373bdc7e7756f702c1cbfe7b31f9fba7e22eda9b650b36b264753",
+      "original_ai_draft": "Förhandsgranska koloniräkning (alfa)",
+      "reviewed_translation": "Förhandsgranska koloniräkning (alfa)",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path.",
+      "source_sha256": "545e42e929b9520e7ef1925c215ef32e4af3456a9b9fbf5112fe9762b6c3d107",
+      "original_ai_draft": "Aktivera **Inställningar → Visa alfafunktioner** och slå sedan på **Koloniräkning** i modulens inställningar för **Colony Counting (Alpha)**. Behåll läget **Plack** och tryck på **Kör förhandsgranskning**. Förhandsgranskningen använder koloniräkningsinställningarna och originalbildens pixlar, visar koloniöverlägget och rapporterar antalet och medelarean i originalbildens pixlar. Om brunnsdetektering är aktiverad räknas de detekterade brunnarna separat och visas på sina positioner i originalfotot. Den här vägen behöver ingen placksegmenteringsmodell.",
+      "reviewed_translation": "Aktivera **Inställningar → Visa alfafunktioner** och slå sedan på **Koloniräkning** i modulens inställningar för **Colony Counting (Alpha)**. Behåll läget **Plack** och tryck på **Kör förhandsgranskning**. Förhandsgranskningen använder koloniräkningsinställningarna och originalbildens pixlar, visar koloniöverlägget och rapporterar antalet och medelarean i originalbildens pixlar. Om brunnsdetektering är aktiverad räknas de detekterade brunnarna separat och visas på sina positioner i originalfotot. Den här vägen behöver ingen placksegmenteringsmodell.",
+      "ui_bindings": {
+        "Preferences": "Inställningar",
+        "Show alpha features": "Visa alfafunktioner",
+        "Colony counting": "Koloniräkning",
+        "Plaque": "Plack",
+        "Run preview": "Kör förhandsgranskning"
+      }
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode.",
+      "source_sha256": "458811f9cae7a50afc7bda496b0d72ee0a791dfb001b0ae27b695ebad5b8ac77",
+      "original_ai_draft": "Lämna kolonidetektorn tom för att använda tröskling, eller välj en installerad kolonidetektor. Förhandsgranskningen rapporterar en saknad checkpoint eller ett saknat detektorberoende i stället för att tyst byta metod; batchkörningen kan falla tillbaka på tröskling när dess valfria detektorberoende saknas. Kontrollera att den avsedda metoden är tillgänglig när du jämför förhandsgranskning och batchresultat. Koloniräkning ger inga flödes- eller cellsannolikhetsdata, så dessa vyer visar ett meddelande om otillgängliga utdata. Förhandsgranskningen skriver ingen analysdatabas och ändrar inte källbilden. Koloniräkning ignoreras i Figure-läget.",
+      "reviewed_translation": "Lämna kolonidetektorn tom för att använda tröskling, eller välj en installerad kolonidetektor. Förhandsgranskningen rapporterar en saknad checkpoint eller ett saknat detektorberoende i stället för att tyst byta metod; batchkörningen kan falla tillbaka på tröskling när dess valfria detektorberoende saknas. Kontrollera att den avsedda metoden är tillgänglig när du jämför förhandsgranskning och batchresultat. Koloniräkning ger inga flödes- eller cellsannolikhetsdata, så dessa vyer visar ett meddelande om otillgängliga utdata. Förhandsgranskningen skriver ingen analysdatabas och ändrar inte källbilden. Koloniräkning ignoreras i Figure-läget.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Link plate barcodes to sample metadata",
+      "source_sha256": "44e2d0cb3798096fe7554760faa45b12d412e2e21b1d273b740599d0c0243358",
+      "original_ai_draft": "Koppla plattstreckkoder till provmetadata",
+      "reviewed_translation": "Koppla plattstreckkoder till provmetadata",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "In **Measure**, enable **Show alpha features** in Preferences and open **Plate Barcode Linkage (Alpha)**. Set ``plate_barcode_source`` to a table or a LIMS service URL. The linkage runs after measurement.",
+      "source_sha256": "20e7ed4d020e572416717b1931d5d6fb68ebe0988217965b4bcd856096d6ec13",
+      "original_ai_draft": "I **Mätning**, aktivera **Visa alfafunktioner** i Preferences och öppna **Plate Barcode Linkage (Alpha)**. Ange en tabell eller en LIMS-tjänsts URL i ``plate_barcode_source``. Kopplingen körs efter mätningen.",
+      "reviewed_translation": "I **Mätning**, aktivera **Visa alfafunktioner** i Preferences och öppna **Plate Barcode Linkage (Alpha)**. Ange en tabell eller en LIMS-tjänsts URL i ``plate_barcode_source``. Kopplingen körs efter mätningen.",
+      "ui_bindings": {
+        "Measure": "Mätning",
+        "Show alpha features": "Visa alfafunktioner"
+      }
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "A local CSV, TSV, Excel or Parquet table needs a barcode column, a well column and the sample metadata to attach. For example::",
+      "source_sha256": "232b1a454fac5c23976df96e842ebe4ba4900098adb1540f650173541179cd17",
+      "original_ai_draft": "En lokal CSV-, TSV-, Excel- eller Parquet-tabell behöver en streckkodskolumn, en brunnskolumn och de provmetadata som ska läggas till. Till exempel::",
+      "reviewed_translation": "En lokal CSV-, TSV-, Excel- eller Parquet-tabell behöver en streckkodskolumn, en brunnskolumn och de provmetadata som ska läggas till. Till exempel::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Set ``plate_barcode_column`` if your barcode column has another name. ``plate_barcodes`` maps an imaged plate name to its barcode. Otherwise, spaCR reads ``barcode.txt`` in the plate folder or uses the plate name. Retain meaningful concentration units in your metadata.",
+      "source_sha256": "7fcede6a934cae46f467fdde4555ac094e10870cf1800cdb93ba58b68de8f404",
+      "original_ai_draft": "Ange ``plate_barcode_column`` om streckkodskolumnen har ett annat namn. ``plate_barcodes`` kopplar en avbildad plattas namn till dess streckkod. Annars läser spaCR ``barcode.txt`` i plattans mapp eller använder plattnamnet. Behåll meningsfulla koncentrationsenheter i dina metadata.",
+      "reviewed_translation": "Ange ``plate_barcode_column`` om streckkodskolumnen har ett annat namn. ``plate_barcodes`` kopplar en avbildad plattas namn till dess streckkod. Annars läser spaCR ``barcode.txt`` i plattans mapp eller använder plattnamnet. Behåll meningsfulla koncentrationsenheter i dina metadata.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Read records from a LIMS service",
+      "source_sha256": "c0a23cd8b5ed04a568c81761b0eae461c222a4f8a45f4131adde8ba4c847f189",
+      "original_ai_draft": "Läs poster från en LIMS-tjänst",
+      "reviewed_translation": "Läs poster från en LIMS-tjänst",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Use a URL such as ``https://lims.example/plates/{barcode}/wells``. spaCR substitutes the encoded barcode. Without ``{barcode}``, it adds a ``barcode`` query parameter. If authentication is needed, set the token in an environment variable and put that variable's name in ``plate_barcode_token_env``. Do not put the token in the URL or settings.",
+      "source_sha256": "8ad434bde363eb3f21f8475acd71bd6204ba876e4d1273e27cec44e55c08e633",
+      "original_ai_draft": "Använd en URL som ``https://lims.example/plates/{barcode}/wells``. spaCR sätter in den kodade streckkoden. Utan ``{barcode}`` lägger det till frågeparametern ``barcode``. Om autentisering behövs, placera token i en miljövariabel och ange variabelns namn i ``plate_barcode_token_env``. Lägg inte token i URL:en eller inställningarna.",
+      "reviewed_translation": "Använd en URL som ``https://lims.example/plates/{barcode}/wells``. spaCR sätter in den kodade streckkoden. Utan ``{barcode}`` lägger det till frågeparametern ``barcode``. Om autentisering behövs, placera token i en miljövariabel och ange variabelns namn i ``plate_barcode_token_env``. Lägg inte token i URL:en eller inställningarna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The service may return a list of well records, or an object containing that list under ``wells``, ``records``, ``results``, ``data`` or ``items``. Plain fields outside the list supply metadata defaults for its wells::",
+      "source_sha256": "6244ec071c830f9d6901864e977aa929fd44754a90f4df036be3e1c82c49a68c",
+      "original_ai_draft": "Tjänsten kan returnera en lista med brunnsposter eller ett objekt som innehåller listan under ``wells``, ``records``, ``results``, ``data`` eller ``items``. Vanliga fält utanför listan ger standardvärden för brunnarnas metadata::",
+      "reviewed_translation": "Tjänsten kan returnera en lista med brunnsposter eller ett objekt som innehåller listan under ``wells``, ``records``, ``results``, ``data`` eller ``items``. Vanliga fält utanför listan ger standardvärden för brunnarnas metadata::",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "spaCR follows ``next``, ``next_url``, ``@odata.nextLink`` or ``links.next``. The link may be a URL string or an object with an ``href`` field. Relative links resolve against the response URL. A missing link, null or empty string ends the list. Metadata defaults carry forward to later pages; explicit fields on a well override those defaults. Pagination fields do not become sample metadata.",
+      "source_sha256": "f507435c5c47b43dc9aefd6be8165a2e4039f2bba6955fcecdc1b916ab398935",
+      "original_ai_draft": "spaCR följer ``next``, ``next_url``, ``@odata.nextLink`` eller ``links.next``. Länken kan vara en URL-sträng eller ett objekt med fältet ``href``. Relativa länkar tolkas utifrån svarets URL. En saknad länk, null eller en tom sträng avslutar listan. Standardvärden för metadata förs vidare till senare sidor; uttryckliga fält i en brunnspost åsidosätter dessa standardvärden. Sidindelningsfält blir inte provmetadata.",
+      "reviewed_translation": "spaCR följer ``next``, ``next_url``, ``@odata.nextLink`` eller ``links.next``. Länken kan vara en URL-sträng eller ett objekt med fältet ``href``. Relativa länkar tolkas utifrån svarets URL. En saknad länk, null eller en tom sträng avslutar listan. Standardvärden för metadata förs vidare till senare sidor; uttryckliga fält i en brunnspost åsidosätter dessa standardvärden. Sidindelningsfält blir inte provmetadata.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Every link and HTTP redirect must stay on the same scheme, host and port as the original service. Conflicting links and repeated pages are errors. Collection is limited to 16 MiB per response, 64 MiB across the lookup, 1,000 page addresses per barcode and 100,000 records across the lookup. An error stops the metadata lookup without returning a partial plate map. Existing measurement results remain available. Vendor-specific cursor protocols that do not provide a next-page URL need a separate adapter.",
+      "source_sha256": "97ee2f1a5e5a52c2ed6ac167d29c5655de55b4b826e4509b4a967a0a54031ad6",
+      "original_ai_draft": "Varje länk och HTTP-omdirigering måste ha samma schema, värd och port som den ursprungliga tjänsten. Motstridiga länkar och upprepade sidor är fel. Insamlingen begränsas till 16 MiB per svar, 64 MiB för hela uppslagningen, 1,000 sidadresser per streckkod och 100,000 poster för hela uppslagningen. Ett fel avbryter metadatauppslagningen utan att returnera en ofullständig plattkarta. Befintliga mätresultat förblir tillgängliga. Leverantörsspecifika markörprotokoll som inte ger en URL till nästa sida behöver en separat adapter.",
+      "reviewed_translation": "Varje länk och HTTP-omdirigering måste ha samma schema, värd och port som den ursprungliga tjänsten. Motstridiga länkar och upprepade sidor är fel. Insamlingen begränsas till 16 MiB per svar, 64 MiB för hela uppslagningen, 1 000 sidadresser per streckkod och 100 000 poster för hela uppslagningen. Ett fel avbryter metadatauppslagningen utan att returnera en ofullständig plattkarta. Befintliga mätresultat förblir tillgängliga. Leverantörsspecifika markörprotokoll som inte ger en URL till nästa sida behöver en separat adapter.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Inspect the result",
+      "source_sha256": "363e3d412470c6dd54ad52412672a831acc15a69fdbe833d89a6719f1c723968",
+      "original_ai_draft": "Granska resultatet",
+      "reviewed_translation": "Granska resultatet",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "The filled map is written to ``measurements/plate_map_lims.csv``. It fills an empty ``profiling_metadata`` setting. When compound and concentration columns exist, it also fills an empty ``viability_plate_map``. An existing user-supplied map is compared, not silently replaced.",
+      "source_sha256": "49a70757afd7a6730218f674ec09e24a4557331c2bd397dd145efd18a6838d31",
+      "original_ai_draft": "Den ifyllda kartan skrivs till ``measurements/plate_map_lims.csv``. Den fyller i en tom inställning för ``profiling_metadata``. Om kolumner för substans och koncentration finns fyller den också i en tom ``viability_plate_map``. En befintlig användarangiven karta jämförs och ersätts inte tyst.",
+      "reviewed_translation": "Den ifyllda kartan skrivs till ``measurements/plate_map_lims.csv``. Den fyller i en tom inställning för ``profiling_metadata``. Om kolumner för substans och koncentration finns fyller den också i en tom ``viability_plate_map``. En befintlig användarangiven karta jämförs och ersätts inte tyst.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "plate_barcode_linkage",
+      "source": "Review ``measurements/plate_barcode_mismatches.csv`` and the log for missing barcodes, shared barcodes, unmatched wells, conflicting records and disagreements with an existing map. Resolve those mismatches before interpreting treatment comparisons.",
+      "source_sha256": "5698a5c34c4657dde2609dc2a8e7133685c6c378847a04bff8a78389fc6fcf0c",
+      "original_ai_draft": "Granska ``measurements/plate_barcode_mismatches.csv`` och loggen för saknade streckkoder, delade streckkoder, omatchade brunnar, motstridiga poster och skillnader mot en befintlig karta. Lös dessa avvikelser innan du tolkar behandlingsjämförelser.",
+      "reviewed_translation": "Granska ``measurements/plate_barcode_mismatches.csv`` och loggen för saknade streckkoder, delade streckkoder, omatchade brunnar, motstridiga poster och skillnader mot en befintlig karta. Lös dessa avvikelser innan du tolkar behandlingsjämförelser.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combine measurement tables for plots and gates",
+      "source_sha256": "1300eddc7951b9ac3b501f2dec89bc071cc7ceada1a558141b2921fcb30da7c7",
+      "original_ai_draft": "Kombinera mättabeller för diagram och gates",
+      "reviewed_translation": "Kombinera mättabeller för diagram och gates",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Graph Builder** or **Gate Editor** from Home to explore measurements. Both screens offer **Merge tables** immediately beside the table picker. The same merge definition produces the same measurements in either screen. For the surrounding workflow, see :doc:`workflows`.",
+      "source_sha256": "fa4fc670ef8e642d3791bc8b14223ab8aaaf1377f1f9c0df7c181008223b665c",
+      "original_ai_draft": "Öppna **Graph Builder** eller **Gate Editor** från Home för att utforska mätningar. Båda skärmarna har **Sammanfoga tabeller** direkt bredvid tabellväljaren. Samma sammanslagningsdefinition ger samma mätningar på båda skärmarna. För det omgivande arbetsflödet, se :doc:`workflows`.",
+      "reviewed_translation": "Öppna **Graph Builder** eller **Gate Editor** från Home för att utforska mätningar. Båda skärmarna har **Sammanfoga tabeller** direkt bredvid tabellväljaren. Samma sammanslagningsdefinition ger samma mätningar på båda skärmarna. För det omgivande arbetsflödet, se :doc:`workflows`.",
+      "ui_bindings": {
+        "Merge tables": "Sammanfoga tabeller"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose a source and an observation level",
+      "source_sha256": "fd8d7835e26141e11278364cd50fa58dafc0f6cdc57c335ebf755e5765d65392",
+      "original_ai_draft": "Välj en källa och en observationsnivå",
+      "reviewed_translation": "Välj en källa och en observationsnivå",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Load table** opens a SQLite measurement database or a CSV/TSV table. A physical table is an existing table in that database. A derived table is a named result calculated from physical tables using a saved merge definition. Creating a derived table preserves the original measurement tables.",
+      "source_sha256": "6156fa2643fba52e0d51b287610b3773efdfe34d48ccff3539e4d5ab97a39734",
+      "original_ai_draft": "**Load table** öppnar en SQLite-mätdatabas eller en CSV/TSV-tabell. En fysisk tabell är en befintlig tabell i databasen. En härledd tabell är ett namngivet resultat som beräknas från fysiska tabeller med en sparad sammanslagningsdefinition. Att skapa en härledd tabell bevarar de ursprungliga mättabellerna.",
+      "reviewed_translation": "**Load table** öppnar en SQLite-mätdatabas eller en CSV/TSV-tabell. En fysisk tabell är en befintlig tabell i databasen. En härledd tabell är ett namngivet resultat som beräknas från fysiska tabeller med en sparad sammanslagningsdefinition. Att skapa en härledd tabell bevarar de ursprungliga mättabellerna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Merging requires one SQLite database. The button is unavailable for a single CSV/TSV or a Gate Editor session combining several databases. Load the one database containing the tables you want to join.",
+      "source_sha256": "a17323cc6ee40ca694711fdbf722c523427ab6d172dd6ff741bd59a1eff217c1",
+      "original_ai_draft": "Sammanslagning kräver en enda SQLite-databas. Knappen är inte tillgänglig för en enskild CSV/TSV eller en Gate Editor-session som kombinerar flera databaser. Läs in den databas som innehåller tabellerna du vill koppla samman.",
+      "reviewed_translation": "Sammanslagning kräver en enda SQLite-databas. Knappen är inte tillgänglig för en enskild CSV/TSV eller en Gate Editor-session som kombinerar flera databaser. Läs in den databas som innehåller tabellerna du vill koppla samman.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, choosing a table changes the chart's source. Gate Editor also supports a working set of compatible physical object tables, shown as removable chips; selecting another compatible table adds its measurements. The last remaining chip stays in place so the editor always has a source. A named derived table is selected as a complete source. Use the merge popup when you need a named, reproducible result or explicit custom relationships.",
+      "source_sha256": "18d1637b149858c659b68fb2d611ce2abf333c7a7d8ad79281f0b74be2a53d07",
+      "original_ai_draft": "I Graph Builder ändrar valet av tabell diagrammets källa. Gate Editor stöder också en arbetsuppsättning kompatibla fysiska objekttabeller, visade som borttagbara brickor; när du väljer ännu en kompatibel tabell läggs dess mätningar till. Den sista brickan ligger kvar så att redigeraren alltid har en källa. En namngiven härledd tabell väljs som en fullständig källa. Använd sammanslagningsdialogen när du behöver ett namngivet, reproducerbart resultat eller uttryckliga anpassade relationer.",
+      "reviewed_translation": "I Graph Builder ändrar valet av tabell diagrammets källa. Gate Editor stöder också en arbetsuppsättning kompatibla fysiska objekttabeller, visade som borttagbara brickor; när du väljer ännu en kompatibel tabell läggs dess mätningar till. Den sista brickan ligger kvar så att redigeraren alltid har en källa. En namngiven härledd tabell väljs som en fullständig källa. Använd sammanslagningsdialogen när du behöver ett namngivet, reproducerbart resultat eller uttryckliga anpassade relationer.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The **Output observation table** determines what one result row represents. For example, a cell-level result has one row per cell even when that cell contains several pathogens. A nucleus count, total pathogen area and cell intensity can then be compared on the same row.",
+      "source_sha256": "b6f1186a467ff6c4ab6bda35ae32e2448f4d05d8437b02cfefeee60f83631c8e",
+      "original_ai_draft": "**Tabell över observation av utdata** avgör vad en resultatrad representerar. Ett resultat på cellnivå har till exempel en rad per cell, även när cellen innehåller flera patogener. Antalet cellkärnor, total patogenarea och cellintensitet kan då jämföras på samma rad.",
+      "reviewed_translation": "**Observationstabell för resultatet** avgör vad en resultatrad representerar. Ett resultat på cellnivå har till exempel en rad per cell, även när cellen innehåller flera patogener. Antalet cellkärnor, total patogenarea och cellintensitet kan då jämföras på samma rad.",
+      "ui_bindings": {
+        "Output observation table": "Observationstabell för resultatet"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Create a standard spaCR merge",
+      "source_sha256": "d7f8553f0262ec95c5c53914fac2a4e326f47cdf2b60c15f63e0bf9b42f8cf62",
+      "original_ai_draft": "Skapa en standardsammanslagning i spaCR",
+      "reviewed_translation": "Skapa en standardsammanslagning i spaCR",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Load your measurement database and press **Merge tables**.",
+      "source_sha256": "943f30e115129bbebd878be10e6c200dba521d8587c2bf730e91534da640a041",
+      "original_ai_draft": "Läs in din mätdatabas och tryck på **Sammanfoga tabeller**.",
+      "reviewed_translation": "Läs in din mätdatabas och tryck på **Sammanfoga tabeller**.",
+      "ui_bindings": {
+        "Merge tables": "Sammanfoga tabeller"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Tick the source tables and choose **Output observation table**. The base table is included automatically. Standard merges use compatible spaCR object tables and cell/cytoplasm observation levels; the list also shows other tables whose relationships may require customization.",
+      "source_sha256": "7c06e9ca10f4ede108a8a2bc0f29aa8c20569a027e20a0ce278882737c37d7ab",
+      "original_ai_draft": "Markera källtabellerna och välj **Tabell över observation av utdata**. Bastabellen inkluderas automatiskt. Standardsammanslagningar använder kompatibla spaCR-objekttabeller och observationsnivåerna cell/cytoplasma; listan visar även andra tabeller vars relationer kan kräva anpassning.",
+      "reviewed_translation": "Markera källtabellerna och välj **Observationstabell för resultatet**. Bastabellen inkluderas automatiskt. Standardsammanslagningar använder kompatibla spaCR-objekttabeller och observationsnivåerna cell/cytoplasma; listan visar även andra tabeller vars relationer kan kräva anpassning.",
+      "ui_bindings": {
+        "Output observation table": "Observationstabell för resultatet"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Enter a **Result name**, such as ``Cell and pathogen measurements``. It must differ from every physical table name.",
+      "source_sha256": "68f4e79c5e729b4d3c3bacdb4f9c2412da034d68a11f119bb44ef692b60c85ab",
+      "original_ai_draft": "Ange ett **Resultatnamn**, till exempel ``Cell and pathogen measurements``. Namnet måste skilja sig från varje fysisk tabells namn.",
+      "reviewed_translation": "Ange ett **Resultatnamn**, till exempel ``Cell and pathogen measurements``. Namnet måste skilja sig från varje fysisk tabells namn.",
+      "ui_bindings": {
+        "Result name": "Resultatnamn"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Review the **spaCR defaults active** summary and the per-column **Aggregation** choices. For an ordinary compatible database, no manual key mapping is needed.",
+      "source_sha256": "b174926db0ee37fb959dbd246058838d2d86a1c3b6c9cbeb37334fff6d0480d7",
+      "original_ai_draft": "Granska sammanfattningen **spaCR defaults active** och valen för **Sammanläggning** per kolumn. För en vanlig kompatibel databas behövs ingen manuell nyckelmappning.",
+      "reviewed_translation": "Granska sammanfattningen **spaCR defaults active** och valen för **Sammanläggning** per kolumn. För en vanlig kompatibel databas behövs ingen manuell nyckelmappning.",
+      "ui_bindings": {
+        "Aggregation": "Sammanläggning"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Validate and preview**. Inspect the input and output row counts, join keys, unmatched records, missing child keys, repeated child-key rows and the first 12 output rows. Validation examines the full input, even though only a few result rows are displayed.",
+      "source_sha256": "bd97d12dd20f09eb06790909df7b8f657ad4cce8f8cd7cfc6d153476a0ef4ee6",
+      "original_ai_draft": "Tryck på **Validera och förhandsgranska**. Granska antalet in- och utdatarader, kopplingsnycklar, omatchade poster, saknade underordnade nycklar, rader med upprepade underordnade nycklar och de första 12 utdataraderna. Valideringen granskar alla indata även om bara några resultatrader visas.",
+      "reviewed_translation": "Tryck på **Validera och förhandsgranska**. Granska antalet in- och utdatarader, kopplingsnycklar, omatchade poster, saknade underordnade nycklar, rader med upprepade underordnade nycklar och de första 12 utdataraderna. Valideringen granskar alla indata även om bara några resultatrader visas.",
+      "ui_bindings": {
+        "Validate and preview": "Validera och förhandsgranska"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table** after validation succeeds. The result is selected in the normal table picker. Its columns are available for charts and gates.",
+      "source_sha256": "f6bed99671cb8a2675492fff57dad6635347bfdd29191ae9fabbba1891323541",
+      "original_ai_draft": "Tryck på **Skapa sammanfogad tabell** när valideringen har lyckats. Resultatet väljs i den vanliga tabellväljaren. Dess kolumner kan användas i diagram och gates.",
+      "reviewed_translation": "Tryck på **Skapa sammanfogad tabell** när valideringen har lyckats. Resultatet väljs i den vanliga tabellväljaren. Dess kolumner kan användas i diagram och gates.",
+      "ui_bindings": {
+        "Create merged table": "Skapa sammanfogad tabell"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Changing a table, name or rule invalidates the preview. Validate again before creating the result. Selecting a different table or base also resets custom relationships and overrides, so choose your sources before customizing them.",
+      "source_sha256": "dff285d0c223c722eee3a1ef9e37890c369c81e34b46a624c25493fc0e6470be",
+      "original_ai_draft": "Om du ändrar en tabell, ett namn eller en regel blir förhandsgranskningen ogiltig. Validera igen innan du skapar resultatet. Att välja en annan tabell eller bas återställer också anpassade relationer och åsidosättningar, så välj källorna innan du anpassar dem.",
+      "reviewed_translation": "Om du ändrar en tabell, ett namn eller en regel blir förhandsgranskningen ogiltig. Validera igen innan du skapar resultatet. Att välja en annan tabell eller bas återställer också anpassade relationer och åsidosättningar, så välj källorna innan du anpassar dem.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "How the defaults combine measurements",
+      "source_sha256": "3f8bbf2e3053eecfb17f72c741ad6763e8cf32d4eb78d43f2e074564929db760",
+      "original_ai_draft": "Hur standardreglerna kombinerar mätningar",
+      "reviewed_translation": "Hur standardreglerna kombinerar mätningar",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The shared spaCR rules aggregate each child table independently before joining it to the base observations. Adding both pathogens and organelles does not multiply their rows together. Identity includes the available plate, well, field and time metadata together with the relevant object/parent ID; an object number alone is not a globally unique identity.",
+      "source_sha256": "5182a1d21f7773e0417bd43f30a29345648eabfdef739eb73ffd986eed48af04",
+      "original_ai_draft": "spaCR:s gemensamma regler aggregerar varje underordnad tabell för sig innan den kopplas till basobservationerna. Om både patogener och organeller läggs till multipliceras inte deras rader med varandra. Identiteten omfattar tillgängliga metadata för platta, brunn, bildfält och tid tillsammans med relevant objekt-/föräldra-ID; ett objektnummer ensamt är inte en globalt unik identitet.",
+      "reviewed_translation": "spaCR:s gemensamma regler aggregerar varje underordnad tabell för sig innan den kopplas till basobservationerna. Om både patogener och organeller läggs till multipliceras inte deras rader med varandra. Identiteten omfattar tillgängliga metadata för platta, brunn, bildfält och tid tillsammans med relevant objekt-/föräldra-ID; ett objektnummer ensamt är inte en globalt unik identitet.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Default aggregation for child measurements",
+      "source_sha256": "355c3446c127a77c39a80c94a57f1f5c750864771bef4c9772637677833b0d08",
+      "original_ai_draft": "Standardaggregering för underordnade mätningar",
+      "reviewed_translation": "Standardaggregering för underordnade mätningar",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Measurement",
+      "source_sha256": "385165e2ff59804537e732dc51e2b6058a5a11016e0bb01febe8a738614ed728",
+      "original_ai_draft": "Mätning",
+      "reviewed_translation": "Mätning",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rule",
+      "source_sha256": "62845f31a2fe00be3ebaaeb93f5b27af82ab81dfcbaa1871c76f596cd98cf3c9",
+      "original_ai_draft": "Regel",
+      "reviewed_translation": "Regel",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Area, integrated/total intensity and counts",
+      "source_sha256": "c179d58e053b42c8abaaa518ecf4e850c30112190ac25c3a1c0c6fede0a1d832",
+      "original_ai_draft": "Area, integrerad/total intensitet och antal",
+      "reviewed_translation": "Area, integrerad/total intensitet och antal",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Sum the child values.",
+      "source_sha256": "f1c10d040b2a2f34721745b710a66fe7672f4523b8415ed4191c2c180970ef75",
+      "original_ai_draft": "Summera de underordnade värdena.",
+      "reviewed_translation": "Summera de underordnade värdena.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Minimum intensity",
+      "source_sha256": "78b5b8d4cff61a7420d3bd0b32ae573261689e0b940c7c92b4fb81f4efc1c402",
+      "original_ai_draft": "Minsta intensitet",
+      "reviewed_translation": "Minsta intensitet",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the minimum child value.",
+      "source_sha256": "2ad720165339a35ea45fc398a31666cfe936eea573fbe58b406fa9a1a0bbf5ea",
+      "original_ai_draft": "Behåll det minsta underordnade värdet.",
+      "reviewed_translation": "Behåll det minsta underordnade värdet.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Maximum intensity",
+      "source_sha256": "54361a85a53a5e337d24985acaff806d213f860d4738b26acce7cfea125d1a50",
+      "original_ai_draft": "Största intensitet",
+      "reviewed_translation": "Största intensitet",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the maximum child value.",
+      "source_sha256": "a4a34d4612df23ca3181b5b3ba804bb1d0127081d3ff8a89fe5db7881b4df1d9",
+      "original_ai_draft": "Behåll det största underordnade värdet.",
+      "reviewed_translation": "Behåll det största underordnade värdet.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Median measurements",
+      "source_sha256": "30c85c03af7732fa87bfc1a634762faccd85a833f7dcf5bda09360f99fda3542",
+      "original_ai_draft": "Medianmätningar",
+      "reviewed_translation": "Medianmätningar",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the median of the child measurements.",
+      "source_sha256": "535c4b425445b54d6dff1745551f675fdd87595f79ff4cc3e14c8f2837044931",
+      "original_ai_draft": "Ta medianen av de underordnade mätningarna.",
+      "reviewed_translation": "Ta medianen av de underordnade mätningarna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Other numeric measurements, including means",
+      "source_sha256": "7922dbebd8af8e77a0aa5dc97022d5b17d860a25cb9ca2cbf960179adb9f76d1",
+      "original_ai_draft": "Andra numeriska mätningar, inklusive medelvärden",
+      "reviewed_translation": "Andra numeriska mätningar, inklusive medelvärden",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Take the mean of the child measurements.",
+      "source_sha256": "60223377fe3545d1265d76ec08dfde0812252f37d26c8f4b29813773f6a59242",
+      "original_ai_draft": "Ta medelvärdet av de underordnade mätningarna.",
+      "reviewed_translation": "Ta medelvärdet av de underordnade mätningarna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Text and identifiers",
+      "source_sha256": "257a74ad575a360eb386bb697513fb7dde408562606335ec62b50e54f49c59e0",
+      "original_ai_draft": "Text och identifierare",
+      "reviewed_translation": "Text och identifierare",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Retain the first nonmissing value in source order by default; identifiers cannot be averaged or summed.",
+      "source_sha256": "eb91a749839161d5a59b65178ebaf8ea0d918c5a0aa1f03fa3dc05cfb1dee9a6",
+      "original_ai_draft": "Behåll som standard det första värdet som inte saknas, i källordning; identifierare kan inte medelvärdesberäknas eller summeras.",
+      "reviewed_translation": "Behåll som standard det första värdet som inte saknas, i källordning; identifierare kan inte medelvärdesberäknas eller summeras.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For four pathogens with areas 1, 2, 4 and 8, total pathogen area is 15. A mean intensity is the mean of the four object measurements, not an intensity recalculated from all their pooled pixels. Inspect the rule shown for each column when its name does not describe its measurement convention.",
+      "source_sha256": "bbf284dd7b4a834e806dd56eae7e5def4245810cca385f1033e6b310e2237369",
+      "original_ai_draft": "För fyra patogener med areorna 1, 2, 4 och 8 är den totala patogenarean 15. En medelintensitet är medelvärdet av de fyra objektmätningarna, inte en intensitet som räknats om från alla deras sammanlagda pixlar. Granska regeln som visas för varje kolumn när dess namn inte beskriver mätkonventionen.",
+      "reviewed_translation": "För fyra patogener med areorna 1, 2, 4 och 8 är den totala patogenarean 15. En medelintensitet är medelvärdet av de fyra objektmätningarna, inte en intensitet som räknats om från alla deras sammanlagda pixlar. Granska regeln som visas för varje kolumn när dess namn inte beskriver mätkonventionen.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The default nucleus join retains only matching base observations. Pathogen and organelle joins retain uninfected cells. Missing measurements remain missing, including a sum for which every contributing value is missing. An absent intensity measurement is not converted to a measured zero. Child columns use table-qualified names where needed to distinguish them.",
+      "source_sha256": "6cdd4f6399e4f1c6d59a18351817957a6530bada5f9cd14017d9b7001fd35b38",
+      "original_ai_draft": "Standardkopplingen för cellkärnor behåller bara matchande basobservationer. Kopplingarna för patogener och organeller behåller oinfekterade celler. Saknade mätningar förblir saknade, även en summa där alla ingående värden saknas. En saknad intensitetsmätning omvandlas inte till en uppmätt nolla. Underordnade kolumner använder tabellkvalificerade namn när det behövs för att skilja dem åt.",
+      "reviewed_translation": "Standardkopplingen för cellkärnor behåller bara matchande basobservationer. Kopplingarna för patogener och organeller behåller oinfekterade celler. Saknade mätningar förblir saknade, även en summa där alla ingående värden saknas. En saknad intensitetsmätning omvandlas inte till en uppmätt nolla. Underordnade kolumner använder tabellkvalificerade namn när det behövs för att skilja dem åt.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Available overrides depend on column values and role. Numeric measurements offer mean, median, sum, minimum, maximum, count and other compatible choices; text supports choices such as first/last, count and distinct count; Boolean-valued data also support **any** and **all**. **count** counts nonmissing values. Default one-to-one rows attach intact, so their aggregation controls are disabled until custom merging is selected.",
+      "source_sha256": "27997f400eb3ca7daa589a8e37e1d0a35846a8e64b0a98303dca8eb28eebdef6",
+      "original_ai_draft": "Tillgängliga åsidosättningar beror på kolumnvärden och roll. Numeriska mätningar erbjuder medelvärde, median, summa, minimum, maximum, antal och andra kompatibla val; text stöder exempelvis första/sista, antal och antal unika värden; booleska data stöder också **någon av följande egenskaper:** och **all**. **count** räknar värden som inte saknas. Standardrader med en-till-en-relation kopplas in oförändrade, så deras aggregeringskontroller är avaktiverade tills anpassad sammanslagning väljs.",
+      "reviewed_translation": "Tillgängliga åsidosättningar beror på kolumnvärden och roll. Numeriska mätningar erbjuder medelvärde, median, summa, minimum, maximum, antal och andra kompatibla val; text stöder exempelvis första/sista, antal och antal unika värden; booleska data stöder också **något** och **all**. **count** räknar värden som inte saknas. Standardrader med en-till-en-relation kopplas in oförändrade, så deras aggregeringskontroller är avaktiverade tills anpassad sammanslagning väljs.",
+      "ui_bindings": {
+        "any": "något"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Customize an alternative schema",
+      "source_sha256": "40c5a0d561073a633ebfc4c0b5111516141bf0b2d2c67149bb97cce732829303",
+      "original_ai_draft": "Anpassa ett alternativt schema",
+      "reviewed_translation": "Anpassa ett alternativt schema",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Customize merging** when the database uses different table names, identifiers or deliberately different relationships. Choose the base and child tables in the main popup first. Mapping their actual columns does not rename or modify the source tables.",
+      "source_sha256": "833529de728577eb88cbbadcfbf9fc31472e2b723dc070157c789e3183b4f5f7",
+      "original_ai_draft": "Välj **Anpassa sammanslagning** när databasen använder andra tabellnamn, identifierare eller avsiktligt andra relationer. Välj först bas- och underordnade tabeller i huvuddialogen. Att mappa deras faktiska kolumner ändrar inte källtabellerna eller deras namn.",
+      "reviewed_translation": "Välj **Anpassa sammanslagning** när databasen använder andra tabellnamn, identifierare eller avsiktligt andra relationer. Välj först bas- och underordnade tabeller i huvuddialogen. Att mappa deras faktiska kolumner ändrar inte källtabellerna eller deras namn.",
+      "ui_bindings": {
+        "Customize merging": "Anpassa sammanslagning"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The warning explains that incorrect relationships can link unrelated objects, duplicate or omit observations, and change measurements used in plots and gates. Read it and check **I understand the warning and will check the merge preview.** before accepting the custom settings. Acknowledgment does not bypass validation.",
+      "source_sha256": "93c1ec840f46fb19b804a98a60fee9aad5a21c1b4bef8c4458e697440f6b95c0",
+      "original_ai_draft": "Varningen förklarar att felaktiga relationer kan koppla samman orelaterade objekt, duplicera eller utelämna observationer och ändra mätningar som används i diagram och gates. Läs den och markera **Jag förstår varningen och kollar förhandsgranskningen.** innan du godkänner de anpassade inställningarna. Bekräftelsen kringgår inte valideringen.",
+      "reviewed_translation": "Varningen förklarar att felaktiga relationer kan koppla samman orelaterade objekt, duplicera eller utelämna observationer och ändra mätningar som används i diagram och gates. Läs den och markera **Jag förstår varningen och kollar förhandsgranskningen.** innan du godkänner de anpassade inställningarna. Bekräftelsen kringgår inte valideringen.",
+      "ui_bindings": {
+        "I understand the warning and will check the merge preview.": "Jag förstår varningen och kollar förhandsgranskningen."
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Base observation keys** identify one unique, nonmissing base row. Include field and time columns when IDs repeat across images or timepoints.",
+      "source_sha256": "6976d56c448e4039af698b1eb63a1c596e5cf1af195e54b6840d378dd03fb5e4",
+      "original_ai_draft": "**Nyckeln till basobservation** identifierar en unik basrad utan saknade nyckelvärden. Ta med bildfälts- och tidskolumner när ID:n upprepas mellan bilder eller tidpunkter.",
+      "reviewed_translation": "**Basobservationernas nycklar** identifierar en unik basrad utan saknade nyckelvärden. Ta med bildfälts- och tidskolumner när ID:n upprepas mellan bilder eller tidpunkter.",
+      "ui_bindings": {
+        "Base observation keys": "Basobservationernas nycklar"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Each child row in the configuration specifies **Base keys** and **Child keys**. Enter comma-separated column names in matching order. For example, base ``image_id, cell_id`` can map to child ``image_id, parent_cell_id``.",
+      "source_sha256": "bbfecc3225fb288fb99962e7ac85e4432f95552eef50b236949e18f4226fa57c",
+      "original_ai_draft": "Varje underordnad rad i konfigurationen anger **Bastangenter** och **Nycklarna till barn**. Ange kommaseparerade kolumnnamn i motsvarande ordning. Basens ``image_id, cell_id`` kan till exempel kopplas till underordnade ``image_id, parent_cell_id``.",
+      "reviewed_translation": "Varje underordnad rad i konfigurationen anger **Basnycklar** och **Underordnade nycklar**. Ange kommaseparerade kolumnnamn i motsvarande ordning. Basens ``image_id, cell_id`` kan till exempel kopplas till underordnade ``image_id, parent_cell_id``.",
+      "ui_bindings": {
+        "Base keys": "Basnycklar",
+        "Child keys": "Underordnade nycklar"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **one-to-one** when at most one child row belongs to each base key, or **one-to-many** when several child rows must first be aggregated.",
+      "source_sha256": "62d0b5ef44badd8da475cfe794a297afe6cc46f48379fdd24e31c3c9ee1c9dbe",
+      "original_ai_draft": "Välj **one-to-one** när högst en underordnad rad hör till varje basnyckel, eller **one-to-many** när flera underordnade rader först måste aggregeras.",
+      "reviewed_translation": "Välj **one-to-one** när högst en underordnad rad hör till varje basnyckel, eller **one-to-many** när flera underordnade rader först måste aggregeras.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A **left** join keeps unmatched base observations with missing child measurements. An **inner** join retains only matching observations. Child rows with missing join keys do not match a base row.",
+      "source_sha256": "1486c2a942521198b467ee39b02b071bccd53548ae60f1fee9b659298cffc5ad",
+      "original_ai_draft": "En **vänster**-koppling behåller omatchade basobservationer med saknade underordnade mätningar. En **inner**-koppling behåller bara matchande observationer. Underordnade rader med saknade kopplingsnycklar matchar ingen basrad.",
+      "reviewed_translation": "En **vänster**-koppling behåller omatchade basobservationer med saknade underordnade mätningar. En **inner**-koppling behåller bara matchande observationer. Underordnade rader med saknade kopplingsnycklar matchar ingen basrad.",
+      "ui_bindings": {
+        "left": "vänster"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Identifiers** to identify additional child columns that must not be treated as continuous measurements. Review the per-column aggregation controls in the main popup after accepting the mapping.",
+      "source_sha256": "6fd72e9f8d2b2823b8ab7a5ad2d78dbd9158a642dacb6d11d6df95049f4ac4bf",
+      "original_ai_draft": "Använd **Identifieringskod** för att ange ytterligare underordnade kolumner som inte får behandlas som kontinuerliga mätningar. Granska aggregeringskontrollerna per kolumn i huvuddialogen efter att ha godkänt mappningen.",
+      "reviewed_translation": "Använd **Identifierare** för att ange ytterligare underordnade kolumner som inte får behandlas som kontinuerliga mätningar. Granska aggregeringskontrollerna per kolumn i huvuddialogen efter att ha godkänt mappningen.",
+      "ui_bindings": {
+        "Identifiers": "Identifierare"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The popup now says **Custom rules active**. Validate and inspect the preview before creating the result. Duplicate base identities, contradictory one-to-one mappings, missing keys and incompatible operations produce an error. Repeated child keys can be expected in a one-to-many relationship; they require investigation when the relationship is supposed to be one-to-one.",
+      "source_sha256": "556a8db14dc1ba6072d35196fc4e92aba0b7f107132eaf80b35e679bd7bfdf40",
+      "original_ai_draft": "Dialogen visar nu **Custom rules active**. Validera och granska förhandsgranskningen innan du skapar resultatet. Dubbla basidentiteter, motstridiga en-till-en-mappningar, saknade nycklar och inkompatibla operationer ger ett fel. Upprepade underordnade nycklar kan vara förväntade i en en-till-många-relation; de måste undersökas när relationen ska vara en-till-en.",
+      "reviewed_translation": "Dialogen visar nu **Custom rules active**. Validera och granska förhandsgranskningen innan du skapar resultatet. Dubbla basidentiteter, motstridiga en-till-en-mappningar, saknade nycklar och inkompatibla operationer ger ett fel. Upprepade underordnade nycklar kan vara förväntade i en en-till-många-relation; de måste undersökas när relationen ska vara en-till-en.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Cancel** leaves the previous configuration intact. **Reset to spaCR defaults** removes custom relationships and overrides. Changing sources or the output table also rebuilds the defaults.",
+      "source_sha256": "e95f449d9a1453cd18642ceab6945c1d66b8a044b3cf648a2c97f9b820954e54",
+      "original_ai_draft": "**Avbryt** lämnar den tidigare konfigurationen oförändrad. **Återställ till spaCR standardvärden** tar bort anpassade relationer och åsidosättningar. Om källorna eller utdatatabellen ändras återskapas också standardinställningarna.",
+      "reviewed_translation": "**Avbryt** lämnar den tidigare konfigurationen oförändrad. **Återställ till spaCR standardvärden** tar bort anpassade relationer och åsidosättningar. Om källorna eller utdatatabellen ändras återskapas också standardinställningarna.",
+      "ui_bindings": {
+        "Cancel": "Avbryt",
+        "Reset to spaCR defaults": "Återställ till spaCR standardvärden"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use, save and reload the result",
+      "source_sha256": "1b7458342f06a25b368a2b0c5649b7231b53eced379e53e1b58722ff7ebb067d",
+      "original_ai_draft": "Använd, spara och läs in resultatet igen",
+      "reviewed_translation": "Använd, spara och läs in resultatet igen",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table.",
+      "source_sha256": "c8b0a9df5e61aeb785e2e14f04ca441b4e28bd1b7d3020049018dc6363203c7c",
+      "original_ai_draft": "I Graph Builder placerar du resultatkolumner på kanalerna **X**, **Y**, färg, storlek eller facett. I Gate Editor använder du kolumnerna för trösklar, polygoner och andra gateformer. Gate Editor kan visa ett urval enligt inställningarna ``sample_fraction`` och ``max_points``; gateexporten utvärderar hela den sammanfogade tabellen.",
+      "reviewed_translation": "I Graph Builder placerar du resultatkolumner på kanalerna **X**, **Y**, färg, storlek eller facett. I Gate Editor använder du kolumnerna för trösklar, polygoner och andra gateformer. Gate Editor kan visa ett urval enligt inställningarna ``sample_fraction`` och ``max_points``; gateexporten utvärderar hela den sammanfogade tabellen.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources.",
+      "source_sha256": "139b41870785e8b538921aed9433412adf50acca4fdd985e680417761945cdc9",
+      "original_ai_draft": "Den namngivna definitionen lagras bredvid databasen. För ``measurements.db`` heter filen ``measurements.db.spacr-merges.json``. När källan uppdateras eller öppnas igen blir resultatet tillgängligt på nytt och räknas om från källan. Detta är ett reproducerbart recept, inte en fryst kopia av alla resultatrader. Återanvändning kontrollerar källans sökväg och de valda tabellernas scheman. En annan databas eller ett ändrat schema kräver en nygranskad mappning; definitioner används inte tyst på orelaterade källor.",
+      "reviewed_translation": "Den namngivna definitionen lagras bredvid databasen. För ``measurements.db`` heter filen ``measurements.db.spacr-merges.json``. När källan uppdateras eller öppnas igen blir resultatet tillgängligt på nytt och räknas om från källan. Detta är ett reproducerbart recept, inte en fryst kopia av alla resultatrader. Återanvändning kontrollerar källans sökväg och de valda tabellernas scheman. En annan databas eller ett ändrat schema kräver en nygranskad mappning; definitioner används inte tyst på orelaterade källor.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Save chart** in Graph Builder saves chart channels, the source and the full merge definition to JSON. **Load chart** reconstructs and validates the table before plotting. **Save gates…** also embeds the merge definition; load the original database before using **Load gates…**. These saved files can reconstruct the merge even if its sidecar is missing. They still require the original source data.",
+      "source_sha256": "deca8d86ecde7ec405e14983b00669c0902584316c5947497a3244cbde963590",
+      "original_ai_draft": "**Spara diagram** i Graph Builder sparar diagramkanaler, källa och fullständig sammanslagningsdefinition till JSON. **Ladda diagram** återskapar och validerar tabellen före ritning. **Spara gates…** bäddar också in sammanslagningsdefinitionen; läs in originaldatabasen innan du använder **Läs in gates…**. Dessa sparade filer kan återskapa sammanslagningen även om dess sidofil saknas. De kräver fortfarande de ursprungliga källdata.",
+      "reviewed_translation": "**Spara diagram** i Graph Builder sparar diagramkanaler, källa och fullständig sammanslagningsdefinition till JSON. **Ladda diagram** återskapar och validerar tabellen före ritning. **Spara gates…** bäddar också in sammanslagningsdefinitionen; läs in originaldatabasen innan du använder **Läs in gates…**. Dessa sparade filer kan återskapa sammanslagningen även om dess sidofil saknas. De kräver fortfarande de ursprungliga källdata.",
+      "ui_bindings": {
+        "Save chart": "Spara diagram",
+        "Load chart": "Ladda diagram",
+        "Save gates…": "Spara gates…",
+        "Load gates…": "Läs in gates…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export gates…** writes gate membership columns to the database's ``filters`` table, preserving the base object's identity. This explicit export is a database write; constructing and previewing a merge does not write into the source measurement tables. **Save graph** exports the Gate Editor figure as PNG or PDF, separately from saving its gating strategy.",
+      "source_sha256": "9f34e2594ebf0b5b3803d71fd46ba15a78b4067f83b445d2d206e57ff79b7c48",
+      "original_ai_draft": "**Exportera gates…** skriver gatemedlemskapskolumner till databasens tabell ``filters`` och bevarar basobjektets identitet. Denna uttryckliga export skriver till databasen; att skapa och förhandsgranska en sammanslagning skriver inte till källans mättabeller. **Spara graf** exporterar Gate Editor-figuren som PNG eller PDF, separat från att spara dess gatestrategi.",
+      "reviewed_translation": "**Exportera gates…** skriver gatemedlemskapskolumner till databasens tabell ``filters`` och bevarar basobjektets identitet. Denna uttryckliga export skriver till databasen; att skapa och förhandsgranska en sammanslagning skriver inte till källans mättabeller. **Spara graf** exporterar Gate Editor-figuren som PNG eller PDF, separat från att spara dess gatestrategi.",
+      "ui_bindings": {
+        "Export gates…": "Exportera gates…",
+        "Save graph": "Spara graf"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A custom result without verified spaCR image/object provenance remains usable for plotting and tabular gating. Image navigation, image annotation and gate export to the measurement database are unavailable for that result, with an explanation in the interface. Keep the saved chart or gating strategy for tabular reuse; column names alone cannot establish links to microscopy objects.",
+      "source_sha256": "889465c090a74781306176ec78cbd8c35976890b204b2b44b391645194874d68",
+      "original_ai_draft": "Ett anpassat resultat utan verifierad spaCR-bild-/objektproveniens kan fortfarande användas för diagram och tabellbaserade gates. Bildnavigering, bildannotering och gateexport till mätdatabasen är inte tillgängliga för resultatet, vilket förklaras i gränssnittet. Behåll det sparade diagrammet eller gatestrategin för tabellbaserad återanvändning; enbart kolumnnamn kan inte fastställa kopplingar till mikroskopiobjekt.",
+      "reviewed_translation": "Ett anpassat resultat utan verifierad spaCR-bild-/objektproveniens kan fortfarande användas för diagram och tabellbaserade gates. Bildnavigering, bildannotering och gateexport till mätdatabasen är inte tillgängliga för resultatet, vilket förklaras i gränssnittet. Behåll det sparade diagrammet eller gatestrategin för tabellbaserad återanvändning; enbart kolumnnamn kan inte fastställa kopplingar till mikroskopiobjekt.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Recover original filenames before labelling conditions",
+      "source_sha256": "3a46efccb6b5e1c3b23f2b7a82b92b1255153a3441a2bff0fafae77b27c5e8f9",
+      "original_ai_draft": "Återställ ursprungliga filnamn innan du etiketterar villkor",
+      "reviewed_translation": "Återställ ursprungliga filnamn innan du etiketterar villkor",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images.",
+      "source_sha256": "0c6ea6663bf8ab0b8a76f9fc0220f13cb5fbea99cfc28842f075bd78f27d6a3a",
+      "original_ai_draft": "Om bilder döptes om till Yokogawa-format, använd **Sammanfoga ursprungliga filnamn...** i **Sammanfoga tabeller** för att återställa namnen som registrerades vid konverteringen. Välj ``conversion_map.csv``, en äldre ``rename_log.csv``, en ``channel_sorting_manifest.csv`` eller en SQLite-databas med tabellen ``conversion_map``. Filväljaren börjar nära en känd mappning om en sådan hittas bredvid mätdatabasen eller i dess överordnade mappar. Mappningen måste innehålla registrerade relationer mellan källa och utdata; åtgärden härleder inte behandlingsnamn från omdöpta bilder.",
+      "reviewed_translation": "Om bilder döptes om till Yokogawa-format, använd **Sammanfoga ursprungliga filnamn...** i **Sammanfoga tabeller** för att återställa namnen som registrerades vid konverteringen. Välj ``conversion_map.csv``, en äldre ``rename_log.csv``, en ``channel_sorting_manifest.csv`` eller en SQLite-databas med tabellen ``conversion_map``. Filväljaren börjar nära en känd mappning om en sådan hittas bredvid mätdatabasen eller i dess överordnade mappar. Mappningen måste innehålla registrerade relationer mellan källa och utdata; åtgärden härleder inte behandlingsnamn från omdöpta bilder.",
+      "ui_bindings": {
+        "Merge original filenames…": "Sammanfoga ursprungliga filnamn...",
+        "Merge tables": "Sammanfoga tabeller"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For filename metadata alone, select just the table you want to annotate. This retains every row and existing column, including tables without spaCR object IDs. For an existing merged result, open its merge popup to preserve the reviewed relationships and aggregation while adding the filename mapping. With several source tables selected, measurements are merged first and the original names are attached to the resulting observations.",
+      "source_sha256": "7ff200bcee646dfee5be676b9d7ee53970d6c23472607418c743c94792e44826",
+      "original_ai_draft": "För enbart filnamnsmetadata väljer du bara tabellen du vill annotera. Detta bevarar varje rad och befintlig kolumn, även i tabeller utan spaCR-objekt-ID:n. För ett befintligt sammanfogat resultat öppnar du dess sammanslagningsdialog för att bevara granskade relationer och aggregering medan du lägger till filnamnsmappningen. När flera källtabeller är valda sammanfogas mätningarna först, och originalnamnen kopplas till de resulterande observationerna.",
+      "reviewed_translation": "För enbart filnamnsmetadata väljer du bara tabellen du vill annotera. Detta bevarar varje rad och befintlig kolumn, även i tabeller utan spaCR-objekt-ID:n. För ett befintligt sammanfogat resultat öppnar du dess sammanslagningsdialog för att bevara granskade relationer och aggregering medan du lägger till filnamnsmappningen. När flera källtabeller är valda sammanfogas mätningarna först, och originalnamnen kopplas till de resulterande observationerna.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Merge original filenames…** and select the mapping.",
+      "source_sha256": "5d44468e33b05e15ec11b7a583e040485cd2676d214ef24b1adac551a95bddf9",
+      "original_ai_draft": "Tryck på **Sammanfoga ursprungliga filnamn...** och välj mappningen.",
+      "reviewed_translation": "Tryck på **Sammanfoga ursprungliga filnamn...** och välj mappningen.",
+      "ui_bindings": {
+        "Merge original filenames…": "Sammanfoga ursprungliga filnamn..."
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Set a new **Result name**, then press **Validate and preview**.",
+      "source_sha256": "f503607c91c854729d51e0e3fc13dd0dd3a4cd2c9e1d75a834d21294d1406421",
+      "original_ai_draft": "Ange ett nytt **Resultatnamn** och tryck sedan på **Validera och förhandsgranska**.",
+      "reviewed_translation": "Ange ett nytt **Resultatnamn** och tryck sedan på **Validera och förhandsgranska**.",
+      "ui_bindings": {
+        "Result name": "Resultatnamn",
+        "Validate and preview": "Validera och förhandsgranska"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect the matched and unmatched row counts and the preview's ``original_filename`` and ``original_path`` columns.",
+      "source_sha256": "9b1d07979afddd65757e0d9c95d0d89d04185ddbc080d2d5485bc5946483c54c",
+      "original_ai_draft": "Granska antalet matchade och omatchade rader samt förhandsgranskningens kolumner ``original_filename`` och ``original_path``.",
+      "reviewed_translation": "Granska antalet matchade och omatchade rader samt förhandsgranskningens kolumner ``original_filename`` och ``original_path``.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Create merged table**, then open **Annotate conditions** and choose ``original_filename`` as a rule's metadata column.",
+      "source_sha256": "43239788ae988d04aa28a76161dd92d004db537efcac89a247d06a07bdd64bb4",
+      "original_ai_draft": "Tryck på **Skapa sammanfogad tabell**, öppna sedan **Anteckna villkor** och välj ``original_filename`` som en regels metadatakolumn.",
+      "reviewed_translation": "Tryck på **Skapa sammanfogad tabell**, öppna sedan **Annotera villkor** och välj ``original_filename`` som en regels metadatakolumn.",
+      "ui_bindings": {
+        "Create merged table": "Skapa sammanfogad tabell",
+        "Annotate conditions": "Annotera villkor"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several channels or z-planes belonging to one field produce a sorted, deduplicated list separated by a semicolon and a space in the new columns. They do not multiply the table's observations. Plate and timepoint identities remain distinct; ambiguous or conflicting identities cause validation to fail. Unmatched names remain blank. Existing ``original_filename`` or ``original_path`` columns are preserved by refusing to overwrite them.",
+      "source_sha256": "085e6e107eece91b01fa51ab6a5ccd61bf2255cd46e8119f7c74fccc6dc9c89c",
+      "original_ai_draft": "Flera kanaler eller z-plan som hör till samma bildfält ger en sorterad lista utan dubbletter, avgränsad med semikolon och blanksteg i de nya kolumnerna. De multiplicerar inte tabellens observationer. Platt- och tidpunktsidentiteter hålls åtskilda; tvetydiga eller motstridiga identiteter gör att valideringen misslyckas. Omatchade namn förblir tomma. Befintliga kolumner med namnen ``original_filename`` eller ``original_path`` bevaras genom att överskrivning nekas.",
+      "reviewed_translation": "Flera kanaler eller z-plan som hör till samma bildfält ger en sorterad lista utan dubbletter, avgränsad med semikolon och blanksteg i de nya kolumnerna. De multiplicerar inte tabellens observationer. Platt- och tidpunktsidentiteter hålls åtskilda; tvetydiga eller motstridiga identiteter gör att valideringen misslyckas. Omatchade namn förblir tomma. Befintliga kolumner med namnen ``original_filename`` eller ``original_path`` bevaras genom att överskrivning nekas.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``original_path`` is the path recorded in the mapping; the original files need not still exist at that location. Image files and source measurement tables are never renamed or rewritten by this action. Adding filename text does not establish missing microscopy object provenance.",
+      "source_sha256": "365f83e58365391aa025c350de7675c3cc7b538faf62fff04a75d46f2e62a32f",
+      "original_ai_draft": "``original_path`` är sökvägen som registrerats i mappningen; originalfilerna behöver inte längre finnas där. Bildfiler och källans mättabeller döps aldrig om eller skrivs om av denna åtgärd. Att lägga till filnamnstext återskapar inte saknad mikroskopiobjektproveniens.",
+      "reviewed_translation": "``original_path`` är sökvägen som registrerats i mappningen; originalfilerna behöver inte längre finnas där. Bildfiler och källans mättabeller döps aldrig om eller skrivs om av denna åtgärd. Att lägga till filnamnstext återskapar inte saknad mikroskopiobjektproveniens.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved merge records the mapping's location and a content checksum. Reopening a merge or chart requires that mapping to remain available and unchanged. For an embedded ``conversion_map`` table, unrelated changes to other database tables do not invalidate the mapping. If the mapping changes, select it again and validate a new result before applying it. **Remove filename mapping** removes the enrichment from the draft without deleting the file. **Reset to spaCR defaults** also clears the mapping.",
+      "source_sha256": "09c2a48f61321ed6edd6760cbfc35dc2fb3c291c56a251c5536e1aff3a906d3f",
+      "original_ai_draft": "Den sparade sammanslagningen registrerar mappningens plats och en kontrollsumma av innehållet. När du öppnar en sammanslagning eller ett diagram igen måste mappningen finnas kvar och vara oförändrad. För en inbäddad ``conversion_map``-tabell gör orelaterade ändringar i andra databastabeller inte mappningen ogiltig. Om mappningen ändras, välj den igen och validera ett nytt resultat innan du tillämpar det. **Ta bort filnamnsavbildning** tar bort kompletteringen från utkastet utan att radera filen. **Återställ till spaCR standardvärden** rensar också mappningen.",
+      "reviewed_translation": "Den sparade sammanslagningen registrerar mappningens plats och en kontrollsumma av innehållet. När du öppnar en sammanslagning eller ett diagram igen måste mappningen finnas kvar och vara oförändrad. För en inbäddad ``conversion_map``-tabell gör orelaterade ändringar i andra databastabeller inte mappningen ogiltig. Om mappningen ändras, välj den igen och validera ett nytt resultat innan du tillämpar det. **Ta bort filnamnsmappning** tar bort kompletteringen från utkastet utan att radera filen. **Återställ till spaCR standardvärden** rensar också mappningen.",
+      "ui_bindings": {
+        "Remove filename mapping": "Ta bort filnamnsmappning",
+        "Reset to spaCR defaults": "Återställ till spaCR standardvärden"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Annotate experimental conditions in Graph Builder",
+      "source_sha256": "006a60c49e2f3ebd422d545c4520cfd6e76286277d1aa7d4387f721ae53082bd",
+      "original_ai_draft": "Annotera experimentella villkor i Graph Builder",
+      "reviewed_translation": "Annotera experimentella villkor i Graph Builder",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Annotate conditions** adds annotation columns to the working table in Graph Builder. It works with a physical database table, a named derived table or an imported CSV/TSV. Use rules to assign labels or extract variable metadata, then compose a final column from those values. Every generated column is retained. These table operations do not require image links or write image annotations.",
+      "source_sha256": "1b49041603233ce97eb2a2ab884993688fae4a9f587f655167ec039055c517e2",
+      "original_ai_draft": "**Anteckna villkor** lägger till annoteringskolumner i arbetstabellen i Graph Builder. Det fungerar med en fysisk databastabell, en namngiven härledd tabell eller en importerad CSV/TSV. Använd regler för att tilldela etiketter eller extrahera varierande metadata och bygg sedan en slutlig kolumn av dessa värden. Varje genererad kolumn behålls. Dessa tabelloperationer kräver inga bildlänkar och skriver inga bildannoteringar.",
+      "reviewed_translation": "**Annotera villkor** lägger till annoteringskolumner i arbetstabellen i Graph Builder. Det fungerar med en fysisk databastabell, en namngiven härledd tabell eller en importerad CSV/TSV. Använd regler för att tilldela etiketter eller extrahera varierande metadata och bygg sedan en slutlig kolumn av dessa värden. Varje genererad kolumn behålls. Dessa tabelloperationer kräver inga bildlänkar och skriver inga bildannoteringar.",
+      "ui_bindings": {
+        "Annotate conditions": "Annotera villkor"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced.",
+      "source_sha256": "4a32bd1f0d92f2459d4df173e183c348f2e9581a98362e84963a3191648511a1",
+      "original_ai_draft": "Öppna **Anteckna villkor**, namnge **Utmatningskolumn** och välj **Tilldela värden**, **Extrahera text** eller **Komponera kolumn**. Befintliga källkolumner kan inte ersättas.",
+      "reviewed_translation": "Öppna **Annotera villkor**, namnge **Utmatningskolumn** och välj **Tilldela värden**, **Extrahera text** eller **Komponera kolumn**. Befintliga källkolumner kan inte ersättas.",
+      "ui_bindings": {
+        "Annotate conditions": "Annotera villkor",
+        "Output column": "Utmatningskolumn",
+        "Assign values": "Tilldela värden",
+        "Extract text": "Extrahera text",
+        "Compose column": "Komponera kolumn"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together.",
+      "source_sha256": "d600b2e0cd6acd53d474b89475c2d7b0300de099f1c2ac89f12a636be910c448",
+      "original_ai_draft": "Definiera värderegler, textextraktion eller sammansättning för denna utdatakolumn. Använd **Lägg till kolumn** för ytterligare en utdatakolumn. Ett reguljärt uttryck med namngivna grupper kan också skapa flera metadatakolumner samtidigt.",
+      "reviewed_translation": "Definiera värderegler, textextraktion eller sammansättning för denna utdatakolumn. Använd **Lägg till kolumn** för ytterligare en utdatakolumn. Ett reguljärt uttryck med namngivna grupper kan också skapa flera metadatakolumner samtidigt.",
+      "ui_bindings": {
+        "Add column": "Lägg till kolumn"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Inspect all generated values beside the source columns. **Preview assignments** reruns the check; edits also refresh the preview.",
+      "source_sha256": "d7253f2c56ddd51a733699ac4563652e09a249079fbec056c48aa67a69be3771",
+      "original_ai_draft": "Granska alla genererade värden bredvid källkolumnerna. **Förhandsgranskningsuppgifter** kör kontrollen igen; ändringar uppdaterar också förhandsgranskningen.",
+      "reviewed_translation": "Granska alla genererade värden bredvid källkolumnerna. **Förhandsgranska tilldelningar** kör kontrollen igen; ändringar uppdaterar också förhandsgranskningen.",
+      "ui_bindings": {
+        "Preview assignments": "Förhandsgranska tilldelningar"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Resolve invalid rules, missing dependencies and conflicting assignments, then choose **Apply conditions**. Every generated column becomes available for chart channels and filtering. **Cancel** discards the draft changes.",
+      "source_sha256": "a198951df0a1fa58526be496cfa21363ba324e0f4f66171072a66fa6135e726f",
+      "original_ai_draft": "Lös ogiltiga regler, saknade beroenden och motstridiga tilldelningar och välj sedan **Tillämpa villkor**. Varje genererad kolumn blir tillgänglig för diagramkanaler och filtrering. **Avbryt** kastar utkastets ändringar.",
+      "reviewed_translation": "Lös ogiltiga regler, saknade beroenden och motstridiga tilldelningar och välj sedan **Tillämpa villkor**. Varje genererad kolumn blir tillgänglig för diagramkanaler och filtrering. **Avbryt** kastar utkastets ändringar.",
+      "ui_bindings": {
+        "Apply conditions": "Tillämpa villkor",
+        "Cancel": "Avbryt"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extract several metadata columns from a filename",
+      "source_sha256": "476d39e97a580e88b3a49d978965b71f2fdc856c7442e91e64ba23b01a7e37ca",
+      "original_ai_draft": "Extrahera flera metadatakolumner från ett filnamn",
+      "reviewed_translation": "Extrahera flera metadatakolumner från ett filnamn",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Extract text** and select the source column, such as ``original_filename``. A regular expression extracts the matching text into the output column. Select a named or numbered capture group to choose which part of the match becomes the value.",
+      "source_sha256": "d4c480ab4bb730de91dd4f8405f968c1872a8f0c592155ce8b033e1d3c7cbbf5",
+      "original_ai_draft": "Välj **Extrahera text** och välj källkolumnen, till exempel ``original_filename``. Ett reguljärt uttryck extraherar den matchande texten till utdatakolumnen. Välj en namngiven eller numrerad fångstgrupp för att ange vilken del av matchningen som blir värdet.",
+      "reviewed_translation": "Välj **Extrahera text** och välj källkolumnen, till exempel ``original_filename``. Ett reguljärt uttryck extraherar den matchande texten till utdatakolumnen. Välj en namngiven eller numrerad fångstgrupp för att ange vilken del av matchningen som blir värdet.",
+      "ui_bindings": {
+        "Extract text": "Extrahera text"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, this pattern describes ``HeLa_rep2_24h_DMSO.tif``:",
+      "source_sha256": "a6f7fdde181aff092d27e510af111034b6c4d19902023cc8995d70ce9a118fef",
+      "original_ai_draft": "Till exempel beskriver detta mönster ``HeLa_rep2_24h_DMSO.tif``:",
+      "reviewed_translation": "Till exempel beskriver detta mönster ``HeLa_rep2_24h_DMSO.tif``:",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The named groups describe four output columns: ``cell_type``, ``replicate``, ``timepoint`` and ``drug``. **Create columns from named groups** creates these outputs together. The example row produces ``HeLa``, ``rep2``, ``24h`` and ``DMSO``. Another matching filename produces its own values; they are not fixed labels copied from the example. Adapt the pattern to your own filenames and inspect the preview before applying it.",
+      "source_sha256": "004f0328bc2bbe334865d877a33f7e64bdc192c9eae469676db4b2fb9e183779",
+      "original_ai_draft": "De namngivna grupperna beskriver fyra utdatakolumner: ``cell_type``, ``replicate``, ``timepoint`` och ``drug``. **Skapa kolumner från namngivna grupper** skapar dessa tillsammans. Exempelraden ger ``HeLa``, ``rep2``, ``24h`` och ``DMSO``. Ett annat matchande filnamn ger sina egna värden; de är inte fasta etiketter kopierade från exemplet. Anpassa mönstret till dina filnamn och granska förhandsgranskningen innan du tillämpar det.",
+      "reviewed_translation": "De namngivna grupperna beskriver fyra utdatakolumner: ``cell_type``, ``replicate``, ``timepoint`` och ``drug``. **Skapa kolumner från namngivna grupper** skapar dessa tillsammans. Exempelraden ger ``HeLa``, ``rep2``, ``24h`` och ``DMSO``. Ett annat matchande filnamn ger sina egna värden; de är inte fasta etiketter kopierade från exemplet. Anpassa mönstret till dina filnamn och granska förhandsgranskningen innan du tillämpar det.",
+      "ui_bindings": {
+        "Create columns from named groups": "Skapa kolumner från namngivna grupper"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Extraction uses the first regex match. Nonmatching rows and missing or empty captures remain blank. Invalid patterns or capture groups stop the preview with an error. Existing source column names cannot be overwritten.",
+      "source_sha256": "a04b979f4cee9bd86c99ed6684537edee9df1b997763aa35c446d1660b256178",
+      "original_ai_draft": "Extraktionen använder den första regexmatchningen. Omatchade rader samt saknade eller tomma fångstgrupper förblir tomma. Ogiltiga mönster eller fångstgrupper stoppar förhandsgranskningen med ett fel. Befintliga källkolumnnamn kan inte skrivas över.",
+      "reviewed_translation": "Extraktionen använder den första regexmatchningen. Omatchade rader samt saknade eller tomma fångstgrupper förblir tomma. Ogiltiga mönster eller fångstgrupper stoppar förhandsgranskningen med ett fel. Befintliga källkolumnnamn kan inte skrivas över.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assign values with readable rules",
+      "source_sha256": "4132ee4b18bbebb48df948025243b3f26096207971c21fcf6cb611c7adcb18db",
+      "original_ai_draft": "Tilldela värden med läsbara regler",
+      "reviewed_translation": "Tilldela värden med läsbara regler",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string.",
+      "source_sha256": "1611d19f699daa929a7ec862c34b2265a23e8ce4c615d3073b767f700df730db",
+      "original_ai_draft": "Välj **Tilldela värden** när matchande rader ska få ett värde som du skriver, till exempel ``WildType`` eller ``control``. Varje regel väljer en kolumn, en operator och ett jämförelsevärde. Operatorerna omfattar innehåller, innehåller inte, är lika med, är inte lika med, börjar med, slutar med och regexmatchning. Textoperatorer tolkar skiljetecken bokstavligt; regexoperatorer tolkar dem som ett mönster. Matchningen är skiftlägeskänslig. Kriterier för innehåll, prefix, suffix och regex kräver text som inte är tom. Använd ett uttryckligt ``.*``-regex för att matcha all text som inte saknas, eller likhet med ett tomt värde för att matcha en faktisk tom sträng.",
+      "reviewed_translation": "Välj **Tilldela värden** när matchande rader ska få ett värde som du skriver, till exempel ``WildType`` eller ``control``. Varje regel väljer en kolumn, en operator och ett jämförelsevärde. Operatorerna omfattar innehåller, innehåller inte, är lika med, är inte lika med, börjar med, slutar med och regexmatchning. Textoperatorer tolkar skiljetecken bokstavligt; regexoperatorer tolkar dem som ett mönster. Matchningen är skiftlägeskänslig. Kriterier för innehåll, prefix, suffix och regex kräver text som inte är tom. Använd ett uttryckligt ``.*``-regex för att matcha all text som inte saknas, eller likhet med ett tomt värde för att matcha en faktisk tom sträng.",
+      "ui_bindings": {
+        "Assign values": "Tilldela värden"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly.",
+      "source_sha256": "c6ddd59741adfc48ac2ecc42955d17b0fcf1c81d0c3bb083d34697b1cdf082b9",
+      "original_ai_draft": "Välj **alla regler matchar** när varje kriterium måste matcha, eller **minst en regel matchar** när minst ett måste matcha. Kriterier kan granska olika källkolumner eller tidigare genererade kolumner. Tilldela till exempel ``control`` när ``drug`` är lika med ``DMSO`` och ``cell_type`` är lika med ``HeLa``. Saknade källvärden uppfyller inte ett negativt kriterium. En faktisk tom sträng är ett värde och kan matchas uttryckligen.",
+      "reviewed_translation": "Välj **alla regler matchar** när varje kriterium måste matcha, eller **minst en regel matchar** när minst ett måste matcha. Kriterier kan granska olika källkolumner eller tidigare genererade kolumner. Tilldela till exempel ``control`` när ``drug`` är lika med ``DMSO`` och ``cell_type`` är lika med ``HeLa``. Saknade källvärden uppfyller inte ett negativt kriterium. En faktisk tom sträng är ett värde och kan matchas uttryckligen.",
+      "ui_bindings": {
+        "all rules match": "alla regler matchar",
+        "any rule matches": "minst en regel matchar"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Several rules may assign the same value without a conflict. Different values assigned to one row in the same output column require resolution before Apply.",
+      "source_sha256": "cddbbee8852ac03aeceb6bf603d28d63c31edcbe6b7513ff3c94d485bbb1d21b",
+      "original_ai_draft": "Flera regler får tilldela samma värde utan konflikt. Om olika värden tilldelas samma rad i samma utdatakolumn måste detta lösas före tillämpning.",
+      "reviewed_translation": "Flera regler får tilldela samma värde utan konflikt. Om olika värden tilldelas samma rad i samma utdatakolumn måste detta lösas före tillämpning.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Compose the final column",
+      "source_sha256": "1c3880c4d0e3f3987f658796eb6ef3a523dae94144ed167c54dd532f97382f1f",
+      "original_ai_draft": "Sätt samman den slutliga kolumnen",
+      "reviewed_translation": "Sätt samman den slutliga kolumnen",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Add an output column, name it ``condition`` or another name you choose, and select **Compose column**. Drag available columns into the composition field. Drag its tokens to change their order. Insert fixed text to add separators, prefixes or words between the values.",
+      "source_sha256": "c49ff5c82c4a5fe0a5a2d85f4bc13c1ac229783a45f63eaeecde25a8c57f476d",
+      "original_ai_draft": "Lägg till en utdatakolumn, ge den namnet ``condition`` eller ett annat valfritt namn och välj **Komponera kolumn**. Dra tillgängliga kolumner till sammansättningsfältet. Dra dess brickor för att ändra ordningen. Infoga fast text för att lägga till avgränsare, prefix eller ord mellan värdena.",
+      "reviewed_translation": "Lägg till en utdatakolumn, ge den namnet ``condition`` eller ett annat valfritt namn och välj **Komponera kolumn**. Dra tillgängliga kolumner till sammansättningsfältet. Dra dess brickor för att ändra ordningen. Infoga fast text för att lägga till avgränsare, prefix eller ord mellan värdena.",
+      "ui_bindings": {
+        "Compose column": "Komponera kolumn"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For example, the tokens ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` produce ``HeLa_rep2_24h_DMSO`` for the example above. Reordering the column tokens changes the result without changing their extraction rules. Fixed text is literal; it cannot execute code.",
+      "source_sha256": "8eac6582cfd0f986149e9bae1c298bbc5ac089bc808e178ba25c09fba3bd8ae0",
+      "original_ai_draft": "Till exempel ger brickorna ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` resultatet ``HeLa_rep2_24h_DMSO`` för exemplet ovan. Om du ändrar kolumnbrickornas ordning ändras resultatet utan att extraktionsreglerna ändras. Fast text är bokstavlig; den kan inte köra kod.",
+      "reviewed_translation": "Till exempel ger brickorna ``cell_type``, ``_``, ``replicate``, ``_``, ``timepoint``, ``_``, ``drug`` resultatet ``HeLa_rep2_24h_DMSO`` för exemplet ovan. Om du ändrar kolumnbrickornas ordning ändras resultatet utan att extraktionsreglerna ändras. Fast text är bokstavlig; den kan inte köra kod.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A composition can reference original source columns and earlier generated columns. A missing or empty column value leaves the composed value blank. The preview shows all intermediate columns and the final column together. Applying, exporting or saving a new SQLite table retains every generated column and the editable recipe. The original measurements remain unchanged.",
+      "source_sha256": "2ba90664638983dedd250700cc15f16503da22091b7a8bdd32a272cbc45bb97c",
+      "original_ai_draft": "En sammansättning kan referera till ursprungliga källkolumner och tidigare genererade kolumner. Ett saknat eller tomt kolumnvärde lämnar det sammansatta värdet tomt. Förhandsgranskningen visar alla mellankolumner och slutkolumnen tillsammans. Tillämpning, export eller sparande av en ny SQLite-tabell behåller varje genererad kolumn och det redigerbara receptet. Originalmätningarna förblir oförändrade.",
+      "reviewed_translation": "En sammansättning kan referera till ursprungliga källkolumner och tidigare genererade kolumner. Ett saknat eller tomt kolumnvärde lämnar det sammansatta värdet tomt. Förhandsgranskningen visar alla mellankolumner och slutkolumnen tillsammans. Tillämpning, export eller sparande av en ny SQLite-tabell behåller varje genererad kolumn och det redigerbara receptet. Originalmätningarna förblir oförändrade.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Build genotype, replicate and a combined condition",
+      "source_sha256": "578338f38c061a12e58cbce9ed4ff96001c78a241abe8f0f70926f0837c310af",
+      "original_ai_draft": "Skapa genotyp, replikat och ett kombinerat villkor",
+      "reviewed_translation": "Skapa genotyp, replikat och ett kombinerat villkor",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Name the first **Output column** ``genotype`` and keep its mode set to **Assign values**. Use **Add condition** for its labels. Press **Add column** to create ``replicate`` with its own boxes. In each box, choose **Exact values** to enter lists of metadata values without writing a regular expression. For example:",
+      "source_sha256": "b40fba7d5641ac718af3e19c0085e92469608c8a8f30abd8d68407769c9bf50e",
+      "original_ai_draft": "Ge den första **Utmatningskolumn** namnet ``genotype`` och behåll läget **Tilldela värden**. Använd **Lägg till villkor** för dess etiketter. Tryck på **Lägg till kolumn** för att skapa ``replicate`` med egna rutor. Välj **Exakta värden** i varje ruta för att ange listor med metadatavärden utan att skriva ett reguljärt uttryck. Till exempel:",
+      "reviewed_translation": "Ge den första **Utmatningskolumn** namnet ``genotype`` och behåll läget **Tilldela värden**. Använd **Lägg till villkor** för dess etiketter. Tryck på **Lägg till kolumn** för att skapa ``replicate`` med egna rutor. Välj **Exakta värden** i varje ruta för att ange listor med metadatavärden utan att skriva ett reguljärt uttryck. Till exempel:",
+      "ui_bindings": {
+        "Output column": "Utmatningskolumn",
+        "Assign values": "Tilldela värden",
+        "Add condition": "Lägg till villkor",
+        "Add column": "Lägg till kolumn",
+        "Exact values": "Exakta värden"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Example annotation rules",
+      "source_sha256": "7398a3452de45c41caaed97e175f51bc9c9986149be53b4e2ed786ec0036215f",
+      "original_ai_draft": "Exempel på annoteringsregler",
+      "reviewed_translation": "Exempel på annoteringsregler",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Output column",
+      "source_sha256": "20fbdf96eddc6805ac9af13d4ee1d4ec0e718a14be9604895cbbd23edf45b0fd",
+      "original_ai_draft": "Utdatakolumn",
+      "reviewed_translation": "Utdatakolumn",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Metadata column",
+      "source_sha256": "20a3552adc5b2b8a6472197eb105902fb6d0ff89454967bfef004188d99e3b2a",
+      "original_ai_draft": "Metadatakolumn",
+      "reviewed_translation": "Metadatakolumn",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Included values",
+      "source_sha256": "213cdb0d334027b9c678a9e6820813919fb14f543b211ac13ea3eb3d0bc636de",
+      "original_ai_draft": "Inkluderade värden",
+      "reviewed_translation": "Inkluderade värden",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Assigned label",
+      "source_sha256": "8d27c73d75545e7f3aaf1fdacb9575b20fe0dedc3d40319fc0ce63e6f202c58d",
+      "original_ai_draft": "Tilldelad etikett",
+      "reviewed_translation": "Tilldelad etikett",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Repeated entries such as ``c1,c1`` or ``r7,r7`` have no extra effect. Exact matching keeps ``c1`` separate from ``c10``. Two rules that assign the same label may select the same row; two different labels in one output column require a correction before applying. Each output column has its own assignments, so a row can have both a genotype and a replicate.",
+      "source_sha256": "bb480aa32277c86ce1a3383fb2ece9d92eb1055c500701999bcdd45fa5ad046c",
+      "original_ai_draft": "Upprepade poster som ``c1,c1`` eller ``r7,r7`` ger ingen ytterligare effekt. Exakt matchning skiljer ``c1`` från ``c10``. Två regler som tilldelar samma etikett får välja samma rad; två olika etiketter i en utdatakolumn kräver en rättelse före tillämpning. Varje utdatakolumn har sina egna tilldelningar, så en rad kan ha både en genotyp och ett replikat.",
+      "reviewed_translation": "Upprepade poster som ``c1,c1`` eller ``r7,r7`` ger ingen ytterligare effekt. Exakt matchning skiljer ``c1`` från ``c10``. Två regler som tilldelar samma etikett får välja samma rad; två olika etiketter i en utdatakolumn kräver en rättelse före tillämpning. Varje utdatakolumn har sina egna tilldelningar, så en rad kan ha både en genotyp och ett replikat.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Press **Add column**, name it ``condition``, and choose **Compose column**. Drag ``genotype`` into the composition field, insert a text token containing ``_``, then drag in ``replicate``. The token order determines the joining order. A row labelled ``WildType`` and ``replicate 1`` then receives ``WildType_replicate 1``. The label's space is retained. Column names, labels, component order and separator are editable; the example does not prescribe the names for your experiment.",
+      "source_sha256": "4acda61613512a79cf540fe0e7da2d200957329b04de0679281a5c43ba51265b",
+      "original_ai_draft": "Tryck på **Lägg till kolumn**, namnge den ``condition`` och välj **Komponera kolumn**. Dra ``genotype`` till sammansättningsfältet, infoga en textbricka med ``_`` och dra sedan in ``replicate``. Brickornas ordning avgör sammanfogningsordningen. En rad märkt ``WildType`` och ``replicate 1`` får då ``WildType_replicate 1``. Mellanslaget i etiketten behålls. Kolumnnamn, etiketter, komponentordning och avgränsare kan ändras; exemplet föreskriver inte namnen för ditt experiment.",
+      "reviewed_translation": "Tryck på **Lägg till kolumn**, namnge den ``condition`` och välj **Komponera kolumn**. Dra ``genotype`` till sammansättningsfältet, infoga en textbricka med ``_`` och dra sedan in ``replicate``. Brickornas ordning avgör sammanfogningsordningen. En rad märkt ``WildType`` och ``replicate 1`` får då ``WildType_replicate 1``. Mellanslaget i etiketten behålls. Kolumnnamn, etiketter, komponentordning och avgränsare kan ändras; exemplet föreskriver inte namnen för ditt experiment.",
+      "ui_bindings": {
+        "Add column": "Lägg till kolumn",
+        "Compose column": "Komponera kolumn"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Combination rules can use source columns or previously created annotation columns. Keep dependencies earlier in the column order. Missing components leave the combined value blank; they do not produce text such as ``nan``. Preview all generated columns before applying. Saving a chart, exporting the table or saving a new annotated SQLite table retains the complete recipe.",
+      "source_sha256": "a7e58cd6468d9491f0b796ed241248cae56102fe11062b9709ac5106bb11b40d",
+      "original_ai_draft": "Kombinationsregler kan använda källkolumner eller tidigare skapade annoteringskolumner. Placera beroenden tidigare i kolumnordningen. Saknade komponenter lämnar det kombinerade värdet tomt; de ger inte text som ``nan``. Förhandsgranska alla genererade kolumner före tillämpning. Att spara ett diagram, exportera tabellen eller spara en ny annoterad SQLite-tabell behåller hela receptet.",
+      "reviewed_translation": "Kombinationsregler kan använda källkolumner eller tidigare skapade annoteringskolumner. Placera beroenden tidigare i kolumnordningen. Saknade komponenter lämnar det kombinerade värdet tomt; de ger inte text som ``nan``. Förhandsgranska alla genererade kolumner före tillämpning. Att spara ett diagram, exportera tabellen eller spara en ny annoterad SQLite-tabell behåller hela receptet.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Rules and manual selection",
+      "source_sha256": "b2686f8c97e23d9160c1437c96e3ffdf0f7aef27396a8ecb07d80aac2e58be5c",
+      "original_ai_draft": "Regler och manuellt urval",
+      "reviewed_translation": "Regler och manuellt urval",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "In **Assign values**, choose **Regular expression** in a condition box to use its Include and Exclude fields. Choose **Manual rows only** to assign only the rows you drop into that box, without a comparison rule.",
+      "source_sha256": "33bd26a475b9c1a4c1938ba81c27baa710a1c6be03f45b62f0d0483e5332a4dd",
+      "original_ai_draft": "I **Tilldela värden**, välj **Reguljärt uttryck** i en villkorsruta för att använda dess Include- och Exclude-fält. Välj **Endast manuella rader** för att bara tilldela de rader som du släpper i rutan, utan jämförelseregel.",
+      "reviewed_translation": "I **Tilldela värden**, välj **Reguljärt uttryck** i en villkorsruta för att använda dess Include- och Exclude-fält. Välj **Endast manuella rader** för att bara tilldela de rader som du släpper i rutan, utan jämförelseregel.",
+      "ui_bindings": {
+        "Assign values": "Tilldela värden",
+        "Regular expression": "Reguljärt uttryck",
+        "Manual rows only": "Endast manuella rader"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically.",
+      "source_sha256": "f17bab0541d7173086b0e8010729a5c2f279fd14bf9e9c24bcba33bb75cbe5e7",
+      "original_ai_draft": "Ovanför villkorsrutorna erbjuder **Exempel på kolumn** kopierbara mönster baserade på den valda kolumnens värden. Välj en exempeltyp, granska eller redigera texten, tryck på **Kopiera regex** och klistra sedan in i ett villkors **Inkludera**- eller **Uteslut**-fält. Kopiering av ett exempel ändrar inte villkorsreglerna. Bokstavliga skiljetecken i exempelvärdena skyddas automatiskt med escape-tecken.",
+      "reviewed_translation": "Ovanför villkorsrutorna erbjuder **Exempel för kolumn** kopierbara mönster baserade på den valda kolumnens värden. Välj en exempeltyp, granska eller redigera texten, tryck på **Kopiera regex** och klistra sedan in i ett villkors **Inkludera**- eller **Uteslut**-fält. Kopiering av ett exempel ändrar inte villkorsreglerna. Bokstavliga skiljetecken i exempelvärdena skyddas automatiskt med escape-tecken.",
+      "ui_bindings": {
+        "Examples for column": "Exempel för kolumn",
+        "Copy regex": "Kopiera regex",
+        "Include": "Inkludera",
+        "Exclude": "Uteslut"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:",
+      "source_sha256": "0ec3d40be229cf507c39851a2a687873393c3e29b8e0838a1eeaa126bd92c120",
+      "original_ai_draft": "För originalnamn som ``drug_A_rep1.tif`` och ``control_rep1.tif``:",
+      "reviewed_translation": "För originalnamn som ``drug_A_rep1.tif`` och ``control_rep1.tif``:",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A|control`` matches either text.",
+      "source_sha256": "296e56b1058f15b74ae9b0af697f2061a0b664e1c4baf4392798df54070d8827",
+      "original_ai_draft": "``drug_A|control`` matchar endera texten.",
+      "reviewed_translation": "``drug_A|control`` matchar endera texten.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A_rep.`` allows one character after ``rep``.",
+      "source_sha256": "9a7482eca5b9274a46f8fe27209c240fa10068755b4f908f473e3ec86da39f87",
+      "original_ai_draft": "``drug_A_rep.`` tillåter ett tecken efter ``rep``.",
+      "reviewed_translation": "``drug_A_rep.`` tillåter ett tecken efter ``rep``.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A.*rep`` allows any intervening text, including none.",
+      "source_sha256": "ad9b2ba896fea76fbf1a28435722cf6b5d9bdc6bd527703c0ec1893548f6d60c",
+      "original_ai_draft": "``drug_A.*rep`` tillåter valfri mellanliggande text, även ingen alls.",
+      "reviewed_translation": "``drug_A.*rep`` tillåter valfri mellanliggande text, även ingen alls.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``^drug_A_rep1\\.tif$`` matches that entire value.",
+      "source_sha256": "94037beb8a22bd708f5282468cc4d0c678a5aff5b9c73226f3716c57994fe6f0",
+      "original_ai_draft": "``^drug_A_rep1\\.tif$`` matchar hela det värdet.",
+      "reviewed_translation": "``^drug_A_rep1\\.tif$`` matchar hela det värdet.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``(?i)drug_a`` ignores letter case.",
+      "source_sha256": "0afe46a5be8707706ace4be00e7d35cbbe2009bde4a5197b67cb4b24bd32338b",
+      "original_ai_draft": "``(?i)drug_a`` ignorerar skiftläge.",
+      "reviewed_translation": "``(?i)drug_a`` ignorerar skiftläge.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use Include to select the group and Exclude to remove exceptions, such as Include ``drug_A`` with Exclude ``failed|outlier``. A filename column containing several original names separated by semicolons is searched as one string, so a contains pattern can match any recorded name; a whole-value anchor applies to the entire combined string.",
+      "source_sha256": "90fb96e0a62a5e60c9d04aa9656d84465242ab647c638c38191763f84345a68a",
+      "original_ai_draft": "Använd Include för att välja gruppen och Exclude för att ta bort undantag, till exempel Include ``drug_A`` med Exclude ``failed|outlier``. En filnamnskolumn som innehåller flera originalnamn separerade med semikolon söks som en enda sträng, så ett innehållsmönster kan matcha vilket registrerat namn som helst; ett ankare för hela värdet gäller hela den kombinerade strängen.",
+      "reviewed_translation": "Använd Include för att välja gruppen och Exclude för att ta bort undantag, till exempel Include ``drug_A`` med Exclude ``failed|outlier``. En filnamnskolumn som innehåller flera originalnamn separerade med semikolon söks som en enda sträng, så ett innehållsmönster kan matcha vilket registrerat namn som helst; ett ankare för hela värdet gäller hela den kombinerade strängen.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Patterns search the chosen column's displayed string values. They are case-sensitive unless the expression includes a flag such as ``(?i)``. Use anchors when the whole value must match: ``^A0[1-3]$`` selects wells ``A01``, ``A02`` and ``A03``. ``.*`` includes all nonmissing values in the chosen column. A blank Include expression selects no rows automatically.",
+      "source_sha256": "f741f84d7134a3217129b724f82b19ee8f27674185bf869515acd3c11123620c",
+      "original_ai_draft": "Mönster söker i den valda kolumnens visade strängvärden. De är skiftlägeskänsliga om uttrycket inte innehåller en flagga som ``(?i)``. Använd ankare när hela värdet måste matcha: ``^A0[1-3]$`` väljer brunnarna ``A01``, ``A02`` och ``A03``. ``.*`` inkluderar alla värden som inte saknas i den valda kolumnen. Ett tomt Include-uttryck väljer inga rader automatiskt.",
+      "reviewed_translation": "Mönster söker i den valda kolumnens visade strängvärden. De är skiftlägeskänsliga om uttrycket inte innehåller en flagga som ``(?i)``. Använd ankare när hela värdet måste matcha: ``^A0[1-3]$`` väljer brunnarna ``A01``, ``A02`` och ``A03``. ``.*`` inkluderar alla värden som inte saknas i den valda kolumnen. Ett tomt Include-uttryck väljer inga rader automatiskt.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manual rows are added to the rows matched by Include. Exclude then removes matches from both sets, including rows you dropped manually. Missing metadata values do not match a regex; they can still be assigned manually.",
+      "source_sha256": "1a0f065d2fe082c441dca25faa0acfc82b6bef224b968f250857d0a4e64fa253",
+      "original_ai_draft": "Manuella rader läggs till raderna som matchas av Include. Exclude tar sedan bort matchningar från båda uppsättningarna, inklusive rader som du släppt manuellt. Saknade metadatavärden matchar inte ett regex; de kan ändå tilldelas manuellt.",
+      "reviewed_translation": "Manuella rader läggs till raderna som matchas av Include. Exclude tar sedan bort matchningar från båda uppsättningarna, inklusive rader som du släppt manuellt. Saknade metadatavärden matchar inte ett regex; de kan ändå tilldelas manuellt.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Select multiple rows in the source table and drag them into a condition box. Use Shift for a range and Ctrl/Cmd for individual rows. Sorting by a column or using **Filter source metadata or preview conditions** changes the visible view, while assignments still refer to the original source rows. The filter box is a case-insensitive text search, separate from the condition regex rules. Dropping a row twice into the same box does not duplicate its assignment.",
+      "source_sha256": "5317f1b5c8183fe89141345c095a346d9f7842b87b360f61c586466d8d78fc46",
+      "original_ai_draft": "Markera flera rader i källtabellen och dra dem till en villkorsruta. Använd Shift för ett intervall och Ctrl/Cmd för enskilda rader. Sortering efter en kolumn eller användning av **Filtermetadata eller förhandsgranskningsförhållanden** ändrar den synliga vyn, medan tilldelningarna fortfarande avser de ursprungliga källraderna. Filterrutan är en skiftlägesokänslig textsökning, skild från villkorens regexregler. Att släppa en rad två gånger i samma ruta duplicerar inte tilldelningen.",
+      "reviewed_translation": "Markera flera rader i källtabellen och dra dem till en villkorsruta. Använd Shift för ett intervall och Ctrl/Cmd för enskilda rader. Sortering efter en kolumn eller användning av **Filtrera källmetadata eller förhandsgranskade villkor** ändrar den synliga vyn, medan tilldelningarna fortfarande avser de ursprungliga källraderna. Filterrutan är en skiftlägesokänslig textsökning, skild från villkorens regexregler. Att släppa en rad två gånger i samma ruta duplicerar inte tilldelningen.",
+      "ui_bindings": {
+        "Filter source metadata or preview conditions": "Filtrera källmetadata eller förhandsgranskade villkor"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Use **Remove selected manual rows** or **Clear manual rows** to remove dropped memberships. An Include rule can still match those rows; change the rule or add an Exclude expression when they must leave the condition. **Remove condition** removes the whole box and its rules.",
+      "source_sha256": "c1d263671d4f88e38ab21b2160e64239289b3a0a35135b74f3dca2c3c11228d6",
+      "original_ai_draft": "Använd **Ta bort markerade manuella rader** eller **Rensa manuella rader** för att ta bort medlemskap från dragna rader. En Include-regel kan fortfarande matcha dessa rader; ändra regeln eller lägg till ett Exclude-uttryck när de måste lämna villkoret. **Ta bort tillstånd** tar bort hela rutan och dess regler.",
+      "reviewed_translation": "Använd **Ta bort markerade manuella rader** eller **Rensa manuella rader** för att ta bort medlemskap från dragna rader. En Include-regel kan fortfarande matcha dessa rader; ändra regeln eller lägg till ett Exclude-uttryck när de måste lämna villkoret. **Ta bort villkor** tar bort hela rutan och dess regler.",
+      "ui_bindings": {
+        "Remove selected manual rows": "Ta bort markerade manuella rader",
+        "Clear manual rows": "Rensa manuella rader",
+        "Remove condition": "Ta bort villkor"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "A row may receive only one distinct label within each annotation column. If boxes assign different labels to it, the preview shows those competing labels and **Apply conditions** stays disabled. Adjust the include/exclude patterns or manual assignments until the overlap count is zero. No condition silently wins. Unmatched rows remain blank in the output column and remain present in the table.",
+      "source_sha256": "3669165734ba3865f4d030298f6b62cddf4a01369b195276410a614ab83013c4",
+      "original_ai_draft": "En rad kan bara få en distinkt etikett inom varje annoteringskolumn. Om rutor tilldelar den olika etiketter visar förhandsgranskningen de konkurrerande etiketterna och **Tillämpa villkor** förblir avaktiverad. Justera include-/exclude-mönstren eller de manuella tilldelningarna tills antalet överlapp är noll. Inget villkor vinner tyst. Omatchade rader förblir tomma i utdatakolumnen och finns kvar i tabellen.",
+      "reviewed_translation": "En rad kan bara få en distinkt etikett inom varje annoteringskolumn. Om rutor tilldelar den olika etiketter visar förhandsgranskningen de konkurrerande etiketterna och **Tillämpa villkor** förblir avaktiverad. Justera include-/exclude-mönstren eller de manuella tilldelningarna tills antalet överlapp är noll. Inget villkor vinner tyst. Omatchade rader förblir tomma i utdatakolumnen och finns kvar i tabellen.",
+      "ui_bindings": {
+        "Apply conditions": "Tillämpa villkor"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reuse an annotation schema on another table",
+      "source_sha256": "01433562336c97ab7e3fee9f1c47d8fe764d2beeb40c7718d6405d18c729efa5",
+      "original_ai_draft": "Återanvänd ett annoteringsschema på en annan tabell",
+      "reviewed_translation": "Återanvänd ett annoteringsschema på en annan tabell",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Save schema** after the preview is valid. The JSON file retains the output-column names and order, extraction patterns and capture groups, matching rules, labels, and composition tokens. It contains the instructions for generating values, rather than a copy of the table or its generated values.",
+      "source_sha256": "bd83d7148ce0d61f3b8fe168d47155f8232e059489a8f115499c5008216ec645",
+      "original_ai_draft": "Välj **Spara schema** efter en giltig förhandsgranskning. JSON-filen behåller utdatakolumnernas namn och ordning, extraktionsmönster och fångstgrupper, matchningsregler, etiketter och sammansättningsbrickor. Den innehåller instruktionerna för att generera värden, inte en kopia av tabellen eller dess genererade värden.",
+      "reviewed_translation": "Välj **Spara schema** efter en giltig förhandsgranskning. JSON-filen behåller utdatakolumnernas namn och ordning, extraktionsmönster och fångstgrupper, matchningsregler, etiketter och sammansättningsbrickor. Den innehåller instruktionerna för att generera värden, inte en kopia av tabellen eller dess genererade värden.",
+      "ui_bindings": {
+        "Save schema": "Spara schema"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open another table, choose **Annotate conditions**, then **Load schema** and select the JSON file. The new table may have different rows and values, but must provide the columns referenced by the schema. All outputs are previewed against this table. Inspect the values and any overlapping assignments before choosing **Apply conditions**. Loading alone does not change the working table.",
+      "source_sha256": "8e7f243ddee4e48bb7fd7cc3c35652e89f0126d14b66c0d53d68cff81ce04b5d",
+      "original_ai_draft": "Öppna en annan tabell, välj **Anteckna villkor**, sedan **Ladda schema** och välj JSON-filen. Den nya tabellen kan ha andra rader och värden men måste innehålla de kolumner som schemat refererar till. Alla utdata förhandsgranskas mot denna tabell. Granska värdena och eventuella överlappande tilldelningar innan du väljer **Tillämpa villkor**. Enbart inläsning ändrar inte arbetstabellen.",
+      "reviewed_translation": "Öppna en annan tabell, välj **Annotera villkor**, sedan **Ladda schema** och välj JSON-filen. Den nya tabellen kan ha andra rader och värden men måste innehålla de kolumner som schemat refererar till. Alla utdata förhandsgranskas mot denna tabell. Granska värdena och eventuella överlappande tilldelningar innan du väljer **Tillämpa villkor**. Enbart inläsning ändrar inte arbetstabellen.",
+      "ui_bindings": {
+        "Annotate conditions": "Annotera villkor",
+        "Load schema": "Ladda schema",
+        "Apply conditions": "Tillämpa villkor"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Manually dragged row assignments are specific to their source table and are omitted from reusable schemas. The save result reports how many assignments were omitted. Manual-only condition boxes remain available as empty groups to fill for the new table. To preserve manual assignments for the original analysis, use **Save chart** or **Save annotated table…** instead.",
+      "source_sha256": "0a89a72ed4624345c77188b5697072dbccd2c74e1d55bc8fb020be5ef34c7440",
+      "original_ai_draft": "Manuellt dragna radtilldelningar hör till sin källtabell och utelämnas från återanvändbara scheman. Sparresultatet anger hur många tilldelningar som utelämnades. Villkorsrutor som bara använder manuella rader finns kvar som tomma grupper att fylla för den nya tabellen. För att bevara manuella tilldelningar för originalanalysen, använd i stället **Spara diagram** eller **Spara kommenterat bord...**.",
+      "reviewed_translation": "Manuellt dragna radtilldelningar hör till sin källtabell och utelämnas från återanvändbara scheman. Sparresultatet anger hur många tilldelningar som utelämnades. Villkorsrutor som bara använder manuella rader finns kvar som tomma grupper att fylla för den nya tabellen. För att bevara manuella tilldelningar för originalanalysen, använd i stället **Spara diagram** eller **Spara annoterad tabell…**.",
+      "ui_bindings": {
+        "Save chart": "Spara diagram",
+        "Save annotated table…": "Spara annoterad tabell…"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Malformed files, unsupported versions, unavailable columns, invalid patterns and invalid output dependencies leave the existing dialog draft unchanged. An existing source column cannot be overwritten by a schema output. Schema files are written atomically; saving a schema over the source table itself is refused. The file size limit is 8 MiB.",
+      "source_sha256": "0253fd2bc29fcc74e60e7dc6792756c53adf9a9e81524933af6b4ae6d3e8f49b",
+      "original_ai_draft": "Felaktiga filer, versioner som inte stöds, otillgängliga kolumner, ogiltiga mönster och ogiltiga utdataberoenden lämnar det befintliga dialogutkastet oförändrat. En befintlig källkolumn kan inte skrivas över av en schemautdatakolumn. Schemafiler skrivs atomärt; att spara ett schema över själva källtabellen nekas. Filstorleksgränsen är 8 MiB.",
+      "reviewed_translation": "Felaktiga filer, versioner som inte stöds, otillgängliga kolumner, ogiltiga mönster och ogiltiga utdataberoenden lämnar det befintliga dialogutkastet oförändrat. En befintlig källkolumn kan inte skrivas över av en schemautdatakolumn. Schemafiler skrivs atomärt; att spara ett schema över själva källtabellen nekas. Filstorleksgränsen är 8 MiB.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Keep conditions with the analysis",
+      "source_sha256": "a70fc2d79873e608521539b1a50af663cd9f96640577e0ea11b6256ddeb8ff56",
+      "original_ai_draft": "Behåll villkoren med analysen",
+      "reviewed_translation": "Behåll villkoren med analysen",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Reopen **Annotate conditions** to edit the current assignments. They survive table refreshes in the current Graph Builder session when the source is unchanged. Use **Save chart** to preserve the rules, manual assignments, output-column definitions and any merge definition with the chart. **Load chart** reconstructs the source and checks its identity before applying those labels.",
+      "source_sha256": "f3813160466dcf9c2c4224acde05d1c020ff4f93c15051a7cb76cc12ff684896",
+      "original_ai_draft": "Öppna **Anteckna villkor** igen för att redigera de aktuella tilldelningarna. De överlever tabelluppdateringar i den aktuella Graph Builder-sessionen när källan är oförändrad. Använd **Spara diagram** för att bevara regler, manuella tilldelningar, utdatakolumndefinitioner och eventuell sammanslagningsdefinition med diagrammet. **Ladda diagram** återskapar källan och kontrollerar dess identitet innan etiketterna tillämpas.",
+      "reviewed_translation": "Öppna **Annotera villkor** igen för att redigera de aktuella tilldelningarna. De överlever tabelluppdateringar i den aktuella Graph Builder-sessionen när källan är oförändrad. Använd **Spara diagram** för att bevara regler, manuella tilldelningar, utdatakolumndefinitioner och eventuell sammanslagningsdefinition med diagrammet. **Ladda diagram** återskapar källan och kontrollerar dess identitet innan etiketterna tillämpas.",
+      "ui_bindings": {
+        "Annotate conditions": "Annotera villkor",
+        "Save chart": "Spara diagram",
+        "Load chart": "Ladda diagram"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Saved conditions belong to the exact source table, including its row order, values and schema. Changed source data or a different merge definition requires reviewing and recreating the conditions. Sorting the dialog's view does not change that source identity. This check prevents saved manual selections from labelling unrelated rows after a source changes.",
+      "source_sha256": "88df7609be398b1081c73a201d0afbae294e8060055bac6f83c25b00b1978ea5",
+      "original_ai_draft": "Sparade villkor hör till den exakta källtabellen, inklusive radordning, värden och schema. Ändrade källdata eller en annan sammanslagningsdefinition kräver att villkoren granskas och återskapas. Sortering av dialogvyn ändrar inte denna källidentitet. Kontrollen förhindrar att sparade manuella urval etiketterar orelaterade rader när en källa ändras.",
+      "reviewed_translation": "Sparade villkor hör till den exakta källtabellen, inklusive radordning, värden och schema. Ändrade källdata eller en annan sammanslagningsdefinition kräver att villkoren granskas och återskapas. Sortering av dialogvyn ändrar inte denna källidentitet. Kontrollen förhindrar att sparade manuella urval etiketterar orelaterade rader när en källa ändras.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For a SQLite source, **Save annotated table…** saves the working values as a new physical table in the same database. The prompt **New table name (existing tables are preserved)** proposes the current table name followed by ``_annotated``. Existing tables, views and saved merged-table names cannot be overwritten; names beginning with ``sqlite_`` or ``_spacr_`` are reserved. This action adds a table and its annotation provenance while preserving the original measurement tables.",
+      "source_sha256": "fe835bc6b97298939c766006b989ce65c84e7e64323a13162b89b2d60feaab7a",
+      "original_ai_draft": "För en SQLite-källa sparar **Spara kommenterat bord...** arbetsvärdena som en ny fysisk tabell i samma databas. Dialogen **Nytt tabellnamn (befintliga tabeller bevaras)** föreslår det aktuella tabellnamnet följt av ``_annotated``. Befintliga tabeller, vyer och sparade namn på sammanfogade tabeller kan inte skrivas över; namn som börjar med ``sqlite_`` eller ``_spacr_`` är reserverade. Åtgärden lägger till en tabell och dess annoteringsproveniens samtidigt som originalmättabellerna bevaras.",
+      "reviewed_translation": "För en SQLite-källa sparar **Spara annoterad tabell…** arbetsvärdena som en ny fysisk tabell i samma databas. Dialogen **Nytt tabellnamn (befintliga tabeller bevaras)** föreslår det aktuella tabellnamnet följt av ``_annotated``. Befintliga tabeller, vyer och sparade namn på sammanfogade tabeller kan inte skrivas över; namn som börjar med ``sqlite_`` eller ``_spacr_`` är reserverade. Åtgärden lägger till en tabell och dess annoteringsproveniens samtidigt som originalmättabellerna bevaras.",
+      "ui_bindings": {
+        "Save annotated table…": "Spara annoterad tabell…",
+        "New table name (existing tables are preserved)": "Nytt tabellnamn (befintliga tabeller bevaras)"
+      }
+    },
+    {
+      "domain": "table_workflows",
+      "source": "The saved table is selected in the picker and can be loaded in other table screens, including Gate Editor. It contains a snapshot of the annotated values, unlike a derived merge that is recalculated from its inputs. Reopening it in Graph Builder restores editable condition rules when the saved rows and schema are unchanged. Save revised values under a new table name. Changed saved data are still readable, but old editable rules are not silently restored onto them. Image-specific actions continue to require appropriate object provenance.",
+      "source_sha256": "54d5a9423ed60c393d69c62d296d18381b4370227db393816e85a372705732ab",
+      "original_ai_draft": "Den sparade tabellen väljs i tabellväljaren och kan läsas in i andra tabellskärmar, inklusive Gate Editor. Den innehåller en ögonblicksbild av de annoterade värdena, till skillnad från en härledd sammanslagning som räknas om från sina indata. När den öppnas igen i Graph Builder återställs redigerbara villkorsregler om sparade rader och schema är oförändrade. Spara ändrade värden under ett nytt tabellnamn. Ändrade sparade data kan fortfarande läsas, men gamla redigerbara regler återställs inte tyst på dem. Bildspecifika åtgärder kräver fortfarande lämplig objektproveniens.",
+      "reviewed_translation": "Den sparade tabellen väljs i tabellväljaren och kan läsas in i andra tabellskärmar, inklusive Gate Editor. Den innehåller en ögonblicksbild av de annoterade värdena, till skillnad från en härledd sammanslagning som räknas om från sina indata. När den öppnas igen i Graph Builder återställs redigerbara villkorsregler om sparade rader och schema är oförändrade. Spara ändrade värden under ett nytt tabellnamn. Ändrade sparade data kan fortfarande läsas, men gamla redigerbara regler återställs inte tyst på dem. Bildspecifika åtgärder kräver fortfarande lämplig objektproveniens.",
+      "ui_bindings": {}
+    },
+    {
+      "domain": "table_workflows",
+      "source": "**Export table…** writes the working table, including every annotation column, to a new CSV and records its source, merge definition and condition rules in ``<export>.csv.conditions.json``. It exports the working table rather than just a brushed selection. The original database or imported file is preserved, and exporting over that source path is refused. Reopening the CSV gives you its saved labels; use the saved chart to reopen the original source and editable condition rules.",
+      "source_sha256": "84eda5b7ce75960b3766d612a8671a3475a5041706ad15dff9770a4fad74d18a",
+      "original_ai_draft": "**Exportera tabell...** skriver arbetstabellen, inklusive varje annoteringskolumn, till en ny CSV och registrerar källa, sammanslagningsdefinition och villkorsregler i ``<export>.csv.conditions.json``. Den exporterar arbetstabellen och inte bara ett markerat urval. Originaldatabasen eller den importerade filen bevaras, och export över den källsökvägen nekas. När CSV-filen öppnas igen får du dess sparade etiketter; använd det sparade diagrammet för att öppna originalkällan och de redigerbara villkorsreglerna igen.",
+      "reviewed_translation": "**Exportera tabell...** skriver arbetstabellen, inklusive varje annoteringskolumn, till en ny CSV och registrerar källa, sammanslagningsdefinition och villkorsregler i ``<export>.csv.conditions.json``. Den exporterar arbetstabellen och inte bara ett markerat urval. Originaldatabasen eller den importerade filen bevaras, och export över den källsökvägen nekas. När CSV-filen öppnas igen får du dess sparade etiketter; använd det sparade diagrammet för att öppna originalkällan och de redigerbara villkorsreglerna igen.",
+      "ui_bindings": {
+        "Export table…": "Exportera tabell..."
+      }
+    }
+  ]
+}

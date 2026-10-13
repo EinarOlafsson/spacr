@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review of exact guide control names against the current runtime glossary. Existing surrounding prose retained; no native-speaker signoff.",
+  "runtime_catalog_sha256": "e0d1c9ce333be0e8eebf6ae829d4b80d5a3b9126df760ba6058a4ac1cd7fc857",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes.",
+      "source_sha256": "720f6259f87dbb0f24309cd0a5b2aec96ecfe078f0b2e41d309ea314073c1aa8",
+      "original_translation": "**Musgravitationens radie** anger det påverkade området som procent av skärmens kortare sida. Standardvärdet är **0**, vilket stänger av musens påverkan. Använd **Animationstäthet** för att ändra antalet element och **Animeringsuppgifter** för att ändra ritupplösningen. Täthet och detaljnivå delar renderarens arbetsbudget. Tryck på **Spara** för att behålla ändrade inställningar.",
+      "target": "**Musgravitationens radie** anger det påverkade området som procent av skärmens kortare sida. Standardvärdet är **0**, vilket stänger av musens påverkan. Använd **Animationstäthet** för att ändra antalet element och **Animationsdetaljer** för att ändra ritupplösningen. Täthet och detaljnivå delar renderarens arbetsbudget. Tryck på **Spara** för att behålla ändrade inställningar.",
+      "ui_replacements": {
+        "Animeringsuppgifter": "Animationsdetaljer"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels.",
+      "source_sha256": "60d112d175fb6e3e270b795429caa5e63e83ef498efec25e69c53940ec8ef9f7",
+      "original_translation": "Draw ritar en frihandskontur som sluts och fylls som ett enda objekt -- till skillnad från en pensel, som stämplar skivor längs banan: när du följer en kant märks kanten, medan mitten förblir bakgrund. **Divide / Merge** delar ett objekt med en linje som dras med vänster musknapp: den större delen behåller sitt ID och den mindre får ett nytt. Dra en linje över objekt med höger musknapp för att slå samman dem under det först korsade ID:t, utan att måla bakgrunden mellan dem. Andra objekt behåller sina etiketter.",
+      "target": "Draw ritar en frihandskontur som sluts och fylls som ett enda objekt -- till skillnad från en pensel, som stämplar skivor längs banan: när du följer en kant märks kanten, medan mitten förblir bakgrund. **Dela / Slå samman** delar ett objekt med en linje som dras med vänster musknapp: den större delen behåller sitt ID och den mindre får ett nytt. Dra en linje över objekt med höger musknapp för att slå samman dem under det först korsade ID:t, utan att måla bakgrunden mellan dem. Andra objekt behåller sina etiketter.",
+      "ui_replacements": {
+        "Divide / Merge": "Dela / Slå samman"
+      }
+    }
+  ]
+}

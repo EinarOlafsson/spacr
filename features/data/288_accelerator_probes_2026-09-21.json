@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "f8fccb96f",
+  "scope": "targeted statement and branch coverage; not a full-suite verdict",
+  "source_path": "spacr/accelerator.py",
+  "source_sha256": "dc62ecf53db77565f81cc0e155aaaec61925f6a0af0d8501a7ea81f99557d303",
+  "coverage_json_sha256": "6e8e55f9dbb3a9807e8869756076f27a2e37f4aeeb0a263eb6c575f26a0d40c9",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 281,
+    "num_statements": 287,
+    "percent_covered": 97.03504043126685,
+    "percent_covered_display": "97.04",
+    "missing_lines": 6,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.90940766550523,
+    "percent_statements_covered_display": "97.91",
+    "num_branches": 84,
+    "num_partial_branches": 5,
+    "covered_branches": 79,
+    "missing_branches": 5,
+    "percent_branches_covered": 94.04761904761905,
+    "percent_branches_covered_display": "94.05"
+  },
+  "missing_lines": [
+    207,
+    310,
+    348,
+    349,
+    635,
+    644
+  ],
+  "missing_branches": [
+    [
+      206,
+      207
+    ],
+    [
+      267,
+      278
+    ],
+    [
+      309,
+      310
+    ],
+    [
+      634,
+      635
+    ],
+    [
+      643,
+      644
+    ]
+  ],
+  "validation": {
+    "passed": 70,
+    "seconds": 16.11,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/test_accelerator_probe_failures.py",
+      "tests/test_the_accelerator_resolver.py",
+      "tests/test_an_intel_mac_is_told_why_metal_is_no_use.py",
+      "tests/test_the_hardware_table_matches_the_resolver.py",
+      "tests/test_the_doctor_names_a_non_nvidia_accelerator.py"
+    ],
+    "log_sha256": "d8a15e0399d942af03a519c1975783b2cb9a933a0e86c512f4324230eb2632f5",
+    "test_sha256": {
+      "tests/test_accelerator_probe_failures.py": "d7e38c334d4d332d6a8245c41b92efba8655858a384e51e838f47153aa88a12d",
+      "tests/test_the_accelerator_resolver.py": "69e3d11b110d867a034c07b978bcb1e78c395694d6891c56750033a6489f293b",
+      "tests/test_an_intel_mac_is_told_why_metal_is_no_use.py": "4a055140011f66a8b7ae0c1987806d362855d3eb1a4a805b7dee6c3bf714b2bd",
+      "tests/test_the_hardware_table_matches_the_resolver.py": "1331a2a777de7e7827411aaab2b377ea91c78e5d39eb37736df659ee9019b1b5",
+      "tests/test_the_doctor_names_a_non_nvidia_accelerator.py": "ba8e5137de51cd4691c906c2408984b2fd014f46d0624edd0a2a657c023af9f3"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Backend drivers, marketing-name probes and allocations are simulated; this is not hardware compatibility or performance validation."
+  ]
+}

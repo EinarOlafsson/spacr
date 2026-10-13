@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third pass 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How the fitted model is judged: cross-validation and the held-out plate, the evaluation report with its calibration curve and bins, the score threshold that turns a score into a call, and the leakage audit that checks train and test share no object. Shared by both classifier families.",
+      "source": "How the fitted model is judged: cross-validation and the held-out plate, the evaluation report with its calibration curve and bins, the score threshold that turns a score into a call, and the leakage audit that checks train and test share no object. Shared by both classifier families.",
+      "source_sha256": "ffc7807f0905c2f10c577b9ff22b3af50fc3c1aad85959dde287255bbdce862e",
+      "translation": "Cómo se evalúa el modelo ajustado: la validación cruzada y la placa reservada, el informe de evaluación con su curva de calibración y sus intervalos, el umbral de puntuación que convierte una puntuación en una asignación, y la auditoría de fugas que comprueba que entrenamiento y prueba no compartan ningún objeto. Común a ambas familias de clasificadores."
+    },
+    {
+      "table": "categories",
+      "key": "The random seed that fixes the split and the initialisation, how many workers load the crops and whether they pin memory, how much the run prints, and how many failed items it tolerates. Fix the seed when two runs have to be compared.",
+      "source": "The random seed that fixes the split and the initialisation, how many workers load the crops and whether they pin memory, how much the run prints, and how many failed items it tolerates. Fix the seed when two runs have to be compared.",
+      "source_sha256": "bbb33de33b5b7b565e163901981e136bc2038a8e248623bf900e3bc591f81475",
+      "translation": "La semilla aleatoria que fija la división y la inicialización, cuántos procesos de trabajo cargan los recortes y si fijan la memoria, cuánto imprime la ejecución y cuántos elementos fallidos tolera. Fije la semilla cuando haya que comparar dos ejecuciones."
+    },
+    {
+      "table": "categories",
+      "key": "What the run writes and draws once the model is fitted: the plots, the top-scoring example crops, TensorBoard logs, intermediate checkpoints and, for the tabular model, the heatmap. Change these for what you want to look at afterwards; none of them changes the model.",
+      "source": "What the run writes and draws once the model is fitted: the plots, the top-scoring example crops, TensorBoard logs, intermediate checkpoints and, for the tabular model, the heatmap. Change these for what you want to look at afterwards; none of them changes the model.",
+      "source_sha256": "a61a98e0a960a1cc9080c896cc157c785ca3cee12b45510247888ef7cdd986cd",
+      "translation": "Lo que la ejecución escribe y dibuja una vez ajustado el modelo: los gráficos, los recortes de ejemplo con mayor puntuación, los registros de TensorBoard, los puntos de control intermedios y, para el modelo tabular, el mapa de calor. Cámbielos según lo que quiera examinar después; ninguno de ellos modifica el modelo."
+    }
+  ]
+}

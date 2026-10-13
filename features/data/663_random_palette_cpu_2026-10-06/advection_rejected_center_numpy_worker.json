@@ -1,0 +1,144 @@
+{
+  "source_commit": "candidate-on-0fb0c875a3",
+  "source_sha256": "974a6a87984f390018355f59429e5d379e0069b06874531b026a39e8db288b74",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/random-palette-final/after.py",
+  "variant": "after",
+  "theme": "data_art_genetic_advection",
+  "label": "spaCR advection",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 1.0,
+    "size": 1.0,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "random",
+    "colors": [
+      "#e17247",
+      "#46e29e",
+      "#cb45e3",
+      "#cfe445",
+      "#44a2e5",
+      "#e64474",
+      "#46e743",
+      "#6f42e8",
+      "#e99e42",
+      "#41eace",
+      "#eb41d7",
+      "#a7ec40",
+      "#3f76ed",
+      "#ee3f44",
+      "#3eef6a",
+      "#9d3df0",
+      "#f1d03c",
+      "#3ce0f2",
+      "#f33bac",
+      "#78f43a",
+      "#3a43f5",
+      "#f66539",
+      "#38f79b",
+      "#d137f8",
+      "#e9f937",
+      "#36b2fa",
+      "#fb357a",
+      "#42fc34",
+      "#5f34fd",
+      "#fe9833",
+      "#2ce1ba",
+      "#e22bd6"
+    ]
+  },
+  "qt_platform": "xcb",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 293732,
+    "widget_show_ms": 147.07574699423276,
+    "post_show_seconds": 2.001055967004504,
+    "post_show_published_frames": 36,
+    "post_show_published_fps": 17.990501312109963,
+    "worker_shade": {
+      "median_ms": 51.6190904963878,
+      "p95_ms": 78.40972099802457,
+      "max_ms": 105.06394899857696,
+      "samples": 36
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.142992992768995,
+      "p95_ms": 22.740603002603166,
+      "max_ms": 30.194753999239765,
+      "samples": 177
+    },
+    "compile_ready": false,
+    "compile_failed": false,
+    "colored_compile_ready": false,
+    "colored_compile_failed": false,
+    "rss_peak_kib": 355752
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.000567807001062,
+      "published_frames": 74,
+      "published_fps": 14.79831948211882,
+      "distinct_published_clocks": 74,
+      "first_clock": 10.231999999999996,
+      "clock_advance": 4.98,
+      "painted_fps": 24.397229416466164,
+      "repeated_frame_objects": 49,
+      "worker_shade": {
+        "median_ms": 65.96811200142838,
+        "p95_ms": 101.29830299410969,
+        "max_ms": 118.15639201086015,
+        "samples": 74
+      },
+      "gui_paint": {
+        "median_ms": 11.922170000616461,
+        "p95_ms": 17.02456000202801,
+        "max_ms": 28.16971299762372,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.146761997020803,
+        "p95_ms": 22.233516996493563,
+        "max_ms": 36.19011699629482,
+        "samples": 437
+      },
+      "publication_intervals": {
+        "median_ms": 65.94533199677244,
+        "p95_ms": 98.61282299971208,
+        "max_ms": 115.08005099312868,
+        "samples": 73
+      },
+      "lightning_worker_shades": null,
+      "load_average": [
+        4.31298828125,
+        3.48583984375,
+        3.01806640625
+      ],
+      "current_rss_kib": 261400
+    }
+  ],
+  "frame_sha256": "c94874de69c0c17091c9d6b9fce9d7fd36d3a28deaec690edc1161e25c4a1571",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 420852,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "1f0fbab1888823a643fb7b1e60eae82e17ec3a4b1aa674c163c0a69bc2a8c5f0",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

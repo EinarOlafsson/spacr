@@ -1,0 +1,56 @@
+{
+  "sv": {
+    "exit_code": 0,
+    "elapsed_seconds": 11.13,
+    "html_pages": 36,
+    "measure_page_sha256": "87ab5f15b5dd6138e95c7d70f7b3d2563bbdb76528bd535263460b382de7d2e3"
+  },
+  "de": {
+    "exit_code": 0,
+    "elapsed_seconds": 11.35,
+    "html_pages": 36,
+    "measure_page_sha256": "5cde47664d7a5385e3a82ba720d662bd7e1d0cbdb8092bc3495269fde87b19ce"
+  },
+  "es": {
+    "exit_code": 0,
+    "elapsed_seconds": 10.94,
+    "html_pages": 36,
+    "measure_page_sha256": "7252bd5fa5a8995595ea913ea20ceba670fab80e81d327c1248b9a4ea24b7e08"
+  },
+  "pt": {
+    "exit_code": 0,
+    "elapsed_seconds": 11.31,
+    "html_pages": 36,
+    "measure_page_sha256": "1c0095fb7d1115c6e81bceabf99826245516d8b1c401b7ae06ffe047f4beec95"
+  },
+  "fr": {
+    "exit_code": 0,
+    "elapsed_seconds": 11.79,
+    "html_pages": 36,
+    "measure_page_sha256": "cbae64080208bfbcec88eefe47d7df5e5fc76231927da9c447fee340ddd6f7ad"
+  },
+  "is": {
+    "exit_code": 0,
+    "elapsed_seconds": 11.03,
+    "html_pages": 36,
+    "measure_page_sha256": "548c87635f3b1f6e43256fb492cc13d9de4472240f3df65234094d384aec4f4f"
+  },
+  "zh_CN": {
+    "exit_code": 0,
+    "elapsed_seconds": 10.61,
+    "html_pages": 36,
+    "measure_page_sha256": "34f236ed19fbac2da433fac252aa9b954ea9902433d65f20b17741c2110a3be3"
+  },
+  "ko": {
+    "exit_code": 0,
+    "elapsed_seconds": 10.73,
+    "html_pages": 36,
+    "measure_page_sha256": "cc67dc50f2d6db26d8728ba04aaa9c307ad65cb6fcf2c98bd4b17a22361dc475"
+  },
+  "hi": {
+    "exit_code": 0,
+    "elapsed_seconds": 10.64,
+    "html_pages": 36,
+    "measure_page_sha256": "e6f36885c3a7954f658c696d51a9b4da0457b44977a0193e724744838b57b9a1"
+  }
+}

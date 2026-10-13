@@ -1,0 +1,63 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B), protein (G) order, and set ``normalize=False``. Extracted image regions must be at least 16 pixels in each spatial dimension. Native dimensions are preserved; the encoder applies the authors' whole-extracted image region min-max normalization.",
+      "label": "spacr.embeddings.EmbeddingSpec#1",
+      "source": "For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B), protein (G) order, and set ``normalize=False``. Crops must be at least 16 pixels in each spatial dimension. Native dimensions are preserved; the encoder applies the authors' whole-crop min-max normalization.",
+      "source_sha256": "3f998fedd8b65104d670625a22b252810820df4082091259ee527bce7118c5db",
+      "translation": "Fyrir ``subcell_rybg`` skal velja :data:`CHANNEL_PROJECT`, tilgreina fjögur aðskilin ``channels`` sérstaklega í röðinni örpíplur (R), ER (Y), DNA (B), prótein (G), og stilla ``normalize=False``. Hver rúmvídd skurðar verður að vera að minnsta kosti 16 pixlar. Upprunalegum víddum er haldið; kóðarinn beitir lágmarks-hámarksstöðlun höfunda á allan skurðinn."
+    },
+    {
+      "context": "Name of a timm or registered foundation encoder.",
+      "label": "spacr.embeddings.EmbeddingSpec#2",
+      "source": "Name of a timm or registered foundation encoder.",
+      "source_sha256": "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
+      "translation": "Heiti timm-kóðara eða skráðs grunnlíkanakóðara."
+    },
+    {
+      "context": "Encode ``(n, h, w, k)`` extracted image regions in model-appropriate batches.",
+      "label": "spacr.embeddings._foundation_encoder.run#0",
+      "source": "Encode ``(n, h, w, k)`` crops in model-appropriate batches.",
+      "source_sha256": "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
+      "translation": "Kóða skurði með lögunina ``(n, h, w, k)`` í lotum sem henta líkaninu."
+    },
+    {
+      "context": "float32 extracted image regions, image-channel-last. SubCell R/Y/B/G uses native intensity values; other foundations expect [0, 1].",
+      "label": "spacr.embeddings._foundation_encoder.run#1",
+      "source": "float32 crops, channels last. SubCell R/Y/B/G uses native intensity values; other foundations expect [0, 1].",
+      "source_sha256": "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
+      "translation": "float32-skurðir með rásir í síðustu vídd. SubCell R/Y/B/G notar upprunaleg styrkgildi; önnur grunnlíkön búast við [0, 1]."
+    },
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "Úr ``(n, k, h, w)`` í ``(n, 1536)``, með hausana tvo samtengda."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "Vistun líkansins ákvarðar hvort ``k`` táknar tvær eða fjórar rásir."
+    },
+    {
+      "context": "Min-max scale the expected model image layers, then encode.",
+      "label": "spacr.embeddings._subcell_model.forward#0",
+      "source": "Min-max scale the expected model planes, then encode.",
+      "source_sha256": "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd",
+      "translation": "Lágmarks-hámarksstaðla myndplönin sem líkanið gerir ráð fyrir og kóða síðan."
+    },
+    {
+      "context": "Store only a complete four-index choice, then close.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping#0",
+      "source": "Store only a complete four-index choice, then close.",
+      "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
+      "translation": "Vista aðeins fullbúið val fjögurra vísitalna og loka síðan."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review of native four-plane mapping, spatial minimum, original intensities and normalization; no native-speaker signoff.",
+  "schema": 1
+}

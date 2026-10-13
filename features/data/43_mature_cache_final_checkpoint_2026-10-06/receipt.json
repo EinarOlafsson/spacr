@@ -1,0 +1,19 @@
+{
+  "commit": "1408ccc0f37617ab03d5b8fed1c3c0506bfa6041",
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/io.py": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+    "spacr/object.py": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+    "spacr/core.py": "7dd588247aa6c55d458eee90d90d7900989acc38cf0940b95a54c9a75fbe4ab2",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7",
+    "tests/test_qt_serial_rss_journal.py": "58ab6adf877c47631ac86f864ca9f248d7c961e6d1950f53981520ab46267154"
+  },
+  "results": {
+    "cache_ownership_geometry_phases": "49 passed in 13.89s",
+    "passive_cached_widget_journal": "16 passed in 5.79s"
+  },
+  "limits": "4GiB cap, CUDA hidden, offscreen Qt; no whole local suite",
+  "remaining": "Hosted green CI, numerical coverage, full serial acceptance, installed Save crash and hard24FPS"
+}

@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "source": "008dab8ad484c4864c0be71c391a19441f0b05dd",
+  "payloads_verified": 17,
+  "receipt_sha256": "3fb5b12f62d42ffb6f7365a99dbc99280fe7259dc7026eebed196d70d203eb18",
+  "source_bindings_exact_0b": true,
+  "uncapped_threads": {
+    "native_signal": "SIGABRT",
+    "passed_before_stop": 10,
+    "active_node": "test_native_sources_changed_during_detection_cannot_publish_a_result[image]",
+    "detection": "glibc malloc_consolidate unaligned fastbin; main-thread allocation in Python coverage update_instrumentation_data",
+    "gdb_exit": 0,
+    "verdict": "NATIVE FAILURE; GDB command exit0 is not inferior success."
+  },
+  "host_threads": {
+    "passed": 12,
+    "pytest_seconds": 11.31,
+    "inferior_exited_normally": true
+  },
+  "host_threads_debug_allocator": {
+    "passed": 12,
+    "pytest_seconds": 12.52,
+    "inferior_exited_normally": true
+  },
+  "direct_host_threads": {
+    "passed": 12,
+    "pytest_seconds": 11.0,
+    "exit": 0
+  },
+  "raw_detection_verification": "Actual SIGABRT and malloc_consolidate unaligned detection in raw GDB stack; GDB truncates the remaining error-string suffix. No native cause/cure established.",
+  "limitations": [
+    "Heap detection site does not establish corruption origin. One success per control is not proof thread caps cure it.",
+    "Uncapped initial GDB run spawned roughly88 threads, mostly OpenBLAS, unlike hosted OMP/MKL/OPENBLAS=1.",
+    "Earlier actual hosted parent-source SIGSEGV on Qt6.11.2 is separate from this local Qt6.12 image-node SIGABRT.",
+    "No full long-order/xdist reproduction or numerical coverage acceptance. No source/pin/GC/guard change."
+  ]
+}

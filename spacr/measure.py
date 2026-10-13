@@ -1,0 +1,12619 @@
+"""Turn masks and channels into one row per object, in a database.
+
+What it is for: segmentation gives the location of each object; this module
+measures its shape, intensity, texture and spatial context. It reads the
+arrays Mask wrote and produces the per-object table that downstream analyses
+use -- which genes changed a phenotype, which cells to train a classifier on,
+which wells are reliable.
+
+What it needs: a ``merged/`` folder written by
+:func:`spacr.core.preprocess_generate_masks`: the intensity channels and the
+label masks for one field, saved together as ``.npy``. Which masks to measure
+is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``,
+``pathogen_mask_dim`` and the organelle slots -- and an object with no mask
+dimension is not measured, rather than measured as empty.
+
+What it produces:
+
+* ``measurements/measurements.db``, one SQLite table per object type, one row
+  per object, keyed by the plate/row/column/field/object identity
+  :mod:`spacr.schema` composes. The columns are shape, intensity, texture and
+  SPATIAL features -- how many neighbours an object has within a radius, how
+  far the nearest one is, what fraction of its border touches another.
+* Optionally, one PNG per object (``save_png``), cropped by the mask. Those
+  crops are what :func:`spacr.deep_spacr.deep_spacr` trains on and what
+  Annotate shows, which is why the cropping lives here rather than beside the
+  classifier: they must be cut by the same mask the measurements came from.
+
+What to do next: Annotate or Classify, if the crops were written, or
+Regression, to test which perturbation changed which measurement. Both read
+the database this module writes and neither re-measures anything.
+
+--------------------------------------------------------------------------
+
+Three behaviours that downstream results depend on:
+
+A field that fails to measure is recorded, summarised at the end of the run
+and stamped into the database. Without that record a regression could
+analyse 344 of 384 wells and report a result with no sign that forty are
+missing; for the same reason the 3-D path refuses a volume it cannot measure
+correctly instead of measuring it wrongly.
+
+The 2-D path is bit-identical to the code before 3-D support. Mask can emit
+``(Z, Y, X)`` label volumes (see :mod:`spacr.zstack`), and the voxel spacing,
+volume columns and units stamp exist so that a 3-D field is measured in
+physical units or refused. A 2-D field runs the same code as before, with
+``spacing=None``, so a screen re-measured today produces the same numbers as
+when it was first measured.
+
+The radius is part of the column name. ``neighbors_within_30`` is a different
+column from ``neighbors_within_50``, following the same precedent as
+``homogeneity_distance_<d>``, so two plates measured at different radii will
+not silently concatenate into one frame that means two things.
+
+Illumination correction and a user-drawn ROI reach this module through the
+registries in :mod:`spacr.measure_hooks` rather than by editing it. Both are
+empty by default and both entry points return their input unchanged when they
+are, so an ordinary run is byte-identical to one from before they existed.
+"""
+
+import os, cv2, time, sqlite3, threading, traceback, shutil, inspect, contextlib
+import json
+import re
+import numpy as np
+import pandas as pd
+from collections import defaultdict
+from dataclasses import dataclass, field as dataclasses_field
+from typing import Dict, List, Optional, Tuple
+from scipy.stats import pearsonr, skew, kurtosis, mode
+import multiprocessing as mp
+from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve, find_objects
+from scipy.spatial import cKDTree
+from skimage.measure import regionprops, regionprops_table, shannon_entropy
+from skimage.exposure import rescale_intensity
+from skimage.segmentation import find_boundaries, expand_labels
+from skimage.feature import graycomatrix, graycoprops
+from skimage import morphology, measure, filters
+from skimage.util import img_as_bool
+import matplotlib.pyplot as plt
+from .figure_sink import _show_if_interactive
+from math import ceil, sqrt
+
+from .crops import (
+    DEFAULT_MASK_DIMS,
+    MASK_PLANE_ORDER,
+    build_png_channels,
+    narrow_to_uint8,
+    reconcile_merged_mask_dims,
+    read_merged_plane_layout,
+    resolve_png_channel_mapping,
+    stamp_crop_folder,
+    to_cv2_bgr,
+)
+from . import settings as _settings_module
+settings = _settings_module
+from . import measurement_schema as _measurement_schema
+MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
+from .errors import RunLedger, ConfigurationError, raise_if_strict
+from .runctx import run_context, _DeferredOverloadRetries, _is_overload_failure
+from .resource_log import (_max_safe_workers, _ram_plan, _ram_reserve_bytes,
+                           _ram_snapshot, _parallel_pool)
+from .resume import plan_measure_resume
+from .measure_hooks import (
+    MeasurementHookError,
+    PreprocessingContext,
+    RegionContext,
+    apply_preprocessing_hooks,
+    apply_region_filter_hooks,
+    preprocessing_hooks,
+    region_filter_hooks,
+    register_preprocessing_hook,
+    register_region_filter_hook,
+    unregister_preprocessing_hook,
+    unregister_region_filter_hook,
+    warn_if_hooks_will_not_reach_workers,
+)
+from .object_roles import ORGANELLE_ROLES, SEGMENTED_ROLES
+from .intensity_rescale import (
+    CALIBRATION_SETTINGS_KEY,
+    PLAN_SETTINGS_KEY,
+    _apply_calibration as _apply_intensity_calibration,
+    _build_calibration_plan as _build_intensity_calibration_plan,
+    build_plate_plan,
+    mask_planes as _intensity_mask_planes,
+    needs_warning as _intensity_scale_needs_warning,
+    resolve_record as _resolve_intensity_rescale_record,
+)
+
+from .figures.style import _figure_axes, figure_style, theme_target, resolve_ink
+
+
+
+#: The morphology properties a 2-D run measures. Unchanged from before 3-D
+#: support existed; :data:`PROPS_2D_ONLY` is what a 3-D run drops from it.
+MORPHOLOGICAL_PROPS = [
+    'label', 'area', 'area_filled', 'area_bbox', 'convex_area',
+    'major_axis_length', 'minor_axis_length', 'eccentricity', 'solidity',
+    'extent', 'perimeter', 'euler_number', 'equivalent_diameter_area',
+    'feret_diameter_max',
+]
+
+#: regionprops properties skimage implements for 2-D only. Asking for either on
+#: a 3-D label volume raises ``NotImplementedError`` *for the whole
+#: regionprops_table call*, so one 2-D-only name in the list costs every other
+#: property too. A 3-D run drops them, which makes them absent rather than
+#: wrong -- there is no meaningful 3-D "eccentricity" of a solid, and skimage's
+#: 2-D ``perimeter`` is a boundary length, whose 3-D analogue is a surface area
+#: in different units and must not share the name.
+PROPS_2D_ONLY = ('eccentricity', 'perimeter')
+
+#: 2-D run: raw pixels, exactly as spaCR has always written.
+UNITS_PX = 'px'
+#: 3-D run with a known ``anisotropy`` but no physical voxel size. Lengths are
+#: in xy-pixel units and z has been scaled by ``dz/dxy``, so the numbers are
+#: anisotropy-corrected but not physical.
+UNITS_PX_XY = 'px_xy'
+#: 3-D run with a known ``voxel_size_z_um``/``voxel_size_xy_um``. Lengths in
+#: um, areas in um^2, volumes in um^3.
+UNITS_UM = 'um'
+
+def _ndim_of(mask):
+    """Return the number of spatial dimensions of a label mask (2 or 3)."""
+    return int(np.asarray(mask).ndim)
+
+
+#: Cores left free when spaCR picks the worker count itself, so an interactive
+#: machine stays usable during a measure run.
+N_JOBS_HEADROOM = 4
+
+#: Environment variable that overrides the multiprocessing start method the
+#: measure pool runs in. Accepts any name :func:`multiprocessing.get_context`
+#: accepts on the platform -- ``fork``, ``spawn`` or ``forkserver``. Unset (the
+#: normal case) means "whatever this interpreter's default is", which is
+#: ``fork`` on Linux today, ``spawn`` on Windows and macOS.
+START_METHOD_ENV_VAR = 'SPACR_START_METHOD'
+
+
+def _pool_context():
+    """Return the multiprocessing context :func:`measure_crop` runs its pool in.
+
+    spaCR deliberately does **not** call ``set_start_method(force=True)`` here.
+    That mutates ``multiprocessing._default_context`` for the whole
+    interpreter, irreversibly and invisibly to whoever imported spaCR, and it
+    is what makes the start method impossible to reason about once the Tk GUI
+    has been opened once. Taking a context object instead keeps the decision
+    local to this pool.
+
+    With :data:`START_METHOD_ENV_VAR` unset this returns the
+    :mod:`multiprocessing` module itself rather than a context object. That is
+    not laziness: ``mp.Pool`` / ``mp.Manager`` are then looked up exactly as
+    they were before this function existed, so the default behaviour -- and
+    anything that patches those two names -- is unchanged. A context is only
+    substituted when a start method was asked for explicitly.
+
+    :returns: an object exposing ``Pool``, ``Manager`` and ``get_start_method``
+        -- either a :class:`multiprocessing.context.BaseContext` or the
+        :mod:`multiprocessing` module.
+    """
+    method = os.environ.get(START_METHOD_ENV_VAR, '').strip().lower()
+    if not method:
+        return mp
+    try:
+        return mp.get_context(method)
+    except ValueError:
+        print(f"WARNING: {START_METHOD_ENV_VAR}={method!r} is not a "
+              f"multiprocessing start method on this platform; using the "
+              f"default ({mp.get_start_method()}).")
+        return mp
+
+
+def _measure_pool_context(settings):
+    """Return the pool context for a Measure run with these ``settings``.
+
+    With ``measure_gpu`` on and no start method asked for through
+    :data:`START_METHOD_ENV_VAR`, the workers are started with ``spawn``: a
+    CUDA context cannot be re-initialised in a forked child, so every forked
+    worker would fail the moment it touched the GPU. Otherwise this is
+    :func:`_pool_context`.
+    """
+    if (settings.get('measure_gpu', False)
+            and not os.environ.get(START_METHOD_ENV_VAR, '').strip()):
+        return mp.get_context('spawn')
+    return _pool_context()
+
+
+class ManagerStartError(ConfigurationError):
+    """Raised when Measure cannot start its multiprocessing manager.
+
+    The exception message reports the active start method, underlying error,
+    and practical remedies. No fields are measured after this error.
+    """
+
+
+def _thread_census():
+    """Return ``(count, description)`` of the live threads in this process.
+
+    The thread count is the whole diagnosis for a ``fork`` Manager failure, so
+    it is measured at the moment of failure rather than described in prose.
+    Names are truncated because a Qt process can carry dozens and the message
+    has to stay readable.
+    """
+    threads = list(threading.enumerate())
+    names = [t.name for t in threads]
+    shown = ', '.join(names[:8])
+    if len(names) > 8:
+        shown += f", ... (+{len(names) - 8} more)"
+    return len(threads), shown
+
+
+def _manager_start_diagnosis(start_method, exc):
+    """Build the message :class:`ManagerStartError` carries.
+
+    Split out from :func:`_start_manager` so the wording is testable without
+    breaking a Manager, and because the two cases genuinely differ:
+
+    ``fork`` -- the case that actually bites. ``os.fork()`` duplicates only the
+    calling thread but duplicates *all* of the process's memory, including
+    every mutex the other threads were holding at the instant of the fork.
+    Those mutexes arrive in the child already locked, owned by threads that do
+    not exist there, so nothing can ever release them. The Manager's server
+    process then deadlocks (or dies) before it writes its socket address back
+    down the bootstrap pipe, and the parent's read of that address hits EOF --
+    which is the naked ``EOFError`` from ``connection.py`` a user sees. A
+    long-lived Qt or Jupyter process is exactly the thread-rich parent this
+    needs; ``python -c`` forks with one thread and never reproduces it.
+
+    Anything else (``spawn``, ``forkserver``) -- the child is a fresh
+    interpreter that inherits no locks, so the thread census is reported but
+    not blamed. What is left is what the Manager's server needs from the
+    environment: a writable temp directory for its socket, and permission to
+    start a process at all. Containers and HPC job sandboxes remove both.
+
+    :param start_method: the start method the failed Manager was using.
+    :param exc: the exception ``Manager()`` raised.
+    :returns: a multi-line diagnostic string.
+    """
+    n_threads, thread_names = _thread_census()
+    remedy = (
+        f"    export {START_METHOD_ENV_VAR}=spawn\n"
+        f"or, in Python, before calling measure_crop:\n"
+        f"    os.environ['{START_METHOD_ENV_VAR}'] = 'spawn'"
+    )
+    head = (
+        f"Could not start the multiprocessing Manager that measure_crop uses "
+        f"to share per-field timings with its worker pool. Nothing was "
+        f"measured.\n"
+        f"  start method:    {start_method!r}\n"
+        f"  underlying error: {type(exc).__name__}: {exc}\n"
+        f"  live threads in this process: {n_threads} ({thread_names})\n"
+    )
+
+    if start_method == 'fork':
+        return (
+            head +
+            f"\nMost likely cause: this process is forking with "
+            f"{n_threads} live threads. os.fork() copies one thread but all of "
+            f"the memory, so every lock the other {max(n_threads - 1, 0)} "
+            f"thread(s) held arrives in the child already locked and owned by "
+            f"nobody. The Manager's server then hangs or dies before writing "
+            f"its address back to the parent, and the parent's read of that "
+            f"address is the EOFError above. A long-lived Qt or Jupyter "
+            f"session is exactly this kind of parent.\n"
+            f"\nRemedy: run the measure pool under 'spawn', which starts each "
+            f"child from a fresh interpreter and inherits no locks:\n"
+            f"{remedy}\n"
+            f"spaCR does not switch for you, because a spawn worker re-imports "
+            f"the measure chain from cold (seconds and hundreds of MB each); "
+            f"the worker count is capped at the number of fields under spawn, "
+            f"so that cost is bounded but not free."
+        )
+
+    return (
+        head +
+        f"\nUnder {start_method!r} the child inherits no locks from the "
+        f"parent, so the {n_threads} live thread(s) above are reported for "
+        f"completeness rather than blamed. What a Manager still needs is a "
+        f"writable temporary directory for its server's socket (TMPDIR, or "
+        f"XDG_RUNTIME_DIR) and permission to start a process at all -- "
+        f"containers and HPC job sandboxes commonly withhold both.\n"
+        f"\nIf this machine's default is workable, unset "
+        f"{START_METHOD_ENV_VAR}; otherwise select a start method explicitly:\n"
+        f"{remedy}"
+    )
+
+
+def _start_manager(ctx):
+    """Return a started :class:`multiprocessing.Manager` from ``ctx``.
+
+    :param ctx: the object :func:`_pool_context` returned.
+    :returns: a started manager, ready to use as a context manager.
+    :raises ManagerStartError: ``Manager()`` failed, for any reason.
+
+    ``BaseException`` is deliberately not caught: a Ctrl-C landing inside the
+    Manager handshake is a cancellation, not a misconfiguration, and dressing
+    it up as one would be a lie in the traceback.
+    """
+    try:
+        return ctx.Manager()
+    except Exception as exc:
+        try:
+            start_method = ctx.get_start_method()
+        except Exception:
+            start_method = mp.get_start_method()
+        raise ManagerStartError(
+            _manager_start_diagnosis(start_method, exc)) from exc
+
+
+def resolve_pool_size(n_jobs, n_files, start_method=None):
+    """Return the worker count for a set of image fields.
+
+    The count is capped at the number of fields for every start method.
+    ``spawn`` and ``forkserver`` start a fresh interpreter for every worker,
+    and worker starts are paced ten seconds apart, so a surplus ``fork``
+    worker also delays the run by ten seconds and then has nothing to do.
+
+    :param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.
+    :param n_files: how many fields there are to measure.
+    :param start_method: accepted for existing callers; every start method
+        is capped the same way.
+    :returns: an int >= 1.
+    """
+    n_jobs = max(1, int(n_jobs))
+    return max(1, min(n_jobs, int(n_files)))
+
+
+def resolve_n_jobs(n_jobs, cpu_count=None):
+    """Return the number of worker processes ``measure_crop`` will actually use.
+
+    ``None`` selects spaCR's default, ``cpu_count - N_JOBS_HEADROOM`` (at
+    least 1). Explicit values are validated and capped at the available CPU
+    count.
+
+    :param n_jobs: the requested worker count, or ``None`` for the default.
+    :param cpu_count: core count to resolve against; defaults to
+        :func:`multiprocessing.cpu_count`.
+    :returns: an int in ``[1, cpu_count]``.
+    :raises spacr.errors.ConfigurationError: ``n_jobs`` is zero, negative, or
+        not an integer. A pool of zero workers measures nothing, and the value
+        is refused rather than replaced with a worker count the user did not
+        request.
+    """
+    cores = max(1, int(mp.cpu_count() if cpu_count is None else cpu_count))
+
+    if n_jobs is None:
+        return max(1, cores - N_JOBS_HEADROOM)
+
+    if isinstance(n_jobs, bool) or not isinstance(n_jobs, (int, np.integer)):
+        raise ConfigurationError(
+            f"settings['n_jobs'] = {n_jobs!r} must be an integer number of "
+            f"worker processes, or None to let spaCR choose.")
+
+    n_jobs = int(n_jobs)
+    if n_jobs < 1:
+        raise ConfigurationError(
+            f"settings['n_jobs'] = {n_jobs} must be at least 1. A pool of "
+            f"{n_jobs} workers would measure nothing; leave n_jobs blank "
+            f"(None) to let spaCR choose.")
+
+    if n_jobs > cores:
+        print(f"n_jobs={n_jobs} exceeds the {cores} available cores; using "
+              f"{cores}. Leave n_jobs blank to let spaCR choose.")
+        return cores
+    return n_jobs
+
+
+def resolve_measurement_spacing(settings, ndim, n_z=1):
+    """Return ``(spacing, stamp)`` for a measurement of ``ndim`` spatial dimensions.
+
+    ``spacing`` is handed straight to :func:`skimage.measure.regionprops_table`
+    and (as ``sampling``) to :func:`scipy.ndimage.distance_transform_edt`.
+    ``stamp`` is the dict of :data:`MEASUREMENT_STAMP_COLUMNS` written onto
+    every row so the units are recorded rather than inferred.
+
+    2-D returns ``(None, px stamp)`` unconditionally. Even when a voxel size
+    is configured it is not applied, so a 2-D run is numerically identical to
+    every spaCR run before this function existed.
+
+    **3-D requires a z/xy relationship and will not invent one.** With
+    anisotropic voxels an unspaced volume is not merely in unusual units: a
+    voxel count is not proportional to a physical volume, a distance transform
+    measures a different length along z than along x, and ``major_axis_length``
+    mixes the two. This mirrors :func:`spacr.zstack.resolve_anisotropy`, which
+    raises rather than defaulting to 1.0 because "isotropic" is a claim about
+    the microscope, not a neutral value. Set ``voxel_size_z_um`` and
+    ``voxel_size_xy_um`` (preferred -- it also gives physical units), or set
+    ``anisotropy`` alone (correct geometry, xy-pixel units).
+
+    :param settings: measure settings dict; reads ``voxel_size_z_um``,
+        ``voxel_size_xy_um`` and ``anisotropy``.
+    :param ndim: 2 or 3.
+    :param n_z: number of z planes behind the measurement; 1 for a 2-D field.
+    :returns: ``(spacing, stamp)``. ``spacing`` is ``None`` for 2-D, a
+        ``(dz, dy, dx)`` tuple for 3-D.
+    :raises spacr.zstack.UnknownAnisotropyError: 3-D without a voxel size or
+        anisotropy.
+    :raises spacr.errors.ConfigurationError: ``ndim`` is neither 2 nor 3, or a
+        supplied voxel size is not a positive finite number.
+    """
+    cfg = settings or {}
+    stamp = {
+        'measurement_ndim': int(ndim),
+        'measurement_units': UNITS_PX,
+        'n_z': int(n_z),
+        'voxel_size_z_um': None,
+        'voxel_size_xy_um': None,
+    }
+
+    if ndim == 2:
+        return None, stamp
+
+    if ndim != 3:
+        raise ConfigurationError(
+            f"spacr.measure can measure 2-D masks and 3-D (Z, Y, X) label "
+            f"volumes; got a {ndim}-dimensional mask. A 4-D (T, Z, Y, X) "
+            f"acquisition is measured one timepoint at a time.")
+
+    from .zstack import UnknownAnisotropyError
+
+    def _positive(name):
+        """One spacing value, refused unless it is a positive number.
+
+        A zero or negative spacing makes every physical measurement wrong by a
+        factor nobody can recover afterwards, so it is refused rather than
+        defaulted.
+        """
+        value = cfg.get(name)
+        if value is None:
+            return None
+        value = float(value)
+        if not np.isfinite(value) or value <= 0:
+            raise ConfigurationError(
+                f"settings['{name}'] = {cfg.get(name)!r} must be a finite "
+                f"number > 0 (a physical size in micrometres).")
+        return value
+
+    dz = _positive('voxel_size_z_um')
+    dxy = _positive('voxel_size_xy_um')
+    anisotropy = cfg.get('anisotropy')
+    if anisotropy is not None:
+        anisotropy = float(anisotropy)
+        if not np.isfinite(anisotropy) or anisotropy <= 0:
+            raise ConfigurationError(
+                f"settings['anisotropy'] = {cfg.get('anisotropy')!r} must be a "
+                f"finite number > 0; it is the ratio dz / dxy.")
+
+    if dz is not None and dxy is not None:
+        stamp['measurement_units'] = UNITS_UM
+        stamp['voxel_size_z_um'] = dz
+        stamp['voxel_size_xy_um'] = dxy
+        return (dz, dxy, dxy), stamp
+
+    if anisotropy is not None:
+        stamp['measurement_units'] = UNITS_PX_XY
+        return (anisotropy, 1.0, 1.0), stamp
+
+    raise UnknownAnisotropyError(
+        "measuring a 3-D (Z, Y, X) mask needs to know how the z step relates "
+        "to the xy pixel size, and spaCR will not assume they are equal. On a "
+        "confocal stack dz is routinely 3-10x dxy, so an unspaced volume "
+        "measurement is wrong by that factor along one axis: the voxel count "
+        "in `<object>_area` is not proportional to a physical volume, and "
+        "`major_axis_length`, `feret_diameter_max` and every distance-derived "
+        "feature mix two different lengths. Set voxel_size_z_um and "
+        "voxel_size_xy_um (which also converts volumes to um^3), or set "
+        "anisotropy = dz / dxy on its own (correct geometry, xy-pixel units). "
+        f"Got voxel_size_z_um={cfg.get('voxel_size_z_um')!r}, "
+        f"voxel_size_xy_um={cfg.get('voxel_size_xy_um')!r}, "
+        f"anisotropy={cfg.get('anisotropy')!r}.")
+
+
+def _voxel_volume_columns(mask, labels, stamp):
+    """Return the explicit volume columns a 3-D morphology frame carries.
+
+    ``<object>_area`` in a 3-D row is a volume, which the stamp records -- but
+    a column whose *name* carries its unit cannot be misread at all, and
+    :func:`spacr.zstack.volume_stats` already uses exactly these names. So a
+    3-D frame gets ``volume_voxels`` (always) and ``volume_um3`` (only when the
+    physical voxel size is known) alongside the spaced ``area``.
+
+    :param mask: the 3-D label volume.
+    :param labels: label ids, in the frame's row order.
+    :param stamp: the stamp from :func:`resolve_measurement_spacing`.
+    :returns: dict of column name -> list of values, aligned with ``labels``.
+    """
+    counts = np.bincount(np.asarray(mask).ravel())
+    voxels = np.array(
+        [float(counts[int(v)]) if int(v) < counts.size else 0.0 for v in labels])
+    out = {'volume_voxels': voxels}
+    if stamp.get('measurement_units') == UNITS_UM:
+        dz = float(stamp['voxel_size_z_um'])
+        dxy = float(stamp['voxel_size_xy_um'])
+        out['volume_um3'] = voxels * dz * dxy * dxy
+    return out
+
+
+#: How ``regionprops_table`` names the axes of a centroid in 3-D, and what each
+#: one actually is. In 2-D ``centroid_weighted-0`` is the row (y); in 3-D the
+#: same name is the plane (z) and every downstream consumer reading it as y is
+#: silently wrong. Renaming only the 3-D columns leaves the 2-D names untouched
+#: and makes the 3-D ones self-describing.
+_CENTROID_AXES_3D = {'-0': '_z', '-1': '_y', '-2': '_x'}
+
+
+def _rename_3d_centroids(df):
+    """Rename ``centroid*-0/-1/-2`` to ``*_z/_y/_x`` on a 3-D intensity frame."""
+    mapping = {}
+    for col in df.columns:
+        for suffix, axis in _CENTROID_AXES_3D.items():
+            if col.startswith('centroid') and col.endswith(suffix):
+                mapping[col] = col[:-len(suffix)] + axis
+    return df.rename(columns=mapping) if mapping else df
+
+
+def get_components(cell_mask, nucleus_mask, pathogen_mask):
+    """Map each cell to its enclosed nucleus/pathogen labels via mask lookup.
+
+    :param cell_mask: Label mask of cells.
+    :param nucleus_mask: Label mask of nuclei.
+    :param pathogen_mask: Label mask of pathogens.
+    :returns: Tuple ``(nucleus_df, pathogen_df)`` where each DataFrame has one
+        row per (cell, child) pair with columns ``cell_id`` and either
+        ``nucleus`` or ``pathogen``.
+    """
+    cell_to_nucleus = defaultdict(list)
+    cell_to_pathogen = defaultdict(list)
+    cell_labels = np.unique(cell_mask)
+    for cell_id in cell_labels:
+        if cell_id == 0:
+            continue
+        nucleus_ids = np.unique(nucleus_mask[cell_mask == cell_id])
+        pathogen_ids = np.unique(pathogen_mask[cell_mask == cell_id])
+        cell_to_nucleus[cell_id] = nucleus_ids[nucleus_ids != 0].tolist()
+        cell_to_pathogen[cell_id] = pathogen_ids[pathogen_ids != 0].tolist()
+    nucleus_df = pd.DataFrame(list(cell_to_nucleus.items()), columns=['cell_id', 'nucleus'])
+    pathogen_df = pd.DataFrame(list(cell_to_pathogen.items()), columns=['cell_id', 'pathogen'])
+    nucleus_df = nucleus_df.explode('nucleus').dropna(
+        subset=['nucleus']).reset_index(drop=True)
+    pathogen_df = pathogen_df.explode('pathogen').dropna(
+        subset=['pathogen']).reset_index(drop=True)
+    return nucleus_df, pathogen_df
+
+def _calculate_zernike(mask, df, degree=8, device=None):
+    """Append per-region Zernike-moment columns to ``df``.
+
+    :param mask: Label mask defining the regions.
+    :param df: DataFrame to extend, in the same row order as ``regionprops(mask)``.
+    :param degree: Zernike-moment degree. Default ``8``. The number of
+        coefficients is set by the degree: 9 for 4, 25 for 8, 49 for 12.
+    :param device: CUDA device from :func:`_measurement_device`, or ``None``
+        (the default) for the per-object Mahotas loop. On a device the moments
+        of all objects are computed in one vectorised pass.
+    :returns: ``df`` with ``zernike_i`` columns appended, or unchanged when the
+        mask has no regions or the mask is 3-D.
+    :raises ImportError: When a non-empty 2-D mask needs the optional Mahotas
+        implementation but ``spacr[zernike]`` is not installed.
+    :raises ValueError: When the Zernike vectors have inconsistent lengths.
+
+    .. note::
+
+       Zernike moments are defined on a disk, so mahotas' ``zernike_moments``
+       accepts 2-D images only -- a 3-D region raises
+       ``ValueError: too many values to unpack``, which used to take down the
+       whole morphology pass. A 3-D mask therefore gets no ``zernike_*``
+       columns at all: absent, rather than a 2-D descriptor of one arbitrary
+       plane presented as a description of the object.
+    """
+    if _ndim_of(mask) != 2:
+        return df
+
+    regions = list(regionprops(mask))
+    if not regions:
+        return df
+    if device is not None and _gpu_measurable(mask):
+        features = _torch_zernike(mask, degree, device)
+        zernike_df = pd.DataFrame(
+            features, columns=[f'zernike_{i}' for i in range(features.shape[1])])
+        return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
+    zernike_moments = _load_zernike_moments()
+    zernike_features = []
+    for region in regions:
+        coords = np.argwhere(region.image)
+        if coords.size == 0:
+            radius = 1.0
+        else:
+            centre = coords.mean(axis=0)
+            radius = float(np.sqrt(((coords - centre) ** 2).sum(axis=1)).max())
+        radius = max(radius, 1.0)
+        zernike_moment = zernike_moments(region.image, radius, degree=degree)
+        zernike_features.append(zernike_moment.tolist())
+
+    feature_length = len(zernike_features[0])
+    for feature in zernike_features:
+        if len(feature) != feature_length:
+            raise ValueError("All Zernike moments must be of the same length")
+
+    zernike_df = pd.DataFrame(zernike_features, columns=[f'zernike_{i}' for i in range(feature_length)])
+    return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
+
+
+#: Whether Mahotas answered, decided once per process rather than per object.
+#:
+#: `_morphological_measurements` runs once per FIELD, in each of up to `n_jobs`
+#: worker processes, and probed the import every time -- so a machine without
+#: Mahotas got the same four-line install notice fifty-two times, burying the
+#: one message in that run that mattered (a field that actually failed).
+_ZERNIKE_AVAILABLE = None
+
+
+def _zernike_is_available() -> bool:
+    """Whether Zernike moments can be computed here. Said once.
+
+    THE ANSWER CANNOT CHANGE inside a run: a package does not become
+    installable between two fields. So it is probed on the first field and
+    remembered, and the notice is printed with it.
+
+    Still once PER PROCESS rather than once per run, because a pool worker is a
+    fresh interpreter with its own module state. That turns fifty-two notices
+    into at most `n_jobs`, and the parent-side decision that would make it
+    exactly one belongs with the settings resolution rather than here.
+    """
+    global _ZERNIKE_AVAILABLE
+    if _ZERNIKE_AVAILABLE is not None:
+        return _ZERNIKE_AVAILABLE
+    try:
+        _load_zernike_moments()
+    except ImportError as exc:
+        _ZERNIKE_AVAILABLE = False
+        print(f"[measure] {exc} Zernike columns will be skipped.")
+    else:
+        _ZERNIKE_AVAILABLE = True
+    return _ZERNIKE_AVAILABLE
+
+
+def _load_zernike_moments():
+    """Load Mahotas only when its optional descriptor is computed."""
+    try:
+        from mahotas.features import zernike_moments
+    except (ImportError, OSError) as exc:
+        raise ImportError(
+            "Zernike morphology requires the optional Mahotas package. "
+            "Install it with `pip install \"spacr[zernike]\"`, or run "
+            "morphological measurements with zernike=False. "
+            "NOTE: Mahotas publishes no wheel for Python 3.13 or newer, so on "
+            "those interpreters that install builds from source and needs a "
+            "C++ toolchain -- see the note in setup.py. Every other "
+            "morphological measurement is unaffected."
+        ) from exc
+    return zernike_moments
+
+def _analyze_cytoskeleton(array, mask, channel):
+    """Extract per-object skeleton length and branch counts from a cytoskeleton channel.
+
+    :param array: Multi-channel intensity image ``(H, W, C)``.
+    :param mask: Label mask; each non-zero label defines one object.
+    :param channel: Channel index in ``array`` holding the cytoskeleton signal.
+    :returns: DataFrame with ``object_label``, ``skeleton_length`` and
+        ``skeleton_branch_points`` columns.
+    """
+
+    image = array[..., channel]
+
+    properties_list = []
+
+    for label in np.unique(mask):
+        if label == 0:
+            continue
+
+        object_region = mask == label
+        region_intensity = np.where(object_region, image, 0)
+
+        if np.any(region_intensity):
+            valid_pixels = region_intensity[region_intensity > 0]
+            if len(valid_pixels) > 1:
+                offset = np.percentile(valid_pixels, 90) - np.percentile(valid_pixels, 50)
+                block_size = 35
+                local_thresh = filters.threshold_local(region_intensity, block_size=block_size, offset=offset)
+                cytoskeleton = region_intensity > local_thresh
+
+                skeleton = morphology.skeletonize(img_as_bool(cytoskeleton))
+
+                skeleton_props = measure.regionprops(measure.label(skeleton), intensity_image=image)
+                skeleton_length = sum(prop.area for prop in skeleton_props)
+                skel = skeleton.astype(np.uint8)
+                neighbour_count = convolve(
+                    skel, np.ones((3, 3), dtype=np.uint8),
+                    mode='constant', cval=0) - skel
+                n_branch_points = int(np.sum((skel == 1) & (neighbour_count >= 3)))
+
+                properties = {
+                    "object_label": label,
+                    "skeleton_length": skeleton_length,
+                    "skeleton_branch_points": n_branch_points
+                }
+                properties_list.append(properties)
+            else:
+                properties_list.append({
+                    "object_label": label,
+                    "skeleton_length": 0,
+                    "skeleton_branch_points": 0
+                })
+
+    return pd.DataFrame(properties_list)
+
+def _safe_morphology_table(mask, properties, spacing=None):
+    """Return morphology properties without asking Qhull to hull flat volumes.
+
+    A valid 3-D label may occupy one z plane (or form a line).  scikit-image
+    delegates ``convex_area`` and ``solidity`` to Qhull, which warns for those
+    lower-dimensional objects and then reports an empty hull / infinite
+    solidity.  Their 3-D convex volume is undefined, so expose it as NaN while
+    leaving full-dimensional objects and the entire 2-D path unchanged.
+    """
+    guarded = {
+        'convex_area', 'area_convex', 'solidity', 'feret_diameter_max',
+    }
+    requested = list(properties)
+    if _ndim_of(mask) != 3 or not guarded.intersection(requested):
+        return pd.DataFrame(
+            regionprops_table(mask, properties=requested, spacing=spacing))
+
+    safe_properties = [prop for prop in requested if prop not in guarded]
+    frame = pd.DataFrame(
+        regionprops_table(mask, properties=safe_properties, spacing=spacing))
+    regions = regionprops(mask, spacing=spacing)
+    full_dimensional = [
+        np.linalg.matrix_rank(
+            region.coords - region.coords.mean(axis=0)) == 3
+        for region in regions
+    ]
+    for prop in requested:
+        if prop not in guarded:
+            continue
+        region_property = 'area_convex' if prop == 'convex_area' else prop
+        frame[prop] = [
+            float(getattr(region, region_property)) if full_rank else np.nan
+            for region, full_rank in zip(regions, full_dimensional)
+        ]
+
+    return frame[[prop for prop in requested if prop in frame.columns]]
+
+
+def _cupy_wheel_cuda_major():
+    """The CUDA major version the installed CuPy wheel was built for, or ``None``.
+
+    Read from the distribution name (``cupy-cuda12x``, ``cupy-cuda13x``), so
+    it needs neither CuPy imported nor a GPU.
+    """
+    from importlib import metadata
+
+    for major in (13, 12, 11):
+        try:
+            metadata.version(f"cupy-cuda{major}x")
+        except metadata.PackageNotFoundError:
+            continue
+        return major
+    return None
+
+
+def _pin_cupy_cudart_headers(header_dir):
+    """Make the CUDA path finder hand CuPy ``header_dir`` for the runtime headers.
+
+    The finder searches ``nvidia/cu13/include`` before the CUDA 12 wheels'
+    ``nvidia/cuda_runtime/include``, so CuPy built for CUDA 12 would compile
+    against CUDA 13 headers that NVRTC 12 cannot parse. Only the ``cudart``
+    lookup is redirected, in this process only; nothing on disk changes.
+    The finder is taken from the modules CuPy has already imported, so call
+    this after ``import cupy`` and before the first kernel compiles.
+    """
+    import sys
+
+    finder = sys.modules.get("cuda.pathfinder")
+    if finder is None or not hasattr(finder, "find_nvidia_header_directory"):
+        return False
+    original = finder.find_nvidia_header_directory
+    if getattr(original, "_spacr_cudart_dir", None) == header_dir:
+        return True
+
+    def _pinned(libname, *args, **kwargs):
+        """The pinned runtime header directory for ``cudart``, else the finder's answer."""
+        if libname == "cudart":
+            return header_dir
+        return original(libname, *args, **kwargs)
+
+    _pinned._spacr_cudart_dir = header_dir
+    finder.find_nvidia_header_directory = _pinned
+    return True
+
+
+def _preload_matching_nvrtc():
+    """Point CuPy at the NVRTC and runtime headers of its own CUDA major.
+
+    CuPy compiles cuCIM's kernels with whichever ``libnvrtc`` and CUDA
+    headers the CUDA path finder meets first. PyTorch's CUDA 13 wheels put
+    ``nvidia/cu13`` (NVRTC 13 plus CUDA 13 headers) in site-packages, so a
+    ``cupy-cuda12x`` install beside them compiles with the wrong toolkit and
+    every cuCIM call fails with an NVRTC compile error. Loading the wheel's
+    own ``libnvrtc.so.<major>`` first makes the finder reuse it, and the
+    runtime headers are pinned to the same major
+    (:func:`_pin_cupy_cudart_headers`). Returns the loaded NVRTC path, or
+    ``None`` when nothing needed or could be loaded (other platforms, no
+    matching library, CuPy not installed). Installing the CuPy and cuCIM
+    wheels for PyTorch's CUDA major (``cupy-cuda13x``, ``cucim-cu13``)
+    avoids the mismatch altogether.
+    """
+    import ctypes
+    import glob
+    import site
+    import sys
+
+    if not sys.platform.startswith("linux"):
+        return None
+    major = _cupy_wheel_cuda_major()
+    if major is None:
+        return None
+    layouts = (("cuda_nvrtc/lib", "cuda_runtime/include"),
+               (f"cu{major}/lib", f"cu{major}/include"))
+    roots = list(site.getsitepackages()) + [site.getusersitepackages()]
+    for root in roots:
+        for lib_dir, include_dir in layouts:
+            pattern = os.path.join(root, "nvidia", lib_dir,
+                                   f"libnvrtc.so.{major}*")
+            for path in sorted(glob.glob(pattern)):
+                if ".alt." in os.path.basename(path):
+                    continue
+                try:
+                    ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL)
+                except OSError:
+                    continue
+                headers = os.path.join(root, "nvidia", include_dir)
+                if os.path.isfile(os.path.join(headers, "cuda_fp16.h")):
+                    try:
+                        import cupy
+                    except ImportError:
+                        return path
+                    _pin_cupy_cudart_headers(headers)
+                return path
+    return None
+
+
+#: Morphology properties cuCIM computes differently from scikit-image, measured
+#: on the plate1 example fields; the GPU table takes them from scikit-image.
+_CUCIM_DIFFERS = ('area_filled', 'feret_diameter_max')
+
+_CUCIM_STATE = {}
+
+
+def _cucim_regionprops_table():
+    """cuCIM's ``regionprops_table`` and CuPy, imported once, or ``None``.
+
+    The matching NVRTC is loaded before the first import
+    (:func:`_preload_matching_nvrtc`). A missing cuCIM is remembered, so a
+    plate does not retry the import for every field.
+    """
+    if "table" not in _CUCIM_STATE:
+        try:
+            _preload_matching_nvrtc()
+            import cupy
+            from cucim.skimage.measure import regionprops_table as gpu_table
+        except ImportError:
+            _CUCIM_STATE["table"] = None
+        else:
+            _CUCIM_STATE["table"] = (cupy, gpu_table)
+    return _CUCIM_STATE["table"]
+
+
+def _cucim_morphology_table(mask, properties):
+    """Return the 2-D morphology table computed by cuCIM on the GPU, or ``None``.
+
+    ``None`` (and the caller's scikit-image path) when cuCIM is not installed
+    (``pip install spacr[gpu]``), when it fails, or when its columns differ
+    from the requested properties. cuCIM's batch kernels fail on a label
+    image with gaps in its numbering ("No coordinates to process"), which
+    every filtered mask has, so the labels are made sequential for cuCIM and
+    the ``label`` column is mapped back to the original labels. cuCIM
+    defines ``area_filled`` and ``feret_diameter_max`` differently from
+    scikit-image (on a real plate up to 20-fold and 11 % apart), so those two
+    stay on the CPU (:data:`_CUCIM_DIFFERS`). cuCIM returns the columns in its own
+    order (a legacy name such as ``convex_area`` comes last), so they are
+    put back in the requested order, the order the CPU table has. After one
+    failure in a process the GPU table is not tried
+    again, so a broken CUDA toolkit costs one message rather than one per
+    mask.
+    """
+    loaded = _cucim_regionprops_table()
+    if loaded is None or _CUCIM_STATE.get("failed"):
+        return None
+    cupy, gpu_table = loaded
+    requested = list(properties)
+    try:
+        from skimage.segmentation import relabel_sequential
+
+        on_cpu = [name for name in requested if name in _CUCIM_DIFFERS]
+        on_gpu = ['label'] + [name for name in requested
+                              if name != 'label' and name not in on_cpu]
+        sequential, _forward, inverse = relabel_sequential(np.asarray(mask))
+        table = gpu_table(cupy.asarray(sequential), properties=on_gpu)
+        columns = {name: cupy.asnumpy(cupy.asarray(values))
+                   for name, values in table.items()}
+        columns['label'] = np.asarray(inverse)[
+            columns['label'].astype(np.int64)]
+        if on_cpu:
+            from skimage.measure import regionprops_table as cpu_table
+
+            cpu = cpu_table(np.asarray(mask), properties=['label'] + on_cpu)
+            if not np.array_equal(np.asarray(cpu['label']), columns['label']):
+                return None
+            columns.update({name: np.asarray(cpu[name]) for name in on_cpu})
+        if 'label' not in requested:
+            columns.pop('label')
+    except Exception as error:                               # noqa: BLE001
+        _CUCIM_STATE["failed"] = True
+        print(f"[measure] cuCIM morphology failed ({type(error).__name__}: "
+              f"{str(error).splitlines()[0] if str(error) else ''}); "
+              "measuring morphology on the CPU.")
+        return None
+    if set(columns) != set(requested):
+        return None
+    return pd.DataFrame({name: columns[name] for name in requested})
+
+
+def _join_child_to_parent_cell(child_props, cell_to_child, child_name, remedy):
+    """Attach each child object's parent ``cell_id`` to its morphology row.
+
+    ``one_to_one``, and deliberately so. A child object belongs to exactly one
+    cell in this data model, everywhere downstream:
+    :meth:`spacr.schema.ObjectTableSchema.row_key_columns` keys the ``nucleus``
+    and ``pathogen`` tables on one row per ``object_label`` per field, the
+    tables carry a single scalar ``cell_id``, and
+    :func:`spacr.utils._merge_and_save_to_database` joins morphology to
+    intensity on ``object_label`` with ``validate='one_to_one'``. A frame with
+    the same label twice is therefore not a shape measurements.db can hold, so
+    the only question is *where* it stops.
+
+    It has to stop here. ``_measure_crop_core`` writes the object tables one
+    call at a time -- cell, then nucleus, then pathogen -- so a fan-out that
+    survives this merge is not caught until the write for its own table, by
+    which point the earlier tables for this field are already committed. That
+    leaves the field half in the database: a cell row with no matching pathogen
+    row, which reads downstream as an uninfected cell rather than as a failure.
+    Raising before any write keeps a field all-in or all-out.
+
+    ``get_components`` fans out when a child label overlaps two cell labels.
+    On the pipeline path that is normally already impossible:
+    ``_measure_crop_core`` runs :func:`spacr.utils._merge_overlapping_objects`
+    on (nucleus, cell) unconditionally, and on (pathogen, cell) when
+    ``merge_edge_pathogen_cells`` is set, and that resolves every straddling
+    child to a single cell -- either by trimming the child back to the cell it
+    overlaps most, or by merging the two cells into one. Which of those two
+    repairs is available differs per object type, so the caller supplies the
+    ``remedy`` sentence rather than this function guessing.
+
+    :param child_props: ``regionprops_table`` output for the child mask; one
+        row per label.
+    :param cell_to_child: ``get_components``' exploded ``(cell_id, child)``
+        pairs.
+    :param child_name: ``'nucleus'`` or ``'pathogen'`` -- the column
+        ``get_components`` keyed the child by.
+    :param remedy: what the reader should change, appended to the message.
+    :returns: ``child_props`` with ``cell_id`` (and the child key column)
+        joined on.
+    :raises pandas.errors.MergeError: either side repeats a label.
+    """
+    try:
+        return pd.merge(
+            child_props,
+            cell_to_child,
+            left_on='label',
+            right_on=child_name,
+            how='left',
+            validate='one_to_one',
+        )
+    except pd.errors.MergeError as exc:
+        shared = cell_to_child[cell_to_child[child_name].duplicated(keep=False)]
+        if shared.empty:
+            raise
+        examples = [
+            (int(lab), sorted(int(c) for c in grp['cell_id']))
+            for lab, grp in shared.groupby(child_name)
+        ][:5]
+        raise pd.errors.MergeError(
+            f"{len(shared[child_name].unique())} {child_name} label(s) overlap "
+            f"more than one cell, so this field has no single parent cell for "
+            f"them (e.g. {child_name}/cell_ids {examples}). The {child_name} "
+            f"table holds one row per object with one cell_id, so measuring "
+            f"this field would either double-count those objects or write only "
+            f"part of the field to measurements.db. Nothing was written for "
+            f"this field.\n"
+            f"Fix the masks rather than the join: {remedy} (pandas: {exc})"
+        ) from exc
+
+
+
+#: Sentinel written to ``nearest_neighbor_distance`` /
+#: ``second_neighbor_distance`` when the field contains no such neighbour: a
+#: one-object field has neither, a two-object field has no second. Both are
+#: ordinary in a killing condition, and NaN is not an option (see above). -1.0
+#: is roughly an order of magnitude below any real centroid distance, so it is
+#: separable -- but it is a sentinel, not a distance, and must not be averaged.
+_SPATIAL_NO_NEIGHBOUR = -1.0
+
+#: ``expand_labels`` grew its ``spacing`` argument after scikit-image 0.22, and
+#: setup.py's floor is ``>=0.22.0``. Probed once rather than assumed: without it
+#: a 3-D run would silently measure an unscaled radius, which was measured wrong
+#: by 2.000x on a (2.0, 0.2, 0.2) voxel.
+try:
+    _EXPAND_LABELS_TAKES_SPACING = (
+        'spacing' in inspect.signature(expand_labels).parameters)
+except (TypeError, ValueError):  # pragma: no cover - C-implemented signature
+    _EXPAND_LABELS_TAKES_SPACING = False
+
+
+def spatial_column_names(radius):
+    """Return the five spatial column names for ``radius``, in emitted order.
+
+    The radius is baked into ``neighbors_within_<r>`` -- the same precedent as
+    ``homogeneity_distance_<d>`` and ``percentile_<p>``. Two plates measured at
+    different radii therefore produce different columns and will not concat.
+
+    :param radius: neighbourhood radius; truncated with ``int()`` for the
+        ``neighbors_within_<r>`` name. The other four names do not depend on it.
+    :returns: list of five column names.
+    """
+    return [
+        f'neighbors_within_{int(radius)}',
+        'nearest_neighbor_distance',
+        'second_neighbor_distance',
+        'percent_touching',
+        'touching_neighbors',
+    ]
+
+
+def _empty_spatial_frame(radius):
+    """A correctly-typed zero-row spatial frame (empty mask, no objects)."""
+    count_col, near_col, second_col, pct_col, touch_col = spatial_column_names(radius)
+    return pd.DataFrame({
+        'label': pd.Series(dtype='int64'),
+        count_col: pd.Series(dtype='int64'),
+        near_col: pd.Series(dtype='float64'),
+        second_col: pd.Series(dtype='float64'),
+        pct_col: pd.Series(dtype='float64'),
+        touch_col: pd.Series(dtype='int64'),
+    })
+
+
+def _spatial_adjacency(mask, spacing=None, expand=1):
+    """Return ``(percent_touching, touching_neighbors)`` maps keyed on label.
+
+    Adjacency is taken on a mask grown by ``expand`` with
+    :func:`skimage.segmentation.expand_labels`, and -- critically -- the
+    boundary is the boundary **of the grown mask**, not of the original.
+
+    That is not a detail. Comparing the grown mask against the *original*
+    object's boundary reproduces the un-grown failure exactly: on a confluent
+    field with true one-pixel gaps it reads ~0.5% touching with 69 of 100
+    objects at zero, as if ``expand_labels`` had never been called. Segmentation
+    routinely leaves a one-pixel background seam between objects a human would
+    call touching, which is the whole reason for growing.
+
+    ``scipy.ndimage.binary_dilation`` is not usable here at all: it returns a
+    boolean array, so every label identity -- the thing being measured -- is
+    gone before the comparison.
+    """
+    if _EXPAND_LABELS_TAKES_SPACING:
+        grown = expand_labels(mask, distance=expand, spacing=spacing)
+    else:
+        if spacing is None:
+            grown = expand_labels(mask, distance=expand)
+        else:
+            distances, nearest = distance_transform_edt(
+                np.asarray(mask) == 0, sampling=spacing,
+                return_distances=True, return_indices=True)
+            grown = np.zeros_like(mask)
+            within = distances <= float(expand)
+            nearest_labels = np.asarray(mask)[tuple(nearest)]
+            grown[within] = nearest_labels[within]
+
+    ndim = grown.ndim
+    inner = find_boundaries(grown, mode='inner')
+    touching = np.zeros(grown.shape, dtype=bool)
+    pairs = set()
+
+    for axis in range(ndim):
+        for shift in (1, -1):
+            rolled = np.roll(grown, shift, axis=axis)
+            edge = [slice(None)] * ndim
+            edge[axis] = 0 if shift == 1 else -1
+            rolled = rolled.copy()
+            rolled[tuple(edge)] = 0
+
+            different = (grown > 0) & (rolled > 0) & (rolled != grown)
+            if not different.any():
+                continue
+            touching |= different
+            here = grown[different]
+            there = rolled[different]
+            for src, dst in np.unique(np.stack([here, there], axis=1), axis=0):
+                pairs.add((int(src), int(dst)))
+
+    boundary_labels = grown[inner]
+    touching_labels = grown[inner & touching]
+    if boundary_labels.size == 0:
+        return {}, {}
+
+    n_boundary = np.bincount(boundary_labels)
+    n_touching = np.bincount(touching_labels, minlength=n_boundary.size)
+
+    percent = {}
+    for lab in range(1, n_boundary.size):
+        if n_boundary[lab] > 0:
+            percent[lab] = float(100.0 * n_touching[lab] / n_boundary[lab])
+
+    neighbours = defaultdict(int)
+    for src, _dst in pairs:
+        neighbours[src] += 1
+
+    return percent, dict(neighbours)
+
+
+def _spatial_measurements(mask, spacing=None, radius=50, expand=1):
+    """Per-object spatial context, one row per label, NEVER containing NaN.
+
+    :param mask: label mask, 2-D ``(Y, X)`` or 3-D ``(Z, Y, X)``.
+    :param spacing: voxel spacing from :func:`resolve_measurement_spacing`;
+        ``None`` in 2-D, which leaves centroids in pixels and the 2-D path
+        numerically unchanged.
+    :param radius: neighbourhood radius for ``neighbors_within_<r>``, in the
+        units of the row's ``measurement_units`` stamp -- pixels in a 2-D run,
+        micrometres in a 3-D run with a voxel size, xy-pixels when only an
+        anisotropy was given. The KDTree is built on spacing-scaled centroids,
+        so the radius has to be quoted in the same units.
+    :param expand: growth in pixels before adjacency is taken; see
+        :func:`_spatial_adjacency`.
+    :returns: DataFrame keyed on ``label`` carrying
+        :func:`spatial_column_names`.
+
+    Cost is O(field), not O(objects x field): one ``regionprops_table`` for the
+    centroids (~27 ms), one ``cKDTree`` answering every object's count and both
+    distances in ~0.4 ms for 400 objects, and one ``expand_labels`` +
+    ``find_boundaries`` pass (~61-73 ms in 2-D, ~551 ms in 3-D -- the 3-D figure
+    dominates this block and is the reason the feature is opt-in).
+
+    .. note::
+
+       Centroids are recomputed here rather than added to
+       :data:`MORPHOLOGICAL_PROPS`. A stored ``centroid`` would be free at
+       measurement time and would then auto-enrol the object's *absolute
+       position in the field* as a model feature for every existing run, which
+       is leakage. Do not "optimise" this away.
+
+    .. note::
+
+       ``percent_touching`` has zero variance in a confluent monolayer
+       (measured: 100.0% for every one of 400 objects), so
+       ``utils.remove_low_variance_columns`` deletes it from model matrices for
+       exactly the plates where it is most trivially true. That is correct
+       behaviour, and it will be reported as a missing column.
+    """
+    count_col, near_col, second_col, pct_col, touch_col = spatial_column_names(radius)
+
+    props = pd.DataFrame(regionprops_table(mask, properties=('label', 'centroid')))
+    if len(props) == 0:
+        return _empty_spatial_frame(radius)
+
+    labels = props['label'].to_numpy()
+    axis_cols = [c for c in props.columns if c.startswith('centroid')]
+    axis_cols.sort(key=lambda c: int(c.rsplit('-', 1)[-1]) if '-' in c else 0)
+    coords = props[axis_cols].to_numpy(dtype=np.float64)
+
+    if spacing is not None:
+        scale = np.asarray(spacing, dtype=np.float64).reshape(1, -1)
+        if scale.shape[1] == coords.shape[1]:
+            coords = coords * scale
+
+    n = len(labels)
+    tree = cKDTree(coords)
+    counts = np.asarray(
+        tree.query_ball_point(coords, r=float(radius), return_length=True)
+    ).astype(np.int64) - 1
+    counts = np.clip(counts, 0, None)
+
+    k = min(3, n)
+    distances = np.atleast_2d(tree.query(coords, k=k)[0])
+    if k == 1:
+        distances = distances.reshape(n, 1)
+
+    if k >= 2:
+        nearest = distances[:, 1].astype(np.float64)
+    else:
+        nearest = np.full(n, _SPATIAL_NO_NEIGHBOUR, dtype=np.float64)
+    if k >= 3:
+        second = distances[:, 2].astype(np.float64)
+    else:
+        second = np.full(n, _SPATIAL_NO_NEIGHBOUR, dtype=np.float64)
+
+    percent_map, neighbour_map = _spatial_adjacency(mask, spacing=spacing, expand=expand)
+
+    frame = pd.DataFrame({
+        'label': labels.astype(np.int64),
+        count_col: counts,
+        near_col: nearest,
+        second_col: second,
+        pct_col: np.array([percent_map.get(int(lab), 0.0) for lab in labels], dtype=np.float64),
+        touch_col: np.array([neighbour_map.get(int(lab), 0) for lab in labels], dtype=np.int64),
+    })
+    frame[[near_col, second_col, pct_col]] = frame[
+        [near_col, second_col, pct_col]].fillna(_SPATIAL_NO_NEIGHBOUR)
+    frame[[count_col, touch_col]] = frame[[count_col, touch_col]].fillna(0).astype(np.int64)
+    return frame
+
+
+def _spatial_organelle_eligible(settings):
+    """Return ``True`` for every organelle settings mapping.
+
+    Kept as a compatibility predicate for callers that imported the former
+    private gate.  Organelle Type is advisory: it records measurement caveats
+    but never switches off a requested family or removes its output columns.
+    """
+    del settings
+    return True
+
+
+def _morphology_of_organelle_type(settings):
+    """The morphology an `organelle_type` implies, or None if it has none.
+
+    None for 'custom' (which recommends nothing by design), for a missing
+    key, and for an unrecognised one -- in every case the caller falls back
+    to `organelle_morphology`, which is what a pre-72 settings file carries.
+    """
+    name = settings.get('organelle_type')
+    if not name:
+        return None
+    try:
+        from .organelle_types import resolve_type
+        preset = resolve_type(name)
+    except (ImportError, ValueError):
+        return None
+    return preset.morphology_for(settings.get('organelle_diameter'))
+
+
+def _morphological_measurements(
+        cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+        cytoplasm_mask, settings, zernike=None, degree=8,
+        extra_organelle_masks=None, channel_arrays=None):
+    """Return morphology + Zernike DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
+
+    :param cell_mask: Label mask of cells.
+    :param nucleus_mask: Label mask of nuclei.
+    :param pathogen_mask: Label mask of pathogens.
+    :param organelle_mask: Label mask of organelles.
+    :param cytoplasm_mask: Label mask of cytoplasm.
+    :param settings: Settings dict; ``<object>_mask_dim`` keys drive whether
+        each object type is analysed, ``cytoplasm`` toggles cytoplasm output,
+        ``spatial_measurements`` (default ``False``) adds the spatial-context
+        block and ``spatial_neighbor_radius`` (default 50) sizes it.
+    :param zernike: ``True`` requires and computes Zernike moments; ``False``
+        disables them. ``None`` computes them when Mahotas is installed and
+        otherwise skips them with an actionable console message.
+    :param degree: Zernike moment degree.
+    :returns: Tuple ``(cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)``.
+
+    .. note::
+
+       On a 3-D ``(Z, Y, X)`` mask the ``eccentricity`` and ``perimeter``
+       columns are absent (skimage implements neither for 3-D), ``zernike_*``
+       is absent, ``area`` and the ``*_area``/length columns are spaced by the
+       voxel size so they are volumes and lengths rather than voxel counts, and
+       explicit ``volume_voxels`` / ``volume_um3`` columns are added. See
+       :func:`resolve_measurement_spacing`.
+
+    .. note::
+
+       With ``spatial_measurements=True`` the cell, nucleus, pathogen and
+       organelle frames gain :func:`spatial_column_names`. Organelle Type never
+       suppresses requested measurements; doubtful interpretations are
+       recorded as caveats instead. Cytoplasm never gains these columns -- its
+       mask carries the cell's own label, so it is one object per cell by
+       construction. Default ``False``: an unchanged run does no extra work.
+    """
+    if zernike is None:
+        zernike = _zernike_is_available()
+    device = _measurement_device(settings)
+
+    ndim = _ndim_of(cell_mask)
+    spacing, stamp = resolve_measurement_spacing(settings, ndim)
+    morphological_props = list(MORPHOLOGICAL_PROPS)
+    if ndim == 3:
+        morphological_props = [p for p in morphological_props
+                               if p not in PROPS_2D_ONLY]
+
+    def _props(mask):
+        """regionprops_table + (3-D only) the explicitly-named volume columns."""
+        frame = None
+        if device is not None and _gpu_measurable(mask, spacing=spacing):
+            frame = _cucim_morphology_table(mask, morphological_props)
+        if frame is None:
+            frame = _safe_morphology_table(
+                mask, properties=morphological_props, spacing=spacing)
+        if ndim == 3 and len(frame) > 0:
+            for name, values in _voxel_volume_columns(
+                    mask, frame['label'].tolist(), stamp).items():
+                frame[name] = values
+        return frame
+
+    spatial_on = bool(settings.get('spatial_measurements', False))
+    try:
+        spatial_radius = int(settings.get('spatial_neighbor_radius', 50))
+    except (TypeError, ValueError):
+        spatial_radius = 50
+
+    distances_on = bool(settings.get('object_distances', False))
+
+    bystanders_on = bool(settings.get('bystander_measurements', False))
+    try:
+        bystander_reach = float(settings.get('bystander_reach_in_diameters', 1.0))
+    except (TypeError, ValueError):
+        bystander_reach = 0.0
+
+    def _all_masks():
+        """Object type -> label image, for the masks this run actually has."""
+        found = {}
+        for name, mask in (('cell', cell_mask), ('nucleus', nucleus_mask),
+                           ('pathogen', pathogen_mask)):
+            if mask is not None and getattr(mask, 'size', 0):
+                found[name] = mask
+        return found
+
+    def _with_distances(frame, name):
+        """Merge the object-distance block onto a props frame.
+
+        Props on the LEFT for the reason `_with_spatial` gives: 'label' has
+        to keep column position 0. A non-empty frame means ``name``'s mask
+        holds labels, so `_all_masks` already carries it.
+        """
+        if not distances_on or len(frame) == 0:
+            return frame
+        masks = _all_masks()
+        try:
+            from .object_distances import (object_distances,
+                                           _gpu_distance_transforms)
+
+            on_gpu = device is not None and spacing is None
+            with (_gpu_distance_transforms() if on_gpu
+                  else contextlib.nullcontext()):
+                block = object_distances(
+                    masks, images=channel_arrays if settings.get(
+                        'object_distance_intensity', True) else None,
+                    primary=name,
+                    channels=tuple(settings.get('channels') or ()),
+                    spacing=spacing,
+                    maxima=bool(settings.get('object_distance_maxima', True)))
+        except Exception as error:                           # noqa: BLE001
+            print(f"[measure] object distances for {name} were not "
+                  f"measured: {type(error).__name__}: {error}")
+            return frame
+        if len(block.columns) <= 1:
+            return frame
+        return frame.merge(block, on='label', how='left',
+                           validate='one_to_one')
+
+    def _with_spatial(frame, mask):
+        """Merge the spatial block onto a props frame. Props on the LEFT."""
+        if not spatial_on or len(frame) == 0:
+            return frame
+        spatial = _spatial_measurements(
+            mask, spacing=spacing, radius=spatial_radius)
+        merged = frame.merge(spatial, on='label', how='left',
+                             validate='one_to_one')
+        count_col, near_col, second_col, pct_col, touch_col = \
+            spatial_column_names(spatial_radius)
+        merged[[near_col, second_col, pct_col]] = merged[
+            [near_col, second_col, pct_col]].fillna(_SPATIAL_NO_NEIGHBOUR)
+        merged[[count_col, touch_col]] = merged[
+            [count_col, touch_col]].fillna(0).astype(np.int64)
+        return merged
+
+
+    def _with_bystanders(frame, mask, pathogen_links):
+        """Merge the bystander block onto the CELL props frame.
+
+        A cell is infected if it holds a pathogen, a bystander if it holds
+        none but sits within the reach of one that does, and distal
+        otherwise. Without the split the last two are the same row, and the
+        uninfected control is a mixture whose variance hides the effect
+        every infection comparison is looking for.
+
+        The reach is derived from this field's own cells, as a multiple of
+        their median diameter, so it means the same thing at 20x and 63x.
+
+        Props on the LEFT, for the reason `_with_spatial` gives.
+        """
+        if not bystanders_on or len(frame) == 0:
+            return frame
+        try:
+            from .bystanders import (_median_cell_diameter, classify,
+                                     reach_from_diameter)
+
+            diameter = _median_cell_diameter(mask, spacing=spacing)
+            if diameter <= 0:
+                print("[measure] bystanders were not measured: no median "
+                      "cell diameter could be taken from this field")
+                return frame
+            if pathogen_links is None or not len(pathogen_links):
+                infected = []
+            else:
+                infected = (pd.to_numeric(pathogen_links['cell_id'],
+                                          errors='coerce')
+                            .dropna().astype(np.int64).unique().tolist())
+            block = classify(mask, infected,
+                             reach=reach_from_diameter(diameter,
+                                                       bystander_reach),
+                             spacing=spacing)
+        except Exception as error:                           # noqa: BLE001
+            print(f"[measure] bystanders were not measured: "
+                  f"{type(error).__name__}: {error}")
+            return frame
+        if 'neighbourhood' not in block.columns:
+            return frame
+        where = block['neighbourhood']
+        out = pd.DataFrame({
+            'label': block['label'].to_numpy(),
+            'is_bystander': (where == 'bystander').to_numpy().astype(np.int64),
+            'is_distal': (where == 'distal').to_numpy().astype(np.int64),
+        })
+        distance = pd.to_numeric(block['distance_to_infected'],
+                                 errors='coerce').to_numpy(dtype=float)
+        distance = np.where(np.isfinite(distance), distance,
+                            _SPATIAL_NO_NEIGHBOUR)
+        out['distance_to_infected'] = distance
+        return frame.merge(out, on='label', how='left', validate='one_to_one')
+
+    prop_ls = []
+    ls = []
+
+    if settings['cell_mask_dim'] is not None:
+        cell_to_nucleus, cell_to_pathogen = get_components(cell_mask, nucleus_mask, pathogen_mask)
+        cell_props = _props(cell_mask)
+        cell_props = _with_spatial(cell_props, cell_mask)
+        cell_props = _with_distances(cell_props, 'cell')
+        cell_props = _with_bystanders(cell_props, cell_mask, cell_to_pathogen)
+        if zernike:
+            cell_props = _calculate_zernike(
+                cell_mask, cell_props, degree=degree, device=device)
+        prop_ls.append(cell_props)
+        ls.append('cell')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('cell')
+
+    if settings['nucleus_mask_dim'] is not None:
+        nucleus_props = _props(nucleus_mask)
+        nucleus_props = _with_spatial(nucleus_props, nucleus_mask)
+        nucleus_props = _with_distances(nucleus_props, 'nucleus')
+        if zernike:
+            nucleus_props = _calculate_zernike(
+                nucleus_mask, nucleus_props, degree=degree, device=device)
+        if settings['cell_mask_dim'] is not None:
+            nucleus_props = _join_child_to_parent_cell(
+                nucleus_props, cell_to_nucleus, 'nucleus',
+                remedy=(
+                    "measure_crop already runs _merge_overlapping_objects on "
+                    "the nucleus and cell masks before measuring, so reaching "
+                    "this means that repair could not resolve the overlap -- "
+                    "most often a single nucleus label made of two "
+                    "disconnected components. Re-segment the nuclei, or drop "
+                    "the split label."))
+        prop_ls.append(nucleus_props)
+        ls.append('nucleus')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('nucleus')
+
+    if settings['pathogen_mask_dim'] is not None:
+        pathogen_props = _props(pathogen_mask)
+        pathogen_props = _with_spatial(pathogen_props, pathogen_mask)
+        pathogen_props = _with_distances(pathogen_props, 'pathogen')
+        if zernike:
+            pathogen_props = _calculate_zernike(
+                pathogen_mask, pathogen_props, degree=degree, device=device)
+        if settings['cell_mask_dim'] is not None:
+            pathogen_props = _join_child_to_parent_cell(
+                pathogen_props, cell_to_pathogen, 'pathogen',
+                remedy=(
+                    "set merge_edge_pathogen_cells=True so spaCR resolves a "
+                    "vacuole straddling two host cells to one cell before "
+                    "measuring, or re-segment so the pathogen and cell masks "
+                    "nest."))
+        prop_ls.append(pathogen_props)
+        ls.append('pathogen')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('pathogen')
+
+    organelle_masks = {'organelle': organelle_mask}
+    organelle_masks.update(dict(extra_organelle_masks or {}))
+    for organelle_role, current_organelle_mask in organelle_masks.items():
+        if settings.get(f'{organelle_role}_mask_dim') is not None:
+            organelle_props = _props(current_organelle_mask)
+            if spatial_on:
+                organelle_props = _with_spatial(
+                    organelle_props, current_organelle_mask)
+            if len(organelle_props) > 0 and zernike:
+                organelle_props = _calculate_zernike(
+                    current_organelle_mask, organelle_props, degree=degree, device=device)
+            if len(organelle_props) > 0 and settings['cell_mask_dim'] is not None:
+                organelle_to_cell = _map_child_to_parent(
+                    current_organelle_mask, cell_mask,
+                    child_name=organelle_role, parent_name='cell')
+                organelle_props = pd.merge(
+                    organelle_props,
+                    organelle_to_cell,
+                    left_on='label',
+                    right_on=organelle_role,
+                    how='left',
+                    validate='one_to_one',
+                )
+            prop_ls.append(organelle_props)
+        else:
+            prop_ls.append(pd.DataFrame())
+        ls.append(organelle_role)
+
+    if settings['cytoplasm']:
+        cytoplasm_props = _props(cytoplasm_mask)
+        prop_ls.append(cytoplasm_props)
+        ls.append('cytoplasm')
+    else:
+        prop_ls.append(pd.DataFrame())
+        ls.append('cytoplasm')
+
+    df_ls = []
+    for i, df in enumerate(prop_ls):
+        df.columns = [f'{ls[i]}_{col}' for col in df.columns]
+        df = df.rename(columns={col: 'label' for col in df.columns if 'label' in col})
+        df_ls.append(df)
+ 
+    return tuple(df_ls)
+
+def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent_name='cell'):
+    """Map each child label to its maximum-overlap parent label."""
+    child_labels = np.unique(child_mask)
+    child_labels = child_labels[child_labels != 0]
+    
+    mapping = []
+    for child_id in child_labels:
+        region = child_mask == child_id
+        parent_ids = parent_mask[region]
+        parent_ids = parent_ids[parent_ids != 0]
+        if len(parent_ids) > 0:
+            parent_id = np.bincount(parent_ids).argmax()
+        else:
+            parent_id = 0
+        mapping.append({child_name: child_id, parent_name: parent_id})
+    
+    return pd.DataFrame(mapping)
+
+
+def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays, parent_name='cell', spacing=None):
+    """Return one row per parent object summarising its enclosed organelles.
+
+    Per parent computes: organelle count, total/mean/std area, area fraction,
+    mean/std eccentricity and solidity, and per-channel mean/std intensity.
+
+    :param organelle_mask: Label mask of organelles.
+    :param parent_mask: Label mask of parents (cells, nuclei, ...).
+    :param channel_arrays: Intensity images with shape ``(H, W, C)`` in 2-D or
+        ``(Z, Y, X, C)`` in 3-D.
+    :param parent_name: Column name used for the parent identifier.
+    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`;
+        ``None`` (the 2-D case) leaves everything in pixels.
+    :returns: DataFrame indexed by parent label.
+
+    .. note::
+
+       On a 3-D mask the ``organelle_mean_eccentricity`` /
+       ``organelle_std_eccentricity`` columns are absent -- skimage does not
+       define eccentricity for 3-D. ``organelle_fraction`` is a ratio of two
+       equally-spaced quantities and is therefore unchanged in meaning.
+    """
+    ndim = _ndim_of(organelle_mask)
+    parent_labels = np.unique(parent_mask)
+    parent_labels = parent_labels[parent_labels != 0]
+
+    morphological_props = ['label', 'area', 'eccentricity', 'solidity', 'major_axis_length', 'minor_axis_length']
+    if ndim == 3:
+        morphological_props = [p for p in morphological_props
+                               if p not in PROPS_2D_ONLY]
+
+    organelle_df = _safe_morphology_table(
+        organelle_mask, properties=morphological_props, spacing=spacing)
+
+    organelle_to_parent = _map_child_to_parent(organelle_mask, parent_mask, 
+                                                child_name='organelle_label', 
+                                                parent_name=parent_name)
+    
+    if len(organelle_df) > 0 and len(organelle_to_parent) > 0:
+        organelle_df = pd.merge(
+            organelle_df,
+            organelle_to_parent,
+            left_on='label',
+            right_on='organelle_label',
+            how='left',
+            validate='one_to_one',
+        )
+    else:
+        rows = []
+        for pid in parent_labels:
+            row = {'label': pid, 'organelle_count': 0, 'organelle_total_area': 0, 
+                   'organelle_fraction': 0.0}
+            rows.append(row)
+        return pd.DataFrame(rows)
+
+    for ch in range(channel_arrays.shape[-1]):
+        channel = channel_arrays[..., ch]
+        intensities = []
+        for org_label in organelle_df['label']:
+            region = organelle_mask == org_label
+            if np.any(region):
+                intensities.append(channel[region].mean())
+            else:
+                intensities.append(0.0)
+        organelle_df[f'organelle_channel_{ch}_mean_intensity'] = intensities
+
+    parent_props = pd.DataFrame(regionprops_table(parent_mask, properties=['label', 'area'], spacing=spacing))
+    parent_area_map = dict(zip(parent_props['label'], parent_props['area']))
+
+    summary_rows = []
+    for pid in parent_labels:
+        org_subset = organelle_df[organelle_df[parent_name] == pid]
+        parent_area = parent_area_map.get(pid, 1)
+
+        row = {'label': pid}
+        row['organelle_count'] = len(org_subset)
+        row['organelle_total_area'] = org_subset['area'].sum() if len(org_subset) > 0 else 0
+        row['organelle_fraction'] = row['organelle_total_area'] / parent_area if parent_area > 0 else 0.0
+        row['organelle_mean_area'] = org_subset['area'].mean() if len(org_subset) > 0 else 0.0
+        row['organelle_std_area'] = org_subset['area'].std() if len(org_subset) > 1 else 0.0
+        if 'eccentricity' in organelle_df.columns:
+            row['organelle_mean_eccentricity'] = org_subset['eccentricity'].mean() if len(org_subset) > 0 else 0.0
+            row['organelle_std_eccentricity'] = org_subset['eccentricity'].std() if len(org_subset) > 1 else 0.0
+        row['organelle_mean_solidity'] = org_subset['solidity'].mean() if len(org_subset) > 0 else 0.0
+        row['organelle_std_solidity'] = org_subset['solidity'].std() if len(org_subset) > 1 else 0.0
+        row['organelle_mean_major_axis'] = org_subset['major_axis_length'].mean() if len(org_subset) > 0 else 0.0
+        row['organelle_mean_minor_axis'] = org_subset['minor_axis_length'].mean() if len(org_subset) > 0 else 0.0
+
+        for ch in range(channel_arrays.shape[-1]):
+            col = f'organelle_channel_{ch}_mean_intensity'
+            row[f'organelle_channel_{ch}_mean_intensity_per_{parent_name}'] = org_subset[col].mean() if len(org_subset) > 0 else 0.0
+            row[f'organelle_channel_{ch}_std_intensity_per_{parent_name}'] = org_subset[col].std() if len(org_subset) > 1 else 0.0
+
+        summary_rows.append(row)
+
+    return pd.DataFrame(summary_rows)
+
+def _intensity_measurements(
+        cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+        cytoplasm_mask, channel_arrays, settings, sizes=None, periphery=True,
+        outside=True, extra_organelle_masks=None):
+    """Return per-channel intensity DataFrames for cells, nuclei, pathogens, organelles, cytoplasm.
+
+    Computes extended regionprops plus optional homogeneity, periphery, outside,
+    blur, colocalisation and radial distribution features per object type.
+
+    :param cell_mask: Label mask of cells.
+    :param nucleus_mask: Label mask of nuclei.
+    :param pathogen_mask: Label mask of pathogens.
+    :param organelle_mask: Label mask of organelles.
+    :param cytoplasm_mask: Label mask of cytoplasm.
+    :param channel_arrays: Intensity array of shape ``(H, W, C)`` in 2-D or
+        ``(Z, Y, X, C)`` in 3-D.
+    :param settings: Settings dict (``radial_dist``, ``calculate_correlation``,
+        ``homogeneity``, ``homogeneity_distances``, ``manders_thresholds``,
+        ``distance_gaussian_sigma``, and the ``<object>_mask_dim`` toggles).
+    :param sizes: Legacy size bins. Defaults to ``[3, 6, 12, 24]``.
+    :param periphery: When True, compute periphery-intensity stats for
+        nucleus/pathogen/organelle.
+    :param outside: When True, compute outside-of-object intensity stats.
+    :returns: Tuple ``(cell_df, nucleus_df, pathogen_df, organelle_df, cytoplasm_df)``.
+
+    .. note::
+
+       On a 3-D mask: the GLCM ``homogeneity_distance_*`` block is absent
+       (``skimage.feature.graycomatrix`` is 2-D only and there is no
+       co-occurrence matrix of a volume that reduces to it); every distance
+       transform is sampled with the voxel spacing; ``blur`` is measured plane
+       by plane in the xy plane, which is where focus is defined; and
+       ``centroid_weighted-0/-1/-2`` are renamed ``_z/_y/_x`` so that no 2-D
+       column name silently changes axis.
+    """
+    if sizes is None:
+        sizes = [3, 6, 12, 24]
+    radial_dist = settings['radial_dist']
+    calculate_correlation = settings['calculate_correlation']
+    homogeneity = settings['homogeneity']
+    distances = settings['homogeneity_distances']
+
+    ndim = _ndim_of(cell_mask)
+    spacing, _stamp = resolve_measurement_spacing(settings, ndim)
+    device = _measurement_device(settings)
+    if homogeneity and ndim == 3:
+        print("3-D mask: skipping GLCM homogeneity — "
+              "skimage.feature.graycomatrix is defined for 2-D images only, "
+              "so no homogeneity_distance_* columns are written for this field.")
+        homogeneity = False
+
+    intensity_props = ["label", "centroid_weighted", "centroid_weighted_local", "max_intensity", "mean_intensity", "min_intensity"]
+    col_lables = ['region_label', 'mean', 'percentile_5', 'percentile_10', 'percentile_25', 'percentile_50', 'percentile_75', 'percentile_85', 'percentile_95']
+    organelle_masks = {'organelle': organelle_mask}
+    organelle_masks.update(dict(extra_organelle_masks or {}))
+    ls = ['cell', 'nucleus', 'pathogen', *organelle_masks, 'cytoplasm']
+    labels = [cell_mask, nucleus_mask, pathogen_mask,
+              *organelle_masks.values(), cytoplasm_mask]
+    dfs = [[] for _ in ls]
+    
+    for i in range(0, channel_arrays.shape[-1]):
+        channel = channel_arrays[..., i]
+        channel_percentiles = _field_reference_percentiles(channel)
+        for j, (label, df) in enumerate(zip(labels, dfs)):
+
+            if np.max(label) == 0:
+                empty_df = pd.DataFrame()
+                df.append(empty_df)
+                continue
+
+            on_gpu = (device is not None
+                      and _gpu_measurable(label, channel, spacing))
+            if (on_gpu and tuple(intensity_props) == _GPU_INTENSITY_PROPS
+                    and np.min(channel) >= 0):
+                mask_intensity_df = _torch_intensity_table(
+                    label, channel, channel_percentiles, device)
+            else:
+                mask_intensity_df = _extended_regionprops_table(
+                    label, channel, intensity_props, spacing=spacing,
+                    field_percentiles=channel_percentiles)
+
+            if homogeneity:
+                if on_gpu:
+                    homogeneity_df = _torch_homogeneity(
+                        label, channel, distances, device)
+                else:
+                    homogeneity_df = _calculate_homogeneity(
+                        label, channel, distances)
+                mask_intensity_df = pd.concat([mask_intensity_df.reset_index(drop=True), homogeneity_df], axis=1)
+
+            if periphery:
+                if ls[j] in ('nucleus', 'pathogen', *ORGANELLE_ROLES):
+                    periphery_intensity_stats = _periphery_intensity(label, channel)
+                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])], axis=1)
+
+            if outside:
+                if ls[j] in ('cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES):
+                    outside_intensity_stats = _outside_intensity(
+                        label, channel, spacing=spacing,
+                        exclude_foreground=(ls[j] == 'cell'))
+                    mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
+
+            label_shape = np.asarray(label).shape
+            label_boxes = _label_bounding_boxes(label)
+            label_field = _whole_field_window(label_shape)
+            blur_col = []
+            for region_label in mask_intensity_df['label']:
+                box = _box_for(label_boxes, region_label)
+                window = (label_field if box is None
+                          else _grow_window(box, 1, label_shape))
+                blur_col.append(_estimate_blur(
+                    channel[window], mask=(label[window] == region_label)))
+            mask_intensity_df['blur'] = blur_col
+
+            mask_intensity_df.columns = [f'{ls[j]}_channel_{i}_{col}' if col != 'label' else col for col in mask_intensity_df.columns]
+            df.append(mask_intensity_df)
+            
+    if isinstance(settings['distance_gaussian_sigma'], int):
+        if settings['distance_gaussian_sigma'] != 0:
+            if settings['cell_mask_dim'] is not None:
+                if settings['nucleus_mask_dim'] is not None or settings['pathogen_mask_dim'] is not None:
+                    intensity_distance_df = _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings)
+                    dfs[0].append(intensity_distance_df)
+    
+    if radial_dist:
+        if np.max(nucleus_mask) != 0:
+            nucleus_radial_distributions = _calculate_radial_distribution(cell_mask, nucleus_mask, channel_arrays, num_bins=6, spacing=spacing)
+            nucleus_df = _create_dataframe(nucleus_radial_distributions, 'nucleus')
+            dfs[1].append(nucleus_df)
+
+        if np.max(pathogen_mask) != 0:
+            pathogen_radial_distributions = _calculate_radial_distribution(cell_mask, pathogen_mask, channel_arrays, num_bins=6, spacing=spacing)
+            pathogen_df = _create_dataframe(pathogen_radial_distributions, 'pathogen')
+            dfs[2].append(pathogen_df)
+
+        for offset, (role, current_mask) in enumerate(
+                organelle_masks.items(), start=3):
+            if np.max(current_mask) != 0:
+                distributions = _calculate_radial_distribution(
+                    cell_mask, current_mask, channel_arrays,
+                    num_bins=6, spacing=spacing)
+                dfs[offset].append(_create_dataframe(distributions, role))
+
+    if settings.get('cell_mask_dim') is not None and np.max(cell_mask) != 0:
+        child_masks = [(1, nucleus_mask), (2, pathogen_mask)] + [
+            (index, mask) for index, mask in enumerate(
+                organelle_masks.values(), start=3)]
+        for idx, child_mask in child_masks:
+            if np.max(child_mask) == 0:
+                continue
+            for existing in dfs[idx]:
+                if 'cell_id' in existing.columns:
+                    existing.drop(columns=['cell_id'], inplace=True)
+            parent_link = _map_child_to_parent(child_mask, cell_mask,
+                                               child_name='label',
+                                               parent_name='cell_id')
+            parent_link['cell_id'] = parent_link['cell_id'].astype(float).replace(0.0, np.nan)
+            dfs[idx].append(parent_link.reset_index(drop=True))
+
+    if settings.get('pathogen_mask_dim') is not None:
+        from .host_pathogen import vacuole_links
+        for idx, (role, child_mask) in enumerate(organelle_masks.items(), start=3):
+            if np.max(child_mask) != 0:
+                links = vacuole_links(child_mask, pathogen_mask).rename(
+                    columns={'pathogen_overlap_fraction': f'{role}_pathogen_overlap_fraction'})
+                dfs[idx].append(links)
+
+    if calculate_correlation:
+        if channel_arrays.shape[-1] >= 2:
+            for i in range(channel_arrays.shape[-1]):
+                for j in range(i+1, channel_arrays.shape[-1]):
+                    chan_i = channel_arrays[..., i]
+                    chan_j = channel_arrays[..., j]
+                    for m, mask in enumerate(labels):
+                        coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
+                        coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
+                        dfs[m].append(coloc_df)
+    
+    return tuple(pd.concat(frames, axis=1) for frames in dfs)
+    
+def _create_dataframe(radial_distributions, object_type):
+        """Convert a ``{(cell, obj, ch): bins}`` mapping into a per-object DataFrame."""
+        df = pd.DataFrame()
+        for key, value in radial_distributions.items():
+            cell_label, object_label, channel_index = key
+            for i in range(len(value)):
+                col_name = f'{object_type}_rad_dist_channel_{channel_index}_bin_{i}'
+                df.loc[object_label, col_name] = value[i]
+            df.loc[object_label, 'cell_id'] = cell_label
+        df = df.reset_index().rename(columns={'index': 'label'})
+        return df
+
+def _whole_field_window(shape):
+    """The slice tuple covering every voxel of an array of ``shape``."""
+    return tuple(slice(0, int(dim)) for dim in shape)
+
+
+def _label_bounding_boxes(label_mask):
+    """Return ``{label: slice tuple}``, one bounding box per non-zero label.
+
+    Per-object work in this module is written as a whole-field comparison
+    (``label_mask == region``) inside a loop over objects, so reaching an
+    object a few tens of pixels across costs a pass over the entire field and
+    the loop costs O(objects x field). Restricting each iteration to the
+    object's own bounding box is exact rather than approximate: it selects the
+    same pixels in the same C order, so every reduction over them -- a mean, a
+    percentile, a pairwise correlation -- is unchanged to the last bit.
+
+    The mapping is an optimisation hint and never a filter. A label with no
+    box in it is simply measured over the whole field, which is what the
+    callers do, so no object is ever dropped by cropping.
+
+    :param label_mask: label mask, 2-D or 3-D.
+    :returns: mapping from label to slice tuple. Empty when the labels are not
+        whole numbers, or when the largest label exceeds the voxel count --
+        :func:`scipy.ndimage.find_objects` enumerates every label up to the
+        maximum, so a mask numbered that sparsely would cost more to box than
+        the crops save.
+    """
+    arr = np.asarray(label_mask)
+    if arr.size == 0:
+        return {}
+    if not np.issubdtype(arr.dtype, np.integer):
+        if not np.all(np.isfinite(arr)) or not np.all(arr == np.rint(arr)):
+            return {}
+        arr = arr.astype(np.int64)
+    if int(arr.max()) > arr.size:
+        return {}
+    return {index + 1: box
+            for index, box in enumerate(find_objects(arr))
+            if box is not None}
+
+
+def _box_for(boxes, label):
+    """The bounding box recorded for ``label``, or ``None`` when there is none.
+
+    An empty mapping is answered without touching ``label`` at all. That is not
+    a shortcut: :func:`_label_bounding_boxes` returns nothing precisely when the
+    labels are not whole numbers, and those are the labels that cannot be used
+    as a key -- ``1.5`` would truncate onto object 1's box, and a NaN label,
+    which a float mask can carry and which every caller currently reports as an
+    empty object, would raise.
+    """
+    if not boxes:
+        return None
+    return boxes.get(int(label))
+
+
+def _grow_window(window, pad, shape):
+    """Grow a slice tuple by ``pad`` voxels per axis, clipped to ``shape``.
+
+    :param window: slice tuple to grow.
+    :param pad: one margin for every axis, or a per-axis sequence.
+    :param shape: array shape the result is clipped to.
+    """
+    pads = pad if isinstance(pad, (tuple, list)) else (pad,) * len(shape)
+    return tuple(slice(max(0, sl.start - int(margin)),
+                       min(int(dim), sl.stop + int(margin)))
+                 for sl, margin, dim in zip(window, pads, shape))
+
+
+def _union_window(first, second):
+    """The smallest slice tuple containing both windows."""
+    return tuple(slice(min(a.start, b.start), max(a.stop, b.stop))
+                 for a, b in zip(first, second))
+
+
+def _ring_padding(distance, spacing, shape):
+    """Voxels of margin an object needs for a ``distance``-wide outside ring.
+
+    With a voxel spacing, a voxel ``n`` steps from the object along axis ``k``
+    is at least ``n * spacing[k]`` away, so nothing inside the ring lies
+    further than ``ring_width / spacing[k]`` steps out and a box grown by that
+    much contains the whole ring. Without one the ring is ``distance``
+    iterations of :func:`scipy.ndimage.binary_dilation`, whose reach is
+    ``distance`` voxels along each axis.
+
+    Two inputs bound nothing and get the whole field, so that the ring is
+    measured exactly as it would be with no cropping at all: a spacing with a
+    step that is zero or not finite, and a ``distance`` that is not positive --
+    ``binary_dilation`` reads ``iterations < 1`` as "repeat until the result
+    stops changing", which floods the array rather than growing a ring.
+    """
+    whole = tuple(int(dim) for dim in shape)
+    if not float(distance) > 0:
+        return whole
+    if spacing is None:
+        return (int(distance),) * len(shape)
+    steps = [float(step) for step in spacing]
+    if not all(np.isfinite(step) and step > 0 for step in steps):
+        return whole
+    ring_width = float(distance) * steps[-1]
+    return tuple(int(ceil(ring_width / step)) for step in steps)
+
+
+def _percentiles_of(values, cut_points):
+    """Return the percentiles of ``values`` at every point in ``cut_points``.
+
+    ``np.percentile`` accepts a sequence for ``q`` and answering several cut
+    points in one call is several times cheaper than one call each, because the
+    vector is partitioned once instead of once per point.
+
+    It is not always the same arithmetic, though. On a float32 input numpy's
+    sequence form computes the interpolation in float64 and its scalar form
+    computes it in float32, and the two disagree in the last bits -- so an
+    intensity column would quietly move the day it was batched. Batching is
+    therefore used only where numpy reaches float64 either way (integers,
+    booleans and float64 itself); a narrower float gets one call per point and
+    the value a database already holds.
+
+    :param values: 1-D array of pixel values.
+    :param cut_points: percentile positions in [0, 100].
+    :returns: array of percentiles, one per cut point, in the given order.
+    """
+    array = np.asarray(values)
+    batched_is_exact = (np.issubdtype(array.dtype, np.integer)
+                        or array.dtype == np.bool_
+                        or array.dtype == np.float64)
+    if batched_is_exact:
+        return np.percentile(array, cut_points)
+    return np.array([np.percentile(array, point) for point in cut_points])
+
+
+def _field_reference_percentiles(image):
+    """Return the field's ``(p90, p10)`` intensity references, NaN when empty.
+
+    ``frac_high90`` / ``frac_low10`` are thresholded on the whole field, so the
+    pair depends only on the channel and not on which mask is being measured.
+    :func:`_intensity_measurements` measures every mask against every channel,
+    so computing them inside :func:`_extended_regionprops_table` re-ravelled
+    and re-sorted the same channel once per mask.
+    """
+    field = np.asarray(image, dtype=float).ravel()
+    field = field[~np.isnan(field)]
+    if not field.size:
+        return np.nan, np.nan
+    return float(np.percentile(field, 90)), float(np.percentile(field, 10))
+
+
+def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
+                                field_percentiles=None):
+    """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles).
+
+    :param labels: label mask, 2-D or 3-D.
+    :param image: co-aligned intensity image.
+    :param intensity_props: regionprops property names.
+    :param spacing: voxel spacing from :func:`resolve_measurement_spacing`;
+        ``None`` in 2-D, which skimage treats as "not supplied".
+    :param field_percentiles: the ``(p90, p10)`` of ``image`` from
+        :func:`_field_reference_percentiles`, for a caller that measures
+        several masks against one channel and would otherwise recompute them
+        per mask. Computed here when omitted, so the values are identical
+        either way.
+    """
+
+    def _gini(array):
+        """NaN-safe Gini coefficient of an intensity array."""
+        array = np.abs(array[~np.isnan(array)])
+        n = array.size
+        array = np.sort(array)
+        index = np.arange(1, n + 1)
+        return (np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)) if np.sum(array) else np.nan
+    
+    props = regionprops_table(labels, image, properties=intensity_props, spacing=spacing)
+    df = pd.DataFrame(props)
+    if _ndim_of(labels) == 3:
+        df = _rename_3d_centroids(df)
+
+    if field_percentiles is None:
+        field_percentiles = _field_reference_percentiles(image)
+    field_p90, field_p10 = field_percentiles
+
+    regions = regionprops(labels, intensity_image=image, spacing=spacing)
+    integrated_intensity = []
+    std_intensity = []
+    median_intensity = []
+    skew_intensity = []
+    kurtosis_intensity = []
+    mode_intensity = []
+    range_intensity = []
+    iqr_intensity = []
+    cv_intensity = []
+    gini_intensity = []
+    frac_high90 = []
+    frac_low10 = []
+    entropy_intensity = []
+
+    def _masked_intensity(region):
+        """Pixels inside a region across old and new scikit-image names."""
+        try:
+            intensity = region.image_intensity
+        except AttributeError:
+            intensity = region.intensity_image
+        return intensity[region.image]
+
+    for region in regions:
+        intens = _masked_intensity(region)
+        intens = intens[~np.isnan(intens)]
+        if intens.size == 0:
+            integrated_intensity.append(np.nan)
+            std_intensity.append(np.nan)
+            median_intensity.append(np.nan)
+            skew_intensity.append(np.nan)
+            kurtosis_intensity.append(np.nan)
+            mode_intensity.append(np.nan)
+            range_intensity.append(np.nan)
+            iqr_intensity.append(np.nan)
+            cv_intensity.append(np.nan)
+            gini_intensity.append(np.nan)
+            frac_high90.append(np.nan)
+            frac_low10.append(np.nan)
+            entropy_intensity.append(np.nan)
+        else:
+            has_variation = not np.all(intens == intens[0])
+            integrated_intensity.append(np.sum(intens))
+            std_intensity.append(np.std(intens))
+            median_intensity.append(np.median(intens))
+            skew_intensity.append(
+                skew(intens) if intens.size > 2 and has_variation else np.nan)
+            kurtosis_intensity.append(
+                kurtosis(intens) if intens.size > 3 and has_variation else np.nan)
+            mode_val = np.atleast_1d(np.asarray(mode(intens, nan_policy='omit').mode))
+            mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
+            range_intensity.append(np.ptp(intens))
+            upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
+            iqr_intensity.append(upper_quartile - lower_quartile)
+            cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
+            gini_intensity.append(_gini(intens))
+            frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
+            frac_low10.append(np.mean(intens < field_p10) if np.isfinite(field_p10) else np.nan)
+            entropy_intensity.append(shannon_entropy(intens) if intens.size > 1 else 0.0)
+
+    df['integrated_intensity'] = integrated_intensity
+    df['std_intensity'] = std_intensity
+    df['median_intensity'] = median_intensity
+    df['skew_intensity'] = skew_intensity
+    df['kurtosis_intensity'] = kurtosis_intensity
+    df['mode_intensity'] = mode_intensity
+    df['range_intensity'] = range_intensity
+    df['iqr_intensity'] = iqr_intensity
+    df['cv_intensity'] = cv_intensity
+    df['gini_intensity'] = gini_intensity
+    df['frac_high90'] = frac_high90
+    df['frac_low10'] = frac_low10
+    df['entropy_intensity'] = entropy_intensity
+
+    percentiles = [5, 10, 25, 75, 85, 95]
+    per_region = [_percentiles_of(_masked_intensity(region), percentiles)
+                  for region in regions]
+    for position, p in enumerate(percentiles):
+        df[f'percentile_{p}'] = [values[position] for values in per_region]
+    return df
+
+def _calculate_homogeneity(label, channel, distances=None):
+        """Return per-region GLCM homogeneity across the requested co-occurrence distances.
+
+        :raises ValueError: when ``label`` is not 2-D.
+            ``skimage.feature.graycomatrix`` accepts a 2-D image only, and a
+            grey-level co-occurrence matrix of a volume is a different
+            construction (it needs 13 direction pairs rather than 4), not a
+            generalisation of this one. ``_intensity_measurements`` skips the
+            whole block for 3-D masks rather than calling this; the guard is
+            here so a direct caller gets an explanation instead of skimage's
+            "The parameter `image` must be a 2-dimensional array".
+        """
+        if _ndim_of(label) != 2:
+            raise ValueError(
+                "_calculate_homogeneity is 2-D only: skimage's graycomatrix "
+                f"takes a 2-D image and this mask is {_ndim_of(label)}-D. A "
+                "3-D run writes no homogeneity_distance_* columns.")
+        if distances is None:
+            distances = [2,4,8,16,32,64]
+        homogeneity_values = []
+        for region in regionprops(label):
+            region_image = region.image * channel[region.slice]
+            if not np.issubdtype(region_image.dtype, np.floating):
+                region_image = region_image.astype(int)
+            rescaled_image = rescale_intensity(
+                region_image, out_range=(0, 255)).astype('uint8')
+            homogeneity_per_distance = []
+            for d in distances:
+                glcm = graycomatrix(rescaled_image, [d], [0], symmetric=True, normed=True)
+                if not np.any(glcm):
+                    homogeneity_per_distance.append(np.nan)
+                else:
+                    homogeneity_per_distance.append(
+                        graycoprops(glcm, 'homogeneity')[0, 0])
+            homogeneity_values.append(homogeneity_per_distance)
+        columns = [f'homogeneity_distance_{d}' for d in distances]
+        homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
+
+        return homogeneity_df
+
+_GPU_INTENSITY_PROPS = ("label", "centroid_weighted", "centroid_weighted_local",
+                        "max_intensity", "mean_intensity", "min_intensity")
+
+
+def _measurement_device(settings):
+    """Return the CUDA device per-object measurement runs on, or ``None`` for the CPU path.
+
+    ``measure_gpu`` off, PyTorch not installed or no CUDA device all give
+    ``None``, and the NumPy/scikit-image measurements run unchanged. The GPU
+    path computes the same columns within float tolerance.
+    """
+    if not settings.get('measure_gpu', False):
+        return None
+    try:
+        import torch
+    except ImportError:
+        print("measure_gpu is on but PyTorch is not installed "
+              "(pip install torch); measuring on the CPU.")
+        return None
+    if not torch.cuda.is_available():
+        print("measure_gpu is on but no CUDA device is visible; "
+              "measuring on the CPU.")
+        return None
+    return torch.device('cuda')
+
+
+def _gpu_measurable(labels, image=None, spacing=None):
+    """Whether the vectorised GPU kernels reproduce the CPU path for this input.
+
+    They cover a 2-D mask without voxel spacing and a finite, real-valued
+    image; anything else keeps the scikit-image implementation.
+    """
+    if _ndim_of(labels) != 2 or spacing is not None:
+        return False
+    if image is None:
+        return True
+    image = np.asarray(image)
+    if image.dtype.kind not in 'uif' or image.dtype.itemsize > 8:
+        return False
+    if image.dtype.kind == 'f' and image.dtype != np.float32 and image.dtype != np.float64:
+        return False
+    return bool(np.isfinite(image).all())
+
+
+def _torch_label_segments(labels, image, device):
+    """Sort a mask's object pixels by (label, intensity) on ``device``.
+
+    Returns a dict of tensors: the sorted pixel intensities (float64), their
+    rows and columns, the object each belongs to as a 0-based segment index,
+    the object labels in ascending order and each object's first position and
+    pixel count.
+    """
+    import torch
+    labels = np.asarray(labels)
+    lab = torch.as_tensor(labels.astype(np.int64, copy=False).ravel(), device=device)
+    fg = torch.nonzero(lab > 0).squeeze(1)
+    lab = lab[fg]
+    if image is None:
+        val = torch.zeros(fg.shape[0], dtype=torch.float64, device=device)
+    else:
+        val = torch.as_tensor(np.asarray(image, dtype=np.float64).ravel(),
+                              device=device)[fg]
+    order = torch.sort(val, stable=True).indices
+    order = order[torch.sort(lab[order], stable=True).indices]
+    fg, lab, val = fg[order], lab[order], val[order]
+    object_labels, counts = torch.unique_consecutive(lab, return_counts=True)
+    starts = torch.cumsum(counts, 0) - counts
+    seg = torch.repeat_interleave(
+        torch.arange(object_labels.shape[0], device=device), counts)
+    width = labels.shape[1]
+    return {'val': val, 'row': torch.div(fg, width, rounding_mode='floor'),
+            'col': fg % width, 'seg': seg, 'labels': object_labels,
+            'starts': starts, 'counts': counts}
+
+
+def _torch_segment_sum(seg, values, n_segments):
+    """Sum ``values`` per segment in float64."""
+    import torch
+    out = torch.zeros(n_segments, dtype=torch.float64, device=values.device)
+    return out.index_add_(0, seg, values.to(torch.float64))
+
+
+def _torch_segment_extreme(seg, values, n_segments, reduce):
+    """Per-segment ``'amin'`` or ``'amax'`` of ``values``."""
+    import torch
+    fill = values.max() if reduce == 'amin' else values.min()
+    out = torch.full((n_segments,), 0, dtype=values.dtype, device=values.device)
+    out.fill_(fill)
+    return out.scatter_reduce_(0, seg, values, reduce=reduce, include_self=True)
+
+
+def _torch_segment_percentile(segments, q):
+    """NumPy's default ('linear') percentile ``q`` of every sorted segment."""
+    import torch
+    val, starts, counts = segments['val'], segments['starts'], segments['counts']
+    position = (counts - 1).to(torch.float64) * (q / 100.0)
+    low = torch.floor(position)
+    t = position - low
+    low = low.to(torch.int64)
+    high = torch.minimum(low + 1, counts - 1)
+    a = val[starts + low]
+    b = val[starts + high]
+    diff = b - a
+    lerp = a + diff * t
+    return torch.where(t >= 0.5, b - diff * (1 - t), lerp)
+
+
+def _torch_intensity_table(labels, image, field_percentiles, device):
+    """Vectorised equivalent of :func:`_extended_regionprops_table` for a 2-D mask.
+
+    One sort of the object pixels by (label, intensity) gives every order
+    statistic (min, max, median, percentiles, IQR, mode, Gini), and segment
+    sums give the moments, so the whole table is a handful of array passes
+    instead of one Python iteration per object. Covers the default intensity
+    properties on a finite, non-negative image; the caller checks that.
+    """
+    import torch
+    image = np.asarray(image)
+    segments = _torch_label_segments(labels, image, device)
+    val, seg, starts, counts = (segments['val'], segments['seg'],
+                                segments['starts'], segments['counts'])
+    n_obj = int(counts.shape[0])
+    n = counts.to(torch.float64)
+    ends = starts + counts - 1
+    total = _torch_segment_sum(seg, val, n_obj)
+    mean = total / n
+    centred = val - mean[seg]
+    m2 = _torch_segment_sum(seg, centred ** 2, n_obj) / n
+    m3 = _torch_segment_sum(seg, centred ** 3, n_obj) / n
+    m4 = _torch_segment_sum(seg, centred ** 4, n_obj) / n
+    vmin, vmax = val[starts], val[ends]
+    has_variation = vmax != vmin
+    resolution = 1e-6 if image.dtype == np.float32 else 1e-15
+    flat = m2 <= (resolution * mean) ** 2
+    nan = torch.full_like(mean, float('nan'))
+    skew_v = torch.where(has_variation & (n > 2) & ~flat, m3 / m2 ** 1.5, nan)
+    kurt_v = torch.where(has_variation & (n > 3) & ~flat, m4 / m2 ** 2 - 3.0, nan)
+    std = torch.where(has_variation, torch.sqrt(m2), torch.zeros_like(m2))
+
+    row = segments['row'].to(torch.float64)
+    col = segments['col'].to(torch.float64)
+    cy = _torch_segment_sum(seg, row * val, n_obj) / total
+    cx = _torch_segment_sum(seg, col * val, n_obj) / total
+    r0 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amin').to(torch.float64)
+    c0 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amin').to(torch.float64)
+
+    position = torch.arange(val.shape[0], device=val.device)
+    new_run = torch.ones_like(val, dtype=torch.bool)
+    new_run[1:] = (val[1:] != val[:-1]) | (seg[1:] != seg[:-1])
+    run_id = torch.cumsum(new_run.to(torch.int64), 0) - 1
+    run_start = position[new_run]
+    run_seg = seg[run_start]
+    run_count = torch.bincount(run_id)
+    best = _torch_segment_extreme(run_seg, run_count, n_obj, 'amax')
+    run_index = torch.arange(run_count.shape[0], device=val.device)
+    candidate = torch.where(run_count == best[run_seg], run_index,
+                            torch.full_like(run_index, run_count.shape[0]))
+    first = _torch_segment_extreme(run_seg, candidate, n_obj, 'amin')
+    mode_v = val[run_start[first]]
+    p = run_count.to(torch.float64) / n[run_seg]
+    entropy = -_torch_segment_sum(run_seg, p * torch.log2(p), n_obj)
+    entropy = torch.where(counts > 1, entropy, torch.zeros_like(entropy))
+
+    rank = (position - starts[seg] + 1).to(torch.float64)
+    gini_num = _torch_segment_sum(seg, (2 * rank - n[seg] - 1) * val, n_obj)
+    gini = torch.where(total != 0, gini_num / (n * total), nan)
+
+    field_p90, field_p10 = field_percentiles
+    if np.isfinite(field_p90):
+        high = _torch_segment_sum(seg, (val > field_p90).to(torch.float64), n_obj) / n
+    else:
+        high = nan
+    if np.isfinite(field_p10):
+        low = _torch_segment_sum(seg, (val < field_p10).to(torch.float64), n_obj) / n
+    else:
+        low = nan
+
+    pct = {q: _torch_segment_percentile(segments, q)
+           for q in (5, 10, 25, 50, 75, 85, 95)}
+
+    def host(tensor):
+        """Copy a tensor to a NumPy array."""
+        return tensor.detach().cpu().numpy()
+
+    narrow = np.float32 if image.dtype == np.float32 else np.float64
+    quantile = np.percentile(np.zeros(2, dtype=image.dtype), 50).dtype
+    df = pd.DataFrame({
+        'label': host(segments['labels']),
+        'centroid_weighted-0': host(cy),
+        'centroid_weighted-1': host(cx),
+        'centroid_weighted_local-0': host(cy - r0),
+        'centroid_weighted_local-1': host(cx - c0),
+        'max_intensity': host(vmax),
+        'mean_intensity': host(mean),
+        'min_intensity': host(vmin),
+        'integrated_intensity': host(total).astype(
+            np.add.reduce(np.zeros(1, dtype=image.dtype)).dtype),
+        'std_intensity': host(std).astype(narrow),
+        'median_intensity': host(pct[50]).astype(narrow),
+        'skew_intensity': host(skew_v),
+        'kurtosis_intensity': host(kurt_v),
+        'mode_intensity': host(mode_v),
+        'range_intensity': host(vmax - vmin).astype(image.dtype),
+        'iqr_intensity': host(pct[75] - pct[25]).astype(quantile),
+        'cv_intensity': host(torch.where(mean != 0, std / mean, nan)).astype(narrow),
+        'gini_intensity': host(gini),
+        'frac_high90': host(high) if torch.is_tensor(high) else np.nan,
+        'frac_low10': host(low) if torch.is_tensor(low) else np.nan,
+        'entropy_intensity': host(entropy),
+    })
+    for q in (5, 10, 25, 75, 85, 95):
+        df[f'percentile_{q}'] = host(pct[q]).astype(quantile)
+    return df
+
+
+def _torch_quantise(values, imin, imax, float32):
+    """The uint8 grey level ``rescale_intensity(..., out_range=(0, 255))`` gives ``values``.
+
+    Reproduces scikit-image's arithmetic: float32 images are rescaled in
+    float32, everything else in float64, then truncated to uint8. A region
+    whose rescale range is empty gets level 0 throughout, which leaves every
+    co-occurrence on the diagonal exactly as the constant CPU image does.
+    """
+    import torch
+    dtype = torch.float32 if float32 else torch.float64
+    span = (imax - imin).to(dtype)
+    safe = torch.where(span == 0, torch.ones_like(span), span)
+    scaled = ((values.to(dtype) - imin.to(dtype)) / safe) * 255.0
+    scaled = torch.where(span == 0, torch.zeros_like(scaled), scaled)
+    return torch.trunc(scaled).to(torch.float64)
+
+
+def _torch_homogeneity(labels, image, distances, device):
+    """Vectorised equivalent of :func:`_calculate_homogeneity` for a 2-D mask.
+
+    The CPU path builds, per object, a 256-level horizontal co-occurrence
+    matrix of the object's bounding box (object pixels rescaled to 0-255, every
+    other pixel of the box zero) and reads its homogeneity. That homogeneity is
+    the mean over the box's horizontal pixel pairs of ``1 / (1 + (a - b)^2)``,
+    so no matrix is needed: pairs with no object pixel sit on the diagonal and
+    add 1 each, and pairs touching the object are enumerated for all objects
+    at once over the whole field.
+    """
+    import torch
+    if distances is None:
+        distances = [2, 4, 8, 16, 32, 64]
+    image = np.asarray(image)
+    labels = np.asarray(labels)
+    float32 = image.dtype == np.float32
+    segments = _torch_label_segments(labels, image, device)
+    seg, counts = segments['seg'], segments['counts']
+    n_obj = int(counts.shape[0])
+    columns = [f'homogeneity_distance_{d}' for d in distances]
+    if n_obj == 0:
+        return pd.DataFrame(columns=columns)
+    starts, ends = segments['starts'], segments['starts'] + counts - 1
+    r0 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amin')
+    r1 = _torch_segment_extreme(seg, segments['row'], n_obj, 'amax') + 1
+    c0 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amin')
+    c1 = _torch_segment_extreme(seg, segments['col'], n_obj, 'amax') + 1
+    height, width = r1 - r0, c1 - c0
+    fills = counts == height * width
+    imin, imax = segments['val'][starts], segments['val'][ends]
+    zero = torch.zeros_like(imin)
+    imin = torch.where(fills, imin, torch.minimum(imin, zero))
+    imax = torch.where(fills, imax, torch.maximum(imax, zero))
+    outside_level = _torch_quantise(zero, imin, imax, float32)
+
+    label_to_seg = torch.full((int(labels.max()) + 1,), -1, dtype=torch.int64,
+                              device=device)
+    label_to_seg[segments['labels']] = torch.arange(n_obj, device=device)
+    lab = torch.as_tensor(labels.astype(np.int64, copy=False), device=device)
+    val = torch.as_tensor(image.astype(np.float64, copy=False), device=device)
+    field_width = labels.shape[1]
+    results = []
+    for d in distances:
+        pairs = height * (width - d)
+        if d >= field_width:
+            results.append(torch.full((n_obj,), float('nan'), dtype=torch.float64,
+                                      device=device))
+            continue
+        left, right = lab[:, :-d].reshape(-1), lab[:, d:].reshape(-1)
+        v_left, v_right = val[:, :-d].reshape(-1), val[:, d:].reshape(-1)
+        col_left = torch.arange(field_width - d, device=device).repeat(labels.shape[0])
+        sums = torch.zeros(n_obj, dtype=torch.float64, device=device)
+        touched = torch.zeros(n_obj, dtype=torch.float64, device=device)
+
+        k = label_to_seg[left.clamp(min=0)]
+        keep = (left > 0) & (col_left + d < c1[k.clamp(min=0)])
+        k = k[keep]
+        a = _torch_quantise(v_left[keep], imin[k], imax[k], float32)
+        same = (right[keep] == left[keep])
+        b = torch.where(same, _torch_quantise(v_right[keep], imin[k], imax[k], float32),
+                        outside_level[k])
+        sums.index_add_(0, k, 1.0 / (1.0 + (a - b) ** 2))
+        touched.index_add_(0, k, torch.ones_like(a))
+
+        k = label_to_seg[right.clamp(min=0)]
+        keep = (right > 0) & (right != left) & (col_left >= c0[k.clamp(min=0)])
+        k = k[keep]
+        b = _torch_quantise(v_right[keep], imin[k], imax[k], float32)
+        a = outside_level[k]
+        sums.index_add_(0, k, 1.0 / (1.0 + (a - b) ** 2))
+        touched.index_add_(0, k, torch.ones_like(b))
+
+        pairs_f = pairs.to(torch.float64)
+        value = (sums + pairs_f - touched) / pairs_f
+        results.append(torch.where(pairs > 0, value,
+                                   torch.full_like(value, float('nan'))))
+    stacked = torch.stack(results, dim=1).detach().cpu().numpy()
+    return pd.DataFrame(stacked, columns=columns)
+
+
+def _torch_zernike(mask, degree, device):
+    """Vectorised equivalent of the per-object mahotas Zernike moments.
+
+    Every object is taken on its own bounding box, centred on its centre of
+    mass and scaled by its largest centre-to-pixel distance, exactly as
+    :func:`_calculate_zernike` calls ``mahotas.features.zernike_moments``; the
+    radial polynomials are then evaluated for all object pixels at once and
+    summed per object. Returns an ``(n_objects, n_moments)`` array.
+
+    Which boundary pixels fall inside the unit disk is decided exactly as
+    Mahotas decides it: the radius is a correctly rounded square root taken
+    on the host, and ``sqrt(s) <= 1`` is tested as ``s <= nextafter(1, 2)``,
+    which is the same predicate without relying on the device's square root.
+    """
+    import torch
+    from math import factorial, pi
+    segments = _torch_label_segments(mask, None, device)
+    seg, counts = segments['seg'], segments['counts']
+    n_obj = int(counts.shape[0])
+    n = counts.to(torch.float64)
+    row = segments['row']
+    col = segments['col']
+    y = (row - _torch_segment_extreme(seg, row, n_obj, 'amin')[seg]).to(torch.float64)
+    x = (col - _torch_segment_extreme(seg, col, n_obj, 'amin')[seg]).to(torch.float64)
+    cy = _torch_segment_sum(seg, y, n_obj) / n
+    cx = _torch_segment_sum(seg, x, n_obj) / n
+    squared = (y - cy[seg]) ** 2 + (x - cx[seg]) ** 2
+    farthest = _torch_segment_extreme(seg, squared, n_obj, 'amax')
+    radius = torch.as_tensor(
+        np.maximum(np.sqrt(farthest.cpu().numpy()), 1.0), device=device)
+    yn = (y - cy[seg]) / radius[seg]
+    xn = (x - cx[seg]) / radius[seg]
+    squared = xn ** 2 + yn ** 2
+    inside = squared <= np.nextafter(1.0, 2.0)
+    seg, yn, xn = seg[inside], yn[inside], xn[inside]
+    dn = torch.clamp(torch.sqrt(squared[inside]), min=1e-9)
+    weight = 1.0 / _torch_segment_sum(seg, torch.ones_like(dn), n_obj)
+    a_re, a_im = xn / dn, yn / dn
+    powers = [(torch.ones_like(dn), torch.zeros_like(dn))]
+    for _ in range(degree + 1):
+        p_re, p_im = powers[-1]
+        powers.append((p_re * a_re - p_im * a_im, p_re * a_im + p_im * a_re))
+    moments = []
+    for order in range(degree + 1):
+        for rep in range(order + 1):
+            if (order - rep) % 2:
+                continue
+            radial = torch.zeros_like(dn)
+            for m in range((order - rep) // 2 + 1):
+                g = ((-1) ** m) * factorial(order - m) / (
+                    factorial(m) * factorial((order - 2 * m + rep) // 2)
+                    * factorial((order - 2 * m - rep) // 2))
+                radial = radial + g * dn ** (order - 2 * m)
+            p_re, p_im = powers[rep]
+            re = _torch_segment_sum(seg, radial * p_re, n_obj) * weight
+            im = _torch_segment_sum(seg, -radial * p_im, n_obj) * weight
+            moments.append((order + 1) / pi * torch.sqrt(re ** 2 + im ** 2))
+    return torch.stack(moments, dim=1).detach().cpu().numpy()
+
+
+def _periphery_intensity(label_mask, image):
+    """Return per-region intensity stats along each object's outer boundary.
+
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+    """
+    periphery_intensity_stats = []
+    boundary = find_boundaries(label_mask)
+    boxes = _label_bounding_boxes(label_mask)
+    whole = _whole_field_window(np.asarray(label_mask).shape)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
+    for region in np.unique(label_mask)[1:]:
+        box = _box_for(boxes, region)
+        window = whole if box is None else box
+        region_boundary = boundary[window] & (label_mask[window] == region)
+        intensities = image[window][region_boundary]
+        if intensities.size == 0:
+            periphery_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
+        else:
+            quantiles = _percentiles_of(intensities, cut_points)
+            periphery_intensity_stats.append(
+                (region, np.mean(intensities), *quantiles))
+    return periphery_intensity_stats
+
+def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
+                       exclude_foreground=False):
+    """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
+
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :param distance: Ring width, in xy pixels.
+    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
+        ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
+    :param exclude_foreground: Keep only label-zero ring pixels for cell
+        background; an empty background ring yields NaN statistics. False
+        preserves the historical surrounding-object measurements.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+
+    .. note::
+
+       In 3-D the ring is built from a **sampled** distance transform, not from
+       ``binary_dilation(iterations=distance)``. Iterated dilation counts
+       voxels, so on a stack with dz = 5 dxy it grows the shell 5x further in z
+       than in xy in physical terms -- a 25x thicker slab of neighbouring
+       tissue on one axis than on the others -- and the "outside intensity" it
+       reports is dominated by whatever sits above and below the object. The
+       ring width is converted with the xy spacing so it still means
+       ``distance`` xy pixels.
+    """
+    outside_intensity_stats = []
+    if spacing is not None:
+        ring_width = float(distance) * float(spacing[-1])
+    shape = np.asarray(label_mask).shape
+    boxes = _label_bounding_boxes(label_mask)
+    whole = _whole_field_window(shape)
+    pad = _ring_padding(distance, spacing, shape)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
+    for region in np.unique(label_mask):
+        if region == 0:
+            continue
+        box = _box_for(boxes, region)
+        window = whole if box is None else _grow_window(box, pad, shape)
+        region_mask = label_mask[window] == region
+        if spacing is None:
+            dilated_mask = binary_dilation(region_mask, iterations=distance)
+        else:
+            edt = distance_transform_edt(~region_mask, sampling=spacing)
+            dilated_mask = edt <= ring_width
+        outside_mask = dilated_mask & ~region_mask
+        if exclude_foreground:
+            outside_mask &= label_mask[window] == 0
+        intensities = image[window][outside_mask]
+        if intensities.size == 0:
+            outside_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
+        else:
+            quantiles = _percentiles_of(intensities, cut_points)
+            outside_intensity_stats.append(
+                (region, np.mean(intensities), *quantiles))
+    return outside_intensity_stats
+
+def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_bins=6, spacing=None):
+    """
+    Calculate the radial distribution of average intensities for each object in each cell.
+
+    Args:
+        cell_mask (numpy.ndarray): The mask representing the cells.
+        object_mask (numpy.ndarray): The mask representing the objects.
+        channel_arrays (numpy.ndarray): The array of channel images, channel last.
+        num_bins (int, optional): The number of bins for the radial distribution. Defaults to 6.
+        spacing (tuple, optional): Voxel spacing from
+            :func:`resolve_measurement_spacing`, used as ``sampling`` for the
+            distance transform. ``None`` in 2-D. Without it the "distance"
+            from an object boundary in a 3-D stack counts planes and pixels as
+            equal steps, so a shell 3 planes away is binned with one 3 pixels
+            away even when it is five times further off in micrometres, and
+            every radial bin mixes the two.
+
+    Returns:
+        dict: A dictionary containing the radial distributions of average intensities for each object in each cell.
+            The keys are tuples of (cell_label, object_label, channel_index), and the values are numpy arrays
+            representing the radial distributions.
+
+    """
+    def _calculate_average_intensity(distance_map, single_channel_image, num_bins, region_mask):
+        """
+        Calculate the average intensity of a single-channel image based on the distance map.
+
+        Only pixels inside ``region_mask`` (the cell) are binned. The previous
+        version multiplied the distance map by the cell mask instead, which set
+        every pixel outside the cell to distance 0 and dumped the whole field
+        background into bin 0 — so ``rad_dist_..._bin_0`` measured background,
+        not the innermost shell, and inverted the meaning of the feature.
+
+        Args:
+            distance_map (numpy.ndarray): Distance from the object boundary.
+            single_channel_image (numpy.ndarray): The single-channel image.
+            num_bins (int): The number of bins for the radial distribution.
+            region_mask (numpy.ndarray): Boolean mask of the parent cell.
+
+        Returns:
+            numpy.ndarray: The radial distribution of average intensities.
+            Bins with no pixels are NaN rather than a meaningless 0.
+        """
+        radial_distribution = np.full(num_bins, np.nan)
+        in_region = distance_map[region_mask]
+        if in_region.size == 0:
+            return radial_distribution
+        max_distance = in_region.max()
+        if max_distance <= 0:
+            radial_distribution[0] = single_channel_image[region_mask].mean()
+            return radial_distribution
+        for i in range(num_bins):
+            min_distance = i * (max_distance / num_bins)
+            max_distance_i = (i + 1) * (max_distance / num_bins)
+            bin_mask = region_mask & (distance_map >= min_distance)
+            if i == num_bins - 1:
+                bin_mask &= (distance_map <= max_distance_i)
+            else:
+                bin_mask &= (distance_map < max_distance_i)
+            if bin_mask.any():
+                radial_distribution[i] = single_channel_image[bin_mask].mean()
+        return radial_distribution
+
+
+    object_radial_distributions = {}
+
+    shape = np.asarray(cell_mask).shape
+    whole = _whole_field_window(shape)
+    cell_boxes = _label_bounding_boxes(cell_mask)
+    object_boxes = _label_bounding_boxes(object_mask)
+
+    cell_labels = np.unique(cell_mask)
+    cell_labels = cell_labels[cell_labels != 0]
+
+    for cell_label in cell_labels:
+        cell_box = _box_for(cell_boxes, cell_label)
+        cell_window = whole if cell_box is None else cell_box
+        cell_region_in_box = cell_mask[cell_window] == cell_label
+
+        object_labels = np.unique(object_mask[cell_window][cell_region_in_box])
+        object_labels = object_labels[object_labels != 0]
+
+        for object_label in object_labels:
+            object_box = _box_for(object_boxes, object_label)
+            if object_box is None:
+                window = whole
+            else:
+                window = _grow_window(
+                    _union_window(cell_window, object_box), 2, shape)
+            cell_region = cell_mask[window] == cell_label
+            objecyt_region = object_mask[window] == object_label
+            object_boundary = find_boundaries(objecyt_region, mode='outer')
+            distance_map = distance_transform_edt(~object_boundary, sampling=spacing)
+            channels_in_window = channel_arrays[window]
+            for channel_index in range(channel_arrays.shape[-1]):
+                radial_distribution = _calculate_average_intensity(distance_map, channels_in_window[..., channel_index], num_bins, cell_region)
+                object_radial_distributions[(cell_label, object_label, channel_index)] = radial_distribution
+
+    return object_radial_distributions
+
+def _pearson_r(x, y):
+    """Pearson correlation of two equal-length vectors, as ``scipy.stats.pearsonr``.
+
+    The same coefficient (to float64 rounding) without SciPy's per-call
+    overhead, which dominated the object-level correlation loop. Plain
+    reductions rather than BLAS dot products, so a busy BLAS thread pool
+    cannot stall it. ``NaN`` when
+    either vector is constant, as SciPy returns.
+    """
+    x = np.asarray(x, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64)
+    xm = x - x.mean()
+    ym = y - y.mean()
+    den = np.sqrt((xm * xm).sum() * (ym * ym).sum())
+    if not den > 0:
+        return np.nan
+    return float(np.clip((xm * ym).sum() / den, -1.0, 1.0))
+
+
+def _calculate_correlation_object_level(channel_image1, channel_image2, mask, settings):
+        """
+        Calculate correlation at the object level between two channel images based on a mask.
+
+        Args:
+            channel_image1 (numpy.ndarray): The first channel image.
+            channel_image2 (numpy.ndarray): The second channel image.
+            mask (numpy.ndarray): The mask indicating the objects.
+            settings (dict): Additional settings for correlation calculation.
+
+        Returns:
+            pandas.DataFrame: A DataFrame containing the correlation data at the object level.
+
+        .. note::
+
+           The ``M1_correlation_<t>`` / ``M2_correlation_<t>`` columns were
+           removed on 2026-09-02 and are no longer written. They were never
+           Manders' coefficients: both channels were cut at their *own
+           within-object percentile* ``t`` and then shared a single overlap
+           mask, so M1 was capped at the object's own top-``(100-t)``
+           intensity fraction no matter where the other channel was -- with
+           ``channel_image2 == channel_image1`` the value was that cap, not
+           1.0. The pair was ~99% redundant (measured r(M1, M2) ~ 0.99) and
+           two pure noise channels scored 0.047 rather than ~0.
+
+           They were kept for a while beside the correct columns, behind
+           ``corrected_manders``, so old plates kept agreeing with themselves.
+           That shape is the problem: two definitions shipping at once,
+           under names that do not say which produced them, with the WRONG
+           one on by default. The setting is retired and the
+           three correct columns are now written unconditionally:
+
+           * ``manders_m1`` -- the true M1: the fraction of channel 1's
+             above-background intensity that lies where channel 2 is above
+             *its own* background.
+           * ``manders_m2`` -- the mirror statistic.
+           * ``manders_overlap_coefficient`` -- the actual Manders overlap
+             coefficient ``sum(a*b) / sqrt(sum(a^2) * sum(b^2))`` on the
+             background-subtracted vectors. Nothing in spaCR computed this
+             before, despite the tooltips naming it.
+
+           The background of each channel is estimated *inside each object*, as
+           ``median + 3 * 1.4826 * MAD``. The factor is fixed and deliberately
+           has no knob: an opt-in family needs one switch, not twenty. It is a
+           modelling choice rather than a theorem -- it recovers ground truth at
+           r = 1.0000 on uniform-Poisson synthetic background, and will do worse
+           on a real field with a strong illumination gradient.
+
+           All three are 0.0, never NaN, when a channel has no above-background
+           signal in the object. That is forced, not cosmetic:
+           ``utils.filter_dataframe_features`` does ``dropna(axis=1)``, so one
+           NaN anywhere deletes the whole column from every model matrix, and
+           64.5% of background-only objects would produce one. The cost is that
+           "no signal" and "signal that does not colocalise" both read 0.0.
+        """
+        corr_data = {}
+        boxes = _label_bounding_boxes(mask)
+        whole = _whole_field_window(np.asarray(mask).shape)
+        for i in np.unique(mask)[1:]:
+            box = _box_for(boxes, i)
+            window = whole if box is None else box
+            object_mask = (mask[window] == i)
+            object_channel_image1 = channel_image1[window][object_mask]
+            object_channel_image2 = channel_image2[window][object_mask]
+            if len(object_channel_image1) < 2 or len(object_channel_image2) < 2:
+                pearson_corr = np.nan
+            else:
+                pearson_corr = _pearson_r(object_channel_image1, object_channel_image2)
+
+            corr_data[i] = {f'label_correlation': i,
+                            f'Pearson_correlation': pearson_corr}
+
+            v1 = np.asarray(object_channel_image1, dtype=np.float64)
+            v2 = np.asarray(object_channel_image2, dtype=np.float64)
+            med1 = np.median(v1)
+            thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
+            med2 = np.median(v2)
+            thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
+            a = np.clip(v1 - thr1, 0, None)
+            b = np.clip(v2 - thr2, 0, None)
+            sa = a.sum()
+            sb = b.sum()
+            M1_true = float(a[v2 > thr2].sum() / sa) if sa > 0 else 0.0
+            M2_true = float(b[v1 > thr1].sum() / sb) if sb > 0 else 0.0
+            den = np.sqrt((a * a).sum() * (b * b).sum())
+            MOC = float((a * b).sum() / den) if den > 0 else 0.0
+
+            corr_data[i].update({'manders_m1': M1_true,
+                                 'manders_m2': M2_true,
+                                 'manders_overlap_coefficient': MOC})
+
+        return pd.DataFrame(corr_data.values())
+
+def _estimate_blur(image, mask=None):
+    """
+    Estimate focus as the variance of the Laplacian.
+
+    Without ``mask`` this is the variance of the Laplacian of the whole array,
+    which is only meaningful for a 2-D image.
+
+    With ``mask`` (a boolean array the same shape as ``image`` selecting one
+    object) the Laplacian is computed on the object's 2-D bounding-box patch,
+    grown by one pixel so the 3x3 kernel has real neighbours, and the variance
+    is taken over the object's *interior* — the mask eroded by one pixel with a
+    3x3 structuring element.
+
+    Two deliberate choices make this an actual focus measure:
+
+    * The patch is the RAW image. Out-of-object pixels inside the bounding box
+      are NOT zero-filled. Zero-filling puts a step edge at the object boundary
+      whose second derivative dwarfs the texture being measured, so the score
+      would track the object's perimeter-to-area ratio rather than its focus.
+    * The variance is taken only over the eroded interior, so every sampled
+      Laplacian value is determined solely by in-object pixels. That removes
+      both the artificial edge and any contribution from the neighbouring
+      background, without needing to fabricate values.
+
+    Objects too thin to erode (one pixel wide) fall back to the un-eroded mask;
+    those samples do see their neighbours, but the alternative is no value.
+
+    Callers previously passed ``image[label == region_label]`` — a 1-D vector of
+    the object's pixels in raster order. OpenCV treats that as an N x 1 image,
+    so the result was a second difference along raster order: blind to vertical
+    structure, sensitive to the row wrap-around, and not a focus measure.
+
+    **3-D volumes are measured plane by plane in the xy plane.** Focus is an
+    in-plane property: the objective's lateral resolution is what a blurred
+    edge reports on, while the z step is coarse, the axial PSF is elongated,
+    and consecutive planes are a different optical section rather than a
+    finer-grained sampling of the same one. A single ``cv2.Laplacian`` call on
+    a ``(Z, Y, X)`` array does not raise — OpenCV reads the third axis as up to
+    512 colour channels, so it silently returns the second derivative in the
+    **zy** plane, computed independently for each x column. That is a plausible
+    number measured in the wrong plane, which is worse than an error. Here the
+    kernel is applied to each ``(Y, X)`` plane and the variance is taken over
+    the object's in-plane interior across all planes.
+
+    :param image: Intensity image. Same shape as ``mask`` when ``mask`` is
+        given; 2-D ``(Y, X)`` or 3-D ``(Z, Y, X)``.
+    :param mask: Optional boolean object mask, same shape as ``image``.
+    :returns: Variance of the Laplacian; ``nan`` when ``mask`` selects nothing.
+    :raises ValueError: when ``mask`` is neither 2-D nor 3-D.
+    """
+    volumetric = False
+    if mask is not None:
+        mask = np.asarray(mask, dtype=bool)
+        if mask.ndim not in (2, 3):
+            raise ValueError(
+                f"_estimate_blur takes a 2-D (Y, X) or 3-D (Z, Y, X) mask, got "
+                f"{mask.ndim}-D of shape {mask.shape}.")
+        if not mask.any():
+            return np.nan
+        volumetric = mask.ndim == 3
+        y_axis, x_axis = (mask.ndim - 2, mask.ndim - 1)
+        rows = np.flatnonzero(mask.any(axis=tuple(a for a in range(mask.ndim) if a != y_axis)))
+        cols = np.flatnonzero(mask.any(axis=tuple(a for a in range(mask.ndim) if a != x_axis)))
+        r0 = max(int(rows[0]) - 1, 0)
+        r1 = min(int(rows[-1]) + 1, mask.shape[y_axis] - 1)
+        c0 = max(int(cols[0]) - 1, 0)
+        c1 = min(int(cols[-1]) + 1, mask.shape[x_axis] - 1)
+        if volumetric:
+            planes = np.flatnonzero(mask.any(axis=(1, 2)))
+            z0, z1 = int(planes[0]), int(planes[-1])
+            image = image[z0:z1 + 1, r0:r1 + 1, c0:c1 + 1]
+            sub_mask = mask[z0:z1 + 1, r0:r1 + 1, c0:c1 + 1]
+            structure = np.zeros((3, 3, 3), dtype=bool)
+            structure[1] = generate_binary_structure(2, 2)
+        else:
+            image = image[r0:r1 + 1, c0:c1 + 1]
+            sub_mask = mask[r0:r1 + 1, c0:c1 + 1]
+            structure = generate_binary_structure(2, 2)
+        interior = binary_erosion(sub_mask, structure=structure)
+        if not interior.any():
+            interior = sub_mask
+    else:
+        interior = None
+        volumetric = np.asarray(image).ndim == 3
+
+    if image.dtype != np.float64:
+        image_float = image.astype(np.float64)
+    else:
+        image_float = image
+    if volumetric:
+        lap = np.empty(image_float.shape, dtype=np.float64)
+        for z in range(image_float.shape[0]):
+            lap[z] = cv2.Laplacian(
+                np.ascontiguousarray(image_float[z]), cv2.CV_64F)
+    else:
+        lap = cv2.Laplacian(image_float, cv2.CV_64F)
+    if interior is None:
+        return lap.var()
+    return float(lap[interior].var())
+
+def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_arrays, settings):
+    """
+    Compute Gaussian-smoothed intensity-weighted centroid distances for each cell object.
+
+    Works for a 2-D ``(Y, X)`` mask and a 3-D ``(Z, Y, X)`` volume. Three things
+    are dimension-dependent and were 2-D-only:
+
+    * the bounding box was unpacked as ``minr, minc = ...``, which raises
+      ``ValueError: too many values to unpack`` on a 3-D coordinate array;
+    * ``distance_transform_edt`` was called without ``sampling``, so on an
+      anisotropic stack a distance of "3" meant 3 pixels across but 3 planes
+      down, which is a different physical length;
+    * ``gaussian_filter``'s scalar ``sigma`` smooths every axis equally, which
+      on an anisotropic stack blurs far further in z in physical terms than in
+      xy. The sigma is given per axis, scaled so it means the same physical
+      distance on each.
+    """
+
+    sigma = settings.get('distance_gaussian_sigma', 1.0)
+    ndim = _ndim_of(cell_mask)
+    spacing, _stamp = resolve_measurement_spacing(settings, ndim)
+    if spacing is not None:
+        physical = float(sigma) * float(spacing[-1])
+        filter_sigma = tuple(physical / float(s) for s in spacing)
+    else:
+        filter_sigma = sigma
+
+    cell_labels = np.unique(cell_mask)
+    cell_labels = cell_labels[cell_labels > 0]
+
+    dfs = []
+    nucleus_dt = distance_transform_edt(nucleus_mask == 0, sampling=spacing)
+    pathogen_dt = distance_transform_edt(pathogen_mask == 0, sampling=spacing)
+
+    for ch in range(channel_arrays.shape[-1]):
+        channel_img = channel_arrays[..., ch]
+        blurred_img = gaussian_filter(channel_img, sigma=filter_sigma)
+
+        data = []
+        for label in cell_labels:
+            cell_coords = np.argwhere(cell_mask == label)
+            if cell_coords.size == 0:
+                data.append([label, np.nan, np.nan])
+                continue
+
+            lower = np.min(cell_coords, axis=0)
+            upper = np.max(cell_coords, axis=0) + 1
+            box = tuple(slice(int(a), int(b)) for a, b in zip(lower, upper))
+
+            cell_submask = (cell_mask[box] == label)
+            blurred_subimg = blurred_img[box]
+
+            if np.sum(cell_submask) == 0:
+                data.append([label, np.nan, np.nan])
+                continue
+
+            masked_intensity = blurred_subimg * cell_submask
+            com_local = center_of_mass(masked_intensity)
+            if np.isnan(com_local[0]):
+                data.append([label, np.nan, np.nan])
+                continue
+
+            com_global = tuple(c + int(o) for c, o in zip(com_local, lower))
+            index = tuple(int(v) for v in np.round(com_global).astype(int))
+
+            if not all(0 <= v < s for v, s in zip(index, cell_mask.shape)):
+                data.append([label, np.nan, np.nan])
+                continue
+
+            nucleus_dist = nucleus_dt[index]
+            pathogen_dist = pathogen_dt[index]
+
+            data.append([label, nucleus_dist, pathogen_dist])
+
+        df = pd.DataFrame(data, columns=['label',
+                                         f'cell_channel_{ch}_distance_to_nucleus',
+                                         f'cell_channel_{ch}_distance_to_pathogen'])
+        dfs.append(df)
+
+    merged_df = dfs[0]
+    for df in dfs[1:]:
+        merged_df = merged_df.merge(
+            df, on='label', how='outer', validate='one_to_one')
+
+    return merged_df
+
+def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
+    """
+    Add an image to a grid and save it as PNG.
+
+    Args:
+        png_channels (ndarray): The crop in file order -- red plane first --
+            as :func:`spacr.crops.build_png_channels` assembles it. Written
+            without narrowing, so a ``uint16`` crop becomes a 16-bit PNG; a
+            float crop is silently written as 8-bit by cv2. Four or more
+            channels raise rather than losing one to an alpha plane.
+        img_path (str): Where the PNG goes. Its parent folder is stamped with
+            the format sidecar and **must already exist** -- the caller in
+            ``_measure_crop_core`` creates it. If it does not, the stamp fails
+            with a printed warning, ``cv2.imwrite`` returns False, and the
+            call returns normally having written nothing at all. A bare
+            filename with no directory part stamps the current working
+            directory.
+        grid (list): Anything with ``append``; read only when ``plot`` is
+            true, and appended to in place, so the return value is the object
+            that was passed in. ``None`` passes through untouched while
+            ``plot`` is false.
+        plot (bool): Truthiness, not identity, decides. False (the default)
+            leaves ``grid`` completely untouched -- the PNG is still written --
+            which is why an ordinary run ends with an empty grid. True appends
+            the crop for :func:`img_list_to_grid`: a crop of exactly dtype
+            ``uint16`` is appended as a high-byte narrowed ``uint8`` copy,
+            every other dtype is appended unchanged, and a ``uint8`` crop is
+            appended by reference, so a caller that reuses its buffer mutates
+            what is already in the grid.
+
+    Returns:
+        grid (list): The same object that was passed in, with the crop
+        appended only if ``plot`` was true.
+
+    Raises:
+        spacr.crops.CropError: ``png_channels`` has more than three channels.
+        AttributeError: ``grid`` is ``None`` (or has no ``append``) and
+            ``plot`` is true. The PNG has already been written by then.
+        cv2.error: ``img_path`` has no extension cv2 recognises. The folder
+            sidecar has already been written by then.
+
+    .. note::
+
+       **The file's colour slots hold what the mapping declares.** The
+       caller assembles ``png_channels`` in file order — red plane first —
+       with :func:`spacr.crops.build_png_channels` and
+       :func:`spacr.crops.resolve_png_channel_mapping`; under the legacy
+       ``settings['png_dims']`` list that mapping is entry 0 blue, 1 green,
+       2 red, so ``png_dims[0]`` lands in the file's BLUE slot.
+
+       That is the REVERSE of what ``png_dims`` reads like, and it is kept
+       deliberately: every crop already on disk was written with this
+       mapping, so flipping it would silently change what each colour means
+       and invalidate the models trained on those crops. The mapping is
+       declared rather than corrected.
+
+       ``cv2.imwrite`` interprets a 3-channel array as BGR, so
+       :func:`spacr.crops.to_cv2_bgr` reverses the array once, here, and
+       cv2's interpretation lands the red plane in the file's red slot. It
+       refuses more than three channels rather than letting cv2 write the
+       fourth as an alpha plane for every reader to drop in silence.
+
+       The format is versioned: :func:`spacr.crops.stamp_crop_folder` drops a
+       ``.spacr_crop_format.json`` sidecar into the crop folder before the
+       first PNG lands, recording format 3 (``declared_rgb``). An unmarked
+       folder means format 1 (legacy), whose bytes match format 3 for the
+       same declared mapping, so both are read as-is; only format 2, whose
+       stored channel order is reversed, is corrected by
+       :func:`spacr.crops.read_crop_png`, and
+       ``spacr.crops.migrate_crop_folder`` rewrites such a folder in place.
+
+       Crops are still ``uint16``, so these are 16-bit PNGs and no intensity
+       is discarded at write time. The narrowing to 8 bit happens once, on
+       read, in :func:`spacr.crops.narrow_to_uint8`, which always takes the
+       HIGH BYTE (``// 256``) — replacing PIL's two incompatible rules (high
+       byte for an RGB PNG, a *clip* at 255 for a single-channel one, which
+       returned solid white for any crop brighter than that).
+    """
+
+    stamp_crop_folder(os.path.dirname(img_path))
+    cv2.imwrite(img_path, to_cv2_bgr(png_channels))
+
+    if plot:
+
+        if png_channels.dtype == np.uint16:
+            png_channels = (png_channels / 256).astype(np.uint8)
+        
+        grid.append(png_channels)
+    
+    return grid
+
+def img_list_to_grid(grid, titles=None):
+    """
+    Plot a grid of images with optional titles.
+
+    Args:
+        grid (list): List of images to be plotted.
+        titles (list): List of titles for the images.
+
+    Returns:
+        fig (Figure): The matplotlib figure object containing the image grid.
+    """
+    n_images = len(grid)
+    grid_size = ceil(sqrt(n_images))
+    
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(
+            grid_size, grid_size, figsize=(15, 15), facecolor='black',
+            squeeze=False)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="montage")
+    
+        from matplotlib.patches import FancyBboxPatch
+        for i, ax in enumerate(axs.flat):
+            if i < n_images:
+                image = grid[i]
+                im = ax.imshow(image)
+                ax.axis('off')
+                ax.set_facecolor('black')
+
+                h, w = image.shape[:2]
+                r = max(2.0, min(h, w) * 0.08)
+                bbox = FancyBboxPatch(
+                    (0, 0), w - 1, h - 1,
+                    boxstyle=f"round,pad=0,rounding_size={r}",
+                    transform=ax.transData, facecolor='none', edgecolor='none')
+                ax.add_patch(bbox)
+                im.set_clip_path(bbox)
+
+                if titles:
+                    img_height, img_width = image.shape[:2]
+                    text_size = max(min(img_width / (len(titles[i]) * 1.5), img_height / 10), 4)
+                    ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
+            else:
+                fig.delaxes(ax)
+
+        plt.subplots_adjust(wspace=0.08, hspace=0.08)
+        plt.tight_layout(pad=0.2)
+        return fig
+
+
+#: crop_mode entries that name a mask _measure_crop_core knows how to crop.
+#: Crop modes, in the order the measure pipeline writes them. Membership is
+#: checked against spacr.object_roles; the order stays here.
+CROP_MODES = (
+    'cell', 'nucleus', 'pathogen', 'cytoplasm', *ORGANELLE_ROLES)
+
+
+def _per_crop_mode(value, n_modes, name):
+    """Return ``value`` as a list with exactly one entry per ``crop_mode``.
+
+    ``crop_mode`` is a list and every per-crop setting is indexed by its
+    position in that list. ``png_size`` has had the ``* len(crop_ls)``
+    broadcast since forever; ``dialate_pngs`` and ``dialate_png_ratios``
+    never did. A scalar was hard-broadcast to LENGTH 3 (why 3? there were
+    three object types when it was written) and a list was taken as given,
+    so the shipped default ``dialate_png_ratios=[0.2]`` raised
+    ``IndexError: list index out of range`` on the second crop mode of
+    every field the moment a user listed two -- a top-level setting that
+    simply did not work, and did not say so: ``_measure_crop_core`` catches
+    the IndexError per field, so the run wrote the first mode's crops,
+    skipped the rest, and finished reporting failed fields rather than a
+    bad setting.
+
+    A single value -- scalar or one-element list -- means "the same for
+    every mode" and is broadcast silently, which is what ``png_size`` has
+    always done. A list that is short but not length 1 is a real mistake:
+    it is padded with its last entry so the run still produces crops, and
+    said out loud, because losing every crop on a 1000-field plate to a
+    typo'd list is worse than cropping two modes at the same ratio.
+
+    :param value: the setting as the user wrote it; scalar or sequence.
+    :param n_modes: ``len(crop_mode)``.
+    :param name: setting name, for the message.
+    :returns: list of length ``n_modes``.
+    """
+    values = list(value) if isinstance(value, (list, tuple)) else [value]
+
+    if not n_modes:
+        return []
+    if not values:
+        raise ValueError(
+            f"Setting: {name} is empty but crop_mode asks for {n_modes} crop "
+            f"mode(s); give it one value, or one per crop mode.")
+    if len(values) == 1:
+        return values * n_modes
+    if len(values) < n_modes:
+        print(f"Setting: {name}={value} has {len(values)} entries but "
+              f"crop_mode has {n_modes}; reusing {values[-1]!r} for the "
+              f"remaining {n_modes - len(values)}. Give {name} one value, or "
+              f"one per crop mode, to choose them yourself.")
+        return values + [values[-1]] * (n_modes - len(values))
+    if len(values) > n_modes:
+        print(f"Setting: {name}={value} has {len(values)} entries but "
+              f"crop_mode has only {n_modes}; ignoring the extra "
+              f"{len(values) - n_modes}.")
+    return values[:n_modes]
+
+
+#: ``settings`` keys naming a label plane of the merged array. A plane named
+#: by one of these holds object IDENTITIES; every other plane holds intensity.
+MASK_DIM_KEYS = tuple(f'{role}_mask_dim' for role in SEGMENTED_ROLES)
+
+
+def _merged_mask_planes(data, settings):
+    """Return the set of plane indices of ``data`` that hold labels, not signal."""
+    return _intensity_mask_planes(data, settings)
+
+
+def _promote_merged_to_uint16(data, settings, *, rescale_factor=None):
+    """Bring a merged array that is neither ``uint8`` nor ``uint16`` into the
+    measure pipeline's working dtype, **without flattening it**.
+
+    ``data.astype(np.uint16)`` -- what this used to be -- is a truncation.
+    ``spacr.io._normalize_img_batch`` writes normalised stacks as ``float32``
+    on ``[0, 1]``, and every one of those pixels truncates to 0: a whole field
+    measured as black, with an "Converted data from float32 to uint16" line as
+    the only trace. Measured on a float32 field whose intensities span
+    0.002-0.798, ``astype`` left 0 of 64 intensity pixels non-zero.
+
+    The two kinds of plane are converted differently, because they mean
+    different things:
+
+    * **label planes** (:func:`_merged_mask_planes`) are rounded, never
+      rescaled -- a label is an identity, and object 1 must stay object 1.
+    * **intensity planes** are rescaled by ONE factor shared across all of
+      them, so the ratio between channels is untouched: ``x65535`` when they
+      live on ``[0, 1]``, ``x(65535/max)`` when they run past the 16-bit
+      ceiling (where ``astype`` wrapped), and ``x1`` otherwise -- which is the
+      ordinary ``int32``-from-a-concatenated-label-plane case, so that path
+      keeps behaving exactly as it did.
+
+    :param data: the merged array, ``(Y, X, C)`` or ``(Z, Y, X, C)``.
+    :param settings: the measure settings, read for the ``*_mask_dim`` keys.
+    :returns: ``(uint16 array, factor applied to the intensity planes)``.
+    """
+    arr = np.asarray(data)
+    mask_planes = _merged_mask_planes(arr, settings)
+    intensity = [p for p in range(int(arr.shape[-1])) if p not in mask_planes]
+
+    factor = 1.0
+    if intensity:
+        signal = arr[..., intensity]
+        top = float(np.nanmax(signal)) if signal.size else 0.0
+        if not np.isfinite(top):
+            top = float(np.nanmax(signal[np.isfinite(signal)])) \
+                if np.isfinite(signal).any() else 0.0
+        if rescale_factor is not None:
+            factor = float(rescale_factor)
+            if not np.isfinite(factor) or factor <= 0:
+                raise ValueError(
+                    f"intensity rescale factor must be finite and positive, "
+                    f"got {rescale_factor!r}")
+        elif top > 0:
+            if np.issubdtype(arr.dtype, np.floating) and top <= 1.0:
+                factor = 65535.0
+            elif top > 65535.0:
+                factor = 65535.0 / top
+
+    out = np.zeros(arr.shape, dtype=np.uint16)
+    for plane in range(int(arr.shape[-1])):
+        values = np.nan_to_num(arr[..., plane].astype(np.float64),
+                               nan=0.0, posinf=65535.0, neginf=0.0)
+        if plane in intensity:
+            values = values * factor
+        out[..., plane] = np.rint(np.clip(values, 0, 65535)).astype(np.uint16)
+    return out, factor
+
+
+_CALIBRATION_IDENTITY_KEY = '_intensity_calibration_identity'
+
+
+def _calibration_reference_hashes(settings, files):
+    """Bind reference field names to their bytes, independently of timestamps.
+
+    :param settings: Measurement settings containing the source, reference wells
+        and optional timelapse mode.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: Reference basenames mapped to SHA-256 content digests.
+    """
+    import hashlib
+    from . import schema
+    from .intensity_rescale import _calibration_wells
+
+    wells = _calibration_wells(settings)
+    references = {}
+    for filename in sorted(set(files)):
+        field = schema.parse_field_stem(
+            filename, timelapse=bool(settings.get('timelapse', False)))
+        if (field.rowID, field.columnID) not in wells:
+            continue
+        digest = hashlib.sha256()
+        with open(os.path.join(settings['src'], filename), 'rb') as stream:
+            for chunk in iter(lambda: stream.read(1 << 20), b''):
+                digest.update(chunk)
+        references[filename] = digest.hexdigest()
+    return references
+
+
+def _prepare_measurement_calibration(settings, files):
+    """Resolve calibration before resume or any measurement database write.
+
+    :param settings: Measurement settings updated with the resolved content
+        identity, or None when calibration is disabled; stale gains are removed.
+    :param files: Available merged-array basenames after quality exclusions.
+    :returns: The full rescale plan and calibrated gains with reference hashes,
+        or ``(None, None)`` when calibration is disabled.
+    """
+    import hashlib
+
+    settings.pop(CALIBRATION_SETTINGS_KEY, None)
+    settings[_CALIBRATION_IDENTITY_KEY] = None
+    if not settings.get('intensity_calibration'):
+        return None, None
+    references = _calibration_reference_hashes(settings, files)
+    full_plan = build_plate_plan(settings['src'], files, settings)
+    resolved = dict(settings)
+    resolved[PLAN_SETTINGS_KEY] = {
+        key: full_plan[key] for key in ('version', 'plates', 'failures')}
+    calibration = _build_intensity_calibration_plan(
+        settings['src'], files, resolved)
+    if _calibration_reference_hashes(settings, files) != references:
+        raise ValueError('Intensity calibration reference files changed while '
+                         'planning. Nothing was measured; retry after acquisition stops.')
+    calibration['reference_files'] = references
+    identity = hashlib.sha256(json.dumps(
+        calibration, sort_keys=True, separators=(',', ':'),
+        allow_nan=False).encode('utf-8')).hexdigest()
+    settings[_CALIBRATION_IDENTITY_KEY] = identity
+    calibration['identity'] = identity
+    return full_plan, calibration
+
+
+def _validate_measurement_calibration_history(settings, db_path):
+    """Refuse incompatible or unproven calibration without mutating SQLite.
+
+    Retained measured rows must have matching content-bound provenance. Legacy
+    uncalibrated rows remain compatible with disabled calibration; legacy
+    calibrated rows cannot prove which reference bytes produced their gains.
+
+    :param settings: Measurement settings with the resolved calibration identity.
+    :param db_path: Existing measurement database path, if any.
+    :returns: None when retained measurements are compatible or absent.
+    :raises ValueError: Existing measurements have incompatible or unverified
+        calibration or lack the required per-field provenance.
+    """
+    if not os.path.isfile(db_path):
+        return
+    from .database_concurrency import connect
+    from .resume import MEASURE_OWNED_TABLES, measure_rows_clause, read_recorded_settings
+
+    identity = settings.get(_CALIBRATION_IDENTITY_KEY)
+    message = ('Existing measurements have a different or unverified intensity '
+               'calibration/reference content. Restore the recorded references '
+               'and calibration, or use a clean separate output project. '
+               'No existing measurement rows were changed.')
+    connection = connect(db_path, readonly=True)
+    try:
+        tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        occupied = {}
+        for table in tables & (MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'}):
+            clause = measure_rows_clause(connection, table) or '1'
+            if connection.execute(f'SELECT 1 FROM "{table}" WHERE {clause} LIMIT 1').fetchone():
+                occupied[table] = clause
+        if not occupied:
+            return
+        recorded = read_recorded_settings(db_path)
+        previous = recorded.get(_CALIBRATION_IDENTITY_KEY)
+        if previous in ('None', '', 'null'):
+            previous = None
+        if previous is not None and previous != identity:
+            raise ValueError(message)
+        if (identity is None and str(recorded.get('intensity_calibration', '')).lower()
+                in {'true', '1', 'yes', 'on'}):
+            raise ValueError(message)
+        columns = {row[1] for row in connection.execute(
+            'PRAGMA table_info(intensity_rescale)')}
+        if 'intensity_calibration' not in columns:
+            if identity is not None:
+                raise ValueError(message)
+            return
+        for (text,) in connection.execute(
+                'SELECT DISTINCT intensity_calibration FROM intensity_rescale'):
+            if text is None:
+                if identity is not None:
+                    raise ValueError(message)
+                continue
+            try:
+                record = json.loads(text)
+            except (ValueError, TypeError) as error:
+                raise ValueError(message) from error
+            if (identity is None or not isinstance(record, dict)
+                    or record.get('identity') != identity):
+                raise ValueError(message)
+        if identity is None:
+            return
+        keys = ('plateID', 'rowID', 'columnID', 'fieldID')
+        if not set(keys) <= columns:
+            raise ValueError(message)
+        for table, clause in occupied.items():
+            field_columns = {row[1] for row in connection.execute(
+                f'PRAGMA table_info("{table}")')}
+            if not set(keys) <= field_columns:
+                raise ValueError(message)
+            matches = [f'CAST(p."{key}" AS TEXT) = CAST(measured."{key}" AS TEXT)'
+                       for key in keys]
+            if 'timeID' in field_columns:
+                if 'timeID' not in columns:
+                    raise ValueError(message)
+                matches.append('COALESCE(CAST(p.timeID AS TEXT), \'\') = '
+                               'COALESCE(CAST(measured.timeID AS TEXT), \'\')')
+            missing = connection.execute(
+                f'SELECT 1 FROM "{table}" AS measured WHERE ({clause}) AND NOT EXISTS '
+                '(SELECT 1 FROM intensity_rescale AS p WHERE ' + ' AND '.join(matches)
+                + ' AND p.intensity_calibration IS NOT NULL) LIMIT 1').fetchone()
+            if missing:
+                raise ValueError(message)
+    finally:
+        connection.close()
+
+
+def _write_intensity_rescale_record(source_folder, file_name, settings,
+                                    record, psf_record=None):
+    """Upsert base rescaling and subsequent PSF provenance for one field.
+
+    ``target_dtype`` describes the standard rescaling stage. The separate PSF
+    provenance records the final float dtype, kernel and quantitative source.
+    ``intensity_calibration`` holds the cross-plate calibration applied to the
+    field (gains, reference plate, statistic, offset and content identity) as
+    JSON, or NULL. Reference hashes bind the resolved plan to its actual inputs.
+    Older tables gain nullable signature/details and an original-source default.
+
+    :param source_folder: Project root containing the measurements directory.
+    :param file_name: Merged field stem without the ``.npy`` suffix.
+    :param settings: Measurement settings containing resolved calibration and
+        optional PSF identities.
+    :param record: Rescaling provenance and any applied per-field calibration.
+    :param psf_record: Optional subsequent PSF processing provenance.
+    :returns: None after the field's provenance is saved.
+    """
+    from . import schema
+    from .database_concurrency import connect, transaction, _capture_write_operation
+
+    if _capture_write_operation('rescale', (
+            source_folder, file_name, settings, record, psf_record)):
+        return
+    field = schema.parse_field_stem(
+        file_name, timelapse=bool(settings.get('timelapse', False)))
+    values = {
+        **field.to_dict(include_prcf=True),
+        'timeID': field.timeID,
+        'file_name': file_name,
+        'path_name': os.path.join(settings['src'], file_name + '.npy'),
+        'original_dtype': record.get('original_dtype'),
+        'original_intensity_max': record.get('original_intensity_max'),
+        'rescale_factor': float(record['rescale_factor']),
+        'rescale_scope': record['rescale_scope'],
+        'plate_intensity_max': record.get('plate_intensity_max'),
+        'comparable_within_plate': int(
+            bool(record.get('comparable_within_plate', False))),
+        'target_dtype': 'uint16',
+        'psf_measurement_source': (psf_record or {}).get('source', 'original'),
+        'psf_signature': settings.get('_psf_measurement_signature'),
+        'psf_provenance': json.dumps(psf_record, sort_keys=True, allow_nan=False),
+        'intensity_calibration': (
+            json.dumps({**record['intensity_calibration'],
+                        'identity': settings.get(_CALIBRATION_IDENTITY_KEY),
+                        'reference_files': settings.get(
+                            CALIBRATION_SETTINGS_KEY, {}).get('reference_files', {})},
+                       sort_keys=True,
+                       allow_nan=False)
+            if record.get('intensity_calibration') else None),
+    }
+    columns = (
+        'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prc', 'prcf',
+        'file_name', 'path_name', 'original_dtype', 'original_intensity_max',
+        'rescale_factor', 'rescale_scope', 'plate_intensity_max',
+        'comparable_within_plate', 'target_dtype',
+        'psf_measurement_source', 'psf_signature', 'psf_provenance',
+        'intensity_calibration',
+    )
+    db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    conn = connect(db_path, timeout=30)
+    try:
+        with transaction(conn, attempts=8, busy_timeout=30):
+            conn.execute(
+                '''CREATE TABLE IF NOT EXISTS intensity_rescale (
+                       plateID TEXT NOT NULL,
+                       rowID TEXT NOT NULL,
+                       columnID TEXT NOT NULL,
+                       fieldID TEXT NOT NULL,
+                       timeID TEXT,
+                       prc TEXT NOT NULL,
+                       prcf TEXT PRIMARY KEY,
+                       file_name TEXT NOT NULL,
+                       path_name TEXT NOT NULL,
+                       original_dtype TEXT NOT NULL,
+                       original_intensity_max REAL NOT NULL,
+                       rescale_factor REAL NOT NULL,
+                       rescale_scope TEXT NOT NULL,
+                       plate_intensity_max REAL,
+                       comparable_within_plate INTEGER NOT NULL,
+                       target_dtype TEXT NOT NULL
+                   )''')
+            existing = {row[1] for row in conn.execute(
+                'PRAGMA table_info(intensity_rescale)')}
+            for column, declaration in (
+                    ('psf_measurement_source', "TEXT NOT NULL DEFAULT 'original'"),
+                    ('psf_signature', 'TEXT'), ('psf_provenance', 'TEXT'),
+                    ('intensity_calibration', 'TEXT')):
+                if column not in existing:
+                    conn.execute(f'ALTER TABLE intensity_rescale ADD COLUMN {column} {declaration}')
+            placeholders = ', '.join('?' for _ in columns)
+            quoted = ', '.join(f'"{column}"' for column in columns)
+            updates = ', '.join(
+                f'"{column}" = excluded."{column}"'
+                for column in columns if column != 'prcf')
+            conn.execute(
+                f'INSERT INTO intensity_rescale ({quoted}) '
+                f'VALUES ({placeholders}) ON CONFLICT(prcf) DO UPDATE SET '
+                f'{updates}',
+                tuple(values[column] for column in columns))
+    finally:
+        conn.close()
+
+
+_CONFLUENCY_SOURCES = ('auto', 'masks', 'texture', 'intensity', 'phase')
+_CONFLUENCY_TABLE = 'confluency'
+_CONFLUENCY_WELL_TABLE = 'confluency_well'
+_CONFLUENCY_WELL_KEYS = ('plateID', 'rowID', 'columnID')
+_CONFLUENCY_SEPARATION_MIN = 3.2
+_CONFLUENCY_TEXTURE_RATIO_MIN = 3.0
+_CONFLUENCY_PHASE_RATIO_MIN = 1.8
+_CONFLUENCY_INTENSITY_FRACTION = 0.25
+_CONFLUENCY_PHASE_WEIGHTS = 'confluency_phase_mlp.csv'
+_CONFLUENCY_PHASE_WINDOW = 15
+_CONFLUENCY_PHASE_SMOOTH = 1.0
+_CONFLUENCY_PHASE_CUT = 0.6
+_CONFLUENCY_PHASE_CLEAN = 3
+_CONFLUENCY_PHASE_NETWORK = []
+
+
+@dataclass
+class _ConfluencyResult:
+    """Covered area of one field and how it was decided.
+
+    ``confluency`` is the covered fraction of the field, 0 to 1.
+    ``source`` is the method actually used, never ``auto``. ``threshold``
+    is the automatic cut in the units of that method (local standard
+    deviation of the 0-1 scaled image for texture, raw intensity for
+    intensity, ``None`` for masks). ``separation`` is how far apart the two
+    pixel classes were, in pooled standard deviations; a field whose
+    classes did not separate is decided whole and ``uniform`` is true.
+    """
+
+    covered: np.ndarray
+    confluency: float
+    source: str
+    threshold: Optional[float] = None
+    separation: Optional[float] = None
+    uniform: bool = False
+    channel: Optional[int] = None
+
+    @property
+    def covered_px(self) -> int:
+        """Number of covered pixels."""
+        return int(np.count_nonzero(self.covered))
+
+    @property
+    def field_px(self) -> int:
+        """Number of pixels in the field."""
+        return int(self.covered.size)
+
+
+def _confluency_plane(array):
+    """Reduce a field to one 2-D plane; a z-stack is max-projected.
+
+    :param array: a 2-D image or mask, or a ``(Z, Y, X)`` stack.
+    :returns: the 2-D plane.
+    """
+    plane = np.asarray(array)
+    if plane.ndim == 3:
+        plane = plane.max(axis=0)
+    if plane.ndim != 2:
+        raise ValueError(
+            f"confluency needs a 2-D field or a (Z, Y, X) stack, got shape "
+            f"{plane.shape}")
+    return plane
+
+
+def _otsu_separation(values):
+    """Otsu's cut and how far apart the two classes it makes are.
+
+    :param values: 1-D finite values.
+    :returns: ``(threshold, separation)``; separation is the difference of
+        the class means over the pooled within-class standard deviation.
+        A single Gaussian split this way gives about 2.6, two real classes
+        give well above :data:`_CONFLUENCY_SEPARATION_MIN`.
+    """
+    values = np.asarray(values, dtype=np.float64)
+    if values.size < 4 or np.ptp(values) == 0:
+        return float(values.mean()) if values.size else 0.0, 0.0
+    threshold = float(filters.threshold_otsu(values))
+    low = values[values <= threshold]
+    high = values[values > threshold]
+    if low.size < 2 or high.size < 2:
+        return threshold, 0.0
+    within = (low.size * low.var() + high.size * high.var()) / values.size
+    separation = (high.mean() - low.mean()) / sqrt(max(within, 1e-12))
+    return threshold, float(separation)
+
+
+def _unit_scaled(plane):
+    """Scale a plane to 0-1 between its 0.5th and 99.5th percentiles.
+
+    :param plane: 2-D image.
+    :returns: float64 plane clipped to ``[0, 1]``; all zeros when flat.
+    """
+    x = np.asarray(plane, dtype=np.float64)
+    lo, hi = np.percentile(x, [0.5, 99.5])
+    if hi <= lo:
+        return np.zeros_like(x)
+    return np.clip((x - lo) / (hi - lo), 0.0, 1.0)
+
+
+def _local_sd(x, window):
+    """Standard deviation in a square window around every pixel.
+
+    :param x: float 2-D plane.
+    :param window: window side in pixels.
+    :returns: the local standard deviation, same shape as ``x``.
+    """
+    from scipy.ndimage import uniform_filter
+    mean = uniform_filter(x, window, mode='reflect')
+    mean_sq = uniform_filter(x * x, window, mode='reflect')
+    return np.sqrt(np.clip(mean_sq - mean * mean, 0.0, None))
+
+
+def _texture_ratio(x, window):
+    """Median local standard deviation over the pixel noise level.
+
+    About 1 on an empty, flat field and several times that on one covered
+    by cells, whatever the stain. It decides a field whose pixels do not
+    separate into two classes, because such a field is either all
+    background or all monolayer. A confluent phase-contrast monolayer
+    (LIVECell) reads only about 2 to 3, because its fine texture raises the
+    noise estimate too, while bare plastic reads 1.1 to 1.7; the texture
+    source therefore calls such a field covered from 1.8, and the intensity
+    source keeps the stricter 3.
+
+    :param x: 0-1 scaled plane.
+    :param window: window side in pixels.
+    :returns: the ratio.
+    """
+    from skimage.restoration import estimate_sigma
+    noise = float(estimate_sigma(x))
+    return float(np.median(_local_sd(x, window))) / max(noise, 1e-9)
+
+
+def _clean_coverage(covered, radius):
+    """Smooth a coverage mask: open, close, and drop specks and pinholes.
+
+    The image is reflected at its edges first so that a cell sheet running
+    off the field is not eroded there.
+
+    :param covered: boolean plane.
+    :param radius: structuring-element radius in pixels.
+    :returns: the cleaned boolean plane.
+    """
+    from scipy.ndimage import binary_closing, binary_opening
+    radius = max(1, int(radius))
+    pad = 3 * radius
+    work = np.pad(np.asarray(covered, dtype=bool), pad, mode='reflect')
+    disk = morphology.disk(radius)
+    work = binary_opening(work, structure=disk)
+    work = binary_closing(work, structure=disk)
+    smallest = int(np.pi * (2 * radius) ** 2)
+    work = morphology.remove_small_holes(work, smallest)
+    work = morphology.remove_small_objects(work, smallest)
+    return work[pad:-pad, pad:-pad]
+
+
+def _texture_coverage(image, window=15):
+    """Covered area of a brightfield or phase field, from local texture.
+
+    Cells scatter light and so vary from pixel to pixel; bare plastic is
+    flat. The local standard deviation in a ``window``-pixel square is
+    split by Otsu's method on its logarithm, which finds the two levels.
+    The final cut sits halfway between the two levels in variance, which
+    puts the edge where half the window is covered, so the coverage is not
+    inflated by half a window all round every cell. Pixels whose window is
+    perfectly flat (saturated or zero-padded borders) are left out of the
+    threshold estimate and count as uncovered.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param window: texture window side in pixels; roughly the width of the
+        thinnest cell process that should count as covered.
+    :returns: :class:`_ConfluencyResult` with ``source='texture'``.
+    """
+    window = max(3, int(window))
+    x = _unit_scaled(_confluency_plane(image))
+    sd = _local_sd(x, window)
+    textured = sd > 1e-9
+    if not textured.any():
+        return _ConfluencyResult(np.zeros(x.shape, dtype=bool), 0.0,
+                                'texture', None, 0.0, True)
+    log_sd = np.log(sd[textured])
+    lo, hi = np.percentile(log_sd, [0.5, 99.5])
+    cut, separation = _otsu_separation(np.clip(log_sd, lo, hi))
+    if separation < _CONFLUENCY_SEPARATION_MIN:
+        full = _texture_ratio(x, window) >= _CONFLUENCY_PHASE_RATIO_MIN
+        covered = np.full(x.shape, bool(full))
+        return _ConfluencyResult(covered, float(full), 'texture', None,
+                                separation, True)
+    first = np.zeros(x.shape, dtype=bool)
+    first[textured] = log_sd > cut
+    band = window // 2 + 1
+    variance = sd * sd
+    core_on = binary_erosion(first, iterations=band)
+    core_off = binary_erosion(~first & textured, iterations=band)
+    on = variance[core_on] if core_on.any() else variance[first]
+    off = (variance[core_off] if core_off.any()
+           else variance[~first & textured])
+    level = 0.5 * (float(np.median(on)) + float(np.median(off)))
+    covered = _clean_coverage((variance > level) & textured, window // 4)
+    return _ConfluencyResult(covered, float(covered.mean()), 'texture',
+                            sqrt(level), separation, False)
+
+
+def _intensity_coverage(image, sigma=1.0):
+    """Covered area of a fluorescent cytoplasm or membrane stain.
+
+    The plane is smoothed, its brightest 0.1 % clipped so a few saturated
+    spots cannot capture Otsu's cut, and split by Otsu's method. The cut
+    is then moved a quarter of the way up from the background level to the
+    stained level (medians of the two classes away from their edges), so
+    the dim rim of each cell counts as covered, which is where hand-drawn
+    and Cellpose outlines put it. On the Toxoplasma PV ground-truth fields
+    Otsu alone reported half the covered area.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param sigma: Gaussian smoothing in pixels before thresholding.
+    :returns: :class:`_ConfluencyResult` with ``source='intensity'``.
+    """
+    plane = np.asarray(_confluency_plane(image), dtype=np.float64)
+    ceiling = float(np.percentile(plane, 99.9))
+    x = gaussian_filter(np.minimum(plane, ceiling), sigma)
+    cut, separation = _otsu_separation(x.ravel())
+    if separation < _CONFLUENCY_SEPARATION_MIN:
+        full = _texture_ratio(_unit_scaled(plane), 15) >= (
+            _CONFLUENCY_TEXTURE_RATIO_MIN)
+        return _ConfluencyResult(np.full(x.shape, bool(full)), float(full),
+                                'intensity', None, separation, True)
+    above = x > cut
+    core_on = binary_erosion(above, iterations=3)
+    core_off = binary_erosion(~above, iterations=8)
+    stained = float(np.median(x[core_on] if core_on.sum() > 100 else x[above]))
+    background = float(np.median(
+        x[core_off] if core_off.sum() > 100 else x[~above]))
+    level = background + _CONFLUENCY_INTENSITY_FRACTION * (stained - background)
+    covered = _clean_coverage(x > level, 2)
+    return _ConfluencyResult(covered, float(covered.mean()), 'intensity',
+                            level, separation, False)
+
+
+def _confluency_phase_features(x):
+    """The per-pixel description the phase classifier reads.
+
+    Thirty planes, each in units of the field's own pixel noise so that the
+    classifier does not depend on exposure or gain: local standard
+    deviation over 3 to 61 pixels, gradient magnitude and Hessian
+    eigenvalues at several scales, the structure tensor's strength and
+    coherence, the smoothed deviation from the slowly varying background,
+    and the local texture averaged, maximised and minimised over the
+    neighbourhood, which lets a smooth cell interior borrow the texture of
+    its own edge.
+
+    :param x: 0-1 scaled plane.
+    :returns: ``float32`` array of shape ``(Y, X, 30)``.
+    """
+    from scipy.ndimage import maximum_filter, minimum_filter
+    from skimage.feature import (hessian_matrix, hessian_matrix_eigvals,
+                                 structure_tensor,
+                                 structure_tensor_eigenvalues)
+    from skimage.restoration import estimate_sigma
+    noise = max(float(estimate_sigma(x)), 1e-4)
+
+    def log_sd(window):
+        """Log of the local standard deviation in ``window``, in noise units."""
+        return np.log(_local_sd(x, window) / noise + 1e-3)
+
+    planes = {window: log_sd(window) for window in (3, 7, 15, 31)}
+    out = [planes[3], planes[7], planes[15], planes[31]]
+    for sigma in (1, 2, 4, 8):
+        gy, gx = np.gradient(gaussian_filter(x, sigma))
+        out.append(np.log(np.hypot(gx, gy) * sigma / noise + 1e-3))
+    for sigma in (1, 3):
+        hessian = hessian_matrix(x, sigma=sigma, order='rc',
+                                 use_gaussian_derivatives=False)
+        for eigen in hessian_matrix_eigvals(hessian):
+            out.append(eigen * sigma * sigma / noise)
+    background = gaussian_filter(x, 40)
+    deviation = {sigma: (gaussian_filter(x, sigma) - background) / noise
+                 for sigma in (2, 8)}
+    out += [deviation[2], deviation[8]]
+    out += [gaussian_filter(planes[7], 8), gaussian_filter(planes[7], 24)]
+    for sigma in (2, 6):
+        first, second = structure_tensor_eigenvalues(
+            structure_tensor(x, sigma=sigma, order='rc'))
+        total = first + second
+        out.append(np.log(np.sqrt(np.maximum(total, 0.0)) / noise + 1e-3))
+        out.append((first - second) / (total + 1e-12))
+    out.append(log_sd(61))
+    out.append(gaussian_filter(planes[7], 48))
+    out.append((gaussian_filter(x, 1) - gaussian_filter(x, 4)) / noise)
+    out.append(minimum_filter(gaussian_filter(planes[7], 1), 15))
+    out += [gaussian_filter(planes[3], sigma) for sigma in (4, 16, 32)]
+    out.append(gaussian_filter(planes[15], 16))
+    out.append(maximum_filter(gaussian_filter(planes[7], 2), 21))
+    out.append(np.abs(deviation[8]))
+    return np.stack(out, axis=-1).astype(np.float32)
+
+
+def _confluency_phase_network():
+    """The phase classifier's layers, read once from the bundled weights.
+
+    The weights were trained on LIVECell (Edlund et al. 2021, Nature
+    Methods) and carry its licence, CC BY-NC 4.0: non-commercial use. The
+    file's ``#`` header says so. It is a long table, one row per weight:
+    ``layer``,
+    ``source`` (input unit, or -1 for the bias), ``target`` (output unit)
+    and ``weight``. The input standardisation is already folded into the
+    first layer. Hidden layers are rectified, the output is logistic.
+
+    :returns: list of ``(weights, bias)`` pairs, first layer first.
+    """
+    if _CONFLUENCY_PHASE_NETWORK:
+        return _CONFLUENCY_PHASE_NETWORK
+    from .tabular import read_table
+    path = os.path.join(os.path.dirname(__file__), 'resources', 'data',
+                        _CONFLUENCY_PHASE_WEIGHTS)
+    table = read_table(path, canonicalise=False, report=None, sep=',',
+                       comment='#')
+    layers = []
+    for layer in sorted(table['layer'].unique()):
+        rows = table[table['layer'] == layer]
+        inputs = int(rows['source'].max()) + 1
+        outputs = int(rows['target'].max()) + 1
+        weights = np.zeros((inputs, outputs))
+        bias = np.zeros(outputs)
+        linked = rows[rows['source'] >= 0]
+        weights[linked['source'].to_numpy(int),
+                linked['target'].to_numpy(int)] = linked['weight'].to_numpy()
+        biased = rows[rows['source'] < 0]
+        bias[biased['target'].to_numpy(int)] = biased['weight'].to_numpy()
+        layers.append((weights, bias))
+    _CONFLUENCY_PHASE_NETWORK[:] = layers
+    return _CONFLUENCY_PHASE_NETWORK
+
+
+def _confluency_phase_probability(x):
+    """Per-pixel probability that a phase-contrast pixel lies in a cell.
+
+    :param x: 0-1 scaled plane.
+    :returns: float plane of the same shape, 0 to 1.
+    """
+    features = _confluency_phase_features(x)
+    flat = features.reshape(-1, features.shape[-1]).astype(np.float64)
+    layers = _confluency_phase_network()
+    probability = np.empty(flat.shape[0])
+    step = 1 << 18
+    for start in range(0, flat.shape[0], step):
+        values = flat[start:start + step]
+        for weights, bias in layers[:-1]:
+            values = np.maximum(values @ weights + bias, 0.0)
+        weights, bias = layers[-1]
+        logit = (values @ weights + bias)[:, 0]
+        probability[start:start + step] = 1.0 / (1.0 + np.exp(-logit))
+    return probability.reshape(x.shape)
+
+
+def _phase_coverage(image, window=15):
+    """Covered area of a phase-contrast or brightfield field, learned.
+
+    A small pixel classifier (a two-layer perceptron over
+    :func:`_confluency_phase_features`) whose weights were trained on
+    LIVECell (Edlund et al. 2021, Nature Methods), CC BY-NC 4.0,
+    non-commercial use: Incucyte phase-contrast fields of eight cell lines
+    with expert-drawn cell outlines, together with bare-plastic and fully
+    covered crops and pure-noise fields so that a field of one
+    kind is not forced into two classes. The probability map is smoothed
+    and cut at :data:`_CONFLUENCY_PHASE_CUT`. Unlike the texture source
+    there is no whole-field decision: every pixel is classified.
+
+    The classifier saw cells at LIVECell's pixel size. ``window`` rescales
+    the field by ``15 / window`` before classifying, so a field whose cells
+    are twice as many pixels across is read with ``window=30``; 15 reads it
+    as it is.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param window: cell scale relative to the training images, as above.
+    :returns: :class:`_ConfluencyResult` with ``source='phase'``.
+    """
+    plane = np.asarray(_confluency_plane(image), dtype=np.float64)
+    if np.ptp(plane) == 0:
+        return _ConfluencyResult(np.zeros(plane.shape, dtype=bool), 0.0,
+                                'phase', _CONFLUENCY_PHASE_CUT, None, True)
+    scale = _CONFLUENCY_PHASE_WINDOW / max(3, int(window))
+    work = plane
+    if scale != 1.0:
+        from skimage.transform import rescale
+        work = rescale(plane, scale, order=1, anti_aliasing=scale < 1.0,
+                       preserve_range=True)
+    probability = gaussian_filter(
+        _confluency_phase_probability(_unit_scaled(work)),
+        _CONFLUENCY_PHASE_SMOOTH)
+    if probability.shape != plane.shape:
+        from skimage.transform import resize
+        probability = resize(probability, plane.shape, order=1,
+                             preserve_range=True)
+    covered = _clean_coverage(probability > _CONFLUENCY_PHASE_CUT,
+                              round(_CONFLUENCY_PHASE_CLEAN / scale))
+    return _ConfluencyResult(covered, float(covered.mean()), 'phase',
+                            _CONFLUENCY_PHASE_CUT, None, False)
+
+
+def _mask_coverage(mask):
+    """Covered area as the union of every labelled cell.
+
+    :param mask: 2-D label image, or a ``(Z, Y, X)`` label stack (a pixel is
+        covered when any plane labels it).
+    :returns: :class:`_ConfluencyResult` with ``source='masks'``.
+    """
+    covered = _confluency_plane(np.asarray(mask) > 0).astype(bool)
+    return _ConfluencyResult(covered, float(covered.mean()), 'masks')
+
+
+def _resolve_confluency_source(settings):
+    """The method a run uses, with ``auto`` answered.
+
+    ``auto`` is the cell masks when the run has a cell mask, and texture
+    otherwise, because texture works on any channel, brightfield included.
+
+    :param settings: Measure settings; reads ``confluency_source`` and
+        ``cell_mask_dim``.
+    :returns: ``'masks'``, ``'texture'``, ``'intensity'`` or ``'phase'``.
+    :raises ValueError: for a source outside :data:`_CONFLUENCY_SOURCES`.
+    """
+    source = str(settings.get('confluency_source') or 'auto').strip().lower()
+    if source not in _CONFLUENCY_SOURCES:
+        raise ValueError(
+            f"Setting: confluency_source is {source!r}; use one of "
+            f"{', '.join(_CONFLUENCY_SOURCES)}.")
+    has_cells = settings.get('cell_mask_dim') is not None
+    if source == 'auto':
+        return 'masks' if has_cells else 'texture'
+    if source == 'masks' and not has_cells:
+        raise ValueError(
+            "Setting: confluency_source is 'masks' but cell_mask_dim is "
+            "blank, so there are no cell masks to cover the field with. "
+            "Set cell_mask_dim, or choose texture, intensity or phase.")
+    return source
+
+
+def _confluency_channel(settings):
+    """The merged-array channel a texture, intensity or phase source reads.
+
+    :param settings: Measure settings; reads ``confluency_channel`` and,
+        when it is blank, the first entry of ``channels``.
+    :returns: the channel index.
+    """
+    channel = settings.get('confluency_channel')
+    if channel is None or channel == '':
+        channels = settings.get('channels') or [0]
+        channel = channels[0]
+    return int(channel)
+
+
+def _field_confluency(image=None, cell_mask=None, *, source='auto', window=15,
+                     channel=None):
+    """Covered fraction of one field by the chosen source.
+
+    :param image: the channel to read for ``texture`` and ``intensity``.
+    :param cell_mask: the cell label image for ``masks``.
+    :param source: ``auto`` (masks when ``cell_mask`` is given, else
+        texture), ``masks``, ``texture``, ``intensity`` or ``phase``.
+    :param window: texture window in pixels; for ``phase``, the cell scale
+        relative to the classifier's training images (15 = as trained).
+    :param channel: recorded on the result; not used to read anything.
+    :returns: :class:`_ConfluencyResult`.
+    :raises ValueError: for an unknown source or a missing input.
+    """
+    source = str(source or 'auto').strip().lower()
+    if source not in _CONFLUENCY_SOURCES:
+        raise ValueError(f"unknown confluency source {source!r}; use one of "
+                         f"{', '.join(_CONFLUENCY_SOURCES)}")
+    if source == 'auto':
+        source = 'masks' if cell_mask is not None else 'texture'
+    if source == 'masks':
+        if cell_mask is None:
+            raise ValueError("the masks confluency source needs a cell mask")
+        return _mask_coverage(cell_mask)
+    if image is None:
+        raise ValueError(f"the {source} confluency source needs an image")
+    if source == 'texture':
+        result = _texture_coverage(image, window)
+    elif source == 'phase':
+        result = _phase_coverage(image, window)
+    else:
+        result = _intensity_coverage(image)
+    result.channel = None if channel is None else int(channel)
+    return result
+
+
+def _confluency_overlay(image, covered, *, color=(255, 170, 0), alpha=0.35):
+    """An RGB preview of the covered area over the field.
+
+    The field is shown in grey, the covered area tinted, and the edge of the
+    covered area drawn solid, so gaps in the monolayer read at a glance.
+
+    :param image: 2-D image, or a ``(Z, Y, X)`` stack (max-projected).
+    :param covered: boolean coverage plane of the same shape.
+    :param color: tint as an RGB triple.
+    :param alpha: tint opacity inside the covered area.
+    :returns: ``uint8`` array of shape ``(Y, X, 3)``.
+    """
+    grey = (_unit_scaled(_confluency_plane(image)) * 255.0)
+    rgb = np.repeat(grey[..., None], 3, axis=-1)
+    covered = np.asarray(covered, dtype=bool)
+    tint = np.asarray(color, dtype=np.float64)
+    rgb[covered] = (1.0 - alpha) * rgb[covered] + alpha * tint
+    edge = find_boundaries(covered, mode='inner')
+    rgb[edge] = tint
+    return np.clip(rgb, 0, 255).astype(np.uint8)
+
+
+def _confluency_figure(image, result, title):
+    """A matplotlib figure of :func:`_confluency_overlay` for the run's plots.
+
+    :param image: the plane the overlay is drawn on.
+    :param result: the field's :class:`_ConfluencyResult`.
+    :param title: the field name.
+    :returns: the figure.
+    """
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(6, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, image, kind="overlay", title=str(title))
+        ax.imshow(_confluency_overlay(image, result.covered))
+        ax.set_title(f"{title}: {result.confluency:.1%} covered "
+                     f"({result.source})")
+        ax.axis('off')
+    return fig
+
+
+def _measure_field_confluency(data, settings, channel_arrays=None,
+                             cell_mask=None):
+    """Confluency of one merged field as the run's settings ask for it.
+
+    ``masks`` reads the cell mask plane as Mask wrote it, before Measure's
+    size filters: confluency is about the monolayer, not about which cells
+    are kept for measurement.
+
+    :param data: the merged array, ``(Y, X, C)`` or ``(Z, Y, X, C)``.
+    :param settings: Measure settings.
+    :param channel_arrays: the preprocessed measured channels, used for the
+        confluency channel when it is one of ``channels``.
+    :param cell_mask: the cell label plane as loaded, before any filter;
+        read from ``data`` at ``cell_mask_dim`` when omitted.
+    :returns: ``(result, plane)`` where ``plane`` is the image the overlay
+        should be drawn on.
+    """
+    source = _resolve_confluency_source(settings)
+    channel = _confluency_channel(settings)
+    measured = list(settings.get('channels') or [])
+    if channel_arrays is not None and channel in measured:
+        plane = np.asarray(channel_arrays[..., measured.index(channel)])
+    else:
+        if channel >= data.shape[-1]:
+            raise ValueError(
+                f"Setting: confluency_channel is {channel}, but the merged "
+                f"array has {data.shape[-1]} planes.")
+        plane = np.asarray(data[..., channel])
+    if source == 'masks':
+        if cell_mask is None:
+            cell_mask = data[..., settings['cell_mask_dim']]
+        result = _mask_coverage(cell_mask)
+    else:
+        result = _field_confluency(
+            plane, source=source,
+            window=int(settings.get('confluency_window') or 15),
+            channel=channel)
+    return result, plane
+
+
+def _monolayer_ok(confluency, qc_threshold):
+    """Whether a monolayer passes QC: covered fraction at or above the cut.
+
+    :param confluency: covered fraction, 0 to 1.
+    :param qc_threshold: the lowest acceptable fraction; ``None`` passes.
+    :returns: bool.
+    """
+    if qc_threshold is None:
+        return True
+    return bool(float(confluency) >= float(qc_threshold))
+
+
+def _write_confluency_record(source_folder, file_name, settings, result):
+    """Upsert one field's confluency into ``measurements.db:confluency``.
+
+    :param source_folder: the run folder holding ``measurements/``.
+    :param file_name: the merged field's stem.
+    :param settings: Measure settings.
+    :param result: the field's :class:`_ConfluencyResult`.
+    """
+    from . import schema
+    from .database_concurrency import connect, transaction, _capture_write_operation
+
+    if _capture_write_operation('confluency', (source_folder, file_name, settings, result)):
+        return
+    qc_threshold = settings.get('confluency_qc_threshold')
+    field = schema.parse_field_stem(
+        file_name, timelapse=bool(settings.get('timelapse', False)))
+    values = {
+        **field.to_dict(include_prcf=True),
+        'timeID': field.timeID,
+        'file_name': file_name,
+        'confluency_source': result.source,
+        'confluency_channel': (None if result.source == 'masks'
+                               else result.channel),
+        'confluency': float(result.confluency),
+        'covered_px': result.covered_px,
+        'field_px': result.field_px,
+        'confluency_threshold': result.threshold,
+        'confluency_separation': result.separation,
+        'confluency_uniform': int(bool(result.uniform)),
+        'confluency_qc_threshold': (None if qc_threshold is None
+                                    else float(qc_threshold)),
+        'monolayer_ok': int(_monolayer_ok(result.confluency, qc_threshold)),
+    }
+    columns = tuple(values)
+    db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = connect(db_path, timeout=30)
+    try:
+        with transaction(conn, attempts=8, busy_timeout=30):
+            conn.execute(
+                f'''CREATE TABLE IF NOT EXISTS {_CONFLUENCY_TABLE} (
+                       plateID TEXT NOT NULL,
+                       rowID TEXT NOT NULL,
+                       columnID TEXT NOT NULL,
+                       fieldID TEXT NOT NULL,
+                       timeID TEXT,
+                       prc TEXT NOT NULL,
+                       prcf TEXT PRIMARY KEY,
+                       file_name TEXT NOT NULL,
+                       confluency_source TEXT NOT NULL,
+                       confluency_channel INTEGER,
+                       confluency REAL NOT NULL,
+                       covered_px INTEGER NOT NULL,
+                       field_px INTEGER NOT NULL,
+                       confluency_threshold REAL,
+                       confluency_separation REAL,
+                       confluency_uniform INTEGER NOT NULL,
+                       confluency_qc_threshold REAL,
+                       monolayer_ok INTEGER NOT NULL
+                   )''')
+            quoted = ', '.join(f'"{column}"' for column in columns)
+            placeholders = ', '.join('?' for _ in columns)
+            updates = ', '.join(
+                f'"{column}" = excluded."{column}"'
+                for column in columns if column != 'prcf')
+            conn.execute(
+                f'INSERT INTO {_CONFLUENCY_TABLE} ({quoted}) '
+                f'VALUES ({placeholders}) ON CONFLICT(prcf) DO UPDATE SET '
+                f'{updates}',
+                tuple(values[column] for column in columns))
+    finally:
+        conn.close()
+
+
+def _read_confluency(db_path):
+    """The per-field confluency table, or an empty frame when there is none.
+
+    :param db_path: a ``measurements.db``.
+    :returns: one row per field.
+    """
+    from .database_concurrency import connect
+    if not os.path.isfile(db_path):
+        return pd.DataFrame()
+    conn = connect(db_path, readonly=True)
+    try:
+        present = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+            (_CONFLUENCY_TABLE,)).fetchone()
+        if not present:
+            return pd.DataFrame()
+        from .tabular import _read_query
+        return _read_query(conn, f'SELECT * FROM {_CONFLUENCY_TABLE}',
+                           canonicalise=False)
+    finally:
+        conn.close()
+
+
+def _confluency_by_well(fields, qc_threshold=None):
+    """Aggregate per-field confluency to one row per well.
+
+    ``confluency`` is pooled: covered pixels over imaged pixels across the
+    well's fields, so a small field does not count as much as a large one.
+    The mean, median, minimum and spread of the per-field values sit beside
+    it, because a well whose mean is fine but one of whose fields is bare
+    is a settling gradient worth seeing. Time-lapse fields keep their
+    ``timeID``, one row per well per timepoint.
+
+    :param fields: the per-field table (:func:`_read_confluency`).
+    :param qc_threshold: the monolayer QC cut; ``None`` reads it from the
+        fields' ``confluency_qc_threshold``.
+    :returns: one row per well with ``n_fields``, ``covered_px``,
+        ``field_px``, ``confluency``, ``confluency_mean``,
+        ``confluency_median``, ``confluency_min``, ``confluency_sd``,
+        ``fields_below_qc``, ``confluency_qc_threshold`` and
+        ``monolayer_ok``.
+    """
+    if fields is None or fields.empty:
+        return pd.DataFrame()
+    keys = list(_CONFLUENCY_WELL_KEYS)
+    if 'timeID' in fields.columns and fields['timeID'].notna().any():
+        keys.append('timeID')
+    if qc_threshold is None and 'confluency_qc_threshold' in fields.columns:
+        known = fields['confluency_qc_threshold'].dropna()
+        qc_threshold = float(known.iloc[-1]) if not known.empty else None
+    rows = []
+    for name, block in fields.groupby(keys, dropna=False, sort=True):
+        identity = dict(zip(keys, name if isinstance(name, tuple) else (name,)))
+        covered = int(block['covered_px'].sum())
+        total = int(block['field_px'].sum())
+        pooled = covered / total if total else float('nan')
+        per_field = block['confluency'].astype(float)
+        rows.append({
+            **identity,
+            'prc': f"{identity['plateID']}_{identity['rowID']}_"
+                   f"{identity['columnID']}",
+            'n_fields': int(len(block)),
+            'covered_px': covered,
+            'field_px': total,
+            'confluency': pooled,
+            'confluency_mean': float(per_field.mean()),
+            'confluency_median': float(per_field.median()),
+            'confluency_min': float(per_field.min()),
+            'confluency_sd': (float(per_field.std(ddof=1))
+                              if len(per_field) > 1 else 0.0),
+            'fields_below_qc': int(sum(
+                not _monolayer_ok(value, qc_threshold) for value in per_field)),
+            'confluency_qc_threshold': qc_threshold,
+            'monolayer_ok': int(_monolayer_ok(pooled, qc_threshold)),
+        })
+    return pd.DataFrame(rows)
+
+
+def _aggregate_confluency_by_well(db_path, qc_threshold=None):
+    """Rebuild ``measurements.db:confluency_well`` from the field table.
+
+    Rebuilt whole rather than appended, so a field re-measured or dropped
+    since the last run is reflected rather than counted twice.
+
+    :param db_path: a ``measurements.db`` holding a ``confluency`` table.
+    :param qc_threshold: the monolayer QC cut; ``None`` keeps the one each
+        field was written with.
+    :returns: the per-well frame written, empty when there were no fields.
+    """
+    from .tabular import write_database
+
+    wells = _confluency_by_well(_read_confluency(db_path), qc_threshold)
+    if wells.empty:
+        return wells
+    write_database(wells, db_path, _CONFLUENCY_WELL_TABLE,
+                   if_exists='replace', canonicalise=False)
+    return wells
+
+
+def _read_confluency_wells(source):
+    """The per-well confluency frame from a database path or a frame.
+
+    :param source: a ``measurements.db`` path, or a frame already in the
+        :func:`_confluency_by_well` shape.
+    :returns: the per-well frame, empty when none was written.
+    """
+    if isinstance(source, pd.DataFrame):
+        return source
+    from .database_concurrency import connect
+    if not source or not os.path.isfile(source):
+        return pd.DataFrame()
+    conn = connect(source, readonly=True)
+    try:
+        tables = {row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        if _CONFLUENCY_WELL_TABLE in tables:
+            from .tabular import _read_query
+            return _read_query(
+                conn, f'SELECT * FROM {_CONFLUENCY_WELL_TABLE}',
+                canonicalise=False)
+    finally:
+        conn.close()
+    return _confluency_by_well(_read_confluency(source))
+
+
+def _monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
+                 well_of=None, qc_threshold=None):
+    """Join per-well confluency onto any per-well table, as filter and denominator.
+
+    The plaque and infection assays count things per well; a thin or torn
+    monolayer makes those counts smaller for a reason that has nothing to
+    do with the treatment. This adds the well's ``confluency`` and
+    ``monolayer_ok`` to every row, and for each of ``value_columns`` a
+    ``<column>_per_confluency`` column -- the value over the covered
+    fraction, i.e. per fully covered field -- so wells can be compared per
+    unit of monolayer and wells failing QC dropped.
+
+    :param frame: rows carrying ``plateID``, ``rowID`` and ``columnID``,
+        or a ``file`` column when ``well_of`` is given.
+    :param confluency: a ``measurements.db`` path or a per-well frame from
+        :func:`_confluency_by_well`.
+    :param value_columns: counts or areas to divide by the covered fraction.
+    :param drop_failing: drop rows whose well fails monolayer QC.
+    :param well_of: optional callable turning a row into a
+        ``(plateID, rowID, columnID)`` triple, for tables named by file
+        (a plaque image named after its well).
+    :param qc_threshold: re-decide ``monolayer_ok`` at this cut instead of
+        the one the run wrote.
+    :returns: a new frame; rows with no confluency for their well get
+        ``NaN`` confluency and ``monolayer_ok`` of ``NaN``, never a pass.
+    """
+    wells = _read_confluency_wells(confluency)
+    out = frame.copy()
+    keys = list(_CONFLUENCY_WELL_KEYS)
+    if well_of is not None:
+        triples = [tuple(well_of(row)) for _, row in out.iterrows()]
+        for index, key in enumerate(keys):
+            out[key] = [triple[index] for triple in triples]
+    missing = [key for key in keys if key not in out.columns]
+    if missing:
+        raise ValueError(
+            f"_monolayer_qc needs the well columns {missing}; pass well_of "
+            f"to derive them.")
+    if wells.empty:
+        out['confluency'] = np.nan
+        out['monolayer_ok'] = np.nan
+    else:
+        if 'timeID' in wells.columns and wells['timeID'].notna().any() and (
+                'timeID' in out.columns):
+            keys = keys + ['timeID']
+        table = wells[keys + ['confluency', 'monolayer_ok']].copy()
+        if qc_threshold is not None:
+            table['monolayer_ok'] = [
+                int(_monolayer_ok(value, qc_threshold))
+                for value in table['confluency']]
+        for key in keys:
+            out[key] = out[key].astype(str)
+            table[key] = table[key].astype(str)
+        out = out.drop(columns=[c for c in ('confluency', 'monolayer_ok')
+                                if c in out.columns])
+        out = out.merge(table, how='left', on=keys)
+    for column in value_columns:
+        cover = out['confluency'].astype(float)
+        out[f'{column}_per_confluency'] = (
+            out[column].astype(float) / cover.where(cover > 0))
+    if drop_failing:
+        out = out[out['monolayer_ok'] == 1].reset_index(drop=True)
+    return out
+
+
+_CELL_CYCLE_TABLE = 'cell_cycle'
+_CELL_CYCLE_WELL_TABLE = 'cell_cycle_well'
+_CELL_CYCLE_PHASES = ('G1', 'S', 'G2', 'M')
+_CELL_CYCLE_BELOW = 'subG1'
+_CELL_CYCLE_ABOVE = '>4N'
+_CELL_CYCLE_METHODS = ('measurements', 'xgboost', 'torch')
+_CELL_CYCLE_CHOICES = _CELL_CYCLE_METHODS + ('all',)
+_CELL_CYCLE_KEYS = ('plateID', 'rowID', 'columnID', 'fieldID')
+_CELL_CYCLE_MIN_FIT = 30
+_CELL_CYCLE_RATIO_BOUNDS = (1.6, 2.4)
+_CELL_CYCLE_OUTLIER_SD = 4.0
+_CELL_CYCLE_OUTLIER_CAP = 0.15
+_CELL_CYCLE_MAX_CV = 0.15
+_CELL_CYCLE_FIT_RANGE = (0.35, 3.2)
+_CELL_CYCLE_WEAK_CONFIDENCE = 0.6
+_CELL_CYCLE_TORCH_BACKBONE = 'resnet18'
+_FUCCI_STATES = ('early G1', 'G1', 'G1/S', 'S/G2/M')
+
+
+@dataclass
+class _DnaFit:
+    """A fitted DNA-content histogram: a G1 and a G2 peak with S between.
+
+    ``g1`` and ``g2`` are the peak positions in integrated-intensity units,
+    ``sd1`` and ``sd2`` their widths, ``weights`` the fractions of G1, S,
+    G2 and of a flat component that absorbs debris and aggregates, and
+    ``gates`` the two integrated-intensity cuts between G1 and S and
+    between S and G2 -- fitted crossings, or the user's gates converted
+    from DNA content units (the G1 peak is 2).
+    """
+
+    g1: float
+    g2: float
+    sd1: float
+    sd2: float
+    weights: Tuple[float, float, float, float]
+    gates: Tuple[float, float]
+    n: int
+    iterations: int
+    fitted_gates: bool = True
+
+    def c_value(self, content):
+        """DNA content in C units, the G1 peak at 2 and the G2 peak near 4.
+
+        :param content: integrated intensities, scalar or array.
+        :returns: ``2 * content / g1``.
+        """
+        return 2.0 * np.asarray(content, dtype=float) / self.g1
+
+    def densities(self, content):
+        """Weighted component densities of G1, S, G2 and the flat outliers.
+
+        S is a uniform stretch from the G1 to the G2 peak, softened at both
+        ends by the mean peak width, as a DNA-synthesis phase is in a flow
+        histogram.
+
+        :param content: integrated intensities.
+        :returns: ``(n, 4)`` array.
+        """
+        from scipy.stats import norm
+
+        x = np.asarray(content, dtype=float)
+        w1, ws, w2, wo = self.weights
+        spread = 0.5 * (self.sd1 + self.sd2)
+        span = max(self.g2 - self.g1, 1e-12)
+        s_density = (norm.cdf((x - self.g1) / spread)
+                     - norm.cdf((x - self.g2) / spread)) / span
+        outlier = 1.0 / max(self.g2 * 2.0, 1e-12)
+        return np.column_stack([
+            w1 * norm.pdf(x, self.g1, self.sd1),
+            ws * s_density,
+            w2 * norm.pdf(x, self.g2, self.sd2),
+            np.full(x.shape, wo * outlier),
+        ])
+
+
+def _dna_seed(x):
+    """The starting G1 peak for the DNA-content fit.
+
+    The tallest peak of the smoothed log2 histogram, unless a peak of at
+    least a quarter of its height sits one octave lower; then that lower
+    peak is G1 and the tallest is G2, as in a G2-arrested population.
+
+    :param x: positive integrated intensities.
+    :returns: the G1 peak position.
+    """
+    from scipy.ndimage import gaussian_filter1d
+
+    logx = np.log2(x)
+    low, high = np.percentile(logx, [0.5, 99.5])
+    if not high > low:
+        return float(2 ** np.median(logx))
+    bins = int(np.clip(np.sqrt(x.size) * 2, 32, 200))
+    counts, edges = np.histogram(logx, bins=bins, range=(low, high))
+    smooth = gaussian_filter1d(counts.astype(float), sigma=max(1.0, bins / 60))
+    centres = 0.5 * (edges[:-1] + edges[1:])
+    peak = centres[int(np.argmax(smooth))]
+    below = np.abs(centres - (peak - 1.0)) <= 0.2
+    if below.any() and smooth[below].max() >= 0.25 * smooth.max():
+        return float(2 ** centres[below][int(np.argmax(smooth[below]))])
+    return float(2 ** peak)
+
+
+def _dna_g2_seed(x, g1):
+    """The starting G2 peak: the densest point 1.6 to 2.4 times G1.
+
+    :param x: positive integrated intensities.
+    :param g1: the starting G1 peak.
+    :returns: the G2 peak position; twice G1 when nothing lies there.
+    """
+    from scipy.ndimage import gaussian_filter1d
+
+    low, high = _CELL_CYCLE_RATIO_BOUNDS
+    inside = x[(x >= low * g1) & (x <= high * g1)]
+    if inside.size < 5:
+        return 2.0 * g1
+    counts, edges = np.histogram(inside, bins=24, range=(low * g1, high * g1))
+    smooth = gaussian_filter1d(counts.astype(float), sigma=1.5)
+    centre = int(np.argmax(smooth))
+    return float(0.5 * (edges[centre] + edges[centre + 1]))
+
+
+def _dna_gates(fit):
+    """Where the fitted G1/S and S/G2 densities cross.
+
+    :param fit: a :class:`_DnaFit`.
+    :returns: two integrated-intensity cuts, the second never below the
+        first.
+    """
+    grid = np.linspace(fit.g1, fit.g2, 1024)
+    dens = fit.densities(grid)
+    first = np.nonzero(dens[:, 1] >= dens[:, 0])[0]
+    g1_s = grid[first[0]] if first.size else None
+    last = np.nonzero(dens[:, 2] >= dens[:, 1])[0]
+    s_g2 = grid[last[0]] if last.size else None
+    if g1_s is None or s_g2 is None or s_g2 < g1_s:
+        cross = np.nonzero(dens[:, 2] >= dens[:, 0])[0]
+        middle = grid[cross[0]] if cross.size else 0.5 * (fit.g1 + fit.g2)
+        g1_s = middle if g1_s is None else g1_s
+        s_g2 = max(middle, g1_s) if s_g2 is None or s_g2 < g1_s else s_g2
+    return float(g1_s), float(s_g2)
+
+
+def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
+    """Fit G1 and G2 peaks with an S phase between them to DNA content.
+
+    A Dean-Jett-Fox style mixture fitted by expectation maximisation: a
+    Gaussian G1 peak, a Gaussian G2 peak held between 1.6 and 2.4 times the
+    G1 position with the same coefficient of variation (at most 15 %, as
+    for any DNA stain that measures content), a uniform S phase between
+    the two peaks, and a flat
+    component of at most 15 % for debris, clumps and mis-segmented nuclei.
+    The fit starts from the G1 peak of the log histogram and ignores nuclei
+    below 0.35 or above 3.2 times it, which are fragments, nuclei cut by the
+    field edge and clumps rather than cells in a phase.
+
+    :param content: background-subtracted integrated DNA intensities of one
+        plate; non-finite and non-positive values are ignored.
+    :param gates: optional ``[G1/S, S/G2]`` cuts in DNA content units, the
+        G1 peak being 2 and the G2 peak 4; they replace the fitted
+        crossings.
+    :param max_iter: iteration cap.
+    :param tol: convergence tolerance on the mean log-likelihood.
+    :returns: a :class:`_DnaFit`.
+    :raises ValueError: fewer than 30 usable nuclei, or gates that are not
+        two increasing numbers.
+    """
+    x = np.asarray(content, dtype=float)
+    x = x[np.isfinite(x) & (x > 0)]
+    if x.size < _CELL_CYCLE_MIN_FIT:
+        raise ValueError(
+            f"A DNA-content histogram needs at least {_CELL_CYCLE_MIN_FIT} "
+            f"nuclei with a positive DNA signal; this one has {x.size}.")
+    g1 = _dna_seed(x)
+    x = x[(x >= _CELL_CYCLE_FIT_RANGE[0] * g1)
+          & (x <= _CELL_CYCLE_FIT_RANGE[1] * g1)]
+    if x.size < _CELL_CYCLE_MIN_FIT:
+        raise ValueError(
+            f"A DNA-content histogram needs at least {_CELL_CYCLE_MIN_FIT} "
+            f"nuclei near its G1 and G2 peaks; this one has {x.size}.")
+    low, high = _CELL_CYCLE_RATIO_BOUNDS
+    g2 = _dna_g2_seed(x, g1)
+    cv = 0.08
+    sd1, sd2 = cv * g1, cv * g2
+    weights = np.array([0.5, 0.2, 0.25, 0.05])
+    previous = -np.inf
+    iterations = 0
+    for iterations in range(1, max_iter + 1):
+        fit = _DnaFit(g1, g2, sd1, sd2, tuple(weights), (g1, g2), x.size,
+                      iterations)
+        dens = fit.densities(x)
+        total = np.maximum(dens.sum(axis=1), 1e-300)
+        resp = dens / total[:, None]
+        likelihood = float(np.mean(np.log(total)))
+        weights = resp.mean(axis=0)
+        weights[3] = min(weights[3], _CELL_CYCLE_OUTLIER_CAP)
+        weights = weights / weights.sum()
+        r1, r2 = resp[:, 0], resp[:, 2]
+        if r1.sum() > 1e-9:
+            g1 = float(np.sum(r1 * x) / r1.sum())
+        if r2.sum() > 1e-9:
+            g2 = float(np.sum(r2 * x) / r2.sum())
+        g2 = float(np.clip(g2, low * g1, high * g1))
+        spread = (np.sum(r1 * ((x - g1) / g1) ** 2)
+                  + np.sum(r2 * ((x - g2) / g2) ** 2))
+        cv = float(np.sqrt(spread / max(r1.sum() + r2.sum(), 1e-9)))
+        cv = float(np.clip(cv, 0.02, _CELL_CYCLE_MAX_CV))
+        sd1, sd2 = cv * g1, cv * g2
+        if abs(likelihood - previous) < tol * max(1.0, abs(likelihood)):
+            break
+        previous = likelihood
+    fit = _DnaFit(g1, g2, sd1, sd2, tuple(float(w) for w in weights),
+                  (g1, g2), int(x.size), iterations)
+    if gates is None:
+        fit.gates = _dna_gates(fit)
+        return fit
+    try:
+        first, second = (float(v) for v in gates)
+    except (TypeError, ValueError):
+        raise ValueError(
+            f"Setting: cell_cycle_gates must be two numbers in DNA content "
+            f"units, such as [2.5, 3.5]; got {gates!r}.") from None
+    if not 0 < first < second:
+        raise ValueError(
+            f"Setting: cell_cycle_gates must be two increasing positive "
+            f"numbers, G1/S then S/G2; got {gates!r}.")
+    fit.gates = (first * g1 / 2.0, second * g1 / 2.0)
+    fit.fitted_gates = False
+    return fit
+
+
+def _gate_dna_content(content, fit):
+    """Call G1, S or G2 from DNA content with a fitted histogram.
+
+    Content more than four peak widths below G1 is ``subG1`` and more than
+    four above G2 is ``>4N``. The confidence is the fitted posterior of the
+    called component; it is 1 outside the peaks.
+
+    :param content: integrated intensities.
+    :param fit: a :class:`_DnaFit`.
+    :returns: ``(phases, confidence, posterior)``; ``posterior`` is the
+        ``(n, 3)`` fitted probability of G1, S and G2, renormalised without
+        the flat component.
+    """
+    x = np.asarray(content, dtype=float)
+    first, second = fit.gates
+    phases = np.where(x < first, 'G1', np.where(x < second, 'S', 'G2'))
+    phases = phases.astype(object)
+    phases[x < fit.g1 - _CELL_CYCLE_OUTLIER_SD * fit.sd1] = _CELL_CYCLE_BELOW
+    phases[x > fit.g2 + _CELL_CYCLE_OUTLIER_SD * fit.sd2] = _CELL_CYCLE_ABOVE
+    phases[~np.isfinite(x)] = None
+    dens = fit.densities(np.nan_to_num(x))
+    posterior = dens / np.maximum(dens.sum(axis=1), 1e-300)[:, None]
+    column = {'G1': 0, 'S': 1, 'G2': 2}
+    confidence = np.array([
+        posterior[i, column[p]] if p in column else 1.0
+        for i, p in enumerate(phases)])
+    confidence[~np.isfinite(x)] = np.nan
+    three = dens[:, :3] / np.maximum(dens[:, :3].sum(axis=1), 1e-300)[:, None]
+    three[~np.isfinite(x)] = np.nan
+    return phases, confidence, three
+
+
+def _cell_cycle_channel(settings):
+    """The merged-array channel the cell-cycle phase is read from.
+
+    :param settings: Measure settings; reads ``cell_cycle_channel``, then
+        ``nucleus_channel``, then the first entry of ``channels``.
+    :returns: the merged-array channel index.
+    """
+    for key in ('cell_cycle_channel', 'nucleus_channel'):
+        value = settings.get(key)
+        if value is not None and value != '':
+            return int(value)
+    channels = settings.get('channels') or [0]
+    return int(channels[0])
+
+
+def _measured_channel_column(settings, channel, setting='cell_cycle_channel'):
+    """The ``channel_<i>`` index Measure wrote a merged channel under.
+
+    Measure numbers intensity columns by position in ``channels``.
+
+    :param settings: Measure settings.
+    :param channel: a merged-array channel.
+    :param setting: the setting that named the channel, for the message.
+    :returns: the position of ``channel`` in ``channels``.
+    :raises ValueError: the channel was not measured.
+    """
+    measured = [int(c) for c in (settings.get('channels') or [])]
+    if not measured:
+        return int(channel)
+    if int(channel) not in measured:
+        raise ValueError(
+            f"Channel {channel} was not measured (channels is {measured}); "
+            f"add it to channels or pick a measured {setting}.")
+    return measured.index(int(channel))
+
+
+def _nucleus_dna(nuclei, column):
+    """Background-subtracted DNA content and mean intensity of each nucleus.
+
+    The background is the median of the ring Measure samples just outside
+    each nucleus, times the nucleus area, when that column exists.
+
+    :param nuclei: the ``nucleus`` table.
+    :param column: the ``channel_<i>`` index of the DNA stain.
+    :returns: a frame with ``dna_content`` and ``dna_mean``.
+    :raises ValueError: the table has no integrated intensity for the channel.
+    """
+    prefix = f'nucleus_channel_{column}_'
+    integrated = prefix + 'integrated_intensity'
+    if integrated not in nuclei.columns:
+        raise ValueError(
+            f"The nucleus table has no {integrated} column; measure the DNA "
+            f"stain on nuclei (nucleus_mask_dim and channels) first.")
+    area = pd.to_numeric(nuclei.get('nucleus_area'), errors='coerce')
+    content = pd.to_numeric(nuclei[integrated], errors='coerce')
+    mean = pd.to_numeric(nuclei.get(prefix + 'mean_intensity'),
+                         errors='coerce')
+    for name in (prefix + 'outside_percentile_50', prefix + 'outside_mean'):
+        if name in nuclei.columns:
+            background = pd.to_numeric(nuclei[name], errors='coerce')
+            background = background.fillna(background.median())
+            content = content - background * area
+            mean = mean - background
+            break
+    return pd.DataFrame({'dna_content': content.astype(float),
+                         'dna_mean': mean.astype(float)},
+                        index=nuclei.index)
+
+
+def _plate_groups(nuclei):
+    """Row groups a DNA histogram is fitted over: one per plate and time.
+
+    :param nuclei: the ``nucleus`` table.
+    :returns: a list of ``(name, index)`` pairs.
+    """
+    keys = [k for k in ('plateID', 'timeID') if k in nuclei.columns
+            and nuclei[k].notna().any()]
+    if not keys:
+        return [('all', nuclei.index)]
+    return [(name if isinstance(name, tuple) else (name,), block.index)
+            for name, block in nuclei.groupby(keys, dropna=False, sort=True)]
+
+
+def _phases_by_measurements(nuclei, *, column, gates=None,
+                            mitotic_ratio=1.8):
+    """Cell-cycle phase of every nucleus from its measured DNA stain.
+
+    Per plate (and time point), fits :func:`_fit_dna_content` and gates the
+    DNA content. A nucleus past the G1/S gate whose background-subtracted
+    mean DNA intensity is at least ``mitotic_ratio`` times the median of the
+    plate's G2 nuclei has condensed chromatin and is called M; condensed
+    chromatin loses some of its signal outside a tight mask, so an M nucleus
+    can fall short of the S/G2 gate. A plate
+    with too few nuclei to fit is gated with the fit of all plates pooled.
+
+    :param nuclei: the ``nucleus`` table.
+    :param column: the ``channel_<i>`` index of the DNA stain.
+    :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
+    :param mitotic_ratio: condensation cut for M; ``None`` keeps G2 and M
+        together as G2.
+    :returns: ``(frame, fits)``: per nucleus ``dna_content``, ``dna_mean``,
+        ``dna_c``, ``condensation``, ``gate_g1_s`` and ``gate_s_g2`` (in C
+        units), ``phase_measurements``, ``confidence_measurements`` and the
+        fitted ``posterior_G1``, ``posterior_S`` and ``posterior_G2``;
+        ``fits`` maps each group to its :class:`_DnaFit`.
+    """
+    dna = _nucleus_dna(nuclei, column)
+    out = dna.copy()
+    for name in ('dna_c', 'condensation', 'gate_g1_s', 'gate_s_g2',
+                 'confidence_measurements', 'posterior_G1', 'posterior_S',
+                 'posterior_G2'):
+        out[name] = np.nan
+    out['phase_measurements'] = None
+    pooled = None
+    fits = {}
+    for name, index in _plate_groups(nuclei):
+        content = dna.loc[index, 'dna_content']
+        try:
+            fit = _fit_dna_content(content, gates=gates)
+        except ValueError:
+            if pooled is None:
+                pooled = _fit_dna_content(dna['dna_content'], gates=gates)
+            fit = pooled
+        fits[name] = fit
+        phases, confidence, posterior = _gate_dna_content(
+            content.to_numpy(), fit)
+        mean = dna.loc[index, 'dna_mean'].to_numpy(dtype=float)
+        g2 = phases == 'G2'
+        reference = np.nanmedian(mean[g2]) if g2.any() else np.nan
+        condensation = (mean / reference if np.isfinite(reference)
+                        and reference > 0 else np.full(mean.shape, np.nan))
+        if mitotic_ratio is not None:
+            late = (phases == 'S') | g2
+            phases[late & (condensation >= float(mitotic_ratio))] = 'M'
+        out.loc[index, 'dna_c'] = fit.c_value(content.to_numpy())
+        out.loc[index, 'condensation'] = condensation
+        out.loc[index, 'gate_g1_s'] = float(fit.c_value(fit.gates[0]))
+        out.loc[index, 'gate_s_g2'] = float(fit.c_value(fit.gates[1]))
+        out.loc[index, 'phase_measurements'] = phases
+        out.loc[index, 'confidence_measurements'] = confidence
+        for column, name in enumerate(('G1', 'S', 'G2')):
+            out.loc[index, f'posterior_{name}'] = posterior[:, column]
+    return out, fits
+
+
+def _fucci_states(nuclei, settings, channels):
+    """FUCCI state of each nucleus from two reporter channels.
+
+    Each reporter is positive above an Otsu cut of its log mean intensity,
+    background-subtracted, per plate. The G1 reporter alone is ``G1``,
+    both are ``G1/S``, the S/G2/M reporter alone is ``S/G2/M`` and neither
+    is ``early G1``.
+
+    :param nuclei: the ``nucleus`` table.
+    :param settings: Measure settings.
+    :param channels: ``[G1 reporter, S/G2/M reporter]`` merged-array
+        channels.
+    :returns: a Series of states.
+    :raises ValueError: not exactly two channels.
+    """
+    from skimage.filters import threshold_otsu
+
+    if channels is None or len(channels) != 2:
+        raise ValueError(
+            f"Setting: cell_cycle_fucci_channels needs two channels, the G1 "
+            f"reporter then the S/G2/M reporter; got {channels!r}.")
+    positive = []
+    for channel in channels:
+        column = _measured_channel_column(settings, channel)
+        signal = _nucleus_dna(nuclei, column)['dna_mean']
+        logged = np.log1p(signal.clip(lower=0).to_numpy(dtype=float))
+        flags = np.zeros(len(nuclei), dtype=bool)
+        for _name, index in _plate_groups(nuclei):
+            where = nuclei.index.get_indexer(index)
+            values = logged[where]
+            finite = values[np.isfinite(values)]
+            if finite.size < 2 or np.ptp(finite) == 0:
+                continue
+            flags[where] = values > threshold_otsu(finite)
+        positive.append(flags)
+    g1, late = positive
+    states = np.where(g1 & late, 'G1/S', np.where(
+        g1, 'G1', np.where(late, 'S/G2/M', 'early G1')))
+    return pd.Series(states, index=nuclei.index, dtype=object)
+
+
+_CELL_CYCLE_POSITIONAL = (
+    'centroid', 'distance', 'neighbor', 'touching', 'radial_position',
+    'overlap', 'field_edge', 'maxima_to', 'cell_surface', 'pathogen',
+    '_cell_id', 'nucleus_nucleus', 'label_list',
+)
+
+
+def _phase_features(nuclei, measured, columns):
+    """The per-nucleus features the tabular classifier is trained on.
+
+    Nucleus morphology and the intensity columns of the named measured
+    channels, plus the DNA content and condensation. Position in the field,
+    neighbour counts and distances are left out: they describe where a
+    nucleus is, not what phase it is in.
+
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param columns: ``channel_<i>`` indices whose intensities are used.
+    :returns: a float frame, missing values filled with column medians.
+    """
+    wanted = tuple(f'nucleus_channel_{c}_' for c in columns)
+    keep = []
+    for name in nuclei.columns:
+        if not name.startswith('nucleus_'):
+            continue
+        if any(token in name for token in _CELL_CYCLE_POSITIONAL):
+            continue
+        if '_channel_' in name and not name.startswith(wanted):
+            continue
+        if pd.api.types.is_numeric_dtype(nuclei[name]):
+            keep.append(name)
+    features = nuclei[keep].apply(pd.to_numeric, errors='coerce')
+    for name in ('dna_c', 'condensation', 'dna_mean'):
+        features[name] = measured[name].astype(float)
+    features = features.replace([np.inf, -np.inf], np.nan)
+    features = features.loc[:, features.notna().any()]
+    features = features.fillna(features.median())
+    varying = features.nunique(dropna=True) > 1
+    return features.loc[:, varying].astype(np.float32)
+
+
+def _normalise_phase(value):
+    """A phase label from an annotation, or None.
+
+    Integers count from 1 through G1, S, G2 and M; names match case-
+    insensitively, with ``G2/M`` read as G2 and ``mitotic`` as M.
+
+    :param value: an annotation value.
+    :returns: one of the phases, or None for unlabelled.
+    """
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, (int, np.integer, float, np.floating)):
+        number = int(value)
+        if number == value and 1 <= number <= len(_CELL_CYCLE_PHASES):
+            return _CELL_CYCLE_PHASES[number - 1]
+        return None
+    text = str(value).strip().lower().replace(' ', '')
+    aliases = {'g1': 'G1', 's': 'S', 'g2': 'G2', 'm': 'M', 'g2/m': 'G2',
+               'g2m': 'G2', 'mitotic': 'M', 'mitosis': 'M'}
+    if text.isdigit():
+        return _normalise_phase(int(text))
+    return aliases.get(text)
+
+
+def _nucleus_prcfo(nuclei, *, by_cell):
+    """The object key of each nucleus, or of the cell it sits in.
+
+    :param nuclei: the ``nucleus`` table.
+    :param by_cell: key on ``cell_id`` where the nucleus has one.
+    :returns: a Series of ``<prcf>_o<label>`` strings.
+    """
+    from . import schema
+
+    labels = pd.to_numeric(nuclei['object_label'], errors='coerce')
+    if by_cell and 'cell_id' in nuclei.columns:
+        cells = pd.to_numeric(nuclei['cell_id'], errors='coerce')
+        labels = cells.where(cells.notna(), labels)
+    prcf = nuclei['prcf'] if 'prcf' in nuclei.columns else pd.Series(
+        ['_'.join(str(nuclei.at[i, k]) for k in _CELL_CYCLE_KEYS)
+         for i in nuclei.index], index=nuclei.index)
+    return pd.Series([
+        f"{p}_{schema.object_id(int(o))}" if pd.notna(o) else None
+        for p, o in zip(prcf, labels)], index=nuclei.index, dtype=object)
+
+
+def _cell_cycle_labels(db_path, nuclei, measured, column_name):
+    """Training labels for the xgboost and torch phase classifiers.
+
+    With an annotation column, the Annotate labels on ``png_list`` joined to
+    each nucleus through its cell (or itself when it has no cell). Without
+    one, the measurement calls the fit is sure of: G1, S and G2 whose
+    posterior is at least 0.6, and every M. The first is supervision; the
+    second is weak supervision that teaches the classifiers what the gates
+    already say, leaving out the nuclei nearest a gate.
+
+    :param db_path: the ``measurements.db``.
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param column_name: a ``png_list`` column, or empty for the gates.
+    :returns: ``(labels, source)``: a Series of phases or None, and
+        ``'annotation:<column>'`` or ``'gates'``.
+    :raises ValueError: the annotation column is not on ``png_list``.
+    """
+    if not column_name:
+        phase = measured['phase_measurements']
+        confident = (measured['confidence_measurements']
+                     >= _CELL_CYCLE_WEAK_CONFIDENCE) | (phase == 'M')
+        labels = phase.where(confident & phase.isin(_CELL_CYCLE_PHASES))
+        return labels.astype(object).where(labels.notna(), None), 'gates'
+    from .tabular import read_table
+
+    crops = read_table(db_path, table='png_list', report=None)
+    if column_name not in crops.columns:
+        raise ValueError(
+            f"Setting: cell_cycle_labels names {column_name!r}, which is not "
+            f"a column of png_list; annotate in Annotate first or leave it "
+            f"blank to learn from the DNA gates.")
+    by_key = {str(k): _normalise_phase(v)
+              for k, v in zip(crops['prcfo'], crops[column_name])}
+    labels = pd.Series(None, index=nuclei.index, dtype=object)
+    for by_cell in (True, False):
+        keys = _nucleus_prcfo(nuclei, by_cell=by_cell)
+        found = keys.map(lambda k: by_key.get(str(k)) if k else None)
+        labels = labels.where(labels.notna(), found)
+    return labels, f'annotation:{column_name}'
+
+
+def _phase_scores(truth, predicted, phases=_CELL_CYCLE_PHASES):
+    """Accuracy and per-phase F1 of phase calls against labels.
+
+    :param truth: true phases; None and phases outside ``phases`` are
+        skipped.
+    :param predicted: called phases, aligned with ``truth``.
+    :param phases: the phases scored.
+    :returns: ``{'n', 'accuracy', 'f1': {phase: F1}, 'macro_f1'}``.
+    """
+    truth = np.asarray(list(truth), dtype=object)
+    predicted = np.asarray(list(predicted), dtype=object)
+    keep = np.array([t in phases for t in truth])
+    truth, predicted = truth[keep], predicted[keep]
+    n = int(truth.size)
+    if n == 0:
+        return {'n': 0, 'accuracy': float('nan'), 'f1': {},
+                'macro_f1': float('nan')}
+    f1 = {}
+    for phase in phases:
+        tp = int(np.sum((truth == phase) & (predicted == phase)))
+        fp = int(np.sum((truth != phase) & (predicted == phase)))
+        fn = int(np.sum((truth == phase) & (predicted != phase)))
+        if tp + fp + fn:
+            f1[phase] = 2 * tp / (2 * tp + fp + fn)
+    return {'n': n, 'accuracy': float(np.mean(truth == predicted)),
+            'f1': f1, 'macro_f1': float(np.mean(list(f1.values())))}
+
+
+def _field_split(groups, fraction=0.2, seed=0):
+    """Hold out whole fields for testing, about ``fraction`` of them.
+
+    :param groups: the field identity of each row.
+    :param fraction: share of fields held out; at least one when there are
+        two or more.
+    :param seed: random seed.
+    :returns: a boolean array, True for held-out rows.
+    """
+    groups = np.asarray(list(groups), dtype=object)
+    unique = sorted(set(groups.tolist()), key=str)
+    if len(unique) < 2:
+        return np.zeros(groups.size, dtype=bool)
+    rng = np.random.default_rng(seed)
+    n_test = max(1, int(round(fraction * len(unique))))
+    held = set(rng.choice(np.array(unique, dtype=object), n_test,
+                          replace=False).tolist())
+    return np.array([g in held for g in groups])
+
+
+def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1):
+    """Cell-cycle phase of every nucleus from a CPU gradient-boosted classifier.
+
+    Trained on the labelled nuclei and applied to all of them. Whole fields
+    are first held out to score the classifier on nuclei it never saw; the
+    model that calls every nucleus is then refitted on all the labels.
+    Scores are calculated on the held-out fields below; fitting does not
+    request XGBoost's separate per-iteration training metrics.
+
+    :param features: the frame from :func:`_phase_features`.
+    :param labels: phase or None per row.
+    :param groups: field identity per row, for the held-out split.
+    :param seed: random seed.
+    :param n_jobs: xgboost threads.
+    :returns: ``(phases, confidence, report, model)``; ``report`` holds the
+        held-out scores and the class counts.
+    :raises ValueError: fewer than two labelled phases.
+    """
+    from xgboost import XGBClassifier
+
+    from .openmp_guard import single_threaded_openmp
+
+    labelled = labels.notna().to_numpy()
+    classes = [p for p in _CELL_CYCLE_PHASES
+               if (labels[labelled] == p).any()]
+    if len(classes) < 2:
+        raise ValueError(
+            f"The xgboost phase classifier needs labels of at least two "
+            f"phases; it has {classes or 'none'}.")
+    code = {p: i for i, p in enumerate(classes)}
+    x_all = features.to_numpy(dtype=np.float32)
+    y_all = np.array([code.get(p, -1) for p in labels], dtype=int)
+
+    def _model():
+        """A fresh classifier with the fixed phase-calling parameters."""
+        return XGBClassifier(
+            n_estimators=300, max_depth=4, learning_rate=0.1,
+            subsample=0.9, colsample_bytree=0.8, tree_method='hist',
+            random_state=seed, n_jobs=n_jobs, device='cpu',
+            disable_default_eval_metric=True)
+
+    report = {'classes': classes,
+              'counts': {p: int((labels == p).sum()) for p in classes}}
+    held = _field_split(np.asarray(groups)[labelled], seed=seed)
+    x_lab, y_lab = x_all[labelled], y_all[labelled]
+    with single_threaded_openmp('cell-cycle phase classifier'):
+        if held.any() and len(set(y_lab[~held].tolist())) == len(classes):
+            model = _model().fit(x_lab[~held], y_lab[~held])
+            guess = model.predict(x_lab[held])
+            report['held_out'] = _phase_scores(
+                [classes[i] for i in y_lab[held]],
+                [classes[i] for i in guess], phases=tuple(classes))
+        model = _model().fit(x_lab, y_lab)
+        proba = model.predict_proba(x_all)
+    phases = np.array([classes[i] for i in proba.argmax(axis=1)],
+                      dtype=object)
+    return phases, proba.max(axis=1), report, model
+
+
+def _nucleus_crop_size(nuclei):
+    """Side of the square crop the torch classifier sees, in pixels.
+
+    Twice the 95th percentile of the nuclei's major axis, rounded up to a
+    multiple of 8 and held between 32 and 128, so every nucleus fits with
+    room and the pixel scale is never resampled.
+
+    :param nuclei: the ``nucleus`` table.
+    :returns: the side length.
+    """
+    axis = pd.to_numeric(nuclei.get('nucleus_major_axis_length'),
+                         errors='coerce').dropna()
+    if axis.empty:
+        return 64
+    side = int(np.ceil(2 * np.percentile(axis, 95) / 8.0) * 8)
+    return int(np.clip(side, 32, 128))
+
+
+def _write_nucleus_crops(root, nuclei, measured, settings, *, channel,
+                         size, folder):
+    """Write one fixed-size DNA crop per nucleus for the torch classifier.
+
+    Each crop is centred on the nucleus, cut without resampling, and saved
+    as an RGB PNG: the DNA stain less the field's background on red and
+    green, scaled by twice the plate's 99.5th percentile of mean nuclear DNA
+    intensity so brightness still carries DNA content, and the nucleus's own
+    mask on blue so the classifier knows which of several nuclei in the box
+    it is asked about. Files are named ``<plate>_<row>_<column>_<field>_o<label>``
+    so the training split's leakage audit can read their identity.
+
+    :param root: the experiment root holding ``merged/``.
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param settings: Measure settings.
+    :param channel: the merged-array DNA channel.
+    :param size: crop side.
+    :param folder: where the PNGs go.
+    :returns: a Series of PNG paths, None where the nucleus was not found.
+    """
+    from PIL import Image
+
+    from .crop_source import crop_at
+
+    os.makedirs(folder, exist_ok=True)
+    mask_dim = settings.get('nucleus_mask_dim')
+    if mask_dim is None:
+        layout = read_merged_plane_layout(os.path.join(root, 'merged'))
+        mask_dim = dict((layout or {}).get('mask_dims')
+                        or DEFAULT_MASK_DIMS).get('nucleus')
+    mask_dim = int(mask_dim)
+    paths = pd.Series(None, index=nuclei.index, dtype=object)
+    scale = {}
+    for name, index in _plate_groups(nuclei):
+        peak = pd.to_numeric(measured.loc[index, 'dna_mean'],
+                             errors='coerce').dropna()
+        top = float(np.percentile(peak, 99.5)) * 2.0 if len(peak) else 1.0
+        for i in index:
+            scale[i] = top if top > 0 else 1.0
+    merged_dir = os.path.join(root, 'merged')
+    for path_name, block in nuclei.groupby('path_name', sort=False):
+        resolved = _resolve_merged_path(path_name, merged_dir)
+        if resolved is None:
+            continue
+        data = np.load(resolved, mmap_mode='r')
+        if data.ndim == 4:
+            data = np.asarray(data).max(axis=0)
+        mask = np.asarray(data[..., mask_dim])
+        image = np.asarray(data[..., channel], dtype=np.float32)
+        bg = float(np.percentile(image[mask == 0], 50)) if (
+            mask == 0).any() else 0.0
+        boxes = find_objects(mask.astype(np.int64))
+        for i, row in block.iterrows():
+            label = int(row['object_label'])
+            if label < 1 or label > len(boxes) or boxes[label - 1] is None:
+                continue
+            rows, cols = boxes[label - 1]
+            centre_r = 0.5 * (rows.start + rows.stop - 1)
+            centre_c = 0.5 * (cols.start + cols.stop - 1)
+            stack = np.dstack([image, (mask == label).astype(np.float32)])
+            cut = crop_at(stack, centre_r, centre_c, channels=[0, 1],
+                          size=size)
+            if cut is None:
+                continue
+            dna = np.clip((cut[..., 0] - bg) / scale[i], 0, 1) * 255
+            own = cut[..., 1] * 255
+            rgb = np.dstack([dna, dna, own]).astype(np.uint8)
+            stem = '_'.join(str(row[k]) for k in _CELL_CYCLE_KEYS)
+            if 'timeID' in row.index and pd.notna(row.get('timeID')):
+                stem = f"{stem}_t{row['timeID']}"
+            png = os.path.join(folder, f"{stem}_o{label}.png")
+            Image.fromarray(rgb).save(png)
+            paths[i] = png
+    return paths
+
+
+def _link_or_copy(source, target):
+    """Hard-link ``source`` to ``target``, copying where links fail.
+
+    :param source: an existing file.
+    :param target: the new path.
+    """
+    try:
+        os.link(source, target)
+    except OSError:
+        shutil.copy2(source, target)
+
+
+def _phases_by_torch(root, nuclei, measured, labels, settings, *, channel,
+                     work):
+    """Cell-cycle phase of every nucleus from an image classifier on crops.
+
+    Crops every nucleus (:func:`_write_nucleus_crops`), then either applies
+    the model named by ``cell_cycle_model`` or trains one with
+    :func:`spacr.deep_spacr.train_test_model`, the same training Classify
+    runs: labelled crops go to ``train/<phase>`` and ``test/<phase>`` of a
+    dataset split by field, and the trained model is applied to every crop
+    with :func:`spacr.deep_spacr.apply_model`. The phase order the model
+    was trained with is written beside it as ``cell_cycle_phases.json``.
+
+    :param root: the experiment root.
+    :param nuclei: the ``nucleus`` table.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :param labels: phase or None per nucleus.
+    :param settings: Measure settings.
+    :param channel: the merged-array DNA channel.
+    :param work: the folder the crops, dataset and model go in.
+    :returns: ``(phases, confidence, report)``.
+    :raises ValueError: fewer than two labelled phases, or a model file
+        without its phase order.
+    """
+    from .deep_spacr import apply_model, train_test_model
+
+    size = _nucleus_crop_size(nuclei)
+    crops = os.path.join(work, 'crops')
+    if os.path.isdir(crops):
+        shutil.rmtree(crops)
+    paths = _write_nucleus_crops(root, nuclei, measured, settings,
+                                 channel=channel, size=size, folder=crops)
+    model_path = str(settings.get('cell_cycle_model') or '').strip()
+    report = {'crop_size': size, 'crops': int(paths.notna().sum())}
+    if model_path:
+        order_file = os.path.join(os.path.dirname(model_path),
+                                  'cell_cycle_phases.json')
+        if not os.path.isfile(order_file):
+            raise ValueError(
+                f"Setting: cell_cycle_model {model_path} has no "
+                f"cell_cycle_phases.json beside it, so the order of its "
+                f"phases is unknown; use a model this step trained.")
+        with open(order_file) as handle:
+            meta = json.load(handle)
+        classes, size = list(meta['phases']), int(meta.get('crop_size', size))
+        report['model'] = model_path
+    else:
+        usable = labels.notna() & paths.notna()
+        classes = sorted(p for p in _CELL_CYCLE_PHASES
+                         if (labels[usable] == p).any())
+        if len(classes) < 2:
+            raise ValueError(
+                f"The torch phase classifier needs labelled crops of at "
+                f"least two phases; it has {classes or 'none'}.")
+        dataset = os.path.join(work, 'dataset')
+        if os.path.isdir(dataset):
+            shutil.rmtree(dataset)
+        fields = nuclei.loc[usable, list(_CELL_CYCLE_KEYS)].astype(str).agg(
+            '_'.join, axis=1)
+        held = _field_split(fields.to_numpy())
+        for (i, png), test in zip(paths[usable].items(), held):
+            target = os.path.join(dataset, 'test' if test else 'train',
+                                  labels[i])
+            os.makedirs(target, exist_ok=True)
+            _link_or_copy(png, os.path.join(target, os.path.basename(png)))
+        for split in ('train', 'test'):
+            for phase in classes:
+                os.makedirs(os.path.join(dataset, split, phase),
+                            exist_ok=True)
+        model_path = train_test_model({
+            'src': dataset, 'model_type': _CELL_CYCLE_TORCH_BACKBONE,
+            'class_folder_names': classes, 'image_size': size,
+            'epochs': int(settings.get('cell_cycle_epochs') or 20),
+            'batch_size': 32, 'train': True, 'test': bool(held.any()),
+            'init_weights': False, 'learning_rate': 1e-3,
+            'gradient_accumulation_steps': 1, 'use_checkpoint': False,
+            'plot': False, 'tensorboard': False, 'n_jobs': 0,
+            'pin_memory': False, 'cv_group_by': 'field', 'verbose': False,
+            'class_balance': 'weighted_loss',
+        })
+        if not model_path or not str(model_path).endswith('.pth'):
+            raise RuntimeError(
+                f"Training the torch phase classifier produced no model "
+                f"({model_path!r}).")
+        with open(os.path.join(os.path.dirname(model_path),
+                               'cell_cycle_phases.json'), 'w') as handle:
+            json.dump({'phases': classes, 'crop_size': size,
+                       'channel': int(channel)}, handle)
+        report['model'] = model_path
+    scored = apply_model(crops, model_path, image_size=size, batch_size=64,
+                         normalize=True, n_jobs=0)
+    by_path = {os.path.abspath(str(p)): row for p, row in zip(
+        scored['path'], scored.to_dict('records'))}
+    phases = pd.Series(None, index=nuclei.index, dtype=object)
+    confidence = pd.Series(np.nan, index=nuclei.index)
+    for i, png in paths.dropna().items():
+        row = by_path.get(os.path.abspath(png))
+        if row is None:
+            continue
+        if len(classes) == 2:
+            index = int(row['pred'] >= 0.5)
+            score = row['pred'] if index else 1 - row['pred']
+        else:
+            index = int(row['predicted_label'])
+            score = row['pred']
+        phases[i] = classes[index]
+        confidence[i] = float(score)
+    report['classes'] = classes
+    return phases, confidence, report
+
+
+def _nucleus_infection(db_path, nuclei):
+    """Whether the cell around each nucleus holds a pathogen.
+
+    :param db_path: the ``measurements.db``.
+    :param nuclei: the ``nucleus`` table.
+    :returns: a float Series, 1 infected, 0 not, NaN when the nucleus has
+        no cell or the run segmented no pathogens.
+    """
+    out = pd.Series(np.nan, index=nuclei.index)
+    if 'cell_id' not in nuclei.columns:
+        return out
+    try:
+        from .infection import parasites_per_cell
+
+        cells = parasites_per_cell(db_path)
+    except Exception:                                        # noqa: BLE001
+        return out
+    if cells.empty or 'pathogen_count' not in cells.columns:
+        return out
+    keys = [k for k in _CELL_CYCLE_KEYS if k in cells.columns]
+    lookup = {tuple(str(v) for v in key) + (int(label),): count
+              for *key, label, count in cells[keys + [
+                  'object_label', 'pathogen_count']].itertuples(index=False)
+              if pd.notna(label)}
+    for i, row in nuclei.iterrows():
+        cell = pd.to_numeric(row.get('cell_id'), errors='coerce')
+        if pd.isna(cell):
+            continue
+        count = lookup.get(tuple(str(row[k]) for k in keys) + (int(cell),))
+        if count is not None:
+            out[i] = float(count > 0)
+    return out
+
+
+def _keep_content_calls(phases, measured):
+    """A learned method's calls, with subG1 and >4N taken from DNA content.
+
+    Nuclei outside the fitted peaks are fragments, cut nuclei and clumps,
+    decided by their DNA content alone; the learned methods are asked only
+    which phase a nucleus inside the peaks is in, so every method reports
+    the same subG1 and >4N nuclei. A nucleus the method did not call (no
+    crop of it, for instance) stays uncalled.
+
+    :param phases: phase per nucleus from a learned method.
+    :param measured: the frame from :func:`_phases_by_measurements`.
+    :returns: a Series of phases.
+    """
+    out = pd.Series(list(phases), index=measured.index, dtype=object)
+    outside = measured['phase_measurements'].isin(
+        (_CELL_CYCLE_BELOW, _CELL_CYCLE_ABOVE)) & out.notna()
+    out[outside] = measured.loc[outside, 'phase_measurements']
+    return out
+
+
+def _consensus_phase(frame, methods):
+    """The majority phase of the methods run, the measurement call on a tie.
+
+    :param frame: per-nucleus frame with ``phase_<method>`` columns.
+    :param methods: the methods run, in priority order.
+    :returns: a Series of phases.
+    """
+    columns = [f'phase_{m}' for m in methods]
+    out = []
+    for values in frame[columns].itertuples(index=False):
+        called = [v for v in values if v is not None and not (
+            isinstance(v, float) and np.isnan(v))]
+        if not called:
+            out.append(None)
+            continue
+        counts = pd.Series(called).value_counts()
+        best = counts[counts == counts.max()].index.tolist()
+        out.append(next(v for v in called if v in best))
+    return pd.Series(out, index=frame.index, dtype=object)
+
+
+def _fitted_fractions(block):
+    """G1, S and G2/M fractions of a group from the fitted posteriors.
+
+    Summing each nucleus's posterior rather than counting its gated call is
+    how a flow-cytometry histogram is read: where the peaks are wide, a
+    gate hands most of S to G1 and G2, while the posteriors keep it.
+    Nuclei outside the peaks (subG1, >4N) are left out.
+
+    :param block: rows of the per-nucleus ``cell_cycle`` frame.
+    :returns: ``fit_fraction_G1``, ``fit_fraction_S`` and
+        ``fit_fraction_G2M``.
+    """
+    inside = block[block['phase_measurements'].isin(_CELL_CYCLE_PHASES)]
+    posterior = inside[['posterior_G1', 'posterior_S', 'posterior_G2']]
+    posterior = posterior.astype(float).dropna()
+    total = float(posterior.to_numpy().sum())
+    shares = (posterior.sum() / total if total > 0
+              else pd.Series(np.nan, index=posterior.columns))
+    return {'fit_fraction_G1': float(shares['posterior_G1']),
+            'fit_fraction_S': float(shares['posterior_S']),
+            'fit_fraction_G2M': float(shares['posterior_G2'])}
+
+
+def _cell_cycle_by_well(table, methods):
+    """Phase fractions per well for each method, and among infected cells.
+
+    :param table: the per-nucleus ``cell_cycle`` frame.
+    :param methods: the methods whose ``phase_<method>`` columns to count,
+        plus ``'consensus'`` for the ``cell_cycle_phase`` column.
+    :returns: one row per well (and time point) and method: ``n``, the
+        fraction in each of G1, S, G2, M, subG1 and >4N, ``fraction_G2M``,
+        and the same fractions among infected and uninfected cells when
+        infection is known, with their counts. The measurement rows also
+        carry the posterior fractions of :func:`_fitted_fractions`.
+    """
+    if table is None or table.empty:
+        return pd.DataFrame()
+    keys = ['plateID', 'rowID', 'columnID']
+    if 'timeID' in table.columns and table['timeID'].notna().any():
+        keys.append('timeID')
+    everything = _CELL_CYCLE_PHASES + (_CELL_CYCLE_BELOW, _CELL_CYCLE_ABOVE)
+
+    def _fractions(phases, prefix=''):
+        """Count and phase fractions of one group of nuclei."""
+        phases = phases.dropna()
+        n = int(len(phases))
+        row = {f'{prefix}n': n}
+        for phase in everything:
+            row[f'{prefix}fraction_{phase}'] = (
+                float((phases == phase).mean()) if n else np.nan)
+        row[f'{prefix}fraction_G2M'] = (
+            float(phases.isin(('G2', 'M')).mean()) if n else np.nan)
+        return row
+
+    rows = []
+    for method in methods:
+        column = ('cell_cycle_phase' if method == 'consensus'
+                  else f'phase_{method}')
+        if column not in table.columns:
+            continue
+        for name, block in table.groupby(keys, dropna=False, sort=True):
+            identity = dict(zip(keys, name if isinstance(name, tuple)
+                                else (name,)))
+            row = {**identity, 'method': method, **_fractions(block[column])}
+            if method == 'measurements' and 'posterior_S' in block.columns:
+                row.update(_fitted_fractions(block))
+            if 'infected' in block.columns and block['infected'].notna().any():
+                row.update(_fractions(
+                    block.loc[block['infected'] == 1, column], 'infected_'))
+                row.update(_fractions(
+                    block.loc[block['infected'] == 0, column], 'uninfected_'))
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _phase_agreement_by_well(table, methods):
+    """The largest disagreement between methods in each well's fractions.
+
+    Compared on the nuclei every method called, so a method that could not
+    see some nuclei (a field whose array is gone, for the crops) is not
+    counted as disagreeing about them.
+
+    :param table: the per-nucleus ``cell_cycle`` frame.
+    :param methods: the methods compared.
+    :returns: one row per well, with ``n`` compared,
+        ``max_fraction_difference`` and the phase it occurs in.
+    """
+    columns = [f'phase_{m}' for m in methods if f'phase_{m}' in table]
+    if table is None or table.empty or len(columns) < 2:
+        return pd.DataFrame()
+    keys = [k for k in ('plateID', 'rowID', 'columnID', 'timeID')
+            if k in table.columns and table[k].notna().any()]
+    shared = table[table[columns].notna().all(axis=1)]
+    rows = []
+    for name, block in shared.groupby(keys, dropna=False, sort=True):
+        identity = dict(zip(keys, name if isinstance(name, tuple)
+                            else (name,)))
+        worst, where = 0.0, None
+        for phase in _CELL_CYCLE_PHASES:
+            values = [float((block[c] == phase).mean()) for c in columns]
+            spread = max(values) - min(values)
+            if spread > worst:
+                worst, where = spread, phase
+        rows.append({**identity, 'n': int(len(block)),
+                     'max_fraction_difference': worst, 'phase': where})
+    return pd.DataFrame(rows)
+
+
+def _dna_histogram_figure(dna_c, fit, title, phases=None):
+    """The DNA-content histogram with its fitted model and gates.
+
+    :param dna_c: DNA content in C units of one plate.
+    :param fit: the plate's :class:`_DnaFit`.
+    :param title: figure title.
+    :param phases: optional phase per nucleus, to show each phase's share.
+    :returns: the figure.
+    """
+    values = np.asarray(dna_c, dtype=float)
+    values = values[np.isfinite(values)]
+    upper = max(6.0, float(np.percentile(values, 99.5)) if values.size else 6)
+    grid = np.linspace(0, upper, 600)
+    dens = fit.densities(grid * fit.g1 / 2.0) * fit.g1 / 2.0
+    with _figure_axes(figsize=(7, 4)) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"dna_content": np.asarray(values, dtype=float)}), y="dna_content", kind="hist", title=str(title))
+        ax.hist(values, bins=120, range=(0, upper), density=True,
+                color='0.7', label='nuclei')
+        for column, name in enumerate(('G1', 'S', 'G2')):
+            ax.plot(grid, dens[:, column], label=f'{name} fit')
+        ax.plot(grid, dens.sum(axis=1), color=resolve_ink(theme_target()),
+                lw=1, label='model')
+        for gate in fit.gates:
+            ax.axvline(float(fit.c_value(gate)),
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
+        ax.set_xlabel('DNA content (C, G1 peak = 2)')
+        ax.set_ylabel('density')
+        if phases is not None:
+            shares = pd.Series(list(phases)).value_counts(normalize=True)
+            title = title + ': ' + ', '.join(
+                f'{p} {shares.get(p, 0):.0%}' for p in _CELL_CYCLE_PHASES)
+        ax.set_title(title)
+        ax.legend(frameon=False, fontsize=8)
+    return fig
+
+
+def _resolve_cell_cycle_methods(method):
+    """The methods a ``cell_cycle_method`` value runs, in priority order.
+
+    :param method: ``measurements``, ``xgboost``, ``torch`` or ``all``.
+    :returns: a tuple of methods; the measurement gates always run first,
+        since the others learn from them or report beside them.
+    :raises ValueError: an unknown method.
+    """
+    method = str(method or 'measurements').strip().lower()
+    if method not in _CELL_CYCLE_CHOICES:
+        raise ValueError(
+            f"Setting: cell_cycle_method must be one of "
+            f"{list(_CELL_CYCLE_CHOICES)}; got {method!r}.")
+    if method == 'all':
+        return _CELL_CYCLE_METHODS
+    if method == 'measurements':
+        return ('measurements',)
+    return ('measurements', method)
+
+
+def _classify_cell_cycle(db_path, settings, *, plot=None):
+    """Call every nucleus's cell-cycle phase and write it to the database.
+
+    Reads the ``nucleus`` table Measure wrote and calls G1, S, G2 or M for
+    each nucleus by the ``cell_cycle_method`` setting: ``measurements``
+    gates the DNA-content histogram of each plate
+    (:func:`_phases_by_measurements`); ``xgboost`` trains a gradient-boosted
+    classifier on the nucleus features; ``torch`` trains an image classifier
+    on nucleus crops with Classify's training; ``all`` runs the three.
+    Labels for the two learned methods come from the Annotate column named
+    by ``cell_cycle_labels``, or from the confident gate calls when it is
+    blank. With ``cell_cycle_fucci_channels`` a FUCCI state is added.
+
+    Writes ``measurements.db:cell_cycle``, one row per nucleus keyed by its
+    ``prcfo`` with ``phase_<method>`` and ``confidence_<method>`` for every
+    method run, the DNA content and gates, ``infected`` where pathogens were
+    segmented, and ``cell_cycle_phase``: the chosen method's call, or with
+    ``all`` the majority of the three (the measurement call on a tie).
+    ``cell_cycle_well`` holds the phase fractions per well and method,
+    overall and among infected and uninfected cells, and
+    ``cell_cycle_agreement`` the largest difference between methods per
+    well, on the nuclei they all called. With ``plot``, each plate's fitted histogram is saved under
+    ``results/cell_cycle``.
+
+    :param db_path: a ``measurements.db`` with a ``nucleus`` table.
+    :param settings: Measure settings.
+    :param plot: save the histograms; defaults to ``settings['plot']``.
+    :returns: ``(table, report)``: the per-nucleus frame written and a dict
+        of what each method did, including held-out scores.
+    :raises ValueError: no nucleus table, or unusable settings.
+    """
+    from .tabular import database_tables, read_table, write_database
+
+    if 'nucleus' not in database_tables(db_path):
+        raise ValueError(
+            f"{db_path} has no nucleus table; cell-cycle phases are called "
+            f"from measured nuclei, so set nucleus_mask_dim.")
+    methods = _resolve_cell_cycle_methods(settings.get('cell_cycle_method'))
+    nuclei = read_table(db_path, table='nucleus', report=None)
+    nuclei = nuclei.reset_index(drop=True)
+    channel = _cell_cycle_channel(settings)
+    column = _measured_channel_column(settings, channel)
+    ratio = settings.get('cell_cycle_mitotic_ratio', 1.8)
+    measured, fits = _phases_by_measurements(
+        nuclei, column=column, gates=settings.get('cell_cycle_gates') or None,
+        mitotic_ratio=None if ratio in (None, '') else float(ratio))
+    table = nuclei[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
+                                'object_label', 'cell_id', 'file_name')
+                    if k in nuclei.columns]].copy()
+    table['prcfo'] = _nucleus_prcfo(nuclei, by_cell=False)
+    for name in ('dna_content', 'dna_mean', 'dna_c', 'condensation',
+                 'gate_g1_s', 'gate_s_g2', 'phase_measurements',
+                 'confidence_measurements', 'posterior_G1', 'posterior_S',
+                 'posterior_G2'):
+        table[name] = measured[name]
+    report = {'methods': list(methods), 'channel': channel,
+              'plates': {str(k): {'g1': f.g1, 'g2': f.g2,
+                                  'g2_over_g1': f.g2 / f.g1,
+                                  'gates_c': [float(f.c_value(g))
+                                              for g in f.gates],
+                                  'fitted_gates': f.fitted_gates,
+                                  'n': f.n}
+                         for k, f in fits.items()}}
+    labels = source = None
+    if len(methods) > 1:
+        labels, source = _cell_cycle_labels(
+            db_path, nuclei, measured, settings.get('cell_cycle_labels'))
+        report['labels'] = source
+        report['labelled'] = int(labels.notna().sum())
+    if 'xgboost' in methods:
+        fucci = settings.get('cell_cycle_fucci_channels') or []
+        columns = [column] + [_measured_channel_column(settings, c)
+                              for c in fucci]
+        features = _phase_features(nuclei, measured, columns)
+        fields = table[list(_CELL_CYCLE_KEYS)].astype(str).agg('_'.join,
+                                                               axis=1)
+        phases, confidence, xgb_report, model = _phases_by_xgboost(
+            features, labels, fields.to_numpy(),
+            n_jobs=int(settings.get('n_jobs') or 1))
+        table['phase_xgboost'] = _keep_content_calls(phases, measured)
+        table['confidence_xgboost'] = confidence
+        report['xgboost'] = xgb_report
+        model.get_booster().save_model(os.path.join(
+            os.path.dirname(db_path), 'cell_cycle_xgboost.json'))
+    if 'torch' in methods:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+        phases, confidence, torch_report = _phases_by_torch(
+            root, nuclei, measured, labels, settings, channel=channel,
+            work=os.path.join(root, 'cell_cycle'))
+        table['phase_torch'] = _keep_content_calls(phases, measured)
+        table['confidence_torch'] = confidence
+        report['torch'] = torch_report
+    fucci = settings.get('cell_cycle_fucci_channels')
+    if fucci:
+        table['fucci_state'] = _fucci_states(nuclei, settings, fucci)
+    table['infected'] = _nucleus_infection(db_path, nuclei)
+    if len(methods) == len(_CELL_CYCLE_METHODS):
+        table['cell_cycle_phase'] = _consensus_phase(table, methods)
+        table['cell_cycle_method'] = 'consensus'
+    else:
+        table['cell_cycle_phase'] = table[f'phase_{methods[-1]}']
+        table['cell_cycle_method'] = methods[-1]
+    write_database(table, db_path, _CELL_CYCLE_TABLE, if_exists='replace',
+                   canonicalise=False)
+    counted = list(methods) + (['consensus'] if len(methods) == len(
+        _CELL_CYCLE_METHODS) else [])
+    wells = _cell_cycle_by_well(table, counted)
+    if not wells.empty:
+        write_database(wells, db_path, _CELL_CYCLE_WELL_TABLE,
+                       if_exists='replace', canonicalise=False)
+    agreement = _phase_agreement_by_well(table, methods)
+    if not agreement.empty:
+        write_database(agreement, db_path, 'cell_cycle_agreement',
+                       if_exists='replace', canonicalise=False)
+        report['max_fraction_difference'] = float(
+            agreement['max_fraction_difference'].max())
+    if settings.get('plot') if plot is None else plot:
+        from .plot import save_figure
+
+        root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+        for name, index in _plate_groups(nuclei):
+            fit = fits[name]
+            label = '_'.join(str(v) for v in name) if isinstance(
+                name, tuple) else str(name)
+            fig = _dna_histogram_figure(
+                table.loc[index, 'dna_c'], fit, label,
+                table.loc[index, 'cell_cycle_phase'])
+            save_figure(fig, os.path.join(
+                root, 'results', 'cell_cycle', f'dna_content_{label}.pdf'),
+                close=True)
+    return table, report
+_WOUND_SOURCES = ('texture', 'intensity', 'masks')
+_WOUND_TABLE = 'wound'
+_WOUND_WELL_TABLE = 'wound_well'
+_WOUND_CLOSURE_TABLE = 'wound_closure'
+_WOUND_CONDITION_TABLE = 'wound_condition'
+_WOUND_WELL_KEYS = ('plateID', 'rowID', 'columnID')
+_WOUND_MIN_START_FRACTION = 0.01
+_WOUND_MIN_SPAN = 0.5
+_WOUND_FIT_CLOSURE_MAX = 0.9
+_WOUND_REOPEN_TOLERANCE = 0.15
+_WOUND_COLOR = (0, 190, 255)
+_WOUND_TEXTURE_PERCENTILE = 50
+_WOUND_TEXTURE_FRACTION = 0.2
+_WOUND_RELEVEL_MIN_CORE = 0.2
+_WOUND_RELEVEL_ROUNDS = 2
+_WOUND_RELEVEL_MIN_FAR = 0.05
+_WOUND_FRONT_SPAN = 0.3
+_WOUND_FRONT_MIN_WIDTH = 0.3
+_WOUND_FRONT_DEVIATION = 0.25
+_WOUND_FOLLOW_MARGIN = 1.0
+_WOUND_FOLLOW_MIN_REGION = 0.5
+_WOUND_FLOOR_MIN_OPEN = 0.1
+_WOUND_FLOOR_MIN_GAP = 1.75
+_WOUND_FLOOR_BELOW = 1.0
+_WOUND_FLOOR_ABOVE = 1.5
+_WOUND_FLOOR_REACH = 3
+_WOUND_FRONT_ONLY = True
+_WOUND_FLOOR_MIN_CORE = 0.04
+_WOUND_SATURATED_MIN = 0.001
+_WOUND_SATURATED_REACH = 1.0
+_WOUND_SCATTERED_RADIUS = 0.5
+
+
+@dataclass
+class _WoundAxis:
+    """Direction of a scratch and the band it occupies in its first frame.
+
+    ``centre`` is ``(y, x)`` and ``direction`` the unit vector ``(dy, dx)``
+    along the scratch. ``half_band`` is how far from the centre line, in
+    pixels, an open region of a later frame may lie and still count as the
+    wound. ``valid`` marks the along-axis positions, starting at ``first``,
+    whose whole cross-section lies inside the field; widths are read only
+    there, so a tilted scratch leaving the field through a corner does not
+    report its cut-off ends as narrow places.
+    """
+
+    centre: Tuple[float, float]
+    direction: Tuple[float, float]
+    half_band: float
+    first: int
+    valid: np.ndarray
+
+
+def _wound_signal(plane, source, window):
+    """The per-pixel map a wound frame is thresholded on.
+
+    For ``texture`` the frame is first divided by its own heavily smoothed
+    copy, which removes vignetting and uneven illumination and makes the
+    map unitless, and the local standard deviation of that contrast is
+    taken in a ``window`` square. Its square, a variance, is divided by its
+    median over the field, the texture of the monolayer while the wound is
+    under half the field, so a later frame focused or exposed a little
+    differently keeps the same scale. For ``intensity`` the lightly smoothed frame is divided by its 95th
+    percentile, the level of the monolayer while at least a twentieth of
+    the field is covered, so that photobleaching over a long time-lapse
+    does not move the cut.
+
+    :param plane: 2-D frame.
+    :param source: ``texture`` or ``intensity``.
+    :param window: texture window in pixels.
+    :returns: float64 plane.
+    """
+    x = np.asarray(plane, dtype=np.float64)
+    if source == 'texture':
+        background = gaussian_filter(x, 4.0 * window)
+        floor = max(float(np.percentile(background, 1)), 1e-9)
+        contrast = x / np.maximum(background, floor) - 1.0
+        variance = _local_sd(contrast, window) ** 2
+        if not _WOUND_TEXTURE_PERCENTILE:
+            return variance
+        top = float(np.percentile(variance, _WOUND_TEXTURE_PERCENTILE))
+        return variance / top if top > 0 else variance
+    smooth = gaussian_filter(x, 1.0)
+    top = float(np.percentile(smooth, 95))
+    return smooth / top if top > 0 else smooth
+
+
+def _wound_level(signal, source, manual=None):
+    """The cut between open and covered pixels, decided on the first frame.
+
+    Otsu's method splits the map (on its logarithm for texture); the cut is
+    then placed between the medians of the two classes away from their
+    edges, a fifth of the way up from the open level in the logarithm for
+    texture and a quarter of the way in intensity. Placed that low, cells that have spread flat into the
+    wound, whose texture is fainter than the dense monolayer's, count as
+    covered, as a hand-traced wound edge counts them. The first frame is where the two
+    classes are most nearly equal in size, and the cut found there is kept
+    for the rest of the series: a nearly closed wound has too few open
+    pixels to set a cut of its own.
+
+    :param signal: from :func:`_wound_signal`.
+    :param source: ``texture`` or ``intensity``.
+    For texture the cut is also turned into the share of a window that must
+    be covered before the window reads as covered: an edge is found where
+    the window first reaches the cut, so the open area comes out narrower
+    than the gap by ``(0.5 - share) * window`` on each side, which
+    :func:`_wound_open` grows back.
+
+    :param manual: a cut set by hand on the map's own scale, or ``None``
+        for the automatic one; the share is still worked out from the two
+        classes' levels.
+    :returns: ``(level, separation, share)``; ``share`` is 0.5 for
+        intensity, whose cut is not smeared by a window.
+    """
+    texture = source == 'texture'
+    values = np.log(np.maximum(signal, 1e-18)) if texture else signal
+    lo, hi = np.percentile(values, [0.5, 99.5])
+    cut, separation = _otsu_separation(np.clip(values.ravel(), lo, hi))
+    above = values > cut
+    band = 3
+    core_on = binary_erosion(above, iterations=band)
+    core_off = binary_erosion(~above, iterations=band)
+    on = float(np.median(values[core_on] if core_on.sum() > 100
+                         else values[above] if above.any() else values))
+    off = float(np.median(values[core_off] if core_off.sum() > 100
+                          else values[~above] if (~above).any() else values))
+    fraction = (_WOUND_TEXTURE_FRACTION if texture
+                else _CONFLUENCY_INTENSITY_FRACTION)
+    level = off + fraction * (on - off)
+    if manual is not None:
+        level = (float(np.log(max(float(manual), 1e-18))) if texture
+                 else float(manual))
+    if not texture:
+        return level, float(separation), 0.5
+    low, high, cut = np.exp(off), np.exp(on), np.exp(level)
+    share = (cut - low) / (high - low) if high > low else 0.5
+    return float(cut), float(separation), float(np.clip(share, 0.0, 0.5))
+
+
+def _wound_open(plane, source='texture', window=15, level=None, share=0.5,
+                manual=None):
+    """The open, cell-free area of one frame.
+
+    :param plane: the frame, 2-D or a ``(Z, Y, X)`` stack (max-projected);
+        for ``masks`` a label image.
+    :param source: ``texture`` (brightfield, phase), ``intensity``
+        (fluorescent stain) or ``masks`` (cell labels).
+    :param window: texture window in pixels.
+    :param level: the cut from the series' first frame; ``None`` decides
+        it on this frame.
+    :param share: with ``level``, the window share it corresponds to
+        (:func:`_wound_level`).
+    :param manual: with ``level`` ``None``, a cut set by hand
+        (:func:`_wound_level`).
+    :returns: ``(open, level, share, separation)``: the boolean plane, true
+        where no cell covers the field, the cut and share used and, when
+        the cut was decided here, how well the two classes separated
+        (``None`` otherwise).
+    :raises ValueError: for a source outside :data:`_WOUND_SOURCES`.
+    """
+    source = str(source or 'texture').strip().lower()
+    if source not in _WOUND_SOURCES:
+        raise ValueError(f"unknown wound source {source!r}; use one of "
+                         f"{', '.join(_WOUND_SOURCES)}")
+    if source == 'masks':
+        return ~_mask_coverage(plane).covered, None, 0.5, None
+    window = max(3, int(window))
+    signal = _wound_signal(_confluency_plane(plane), source, window)
+    separation = None
+    if level is None:
+        level, separation, share = _wound_level(signal, source, manual)
+    radius = window // 4 if source == 'texture' else 2
+    opened = ~_clean_coverage(signal > level, radius)
+    return opened, level, share, separation
+
+
+def _wound_grow(wound, share, window, source):
+    """Move a texture wound's edge back to where half the window is covered.
+
+    :param wound: the selected wound.
+    :param share: the window share of the cut (:func:`_wound_level`).
+    :param window: texture window in pixels.
+    :param source: the wound source; only ``texture`` is grown.
+    :returns: the wound, dilated by ``(0.5 - share) * window`` pixels.
+    """
+    grow = (int(round((0.5 - float(share)) * window))
+            if source == 'texture' else 0)
+    if grow <= 0 or not wound.any():
+        return wound
+    return binary_dilation(wound, structure=morphology.disk(grow))
+
+
+def _wound_axis(wound, margin):
+    """The scratch's long axis, its band and where its width can be read.
+
+    The axis is the principal direction of the wound's pixels. The band is
+    the 99th percentile of their distance from the centre line plus
+    ``margin``, so a later frame shifted by stage drift still falls inside.
+
+    :param wound: boolean plane of the first frame's wound; not empty.
+    :param margin: extra half-width of the band in pixels.
+    :returns: :class:`_WoundAxis`.
+    """
+    ys, xs = np.nonzero(wound)
+    cy, cx = float(ys.mean()), float(xs.mean())
+    if ys.size > 2:
+        _values, vectors = np.linalg.eigh(np.cov(np.stack([ys - cy, xs - cx])))
+        dy, dx = (float(v) for v in vectors[:, -1])
+    else:
+        dy, dx = 1.0, 0.0
+    ny, nx = -dx, dy
+    extent = float(np.percentile(np.abs((ys - cy) * ny + (xs - cx) * nx), 99))
+    height, width = wound.shape
+    corners = np.array([[0, 0], [0, width - 1], [height - 1, 0],
+                        [height - 1, width - 1]], dtype=np.float64)
+    along = (corners[:, 0] - cy) * dy + (corners[:, 1] - cx) * dx
+    first, last = int(np.floor(along.min())), int(np.ceil(along.max()))
+    centres = np.arange(first, last + 1) + 0.5
+
+    def inside(offset):
+        """Mark axis samples inside the image at the given normal offset."""
+        py = cy + centres * dy + offset * ny
+        px = cx + centres * dx + offset * nx
+        return ((py >= -0.5) & (py <= height - 0.5)
+                & (px >= -0.5) & (px <= width - 0.5))
+
+    valid = inside(0.0) & inside(extent) & inside(-extent)
+    if not valid.any():
+        valid = inside(0.0)
+    return _WoundAxis((cy, cx), (dy, dx), extent + float(margin), first,
+                      valid)
+
+
+def _wound_widths(wound, axis):
+    """Width of the wound across each valid position along its axis.
+
+    Every pixel is binned by its one-pixel position along the axis; the
+    count in a bin is the open width across the scratch there, summed over
+    every open stretch it crosses. A position the wound has closed over
+    reads zero.
+
+    :param wound: boolean plane.
+    :param axis: the series' :class:`_WoundAxis`.
+    :returns: float array of widths in pixels, one per valid position.
+    """
+    ys, xs = np.nonzero(wound)
+    cy, cx = axis.centre
+    dy, dx = axis.direction
+    bins = np.floor((ys - cy) * dy + (xs - cx) * dx).astype(np.int64) - axis.first
+    size = axis.valid.size
+    inside = (bins >= 0) & (bins < size)
+    counts = np.bincount(bins[inside], minlength=size)[:size]
+    return counts[axis.valid].astype(np.float64)
+
+
+def _wound_front_only(open_mask, axis, window):
+    """A later frame's open area with scattered cells inside the wound opened.
+
+    Only a continuous cell front closes a wound: cells that have come loose
+    from the monolayer and lie on the wound's floor, alone or in small
+    clumps, leave it open, as wound-healing hand annotation counts them.
+    Covered pixels inside the first frame's band are kept covered only
+    when they belong to a front, a covered region that reaches the
+    monolayer outside the band once necks narrower than
+    :data:`_WOUND_SCATTERED_RADIUS` of a window are cut, grown back over
+    the covered pixels it was cut from. Every other covered pixel in the
+    band is counted open.
+
+    :param open_mask: boolean open area of the frame.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param window: texture window in pixels.
+    :returns: the boolean open area.
+    """
+    from scipy.ndimage import binary_opening, label as label_regions
+    opened = np.asarray(open_mask, dtype=bool)
+    covered = ~opened
+    band = _wound_band(axis, opened.shape)
+    radius = int(round(_WOUND_SCATTERED_RADIUS * window))
+    core = covered
+    if radius > 0:
+        core = binary_opening(covered, structure=morphology.disk(radius))
+    regions, _count = label_regions(core)
+    fronts = np.unique(regions[core & ~band])
+    front = np.isin(regions, fronts[fronts > 0])
+    if radius > 0:
+        front = binary_dilation(front, structure=morphology.disk(radius))
+    return opened | (covered & band & ~front)
+
+
+def _wound_select(open_mask, axis=None, min_area=0):
+    """The wound among a frame's open regions, with the cells inside it filled.
+
+    In the first frame (``axis`` ``None``) the wound is the largest open
+    region. In a later frame it is every open region of at least
+    ``min_area`` pixels whose centre lies inside the first frame's band, so
+    a wound that closes in places and leaves several gaps is still counted
+    whole while gaps in the monolayer beside it are not. Isolated cells or
+    clumps inside the wound count as open, as a hand-traced wound edge and
+    the Wound Healing Size Tool both count them.
+
+    :param open_mask: boolean open area of the frame.
+    :param axis: the series' :class:`_WoundAxis`, or ``None`` for the first
+        frame.
+    :param min_area: smallest open region kept in a later frame, in pixels.
+    :returns: ``(wound, n_regions)``.
+    """
+    from scipy.ndimage import binary_fill_holes, label as ndi_label
+    labels, count = ndi_label(np.asarray(open_mask, dtype=bool))
+    if count == 0:
+        return np.zeros(labels.shape, dtype=bool), 0
+    sizes = np.bincount(labels.ravel())
+    sizes[0] = 0
+    if axis is None:
+        keep = [int(np.argmax(sizes))]
+    else:
+        index = np.arange(1, count + 1)
+        rows = np.bincount(labels.ravel(),
+                           weights=np.indices(labels.shape)[0].ravel())
+        cols = np.bincount(labels.ravel(),
+                           weights=np.indices(labels.shape)[1].ravel())
+        with np.errstate(invalid='ignore', divide='ignore'):
+            my = rows[index] / sizes[index]
+            mx = cols[index] / sizes[index]
+        cy, cx = axis.centre
+        dy, dx = axis.direction
+        across = np.abs((my - cy) * (-dx) + (mx - cx) * dy)
+        chosen = (sizes[index] >= max(1, int(min_area))) & (
+            across <= axis.half_band)
+        keep = index[chosen].tolist()
+    if not keep:
+        return np.zeros(labels.shape, dtype=bool), 0
+    wound = binary_fill_holes(np.isin(labels, keep))
+    if axis is not None:
+        wound &= _wound_band(axis, wound.shape)
+    return wound, len(keep)
+
+
+def _wound_band(axis, shape):
+    """The pixels within the first frame's band around the scratch axis.
+
+    :param axis: the series' :class:`_WoundAxis`.
+    :param shape: the frame shape.
+    :returns: boolean plane.
+    """
+    yy, xx = np.indices(shape, dtype=np.float64)
+    cy, cx = axis.centre
+    dy, dx = axis.direction
+    return np.abs((yy - cy) * (-dx) + (xx - cx) * dy) <= axis.half_band
+
+
+def _wound_across(axis, shape):
+    """Signed distance of every pixel from the scratch's centre line.
+
+    :param axis: the series' :class:`_WoundAxis`.
+    :param shape: the frame shape.
+    :returns: float64 plane, in pixels.
+    """
+    yy, xx = np.indices(shape, dtype=np.float64)
+    cy, cx = axis.centre
+    dy, dx = axis.direction
+    return (yy - cy) * (-dx) + (xx - cx) * dy
+
+
+def _wound_fronts(wound, window):
+    """A first frame's wound redrawn between two smooth fronts.
+
+    A freshly made scratch is one continuous band. Each one-pixel position
+    along its axis gets a left and a right front, the ends of the open run
+    nearest the centre line once gaps narrower than ``window`` are bridged.
+    A position whose run is missing or narrower than
+    :data:`_WOUND_FRONT_MIN_WIDTH` of the median width, and a front further
+    than ``max(2 * window, 0.25 * median width)`` from the running median,
+    take the running median instead: the median of the other positions'
+    fronts within :data:`_WOUND_FRONT_SPAN` of the scratch's length,
+    counting only positions whose run is wide enough. Debris floating in a fresh wound, which
+    carries texture, and a smooth patch of monolayer beside it, which does
+    not, are local bumps in one front and are drawn over.
+
+    :param wound: boolean first-frame wound; not empty.
+    :param window: texture window in pixels.
+    :returns: the boolean wound between the fronts, or ``wound`` itself
+        when too few positions have a front to draw from.
+    """
+    from scipy.ndimage import binary_closing, map_coordinates
+    axis = _wound_axis(wound, 0)
+    height, width = wound.shape
+    cy, cx = axis.centre
+    dy, dx = axis.direction
+    corners = np.array([[0, 0], [0, width - 1], [height - 1, 0],
+                        [height - 1, width - 1]], dtype=np.float64)
+    along_c = (corners[:, 0] - cy) * dy + (corners[:, 1] - cx) * dx
+    across_c = (corners[:, 0] - cy) * (-dx) + (corners[:, 1] - cx) * dy
+    reach = 3.0 * axis.half_band + 4.0 * window
+    along = np.arange(int(np.floor(along_c.min())),
+                      int(np.ceil(along_c.max())) + 1)
+    across = np.arange(int(np.floor(max(across_c.min(), -reach))),
+                       int(np.ceil(min(across_c.max(), reach))) + 1)
+    grid_a, grid_c = np.meshgrid(along, across, indexing='ij')
+    gy = cy + grid_a * dy - grid_c * dx
+    gx = cx + grid_a * dx + grid_c * dy
+    inside = ((gy >= -0.5) & (gy <= height - 0.5)
+              & (gx >= -0.5) & (gx <= width - 0.5))
+    grid = map_coordinates(wound.astype(np.float64), [gy, gx], order=0,
+                           cval=0.0) > 0.5
+    grid &= inside
+    grid |= binary_closing(grid, structure=np.ones((1, max(1, int(window))),
+                                                   dtype=bool))
+    size = across.size
+    columns = np.arange(size)
+    centre = int(np.argmin(np.abs(across)))
+    distance = np.where(grid, np.abs(columns - centre), size + 1)
+    nearest = np.argmin(distance, axis=1)
+    rows = np.arange(along.size)
+    closed_left = np.maximum.accumulate(np.where(~grid, columns, -1), axis=1)
+    closed_right = np.minimum.accumulate(
+        np.where(~grid, columns, size)[:, ::-1], axis=1)[:, ::-1]
+    has = grid.any(axis=1)
+    left = np.where(has, across[0] + closed_left[rows, nearest] + 1, np.nan)
+    right = np.where(has, across[0] + closed_right[rows, nearest] - 1,
+                     np.nan)
+    in_field = inside.any(axis=1)
+    widths = right - left
+    measured = np.isfinite(widths) & in_field
+    if not measured.any():
+        return wound
+    median_width = float(np.median(widths[measured]))
+    good = measured & (widths >= _WOUND_FRONT_MIN_WIDTH * median_width)
+    if median_width <= 0 or good.sum() < 3:
+        return wound
+    half_span = max(1, int(_WOUND_FRONT_SPAN * in_field.sum()) // 2)
+    kept = rows[good]
+    starts = np.searchsorted(kept, rows - half_span, side='left')
+    stops = np.searchsorted(kept, rows + half_span, side='right')
+    covered = stops > starts
+
+    def running(front):
+        """Running median of the good fronts, carried over rows with none."""
+        values = front[good]
+        median = np.full(rows.size, np.nan)
+        for row in np.nonzero(covered)[0]:
+            median[row] = np.median(values[starts[row]:stops[row]])
+        return np.interp(rows, rows[covered], median[covered])
+
+    tolerance = max(2.0 * window, _WOUND_FRONT_DEVIATION * median_width)
+    smooth_left, smooth_right = running(left), running(right)
+    left = np.where(good & (np.abs(left - smooth_left) <= tolerance), left,
+                    smooth_left)
+    right = np.where(good & (np.abs(right - smooth_right) <= tolerance),
+                     right, smooth_right)
+    yy, xx = np.indices(wound.shape, dtype=np.float64)
+    position = np.clip(np.round((yy - cy) * dy + (xx - cx) * dx).astype(
+        np.int64) - along[0], 0, along.size - 1)
+    offset = (yy - cy) * (-dx) + (xx - cx) * dy
+    return ((offset >= left[position] - 0.5)
+            & (offset < right[position] + 0.5))
+
+
+def _wound_follow(first, later, axis):
+    """The first frame's wound moved across the scratch to meet a later one.
+
+    A wound only narrows, so a later frame's open pixels outside the first
+    wound are monolayer that reads as open (a flat or over-exposed patch),
+    not wound. Imaged at the same position the first wound is where the
+    later one is; imaged again, the stage may put the scratch elsewhere
+    across the field. The first wound is therefore moved across the scratch
+    by the offset, up to half the band, at which its profile across the
+    scratch best overlaps the later frame's largest open region, the
+    wound itself rather than a patch beside it (the product of the two
+    profiles, summed; ties go to the smaller offset).
+
+    :param first: boolean first-frame wound.
+    :param later: boolean later-frame open pixels in the band.
+    :param axis: the series' :class:`_WoundAxis`.
+    :returns: boolean plane, the first wound at the later frame's offset.
+    """
+    from scipy.ndimage import label as label_regions, shift as shift_plane
+    regions, count = label_regions(later)
+    if count > 1:
+        sizes = np.bincount(regions.ravel())
+        sizes[0] = 0
+        later = np.isin(regions, np.nonzero(
+            sizes >= _WOUND_FOLLOW_MIN_REGION * sizes.max())[0])
+    across = np.round(_wound_across(axis, first.shape)).astype(np.int64)
+    low = int(across.min())
+    size = int(across.max()) - low + 1
+    before = np.bincount(across[first] - low, minlength=size).astype(
+        np.float64)
+    after = np.bincount(across[later] - low, minlength=size).astype(
+        np.float64)
+    if not before.any() or not after.any():
+        return first
+    overlap = np.correlate(after, before, mode='full')
+    lags = np.arange(-(size - 1), size)
+    limit = max(0, int(axis.half_band))
+    allowed = np.abs(lags) <= limit
+    lags, overlap = lags[allowed], overlap[allowed]
+    best = overlap.max()
+    candidates = lags[overlap >= best]
+    offset = int(candidates[np.argmin(np.abs(candidates))])
+    if offset == 0:
+        return first
+    dy, dx = axis.direction
+    moved = shift_plane(first.astype(np.uint8),
+                        (offset * (-dx), offset * dy), order=0,
+                        mode='constant')
+    return moved > 0
+
+
+def _wound_unsaturated(plane, window):
+    """The pixels whose texture says something about the field.
+
+    A stretch of the frame at the camera's ceiling is flat whether it is a
+    bright wound floor or over-exposed monolayer, so its texture reads as
+    open either way. When more than :data:`_WOUND_SATURATED_MIN` of the
+    frame sits at its maximum, those pixels and everything within
+    :data:`_WOUND_SATURATED_REACH` of a window of them are left out of the
+    levels a later frame's cut is read from; they are still classified by
+    that cut.
+
+    :param plane: the 2-D frame.
+    :param window: texture window in pixels.
+    :returns: boolean plane, true where the texture is informative.
+    """
+    x = np.asarray(plane, dtype=np.float64)
+    saturated = x >= float(x.max())
+    if saturated.mean() <= _WOUND_SATURATED_MIN:
+        return np.ones(x.shape, dtype=bool)
+    reach = max(1, int(_WOUND_SATURATED_REACH * window))
+    return ~binary_dilation(saturated, iterations=reach)
+
+
+def _wound_floor(plane, wound, axis, window):
+    """What a later frame's open-floor level is checked against.
+
+    :param plane: the 2-D first frame.
+    :param wound: its boolean wound.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param window: texture window in pixels.
+    :returns: ``(region, open_level, covered_level)``: the first wound
+        widened by one window, and the median log texture of the first
+        wound and of the field outside the band.
+    """
+    values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
+                               1e-18))
+    far = np.abs(_wound_across(axis, values.shape)) > axis.half_band
+    region = binary_dilation(wound, iterations=max(1, int(window)))
+    covered = float(np.median(values[far])) if far.any() else 0.0
+    return region, float(np.median(values[wound])), covered
+
+
+def _wound_relevel(plane, axis, level, start_area, window, floor=None):
+    """The texture cut for a later frame, recalibrated on that frame.
+
+    A later time point is often imaged again rather than left on the stage,
+    so its focus and exposure differ from the first frame's and the first
+    frame's cut can open part of the monolayer or close part of the wound.
+    The frame's own open level is the median log texture of the pixels in
+    the first frame's band that the cut calls open, its covered level the
+    median outside the band, and the cut goes
+    :data:`_WOUND_TEXTURE_FRACTION` of the way between them, as on the
+    first frame; this is repeated :data:`_WOUND_RELEVEL_ROUNDS` times. The
+    first round starts from Otsu's split of the band when it separates two
+    classes (:data:`_CONFLUENCY_SEPARATION_MIN`), otherwise from the given
+    cut. A frame whose open pixels in the band cover less than
+    :data:`_WOUND_RELEVEL_MIN_CORE` of the first wound's area, a nearly
+    closed wound, keeps the cut it was given, since those few pixels do not
+    show the open level.
+
+    :param plane: the 2-D later frame.
+    :param axis: the series' :class:`_WoundAxis`.
+    :param level: the first frame's cut.
+    :param start_area: the first frame's wound area in pixels.
+    :param window: texture window in pixels.
+    :param floor: from :func:`_wound_floor` on the first frame, or
+        ``None``. Cells or debris scattered over a wound's floor raise its
+        texture, so the open pixels left under the cut above are only the
+        smoothest part of the floor and the open level read from them sits
+        too low. When given, and the cut above leaves at least
+        :data:`_WOUND_FLOOR_MIN_OPEN` of the first wound's area open, the
+        open level is read instead from Otsu's lower class among the
+        pixels within one window of the first wound and within
+        :data:`_WOUND_FLOOR_REACH` windows of the pixels the cut above
+        leaves open in the band (so a nearly closed wound is not read
+        against the monolayer that has filled the rest of the first
+        wound), provided that class lies at least
+        :data:`_WOUND_FLOOR_MIN_GAP` below the covered level in log
+        texture (a closed wound's monolayer splits into two classes much
+        closer together). That level is held to within
+        :data:`_WOUND_FLOOR_BELOW` below and :data:`_WOUND_FLOOR_ABOVE`
+        above the first frame's open level, shifted by the change in the
+        covered level since then, so a floor with a bright, smooth stretch
+        and a dimmer one is not split between them. The lower class must
+        hold at least :data:`_WOUND_FLOOR_MIN_CORE` of the first wound's
+        area. Every level is read from informative pixels only
+        (:func:`_wound_unsaturated`), so a stretch of floor at the
+        camera's ceiling does not stand in for the open level.
+    :returns: the cut for this frame.
+    """
+    values = np.log(np.maximum(_wound_signal(plane, 'texture', window),
+                               1e-18))
+    distance = np.abs(_wound_across(axis, values.shape))
+    near = distance <= axis.half_band
+    far = distance > axis.half_band
+    if far.sum() < _WOUND_RELEVEL_MIN_FAR * values.size:
+        return level
+    informative = _wound_unsaturated(plane, window)
+    covered = float(np.median(values[far & informative]
+                              if (far & informative).sum() > 100
+                              else values[far]))
+    cut = float(np.log(level))
+    measured = near & informative
+    band = values[measured]
+    if band.size > 100:
+        split, separation = _otsu_separation(band)
+        if (separation >= _CONFLUENCY_SEPARATION_MIN
+                and (band <= split).sum() >= _WOUND_RELEVEL_MIN_CORE
+                * start_area):
+            cut = split
+    for _round in range(_WOUND_RELEVEL_ROUNDS):
+        core = measured & (values <= cut)
+        if core.sum() < _WOUND_RELEVEL_MIN_CORE * start_area:
+            break
+        opened = float(np.median(values[core]))
+        cut = opened + _WOUND_TEXTURE_FRACTION * (covered - opened)
+    if floor is None or (near & (values <= cut)).sum() < (
+            _WOUND_FLOOR_MIN_OPEN * start_area):
+        return float(np.exp(cut))
+    region, first_open, first_covered = floor
+    reach = distance_transform_edt(~(near & (values <= cut)))
+    inside = values[region & informative
+                    & (reach <= _WOUND_FLOOR_REACH * window)]
+    if inside.size <= 100:
+        return float(np.exp(cut))
+    split, _separation = _otsu_separation(inside)
+    lower = inside[inside <= split]
+    if lower.size < _WOUND_FLOOR_MIN_CORE * start_area:
+        return float(np.exp(cut))
+    opened = float(np.median(lower))
+    if covered - opened < _WOUND_FLOOR_MIN_GAP:
+        return float(np.exp(cut))
+    expected = first_open + covered - first_covered
+    opened = float(np.clip(opened, expected - _WOUND_FLOOR_BELOW,
+                           expected + _WOUND_FLOOR_ABOVE))
+    return float(np.exp(opened + _WOUND_TEXTURE_FRACTION
+                        * (covered - opened)))
+
+
+def _wound_series(planes, times, *, source='texture', window=15,
+                  pixel_size_um=None, keep=(), threshold=None):
+    """Open wound area and width of one field through time.
+
+    The first frame decides where the scratch is: its largest open region,
+    which must cover at least :data:`_WOUND_MIN_START_FRACTION` of the field
+    and be open across at least :data:`_WOUND_MIN_SPAN` of the positions
+    along its axis, or the series is not a scratch and every metric is left
+    blank. Later frames count the open regions inside the first frame's
+    band and, for ``texture`` and ``intensity``, within a window of the
+    first frame's wound moved across the scratch to meet them
+    (:func:`_wound_follow`), since a wound only narrows. The cut between
+    open and covered is decided on the first frame
+    (:func:`_wound_level`); for ``texture`` each later frame recalibrates it
+    on its own open and covered levels (:func:`_wound_relevel`), reading
+    the open level of a floor that carries scattered cells against the
+    first frame's (:func:`_wound_floor`), and for
+    ``texture`` and ``intensity`` a first frame that is a scratch is
+    redrawn between smooth fronts (:func:`_wound_fronts`). In later frames
+    only a continuous cell front closes the wound: scattered cells on its
+    floor count as open (:func:`_wound_front_only`).
+
+    :param planes: iterable of frames in time order (2-D, a ``(Z, Y, X)``
+        stack, or a label image for ``masks``).
+    :param times: the frames' times, in hours or in frames.
+    :param source: ``texture``, ``intensity`` or ``masks``.
+    :param window: texture window in pixels.
+    :param pixel_size_um: micrometres per pixel, for the ``_um`` columns;
+        ``None`` leaves them blank.
+    :param keep: positions in the series whose wound masks are returned.
+    :param threshold: a cut set by hand, on the scale of the
+        ``wound_level`` column (texture: local variance over the field's
+        median; intensity: a share of the frame's 95th percentile), used
+        on every frame in place of the automatic cut and its later-frame
+        recalibration; ``None`` or 0 leaves the cut automatic. Ignored by
+        ``masks``.
+    :returns: ``(frame, status, masks)``: one row per frame with
+        ``open_area_px``, ``open_fraction``, ``relative_open_area``,
+        ``closure``, ``mean_width_px``, ``min_width_px``, ``max_width_px``,
+        ``width_sd_px``, ``n_regions``, ``wound_level``,
+        ``first_separation`` and the micrometre versions;
+        ``status`` is ``ok``, ``no_wound`` or ``not_a_scratch``; ``masks``
+        maps each kept position to ``(plane, wound)``.
+    """
+    window = max(3, int(window))
+    scale = None if pixel_size_um in (None, '') else float(pixel_size_um)
+    rows, masks = [], {}
+    axis, start_area, status = None, None, 'ok'
+    keep = set(int(k) for k in keep)
+    level, share, first_separation, floor = None, 0.5, None, None
+    manual = (float(threshold) if threshold not in (None, '')
+              and float(threshold) > 0 and source != 'masks' else None)
+    for index, (plane, time) in enumerate(zip(planes, times)):
+        if source != 'masks':
+            plane = _confluency_plane(plane)
+        frame_level = level
+        if (index > 0 and status == 'ok' and source == 'texture'
+                and manual is None):
+            frame_level = _wound_relevel(plane, axis, level, start_area,
+                                         window, floor)
+        open_mask, frame_level, share, separation = _wound_open(
+            plane, source, window, frame_level, share, manual)
+        if index == 0:
+            level = frame_level
+        if index == 0:
+            first_separation = separation
+            wound, regions = _wound_select(open_mask)
+            wound = _wound_grow(wound, share, window, source)
+            if wound.mean() < _WOUND_MIN_START_FRACTION:
+                status = 'no_wound'
+            else:
+                axis = _wound_axis(wound, window)
+                first_widths = _wound_widths(wound, axis)
+                margin = max(2.0 * window, 0.25 * float(first_widths.mean()))
+                axis = _wound_axis(wound, margin)
+                if (first_widths > 0).mean() < _WOUND_MIN_SPAN:
+                    status = 'not_a_scratch'
+                elif source != 'masks':
+                    wound = _wound_fronts(wound, window)
+                    axis = _wound_axis(wound, window)
+                    first_widths = _wound_widths(wound, axis)
+                    margin = max(2.0 * window,
+                                 0.25 * float(first_widths.mean()))
+                    axis = _wound_axis(wound, margin)
+            start_area = int(wound.sum())
+            first_wound = wound
+            if status == 'ok' and source == 'texture':
+                floor = _wound_floor(plane, wound, axis, window)
+        elif status == 'ok':
+            if _WOUND_FRONT_ONLY:
+                open_mask = _wound_front_only(open_mask, axis, window)
+            wound, regions = _wound_select(open_mask, axis, window * window)
+            wound = _wound_grow(wound, share, window, source) & _wound_band(
+                axis, wound.shape)
+            if source != 'masks':
+                wound &= binary_dilation(
+                    _wound_follow(first_wound, wound, axis),
+                    iterations=max(1, int(_WOUND_FOLLOW_MARGIN * window)))
+        else:
+            wound, regions = np.zeros(open_mask.shape, dtype=bool), 0
+        area = int(wound.sum())
+        row = {'time_index': index, 'time': float(time),
+               'field_px': int(wound.size), 'open_area_px': area,
+               'open_fraction': area / float(wound.size),
+               'start_open_area_px': start_area, 'n_regions': regions,
+               'wound_level': frame_level,
+               'first_separation': first_separation}
+        if status == 'ok':
+            widths = _wound_widths(wound, axis)
+            relative = area / float(start_area) if start_area else np.nan
+            row.update({
+                'relative_open_area': relative, 'closure': 1.0 - relative,
+                'mean_width_px': float(widths.mean()),
+                'min_width_px': float(widths.min()),
+                'max_width_px': float(widths.max()),
+                'width_sd_px': float(widths.std()),
+            })
+        else:
+            row.update({key: np.nan for key in (
+                'relative_open_area', 'closure', 'mean_width_px',
+                'min_width_px', 'max_width_px', 'width_sd_px')})
+        for key in ('mean_width', 'min_width', 'max_width'):
+            row[f'{key}_um'] = (row[f'{key}_px'] * scale
+                                if scale is not None else np.nan)
+        row['open_area_um2'] = (area * scale * scale if scale is not None
+                                else np.nan)
+        rows.append(row)
+        if index in keep:
+            masks[index] = (plane, wound)
+    return pd.DataFrame(rows), status, masks
+
+
+def _closure_metrics(times, relative, mean_width=None):
+    """Closure rate and half-closure time of one open-area curve.
+
+    The half-closure time is where the relative open area first reaches
+    0.5, interpolated linearly between the frames either side. The closure
+    rate is the least-squares slope of the closed fraction against time,
+    fitted from the first frame up to the first frame at or past
+    :data:`_WOUND_FIT_CLOSURE_MAX` closed, so the flat tail of a closed
+    wound does not pull the rate down; the width rate is the slope of the
+    mean width over the same frames, negated, and the front speed half of
+    it, since two fronts close one wound.
+
+    :param times: frame times.
+    :param relative: open area relative to the first frame.
+    :param mean_width: mean width per frame, in any unit, or ``None``.
+    :returns: dict with ``n_timepoints``, ``final_closure``,
+        ``half_closure_time``, ``half_closure_reached``, ``closure_rate``,
+        ``closure_rate_r2``, ``width_rate``, ``front_speed`` and
+        ``reopened``.
+    """
+    t = np.asarray(times, dtype=np.float64)
+    r = np.asarray(relative, dtype=np.float64)
+    w = (np.full(t.shape, np.nan) if mean_width is None
+         else np.asarray(mean_width, dtype=np.float64))
+    usable = np.isfinite(t) & np.isfinite(r)
+    t, r, w = t[usable], r[usable], w[usable]
+    out = {'n_timepoints': int(t.size), 'final_closure': np.nan,
+           'half_closure_time': np.nan, 'half_closure_reached': 0,
+           'closure_rate': np.nan, 'closure_rate_r2': np.nan,
+           'width_rate': np.nan, 'front_speed': np.nan, 'reopened': 0}
+    if t.size == 0:
+        return out
+    order = np.argsort(t, kind='stable')
+    t, r, w = t[order], r[order], w[order]
+    out['final_closure'] = float(1.0 - r[-1])
+    below = np.nonzero(r <= 0.5)[0]
+    if below.size:
+        i = int(below[0])
+        out['half_closure_reached'] = 1
+        if i == 0 or r[i - 1] == r[i]:
+            out['half_closure_time'] = float(t[i])
+        else:
+            out['half_closure_time'] = float(
+                t[i - 1] + (r[i - 1] - 0.5) * (t[i] - t[i - 1])
+                / (r[i - 1] - r[i]))
+    running = np.minimum.accumulate(r)
+    out['reopened'] = int(bool(np.any(
+        r[1:] > running[:-1] + _WOUND_REOPEN_TOLERANCE)))
+    closed = np.nonzero(1.0 - r >= _WOUND_FIT_CLOSURE_MAX)[0]
+    last = int(closed[0]) if closed.size else t.size - 1
+    ft, fc, fw = t[:last + 1], 1.0 - r[:last + 1], w[:last + 1]
+    if ft.size >= 2 and np.ptp(ft) > 0:
+        slope, intercept = np.polyfit(ft, fc, 1)
+        residual = fc - (slope * ft + intercept)
+        total = float(((fc - fc.mean()) ** 2).sum())
+        out['closure_rate'] = float(slope)
+        out['closure_rate_r2'] = (float(1.0 - (residual ** 2).sum() / total)
+                                  if total > 0 else 1.0)
+        known = np.isfinite(fw)
+        if known.sum() >= 2 and np.ptp(ft[known]) > 0:
+            width_slope = np.polyfit(ft[known], fw[known], 1)[0]
+            out['width_rate'] = float(-width_slope)
+            out['front_speed'] = float(-width_slope / 2.0)
+    return out
+
+
+def _wound_condition_lookup(conditions):
+    """Map each well named in ``wound_conditions`` to its condition.
+
+    :param conditions: ``{condition: wells}``, the wells as spaCR's well
+        vocabulary writes them (``r2`` a row, ``c3`` a column, ``B03`` or
+        ``r2c3`` a well), as a list or a comma-separated string.
+    :returns: ``{(row, column): condition}`` with one-based coordinates.
+    :raises ValueError: when a well is given to two conditions or a token
+        is not a row, column or well.
+    """
+    from .well_spec import parse, WellSpecError
+    lookup = {}
+    for name, wells in dict(conditions or {}).items():
+        try:
+            cells = parse(wells, layout=1536)
+        except WellSpecError as exc:
+            raise ValueError(
+                f"Setting: wound_conditions[{name!r}]: {exc}") from None
+        for cell in cells:
+            if cell in lookup and lookup[cell] != str(name):
+                raise ValueError(
+                    f"Setting: wound_conditions puts one well in both "
+                    f"{lookup[cell]!r} and {name!r}; a well can belong to "
+                    f"one condition only.")
+            lookup[cell] = str(name)
+    return lookup
+
+
+def _wound_condition_of(row_id, column_id, lookup):
+    """The condition of one well, or the well itself when none is given.
+
+    :param row_id: canonical row key such as ``r2``.
+    :param column_id: canonical column key such as ``c3``.
+    :param lookup: from :func:`_wound_condition_lookup`.
+    :returns: the condition name, or the well label (``B03``) when the well
+        is in no condition.
+    """
+    from .plate_qc import parse_column_label, parse_row_label
+    from .well_spec import well_label
+    row, column = parse_row_label(row_id), parse_column_label(column_id)
+    if row is None or column is None:
+        return f'{row_id}{column_id}'
+    return lookup.get((row, column), well_label(row, column))
+
+
+def _wound_by_well(fields):
+    """Pool the per-field wound table into one closure curve per well.
+
+    The open area is pooled as the sum over the well's fields relative to
+    the sum of their first-frame areas, so a large wound counts for more
+    than a small one. Only fields whose status is ``ok`` are pooled.
+
+    :param fields: the per-field, per-frame table from
+        :func:`_wound_closure_tables`.
+    :returns: one row per well per frame.
+    """
+    if fields is None or fields.empty:
+        return pd.DataFrame()
+    usable = fields[fields['status'] == 'ok']
+    if usable.empty:
+        return pd.DataFrame()
+    keys = list(_WOUND_WELL_KEYS) + ['timeID']
+    rows = []
+    for name, block in usable.groupby(keys, sort=True):
+        identity = dict(zip(keys, name))
+        start = float(block['start_open_area_px'].sum())
+        area = float(block['open_area_px'].sum())
+        relative = area / start if start > 0 else np.nan
+        rows.append({
+            **identity, 'time': float(block['time'].iloc[0]),
+            'time_unit': block['time_unit'].iloc[0],
+            'n_fields': int(len(block)), 'open_area_px': area,
+            'start_open_area_px': start,
+            'relative_open_area': relative, 'closure': 1.0 - relative,
+            'mean_width_px': float(block['mean_width_px'].mean()),
+            'min_width_px': float(block['min_width_px'].min()),
+            'mean_width_um': float(block['mean_width_um'].mean()),
+            'min_width_um': float(block['min_width_um'].min()),
+            'open_area_um2': float(block['open_area_um2'].sum()),
+        })
+    return pd.DataFrame(rows)
+
+
+def _wound_closure_summary(curves, fields, conditions=None):
+    """One row per well: closure rate, half-closure time and QC.
+
+    :param curves: the per-well curves from :func:`_wound_by_well`.
+    :param fields: the per-field table, for counting fields per status.
+    :param conditions: the ``wound_conditions`` setting.
+    :returns: ``(summary, curves)`` with a ``condition`` column on both.
+    """
+    lookup = _wound_condition_lookup(conditions)
+    keys = list(_WOUND_WELL_KEYS)
+    rows = []
+    wells = fields.groupby(keys, sort=True) if fields is not None and len(
+        fields) else []
+    grouped = ({name: block for name, block in curves.groupby(keys)}
+               if curves is not None and not curves.empty else {})
+    for name, block in wells:
+        identity = dict(zip(keys, name))
+        per_field = block.drop_duplicates('fieldID')
+        statuses = per_field['status'].value_counts().to_dict()
+        curve = grouped.get(tuple(name))
+        use_um = (curve is not None
+                  and curve['mean_width_um'].notna().any())
+        metrics = _closure_metrics(
+            [] if curve is None else curve['time'],
+            [] if curve is None else curve['relative_open_area'],
+            None if curve is None else (
+                curve['mean_width_um'] if use_um else curve['mean_width_px']))
+        first = None if curve is None else curve.sort_values('time').iloc[0]
+        rows.append({
+            **identity,
+            'prc': f"{identity['plateID']}_{identity['rowID']}_"
+                   f"{identity['columnID']}",
+            'condition': _wound_condition_of(
+                identity['rowID'], identity['columnID'], lookup),
+            'n_fields': int(len(per_field)),
+            'n_fields_ok': int(statuses.get('ok', 0)),
+            'time_unit': (block['time_unit'].iloc[0]),
+            'width_unit': 'um' if use_um else 'px',
+            'start_open_area_px': (np.nan if first is None
+                                   else float(first['open_area_px'])),
+            'start_mean_width': (np.nan if first is None else float(
+                first['mean_width_um'] if use_um
+                else first['mean_width_px'])),
+            **metrics,
+            'wound_ok': int(curve is not None and metrics['n_timepoints'] >= 2
+                            and not metrics['reopened']),
+        })
+    summary = pd.DataFrame(rows)
+    if curves is not None and not curves.empty and not summary.empty:
+        curves = curves.merge(summary[keys + ['condition']], on=keys,
+                              how='left')
+    return summary, curves
+
+
+def _wound_by_condition(curves, summary):
+    """Mean closure curve and half-closure time per condition.
+
+    :param curves: per-well curves carrying ``condition``.
+    :param summary: per-well summary carrying ``condition``.
+    :returns: ``(condition_curves, condition_summary)``: the mean and
+        standard deviation of the wells' relative open area per frame, and
+        per condition the half-closure time and closure rate of that mean
+        curve beside the mean, SD and count of the wells' own values.
+    """
+    if curves is None or curves.empty:
+        return pd.DataFrame(), pd.DataFrame()
+    good = summary[summary['wound_ok'] == 1][list(_WOUND_WELL_KEYS)]
+    use = curves.merge(good, on=list(_WOUND_WELL_KEYS), how='inner')
+    if use.empty:
+        return pd.DataFrame(), pd.DataFrame()
+    mean_curves = (use.groupby(['condition', 'timeID'], sort=True)
+                   .agg(time=('time', 'first'), time_unit=('time_unit', 'first'),
+                        relative_open_area=('relative_open_area', 'mean'),
+                        relative_open_area_sd=('relative_open_area', 'std'),
+                        n_wells=('relative_open_area', 'size'))
+                   .reset_index())
+    rows = []
+    for condition, block in mean_curves.groupby('condition', sort=True):
+        wells = summary[(summary['condition'] == condition)
+                        & (summary['wound_ok'] == 1)]
+        metrics = _closure_metrics(block['time'], block['relative_open_area'])
+        rows.append({
+            'condition': condition, 'n_wells': int(len(wells)),
+            'time_unit': block['time_unit'].iloc[0],
+            'half_closure_time': metrics['half_closure_time'],
+            'closure_rate': metrics['closure_rate'],
+            'final_closure': metrics['final_closure'],
+            'well_half_closure_time_mean': float(
+                wells['half_closure_time'].mean()),
+            'well_half_closure_time_sd': float(
+                wells['half_closure_time'].std(ddof=1))
+            if len(wells) > 1 else np.nan,
+            'wells_reaching_half_closure': int(
+                wells['half_closure_reached'].sum()),
+            'well_closure_rate_mean': float(wells['closure_rate'].mean()),
+            'well_closure_rate_sd': float(wells['closure_rate'].std(ddof=1))
+            if len(wells) > 1 else np.nan,
+        })
+    return mean_curves, pd.DataFrame(rows)
+
+
+def _wound_settings_check(settings):
+    """Validate the wound-closure settings before a run starts.
+
+    :param settings: Measure settings.
+    :returns: the resolved source.
+    :raises ValueError: for an unknown source, ``masks`` without a cell
+        mask, a negative or non-numeric ``wound_threshold``, or a
+        ``wound_conditions`` entry that is not a well.
+    """
+    source = str(settings.get('wound_source') or 'texture').strip().lower()
+    if source not in _WOUND_SOURCES:
+        raise ValueError(
+            f"Setting: wound_source is {source!r}; use one of "
+            f"{', '.join(_WOUND_SOURCES)}.")
+    if source == 'masks' and settings.get('cell_mask_dim') is None:
+        raise ValueError(
+            "Setting: wound_source is 'masks' but cell_mask_dim is blank, so "
+            "there are no cell masks to find the wound between. Set "
+            "cell_mask_dim, or choose texture or intensity.")
+    threshold = settings.get('wound_threshold')
+    if threshold not in (None, ''):
+        try:
+            value = float(threshold)
+        except (TypeError, ValueError):
+            value = -1.0
+        if not np.isfinite(value) or value < 0:
+            raise ValueError(
+                f"Setting: wound_threshold is {threshold!r}; use a positive "
+                "number on the scale of the wound_level column, or leave it "
+                "blank for the automatic cut.")
+    _wound_condition_lookup(settings.get('wound_conditions'))
+    return source
+
+
+def _wound_plane(data, settings):
+    """The plane of one merged field the wound is found in.
+
+    :param data: merged array, ``(Y, X, C)`` or ``(Z, Y, X, C)``.
+    :param settings: Measure settings: ``wound_source``, ``wound_channel``
+        (blank: the first of ``channels``) and ``cell_mask_dim``.
+    :returns: the plane as a NumPy array.
+    """
+    source = _wound_settings_check(settings)
+    if source == 'masks':
+        index = int(settings['cell_mask_dim'])
+    else:
+        index = settings.get('wound_channel')
+        if index is None or index == '':
+            index = (settings.get('channels') or [0])[0]
+        index = int(index)
+    if index >= data.shape[-1]:
+        raise ValueError(
+            f"Setting: the wound plane is {index}, but the merged array has "
+            f"{data.shape[-1]} planes.")
+    return np.asarray(data[..., index])
+
+
+def _measure_field_wound(data, settings):
+    """The wound of one merged field on its own, as the first frame of a series.
+
+    What the Measure preview shows: the open region a run would take as
+    the wound if this field were the first frame, its area and widths.
+
+    :param data: merged array.
+    :param settings: Measure settings.
+    :returns: ``(row, plane, wound, status)``: the frame's row of
+        :func:`_wound_series`, the plane, the wound mask and the status.
+    """
+    source = _wound_settings_check(settings)
+    plane = _wound_plane(data, settings)
+    frame, status, masks = _wound_series(
+        [plane], [0.0], source=source,
+        window=int(settings.get('wound_window') or 15),
+        pixel_size_um=settings.get('voxel_size_xy_um'), keep=(0,),
+        threshold=settings.get('wound_threshold'))
+    shown, wound = masks[0]
+    return frame.iloc[0].to_dict(), shown, wound, status
+
+
+def _wound_overlay(plane, wound):
+    """An RGB picture of the frame with the wound tinted and its edge drawn.
+
+    :param plane: the frame (for ``masks`` any plane of the field).
+    :param wound: boolean wound mask.
+    :returns: ``uint8`` array ``(Y, X, 3)``.
+    """
+    return _confluency_overlay(plane, wound, color=_WOUND_COLOR, alpha=0.3)
+
+
+def _wound_edge_figure(title, panels):
+    """Frames of one field with the wound edge drawn, first to last.
+
+    :param title: the field name.
+    :param panels: ``[(label, plane, wound)]``.
+    :returns: the figure.
+    """
+    with _figure_axes(1, len(panels), figsize=(4 * len(panels), 4),
+                      squeeze=False) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, [plane for _label, plane, _wound in panels], kind="overlay", title=str(title))
+        for ax, (label, plane, wound) in zip(axes[0], panels):
+            ax.imshow(_wound_overlay(plane, wound))
+            ax.set_title(label)
+            ax.axis('off')
+        fig.suptitle(title)
+    return fig
+
+
+def _wound_curve_figure(condition_curves, well_curves):
+    """Closure curves: relative open area over time for each condition.
+
+    :param condition_curves: from :func:`_wound_by_condition`.
+    :param well_curves: per-well curves, drawn faintly behind their mean.
+    :returns: the figure.
+    """
+    with _figure_axes(figsize=(7, 5)) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, condition_curves, x="time", y="relative_open_area", hue="condition", kind="line")
+        colours = plt.rcParams['axes.prop_cycle'].by_key().get(
+            'color', ['C0'])
+        for number, (condition, block) in enumerate(
+                condition_curves.groupby('condition', sort=True)):
+            colour = colours[number % len(colours)]
+            for _name, well in well_curves[
+                    well_curves['condition'] == condition].groupby(
+                        list(_WOUND_WELL_KEYS)):
+                ax.plot(well['time'], 100 * well['relative_open_area'],
+                        color=colour, alpha=0.25, linewidth=0.8)
+            mean = 100 * block['relative_open_area']
+            spread = 100 * block['relative_open_area_sd'].fillna(0)
+            ax.plot(block['time'], mean, color=colour, linewidth=2,
+                    marker='o', label=f"{condition} (n={int(block['n_wells'].max())})")
+            ax.fill_between(block['time'], mean - spread, mean + spread,
+                            color=colour, alpha=0.15)
+        ax.axhline(50, linestyle='--', linewidth=1, color='grey')
+        unit = (condition_curves['time_unit'].iloc[0]
+                if len(condition_curves) else 'frame')
+        ax.set_xlabel('Time (h)' if unit == 'h' else 'Time (frames)')
+        ax.set_ylabel('Open wound area (% of first frame)')
+        ax.set_ylim(bottom=0)
+        ax.legend(frameon=False, fontsize='small')
+    return fig
+
+
+def _wound_half_closure_figure(summary):
+    """Half-closure time per condition, one point per well.
+
+    :param summary: the per-well summary.
+    :returns: the figure.
+    """
+    use = summary[summary['wound_ok'] == 1]
+    with _figure_axes(
+            figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5)) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, use, x="condition", y="half_closure_time", kind="strip")
+        names = sorted(use['condition'].unique())
+        for position, condition in enumerate(names):
+            values = use.loc[use['condition'] == condition,
+                             'half_closure_time'].dropna()
+            if values.empty:
+                continue
+            jitter = (np.linspace(-0.12, 0.12, len(values))
+                      if len(values) > 1 else np.zeros(1))
+            ax.scatter(position + jitter, values, s=24, zorder=3)
+            ax.hlines(values.mean(), position - 0.25, position + 0.25,
+                      linewidth=2, color=resolve_ink(theme_target()))
+        ax.set_xticks(range(len(names)))
+        ax.set_xticklabels(names, rotation=45, ha='right')
+        unit = use['time_unit'].iloc[0] if len(use) else 'frame'
+        ax.set_ylabel('Half-closure time (h)' if unit == 'h'
+                      else 'Half-closure time (frames)')
+    return fig
+
+
+def _wound_plate_figure(summary, plate):
+    """Half-closure time of every well of one plate, as a plate heatmap.
+
+    Wells that never reached half closure or failed QC stay blank.
+
+    :param summary: the per-well summary.
+    :param plate: the plate to draw.
+    :returns: the figure.
+    """
+    from .plate_qc import layout_matrix, plate_layout
+    wells = summary[(summary['plateID'] == plate)]
+    wells = wells.assign(value=wells['half_closure_time'].where(
+        wells['wound_ok'] == 1))
+    layout = plate_layout(wells[['plateID', 'rowID', 'columnID', 'value']],
+                          'value', plate=plate)
+    grid = layout_matrix(layout)
+    with _figure_axes(figsize=(max(5, 0.45 * grid.shape[1] + 2),
+                              max(3.5, 0.45 * grid.shape[0] + 1.5))) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, grid, kind="heatmap", matrix=True, title=str(plate))
+        image = ax.imshow(np.ma.masked_invalid(grid.to_numpy(dtype=float)),
+                          cmap='viridis')
+        ax.set_xticks(range(grid.shape[1]))
+        ax.set_xticklabels(grid.columns)
+        ax.set_yticks(range(grid.shape[0]))
+        ax.set_yticklabels(grid.index)
+        ax.set_title(f'{plate}: half-closure time')
+        fig.colorbar(image, ax=ax, shrink=0.8)
+    return fig
+
+
+def _wound_closure_tables(merged_dir, settings, figures=None):
+    """Find the wound in every frame of every field and build the tables.
+
+    Frames are grouped by plate, well and field from their merged names and
+    ordered by timepoint. Times are counted from the earliest timepoint of
+    the run, in hours when ``wound_hours_per_frame`` is set and in frames
+    otherwise; a field whose first frame is later than that is marked
+    ``missing_start`` and not pooled, because its first frame is not the
+    freshly made wound.
+
+    :param merged_dir: the run's ``merged`` folder.
+    :param settings: Measure settings.
+    :param figures: optional dict that receives a wound-edge figure per
+        field (first, middle and last frame) when ``plot`` is on.
+    :returns: the per-field, per-frame table.
+    """
+    from . import schema
+    from ._merged_names import parse_merged_filename
+
+    source = _wound_settings_check(settings)
+    window = int(settings.get('wound_window') or 15)
+    hours = settings.get('wound_hours_per_frame')
+    hours = None if hours in (None, '') else float(hours)
+    groups = defaultdict(list)
+    for name in sorted(os.listdir(merged_dir)):
+        if not name.endswith('.npy'):
+            continue
+        stem = os.path.splitext(name)[0]
+        try:
+            field = schema.parse_field_stem(stem)
+        except ValueError as exc:
+            print(f"Wound closure: skipping {name}: {exc}")
+            continue
+        time_id = parse_merged_filename(name)['timeID']
+        groups[(field.plateID, field.rowID, field.columnID,
+                field.fieldID)].append((time_id, os.path.join(merged_dir, name),
+                                        stem))
+    if not groups:
+        return pd.DataFrame()
+    start = min(item[0] for items in groups.values() for item in items)
+    frames = []
+    for key, items in sorted(groups.items()):
+        items.sort()
+        times = [(time_id - start) * (hours if hours else 1.0)
+                 for time_id, _path, _stem in items]
+
+        def planes(items=items):
+            """Yield this field's wound-analysis planes in time order."""
+            for _time_id, path, _stem in items:
+                yield _wound_plane(np.load(path, mmap_mode='r'), settings)
+
+        shown = sorted({0, len(items) // 2, len(items) - 1})
+        frame, status, masks = _wound_series(
+            planes(), times, source=source, window=window,
+            pixel_size_um=settings.get('voxel_size_xy_um'),
+            keep=shown if figures is not None else (),
+            threshold=settings.get('wound_threshold'))
+        if items[0][0] != start and status == 'ok':
+            status = 'missing_start'
+        frame.insert(0, 'fieldID', key[3])
+        for position, column in enumerate(_WOUND_WELL_KEYS):
+            frame.insert(position, column, key[position])
+        frame['timeID'] = [time_id for time_id, _p, _s in items]
+        frame['file_name'] = [stem for _t, _p, stem in items]
+        frame['time_unit'] = 'h' if hours else 'frame'
+        frame['source'] = source
+        frame['status'] = status
+        frames.append(frame)
+        if figures is not None and masks:
+            label = f"{key[0]}_{key[1]}_{key[2]}_{key[3]}"
+            unit = 'h' if hours else 'frame'
+            figures[f'{label}__wound_edges'] = _wound_edge_figure(
+                f'{label} ({status})',
+                [(f'{times[k]:g} {unit}', masks[k][0], masks[k][1])
+                 for k in sorted(masks)])
+    return pd.concat(frames, ignore_index=True)
+
+
+def _run_wound_closure(merged_dir, settings):
+    """Measure scratch-wound closure for a whole run and write its outputs.
+
+    Writes four tables to ``measurements.db``: ``wound`` (per field per
+    frame), ``wound_well`` (per well per frame, fields pooled, with the
+    condition), ``wound_closure`` (per well: half-closure time, closure
+    rate, width rate, front speed, QC) and ``wound_condition`` (per
+    condition). The per-well and per-condition tables are also written as
+    CSV, and the closure curves, the half-closure times and one plate
+    heatmap per plate as figures, into ``results/wound_closure``.
+
+    :param merged_dir: the run's ``merged`` folder.
+    :param settings: Measure settings.
+    :returns: the per-well summary, empty when no field had frames.
+    """
+    from .plot import save_figure
+    from .tabular import write_database, write_table
+
+    root = os.path.dirname(os.path.abspath(merged_dir))
+    db_path = os.path.join(root, 'measurements', 'measurements.db')
+    out_dir = os.path.join(root, 'results', 'wound_closure')
+    edge_figures = {} if settings.get('plot') else None
+    fields = _wound_closure_tables(merged_dir, settings, edge_figures)
+    if fields.empty:
+        print("Wound closure: no merged frames to measure.")
+        return pd.DataFrame()
+    curves = _wound_by_well(fields)
+    summary, curves = _wound_closure_summary(
+        curves, fields, settings.get('wound_conditions'))
+    condition_curves, conditions = _wound_by_condition(curves, summary)
+    tables = {_WOUND_TABLE: fields, _WOUND_WELL_TABLE: curves,
+              _WOUND_CLOSURE_TABLE: summary,
+              _WOUND_CONDITION_TABLE: conditions}
+    for table, frame in tables.items():
+        if frame is not None and not frame.empty:
+            write_database(frame, db_path, table, if_exists='replace',
+                           canonicalise=False)
+    write_table(summary, os.path.join(out_dir, 'wound_closure_per_well.csv'),
+                canonicalise=False)
+    if not conditions.empty:
+        write_table(conditions, os.path.join(
+            out_dir, 'wound_closure_per_condition.csv'), canonicalise=False)
+    figures = {}
+    if not condition_curves.empty:
+        figures['closure_curves'] = _wound_curve_figure(condition_curves,
+                                                        curves)
+        figures['half_closure_time'] = _wound_half_closure_figure(summary)
+        for plate in sorted(summary['plateID'].unique()):
+            figures[f'plate_{plate}_half_closure'] = _wound_plate_figure(
+                summary, plate)
+    for name, fig in figures.items():
+        save_figure(fig, os.path.join(out_dir, f'{name}.pdf'), close=True)
+    for key, fig in (edge_figures or {}).items():
+        field_name, part = key.split('__')
+        save_figure(fig, os.path.join(out_dir, 'fields', field_name,
+                                      f'{part}.pdf'), close=True)
+    ok = int(summary['wound_ok'].sum())
+    print(f"Wound closure: {len(summary)} well(s), {ok} with a closure "
+          f"curve, in measurements.db:{_WOUND_CLOSURE_TABLE} and {out_dir}.")
+    return summary
+
+
+_VIABILITY_TABLE = 'viability'
+_VIABILITY_WELL_TABLE = 'viability_well'
+_VIABILITY_QC_TABLE = 'viability_qc'
+_VIABILITY_DOSE_TABLE = 'viability_dose_response'
+_VIABILITY_SELECTIVITY_TABLE = 'viability_selectivity'
+_VIABILITY_STATES = ('live', 'dead', 'unstained')
+_VIABILITY_MIN_SEPARATION = 2.0
+_VIABILITY_MIN_MINOR = 3
+_VIABILITY_MIN_FIT = 20
+_VIABILITY_ROBUST_MADS = 5.0
+_VIABILITY_BACKGROUND_FOLD = 1.65
+_VIABILITY_ZPRIME_PASS = 0.5
+_VIABILITY_LAYOUT = 1536
+_VIABILITY_COMPOUND_COLUMNS = ('compound', 'treatment', 'drug', 'condition')
+_VIABILITY_DOSE_COLUMNS = ('concentration', 'dose', 'conc')
+_VIABILITY_ROLES = ('negative', 'positive', 'sample')
+
+
+@dataclass
+class _PopulationCut:
+    """Where one plate's stain signal is split into negative and positive.
+
+    ``threshold`` is in the units the signal was measured in (background-
+    subtracted mean intensity, or the condensation ratio for morphology);
+    ``source`` says how it was found: ``mixture`` (two fitted populations,
+    cut where they cross), ``single`` (one population, cut
+    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median),
+    ``background`` (one population of a dead stain measured with the ring
+    around each object: an object is positive when its mean is
+    :data:`_VIABILITY_BACKGROUND_FOLD` times its ring's median, so the
+    threshold differs per object and the one given here is the plate's
+    median), ``pooled`` (a plate too small to fit, cut with every plate's
+    objects together), ``manual`` (the user's number) or ``none`` (no
+    signal). ``separation`` is Ashman's D between the two fitted
+    populations and ``positive_fraction`` the share of objects above the
+    cut.
+    """
+
+    threshold: float
+    source: str
+    separation: float
+    positive_fraction: float
+    n: int
+
+
+def _two_population_fit(values, *, max_iter=300, tol=1e-8):
+    """Fit two Gaussian populations to 1-D values and cut where they cross.
+
+    Starts from Otsu's split and refines both populations by expectation
+    maximisation, so a small positive population (a few dead cells among
+    many live ones) is not dragged towards the large one as Otsu's cut is.
+    The two are taken as real only when Ashman's D is at least
+    :data:`_VIABILITY_MIN_SEPARATION`, the smaller holds at least
+    :data:`_VIABILITY_MIN_MINOR` objects, and both the fitted density and
+    the data dip between them: fewer values lie near the cut than half as
+    many as near the smaller population's centre. A skewed or flat-topped
+    single population fails the dip.
+
+    :param values: 1-D values, already on a scale where each population is
+        roughly Gaussian.
+    :returns: a dict with ``cut``, ``separation``, ``bimodal``, ``means``,
+        ``sds``, ``weights`` and ``n``.
+    """
+    from scipy.stats import norm
+    from skimage.filters import threshold_otsu
+
+    x = np.asarray(values, dtype=float)
+    x = x[np.isfinite(x)]
+    n = int(x.size)
+    empty = {'cut': np.nan, 'separation': 0.0, 'bimodal': False,
+             'means': (np.nan, np.nan), 'sds': (np.nan, np.nan),
+             'weights': (np.nan, np.nan), 'n': n}
+    if n < 10 or np.ptp(x) == 0:
+        return empty
+    start = float(threshold_otsu(x))
+    low, high = x[x <= start], x[x > start]
+    if low.size < 2 or high.size < 2:
+        return empty
+    floor = max(1e-3 * float(np.ptp(x)), 1e-12)
+    w = np.array([low.size / n, high.size / n])
+    m = np.array([low.mean(), high.mean()])
+    s = np.maximum(np.array([low.std(), high.std()]), floor)
+    previous = -np.inf
+    for _ in range(max_iter):
+        dens = np.column_stack([w[k] * norm.pdf(x, m[k], s[k])
+                                for k in (0, 1)])
+        total = np.maximum(dens.sum(axis=1), 1e-300)
+        loglik = float(np.log(total).sum())
+        resp = dens / total[:, None]
+        mass = np.maximum(resp.sum(axis=0), 1e-12)
+        w = mass / n
+        m = (resp * x[:, None]).sum(axis=0) / mass
+        s = np.maximum(np.sqrt((resp * (x[:, None] - m) ** 2).sum(axis=0)
+                               / mass), floor)
+        if abs(loglik - previous) < tol * max(1.0, abs(loglik)):
+            break
+        previous = loglik
+    order = np.argsort(m)
+    w, m, s = w[order], m[order], s[order]
+    separation = float(sqrt(2.0) * (m[1] - m[0]) / sqrt(s[0] ** 2 + s[1] ** 2))
+    grid = np.linspace(m[0], m[1], 512)
+    log_ratio = ((np.log(max(w[0], 1e-300)) + norm.logpdf(grid, m[0], s[0]))
+                 - (np.log(max(w[1], 1e-300)) + norm.logpdf(grid, m[1], s[1])))
+    crossing = np.nonzero(np.diff(np.sign(log_ratio)))[0]
+    if crossing.size:
+        i = int(crossing[0])
+        a, b = log_ratio[i], log_ratio[i + 1]
+        cut = float(grid[i] + (grid[i + 1] - grid[i]) * a / (a - b)
+                    if a != b else grid[i])
+    else:
+        cut = start
+
+    def _mixture(v):
+        """The fitted two-population density at ``v``."""
+        return float(w[0] * norm.pdf(v, m[0], s[0])
+                     + w[1] * norm.pdf(v, m[1], s[1]))
+
+    reach = 0.5 * float(s.min())
+    minor = int(np.argmin(w))
+
+    def _near(v):
+        """How many values lie within ``reach`` of ``v``."""
+        return int(np.sum(np.abs(x - v) <= reach))
+
+    dip = (_mixture(cut) < min(_mixture(m[0]), _mixture(m[1]))
+           and _near(cut) < 0.5 * _near(m[minor]))
+    bimodal = bool(separation >= _VIABILITY_MIN_SEPARATION
+                   and float(w.min()) * n >= _VIABILITY_MIN_MINOR
+                   and crossing.size > 0 and dip)
+    return {'cut': cut, 'separation': separation, 'bimodal': bimodal,
+            'means': tuple(float(v) for v in m),
+            'sds': tuple(float(v) for v in s),
+            'weights': tuple(float(v) for v in w), 'n': n}
+
+
+def _robust_spread(values):
+    """The median and the MAD scaled to a standard deviation.
+
+    :param values: 1-D finite values.
+    :returns: ``(median, 1.4826 * MAD)``.
+    """
+    values = np.asarray(values, dtype=float)
+    median = float(np.median(values))
+    return median, float(1.4826 * np.median(np.abs(values - median)))
+
+
+def _stain_scale(values):
+    """The cofactor of the arcsinh scale a stain signal is split on.
+
+    Background-subtracted means sit around zero for unstained cells, with
+    negative values, so a logarithm cannot be taken; ``arcsinh(v / c)`` is
+    linear within ``c`` of zero and logarithmic beyond it. ``c`` is three
+    times the signal's robust spread, so the noise of the larger population
+    stays on the linear stretch and keeps its Gaussian shape.
+
+    :param values: 1-D finite values.
+    :returns: the cofactor, always positive.
+    """
+    values = np.asarray(values, dtype=float)
+    if not values.size:
+        return 1.0
+    _median, spread = _robust_spread(values)
+    top = float(np.max(np.abs(values))) if values.size else 1.0
+    return max(3.0 * spread, 1e-6 * max(top, 1.0), 1e-12)
+
+
+def _stain_cut(values, *, single_is_positive, log_scale=False, manual=None):
+    """Split one plate's stain (or condensation) signal into two.
+
+    With ``manual`` the user's threshold is used as given. Otherwise two
+    populations are fitted (:func:`_two_population_fit`) on an arcsinh
+    scale, or a log scale for a ratio, and the cut is where they cross.
+    When the plate holds one population only, it is cut
+    :data:`_VIABILITY_ROBUST_MADS` robust SDs from its median: above it for
+    a dead stain (the one population is unstained), below it for a live
+    stain (the one population is live).
+
+    :param values: 1-D signal of one plate.
+    :param single_is_positive: whether a single population is stain-positive.
+    :param log_scale: split on ``log`` instead of ``arcsinh``; for ratios.
+    :param manual: a threshold in signal units, or None.
+    :returns: a :class:`_PopulationCut`.
+    """
+    x = np.asarray(values, dtype=float)
+    x = x[np.isfinite(x)]
+    n = int(x.size)
+
+    def _share(threshold):
+        """Share of the plate's objects above ``threshold``."""
+        return float((x > threshold).mean()) if n else np.nan
+
+    if manual is not None:
+        return _PopulationCut(float(manual), 'manual', np.nan,
+                              _share(float(manual)), n)
+    if n < 2 or np.ptp(x) == 0:
+        return _PopulationCut(np.nan, 'none', 0.0, np.nan, n)
+    if log_scale:
+        x = x[x > 0]
+        n = int(x.size)
+        if n < 2 or np.ptp(x) == 0:
+            return _PopulationCut(np.nan, 'none', 0.0, np.nan, n)
+        scaled = np.log(x)
+        fit = _two_population_fit(scaled)
+        if fit['bimodal']:
+            threshold = float(np.exp(fit['cut']))
+            source = 'mixture'
+        else:
+            median, spread = _robust_spread(scaled)
+            sign = -1.0 if single_is_positive else 1.0
+            threshold = float(np.exp(median + sign * _VIABILITY_ROBUST_MADS
+                                     * spread))
+            source = 'single'
+        return _PopulationCut(threshold, source, fit['separation'],
+                              _share(threshold), n)
+    cofactor = _stain_scale(x)
+    fit = _two_population_fit(np.arcsinh(x / cofactor))
+    if fit['bimodal']:
+        threshold = float(np.sinh(fit['cut']) * cofactor)
+        source = 'mixture'
+    else:
+        median, spread = _robust_spread(x)
+        sign = -1.0 if single_is_positive else 1.0
+        threshold = float(median + sign * _VIABILITY_ROBUST_MADS * spread)
+        source = 'single'
+    return _PopulationCut(threshold, source, fit['separation'],
+                          _share(threshold), n)
+
+
+def _object_signal(objects, object_type, column):
+    """Background-subtracted mean intensity of one channel per object.
+
+    The background is the median of the ring Measure samples just outside
+    each object, when that column exists.
+
+    :param objects: a ``nucleus`` or ``cell`` table.
+    :param object_type: its object name, the prefix of its columns.
+    :param column: the ``channel_<i>`` index of the stain.
+    :returns: a float Series.
+    :raises ValueError: the table has no mean intensity for the channel.
+    """
+    prefix = f'{object_type}_channel_{column}_'
+    name = prefix + 'mean_intensity'
+    if name not in objects.columns:
+        raise ValueError(
+            f"The {object_type} table has no {name} column; add the stain's "
+            f"channel to channels so Measure measures it.")
+    mean = pd.to_numeric(objects[name], errors='coerce').astype(float)
+    background = _object_background(objects, object_type, column)
+    if background is None:
+        return mean
+    return mean - background.fillna(background.median())
+
+
+def _object_background(objects, object_type, column):
+    """The median of the ring Measure samples just outside each object.
+
+    :param objects: a ``nucleus`` or ``cell`` table.
+    :param object_type: its object name, the prefix of its columns.
+    :param column: the ``channel_<i>`` index of the stain.
+    :returns: a float Series, or None when the table has no ring columns.
+    """
+    prefix = f'{object_type}_channel_{column}_'
+    for ring in (prefix + 'outside_percentile_50', prefix + 'outside_mean'):
+        if ring in objects.columns:
+            return pd.to_numeric(objects[ring], errors='coerce').astype(float)
+    return None
+
+
+def _condensation_score(nuclei, column):
+    """How condensed each nucleus is against its plate's typical nucleus.
+
+    ``(mean DNA intensity / plate median) / (area / plate median area)``:
+    about 1 for an interphase nucleus, several times that for a pyknotic
+    (shrunken, bright) nucleus of a dying cell. A nucleus no brighter than
+    the ring around it has no score (NaN) and is not called dead.
+
+    :param nuclei: the ``nucleus`` table.
+    :param column: the ``channel_<i>`` index of the DNA stain.
+    :returns: a float Series.
+    """
+    mean = _object_signal(nuclei, 'nucleus', column)
+    area = pd.to_numeric(nuclei.get('nucleus_area'), errors='coerce')
+    if area is None or not area.notna().any():
+        raise ValueError(
+            "The nucleus table has no nucleus_area; morphology calls need "
+            "the nucleus morphology Measure writes.")
+    score = pd.Series(np.nan, index=nuclei.index, dtype=float)
+    for _name, index in _plate_groups(nuclei):
+        m = mean.loc[index]
+        a = area.loc[index].astype(float)
+        usable = (m > 0) & (a > 0)
+        if not usable.any():
+            continue
+        m_ref = float(np.nanmedian(m[usable]))
+        a_ref = float(np.nanmedian(a[usable]))
+        score.loc[index] = ((m / m_ref) / (a / a_ref)).where(usable)
+    return score
+
+
+def _viability_manual(value):
+    """The ``viability_thresholds`` setting as ``(dead, live)``.
+
+    :param value: None, or a list of one or two numbers or blanks.
+    :returns: ``(dead, live)``, each a float or None (automatic).
+    :raises ValueError: anything else.
+    """
+    if value in (None, '', []):
+        return None, None
+    if isinstance(value, str):
+        value = [v.strip() for v in value.strip('[]').split(',')]
+    if not isinstance(value, (list, tuple)) or not 1 <= len(value) <= 2:
+        raise ValueError(
+            f"Setting: viability_thresholds must be [dead, live] with a "
+            f"number or None for each; got {value!r}.")
+    out = []
+    for item in list(value) + [None] * (2 - len(value)):
+        if item in (None, '', 'None', 'none', 'auto'):
+            out.append(None)
+            continue
+        try:
+            out.append(float(item))
+        except (TypeError, ValueError):
+            raise ValueError(
+                f"Setting: viability_thresholds entries must be numbers or "
+                f"None; got {item!r}.") from None
+    return out[0], out[1]
+
+
+def _viability_wells(spec):
+    """A well specification setting as a set of ``(row, column)`` pairs.
+
+    :param spec: None, a string or a list in the notation of
+        :mod:`spacr.well_spec` (``r1``, ``c1``, ``A01``).
+    :returns: the set of 1-based ``(row, column)`` positions.
+    """
+    from . import well_spec
+
+    if spec in (None, '', []):
+        return set()
+    return well_spec.parse(spec, _VIABILITY_LAYOUT)
+
+
+def _well_roles(frame, settings):
+    """Negative, positive or sample for each row of a table of wells.
+
+    :param frame: rows carrying ``rowID`` and ``columnID``.
+    :param settings: reads ``viability_negative_wells`` and
+        ``viability_positive_wells``.
+    :returns: a Series of roles.
+    :raises ValueError: a well named as both controls.
+    """
+    from . import plate_qc
+
+    negative = _viability_wells(settings.get('viability_negative_wells'))
+    positive = _viability_wells(settings.get('viability_positive_wells'))
+    both = negative & positive
+    if both:
+        raise ValueError(
+            f"{len(both)} well(s) are named both viability_negative_wells "
+            f"and viability_positive_wells.")
+    rows = frame['rowID'].map(plate_qc.parse_row_label)
+    cols = frame['columnID'].map(plate_qc.parse_column_label)
+    roles = []
+    for r, c in zip(rows, cols):
+        cell = (int(r), int(c)) if pd.notna(r) and pd.notna(c) else None
+        roles.append('negative' if cell in negative else
+                     'positive' if cell in positive else 'sample')
+    return pd.Series(roles, index=frame.index, dtype=object)
+
+
+def _viability_states(dead_positive, live_positive, *, dead, live):
+    """Live, dead or unstained for each object from its stain calls.
+
+    A dead stain (propidium iodide, SYTOX, DAPI on unfixed cells) enters
+    only cells whose membrane has failed, so its positives are dead. A live
+    stain (calcein) is retained only by live cells. With both, a cell
+    positive for neither is ``unstained``: esterase activity gone, membrane
+    not yet open. It is not counted live.
+
+    :param dead_positive: boolean array, or None without a dead stain.
+    :param live_positive: boolean array, or None without a live stain.
+    :param dead: whether a dead stain was read.
+    :param live: whether a live stain was read.
+    :returns: an object array of states.
+    """
+    if dead and live:
+        return np.where(dead_positive, 'dead',
+                        np.where(live_positive, 'live', 'unstained'))
+    if dead:
+        return np.where(dead_positive, 'dead', 'live')
+    return np.where(live_positive, 'live', 'dead')
+
+
+def _split_by_plate(objects, signal, *, single_is_positive, log_scale=False,
+                    manual=None, background=None):
+    """Cut a signal per plate (and time point) and say where.
+
+    A plate with fewer than :data:`_VIABILITY_MIN_FIT` objects borrows the
+    cut fitted on every plate together.
+
+    A dead stain on a plate that holds one population is cut per object
+    against its own surroundings when ``background`` is given and the
+    plate's background is above zero: positive when the object's mean is
+    at least :data:`_VIABILITY_BACKGROUND_FOLD` times its ring's median.
+    On real stained plates the stain-negative population has a long
+    bright tail (autofluorescence, dye spill-over, light from neighbours),
+    which a cut a few robust SDs above the median falls inside; the ratio
+    to the local background does not depend on how bright a plate is.
+    Objects without a usable ring keep the plate cut.
+
+    :param objects: the object table (for the plate columns).
+    :param signal: the per-object signal.
+    :param single_is_positive: see :func:`_stain_cut`.
+    :param log_scale: see :func:`_stain_cut`.
+    :param manual: a user threshold, or None.
+    :param background: the per-object ring median of a dead stain's
+        channel (:func:`_object_background`), or None.
+    :returns: ``(positive, thresholds, cuts)``: a boolean array, the
+        per-object threshold and ``{plate: _PopulationCut}``.
+    """
+    values = signal.to_numpy(dtype=float)
+    rings = (None if background is None or single_is_positive
+             else pd.to_numeric(background, errors='coerce')
+             .to_numpy(dtype=float))
+    positive = np.zeros(len(objects), dtype=bool)
+    thresholds = np.full(len(objects), np.nan)
+    pooled = None
+    cuts = {}
+    for name, index in _plate_groups(objects):
+        where = objects.index.get_indexer(index)
+        block = values[where]
+        if manual is None and np.isfinite(block).sum() < _VIABILITY_MIN_FIT:
+            if pooled is None:
+                pooled = _stain_cut(values, single_is_positive=single_is_positive,
+                                    log_scale=log_scale)
+            cut = _PopulationCut(pooled.threshold, 'pooled', pooled.separation,
+                                 float((block[np.isfinite(block)]
+                                        > pooled.threshold).mean())
+                                 if np.isfinite(block).any() else np.nan,
+                                 int(np.isfinite(block).sum()))
+        else:
+            cut = _stain_cut(block, single_is_positive=single_is_positive,
+                             log_scale=log_scale, manual=manual)
+        local = np.full(block.shape, cut.threshold)
+        if rings is not None and cut.source == 'single':
+            ring = rings[where]
+            usable = np.isfinite(ring) & (ring > 0)
+            if usable.any() and np.median(ring[usable]) > 0:
+                fold = _VIABILITY_BACKGROUND_FOLD - 1.0
+                local[usable] = fold * ring[usable]
+                finite = np.isfinite(block)
+                cut = _PopulationCut(
+                    float(fold * np.median(ring[usable])), 'background',
+                    cut.separation,
+                    float((block[finite] > local[finite]).mean())
+                    if finite.any() else np.nan, cut.n)
+        cuts[name] = cut
+        thresholds[where] = local
+        with np.errstate(invalid='ignore'):
+            positive[where] = np.isfinite(block) & (block > local)
+    return positive, thresholds, cuts
+
+
+def _object_infection(db_path, objects, object_type):
+    """Whether each nucleus's or cell's host cell holds a pathogen.
+
+    :param db_path: the ``measurements.db``.
+    :param objects: the ``nucleus`` or ``cell`` table.
+    :param object_type: ``nucleus`` or ``cell``.
+    :returns: a float Series, 1 infected, 0 not, NaN unknown.
+    """
+    if object_type == 'cell':
+        as_nuclei = objects.copy()
+        as_nuclei['cell_id'] = as_nuclei['object_label']
+        return _nucleus_infection(db_path, as_nuclei)
+    return _nucleus_infection(db_path, objects)
+
+
+def _viability_well_keys(table):
+    """The columns a well is keyed by: plate, row, column and time if any.
+
+    :param table: a per-object or per-well frame.
+    :returns: a list of column names.
+    """
+    keys = ['plateID', 'rowID', 'columnID']
+    if 'timeID' in table.columns and table['timeID'].notna().any():
+        keys.append('timeID')
+    return keys
+
+
+def _measured_fields(settings):
+    """The fields a Measure run was given, from its source folder.
+
+    :param settings: Measure settings; reads ``src`` and ``timelapse``.
+    :returns: a frame of ``plateID``, ``rowID``, ``columnID`` and ``timeID``
+        per field, empty when the folder cannot be listed.
+    """
+    from . import schema
+
+    src = settings.get('src')
+    if not src or not os.path.isdir(str(src)):
+        return pd.DataFrame()
+    rows = []
+    for name in sorted(os.listdir(str(src))):
+        if not name.endswith('.npy'):
+            continue
+        try:
+            field = schema.parse_field_stem(
+                name[:-4], timelapse=bool(settings.get('timelapse', False)))
+        except ValueError:
+            continue
+        rows.append({'plateID': field.plateID, 'rowID': field.rowID,
+                     'columnID': field.columnID, 'timeID': field.timeID})
+    return pd.DataFrame(rows)
+
+
+def _plate_key(frame):
+    """One label per plate and time point, for per-plate normalisation.
+
+    :param frame: rows with ``plateID`` and maybe ``timeID``.
+    :returns: a Series of strings.
+    """
+    plate = frame['plateID'].astype(str)
+    if 'timeID' in frame.columns and frame['timeID'].notna().any():
+        return plate + '_' + frame['timeID'].astype(str)
+    return plate
+
+
+def _cytotoxicity_index(wells):
+    """The cytotoxicity index of every well, and how it was scaled.
+
+    The live-cell index is a well's live objects over the mean of its
+    plate's negative-control wells, so detached and lysed cells, which the
+    image no longer holds, count against viability. The cytotoxicity index
+    is that index scaled so the plate's negative controls read 0 and its
+    positive (cytotoxic) controls read 100, by
+    :func:`spacr.qt.widgets.dose_response.normalise_to_controls`. A plate
+    with negative controls only reads ``100 * (1 - live-cell index)``; a
+    plate without controls reads the percentage of objects not live.
+
+    :param wells: the per-well frame with ``plate_key``, ``role``,
+        ``n_live`` and ``viability``.
+    :returns: the frame with ``live_cell_index``, ``cytotoxicity_index`` and
+        ``cytotoxicity_basis``.
+    """
+    from .qt.widgets.dose_response import (DoseResponseError, PlateSpec,
+                                           normalise_to_controls)
+
+    wells = wells.copy()
+    wells['live_cell_index'] = np.nan
+    for _plate, block in wells.groupby('plate_key', sort=False):
+        negatives = block.loc[block['role'] == 'negative', 'n_live']
+        reference = float(negatives.mean()) if len(negatives) else np.nan
+        if np.isfinite(reference) and reference > 0:
+            wells.loc[block.index, 'live_cell_index'] = (
+                block['n_live'].astype(float) / reference)
+    wells['cytotoxicity_index'] = np.nan
+    wells['cytotoxicity_basis'] = 'dead fraction'
+    has = wells.groupby('plate_key')['role'].agg(set)
+    both = [p for p, roles in has.items()
+            if {'negative', 'positive'} <= roles]
+    if both:
+        block = wells[wells['plate_key'].isin(both)]
+        try:
+            scaled, _reports = normalise_to_controls(
+                block, PlateSpec(plate='plate_key', control='role',
+                                 positive=('positive',),
+                                 negative=('negative',)),
+                response='live_cell_index', out='cytotoxicity_index')
+        except DoseResponseError:
+            scaled = None
+        if scaled is not None:
+            done = scaled['cytotoxicity_index'].notna()
+            wells.loc[scaled.index[done], 'cytotoxicity_index'] = (
+                scaled.loc[done, 'cytotoxicity_index'])
+            wells.loc[scaled.index[done], 'cytotoxicity_basis'] = 'controls'
+    rest = wells['cytotoxicity_index'].isna() & wells['live_cell_index'].notna()
+    wells.loc[rest, 'cytotoxicity_index'] = 100.0 * (
+        1.0 - wells.loc[rest, 'live_cell_index'])
+    wells.loc[rest, 'cytotoxicity_basis'] = 'negative control'
+    rest = wells['cytotoxicity_index'].isna()
+    wells.loc[rest, 'cytotoxicity_index'] = 100.0 * (
+        1.0 - wells.loc[rest, 'viability'])
+    return wells
+
+
+def _viability_by_well(table, settings, fields=None):
+    """Viability, dead fraction, live-cell and cytotoxicity index per well.
+
+    :param table: the per-object ``viability`` frame.
+    :param settings: Measure settings (control wells).
+    :param fields: optional frame of every measured field, so a well whose
+        cells were all lost is reported with no objects instead of missing.
+    :returns: one row per well (and time point).
+    """
+    from . import schema
+
+    keys = _viability_well_keys(table)
+    frame = table.copy()
+    frame['_live'] = frame['viability_state'] == 'live'
+    frame['_dead'] = frame['viability_state'] == 'dead'
+    frame['_unstained'] = frame['viability_state'] == 'unstained'
+    infected = pd.to_numeric(frame.get('infected'), errors='coerce')
+    frame['_known'] = frame['_live'] & infected.notna()
+    frame['_infected_live'] = frame['_live'] & (infected == 1)
+    frame['_known_all'] = infected.notna()
+    frame['_infected_all'] = infected == 1
+    for key in keys:
+        frame[key] = frame[key].astype(str)
+    grouped = frame.groupby(keys, sort=True, dropna=False)
+    wells = pd.DataFrame({
+        'n_objects': grouped.size(),
+        'n_live': grouped['_live'].sum(),
+        'n_dead': grouped['_dead'].sum(),
+        'n_unstained': grouped['_unstained'].sum(),
+        'n_live_known': grouped['_known'].sum(),
+        'n_infected_live': grouped['_infected_live'].sum(),
+        'n_known': grouped['_known_all'].sum(),
+        'n_infected': grouped['_infected_all'].sum(),
+    }).reset_index()
+    if fields is not None and len(fields):
+        extra = fields.copy()
+        for key in keys:
+            if key not in extra.columns:
+                extra[key] = None
+            extra[key] = extra[key].astype(str)
+        extra = extra[keys].drop_duplicates()
+        extra = extra[extra['plateID'].isin(set(wells['plateID']))]
+        wells = wells.merge(extra, how='outer', on=keys)
+        counts = [c for c in wells.columns if c.startswith('n_')]
+        wells[counts] = wells[counts].fillna(0)
+    for column in [c for c in wells.columns if c.startswith('n_')]:
+        wells[column] = wells[column].astype(int)
+    n = wells['n_objects'].where(wells['n_objects'] > 0)
+    wells['viability'] = wells['n_live'] / n
+    wells['dead_fraction'] = wells['n_dead'] / n
+    wells['unstained_fraction'] = wells['n_unstained'] / n
+    wells['infection_live'] = (wells['n_infected_live']
+                               / wells['n_live_known'].where(
+                                   wells['n_live_known'] > 0))
+    wells['infection'] = (wells['n_infected']
+                          / wells['n_known'].where(wells['n_known'] > 0))
+    wells['prc'] = [schema.compose_prc(p, r, c) for p, r, c in
+                    zip(wells['plateID'], wells['rowID'], wells['columnID'])]
+    wells['role'] = _well_roles(wells, settings)
+    wells['plate_key'] = _plate_key(wells)
+    return _cytotoxicity_index(wells)
+
+
+def _viability_qc(wells, cuts):
+    """Per plate: the thresholds used and the Z' of each readout.
+
+    Z' is taken from
+    :func:`spacr.qt.widgets.dose_response.plate_reports`, which asks the
+    control-chart screen's ``zprime_frame``, so the plate's Z' here is the
+    number those screens show. ``assay_ok`` is 1 when viability and the
+    cytotoxicity index both separate the controls with Z' of at least
+    :data:`_VIABILITY_ZPRIME_PASS`.
+
+    :param wells: the per-well frame.
+    :param cuts: ``{'dead'|'live': {plate: _PopulationCut}}``.
+    :returns: one row per plate (and time point).
+    """
+    from .qt.widgets.dose_response import (DoseResponseError, PlateSpec,
+                                           plate_reports)
+
+    spec = PlateSpec(plate='plate_key', control='role',
+                     positive=('positive',), negative=('negative',))
+    zprimes = {}
+    for readout in ('viability', 'live_cell_index', 'cytotoxicity_index'):
+        try:
+            reports = plate_reports(wells, spec, response=readout)
+        except DoseResponseError:
+            reports = ()
+        zprimes[readout] = {r.plate: r.zprime for r in reports}
+    rows = []
+    for plate, block in wells.groupby('plate_key', sort=True):
+        first = block.iloc[0]
+        row = {'plateID': first['plateID'], 'plate_key': plate}
+        if 'timeID' in block.columns:
+            row['timeID'] = first['timeID']
+        for role in ('negative', 'positive'):
+            part = block[block['role'] == role]
+            row[f'n_{role}'] = int(len(part))
+            for readout in ('viability', 'cytotoxicity_index'):
+                values = part[readout].astype(float)
+                row[f'{role}_{readout}_mean'] = (
+                    float(values.mean()) if len(values) else np.nan)
+                row[f'{role}_{readout}_sd'] = (
+                    float(values.std(ddof=1)) if len(values) > 1 else np.nan)
+        for readout, by_plate in zprimes.items():
+            value = by_plate.get(plate)
+            row[f'zprime_{readout}'] = np.nan if value is None else value
+        found = [z for z in (row['zprime_viability'],
+                             row['zprime_cytotoxicity_index'])
+                 if not np.isnan(z)]
+        row['assay_ok'] = (int(min(found) >= _VIABILITY_ZPRIME_PASS)
+                           if found else np.nan)
+        for stain, by_plate in cuts.items():
+            cut = _lookup_cut(by_plate, first)
+            if cut is None:
+                continue
+            row[f'{stain}_threshold'] = cut.threshold
+            row[f'{stain}_threshold_source'] = cut.source
+            row[f'{stain}_separation'] = cut.separation
+            row[f'{stain}_positive_fraction'] = cut.positive_fraction
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _lookup_cut(by_plate, well):
+    """The plate cut that applies to a well row.
+
+    :param by_plate: ``{plate group name: _PopulationCut}``.
+    :param well: a row with ``plateID`` and maybe ``timeID``.
+    :returns: the cut, or None.
+    """
+    for name, cut in by_plate.items():
+        name = name if isinstance(name, tuple) else (name,)
+        if name == ('all',) or str(name[0]) == str(well['plateID']):
+            if len(name) < 2 or str(name[1]) == str(well.get('timeID')):
+                return cut
+    return None
+
+
+def _read_plate_map(path, wells):
+    """Join a plate map's compound and concentration onto the wells.
+
+    :param path: a table (CSV, Excel, ...) with a well column (``well``
+        such as ``A01``, ``rowID`` and ``columnID``, or ``prc``), a compound
+        column (``compound``, ``treatment``, ``drug`` or ``condition``), a
+        concentration column (``concentration``, ``dose`` or ``conc``) and
+        optionally ``plateID``; without a plate column it applies to every
+        plate.
+    :param wells: the per-well frame.
+    :returns: the wells with ``compound`` and ``concentration``.
+    :raises ValueError: a column the map must have is missing.
+    """
+    from . import plate_qc
+    from .tabular import read_table
+
+    plate_map = read_table(path, report=None)
+    if 'wellID' in plate_map.columns and 'well' not in plate_map.columns:
+        plate_map = plate_map.rename(columns={'wellID': 'well'})
+    lower = {str(c).lower(): c for c in plate_map.columns}
+    compound = next((lower[c] for c in _VIABILITY_COMPOUND_COLUMNS
+                     if c in lower), None)
+    dose = next((lower[c] for c in _VIABILITY_DOSE_COLUMNS if c in lower),
+                None)
+    if compound is None or dose is None:
+        raise ValueError(
+            f"The plate map {path} needs a compound column (one of "
+            f"{list(_VIABILITY_COMPOUND_COLUMNS)}) and a concentration column "
+            f"(one of {list(_VIABILITY_DOSE_COLUMNS)}); it has "
+            f"{list(plate_map.columns)}.")
+    has_plate = any(c in plate_map.columns for c in
+                    ('plateID', 'plate_name', 'plate', 'prc'))
+    located, _notes = plate_qc._identify_wells(plate_map)
+    located['_row'] = located['rowID'].map(plate_qc.parse_row_label)
+    located['_col'] = located['columnID'].map(plate_qc.parse_column_label)
+    located = located.dropna(subset=['_row', '_col'])
+    located['_row'] = located['_row'].astype(int)
+    located['_col'] = located['_col'].astype(int)
+    located['compound'] = located[compound].astype(str)
+    located['concentration'] = pd.to_numeric(located[dose], errors='coerce')
+    on = ['_row', '_col'] + (['plateID'] if has_plate else [])
+    located = located[on + ['compound', 'concentration']].drop_duplicates(on)
+    out = wells.drop(columns=[c for c in ('compound', 'concentration')
+                              if c in wells.columns]).copy()
+    out['_row'] = out['rowID'].map(plate_qc.parse_row_label).astype(int)
+    out['_col'] = out['columnID'].map(plate_qc.parse_column_label).astype(int)
+    if has_plate:
+        located['plateID'] = located['plateID'].astype(str)
+    out = out.merge(located, how='left', on=on)
+    return out.drop(columns=['_row', '_col'])
+
+
+def _viability_dose_response(wells):
+    """Fit viability, cytotoxicity and infection against concentration.
+
+    One curve per compound and readout with
+    :func:`spacr.qt.widgets.dose_response.fit_frame`, which refuses a curve
+    it cannot support rather than fitting it: ``viability`` (percent of
+    objects live), ``cytotoxicity_index`` (whose EC50 is the host CC50) and,
+    when pathogens were segmented, ``infection`` (percent of live host
+    cells infected). The selectivity index is the host CC50 over the
+    parasite EC50, with its interval, from
+    :func:`spacr.qt.widgets.dose_response.selectivity_index`.
+
+    :param wells: the per-well frame with ``compound`` and ``concentration``.
+    :returns: ``(curves, selectivity, fits)``: one row per compound and
+        readout, one row per compound, and ``{readout: DoseResponseSet}``.
+    """
+    from .qt.widgets.dose_response import (DoseResponseSpec, fit_frame,
+                                           selectivity_index)
+
+    frame = wells[wells['compound'].notna()
+                  & (wells['compound'].astype(str) != 'nan')].copy()
+    dosed = frame.groupby('compound')['concentration'].apply(
+        lambda c: bool((pd.to_numeric(c, errors='coerce') > 0).any()))
+    frame = frame[frame['compound'].isin(dosed[dosed].index)]
+    frame['viability_pct'] = 100.0 * frame['viability']
+    frame['infection_pct'] = 100.0 * frame['infection_live']
+    readouts = {'viability': 'viability_pct',
+                'cytotoxicity_index': 'cytotoxicity_index'}
+    if frame['infection_pct'].notna().any():
+        readouts['infection'] = 'infection_pct'
+    curves, fits = [], {}
+    if frame.empty:
+        return pd.DataFrame(), pd.DataFrame(), fits
+    for readout, column in readouts.items():
+        part = frame[frame[column].notna()]
+        if part.empty:
+            continue
+        spec = DoseResponseSpec(concentration='concentration',
+                                response=column, group='compound')
+        fitted = fit_frame(part, spec)
+        fits[readout] = fitted
+        for group_fit in fitted.fits:
+            curves.append({'readout': readout, **group_fit.summary_row()})
+    selectivity = []
+    if 'infection' in fits and 'cytotoxicity_index' in fits:
+        host = {f.group: f.result for f in fits['cytotoxicity_index'].fits}
+        parasite = {f.group: f.result for f in fits['infection'].fits}
+        for compound in sorted(set(host) | set(parasite)):
+            index = selectivity_index(parasite.get(compound),
+                                      host.get(compound))
+            selectivity.append({'compound': compound, **index.summary_row()})
+    return pd.DataFrame(curves), pd.DataFrame(selectivity), fits
+
+
+def _viability_threshold_figure(table, cuts, name, label):
+    """One plate's stain signals with the cuts that split them.
+
+    :param table: the per-object frame.
+    :param cuts: ``{'dead'|'live': {plate: _PopulationCut}}``.
+    :param name: the plate group name.
+    :param label: the figure title.
+    :returns: the figure.
+    """
+    stains = [s for s in ('dead', 'live') if name in cuts.get(s, {})]
+    panels = len(stains) + (1 if len(stains) == 2 else 0)
+    with _figure_axes(1, max(panels, 1),
+                      figsize=(4.2 * max(panels, 1), 3.6)) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: table[[c for c in table.columns if c.endswith("_signal")]], y=f"{stains[0]}_signal" if stains else "", kind="hist")
+        axes = np.atleast_1d(axes)
+        plate = table
+        key = name if isinstance(name, tuple) else (name,)
+        if key != ('all',):
+            plate = table[table['plateID'].astype(str) == str(key[0])]
+            if len(key) > 1 and 'timeID' in table.columns:
+                plate = plate[plate['timeID'].astype(str) == str(key[1])]
+        for ax, stain in zip(axes, stains):
+            values = plate[f'{stain}_signal'].to_numpy(dtype=float)
+            values = values[np.isfinite(values)]
+            cut = cuts[stain][name]
+            morphology = stain == 'dead' and (
+                plate.get('viability_method') == 'morphology').any()
+            if morphology:
+                shown = np.log10(np.clip(values, 1e-6, None))
+                line = np.log10(max(cut.threshold, 1e-6))
+                ax.set_xlabel('log10 condensation (intensity/area vs plate)')
+            else:
+                scale = _stain_scale(values)
+                shown = np.arcsinh(values / scale)
+                line = float(np.arcsinh(cut.threshold / scale))
+                ax.set_xlabel(f'{stain} stain, arcsinh(intensity / {scale:.3g})')
+            ax.hist(shown, bins=80, color='0.6')
+            ax.axvline(line, color=resolve_ink(theme_target()), ls='--', lw=1)
+            ax.set_ylabel('objects')
+            ax.set_title(f'{stain}: cut {cut.threshold:.4g} ({cut.source}), '
+                         f'{cut.positive_fraction:.0%} above', fontsize=9)
+        if len(stains) == 2:
+            ax = axes[-1]
+            dead = plate['dead_signal'].to_numpy(dtype=float)
+            live = plate['live_signal'].to_numpy(dtype=float)
+            d_scale, l_scale = _stain_scale(dead[np.isfinite(dead)]), \
+                _stain_scale(live[np.isfinite(live)])
+            for state in _VIABILITY_STATES:
+                pick = (plate['viability_state'] == state).to_numpy()
+                if pick.any():
+                    ax.scatter(np.arcsinh(live[pick] / l_scale),
+                               np.arcsinh(dead[pick] / d_scale), s=4,
+                               label=f'{state} ({int(pick.sum())})')
+            ax.axvline(np.arcsinh(cuts['live'][name].threshold / l_scale),
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
+            ax.axhline(np.arcsinh(cuts['dead'][name].threshold / d_scale),
+                       color=resolve_ink(theme_target()), ls='--', lw=1)
+            ax.set_xlabel('live stain (arcsinh)')
+            ax.set_ylabel('dead stain (arcsinh)')
+            ax.legend(frameon=False, fontsize=7)
+        fig.suptitle(label)
+        fig.tight_layout()
+    return fig
+
+
+def _viability_controls_figure(wells, qc):
+    """Control and sample wells of every plate, with each plate's Z'.
+
+    :param wells: the per-well frame.
+    :param qc: the per-plate QC frame.
+    :returns: the figure.
+    """
+    plates = list(dict.fromkeys(wells['plate_key']))
+    with _figure_axes(len(plates), 2, figsize=(8, 3.2 * len(plates)),
+                      squeeze=False) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, wells, x="plate_key", y="viability", kind="strip")
+        rng = np.random.default_rng(0)
+        for row, plate in enumerate(plates):
+            block = wells[wells['plate_key'] == plate]
+            q = qc[qc['plate_key'] == plate]
+            for col, readout in enumerate(('viability', 'cytotoxicity_index')):
+                ax = axes[row, col]
+                for x, role in enumerate(_VIABILITY_ROLES):
+                    values = block.loc[block['role'] == role,
+                                       readout].astype(float)
+                    ax.scatter(x + rng.uniform(-0.15, 0.15, len(values)),
+                               values, s=10)
+                ax.set_xticks(range(len(_VIABILITY_ROLES)))
+                ax.set_xticklabels(_VIABILITY_ROLES)
+                z = (q[f'zprime_{readout}'].iloc[0] if len(q)
+                     and f'zprime_{readout}' in q else np.nan)
+                shown = f"Z' {z:.2f}" if np.isfinite(z) else "no Z'"
+                ax.set_title(f'{plate}: {readout} ({shown})', fontsize=9)
+        fig.tight_layout()
+    return fig
+
+
+def _viability_dose_figure(fits):
+    """Host viability, cytotoxicity and infection curves per compound.
+
+    :param fits: ``{readout: DoseResponseSet}``.
+    :returns: the figure, or None when nothing was fitted.
+    """
+    compounds = sorted({f.group for s in fits.values() for f in s.fits})
+    if not compounds:
+        return None
+    readouts = list(fits)
+    with _figure_axes(len(compounds), len(readouts),
+                      figsize=(3.6 * len(readouts), 3.0 * len(compounds)),
+                      squeeze=False) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.concat([pd.DataFrame({"dose": np.asarray(g.result.dose, dtype=float), "response": np.asarray(g.result.response, dtype=float), "compound": str(g.group), "readout": str(r)}) for r in readouts for g in fits[r].fits if getattr(g, "result", None) is not None], ignore_index=True), x="dose", y="response", hue="compound", kind="scatter")
+        for i, compound in enumerate(compounds):
+            for j, readout in enumerate(readouts):
+                ax = axes[i, j]
+                group = next((f for f in fits[readout].fits
+                              if f.group == compound), None)
+                ax.set_xscale('log')
+                ax.set_title(f'{compound}: {readout}', fontsize=9)
+                if group is None or group.result is None:
+                    ax.text(0.5, 0.5, 'refused', ha='center', va='center',
+                            transform=ax.transAxes)
+                    continue
+                result = group.result
+                ax.scatter(result.dose, result.response, s=10)
+                x, y = result.curve()
+                ax.plot(x, y, color=resolve_ink(theme_target()), lw=1)
+                ec50 = result.ec50
+                if ec50 is not None:
+                    ax.axvline(ec50, color=resolve_ink(theme_target()), ls=':', lw=1)
+                    ax.set_title(f'{compound}: {readout}, EC50 {ec50:.3g}',
+                                 fontsize=9)
+        fig.tight_layout()
+    return fig
+
+
+def _classify_viability(db_path, settings, *, plot=None):
+    """Call every cell live or dead and report viability per well.
+
+    Reads the ``nucleus`` table Measure wrote (the ``cell`` table when
+    there are no nuclei). With ``viability_dead_channel`` and/or
+    ``viability_live_channel`` each object's background-subtracted mean
+    intensity of the stain is cut per plate (and time point) into
+    positive and negative: two fitted populations split where they cross,
+    or the user's ``viability_thresholds``; a dead stain on a plate with
+    one population is positive where an object's mean is at least
+    :data:`_VIABILITY_BACKGROUND_FOLD` times the ring around it. A dead
+    stain positive is dead,
+    a live stain positive is live, and with both a cell positive for
+    neither is unstained. Without stain channels, nuclei are called dead
+    from their morphology: a pyknotic nucleus is small and bright, and its
+    condensation (intensity per area against the plate's typical nucleus)
+    is cut the same way.
+
+    Writes to ``measurements.db``: ``viability`` (one row per object, its
+    signals, thresholds, ``viability_state`` and ``live``);
+    ``viability_well`` (per well the counts, ``viability``,
+    ``dead_fraction``, ``live_cell_index``, ``cytotoxicity_index``, the
+    infection of live cells when pathogens were segmented, and the well's
+    ``role`` from ``viability_negative_wells`` and
+    ``viability_positive_wells``); ``viability_qc`` (per plate the
+    thresholds, how they were found, and the Z' of each readout). With a
+    ``viability_plate_map``, ``viability_dose_response`` holds one
+    dose-response fit per compound and readout and
+    ``viability_selectivity`` the host CC50 over the parasite EC50. With
+    ``plot``, figures go to ``results/viability``.
+
+    :param db_path: a ``measurements.db``.
+    :param settings: Measure settings.
+    :param plot: save figures; defaults to ``settings['plot']``.
+    :returns: ``(table, report)``: the per-object frame written and a dict
+        with the per-well, QC and dose-response frames.
+    :raises ValueError: no nucleus or cell table, or unusable settings.
+    """
+    from .tabular import database_tables, read_table, write_database
+
+    tables = database_tables(db_path)
+    if 'nucleus' in tables:
+        unit = 'nucleus'
+    elif 'cell' in tables:
+        unit = 'cell'
+    else:
+        raise ValueError(
+            f"{db_path} has no nucleus or cell table; live/dead calls are "
+            f"made on measured nuclei or cells.")
+    objects = read_table(db_path, table=unit, report=None)
+    objects = objects.reset_index(drop=True)
+    dead_channel = settings.get('viability_dead_channel')
+    live_channel = settings.get('viability_live_channel')
+    dead_channel = None if dead_channel in (None, '') else int(dead_channel)
+    live_channel = None if live_channel in (None, '') else int(live_channel)
+    manual_dead, manual_live = _viability_manual(
+        settings.get('viability_thresholds'))
+    method = ('stain' if dead_channel is not None or live_channel is not None
+              else 'morphology')
+    table = objects[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
+                                 'object_label', 'cell_id', 'file_name')
+                     if k in objects.columns]].copy()
+    table['object_type'] = unit
+    if 'prcf' in objects.columns or all(k in objects.columns
+                                        for k in _CELL_CYCLE_KEYS):
+        table['prcfo'] = _nucleus_prcfo(objects, by_cell=False)
+    table['viability_method'] = method
+    cuts = {}
+    dead_positive = live_positive = None
+    if method == 'morphology':
+        if unit != 'nucleus':
+            raise ValueError(
+                "Without viability_dead_channel or viability_live_channel, "
+                "live and dead are called from nucleus morphology, which "
+                "needs measured nuclei; set nucleus_mask_dim or name a "
+                "viability stain channel.")
+        channel = settings.get('nucleus_channel')
+        if channel in (None, ''):
+            channel = (settings.get('channels') or [0])[0]
+        column = _measured_channel_column(settings, int(channel),
+                                          setting='nucleus_channel')
+        signal = _condensation_score(objects, column)
+        dead_positive, thresholds, cuts['dead'] = _split_by_plate(
+            objects, signal, single_is_positive=False, log_scale=True,
+            manual=manual_dead)
+        table['dead_signal'] = signal
+        table['dead_threshold'] = thresholds
+    else:
+        if dead_channel is not None:
+            column = _measured_channel_column(
+                settings, dead_channel, setting='viability_dead_channel')
+            signal = _object_signal(objects, unit, column)
+            dead_positive, thresholds, cuts['dead'] = _split_by_plate(
+                objects, signal, single_is_positive=False,
+                manual=manual_dead,
+                background=_object_background(objects, unit, column))
+            table['dead_signal'] = signal
+            table['dead_threshold'] = thresholds
+        if live_channel is not None:
+            column = _measured_channel_column(
+                settings, live_channel, setting='viability_live_channel')
+            signal = _object_signal(objects, unit, column)
+            live_positive, thresholds, cuts['live'] = _split_by_plate(
+                objects, signal, single_is_positive=True,
+                manual=manual_live)
+            table['live_signal'] = signal
+            table['live_threshold'] = thresholds
+    states = _viability_states(dead_positive, live_positive,
+                               dead='dead' in cuts, live='live' in cuts)
+    table['viability_state'] = states
+    table['live'] = (states == 'live').astype(int)
+    table['infected'] = _object_infection(db_path, objects, unit)
+    table['role'] = _well_roles(table, settings)
+    write_database(table, db_path, _VIABILITY_TABLE, if_exists='replace',
+                   canonicalise=False)
+    wells = _viability_by_well(table, settings, _measured_fields(settings))
+    qc = _viability_qc(wells, cuts)
+    curves = selectivity = pd.DataFrame()
+    fits = {}
+    plate_map = str(settings.get('viability_plate_map') or '').strip()
+    if plate_map:
+        wells = _read_plate_map(plate_map, wells)
+        curves, selectivity, fits = _viability_dose_response(wells)
+    write_database(wells, db_path, _VIABILITY_WELL_TABLE, if_exists='replace',
+                   canonicalise=False)
+    if not qc.empty:
+        write_database(qc, db_path, _VIABILITY_QC_TABLE, if_exists='replace',
+                       canonicalise=False)
+    if not curves.empty:
+        write_database(curves, db_path, _VIABILITY_DOSE_TABLE,
+                       if_exists='replace', canonicalise=False)
+    if not selectivity.empty:
+        write_database(selectivity, db_path, _VIABILITY_SELECTIVITY_TABLE,
+                       if_exists='replace', canonicalise=False)
+    report = {'method': method, 'object_type': unit, 'wells': wells,
+              'qc': qc, 'dose_response': curves, 'selectivity': selectivity,
+              'cuts': cuts, 'figures': []}
+    if settings.get('plot') if plot is None else plot:
+        report['figures'] = _save_viability_figures(
+            db_path, table, wells, qc, cuts, fits)
+    return table, report
+
+
+def _save_viability_figures(db_path, table, wells, qc, cuts, fits):
+    """Write the threshold, plate, control and dose-response figures.
+
+    :param db_path: the ``measurements.db``; figures go to
+        ``results/viability`` beside its folder.
+    :param table: the per-object frame.
+    :param wells: the per-well frame.
+    :param qc: the per-plate QC frame.
+    :param cuts: the per-plate cuts.
+    :param fits: the dose-response fits.
+    :returns: the paths written.
+    """
+    from .figures.plates import build_plates
+    from .plot import save_figure
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+    folder = os.path.join(root, 'results', 'viability')
+    written = []
+
+    def _keep(fig, name):
+        """Save one figure under the viability results folder."""
+        path = save_figure(fig, os.path.join(folder, name), close=True)
+        written.append(path or os.path.join(folder, name))
+
+    names = sorted({n for by_plate in cuts.values() for n in by_plate},
+                   key=str)
+    for name in names:
+        label = '_'.join(str(v) for v in name) if isinstance(
+            name, tuple) else str(name)
+        _keep(_viability_threshold_figure(table, cuts, name, label),
+              f'viability_thresholds_{label}.pdf')
+    for readout in ('viability', 'cytotoxicity_index'):
+        fig, panel = build_plates(wells, readout, grouping='mean')
+        if getattr(panel, 'drawn', True):
+            _keep(fig, f'viability_plate_{readout}.pdf')
+        else:
+            plt.close(fig)
+    _keep(_viability_controls_figure(wells, qc), 'viability_controls.pdf')
+    if fits:
+        fig = _viability_dose_figure(fits)
+        if fig is not None:
+            _keep(fig, 'viability_dose_response.pdf')
+    return written
+
+
+def _run_viability_step(db_path, settings):
+    """Call live and dead at the end of a Measure run and say where.
+
+    A failure is reported and does not fail the run: the measurements are
+    already in the database, and viability can be called again from it.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-object table, or None when the step failed.
+    """
+    try:
+        table, report = _classify_viability(db_path, settings)
+    except Exception as exc:
+        print(f"Live/dead viability could not be called: {exc}")
+        return None
+    shares = table['viability_state'].value_counts(normalize=True)
+    print(f"Viability ({report['method']}): {len(table)} "
+          f"{report['object_type']} objects in "
+          f"measurements.db:{_VIABILITY_TABLE}; "
+          + ', '.join(f'{s} {shares.get(s, 0):.0%}' for s in _VIABILITY_STATES
+                      if s in shares.index)
+          + f"; {len(report['wells'])} well(s) in {_VIABILITY_WELL_TABLE}.")
+    qc = report['qc']
+    if not qc.empty and qc['zprime_cytotoxicity_index'].notna().any():
+        for _, row in qc.iterrows():
+            z = row['zprime_cytotoxicity_index']
+            if np.isfinite(z):
+                print(f"Viability controls, plate {row['plate_key']}: "
+                      f"Z' {z:.2f} on the cytotoxicity index.")
+    return table
+
+
+def _export_vvvv_measured_field(source_folder, file, settings, volumetric,
+                                channel_arrays, masks, morphology=None,
+                                intensities=None):
+    """Write Measure's vvvv export of one field (item 685, alpha).
+
+    Every object type the run measured is exported to
+    ``<source_folder>/vvvv/measure/<object>/<field>/`` with the masks as
+    filtered by Measure. Each object's table carries the export's own
+    columns (label, centroid, area, bounding box, mean intensity per
+    channel) followed by Measure's morphology and intensity measurements
+    for that object when ``save_measurements`` produced them. 3-D fields
+    are reported and skipped.
+
+    :param source_folder: the run root (the folder holding ``merged/``).
+    :param file: the merged field's file name.
+    :param settings: Measure settings.
+    :param volumetric: whether the field is a z-stack.
+    :param channel_arrays: the measured intensity planes.
+    :param masks: ``{object: label image}`` for every candidate object.
+    :param morphology: ``{object: frame}`` from the morphology step, or None.
+    :param intensities: ``{object: frame}`` from the intensity step, or None.
+    :returns: the folders written.
+    """
+    from .io import _export_vvvv_field
+
+    if volumetric:
+        print(f"vvvv export skipped {file}: only 2-D fields are exported")
+        return []
+    enabled = {
+        'cell': settings.get('cell_mask_dim') is not None,
+        'nucleus': settings.get('nucleus_mask_dim') is not None,
+        'pathogen': settings.get('pathogen_mask_dim') is not None,
+        'cytoplasm': bool(settings.get('cytoplasm')),
+        **{role: settings.get(f'{role}_mask_dim') is not None
+           for role in ORGANELLE_ROLES},
+    }
+    selected = {role: mask for role, mask in masks.items()
+                if enabled.get(role)}
+    measured = {}
+    for role in selected:
+        frames = [frame.loc[:, ~frame.columns.duplicated()]
+                  for frame in ((morphology or {}).get(role),
+                                (intensities or {}).get(role))
+                  if isinstance(frame, pd.DataFrame)
+                  and 'label' in frame.columns]
+        if not frames:
+            continue
+        table = frames[0]
+        for frame in frames[1:]:
+            frame = frame.loc[:, [column for column in frame.columns
+                                  if column == 'label'
+                                  or column not in table.columns]]
+            table = table.merge(frame, on='label', how='outer')
+        measured[role] = table
+    size = settings.get('voxel_size_xy_um')
+    return _export_vvvv_field(
+        os.path.join(source_folder, 'vvvv', 'measure'), file, selected,
+        channel_arrays, measured=measured, origin='Measure',
+        source_path=os.path.join(settings['src'], file),
+        pixel_size=(float(size), float(size)) if size else None)
+
+
+def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
+
+    """Measure one field using selected standard or PSF-processed intensities.
+
+    :param index: position of this field in the run's input list.
+    :param time_ls: shared collection of completed field durations.
+    :param file: merged NPY filename below ``settings['src']``.
+    :param settings: Measure configuration; original PSF intensity choice is
+        the default. Label planes and exported crops keep their source pixels.
+        With an unmixing record from the parent, the measured channels are
+        unmixed before any preprocessing hook.
+    :param psf_plan: immutable plan captured by the parent. When omitted for
+        a direct processed call, the worker prepares one from its settings.
+    :param psf_cancel: optional process-safe cancellation event.
+    :returns: index, mean duration, surviving cell labels (or failure sentinel
+        zero), figures, and error text. Cancellation propagates to the parent.
+    """
+    
+    from .utils import _merge_overlapping_objects, _filter_object, _relabel_parent_with_child_labels, _exclude_objects, normalize_to_dtype, filepaths_to_database
+    from .utils import _merge_and_save_to_database, _measurement_store_for, _crop_center, _find_bounding_box, _generate_names, _get_percentiles
+
+    from .cancellation import PipelineCancelled
+    from .psf_measurement import (prepare_measurement_psf, measurement_psf_record,
+                                  measurement_psf_signature, SIGNATURE_KEY)
+    from .psf_pipeline import _UNMIX_RECORD_KEY, _apply_recorded_unmixing
+
+    figs = {}
+    grid = []
+    start = time.time() 
+    try:
+        source_folder = os.path.dirname(settings['src'])
+
+        file_name = os.path.splitext(file)[0]
+        data = np.load(os.path.join(settings['src'], file))
+        data_type_before = data.dtype
+        rescale_record = _resolve_intensity_rescale_record(
+            data, file, settings)
+        factor = float(rescale_record['rescale_factor'])
+        if _intensity_scale_needs_warning(factor):
+            if rescale_record['rescale_scope'] == 'plate':
+                detail = (
+                    f"plate-wide from maximum "
+                    f"{rescale_record['plate_intensity_max']:g}; all raw-valued "
+                    f"fields on this plate use the same factor")
+            else:
+                detail = (
+                    "per-field fallback; this field is NOT comparable to "
+                    "other fields on the plate")
+            print(f"WARNING: {file_name} intensity values require x{factor:g} "
+                  f"rescaling to uint16 ({detail}). The decision is recorded "
+                  f"in measurements.db:intensity_rescale.")
+
+        data_type = data.dtype
+        if data_type not in ['uint8','uint16'] or not np.isclose(factor, 1.0):
+            data, factor = _promote_merged_to_uint16(
+                data, settings, rescale_factor=factor)
+            data_type = data.dtype
+            if settings['verbose']:
+                scale = '' if factor == 1.0 else f' (intensity x{factor:g})'
+                print(f'Converted data from {data_type_before} to {data_type}{scale}')
+
+        data, calibration_record = _apply_intensity_calibration(
+            data, file, settings)
+        if calibration_record is not None:
+            data_type = data.dtype
+            rescale_record = {**rescale_record,
+                              'intensity_calibration': calibration_record}
+            clipped = {plane: share for plane, share in
+                       calibration_record['clipped_fraction'].items() if share}
+            if clipped:
+                print(f"WARNING: {file_name} intensity calibration clipped "
+                      f"pixels at the {data_type} ceiling (fraction per "
+                      f"plane: {clipped}); those intensities are "
+                      f"underestimated.")
+
+        if data.ndim == 4 and data.shape[0] == 1:
+            data = data[0]
+        volumetric = data.ndim == 4
+        n_z = int(data.shape[0]) if volumetric else 1
+        spacing, units_stamp = resolve_measurement_spacing(
+            settings, 3 if volumetric else 2, n_z=n_z)
+
+        if settings['plot'] and volumetric:
+            print(f"3-D field {file_name}: skipping the cropped-array plots "
+                  f"(spacr.plot renders 2-D fields).")
+        elif settings['plot']:
+            from .plot import _plot_cropped_arrays
+            if len(data.shape) == 3:
+                figuresize = data.shape[2]*10
+            else:
+                figuresize = 10
+            fig = _plot_cropped_arrays(data, file, figuresize)
+            figs[f'{file_name}__before_filtration'] = fig
+
+        channel_arrays = data[..., settings['channels']].astype(data_type)
+        if settings.get(_UNMIX_RECORD_KEY):
+            channel_arrays = _apply_recorded_unmixing(channel_arrays, settings)
+
+        if preprocessing_hooks():
+            channel_arrays = apply_preprocessing_hooks(
+                channel_arrays,
+                PreprocessingContext(
+                    file_name=file_name,
+                    channels=settings['channels'],
+                    settings=settings,
+                    volumetric=volumetric,
+                    spacing=spacing))
+
+        if settings.get('psf_measurement_source', 'original') == 'original':
+            psf_plan = None
+        if psf_plan is None:
+            psf_plan = prepare_measurement_psf(settings)
+        settings = dict(settings)
+        settings[SIGNATURE_KEY] = measurement_psf_signature(psf_plan)
+        psf_record = measurement_psf_record(
+            psf_plan, channel_arrays, hooks=[hook.name for hook in preprocessing_hooks()],
+            channels=settings['channels'])
+        if psf_plan is not None:
+            if volumetric and len(psf_plan.sampling_um) == 3:
+                psf_spacing = np.asarray(psf_plan.sampling_um)
+                measure_spacing = np.asarray(spacing)
+                if units_stamp['voxel_size_z_um'] is None:
+                    psf_spacing = psf_spacing / psf_spacing[-1]
+                    measure_spacing = measure_spacing / measure_spacing[-1]
+                if not np.allclose(psf_spacing, measure_spacing, rtol=1e-6, atol=0):
+                    raise ValueError('PSF sampling conflicts with Measure voxel calibration')
+            channel_arrays = psf_plan.apply(channel_arrays, cancel=psf_cancel)
+
+        confluency_cells = (
+            np.array(data[..., settings['cell_mask_dim']], copy=True)
+            if settings.get('confluency')
+            and settings.get('cell_mask_dim') is not None else None)
+
+        if settings['cell_mask_dim'] is not None:
+            cell_mask = data[..., settings['cell_mask_dim']].astype(data_type)
+
+            cell_max = settings.get('cell_max_size')
+            if ((settings['cell_min_size'] is not None
+                 and settings['cell_min_size'] != 0) or cell_max):
+                before = int(len(np.unique(cell_mask)) - 1)
+                cell_mask = _filter_object(
+                    cell_mask, settings['cell_min_size'],
+                    max_value=cell_max)
+                dropped = before - int(len(np.unique(cell_mask)) - 1)
+                if dropped and cell_max:
+                    print(f'cell: {dropped} object(s) outside '
+                          f'[{settings["cell_min_size"]}, {cell_max}] px')
+        else:
+            cell_mask = np.zeros_like(data[..., 0])
+            settings['cytoplasm'] = False
+            settings['uninfected'] = True
+
+        if settings['nucleus_mask_dim'] is not None:
+            nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
+            if settings['cell_mask_dim'] is not None:
+                nucleus_mask, cell_mask = _merge_overlapping_objects(mask1=nucleus_mask, mask2=cell_mask)
+            nucleus_max = settings.get('nucleus_max_size')
+            if ((settings['nucleus_min_size'] is not None
+                 and settings['nucleus_min_size'] != 0) or nucleus_max):
+                before = int(len(np.unique(nucleus_mask)) - 1)
+                nucleus_mask = _filter_object(
+                    nucleus_mask, settings['nucleus_min_size'],
+                    max_value=nucleus_max)
+                dropped = before - int(len(np.unique(nucleus_mask)) - 1)
+                if dropped and nucleus_max:
+                    print(f'nucleus: {dropped} object(s) outside '
+                          f'[{settings["nucleus_min_size"]}, {nucleus_max}] px')
+            if settings['timelapse_objects'] == 'nucleus':
+                if settings['cell_mask_dim'] is not None:
+                    cell_mask, nucleus_mask = _relabel_parent_with_child_labels(cell_mask, nucleus_mask)
+                    data[..., settings['cell_mask_dim']] = cell_mask
+                    data[..., settings['nucleus_mask_dim']] = nucleus_mask
+                    save_folder = settings['src']
+                    np.save(os.path.join(save_folder, file), data)
+        else:
+            nucleus_mask = np.zeros_like(data[..., 0])
+
+        if settings['pathogen_mask_dim'] is not None:
+            pathogen_mask = data[..., settings['pathogen_mask_dim']].astype(data_type)
+            if settings['merge_edge_pathogen_cells']:
+                if settings['cell_mask_dim'] is not None:
+                    pathogen_mask, cell_mask = _merge_overlapping_objects(mask1=pathogen_mask, mask2=cell_mask)
+            pathogen_max = settings.get('pathogen_max_size')
+            if ((settings['pathogen_min_size'] is not None
+                 and settings['pathogen_min_size'] != 0) or pathogen_max):
+                before = int(len(np.unique(pathogen_mask)) - 1)
+                pathogen_mask = _filter_object(
+                    pathogen_mask, settings['pathogen_min_size'],
+                    max_value=pathogen_max)
+                dropped = before - int(len(np.unique(pathogen_mask)) - 1)
+                if dropped and pathogen_max:
+                    print(f'pathogen: {dropped} object(s) outside '
+                          f'[{settings["pathogen_min_size"]}, {pathogen_max}] px')
+        else:
+            pathogen_mask = np.zeros_like(data[..., 0])
+
+        organelle_masks = {}
+        for organelle_role in ORGANELLE_ROLES:
+            dim = settings.get(f'{organelle_role}_mask_dim')
+            if dim is not None:
+                current_mask = data[..., dim].astype(data_type)
+                minimum = settings.get(f'{organelle_role}_min_area')
+                if minimum:
+                    current_mask = _filter_object(current_mask, minimum)
+            elif organelle_role == 'organelle':
+                current_mask = np.zeros_like(data[..., 0])
+            else:
+                continue
+            organelle_masks[organelle_role] = current_mask
+        organelle_mask = organelle_masks['organelle']
+        extra_organelle_masks = {
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]
+            if role in organelle_masks}
+
+        if settings['cytoplasm']:
+            if settings['cell_mask_dim'] is not None:
+                interior = np.zeros_like(cell_mask, dtype=bool)
+                if settings['nucleus_mask_dim'] is not None:
+                    interior |= (nucleus_mask != 0)
+                if settings['pathogen_mask_dim'] is not None:
+                    interior |= (pathogen_mask != 0)
+                for organelle_role, current_mask in organelle_masks.items():
+                    if settings.get(f'{organelle_role}_mask_dim') is not None:
+                        interior |= (current_mask != 0)
+                cytoplasm_mask = np.where(interior, 0, cell_mask)
+        else:
+            cytoplasm_mask = np.zeros_like(cell_mask)
+
+        if settings['cell_min_size'] is not None and settings['cell_min_size'] != 0:
+            cell_mask = _filter_object(cell_mask, settings['cell_min_size'])
+        
+        if settings['nucleus_min_size'] is not None and settings['nucleus_min_size'] != 0:
+            nucleus_mask = _filter_object(nucleus_mask, settings['nucleus_min_size'])
+        
+        if settings['pathogen_min_size'] is not None and settings['pathogen_min_size'] != 0:
+            pathogen_mask = _filter_object(pathogen_mask, settings['pathogen_min_size'])
+        
+        if settings['cytoplasm_min_size'] is not None and settings['cytoplasm_min_size'] != 0:
+            cytoplasm_mask = _filter_object(cytoplasm_mask, settings['cytoplasm_min_size'])
+        
+        for organelle_role, current_mask in organelle_masks.items():
+            minimum = settings.get(f'{organelle_role}_min_size')
+            if minimum:
+                organelle_masks[organelle_role] = _filter_object(
+                    current_mask, minimum)
+        organelle_mask = organelle_masks['organelle']
+        extra_organelle_masks = {
+            role: organelle_masks[role] for role in ORGANELLE_ROLES[1:]
+            if role in organelle_masks}
+
+        if region_filter_hooks():
+            _region_masks = {
+                'cell': cell_mask, 'nucleus': nucleus_mask,
+                'pathogen': pathogen_mask, **organelle_masks,
+                'cytoplasm': cytoplasm_mask,
+            }
+            for _object_type in list(_region_masks):
+                _before = _region_masks[_object_type]
+                _kept, _dropped = apply_region_filter_hooks(
+                    _before, object_type=_object_type,
+                    file_name=file_name, settings=settings, spacing=spacing)
+                _region_masks[_object_type] = _kept
+                if _dropped and settings['verbose']:
+                    _total = int(np.count_nonzero(np.unique(_before)))
+                    print(f"{file_name}: region filter dropped "
+                          f"{len(_dropped)} of {_total} "
+                          f"{_object_type} object(s).")
+            cell_mask = _region_masks['cell']
+            nucleus_mask = _region_masks['nucleus']
+            pathogen_mask = _region_masks['pathogen']
+            organelle_masks = {
+                role: _region_masks[role] for role in ORGANELLE_ROLES
+                if role in _region_masks}
+            organelle_mask = organelle_masks['organelle']
+            extra_organelle_masks = {
+                role: organelle_masks[role]
+                for role in ORGANELLE_ROLES[1:] if role in organelle_masks}
+            cytoplasm_mask = _region_masks['cytoplasm']
+
+        if settings['cell_mask_dim'] is not None and settings['nucleus_mask_dim'] is not None and settings['pathogen_mask_dim'] is not None:
+            cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask = _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=settings['uninfected'])
+            for organelle_role, current_mask in organelle_masks.items():
+                organelle_masks[organelle_role] = (
+                    current_mask * (cell_mask > 0))
+            organelle_mask = organelle_masks['organelle']
+            extra_organelle_masks = {
+                role: organelle_masks[role]
+                for role in ORGANELLE_ROLES[1:] if role in organelle_masks}
+            data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
+
+        if settings['nucleus_mask_dim'] is not None:
+            data[..., settings['nucleus_mask_dim']] = nucleus_mask.astype(data_type)
+        if settings['pathogen_mask_dim'] is not None:
+            data[..., settings['pathogen_mask_dim']] = pathogen_mask.astype(data_type)
+        for organelle_role, current_mask in organelle_masks.items():
+            dim = settings.get(f'{organelle_role}_mask_dim')
+            if dim is not None:
+                data[..., dim] = current_mask.astype(data_type)
+        if settings['cytoplasm']:
+            data = np.concatenate((data, cytoplasm_mask[..., np.newaxis]), axis=-1)
+
+        if settings['plot'] and not volumetric:
+            from .plot import _plot_cropped_arrays
+            fig = _plot_cropped_arrays(data, file, figuresize)
+            figs[f'{file_name}__after_filtration'] = fig
+
+
+        if settings['save_measurements']:
+            role_order = [
+                'cell', 'nucleus', 'pathogen',
+                'organelle', *extra_organelle_masks, 'cytoplasm']
+            morphology = dict(zip(
+                role_order,
+                _morphological_measurements(
+                    cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+                    cytoplasm_mask, settings,
+                    extra_organelle_masks=extra_organelle_masks,
+                    channel_arrays=channel_arrays)))
+            intensities = dict(zip(
+                role_order,
+                _intensity_measurements(
+                    cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+                    cytoplasm_mask, channel_arrays, settings,
+                    sizes=[1, 2, 3, 4, 5], periphery=True, outside=True,
+                    extra_organelle_masks=extra_organelle_masks)))
+
+            enabled = {
+                'cell': settings['cell_mask_dim'] is not None,
+                'nucleus': settings['nucleus_mask_dim'] is not None,
+                'pathogen': settings['pathogen_mask_dim'] is not None,
+                'cytoplasm': bool(settings['cytoplasm']),
+                **{role: settings.get(f'{role}_mask_dim') is not None
+                   for role in ORGANELLE_ROLES},
+            }
+            for role in role_order:
+                if enabled[role]:
+                    _merge_and_save_to_database(
+                        morphology[role], intensities[role], role,
+                        source_folder, file_name, settings['experiment'],
+                        settings['timelapse'], stamp=units_stamp,
+                        store=_measurement_store_for(
+                            os.path.join(source_folder, 'measurements',
+                                         'measurements.db'), settings))
+
+            requested = settings.get('summarize_organelles_by')
+            if isinstance(requested, str):
+                requested = {requested}
+            elif requested is None:
+                requested = set()
+            else:
+                requested = set(requested)
+            parent_masks = {
+                'cell': cell_mask, 'nucleus': nucleus_mask,
+                'pathogen': pathogen_mask, 'cytoplasm': cytoplasm_mask,
+            }
+            parent_enabled = {
+                'cell': settings['cell_mask_dim'] is not None,
+                'nucleus': settings['nucleus_mask_dim'] is not None,
+                'pathogen': settings['pathogen_mask_dim'] is not None,
+                'cytoplasm': bool(settings['cytoplasm']),
+            }
+            for parent_name, parent_mask in parent_masks.items():
+                if parent_name not in requested or not parent_enabled[parent_name]:
+                    continue
+                summary_frames = []
+                for role, current_mask in organelle_masks.items():
+                    if not enabled[role]:
+                        continue
+                    frame = _summarize_organelles_per_parent(
+                        current_mask, parent_mask, channel_arrays,
+                        parent_name=parent_name, spacing=spacing)
+                    if frame.empty:
+                        continue
+                    frame = frame.rename(columns={
+                        column: (
+                            f'organelle_summary_{role}_'
+                            f'{column[len("organelle_"):]}'
+                            if column.startswith('organelle_') else column)
+                        for column in frame.columns
+                    })
+                    summary_frames.append(frame)
+                if not summary_frames:
+                    continue
+                combined = summary_frames[0]
+                for frame in summary_frames[1:]:
+                    combined = combined.merge(
+                        frame, on='label', how='outer',
+                        validate='one_to_one')
+                _merge_and_save_to_database(
+                    combined, pd.DataFrame(),
+                    f'{parent_name}_organelle_summary', source_folder,
+                    file_name, settings['experiment'],
+                    settings['timelapse'], stamp=units_stamp,
+                    store=_measurement_store_for(
+                        os.path.join(source_folder, 'measurements',
+                                     'measurements.db'), settings))
+
+        if settings.get('export_vvvv', False):
+            _export_vvvv_measured_field(
+                source_folder, file, settings, volumetric, channel_arrays,
+                {'cell': cell_mask, 'nucleus': nucleus_mask,
+                 'pathogen': pathogen_mask, **organelle_masks,
+                 'cytoplasm': cytoplasm_mask},
+                morphology if settings['save_measurements'] else None,
+                intensities if settings['save_measurements'] else None)
+
+        _write_intensity_rescale_record(
+            source_folder, file_name, settings, rescale_record, psf_record)
+
+        if settings.get('confluency'):
+            confluency_result, confluency_plane = _measure_field_confluency(
+                data, settings, channel_arrays, cell_mask=confluency_cells)
+            _write_confluency_record(
+                source_folder, file_name, settings, confluency_result)
+            if settings['verbose']:
+                print(f"{file_name}: {confluency_result.confluency:.1%} "
+                      f"covered ({confluency_result.source})")
+            if settings['plot']:
+                figs[f'{file_name}__confluency'] = _confluency_figure(
+                    confluency_plane, confluency_result, file_name)
+
+        if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
+            print(f"3-D field {file_name}: measurements written, but no PNG "
+                  f"crops or region arrays. Cropping is 2-D; to get crops from "
+                  f"a z-stack, project it first "
+                  f"(z_segmentation_mode='project').")
+            raise_if_strict(
+                f"save_png/save_arrays/plot requested for the 3-D field "
+                f"{file_name}, but spaCR crops 2-D fields only. Measurements "
+                f"were written; no crops were.", settings=settings)
+        elif settings['save_png'] or settings['save_arrays'] or settings['plot']:
+            crop_ls = settings['crop_mode']
+            if isinstance(crop_ls, str):
+                crop_ls = [crop_ls]
+            crop_ls = list(crop_ls)
+
+            size_ls = settings['png_size']
+            if not size_ls:
+                raise ValueError(
+                    "Setting: png_size is empty; give it [width, height], or "
+                    "a [width, height] pair per crop_mode entry.")
+            if not isinstance(size_ls[0], (list, tuple)):
+                size_ls = [size_ls]
+
+            size_ls = _per_crop_mode(size_ls, len(crop_ls), 'png_size')
+            dialate_pngs = _per_crop_mode(
+                settings['dialate_pngs'], len(crop_ls), 'dialate_pngs')
+            dialate_png_ratios = (
+                _per_crop_mode(
+                    settings['dialate_png_ratios'], len(crop_ls),
+                    'dialate_png_ratios')
+                if any(dialate_pngs) else [None] * len(crop_ls))
+
+            for crop_idx, crop_mode in enumerate(crop_ls):
+                if crop_mode not in CROP_MODES:
+                    print(f"Setting: crop_mode entry {crop_mode!r} is not "
+                          f"one of {', '.join(CROP_MODES)}; skipping it. "
+                          f"No {crop_mode}_png crops were written.")
+                    continue
+
+                width, height = size_ls[crop_idx]
+
+                crop_masks = {
+                    'cell': cell_mask,
+                    'nucleus': nucleus_mask,
+                    'pathogen': pathogen_mask,
+                    **organelle_masks,
+                    'cytoplasm': cytoplasm_mask,
+                }
+                crop_mask = crop_masks[crop_mode].copy()
+                dialate_png = dialate_pngs[crop_idx]
+                dialate_png_ratio = dialate_png_ratios[crop_idx]
+                if crop_mode == 'cytoplasm':
+                    crop_mask = cytoplasm_mask.copy()
+                    dialate_png = False
+                    dialate_png_ratio = dialate_png_ratios[crop_idx]
+
+                objects_in_image = np.unique(crop_mask)
+                objects_in_image = objects_in_image[objects_in_image != 0]
+                img_paths = []
+                
+                for _id in objects_in_image:
+                    
+                    region = (crop_mask == _id)
+
+                    region_cell_ids = np.atleast_1d(np.unique(cell_mask[region]))
+                    region_nucleus_ids = np.atleast_1d(np.unique(nucleus_mask[region]))
+                    region_pathogen_ids = np.atleast_1d(np.unique(pathogen_mask[region]))
+
+                    if settings['use_bounding_box']:
+                        region = _find_bounding_box(crop_mask, _id, buffer=10)
+
+                    img_name, fldr, table_name = _generate_names(
+                        file_name=file_name, cell_id=region_cell_ids,
+                        cell_nucleus_ids=region_nucleus_ids,
+                        cell_pathogen_ids=region_pathogen_ids,
+                        source_folder=source_folder, crop_mode=crop_mode,
+                        timelapse=settings['timelapse'], object_id=_id)
+
+                    if dialate_png:
+                        region_area = np.count_nonzero(region)
+                        approximate_diameter = np.sqrt(region_area)
+                        dialate_png_px = int(approximate_diameter * dialate_png_ratio)
+                        if dialate_png_px > 0:
+                            struct = generate_binary_structure(region.ndim, region.ndim)
+                            region = binary_dilation(region, structure=struct, iterations=dialate_png_px)
+
+                    if settings['save_png']:
+                        fldr_type = f"{crop_mode}_png/"
+                        png_folder = os.path.join(fldr,fldr_type)
+                        img_path = os.path.join(png_folder, img_name)
+                        img_paths.append(img_path)
+
+                        png_channels = build_png_channels(
+                            data, resolve_png_channel_mapping(settings),
+                            dtype=data_type)
+
+                        if settings['normalize_by'] == 'fov':
+                            if not settings['normalize'] is False:
+                                percentile_list = _get_percentiles(png_channels, settings['normalize'][0], settings['normalize'][1])
+
+                        png_channels = _crop_center(png_channels, region, new_width=width, new_height=height)
+                        if isinstance(settings['normalize'], list):
+                            if settings['normalize_by'] == 'png':
+                                png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1])
+
+                            if settings['normalize_by'] == 'fov':
+                                png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1], percentile_list=percentile_list)
+                        else:
+                            png_channels = normalize_to_dtype(png_channels, 0, 100)
+                        os.makedirs(png_folder, exist_ok=True)
+
+                        grid = save_and_add_image_to_grid(
+                            png_channels, img_path, grid, settings['plot'])
+
+                        if len(img_paths) == len(objects_in_image):
+                            filepaths_to_database(img_paths, settings, source_folder, crop_mode)
+
+                    if settings['save_arrays']:
+                        row_idx, col_idx = np.where(region)
+                        region_array = data[row_idx.min():row_idx.max()+1, col_idx.min():col_idx.max()+1, :]
+                        array_folder = f"{fldr}/region_array/"            
+                        os.makedirs(array_folder, exist_ok=True)
+                        from .normalization import apply_crop_dtype
+                        np.save(os.path.join(array_folder, img_name),
+                                apply_crop_dtype(region_array,
+                                                 settings.get('crop_dtype',
+                                                              'original')))
+
+
+        cells = np.unique(cell_mask)
+        error_text = ""
+    except PipelineCancelled:
+        raise
+    except Exception as e:
+        from .database_concurrency import _write_capture_active
+
+        if _write_capture_active() and _is_overload_failure(e):
+            raise
+        cells = 0
+        error_text = "".join(
+            traceback.format_exception(type(e), e, e.__traceback__))
+        print(f"[measure] {os.path.basename(str(file))} failed:\n{error_text}")
+
+    end = time.time()
+    duration = end-start
+    time_ls.append(duration)
+    average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+    if settings['plot'] and grid:
+        fig = img_list_to_grid(grid)
+        figs[f'{file_name}__pngs'] = fig
+    return index, average_time, cells, figs, error_text
+
+_MEASURE_WRITE_ENDPOINT = None
+
+
+def _initialize_measure_writer(endpoint):
+    """Give a spawned Measure worker only its bounded producer handles."""
+    global _MEASURE_WRITE_ENDPOINT
+    _MEASURE_WRITE_ENDPOINT = endpoint
+
+
+def _measure_crop_queued(index, time_ls, file, settings, psf_plan=None,
+                         psf_cancel=None):
+    """Compute a field without SQL and enqueue its complete write packet."""
+    from .database_concurrency import _capture_write_packet
+
+    if _MEASURE_WRITE_ENDPOINT is None:
+        raise RuntimeError('Measure worker has no database writer endpoint')
+    with _capture_write_packet() as operations:
+        result = _measure_crop_core(index, time_ls, file, settings,
+                                    psf_plan, psf_cancel)
+    if isinstance(result[2], int) and result[2] == 0:
+        return result
+    ticket = _MEASURE_WRITE_ENDPOINT.enqueue(file, operations)
+    return (*result, ticket)
+
+
+def _commit_measure_packet(db_path, packet):
+    """Dispatch existing scientific helpers inside one atomic field commit."""
+    from .database_concurrency import _commit_write_packet
+    from .utils import _append_to_measurements_db, _merge_and_save_to_database
+
+    handlers = {
+        'append': _append_to_measurements_db,
+        'merge': _merge_and_save_to_database,
+        'rescale': _write_intensity_rescale_record,
+        'confluency': _write_confluency_record,
+    }
+
+    def dispatch(operation):
+        """Save one approved operation to the packet's central database.
+
+        :param operation: approved helper name, positional arguments and keywords.
+        """
+        name, arguments, keywords = operation
+        if name not in handlers:
+            raise ValueError('Unsupported Measure database operation')
+        source = (arguments[0] if name == 'append' else
+                  os.path.join(arguments[3] if name == 'merge' else arguments[0],
+                               'measurements', 'measurements.db'))
+        if os.path.abspath(source) != os.path.abspath(db_path):
+            raise ValueError('Measure packet targets a different database')
+        handlers[name](*arguments, **keywords)
+
+    return _commit_write_packet(db_path, packet, dispatch)
+
+
+def _measure_write_queue_budget(settings):
+    """Resolve an explicit headless budget before the saved preference."""
+    import math
+
+    value = settings.get('database_write_queue_gib')
+    if value is None:
+        try:
+            from .qt.preferences import get_database_write_queue_gib
+            value = get_database_write_queue_gib()
+        except ImportError:
+            value = 1.0
+    value = float(value)
+    if not math.isfinite(value) or not 0 <= value <= 64:
+        raise ValueError('Database write queue RAM must be between 0 and 64 GiB')
+    return value
+
+
+def _record_organelle_caveats(settings, run):
+    """Put the per-type organelle caveats on the run journal.
+
+    :param settings: the measure settings for this source folder, read for
+        each slot's ``*_type`` and the count-dependent families it enabled.
+    :param run: the :class:`spacr.runctx.RunContext` the tables are written
+        under. Its logger stamps every record with the run id, so
+        :func:`spacr.runctx.read_run_log` gives the caveats back beside the
+        database they are about.
+    :returns: the caveats recorded, so a caller can see what was said.
+
+    NOTHING IS SWITCHED OFF: a family the organelle type makes doubtful is
+    still measured and still written, because a number that vanished without
+    being asked to is worse than one that comes with a caveat. What the type
+    buys is that the run SAYS SO -- and saying it only to the console leaves
+    the sentence out of the one record a batch is read back from.
+
+    Silent when there is nothing to say, so a run measuring punctate
+    organelles is not given a paragraph telling it everything is fine.
+    """
+    from .settings import organelle_measurement_caveats
+
+    caveats = organelle_measurement_caveats(settings)
+    for label, setting, reason in caveats:
+        run.log.warning("[organelle] %s: %s %s.", label, setting, reason)
+    return caveats
+
+
+_RAM_DEFAULT_MULTIPLIER = 8.0
+_RAM_POLL_SECONDS = 1.0
+
+
+def _psutil_or_none():
+    """Return the psutil module, or ``None`` when it cannot be imported."""
+    try:
+        import psutil
+    except Exception:
+        return None
+    return psutil
+
+
+def _sample_field_path(src):
+    """Return one ``.npy`` field Measure would read from ``src``, or ``None``.
+
+    :param src: a merged folder, its parent, or a list of either.
+    """
+    if isinstance(src, (list, tuple)):
+        src = src[0] if src else None
+    if not src or not os.path.isdir(str(src)):
+        return None
+    folder = str(src)
+    if not os.path.basename(folder.rstrip(os.sep)).endswith('merged'):
+        folder = os.path.join(folder, 'merged')
+    try:
+        names = sorted(name for name in os.listdir(folder)
+                       if name.endswith('.npy') and not name.startswith('.'))
+    except OSError:
+        return None
+    return os.path.join(folder, names[0]) if names else None
+
+
+def _field_nbytes(path):
+    """Size in bytes of one field array, read from its header only.
+
+    :returns: ``0`` when the file cannot be read.
+    """
+    try:
+        return int(np.load(path, mmap_mode='r').nbytes)
+    except Exception:
+        return 0
+
+
+def _ram_guard_plan(src, n_jobs, multiplier=None, psutil_module=None):
+    """Estimate whether ``n_jobs`` Measure workers fit in RAM.
+
+    Each worker is estimated as one field's array size times ``multiplier``.
+
+    :param src: the Measure source folder.
+    :param n_jobs: the requested worker count.
+    :param multiplier: bytes of worker memory per byte of field array.
+    :returns: a dict with ``per_worker``, ``available``, ``total``,
+        ``reserve``, ``max_safe`` and ``exceeds``, or ``None`` when RAM or
+        the field size cannot be read.
+    """
+    path = _sample_field_path(src)
+    if path is None:
+        return None
+    return _ram_plan(_field_nbytes(path), n_jobs, module='measure',
+                     multiplier=multiplier or _RAM_DEFAULT_MULTIPLIER,
+                     psutil_module=psutil_module)
+
+
+def _clamp_workers_to_ram(settings, n_jobs, plan):
+    """Lower ``n_jobs`` to the RAM-safe count unless ``ram_guard`` is off.
+
+    :returns: the worker count to use; a warning is printed when lowered.
+    """
+    if plan is None or not settings.get('ram_guard', True):
+        return n_jobs
+    if n_jobs <= plan['max_safe']:
+        return n_jobs
+    gib = 1024 ** 3
+    print(f"WARNING: n_jobs={n_jobs} would need about "
+          f"{n_jobs * plan['per_worker'] / gib:.1f} GiB of RAM but "
+          f"{plan['available'] / gib:.1f} GiB is available and "
+          f"{plan['reserve'] / gib:.1f} GiB is kept free; using "
+          f"{plan['max_safe']} workers. Set ram_guard to False to keep "
+          f"n_jobs (fields then wait for free RAM).")
+    return plan['max_safe']
+
+
+class _PeakChildMemory:
+    """Track the largest resident memory of any child worker process.
+
+    Polled on a daemon thread while one calibration field runs, so the
+    per-worker estimate comes from a real field instead of a guess.
+    """
+
+    def __init__(self, psutil_module=None, interval=0.1):
+        """Prepare to sample child memory every ``interval`` seconds."""
+        self._psutil = psutil_module or _psutil_or_none()
+        self._interval = interval
+        self._stop = threading.Event()
+        self._thread = None
+        self.peak = 0
+
+    def _poll(self):
+        """Read every child's resident memory until stopped."""
+        try:
+            me = self._psutil.Process()
+        except Exception:
+            return
+        while not self._stop.is_set():
+            try:
+                for child in me.children(recursive=True):
+                    try:
+                        self.peak = max(self.peak,
+                                        int(child.memory_info().rss))
+                    except Exception:
+                        continue
+            except Exception:
+                pass
+            self._stop.wait(self._interval)
+
+    def __enter__(self):
+        """Start sampling in a daemon thread when psutil is available."""
+        if self._psutil is not None:
+            self._thread = threading.Thread(target=self._poll, daemon=True)
+            self._thread.start()
+        return self
+
+    def __exit__(self, *exc):
+        """Stop sampling; exceptions propagate."""
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=2)
+        return False
+
+
+def _any_field_running(pending):
+    """Whether any dispatched field in ``pending`` has not returned yet.
+
+    :param pending: ``(file, index, async_result)`` triples.
+    """
+    for _file, _index, result in pending:
+        ready = getattr(result, 'ready', None)
+        if callable(ready) and not ready():
+            return True
+    return False
+
+
+def _calibrated_wave(settings, plan, peak_bytes, wave):
+    """Re-estimate per-worker RAM from one measured field and resize the wave.
+
+    :param plan: the pre-run estimate from :func:`_ram_guard_plan`.
+    :param peak_bytes: the largest resident memory a worker reached while
+        measuring the calibration field; ``0`` keeps the estimate.
+    :param wave: how many fields run at once so far.
+    :returns: ``(per_worker_bytes, wave)``. The wave shrinks to the
+        RAM-safe count when ``ram_guard`` is on; with it off the wave is
+        kept and the runtime throttle alone protects RAM.
+    """
+    if plan is None or peak_bytes <= 0 or plan['nbytes'] <= 0:
+        return (plan['per_worker'] if plan else 0), wave
+    multiplier = peak_bytes / plan['nbytes']
+    per_worker = int(peak_bytes)
+    max_safe = _max_safe_workers(plan['available'], plan['total'], per_worker)
+    gib = 1024 ** 3
+    print(f"RAM guard: one field used {per_worker / gib:.2f} GiB "
+          f"({multiplier:.1f}x its array); about {max_safe} workers fit.")
+    if settings.get('ram_guard', True) and wave > max_safe:
+        print(f"WARNING: running {max_safe} fields at a time instead of "
+              f"{wave} so RAM keeps its reserve.")
+        wave = max_safe
+    return per_worker, wave
+
+
+def _wait_for_ram(per_worker_bytes, busy, *, field='', psutil_module=None,
+                  sleep=time.sleep, poll=_RAM_POLL_SECONDS):
+    """Hold the next field until starting it cannot eat into the RAM reserve.
+
+    The field may start once available RAM minus one worker's estimate stays
+    above the reserve. While ``busy()`` reports fields still running, the
+    wait continues because their memory will come back; with nothing
+    running the field starts, since waiting could never free anything.
+    Every pause and every resume is printed.
+
+    :param per_worker_bytes: estimated RAM one field needs.
+    :param busy: zero-argument callable, true while fields are running.
+    :param field: the field name used in the printed lines.
+    :returns: seconds spent waiting.
+    """
+    from .cancellation import checkpoint
+    waited = 0.0
+    paused = False
+    gib = 1024 ** 3
+    while True:
+        snapshot = _ram_snapshot(psutil_module)
+        if snapshot is None:
+            return waited
+        available, total = snapshot
+        reserve = _ram_reserve_bytes(total)
+        if available - per_worker_bytes >= reserve:
+            if paused:
+                print(f"RAM guard: {available / gib:.1f} GiB free again; "
+                      f"resuming with {field} after {waited:.0f} s.")
+            return waited
+        if not busy():
+            if paused:
+                print(f"RAM guard: no field is running and only "
+                      f"{available / gib:.1f} GiB is free; starting {field} "
+                      f"alone.")
+            return waited
+        if not paused:
+            print(f"RAM guard: only {available / gib:.1f} GiB free "
+                  f"(reserve {reserve / gib:.1f} GiB, about "
+                  f"{per_worker_bytes / gib:.1f} GiB per field); holding "
+                  f"{field} until running fields finish.")
+            paused = True
+        checkpoint()
+        sleep(poll)
+        waited += poll
+
+
+def _wait_for_measure_job(result, psf_cancel=None):
+    """Relay Stop, allowing five seconds for a worker's current PSF operation.
+
+    A worker that never answers cannot keep Stop waiting forever. After the
+    grace period, pipeline cancellation exits the owning pool context, which
+    terminates outstanding workers and leaves incomplete fields resumable.
+    """
+    if psf_cancel is None:
+        return result.get()
+    from .cancellation import cancellation_requested, checkpoint
+    cancelled_at = None
+    while True:
+        try:
+            return result.get(timeout=0.2)
+        except mp.TimeoutError:
+            if cancellation_requested():
+                psf_cancel.set()
+                if cancelled_at is None:
+                    cancelled_at = time.monotonic()
+                elif time.monotonic() - cancelled_at >= 5:
+                    checkpoint()
+
+
+def _measure_merged_folder(src):
+    """Resolve one ``src`` to the merged folder measure reads, or say why not.
+
+    A plate folder gains ``merged``; a ``merged`` folder is kept; a plate
+    output subfolder such as ``measurements`` resolves to that plate's
+    ``merged`` folder. Each move is printed to the console.
+
+    :param src: one ``src`` path.
+    :returns: the merged folder holding the ``.npy`` arrays.
+    :raises ConfigurationError: when ``src`` or its merged folder does not
+        exist, with what to set instead.
+    """
+    from .validate import _resolve_measure_src
+    merged, note = _resolve_measure_src(src)
+    if note:
+        print(f"[measure] {note}")
+    elif os.path.normpath(merged) != os.path.normpath(src):
+        print(f"[measure] Reading the merged arrays in {merged}")
+    if os.path.isdir(merged):
+        return merged
+    if not os.path.exists(src):
+        raise ConfigurationError(_missing_measure_sources_message([src]))
+    raise ConfigurationError(
+        f"Measure cannot start: there is no merged folder at {merged}. "
+        "Set src to the plate folder that Make Masks wrote (the one holding "
+        "merged/), or run Make Masks on this plate first.")
+
+
+def _missing_measure_sources(paths):
+    """The ``src`` paths measure cannot read: no merged folder and no path.
+
+    :param paths: the plate folders ``src`` names, already parsed.
+    :returns: the ones that do not exist and resolve to no merged folder.
+    """
+    from .validate import _resolve_measure_src
+    missing = []
+    for path in paths:
+        if not isinstance(path, str):
+            continue
+        merged, _note = _resolve_measure_src(path)
+        if not os.path.isdir(merged) and not os.path.exists(path):
+            missing.append(path)
+    return missing
+
+
+def _missing_measure_sources_message(missing, parsed=None):
+    """Why measure cannot start, one missing ``src`` path per line.
+
+    Each line says whether the path's parent folder exists, which tells an
+    unmounted drive or share apart from a typo.
+
+    :param missing: the ``src`` paths that do not exist.
+    :param parsed: every path ``src`` was read as, listed when it named more
+        than one, so a wrongly split paste is visible.
+    :returns: the message for :class:`ConfigurationError`.
+    """
+    from .portable_paths import _describe_missing_paths
+    from .qt.i18n import tr
+    lines = [tr("Measure cannot start: src does not exist:")]
+    lines += _describe_missing_paths(missing)
+    if parsed and len(parsed) > 1:
+        lines.append(tr("src was read as {count} folders:", count=len(parsed)))
+        lines += [f"  {path}" for path in parsed]
+    lines.append(tr("Set src to the plate folder that Make Masks wrote, the "
+                    "one holding merged/, and check that the drive or share "
+                    "is mounted. Several plates can be given one per line or "
+                    "as a list."))
+    return "\n".join(lines)
+
+
+def _sql_value(value):
+    """A pandas or NumPy scalar as a value SQLite can bind; missing becomes NULL."""
+    if value is None or pd.isna(value):
+        return None
+    return value.item() if hasattr(value, 'item') else value
+
+
+def _original_filename_map(db_path, src):
+    """The nearest filename-conversion manifest for a measured plate, or None.
+
+    Looks beside ``src`` and its parents, then beside the database and its
+    parents, and finally inside the database for an embedded conversion map.
+    """
+    from .original_filenames import discover_maps
+
+    found = []
+    for anchor in (src, db_path):
+        if anchor and os.path.exists(anchor):
+            found.extend(path for path in discover_maps(anchor) if path not in found)
+    csvs = [path for path in found if path.suffix.lower() == '.csv']
+    return (csvs or found or [None])[0]
+
+
+def _add_original_filename_columns(db_path, src, *, report=print):
+    """Add ``original_*`` columns to every measurement table a manifest covers.
+
+    When the plate was renamed by a converter, its manifest maps each
+    measured field back to the original image. Every table with field
+    identity columns gets ``original_filename``, ``original_path`` and one
+    ``original_<name>`` column per pre-conversion field the manifest records.
+    The join runs on the stored identity columns, so a resumed run fills rows
+    written earlier and later alike. Without a manifest nothing changes.
+
+    :param db_path: ``measurements.db`` of the run.
+    :param src: the measured ``merged`` folder.
+    :param report: called with one summary line per enriched table.
+    :returns: {table: number of matched rows}.
+    """
+    from .original_filenames import _identity_columns, _original_columns
+    from .tabular import _quote_identifier, _read_query
+
+    if not db_path or not os.path.isfile(db_path):
+        return {}
+    map_path = _original_filename_map(db_path, src)
+    if map_path is None:
+        return {}
+    done = {}
+    with contextlib.closing(sqlite3.connect(db_path, timeout=30)) as conn:
+        tables = [row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' "
+            "AND name NOT LIKE 'sqlite_%' AND name != 'conversion_map'")]
+        for table in tables:
+            quoted = _quote_identifier(table)
+            columns = [row[1] for row in conn.execute(f'PRAGMA table_info({quoted})')]
+            keys = _identity_columns(columns)
+            if not keys:
+                continue
+            key_sql = ', '.join(_quote_identifier(key) for key in keys)
+            frame = _read_query(conn, f'SELECT DISTINCT {key_sql} FROM {quoted}',
+                                canonicalise=False, report=None)
+            try:
+                enriched, _ = _original_columns(frame, map_path)
+            except ValueError:
+                continue
+            added = [name for name in enriched.columns if name not in keys]
+            for name in added:
+                if name not in columns:
+                    conn.execute(f'ALTER TABLE {quoted} ADD COLUMN {_quote_identifier(name)} TEXT')
+            staged = [f'k{index}' for index in range(len(keys))] + [
+                f'v{index}' for index in range(len(added))]
+            conn.execute('DROP TABLE IF EXISTS temp._spacr_original_names')
+            conn.execute('CREATE TEMP TABLE _spacr_original_names ({})'.format(
+                ', '.join(staged)))
+            conn.executemany(
+                'INSERT INTO temp._spacr_original_names VALUES ({})'.format(
+                    ', '.join('?' * len(staged))),
+                [tuple(_sql_value(value) for value in record) for record in
+                 enriched[keys + added].itertuples(index=False, name=None)])
+            conn.execute('CREATE INDEX temp._spacr_original_keys ON _spacr_original_names ({})'.format(
+                ', '.join(staged[:len(keys)])))
+            conn.execute('UPDATE {table} SET {assign} FROM temp._spacr_original_names AS o '
+                         'WHERE {match}'.format(
+                             table=quoted,
+                             assign=', '.join(f'{_quote_identifier(name)} = o.v{index}'
+                                              for index, name in enumerate(added)),
+                             match=' AND '.join(f'{quoted}.{_quote_identifier(key)} IS o.k{index}'
+                                                for index, key in enumerate(keys))))
+            conn.execute('DROP TABLE temp._spacr_original_names')
+            conn.commit()
+            done[table] = int(enriched['original_filename'].notna().sum())
+            report(f"Original filenames from {map_path.name}: {table} "
+                   f"({done[table]} of {len(enriched)} field(s) matched).")
+    return done
+
+
+def measure_crop(settings):
+    """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
+
+    Consumes the ``merged/`` folder produced by
+    :func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks
+    saved as ``.npy``), computes shape, intensity, texture and spatial
+    features per cell / nucleus / pathogen / cytoplasm object, and writes
+    them to a SQLite ``measurements.db``. When ``save_png`` is enabled it
+    also crops per-object PNG thumbnails, which are the training input for
+    :func:`spacr.deep_spacr.deep_spacr`.
+
+    :param settings: Settings dict, canonicalized via
+        :func:`spacr.settings.get_measure_crop_settings`. Key entries the
+        function reads:
+
+        - ``src`` (str or list) — one or more plate or ``…/merged``
+          folders, each measured in turn into its own ``measurements``
+          folder. Text naming several plates (a pasted list, curly quotes,
+          one path per line) is split into its plate folders. A
+          cloud address Make Masks has analysed is measured from the local
+          folder Make Masks staged it in; a cloud folder of merged stacks is
+          mirrored under ``cloud_cache`` first. ``cloud_results`` copies the
+          measurements folder back to cloud storage.
+        - ``psf_measurement_source`` — original (default) uses the normal
+          rescaled/preprocessed intensities; processed adds an explicitly
+          calibrated PSF before quantitative features. The immutable kernel
+          reaches every worker. Source images and exported crops stay unchanged.
+          Field provenance is saved in ``intensity_rescale``; incompatible
+          existing PSF measurements are refused before any rows are appended.
+        - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``
+          — channel index of each mask stack; ``None`` disables that
+          object type.
+        - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``
+          / ``cytoplasm_min_size`` — pixel-area cutoffs.
+        - ``channels`` — list of intensity channels to measure.
+        - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',
+          'cytoplasm']``; each entry produces one PNG per object.
+        - ``save_png`` — write per-object PNG thumbnails.
+        - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.
+        - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).
+        - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.
+        - ``database_write_queue_gib`` — optional SQLite queued-data RAM budget
+          from zero to 64 GiB. Omit to use Preferences (default one GiB).
+          Zero uses disk-only buffering; overflow lives under
+          ``measurements/.write_queue``. Each field commits atomically and
+          unfinished write packets remain available after failure.
+        - ``dry_run`` — validate the settings, report the plan and stop;
+          the input folders are inspected but nothing is written.
+
+    :returns: ``None`` on a normal run, which writes
+        ``measurements/measurements.db``, ``measure_crop_settings.csv``, and
+        (if ``save_png``) PNGs into per-object subfolders under ``src``. When
+        ``dry_run`` is set, the list of :class:`spacr.validate.Problem`
+        returned by :func:`spacr.validate.run_preflight`, and nothing is
+        written.
+    :raises ValueError: if ``src`` is not a string or a list of strings.
+    :raises spacr.errors.ConfigurationError: only in strict mode
+        (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``
+        environment variable). The ``normalize``, ``normalize_by``,
+        mask-dimension/min-size and ``channels`` type checks otherwise print
+        a WARNING and return ``None`` without measuring anything.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.measure import measure_crop
+            settings = {
+                'src': '/data/plate01/merged',
+                'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,
+                'channels': [0, 1, 2, 3],
+                'crop_mode': ['cell'], 'save_png': True,
+                'normalize': [1, 99], 'normalize_by': 'png',
+            }
+            measure_crop(settings)
+
+    See Also:
+        :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.
+        :func:`spacr.io.generate_dataset` — build a training set from the PNGs.
+        :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops.
+    """
+    if settings.get('dry_run', False):
+        from .validate import run_preflight
+        return run_preflight(settings, 'measure')
+
+    from .io import _save_settings_to_db, _listdir_visible
+    from .cancellation import (
+        PipelineCancelled,
+        checkpoint as cancellation_checkpoint,
+    )
+    from .timelapse import _timelapse_masks_to_gif
+    from .utils import measure_test_mode, print_progress, save_settings, format_path_for_system, normalize_src_path
+    from .settings import get_measure_crop_settings
+    
+    
+    
+    if settings['timelapse']:
+        settings['save_png'] = False
+
+    if not isinstance(settings['src'], (str, list)):
+        raise ValueError('src must be a string or a list of strings')
+    
+    settings = dict(settings)
+    settings['src'] = normalize_src_path(settings['src'])
+
+    from .ome_zarr import _needs_cloud_run, _run_with_cloud_sources
+    if _needs_cloud_run(settings):
+        return _run_with_cloud_sources(measure_crop, settings, 'measure')
+    
+    if isinstance(settings['src'], str):
+        settings['src'] = [settings['src']]
+
+    if isinstance(settings['src'], list):
+        source_folders = list(settings['src'])
+        if len(source_folders) > 1:
+            print(f"[measure] src names {len(source_folders)} plate folders; "
+                  "measuring each in turn into its own measurements folder.")
+        missing = _missing_measure_sources(source_folders)
+        if missing:
+            raise ConfigurationError(
+                _missing_measure_sources_message(missing, source_folders))
+        base_settings = dict(settings)
+        
+        with run_context('measure', settings) as run:
+            for source_folder in source_folders:
+                cancellation_checkpoint()
+                print(f'Processing folder: {source_folder}')
+                settings = dict(base_settings)
+                source_folder = format_path_for_system(source_folder)
+                settings['src'] = source_folder
+
+                src_fldr = _measure_merged_folder(settings['src'])
+                settings['src'] = src_fldr
+
+                explicit_mask_keys = {
+                    f'{role}_mask_dim' for role in SEGMENTED_ROLES
+                    if f'{role}_mask_dim' in settings}
+                settings = reconcile_merged_mask_dims(
+                    settings, src_fldr, explicit_keys=explicit_mask_keys)
+                settings = get_measure_crop_settings(settings)
+                settings = measure_test_mode(settings)
+                if settings.get('confluency'):
+                    _resolve_confluency_source(settings)
+                if settings.get('wound_closure'):
+                    _wound_settings_check(settings)
+
+                from .database_concurrency import enable_wal_where_safe
+                _measurements_dir = os.path.join(
+                    os.path.dirname(settings['src']), 'measurements')
+                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+                from .image_quality import excluded_fields, ensure_no_retained_measurements
+                rejected_quality = excluded_fields(os.path.dirname(settings['src']))
+                ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
+                files = [name for name in files if name not in rejected_quality]
+                _full_rescale_plan, calibration = _prepare_measurement_calibration(settings, files)
+                _validate_measurement_calibration_history(
+                    settings, os.path.join(_measurements_dir, 'measurements.db'))
+                os.makedirs(_measurements_dir, exist_ok=True)
+                enable_wal_where_safe(
+                    os.path.join(_measurements_dir, 'measurements.db'))
+
+                from .illumination import (
+                    prepare_illumination_correction,
+                    validate_measurement_illumination_inputs,
+                )
+                from .psf_measurement import (
+                    prepare_measurement_psf, measurement_psf_signature,
+                    validate_measurement_psf_history, SIGNATURE_KEY)
+                psf_plan = prepare_measurement_psf(settings)
+                settings[SIGNATURE_KEY] = measurement_psf_signature(psf_plan)
+                validate_measurement_psf_history(
+                    settings, os.path.join(_measurements_dir, 'measurements.db'), psf_plan)
+                validate_measurement_illumination_inputs(settings)
+                prepare_illumination_correction(settings)
+                from .psf_pipeline import _prepare_measure_unmixing
+                _prepare_measure_unmixing(settings)
+
+                if settings['cell_mask_dim'] is None:
+                    settings['uninfected'] = True
+                if settings['pathogen_mask_dim'] is None:
+                    settings['uninfected'] = True
+                if settings['cell_mask_dim'] is not None and settings['pathogen_min_size'] is not None:
+                    settings['cytoplasm'] = True
+                elif settings['cell_mask_dim'] is not None and settings['nucleus_min_size'] is not None:
+                    settings['cytoplasm'] = True
+                else:
+                    settings['cytoplasm'] = False
+                
+                settings['n_jobs'] = resolve_n_jobs(settings['n_jobs'])
+
+                settings_save = settings.copy()
+                settings_save['src'] = os.path.dirname(settings['src'])
+                save_settings(settings_save, name='measure_crop_settings', show=True)
+
+                if settings['timelapse_objects'] == 'nucleus':
+                    if not settings['cell_mask_dim'] is None:
+                        tlo = settings['timelapse_objects']
+                        print(f'timelapse object:{tlo}, cells will be relabeled to nucleus labels to track cells.')
+
+                int_setting_keys = [
+                    *(f'{role}_mask_dim' for role in SEGMENTED_ROLES),
+                    *(f'{role}_min_size' for role in SEGMENTED_ROLES),
+                    'cytoplasm_min_size',
+                ]
+            
+                if isinstance(settings['normalize'], bool) and settings['normalize']:
+                    print(f'WARNING: to notmalize single object pngs set normalize to a list of 2 integers, e.g. [1,99] (lower and upper percentiles)')
+                    raise_if_strict(
+                        "settings['normalize'] must be a list of two percentiles, "
+                        "e.g. [1, 99] — not a bool. Nothing was measured.",
+                        settings=settings)
+                    return
+
+                if isinstance(settings['normalize'], list) or isinstance(settings['normalize'], bool) and settings['normalize']:
+                    if settings['normalize_by'] not in ['png', 'fov']:
+                        print("Warning: normalize_by should be either 'png' to notmalize each png to its own percentiles or 'fov' to normalize each png to the fov percentiles ")
+                        raise_if_strict(
+                            "settings['normalize_by'] must be 'png' or 'fov', got "
+                            f"{settings['normalize_by']!r}. Nothing was measured.",
+                            settings=settings)
+                        return
+
+                if not all(isinstance(settings.get(key), int)
+                           or settings.get(key) is None
+                           for key in int_setting_keys):
+                    print(f"WARNING: {int_setting_keys} must all be integers")
+                    raise_if_strict(
+                        f"{int_setting_keys} must all be int or None. "
+                        "Nothing was measured.", settings=settings)
+                    return
+
+                if not isinstance(settings['channels'], list):
+                    print(f"WARNING: channels should be a list of integers representing channels e.g. [0,1,2,3]")
+                    raise_if_strict(
+                        "settings['channels'] must be a list of channel indices, "
+                        f"got {type(settings['channels']).__name__}. "
+                        "Nothing was measured.", settings=settings)
+                    return
+
+                if not isinstance(settings['crop_mode'], list):
+                    print(f"WARNING: crop_mode should be a list with at least one element e.g. ['cell'] or ['cell','nucleus'] or [None] got: {settings['crop_mode']}")
+                    settings['crop_mode'] = [settings['crop_mode']]
+                    settings['crop_mode'] = [str(crop_mode) for crop_mode in settings['crop_mode']]
+                    print(f"Converted crop_mode to list: {settings['crop_mode']}")
+            
+                resume_plan = plan_measure_resume(settings)
+
+                _save_settings_to_db(settings)
+
+                if _full_rescale_plan is None:
+                    _full_rescale_plan = build_plate_plan(
+                        settings['src'], files, settings)
+                settings[PLAN_SETTINGS_KEY] = {
+                    'version': _full_rescale_plan['version'],
+                    'plates': _full_rescale_plan['plates'],
+                    'failures': _full_rescale_plan['failures'],
+                }
+                for failed_file, reason in sorted(
+                        settings[PLAN_SETTINGS_KEY]['failures'].items()):
+                    print(
+                        f"WARNING: could not pre-scan {failed_file} for a "
+                        f"plate-wide intensity scale ({reason}). If the field "
+                        f"can be loaded by its worker, it will use a per-field "
+                        f"fallback and measurements.db:intensity_rescale will "
+                        f"mark it non-comparable.")
+                if calibration is not None:
+                    settings[CALIBRATION_SETTINGS_KEY] = calibration
+                    print(f"Intensity calibration against plate "
+                          f"{calibration['reference_plate']}: " + '; '.join(
+                              f"{plate} x" + ','.join(
+                                  f"{gain:.3g}" for gain in
+                                  entry['gain'].values())
+                              for plate, entry in
+                              calibration['plates'].items()))
+                if resume_plan is not None:
+                    files = resume_plan.filter_files(files)
+                n_jobs = settings['n_jobs']
+                print(f'using {n_jobs} cpu cores')
+                print_progress(files_processed=0, files_to_process=len(files), n_jobs=n_jobs, time_ls=[], operation_type='Measure and Crop')
+
+                ledger = RunLedger('measure_crop')
+                run.adopt(ledger)
+                _record_organelle_caveats(settings, run)
+                policy = run.policy.bind(ledger=ledger, record=False)
+                deferred = _DeferredOverloadRetries()
+                index_to_file = dict(enumerate(files))
+                reported_files = set()
+                verdict_lock = threading.Lock()
+                writer = None
+                writer_started = False
+                queued_sqlite = str(settings.get('measurement_backend') or
+                                    'sqlite').lower() == 'sqlite'
+
+                def record_verdict(item, error=None, stage='measure'):
+                    """Count each field once, after its actual final outcome."""
+                    with verdict_lock:
+                        if item in reported_files:
+                            return
+                        reported_files.add(item)
+                        if error is None:
+                            ledger.record_success(item, stage=stage)
+                        else:
+                            ledger.record_failure(item, stage=stage, exc=error)
+
+                def write_callback(item, ticket, error):
+                    """Record a field only after its packet's final SQL verdict."""
+                    record_verdict(item, error, stage='measure_write')
+
+                def job_callback(result):
+                    """Save returned figures and report field computation progress.
+
+                    :param result: index, average duration, surviving labels,
+                        figures, error text and an optional queued-write ticket.
+                        An integer zero labels value records the original field
+                        failure. SQLite success is recorded separately by the
+                        writer after committing all scientific rows. Other
+                        backends keep their existing synchronous worker verdict.
+                    """
+                    completed_jobs.add(result[0])
+                    item = index_to_file.get(result[0], result[0])
+                    if isinstance(result[2], int) and result[2] == 0:
+                        detail = (result[4] if len(result) > 4 else "") or (
+                            'field failed inside _measure_crop_core, and the '
+                            'worker returned no traceback')
+                        record_verdict(item, detail)
+                    elif not queued_sqlite:
+                        record_verdict(item)
+                    process_measure_crop_results([result], settings)
+                    files_processed = len(completed_jobs)
+                    files_to_process = len(files)
+                    print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
+
+                def make_error_callback(job_file):
+                    """Bind the filename into the pool's error callback.
+
+                    ``apply_async`` hands the error callback only the exception,
+                    so the file has to be closed over. Without this hook a worker
+                    that died outright vanished entirely: the exception sat on an
+                    AsyncResult nobody read, and the run still printed
+                    "Successfully completed run".
+
+                    :param job_file: The ``.npy`` filename of the field, as it
+                        appears in ``files`` -- a bare basename, not a path
+                        joined onto ``settings['src']``. It is used unchanged as
+                        the ledger key *and* as the ``reported_files`` entry, so
+                        anything else silently loses the match against ``files``
+                        in the ``finally`` sweep and the field is filed a second
+                        time as "field produced no result".
+                    :returns: A one-argument callable suitable as the
+                        ``error_callback`` of ``Pool.apply_async``; it takes the
+                        exception and returns ``None``. Call it as
+                        ``make_error_callback(file)(exc)`` when raising the
+                        exception yourself, which is what the retry loop does on
+                        the last attempt -- the ledger counts fields, not tries,
+                        so a field that failed twice and then worked must not be
+                        reported here at all.
+                    """
+                    def _on_error(exc):
+                        """Record one worker's failure against the file that caused it."""
+                        record_verdict(job_file, exc, stage='measure_worker')
+                    return _on_error
+
+                ctx = _measure_pool_context(settings)
+                start_method = ctx.get_start_method()
+                warn_if_hooks_will_not_reach_workers(start_method)
+                pool_jobs = resolve_pool_size(n_jobs, len(files),
+                                              start_method=start_method)
+                ram_plan = _ram_guard_plan(settings['src'], pool_jobs)
+                pool_jobs = _clamp_workers_to_ram(settings, pool_jobs, ram_plan)
+                per_worker = ram_plan['per_worker'] if ram_plan else 0
+                calibrate = ram_plan is not None and pool_jobs > 1 and len(files) > 1
+                db_path = os.path.join(os.path.dirname(settings['src']),
+                                       'measurements', 'measurements.db')
+                worker_function = (_measure_crop_queued if queued_sqlite else
+                                   _measure_crop_core)
+                pool_options = {}
+                if queued_sqlite:
+                    from .database_concurrency import _DatabaseWriteQueue
+
+                    writer = _DatabaseWriteQueue(
+                        os.path.join(os.path.dirname(db_path), '.write_queue'),
+                        lambda packet: _commit_measure_packet(db_path, packet),
+                        write_callback, ram_gib=_measure_write_queue_budget(settings),
+                        context=ctx)
+                    pool_options = {'initializer': _initialize_measure_writer,
+                                    'initargs': (writer.endpoint,)}
+
+                try:
+                    with _start_manager(ctx) as manager:
+                        time_ls = manager.list()
+                        psf_cancel = manager.Event() if psf_plan is not None else None
+                        completed_jobs = set()
+
+                        with _parallel_pool(pool_jobs, context=ctx,
+                                            **pool_options) as pool:
+                            if writer is not None:
+                                writer.start()
+                                writer_started = True
+                            wave = pool_jobs
+                            offset = 0
+                            while offset < len(files):
+                                cancellation_checkpoint()
+                                size = 1 if calibrate else wave
+                                pending = []
+                                for index in range(
+                                        offset, min(offset + size, len(files))):
+                                    file = files[index]
+                                    if per_worker:
+                                        _wait_for_ram(
+                                            per_worker,
+                                            lambda: _any_field_running(pending),
+                                            field=file)
+                                    result = pool.apply_async(
+                                        worker_function,
+                                        args=((index, time_ls, file, settings, psf_plan, psf_cancel)
+                                              if psf_plan is not None else
+                                              (index, time_ls, file, settings)),
+                                    )
+                                    pending.append((file, index, result))
+                                peak = _PeakChildMemory() if calibrate else None
+                                with (peak if peak is not None else contextlib.nullcontext()):
+                                    for file, index, async_result in pending:
+                                        for attempt in policy.attempts_for(
+                                                file, stage='measure'):
+                                            with attempt:
+                                                try:
+                                                    if attempt.number == 1:
+                                                        job_callback(_wait_for_measure_job(
+                                                            async_result, psf_cancel))
+                                                    else:
+                                                        retried = pool.apply_async(
+                                                            worker_function,
+                                                            args=((index, time_ls, file, settings, psf_plan, psf_cancel)
+                                                                  if psf_plan is not None else
+                                                                  (index, time_ls, file, settings)))
+                                                        job_callback(_wait_for_measure_job(retried, psf_cancel))
+                                                except PipelineCancelled:
+                                                    raise
+                                                except Exception as exc:
+                                                    if attempt.last:
+                                                        retry_arguments = (
+                                                            index, time_ls, file, settings,
+                                                            psf_plan, psf_cancel)
+                                                        if queued_sqlite and deferred.defer(
+                                                                file, exc,
+                                                                lambda args=retry_arguments:
+                                                                _wait_for_measure_job(
+                                                                    pool.apply_async(
+                                                                        worker_function,
+                                                                        args=args), psf_cancel)):
+                                                            run.log.warning(
+                                                                'Deferring overloaded field %s '
+                                                                'until the primary queue finishes: %s',
+                                                                file, exc)
+                                                            break
+                                                        make_error_callback(file)(exc)
+                                                    raise
+                                offset += size
+                                if peak is not None:
+                                    calibrate = False
+                                    per_worker, wave = _calibrated_wave(
+                                        settings, ram_plan, peak.peak, wave)
+                                cancellation_checkpoint()
+
+                            for file, result, error in deferred.drain():
+                                if error is None:
+                                    job_callback(result)
+                                else:
+                                    make_error_callback(file)(error)
+                            pool.close()
+                            pool.join()
+                        if writer is not None:
+                            writer.finish()
+                except BaseException:
+                    if writer_started:
+                        writer.cancel()
+                        try:
+                            writer.finish()
+                        except BaseException as cleanup_error:
+                            run.log.warning('Database writer stopped: %s', cleanup_error)
+                    raise
+                finally:
+                    for job_file in files:
+                        if job_file not in reported_files:
+                            ledger.record_failure(job_file, stage='measure',
+                                                  exc='field produced no result')
+
+                    db_path = os.path.join(os.path.dirname(settings['src']),
+                                           'measurements', 'measurements.db')
+                    ledger.finalize(
+                        artifact=db_path if os.path.isfile(db_path) else None)
+
+                _add_original_filename_columns(db_path, settings['src'])
+
+                if str(settings.get('plate_barcode_source') or '').strip():
+                    _run_plate_barcode_step(settings)
+
+                if settings.get('confluency') and os.path.isfile(db_path):
+                    wells = _aggregate_confluency_by_well(
+                        db_path, settings.get('confluency_qc_threshold'))
+                    if not wells.empty:
+                        failing = int((wells['monolayer_ok'] == 0).sum())
+                        print(f"Confluency: {len(wells)} well(s) in "
+                              f"measurements.db:{_CONFLUENCY_WELL_TABLE}, "
+                              f"{failing} below the monolayer QC threshold.")
+
+                if settings.get('cell_cycle') and os.path.isfile(db_path):
+                    _run_cell_cycle_step(db_path, settings)
+                if settings.get('wound_closure'):
+                    _run_wound_closure(settings['src'], settings)
+
+                if (settings['timelapse']
+                        and settings.get('bleach_correction', 'none') != 'none'
+                        and os.path.isfile(db_path)):
+                    _run_bleach_correction_step(db_path, settings)
+
+                if settings.get('time_to_event') and os.path.isfile(db_path):
+                    _run_time_to_event_step(db_path, settings)
+
+                if settings.get('viability') and os.path.isfile(db_path):
+                    _run_viability_step(db_path, settings)
+
+                if (str(settings.get('cellprofiler_pipeline') or '').strip()
+                        and os.path.isfile(db_path)):
+                    _run_cellprofiler_step(db_path, settings)
+
+                if (settings.get('timelapse_lineage') and settings['timelapse']
+                        and os.path.isfile(db_path)):
+                    from ._lineage_measurements import _run_measured_lineage_step
+                    _run_measured_lineage_step(db_path, settings)
+
+                if settings['timelapse']:
+                    if settings['timelapse_objects'] == 'nucleus':
+                        folder_path = settings['src']
+                        mask_channels = [settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], settings['cell_mask_dim']]
+                        object_types = ['nucleus', 'pathogen', 'cell']
+                        _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
+
+                if ledger.is_complete:
+                    _emit_infection_report(db_path)
+                    if settings.get('profiling'):
+                        _emit_profiles(settings, db_path)
+                    if (str(settings.get('measurement_backend') or 'sqlite')
+                            != 'sqlite' and os.path.isfile(db_path)):
+                        _copy_to_measurement_backend(db_path, settings)
+                    print("Successfully completed run")
+
+            run.register_outputs(settings=settings, roots=source_folders)
+
+def _measurement_backend_target(db_path, settings):
+    """Where ``measurement_backend`` sends the measurements of ``db_path``.
+
+    A blank ``measurement_backend_target`` puts a DuckDB file or a Parquet
+    store beside ``measurements.db`` and reaches PostgreSQL through the
+    standard ``PG*`` environment variables.
+
+    :param db_path: the run's ``measurements.db``.
+    :param settings: the run settings.
+    :returns: a path or a PostgreSQL connection string.
+    :raises ValueError: for a backend that is not one of the stores.
+    """
+    backend = str(settings.get('measurement_backend') or 'sqlite').lower()
+    target = str(settings.get('measurement_backend_target') or '').strip()
+    folder = os.path.dirname(db_path)
+    if backend == 'duckdb':
+        return target or os.path.join(folder, 'measurements.duckdb')
+    if backend == 'parquet':
+        return target or os.path.join(folder, 'measurements.parquetdb')
+    if backend == 'postgres':
+        if target and not target.lower().startswith(
+                ('postgresql://', 'postgres://')):
+            target = 'postgresql://' + target
+        return target or 'postgresql://'
+    raise ValueError(
+        f"measurement_backend must be one of sqlite, duckdb, parquet, "
+        f"postgres, not {backend!r}.")
+
+
+def _copy_to_measurement_backend(db_path, settings):
+    """Copy the tables a finished run's store still lacks into it.
+
+    The measurement tables reach the store as each field is written; this
+    copies the rest, such as confluency and lineage tables.
+
+    ``measurements.db`` stays where it is and every later step keeps reading
+    it; the DuckDB, Parquet or PostgreSQL copy is for large screens and
+    shared servers. A failed copy is reported and the run still succeeds.
+
+    :param db_path: the run's ``measurements.db``.
+    :param settings: the run settings.
+    :returns: the target the tables were copied to, or ``None`` on failure.
+    """
+    from .tabular import _migrate_database
+
+    from .tabular import database_tables
+
+    try:
+        target = _measurement_backend_target(db_path, settings)
+        try:
+            streamed = set(database_tables(target))
+        except Exception:
+            streamed = set()
+        missing = [name for name in database_tables(db_path)
+                   if not name.startswith('sqlite_') and name not in streamed]
+        if missing:
+            _migrate_database(db_path, target, tables=missing)
+    except (ImportError, OSError, ValueError, RuntimeError) as exc:
+        print(f"Measurement backend: copy skipped ({exc}).")
+        return None
+    except Exception as exc:
+        print(f"Measurement backend: copy failed ({type(exc).__name__}: "
+              f"{exc}).")
+        return None
+    print(f"Measurement backend: measurements copied to "
+          f"{settings.get('measurement_backend')}.")
+    return target
+
+
+def _run_plate_barcode_step(settings, fetch=None):
+    """Fill the plate map from sample records by plate barcode and say where.
+
+    Runs :func:`spacr.plate_qc._link_plate_barcodes` on the run's merged
+    arrays with the ``plate_barcode_*`` settings and writes the filled map
+    to ``measurements/plate_map_lims.csv`` and every mismatch to
+    ``measurements/plate_barcode_mismatches.csv``, printing each mismatch.
+    A blank ``profiling_metadata`` is pointed at the filled map, and so is a
+    blank ``viability_plate_map`` when the records carry a compound and a
+    concentration; a plate map the user gave is only checked against the
+    records. A failure is reported and does not fail the run.
+
+    :param settings: Measure settings; the plate-map settings may be filled.
+    :param fetch: passed to :func:`spacr.plate_qc._lims_records`.
+    :returns: ``(plate_map, mismatches)``, or None when the step failed.
+    """
+    from .plate_qc import _link_plate_barcodes
+    from .tabular import write_table
+
+    existing = [str(settings.get(key)).strip() for key in
+                ('profiling_metadata', 'viability_plate_map')
+                if str(settings.get(key) or '').strip()]
+    try:
+        plate_map, mismatches = _link_plate_barcodes(
+            settings['src'], settings['plate_barcode_source'],
+            barcodes=settings.get('plate_barcodes'),
+            barcode_column=str(settings.get('plate_barcode_column')
+                               or '').strip() or None,
+            token_env=settings.get('plate_barcode_token_env'),
+            existing_maps=list(dict.fromkeys(existing)),
+            timelapse=bool(settings.get('timelapse')), fetch=fetch)
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"Plate barcode linkage could not be made: {exc}")
+        return None
+    out_dir = os.path.join(os.path.dirname(settings['src']), 'measurements')
+    map_path = write_table(plate_map, os.path.join(out_dir,
+                                                   'plate_map_lims.csv'))
+    write_table(mismatches, os.path.join(out_dir,
+                                         'plate_barcode_mismatches.csv'))
+    print(f"Plate barcode linkage: {len(plate_map)} well(s) filled from "
+          f"{settings['plate_barcode_source']} into {map_path}; "
+          f"{len(mismatches)} mismatch(es).")
+    for row in mismatches.itertuples(index=False):
+        print(f"MISMATCH {row.kind}: plate {row.plateID} (barcode "
+              f"{row.barcode}) {row.well} {row.detail}".replace('  ', ' '))
+    if not str(settings.get('profiling_metadata') or '').strip():
+        settings['profiling_metadata'] = map_path
+    lower = {str(c).lower() for c in plate_map.columns}
+    if (not str(settings.get('viability_plate_map') or '').strip()
+            and lower & set(_VIABILITY_COMPOUND_COLUMNS)
+            and lower & set(_VIABILITY_DOSE_COLUMNS)):
+        settings['viability_plate_map'] = map_path
+    return plate_map, mismatches
+
+
+#: Tables the CellProfiler step writes are named this plus the lowercased
+#: CellProfiler object name, e.g. ``cellprofiler_nuclei``.
+_CELLPROFILER_TABLE_PREFIX = 'cellprofiler_'
+
+#: What each exported TIFF's name adds to its field's stem: ``_ch<N>`` for
+#: channel N, counted from zero among the intensity planes, and
+#: ``_<object>_mask`` for a label image.
+_CELLPROFILER_FILE = re.compile(
+    r'^(?P<stem>.+?)_(?:ch(?P<channel>\d+)|(?P<role>[a-z0-9]+)_mask)'
+    r'\.tiff?$')
+
+
+def _cellprofiler_roles(settings, n_planes):
+    """``{object type: plane}`` for every label plane of a merged array."""
+    roles = {}
+    for role in SEGMENTED_ROLES:
+        value = settings.get(f'{role}_mask_dim')
+        try:
+            value = int(value)
+        except (TypeError, ValueError):
+            continue
+        if 0 <= value < n_planes:
+            roles[role] = value
+    return roles
+
+
+def _cellprofiler_export(merged_folder, settings, dest):
+    """Write every field's channels and masks as TIFFs CellProfiler reads.
+
+    Each ``merged/<stem>.npy`` becomes ``<stem>_ch<N>.tif`` for each
+    intensity plane, N counted from zero, and ``<stem>_<object>_mask.tif``
+    (16-bit labels, spaCR's own object ids) for each mask plane, so a
+    pipeline's NamesAndTypes can pick them out by name.
+
+    :param merged_folder: the ``merged`` folder Measure read.
+    :param settings: Measure settings with the mask plane indices.
+    :param dest: the folder the TIFFs go in.
+    :returns: the written paths.
+    """
+    from .tiff_io import write_tiff
+
+    written = []
+    for name in sorted(os.listdir(merged_folder)):
+        if not name.endswith('.npy'):
+            continue
+        stem = name[:-len('.npy')]
+        data = np.load(os.path.join(merged_folder, name), mmap_mode='r')
+        if data.ndim != 3:
+            continue
+        roles = _cellprofiler_roles(settings, data.shape[-1])
+        labels = set(roles.values())
+        channel = 0
+        for plane in range(data.shape[-1]):
+            if plane in labels:
+                continue
+            path = os.path.join(dest, f'{stem}_ch{channel}.tif')
+            write_tiff(path, np.ascontiguousarray(data[..., plane]))
+            written.append(path)
+            channel += 1
+        for role, plane in roles.items():
+            path = os.path.join(dest, f'{stem}_{role}_mask.tif')
+            write_tiff(path, np.ascontiguousarray(
+                data[..., plane]).astype(np.uint16))
+            written.append(path)
+    return written
+
+
+def _cellprofiler_role(name, roles):
+    """The spaCR object type a CellProfiler object name means, or None.
+
+    ``Nuclei``, ``nucleus`` and ``NucleusObjects`` mean ``nucleus``;
+    ``Cells`` means ``cell``; a name that says no object type spaCR has a
+    mask for means None, and the caller decides by where its objects lie.
+    """
+    lowered = str(name).lower()
+    if lowered.startswith('nuclei'):
+        lowered = 'nucleus' + lowered[len('nuclei'):]
+    for role in sorted(roles, key=len, reverse=True):
+        if lowered.startswith(role):
+            return role
+    return None
+
+
+def _cellprofiler_overlap_labels(paths, mask):
+    """Map each CP object to a strict pixel-majority spaCR label, or leave it unmatched.
+
+    Supplied planes must be integer 2D labels in the same coordinates and
+    shape as the spaCR mask. Background counts against a majority. Repeated
+    object IDs across planes, malformed arrays, and ties are not guessed.
+    Files are mapped read-only; at most 64 planes of 16M pixels are accepted.
+
+    Background is included in the totals so a tiny edge overlap is rejected.
+    """
+    if not isinstance(paths, (list, tuple)) or not paths or len(paths) > 64:
+        return {}
+    matched, seen = {}, set()
+    try:
+        if (mask.ndim != 2 or mask.size > 16 * 1024 * 1024
+                or mask.dtype.kind not in 'iuf' or not np.isfinite(mask).all()
+                or np.any(mask < 0) or np.any(mask >= 2**63)
+                or np.any(mask != np.floor(mask))):
+            return {}
+        for path in paths:
+            plane = np.load(path, mmap_mode='r', allow_pickle=False)
+            if not isinstance(plane, np.ndarray):
+                if hasattr(plane, 'close'):
+                    plane.close()
+                return {}
+            if (plane.shape != mask.shape or plane.dtype.kind not in 'iu'
+                    or np.any(plane < 0) or np.any(plane >= 2**63)):
+                return {}
+            positive = plane > 0
+            objects, totals = np.unique(plane[positive], return_counts=True)
+            ids = set(int(value) for value in objects)
+            if seen.intersection(ids):
+                return {}
+            seen.update(ids)
+            foreground = positive & (mask > 0)
+            pairs, counts = np.unique(np.column_stack((
+                plane[foreground].astype(np.int64),
+                mask[foreground].astype(np.int64))), axis=0, return_counts=True)
+            sizes = dict(zip((int(value) for value in objects), totals))
+            for (cp_id, label), count in zip(pairs, counts):
+                if count > sizes[int(cp_id)] / 2:
+                    matched[int(cp_id)] = int(label)
+    except (OSError, TypeError, ValueError, OverflowError):
+        return {}
+    return matched
+
+
+def _cellprofiler_tables(reply, merged_folder, settings):
+    """CellProfiler's per-object tables keyed by spaCR's object ids.
+
+    Each CellProfiler object is matched to the spaCR object whose mask
+    holds its centre, ``Location_Center_X/Y``, in the same field: in the
+    mask of the object type its name says (:func:`_cellprofiler_role`), or
+    otherwise in the mask that holds most of its objects. An object whose
+    centre lies on no spaCR object keeps its row with an empty
+    ``object_label`` and ``prcfo``.
+
+    :param reply: :func:`spacr._segmentation_backends._run_cellprofiler`'s
+        reply.
+    :param merged_folder: the ``merged`` folder the images came from.
+    :param settings: Measure settings with the mask plane indices.
+    :returns: ``{table name: DataFrame}``; each has ``prcf``,
+        ``object_label``, ``prcfo``, ``object_type``, ``cp_object``,
+        ``cp_image_number``, ``cp_object_number`` and every numeric
+        CellProfiler feature prefixed ``cp_``.
+    """
+    from . import schema
+
+    stems = {}
+    for number, names in (reply.get('images') or {}).items():
+        matched_stems = []
+        for file_name in names:
+            match = _CELLPROFILER_FILE.match(os.path.basename(str(file_name)))
+            if match:
+                matched_stems.append(match.group('stem'))
+        if matched_stems:
+            supplied = str(int(number)) in (reply.get('labels') or {})
+            if not supplied or len(set(matched_stems)) == 1:
+                stems[int(number)] = matched_stems[0]
+    masks = {}
+
+    def field_masks(stem):
+        """``{object type: label image}`` of one field, read once."""
+        if stem not in masks:
+            data = np.load(os.path.join(merged_folder, f'{stem}.npy'),
+                           mmap_mode='r')
+            masks[stem] = {
+                role: np.asarray(data[..., plane])
+                for role, plane in _cellprofiler_roles(
+                    settings, data.shape[-1]).items()}
+        return masks[stem]
+
+    def lookup(role, image_numbers, xs, ys):
+        """The spaCR label under each centre in ``role``'s mask.
+
+        A centre outside the image cannot identify an edge object; the check
+        comes before rounding so negative subpixel positions stay unmatched.
+        """
+        found = np.zeros(len(xs))
+        overlaps = {}
+        supplied = reply.get('labels') or {}
+        for i, (number, x, y) in enumerate(zip(image_numbers, xs, ys)):
+            stem = stems.get(int(number))
+            if stem is None:
+                continue
+            mask = field_masks(stem).get(role)
+            if mask is None:
+                continue
+            planes = supplied.get(str(int(number)), {})
+            if cp_name in planes:
+                if int(number) not in overlaps:
+                    overlaps[int(number)] = _cellprofiler_overlap_labels(
+                        planes[cp_name], mask)
+                found[i] = overlaps[int(number)].get(int(object_numbers[i]), 0)
+                continue
+            if not np.isfinite(x) or not np.isfinite(y):
+                continue
+            if not (0 <= x < mask.shape[1] and 0 <= y < mask.shape[0]):
+                continue
+            row = int(min(max(round(y), 0), mask.shape[0] - 1))
+            col = int(min(max(round(x), 0), mask.shape[1] - 1))
+            found[i] = mask[row, col]
+        return found
+
+    timelapse = bool(settings.get('timelapse'))
+    tables = {}
+    for cp_name, block in (reply.get('objects') or {}).items():
+        columns = list(block['columns'])
+        values = np.load(block['path'], allow_pickle=False)
+        frame = pd.DataFrame(values.reshape(-1, len(columns)), columns=columns)
+        has_centres = ('Location_Center_X' in frame and 'Location_Center_Y' in frame)
+        has_labels = any(cp_name in objects for objects in
+                         (reply.get('labels') or {}).values())
+        if not has_centres and not has_labels:
+            print(f"CellProfiler object {cp_name} has no Location_Center_X/Y "
+                  f"(add MeasureObjectSizeShape), so it cannot be matched to "
+                  f"spaCR objects; it was not imported.")
+            continue
+        numbers = frame['ImageNumber'].to_numpy()
+        xs = (frame['Location_Center_X'].to_numpy(dtype=float) if has_centres
+              else np.full(len(frame), np.nan))
+        ys = (frame['Location_Center_Y'].to_numpy(dtype=float) if has_centres
+              else np.full(len(frame), np.nan))
+        object_numbers = frame['ObjectNumber'].to_numpy()
+        roles = sorted({r for s in set(stems.values())
+                        for r in field_masks(s)})
+        role = _cellprofiler_role(cp_name, roles)
+        if role is not None:
+            labels = lookup(role, numbers, xs, ys)
+        else:
+            best, tied = None, False
+            for candidate in roles:
+                hits = lookup(candidate, numbers, xs, ys)
+                if best is None or (hits > 0).sum() > (best[1] > 0).sum():
+                    best, tied = (candidate, hits), False
+                elif (hits > 0).sum() == (best[1] > 0).sum():
+                    tied = True
+            if has_labels and tied:
+                best = None
+            role, labels = best if best else (None, np.zeros(len(frame)))
+        prcf = []
+        for number in numbers:
+            stem = stems.get(int(number), '')
+            try:
+                prcf.append(schema.parse_field_stem(
+                    stem, timelapse=timelapse).prcf)
+            except (ValueError, TypeError, KeyError):
+                prcf.append(stem)
+        keyed = pd.DataFrame({
+            'prcf': prcf,
+            'object_label': [int(v) if v > 0 else None for v in labels],
+            'object_type': role,
+            'cp_object': cp_name,
+            'cp_image_number': numbers.astype(int),
+            'cp_object_number': frame['ObjectNumber'].to_numpy().astype(int),
+        })
+        keyed.insert(2, 'prcfo', [
+            f"{p}_{schema.object_id(int(v))}" if v > 0 else None
+            for p, v in zip(prcf, labels)])
+        features = frame.drop(columns=['ImageNumber', 'ObjectNumber'])
+        features.columns = [f'cp_{c}' for c in features.columns]
+        table = f"{_CELLPROFILER_TABLE_PREFIX}{re.sub(r'[^0-9a-z]+', '_', str(cp_name).lower())}"
+        tables[table] = pd.concat([keyed, features.reset_index(drop=True)],
+                                  axis=1)
+    return tables
+
+
+def _run_cellprofiler_step(db_path, settings, *, runner=None):
+    """Run the ``cellprofiler_pipeline`` on this run's fields and import it.
+
+    Every field's channels and masks are written as TIFFs
+    (:func:`_cellprofiler_export`), the pipeline runs headless in
+    CellProfiler's own environment, and each of its objects' measurements
+    is written to ``measurements.db:cellprofiler_<object>``, matched to
+    spaCR's objects (:func:`_cellprofiler_tables`). A failure is reported
+    and does not fail the run: spaCR's own tables are already written and
+    are not changed.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :param runner: :func:`spacr._segmentation_backends._run_cellprofiler`,
+        or a stand-in for tests.
+    :returns: ``{table: rows}``, or None when the step failed.
+    """
+    import tempfile
+    from .tabular import write_database
+
+    pipeline = os.path.expanduser(str(settings['cellprofiler_pipeline']).strip())
+    merged_folder = settings['src']
+    work = os.path.join(os.path.dirname(os.path.dirname(db_path)),
+                        'cellprofiler')
+    try:
+        if not os.path.isfile(pipeline):
+            raise FileNotFoundError(f"no CellProfiler pipeline at {pipeline}")
+        if runner is None:
+            from ._segmentation_backends import _run_cellprofiler as runner
+        os.makedirs(work, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='input_', dir=work) as inputs:
+            files = _cellprofiler_export(merged_folder, settings, inputs)
+            reply = runner(pipeline, files, os.path.join(work, 'output'))
+            tables = _cellprofiler_tables(reply, merged_folder, settings)
+    except Exception as exc:
+        print(f"The CellProfiler pipeline could not be run: {exc}")
+        return None
+    counts = {}
+    for table, frame in tables.items():
+        write_database(frame, db_path, table, if_exists='replace',
+                       canonicalise=False)
+        matched = int(frame['prcfo'].notna().sum())
+        counts[table] = len(frame)
+        print(f"CellProfiler: {len(frame)} {frame['cp_object'].iat[0]} "
+              f"object(s), {matched} matched to spaCR "
+              f"{frame['object_type'].iat[0]} objects, in "
+              f"measurements.db:{table}.")
+    if not tables:
+        print("CellProfiler: the pipeline measured no objects spaCR could "
+              "import.")
+    return counts
+
+
+def _run_bleach_correction_step(db_path, settings):
+    """Correct a timelapse run's intensities for photobleaching and say where.
+
+    Runs :func:`spacr.timelapse._correct_timelapse_bleaching` with the
+    ``bleach_correction`` method. A failure is reported and does not fail
+    the run: the measured tables are already written and are not changed.
+    With ``histogram``, series whose trend rises more than 10% above its
+    first timepoint are reported, since matching removes that rise too.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-field, per-channel fits, or None when the step failed.
+    """
+    from .timelapse import _correct_timelapse_bleaching
+
+    method = settings.get('bleach_correction')
+    try:
+        fits = _correct_timelapse_bleaching(db_path, method, plot=True)
+    except Exception as exc:
+        print(f"Bleach correction could not be applied: {exc}")
+        return None
+    tables = sorted(fits['object_type'].unique())
+    print(f"Bleach correction ({method}): {len(fits)} field-channel series in "
+          f"{', '.join(f'{t}_bleach_corrected' for t in tables)}; fits in "
+          f"measurements.db:bleach_correction")
+    rising = fits['trend_peak_rise'] > 0.1 if 'trend_peak_rise' in fits else pd.Series([], dtype=bool)
+    if method == 'histogram' and rising.any():
+        print(f"Bleach correction: {int(rising.sum())} of {len(fits)} series "
+              f"brighten by more than 10% at some point, which bleaching "
+              f"cannot do; histogram matching maps that rise away with the "
+              f"decay, so compare intensities after ratio or exponential.")
+    return fits
+
+
+def _run_cell_cycle_step(db_path, settings):
+    """Call cell-cycle phases at the end of a Measure run and say where.
+
+    A failure is reported and does not fail the run: the measurements are
+    already in the database, and the phases can be called again from it.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the per-nucleus table, or None when the step failed.
+    """
+    try:
+        table, report = _classify_cell_cycle(db_path, settings)
+    except Exception as exc:                                 # noqa: BLE001
+        print(f"Cell-cycle phases could not be called: {exc}")
+        return None
+    shares = table['cell_cycle_phase'].value_counts(normalize=True)
+    print(f"Cell cycle ({', '.join(report['methods'])}): {len(table)} nuclei "
+          f"in measurements.db:{_CELL_CYCLE_TABLE}; "
+          + ', '.join(f'{p} {shares.get(p, 0):.0%}'
+                      for p in _CELL_CYCLE_PHASES))
+    return table
+
+
+_TTE_TABLE = 'time_to_event'
+_TTE_CURVES_TABLE = 'time_to_event_curves'
+_TTE_SUMMARY_TABLE = 'time_to_event_summary'
+_TTE_TESTS_TABLE = 'time_to_event_tests'
+_TTE_COX_TABLE = 'time_to_event_cox'
+_TTE_MODES = ('track_end', 'annotated', 'above', 'below', 'fold_change')
+_TTE_ORIGINS = ('track', 'movie')
+_TTE_FIELD_KEYS = ('plateID', 'rowID', 'columnID', 'fieldID')
+_TTE_TRACK_KEYS = _TTE_FIELD_KEYS + ('object_label',)
+_TTE_OBJECT_TABLES = ('cell', 'nucleus', 'pathogen', 'cytoplasm')
+_TTE_GROUP_WORDS = ('well', 'plate', 'row', 'column', 'field')
+_TTE_FIGURE_GROUPS = 12
+
+
+def _tte_list(value):
+    """A list setting that may arrive as a list, a string or nothing.
+
+    :param value: the stored value.
+    :returns: a list of non-empty stripped strings.
+    """
+    if value is None:
+        return []
+    if isinstance(value, str):
+        value = value.split(',')
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _tte_frame_numbers(values):
+    """Frame numbers from ``timeID`` values such as ``t4``, ``t04`` or ``4``.
+
+    :param values: the ``timeID`` column.
+    :returns: a float array, NaN where no number ends the value.
+    """
+    text = pd.Series(list(values), dtype=object).astype(str).str.extract(
+        r'(-?\d+(?:\.\d+)?)\s*$')[0]
+    return pd.to_numeric(text, errors='coerce').to_numpy(dtype=float)
+
+
+def _tte_settings(settings):
+    """The time-to-event settings, validated and in the types they are used.
+
+    :param settings: Measure settings.
+    :returns: the twelve ``time_to_event_*`` settings other than the
+        switch, blanks resolved, numbers typed and lists split.
+    :raises ValueError: an unknown mode or origin, or a mode used without
+        the column or threshold it reads.
+    """
+    mode = str(settings.get('time_to_event_mode') or 'track_end')
+    origin = str(settings.get('time_to_event_origin') or 'track')
+    if mode not in _TTE_MODES:
+        raise ValueError(f"Setting: time_to_event_mode is {mode!r}; choose "
+                         f"one of {', '.join(_TTE_MODES)}.")
+    if origin not in _TTE_ORIGINS:
+        raise ValueError(f"Setting: time_to_event_origin is {origin!r}; "
+                         f"choose track or movie.")
+    column = str(settings.get('time_to_event_column') or '').strip()
+    threshold = settings.get('time_to_event_threshold')
+    threshold = None if threshold in (None, '') else float(threshold)
+    if mode != 'track_end' and not column:
+        raise ValueError(f"Setting: time_to_event_mode {mode} reads a "
+                         f"measurement; name it in time_to_event_column.")
+    if mode in ('above', 'below', 'fold_change') and threshold is None:
+        raise ValueError(f"Setting: time_to_event_mode {mode} needs "
+                         f"time_to_event_threshold.")
+    hours = settings.get('time_to_event_hours_per_frame')
+    hours = None if hours in (None, '') else float(hours)
+    if hours is not None and not hours > 0:
+        raise ValueError("Setting: time_to_event_hours_per_frame must be "
+                         "positive, or blank to count frames.")
+    return {
+        'time_to_event_object': str(settings.get('time_to_event_object')
+                                    or 'cell'),
+        'time_to_event_mode': mode, 'time_to_event_column': column,
+        'time_to_event_threshold': threshold,
+        'time_to_event_persist': max(
+            1, int(settings.get('time_to_event_persist') or 1)),
+        'time_to_event_origin': origin,
+        'time_to_event_min_frames': max(
+            1, int(settings.get('time_to_event_min_frames') or 1)),
+        'time_to_event_hours_per_frame': hours,
+        'time_to_event_group': str(settings.get('time_to_event_group')
+                                   or 'well').strip(),
+        'time_to_event_conditions': _tte_list(
+            settings.get('time_to_event_conditions')),
+        'time_to_event_reference': str(settings.get(
+            'time_to_event_reference') or '').strip(),
+        'time_to_event_covariates': _tte_list(
+            settings.get('time_to_event_covariates')),
+    }
+
+
+def _read_time_to_event_inputs(db_path, config):
+    """The tracked objects and each field's frames, read from the database.
+
+    Only the columns the analysis uses are read. A ``time_to_event_column``
+    that is not on the object table is looked up on ``png_list``, where
+    Annotate keeps its labels, and joined to each object in each frame
+    through its ``prcfo``. A field's frames are every frame any object table
+    has a row for, so a movie whose last frames lost every object of one
+    kind still ends where it ends.
+
+    :param db_path: the ``measurements.db``.
+    :param config: from :func:`_tte_settings`.
+    :returns: ``(frame, movies)``: the object rows, and a dict from field key
+        to the sorted array of its frame numbers.
+    :raises ValueError: a missing table or column, or a table measured
+        without time.
+    """
+    from . import schema
+    from .database_concurrency import connect
+    from .tabular import (_quote_identifier, _read_query, database_tables,
+                          table_columns)
+
+    table = config['time_to_event_object']
+    tables = database_tables(db_path)
+    if table not in tables:
+        raise ValueError(
+            f"{db_path} has no {table} table; set time_to_event_object to "
+            f"one of {', '.join(t for t in _TTE_OBJECT_TABLES if t in tables)}.")
+    columns = set(table_columns(db_path, table=table, canonicalise=False))
+    missing = [key for key in (*_TTE_TRACK_KEYS, 'timeID')
+               if key not in columns]
+    if missing:
+        raise ValueError(
+            f"measurements.db:{table} has no {', '.join(missing)}; time to "
+            f"event reads tracked objects over time, so measure a timelapse "
+            f"with timelapse on.")
+    wanted = [*_TTE_TRACK_KEYS, 'timeID']
+    wanted += [c for c in ('prcf',) if c in columns]
+    extra = list(config['time_to_event_covariates'])
+    if config['time_to_event_group'] not in _TTE_GROUP_WORDS and not config['time_to_event_conditions']:
+        extra.append(config['time_to_event_group'])
+    for name in extra:
+        if name not in columns:
+            raise ValueError(f"measurements.db:{table} has no column "
+                             f"{name!r} to group or adjust by.")
+    column = config['time_to_event_column']
+    from_crops = bool(column) and column not in columns
+    if column and not from_crops:
+        extra.append(column)
+    wanted += [c for c in dict.fromkeys(extra) if c not in wanted]
+    conn = connect(db_path, readonly=True)
+    try:
+        frame = _read_query(conn, "SELECT {} FROM {}".format(
+            ', '.join(_quote_identifier(c) for c in wanted),
+            _quote_identifier(table)), report=None)
+        if from_crops:
+            crop_columns = (table_columns(db_path, table='png_list',
+                                          canonicalise=False)
+                            if 'png_list' in tables else ())
+            if column not in crop_columns or 'prcf' not in frame.columns:
+                raise ValueError(
+                    f"Setting: time_to_event_column names {column!r}, which "
+                    f"is neither a column of measurements.db:{table} nor an "
+                    f"Annotate column of png_list.")
+            crops = _read_query(conn, "SELECT prcfo, {} FROM png_list".format(
+                _quote_identifier(column)), report=None)
+            labels = dict(zip(crops['prcfo'].astype(str), crops[column]))
+            keys = [f"{p}_{schema.object_id(int(o))}"
+                    for p, o in zip(frame['prcf'], frame['object_label'])]
+            frame[column] = [labels.get(k) for k in keys]
+        pieces = []
+        for name in dict.fromkeys((table, *_TTE_OBJECT_TABLES)):
+            if name in tables and {*_TTE_FIELD_KEYS, 'timeID'} <= set(
+                    table_columns(db_path, table=name, canonicalise=False)):
+                pieces.append(_read_query(
+                    conn, "SELECT DISTINCT {} FROM {}".format(
+                        ', '.join(_quote_identifier(c) for c in
+                                  (*_TTE_FIELD_KEYS, 'timeID')),
+                        _quote_identifier(name)), report=None))
+    finally:
+        conn.close()
+    fields = pd.concat(pieces, ignore_index=True)
+    fields['frame'] = _tte_frame_numbers(fields['timeID'])
+    movies = {tuple(str(v) for v in key): np.unique(
+        group['frame'].dropna().to_numpy())
+        for key, group in fields.groupby(list(_TTE_FIELD_KEYS))}
+    return frame, movies
+
+
+def _tte_flags(values, mode, threshold, baseline=None):
+    """Which frames of one track show the event.
+
+    :param values: the track's ``time_to_event_column``, frame by frame.
+    :param mode: ``annotated``, ``above``, ``below`` or ``fold_change``.
+    :param threshold: the cut; for ``annotated`` the label value that marks
+        the event, or None for any non-zero label.
+    :param baseline: the track's first value, for ``fold_change``.
+    :returns: a boolean array.
+    """
+    raw = pd.Series(list(values), dtype=object)
+    numbers = pd.to_numeric(raw, errors='coerce')
+    if mode == 'annotated':
+        if threshold is not None:
+            return (numbers == threshold).to_numpy()
+        text = raw.astype(str).str.strip().str.lower()
+        empty = raw.isna() | text.isin(('', '0', '0.0', 'false', 'none',
+                                        'nan'))
+        return (~empty).to_numpy()
+    if mode == 'above':
+        return (numbers >= threshold).to_numpy()
+    if mode == 'below':
+        return (numbers <= threshold).to_numpy()
+    return (numbers >= threshold * baseline).to_numpy()
+
+
+def _tte_first_run(flags, persist):
+    """The row where ``persist`` flagged rows in a row first begin.
+
+    :param flags: one boolean per observed frame of a track.
+    :param persist: how many consecutive rows the event must hold for.
+    :returns: the row index, or None when no run is long enough.
+    """
+    count = 0
+    for index, flag in enumerate(flags):
+        count = count + 1 if flag else 0
+        if count >= persist:
+            return index - persist + 1
+    return None
+
+
+def _time_to_event_objects(frame, config, movies=None):
+    """One row per tracked object: its time to the event or to censoring.
+
+    A track is the rows of one ``object_label`` in one field, ordered by
+    frame. The event is the first frame the track shows it for
+    ``time_to_event_persist`` consecutive observed frames, by
+    ``time_to_event_mode``: ``annotated`` a non-zero label (or the label
+    equal to the threshold), ``above`` and ``below`` the measurement at or
+    past the threshold, ``fold_change`` the measurement at least the
+    threshold times its value in the track's first frame, and
+    ``track_end`` the object disappearing: the event is the first frame of
+    the movie after the track's last one. A track without the event is
+    right-censored at its last frame, which is the end of the movie or the
+    point the tracker lost it.
+
+    Time runs from the track's first frame when ``time_to_event_origin`` is
+    ``track``, or from the first frame of the movie when it is ``movie``,
+    which keeps only the objects present in that first frame. An object
+    that already shows the event in its first frame has no time to it and
+    is left out, as are tracks shorter than ``time_to_event_min_frames``
+    and, for ``fold_change``, tracks without a positive first value. The
+    first-frame value of every covariate is kept, measured before anything
+    could happen.
+
+    :param frame: object rows with the track keys, ``timeID`` and the
+        columns ``config`` names.
+    :param config: from :func:`_tte_settings`.
+    :param movies: field key to its frame numbers; taken from ``frame``
+        when None.
+    :returns: ``(objects, dropped)``: the per-object frame and a dict
+        counting the tracks left out, by reason.
+    """
+    frame = frame.copy()
+    frame['frame'] = _tte_frame_numbers(frame['timeID'])
+    frame = frame[np.isfinite(frame['frame'])]
+    for key in _TTE_FIELD_KEYS:
+        frame[key] = frame[key].astype(str)
+    frame = frame.sort_values([*_TTE_TRACK_KEYS, 'frame'], kind='stable')
+    if movies is None:
+        movies = {key: np.unique(group['frame'].to_numpy())
+                  for key, group in frame.groupby(list(_TTE_FIELD_KEYS))}
+    mode = config['time_to_event_mode']
+    column = config['time_to_event_column']
+    threshold = config['time_to_event_threshold']
+    kept = list(config['time_to_event_covariates'])
+    if config['time_to_event_group'] not in _TTE_GROUP_WORDS and not config['time_to_event_conditions']:
+        kept.append(config['time_to_event_group'])
+    kept = list(dict.fromkeys(kept))
+    dropped = {'short': 0, 'late': 0, 'at_first_frame': 0, 'no_baseline': 0}
+    rows = []
+    for key, track in frame.groupby(list(_TTE_TRACK_KEYS), sort=False):
+        frames = track['frame'].to_numpy(dtype=float)
+        movie = np.asarray(movies.get(tuple(str(v) for v in key[:4]), frames),
+                           dtype=float)
+        start, end = float(min(movie.min(), frames[0])), float(
+            max(movie.max(), frames[-1]))
+        if frames.size < config['time_to_event_min_frames']:
+            dropped['short'] += 1
+            continue
+        if config['time_to_event_origin'] == 'movie' and frames[0] > start:
+            dropped['late'] += 1
+            continue
+        origin = frames[0] if config['time_to_event_origin'] == 'track' else start
+        event_frame = None
+        if mode == 'track_end':
+            later = movie[movie > frames[-1]]
+            if later.size:
+                event_frame = float(later.min())
+        else:
+            values = track[column].to_numpy()
+            baseline = None
+            if mode == 'fold_change':
+                baseline = pd.to_numeric(pd.Series([values[0]]),
+                                         errors='coerce').iloc[0]
+                if not (np.isfinite(baseline) and baseline > 0):
+                    dropped['no_baseline'] += 1
+                    continue
+            run = _tte_first_run(
+                _tte_flags(values, mode, threshold, baseline),
+                config['time_to_event_persist'])
+            if run == 0:
+                dropped['at_first_frame'] += 1
+                continue
+            if run is not None:
+                event_frame = float(frames[run])
+        observed = event_frame is not None
+        stop = event_frame if observed else float(frames[-1])
+        row = dict(zip(_TTE_TRACK_KEYS, key))
+        row.update({
+            'first_frame': float(frames[0]), 'last_frame': float(frames[-1]),
+            'n_frames': int(frames.size), 'origin_frame': float(origin),
+            'event': int(observed),
+            'event_frame': event_frame if observed else np.nan,
+            'duration_frames': stop - float(origin),
+            'censored_at': ('' if observed else
+                            'movie_end' if frames[-1] >= end
+                            else 'track_lost')})
+        for name in kept:
+            row[name] = track[name].iloc[0]
+        rows.append(row)
+    objects = pd.DataFrame(rows)
+    if objects.empty:
+        return objects, dropped
+    hours = config['time_to_event_hours_per_frame']
+    objects['duration'] = objects['duration_frames'] * (hours or 1.0)
+    objects['time_unit'] = 'h' if hours else 'frames'
+    objects['event_mode'] = mode
+    return objects, dropped
+
+
+def _tte_wells(objects):
+    """The composed well key of each object.
+
+    :param objects: rows with ``plateID``, ``rowID`` and ``columnID``.
+    :returns: a Series of well keys.
+    """
+    from . import schema
+
+    return pd.Series(list(schema.compose_prc_column(objects)),
+                     index=objects.index, dtype=object)
+
+
+def _time_to_event_groups(objects, config):
+    """Assign each object the condition it is compared in.
+
+    ``time_to_event_conditions`` entries ``name=wells`` name the wells of
+    each condition in the plate-map notation (``c1,c2``, ``r1``, ``A01``);
+    objects in wells no condition names are left out. Without them, objects
+    are grouped by ``time_to_event_group``: ``well``, ``plate``, ``row``,
+    ``column``, ``field``, or a column of the object table read at the
+    track's first frame.
+
+    :param objects: from :func:`_time_to_event_objects`.
+    :param config: from :func:`_tte_settings`.
+    :returns: ``(objects, order)``: the objects with ``condition`` and
+        ``well`` columns, and the conditions with the reference first.
+    :raises ValueError: a malformed condition, or a reference that is not
+        one of the conditions.
+    """
+    from . import well_spec
+
+    objects = objects.copy()
+    objects['well'] = _tte_wells(objects)
+    group = config['time_to_event_group']
+    if config['time_to_event_conditions']:
+        rows = pd.to_numeric(objects['rowID'].astype(str).str.extract(
+            r'(\d+)\s*$')[0], errors='coerce')
+        cols = pd.to_numeric(objects['columnID'].astype(str).str.extract(
+            r'(\d+)\s*$')[0], errors='coerce')
+        condition = pd.Series(None, index=objects.index, dtype=object)
+        order = []
+        for entry in config['time_to_event_conditions']:
+            name, sep, spec = entry.partition('=')
+            if not sep or not name.strip() or not spec.strip():
+                raise ValueError(
+                    f"Setting: time_to_event_conditions entry {entry!r} is "
+                    f"not name=wells, for example control=c1,c2.")
+            wells = well_spec.parse(spec, layout=1536)
+            hit = [(r, c) in wells if pd.notna(r) and pd.notna(c) else False
+                   for r, c in zip(rows, cols)]
+            condition = condition.where(
+                condition.notna() | ~pd.Series(hit, index=objects.index),
+                name.strip())
+            order.append(name.strip())
+        objects['condition'] = condition
+        objects = objects[objects['condition'].notna()].copy()
+    elif group == 'well':
+        objects['condition'] = objects['well']
+    elif group == 'plate':
+        objects['condition'] = objects['plateID'].astype(str)
+    elif group == 'row':
+        objects['condition'] = objects['rowID'].astype(str)
+    elif group == 'column':
+        objects['condition'] = objects['columnID'].astype(str)
+    elif group == 'field':
+        objects['condition'] = (objects['well'] + '_'
+                                + objects['fieldID'].astype(str))
+    else:
+        objects['condition'] = objects[group].astype(str)
+    present = [str(c) for c in pd.unique(objects['condition'])]
+    if config['time_to_event_conditions']:
+        order = [c for c in dict.fromkeys(order) if c in present]
+    else:
+        order = sorted(present)
+    reference = config['time_to_event_reference']
+    if reference:
+        if reference not in order:
+            raise ValueError(
+                f"Setting: time_to_event_reference {reference!r} is not one "
+                f"of the conditions ({', '.join(order)}).")
+        order = [reference] + [c for c in order if c != reference]
+    return objects, order
+
+
+def _time_to_event_statistics(objects, order, config, *, engine=None):
+    """Kaplan-Meier curves, medians, log-rank tests and a Cox model.
+
+    :param objects: from :func:`_time_to_event_groups`.
+    :param order: the conditions, reference first.
+    :param config: from :func:`_tte_settings`.
+    :param engine: see :func:`spacr.sp_stats._survival_engine`.
+    :returns: a dict of frames: ``curves`` (one Kaplan-Meier curve per
+        condition), ``summary`` (events, censoring and the median with its
+        interval per condition and per well), ``tests`` (the log-rank test
+        across every condition and each condition against the reference,
+        Benjamini-Hochberg adjusted) and ``cox`` (hazard ratios of each
+        condition against the reference and per unit of each covariate),
+        plus ``engine`` and ``cox_error``, why no Cox model was fitted.
+    """
+    from .multiple_testing import adjust_p_values
+    from .sp_stats import (_cox_regression, _kaplan_meier, _logrank,
+                           _median_survival, _survival_engine)
+
+    engine = _survival_engine(engine)
+    unit = str(objects['time_unit'].iloc[0])
+    curves, summary = [], []
+    for level, key in (('condition', 'condition'), ('well', 'well')):
+        for name, group in objects.groupby(key, sort=False):
+            curve = _kaplan_meier(group['duration'], group['event'],
+                                  engine=engine)
+            median, low, high = _median_survival(curve)
+            record = {'level': level, 'group': str(name),
+                      'condition': (str(name) if level == 'condition' else
+                                    '|'.join(sorted(map(str, pd.unique(
+                                        group['condition']))))),
+                      'n': int(len(group)),
+                      'events': int(group['event'].sum()),
+                      'censored': int((group['event'] == 0).sum()),
+                      'median': median, 'median_lower': low,
+                      'median_upper': high,
+                      'median_reached': int(np.isfinite(median)),
+                      'time_unit': unit, 'engine': engine}
+            summary.append(record)
+            if level == 'condition':
+                curves.append(curve.assign(condition=str(name),
+                                           time_unit=unit, engine=engine))
+    order_index = {name: i for i, name in enumerate(order)}
+    curves = sorted(curves, key=lambda c: order_index.get(
+        c['condition'].iloc[0], len(order)))
+    curves = pd.concat(curves, ignore_index=True)
+    summary = pd.DataFrame(summary)
+    tests = []
+    if len(order) > 1:
+        overall = _logrank(objects['duration'], objects['event'],
+                           objects['condition'], engine=engine)
+        tests.append({'comparison': 'all conditions', 'condition': 'all',
+                      'reference': '', 'statistic': overall['statistic'],
+                      'df': overall['df'], 'p_value': overall['p_value'],
+                      'n': int(len(objects))})
+        pairs = []
+        for name in order[1:]:
+            both = objects[objects['condition'].isin([order[0], name])]
+            result = _logrank(both['duration'], both['event'],
+                              both['condition'], engine=engine)
+            pairs.append({'comparison': f'{name} vs {order[0]}',
+                          'condition': name, 'reference': order[0],
+                          'statistic': result['statistic'],
+                          'df': result['df'], 'p_value': result['p_value'],
+                          'n': int(len(both))})
+        adjusted, _ = adjust_p_values([p['p_value'] for p in pairs],
+                                      method='fdr_bh')
+        for pair, value in zip(pairs, adjusted):
+            pair['p_adjusted'] = float(value)
+        tests.extend(pairs)
+    tests = pd.DataFrame(tests)
+    if not tests.empty:
+        tests['test'] = 'log-rank'
+        tests['engine'] = engine
+    cox, cox_error = pd.DataFrame(), ''
+    indicators = [f'condition={name}' for name in order[1:]]
+    covariates = indicators + list(config['time_to_event_covariates'])
+    if covariates:
+        data = objects[['duration', 'event']].copy()
+        for name, column in zip(order[1:], indicators):
+            data[column] = (objects['condition'] == name).astype(float)
+        for name in config['time_to_event_covariates']:
+            data[name] = pd.to_numeric(objects[name], errors='coerce')
+        data = data[np.isfinite(data.to_numpy(dtype=float)).all(axis=1)]
+        try:
+            cox, model = _cox_regression(data, 'duration', 'event',
+                                         covariates, engine=engine)
+        except Exception as exc:
+            cox_error = f"{type(exc).__name__}: {exc}"
+            cox = pd.DataFrame()
+        else:
+            cox['reference'] = [order[0] if c in indicators else ''
+                                for c in covariates]
+            for key, value in model.items():
+                cox[key] = value
+            cox['time_unit'] = unit
+    return {'curves': curves, 'summary': summary, 'tests': tests,
+            'cox': cox, 'engine': engine, 'cox_error': cox_error}
+
+
+def _time_to_event_figure(curves, summary, tests, title):
+    """Kaplan-Meier curves with their confidence bands and censoring ticks.
+
+    :param curves: the ``curves`` frame of
+        :func:`_time_to_event_statistics`, conditions in legend order.
+    :param summary: its ``summary`` frame, for the legend counts.
+    :param tests: its ``tests`` frame, for the log-rank p in the title.
+    :param title: the figure title.
+    :returns: the figure.
+    """
+    names = list(pd.unique(curves['condition']))
+    shown = names[:_TTE_FIGURE_GROUPS]
+    counts = summary[summary['level'] == 'condition'].set_index('group')
+    unit = str(curves['time_unit'].iloc[0])
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(7, 4.5))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, curves, x="time", y="survival", hue="condition", kind="line", time_unit=unit)
+        for name in shown:
+            curve = curves[curves['condition'] == name]
+            row = counts.loc[name]
+            line, = ax.step(curve['time'], curve['survival'], where='post',
+                            label=f"{name} (n={int(row['n'])}, "
+                                  f"events={int(row['events'])})")
+            ax.fill_between(curve['time'], curve['ci_lower'],
+                            curve['ci_upper'], step='post', alpha=0.18,
+                            color=line.get_color(), linewidth=0)
+            ticks = curve[curve['censored'] > 0]
+            ax.plot(ticks['time'], ticks['survival'], linestyle='none',
+                    marker='|', markersize=7, color=line.get_color())
+        ax.set_ylim(0, 1.03)
+        ax.set_xlim(left=0)
+        ax.set_xlabel(f'time ({unit})')
+        ax.set_ylabel('fraction without the event')
+        if not tests.empty:
+            overall = tests.iloc[0]
+            title = (f"{title}; log-rank p = {overall['p_value']:.3g} "
+                     f"({len(names)} conditions)")
+        if len(shown) < len(names):
+            title += f"; first {len(shown)} shown"
+        ax.set_title(title)
+        ax.legend(frameon=False, fontsize=8)
+        fig.tight_layout()
+    return fig
+
+
+def _hazard_ratio_figure(cox, title):
+    """Hazard ratios with their intervals, on a log axis.
+
+    :param cox: the ``cox`` frame of :func:`_time_to_event_statistics`.
+    :param title: the figure title.
+    :returns: the figure.
+    """
+    from matplotlib.ticker import FuncFormatter
+
+    ordered = cox.iloc[::-1]
+    y = np.arange(len(ordered))
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(6, 1.6 + 0.45 * len(ordered)))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, ordered, y="hazard_ratio", kind="point")
+        ratio = ordered['hazard_ratio'].to_numpy()
+        ax.errorbar(ratio, y, xerr=[ratio - ordered['hr_lower'].to_numpy(),
+                                    ordered['hr_upper'].to_numpy() - ratio],
+                    fmt='o', capsize=3)
+        ax.axvline(1.0, linestyle='--', linewidth=1)
+        ax.set_xscale('log')
+        plain = FuncFormatter(lambda value, _position: f'{value:g}')
+        ax.xaxis.set_major_formatter(plain)
+        ax.xaxis.set_minor_formatter(plain)
+        ax.set_yticks(y)
+        ax.set_yticklabels(list(ordered['covariate']))
+        ax.set_ylim(-0.6, len(ordered) - 0.4)
+        ax.set_xlabel('hazard ratio (95% interval)')
+        ax.set_title(title)
+        fig.tight_layout()
+    return fig
+
+
+def _time_to_event(db_path, settings, *, plot=True, engine=None):
+    """Time to an event for every tracked object, compared across conditions.
+
+    Reads the tracked objects Measure wrote for a timelapse, finds each
+    one's event as :func:`_time_to_event_objects` describes, and writes to
+    the database ``time_to_event`` (one row per object: its duration, event
+    flag, censoring reason, condition and first-frame covariates),
+    ``time_to_event_curves`` (the Kaplan-Meier curve of each condition with
+    its 95% band), ``time_to_event_summary`` (events and the median time to
+    event with its interval, per condition and per well),
+    ``time_to_event_tests`` (log-rank tests) and ``time_to_event_cox``
+    (hazard ratios of each condition against the reference and per unit of
+    each covariate, from one Cox model). Objects of one well share that
+    well's conditions, so the tests treat objects as independent and are
+    optimistic when wells differ; compare medians across wells in the
+    summary before trusting a small p.
+
+    :param db_path: the ``measurements.db``.
+    :param settings: Measure settings with the ``time_to_event_*`` keys.
+    :param plot: save the Kaplan-Meier and hazard-ratio figures under
+        ``results/time_to_event``.
+    :param engine: see :func:`spacr.sp_stats._survival_engine`.
+    :returns: a dict with the frames written (``objects``, ``curves``,
+        ``summary``, ``tests``, ``cox``), ``dropped`` counts, ``engine``,
+        ``cox_error`` and the ``figures`` saved.
+    :raises ValueError: unusable settings, or no object left to analyse.
+    """
+    from .tabular import write_database
+
+    config = _tte_settings(settings)
+    frame, movies = _read_time_to_event_inputs(db_path, config)
+    objects, dropped = _time_to_event_objects(frame, config, movies)
+    if objects.empty:
+        raise ValueError(
+            f"no tracked {config['time_to_event_object']} could be followed to an event "
+            f"or to censoring; left out: "
+            + ', '.join(f'{k} {v}' for k, v in dropped.items()))
+    objects, order = _time_to_event_groups(objects, config)
+    if objects.empty:
+        raise ValueError("no tracked object is in a well that "
+                         "time_to_event_conditions names.")
+    result = _time_to_event_statistics(objects, order, config, engine=engine)
+    objects = objects.assign(engine=result['engine'])
+    write_database(objects, db_path, _TTE_TABLE, if_exists='replace',
+                   canonicalise=False)
+    for key, name in (('curves', _TTE_CURVES_TABLE),
+                      ('summary', _TTE_SUMMARY_TABLE),
+                      ('tests', _TTE_TESTS_TABLE), ('cox', _TTE_COX_TABLE)):
+        if not result[key].empty:
+            write_database(result[key], db_path, name, if_exists='replace',
+                           canonicalise=False)
+    figures = []
+    if plot:
+        from .plot import save_figure
+
+        root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
+        folder = os.path.join(root, 'results', 'time_to_event')
+        label = f"{config['time_to_event_object']}: {config['time_to_event_mode']}"
+        figures.append(save_figure(
+            _time_to_event_figure(result['curves'], result['summary'],
+                                  result['tests'], label),
+            os.path.join(folder, 'kaplan_meier.pdf'), close=True))
+        if not result['cox'].empty:
+            figures.append(save_figure(
+                _hazard_ratio_figure(result['cox'], label),
+                os.path.join(folder, 'hazard_ratios.pdf'), close=True))
+    return dict(result, objects=objects, dropped=dropped, figures=figures)
+
+
+def _run_time_to_event_step(db_path, settings):
+    """Run the time-to-event analysis at the end of a Measure run.
+
+    A failure is reported and does not fail the run: the measurements are
+    already in the database.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    :param settings: Measure settings.
+    :returns: the result of :func:`_time_to_event`, or None when it failed.
+    """
+    try:
+        result = _time_to_event(db_path, settings)
+    except Exception as exc:
+        print(f"Time to event could not be analysed: {exc}")
+        return None
+    objects = result['objects']
+    print(f"Time to event ({result['engine']}): {len(objects)} tracked "
+          f"objects, {int(objects['event'].sum())} events, in "
+          f"measurements.db:{_TTE_TABLE}, {_TTE_SUMMARY_TABLE}, "
+          f"{_TTE_TESTS_TABLE} and {_TTE_COX_TABLE}.")
+    if result['cox_error']:
+        print(f"Time to event: no Cox model ({result['cox_error']}).")
+    return result
+
+
+def _emit_infection_report(db_path):
+    """Write the infection report a finished run can support, if any.
+
+    Measure emits the report rather than a button producing it, so this
+    runs at the end of every complete run and says where it went.
+
+    A REPORT IS NOT WORTH A RUN. Everything here is inside a try: a plate
+    whose tables the metrics cannot read, a disk that refuses the file, or
+    a pandas that objects to something must not turn a measure run that
+    has already written its database into a failure.
+
+    :param db_path: the ``measurements.db`` the run produced.
+    """
+    if not db_path or not os.path.isfile(db_path):
+        return
+    try:
+        from .infection import write_infection_report
+
+        written = write_infection_report(db_path)
+    except Exception as exc:                                 # noqa: BLE001
+        print(f"The infection report could not be written: {exc}")
+        return
+    if written:
+        print(f"Infection report: {written}")
+
+
+def _emit_profiles(settings, db_path):
+    """Build the image-based profiles of a finished run, if it can.
+
+    Runs :func:`spacr.sp_stats._profile_measurements` on the run's
+    ``measurements.db`` and says where the profiles went and how many
+    treatments were phenotypically active. Like the infection report,
+    profiling never turns a run that has written its database into a
+    failure: anything that stops it is printed with the reason.
+
+    :param settings: the run's settings, with the ``profiling_*`` keys.
+    :param db_path: the ``measurements.db`` the run produced.
+    """
+    if not db_path or not os.path.isfile(db_path):
+        return
+    try:
+        from .sp_stats import _profile_measurements
+
+        result, written = _profile_measurements(settings, db_path)
+    except Exception as exc:
+        print(f"Profiles could not be built: {exc}")
+        return
+    summary = result.summary()
+    print(f"Profiles: {summary['wells']} wells, {summary['treatments']} "
+          f"treatments, {summary['kept_features']} of "
+          f"{summary['features']} features kept")
+    if summary['treatments_scored']:
+        print(f"Profiles: {summary['phenotypically_active']} of "
+              f"{summary['treatments_scored']} treatments phenotypically "
+              f"active (mean mAP {summary['mean_average_precision']:.3f})")
+    for note in summary['notes']:
+        print(f"Profiles: {note}")
+    folder = os.path.dirname(written.get('summary', '')) or db_path
+    print(f"Profiles written to {folder}")
+
+
+def process_measure_crop_results(partial_results, settings):
+    """Save and display figures carried by completed Measure jobs.
+
+    :param partial_results: Completed job tuples. ``None`` entries are skipped;
+        each figure is written below ``<src>/../results/`` and then closed.
+    :param settings: Resolved Measure settings. ``src`` identifies the output
+        root.
+    """
+    for result in partial_results:
+        if result is None:
+            continue
+        index, avg_time, cells, figs = result[:4]
+        if figs is not None:
+            for key, fig in figs.items():
+                part_1, part_2 = key.split('__')
+                save_dir = os.path.join(os.path.dirname(settings['src']), 'results', f"{part_1}")
+                os.makedirs(save_dir, exist_ok=True)
+                fig_path = os.path.join(save_dir, f"{part_2}.pdf")
+                from .plot import save_figure
+                fig_path = save_figure(fig, fig_path)
+                with figure_style(theme_target()):
+                    plt.figure(fig.number)
+                    _show_if_interactive()
+                    plt.close(fig)
+            result = (index, None, None, None)
+
+
+def process_meassure_crop_results(partial_results, settings):
+    """Deprecated alias for :func:`process_measure_crop_results`.
+
+    The misspelled name remains available for existing scripts and will be
+    removed in a future major release.
+
+    :param partial_results: Completed Measure job tuples, passed unchanged to
+        :func:`process_measure_crop_results` after a ``DeprecationWarning``.
+    :param settings: Resolved Measure settings, passed unchanged; ``src``
+        identifies the output root.
+    """
+    import warnings
+    warnings.warn(
+        "process_meassure_crop_results is deprecated; use "
+        "process_measure_crop_results",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return process_measure_crop_results(partial_results, settings)
+
+
+def generate_cellpose_train_set(folders, dst, min_objects=5):
+    """Copy image/mask pairs from source folders into a Cellpose training set.
+
+    Only pairs whose mask contains at least ``min_objects`` labeled objects
+    (background label 0 excluded) are copied. Files are renamed with their
+    source folder name as prefix to avoid collisions.
+
+    :param folders: Iterable of source folders, each containing a ``masks/``
+        subfolder and the raw images alongside it.
+    :param dst: Destination folder; ``imgs/`` and ``masks/`` subfolders are
+        created if missing.
+    :param min_objects: Minimum number of unique object labels required in a
+        mask for the pair to be included. Default ``5``.
+    :returns: The finalized :class:`spacr.errors.RunLedger`. Unreadable masks
+        and failed copies are recorded on it, and the ledger prints a summary
+        of them at the end, so a training set with missing pairs is
+        reported.
+    """
+    os.makedirs(dst, exist_ok=True)
+    os.makedirs(os.path.join(dst,'masks'), exist_ok=True)
+    os.makedirs(os.path.join(dst,'imgs'), exist_ok=True)
+
+    from .io import _listdir_visible
+
+    ledger = RunLedger('generate_cellpose_train_set')
+    for folder in folders:
+        mask_folder = os.path.join(folder, 'masks')
+        experiment_id = os.path.basename(folder)
+        for filename in _listdir_visible(mask_folder):
+            path = os.path.join(mask_folder, filename)
+            img_path = os.path.join(folder, filename)
+            newname = experiment_id + '_' + filename
+            new_mask = os.path.join(dst, 'masks', newname)
+            new_img = os.path.join(dst, 'imgs', newname)
+
+            mask = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+            if mask is None:
+                ledger.record_failure(path, stage='read_mask',
+                                      exc='cv2.imread returned None')
+                print(f"Error reading {path}, skipping.")
+                continue
+
+            nr_of_objects = len(np.unique(mask)) - 1
+            if nr_of_objects >= min_objects:
+                with ledger.item(path, stage='copy_pair',
+                                 echo=f"Error copying {path} to {new_mask}"):
+                    shutil.copy(path, new_mask)
+                    shutil.copy(img_path, new_img)
+
+    ledger.finalize()
+    return ledger
+
+def get_object_counts(src):
+    """Return per-count-type totals and per-file averages from the measurements DB.
+
+    Reads the ``object_counts`` table from ``<src>/measurements/measurements.db``
+    and aggregates by ``count_type``.
+
+    :param src: Path to the run folder containing ``measurements/measurements.db``.
+    :returns: DataFrame with columns ``count_type``, ``total_object_count``, and
+        ``avg_object_count_per_file_name``.
+    """
+    database_path = os.path.join(src, 'measurements/measurements.db')
+    conn = sqlite3.connect(database_path, timeout=30)
+    df = pd.read_sql_query("SELECT * FROM object_counts", conn)
+    grouped_df = df.groupby('count_type').agg(
+        total_object_count=('object_count', 'sum'),
+        avg_object_count_per_file_name=('object_count', 'mean')
+    ).reset_index()
+    conn.close()
+    return grouped_df
+
+
+
+
+
+
+def _crop_full_scale(dtype):
+    """Return the value that means "full brightness" for ``dtype``.
+
+    An integer dtype has one: ``iinfo(dtype).max`` -- the same range
+    :func:`spacr.utils.normalize_to_dtype` stretches the pipeline's own crops
+    into, so a normalised crop from here and one from ``measure_crop`` are on
+    the same scale. A float array is taken on the ``[0, 1]`` image convention
+    (what ``spacr.io._normalize_img_batch`` writes).
+    """
+    dtype = np.dtype(dtype)
+    if np.issubdtype(dtype, np.integer):
+        return float(np.iinfo(dtype).max)
+    return 1.0
+
+
+def _normalize_crop(crop, percentiles, mask_background):
+    """Per-channel percentile stretch that KEEPS ``crop``'s dtype.
+
+    The stretch targets the dtype's full range (:func:`_crop_full_scale`), not
+    a hard-coded 0-255: normalising a ``uint16`` crop into 0-255 and storing it
+    back as ``uint16`` throws away 8 of the 16 bits before anything has asked
+    for an 8-bit image.
+
+    :param crop: ``(H, W, C)`` array in the working dtype.
+    :param percentiles: ``(low, high)`` percentiles, per channel.
+    :param mask_background: when True the background is already zeroed, so the
+        percentiles are taken over the object's pixels only.
+    :returns: array of the same shape and dtype.
+    """
+    arr = np.asarray(crop)
+    top = _crop_full_scale(arr.dtype)
+    out = np.zeros(arr.shape, dtype=np.float64)
+    for c in range(arr.shape[2]):
+        sl = arr[:, :, c].astype(np.float64)
+        nz = sl[sl > 0] if mask_background else sl
+        if nz.size:
+            lo, hi = np.percentile(nz, percentiles)
+            if hi > lo:
+                out[:, :, c] = np.clip((sl - lo) / (hi - lo), 0, 1) * top
+                continue
+        mx = sl.max()
+        out[:, :, c] = (sl / mx * top) if mx > 0 else sl
+    if np.issubdtype(arr.dtype, np.integer):
+        return np.rint(out).astype(arr.dtype)
+    return out.astype(arr.dtype)
+
+
+def _crop_to_uint8(crop):
+    """The declared 8-bit boundary for an object crop. Rescales, never truncates.
+
+    One rule per dtype, and every one of them is linear and maps 0 to 0, so
+    background stays background and relative intensity survives:
+
+    * ``uint8`` -- already 8-bit, returned unchanged.
+    * any wider integer -- :func:`spacr.crops.narrow_to_uint8`, i.e. the HIGH
+      BYTE of the 16-bit range. This is the narrowing rule the rest of spaCR
+      uses for crop PNGs, so a crop from here and one read back by
+      ``spacr.crops.read_crop_png`` agree. Raw 16-bit data comes out dark,
+      which is what raw 16-bit data looks like at 8 bits.
+    * float (and anything else) -- a float array carries no dtype range, so the
+      scale comes from the crop itself: ``0 .. max`` maps to ``0 .. 255``. A
+      normalised crop is already on ``[0, 1]`` (:func:`_crop_full_scale`) and
+      therefore simply multiplied by 255.
+
+    :param crop: ``(H, W, C)`` (or 2-D) array in the working dtype.
+    :returns: ``uint8`` array of the same shape.
+    """
+    arr = np.asarray(crop)
+    if arr.dtype == np.dtype(np.uint8):
+        return arr
+    if np.issubdtype(arr.dtype, np.integer):
+        return narrow_to_uint8(arr)
+    if arr.size == 0:
+        return arr.astype(np.uint8)
+    mx = float(np.nanmax(arr))
+    if not np.isfinite(mx) or mx <= 0:
+        return np.zeros(arr.shape, dtype=np.uint8)
+    scaled = np.clip(np.nan_to_num(arr, nan=0.0), 0, None) / mx * 255.0
+    return np.rint(scaled).astype(np.uint8)
+
+
+def _resolve_merged_path(path_name, merged_dir):
+    """Return the merged ``.npy`` a measurement row names, or ``None``.
+
+    ``spacr.utils._merge_and_save_to_database`` records ``path_name`` as
+    ``os.path.join(source_folder, file_name + '.npy')``, and ``source_folder``
+    in :func:`_measure_crop_core` is ``os.path.dirname(settings['src'])`` --
+    the *parent* of ``merged/``. So on every database spaCR has written, the
+    recorded path is ``<root>/<field>.npy`` while the array is at
+    ``<root>/merged/<field>.npy``: ``os.path.isfile(path_name)`` is False for
+    every row, and :func:`generate_object_dataset` skipped every object of
+    every real run while the hand-built databases in the tests (which record
+    the path the file is actually at) all passed.
+
+    Resolving on read rather than changing the writer is deliberate: it also
+    covers a database moved between machines, and it is the exact fallback
+    :meth:`spacr.crops.MergedCropSource._merged_path_for` already uses --
+    trust the recorded path when it exists, otherwise look for its basename in
+    this experiment's ``merged/`` folder.
+
+    :param path_name: the ``path_name`` column of a measurement row.
+    :param merged_dir: this experiment's ``merged/`` folder.
+    :returns: an existing path, or ``None`` when neither candidate exists.
+    """
+    if not path_name:
+        return None
+    path_name = str(path_name)
+    if os.path.isfile(path_name):
+        return path_name
+    candidate = os.path.join(merged_dir, os.path.basename(path_name))
+    return candidate if os.path.isfile(candidate) else None
+
+
+def _crop_channels(data, y0, y1, x0, x1, channels, region=None):
+    """Cut ``channels`` out of ``data[y0:y1, x0:x1]`` **without changing dtype**.
+
+    ``region`` (a boolean object mask over the same window) zeroes the
+    background. The old code cast to ``float32`` here and never came back,
+    which is what made the 8-bit clip downstream invisible.
+    """
+    crop = np.asarray(data)[y0:y1, x0:x1, :][:, :, list(channels)]
+    if region is None:
+        return np.ascontiguousarray(crop)
+    return np.where(region[:, :, None], crop, 0).astype(crop.dtype, copy=False)
+
+
+def generate_object_dataset(
+    src,
+    object_type='cell',
+    channels=(0, 1, 2),
+    min_area=None,
+    max_area=None,
+    columns=None,
+    rows=None,
+    fields=None,
+    plates=None,
+    where=None,
+    criteria=None,
+    output_dir=None,
+    png_size=(128, 128),
+    mask_background=True,
+    normalize=True,
+    percentiles=(1, 99),
+    buffer=10,
+    mask_dims=None,
+    save_png=True,
+    return_arrays=False,
+    limit=None,
+    db_path=None,
+    verbose=True,
+):
+    """Build an image dataset by cropping individual objects out of the merged
+    image+mask arrays, selected by measurement and/or metadata criteria.
+
+    spaCR's ``merged/`` arrays store the image channels first and then one
+    integer label-mask slice per object class (cell, nucleus, pathogen,
+    organelle). The measurements database records, for every object, its
+    integer ``object_label``, the merged ``.npy`` it came from (``path_name``),
+    its well/field metadata, and its features (e.g. ``cell_area``). This
+    function queries that database for the objects you want, then for each hit
+    slices the object out of its array using ``object_label`` and the class
+    mask, assembles the channels you ask for into an image, and saves a PNG.
+
+    Example — an RGB dataset from image channels 0, 2, 4 for cells larger than
+    10000 px² in columns 1 and 2::
+
+        generate_object_dataset(
+            "/data/plate1", object_type="cell",
+            channels=(0, 2, 4), min_area=10000, columns=[1, 2])
+
+    :param src: experiment root (the folder that holds ``merged/`` and
+        ``measurements/measurements.db``), or the ``merged`` folder itself.
+    :param object_type: which object table + mask slice to crop. With the
+        default ``mask_dims`` the accepted values are ``'cell'``,
+        ``'nucleus'``, ``'pathogen'`` and ``'organelle'``; any other value
+        (``'cytoplasm'`` included) raises ``ValueError`` unless ``mask_dims``
+        names its slice explicitly.
+    :param channels: image channel indices to include, in output order. Three
+        indices → an RGB image; one → greyscale; two → padded to RGB; more than
+        three → kept as an ``.npy`` array (and the first three saved as a PNG
+        preview when ``save_png``).
+    :param min_area: keep only objects with ``{object_type}_area`` > this.
+        In a database measured from 2-D fields that column is a px^2 area; in
+        one measured from 3-D volumes it is a volume, in voxels or um^3
+        according to the row's ``measurement_units``. This function crops 2-D
+        arrays only and refuses a volumetric one, so in practice the threshold
+        is always px^2 here -- but read the stamp before carrying a number
+        between databases.
+    :param max_area: keep only objects with ``{object_type}_area`` < this.
+    :param columns: list of plate column numbers to include (matched against
+        ``columnID`` as ``'c<N>'``). ``rows`` / ``fields`` / ``plates`` behave
+        the same for ``rowID`` (``'r<N>'``) / ``fieldID`` (``'f<N>'``) /
+        ``plateID`` (raw token).
+    :param where: raw SQL boolean fragment ANDed onto the query, for anything
+        the shortcuts don't cover (e.g. ``"cell_eccentricity < 0.8"``).
+    :param criteria: dict of ``{column: (op, value)}`` ANDed onto the query,
+        e.g. ``{"cell_area": (">", 10000), "columnID": ("in", ["c1", "c2"])}``.
+    :param output_dir: where PNGs (and any ``.npy`` for >3 channels) are
+        written; defaults to ``<root>/object_dataset/<object_type>``.
+    :param png_size: ``(width, height)`` the crop is resized to.
+    :param mask_background: zero out pixels outside the object (isolate it).
+    :param normalize: per-channel percentile-normalise before writing.
+    :param percentiles: ``(low, high)`` percentiles for normalisation.
+    :param buffer: pixels of padding around the object's bounding box.
+    :param mask_dims: dict mapping object type → its mask slice index. Defaults
+        to spaCR's layout ``{cell:4, nucleus:5, pathogen:6, organelle:7}`` (four
+        image channels). Override if your arrays have a different channel count.
+    :param save_png: write PNG files (set False to only collect arrays).
+    :param return_arrays: also return the cropped arrays in the manifest.
+    :param limit: cap the number of objects processed (handy for previews).
+    :param db_path: explicit path to ``measurements.db`` (else derived from src).
+    :param verbose: print a short progress summary.
+    :returns: a manifest ``list[dict]``; each entry has ``object_label``,
+        ``path_name``, ``plateID``/``rowID``/``columnID``/``fieldID``,
+        ``png_path`` (if saved) and ``array`` (if ``return_arrays``).
+
+    .. note::
+
+       **The crop keeps the merged array's dtype.** A ``uint16`` field gives
+       ``uint16`` crops, in the manifest and in the ``.npy`` written for more
+       than three channels; ``normalize`` stretches into that dtype's full
+       range, not into 0-255. The single narrowing to 8 bit happens in
+       :func:`_save_object_crop`, where PIL needs it, and it *rescales*
+       (:func:`_crop_to_uint8`).
+
+       It used to cast to ``float32``, normalise into 0-255 and then
+       ``np.clip(crop, 0, 255).astype(np.uint8)``. With ``normalize=False``
+       that clip hit every 16-bit pixel brighter than 255 -- i.e. the whole
+       object -- so the PNG written to disk was a solid white silhouette. The
+       datasets built from it were trained on saturated images and nothing
+       said so.
+    """
+    import os
+    import sqlite3
+    import numpy as np
+
+    root = os.path.abspath(src)
+    if os.path.basename(root.rstrip(os.sep)) == 'merged':
+        root = os.path.dirname(root.rstrip(os.sep))
+    if db_path is None:
+        db_path = os.path.join(root, 'measurements', 'measurements.db')
+    if not os.path.isfile(db_path):
+        raise FileNotFoundError(f"measurements database not found: {db_path}")
+
+    if mask_dims is None:
+        layout = read_merged_plane_layout(os.path.join(root, 'merged'))
+        mask_dims = dict((layout or {}).get('mask_dims') or DEFAULT_MASK_DIMS)
+    if object_type not in mask_dims:
+        raise ValueError(
+            f"no mask slice known for object_type={object_type!r}; "
+            f"pass mask_dims={{'{object_type}': <index>}}")
+    mask_dim = int(mask_dims[object_type])
+
+    channels = list(channels)
+    if output_dir is None:
+        output_dir = os.path.join(root, 'object_dataset', object_type)
+    if save_png or return_arrays:
+        os.makedirs(output_dir, exist_ok=True)
+    if save_png:
+        stamp_crop_folder(output_dir)
+
+    clauses, params = [], []
+    if min_area is not None:
+        clauses.append(f"{object_type}_area > ?"); params.append(float(min_area))
+    if max_area is not None:
+        clauses.append(f"{object_type}_area < ?"); params.append(float(max_area))
+
+    def _in(colname, values, prefix):
+        """An ``IN (...)`` clause and its parameters, built safely.
+
+        Values are passed as ``?`` placeholders rather than formatted into the
+        SQL, because they come from a settings file and a value containing a
+        quote would otherwise break or alter the query.
+        """
+        vals = [f"{prefix}{int(v)}" if prefix else str(v) for v in values]
+        placeholders = ",".join("?" for _ in vals)
+        clauses.append(f"{colname} IN ({placeholders})")
+        params.extend(vals)
+
+    if columns:
+        _in("columnID", columns, "c")
+    if rows:
+        _in("rowID", rows, "r")
+    if fields:
+        _in("fieldID", fields, "f")
+    if plates:
+        _in("plateID", plates, "")
+    if criteria:
+        for col, (op, val) in criteria.items():
+            if str(op).lower() == "in":
+                placeholders = ",".join("?" for _ in val)
+                clauses.append(f"{col} IN ({placeholders})")
+                params.extend(list(val))
+            else:
+                clauses.append(f"{col} {op} ?")
+                params.append(val)
+    if where:
+        clauses.append(f"({where})")
+
+    where_sql = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+    limit_sql = f" LIMIT {int(limit)}" if limit else ""
+    query = (
+        "SELECT object_label, path_name, plateID, rowID, columnID, fieldID "
+        f"FROM {object_type}{where_sql}{limit_sql}")
+
+    conn = sqlite3.connect(db_path, timeout=30)
+    try:
+        conn.row_factory = sqlite3.Row
+        selected = conn.execute(query, params).fetchall()
+    finally:
+        conn.close()
+
+    if verbose:
+        print(f"generate_object_dataset({object_type}): {len(selected)} "
+              f"objects match{where_sql or ' (no filter)'}")
+
+    manifest = []
+    _array_cache = {}
+    saved = 0
+    merged_dir = os.path.join(root, 'merged')
+    for row in selected:
+        path_name = row["path_name"]
+        label = int(row["object_label"])
+        if path_name not in _array_cache:
+            resolved = _resolve_merged_path(path_name, merged_dir)
+            if resolved is None:
+                if verbose:
+                    print(f"  missing array, skipping: {path_name}")
+                _array_cache[path_name] = None
+            else:
+                _array_cache[path_name] = np.load(resolved)
+        data = _array_cache[path_name]
+        if data is None:
+            continue
+        if data.ndim != 3:
+            raise ValueError(
+                f"generate_object_dataset crops 2-D merged arrays (Y, X, C); "
+                f"{path_name} has shape {data.shape}. Project the z-stack "
+                f"before building an object dataset.")
+        if mask_dim >= data.shape[2]:
+            raise IndexError(
+                f"mask_dim {mask_dim} out of range for array with "
+                f"{data.shape[2]} slices ({path_name})")
+
+        mask = data[:, :, mask_dim]
+        ys, xs = np.where(mask == label)
+        if ys.size == 0:
+            continue
+        y0 = max(0, ys.min() - buffer); y1 = min(mask.shape[0], ys.max() + 1 + buffer)
+        x0 = max(0, xs.min() - buffer); x1 = min(mask.shape[1], xs.max() + 1 + buffer)
+
+        region = (mask[y0:y1, x0:x1] == label) if mask_background else None
+        crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
+        if normalize:
+            crop = _normalize_crop(crop, percentiles, mask_background)
+
+        entry = {k: row[k] for k in
+                 ("object_label", "path_name", "plateID", "rowID",
+                  "columnID", "fieldID")}
+        base = (f"{row['plateID']}_{row['rowID']}_{row['columnID']}_"
+                f"{row['fieldID']}_obj{label}")
+
+        if return_arrays:
+            entry["array"] = crop
+
+        if save_png:
+            png_path = _save_object_crop(crop, channels, os.path.join(
+                output_dir, base + ".png"), png_size)
+            entry["png_path"] = png_path
+            saved += 1
+
+        manifest.append(entry)
+
+    if verbose and save_png:
+        print(f"generate_object_dataset({object_type}): wrote {saved} PNGs "
+              f"→ {output_dir}")
+    return manifest
+
+
+def _save_object_crop(crop, channels, png_path, png_size):
+    """Assemble ``crop`` (H, W, len(channels)) into an image and save it.
+
+    3 channels → RGB PNG; 1 → greyscale; 2 → padded to RGB; >3 → the raw array
+    is saved as ``.npy`` and the first three channels as a PNG preview. Returns
+    the path actually written.
+
+    **This is a declared 8-bit boundary.** PIL writes 8-bit PNGs here, so the
+    crop is narrowed by :func:`_crop_to_uint8` -- a linear rescale off the
+    dtype's range, not a clip at 255. The ``.npy`` written for a >3-channel
+    crop is *not* narrowed: it keeps the full working dtype, because it is
+    data, not a picture.
+    """
+    import os
+    import numpy as np
+    from PIL import Image
+
+    n = crop.shape[2]
+    if n > 3:
+        npy_path = os.path.splitext(png_path)[0] + ".npy"
+        np.save(npy_path, crop)
+        preview = _crop_to_uint8(crop[:, :, :3])
+        Image.fromarray(preview).resize(tuple(png_size)).save(png_path)
+        return npy_path
+    eight = _crop_to_uint8(crop)
+    if n == 1:
+        img = Image.fromarray(eight[:, :, 0], mode="L")
+    elif n == 2:
+        rgb = np.zeros((*eight.shape[:2], 3), dtype=np.uint8)
+        rgb[:, :, :2] = eight
+        img = Image.fromarray(rgb)
+    else:
+        img = Image.fromarray(eight)
+    img.resize(tuple(png_size)).save(png_path)
+    return png_path
+
+
+def _label_areas_and_boxes(mask):
+    """Every positive label's area and bounding box, in two passes over ``mask``.
+
+    The same answer as ``np.sum(mask == label)`` and ``np.where(mask == label)``
+    per label, without scanning the whole mask once per label: on a 2000 x 2000
+    field with a few hundred cells that loop was most of a Measure live preview
+    pass.
+
+    :param mask: 2-D label image.
+    :returns: ``(areas, boxes)``: ``(label, area)`` pairs in ascending label
+        order and :func:`scipy.ndimage.find_objects` slices indexed by
+        ``label - 1``; or ``None`` when ``mask`` is not a non-negative integer
+        image, which the per-label scan still handles.
+    """
+    if mask.size == 0 or not np.issubdtype(mask.dtype, np.integer):
+        return None
+    if np.issubdtype(mask.dtype, np.signedinteger) and int(mask.min()) < 0:
+        return None
+    top = int(mask.max())
+    if top <= 0:
+        return [], []
+    if top > 2 * mask.size:
+        return None
+    labels = np.ascontiguousarray(mask)
+    if labels.dtype == np.uint64:
+        labels = labels.astype(np.int64)
+    counts = np.bincount(labels.ravel(), minlength=top + 1)
+    present = np.flatnonzero(counts[1:]) + 1
+    areas = [(int(lbl), int(counts[lbl])) for lbl in present]
+    return areas, find_objects(labels)
+
+
+def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
+                            min_area=0, max_area=0, mask_background=True,
+                            normalize=True, percentiles=(1, 99), buffer=10,
+                            to_rgb=True, limit=None, size=None):
+    """Crop every object out of an in-memory merged image+mask array.
+
+    This is the no-database counterpart of :func:`generate_object_dataset`,
+    used by the Measure live preview to show what the crops will look like
+    before a run: it reads the object labels straight from a mask slice of a
+    single merged ``.npy`` and returns the cropped, normalised images.
+
+    :param data: merged array ``(H, W, C)`` — image channels then mask slices.
+    :param mask_dim: slice index of the object-class mask to crop by.
+    :param channels: image channel indices to assemble (order = RGB order).
+    :param min_area: smallest object area (px) to keep; ``0`` = no lower bound.
+    :param max_area: largest object area (px) to keep; ``0`` = no upper bound.
+    :param mask_background: zero pixels outside the object.
+    :param normalize: per-channel percentile-normalise each crop.
+    :param percentiles: ``(low, high)`` for normalisation.
+    :param buffer: padding (px) around each object's bounding box.
+    :param to_rgb: assemble the chosen channels into an HxWx3 uint8 image
+        (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels
+        **in the merged array's own dtype**.
+    :param limit: cap the number of objects returned.
+    :param size: ``(width, height)`` to resize every crop to, or ``None`` to
+        return each object's own bounding box. This is ``measure_crop``'s
+        ``png_size``, resized the same way the run resizes -- the same
+        ``PIL.Image.resize`` call at its default resampling -- because this
+        feeds the Measure preview, which shows what a run will write. With
+        ``None`` the preview shows bounding boxes, while a run writes crops of
+        ``png_size``.
+    :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
+        objects first.
+
+    .. note::
+
+       ``to_rgb=True`` is the one place this function leaves the working
+       dtype, because a GUI image is 8-bit. It narrows with
+       :func:`_crop_to_uint8` (a rescale off the dtype range), not with a clip
+       at 255 -- a clip made every pixel of an unnormalised 16-bit object come
+       back as pure white, so the preview showed a white blob and the run it
+       was previewing did not.
+    """
+    import numpy as np
+
+    channels = list(channels)
+    mask = data[:, :, int(mask_dim)]
+    counted = _label_areas_and_boxes(mask)
+    if counted is None:
+        labels = np.unique(mask)
+        labels = labels[labels > 0]
+        areas = [(int(lbl), int(np.sum(mask == lbl))) for lbl in labels]
+        boxes = None
+    else:
+        areas, boxes = counted
+
+    scored = []
+    for lbl, area in areas:
+        if min_area and area < min_area:
+            continue
+        if max_area and area > max_area:
+            continue
+        scored.append((area, lbl))
+    scored.sort(reverse=True)
+    if limit:
+        scored = scored[:int(limit)]
+
+    out = []
+    for area, lbl in scored:
+        if boxes is None:
+            ys, xs = np.where(mask == lbl)
+            top, bottom = int(ys.min()), int(ys.max()) + 1
+            left, right = int(xs.min()), int(xs.max()) + 1
+        else:
+            rows, cols = boxes[lbl - 1]
+            top, bottom, left, right = rows.start, rows.stop, cols.start, cols.stop
+        y0 = max(0, top - buffer); y1 = min(mask.shape[0], bottom + buffer)
+        x0 = max(0, left - buffer); x1 = min(mask.shape[1], right + buffer)
+
+        region = (mask[y0:y1, x0:x1] == lbl) if mask_background else None
+        crop = _crop_channels(data, y0, y1, x0, x1, channels, region)
+        if normalize:
+            crop = _normalize_crop(crop, percentiles, mask_background)
+
+        if to_rgb:
+            crop = _crop_to_uint8(crop)
+            n = crop.shape[2]
+            if n == 1:
+                crop = np.repeat(crop, 3, axis=2)
+            elif n == 2:
+                rgb = np.zeros((*crop.shape[:2], 3), dtype=np.uint8)
+                rgb[:, :, :2] = crop
+                crop = rgb
+            elif n > 3:
+                crop = np.ascontiguousarray(crop[:, :, :3])
+
+        if size is not None:
+            crop = _resize_crop_like_the_run(crop, size)
+
+        out.append({"label": lbl, "area": area,
+                    "bbox": (int(y0), int(y1), int(x0), int(x1)), "crop": crop})
+    return out
+
+
+def _resize_crop_like_the_run(crop, size):
+    """Resize one crop to ``size`` the way a real run does.
+
+    :param crop: the crop, ``HxWxC`` (or ``HxW``) in any dtype.
+    :param size: ``(width, height)``.
+    :returns: the resized crop, in the dtype it arrived in.
+
+    A run resizes at save time with ``Image.fromarray(...).resize(png_size)``
+    and nothing else, so the preview makes the same call with the same default
+    resampling. An 8-bit RGB crop goes through PIL whole; anything else goes
+    plane by plane through PIL's 32-bit float mode and is cast back, because
+    ``Image.fromarray`` refuses most multi-channel non-8-bit arrays and a
+    preview that raised here would show nothing at all.
+    """
+    import numpy as np
+    from PIL import Image
+
+    width, height = int(size[0]), int(size[1])
+    if width <= 0 or height <= 0:
+        return crop
+    if crop.ndim == 3 and crop.shape[2] == 3 and crop.dtype == np.uint8:
+        return np.asarray(Image.fromarray(crop).resize((width, height)))
+    planes = ([crop] if crop.ndim == 2
+              else [crop[:, :, i] for i in range(crop.shape[2])])
+    resized = [
+        np.asarray(Image.fromarray(plane.astype(np.float32),
+                                   mode="F").resize((width, height)))
+        for plane in planes
+    ]
+    stacked = resized[0] if crop.ndim == 2 else np.stack(resized, axis=2)
+    if np.issubdtype(crop.dtype, np.integer):
+        info = np.iinfo(crop.dtype)
+        stacked = np.clip(np.rint(stacked), info.min, info.max)
+    return stacked.astype(crop.dtype)
+
+
+#: Named groups the FEATURES regex may use to name the ROW a file belongs to.
+#: The first one the pattern defines wins, so a caller may spell it whichever
+#: way the filenames already do.
+FIELD_TABLE_FIELD_GROUPS: tuple = (
+    'field', 'fieldID', 'fov', 'stem', 'name')
+
+#: Named groups that put a file in one of the table's CHANNEL columns. The
+#: captured token is not read as a number -- see :func:`assign_paths_by_regex`
+#: for why the distinct tokens are ranked instead.
+FIELD_TABLE_CHANNEL_GROUPS: tuple = (
+    'channel', 'chanID', 'chan', 'c')
+
+#: Named groups that put a file in one of the table's MASK columns. The
+#: captured token is resolved to a role by :func:`mask_role_of`.
+FIELD_TABLE_MASK_GROUPS: tuple = (
+    'mask', 'object', 'objectID', 'role')
+
+#: Named groups that name the plate and the well a row belongs to, when the
+#: filenames carry them. Hand-drawn masks usually do not, which is what
+#: :attr:`FieldTable.plate` and :attr:`FieldRow.well` are for.
+FIELD_TABLE_PLATE_GROUPS: tuple = ('plateID', 'plate')
+FIELD_TABLE_WELL_GROUPS: tuple = ('wellID', 'well')
+
+#: What a user may type in a mask column and mean a spaCR role by. The values
+#: are roles from :data:`spacr.crops.MASK_PLANE_ORDER`; ``organelle`` slots
+#: are matched separately by :func:`mask_role_of` because there are 700 of
+#: them and they are spelled by number on screen.
+_MASK_ROLE_SYNONYMS = {
+    'cell': 'cell', 'cells': 'cell', 'cyto': 'cell', 'whole': 'cell',
+    'nucleus': 'nucleus', 'nuclei': 'nucleus', 'nuc': 'nucleus',
+    'nuclear': 'nucleus', 'dapi': 'nucleus',
+    'pathogen': 'pathogen', 'pathogens': 'pathogen', 'parasite': 'pathogen',
+    'parasites': 'pathogen', 'bacteria': 'pathogen',
+    'bacterium': 'pathogen', 'bacterial': 'pathogen', 'pv': 'pathogen',
+    'mito': 'organelle', 'mitochondria': 'organelle',
+    'mitochondrion': 'organelle', 'organelle': 'organelle',
+}
+
+_ORGANELLE_TOKEN = re.compile(
+    r'(?i)^organelle[_\-. ]?(?P<number>\d+)$')
+
+_TRAILING_DIGITS = re.compile(r'(\d+)\s*$')
+
+
+def mask_role_of(token):
+    """Resolve what a user typed in a mask column to a spaCR object role.
+
+    Accepts the role's own name, the plural and the common laboratory
+    synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle
+    spelling the settings forms use on screen -- ``Organelle 2`` is
+    ``organelleb``, because the slots are lettered internally and numbered
+    for the reader.
+
+    :param token: what the regex captured or the user chose, in any case.
+    :returns: a role from :data:`spacr.crops.MASK_PLANE_ORDER`, or ``None``
+        when the token names no object spaCR can measure.
+    """
+    if token is None:
+        return None
+    text = str(token).strip().lower()
+    if not text:
+        return None
+    if text in SEGMENTED_ROLES:
+        return text
+    numbered = _ORGANELLE_TOKEN.match(text)
+    if numbered is not None:
+        index = int(numbered.group('number'))
+        if 1 <= index <= len(ORGANELLE_ROLES):
+            return ORGANELLE_ROLES[index - 1]
+        return None
+    return _MASK_ROLE_SYNONYMS.get(text)
+
+
+def _channel_rank_key(token):
+    """Order channel tokens the way a microscope names them.
+
+    ``C10`` sorts after ``C9`` rather than after ``C1``, because the digits
+    at the end are compared as a number. Tokens with no trailing digits fall
+    back to their text, after every numbered one.
+    """
+    text = str(token)
+    match = _TRAILING_DIGITS.search(text)
+    if match is None:
+        return (1, text.lower(), 0)
+    return (0, text[:match.start()].lower(), int(match.group(1)))
+
+
+@dataclass
+class FieldRow:
+    """One row of the FEATURES table: one field, and the files that make it.
+
+    A row becomes exactly one ``merged/<stem>.npy``, so it is also one field
+    in the measurements database.
+
+    :ivar label: what the row is called in the table's first column, taken
+        from the filenames. It is not the database identity; :attr:`well` and
+        :attr:`field` are.
+    :ivar channels: ``channel index -> source path``. The indices are
+        positions on the merged array's channel axis, counted from zero.
+    :ivar masks: ``role -> source path``, for the roles this row supplies.
+        The same mask file may appear in several rows, which is how one
+        drawn mask is measured against several acquisitions.
+    :ivar well: the well id this field is filed under. Hand-drawn fields did
+        not come from a plate, so they share one well by default and the
+        table shows it rather than inventing a different one per row.
+    :ivar field: the field number within that well, unique per row.
+    """
+
+    label: str
+    channels: Dict[int, str] = dataclasses_field(default_factory=dict)
+    masks: Dict[str, str] = dataclasses_field(default_factory=dict)
+    well: str = 'A01'
+    field: int = 1
+
+    def stem(self, plate):
+        """The ``plate_well_field`` name this row is written and measured as.
+
+        :param plate: the plate name the whole table carries.
+        :returns: the stem, which :func:`spacr.schema.parse_field_stem` reads
+            back into the plate, row, column and field the database is keyed
+            by.
+        """
+        return f"{plate}_{self.well}_{int(self.field)}"
+
+
+@dataclass
+class FieldTable:
+    """Rows are fields, columns are channels and mask types.
+
+    This is the thing the FEATURES window edits and the only input
+    :func:`measure_from_field_table` needs. It is deliberately Qt-free: the
+    window drives it, and the tests drive it without a window.
+
+    :ivar rows: one :class:`FieldRow` per field, in table order.
+    :ivar n_channels: how many channel columns the table has.
+    :ivar roles: which mask columns it has, in
+        :data:`spacr.crops.MASK_PLANE_ORDER` order -- which is the order the
+        planes are stacked in, so the two cannot drift.
+    :ivar plate: the plate name every row's stem starts with. It names where
+        the files came from rather than claiming a plate that was never run.
+    :ivar channel_tokens: which channel token owns which channel column, by
+        position: ``channel_tokens[i]`` is the token that column ``i`` means.
+        The table stores this because it is filled over several drops. The
+        ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property
+        of a set of tokens, and a user fills this table one field at a time,
+        so without the stored tokens the second drop would rank its own files
+        from scratch and put ``C2`` in column 0 beside the first drop's
+        ``C1``.
+        Empty means no column means any particular token yet -- every cell
+        was filled by browsing rather than by the regex.
+    """
+
+    rows: List[FieldRow] = dataclasses_field(default_factory=list)
+    n_channels: int = 1
+    roles: Tuple[str, ...] = ('cell',)
+    plate: str = 'drawn'
+    channel_tokens: Tuple[str, ...] = ()
+
+    def ordered_roles(self):
+        """The mask columns in merged-plane order, duplicates removed."""
+        return tuple(role for role in MASK_PLANE_ORDER if role in self.roles)
+
+    def mask_dims(self):
+        """``role -> plane index`` on the merged array this table would write.
+
+        The masks follow the channels with no gap, which is the only layout
+        :func:`spacr.crops.read_merged_plane_layout` accepts -- it recomputes
+        the indices from the channel count and the order and refuses a
+        manifest that disagrees.
+        """
+        return {role: int(self.n_channels) + index
+                for index, role in enumerate(self.ordered_roles())}
+
+    def problems(self):
+        """Everything that would stop this table being measured, as sentences.
+
+        Empty means :func:`measure_from_field_table` will run. The window
+        shows these live, so a user never presses a Run button that is going
+        to refuse.
+        """
+        issues = []
+        if int(self.n_channels) < 1:
+            issues.append("The table needs at least one channel column.")
+        if not self.ordered_roles():
+            issues.append(
+                "The table needs at least one mask column -- there is "
+                "nothing to measure without an object.")
+        if not self.rows:
+            issues.append("The table has no fields in it.")
+        seen = {}
+        for row in self.rows:
+            key = (row.well, int(row.field))
+            if key in seen:
+                issues.append(
+                    f"{row.label} and {seen[key]} are both well "
+                    f"{row.well} field {row.field}; one would overwrite the "
+                    "other.")
+            seen[key] = row.label
+            for channel in range(int(self.n_channels)):
+                if not row.channels.get(channel):
+                    issues.append(
+                        f"{row.label} has no file for channel "
+                        f"{channel + 1}.")
+            for role in self.ordered_roles():
+                if not row.masks.get(role):
+                    issues.append(
+                        f"{row.label} has no {role} mask.")
+        return issues
+
+    def is_ready(self):
+        """Whether the table is complete enough to measure."""
+        return not self.problems()
+
+
+def _renumber_channels(table, known, ranked):
+    """Move every row's channel files to the columns ``ranked`` now gives them.
+
+    WHICH COLUMN A TOKEN MEANS IS A PROPERTY OF THE TABLE, NOT OF ONE DROP,
+    and this is what keeps it so. The documented way to use the FEATURES
+    window is one field at a time -- draw, press FEATURES, move to the next
+    image, draw again -- so a later drop can introduce a token that ranks
+    before one already placed. Re-ranking without moving the files already in
+    the table leaves ``C2`` in column 0 for the first field and column 1 for
+    the second, and NOTHING ON SCREEN SAYS SO: the table reads as complete,
+    the run succeeds, and ``cell_channel_0_mean_intensity`` in the database
+    is a different stain for different fields. Renumbering is how the
+    invariant survives the second drop.
+
+    Columns no token claims -- cells filled by browsing rather than by the
+    regex -- keep their files. They are given the columns after the tokened
+    ones, in their old order, so nothing a user put somewhere is dropped.
+
+    :param table: the :class:`FieldTable` to renumber, edited in place.
+    :param known: the token order the rows' current column numbers mean.
+    :param ranked: the token order they should mean.
+    :returns: ``None``.
+    """
+    moves = {index: ranked.index(token)
+             for index, token in enumerate(known) if token in ranked}
+    if not moves:
+        return
+    taken = set(moves.values())
+    occupied = {index for row in table.rows for index in row.channels}
+    spare = len(ranked)
+    for index in sorted(index for index in occupied if index not in moves):
+        while spare in taken:
+            spare += 1
+        moves[index] = spare
+        taken.add(spare)
+    if all(old == new for old, new in moves.items()):
+        return
+    for row in table.rows:
+        row.channels = {moves.get(index, index): path
+                        for index, path in row.channels.items()}
+
+
+@dataclass
+class TableAssignment:
+    """What one regex did to one set of dropped files.
+
+    :ivar table: the table the files were assigned into.
+    :ivar assigned: ``(path, row label, column caption)`` for every file that
+        landed somewhere, in the order the paths were given.
+    :ivar unassigned: ``(path, reason)`` for every file that did not. The
+        window lists these so that no dropped file is left out without a
+        reason.
+    """
+
+    table: FieldTable
+    assigned: List[Tuple[str, str, str]] = dataclasses_field(
+        default_factory=list)
+    unassigned: List[Tuple[str, str]] = dataclasses_field(
+        default_factory=list)
+
+
+def assign_paths_by_regex(paths, pattern, *, table=None, plate=None):
+    """Sort dropped files into rows and channel/mask columns with one regex.
+
+    The regex is matched against each file's BASENAME. What it captures
+    decides where the file goes:
+
+    * one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a
+      field token share a row, which is what makes a four-channel field one
+      row rather than four.
+    * one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column,
+      through :func:`mask_role_of`.
+    * one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.
+
+    The channel token is ranked, not read as a number. ``C1``/``C2``/``C3``
+    and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0,
+    1, 2, and no literal reading of ``C1`` is right for all three -- a
+    literal read makes the first set start at channel 1 and leaves channel 0
+    empty. The distinct channel tokens are therefore sorted (numerically on
+    their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is
+    therefore a property of the set of files, not of any one of them, which
+    is why the window shows the assignment rather than describing the rule.
+
+    The ranked set is the table's, not the drop's. ``table`` stores which
+    token owns which column in :attr:`FieldTable.channel_tokens`, and a later
+    drop is ranked against the union of what it brings and what is already
+    there. A token that ranks before one already placed renumbers the
+    columns and moves the files already in them (:func:`_renumber_channels`),
+    so every row agrees about what channel 0 is. Ranking each drop on its own instead
+    would put a second field's ``C2`` in column 0 beside a first field's
+    ``C1``, and the only sign of it would be in the database.
+
+    :param paths: file paths to assign.
+    :param pattern: a regex with at least a field group and one of a channel
+        or mask group.
+    :param table: an existing table to add to. A new one is built when this
+        is ``None``; its channel count and mask columns come from what the
+        files turn out to hold.
+    :param plate: the plate name for a new table.
+    :returns: a :class:`TableAssignment`. Nothing is read from disk and
+        nothing is written.
+    :raises re.error: if ``pattern`` does not compile. The window catches
+        this and shows it under the box rather than letting it reach a run.
+    """
+    compiled = re.compile(pattern)
+    groups = set(compiled.groupindex)
+
+    def first(names):
+        """The first of ``names`` the pattern actually defines."""
+        for name in names:
+            if name in groups:
+                return name
+        return None
+
+    field_group = first(FIELD_TABLE_FIELD_GROUPS)
+    channel_group = first(FIELD_TABLE_CHANNEL_GROUPS)
+    mask_group = first(FIELD_TABLE_MASK_GROUPS)
+    plate_group = first(FIELD_TABLE_PLATE_GROUPS)
+    well_group = first(FIELD_TABLE_WELL_GROUPS)
+
+    existing = table if table is not None else FieldTable(
+        rows=[], n_channels=0, roles=(), plate=plate or 'drawn')
+    if plate is not None:
+        existing.plate = plate
+    result = TableAssignment(table=existing)
+
+    if field_group is None:
+        for path in paths:
+            result.unassigned.append((str(path), (
+                "the regex names no field group, so there is no row to put "
+                "this in -- add (?P<field>...) to it")))
+        return result
+    if channel_group is None and mask_group is None:
+        for path in paths:
+            result.unassigned.append((str(path), (
+                "the regex names neither a channel nor a mask group, so "
+                "there is no column to put this in")))
+        return result
+
+    matched = []
+    for path in paths:
+        text = os.path.basename(str(path))
+        found = compiled.search(text)
+        if found is None:
+            result.unassigned.append(
+                (str(path), f"{text} does not match the regex"))
+            continue
+        captured = found.groupdict()
+        label = captured.get(field_group)
+        if not label:
+            result.unassigned.append(
+                (str(path), f"{text} matched but captured no field name"))
+            continue
+        mask_token = captured.get(mask_group) if mask_group else None
+        channel_token = captured.get(channel_group) if channel_group else None
+        if mask_token:
+            role = mask_role_of(mask_token)
+            if role is None:
+                result.unassigned.append((str(path), (
+                    f"{text} names the object {mask_token!r}, which is not "
+                    "a spaCR mask type")))
+                continue
+            matched.append((str(path), str(label), 'mask', role, captured))
+        elif channel_token is not None and str(channel_token) != '':
+            matched.append((str(path), str(label), 'channel',
+                            str(channel_token), captured))
+        else:
+            result.unassigned.append((str(path), (
+                f"{text} matched but captured neither a channel nor an "
+                "object")))
+
+    known = [str(token) for token in getattr(existing, 'channel_tokens', ())]
+    tokens = sorted(set(known) | {token for _p, _l, kind, token, _c in matched
+                                  if kind == 'channel'},
+                    key=_channel_rank_key)
+    channel_of = {token: index for index, token in enumerate(tokens)}
+    _renumber_channels(existing, known, tokens)
+    existing.channel_tokens = tuple(tokens)
+
+    rows_by_label = {row.label: row for row in existing.rows}
+    for path, label, kind, token, captured in matched:
+        row = rows_by_label.get(label)
+        if row is None:
+            row = FieldRow(label=label, well='A01',
+                           field=len(existing.rows) + 1)
+            if well_group and captured.get(well_group):
+                row.well = str(captured[well_group])
+            existing.rows.append(row)
+            rows_by_label[label] = row
+        if plate_group and captured.get(plate_group) and plate is None:
+            existing.plate = str(captured[plate_group])
+        if kind == 'mask':
+            row.masks[token] = path
+            if token not in existing.roles:
+                existing.roles = tuple(existing.roles) + (token,)
+            result.assigned.append((path, label, f"{token} mask"))
+        else:
+            index = channel_of[token]
+            row.channels[index] = path
+            existing.n_channels = max(int(existing.n_channels), index + 1)
+            result.assigned.append((path, label, f"channel {index + 1}"))
+
+    existing.roles = existing.ordered_roles()
+    highest = max((max(row.channels) for row in existing.rows if row.channels),
+                  default=-1)
+    existing.n_channels = max(int(existing.n_channels), len(tokens),
+                              highest + 1)
+    return result
+
+
+def field_table_settings(table, settings=None, dst=None):
+    """The measure_crop settings this table decides, over the ones it does not.
+
+    Everything the table can answer is answered from the table: the channel
+    list, the mask plane of every object it supplies, the crop modes that are
+    possible, the PNG channels, and ``src``. Every other key is the user's,
+    taken from ``settings`` and defaulted by
+    :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure
+    module defaults them -- so the FEATURES window and the Measure module
+    disagree about nothing.
+
+    A role the table does NOT supply is set to ``None`` rather than left out,
+    which is how ``measure_crop`` is told not to measure it.
+
+    :param table: the :class:`FieldTable` the user filled in.
+    :param settings: the user's answers from the settings panel.
+    :param dst: the project root the run will write. ``src`` is its
+        ``merged`` folder, which is where ``measure_crop`` reads fields from.
+    :returns: a new settings dict. Nothing is read from disk.
+    """
+    from .settings import get_measure_crop_settings
+
+    resolved = get_measure_crop_settings(dict(settings or {}))
+    if dst is not None:
+        resolved['src'] = os.path.join(str(dst), 'merged')
+    resolved['channels'] = list(range(int(table.n_channels)))
+    dims = table.mask_dims()
+    for role in SEGMENTED_ROLES:
+        resolved[f'{role}_mask_dim'] = dims.get(role)
+    if not resolved.get('png_dims'):
+        resolved['png_dims'] = list(range(min(int(table.n_channels), 3)))
+    supplied = list(table.ordered_roles())
+    available = list(supplied)
+    if 'cell' in supplied and resolved.get('cytoplasm'):
+        available.append('cytoplasm')
+    requested = resolved.get('crop_mode') or []
+    if isinstance(requested, str):
+        requested = [requested]
+    kept = [name for name in requested if name in available]
+    resolved['crop_mode'] = kept or available[:1]
+    return resolved
+
+
+#: Settings the table decides, so the FEATURES window shows them filled in
+#: and not editable. Everything else on that panel is the user's to set.
+FIELD_TABLE_DECIDED_KEYS: tuple = (
+    'src', 'channels', 'png_dims',
+    *(f'{role}_mask_dim' for role in MASK_PLANE_ORDER),
+)
+
+
+def _readable_plane(path):
+    """Read one image or label file as a 2-D array, whatever format it is in.
+
+    Goes through :func:`spacr.foreign._read_mask`, so every format spaCR's
+    converter opens -- TIFF, PNG, ND2, CZI, LIF -- is readable here too,
+    and there is no second reader table to keep in step with that one.
+    """
+    from .foreign import _read_mask
+
+    return np.asarray(_read_mask(str(path)))
+
+
+def _checked_intensity(plane, stem, path):
+    """Return ``plane`` as uint16, or say why it cannot be measured.
+
+    The same four checks :mod:`spacr.external_masks` applies, for the same
+    reason: ``measure_crop`` reads a uint16 merged array, and a float image
+    silently truncated into one gives numbers that look like measurements.
+    """
+    if np.issubdtype(plane.dtype, np.floating):
+        if not np.all(np.isfinite(plane)):
+            raise ConfigurationError(
+                f"{path}: {stem} intensity data contain NaN or infinity.")
+        if not np.all(plane == np.floor(plane)):
+            raise ConfigurationError(
+                f"{path}: {stem} has floating-point intensities that would "
+                "lose precision in Measure's uint16 arrays. Rescale and "
+                "export them as 8- or 16-bit images first.")
+    if float(np.min(plane, initial=0)) < 0 or \
+            float(np.max(plane, initial=0)) > np.iinfo(np.uint16).max:
+        raise ConfigurationError(
+            f"{path}: {stem} intensity values must fit the Measure uint16 "
+            "contract (0-65535). Rescale the source images first.")
+    return plane.astype(np.uint16, copy=False)
+
+
+def _checked_label(plane, stem, path, shape):
+    """Return ``plane`` as a uint16 label image, or say why it cannot be one."""
+    if plane.shape != shape:
+        raise ConfigurationError(
+            f"{path}: mask shape {plane.shape} does not match the intensity "
+            f"shape {shape} for {stem}.")
+    if np.any(plane < 0):
+        raise ConfigurationError(
+            f"{path}: label masks cannot contain negative IDs.")
+    maximum = int(np.max(plane, initial=0))
+    if maximum > np.iinfo(np.uint16).max:
+        raise ConfigurationError(
+            f"{path}: label ID {maximum} exceeds the maximum 65535 supported "
+            "by the Measure array contract.")
+    return plane.astype(np.uint16, copy=False)
+
+
+def write_field_table_project(table, dst):
+    """Write the table out as the folders the Mask module leaves behind.
+
+    This is the only step the FEATURES button adds to Measure: it turns a
+    table of hand-picked files into ``stack/``, ``masks/`` and ``merged/``
+    exactly as :func:`spacr.core.preprocess_generate_masks` would have left
+    them, down to the plane-layout manifest, so the run that follows is an
+    ordinary measure run rather than a separate code path.
+
+    :param table: a :class:`FieldTable` whose :meth:`FieldTable.problems` is
+        empty.
+    :param dst: the project root to write. It is created if it does not
+        exist.
+    :returns: ``{'destination', 'merged', 'stack', 'masks', 'stems'}``.
+    :raises spacr.errors.ConfigurationError: if the table is incomplete, or
+        if any file breaks the uint16 array contract ``measure_crop`` reads.
+        Nothing is written past the field that failed.
+    """
+    problems = table.problems()
+    if problems:
+        raise ConfigurationError(
+            "The measurement table is not ready; nothing was written:\n  "
+            + "\n  ".join(problems))
+
+    dst = os.fspath(dst)
+    roles = table.ordered_roles()
+    merged_dir = os.path.join(dst, 'merged')
+    stack_dir = os.path.join(dst, 'stack')
+    os.makedirs(merged_dir, exist_ok=True)
+    os.makedirs(stack_dir, exist_ok=True)
+
+    merged_paths = []
+    stack_paths = []
+    mask_paths = {role: [] for role in roles}
+    stems = []
+    for row in table.rows:
+        stem = row.stem(table.plate)
+        stems.append(stem)
+        planes = []
+        for channel in range(int(table.n_channels)):
+            path = row.channels[channel]
+            planes.append(_checked_intensity(
+                _readable_plane(path), stem, path))
+        shape = planes[0].shape
+        for index, plane in enumerate(planes):
+            if plane.shape != shape:
+                raise ConfigurationError(
+                    f"{row.channels[index]}: channel {index + 1} of {stem} "
+                    f"has shape {plane.shape}, but channel 1 has {shape}.")
+
+        labels = []
+        for role in roles:
+            path = row.masks[role]
+            label = _checked_label(
+                _readable_plane(path), stem, path, shape)
+            labels.append(label)
+            role_dir = os.path.join(dst, 'masks', f'{role}_mask_stack')
+            os.makedirs(role_dir, exist_ok=True)
+            role_path = os.path.join(role_dir, f'{stem}.npy')
+            np.save(role_path, label)
+            mask_paths[role].append(role_path)
+
+        stack_path = os.path.join(stack_dir, f'{stem}.npy')
+        np.save(stack_path, np.stack(planes, axis=-1))
+        stack_paths.append(stack_path)
+        merged_path = os.path.join(merged_dir, f'{stem}.npy')
+        np.save(merged_path, np.stack([*planes, *labels], axis=-1))
+        merged_paths.append(merged_path)
+
+    layout = {
+        'version': 1,
+        'intensity_channels': list(range(int(table.n_channels))),
+        'mask_plane_order': list(roles),
+        'mask_dims': dict(table.mask_dims()),
+    }
+    from .crops import MERGED_LAYOUT_SIDECAR
+
+    with open(os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR), 'w',
+              encoding='utf-8') as handle:
+        json.dump(layout, handle, indent=2, sort_keys=True)
+        handle.write('\n')
+
+    return {'destination': dst, 'merged': merged_paths,
+            'stack': stack_paths, 'masks': mask_paths, 'stems': stems}
+
+
+def field_table_destination(table, dst=None):
+    """Where a run of ``table`` would write, given the destination it was handed.
+
+    The window and the run both call this function, so they report the same
+    folder. ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the
+    FEATURES window shows it filled in and disabled; with ``dst=None`` the
+    destination is a ``features`` folder beside the first channel file of
+    the first row.
+
+    :param table: the :class:`FieldTable` the run would measure.
+    :param dst: the destination the caller was given, or ``None`` to derive
+        one from the table.
+    :returns: the project root, or ``None`` when the table is too empty to
+        derive one. Nothing is read from disk.
+    """
+    if dst is not None:
+        return os.fspath(dst)
+    first = table.rows[0].channels.get(0) if table.rows else None
+    if not first:
+        return None
+    return os.path.join(
+        os.path.dirname(os.path.abspath(str(first))), 'features')
+
+
+def measure_from_field_table(table, settings=None, dst=None, progress=None):
+    """Measure a table of hand-picked images and masks. The FEATURES entry point.
+
+    The second entry point into this module. :func:`measure_crop` starts from
+    a ``merged/`` folder a pipeline already built; this starts from a table a
+    user filled in by dropping files onto it, writes that folder, and then
+    calls :func:`measure_crop` itself -- unchanged, with no flag saying where
+    the fields came from. The database, the crops and the folder tree are
+    therefore the Measure module's, because they are made by it.
+
+    :param table: the :class:`FieldTable` the FEATURES window edited.
+    :param settings: the user's answers from the settings panel. The keys the
+        table decides are overwritten from it -- see
+        :func:`field_table_settings`.
+    :param dst: the project root to write. Defaults to a ``features``
+        folder beside the first channel file of the first row, which is where
+        a user who dropped a folder in expects to find the results. See
+        :func:`field_table_destination`, which is the one place that default
+        is worked out.
+    :param progress: called with a sentence as each stage starts, or
+        ``None``. It runs on whatever thread this does -- the FEATURES window
+        runs this on a worker and its callback only emits a signal. Writing
+        the arrays and measuring them are separate stages because on a large
+        table the second takes minutes and the first does not.
+    :returns: ``{'destination', 'db_path', 'settings', 'stems', 'merged'}``.
+        ``db_path`` is the measurements database whether or not it exists, so
+        a caller can report the path it was asked for.
+    :raises spacr.errors.ConfigurationError: if the table is incomplete or a
+        file breaks the array contract. Nothing is measured in that case.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.measure import (
+                assign_paths_by_regex, measure_from_field_table)
+
+            found = assign_paths_by_regex(
+                paths,
+                r'(?P<field>fov\\d+)_(?:C(?P<channel>\\d+)'
+                r'|(?P<mask>cell|nucleus))')
+            measure_from_field_table(found.table, {'save_png': True})
+
+    See Also:
+        :func:`measure_crop` -- the run this delegates to, unchanged.
+        :func:`write_field_table_project` -- the folders it writes first.
+    """
+    def say(message):
+        """Pass a stage message to ``progress``, when a callback was given.
+
+        Exceptions from the callback are ignored because the caller is a
+        window that may be closed while this is still running: the FEATURES
+        window's callback emits a Qt signal, and a worker that outlives its
+        widget raises ``RuntimeError`` from the emit. The run continues in
+        that case.
+        """
+        if progress is None:
+            return
+        try:
+            progress(str(message))
+        except Exception:                                        # noqa: BLE001
+            pass
+
+    dst = field_table_destination(table, dst)
+    if dst is None:
+        raise ConfigurationError(
+            "There is nowhere to write: the table's first field has no "
+            "channel file, and no destination was given.")
+    say(f"Writing the merged arrays for {len(table.rows)} field(s)...")
+    written = write_field_table_project(table, dst)
+    resolved = field_table_settings(table, settings, dst=dst)
+    say(f"Wrote {len(written['stems'])} field(s). Measuring them now; "
+        "this is the Measure module's own run.")
+    measure_crop(resolved)
+    return {
+        'destination': written['destination'],
+        'db_path': os.path.join(str(dst), 'measurements', 'measurements.db'),
+        'settings': resolved,
+        'stems': written['stems'],
+        'merged': written['merged'],
+    }

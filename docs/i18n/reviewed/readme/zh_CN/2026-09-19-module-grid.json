@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "module-grid-caption",
+      "source_sha256": "70ab1f64ad81d99cca0143e261249ecb75f83069acc9e49eda16898ae022c5f4",
+      "source": "Every module spaCR ships, in the order the home screen lists them: the six pipeline modules first, then everything else. Select a tile to open that module's API page.",
+      "translation": "spaCR 附带的全部模块，按主页中的顺序排列：先是主要工作流程的六个模块，然后是其余模块。选择一个图块即可打开该模块的 API 页面。"
+    },
+    {
+      "label": "module-grid-feature-guide",
+      "source_sha256": "5be3793cb3bdce3dafb421a3b722c821a71aae50388526fb3e7131f1fa3dd8b2",
+      "source": "See the `feature guide <docs/source/features.rst>`_ for each tool.",
+      "translation": "各工具的说明见 `功能指南 <docs/source/features.rst>`_。"
+    }
+  ]
+}

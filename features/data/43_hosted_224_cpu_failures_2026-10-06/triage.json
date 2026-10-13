@@ -1,0 +1,89 @@
+{
+  "downstream_prerequisite_failures": {
+    "coverage combine refused failed shards, no numeric ratchet verdict": [
+      112553274190
+    ],
+    "release gate refused failed prerequisites after ordinary cancellation": [
+      112567471589
+    ]
+  },
+  "fixed_in_later_cpu_checkpoint": {
+    "F567 HiDPI preview": [
+      112526287755,
+      112526287973
+    ],
+    "F567 sorted event table identity and cell pairing": [
+      112526287791,
+      112526288795
+    ],
+    "Make Masks empty-field mask hash": [
+      112526287801,
+      112526287973
+    ],
+    "Make Masks toolbar actual-width layout": [
+      112526287617,
+      112526288044
+    ],
+    "Python 3.9 fungal pairwise test import": [
+      112526287581,
+      112526287731,
+      112526287784
+    ],
+    "advection test matrix population": [
+      112526287801,
+      112526287973
+    ],
+    "model retry test captures unrelated worker sleeps": [
+      112526287801
+    ],
+    "spaCR archive name spelling": [
+      112526287726,
+      112526287784
+    ]
+  },
+  "source_sha": "22413aa4d072fe4eb06303cf82d0c6fbfe677d61",
+  "still_needs_independent_resolution": {
+    "fungal young-scene visibility and motion": [
+      112526287617,
+      112526287924
+    ]
+  },
+  "workstation_generated_assets_pending": {
+    "API and private callable inventories and help index": [
+      112526287612,
+      112526287680,
+      112526287731,
+      112526287784,
+      112526287791,
+      112526287801,
+      112526287883
+    ],
+    "notebook and README source-current prose": [
+      112526287581,
+      112526287680,
+      112526287784,
+      112526287791
+    ],
+    "reviewed runtime and UI translations": [
+      112526287581,
+      112526287605,
+      112526287612,
+      112526287617,
+      112526287671,
+      112526287684,
+      112526287731,
+      112526287755,
+      112526287784,
+      112526287791,
+      112526287883,
+      112526287924,
+      112526288795
+    ],
+    "settings-flow and reviewed settings tables": [
+      112526287612,
+      112526287684,
+      112526287731,
+      112526287801
+    ]
+  }
+}

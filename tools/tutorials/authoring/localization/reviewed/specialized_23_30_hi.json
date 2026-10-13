@@ -1,0 +1,127 @@
+{
+  "_meta": {
+    "schema": 2,
+    "reviewer": "human scientific-language review",
+    "scope": "Complete Hindi review for specialized lessons 23–30; scientific terms and exact UI labels preserved."
+  },
+  "lessons": {
+    "23_agreement": {"languages": {"hi": {
+      "description": "Annotation columns के बीच agreement मापें और disagreement के लिए उत्तरदायी objects की जाँच करें।",
+      "prerequisite": "समान objects के लिए दो या अधिक categorical columns बनाएँ।",
+      "objectives": ["Labels की निष्पक्ष तुलना के लिए configuration तैयार करना।", "Agreement और class imbalance की संयुक्त व्याख्या करना।", "Disagreement वाले objects की समीक्षा करना।"],
+      "narrations": {
+        "1": "Annotator Agreement database को बदले बिना categorical label columns की तुलना करता है। इसका उपयोग reviewers, अलग annotation passes या reviewer और model के बीच तुलना के लिए करें।",
+        "2": "Results and quality control अनुभाग से Annotator Agreement खोलें। measurements database या run folder खोलने पर spaCR समान objects को संदर्भित करने वाले annotation और prediction columns पहचानता है।",
+        "3": "कम से कम दो columns चुनें। अतिरिक्त columns से pairwise comparisons और multi-rater summary बनाए जा सकते हैं।",
+        "4": "Compute Agreement objects के आधार पर labels align करता है। Missing labels को चुपचाप disagreement मानने के बजाय abstentions के रूप में report किया जाता है।",
+        "5": "Raw agreement, class balance, abstentions और kappa को एक साथ देखें। यदि किसी column में केवल एक class हो तो kappa undefined हो सकता है। यह prevalence warning है, zero agreement नहीं।",
+        "6": "Confusion matrix से देखें कि कौन-सी classes परस्पर भ्रमित होती हैं और क्या imbalance summary पर अत्यधिक प्रभाव डाल रहा है।",
+        "7": "Disagreement table उन सटीक objects की पहचान करती है जिनकी समीक्षा आवश्यक है।",
+        "8": "Labels या class definitions बदलने से पहले representative crops की जाँच करें। Aggregate statistics यह नहीं बता सकते कि reviewers के बीच disagreement क्यों हुआ।"
+      }
+    }}},
+    "24_plaque": {"languages": {"hi": {
+      "description": "Plaque masks का segmentation करें या existing masks पुनः उपयोग करें, उनकी पुष्टि करें और condition के अनुसार plaque formation का सारांश बनाएँ।",
+      "prerequisite": "Plaque images, controls, plate metadata और pixel calibration तैयार करें।",
+      "objectives": ["नए segmentation और existing masks के पुनः उपयोग में से उपयुक्त विकल्प चुनना।", "Previews से plaque detection को समायोजित करना।", "Assay outputs की पुष्टि कर उनका स्थान ज्ञात करना।"],
+      "narrations": {
+        "1": "Plaque Assay plate images के cleared regions मापता है। Console resolved settings, progress, warnings और output paths दर्ज करता है।",
+        "2": "Toxoplasma assays अनुभाग से Plaque Assay खोलें। Plaque-image folder चुनें और तय करें कि source images का segmentation करना है या सही नाम वाले label masks पुनः उपयोग करने हैं।",
+        "3": "Essentials में पहली run के लिए आवश्यक controls होते हैं। Modified जानबूझकर किए गए बदलाव दिखाता है, जबकि All advanced troubleshooting controls उपलब्ध कराता है।",
+        "4": "Tutorial का मान सीधे उपयोग करने के बजाय representative images के अनुसार model और expected plaque scale चुनें।",
+        "5": "Detection settings candidate regions, shape consistency, resampling और cleanup को प्रभावित करती हैं। इन्हें कई control और treatment wells से समायोजित करें।",
+        "6": "Background correction या denoising केवल तब उपयोग करें जब previews से स्पष्ट हो कि acquisition में इसकी आवश्यकता है।",
+        "7": "Source, model, scale और output behavior जाँचने के बाद Run चलाएँ। Segmentation को दोबारा calibrate करते समय छोटे validation set से शुरू करें।",
+        "8": "Conditions की तुलना से पहले plaque overlays और distributions की जाँच करें। Database, summaries, statistics और quality-control figures run से जुड़े रहते हैं।"
+      }
+    }}},
+    "25_recruitment": {"languages": {"hi": {
+      "description": "Host-cell background की तुलना में parasite-associated regions पर marker enrichment की मात्रा निर्धारित करें।",
+      "prerequisite": "संबंधित compartments मापें और उपयुक्त controls वाला plate metadata तैयार करें।",
+      "objectives": ["Channels और masks को सही ढंग से map करना।", "वैज्ञानिक रूप से उचित object filters और controls चुनना।", "Images और distributions से recruitment की पुष्टि करना।"],
+      "narrations": {
+        "1": "Recruitment existing measurements पढ़ता है और parasite-associated regions पर marker enrichment की गणना करता है। यह images का segmentation दोबारा नहीं करता।",
+        "2": "Toxoplasma assays अनुभाग से Recruitment खोलें। measurements database और merged fields वाली experiment root directory चुनें।",
+        "3": "Essentials में source, channel mapping, filters, plate labels और diagnostic controls होते हैं। Modified run से पहले changes की संक्षिप्त समीक्षा देता है।",
+        "4": "प्रत्येक intensity और mask plane को सावधानी से map करें, फिर channel of interest चुनें। Valid range में होने पर भी गलत channel index विश्वसनीय दिखने वाले ratios दे सकता है।",
+        "5": "Object filters असंगत cells, nuclei और parasites हटाते हैं। Tutorial के fixed values के बजाय distributions और overlays से gates चुनें।",
+        "6": "Group differences की व्याख्या से पहले conditions और controls को सही plate identifiers से map करें।",
+        "7": "Run measurements जोड़ता है, reviewed gates लागू करता है, recruitment की गणना करता है, wells को group करता है और diagnostics बनाता है।",
+        "8": "Condition summaries पर भरोसा करने से पहले segmentation overlays और control distributions जाँचें। Object-level और well-level outputs में source identifiers सुरक्षित रहते हैं।"
+      }
+    }}},
+    "26_invasion": {"languages": {"hi": {
+      "description": "Outside-versus-total staining से attached और invaded parasites में अंतर करें।",
+      "prerequisite": "Controls और parasite measurements सहित validated outside-versus-total staining assay तैयार करें।",
+      "objectives": ["Stain channels को सही map करना।", "Controls से classification calibrate करना।", "Representative examples और well-level invasion results की समीक्षा करना।"],
+      "narrations": {
+        "1": "Invasion Assay two-colour staining design से मापे गए parasites को classify करता है। Console settings, quality checks और outputs दर्ज करता है।",
+        "2": "Toxoplasma assays अनुभाग से Invasion Assay खोलें। Parasite measurements, stain channels, controls और plate metadata वाला experiment चुनें।",
+        "3": "Essentials में पहले analysis के लिए आवश्यक inputs, channel mapping, thresholding, controls, filters और outputs होते हैं।",
+        "4": "Outside stain और total parasite stain को सही क्रम में map करें। क्रम बदलने से error आए बिना biological interpretation उलट सकती है।",
+        "5": "उपयुक्त controls से classification thresholds निर्धारित करें और चुनी हुई boundary के आसपास sensitivity जाँचें।",
+        "6": "Staining controls तथा fields और wells के लिए minimum evidence तय करें, ताकि कमजोर groups को overinterpret करने के बजाय स्पष्ट रूप से report किया जाए।",
+        "7": "Stain mapping, controls, object filters और condition metadata की पुष्टि के बाद Run चलाएँ।",
+        "8": "Attached, invaded और uncertain examples को well-level summaries के साथ जाँचें। Exported results में assay settings और source identifiers सुरक्षित रहते हैं।"
+      }
+    }}},
+    "27_replication": {"languages": {"hi": {
+      "description": "Parasites को vacuoles से assign करें और condition के अनुसार intracellular replication का सारांश बनाएँ।",
+      "prerequisite": "Reviewed relationships और condition metadata के साथ host cells, vacuoles और parasites मापें।",
+      "objectives": ["Vacuole assignment set करना।", "वैज्ञानिक रूप से उचित filters और score groups निर्धारित करना।", "Images से replication summaries की पुष्टि करना।"],
+      "narrations": {
+        "1": "Replication Assay existing relationships और measurements से प्रति vacuole parasite count निर्धारित करता है। Console settings, filtering और outputs दर्ज करता है।",
+        "2": "Toxoplasma assays अनुभाग से Replication Assay खोलें। Experiment root चुनें और पुष्टि करें कि host cells, vacuoles तथा parasites के identifiers स्थिर हैं।",
+        "3": "Essentials में assignment, condition, filtering, scoring और output controls होते हैं। जानबूझकर किए गए changes की समीक्षा के लिए Modified उपयोग करें।",
+        "4": "तय करें कि parasites को vacuoles से कैसे assign करना है और ambiguous या दूर के relationships को कैसे संभालना है।",
+        "5": "Uncommon लेकिन valid vacuoles को हटाए बिना reviewed distributions और images के आधार पर segmentation failures filter करें।",
+        "6": "Statistics चलाने से पहले biological question के अनुरूप parasite-count groups और summaries निर्धारित करें।",
+        "7": "Assignments, conditions, filters और scoring definitions जाँचने के बाद Run चलाएँ।",
+        "8": "पूरी count range में vacuoles जाँचें और merged या fragmented masks की समीक्षा करें। Saved distributions और statistics object-level evidence से जुड़े रहते हैं।"
+      }
+    }}},
+    "28_training_runs": {"languages": {"hi": {
+      "description": "Curves को overlay और settings को diff करके model-training runs की तुलना करें।",
+      "prerequisite": "Recorded metrics और settings वाले कम से कम दो compatible training runs पूरे करें।",
+      "objectives": ["Comparable runs load कर उनकी पुष्टि करना।", "Checkpoints और folds के बीच curves की व्याख्या करना।", "Performance differences को setting changes से जोड़ना।"],
+      "narrations": {
+        "1": "Training Runs मॉडल चयन को केवल एक loss value तक सीमित किए बिना कई fits की तुलना करता है।",
+        "2": "Results and quality control अनुभाग से Training Runs खोलें। Compatible training runs वाला folder या registry चुनकर scan करें।",
+        "3": "Candidates चुनने से पहले मिले हुए runs, available metrics, incomplete records और warnings की समीक्षा करें।",
+        "4": "तुलना के लिए metric, smoothing, fold display और settings fields चुनें।",
+        "5": "Validation behavior को समान axes पर overlay करके convergence, stability और overfitting की तुलना करें।",
+        "6": "यदि late training से generalization घट सकती है, तो best checkpoint की final checkpoint से तुलना करें।",
+        "7": "Fold summaries वह variation दिखाती हैं जो एक aggregate curve में छिपी रह सकती है।",
+        "8": "Reproducible run चुनने के लिए per-fold curves और settings diff को held-out performance के साथ उपयोग करें।"
+      }
+    }}},
+    "29_report": {"languages": {"hi": {
+      "description": "Quality control, figures, statistics, settings और versions का shareable HTML या PDF summary बनाएँ।",
+      "prerequisite": "Report में शामिल किए जाने वाले runs पूरे कर उनकी समीक्षा करें।",
+      "objectives": ["Report के लिए relevant evidence चुनना।", "Quality और provenance की कमियाँ दूर करना।", "Portable report बनाकर उसकी समीक्षा करना।"],
+      "narrations": {
+        "1": "Report figures और settings को manual रूप से copy करने के बजाय traceable project summary तैयार करता है।",
+        "2": "Results and quality control अनुभाग से Report खोलें। Completed project या run folder चुनकर उपलब्ध evidence scan करें।",
+        "3": "Report sections चुनने से पहले detected quality verdict और missing inputs की समीक्षा करें।",
+        "4": "केवल वही quality checks, figures, statistics, settings और provenance शामिल करें जिनकी audience को आवश्यकता है।",
+        "5": "Title, authorship, output format, figure limits और privacy-sensitive exclusions सेट करें।",
+        "6": "Document को misleading होने से बचाने के लिए missing files और failed quality checks का समाधान करने के बाद ही report बनाएँ।",
+        "7": "Completed report का Preview देखें और साझा करने से पहले conclusions, versions और links की पुष्टि करें।"
+      }
+    }}},
+    "30_plate_queue": {"languages": {"hi": {
+      "description": "एक ही validated pipeline से कई plates चलाएँ और उनकी visible, resumable status बनाए रखें।",
+      "prerequisite": "Representative data पर module sequence और settings पहले validate करें।",
+      "objectives": ["Multi-plate queue बनाकर उसकी समीक्षा करना।", "Queue को सुरक्षित रूप से चलाना और monitor करना।", "प्रत्येक plate को resume या diagnose करना।"],
+      "narrations": {
+        "1": "Plate Queue प्रत्येक plate की state अलग रखते हुए कई plates पर एक validated workflow लागू करता है।",
+        "2": "Data and batch runs अनुभाग से Plate Queue खोलें। वर्तमान configured module या prepared plate source को queue में जोड़ें।",
+        "3": "अन्य plates जोड़ें और table में उनके source, destination, settings और order की समीक्षा करें।",
+        "4": "Worker limits, stop behavior और resume policy चुनें। Queue state persist रहती है, इसलिए interruption से plan नहीं मिटता।",
+        "5": "बाकी queue शुरू करने से पहले सीमित plate या field पर workflow जाँचें।",
+        "6": "Execution के दौरान per-plate progress देखें और किसी item में warning या failure होने पर logs खोलें।",
+        "7": "Completed plates के outputs और run records अलग रहते हैं। Stopped या failed items पहचाने और resume किए जा सकते हैं।"
+      }
+    }}}
+  }
+}

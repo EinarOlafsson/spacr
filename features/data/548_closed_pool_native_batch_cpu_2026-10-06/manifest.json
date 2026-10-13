@@ -1,0 +1,28 @@
+{
+  "sha256": {
+    "REPRODUCE.txt": "2106f6a159549c90e935e52c08e8970ca265eb44067bfc8658b6950cf93890aa",
+    "core-diff-8409ff7c3.patch.gz": "a882f903d88e85a1a82779e278aa33a718be56c2ff1b661bc52c85ccfdefbc9a",
+    "core-source-8409ff7c3.py.gz": "3995a2c73a5ec4910e41b04a1bd5704408f03102234fec8ec40807ba61c21b08",
+    "coverage-core-final.json.gz": "7c6afe412184410bc250bd9ce1648a14dc3053c7c13c858741f279cde38df3c7",
+    "coverage-final.json.gz": "548365613025bea8fc0ff8d32294be98d11c3574d54c874099a1138ccfc5c211",
+    "io-diff-0ee2f0053.patch.gz": "03e3cc875d70f331e54ee6859ecca0b9f59cbca012c51ea08acc6b79a9377d01",
+    "io-source-0ee2f0053.py.gz": "f45a9880ebf9b5d5e679a01b38b2f98c520d632eb20422fee2a0656808c11025",
+    "native-batch-coverage.json": "48a61d54ebb7cf9efec14a44208adcf8ccfdc69f5d0ec0dc631345cf7d0ffcbb",
+    "native-batch-new-source-coverage.json": "58a95df41ddb59cbdbb3ce8b8fb065dddd5f8aeb8c3c6b32c1ba3d449f74a184",
+    "new-source-coverage-reproduced.json": "637db8971910d71e5cf1191ab43077d995a32c10324b8be6a37878fe48edf751",
+    "new-source-coverage.json": "53377fc3e5e0f1a2fbb51f0a2fc9edec2d4979c5a11d0e51b2a6f34afeee9286",
+    "original-pixel-parity.json": "63db1304d1b19317bab47b4397d076a29ae7e52d10a8be8853a110ca2c15ba3d",
+    "pytest-01.log.gz": "6194828b4bb42915f6296de81f3e225951cff9e06ab17bd33807d7ed7689dbc9",
+    "pytest-02.log.gz": "7df8aeb38c2f2dc8c009be14ee2baf3122c88378027d2328cfd700d7670c7048",
+    "pytest-03.log.gz": "d070886841ccd0df20b9bdd31eff16974d4f4e0fb690a232a24a6fa0a7f5b72e",
+    "pytest-04.log.gz": "8555cb4abd80698eed536205e118f147d7825152e843e0ee7d2b661da38afd8f",
+    "pytest-05.log.gz": "1cffc22e14bd9f54087e6948c8abb61a31781796e7a0853201d7f859c027b207",
+    "pytest-06.log.gz": "1f99138a03e3e26cb27ff7d3e1d6ce5b2ad77881b099e3dad2fa20eacef416e0",
+    "pytest-guards.log.gz": "65e0407ab3e2e09b0deeee13b05b4cefce72f8655440152b4b2e531d33541c97",
+    "reproduce_native_batch_coverage.py": "93e17440a0d3df17423ce34b12d339848433366dd0467e3eae99413b2c3a1c97",
+    "reproduce_pool_coverage.py": "4a21adc73e60691e6031499a692254bee216d877f7afd55c2782409f9b4dade7",
+    "scientific-audit-pytest-01.log.gz": "1613e46b94f499901db33a07a7b3a5663e556439df56e3c5bf16f4aacd0756f9",
+    "scientific-audit-reproduce_scientific_parity.py": "38a9d6722acd227e82b4c3ba3538fe4a4b7d19bee096f06025bf22c7175d7a4e",
+    "scientific-audit-scientific-column-audit.json": "9b417c6009896a58ee03f700aed334818ded23f30e1c34ee1d1e53d3756d9f4e"
+  }
+}

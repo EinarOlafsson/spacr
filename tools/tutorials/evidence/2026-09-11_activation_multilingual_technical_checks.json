@@ -1,0 +1,1272 @@
+{
+  "lesson": "16_activation",
+  "status": "Complete staged technical matrix for verified saved saliency files; not published",
+  "canonical_english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
+  "scene_count": 12,
+  "narrated_words": 618,
+  "native_verification": {
+    "lesson": "16_activation",
+    "native_scope": "Verified saved saliency outputs and actual external image viewer; not GUI repair",
+    "workflow": {
+      "lesson": "16_activation",
+      "accepted": true,
+      "inputs": {
+        "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project",
+        "archive": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops.tar",
+        "model": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/resnet18_best_channels_rgb.pth",
+        "crops": [
+          {
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+            "name": "plate1_E01_10_1_4.png",
+            "sha256": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+            "identity": {
+              "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png",
+              "file_name": "plate1_E01_10_1_4.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f10",
+              "prcfo": "plate1_r5_c1_f10_o4",
+              "cell_id": "o4",
+              "annotate": null,
+              "al_prob_0": null,
+              "al_prob_1": null,
+              "infected": 2,
+              "tutorial_demo_01": null,
+              "tutorial_demo_02": null,
+              "tutorial_demo_03": null,
+              "tutorial_demo_04": null,
+              "tutorial_demo_05": null,
+              "tutorial_demo_06": null
+            }
+          },
+          {
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+            "name": "plate1_E01_10_1_45.png",
+            "sha256": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+            "identity": {
+              "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png",
+              "file_name": "plate1_E01_10_1_45.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f10",
+              "prcfo": "plate1_r5_c1_f10_o45",
+              "cell_id": "o45",
+              "annotate": null,
+              "al_prob_0": null,
+              "al_prob_1": null,
+              "infected": 2,
+              "tutorial_demo_01": null,
+              "tutorial_demo_02": null,
+              "tutorial_demo_03": null,
+              "tutorial_demo_04": null,
+              "tutorial_demo_05": null,
+              "tutorial_demo_06": null
+            }
+          },
+          {
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+            "name": "plate1_E01_14_1_3.png",
+            "sha256": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+            "identity": {
+              "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png",
+              "file_name": "plate1_E01_14_1_3.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f14",
+              "prcfo": "plate1_r5_c1_f14_o3",
+              "cell_id": "o3",
+              "annotate": null,
+              "al_prob_0": null,
+              "al_prob_1": null,
+              "infected": 2,
+              "tutorial_demo_01": null,
+              "tutorial_demo_02": null,
+              "tutorial_demo_03": null,
+              "tutorial_demo_04": null,
+              "tutorial_demo_05": null,
+              "tutorial_demo_06": null
+            }
+          },
+          {
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_18.png",
+            "name": "plate1_E01_1_1_18.png",
+            "sha256": "9aa884f0464c68ca23b8aeb4ea572de5433de9f9dd81d7aef1e5f6650d45ff49",
+            "identity": {
+              "png_path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_18.png",
+              "file_name": "plate1_E01_1_1_18.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f1",
+              "prcfo": "plate1_r5_c1_f1_o18",
+              "cell_id": "o18",
+              "annotate": null,
+              "al_prob_0": null,
+              "al_prob_1": null,
+              "infected": 2,
+              "tutorial_demo_01": null,
+              "tutorial_demo_02": null,
+              "tutorial_demo_03": null,
+              "tutorial_demo_04": null,
+              "tutorial_demo_05": null,
+              "tutorial_demo_06": null
+            }
+          }
+        ],
+        "original_hashes": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/datasets/training_1/model/resnet18/rgb/epochs_1/resnet18_best_channels_rgb.pth": "30d2cc41d01a7411dd5dc05093e0c3b910853a83e59cefa913229ac4ac4ad0c3",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/.spacr_crop_format.json": "2e9a9c47a6c22c58dcd36da22c0c21db41f7e2daa791351e7f389f067bf96049",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/datasets/training_1/model/resnet18/rgb/epochs_1/resnet18_best_channels_rgb.card.json": "eb94dc9c06d401b0b53070d9fc3de45805acee0cffeacdcf1b523efe17c27961",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_4.png": "4b576d127ee2a21a00138eeffff44ebf93aed735c3598b1919b9d057d351e822",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_10_1_45.png": "6a54094afc567325ba0b49676ac8245f6d02fe85da2d9d22f83df20880b7f0e0",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_14_1_3.png": "ecaec92b79632e54f0026b1e1790ced9049fc782ffd02b9be0215f0691884f85",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_E01/cell_png/plate1_E01_1_1_18.png": "9aa884f0464c68ca23b8aeb4ea572de5433de9f9dd81d7aef1e5f6650d45ff49"
+        },
+        "private_input_hashes": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops.tar": "bbf6725b8afbda80fdbd7f404d903f631093c9541161b14da8cbb61ccdae6f5a",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/resnet18_best_channels_rgb.pth": "30d2cc41d01a7411dd5dc05093e0c3b910853a83e59cefa913229ac4ac4ad0c3",
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/resnet18_best_channels_rgb.card.json": "eb94dc9c06d401b0b53070d9fc3de45805acee0cffeacdcf1b523efe17c27961"
+        },
+        "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+        "database_bundle": {
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+            "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+            "signature": [
+              66306,
+              33957043,
+              30629888,
+              1788972666110587400,
+              1788972666110587400
+            ]
+          }
+        },
+        "crop_format": {
+          "channel_order": "declared_rgb",
+          "narrowing": "high-byte",
+          "note": "The red, green and blue channels hold the source channels named by settings['png_channel_mapping']. No list-position convention is involved, so there is nothing here to read backwards.",
+          "spacr_crop_format": 3,
+          "updated_utc": "2026-09-01T18:48:32Z"
+        },
+        "model_classes": [
+          "infected_1",
+          "infected_2"
+        ],
+        "model_epochs": 1,
+        "model_validation_claim": false,
+        "biological_claim": false,
+        "limitation": "The earlier demonstration split shares wells; no independent accuracy claim."
+      },
+      "runs": [
+        {
+          "method": "saliency_channel",
+          "maps": [
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_0/plate1/E01/plate1_E01_10_1_4.png",
+              "sha256": "09bfded7761594726c32371f2a2453a4b57fa6f218cb52ca1c427eaeb4e9c10b",
+              "pixels": 49152,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            },
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_10_1_45.png",
+              "sha256": "ba6bfc7b6154da1a8b7c04a3f2e1720bec6d60688bcd68e04067ddd40e3b0d86",
+              "pixels": 49152,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            },
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_14_1_3.png",
+              "sha256": "0520490f37a012de5e651fd62e593341d21f7a7502b9c3116df3c6ef111286e7",
+              "pixels": 49152,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            },
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_1_1_18.png",
+              "sha256": "21446931c3d2fbc17b0c3d217d398a598b297ab54fcb5adccebbb51044f8a1a9",
+              "pixels": 49152,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            }
+          ],
+          "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/measurements/real_cell_crops.db",
+          "database_rows": [
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_0/plate1/E01/plate1_E01_10_1_4.png",
+              "file_name": "plate1_E01_10_1_4.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f10",
+              "prcfo": "plate1_r5_c1_f10_o4",
+              "object": "o4"
+            },
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_10_1_45.png",
+              "file_name": "plate1_E01_10_1_45.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f10",
+              "prcfo": "plate1_r5_c1_f10_o45",
+              "object": "o45"
+            },
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_14_1_3.png",
+              "file_name": "plate1_E01_14_1_3.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f14",
+              "prcfo": "plate1_r5_c1_f14_o3",
+              "object": "o3"
+            },
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/class_1/plate1/E01/plate1_E01_1_1_18.png",
+              "file_name": "plate1_E01_1_1_18.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f1",
+              "prcfo": "plate1_r5_c1_f1_o18",
+              "object": "o18"
+            }
+          ],
+          "independent_saved_pixels_checked": 196608,
+          "settings": {
+            "dataset": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops.tar",
+            "model_type": "resnet18",
+            "model_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/resnet18_best_channels_rgb.pth",
+            "image_size": 128,
+            "batch_size": 4,
+            "normalize": true,
+            "cam_type": "saliency_channel",
+            "target_layer": null,
+            "plot": true,
+            "save": true,
+            "normalize_input": true,
+            "channels": [
+              1,
+              2,
+              3
+            ],
+            "overlay": true,
+            "shuffle": false,
+            "correlation": false,
+            "manders_thresholds": [
+              15,
+              50,
+              75
+            ],
+            "n_jobs": 1,
+            "smoothgrad_samples": 0,
+            "smoothgrad_sigma": 0.15,
+            "occlusion_window": 8,
+            "occlusion_stride": 4,
+            "ig_steps": 50,
+            "ig_baseline": "zero",
+            "attribution_steps": 12,
+            "attribution_baseline": "blur",
+            "sanity_check": true,
+            "object_type": "cell"
+          },
+          "outcome": {
+            "finished": true,
+            "ok": true,
+            "errors": []
+          },
+          "console": [
+            "Recording reproducibility input hashes…\n",
+            "Reproducibility manifest: /home/olafsson/.spacr/runs/2026-09-11_050548_06a1e39f__activation\n",
+            "[settings] ERROR [src]: src is missing from the settings.\n",
+            "[settings]     Set src to the folder holding the images (or, for measure, the merged folder).\n",
+            "Saving settings to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/settings/saliency_channel_settings.csv\n",
+            "Activation maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel\n",
+            "Batch grid maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/batch_grids\n",
+            "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.\n",
+            "  super().__init__(loader)\n",
+            "Saved batch grid to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/batch_grids/batch_0_grid.png\n",
+            "Figure(1920x240)\n",
+            "Progress: 0/4, operation_type: Generating Activation Maps, Time/batch: 0.842sec, Time/image: 0.210sec, Time_left: 0.056 min.\n",
+            "Activation map generation complete.\n"
+          ],
+          "figures": [],
+          "gui_figure_count": 0,
+          "figures_card_visible": false,
+          "settings_errors": [
+            "[settings] ERROR [src]: src is missing from the settings.\n"
+          ],
+          "external_viewer": {
+            "accepted": true,
+            "saved_plots": [
+              {
+                "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_channel/batch_grids/batch_0_grid.png",
+                "sha256": "562042b62a6b7a2a2baab949c14fbc1a71b793ee17bc2bfff0a733d88055e658",
+                "dimensions": [
+                  4800,
+                  600
+                ],
+                "window_title": "batch_0_grid.png",
+                "viewer": "eog",
+                "actual_desktop_capture": true
+              }
+            ],
+            "saved_files_unchanged": true,
+            "application_figures_fixed": false,
+            "scope": "External system viewer, not spaCR Figures"
+          }
+        },
+        {
+          "method": "saliency_image",
+          "maps": [
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_0/plate1/E01/plate1_E01_10_1_4.png",
+              "sha256": "085a81a4a02468aee33e24659a7ce8a22eced7b1d37c2d47be6102df2e7a2268",
+              "pixels": 16384,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            },
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_10_1_45.png",
+              "sha256": "85356c237e06204ae46e68ccc9a033016f1f50e1a5c518ffd8d0eddd8eff2650",
+              "pixels": 16384,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            },
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_14_1_3.png",
+              "sha256": "eb093f51fefb90ea96e3bb79f9446ad81c5454b4a7b11121a14036adeee3a8b7",
+              "pixels": 16384,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            },
+            {
+              "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_1_1_18.png",
+              "sha256": "1a4f1edfb5f20b1fd20bab9a1669ed44758d873612d271f5f29794dfead203e3",
+              "pixels": 16384,
+              "max_absolute_error": 0,
+              "differing_pixels": 0,
+              "tolerance": 1
+            }
+          ],
+          "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/measurements/real_cell_crops.db",
+          "database_rows": [
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_0/plate1/E01/plate1_E01_10_1_4.png",
+              "file_name": "plate1_E01_10_1_4.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f10",
+              "prcfo": "plate1_r5_c1_f10_o4",
+              "object": "o4"
+            },
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_10_1_45.png",
+              "file_name": "plate1_E01_10_1_45.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f10",
+              "prcfo": "plate1_r5_c1_f10_o45",
+              "object": "o45"
+            },
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_14_1_3.png",
+              "file_name": "plate1_E01_14_1_3.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f14",
+              "prcfo": "plate1_r5_c1_f14_o3",
+              "object": "o3"
+            },
+            {
+              "png_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/class_1/plate1/E01/plate1_E01_1_1_18.png",
+              "file_name": "plate1_E01_1_1_18.png",
+              "plateID": "plate1",
+              "rowID": "r5",
+              "columnID": "c1",
+              "fieldID": "f1",
+              "prcfo": "plate1_r5_c1_f1_o18",
+              "object": "o18"
+            }
+          ],
+          "independent_saved_pixels_checked": 65536,
+          "settings": {
+            "dataset": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops.tar",
+            "model_type": "resnet18",
+            "model_path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/resnet18_best_channels_rgb.pth",
+            "image_size": 128,
+            "batch_size": 4,
+            "normalize": true,
+            "cam_type": "saliency_image",
+            "target_layer": null,
+            "plot": true,
+            "save": true,
+            "normalize_input": true,
+            "channels": [
+              1,
+              2,
+              3
+            ],
+            "overlay": false,
+            "shuffle": false,
+            "correlation": false,
+            "manders_thresholds": [
+              15,
+              50,
+              75
+            ],
+            "n_jobs": 1,
+            "smoothgrad_samples": 0,
+            "smoothgrad_sigma": 0.15,
+            "occlusion_window": 8,
+            "occlusion_stride": 4,
+            "ig_steps": 50,
+            "ig_baseline": "zero",
+            "attribution_steps": 12,
+            "attribution_baseline": "blur",
+            "sanity_check": true,
+            "object_type": "cell"
+          },
+          "outcome": {
+            "finished": true,
+            "ok": true,
+            "errors": []
+          },
+          "console": [
+            "Reproducibility manifest: /home/olafsson/.spacr/runs/2026-09-11_050558_5568627a__activation\n",
+            "[settings] ERROR [src]: src is missing from the settings.\n",
+            "[settings]     Set src to the folder holding the images (or, for measure, the merged folder).\n",
+            "Saving settings to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/settings/saliency_image_settings.csv\n",
+            "Activation maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image\n",
+            "Batch grid maps will be saved in: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/batch_grids\n",
+            "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.\n",
+            "  super().__init__(loader)\n",
+            "Saved batch grid to /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/batch_grids/batch_0_grid.png\n",
+            "Figure(1920x240)\n",
+            "Progress: 0/4, operation_type: Generating Activation Maps, Time/batch: 0.446sec, Time/image: 0.111sec, Time_left: 0.030 min.\n",
+            "Activation map generation complete.\n"
+          ],
+          "figures": [],
+          "gui_figure_count": 0,
+          "figures_card_visible": false,
+          "settings_errors": [
+            "[settings] ERROR [src]: src is missing from the settings.\n"
+          ],
+          "external_viewer": {
+            "accepted": true,
+            "saved_plots": [
+              {
+                "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/activation_runs/real-crops-trained-model-b938gqy2/project/data/real_cell_crops/saliency_image/batch_grids/batch_0_grid.png",
+                "sha256": "5be79d385a7949c65b4813d883f55f824f4216eae090497822c1fce2f2531163",
+                "dimensions": [
+                  4800,
+                  600
+                ],
+                "window_title": "batch_0_grid.png",
+                "viewer": "eog",
+                "actual_desktop_capture": true
+              }
+            ],
+            "saved_files_unchanged": true,
+            "application_figures_fixed": false,
+            "scope": "External system viewer, not spaCR Figures"
+          }
+        }
+      ],
+      "app_source_modified": false,
+      "provider_contacted": false,
+      "published": false,
+      "reference_device_resolution": {
+        "device": "cpu",
+        "note": ""
+      },
+      "independent_reference": {
+        "reference_device": "cpu",
+        "source_names": [
+          "plate1_E01_10_1_4.png",
+          "plate1_E01_10_1_45.png",
+          "plate1_E01_14_1_3.png",
+          "plate1_E01_1_1_18.png"
+        ],
+        "logits": [
+          [
+            0.09765313565731049,
+            -0.001865677535533905
+          ],
+          [
+            -1.2176710367202759,
+            1.317823886871338
+          ],
+          [
+            -0.8896890878677368,
+            0.9985834956169128
+          ],
+          [
+            -1.202850580215454,
+            1.2881903648376465
+          ]
+        ],
+        "prediction_indices": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "training_input_pixels": 196608,
+        "training_input_max_error": 0,
+        "autograd_target": "predicted class logit",
+        "original_channel_order_preserved": true
+      },
+      "defaults": {
+        "dataset": "path",
+        "model_type": "maxvit",
+        "model_path": "path",
+        "image_size": 224,
+        "batch_size": 64,
+        "normalize": true,
+        "cam_type": "gradcam",
+        "target_layer": null,
+        "plot": false,
+        "save": true,
+        "normalize_input": true,
+        "channels": [
+          1,
+          2,
+          3
+        ],
+        "overlay": true,
+        "shuffle": true,
+        "correlation": true,
+        "manders_thresholds": [
+          15,
+          50,
+          75
+        ],
+        "n_jobs": null,
+        "smoothgrad_samples": 0,
+        "smoothgrad_sigma": 0.15,
+        "occlusion_window": 8,
+        "occlusion_stride": 4,
+        "ig_steps": 50,
+        "ig_baseline": "zero",
+        "attribution_steps": 12,
+        "attribution_baseline": "blur",
+        "sanity_check": true,
+        "object_type": "cell"
+      },
+      "live_preview_control_present": false,
+      "scope": "Verified saved maps and real external viewer; GUI defects remain",
+      "application_figures_fixed": false,
+      "src_preflight_fixed": false,
+      "preservation": {
+        "original_database_and_sidecars_unchanged": true,
+        "original_crops_model_card_and_marker_unchanged": true,
+        "private_archive_model_and_card_unchanged": true
+      },
+      "active_jobs_after_close": 0
+    },
+    "provenance": {
+      "commit": "2d2a9c4f6c84db5864c3a0d82af3f765b61010aa",
+      "version": "1.5.0.6",
+      "module": "activation",
+      "download_requested": false,
+      "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+      "app_source_modified": false,
+      "cache_isolated_with_bind_mount": true,
+      "completed_capture": true
+    },
+    "frames": {
+      "00_home": {
+        "image": "00_home.png",
+        "sha256": "88449c080e29bed445e59c6f8cd4333d2066bf2e0b91a3bad8db367059bdcc22",
+        "size": null
+      },
+      "01_classify_host": {
+        "image": "01_classify_host.png",
+        "sha256": "6abc2f7a408bd881313cd8be8031a9869a69927f539f2f96c314b47700214a4e",
+        "size": null
+      },
+      "02_activation_fold": {
+        "image": "02_activation_fold.png",
+        "sha256": "92f5a48c03fdace97c2dfa19aa55fb5b91dc48daad9431bcffd427da27519e2b",
+        "size": null
+      },
+      "03_00_dataset": {
+        "image": "03_00_dataset.png",
+        "sha256": "df815c8c0e57f9225d93bae45b6ce8b9d6c43806091aba6095ad2d9c91b0f5c1",
+        "size": null
+      },
+      "03_01_model_path": {
+        "image": "03_01_model_path.png",
+        "sha256": "9005ccf46d3a095304a2d61c92a865aae52b348e7ad43c448f82b66004f98166",
+        "size": null
+      },
+      "03_03_image_size": {
+        "image": "03_03_image_size.png",
+        "sha256": "c96ba549959b716ec6b5ac8cb684cc665984ea562a32bc1ccfb12d5367f4c07f",
+        "size": null
+      },
+      "03_05_channels": {
+        "image": "03_05_channels.png",
+        "sha256": "ce2a6dcb6d5b7bc4847a139253a18096a9dc57df41196ad098ca55385dbfccf1",
+        "size": null
+      },
+      "03_06_normalize_input": {
+        "image": "03_06_normalize_input.png",
+        "sha256": "28d16b145fa6f82aade301e0e51ba157e2ffd373feb0c9e40bb02d827a093a81",
+        "size": null
+      },
+      "03_08_plot": {
+        "image": "03_08_plot.png",
+        "sha256": "cdb95ab4647bb39338ee58b58d0f430ba39c3ee73c7746f8e69742b4da51ec76",
+        "size": null
+      },
+      "03_11_correlation": {
+        "image": "03_11_correlation.png",
+        "sha256": "5d0f3e29f979512e466f1d02a7a68e464261c4462a1c3cc9ad73a32477e07971",
+        "size": null
+      },
+      "03_12_n_jobs": {
+        "image": "03_12_n_jobs.png",
+        "sha256": "9f5fdcdc61394b0109cd6ff5f557c672de3bdac596a8e817511e36fab4ed98d5",
+        "size": null
+      },
+      "04_channel_saliency_method_and_overlay": {
+        "image": "04_channel_saliency_method_and_overlay.png",
+        "sha256": "c869ce9f2c8facc3caf28d4b55b8dfc8244b27319a3e1cfc68207ce30f770c5e",
+        "size": null
+      },
+      "04_channel_saliency_running": {
+        "image": "04_channel_saliency_running.png",
+        "sha256": "27464388d0f692f8dc0945cf2a4acfa35068c142f3360e956e383c7fcc3b466a",
+        "size": null
+      },
+      "04_channel_saliency_finished_console": {
+        "image": "04_channel_saliency_finished_console.png",
+        "sha256": "53ee3f2e9a75de1ab6294a328cecb2c1306d701407edc802b607ad103d5558ff",
+        "size": null
+      },
+      "04_channel_saliency_missing_gui_plot": {
+        "image": "04_channel_saliency_missing_gui_plot.png",
+        "sha256": "53ee3f2e9a75de1ab6294a328cecb2c1306d701407edc802b607ad103d5558ff",
+        "size": null
+      },
+      "04_channel_saliency_09_saved_batch_0_grid": {
+        "image": "04_channel_saliency_09_saved_batch_0_grid.png",
+        "sha256": "3e296597cbc47b888e884703b4901c4b8a54a4db2b804318b097e2340d5891d1",
+        "size": null
+      },
+      "04_channel_saliency_11_back_to_actual_gui": {
+        "image": "04_channel_saliency_11_back_to_actual_gui.png",
+        "sha256": "3a6f8cc2d63ec123967ea12a29e1bec797376b6f5206934bd3a77f80d24f8e40",
+        "size": null
+      },
+      "05_image_saliency_method_and_overlay": {
+        "image": "05_image_saliency_method_and_overlay.png",
+        "sha256": "7de941c99f50a896db2e58a91abcb9302dce4b16f62daedd92e5b3285f570fbf",
+        "size": null
+      },
+      "05_image_saliency_running": {
+        "image": "05_image_saliency_running.png",
+        "sha256": "12e97380fd62935ef1d2ee26fe25e5e5f1f07c41ce21726a8a089b55b6f00272",
+        "size": null
+      },
+      "05_image_saliency_finished_console": {
+        "image": "05_image_saliency_finished_console.png",
+        "sha256": "8a58783a31648db5490393614dd274775e1867df0afe4595e1b195fa184f1ca3",
+        "size": null
+      },
+      "05_image_saliency_missing_gui_plot": {
+        "image": "05_image_saliency_missing_gui_plot.png",
+        "sha256": "2e2dd209f3e4764f54fe5bbb23e9ec2722c8d1ef15b377b60248a0fa1d9da3b0",
+        "size": null
+      },
+      "05_image_saliency_09_saved_batch_0_grid": {
+        "image": "05_image_saliency_09_saved_batch_0_grid.png",
+        "sha256": "029fdd6e30712b35eec04de58afcd273754d610cca4d3de1c4307541c79058ee",
+        "size": null
+      },
+      "05_image_saliency_11_back_to_actual_gui": {
+        "image": "05_image_saliency_11_back_to_actual_gui.png",
+        "sha256": "cf4f73afffc552d665afa4624a6d6e8f0ab8a9b374acffcb2553349b5a280841",
+        "size": null
+      }
+    },
+    "source_files": {
+      "tools/tutorials/capture_activation.py": "4038479a32ecba06a4d4f51ccebfd890be49028d97fccf8cb13ab740dd16e37b",
+      "tools/tutorials/activation_evidence.py": "895994cf0b5c247dc75caf566cf0824500eaa2f795050b62b78e2cc4b59e444e",
+      "tools/tutorials/capture_activation_saved_plots.py": "9831d24bb6e850a33d10a3565d1a03dc89b9c36cfab8c6b1d9132a58f090d527",
+      "tools/tutorials/capture_barcode_saved_plots.py": "9628333851d7eee1d4a8db5f66e6b25902750fc3acd62b0861d252d323d5d642",
+      "tools/tutorials/capture_saved_plots.py": "50358717c7bb63ee3cecc97a7c02043a06840c0798bb7a7de9baafbc17c677bb",
+      "tools/tutorials/capture_refresh.py": "11c1d548631f2d05f8eb91b9f7c7b4dcba704ac833b546bd82be62ed0cbd4b1f",
+      "tools/tutorials/tests/test_activation_saved_scope.py": "2c5e560252db7aefd8b85dd74a1c68f0d46ff36e950a22e594d2a41a7d4b83fc"
+    },
+    "focused_guard_tests_passed": 14,
+    "existing_evidence_tests_passed": 37,
+    "mutations_observed_red": 2,
+    "external_grid_visual_inspection": {
+      "both_real_viewer_screenshots_inspected": true,
+      "four_populated_slots_per_grid": true,
+      "four_unused_blank_slots_explicit": true
+    },
+    "lesson_technical_matrix_complete": false,
+    "published": false
+  },
+  "final_artifact_checks": {
+    "lesson": "16_activation",
+    "passed": true,
+    "canonical_english_sha256": "6f8189daab03810cf6b72012611016b44e86beba9c6a8071253598284399188f",
+    "scene_count": 12,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "fe10cc34e0d09f75288697e617fffd60f310b63e05b7785c3e084e92169837fe"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "55411dab572ccca987f18bbbca94c40546220e78cd3dba8f16546f3d5f343d88"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "7d82db338c340fc07f019e865b8998c3ba0f4b8ee25260df4d5c73853ee92193"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "1ee2b3c4aad4dba5d7924390c07e4055945f410618f28cce0de80c8764f1e0d7"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "c0b3b20a6ce989e25adf42dfd7c57db4d63f3415aabe8641391185269ae6ca63"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "7d4b4afcd547fedcb974cd7162b2175acd6f9dd73a40fd19655d2a8653b0bd45"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "b5e97178a03168b83689836c413291d85e0b7d5c16883085e494018d7ff49506"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "e33037d67e35d84148c37a631418652339d460b8371a85973d35d1942b9af1b1"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "9e0d7a2b6266874988176c045fdba046a8816e7ad253a051e6b6b86a11bf743a"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "855cc8a996eee0768c3e3745274b13bd600b5ba70df89595428e895364e55fb7"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "87ef33fd9d7218adb4a08b272b67b6dc2159a50aaff9a6f709ec24d4c6dbde18"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "f5e98744aa2147d28639ad15bd517af11048e8443650f7b98141af91e9d36262"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "67980d56767d5ff7a176c75d505666b97abd5171e54db77d5a68e45c7b28bb4b"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "7bcb93ef5be40cfa86f7cdabfc14408d1aa9085c7fdabaf27b92e6f25ca81818"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "f6741ea4477f14b9b2fcd9936e630d7e0dc6ab75cb638c188570b305e2b4be84"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "89a25703eee07b07ba6bc94acd6229185e2ed8742ae6e9945b163729921edbbe"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "0d449be940f31f4c3259be1ead945d05a3cce7371e0440146518f2e884c8fab6"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "6703a7ecbe838af460f38e6131c447a6e4c2f7c77d07f377958b4b6a48c5d94a"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "bb0b24a9e80800996f4a796f66080cae809c5455736b7e7fbf70c5b03f5af40f"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "f5f158232ed61fe87059381bd89ed3701b93473a8c12f2019517411d11a63d29"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "928f76773a68559103107376343a9c818b2f9075baa0d42d46223eb8630ce2f6"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "b4ea1017146bff1639a971a4746ac427f859a67df1ce5b356a5fb7a28350d031"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "cd959352de0b50de8d6f5b43682d46d1346f8a26d8353fc5d66a57b4b7c01dc2"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "ebf2edb43c8afff7de2fc23ce858bfdc41fa03952c1a319affad7e70aebc0742"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "892d6318d51ec6c03050eae3da54717a9b0650d048550a355869c7b9800f72f9"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "f0f463568c94068e97dbea2e0d14771a31bcd56e1bf6e609026436a6ce40af21"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "b20423434121d1a19164b500a4ce2ca4d656da541d99dc81255d9e09567eedec"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "71f87fba32621c88b3b346834f28d8b2acc5c217eac33b50969af779bb97f98c"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "bb2060eb1174aaeca8187aad265861a92baebc0cf7de9d158ade7da6d840769c"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "5bbb3a13684391acf782779b0a72c5923f2fed9a24de68a415989a1d9a39f677"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "75845a04246a0db32666e21bd9ac9a2f2fc733d33aebdc28fe6023ff380e20ce"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "f89c402a7253c9b991bf4fa819a6e0c13d362e4fac5172860518d8596aaf2317"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "a4357f660b3544798555e612be78da9e5e8bf8002ba36964b818d81b075531f0"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "a6751c8fae1ef52f70025b5d1440eb6caa5a6e582e415692ea65d6b4536cc25b"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "6fff54f04d81aea502650999c9cfe24dd459e10e5b7a67c1ee69782163c5501e"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "89439650531077cc0eda63f53aa38f95ec9dc916c54b84f712645fb1a2a33abc"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "acd1da0148c19a470e708cf30e824a388c01366ee351ef72ce7f2fdba465d417"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "c12ef53f62f197714f562387cfc7e1a304dda64590a60caa78995b0c566905ee"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "ecb7c2c07aac3119e0acacbc43c68846902847f99803909387ecdbfee14dbbe4"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "101bf22ce589a00aa43cae1e1d667eb422ff3e8213da5d6b516ee591f5a8d26b"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "6a3615f023e810b7c9e6ff5b12da6d945e8eb896c5d77945768a751d503faab7"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "9f45dccd862df0aa44be3ae894b03bf9c66055bdf98702a90ac7ec31fae9b003"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "9aeec6eb1ae26399605e9f9a99d63f577c11465117ce3918f6c3d2b719b0b876"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "441adb17814ed7e98f52fafb2af8712cbb0c508f0267e475ed4a8457fc79a252"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "9793910862304dc1e13cd4bb699e20ae43ae09b29ce4cd288ab2156a7b1c090a"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "279f648b6fca30d316c7200f83249aac5d593660ac629e2cf25bfcd960f46e2e"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "4dcc5cdc8d053c1232d1332bcdadb09f55f7bf896531d1a123382f2d8f16f10d"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "3b42aaf4c1f942155096e07ccffcdf16127733bf5943e18620551ca82ed7c6f2"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "93cc76810aac8b1855a0d1399ff7da1b54a14012befc700b7e6ca4b7696a54c9"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "6a7a596b1cd4c4e09053d5ed50b7ec6dcccacb706cad71e370cfc66eafe3c136"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "cfab43b28c8792d6ebdb44c31ac98837e80a0cc9269a16d14f213b38b84f7c6d"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "89192d31f0980322639e681cb9c92ab6203cd501393619955bba744baeb9669b"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "6080255f1e09dcf0efbf2070caecd5a9318348dccb817e2e15bb1cf5a57d7713"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "fb469033e9eedcffb534e721389b80515f328d82eccc181462ea7259d585e337"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "efab37af2b2c8540e8f458d2e4e68ea187e68e64d9603e465ca71ce75e0c413b"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "4e822326dc2d2c9c3f28a65d9a1fc6060e943cf181b4567f526a28b5aee12c48"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "a53c4da8fd4f1b111883eda043b9280dc85795f66f8e37433db9dd0923490e25"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "ff4c5ec3d61be2f47eb6af732805307a299e88a3f9ec11854227a80100727eca"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "7fae4465ca183d8cea5014f08013239fbf09c05ddf911a9d42289e173fe31f65"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "f7993946e61374da5cfc52de80cedbb4a0182d66cf234e5f84d7eecebcb90819"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "4ddedf24eaee68aed6adeec7979da5a6ec94b11240c634c17ffbddc180c079cf"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "012166a774e27ace28490e84bf42b5f598e532474783c34dd82fb3c9a2ad43b1"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "fa4d05033c85594940f7f38cd8dd9772a559a7aefac50f0960ab3688bebe7d20"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "8428d0ec6823115755f568e76dbaf0571cd105feb40273f6d39c398bea811a30"
+      }
+    ],
+    "master_sha256": "f77b696efb1b82dd8cc96ed0a7321551ead61d08187fb7f2ab5319098f705c91",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "8128"
+        }
+      ],
+      "format": {
+        "duration": "270.933333",
+        "size": "16325100"
+      }
+    },
+    "poster_sha256": "4ffcb4b0beb186201eaf015297da8b79fea1c27d9eb7bf8f49c4c47b01b062c2",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "catalog_preservation": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 75,
+    "scene_count": 896,
+    "refreshed_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "08_measure",
+      "09_annotate",
+      "11_classify_ml",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "16_activation",
+      "17_timelapse",
+      "18_motility",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "37_batch",
+      "38_distributed_jobs",
+      "39_classifier_evaluation",
+      "40_run_history",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "53_prediction_profiler",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "57_layer_viewer",
+      "59_anndata_export",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "69_dose_response",
+      "70_explain_cv",
+      "73_parameter_sweep",
+      "74_import_images",
+      "75_regression_diagnostics"
+    ],
+    "retained_lesson_ids": [
+      "07_mask",
+      "10_classify_cv",
+      "12_map_barcodes",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "21_model_compare",
+      "22_model_zoo",
+      "33_plate_viewer",
+      "41_classify",
+      "42_curate",
+      "48_hit_list",
+      "49_methods_results",
+      "50_run_compare",
+      "56_lineage",
+      "58_graph_builder",
+      "68_power_design",
+      "71_investigate_hit",
+      "72_volcano_explorer"
+    ],
+    "visual_only_lesson_ids": [
+      "34_database"
+    ],
+    "retained_count": 18,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "b4a6ce1824bd9bf34b2c8557c03156cdef62701e73bf3611cdb9d14fa7fa54ef"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "0478462525cbad4b2728e4ebe8ba44167533da6aaa99c76b385cd6caf3a4178e"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "d8722976cd0146aed2ac4757249b698b27dae7c705f1ca8aeb3a930335d3f979"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "92285ee34695acbfc386c1a73d43a130a782a936cdac3c3057aaf82310fc61c2"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "28fd7a2e9c90e3bc0f3ca2d78b8a6456c35156cfd9bd6ccc193c2717e14e27b2"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "91eb5bf43db63007061b326c60e575fb1d6380ab9ab4fd97fba5fce77168be49"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "2ae066146b2a39625a5afdc495090eb51066bc20ed901bbcaaf17bffb53b1bb6"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "0635678b21363582da68b528fb6b6aafb611116d0d0b420b98a61f06aaf7710f"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "0ca9a7ca934313b8cff5f1d29474c5ebb6a590ea06ea1fe9a30cedbb170e9150"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "a10c7a2eacad20fabd9a6cf531f2e170387169979eeb5d84d5ec093fcf87c6c5"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "b1333cdb1dbdc1d04d1011cd0125750c23028f46298b6b53860e4b68db0ff5b8"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "962d2ef4b4e625c90a02c74ec6d911e8bd540abee7a91f923b995d1097b50707"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "3069cda0a7eec7aae3287602302356e333b68c4b7dd160778072f2d27fede138"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 18,
+        "retained_content_sha256": "5603f503f0f5d318f1f774f6c36d882194e2438de39e5c6cd5cca527be7c69f1"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "catalog_audit_includes_inflight_not_completed": [
+    "08_measure"
+  ],
+  "visual_verification": {
+    "all_scene_midpoints_inspected": 12,
+    "full_final_master_decode_passed": true,
+    "model_scene_corrected_to_actual_resnet18_frame": true,
+    "corrected_scene_reinspected": true,
+    "earlier_english_sha256": "bd0a28eca9222f51fb481f2779bd46d2e3433b118e9505280c4798fe03dffd6a",
+    "changed_visual": {
+      "scene": 3,
+      "from": "03_01_model_path",
+      "to": "03_03_image_size"
+    },
+    "all_fourteen_narration_scene_sets_unchanged_by_visual_correction": true,
+    "original_captures_unchanged": true,
+    "four_unused_grid_slots_explicit": true
+  },
+  "tests": {
+    "saved_scope_passed": 14,
+    "existing_activation_evidence_passed": 37,
+    "saved_scope_mutations_observed_red": 2
+  },
+  "overall_progress": {
+    "existing_lessons_technically_complete": 57,
+    "existing_lesson_total": 75,
+    "remaining_existing": 18,
+    "held_new_OPS_lesson": 1,
+    "completed_lesson_voice_tracks": 2850,
+    "retained_tracks_included": 100,
+    "completed_lesson_browser_cases": 798
+  },
+  "GUI_figures_fixed": false,
+  "src_preflight_fixed": false,
+  "independent_model_accuracy_claim": false,
+  "biological_validation_claim": false,
+  "application_source_modified": false,
+  "published": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false
+}

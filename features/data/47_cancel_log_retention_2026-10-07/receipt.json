@@ -1,0 +1,68 @@
+{
+  "bridge_source_sha256": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a",
+  "bridge_test_sha256": "cda9d09a3cab4c7480b9dfe825c3569e7119f49f0d0c8296842a6342f768e382",
+  "limits": [
+    "The prior mixed census failure was intermittent: the bridge defect is independently proven, but one passing mixed run does not establish that it was its sole cause.",
+    "Fresh coverage for a PySide QThread override requires a synchronous behavior test; the asynchronous lifetime test alone was invisible to coverage instrumentation.",
+    "No numerical ratchet allowance changed."
+  ],
+  "negative_controls": {
+    "bridge": "1 failed, retained worker weakref",
+    "queue": "1 failed, retained runner weakref"
+  },
+  "payloads": {
+    "bridge-negative.log.gz": {
+      "gzip_bytes": 686,
+      "gzip_sha256": "95052149bc901519f3663ddeb98dbdd9385233317ab9d70978f9ed58c5add35b",
+      "source_bytes": 1811,
+      "source_sha256": "522efa28481db9a8de072c0790e4f5bf4308b8bf314d2ff76c488a80a60b9f8d"
+    },
+    "coverage-proof.json.gz": {
+      "gzip_bytes": 2295,
+      "gzip_sha256": "10f70512e68364813d3006d58a25dd9034666a3c4c32bda79e8eb1b58d5d1555",
+      "source_bytes": 20948,
+      "source_sha256": "3224305ffd0f635c63a24c0589617d0af20db22b0efeda844c719ca2a8629c30"
+    },
+    "mixed-with-bridge-fix.log.gz": {
+      "gzip_bytes": 875,
+      "gzip_sha256": "0a8a5f104eca08e2cfd02a3664f69161152211a160d233383a0a27254b17f27e",
+      "source_bytes": 7562,
+      "source_sha256": "482bc0ff98ae9f0f2ee0d7ec59bb02dd4c2a0f84f794cd4625d15bdcb4af8cf4"
+    },
+    "positive.log.gz": {
+      "gzip_bytes": 50,
+      "gzip_sha256": "38de99ec449b26cdc30af5365e9acec709b4e3eea4edda990e0fe07be802b546",
+      "source_bytes": 98,
+      "source_sha256": "5987caa8a1f5ca507ad7a5a0c67f1658c62c0e275b85501d3df2c98fc7135007"
+    },
+    "queue-negative.log.gz": {
+      "gzip_bytes": 869,
+      "gzip_sha256": "61b7fceeadfa0d0fa949d6cfa1757c07d3870aa8807ac6b71c9332c798b8cb76",
+      "source_bytes": 2205,
+      "source_sha256": "82a003d4171745284ee4d9bcf646d2e0895ab49eee58416f5a8567805f1d3b83"
+    },
+    "root-mixed-before-receipt.json.gz": {
+      "gzip_bytes": 826,
+      "gzip_sha256": "5f9eb9d3baa0ef683d94b940d94454974dc56cf791ed40ccec0e809f68f01e2e",
+      "source_bytes": 1619,
+      "source_sha256": "7d4bdc0548bc96849a81b1efc8a42f2b266d7e4c9aa30a6ca10f57294eaf03e6"
+    },
+    "root-mixed-before.log.gz": {
+      "gzip_bytes": 1918,
+      "gzip_sha256": "6fe4465eeca9de4d10cac861d9e3b9e7a9f5a5f89b6486491fc2c1294701ca87",
+      "source_bytes": 11855,
+      "source_sha256": "07f58b7a855919966bcdf51d55290dafb3e63c99411a436b5ce6007dc5016b7a"
+    }
+  },
+  "positive": {
+    "focused": "2 passed under fresh branch coverage",
+    "mixed": "37 passed under conda pytest-cov / 4 GiB"
+  },
+  "queue_changed_line": 121,
+  "queue_changed_line_executed": true,
+  "queue_changed_line_missing": false,
+  "queue_source_sha256": "9a3ac29f3267c3773c8cf8bf090252d20c6a3fc2d52fe6b153cd5f0c90bc6f9c",
+  "queue_test_sha256": "4315db50b175cc5636c7f8621bbfbbafafeb63676c4b09caddff85954d89eb33",
+  "repair_commit": "58aa9f7eae",
+  "source_parent": "6f4cb32b61f6adccd3647a58ce9ff6b477a23df9"
+}

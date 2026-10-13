@@ -1,0 +1,144 @@
+{
+  "accepted_execution": true,
+  "device": "cpu",
+  "source": {
+    "source_url": "https://raw.githubusercontent.com/instanseg/instanseg/414fbc9e8039c1d049cc27871d66409084ded21c/instanseg/examples/HE_example.tif",
+    "upstream_commit": "414fbc9e8039c1d049cc27871d66409084ded21c",
+    "upstream_git_blob": "fb956577e9ee90aad169c1c414d3d1d7c3714a40",
+    "source_sha256": "7c9c10e85363119d6f28cf01fadfef76d03b7ad0fa5bbad3c95720ee0a2320eb",
+    "source_bytes": 469660,
+    "original_upstream_HE_example_bytes_unchanged": true,
+    "README_designates_as_brightfield_example_for_brightfield_nuclei": true,
+    "no_independent_human_reference_labels_claimed": true
+  },
+  "actual_original_RGB_shape": [
+    1484,
+    1380,
+    3
+  ],
+  "crop_or_simulated_data_used": false,
+  "both_current_Make_Masks_and_normal_Mask_generation_paths": true,
+  "normal_preprocessing_independently_verified_per_channel": true,
+  "RGB_planes_routed_as_three_intensity_slots_only_nucleus_inference_requested": true,
+  "cell_pathogen_slot_names_do_not_claim_biological_RGB_channel_identity": true,
+  "original_RGB_and_normal_selected_RGB_worker_inputs_exact": true,
+  "source_TIFF_channels_hashes": {
+    "plate1_A01_T01F01L01A01Z01C00.tif": "c689ba3d79dbeb1b0d2c1b73db4959cb5443dbb3069baf31dc739765ba493398",
+    "plate1_A01_T01F01L01A01Z01C01.tif": "4f22a08670e87b822fad9bcf1a8bbafd322da933972960e86b5788e3dd4d2891",
+    "plate1_A01_T01F01L01A01Z01C02.tif": "c4210abbe6cb04e6801bec004fed0554f705e6b813912f514108cf662d39fbba"
+  },
+  "cases": [
+    {
+      "route": "make_masks",
+      "profile": {
+        "request": 1,
+        "requested_device": "cpu",
+        "actual_worker_reply_device": "cpu",
+        "cuda_events": 0,
+        "cuda_kernel_events": 0,
+        "cuda_kernel_names": [],
+        "torch_version": "2.11.0+cu128",
+        "cuda_runtime": "12.8",
+        "model": "brightfield_nuclei",
+        "params": {
+          "channel_axis": -1,
+          "normalize": true,
+          "flow_threshold": 0.4,
+          "cellprob_threshold": 0.0,
+          "min_size": 0,
+          "batch_size": 1
+        },
+        "inputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-brightfield-r2/cpu-r2/profiling/request-01-input-01.npy",
+            "sha256": "b5607b823a4be0cc64ce51341891f5dc4f314f013823ff19533a89868283ad6b",
+            "shape": [
+              1484,
+              1380,
+              3
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-brightfield-r2/cpu-r2/profiling/request-01-mask-01.npy",
+            "sha256": "6937deccaf88d62b7fe591cb85ebf5b7278c20da4f7b322ece6062ce460c4ea1",
+            "objects": 5728
+          }
+        ],
+        "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47"
+      },
+      "labels": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-brightfield-r2/cpu-r2/make-masks-labels.npy",
+      "labels_sha256": "ed6ca94fb6194c387d6ee2d39130b016952121915945042895fa613ca8e6696e",
+      "objects": 5728
+    },
+    {
+      "route": "normal_mask_generation",
+      "profile": {
+        "request": 2,
+        "requested_device": "cpu",
+        "actual_worker_reply_device": "cpu",
+        "cuda_events": 0,
+        "cuda_kernel_events": 0,
+        "cuda_kernel_names": [],
+        "torch_version": "2.11.0+cu128",
+        "cuda_runtime": "12.8",
+        "model": "brightfield_nuclei",
+        "params": {
+          "channel_axis": -1,
+          "normalize": false,
+          "diameter": 0.0,
+          "flow_threshold": 0.4,
+          "cellprob_threshold": 0,
+          "min_size": 0,
+          "resample": true,
+          "batch_size": 1
+        },
+        "inputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-brightfield-r2/cpu-r2/profiling/request-02-input-01.npy",
+            "sha256": "7e5365e8bb594245cfd4aed4e82b7fc54d9f49daa672746c40c5625c9741ac34",
+            "shape": [
+              1484,
+              1380,
+              3
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-brightfield-r2/cpu-r2/profiling/request-02-mask-01.npy",
+            "sha256": "8d6a4952a8bd086b5767d17cecb19199d36cdcc85e4f948ea47585f2a4c52850",
+            "objects": 5871
+          }
+        ],
+        "source_sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47"
+      },
+      "labels": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-brightfield-r2/cpu-r2/normal-mask-plate/masks/nucleus_mask_stack/plate1_A01_1_1.npy",
+      "labels_sha256": "8d6a4952a8bd086b5767d17cecb19199d36cdcc85e4f948ea47585f2a4c52850",
+      "objects": 5871
+    }
+  ],
+  "models": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/brightfield_nuclei_README.md": "5882cdd33e76c5bea040d8ccb699a62539c32e6b3c66b39cd9634ca0a0f2fd23",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/cover.png": "48ee7f4ccf6580b00de3820aa210a9a74431a4f1449b0b59661136716ec96d22",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/instanseg.pt": "0c724da169d507d8dd2e206ad3675a0b1566824eee6e20ad9a0ba916311d9dd0",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/instanseg_postprocess.ijm": "0886f52737326dba0c6d53528909d746e75e0dce7a0cb41e855a648f8133ba88",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/instanseg_preprocess.ijm": "53376aec6738fb19eab1ace9308c383ee04e46af2a3acf7e70b5862919dca86c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/rdf.yaml": "57a28f865983f05b874dc2ad2c93570abaa53194e79aef63cfc5f9b4a88fd42a",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/test-input.npy": "7249485eca44eefcaf9c8fcd9ce7f8ab5257082c49ecd0e9f62a818e8d4096db",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/552-instanseg-gpu-r1/backends/instanseg/instanseg_models/brightfield_nuclei/0.1.1/test-output_instance_segmentation.npy": "5dc0f7ed283f786ea4edc88714f6c2d4ae38e9eec2d00bb24b7f3c46060a7c6e"
+  },
+  "diameter_0_uses_model_native_pixel_size_not_reference_derived": true,
+  "no_independent_human_reference_labels_or_biological_accuracy_claimed": true,
+  "benchmark_sha256": "6a9c620b0632c12f7c85192db192277b4fb6bfd46a5463677ccf8621f1fd5ee7",
+  "worker_sha256": "050e665cf1fe9cf239077276a879b38f6c234dd426d5b4763d277db344de549c",
+  "source_hashes": {
+    "spacr/core.py": "cc1ccacea893d5ff0ff6c8f66f5af1cc1c2ab645c0c123ebcb9c48d8069e1491",
+    "spacr/object.py": "e7870adc2511f6e064195c0053911d84aaea289ac63701183768fcd2ea3d401b",
+    "spacr/io.py": "b1f36655cbacca19a0156059b5a67e784581fb8582281de83345d4e8e486ae08",
+    "spacr/utils.py": "2fad5d4550b23e99f2067c81f5a8adb5f66536430f182b7314fba67aa58f6a8c",
+    "spacr/_segmentation_backends.py": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+    "spacr/qt/screens/make_masks.py": "c62def2851142e58ce764c22638643cf5f96591e1e86ae5b88a216caf316488a"
+  }
+}

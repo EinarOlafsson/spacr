@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: item 633's public dose-plate test data caption, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Load a public dose plate: four replicate A549 plates of the LINCS Cell Painting set (CC0), 56 compounds at six doses with DMSO wells, as well-level profiles, with regression and training runs made from them. Under 1 MB, cached afterwards.",
+      "source": "Load a public dose plate: four replicate A549 plates of the LINCS Cell Painting set (CC0), 56 compounds at six doses with DMSO wells, as well-level profiles, with regression and training runs made from them. Under 1 MB, cached afterwards.",
+      "source_sha256": "2c6eb76fc3bba79aeca716ff642ee6adae30603efda644342e8433b7b7f290c1",
+      "translation": "Charger une plaque de doses publique : quatre plaques réplicats A549 du jeu LINCS Cell Painting (CC0), 56 composés à six doses avec des puits DMSO, sous forme de profils par puits, avec des exécutions de régression et d’entraînement faites à partir d’eux. Moins de 1 MB, mis en cache ensuite."
+    }
+  ]
+}

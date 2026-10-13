@@ -1,0 +1,38 @@
+{
+  "lesson": "13_regression",
+  "english_sha256": "2e037a0eedfdac229744cbbaa82819ee8680d8fb607655490493ef36f4b0f71b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Regression: dalle tabelle appaiate ai risultati",
+  "description": "Abbina i punteggi di fenotipo ai conteggi delle guide, scegli un metodo di inferenza, esegui l’esempio ed esplora i risultati per guida e per gene.",
+  "objectives": [
+    "Caricare tabelle appaiate di punteggi e conteggi e scegliere una cartella di output.",
+    "Impostare il metodo di inferenza, il livello dei risultati e l’unità di analisi.",
+    "Eseguire l’esempio ed esaminare i risultati insieme alla diagnostica che li accompagna."
+  ],
+  "prerequisite": "Apri Regression e scegli Load test data per ottenere quattro tabelle appaiate di punteggi e conteggi. Usa una nuova cartella di output. Un database delle misure è facoltativo per questa analisi di punteggi e conteggi; le viste a livello di oggetto richiedono i dati misurati e le immagini corrispondenti.",
+  "scenes": [
+    "Da Home, apri Regression. Questo modulo mette in relazione i punteggi di fenotipo con l’abbondanza delle guide. Parti da una tabella di punteggi e da una tabella di conteggi per ogni piastra, poi scegli come verificare e riportare le associazioni.",
+    "In Input Tables, fai clic su Load test data e attendi il caricamento dell’esempio. Fornisce quattro tabelle di punteggi e quattro tabelle di conteggi, appaiate per piastra.",
+    "Esamina ogni riga appaiata e controlla il nome della piastra, il file dei punteggi e il file dei conteggi. Lascia vuota la colonna facoltativa del database delle misure in questo esempio. Scegli una nuova cartella di output per l’analisi.",
+    "Passa ad All settings e usa la casella di ricerca per trovare Inference. Scegli nonparametric per questo esempio con permutazione delle guide. Usa un metodo parametrico quando la tua domanda e il tuo disegno richiedono di stimare più predittori insieme.",
+    "Level stabilisce quali risultati riportare. Seleziona both per ottenere risultati per guida e per gene. Tieni separate queste famiglie di test quando esamini la significatività corretta.",
+    "Scegli well come unità di analisi per questo esempio. Controlla la colonna di risposta, le trasformazioni, i controlli e i pozzetti esclusi. Adatta queste impostazioni al disegno del tuo screening prima di elaborare nuovi dati.",
+    "Il supporto minimo per guida stabilisce in quanti pozzetti deve comparire una guida prima di essere testata. Impostalo su due per seguire questo piccolo esempio. Scegli un requisito di supporto adatto al tuo esperimento.",
+    "Imposta centonovantanove permutazioni per una prima esecuzione rapida. Più permutazioni danno una risoluzione più fine del valore p empirico e richiedono più tempo. Scegli un numero maggiore quando l’analisi finale lo richiede.",
+    "Imposta il seme delle permutazioni a zero per ripetere la stessa randomizzazione. Mantieni i blocchi per piastra dell’esempio e i termini di disturbo di riga e colonna. Con i tuoi dati, scegli blocchi che rispettino quali osservazioni sono scambiabili secondo il disegno sperimentale.",
+    "Scegli none in Annotation source per eseguire l’esempio senza cercare annotazioni dei geni. Per un altro screening, seleziona annotazioni adatte al suo organismo e al suo sistema di identificativi.",
+    "Cancella la ricerca, controlla gli input appaiati e la cartella di output, poi fai clic su Run. Segui la console mentre il modulo allinea le tabelle, filtra le guide e calcola i risultati. Le figure diagnostiche vengono generate insieme all’analisi.",
+    "Al termine dell’esecuzione, apri Runs e seleziona l’analisi salvata. Conferma la cartella e le impostazioni prima di confrontarla con un’altra esecuzione. Riesegui l’analisi dopo aver cambiato le impostazioni se vuoi nuovi risultati.",
+    "Apri Results e usa Level per passare dai risultati per guida a quelli per gene. Esamina la tabella dei risultati e le viste interattive. I file salvati results_grna.csv e results_gene.csv contengono le tabelle corrispondenti per le analisi successive.",
+    "Apri la vista dei valori p e lo strumento Diagnostics. Esamina la distribuzione dei risultati insieme alla risoluzione delle permutazioni, alla famiglia di test e agli avvisi sul disegno. Risolvi i problemi diagnostici importanti prima di interpretare le associazioni.",
+    "Usa la barra degli strumenti per aprire Volcano Explorer, Hit List o Investigate Hit come passo successivo. I loro tutorial mostrano come esaminare i risultati selezionati. Tieni insieme le tabelle di input, le impostazioni salvate, i file dei risultati e i rapporti diagnostici quando condividi l’analisi."
+  ]
+}

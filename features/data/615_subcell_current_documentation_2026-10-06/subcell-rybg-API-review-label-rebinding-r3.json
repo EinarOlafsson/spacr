@@ -1,0 +1,119 @@
+{
+  "sv": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/sv/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "d377376a4f89a62a149dfe6d0948df6ece703917b687762962072dd4aa6affa2",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "de": [
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/de/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "9cf0e699c622b9b1f194441f6796d1362db50b11fe6856277a42065207cd773a",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "es": [
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/es/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "062929c904d342cf529251fb95d3bbbbad2a470cdee4d6c29518b0224bc99ee3",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "zh_CN": [
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/zh_CN/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "c2dcf7210b1d5bf73bab03591fd487ba6f30e8fddc3ce56488c84da3ca6045d2",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "pt": [
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/pt/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "028d7ef045bcff97f0f9472aebaf15e8ffda24beb1ad72dd76fdc66cc667caed",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "hi": [
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/hi/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "03b6e4fbd8c608a055783821d5150da5819cf6a22caca9315ae67afe4e5f606e",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "ko": [
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/ko/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "bce2d6cbc572bfc2c910566ad4e1698f091d71bf949bd6efc00792d37755bb8d",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "is": [
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/is/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "ce6e331094eb206332366bd273e000bf767b49186a4a34c4bbca7e521858ef25",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ],
+  "fr": [
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/fr/archive/2026-10-06-subcell-rybg-channel-count/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "edd0d2b9265912b38566a4bd476a66154615f5ef2cd41aa578961dfd30530d92",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+          "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        }
+      ]
+    }
+  ]
+}

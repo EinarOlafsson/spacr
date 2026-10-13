@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "482e701c95a27c32f1a5cb9cd9612e17dd78e085",
+  "scope": "targeted branch and statement coverage; not a full-suite verdict",
+  "source_path": "spacr/embeddings.py",
+  "source_sha256": "92d70daecc93e05b6eedd3f919e69bc9074672c5ec66fbdd403fab44c2f5d7b8",
+  "coverage_json_sha256": "360e67266b6a952b3733fd28c90aedcadab3abd9825889e5e97fed9f8125734d",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 238,
+    "num_statements": 243,
+    "percent_covered": 97.29729729729729,
+    "percent_covered_display": "97.30",
+    "missing_lines": 5,
+    "excluded_lines": 0,
+    "percent_statements_covered": 97.94238683127573,
+    "percent_statements_covered_display": "97.94",
+    "num_branches": 90,
+    "num_partial_branches": 4,
+    "covered_branches": 86,
+    "missing_branches": 4,
+    "percent_branches_covered": 95.55555555555556,
+    "percent_branches_covered_display": "95.56"
+  },
+  "missing_lines": [
+    523,
+    536,
+    537,
+    674,
+    679
+  ],
+  "missing_branches": [
+    [
+      443,
+      451
+    ],
+    [
+      522,
+      523
+    ],
+    [
+      673,
+      674
+    ],
+    [
+      678,
+      679
+    ]
+  ],
+  "selection": [
+    "tests/test_embedding_input_and_provenance.py",
+    "tests/test_embeddings_keep_the_channel_they_came_from.py",
+    "tests/test_an_embedding_does_not_depend_on_its_batch.py"
+  ],
+  "passed": 49,
+  "failed": 0,
+  "elapsed_seconds": 16.22,
+  "memory_cap": "6G",
+  "cpu_threads": 1,
+  "gpu_used": false,
+  "production_source_changed": false,
+  "baseline_changed": false,
+  "deselected": 1,
+  "selection_filter": "not test_the_real_backbone_produces_finite_numbers",
+  "downloaded_pretrained_backbone_validated": false,
+  "real_torch_cpu_adapter_validated": true
+}

@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Methods & Results: skriv og eksportér en kørselsrapport",
+  "description": "Vælg en færdig kørsel, opbyg dens rapport, gennemgå registrerede indstillinger og resultater, og eksportér Markdown.",
+  "objectives": [
+    "Vælge projektet, kørselsjournalen og den tilsvarende resultatmappe.",
+    "Opbygge et resumé og gennemgå fanerne Methods, Results og Caveats.",
+    "Kopiere rapportteksten eller eksportere Markdown med kørselsresuméet."
+  ],
+  "prerequisite": "Gennemfør først Regression-eksemplet. Hold projektmappen, kørselsjournalen og guide_permutation-resultaterne samlet. Gennemgå udledte indstillinger, analyseversioner og statistiske tærskler, før du bruger den genererede tekst i en rapport.",
+  "scenes": [
+    "Fra Home åbner du Regression og derefter Methods and Results. Brug værktøjet til at skrive et rapportudkast ud fra en færdig analyse. Gennemgangen fortsætter med den gemte kørsel fra Regression-eksemplet.",
+    "Vælg projektmappen, kørselsjournalen og den tilsvarende mappe med regressionsresultater. Lad Classifier være tom i dette regressionseksempel. Bekræft, at alle valgte filer hører til den kørsel, du vil beskrive.",
+    "Klik på Build digest, og læs derefter fanerne Methods og Results. Sammenlign analyseversionen med det gemte kørselsmiljø; eksportørens version kan afvige fra den version, der udførte analysen.",
+    "Læs Caveats, og sammenlign seedposterne efter navn med de gemte indstillinger. Et permutationsseed og et globalt seed henviser til forskellige generatorer. Lad et ikke-registreret historisk seed stå som ukendt, når du redigerer rapporten.",
+    "Åbn Run digest for at undersøge de strukturerede indstillinger og kildeposterne. Sammenlign dem med teksten, og gennemgå advarsler om manglende rapporter eller udledte standardværdier, før du deler udkastet.",
+    "I Results undersøger du effektstørrelser og korrigerede q-værdier sammen. Eksemplet har ingen gener under q-værdigrænsen 0,05. Beskriv rækkerne som rangordnede kandidater, når du redigerer en overskrift, der kalder dem hits.",
+    "Klik på Copy sections for at kopiere de viste Methods og Results. Kontrollér den kopierede tekst mod kildeposterne. Brug Export Markdown, når du også har brug for det strukturerede kørselsresumé.",
+    "Klik på Export Markdown, og vælg et nyt filnavn. Filen indeholder begge rapportafsnit og kørselsresuméet som bilag. Behold et originalt udkast, og gem dine gennemgåede revisioner separat.",
+    "Draft with AI er valgfrit og sender resuméet til din konfigurerede udbyder. Gennemgå indholdet, før du bruger denne mulighed, og kontrollér derefter al genereret tekst mod den gemte analyse. Du kan også bruge build_digest, render_methods og render_results fra Python."
+  ]
+}

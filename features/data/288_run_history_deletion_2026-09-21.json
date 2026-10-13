@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "f8838a8c8fd28a20cb50d1913bca071a312acd4f",
+  "scope": "targeted statement and branch coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/screens/run_history.py",
+  "source_sha256": "0db2f5774a1f78dc826a6a90bc6cb49479ae3a15122aff1b587649de56ddb7fb",
+  "coverage_json_sha256": "c6def98543b06b6e63d2cacbb4136cb06a49f18610dea76ee4ce97c79bb6f6bb",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 383,
+    "num_statements": 389,
+    "percent_covered": 97.66454352441613,
+    "percent_covered_display": "97.66",
+    "missing_lines": 6,
+    "excluded_lines": 0,
+    "percent_statements_covered": 98.45758354755785,
+    "percent_statements_covered_display": "98.46",
+    "num_branches": 82,
+    "num_partial_branches": 3,
+    "covered_branches": 77,
+    "missing_branches": 5,
+    "percent_branches_covered": 93.90243902439025,
+    "percent_branches_covered_display": "93.90"
+  },
+  "missing_lines": [
+    83,
+    84,
+    85,
+    86,
+    87,
+    101
+  ],
+  "missing_branches": [
+    [
+      81,
+      83
+    ],
+    [
+      84,
+      85
+    ],
+    [
+      84,
+      86
+    ],
+    [
+      97,
+      101
+    ],
+    [
+      581,
+      577
+    ]
+  ],
+  "validation": {
+    "passed": 33,
+    "seconds": 21.97,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/qt/test_run_history_deletion_boundaries.py",
+      "tests/qt/test_run_history_screen.py",
+      "tests/qt/test_cov_wf_qt_screens_run_history.py",
+      "tests/test_cov_10_run_history.py"
+    ]
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Refusal status is emitted before refresh; this does not prove the message remains visible after refresh.",
+    "Initial test attempt blocked in QMenu.exec; stack inspected and process terminated before successful rerun with explicit menu factory seam."
+  ]
+}

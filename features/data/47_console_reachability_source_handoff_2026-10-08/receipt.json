@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "items": [
+    "N47"
+  ],
+  "baseline": "62a38906063d64f71bf2a4dcf25cca63ccd9f427",
+  "checkpoint": "1260c50e38427b65f908be77c27fa5af58747490",
+  "sources": {
+    "spacr/qt/widgets/console_panel.py": {
+      "payload": "source-00.gz",
+      "sha256": "5451c6232a979ae7c6e777480a9daa788a0890378b9f51f34f0f35a3b12314ac",
+      "raw_sha256": "ecc7ef588ecb486b7bd064a1d4a532eeb861c6737bbb321ccfdb5a9b9fd8224d"
+    },
+    "tests/qt/test_cov_w3_7_console_panel.py": {
+      "payload": "source-01.gz",
+      "sha256": "ea34372407b80b8fb0aa2551fa565a5b4a1c3bee8b0e7b720a6effe85abc62fd",
+      "raw_sha256": "ca84e62a43351959b3d9a4af66cf805e1a096911139f903cd848727367dbf1ee"
+    }
+  },
+  "patch": {
+    "payload": "source-and-tests.patch.gz",
+    "sha256": "3cac30e4cd80a33739b10a352cdb570c0127faaaa40e04681d8672ecaf2b484c",
+    "raw_sha256": "086706b66442d3eaf4a9cadcbe1866987618c22d25714f71db66ce93f7cbe840"
+  },
+  "inventory_diff": {
+    "payload": "normal-inventory-diff.json.gz",
+    "sha256": "e7a9fb0112e9e975d8e97bc4f342ce2af8807e18b11a036730d089820ace5cf3",
+    "raw_sha256": "a6ef71a17a6342d31ba7f29e016e6f51f61604f40ce83bd201f37f3e8c57853e"
+  },
+  "phases": [
+    {
+      "tested_checkpoint": "875855bee68eda84f868ec5bc05b1d46b31a00ba",
+      "environment": "Qt6.12 Xvfb/xcb software GL,4G,pytest8.4.2",
+      "passing": true,
+      "terminal_summary": "82 passed, 2 warnings in 54.62s",
+      "payload": "console-candidate-focused.log.gz",
+      "sha256": "78f9791031ea06ec71565683b1349accfe9c242d10d9aece627ca3f1f328797d",
+      "raw_sha256": "74b7f38c9fd516330e2eb31818bed7003d24440fd94d3a061cfda63c7fb1ca24"
+    },
+    {
+      "tested_checkpoint": "875855bee68eda84f868ec5bc05b1d46b31a00ba",
+      "environment": "Qt6.12 Xvfb/xcb software GL,4G,pytest8.4.2",
+      "passing": true,
+      "terminal_summary": "24 passed in 3.15s",
+      "payload": "console-jump-font.log.gz",
+      "sha256": "d9d40f6a9feb7524220a05f7cd9fce040af50e4065f4b76e19b0f12079b977a1",
+      "raw_sha256": "0dc949097e5169240c2827398e1ae27342db22a128580c6220cc75d1874c3e52"
+    },
+    {
+      "tested_checkpoint": "875855bee68eda84f868ec5bc05b1d46b31a00ba",
+      "environment": "Qt6.12 Xvfb/xcb software GL,4G,pytest8.4.2",
+      "passing": true,
+      "terminal_summary": "3 passed in 2.83s",
+      "payload": "console-perf.log.gz",
+      "sha256": "c61d153edc9489351af6e0349348054f038f89c42fcac7a62266a22b37cbe34f",
+      "raw_sha256": "0d8a33fdc4fefe69f276ece6fcdc423f088957e15735f62d9e2611a13d0c621e"
+    },
+    {
+      "tested_checkpoint": "875855bee68eda84f868ec5bc05b1d46b31a00ba",
+      "environment": "Qt6.12 Xvfb/xcb software GL,4G,pytest8.4.2",
+      "passing": true,
+      "terminal_summary": "1 passed in 1.74s",
+      "payload": "console-final-single.log.gz",
+      "sha256": "5255b66c7e884b797ef5f3f2c275f415b3d1cde648e81549a547d8b65769aecf",
+      "raw_sha256": "fee1b06fef83902f6c6dcfdcf736e2ed3fc88d11ce69548eee59757d9438f620"
+    },
+    {
+      "tested_checkpoint": "counterfactual:no-retainSizeWhenHidden",
+      "environment": "Qt6.12 Xvfb/xcb software GL,4G,pytest8.4.2",
+      "passing": false,
+      "terminal_summary": "1 failed in 1.87s",
+      "payload": "console-negative-no-stable-jump.log.gz",
+      "sha256": "990da9f6bbe79759a246f18888576ee235cca6cb23844430e0712c14de724d8a",
+      "raw_sha256": "c77a16395ef7e9ebedcc8c4bc04dc18acf9bcae0b55c34464d081e05ad2cd920"
+    },
+    {
+      "tested_checkpoint": "counterfactual:Preferred-instead-of-Minimum",
+      "environment": "Qt6.12 Xvfb/xcb software GL,4G,pytest8.4.2",
+      "passing": false,
+      "terminal_summary": "1 failed in 1.81s",
+      "payload": "console-negative-shrinking-block.log.gz",
+      "sha256": "13f3b759bc5731165b20a37956e8460ea1957457571b1e5f120becaddade4a0d",
+      "raw_sha256": "762b9ac3638a1d24ff6a57e96602023a96a2faeda8a651f4b413e26c68b7df13"
+    },
+    {
+      "tested_checkpoint": "1260c50e38427b65f908be77c27fa5af58747490",
+      "environment": "Qt6.12 offscreen,4G,pytest8.4.2",
+      "passing": true,
+      "terminal_summary": "111 passed, 2 warnings in 48.51s",
+      "payload": "final-console-help-organism-612.log.gz",
+      "sha256": "a9f3f8b021223df96c29bb42668075fb912189d30927a938a165c4f97765a9d8",
+      "raw_sha256": "72c0266f84e386b423982473bfdd1ed0ca91111bde0f71e0758001873c146660"
+    }
+  ],
+  "limits": [
+    "Local phase totals overlap; do not sum them.",
+    "Actual Console reachability repair does not prove the historical hosted one-pixel failure fixed.",
+    "No full serial/native crash/current-source GitHub acceptance or application publication is claimed.",
+    "API and runtime strings are identical to62; workstation must normally regenerate combined-source hashes."
+  ]
+}

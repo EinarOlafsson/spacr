@@ -1,0 +1,150 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-28",
+    "review_scope": "Complete review of German, Swedish, Icelandic, Norwegian Bokmål, Korean, and Danish captions for the current official distribution routes and direct conda-forge installation. Commands and product names remain exact."
+  },
+  "lessons": {
+    "01_pypi_github": {
+      "languages": {
+        "de": {
+          "narrations": [
+            "Wählen Sie vor der Installation von spaCR einen offiziellen Vertriebsweg. PyPI und conda-forge stellen veröffentlichte Pakete bereit, während GitHub Quellcode, Desktop-Installationsprogramme und den Veröffentlichungsverlauf bereitstellt.",
+            "Auf PyPI zeigt der Veröffentlichungskopf die aktuelle stabile Version und den Befehl pip install spacr.",
+            "Der Abschnitt Project links öffnet die Dokumentation, die Homepage, die Problemverfolgung und das Quellcode-Repository.",
+            "Auf GitHub bezeichnet main die freigegebene Quelllinie; nightly enthält neuere Änderungen, die noch getestet werden. Verwenden Sie nightly nur, wenn Sie ausdrücklich eine noch nicht veröffentlichte Änderung benötigen.",
+            "Erweitern Sie in einem GitHub Release den Abschnitt Assets, um das Installationsprogramm für Windows, macOS oder Linux, die Python-Paketdateien oder die Prüfsummenliste herunterzuladen.",
+            "Das offizielle conda-forge-Paket installiert spaCR und seine Desktop-Abhängigkeiten in der aktiven Conda-Umgebung. Verwenden Sie exakt den Befehl conda install conda-forge::spacr.",
+            "Verwenden Sie conda-forge oder PyPI für eine verwaltete Python-Umgebung, GitHub Releases für ein Desktop-Installationsprogramm und nightly nur, wenn Sie unveröffentlichte Änderungen benötigen. Wählen Sie anschließend das Installations-Tutorial für Ihren Weg."
+          ]
+        },
+        "sv": {
+          "narrations": [
+            "Välj en officiell distributionsväg innan du installerar spaCR. PyPI och conda-forge tillhandahåller publicerade paket, medan GitHub tillhandahåller källkod, installationsprogram för skrivbordet och versionshistorik.",
+            "På PyPI visar versionsrubriken den aktuella stabila versionen och kommandot pip install spacr.",
+            "Avsnittet Project links öppnar dokumentationen, startsidan, ärendehanteraren och källkodsarkivet.",
+            "På GitHub är main den publicerade källkodslinjen, medan nightly innehåller nyare ändringar som fortfarande testas. Använd endast nightly när du uttryckligen behöver en ännu opublicerad ändring.",
+            "I en GitHub Release expanderar du Assets för att hämta installationsprogrammet för Windows, macOS eller Linux, Python-paketfilerna eller listan med kontrollsummor.",
+            "Det officiella conda-forge-paketet installerar spaCR och dess skrivbordsberoenden i den aktiva Conda-miljön. Använd exakt kommandot conda install conda-forge::spacr.",
+            "Använd conda-forge eller PyPI för en hanterad Python-miljö, GitHub Releases för ett installationsprogram till skrivbordet och nightly endast när du behöver opublicerade ändringar. Välj sedan installationstutorialen för din väg."
+          ]
+        },
+        "is": {
+          "narrations": [
+            "Veldu opinbera dreifingarleið áður en spaCR er sett upp. PyPI og conda-forge bjóða útgefna pakka, en GitHub býður frumkóða, uppsetningarforrit fyrir skjáborð og útgáfuskrá.",
+            "Útgáfuhausinn á PyPI sýnir núverandi stöðugu útgáfu og skipunina pip install spacr.",
+            "Project links hlutinn opnar skjölin, heimasíðuna, verkbeiðnakerfið og frumkóðasafnið.",
+            "Á GitHub er main útgefna kóðalínan, en nightly inniheldur nýrri breytingar sem eru enn í prófun. Notaðu nightly aðeins þegar þú þarft sérstaklega á óútgefinni breytingu að halda.",
+            "Í GitHub Release skaltu opna Assets til að sækja uppsetningarforrit fyrir Windows, macOS eða Linux, Python-pakkaskrárnar eða gátsummulistann.",
+            "Opinberi conda-forge pakkinn setur spaCR og skjáborðsháð þess upp í virka Conda-umhverfinu. Notaðu nákvæmlega skipunina conda install conda-forge::spacr.",
+            "Notaðu conda-forge eða PyPI fyrir stýrt Python-umhverfi, GitHub Releases fyrir skjáborðsuppsetningarforrit og nightly aðeins þegar þú þarft óútgefnar breytingar. Veldu síðan uppsetningarkennsluna fyrir þína leið."
+          ]
+        },
+        "nb": {
+          "narrations": [
+            "Velg en offisiell distribusjonsmåte før du installerer spaCR. PyPI og conda-forge tilbyr publiserte pakker, mens GitHub tilbyr kildekode, installasjonsprogrammer for skrivebordet og utgivelseshistorikk.",
+            "På PyPI viser utgivelsesoverskriften den gjeldende stabile versjonen og kommandoen pip install spacr.",
+            "Delen Project links åpner dokumentasjonen, hjemmesiden, feilsporingen og kildekodedepotet.",
+            "På GitHub er main den publiserte kildekodelinjen, mens nightly inneholder nyere endringer som fortsatt testes. Bruk nightly bare når du uttrykkelig trenger en endring som ennå ikke er utgitt.",
+            "I en GitHub Release utvider du Assets for å laste ned installasjonsprogrammet for Windows, macOS eller Linux, Python-pakkefilene eller kontrollsumlisten.",
+            "Den offisielle conda-forge-pakken installerer spaCR og skrivebordsavhengighetene i det aktive Conda-miljøet. Bruk nøyaktig kommandoen conda install conda-forge::spacr.",
+            "Bruk conda-forge eller PyPI for et administrert Python-miljø, GitHub Releases for et installasjonsprogram til skrivebordet og nightly bare når du trenger endringer som ennå ikke er utgitt. Velg deretter installasjonsveiledningen for din metode."
+          ]
+        },
+        "ko": {
+          "narrations": [
+            "spaCR을 설치하기 전에 공식 배포 방법을 선택하십시오. PyPI와 conda-forge는 릴리스된 패키지를 제공하고, GitHub는 소스 코드, 데스크톱 설치 프로그램 및 릴리스 기록을 제공합니다.",
+            "PyPI의 릴리스 머리글에는 현재 안정 버전과 pip install spacr 명령이 표시됩니다.",
+            "Project links 섹션에서 문서, 홈페이지, 이슈 추적기 및 소스 코드 저장소를 열 수 있습니다.",
+            "GitHub에서 main은 릴리스된 소스 코드 계열이고, nightly에는 아직 테스트 중인 최신 변경 사항이 포함됩니다. 아직 릴리스되지 않은 변경 사항이 꼭 필요한 경우에만 nightly를 사용하세요.",
+            "GitHub Release에서 Assets를 펼치면 Windows, macOS 또는 Linux 설치 프로그램, Python 패키지 파일 또는 체크섬 목록을 다운로드할 수 있습니다.",
+            "공식 conda-forge 패키지는 활성 Conda 환경에 spaCR과 데스크톱 종속 패키지를 설치합니다. 정확한 명령인 conda install conda-forge::spacr를 사용하십시오.",
+            "관리되는 Python 환경에는 conda-forge 또는 PyPI를 사용하고, 데스크톱 설치 프로그램에는 GitHub Releases를 사용하며, 아직 릴리스되지 않은 변경 사항이 필요한 경우에만 nightly를 사용하십시오. 그런 다음 선택한 방법의 설치 튜토리얼로 이동하십시오."
+          ]
+        },
+        "da": {
+          "narrations": [
+            "Vælg en officiel distributionsmetode, før du installerer spaCR. PyPI og conda-forge leverer udgivne pakker, mens GitHub leverer kildekode, installationsprogrammer til skrivebordet og udgivelseshistorik.",
+            "På PyPI viser udgivelsesoverskriften den aktuelle stabile version og kommandoen pip install spacr.",
+            "Afsnittet Project links åbner dokumentationen, startsiden, problemsporingen og kildekodedepotet.",
+            "På GitHub er main den udgivne kildekodelinje, mens nightly indeholder nyere ændringer, der stadig testes. Brug kun nightly, når du specifikt har brug for en endnu ikke udgivet ændring.",
+            "I en GitHub Release skal du udvide Assets for at hente installationsprogrammet til Windows, macOS eller Linux, Python-pakkefilerne eller listen over kontrolsummer.",
+            "Den officielle conda-forge-pakke installerer spaCR og dens skrivebordsafhængigheder i det aktive Conda-miljø. Brug præcis kommandoen conda install conda-forge::spacr.",
+            "Brug conda-forge eller PyPI til et administreret Python-miljø, GitHub Releases til et installationsprogram til skrivebordet og nightly kun, når du har brug for ikke-udgivne ændringer. Vælg derefter installationsvejledningen til din metode."
+          ]
+        }
+      }
+    },
+    "02_conda_install": {
+      "languages": {
+        "de": {
+          "narrations": [
+            "Installieren Sie spaCR aus conda-forge in einer eigenen Conda-Umgebung. Das Paket enthält die Desktop-Oberfläche und deklariert die Abhängigkeiten von spaCR.",
+            "Öffnen Sie ein Terminal mit Conda und erstellen Sie eine Umgebung namens spacr mit Python 3.12.",
+            "Aktivieren Sie die Umgebung. Vergewissern Sie sich vor der Installation, dass Python zur Umgebung spacr gehört.",
+            "Installieren Sie das offizielle Paket mit conda install conda-forge::spacr. Der kanalqualifizierte Befehl wählt ausdrücklich den conda-forge-Build aus.",
+            "Prüfen Sie, dass Conda spaCR in der Umgebung aufführt; importieren Sie es anschließend und geben Sie die installierte Version aus.",
+            "Führen Sie vor dem ersten Start spacr-doctor aus. Das Diagnoseprogramm prüft die aktive Installation, Qt, PyTorch, optionale Komponenten und die Hardware-Unterstützung und schlägt für jede fehlgeschlagene Prüfung eine Lösung vor.",
+            "Wenn spacr-doctor alle Prüfungen bestanden hat, starten Sie spaCR mit dem Befehl spacr. Lassen Sie diese Umgebung bei jeder Verwendung von spaCR aktiviert."
+          ]
+        },
+        "sv": {
+          "narrations": [
+            "Installera spaCR från conda-forge i en särskild Conda-miljö. Paketet innehåller skrivbordsgränssnittet och deklarerar spaCR:s beroenden.",
+            "Öppna en terminal med Conda och skapa en miljö som heter spacr med Python 3.12.",
+            "Aktivera miljön. Bekräfta att Python tillhör miljön spacr innan du installerar något.",
+            "Installera det officiella paketet med conda install conda-forge::spacr. Det kanalspecificerade kommandot väljer uttryckligen conda-forge-bygget.",
+            "Bekräfta att Conda listar spaCR i miljön; importera det sedan och skriv ut den installerade versionen.",
+            "Kör spacr-doctor före den första starten. Diagnosverktyget kontrollerar den aktiva installationen, Qt, PyTorch, valfria komponenter och maskinvarustöd och föreslår en lösning för varje kontroll som misslyckas.",
+            "När spacr-doctor har klarat alla kontroller startar du spaCR med kommandot spacr. Behåll miljön aktiverad varje gång du kör spaCR."
+          ]
+        },
+        "is": {
+          "narrations": [
+            "Settu spaCR upp úr conda-forge í sérstöku Conda-umhverfi. Pakkinn inniheldur skjáborðsviðmótið og tilgreinir hugbúnaðarhæði spaCR.",
+            "Opnaðu Conda-virka skipanalínu og búðu til umhverfi sem heitir spacr með Python 3.12.",
+            "Virkjaðu umhverfið. Staðfestu að Python tilheyri spacr-umhverfinu áður en nokkuð er sett upp.",
+            "Settu opinbera pakkann upp með conda install conda-forge::spacr. Skipunin tilgreinir rásina og velur því conda-forge-smíðina sérstaklega.",
+            "Staðfestu að Conda skrái spaCR í umhverfinu; flyttu það síðan inn og birtu uppsettu útgáfuna.",
+            "Keyrðu spacr-doctor áður en forritið er ræst í fyrsta sinn. Greiningartólið athugar virku uppsetninguna, Qt, PyTorch, valfrjálsa íhluti og vélbúnaðarstuðning og leggur til lausn fyrir hverja athugun sem mistekst.",
+            "Þegar spacr-doctor stenst allar athuganir skaltu ræsa spaCR með skipuninni spacr. Hafðu umhverfið virkt í hvert sinn sem þú keyrir spaCR."
+          ]
+        },
+        "nb": {
+          "narrations": [
+            "Installer spaCR fra conda-forge i et eget Conda-miljø. Pakken inkluderer skrivebordsgrensesnittet og deklarerer avhengighetene til spaCR.",
+            "Åpne en terminal med Conda og opprett et miljø som heter spacr med Python 3.12.",
+            "Aktiver miljøet. Bekreft at Python tilhører spacr-miljøet før du installerer noe.",
+            "Installer den offisielle pakken med conda install conda-forge::spacr. Kommandoen angir kanalen og velger dermed conda-forge-bygget uttrykkelig.",
+            "Bekreft at Conda viser spaCR i miljøet; importer deretter pakken og skriv ut den installerte versjonen.",
+            "Kjør spacr-doctor før første oppstart. Diagnoseverktøyet kontrollerer den aktive installasjonen, Qt, PyTorch, valgfrie komponenter og maskinvarestøtte og foreslår en løsning for hver kontroll som mislykkes.",
+            "Når spacr-doctor har bestått alle kontrollene, starter du spaCR med kommandoen spacr. Behold miljøet aktivert hver gang du kjører spaCR."
+          ]
+        },
+        "ko": {
+          "narrations": [
+            "전용 Conda 환경에 conda-forge에서 spaCR을 설치하십시오. 이 패키지에는 데스크톱 인터페이스가 포함되어 있으며 spaCR의 종속 패키지가 명시되어 있습니다.",
+            "Conda를 사용할 수 있는 터미널을 열고 Python 3.12가 포함된 spacr 환경을 만드십시오.",
+            "환경을 활성화하십시오. 패키지를 설치하기 전에 현재 Python이 spacr 환경에 속하는지 확인하십시오.",
+            "conda install conda-forge::spacr 명령으로 공식 패키지를 설치하십시오. 채널을 지정한 이 명령은 conda-forge 빌드를 명시적으로 선택합니다.",
+            "Conda가 환경에 spaCR을 표시하는지 확인한 다음, 패키지를 가져와 설치된 버전을 출력하십시오.",
+            "처음 실행하기 전에 spacr-doctor를 실행하세요. 진단 도구는 현재 설치, Qt, PyTorch, 선택적 구성 요소 및 하드웨어 지원을 확인하고 실패한 항목마다 해결 방법을 제안합니다.",
+            "spacr-doctor의 모든 검사를 통과하면 spacr 명령으로 spaCR을 시작하십시오. spaCR을 실행할 때마다 이 환경을 활성화한 상태로 유지하십시오."
+          ]
+        },
+        "da": {
+          "narrations": [
+            "Installer spaCR fra conda-forge i et dedikeret Conda-miljø. Pakken indeholder skrivebordsgrænsefladen og deklarerer spaCR's afhængigheder.",
+            "Åbn en terminal med Conda, og opret et miljø med navnet spacr og Python 3.12.",
+            "Aktivér miljøet. Bekræft, at Python tilhører spacr-miljøet, før du installerer noget.",
+            "Installer den officielle pakke med conda install conda-forge::spacr. Kommandoen angiver kanalen og vælger dermed conda-forge-buildet udtrykkeligt.",
+            "Bekræft, at Conda viser spaCR i miljøet; importér derefter pakken, og vis den installerede version.",
+            "Kør spacr-doctor før den første start. Diagnoseværktøjet kontrollerer den aktive installation, Qt, PyTorch, valgfrie komponenter og hardwareunderstøttelse og foreslår en løsning for hver kontrol, der mislykkes.",
+            "Når spacr-doctor har bestået alle kontroller, starter du spaCR med kommandoen spacr. Behold miljøet aktiveret, hver gang du kører spaCR."
+          ]
+        }
+      }
+    }
+  }
+}

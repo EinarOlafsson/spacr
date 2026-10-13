@@ -1,0 +1,41 @@
+{
+  "source": "eb7ac2fa046556b98cb1252f1eb7f30f57dd64a9",
+  "product_source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "negative_control_expected_failures": 8,
+  "actual_failures": 8,
+  "elapsed_seconds": 2.26,
+  "exit_status": 1,
+  "qt": "6.12.0",
+  "pytest": "8.4.2",
+  "payloads": {
+    "preview-dialog-regression-negative-qt612-r1.log.gz": {
+      "bytes": 974,
+      "sha256": "96bfb361e2118057b141072740e73da0582107f0d4254eaefb8f75c97474a548",
+      "raw_bytes": 7188,
+      "raw_sha256": "5321b8ad2125bd98b1114e95ed387f807bf410e482775092034ebab9569275fd"
+    },
+    "preview-dialog-regression-negative-qt612-r1-tool.log.gz": {
+      "bytes": 765,
+      "sha256": "610b005384438655680570552c3b4876478f73919da15da27ff2602103145148",
+      "raw_bytes": 6677,
+      "raw_sha256": "75e2ea99821ba15edcf2bce937d4a11c0a6d05bf592094c9523530a71776b4bc"
+    },
+    "tests/test_live_settings_dialog_control_lifetime.py.gz": {
+      "bytes": 917,
+      "sha256": "13aa1e465bab91e0405b579774dd7df7a979e0b5cb657a97c2684e186caa3b9e",
+      "raw_bytes": 2974,
+      "raw_sha256": "683ebd263678d661b99fbd01cb02cc93ca73930c56c15b4d75828164047fc51b"
+    },
+    "test-only-negative-regressions.patch.gz": {
+      "bytes": 1024,
+      "sha256": "55d1dfcf642f0e05276fc8f36189c34120d962ea3b5da50255f063824d8ec065",
+      "raw_bytes": 3318,
+      "raw_sha256": "94abc3e7b76e9ea273239737ef41725ee09d2c1b534df33542d5c9a9f46b4a45"
+    }
+  },
+  "scope": "Strict new behavior guards fail on unchanged original app for native control survival and disconnected propagation across Close/Escape/accept/reject. Test-only private commit; no xfail or production fix applied.",
+  "limitations": [
+    "Negative run is not successful acceptance. No actual native abort/crash cause.",
+    "Source fix waits for Home path coordination."
+  ]
+}

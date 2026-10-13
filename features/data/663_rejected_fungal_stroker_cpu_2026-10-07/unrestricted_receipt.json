@@ -1,0 +1,58 @@
+{
+  "ambient_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "rows": [
+    {
+      "size": 2.5,
+      "clock": 95,
+      "dimensions": [
+        [
+          3840,
+          2160
+        ],
+        [
+          3840,
+          2160
+        ]
+      ],
+      "different_pixels": 0,
+      "first_offsets": [],
+      "hashes": [
+        "dff3ac3e10969adfe350f1831f399f1df8cc51cab61cfb1da2152478abdb95fc",
+        "dff3ac3e10969adfe350f1831f399f1df8cc51cab61cfb1da2152478abdb95fc"
+      ]
+    },
+    {
+      "size": 1.0,
+      "clock": 95,
+      "dimensions": [
+        [
+          3840,
+          2160
+        ],
+        [
+          3840,
+          2160
+        ]
+      ],
+      "different_pixels": 61750,
+      "first_offsets": [
+        3085083,
+        3088923,
+        3088924,
+        3092764,
+        3100444,
+        3100445,
+        3104284,
+        3104285,
+        3108124,
+        3108125
+      ],
+      "hashes": [
+        "08ae44fab13714037f4c3dc4f9712a7d8e2ad5fe99e4942b6f7311029e46ea2a",
+        "56343876cdbeeaadd4de50624805c9a506e992e04f253fc1b3289d9911a1e8dd"
+      ]
+    }
+  ],
+  "accepted": false,
+  "scope": "Scratch method override only; no application/source/cache/budget edits. Native full-raster qualification only, not FPS acceptance."
+}

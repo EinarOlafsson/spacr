@@ -1,0 +1,20 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Return the accepted pattern for ``_get_regex`` custom mode.",
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbenchDialog.chosen_regex#0",
+      "source": "Return the accepted pattern for ``_get_regex`` custom mode.",
+      "source_sha256": "09a2f7fed294502f7150dfd9c8716f285218256ca63aae998d41cc49091c0923",
+      "translation": "Skila samþykktu mynstri fyrir sérsniðna stillingu ``_get_regex``."
+    },
+    {
+      "context": "The workbench previews patterns against complete filenames, while ``_get_regex`` appends the selected image extension. This method removes that trailing extension with :func:`for_get_regex` to avoid duplicating it in the import pattern.",
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbenchDialog.chosen_regex#1",
+      "source": "The workbench previews patterns against complete filenames, while ``_get_regex`` appends the selected image extension. This method removes that trailing extension with :func:`for_get_regex` to avoid duplicating it in the import pattern.",
+      "source_sha256": "f396d524df23ca4880e4042d9ce802eaf28c3aaff01161971fcb6fbb59fe5e7e",
+      "translation": "Vinnuborðið forskoðar mynstur miðað við heil skráarheiti en ``_get_regex`` bætir við valinni myndskráarendingu. Þessi aðferð fjarlægir endinguna aftan af með :func:`for_get_regex` svo hún tvíteknist ekki í innflutningsmynstrinu."
+    }
+  ],
+  "schema": 1
+}

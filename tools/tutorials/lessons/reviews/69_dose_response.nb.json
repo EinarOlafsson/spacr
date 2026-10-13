@@ -1,0 +1,41 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "34417ee0b35163e5d977b5ec2c4cb8f350c8b51afbb57c35816ffba537990b2b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Dose Response: tilpass konsentrasjonskurver og les intervallene",
+  "description": "Last inn en konsentrasjonstabell, grupper serier, tilpass logistiske kurver og hold estimater, intervaller og tilpasningsadvarsler samlet.",
+  "objectives": [
+    "Laste inn det syntetiske eksemplet og velge kolonner for konsentrasjon, respons og gruppering.",
+    "Tilpasse kurver og sammenligne profile likelihood- og Wald-intervaller.",
+    "Lese ubegrensede eller avviste resultater og lagre rapporten."
+  ],
+  "prerequisite": "Last ned den lenkede syntetiske dose-respons-CSV-filen. Den inneholder fire illustrerende serier, ni positive konsentrasjoner og en vehikkel med dose null, med tre observasjoner per konsentrasjon. Oppgi rå konsentrasjonsverdier og gjør eventuell normalisering eller enhetsomregning før du laster inn egne data.",
+  "scenes": [
+    "Fra Home åpner du Data og velger Dose Response. Forbered en tabell med tydelige kolonner for konsentrasjon og respons for hver serie du vil tilpasse.",
+    "Last ned den lenkede syntetiske CSV-filen, klikk på Load table og åpne den. De navngitte syntetiske seriene viser kontrollene og ulike tilpasningsutfall.",
+    "Tabellen har 120 rader fordelt på fire serier. Hver serie har ni positive konsentrasjoner, en vehikkel med dose null og tre observasjoner ved hver konsentrasjon.",
+    "Sett konsentrasjonskolonnen til concentration, responskolonnen til response og One curve per til series. Bruk rå konsentrasjoner i stedet for logaritmene deres.",
+    "Skriv konsentrasjonsenheten i Unit. Bruk µM i dette eksemplet. Feltet merker bare verdiene; regn om tallene på forhånd hvis du trenger en annen enhet.",
+    "Velg Profile likelihood, la Fit non-monotone data være av og klikk på Fit. Undersøk kurvepanelet og resultattabellen samlet, også serier med advarsler eller estimater som ikke er tilgjengelige.",
+    "Velg synthetic inhibition. Midtpunktet er 1,5 og Hill-stigningen er negativ. Halvt maksimum ligger midt mellom de tilpassede platåene, som her er 5 og 95.",
+    "Velg synthetic activation. Midtpunktet er 2 og Hill-stigningen er positiv. Den valgte kurven fremheves, og rapporten nedenfor følger den valgte raden.",
+    "Velg eksemplet utenfor området. De testede konsentrasjonene slutter på 100, så midtpunktet mangler støtte. Les den oppgitte grensen; tomme celler for midtpunkt og intervall betyr at estimatet ikke er tilgjengelig.",
+    "Velg serien som snur, og les hvorfor tilpasningen avvises. Undersøk formen på responsen og den eksperimentelle konteksten før du avgjør om en monoton logistisk modell passer.",
+    "Gå tilbake til inhibition og les antall observasjoner. 27 observasjoner med positiv dose inngår i tilpasningen. Tre kontroller med dose null oppsummeres separat fordi null ikke kan inngå i den logaritmiske tilpasningen.",
+    "Les residualfeil og manglende tilpasning sammen med R². Ha eksperimentets replikatstruktur i tankene når du tolker usikkerheten; gjentatte rader alene viser ikke uavhengige eksperimenter.",
+    "Velg Wald og klikk på Fit igjen for å sammenligne intervallmetodene. Endret valg krever en ny tilpasning. Intervallet beregnes på log-midtpunktet og transformeres tilbake til konsentrasjon.",
+    "Sammenlign intervallgrensene for de godt avgrensede seriene. Midtpunktsestimatene er her like; eksemplet utenfor området har fortsatt ikke noe støttet midtpunktsestimat.",
+    "Sett Profile likelihood tilbake og klikk på Fit. Kontroller valgt metode og tilhørende rapport før du kopierer resultater.",
+    "Sorter tabellen først når tilpasningssammenligningene er ferdige. Denne versjonen kan forskyve rader hvis du tilpasser en sortert tabell på nytt. Velg inhibition og bekreft at rapporten nevner samme serie.",
+    "Merk rapportteksten og kopier den med den vanlige hurtigtasten. Lagre advarsler, intervallmetode og inndatakonsentrasjoner sammen med resultatet.",
+    "For tabellutdata bruker du fit_frame og dose-respons-resultattabellen i Python. Denne skjermen har ingen eksportknapp. Behold ubegrensede og avviste rader i utdataene, slik at hver inndataserie blir gjort rede for."
+  ]
+}

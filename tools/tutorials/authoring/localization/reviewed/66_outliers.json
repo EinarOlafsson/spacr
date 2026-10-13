@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "66_outliers",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Sinalize objetos ou poços incomuns por regras robustas, preservando todas as linhas.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Outliers.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Outliers. Sinalize objetos ou poços incomuns por regras robustas, preservando todas as linhas.",
+        "Selecione a tabela, o nível da análise, o agrupamento e as características que serão avaliadas.",
+        "Na área principal de configuração, selecione um método robusto, a direção, o limiar, o tratamento dos valores ausentes e os grupos de referência.",
+        "Examine a prévia das linhas sinalizadas e suas medições e imagens antes de aceitar a regra.",
+        "Ao término do fluxo de trabalho, o spaCR grava um indicador de valor atípico e os diagnósticos, em vez de excluir observações silenciosamente."
+      ]
+    }
+  }
+}

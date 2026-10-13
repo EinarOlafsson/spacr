@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "25_recruitment",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Quantifique o enriquecimento de um marcador em regiões associadas aos parasitas em relação ao fundo das células hospedeiras.",
+      "prerequisite": "Meça os compartimentos relevantes e prepare os metadados das placas com controles adequados.",
+      "objectives": [
+        "Mapear corretamente os canais e as máscaras.",
+        "Selecionar filtros de objetos e controles justificáveis.",
+        "Validar o recrutamento usando imagens e distribuições."
+      ],
+      "narrations": [
+        "Recruitment lê medições existentes e calcula o enriquecimento do marcador em regiões associadas aos parasitas. O módulo não volta a segmentar as imagens.",
+        "Selecione a raiz do experimento que contém o banco de dados de medições e os campos combinados.",
+        "Essentials reúne a origem dos dados, o mapeamento de canais, os filtros, os rótulos das placas e os controles de diagnóstico. Modified oferece uma revisão compacta antes da execução.",
+        "Mapeie cuidadosamente cada canal de intensidade e plano de máscara e, em seguida, selecione o canal de interesse. Um índice de canal válido, porém incorreto, ainda pode produzir razões aparentemente plausíveis.",
+        "Object filters remove células, núcleos e parasitas implausíveis. Defina os filtros a partir de distribuições e sobreposições, não de valores fixos do tutorial.",
+        "Associe as condições e os controles aos identificadores corretos das placas antes de interpretar diferenças entre grupos.",
+        "Run combina as medições, aplica os filtros revisados, calcula o recrutamento, agrupa os poços e produz os diagnósticos.",
+        "Examine as sobreposições de segmentação e as distribuições dos controles antes de confiar nos resumos das condições. As saídas em nível de objeto e de poço preservam os identificadores de origem."
+      ]
+    }
+  }
+}

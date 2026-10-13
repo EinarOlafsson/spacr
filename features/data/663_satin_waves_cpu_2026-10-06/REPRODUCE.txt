@@ -1,0 +1,59 @@
+Accepted satin checkpoint: 4160916fa6, renderer SHA256
+9ea17982c07bcb3bbea6dd141da13f48e3cba67d1b8e26388754533edf258752.
+Integrated checkpoint: 9ad69bab29, renderer SHA256
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5.
+These are different whole modules. integrated-satin-source-parity.json proves
+six satin helper/painter nodes and six point shade/frame/stamping nodes match
+the independently accepted implementations exactly by AST. No main-window
+Save crash reproduction, native crash fix, or all-theme 24FPS acceptance.
+
+From the repository root, with the installed supported CPU Python environment:
+
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python \
+  features/data/663_satin_waves_cpu_2026-10-06/verify_integrated_source.py
+
+TMPDIR=/mnt/wd4tb/scratch CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen \
+  tools/run_capped.sh 4G python \
+  features/data/663_satin_waves_cpu_2026-10-06/reproduce.py worker
+
+TMPDIR=/mnt/wd4tb/scratch CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen \
+  tools/run_capped.sh 4G python \
+  features/data/663_satin_waves_cpu_2026-10-06/reproduce.py native
+
+Replays expand the accepted frozen sources into a fresh scratch directory,
+then load them explicitly as modules in the existing spacr package. Nothing
+in spacr/ is overwritten. Worker replay measures actual FrameProducer,
+GUI QTimer/paint, animation clocks, publication rate, cold compile/heartbeat
+and hide retirement at native1920/3840; its native area override is explicit.
+Native replay verifies32 whole4K NumPy/compiled frame pairs, produces lossless
+stills and72 offline1080 frames, and records direct shade timings. Offline
+sampled24Hz is not actual rendering FPS. Hardware/shared-host load changes
+timings. CPU compiler unavailable/disabled must use exact NumPy in production;
+accepted warm-compiler performance replay requires supported enabled Numba.
+
+Accepted source coverage is archived losslessly as JSON and SQLite, with its
+145 added-statement/41 touching-arc zero-gap receipt and source diff. The
+152-case log and seven actual test files retain their individual416 source
+context. Reproduce that exact cohort in an isolated nightly-derived worktree
+at4160916fa6, not by overwriting a shared checkout:
+
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python \
+  -m pytest tests/qt/test_data_art_waves_and_vortices.py \
+  tests/qt/test_data_art_gravity_and_geometry.py \
+  tests/qt/test_data_art_advection_evolution.py \
+  tests/qt/test_data_art_gravity_radius.py tests/qt/test_data_art_renderer.py \
+  tests/qt/test_data_art_filter_boundaries.py \
+  tests/qt/test_data_art_clock_handoff.py -q \
+  --basetemp=/mnt/wd4tb/scratch/satin-accepted-152
+
+The integrated31-case log records native full-layer/strip parity, owned point
+frames dark/light/blur and publication independence, temporary target release,
+joined partial-copy fallback, real bounded daemon queue success/error/cancel,
+actual clock progression and all six data-art worker retirements. Selected
+integrated pytest nodes are listed in integrated_test_nodes.json.
+
+Rejected prototypes are explicitly excluded from accepted performance.
+The398MiB retained cache and14FPS full-target frame-local experiment explain
+why accepted source uses tiny persistent metadata plus cropped native strips.
+Cold compilation/fold construction can briefly stall; measured cold heartbeat
+max64.56ms and first native show528.25ms remain explicit in the live receipt.

@@ -1,0 +1,3873 @@
+{
+  "count": 920,
+  "pairs": {
+    "analyze_plaques/CP_prob": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "analyze_plaques/Signal_to_noise": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "analyze_plaques/background": {
+      "actual": "200",
+      "claimed": "100"
+    },
+    "analyze_plaques/channels": {
+      "actual": "[0, 0]",
+      "claimed": "[0,1,2,3]"
+    },
+    "analyze_plaques/colony_counting": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "analyze_plaques/colony_detector": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "analyze_plaques/colony_dilution": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "analyze_plaques/colony_min_area_px": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "analyze_plaques/colony_plated_volume_ul": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "analyze_plaques/colony_threshold": {
+      "actual": "4.0",
+      "claimed": "4.0"
+    },
+    "analyze_plaques/colony_too_few": {
+      "actual": "30",
+      "claimed": "30"
+    },
+    "analyze_plaques/colony_too_many": {
+      "actual": "300",
+      "claimed": "300"
+    },
+    "analyze_plaques/confirm_annotations": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "analyze_plaques/diameter": {
+      "actual": "30",
+      "claimed": "30"
+    },
+    "analyze_plaques/figure_confidence": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "analyze_plaques/figure_detector": {
+      "actual": "'toxoplasma_well_detector_v2'",
+      "claimed": "'toxoplasma_well_detector_v2'"
+    },
+    "analyze_plaques/figure_imgsz": {
+      "actual": "'640,1280'",
+      "claimed": "'640,1280'"
+    },
+    "analyze_plaques/figure_read_text": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/fill_in": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/flow_threshold": {
+      "actual": "0.4",
+      "claimed": "0.4"
+    },
+    "analyze_plaques/grayscale": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/invert": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "analyze_plaques/masks": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/model_name": {
+      "actual": "'cpsam'",
+      "claimed": "'cpsam'"
+    },
+    "analyze_plaques/normalize": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/percentiles": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "analyze_plaques/plaque_formation_hours": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "analyze_plaques/plaque_growth_reference_hours": {
+      "actual": "168.0",
+      "claimed": "168"
+    },
+    "analyze_plaques/plaque_growth_reference_um": {
+      "actual": "893.8178699548309",
+      "claimed": "893.8178699548309"
+    },
+    "analyze_plaques/plaque_mode": {
+      "actual": "'plaque'",
+      "claimed": "'plaque'"
+    },
+    "analyze_plaques/plaque_model": {
+      "actual": "'toxoplasma_plaque_v2'",
+      "claimed": "'toxoplasma_plaque_v2'"
+    },
+    "analyze_plaques/plaque_pixels_per_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "analyze_plaques/plate_format": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "analyze_plaques/remove_background": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "analyze_plaques/resample": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "analyze_plaques/rescale": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "analyze_plaques/resize": {
+      "actual": "True",
+      "claimed": "False"
+    },
+    "analyze_plaques/target_height": {
+      "actual": "1120",
+      "claimed": "None"
+    },
+    "analyze_plaques/target_width": {
+      "actual": "1120",
+      "claimed": "None"
+    },
+    "analyze_plaques/text_ignore": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "analyze_plaques/text_min_confidence": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "analyze_plaques/text_order": {
+      "actual": "'above,left,below'",
+      "claimed": "'above,left,below'"
+    },
+    "analyze_plaques/text_panel_reach": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "analyze_plaques/text_reach_above": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "analyze_plaques/text_reach_below": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "analyze_plaques/text_reach_left": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "analyze_plaques/text_reread": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/text_reread_scale": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "analyze_plaques/text_separator": {
+      "actual": "' / '",
+      "claimed": "' / '"
+    },
+    "analyze_plaques/text_use_above": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/text_use_below": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/text_use_left": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/verbose": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "analyze_plaques/well_confidence": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "analyze_plaques/well_detection": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "analyze_plaques/well_diameter_mm": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "analyze_plaques/well_pad": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "classify_merged/amsgrad": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/annotation_column": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/apply_model_to_dataset": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/augment": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/balance_to_smallest": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/batch_column": {
+      "actual": "'plateID'",
+      "claimed": "'plateID'"
+    },
+    "classify_merged/batch_correction": {
+      "actual": "'none'",
+      "claimed": "'none'"
+    },
+    "classify_merged/batch_covariate_column": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/batch_min_samples": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "classify_merged/batch_missing_control": {
+      "actual": "'error'",
+      "claimed": "'error'"
+    },
+    "classify_merged/bounding_box": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/channel_arrays": {
+      "actual": "[0, 1, 2]",
+      "claimed": "[0, 1, 2]"
+    },
+    "classify_merged/channel_of_interest": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "classify_merged/class_balance": {
+      "actual": "'none'",
+      "claimed": "'none'"
+    },
+    "classify_merged/class_folder_names": {
+      "actual": "['nc', 'pc']",
+      "claimed": "['nc','pc']"
+    },
+    "classify_merged/classes": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "classify_merged/classifier_evaluation": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/classifier_family": {
+      "actual": "'cv'",
+      "claimed": "'cv'"
+    },
+    "classify_merged/cmap": {
+      "actual": "'viridis'",
+      "claimed": "'inferno'"
+    },
+    "classify_merged/coordinate_columns": {
+      "actual": "['cell_id']",
+      "claimed": "None"
+    },
+    "classify_merged/crop_shape": {
+      "actual": "'bounding_box'",
+      "claimed": "'bounding_box'"
+    },
+    "classify_merged/crop_source": {
+      "actual": "'load_images'",
+      "claimed": "'png'"
+    },
+    "classify_merged/cross_validation": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/cross_validation_enabled": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/custom_model_path": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "classify_merged/dataset": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "classify_merged/dataset_mode": {
+      "actual": "'metadata'",
+      "claimed": "'metadata'"
+    },
+    "classify_merged/dropout_rate": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "classify_merged/epochs": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "classify_merged/evaluation_bins": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "classify_merged/evaluation_calibration": {
+      "actual": "'temperature'",
+      "claimed": "'temperature'"
+    },
+    "classify_merged/evaluation_fail_on_leakage": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/exclude": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/experiment": {
+      "actual": "'experiment'",
+      "claimed": "'experiment'"
+    },
+    "classify_merged/file_metadata": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/file_type": {
+      "actual": "'cell_png'",
+      "claimed": "'cell_png'"
+    },
+    "classify_merged/focal_alpha": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/focal_gamma": {
+      "actual": "2.0",
+      "claimed": "2.0"
+    },
+    "classify_merged/generate_full_dataset": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/generate_training_dataset": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/gradient_accumulation_steps": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "classify_merged/grouping": {
+      "actual": "'mean'",
+      "claimed": "'mean'"
+    },
+    "classify_merged/heatmap_feature": {
+      "actual": "'predictions'",
+      "claimed": "'predictions'"
+    },
+    "classify_merged/image_size": {
+      "actual": "224",
+      "claimed": "224"
+    },
+    "classify_merged/image_source": {
+      "actual": "'load_images'",
+      "claimed": "'load_images'"
+    },
+    "classify_merged/init_weights": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/intermedeate_save": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/label_smoothing": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "classify_merged/leakage_audit_train_test": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/leakage_hash_content": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/leakage_require_identity": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/learning_rate": {
+      "actual": "0.001",
+      "claimed": "0.001"
+    },
+    "classify_merged/logit_adjust_tau": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "classify_merged/loss_type": {
+      "actual": "'auto'",
+      "claimed": "'focal_loss'"
+    },
+    "classify_merged/max_failure_rate": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/min_cells_per_well": {
+      "actual": "25",
+      "claimed": "100"
+    },
+    "classify_merged/min_max": {
+      "actual": "'allq'",
+      "claimed": "'allq'"
+    },
+    "classify_merged/mixed_precision": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/model_path": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "classify_merged/model_type": {
+      "actual": "'maxvit_t'",
+      "claimed": "'maxvit_t'"
+    },
+    "classify_merged/n_estimators": {
+      "actual": "1000",
+      "claimed": "1000"
+    },
+    "classify_merged/n_repeats": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "classify_merged/n_top_examples": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "classify_merged/normalize": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/nuclei_limit": {
+      "actual": "True",
+      "claimed": "None"
+    },
+    "classify_merged/object_array": {
+      "actual": "'cell'",
+      "claimed": "'cell'"
+    },
+    "classify_merged/optimizer_type": {
+      "actual": "'adamw'",
+      "claimed": "'adamw'"
+    },
+    "classify_merged/pin_memory": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/plot": {
+      "actual": "True",
+      "claimed": "False"
+    },
+    "classify_merged/prune_features": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/ram_guard": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/random_seed": {
+      "actual": "42",
+      "claimed": "42"
+    },
+    "classify_merged/reg_alpha": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "classify_merged/reg_lambda": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "classify_merged/remove_highly_correlated_features": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/remove_low_variance_features": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/resume_checkpoint": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "classify_merged/sample": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/schedule": {
+      "actual": "'cosine'",
+      "claimed": "'cosine'"
+    },
+    "classify_merged/score_threshold": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "classify_merged/stream_method": {
+      "actual": "'column'",
+      "claimed": "'column'"
+    },
+    "classify_merged/strict_errors": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "classify_merged/tables": {
+      "actual": "['cell', 'nucleus', 'pathogen', 'cytoplasm']",
+      "claimed": "['cell', 'nucleus', 'pathogen', 'cytoplasm']"
+    },
+    "classify_merged/tar_path": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "classify_merged/tensorboard": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/test": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/test_size": {
+      "actual": "0.2",
+      "claimed": "0.2"
+    },
+    "classify_merged/test_split": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "classify_merged/top_features": {
+      "actual": "30",
+      "claimed": "30"
+    },
+    "classify_merged/train": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/train_channels": {
+      "actual": "['r', 'g', 'b']",
+      "claimed": "['r', 'g', 'b']"
+    },
+    "classify_merged/tta_enabled": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/tta_horizontal_flip": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/tta_max_std": {
+      "actual": "0.15",
+      "claimed": "0.15"
+    },
+    "classify_merged/tta_min_agreement": {
+      "actual": "0.75",
+      "claimed": "0.75"
+    },
+    "classify_merged/tta_rotations": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/tta_vertical_flip": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "classify_merged/use_checkpoint": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/val_split": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "classify_merged/verbose": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "classify_merged/weight_decay": {
+      "actual": "1e-05",
+      "claimed": "0.00001"
+    },
+    "external_masks/anisotropy": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/bystander_measurements": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/bystander_reach_in_diameters": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "external_masks/calculate_correlation": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/cell_cycle": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/cell_cycle_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/cell_cycle_epochs": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "external_masks/cell_cycle_fucci_channels": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/cell_cycle_gates": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/cell_cycle_labels": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/cell_cycle_mitotic_ratio": {
+      "actual": "1.8",
+      "claimed": "1.8"
+    },
+    "external_masks/cell_cycle_model": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/cell_min_size": {
+      "actual": "8000",
+      "claimed": "8000"
+    },
+    "external_masks/cellprofiler_pipeline": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/channels": {
+      "actual": "[]",
+      "claimed": "[0,1,2,3]"
+    },
+    "external_masks/cloud_anonymous": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/cloud_cache": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/cloud_endpoint": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/cloud_profile": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/cloud_results": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/confluency": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/confluency_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/confluency_qc_threshold": {
+      "actual": "0.8",
+      "claimed": "0.8"
+    },
+    "external_masks/confluency_window": {
+      "actual": "15",
+      "claimed": "15"
+    },
+    "external_masks/crop_mode": {
+      "actual": "['cell']",
+      "claimed": "['cell']"
+    },
+    "external_masks/cytoplasm": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/cytoplasm_min_size": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "external_masks/dialate_png_ratios": {
+      "actual": "[0.2]",
+      "claimed": "[0.2]"
+    },
+    "external_masks/dialate_pngs": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/distance_gaussian_sigma": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "external_masks/dry_run": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/dst": {
+      "actual": "None",
+      "claimed": "''"
+    },
+    "external_masks/experiment": {
+      "actual": "'external_masks'",
+      "claimed": "'experiment'"
+    },
+    "external_masks/homogeneity": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/homogeneity_distances": {
+      "actual": "[8, 16, 32]",
+      "claimed": "[8, 16, 32]"
+    },
+    "external_masks/illumination_correction": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/illumination_dark": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "external_masks/illumination_degree": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "external_masks/illumination_max_fields": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "external_masks/illumination_model": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "external_masks/illumination_per_plate": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/illumination_qc": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/illumination_vendor_channel_map": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "external_masks/illumination_vendor_profile": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "external_masks/inputs": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "external_masks/intensity_calibration": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/intensity_calibration_offset": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "external_masks/intensity_calibration_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/layout": {
+      "actual": "'auto'",
+      "claimed": "'auto'"
+    },
+    "external_masks/max_failure_rate": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/measure_gpu": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/measurement_backend_target": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/merge_edge_pathogen_cells": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/normalize": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "external_masks/normalize_by": {
+      "actual": "'png'",
+      "claimed": "'png'"
+    },
+    "external_masks/number_of_organelles": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "external_masks/object_distance_intensity": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/object_distance_maxima": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/organelle_min_area": {
+      "actual": "0",
+      "claimed": "10"
+    },
+    "external_masks/organelle_type": {
+      "actual": "'custom'",
+      "claimed": "'custom'"
+    },
+    "external_masks/overwrite": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/plate_barcode_source": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/plate_barcodes": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/plate_naming": {
+      "actual": "'index'",
+      "claimed": "'index'"
+    },
+    "external_masks/plot": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/png_channel_mapping": {
+      "actual": "{'r': 2, 'g': 1, 'b': 0}",
+      "claimed": "{'r': 2, 'g': 1, 'b': 0}"
+    },
+    "external_masks/png_dims": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "external_masks/png_size": {
+      "actual": "[224, 224]",
+      "claimed": "[224,224]"
+    },
+    "external_masks/preview_only": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/profiling": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/profiling_correlation_threshold": {
+      "actual": "0.9",
+      "claimed": "0.9"
+    },
+    "external_masks/profiling_databases": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "external_masks/profiling_metadata": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/profiling_negative_control": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/profiling_phenotype_column": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/psf_fwhm_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/psf_image_sampling_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/psf_iterations": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "external_masks/psf_kernel_sampling_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/psf_path": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/radial_dist": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/ram_guard": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/recursive": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/resume": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/save_arrays": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/save_measurements": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/save_png": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/spatial_measurements": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/spatial_neighbor_radius": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "external_masks/strict_errors": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/summarize_organelles_by": {
+      "actual": "'cell'",
+      "claimed": "'cell'"
+    },
+    "external_masks/test_mode": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/test_nr": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "external_masks/time_to_event": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/time_to_event_column": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/time_to_event_conditions": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/time_to_event_covariates": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/time_to_event_hours_per_frame": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/time_to_event_min_frames": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "external_masks/time_to_event_persist": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "external_masks/time_to_event_reference": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/time_to_event_threshold": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/timelapse": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/timelapse_lineage": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/timelapse_lineage_max_distance": {
+      "actual": "30.0",
+      "claimed": "30.0"
+    },
+    "external_masks/timelapse_lineage_min_division_h": {
+      "actual": "6.0",
+      "claimed": "6.0"
+    },
+    "external_masks/timelapse_objects": {
+      "actual": "['cell']",
+      "claimed": "['cell']"
+    },
+    "external_masks/uninfected": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "external_masks/unmix": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/unmix_background_percentile": {
+      "actual": "5.0",
+      "claimed": "5.0"
+    },
+    "external_masks/unmix_controls": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/use_bounding_box": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "external_masks/viability": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/viability_dead_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/viability_live_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/viability_negative_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/viability_plate_map": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "external_masks/viability_positive_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/viability_thresholds": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/voxel_size_xy_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/voxel_size_z_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/wound_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/wound_closure": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "external_masks/wound_conditions": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "external_masks/wound_hours_per_frame": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/wound_threshold": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "external_masks/wound_window": {
+      "actual": "15",
+      "claimed": "15"
+    },
+    "external_masks/z_handling": {
+      "actual": "'max'",
+      "claimed": "'max'"
+    },
+    "host_pathogen/hp_count_column": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "host_pathogen/hp_marker_channels": {
+      "actual": "[0]",
+      "claimed": "[0]"
+    },
+    "host_pathogen/hp_marker_thresholds": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "host_pathogen/hp_parasite_table": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "invasion/background_correction": {
+      "actual": "'none'",
+      "claimed": "'none'"
+    },
+    "invasion/bimodality_cutoff": {
+      "actual": "0.5555555555555556",
+      "claimed": "0.5555555555555556"
+    },
+    "invasion/cell_plate_metadata": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "invasion/cell_types": {
+      "actual": "['HeLa']",
+      "claimed": "['HeLa']"
+    },
+    "invasion/change_plate": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "invasion/cmap": {
+      "actual": "'viridis'",
+      "claimed": "'inferno'"
+    },
+    "invasion/compartment": {
+      "actual": "'pathogen'",
+      "claimed": "'pathogen'"
+    },
+    "invasion/control_quantile": {
+      "actual": "0.99",
+      "claimed": "0.99"
+    },
+    "invasion/extracellular_class": {
+      "actual": "'attached'",
+      "claimed": "'attached'"
+    },
+    "invasion/group_column": {
+      "actual": "'condition'",
+      "claimed": "'condition'"
+    },
+    "invasion/inflation_warn": {
+      "actual": "0.05",
+      "claimed": "0.05"
+    },
+    "invasion/intensity_statistic": {
+      "actual": "'auto'",
+      "claimed": "'mean'"
+    },
+    "invasion/level": {
+      "actual": "'object'",
+      "claimed": "'both'"
+    },
+    "invasion/max_parasite_area": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "invasion/min_control_objects": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "invasion/min_objects_for_bimodality": {
+      "actual": "30",
+      "claimed": "30"
+    },
+    "invasion/min_objects_for_threshold": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "invasion/min_parasite_area": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "invasion/min_parasites_per_well": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "invasion/min_total_intensity": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "invasion/outside_channel": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "invasion/outside_threshold": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "invasion/outside_threshold_method": {
+      "actual": "'otsu'",
+      "claimed": "'otsu'"
+    },
+    "invasion/parasite_table": {
+      "actual": "'pathogen'",
+      "claimed": "'pathogen'"
+    },
+    "invasion/pathogen_types": {
+      "actual": "['pc']",
+      "claimed": "['pathogen_1', 'pathogen_2']"
+    },
+    "invasion/qc_plot_max_panels": {
+      "actual": "12",
+      "claimed": "12"
+    },
+    "invasion/seed_wells_from_cells": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "invasion/stain_baseline_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "invasion/threshold_agreement_tolerance": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "invasion/threshold_sensitivity": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "invasion/total_channel": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "invasion/treatment_plate_metadata": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "invasion/treatments": {
+      "actual": "None",
+      "claimed": "['cm','lovastatin']"
+    },
+    "invasion/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "investigate_hit/db_path": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "investigate_hit/dst": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "investigate_hit/guide_fractions_file": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "investigate_hit/hit_bootstrap": {
+      "actual": "5000",
+      "claimed": "5000"
+    },
+    "investigate_hit/hit_effect": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "investigate_hit/hit_fdr": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "investigate_hit/hit_feature_columns": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "investigate_hit/hit_gallery_per_stratum": {
+      "actual": "24",
+      "claimed": "24"
+    },
+    "investigate_hit/hit_include_original_score": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "investigate_hit/hit_n_guides": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "investigate_hit/hit_permutations": {
+      "actual": "10000",
+      "claimed": "10000"
+    },
+    "investigate_hit/hit_phenotype": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "investigate_hit/hit_pipeline_permutations": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "investigate_hit/hit_probability_threshold": {
+      "actual": "0.8",
+      "claimed": "0.8"
+    },
+    "investigate_hit/hit_random_seed": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "investigate_hit/hit_store_database": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "investigate_hit/hit_well_support": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "investigate_hit/predictions_file": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "investigate_hit/results_folder": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "investigate_hit/score_column": {
+      "actual": "''",
+      "claimed": "'cv_predictions'"
+    },
+    "investigate_hit/target_gene": {
+      "actual": "''",
+      "claimed": "''"
+    },
+    "investigate_hit/target_guides": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "investigate_hit/verbose": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "map_barcodes/chunk_size": {
+      "actual": "100000",
+      "claimed": "100000"
+    },
+    "map_barcodes/comp_level": {
+      "actual": "5",
+      "claimed": "5"
+    },
+    "map_barcodes/comp_type": {
+      "actual": "'zlib'",
+      "claimed": "'zlib'"
+    },
+    "map_barcodes/fill_na": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "map_barcodes/mode": {
+      "actual": "'paired'",
+      "claimed": "'paired'"
+    },
+    "map_barcodes/offset_start": {
+      "actual": "-8",
+      "claimed": "-8"
+    },
+    "map_barcodes/ram_guard": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "map_barcodes/save_h5": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "map_barcodes/single_direction": {
+      "actual": "'R1'",
+      "claimed": "'R1'"
+    },
+    "map_barcodes/target_sequence": {
+      "actual": "'TGCTGTTTCCAGCATAGCTCTTAAAC'",
+      "claimed": "'TGCTGTTTCCAGCATAGCTCTTAAAC'"
+    },
+    "map_barcodes/test": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "map_barcodes/window_length": {
+      "actual": "89",
+      "claimed": "89"
+    },
+    "mask/adjust_cells": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/anisotropy": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/batch_fields": {
+      "actual": "8",
+      "claimed": "8"
+    },
+    "mask/cell_background": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "mask/cell_cellprob_threshold": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "mask/cell_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/cell_diameter": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/cell_flow_threshold": {
+      "actual": "0.4",
+      "claimed": "0.4"
+    },
+    "mask/cell_model_name": {
+      "actual": "'cpsam'",
+      "claimed": "'cpsam'"
+    },
+    "mask/cell_perimeter_fraction": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "mask/cell_remove_border_objects": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/cell_signal_to_noise": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/cellpose3_add_nucleus_channel": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/cellpose3_augment": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/cellpose3_percentile_high": {
+      "actual": "99.0",
+      "claimed": "99.0"
+    },
+    "mask/cellpose3_percentile_low": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/cellpose3_resample": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/cellpose3_size_model": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/channels": {
+      "actual": "[0, 1, 2, 3]",
+      "claimed": "[0,1,2,3]"
+    },
+    "mask/cloud_anonymous": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/cloud_cache": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/cloud_endpoint": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/cloud_fields": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "mask/cloud_level": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "mask/cloud_profile": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/cloud_results": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/cloud_wells": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/cmap": {
+      "actual": "'inferno'",
+      "claimed": "'inferno'"
+    },
+    "mask/consolidate": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/custom_regex": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/delete_intermediate": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/diameter_estimate_n_fields": {
+      "actual": "5",
+      "claimed": "5"
+    },
+    "mask/dry_run": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/enhance_background": {
+      "actual": "'none'",
+      "claimed": "'none'"
+    },
+    "mask/enhance_background_radius": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "mask/enhance_background_scale": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "mask/enhance_clahe": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/enhance_clahe_clip": {
+      "actual": "0.01",
+      "claimed": "0.01"
+    },
+    "mask/enhance_clahe_tile": {
+      "actual": "64",
+      "claimed": "64"
+    },
+    "mask/enhance_denoise": {
+      "actual": "'none'",
+      "claimed": "'none'"
+    },
+    "mask/enhance_denoise_strength": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/enhance_equalize": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/enhance_gamma": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/enhance_log": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/enhance_log_gain": {
+      "actual": "10.0",
+      "claimed": "10.0"
+    },
+    "mask/enhance_percentile_clip": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/enhance_percentile_high": {
+      "actual": "99.0",
+      "claimed": "99.0"
+    },
+    "mask/enhance_percentile_low": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/enhance_sharpen": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/enhance_sharpen_amount": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/enhance_sharpen_radius": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/enhance_sqrt": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/examples_to_plot": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "mask/figuresize": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/filter": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/frame_interval_s": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/illumination_correction": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/illumination_dark": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "mask/illumination_degree": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "mask/illumination_max_fields": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "mask/illumination_model": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "mask/illumination_per_plate": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/illumination_qc": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/illumination_vendor_channel_map": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "mask/illumination_vendor_profile": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "mask/image_qc_channels": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "mask/image_qc_classifier": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/image_qc_classifier_labels": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/image_qc_classifier_model": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/image_qc_classifier_threshold": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "mask/image_qc_max_nonfinite": {
+      "actual": "0.0",
+      "claimed": "0"
+    },
+    "mask/image_qc_max_saturation": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "mask/image_qc_min_focus": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "mask/image_qc_saturation_level": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "mask/keep_npz": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/lower_percentile": {
+      "actual": "2",
+      "claimed": "2"
+    },
+    "mask/magnification": {
+      "actual": "40",
+      "claimed": "40"
+    },
+    "mask/mask_gpu_indices": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/mask_parallel": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/masks": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/max_failure_rate": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/merge_pathogens": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/metadata_type": {
+      "actual": "'cellvoyager'",
+      "claimed": "'cellvoyager'"
+    },
+    "mask/microscope_driver": {
+      "actual": "'simulated'",
+      "claimed": "'simulated'"
+    },
+    "mask/microscope_event_query": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/microscope_event_table": {
+      "actual": "'cell'",
+      "claimed": "'cell'"
+    },
+    "mask/microscope_feedback": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/microscope_interval_seconds": {
+      "actual": "0.0",
+      "claimed": "0"
+    },
+    "mask/microscope_max_events": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/microscope_positions": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/microscope_simulated_folder": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/microscope_stage_transform": {
+      "actual": "[1.0, 0.0, 0.0, 1.0]",
+      "claimed": "[1.0, 0.0, 0.0, 1.0]"
+    },
+    "mask/microscope_timepoints": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "mask/n2v_denoise": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/n2v_epochs": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "mask/n2v_model": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/normalize": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/nucleus_background": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "mask/nucleus_cellprob_threshold": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "mask/nucleus_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/nucleus_diameter": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/nucleus_flow_threshold": {
+      "actual": "0.4",
+      "claimed": "0.4"
+    },
+    "mask/nucleus_model_name": {
+      "actual": "'cpsam'",
+      "claimed": "'cpsam'"
+    },
+    "mask/nucleus_remove_border_objects": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/nucleus_signal_to_noise": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/number_of_organelles": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "mask/object_filters": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "mask/organelle_adaptive_block_size": {
+      "actual": "51",
+      "claimed": "51"
+    },
+    "mask/organelle_adaptive_offset": {
+      "actual": "5",
+      "claimed": "5"
+    },
+    "mask/organelle_background": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "mask/organelle_cellprob_threshold": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "mask/organelle_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/organelle_clahe": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/organelle_clahe_clip_limit": {
+      "actual": "0.01",
+      "claimed": "0.01"
+    },
+    "mask/organelle_diameter": {
+      "actual": "30",
+      "claimed": "30"
+    },
+    "mask/organelle_dog_sigma_high": {
+      "actual": "3.0",
+      "claimed": "3.0"
+    },
+    "mask/organelle_dog_sigma_low": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/organelle_fill_holes": {
+      "actual": "64",
+      "claimed": "64"
+    },
+    "mask/organelle_flow_threshold": {
+      "actual": "0.4",
+      "claimed": "0.4"
+    },
+    "mask/organelle_hysteresis_high": {
+      "actual": "0.6",
+      "claimed": "0.6"
+    },
+    "mask/organelle_hysteresis_low": {
+      "actual": "0.2",
+      "claimed": "0.2"
+    },
+    "mask/organelle_log_max_sigma": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/organelle_log_min_sigma": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "mask/organelle_log_num_sigma": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/organelle_log_threshold": {
+      "actual": "0.01",
+      "claimed": "0.01"
+    },
+    "mask/organelle_mask_within_cells": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/organelle_max_area": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/organelle_max_intensity": {
+      "actual": "0.0",
+      "claimed": "0"
+    },
+    "mask/organelle_method": {
+      "actual": "'otsu'",
+      "claimed": "'otsu'"
+    },
+    "mask/organelle_min_area": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/organelle_min_intensity": {
+      "actual": "0.0",
+      "claimed": "0"
+    },
+    "mask/organelle_model_name": {
+      "actual": "'cpsam'",
+      "claimed": "'cpsam'"
+    },
+    "mask/organelle_morph_radius": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "mask/organelle_morphology": {
+      "actual": "'spots'",
+      "claimed": "'spots'"
+    },
+    "mask/organelle_network_threshold": {
+      "actual": "'otsu'",
+      "claimed": "'otsu'"
+    },
+    "mask/organelle_perimeter_fraction": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "mask/organelle_remove_border": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/organelle_remove_border_objects": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/organelle_resample": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/organelle_ridge_filter": {
+      "actual": "'frangi'",
+      "claimed": "'frangi'"
+    },
+    "mask/organelle_ridge_sigmas": {
+      "actual": "[1, 2, 3]",
+      "claimed": "[1, 2, 3]"
+    },
+    "mask/organelle_ring_fill_method": {
+      "actual": "'flood'",
+      "claimed": "'flood'"
+    },
+    "mask/organelle_ring_min_prominence": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "mask/organelle_ring_sigma_inner": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "mask/organelle_ring_sigma_outer": {
+      "actual": "3.0",
+      "claimed": "3.0"
+    },
+    "mask/organelle_rolling_ball": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/organelle_rolling_ball_radius": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "mask/organelle_signal_to_noise": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/organelle_skeletonize": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/organelle_tophat_radius": {
+      "actual": "5",
+      "claimed": "5"
+    },
+    "mask/organelle_type": {
+      "actual": "'custom'",
+      "claimed": "'custom'"
+    },
+    "mask/organelle_unet_model_path": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/organelle_unet_threshold": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "mask/organelle_watershed_spots": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/pathogen_background": {
+      "actual": "200",
+      "claimed": "200"
+    },
+    "mask/pathogen_cellprob_threshold": {
+      "actual": "-1",
+      "claimed": "-1"
+    },
+    "mask/pathogen_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/pathogen_diameter": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/pathogen_flow_threshold": {
+      "actual": "0.4",
+      "claimed": "0.4"
+    },
+    "mask/pathogen_model": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/pathogen_model_name": {
+      "actual": "'cpsam'",
+      "claimed": "'cpsam'"
+    },
+    "mask/pathogen_remove_border_objects": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/pathogen_signal_to_noise": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "mask/pipeline_style": {
+      "actual": "'v1'",
+      "claimed": "'v1'"
+    },
+    "mask/plot": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/preprocess": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/psf_fwhm_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/psf_image_sampling_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/psf_iterations": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "mask/psf_kernel_sampling_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/psf_path": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/ram_guard": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/randomize": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/real_object_classifier": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/real_object_threshold": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "mask/remove_background_cell": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/remove_background_nucleus": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/remove_background_organelle": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/remove_background_pathogen": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/resume": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/robustness_cellprob_thresholds": {
+      "actual": "[-2.0, 2.0]",
+      "claimed": "[-2.0, 2.0]"
+    },
+    "mask/robustness_crop": {
+      "actual": "512",
+      "claimed": "512"
+    },
+    "mask/robustness_diameter_factors": {
+      "actual": "[0.75, 1.25]",
+      "claimed": "[0.75, 1.25]"
+    },
+    "mask/robustness_enhancement": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/robustness_fields": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "mask/robustness_flow_thresholds": {
+      "actual": "[0.2, 0.6]",
+      "claimed": "[0.2, 0.6]"
+    },
+    "mask/robustness_report": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/robustness_tolerance": {
+      "actual": "0.2",
+      "claimed": "0.2"
+    },
+    "mask/save_original_images": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/seg_qc": {
+      "actual": "'report'",
+      "claimed": "'report'"
+    },
+    "mask/seg_qc_border_fraction": {
+      "actual": "0.3",
+      "claimed": "0.3"
+    },
+    "mask/seg_qc_count_ratio": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "mask/seg_qc_foreground_fraction": {
+      "actual": "0.35",
+      "claimed": "0.35"
+    },
+    "mask/seg_qc_max_object_fraction": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "mask/seg_qc_min_diameter": {
+      "actual": "5.0",
+      "claimed": "5"
+    },
+    "mask/seg_qc_min_objects": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/seg_qc_outlier_fraction": {
+      "actual": "0.15",
+      "claimed": "0.15"
+    },
+    "mask/seg_qc_outlier_mad": {
+      "actual": "5.0",
+      "claimed": "5"
+    },
+    "mask/seg_qc_plate_fail_fraction": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "mask/seg_qc_size_ratio": {
+      "actual": "1.4",
+      "claimed": "1.4"
+    },
+    "mask/seg_qc_split_ratio": {
+      "actual": "2.0",
+      "claimed": "2"
+    },
+    "mask/seg_qc_tiny_fraction": {
+      "actual": "0.3",
+      "claimed": "0.3"
+    },
+    "mask/segmentation_backend": {
+      "actual": "'cellpose'",
+      "claimed": "'cellpose'"
+    },
+    "mask/stitch_threshold": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "mask/strict_errors": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/summarize_organelles_by": {
+      "actual": "'cell'",
+      "claimed": "'cell'"
+    },
+    "mask/t_axis": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/t_axis_order": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/t_link_threshold": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "mask/t_max_displacement_px": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/t_max_displacement_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/t_project_for_tracking": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/t_stack": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/t_track_backend": {
+      "actual": "'iou'",
+      "claimed": "'iou'"
+    },
+    "mask/test_images": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "mask/test_mode": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/unmix": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/unmix_background_percentile": {
+      "actual": "5.0",
+      "claimed": "5.0"
+    },
+    "mask/unmix_controls": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/verbose": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "mask/voxel_size_xy_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/voxel_size_z_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/watch_classify_settings": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/watch_folder": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "mask/watch_idle_minutes": {
+      "actual": "0.0",
+      "claimed": "0"
+    },
+    "mask/watch_measure_settings": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "mask/watch_normalization_pool": {
+      "actual": "'per_field'",
+      "claimed": "'per_field'"
+    },
+    "mask/watch_pipeline": {
+      "actual": "'mask'",
+      "claimed": "'mask'"
+    },
+    "mask/watch_poll_seconds": {
+      "actual": "5.0",
+      "claimed": "5"
+    },
+    "mask/watch_settle_seconds": {
+      "actual": "10.0",
+      "claimed": "10"
+    },
+    "mask/z_axis": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "mask/z_projection": {
+      "actual": "'max'",
+      "claimed": "'max'"
+    },
+    "mask/z_segmentation_mode": {
+      "actual": "'project'",
+      "claimed": "'project'"
+    },
+    "mask/z_stack": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/anisotropy": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/bystander_measurements": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/bystander_reach_in_diameters": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "measure/calculate_correlation": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/cell_cycle": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/cell_cycle_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/cell_cycle_epochs": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "measure/cell_cycle_fucci_channels": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/cell_cycle_gates": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/cell_cycle_labels": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/cell_cycle_mitotic_ratio": {
+      "actual": "1.8",
+      "claimed": "1.8"
+    },
+    "measure/cell_cycle_model": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/cell_mask_dim": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "measure/cell_min_size": {
+      "actual": "8000",
+      "claimed": "8000"
+    },
+    "measure/cellprofiler_pipeline": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/channels": {
+      "actual": "[0, 1, 2, 3]",
+      "claimed": "[0,1,2,3]"
+    },
+    "measure/cloud_anonymous": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/cloud_cache": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/cloud_endpoint": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/cloud_profile": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/cloud_results": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/confluency": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/confluency_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/confluency_qc_threshold": {
+      "actual": "0.8",
+      "claimed": "0.8"
+    },
+    "measure/confluency_window": {
+      "actual": "15",
+      "claimed": "15"
+    },
+    "measure/crop_mode": {
+      "actual": "['cell']",
+      "claimed": "['cell']"
+    },
+    "measure/cytoplasm": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/cytoplasm_min_size": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "measure/dialate_png_ratios": {
+      "actual": "[0.2]",
+      "claimed": "[0.2]"
+    },
+    "measure/dialate_pngs": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/distance_gaussian_sigma": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "measure/dry_run": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/experiment": {
+      "actual": "'experiment'",
+      "claimed": "'experiment'"
+    },
+    "measure/homogeneity": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/homogeneity_distances": {
+      "actual": "[8, 16, 32]",
+      "claimed": "[8, 16, 32]"
+    },
+    "measure/illumination_correction": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/illumination_dark": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "measure/illumination_degree": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "measure/illumination_max_fields": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "measure/illumination_model": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "measure/illumination_per_plate": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/illumination_qc": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/illumination_vendor_channel_map": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "measure/illumination_vendor_profile": {
+      "actual": "''",
+      "claimed": "empty"
+    },
+    "measure/intensity_calibration": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/intensity_calibration_offset": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "measure/intensity_calibration_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/max_failure_rate": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/measure_gpu": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/measurement_backend_target": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/merge_edge_pathogen_cells": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/normalize": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "measure/normalize_by": {
+      "actual": "'png'",
+      "claimed": "'png'"
+    },
+    "measure/nucleus_mask_dim": {
+      "actual": "5",
+      "claimed": "5"
+    },
+    "measure/number_of_organelles": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "measure/object_distance_intensity": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/object_distance_maxima": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/organelle_min_area": {
+      "actual": "0",
+      "claimed": "10"
+    },
+    "measure/organelle_type": {
+      "actual": "'custom'",
+      "claimed": "'custom'"
+    },
+    "measure/pathogen_mask_dim": {
+      "actual": "6",
+      "claimed": "6"
+    },
+    "measure/plate_barcode_source": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/plate_barcodes": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/plot": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/png_channel_mapping": {
+      "actual": "{'r': 2, 'g': 1, 'b': 0}",
+      "claimed": "{'r': 2, 'g': 1, 'b': 0}"
+    },
+    "measure/png_size": {
+      "actual": "[224, 224]",
+      "claimed": "[224,224]"
+    },
+    "measure/profiling": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/profiling_correlation_threshold": {
+      "actual": "0.9",
+      "claimed": "0.9"
+    },
+    "measure/profiling_databases": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "measure/profiling_metadata": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/profiling_negative_control": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/profiling_phenotype_column": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/psf_fwhm_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/psf_image_sampling_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/psf_iterations": {
+      "actual": "20",
+      "claimed": "20"
+    },
+    "measure/psf_kernel_sampling_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/psf_path": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/radial_dist": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/ram_guard": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/resume": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/save_arrays": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/save_measurements": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/save_png": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/spatial_measurements": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/spatial_neighbor_radius": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "measure/strict_errors": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/summarize_organelles_by": {
+      "actual": "'cell'",
+      "claimed": "'cell'"
+    },
+    "measure/test_mode": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/test_nr": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "measure/time_to_event": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/time_to_event_column": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/time_to_event_conditions": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/time_to_event_covariates": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/time_to_event_hours_per_frame": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/time_to_event_min_frames": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "measure/time_to_event_persist": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "measure/time_to_event_reference": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/time_to_event_threshold": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/timelapse": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/timelapse_lineage": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/timelapse_lineage_max_distance": {
+      "actual": "30.0",
+      "claimed": "30.0"
+    },
+    "measure/timelapse_lineage_min_division_h": {
+      "actual": "6.0",
+      "claimed": "6.0"
+    },
+    "measure/timelapse_objects": {
+      "actual": "['cell']",
+      "claimed": "['cell']"
+    },
+    "measure/uninfected": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "measure/unmix": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/unmix_background_percentile": {
+      "actual": "5.0",
+      "claimed": "5.0"
+    },
+    "measure/unmix_controls": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/use_bounding_box": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "measure/viability": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/viability_dead_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/viability_live_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/viability_negative_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/viability_plate_map": {
+      "actual": "''",
+      "claimed": "blank"
+    },
+    "measure/viability_positive_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/viability_thresholds": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/voxel_size_xy_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/voxel_size_z_um": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/wound_channel": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/wound_closure": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "measure/wound_conditions": {
+      "actual": "{}",
+      "claimed": "{}"
+    },
+    "measure/wound_hours_per_frame": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/wound_threshold": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "measure/wound_window": {
+      "actual": "15",
+      "claimed": "15"
+    },
+    "power/power_backend": {
+      "actual": "'torch'",
+      "claimed": "'torch'"
+    },
+    "power/power_background_positive_rate": {
+      "actual": "0.12",
+      "claimed": "0.12"
+    },
+    "power/power_cells_per_well": {
+      "actual": "123.0",
+      "claimed": "123.0"
+    },
+    "power/power_constructs_per_well": {
+      "actual": "4.6",
+      "claimed": "4.6"
+    },
+    "power/power_detection_auroc": {
+      "actual": "0.8",
+      "claimed": "0.8"
+    },
+    "power/power_effect_fold": {
+      "actual": "6.667",
+      "claimed": "6.667"
+    },
+    "power/power_hit_rate": {
+      "actual": "0.025",
+      "claimed": "0.025"
+    },
+    "power/power_n_genes": {
+      "actual": "452",
+      "claimed": "452"
+    },
+    "power/power_n_grnas_per_gene": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "power/power_n_plates": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "power/power_n_replicates": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "power/power_reads_per_well": {
+      "actual": "30000",
+      "claimed": "30000"
+    },
+    "power/power_score_per": {
+      "actual": "'gene'",
+      "claimed": "'gene'"
+    },
+    "power/power_seed": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "power/power_wells_per_plate": {
+      "actual": "384",
+      "claimed": "384"
+    },
+    "recruitment/cell_chann_dim": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "recruitment/cell_intensity_range": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "recruitment/cell_plate_metadata": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "recruitment/cell_size_range": {
+      "actual": "[0, 100000]",
+      "claimed": "[0, 100000]"
+    },
+    "recruitment/cell_types": {
+      "actual": "['HeLa']",
+      "claimed": "['HeLa']"
+    },
+    "recruitment/cells_per_well": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "recruitment/channel_dims": {
+      "actual": "[0, 1, 2, 3]",
+      "claimed": "[0, 1, 2, 3]"
+    },
+    "recruitment/channel_of_interest": {
+      "actual": "2",
+      "claimed": "3"
+    },
+    "recruitment/figuresize": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "recruitment/nuclei_limit": {
+      "actual": "1",
+      "claimed": "None"
+    },
+    "recruitment/nucleus_chann_dim": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "recruitment/nucleus_intensity_range": {
+      "actual": "[0, 100000]",
+      "claimed": "[0, 100000]"
+    },
+    "recruitment/nucleus_size_range": {
+      "actual": "[0, 100000]",
+      "claimed": "[0, 100000]"
+    },
+    "recruitment/pathogen_chann_dim": {
+      "actual": "2",
+      "claimed": "2"
+    },
+    "recruitment/pathogen_intensity_range": {
+      "actual": "[0, 100000]",
+      "claimed": "[0, 100000]"
+    },
+    "recruitment/pathogen_size_range": {
+      "actual": "[0, 100000]",
+      "claimed": "[0, 100000]"
+    },
+    "recruitment/pathogen_types": {
+      "actual": "['pathogen_1', 'pathogen_2']",
+      "claimed": "['pathogen_1', 'pathogen_2']"
+    },
+    "recruitment/plot": {
+      "actual": "True",
+      "claimed": "False"
+    },
+    "recruitment/plot_control": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "recruitment/plot_nr": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "recruitment/target": {
+      "actual": "'protein'",
+      "claimed": "'protein'"
+    },
+    "recruitment/target_intensity_min": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "recruitment/treatment_plate_metadata": {
+      "actual": "[['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']]",
+      "claimed": "None"
+    },
+    "recruitment/treatments": {
+      "actual": "['cm', 'lovastatin']",
+      "claimed": "['cm','lovastatin']"
+    },
+    "regression/agg_type": {
+      "actual": "'mean'",
+      "claimed": "'mean'"
+    },
+    "regression/alpha": {
+      "actual": "1",
+      "claimed": "1"
+    },
+    "regression/analysis_excluded_wells": {
+      "actual": "['c1', 'c2', 'c3']",
+      "claimed": "['c1', 'c2', 'c3']"
+    },
+    "regression/analysis_mode": {
+      "actual": "'guide_permutation'",
+      "claimed": "'regression'"
+    },
+    "regression/analysis_unit": {
+      "actual": "'well'",
+      "claimed": "'well'"
+    },
+    "regression/annotation_source": {
+      "actual": "'toxoplasma'",
+      "claimed": "'toxoplasma'"
+    },
+    "regression/batch_column": {
+      "actual": "'plateID'",
+      "claimed": "'plateID'"
+    },
+    "regression/batch_correction": {
+      "actual": "'none'",
+      "claimed": "'none'"
+    },
+    "regression/batch_covariate_column": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/batch_min_samples": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "regression/batch_missing_control": {
+      "actual": "'error'",
+      "claimed": "'error'"
+    },
+    "regression/calibrate_fraction_threshold": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "regression/cell_area_outlier_mads": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/cell_intensity_outlier_mads": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/count_grna_column": {
+      "actual": "'grna'",
+      "claimed": "'grna'"
+    },
+    "regression/count_value_column": {
+      "actual": "'count'",
+      "claimed": "'count'"
+    },
+    "regression/cov_type": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/dependent_variable": {
+      "actual": "'pred'",
+      "claimed": "'pred'"
+    },
+    "regression/exclude_grnas": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/fdr_alpha": {
+      "actual": "0.05",
+      "claimed": "0.05"
+    },
+    "regression/filter_value": {
+      "actual": "['c1', 'c2', 'c3']",
+      "claimed": "['c1','c2','c3']"
+    },
+    "regression/fraction_threshold": {
+      "actual": "0.02",
+      "claimed": "None"
+    },
+    "regression/grna_statistic": {
+      "actual": "'pearson'",
+      "claimed": "'pearson'"
+    },
+    "regression/guide_min_wells": {
+      "actual": "[1, 2, 3, 4]",
+      "claimed": "[1, 2, 3, 4]"
+    },
+    "regression/guide_nuisance_columns": {
+      "actual": "['rowID', 'columnID']",
+      "claimed": "[]"
+    },
+    "regression/guide_permutation_batch_size": {
+      "actual": "500",
+      "claimed": "500"
+    },
+    "regression/guide_permutation_block": {
+      "actual": "'plateID'",
+      "claimed": "'plateID'"
+    },
+    "regression/guide_permutation_seed": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "regression/guide_permutations": {
+      "actual": "200000",
+      "claimed": "200000"
+    },
+    "regression/guide_presence_threshold": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "regression/guide_primary_min_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/hinge_n_boot": {
+      "actual": "200",
+      "claimed": "200"
+    },
+    "regression/hinge_threshold": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/huber_t": {
+      "actual": "1.345",
+      "claimed": "1.345"
+    },
+    "regression/independent_variable_layout": {
+      "actual": "'auto'",
+      "claimed": "'auto'"
+    },
+    "regression/inference": {
+      "actual": "'nonparametric'",
+      "claimed": "'nonparametric'"
+    },
+    "regression/intercept": {
+      "actual": "'fitted'",
+      "claimed": "'fitted'"
+    },
+    "regression/intercept_value": {
+      "actual": "0.0",
+      "claimed": "0.0"
+    },
+    "regression/invert_dependent_variable": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "regression/l1_ratio": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "regression/lasso_n_boot": {
+      "actual": "200",
+      "claimed": "200"
+    },
+    "regression/lasso_selection_threshold": {
+      "actual": "0.6",
+      "claimed": "0.6"
+    },
+    "regression/level": {
+      "actual": "'both'",
+      "claimed": "'both'"
+    },
+    "regression/max_failure_rate": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/metadata_files": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "regression/min_cells_per_well": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "regression/min_observations_per_hit": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "regression/mixed_control_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/model_data_layout": {
+      "actual": "'long'",
+      "claimed": "'long'"
+    },
+    "regression/model_plate_position": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "regression/negative_control_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/nontargeting_control_grnas": {
+      "actual": "['000000']",
+      "claimed": "['000000']"
+    },
+    "regression/normalise_fraction": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "regression/nucleus_area_outlier_mads": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/nucleus_intensity_outlier_mads": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/outlier_detection": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "regression/p_threshold_alpha": {
+      "actual": "0.05",
+      "claimed": "0.05"
+    },
+    "regression/p_threshold_kind": {
+      "actual": "'adjusted'",
+      "claimed": "'adjusted'"
+    },
+    "regression/paired_data": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "regression/positive_control_wells": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/quantile": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "regression/random_row_column_effects": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "regression/regression_backend": {
+      "actual": "'statsmodels (CPU)'",
+      "claimed": "'statsmodels (CPU)'"
+    },
+    "regression/regression_panel_manifest": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/regression_qc": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "regression/regression_type": {
+      "actual": "'mixed'",
+      "claimed": "'mixed'"
+    },
+    "regression/rra_alpha": {
+      "actual": "0.25",
+      "claimed": "0.25"
+    },
+    "regression/rra_permutations": {
+      "actual": "10000",
+      "claimed": "10000"
+    },
+    "regression/spline_degree": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "regression/spline_knots": {
+      "actual": "4",
+      "claimed": "4"
+    },
+    "regression/strict_errors": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "regression/target_unique_count": {
+      "actual": "5",
+      "claimed": "5"
+    },
+    "regression/threshold_method": {
+      "actual": "'std'",
+      "claimed": "'std'"
+    },
+    "regression/threshold_multiplier": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "regression/tolerance": {
+      "actual": "0.02",
+      "claimed": "0.02"
+    },
+    "regression/transform": {
+      "actual": "'log'",
+      "claimed": "None"
+    },
+    "regression/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "regression/wide_predictor_columns": {
+      "actual": "[]",
+      "claimed": "[]"
+    },
+    "replication/cell_plate_metadata": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "replication/cell_types": {
+      "actual": "['HeLa']",
+      "claimed": "['HeLa']"
+    },
+    "replication/change_plate": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "replication/class_column": {
+      "actual": "'predictions'",
+      "claimed": "'test'"
+    },
+    "replication/cmap": {
+      "actual": "'viridis'",
+      "claimed": "'inferno'"
+    },
+    "replication/compartment": {
+      "actual": "'pathogen'",
+      "claimed": "'pathogen'"
+    },
+    "replication/group_by_class": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "replication/group_column": {
+      "actual": "'condition'",
+      "claimed": "'condition'"
+    },
+    "replication/level": {
+      "actual": "'object'",
+      "claimed": "'both'"
+    },
+    "replication/max_area": {
+      "actual": "1000000000",
+      "claimed": "1000000000"
+    },
+    "replication/max_bins": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "replication/max_parasite_area": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "replication/max_parasites_per_vacuole": {
+      "actual": "16",
+      "claimed": "16"
+    },
+    "replication/min_area_bin": {
+      "actual": "500",
+      "claimed": "500"
+    },
+    "replication/min_parasite_area": {
+      "actual": "0",
+      "claimed": "0"
+    },
+    "replication/non_power_of_two_warn": {
+      "actual": "0.2",
+      "claimed": "0.2"
+    },
+    "replication/nuclei_limit": {
+      "actual": "10",
+      "claimed": "None"
+    },
+    "replication/parasite_count_column": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "replication/parasite_table": {
+      "actual": "'pathogen'",
+      "claimed": "'pathogen'"
+    },
+    "replication/pathogen_types": {
+      "actual": "['pc']",
+      "claimed": "['pathogen_1', 'pathogen_2']"
+    },
+    "replication/require_host_cell": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "replication/seed_wells_from_cells": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "replication/tables": {
+      "actual": "['cell', 'nucleus', 'pathogen', 'cytoplasm']",
+      "claimed": "['cell', 'nucleus', 'pathogen', 'cytoplasm']"
+    },
+    "replication/treatment_plate_metadata": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "replication/treatments": {
+      "actual": "None",
+      "claimed": "['cm','lovastatin']"
+    },
+    "replication/um_per_px": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "replication/vacuole_key": {
+      "actual": "'auto'",
+      "claimed": "'auto'"
+    },
+    "replication/vacuole_link_distance": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "replication/vacuole_link_factor": {
+      "actual": "1.5",
+      "claimed": "1.5"
+    },
+    "replication/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "umap/analyze_clusters": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/batch_column": {
+      "actual": "'plateID'",
+      "claimed": "'plateID'"
+    },
+    "umap/batch_correction": {
+      "actual": "'none'",
+      "claimed": "'none'"
+    },
+    "umap/batch_covariate_column": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "umap/batch_min_samples": {
+      "actual": "3",
+      "claimed": "3"
+    },
+    "umap/batch_missing_control": {
+      "actual": "'error'",
+      "claimed": "'error'"
+    },
+    "umap/black_background": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/clustering": {
+      "actual": "'dbscan'",
+      "claimed": "'dbscan'"
+    },
+    "umap/color_by": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "umap/crop_source": {
+      "actual": "'auto'",
+      "claimed": "'png'"
+    },
+    "umap/dot_size": {
+      "actual": "50",
+      "claimed": "50"
+    },
+    "umap/eps": {
+      "actual": "0.9",
+      "claimed": "0.9"
+    },
+    "umap/exclude": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "umap/exclude_rows": {
+      "actual": "None",
+      "claimed": "None"
+    },
+    "umap/figuresize": {
+      "actual": "10",
+      "claimed": "10"
+    },
+    "umap/filter_by": {
+      "actual": "'channel_0'",
+      "claimed": "'channel_0'"
+    },
+    "umap/gpu": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/image_nr": {
+      "actual": "16",
+      "claimed": "16"
+    },
+    "umap/img_zoom": {
+      "actual": "0.5",
+      "claimed": "0.5"
+    },
+    "umap/isomap_n_neighbors": {
+      "actual": "15",
+      "claimed": "15"
+    },
+    "umap/isomap_path_method": {
+      "actual": "'auto'",
+      "claimed": "'auto'"
+    },
+    "umap/log_data": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/metric": {
+      "actual": "'euclidean'",
+      "claimed": "'euclidean'"
+    },
+    "umap/min_dist": {
+      "actual": "0.1",
+      "claimed": "0.1"
+    },
+    "umap/min_samples": {
+      "actual": "100",
+      "claimed": "100"
+    },
+    "umap/n_neighbors": {
+      "actual": "1000",
+      "claimed": "1000"
+    },
+    "umap/outline_width": {
+      "actual": "1.0",
+      "claimed": "1.0"
+    },
+    "umap/pca_svd_solver": {
+      "actual": "'auto'",
+      "claimed": "'auto'"
+    },
+    "umap/pca_whiten": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/plot_by_cluster": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/plot_cluster_grids": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/plot_images": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/plot_outlines": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/plot_points": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/point_alpha": {
+      "actual": "0.65",
+      "claimed": "0.65"
+    },
+    "umap/point_color": {
+      "actual": "'cluster'",
+      "claimed": "'cluster'"
+    },
+    "umap/ram_guard": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/random_seed": {
+      "actual": "42",
+      "claimed": "42"
+    },
+    "umap/reduction_method": {
+      "actual": "'umap'",
+      "claimed": "'umap'"
+    },
+    "umap/remove_cluster_noise": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/remove_highly_correlated": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/remove_image_canvas": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/resnet_features": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/row_limit": {
+      "actual": "1000",
+      "claimed": "1000"
+    },
+    "umap/save_figure": {
+      "actual": "False",
+      "claimed": "False"
+    },
+    "umap/smooth_lines": {
+      "actual": "True",
+      "claimed": "True"
+    },
+    "umap/spectral_affinity": {
+      "actual": "'nearest_neighbors'",
+      "claimed": "'nearest_neighbors'"
+    },
+    "umap/spectral_n_neighbors": {
+      "actual": "15",
+      "claimed": "15"
+    },
+    "umap/tables": {
+      "actual": "['cell', 'cytoplasm', 'nucleus', 'pathogen']",
+      "claimed": "['cell', 'nucleus', 'pathogen', 'cytoplasm']"
+    },
+    "umap/tsne_early_exaggeration": {
+      "actual": "12.0",
+      "claimed": "12"
+    },
+    "umap/tsne_learning_rate": {
+      "actual": "200.0",
+      "claimed": "200"
+    },
+    "umap/tsne_max_iter": {
+      "actual": "1000",
+      "claimed": "1000"
+    },
+    "umap/tsne_perplexity": {
+      "actual": "30.0",
+      "claimed": "30"
+    },
+    "umap/umap_canvas_width": {
+      "actual": "900",
+      "claimed": "900"
+    },
+    "umap/umap_sidebar_width": {
+      "actual": "280",
+      "claimed": "280"
+    },
+    "umap/verbose": {
+      "actual": "True",
+      "claimed": "True"
+    }
+  },
+  "resolver_revision": "9ba5b47f6617e0fe228148640af06d54d9c2ad01",
+  "settings_revision": "current",
+  "variants": {
+    "analyze_plaques/background": {
+      "actual": "200",
+      "claimed": "100"
+    },
+    "analyze_plaques/channels": {
+      "actual": "[0, 0]",
+      "claimed": "[0,1,2,3]"
+    },
+    "analyze_plaques/resize": {
+      "actual": "True",
+      "claimed": "False"
+    },
+    "analyze_plaques/target_height": {
+      "actual": "1120",
+      "claimed": "None"
+    },
+    "analyze_plaques/target_width": {
+      "actual": "1120",
+      "claimed": "None"
+    },
+    "classify_merged/cmap": {
+      "actual": "'viridis'",
+      "claimed": "'inferno'"
+    },
+    "classify_merged/coordinate_columns": {
+      "actual": "['cell_id']",
+      "claimed": "None"
+    },
+    "classify_merged/crop_source": {
+      "actual": "'load_images'",
+      "claimed": "'png'"
+    },
+    "classify_merged/loss_type": {
+      "actual": "'auto'",
+      "claimed": "'focal_loss'"
+    },
+    "classify_merged/min_cells_per_well": {
+      "actual": "25",
+      "claimed": "100"
+    },
+    "classify_merged/nuclei_limit": {
+      "actual": "True",
+      "claimed": "None"
+    },
+    "classify_merged/plot": {
+      "actual": "True",
+      "claimed": "False"
+    },
+    "external_masks/channels": {
+      "actual": "[]",
+      "claimed": "[0,1,2,3]"
+    },
+    "external_masks/dst": {
+      "actual": "None",
+      "claimed": "''"
+    },
+    "external_masks/experiment": {
+      "actual": "'external_masks'",
+      "claimed": "'experiment'"
+    },
+    "external_masks/normalize": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "external_masks/organelle_min_area": {
+      "actual": "0",
+      "claimed": "10"
+    },
+    "external_masks/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "invasion/cmap": {
+      "actual": "'viridis'",
+      "claimed": "'inferno'"
+    },
+    "invasion/intensity_statistic": {
+      "actual": "'auto'",
+      "claimed": "'mean'"
+    },
+    "invasion/level": {
+      "actual": "'object'",
+      "claimed": "'both'"
+    },
+    "invasion/pathogen_types": {
+      "actual": "['pc']",
+      "claimed": "['pathogen_1', 'pathogen_2']"
+    },
+    "invasion/treatments": {
+      "actual": "None",
+      "claimed": "['cm','lovastatin']"
+    },
+    "invasion/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "investigate_hit/score_column": {
+      "actual": "''",
+      "claimed": "'cv_predictions'"
+    },
+    "measure/normalize": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "measure/organelle_min_area": {
+      "actual": "0",
+      "claimed": "10"
+    },
+    "measure/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "recruitment/channel_of_interest": {
+      "actual": "2",
+      "claimed": "3"
+    },
+    "recruitment/nuclei_limit": {
+      "actual": "1",
+      "claimed": "None"
+    },
+    "recruitment/plot": {
+      "actual": "True",
+      "claimed": "False"
+    },
+    "recruitment/treatment_plate_metadata": {
+      "actual": "[['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']]",
+      "claimed": "None"
+    },
+    "regression/analysis_mode": {
+      "actual": "'guide_permutation'",
+      "claimed": "'regression'"
+    },
+    "regression/fraction_threshold": {
+      "actual": "0.02",
+      "claimed": "None"
+    },
+    "regression/guide_nuisance_columns": {
+      "actual": "['rowID', 'columnID']",
+      "claimed": "[]"
+    },
+    "regression/transform": {
+      "actual": "'log'",
+      "claimed": "None"
+    },
+    "regression/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "replication/class_column": {
+      "actual": "'predictions'",
+      "claimed": "'test'"
+    },
+    "replication/cmap": {
+      "actual": "'viridis'",
+      "claimed": "'inferno'"
+    },
+    "replication/level": {
+      "actual": "'object'",
+      "claimed": "'both'"
+    },
+    "replication/nuclei_limit": {
+      "actual": "10",
+      "claimed": "None"
+    },
+    "replication/pathogen_types": {
+      "actual": "['pc']",
+      "claimed": "['pathogen_1', 'pathogen_2']"
+    },
+    "replication/treatments": {
+      "actual": "None",
+      "claimed": "['cm','lovastatin']"
+    },
+    "replication/verbose": {
+      "actual": "False",
+      "claimed": "True"
+    },
+    "umap/crop_source": {
+      "actual": "'auto'",
+      "claimed": "'png'"
+    },
+    "umap/tables": {
+      "actual": "['cell', 'cytoplasm', 'nucleus', 'pathogen']",
+      "claimed": "['cell', 'nucleus', 'pathogen', 'cytoplasm']"
+    }
+  }
+}

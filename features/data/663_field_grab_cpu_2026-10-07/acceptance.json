@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "source_commit": "397c8acb5d",
+  "base_commit": "ce58f867e4",
+  "ambient_sha256": "07225441bdce84a1347bdcab2b7c611f1dff108372c25db10edcc36f49c6b452",
+  "focused": {
+    "files": [
+      "tests/qt/test_field_grab_physics_and_input.py",
+      "tests/qt/test_ambient_gravity_radius_preferences.py",
+      "tests/qt/test_data_art_crisp_controls.py",
+      "tests/qt/test_data_art_clock_handoff.py",
+      "tests/qt/test_data_art_filter_boundaries.py",
+      "tests/qt/test_data_art_owned_point_frames.py",
+      "tests/qt/test_ambient_cache_and_cleanup_refusals.py"
+    ],
+    "passed": 93,
+    "elapsed_seconds": 20.43,
+    "log": "focused-final.log",
+    "coverage": "coverage.json.gz"
+  },
+  "source_guards": {
+    "files": [
+      "tests/test_every_callable_in_the_package_is_documented.py",
+      "tests/test_nested_functions_are_documented.py"
+    ],
+    "passed": 90,
+    "elapsed_seconds": 25.29,
+    "log": "source-guards-final.log"
+  },
+  "helpers": [
+    {
+      "name": "_set_field_grab",
+      "statements": 23,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "name": "_step_field_grab",
+      "statements": 21,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "name": "_offer_field_grab",
+      "statements": 9,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "name": "_field_grab_background",
+      "statements": 9,
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  ],
+  "limits": [
+    "Cohorts overlap prior tests; no unique union claim.",
+    "Focused coverage is not complete ambient/module/hosted ratchet acceptance.",
+    "Native images and widget use offscreen CPU and NumPy scatter fallback; actual desktop, GPU, aesthetic and hard 24 FPS acceptance remain open.",
+    "Actual widget records cold show separately; heartbeat excludes initial synchronous show delay.",
+    "Source checkpoint is individual 397c8acb5d, not later root integration with other theme changes."
+  ]
+}

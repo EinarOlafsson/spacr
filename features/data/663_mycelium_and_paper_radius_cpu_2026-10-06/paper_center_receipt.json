@@ -1,0 +1,18 @@
+{
+  "source_sha256": "bb0dc363259a186db869846094cbbc7b067215dd0fc43035ad37f33c51ef4318",
+  "native_size": [
+    3840,
+    2160
+  ],
+  "seed": 42,
+  "radius": 0.01,
+  "physical_radius_pixels": 21.6,
+  "pointer": [
+    0.5092487295311555,
+    0.49293737174428337
+  ],
+  "affected_primitive_centres": 1,
+  "changed_pixels": 5452,
+  "restored_exactly_after_clear": true,
+  "scope": "Primitive-centre radius intentionally may hit zero centres between tiles; no expanded radius or minimum was introduced."
+}

@@ -1,0 +1,20 @@
+{
+  "source_head": "070726142403cc3ac2613e8f01370af31da298ce",
+  "tracked_file_bytes": 1685497188,
+  "displayed_mib": 1607,
+  "measured": "2026-09-24",
+  "method": "Sum apparent byte sizes of existing git ls-files paths; excludes Git history and untracked files.",
+  "network_measurement_repeated": false,
+  "historical_network_measurement": "2026-09-15",
+  "reviewed_readme_locales": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ]
+}

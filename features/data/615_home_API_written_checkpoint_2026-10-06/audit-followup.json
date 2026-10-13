@@ -1,0 +1,19 @@
+{
+  "scope": "Follow-up to the older written-catalog checkpoint; full API acceptance remains pending.",
+  "initial_generator": {
+    "handle": 61808,
+    "observed_terminal_exit_code": 1,
+    "recorded_failure": "sv/README: RST link targets changed",
+    "raw_log_path": "features/data/615_home_API_written_checkpoint_2026-10-06/initial-normal-refresh-terminal.log.gz",
+    "raw_log_sha256": "b21b9ac4d70cdb5773073db7f79980da7de2fc06f8e178bfbfb7f3e5154ab332",
+    "stored_log_sha256": "85b51da0760c98e76e9beebe1766743549e91dfc7abdd0f533f1e29b3854f3aa"
+  },
+  "fresh_full_audit": {
+    "handle": 49565,
+    "log": "Home-current-API-fresh-audit-r1.log",
+    "arguments": "tools/build_documentation_i18n.py --audit --threads 2",
+    "source_checkpoint": "0d4d0acdc",
+    "status": "Started and running; completion not claimed."
+  },
+  "interpretation": "The initial audit reads English at its start and localized README files during its locale loop. README rebuild overlapped that check. The completed current README files pass exact original-paragraph/unrelated-byte preservation and existing URL/markup contracts. The fresh all-nine audit is the authoritative next check; no application crash inference is made."
+}

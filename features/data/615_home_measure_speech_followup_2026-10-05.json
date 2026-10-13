@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "scope": [
+    "05_home",
+    "08_measure"
+  ],
+  "unchanged_mask_lesson": "07_mask",
+  "tests": "14 passed",
+  "speech_fix": "Home Japanese/Chinese spoken forms for Embeddings, Power / Design and Dose-Response; display captions preserved",
+  "first_gpu_turn": "failed before Japanese/Chinese synthesis; 74 tracks retained",
+  "historical_fixture_source": "2f88b67601ef24b776fead0a1178b662f01ac017",
+  "historical_37_track_hash_unchanged": "904f1ac00722e9d443c52f41a37615ffc69a005fc139221e0dc2ebd941477862",
+  "actual_voice_registry_per_lesson": 50,
+  "planned_tracks": 100,
+  "resume_tracks": 26,
+  "runtime_identity_and_final_media_acceptance": "pending normal full verifier",
+  "files": {
+    "features/data/615_home_measure_speech_followup_2026-10-05/completed-track-preservation.json": "9eaae23315f20d27d8130ef76824cf3a3cf7b90b7933f2a3a4b9730e47fa3070",
+    "features/data/615_home_measure_speech_followup_2026-10-05/failed-narration-r1.log.txt": "ff418c6f56bc611fc4b39c522a5435a43429fe56b0d63a706700cfd2324fe083",
+    "features/data/615_home_measure_speech_followup_2026-10-05/speech-tests.log.txt": "5de6801217fb559ffdfab6ae4f4b5f6ff3f26bdb5e0a0fdcc568ab652244a71f"
+  }
+}

@@ -1,0 +1,8 @@
+This plugin does not support propagateSizeHints()
+CLICK actual Measure Run
+GUI PASS /tmp/spacr-implementation-20261001/f575-acceptance/run3/export/2026-10-02_020355_77cf0a4b__measure_snakemake/Snakefile
+GUI_ROWS cell 9
+GUI_ROWS nucleus 9
+wrote /tmp/spacr-implementation-20261001/f575-acceptance/run3/replay-workflow/Snakefile
+REPLAY PASS 9 tables 18 image products
+FINAL GUI TO SNAKEMAKE ACCEPTANCE PASS

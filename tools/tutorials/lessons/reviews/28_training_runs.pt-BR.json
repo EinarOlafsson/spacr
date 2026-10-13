@@ -1,0 +1,40 @@
+{
+  "lesson": "28_training_runs",
+  "english_sha256": "bfd4577f24cda15426fb3ce671f5fed9b5d30194aad42e78bfe98ffb932b88b6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Training Runs: comparar curvas e configurações",
+  "description": "Carregue logs de treinamento, sobreponha métricas, compare configurações e explore as dobras da validação cruzada.",
+  "objectives": [
+    "Encontrar execuções salvas e selecionar as que serão comparadas.",
+    "Sobrepor métricas de treinamento e validação e inspecionar as diferenças de configurações.",
+    "Alternar entre dobras individuais e a média e o desvio padrão delas."
+  ],
+  "prerequisite": "Baixe e extraia o exemplo sintético de Training Runs vinculado. As curvas dele são dados de prática. Na sua própria análise, selecione uma pasta principal que contenha os arquivos train.csv e validation.csv salvos com as configurações de cada execução. Guarde resultados de avaliação independentes com o seu modelo ao avaliar o desempenho.",
+  "scenes": [
+    "Na tela Home, abra Classify e depois Training Runs. Use esta ferramenta para comparar os logs de progresso e as configurações de treinamentos salvos. A amostra vinculada contém curvas sintéticas para praticar os controles.",
+    "Percorra a tela em ordem: escolha uma pasta para encontrar execuções, marque-as na lista, depois escolha Metric e Folds e clique em Overlay selected. Comece pela pasta principal que contém suas execuções.",
+    "Extraia a amostra vinculada e clique em Choose folder. Selecione a pasta training_runs dela e confirme a escolha. Nos seus próprios projetos, selecione uma pasta principal que contenha as pastas das execuções e os logs CSV salvos.",
+    "Examine a pasta e inspecione as execuções encontradas. A amostra traz os exemplos baseline, tuned e cross_validated, além de uma entrada incompleta. Selecione as execuções utilizáveis que você quer comparar.",
+    "Confira os avisos sobre entradas incompletas. A falta de train.csv, validation.csv ou das configurações pode impedir que curvas ou configurações apareçam. Localize a pasta completa da execução antes de adicioná-la a uma comparação.",
+    "Marque baseline e tuned e escolha accuracy em Metric. O menu lista as colunas numéricas disponíveis nos logs selecionados. Escolha loss ou outra métrica registrada quando ela responder à pergunta da sua comparação.",
+    "Clique em Overlay selected. As curvas de treinamento são tracejadas e as de validação, contínuas. Identifique cada execução e cada divisão na legenda. Cada curva termina na sua própria última época registrada.",
+    "Inspecione a comparação de configurações abaixo do gráfico. Ela destaca diferenças como tamanho do lote, número de épocas e taxa de aprendizado. Use-a para identificar o que mudou entre as execuções antes de interpretar as curvas.",
+    "A linha do ambiente separa as configurações de execução, como o número de processos de trabalho, da configuração do treinamento. Leia-a junto com as diferenças de configuração ao comparar execuções feitas em máquinas diferentes.",
+    "Clique em uma curva de validação para ver o último e o melhor valor registrados e as épocas correspondentes. Use a mesma regra de seleção ao comparar execuções. Avalie o checkpoint selecionado com dados independentes para medir o desempenho.",
+    "Escolha loss em Metric para atualizar o eixo vertical e a sobreposição. Compare as trajetórias de treinamento e de validação, incluindo a direção delas perto do fim do treinamento.",
+    "Selecione tuned e cross_validated, escolha accuracy e clique em Overlay selected. Abra Folds e escolha se quer mostrar as dobras individuais, a média e o desvio padrão delas, ou ambos.",
+    "Escolha a média mais ou menos o desvio padrão para resumir as curvas das dobras. Cada faixa mostra um desvio padrão amostral entre as dobras disponíveis naquela época. Leia a faixa como a variação entre dobras.",
+    "Escolha ambos para mostrar as curvas das dobras individuais junto com a média. Compare as dobras para ver se um resumo esconde uma execução com trajetória diferente.",
+    "Escolha a opção por dobra para mostrar apenas as curvas individuais. A comparação de configurações é atualizada com as execuções selecionadas. Leve em conta o intervalo de épocas de cada curva ao comparar onde o treinamento terminou.",
+    "Volte a Metric para comparar outra grandeza registrada, ou mude as execuções selecionadas para restringir a comparação. Mantenha os logs CSV originais e as configurações juntos para poder reabrir a mesma comparação.",
+    "Para uma análise por script, use find_runs e load_run em spacr.train_compare, depois compare_runs e plot_curves. Guarde a comparação com o seu modelo e com resultados de avaliação independentes ao escolher a próxima configuração de treinamento."
+  ]
+}

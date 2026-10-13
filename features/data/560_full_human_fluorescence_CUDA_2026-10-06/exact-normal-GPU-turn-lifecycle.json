@@ -1,0 +1,12 @@
+{
+  "exact_label": "560-full-human-fluorescence-foundations-20261006-r1",
+  "exact_four_original_lifecycle_lines": [
+    "2026-10-06T05:39:43-04:00 [560-full-human-fluorescence-foundations-20261006-r1] queued (pid 2968644, /media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005)",
+    "2026-10-06T05:39:43-04:00 [560-full-human-fluorescence-foundations-20261006-r1] holds the queue; waiting for 360s idle and 600s since the last turn",
+    "2026-10-06T05:45:43-04:00 [560-full-human-fluorescence-foundations-20261006-r1] START: timeout 3h tools/run_capped.sh 24G /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-foundation-env-py313-r1/bin/python /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_full_fluorescence_foundation_CUDA_r1.py",
+    "2026-10-06T06:05:29-04:00 [560-full-human-fluorescence-foundations-20261006-r1] FINISH rc=0"
+  ],
+  "normal_idle_seconds": 360,
+  "normal_handoff_seconds": 600,
+  "actual_terminal_return_code": 0
+}

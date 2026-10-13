@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "source_commit": "4d007329ed6f4caa41042d92754063e809a18978",
+  "scope": "Frozen seven-theme/radius/native watcher source, normal nine-language API generation and full audit; exact complete-original preservation. Newer Home, mask edits, event encoder and website publication remain separate.",
+  "normal_API": {
+    "session_handle": 38785,
+    "terminal_exit_code": 0,
+    "languages": 9,
+    "symbols_per_catalog": 13195
+  },
+  "independent_preservation": {
+    "session_handle": 43493,
+    "terminal_exit_code": 0,
+    "report": {
+      "schema": 1,
+      "scope": "Exact source-bound reviewed-target readback and original catalog/review/media preservation; native and publication acceptance remain separate.",
+      "languages": {
+        "sv": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "8499eca548d5ac1f98fdae77cc15c9bb9bc5f9600cd6e7f3ecb0d7f770f32228",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "3f07728472503cd082cdacae16719885cd670db76ff3dd4182661032e52b2d94"
+        },
+        "de": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "5083a049a2c4e53a51a3abb3f10ae49b9dae344e368d44e9a38e5196fcef754d",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "55dad07faee0d5bc93b7cdb3231461d31f88fe083b17f1bef9eae0dfb9a1d376"
+        },
+        "es": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "33be656def95d7131aca9168a74a094404ef654c214de4a7647b639d1138a00e",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "58fe19b8653f484d52a05be261268dfa05887d97584919f95d294373feee0e66"
+        },
+        "zh_CN": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "679d761ffdeb0fe9fddfd2a72f206be3001736020d25608abba8ef4ae7484623",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "7c6f7bad9b45f13784a888298826a45310535800cf4ad7ca30af062335f7b374"
+        },
+        "pt": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "6585431033cf51ae079f86963ff8a143b7e4fbae66a73fbbca529a21123d4344",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "4f63fb4d625586b5f2a47bd108befe5038443905bc0ce44496bcf570e6250cb4"
+        },
+        "hi": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "fd5fb239a351551826ac2d4bf63035de92e144a0b8037d426abe32d5238c8f50",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "aa5a859e638005b0f5484ea88f107652064705ab2b71b907785b392df7a184da"
+        },
+        "ko": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "09fcb970ddb0d0903b8a0e416df498c8dd0874efa60ed0c513bd98c690a7f20e",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "5fb60c90d0e607f510aea932f96b37cc6e083d74e007c609330ac6acf367ea0f"
+        },
+        "is": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "608d01e242d25d866b558f875c91101bc300ad12e366302e327935538d5165f7",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "ad1abd6a0fe1fbf6f57eb37813552dc652a5559bc874abd405c686d5046c3e83"
+        },
+        "fr": {
+          "runtime_entries": 9922,
+          "exact_runtime_reviewed_targets": 21,
+          "unchanged_runtime_targets_and_source_hashes": 9901,
+          "runtime_catalog_sha256": "e4d56457af807376f7acad0bc4548f89e3821cb6797ef480b57edb9f52454b16",
+          "api_symbols": 13195,
+          "complete_api_records_preserved": 13189,
+          "changed_api_symbols": [
+            "spacr.core.preprocess_generate_masks",
+            "spacr.io.preprocess_img_data",
+            "spacr.qt.night_themes",
+            "spacr.qt.widgets.ambient.AmbientWidget"
+          ],
+          "added_api_symbols": [
+            "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+            "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius"
+          ],
+          "exact_api_reviewed_targets": 7,
+          "api_catalog_sha256": "8f2b01e76382823c2023edb65ad988431d8df780034e0adae9f2bef92231936e"
+        }
+      },
+      "english_API": {
+        "symbols": 13195,
+        "complete_unrelated_records_preserved": 13189,
+        "changed_symbols": [
+          "spacr.core.preprocess_generate_masks",
+          "spacr.io.preprocess_img_data",
+          "spacr.qt.night_themes",
+          "spacr.qt.widgets.ambient.AmbientWidget"
+        ],
+        "catalog_sha256": "d1af0f91d9437b09ffbf6ffee99695dc2f92461f764526a38eb00f8a2bf18f7c"
+      },
+      "normal_full_API_audit_marker": true,
+      "normal_API_log_sha256": "3581ed893aeb5386b76e1230b9cf67ef191a1ed8e731e738c4015f979c5c1bd1",
+      "original_review_files": [
+        {
+          "lane": "runtime",
+          "complete_original_files_preserved_in_place": 2018,
+          "complete_original_files_archived_exact": 27
+        },
+        {
+          "lane": "api",
+          "complete_original_files_preserved_in_place": 1100,
+          "complete_original_files_archived_exact": 50
+        }
+      ],
+      "accepted_tutorial_files_unchanged": 628,
+      "sole_changed_tutorial_artifact": "docs/source/_extra/tutorials/examples/Embeddings_API_example.zip",
+      "embeddings_zip_sha256": "7b396acb50a7072f55a6477fe2487862597a2d0eda80ee0992667047b4d56e11"
+    }
+  },
+  "artifacts": {
+    "features/data/615_latest_home_API_2026-10-06/latest-Home-API-normal-refresh-r1.log.gz": {
+      "original_sha256": "3581ed893aeb5386b76e1230b9cf67ef191a1ed8e731e738c4015f979c5c1bd1",
+      "stored_sha256": "5b710c8b58c918232aefbcb0431919a397fd1aa83f1e03af27ab1f92f2e75cf3",
+      "original_bytes": 1811
+    },
+    "features/data/615_latest_home_API_2026-10-06/latest-Home-complete-preservation-r2.log.gz": {
+      "original_sha256": "7f121818c946e9bf45d9c01f1656d1783da4bb84e25a41d31ed808a766959ed9",
+      "stored_sha256": "1285266b530a0e78c8c84a6bfb2c432ec1388e0128e06876e27b8e39b9f23cf0",
+      "original_bytes": 6707
+    },
+    "features/data/615_latest_home_API_2026-10-06/latest-Home-complete-preservation-r2.json.gz": {
+      "original_sha256": "3090c3fc947a2510c50bb09bfc0cad881cee45ec4abb39adef598dfab9798a5a",
+      "stored_sha256": "496ba928dfee0cf032bb6edeb11cec1d892d70d687651d95752bf1f50ba3f699",
+      "original_bytes": 8867
+    },
+    "features/data/615_latest_home_API_2026-10-06/check_latest_Home_preservation_r2.py.gz": {
+      "original_sha256": "a81c91df7ba06158bcd4a7a0235adab4fad78a3b85e7475f2159623221141f1d",
+      "stored_sha256": "2c09a93bb022209c4736973f5bd30bb938fa0ab2435647ed1af35ec83d434fae",
+      "original_bytes": 8462
+    },
+    "features/data/615_latest_home_API_2026-10-06/latest-Home-reviewed-admission-r1.json.gz": {
+      "original_sha256": "df111ad933e57f7dc1e8002a85f12360fcdcab0be9602ea77909bfcc99ca254d",
+      "stored_sha256": "4c8f1abfbb6899dbb53344bb36521746a70691ff72d552f8082705a49d03c6e2",
+      "original_bytes": 142223
+    },
+    "features/data/615_latest_home_API_2026-10-06/rebind_latest_Home_API_contexts_r5.py.gz": {
+      "original_sha256": "b1a1157888e0b76384377157204b35b577f3d22b6568f0a4d4db8d2dd1e921ab",
+      "stored_sha256": "892374360213ac34c1bc870e476eff0492eb6c56772f507a845b72adaac0abad",
+      "original_bytes": 1988
+    },
+    "features/data/615_latest_home_API_2026-10-06/run_foundation_api_tool_r2.py.gz": {
+      "original_sha256": "d177b5a1da4cb184e9846edacd23ff2a016191812092fca740e23a00c4476251",
+      "stored_sha256": "beb7ed22a9b1f6bd7017d4a1ebd6271b045b43e8f28de30dfa9b92089b82d032",
+      "original_bytes": 1369
+    }
+  },
+  "limits": "Local acceptance checkpoint only. Full user goal and item615 remain open. No new GPU science or native crash acceptance."
+}

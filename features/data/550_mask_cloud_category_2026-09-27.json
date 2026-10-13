@@ -1,0 +1,46 @@
+{
+  "item": 550,
+  "date": "2026-09-27",
+  "request": "Put Mask Generation cloud settings in their own category",
+  "category": "Cloud",
+  "keys": [
+    "cloud_anonymous",
+    "cloud_profile",
+    "cloud_endpoint",
+    "cloud_cache",
+    "cloud_wells",
+    "cloud_fields",
+    "cloud_level",
+    "cloud_results"
+  ],
+  "scope": "Mask Generation category metadata only; defaults, values, API references, visibility conditions and alpha gate retained. Measure grouping unchanged.",
+  "translations": {
+    "locales": [
+      "de",
+      "es",
+      "fr",
+      "hi",
+      "is",
+      "ko",
+      "pt",
+      "sv",
+      "zh_CN"
+    ],
+    "review": "AI technical review (Codex), no native-speaker signoff",
+    "ui_source_additions": 2,
+    "category_help_additions": 1,
+    "source_removals": 0
+  },
+  "validation": {
+    "passed": 18,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 18.52,
+    "cap_bytes": 4294967296,
+    "swap_cap_bytes": 0,
+    "gpu_used": false,
+    "evidence": "/mnt/wd4tb/scratch/spacr-completion/cloud-category-20260927",
+    "scope": "Named cloud alpha suite, real settings-model grouping/value-retention, category help/localization and exact source inventory/hash checks."
+  },
+  "full_cloud_feature_complete": false
+}

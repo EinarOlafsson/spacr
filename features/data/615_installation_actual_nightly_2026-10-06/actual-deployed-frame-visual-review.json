@@ -1,0 +1,61 @@
+{
+  "actual_deployed_full_videos_decoded_and_visually_reviewed": true,
+  "frames": [
+    {
+      "lesson": "01_pypi_github",
+      "actual_video_frame": 0,
+      "sha256": "59776e7ebed00d39bf004c7bd7730821115025341f25a8789670900163e18f10",
+      "actual_decoded_frame_visual_reviewed": true
+    },
+    {
+      "lesson": "03_pip_install",
+      "actual_video_frame": 0,
+      "sha256": "369a9d20bacb3ad77869bfe7af9e16ce9c71d40bce350e579e5390fc79bd6ca1",
+      "actual_decoded_frame_visual_reviewed": true
+    },
+    {
+      "lesson": "04_platform_installers",
+      "actual_video_frame": 0,
+      "sha256": "402d79fd075b4b4dc52897d94746fc05c665bac45ee473af8a8cece7df05b873",
+      "actual_decoded_frame_visual_reviewed": true
+    },
+    {
+      "lesson": "04_platform_installers",
+      "actual_video_frame": 2625,
+      "sha256": "1863563e32fa27a826a57efe299d2cf7d768beebed9dc4e6be3a575cb619a918",
+      "actual_decoded_frame_visual_reviewed": true
+    },
+    {
+      "lesson": "02_conda_install",
+      "actual_video_frame": 2682,
+      "sha256": "417ecb8d0ac6679beda971f8821065a2048f7ff2d356e2519da35376ce004286",
+      "actual_decoded_frame_visual_reviewed": true
+    },
+    {
+      "lesson": "05_home",
+      "actual_video_frame": 1063,
+      "sha256": "2b999d9cd1328e7c9914648e583ea835cb02eb740d19935d9a52956e24c94d77",
+      "actual_decoded_frame_visual_reviewed": true
+    },
+    {
+      "lesson": "07_mask",
+      "actual_video_frame": 0,
+      "sha256": "0bc7bca00a64c0774e6969ab3e831edb72458bde1566b05c49957da967f4cb3c",
+      "actual_decoded_frame_visual_reviewed": true
+    },
+    {
+      "lesson": "08_measure",
+      "actual_video_frame": 0,
+      "sha256": "d471e043be3e272384589bb233aff5338c3a754a24f43eed19925b67b791db2e",
+      "actual_decoded_frame_visual_reviewed": true
+    }
+  ],
+  "current_19_tile_Conda_Home_preserved": true,
+  "Home_Data_left_to_right_Embeddings_Power_Design_Dose_Response_visible": true,
+  "Measure_current_Source_and_Load_test_data_visible": true,
+  "Mask_point_at_some_data_opening_preserved": true,
+  "installation_current_1_5_1_3_package_release_assets_and_actual_CPU_commands_readable": true,
+  "actual_consent_profile_all_four_flags_false_no_old_Home_dialog": true,
+  "no_private_home_directory_path_visible": true,
+  "no_native_Windows_macOS_or_listening_native_speaker_claim": true
+}

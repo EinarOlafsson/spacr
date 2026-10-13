@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/home/carruthers/anaconda3/envs/spacr/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/qt/test_convert_sidecar_acceptance_f583.py"
+  ],
+  "cgroup": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-r887cd3597ad34f7f82e050ab3ad7aad8.scope",
+  "limits": {
+    "memory.max": "4294967296",
+    "memory.swap.max": "0",
+    "cpu_affinity": [
+      0
+    ],
+    "cpu.max": null,
+    "systemd_properties": [
+      "CPUQuotaPerSecUSec=1s",
+      "MemoryMax=4294967296",
+      "MemorySwapMax=0"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "lesson": "40_run_history",
+  "english_sha256": "54ac331ddeb39cf4cd96dcdb51bd54580affd17586c7ced4f6c6724eece89d36",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Run History: skoðaðu fyrri verk og endurheimtu stillingar",
+  "description": "Finndu vistaðar keyrslur, skoðaðu stillingar og annála og hlaðu fyrri stillingum inn í einingu þeirra.",
+  "objectives": [
+    "Finna keyrslur með síum og leit.",
+    "Skoða vistaðar stillingar, skrár og vandamál.",
+    "Endurheimta stillingar fyrir nýja keyrslu."
+  ],
+  "prerequisite": "Ljúktu spaCR-verki til að búa til staðbundna keyrsluskrá. Dæmið flettir í skrám úr umbreytingar-, Recruitment- og Regression-keyrslum.",
+  "scenes": [
+    "Opnaðu Help og svo Run History til að fletta í keyrsluskrám sem vistaðar eru á þessari tölvu.",
+    "Smelltu á Refresh til að hlaða inn tiltækum skrám. Veldu keyrslu til að skoða upplýsingar hennar og dragðu skilrúmið ef þú þarft meira pláss.",
+    "Veldu einingu og stöðu og sláðu svo inn leitarorð til að þrengja listann. Veldu til dæmis convert og Success til að finna loknar umbreytingar.",
+    "Opnaðu Files and models fyrir skráðar upplýsingar um inntak og úttak. Keyrslur sem slepptu tætigildum skráa geta haft tóma skrá; notaðu úttaksslóðirnar í stillingum eða annálum til að finna niðurstöður þeirra.",
+    "Hreinsaðu eða breyttu síunum ef taflan er tóm. Leitarorð og val á stöðu vinna saman.",
+    "Veldu Recruitment-keyrslu og lestu Overview fyrir liðinn tíma og fjölda skráðra skráa. Þetta tekur saman þá vistuðu keyrslu.",
+    "Opnaðu Settings til að skoða upprunamöppu, rásir og síur hluta. Flettu í gegnum vistuðu stillingarnar áður en þú ákveður að endurnýta þær.",
+    "Opnaðu Files and models til að skoða skráðar slóðir, stærðir og tætigildi. Hafðu verkefnisskrárnar sem vísað er til tiltækar þegar þú þarft að koma aftur að greiningunni.",
+    "Opnaðu Environment fyrir skráðar hugbúnaðarútgáfur og fræ. Notaðu Copy path til að finna dagbókarmöppu keyrslunnar.",
+    "Opnaðu Warnings and failure til að lesa viðvaranir sem fylgja lokinni keyrslu. Rannsakaðu viðeigandi viðvaranir áður en þú notar niðurstöður hennar.",
+    "Veldu Failed til að finna verk sem mistókust. Lestu villurakninguna og hugbúnaðarútgáfurnar þegar þú greinir vandamál eða undirbýrð villuskýrslu.",
+    "Farðu aftur í keyrsluna sem þú vilt og veldu Load settings in module. Farðu yfir endurheimtu stýringarnar og núverandi inntaksslóðir áður en þú ýtir á Run.",
+    "Geymdu dagbækurnar sem þú þarft með skrám verkefnisins. Notaðu Clear all aðeins þegar þú ætlar að eyða keyrsluskrám. Opnaðu Report til að búa til samantekt verkefnisins."
+  ]
+}

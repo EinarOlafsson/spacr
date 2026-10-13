@@ -1,0 +1,43 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Layer Viewer: esaminare immagini e sovrapposizioni di etichette",
+  "description": "Carica un’immagine e la maschera corrispondente, regola la sovrapposizione e ingrandisci per esaminare i contorni degli oggetti.",
+  "objectives": [
+    "Aprire un’immagine e la maschera corrispondente.",
+    "Regolare visibilità, opacità, fusione e ordine dei livelli.",
+    "Esaminare le etichette con zoom e spostamento."
+  ],
+  "prerequisite": "Scarica ed estrai Layer_Viewer_real_image_mask.zip. Usa l’immagine di intensità inclusa e la maschera di etichette intere corrispondente. Per questo esempio non è disponibile una calibrazione fisica dei pixel.",
+  "scenes": [
+    "Da Home, apri QC e poi Layer Viewer. Scarica ed estrai l’esempio collegato con immagine e maschera. Il visualizzatore ha propri comandi per aprire questi due file.",
+    "Fai clic su più Image e apri fov01_C1 punto tif. L’immagine in scala di grigi compare nell’area di disegno con uno stiramento del contrasto per percentili.",
+    "Fai clic su Fit per riempire il pannello dell’immagine. Fit può stirare un’immagine quadrata in un pannello largo; regola il divisore per rendere il pannello circa quadrato quando esamini le forme.",
+    "Fai clic su più Mask e apri fov01_cell_mask punto tif. I quarantaquattro oggetti etichettati compaiono sopra l’immagine. Lo zero è lo sfondo e resta trasparente.",
+    "Seleziona mask nell’elenco dei livelli prima di cambiarne i comandi. Attiva e disattiva la sua casella per confrontare i contorni con l’immagine sottostante.",
+    "Porta a zero la Opacity di mask per nasconderne i colori mantenendo il livello caricato. Controlla la riga selezionata prima di regolare un altro livello.",
+    "Porta Opacity al cento per cento per esaminare la forma delle etichette. I colori coprono l’immagine all’interno di ogni oggetto etichettato.",
+    "Riporta Opacity al cinquanta per cento e scegli la fusione translucent per vedere la trama dell’immagine attraverso la maschera. Confronta i contorni degli oggetti con il segnale sottostante.",
+    "Scegli la fusione additive per sommare i colori della maschera all’immagine. Le zone chiare possono saturare in questa visualizzazione, quindi torna a translucent quando ti serve un confronto più chiaro.",
+    "Prova le fusioni multiply e minimum per confrontare sovrapposizioni più scure. Queste opzioni cambiano il composito visualizzato, mentre i valori di intensità originali restano disponibili nell’immagine di origine.",
+    "Scegli opaque e muovi il cursore Opacity per confrontarne l’aspetto. Con questa maschera di interi, la fusione opaque al cinquanta per cento appare come translucent al cinquanta per cento. Torna a translucent per continuare.",
+    "Seleziona image e scegli cyan nel selettore della mappa di colori. L’immagine di intensità cambia colore mentre la maschera mantiene i colori delle etichette. Scegli gray per tornare alla scala di grigi.",
+    "Seleziona mask e premi la freccia verso il basso per spostarla dietro l’immagine. Il livello superiore appare davanti. Riporta la maschera in alto per esaminarne le etichette.",
+    "Fai clic su un oggetto etichettato visibile per leggere la posizione e il numero di etichetta nella riga di stato. Usa i metadati del progetto quando devi identificare campo, piastra o pozzetto di quell’oggetto.",
+    "Ruota la rotella del mouse su un oggetto per ingrandire intorno al puntatore. Avvicinati finché il contorno è facile da esaminare.",
+    "Tieni premuto Shift e trascina con il tasto sinistro per spostarti. Puoi anche trascinare con il tasto centrale. Muoviti nel campo mantenendo lo zoom attuale.",
+    "Fai clic su Fit per tornare al campo intero. Regola la forma del pannello se l’immagine adattata sembra stirata.",
+    "Più Points e più Shapes aggiungono livelli ausiliari vuoti. Per disegnare o modificare maschere di segmentazione, prosegui in Make Masks; questo visualizzatore non ha strumenti di disegno per quei livelli vuoti.",
+    "Seleziona un livello e usa Remove per toglierlo dalla vista. Il file originale resta sul disco, pronto per essere ricaricato.",
+    "Il risultato è una vista a livelli esaminata. Per esportare un composito, usa stack_from_paths e LayerStack.render_uint8 da Python. Prosegui con Make Masks per salvare modifiche alle maschere, oppure con Measure per le misure degli oggetti."
+  ]
+}

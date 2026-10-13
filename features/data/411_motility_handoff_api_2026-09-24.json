@@ -1,0 +1,33 @@
+{
+  "source_commit": "5cb6c93fce65ecb5693a49e28b0f0b5ae86e4df8",
+  "english_api_entries": 11528,
+  "added": [],
+  "removed": [],
+  "changed": [
+    "spacr.core.preprocess_generate_masks",
+    "spacr.object.generate_cellpose_masks",
+    "spacr.object.generate_cellpose_masks_sam"
+  ],
+  "scope": "Automatic motility runs after merged frames are complete; model-weight helpers remain private.",
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11528\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  },
+  "source_guards": {
+    "passed": 2,
+    "log_sha256": "d62a8109099eb254ea787e76cf82da89e3efa6d423fb220bf9df9953e25f6ac1"
+  },
+  "strict_english_build": {
+    "passed": true,
+    "log_sha256": "109d1db159902fc625784c35a3d03f37365ba31d7ae551f98af11fe43b7b08b7",
+    "scope": "AnnData guide and Mask field-identity API; final motility prose additions verified by source audits after this build. The publication workflow rebuilds the merged branch."
+  }
+}

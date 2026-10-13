@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "feature": "F572",
+  "date": "2026-10-02",
+  "status": "partial",
+  "base_sha": "4ae29cc671ec63d0a832ebfd7ea4d8bc71c9256a",
+  "scope": "Modeless post-save presentation of existing Matplotlib figure-integrity warnings; no plot.py or detection-threshold changes.",
+  "behavior": [
+    "Successful save closes its dialog normally and returns the written path before presenting warnings without a modal wait.",
+    "Read-only selectable plain-text findings preserve backend panel IDs and actionable guidance; saved file and successful provenance paths are displayed.",
+    "Open output folder targets only the saved file parent; Close never alters either output.",
+    "Only warnings or a failed provenance write open a notice; clean/disabled/non-image cases stay quiet.",
+    "Provenance failure reports permissions/retry guidance while preserving the successful figure; notice presentation failure does not invalidate save.",
+    "Notice remains alive if the parentless Save dialog is deleted, and releases on closing."
+  ],
+  "validation": {
+    "cohort": "38 passed in 8.23s",
+    "new_cases": 11,
+    "legacy_cases": 27,
+    "first_attempt": "Harness passed None to QTest.mouseClick by looking for a standard Save button, while this dialog uses custom _save; Qt aborted. Corrected test targets actual visible enabled button; first log preserved.",
+    "actual_controls": "Offscreen dark/light Save button -> real PNG/provenance -> modeless notice, both captures inspected for readable text/actions.",
+    "public_api": "Existing public signatures/docstrings and module overview are byte-equivalent via AST extraction.",
+    "static": "No added Ruff findings; git diff --check passes."
+  },
+  "resource_limits": {
+    "memory_max": 4294967296,
+    "swap_max": 0,
+    "affinity": [
+      5
+    ],
+    "requested_cpu_quota": "100%; cpu.max unavailable on this host user scope"
+  },
+  "limits": [
+    "Synthetic independent image arrays used to plant mismatch/saturation; no new real-data acquisition claim.",
+    "Offscreen Qt, not native compositor signoff.",
+    "Existing diagnostic findings are displayed verbatim; six new UI captions are handed to mask_editor for separate nine-locale catalog integration.",
+    "F572 remains partial: broader source tracing, approximate/region reuse and splice acceptance are not claimed."
+  ],
+  "source_sha256": {
+    "spacr/qt/widgets/save_figure_dialog.py": "b0dc28bc77436fb238dc872d2342eadf7af3e5c34cbaf24b0803ba6df038fb4a",
+    "tests/qt/test_figure_integrity_notice_f572.py": "5f104aebb1541365f60c8dca25f5e5c76081b63b6db2a27cce0c1298a5d5a892"
+  },
+  "artifacts": {
+    "features/data/572_gui_warning_2026-10-02/sources.json": "2a5ae71912f70ff135a381f96833f6e42af91bdeff58d3b92f1a5551c579c144",
+    "features/data/572_gui_warning_2026-10-02/capture-receipt.json": "af457836cc1382d685f9222b0e95092d4bd791b8273ada29eced015b930d92e7",
+    "features/data/572_gui_warning_2026-10-02/corrected.log.gz": "2d0c3e82f77106e48cd926abd9fa3b351878dc1baac6894a9924f7974e634076",
+    "features/data/572_gui_warning_2026-10-02/capture.log.gz": "7680631d93c7227cc1480aa6375360f2c87f9704e5c216e9b4260b10dff86e52",
+    "features/data/572_gui_warning_2026-10-02/corrected-cap.json": "4ccb6fe0ae76b46cead2605bbe579fac0ef9c389bf323ebb8ec9b167eaed45bf",
+    "features/data/572_gui_warning_2026-10-02/capture.py": "17fbefe1bb2656e895eebc5d8b8982f452df5457e89b6ce0672fc26dc5617122",
+    "features/data/572_gui_warning_2026-10-02/first-harness-abort.log.gz": "913406b900407cd3b3541a03a814e99fea9c84a44d66c9560a29160dd81fb077",
+    "features/data/572_gui_warning_2026-10-02/capture-cap.json": "e22e293f9092e17cf4f1c6901d23d55c5e2af8c0af7eeb53dbefef97e6e4461d",
+    "features/data/572_gui_warning_2026-10-02/light/notice.png": "9235b90c31b999e88da261eecabe530ad171a14bc80a200c9e6804fb1c14a3d6",
+    "features/data/572_gui_warning_2026-10-02/light/comparison.png.provenance.json": "6c972f944d9be6f01545c2599fecd8c3ab121de8bad23670da3cebfd805485d6",
+    "features/data/572_gui_warning_2026-10-02/light/comparison.png": "36f0cc0a503a3ffb67ddf9d29b189d771c11910b2429e87dd5c826935d2ffad5",
+    "features/data/572_gui_warning_2026-10-02/dark/notice.png": "fe911ce10c1efe243f51aab2dae46de1a13f3cf3363e70743f21ffcae6024b0c",
+    "features/data/572_gui_warning_2026-10-02/dark/comparison.png.provenance.json": "838679b22de2daeb7963d48eebb17c7378a4afd85d3edb2e932ded1e6b968041",
+    "features/data/572_gui_warning_2026-10-02/dark/comparison.png": "37544a65681c9b4ad9a950e5db8d2e03955a449404d3e6f97b4a10dfc9cc254f"
+  }
+}

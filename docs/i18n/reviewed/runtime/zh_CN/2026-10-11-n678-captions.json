@@ -1,0 +1,560 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_scope": "AI technical review (Claude Opus 5.5 with per-locale reviewer agents); no native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "(float) Cross-correlation below which a pair is rejected and the tile keeps its stage position.",
+      "source": "(float) Cross-correlation below which a pair is rejected and the tile keeps its stage position.",
+      "source_sha256": "86c9c59621e93fc3d0b4ccc98e8033a5b0a877512984355b54b8cbaba097b485",
+      "translation": "(float) 互相关低于此值时，该对图块被拒绝，图块保留其载物台位置。"
+    },
+    {
+      "table": "ui",
+      "key": "(float, px) max_displacement — single-frame jumps are interpolated, and any track that still jumps further than this is dropped as an impossible link.",
+      "source": "(float, px) max_displacement — single-frame jumps are interpolated, and any track that still jumps further than this is dropped as an impossible link.",
+      "source_sha256": "04e41eb3176818133f1f6ba74ef55ca71ffb3e9f038f9d02754c25fb88d4e9bc",
+      "translation": "(float, px) max_displacement — 单帧跳跃会被插值，插值后仍跳得比此值更远的轨迹会作为不可能的连接被丢弃。"
+    },
+    {
+      "table": "ui",
+      "key": "(float, px/µm) pixels_per_um. Left unknown, velocities are reported in px/frame; no scale is assumed.",
+      "source": "(float, px/µm) pixels_per_um. Left unknown, velocities are reported in px/frame; no scale is assumed.",
+      "source_sha256": "6b24e8edb940bf4e9b3237c13d26c1f961927b9f2d34bd3ecbb190c7f3f6d852",
+      "translation": "(float, px/µm) pixels_per_um。保持未知时，速度以 px/frame 报告；不假定任何比例尺。"
+    },
+    {
+      "table": "ui",
+      "key": "(float, s) seconds_per_frame. Left unknown, velocities are reported in px/frame; no interval is assumed.",
+      "source": "(float, s) seconds_per_frame. Left unknown, velocities are reported in px/frame; no interval is assumed.",
+      "source_sha256": "4aaec563b8cf3ae8f3d0c82033fd5b691a1c9c433597f2bdd22149f3a10fa062",
+      "translation": "(float, s) seconds_per_frame。保持未知时，速度以 px/frame 报告；不假定任何时间间隔。"
+    },
+    {
+      "table": "ui",
+      "key": "(int) Ceiling on the band buffer the write allocates. This buffer, not the canvas size, sets the RAM the stitch uses.",
+      "source": "(int) Ceiling on the band buffer the write allocates. This buffer, not the canvas size, sets the RAM the stitch uses.",
+      "source_sha256": "388512feaa48fbcfce51308a7e17a2f3c6f79b97f474c42057f65c16134d2a39",
+      "translation": "(int) 写入时分配的条带缓冲区上限。拼接所用的 RAM 由此缓冲区决定，而不是由画布大小决定。"
+    },
+    {
+      "table": "ui",
+      "key": "(str) Cellpose model used to segment every frame. Changing this re-segments every frame, the slower part of the preview.",
+      "source": "(str) Cellpose model used to segment every frame. Changing this re-segments every frame, the slower part of the preview.",
+      "source_sha256": "7d44587b520e2b6e935bcb1fabe39da31a0e182683d71caca3d3fc84366b573b",
+      "translation": "(str) 用于分割每一帧的 Cellpose 模型。更改此项会重新分割每一帧，这是预览中较慢的部分。"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and reports an F test of whether that parameter improves the fit.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and reports an F test of whether that parameter improves the fit.",
+      "source_sha256": "61a601066b834204f1e97c858d314405fa0fa2c218e0225efc63bec9420b7bdd",
+      "translation": "4PL 曲线关于中点对称。真实数据可能存在不对称性，4PL 会通过偏移 EC50 来吸收这种差异；5PL 则增加一个参数来拟合不对称性，需要多一个浓度点，并报告检验该参数是否改善拟合的 F 检验。"
+    },
+    {
+      "table": "ui",
+      "key": "A path you entered is never overwritten. The button offers the new location; the setting changes only if you press it.",
+      "source": "A path you entered is never overwritten. The button offers the new location; the setting changes only if you press it.",
+      "source_sha256": "ec84f8f6615afac547c6b81c1f39f56cdab08e710b563466ddf923e6e17e5543",
+      "translation": "您输入的路径永远不会被覆盖。该按钮只提供新位置；只有按下它，设置才会更改。"
+    },
+    {
+      "table": "ui",
+      "key": "A symmetric fence on a right-skewed measurement flags a large share of the right tail whatever the data. log10 makes the fence symmetric on the log scale — and refuses zero or negative values rather than adding a pseudocount.",
+      "source": "A symmetric fence on a right-skewed measurement flags a large share of the right tail whatever the data. log10 makes the fence symmetric on the log scale — and refuses zero or negative values rather than adding a pseudocount.",
+      "source_sha256": "fe945cc3a2715f06c0392f1d9ed811eb0df4eb802686cd545303141b6c4f6403",
+      "translation": "对右偏的测量值使用对称界限时，无论数据如何，都会标记右尾的很大一部分。log10 使界限在对数尺度上对称 — 并且拒绝零或负值，而不是添加伪计数。"
+    },
+    {
+      "table": "ui",
+      "key": "A well with fewer objects than this is reported 'not scored' rather than compared or dropped — a median over a few objects varies more than the plate effects the scan looks for.",
+      "source": "A well with fewer objects than this is reported 'not scored' rather than compared or dropped — a median over a few objects varies more than the plate effects the scan looks for.",
+      "source_sha256": "937962b8fc38113df0c2e398f4cd2d41c3930d0049e9efbacf22d3a224a20763",
+      "translation": "对象数少于此值的孔会报告为 'not scored'，而不是参与比较或被丢弃 — 少数对象的中位数波动比扫描所要寻找的板效应更大。"
+    },
+    {
+      "table": "ui",
+      "key": "Arrows are each feature's correlation with the two components. Direction and relative length are meaningful; the absolute length is scaled to fit, and the dashed circle drawn at the same scale marks a correlation of 1.",
+      "source": "Arrows are each feature's correlation with the two components. Direction and relative length are meaningful; the absolute length is scaled to fit, and the dashed circle drawn at the same scale marks a correlation of 1.",
+      "source_sha256": "2fe6a0f4e9321e2000a97378ac8d4592a1d708f30f8cbdd9c99c6a75ef142331",
+      "translation": "箭头表示每个特征与两个成分的相关性。方向和相对长度有意义；绝对长度经过缩放以适应图形，按相同比例绘制的虚线圆表示相关系数为 1。"
+    },
+    {
+      "table": "ui",
+      "key": "Click any point to list all of its values.",
+      "source": "Click any point to list all of its values.",
+      "source_sha256": "0aee08c606defe22bc222a484509f2c09fda086e9e391f9477c580ed1973a296",
+      "translation": "点击任意点可列出其所有值。"
+    },
+    {
+      "table": "ui",
+      "key": "Colour each point by the database it came from. This shows whether the clusters of a merged embedding are the plates rather than biology.",
+      "source": "Colour each point by the database it came from. This shows whether the clusters of a merged embedding are the plates rather than biology.",
+      "source_sha256": "b6a5335ba0339346666143f870fb9241843586a25d91b1ba4823c21895fab369",
+      "translation": "按每个点来源的数据库为其着色。这可显示合并嵌入中的聚类是否反映的是板而不是生物学差异。"
+    },
+    {
+      "table": "ui",
+      "key": "Colour the scores by any column of the table, for example to see whether a label separates the objects.",
+      "source": "Colour the scores by any column of the table, for example to see whether a label separates the objects.",
+      "source_sha256": "5ac292a49aa5d91ec34e750618180302f73fdb1400a1db5b15ed7e947961d668",
+      "translation": "按表中任意列为得分着色，例如查看某个标签能否区分这些对象。"
+    },
+    {
+      "table": "ui",
+      "key": "Copy the selected job so you can edit the copy, for example to vary one setting.",
+      "source": "Copy the selected job so you can edit the copy, for example to vary one setting.",
+      "source_sha256": "c3d7777213ef26176527d6060db34b38ee31eae6f3a094fd401185e10795a038",
+      "translation": "复制所选任务，以便编辑副本，例如改变其中一项设置。"
+    },
+    {
+      "table": "ui",
+      "key": "Display label only — it is not used in the calculation",
+      "source": "Display label only — it is not used in the calculation",
+      "source_sha256": "7f1a7b3adf5bf99a7ef1b6e4638ffa4fe4b338d6832ed76a2fbeee121419bd58",
+      "translation": "仅为显示标签 — 不参与计算"
+    },
+    {
+      "table": "ui",
+      "key": "Each added organelle is one more column in this table, seeded with the first organelle's values.",
+      "source": "Each added organelle is one more column in this table, seeded with the first organelle's values.",
+      "source_sha256": "cbe1bf1f2084b0b39eadf80a9a73e3413a34f5345b31b8a676d3b33dd76e23a1",
+      "translation": "每添加一个细胞器，此表就多一列，初始值取自第一个细胞器的值。"
+    },
+    {
+      "table": "ui",
+      "key": "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its checksum matches, and its result on three of your fields.",
+      "source": "Every Cellpose and classifier checkpoint this machine can reach, with what it was trained on, whether its checksum matches, and its result on three of your fields.",
+      "source_sha256": "c5a6dff05b9239eefb85fd19c3d94194ca37d4dd83197862456e457532b5b127",
+      "translation": "此机器可访问的每个 Cellpose 和分类器检查点，包括其训练数据、校验和是否匹配，以及它在您的三个视野上的结果。"
+    },
+    {
+      "table": "ui",
+      "key": "Every cell with the nuclei and pathogens it contains, read from the cell_id links in the measurements database.",
+      "source": "Every cell with the nuclei and pathogens it contains, read from the cell_id links in the measurements database.",
+      "source_sha256": "f677a1c9c28d223ebac31e4804bd7da1d6a2a9eaa13c6f252ceba6b7bcd8ab6c",
+      "translation": "每个细胞及其包含的细胞核和病原体，读取自测量数据库中的 cell_id 链接。"
+    },
+    {
+      "table": "ui",
+      "key": "Every panel on the same scale. When off, each panel has its own scale, so panels cannot be compared.",
+      "source": "Every panel on the same scale. When off, each panel has its own scale, so panels cannot be compared.",
+      "source_sha256": "9732203ac41a230423b6f80eaeeabc1edf708df0b1b2a42469eac34a3f193ec6",
+      "translation": "所有面板使用相同的比例。关闭时，每个面板使用各自的比例，因此面板之间无法比较。"
+    },
+    {
+      "table": "ui",
+      "key": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+      "source": "Held-out accuracy per round, and whether the last stretch of labelling moved it. A flat curve indicates that more labels no longer improve the model.",
+      "source_sha256": "09e7127405c8bad047fb00ee61cb05621b02d349aa1f073b80f8b5cdf6ba98af",
+      "translation": "每轮的留出准确率，以及最后一段标注是否改变了它。曲线持平表示更多标签已不再改进模型。"
+    },
+    {
+      "table": "ui",
+      "key": "Hover a point to see the object it stands for; click it to open the crop.",
+      "source": "Hover a point to see the object it stands for; click it to open the crop.",
+      "source_sha256": "a5b2868ffc4e4573b8c72e6bded2382864b4e409095bbc9ef670917ec5762029",
+      "translation": "将鼠标悬停在某个点上可查看其代表的对象；点击可打开裁剪图像。"
+    },
+    {
+      "table": "ui",
+      "key": "How many files to read before deciding what the names mean. Only this sample is read, so inspecting a 400-plate archive takes as long as one plate; the naming convention is assumed to be the same in the rest of the folder.",
+      "source": "How many files to read before deciding what the names mean. Only this sample is read, so inspecting a 400-plate archive takes as long as one plate; the naming convention is assumed to be the same in the rest of the folder.",
+      "source_sha256": "0b2cf8d5dd3f6b3e79be296ad38a979d37d1aa985e3652522cb2c3bd43661a01",
+      "translation": "在判断名称含义之前要读取的文件数。只读取此样本，因此检查一个 400 块板的存档与检查一块板耗时相同；假定文件夹其余部分使用相同的命名规则。"
+    },
+    {
+      "table": "ui",
+      "key": "How to draw a cross-validated run: every fold, the fold mean with a ±1 sd band, or both. Drawing only the mean hides the spread between folds.",
+      "source": "How to draw a cross-validated run: every fold, the fold mean with a ±1 sd band, or both. Drawing only the mean hides the spread between folds.",
+      "source_sha256": "2f113af39151fc626204f7a09e3565d6e56048c282c9831f9a352e2256073b01",
+      "translation": "交叉验证运行的绘制方式：每一折、带 ±1 sd 带的各折均值，或两者兼有。只绘制均值会隐藏各折之间的离散程度。"
+    },
+    {
+      "table": "ui",
+      "key": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. Masks should outline every object and follow its edge closely.",
+      "source": "If you can't train a model yourself, upload your images and masks here and we'll train one for you. Send the image on screen with its mask, every image you have curated here, or an images folder with a masks folder holding masks of the same names. Say what they show (organism, object type, stain) and they go to their own community dataset on Hugging Face as a pull request, which the maintainer reviews before any model is trained on it. They are shared under {licence}, so send only images you have the right to share. Masks should outline every object and follow its edge closely.",
+      "source_sha256": "6dd3a6f446f9ebf6b9a2a33b2eba2bb6af01a905eee35e96b74f59843e234b02",
+      "translation": "如果您无法自行训练模型，请在此上传您的图像和掩膜，我们会为您训练一个。可以发送界面上的图像及其掩膜、您在此处校正过的所有图像，或一个图像文件夹加一个包含同名掩膜的掩膜文件夹。说明它们显示的内容（生物、对象类型、染色），它们就会以拉取请求的形式进入 Hugging Face 上各自的社区数据集，维护者会在用其训练任何模型之前进行审核。它们以 {licence} 共享，因此请只发送您有权共享的图像。掩膜应勾勒出每个对象，并紧贴其边缘。"
+    },
+    {
+      "table": "ui",
+      "key": "Join the table carrying the value the screen is regressing on. It joins by plateID, rowID, columnID, fieldID and objectID when they are all there; when one is missing it falls back to splitting the crop path, then to translating the well into a row and a column. Which route was used is reported.",
+      "source": "Join the table carrying the value the screen is regressing on. It joins by plateID, rowID, columnID, fieldID and objectID when they are all there; when one is missing it falls back to splitting the crop path, then to translating the well into a row and a column. Which route was used is reported.",
+      "source_sha256": "bf46f0364e46bc87c9e1d6f338dba4c1602ac8791d455aaee3db9e2bd84f4176",
+      "translation": "连接包含筛选所回归数值的表。当 plateID、rowID、columnID、fieldID 和 objectID 都存在时，按它们进行连接；缺少其中任何一个时，先退而拆分裁剪图像路径，再退而将孔转换为行和列。会报告所使用的方式。"
+    },
+    {
+      "table": "ui",
+      "key": "Keeps cells without a pathogen or organelle, which in a screen are usually the control population. Off restricts the analysis to cells that contain a pathogen or organelle.",
+      "source": "Keeps cells without a pathogen or organelle, which in a screen are usually the control population. Off restricts the analysis to cells that contain a pathogen or organelle.",
+      "source_sha256": "f6af6828ddf24abdd3430afdf20012807e7a36dd1b48c3d38f10ce5c837cd910",
+      "translation": "保留不含病原体或细胞器的细胞，在筛选中它们通常是对照群体。关闭时，分析仅限于含有病原体或细胞器的细胞。"
+    },
+    {
+      "table": "ui",
+      "key": "Measurement columns to keep out of the sweep, by name and comma separated.",
+      "source": "Measurement columns to keep out of the sweep, by name and comma separated.",
+      "source_sha256": "2307283e12c8e2825f1a84e4ed8ad8da2e9ab65f0321805c99437a93ffe683ab",
+      "translation": "不参与扫描的测量列，按名称填写，以逗号分隔。"
+    },
+    {
+      "table": "ui",
+      "key": "Models in spaCR's catalogue. A model already on this machine can be used straight away; the rest are downloaded when you ask for one.",
+      "source": "Models in spaCR's catalogue. A model already on this machine can be used straight away; the rest are downloaded when you ask for one.",
+      "source_sha256": "d4527a3e8fdf04ca177bfd819474c466c4f1cc2f341ad95268dd25dbdd4a9b8b",
+      "translation": "spaCR 目录中的模型。已在此机器上的模型可立即使用；其余模型会在您请求时下载。"
+    },
+    {
+      "table": "ui",
+      "key": "Name for this template, for example “Toxo PVM, 40×”:",
+      "source": "Name for this template, for example “Toxo PVM, 40×”:",
+      "source_sha256": "b5e7ccf3330bca935a8ca90c3524cf7b29f43ffa0a28651123eddc0beecdbebf",
+      "translation": "此模板的名称，例如“Toxo PVM, 40×”："
+    },
+    {
+      "table": "ui",
+      "key": "No axes selected — the Walk falls back to n_neighbors and min_dist.",
+      "source": "No axes selected — the Walk falls back to n_neighbors and min_dist.",
+      "source_sha256": "694bc904445cf81bb4cda8e0f402091e5fda3ffa4fb79bdecd9c4970f28b1020",
+      "translation": "未选择轴 — 逐步搜索将退回到 n_neighbors 和 min_dist。"
+    },
+    {
+      "table": "ui",
+      "key": "Off, the settings tab shows only what differs. On, it shows every key both runs set, so you can confirm that something you expected to change did not.",
+      "source": "Off, the settings tab shows only what differs. On, it shows every key both runs set, so you can confirm that something you expected to change did not.",
+      "source_sha256": "84304cf72beb757d109b5df5f6a14023c5a2dad381f55d68795e8e05da83f152",
+      "translation": "关闭时，设置选项卡只显示不同之处。开启时，显示两次运行都设置的每个键，以便您确认某项预期会更改的设置实际上没有更改。"
+    },
+    {
+      "table": "ui",
+      "key": "Open each file for its own axis metadata. A channel that lives as a page inside an OME-TIFF is invisible without this, and it is the only thing that can tell a Z-stack from a timelapse when their filenames are identical. Turn it off for a fast first look at a very large archive.",
+      "source": "Open each file for its own axis metadata. A channel that lives as a page inside an OME-TIFF is invisible without this, and it is the only thing that can tell a Z-stack from a timelapse when their filenames are identical. Turn it off for a fast first look at a very large archive.",
+      "source_sha256": "bf623e7c697cfd3dff45892c8e0206c1d9ce536e4d11d8ea97c5ca5b255e5a29",
+      "translation": "打开每个文件以读取其自身的轴元数据。没有此项，作为 OME-TIFF 内部页面存在的通道将不可见；当 Z-stack 与延时序列的文件名相同时，这也是唯一能区分二者的信息。对非常大的存档进行快速初步查看时可关闭此项。"
+    },
+    {
+      "table": "ui",
+      "key": "Open the tabbed search, graph and module settings window.",
+      "source": "Open the tabbed search, graph and module settings window.",
+      "source_sha256": "8072f44e1ecf281ef59820231d1a57f40bda4c7eae4dc9fc5a3d83d705792ba6",
+      "translation": "打开带选项卡的搜索、图和模块设置窗口。"
+    },
+    {
+      "table": "ui",
+      "key": "Permute the class labels and re-rank, 50 times, keeping the best score each time. The 95th percentile is the separation the best of your features reaches by chance; a feature below it separates the classes no better than chance. Each shuffle repeats the ranking.",
+      "source": "Permute the class labels and re-rank, 50 times, keeping the best score each time. The 95th percentile is the separation the best of your features reaches by chance; a feature below it separates the classes no better than chance. Each shuffle repeats the ranking.",
+      "source_sha256": "c8200732933d30b89bd595f2fd7aec04203afd0a0410199b9fd7c5f0c8cf5443",
+      "translation": "将类别标签随机置换并重新排名，共 50 次，每次保留最佳得分。第 95 百分位数是您的最佳特征凭偶然即可达到的分离程度；低于该值的特征区分类别的效果不比偶然好。每次置换都会重复一次排名。"
+    },
+    {
+      "table": "ui",
+      "key": "Produce the three tables despite the blocker above. The numbers are subtracted, but whether the difference is meaningful is not checked.",
+      "source": "Produce the three tables despite the blocker above. The numbers are subtracted, but whether the difference is meaningful is not checked.",
+      "source_sha256": "5f9a816ba469590fafc5476e79d947dd827af5bb7227aae88d5c3540d9c3af70",
+      "translation": "尽管存在上述阻止项，仍生成三个表。数值会相减，但不会检查差异是否有意义。"
+    },
+    {
+      "table": "ui",
+      "key": "Publish the selected object and everything inside it, so the whole family is highlighted in every other open view.",
+      "source": "Publish the selected object and everything inside it, so the whole family is highlighted in every other open view.",
+      "source_sha256": "7300964571afdc3a5ab86572bc44c316909fbcbc84c418bee6e88cf7b6064e64",
+      "translation": "发布所选对象及其内部的所有对象，使整个家族在其他所有打开的视图中高亮显示。"
+    },
+    {
+      "table": "ui",
+      "key": "Register an arbitrary number of tiles into one canvas and write it incrementally, so a 20000x20000 mosaic never has to fit in RAM. Offsets are solved globally rather than accumulated, and any tile that failed to register is drawn in orange and recorded as such, so tiles placed at their stage positions are visible before the stack is written.",
+      "source": "Register an arbitrary number of tiles into one canvas and write it incrementally, so a 20000x20000 mosaic never has to fit in RAM. Offsets are solved globally rather than accumulated, and any tile that failed to register is drawn in orange and recorded as such, so tiles placed at their stage positions are visible before the stack is written.",
+      "source_sha256": "830f4f371138e05ec7c76ab75fe5385dd7d84e2a9ee06e5da78a5e577157e2d8",
+      "translation": "将任意数量的图块配准到一个画布中并增量写入，因此 20000x20000 的拼接图无需全部放入 RAM。偏移量是全局求解的，而不是逐步累积的；任何配准失败的图块都以橙色绘制并如实记录，因此在写入堆栈之前即可看到被放置在载物台位置的图块。"
+    },
+    {
+      "table": "ui",
+      "key": "Seed for the random layout. The same seed regenerates the same layout, so it can be checked later.",
+      "source": "Seed for the random layout. The same seed regenerates the same layout, so it can be checked later.",
+      "source_sha256": "936c164b6905f10fa33de1e36d7f896da147def2a9f3add7a1414ec27251d6ec",
+      "translation": "随机布局的种子。相同的种子会重新生成相同的布局，以便之后检查。"
+    },
+    {
+      "table": "ui",
+      "key": "Select a job to read its own log. Every job writes its own log file, so the logs of different jobs are not interleaved.",
+      "source": "Select a job to read its own log. Every job writes its own log file, so the logs of different jobs are not interleaved.",
+      "source_sha256": "38b3ab3957357e8383f2769343719d47598949ab6b1eae6bb10002dcf17dc60d",
+      "translation": "选择一个任务以读取其自身的日志。每个任务都写入自己的日志文件，因此不同任务的日志不会交错。"
+    },
+    {
+      "table": "ui",
+      "key": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Ranking by uncertainty alone tends to concentrate on one or two wells, so the same kind of crop is labelled repeatedly. 'none' turns the spreading off.",
+      "source": "Spread the queue across wells rather than serving the most uncertain crops in ranked order. Ranking by uncertainty alone tends to concentrate on one or two wells, so the same kind of crop is labelled repeatedly. 'none' turns the spreading off.",
+      "source_sha256": "76613fc50b5713cc085cc4969e807dd29376b819c1f78088cfb00dc43cb070ef",
+      "translation": "将队列分散到各个孔中，而不是按排名顺序提供最不确定的裁剪图像。仅按不确定性排名往往会集中在一两个孔上，导致同类裁剪图像被反复标注。'none' 关闭分散功能。"
+    },
+    {
+      "table": "ui",
+      "key": "Stop the queue after this many failed jobs in a row; consecutive failures usually share a cause that would also fail the remaining jobs. 0 disables the check.",
+      "source": "Stop the queue after this many failed jobs in a row; consecutive failures usually share a cause that would also fail the remaining jobs. 0 disables the check.",
+      "source_sha256": "6b57ecaa2411e25a87210ccc45b3ab260801407d1810092a356df722080460a4",
+      "translation": "连续失败这么多个任务后停止队列；连续失败通常有共同原因，该原因也会使其余任务失败。0 禁用此检查。"
+    },
+    {
+      "table": "ui",
+      "key": "Symlink each image under its spaCR name rather than duplicating it. Renaming does not require copying, and copying a 300 GB plate would use another 300 GB of disk. Untick it if the project has to survive the originals moving, or if it is going somewhere symlinks do not work.",
+      "source": "Symlink each image under its spaCR name rather than duplicating it. Renaming does not require copying, and copying a 300 GB plate would use another 300 GB of disk. Untick it if the project has to survive the originals moving, or if it is going somewhere symlinks do not work.",
+      "source_sha256": "b59524aef531e9a48933916af5c8f81814f61725e409d98efa2063638f4faac8",
+      "translation": "以 spaCR 名称为每个图像创建符号链接，而不是复制它。重命名不需要复制，而复制一块 300 GB 的板会再占用 300 GB 磁盘空间。如果项目需要在原始文件移动后仍能使用，或要移到不支持符号链接的位置，请取消勾选。"
+    },
+    {
+      "table": "ui",
+      "key": "The Walk searches the space these parameters define. Every one of them changes the structure of the embedding, so searching only n_neighbors and min_dist leaves the others at their defaults.",
+      "source": "The Walk searches the space these parameters define. Every one of them changes the structure of the embedding, so searching only n_neighbors and min_dist leaves the others at their defaults.",
+      "source_sha256": "c932d8259c8c08b1448be74df0f3be5bd442bdd837e4a1f6e6bc4f13458e1180",
+      "translation": "逐步搜索在这些参数定义的空间中进行搜索。每个参数都会改变嵌入的结构，因此只搜索 n_neighbors 和 min_dist 会让其余参数保持默认值。"
+    },
+    {
+      "table": "ui",
+      "key": "The numeric measurements of the merged frame. Pick as many as you like: each one becomes its own run, with its own folder and its own row in the Runs tab, so they can be compared there.",
+      "source": "The numeric measurements of the merged frame. Pick as many as you like: each one becomes its own run, with its own folder and its own row in the Runs tab, so they can be compared there.",
+      "source_sha256": "a332ad084f56b68540c1bc8a55944ba38376d0863312857cbc930fe6c3bcd935",
+      "translation": "合并数据框的数值测量。可以任意选择多个：每一个都会成为单独的运行，在运行记录选项卡中拥有自己的文件夹和行，以便在那里比较。"
+    },
+    {
+      "table": "ui",
+      "key": "The penalty weight of a penalised fit, not the significance level above. Greyed out for a model that has no penalty, because the number would change nothing there and the run refuses it rather than ignoring it.",
+      "source": "The penalty weight of a penalised fit, not the significance level above. Greyed out for a model that has no penalty, because the number would change nothing there and the run refuses it rather than ignoring it.",
+      "source_sha256": "5dd0d9f018821cbd3f3810d72c3fb2b28a97017ba5e644bf10173a5ead245a62",
+      "translation": "惩罚拟合的惩罚权重，不是上面的显著性水平。对于没有惩罚项的模型，此项显示为灰色，因为该数值在那里不会改变任何结果，并且运行会拒绝它而不是忽略它。"
+    },
+    {
+      "table": "ui",
+      "key": "The percentile mapped to black. Raise it to darken more of the background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to darken more of the background; 0 keeps the dimmest pixel.",
+      "source_sha256": "5f32ce686a224451a0603fd581ab26ca0d36ff6b29f262517c168282431419df",
+      "translation": "映射为黑色的百分位数。调高可使更多背景变暗；0 会保留最暗的像素。"
+    },
+    {
+      "table": "ui",
+      "key": "The run order or date. Leave empty and the order is inferred from the plate id, and every run-based rule uses that order.",
+      "source": "The run order or date. Leave empty and the order is inferred from the plate id, and every run-based rule uses that order.",
+      "source_sha256": "3e478e9bd01639d4b42fd11c381060142d5918984f03c8e61e9285370b32a02c",
+      "translation": "运行顺序或日期。留空则根据 plate id 推断顺序，所有基于运行的规则都使用该顺序。"
+    },
+    {
+      "table": "ui",
+      "key": "Tick two or more columns — agreement needs at least two annotators.",
+      "source": "Tick two or more columns — agreement needs at least two annotators.",
+      "source_sha256": "7c62335e06011d69e933121c2d134865433413ac7f492e34d1c398fddaff7007",
+      "translation": "勾选两列或更多列 — 一致性分析至少需要两名标注者。"
+    },
+    {
+      "table": "ui",
+      "key": "What the bar's whisker means. SD describes the spread of the observations themselves; SEM describes how well their mean is pinned down and is SD over the square root of n -- at n=3000 the two differ fifty-five-fold; the variance is SD squared, so its whisker is in squared units. The caption under the plot names whichever was drawn.",
+      "source": "What the bar's whisker means. SD describes the spread of the observations themselves; SEM describes how well their mean is pinned down and is SD over the square root of n -- at n=3000 the two differ fifty-five-fold; the variance is SD squared, so its whisker is in squared units. The caption under the plot names whichever was drawn.",
+      "source_sha256": "666cf1824e741234db605f56271f8f5d88e68092570d906a477229f6c951a77f",
+      "translation": "条形图误差线的含义。SD 描述观测值本身的离散程度；SEM 描述其均值的确定程度，等于 SD 除以 n 的平方根 -- 在 n=3000 时两者相差五十五倍；方差是 SD 的平方，因此其误差线采用平方单位。图下方的说明会注明绘制的是哪一种。"
+    },
+    {
+      "table": "ui",
+      "key": "What to do when a field arrives as several tiles. Stitching is the default: spaCR's filename convention has no tile slot, so four tiles of one field would share one name, while a stitched field is one image with one name. Keeping the tiles as fields loses the information that they are one field, so per-field measurements are wrong; skipping them leaves them out, with a reason.",
+      "source": "What to do when a field arrives as several tiles. Stitching is the default: spaCR's filename convention has no tile slot, so four tiles of one field would share one name, while a stitched field is one image with one name. Keeping the tiles as fields loses the information that they are one field, so per-field measurements are wrong; skipping them leaves them out, with a reason.",
+      "source_sha256": "35c1ec9ff85e0f02b5c6ecc8038f77e487752b3425b6e14727c5d059204b0bd3",
+      "translation": "当一个视野以多个图块形式到达时的处理方式。默认是拼接：spaCR 的文件名规则没有图块位，因此同一视野的四个图块会共用一个名称，而拼接后的视野是一个图像、一个名称。将图块作为独立视野保留会丢失它们属于同一视野这一信息，因此按视野的测量会出错；跳过它们则会将其排除，并注明原因。"
+    },
+    {
+      "table": "ui",
+      "key": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits twice — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source": "Which family of coefficients every tab draws.\n\nA run fitted at level='both' fits twice — once per guide and once per gene — and writes both into one table. They are two multiple-testing families, so the q-values, the Q-Q's inflation figure and the significance line are computed within each family and not across the pair.\n\nBoth shows them together. A gene and its guides are then separate rows with separate labels: gene_fraction:gene[225160] beside fraction:grna[225160_1], and a level column in the table that says which is which.",
+      "source_sha256": "6fec42f63ed1dad89e371886c985ce9b64eb4d74635537c21b30ec50d3612ccd",
+      "translation": "每个选项卡绘制哪一族系数。\n\n以 level='both' 拟合的运行会拟合两次 — 每个 guide 一次、每个 gene 一次 — 并将两者写入同一个表。它们是两个多重检验族，因此 q 值、Q-Q 图的膨胀系数和显著性线都在每个族内部计算，而不是跨两族计算。\n\nBoth 将它们一起显示。此时一个基因及其 guide 是带有不同标签的不同行：gene_fraction:gene[225160] 与 fraction:grna[225160_1] 并列，表中的 level 列标明每行属于哪一族。"
+    },
+    {
+      "table": "ui",
+      "key": "Work the pattern out from the filenames themselves: tokenise them, align the set, and the parts that vary are the groups.",
+      "source": "Work the pattern out from the filenames themselves: tokenise them, align the set, and the parts that vary are the groups.",
+      "source_sha256": "7d74011ee038f57d6b08fff1be36f313bdb482e467ef925a23b38e55a9472c29",
+      "translation": "直接从文件名本身推断模式：将其分词，对齐整个集合，变化的部分即为分组。"
+    },
+    {
+      "table": "ui",
+      "key": "consolidate_on_cell. Off keeps every cell and leaves the child's columns empty. This is not a blanket join type: the join is decided per table by the object type.",
+      "source": "consolidate_on_cell. Off keeps every cell and leaves the child's columns empty. This is not a blanket join type: the join is decided per table by the object type.",
+      "source_sha256": "bdfbb62ff63e4f4b87a02cd04c980ea1a225e49ea65568b93424058521c8780c",
+      "translation": "consolidate_on_cell。关闭时保留每个细胞，并将子对象的列留空。这不是统一的连接类型：连接方式按每个表的对象类型决定。"
+    },
+    {
+      "table": "ui",
+      "key": "cuML is installed. Restart spaCR before using it — pip may have upgraded numpy or scipy underneath this process, which has already imported them.",
+      "source": "cuML is installed. Restart spaCR before using it — pip may have upgraded numpy or scipy underneath this process, which has already imported them.",
+      "source_sha256": "98a381772c6eb2d9dc0fc74992a7428289317ee47351883f2524815382d5c68a",
+      "translation": "cuML 已安装。使用前请重启 spaCR — pip 可能已在此进程底层升级了 numpy 或 scipy，而此进程已导入它们。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "timelapse_lineage_bud_guard",
+      "source": "Accept an inferred division only when the mother shows daughter buds in the 8 frames before it: inside her mask, the 95th percentile over the median of the channel the objects were segmented on (an inner membrane complex marker such as IMC1) must reach timelapse_lineage_bud_threshold. Divisions whose bud signal stays below the threshold are rejected, so divisions with faint buds are lost. It needs the images, so it applies when masks are generated and not in Measure. Ignored unless timelapse_lineage. Default False.",
+      "source_sha256": "5c012f9a9f25a7dc5173cddf1a8558cfd53d7ebd4005e5fca62d243cac5cbe7e",
+      "translation": "仅当母细胞在分裂前 8 帧内显示子芽时才接受推断的分裂：在其掩膜内，第 95 百分位数与中位数之比（基于分割对象所用的通道，例如 IMC1 等内膜复合体标记物）必须达到 timelapse_lineage_bud_threshold。芽信号始终低于该阈值的分裂会被拒绝，因此子芽信号较弱的分裂会丢失。此项需要图像，因此在生成掩膜时应用，不在测量模块中应用。除非开启 timelapse_lineage，否则忽略。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_cycle_labels",
+      "source": "A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.",
+      "source_sha256": "0ece9951871a2f14afd863616a443682bee0a88492112fbc02e790b774f7dbd6",
+      "translation": "一个 png_list 列，包含 xgboost 和 torch 方法用于学习的 Annotate 标签：1 到 4 分别表示 G1、S、G2 和 M，或直接用时相名称。标签通过所属细胞与细胞核匹配。留空则改用门控的可靠判定进行训练，因此学习方法会重现门控的判定；已标注的前期和后期细胞核可提供门控所不能提供的信息。默认值为空。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "classifier_family",
+      "source": "Which classifier the merged Classify module runs: 'cv' trains a Torch model on object crops, 'ml' fits a gradient-boosted model on measured features. The settings the other family uses are greyed out, not hidden - they keep their values. 'cv' calls spacr.deep_spacr.deep_spacr and 'ml' calls spacr.ml.generate_ml_scores, both unchanged. Default 'cv'.",
+      "source_sha256": "43d1db680e6e8d2a3e9cc12173be288b82718618e24a013798bfb2b4a734a2c9",
+      "translation": "合并后的 Classify 模块运行哪种分类器：'cv' 在对象裁剪图上训练 Torch 模型，'ml' 在测量特征上拟合梯度提升模型。另一类所用的设置会显示为灰色而不是隐藏，并保留其值。'cv' 调用 spacr.deep_spacr.deep_spacr，'ml' 调用 spacr.ml.generate_ml_scores，两者均未更改。默认值 'cv'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_grna_column",
+      "source": "Name of the column in the count CSV containing the guide identifier. Set this value to the column produced by the sequencing pipeline. Default 'grna'.",
+      "source_sha256": "0f3ff86ceb03a2d26d3667056c0c1fdaa09ebb3594a615596ca99270eb7589cc",
+      "translation": "计数 CSV 中包含引导 RNA 标识符的列名。请将此值设为测序流程生成的列。默认值 'grna'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_value_column",
+      "source": "Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Set it when the file names this column differently, for example 'reads' or 'n'. Default 'count'.",
+      "source_sha256": "c3e98b47a9eea11808765aad4f902249f2f2e44e41ab211ca5373eae0d2cc00e",
+      "translation": "计数 CSV 中存放一个向导在一个孔中读段计数的列名；它会成为 fraction_threshold 扫描所处理的每孔比例。如果文件中此列的名称不同（例如 'reads' 或 'n'），请设置此项。默认值 'count'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_generator",
+      "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it changes the crops very little. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
+      "source_sha256": "86fe3b16be0b1a6c1f5adbca6d27f55d80b49de9a62dc625a755558abe769252",
+      "translation": "绘制反事实示例的模型。'autoencoder' 速度快，并经过训练以翻转分类器的判定。'diffusion' 仅经过训练以绘制每个类别的裁剪图像，并在目标类别下重绘部分加噪的裁剪图像，因此翻转判定并不是它的优化目标；它更慢，需要 GPU、数千张裁剪图像和数百个训练轮次；只有几百张裁剪图像时，它对裁剪图像的改变很小。扩散模型权重保存为表旁边的 counterfactual_diffusion.pt。仅在 counterfactuals 开启时生效。默认值 'autoencoder'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation",
+      "source": "Score the feature-based classifier (Classify, 'ml' family) with class-stratified cross-validation instead of a single train/test split: up to 5 folds, whole cv_group_by groups per fold, so every control object receives an out-of-fold prediction. Each fold's optimal probability threshold is computed and printed when verbose is on; predictions are not re-thresholded. Gives a less variable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
+      "source_sha256": "fc0daa17b3e41b11d35a30cb7ec60317ab303d9a3c5365667ed64d78042fc9a8",
+      "translation": "使用按类别分层的交叉验证（而不是单次训练/测试划分）为基于特征的分类器（Classify，'ml' 类）评分：最多 5 折，每折包含完整的 cv_group_by 分组，使每个对照对象都获得一个折外预测。开启 verbose 时会计算并打印每折的最优概率阈值；预测不会重新设定阈值。在小型对照集上可得到波动更小的准确率估计，代价是训练时间约为 5x。默认值 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cross_validation_folds",
+      "source": "Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the feature-based (ml) classifier.",
+      "source_sha256": "04bc2a895e4a5c8f02f21c3902fdf0608383b2474d3475239f608083e81e0c62",
+      "translation": "用于训练视觉分类器的 k 折划分数，代替单一的 val_split 留出。0（默认）或 1 使用一次随机划分；2 或更多时每折训练一个单独的模型，在其留出折上评估每个模型，并报告均值、折间标准差和范围。这些统计量量化了对数据划分的敏感性。运行时间大约与 k 成正比。与控制基于特征的 (ml) 分类器的 'cross_validation' 不同。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "file_type",
+      "source": "Image format of the pre-generated crops, as a file extension: 'png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp' or 'npy'. It filters by format only; path_string selects the object type, so the pair can select, for example, every nucleus crop in any format or every TIFF of any object. A legacy value of the form '<object>_png' is still accepted and read as its extension, so an old settings file keeps working. Blank accepts any format. Default 'cell_png', which is read as 'png'.",
+      "source_sha256": "d26bee95081d3bad21742e43d72a316a7743a2fa87b945f0561d80a822038967",
+      "translation": "预生成裁剪图像的文件格式，以扩展名表示：'png'、'tif'、'tiff'、'jpg'、'jpeg'、'bmp' 或 'npy'。该设置仅按格式筛选；对象类型由 path_string 选择，因此两者组合可以选择例如任意格式的所有细胞核裁剪图像，或任意对象的所有 TIFF。仍接受 '<object>_png' 形式的旧值，并将其解释为相应扩展名，因此旧设置文件仍可使用。留空表示接受任意格式。默认值为 'cell_png'，并将其解释为 'png'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "group_lasso_lambda",
+      "source": "Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its single strongest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Set it to auto to choose it by cross-validation. Default auto. Read by regression_type 'group_lasso'.",
+      "source_sha256": "63f98762f489b431264a0f56756bb32a4bf10b80ad9aec389e2080d96c61ff0a",
+      "translation": "组 lasso 的惩罚权重，它将一个基因的所有向导一起收缩，而不是逐个收缩，因此基因作为一个整体进入或退出模型，而不是取决于其单个最强的向导。较大的值保留更少的基因；0 表示不惩罚，负值会被拒绝。设为 auto 可通过交叉验证选择。默认值 auto。由 regression_type 'group_lasso' 读取。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination",
+      "source": "Illumination / flat-field correction. Estimates the microscope's uneven illumination once from the fields of a plate and divides it out of the pixels at every enabled stage, which removes position-dependent intensity bias across the field of view.",
+      "source_sha256": "e79cadbc68fddd333f4dc44f43f77a5a0d55ba413c1fb8898b2ca2d4437faa5e",
+      "translation": "照明 / 平场校正。根据一块板的视野一次性估计显微镜的不均匀照明，并在每个已启用的阶段将其从像素中除去，从而消除整个视野中与位置相关的强度偏差。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_correction",
+      "source": "Estimate the uneven illumination of the microscope from the fields themselves and divide it out of the pixels at every enabled stage. On, intensities are corrected for the position in the field of view, which removes position-dependent intensity bias such as vignetting. Default False.",
+      "source_sha256": "8706c15b6f8640452c83302126ab7dee2c385f88955e1f4c29416288cad32022",
+      "translation": "根据视野本身估计显微镜的不均匀照明，并在每个已启用的阶段将其从像素中除去。开启后，强度会按其在视野中的位置进行校正，从而消除与位置相关的强度偏差，例如渐晕。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "init_weights",
+      "source": "Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head added on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True.",
+      "source_sha256": "932012c5c8135c5b9c46d41fc843523df7ace74b603d801b77383407c7749dc6",
+      "translation": "从 ImageNet 预训练权重而不是随机初始化开始训练骨干网络；无论哪种方式，其上附加的 spaCR 分类头都是随机初始化的。请保持开启：在这里常见的小型标注集上，迁移学习收敛所需的训练轮次少得多。仅在使用超大数据集从头训练，或测量预训练的贡献时才关闭。默认值 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "lasso_selection_threshold",
+      "source": "Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter list of more consistently selected terms; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6. Read by regression_type 'elasticnet', 'group_lasso', 'lasso'.",
+      "source_sha256": "235d276241abe79ab7a8bcc4185c54ef7e9e2b1f418423543de15e17335c4d00",
+      "translation": "lasso 或弹性网络系数被判定为命中所需的最小 bootstrap 选择频率，介于 0 和 1 之间。0.6 表示该 gRNA 在至少五分之三的重抽样中保留了非零系数。提高该值可得到更短、所含项被选中更一致的列表；降到约 0.5 以下则会纳入被惩罚项删除和保留次数相当的项。默认值 0.6。由 regression_type 'elasticnet'、'group_lasso'、'lasso' 读取。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "mixed_control_wells",
+      "source": "Wells holding a known mixture of the positive and negative controls, e.g. ['c3']. Removed from the regression like the other two. Per-cell identities in these wells are unknown, but the aggregate proportions are known from sequencing, so annotation methods can be scored on real rather than simulated cells. Default None.",
+      "source_sha256": "6b3ba2b8d28e3317899be945c5bffd0237c98be3d520ef51e9d2228babc2a25f",
+      "translation": "含有已知阳性与阴性对照混合物的孔，例如 ['c3']。与另外两种一样会从回归中删除。这些孔中每个细胞的身份未知，但总体比例可由测序得知，因此可以在真实而非模拟的细胞上为注释方法评分。默认值 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_gpu",
+      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it off when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
+      "source_sha256": "685de1a2edc476d6b7eab14c7b84dbb4189cb81257570c67e97688d6fad3bc79",
+      "translation": "当 spaCR 找到可用的显卡时，让本次运行使用它：图块配准的 FFT 与 Cellpose 的轮廓都有 GPU 路径，若显卡拒绝，两者都会自行回退到 CPU。当显卡正忙于其他任务时请关闭它 -- 共享 GPU 是常见情况，而在一块微孔板处理到一半时发生显存不足，代价比 GPU 节省的时间更大。默认 True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly, which measures decoding success. Empty still calls barcodes but cannot score them against a library. Default None.",
+      "source_sha256": "cff4b2bce8f6eb57f46c9809bf94ca740dc7be3a4d2c47c44535c990cf267a28",
+      "translation": "含有引导 RNA 条形码的 CSV 文件，条形码所在列必须命名为 prefix、barcode 或 sequence。提供该文件后，每个细胞核判定出的条形码还会与最接近的引导 RNA 匹配，并报告与条形码库完全匹配的光点数量；该数值衡量解码的成功程度。留空时仍会判定条形码，但无法对照条形码库为其评分。默认值为 None。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is off by default because the table is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "670726ba9fe47c5ecca5d3055c2a03340488ca3edf4c73a619cad9f5fe616e22",
+      "translation": "将条形码背后的每个读段写入 ops_reads 表：每个读段在每个测序循环占一行，包含判定的碱基、判定优势幅度以及用于判定的四个强度值。这使可疑条形码能够追溯到原始像素。由于该表很大（参考板的一个完整孔约有三千万行），默认关闭；建议只对一两个孔启用，而非整板启用。默认值为 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "optimizer_type",
+      "source": "PyTorch optimizer used by deep_spacr.train_model: 'adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta' or 'asgd'. AdamW is the default for fine-tuning; SGD can generalise better but usually needs more epochs. amsgrad applies only to Adam/AdamW. API: spacr.deep_spacr.train_model(optimizer_type=...). Default 'adamw'.",
+      "source_sha256": "29acf3ede4098d711dcd769ed35bb138a900a1f06cb1e2ff84e33704397c4bf2",
+      "translation": "deep_spacr.train_model 使用的 PyTorch 优化器：'adamw'、'adam'、'adamax'、'sgd'、'rmsprop'、'nadam'、'radam'、'adagrad'、'adadelta' 或 'asgd'。AdamW 是微调的默认选项；SGD 的泛化可能更好，但通常需要更多训练轮次。amsgrad 仅适用于 Adam/AdamW。API：spacr.deep_spacr.train_model(optimizer_type=...)。默认值 'adamw'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v4' is the cpsam_v2 round-6 model; 'toxoplasma_plaque_v3', the default until 2026-10-11, scores higher on Gel Doc wells; 'toxoplasma_plaque_v2' is the earlier default), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v4'.",
+      "source_sha256": "01ef869742a956fb394d3b1571df69067cac6eaa49a0ccc21de1fe7eafe594ec",
+      "translation": "用于分割空斑的 Cellpose 检查点：模型库键会在首次使用时下载经校验和验证的检查点（'toxoplasma_plaque_v4' 为基于 cpsam_v2 的第 6 轮模型；'toxoplasma_plaque_v3' 在 2026-10-11 之前为默认值，在 Gel Doc 孔上得分更高；'toxoplasma_plaque_v2' 为更早的默认值）；文件系统路径用于选择自定义检查点；'bundled' 是需要 Cellpose 3 的 Cellpose 3 检查点。更改此项会改变空斑计数，因此已记录的运行应保留其值。默认值为 'toxoplasma_plaque_v4'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "source_sha256": "468dfadcd279c00a361b9b50baa1317e888ee1f0ae2eedcfab8697da05981efd",
+      "translation": "保存的 PNG 中每种颜色对应的源图像数据通道，例如 {'r': 2, 'g': 1, 'b': 0} 表示图像数据通道 2 为红色、1 为绿色、0 为蓝色。未指定的图像数据通道不会出现在提取图像区域中（不影响测量）；留空的颜色是空图像层。为三种颜色指定同一图像数据通道会写出灰度 PNG。默认值为 {'r': 2, 'g': 1, 'b': 0}，对于标准的 405/488/555 堆栈，会把细胞核染色放在蓝色图像数据通道。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "resnet_features",
+      "source": "Placeholder for embedding raw crops with ResNet features instead of the measured feature table. Not implemented: when it is True, generate_image_umap raises NotImplementedError before embedding. Leave it False. Default False.",
+      "source_sha256": "681a3d431184971338dc0e27935462755c6e97280df5396276f58c152d98ace4",
+      "translation": "占位选项，用于以 ResNet 特征而非测量特征表嵌入原始裁剪图。尚未实现：设为 True 时，generate_image_umap 会在嵌入之前引发 NotImplementedError。请保持为 False。默认值 False。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "spline_knots",
+      "source": "Number of knots in the spline basis of each continuous covariate. More knots let the fitted curve bend more freely and use more degrees of freedom; a covariate with fewer distinct values than the degree is left linear and gets no spline basis. The guide columns are never given a basis, so the fit still returns one coefficient and one p-value per guide. Read only by regression_type 'spline'. Default 4.",
+      "source_sha256": "a6a39f6e680d7113323f0ec166a7019efdbbdbdd04ffe7838a102672db9c0105",
+      "translation": "每个连续协变量的样条基函数所用的节点数。节点越多，拟合曲线弯曲越自由，并使用更多自由度；若某个协变量的不同取值数少于阶数，则保持线性，不获得样条基。guide 列绝不使用样条基，因此拟合仍会为每个 guide 返回一个系数和一个 p 值。仅由 regression_type 'spline' 读取。默认值 4。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_sensitivity",
+      "source": "Fractional amount the threshold is moved up and down to produce the invasion_efficiency_low_threshold and _high_threshold bracket, which shows how much a well's invasion efficiency depends on the threshold. Widening it widens the bracket and makes the inflation flag (inflation_warn) trigger more often. Default 0.25.",
+      "source_sha256": "1ea52bf72d9d998cca2c1e12a8e5d23ed607d8ffec22db42f86ba7080d01b8c3",
+      "translation": "阈值上下移动的比例幅度，用于生成 invasion_efficiency_low_threshold 和 _high_threshold 区间，该区间显示孔的入侵效率在多大程度上取决于阈值。加宽它会扩大区间，并使膨胀标记（inflation_warn）更常触发。默认值 0.25。"
+    }
+  ]
+}

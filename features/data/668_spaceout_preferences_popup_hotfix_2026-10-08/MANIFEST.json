@@ -1,0 +1,18 @@
+{
+  "README.md": "7d4fdd237ca750178ee0edf88723558a9f67459dba2895e23e45948025bb9a3f",
+  "payloads/after-ambient.py.gz": "d3183bd9a24125f64fe4c0f112f64129fd6ede832208ade0cce4e8ad2c988ea7",
+  "payloads/after-glass.py.gz": "be1203b3ea75e2d271f5594d0943a8b468ec4ae624348910b5233fed52856219",
+  "payloads/after-test_popup_backdrop_apply.py.gz": "ca8919174f0aa3ef2dcaceb715d230951b6eb2ef362fc19e13f0ad02aa2bea29",
+  "payloads/before-ambient.py.gz": "cfd32185a4d686ee532a735fa2eaf34ad59d7c904c221fe809d368b01caf4f49",
+  "payloads/before-glass.py.gz": "6faa28b1017159cad46ce4374b635607e2188ad921ef8879ed360ffc0e5dac14",
+  "payloads/before-test_popup_backdrop_apply.py.gz": "c79be2f7f17eeb36ffa4dfd84163b715487108e7bea3c36dfe87e43a94df9d08",
+  "payloads/final-qt611-focused.log.gz": "b7674af41ac0046591c62376d5aef1ec84bf3a46b0c8f5c617981b0ff9390a4d",
+  "payloads/final-qt612-24.log.gz": "0085d9539c2417ea9be39e92aa44ebff8dd1babed4221db5a162bc49e4669fd5",
+  "payloads/fixed-xcb-611.log.gz": "437d4fd55e40e467a2c933ff35bec874cb64cc496923c89dd63b716db7d7b9bf",
+  "payloads/hotfix.patch.gz": "39d37b4879c61fd21d18ee032bd1b16cc694e53b8843cf080b92326906fa1803",
+  "payloads/private-xcb-explicit-fractal.log.gz": "591079fc40b7441f158520f4248a526042fcf70fb9bb25d29be9481d5bc93b03",
+  "payloads/public-offscreen-filters.log.gz": "c0dc13a8dd59db991b6db28a06106a686fd48a684d9ccee135e789840f4a9a52",
+  "payloads/public-xcb-611.log.gz": "cf8845dd9ebb2ef196ebee65a975afb77790fe938bc4568bcb1ae3ab0e0d8062",
+  "receipt.json": "2b0b681e1eecefb56def137639880a5f517cceb0cd01c246841b36fb6ded2ade",
+  "verify.py": "a18facde19865e7b46937eb3b8637af4ad35e7a5a31c71eece6c6a93e469d84c"
+}

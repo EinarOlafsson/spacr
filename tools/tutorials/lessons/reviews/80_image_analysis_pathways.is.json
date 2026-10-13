@@ -1,0 +1,51 @@
+{
+  "language": "is",
+  "lesson": "80_image_analysis_pathways",
+  "english_sha256": "489e661b166d4149940cd1d070cea7ef530328cc500f11d9f184e2b59ff4756a",
+  "title": "Myndgreiningareiningar og hvernig þær tengjast",
+  "section": "Workflows",
+  "description": "Fylgdu núverandi leiðum frá myndum til mælinga og veldu könnun, merkingu, samanburð eða lífverusértækar greiningar.",
+  "objectives": [
+    "Velja upphafseiningu út frá gögnunum sem þú ert þegar með.",
+    "Greina hvað hver eining les og skrifar.",
+    "Fylgja tengdu einingakennslunum og API-samningunum fyrir næsta skref."
+  ],
+  "prerequisite": "Settu upp spaCR og opnaðu Home. Veldu upphafsgögn verkferlisins og fylgdu svo tengdu einingakennslunum fyrir stýringar og sýnigögn.",
+  "scenes": [
+    "Byrjaðu á spurningunni og gögnunum sem þú hefur þegar. Núverandi raðir á Home aðgreina Core analysis, Data preparation and comparison, Tools og Organism-síðu Toxoplasma. Eining er eitt skref; úttak hennar verður inntak annarrar einingar.",
+    "Import skipuleggur innkomnar smásjármyndaskrár og lýsigögn. Ef myndatakan inniheldur skarandi myndflísar getur Align & Stitch útbúið mósaík með tilheyrandi hnitaskrám. Geymdu auðkenni rása og lýsigögn upprunans með verkefninu.",
+    "Mask býr til hlutamerkingar úr smásjármyndum. Make Masks gerir þér kleift að búa til eða yfirfara grímur handvirkt. Mynd–grímu-pör verða að halda sama sviðsauðkenni; stök grímuskrá er ekki sjálfkrafa samsett verkefnafylki sem Measure þarf.",
+    "Measure les undirbúnar myndir og grímuplön saman. Það skrifar measurements.db með auðkennum hluta og dálkum fyrir eiginleika og getur vistað myndútskurði af hlutum. Geymdu upprunaverkefnið og vörpun rása með þessum töflum.",
+    "Annotate sýnir myndútskurði af hlutum svo þú getir bætt við yfirförnum merkingum. Classify þjálfar líkan á valda merkingadálkinum með útskurðsmyndum eða mældum eiginleikum. Haltu matshlutum aðskildum frá þjálfunarhlutum og færðu stigadálkinn og auðkenni hluta áfram í síðari greiningar.",
+    "Embeddings kóðar myndútskurði í tölulega eiginleika. Image UMAP varpar samhæfum eiginleikum til könnunar. Skoðaðu dæmigerða myndútskurði áður en þú gefur klasa merkingu; klasi einn og sér er ekki staðfest svipgerð.",
+    "Gate Editor velur hluti með raunverulegum eiginleikadálkum eða samhæfum vörpunarhnitum. Yfirfarðu valda hluti áður en þú skrifar merkingar. Þessar merkingar geta orðið yfirfarin dæmi fyrir Annotate eða Classify.",
+    "QC skýrir frá þeim gæðaprófunum sem eru til staðar og þeim gögnum sem vantar til staðfestingar. Run Compare skoðar vistaðar keyrslur hlið við hlið. Graph Builder teiknar mælitöflur með þeim dálkum og þeirri hópun sem þú velur.",
+    "Experiment Design skipuleggur skilyrði og auðkenni sýna. Power / Design kannar forsendur tölfræðilegrar áætlanagerðar. Dose-Response greinir mæliútkomu við mismunandi styrk. Tilgreindu mæliútkomuna, viðmiðin og tilraunaeininguna skýrt.",
+    "Toxoplasma-síðan safnar saman lífverusértækum prófunum. Inntök þeirra eru ólík: mynd af sýkingarskellum, mælingar á frumuhólfum og skýr tengsl milli sníkjudýra og frymisbóla eru ekki víxlanleg. Veldu viðeigandi prófun og fylgdu hennar eigin inntakskröfum.",
+    "Fyrir sameinaðar skimanir framleiðir Map Barcodes talningar leiðar-RNA úr raðgreiningarlestrum. Regression sameinar þessar talningar við samhæf svipgerðarstig. Varðveittu auðkenni plötu, brunns og leiðar-RNA þegar þú tengir leiðirnar tvær.",
+    "Farðu aftur á Home og veldu næsta skref út frá því úttaki sem þú hefur í raun. Notaðu tengdar kennslustundir eininga fyrir heila keyrslu. Geymdu inntaksauðkenni, stillingar, uppsetta útgáfu og staðsetningu úttaks saman svo hægt sé að yfirfara verkferlið síðar."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scene 5 revised for N678 factual wording (Classify trains a model); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      5
+    ],
+    "previous_english_sha256": "142376edfc2a1a4bab864d171778ff84c8ec1a00e1d545cbdd33ae58d681dfd5",
+    "previous_review_sha256": "74b86115247108fc95ca29718ca2f84c2003eb013cedf44206cfcfaf59078e89",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  }
+}

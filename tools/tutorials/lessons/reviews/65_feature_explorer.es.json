@@ -1,0 +1,37 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Feature Explorer: comparar grupos y exportar una clasificación de características",
+  "description": "Elige una columna de agrupación, ordena las mediciones por AUC o KS, revisa las distribuciones y exporta las características seleccionadas.",
+  "objectives": [
+    "Cargar mediciones y elegir los grupos que se comparan.",
+    "Leer clasificaciones y distribuciones, y luego explorar filtros y columnas calculadas.",
+    "Exportar el número previsto de características clasificadas."
+  ],
+  "prerequisite": "Descarga el ejemplo de Annotate y abre una copia de trabajo de su measurements.db. Contiene 2341 células. Este recorrido compara los grupos de rowID r12 y r5, que identifican filas espaciales de la placa. Elige una columna de grupo adecuada a tu propio experimento y ten en cuenta que las células comparten pozos al interpretar la comparación.",
+  "scenes": [
+    "Desde Home, abre Classify y luego Feature Explorer. Usa la base de datos de mediciones del ejemplo de Annotate para comparar características existentes entre grupos.",
+    "Haz clic en Load table, elige measurements.db y selecciona cell. Pon Split by en rowID. Los grupos del ejemplo son filas espaciales de la placa; comprueba que tu columna de agrupación representa la comparación que buscas.",
+    "Elige AUC en Rank by. La separación es el valor absoluto de dos veces AUC menos uno. Higher in indica la dirección, y min n cuenta las mediciones finitas del grupo más pequeño.",
+    "Pon Top en cuatro para ver cuatro histogramas superpuestos. Dentro de cada característica, los grupos comparten los límites de los intervalos, y la altura de las barras muestra recuentos. Lee tanto las distribuciones como la puntuación de la clasificación.",
+    "Haz clic en Export ranking para guardar las características principales mostradas. Con Top en cuatro, la exportación contiene cuatro filas de características. Aumenta Top antes de exportar una clasificación más larga.",
+    "Pon Top en quinientos para incluir las doscientas sesenta y una características puntuables de este ejemplo. El gráfico muestra como máximo ocho distribuciones, aunque la clasificación exportada sea más larga.",
+    "Cambia Rank by a KS para comparar la mayor distancia entre las distribuciones acumuladas. KS puede revelar diferencias de dispersión que AUC no detecta. Vuelve a AUC para ver la dirección en Higher in.",
+    "En Filter, añade cell_area y pon el mínimo en veintiún mil novecientos veinticinco. La población pasa a mil ciento setenta y una células, y la clasificación se actualiza.",
+    "Haz clic en Clear all para recuperar la población y la clasificación completas. Vuelve a comprobar Split by después de cambiar los filtros, para saber qué grupos se están comparando.",
+    "Al filtrar rowID a r doce se elimina el segundo grupo. En esta versión, Split by cambia entonces automáticamente a otra columna. Revisa ese control siempre que un filtro elimine un grupo.",
+    "Limpia el filtro y vuelve a poner rowID en Split by de forma explícita. Deja Shuffle test desactivado en este ejemplo: las células comparten pozos, así que barajar libremente las etiquetas de las células no representa réplicas experimentales independientes.",
+    "Abre Columns y llama area_k a una columna calculada. Introduce cell_area dividido entre mil y haz clic en Add column con el reemplazo desactivado. Preview muestra las primeras dos mil filas; al añadirla, la fórmula se aplica a toda la tabla.",
+    "La columna calculada se incorpora a la clasificación. Un reescalado positivo le da el mismo AUC y el mismo KS que cell_area. Quita la fórmula para volver a las características originales.",
+    "Exporta la clasificación después de comprobar la población, Split by y Top. En Python, usa rank_features y ExplorerSpec de spacr.qt.widgets.feature_rank. Continúa en Graph Builder para representar con más detalle una característica seleccionada."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "source": "Organism",
+      "source_sha256": "0046135a92aeca6aefc5042f03294aa8eeac89e6daf26ab3497047cd50212c2e",
+      "translation": "Organisme",
+      "review_basis": "Exact accepted runtime Organism source/target reuse or unchanged native hardware legend from44b75e7e8; AI technical source-context reconciliation, no native-speaker claim."
+    },
+    {
+      "source": "Organism-specific image analysis and quantitative assay readouts.",
+      "source_sha256": "65968834aa1d7bcc5de45bd52caf88439555c8c11d3416b4b0aa28227626e600",
+      "translation": "Analyse d’images spécifique à l’organisme et résultats quantitatifs des essais.",
+      "review_basis": "Exact accepted runtime Organism source/target reuse or unchanged native hardware legend from44b75e7e8; AI technical source-context reconciliation, no native-speaker claim."
+    },
+    {
+      "source": "🟢 supported (stable) 🟣 implemented (beta) 🔴 CPU support only",
+      "source_sha256": "1396e7c240ccf6ef0391741ac8874d5e09acb68ccece32df9ff05415dd5602d8",
+      "translation": "Soutien (stable) Soutien (bêta) CPU seulement",
+      "review_basis": "Exact accepted runtime Organism source/target reuse or unchanged native hardware legend from44b75e7e8; AI technical source-context reconciliation, no native-speaker claim."
+    }
+  ]
+}

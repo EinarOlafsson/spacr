@@ -1,0 +1,37 @@
+{
+  "exception": "KeyError",
+  "message": "'prcfo'",
+  "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 8, in <module>\n  File \"/mnt/firecuda2/codex/repo/spacr/spacr/hit_investigation.py\", line 88, in _read_cells\n    return cells.merge(\n           ^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/pandas/core/frame.py\", line 10859, in merge\n    return merge(\n           ^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/pandas/core/reshape/merge.py\", line 170, in merge\n    op = _MergeOperation(\n         ^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/pandas/core/reshape/merge.py\", line 794, in __init__\n    ) = self._get_merge_keys()\n        ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/pandas/core/reshape/merge.py\", line 1311, in _get_merge_keys\n    left_keys.append(left._get_label_or_level_values(lk))\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/pandas/core/generic.py\", line 1914, in _get_label_or_level_values\n    raise KeyError(key)\nKeyError: 'prcfo'\n",
+  "input_sha256": {
+    "measurements.db": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "recorded_predictions.csv": "47ba4d843d764cc59cd211768da1b173cf39dbf6d40d18c6f5cab9807102115a"
+  },
+  "inputs_unchanged": true,
+  "lesson": "71_investigate_hit",
+  "status": "Held: real matched-input reader fails before hit attribution",
+  "source_commit": "ac51f9b54",
+  "scope": "Read-only backend preflight, not a native GUI recording or full investigation",
+  "accepted": false,
+  "application_modified": false,
+  "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/explain_cv_runs/REAL-recorded-predictions-u47rjgal",
+  "call": "spacr.hit_investigation._read_cells(database, predictions, 'predicted_label', 'filename')",
+  "positive_counterpart": {
+    "measured_rows": 2341,
+    "measured_index_name": null,
+    "has_prcfo_column": false,
+    "has_png_path": true,
+    "metadata_rows": 2341,
+    "metadata_unique_prcfo": true,
+    "metadata_unique_basename": true,
+    "predictions": 234,
+    "predictions_unique_basename": true,
+    "matching_prediction_basenames": 234
+  },
+  "diagnosis": "The real measurement join returns png_path but no prcfo column or named index. The reader successfully joins the 234 unique prediction crop basenames to png_list, then requires the absent prcfo column on the measured-cell frame.",
+  "boundaries": [
+    "No regression result, fractions, gene identity, or biological association was fabricated to make unrelated demonstrations appear matched.",
+    "No changes to the application-owned reader.",
+    "No successful-workflow narration or media generated.",
+    "This receipt does not establish a complete Investigate Hit example after the reader is fixed."
+  ]
+}

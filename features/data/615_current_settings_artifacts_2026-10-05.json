@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "source_checkpoint": "191016fa001b92009d9d7e90199cd89052e41c79",
+  "normal_generators": [
+    "tools/build_setting_consumer_map.py",
+    "tools/settings_flow.py --rst",
+    "tools/build_notebook_settings.py"
+  ],
+  "changed_settings_flow_sections": [
+    "custom_regex",
+    "metadata_type",
+    "timelapse"
+  ],
+  "section_inventory_preserved": 1322,
+  "notebooks_changed": 0,
+  "generated_runtime_targets_changed": false,
+  "generated_runtime_flow_index_changed": false,
+  "artifacts": {
+    "docs/source/_generated/settings_flow.rst": "b6dfa41259df888bb0eea4e66c5be2a83701d89a738ece3ef4bc7ba253c1c46e",
+    "docs/setting_consumers.json": "cf424608b23535aeb3dd6651d20763e6d9c3ef83fb3d2eac38adc3114f905ac5"
+  },
+  "current_english_api_audit": {
+    "symbols": 13177,
+    "log_sha256": "c61c536ac553dd0092fb0a209f42be5dbfffef69e27899c55d6da213256f274f"
+  },
+  "checks": {
+    "passed": 442,
+    "warnings": 1,
+    "warning": "Sandboxed QSettings drift observation during concurrent native capture; no failed check.",
+    "log_sha256": "b29cd5b37479db9a4e821d7ae239ab90bc98d408315e5e2c04ef6ed59a55af8b"
+  },
+  "strict_full_site": {
+    "passed": true,
+    "log_sha256": "674dcf99a3c3f292a9668861dcfea54bc782fff7b830c2cbda60369e0a634748"
+  },
+  "final_github_ci_green": false
+}

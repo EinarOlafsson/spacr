@@ -1,0 +1,42 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "228d77a708c56d0e439c4fa0c94429809c503904e012110e09ad6e36c6ac7f67",
+  "review": {
+    "kind": "Technical source-bound editorial review; no native-speaker signoff",
+    "date": "2026-10-08",
+    "translator": "Desktop download hash instruction removed; merged installation and uninstall references updated.",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Three adjacent installer-reference paragraphs revised;five scene paragraphs and all metadata retained.",
+    "previous_review_sha256": "b16fac435d22f1e140a8b5f9fd6868ac7dfdb92c62e98fb226f64f5861f2fee9",
+    "previous_english_sha256": "c7bf7fb1b1c8f7140d6044945bf7c1ede771dd4e7ef22503d932931f68b28153",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-25",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  },
+  "language": "sv",
+  "title": "Hitta spaCR på GitHub, PyPI och conda-forge",
+  "description": "Hitta de officiella källorna för paketet och installationsprogrammen, jämför vilken version som finns i varje kanal och välj motsvarande installationshandledning.",
+  "objectives": [
+    "Hitta de officiella nedladdningssidorna.",
+    "Välja installationsväg för din dator.",
+    "Öppna motsvarande installationshandledning."
+  ],
+  "prerequisite": "Öppna en webbläsare och bestäm om du vill ha ett installationsprogram för skrivbordet eller en Python-miljö.",
+  "scenes": [
+    "Välj hur du vill installera spaCR. Använd ett installationsprogram för ett program som är klart att starta, pip för en virtuell Python-miljö eller conda-forge för en Conda-miljö. Utgå från de officiella spaCR-länkarna som visas här.",
+    "På PyPI hittar du spaCR och läser installationskommandot bredvid den aktuella versionen. Kopiera kommandot när du är redo att installera i din Python-miljö. Handledningen för pip visar hur du först skapar och aktiverar miljön.",
+    "Använd Project links för att öppna dokumentationen, källkodsförrådet eller ärendehanteringen. Bokmärk dokumentationen så att du kan gå tillbaka till modulgenomgångarna medan du arbetar i spaCR.",
+    "På GitHub öppnar du spaCR-förrådet. main innehåller källkoden för versionen och nightly det senaste utvecklingsarbetet. För en paketerad skrivbordsinstallation öppnar du Releases och väljer en version.",
+    "Expandera Assets och hämta installationsprogrammet för Windows, macOS eller Linux. Lektionen Platform installers förklarar installation, start av spaCR och avinstallation på varje operativsystem.",
+    "På conda-forge öppnar du paketsidan för spaCR och kontrollerar vilken version som finns. Paketkanaler kan uppdateras vid olika tidpunkter, så välj den version som finns via den väg du väljer.",
+    "Kommandot från conda-forge installerar spaCR i din aktiva Conda-miljö. Följ Install spaCR för att skapa miljön, installera paketet och starta programmet. Lektionen förklarar också hur paketet och miljön tas bort.",
+    "Fortsätt med Install spaCR för pip eller conda-forge, eller med Platform installers för ett installationsprogram för skrivbordet. Båda lektionerna innehåller anvisningar för avinstallation. När spaCR har öppnats går du till Home och sedan till pipelineöversikterna för att välja ett arbetsflöde för dina data."
+  ]
+}

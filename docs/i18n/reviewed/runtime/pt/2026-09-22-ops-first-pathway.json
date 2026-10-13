@@ -1,0 +1,21 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source": "Start on Home: open Mask, then OPS; supply original cycle/site images and phenotype alignment.",
+      "source_sha256": "cca5a39ff17884b8980b1fca42a37f5e73df82b6045eed938543afeead665eea",
+      "table": "ui",
+      "translation": "Comece em «Início (Home)», abra «Máscaras (Mask)» e depois «OPS»; forneça as imagens originais dos ciclos e posições e o alinhamento com as imagens de fenótipo."
+    },
+    {
+      "key": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source": "Align & Stitch is optional when your images need tile-geometry inspection or coordinate mapping; it is not a prerequisite for the OPS example. A stitched image alone cannot replace the sequencing cycles. OPS tables require an explicit identity join/aggregation before regression; the walkthrough does not perform that conversion automatically.",
+      "source_sha256": "94eb405c190f4c641af1067323ce33972b0d7aea00ae3000d20dc9c3f71fc903",
+      "table": "ui",
+      "translation": "«Alinhar e montar (Align & Stitch)» é opcional quando as imagens precisam de inspeção da geometria dos mosaicos ou de mapeamento de coordenadas; não é um pré-requisito para o exemplo OPS. Uma imagem montada, por si só, não substitui os ciclos de sequenciamento. As tabelas OPS exigem uma junção e agregação explícitas por identidade antes da regressão; o passo a passo não faz essa conversão automaticamente."
+    }
+  ],
+  "review_kind": "AI-assisted technical and linguistic review against the OPS-first sample route; optional preparation prefix retains the earlier reviewed note unchanged; no native-speaker sign-off",
+  "schema": 1
+}

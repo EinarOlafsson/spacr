@@ -1,0 +1,106 @@
+{
+  "lesson": "19_train_cellpose",
+  "date": "2026-09-26",
+  "new_capture": true,
+  "source_commit": "43638512417c279bb08c729911879d8f32dfc019",
+  "capture": "/mnt/firecuda2/codex/workflow-authoring-20260922/user-walkthrough-stage/captures/train_cellpose_gui_native",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "training": {
+    "pairs": 6,
+    "epochs": 10,
+    "batch_size": 1,
+    "elapsed_seconds_including_model_load": 48.9,
+    "checkpoint_name": "tutorial_cells_cpsam_e10.CP_model",
+    "checkpoint_sha256": "7d4dedd7a1f14deab1de20d7c9fae00c5e9b1debe13940ab7519b40e4771a12b",
+    "checkpoint_bytes": 1218646375,
+    "console_path_matches_file": true,
+    "weights": {
+      "base": "/home/olafsson/.cellpose/models/cpsam",
+      "trained": "/tmp/spacr-train-cellpose-5/Cellpose_training_images_masks/training/models/cellpose_model/models/tutorial_cells_cpsam_e10.CP_model",
+      "tensors_compared": 348,
+      "tensors_changed": 347,
+      "largest_absolute_change": 0.030007362365722656,
+      "only_in_base": 0,
+      "only_in_trained": 2
+    }
+  },
+  "apply": {
+    "settings": {
+      "src": "/tmp/spacr-train-cellpose-5/Cellpose_training_images_masks/apply",
+      "model_name": "cpsam",
+      "custom_model": "/tmp/spacr-train-cellpose-5/Cellpose_training_images_masks/training/models/cellpose_model/models/tutorial_cells_cpsam_e10.CP_model",
+      "channels": [
+        0
+      ],
+      "background": 100.0,
+      "remove_background": false,
+      "Signal_to_noise": 10,
+      "CP_prob": 0,
+      "diameter": 30,
+      "batch_size": 50,
+      "flow_threshold": 0.4,
+      "save": true,
+      "verbose": true,
+      "normalize": true,
+      "percentiles": [
+        2,
+        99
+      ],
+      "invert": false,
+      "resize": false,
+      "target_height": null,
+      "target_width": null,
+      "rescale": false,
+      "resample": false,
+      "grayscale": true,
+      "fill_in": false
+    },
+    "preview_objects": 76,
+    "preview_params": {
+      "model": "/tmp/spacr-train-cellpose-5/Cellpose_training_images_masks/training/models/cellpose_model/models/tutorial_cells_cpsam_e10.CP_model",
+      "diameter": 30.0,
+      "flow_threshold": 0.4,
+      "cellprob": 0.0,
+      "object_types": [
+        "cell"
+      ],
+      "cell_channel": 0,
+      "nucleus_channel": 1,
+      "normalise": true,
+      "lo_pct": 2.0,
+      "hi_pct": 99.0,
+      "outline_thickness": 1,
+      "outline_colour": "color (random)",
+      "display_channel": null,
+      "fov": "cell_field_01.tif"
+    },
+    "outputs": [
+      {
+        "image": "cell_field_01.tif",
+        "sha256": "d0f91e32f101c8fc4fd1b58fd7798ade7b84d8235a96993970463fbd295e3015",
+        "objects": 76
+      },
+      {
+        "image": "cell_field_02.tif",
+        "sha256": "4b68615099512a84a1239ab7030667cbe9d040ea9f82b1fc7fd4ae9893d43fcd",
+        "objects": 48
+      },
+      {
+        "image": "cell_field_03.tif",
+        "sha256": "254788bebdc3eae5798898c72c786dde5059e492c9980a7dfcecc0f1a8ba8dc6",
+        "objects": 55
+      }
+    ],
+    "figures": 3
+  },
+  "editor_pair": {
+    "file": "cell_pair_02.tif",
+    "objects": 95,
+    "image_equal": true
+  },
+  "original_inputs_preserved": true,
+  "held_out_accuracy_validated": false,
+  "app_finding": "Apply fill_in (default True) calls spacr.utils.fill_holes_in_mask, whose ndimage.label on the label image merges touching cells; the lesson turns fill_in off. Not patched here.",
+  "example_zip_sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6",
+  "media_status": "English af_heart pending render"
+}

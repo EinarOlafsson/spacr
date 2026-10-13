@@ -1,0 +1,54 @@
+{
+  "item": 558,
+  "CPU_data_preparation_accepted": true,
+  "original_acquired_images_downloaded_and_ETag_SHA_verified": 272,
+  "exact_paired_four_channel_fields": 68,
+  "shape": [
+    1080,
+    1080,
+    4
+  ],
+  "training_fields": 48,
+  "held_out_fields": 20,
+  "plate_disjoint_split": true,
+  "selection_predeclared_from_metadata_without_scores": true,
+  "inputs_three_acquired_brightfield_channels_target_DNA_Hoechst": true,
+  "historical_model_unavailable_new_training_explicit": true,
+  "normal_frozen_training_and_Cellpose_GPU_scorecard_pending": true,
+  "no_independent_human_gold_four_biological_replicates_or_new_cell_line_claim": true,
+  "normal_turn_label": "558-jump-virtual-stain-cuda-20261006-r1",
+  "artifacts": {
+    "features/data/558_jump_GPU_preparation_2026-10-06/GPU-freeze.json": {
+      "sha256": "bad6c58bdf4288c2967fed158c97c8858d0b9ceb37cd6627dfa47660411e2009",
+      "bytes": 492
+    },
+    "features/data/558_jump_GPU_preparation_2026-10-06/archive_jump_virtual_stain_preparation.py": {
+      "sha256": "c5fe02cf691f79dd59a0d95676630fb44756f684ac01688b0091cd4ced84f4d2",
+      "bytes": 4771
+    },
+    "features/data/558_jump_GPU_preparation_2026-10-06/benchmark_jump_virtual_stain_gpu.py": {
+      "sha256": "dcf1a55510d41df720cbf4e8a62e04972f5b5e9c0d2b4e32991b13b56d43d9c0",
+      "bytes": 7748
+    },
+    "features/data/558_jump_GPU_preparation_2026-10-06/jump-BR00117035-load_data.csv.gz": {
+      "sha256": "f571294ae30b6a9c58a58022186afbc8a67883220ab564fde671e2113258cc52",
+      "bytes": 142781
+    },
+    "features/data/558_jump_GPU_preparation_2026-10-06/jump-BR00117036-load_data.csv.gz": {
+      "sha256": "1491bb1c258be5911991565ebd5212620b22cc23c827a8be04006c5cba2495be",
+      "bytes": 142734
+    },
+    "features/data/558_jump_GPU_preparation_2026-10-06/jump-virtual-stain-preparation-r1.log.gz": {
+      "sha256": "5e64555eaccd510d48d289e6bb87e52f0a1a083498669f9db53003e4714696bc",
+      "bytes": 165
+    },
+    "features/data/558_jump_GPU_preparation_2026-10-06/plan.json": {
+      "sha256": "18ea45a2f8bf852741a8ca9949192d7b2d5ee2c82823bf22e9185b63bafa2a95",
+      "bytes": 482180
+    },
+    "features/data/558_jump_GPU_preparation_2026-10-06/prepare_jump_virtual_stain.py": {
+      "sha256": "d4da49e9618e0c98d9e51d2ddf573f7ee96a4d5fa2e43deacf9495ab27711b1d",
+      "bytes": 5802
+    }
+  }
+}

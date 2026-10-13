@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Alpha: lífverueiningar",
+  "description": "Kveiktu á Show alpha species og skoðaðu ókláruðu lífverusíðurnar: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells.",
+  "objectives": [
+    "Kveikja og slökkva á Show alpha species í Preferences.",
+    "Lesa lífverusíðu: inngang, frumuskýringarmynd og prófunarreiti.",
+    "Greina opna prófunarreiti frá fyrirhuguðum og vita að þessar síður eru alfa."
+  ],
+  "prerequisite": "Opnaðu Home í spaCR. Engar inntaksskrár þarf. Þessar lífverusíður eru alfa: óklárar og geta breyst.",
+  "scenes": [
+    "Þetta er eina kennsluefnið sem sýnir alfa-lífverueiningar spaCR. Í venjulegri uppsetningu er aðeins ein lífvera á Assays-flipanum á Home, Toxoplasma. Hinar lífverusíðurnar eru óvirkar þar til þú biður um þær.",
+    "Opnaðu Preferences úr spaCR-valmyndinni og farðu á Modules-flipann. Undir Module visibility er síðasti rofinn Show alpha species. Sjálfgefið er slökkt á honum.",
+    "Kveiktu á honum. Líttu á allt sem hann sýnir sem alfa: síðurnar eru óklárar, flestir prófunarreitir eru enn fyrirhugaðir, og heiti, útlit og greiningar geta breyst fyrir útgáfu. Notaðu þær til að skoða, ekki til að birta niðurstöður.",
+    "Ýttu á Save. Stillingin tekur gildi strax og helst í næstu lotu, svo þú þarft aðeins að gera þetta einu sinni.",
+    "Aftur á Home sýnir Assays-flipinn nú átta lífverur: Toxoplasma, síðan Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells. Hver reitur opnar síðu sem er byggð eins, svo ef þú þekkir eina geturðu lesið þær allar.",
+    "Byrjaðu á Plasmodium, malaríusníklunum. Vinstra megin útskýrir stuttur inngangur hvað myndgreining getur mælt í þessari lífveru: tíðni sýkinga, þroska blóðstiga, lifrarsýkingu, hreyfigetu og svörun við efnum. Fyrir neðan tengir hver hluti líffræðilega spurningu við prófunarreitina til hægri.",
+    "Frumuskýringarmyndin er gagnvirkt kort af hólfum úr UniProt. Haltu bendlinum yfir frumunni til að bera kennsl á byggingu, og hakaðu við nokkur hólf í listanum til að halda þeim auðkenndum saman. Clear components hreinsar teikninguna.",
+    "Vinnan hefst við prófunarreitina. Ljósir reitir opna einingu sem þegar virkar: Parasitaemia opnar Host–Pathogen Analysis og Sporozoite motility opnar Motility Assay. Daufir reitir eru fyrirhugaðir og opnast ekki enn. Sama regla gildir á hverri lífverusíðu.",
+    "Candida nær yfir gersveppi sem geta skipt á milli frumna í knappskotum, kímröra og sveppþráða. Opnu reitirnir nota fyrirliggjandi einingar fyrir viðloðun, innrás í þekjufrumur, átfrumuát og svörun við sveppalyfjum; þeir fyrirhuguðu munu mæla þráðmyndun, kímrör, líffilmu og formgerð.",
+    "Trypanosoma sameinar tvo sníkla á einni síðu: Trypanosoma brucei, sem syndir í blóði, og Trypanosoma cruzi, sem fjölgar sér inni í hýsilfrumum. Flagellar motility, Host-cell invasion, Amastigote infection og Drug response opna þegar raunverulegar einingar.",
+    "Leishmania-sníklar fjölga sér inni í átfrumum. Macrophage infection sýnir hlutfall sýktra frumna og amastigota á hverja átfrumu, og Promastigote motility mælir sund. Fyrirhugaðir reitir munu fylgja metacyclogenesis, umbreytingu í amastigota og stærð bóla.",
+    "Giardia duodenalis festir sig við þarmavegginn með kviðdiski sínum. Hér geturðu talið trophozoita á þekjufrumum, fylgst með sundi þeirra og mælt svörun við lyfjum; hjúpmyndun, losun úr hjúp og formgerð disksins eru enn fyrirhuguð.",
+    "Virus infection er síða fyrir hýsilfrumur frekar en sníkil. Infection rate telur veirujákvæðar frumur, Plaque Assay mælir skellur og Recruitment mælir hýsilprótein sem safnast saman við fjölföldunarstaði. Ákvarðaðu jákvæðni út frá gervismituðum brunnum.",
+    "Mammalian cells nær yfir skimanir án nokkurs sýkils. Opnu reitirnir leiða beint í Mask, Measure, Motility Assay, átfrumuát og frumueiturhrif, svo kjarnaferlið er einum smelli frá lífverusíðunni.",
+    "Þegar þú ert búin(n) að skoða skaltu fara aftur í Preferences, slökkva á Show alpha species og ýta á Save. Lífverusíðurnar hverfa; ekkert sem þú hefur mælt breytist.",
+    "Home sýnir aftur aðeins Toxoplasma. Þegar hver lífvera þroskast fer hún úr alfa og fær eigin leiðsögn. Þangað til skaltu nota Toxoplasma-kennslustundina fyrir heilt dæmi um prófun og einingakennslustundirnar fyrir hvert vinnuflæði sem þessir reitir opna."
+  ]
+}

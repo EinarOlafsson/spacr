@@ -1,0 +1,29 @@
+{
+  "adjacent_two_files_result": "103 passed in 27.78s; initial fixture-fix source before the regression follow-up; not original full serial order",
+  "app_source_blob": "fdd746cc509bb7475679b9fbfe63c7cc88af847b",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "memory_cap": "4G",
+    "pytest_plugin_exclusion": "randomly"
+  },
+  "hosted_observation_artifact": 11533325689,
+  "hosted_observation_run": 37735178905,
+  "hosted_observation_source": "86d98624993ebcc356c70277028a0d3256d3ddcd",
+  "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "limitations": "Hosted failure is exact original serial prefix; local old/new fixture control uses pytest 9.1.1 and an isolated seeded session, not the hosted pytest 8.4.2 full order.",
+  "negative_command": "QT_QPA_PLATFORM=offscreen CUDA_VISIBLE_DEVICES='' XDG_CONFIG_HOME=/mnt/wd4tb/scratch/first-open-fixture-negative-20261008 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly tests/qt/test_641_module_first_open_budgets.py::test_a_benchmark_window_does_not_resume_another_modules_saved_session",
+  "negative_exit_code": 1,
+  "negative_variant_test_sha256": "04fd7c50d81c25d58e2482089edcb97b92c8fe4c86aced68f3f9f08d0c4e9589",
+  "positive_command": "QT_QPA_PLATFORM=offscreen CUDA_VISIBLE_DEVICES='' XDG_CONFIG_HOME=/mnt/wd4tb/scratch/first-open-fixture-positive-20261008 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly tests/qt/test_641_module_first_open_budgets.py::test_a_benchmark_window_does_not_resume_another_modules_saved_session",
+  "positive_exit_code": 0,
+  "positive_test_sha256": "c2838f1b60cc70506f00e081166bfa201ccb4447c85e8a54a739a246d0bdcab8",
+  "regression_followup_commit": "a8569b1e9f24d659ba6c2fdaf5f40370a97c972c",
+  "runtime_versions": {
+    "PySide6": "6.11.2",
+    "pytest": "9.1.1",
+    "python": "3.12.13"
+  },
+  "test_fix_base": "69ba4e462f",
+  "test_fixture_fix_commit": "c3c4654e33f7bb97a9652ca8f11fa531be559284"
+}

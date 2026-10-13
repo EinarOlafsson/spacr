@@ -1,0 +1,39 @@
+{
+  "after_hashes": {
+    "tests/qt/test_no_control_is_inert.py": "8befc3acd2e511b1cc64fd261cca83e5fe1bbc6d7aec01fd8c74be882a44bdd6",
+    "tests/qt/test_widgets.py": "e6d4bdd466231ee2678c79991f5c81fe9703be016654867918780858020545d9"
+  },
+  "after_neighbors": "37 passed in 6.13s",
+  "before_hashes": {
+    "tests/qt/test_no_control_is_inert.py": "713168837bf91832b3005a536eb71a0d8b647c7cae797dff1295d9b272b3f98f",
+    "tests/qt/test_widgets.py": "bc9f7d77adba1e6e3a6d448ca46dbe8055b734480cfc797ed3df4ba31fa143a0"
+  },
+  "changes": "Comparison panel registered with qtbot; standalone classify and measure SettingsWidgets receive a qtbot-owned QWidget parent so controls and QUndoStack have native Qt ownership. Assertions and production code unchanged; no forced GC.",
+  "matched_after": "4 passed in 1.76s",
+  "matched_before": "4 passed in 3.00s",
+  "matched_nodes": 4,
+  "payloads": {
+    "after-matched.log.gz": {
+      "gzip_sha256": "6070f8403bf92553197b5957d52abe86babf57a940e72072745aa3062fa5e68a",
+      "source_bytes": 98,
+      "source_sha256": "24d9695b084f0b4f86323ff6fc6b47bb86cc59912b520d06328583c3208b8ad2"
+    },
+    "after-neighbors.log.gz": {
+      "gzip_sha256": "9a04eb98691f82bbbc9df12e5624619e87d279124cf2644899b45f4fc5a7ded8",
+      "source_bytes": 99,
+      "source_sha256": "b2ea60d19ef8b405b5855507a3f2440950d44765ba9de2759832d940f4311c95"
+    },
+    "before.log.gz": {
+      "gzip_sha256": "0a79ab7d3c404f558fad03ff43fa01e58ab96ded6e057223bd4d0350457bd7b9",
+      "source_bytes": 98,
+      "source_sha256": "6de1ed0031dce090051c4e14b626204db66ea92da7121d3ee09400699ca5fb15"
+    }
+  },
+  "source_parent": "c4fafe25b8e4c6248d7829260d93f9e955eae8f9",
+  "test_commit": "35d395b6e72f1bdd47ff17f7d8a74e8d966f9225",
+  "test_scope": [
+    "two fixtures in test_no_control_is_inert.py",
+    "test_all_settings_booleans_use_switches",
+    "existing field-fade sentinel"
+  ]
+}

@@ -1,0 +1,963 @@
+"""
+Format Converter — vendor microscopy files into Yokogawa TIFFs, with the
+mapping on screen before anything is written.
+
+Converting renames files, for example ND2 files to
+``plate1_A01_T0001F001L01A01Z01C01.tif``, and the new names no longer show
+which source file they came from, so a wrong well assignment can go unnoticed.
+This screen therefore does two things :func:`spacr.io.convert_to_yokogawa` does
+not: it shows the source → target table *before* writing, and it emits a map
+file that turns every converted name back into the original one.
+
+Layout::
+
+    ┌───────────────────────────────────────────────────────────────────┐
+    │ /data/run1                                    [Choose source…]    │
+    │ Layout [auto ▾]  Z [keep every plane ▾]  Plate names [plate1 ▾]   │
+    │ /data/run1_yokogawa                      [Choose destination…]    │
+    │                                     [Preview]        [Convert]    │
+    ├───────────────────────────────────────────────────────────────────┤
+    │ source              target                       plate well  fld  │
+    │ run1/wt/f01_C1.tif  plate1_A01_T0001F001…C01.tif plate1 A01  1    │
+    │ run1/wt/f01_C2.tif  plate1_A01_T0001F001…C02.tif plate1 A01  1    │
+    │ …                                                                 │
+    ├───────────────────────────────────────────────────────────────────┤
+    │ 20 file(s) would be written from 20 source(s).                    │
+    │ 1 plate(s), 1 well(s), 2 channel id(s).                           │
+    ├───────────────────────────────────────────────────────────────────┤
+    │ Previewed 20 output file(s). Nothing has been written.            │
+    └───────────────────────────────────────────────────────────────────┘
+
+Design notes:
+
+* **Preview before writing.** :func:`spacr.convert.scan` and
+  :func:`spacr.convert.plan` write nothing at all; ``Convert`` is a separate
+  press. A plan with a blocking error (two sources colliding on one output
+  name) leaves ``Convert`` disabled — the fix is upstream, in the folder
+  layout, not in a "yes, overwrite" button.
+* **Everything heavy is in** :mod:`spacr.convert`, which imports neither
+  torch nor cellpose, so this stays a view and the logic is testable
+  headless.
+* **Off the GUI thread.** Scanning a plate's worth of ND2 headers takes
+  seconds; converting takes minutes. Both go through
+  :func:`spacr.qt.bridge.make_thread`, and the completion handler is
+  reached through a *bound method* (:attr:`ConvertScreen._job_settled`)
+  rather than a closure, because ``PipelineWorker.finished`` is emitted
+  in the worker thread and a closure connected to it would build widget
+  children there. Tests pass ``threaded=False``.
+* **No modal dialogs on any error path.** A missing folder, an absent
+  ``nd2reader``, a name collision — all of it lands in the inline status
+  label and the summary pane. A QMessageBox would hang a headless run.
+"""
+from __future__ import annotations
+
+import os
+import json
+from functools import partial
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import pandas as pd
+
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QPlainTextEdit,
+    QPushButton,
+    QTableView,
+    QVBoxLayout,
+    QWidget,
+)
+
+from ... import convert as cvt
+from ..bridge import make_thread
+from ..i18n import tr
+from ..theme import SPACING, active_palette
+from ..widgets import Divider, Toggle
+from ..widgets.collapsible_splitter import CollapsibleSplitter
+from ..widgets.sortable_table import install_sorting
+
+__all__ = [
+    "ConvertScreen",
+    "PlanTableModel",
+    "LAYOUT_CHOICES",
+    "Z_CHOICES",
+    "PLATE_NAME_CHOICES",
+]
+
+
+#: Source layouts, as ``(label, value)``. The labels spell out what the
+#: folder tree has to look like — "auto" is right almost always, and the
+#: explicit ones exist for the trees it guesses wrong.
+LAYOUT_CHOICES: Tuple[Tuple[str, str], ...] = (
+    ("Detect automatically", "auto"),
+    ("src/<plate>/<well>/images", "plate_well"),
+    ("src/<well>/images", "well"),
+    ("images directly in src", "flat"),
+)
+
+#: Z handling. The default keeps every plane; both lossy options say so
+#: in the label, because the whole point is that projection is a choice
+#: somebody made rather than something that happened to their data.
+Z_CHOICES: Tuple[Tuple[str, str], ...] = (
+    ("Keep every plane (one file per Z)", cvt.Z_KEEP),
+    ("Max-project Z (planes are discarded)", cvt.Z_MAX),
+    ("First plane only (planes are discarded)", cvt.Z_FIRST),
+)
+
+#: How plate folders are named in the output.
+PLATE_NAME_CHOICES: Tuple[Tuple[str, str], ...] = (
+    ("plate1, plate2, …", "index"),
+    ("keep the folder name", "name"),
+)
+
+#: Preview columns, in display order, with their headers.
+PREVIEW_COLUMNS: Tuple[Tuple[str, str], ...] = (
+    ("source", "Source"),
+    ("target", "Target"),
+    ("plate", "Plate"),
+    ("well", "Well"),
+    ("field", "Field"),
+    ("channel", "Channel"),
+    ("z", "Z"),
+    ("t", "T"),
+    ("source_well", "From well"),
+    ("source_field", "From field"),
+    ("source_channel", "From channel"),
+    ("z_handling", "Z handling"),
+    ("status", "Status"),
+)
+
+
+def _pick_barcode_source(screen, _checked=False):
+    """Choose a CSV on the GUI thread without replacing text after cancellation."""
+    path, _selected = QFileDialog.getOpenFileName(
+        screen, tr("Select sample records CSV"), screen._barcode_source.text(),
+        tr("CSV files (*.csv)"))
+    if path:
+        screen._barcode_source.setText(path)
+
+
+def _build_barcode_controls(screen, outer):
+    """Add optional alpha-gated linkage controls to the existing Convert form."""
+    from ..preferences import _apply_alpha_widgets
+
+    panel = QWidget(screen)
+    panel.setObjectName("ConvertPlateBarcodeLinkage")
+    layout = QVBoxLayout(panel)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(QLabel(tr("Plate barcode linkage (Alpha)"), panel))
+    source_row = QHBoxLayout()
+    screen._barcode_source = QLineEdit(panel)
+    screen._barcode_source.setClearButtonEnabled(True)
+    screen._barcode_source.setToolTip(tr(
+        "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. "
+        "A new plate_barcode_linkage folder is written in the destination; "
+        "source files and existing plate maps are preserved."))
+    screen._barcode_pick = QPushButton(tr("Choose CSV…"), panel)
+    screen._barcode_pick.clicked.connect(partial(_pick_barcode_source, screen))
+    source_row.addWidget(QLabel(tr("Sample records CSV"), panel))
+    source_row.addWidget(screen._barcode_source, 1)
+    source_row.addWidget(screen._barcode_pick)
+    layout.addLayout(source_row)
+    assignments = QHBoxLayout()
+    screen._barcode_assignments = QLineEdit(panel)
+    screen._barcode_assignments.setPlaceholderText('plate1=BC001; plate2=BC002')
+    screen._barcode_assignments.setToolTip(tr(
+        "Barcodes can be read from barcode.txt at the source root or in a source plate folder. "
+        "Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. "
+        "Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. "
+        "Output plate names can differ from source folder names."))
+    screen._barcode_column = QLineEdit('barcode', panel)
+    screen._barcode_column.setMaximumWidth(180)
+    screen._barcode_column.setToolTip(tr(
+        "Column name in the CSV that contains the plate barcode."))
+    assignments.addWidget(QLabel(tr("Output plate barcodes"), panel))
+    assignments.addWidget(screen._barcode_assignments, 1)
+    assignments.addWidget(QLabel(tr("Barcode column"), panel))
+    assignments.addWidget(screen._barcode_column)
+    layout.addLayout(assignments)
+    for edit in (screen._barcode_source, screen._barcode_assignments, screen._barcode_column):
+        edit.textChanged.connect(screen._on_option_changed)
+    screen._barcode_panel = panel
+    outer.addWidget(panel)
+    _apply_alpha_widgets(panel)
+
+
+def _barcode_settings(screen):
+    """Capture linkage values on the GUI thread before launching a worker."""
+    return {'plate_barcode_source': screen._barcode_source.text().strip(),
+            'plate_barcodes': screen._barcode_assignments.text().strip(),
+            'plate_barcode_column': screen._barcode_column.text().strip()}
+
+
+def _barcode_summary(prepared):
+    """Read the completed bundle off-thread and bound the displayed mismatch list."""
+    if prepared is None:
+        return ''
+    bundle = prepared['bundle']
+    receipt = json.loads((bundle / 'complete.json').read_text(encoding='utf-8'))
+    from ...tabular import read_table
+
+    report = read_table(bundle / 'plate_barcode_mismatches.csv',
+                        canonicalise=False, report=None, dtype=str,
+                        keep_default_na=False, nrows=100)
+    text = tr("Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\n"
+              "Plate map: {map_path}\nMismatches: {mismatch_path}",
+              wells=receipt['linked_wells'], mismatches=receipt['mismatches'],
+              map_path=str(bundle / 'plate_map_lims.csv'),
+              mismatch_path=str(bundle / 'plate_barcode_mismatches.csv'))
+    if not report.empty:
+        text += '\n\n' + report.head(100).to_string(index=False, max_colwidth=100)
+        if receipt['mismatches'] > len(report):
+            text += '\n' + tr("Showing {shown} of {total} mismatches; the CSV contains all rows.",
+                               shown=len(report), total=receipt['mismatches'])
+    return text
+
+
+class PlanTableModel(QAbstractTableModel):
+    """Read-only table model over a :meth:`ConversionPlan.to_frame` frame.
+
+    A model rather than a QTableWidget because the preview for a full
+    plate is tens of thousands of rows and populating that many
+    QTableWidgetItems freezes the window for seconds.
+
+    :param parent: parent widget.
+    """
+
+    def __init__(self, parent=None):
+        """Create an empty conversion-plan model.
+
+        :param parent: parent object, or ``None``.
+        """
+        super().__init__(parent)
+        self._frame: pd.DataFrame = pd.DataFrame(
+            columns=[key for key, _label in PREVIEW_COLUMNS])
+        self._columns: List[Tuple[str, str]] = list(PREVIEW_COLUMNS)
+
+    def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
+        """Replace the displayed frame, keeping only the known columns.
+
+        :param frame: the plan frame from :meth:`ConversionPlan.to_frame`;
+            ``None`` or an empty frame shows an empty table with every
+            preview column.
+        """
+        self.beginResetModel()
+        if frame is None or not len(frame):
+            self._frame = pd.DataFrame(
+                columns=[key for key, _label in PREVIEW_COLUMNS])
+            self._columns = list(PREVIEW_COLUMNS)
+        else:
+            self._columns = [(key, label) for key, label in PREVIEW_COLUMNS
+                             if key in frame.columns]
+            self._frame = frame
+        self.endResetModel()
+
+    def frame(self) -> pd.DataFrame:
+        """The frame currently displayed."""
+        return self._frame
+
+    def rowCount(self, parent=QModelIndex()) -> int:
+        """How many files the conversion plan covers.
+
+        :param parent: unused; the model is flat.
+        :returns: the row count.
+        """
+        return 0 if parent.isValid() else int(len(self._frame))
+
+    def columnCount(self, parent=QModelIndex()) -> int:
+        """How many columns the plan shows.
+
+        :param parent: unused; the model is flat.
+        :returns: the column count.
+        """
+        return 0 if parent.isValid() else len(self._columns)
+
+    def data(self, index, role=Qt.DisplayRole):
+        """One cell of the plan.
+
+        :param index: the cell.
+        :param role: the Qt display role.
+        :returns: the cell's value for that role, or None.
+        """
+        if not index.isValid() or role not in (Qt.DisplayRole, Qt.ToolTipRole):
+            return None
+        key = self._columns[index.column()][0]
+        value = self._frame.iloc[index.row()][key]
+        if key == "source" and role == Qt.DisplayRole:
+            return os.path.basename(str(value))
+        return "" if value is None else str(value)
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """One header label.
+
+        :param section: the row or column number.
+        :param orientation: which header.
+        :param role: the Qt display role.
+        :returns: the label, or None.
+        """
+        if role != Qt.DisplayRole:
+            return None
+        if orientation == Qt.Horizontal:
+            return self._columns[section][1]
+        return str(section + 1)
+
+
+class ConvertScreen(QWidget):
+    """Pick a source tree, review the mapping, convert, read the summary.
+
+    :param parent: parent widget.
+    :param threaded: when False every job runs inline on the calling
+        thread. Tests use it so assertions are exact; the app leaves it
+        True so a 40-minute conversion does not freeze the window.
+    """
+
+    #: Emitted with True/False when a scan or a conversion settles.
+    job_finished = Signal(bool)
+    #: Internal relay so the completion handler runs on the GUI thread.
+    _job_settled = Signal(bool)
+    #: ``(done, total, item)`` — emitted from the worker thread.
+    _progress = Signal(int, int, str)
+    app_key = "convert"
+
+    def __init__(self, parent=None, threaded: bool = True):
+        """Build the screen and arm its drop zone.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: preview and convert on a worker thread. Set ``False``
+            in tests so ``preview`` finishes before it returns.
+        """
+        super().__init__(parent)
+        self._threaded = bool(threaded)
+        self._plan: Optional[cvt.ConversionPlan] = None
+        self._result: Optional[cvt.ConversionResult] = None
+        self._busy = False
+        self._jobs: List[tuple] = []
+        self._pending: List[Tuple[Dict[str, Any], Callable[[Any], None]]] = []
+        self._thread = None
+        self._worker = None
+        self.last_error: str = ""
+
+        self._job_settled.connect(self._on_job_settled)
+        self._progress.connect(self._on_progress)
+        self._build_ui()
+        from ..dnd import install_dropzone
+        from ..dnd_handlers import get_handler
+        install_dropzone(self, get_handler("convert"), self)
+        self._set_status(
+            "Choose a folder of microscope files, then Preview. Nothing is "
+            "written until you press Convert.")
+        self._update_controls()
+
+
+    def _build_ui(self) -> None:
+        """Lay out the source row, the options, the destination and the plan table."""
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
+                                 SPACING["lg"], SPACING["lg"])
+        outer.setSpacing(SPACING["md"])
+
+        title = QLabel("Format Converter")
+        title.setObjectName("DisplayHeading")
+        outer.addWidget(title)
+
+        subtitle = QLabel(
+            "ND2 / CZI / LIF / OME-TIFF / TIFF / PNG into Yokogawa-named "
+            "TIFFs that Mask and Measure read directly. The mapping is shown "
+            "before anything is written, and a conversion_map.csv in the "
+            "destination records which original file every converted name "
+            "came from.")
+        subtitle.setObjectName("Muted")
+        subtitle.setWordWrap(True)
+        outer.addWidget(subtitle)
+
+        outer.addWidget(Divider())
+
+        src_row = QHBoxLayout()
+        src_row.setSpacing(SPACING["sm"])
+        self._src_edit = QLineEdit(self)
+        self._src_edit.setPlaceholderText(
+            "…/run1  — a folder of images, or <plate>/<well>/ folders")
+        self._src_edit.setClearButtonEnabled(True)
+        self._src_edit.returnPressed.connect(self.preview)
+        self._btn_pick_src = QPushButton("Choose source…", self)
+        self._btn_pick_src.clicked.connect(self._pick_source)
+        src_row.addWidget(QLabel("Source"))
+        src_row.addWidget(self._src_edit, 1)
+        src_row.addWidget(self._btn_pick_src)
+        from ..import_demo import _import_test_data_button
+        example = _import_test_data_button(
+            self, "nikon_nd2", self._use_test_data, say=self._set_summary)
+        example.setObjectName("ConvertTestDataButton")
+        src_row.addWidget(example)
+        outer.addLayout(src_row)
+
+        opt_row = QHBoxLayout()
+        opt_row.setSpacing(SPACING["sm"])
+        self._layout_box = QComboBox(self)
+        for label, value in LAYOUT_CHOICES:
+            self._layout_box.addItem(label, value)
+        self._z_box = QComboBox(self)
+        for label, value in Z_CHOICES:
+            self._z_box.addItem(label, value)
+        self._plate_box = QComboBox(self)
+        for label, value in PLATE_NAME_CHOICES:
+            self._plate_box.addItem(label, value)
+        self._resume = Toggle("Resume", self)
+        self._resume.setToolTip(
+            "Continue from the atomic field checkpoint in the destination. "
+            "Every TIFF in a completed field is validated before it is "
+            "skipped; missing or corrupt fields are converted again. API: "
+            "spacr.convert.convert(..., resume=True).")
+        for box in (self._layout_box, self._z_box, self._plate_box):
+            box.currentIndexChanged.connect(self._on_option_changed)
+        opt_row.addWidget(QLabel("Layout"))
+        opt_row.addWidget(self._layout_box, 1)
+        opt_row.addWidget(QLabel("Z"))
+        opt_row.addWidget(self._z_box, 1)
+        opt_row.addWidget(QLabel("Plate names"))
+        opt_row.addWidget(self._plate_box, 1)
+        opt_row.addWidget(self._resume)
+        outer.addLayout(opt_row)
+
+        dst_row = QHBoxLayout()
+        dst_row.setSpacing(SPACING["sm"])
+        self._dst_edit = QLineEdit(self)
+        self._dst_edit.setPlaceholderText(
+            "…/run1_yokogawa  — a NEW folder; the originals are never touched")
+        self._dst_edit.setClearButtonEnabled(True)
+        self._btn_pick_dst = QPushButton("Choose destination…", self)
+        self._btn_pick_dst.clicked.connect(self._pick_destination)
+        self._btn_preview = QPushButton("Preview", self)
+        self._btn_preview.clicked.connect(self.preview)
+        self._btn_convert = QPushButton("Convert", self)
+        self._btn_convert.setObjectName("PrimaryButton")
+        self._btn_convert.clicked.connect(self.run_convert)
+        dst_row.addWidget(QLabel("Destination"))
+        dst_row.addWidget(self._dst_edit, 1)
+        dst_row.addWidget(self._btn_pick_dst)
+        dst_row.addWidget(self._btn_preview)
+        dst_row.addWidget(self._btn_convert)
+        outer.addLayout(dst_row)
+
+        _build_barcode_controls(self, outer)
+
+        self._model = PlanTableModel(self)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="convert::body")
+        self._table = QTableView()
+        self._table.setModel(self._model)
+        install_sorting(self._table)
+        self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._table.setAlternatingRowColors(True)
+        self._table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._table.verticalHeader().setVisible(False)
+        split.add_section(self._table, "Conversion plan",
+                          persist_key="convert/Conversion plan")
+
+        self._summary = QPlainTextEdit()
+        self._summary.setReadOnly(True)
+        self._summary.setPlaceholderText(
+            "The plan summary and, after a run, what was converted and what "
+            "was skipped.")
+        split.add_section(self._summary, "Summary",
+                          persist_key="convert/Summary", stretch=0,
+                          extent=140)
+        outer.addWidget(split, 1)
+        self._body_splitter = split
+
+        from ..widgets.eliding import ProgressLine
+
+        self._progress_bar = ProgressLine(self, detail=False)
+        self._progress_bar.setRange(0, 100)
+        self._progress_bar.setValue(0)
+        self._progress_bar.setVisible(False)
+        outer.addWidget(self._progress_bar)
+
+        self._status = QLabel("", self)
+        self._status.setObjectName("Muted")
+        self._status.setWordWrap(True)
+        outer.addWidget(self._status)
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
+
+    def _set_status(self, text: str, error: bool = False) -> None:
+        """Report inline. Deliberately never a QMessageBox — a modal dialog
+        would hang a headless run (and did, in MakeMasksScreen)."""
+        self.last_error = text if error else ""
+        palette = active_palette()
+        colour = palette["error"] if error else palette["fg_muted"]
+        self._status.setStyleSheet(f"color: {colour};")
+        self._status.setText(text)
+
+    def status_text(self) -> str:
+        """Current inline status message (test/introspection helper)."""
+        return self._status.text()
+
+    def summary_text(self) -> str:
+        """Whatever is in the summary pane."""
+        return self._summary.toPlainText()
+
+    def _set_summary(self, text: str) -> None:
+        """Write the summary pane.
+
+        :param text: the summary; ``None`` empties the pane.
+        """
+        self._summary.setPlainText(text or "")
+
+
+    def set_source(self, path: str) -> None:
+        """Point the screen at a source folder without opening a dialog.
+
+        :param path: the source folder; when no destination is set yet, the
+            destination becomes a sibling folder named after it with a
+            ``_yokogawa`` suffix.
+        """
+        self._src_edit.setText(str(path or ""))
+        if path and not self._dst_edit.text().strip():
+            self._dst_edit.setText(
+                os.path.join(os.path.dirname(os.path.normpath(str(path))),
+                             os.path.basename(os.path.normpath(str(path)))
+                             + "_yokogawa"))
+        self._on_option_changed()
+
+    def _use_test_data(self, inputs) -> None:
+        """Point the screen at an Import test variant's images and preview.
+
+        :param inputs: :func:`spacr.import_examples.variant_inputs` for it.
+        """
+        images = str(inputs["images"])
+        self.set_source(images)
+        self.set_destination(images + "_yokogawa")
+        self.preview()
+
+    def source_path(self) -> str:
+        """The source folder currently typed in."""
+        return self._src_edit.text().strip()
+
+    def set_destination(self, path: str) -> None:
+        """Set the destination folder.
+
+        :param path: the output folder; ``None`` or empty clears the field.
+        """
+        self._dst_edit.setText(str(path or ""))
+        self._update_controls()
+
+    def destination_path(self) -> str:
+        """The destination folder currently typed in."""
+        return self._dst_edit.text().strip()
+
+    def _set_combo(self, box: QComboBox, value: str, what: str) -> None:
+        """Select a combo entry by its stored value rather than its caption.
+
+        :param box: the combo box to set.
+        :param value: the value to select.
+        :param what: what the value names, used in the error message.
+        :raises ValueError: if no entry carries that value -- silently leaving
+            the box where it was would run the conversion with a setting the
+            caller did not ask for.
+        """
+        index = box.findData(value)
+        if index < 0:
+            raise ValueError(f"Unknown {what}: {value!r}")
+        box.setCurrentIndex(index)
+
+    def set_layout_mode(self, value: str) -> None:
+        """Choose the source layout (see :data:`LAYOUT_CHOICES`).
+
+        :param value: ``"auto"``, ``"plate_well"``, ``"well"`` or ``"flat"``;
+            any other value raises :class:`ValueError`.
+        """
+        self._set_combo(self._layout_box, value, "layout")
+
+    def layout_mode(self) -> str:
+        """The selected source layout."""
+        return str(self._layout_box.currentData())
+
+    def set_z_handling(self, value: str) -> None:
+        """Choose how z planes are treated (see :data:`Z_CHOICES`).
+
+        :param value: ``"keep"`` (every plane), ``"max"`` (max-project) or
+            ``"first"`` (first plane only); any other value raises
+            :class:`ValueError`.
+        """
+        self._set_combo(self._z_box, value, "z_handling")
+
+    def z_handling(self) -> str:
+        """The selected z handling."""
+        return str(self._z_box.currentData())
+
+    def set_plate_naming(self, value: str) -> None:
+        """Choose how output plates are named.
+
+        :param value: ``"index"`` (``plate1``, ``plate2``, …) or ``"name"``
+            (keep the folder name); any other value raises
+            :class:`ValueError`.
+        """
+        self._set_combo(self._plate_box, value, "plate_naming")
+
+    def plate_naming(self) -> str:
+        """The selected plate naming scheme."""
+        return str(self._plate_box.currentData())
+
+    def set_resume(self, enabled: bool) -> None:
+        """Enable or disable field-checkpoint resume.
+
+        :param enabled: ``True`` to switch the Resume toggle on.
+        """
+        self._resume.setChecked(bool(enabled))
+
+    def resume_enabled(self) -> bool:
+        """Whether the next conversion will resume complete fields."""
+        return self._resume.isChecked()
+
+    def _on_option_changed(self, *_args) -> None:
+        """Any option change invalidates the plan on screen.
+
+        A preview that no longer matches the settings above it is worse
+        than no preview: it is a table the user believes.
+        """
+        if self._plan is not None:
+            self._plan = None
+            self._model.set_frame(None)
+            self._set_summary("")
+            self._set_status("Settings changed — press Preview again.")
+        self._update_controls()
+
+
+    def _pick_source(self) -> None:
+        """Ask which folder holds the microscope files."""
+        path = QFileDialog.getExistingDirectory(self, "Choose source folder")
+        if path:
+            self.set_source(path)
+
+    def _pick_destination(self) -> None:
+        """Ask where the converted TIFFs should be written."""
+        path = QFileDialog.getExistingDirectory(self, "Choose destination folder")
+        if path:
+            self.set_destination(path)
+
+
+    def preview(self) -> bool:
+        """Scan the source and build the plan. Writes nothing.
+
+        :returns: True when the scan was started (or, unthreaded,
+            completed) — False when the source is unusable, with the
+            reason in the inline status label.
+        """
+        src = self.source_path()
+        if not src:
+            self._set_status("Choose a source folder first.", error=True)
+            return False
+        if not os.path.isdir(src):
+            self._set_status(f"Not a folder: {src}", error=True)
+            return False
+
+        layout = self.layout_mode()
+        z_handling = self.z_handling()
+        plate_naming = self.plate_naming()
+        linkage = _barcode_settings(self)
+        dst = self.destination_path() or (os.path.normpath(src) + "_yokogawa")
+
+        def _job():
+            """Scan the source and plan the conversion. Off the GUI thread."""
+            sources = cvt.scan(src, layout=layout)
+            plan = cvt.plan(sources, z_handling=z_handling,
+                            plate_naming=plate_naming)
+            if plan.ok and linkage["plate_barcode_source"]:
+                try:
+                    cvt._prepare_conversion_barcodes(linkage, plan, src, dst)
+                except (cvt.ConfigurationError, ValueError, OSError) as exc:
+                    plan.errors.append(str(exc))
+            return plan
+
+        self._set_status(f"Scanning {src}…")
+        return self._run_job(_job, self._on_plan_ready)
+
+    def _on_plan_ready(self, plan: Optional[cvt.ConversionPlan]) -> None:
+        """Show the plan. Always on the GUI thread."""
+        self._plan = plan
+        if plan is None:
+            self._model.set_frame(None)
+            self._set_summary("")
+            self._set_status("Scan produced no plan.", error=True)
+            self._update_controls()
+            return
+        self._model.set_frame(plan.to_frame())
+        self._set_summary(plan.summary())
+        if not plan.ok:
+            self._set_status(
+                f"{len(plan.errors)} blocking problem(s) — nothing can be "
+                f"converted until they are fixed. See the summary below.",
+                error=True)
+        elif not len(plan):
+            self._set_status("No readable images were found in that folder.",
+                             error=True)
+        else:
+            skipped = len(plan.unreadable)
+            tail = f" {skipped} source(s) cannot be read." if skipped else ""
+            self._set_status(
+                f"Previewed {len(plan)} output file(s) from {plan.n_sources} "
+                f"source(s). Nothing has been written yet.{tail}")
+        self._update_controls()
+
+    def plan(self) -> Optional[cvt.ConversionPlan]:
+        """The plan currently on screen, or None."""
+        return self._plan
+
+    def result(self) -> Optional[cvt.ConversionResult]:
+        """The result of the last conversion, or None."""
+        return self._result
+
+    def preview_row_count(self) -> int:
+        """Rows in the preview table."""
+        return self._model.rowCount()
+
+    def preview_value(self, row: int, column: str) -> str:
+        """One preview cell by column name (test/introspection helper).
+
+        :param row: zero-based row of the preview table.
+        :param column: column name in the plan frame, e.g. ``"target"``; an
+            unknown column or out-of-range row gives ``""``.
+        """
+        frame = self._model.frame()
+        if row < 0 or row >= len(frame) or column not in frame.columns:
+            return ""
+        return str(frame.iloc[row][column])
+
+    def preview_targets(self) -> List[str]:
+        """Every target filename in the preview, in table order."""
+        frame = self._model.frame()
+        if "target" not in frame.columns:
+            return []
+        return [str(v) for v in frame["target"].tolist()]
+
+
+    def run_convert(self) -> bool:
+        """Convert the previewed plan into the destination folder.
+
+        :returns: True when the job was started, False when it was
+            refused — with the reason inline.
+        """
+        if self._plan is None:
+            self._set_status("Press Preview first — there is nothing to "
+                             "convert yet.", error=True)
+            return False
+        if not self._plan.ok:
+            self._set_status(
+                "This plan has blocking problems; fix them and preview "
+                "again. Nothing was written.", error=True)
+            return False
+        if not len(self._plan):
+            self._set_status("The plan is empty — nothing to convert.",
+                             error=True)
+            return False
+        dst = self.destination_path()
+        if not dst:
+            self._set_status("Choose a destination folder first.", error=True)
+            return False
+
+        plan = self._plan
+        emit = self._progress.emit
+        resume = self.resume_enabled()
+        linkage = _barcode_settings(self)
+        src = self.source_path()
+
+        def _job():
+            """Run the conversion. Off the GUI thread."""
+            prepared = cvt._prepare_conversion_barcodes(linkage, plan, src, dst)
+            result = cvt.convert(plan, dst, progress=emit, resume=resume)
+            cvt._finish_conversion_barcodes(prepared, result)
+            result._barcode_summary = _barcode_summary(prepared)
+            return result
+
+        self._progress_bar.setVisible(True)
+        self._progress_bar.setRange(0, max(plan.n_sources, 1))
+        self._progress_bar.setValue(0)
+        self._set_status(f"Converting {len(plan)} file(s) into {dst}…")
+        return self._run_job(_job, self._on_result_ready)
+
+    def _on_progress(self, done: int, total: int, item: str) -> None:
+        """Progress from the worker thread. Always on the GUI thread."""
+        self._progress_bar.setRange(0, max(int(total), 1))
+        self._progress_bar.setValue(int(done))
+        self._set_status(f"Converting {done}/{total} — {item}")
+
+    def _on_result_ready(self, result: Optional[cvt.ConversionResult]) -> None:
+        """Show the conversion summary. Always on the GUI thread."""
+        self._result = result
+        self._progress_bar.setVisible(False)
+        if result is None:
+            self._set_status("The conversion produced no result.", error=True)
+            self._update_controls()
+            return
+        summary = result.summary()
+        if getattr(result, "_barcode_summary", ""):
+            summary += "\n\n" + result._barcode_summary
+        self._set_summary(summary)
+        if result.is_complete:
+            self._set_status(
+                f"Converted {result.n_written} file(s) into {result.dst}. "
+                f"Map: {os.path.basename(result.map_path)}")
+        else:
+            self._set_status(
+                f"Converted {result.n_written} file(s), skipped "
+                f"{result.n_skipped} — see the summary. The map file is "
+                f"stamped incomplete.", error=True)
+        self._update_controls()
+
+
+    def _update_controls(self) -> None:
+        """Enable the form and the actions to match the run state and the plan.
+
+        Convert additionally needs a usable plan: the point of the preview is
+        that nothing is written until the mapping is agreed.
+        """
+        idle = not self._busy
+        has_plan = self._plan is not None and self._plan.ok and len(self._plan) > 0
+        for widget in (self._btn_pick_src, self._btn_pick_dst,
+                       self._btn_preview, self._src_edit, self._dst_edit,
+                       self._layout_box, self._z_box, self._plate_box,
+                       self._resume, self._barcode_source, self._barcode_pick,
+                       self._barcode_assignments, self._barcode_column):
+            widget.setEnabled(idle)
+        self._btn_convert.setEnabled(idle and has_plan)
+
+    def can_convert(self) -> bool:
+        """True when the Convert button is live."""
+        return self._btn_convert.isEnabled()
+
+
+    def _run_job(self, fn: Callable[[], Any],
+                 on_done: Callable[[Any], None]) -> bool:
+        """Run ``fn`` off the GUI thread and hand its result to ``on_done``.
+
+        The same idiom as ``PlateViewScreen._run_job``, and for the same
+        reason: ``PipelineWorker.finished`` is emitted *in the worker
+        thread*, and PySide6 invokes a plain closure connected to it
+        directly, on that thread. The completion handlers here fill a
+        QPlainTextEdit and reset a table model, and building a
+        QTextDocument's children off the GUI thread is undefined
+        behaviour. So ``finished`` is chained through
+        :attr:`_job_settled` into a *bound method* of this widget, which
+        has GUI-thread affinity — Qt then queues the call.
+
+        With ``threaded=False`` the call runs inline and the same signals
+        fire, so both paths behave identically from outside.
+        """
+        if not self._threaded:
+            ok = True
+            try:
+                on_done(fn())
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+            self._update_controls()
+            self.job_finished.emit(ok)
+            return ok
+
+        box: Dict[str, Any] = {}
+        thread, worker = make_thread(partial(self._capture, fn), box)
+        self._jobs.append((thread, worker))
+        self._thread, self._worker = thread, worker
+        self._pending.append((box, on_done))
+        worker.error.connect(self._on_worker_error_text)
+        worker.finished.connect(self._job_settled)
+        thread.finished.connect(self._retire_finished_jobs)
+        self._busy = True
+        self._update_controls()
+        thread.start()
+        return True
+
+    @staticmethod
+    def _capture(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
+        """Run ``fn`` in the worker thread and stash its result in ``payload``.
+
+        A named method rather than the closure ``PlateViewScreen`` uses,
+        for one reason: this body executes on a QThread, where coverage
+        cannot see it, and a nested function would be untestable except
+        by running the thread. This one can be called directly.
+        """
+        payload["result"] = fn()
+
+    def _on_job_settled(self, ok: bool) -> None:
+        """Finish the oldest in-flight job. Always on the GUI thread."""
+        self._busy = False
+        box, on_done = self._pending.pop(0) if self._pending else ({}, None)
+        ok = bool(ok)
+        if ok and on_done is not None:
+            try:
+                on_done(box.get("result"))
+            except Exception as e:
+                self._on_job_error(e)
+                ok = False
+        self._update_controls()
+        self.job_finished.emit(ok)
+
+    def _retire_finished_jobs(self) -> None:
+        """Retire every job whose QThread has stopped. GUI thread only.
+
+        A BOUND METHOD, not a closure — the rule ``make_thread`` states and
+        then relies on for its own ``handle.retire``. With a closure PySide6
+        makes the QThread itself the receiver, and ``make_thread`` connects
+        ``thread.finished -> thread.deleteLater`` FIRST; slots run in
+        connection order, so the DeferredDelete is posted ahead of the
+        closure's metacall and Qt discards queued events for a destroyed
+        receiver. The job was then never retired, ``active_jobs()`` never
+        returned to zero, and every ``waitUntil(active_jobs() == 0)`` sat
+        there until it timed out with the QThread's C++ half already gone.
+
+        It sweeps rather than naming a sender for the same reason: by the
+        time this runs, the emitter may be exactly what is gone, and
+        ``QObject.sender()`` is null for a queued call whose emitter was
+        destroyed.
+        """
+        from ..bridge import thread_has_stopped
+
+        for thread, _worker in list(self._jobs):
+            if thread_has_stopped(thread):
+                self._retire_job(thread)
+
+    def _retire_job(self, thread) -> None:
+        """Release *this* job's refs once its own event loop has exited."""
+        self._jobs = [(t, w) for (t, w) in self._jobs if t is not thread]
+        if self._thread is thread:
+            self._thread = None
+            self._worker = None
+
+    def active_jobs(self) -> int:
+        """How many worker threads are still winding down."""
+        return len(self._jobs)
+
+    def is_busy(self) -> bool:
+        """True while a scan or conversion is in flight."""
+        return self._busy
+
+    def _on_job_error(self, exc: Exception) -> None:
+        """Clear the busy state, hide the progress bar and report a failed job.
+
+        :param exc: the exception raised by the worker; its class name is used
+            when it carries no message.
+        """
+        self._busy = False
+        self._progress_bar.setVisible(False)
+        self._set_status(str(exc) or exc.__class__.__name__, error=True)
+
+    def _on_worker_error_text(self, text: str) -> None:
+        """Clear the busy state and report a worker failure given as text.
+
+        :param text: the worker's error output; only its last line is shown,
+            which for a traceback is the exception itself.
+        """
+        line = (text or "").strip().splitlines()[-1] if text else "unknown error"
+        self._busy = False
+        self._progress_bar.setVisible(False)
+        self._set_status(f"Conversion failed: {line}", error=True)

@@ -1,0 +1,124 @@
+{
+ "item": 554,
+ "date": "2026-10-03",
+ "device": "cpu",
+ "gpu": false,
+ "ops": {
+  "command": "tools/compare_spotnet_ops.py --detectors spotiflow [--spotiflow-threshold T] [--spotiflow-model M]; plate 20200202_6W-LaC024A well A1 sites 331 332, pool10 library",
+  "reference_reads": "native detector's owned reads; precision = share of Spotiflow reads within 2 px of a native read, recall = share of native reads within 2 px of a Spotiflow read",
+  "native": {
+   "spots": 22733,
+   "reads_owned": 17668,
+   "spots_library_exact": 18194,
+   "objects_assigned": 3476,
+   "assigned_library_exact_rate": 0.9534,
+   "spot_library_exact_share": 0.8
+  },
+  "runs": {
+   "general, threshold 0.3": {
+    "spots": 19301,
+    "reads_owned": 15098,
+    "spots_library_exact": 14371,
+    "objects_assigned": 2544,
+    "assigned_library_exact_rate": 0.9509,
+    "seconds": 133.3,
+    "spot_library_exact_share": 0.745,
+    "precision_vs_native": 0.8067,
+    "recall_vs_native": 0.6937,
+    "startup_seconds": 19.5
+   },
+   "general, threshold 0.15": {
+    "spots": 23236,
+    "reads_owned": 18303,
+    "spots_library_exact": 15288,
+    "objects_assigned": 2431,
+    "assigned_library_exact_rate": 0.949,
+    "seconds": 129.8,
+    "spot_library_exact_share": 0.658,
+    "precision_vs_native": 0.7116,
+    "recall_vs_native": 0.7361,
+    "startup_seconds": 27.4
+   },
+   "hybiss, own threshold": {
+    "spots": 10074,
+    "reads_owned": 7952,
+    "spots_library_exact": 8341,
+    "objects_assigned": 1379,
+    "assigned_library_exact_rate": 0.9514,
+    "seconds": 130.0,
+    "spot_library_exact_share": 0.828,
+    "precision_vs_native": 0.9668,
+    "recall_vs_native": 0.4461,
+    "startup_seconds": 20.6
+   },
+   "general, own threshold (2026-09-27 receipt)": {
+    "spots": 13244,
+    "reads_owned": 10270,
+    "spots_library_exact": 11105,
+    "objects_assigned": 1994,
+    "assigned_library_exact_rate": 0.954,
+    "spot_library_exact_share": 0.839,
+    "precision_vs_native": 0.935,
+    "recall_vs_native": 0.553
+   }
+  }
+ },
+ "fish": {
+  "dataset": "Spotiflow merfish test split (Dominguez Mantes et al. 2025, Nat Methods; drive.switch.ch fsjOypn4ICpSF2w)",
+  "images": 10,
+  "image_shape": [
+   512,
+   512
+  ],
+  "match": "one-to-one Hungarian, 3 px",
+  "device": "cpu",
+  "methods": {
+   "prefix spotiflow:general": {
+    "tp": 10807,
+    "pred": 12248,
+    "truth": 12923,
+    "seconds": 42.0,
+    "precision": 0.882,
+    "recall": 0.836,
+    "f1": 0.859
+   },
+   "coordinates general": {
+    "tp": 10811,
+    "pred": 12248,
+    "truth": 12923,
+    "seconds": 25.6,
+    "precision": 0.883,
+    "recall": 0.837,
+    "f1": 0.859
+   },
+   "prefix spotiflow:hybiss": {
+    "tp": 9297,
+    "pred": 9836,
+    "truth": 12923,
+    "seconds": 32.7,
+    "precision": 0.945,
+    "recall": 0.719,
+    "f1": 0.817
+   },
+   "coordinates hybiss": {
+    "tp": 9300,
+    "pred": 9837,
+    "truth": 12923,
+    "seconds": 25.4,
+    "precision": 0.945,
+    "recall": 0.72,
+    "f1": 0.817
+   },
+   "LoG 5-SD baseline": {
+    "tp": 3091,
+    "pred": 3139,
+    "truth": 12923,
+    "seconds": 0.2,
+    "precision": 0.985,
+    "recall": 0.239,
+    "f1": 0.385
+   }
+  },
+  "note": "spotiflow:<model> = spaCR object prefix (disc masks, centroids matched); coordinates = _spotiflow_spots worker op. Spotiflow's general model may have seen this dataset's train split; the test split is held out, so this is not an out-of-distribution test."
+ }
+}

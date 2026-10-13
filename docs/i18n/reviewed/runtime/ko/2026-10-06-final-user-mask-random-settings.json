@@ -1,0 +1,90 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Clear mask",
+      "source": "Clear mask",
+      "source_sha256": "8e7db4bb2caa311cef6863013656032331bae6875dc30de10b3e6e191479596a",
+      "table": "ui",
+      "translation": "마스크 비우기"
+    },
+    {
+      "key": "Click to add an intensity region. Hold Ctrl and click to remove it.",
+      "source": "Click to add an intensity region. Hold Ctrl and click to remove it.",
+      "source_sha256": "f2feae522817a2d77d94b655ac48aa18fd90acd660a0f68feb4ffad4dc371780",
+      "table": "ui",
+      "translation": "클릭하여 강도 영역을 추가합니다. Ctrl을 누른 상태에서 클릭하면 해당 영역을 제거합니다."
+    },
+    {
+      "key": "Divide / Merge",
+      "source": "Divide / Merge",
+      "source_sha256": "bd79a0d0585d36092131d7a63e1c46633ccfcbd73aca020c2a888456090cef7b",
+      "table": "ui",
+      "translation": "분할 / 병합"
+    },
+    {
+      "key": "Drag a line across objects to merge them",
+      "source": "Drag a line across objects to merge them",
+      "source_sha256": "0cbe674569ff2ee31c80465dbfa9996972826374efc8567f55961b99d45a70c2",
+      "table": "ui",
+      "translation": "객체들을 가로질러 선을 그려 병합합니다"
+    },
+    {
+      "key": "Left-drag to divide an object. Right-drag across objects to merge them.",
+      "source": "Left-drag to divide an object. Right-drag across objects to merge them.",
+      "source_sha256": "3c0905dea4f4a9a07c46e95d2c9d81e015e238705f8676b7673ef728672c6fab",
+      "table": "ui",
+      "translation": "왼쪽 버튼으로 드래그하여 객체를 분할합니다. 오른쪽 버튼으로 객체들을 가로질러 드래그하여 병합합니다."
+    },
+    {
+      "key": "Merged objects retain their shared IDs. Undo the merge before relabeling objects.",
+      "source": "Merged objects retain their shared IDs. Undo the merge before relabeling objects.",
+      "source_sha256": "d657e1962649adbc6dc9904cd9636853d232eff4c20f319d258b86e980f9f4cc",
+      "table": "ui",
+      "translation": "병합된 객체는 공통 ID를 유지합니다. 객체 번호를 다시 매기기 전에 병합을 실행 취소하세요."
+    },
+    {
+      "key": "Random colours",
+      "source": "Random colours",
+      "source_sha256": "3d7fae87115162ea80c1a9109f6c65d2d43e55ef4b7138781355c10c13e53ff8",
+      "table": "ui",
+      "translation": "무작위 색상"
+    },
+    {
+      "key": "Remove all {count} object(s) from this field? The field itself is untouched, and Undo brings the objects back.",
+      "source": "Remove all {count} object(s) from this field? The field itself is untouched, and Undo brings the objects back.",
+      "source_sha256": "e5af2ccc7390db2a536213f398af40e873978c77508d87c066d2235619021c5f",
+      "table": "ui",
+      "translation": "이 시야의 객체 {count}개를 모두 제거하시겠습니까? 시야 이미지 자체는 바뀌지 않으며, 실행 취소로 객체를 복원할 수 있습니다."
+    },
+    {
+      "key": "Remove the intensity region",
+      "source": "Remove the intensity region",
+      "source_sha256": "dbd457f237256ecf66a76c49fb71d130a670024288ca1208affc57de3758bddb",
+      "table": "ui",
+      "translation": "강도 영역 제거"
+    },
+    {
+      "key": "Saved to: {path}",
+      "source": "Saved to: {path}",
+      "source_sha256": "6759cf1b9ff7acc02d88358add7480246059e4b2ead9464d94ef78297b96cebc",
+      "table": "ui",
+      "translation": "저장 위치: {path}"
+    },
+    {
+      "key": "Stable varied colours for individual elements.",
+      "source": "Stable varied colours for individual elements.",
+      "source_sha256": "f513bb14af0c1d4abc99bdfd1a91314f701e289cd7edfffeb7da3d8eca8ce71a",
+      "table": "ui",
+      "translation": "개별 요소에 유지되는 다양한 색상입니다."
+    },
+    {
+      "key": "Wand",
+      "source": "Wand",
+      "source_sha256": "3e7962d21cc549dd9538eeb86fdc93b032f350a92ab7bb9dc0639e73b900db4b",
+      "table": "ui",
+      "translation": "마술봉"
+    }
+  ],
+  "schema": 1
+}

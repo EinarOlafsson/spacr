@@ -1,0 +1,35 @@
+{
+  "lesson": "16_activation",
+  "english_sha256": "a93b1d181e542e8162f7a36996e2de029d338fcf457fe57b640fbf7fe4cd0980",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Activation Maps: inspecionar os mapas de saliência de um classificador de imagens",
+  "description": "Selecione um classificador treinado e recortes de imagem compatíveis, compare a saliência por canal e por imagem e abra os mapas salvos.",
+  "objectives": [
+    "Fazer o arquivo de recortes, o modelo e as configurações de pré-processamento corresponderem.",
+    "Executar a saliência por canal com sobreposição na imagem.",
+    "Comparar a saliência por imagem e localizar as grades salvas."
+  ],
+  "prerequisite": "Use um checkpoint treinado de classificação de imagens e um arquivo TAR de recortes de imagem compatíveis. Mantenha o marcador de formato de recorte, se houver, e siga a ordem de canais, o tamanho de imagem e a normalização do cartão do modelo. O exemplo usa quatro recortes RGB do Annotate e um modelo ResNet18 do Classify. Antes de começar, treine ou obtenha um modelo cujo pré-processamento seja conhecido.",
+  "scenes": [
+    "Na tela Home, abra Classify e depois Activation Maps. Esta ferramenta mostra a quais pixels de entrada a previsão de um classificador de imagens treinado é sensível. Comece com o modelo e um arquivo de recortes preparados da mesma forma que os dados de treinamento dele.",
+    "Selecione o arquivo de recortes em Dataset. Este exemplo contém quatro recortes RGB de células do Annotate. Inclua o marcador de formato de recorte ao empacotar as imagens e mantenha os nomes dos arquivos, para poder ligar cada mapa ao objeto original.",
+    "Selecione o modelo treinado e escolha o tipo dele. Aqui o modelo é ResNet dezoito. Leia o cartão do modelo e defina Image size como cento e vinte e oito, igual à entrada do treinamento.",
+    "Defina Channels na ordem esperada pelo modelo. Neste exemplo, o seletor usa um, dois e três para a entrada RGB. Mantenha essa ordem ao comparar mapas de imagens diferentes.",
+    "Defina Normalize input igual ao treinamento. A normalização de exibição, que é separada, controla como a imagem aparece na sobreposição salva. Mantenha as duas configurações iguais ao comparar execuções.",
+    "Escolha saliency channel e ative Overlay, Plot e Save. Isso gera mapas separados por canal sobre as imagens. No exemplo de quatro recortes, use tamanho de lote quatro e um processo de trabalho e clique em Run.",
+    "Acompanhe o console até o processamento terminar. Se o painel Figures estiver vazio, abra a pasta de saída e inspecione as grades de lote salvas. Confira as mensagens de erro e os resultados salvos antes de continuar.",
+    "Abra batch_0_grid.png na pasta batch_grids do método. Associe cada posição ocupada ao recorte de origem; posições não usadas podem ficar em branco. Os rótulos nos cantos são previsões do modelo. Compare as regiões salientes com a imagem original e com os contornos conhecidos dos objetos.",
+    "Para comparar um mapa combinado, selecione saliency image e desative Overlay. Execute de novo as mesmas imagens com o mesmo pré-processamento. Mantenha as saídas dos dois métodos em suas respectivas pastas.",
+    "Abra a segunda grade salva. A saliência por imagem combina as sensibilidades dos canais em um único mapa para cada recorte. Compare as regiões destacadas com os mapas por canal. As cores indicam a escala do mapa; interpretá-las exige considerar o modelo e o contexto da imagem.",
+    "Deixe Correlation desativado neste primeiro passo a passo. Revise exemplos de classes diferentes, incluindo erros de previsão, antes de interpretar padrões. Use o Classifier Evaluation para avaliar o desempenho em dados reservados de forma independente.",
+    "Mantenha juntos o arquivo de entrada, o modelo e o cartão do modelo, as configurações, os mapas e o banco de dados de saída. Volte aos recortes originais para investigar regiões inesperadas, ou compare outro método usando as mesmas entradas."
+  ]
+}

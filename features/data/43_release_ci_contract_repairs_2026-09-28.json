@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "item": 43,
+  "date": "2026-09-28",
+  "base_commit": "2ebcfca6f416fd69361ab2aace8b461ef1df1069",
+  "scope": "Release CI contract repairs; full CI and uninterrupted Qt acceptance remain open",
+  "failed_ci": {
+    "run": 36424670890,
+    "jobs": [
+      108936356666,
+      108936356564,
+      108936356535
+    ],
+    "cases": 6
+  },
+  "changes": [
+    "Preserve historical released installer path bytes through narrow spelling exceptions; adjacent prose still rejected",
+    "Hold GPU discovery state constant in all nine two-build caption comparisons; both original assertions retained",
+    "Keep required PyWavelets core bound and couple it to Measure texture noise estimation",
+    "Mock optional AnnData preflight only in the two mocked-export forwarding tests",
+    "Regenerate ten settings-flow sections from current workflow and calibration readers"
+  ],
+  "validation": {
+    "cap": "4G",
+    "swap": "disabled",
+    "private_home": true,
+    "device": "cpu",
+    "qt": "offscreen",
+    "brand_caption_and_historical_installer": {
+      "passed": 83,
+      "failed": 0,
+      "skipped": 0
+    },
+    "dependency_anndata_settings_flow_confluency": {
+      "passed": 245,
+      "failed": 0,
+      "skipped": 7,
+      "private_pywavelets": "1.10.0"
+    },
+    "explicitly_absent_anndata": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "original_local_environment": {
+      "passed": 240,
+      "failed": 5,
+      "skipped": 7,
+      "cause": "Declared PyWavelets missing; original log retained; shared environment unchanged"
+    }
+  },
+  "source_sha256": {
+    "setup.py": "e7b710a85b1c05824b5ea1095abe5dbb51590705af30fd48037c1e335b3865ce",
+    "docs/source/_generated/settings_flow.rst": "6ff6eed08b1b4c50e380779ce16ef35c27389e2ec851eed957a5afa65e418f5e",
+    "tests/test_dependency_bounds.py": "19ff55fc27c543d76e77cfbbb12173923c19d854d617aed18264b49c03e01715",
+    "tests/test_cov_w2_4_anndata_export_helpers.py": "4480f288f315f7798e822064a1f1b2607d072d5fd23739899e1b4316cd28c0fa",
+    "tests/test_the_name_is_spaCR.py": "1d8378b276ebb57d3e44be2b789c06a2b33e5875a9584085623fc8741a7c9706",
+    "tests/qt/test_the_translation_pass_reaches_every_caption.py": "0aa524dce8ac8278b4be327200b7efb44d206a992cabe0ad8f95aa1b4adc0af3"
+  },
+  "evidence_sha256": {
+    "/mnt/wd4tb/scratch/spacr-completion/release-1.5.1.1/repair-brand-captions.xml": "c3b244f3bc4f712257c606ac5aad19f8ac3a0b130bc3bf8bef9f870da1ed16d5",
+    "/mnt/wd4tb/scratch/spacr-completion/release-1.5.1.1/repair-dependencies-anndata-flow-with-pywavelets.xml": "307c065119991b5cc329f19341141b250b362bc0c5c7b1530a4f75823bc4eb8d",
+    "/mnt/wd4tb/scratch/spacr-completion/release-1.5.1.1/repair-anndata-absent.xml": "181811394f7e6b4449c80f0c8a3fca412eb4b5a81aaaa3856b0c9f09e66b5d54",
+    "/mnt/wd4tb/scratch/spacr-completion/release-1.5.1.1/failed-2eb-shard7.log": "6f88814f4498d3f059a7b3ac0d7416cdfb49db3d0189e7f1507fc39bb179e0b8",
+    "/mnt/wd4tb/scratch/spacr-completion/release-1.5.1.1/failed-2eb-shard9.log": "40446536692761a966a09e31505a1e1c2f0e85f0424ff9a630422ed5f9ba7ef1",
+    "/mnt/wd4tb/scratch/spacr-completion/release-1.5.1.1/failed-2eb-shard10.log": "50d74adb28c3a79e5cef6a2e710066c92c2488190bc38cfc4fe8bff934d5786d"
+  },
+  "limitations": [
+    "No full-suite success claim",
+    "Native installer runtime unchanged",
+    "No public API or runtime translation changes",
+    "GPU training and services untouched"
+  ]
+}

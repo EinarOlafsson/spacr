@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "source": "Existing source-bound runtime reviews and technical identity translations",
+  "languages": [
+    {
+      "language": "sv",
+      "restored": {
+        "Confirm annotations": "Bekräfta annoteringar",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "de",
+      "restored": {
+        "Confirm annotations": "Annotationen bestätigen",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "restored": {
+        "Confirm annotations": "Confirmar anotaciones",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "restored": {
+        "Confirm annotations": "确认标注",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "restored": {
+        "Confirm annotations": "Confirmar anotações",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "restored": {
+        "Confirm annotations": "एनोटेशन की पुष्टि करें",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "restored": {
+        "Confirm annotations": "주석 확인",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "restored": {
+        "Confirm annotations": "Staðfesta merkingar",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "restored": {
+        "Confirm annotations": "Confirmer les annotations",
+        "PDF…": "PDF…",
+        "model.pt": "model.pt"
+      },
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "full_runtime_audit_passed": false,
+  "german_batch_covariate_tooltip": {
+    "before": "Die Spalte(n) der Metadaten mit der Bezeichnung der biologischen Effekte ComBat muss z.B. 'condition' oder 'condition, timepoint' erhalten bleiben. ComBat schätzt den Batch-Effekt von Resten nach der Anpassung dieser Begriffe, so dass nicht aufgeführte Effekte mit dem Platteneffekt entfernt werden können. Enthält jeden Behandlungseffekt, der in den korrigierten Daten verbleiben muss. Siehe spacr.batch_correction.correct_batch_effects. Default None.",
+    "after": "Metadatenspalte(n), die die biologischen Effekte benennen, die ComBat erhalten muss, zum Beispiel 'condition' oder 'condition,timepoint'. ComBat schätzt den Batch-Effekt anhand der Residuen nach der Anpassung dieser Terme; nicht aufgeführte Effekte können daher zusammen mit dem Platteneffekt entfernt werden. Geben Sie jeden Behandlungseffekt an, der in den korrigierten Daten erhalten bleiben muss. Siehe spacr.batch_correction.correct_batch_effects. Standardwert None.",
+    "protected_column_list_preserved": true
+  },
+  "restored_ui_rows": 26
+}

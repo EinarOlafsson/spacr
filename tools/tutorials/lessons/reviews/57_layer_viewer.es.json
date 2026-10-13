@@ -1,0 +1,43 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Layer Viewer: revisar imágenes y superposiciones de etiquetas",
+  "description": "Carga una imagen y su máscara, ajusta la superposición y amplía para revisar los bordes de los objetos.",
+  "objectives": [
+    "Abrir una imagen y su máscara correspondiente.",
+    "Ajustar la visibilidad, la opacidad, la mezcla y el orden de las capas.",
+    "Revisar las etiquetas con zoom y desplazamiento."
+  ],
+  "prerequisite": "Descarga y extrae Layer_Viewer_real_image_mask.zip. Usa la imagen de intensidad incluida y la máscara de etiquetas enteras correspondiente. Este ejemplo no tiene calibración física de píxeles.",
+  "scenes": [
+    "Desde Home, abre QC y luego Layer Viewer. Descarga y extrae el ejemplo enlazado de imagen y máscara. El visor tiene sus propios controles de archivo para estas dos entradas.",
+    "Haz clic en más Image y abre fov01_C1 punto tif. La imagen en escala de grises aparece en el lienzo con un ajuste de contraste por percentiles para la visualización.",
+    "Haz clic en Fit para llenar el panel de la imagen. Fit puede estirar una imagen cuadrada en un panel ancho; ajusta el divisor para que el panel sea aproximadamente cuadrado cuando revises formas.",
+    "Haz clic en más Mask y abre fov01_cell_mask punto tif. Los cuarenta y cuatro objetos etiquetados aparecen sobre la imagen. El cero es el fondo y queda transparente.",
+    "Selecciona mask en la lista de capas antes de cambiar sus controles. Marca y desmarca su casilla para comparar los bordes con la imagen de debajo.",
+    "Pon la Opacity de mask en cero para ocultar sus colores sin descargar la capa. Comprueba la fila seleccionada antes de ajustar otra capa.",
+    "Pon Opacity en el cien por cien para revisar la forma de las etiquetas. Los colores cubren la imagen dentro de cada objeto etiquetado.",
+    "Vuelve a poner Opacity en el cincuenta por ciento y elige la mezcla translucent para ver la textura de la imagen a través de la máscara. Compara los bordes de los objetos con la señal subyacente.",
+    "Elige la mezcla additive para sumar los colores de la máscara a la imagen. Las zonas brillantes pueden saturarse en esta vista, así que vuelve a translucent cuando necesites una comparación más clara.",
+    "Prueba las mezclas multiply y minimum para comparar superposiciones más oscuras. Estas opciones cambian la composición mostrada, mientras que los valores de intensidad originales siguen disponibles en la imagen de origen.",
+    "Elige opaque y mueve el control Opacity para comparar su aspecto. Con esta máscara de enteros, la mezcla opaque al cincuenta por ciento se ve igual que translucent al cincuenta por ciento. Vuelve a translucent para continuar.",
+    "Selecciona image y elige cyan en el selector de mapa de colores. La imagen de intensidad cambia de color y la máscara mantiene los colores de sus etiquetas. Elige gray para volver a la escala de grises.",
+    "Selecciona mask y pulsa la flecha hacia abajo para moverla detrás de la imagen. La capa superior aparece delante. Vuelve a subir la máscara para revisar sus etiquetas.",
+    "Haz clic en un objeto etiquetado visible para leer su posición y su número de etiqueta en la línea de estado. Usa los metadatos de tu proyecto cuando necesites identificar el campo, la placa o el pozo de ese objeto.",
+    "Gira la rueda del ratón sobre un objeto para ampliar alrededor del puntero. Acércate hasta que su borde sea fácil de revisar.",
+    "Mantén pulsada Shift y arrastra con el botón izquierdo del ratón para desplazarte. También puedes arrastrar con el botón central. Recorre el campo manteniendo el zoom actual.",
+    "Haz clic en Fit para volver a ver el campo completo. Ajusta la forma del panel si la imagen ajustada se ve estirada.",
+    "Más Points y más Shapes añaden capas auxiliares vacías. Para dibujar o editar máscaras de segmentación, continúa en Make Masks; este visor no tiene controles de dibujo para esas capas vacías.",
+    "Selecciona una capa y usa Remove para quitarla de la vista. Su archivo original sigue en el disco, listo para volver a cargarse.",
+    "El resultado es una vista de capas revisada. Para exportar una composición, usa stack_from_paths y LayerStack.render_uint8 desde Python. Continúa con Make Masks para guardar ediciones de máscaras, o con Measure para las mediciones de objetos."
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "changed_archive": "features/data/43_ambient_background_union_2026-10-08",
+  "changed_archive_sha256": {
+    "MANIFEST.json": "ab5b006194ec8183cc07043428a0a9b369f97d405ac35c60ba535034dd87f7bf",
+    "receipt.json": "e6909016f1c5a3d90ec3ae57147cf7c74ad101a7b8cdef460642edaac8983e83",
+    "verify_union.py": "74eddd9cf0ad0bbaf4d1e03bd0b24b6f9bc29a19cd157c48d079fa9495a82b30"
+  },
+  "changed_modules": [
+    "spacr/qt/preferences.py",
+    "spacr/qt/widgets/ambient.py"
+  ],
+  "modules": {
+    "spacr/deep_spacr.py": {
+      "original_allowance": [
+        0,
+        0
+      ],
+      "remaining": [
+        0,
+        0
+      ],
+      "source_sha256": "198f08a49ba2bbad93aa411f57924d5d1d7ee5fed196210e350a093452658b53"
+    },
+    "spacr/model_zoo.py": {
+      "original_allowance": [
+        4,
+        1
+      ],
+      "remaining": [
+        0,
+        0
+      ],
+      "source_sha256": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829"
+    },
+    "spacr/plaque.py": {
+      "original_allowance": [
+        0,
+        0
+      ],
+      "remaining": [
+        0,
+        0
+      ],
+      "source_sha256": "c3988be90964e58429fffeef6d19229e8d4bfbb39a0ab671383f289f7538f8ff"
+    },
+    "spacr/qt/mask_engine.py": {
+      "original_allowance": [
+        11,
+        11
+      ],
+      "remaining": [
+        8,
+        11
+      ],
+      "source_sha256": "bc82fd12b84d33a8ace54a9fe3c577fb2b6048073ebe43f9e3dd54ffb7143253"
+    },
+    "spacr/qt/preferences.py": {
+      "original_allowance": [
+        89,
+        25
+      ],
+      "remaining": [
+        84,
+        25
+      ],
+      "source_sha256": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc"
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "original_allowance": [
+        59,
+        28
+      ],
+      "remaining": [
+        11,
+        28
+      ],
+      "source_sha256": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc"
+    },
+    "spacr/qt/screens/plate_view.py": {
+      "original_allowance": [
+        1,
+        1
+      ],
+      "remaining": [
+        1,
+        1
+      ],
+      "source_sha256": "285b17e87b2a35a6fa6fbe868454c9f76f67444c386992f5af7e6887217cc4a3"
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "original_allowance": [
+        1,
+        0
+      ],
+      "remaining": [
+        0,
+        0
+      ],
+      "source_sha256": "7c9dcdcfb032a4f9677fcb45d101f5d5540e887d28145b794c5d91625632c9bc"
+    },
+    "spacr/submodules.py": {
+      "original_allowance": [
+        0,
+        0
+      ],
+      "remaining": [
+        0,
+        0
+      ],
+      "source_sha256": "aef3ca2a6bb8864850624a2d06e0a73d99f5e7f2b1df038e1f5cd848678e09e6"
+    },
+    "spacr/torch_artifacts.py": {
+      "original_allowance": [
+        0,
+        0
+      ],
+      "remaining": [
+        0,
+        0
+      ],
+      "source_sha256": "22d33b4ad95ebed539928d1bd7fb33b41d6c5c1402c4a85a9118b24a0a103a50"
+    },
+    "spacr/validate.py": {
+      "original_allowance": [
+        2,
+        4
+      ],
+      "remaining": [
+        2,
+        2
+      ],
+      "source_sha256": "ee876d102f8c18b3c3a00b3500e0493a21216041b9a13282879bde2ccefe4c03"
+    }
+  },
+  "original_archive": "features/data/43_683_eleven_module_union_2026-10-08",
+  "original_archive_sha256": {
+    "MANIFEST.json": "fbb7bf810c31b8bb7eb023013caf71971fba8f2c94b0ce46bfbe73e30e3975bc",
+    "receipt.json": "69d03a20c12666dfda6b4e3a35a109dc83846bfde04a85178b84819d77a56b71",
+    "verify_union.py": "7ed9fc692ef8b0c74a327616491f836646f1b6d0e8efba318c0d1aabfb91904a"
+  },
+  "original_hosted_aggregate_job_id": 113085039577,
+  "original_hosted_run_id": 37698599898,
+  "original_target_revision": "11229945a6e803f5fa1d5ed6683d446a2b068132",
+  "source_revision": "7f321bf3d9ca663ce9e76c16aaa9c32105fbd4e4"
+}

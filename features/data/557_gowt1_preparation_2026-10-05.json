@@ -1,0 +1,371 @@
+{
+  "schema": 1,
+  "accepted_preparation": true,
+  "scope": "An additional real fluorescent-nucleus dataset for source-frozen denoising validation; preparation only, no training or improvement claim.",
+  "dataset": "CTC Fluo-N2DH-GOWT1, GFP-GOWT1 mouse stem cells",
+  "dataset_source": "https://celltrackingchallenge.net/2d-datasets/",
+  "annotation_procedure": "https://public.celltrackingchallenge.net/documents/Annotation%20procedure.pdf",
+  "field_of_interest_border_pixels": 50,
+  "scoring_policy": "For each predicted mask, retain complete object pixels if any pixel intersects [50:-50,50:-50]; exclude only wholly exterior predicted objects. Compare full retained masks to all 24 gold masks. Object IoU/Hungarian F1 is our paired benchmark, not an official CTC SEG/DET/TRA score.",
+  "gold_completeness_policy": "Every gold tracking marker must overlap exactly one distinct segmentation mask, with a complete bijection. Partial frames and silver masks are excluded from F1. Marker position alone never justifies dropping a gold object.",
+  "training": [
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t000.tif",
+      "image_sha256": "a0ae50aa44a82226b0517663a849ad6e969a23bcfea29269cd5db1ee86e3077c",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t000.npy",
+      "export_sha256": "1d1b9f08243a46651cbeb5385806a677174591129e90da5b81442d0c87974944",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t005.tif",
+      "image_sha256": "472a9b62683a4779d898ddfa2333ecdf05d7f15a533658c7777b385e1dea81e5",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t005.npy",
+      "export_sha256": "9616b7f292f4044fd48cbe2f2d82939f78058d7576b4198246c39f8ce3526616",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t010.tif",
+      "image_sha256": "139e6a4ec57154a73dcdf57d3931b6ee1ac831b949ecac07918876e29ecd128c",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t010.npy",
+      "export_sha256": "7265ad233cdb2cdb371a69845dd55229771529291fbb2b186645de4d554b95e4",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t014.tif",
+      "image_sha256": "681dff08289e0975d726f6dbb027870fc0baf2441ef2909420d74f2357230436",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t014.npy",
+      "export_sha256": "e64acdbb298c6178b25a6edc525a5f6afe5ab764c5c19e0f260ff4e8e4f740b2",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t019.tif",
+      "image_sha256": "3f5cdf4ca798fab47107c6ae97032186edd9d867de3173a78678e00cb0b7eac3",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t019.npy",
+      "export_sha256": "d667c3a4ec0848077c5607d03eb73a05d6c5ed6baf2a7cea0175a666acdc99ec",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t024.tif",
+      "image_sha256": "dac5b66c2e2cf8d7c98dcd5c3ffd1ffece57996f0eb8f697d14831ec517e5a01",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t024.npy",
+      "export_sha256": "82ac3e84d61703e38eb16406b47b8c01cc2f5680a7d46653c06f2f099b2084d5",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t029.tif",
+      "image_sha256": "5f048cc0008c1cb79f956384ce904b49148baebd66cf61f6f67da035bf221e38",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t029.npy",
+      "export_sha256": "d66b806038d600329daffdc0b81146d1d3f6fb05323ec6ae3e3699a3fa3996e4",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t034.tif",
+      "image_sha256": "425320898bb47a02240e3231091bbf8950f10ee4f5d3dd5d4b7d7111a5e22381",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t034.npy",
+      "export_sha256": "95d9711850c981140145713f548f502fe4ad352d93cd39ae3e6da5eaf5d3cd62",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t038.tif",
+      "image_sha256": "0a518b72a04ffcc5f5165573a4752937085438918e494ba5eacfc220ff9f51b6",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t038.npy",
+      "export_sha256": "9bd510d47ed3ace8c4f6a24bb4da117d69674329cd95564eb266ae221727745c",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t043.tif",
+      "image_sha256": "7020c50ca9576550406d6b8e81487ead69aa6f694982ae97755d4e83f777af39",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t043.npy",
+      "export_sha256": "3cc1228e63a4876ef40c15335a3e8026e545ab5deb1091d3f4dcdb1eeb0174cb",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t048.tif",
+      "image_sha256": "188e8f4078e5515d411d16eb42a69e7b81b0d662b36984f77e6022463c4c64c2",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t048.npy",
+      "export_sha256": "6675775455c5fb213776b8d847fa58ffaf5112e82ccfdca58331557987a91d1d",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t053.tif",
+      "image_sha256": "eef545e06b66fbbb5fbc8e4aaf863017cf4d6fc7f0731802c5601231b474327b",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t053.npy",
+      "export_sha256": "0682c85065fc53d44c757e5daae03bc9b1afa6976caf6cec6c6f4b692386193d",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t057.tif",
+      "image_sha256": "61b6681395d579a509845dd9ce6c90f2c22dd48491d8c428c7a44ef416363a5e",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t057.npy",
+      "export_sha256": "135cd7a90969ac5b9026b69c447f0432ab9c65eab6cc0f888d2cd0140d53c93a",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t062.tif",
+      "image_sha256": "085edcb408e2f6b72e72ab44132305d4b5978e19589b39304018988f1b96be3e",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t062.npy",
+      "export_sha256": "751beb051a7c53b272dd8724d52ca02dc7281d4071dcf36bc2a515d3d70d73b3",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t067.tif",
+      "image_sha256": "71eedce28c8ed7e825dfd8d018f2be2a1994b2e8643a3cfcae57f5df1087c8d3",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t067.npy",
+      "export_sha256": "eee6b473802588b27b236fcf3110aeae26330517dea5ed75b2f4066236d2fd5a",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t072.tif",
+      "image_sha256": "3fe05eea392f5347cbfdef8896a5558034a66627c46fd8932cecd419938f14bf",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t072.npy",
+      "export_sha256": "914fa918b583e71e2351bbda0a97a8ed47cb6831c4d4744add6b4225287b3964",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t077.tif",
+      "image_sha256": "708af23ee5dd973f968b439f7cd3159a22d1cd6e458f93c4c3e9d1d789637e87",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t077.npy",
+      "export_sha256": "48142089b927af500791551894753946e1aa1b15cefa8fa9cc499f40d999d632",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t081.tif",
+      "image_sha256": "6d94bd74823f5b872d4253a49ee336e520f5bf5abfefbdd173a51f0bdbad5560",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t081.npy",
+      "export_sha256": "142cd74f2116705c32efa50ebf6ce7178231d483893da650a1d3a63372393e67",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t086.tif",
+      "image_sha256": "c24f1fa90dcea2e4e1e2389a2dbc0bc1032887af7f6391bb6b0c9f935eb6e28c",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t086.npy",
+      "export_sha256": "e1bd53c3d6383e41493ea7c611bbdd9e6d3b4999f5a880f9e67230584de83d3b",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/02/t091.tif",
+      "image_sha256": "8886200ce186f03eb8bb59b41d59ce70e5760fa137670a7df2feb256c134cf12",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/02-t091.npy",
+      "export_sha256": "289b49f7d2c5c08b04da1d3a26b8f3a76ca97277d982040bc7b32f2d41d10d1b",
+      "dtype": "uint8",
+      "shape": [
+        1024,
+        1024
+      ]
+    }
+  ],
+  "evaluation": [
+    {
+      "sequence": "01",
+      "frame": 21,
+      "shape": [
+        1024,
+        1024
+      ],
+      "gold_segmented_objects": 24,
+      "gold_tracking_objects": 24,
+      "unsegmented_tracking_markers": [],
+      "all_tracking_objects_have_distinct_gold_masks": true,
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t021.tif",
+      "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg021.tif",
+      "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track021.tif",
+      "image_sha256": "e238390fc4d1edf5e38e24638b4a9165a10b8e94252b14c8c85fe2c6f32d35e5",
+      "segmentation_sha256": "abd1dee1d6ace107c908819100221774c57e13c150456e92e6d08bc59a83d94a",
+      "tracking_sha256": "0cf478ca83a11aa8eb99e760ae8c590f30d12f6e8dc4908a0e2c7d72e11dc34a",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/01-t021.npy",
+      "export_sha256": "0db2e9ef1a9bd5b4bcd364c22d16917eadd2933857cafcca836998d949321362",
+      "dtype": "uint8",
+      "gold_marker_to_mask_bijection_verified": true,
+      "all_24_gold_objects_intersect_field_of_interest": true,
+      "source_paths": {
+        "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t021.tif",
+        "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg021.tif",
+        "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track021.tif"
+      }
+    },
+    {
+      "sequence": "01",
+      "frame": 31,
+      "shape": [
+        1024,
+        1024
+      ],
+      "gold_segmented_objects": 24,
+      "gold_tracking_objects": 24,
+      "unsegmented_tracking_markers": [],
+      "all_tracking_objects_have_distinct_gold_masks": true,
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t031.tif",
+      "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg031.tif",
+      "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track031.tif",
+      "image_sha256": "730c6e2202f43464dee4b79e4b4d18f926efe713d86c74d9677ba0fc0e1a8be3",
+      "segmentation_sha256": "710ff3b50b44abc6d03898b7d5ce8eb5a67e336dde3f3bbdb3b8958a29388508",
+      "tracking_sha256": "0a56127a429f51cf620269d8a7adf923f74ff51ab84db9ed3d21430028715ae5",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/01-t031.npy",
+      "export_sha256": "97f4e516e71be89c6d0ceb97e58d59a1f12209c41b3567e4dfcb4632b9968a9d",
+      "dtype": "uint8",
+      "gold_marker_to_mask_bijection_verified": true,
+      "all_24_gold_objects_intersect_field_of_interest": true,
+      "source_paths": {
+        "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t031.tif",
+        "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg031.tif",
+        "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track031.tif"
+      }
+    },
+    {
+      "sequence": "01",
+      "frame": 33,
+      "shape": [
+        1024,
+        1024
+      ],
+      "gold_segmented_objects": 24,
+      "gold_tracking_objects": 24,
+      "unsegmented_tracking_markers": [],
+      "all_tracking_objects_have_distinct_gold_masks": true,
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t033.tif",
+      "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg033.tif",
+      "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track033.tif",
+      "image_sha256": "df3b2be4c9c29061ebdd0c1a57a7594da8918c451ebe3830612b77e42f426c68",
+      "segmentation_sha256": "9fdd443b983dc6dafc6a99b77e160954d144e320c424fcfe22a4677a3a8f16e6",
+      "tracking_sha256": "7151f1d88b66c0f1c9e35c24569c3cd9e7322c4991bb99a197dbfbb450b97da0",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/01-t033.npy",
+      "export_sha256": "c5313884ea804df0360e9c6df4aa999e7be785ed4bfc8051e82f4f5d47e9a866",
+      "dtype": "uint8",
+      "gold_marker_to_mask_bijection_verified": true,
+      "all_24_gold_objects_intersect_field_of_interest": true,
+      "source_paths": {
+        "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t033.tif",
+        "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg033.tif",
+        "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track033.tif"
+      }
+    },
+    {
+      "sequence": "01",
+      "frame": 39,
+      "shape": [
+        1024,
+        1024
+      ],
+      "gold_segmented_objects": 24,
+      "gold_tracking_objects": 24,
+      "unsegmented_tracking_markers": [],
+      "all_tracking_objects_have_distinct_gold_masks": true,
+      "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t039.tif",
+      "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg039.tif",
+      "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track039.tif",
+      "image_sha256": "8a03364b3e031135b01eba59e0cb5ee6409153f9420925fc40c00a0478818206",
+      "segmentation_sha256": "2c4f06e9368cc18b960bf23de7528514ece868a06ade7680ea4e2a9b290df9d9",
+      "tracking_sha256": "9dfb18e8129eef8ded7ddda074e788c5554e96458641f301e3faeb23c8d0e962",
+      "exact_pixel_export": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/prepared-r1/01-t039.npy",
+      "export_sha256": "565fbfb11438c1b35842db0796582a15d81ce385e46cf2eeb6a956f1f5c3e38a",
+      "dtype": "uint8",
+      "gold_marker_to_mask_bijection_verified": true,
+      "all_24_gold_objects_intersect_field_of_interest": true,
+      "source_paths": {
+        "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01/t039.tif",
+        "segmentation": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/SEG/man_seg039.tif",
+        "tracking": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/557-gowt1/Fluo-N2DH-GOWT1/01_GT/TRA/man_track039.tif"
+      }
+    }
+  ],
+  "training_selection": "Twenty evenly spaced raw frames from sequence 02, independent of sequence-01 evaluation labels. No sequence-01 image is used for denoiser training.",
+  "predeclared_n2v": {
+    "epochs": 20,
+    "seed": 0,
+    "checkpoint_selection": "final epoch; no selection using evaluation F1"
+  },
+  "predeclared_comparison": "Raw, normal NLM enhancement, normal Cellpose-3 nucleus restoration and normal CAREamics N2V2; identical fixed segmentation parameters across arms. Threshold tuning on the four evaluation frames is prohibited.",
+  "limitations": [
+    "Only one held-out sequence and four nearby timepoints; these are not four independent biological replicates.",
+    "The dataset page does not establish calibrated low-light acquisition or photon counts; no low-light ground-truth claim is made.",
+    "Gains or losses on this dataset do not establish a universal denoising benefit."
+  ],
+  "original_pixels_and_gold_labels_unchanged": true,
+  "gpu_training_started": false,
+  "preparation_script": {
+    "sha256": "edadb787902a04a1a4cbe0a2ef145d4ef179990496d344f2adb559b015f9b02c",
+    "source": "import hashlib\nimport json\nfrom pathlib import Path\n\nimport numpy as np\nimport tifffile\n\nscratch = Path('/media/carruthers/mnt3/codex/scratch/docs-completion-20261005')\nroot = scratch / '557-gowt1'\ndataset = root / 'Fluo-N2DH-GOWT1'\ntarget = root / 'prepared-r1'\nassert not target.exists()\ntarget.mkdir()\n\ndef digest(path):\n    return hashlib.sha256(path.read_bytes()).hexdigest()\n\ncompleteness = json.loads((root / 'gold-completeness.json').read_text())\ntests = [row for row in completeness['rows']\n         if row['sequence'] == '01' and row['all_tracking_objects_have_distinct_gold_masks']]\nassert [row['frame'] for row in tests] == [21, 31, 33, 39]\ntest_cases = []\nfor row in tests:\n    paths = {kind: Path(row[kind]) for kind in ('image', 'segmentation', 'tracking')}\n    assert all(digest(path) == row[kind + '_sha256'] for kind, path in paths.items())\n    image, truth, markers = [tifffile.imread(paths[kind]) for kind in ('image', 'segmentation', 'tracking')]\n    assert image.shape == truth.shape == markers.shape == (1024, 1024)\n    assert np.isfinite(image).all()\n    marker_ids = np.unique(markers)[1:]\n    truth_ids = np.unique(truth)[1:]\n    assert len(marker_ids) == len(truth_ids) == 24\n    matches = []\n    for label in marker_ids:\n        hit = np.unique(truth[markers == label])\n        hit = hit[hit != 0]\n        assert len(hit) == 1\n        matches.append(int(hit[0]))\n    assert len(set(matches)) == len(matches)\n    assert set(matches) == set(map(int, truth_ids))\n    inside = np.unique(truth[50:-50, 50:-50])\n    inside = inside[inside != 0]\n    assert set(inside) == set(truth_ids)\n    exported = target / f'01-t{row[\"frame\"]:03d}.npy'\n    np.save(exported, image, allow_pickle=False)\n    assert np.array_equal(np.load(exported, allow_pickle=False), image)\n    test_cases.append({**row, 'exact_pixel_export': str(exported),\n                       'export_sha256': digest(exported), 'dtype': str(image.dtype),\n                       'gold_marker_to_mask_bijection_verified': True,\n                       'all_24_gold_objects_intersect_field_of_interest': True,\n                       'source_paths': {kind: str(path) for kind, path in paths.items()}})\n\navailable = sorted((dataset / '02').glob('t*.tif'))\nassert len(available) >= 20\nindices = np.rint(np.linspace(0, len(available) - 1, 20)).astype(int)\nassert len(set(indices)) == 20\ntraining = []\nfor index in indices:\n    path = available[index]\n    image = tifffile.imread(path)\n    assert image.shape == (1024, 1024) and np.isfinite(image).all()\n    exported = target / ('02-' + path.stem + '.npy')\n    np.save(exported, image, allow_pickle=False)\n    assert np.array_equal(np.load(exported, allow_pickle=False), image)\n    training.append({'image': str(path), 'image_sha256': digest(path),\n                     'exact_pixel_export': str(exported), 'export_sha256': digest(exported),\n                     'dtype': str(image.dtype), 'shape': list(image.shape)})\nassert not ({row['image'] for row in training} & {row['image'] for row in test_cases})\nassert all(digest(Path(row[kind])) == row[kind + '_sha256']\n           for row in tests for kind in ('image', 'segmentation', 'tracking'))\nassert all(digest(Path(row['image'])) == row['image_sha256'] for row in training)\n\nplan = {\n    'schema': 1, 'accepted_preparation': True,\n    'scope': 'An additional real fluorescent-nucleus dataset for source-frozen denoising validation; preparation only, no training or improvement claim.',\n    'dataset': 'CTC Fluo-N2DH-GOWT1, GFP-GOWT1 mouse stem cells',\n    'dataset_source': 'https://celltrackingchallenge.net/2d-datasets/',\n    'annotation_procedure': 'https://public.celltrackingchallenge.net/documents/Annotation%20procedure.pdf',\n    'field_of_interest_border_pixels': 50,\n    'scoring_policy': 'For each predicted mask, retain complete object pixels if any pixel intersects [50:-50,50:-50]; exclude only wholly exterior predicted objects. Compare full retained masks to all 24 gold masks. Object IoU/Hungarian F1 is our paired benchmark, not an official CTC SEG/DET/TRA score.',\n    'gold_completeness_policy': 'Every gold tracking marker must overlap exactly one distinct segmentation mask, with a complete bijection. Partial frames and silver masks are excluded from F1. Marker position alone never justifies dropping a gold object.',\n    'training': training, 'evaluation': test_cases,\n    'training_selection': 'Twenty evenly spaced raw frames from sequence 02, independent of sequence-01 evaluation labels. No sequence-01 image is used for denoiser training.',\n    'predeclared_n2v': {'epochs': 20, 'seed': 0, 'checkpoint_selection': 'final epoch; no selection using evaluation F1'},\n    'predeclared_comparison': 'Raw, normal NLM enhancement, normal Cellpose-3 nucleus restoration and normal CAREamics N2V2; identical fixed segmentation parameters across arms. Threshold tuning on the four evaluation frames is prohibited.',\n    'limitations': ['Only one held-out sequence and four nearby timepoints; these are not four independent biological replicates.',\n                   'The dataset page does not establish calibrated low-light acquisition or photon counts; no low-light ground-truth claim is made.',\n                   'Gains or losses on this dataset do not establish a universal denoising benefit.'],\n    'original_pixels_and_gold_labels_unchanged': True,\n    'gpu_training_started': False,\n}\n(target / 'plan.json').write_text(json.dumps(plan, indent=2) + '\\n')\nprint('Prepared 20 independent-sequence raw training frames and four complete 24-object gold evaluation frames; FOI=50.')\n"
+  },
+  "prepared_plan_sha256": "c57db2df0c77c17edcfa191fca41f79c3e09f68b2242c0803e0dce03b948f9ca",
+  "normal_backend_installation": {
+    "careamics_marker_sha256": "c138fe551ea232bbfa6445aa2b584baac56f874d911f231c2ad46cd65066de43",
+    "cellpose3_marker_sha256": "3d4eb9ba8e4633b768bbc117b38435a5f7641d9108141bdd1cc47adcf83a984c",
+    "cpu_only": true
+  }
+}

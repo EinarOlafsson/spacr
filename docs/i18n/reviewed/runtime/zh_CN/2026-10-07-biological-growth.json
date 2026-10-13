@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source_sha256": "adda87da601c47d193203035cffb1827663a2b42d6eefe6764b94ea831e57829",
+      "table": "ui",
+      "translation": "相连的菌丝从共同的起点生长，尖端沿蜿蜒路径前进，生长前沿递归分枝。新菌落开始生长时，较旧的痕迹逐渐淡去。"
+    }
+  ],
+  "schema": 1
+}

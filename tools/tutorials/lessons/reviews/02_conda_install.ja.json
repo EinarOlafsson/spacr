@@ -1,0 +1,32 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "bd6c60f01901809050a21eef5511d84dba6220200285260e3aec4a1faab042ed",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "CondaでspaCRをインストールする",
+  "description": "Conda環境を作成し、conda-forgeからspaCRをインストールして、アプリケーションを起動します。",
+  "objectives": [
+    "専用のConda環境を作成して有効にする。",
+    "conda-forgeからspaCRをインストールする。",
+    "spaCRを開き、必要に応じて同じ環境を更新する。"
+  ],
+  "prerequisite": "CondaまたはMiniforgeをインストールし、condaコマンドが使えるターミナルを開いてください。",
+  "scenes": [
+    "Condaが使えるターミナルを開きます。spaCR用の環境を作成し、conda-forgeのパッケージをインストールして、その環境からアプリケーションを起動します。",
+    "表示されているコマンドで、Python三点十二とconda-forgeのspaCRを含む、spacr-condaという名前の環境を作成します。その名前をすでに別の環境で使っている場合は、別の名前を選んでください。",
+    "Condaが環境を解決し、パッケージの計画を一覧表示します。内容を確認し、yと入力して承認してから、ダウンロードとインストールが終わるまで待ちます。",
+    "spacr-condaを有効にします。表示されているPythonコマンドを実行して環境のパスを表示し、いま作成した環境であることを確認します。",
+    "conda list spacrを実行してインストールされたバージョンを表示し、conda-forgeから来ていることを確認します。PythonとspaCRを一つのコマンドでインストールすると、Condaがすべてのパッケージをまとめて解決できるため、既存の環境にspaCRを追加するよりはるかに速く済みます。",
+    "インストールされたspaCRのバージョンとパッケージの場所を確認します。後で同じ環境に戻れるように、そのバージョンを解析メモに残しておきましょう。",
+    "spacr-doctorを実行してインストールを確認します。ここでは、主要な依存関係であるvispyが見つからないと報告し、それをインストールするコマンドを表示します。そのコマンドを実行してから、もう一度spacr-doctorを実行します。ほかの提案手順は、必要なファイル形式や機能に関するものだけに従ってください。",
+    "spacrと入力してアプリケーションを起動します。初回起動時の選択を済ませたら、Homeのチュートリアルに進み、モジュールとその例データを探しましょう。",
+    "後で更新するときは、spaCRを閉じ、この環境を有効にして、conda-forgeのパッケージを更新します。conda-forgeに新しいビルドがない場合、Condaは要求したパッケージがすべてインストール済みだと報告します。その後、インストールされたバージョンを確認してください。ほかのインストール方法は、pipとインストーラーのレッスンで説明しています。"
+  ]
+}

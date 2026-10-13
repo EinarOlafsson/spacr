@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "categories",
+      "key": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source": "A scratch or wound-healing assay measured over a time-lapse: the open wound in every frame, from the texture of a brightfield or phase channel, a fluorescent stain or the cell masks; its area, mean and minimum width; and per well and per condition the closure curve, closure rate and half-closure time, written to measurements.db with figures and a plate map.",
+      "source_sha256": "c8d9b232b7bf1a2312e404c9e3d43842f09ab8aeadeb6e6d9cd60dff7df7e4ed",
+      "translation": "टाइमलैप्स पर मापा गया स्क्रैच या घाव-भराव परीक्षण: हर फ़्रेम में खुला घाव, ब्राइटफ़ील्ड या फ़ेज़ चैनल की बनावट, किसी फ़्लोरोसेंट स्टेन या कोशिका मास्क से; उसका क्षेत्रफल, औसत और न्यूनतम चौड़ाई; और हर वेल व हर स्थिति के लिए भराव वक्र, भराव दर और अर्ध-भराव समय, जो चित्रों और प्लेट मैप के साथ measurements.db में लिखे जाते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source": "Image-based profiling after Measure: one profile per well from the object tables, annotated from a plate map, normalised per plate against the negative controls, feature-selected, collapsed into one consensus profile per treatment and scored for replicate reproducibility as mean average precision and percent replicating. Written as CSV, Parquet and GCT files that pycytominer, copairs and Morpheus read.",
+      "source_sha256": "cfea2162db719cbcc1dcea3c459a861cc99e484c69430112f43900eeae410c4f",
+      "translation": "Measure के बाद छवि-आधारित प्रोफ़ाइलिंग: ऑब्जेक्ट तालिकाओं से हर वेल की एक प्रोफ़ाइल, प्लेट मैप से एनोटेट की गई, हर प्लेट पर नकारात्मक नियंत्रणों के विरुद्ध सामान्यीकृत, फ़ीचर-चयनित, हर उपचार के लिए एक सहमति प्रोफ़ाइल में समेटी गई और प्रतिकृति पुनरुत्पादकता के लिए औसत औसत परिशुद्धता और प्रतिशत प्रतिकृति के रूप में स्कोर की गई। CSV, Parquet और GCT फ़ाइलों के रूप में लिखी जाती है, जिन्हें pycytominer, copairs और Morpheus पढ़ते हैं।"
+    },
+    {
+      "table": "categories",
+      "key": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source": "The cell-cycle phase of every nucleus, called after measuring from the DNA stain in one of three interchangeable ways: gates on each plate's fitted DNA-content histogram, a boosted classifier on the nucleus measurements, or an image classifier on nucleus crops. Each writes the same phase column to measurements.db, with the phase fractions per well among infected and uninfected cells.",
+      "source_sha256": "e19f4a6c38c6d6ff7efdc14f1e6b6a4c0a9e1efb7d740d9d305240dff0a9d859",
+      "translation": "हर नाभिक की कोशिका चक्र अवस्था, जो मापन के बाद DNA स्टेन से तीन अदल-बदल योग्य तरीकों में से एक से तय होती है: हर प्लेट के फ़िट किए गए DNA-मात्रा हिस्टोग्राम पर गेट, नाभिक मापों पर बूस्टेड क्लासिफ़ायर, या नाभिक क्रॉप पर छवि क्लासिफ़ायर। हर तरीका measurements.db में वही अवस्था कॉलम लिखता है, साथ में संक्रमित और असंक्रमित कोशिकाओं में हर वेल के अवस्था अनुपात।"
+    }
+  ]
+}

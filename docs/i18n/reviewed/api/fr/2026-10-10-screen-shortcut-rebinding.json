@@ -1,0 +1,13 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) have separate editable rows and saved overrides, applied to both existing and new application views.",
+      "label": "spacr.qt.shortcuts#14",
+      "source": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser) have separate editable rows and saved overrides, applied to both existing and new screens.",
+      "source_sha256": "de950a18f89d45c160ffc50e17f4bec0cc2d2541ea0dc776a8d4d5f7a3365c25",
+      "translation": "Chaque touche globale de la fenêtre peut être réattribuée. L’aide-mémoire comporte un bouton \"Change shortcuts…\" qui ouvre une table des actions globales de la fenêtre ; une touche saisie dans cette table remplace la valeur par défaut, une touche déjà utilisée par une autre action est signalée comme conflit et ne peut pas être enregistrée. Les modifications sont conservées dans les Préférences sous :data:`_KEYMAP_KEY`, dans la notation portable de Qt, pour qu’un jeu de raccourcis enregistré sur une plateforme soit lu de la même façon sur les autres. Les touches propres à une seule vue (Annotate, Make Masks, le navigateur de champs) ont leurs propres lignes modifiables et des modifications enregistrées, appliquées aux vues existantes comme aux nouvelles."
+    }
+  ],
+  "schema": 1
+}

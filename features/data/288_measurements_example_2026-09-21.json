@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "912cb1b5df937af9f2def211dfe7bcfb912d353d",
+  "scope": "targeted branch and statement coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/widgets/measurements_example.py",
+  "source_sha256": "513753fa21f5d340019fed8b7e480e845eb601dbfa086c035ff2d963fb7f02ab",
+  "coverage_json_sha256": "a0bec402664504453e91a4a5b1a2e9ab343b93ae5659fff693157ab6d0c22431",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 73,
+    "num_statements": 73,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 18,
+    "num_partial_branches": 0,
+    "covered_branches": 18,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "missing_lines": [],
+  "missing_branches": [],
+  "selection": [
+    "tests/qt/test_measurements_example_completion.py",
+    "tests/qt/test_modules_that_read_a_measurements_db_offer_test_data.py"
+  ],
+  "passed": 31,
+  "failed": 0,
+  "elapsed_seconds": 27.67,
+  "memory_cap": "6G",
+  "cpu_threads": 1,
+  "gpu_used": false,
+  "production_source_changed": false,
+  "baseline_changed": false
+}

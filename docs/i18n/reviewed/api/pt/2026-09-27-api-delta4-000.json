@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "API delta 4, items 07/53. Written from the exact current English; AI technical review of meaning, negations, parameter semantics and protected syntax. No machine-translation inference, human listening or native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.ml.perform_regression#3",
+      "source": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "source_sha256": "111e077a528fd1a4ea54624a6d636cb0e646d6a4c9a3a8b065abe98f47e32e48",
+      "context": "Regression output mapping. ``model_data`` is the prepared input table, not coefficient results; ``fit_designs`` records measured design counts separately for each parametric fit level. Unrecorded counts are omitted, and permutation outputs retain their own result schema.",
+      "translation": "Mapeamento dos resultados da regressão. ``model_data`` é a tabela de entrada preparada, não os resultados dos coeficientes; ``fit_designs`` registra as contagens medidas do desenho do modelo separadamente para cada nível de ajuste paramétrico. As contagens não registradas são omitidas, e as saídas de permutação mantêm seu próprio esquema de resultados.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start#3",
+      "source": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "source_sha256": "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c",
+      "context": "the registry benchmark controller, or the installed-application controller when ``SPACR_DISTRIBUTION_SMOKE=1`` is explicitly selected; ``None`` when no output path is configured.",
+      "translation": "o controlador do teste de desempenho do registro, ou o controlador da aplicação instalada quando ``SPACR_DISTRIBUTION_SMOKE=1`` é selecionado explicitamente; ``None`` quando nenhum caminho de saída está configurado.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#6",
+      "source": "the run folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "source_sha256": "2cbe0a85e31708dc3a545dc15d993f55aa2c38470c123db52949c411eda5b9cf",
+      "context": "the processing-session folder. ``regression_data.csv`` supplies prepared input counts; ``regression_fit_designs.json`` supplies measured fit counts when no explicit records are provided.",
+      "translation": "a pasta da sessão de processamento. ``regression_data.csv`` fornece as contagens da entrada preparada; ``regression_fit_designs.json`` fornece as contagens medidas dos ajustes quando nenhum registro explícito é fornecido.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.build_run_summary#7",
+      "source": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "source_sha256": "7673a38b849e8c8e5fcecd3b98869c0f4834b6b9525047f3873b78d7f7743e78",
+      "context": "optional per-level measured design counts. Missing fit counts are reported as unknown, never inferred from prepared row counts.",
+      "translation": "contagens medidas opcionais do desenho do modelo por nível. As contagens de ajuste ausentes são informadas como desconhecidas, nunca inferidas a partir do número de linhas preparadas.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.regression_summary.write_run_summary#8",
+      "source": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "source_sha256": "0b499050f8ee133da9988260234365c3ee8687d3f8f2ea418bdf777ed96d6c91",
+      "context": "optional measured per-level design counts, also saved as ``regression_fit_designs.json`` for faithful reopening without a model.",
+      "translation": "contagens medidas opcionais do desenho do modelo por nível, também salvas em ``regression_fit_designs.json`` para reabrir os resultados fielmente sem um modelo.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    },
+    {
+      "label": "spacr.trial_metrics.design_summary#1",
+      "source": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "source_sha256": "2a3c15af52cecbe3c3190eae07b41391eec03e17d04aab6661ee4483d5530587",
+      "context": "trial output mapping optionally carrying prepared ``model_data`` and measured per-level ``fit_designs``. Fitted counts are reported per level; an unqualified count is emitted only when every fit records the same value. Legacy outputs without fit records retain their table-based counts.",
+      "translation": "mapeamento dos resultados do ensaio que pode conter ``model_data`` preparado e ``fit_designs`` medido por nível. As contagens dos ajustes são informadas por nível; uma contagem sem especificação de nível só é emitida quando todos os ajustes registram o mesmo valor. As saídas antigas sem registros de ajuste mantêm suas contagens baseadas em tabelas.",
+      "review_basis": "written from current English and technically reviewed by Codex"
+    }
+  ]
+}

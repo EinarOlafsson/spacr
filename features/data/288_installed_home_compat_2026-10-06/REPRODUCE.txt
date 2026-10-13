@@ -1,0 +1,39 @@
+Integrated source: c37b7f7d69c7d5df8eb59fa3f96905b17270304b
+Earlier failing hosted compatibility run: 37494089502
+Earlier failing source: 1f3e4a240339ebc88993d72c49b39ab5716e3904
+
+Eight old platform jobs failed at the installed wheel Home check because scipy was
+in sys.modules at interactive readiness. The pre-fix import trace identified
+MakeMasksScreen._build_ui -> _LiveMagnifier._init_stroke -> import _PREVIEW_MS
+from spacr.qt._magnifier_drag -> module-level scipy.ndimage import. The source
+patch moves scipy import into _DragStroke._take_in, first invoked when a stroke
+frame is delivered. The subprocess regression exercises the import boundary
+and the real frame operation.
+
+The integrated source was built from a full isolated worktree with
+`python -m build --outdir <scratch>/dist .` under tools/run_capped.sh 4G. Its
+wheel and sdist were separately installed with pip --no-deps --force-reinstall
+into a fresh scratch venv made with --system-site-packages from the local
+Python 3.12.13 / PySide6 6.11.2 environment. This changed no user environment.
+For each installation, from a scratch working directory, the existing
+packaging/smoke_distribution_artifacts.py was run with the venv Python -I,
+--home-probe and --probe, exact expected version 1.5.1.3, artifact filename,
+and this checkout as --source-root. The Home probe used SPACR_TIMING=1,
+SPACR_TIMING_IMPORTS=0, QT_QPA_PLATFORM=offscreen, CUDA_VISIBLE_DEVICES='',
+and a 180-second outer timeout under a 4 GiB cap. Both installed Home probes
+asserted source-root isolation, PEP 610 origin, painted usable Home controls,
+and an empty operation-only heavy import list. The second probe exercised the
+four core imports and constructed the real measure AppScreen. The local
+reproduction reused already installed dependencies; it did not run the
+workflow's full dependency resolver, CLI entry point or eight-platform matrix.
+
+The integrated source test command was:
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G \
+  <near-parity-python> -m pytest -q -p no:randomly \
+  tests/qt/test_magnifier_home_import_boundary.py \
+  tests/qt/test_the_magnifier_drag_merges_what_the_cursor_passes_over.py
+Result: 26 passed in 15.25 seconds.
+
+Old logs are the exact downloaded job-log bytes after gzip decompression.
+The generated distribution files remain in scratch and are identified by
+SHA-256/size in manifest.json; they are not committed to the source tree.

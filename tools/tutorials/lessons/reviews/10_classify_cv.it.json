@@ -1,0 +1,34 @@
+{
+  "lesson": "10_classify_cv",
+  "english_sha256": "8db286a7e59e710a2438a3663051ef5723f1b3ce5b11abe168c76cd7a2e361cc",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Classify: addestrare un classificatore di immagini",
+  "description": "Prepara ritagli di immagine etichettati, scegli la famiglia di visione artificiale, addestra un piccolo modello e trova le sue previsioni.",
+  "objectives": [
+    "Preparare l’esempio scaricabile di classificazione delle immagini.",
+    "Scegliere il modello, i canali dell’immagine e le impostazioni di addestramento.",
+    "Tenere separati i pozzetti ed esaminare i modelli e le previsioni salvati."
+  ],
+  "prerequisite": "Scarica l’esempio misurato da Annotate con Load test data e poi Load. Conserva la cartella plate1 con measurements/measurements.db e i ritagli png. Scarica Classify_existing_split_example.zip qui sotto ed estrai lo script di supporto. Nel tuo ambiente spaCR, esegui prepare_classify_split.py --source /path/to/plate1 --destination /path/to/new_split. Seleziona la cartella new_split in Classify. Lo script è pensato per questo esempio con quattro pozzetti; copia 64 ritagli RGB etichettati in cartelle di addestramento e di test.",
+  "scenes": [
+    "Da Home, apri Classify e scegli Computer Vision, Torch. Questa famiglia impara da ritagli di oggetti etichettati e salva un modello in grado di assegnare un punteggio ad altri ritagli. Segui prima la lezione su Annotate per scaricare le immagini di esempio e le loro etichette.",
+    "In Annotate, scegli Load test data e poi Load. Conserva la cartella della piastra che contiene le misure e i ritagli PNG. Con i tuoi dati, parti dai ritagli di Measure e assegna in Annotate le classi che vuoi insegnare.",
+    "Scarica lo ZIP di esempio collegato ed estrai prepare_classify_split.py. Eseguilo nel tuo ambiente spaCR con l’origine sulla cartella della piastra di esempio e la destinazione su una nuova cartella. Lo script prepara sessantaquattro immagini etichettate per questo esercizio.",
+    "Apri la nuova cartella e il suo manifesto. Le directory di addestramento e di test contengono ciascuna due cartelle di classe. Il manifesto elenca ogni immagine copiata e il suo pozzetto. Tieni ogni pozzetto intero da un solo lato della suddivisione quando le immagini dello stesso pozzetto condividono le condizioni sperimentali.",
+    "Torna a Classify e scegli la cartella preparata come Source. Seleziona la cartella superiore che contiene train e test. Tieni questa cartella preparata per il resto della lezione, così il modello e i suoi file di output restano insieme.",
+    "Disattiva Generate training dataset, perché lo script ha già preparato la suddivisione. Attiva Train e Test. Lascia disattivata l’applicazione all’intero insieme di dati in questa prima esecuzione. Il modello usa gli indici di classe zero e uno per le due cartelle di classe.",
+    "Scegli ResNet18, dimensione dell’immagine centoventotto, tutti e tre i canali RGB, dimensione del batch otto e un’epoca. Imposta due processi di caricamento, con pesi preaddestrati e aumento dei dati disattivati per questo breve esempio. Il numero di epoche indica quante volte l’addestramento passa sulle immagini di input.",
+    "Imposta la frazione di validazione a un mezzo, mantieni il raggruppamento per pozzetto e lascia attivi i controlli di fuga dei dati. La validazione monitora il modello durante l’addestramento; la cartella di test separata serve per la valutazione finale. Controlla l’assegnazione dei pozzetti riportata prima di interpretare i punteggi.",
+    "Attiva Plot, cancella la ricerca delle impostazioni e premi Run. Segui nella console il caricamento dei dati, la suddivisione ottenuta, l’avanzamento dell’addestramento e i percorsi di output. Attendi la fine di addestramento e test prima di aprire i risultati salvati.",
+    "Apri Figures per esaminare perdita e accuratezza. Un’epoca offre un primo passaggio rapido. Confronta i risultati di test tra le classi prima di aumentare il tempo di addestramento. Se le previsioni favoriscono una sola classe, controlla etichette, bilanciamento delle classi e canali di input prima di usare il modello su un insieme di dati più grande.",
+    "Apri model, resnet18, rgb, epochs trattino basso uno nella cartella preparata. Tieni insieme il checkpoint, la scheda del modello e le tabelle dei risultati. Usa le previsioni salvate per esaminare gli errori, poi prosegui con Classifier Evaluation o Activation Maps per esaminare meglio il modello."
+  ]
+}

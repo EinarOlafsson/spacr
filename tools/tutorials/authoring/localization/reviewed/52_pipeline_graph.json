@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "52_pipeline_graph",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Veja quais artefatos produziram cada resultado e quais saídas subsequentes estão desatualizadas ou ausentes.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Pipeline Graph.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Pipeline Graph. Veja quais artefatos produziram cada resultado e quais saídas subsequentes estão desatualizadas ou ausentes.",
+        "Abra um projeto do spaCR ou uma coleção de execuções registradas.",
+        "Na área principal de configuração, filtre o grafo por módulo, tipo de artefato, estado ou ramo do fluxo de trabalho.",
+        "Selecione os nós e as arestas para examinar suas configurações, arquivos, dependências e motivos de desatualização.",
+        "Ao término do fluxo de trabalho, o grafo identifica o módulo exato que deve ser executado novamente para restaurar a consistência."
+      ]
+    }
+  }
+}

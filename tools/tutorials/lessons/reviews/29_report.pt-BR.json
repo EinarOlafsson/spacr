@@ -1,0 +1,35 @@
+{
+  "lesson": "29_report",
+  "english_sha256": "e797ec0ba215dd19707c9fc92c56844d43e6659bdea9b44fdff9d9e960d7db1b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Report: criar um documento com os resultados de um projeto",
+  "description": "Escolha um projeto concluído, selecione o formato de saída e o limite de figuras e depois gere e leia o relatório.",
+  "objectives": [
+    "Escolher um projeto concluído e inspecionar as seções de relatório disponíveis.",
+    "Definir o formato, o limite de figuras e o nome do arquivo de saída.",
+    "Gerar o relatório e inspecionar os resultados, as configurações e a procedência."
+  ],
+  "prerequisite": "Comece com um projeto concluído do spaCR que contenha as configurações salvas, as medições e as figuras. Você pode reutilizar o projeto do tutorial External Masks. O Report reúne arquivos que já estão no projeto.",
+  "scenes": [
+    "Abra Help e depois Report. Use esta ferramenta para reunir num documento os resultados, as figuras e as configurações de um projeto concluído.",
+    "Clique em Choose run folder e selecione seu projeto. Neste exemplo, use o projeto de dois campos do External Masks, mantendo juntas as medições, as configurações e as figuras.",
+    "Leia o status do processamento depois da varredura. Complete significa que as etapas de processamento registradas terminaram. Revise separadamente os resultados de controle de qualidade disponíveis ao avaliar a análise.",
+    "Confira a lista de seções para ver quais itens do projeto estão disponíveis. Uma seção ausente continua identificada no relatório. Adicione ao projeto as saídas de análise correspondentes se precisar dessa seção.",
+    "Escolha HTML, PDF ou Both em Format. O HTML abre num navegador; o PDF oferece uma versão em documento. Este exemplo usa HTML.",
+    "Defina Embed at most para limitar o número de figuras rasterizadas incluídas no documento. PDFs vetoriais aparecem como arquivos de origem, não como pré-visualizações incorporadas. Use um limite menor para um relatório compacto.",
+    "Clique em Choose output e informe o nome do arquivo de destino. Confira se o formato escolhido e a extensão correspondem. Antes de compartilhar o relatório, revise os caminhos do projeto e os metadados que ele inclui.",
+    "Pressione Generate report e aguarde a confirmação de que o arquivo foi gravado. Abra o arquivo HTML salvo num navegador para inspecionar o resultado.",
+    "Use os links do sumário para pular entre as seções. Comece pelo resumo do processamento e depois revise as figuras, as tabelas de resultados e as configurações salvas.",
+    "Abra Key figures para encontrar as figuras do projeto. Siga os locais de arquivo indicados para os PDFs vetoriais, ou inspecione as pré-visualizações rasterizadas incorporadas quando estiverem disponíveis.",
+    "Revise Statistics and result tables para ver as tabelas de objetos disponíveis e o número de linhas delas. Este exemplo só com células tem regiões de célula e de citoplasma coincidentes; trate-as como medições das mesmas células.",
+    "Expanda Saved settings para inspecionar a configuração mantida com o projeto. Mantenha o relatório junto com os arquivos do projeto ao compartilhar uma análise que faz referência a figuras externas."
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "review_method": "Codex AI authored or corrected the target text after inspecting local-model outputs. Independent Codex AI peer review checked all 14 annotation instructions and all 10 vendor-tooltip sentence pairs per locale. These corrections are not claimed to be verbatim local-model outputs. Additional action, row-count and reinstall-confirmation captions received Codex AI technical review.",
+  "independent_review_candidate_sha256": "b2621102c063230bf77429d5435f7848c02cd92618c24a7e2994905c846d60e0",
+  "reviewed_tooltip_sentences": [
+    {
+      "source": "Assign saved intensity channels to a vendor flat-field calibration.",
+      "translation": "सहेजे गए तीव्रता चैनलों को विक्रेता के फ्लैट-फ़ील्ड कैलिब्रेशन से जोड़ें।"
+    },
+    {
+      "source": "Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1.",
+      "translation": "उदाहरण 0:2,1:1 में तीव्रता चैनल 0 और 1 क्रमशः कैलिब्रेशन चैनल 2 और 1 से जुड़ते हैं।"
+    },
+    {
+      "source": "Intensity channel numbers start at 0.",
+      "translation": "तीव्रता चैनलों की संख्या 0 से शुरू होती है।"
+    },
+    {
+      "source": "Calibration channel or image-layer numbers start at 1.",
+      "translation": "कैलिब्रेशन चैनलों या छवि परतों की संख्या 1 से शुरू होती है।"
+    },
+    {
+      "source": "Include every corrected intensity channel.",
+      "translation": "हर उस तीव्रता चैनल को शामिल करें जिसे ठीक करना है।"
+    },
+    {
+      "source": "An empty value keeps the original channel order.",
+      "translation": "खाली मान मूल चैनल क्रम बनाए रखता है।"
+    },
+    {
+      "source": "With an empty value, a single calibration image layer applies to all channels.",
+      "translation": "मान खाली होने पर एक ही कैलिब्रेशन छवि परत सभी चैनलों पर लागू होती है।"
+    },
+    {
+      "source": "Select a vendor calibration file first.",
+      "translation": "पहले विक्रेता की कैलिब्रेशन फ़ाइल चुनें।"
+    },
+    {
+      "source": "A saved illumination model takes priority.",
+      "translation": "सहेजे गए प्रकाश-सुधार मॉडल को प्राथमिकता मिलती है।"
+    },
+    {
+      "source": "Default empty.",
+      "translation": "डिफ़ॉल्ट मान खाली है।"
+    }
+  ],
+  "prior_local_model_drafts": {
+    "tooltip": "एक विक्रेता फ्लैट फ़ील्ड कैलिब्रेशन के लिए सहेजे गए तीव्रता चैनलों को आवंटित करें. उदाहरण 0:2,1:1 के लिए ताकत चैनल 0 और 1 को कैलिबरेशन चैनल्स 2 और 1. ताकत कैनल संख्या 0 से शुरू होती है. कैलिबेशन चैंल या छवि परत संख्या 1 से शुरू होता है. प्रत्येक सुधारित ताकत को शामिल करें. एक खाली मूल्य मूल कैनलों के क्रम को बनाए रखता है. एक शुद्ध मूल्य के साथ, एक एकल कैलिगरेशन छवि स्तंभ सभी चैंलों को लागू करता है. सबसे पहले एक निर्माता कैलिमरेशन फ़ाइल चुनें. एक बचाए गए प्रकाश मॉडल को प्राथमिकता मिलती है. डिफ़ॉल्ट रूप से खाली है.",
+    "ui": {
+      "Name a column (for example genotype), add rules, then add replicate and a combined condition column.": "एक स्तंभ (उदाहरण के लिए, जीनोटाइप) का नाम दें, नियम जोड़ें, फिर प्रतिलिपि और एक संयुक्त स्थिति कोर जोड़ दें।",
+      "Move columns up or down so inputs come before combinations.": "स्तंभों को ऊपर या नीचे स्थानांतरित करें ताकि इनपुट संयोजनों से पहले आएं।",
+      "Exact values match whole cells; regex searches within cells.": "सटीक मूल्य पूरे कोशिकाओं के अनुरूप हैं; रीगेक्स कोशियों के भीतर खोज करते हैं।",
+      "Include selects matching metadata values; a blank include uses manual rows only.": "मेटाडेटा मूल्यों के अनुरूप चयनों को शामिल करें; एक सफेद में केवल मैनुअल पंक्तियों का उपयोग शामिल है।",
+      "Exclude removes matching rows, including dropped rows.": "समायोजित पंक्तियों को हटा दें, जिसमें गिरने वाली पंक्तियां भी शामिल हैं।",
+      "Drag selected source rows into a condition box.": "एक स्थिति बॉक्स में चुने हुए स्रोत पंक्तियों को खींचें।",
+      "Resolve overlapping conditions before Apply.": "आवेदन करने से पहले अतिरिक्त शर्तों को हल करें।",
+      "Rows that match no condition get an empty value.": "जो किसी भी परिस्थिति से मेल नहीं खाता है वह एक खाली मूल्य प्राप्त करता है।",
+      "Original source files are not modified.": "मूल स्रोत फ़ाइलों को संशोधित नहीं किया जाता है।",
+      "Exact values match whole cells literally: c1 does not match c10. Regular expression mode uses Include and Exclude above.": "सटीक मूल्यों पूरे कोशिकाओं के अनुरूप हैं: c1 c10 से मेल नहीं खाता है. नियमित अभिव्यक्ति मोड में उपरोक्त शामिल और निष्कासित का उपयोग किया जाता है."
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "सटीक मानों को तालिका के पूरे मान से मेल खाना चाहिए।"
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "उदाहरण के लिए, c1 का c10 से मेल नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "रेगुलर एक्सप्रेशन मोड ऊपर दिए गए शामिल है और बाहर रखें फ़ील्ड का उपयोग करता है।"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "सहेजे गए तीव्रता चैनलों को विक्रेता के फ्लैट-फ़ील्ड कैलिब्रेशन से जोड़ें। उदाहरण 0:2,1:1 में तीव्रता चैनल 0 और 1 क्रमशः कैलिब्रेशन चैनल 2 और 1 से जुड़ते हैं। तीव्रता चैनलों की संख्या 0 से शुरू होती है। कैलिब्रेशन चैनलों या छवि परतों की संख्या 1 से शुरू होती है। हर उस तीव्रता चैनल को शामिल करें जिसे ठीक करना है। खाली मान मूल चैनल क्रम बनाए रखता है। मान खाली होने पर एक ही कैलिब्रेशन छवि परत सभी चैनलों पर लागू होती है। पहले विक्रेता की कैलिब्रेशन फ़ाइल चुनें। सहेजे गए प्रकाश-सुधार मॉडल को प्राथमिकता मिलती है। डिफ़ॉल्ट मान खाली है।"
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "इससे spaCR अपने वर्तमान वातावरण में फिर से इंस्टॉल होगा। अपडेट शुरू होने से पहले spaCR बंद हो जाएगा। अपडेट सफल होने के बाद यह अपने आप फिर खुलेगा।"
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "इससे spaCR अपने वर्तमान वातावरण में फिर से इंस्टॉल होगा। अपडेट सफल होने के बाद spaCR अपने आप बंद होगा और दोबारा खुलेगा।"
+    },
+    {
+      "table": "ui",
+      "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
+      "translation": "नियमों से जीनोटाइप और प्रतिकृति के कॉलम बनाएँ, फिर उन्हें एक प्रयोग-स्थिति कॉलम में जोड़ें।"
+    },
+    {
+      "table": "ui",
+      "key": "Place generated columns before any combined column that uses them.",
+      "source": "Place generated columns before any combined column that uses them.",
+      "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
+      "translation": "बनाए गए कॉलम को उनका उपयोग करने वाले संयुक्त कॉलम से पहले रखें।"
+    },
+    {
+      "table": "ui",
+      "key": "Regex can match part of a table value.",
+      "source": "Regex can match part of a table value.",
+      "source_sha256": "6261d4e9fa0983a52bdbd8ced4bca29dc0c0b5110a110528997fc082b62a88c8",
+      "translation": "Regex तालिका के किसी मान के एक हिस्से से मेल खा सकता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Include selects rows whose chosen metadata matches the rule.",
+      "source": "Include selects rows whose chosen metadata matches the rule.",
+      "source_sha256": "a3accd3eb88b585dae5b6c969782ba924a6b240ec74f25b26688340411419b43",
+      "translation": "शामिल है उन पंक्तियों को चुनता है जिनका चुना हुआ मेटाडेटा नियम से मेल खाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source_sha256": "3a2b440b35243a30356e52de42c0db64791eb1e948b7916e8f3fbcbfc28e84fd",
+      "translation": "यदि शामिल है फ़ील्ड खाली है, तो केवल इस बॉक्स में खींचकर लाई गई पंक्तियाँ ही आवंटित होती हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Exclude removes matching rows, including rows dragged into this box.",
+      "source": "Exclude removes matching rows, including rows dragged into this box.",
+      "source_sha256": "136d6e070316ca3784203f0a7ea4c6e29989d4a23c693b3e4d25503d426a5eb6",
+      "translation": "बाहर रखें मेल खाने वाली पंक्तियों को हटाता है, जिनमें इस बॉक्स में खींचकर लाई गई पंक्तियाँ भी शामिल हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Drag selected table rows into a condition box to assign them.",
+      "source": "Drag selected table rows into a condition box to assign them.",
+      "source_sha256": "6ae74571c67a58f1a39c1008c1d9a930e2346d752d5cdbc9d2e62f2685ea02a4",
+      "translation": "चुनी हुई तालिका पंक्तियों को आवंटित करने के लिए उन्हें प्रयोग-स्थिति बॉक्स में खींचकर लाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Resolve different labels assigned to the same row in one column before applying.",
+      "source": "Resolve different labels assigned to the same row in one column before applying.",
+      "source_sha256": "8914b01b909da3f6e47b47632d2470e81b191027125604432a88dd7df0cf849b",
+      "translation": "लागू करने से पहले एक कॉलम में एक ही पंक्ति को दिए गए अलग-अलग लेबल का टकराव सुलझाएँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Multiple boxes may assign the same label without a conflict.",
+      "source": "Multiple boxes may assign the same label without a conflict.",
+      "source_sha256": "714a70fbee26e6d53be2e000e564bf3b24844a8cdd569fa8ad9e5c01c2dab722",
+      "translation": "कई बॉक्स एक ही लेबल दे सकते हैं; इससे कोई टकराव नहीं होता।"
+    },
+    {
+      "table": "ui",
+      "key": "Rows that match no condition get an empty value.",
+      "source": "Rows that match no condition get an empty value.",
+      "source_sha256": "9d7399faf9a5e825acfbc6a90b4bc93867220d38dc3090a3cfe94821dce9108d",
+      "translation": "किसी भी शर्त से मेल न खाने वाली पंक्तियों को खाली मान मिलता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Original source files are not modified.",
+      "source": "Original source files are not modified.",
+      "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
+      "translation": "मूल स्रोत फ़ाइलें बदली नहीं जाती हैं।"
+    }
+  ],
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success.",
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
+}

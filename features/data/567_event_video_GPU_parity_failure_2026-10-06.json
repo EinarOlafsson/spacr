@@ -1,0 +1,877 @@
+{
+  "item": 567,
+  "exit_code": 1,
+  "passed": false,
+  "scope": "Declared synthetic RGB and explicitly repeated monochrome clips; pretrained extraction and numerical parity only, no biological event accuracy.",
+  "queue": "Normal real-HOME scheduler, 360 s idle / 600 s gap; protected jobs and user app untouched",
+  "result": "Exact repeated CUDA RGB extraction succeeded; unchanged CPU/CUDA tolerance failed, 373/768 values, maximum violating absolute difference 0.00031522. Monochrome CUDA case was not reached.",
+  "parity_contract": {
+    "rtol": 0.0002,
+    "atol": 2e-05
+  },
+  "actual_result": {
+    "item": 567,
+    "passed": false,
+    "device": "cuda",
+    "scope": "Declared synthetic RGB and explicitly repeated monochrome clips; pretrained extraction and numerical parity only, no biological event accuracy.",
+    "normal_parent_worker_protocol": true,
+    "parity_contract_fixed_before_run": {
+      "rtol": 0.0002,
+      "atol": 2e-05
+    },
+    "source_sha256": {
+      "spacr/_segmentation_backends.py": "4c99802ab54cf694b6d40bbbbf1ebba8ad191bba2fdf64af165c092956530143",
+      "spacr/timelapse.py": "df54908687d66cecc1971a463afe116194e0454e8387c05d0e2bb5569ce2d88d"
+    },
+    "clips": {
+      "RGB": {
+        "provenance": {
+          "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+          "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+          "files_sha256": {
+            "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+            "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+            "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+          },
+          "weights_license": "CC-BY-NC-4.0",
+          "frames": 16,
+          "feature_width": 768,
+          "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+          "frame_sampling": "rounded evenly spaced indices including endpoints",
+          "pooling": "mean patch tokens followed by pretrained fc_norm",
+          "channel_map": [
+            0,
+            1,
+            2
+          ],
+          "device": "cuda",
+          "transformers": "4.48.3",
+          "torch": "2.11.0+cu128"
+        },
+        "repeat_bit_exact": true,
+        "shape": [
+          1,
+          768
+        ],
+        "CPU_CUDA_max_absolute_difference": 0.0003152191638946533,
+        "CPU_CUDA_mean_absolute_difference": 7.79859910835512e-05,
+        "CPU_CUDA_parity_passed": false
+      }
+    },
+    "worker_pids": [
+      3197491
+    ],
+    "GPU_compute_observations": [
+      {
+        "seconds": 0.0234220027923584,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 0.2984776496887207,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 0.5754821300506592,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 0.8509435653686523,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.1325645446777344,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.4035110473632812,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.6758227348327637,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 1.946770191192627,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 2.2166402339935303,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 2.4864230155944824,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 2.756110191345215,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.026277542114258,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.3031656742095947,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.5773253440856934,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 3.8483896255493164,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.117217540740967,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.386547803878784,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.656877040863037,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 4.927905797958374,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 5.199715614318848,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 5.4694983959198,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 5.740687370300293,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 6.0096235275268555,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 6.2796630859375,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 6.549924612045288,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 6.819204568862915,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 7.089783430099487,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 7.358877182006836,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 7.6295857429504395,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 7.899971008300781,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 8.169057369232178,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 8.439954042434692,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 8.711128950119019,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 8.979913473129272,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 9.250696659088135,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 9.524565696716309,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 9.798010110855103,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 10.067598581314087,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 10.338455438613892,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 10.608686447143555,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 10.878697156906128,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 11.148895025253296,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 11.419366121292114,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 11.691479921340942,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 11.960638761520386,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 12.231077671051025,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 12.50400686264038,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 12.781830549240112,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 13.051544427871704,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 13.323112964630127,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 13.594627618789673,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 13.864654779434204,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 14.139591217041016,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 14.410199880599976,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 14.680930852890015,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 14.950689792633057,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 15.22567343711853,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 15.498376846313477,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 15.774344205856323,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 16.04872989654541,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 16.318394422531128,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 16.588608741760254,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 16.858940839767456,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 17.133447647094727,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 17.403048038482666,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 17.674233198165894,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 17.943848609924316,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 18.215134143829346,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 18.489315271377563,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 18.76809549331665,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 19.039841413497925,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 19.313562631607056,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 19.585120677947998,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 19.85458755493164,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 20.127459049224854,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 20.397653341293335,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 20.668789386749268,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 20.937301874160767,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 21.212636947631836,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 21.482369422912598,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 21.753294944763184,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 22.026090145111084,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 22.30000591278076,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 22.57158660888672,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 22.84665298461914,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 23.120317697525024,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 23.3946692943573,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 23.67301297187805,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 23.94192123413086,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 24.212687730789185,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 24.481929779052734,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 24.752190113067627,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 25.022199869155884,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 25.29388189315796,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 25.56922173500061,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 25.842124223709106,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 26.11611580848694,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 26.38786220550537,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 26.665441751480103,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 26.938477516174316,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 27.212894916534424,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 27.488061666488647,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 27.77178382873535,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 28.044338703155518,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 28.316237926483154,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 28.585908889770508,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 28.860106468200684,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 29.132554054260254,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 29.402603149414062,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 29.680121660232544,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 29.948708295822144,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 30.216270685195923,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 30.48386573791504,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 30.75384783744812,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "seconds": 31.02486562728882,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 22 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 31.297548532485962,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 604 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 31.567588567733765,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 708 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 31.836282968521118,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 712 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 32.10400342941284,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 712 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 32.37309741973877,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 712 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 32.64201641082764,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 712 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 32.908994913101196,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 712 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 33.17516732215881,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 732 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 33.444010734558105,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 732 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 33.713048458099365,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 740 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 33.982829093933105,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 34.254170179367065,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 34.526654958724976,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 34.798978090286255,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 35.068692684173584,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      },
+      {
+        "seconds": 35.33794283866882,
+        "returncode": 0,
+        "stdout": "3197491, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-event-video-backend-GPU-r1/backends/videomae/bin/python, 780 MiB\n",
+        "stderr": ""
+      }
+    ],
+    "seconds": 35.44204378128052
+  },
+  "files": {
+    "567-event-video-parent-worker-GPU-r1.log": {
+      "uncompressed_sha256": "1b20c5452979550f8818ac9b735378fcfab8424304b94d41270fc899099ebdbf",
+      "archive_sha256": "db4a1509cf29266d9ff7f618e5cc5d00459cc0d78867e8460e664e05d8f49e2d"
+    },
+    "validate_event_video_devices_r1.py": {
+      "uncompressed_sha256": "593c3c86e53b0507039b7a510249b60b94df3cbf914583862c0e2a68ec7e72b3",
+      "archive_sha256": "12d7f0484d81ba8120d6504bdf16994924bfa4b9993bc9d32cda08f32025a677"
+    },
+    "queue-holder.txt": {
+      "uncompressed_sha256": "cbf3c93f23168e3193e3e8a016b8569963e2af89a66d2bc26497f59eb35296ed",
+      "archive_sha256": "7cffbf60b003c791315adfda62b4393272a6c6916afa643336704aabc991de7c"
+    },
+    "progress.json": {
+      "uncompressed_sha256": "cde2e48c26553c2769090a8413bd8b14a6025fec275cd0432751415bc9b09382",
+      "archive_sha256": "d57ddcd3138531c8ef490410c70f561ad71cc523d0d8ca77586c79991c0f014e"
+    },
+    "result.json": {
+      "uncompressed_sha256": "d6c8e39878e35c6d518fd499cfa7754cef7ff91c3406f169d946d14144df66a0",
+      "archive_sha256": "5db56ec352b8d5f03ae9d9db8c36f1366ac1b558da1aa78a4caf2ccf55de62de"
+    }
+  },
+  "followup": "Diagnose actual backend precision/device execution and repeat through normal GPU queue; do not widen tolerance or claim biological acceptance."
+}

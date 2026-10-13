@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.gene_measurement_sweep.gene_of_guide#4",
+      "source": "bare guide name or bracketed regression design term to parse.",
+      "context": "bare guide name or bracketed regression design term to parse.",
+      "source_sha256": "35f97be8520e38277d9575c8515e2e1604930fdc82e8382b58c79e2be83d740f",
+      "translation": "óskreytt heiti stýriraðar eða hugtak í hornklofum úr aðhvarfshönnun sem á að greina."
+    },
+    {
+      "label": "spacr.qt.screens.graph_builder.read_table#1",
+      "source": "CSV, TSV, text, or SQLite database path. Delimited files are read directly; every other suffix is opened as SQLite in read-only mode.",
+      "context": "CSV, TSV, text, or SQLite database path. Delimited files are read directly; every other suffix is opened as SQLite in read-only mode.",
+      "source_sha256": "cc9fa29ef018a30e4779dc0618b1d62337a36a9d4ed193c86a28db3e1ce224b8",
+      "translation": "slóð að CSV-, TSV-, texta- eða SQLite-gagnagrunni. Afmarkaðar skrár eru lesnar beint; allar aðrar skráarendingar eru opnaðar sem SQLite í lesham."
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_runs.SweepRunsPanel.delete_runs_from_disk#2",
+      "source": "run-row mappings whose distinct, existing ``folder`` paths are candidates for deletion. A running record refuses the whole operation.",
+      "context": "run-row mappings whose distinct, existing ``folder`` paths are candidates for deletion. A running record refuses the whole operation.",
+      "source_sha256": "973136da1a5c0ad7fac96d338c3a032b55a72fba21decf09e09df570bf4c2d1d",
+      "translation": "vörpun á keyrslulínum þar sem aðgreindar, fyrirliggjandi ``folder``-slóðir eru valkostir til eyðingar. Færsla um keyrslu sem er í gangi stöðvar alla aðgerðina."
+    }
+  ]
+}

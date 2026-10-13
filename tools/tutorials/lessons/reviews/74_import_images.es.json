@@ -1,0 +1,34 @@
+{
+  "lesson": "74_import_images",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Import Images: asignar identidades de imagen y crear un proyecto",
+  "description": "Analiza los nombres y metadatos de las imágenes, revisa la asignación propuesta de pozo, campo y canal, guarda un plan e importa copias en un proyecto.",
+  "objectives": [
+    "Analizar imágenes de microscopio y resolver dudas de nomenclatura.",
+    "Elegir un destino, un nombre de placa y si copiar o enlazar.",
+    "Guardar un plan reutilizable e importar imágenes para Mask."
+  ],
+  "prerequisite": "Descarga primero el ejemplo de Mask. Este recorrido usa copias de los campos E01/F001 y L01/F009, con cuatro canales cada uno. Sus copias preparadas omiten el elemento A redundante justo antes de Z y conservan la identidad de pozo, campo y canal. Guarda los originales y usa los registros de adquisición para interpretar elementos desconocidos.",
+  "scenes": [
+    "Desde Home, abre Data, elige Import y luego Import Images. Empieza con los archivos de imagen de microscopio que quieres organizar en un proyecto.",
+    "Si también tienes máscaras, haz clic en Organizar imágenes y máscaras junto a la carpeta de imágenes. Suelta cada carpeta de canal y la carpeta de máscaras en sus columnas, define la función de la máscara y, en Escribir para, elige Mask Generation o Measure. Los archivos con varios canales pueden dividirse primero en una columna por canal; Apply mueve todo a la estructura de ese módulo y registra cada movimiento en un manifiesto.",
+    "Usa el ejemplo de Mask en este recorrido. Selecciona copias de un campo de cada uno de dos pozos, con cuatro canales por campo. No modifiques la descarga original.",
+    "Haz clic en Scan. Si te pregunta qué significa un elemento del nombre de archivo, consulta los registros de adquisición antes de asignarlo. Continúa solo cuando las identidades propuestas distingan sin ambigüedad los campos y los canales.",
+    "Analiza las copias de ejemplo preparadas. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales.",
+    "Compara la propuesta con los nombres de archivo. Activa Read inside each file cuando necesites los metadatos de ejes incrustados. Pon Sample en un valor suficiente para revisar los archivos que quieres importar.",
+    "Elige un destino fuera de la carpeta de entrada e introduce el nombre de la placa. Desactiva Link instead of copy para obtener copias independientes. Los enlaces ahorran espacio en disco, pero exigen que los archivos originales sigan accesibles.",
+    "En las adquisiciones en mosaico, elige si unir las teselas, conservarlas por separado u omitirlas. Revisa la organización de campos resultante antes de medir. Estas imágenes de ejemplo son campos separados, así que no hace falta unirlas.",
+    "Haz clic en Save plan para guardar en JSON el origen y las opciones de asignación. Guarda el plan con las notas de adquisición y las imágenes originales.",
+    "Haz clic en Load plan para volver a cargar el origen y las respuestas guardadas. Revisa la nueva propuesta antes de importar, sobre todo si los archivos de origen han cambiado.",
+    "Haz clic en Import y lee el resumen. Este ejemplo genera ocho copias de imagen sin archivos omitidos. Abre el proyecto resultante en Mask y revisa Live preview antes de empezar la segmentación."
+  ]
+}

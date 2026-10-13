@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-22",
+  "baseline": "233b5fa47",
+  "reproduced_failures": 37,
+  "new_regression_cases": 43,
+  "distinct_focused_checks": 220,
+  "new_api_symbols": [
+    "_ThresholdHistogramRequest",
+    "_threshold_histogram",
+    "_OtsuHistogramDialog.show_result",
+    "_OtsuHistogramDialog.closeEvent",
+    "_OtsuHistogramDialog._fit_height",
+    "_OtsuHistogramDialog.resizeEvent",
+    "MakeMasksScreen._histogram_done",
+    "MakeMasksScreen._take_histogram"
+  ],
+  "changed_api_symbols": [
+    "_OtsuHistogramDialog.__init__",
+    "_OtsuHistogramPlot.level_x",
+    "MakeMasksScreen._on_show_otsu_histogram",
+    "MakeMasksScreen.close_folded"
+  ],
+  "runtime_sources": [
+    {
+      "source": "Calculating threshold histogram\u2026",
+      "sha256": "9311940b1f0c43e1ff2af6b1e282f208ac26636371db2b22691664e03228ec9e"
+    },
+    {
+      "source": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "sha256": "0a2e984308728e976e6a33941563bf6bc703a32668a112babc2813e6c4ce9617"
+    },
+    {
+      "source": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "sha256": "e3f08d69a58b793e17b05762304b482590fd5c8d444dae4905d95ad53d9d8349"
+    },
+    {
+      "source": "Open a field first \u2014 a histogram needs an image.",
+      "sha256": "a75f9d350125f68126ae12a2a4a880840a156ed8d7b2ef87bc0ac41d684e6f9a"
+    },
+    {
+      "source": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "sha256": "ab0ab5e43f2f379d1d4a4d06fc6b5958541e321dcfab5f6089db010a2702693c"
+    },
+    {
+      "source": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "sha256": "d0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3"
+    },
+    {
+      "source": "Threshold histogram failed: {error}",
+      "sha256": "9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89"
+    },
+    {
+      "source": "{method} histogram",
+      "sha256": "cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e"
+    }
+  ],
+  "semantics": {
+    "input_order": [
+      "invert_normalized when enabled",
+      "normalize_for_detection when enabled",
+      "detect_chain.prepare",
+      "_otsu_values smoothing"
+    ],
+    "global_levels": "Selected algorithm, correction, polarity and class count from the threshold engine",
+    "local_levels": "No global marker; histogram of smoothed detector input before local thresholding and internal Local Otsu rank-filter scaling",
+    "lifetime": "Snapshot, newest pending request only; closed/superseded results ignored; cancellation checked between stages, active library calls finish"
+  },
+  "remaining": [
+    "API/tutorial/catalog integration",
+    "CPU magnifier and drag provenance audit",
+    "Other existing 473 acceptance"
+  ]
+}

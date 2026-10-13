@@ -1,0 +1,84 @@
+......F.......                                                           [100%]
+=================================== FAILURES ===================================
+____________________ test_the_maintainers_button_layout[20] ____________________
+
+qtbot = <pytestqt.qtbot.QtBot object at 0x7e8c02741070>
+qt_theme_applied = <PySide6.QtWidgets.QApplication(0x63b4eccf6e90) at 0x7e8c70130180>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e8c02ca0140>
+tmp_path = PosixPath('/tmp/pytest-of-olafsson/pytest-871/test_the_maintainers_button_la0')
+extra_caption_width = 20
+
+    @pytest.mark.parametrize("extra_caption_width", [0, 20])
+    def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
+                                          tmp_path, extra_caption_width):
+        """The Make Masks button layout the maintainer asked for (2026-09-30).
+    
+        Bottom row, left: Open folder, Organize for Measure, Load test data,
+        Uncertainty. Editor action row: Save mask, Prev, Next (item 247, 2026-10-01).
+        Bottom row, right, under the console: Clear all objects, Discard, Keep,
+        Skip, Blind, ROIs, Upload data -- Keep and Discard no longer on a row of
+        their own.
+        """
+        from spacr.qt import preferences
+        from spacr.qt.screens import make_masks as mm
+    
+        monkeypatch.setattr(preferences, "_get_show_alpha_features",
+                            lambda: True)
+        screen = mm.MakeMasksScreen()
+        qtbot.addWidget(screen)
+        curate = screen._nav_curate_group
+        steps = [screen._btn_save, screen._btn_prev, screen._btn_next]
+    
+        def widgets(group):
+            layout = group.layout()
+            return [layout.itemAt(i).widget() for i in range(layout.count())
+                    if layout.itemAt(i).widget() is not None]
+    
+        for button in steps:
+            assert screen._tool_row_layout.indexOf(button) >= 0
+        # With alpha features shown, the alpha SAM2 seeds button (556, 451c67deb)
+        # and the virtual-stain apply control (18d43544f) sit before Upload data.
+        assert widgets(curate) == [screen._btn_clear, screen._btn_discard,
+                                   screen._btn_keep, screen._btn_skip,
+                                   screen._btn_blind,
+                                   screen._btn_rois, screen._btn_sam2,
+                                   screen._virtual_stain, screen._btn_contribute]
+        # One widget each, so neither group can wrap apart.
+        for group in (curate,):
+            for button in widgets(group):
+                assert button.parent() is group
+        assert screen._btn_training_datasets is screen._btn_test_data
+        import imageio.v2 as imageio
+        import numpy as np
+    
+        toolbar = [screen._btn_open, screen._btn_organize,
+                   screen._btn_test_data, screen._btn_uncertainty]
+        for button in toolbar + widgets(curate):
+            button.setMinimumWidth(button.sizeHint().width() + extra_caption_width)
+        (tmp_path / "masks").mkdir()
+        imageio.imwrite(tmp_path / "field.tif", np.zeros((48, 48), np.uint16))
+        screen._open_folder(str(tmp_path))
+        margins = screen.layout().contentsMargins()
+        nav = screen._btn_open.parentWidget()
+        one_row_width = nav.sizeHint().width() + margins.left() + margins.right()
+        screen.resize(max(1600, one_row_width), 900)
+        screen.show()
+        qtbot.waitExposed(screen)
+    
+        def top_left(button):
+            return button.mapTo(screen, button.rect().topLeft())
+    
+        xs = [top_left(button).x() for button in toolbar]
+>       assert xs == sorted(xs)
+E       assert [16, 184, 380, 16] == [16, 16, 184, 380]
+E         
+E         At index 1 diff: 184 != 16
+E         Use -v to get more diff
+
+tests/qt/test_600_popup_layout_and_selection.py:142: AssertionError
+----------------------------- Captured Qt messages -----------------------------
+QtWarningMsg: This plugin does not support propagateSizeHints()
+QtWarningMsg: This plugin does not support propagateSizeHints()
+=========================== short test summary info ============================
+FAILED tests/qt/test_600_popup_layout_and_selection.py::test_the_maintainers_button_layout[20]
+1 failed, 13 passed in 4.92s

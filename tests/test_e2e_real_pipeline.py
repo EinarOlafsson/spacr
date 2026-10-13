@@ -1,0 +1,378 @@
+"""End-to-end pipeline test on the real NAS plate1 microscopy dataset.
+
+Runs the full spaCR core pipeline sequentially on a small copied subset of
+real cells, exercising core / io / measure / object / ml / utils (and a
+sequencing chunk on the real R1 fastq + toxo analysis on the outputs).
+
+Marked ``slow`` and GPU-backed. It runs automatically when the required NAS
+dataset is reachable and skips cleanly otherwise.
+"""
+from __future__ import annotations
+
+import os
+import shutil
+import sqlite3
+
+import numpy as np
+import pandas as pd
+import pytest
+from tests.resource_capabilities import paths_available
+
+import matplotlib
+matplotlib.use("Agg")
+
+# --- dataset locations on the NAS (autofs, mounts on access) ---------------
+RAW = "/nas_mnt/data/sequencing/plate1/orig/orig"
+MASK_SETTINGS = "/nas_mnt/data/sequencing/settings/preprocess_generate_masks_settings.csv"
+MEASURE_SETTINGS = "/nas_mnt/data/sequencing/settings/measure_crop_settings.csv"
+R1_FASTQ = "/nas_mnt/data/sequencing/seq_3/EO1_R1_001.fastq.gz"
+
+WELLS = ["E01", "E02", "L01", "L02"]     # E→row5(c1/c2), L→row12(c1/c2)
+FIELDS = ["F001", "F009"]                # 2 fields/well → 8 fields, 2 columns
+
+pytestmark = [pytest.mark.slow, pytest.mark.nas, pytest.mark.gpu]
+
+# Probe autofs in a bounded child process: a connected NAS enables the suite
+# automatically, while a disconnected mount cannot stall test collection.
+_available = paths_available(
+    ((RAW, "dir"), (MASK_SETTINGS, "file"), (MEASURE_SETTINGS, "file"))
+)
+_skip = pytest.mark.skipif(not _available,
+                           reason="NAS plate1 dataset unavailable")
+_r1_available = _available and paths_available(((R1_FASTQ, "file"),))
+
+
+@pytest.fixture(scope="module")
+def pipeline(tmp_path_factory):
+    """Copy a subset, run preprocess_generate_masks + measure_crop once."""
+    if not _available:
+        pytest.skip("NAS plate1 dataset not mounted")
+
+    from spacr.utils import load_settings
+    from spacr.core import preprocess_generate_masks
+    from spacr.measure import measure_crop
+
+    work = tmp_path_factory.mktemp("e2e")
+    src = os.path.join(str(work), "plate1")
+    os.makedirs(src)
+
+    n = 0
+    for f in sorted(os.listdir(RAW)):
+        if f.endswith(".tif") and any(w in f for w in WELLS) \
+                and any(fd in f for fd in FIELDS):
+            shutil.copy2(os.path.join(RAW, f), os.path.join(src, f))
+            n += 1
+    assert n == 32, f"expected 32 raw tifs, copied {n}"
+
+    # --- Stage 1: masks (GPU Cellpose) ---
+    ms = load_settings(MASK_SETTINGS, setting_key="Key", setting_value="Value")
+    ms.update(dict(src=src, plot=False, save=True, verbose=False,
+                   test_mode=False, workers=2, batch_size=8, randomize=False,
+                   # Later assertions inspect masks/<obj>_mask_stack, which is
+                   # cleaned up once merged/ is built unless we opt in.
+                   keep_intermediate=True))
+    preprocess_generate_masks(ms)
+
+    merged = os.path.join(src, "merged")
+    assert os.path.isdir(merged)
+    merged_arrays = sorted(
+        name for name in os.listdir(merged) if name.endswith(".npy"))
+    assert len(merged_arrays) == 8
+
+    # --- Stage 2: measure + crop ---
+    cs = load_settings(MEASURE_SETTINGS, setting_key="Key", setting_value="Value")
+    cs.update(dict(src=merged, input_folder=merged, plot=False,
+                   test_mode=False, save_measurements=True, save_png=True,
+                   n_job=2, verbose=False))
+    measure_crop(cs)
+
+    db = os.path.join(src, "measurements", "measurements.db")
+    assert os.path.isfile(db)
+    return {"src": src, "merged": merged, "db": db, "work": str(work)}
+
+
+# ---------------------------------------------------------------------------
+# Stage 1 — core / io / object: masks + merged stacks
+# ---------------------------------------------------------------------------
+
+@_skip
+def test_stage1_masks_and_stacks(pipeline):
+    src = pipeline["src"]
+    # Per-channel folders ('1'..'4') are no longer created — the ingest step
+    # merges channels in memory straight into stack/ (see
+    # test_real_data_image_modules.test_module_ingest_organizes_channels).
+    for sub in ("stack", "merged", "masks"):
+        p = os.path.join(src, sub)
+        assert os.path.isdir(p) and os.listdir(p), f"{sub} missing/empty"
+    for chan in ("1", "2", "3", "4"):
+        assert not os.path.isdir(os.path.join(src, chan)), (
+            f"per-channel folder {chan} should not be created")
+    # merged stacks carry the appended masks (7 planes: 4 chan + 3 masks)
+    merged_arrays = sorted(
+        name for name in os.listdir(pipeline["merged"])
+        if name.endswith(".npy"))
+    assert len(merged_arrays) == 8
+    sample = np.load(os.path.join(src, "merged", merged_arrays[0]))
+    assert sample.ndim == 3 and sample.shape[-1] >= 7
+
+
+# ---------------------------------------------------------------------------
+# Stage 2 — measure / io: measurements.db
+# ---------------------------------------------------------------------------
+
+@_skip
+def test_stage2_measurements(pipeline):
+    con = sqlite3.connect(pipeline["db"])
+    try:
+        tables = pd.read_sql_query(
+            "SELECT name FROM sqlite_master WHERE type='table'", con)["name"].tolist()
+        assert {"cell", "nucleus", "pathogen", "cytoplasm", "png_list"} <= set(tables)
+        cell = pd.read_sql_query("SELECT * FROM cell", con)
+        assert len(cell) > 50
+        assert set(cell["columnID"].unique()) == {"c1", "c2"}
+        # feature columns actually populated
+        assert any("channel_3" in c for c in cell.columns)
+    finally:
+        con.close()
+
+
+# ---------------------------------------------------------------------------
+# Stage 2b — measure: run _measure_crop_core IN-PROCESS on a merged stack.
+# measure_crop dispatches this via a multiprocessing Pool, so coverage never
+# sees it; calling it directly is the only way to cover the core routine.
+# ---------------------------------------------------------------------------
+
+@_skip
+def test_stage2b_measure_crop_core_inprocess(pipeline, tmp_path):
+    from spacr.utils import load_settings
+    from spacr.settings import get_measure_crop_settings
+    from spacr.measure import _measure_crop_core
+
+    # _measure_crop_core writes directly into the measurements database next
+    # to its input directory.  Give this coverage-only call its own source so
+    # it cannot append a field to the module pipeline's canonical database and
+    # make later one-to-one joins depend on randomized test order.
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    source = sorted(
+        name for name in os.listdir(pipeline["merged"])
+        if name.endswith(".npy"))[0]
+    shutil.copy2(
+        os.path.join(pipeline["merged"], source), merged / source)
+    s = load_settings(MEASURE_SETTINGS, setting_key="Key", setting_value="Value")
+    s.update(dict(src=str(merged), input_folder=str(merged), plot=False,
+                  save_measurements=True, save_png=True, n_job=1,
+                  verbose=False, test_mode=False))
+    s = get_measure_crop_settings(s)
+    s["src"] = str(merged)
+    result = _measure_crop_core(0, [], source, s)
+    assert isinstance(result, tuple)
+
+
+# ---------------------------------------------------------------------------
+# Stage 3 — ml: train a classifier on the control wells + score
+# ---------------------------------------------------------------------------
+
+@_skip
+def test_stage3_generate_ml_scores(pipeline):
+    from spacr.ml import generate_ml_scores
+    settings = {
+        "src": pipeline["src"], "channel_of_interest": 3,
+        "location_column": "columnID",
+        "positive_control_id": "c2", "negative_control_id": "c1",
+        "model_type_ml": "random_forest", "heatmap_feature": "predictions",
+        "grouping": "mean", "min_max": "allq", "min_cells_per_well": 25,
+        "n_repeats": 2, "top_features": 20, "test_size": 0.25,
+        "n_estimators": 50, "n_jobs": 2, "reg_alpha": 0.1, "reg_lambda": 1.0,
+        "learning_rate": 0.001, "remove_low_variance_features": True,
+        "remove_highly_correlated_features": False, "prune_features": False,
+        "cross_validation": False, "exclude": None, "verbose": False,
+    }
+    out = generate_ml_scores(settings)
+    assert out is not None
+    results_dir = os.path.join(pipeline["src"], "results")
+    assert os.path.isdir(results_dir)
+
+
+# ---------------------------------------------------------------------------
+# Stage 4 — sequencing: process a chunk of the REAL R1 fastq
+# ---------------------------------------------------------------------------
+
+@_skip
+@pytest.mark.skipif(not _r1_available,
+                    reason="R1 fastq not on NAS")
+def test_stage4_sequencing_chunk(pipeline, tmp_path):
+    from spacr.sequencing import generate_barecode_mapping
+
+    # Synthetic barcode reference CSVs (sequence,name). Real matches are
+    # sparse but every code path runs; that's what we're covering.
+    rng = np.random.default_rng(0)
+    bc_dir = tmp_path / "barcodes"; bc_dir.mkdir()
+
+    def _write(path, k, n):
+        pd.DataFrame({
+            "sequence": ["".join(rng.choice(list("ACGT"), k)) for _ in range(n)],
+            "name": [f"bc{i}" for i in range(n)],
+        }).to_csv(path, index=False)
+
+    col_csv = str(bc_dir / "col.csv"); _write(col_csv, 8, 8)
+    row_csv = str(bc_dir / "row.csv"); _write(row_csv, 8, 8)
+    grna_csv = str(bc_dir / "grna.csv"); _write(grna_csv, 20, 20)
+
+    # src folder containing the single R1 read file (symlink to avoid a 7.7GB copy)
+    seq_src = tmp_path / "seq"; seq_src.mkdir()
+    link = seq_src / "EO1_R1_001.fastq.gz"
+    os.symlink(R1_FASTQ, str(link))
+
+    generate_barecode_mapping({
+        "src": str(seq_src), "mode": "single", "single_direction": "R1",
+        "column_csv": col_csv, "row_csv": row_csv, "grna_csv": grna_csv,
+        "chunk_size": 2000, "test": True, "save_h5": False, "n_jobs": 1,
+    })
+    # test=True processes a single chunk and writes qc + unique_combinations
+    out_dir = seq_src / "EO1_single_R1"
+    assert out_dir.exists()
+    assert (out_dir / "qc.csv").exists()
+
+
+# ---------------------------------------------------------------------------
+# Stage 5 — toxo: analyse the per-object scores from stage 3
+# ---------------------------------------------------------------------------
+
+@_skip
+def test_stage6_core_umap_and_graphs(pipeline):
+    """Exercise core's other three entry points on the real measurement DB:
+    generate_image_umap, reducer_hyperparameter_search, generate_screen_graphs."""
+    from spacr.core import (generate_image_umap,
+                            reducer_hyperparameter_search,
+                            generate_screen_graphs)
+    plate = pipeline["src"]
+    umap_s = dict(
+        src=plate, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'],
+        visualize='cell', image_nr=4, dot_size=10, n_neighbors=15,
+        min_dist=0.1, metric='euclidean', eps=0.5, min_samples=5,
+        filter_by='channel_0', img_zoom=0.3, plot_by_cluster=False,
+        plot_cluster_grids=False, remove_cluster_noise=False,
+        remove_highly_correlated=True, log_data=False, black_background=True,
+        remove_image_canvas=False, plot_outlines=False, plot_points=True,
+        smooth_lines=False, clustering='dbscan', reduction_method='umap',
+        save_figure=False, row_limit=200, color_by=None, exclude=None,
+        plot_images=False, embedding_by_controls=False,
+        col_to_compare='columnID', pos='c2', neg='c1', figuresize=10,
+        verbose=False, resnet_features=False, channel_of_interest=3,
+        mix_metadata=False, analyze_clusters=False, cell_min_size=0,
+        nucleus_min_size=0, pathogen_min_size=0, cytoplasm_min_size=0,
+        min_cells_per_well=0, nuclei_limit=True, pathogen_limit=True)
+    results_dir = os.path.join(plate, "results")
+    embedding_csv = os.path.join(results_dir, "embedding_results.csv")
+
+    def _check_embedding(df, label):
+        """Every generate_image_umap branch must hand back the embedded frame
+        with its cluster labels, and mirror it to results/."""
+        assert isinstance(df, pd.DataFrame), f"{label}: got {type(df)}"
+        assert not df.empty, f"{label}: empty embedding frame"
+        assert len(df) <= umap_s["row_limit"], (
+            f"{label}: {len(df)} rows exceeds row_limit "
+            f"{umap_s['row_limit']}")
+        assert "cluster" in df.columns, f"{label}: no cluster labels"
+        labels = pd.to_numeric(df["cluster"], errors="coerce")
+        assert labels.notna().all(), f"{label}: non-numeric cluster labels"
+        # DBSCAN uses -1 for noise; nothing below that is a valid label.
+        assert (labels >= -1).all(), f"{label}: cluster label below -1"
+        # The internal-only join columns must not leak into the export.
+        assert "_spacr_umap_db_path" not in df.columns
+        assert "_spacr_umap_db_png_path" not in df.columns
+        # ...and the CSV this call just wrote matches what it returned.
+        assert os.path.isfile(embedding_csv), f"{label}: no {embedding_csv}"
+        assert len(pd.read_csv(embedding_csv)) == len(df), (
+            f"{label}: embedding_results.csv row count != returned frame")
+        return labels
+
+    dbscan_labels = _check_embedding(generate_image_umap(umap_s), "umap+dbscan")
+
+    # branch variations: tSNE + KMeans, control-trained embedding, image
+    # grids, cluster analysis, condition exclusion
+    kmeans_labels = _check_embedding(
+        generate_image_umap({**umap_s, "reduction_method": "tsne",
+                             "clustering": "kmeans"}), "tsne+kmeans")
+    # Contrast between the two clusterers: KMeans assigns every point to a
+    # numbered cluster, so unlike DBSCAN it can never emit the -1 noise
+    # label. Proves the label column is the clusterer's output and not a
+    # constant column that would satisfy the checks above either way.
+    assert (kmeans_labels >= 0).all(), "KMeans emitted a noise (-1) label"
+    assert dbscan_labels.nunique() > 0
+
+    _check_embedding(
+        generate_image_umap({**umap_s, "embedding_by_controls": True}),
+        "embedding_by_controls")
+    _check_embedding(
+        generate_image_umap({**umap_s, "plot_images": True,
+                             "plot_by_cluster": True}), "plot_images")
+
+    cluster_csv = os.path.join(results_dir, "cluster_results.csv")
+    assert not os.path.exists(cluster_csv), (
+        "cluster_results.csv written before analyze_clusters was requested")
+    _check_embedding(
+        generate_image_umap({**umap_s, "analyze_clusters": True}),
+        "analyze_clusters")
+    # analyze_clusters=True is the ONLY branch that produces this file.
+    assert os.path.isfile(cluster_csv), "analyze_clusters wrote no results"
+    assert not pd.read_csv(cluster_csv).empty
+
+    fig = reducer_hyperparameter_search(
+        umap_s, reduction_params=[{'n_neighbors': 15}],
+        dbscan_params=[{'eps': 0.5, 'min_samples': 5}],
+        kmeans_params=[{'n_clusters': 3}], save=False, show=False,
+        return_fig=True)
+    # One panel per (reduction x clustering) pair: 1 reduction, dbscan+kmeans.
+    assert fig is not None
+    assert len(fig.axes) == 1 * 2, f"expected a 1x2 panel grid, got {len(fig.axes)}"
+    assert all(ax.collections for ax in fig.axes), "a search panel plotted nothing"
+
+    graph_s = dict(
+        src=plate, tables=['cell', 'nucleus', 'pathogen', 'cytoplasm'],
+        cells=['HeLa'], cell_loc=[['c1', 'c2']], controls=['c1', 'c2'],
+        controls_loc=[['c1'], ['c2']], graph_type='bar', summary_func='mean',
+        y_axis_start=0, error_bar_type='std', theme='pastel',
+        representation='well', nuclei_limit=True, pathogen_limit=True,
+        channel_of_interest=3, verbose=False, graph_name='screen')
+    generate_screen_graphs(graph_s)
+
+    # One src -> two outputs: the per-source graph (0) and the combined (1),
+    # each a PDF plus the results table behind it.
+    suffix = (f"_{graph_s['representation']}_{graph_s['summary_func']}"
+              f"_{graph_s['graph_type']}")
+    for i in (0, 1):
+        pdf = os.path.join(results_dir, f"figure_controls_{i}{suffix}.pdf")
+        csv = os.path.join(results_dir, f"results_controls_{i}{suffix}.csv")
+        assert os.path.isfile(pdf), f"missing {pdf}"
+        assert os.path.getsize(pdf) > 0
+        assert os.path.isfile(csv), f"missing {csv}"
+        res = pd.read_csv(csv)
+        assert not res.empty, f"{csv} has no rows"
+
+
+@_skip
+def test_stage5_toxo_on_scores(pipeline, tmp_path):
+    from spacr import toxo as T
+
+    # Build a coefficient/p_value frame in the shape toxo expects, from the
+    # measured cells (real intensities → real distribution).
+    con = sqlite3.connect(pipeline["db"])
+    cell = pd.read_sql_query("SELECT * FROM cell", con)
+    con.close()
+    n = min(len(cell), 60)
+    rng = np.random.default_rng(1)
+    data = pd.DataFrame({
+        "feature": [f"{220000 + i}_1" for i in range(n)],
+        "coefficient": rng.normal(0, 0.4, n),
+        "p_value": np.clip(np.abs(rng.normal(0.05, 0.05, n)), 1e-8, 1),
+    })
+    metadata = pd.DataFrame({
+        "gene_nr": [str(220000 + i) for i in range(n)],
+        "tagm_location": rng.choice(["cytosol", "dense granules", "unknown"], n),
+    })
+    hits = T.custom_volcano_plot(data, metadata, figsize=6,
+                                 save_path=str(tmp_path / "volcano.pdf"))
+    assert isinstance(hits, list)
+    assert (tmp_path / "volcano.pdf").exists()

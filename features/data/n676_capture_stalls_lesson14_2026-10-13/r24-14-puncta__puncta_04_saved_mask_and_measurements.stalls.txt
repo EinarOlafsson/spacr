@@ -1,0 +1,100 @@
+--- GUI thread stalled 0.36 s at clip second 4.87 ---
+Current thread 0x000076768ef73640 (most recent call first):
+  File "tools/tutorials/capture_host_mode.py", line 274 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000076768df71640 (most recent call first):
+  File "spacr/qt/widgets/ambient.py", line 7063 in _point_material
+  File "spacr/qt/widgets/ambient.py", line 7826 in _frame_impulse_lens
+  File "spacr/qt/widgets/ambient.py", line 7224 in _shade
+  File "spacr/qt/widgets/ambient.py", line 7235 in shade
+  File "spacr/qt/widgets/ambient.py", line 9270 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x00007677dafff640 (most recent call first):
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 363 in wait
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 660 in wait
+  File "spacr/qt/widgets/ambient.py", line 9289 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000076781b2214c0 (most recent call first):
+  File "spacr/qt/app.py", line 7591 in _module_source_mentions_pyside
+  File "shibokensupport/feature.py", line 147 in feature_imported
+  File "shibokensupport/signature/loader.py", line 71 in feature_imported
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/_guards.py", line 37 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/_logging/_internal.py", line 25 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/_logging/_registrations.py", line 2 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/_logging/__init__.py", line 7 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/fx/proxy.py", line 21 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/fx/_symbolic_trace.py", line 28 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/fx/__init__.py", line 88 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/nested/_internal/nested_int.py", line 4 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/nested/_internal/nested_tensor.py", line 7 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/nested/__init__.py", line 21 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1423 in _handle_fromlist
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/torch/__init__.py", line 2252 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1023 in exec_module

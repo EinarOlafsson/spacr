@@ -1,0 +1,11 @@
+{
+  "author": "Codex AI / shared_ui",
+  "method": "Direct technical translation from the twelve exact English Convert captions; no local-model draft, human or native-speaker signoff claimed",
+  "sources_sha256": "8dacbb58ba5d168418c1ecb8f7bee3604ce30db608d9a05bc4af92ed233de54d",
+  "draft_sha256": {
+    "zh_CN": "9377fa8671ce4b2584b94fb726a3fd60060e683c6fd1e1fb8dc5af69c4e82608",
+    "hi": "55d4b5124f3f52db55a5d916b14dd87f9d1da088f74585f65f58cc77cf594188",
+    "ko": "3ff65f07b173a041a4fb07616c13f0bd87856f932022b6a60cf549f7d41e11cc",
+    "is": "721f73395953f7ad8327fa0ad200c42330c694e65eaa116e5ab09984d2a6a3ef"
+  }
+}

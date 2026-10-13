@@ -1,0 +1,17 @@
+{
+  "source": "Read-only preview of Measure's existing plate calibration plan.",
+  "label": "spacr.qt.widgets.calibration_preview#0",
+  "author": "Codex AI shared_ui",
+  "method": "Direct AI technical translation; independent peer review pending; no native-speaker signoff.",
+  "targets": {
+    "sv": "Skrivskyddad förhandsvisning av den befintliga planen för plattkalibrering i Measure.",
+    "de": "Schreibgeschützte Vorschau des vorhandenen Plattenkalibrierungsplans von Measure.",
+    "es": "Vista previa de solo lectura del plan existente de calibración de placas de Measure.",
+    "zh_CN": "以只读方式预览 Measure 现有的板校准方案。",
+    "pt": "Pré-visualização somente leitura do plano existente de calibração de placas do Measure.",
+    "hi": "Measure की मौजूदा प्लेट अंशांकन योजना का केवल-पठन पूर्वावलोकन।",
+    "ko": "Measure의 기존 플레이트 보정 계획에 대한 읽기 전용 미리보기입니다.",
+    "is": "Skrifvarin forskoðun á fyrirliggjandi kvörðunaráætlun Measure fyrir plötur.",
+    "fr": "Aperçu en lecture seule du plan existant de calibration des plaques de Measure."
+  }
+}

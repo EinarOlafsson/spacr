@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "recursive",
+      "source_sha256": "ee370df5c2ad2897860a7bfec0d84b1ff30e698db8746220dc0810b406ab58b6",
+      "source": "Search inside subfolders of every input folder. Turn this off when only files directly inside each selected folder belong to the import. Default True.",
+      "translation": "각 입력 폴더의 하위 폴더 안까지 검색합니다. 선택한 각 폴더 바로 안에 있는 파일만 가져오기에 포함될 때는 끄십시오. 기본값 True."
+    }
+  ]
+}

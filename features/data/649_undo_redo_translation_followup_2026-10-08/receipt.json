@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "source_commit": "9a347f0f204460d774a3cd1805f0548fb5716865",
+  "source_sha256": {
+    "spacr/qt/i18n.py": "0b03d5d8b90c4182640a7030ebcdc41863aedcd5e771feae439b118e1c110058",
+    "spacr/qt/shortcuts.py": "8726212191b0363ec1f4b52a0a97410659a78d74ee08fb45395dc7d9d203b548",
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "spacr/qt/widgets/gate_editor.py": "5f9f691c1419bca0976cef01a519a7e9b44563cdfbb11dafca85c4c5e80c021f",
+    "tests/qt/test_undo_redo_everywhere.py": "91f96b18e04ad40c9d32f3397ad46a7346bc565d34958e88d640eb42d0286da3",
+    "spacr/qt/i18n_catalogs/sv.py": "312d7949203a750ddab98031076818f3ec29598bf902441a56e3eb213b1c5256",
+    "spacr/qt/i18n_catalogs/de.py": "2beb302a09e5f14218143408856da759fd740466bfd8c3d035a15d5c04915831",
+    "spacr/qt/i18n_catalogs/es.py": "e7b4b4ce21d1273a420285e86e2d5188166e709521317c26a34007ac28702298",
+    "spacr/qt/i18n_catalogs/zh_CN.py": "d940e1a5757147e86809474d3a0b2c8bd980edc74964dca802651ca6c07e5a65",
+    "spacr/qt/i18n_catalogs/pt.py": "465cc12d63eef12207a89509763de8c3c486d6b83f6a870d2b5b62ec68498d7d",
+    "spacr/qt/i18n_catalogs/hi.py": "bb815aedc5e7596594533632564e5e5d768f291626d9122ada69cd2677559b41",
+    "spacr/qt/i18n_catalogs/ko.py": "0d5247cf30f22cd1526a1e5e245842d96cc7e7f671c523d837976c0acb0e1a05",
+    "spacr/qt/i18n_catalogs/is.py": "d34686637dfc76e9242bbe4566a35dc64f5f6b52e98839513fbcdc41e5e6890f",
+    "spacr/qt/i18n_catalogs/fr.py": "8c16dfa9736048cab2a26302b056697f32392d8eb35071b8192fb548e399a5f9"
+  },
+  "caption_rows": 36,
+  "existing_editor_tests": {
+    "passed": 6,
+    "qt": "6.12.0",
+    "pytest": "8.4.2",
+    "ram_cap": "8G",
+    "test_source": "82205d5e609d0ac5ebd11148ba8023693546a794"
+  },
+  "scope": "Four existing Undo/Redo editor captions translated in all nine runtime languages; exact actual source call sites and placeholders checked. Existing runtime catalog source hashes verified where present. Completes translation follow-up only; Edit menu integration remains OPEN. AI technical structural audit, no native-speaker or platform acceptance claim.",
+  "artifacts": {
+    "undo-redo-translation-followup-r1.log.gz": {
+      "raw_bytes": 788,
+      "raw_sha256": "155ce4fbac91f43ffe9411d43bd202d59b43baa2481d98433aca970d9653e3cc",
+      "gzip_sha256": "a48470770f6f70a98fdf612515bb7a8dd9ee5b223c2bbcbdb915cf9cddfc24ef"
+    },
+    "undo-redo-translation-followup-r1-tool.log.gz": {
+      "raw_bytes": 202,
+      "raw_sha256": "23f1cc00401df7935b38c12f4aba76c06ef06e5b91531cf6dd9dce45bab04f33",
+      "gzip_sha256": "9327e88d6e41961aac8ab7f7fd981fcf6b60fd1b7f82bbe4ea16676ef56b8e19"
+    },
+    "undo-redo-translation-followup-r1.json.gz": {
+      "raw_bytes": 7084,
+      "raw_sha256": "c1022e86f22c73bb30ad03758b4972645553df64ef24590580dfdf572d6a91fc",
+      "gzip_sha256": "bfdbe9d6e8e319027fb0f02c38a18709376b55159cb08261c6e33d350360e3b9"
+    },
+    "check_undo_redo_translation_followup_r1.py.gz": {
+      "raw_bytes": 2106,
+      "raw_sha256": "92369496ae0589f3f71cb3eb7986b06a38e075869d1fcb3b4f6d1e5c080c1922",
+      "gzip_sha256": "bc56f67234370f0885fe18d420e521edc4ee0e8ebe0d4840008149ce40d94bdc"
+    },
+    "current-undo-redo-cohort-r1.log.gz": {
+      "raw_bytes": 692,
+      "raw_sha256": "08a4221cd1ae5edc1bf9a5597a6883040f530a456d4cbb554bd9ab6adc3851c1",
+      "gzip_sha256": "7a1c74ca7fd5e5997f154542ff11b8d569d76f846f87cc80e365298f1b7dbb56"
+    },
+    "current-undo-redo-cohort-r1-tool.log.gz": {
+      "raw_bytes": 214,
+      "raw_sha256": "928a6803e65c0d4dd65d97f055ce58208da66a8ce3fc56cb49d2ff251d60c57c",
+      "gzip_sha256": "aec7ea5874d46702f0b63eb552794e35f9379e233c8c8067638e65d4012f1b20"
+    }
+  }
+}

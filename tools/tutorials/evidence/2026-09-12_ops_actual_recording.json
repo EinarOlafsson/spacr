@@ -1,0 +1,232 @@
+{
+  "accepted": true,
+  "scope": "Current GUI route and four-tile geometry API example",
+  "gui": {
+    "accepted": true,
+    "scope": "Visible Home to Mask to OPS navigation only",
+    "route": [
+      "mask",
+      "ops"
+    ],
+    "gui_workflow_completed": false,
+    "run_clicked": false,
+    "inputs_injected": false,
+    "segmentation_or_decoding_performed": false,
+    "app_source_modified": false,
+    "published": false
+  },
+  "terminal": {
+    "accepted": true,
+    "scope": "Four real tiles through geometry/composition APIs only",
+    "run": {
+      "accepted": true,
+      "scope": "Four-tile geometry/composition API example only",
+      "app_version": "1.5.0.7",
+      "source_folder": "/nas_mnt/data/ops/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A/sequencing/images/input/c1",
+      "sources": [
+        {
+          "site": 0,
+          "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif",
+          "sha256": "10a83404e7c4acbe6692de973298a53562852791881763da3f346e5cc99f0114",
+          "shape": [
+            5,
+            1480,
+            1480
+          ],
+          "plane": 0,
+          "dtype": "uint16"
+        },
+        {
+          "site": 1,
+          "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-1.tif",
+          "sha256": "494a0b96d72d32daab426fb266d5b4ea6d3ca6b4aa5847025621a00e23a61a4e",
+          "shape": [
+            5,
+            1480,
+            1480
+          ],
+          "plane": 0,
+          "dtype": "uint16"
+        },
+        {
+          "site": 10,
+          "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-10.tif",
+          "sha256": "f01d41e427dce01b0f09747201956b1a06a31c6e4f7ccd1b7cf350785693f3b7",
+          "shape": [
+            5,
+            1480,
+            1480
+          ],
+          "plane": 0,
+          "dtype": "uint16"
+        },
+        {
+          "site": 11,
+          "name": "10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-11.tif",
+          "sha256": "edbd78838bc4d7c4eff852721ac919a80d52a8033f6efd0725a847a8263c3945",
+          "shape": [
+            5,
+            1480,
+            1480
+          ],
+          "plane": 0,
+          "dtype": "uint16"
+        }
+      ],
+      "helper_sha256": "c348cf00559d30b77617fba2a44e878c3b218f1f9afc089b410548279f3dc8d6",
+      "source_unchanged": true,
+      "sites": [
+        0,
+        1,
+        10,
+        11
+      ],
+      "full_well_sites": 333,
+      "canvas": [
+        2756,
+        2756
+      ],
+      "placed": 4,
+      "accepted_edges": 4,
+      "residuals": [
+        0.2500000000002309,
+        0.25000000000045475,
+        0.24999999999954525,
+        0.24999999999977263
+      ],
+      "independent_overlap_checks": [
+        {
+          "sites": [
+            0,
+            1
+          ],
+          "shift": [
+            1267,
+            9
+          ],
+          "aligned_pearson": 0.8434978419826764,
+          "offset_17px_controls": [
+            0.12139433431756123,
+            0.12047732359463535
+          ]
+        },
+        {
+          "sites": [
+            0,
+            11
+          ],
+          "shift": [
+            -9,
+            1268
+          ],
+          "aligned_pearson": 0.8832324630697752,
+          "offset_17px_controls": [
+            0.22253885371338003,
+            0.2024804776201072
+          ]
+        },
+        {
+          "sites": [
+            1,
+            10
+          ],
+          "shift": [
+            -9,
+            1267
+          ],
+          "aligned_pearson": 0.8058697011039221,
+          "offset_17px_controls": [
+            0.10574857150836063,
+            0.1087516028792661
+          ]
+        },
+        {
+          "sites": [
+            11,
+            10
+          ],
+          "shift": [
+            1267,
+            9
+          ],
+          "aligned_pearson": 0.8528621044222785,
+          "offset_17px_controls": [
+            0.14884094961758368,
+            0.11966589546945142
+          ]
+        }
+      ],
+      "placements": {
+        "0": [
+          8.999999999999128,
+          0.0
+        ],
+        "1": [
+          1275.9999999999986,
+          9.250000000000231
+        ],
+        "10": [
+          1267.0,
+          1276.4999999999998
+        ],
+        "11": [
+          0.0,
+          1267.7499999999995
+        ]
+      },
+      "backends": [
+        "numpy"
+      ],
+      "coverage_counts": {
+        "0": 44354,
+        "1": 6431136,
+        "2": 1071290,
+        "3": 7140,
+        "4": 41616
+      },
+      "elapsed_seconds": 2.7586972430581227,
+      "full_pipeline_completed": false,
+      "gui_pipeline_completed": false,
+      "segmentation_or_decoding_performed": false,
+      "published": false,
+      "artifacts": {
+        "composed_dapi.npy": "d5e9eb5619ec243dca1256b249669ccbb456faf3c488d355344aa75fb9e8734c",
+        "coverage.npy": "05b40313ff3d2f472d4912cdc960592ceee7494093ea097a0294b4eb0b22e334",
+        "geometry_and_coverage.png": "8d2fbbc7afd38e4f774ba15d721218025f8c9fcce7576ec396c2d577b3f76ee1"
+      }
+    },
+    "figure": {
+      "scene": "05_geometry_figure",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/ops-geometry-recorded-5pafmboc/patch/geometry_and_coverage.png",
+      "sha256": "8d2fbbc7afd38e4f774ba15d721218025f8c9fcce7576ec396c2d577b3f76ee1",
+      "viewer": "eog",
+      "window_title": "geometry_and_coverage.png"
+    },
+    "private_work": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/ops-geometry-recorded-5pafmboc",
+    "source_unchanged": true,
+    "helper_sha256": "c348cf00559d30b77617fba2a44e878c3b218f1f9afc089b410548279f3dc8d6",
+    "gui_workflow_completed": false,
+    "inputs_injected": false,
+    "segmentation_or_decoding_performed": false,
+    "published": false
+  },
+  "source_hashes": {
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/scientific_acceptance.json": "fa21241524f82b6cfe9deda60c71ded4694f745be5d9fe07503a65c35e0dfe9f",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/scientific_acceptance.json": "ec4524d8bf221d8e1df80af9669c8f09d49ba6e9afdca01cdb47a4c76a49603c",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/provenance.json": "e95e656eaafe3a6c7239445e06dddd7b82f9342c2bb83e8d0bcd248365fa8123",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/frames.json": "01daad8688fc6fceb88576b9a7599eb8fb8104d4e576e0fca1b717af0039651b",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/00_home.png": "ea719aa4a5888772c74b7ce56682d8823b9b944221f7318b1944044c1099792b",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/01_mask_host.png": "5c50298632e0465d4fb4ea865e75c184935e7d6cc03e3a712f0740d84b594eb1",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_gui_v2/02_ops_settings.png": "7b044fd779f65945b5d8c858192b9665396c62318996d17128a0be95f954743b",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/provenance.json": "95a4a1cb40389c8bb4c5ebb90f86accd4dcc248269f8936ca13eeefe18ee994c",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/frames.json": "9504423de3234d15b362e0db2a989d2d520f089bf31bc43f854f063132278063",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/00_scope.png": "425eb70330caea2d259b21b45d0003bde1d8f2b929ac8511d99258e788999822",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/01_inputs.png": "c6a19d260a4face030432b666785a09b16898f83ab9032b534a3b7629eb265d0",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/02_geometry.png": "03cd58f28da03162c34af51320ef52a1775a0920cdbd1773b3140f5c74aab289",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/03_independent_checks.png": "331d681b223e0280056c86a104440621bbe32be0315df6315cdc6aab7882aace",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/04_provenance.png": "1e3e7feca469d741906b285481b88c54bf96631e7e647bf7a9cadb8f3a54c3d2",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/ops_1507_geometry_api_v2/05_geometry_figure.png": "4a506b00b5268d51117ba338e1c705b1807b37007fb8cbdb9e13104b6eb01f46"
+  },
+  "gui_workflow_completed": false,
+  "published": false
+}

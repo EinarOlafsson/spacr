@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "language": "ja",
+  "scope": "Tutorial language; no GUI/API locale exists for this language.",
+  "phrase_count": 238,
+  "phrase_bank_sha256": "991987c86242823febd6533f22b88f90fa3b0ad5b556261ac88e2670a726d72b",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "tutorials": [
+    {
+      "lesson": "78_spacr_screens",
+      "scenes": 8,
+      "review_sha256": "28ebe79701436fae2a79ed1c694cc543c600d3b46235878f3e5f46b44d4f2193",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "scenes": 79,
+      "review_sha256": "be46843d076ddacb51826fc11af5107418b93fb4cad55160f963545f4cc12307",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "scenes": 18,
+      "review_sha256": "e7c58b9ad4fc37cd2a8d193f9f56c4c973f69193e38ec2dfc713ee53db4cfb65",
+      "staged_translation_current": true
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "scenes": 11,
+      "review_sha256": "5670957f35c1e2a13b7a5c6b53ce134bd8e615e577ff1d5bf15d910d7c0afe83",
+      "staged_translation_current": true
+    }
+  ],
+  "unrelated_staged_lessons_preserved": true,
+  "spoken_forms_checked": true,
+  "native_speaker_signoff": false,
+  "listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Other shared phrase languages",
+    "Complete voice,caption and browser matrix",
+    "Listening acceptance and complete-set publication"
+  ]
+}

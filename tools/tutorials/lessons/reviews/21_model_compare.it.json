@@ -1,0 +1,29 @@
+{
+  "lesson": "21_model_compare",
+  "english_sha256": "2e2af2044db01642db76b3e444c2b4d0c162c8d05b4fb245e8af6def09705a54",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Model Compare: confrontare maschere di segmentazione salvate",
+  "description": "Carica due maschere della stessa immagine, esegui lo script di confronto scaricabile ed esamina i punteggi di sovrapposizione e le sovrapposizioni visive.",
+  "objectives": [
+    "Scegliere maschere dello stesso campo con la stessa geometria dei pixel.",
+    "Eseguire l’esempio di confronto delle maschere salvate.",
+    "Leggere la tabella di concordanza ed esaminare le differenze nei contorni."
+  ],
+  "prerequisite": "Scarica ed estrai l’esempio Model Compare collegato. Fornisce un’immagine, due maschere salvate e uno script Python di supporto. Usa un ambiente con spaCR installato e scegli una nuova cartella di output fuori dagli input estratti. L’esempio confronta due scelte di preelaborazione con gli stessi pesi cpsam; per valutare l’accuratezza servono etichette di riferimento verificate.",
+  "scenes": [
+    "Da Home, apri Make Masks e scegli Model Compare. Usa questo flusso per esaminare le differenze di segmentazione sulla stessa immagine. Questa guida usa l’esempio collegato di maschere salvate e il suo script Python di supporto.",
+    "Conserva i pesi del modello e le impostazioni di preelaborazione con ogni insieme di maschere. Quando prepari un tuo confronto, usa gli stessi campi e la stessa geometria dei pixel, così le sovrapposizioni degli oggetti si riferiscono a posizioni corrispondenti nell’immagine.",
+    "Estrai l’esempio collegato. Gli input sono image.tif, batch.tif e preview.npy. Le due maschere descrivono lo stesso campo; sono state prodotte con lo stesso modello e con impostazioni di preelaborazione diverse. Mantieni i nomi di file originali per lo script fornito.",
+    "Esegui lo script fornito nel tuo ambiente Python con spaCR. Imposta l’origine sulla cartella di input dell’esempio e l’output su una nuova cartella dei risultati. Il riepilogo stampato riporta il numero di oggetti, gli oggetti abbinati, la sovrapposizione media degli abbinati e l’indice di Rand corretto. Una concordanza più alta significa che le maschere sono più simili; da sola non stabilisce quale maschera sia corretta.",
+    "Apri comparison.png. Confronta le due sovrapposizioni delle maschere con l’immagine ed esamina divisioni, fusioni e spostamenti dei contorni. Il pannello di destra evidenzia i pixel in cui l’appartenenza al primo piano è diversa. Controlla anche nelle sovrapposizioni i contorni tra oggetti che si toccano.",
+    "Apri comparison.csv per i risultati numerici e conservalo insieme a comparison.png, agli input e alle impostazioni registrate. Usa maschere di riferimento verificate e campi rappresentativi quando confronti l’accuratezza della segmentazione o scegli un modello per il tuo esperimento."
+  ]
+}

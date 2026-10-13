@@ -1,0 +1,35 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "f88be9a5d3e37117e01ec694187f3f515a070031de8789ee07e661eb4c098df3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Replication Assay : compter les parasites par vacuole",
+  "description": "Chargez des mesures de parasites, choisissez l’identité des vacuoles, lancez l’analyse et inspectez les distributions de comptages et les exports.",
+  "objectives": [
+    "Choisir une base de données de mesures et son identifiant de vacuole.",
+    "Définir les filtres d’attribution à la cellule hôte et de taille, puis lancer l’analyse.",
+    "Lire les distributions par puits et trouver les tables de résultats enregistrées."
+  ],
+  "prerequisite": "Extrayez l’exemple synthétique Replication Assay lié. Il contient une base de données de mesures et une référence de paramètres, avec 1 992 lignes de parasites dans 480 vacuoles réparties sur douze puits. Les noms des conditions et les mesures sont des données pédagogiques. Pour votre propre essai, utilisez des parasites mesurés avec des attributions aux vacuoles vérifiées et des réplicats expérimentaux indépendants.",
+  "scenes": [
+    "Depuis Home, ouvrez Toxoplasma, puis choisissez Replication Assay. Partez d’une base de données de mesures contenant des lignes de parasites et leurs attributions aux vacuoles. L’exemple synthétique lié vous permet de vous exercer aux paramètres et de lire les distributions de comptages obtenues.",
+    "Extrayez l’échantillon et réglez Source sur son dossier replication. La base de données se trouve dans measurements. Saisissez la référence de paramètres fournie en remplaçant son espace réservé Source par votre dossier extrait. Laissez Save activé pour écrire les résultats.",
+    "Réglez Vacuole key sur vacuole_id. Les parasites sont ainsi regroupés selon la vacuole à laquelle ils appartiennent. L’échantillon contient deux vacuoles par groupe de cellules hôtes ; utilisez donc l’identifiant de vacuole pour garder ces comptages séparés.",
+    "Activez Require host cell pour n’inclure que les parasites liés à une cellule hôte. Examinez les objets non attribués lorsque vous utilisez vos propres données. Pour cet échantillon, réglez Minimum parasite area sur deux cents et Maximum parasite area sur huit cents.",
+    "Réglez Maximum parasites per vacuole sur seize. Cela fixe la plus grande catégorie nommée parmi les puissances de deux. Les comptages plus grands qui sont des puissances de deux vont dans une catégorie de débordement, tandis que des comptages comme trois restent dans la catégorie distincte des valeurs qui ne sont pas des puissances de deux.",
+    "Saisissez vehicle et inhibitor comme les deux Pathogen types, et associez-les à la colonne un et à la colonne deux dans Pathogen plate metadata. Chaque groupe contient six puits d’exercice. Pour votre expérience, saisissez les noms des conditions et les attributions de puits de votre plan de plaque.",
+    "Vérifiez Source, Vacuole key, les filtres et Save, puis cliquez sur Run. Suivez la console jusqu’à la fin du traitement. La zone Figures affichera les distributions par puits et par condition.",
+    "Ouvrez la figure par puits. Chaque barre empilée montre la fraction de vacuoles dans chaque catégorie de nombre de parasites. Lisez les couleurs à l’aide de la légende. Dans cet échantillon, chaque puits contient quarante vacuoles et cinq pour cent se trouvent dans la catégorie des valeurs qui ne sont pas des puissances de deux.",
+    "Ouvrez Figure settings pour ajuster la légende. Dans l’onglet axes, choisissez une Legend position intérieure si les étiquettes dépassent de la figure. Cela modifie la présentation sans changer les comptages calculés.",
+    "Ouvrez la figure par condition pour comparer les distributions de comptages regroupées. Examinez les résultats par puits en parallèle de ce résumé. Pour analyser une expérience, utilisez des réplicats biologiques indépendants et une unité expérimentale appropriée pour les comparaisons statistiques.",
+    "Lisez les éventuels avertissements d’export dans la console. Vérifiez les figures enregistrées autant que la vue à l’écran, et choisissez des couleurs qui restent lisibles sur le fond de l’export.",
+    "Les résultats de results/analyze_replication, dans Source, s’appuient les uns sur les autres. vacuole_counts.csv compte chaque vacuole, well_distribution.csv transforme ces comptages en distribution pour chaque puits, et les résumés et figures par condition regroupent les puits. Conservez-les avec les paramètres et la base de données source afin de pouvoir retracer chaque nombre."
+  ]
+}

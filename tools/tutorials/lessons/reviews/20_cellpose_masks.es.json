@@ -1,0 +1,34 @@
+{
+  "lesson": "20_cellpose_masks",
+  "english_sha256": "8bb9d92ad26ef058c3b456df2ba6c86ea46c336cc677f6135bf111d8ea853754",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Aplicar Cellpose: segmentar una carpeta y revisar las máscaras",
+  "description": "Elige un modelo de segmentación, procesa las imágenes proporcionadas y revisa las máscaras guardadas y los filtros de tamaño en vivo.",
+  "objectives": [
+    "Seleccionar las imágenes, los pesos del modelo y los ajustes de segmentación.",
+    "Ejecutar Apply y localizar los TIFF de máscara guardados.",
+    "Revisar los resultados en vivo y comparar filtros de tamaño de objeto."
+  ],
+  "prerequisite": "Extrae el ejemplo de Apply Cellpose enlazado en una carpeta nueva. Contiene tres imágenes de células de un solo canal y una referencia de ajustes. Selecciona su carpeta images como Source. Este recorrido usa el modelo estándar cpsam; para un modelo propio, elige pesos y ajustes compatibles con tus imágenes.",
+  "scenes": [
+    "Desde Home, abre Make Masks y luego su Cellpose Workbench. Elige Apply para segmentar imágenes con un modelo existente. Usa Train cuando quieras aprender pesos nuevos a partir de pares de imagen y máscara revisados.",
+    "Extrae el ejemplo enlazado y pon en Source su carpeta images. Contiene tres imágenes de células de un solo canal, cada una de quinientos doce píxeles de lado. Si usas el archivo de ajustes grabado como referencia, sustituye su ruta de origen por tu carpeta extraída.",
+    "Selecciona cpsam y deja Custom model vacío en este ejemplo. Pon Channels en cero, los percentiles de normalización en dos y noventa y nueve, Diameter en treinta, Flow threshold en cero coma cuatro y Cell probability en cero. Ajusta estos valores después de revisar algunos campos representativos de tu propio experimento.",
+    "Activa Save y Verbose, elige un tamaño de lote de uno y haz clic en Run en Apply. Sigue la consola mientras se procesa cada imagen. Revisa los fallos antes de pasar a la medición.",
+    "Abre la subcarpeta masks dentro de Source. Cada imagen tiene un TIFF de máscara con el mismo nombre base. Revisa las figuras junto a las imágenes originales, fijándote en los objetos no detectados y en las células unidas. El panel de flujos muestra las direcciones que el modelo usa para segmentar.",
+    "Activa Live preview y elige una imagen con el selector de imágenes. Abre Live settings y revisa los controles de canal y de normalización. Contrae Console y System para dar más espacio a la vista previa si hace falta.",
+    "Compara la vista previa con la máscara guardada del lote. En este ejemplo, la vista previa y Apply siguen caminos de procesamiento distintos, así que pueden dar bordes y recuentos diferentes. Revisa los TIFF guardados al decidir si las salidas del lote sirven para la medición.",
+    "Usa la rueda del ratón para ampliar una zona en los dos lienzos de la vista previa. Revisa los objetos que se tocan y los bordes tenues, y luego aleja la vista para comprobar el campo completo.",
+    "Abre Live settings y aumenta Minimum cell area para quitar los objetos pequeños de la vista previa. El umbral está en píxeles; elígelo según el tamaño de tus objetos. Cierra el diálogo para revisar el resultado filtrado.",
+    "Compara los contornos filtrados con la imagen original. Cambiar este filtro en vivo actualiza la vista previa sin reescribir las máscaras que Apply ya guardó. Vuelve a ejecutar el lote con los ajustes deseados cuando necesites nuevas salidas guardadas.",
+    "Devuelve Minimum cell area a cero para restaurar la vista previa sin filtrar. Mantén juntos las imágenes de entrada, la identidad del modelo, los ajustes y las máscaras guardadas. Usa Make Masks para hacer correcciones o Measure para extraer características de los objetos a partir de las máscaras revisadas."
+  ]
+}

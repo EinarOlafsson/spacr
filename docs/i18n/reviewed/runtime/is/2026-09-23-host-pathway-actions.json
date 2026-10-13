@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted linguistic and implementation-context review of the Host–Pathogen pathway action, preserving vacuole identity, measured host denominators, optional counts and unknown measurements. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source": "Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.",
+      "source_sha256": "30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8",
+      "translation": "Mældu heilar frymisbólur og viðmiðunarhólf hýsilfrumna og haltu ósýktum hýsilfrumum í nefnara sýkingarhlutfallsins. Veldu merkjarásir og hlutfallsþröskulda sem eru kvarðaðir með viðmiðunum. Teldu eftir þörfum sníkjudýr sem eru afmörkuð hvert fyrir sig út frá skýrum tengingum við frymisbólur eða dálki með mældum fjölda. Skoðaðu töflur fyrir frymisbólur, hýsilfrumur og brunna, sameiginleg merkjaástand, fjölgunardreifingar og tengingar sníkjudýra sem fundu enga samsvörun; óþekkt mæligildi haldast óþekkt."
+    }
+  ]
+}

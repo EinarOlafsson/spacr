@@ -1,0 +1,34 @@
+{
+  "lesson": "42_curate",
+  "english_sha256": "54e14df590f9c3ae40a549095430907e6e853617b3cbc6e9ec04702b29e80d0d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Curate: breyttu grímum og ferlum",
+  "description": "Æfðu breytingar með pensli, skiptingu og samruna ferla og vistaðu leiðréttu skrárnar.",
+  "objectives": [
+    "Breyta merkjagrímu með penslinum og afturköllunarstýringum.",
+    "Skipta, sameina og vista ferla.",
+    "Varðveita upprunaskrár og sögu yfirferðar."
+  ],
+  "prerequisite": "Sæktu tilbúna æfingasafnið og vinndu í afritum. Taktu aðskilin öryggisafrit af grímum og .curation.json-fylgiskrám þeirra áður en þú opnar þær aftur: eins og er kemur vistun enduropnaðrar grímu í stað fyrri breytingaskrár hennar.",
+  "scenes": [
+    "Opnaðu Make Masks og svo Curate til að breyta merkjagrímum og ferlum. Sæktu tilbúna æfingadæmið hér fyrir neðan og haltu ósnertu afriti.",
+    "Flettu að TIFF-skrá dæmisins með heiltölumerkjum. Hver hlutur hefur sitt eigið merki og 0 er frátekið fyrir bakgrunn. Notaðu TIFF-dæmið í þessari yfirferð.",
+    "Stilltu Brush radius á 8 og smelltu á New til að velja nýtt merki. Smelltu á auðan hluta æfingamyndarinnar til að mála lítið svæði.",
+    "Smelltu á Undo stroke til að fjarlægja síðustu pensilbreytinguna. Málaðu aftur og skoðaðu niðurstöðuna áður en þú vistar.",
+    "Smelltu á Save mask til að skrifa vinnu-TIFF-skrána og fylgiskrá yfirferðarinnar. Áður en þú opnar aftur skaltu geyma báðar skrárnar í nýrri afritamöppu; niðurhalið inniheldur vistunarpunktsskriftu fyrir þetta skref.",
+    "Haltu öryggisafriti og breytingaskýringum hverrar lotu. Þegar gríma er opnuð aftur hefst ný skrá í minni og næsta vistun setur sögu þeirrar lotu í stað fylgiskrárinnar.",
+    "Flettu að CSV-skrá ferlanna og veldu ferla til að fara yfir. Join tekur við ferlum með rammabil sem skarast ekki; skörun gefur skilaboð sem þarf að leysa fyrst.",
+    "Veldu feril 2, stilltu Split at frame á 4 og smelltu á Split. Síðari rammarnir færast í nýjan feril en fyrri rammarnir halda upprunalega auðkenninu.",
+    "Veldu helmingana tvo sem skarast ekki og smelltu á Join til að sameina þá. Smelltu á Save tracks til að skrifa CSV-skrána og sérstaka fylgiskrá yfirferðar hennar.",
+    "Notaðu Delete aðeins fyrir ferla sem þú ætlar að fjarlægja. Til að henda óvistaðri breytingu opnarðu síðustu vistuðu CSV-skrána aftur.",
+    "Skoðaðu enduropnuðu ferlana og vistuðu söguna. Haltu frumritum og ástæðum breytinga, og keyrðu aftur allar síðari greiningar sem leiðréttar grímur eða brautir hafa áhrif á."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "lesson": "60_pca",
+  "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "PCA: explorar mediciones y exportar componentes",
+  "description": "Carga objetos medidos, elige características, compara componentes principales y exporta puntuaciones, cargas y varianza explicada.",
+  "objectives": [
+    "Cargar una base de datos de mediciones o un CSV y seleccionar características.",
+    "Elegir el escalado, el tratamiento de valores faltantes y los filtros.",
+    "Revisar las puntuaciones y cargas de los componentes y exportar tres tablas de resultados."
+  ],
+  "prerequisite": "Descarga el ejemplo del tutorial de Annotate y trabaja con una copia de measurements.db. Este recorrido usa su tabla cell, con 2341 objetos medidos en cuatro pozos. Conserva la base de datos original y anota tu lista de características, los filtros, el escalado y la política de valores faltantes.",
+  "scenes": [
+    "Desde Home, abre Image UMAP y luego elige PCA. Usa PCA para resumir varias columnas de mediciones como componentes principales. Empieza con la base de datos de mediciones del ejemplo de Annotate enlazado.",
+    "Haz clic en Load table junto al título de PCA. Abre measurements.db y selecciona cell. Comprueba la tabla mostrada y el número de objetos. También puedes cargar un CSV con columnas de mediciones.",
+    "Borra la búsqueda de características y haz clic en None para desmarcar todas las características visibles. Selecciona cell_area, cell_channel_1_mean_intensity y cell_perimeter. Vuelve a borrar la búsqueda, pon Components en tres y haz clic en Run PCA.",
+    "Deja Scale en Standardise para centrar cada característica y dividirla por su desviación estándar muestral. Lee el gráfico de sedimentación: los dos primeros componentes explican aproximadamente el sesenta y cinco coma siete y el treinta y uno coma siete por ciento de la varianza de las características seleccionadas.",
+    "Elige rowID en Colour, PC tres en X y PC uno en Y. Estos controles vuelven a dibujar el resultado ajustado. Cada punto representa una célula; en este ejemplo, rowID identifica una fila espacial.",
+    "Vuelve a PC uno y PC dos. Activa o desactiva Loadings biplot para mostrar u ocultar las flechas de las características. Las flechas muestran las correlaciones con los componentes mostrados; usa sus direcciones y el círculo de referencia discontinuo para comparar características.",
+    "Elige Centre only para ajustar con las escalas originales de las mediciones. Ahora el primer componente explica aproximadamente el noventa coma uno por ciento. El escalado cambia la pregunta que se resume. Vuelve a Standardise para comparar las características en una escala común.",
+    "En el filtro de la derecha, añade cell_area y pon el mínimo en veintiún mil novecientos veinticinco. El panel vuelve a ajustar el PCA con las mil ciento setenta y una células restantes, así que cambian tanto la población como las direcciones de los componentes.",
+    "Haz clic en Clear all en el filtro para recuperar la población completa. Comprueba el número de objetos después de filtrar. La base de datos de origen no cambia; el resultado mostrado se recalcula para la población elegida.",
+    "Selecciona cell_channel_0_homogeneity_distance_32 como cuarta característica. Haz clic en Run PCA para incluirla en el resultado. Este ejemplo tiene siete mediciones faltantes en esa columna; usa NaN para elegir cómo las trata el ajuste.",
+    "Con Auto, se quitan las características que faltan en más del dos por ciento de las filas y luego se descartan las filas incompletas. Aquí se mantienen las cuatro características y se excluyen siete células. Lee el informe para ver las características y los objetos que realmente se analizaron.",
+    "Elige Drop features para quitar cualquier característica seleccionada que contenga valores faltantes. En este ejemplo se quita la característica de textura y se mantienen todas las células. El aviso del resultado indica qué características se excluyeron, aunque sus casillas sigan marcadas.",
+    "Elige Mean-impute para conservar todas las células y características sustituyendo durante el cálculo los valores faltantes por la media observada de cada característica. Aquí se sustituyen siete valores. Anota esta elección al presentar el resultado; los valores sustituidos son estimaciones.",
+    "Elige Complete cases para conservar las características seleccionadas y excluir las filas incompletas. Para volver al ejemplo original, elige Auto, desmarca la característica de textura, borra la búsqueda, haz clic en Run PCA y pon Colour en none.",
+    "Haz clic en Export y elige un nombre base, como pca_example. El panel escribe tres archivos CSV: las puntuaciones de los objetos analizados, las cargas y correlaciones de las características, y la varianza explicada de los componentes. La tabla de puntuaciones incluye también las columnas de mediciones de origen.",
+    "Abre las tablas exportadas y guárdalas junto con tu lista de características, los filtros y los ajustes del análisis. Trata las células como observaciones dentro de sus pozos al interpretar la separación. Para un análisis reproducible en Python, usa pca y PCASpec de spacr.qt.widgets.pca_model."
+  ]
+}

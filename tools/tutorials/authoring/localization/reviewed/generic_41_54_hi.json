@@ -1,0 +1,107 @@
+{
+  "_meta": {
+    "schema": 2,
+    "reviewer": "human scientific-language review",
+    "scope": "Complete Hindi narration review for application lessons 41–54; exact UI labels retained."
+  },
+  "lessons": {
+    "41_classify": {"languages": {"hi": {"description": "इमेज क्रॉप या मापी गई फीचर के लिए उपयुक्त classification workflow चुनें और data splits के बीच संबंधित objects को leak किए बिना उसका मूल्यांकन करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Classify शामिल है। इमेज क्रॉप या मापी गई फीचर के लिए उपयुक्त classification workflow चुनें और data splits के बीच संबंधित objects को leak किए बिना उसका मूल्यांकन करें।",
+      "2": "Core अनुभाग से Classify खोलें। मॉडल द्वारा उपयोग किए जाने वाले representation को चुनने से पहले project और labels चुनें।",
+      "3": "मुख्य configuration क्षेत्र में Classifier family को शीर्ष-स्तरीय विकल्प के रूप में चुनें। Computer Vision object crops पर training करता है, जबकि Machine Learning मापी गई features पर training करता है।",
+      "4": "अधिक संसाधन वाली training शुरू करने से पहले छोटे grouped validation पर workflow जाँचें। Classify CV और Classify ML के अलग ट्यूटोरियल उनके सीमित Hyperparameter Search workbench दिखाते हैं।",
+      "5": "Workflow पूरा होने पर console और run record मॉडल, predictions, split records, metrics और settings को एक साथ जोड़ते हैं।"
+    }}}},
+    "42_curate": {"languages": {"hi": {"description": "प्रत्येक बदलाव का audit योग्य record बनाए रखते हुए segmentation masks और tracks को manual रूप से सुधारें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Curate शामिल है। प्रत्येक बदलाव का audit योग्य record बनाए रखते हुए segmentation masks और tracks को manual रूप से सुधारें।",
+      "2": "Core अनुभाग से Curate खोलें। Project खोलें और वे fields, mask class या tracks चुनें जिनकी समीक्षा आवश्यक है।",
+      "3": "Data बदलने से पहले मुख्य configuration क्षेत्र में editing tool, label behavior, navigation और review scope चुनें।",
+      "4": "एक छोटा सुधार करें, पास के frames या objects जाँचें और बदलाव सही होने पर ही save करें।",
+      "5": "Workflow पूरा होने पर सुधारे गए labels और track changes provenance के साथ संग्रहीत होते हैं, ताकि downstream measurements को refresh किया जा सके।"
+    }}}},
+    "43_illumination": {"languages": {"hi": {"description": "Intensity features मापने से पहले flat-field correction का अनुमान लगाएँ और उसकी पुष्टि करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Illumination शामिल है। Intensity features मापने से पहले flat-field correction का अनुमान लगाएँ और उसकी पुष्टि करें।",
+      "2": "Data अनुभाग से Illumination खोलें। Representative merged fields और correction की आवश्यकता वाले channels चुनें।",
+      "3": "मुख्य configuration क्षेत्र में प्रत्येक channel के sampling, smoothing, exclusion और quality-control विकल्पों की समीक्षा करें।",
+      "4": "अनुमानित illumination fields का Preview देखें और उन corrections को अस्वीकार करें जो biological structure का अनुसरण करते हों।",
+      "5": "Workflow पूरा होने पर स्वीकृत correction fields और diagnostics reproducible preprocessing के लिए सहेजे जाते हैं।"
+    }}}},
+    "44_data_manager": {"languages": {"hi": {"description": "मूल acquisition files को बदले बिना project storage की जाँच करें और derived files द्वारा प्रयुक्त स्थान खाली करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Data Manager शामिल है। मूल acquisition files को बदले बिना project storage की जाँच करें और derived files द्वारा प्रयुक्त स्थान खाली करें।",
+      "2": "Data अनुभाग से Data Manager खोलें। Project या workspace चुनें और spaCR को उसके artifacts की सूची बनाने दें।",
+      "3": "कुछ चुनने से पहले मुख्य configuration क्षेत्र में artifact type, size, provenance, दोबारा बनाने की क्षमता और dependency warnings की समीक्षा करें।",
+      "4": "Cleanup plan का Preview देखें और केवल वे derived artifacts हटाएँ जिन्हें आवश्यकता पड़ने पर आप दोबारा बना सकते हैं।",
+      "5": "Workflow पूरा होने पर updated inventory और cleanup record बताते हैं कि क्या शेष है और क्या पुनः बनाया जा सकता है।"
+    }}}},
+    "45_project_browser": {"languages": {"hi": {"description": "spaCR projects खोजें और उनकी stage, size, नवीनतम run तथा पुराने outputs एक ही table में देखें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Project Browser शामिल है। spaCR projects खोजें और उनकी stage, size, नवीनतम run तथा पुराने outputs एक ही table में देखें।",
+      "2": "Data अनुभाग से Project Browser खोलें। अपने projects वाली root directories चुनकर उन्हें scan करें।",
+      "3": "मुख्य configuration क्षेत्र में stage, size, age, module status या stale artifacts के अनुसार filter और sort करें।",
+      "4": "Status summary जाँचने के बाद चुना हुआ project या उसका नवीनतम run खोलें।",
+      "5": "Workflow पूरा होने पर browser project data को बदले बिना संबंधित files और modules के links उपलब्ध कराता है।"
+    }}}},
+    "46_napari_bridge": {"languages": {"hi": {"description": "napari में mask की समीक्षा करें और सुधारे गए labels को provenance सहित spaCR में वापस लाएँ।", "narrations": {
+      "1": "इस ट्यूटोरियल में Napari Bridge शामिल है। napari में mask की समीक्षा करें और सुधारे गए labels को provenance सहित spaCR में वापस लाएँ।",
+      "2": "Segmentation models अनुभाग से Napari Bridge खोलें। जाँचने के लिए project, field और mask plane चुनें।",
+      "3": "मुख्य configuration क्षेत्र में label class, source image layers, destination और overwrite safeguards की पुष्टि करें।",
+      "4": "napari में labels संपादित करें, उन्हें spaCR में वापस लाएँ और स्वीकार करने से पहले बदलाव की समीक्षा करें।",
+      "5": "Workflow पूरा होने पर सुधारे गए masks और curation record मूल field से जुड़े रहते हैं।"
+    }}}},
+    "47_barcode_qc": {"languages": {"hi": {"description": "Mapping depth, coverage, collisions, positional effects और evidence आधारित abundance threshold की जाँच करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Barcode QC शामिल है। Mapping depth, coverage, collisions, positional effects और evidence आधारित abundance threshold की जाँच करें।",
+      "2": "Results and quality control अनुभाग से Barcode QC खोलें। Plate और library metadata सहित पूरा हुआ barcode-mapping run खोलें।",
+      "3": "मुख्य configuration क्षेत्र में अपेक्षित guide representation, controls, grouping और threshold sweep विकल्पों की समीक्षा करें।",
+      "4": "Quality-control views बनाएँ और weak wells, unmapped reads तथा library coverage को एक साथ जाँचें।",
+      "5": "Workflow पूरा होने पर report चुना हुआ abundance threshold, उसके supporting diagnostics और प्रभावित wells दर्ज करती है।"
+    }}}},
+    "48_hit_list": {"languages": {"hi": {"description": "Effect size, uncertainty, false-discovery rate और guide agreement के आधार पर screen hits को rank कर उनकी समीक्षा करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Hit List शामिल है। Effect size, uncertainty, false-discovery rate और guide agreement के आधार पर screen hits को rank कर उनकी समीक्षा करें।",
+      "2": "Results and quality control अनुभाग से Hit List खोलें। पूरा हुआ analysis और screen outcome निर्धारित करने वाले result columns चुनें।",
+      "3": "मुख्य configuration क्षेत्र में controls, direction, significance, effect-size, annotation और agreement filters सेट करें।",
+      "4": "अंतिम subset export करने से पहले ranked table का Preview देखें और प्रत्येक candidate की जाँच करें।",
+      "5": "Workflow पूरा होने पर filtered hit list में scores, evidence, annotations और source identifiers सुरक्षित रहते हैं।"
+    }}}},
+    "49_methods_results": {"languages": {"hi": {"description": "Settings को स्मृति से दोबारा बनाने के बजाय recorded runs से traceable Methods और Results text का draft तैयार करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Methods & Results शामिल है। Settings को स्मृति से दोबारा बनाने के बजाय recorded runs से traceable Methods और Results text का draft तैयार करें।",
+      "2": "Results and quality control अनुभाग से Methods & Results खोलें। Document के लिए evidence देने वाले projects और completed runs चुनें।",
+      "3": "मुख्य configuration क्षेत्र में sections, comparisons, figures, statistics, citation style और privacy-sensitive fields चुनें।",
+      "4": "Draft बनाएँ और प्रत्येक कथन को उसकी setting, file या computed result तक trace करें।",
+      "5": "Workflow पूरा होने पर editable Methods और Results documents provenance summary सहित export होते हैं।"
+    }}}},
+    "50_run_compare": {"languages": {"hi": {"description": "Settings, counts, outputs और hits में हुए बदलाव समझने के लिए दो runs को साथ-साथ तुलना करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Run Compare शामिल है। Settings, counts, outputs और hits में हुए बदलाव समझने के लिए दो runs को साथ-साथ तुलना करें।",
+      "2": "Results and quality control अनुभाग से Run Compare खोलें। दो compatible run records चुनें।",
+      "3": "मुख्य configuration क्षेत्र में तुलना के लिए settings, artifacts, counts और result tables चुनें।",
+      "4": "Comparison की गणना करें और किसी run को बेहतर मानने से पहले महत्वपूर्ण differences की जाँच करें।",
+      "5": "Workflow पूरा होने पर comparison report प्रत्येक difference को दोनों source runs से जोड़ती है।"
+    }}}},
+    "51_control_charts": {"languages": {"hi": {"description": "Plates के बीच controls का अनुसरण करें और स्पष्ट baseline की तुलना में drift पहचानें।", "narrations": {
+      "1": "इस ट्यूटोरियल में Control Charts शामिल है। Plates के बीच controls का अनुसरण करें और स्पष्ट baseline की तुलना में drift पहचानें।",
+      "2": "Results and quality control अनुभाग से Control Charts खोलें। Plate order और baseline metadata सहित बार-बार मापे गए controls चुनें।",
+      "3": "मुख्य configuration क्षेत्र में baseline, grouping, center line, limits और alert policy निर्धारित करें।",
+      "4": "Chart बनाएँ और shifts, trends या out-of-control plates को उनके संदर्भ में जाँचें।",
+      "5": "Workflow पूरा होने पर chart, alerts और baseline definition को campaign monitoring के लिए export किया जा सकता है।"
+    }}}},
+    "52_pipeline_graph": {"languages": {"hi": {"description": "देखें कि प्रत्येक result किन artifacts से बना और कौन से downstream outputs पुराने या अनुपस्थित हैं।", "narrations": {
+      "1": "इस ट्यूटोरियल में Pipeline Graph शामिल है। देखें कि प्रत्येक result किन artifacts से बना और कौन से downstream outputs पुराने या अनुपस्थित हैं।",
+      "2": "Explore अनुभाग से Pipeline Graph खोलें। spaCR project या registered run collection खोलें।",
+      "3": "मुख्य configuration क्षेत्र में module, artifact type, status या workflow branch के आधार पर graph filter करें।",
+      "4": "Nodes और edges चुनकर उनकी settings, files, dependencies और stale होने के कारण जाँचें।",
+      "5": "Workflow पूरा होने पर graph उस module की सटीक पहचान करता है जिसे consistency बहाल करने के लिए दोबारा चलाना चाहिए।"
+    }}}},
+    "53_prediction_profiler": {"languages": {"hi": {"description": "मॉडल के एक input को बदलें और देखें कि fitted prediction किस प्रकार प्रतिक्रिया करता है।", "narrations": {
+      "1": "इस ट्यूटोरियल में Prediction Profiler शामिल है। मॉडल के एक input को बदलें और देखें कि fitted prediction किस प्रकार प्रतिक्रिया करता है।",
+      "2": "Models अनुभाग से Prediction Profiler खोलें। Fitted model, representative row और बदलने वाली feature चुनें।",
+      "3": "मुख्य configuration क्षेत्र में feature की वैज्ञानिक रूप से उचित range निर्धारित करें और अन्य inputs को जानबूझकर स्थिर रखें या sample करें।",
+      "4": "Profile बनाएँ और relevant classes या reference objects के बीच उसकी तुलना करें।",
+      "5": "Workflow पूरा होने पर response curve मॉडल का व्यवहार दर्शाता है, causal biological effect नहीं। इसे settings सहित export किया जा सकता है।"
+    }}}},
+    "54_qc_dashboard": {"languages": {"hi": {"description": "Segmentation, units, leakage, plate effects और annotations की जाँच को एक review surface पर संयोजित करें।", "narrations": {
+      "1": "इस ट्यूटोरियल में QC Dashboard शामिल है। Segmentation, units, leakage, plate effects और annotations की जाँच को एक review surface पर संयोजित करें।",
+      "2": "Results and quality control अनुभाग से QC Dashboard खोलें। वह project और runs चुनें जिनके quality evidence का सारांश चाहिए।",
+      "3": "मुख्य configuration क्षेत्र में उपलब्ध checks, उनके scope और प्रत्येक verdict के criteria की समीक्षा करें।",
+      "4": "Dashboard refresh करें और underlying evidence देखने के लिए warning cards खोलें।",
+      "5": "Workflow पूरा होने पर combined verdict अलग-अलग reports को बदलने के बजाय उनसे traceable रहता है।"
+    }}}}
+  }
+}

@@ -1,0 +1,660 @@
+"""QC dashboard screen: every stored QC verdict for a project, side by side.
+
+The screen half of :mod:`spacr.qt.widgets.qc_summary`. It shows the
+segmentation, units, leakage, plate-effect and agreement verdicts side by
+side, with the one-line summary they add up to.
+
+**What it is for.** Checking a project before its numbers are used. After
+Mask and Measure, and again after Classify, QC gathers the verdicts those
+steps already wrote into one place, so the question does not need five
+screens.
+
+**What it needs.** A project or plate folder, chosen with Browse or dropped
+onto QC. Each card reads a file that is already on disk: the
+segmentation scorecards a Mask run writes (``seg_qc``), the units stamp
+Measure puts on every row of ``measurements.db``, ``leakage.json`` from the
+newest Classify (CV) evaluation bundle, and ``plate_qc.json`` and
+``agreement.json`` when a plate-effect or annotator-agreement report has been
+saved under the project.
+
+**What it produces.** Nothing on disk. Each card carries a verdict --
+``ok``, ``missing``, ``warn``, ``fail`` or ``error`` -- with a headline, the
+details behind it and, for a check that has never run, the step that would
+produce it; the overall verdict is the worst of them. A card older than its
+inputs is marked stale rather than downgraded, and ``missing`` means nothing
+was checked, not that nothing is wrong.
+
+**What to do next.** Fix what a ``warn`` or ``fail`` card names at its source
+and re-run that step; the cards are read again when a file has changed.
+Layer Viewer shows the images behind a failing check, Control Charts follows
+the same checks over time and Outliers finds the wells or objects unlike the
+rest; all three open from this screen's masthead.
+
+It **reads**; it does not score. The rule is :mod:`spacr.qt.prerun`'s, and
+that module says why: opening a plate's masks costs seconds to minutes, which
+is too slow to repeat on every visit. So the reads go
+through a fingerprint cache -- one listdir and one stat per artifact -- and
+the parse only happens when something on disk has actually changed.
+
+Nothing here disables anything. ``Dashboard.blocks_run`` is a constant False,
+and this screen has no Run button to gate.
+"""
+
+from __future__ import annotations
+
+import logging
+import os
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+
+if TYPE_CHECKING:
+    from ..widgets.fold_strip import FoldStrip
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea,
+    QSizePolicy, QVBoxLayout, QWidget,
+)
+
+from ..job_runner import JobRunner
+from ..theme import SPACING, register_widget_qss
+from .app_screen import ModuleHeader
+from ..widgets.collapsible_splitter import FoldSection
+from ..widgets.measurements_example import install_test_data_button
+from ..i18n import tr
+from ..widgets.qc_summary import (
+    Dashboard, format_dashboard, read_dashboard,
+)
+from ..app_catalog import declared_app, register_declared
+
+__all__ = [
+    "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "APP_CLI_NOTE",
+    "APP_TRANSLATIONS", "QCDashboardScreen", "make_qc_dashboard_screen",
+    "register",
+]
+
+#: Stable app id. Chosen once; saved user state and the registry key off it.
+APP_KEY = "qc_dashboard"
+
+_ROW = declared_app(APP_KEY)
+APP_NAME = _ROW.name
+APP_DESCRIPTION = _ROW.desc
+APP_INTRO = _ROW.intro
+APP_CLI_NOTE = _ROW.cli_note
+#: sv, de, es, zh_CN, pt, hi, ko, is, fr
+#: All nine identical: "QC" is declared technical identity text (see
+#: `tools/build_i18n_catalogs.py::_IDENTITY_TEXT`, beside PNG and RGB),
+#: so it must stay byte-identical in every language.
+APP_TRANSLATIONS: Tuple[str, ...] = ("QC",) * 9
+
+LOG = logging.getLogger(__name__)
+
+VERDICT_OBJECT = "spacrQCVerdict"
+CARDS_OBJECT = "spacrQCCards"
+STATUS_OBJECT = "spacrQCStatus"
+#: One card's lines, the body of the section that folds it (item 471).
+CARD_OBJECT = "spacrQCCard"
+
+
+def _dashboard_qss(palette: dict, opacity: Optional[float] = None) -> str:
+    """QSS for this screen, rebuilt on every theme change.
+
+    ``palette`` arrives with its surface roles already rendered through the
+    page-opacity preference, so every rule below that names one follows the
+    slider. The card panel needs a rule at all for that to matter: a named
+    ``QWidget`` with no rule of its own falls back to the blanket
+    ``QWidget {{ background-color: bg }}``, which is the WINDOW colour and
+    not a surface, and no setting can reach it.
+    """
+    from ..theme import block_surface
+    cards_bg = block_surface("surface_alt", palette.get("theme"), opacity)
+    return f"""
+#{CARDS_OBJECT} {{
+    background: {cards_bg};
+    border: 1px solid {palette['border_soft']};
+    border-radius: 6px;
+}}
+#{VERDICT_OBJECT} {{
+    color: {palette['fg']};
+    background: {palette['surface_alt']};
+    border: 1px solid {palette['border']};
+    border-radius: 6px;
+    padding: {SPACING['sm']}px;
+}}
+/* The screen's own plain labels -- the intro paragraph and the "Folder:"
+   caption. They sit on the page rather than on a panel, and `page` is not
+   `bg` (INVARIANTS 2), so a label painting the window colour shows as a
+   black rectangle there too. */
+#QCDashboardScreen > QLabel {{
+    background: transparent;
+}}
+
+/* Every label on the cards panel, before the colour rules below.
+   A QLabel is a QWidget, so a label with no background of its own is
+   matched by the blanket `QWidget {{ background-color: bg }}` and paints
+   the WINDOW colour -- #000000 on dark -- as a solid rectangle behind its
+   own text, on top of a panel that DOES have a background. That is the
+   black box behind the segmentation-QC text.
+
+   Transparent, not a colour: the panel's background already carries the
+   user's page opacity through `block_surface`, and repeating a colour here
+   would freeze one opacity into the labels while the panel behind them
+   kept following the preference. */
+#{CARDS_OBJECT} QLabel {{
+    background: transparent;
+}}
+#{CARDS_OBJECT} QWidget#{CARD_OBJECT},
+#{CARDS_OBJECT} QWidget#FoldSection,
+#{CARDS_OBJECT} QWidget#FoldSectionBody {{
+    background: transparent;
+}}
+#{STATUS_OBJECT} {{
+    background: transparent;
+}}
+#{CARDS_OBJECT} QLabel[spacrQCVerdictLevel="ok"] {{
+    color: {palette['success']};
+}}
+#{CARDS_OBJECT} QLabel[spacrQCVerdictLevel="warn"] {{
+    color: {palette['warning']};
+}}
+#{CARDS_OBJECT} QLabel[spacrQCVerdictLevel="fail"] {{
+    color: {palette['error']};
+}}
+#{CARDS_OBJECT} QLabel[spacrQCVerdictLevel="error"] {{
+    color: {palette['error']};
+}}
+#{CARDS_OBJECT} QLabel[spacrQCVerdictLevel="missing"] {{
+    color: {palette['fg_muted']};
+}}
+#{CARDS_OBJECT} QLabel[spacrQCStale="true"] {{
+    border-left: 3px solid {palette['warning']};
+    padding-left: {SPACING['sm']}px;
+}}
+#{CARDS_OBJECT} QLabel[spacrQCRole="detail"] {{
+    color: {palette['fg_muted']};
+}}
+#{STATUS_OBJECT} {{ color: {palette['fg_muted']}; }}
+#{STATUS_OBJECT}[spacrError="true"] {{ color: {palette['error']}; }}
+"""
+
+
+register_widget_qss("QCDashboard", _dashboard_qss, replace=True)
+
+
+class QCDashboardScreen(QWidget):
+    """Read every QC verdict for a project and show them together.
+
+    :param src: project folder to read; may be set later.
+    :param threaded: ``False`` reads inline, emitting the same signals in
+        the same order, so a test can drive the screen synchronously.
+    :param reader: substitute for
+        :func:`spacr.qt.widgets.qc_summary.read_dashboard`, for tests.
+    :param parent: parent widget; ownership only.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None, *,
+                 src: Any = "", threaded: bool = True, reader=None) -> None:
+        """Build the dashboard and arm its drop zone.
+
+        The registry key is named here rather than inherited: screens that build
+        themselves rather than being the generic ``AppScreen`` had none, and
+        fold installation dispatches on exactly that -- so this screen could
+        declare folds and never be handed them.
+
+        Its job runner is marked not user-visible, because it never runs
+        anything: it reads verdicts already on disk, plus the folder check and
+        the fingerprint, on every visit including the ones where nothing has
+        changed. Visible, each of those would flash "QC - running" on Home for
+        a read the user never started.
+
+        :param parent: parent widget, or ``None``.
+        :param src: project or plate folder to open with.
+        :param threaded: read on a worker thread. Set ``False`` in tests so
+            ``refresh`` finishes before it returns.
+        :param reader: an alternative verdict reader, for tests.
+        """
+        super().__init__(parent)
+        self.app_key = "qc_dashboard"
+        self.setObjectName("QCDashboardScreen")
+        self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY,
+                               user_visible=False)
+        self._jobs.job_failed.connect(self._on_job_failed)
+        self._reader = reader
+        self._dashboard: Optional[Dashboard] = None
+        self._cache_key: Any = None
+        #: What the last `refresh` turned out to do, reported back by
+        #: `_on_read` so an inline read still answers exactly.
+        self._read_started = False
+        self._card_labels: List[QLabel] = []
+        self._build()
+        if src:
+            self.set_source(src)
+        from ..dnd import install_for
+        install_for(self, "qc_dashboard")
+
+
+    def _build(self) -> None:
+        """Lay out the source row, the verdict line and the scrolling card column."""
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["md"], SPACING["md"],
+                                 SPACING["md"], SPACING["md"])
+        outer.setSpacing(SPACING["md"])
+
+        header = ModuleHeader(
+            APP_NAME,
+            description=APP_DESCRIPTION,
+            instruction="Point it at a project or plate folder, then "
+                        "refresh.",
+        )
+        self._header = header
+        outer.addWidget(header)
+
+        intro = QLabel(APP_INTRO)
+        intro.setWordWrap(True)
+        outer.addWidget(intro)
+
+        row = QHBoxLayout()
+        row.setSpacing(SPACING["sm"])
+        self._src_edit = QLineEdit("")
+        self._src_edit.setPlaceholderText("project or plate folder")
+        self._src_edit.returnPressed.connect(self.refresh)
+        row.addWidget(QLabel("Folder:"))
+        row.addWidget(self._src_edit, 1)
+        browse = QPushButton("Browse...")
+        browse.clicked.connect(self._on_browse)
+        row.addWidget(browse)
+        refresh = QPushButton("Refresh")
+        refresh.clicked.connect(self.refresh)
+        row.addWidget(refresh)
+        install_test_data_button(
+            self, row, lambda folder, _db: self.set_source(folder),
+            say=lambda message: self._status.setText(message))
+        outer.addLayout(row)
+
+        self._verdict = QLabel("No folder set.")
+        self._verdict.setObjectName(VERDICT_OBJECT)
+        self._verdict.setWordWrap(True)
+        outer.addWidget(self._verdict)
+
+        self._cards_panel = QWidget()
+        self._cards_panel.setObjectName(CARDS_OBJECT)
+        self._cards_layout = QVBoxLayout(self._cards_panel)
+        self._cards_layout.setContentsMargins(SPACING["sm"], SPACING["sm"],
+                                              SPACING["sm"], SPACING["sm"])
+        self._cards_layout.setSpacing(SPACING["sm"])
+        self._cards_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scroll = QScrollArea()
+        scroll.setWidget(self._cards_panel)
+        self._cards_panel.setAutoFillBackground(False)
+        scroll.setWidgetResizable(True)
+        scroll.viewport().setAutoFillBackground(False)
+        try:
+            from ..theme import make_transparent
+            make_transparent(scroll)
+        except Exception:      # pragma: no cover - decoration is not load-bearing
+            LOG.debug("could not make the QC scroll area transparent",
+                      exc_info=True)
+        scroll.setSizePolicy(QSizePolicy.Policy.Expanding,
+                             QSizePolicy.Policy.Expanding)
+        outer.addWidget(scroll, 1)
+
+        self._status = QLabel("")
+        self._status.setObjectName(STATUS_OBJECT)
+        self._status.setWordWrap(True)
+        outer.addWidget(self._status)
+
+
+    def set_source(self, src: Any) -> None:
+        """Point the screen at a project folder and read it.
+
+        :param src: the project folder; its string form is put in the folder
+            field and the verdicts are re-read with :meth:`refresh`.
+        """
+        self._src_edit.setText(str(src))
+        self.refresh()
+
+    def source(self) -> str:
+        """The folder currently shown."""
+        return self._src_edit.text().strip()
+
+    def _fingerprint(self, src: str) -> Optional[Tuple]:
+        """A cheap key that changes exactly when the artifacts do.
+
+        One stat per artifact, so returning to the screen ten times does not
+        re-parse ten times, while a re-mask that rewrites a scorecard is
+        picked up on the next visit. ``None`` forces a read rather than
+        trusting a cache that could not be verified.
+
+        WORKER-ONLY. Cheap is relative to parsing a plate, not to a Qt
+        repaint: `find_scorecards` lists the qc folder and this stats every
+        file it names, all under a root the user typed. :meth:`refresh`
+        calls it from the submitted job and nowhere else -- see that method
+        for what it cost when it ran inline.
+        """
+        try:
+            from ...seg_qc import find_scorecards
+            paths = list(find_scorecards(src))
+        except Exception:
+            return None
+        for extra in ("measurements/measurements.db", "measurements.db", "qc/image_quality.json"):
+            candidate = os.path.join(src, extra)
+            if os.path.isfile(candidate):
+                paths.append(candidate)
+        out = []
+        for path in paths:
+            try:
+                info = os.stat(path)
+            except OSError:
+                return None
+            out.append((path, info.st_mtime_ns, info.st_size))
+        return tuple(out)
+
+    def refresh(self, *, force: bool = False) -> bool:
+        """Re-read the verdicts, entirely off the GUI thread.
+
+        The parse and the two decisions in front of it -- "is this a
+        folder?" and "has anything changed?" -- all run on the worker,
+        because both decisions touch the disk at a path the user typed.
+        `os.path.isdir` is one call, and `_fingerprint` is a
+        `find_scorecards` listing plus a stat per artifact.
+
+        Measured on one workstation: a single
+        `os.path.exists` under `/nas_mnt`, an `autofs` mount whose share was
+        asleep, had not returned after twenty seconds -- the stat is what
+        triggers the automount. Run on the GUI thread, that call would freeze
+        the whole interface, with no traceback, whenever such a folder was
+        dropped, browsed to or refreshed.
+
+        `path_probe` is not used for the folder guard. It answers
+        optimistically, so it could only ever say "go on and read", which
+        the worker then checks anyway; a second guard on the GUI thread
+        would only allow the two answers to disagree. The screen's messages
+        are unchanged; they appear when the worker finishes.
+
+        :param force: read even when the fingerprint says nothing changed.
+        :returns: whether a read of the disk was started. Reading inline
+            (``threaded=False``) that is exact, because the worker half has
+            already run and reported by the time this returns. Threaded, it
+            means the job was started: the fingerprint is not taken yet, so
+            "nothing changed" arrives later, on the status line.
+        """
+        src = self.source()
+        if not src:
+            self._verdict.setText("No folder set.")
+            self._set_status("Pick a project folder to read its verdicts.")
+            return False
+
+        reader = self._reader or read_dashboard
+
+        def work(s=src, r=reader, force=force, previous=self._cache_key,
+                 had_one=self._dashboard is not None):
+            """Off the GUI thread. Touches no widget -- returns a verdict.
+
+            The cache comparison comes with it rather than staying behind:
+            the key it compares is the walk of the disk, so leaving the
+            comparison on the GUI thread would leave the walk there too.
+            """
+            if not os.path.isdir(s):
+                return ("missing", s, None)
+            key = (s, self._fingerprint(s))
+            if not force and had_one and key == previous and key[1]:
+                return ("unchanged", key, None)
+            return ("read", key, r(s))
+
+        self._jobs.cancel()
+        self._set_status("Reading...")
+        self._read_started = True
+        started = bool(self._jobs.submit(work, self._on_read))
+        return started and self._read_started
+
+    def _on_read(self, result) -> None:
+        """Paint what the worker decided. GUI thread only.
+
+        ``None`` is a read that produced nothing (a cancelled or failed job),
+        and it must leave a screen that is showing real verdicts alone.
+        """
+        if not result:
+            return
+        outcome, payload, dashboard = result
+        if outcome == "missing":
+            self._read_started = False
+            self._verdict.setText("That folder does not exist.")
+            self._set_status(f"{payload} is not a folder.", is_error=True)
+            return
+        self._cache_key = payload
+        if outcome == "unchanged":
+            self._read_started = False
+            if self._dashboard is not None:
+                self._draw(self._dashboard)
+            self._set_status(
+                "Nothing on disk has changed since the last read.")
+            return
+        if dashboard is None:
+            return
+        self._dashboard = dashboard
+        self._draw(dashboard)
+        self._set_status(
+            "Read from disk; nothing was recomputed."
+            + (" One or more cards are out of date -- their inputs have been "
+               "written again since they were scored."
+               if dashboard.stale else ""))
+
+    def dashboard(self) -> Optional[Dashboard]:
+        """The most recent :class:`~spacr.qt.widgets.qc_summary.Dashboard`."""
+        return self._dashboard
+
+
+    def _draw(self, dashboard: Dashboard) -> None:
+        """Rebuild the verdict line and the cards from a dashboard.
+
+        A missing card also prints how to produce what it is missing, so the
+        dashboard says what to do next rather than only what is absent.
+
+        Each card is a :class:`~spacr.qt.widgets.collapsible_splitter.FoldSection`
+        named by its title (item 471): a click on the heading folds the card's
+        lines away, the verdict stays on the heading row so a folded card
+        still says pass or fail, and a fold the user makes is remembered per
+        card under ``qc_dashboard/<card key>``. A card never grows past what it
+        needs, so the column's spare room stays below the last card and a
+        folded card keeps its place in the list instead of opening a gap
+        above its heading.
+
+        :param dashboard: the read verdicts.
+        """
+        self._verdict.setText(
+            f"{dashboard.verdict.upper()} — {dashboard.headline}")
+        self._verdict.setProperty("spacrQCVerdictLevel", dashboard.verdict)
+
+        while self._cards_layout.count():
+            item = self._cards_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+        self._card_labels = []
+
+        for card in dashboard.cards:
+            group = QWidget()
+            group.setObjectName(CARD_OBJECT)
+            group_layout = QVBoxLayout(group)
+            group_layout.setContentsMargins(0, 0, 0, 0)
+            group_layout.setSpacing(SPACING["sm"])
+            heading = QLabel(
+                f"[{card.display_verdict}]  {card.title} — {card.headline}")
+            heading.setWordWrap(True)
+            heading.setProperty("spacrQCVerdictLevel", card.verdict)
+            heading.setProperty("spacrQCStale", "true" if card.stale
+                                else "false")
+            heading.setProperty("cardKey", card.key)
+            if card.source:
+                heading.setToolTip(card.source)
+            group_layout.addWidget(heading)
+            self._card_labels.append(heading)
+            if card.key == 'image_quality' and card.source:
+                from pathlib import Path
+                from PySide6.QtCore import QUrl
+                from PySide6.QtGui import QDesktopServices
+                review = QPushButton(tr('Review image quality'))
+                gallery = str(Path(card.source).with_suffix('.html'))
+                review.clicked.connect(lambda _checked=False, path=gallery:
+                                       QDesktopServices.openUrl(QUrl.fromLocalFile(path)))
+                group_layout.addWidget(review)
+            for line in card.detail:
+                detail = QLabel(line)
+                detail.setWordWrap(True)
+                detail.setProperty("spacrQCRole", "detail")
+                detail.setIndent(SPACING["md"])
+                group_layout.addWidget(detail)
+                self._card_labels.append(detail)
+            if card.verdict == "missing" and card.how_to_produce:
+                todo = QLabel(f"-> {card.how_to_produce}")
+                todo.setWordWrap(True)
+                todo.setProperty("spacrQCRole", "detail")
+                todo.setIndent(SPACING["md"])
+                group_layout.addWidget(todo)
+                self._card_labels.append(todo)
+            chip = QLabel(f"[{card.display_verdict}]")
+            chip.setProperty("spacrQCVerdictLevel", card.verdict)
+            chip.setProperty("i18nSkipText", True)
+            section = FoldSection(
+                group, card.title, persist_key=f"qc_dashboard/{card.key}",
+                actions=[chip])
+            section.setSizePolicy(QSizePolicy.Policy.Preferred,
+                                  QSizePolicy.Policy.Maximum)
+            if card.key == 'image_qc_classifier':
+                from ..preferences import _apply_alpha_widgets
+                section.setObjectName("QCClassifierCard")
+            self._cards_layout.addWidget(section)
+            if card.key == 'image_qc_classifier':
+                _apply_alpha_widgets(section)
+
+    def visible_text(self) -> str:
+        """Every card line currently on screen, joined. For tests."""
+        return "\n".join(label.text() for label in self._card_labels)
+
+    def as_text(self) -> str:
+        """The dashboard as plain text, for a log or a paste."""
+        if self._dashboard is None:
+            return "No folder read yet."
+        return format_dashboard(self._dashboard)
+
+    def _set_status(self, text: str, *, is_error: bool = False) -> None:
+        """Write the status line and repolish it so the error style takes effect.
+
+        :param text: message to show.
+        :param is_error: style the line as an error.
+        """
+        self._status.setText(text)
+        self._status.setProperty("spacrError", "true" if is_error else "false")
+        style = self._status.style()
+        if style is not None:
+            style.unpolish(self._status)
+            style.polish(self._status)
+
+    def status_text(self) -> str:
+        """The status line. For tests."""
+        return self._status.text()
+
+
+    def _on_browse(self) -> None:
+        """Ask for a project folder and read it."""
+        folder = QFileDialog.getExistingDirectory(self, "Project folder")
+        if folder:
+            self.set_source(folder)
+
+    def _on_job_failed(self, message: str) -> None:
+        """Report a failed verdict read on the status line.
+
+        :param message: the failure text from the job runner.
+        """
+        self._set_status(f"Could not read the verdicts: {message}",
+                         is_error=True)
+
+
+    def active_jobs(self) -> int:
+        """How many worker threads are still winding down."""
+        return self._jobs.active_jobs()
+
+    def is_busy(self) -> bool:
+        """True while a read has not delivered its result."""
+        return self._jobs.is_busy()
+
+    def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Stop background work and unlink before going away.
+
+        :param event: the Qt close event.
+        """
+        self._jobs.shutdown()
+        super().closeEvent(event)
+
+
+def make_qc_dashboard_screen(app_key: Optional[str] = None) -> QWidget:
+    """Factory handed to :func:`spacr.qt.app.register_app`."""
+    return QCDashboardScreen()
+
+
+def register() -> bool:
+    """Add the QC Dashboard to the app registry. Idempotent."""
+    return register_declared(__name__) is not None
+
+
+register()
+
+
+
+HOST_KEY = "qc_dashboard"
+
+#: Registry keys of the modules folded into QC, in strip order. Asked
+#: for as "make one QC module": the dashboard reports stored checks,
+#: layer viewer is how you LOOK at the images behind a failing one, and
+#: control charts are the same checks over time. Three tiles for one
+#: activity is three places to look for it.
+#:
+#: `control_chart` is declared in `app_catalog` rather than registered,
+#: so its button takes its name from there -- see `fold_description`.
+FOLDED_APPS: Tuple[str, ...] = ('layer_viewer', 'control_chart',
+                                'outliers')
+
+
+def _build_layer_viewer(host_window: Optional[QWidget] = None) -> QWidget:
+    """Layer Viewer, as the window builds it."""
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("layer_viewer", host_window)
+
+
+def _build_control_chart(host_window: Optional[QWidget] = None) -> QWidget:
+    """Control Chart, as the window builds it."""
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("control_chart", host_window)
+
+
+def _build_outliers(host_window: Optional[QWidget] = None) -> QWidget:
+    """Outliers, as the window builds it.
+
+    A QC question -- "which wells or objects do not look like the
+    others" -- so it belongs behind QC rather than beside it on Home.
+    """
+    from .map_barcodes import build_registered_screen
+
+    return build_registered_screen("outliers", host_window)
+
+
+#: One builder per folded module. :func:`install_folds` walks
+#: :data:`FOLDED_APPS` and looks each key up here, so the strip's order
+#: and the strip's contents cannot disagree.
+BUILDERS: Dict[str, Callable[[Optional[QWidget]], QWidget]] = {
+    "layer_viewer": _build_layer_viewer,
+    "control_chart": _build_control_chart,
+    "outliers": _build_outliers,
+}
+
+
+def install_folds(screen: QWidget) -> Optional["FoldStrip"]:
+    """Put qc_dashboard's fold strip on ``screen``'s masthead.
+
+    Reached by the one pass over the stack that serves every host --
+    see :data:`spacr.qt.screens.map_barcodes.FOLD_HOST_MODULES`.
+    """
+    from .map_barcodes import install_fold_strip
+
+    return install_fold_strip(screen, HOST_KEY, FOLDED_APPS, BUILDERS)

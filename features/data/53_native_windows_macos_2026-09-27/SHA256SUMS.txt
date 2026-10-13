@@ -1,0 +1,6 @@
+e267da9ab3f6fe2eace1b3c4a6f075b743d900fe45298864825acc36b3d39e6e  features/data/53_native_windows_macos_2026-09-27/windows/smoke.json
+51ef032f84513a14983801aa88c77e57b51e9c66434e64ff54d83a29f034a7fe  features/data/53_native_windows_macos_2026-09-27/windows/measure-complete.png
+22f06a047477f06790ea7d911cdd0a8d78807ee7f1479343b55c9982b190d10f  features/data/53_native_windows_macos_2026-09-27/macos/smoke.json
+7e5770c9411b552ab7856b4b11092c24d629587e418ea67b44e1b4c11878c84f  features/data/53_native_windows_macos_2026-09-27/macos/measure-complete.png
+73f8c125d287b6a6872e3b03a99cf4f527345870998fdaf8cf1cbd2bcff8f60c  /mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/ci-36348757658/windows/experiment/measurements/measurements.db
+964543cbc6e27d76ab5cb6e6286d698def1df1db506d6811046ec6c3564d5545  /mnt/wd4tb/scratch/spacr-completion/53-native-feasibility/ci-36348757658/macos/experiment/measurements/measurements.db

@@ -1,0 +1,88 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/growth-r1-tool.log', 'pytest', '-q', 'tests/qt/test_fungal_growth_engine.py', 'tests/qt/test_fungal_scalar_path_overloads.py', 'tests/qt/test_fungal_mature_raster_cache.py']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+.........................................FF...F                          [100%]
+=================================== FAILURES ===================================
+________ test_fractional_tip_growth_and_cycle_boundaries_are_continuous ________
+
+    def test_fractional_tip_growth_and_cycle_boundaries_are_continuous():
+        """A new lineage enters invisibly while older tips keep their paths."""
+        engine = _engine()
+        width, height = 384, 216
+        engine.set_time(4.1)
+        before = {edge[:6] + edge[-1:]: edge[6]
+                  for edge in engine.geometry(width, height)
+                  if 0.0 < edge[6] < 1.0}
+        engine.set_time(4.2)
+        after = {edge[:6] + edge[-1:]: edge[6]
+                 for edge in engine.geometry(width, height)
+                 if 0.0 < edge[6] < 1.0}
+        growing = [((after[key] - progress)
+                    * (math.hypot(key[2] - key[0], key[3] - key[1])
+                       + math.hypot(key[4] - key[2], key[5] - key[3])))
+                   for key, progress in before.items()
+                   if key in after and after[key] > progress]
+>       assert growing and max(growing) < 3.0
+E       assert ([])
+
+tests/qt/test_fungal_growth_engine.py:114: AssertionError
+________ test_wandering_tips_fork_recursively_more_often_near_the_front ________
+
+    def test_wandering_tips_fork_recursively_more_often_near_the_front():
+        """Three nearby roots explore and their offspring fork in turn."""
+        engine = _engine()
+        width, height = 960, 540
+        for block in range(4):
+            colony = engine._lineage(block, width, height)
+            endpoints = {edge[5:7] for edge in colony}
+            roots = [edge for edge in colony if edge[1:3] not in endpoints]
+            assert len(roots) == 3
+            assert len({edge[1:3] for edge in roots}) == 1
+            assert all(edge[1:3] in endpoints or edge in roots for edge in colony)
+            assert max(edge[10] for edge in colony) >= 3
+            starts = {}
+            for edge in colony:
+                starts[edge[1:3]] = starts.get(edge[1:3], 0) + 1
+            forks = [edge for edge in colony
+                     if starts.get(edge[5:7], 0) > 1
+                     and block * 30 <= edge[7] < block * 30 + 30]
+            thirds = [sum(block * 30 + start <= edge[7] < block * 30 + start + 10
+                          for edge in forks) for start in (0, 10, 20)]
+            assert thirds[0] < thirds[1] < thirds[2]
+            early = [edge for edge in colony if block * 30 <= edge[7] < block * 30 + 5]
+            late = [edge for edge in colony if block * 30 + 18 <= edge[7] < block * 30 + 25]
+            primary = [edge for edge in colony if edge[0] == -1]
+            if block < 2:
+                shift = (sum(edge[5] for edge in late) / len(late)
+                         - sum(edge[1] for edge in early) / len(early))
+>               assert (shift if block == 0 else -shift) > width * 0.4
+E               assert 379.5849714281981 > (960 * 0.4)
+
+tests/qt/test_fungal_growth_engine.py:173: AssertionError
+___ test_visible_front_has_more_connected_forks_later_and_at_higher_density ____
+
+    def test_visible_front_has_more_connected_forks_later_and_at_higher_density():
+        """Density prunes children while leaving primary paths and their parents."""
+        counts = []
+        for density in (1.0, 3.0):
+            engine = _engine(density=density)
+            engine.set_time(31.0)
+            lineage = engine._lineage(0, 960, 540)
+            by_path = {edge[1:7]: edge for edge in lineage}
+            visible = {edge[:6] for edge in engine.geometry(960, 540)
+                       if edge[:6] in by_path}
+            endpoints = {edge[5:7] for edge in lineage}
+            origins = {edge[1:3] for edge in lineage if edge[1:3] not in endpoints}
+            parent_ends = {path[4:6] for path in visible}
+>           assert all(path[:2] in parent_ends or path[:2] in origins for path in visible)
+E           assert False
+E            +  where False = all(<generator object test_visible_front_has_more_connected_forks_later_and_at_higher_density.<locals>.<genexpr> at 0x7ef29a32ea40>)
+
+tests/qt/test_fungal_growth_engine.py:225: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qt/test_fungal_growth_engine.py::test_fractional_tip_growth_and_cycle_boundaries_are_continuous
+FAILED tests/qt/test_fungal_growth_engine.py::test_wandering_tips_fork_recursively_more_often_near_the_front
+FAILED tests/qt/test_fungal_growth_engine.py::test_visible_front_has_more_connected_forks_later_and_at_higher_density
+3 failed, 44 passed in 124.41s (0:02:04)
+
+Terminal exit status: 1

@@ -1,0 +1,625 @@
+{
+  "lesson": "02_conda_install",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "canonical_english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "scene_count": 8,
+  "narrated_words": 347,
+  "native_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/conda_release_native",
+  "capture_provenance": {
+    "completed_capture": true,
+    "module": "conda_install",
+    "commit": "ba8d933faf4cff4d4af933c10c975a37d28c45cf",
+    "actual_system_terminal": true,
+    "installation_recorded_live": false,
+    "verification_recorded_live": true,
+    "application_source_modified": false,
+    "private_display": ":99",
+    "installed_environment": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env",
+    "setup_skipped_explicitly": false,
+    "first_run_tour_marked_seen": true,
+    "format_scope": "Linux, fresh conda package; not other platforms",
+    "doctor_gpu_allocation_probe_requested": true,
+    "installed_identity": {
+      "version": "1.5.0.4",
+      "package": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr/__init__.py",
+      "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env"
+    },
+    "recording_preferences": {
+      "theme": "dark",
+      "font_scale": 1.5,
+      "preload": "unmodified release default"
+    },
+    "native_window_tree": "\nxwininfo: Window id: 0x3a7 (the root window) (has no name)\n\n  Root window id: 0x3a7 (the root window) (has no name)\n  Parent window id: 0x0 (none)\n     5 children:\n     0x800009 \"spaCR\": ()  1x1+0+0  +0+0\n     0x800007 \"spaCR\": (\"spacr\" \"spaCR\")  1272x981+0+0  +0+0\n     0x800005 \"Qt Selection Owner for spacr\": ()  3x3+0+0  +0+0\n     0x600001 \"xdg-desktop-portal-gtk\": (\"xdg-desktop-portal-gtk\" \"Xdg-desktop-portal-gtk\")  10x10+10+10  +10+10\n     0x200005 \"Qt Selection Owner for capture_pip_installation.py\": ()  3x3+0+0  +0+0\n\n",
+    "native_window_geometry": "\nxwininfo: Window id: 0x800007 \"spaCR\"\n\n  Absolute upper-left X:  0\n  Absolute upper-left Y:  0\n  Relative upper-left X:  0\n  Relative upper-left Y:  0\n  Width: 3840\n  Height: 2160\n  Depth: 24\n  Visual: 0x21\n  Visual Class: TrueColor\n  Border width: 0\n  Class: InputOutput\n  Colormap: 0x800006 (not installed)\n  Bit Gravity State: NorthWestGravity\n  Window Gravity State: NorthWestGravity\n  Backing Store State: NotUseful\n  Save Under State: no\n  Map State: IsViewable\n  Override Redirect State: no\n  Corners:  +0+0  -0+0  -0-0  +0-0\n  -geometry 3840x2160+0+0\n\n",
+    "gui": {
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/spacr"
+      ],
+      "title": "spaCR",
+      "returncode": 0,
+      "normal_window_close": true,
+      "analysis_started": false
+    },
+    "generated_instruction_cards": [
+      "07_create_conda",
+      "08_activate_conda",
+      "09_install_conda",
+      "10_current_release_choice"
+    ]
+  },
+  "recorded_commands": [
+    {
+      "scene": "01_python_version",
+      "command": [
+        "python",
+        "--version"
+      ],
+      "output": "Python 3.12.14\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "02_conda_environment",
+      "command": [
+        "/home/olafsson/anaconda3/bin/conda",
+        "list",
+        "--prefix",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env",
+        "spacr"
+      ],
+      "output": "# packages in environment at /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env:\n#\n# Name                    Version                   Build  Channel\nspacr                     1.5.0.4            pyhcf101f3_0    conda-forge\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "03_installed_versions",
+      "command": [
+        "python",
+        "-c",
+        "import sys,spacr,PySide6; print(\"Python:\", sys.executable); print(\"spaCR:\", spacr.__version__); print(\"Qt:\", PySide6.__version__); print(\"Package:\", spacr.__file__)"
+      ],
+      "output": "Python: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python\nspaCR: 1.5.0.4\nQt: 6.11.2\nPackage: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr/__init__.py\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "04_environment_prefix",
+      "command": [
+        "python",
+        "-c",
+        "import sys; print(sys.prefix)"
+      ],
+      "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "05_doctor",
+      "command": [
+        "spacr-doctor"
+      ],
+      "output": "PASS  python              Python 3.12.14 satisfies requires-python !=3.14.1,<3.15,>=3.9.\n                          interpreter: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python3.12\nPASS  spacr package       spacr 1.5.0.4 imports from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr.\nPASS  running checkout    Not inside a spaCR checkout; runs from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages.\n                          import spacr  -> /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr\n                          editable install: none (installed as a copy)\nPASS  duplicate installs  One importable spacr package: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr.\nPASS  distributions       spacr 1.5.0.4 is the only spaCR distribution.\n                          /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr-1.5.0.4.dist-info\nPASS  console scripts     All 19 installed spaCR commands resolve.\nPASS  PATH                `spacr-doctor` on PATH comes from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env.\nPASS  qt extra            Qt GUI available (PySide6 6.11.2).\nPASS  display             A display server is reachable.\nPASS  core imports        All 12 core dependencies import.\nWARN  optional extras     1 optional extras are half-installed and will fail when their feature is used.\n                          czi: missing pylibCZIrw\n                          installed: lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike\n                          fix: python -m pip install \"spacr[czi]\"\nPASS  torch               torch 2.13.0 (built against CUDA 12.9).\nPASS  gpu                 1 CUDA device(s) usable: NVIDIA GeForce RTX 3090 (driver 580.173.02, torch CUDA 12.9).\nPASS  cellpose            cellpose 4.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.\nSKIP  declared pins       Not inside a spaCR checkout; nothing to cross-check.\nSKIP  database            No database given.\n                          fix: spacr-doctor --db /path/to/plate/measurements/measurements.db\nSKIP  settings            No settings file given.\n                          fix: spacr-doctor --settings settings.csv --app measure\n\n13 passed, 1 warnings, 0 failed, 0 errored, 3 skipped\n",
+      "returncode": 0,
+      "accepted": true
+    }
+  ],
+  "frames": {
+    "01_python_version": {
+      "image": "01_python_version.png",
+      "sha256": "ad07d8418f2dfc51e856ae62a513aab7fa6c4b58f1fcdbf6cbcaec718dabe766",
+      "buttons": []
+    },
+    "02_conda_environment": {
+      "image": "02_conda_environment.png",
+      "sha256": "2389a24df28dcce6270fc300952ce4448b53b839821f1b84bbabae4cf3c1add7",
+      "buttons": []
+    },
+    "03_installed_versions": {
+      "image": "03_installed_versions.png",
+      "sha256": "674da3f6cba8df65bddfe887eaf54edd253fbc78343af6e8138731c6e5ee5324",
+      "buttons": []
+    },
+    "04_environment_prefix": {
+      "image": "04_environment_prefix.png",
+      "sha256": "847ffd7098580a12a5c13740247bb70589de49157b6cd7cd19c6d0e982be7f95",
+      "buttons": []
+    },
+    "05_doctor": {
+      "image": "05_doctor.png",
+      "sha256": "389f5a8d9875e0b69558c8ebdc68eb4955bba8db4745cd723763f49f09dd431a",
+      "buttons": []
+    },
+    "06_installed_home": {
+      "image": "06_installed_home.png",
+      "sha256": "2cf08f9d7b71b910974a2879103eadb686b1d7409e7fba733380e398a6754fd0",
+      "buttons": []
+    },
+    "07_create_conda": {
+      "image": "07_create_conda.png",
+      "sha256": "8ddc5166b7dd57feb8bb90c35add5ee7350b533e935ad5804f9fb393eb3ccb03",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    },
+    "08_activate_conda": {
+      "image": "08_activate_conda.png",
+      "sha256": "d4170753ab1aee836f0cccf2146ec4a77076f664b1aa05b6975503b52cd41e13",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    },
+    "09_install_conda": {
+      "image": "09_install_conda.png",
+      "sha256": "34373528ca09fd2ccb09ad9a8018f19c56f6f0de2161678285934db565b02281",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    },
+    "10_current_release_choice": {
+      "image": "10_current_release_choice.png",
+      "sha256": "7f8693e630ebf5f22893df2896bfe299787e1e9b9e1359048a65a20baa4759e3",
+      "buttons": [],
+      "kind": "generated_command_reference_not_terminal_output"
+    }
+  },
+  "installation_preflight_receipt": "2026-09-10_clean_conda_installation.json",
+  "native_capture_receipt": "2026-09-10_conda_installed_gui_capture.json",
+  "instruction_cards_scope": "Four explicit code-rendered command-reference cards, not native terminal output; eight-scene master uses four genuine verification/GUI frames plus those four cards.",
+  "all_50_voices_decoded_and_fingerprints_checked": true,
+  "full_master_decode_exit_code": 0,
+  "decoded_scene_samples": [
+    {
+      "scene": 1,
+      "sha256": "d767eff4707233ae28ca8fa9de43bfd3185255e65aad959495f7c5310d180225"
+    },
+    {
+      "scene": 2,
+      "sha256": "9b35269464f2a97b39e98fccf8b6932e33e1b6865155cedaa760dbcf7aca0f7b"
+    },
+    {
+      "scene": 3,
+      "sha256": "ef920148fea5e18848a619ce2988bb63e081a57ee334c771357683dd82eebb20"
+    },
+    {
+      "scene": 4,
+      "sha256": "153e772ab8415b1f48ba09f4e27c78fc9c470f78bf3bb2cd2dd8bda72735e4b5"
+    },
+    {
+      "scene": 5,
+      "sha256": "540dfce6cc960220161b2a020f4061c57d30db99ae050b62694fe6fe4572d553"
+    },
+    {
+      "scene": 6,
+      "sha256": "daf203e68f81293d7897c95635045934147ade50bb31c11d8ad283bc8aa2701b"
+    },
+    {
+      "scene": 7,
+      "sha256": "e716ec8a4f328a165393f383147fa34f4645e2e4cd5763aab7e478e36a1f1250"
+    },
+    {
+      "scene": 8,
+      "sha256": "c93326631156ebde2ff088c5a2d3ba069437afa30228179c85ada1be55476252"
+    }
+  ],
+  "visually_inspected_decoded_scenes": [
+    2,
+    6,
+    7
+  ],
+  "native_frames_visually_inspected": [
+    "05_doctor",
+    "06_installed_home"
+  ],
+  "final_artifact_reconciliation": {
+    "lesson": "02_conda_install",
+    "passed": true,
+    "canonical_english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+    "scene_count": 8,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "b919e2bc878d2d78dc607682179a279e873f3f00a2ffe6345a89ced0879f31e0"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "ded39ee0d7f2419d7939c0869f08b875276c7fa816c23b2b5600558572e01fa2"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "c42a5d7d2b6d34204b20c38cfa2a929265eeacd3761fc4ae42822d77b20f7630"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "7e104b39e552f5e7e4ce15e032bafbf47a571bfb85d5b2aaa129a024aec7cec1"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "7ff9c01fb14a776c4a3a131f48b88447cf4327d8008c7fc0b7ef4cf451f8373d"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "ff46dc111b45771c527bbb1b349edb9af166c6a5e976bcb01c7a62ca87a04f38"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "e3554d749c7bf107093f6f419d66beea506b594b34426e8f8dda839cdc22e00e"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "4b23a937c4dd1776f4fd668b20c205117adc29362159e1f54e144a4e20cf3c41"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "0e7c6a7c47499a5f58f16a1ae644d471b4e0cb3efa2e239fe2d6812b43eb33b7"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "81cb94f63ed53a6728a9c3bce95ad8ee044a51b95ab0357af4148f15adc8c138"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "91b9fd982d1f57009abbcd62502ba489fb90713ba0a5ef165c22e0853bd5f972"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "6501341045f1960ca4d9a207feef845eb9e9cd95d2eb7a6285a6e5895c315582"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "12d14562b405548ade1240a0394a3102994421dc1f4f4e75cda545256def6b3b"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "342b4cfe86712630afc683b922d42822265d318cfd349f879d73b81dfaa450e9"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "4b55d15069715d1f2438a64e3674ca81971bdacd24a84b1d27302c022d98a049"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "6dbb251d58fdc670d2c8dab30b9cfd358004c4422ad1af0b901c73a4d50bab21"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "5f34aa5dc16685aa634ff04637bedc2b40fe772ae8757bd4ed76f304f0a2438f"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "e2de6d4174d6c6d0d20d40779abdfb1c4bb210b9d6c0ef05280a7ab882032b67"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "b1e5df6b6ebf36f6356bbf40051853cf2a0d7617a522b15f77f10e0e91ca632e"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "7bf41a944b8c8d6225da083e06f5d3fc4614ab44d7166c83a1f77e13262fc06b"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "580c2ae01849e0cc6116674926af381ba1c9ac26dbfa956ecbca93e350836541"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "252e6a1b30cf2bc6bdee4130ade35ff368a22a760a64e5755b527a87f8745d82"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "26953c09e93d5ad30bf6fd8364742cbb8f5ee3662c7ab5b481208b5c6dbbbafa"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "2daa5a7769aa148152846bd67752f4b632e9cff90fdc2da6df1b9eda2a09849a"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "e8a15d1a98cd5456d036d2e6157f39549764ba2f95aecfe50cfc7714555892cd"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "043abda4b9a6ea9983911a9988fbd11f7e5dfe92ee0bbc647b440e08d71f7d86"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "8e31b0c0fdc4c49131e49973e8bf2fa6fbc8d3cbb8ac6650c87469ea1454413b"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "535c79d0b6529ddb7f488694237ce87581cdf178d3f499290b843a93582ab4d9"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "3b7a6406d706a6b5ed1420cd274abbe1ac7fd859600500aad2b6fad953e069ed"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "651e1da152d305cafc6d20c94001ab64dbbbd979bc47282a581ffa89014d6f98"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "29c683b68ecaba76a2e8a74bb73a503b505f7fad37ef788c66d8ec6f8d1fb8b2"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "beeedf0c4d772f14dddb368a345c2192dcf5a336ecdb146533d2e674e01f8b2b"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "44c7fcaa754f887644c2cbf5ff8babeba8a2d6d1744c9268e56cda969345d7f2"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "387bb68c3a7886d7cb411ef479107c877d6378f33110853709e922eb67157d4b"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "a9c459989a88534035826bd09f480a2f83a004265e4eb368153f5e9eb71bda03"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "ada61b335cf225911b36a5f97493119088a03adb5d5f02e14d02fc1ab9ca7846"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "11ba642275dd2f9fdb49489b4cbb810dcde04d982ab40ae34f759410a68a1057"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "f79f0d3dbf7b7649dbcf755acf7d001383320de96e84723fca873792d716379f"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "30b414e942b0577a5649a4a07f02a0aa671c0d77bb1dbc4ed2fba41dfda02d8a"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "7e3c3a1308c3b522d27200bb260a660a7134f38a89d1d5c0a162726a5ff55367"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "eaf3781586538e653f40b6fd364c371c7f3693838d253d25d1c3049a5a64e9e2"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "0f43430ad4948407a3e1dd099baeaca680664dceaa375668bfba8c05f3bea326"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "620d1ca42f51a90b577c16c584300d7a5883d1e6011b8e20928028e04567f189"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "bfe6dbe455727fe7b33024e76a92d4b377acc3c71b4ef7a7657110a24e228f1c"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "ae5a366922e0d37b833e706c8e0dd42e64ce743919320b410f215ca4b2e13fdc"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "e1ae97d61cf70d8db284e5da1b4fbdcf1d7dee1f9f7010bc22468cd1a2faa834"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "820cc12567fe8c79e5b03ac03c5bb636cd4ded2ed14be1305dd61cccac5994b7"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "5fc96b2691b6fb8481e852ea54141ab226e7602c651dd650636f6d8de10e3cb1"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "8284893ea3479e539e543cb6eb03f6957301a19044398031bf77968cd62fedbf"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "f4380f5568d248cdcb448e1f595a3f7a51ee48da0c6bd9b86f8f9f1363c585f3"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "1253a86aa8f36f17986cffecd20daa44c142818f1854826d83a3fa83ec31f5b3"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "71a3f7f8c8f354fdc79849bde7cdabd64802a87d1a30aed75ed2a0f382b8b001"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "de0b4b079c23b027f54a03e0db923de02b06321d59e67e476656aa86dcc8dcfd"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "9dd120829598f57a05d15e4d5ebe93f757dc3ee808140645b18256f3ef712ebe"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "335510f37f392e63fdc0c55627803dee4f58f0bec0bf99a46bb1fa4ca4f2ac76"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "1378feeb80cc5e9fb14fca3024d3a74a775cd7c75fdf70f7094426ef0155f9e1"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "86a734229d89eee7e80f0fb8aeca64f8edc53419d7f2851ef0721c8916ae7210"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "bfd16fb45a8a164aa9680e347284a014de07e4142b66998b921bd86376f52a49"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "a365b6af0365c370b562f3d87ca83ef0ba886073b54f986c08a05a84f26720ed"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "332092ad6141360f3bb97d79aefc320ef0a70f4f353e2fe6cb6cac2fd58232ca"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "438d447c90909cd88179dc2ad6b285ce6ee909f0a735f22b532ca788b2ced794"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "62ec9c74d62617d3631aab3d9bb9b21536d9078ee618071c78f2668e084b1d14"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "3daa7f4b05ebe57b95240f9d762eaa5a3b7fb51c1f6035b494702f544eb1d69c"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "199e6359b563ae9647fd99d51255f0917df0f9a285dbf529c3e21ff2019139d0"
+      }
+    ],
+    "master_sha256": "1b3c1b9932ebd1eb1d6ef2f7cdf3d6af35b1bbe41050a3f397a81f15e725ceec",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "4373"
+        }
+      ],
+      "format": {
+        "duration": "145.766667",
+        "size": "4357684"
+      }
+    },
+    "poster_sha256": "d767eff4707233ae28ca8fa9de43bfd3185255e65aad959495f7c5310d180225",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "max_browser_clock_error_seconds": 0.11172313062880335,
+  "review_sources": [
+    {
+      "language": "da",
+      "sha256": "dc2ac829a3a73d0323fc1a27c5c094d06f6ac7f09acc5fa224a952fa46969a60"
+    },
+    {
+      "language": "de",
+      "sha256": "2a81234f50ab02536611cdf8d8da018548074c5e11c6773fcb8d73a00e697b3d"
+    },
+    {
+      "language": "es",
+      "sha256": "8e2ab703d247b53f8ecd3b4e265f605f0878dc78341181b0cfebbd394c0dd59d"
+    },
+    {
+      "language": "fr",
+      "sha256": "51243195c446355f5634ce5d6a202736c357acfb177fcb3e7bb01cf4da8b1b32"
+    },
+    {
+      "language": "hi",
+      "sha256": "72e985e858df986b130c8b73127dece9629249498b4622f82984bf4fc8fcc4d1"
+    },
+    {
+      "language": "is",
+      "sha256": "29049645eede227d3bac9bc10f47d800a52e696342567441614c0fa904a141f6"
+    },
+    {
+      "language": "it",
+      "sha256": "2ce899b4a43992526bd584603e1d301ccd4be08483ace9c896e89ee2325d7577"
+    },
+    {
+      "language": "ja",
+      "sha256": "cbf8b423348c7de4682b598b27b280357266de7bed03959dc06e6a5070b2aad5"
+    },
+    {
+      "language": "ko",
+      "sha256": "cbf8e89cf856b4d7425e12e6300d426b72133c2c68409d529dcbe2e4d8184ccd"
+    },
+    {
+      "language": "nb",
+      "sha256": "906c4f9f47b8d1238c07998017cdae189166ae13f90299561d9b22161f2ceadc"
+    },
+    {
+      "language": "pt-BR",
+      "sha256": "1ad29107bd12812de290d0e3b03f429d1fbd195e79a9aad62affaacacb105fbd"
+    },
+    {
+      "language": "sv",
+      "sha256": "03761e481586c9c2a407e313875601f581c3995c7a08bc2bf1cff21e941f4537"
+    },
+    {
+      "language": "zh-CN",
+      "sha256": "8238dcd81d963feb197b0016dd1056f6ff0c682fb800e7104da5a9d1f15584c9"
+    }
+  ],
+  "editorial_review": "Parent editorial review only; independent peer and native/listening approvals not claimed.",
+  "capture_guard_tests": {
+    "passed": 5,
+    "mutation_evidence": "See the separately committed conda_installed_gui_capture receipt; new route distinctions each individually made a test fail."
+  },
+  "technical_staging_totals": {
+    "lessons": 39,
+    "unique_tracks": 1950,
+    "retained_tracks": 100,
+    "browser_cases": 546
+  },
+  "catalogs": {
+    "count": 14,
+    "lessons": 75,
+    "scenes": 810,
+    "unselected_unchanged": 37
+  },
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

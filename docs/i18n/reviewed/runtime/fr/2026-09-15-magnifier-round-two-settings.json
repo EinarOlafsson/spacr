@@ -1,0 +1,27 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
+      "source_sha256": "5953c8c31498297d04d4e07ec15f0d3b18adb968bec94f4e86cccb76d4d31893",
+      "table": "ui",
+      "translation": "Parcourez le zoo de modèles, téléchargez un modèle Cellpose et segmentez avec. Le modèle choisi est sélectionné dans la liste à côté de ce bouton."
+    },
+    {
+      "key": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
+      "source_sha256": "7e3849bd96a50a540c32fa32ac80f26b8b5b12f80e564e92b057bc9af6947717",
+      "table": "ui",
+      "translation": "Côté du cadre carré, en pixels de l'image, jusqu'à la hauteur ou la largeur de l'image ouverte. Avec Région sous la souris, c'est aussi la région que le modèle segmente : choisissez-le plus large que le plus grand objet à ajouter. Shift + molette de la souris le modifie tant que la loupe est activée."
+    },
+    {
+      "key": "{name} (not downloaded)",
+      "source": "{name} (not downloaded)",
+      "source_sha256": "cbd91332316192ec43faa12ca9dcbc7b8a185d00fb36ae3657b5ee86d8019493",
+      "table": "ui",
+      "translation": "{name} (non téléchargé)"
+    }
+  ],
+  "schema": 1
+}

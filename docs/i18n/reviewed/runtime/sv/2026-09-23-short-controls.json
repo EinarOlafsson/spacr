@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-assisted linguistic and source-context review of short controls for detection, morphology, sound preferences, paper retrieval and data entry. Correct scientific words shared with English are retained in explicitly reviewed language pairs. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Into",
+      "source": "Into",
+      "source_sha256": "ae8252daa297bbaca3cc4725455c73fca514a9f61e7180c90c047ec700cc674f",
+      "translation": "Till mapp"
+    },
+    {
+      "table": "ui",
+      "key": "Mean",
+      "source": "Mean",
+      "source_sha256": "727a7d114f4d518ecf4bd4e9b7537c01ad29da3da8b18bdfd84dd539f841d992",
+      "translation": "Medelvärde"
+    },
+    {
+      "table": "ui",
+      "key": "Seed",
+      "source": "Seed",
+      "source_sha256": "367ef06b8fbf3aaaccd9cff1301628fae45901ccd9661b5a1b256c7cc5314d24",
+      "translation": "Slumptalsfrö"
+    },
+    {
+      "table": "ui",
+      "key": "Fetch",
+      "source": "Fetch",
+      "source_sha256": "cd7d61bf7e38c7c2280b4241c4e1211aa3965722a681077a471913801c0321a2",
+      "translation": "Hämta"
+    },
+    {
+      "table": "ui",
+      "key": "Paper",
+      "source": "Paper",
+      "source_sha256": "35045eff549e30b5bdf44abb9999f383d87bc54002b130fdcdd05315e188419e",
+      "translation": "Vetenskaplig artikel"
+    },
+    {
+      "table": "ui",
+      "key": "Rules",
+      "source": "Rules",
+      "source_sha256": "4228aeb07c410ffc9d15b458bf7c2bf8d9dfa7af632f2c339e69f8cb54654da3",
+      "translation": "Regler"
+    },
+    {
+      "table": "ui",
+      "key": "Median",
+      "source": "Median",
+      "source_sha256": "daab7c435134742abeb8e1e42de999740f2362c3f58271edf32e627e97bf2130",
+      "translation": "Median"
+    },
+    {
+      "table": "ui",
+      "key": "Offset",
+      "source": "Offset",
+      "source_sha256": "b1a1e8e3cf7c522ed8606c3c3c3f35d3299eca78cb664fec00d9787da111f418",
+      "translation": "Förskjutning"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque",
+      "source": "Plaque",
+      "source_sha256": "03d088bb06c08a3b104e57c17d91da78400815f2e106221e9e978dfd4ac1c9b9",
+      "translation": "Plack"
+    },
+    {
+      "table": "ui",
+      "key": "Scales",
+      "source": "Scales",
+      "source_sha256": "42a0052bf1b6fb01cdb9ad24ed388a0f8d51ad9464f86c834d3b7f4a89830128",
+      "translation": "Skalor"
+    },
+    {
+      "table": "ui",
+      "key": "Voxels",
+      "source": "Voxels",
+      "source_sha256": "2e6dd44c213570b531080cc634b25d63ecc84542f4db7f3930b2e17559598dae",
+      "translation": "Voxlar"
+    },
+    {
+      "table": "ui",
+      "key": "Minimum",
+      "source": "Minimum",
+      "source_sha256": "735beee2e390c7979f936104c3cb5a30c752d73d68844eefc028c403aee8229b",
+      "translation": "Minimum"
+    },
+    {
+      "table": "ui",
+      "key": "Stop at",
+      "source": "Stop at",
+      "source_sha256": "a9b4c0a4fc8148fdf6465ea5844258d520c91608a80ca7995b82f8c07a722649",
+      "translation": "Stoppa vid"
+    },
+    {
+      "table": "ui",
+      "key": "Upper %",
+      "source": "Upper %",
+      "source_sha256": "d154ded41d219eb06d6ac4e611fe3cb121a8425041b01d651475585e7af3b5fd",
+      "translation": "Övre percentil %"
+    },
+    {
+      "table": "ui",
+      "key": "Workers",
+      "source": "Workers",
+      "source_sha256": "7a1ec9fe6c3b483f5420a820892c4e29c5e76f6e1bbed4671e07de3371653e98",
+      "translation": "Arbetsprocesser"
+    },
+    {
+      "table": "ui",
+      "key": "Zoom in",
+      "source": "Zoom in",
+      "source_sha256": "0e47f09a748fa1321dbaee5c8983f8e8f2880b1212956fb4f21ae9d60b88a8b2",
+      "translation": "Zooma in"
+    },
+    {
+      "table": "ui",
+      "key": "Zoom out",
+      "source": "Zoom out",
+      "source_sha256": "bc7b631a689b45ca5c51923515d31eb3597b2d9b129d88d0dbee066ee5c35453",
+      "translation": "Zooma ut"
+    },
+    {
+      "table": "ui",
+      "key": "Adaptive",
+      "source": "Adaptive",
+      "source_sha256": "ceb6931ea57cc99912b7ece16f363cc3b42db89fd015d9937d7bb42997dcb663",
+      "translation": "Adaptiv"
+    },
+    {
+      "table": "ui",
+      "key": "Detector",
+      "source": "Detector",
+      "source_sha256": "541ffce2fa4470ab15aee5bfeb7b19915d5f4e3cf8884beb1d96aa6736d4b917",
+      "translation": "Detektor"
+    },
+    {
+      "table": "ui",
+      "key": "Diameter",
+      "source": "Diameter",
+      "source_sha256": "54a7193484e02e82f1d920d53c32c5667c1cd449e532ab3405959a98817d347f",
+      "translation": "Diameter"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian",
+      "source": "Gaussian",
+      "source_sha256": "ee9889f28a7c0ee34490de4bddb67bf916340f08558897fef432f8b3969e2a66",
+      "translation": "Gaussisk"
+    },
+    {
+      "table": "ui",
+      "key": "Sampling",
+      "source": "Sampling",
+      "source_sha256": "e41f08d35dd171fae766527304b84b79f457573cc418526128c3d861bc1c31e0",
+      "translation": "Stickprovsdragning"
+    },
+    {
+      "table": "ui",
+      "key": "Triangle",
+      "source": "Triangle",
+      "source_sha256": "a0252691b5dc54b1d67f9d35a120e8c49187f20f0735574a61713c6317df6f72",
+      "translation": "Triangel"
+    },
+    {
+      "table": "ui",
+      "key": "Settings…",
+      "source": "Settings…",
+      "source_sha256": "7a04083baf8daa20973e671fc0138a81a70c797ef1f28b77e78edbd1acbc57bc",
+      "translation": "Inställningar…"
+    },
+    {
+      "table": "ui",
+      "key": "Size (px)",
+      "source": "Size (px)",
+      "source_sha256": "2c1cb5c678172ab54740dc1dac9cef90006b4c168faa7359b348e116ef0d6790",
+      "translation": "Storlek (px)"
+    },
+    {
+      "table": "ui",
+      "key": "Text size",
+      "source": "Text size",
+      "source_sha256": "d68761cc1eb296478531e007ff1fda9252fb7be5d24429a97eb05765211dafe5",
+      "translation": "Textstorlek"
+    }
+  ]
+}

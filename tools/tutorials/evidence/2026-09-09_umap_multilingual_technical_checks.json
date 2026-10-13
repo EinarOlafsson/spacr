@@ -1,0 +1,29 @@
+{
+  "lesson": "15_image_umap",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "3950fa3a4ad342dbd0b451526e0b9bc91c429eb0b4074174265dcf9f495f4a70",
+  "scene_count_per_catalog": 19,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 9212,
+    "duration_seconds": 307.066667, "audio_streams": 0, "bytes": 20370560,
+    "sha256": "4f4b1e718d8042bf92e93c37172234062d4355094fb02cd84ee170bc795660c6"
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "checks": ["Actual narration bytes match selected staged file", "Chapter seek and video/audio synchronization", "Scene links", "Placement in Main modules", "Desktop and 390px mobile layout", "No JavaScript errors", "Independent caption selection matches all staged scenes and generates WebVTT without changing the voice"]
+  },
+  "real_data": "Reuse the 2,341-crop Annotate download; bounded 400-object CPU embedding with measured features and 12 real crop glyphs. Click fitted points 0 and 200 in the actual interactive explorer; original database and complete settings remain unchanged.",
+  "preserved_specialist_routes": ["55_image_scatter", "60_pca"],
+  "boundaries": "One computed cluster is not a biological class. No neural-feature extraction, hyperparameter search, annotation propagation or AI request. Exported measurement rows are not claimed to contain plotted coordinates.",
+  "synthesis": "50 tracks generated with one CUDA synthesis process at a time, capped to 10% of video memory, two CPU threads and the 110 GiB host-memory guard",
+  "evidence_directory": "refresh_2026-09-09/production/15_image_umap and refresh_2026-09-09/browser/15_image_umap in the tutorial workspace",
+  "translation_review": "Editorial translation checked against English and real capture; not native-speaker sign-off",
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

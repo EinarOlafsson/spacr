@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
+      "source_sha256": "319e97e7518240ed3dc84de2e09940c9becc75ad231231c43d9abec21659be39",
+      "source": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
+      "translation": "选择 Spaceout 绘制的分形。Orbit fold 是一幅在四帧间进行抗锯齿处理的轨道折叠映射；fold-inversion cascade 将类似 Kaliset 的折叠与球面反演结合起来，以三个轨道陷阱着色，并穿行于两个重叠的尺度窗口，因此永不重置。该级联对每个像素的同一时刻采样四次，所以计算开销约为四倍，并特意以较低帧率运行。Space 是穿越黑暗星空的向前飞行，包含六个视差层和三个掠过的物体位置——大多是恒星，偶尔是被照亮的行星或明亮的太阳。天空大部分为空，因此它的计算开销最低，也最不会干扰正在阅读的内容。Mandelbrot 会持续深度缩放到集合边界上的一点，并围绕高精度参考轨道使用微扰法渲染；因此它能深入到浮点数可表示的深度以下数百个数量级，同时仍能发现结构。仅限 GPU：它需要一张参考轨道纹理。"
+    },
+    {
+      "table": "ui",
+      "key": "Records what spaCR's process tree costs without tracing every function call. Summary samples about once a second and keeps whole-run totals and peaks. Detailed also retains a bounded per-process and per-thread time series. Off starts no sampler thread. This setting is independent of verbose logging.",
+      "source_sha256": "eebf2f6fafe29c997a8ba5439e1f738f117f7a52bfe7160232f9b4d838c55913",
+      "source": "Records what spaCR's process tree costs without tracing every function call. Summary samples about once a second and keeps whole-run totals and peaks. Detailed also retains a bounded per-process and per-thread time series. Off starts no sampler thread. This setting is independent of verbose logging.",
+      "translation": "记录 spaCR 进程树的资源开销，而不跟踪每次函数调用。“摘要”模式约每秒采样一次，并保留整次运行的总量和峰值。“详细”模式还会保留有界的逐进程、逐线程时间序列。“关闭”模式不会启动采样线程。此设置与详细日志记录彼此独立。"
+    },
+    {
+      "table": "ui",
+      "key": "Ordinary least squares in which each continuous nuisance covariate may bend through a B-spline basis. spline_knots controls how many knots each basis receives and spline_degree controls its polynomial degree; indicators and low-cardinality covariates remain linear. Guide and gene columns are never expanded, so each perturbation keeps one coefficient and its usual OLS p-value.",
+      "source_sha256": "751712c869c8a68f693a342414bcd389ad43fc57feea820744e7812b4b5e2ea7",
+      "source": "Ordinary least squares in which each continuous nuisance covariate may bend through a B-spline basis. spline_knots controls how many knots each basis receives and spline_degree controls its polynomial degree; indicators and low-cardinality covariates remain linear. Guide and gene columns are never expanded, so each perturbation keeps one coefficient and its usual OLS p-value.",
+      "translation": "普通最小二乘法，其中每个连续干扰协变量都可通过 B 样条基呈现非线性弯曲。spline_knots 控制每个基的结点数，spline_degree 控制其多项式次数；指示变量和低基数协变量仍保持线性。引导列和基因列从不展开，因此每种扰动仍只有一个系数及其常规 OLS p 值。"
+    }
+  ]
+}

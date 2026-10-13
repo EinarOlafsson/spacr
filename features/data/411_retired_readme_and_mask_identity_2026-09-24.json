@@ -1,0 +1,329 @@
+{
+  "source_commit": "3020676e9829fe480f1b409e50abbe5272204c5a",
+  "english_api_entries": 11528,
+  "changed_api_entries": [
+    "spacr.utils.adjust_cell_masks"
+  ],
+  "added_or_removed_entries": [],
+  "help_search_index_current": true,
+  "english_audits": {
+    "api": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified API catalogs: languages=0 symbols=11528\n"
+    },
+    "runtime": {
+      "status": "compatible",
+      "exit_code": 0,
+      "diagnostics": "verified external runtime catalogs: languages=0 settings=1080 categories=209 ui=5303 modules=72\n"
+    }
+  },
+  "retired_readme_reviews": [
+    {
+      "source": "A tour of every module and the trained models in 51 slides. Flip through them in the `slide viewer <https://einarolafsson.github.io/spacr/_static/deck/>`_ (arrow keys or swipe), or page through the `PDF on GitHub <docs/source/_static/deck/spacr_deck.pdf>`_.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "It also identifies processor-architecture emulation, such as an x86_64 Python build on Apple Silicon, and the BLAS implementation used by NumPy. Either can substantially affect performance.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "Make Masks appears under **Data** and provides manual correction of segmentation masks. Its masthead also provides access to the Cellpose workflows. The canvas has nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw creates one filled label from a free-form closed outline. Divide separates a merged object along a user-defined line while preserving all other object labels.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "Modules available from host screens",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "Objects and settings",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "PDF on GitHub",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "Recrop extracts a single-object field from a staged image containing multiple objects. A bounding box around one object writes the corresponding image and mask regions as a new field, schedules that field after the current one and removes the original multi-object field from the curation queue. Recrop changes the active field rather than editing label pixels.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "Running Cellpose-SAM from Make Masks displays two intermediate outputs beside the mask: the **cell-probability map** and the **flow field**. A mask is a threshold on the probability map, and flow-consistency checks can reject objects whose derived flows differ from the predicted field. Inspect these outputs to distinguish low cell probability from inconsistent flow when evaluating an incorrect or incomplete mask.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall, offline and troubleshooting instructions.",
+      "languages": [
+        "ko"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "The command prints a report and saves a copy under ``~/.spacr/reports``; the last line identifies the saved path. ``--quick`` omits the longer benchmarks, and ``--out PATH`` selects another output location.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "The full clone downloads 5.8 GB for a 1186 MB checkout. Adding ``--filter=blob:none`` to that clone saves nothing: the checkout fetches the blobs anyway.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "The report does not open a project or read project data. It records import and numeric-library timing, display scaling, active preferences, main-window and module-screen construction, and animation performance. The report file is the only output it creates.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "The settings panel displays controls only when they apply. Organelle slots above the configured count are hidden, an object with no assigned channel is excluded from the run, and morphology-specific controls are shown only for the selected method. The **3D** and **Time** switches define the dimensionality: ``z_stack`` enables volumetric settings, ``timelapse`` enables tracking settings, and four-dimensional settings appear when both are enabled.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "Twenty modules are integrated into related host screens rather than displayed as separate Home tiles. Each opens from its host screen's masthead and uses the active project. Mask, Measure, Annotate, Classify, Map Barcodes, Regression, Image UMAP and Make Masks provide these integrated modules. Their help and API documentation remain available, and modules with pipeline entry points can still run headlessly. The `feature guide <docs/source/features.rst>`_ lists each integrated module and its host.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "`← Back <docs/source/_static/deck/pages/51.md>`_   `Next → <docs/source/_static/deck/pages/02.md>`_",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "slide viewer",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "spaCR in slides",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "spaCR in slides: every module and the trained models, in 51 slides",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    },
+    {
+      "source": "spaCR supports cell, nucleus and pathogen objects, a cytoplasm derived from their masks, and between zero and twenty-six organelle slots. Each organelle slot has an independent channel, diameter, morphology preset and detection method.",
+      "languages": [
+        "de",
+        "es",
+        "fr",
+        "hi",
+        "is",
+        "ko",
+        "pt",
+        "sv",
+        "zh_CN"
+      ],
+      "reason": "English paragraph no longer appears in the current README"
+    }
+  ],
+  "readme_iou_languages": [
+    "de",
+    "es",
+    "fr",
+    "hi",
+    "is",
+    "ko",
+    "pt",
+    "sv",
+    "zh_CN"
+  ],
+  "native_speaker_signoff": false,
+  "validation": "20 distinct documentation/source/publication guards pass, including both English-required CLI cases after the older-tooling fallback correction; both README guards pass again after the nine IoU replacements.",
+  "strict_build_scope": "Prior source passed strict Sphinx before this merged docstring/README update; source English and Help audits passed after the merge."
+}

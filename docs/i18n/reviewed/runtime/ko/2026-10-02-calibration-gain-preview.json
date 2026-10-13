@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct Codex AI technical translation with independent Codex AI peer review; no human/native-speaker signoff.",
+  "draft_author": "mask_editor",
+  "technical_reviewer": "root",
+  "draft_sha256": "c73777d5451b5ebf28507aa8a8666c0442f68470fac446b5cc73fa1539fb6a96",
+  "peer_review_sha256": "a670aff188b9e5a26b99d464c58e2ae899edc645271e26be9ad32484c371881e",
+  "review": "All twenty new gain-preview captions reviewed for multiplicative intensity factors, microscope fields versus assay plates, reference wells, camera offset, source-folder isolation, first plate in name order, unchanged images/measurements, valid settings and cancellation that discards results while an existing file scan safely finishes. Root module-name and terminology corrections are recorded separately from immutable drafts. Standard context normalization and release gates are unchanged.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Calculate reference-well gains without running Measure or changing files.",
+      "source": "Calculate reference-well gains without running Measure or changing files.",
+      "source_sha256": "6587296f3483ef968f9c1fe67bd60d11fb38b4067ea278f772783020f16ef9b0",
+      "translation": "Measure 모듈을 실행하거나 파일을 변경하지 않고 기준 웰의 보정 배율을 계산합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Calculating calibration gains…",
+      "source": "Calculating calibration gains…",
+      "source_sha256": "0e3e64a2616fc53a6d970615ca7a9240a6883c892b3ad6d2eaa5b11052316381",
+      "translation": "보정 배율 계산 중…"
+    },
+    {
+      "table": "ui",
+      "key": "Calibration gains",
+      "source": "Calibration gains",
+      "source_sha256": "d365b996ea2032e973a5e1c8e5ba08109380f7969593df0c4020f1d33fc2de70",
+      "translation": "보정 배율"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a local source folder containing merged arrays.",
+      "source": "Choose a local source folder containing merged arrays.",
+      "source_sha256": "3c43f6a2d78afe3ac83fb0e72dbdce55fac4005c3e93305479fa16c35f23e6bf",
+      "translation": "병합된 배열이 있는 로컬 원본 폴더를 선택하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Discard this preview. Any source scan already running will finish safely.",
+      "source": "Discard this preview. Any source scan already running will finish safely.",
+      "source_sha256": "b9da600c960ba5d78c29f871af048ee750ac514d6876a6d6706414948ebd4a4a",
+      "translation": "이 미리 보기를 취소합니다. 이미 실행 중인 원본 파일 검색은 안전하게 완료됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Enable intensity calibration before previewing gains.",
+      "source": "Enable intensity calibration before previewing gains.",
+      "source_sha256": "abd81a83888da02409bdc8251cb0e1b0fb37abd210f617076153a41533f58dab",
+      "translation": "보정 배율을 미리 보려면 먼저 강도 보정을 활성화하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Finish valid settings before previewing gains.",
+      "source": "Finish valid settings before previewing gains.",
+      "source_sha256": "f55ff1a90326d4a9667e04426e05db481bf4f051b44eaed1e1a3cc2f7ff996cd",
+      "translation": "보정 배율을 미리 보려면 모든 설정을 올바르게 입력하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Gain",
+      "source": "Gain",
+      "source_sha256": "4e125a3ef68a00b029459c9aa8aa94aa07e74cc54188ffef7f60f38f016e61ca",
+      "translation": "배율"
+    },
+    {
+      "table": "ui",
+      "key": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+      "source": "Gains use the camera offset and reference wells; images and measurements are unchanged.",
+      "source_sha256": "96ddb012eedf0c2ec43b3dd85558659dbf85f410a332ff30e9888f4780069770",
+      "translation": "보정 배율은 카메라 오프셋과 기준 웰을 사용하며, 이미지와 측정값은 변경되지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "No eligible merged arrays were found.",
+      "source": "No eligible merged arrays were found.",
+      "source_sha256": "d03250c62cb296872f8c6e3aae17d97c198fa87be7292a07f9bc2749a51a4629",
+      "translation": "조건에 맞는 병합된 배열을 찾지 못했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Preview complete. No images or measurements were changed.",
+      "source": "Preview complete. No images or measurements were changed.",
+      "source_sha256": "b27e2ea81803586699e0c3cdd32fec68ce883154d64eda6dfa3440b9dd52b556",
+      "translation": "미리 보기가 완료되었습니다. 이미지나 측정값은 변경되지 않았습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Preview gains",
+      "source": "Preview gains",
+      "source_sha256": "dfb570044dbb3bfa8fc8d38fbe21d4db47207fd65d9181081dd110e469d9b121",
+      "translation": "보정 배율 미리 보기"
+    },
+    {
+      "table": "ui",
+      "key": "Preview only: each source folder is planned separately.",
+      "source": "Preview only: each source folder is planned separately.",
+      "source_sha256": "b62844589a9e007612c6be2cdee27ea161ccd57416a4a45dd41d343d795748f1",
+      "translation": "미리 보기 전용: 각 원본 폴더의 처리 계획을 개별적으로 계산합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Reference fields",
+      "source": "Reference fields",
+      "source_sha256": "9b485a318534f5d188cd364a548ed7320f8dd2d62831424c0c41923fdf6752e2",
+      "translation": "기준 현미경 시야"
+    },
+    {
+      "table": "ui",
+      "key": "Reference plate",
+      "source": "Reference plate",
+      "source_sha256": "334cfb3f7491349813ea62b2f76098c9d25a05b99aa1cc0035a044cab8004509",
+      "translation": "기준 플레이트"
+    },
+    {
+      "table": "ui",
+      "key": "Reference statistic",
+      "source": "Reference statistic",
+      "source_sha256": "1906b72c59b141c7805ac0554b74e5a2ee1f26750d6cafab5e234ff37ebd2191",
+      "translation": "기준 통계량"
+    },
+    {
+      "table": "ui",
+      "key": "Settings changed. Preview the gains again.",
+      "source": "Settings changed. Preview the gains again.",
+      "source_sha256": "a75b6608a7cfa430a6a2e07ae1844dd993afdd5a2018d1133eacd5bcb0024b0f",
+      "translation": "설정이 변경되었습니다. 보정 배율을 다시 미리 보세요."
+    },
+    {
+      "table": "ui",
+      "key": "Some merged arrays could not be read. Check the source files.",
+      "source": "Some merged arrays could not be read. Check the source files.",
+      "source_sha256": "8bf706e834a57d6a034497355710940559b1660540af1da8eb1b0423691dd817",
+      "translation": "일부 병합된 배열을 읽을 수 없습니다. 원본 파일을 확인하세요."
+    },
+    {
+      "table": "ui",
+      "key": "The first plate by name is the reference.",
+      "source": "The first plate by name is the reference.",
+      "source_sha256": "9330ed298c868c1e172f2bb044de20850754da1e5e18bf08f9a0343fadb5d51c",
+      "translation": "이름순으로 첫 번째 플레이트가 기준 플레이트입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Turn off Test mode to preview gains for all source fields.",
+      "source": "Turn off Test mode to preview gains for all source fields.",
+      "source_sha256": "a3723287033d400bf6ce0fca5d3c1341beac8178ad007b734abe911669828190",
+      "translation": "모든 원본 시야의 보정 배율을 미리 보려면 테스트 모드를 끄세요."
+    }
+  ]
+}

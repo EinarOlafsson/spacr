@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, eleventh pass 2026-10-01: the two workflow-map phrases the Make Masks re-layout rewrote (FEATURES became Organize for Measure), re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source": "Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier.",
+      "source_sha256": "7898685a0a14bdd0d79ca4ff55263a7d39ba16b3c8ebd1ce80074136297c8c3c",
+      "translation": "분할 학습을 위해 이미지/마스크 쌍을 선별하거나, Measure용으로 정리를 사용해 이미지와 그 마스크를 Measure가 읽는 배열로 병합하세요. 마스크를 저장한다고 분류기가 학습되지는 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source": "Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays.",
+      "source_sha256": "aafb7c2b254b3d128e14e0af31ff2cac483a4c60b11f9ee8ef6b371bbbbdac77",
+      "translation": "Measure용으로 정리를 사용해 이미지와 그 마스크를 Measure가 읽는 배열로 병합하세요. 독립 마스크는 병합 배열이 아닙니다."
+    }
+  ]
+}

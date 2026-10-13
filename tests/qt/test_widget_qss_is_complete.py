@@ -1,0 +1,301 @@
+"""The FIRST stylesheet of a session carries every widget rule.
+
+A widget QSS block that is not registered when the stylesheet is built is
+simply not in it, and the widget it was written for falls through to the
+blanket ``QWidget { background-color: bg }``. ``bg`` is the WINDOW colour
+-- ``#000000`` on the dark theme -- so an unstyled container is not
+slightly off, it is a solid black rectangle.
+
+NOTE, 2026-09-11: the blanket rule is ``bg`` only while the window is NOT
+running a backdrop, and the backdrop is on by default -- see the truth
+table in ``spacr.qt.theme._window_block``. The history below is accurate
+and the sentence "an unstyled widget paints the window colour" now has a
+condition on it. It still holds for the case this file is about, because
+the reported defect was seen with the backdrop OFF. What no longer works
+is staging that defect by REMOVING a rule.
+
+Thirty-one modules register a block at import time. The application
+stylesheet is composed and applied at launch, before most of them have
+been imported, so the rules arrived only as screens happened to be opened
+and any later rebuild of the sheet silently fixed whatever was wrong.
+
+``settings_search`` is the one that hurt. It owns ``SettingsSearchPane``,
+the wrapper around the search strip *and* the settings scroll area -- the
+entire left column of every module screen. Its own module docstring says
+what an unstyled pane looks like: "an opaque black rectangle behind the
+whole thing". That is the black box reported against Mask, Measure,
+Timelapse, Motility, both Classify screens, Map Barcodes, Regression,
+External Masks, Illumination, Train Cellpose, Cellpose Masks, Image UMAP,
+Activation, Barcode QC, Replication, Invasion, Recruitment and Plaque,
+and it is why changing the theme or the animation made it go away: both
+rebuild the sheet, by which time the module had been imported.
+
+Asserted here rather than by rendering, on purpose. An offscreen
+``QWidget.render`` forces one full synchronous paint, so it does not
+reproduce this at all -- it came back clean for a screen that was black on
+the user's display. What IS exactly checkable is the thing that was
+actually wrong: whether the rule is in the sheet.
+"""
+
+from __future__ import annotations
+
+import ast
+import pathlib
+
+import pytest
+
+
+QT_ROOT = pathlib.Path(__file__).resolve().parents[2] / "spacr" / "qt"
+
+
+def _modules_registering_at_import() -> set[str]:
+    """Every module under ``spacr/qt`` that calls ``register_widget_qss``
+    at module level, found by parsing rather than by importing."""
+    found = set()
+    for path in sorted(QT_ROOT.rglob("*.py")):
+        source = path.read_text(encoding="utf-8")
+        if "register_widget_qss(" not in source:
+            continue
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            continue
+
+        # Functions defined in THIS module that register a block, so a
+        # module-level call to one of them counts as registering at import.
+        wrappers = set()
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                for inner in ast.walk(node):
+                    if isinstance(inner, ast.Call):
+                        called = getattr(inner.func, "id",
+                                         getattr(inner.func, "attr", ""))
+                        if called.endswith("register_widget_qss"):
+                            wrappers.add(node.name)
+                            break
+
+        def top_level(body):
+            for node in body:
+                if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+                    func = node.value.func
+                    name = getattr(func, "id", getattr(func, "attr", ""))
+                    if name.endswith("register_widget_qss") or name in wrappers:
+                        yield True
+                # A module-level call to a same-module helper that registers
+                # counts too: spacr.qt.widgets.field_fade registers through
+                # `ensure_field_fade_qss()` at module scope, and a detector
+                # that only matched the direct call reported it as "listed but
+                # no longer registering" the moment it was correctly added to
+                # WIDGET_QSS_MODULES.
+                # The registration is often inside a `try:` that tolerates a
+                # partial install, which is still module level.
+                if isinstance(node, ast.Try):
+                    yield from top_level(node.body)
+
+        if any(top_level(tree.body)):
+            rel = path.relative_to(QT_ROOT).with_suffix("")
+            found.add("spacr.qt." + rel.as_posix().replace("/", "."))
+    return found
+
+
+def test_every_registering_module_is_listed():
+    """A module that registers a block must be in ``WIDGET_QSS_MODULES``.
+
+    This is the half that rots. Someone adds a screen with its own QSS,
+    does not know this list exists, and that screen's containers are black
+    until the sheet is next rebuilt -- which is precisely the bug, one
+    screen at a time.
+    """
+    from spacr.qt.theme import WIDGET_QSS_MODULES
+
+    missing = sorted(_modules_registering_at_import() - set(WIDGET_QSS_MODULES))
+    assert not missing, (
+        "these register a widget QSS block at import but are not in "
+        f"theme.WIDGET_QSS_MODULES, so their rules are absent from the "
+        f"first stylesheet of a session and their containers paint `bg` "
+        f"(#000000 on dark) until something rebuilds it: {missing}"
+    )
+
+
+def test_no_listed_module_has_gone_away():
+    """The other direction, so the list cannot quietly accumulate names."""
+    from spacr.qt.theme import WIDGET_QSS_MODULES
+
+    stale = sorted(set(WIDGET_QSS_MODULES) - _modules_registering_at_import())
+    assert not stale, (
+        f"listed but no longer registering anything at import: {stale}")
+
+
+def test_the_settings_search_pane_is_styled_in_a_fresh_stylesheet(qapp):
+    """The specific rule whose absence was the black box.
+
+    Named rather than folded into the sweep below because it is the one
+    that spans the whole settings column, and a regression here is worth
+    reading as itself rather than as "some rule is missing".
+    """
+    from spacr.qt import settings_search, theme
+
+    sheet = theme.stylesheet("dark")
+    assert settings_search.PANE_NAME in sheet, (
+        f"{settings_search.PANE_NAME} has no rule in a freshly built "
+        f"stylesheet, so it paints the window colour -- a black rectangle "
+        f"behind the entire settings column of every module screen"
+    )
+
+
+@pytest.mark.parametrize("theme_name", ["dark", "light"])
+def test_a_fresh_stylesheet_carries_every_registered_block(qapp, theme_name):
+    """Build the sheet the way a launch does and check nothing is missing.
+
+    ``load_widget_qss_registrars`` is idempotent and latches, so by the
+    time any other test has run the modules are imported anyway. What this
+    pins is that ``stylesheet()`` itself does the loading -- take that call
+    out and the assertion below fails on a fresh interpreter.
+    """
+    from spacr.qt import theme
+
+    theme.load_widget_qss_registrars()
+    sheet = theme.stylesheet(theme_name)
+    registered = set(theme._WIDGET_QSS)
+    assert len(registered) >= 25, (
+        f"only {len(registered)} widget QSS blocks registered; the loader "
+        f"did not run")
+
+    # Every block must contribute something. A block that renders to an
+    # empty string is a rule that silently does not exist.
+    # The blocks are handed the palette `stylesheet()` builds, which
+    # carries the theme's own name -- several read `palette["theme"]` to
+    # decide between an opaque and a translucent surface.
+    palette = dict(theme.palette_for(theme_name))
+    palette["theme"] = theme_name
+    empty = [name for name, fn in theme._WIDGET_QSS.items()
+             if not str(fn(palette, 1.0) or "").strip()]
+    assert not empty, f"registered but rendering to nothing: {sorted(empty)}"
+
+
+def _modules_registering_only_inside_a_function() -> set[str]:
+    """Modules that call ``register_widget_qss`` but never at module level.
+
+    Their block reaches the registry only when something calls the
+    function -- which, for a screen built on demand, is after the launch
+    stylesheet was composed.
+    """
+    found = set()
+    at_import = _modules_registering_at_import()
+    for path in sorted(QT_ROOT.rglob("*.py")):
+        source = path.read_text(encoding="utf-8")
+        if "register_widget_qss(" not in source:
+            continue
+        rel = path.relative_to(QT_ROOT).with_suffix("")
+        module = "spacr.qt." + rel.as_posix().replace("/", ".")
+        if module == "spacr.qt.theme" or module in at_import:
+            continue
+        found.add(module)
+    return found
+
+
+def test_a_deferred_registrar_is_still_reached_before_the_first_sheet():
+    """Registering from inside a function is not enough on its own.
+
+    ``spacr.qt.screens.map_barcodes`` owns the fold page strip that every
+    module screen grows, and registered its block only from the helper the
+    first page calls. A session whose stylesheet was composed before any
+    fold page existed therefore had no rule for the strip, and the tabs
+    fell through to the blanket window fill. The module must either
+    register at import, be in ``WIDGET_QSS_MODULES``, or have its
+    ``register()`` called by ``register_self_registering_modules``.
+
+    A NAME IN ``SELF_REGISTERING_MODULES`` IS NOT ENOUGH ANY MORE, and that
+    is the trap this half exists to close. A module that declares its row in
+    ``app_catalog`` is registered FROM THE ROW and is never imported at
+    launch, so its ``register()`` is not called and a block registered only
+    from inside it never reaches the first sheet — while the module's name
+    still sits in ``__init__.py`` looking like an assurance. Declared
+    modules are therefore subtracted from the assurance rather than counted
+    towards it, and the answer for one of those is ``WIDGET_QSS_MODULES``.
+    """
+    import re
+
+    from spacr.qt.app_catalog import DECLARED_APPS
+    from spacr.qt.theme import WIDGET_QSS_MODULES
+
+    init_src = (QT_ROOT / "__init__.py").read_text(encoding="utf-8")
+    self_registering = set(re.findall(r'"(spacr\.qt\.[a-z_.]+)"', init_src))
+    self_registering -= {row.module for row in DECLARED_APPS}
+    reached = set(WIDGET_QSS_MODULES) | self_registering
+
+    stranded = sorted(_modules_registering_only_inside_a_function() - reached)
+    assert not stranded, (
+        "these register a widget QSS block only from inside a function and "
+        "are neither listed in theme.WIDGET_QSS_MODULES nor self-registering, "
+        "so their rule is absent from the stylesheet built at launch: "
+        f"{stranded}"
+    )
+
+
+@pytest.mark.slow
+def test_the_late_block_seam_works_when_the_window_carries_the_sheet(qapp):
+    """The seam asks whether a spaCR sheet is in force, not whether the
+    APPLICATION carries one, and for a while those were the same question.
+
+    `ensure_widget_qss_applied` is what puts a block registered at a
+    screen's import onto that screen before it paints. It began with
+
+        app_sheet = app.styleSheet()
+        if not app_sheet:
+            return False
+
+    on the reasoning that a caller who never opted into spaCR styling is not
+    opted in merely by constructing one of its widgets. Per-window sheeting
+    then took the application sheet DOWN on purpose and gave each window its
+    own -- so `app.styleSheet()` is empty in every production run, and that
+    guard read it as "nobody opted in".
+
+      MEASURED: opening one module registers four blocks -- `SettingsBox`,
+      `ClassEditor`, `SettingAlphabetChip`, `TableChip` -- and not one of
+      the four reached the screen that had just imported them. That is the
+      defect this whole file exists for, reintroduced from underneath by a
+      change to who owns the sheet.
+
+    `test_a_late_registered_block_reaches_its_screen_before_first_paint`
+    could not see it: its fixture applies the theme with
+    `app.setStyleSheet`, so the old question still had the old answer
+    there. This one applies it the way the application does.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt import theme
+
+    app = qapp
+    name = "_PerWindowLateBlock"
+    marker = theme._WIDGET_QSS_MARKER.format(name=name)
+    before_app_sheet = app.styleSheet()
+    try:
+        # The application sheet down and a window sheet up: production.
+        app.setStyleSheet("")
+        theme.apply_stylesheet_per_window(
+            app, theme.stylesheet(theme="dark", font_scale=1.0))
+        assert not app.styleSheet(), (
+            "per-window sheeting is supposed to leave the application "
+            "sheet empty; this test has nothing to say if it does not")
+
+        theme.register_widget_qss(
+            name,
+            lambda palette, opacity: "QLabel#%s { color: #ff00ff; }" % name,
+            replace=True)
+        root = QWidget()
+        try:
+            assert theme.ensure_widget_qss_applied(name, root=root), (
+                "the seam did nothing, so a screen importing its own block "
+                "opens without it"
+            )
+            assert marker in (root.styleSheet() or ""), (
+                "the seam ran but the block it exists to install is not on "
+                "the root"
+            )
+        finally:
+            root.deleteLater()
+    finally:
+        theme.unregister_widget_qss(name)
+        theme._forget_window_stylesheets(app)
+        app.setStyleSheet(before_app_sheet)

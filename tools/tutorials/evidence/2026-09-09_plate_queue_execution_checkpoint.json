@@ -1,0 +1,259 @@
+{
+  "lesson": "30_plate_queue",
+  "accepted": true,
+  "published": false,
+  "pipeline_replaced": false,
+  "app_source_modified": false,
+  "independent_experiments": false,
+  "same_real_data_replayed_twice": true,
+  "ai_request_sent": false,
+  "model_run": false,
+  "scope": "Actual sequential jobs on two isolated copies of one accepted measurement subset",
+  "private_state": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/queue_state/plate_queue_readable_status",
+  "native_column_widths_before": [
+    100,
+    100,
+    1475,
+    100,
+    100,
+    1475
+  ],
+  "native_column_widths_after": [
+    220,
+    260,
+    1245,
+    200,
+    180,
+    1245
+  ],
+  "visible_buttons": [
+    "Add current plate",
+    "Import CSV…",
+    "Clear finished",
+    "Run queue",
+    "Stop"
+  ],
+  "states": {
+    "02_empty_queue": [],
+    "03_added_replay_1": [
+      [
+        "4dabd8b8",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_1",
+        "queued"
+      ]
+    ],
+    "03_added_replay_2": [
+      [
+        "4dabd8b8",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_1",
+        "queued"
+      ],
+      [
+        "cc3cf942",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_2",
+        "queued"
+      ]
+    ],
+    "04_first_job_running": [
+      [
+        "4dabd8b8",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_1",
+        "running"
+      ],
+      [
+        "cc3cf942",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_2",
+        "queued"
+      ]
+    ],
+    "05_stop_requested": [
+      [
+        "4dabd8b8",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_1",
+        "running"
+      ],
+      [
+        "cc3cf942",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_2",
+        "queued"
+      ]
+    ],
+    "06_stopped_between_jobs": [
+      [
+        "4dabd8b8",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_1",
+        "success"
+      ],
+      [
+        "cc3cf942",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_2",
+        "queued"
+      ]
+    ],
+    "07_both_jobs_finished": [
+      [
+        "4dabd8b8",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_1",
+        "success"
+      ],
+      [
+        "cc3cf942",
+        "recruitment",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_2",
+        "success"
+      ]
+    ],
+    "08_finished_records_cleared": []
+  },
+  "persistence_before_run": true,
+  "matplotlib_backend": "Agg",
+  "queue_figures_saved_or_shown": false,
+  "first_job_not_repeated": true,
+  "original_unchanged": true,
+  "worker_running": false,
+  "status": "Verified real queue execution checkpoint; full lesson and media not yet authored",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/plate_queue_readable_status",
+  "capture_provenance": {
+    "commit": "d636d9829e510ec6aef3b59864008b9fd70f05ac",
+    "version": "1.5.0.4",
+    "module": "queue",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "acceptance_sha256": "b32f0a325bd1ed956f89d85c5d085531162ba8bc600017e39bd33b7c4e86402d",
+  "input_summary": {
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/recruitment_runs/example-ac__3qcy/project/measurements/measurements.db",
+    "sha256": "ef3df75c1b226855e8fbfe856cf86fbafa8b209142e7d9c263ec91cab1e6c11e",
+    "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f",
+    "pre_analysis_database_sha256": "d7c9faacabc587e4e47bc683e59b8ef3acfeb58d06e382fdebb5644b87f26a6f",
+    "frozen_measurement_rows": {
+      "cell": {
+        "row_count": 453,
+        "rows_sha256": "1765458e7db218274a29d3f4a7b857024bf4fad992bbb40aff97bfb5787de58a"
+      },
+      "nucleus": {
+        "row_count": 588,
+        "rows_sha256": "000e1c66a00eb4f61f36733f939b9b15ea4b8d3c94d025efb8adeb9c4aabf3f2"
+      },
+      "pathogen": {
+        "row_count": 998,
+        "rows_sha256": "24b17980c950896e0e4598a3bb42390215f6c15d16516a3b3da23791c013844a"
+      },
+      "cytoplasm": {
+        "row_count": 453,
+        "rows_sha256": "abd325019527bc548ef60b612d51af888cdb0a5e3b95f1fc716b9746546f65d6"
+      }
+    },
+    "original_unchanged": true,
+    "independent_experiments": false,
+    "same_data_replayed_twice": true
+  },
+  "outputs": [
+    {
+      "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_1",
+      "source_table_rows": {
+        "cell": 453,
+        "cytoplasm": 453,
+        "nucleus": 588,
+        "pathogen": 998
+      },
+      "filter_counts": {
+        "source_cells": 453,
+        "after_nucleus_count_join": 350,
+        "after_condition": 350,
+        "after_cell_area": 350,
+        "after_target_intensity": 350,
+        "after_nucleus_area": 331,
+        "after_pathogen_area": 223,
+        "after_source_count_well_filter": 223
+      },
+      "cell_rows": 223,
+      "well_rows": 4,
+      "ratios_verified": [
+        "pathogen_cell_mean_mean",
+        "pathogen_cytoplasm_mean_mean",
+        "pathogen_nucleus_mean_mean",
+        "pathogen_cell_q75_mean",
+        "pathogen_cytoplasm_q75_mean",
+        "pathogen_nucleus_q75_mean",
+        "pathogen_outside_cell_mean_mean",
+        "pathogen_outside_cytoplasm_mean_mean",
+        "pathogen_outside_nucleus_mean_mean",
+        "pathogen_outside_cell_q75_mean",
+        "pathogen_outside_cytoplasm_q75_mean",
+        "pathogen_outside_nucleus_q75_mean",
+        "pathogen_periphery_cell_mean_mean",
+        "pathogen_periphery_cytoplasm_mean_mean",
+        "pathogen_periphery_nucleus_mean_mean",
+        "recruitment"
+      ],
+      "max_absolute_numeric_difference": 1.1368683772161603e-13
+    },
+    {
+      "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plate_queue_runs/real-replays-smswm44f/replay_2",
+      "source_table_rows": {
+        "cell": 453,
+        "cytoplasm": 453,
+        "nucleus": 588,
+        "pathogen": 998
+      },
+      "filter_counts": {
+        "source_cells": 453,
+        "after_nucleus_count_join": 350,
+        "after_condition": 350,
+        "after_cell_area": 350,
+        "after_target_intensity": 350,
+        "after_nucleus_area": 331,
+        "after_pathogen_area": 223,
+        "after_source_count_well_filter": 223
+      },
+      "cell_rows": 223,
+      "well_rows": 4,
+      "ratios_verified": [
+        "pathogen_cell_mean_mean",
+        "pathogen_cytoplasm_mean_mean",
+        "pathogen_nucleus_mean_mean",
+        "pathogen_cell_q75_mean",
+        "pathogen_cytoplasm_q75_mean",
+        "pathogen_nucleus_q75_mean",
+        "pathogen_outside_cell_mean_mean",
+        "pathogen_outside_cytoplasm_mean_mean",
+        "pathogen_outside_nucleus_mean_mean",
+        "pathogen_outside_cell_q75_mean",
+        "pathogen_outside_cytoplasm_q75_mean",
+        "pathogen_outside_nucleus_q75_mean",
+        "pathogen_periphery_cell_mean_mean",
+        "pathogen_periphery_cytoplasm_mean_mean",
+        "pathogen_periphery_nucleus_mean_mean",
+        "recruitment"
+      ],
+      "max_absolute_numeric_difference": 1.1368683772161603e-13
+    }
+  ],
+  "tests": {
+    "green": 8,
+    "deliberate_row_comparison_bypass_failed": 4,
+    "mutation_restored": true
+  },
+  "source_path_labels_may_elide": true,
+  "source_identities_verified_in_full": true,
+  "actual_status_words_visually_readable": true,
+  "ordinary_app_backend_reference": "spacr/qt/app.py:5810-5835 sets Agg before normal startup",
+  "queue_plot_limitation": "The direct queue runner creates but does not display or save the Recruitment plots; no such output is claimed. Use the full Recruitment lesson for the GUI figures and console.",
+  "clear_finished_scope": "Only the two private queue entries, preserved in persisted_final in the full acceptance JSON; both replay projects and output CSVs remain.",
+  "native_speaker_signoff": false,
+  "human_listening_review": false
+}

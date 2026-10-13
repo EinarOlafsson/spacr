@@ -1,0 +1,308 @@
+{
+  "schema": 1,
+  "accepted": true,
+  "scope": "Official annotated 2D accuracy plus paired CPU/GPU mask-object agreement for six real inputs. Four acquired DNA fields and the biological 3D plant volume have no independent annotations.",
+  "cases": [
+    {
+      "case": "official_2d_nuclei",
+      "scope": "CPU/GPU object agreement; CPU predictions are a runtime reference, not independent biological truth. This 2D case additionally has official independent annotations.",
+      "cpu_gpu_object_matching": {
+        "0.5": {
+          "criterion": "iou",
+          "thresh": 0.5,
+          "fp": 0,
+          "tp": 118,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 118,
+          "n_pred": 118,
+          "mean_true_score": 1.0,
+          "mean_matched_score": 1.0,
+          "panoptic_quality": 1.0
+        },
+        "0.75": {
+          "criterion": "iou",
+          "thresh": 0.75,
+          "fp": 0,
+          "tp": 118,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 118,
+          "n_pred": 118,
+          "mean_true_score": 1.0,
+          "mean_matched_score": 1.0,
+          "panoptic_quality": 1.0
+        }
+      },
+      "official_2d_independent_annotation_scores": {
+        "cpu": {
+          "0.5": {
+            "criterion": "iou",
+            "thresh": 0.5,
+            "fp": 0,
+            "tp": 118,
+            "fn": 7,
+            "precision": 1.0,
+            "recall": 0.944,
+            "accuracy": 0.944,
+            "f1": 0.9711934156378601,
+            "n_true": 125,
+            "n_pred": 118,
+            "mean_true_score": 0.8038662075996399,
+            "mean_matched_score": 0.8515531895524364,
+            "panoptic_quality": 0.8270228507587448
+          },
+          "0.75": {
+            "criterion": "iou",
+            "thresh": 0.75,
+            "fp": 10,
+            "tp": 108,
+            "fn": 17,
+            "precision": 0.9152542372881356,
+            "recall": 0.864,
+            "accuracy": 0.8,
+            "f1": 0.8888888888888888,
+            "n_true": 125,
+            "n_pred": 118,
+            "mean_true_score": 0.7511025667190552,
+            "mean_matched_score": 0.8693316424334491,
+            "panoptic_quality": 0.7727392377186214
+          }
+        },
+        "gpu": {
+          "0.5": {
+            "criterion": "iou",
+            "thresh": 0.5,
+            "fp": 0,
+            "tp": 118,
+            "fn": 7,
+            "precision": 1.0,
+            "recall": 0.944,
+            "accuracy": 0.944,
+            "f1": 0.9711934156378601,
+            "n_true": 125,
+            "n_pred": 118,
+            "mean_true_score": 0.8038662075996399,
+            "mean_matched_score": 0.8515531895524364,
+            "panoptic_quality": 0.8270228507587448
+          },
+          "0.75": {
+            "criterion": "iou",
+            "thresh": 0.75,
+            "fp": 10,
+            "tp": 108,
+            "fn": 17,
+            "precision": 0.9152542372881356,
+            "recall": 0.864,
+            "accuracy": 0.8,
+            "f1": 0.8888888888888888,
+            "n_true": 125,
+            "n_pred": 118,
+            "mean_true_score": 0.7511025667190552,
+            "mean_matched_score": 0.8693316424334491,
+            "panoptic_quality": 0.7727392377186214
+          }
+        }
+      },
+      "distinct_truth_objects": 125
+    },
+    {
+      "case": "plate1_E01_10_1",
+      "scope": "CPU/GPU object agreement; CPU predictions are a runtime reference, not independent biological truth.",
+      "cpu_gpu_object_matching": {
+        "0.5": {
+          "criterion": "iou",
+          "thresh": 0.5,
+          "fp": 0,
+          "tp": 98,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 98,
+          "n_pred": 98,
+          "mean_true_score": 0.9999990463256836,
+          "mean_matched_score": 0.9999990657884248,
+          "panoptic_quality": 0.9999990657884248
+        },
+        "0.75": {
+          "criterion": "iou",
+          "thresh": 0.75,
+          "fp": 0,
+          "tp": 98,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 98,
+          "n_pred": 98,
+          "mean_true_score": 0.9999990463256836,
+          "mean_matched_score": 0.9999990657884248,
+          "panoptic_quality": 0.9999990657884248
+        }
+      }
+    },
+    {
+      "case": "plate1_E01_11_1",
+      "scope": "CPU/GPU object agreement; CPU predictions are a runtime reference, not independent biological truth.",
+      "cpu_gpu_object_matching": {
+        "0.5": {
+          "criterion": "iou",
+          "thresh": 0.5,
+          "fp": 0,
+          "tp": 93,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 93,
+          "n_pred": 93,
+          "mean_true_score": 1.0,
+          "mean_matched_score": 1.0,
+          "panoptic_quality": 1.0
+        },
+        "0.75": {
+          "criterion": "iou",
+          "thresh": 0.75,
+          "fp": 0,
+          "tp": 93,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 93,
+          "n_pred": 93,
+          "mean_true_score": 1.0,
+          "mean_matched_score": 1.0,
+          "panoptic_quality": 1.0
+        }
+      }
+    },
+    {
+      "case": "plate1_E01_1_1",
+      "scope": "CPU/GPU object agreement; CPU predictions are a runtime reference, not independent biological truth.",
+      "cpu_gpu_object_matching": {
+        "0.5": {
+          "criterion": "iou",
+          "thresh": 0.5,
+          "fp": 0,
+          "tp": 111,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 111,
+          "n_pred": 111,
+          "mean_true_score": 1.0,
+          "mean_matched_score": 1.0,
+          "panoptic_quality": 1.0
+        },
+        "0.75": {
+          "criterion": "iou",
+          "thresh": 0.75,
+          "fp": 0,
+          "tp": 111,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 111,
+          "n_pred": 111,
+          "mean_true_score": 1.0,
+          "mean_matched_score": 1.0,
+          "panoptic_quality": 1.0
+        }
+      }
+    },
+    {
+      "case": "plate1_E01_9_1",
+      "scope": "CPU/GPU object agreement; CPU predictions are a runtime reference, not independent biological truth.",
+      "cpu_gpu_object_matching": {
+        "0.5": {
+          "criterion": "iou",
+          "thresh": 0.5,
+          "fp": 0,
+          "tp": 118,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 118,
+          "n_pred": 118,
+          "mean_true_score": 0.9999989867210388,
+          "mean_matched_score": 0.9999989655058262,
+          "panoptic_quality": 0.9999989655058262
+        },
+        "0.75": {
+          "criterion": "iou",
+          "thresh": 0.75,
+          "fp": 0,
+          "tp": 118,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 118,
+          "n_pred": 118,
+          "mean_true_score": 0.9999989867210388,
+          "mean_matched_score": 0.9999989655058262,
+          "panoptic_quality": 0.9999989655058262
+        }
+      }
+    },
+    {
+      "case": "biological_plant_3d",
+      "scope": "CPU/GPU object agreement; CPU predictions are a runtime reference, not independent biological truth.",
+      "cpu_gpu_object_matching": {
+        "0.5": {
+          "criterion": "iou",
+          "thresh": 0.5,
+          "fp": 0,
+          "tp": 13,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 13,
+          "n_pred": 13,
+          "mean_true_score": 0.9998694658279419,
+          "mean_matched_score": 0.999869493337778,
+          "panoptic_quality": 0.999869493337778
+        },
+        "0.75": {
+          "criterion": "iou",
+          "thresh": 0.75,
+          "fp": 0,
+          "tp": 13,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "accuracy": 1.0,
+          "f1": 1.0,
+          "n_true": 13,
+          "n_pred": 13,
+          "mean_true_score": 0.9998694658279419,
+          "mean_matched_score": 0.999869493337778,
+          "panoptic_quality": 0.999869493337778
+        }
+      }
+    }
+  ],
+  "cpu_benchmark_sha256": "093967b2c5d5e1edb34f8808ff532a7fc385c3f9923f653ab653ca36f7056b36",
+  "gpu_benchmark_sha256": "1ed0c1c4250811a64bc884230c433ab5f4b86216626bd9efa7a1dcce0fec8704"
+}

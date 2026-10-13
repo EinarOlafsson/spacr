@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI-assisted source-context review. Reviews restoration choices and ready/error status text in the Make Masks enhancement controls. Preserves model identities, CPU processing, measurement-intensity meaning and format placeholders. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Deblur",
+      "source": "Deblur",
+      "source_sha256": "66671837dcec71a9c2cf299667d6fa6716009e961d52d0c716575d8a619073bb",
+      "translation": "Réduire le flou"
+    },
+    {
+      "table": "ui",
+      "key": "One-click restoration",
+      "source": "One-click restoration",
+      "source_sha256": "5f22b81d28c570f148e2d37411b7650400061016f5cf3bb348656722e73a57b3",
+      "translation": "Restauration en un clic"
+    },
+    {
+      "table": "ui",
+      "key": "Cells (cyto3)",
+      "source": "Cells (cyto3)",
+      "source_sha256": "a62a0c09deca61f49867b826b130c266149a4d7ad76317c9727a3ee9364d105d",
+      "translation": "Cellules (cyto3)"
+    },
+    {
+      "table": "ui",
+      "key": "Cells (cyto2)",
+      "source": "Cells (cyto2)",
+      "source_sha256": "3defbe29858e399884d76024b701c79299d38c16e4374fea91499ed3361e2a68",
+      "translation": "Cellules (cyto2)"
+    },
+    {
+      "table": "ui",
+      "key": "Restoration ready: {model}. CPU processing; original intensities retained for measurements.",
+      "source": "Restoration ready: {model}. CPU processing; original intensities retained for measurements.",
+      "source_sha256": "0641d1cc220b3a15e5df90d8697e4051a8c1794003b5bb3c92c2793b4f988b8f",
+      "translation": "Restauration prête : {model}. Traitement sur le CPU ; les intensités d’origine sont conservées pour les mesures."
+    },
+    {
+      "table": "ui",
+      "key": "Restoration unavailable: {error}",
+      "source": "Restoration unavailable: {error}",
+      "source_sha256": "f14925c5a09b7a05114ad0b75893cae6f244002fdf65d01c8c8ec1ddcefcd515",
+      "translation": "Restauration indisponible : {error}"
+    }
+  ]
+}

@@ -1,0 +1,351 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "source_commit": "b8442ac624318f42ddf1ebf30480f94e909ba84e",
+  "changes": [
+    "Document CPU float32 previews and Cellpose 3 checkpoint compatibility errors.",
+    "Document persistent archive quarantine, numeric pixel extents, filename coverage and limits of structural checks.",
+    "Document own-ruler precedence, legend-derived peer sharing and conflicting-scale refusal.",
+    "Replace the preview model API entry in nine locales; six translated prose blocks and one preserved return-type fragment per locale.",
+    "Add the preview compatibility caption in nine locales; refresh English manifests and check generated Help indexing."
+  ],
+  "files": {
+    "spacr/io.py": "d699e37daea9c629f68b53f01c2b5ce5ab1cbaf35c210da20f892f3d18787136",
+    "spacr/plaque_papers.py": "0cc954cddc24369a8faf31cd771e4fc2ad99ea3e91047283084cc7ff96920dc5",
+    "spacr/qt/widgets/preview_contract.py": "e2771b772bf620651bf9150a976fe1bfe9c55defd7ca5fb37f8b37d33aca3bc9",
+    "docs/source/plaque_assay.rst": "4cecd3ae92a64e72dc040d94bd87e505e13a4fde47359d76493c390936b75bf1",
+    "docs/source/make_masks.rst": "80eebf30260e166f60bd11cd9461b6d3d824088a4f47b7f15dd448209528d176",
+    "docs/source/checkpoint_resume.rst": "3a0ba04bc2dde0e0ecdb9c148f67dc3e10b77c0255a3f3eb5c1a9bc94ed3f045"
+  },
+  "validation": {
+    "runtime_ast_unchanged": true,
+    "sphinx_warnings_as_errors": "passed",
+    "sphinx_log_sha256": "6e851ef2a1d172322fe15f6002eac33aaeebcb804be2545dc2b04f54fc8b041f",
+    "focused_tests": 102,
+    "focused_test_log_sha256": "e10e15d1d616417218b8de674b3a3045ba95787e456e5175c7b04c530a4f279b",
+    "internal_api_and_workflow_links": [
+      {
+        "page": "plaque_assay.html",
+        "href": "workflows.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "workflows.html#workflow-module-analyze-plaques"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/submodules/index.html#spacr.submodules.analyze_plaques"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/qt/widgets/plaque_preview/index.html#spacr.qt.widgets.plaque_preview.plaque_pass"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/qt/widgets/plaque_preview/index.html#spacr.qt.widgets.plaque_preview.detect_figure"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/qt/widgets/plaque_preview/index.html#spacr.qt.widgets.plaque_preview.segment_well"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/qt/widgets/plaque_preview/index.html#spacr.qt.widgets.plaque_preview.figure_pass"
+      },
+      {
+        "page": "plaque_assay.html",
+        "href": "api/spacr/plaque/index.html#spacr.plaque.segment_plaque_image"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "workflows.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "workflows.html#workflow-module-make-masks"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/screens/make_masks/index.html"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/mask_engine/index.html#module-spacr.qt.mask_engine"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/mask_engine/index.html#spacr.qt.mask_engine.save_mask"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/curation/index.html#spacr.curation.CurationLog"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/mask_engine/index.html#spacr.qt.mask_engine.canonical_labels"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/mask_engine/index.html#spacr.qt.mask_engine.write_recrop"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/screens/make_masks/index.html#spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/accelerator/index.html#spacr.accelerator.cellpose_kwargs"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/widgets/preview_contract/index.html#spacr.qt.widgets.preview_contract.preview_cellpose_model"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/detect_chain/index.html#module-spacr.qt.detect_chain"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/mask_engine/index.html#spacr.qt.mask_engine.secondary_object_instances"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/secondary_masks/index.html#spacr.qt.secondary_masks.PrimaryMaskSource"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/widgets/primary_mask_selector/index.html#spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "workflows.html#workflow-module-measure"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "workflows.html#workflow-module-make-masks"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/cpu_modes/index.html#spacr.qt.cpu_modes.CpuParams"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/organelle_modes/index.html#spacr.qt.organelle_modes.MethodParams"
+      },
+      {
+        "page": "make_masks.html",
+        "href": "api/spacr/qt/detect_chain/index.html#spacr.qt.detect_chain.Chain"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "workflows.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/checkpoint/index.html#spacr.checkpoint.CheckpointStore"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/convert/index.html#spacr.convert.convert"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/hyperparam/index.html#spacr.hyperparam.umap_search"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/resume/index.html#spacr.resume.plan_measure_resume"
+      },
+      {
+        "page": "checkpoint_resume.html",
+        "href": "api/spacr/batch/index.html#spacr.batch.resume_queue"
+      }
+    ],
+    "languages": {
+      "source_commit": "b8442ac624318f42ddf1ebf30480f94e909ba84e",
+      "ui_count": 5017,
+      "api_count": 11402,
+      "languages": [
+        {
+          "language": "sv",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "de",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "es",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "zh_CN",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "pt",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "hi",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "ko",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "is",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        },
+        {
+          "language": "fr",
+          "review_records": 1,
+          "actual_formatted_tr": true,
+          "full_runtime_and_api_review_loaders": true
+        }
+      ],
+      "full_locale_acceptance": false,
+      "native_speaker_signoff": false
+    }
+  },
+  "native_speaker_signoff": false,
+  "full_catalog_acceptance": false,
+  "published": false
+}

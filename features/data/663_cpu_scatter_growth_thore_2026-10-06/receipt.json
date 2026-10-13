@@ -1,0 +1,43 @@
+{
+  "sources": {
+    "scatter-production": {
+      "commit": "204c16be16",
+      "path": "spacr/qt/widgets/ambient.py",
+      "sha256": "e00d4027e243e400525983dd12d8d32e57468074655ad1e94b8d85594aec39b8"
+    },
+    "growth-footprint": {
+      "commit": "bc393abfd2",
+      "path": "spacr/qt/widgets/ambient.py",
+      "sha256": "e31fcb72aecc05b2dea9f6b1774c1f401b1349b83749bfa372383ee49beb2bfe"
+    },
+    "thore-fix": {
+      "commit": "539058cc05",
+      "path": "spacr/qt/widgets/ambient.py",
+      "sha256": "c57bf751f46ed12b02f88f9a97951a5f421ba7cbf7a39a9e19f4fd4dae673bc4"
+    },
+    "live-widget-catalog": {
+      "commit": "16d073c21b",
+      "path": "spacr/qt/widgets/ambient.py",
+      "sha256": "b554b4e9e309443788c287b8f16efaa501b785bf85d5b5ffc5561e3c6e40e7d7"
+    }
+  },
+  "exact_native_4k_frame_pairs": 36,
+  "duplicate_border_primitive_pairs": 6,
+  "integrated_root_test_source": "1fe95be155",
+  "integrated_passes": 488,
+  "growth_coverage": {
+    "added_statements": 143,
+    "touching_arcs": 47
+  },
+  "thore_fix_coverage": {
+    "added_statements": 15,
+    "touching_arcs": 6
+  },
+  "limits": [
+    "Native 4K atlas/active lens remain below 24 FPS.",
+    "Offline preview videos are not live cadence acceptance.",
+    "Gallery source precedes the separately recorded Thore fix.",
+    "Reported preference Save native crash is not resolved.",
+    "Live-widget probes include capture and control-setter stalls."
+  ]
+}

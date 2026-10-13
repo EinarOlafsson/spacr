@@ -1,0 +1,33 @@
+{
+  "lesson": "75_regression_diagnostics",
+  "english_sha256": "f5063f20ac388e58f2c086d2c3d555de7b543c91ae100f8274c1fcf161aa402c",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Regression Diagnostics: esaminare i rapporti di analisi salvati",
+  "description": "Apri i rapporti sul disegno e sull’inferenza di un’esecuzione completata, esamina supporto e dipendenze, e usa quanto emerge per scegliere l’analisi successiva.",
+  "objectives": [
+    "Aprire la cartella di diagnostica dell’esecuzione di Regression desiderata.",
+    "Leggere i riepiloghi su supporto del disegno, identificabilità e inferenza.",
+    "Conservare la diagnostica con le impostazioni e rieseguire dopo aver modificato un’analisi."
+  ],
+  "prerequisite": "Completa l’esempio di Regression con le sue quattro coppie punteggi/conteggi. L’esecuzione per permutazioni mostrata usa 199 permutazioni e un minimo di due pozzetti. Tieni insieme impostazioni e famiglie di risultati quando interpreti i pannelli diagnostici.",
+  "scenes": [
+    "Da Home, apri Regression. Al termine di un’analisi, fai clic su Diagnostics. Controlla il percorso della cartella: questa scorciatoia apre la cartella di diagnostica più recente che trova nel progetto.",
+    "Leggi in ordine i file di diagnostica in quella cartella: prima l’identificabilità del disegno, poi la diagnostica del disegno con le coppie di guide collineari, quindi la diagnostica dell’inferenza e infine il riepilogo che le riunisce.",
+    "Inizia da Design identifiability. Confronta il numero di pozzetti, il numero di parametri e il rango del disegno. Questo esempio ha più parametri di quanti il suo rango ne consenta, quindi non può identificare un coefficiente simultaneo univoco per ogni guida.",
+    "Esamina il supporto di ogni guida tra i pozzetti. L’esempio comprende molte guide presenti in un solo pozzetto. Distingui il disegno completo dalla famiglia filtrata delle guide effettivamente testate.",
+    "Apri Design diagnostics e la tabella delle coppie collineari. Individua i predittori che compaiono sempre insieme o che hanno un supporto debole prima di attribuire loro effetti separati.",
+    "Apri Inference diagnostics. Esamina la distribuzione dei valori P, il confronto con l’ipotesi nulla e le scoperte alle diverse soglie corrette. Questo esempio non ha scoperte alla soglia mostrata.",
+    "Controlla il numero di permutazioni quando interpreti i valori P. Con centonovantanove permutazioni, il valore P empirico più piccolo ottenibile è zero virgola zero zero cinque. Pianifica la risoluzione necessaria per la tua correzione per test multipli.",
+    "Un’analisi per permutazioni non produce residui adattati da un modello di regressione simultaneo. Cerca i pannelli dei residui quando usi una modalità che fornisce valori osservati e adattati.",
+    "Leggi il riepilogo insieme ai singoli pannelli. La sua valutazione complessiva riflette la peggiore valutazione tra i pannelli, quindi apri il rapporto corrispondente per capirne il motivo.",
+    "Torna a Regression per modificare in modo mirato input o impostazioni dell’analisi. Esegui l’analisi rivista ed esamina la nuova diagnostica. Tieni separate le cartelle di output precedenti, così ogni rapporto resta associato alle sue impostazioni."
+  ]
+}

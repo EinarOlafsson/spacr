@@ -1,0 +1,154 @@
+{
+  "old_counts": {
+    "SETTING_LABELS": 1209,
+    "SETTING_TOOLTIPS": 1231,
+    "CATEGORY_HELP": 237,
+    "UI": 6512,
+    "MODULE_SUMMARIES": 72
+  },
+  "new_counts": {
+    "SETTING_LABELS": 1209,
+    "SETTING_TOOLTIPS": 1231,
+    "CATEGORY_HELP": 237,
+    "UI": 6525,
+    "MODULE_SUMMARIES": 72
+  },
+  "new_identity_sha256": "87438d231d9835af4dd84b299d0acc38c8ecd4455e4803c446c49bbec68497bd",
+  "added": [
+    [
+      "UI",
+      "Barcode column"
+    ],
+    [
+      "UI",
+      "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names."
+    ],
+    [
+      "UI",
+      "CSV files (*.csv)"
+    ],
+    [
+      "UI",
+      "Choose CSV…"
+    ],
+    [
+      "UI",
+      "Column name in the CSV that contains the plate barcode."
+    ],
+    [
+      "UI",
+      "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved."
+    ],
+    [
+      "UI",
+      "Output plate barcodes"
+    ],
+    [
+      "UI",
+      "Plate barcode linkage (Alpha)"
+    ],
+    [
+      "UI",
+      "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}"
+    ],
+    [
+      "UI",
+      "Sample records CSV"
+    ],
+    [
+      "UI",
+      "Select sample records CSV"
+    ],
+    [
+      "UI",
+      "Showing {shown} of {total} mismatches; the CSV contains all rows."
+    ],
+    [
+      "UI",
+      "plate1=BC001; plate2=BC002"
+    ]
+  ],
+  "removed": [],
+  "previous_pinned_identity_sha256": "4e9ff530557c2665575b40fba81e38f2ef8216aab43f93d0808a990a489aa7f2",
+  "previous_catalog_identity_sha256": "d1cbba35a73c958e0a524e825b07065d4d37c2d36d2f4da0c43d4729e7ac1b95",
+  "inherited_ratchet_drift": {
+    "feature": "F538",
+    "catalog_commit": "b03c88bdc",
+    "old_pinned_ui": 6497,
+    "already_accepted_catalog_ui": 6512,
+    "added": [
+      [
+        "UI",
+        "A preview crop must contain nonempty RGB pixels."
+      ],
+      [
+        "UI",
+        "Cannot publish export folder: {path}"
+      ],
+      [
+        "UI",
+        "Choose a folder name without path separators."
+      ],
+      [
+        "UI",
+        "Choose an export parent folder"
+      ],
+      [
+        "UI",
+        "Export cancelled."
+      ],
+      [
+        "UI",
+        "Export displayed crops…"
+      ],
+      [
+        "UI",
+        "Export failed: {error}"
+      ],
+      [
+        "UI",
+        "Export folder already exists: {path}"
+      ],
+      [
+        "UI",
+        "Exported {count} crops to {path}."
+      ],
+      [
+        "UI",
+        "Exporting displayed crops…"
+      ],
+      [
+        "UI",
+        "Folder name:"
+      ],
+      [
+        "UI",
+        "New export folder"
+      ],
+      [
+        "UI",
+        "Preview changed; export the new preview again."
+      ],
+      [
+        "UI",
+        "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; batch PNG exports and source files are unchanged."
+      ],
+      [
+        "UI",
+        "Run a crop preview before exporting."
+      ],
+      [
+        "UI",
+        "Save the completed preview as PNG crops and provenance in a new folder, including display colours and optional unmixing. Batch outputs are unchanged."
+      ]
+    ],
+    "removed": [
+      [
+        "UI",
+        "Preview spectral unmixing using the run’s single-stain controls. This changes only the displayed crops; PNG exports and source files are unchanged."
+      ]
+    ],
+    "net": 15,
+    "historical_receipt": "features/data/538_measure_crop_export_2026-10-01.json"
+  }
+}

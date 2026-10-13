@@ -1,0 +1,584 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from functools import lru_cache
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+# Catalog identities retained for capabilities whose internal fold key has
+# changed. Cellpose Workbench exposes ``cellpose_all``; the published lesson
+# has kept its existing ``cellpose_masks`` URL and media directory.
+FOLD_CATALOG_KEY_ALIASES = {"cellpose_all": "cellpose_masks"}
+
+# These three are host modes rather than entries in a ``FOLDED_APPS`` tuple.
+# They therefore cannot be derived from ``folded_modules()``. Keeping this
+# small exception table separate makes a newly folded module fail the guard
+# below instead of letting a duplicated hand-maintained inventory drift.
+HOSTED_MODE_LESSONS = {
+    "classify": "classify_merged",
+    "ml_analyze": "classify_merged",
+    "parameter_sweep": "regression",
+}
+
+# Most host module names equal their public app keys. These are the two
+# deliberate exceptions in the current registry.
+HOST_APP_KEY_ALIASES = {
+    "classify": "classify_merged",
+    "image_umap": "umap",
+}
+
+
+def _load(name: str, relative: str):
+    spec = importlib.util.spec_from_file_location(name, ROOT / relative)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+live = _load("verify_tutorial_live", "tools/verify_tutorial_live.py")
+frames = _load("sample_tutorial_frames", "tools/sample_tutorial_frames.py")
+
+
+def test_release_audit_parsers_pin_the_current_inventory():
+    tutorial_root = ROOT / "docs" / "source" / "_extra" / "tutorials"
+    catalog = frames.load_catalog(tutorial_root / "lesson_catalog.js")
+    languages, voices = live._voice_inventory(
+        (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
+    )
+    # Wave 3 (candidate nmw7tksc) withdrew 83_plasmodium and 84_candida.
+    # Wave 4 (candidate ake_bqpd) added the allow-listed alpha lessons 86 and 87.
+    assert len(catalog["lessons"]) == 84
+    assert catalog["lesson_aliases"] == {
+        "02_conda_install": "02_install_spacr",
+        "03_pip_install": "02_install_spacr",
+    }
+    refreshed_scenes = {
+        "01_pypi_github": 8, "02_install_spacr": 17,
+        "04_platform_installers": 14, "05_home": 32,
+        "80_image_analysis_pathways": 12, "82_toxoplasma": 7,
+    }
+    assert {lesson["id"]: len(lesson["scenes"]) for lesson in catalog["lessons"]
+            if lesson["id"] in refreshed_scenes} == refreshed_scenes
+    # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two;
+    # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
+    # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
+    # the republished Platform Installers lesson (4014dbdef) has 11 (was 10).
+    # Make Masks gains the five item-489 restoration scenes (1101 -> 1106).
+    # Re-record wave 1 (candidate kq8y8lq2): 22 13 (was 7), 32 10 (was 9), 41 12 (was 11), 43 14 (was 13).
+    # Re-record wave 2 (candidate me1282u_): 05 19 (was 11), 08 12 (was 11), 09 22 (was 20), 24 19 (was 15).
+    # Wave 3 (candidate nmw7tksc): 08 13 (was 12), 14 41 (was 32), 58 23 (was 12), 64 25 (was 22),
+    # 79 78 (was 80); 83 and 84 (5 each) withdrawn.
+    # Wave 4 (candidate ake_bqpd): 07 13 (was 12), 36 17 (was 16), 74 11 (was 10); 86 adds 16, 87 adds 26.
+    # Current Home/Alpha refresh: 05 has 22 (was 19), 87 has 28 (was 26).
+    # Current four-lesson refresh: 08 has 17 (was 13), 14 has 45 (was 41),
+    # 37 has 14 (was 13), and 38 retains all nine scenes: 1192 + 4 + 4 + 1.
+    # Item 662 adds thirteen independently recorded YOLO Box scenes to Make Masks.
+    # The accepted native revision then adds Wand add, Ctrl-remove and Merge.
+    make_masks = next(lesson for lesson in catalog["lessons"] if lesson["id"] == "14_make_masks")
+    assert len(make_masks["scenes"]) == 61
+    assert {"07b_wand_add", "07c_wand_ctrl_remove", "08b_merge_demo"} <= {
+        scene["visual"] for scene in make_masks["scenes"]
+    }
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1159
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1220
+    assert len(languages) == 8
+    assert len(voices) == 50
+    assert not (live.RETIRED_VOICES & set(voices))
+    assert live.EXPECTED_CACHE_KEY in (
+        tutorial_root / "index.html"
+    ).read_text(encoding="utf-8")
+
+
+@lru_cache(maxsize=1)
+def _live_gui_inventory():
+    """Return live Home keys and physical fold ownership in a clean process.
+
+    Alpha-gated apps (item 634's organism pages) are left out: alpha
+    features ship without tutorials, and this process reads the real
+    preferences, so the gate's state is not the test's to assume.
+    """
+    code = """
+import json
+import spacr.qt
+spacr.qt.register_self_registering_modules()
+from spacr.qt.app import APPS, tiled_apps, folded_children
+from spacr.qt.widgets.fold_strip import folded_modules
+from spacr.settings import _alpha_names
+# Plasmodium and Candida moved under Show alpha species on 2026-10-03 with
+# lessons already published; their retirement is routed to the tutorial lane.
+from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS as published
+alpha = _alpha_names("apps") - published
+print(json.dumps({
+    "registry": sorted({row[0] for row in APPS} - alpha),
+    "home_tiles": sorted(({row[0] for row in tiled_apps()} | published) - alpha),
+    "folded": {
+        key: entry[3].rsplit(".", 1)[-1]
+        for key, entry in folded_modules().items()
+    },
+    "folded_parents": {key: host for host, keys in folded_children().items() for key in keys},
+}))
+"""
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
+               PYTHONDONTWRITEBYTECODE="1")
+    result = subprocess.run(
+        [sys.executable, "-c", code], cwd=ROOT, env=env,
+        check=True, capture_output=True, text=True,
+    )
+    return json.loads(result.stdout.strip().splitlines()[-1])
+
+
+def _registered_gui_modules():
+    """Every key in APPS, tiled or not."""
+    return set(_live_gui_inventory()["registry"])
+
+
+def _home_tile_modules():
+    """The keys that actually draw a tile on Home.
+
+    APPS MEMBERSHIP DOES NOT IMPLY A HOME TILE, and conflating the two is
+    what made this audit reject correct lessons. Several modules are
+    registered AND reached through a parent -- `train_compare` under
+    Classify, `profiler` under Regression -- so their lesson rightly names a
+    `host_app_key`, and a rule keyed on APPS called that an error. Whether a
+    lesson may name a host is a question about TILES, which is what
+    `tiled_apps()` answers.
+    """
+    return set(_live_gui_inventory()["home_tiles"])
+
+
+def _folded_lesson_hosts():
+    """Translate physical fold ownership into stable tutorial routes."""
+    routes = {}
+    for physical_key, module_name in _live_gui_inventory()["folded"].items():
+        lesson_key = FOLD_CATALOG_KEY_ALIASES.get(physical_key, physical_key)
+        host_key = _live_gui_inventory()['folded_parents'].get(
+            physical_key, HOST_APP_KEY_ALIASES.get(module_name, module_name))
+        assert lesson_key not in routes, (
+            f"multiple folds resolve to tutorial key {lesson_key!r}")
+        routes[lesson_key] = host_key
+    overlap = set(routes) & set(HOSTED_MODE_LESSONS)
+    assert not overlap, f"host modes became physical folds: {sorted(overlap)}"
+    routes.update(HOSTED_MODE_LESSONS)
+    return routes
+
+
+def _tutorial_catalog():
+    """Website SOURCE; use the live audit to establish what Pages serves."""
+    return frames.load_catalog(
+        ROOT / "docs" / "source" / "_extra" / "tutorials" /
+        "lesson_catalog.js"
+    )
+
+
+def _candidate_catalog():
+    """The RELEASE CANDIDATE -- the course as it will next be published.
+
+    THE TWO ARE DELIBERATELY SEPARATE while publication is held, and which
+    one a check reads is part of what the check MEANS. A deployed-site
+    assertion must keep reading the published collection: pointed at the
+    candidate it would report a site as updated that has not been.
+
+    Route COMPLETENESS is the other kind. It compares the course against the
+    LIVE module registry, and the registry moves whenever a module ships --
+    so asking it of a frozen published collection makes every new module a
+    failure of the tutorials rather than a fact about them. Embeddings
+    landed on 2026-09-11 and did exactly that. The candidate is where a new
+    module gets its route, as a lesson or as an explicit Coming soon screen,
+    so the candidate is what completeness is a question about.
+    """
+    return frames.load_catalog(
+        ROOT / "tools" / "tutorials" / "release_candidate" / "web" /
+        "lesson_catalog.js"
+    )
+
+
+@pytest.mark.parametrize('catalog_loader', [_tutorial_catalog, _candidate_catalog],
+                         ids=['website-source', 'refreshed-candidate'])
+def test_every_module_and_fold_has_a_route_or_an_explicit_tutorial_gap(catalog_loader):
+    """Keep the course synchronized with tiles *and* consolidated modules.
+
+    The old subset assertion allowed any number of retired tiles to remain
+    presented as standalone modules.  A lesson now either names a live Home
+    key or carries the exact ``host_app_key`` through which its folded
+    workflow is reached.  Unknown keys, missing modules, duplicate routes,
+    and an obsolete route with no explicit host all fail together.
+    """
+    registry = _registered_gui_modules()
+    folded_hosts = _folded_lesson_hosts()
+    # Both collections now include placeholders; neither implies deployment.
+    lessons = catalog_loader()["lessons"]
+    routed = [lesson for lesson in lessons if lesson.get("app_key")]
+    lesson_keys = [lesson["app_key"] for lesson in routed]
+
+    assert len(lesson_keys) == len(set(lesson_keys)), (
+        "each module or folded workflow must have exactly one lesson")
+    folder = (ROOT / 'docs/source/_extra/tutorials' if catalog_loader is _tutorial_catalog
+              else ROOT / 'tools/tutorials/release_candidate/web')
+    source = (folder / 'module_navigation.js').read_text()
+    navigation = json.loads(source.split('Object.freeze(', 1)[1].rsplit(');', 1)[0])
+    gaps = navigation['missing_tutorials']
+    missing = {row['app_key'] for row in gaps}
+    assert missing == set()
+    assert {'host_pathogen', 'toxoplasma'} <= set(lesson_keys)
+    # Withdrawn in tutorial wave 3: their pages are behind Show alpha species.
+    assert not {'candida', 'plasmodium'} & set(lesson_keys)
+    assert len(missing) == len(gaps)
+    assert all(row['status'] == 'needs_tutorial' for row in gaps)
+    assert not missing & set(lesson_keys)
+    assert set(lesson_keys) | missing == registry | set(folded_hosts)
+
+    home_tiles = _home_tile_modules()
+    failures = []
+    for lesson in routed:
+        key = lesson["app_key"]
+        host = lesson.get("host_app_key")
+        if key in home_tiles:
+            if host is not None:
+                failures.append(
+                    f"{lesson['id']}: {key!r} draws its own Home tile and "
+                    f"must not name a folded host ({host!r})")
+            continue
+        if key in registry:
+            # REGISTERED BUT NOT TILED, and that is allowed to look two ways.
+            # `train_compare` and `profiler` are reached through a parent and
+            # name it; `report` and `run_history` are reached from Help and
+            # utilities and name nothing. Both are correct, so this rule says
+            # nothing about them -- it constrains TILES, which must not claim
+            # a host, and folds, which must name the right one.
+            continue
+        expected = folded_hosts.get(key)
+        if host != expected:
+            failures.append(
+                f"{lesson['id']}: folded workflow {key!r} must name "
+                f"host_app_key={expected!r}, found {host!r}")
+        if host not in registry:
+            failures.append(
+                f"{lesson['id']}: host {host!r} is not a live module")
+    assert not failures, failures
+
+
+def test_every_translated_tutorial_catalog_has_the_english_structure():
+    """Translations may change prose, never lesson identity or routing."""
+    catalog_dir = (
+        ROOT / "docs" / "source" / "_extra" / "tutorials" / "catalog"
+    )
+    english = json.loads((catalog_dir / "lessons_en.json").read_text(
+        encoding="utf-8"))
+    expected = [
+        (lesson["id"], lesson["number"], lesson.get("app_key"),
+         lesson.get("host_app_key"), len(lesson["scenes"]))
+        for lesson in english["lessons"]
+    ]
+    failures = []
+    for path in sorted(catalog_dir.glob("lessons_*.json")):
+        translated = json.loads(path.read_text(encoding="utf-8"))
+        actual = [
+            (lesson["id"], lesson["number"], lesson.get("app_key"),
+             lesson.get("host_app_key"), len(lesson["scenes"]))
+            for lesson in translated["lessons"]
+        ]
+        if actual != expected:
+            failures.append(path.name)
+
+    english_scenes = {
+        lesson["id"]: len(lesson["scenes"])
+        for lesson in english["lessons"]
+    }
+    for path in sorted(catalog_dir.glob("captions_*.json")):
+        translated = json.loads(path.read_text(encoding="utf-8"))
+        actual = {
+            lesson["id"]: len(lesson["scenes"])
+            for lesson in translated["lessons"]
+        }
+        if actual != english_scenes:
+            failures.append(path.name)
+    assert not failures, f"tutorial catalogs with structural drift: {failures}"
+
+
+def test_player_routes_folded_lessons_through_their_current_host():
+    """The public player must not advertise a retired key as a module."""
+    player = (ROOT / "docs" / "source" / "_extra" / "tutorials" /
+              "app_v2.js").read_text(encoding="utf-8")
+    page = (ROOT / "docs" / "source" / "_extra" / "tutorials" /
+            "index.html").read_text(encoding="utf-8")
+
+    assert 'id="lesson-route"' in page
+    assert "localizedLesson(route.host.id)" in player
+    assert "elements.content.dataset.appKey = route.appKey" in player
+    assert "module_navigation.js?v=" in page
+
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node.js is required to execute the player route contract")
+    start = player.index("function routedLesson(")
+    end = player.index("\n}\n", start) + len("\n}\n")
+    route = player[start:end]
+    contract = """
+const LESSONS = [
+  {id: 'classify', app_key: 'classify_merged'},
+  {id: 'measure', app_key: 'measure'},
+  {id: 'moved', app_key: 'train_compare', host_app_key: 'measure'}
+];
+const MODULE_NAVIGATION = {routes: {
+  moved: {host_app_key: 'classify_merged'}, measure: {kind: 'main'}
+}};
+const moved = routedLesson(LESSONS[2]);
+if (moved.appKey !== 'classify_merged' || moved.host.id !== 'classify') process.exit(1);
+const main = routedLesson(LESSONS[1]);
+if (main.appKey !== 'measure' || main.host !== null) process.exit(2);
+const legacy = routedLesson({id: 'legacy', app_key: 'child', host_app_key: 'measure'});
+if (legacy.appKey !== 'measure' || legacy.host.id !== 'measure') process.exit(3);
+if (LESSONS[2].host_app_key !== 'measure') process.exit(4);
+"""
+    subprocess.run([node, "-e", route + contract], check=True)
+
+
+def test_navigation_places_existing_lessons_once_under_current_home_and_hosts():
+    """A move changes navigation, not a retained lesson's media identity."""
+    # THE CANDIDATE, for the same reason the route audit reads it: this
+    # asserts placement against the LIVE Home tiles, and the live app moves
+    # while a published collection is frozen. Asked of the published files,
+    # every newly shipped module reads as a navigation error. The published
+    # collection's own checks are the ones that stay pointed at it.
+    source = (ROOT / "tools/tutorials/release_candidate/web/module_navigation.js"
+              ).read_text(encoding="utf-8")
+    navigation = json.loads(source.split("Object.freeze(", 1)[1].rsplit(");", 1)[0])
+    lessons = _candidate_catalog()["lessons"]
+    sections = navigation["sections"]
+    assert [section["id"] for section in sections] == ["orientation", "main", "submodules"]
+    assert navigation['intro']['lessons'] == [
+        '01_pypi_github', '02_install_spacr', '04_platform_installers']
+    assert sections[0]['groups'][0]['lessons'] == [
+        '05_home', '78_spacr_screens', '80_image_analysis_pathways',
+        '81_sequencing_pathways', '79_module_inputs_outputs']
+    assigned = navigation["intro"]["lessons"] + [
+        identity for section in sections for group in section["groups"]
+        for identity in group["lessons"]
+    ]
+    assert len(assigned) == len(set(assigned)) == len(lessons)
+    assert set(assigned) == {lesson["id"] for lesson in lessons}
+    main_keys = [key for group in sections[1]["groups"] for key in group["module_keys"]]
+    assert sorted(main_keys) == _live_gui_inventory()["home_tiles"]
+    assert set(navigation["labels"]) == {
+        "en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN",
+        "da", "de", "is", "ko", "nb", "sv",
+    }
+    expected_hosts = _folded_lesson_hosts()
+    for lesson in lessons:
+        key = lesson.get("app_key")
+        if key in expected_hosts:
+            assert navigation["routes"][lesson["id"]]["host_app_key"] == expected_hosts[key]
+
+
+def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
+    """Speak PyPI as the reviewed "pype" form in every narration language.
+
+    THE RULE is the renderer's own pronunciation module,
+    ``PRONUNCIATION_VERSION = "2026-10-08-live-tv-v12"``: English ``PyPI`` is
+    "the single syllable 'pype', with the vowel and final consonant of 'pipe'.
+    It is never PyPy, pypie, a sequence of letters, or two paused syllables",
+    and each narration language has a reviewed form in ``PYPI_SPEECH``.
+
+    This test used to be ``test_every_spoken_pypi_is_the_single_word_pypie``.
+    It pinned "pypie" from 2026-08-26, two days BEFORE that rule, and went red
+    when the refreshed catalogs of candidate 8738b_pd were published into this
+    tree. Asked through the question tool on 2026-09-15, the maintainer
+    answered '"pype" (Recommended)': keep the narration and update this test to
+    the 08-28 rule. Nothing is re-rendered.
+
+    Only catalogs that carry ``speech_text`` for these scenes are read. The
+    English catalog no longer does for lesson 01; English speech lives in the
+    hosted timing sidecars, where the renderer's gate applies the same rule.
+    Every translated narration language must still carry it.
+    """
+    rule = _load("tutorial_pronunciation",
+                 "tools/tutorials/authoring/tools/pronunciation.py")
+    assert rule.PRONUNCIATION_VERSION == "2026-10-08-live-tv-v12"
+    assert rule.PYPI_SPEECH["en"] == "[pype](/pˈIp/)"
+    for retired in ("pypie", "PyPie", "PyPI", "P Y P I", "P-Y-P-I", "pie pi",
+                    "pie pee", "Pie Pee", "pie-pee", "pypee", "PyPee",
+                    "piepee", "on pie pee shows"):
+        assert rule._REJECTED_PYPI_ALIAS.search(retired), retired
+    for approved in rule.PYPI_SPEECH.values():
+        assert not rule._REJECTED_PYPI_ALIAS.search(approved), approved
+
+    catalog_dir = (
+        ROOT / "docs" / "source" / "_extra" / "tutorials" / "catalog"
+    )
+    english = json.loads((catalog_dir / "lessons_en.json").read_text(
+        encoding="utf-8"))
+    source_lesson = next(
+        lesson for lesson in english["lessons"]
+        if lesson["id"] == "01_pypi_github"
+    )
+    display_pypi = re.compile(r"(?<!\w)PyPI(?!\w)")
+    pypi_scenes = {
+        index: len(display_pypi.findall(scene["narration"]))
+        for index, scene in enumerate(source_lesson["scenes"])
+        if display_pypi.search(scene["narration"])
+    }
+    assert pypi_scenes, "the installation lesson no longer names PyPI"
+
+    compatibility = json.loads((catalog_dir.parent / 'translation-compatibility.json').read_text())
+    registered = {(row['lesson'], row['language']) for row in compatibility['entries']
+                  if row['status'] == 'english_fallback' and row['reason']}
+    failures, spoken, fallback = [], [], []
+    for path in sorted(catalog_dir.glob("lessons_*.json")):
+        language = path.stem.split("_", 1)[1]
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        lesson = next(
+            item for item in catalog["lessons"]
+            if item["id"] == "01_pypi_github"
+        )
+        declared = lesson.get('narration_voices')
+        if language != 'en' and declared is not None and language not in declared:
+            assert declared.get('en')
+            assert lesson == source_lesson
+            assert (lesson['id'], language) in registered
+            fallback.append(language)
+            continue
+        speeches = {index: lesson["scenes"][index].get("speech_text")
+                    for index in pypi_scenes}
+        if language == "en" and all(s is None for s in speeches.values()):
+            continue
+        spoken.append(language)
+        form = rule.PYPI_SPEECH[language]
+        for index, expected_count in pypi_scenes.items():
+            speech = speeches[index] or ""
+            if (speech.count(form) != expected_count
+                    or rule._REJECTED_PYPI_ALIAS.search(speech)
+                    or "pypie" in speech.casefold()):
+                failures.append(f"{path.name}:scene-{index + 1}")
+    assert set(spoken) | set(fallback) >= {"es", "fr", "hi", "it", "ja", "pt-BR", "zh-CN"}
+    assert not failures, f"PyPI speech is not the reviewed 'pype' form: {failures}"
+
+    published = _tutorial_catalog()
+    manifest = json.loads((ROOT / "tools/tutorials/release_candidate"
+                           / "release-manifest.json").read_text())
+    media_records = {row["path"]: row for row in manifest["files"]}
+    visual_references = {}
+    for lesson in published["lessons"]:
+        lesson.pop("poster", None)
+        lesson.pop("silent", None)
+        # "web" names a lesson's web copy on the media revision
+        # (build_appended_candidate --host-web): a publication field like
+        # poster/silent, not narration, so lessons_en.json does not carry it.
+        lesson.pop("web", None)
+        visual = lesson.pop("visual_timings", None)
+        if visual is not None:
+            visual_references[lesson["id"]] = visual
+            record = media_records["media_host/" + visual]
+            assert record["bytes"] > 0 and re.fullmatch(r"[0-9a-f]{64}", record["sha256"])
+    # 14_make_masks became a native live-video lesson in N676 phase 1
+    # (2026-10-11).
+    native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
+                  "14_make_masks", "80_image_analysis_pathways", "82_toxoplasma"}
+    original_ids = {"07_mask", "08_measure", "18_motility",
+                    "19_train_cellpose", "20_cellpose_masks", "24_plaque",
+                    "74_import_images", "85_host_pathogen", "87_alpha_features"}
+    assert visual_references == {
+        **{identity: identity + "/video/native-live-timings.json" for identity in native_ids},
+        **{identity: identity + "/video/original-visual-timings.json" for identity in original_ids},
+    }
+    assert published == english, (
+        "the public lesson_catalog.js does not match lessons_en.json")
+
+
+def test_localized_installation_lessons_keep_release_terms_semantically_exact():
+    """Reject known literal translations of branch and packaging terms.
+
+    ``nightly`` is a branch label, not a time of day.  Scene 2 describes the
+    PyPI release header only; stale translations that still tell users to
+    open GitHub and conda-forge no longer match the current visual or lesson.
+    """
+    catalog_dir = (
+        ROOT / "docs" / "source" / "_extra" / "tutorials" / "catalog"
+    )
+    banned = (
+        "PyPI, GitHub, and conda-forge",
+        "only use packaging after release",
+        "只使用包装发布后",
+        "installator",
+        "solo di notte",
+        "somente à noite",
+        "sólo por la noche",
+        "chaque nuit seulement",
+        "Télégraphie d'un modèle",
+        "Meter as paradas",
+    )
+    # Every scene whose ENGLISH names the branch must keep the label in each
+    # translation. Derived rather than pinned: the 2026-09-11 re-recording made
+    # lesson 01 eight scenes, and English now names nightly only in scene 4
+    # (the old closing "nightly only when..." sentence of scene 7 is gone).
+    english_lesson = next(
+        item for item in json.loads(
+            (catalog_dir / "lessons_en.json").read_text(encoding="utf-8"))["lessons"]
+        if item["id"] == "01_pypi_github"
+    )
+    nightly_scenes = [index for index, scene in enumerate(english_lesson["scenes"])
+                      if "nightly" in scene["narration"]]
+    assert nightly_scenes, "the installation lesson no longer names the nightly branch"
+    failures = []
+    for path in sorted(catalog_dir.glob("lessons_*.json")):
+        if path.name == "lessons_en.json":
+            continue
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        lesson = next(
+            item for item in catalog["lessons"]
+            if item["id"] == "01_pypi_github"
+        )
+        scene_2 = lesson["scenes"][1]["narration"]
+        if "GitHub" in scene_2 or "conda-forge" in scene_2.casefold():
+            failures.append(f"{path.name}: lesson 01 scene 2 is stale")
+        for scene_index in nightly_scenes:
+            if "nightly" not in lesson["scenes"][scene_index]["narration"]:
+                failures.append(
+                    f"{path.name}: lesson 01 scene {scene_index + 1} must "
+                    "retain the branch label 'nightly'")
+        serialized = json.dumps(catalog, ensure_ascii=False)
+        for phrase in banned:
+            if phrase == "installator":
+                present = re.search(
+                    r"(?<!\w)installator(?!\w)", serialized,
+                    flags=re.IGNORECASE,
+                ) is not None
+            else:
+                present = phrase.casefold() in serialized.casefold()
+            if present:
+                failures.append(f"{path.name}: known-bad phrase {phrase!r}")
+    assert not failures, failures
+
+
+def test_scene_midpoint_stays_inside_speech():
+    scene = {"speech_start": 14.105, "speech_end": 20.26}
+    midpoint = frames.scene_midpoint(scene)
+    assert scene["speech_start"] < midpoint < scene["speech_end"]
+    assert midpoint == pytest.approx(17.1825)
+
+
+def test_frame_sampler_recreates_a_reviewable_still(tmp_path):
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        pytest.skip("ffmpeg is required for visual audit sampling")
+    video = tmp_path / "source.mp4"
+    image = tmp_path / "scene.jpg"
+    subprocess.run(
+        [ffmpeg, "-nostdin", "-hide_banner", "-loglevel", "error", "-y",
+         "-f", "lavfi", "-i", "color=c=blue:s=320x180:d=1", "-pix_fmt",
+         "yuv420p", str(video)],
+        check=True,
+    )
+    frames.extract_frame(video, 0.5, image, 160)
+    assert image.is_file()
+    assert image.stat().st_size > 0

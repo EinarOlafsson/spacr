@@ -1,0 +1,36 @@
+{
+  "fields": [
+    {
+      "source": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "source_shape": [
+        1994,
+        1994,
+        7
+      ],
+      "original_mask_labels_preserved": true,
+      "full_field": true,
+      "positive_cell_labels": 63,
+      "private_input_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096"
+    },
+    {
+      "source": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E02_10_1.npy",
+      "source_sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69",
+      "source_shape": [
+        1994,
+        1994,
+        7
+      ],
+      "original_mask_labels_preserved": true,
+      "full_field": true,
+      "positive_cell_labels": 41,
+      "private_input_sha256": "6802feb0cc0d964f601f5e626ffa75c456576b2e57cbf84f9b2df94cc3393a69"
+    }
+  ],
+  "wells": [
+    "E01",
+    "E02"
+  ],
+  "field_count": 2,
+  "full_fields": true
+}

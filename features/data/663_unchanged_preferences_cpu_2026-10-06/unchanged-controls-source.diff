@@ -1,0 +1,37 @@
+diff --git a/spacr/qt/widgets/ambient.py b/spacr/qt/widgets/ambient.py
+index 77503f34c3..dc21848ce2 100644
+--- a/spacr/qt/widgets/ambient.py
++++ b/spacr/qt/widgets/ambient.py
+@@ -6627 +6627,4 @@ class AmbientWidget(QWidget):
+-        self._blur = _clamp(value, *BLUR_RANGE)
++        value = _clamp(value, *BLUR_RANGE)
++        if value == self._blur and value == self._engine.blur:
++            return
++        self._blur = value
+@@ -6639 +6642,4 @@ class AmbientWidget(QWidget):
+-        self._resolution = _clamp(value, *RESOLUTION_RANGE)
++        value = _clamp(value, *RESOLUTION_RANGE)
++        if value == self._resolution and value == self._engine.resolution:
++            return
++        self._resolution = value
+@@ -6682 +6688,4 @@ class AmbientWidget(QWidget):
+-        self._density = _clamp(value, *DENSITY_RANGE)
++        value = _clamp(value, *DENSITY_RANGE)
++        if value == self._density and value == self._engine.density:
++            return
++        self._density = value
+@@ -6696,0 +6706,2 @@ class AmbientWidget(QWidget):
++        if name == self._direction and name == self._engine.direction:
++            return
+@@ -6711 +6722,4 @@ class AmbientWidget(QWidget):
+-        self._speed = _clamp(value, *SPEED_RANGE)
++        value = _clamp(value, *SPEED_RANGE)
++        if value == self._speed and value == self._engine.speed:
++            return
++        self._speed = value
+@@ -6730 +6744,4 @@ class AmbientWidget(QWidget):
+-        self._size = _clamp(value, *SIZE_RANGE)
++        value = _clamp(value, *SIZE_RANGE)
++        if value == self._size and value == self._engine.size:
++            return
++        self._size = value

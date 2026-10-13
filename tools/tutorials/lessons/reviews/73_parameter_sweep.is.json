@@ -1,0 +1,34 @@
+{
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
+  "review": {
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
+  },
+  "language": "is",
+  "title": "Parameter Sweep: berðu saman vistaðar Regression-keyrslur",
+  "description": "Tilgreindu pöruð inntök og stillingar keyrslna, keyrðu litla skönnun og skoðaðu svo stillingar, myndir og ályktunarathuganir hverrar keyrslu.",
+  "objectives": [
+    "Velja paraðar stiga- og talningaskrár og úttaksmöppu fyrir skönnunina.",
+    "Velja breytilegar og fastar stillingar, áætla fjölda keyrslna og ræsa.",
+    "Skoða vistaðar keyrslur og gæði ályktana þeirra fyrir samanburð."
+  ],
+  "prerequisite": "Sæktu fjögur pör stiga- og talningaskráa á plötu úr Regression-kennsluefninu. Notaðu sömu röð platna og nýja úttaksmöppu. Ridge-keyrslurnar tvær sem sýndar eru ljúka sér en standast ekki gæðaathuganir ályktana; haltu reiknistöðu aðskilinni frá tölfræðilegri hæfni.",
+  "scenes": [
+    "Frá Home opnarðu Regression og svo Parameter sweep neðst til hægri. Notaðu fjögur dæmapör stiga- og talningaskráa úr Regression-kennsluefninu.",
+    "Bættu fjórum stigaskrám og fjórum talningaskrám við eigin lista skönnunarinnar, í sömu röð platna. Athugaðu listana jafnvel þótt aðaleyðublað Regression innihaldi þegar inntök. Veldu nýja úttaksmöppu.",
+    "Hakaðu við alpha og sláðu inn 0,01 og 0,1. Stillingar án haks haldast fastar. Stilltu beinlínis ridge, stikaða ályktun, meðaltalssamantekt á brunnastigi og enga umbreytingu fyrir dæmið.",
+    "Veldu Grid-úrtöku, Maximum trials 2 og eitt vinnuferli og smelltu svo á Estimate. Athugaðu fjölda samsetninga og takmörk tilfanga áður en þú keyrir. Líttu á tímamatið sem nálgun.",
+    "Smelltu á Start sweep. Hver keyrsla skrifar í eigin möppu. Með einu vinnuferli keyra keyrslurnar tvær hvor á eftir annarri; veldu fjölda vinnuferla sem hentar tiltækum tilföngum.",
+    "Skoðaðu fullgerðu línurnar og opnaðu svo sweep_results.csv og stillinga- og gæðaeftirlitsskrár hverrar keyrslu. Báðar sýndu keyrslurnar ljúka útreikningi en standast ekki ályktunarathuganir, svo keyrslustaðan ok ein og sér dugar ekki til að velja líkan.",
+    "Veldu fyrstu línuna og smelltu á Show figures for selected row. Skoðaðu niðurstöður leiðara og merki ásanna. Grafið sleppir skurðpunktinum úr stuðlatöflunni.",
+    "Skiptu Level yfir í Gene til að skoða genafjölskylduna sérstaklega. Athugaðu línur hennar, áhrif og niðurstöður gæðaeftirlits áður en þú berð hana saman við leiðarasýnina.",
+    "Skiptu aftur yfir í Guide. Berðu saman fjölda raða sem voru notaðar við aðlögun líkansins og fjölda einstakra brunna í samantekt keyrslunnar. Fjöldatölurnar eru skráðar sérstaklega fyrir aðlögun líkans á gRNA-stigi og á genastigi. Þessar tölur lýsa gagnamagninu sem styður aðlögunina, ekki gæðum tölfræðilegrar ályktunar.",
+    "Geymdu stillingar, samantekt og gæðaeftirlitsskrár hverrar keyrslu með myndum hennar. Notaðu Regression Diagnostics til frekari skoðunar, eða SweepSpace og run_sweep í Python fyrir samanburð með skriftu."
+  ]
+}

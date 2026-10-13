@@ -1,0 +1,139 @@
+"""The aggregation chosen for every merged column, shown and overridable.
+
+Merging four pathogens onto their cell means picking one number per column, and
+which number depends on what the column measures. The rules choose correctly
+for most columns; because a wrong default would otherwise go unnoticed, the
+whole plan is shown, with every row changeable.
+"""
+from __future__ import annotations
+
+from typing import Dict, Mapping, Optional
+
+import pandas as pd
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QComboBox, QDialog, QDialogButtonBox, QHeaderView, QLabel, QLineEdit,
+    QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+)
+
+from ...merge_tables import AGGREGATIONS, aggregation_for, aggregation_plan
+from ..theme import SPACING
+from .sortable_table import install_sorting, tree_item
+
+
+class AggregationRulesDialog(QDialog):
+    """One row per column: the rule, and a dropdown to change it.
+
+    Only columns that were changed become overrides. Recording every row would
+    freeze today's defaults into the settings, so a later improvement to the
+    rules would never reach a user who had once opened this window.
+
+    :param frame: the loaded table. Its columns are what the dialog offers a
+        rule for, so a screen with nothing loaded offers nothing.
+    :param parent: parent widget.
+    :param overrides: the rules the user has already chosen, column to rule.
+        Copied, and only the columns named here differ from the default the
+        rules derive -- which is the mechanism behind the paragraph above.
+    """
+
+    rules_changed = Signal(dict)
+
+    def __init__(self, frame: pd.DataFrame, parent=None, *,
+                 overrides: Optional[Mapping[str, str]] = None):
+        """Build the per-measurement aggregation rules dialog.
+
+        :param frame: the table whose measurements are listed.
+        :param parent: parent widget, or ``None``.
+        :param overrides: rules the user has already changed, applied over the
+            inferred plan.
+        """
+        super().__init__(parent)
+        self.setWindowTitle("Aggregation rules")
+        self.setObjectName("AggregationRulesDialog")
+        self._overrides: Dict[str, str] = dict(overrides or {})
+        self._boxes: Dict[str, QComboBox] = {}
+
+        outer = QVBoxLayout(self)
+        outer.setSpacing(SPACING["sm"])
+
+        note = QLabel(
+            "How each measurement combines when several child objects roll up "
+            "onto one parent. Four pathogens in a cell: their areas SUM, "
+            "their minimum intensity is the MINIMUM of the four, their mean "
+            "is the mean. Change any row that is wrong for your data.", self)
+        note.setWordWrap(True)
+        outer.addWidget(note)
+
+        self.search = QLineEdit(self)
+        self.search.setPlaceholderText("filter measurements")
+        self.search.textChanged.connect(self._filter)
+        outer.addWidget(self.search)
+
+        self.tree = QTreeWidget(self)
+        install_sorting(self.tree)
+        self.tree.setObjectName("AggregationRules")
+        self.tree.setColumnCount(2)
+        self.tree.setHeaderLabels(["Measurement", "Combine by"])
+        self.tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        outer.addWidget(self.tree, 1)
+
+        self._fill(frame)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        buttons.rejected.connect(self.accept)
+        buttons.accepted.connect(self.accept)
+        outer.addWidget(buttons)
+
+    def _fill(self, frame: pd.DataFrame) -> None:
+        """List every measurement with the rule it would roll up by.
+
+        :param frame: the table to infer the plan from; the caller's overrides
+            are applied on top, so a row the user has changed opens on their
+            answer rather than on the inferred one.
+        """
+        plan = aggregation_plan(frame, overrides=self._overrides)
+        for column, how in sorted(plan.items()):
+            item = tree_item([str(column), ""])
+            self.tree.addTopLevelItem(item)
+            box = QComboBox(self.tree)
+            box.addItems(AGGREGATIONS)
+            box.setCurrentText(how)
+            box.currentTextChanged.connect(
+                lambda value, c=column: self._on_changed(c, value))
+            self.tree.setItemWidget(item, 1, box)
+            self._boxes[str(column)] = box
+
+    def _on_changed(self, column: str, value: str) -> None:
+        """Record a change, and UNRECORD one that returns to the default.
+
+        So the overrides hold only real decisions: a row set back to what the
+        rule already said is not an override, and keeping it would pin today's
+        default forever.
+        """
+        default = aggregation_for(
+            column, numeric=True)
+        if value == default:
+            self._overrides.pop(column, None)
+        else:
+            self._overrides[column] = value
+        self.rules_changed.emit(dict(self._overrides))
+
+    def _filter(self, text: str) -> None:
+        """Hide the measurements whose names do not contain the filter text.
+
+        :param text: the needle; matched case-insensitively, and an empty one
+            shows everything.
+        """
+        needle = str(text).strip().lower()
+        for index in range(self.tree.topLevelItemCount()):
+            item = self.tree.topLevelItem(index)
+            item.setHidden(bool(needle) and needle not in item.text(0).lower())
+
+    def overrides(self) -> Dict[str, str]:
+        """The per-column aggregations the user chose.
+
+        A copy, so the dialog's own state cannot be edited through it.
+
+        :returns: ``{column: aggregation}``.
+        """
+        return dict(self._overrides)

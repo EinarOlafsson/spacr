@@ -1,0 +1,18 @@
+{
+  "date": "2026-09-22",
+  "feature": 474,
+  "changes": ["Labels left of cell", "Geometry unchanged by hover, selection or clear", "Home tile panel opacity", "Remove Widen text/Restore columns; retain draggable divider"],
+  "validation": {
+    "command": "tools/run_capped.sh 8G python -m pytest tests/qt/test_organism_pages.py tests/qt/test_organism_diagram_interaction.py -q",
+    "result": "36 passed in 8.75s",
+    "geometry": "All three organisms, three pane widths, every compartment caption, selection and clear; no clipped captions",
+    "visual_review": "Actual MainWindow at 1366x768; Toxoplasma and Plasmodium pane widths 360, 480, 800",
+    "artifacts": "/mnt/firecuda2/Claude/implementation-20260922/organism-followup/"
+  },
+  "api_handoff": {
+    "removed": ["OrganismScreen._toggle_text_width"],
+    "added": ["_CellArtwork.panel_color", "OrganismDiagram.resizeEvent", "OrganismDiagram.changeEvent", "OrganismDiagram._fit_width", "OrganismDiagram._description_text"],
+    "retired_strings": ["Widen text", "Restore columns", "Widen the information pane; you can also drag the divider."],
+    "new_strings": []
+  }
+}

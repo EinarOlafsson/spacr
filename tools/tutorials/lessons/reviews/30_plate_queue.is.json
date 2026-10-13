@@ -1,0 +1,33 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "eb4beef71da36ce5936175783b37122fd029a5af93e937fe4797c0fa03344477",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Plate Queue: keyrðu nokkur undirbúin verkefni",
+  "description": "Bættu núverandi verkefni við eða slepptu undirbúnum möppum í biðröð, keyrðu verk í röð og haltu áfram eftir stýrt stopp.",
+  "objectives": [
+    "Bæta við undirbúnum verkefnum ásamt vistuðum stillingum eininga.",
+    "Keyra biðröðina og stöðva hana milli verka.",
+    "Finna niðurstöður hvers verkefnis og hreinsa lokin atriði úr biðröðinni."
+  ],
+  "prerequisite": "Undirbúðu verkefni og vistaðar stillingar einingar þess. Til æfingar notarðu tvö afrit af Recruitment-dæminu í aðskildum möppum; þau innihalda sömu gögn og eru ekki líffræðilegar endurtekningar.",
+  "scenes": [
+    "Undirbúðu fyrsta verkefnið í greiningareiningu þess. Í Recruitment velurðu Import settings og opnar CSV-stillingaskrá verkefnisins. Dæmið notar tvö aðskilin afrit af sömu mældu gögnum til að æfa keyrslu nokkurra verka.",
+    "Athugaðu Source, rásavörpunina og merki aðstæðna. Vistaðu stillingarnar sem biðröðin á að nota og hafðu þetta verkefni opið.",
+    "Opnaðu Help og svo Plate queue. Biðröðin keyrir eitt atriði í einu í þeirri röð sem listinn sýnir.",
+    "Veldu Add current plate. Ný lína geymir núverandi einingu og stillingar. Athugaðu einingu hennar, uppruna og merki áður en þú ræsir biðröðina.",
+    "Dragðu aðra undirbúna verkefnismöppu á biðröðina. Vistaðar stillingar hennar ákvarða eininguna og möppan sem þú slepptir verður uppruni hennar. Notaðu aðskildar verkefnismöppur þegar hvert verk þarf sínar eigin úttaksskrár.",
+    "Veldu Run queue. Fyrsta línan breytist í running meðan síðari atriði standa áfram sem queued. Fylgstu með stöðu og liðnum tíma til að sjá framvinduna.",
+    "Ýttu á Stop þegar þú vilt að biðröðin ljúki núverandi atriði og geri hlé á undan því næsta. Bíddu þar til virka verkinu lýkur.",
+    "Lokna línan sýnir nú success og næsta lína stendur áfram sem queued. Veldu Run queue aftur til að halda áfram með atriðið sem eftir er.",
+    "Þegar báðum verkum er lokið opnarðu úttaksmöppu hvers verkefnis. Fyrir Recruitment skoðarðu CSV-niðurstöðurnar fyrir frumur og brunna. Notaðu Recruitment beint þegar þú vilt myndaferli þess; þessi biðröð hvorki sýnir né vistar þau gröf.",
+    "Veldu Clear finished til að fjarlægja lokin atriði af listanum. Verkefnismöppur þeirra og vistaðar niðurstöður eru áfram tiltækar."
+  ]
+}

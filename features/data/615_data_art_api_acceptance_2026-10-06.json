@@ -1,0 +1,104 @@
+{
+  "source_application_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "normal_nine_language_reviewed_repair_and_strict_audit_passed": true,
+  "strict_audit_terminal_exit_code": 0,
+  "reviewed_unique_new_prose_blocks_each_language": 16,
+  "total_source_context_bound_reviewed_inputs": 144,
+  "current_symbols_each_catalog": 13181,
+  "catalog_languages": 10,
+  "changed_symbols_each_catalog": [
+    "spacr.qt.night_themes",
+    "spacr.qt.night_themes.NightTheme",
+    "spacr.qt.night_themes.NightTheme.sound",
+    "spacr.qt.night_themes.ambient_for",
+    "spacr.qt.night_themes.sound_for",
+    "spacr.qt.night_themes.theme_for",
+    "spacr.qt.preferences",
+    "spacr.qt.preferences.apply_night_theme",
+    "spacr.qt.preferences.set_theme_choice",
+    "spacr.qt.preferences.theme_choices",
+    "spacr.qt.preferences.theme_description",
+    "spacr.qt.theme"
+  ],
+  "all_other_complete_records_preserved_each_catalog": 13169,
+  "strict_all_language_full_Sphinx_build_passed": true,
+  "API_catalog_tests_passed": 12,
+  "docstring_tests_passed": 6,
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff",
+  "failed_gpu_attempts_accepted": false,
+  "interrupted_cpu_attempt_accepted_as_full_run": false,
+  "interrupted_process_143_cause_known": false,
+  "runtime_receipt": "615_data_art_runtime_2026-10-05.json",
+  "guides_receipt": "615_data_art_guides_2026-10-05.json",
+  "new_catalog_nightly_deployment_verified": false,
+  "artifacts": {
+    "features/data/615_data_art_api_acceptance_2026-10-06/admit_data_art_api_reviews.py": {
+      "sha256": "157ebf3deee55361170b86a621eb2872a05d075d16126dc245e244c9217f6609",
+      "bytes": 1719
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/archive_data_art_api_acceptance.py": {
+      "sha256": "4fc6597f004ec711df0a0926ac911d3e350574c9f0d789799633ee8c9628274c",
+      "bytes": 5166
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/check_data_art_api_preservation.py": {
+      "sha256": "474b43c64db88255fa9df2a75d93160bd8e9b90af3e06b7b669a7f3d62239fd8",
+      "bytes": 1845
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-catalog-tests-r1.log.gz": {
+      "sha256": "02a1c41fc6fad10b646150cab9db1089cd7d88285c6b6bf6782ce99dbc9284b1",
+      "bytes": 53
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-current-english-r1.log.gz": {
+      "sha256": "f0592a0e8ff357fbb713e747e5ac71bdbd2b5435882c4dc2113156266c53201a",
+      "bytes": 62
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-delta-r1.json": {
+      "sha256": "2b9d5cf981237c9976a1bc2b57208756eab9fda70f54cbf3bd916f190eed06a1",
+      "bytes": 19091
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-new-blocks-r1.json": {
+      "sha256": "26e7cc46077c747ae916d168f216dc54c7bbf81effb9a8378525ccc0e120ab48",
+      "bytes": 7857
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-preservation-proof.json": {
+      "sha256": "079f052f9dbb85db0d0c57a059f99dacd2b4f7619694f7d7060650016dba4fba",
+      "bytes": 7990
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-preservation-r1.log.gz": {
+      "sha256": "5b50f76a7b2a7142a20fd032c7ba916b39ae07c75a21e844efe09762d21f158e",
+      "bytes": 119
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-refresh-r1.log.gz": {
+      "sha256": "9554c415d776cc834a08f29f52cd846529d733053d0a74c9d72b52af69b828c5",
+      "bytes": 621
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-refresh-r2.log.gz": {
+      "sha256": "c436b97c5cec67c3faae901482a5d6de78a13b8023a2f790fc2f7c67ce92888a",
+      "bytes": 703
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-review-admission-r1.log.gz": {
+      "sha256": "7439100ade0ad536bcc9d89c8a466355d6056d38313e7ea6a15d9dfe920b7d01",
+      "bytes": 167
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-reviewed-cpu-repair-r1.log.gz": {
+      "sha256": "4850d2268d99fe0fd4a1ff12545a292cb788944008f8af4faa7da8cea33b4675",
+      "bytes": 207
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-reviewed-cpu-repair-r2.log.gz": {
+      "sha256": "f18ad6dad1ffc082e0a5384e18dc059cb4e766536f2b6ac15baa3cb15c923251",
+      "bytes": 227
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-api-strict-audit-r1.log.gz": {
+      "sha256": "b42070efae9594557e80dd9ebccb66c4b78b23a8755a2490f1f15eb580b9ca27",
+      "bytes": 69
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-docstring-tests-r1.log.gz": {
+      "sha256": "35b14635d2d4d6e991dc1e0d7133765cfc43e838d319144563dfa20338a34840",
+      "bytes": 52
+    },
+    "features/data/615_data_art_api_acceptance_2026-10-06/data-art-sphinx-all-r1.log.gz": {
+      "sha256": "3d40a97e3ed961d8d0ac5c9c0eec2092e788d2d1a1b4459f60f68b55cb4ccda8",
+      "bytes": 32339
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "validation": {
+    "identity_and_plaque_tests_passed": 6,
+    "identity_and_plaque_tests_seconds": 10.16,
+    "final_report_tests_passed": 4,
+    "final_report_tests_seconds": 359.29,
+    "current_runtime_inventory": 6294,
+    "current_public_api_inventory": 11166,
+    "public_api_sources_changed_since_private_draft_snapshot": 14
+  },
+  "source_commit": "026317df7",
+  "sources": [
+    "No scale bar or whole well was found: plaque sizes are in pixels.",
+    "The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.",
+    "The words were read from the PDF's own text.",
+    "pixels (no scale bar or whole well)",
+    "{n} well(s): the label and the legend disagree (marked conflict in Source).",
+    "{source} / conflict",
+    "{source}: {ppm} px/mm"
+  ],
+  "languages": [
+    {
+      "language": "de",
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "22de320bad2eeea70998fd57552a065c9b164ba22e4841f56e3e0a621f5add9c"
+    },
+    {
+      "language": "es",
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "94d4ec4d065f36a30fd6ec1313219ea40a7d9d165f931aa87e0e05295631b067"
+    },
+    {
+      "language": "fr",
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "4e9107dee6132aef564758d3ba8648a5ba8b4b28417582c9d007ddbe34a364b5"
+    },
+    {
+      "language": "hi",
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "5c73d55a0ac71b308e1a2d157ee449726f77b7c201ff0ca3749fa30c56d755f5"
+    },
+    {
+      "language": "is",
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "7c4e9e07ebe931eb0507371b19566826a95454f2e2f98c9cc451d161c21feac3"
+    },
+    {
+      "language": "ko",
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "3c12971e6250f44ec5a9c6fcfde41a6cbfe040a3e102771048ec507f626d7f3d"
+    },
+    {
+      "language": "pt",
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "83b7e4715544e11204c27bfb96d91488d45fcef9c52f15c8c9609b5f8a578f70"
+    },
+    {
+      "language": "sv",
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "04a30b4557893ca2f62038762d369b7cf182ccbce14d6094d6dc374f1ad68f2f"
+    },
+    {
+      "language": "zh_CN",
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-plaque-scale-conflict.json",
+      "review_sha256": "0bf547467c34b99f8da74f1c20e818591dd58efb85b2ea73923d2edfcd1e3f9a"
+    }
+  ],
+  "formatted_runtime_checks": 63,
+  "native_speaker_signoff": false,
+  "note": "No change to scale calculation, conflict detection or approval behavior."
+}

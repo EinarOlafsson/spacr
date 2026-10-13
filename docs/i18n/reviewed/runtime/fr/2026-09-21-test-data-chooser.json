@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review": "AI-assisted editorial and technical review of download sizes, cell counts, shared plate/database requirements and no-download-before-click behavior; no native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.",
+      "source": "Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.",
+      "source_sha256": "ab58e9b360dcefb8a8ac1a72eb801b55908d382312f7858abd021c7a969e779b",
+      "translation": "Télécharger environ 280 MB : 2341 recadrages de cellules individuelles déjà préparés, avec la base de données de mesures qui les indexe, étiquetés comme infectés ou non infectés.\n\nPour annoter des images déjà présentes sur le disque. Le dossier source et les paramètres d’annotation sont renseignés, et Image source est réglé sur LOAD IMAGES."
+    },
+    {
+      "table": "ui",
+      "key": "Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.",
+      "source": "Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.",
+      "source_sha256": "4c3eb748e8de32a54a348ebd2b08991649cb8638dec5fa417868327aed8913aa",
+      "translation": "Télécharger environ 390 MB : les tableaux fusionnés dont proviennent les recadrages, afin de fournir un ensemble au fur et à mesure de l’affichage de la page plutôt que de lire des recadrages enregistrés sur le disque.\n\nNe nécessite aucun recadrage exporté. Le contenu est extrait dans le même dossier de plaque que Load ; après avoir appuyé sur les deux boutons, la plaque est complète et les deux voies fonctionnent. La lecture à la demande obtient la position de chaque cellule dans la base de données de mesures ; la partie Load est donc aussi téléchargée si elle n’est pas encore sur le disque. Image source est réglé sur STREAM IMAGES."
+    },
+    {
+      "table": "ui",
+      "key": "Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.",
+      "source": "Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.",
+      "source_sha256": "8d28b4549f0efd8db6e87af89a740ffb3b37ee461f6d442478a32ccefd8e6022",
+      "translation": "Survolez un bouton pour voir ce qu’il télécharge et configure. Rien n’est téléchargé tant que vous n’appuyez pas sur un bouton."
+    }
+  ]
+}

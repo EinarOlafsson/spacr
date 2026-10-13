@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26, sixth pass 2026-09-27: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source": "An object is an outlier when it scores beyond this quantile of the control objects, so this share of controls is normal by construction. Wells are ranked by their share of outliers. Default 0.99.",
+      "source_sha256": "359b2331bf33d304486fd930e9edbe819d82b168ed5f34e5e1dc9a79c26eed3c",
+      "translation": "Un objet est aberrant quand son score dépasse ce quantile des objets témoins, de sorte que cette part des témoins est normale par construction. Les puits sont classés selon leur part d’objets aberrants. Valeur par défaut : 0.99."
+    },
+    {
+      "table": "ui",
+      "key": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source": "How unlike the controls an object is: robust Mahalanobis distance, mean distance to the nearest control objects, an isolation forest, or low density under a Gaussian mixture. All run on the CPU. Default Robust Mahalanobis.",
+      "source_sha256": "b5e7b7f4fba304a07fa7e00a0518f23de2c5cf945fcdae550c0a73180e8bc157",
+      "translation": "À quel point un objet diffère des témoins : distance de Mahalanobis robuste, distance moyenne aux objets témoins les plus proches, une forêt d’isolement ou une faible densité sous un mélange gaussien. Tous s’exécutent sur le CPU. Valeur par défaut : Robust Mahalanobis."
+    },
+    {
+      "table": "ui",
+      "key": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source": "Model the negative-control objects as normal and score every object and well for how unlike them it is, over every numeric feature (or the emb_ embedding columns when present). Needs a per-object table, the negative control picked above and well positions. Default off.",
+      "source_sha256": "ba71d351bd2ebefb0f24b62e3abb60e02e0547396ffaa7ff22714640875b1635",
+      "translation": "Modélise les objets du témoin négatif comme normaux et score chaque objet et chaque puits selon leur différence avec eux, sur chaque variable numérique (ou les colonnes d’embedding emb_ si elles existent). Nécessite une table par objet, le témoin négatif choisi ci-dessus et les positions des puits. Désactivé par défaut."
+    },
+    {
+      "table": "ui",
+      "key": "Pick the control column and the negative control to score anomalies against.",
+      "source": "Pick the control column and the negative control to score anomalies against.",
+      "source_sha256": "27c4bf39f456613c55b5a32ae036688bb36822f72a223954638aa3b2015f8f85",
+      "translation": "Choisissez la colonne de témoins et le témoin négatif par rapport auxquels scorer les anomalies."
+    },
+    {
+      "table": "ui",
+      "key": "Score anomalies against the negative control",
+      "source": "Score anomalies against the negative control",
+      "source_sha256": "7e9de04bbee97f24ce0311a895f10dafe5b37304a3c778e0c5e1d88338eee257",
+      "translation": "Scorer les anomalies par rapport au témoin négatif"
+    },
+    {
+      "table": "ui",
+      "key": "Turn on anomaly scoring and name the negative control.",
+      "source": "Turn on anomaly scoring and name the negative control.",
+      "source_sha256": "aa4bfc88a6b38a2be33b74967e598f9973a39485c8798db18cbea60d8582896c",
+      "translation": "Activez le scoring des anomalies et indiquez le témoin négatif."
+    },
+    {
+      "table": "ui",
+      "key": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source": "Wells (A01), plate wells (prc) or treatment names that are known hits, separated by commas. With the positive control they give the AUROC of the ranking against the negative control. Default empty.",
+      "source_sha256": "4294eaa8e152a4d7862f95f1be47a6987567ed8f31419ed16f80851b53ed0537",
+      "translation": "Puits (A01), puits de plaque (prc) ou noms de traitement qui sont des résultats significatifs connus, séparés par des virgules. Avec le témoin positif, ils donnent l’AUROC du classement par rapport au témoin négatif. Valeur par défaut : vide."
+    },
+    {
+      "table": "ui",
+      "key": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source": "Write the ranked wells, every object's score, the top outliers and the review figure into a folder.",
+      "source_sha256": "daa5eb71b5812c9d808c3937b40253c108dad1884ac9b908dbd4f2bd9a01ecae",
+      "translation": "Écrire dans un dossier les puits classés, le score de chaque objet, les principales valeurs aberrantes et la figure de revue."
+    }
+  ]
+}

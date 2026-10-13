@@ -1,0 +1,63 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Clear the ruler line",
+      "source": "Clear the ruler line",
+      "source_sha256": "4bd8718b8c2549ff3a67c665e0b7c84226ccdac27f6d66da01cd38d67fea895c",
+      "table": "ui",
+      "translation": "Borrar la línea de la regla"
+    },
+    {
+      "key": "Drag a line on either image to measure its length in image pixels. Right-click with Ruler selected to clear it. Turn Ruler off to pan.",
+      "source": "Drag a line on either image to measure its length in image pixels. Right-click with Ruler selected to clear it. Turn Ruler off to pan.",
+      "source_sha256": "82892c8a608403e352af4ac182bd378416f2fabb62530db4c4d6b2fcb2dd17f9",
+      "table": "ui",
+      "translation": "Arrastre una línea en cualquiera de las imágenes para medir su longitud en píxeles de imagen. Haga clic derecho con Regla seleccionada para borrarla. Desactive Regla para desplazar la vista."
+    },
+    {
+      "key": "Drag a line to measure its length in image pixels. Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement.",
+      "source": "Drag a line to measure its length in image pixels. Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement.",
+      "source_sha256": "72e928b567dfef894f4e06573cf5b96e597b83a24bf14e4fe53bee3c784f47f4",
+      "table": "ui",
+      "translation": "Arrastre una línea para medir su longitud en píxeles de imagen. Haga clic derecho con Regla seleccionada para borrarla. El zoom y el desplazamiento conservan la medición."
+    },
+    {
+      "key": "Lock / unlock box",
+      "source": "Lock / unlock box",
+      "source_sha256": "41f77528e1abb38aae985bcc38f7d5fb35d6b25f180f37301aec1a8c04162ee6",
+      "table": "ui",
+      "translation": "Bloquear / desbloquear recuadro"
+    },
+    {
+      "key": "Pixel spacing must be finite and positive.",
+      "source": "Pixel spacing must be finite and positive.",
+      "source_sha256": "833ff2c457c749087b34fe8ae338845f701d0b369258ceb2036cc99ebc1f1b9b",
+      "table": "ui",
+      "translation": "El espaciado de píxel debe ser finito y positivo."
+    },
+    {
+      "key": "Ruler",
+      "source": "Ruler",
+      "source_sha256": "b2eb0fa2b0167b6c922f813e543404905366dfcc3a0692060c25411785b27729",
+      "table": "ui",
+      "translation": "Regla"
+    },
+    {
+      "key": "{length:.2f} px",
+      "source": "{length:.2f} px",
+      "source_sha256": "a96bfca8d50a9947a0427808badcaeb4986a958e8664c2e4f0bff736c696ac4b",
+      "table": "ui",
+      "translation": "{length:.2f} px"
+    },
+    {
+      "key": "· {length:.2f} {unit}",
+      "source": "· {length:.2f} {unit}",
+      "source_sha256": "ea0f47fdf65a125cb4298c95652853eedd07e56b20f5c9dc4c31f9d5e1e0fe9d",
+      "table": "ui",
+      "translation": "· {length:.2f} {unit}"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of image-coordinate ruler captions, calibration errors and the revised lock shortcut; measurement-only templates are exact technical identities. No native-speaker sign-off.",
+  "schema": 1
+}

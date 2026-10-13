@@ -1,0 +1,333 @@
+# Small per-user online installer for Windows 10/11.
+#
+# No Python runtime or scientific packages are bundled. A pinned uv bootstrap
+# downloads a private CPython 3.12 runtime and installs spaCR atomically.
+
+[CmdletBinding()]
+param(
+    [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA "spaCR"),
+    [string]$Version = "",
+    [string]$PackageSpec = "",
+    [string]$TorchBackend = "",
+    [string]$Language = "",
+    [ValidateSet(0, 1)][int]$ConsentCollected = 0,
+    [ValidateSet(0, 1)][int]$ShareDiagnostics = 0,
+    [ValidateSet(0, 1)][int]$ReportIssues = 0,
+    [ValidateSet(0, 1)][int]$SignInNow = 0,
+    [string]$OfflineBundle = $env:SPACR_OFFLINE_BUNDLE,
+    [switch]$CheckMask,
+    [switch]$DryRun
+)
+
+$ErrorActionPreference = "Stop"
+$ProgressPreference = "SilentlyContinue"
+if (-not [string]::IsNullOrWhiteSpace($Language)) {
+    $env:SPACR_INSTALL_LANGUAGE = $Language
+}
+. (Join-Path $PSScriptRoot "generated\installer_messages.ps1")
+$UvVersion = "0.11.32"
+$PythonVersion = "3.12"
+$UvInstallUrl = "https://astral.sh/uv/$UvVersion/install.ps1"
+# SHAP 0.52 leaves these dependencies unbounded. Without explicit floors uv
+# may choose numba 0.53.1 and llvmlite 0.36.0, whose metadata admits Python
+# 3.12 even though their build scripts reject it.
+$ResolverGuards = @("numba>=0.60,<1.0", "llvmlite>=0.43,<1.0")
+
+if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
+    $TorchBackend = $env:SPACR_TORCH_BACKEND
+}
+$DetectedAccelerator = "none"
+if (Get-Command "nvidia-smi.exe" -ErrorAction SilentlyContinue) {
+    & nvidia-smi.exe -L *> $null
+    if ($LASTEXITCODE -eq 0) {
+        $DetectedAccelerator = "nvidia"
+    }
+}
+if ([string]::IsNullOrWhiteSpace($TorchBackend)) {
+    # uv's automatic backend selects CUDA on compatible NVIDIA systems and
+    # safely falls back elsewhere. Users can still request "cpu" explicitly.
+    $TorchBackend = "auto"
+}
+if ($TorchBackend -notmatch '^[a-z0-9]+$') {
+    throw (Get-SpacrInstallerMessage "invalid_backend" @($TorchBackend))
+}
+
+if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
+    $PackageSpec = $env:SPACR_PACKAGE_SPEC
+}
+if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        $PackageSpec = "spacr"
+    } else {
+        $PackageSpec = "spacr==$Version"
+    }
+}
+
+# An offline bundle (packaging/offline/build_offline_bundle.py) carries uv,
+# the private Python, every wheel, Cellpose weights and Mask test data. It was
+# locked for one PyTorch wheel line when it was built, so that comes from it.
+if (-not [string]::IsNullOrWhiteSpace($OfflineBundle)) {
+    $OfflineBundle = (Resolve-Path $OfflineBundle).Path
+    $BundleInfo = Get-Content -Raw (Join-Path $OfflineBundle "bundle.json") | ConvertFrom-Json
+    $TorchBackend = $BundleInfo.torch_backend
+    $PackageSpec = $BundleInfo.package_spec
+    Write-Host "  Offline bundle: $OfflineBundle"
+}
+
+$FullInstallRoot = [System.IO.Path]::GetFullPath($InstallRoot).TrimEnd("\")
+$unsafeRoots = @(
+    [System.IO.Path]::GetPathRoot($FullInstallRoot).TrimEnd("\"),
+    $env:USERPROFILE.TrimEnd("\"),
+    $env:LOCALAPPDATA.TrimEnd("\")
+)
+if ($unsafeRoots -contains $FullInstallRoot) {
+    throw ((Get-SpacrInstallerMessage "unsafe_root" @($InstallRoot)) + " " +
+        (Get-SpacrInstallerMessage "choose_directory"))
+}
+$InstallRoot = $FullInstallRoot
+
+$BootstrapDir = Join-Path $InstallRoot "bootstrap"
+$PythonDir = Join-Path $InstallRoot "python"
+$VenvDir = Join-Path $InstallRoot "venv"
+$CacheDir = Join-Path $InstallRoot "cache"
+$UvExe = Join-Path $BootstrapDir "uv.exe"
+$StageVenv = Join-Path $InstallRoot (".venv-staging-" + $PID)
+$StagePython = Join-Path $StageVenv "Scripts\python.exe"
+$StageProfile = Join-Path $InstallRoot (".install-profile-staging-" + $PID + ".json")
+$Launcher = Join-Path $InstallRoot "launch_spacr.pyw"
+$CliLauncher = Join-Path $InstallRoot "spacr.cmd"
+
+Write-Host (Get-SpacrInstallerMessage "installer_title") -ForegroundColor Cyan
+Write-Host "  $(Get-SpacrInstallerMessage 'application'):    $PackageSpec"
+Write-Host "  $(Get-SpacrInstallerMessage 'private_python'): $PythonVersion"
+Write-Host "  $(Get-SpacrInstallerMessage 'install_root'):   $InstallRoot"
+Write-Host "  $(Get-SpacrInstallerMessage 'pytorch_backend'): $TorchBackend"
+Write-Host "  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies."
+Write-Host "  $(Get-SpacrInstallerMessage 'resolver_guards'): $($ResolverGuards -join ', ')"
+
+if ($DryRun -or $env:SPACR_INSTALL_DRY_RUN -eq "1") {
+    Write-Host (Get-SpacrInstallerMessage "dry_remove_old")
+    Write-Host (Get-SpacrInstallerMessage "dry_download" @($UvInstallUrl))
+    Write-Host (Get-SpacrInstallerMessage "dry_create" @($VenvDir))
+    Write-Host (Get-SpacrInstallerMessage "dry_launcher" @($Launcher))
+    exit 0
+}
+
+$driveName = [System.IO.Path]::GetPathRoot($InstallRoot)
+$drive = [System.IO.DriveInfo]::new($driveName)
+if ($drive.AvailableFreeSpace -lt 5GB) {
+    $available = [math]::Round($drive.AvailableFreeSpace / 1GB, 1)
+    throw ((Get-SpacrInstallerMessage "needs_free_space") + " " +
+        (Get-SpacrInstallerMessage "available_space" @($available, $InstallRoot)))
+}
+
+New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
+$WorkDir = Join-Path $env:TEMP ("spacr-install-" + $PID)
+$WorkUv = Join-Path $WorkDir "bootstrap\uv.exe"
+$InstallerScript = Join-Path $WorkDir "uv-installer.ps1"
+$LogPath = Join-Path $InstallRoot "install.log"
+Start-Transcript -Path $LogPath -Append | Out-Null
+Write-Host (Get-SpacrInstallerMessage "detailed_log" @($LogPath))
+
+function Invoke-Checked {
+    param(
+        [Parameter(Mandatory = $true)][string]$Command,
+        [Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments
+    )
+    & $Command @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw (Get-SpacrInstallerMessage "command_failed" @($Command, $LASTEXITCODE))
+    }
+}
+
+try {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
+
+    # find old spaCR files --> delete old spaCR files --> install new spaCR.
+    #
+    # uv and a private Python are fetched into a temporary folder first,
+    # outside every installation: a failed download stops the install here,
+    # before anything old is deleted, and the Python that runs the removal is
+    # not one of the files it removes. install_cleanup.py is the finder and
+    # remover the in-app update uses too, shipped beside this script. It never
+    # runs an old version's own Uninstall.exe, keeps the settings stored under
+    # the same registry key, and lists environments the user made without
+    # touching them.
+    if ($OfflineBundle) {
+        # A bundle carried on a USB stick has no TLS to vouch for it: every
+        # file is checked against its SHA256SUMS before any of it is run.
+        Write-Host "Verifying the offline bundle..." -ForegroundColor Cyan
+        foreach ($line in Get-Content (Join-Path $OfflineBundle "SHA256SUMS")) {
+            $expected, $relative = $line -split "  ", 2
+            $actual = (Get-FileHash -Algorithm SHA256 (Join-Path $OfflineBundle $relative)).Hash
+            if ($actual -ne $expected.ToUpperInvariant()) {
+                throw "Offline bundle file does not match SHA256SUMS: $relative"
+            }
+        }
+        New-Item -ItemType Directory -Force -Path (Split-Path $WorkUv) | Out-Null
+        Copy-Item (Join-Path $OfflineBundle "uv\uv.exe") $WorkUv
+        $global:LASTEXITCODE = 0
+        $env:UV_PYTHON_INSTALL_MIRROR = "file:///" + ($OfflineBundle -replace "\\", "/") + "/python"
+    } else {
+        Write-Host (Get-SpacrInstallerMessage "downloading_uv") -ForegroundColor Cyan
+        Invoke-WebRequest -UseBasicParsing -Uri $UvInstallUrl -OutFile $InstallerScript
+
+        $env:UV_UNMANAGED_INSTALL = Join-Path $WorkDir "bootstrap"
+        $env:UV_NO_MODIFY_PATH = "1"
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $InstallerScript
+    }
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $WorkUv)) {
+        throw (Get-SpacrInstallerMessage "uv_missing" @($WorkUv))
+    }
+
+    $env:UV_SYSTEM_CERTS = "true"
+    $env:UV_PYTHON_CACHE_DIR = Join-Path $WorkDir "python-downloads"
+    $env:UV_PYTHON_INSTALL_DIR = Join-Path $WorkDir "python"
+    $env:UV_CACHE_DIR = Join-Path $WorkDir "cache"
+    Write-Host (Get-SpacrInstallerMessage "downloading_python" @($PythonVersion)) -ForegroundColor Cyan
+    Invoke-Checked $WorkUv python install $PythonVersion --managed-python --no-bin --no-registry
+    $CleanupPython = & $WorkUv python find $PythonVersion --managed-python | Select-Object -Last 1
+    if ($LASTEXITCODE -ne 0 -or -not $CleanupPython -or -not (Test-Path $CleanupPython.Trim())) {
+        throw (Get-SpacrInstallerMessage "command_failed" @($WorkUv, $LASTEXITCODE))
+    }
+    $CleanupPython = $CleanupPython.Trim()
+    $CleanupModule = Join-Path $PSScriptRoot "install_cleanup.py"
+    if (-not (Test-Path $CleanupModule)) {
+        $CleanupModule = Join-Path $PSScriptRoot "..\..\spacr\install_cleanup.py"
+    }
+    # The log of this install and the files the NSIS wrapper has already
+    # written for it are not old files.
+    & $CleanupPython -I $CleanupModule remove `
+        --keep $LogPath `
+        --keep (Join-Path $InstallRoot "spacr.ico") `
+        --keep (Join-Path $InstallRoot "nsis-bootstrap-status.txt")
+    if ($LASTEXITCODE -ne 0) {
+        throw (Get-SpacrInstallerMessage "old_copy_not_removed")
+    }
+
+    New-Item -ItemType Directory -Force -Path $BootstrapDir, $PythonDir, $CacheDir | Out-Null
+    Move-Item -Force $WorkUv $UvExe
+    $env:UV_PYTHON_INSTALL_DIR = $PythonDir
+    $env:UV_CACHE_DIR = $CacheDir
+    Invoke-Checked $UvExe python install $PythonVersion --managed-python --no-bin --no-registry
+
+    if (Test-Path $StageVenv) {
+        Remove-Item -Recurse -Force $StageVenv
+    }
+    Write-Host (Get-SpacrInstallerMessage "creating_environment") -ForegroundColor Cyan
+    Invoke-Checked $UvExe venv $StageVenv --python $PythonVersion --managed-python --relocatable
+
+    Write-Host (Get-SpacrInstallerMessage "downloading_dependencies") -ForegroundColor Cyan
+    if ($OfflineBundle) {
+        Invoke-Checked $UvExe pip install --python $StagePython --offline --no-index `
+            --find-links (Join-Path $OfflineBundle "wheels") `
+            -r (Join-Path $OfflineBundle "requirements.txt")
+    } else {
+        Invoke-Checked $UvExe pip install --python $StagePython --torch-backend $TorchBackend $PackageSpec @ResolverGuards
+    }
+
+    Write-Host (Get-SpacrInstallerMessage "validating_install") -ForegroundColor Cyan
+    Invoke-Checked $UvExe pip check --python $StagePython
+    $env:QT_QPA_PLATFORM = "offscreen"
+    Invoke-Checked -Command $StagePython -Arguments @(
+        "-I",
+        "-c",
+        "import spacr, PySide6, torch; print('spaCR', spacr.__version__, '| torch', torch.__version__)"
+    )
+    if ($TorchBackend -ne "cpu" -and $DetectedAccelerator -eq "nvidia") {
+        Invoke-Checked -Command $StagePython -Arguments @(
+            "-I",
+            "-c",
+            "import torch; assert torch.cuda.is_available(), 'GPU install selected but CUDA is unavailable'"
+        )
+    }
+
+    Invoke-Checked -Command $StagePython -Arguments @(
+        "-I",
+        "-m",
+        "spacr.install_profile",
+        "--path",
+        $StageProfile,
+        "--requested",
+        $TorchBackend,
+        "--detected",
+        $DetectedAccelerator,
+        "--consent-collected",
+        [string]$ConsentCollected,
+        "--share-diagnostics",
+        [string]$ShareDiagnostics,
+        "--report-issues",
+        [string]$ReportIssues,
+        "--sign-in-now",
+        [string]$SignInNow
+    )
+
+    $OldVenv = Join-Path $InstallRoot ".venv-previous"
+    if (Test-Path $OldVenv) {
+        Remove-Item -Recurse -Force $OldVenv
+    }
+    if (Test-Path $VenvDir) {
+        Move-Item $VenvDir $OldVenv
+    }
+    Move-Item $StageVenv $VenvDir
+    if (Test-Path $OldVenv) {
+        Remove-Item -Recurse -Force $OldVenv
+    }
+
+    $InstalledPython = Join-Path $VenvDir "Scripts\python.exe"
+    Move-Item -Force $StageProfile (Join-Path $InstallRoot "install-profile.json")
+
+    if ($OfflineBundle) {
+        # Cellpose looks for its weights here before it would download them.
+        # Weights already present are left as they are.
+        $CellposeDir = $env:CELLPOSE_LOCAL_MODELS_PATH
+        if (-not $CellposeDir) {
+            $CellposeDir = Join-Path $env:USERPROFILE ".cellpose\models"
+        }
+        $BundledModels = Join-Path $OfflineBundle "models\cellpose"
+        if (Test-Path $BundledModels) {
+            New-Item -ItemType Directory -Force -Path $CellposeDir | Out-Null
+            foreach ($weights in Get-ChildItem $BundledModels) {
+                $target = Join-Path $CellposeDir $weights.Name
+                if (-not (Test-Path $target)) {
+                    Copy-Item $weights.FullName $target
+                }
+            }
+        }
+        $TestData = Join-Path $InstallRoot "test_data"
+        if (Test-Path (Join-Path $OfflineBundle "test_data")) {
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $TestData
+            Copy-Item -Recurse (Join-Path $OfflineBundle "test_data") $TestData
+        }
+        $MaskCheck = Join-Path $InstallRoot "offline_mask_check.py"
+        Copy-Item (Join-Path $OfflineBundle "offline_mask_check.py") $MaskCheck
+        Copy-Item (Join-Path $OfflineBundle "bundle.json") (Join-Path $InstallRoot "offline-bundle.json")
+        if ($CheckMask) {
+            Invoke-Checked -Command $InstalledPython -Arguments @(
+                "-I", $MaskCheck, "--data", (Join-Path $TestData "plate1"))
+        }
+    }
+
+    @"
+from spacr.qt import run
+
+raise SystemExit(run())
+"@ | Set-Content -Encoding UTF8 $Launcher
+
+    "@echo off`r`n`"$InstalledPython`" -m spacr.qt %*`r`n" |
+        Set-Content -Encoding ASCII $CliLauncher
+
+    Write-Host ""
+    Write-Host (Get-SpacrInstallerMessage "installed") -ForegroundColor Green
+    Write-Host (Get-SpacrInstallerMessage "launcher" @($Launcher))
+} catch {
+    if (Test-Path $StageVenv) {
+        Remove-Item -Recurse -Force $StageVenv
+    }
+    Remove-Item -Force -ErrorAction SilentlyContinue $StageProfile
+    throw
+} finally {
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $WorkDir
+    Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
+}

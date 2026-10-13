@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "ui",
+      "key": "GUI scale {gui}%, font scale {font}%",
+      "source": "GUI scale {gui}%, font scale {font}%",
+      "source_sha256": "a7a66cfd641029216c0f7fd60ce13b26135d6895f1e612348b086b63bde45945",
+      "translation": "GUI-Skalierung {gui}%, Schriftskalierung {font}%"
+    },
+    {
+      "table": "ui",
+      "key": "Keep these settings?",
+      "source": "Keep these settings?",
+      "source_sha256": "e96d53602a776b3c70506ffe6b71db2a91347f0d24e7f2e36f345b481ad7c000",
+      "translation": "Diese Einstellungen beibehalten?"
+    },
+    {
+      "table": "ui",
+      "key": "Revert",
+      "source": "Revert",
+      "source_sha256": "0026c505347863ae188a99df6946e16ac83262585044660440699346d24784e7",
+      "translation": "Zurücksetzen"
+    },
+    {
+      "table": "ui",
+      "key": "Reverting in {seconds} s",
+      "source": "Reverting in {seconds} s",
+      "source_sha256": "dd079c5d499a200dc6f998212da598ba8dc03a60491c68efa66979d3d0a2969b",
+      "translation": "Zurücksetzen in {seconds} s"
+    },
+    {
+      "table": "ui",
+      "key": "Click to show {name} again.",
+      "source": "Click to show {name} again.",
+      "source_sha256": "7b1f825ed93399189a757a23a06248bbf8b08736843363f3a613ffcd77d6645d",
+      "translation": "Klicken, um {name} wieder anzuzeigen."
+    },
+    {
+      "table": "ui",
+      "key": "Click to hide {name}.",
+      "source": "Click to hide {name}.",
+      "source_sha256": "7c276bf8308b41c79ec41aa1898bc5b75921fd2e28cc0b9e659fb614e62e1948",
+      "translation": "Klicken, um {name} auszublenden."
+    },
+    {
+      "table": "ui",
+      "key": "Click to show {name} again, or drag to resize it.",
+      "source": "Click to show {name} again, or drag to resize it.",
+      "source_sha256": "7c3eb97f7adb63b5282d8d22e119dea856f50376700440f84d079487c468e5a5",
+      "translation": "Klicken, um {name} wieder anzuzeigen, oder ziehen, um die Größe zu ändern."
+    },
+    {
+      "table": "ui",
+      "key": "Click to hide {name}, or drag to resize it.",
+      "source": "Click to hide {name}, or drag to resize it.",
+      "source_sha256": "2b6a09168f5a70b108e305ca142c2faa7fd3868957f3bedccf6f54e7125cf76c",
+      "translation": "Klicken, um {name} auszublenden, oder ziehen, um die Größe zu ändern."
+    },
+    {
+      "table": "ui",
+      "key": "Fixed colour",
+      "source": "Fixed colour",
+      "source_sha256": "3d92f5e56f6b73fd29f93890084e96e112ebd4cb4311bed81667565b53ea049d",
+      "translation": "Feste Farbe"
+    },
+    {
+      "table": "ui",
+      "key": "Random (per object)",
+      "source": "Random (per object)",
+      "source_sha256": "cd07e1238539799ac882515d188760bc77ad40c4f234d0cf4d47824b530f8fc0",
+      "translation": "Zufällig (pro Objekt)"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the colour",
+      "source": "Choose the colour",
+      "source_sha256": "2b87ae7f722242f0ab4c2f5283ff5b801142631e960af481947a8f5283be5ba5",
+      "translation": "Farbe auswählen"
+    },
+    {
+      "table": "ui",
+      "key": "Overlay colour",
+      "source": "Overlay colour",
+      "source_sha256": "0234a4b8b0a80d4924249145af063e2e8bfd865afa45452b46ab73a54cfb3adf",
+      "translation": "Überlagerungsfarbe"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque overlay",
+      "source": "Plaque overlay",
+      "source_sha256": "e4b1cfba054188fab58d8f3eade8a3a79b1320c17a9784e6e2f4d8678aa30725",
+      "translation": "Plaque-Überlagerung"
+    },
+    {
+      "table": "ui",
+      "key": "Outlines",
+      "source": "Outlines",
+      "source_sha256": "aee1b4148a40500ba8beae50ad563392b41a83a383e663690e8fa18a874c5cce",
+      "translation": "Umrisse"
+    },
+    {
+      "table": "ui",
+      "key": "Filled overlay",
+      "source": "Filled overlay",
+      "source_sha256": "ffae8d1de7bc5fd6443f950dffdbd3c1a2bb25ff5e45500af62f02a44be9b1cb",
+      "translation": "Gefüllte Überlagerung"
+    },
+    {
+      "table": "ui",
+      "key": "Thickness",
+      "source": "Thickness",
+      "source_sha256": "7b5944144275ea10a17c903d2d06c015e34740dab2ea4930aeb7573b43bb635e",
+      "translation": "Dicke"
+    },
+    {
+      "table": "ui",
+      "key": "Fill",
+      "source": "Fill",
+      "source_sha256": "033955d469b620d6612cb25b80a8d014acb633e4e0b14eb9e7618675f94e4a06",
+      "translation": "Füllung"
+    },
+    {
+      "table": "ui",
+      "key": "Applies at once to the plaques already found; nothing is segmented again.",
+      "source": "Applies at once to the plaques already found; nothing is segmented again.",
+      "source_sha256": "753b85edd1d5e837d208f0da600cdd7d5dd8a3fa0e9102e2d7c3ab3130fad22c",
+      "translation": "Wird sofort auf die bereits gefundenen Plaques angewendet; es erfolgt keine erneute Segmentierung."
+    },
+    {
+      "table": "ui",
+      "key": "The image with the plaques drawn over it. Right-click for outlines or a filled overlay, colour, thickness and opacity.",
+      "source": "The image with the plaques drawn over it. Right-click for outlines or a filled overlay, colour, thickness and opacity.",
+      "source_sha256": "390895ffe19622984b09db18c117a0e43495c94389fac7e344c955604fba5903",
+      "translation": "Das Bild mit den eingezeichneten Plaques. Rechtsklick öffnet die Auswahl für Umrisse oder gefüllte Überlagerung, Farbe, Dicke und Deckkraft."
+    },
+    {
+      "table": "ui",
+      "key": "The plaque mask alone, one colour per plaque.",
+      "source": "The plaque mask alone, one colour per plaque.",
+      "source_sha256": "231471f40d6fa0009d23b1ec0c8fa3dd5634e3eda3cd1a5b3e9505250a8ce1fb",
+      "translation": "Nur die Plaque-Maske, eine Farbe pro Plaque."
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose's cell probability, 0 to 1.",
+      "source": "Cellpose's cell probability, 0 to 1.",
+      "source_sha256": "920c476007694eff5d657ecafc6b270148bc7e8e5b1d67a73d76a48d118f514a",
+      "translation": "Zellwahrscheinlichkeit von Cellpose, 0 bis 1."
+    },
+    {
+      "table": "ui",
+      "key": "Cellpose's flow field: direction as hue, strength as brightness.",
+      "source": "Cellpose's flow field: direction as hue, strength as brightness.",
+      "source_sha256": "69907491bc6f62b396eea95f10626afc962c7485bc8fb6ffcdd4dfc542f06e37",
+      "translation": "Flussfeld von Cellpose: Richtung als Farbton, Stärke als Helligkeit."
+    },
+    {
+      "table": "ui",
+      "key": "Updating {name}…",
+      "source": "Updating {name}…",
+      "source_sha256": "c97a0a747f2376346f83d80de43010763636f73ae886f39826feceed5d03e908",
+      "translation": "{name} wird aktualisiert…"
+    },
+    {
+      "table": "ui",
+      "key": "Mode",
+      "source": "Mode",
+      "source_sha256": "5e23ec6a300dc60a79641769017e16e9bf042cbd8fd0a54586a048ab9da972ff",
+      "translation": "Modus"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not a segmentation model, so no model field takes it. It is installed and used where its own kind of result is asked for.",
+      "source": "{name} is not a segmentation model, so no model field takes it. It is installed and used where its own kind of result is asked for.",
+      "source_sha256": "5a4fd01055c65c84c1c3af14ac239b2985e7e0d9f43ed8bb970a627432b4a328",
+      "translation": "{name} ist kein Segmentierungsmodell und kann deshalb in keinem Modellfeld gewählt werden. Es wird dort installiert und verwendet, wo seine eigene Ergebnisart benötigt wird."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is a backend, not a checkpoint file. Install it here, then choose it in Make Masks' Mode box or set segmentation_backend in Mask generation.",
+      "source": "{name} is a backend, not a checkpoint file. Install it here, then choose it in Make Masks' Mode box or set segmentation_backend in Mask generation.",
+      "source_sha256": "6e8c8c944e7340e236aedb6f3b3bdb75658c8c3dbc12990303f27b9bb94bb27e",
+      "translation": "{name} ist ein Backend, keine Datei mit Modellgewichten. Installieren Sie es hier und wählen Sie es anschließend im Feld Modus von Masken erstellen (Make Masks), oder setzen Sie segmentation_backend bei der Maskenerzeugung (Masken)."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is installed. It is a backend rather than a checkpoint file, so choose it in Make Masks' Mode box, or set segmentation_backend in Mask generation; this field takes a checkpoint.",
+      "source": "{name} is installed. It is a backend rather than a checkpoint file, so choose it in Make Masks' Mode box, or set segmentation_backend in Mask generation; this field takes a checkpoint.",
+      "source_sha256": "e75d1ffff24b8fdc3a1500afb851409ce066f520986a9880ccf2841713c31510",
+      "translation": "{name} ist installiert. Es handelt sich um ein Backend und nicht um eine Datei mit Modellgewichten. Wählen Sie es deshalb im Feld Modus von Masken erstellen (Make Masks), oder setzen Sie segmentation_backend bei der Maskenerzeugung (Masken). Dieses Feld erwartet eine Datei mit Modellgewichten."
+    }
+  ]
+}

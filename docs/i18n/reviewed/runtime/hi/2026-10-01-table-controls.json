@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Codex); no human or native-speaker signoff",
+  "review_method": "Direct Codex context review of table-merge and annotation controls during guide drafting, independently peer-reviewed by a second Codex agent. Corrects concrete relational/table, action and Boolean-operator mistranslations. Existing candidate gates and normal generator remain unchanged. Original proposals and replaced generated targets retained here.",
+  "author": "shared_ui",
+  "peer_reviewer": "root",
+  "original_proposals": {
+    "Aggregation": "समेकन",
+    "Annotate conditions": "प्रयोग की स्थितियाँ एनोटेट करें",
+    "Child keys": "अधीनस्थ कुंजियाँ",
+    "Clear manual rows": "मैनुअल पंक्ति आवंटन साफ़ करें",
+    "Copy regex": "Regex कॉपी करें",
+    "Create merged table": "मर्ज की हुई तालिका बनाएँ",
+    "Customize merging": "मर्ज प्रक्रिया अनुकूलित करें",
+    "Exact values": "सटीक मान",
+    "Export table…": "तालिका निर्यात करें…",
+    "Filter source metadata or preview conditions": "स्रोत मेटाडेटा या पूर्वावलोकित स्थिति मान फ़िल्टर करें",
+    "Load chart": "चार्ट लोड करें",
+    "Merge original filenames…": "मूल फ़ाइल नाम जोड़ें…",
+    "Merge original filenames": "मूल फ़ाइल नाम जोड़ें",
+    "Merge tables": "तालिकाएँ मर्ज करें",
+    "Preview assignments": "मान आवंटन का पूर्वावलोकन करें",
+    "Remove condition": "स्थिति हटाएँ",
+    "Remove selected manual rows": "चुनी हुई मैनुअल पंक्तियाँ हटाएँ",
+    "Save annotated table…": "एनोटेट की हुई तालिका सहेजें…",
+    "Save chart": "चार्ट सहेजें",
+    "Validate and preview": "सत्यापित करें और पूर्वावलोकन देखें"
+  },
+  "replaced_generated_targets": {
+    "Aggregation": "Aggregation के बारे में",
+    "Annotate conditions": "शर्तों का उल्लेख",
+    "Child keys": "बच्चों की कुंजी",
+    "Clear manual rows": "स्पष्ट मैनुअल लाइन",
+    "Copy regex": "Regex के बारे में टिप्पणियाँ",
+    "Create merged table": "मिश्रित टेबल बनाएं",
+    "Customize merging": "मिश्रण के लिए कस्टम",
+    "Exact values": "सटीक मूल्य",
+    "Export table…": "आउटपुट टेबल...",
+    "Filter source metadata or preview conditions": "फ़िल्टर स्रोत मेटाडेटा या पूर्वावलोकन परिस्थितियां",
+    "Load chart": "लोड चार्ट",
+    "Merge original filenames…": "मूल फ़िल्टर के साथ...",
+    "Merge original filenames": "मूल फ़िल्में बनाएं",
+    "Merge tables": "टेबल मिश्रण",
+    "Preview assignments": "पूर्वावलोकन कार्य",
+    "Remove condition": "शर्तों को हटाना",
+    "Remove selected manual rows": "चुने हुए मैनुअल लाइनों को हटा दें",
+    "Save annotated table…": "लिखे गए टेबल को बचाने के लिए...",
+    "Save chart": "चार्ट बचाएं",
+    "Validate and preview": "प्रविष्टि और पूर्वावलोकन"
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Aggregation",
+      "source": "Aggregation",
+      "source_sha256": "749cfaf9af6c41d33a9d565aa0616344a23dddf7d48cafde3af484d1fc54160a",
+      "translation": "समेकन"
+    },
+    {
+      "table": "ui",
+      "key": "Annotate conditions",
+      "source": "Annotate conditions",
+      "source_sha256": "538773c6959c7b3faa4c56aa2a08afff47813434d18932033ef3e5ae25758f09",
+      "translation": "प्रयोग की स्थितियाँ एनोटेट करें"
+    },
+    {
+      "table": "ui",
+      "key": "Child keys",
+      "source": "Child keys",
+      "source_sha256": "742a9fafde02f1bf710c88966a21e45c5f9f02358f15b2035501d6a81f06ea3d",
+      "translation": "अधीनस्थ कुंजियाँ"
+    },
+    {
+      "table": "ui",
+      "key": "Clear manual rows",
+      "source": "Clear manual rows",
+      "source_sha256": "9ab2d650792a9361f45deb853b8c5f60f2f4a4a6090cc437091ba6fd5bb0b03a",
+      "translation": "मैनुअल पंक्ति आवंटन साफ़ करें"
+    },
+    {
+      "table": "ui",
+      "key": "Copy regex",
+      "source": "Copy regex",
+      "source_sha256": "e1712d4bd0c2e55d3b2baf118a7e643acc6b85ae9562fb289a4b9541c5c2b62c",
+      "translation": "Regex कॉपी करें"
+    },
+    {
+      "table": "ui",
+      "key": "Create merged table",
+      "source": "Create merged table",
+      "source_sha256": "011b542e8aa4ef934cc8eb4860a6dfb145be45a180353796bdc15d5d4d979937",
+      "translation": "मर्ज की हुई तालिका बनाएँ"
+    },
+    {
+      "table": "ui",
+      "key": "Customize merging",
+      "source": "Customize merging",
+      "source_sha256": "fecd40d1c6b3b1467257348d4ee8b007d36d927c2f85b5b30239dc013526a1ac",
+      "translation": "मर्ज प्रक्रिया अनुकूलित करें"
+    },
+    {
+      "table": "ui",
+      "key": "Exact values",
+      "source": "Exact values",
+      "source_sha256": "29bdd943d168e1c4c3000a50edbc73359f281c70cb067e795c4481edd3988eb6",
+      "translation": "सटीक मान"
+    },
+    {
+      "table": "ui",
+      "key": "Export table…",
+      "source": "Export table…",
+      "source_sha256": "49f983b685f5f2feaf2080a3934869130c3c7afeceba0472dc5165725f90271b",
+      "translation": "तालिका निर्यात करें…"
+    },
+    {
+      "table": "ui",
+      "key": "Filter source metadata or preview conditions",
+      "source": "Filter source metadata or preview conditions",
+      "source_sha256": "418177badab7ffd82d6357a95ee1feb0133a443a4f1095e7dda87b15903cd2f2",
+      "translation": "स्रोत मेटाडेटा या पूर्वावलोकित स्थिति मान फ़िल्टर करें"
+    },
+    {
+      "table": "ui",
+      "key": "Load chart",
+      "source": "Load chart",
+      "source_sha256": "57f075809c4e9fcf268f2967808bd6566fc0027d91816d595f52f1f0c0137c0c",
+      "translation": "चार्ट लोड करें"
+    },
+    {
+      "table": "ui",
+      "key": "Merge original filenames…",
+      "source": "Merge original filenames…",
+      "source_sha256": "ff4fe363aaf41264399bf5f73b6b24c46ab7208daf1ba2c799dd0316c7d42cc1",
+      "translation": "मूल फ़ाइल नाम जोड़ें…"
+    },
+    {
+      "table": "ui",
+      "key": "Merge original filenames",
+      "source": "Merge original filenames",
+      "source_sha256": "652dc91d148d5c23899608f9b1cc83d7bf8df5c00d010d5246c95440c8b8e894",
+      "translation": "मूल फ़ाइल नाम जोड़ें"
+    },
+    {
+      "table": "ui",
+      "key": "Merge tables",
+      "source": "Merge tables",
+      "source_sha256": "2a4d352c34441e00d035d99dade8f9a672456ebcb1a9e2b943aadc320ed75234",
+      "translation": "तालिकाएँ मर्ज करें"
+    },
+    {
+      "table": "ui",
+      "key": "Preview assignments",
+      "source": "Preview assignments",
+      "source_sha256": "6538e0a531066450e2c69cf12f718ffff6b80885ebf199428f4cc1a928c6cff5",
+      "translation": "मान आवंटन का पूर्वावलोकन करें"
+    },
+    {
+      "table": "ui",
+      "key": "Remove condition",
+      "source": "Remove condition",
+      "source_sha256": "5ac0b06fc9f0d038a09cc4dd62fb7a69d62ee1f1c0d84646ff519d6025d6e766",
+      "translation": "स्थिति हटाएँ"
+    },
+    {
+      "table": "ui",
+      "key": "Remove selected manual rows",
+      "source": "Remove selected manual rows",
+      "source_sha256": "6178a56a82f7cb614681cbbbb76b2ef2eaa6b46b82eae0b9af1eebba03599fc9",
+      "translation": "चुनी हुई मैनुअल पंक्तियाँ हटाएँ"
+    },
+    {
+      "table": "ui",
+      "key": "Save annotated table…",
+      "source": "Save annotated table…",
+      "source_sha256": "2a93d8121bf2812a6c0c918e981a90d297c691e976daefcd5177da8e4cf306d6",
+      "translation": "एनोटेट की हुई तालिका सहेजें…"
+    },
+    {
+      "table": "ui",
+      "key": "Save chart",
+      "source": "Save chart",
+      "source_sha256": "df8c7bbf6bf550bcd3e4f6beca83160086fe922224cba73ae0832ada0bcf7116",
+      "translation": "चार्ट सहेजें"
+    },
+    {
+      "table": "ui",
+      "key": "Validate and preview",
+      "source": "Validate and preview",
+      "source_sha256": "921b2401b795f72bb95fd540e38cfe063447e69ad1d249dc6ab6f4e5048af579",
+      "translation": "सत्यापित करें और पूर्वावलोकन देखें"
+    }
+  ]
+}

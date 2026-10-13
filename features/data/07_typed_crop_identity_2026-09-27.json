@@ -1,0 +1,73 @@
+{
+  "item": 7,
+  "date": "2026-09-27",
+  "baseline_revision": "b5e7c782d5a17228cd12674d779190d80fb143f9",
+  "defect": "Missing typed children previously resolved to unrelated known cell crops.",
+  "source_capture": "/mnt/firecuda2/codex/scratch-docs/t447/stage56/captures/lineage_neutral_20260927b/lineage_acceptance.json",
+  "source_capture_sha256": "3a2090c938064c993f1ec487febe920192f82a313e7750158cdc11f3b901b17e",
+  "database": "/mnt/firecuda2/codex/scratch-docs/t447/stage56/lineage_runs/real-containment-relkz4l9/example_data/plate1/measurements/measurements.db",
+  "database_sha256_before": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "database_sha256_after": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+  "database_readonly": true,
+  "original_function_source_sha256": "1349a63a67cd880edc704830612b6db8499762560c82fa6e174bf45519885888",
+  "requested": [
+    "plate1_r12_c1_f1_cell3",
+    "plate1_r12_c1_f1_nucleus5",
+    "plate1_r12_c1_f1_pathogen1"
+  ],
+  "png_list_identity_columns": [
+    "cell_id"
+  ],
+  "before": {
+    "rows": [
+      [
+        "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png",
+        null
+      ],
+      [
+        "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_1_1_5.png",
+        null
+      ],
+      [
+        "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/uninfected/plate1_L01/cell_png/plate1_L01_1_1_1.png",
+        null
+      ]
+    ],
+    "object_types": [
+      "cell",
+      "cell",
+      "cell"
+    ],
+    "labels": [
+      3,
+      5,
+      1
+    ],
+    "scientifically_valid": false
+  },
+  "after": {
+    "rows": [
+      [
+        "/home/olafsson/.cache/spacr/example_data/plate1/data/single_nucleus/single_pathogen/plate1_L01/cell_png/plate1_L01_1_1_3.png",
+        null
+      ]
+    ],
+    "object_types": [
+      "cell"
+    ],
+    "labels": [
+      3
+    ],
+    "missing": 2,
+    "scientifically_valid": true
+  },
+  "tests": {
+    "command": "pytest -q -p no:cacheprovider -p no:randomly tests/test_active_learning_loop.py tests/qt/test_annotate_active_learning.py --tb=short",
+    "passed": 57,
+    "seconds": 11.86,
+    "log": "/mnt/wd4tb/scratch/spacr-completion/item07-crop-identity/tests.log",
+    "log_sha256": "eafcaba7ecfb4f4d1cd78f69e4cad81a1616650773331b83546bc2d8becbec76"
+  },
+  "scope": "Declared-type-safe crop resolution; genuinely untyped legacy rows remain eligible. No image/data or tutorial changes.",
+  "remaining": "Root owns lesson 56 oracle/narration revision and genuine recapture; item 47 full serial remains unaccepted."
+}

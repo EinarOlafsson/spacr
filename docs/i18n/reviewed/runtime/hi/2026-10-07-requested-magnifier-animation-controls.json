@@ -1,0 +1,83 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Add non-overlapping pixels",
+      "source": "Add non-overlapping pixels",
+      "source_sha256": "6c9981b667a996332d425b97cceb2e206128e02e6ae49e406b7af0720a5f064f",
+      "table": "ui",
+      "translation": "बिना अतिव्यापन वाले पिक्सेल जोड़ें"
+    },
+    {
+      "key": "Dot blinking",
+      "source": "Dot blinking",
+      "source_sha256": "8deec24986be033d2107859e4508cc5fbb7c9fe435e4890aa2af9bfae888e835",
+      "table": "ui",
+      "translation": "बिंदुओं का झिलमिलाना"
+    },
+    {
+      "key": "Fuse with existing object",
+      "source": "Fuse with existing object",
+      "source_sha256": "a3bb018f5bb732d06d6ee3feffb5c7b7f16df480e4868d5ff24de2ddfec8aa88",
+      "table": "ui",
+      "translation": "मौजूदा वस्तु के साथ मिलाएँ"
+    },
+    {
+      "key": "Instantly accept proposed objects",
+      "source": "Instantly accept proposed objects",
+      "source_sha256": "ec59ed29b9b44c2861e1bb122c8e10c2cdcccb9d35d60fe4221ce1292d36ba3c",
+      "table": "ui",
+      "translation": "प्रस्तावित वस्तुओं को तुरंत स्वीकार करें"
+    },
+    {
+      "key": "Magnification settings",
+      "source": "Magnification settings",
+      "source_sha256": "b39f62def0b671946ce5bc58ac1f490869b55ecb0a168304609b82a5ed260ef7",
+      "table": "ui",
+      "translation": "आवर्धन सेटिंग्स"
+    },
+    {
+      "key": "Popup wave frequency",
+      "source": "Popup wave frequency",
+      "source_sha256": "6310e25417a737f97aaacf705235a0f9de9aa2b65125b1b65c32af342617fb2a",
+      "table": "ui",
+      "translation": "पॉपअप तरंग आवृत्ति"
+    },
+    {
+      "key": "Replace overlapping object",
+      "source": "Replace overlapping object",
+      "source_sha256": "f541733e1df5d83c78d40eceb7cfc1c33165340f13ce3f8c7b164b966f59936a",
+      "table": "ui",
+      "translation": "अतिव्यापित वस्तु बदलें"
+    },
+    {
+      "key": "Secondary mode preserves primary IDs; Fuse is unavailable.",
+      "source": "Secondary mode preserves primary IDs; Fuse is unavailable.",
+      "source_sha256": "0b17e55da83a5832b84ed5707c520d902397538f2eea5b353c369037ea904de4",
+      "table": "ui",
+      "translation": "द्वितीयक मोड प्राथमिक ID सुरक्षित रखता है; विलय उपलब्ध नहीं है।"
+    },
+    {
+      "key": "Settings backdrop darkness",
+      "source": "Settings backdrop darkness",
+      "source_sha256": "e2315113aaed0c0c08e8417f5174325c1fd726309c9bd87285e99d76060b8c65",
+      "table": "ui",
+      "translation": "सेटिंग्स पृष्ठभूमि का अँधेरापन"
+    },
+    {
+      "key": "Skip overlapping objects",
+      "source": "Skip overlapping objects",
+      "source_sha256": "9aa480dcc858f8c9d81faa0bc22b4a3f044c8d90e450af15154445358de54c3b",
+      "table": "ui",
+      "translation": "अतिव्यापित वस्तुएँ छोड़ें"
+    },
+    {
+      "key": "waves/min",
+      "source": "waves/min",
+      "source_sha256": "a3c2884f024789807b897725cd761a0802ba069947585d2ee79fc193cf8cd9f7",
+      "table": "ui",
+      "translation": "तरंगें/मिनट"
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,27 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across {used} of {plates} plates, I² {spread}",
+      "source": "{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across {used} of {plates} plates, I² {spread}",
+      "source_sha256": "58b33b80a37045d408cbe9a9c3b27b0dc64526e95251582fa93f9ba182748451",
+      "table": "ui",
+      "translation": "{name}: समेकित EC50 {ec50}{unit} ({low}–{high}), इस्तेमाल की गई {used} प्लेटें (कुल {plates} में से), I² {spread}"
+    },
+    {
+      "key": "{name}: selectivity index {index} ({low}–{high}), host EC50 {host} over response EC50 {response}",
+      "source": "{name}: selectivity index {index} ({low}–{high}), host EC50 {host} over response EC50 {response}",
+      "source_sha256": "0fd035f3b3700f93f81842346ddb2417a0dcfb6dd7ef563fd915ae56d83eecb9",
+      "table": "ui",
+      "translation": "{name}: चयनात्मकता सूचकांक {index} ({low}–{high}), पोषी की EC50 {host} को प्रतिक्रिया की EC50 {response} से भाग देकर"
+    },
+    {
+      "key": "{name}: {model} excess over {cells} combination wells, max {max} at {dose_a} + {dose_b}, min {min}; {synergistic} synergistic, {antagonistic} antagonistic",
+      "source": "{name}: {model} excess over {cells} combination wells, max {max} at {dose_a} + {dose_b}, min {min}; {synergistic} synergistic, {antagonistic} antagonistic",
+      "source_sha256": "5cde0d6192e9673bfd65f0ab5da40e7747791f23d6ba792584a22ca200d70884",
+      "table": "ui",
+      "translation": "{name}: {model} के सापेक्ष अतिरिक्त प्रभाव, संयोजन-उपचार वाले {cells} वेल में, अधिकतम {max} ({dose_a} + {dose_b} पर), न्यूनतम {min}; {synergistic} सहक्रियात्मक, {antagonistic} प्रतिपक्षी"
+    }
+  ],
+  "schema": 1
+}

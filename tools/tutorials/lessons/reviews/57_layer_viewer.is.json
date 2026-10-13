@@ -1,0 +1,43 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "e1cd80feff736ad458db09e0b64658c1b5695d9c0f6a89fb56421b0caf278e52",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Layer Viewer: skoðaðu myndir og merkjayfirlagnir",
+  "description": "Hlaðu inn samsvarandi mynd og grímu, stilltu yfirlögnina og þysjaðu inn til að skoða mörk hluta.",
+  "objectives": [
+    "Opna mynd og samsvarandi grímu hennar.",
+    "Stilla sýnileika, ógegnsæi, blöndun og röð laga.",
+    "Skoða merki með þysjun og hliðrun."
+  ],
+  "prerequisite": "Sæktu og dragðu út Layer_Viewer_real_image_mask.zip. Notaðu meðfylgjandi styrkleikamynd og samsvarandi grímu með heiltölumerkjum. Engin eðlisfræðileg kvörðun díla er tiltæk fyrir þetta dæmi.",
+  "scenes": [
+    "Frá Home opnarðu QC og svo Layer Viewer. Sæktu og dragðu út tengda mynd- og grímudæmið. Skoðarinn hefur eigin skráastýringar fyrir þessi tvö inntök.",
+    "Smelltu á + Image og opnaðu fov01_C1.tif. Gráskalamyndin birtist á teikniflötinum með birtuskilateygju eftir hundraðshlutum til birtingar.",
+    "Smelltu á Fit til að fylla myndspjaldið. Fit getur teygt ferhyrnda mynd í breiðu spjaldi; stilltu skilrúmið svo spjaldið verði nokkurn veginn ferhyrnt þegar þú skoðar lögun.",
+    "Smelltu á + Mask og opnaðu fov01_cell_mask.tif. Hlutirnir 44 sem hafa merki birtast yfir myndinni. 0 er bakgrunnur og helst gegnsætt.",
+    "Veldu mask í lagalistanum áður en þú breytir stýringum þess. Kveiktu og slökktu á gátreitnum til að bera mörkin saman við myndina undir.",
+    "Settu Opacity fyrir mask á 0 til að fela litina en halda laginu inni. Athugaðu valda línu áður en þú stillir annað lag.",
+    "Settu Opacity á 100 % til að skoða lögun merkjanna. Litirnir hylja myndina innan hvers merkts hlutar.",
+    "Settu Opacity aftur á 50 % og veldu translucent-blöndun til að sjá áferð myndarinnar í gegnum grímuna. Berðu mörk hluta saman við undirliggjandi merki.",
+    "Veldu additive-blöndun til að leggja liti grímunnar við myndina. Björt svæði geta mettast í þessari birtingu, svo farðu aftur í translucent þegar þú þarft skýrari samanburð.",
+    "Prófaðu multiply- og minimum-blöndun til að bera saman dekkri yfirlagnir. Þessir valkostir breyta birtri samsetningu en upprunalegu styrkgildin eru áfram í upprunamyndinni.",
+    "Veldu opaque og hreyfðu Opacity-sleðann til að bera útlitið saman. Með þessari heiltölugrímu lítur opaque við 50 % eins út og translucent við 50 %. Settu translucent aftur á til að halda áfram.",
+    "Veldu image og veldu cyan í litakortavalinu. Styrkleikamyndin skiptir um lit en gríman heldur merkjalitum sínum. Veldu gray til að fá gráskalasýnina aftur.",
+    "Veldu mask og ýttu á örina niður til að færa hana aftur fyrir myndina. Efra lagið birtist fremst. Færðu grímuna aftur upp til að skoða merki hennar.",
+    "Smelltu á sýnilegan merktan hlut til að lesa staðsetningu hans og merkjanúmer í stöðulínunni. Notaðu lýsigögn verkefnisins þegar þú þarft að finna sjónsvið, plötu eða brunn hlutarins.",
+    "Snúðu músarhjólinu yfir hlut til að þysja kringum bendilinn. Farðu nær þar til auðvelt er að skoða mörk hans.",
+    "Haltu Shift inni og dragðu með vinstri músarhnappi til að hliðra. Þú getur líka dregið með miðhnappinum. Færðu þig um sjónsviðið án þess að breyta þysjun.",
+    "Smelltu á Fit til að fara aftur í allt sjónsviðið. Breyttu lögun spjaldsins ef aðlagaða myndin virðist teygð.",
+    "+ Points og + Shapes bæta við tómum hjálparlögum. Til að teikna eða breyta aðgreiningargrímum heldurðu áfram í Make Masks; þessi skoðari hefur engar teiknistýringar fyrir þessi tómu lög.",
+    "Veldu lag og notaðu Remove til að taka það úr sýninni. Upprunalega skráin er áfram á diskinum, tilbúin til að hlaðast inn aftur.",
+    "Niðurstaðan er yfirfarin lagasýn. Fyrir útflutta samsetningu notarðu stack_from_paths og LayerStack.render_uint8 úr Python. Haltu áfram í Make Masks til að vista breytingar á grímum eða Measure fyrir mælingar á hlutum."
+  ]
+}

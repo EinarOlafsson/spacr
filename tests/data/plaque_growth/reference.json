@@ -1,0 +1,43 @@
+{
+  "id": "kelsen2023_rh_hff_vehicle_day7_v1",
+  "attribution": "Kelsen et al. (2023), PLOS Biology 21(5): e3002110, S20 Data. CC BY 4.0.",
+  "url": "https://doi.org/10.1371/journal.pbio.3002110",
+  "data_url": "https://journals.plos.org/plosbiology/article/file?id=10.1371%2Fjournal.pbio.3002110.s036&type=supplementary",
+  "sha256": "045e59bf3f8f15def1008ab8037a7623cfc6dfdbdd02309527944c8d6d67d36e",
+  "selection": "0uM KNX-002 sheet, WT columns B-D, RH WT experiment dates; mutants and treated wells excluded",
+  "physical_conversion": "Median N13/D13, O13/E13, P13/F13 of Pooled_Plaque#_Areapixels_mm^2 sheet",
+  "area_mm2_per_pixel": 0.000233,
+  "reference_hours": 168,
+  "reference_diameter_um": 893.8178699548309,
+  "selected_fraction": 0.25,
+  "experimental": true,
+  "temporal_validation": false,
+  "assumption": "Equivalent diameter grows linearly from zero with elapsed time; no fitted lag. Growth can differ by strain, host, treatment and assay.",
+  "experiments": [
+    {
+      "experiment": "20220812",
+      "count": 268,
+      "selected": 67,
+      "diameter_um": 609.9325181196764,
+      "held_out_estimated_hours": 113.66412673879266,
+      "held_out_absolute_error_hours": 54.33587326120734
+    },
+    {
+      "experiment": "20220815",
+      "count": 118,
+      "selected": 30,
+      "diameter_um": 909.1900971865539,
+      "held_out_estimated_hours": 203.15065257994524,
+      "held_out_absolute_error_hours": 35.150652579945245
+    },
+    {
+      "experiment": "20220818",
+      "count": 142,
+      "selected": 36,
+      "diameter_um": 893.8178699548309,
+      "held_out_estimated_hours": 197.69490709891318,
+      "held_out_absolute_error_hours": 29.694907098913177
+    }
+  ],
+  "endpoint_mae_hours": 39.727144313355254
+}

@@ -1,0 +1,252 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted linguistic and implementation-context review of workflow descriptions and external inputs, including compartment assays, independent validation, object identities, sequencing reads and optional branches. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment.",
+      "source": "Apply the trained checkpoint to independent images with compatible channels. Check segmentation quality before processing the full experiment.",
+      "source_sha256": "802ba9ffda607999e9d298d53739207ad72b1051d34aa51533bdf416ba579c02",
+      "translation": "Aplique o ponto de controle treinado a imagens independentes com canais compatíveis. Verifique a qualidade da segmentação antes de processar todo o experimento."
+    },
+    {
+      "table": "ui",
+      "key": "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.",
+      "source": "Bring an existing experiment into spaCR using the route matching its contents. Image-only data need segmentation. Matching images and integer masks can be formatted into a project for measurement. Existing feature tables require explicit column and object mappings and may already be ready for exploration. Check identities, channels and crop paths before following a downstream branch.",
+      "source_sha256": "4928f37e74d3dab33e3cfae0014ecc84868ccf39673499874aff083bb9137727",
+      "translation": "Traga um experimento existente para o spaCR pela rota adequada ao seu conteúdo. Dados que contêm apenas imagens precisam de segmentação. Imagens e máscaras de inteiros correspondentes podem ser formatadas como um projeto para medição. Tabelas de características existentes exigem mapeamentos explícitos de colunas e objetos e talvez já estejam prontas para exploração. Verifique identidades, canais e caminhos dos recortes antes de seguir uma ramificação posterior."
+    },
+    {
+      "table": "ui",
+      "key": "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.",
+      "source": "Build a segmentation model from curated image and integer-mask pairs. Correct representative images in Make Masks, train in Cellpose Workbench, and select the resulting checkpoint in Mask. Evaluate independent fields before processing the full experiment; training images are not a held-out accuracy test.",
+      "source_sha256": "45fa5a8d3e312352925cdf4834dda7431d823e94750827767b19abbb45c36c3f",
+      "translation": "Construa um modelo de segmentação a partir de pares revisados de imagens e máscaras de inteiros. Corrija imagens representativas em Make Masks, treine em Cellpose Workbench e selecione o ponto de controle resultante em Mask. Avalie campos independentes antes de processar todo o experimento; imagens de treinamento não constituem um teste de acurácia em dados reservados."
+    },
+    {
+      "table": "ui",
+      "key": "Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow.",
+      "source": "Choose plaque images for detection or existing plaque masks for analysis. Supply image calibration when physical plaque areas are required. This branch does not require the cell-compartment Measure workflow.",
+      "source_sha256": "0956005ae8967da23d7478697ce0c6881bf54e7bdfc67bb7f831b894c5d5dbd1",
+      "translation": "Escolha imagens de placas para detecção ou máscaras de placas existentes para análise. Forneça a calibração das imagens quando precisar das áreas das placas em unidades físicas. Esta ramificação não exige o fluxo de Measure para compartimentos celulares."
+    },
+    {
+      "table": "ui",
+      "key": "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.",
+      "source": "Choose the assay that matches the experiment. Recruitment, invasion and replication use measured objects with their required compartment identities and staining channels. Recruitment compares compartment intensities; invasion distinguishes internal and external parasites using differential staining; replication counts parasites within the appropriate vacuoles. Plaque Assay is an independent branch using plaque images or masks, with calibration for physical areas. The diagram groups these assays without implying that one assay must run before another.",
+      "source_sha256": "511950227e5da9319c46cd58bb646ee26467f6c8453f93f8c83885094975e2f3",
+      "translation": "Escolha o ensaio adequado ao experimento. Recrutamento, invasão e replicação usam objetos medidos com as identidades de compartimentos e os canais de coloração necessários. O recrutamento compara intensidades dos compartimentos; a invasão distingue parasitas internos e externos por coloração diferencial; a replicação conta parasitas nos vacúolos correspondentes. Plaque Assay é uma ramificação independente que usa imagens ou máscaras de placas, com calibração para áreas em unidades físicas. O diagrama agrupa esses ensaios sem indicar que um precise ser executado antes de outro."
+    },
+    {
+      "table": "ui",
+      "key": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "source": "Combine image-derived phenotypes with guide abundance to rank perturbations. Segment and measure images, create reviewed labels with Annotate, Gate Editor or Image UMAP, and train and validate a classifier. Map the matching sequencing reads on an independent branch. Join compatible phenotype scores and guide counts by experimental identity for Regression. Annotation and segmentation routes are alternatives, not requirements to run every branch.",
+      "source_sha256": "a26c6872399beab6e673eff697dced61cce1045e36b8e40aa1a38cf173802942",
+      "translation": "Combine fenótipos derivados de imagens com a abundância de guias para ordenar as perturbações. Segmente e meça imagens, crie rótulos revisados com Annotate, Gate Editor ou Image UMAP e treine e valide um classificador. Mapeie as leituras de sequenciamento correspondentes em uma ramificação independente. Una pontuações fenotípicas e contagens de guias compatíveis pela identidade experimental para Regression. As rotas de anotação e segmentação são alternativas; não é necessário executar todas as ramificações."
+    },
+    {
+      "table": "ui",
+      "key": "Compatible phenotype responses",
+      "source": "Compatible phenotype responses",
+      "source_sha256": "7a4000ab59a144008eadc652d92c85f00a5fe814dbc2250f5e3c47fc83efa421",
+      "translation": "Respostas fenotípicas compatíveis"
+    },
+    {
+      "table": "ui",
+      "key": "Conditions, controls and design assumptions",
+      "source": "Conditions, controls and design assumptions",
+      "source_sha256": "00873fecd214df3510e39dfc5f1fb689d57f1de9840879f5a6efdc44187d8a2f",
+      "translation": "Condições, controles e pressupostos de planejamento"
+    },
+    {
+      "table": "ui",
+      "key": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "source": "Decode an optical pooled screen from the original sequencing cycles and corresponding phenotype images. Enter OPS through Mask, inspect cycle/site alignment and barcode decoding, then join decoded object identities with phenotype responses and aggregate compatible inputs for Regression. Align & Stitch is optional; a stitched image alone cannot replace sequencing cycles.",
+      "source_sha256": "7764cf9bfa52bff9e8bcefe7f5eb268df6eee712323eb85801f9af6771537bb3",
+      "translation": "Decodifique uma triagem óptica agrupada a partir dos ciclos de sequenciamento originais e das imagens fenotípicas correspondentes. Abra OPS por meio de Mask, inspecione o alinhamento de ciclos e posições e a decodificação dos códigos de barras, depois una as identidades de objetos decodificadas às respostas fenotípicas e agregue entradas compatíveis para Regression. Align & Stitch é opcional; uma imagem composta isolada não pode substituir os ciclos de sequenciamento."
+    },
+    {
+      "table": "ui",
+      "key": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+      "source": "Design conditions, controls, replicates and plate assignments before acquisition. Use Power / Design to explore sampling needs under explicit effect-size and variability assumptions; pilot measurements can inform these assumptions. The design handoff is a planning dependency, not an automatically executed experiment.",
+      "source_sha256": "f4df2fba7df0893839a5641cf1a4cb59d69357bd65990f825fd57a5df3c6edeb",
+      "translation": "Planeje condições, controles, réplicas e atribuições de placas antes da aquisição. Use Power / Design para explorar as necessidades de amostragem sob pressupostos explícitos de tamanho de efeito e variabilidade; medições piloto podem fundamentar esses pressupostos. A transferência do desenho experimental é uma dependência de planejamento, não um experimento executado automaticamente."
+    },
+    {
+      "table": "ui",
+      "key": "Effect sizes, variability and optional pilot data",
+      "source": "Effect sizes, variability and optional pilot data",
+      "source_sha256": "5e90417ef82a1083666a45ca606120d981ef59c3487f8c64736dbe4dc854bd42",
+      "translation": "Tamanhos de efeito, variabilidade e dados piloto opcionais"
+    },
+    {
+      "table": "ui",
+      "key": "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required.",
+      "source": "Enter experimental conditions, controls, replicate requirements and plate constraints. These inputs may be entered directly; a pre-existing data file is not required.",
+      "source_sha256": "2676abc41aa7319569a456da722a6b6db0d87af7d411bf3b92d6a5f76c9c35a2",
+      "translation": "Insira as condições experimentais, os controles, os requisitos de réplicas e as restrições das placas. Essas informações podem ser inseridas diretamente; não é necessário um arquivo de dados prévio."
+    },
+    {
+      "table": "ui",
+      "key": "Existing masks and matching images",
+      "source": "Existing masks and matching images",
+      "source_sha256": "3dad69df12ebbba0f7ed2b7a5a46ba41b7d0fff63f103ce33a16dd9a8b5bcc93",
+      "translation": "Máscaras existentes e imagens correspondentes"
+    },
+    {
+      "table": "ui",
+      "key": "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+      "source": "Explore a measured, segmented experiment without initial phenotype labels. Compare measured features or encoded image features in Image UMAP, inspect representative crops and create reproducible selections in Gate Editor. Review candidate labels in Annotate before supervised training. A cluster or gate is a hypothesis about a phenotype, not its validation.",
+      "source_sha256": "cc908905b3f3400f45db5fdd1e459f7fa349539ff4b31a58996797de310a863e",
+      "translation": "Explore um experimento medido e segmentado sem rótulos fenotípicos iniciais. Compare características medidas ou características de imagens codificadas em Image UMAP, inspecione recortes representativos e crie seleções reproduzíveis em Gate Editor. Revise os rótulos candidatos em Annotate antes do treinamento supervisionado. Um cluster ou uma gate é uma hipótese sobre um fenótipo, não sua validação."
+    },
+    {
+      "table": "ui",
+      "key": "External measurements and object mappings",
+      "source": "External measurements and object mappings",
+      "source_sha256": "f9dfdd4933e05aac17211f81d7461b9ad036b6903a3d6688b2d0253e3e89583e",
+      "translation": "Medições externas e mapeamentos de objetos"
+    },
+    {
+      "table": "ui",
+      "key": "FASTQ: R1/R2, R1 only or R2 only",
+      "source": "FASTQ: R1/R2, R1 only or R2 only",
+      "source_sha256": "4d600c1e56cbf720f4400b574809974f82ecdad914510d39fe18e421efe7eb2a",
+      "translation": "FASTQ: R1/R2, somente R1 ou somente R2"
+    },
+    {
+      "table": "ui",
+      "key": "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.",
+      "source": "Follow segmented objects through an ordered image sequence, then quantify their measurements and motion. Check frame order, frame interval, object identity and pixel calibration. Import existing masks with their source images when available, and ensure that the tracked project has valid identities before interpreting motility.",
+      "source_sha256": "2108f79c2014d0b16f568e21abf723d6fb232aec6e5b9f21dd5db10e21cd02a8",
+      "translation": "Acompanhe os objetos segmentados em uma sequência ordenada de imagens e quantifique suas medições e seu movimento. Verifique a ordem e o intervalo dos quadros, a identidade dos objetos e a calibração de pixels. Importe máscaras existentes com suas imagens de origem quando disponíveis e confirme que o projeto com rastreamento tem identidades válidas antes de interpretar a motilidade."
+    },
+    {
+      "table": "ui",
+      "key": "For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.",
+      "source": "For a plaque experiment, open Plaque Assay from Toxoplasma and supply plaque images or existing plaque masks. Inspect detection and calibration before comparing plaque counts and areas.",
+      "source_sha256": "d9c6fd39a73c4b07446468319ba19ced1feb73d9b02a54fa957f4ff83f08ad36",
+      "translation": "Para um experimento de placas, abra Plaque Assay a partir de Toxoplasma e forneça imagens de placas ou máscaras de placas existentes. Inspecione a detecção e a calibração antes de comparar as contagens e áreas das placas."
+    },
+    {
+      "table": "ui",
+      "key": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+      "source": "If segmentation already exists, import the matching images and external masks into a spaCR project and inspect the resulting object identities. Skip segmentation and proceed to Measure when its required arrays are present.",
+      "source_sha256": "9a4cef246a936419c0da56425ac2ad0847dc493c213c8531d9c1f176898a9087",
+      "translation": "Se a segmentação já existir, importe as imagens correspondentes e as máscaras externas para um projeto spaCR e inspecione as identidades de objetos resultantes. Pule a segmentação e prossiga para Measure quando os arrays necessários estiverem presentes."
+    },
+    {
+      "table": "ui",
+      "key": "Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features.",
+      "source": "Import existing feature tables with explicit object, field and column mappings. Provide matching crop paths when image exploration is needed. Avoid remeasuring rows already represented by imported features.",
+      "source_sha256": "7f13b3165916d853f3740d632ff70566b65986f208853c64233e88bab2019d11",
+      "translation": "Importe tabelas de características existentes com mapeamentos explícitos de objetos, campos e colunas. Forneça os caminhos dos recortes correspondentes quando precisar explorar as imagens. Evite medir novamente linhas já representadas pelas características importadas."
+    },
+    {
+      "table": "ui",
+      "key": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring.",
+      "source": "Import source images together with matching integer object-label masks. Preserve object classes and field identities. This is an alternative to generating new masks; inspect the imported project before measuring.",
+      "source_sha256": "0a723bc82978d9583ae3d8b0e882d1f16e1cd3e914922203e2630f512afe5e11",
+      "translation": "Importe imagens de origem com as máscaras correspondentes de rótulos inteiros de objetos. Preserve as classes de objetos e as identidades dos campos. Esta é uma alternativa à geração de novas máscaras; inspecione o projeto importado antes de medir."
+    },
+    {
+      "table": "ui",
+      "key": "Independent microscopy images",
+      "source": "Independent microscopy images",
+      "source_sha256": "f36d096d8093277c3b61a5a91d44a126a8c0dc7819cfa868641a7c8cd74381a3",
+      "translation": "Imagens de microscopia independentes"
+    },
+    {
+      "table": "ui",
+      "key": "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff.",
+      "source": "Join decoded object identities to phenotype responses and aggregate them to the analysis unit required by Regression. Verify object/well identity and guide assignment; OPS tables are not a direct FASTQ count CSV handoff.",
+      "source_sha256": "86c1039c992cd763b3e9c05ddd64c49a4284324485e2cdbc095d4d94c4c0d448",
+      "translation": "Una as identidades de objetos decodificadas às respostas fenotípicas e agregue-as à unidade de análise exigida por Regression. Verifique a identidade de objeto/poço e a atribuição de guias; as tabelas OPS não podem ser transferidas diretamente como um CSV de contagens FASTQ."
+    },
+    {
+      "table": "ui",
+      "key": "Microscopy images",
+      "source": "Microscopy images",
+      "source_sha256": "720acb68cbea4e37df825eb0b09022d3b081578e59a7ae908abd92125e2328e8",
+      "translation": "Imagens de microscopia"
+    },
+    {
+      "table": "ui",
+      "key": "Microscopy images and optional starting masks",
+      "source": "Microscopy images and optional starting masks",
+      "source_sha256": "70d225a5585b62af67cb548576ede075cc3e265b60ac63c823ed574d63cd07d2",
+      "translation": "Imagens de microscopia e máscaras iniciais opcionais"
+    },
+    {
+      "table": "ui",
+      "key": "Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set.",
+      "source": "Open representative images and optionally import existing integer masks for correction. Save matching curated pairs; keep separate validation images outside the training set.",
+      "source_sha256": "06983b26d5b18d98cc45b06b9a9ff6d0a58982901b840de61cbc834c1e13a669",
+      "translation": "Abra imagens representativas e importe opcionalmente máscaras de inteiros existentes para correção. Salve os pares correspondentes revisados; mantenha imagens de validação separadas fora do conjunto de treinamento."
+    },
+    {
+      "table": "ui",
+      "key": "Plaque images or existing plaque masks",
+      "source": "Plaque images or existing plaque masks",
+      "source_sha256": "36c64631b2b74b1cd417f792c616926bfc582a5e40d947695f0113595ed02a2e",
+      "translation": "Imagens de placas ou máscaras de placas existentes"
+    },
+    {
+      "table": "ui",
+      "key": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+      "source": "Quantify an imaging experiment without sequencing. Start with microscopy images or import existing masks with their source images, measure the objects, then explore embeddings, define gated populations or build figures. These downstream branches answer different questions and can be used independently.",
+      "source_sha256": "5298e47838850398f88807a65db40892382afdc2ba42a5fe819a601356506605",
+      "translation": "Quantifique um experimento de imagem sem sequenciamento. Comece com imagens de microscopia ou importe máscaras existentes com suas imagens de origem, meça os objetos e depois explore representações, defina populações por gates ou crie figuras. Essas ramificações posteriores respondem a perguntas diferentes e podem ser usadas de forma independente."
+    },
+    {
+      "table": "ui",
+      "key": "Segmented image project",
+      "source": "Segmented image project",
+      "source_sha256": "c5857f398ec997e05f2f73207f56ada10aae1be9e4cb5d009ec23ffe3bdfa618",
+      "translation": "Projeto de imagens segmentadas"
+    },
+    {
+      "table": "ui",
+      "key": "Sequencing cycles and phenotype images",
+      "source": "Sequencing cycles and phenotype images",
+      "source_sha256": "2d5f50bbe22ad5c8b2b4c5d2f1e2d9cb64f0d9083ad4767be90a1fd6ebf187ba",
+      "translation": "Ciclos de sequenciamento e imagens fenotípicas"
+    },
+    {
+      "table": "ui",
+      "key": "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort.",
+      "source": "Supply explicit assumptions for effect size and variability; optionally use compatible pilot measurements. Review how changing assumptions affects the required sampling effort.",
+      "source_sha256": "96e425a0b17cea2bdbd087b38d1f998f9995c8e7bbf66e8d53d2f2d52df9ad54",
+      "translation": "Forneça pressupostos explícitos sobre o tamanho de efeito e a variabilidade; use opcionalmente medições piloto compatíveis. Revise como mudanças nos pressupostos afetam o esforço de amostragem necessário."
+    },
+    {
+      "table": "ui",
+      "key": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation.",
+      "source": "Supply gzipped FASTQ files and the barcode reference CSVs. Use paired mode for R1/R2. For single-end reads, choose single mode and set single_direction to R1 or R2 to match the files and extraction orientation.",
+      "source_sha256": "3dbf314fc68ed3a42868c635036e6241faafa718d2918c9743e50dc9f34b9aea",
+      "translation": "Forneça arquivos FASTQ comprimidos com gzip e os CSV de referência dos códigos de barras. Use o modo pareado para R1/R2. Para leituras de uma só extremidade, escolha o modo simples e defina single_direction como R1 ou R2 de acordo com os arquivos e a orientação de extração."
+    },
+    {
+      "table": "ui",
+      "key": "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding.",
+      "source": "Supply original cycle/site images, channel assignments and the corresponding phenotype alignment. Preserve cycle and site identities; mosaic output alone is insufficient for decoding.",
+      "source_sha256": "bf08e3919034b30697c5922c5e84d75e3d08be3a58453f27c906d31409e0851f",
+      "translation": "Forneça as imagens originais dos ciclos e posições, as atribuições de canais e o alinhamento fenotípico correspondente. Preserve as identidades dos ciclos e posições; a saída em mosaico isolada é insuficiente para a decodificação."
+    },
+    {
+      "table": "ui",
+      "key": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment.",
+      "source": "Supply the original microscopy images with channel identities and field naming. For a time series, preserve frame order and timing. Choose segmentation settings appropriate for the objects in this experiment.",
+      "source_sha256": "dcb49c536bbed51d119b5ca8bd41e37913e10de8806560e4cbd6d1e428bb01a9",
+      "translation": "Forneça as imagens originais de microscopia com identidades dos canais e nomes dos campos. Para uma série temporal, preserve a ordem dos quadros e as informações temporais. Escolha configurações de segmentação adequadas aos objetos deste experimento."
+    },
+    {
+      "table": "ui",
+      "key": "Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.",
+      "source": "Use merged image arrays and matching object-label planes from Mask or Import. Check channel roles, object identities and crop settings before measuring.",
+      "source_sha256": "5509c5c687e14fe50ca5548f8b03361cac9b8d17399908919eb7566f4580414d",
+      "translation": "Use arrays de imagens mescladas e os planos correspondentes de rótulos de objetos de Mask ou Import. Verifique os papéis dos canais, as identidades dos objetos e as configurações dos recortes antes de medir."
+    }
+  ]
+}

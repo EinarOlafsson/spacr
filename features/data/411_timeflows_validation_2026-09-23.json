@@ -1,0 +1,589 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "base_commit": "392deacab8b673e979070c0775c9d5be2be37565",
+  "scope": "Document supplied-mask held-out validation, controls, exact input separation and CTC mask selection; synchronize the English API manifest, nine localized catalogs and Help index.",
+  "catalogs": {
+    "public_api_count": 11418,
+    "prior_surface_by_subtraction": 11409,
+    "source_inventory": {
+      "schema": 1,
+      "source_commit": "392deacab8b673e979070c0775c9d5be2be37565",
+      "api_before": 11409,
+      "api_after": 11418,
+      "api_added": [
+        "spacr.timeflows_model.main.record_validation",
+        "spacr.timeflows_model.train_timeflows.report_validation",
+        "spacr.timeflows_validation",
+        "spacr.timeflows_validation.check_pair_holdout",
+        "spacr.timeflows_validation.score_pair",
+        "spacr.timeflows_validation.scramble",
+        "spacr.timeflows_validation.summarise",
+        "spacr.timeflows_validation.temporal_assignment_policy",
+        "spacr.timeflows_validation.validate_timeflows"
+      ],
+      "api_removed": [],
+      "api_changed": [
+        "spacr.timeflows_model.ctc_pairs",
+        "spacr.timeflows_model.train_timeflows"
+      ],
+      "ui_before": 5017,
+      "ui_after": 5017,
+      "ui_added": [],
+      "ui_removed": [],
+      "full_catalog_acceptance": false
+    },
+    "nested_helpers": 12,
+    "languages": [
+      {
+        "language": "sv",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "de",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "es",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "zh_CN",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "pt",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "hi",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "ko",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "is",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      },
+      {
+        "language": "fr",
+        "symbols": 11,
+        "source_bound_blocks": 62,
+        "full_api_and_runtime_review_loaders": true
+      }
+    ],
+    "preserved_retired_records": 54,
+    "runtime_ast_unchanged": true,
+    "english_manifest_current": true,
+    "full_catalog_acceptance": false,
+    "native_speaker_signoff": false
+  },
+  "new_translation_blocks": 369,
+  "source_bound_review_records": 558,
+  "callable_delta": {
+    "added": [
+      "spacr.timeflows_validation.check_pair_holdout",
+      "spacr.timeflows_validation.score_pair",
+      "spacr.timeflows_validation.scramble",
+      "spacr.timeflows_validation.summarise",
+      "spacr.timeflows_validation.temporal_assignment_policy",
+      "spacr.timeflows_validation.validate_timeflows"
+    ],
+    "changed": {
+      "spacr.timeflows_model.ctc_pairs": {
+        "before": "spacr.timeflows_model.ctc_pairs\u0000function\u0000autoapi\u0000max_pairs,movie,sequence\u0000movie\u0000max_pairs,movie,sequence\u00000\u00001\u00000\u00000",
+        "after": "spacr.timeflows_model.ctc_pairs\u0000function\u0000autoapi\u0000max_pairs,movie,segmentation,sequence\u0000movie\u0000max_pairs,movie,segmentation,sequence\u00000\u00001\u00000\u00000"
+      },
+      "spacr.timeflows_model.train_timeflows": {
+        "before": "spacr.timeflows_model.train_timeflows\u0000function\u0000autoapi\u0000device,full_steps,head_steps,log,lr_full,lr_head,net,pairs,seed,weights\u0000net,pairs\u0000device,full_steps,head_steps,log,lr_full,lr_head,net,pairs,seed,weights\u00000\u00001\u00000\u00000",
+        "after": "spacr.timeflows_model.train_timeflows\u0000function\u0000autoapi\u0000device,full_steps,head_steps,log,lr_full,lr_head,net,on_validation,pairs,seed,validation_every,validation_pairs,weights\u0000net,pairs\u0000device,full_steps,head_steps,log,lr_full,lr_head,net,on_validation,pairs,seed,validation_every,validation_pairs,weights\u00000\u00001\u00000\u00000"
+      }
+    },
+    "before": {
+      "callables": 9441,
+      "categories": {
+        "function": 4192,
+        "dataclass_constructor": 503,
+        "constructor": 436,
+        "method": 4086,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9436,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9448,
+      "variant_counts": {
+        "1": 9434,
+        "2": 7
+      },
+      "parameters": 18734,
+      "required_parameters": 9648,
+      "digest": "921b52b3342abdf0422ebcc39dd87b2ededf0af8627df533fbe128c6e04d3a57"
+    },
+    "after": {
+      "callables": 9447,
+      "categories": {
+        "function": 4198,
+        "dataclass_constructor": 503,
+        "constructor": 436,
+        "method": 4086,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9442,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9454,
+      "variant_counts": {
+        "1": 9440,
+        "2": 7
+      },
+      "parameters": 18753,
+      "required_parameters": 9658,
+      "digest": "1fcbb23de376ec58ea74dce19c9635c307d9a3c330a40948443ac09cff654bc5"
+    },
+    "added_rows": {
+      "spacr.timeflows_validation.check_pair_holdout": "spacr.timeflows_validation.check_pair_holdout\u0000function\u0000autoapi\u0000training_pairs,validation_pairs\u0000training_pairs,validation_pairs\u0000training_pairs,validation_pairs\u00000\u00001\u00000\u00000",
+      "spacr.timeflows_validation.score_pair": "spacr.timeflows_validation.score_pair\u0000function\u0000autoapi\u0000labels_t,labels_t1,predictions,seed,unknown_successors\u0000labels_t,labels_t1,predictions\u0000labels_t,labels_t1,predictions,seed,unknown_successors\u00000\u00001\u00000\u00000",
+      "spacr.timeflows_validation.scramble": "spacr.timeflows_validation.scramble\u0000function\u0000autoapi\u0000labels,seed\u0000labels,seed\u0000labels,seed\u00000\u00001\u00000\u00000",
+      "spacr.timeflows_validation.summarise": "spacr.timeflows_validation.summarise\u0000function\u0000autoapi\u0000rows\u0000rows\u0000rows\u00000\u00001\u00000\u00000",
+      "spacr.timeflows_validation.temporal_assignment_policy": "spacr.timeflows_validation.temporal_assignment_policy\u0000function\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+      "spacr.timeflows_validation.validate_timeflows": "spacr.timeflows_validation.validate_timeflows\u0000function\u0000autoapi\u0000device,initial_head,net,pairs,seed\u0000net,pairs\u0000device,initial_head,net,pairs,seed\u00000\u00001\u00000\u00000"
+    }
+  },
+  "validation": {
+    "logs": {
+      "sphinx": {
+        "result": "build succeeded.",
+        "log_sha256": "17a0ff39ce7d5819ec90eb40b6474e4923083f46d5cb47cc9d453748fee2daaa"
+      },
+      "inventory_and_help_before_last_pin": {
+        "result": "1 failed, 46 passed",
+        "log_sha256": "87b715c17413f764404d7f6b78297bb4d5ea9623cb5afc122b2d0938ec3aa204"
+      },
+      "corrected_callable_boundary": {
+        "result": "1 passed",
+        "log_sha256": "4fa131d0f888cf85e7c72f5a5974448ba95911170ddfc998f8b61cfbba5600b6"
+      },
+      "signatures_parameters_and_english_manifest": {
+        "result": "4 passed",
+        "log_sha256": "e4257541addc149dc61ad1fce7e8a5660884aa42e24cd23d7b95ea0fea0ff595"
+      },
+      "built_helper_slice_browser": {
+        "result": "19 passed",
+        "log_sha256": "40af1da437d6a176623945de8c839ed243172796fc0c1dfd041ac27f61e1fcbd"
+      },
+      "workflow_generator_promotion": {
+        "result": "24 passed",
+        "log_sha256": "028a6c3a601afc1ba2fa82bdfca7cfc3465a15a8230709e761f4018abe6edd29"
+      }
+    },
+    "guide_links": [
+      {
+        "page": "timeflows_training.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.ctc_pairs"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.track_masks_from_ctc"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.ctc_pairs.indexed"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.train_timeflows"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.train_timeflows.run"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.augment_pair.apply"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.link_by_timeflows"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_model/index.html#spacr.timeflows_model.train_timeflows"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_validation/index.html#spacr.timeflows_validation.check_pair_holdout"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_validation/index.html#spacr.timeflows_validation.validate_timeflows"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_validation/index.html#spacr.timeflows_validation.score_pair"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_validation/index.html#spacr.timeflows_validation.scramble"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_validation/index.html#spacr.timeflows_validation.summarise"
+      },
+      {
+        "page": "timeflows_training.html",
+        "href": "api/spacr/timeflows_validation/index.html#spacr.timeflows_validation.temporal_assignment_policy"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "model_zoo.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/core/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/measure/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/deep_spacr/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/sequencing/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/ml/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/artifacts/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/settings/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/spacr/core/index.html#module-spacr.core"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#build-pairs-from-cell-tracking-challenge-annotations"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#understand-crop-boundaries"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#interpret-links-and-unmatched-objects"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#validate-during-training-on-separate-inputs"
+      },
+      {
+        "page": "index.html",
+        "href": "timeflows_training.html#keep-checkpoint-provenance-with-the-results"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#applications-and-workflow"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#modules-reached-from-another-screen"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#stability"
+      },
+      {
+        "page": "index.html",
+        "href": "api/index.html#complete-module-reference"
+      }
+    ],
+    "added_symbol_anchors": [
+      {
+        "symbol": "spacr.timeflows_model.main.record_validation",
+        "path": "api/spacr/timeflows_model/index.html",
+        "anchor": "spacr.timeflows_model.main.record_validation"
+      },
+      {
+        "symbol": "spacr.timeflows_model.train_timeflows.report_validation",
+        "path": "api/spacr/timeflows_model/index.html",
+        "anchor": "spacr.timeflows_model.train_timeflows.report_validation"
+      },
+      {
+        "symbol": "spacr.timeflows_validation",
+        "path": "api/spacr/timeflows_validation/index.html",
+        "anchor": "module-spacr.timeflows_validation"
+      },
+      {
+        "symbol": "spacr.timeflows_validation.check_pair_holdout",
+        "path": "api/spacr/timeflows_validation/index.html",
+        "anchor": "spacr.timeflows_validation.check_pair_holdout"
+      },
+      {
+        "symbol": "spacr.timeflows_validation.score_pair",
+        "path": "api/spacr/timeflows_validation/index.html",
+        "anchor": "spacr.timeflows_validation.score_pair"
+      },
+      {
+        "symbol": "spacr.timeflows_validation.scramble",
+        "path": "api/spacr/timeflows_validation/index.html",
+        "anchor": "spacr.timeflows_validation.scramble"
+      },
+      {
+        "symbol": "spacr.timeflows_validation.summarise",
+        "path": "api/spacr/timeflows_validation/index.html",
+        "anchor": "spacr.timeflows_validation.summarise"
+      },
+      {
+        "symbol": "spacr.timeflows_validation.temporal_assignment_policy",
+        "path": "api/spacr/timeflows_validation/index.html",
+        "anchor": "spacr.timeflows_validation.temporal_assignment_policy"
+      },
+      {
+        "symbol": "spacr.timeflows_validation.validate_timeflows",
+        "path": "api/spacr/timeflows_validation/index.html",
+        "anchor": "spacr.timeflows_validation.validate_timeflows"
+      }
+    ]
+  },
+  "files": {
+    "spacr/timeflows_validation.py": "9b7ef1a313b4b7b05a7b38a0889332e6fc8f2788f38e791eab8895d88a51b68b",
+    "docs/source/timeflows_training.rst": "cfdedcf28e63d07d4a6a12ae25d2d9e0715adc6ab66af97da52219c031d0c9cf",
+    "spacr/qt/help_api_index.py": "87929ed62917ea315f79e268bb0a503fc125efca236f614eb4da919d279a0a91",
+    "tests/test_api_i18n_extractor.py": "53032a454a905ea600148202f4d43cc40fbf60cef6e1b4f27e39f25501d684b7",
+    "tests/test_api_i18n_frontend.py": "aab25e08c84a4ad256f112dbecb3552806e28c8d916f62a6c209727aed4f1cea",
+    "tests/test_documentation_i18n.py": "39e666f9d9f4fc4d5f7c6fde37a45a4f1fe28ddd2d3cf8b03e5d99362561c836",
+    "tests/test_docstring_correctness.py": "8c94fb5d9d90c72d5b5d33417bacdaf6be6dddbe5a565b1c96fa7abc14de20d7",
+    "tests/test_built_nested_helper_api.py": "eb0940fbce7d25e6eb03b58d0a7995e015412376bcbd15708bd82d77b2a813ab"
+  },
+  "whole_catalog_freshness_debt": {
+    "de": {
+      "missing": 759,
+      "stale": 130,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "es": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "fr": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "hi": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "is": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "ko": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "pt": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "sv": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    },
+    "zh_CN": {
+      "missing": 814,
+      "stale": 148,
+      "extra": [
+        "spacr.cli_make_masks.editor_refusal",
+        "spacr.qt.ai.providers.ChatProvider.is_installed"
+      ]
+    }
+  },
+  "full_catalog_acceptance": false,
+  "full_ci_passed": false,
+  "native_speaker_signoff": false,
+  "published": false,
+  "remaining": [
+    "Whole-catalog missing/stale API records and broader nested-helper rollout",
+    "Incoming secondary-control tooltips",
+    "Tutorial voice/caption/listening acceptance and complete-set publication"
+  ]
+}

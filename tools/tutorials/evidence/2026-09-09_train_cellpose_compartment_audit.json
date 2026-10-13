@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "audit_date": "2026-09-09",
+  "lesson_id": "19_train_cellpose",
+  "kind": "bounded_read_only_source_metadata_and_pixel_audit",
+  "conclusion": "All three checked retained training masks exactly equal original source plane 6, not planes 4 or 5. The original dataset measurement settings identify plane 6 as pathogen, whereas the training-data generator calls it cell. This is a substantive compartment-label mismatch for the checked cell-training examples according to the recorded metadata.",
+  "scope": {
+    "checked_pairs": 3,
+    "manifest_pairs": 6,
+    "checked_subset": "Only cell_pair_01.tif, cell_pair_02.tif and cell_pair_03.tif, originating from the three B01 fields.",
+    "all_six_pairs_pixel_verified": false,
+    "model_run_performed": false,
+    "generator_executed": false,
+    "application_run_performed": false,
+    "source_or_training_data_modified": false,
+    "independent_mask_review_performed": false,
+    "biological_ground_truth_validated": false,
+    "old_video_frames_or_audio_reviewed": false,
+    "source_intensity_comparison_repeated": false,
+    "source_intensity_note": "The parent had already verified the training images against original image plane 1. This audit independently compared only the three retained label masks against source planes 4, 5 and 6."
+  },
+  "paths": {
+    "repository_generator": "/mnt/firecuda2/codex/repo/spacr/tools/tutorials/authoring/tools/prepare_train_cellpose_tutorial_data.py",
+    "retained_authoring_generator": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/tools/prepare_train_cellpose_tutorial_data.py",
+    "original_merged_root_used_for_comparison": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged",
+    "original_measurement_settings": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/settings/measure_crop_settings.csv",
+    "original_segmentation_settings": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/settings/gen_mask_settings.csv",
+    "recruitment_settings_corroboration": "/mnt/firecuda2/codex/repo/spacr/tools/tutorials/authoring/catalog/25_recruitment_settings.json",
+    "training_source_manifest": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/source_manifest.json",
+    "training_settings": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/tutorial_settings.json",
+    "retained_production_source_manifest": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/production/19_train_cellpose/source_manifest.json",
+    "published_english_catalog": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/web/catalog/lessons_en.json",
+    "refresh_english_catalog": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/catalog/lessons_en.json",
+    "repository_english_catalog": "/mnt/firecuda2/codex/repo/spacr/tools/tutorials/authoring/catalog/lessons_en.json",
+    "older_explicit_cell_override": "/mnt/firecuda2/codex/repo/spacr/tools/tutorials/authoring/catalog/19_train_cellpose_override.json"
+  },
+  "recorded_compartment_mapping": {
+    "measurement_settings_lines": [29, 30, 31],
+    "cell_mask_dim": 4,
+    "nucleus_mask_dim": 5,
+    "pathogen_mask_dim": 6,
+    "segmentation_settings_lines": [24, 25, 26],
+    "cell_channel": 1,
+    "nucleus_channel": 0,
+    "pathogen_channel": 3,
+    "interpretation_limit": "Compartment names follow the original recorded settings, corroborated by the Recruitment configuration. They were not inferred from appearance and are not an independent biological validation."
+  },
+  "generator_and_retained_manifest": {
+    "generator_docstring_lines": [4, 5, 6],
+    "generator_docstring_claim": "Four acquisition channels followed by nucleus, pathogen and cell labels; ER/cell image channel 1 paired with cell-label plane 6.",
+    "actual_mask_slice_line": 54,
+    "actual_mask_slice": "merged[row : row + CROP_SIZE, column : column + CROP_SIZE, 6]",
+    "image_channel": 1,
+    "mask_plane": 6,
+    "crop_size": 512,
+    "model_name": "spacr_tutorial_cells",
+    "retained_manifest_source_root_literal": "/media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged",
+    "retained_manifest_source_root_note": "The retained manifest contains this historical mount path. Pixel comparisons used the explicitly recorded current original_merged_root_used_for_comparison above, without modifying the manifest.",
+    "review_limit": "The generator directly slices existing labels and counts their IDs. It does not itself establish independent annotation review or validate the claimed compartment."
+  },
+  "pixel_comparison_method": {
+    "source_access": "numpy.load with mmap_mode='r' and allow_pickle=False",
+    "training_mask_access": "tifffile.imread",
+    "comparison": "For each manifest origin, compare the retained 512 by 512 mask with the same source crop at planes 4, 5 and 6 using numpy.array_equal and numpy.count_nonzero(mask != source_crop).",
+    "object_count": "Count distinct nonzero mask label IDs; this is not a count of independently reviewed biological objects.",
+    "planes_compared": [4, 5, 6]
+  },
+  "pairs": [
+    {
+      "training_mask": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_01.tif",
+      "original_source": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_1_1.npy",
+      "origin_yx": [120, 180],
+      "source_shape": [2000, 2000, 7],
+      "mask_shape": [512, 512],
+      "source_and_mask_dtype": "uint16",
+      "retained_mask_positive_labels": 16,
+      "planes": {
+        "4": {"recorded_compartment": "cell", "shape_dtype_equal": true, "all_pixels_equal": false, "different_pixels": 35736, "positive_source_labels": 11},
+        "5": {"recorded_compartment": "nucleus", "shape_dtype_equal": true, "all_pixels_equal": false, "different_pixels": 15865, "positive_source_labels": 8},
+        "6": {"recorded_compartment": "pathogen", "shape_dtype_equal": true, "all_pixels_equal": true, "different_pixels": 0, "positive_source_labels": 16}
+      }
+    },
+    {
+      "training_mask": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_02.tif",
+      "original_source": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_2_1.npy",
+      "origin_yx": [520, 240],
+      "source_shape": [2000, 2000, 7],
+      "mask_shape": [512, 512],
+      "source_and_mask_dtype": "uint16",
+      "retained_mask_positive_labels": 57,
+      "planes": {
+        "4": {"recorded_compartment": "cell", "shape_dtype_equal": true, "all_pixels_equal": false, "different_pixels": 232062, "positive_source_labels": 95},
+        "5": {"recorded_compartment": "nucleus", "shape_dtype_equal": true, "all_pixels_equal": false, "different_pixels": 102410, "positive_source_labels": 65},
+        "6": {"recorded_compartment": "pathogen", "shape_dtype_equal": true, "all_pixels_equal": true, "different_pixels": 0, "positive_source_labels": 57}
+      }
+    },
+    {
+      "training_mask": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/train_cellpose/train/masks/cell_pair_03.tif",
+      "original_source": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged/plate1_B01_3_1.npy",
+      "origin_yx": [940, 520],
+      "source_shape": [2000, 2000, 7],
+      "mask_shape": [512, 512],
+      "source_and_mask_dtype": "uint16",
+      "retained_mask_positive_labels": 55,
+      "planes": {
+        "4": {"recorded_compartment": "cell", "shape_dtype_equal": true, "all_pixels_equal": false, "different_pixels": 196679, "positive_source_labels": 51},
+        "5": {"recorded_compartment": "nucleus", "shape_dtype_equal": true, "all_pixels_equal": false, "different_pixels": 53196, "positive_source_labels": 26},
+        "6": {"recorded_compartment": "pathogen", "shape_dtype_equal": true, "all_pixels_equal": true, "different_pixels": 0, "positive_source_labels": 55}
+      }
+    }
+  ],
+  "narration_distinction": {
+    "published_and_refresh_catalogs_agree": true,
+    "published_lesson_canonical_sha256": "89d1dd7064f33cb5eb130b139e395d941b054df7c9a75c9a0eece9bb8c260ac8",
+    "canonical_hash_method": "sha256(json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode())",
+    "published_scene_count": 9,
+    "published_text": "The retained nine-scene lesson uses generic instance-label-mask wording, not an explicit claim that these are cell masks. Its description and prerequisite call for reviewed pairs, and scenes 2 and 5 require label-quality and held-out checks; the preparation generator does not establish that those requirements were met.",
+    "older_override_scene_count": 20,
+    "older_override_scene_5_visual": "05_inputs",
+    "older_override_scene_5_narration": "Drop the dataset root containing train, images and train, masks. Matching TIFF filenames form each pair. This demonstration derives six five-hundred-twelve-pixel cell fields from the real tutorial experiment; production labels must be independently reviewed.",
+    "qualified_mismatch": "The explicit cell interpretation in the older override, generator and model naming conflicts with the recorded compartment mapping for all three checked masks. The audit does not assert that the retained nine-scene narration explicitly says cell-mask training, nor that every old video frame or spoken line has been reviewed."
+  },
+  "refresh_implication": "This is a substantive source-data and compartment-label reason to review or refresh lesson 19. Do not present the checked examples or their named checkpoint as validated cell training. A future correction needs an explicitly reviewed target compartment and image-mask pairing; no such correction or model evaluation was performed here."
+}

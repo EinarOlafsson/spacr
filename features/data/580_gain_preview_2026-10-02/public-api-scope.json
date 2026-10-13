@@ -1,0 +1,8 @@
+{
+  "existing_public_signatures_docstrings_unchanged": true,
+  "new_module_exports": [],
+  "new_module_classes": [
+    "private _ButtonPosition",
+    "private _CalibrationPreview"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Clear the ruler line",
+      "source": "Clear the ruler line",
+      "source_sha256": "4bd8718b8c2549ff3a67c665e0b7c84226ccdac27f6d66da01cd38d67fea895c",
+      "table": "ui",
+      "translation": "자의 선 지우기"
+    },
+    {
+      "key": "Drag a line on either image to measure its length in image pixels. Right-click with Ruler selected to clear it. Turn Ruler off to pan.",
+      "source": "Drag a line on either image to measure its length in image pixels. Right-click with Ruler selected to clear it. Turn Ruler off to pan.",
+      "source_sha256": "82892c8a608403e352af4ac182bd378416f2fabb62530db4c4d6b2fcb2dd17f9",
+      "table": "ui",
+      "translation": "어느 이미지에서든 선을 끌어 이미지 픽셀 단위의 길이를 측정하세요. 자를 선택한 상태에서 오른쪽 클릭하면 선을 지웁니다. 화면을 이동하려면 자를 끄세요."
+    },
+    {
+      "key": "Drag a line to measure its length in image pixels. Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement.",
+      "source": "Drag a line to measure its length in image pixels. Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement.",
+      "source_sha256": "72e928b567dfef894f4e06573cf5b96e597b83a24bf14e4fe53bee3c784f47f4",
+      "table": "ui",
+      "translation": "선을 끌어 이미지 픽셀 단위의 길이를 측정하세요. 자를 선택한 상태에서 오른쪽 클릭하면 선을 지웁니다. 확대와 화면 이동은 측정값을 유지합니다."
+    },
+    {
+      "key": "Lock / unlock box",
+      "source": "Lock / unlock box",
+      "source_sha256": "41f77528e1abb38aae985bcc38f7d5fb35d6b25f180f37301aec1a8c04162ee6",
+      "table": "ui",
+      "translation": "영역 잠금 / 해제"
+    },
+    {
+      "key": "Pixel spacing must be finite and positive.",
+      "source": "Pixel spacing must be finite and positive.",
+      "source_sha256": "833ff2c457c749087b34fe8ae338845f701d0b369258ceb2036cc99ebc1f1b9b",
+      "table": "ui",
+      "translation": "픽셀 간격은 유한한 양수여야 합니다."
+    },
+    {
+      "key": "Ruler",
+      "source": "Ruler",
+      "source_sha256": "b2eb0fa2b0167b6c922f813e543404905366dfcc3a0692060c25411785b27729",
+      "table": "ui",
+      "translation": "자"
+    },
+    {
+      "key": "{length:.2f} px",
+      "source": "{length:.2f} px",
+      "source_sha256": "a96bfca8d50a9947a0427808badcaeb4986a958e8664c2e4f0bff736c696ac4b",
+      "table": "ui",
+      "translation": "{length:.2f} px"
+    },
+    {
+      "key": "· {length:.2f} {unit}",
+      "source": "· {length:.2f} {unit}",
+      "source_sha256": "ea0f47fdf65a125cb4298c95652853eedd07e56b20f5c9dc4c31f9d5e1e0fe9d",
+      "table": "ui",
+      "translation": "· {length:.2f} {unit}"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review of image-coordinate ruler captions, calibration errors and the revised lock shortcut; measurement-only templates are exact technical identities. No native-speaker sign-off.",
+  "schema": 1
+}

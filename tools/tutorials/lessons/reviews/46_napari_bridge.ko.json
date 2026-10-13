@@ -1,0 +1,32 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "Napari Bridge: 라벨 마스크 편집 후 되가져오기",
+  "description": "napari에서 이미지와 마스크를 열고, 라벨을 편집한 뒤 수정한 마스크를 spaCR로 다시 저장합니다.",
+  "objectives": [
+    "대응하는 이미지와 라벨 파일을 엽니다.",
+    "napari에서 변경하고 실행 취소합니다.",
+    "저장된 마스크를 되가져와 확인합니다."
+  ],
+  "prerequisite": "선택 사항인 napari 의존성을 설치하고 합성 예제를 새 폴더에 압축 해제하세요. 손대지 않은 백업을 두세요. Take the mask back은 선택한 작업 마스크를 덮어씁니다. 저장한 편집 회차 사이에는 뷰어를 닫았다가 다시 여세요.",
+  "scenes": [
+    "Make Masks를 연 뒤 Napari Bridge를 여세요. 강도 이미지를 참고하며 기존 라벨 마스크를 편집할 때 씁니다. 마스크의 손대지 않은 백업을 두세요.",
+    "합성 예제를 내려받아 압축을 푸세요. Mask에는 mask.tif를, Image에는 image.tif를 고른 뒤 Open in napari를 누르세요.",
+    "napari에서 마스크의 Labels 레이어를 선택하세요. 라벨 0은 배경이며, 각 객체 라벨에는 표시 색이 있습니다. 편집은 라벨 레이어에서 하세요.",
+    "spaCR로 돌아가 Take the mask back으로 뷰어의 현재 라벨을 가져오세요. 아무것도 바꾸지 않았다면 마스크가 바뀌지 않았다고 상태에 표시됩니다.",
+    "연습으로 라벨 18을 선택하고 Fill을 고른 뒤 라벨 2인 객체를 클릭하세요. 가져오기 전에 바뀐 라벨을 확인하세요.",
+    "Undo로 뷰어의 마지막 편집을 되돌리세요. 변경을 유지하려면 Fill을 다시 하세요.",
+    "spaCR에서 Take the mask back을 클릭하세요. 바뀐 픽셀 수를 확인한 뒤, 저장된 마스크와 수정 기록 보조 파일을 살펴보세요.",
+    "다음 편집 회차 전에 Close viewer를 클릭하고 마스크를 다시 여세요. 그러면 저장된 마스크가 이후 수정의 시작점이 됩니다.",
+    "다음 편집 후 마스크를 되가져와 결과를 다시 확인하세요. 끝나면 뷰어를 닫고, 수정 기록을 보관하고, 바뀐 라벨의 영향을 받는 측정을 다시 실행하세요."
+  ]
+}

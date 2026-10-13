@@ -1,0 +1,55 @@
+{
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "normal_nine_language_generation_and_audit_passed": true,
+  "new_source_bound_reviewed_entries_each_language": 24,
+  "previous_complete_rows_and_hashes_preserved_each_language": 9833,
+  "current_total_rows_each_language": 9857,
+  "candidate_source_hash_test_passed": true,
+  "runtime_tests_passed": 35,
+  "API_tests_excluded": 12,
+  "API_guide_tutorial_source_refresh_separate": true,
+  "rejected_flow_presets_not_reintroduced": true,
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff",
+  "artifacts": {
+    "features/data/615_data_art_runtime_2026-10-05/check_data_art_runtime_preservation.py": {
+      "sha256": "4a3b1b0107d5bb9a5f145cd54cef25cd2e510c9df055fbd122d3ff2a4b276af2",
+      "bytes": 2286
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-candidate-hash-tests-r1.log.gz": {
+      "sha256": "4414dd28712b16d27924056dfeeafa035e6d305cad868078ab3ae1c40fc12c0b",
+      "bytes": 49
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-runtime-generate-r1.log.gz": {
+      "sha256": "060da2f0664cab700923a5b7f5183e72667ed06bfe3a11f7d3c059786ef6e3fd",
+      "bytes": 228
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-runtime-preservation-proof.json": {
+      "sha256": "a90b79ce91d101d086a649ad976ed4fcab63ee144da33ac79da97a39eada28c3",
+      "bytes": 2620
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-runtime-review-stage-r1.log.gz": {
+      "sha256": "dbab12da50ee6facaa14e0960537fce0b68c0eef62099822479e875cc47a20cb",
+      "bytes": 432
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-runtime-review-stage-r2.log.gz": {
+      "sha256": "19b27468db6798305d0dc33c5a2c2f8449293b3635c95bc81792c835553d8196",
+      "bytes": 209
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-runtime-review-stage-r3.log.gz": {
+      "sha256": "1f2cbac5f60b7159617cc4c9495d205e3758a0d90957dd8509150179da2f5391",
+      "bytes": 100
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-runtime-sources-r1.json": {
+      "sha256": "f3b02aa2797bb49f2afa8998efa883f34615c7a9c4bb1b6bc3e2bbe123df1c0b",
+      "bytes": 1477
+    },
+    "features/data/615_data_art_runtime_2026-10-05/data-art-runtime-tests-r1.log.gz": {
+      "sha256": "f896c56fa5512692fff785220c069d11b538c9fadaadf39cd1cf3f176167e8ad",
+      "bytes": 79
+    },
+    "features/data/615_data_art_runtime_2026-10-05/stage_data_art_runtime.py": {
+      "sha256": "e7b24ea3aa229f56d3a565a70422eb9cfd2d813e6e65961a9ad282802f3bca68",
+      "bytes": 2918
+    }
+  }
+}

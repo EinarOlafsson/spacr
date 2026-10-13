@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no native-speaker signoff",
+  "note": "Shared training-data picker serves twenty-field segmented plaque samples and ten-image whole-figure samples without masks. Text must not promise a fixed sample size or masks for every dataset. src remains the literal setting identifier.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A sample of a published model's training dataset. Sample sizes vary by dataset. Masks are included where available.",
+      "source": "A sample of a published model's training dataset. Sample sizes vary by dataset. Masks are included where available.",
+      "source_sha256": "8d64c6ca4127afe6fff2ca736f1b6c4925bb17d15ee58b0f9ad7fd98790d4eaa",
+      "translation": "공개된 모델의 학습 데이터셋에서 추출한 샘플입니다. 샘플 크기는 데이터셋마다 다릅니다. 마스크가 있는 경우 함께 제공됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} example images ready",
+      "source": "{name}: {count} example images ready",
+      "source_sha256": "302ac9cfdd276acf539fc44470e178b7128014f522c60e122cc658649bfeef9c",
+      "translation": "{name}: 예제 이미지 {count}개 준비 완료"
+    },
+    {
+      "table": "ui",
+      "key": "Download example data for Plaque Analysis and point src at it. Choose segmented plaque fields or whole plate figures. Sample sizes vary by dataset. Cached after the first download.",
+      "source": "Download example data for Plaque Analysis and point src at it. Choose segmented plaque fields or whole plate figures. Sample sizes vary by dataset. Cached after the first download.",
+      "source_sha256": "c809d11a94fdbf0162e8a1de56dcfdbdad60a549b11257d19491c09223c3082f",
+      "translation": "플라크 분석용 예제 데이터를 다운로드하고 src가 해당 데이터를 가리키도록 설정합니다. 분할된 플라크 시야 또는 전체 플레이트 그림을 선택하세요. 샘플 크기는 데이터셋마다 다릅니다. 첫 다운로드 후 파일이 캐시에 저장됩니다."
+    }
+  ]
+}

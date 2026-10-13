@@ -1,0 +1,56 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+      "label": "spacr.embeddings.encoder_entry#0",
+      "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+      "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+      "translation": "이 인코더를 :class:`spacr.model_zoo.ModelEntry`로 설명합니다."
+    },
+    {
+      "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+      "label": "spacr.embeddings.encoder_entry#1",
+      "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+      "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+      "translation": "항목은 인코더 구성, 사용 가능한 체크포인트 출처 정보 및 선택적 검색 지표를 결합합니다. 채널 정책이 호환되는 항목만 비교하세요."
+    },
+    {
+      "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "label": "spacr.embeddings.encoder_entry#2",
+      "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+      "translation": "이 항목은 모델을 다운로드하거나 로드하지 않고 백본, 채널 정책 및 읽을 수 있는 로컬 체크포인트 바이트의 해시를 기록합니다. 공개 백본은 timm 캐시 메타데이터를 사용하고, OpenPhenom과 ChAda-ViT는 고정된 Hugging Face 리비전을 사용하며, SubCell은 공식 torch hub 체크포인트를 사용합니다. 로컬 DINO 인코더는 설정된 체크포인트 경로를 사용합니다. 파운데이션 모델 항목에는 원래 제공자와 체크포인트 URL이 표시됩니다. 체크섬만으로는 모델이 검증되지 않으며 학습 데이터의 출처도 입증되지 않습니다."
+    },
+    {
+      "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+      "label": "spacr.embeddings.encoder_entry#3",
+      "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+      "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+      "translation": "읽을 수 있는 로컬 체크포인트를 찾지 못하면 항목은 빈 해시를 유지하고 메모에 이를 설명합니다. :func:`spacr.model_zoo.fetch`는 해시가 없는 항목을 거부합니다."
+    },
+    {
+      "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+      "label": "spacr.embeddings.encoder_entry#4",
+      "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+      "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+      "translation": "인코더 구성; 생략하면 ``EmbeddingSpec()``를 사용합니다."
+    },
+    {
+      "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+      "label": "spacr.embeddings.encoder_entry#5",
+      "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+      "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+      "translation": "라벨이 있는 대조군에서 측정한 선택적 검색 지표로, :attr:`ModelEntry.metrics`에 저장되어 ``scorecard_lines``에 표시됩니다."
+    },
+    {
+      "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+      "label": "spacr.embeddings.encoder_entry#6",
+      "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+      "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+      "translation": "``ModelEntry``이며 종류는 ``'encoder'``입니다."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

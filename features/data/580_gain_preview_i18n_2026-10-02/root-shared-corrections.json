@@ -1,0 +1,23 @@
+{
+  "reviewer": "Codex AI root",
+  "method": "Independent AI technical peer review delivered in task messages; no human/native-speaker signoff.",
+  "accepted_languages": [
+    "zh_CN",
+    "hi"
+  ],
+  "scope": "All20 pairs per language; module-name corrections and two optional wording refinements applied to derivatives only.",
+  "draft_sha256": {
+    "zh_CN": "1a0d49a04f81867cf0009f85dd5e6f99a7c50f0a84f68b4fbf4a0f668be0dfc6",
+    "hi": "76215565a2938445b5179d72ae2ec645fc4a8e92e1807379ac2c07167e38cbe3"
+  },
+  "corrections": {
+    "zh_CN": {
+      "Calculate reference-well gains without running Measure or changing files.": "计算参考孔的增益，不运行 Measure，也不更改文件。",
+      "Discard this preview. Any source scan already running will finish safely.": "丢弃此次预览。已开始的源文件扫描将安全完成。"
+    },
+    "hi": {
+      "Calculate reference-well gains without running Measure or changing files.": "Measure चलाए बिना या फ़ाइलें बदले बिना संदर्भ वेल के गुणक निकालें।",
+      "No eligible merged arrays were found.": "कोई उपयुक्त विलय किया गया ऐरे नहीं मिला।"
+    }
+  }
+}

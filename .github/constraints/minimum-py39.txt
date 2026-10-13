@@ -1,0 +1,144 @@
+# Lowest-supported direct dependency profile for CPython 3.9 on Linux.
+#
+# This file is what makes setup.py's lower bounds real. A floor nothing
+# installs is a promise nothing keeps, so the "Minimum dependencies" job in
+# .github/workflows/tests.yml installs exactly this profile and runs the same
+# suite the newest-resolution job runs. setup.py's dependency-policy block
+# states the rule; this file is the half that executes it.
+#
+# EVERY PIN HERE EQUALS THE FLOOR setup.py DECLARES, and the exceptions are
+# listed below by name. That is not tidiness: a pin sitting quietly above its
+# floor means the floor is the one bound in setup.py that nothing tests, and
+# the version a pinned user's resolver lands on is the version CI skipped.
+# tests/test_optimal_dependency_versions.py rejects an unexplained gap.
+#
+# Most exceptions are packages whose floors cannot be installed together, so
+# the profile takes the first mutually installable set instead:
+#   torchvision pins torch to an EXACT release -- 0.16.0 requires
+#     `torch==2.1.0`, and the declared floor 0.15.0 requires
+#     `torch==2.0.0+cu117`, a local version PyPI does not serve -- so the two
+#     are pinned as a matched pair rather than at their separate floors;
+#   umap-learn 0.5.11 requires scikit-learn 1.6 or newer;
+#   tensorboard 2.21.0 requires protobuf 6.31.1 or newer.
+#
+# `sympy==1.12` used to head that list, and it was never an exception: its pin
+# equalled its floor. It is gone for a different reason -- setup.py no longer
+# declares sympy at all, because nothing under spacr/ imports it since the
+# Tkinter interface (`spacr/gui_elements.py`) was removed, and every pin here
+# must name a declared dependency. `screeninfo==0.8.1` went with it, for the
+# same reason. sympy still gets installed: torch declares it, with no bound,
+# so this profile now lets torch's own metadata choose the version -- which is
+# this file's stated rule for transitive packages, applied to one more.
+#
+# nvidia-ml-py IS NOT AN EXCEPTION, and the pin is not a typo. It numbers
+# each release after the NVIDIA driver it binds -- 10.418.84, 11.450.51,
+# 11.460.79, ..., 13.610.43 -- so the middle field is a driver branch and
+# 11.450.51 sorts ABOVE a plausible-looking 11.5. A round lower bound such as
+# `>=11.5` therefore names no release this distribution will ever publish,
+# and a floor that cannot be equalled is a floor this profile cannot pin.
+# setup.py declares `>=11.450.51` for that reason and this pin equals it; the
+# two spellings admit the same published releases, so the choice is about
+# whether the bound names a version, not about which versions resolve.
+#
+# cellpose is pinned at setup.py's floor, 4.0.7, NOT at the first published
+# 4.x. This file used to pin 4.0.1 on the reasoning that it was the first 4.x
+# release, which stopped being the point when the floor was raised:
+# CellposeModel's signature differs between them (use_bfloat16 absent in
+# 4.0.1, resample defaulting True rather than None), so the job was
+# installing a version the package declares it does not support and failing
+# ~23 tests that pass on every other job.
+#
+# statsmodels and shap were once the same failure in the other direction: the
+# pin matched setup.py exactly and SETUP.PY was the file that was wrong.
+# 0.13.5 and 0.45.0 were floors nobody had run, and this job is what ran them
+# -- 16 failures no other job had, all of them an API spaCR uses that the
+# pinned release does not have. setup.py now declares statsmodels>=0.14.0 and
+# shap>=0.47.0 with the reason written next to each, and
+# tests/test_dependency_floors_have_the_api.py keeps the two facts joined.
+# Both versions publish cp39 wheels.
+#
+# Dependencies with no declared lower bound (czifile and readlif) are left to
+# pip. This file constrains direct dependencies only; transitive packages are
+# resolved normally so their own compatibility metadata remains
+# authoritative.
+
+numpy==1.26.4
+pandas==2.2.1
+scipy==1.12.0
+cellpose==4.0.7
+scikit-image==0.22.0
+PyWavelets==1.4.0
+scikit-learn==1.6.0
+scikit-posthocs==0.10.0
+btrack==0.7.0
+trackpy==0.6.2
+statsmodels==0.14.0
+patsy==0.5.6
+shap==0.47.0
+numba==0.60.0
+llvmlite==0.43.0
+torch==2.1.0
+torchvision==0.16.0
+tensorboard==2.21.0
+captum==0.7.0
+seaborn==0.13.2
+matplotlib==3.8.3
+cycler==0.10.0
+matplotlib-venn==1.1.0
+adjustText==1.2.0
+pypdf==6.16.1
+bottleneck==1.3.6
+numexpr==2.8.4
+opencv-python-headless==4.9.0.80
+pillow==10.2.0
+tifffile==2023.4.12
+nd2reader==3.3.0
+pylibCZIrw==5.0.0
+openpyxl==3.1.0
+imageio==2.34.0
+umap-learn==0.5.11
+xgboost==2.0.3
+biopython==1.80
+lxml==5.1.0
+psutil==5.9.8
+packaging==21.3
+gputil==1.4.0
+nvidia-ml-py==11.450.51
+tables==3.8.0
+fastremap==1.14.1
+tqdm==4.65.0
+requests==2.28.0
+joblib==1.2.0
+cloudpickle==3.1.2
+natsort==8.0.0
+mpmath==1.3.0
+vispy==0.14.0
+IPython==8.18.1
+ipywidgets==8.1.2
+huggingface-hub==0.25.0
+protobuf==6.31.1
+
+# Extras installed by the minimum CI job.
+PySide6==6.6.0
+qtawesome==1.3.0
+pyqtgraph==0.13.3
+# A `dev` extra: the outside reference the Welch ANOVA cross-check runs
+# against. Pinned at the floor here so the minimum job actually RUNS that
+# check rather than skipping it.
+pingouin==0.5.5
+pytest==8.0.0
+pytest-qt==4.4.0
+pytest-xdist==3.6.1
+# The `dev` extra's property-based suite (tests/test_key_parsing_properties.py).
+# It arrived in setup.py without a floor here, which left the minimum job
+# resolving whatever hypothesis pip felt like — the one profile whose entire
+# purpose is that nothing floats.
+hypothesis==6.100.0
+tomli==2.0.0
+docutils==0.20.1
+pyarrow==14.0.2
+ruff==0.9.0
+mypy==1.11.0
+xenon==0.9.0
+mahotas==1.4.13
+torchcam==0.4.0

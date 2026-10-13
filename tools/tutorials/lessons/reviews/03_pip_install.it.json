@@ -1,0 +1,35 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
+  "review": {
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
+  },
+  "language": "it",
+  "title": "Installare spaCR con pip",
+  "description": "Crea un ambiente Python isolato, installa il pacchetto pubblico, verifica le sue dipendenze e avvia l’applicazione Qt installata.",
+  "objectives": [
+    "Creare e attivare un ambiente virtuale Python.",
+    "Installare spaCR e controllarne le dipendenze.",
+    "Avviare l’applicazione e aggiornare l’ambiente previsto."
+  ],
+  "prerequisite": "Installa Python 3.12 e apri un terminale. Usa il comando di attivazione per il tuo sistema operativo e la tua shell.",
+  "scenes": [
+    "Apri un terminale e controlla la versione di Python. Questa procedura usa Python tre punto dodici. Tieni spaCR in un ambiente virtuale dedicato, così i suoi pacchetti restano facili da gestire.",
+    "Crea un ambiente virtuale chiamato punto venv con il comando per il tuo sistema operativo. Viene creata una cartella che contiene l’ambiente Python che userai per spaCR.",
+    "Attiva punto venv con il comando della tua shell. PowerShell e il Prompt dei comandi di Windows hanno comandi di attivazione diversi; macOS e Linux usano di solito il comando di shell mostrato qui.",
+    "Esegui python trattino m pip trattino trattino version. Verifica che il percorso mostrato appartenga a punto venv. Usa python trattino m pip per i comandi di installazione, così pip usa questo interprete.",
+    "Aggiorna pip, poi installa spacr. Attendi che i pacchetti scientifici finiscano di scaricarsi e installarsi. Il pacchetto attuale include i componenti desktop necessari per aprire l’applicazione.",
+    "Controlla la versione installata di spaCR e la posizione del pacchetto con il comando mostrato. Salva la versione insieme alle note di analisi.",
+    "Esegui python trattino m pip check. Se segnala requisiti in conflitto, risolvi quei conflitti prima di usare l’ambiente.",
+    "Esegui spacr-doctor per esaminare l’installazione e vedere eventuali funzioni opzionali mancanti. Applica la riparazione suggerita solo per i formati o le funzionalità che ti servono.",
+    "Avvia spacr dall’ambiente attivato. Al primo avvio, segui le richieste di configurazione e scegli le tue preferenze.",
+    "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
+    "Per aggiornare, chiudi spaCR e attiva questo ambiente. Aggiorna il pacchetto, poi controlla di nuovo versione e dipendenze. Conserva l’ambiente precedente se ti serve per un’analisi in corso."
+  ]
+}

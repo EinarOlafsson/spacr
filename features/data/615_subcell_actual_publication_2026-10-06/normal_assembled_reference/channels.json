@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "channels": {
+    "main": {
+      "schema": 1,
+      "branch": "main",
+      "commit": "91ab2b8ae7e9beed617b0c8ec9ec5cb7e9938ca1",
+      "translation_policy": "report-only; incompatible locales fall back to English"
+    },
+    "nightly": {
+      "schema": 1,
+      "branch": "nightly",
+      "commit": "e259c2d4ecfa34b8228a8e8eab4520ff06edcf04",
+      "translation_policy": "report-only; incompatible locales fall back to English"
+    }
+  },
+  "size_bytes": 989112744,
+  "media_files": 139
+}

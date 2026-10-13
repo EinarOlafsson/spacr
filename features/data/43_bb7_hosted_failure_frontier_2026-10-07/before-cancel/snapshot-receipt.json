@@ -1,0 +1,120 @@
+{
+  "source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+  "run_id": 37681965976,
+  "event": "push",
+  "captured_at": "2026-10-07T22:53:17.486740+00:00",
+  "snapshot_kind": "before requested cancellation of obsolete failed ordinary run",
+  "snapshot_job_status_counts": {
+    "completed:failure": 16,
+    "completed:success": 7,
+    "in_progress:None": 5
+  },
+  "snapshot_is_not_final": true,
+  "cancellation_provenance": "Root reported requesting a normal cancellation after capturing these files to release a newer queued source. This archive does not contain the cancellation API response or a terminal cancelled verdict.",
+  "interpretation": "Neither these partial Fast/Min/Qt logs nor the later cancellation is a passing test or numerical coverage verdict.",
+  "distinct_new_nonowner_failure": {
+    "job_id": 113019198929,
+    "node": "tests/test_coverage_fill_cellpose_gpu_funcs.py::TestIdentifyMasksFinetune::test_custom_model_not_found_returns",
+    "bb7_observed": "The test failed because the missing nope.pth checkpoint raised FileNotFoundError.",
+    "current_fix": "Root commit de64cc3ce5 changed the test to expect FileNotFoundError matching nope.pth, preserving fail-closed production behavior.",
+    "current_hosted_verdict": "not established by this bb7 snapshot"
+  },
+  "other_observed_groups": "Remaining failures match previously mapped Cellpose signature/hygiene, theme/default/glass/HintBar/painter, generated API/i18n, or native Qt lanes; no other distinct unassigned group found in these nine snapshots.",
+  "logs": [
+    {
+      "job_id": 113019198929,
+      "path": "logs/113019198929.log.gz",
+      "raw_sha256": "12631cdedcfac8dd68a30162e02a8b8dd9514d9ecc89026d7e696c26430670d5",
+      "raw_bytes": 4844937,
+      "gzip_sha256": "6d9aa29c2035b2206bc0ca497c5937341e0e2011eb2370374fa614fa8ad963ba",
+      "gzip_bytes": 654411,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199268,
+      "path": "logs/113019199268.log.gz",
+      "raw_sha256": "796263c3ff72435b25a2050b030f33ff4591b461edf52f7a55b79ca16ebe3369",
+      "raw_bytes": 4226334,
+      "gzip_sha256": "a677786f0447e162053d2c73d2ba600a51cf6343ff9fa7d0160f6704d26a6bdf",
+      "gzip_bytes": 492413,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199281,
+      "path": "logs/113019199281.log.gz",
+      "raw_sha256": "b686003e27ae8987fb735d4b6ce98327828cd01f0d64529fe856aec58f1d6888",
+      "raw_bytes": 2113186,
+      "gzip_sha256": "75f96adb9c3954be70f52ffbb521b1b3024dbe4585d8e88345b10c64d1345370",
+      "gzip_bytes": 292526,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199461,
+      "path": "logs/113019199461.log.gz",
+      "raw_sha256": "d7d35ba500757951b529cc8b3a994035b3abf8dc2b47c71bff37ed1b69570d99",
+      "raw_bytes": 4262775,
+      "gzip_sha256": "da82adce778e34443278a8a6645b88255d3811782dec0de497ad7e2b20b587b1",
+      "gzip_bytes": 586352,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199519,
+      "path": "logs/113019199519.log.gz",
+      "raw_sha256": "9f5278f9532bd60d20eb60fa52937e16fb4ebb9c704db2ee3f755ba21244f52e",
+      "raw_bytes": 7218924,
+      "gzip_sha256": "ed93026329a2ecc423fb7ff0ccff1c6fc0887fbefb861b37fbcc7a46041b93fb",
+      "gzip_bytes": 900276,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199535,
+      "path": "logs/113019199535.log.gz",
+      "raw_sha256": "8483119bb4c5f39651131b878ca67ca04cdcc4cc9433904c92089aeba5228f8e",
+      "raw_bytes": 2112574,
+      "gzip_sha256": "fc1601d66ee848ff3d874b0a76720a179b387592d7d155cf7a48fc20b6dd6da5",
+      "gzip_bytes": 293253,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199602,
+      "path": "logs/113019199602.log.gz",
+      "raw_sha256": "691bd3560b52ab8fd4778c57a5680bede3752ddd42ec3768cdfb5db5e3a4c7da",
+      "raw_bytes": 5110691,
+      "gzip_sha256": "044c109413a5276abccb2080540a7047a2bbab5daab90ab8da81a7dfd3909cdf",
+      "gzip_bytes": 683472,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199668,
+      "path": "logs/113019199668.log.gz",
+      "raw_sha256": "f96eb3b1c4f7db2c4c989336023ce99686fb8c99449791fe43e7e139ff995447",
+      "raw_bytes": 2113573,
+      "gzip_sha256": "eb86b235a3eed95d0a9e0c8168fa927d2a5e99ebcd00d368c66adbbae8db42ff",
+      "gzip_bytes": 317387,
+      "snapshot_can_be_partial": true
+    },
+    {
+      "job_id": 113019199786,
+      "path": "logs/113019199786.log.gz",
+      "raw_sha256": "068992edcd4fa23a57d1cbfa3f1588c7af3393a65aa0457da8093316330c7696",
+      "raw_bytes": 2112880,
+      "gzip_sha256": "e14d7af6f9732ea1ab66a6ba81adc24539c596015f95cbe832107f88dc0d1962",
+      "gzip_bytes": 302964,
+      "snapshot_can_be_partial": true
+    }
+  ],
+  "snapshots": {
+    "run.json": {
+      "sha256": "b5c2de284b5be7a6b0ced999c5a086da1220eb237c4ea8c5c184da9b508d692f",
+      "bytes": 12574
+    },
+    "jobs.json": {
+      "sha256": "d22b9d2ca09cef6a92c4998d0f43beb5c3e90936700f41d1bf43a597170faee4",
+      "bytes": 82318
+    },
+    "manifest.json": {
+      "sha256": "01eebc510000ac2249aea77d0dfc38b85c1f637fa88e83a39dd5e4a054b8707f",
+      "bytes": 1618
+    }
+  }
+}

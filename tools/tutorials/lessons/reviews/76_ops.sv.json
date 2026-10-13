@@ -1,0 +1,35 @@
+{
+  "lesson": "76_ops",
+  "english_sha256": "e01d6ab4d06f98d5235b4224d0d34f56b130816c1b19bd85f15fe7e94772fab3",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "OPS: från sekvenseringsbilder till cellstreckkoder",
+  "description": "Läs in OPS-testdata, välj bild- och avkodningsinställningar, kör analysen och hitta streckkodstilldelningarna i utdatabasen.",
+  "objectives": [
+    "Öppna OPS i Mask och läsa in exempelbilderna och streckkodsbiblioteket.",
+    "Välja in- och utdatamappar och förstå de viktigaste inställningarna för justering och avkodning.",
+    "Köra OPS och granska cellkärnornas streckkodstilldelningar i utdatabasen."
+  ],
+  "prerequisite": "Öppna spaCR. Använd Load test data i OPS för exemplets sekvenseringsbilder och guidebibliotek. För ditt eget experiment förbereder du TIFF-filer för sekvenseringscyklerna med deras insamlingsfilnamn och en matchande CSV-fil med streckkodsbiblioteket.",
+  "scenes": [
+    "Från Home öppnar du Mask och slår sedan på OPS. Sidan tar emot bilder från sekvenseringscykler och tilldelar avkodade streckkoder till cellkärnor.",
+    "Klicka på Load test data. Exemplet innehåller två bildpositioner över elva sekvenseringscykler och ett matchande streckkodsbibliotek. När inläsningen är klar fyller spaCR i fälten för indata, bibliotek, platta och utdata.",
+    "Under OPS input kontrollerar du mappen med sekvenseringsbilder och CSV-filen med streckkodsbiblioteket. Välj en plats för resultaten. Exemplet skriver till mappen ops_output i det nedladdade projektet.",
+    "Lämna mappen för fenotypbilder tom i det här exemplet. När du har en matchande fenotypinsamling väljer du dess mapp här för att registrera hur dess synfält passar ihop med sekvenseringsbilderna.",
+    "Under OPS alignment väljer du modellen för kärnsegmentering. Diameter anger den förväntade kärnstorleken i pixlar. Raster overlap beskriver överlappet mellan intilliggande insamlade rutor; använd värdet från din insamling. Behåll exemplets inställningar i den här första körningen.",
+    "Window overlap styr hur mycket intilliggande segmenteringsfönster delar. Värdet ska vara större än den största kärnan så att objekt vid fönsterkanterna kan tas med hela. Att öka det förlänger bearbetningstiden.",
+    "Under OPS decoding anger du de fyra baskanalerna i ordningen G, T, A, C. Exemplet använder CY3, A594, CY5 och CY7. För dina egna bilder matchar du namnen mot kanalnamnen i TIFF-filnamnen.",
+    "Read threshold styr hur ljus en fläck måste vara för att räknas som en läsning. Höjer du den väljs starkare fläckar; sänker du den tas svagare fläckar och mer bakgrund med. Footprint styr hur långt utanför en kärna en läsning kan ligga och ändå bidra till dess streckkod.",
+    "Slå på Store reads om du vill granska de enskilda läsningarna senare. Det sparar en extra tabell och tar mer diskutrymme. Låt det vara avstängt för en kompakt första körning.",
+    "Kontrollera OPS performance och tryck sedan på Run. GPU aktiverar acceleration där den finns. Workers styr hur många synfält som avkodas samtidigt; sänk värdet om minnet är begränsat. Följ förloppet i Console.",
+    "När Console visar Finished öppnar du Help, sedan Database Browser, och väljer measurements.db i den valda utdatamappen. Bredvid har varje brunn en mapp, här A1, med dess OPS-rapport med avkodningssammanfattning och eventuella varningar.",
+    "Tabellen ops_barcodes ger varje kärna dess streckkod, läsningsstöd och matchade guide; ops_objects innehåller samma kärnidentifierare med deras bildkoordinater. Identifierarna är bron till resten av din screening: koppla streckkoderna till dina fenotypmätningar via dem och aggregera sedan för Regression. Håll ihop databasen, rapporterna och inställningarna."
+  ]
+}

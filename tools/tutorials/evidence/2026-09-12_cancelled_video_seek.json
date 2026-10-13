@@ -1,0 +1,27 @@
+{
+  "scope": "Real browser interruption of an actual media seek; no flags injected",
+  "before": {
+    "player_sha256": "47b9096f57156f6c569dd95f908683474bd5327fb00b56aa728024d6ad8de726",
+    "seek_pending_before_transition": true,
+    "video_seeking_before_transition": true,
+    "destination": "12_map_barcodes",
+    "seek_pending_after_transition": true,
+    "video_seeking_after_transition": false,
+    "observed_red": true,
+    "report": "/tmp/spacr-cancelled-seek-before.json"
+  },
+  "after": {
+    "player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+    "actual_seek_started_in_both_cases": true,
+    "placeholder_transition_cleared_cancelled_seek": true,
+    "ready_transition_cleared_cancelled_seek": true,
+    "ready_destination": "02_conda_install",
+    "resumed_audio_time": 9.345705,
+    "resumed_video_time": 9.22252,
+    "expected_video_time": 9.345170767382852,
+    "passed": true,
+    "report": "/tmp/spacr-cancelled-seek-final.json"
+  },
+  "fix": "Clear the discarded resource's videoClockCorrectionPending flag on the native emptied event; source replacement cancels its seek without emitting seeked.",
+  "published": false
+}

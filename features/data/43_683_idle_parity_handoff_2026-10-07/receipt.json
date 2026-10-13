@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-07",
+  "source_run_id": 37698599898,
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "job_id": 113058129287,
+  "job_name": "Coverage shard 0 of 12",
+  "job_conclusion": "failure",
+  "hosted_failure": "tests/qt/test_idle_time_builds_the_closed_categories.py::test_a_category_built_in_idle_time_equals_one_built_by_a_click",
+  "source_sha256": {
+    "spacr/qt/screens/app_screen.py": "3dc8ee9027f39dc76604422a9185620e9c7981a81fffa3f4b46a37acbe6b680d",
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "tests/qt/test_idle_time_builds_the_closed_categories.py": "efa0bbf62a5f6e285757683af5e61eabd12f86a821c09e6a4d35677a62dce3d0",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9"
+  },
+  "bounded_results": [
+    {
+      "scope": "original node alone",
+      "result": "1 passed in 14.72s",
+      "raw_log_retained": false
+    },
+    {
+      "scope": "whole original test file",
+      "result": "12 passed in 48.86s",
+      "raw_log_retained": false
+    },
+    {
+      "scope": "predecessor three-file cohort",
+      "result": "37 passed in 80.36s",
+      "raw_log_retained": true,
+      "log": "bounded-37.log.gz",
+      "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg SPACR_DEVICE=cpu tools/run_capped.sh 4G /mnt/wd4tb/scratch/item47-memory-codex-20261005/ci-near-parity-venv/bin/python -m coverage run --branch -m pytest -q -n2 --dist=loadfile -p no:randomly tests/qt/test_multi_instance_lock_and_jobs_dock.py tests/qt/test_graph_spec_uncovered_paths.py tests/qt/test_idle_time_builds_the_closed_categories.py"
+    },
+    {
+      "scope": "temporary source-exact regression-heading probe",
+      "result": "1 passed in 7.14s",
+      "raw_log_retained": true,
+      "log": "discarded-probe.log.gz",
+      "test_source_retained": false
+    }
+  ],
+  "finding": "Hosted row-equality mismatch involves hidden Estimator Tuning, Permutation Test and Plate & Batch Correction. Local idle/click/eager row parity held; no causal source defect proved.",
+  "handoff_owner": "Workstation",
+  "limits": "No fix, numerical coverage verdict, or full CI acceptance is claimed."
+}

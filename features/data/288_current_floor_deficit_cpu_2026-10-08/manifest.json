@@ -1,0 +1,11 @@
+{
+  "payloads": {
+    "deficit-table.json": "86d3b7e4339fcb1b89a932056362d348891ff9212918ce6d154afcc134f10592",
+    "focused-coverage.json.gz": "1250e28f8ca573a81ad9c1a8be2e319ed5ed21a288f6bc08bfce963d1d5f246a",
+    "focused-coverage.log.gz": "4593cbabc3d906d435109560597e4e37a704c330d0c58732e74ed82d582ca263",
+    "owning.log.gz": "f8201c4ff53fdfc62216d74f059197543a7ba75dd3fc6952a9666392f1b70800",
+    "receipt.json": "64896e2852bf7ffdea7c8024a900edb0f1113b63aca6cec5b5b98d4586ae42e9",
+    "test.patch.gz": "383d07865fde0cb4ebd33b787ba0960fc25607154f87bfef0217941f8f7a82be",
+    "verify.py": "efad317b202fc73a7f15d92e67c10179f060e4e20aaa8bbb23812703cde13ace"
+  }
+}

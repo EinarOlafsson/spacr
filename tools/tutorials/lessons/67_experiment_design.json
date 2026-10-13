@@ -1,0 +1,144 @@
+{
+  "id": "67_experiment_design",
+  "number": 67,
+  "slug": "experiment_design",
+  "series": 5,
+  "app_key": "experiment_design",
+  "section": "Data",
+  "title": "Experiment Design: plan a plate and export its well map",
+  "description": "Set conditions and replicates, choose a layout, review warnings and export assignments for acquisition and analysis.",
+  "objectives": [
+    "Enter conditions, replicate counts and control roles.",
+    "Choose a plate format, edge policy and reproducible random layout.",
+    "Export the exact well assignments for later joins to measurements."
+  ],
+  "prerequisite": "Prepare your condition names, control roles and intended well counts before acquisition. The example requests six negative-control wells, six positive-control wells and twelve treatment wells; choose replication for your own experiment. Keep the plate identifier consistent with later images and measurements.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "From Home, open Data and choose Experiment Design. Start by entering the conditions and controls you want to place on the plate.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_named_draft",
+      "narration": "Name the plate using the identifier you will use during acquisition. Review Condition, Replicates and Role in the table. Double-click a column boundary to widen it when needed.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "68_power_design"
+      ]
+    },
+    {
+      "visual": "03_capacity_warning",
+      "narration": "Choose a plate format with enough wells for the requested replicates. Selecting six wells for this twenty-four-well plan displays a capacity error. Change the format or the requested counts to continue.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        1910,
+        3150,
+        205
+      ]
+    },
+    {
+      "visual": "04_capacity_restored",
+      "narration": "Select ninety-six wells to restore the layout. Use Add condition and Remove selected to edit condition rows, then check the updated plate map.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        365,
+        3370,
+        285
+      ]
+    },
+    {
+      "visual": "05_single_replicate_warning",
+      "narration": "To edit a replicate count, select its cell and press F two. A single negative-control well triggers a warning. Choose independent experimental replication appropriate to your analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_block_layout_warning",
+      "narration": "Choose Block layout to group conditions together. Read the positional warnings and inspect the map for potential confounding between condition and position.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_random_interior_seed42",
+      "narration": "Choose Random layout, enable Leave edge empty and set Seed to forty-two. This ninety-six-well plate has sixty interior wells available, with twenty-four assigned by the example plan.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        635,
+        620,
+        445
+      ]
+    },
+    {
+      "visual": "08_seed43",
+      "narration": "Change Seed to forty-three to generate another arrangement with the same condition counts. Review the placement of controls and treatments across the plate.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        635,
+        620,
+        445
+      ]
+    },
+    {
+      "visual": "09_seed42_restored",
+      "narration": "Restore Seed forty-two to recover the previous arrangement. Save the seed together with the format, edge policy and condition table.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        635,
+        620,
+        445
+      ]
+    },
+    {
+      "visual": "10_selected_wells_not_reassigned",
+      "narration": "Drag across wells B zero two to C zero four to select them. This selects wells for inspection; use the condition table and layout controls to change assignments.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        635,
+        620,
+        445
+      ]
+    },
+    {
+      "visual": "11_export_folder",
+      "narration": "Click Export plate map and choose a folder. Keep plate_map.csv, plate_map.json and plate_map_settings.json together.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_real_export_complete",
+      "narration": "Open the CSV to inspect one row per assigned well. Join it to later measurements using plateID, rowID and columnID together. The JSON retains the design and its warnings.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        2070,
+        3300,
+        50
+      ]
+    },
+    {
+      "visual": "09_seed42_restored",
+      "narration": "For this randomized layout, the settings file reports expressible as false. Use the exact CSV well map for condition labels: whole-row or whole-column treatment settings cannot represent these mixed assignments.",
+      "hold_after": 0.7,
+      "focus": [
+        450,
+        2070,
+        3300,
+        50
+      ]
+    },
+    {
+      "visual": "12_real_export_complete",
+      "narration": "Review the final map before acquisition and retain it with the experiment. In Python, use Condition and PlateDesign, followed by assign_wells, check_design and write_design from spacr.qt.widgets.plate_layout.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "68_power_design",
+        "33_plate_viewer"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "AnnData Export: gem målte objekter og egenskaber",
+  "description": "Eksportér sammenlagte målinger eller én objekttabel til h5ad, vælg, hvordan manglende værdier håndteres, og bevar objekternes metadata.",
+  "objectives": [
+    "Åbne AnnData Export og vælge et målt projekt.",
+    "Vælge sammenlagte målinger eller én tabel og en politik for manglende værdier.",
+    "Eksportere en h5ad-fil med egenskabsnavne og objektmetadata."
+  ],
+  "prerequisite": "Brug et projekt, hvor Measure er gennemført, eller hent måleeksemplet via Annotate. Arbejd på en kopi af projektet, og behold dets kildebilleder. Brug den aktuelle nightly-version til den almindelige eksport, der vises her.",
+  "scenes": [
+    "Fra Home åbner du Measure og vælger derefter AnnData Export. Brug værktøjet til at gemme målte objekter, deres egenskaber og metadata samlet i en h5ad-fil.",
+    "Vælg dit målte projekt som Source. I denne gennemgang bruger du en kopi af måleeksemplet, der fås via Annotate. Hold dets målemappe og kildebilleder samlet.",
+    "Lad Single table være tom for at samle de valgte tabeller på cellerækker. Angiv et outputfilnavn, der ender på h5ad. Behold float32 og gzip for en kompakt numerisk eksport.",
+    "Sæt Row limit til 0 for at medtage alle tilgængelige rækker. En positiv grænse er nyttig til en lille første eksport. Lad Compute UMAP være slået fra, når du kun har brug for målematricen.",
+    "Vælg keep som politik for manglende værdier, og tryk derefter på Run. Læs afslutningsmeddelelsen. Det sammenlagte eksempel indeholder 2.341 cellerækker og 1.136 egenskaber.",
+    "Sæt Single table til cell, og vælg et nyt outputfilnavn. Kør igen for kun at eksportere cellemålingerne. Her har resultatet 261 egenskaber og 28 manglende værdier.",
+    "Vælg mean for at erstatte manglende egenskabsværdier med kolonnernes observerede gennemsnit. Eksporten registrerer også deres oprindelige placeringer i et lag for manglende værdier. Brug denne politik, når imputering med gennemsnit passer til din videre analyse.",
+    "Vælg drop_features for at fjerne kolonner, der indeholder manglende værdier. Eksemplet beholder alle celler og fjerner fire egenskabskolonner. Kontrollér de bevarede egenskabsnavne, når du sammenligner eksporter.",
+    "Vælg drop_objects for at fjerne rækker med manglende egenskabsværdier. Her fjernes syv celler. Overvej, om de udelukkede objekter kan ændre din analyse.",
+    "Vælg nucleus som enkelt tabel, når du har brug for én række pr. kerne. Eksemplet giver 2.682 kerner og 341 egenskaber.",
+    "Slå Register artifact til, så outputtet kan findes i projektet. Gem hver politik under sit eget filnavn, og behold dens indstillinger. h5ad-filen indeholder målinger og metadata; opbevar kildebillederne separat.",
+    "Åbn den resulterende h5ad-fil i din videre analyse, og undersøg dens dimensioner, egenskabsnavne og objektmetadata. Fra Python bruger run_anndata_export de samme indstillinger, mens build_anndata opbygger dataene i hukommelsen."
+  ]
+}

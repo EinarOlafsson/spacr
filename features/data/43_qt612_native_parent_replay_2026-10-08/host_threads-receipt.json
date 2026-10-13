@@ -1,0 +1,57 @@
+{
+  "source": "008dab8ad484c4864c0be71c391a19441f0b05dd",
+  "argv": [
+    "/usr/bin/gdb",
+    "-nx",
+    "-nh",
+    "-batch",
+    "-x",
+    "/mnt/wd4tb/scratch/native-qt612-parent-race-hostthreads-20261008/gdb.commands",
+    "--args",
+    "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "--tb=short",
+    "-p",
+    "no:randomly",
+    "tests/qt/test_live_preview_remove_background.py",
+    "tests/qt/test_make_masks_parent_source_race_guards.py::test_puncta_requires_an_explicit_valid_parent",
+    "tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[image]",
+    "tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[parent]",
+    "--cov=spacr",
+    "--cov-branch",
+    "--cov-report="
+  ],
+  "cwd": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "SPACR_DEVICE": "cpu",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg",
+    "PYTHONPATH": ".:/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay",
+    "COVERAGE_FILE": "/mnt/wd4tb/scratch/native-qt612-parent-race-hostthreads-20261008/.coverage",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONFAULTHANDLER": "1"
+  },
+  "source_sha256": {
+    "spacr/qt/bridge.py": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a",
+    "spacr/qt/screens/make_masks.py": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+    "spacr/qt/widgets/primary_mask_selector.py": "38a79dea542ff89b96264d00878f73349f9b1fc58bfe288ae5579d611ecc481b",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+    "tests/qt/test_live_preview_remove_background.py": "c2179ffaef96d0c40a269fdb7f647a4801673c1cb3fd3bb3fbd53bab526e6dd5",
+    "tests/qt/test_make_masks_parent_source_race_guards.py": "5dc81d71d91ae5f4b4b63a8b0009d33748527ebfb88ccde2973c62d0629799d7"
+  },
+  "started_utc": "2026-10-08T10:37:53.448007+00:00",
+  "core_limit": [
+    0,
+    0
+  ],
+  "scope": "One bounded original-order 12-node native replay on newly hosted Qt6.12.0; no complete long-order or xdist reproduction, no native causal acceptance.",
+  "gdb_pid": 3936690,
+  "gdb_exit_code": 0,
+  "ended_utc": "2026-10-08T10:38:07.890431+00:00"
+}

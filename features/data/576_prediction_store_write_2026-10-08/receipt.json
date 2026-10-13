@@ -1,0 +1,60 @@
+{
+  "base_revision": "fd57fe31a31a81e29dfb3562a981cd1d6c720272",
+  "baseline_inventory": "Full normal API and six runtime maps from committed read-bridge source 71d60126711f05075d9d5b4c75344b1165abc210; compressed maps are included and check_inventory.py reads adjacent files.",
+  "commands": {
+    "changed_manifest_cohort": "same environment and interpreter; -m pytest -q -p no:randomly tests/test_predictions_merge.py tests/test_measurement_backends.py -k \"parquet or postgres_prediction\"",
+    "inventory": "PYTHONPATH=tools:. CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python check_inventory.py",
+    "owning_cohort": "SPACR_TEST_POSTGRES_DSN=postgresql:///spacr_f576_prediction_20261008?host=/mnt/wd4tb/scratch/f576-owned-postgres-20261008-root/socket&port=65476 PYTHONPATH=/mnt/wd4tb/scratch/ci/ext/lib/python3.12/site-packages CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly tests/test_predictions_merge.py tests/test_measurement_backends.py tests/test_a_readonly_database_can_still_be_read.py tests/test_io_merge_measurement_stamp.py"
+  },
+  "inventory_command": "PYTHONPATH=tools:. CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python features/data/576_prediction_store_write_2026-10-08/check_inventory.py",
+  "limits": [
+    "PostgreSQL used a root-owned local Unix-socket server; tests skip without SPACR_TEST_POSTGRES_DSN.",
+    "Parquet atomicity is one manifest-file replacement among cooperating spaCR writers. Old parts remain for readers; no garbage collection or protection against uncooperative external mutation is claimed.",
+    "No GPU, hosted full suite, or scientific-data acceptance was exercised."
+  ],
+  "owned_postgres_database": "spacr_f576_prediction_20261008",
+  "payload_sha256": {
+    "baseline-api.json.gz": "998d6d791fef5ddfc04b57f166028eee4110194210e394c86674abd45b1af739",
+    "baseline-runtime.json.gz": "9030aac7f98f1d4efdf646a7690e7389e4b400bcece5358f2abe91d6b15ebaca",
+    "check_inventory.py": "bb207b35a56d88bbe52c596859de4530726861077d4571753623aeea9fb63f80",
+    "inventory-report.json": "81137fd8ba13c9d260fe84d17c2aaf35fdcfe39b249d3855aea58c60f49028af",
+    "manifest-refactor.log.gz": "fb5963e51874e8c5b1865c71ae5dfc48d898da761b89d5b84d18ed5ef8d9a4ea",
+    "owning-postgres.log.gz": "a8f5d55a33a1d71abcbcf3199b64cbb55397da896e5c3d89b2d1a04dd217b8c9",
+    "source.patch.gz": "47a28499a5adaa90eaa6a57f8b2c7602cab1799e090d2b015874eb2b8a50eca1"
+  },
+  "result": {
+    "changed_manifest_cohort": "24 passed, 86 deselected in 11.77 s",
+    "normal_api_delta": [
+      "spacr.predictions.merge_prediction_results",
+      "spacr.predictions.migrate_prediction_columns"
+    ],
+    "owning_cohort": "121 passed in 23.14 s",
+    "runtime_delta": []
+  },
+  "runtime": {
+    "cuda": "hidden",
+    "duckdb": "1.5.6",
+    "limit": "4 GiB",
+    "numpy": "2.5.2",
+    "pandas": "2.3.3",
+    "postgresql_server": "18.4",
+    "psycopg": "3.3.6",
+    "pyarrow": "25.0.1",
+    "pyside": "6.11.2",
+    "python": "3.12.13"
+  },
+  "source_blobs": {
+    "spacr/predictions.py": "578df9c9dd42d01777ab759e2d4e50e7e7722edd",
+    "spacr/tabular.py": "ce44395e0acf1a305844653bae85375a068e9486",
+    "tests/test_measurement_backends.py": "ed5f836e94ace91783b1c9fa5fe6780f4e2f7e51",
+    "tests/test_predictions_merge.py": "7071b473f0577aeb63b1101124606738b2c818ad"
+  },
+  "source_bound_scope": "121-pass cohort ran before private manifest-writer extraction and public-docstring correction; final-source 24-case cohort verifies the changed writer and PostgreSQL paths, and final-source inventory is bound to a91de300f4.",
+  "source_revision": "a91de300f4e0aceec57e305043221eb19accddc0",
+  "tests": [
+    "tests/test_predictions_merge.py",
+    "tests/test_measurement_backends.py",
+    "tests/test_a_readonly_database_can_still_be_read.py",
+    "tests/test_io_merge_measurement_stamp.py"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "item": 567,
+  "preparation_only": true,
+  "passed": true,
+  "finished_UTC": "2026-10-06T14:54:59.435043+00:00",
+  "official_model": "MCG-NJU/videomae-base-finetuned-kinetics",
+  "actual_revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+  "model_weights_license": "cc-by-nc-4.0",
+  "acquired_original_files": {
+    "config.json": {
+      "primary_URL": "https://huggingface.co/MCG-NJU/videomae-base-finetuned-kinetics/resolve/488eb9a0565f257b32866000305c8178965eb9f6/config.json",
+      "bytes": 22865,
+      "sha256": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568"
+    },
+    "preprocessor_config.json": {
+      "primary_URL": "https://huggingface.co/MCG-NJU/videomae-base-finetuned-kinetics/resolve/488eb9a0565f257b32866000305c8178965eb9f6/preprocessor_config.json",
+      "bytes": 271,
+      "sha256": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+    },
+    "README.md": {
+      "primary_URL": "https://huggingface.co/MCG-NJU/videomae-base-finetuned-kinetics/resolve/488eb9a0565f257b32866000305c8178965eb9f6/README.md",
+      "bytes": 3584,
+      "sha256": "b2ef77f0f4f2e729af4f4a874f6c7aff68e2f4c0dccb921cdcc5d4a7164ad3fb"
+    },
+    "model.safetensors": {
+      "primary_URL": "https://huggingface.co/MCG-NJU/videomae-base-finetuned-kinetics/resolve/488eb9a0565f257b32866000305c8178965eb9f6/model.safetensors",
+      "bytes": 346161616,
+      "sha256": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73"
+    }
+  },
+  "actual_strict_loading_info": {
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "mismatched_keys": [],
+    "error_msgs": []
+  },
+  "ordered_loaded_model_state_sha256": "c3f1fcc9dcc24b0a5974c48dac2e4ee25793b56fabd700b4905be64a3596bbac",
+  "private_environment_prefix": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/567-video-model-env-py313-r1",
+  "shared_base_torch_used_without_modification": true,
+  "actual_package_versions": {
+    "torch": "2.10.0",
+    "torchvision": "0.25.0",
+    "transformers": "4.48.3",
+    "safetensors": "0.7.0",
+    "tokenizers": "0.21.4",
+    "numpy": "2.4.3"
+  },
+  "CPU_preflight_input_scope": "Explicit deterministic synthetic 16-frame RGB fixture; no acquired microscopy input or human annotation.",
+  "actual_CPU_input_shape": [
+    1,
+    16,
+    3,
+    224,
+    224
+  ],
+  "actual_CPU_features_shape": [
+    1,
+    768
+  ],
+  "actual_CPU_logits_shape": [
+    1,
+    400
+  ],
+  "exact_reconstruction_of_real_model_pool_norm_classifier_logits": true,
+  "current_application_timelapse_source_sha256": "c381fbf913bcf3355fec46159e60a68dee8d1cbb10fbc0d359bf53feb025af01",
+  "no_application_backend_feature_integration_GPU_training_or_biological_event_accuracy_claim": true,
+  "Home_source_integration_and_real_annotated_microscopy_GPU_acceptance_remain_required": true,
+  "script_sha256": "c73b2eac4c47e7e3671a93f433b74f05577af9c2d595afc4333dad891b17b7ad",
+  "outputs": {
+    "synthetic-16-frame-RGB-uint8.npy": {
+      "bytes": 2408576,
+      "sha256": "65771238502126c862fc20d5ae78c5908bb909d9814eb0e32e69499416953465"
+    },
+    "synthetic-CPU-kinetics-logits.npy": {
+      "bytes": 1728,
+      "sha256": "9189a0066b7ffc95fd025536a6888a146a246342bc544bdeb6748c1c0816ebf6"
+    },
+    "synthetic-CPU-pooled-features.npy": {
+      "bytes": 3200,
+      "sha256": "c9858d49e03802c838537b42b3af62d86f1623c9319a7181ca8ccdb483d05d47"
+    },
+    "synthetic-CPU-processor-pixels.npy": {
+      "bytes": 9633920,
+      "sha256": "3dc4b7ee9f08a2527fdc2bfe780eb4f513d0ee79674a69f3c4dbf9a47ea6395f"
+    }
+  }
+}

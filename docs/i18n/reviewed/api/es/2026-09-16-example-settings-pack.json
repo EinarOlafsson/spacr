@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review": {
+    "reviewer": "Codex (AI assistant)",
+    "date": "2026-09-16",
+    "scope": "Source-bound semantic review for feature 317: all six current API blocks of AppScreen.apply_settings_that_came_with, including this-module scope, shared-reader migration, supplied values only, local-path reanchoring with preserved subfolders, pack-folder priority, and every zero-return condition.",
+    "limitations": "AI-assisted semantic review against the current canonical English source; not human native-speaker review or approval. Exact source, context where applicable, hashes, placeholders, code literals, and protected UI names are preserved. Generated catalog publication is separate."
+  },
+  "records": [
+    {
+      "source": "Load the settings a downloaded example shipped, for THIS module.",
+      "source_sha256": "5b4b25ee65121591b8adf06fd68448a143ee078680994b8894af714c1a9aa984",
+      "translation": "Cargar los ajustes incluidos con un ejemplo descargado, para ESTE módulo.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#0",
+      "context": "Load the settings a downloaded example shipped, for THIS module."
+    },
+    {
+      "source": "The point of shipping settings beside data: a user who has to work out which column holds the labels, what the mask dimensions are and which channels were measured has done most of the work the example was meant to save. With them applied, Run is the next action.",
+      "source_sha256": "72a5a767cc49daa40695c82958cba2a7cc8d5ce8057652fa923c38fe4538e41e",
+      "translation": "La razón para incluir los ajustes junto a los datos: un usuario que debe averiguar qué columna contiene las etiquetas, cuáles son las dimensiones de las máscaras y qué canales de imagen se midieron ya ha hecho la mayor parte del trabajo que el ejemplo pretendía ahorrarle. Una vez aplicados estos ajustes, la siguiente acción es Run.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#1",
+      "context": "The point of shipping settings beside data: a user who has to work out which column holds the labels, what the mask dimensions are and which image data channels were measured has done most of the work the example was meant to save. With them applied, Run is the next action."
+    },
+    {
+      "source": "Use the shared settings-pack reader to migrate old names and report renamed, dropped, and unreadable rows in the console. Apply only values supplied by the pack, leaving other form values alone. Re-anchor the publisher's paths onto the local dataset while preserving subfolders.",
+      "source_sha256": "09e894b126caa8db63e2d581294cdfbd2dfdcfad97dde2ec787a32f0243e98b8",
+      "translation": "Usar el lector compartido de paquetes de ajustes para migrar los nombres antiguos e informar en la consola de las filas renombradas, descartadas o ilegibles. Aplicar únicamente los valores suministrados por el paquete, sin modificar los demás valores del formulario. Adaptar las rutas del proveedor a la ubicación local del conjunto de datos, conservando las subcarpetas.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#2",
+      "context": "Use the shared settings-pack reader to migrate old names and report renamed, dropped, and unreadable rows in the console. Apply only values supplied by the pack, leaving other form values alone. Re-anchor the publisher's paths onto the local dataset while preserving subfolders."
+    },
+    {
+      "source": "the unpacked dataset folder.",
+      "source_sha256": "c2ba90120a68c225b9f51fe52cb127b903792e465c838b4697e91e5d7dbfd20b",
+      "translation": "la carpeta del conjunto de datos descomprimido.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#3",
+      "context": "the unpacked dataset folder."
+    },
+    {
+      "source": "optional folder of shipped settings CSVs, preferred over the dataset's own ``settings`` subfolder.",
+      "source_sha256": "f94260a9bcceb29a3438ad6d06936f03da0a19bd30cd644dc0798b9dec51542f",
+      "translation": "carpeta opcional con los archivos CSV de ajustes suministrados, que tiene prioridad sobre la subcarpeta ``settings`` del propio conjunto de datos.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#4",
+      "context": "optional folder of shipped settings CSVs, preferred over the dataset's own ``settings`` subfolder."
+    },
+    {
+      "source": "how many settings were applied; 0 when no file was found, no supplied settings apply to this form, or applying them failed.",
+      "source_sha256": "ca2a2f108e5f8a79431ab3feea9066eda8ba4ebaaf73fd0a090ae1bc8ba5f5ee",
+      "translation": "el número de ajustes aplicados; 0 si no se encontró ningún archivo, si ninguno de los ajustes suministrados corresponde a este formulario o si falló su aplicación.",
+      "label": "spacr.qt.screens.app_screen.AppScreen.apply_settings_that_came_with#5",
+      "context": "how many settings were applied; 0 when no file was found, no supplied settings apply to this form, or applying them failed."
+    }
+  ]
+}

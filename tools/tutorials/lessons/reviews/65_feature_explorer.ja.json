@@ -1,0 +1,37 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Feature Explorer：グループを比べ、特徴量の順位を書き出す",
+  "description": "グループ化の列を選び、測定値をAUCまたはKSで順位付けし、分布を確認して、選んだ特徴量を書き出します。",
+  "objectives": [
+    "測定値を読み込み、比べるグループを選ぶ。",
+    "順位と分布を読み、フィルターと計算列を試す。",
+    "意図した数の順位付き特徴量を書き出す。"
+  ],
+  "prerequisite": "Annotateの例をダウンロードし、そのmeasurements.dbの作業用コピーを開きます。2341個の細胞が含まれています。このチュートリアルでは、プレートの空間上の行を示すrowIDのグループr12とr5を比べます。自分の実験に合ったグループの列を選び、比較を解釈するときは細胞がウェルを共有していることを考慮します。",
+  "scenes": [
+    "HomeからClassifyを開き、Feature Explorerを選びます。Annotateの例の測定データベースを使い、既存の特徴量をグループ間で比べます。",
+    "Load tableをクリックし、measurements.dbを選んでcellを選びます。Split byをrowIDにします。例のグループはプレートの空間上の行です。グループ化の列が意図した比較を表しているかを確認します。",
+    "Rank byでAUCを選びます。分離度は、AUCの二倍から一を引いた値の絶対値です。Higher inは向きを示し、min nは小さい方のグループにある有限の測定値の数です。",
+    "Topを四にすると、四つの重ねたヒストグラムを確認できます。各特徴量の中では、グループはビンの境界を共有し、棒の高さは件数を表します。分布と順位のスコアの両方を読みます。",
+    "Export rankingをクリックすると、表示中の上位の特徴量が保存されます。Topが四なら、書き出しには特徴量の行が四つ入ります。長い順位を書き出す前にTopを増やします。",
+    "Topを五百にすると、この例で評価できる二百六十一個の特徴量がすべて含まれます。書き出す順位が長くても、プロットに表示される分布は最大八つです。",
+    "Rank byをKSに切り替えると、累積分布どうしの最大の差で比べます。KSは、AUCでは見逃すばらつきの違いを示すことがあります。Higher inで向きを確認するにはAUCに戻します。",
+    "Filterでcell_areaを追加し、最小値を二万千九百二十五にします。集団は千百七十一個の細胞になり、順位が更新されます。",
+    "Clear allをクリックすると、すべての集団と順位に戻ります。フィルターを変えた後は、どのグループを比べているかわかるように、Split byを確認し直します。",
+    "rowIDをr十二に絞り込むと、二つ目のグループがなくなります。このビルドでは、そのときSplit byが自動的に別の列に変わります。フィルターでグループがなくなったときは、必ずこの設定を確認します。",
+    "フィルターを解除し、Split byにrowIDを明示的に戻します。この例ではShuffle testはオフのままにします。細胞はウェルを共有しているので、細胞のラベルを自由に入れ替えても、独立した実験の反復にはなりません。",
+    "Columnsを開き、計算列の名前をarea_kにします。cell_areaを千で割る式を入力し、置き換えをオフにしてAdd columnをクリックします。Previewには最初の二千行が表示されます。追加すると、式は表全体に適用されます。",
+    "計算列が順位に加わります。正の倍率での尺度変更なので、AUCとKSはcell_areaと同じです。元の特徴量に戻るには、式を削除します。",
+    "集団、Split by、Topを確認してから順位を書き出します。Pythonでは、spacr.qt.widgets.feature_rankのrank_featuresとExplorerSpecを使います。選んだ特徴量をさらに詳しくプロットするには、Graph Builderに進みます。"
+  ]
+}

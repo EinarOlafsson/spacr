@@ -1,0 +1,160 @@
+{
+  "id": "27_replication",
+  "number": 27,
+  "slug": "replication",
+  "title": "Replication Assay: count parasites per vacuole",
+  "series": 3,
+  "app_key": "replication",
+  "section": "Toxoplasma assays",
+  "description": "Load parasite measurements, choose the vacuole identity, run the analysis and inspect count distributions and exports.",
+  "objectives": [
+    "Choose a measurement database and its vacuole identifier.",
+    "Set host-assignment and size filters, then run the analysis.",
+    "Read per-well distributions and locate the saved result tables."
+  ],
+  "prerequisite": "Extract the linked synthetic Replication Assay example. It contains a measurement database and a settings reference, with 1,992 parasite rows in 480 vacuoles across twelve wells. The condition names and measurements are teaching data. For your own assay, use measured parasites with reviewed vacuole assignments and independent experimental replicates.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+      "focus": [
+        346,
+        50,
+        1140,
+        155
+      ],
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "03_setting_src",
+      "narration": "Extract the sample and set Source to its replication folder. The database is inside measurements. Enter the accompanying settings reference, replacing its Source placeholder with your extracted folder. Keep Save enabled to write the results.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_setting_vacuole_key",
+      "narration": "Set Vacuole key to vacuole_id. This groups parasites by the vacuole they belong to. The sample contains two vacuoles per host-cell group, so use the vacuole identifier to keep those counts separate.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_setting_require_host_cell",
+      "narration": "Enable Require host cell to include only parasites linked to a host cell. Review unassigned objects when using your own data. For this sample, set Minimum parasite area to two hundred and Maximum parasite area to eight hundred.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_setting_max_parasites_per_vacuole",
+      "narration": "Set Maximum parasites per vacuole to sixteen. This sets the largest named power-of-two bucket. Larger power-of-two counts go into an overflow bucket, while counts such as three remain in the separate non-power-of-two category.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_setting_pathogen_plate_metadata",
+      "narration": "Enter vehicle and inhibitor as the two Pathogen types, and map them to column one and column two in Pathogen plate metadata. Each group contains six practice wells. For your experiment, enter the condition names and well assignments from your plate design.",
+      "focus": [
+        346,
+        170,
+        1150,
+        560
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_actual_run",
+      "narration": "Check Source, Vacuole key, filters and Save, then click Run. Follow the console until processing finishes. The Figures area will show distributions by well and by condition.",
+      "focus": [
+        1510,
+        170,
+        2310,
+        1840
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_readable_legend_00",
+      "narration": "Open the per-well figure. Each stacked bar shows the fraction of vacuoles in each parasite-count category. Read the colours with the legend. In this sample, each well contains forty vacuoles and five percent fall in the non-power-of-two category.",
+      "focus": [
+        1510,
+        170,
+        2310,
+        1020
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_legend_settings_00",
+      "narration": "Open Figure settings to adjust the legend. In the axes tab, choose an inside Legend position if the labels extend beyond the figure. This changes the presentation while retaining the calculated counts.",
+      "hold_after": 0.7,
+      "focus": [
+        1420,
+        330,
+        1000,
+        1500
+      ]
+    },
+    {
+      "visual": "15_readable_legend_01",
+      "narration": "Open the by-condition figure to compare the pooled count distributions. Inspect the per-well results alongside this summary. When analysing an experiment, use independent biological replicates and a suitable experimental unit for statistical comparisons.",
+      "focus": [
+        1510,
+        170,
+        2310,
+        1020
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_actual_completion",
+      "narration": "Read any export warnings in the console. Check the saved figures as well as the on-screen view, and choose colours that remain readable against the export background.",
+      "focus": [
+        1510,
+        1190,
+        2310,
+        440
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_setting_save",
+      "narration": "The results in results/analyze_replication inside Source build upward. vacuole_counts.csv counts each vacuole, well_distribution.csv turns those counts into each well's distribution, and the condition summaries and figures pool the wells. Keep them with the settings and source database so you can trace any number back.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "34_database"
+      ]
+    }
+  ],
+  "example_files": [
+    "SYNTHETIC_replication_example.zip"
+  ]
+}

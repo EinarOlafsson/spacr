@@ -1,0 +1,85 @@
+{
+  "lesson": "52_pipeline_graph",
+  "capture": "pipeline_graph_readable_provenance",
+  "capture_provenance": {
+    "commit": "7fd60a0456ebf00052e8bc474634f5ab172eba68",
+    "version": "1.5.0.4",
+    "module": "pipeline_graph",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "scene_count": 11,
+  "spoken_words": 517,
+  "acceptance_sha256": "b8e553a39d8f7b6e7f166b8e96cfa63966f1da26ab2acb2efca6a64bf816d528",
+  "actual_graph": {
+    "nodes": 3,
+    "edges": 0,
+    "states": {
+      "07faac9384b3030a": "current",
+      "806144bee4502c99": "missing",
+      "f2f702f8b9ba25a2": "current"
+    },
+    "sizes_are_recorded_not_a_fresh_measurement": true
+  },
+  "load_counts": [
+    0,
+    3,
+    3
+  ],
+  "workers_left": 0,
+  "source_preservation": {
+    "original_project": {
+      "files": 131,
+      "byte_identical": true
+    },
+    "archive": {
+      "files": 26,
+      "byte_identical": true
+    },
+    "conversion_original": {
+      "files": 7,
+      "byte_identical": true
+    },
+    "conversion_copy": {
+      "files": 7,
+      "byte_identical": true
+    }
+  },
+  "outside_original_files_unchanged": 131,
+  "private_sqlite_sidecar_changes": [],
+  "source_copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/pipeline_graph_runs/actual-cleanup-q881nq28/project",
+  "filtered_node_counts": [
+    1,
+    0,
+    2,
+    3
+  ],
+  "copied_full_graph_nodes": 3,
+  "tests": {
+    "passed": 25,
+    "actual_four_guard_bypasses_failed": 25,
+    "restored_passed": 25,
+    "guard_raise_lines_measured_executed": [
+      46,
+      49,
+      57,
+      61
+    ],
+    "scope": "Exact SQL identity/provenance and current/missing state for complete records with no input edges. Not an independent general staleness oracle."
+  },
+  "notes": [
+    "Actual Data Manager post-cleanup archive copied and bound at the historical source path only in a private namespace. No registry paths or rows rewritten; three historical records selected, fourth belongs to archive destination.",
+    "Crops genuinely pruned in tutorial44 before this recording; 104 historical files are 103 images plus one format JSON, not 104 cells. No new pruning.",
+    "Recorded resource log remains outside project; original, archive and conversion examples untouched.",
+    "Three records have no input edges: Nothing was derived is not proof of scientific independence. Current is not scientific validation.",
+    "Filtered empty canvas wrongly says Nothing registered here yet; banner and previous detail remain. Copy Graphviz exports all three nodes even when hidden. No fake filters, rerun, recovery or scientific result.",
+    "Initial font100 capture passed checks but smaller text was not selected. Accepted fresh copy at actual font150; native GUI renders elided node names, full provenance is in the detail.",
+    "No dedicated download, Plot/live image preview or AI panel. Inputs come from real acquired-data tutorials; no analysis or deletion."
+  ],
+  "published": false,
+  "human_listening_review": false
+}

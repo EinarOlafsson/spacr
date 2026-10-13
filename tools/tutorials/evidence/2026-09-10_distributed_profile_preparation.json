@@ -1,0 +1,82 @@
+{
+  "lesson": "38_distributed_jobs",
+  "accepted": true,
+  "scope": "Native profile preparation only; no verified remote execution",
+  "state": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/distributed_state/distributed_profile_readable",
+  "application_modified": false,
+  "published": false,
+  "remote_job_submitted": false,
+  "real_credentials_used": false,
+  "example_host": "researcher@workstation.invalid",
+  "backend_states": {
+    "ssh": {
+      "host": true,
+      "workdir": true,
+      "local_root": true,
+      "remote_root": true,
+      "runner": true,
+      "slurm": false,
+      "submit_command": false,
+      "status_command": false,
+      "cancel_command": false
+    },
+    "slurm": {
+      "host": true,
+      "workdir": true,
+      "local_root": true,
+      "remote_root": true,
+      "runner": true,
+      "slurm": true,
+      "submit_command": false,
+      "status_command": false,
+      "cancel_command": false
+    },
+    "command": {
+      "host": false,
+      "workdir": false,
+      "local_root": false,
+      "remote_root": false,
+      "runner": false,
+      "slurm": false,
+      "submit_command": true,
+      "status_command": true,
+      "cancel_command": true
+    }
+  },
+  "empty_profile_error": "Profile name is required.",
+  "profile_sha256": "06d743ec126f62cab8d97be0b28ee74907c08355e4821b71dede6fdf2adc10b4",
+  "persisted_profiles": [
+    {
+      "backend": "ssh",
+      "cancel_command": "",
+      "host": "researcher@workstation.invalid",
+      "job_id_pattern": "",
+      "local_root": "/local/tutorial_project",
+      "log_command": "",
+      "name": "Tutorial setup - NOT CONNECTED",
+      "poll_seconds": 10,
+      "remote_root": "/shared/tutorial_project",
+      "runner": "spacr-run",
+      "scheduler_options": "",
+      "status_command": "",
+      "submit_command": "",
+      "workdir": "/shared/tutorial_project"
+    }
+  ],
+  "profile_reopened_exactly": true,
+  "cancel_preserves_profile_bytes": true,
+  "job_rows": 0,
+  "profile_count": 1,
+  "verification": "Saved JSON, native reopened controls and cancelled edits agree exactly",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/distributed_profile_readable",
+  "provenance": {
+    "commit": "a45c138f68ff6da657b044de04ebe71235944a54",
+    "version": "1.5.0.5",
+    "module": "distributed_jobs",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  }
+}

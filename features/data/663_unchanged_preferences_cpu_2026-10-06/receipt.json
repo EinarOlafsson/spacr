@@ -1,0 +1,62 @@
+{
+  "before_head": "711999b77d1da51ca189fdf43f470021d1048037",
+  "staged_source_test_head": "6b95b81a10",
+  "focused_direction_test_correction": "171d1455aa",
+  "integrated_head": "9e40c28dda11bc2211bedc3bf884aa56524db3bf",
+  "before_ambient_sha256": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+  "after_ambient_sha256": "08815be8f5e01de4ae87517290197d3c1747eff65b4e39afbd5f2f0e1d3b8a28",
+  "validation_phases": {
+    "broader_cases": 321,
+    "final_focused_cases": 17,
+    "unique_union_not_claimed": true
+  },
+  "coverage": {
+    "added_statements": 22,
+    "touching_branch_arcs": 13,
+    "missing_added_lines": 0,
+    "missing_touching_arcs": 0
+  },
+  "native_4k_unchanged_apply_ms": {
+    "before_medians": [
+      599.2066319959122,
+      586.9118725022417
+    ],
+    "after_medians": [
+      0.14460050442721695,
+      0.09554700227454305
+    ],
+    "gui_shades_before": 5,
+    "gui_shades_after": 0
+  },
+  "actual_mainwindow_probe": {
+    "modal_saves": 3,
+    "resolutions_percent": [
+      200,
+      100,
+      200
+    ],
+    "palette": [
+      "random",
+      "spacr",
+      "random"
+    ],
+    "radius_percent": [
+      0,
+      65,
+      0
+    ],
+    "non_opaque_frame_words": 0,
+    "natural_gc_events": 9,
+    "all_gui_thread": true,
+    "remaining_widgets": 0,
+    "remaining_ambient": 0,
+    "remaining_workers": 0,
+    "vm_hwm_kib": 1331836,
+    "after_close_anonymous_kib": 1032636
+  },
+  "limits": [
+    "Timing measures apply_ambient_preferences only, not the complete Preferences dialog Save.",
+    "No claim of whole-process RSS improvement, hard24FPS, installed Save crash closure, aesthetics acceptance or green ordinary/Qt CI.",
+    "The321cohort precedes a test-only correction from default up to changed down; the final17cases cover every added line/arc."
+  ]
+}

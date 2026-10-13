@@ -1,0 +1,142 @@
+{
+  "lesson": "29_report",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "52964f24e8fcce5bb7a34b3ffb5cbafd7898d648ce8344a6c8403bca17894867",
+  "scene_count_per_catalog": 15,
+  "catalog_languages": [
+    "en",
+    "es",
+    "fr",
+    "hi",
+    "it",
+    "pt-BR",
+    "ja",
+    "zh-CN",
+    "da",
+    "de",
+    "is",
+    "ko",
+    "nb",
+    "sv"
+  ],
+  "voice_counts": {
+    "en": 24,
+    "es": 3,
+    "fr": 1,
+    "hi": 4,
+    "it": 2,
+    "ja": 5,
+    "pt-BR": 3,
+    "zh-CN": 8
+  },
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "final_artifact_checks_sha256": "12e9e4d3cc473c8f706f0f36b3595c536d1a1be6e24526909c048278e5381371",
+  "final_track_hashes_and_source_pinned_reviews_match": true,
+  "master": {
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "7756"
+        }
+      ],
+      "format": {
+        "duration": "258.533333",
+        "size": "12134800"
+      }
+    },
+    "sha256": "c5f989e8791c3a5365f14e351a979073fbf3f546249ac56b77f0351445d2ecf2",
+    "poster_sha256": "a6ef760ab485477f3a9a3210458bd36477a35b370065c4c0dc47f3971621f3ba",
+    "full_ffmpeg_decode_exit_code": 0,
+    "encoded_samples_visually_inspected": [
+      {
+        "seconds": 205,
+        "scene": 13,
+        "observation": "Actual HTML database inventory: cell103, cytoplasm103 and png_list103 with other bookkeeping tables, not independent extra cells."
+      },
+      {
+        "seconds": 220,
+        "scene": 14,
+        "observation": "Actual expanded saved-settings preview with2170 recorded rows and source-file provenance, not a recovered run journal."
+      }
+    ]
+  },
+  "browser_checks": {
+    "representative_spoken_voices": 8,
+    "independent_caption_languages": 6,
+    "desktop_and_390px_mobile": true,
+    "actual_final_audio_bytes_checked": true,
+    "chapter_seek_and_scene_clocks_pass": true,
+    "chapter_and_transcript_links": [
+      "06_api",
+      "31_external_masks",
+      "34_database",
+      "54_qc_dashboard"
+    ],
+    "all15_caption_scenes_and_WebVTT_checked": true,
+    "javascript_errors": 0,
+    "retries_required": false
+  },
+  "capture": {
+    "receipt": "2026-09-09_report_real_capture.json",
+    "composition_directory": "refresh_2026-09-09/captures/report_composed",
+    "gui_frames": 13,
+    "browser_frames": 10,
+    "composition_modifies_images": false,
+    "source_receipt_sha256": "2f2168b447231400acf20838b70fb0bf99a5f7ca0592331e3c39f82a0c9f687f",
+    "composition_provenance_sha256": "d482964d3a8a618a9cfd8f02cec2c4655b44502330a7f13b5a3253931953dc3f",
+    "app_commit": "e3ccb77b44769142fd29387dfbbea9db2df17a0d",
+    "app_version": "1.5.0.4",
+    "app_source_modified": false
+  },
+  "translation_review": {
+    "kind": "Parent editorial translation/review against frozen English and accepted GUI/browser evidence",
+    "local_machine_drafts_promoted_unreviewed": false,
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Preserve actual Help/Report and button names rather than translating Report as a verb.",
+      "Keep measure_crop and Python identifiers intact.",
+      "Distinguish two attempted/two succeeded/zero failed from object counts.",
+      "Translate crops as image cutouts, not harvests or cultures.",
+      "Preserve missing QC, duplicate cytoplasm, fallback provenance, vector-PDF and privacy limitations."
+    ],
+    "draft_generation": {
+      "model": "local nllb-200-distilled-600M",
+      "sentence_chunks": true,
+      "first_cpu_attempt": "Stopped before saving on older73-lesson draft missing safely appended74/75. No incomplete draft promoted.",
+      "retry": "All13 drafts produced using one CUDA writer capped at15% VRAM; editorial corrections separately reviewed and committed."
+    }
+  },
+  "source_protection": "Full131-file private copy; original source project and private material unchanged during accepted capture. Earlier direct-source scan created two SQLite bookkeeping sidecars, disclosed in the real-capture receipt and prerequisite. No source pipeline rerun or fabricated completion record.",
+  "evidence_limits": [
+    "Processing complete does not imply segmentation or plate QC passed.",
+    "Six vector PDFs are listed, not embedded or rasterized; only HTML was generated and inspected.",
+    "103 cytoplasm rows duplicate the103 cell regions; database totals are not independent cells.",
+    "Fallback version information describes the report-generating machine, not reconstructed analysis provenance.",
+    "Actual GUI has no title/authorship/privacy-exclusion controls and does not automatically redact metadata.",
+    "Open GUI button not clicked; accepted generated local HTML directly opened in Chrome."
+  ],
+  "synthesis": "All50 preserved voices, one CUDA writer with10% VRAM allocator cap and110GiB host guard; existing pronunciation rules unchanged.",
+  "catalog_preservation": {
+    "catalogs": 14,
+    "lessons": 75,
+    "scenes": 670,
+    "refreshed": 19,
+    "visual_only": 1,
+    "unselected_unchanged": 56,
+    "sha256": "49ad230143b8dead333de383603e2c65537b61a1e4fe533d877760ab8e6c13b5"
+  },
+  "completed_staged_matrices_at_checkpoint": 19,
+  "newly_generated_tracks_at_checkpoint": 900,
+  "retained_tracks_reverified_at_checkpoint": 50,
+  "total_completed_browser_checks_at_checkpoint": 266,
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}

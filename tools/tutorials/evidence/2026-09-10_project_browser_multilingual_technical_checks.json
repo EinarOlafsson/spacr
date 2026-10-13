@@ -1,0 +1,160 @@
+{
+  "lesson": "45_project_browser",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_project_browser_current_workflow.json",
+  "canonical_english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "scene_count": 11,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "5c41c2997594c7bbd788f62010fd5d55fce80391",
+    "version": "1.5.0.4",
+    "module": "project_browser",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "45_project_browser.da.json": "3df3066312262eac15cea1c208fd44f65f79a109044b5713b12267c7e8e2f2a7",
+    "45_project_browser.de.json": "c50e861807175fc8327c34b4a6ec2bf98bb432263607aec4acbddc0412e774bc",
+    "45_project_browser.es.json": "91dcf979e061c9dfb266c1d2115ab0a8dc3f982f99d082d19e7f108c08e3ed19",
+    "45_project_browser.fr.json": "2381e57b02a39bebc0f1d79cc0a448c5615d685edaf1d1744e1085b2bc421054",
+    "45_project_browser.hi.json": "5cb9b1abe5f4ff2e91af2cdff60574a7f74df7adbf2c6d2241d7f06419de7c6b",
+    "45_project_browser.is.json": "e4ab022d0393c84ba466ffb5ff1c9120bab7a72c4d32ef0405c35755fd91c2eb",
+    "45_project_browser.it.json": "a97d93180f8857f41546d193cab921fb7dbbd99a4f0bcb3fe7f551b796b02b88",
+    "45_project_browser.ja.json": "2c79ffed14870794eb9e9d6d8da0d6ed54f18eaa9af46e90f030c233ac9ee315",
+    "45_project_browser.ko.json": "c9287f23d3e119d6f8a88eae499a5769c760505afbdd2339c69a888c477c3144",
+    "45_project_browser.nb.json": "17a917276dd210aa16b83421fce433c09257c427b41269e81c900c9c94e1a6e4",
+    "45_project_browser.pt-BR.json": "967b2040e7414b8842f7c66a7f8ff594d4dc4c0b871ddf61d18365d91e6a55d8",
+    "45_project_browser.sv.json": "a9705ed5938c05db7742ee2caed0fb57e627ef3c5af47d409eea2b74ae7864a2",
+    "45_project_browser.zh-CN.json": "272af41ddac67ba6d69ca75a3658b234b5b9a8456f1e1695d6db87c247e7d85b"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently checked actual GUI; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "bd825286577c1d818d9d528bb36103d2abcf354367f9eb061c53de9c5fddca5b",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "6437"
+        }
+      ],
+      "format": {
+        "duration": "214.566667",
+        "size": "9938613"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 62,
+        "content": "Actual unregistered converted data, no declared-output stage/time, and explicit unknown provenance warning"
+      },
+      {
+        "seconds": 124,
+        "content": "Real declared-output stage inventory and suggested next steps; presence of imported masks is not evidence of executing segmentation"
+      }
+    ]
+  },
+  "poster_sha256": "8a84637760e4d4b94b033d4039c0f4ef1e2fb1d36fb144b5f640416bfc3c87c5",
+  "final_artifact_checks_sha256": "44df1e2a1f1e7132a1486f36e560359f9c8f6218333b46b8edd69ffee29b9f9e",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "9d7f65260318f9045047cd859b2684fa521e91ed780ae164af4d421bab560e48"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "d0af93ca668ab7f050c2016ced6c99391c702ca98aa897a84fccbd5106eee5c1"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "4951b7b9549034fa4621bcbcd5d1719e7e1ae5b357d396488e4c4150143b9d78"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "5723fc5de72ac65928cb6a6a667a8543d7ba2c0a68780da9c600ae1aa644df80"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "f8f3a858c64d89bd0c81cec3f2c66d3993035d3974e64405944863c4c79cb013"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "381bdd17955875d1e36d0122249d9f044a641b0a8a75a087930fe7ec7c47d2b5"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "9b81e5be5f1746fc62b38d314b25e9486285e1ed136b474936d2c7a0a290f063"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "a687c6122bc13ea8d689f1dd990498b60c7693577f5616f196b2466c9ae37f23"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "bf807fd188aa814eb1c03f6fc21aac62ebd08a9163fbdc7892144903493ed998"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "82d4db91d327f2b6adc348fe0e0a4ad20c3adc386c20501c74af632442e3e3e2"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "664d8b39ce6c8177349b83e8345ab4841f6711dd1cbff16216eebe1d88fb5312"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "e22485ed7c03ece7239bbf1e4948bc8001613fb66e02a3e7e1d4391dc480306c"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "61d9b102380b045950b73b7707f9504af7d70c0a4b33b500765fff365e066d37"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "0992a485e442fce41d1cdbde3130a8442521b30d091b0299c2e9521c22dcea93"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "40c93c6520df621270581e765a1100239826d9fcd60fb992d207bdde9e5445ce"
+    }
+  ],
+  "max_observed_browser_clock_error_seconds": 0.19562660281482636,
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "31_external_masks",
+    "34_database",
+    "37_batch",
+    "40_run_history",
+    "44_data_manager"
+  ],
+  "catalog_preservation_sha256": "3eeac3ad58c4a6ddebf87f9e512ac131e5f7cd3c7c90046a9b44104f580f7e7f",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 706,
+    "selected_refreshed_lessons": 26,
+    "unselected_lessons_unchanged": 49
+  },
+  "original_project_files_byte_identical": {
+    "measured_project": 131,
+    "conversion": 7
+  },
+  "scope_limits": [
+    "Unknown provenance is not proof of clean/unprocessed data; nothing run/never does not negate the successful Batch Runner conversion.",
+    "Stage labels and current staleness were inspected, not independently reimplemented. Actual identity, bytes, file counts and registration times were independently checked.",
+    "Double-click emits correct selection but stays on this browser; rescan can leave selected-row details blank until selecting another row and returning. No app fix or hidden handoff claimed.",
+    "No dedicated data download, live image preview, Plot or AI panel; no stage/age/module/status filters; no analysis or file deletion."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

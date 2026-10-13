@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "Direct Codex AI technical translation with independent Codex AI peer review; no human/native-speaker signoff",
+  "draft_author": "root",
+  "technical_reviewer": "shared_ui",
+  "draft_sha256": "d807ab1fc521d314386fc889f970736028ed782f723783321dfae5bd18629f8d",
+  "peer_review_sha256": "322231b31933eb73d89dfd9129f799c5652870285ed5d1a9cfdf9152d50911cf",
+  "review": "Reviewed all twelve source/target pairs for output-plate barcode assignment, sample-record CSV, optional/non-destructive behavior, mismatch counts and file paths. Root count-neutral summary proposals applied for de/es/fr/pt; independent shared_ui technical review confirms unchanged meaning. Original drafts remain immutable. Normal context and release gates preserved.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Barcode column",
+      "source": "Barcode column",
+      "source_sha256": "f3bf8e47eb7e7775e900e4de325da8ad5fabb33c3ad4964de9dde4c1cec26ad0",
+      "translation": "Streckkodskolumn"
+    },
+    {
+      "table": "ui",
+      "key": "CSV files (*.csv)",
+      "source": "CSV files (*.csv)",
+      "source_sha256": "29066b3f61ae7ae09727b017c386f9364d4219baf3c15049a3cd529ca8db827d",
+      "translation": "CSV-filer (*.csv)"
+    },
+    {
+      "table": "ui",
+      "key": "Choose CSV…",
+      "source": "Choose CSV…",
+      "source_sha256": "d0ac7ebdb20c83f4cd521c77fbac8b9773e5e58983807768784e9b1a899e6fe0",
+      "translation": "Välj CSV…"
+    },
+    {
+      "table": "ui",
+      "key": "Column name in the CSV that contains the plate barcode.",
+      "source": "Column name in the CSV that contains the plate barcode.",
+      "source_sha256": "11eded339a419892e9d472995112a09decb96bd3dd5938254227b6be7537429f",
+      "translation": "Namnet på den kolumn i CSV-filen som innehåller plattans streckkod."
+    },
+    {
+      "table": "ui",
+      "key": "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.",
+      "source": "Optional local CSV of sample metadata. Leave blank to skip barcode linkage. A new plate_barcode_linkage folder is written in the destination; source files and existing plate maps are preserved.",
+      "source_sha256": "aa3ddf671e56c37dc7d156f4254edaf20eab46bfd946da19e32319acd7ad9470",
+      "translation": "Valfri lokal CSV-fil med provmetadata. Lämna tomt för att hoppa över streckkodskoppling. En ny mapp med namnet plate_barcode_linkage skapas i målmappen; källfiler och befintliga plattkartor bevaras."
+    },
+    {
+      "table": "ui",
+      "key": "Output plate barcodes",
+      "source": "Output plate barcodes",
+      "source_sha256": "4d23d976bb4464431d9665ebb9ce253c12474680deb45642e60dbd658d0487dd",
+      "translation": "Utmatningsplattornas streckkoder"
+    },
+    {
+      "table": "ui",
+      "key": "Plate barcode linkage (Alpha)",
+      "source": "Plate barcode linkage (Alpha)",
+      "source_sha256": "8a735c27079fb8dbbd71c2a9d5e5b9031310d215a33c00bcf11ef3f32d03a08f",
+      "translation": "Koppling av plattstreckkoder (alfa)"
+    },
+    {
+      "table": "ui",
+      "key": "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}",
+      "source": "Plate barcode linkage: {wells} well(s), {mismatches} mismatch(es).\nPlate map: {map_path}\nMismatches: {mismatch_path}",
+      "source_sha256": "60f916aba668ca25ec214eaad0975767bc2416b3565f6e52dc42dc0780222f87",
+      "translation": "Koppling av plattstreckkoder: antal brunnar {wells}, antal avvikelser {mismatches}.\nPlattkarta: {map_path}\nAvvikelser: {mismatch_path}"
+    },
+    {
+      "table": "ui",
+      "key": "Sample records CSV",
+      "source": "Sample records CSV",
+      "source_sha256": "d47731225028e022ef2ca3424fcd0f6699d68561bf616651631240423698d5ba",
+      "translation": "CSV med provuppgifter"
+    },
+    {
+      "table": "ui",
+      "key": "Select sample records CSV",
+      "source": "Select sample records CSV",
+      "source_sha256": "b4b660b714d822e1821d511efdf4fc3578cc08753b9f8429c50fc382e9ca1e37",
+      "translation": "Välj CSV-fil med provuppgifter"
+    },
+    {
+      "table": "ui",
+      "key": "Showing {shown} of {total} mismatches; the CSV contains all rows.",
+      "source": "Showing {shown} of {total} mismatches; the CSV contains all rows.",
+      "source_sha256": "45cd400d4de566878fccf18ec74784d7316c96dafe14b4f5e7d1b1072e49e26a",
+      "translation": "Visar {shown} av {total} avvikelser; CSV-filen innehåller alla rader."
+    },
+    {
+      "table": "ui",
+      "key": "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source": "Barcodes can be read from barcode.txt at the source root or in a source plate folder. Use a plain barcode for one source plate, or source_plate=barcode entries for multiple source plates. Fill any remaining output plates here, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source_sha256": "8a313df4bc5c22d2e4cc8cf2a1f6085781d7562bedb2aae4dbb0dbf302ec5bb4",
+      "translation": "Streckkoder kan läsas från barcode.txt i källans rotmapp eller i en källplattas mapp. Använd enbart streckkoden för en källplatta, eller poster av typen source_plate=barcode för flera källplattor. Ange här streckkoder för återstående utdataplattor, till exempel plate1=BC001; plate2=BC002. Utdataplattornas namn kan skilja sig från källmapparnas namn."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source": "Assign every output plate shown in the preview, for example plate1=BC001; plate2=BC002. Output plate names can differ from source folder names.",
+      "source_sha256": "bf55297c95f7ea100c29631cdf1b1cc7c28974387ee4ca60e9cfb53fd00f96cd",
+      "translation": "Tilldela en streckkod till varje utmatningsplatta som visas i förhandsgranskningen, till exempel plate1=BC001; plate2=BC002. Utmatningsplattornas namn kan skilja sig från källmapparnas namn."
+    }
+  ],
+  "retirement_reason": "Replaced inaccurate pre-discovery assignment guidance before first publication; original accepted AI target and source hash retained.",
+  "sidecar_guidance_review": {
+    "author": "Codex AI shared_ui",
+    "reviewer": "Codex AI root",
+    "draft_sha256": "cfd706f358216c2514f3b632b95300d7bb83a72d89abd53cf98e2813e0b29bd2",
+    "peer_review_sha256": "ef69d95d3426ce6faef9a55d5a567260ba2644b83b613974dc7a6ee4997df756",
+    "korean_identifier_boundary_review_sha256": "fc95d197348cf0d282e7ad491daba48c4eca1c013b5330e883a2dbdaf233816c",
+    "scope": "Replacement source-bound sidecar discovery tooltip; AI technical review, no human/native signoff."
+  }
+}

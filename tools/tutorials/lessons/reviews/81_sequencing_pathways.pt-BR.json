@@ -1,0 +1,39 @@
+{
+  "language": "pt-BR",
+  "lesson": "81_sequencing_pathways",
+  "english_sha256": "e5335413a37e795563110b03c5e417f7f684ee5761afaa68bc261c9930146608",
+  "title": "Módulos de sequenciamento e como se relacionam",
+  "section": "Fluxos de trabalho",
+  "description": "Conecte os fluxos de sequenciamento e de códigos de barras ópticos às pontuações de fenótipo, à regressão, ao planejamento de experimentos, às estimativas de poder, à análise de dose-resposta e à comparação de execuções.",
+  "objectives": [
+    "Escolha um módulo inicial a partir dos dados que você já tem.",
+    "Identifique o que cada módulo lê e grava.",
+    "Siga as lições dos módulos e os contratos da API vinculados para a próxima etapa."
+  ],
+  "prerequisite": "Instale o spaCR e abra a tela Home. Escolha os dados iniciais do seu fluxo de trabalho e siga as lições de módulos vinculadas para ver os controles e os dados de exemplo.",
+  "scenes": [
+    "O sequenciamento é como uma triagem agrupada descobre qual guia está em qual poço ou célula, e o spaCR o lê de duas formas. Leituras de um sequenciador vão para Map Barcodes. Códigos de barras captados em imagens, ciclo a ciclo, vão para OPS, que fica dentro de Mask. De qualquer forma, as identidades dos códigos de barras acabam ao lado dos seus fenótipos em Regression. Em volta desse núcleo ficam as ferramentas de planejamento, Experiment Design e Power, para antes da aquisição, e Dose–Response e Run Compare para os resultados.",
+    "Comece pelas leituras de sequenciamento. Abra Map Barcodes em Home e entregue a ele seus arquivos FASTQ, de leitura simples ou pareada, com as tabelas de referência de códigos de barras que codificam seu experimento. O Map Barcodes associa cada leitura aos seus códigos de barras e conta as guias em cada poço, salvando unique_combinations.csv e annotated_reads.h5 na pasta da execução. Antes de confiar nessas contagens, abra-as no Barcode QC. Depois que passarem, elas são as contagens de guias que o Regression associa às pontuações de fenótipo, com as mesmas chaves de placa e poço.",
+    "O Barcode QC fica dentro de Map Barcodes, então abra Map Barcodes em Home e escolha-o ali. Ele lê as contagens de guias que você acabou de gerar e mostra profundidade de mapeamento, cobertura, colisões de códigos de barras e efeitos de posição. Ele salva os resultados de QC com figuras e tabelas exportáveis, para você decidir quais guias filtrar antes de seguir adiante.",
+    "Triagens ópticas seguem outro caminho. Abra Mask em Home e escolha OPS. Em vez de leituras, o OPS recebe as imagens de cada ciclo de sequenciamento, alinha-as às imagens de fenótipo e decodifica um código de barras para cada núcleo. Os resultados vão para o measurements.db do OPS, com tabelas de geometria, alinhamento de fenótipo, núcleos e códigos de barras. Esse banco de dados, porém, não é uma tabela de contagens FASTQ. Para usá-lo em Regression, primeiro junte e agregue as identidades decodificadas aos seus dados de fenótipo, para que cada objeto ou poço carregue as duas coisas.",
+    "Seja qual for a forma como você sequenciou, os códigos de barras encontram os fenótipos no Regression. Abra-o em Home. Em uma triagem agrupada, ele recebe as pontuações de fenótipo do Classify e as contagens de guias do Map Barcodes. Em uma triagem óptica, ele recebe os objetos decodificados do OPS depois que você mesmo os juntou e agregou; não é uma passagem direta de arquivos. Ele também pode modelar uma resposta medida diretamente. Em todos os casos, os identificadores de placa e poço precisam coincidir entre as entradas. Escolha a resposta e os controles, execute o ajuste e leia os diagnósticos antes de chamar qualquer coisa de hit. A pasta de resultados que ele grava, com coeficientes, tabelas de hits, configurações e figuras, é a que o Run Compare abre quando você quer comparar esta execução com outra.",
+    "Agora volte para antes do experimento. Abra Power / Design em Home para estimar quanta amostragem você precisa para ver um efeito, com base nos tamanhos de efeito e na variabilidade que escolher. Medições piloto podem apoiar essas premissas, mas são opcionais. O layout do Experiment Design alimenta essas estimativas, e as estimativas, por sua vez, podem levar você a revisar esse desenho.",
+    "Abra Experiment Design em Home para planejar as placas antes de adquirir qualquer coisa. Informe as condições, os controles, as réplicas e as restrições de placa, tendo em mente suas estimativas de poder, e exporte o layout experimental. Esse layout vai longe. O Power / Design o usa para definir as premissas de amostragem e, mais tarde, depois que o experimento for adquirido e medido, o Dose–Response usa as identidades de dose e condição dele, então mantenha-as inalteradas do começo ao fim.",
+    "O Dose–Response responde quanto, e não qual guia, então não precisa de sequenciamento. Abra-o em Home e traga suas respostas medidas com as identidades de dose e condição do Experiment Design. Defina as colunas de dose e resposta, os controles e as unidades e ajuste as curvas. Ele salva os resultados do ensaio com figuras e tabelas para exportar.",
+    "Assim que tiver mais de uma análise, abra Run Compare em Home. Ele lê os registros de execuções salvas e os resultados de Regression e coloca lado a lado as configurações, as contagens e as listas de hits. Se os dados de entrada mudaram entre as execuções, as diferenças não são uma comparação controlada de modelos, então leia-as com isso em mente.",
+    "Mais uma ferramenta de planejamento existe só em Python: a varredura de simulações de triagem agrupada, spacr.sim.run_multiple_simulations, sem bloco em Home nem item de menu. Você passa a ela um dicionário de configurações com as premissas, como tamanho da triagem, ocupação, acurácia do classificador e sequenciamento. Ela expande todas as combinações, simula cada uma em um pool de processos e acrescenta linhas de resumo sintéticas a simulations.db; a chamada em si retorna None. Mantenha pequena a grade de parâmetros e defina max_workers explicitamente antes de executar. O que sai é evidência para planejamento, não dados, e não pode substituir medições nem contagens de códigos de barras no Regression. Leia os resumos, registre suas premissas e leve-as à mão para o Power / Design ou o Experiment Design, já que nenhuma das duas ferramentas importa o banco da simulação.",
+    "Assim, o lado dos códigos de barras de uma triagem sempre termina do mesmo jeito: identidades ligadas aos fenótipos por placa e poço. Mantenha as referências de códigos de barras e os layouts de placa com as tabelas de contagens e, em uma triagem óptica, junte os objetos decodificados aos fenótipos e agregue-os antes de Regression. As lições de módulos vinculadas mostram as configurações e as saídas de cada etapa."
+  ],
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff; composed from the workflow-map phrase bank",
+    "native_speaker_signoff": false,
+    "workflow_map_sha256": "11d5fd8ef093745f224ec2182b643ec65f70c71864b22c6ac739f44ea1d1ae7d",
+    "phrase_bank_sha256": "8bcb4fe91663a837150f7f84508f6b32a77cac17966055488104c89adb646c12",
+    "corrections": [
+      "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
+      "Preserve literal API, table and column identifiers and the original capture/link structure."
+    ],
+    "independent_peer_review": false,
+    "listening_review": false
+  }
+}

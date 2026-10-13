@@ -1,0 +1,33 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "71794c3c8f4747dd0bada9c613b11e057020b5adc0892760865854a902df4f0e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Control Charts：プレート間で対照を監視する",
+  "description": "キャンペーンの表を読み込み、対照と基準の限界を選び、アラートを確認して、プロットした点を書き出します。",
+  "objectives": [
+    "測定項目と対照の集団を選ぶ。",
+    "基準期間とアラートのルールを設定する。",
+    "アラートを確認し、チャートの点を書き出す。"
+  ],
+  "prerequisite": "下の合成データのキャンペーンCSVをダウンロードするか、プレートの識別情報、実行順、測定値、対照のラベルを含むウェル単位の表を用意します。この例では、意図的なドリフトを含む三十枚のプレートを示します。",
+  "scenes": [
+    "QCを開き、続いてControl Chartsを開いて、キャンペーン全体で繰り返し測った対照を監視します。練習用のCSVは合成データのプレートで、意図的なドリフトが入っています。",
+    "下の例のCSVをダウンロードし、Load tableをクリックして選びます。三十枚のプレートがあり、それぞれに対照の種類ごとに三ウェルと、サンプルが三ウェルあります。",
+    "Plate、Run order、Measurement、Control columnを表の列に対応させます。Control isでは、陰性対照としてnegを選びます。何も選ばないと、すべての行が含まれます。",
+    "Sigma fromで、ばらつきの推定方法を選びます。ここでは各プレートに選んだ対照ウェルが三つあるので、Autoはサブグループによる推定を使います。",
+    "Rulesで、確認したいアラートを選びます。この例では、三シグマの限界を外れた点に注目するため、Limits onlyを使います。設定を変えると、チャートが描き直されます。",
+    "Baseline platesを二十にします。最初の二十枚のプレートで、系列の限界が決まります。レポートとルールの表を読み、印の付いた後のプレートを見つけます。",
+    "陽性対照を確認するには、negを外してposを選びます。平均と限界を別々に確認し、例を続けるにはnegに戻します。",
+    "予定している基準期間が異なる場合は、Baseline platesを調整します。このツールには少なくとも八枚のプレートが必要です。アッセイに合った安定した基準を選びます。",
+    "Export pointsをクリックし、CSVの保存先を選びます。プレートの識別情報、平均、サブグループの大きさ、限界、基準への所属、発動したルールが保存されます。",
+    "入力のCSV、選んだ対照、基準の設定は、書き出した点と一緒に保管します。印の付いたプレートの識別情報を使って、取得やアッセイの変化を調べます。"
+  ]
+}

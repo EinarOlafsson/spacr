@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "item": 53,
+  "date": "2026-09-27",
+  "scope": "Actual hosted Windows passive child capture and separate replay; original historical installation remains failed",
+  "run": 36368371775,
+  "job": 108759247680,
+  "head_sha": "e9c7baee38450ced07cfbb7ba12e95ef9d4617b1",
+  "artifact": {
+    "id": 10947899356,
+    "name": "historical-upgrade-windows-2022",
+    "bytes": 174584,
+    "github_digest": "sha256:06223ce799d53d90ab35b2d624f5ad607c56a91a2dbf8c20da5bb0f76312d243",
+    "downloaded_zip_sha256": "06223ce799d53d90ab35b2d624f5ad607c56a91a2dbf8c20da5bb0f76312d243",
+    "digest_and_workflow_run_head_binding_verified": true
+  },
+  "source_binding": {
+    "retrieval": "GitHub contents API at the exact run head SHA",
+    "workflow_git_blob": "b982054f8ccbf108c1448836625b3f7e7076702e",
+    "workflow_sha256": "55374adaf55a5356b5ad8b8a7a6c66a5cbd6977e186bf26a6efc47f06371893c",
+    "driver_git_blob": "9e8d990493ab43814bd3bffb0a67e6a88bb0d62d",
+    "driver_repository_lf_sha256": "d6efb7f8a24b9949a7661ad27d2b7c259b8929b2117a67e0fd2074dba51be69c",
+    "driver_executed_sha256": "ec15ae1161d017b972892f27d03fc48d3f0a4085d5e671c99cdd574d69f18b56",
+    "crlf_proof": "Converting exact repository driver LF line endings to Windows CRLF reproduces the executed driver SHA256 byte-for-byte"
+  },
+  "original_attempt": {
+    "installer_sha256": "2b6b07ad12926288f693c01945f2fc4555b0a37022fd73dce932e2d8b6e4ee76",
+    "bootstrap_sha256": "94f05a5b8150f7491c7319eb3beeb62e8405b0fdf6a2d498f58313103ac7b28e",
+    "retained_uv_script_sha256": "d84b0d973693497f8c1c1d82b2d2f52e32e50c7c24efa3d925341bd6fc5238b2",
+    "child_pid": 2228,
+    "child_exit_code": 1,
+    "expected_uv_present": false,
+    "exact_failure_dialog_captured": true,
+    "bootstrap_gone_and_transcript_ended": true,
+    "observed_process_tree_exited": true,
+    "original_child_error_text_available": false,
+    "failure_cause": "Unproven; a nonzero original child exit and absent expected executable are established, but its streams were not retained"
+  },
+  "actual_replay": {
+    "status": "captured",
+    "engine": "C:\\Windows\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "engine_sha256": "e093a521b1ce57bcface048f263bc21f93745663cdf0dd1c780c418f3802b7ef",
+    "powershell_version": "5.1.20348.5622",
+    "is_64_bit_process": false,
+    "same_engine_account_temporary_path_and_retained_script_verified": true,
+    "environment_provenance": "Reconstructed whitelist inheritance plus two assignments in the hash-verified bootstrap; actual original child environment was not read",
+    "whitelist_match_checked_before_replay": true,
+    "child_exit_code": 0,
+    "timed_out": false,
+    "stdout_complete": true,
+    "stderr_complete": true,
+    "stdout_summary": "uv 0.11.32 selected x86_64-pc-windows-msvc and installed uv.exe, uvx.exe and uvw.exe at the expected bootstrap destination",
+    "stderr_bytes": 0,
+    "expected_uv_present": true,
+    "uv_sha256": "23cf0f8194ff576562646a1a2950c6826249c8806cd1547debd24db77eb68f58",
+    "no_private_python_install_or_gui_upgrade_run": true
+  },
+  "evidence_directory": "/mnt/wd4tb/scratch/spacr-completion/53-windows-e9c7-diagnostic-20260927",
+  "evidence_sha256": {
+    "evidence/original-uv-child.json": "2aa930c0253698cef38a3fd8bbdc97197aed541b063931d388c6d6b6663a6708",
+    "evidence/installer-observation.json": "18bbfb00dd1bfa48cce4a5fafa75e97ab305030e2f224194d778df6546d4c9ee",
+    "evidence/uv-diagnostic-status.json": "074d2ed775949d77117fc8712ae02f2b1686a2804b01192407d82c982101e842",
+    "evidence/uv-child-diagnostic/receipt.json": "0fb61dd2abec8c73940546516e11729563873c44d095589fcd845e4da60b9a95",
+    "evidence/uv-child-diagnostic/stdout.txt": "aec5ee32c9a151fb9f26b8f694d3c11664720721b74fcaf276b675ac25b74357",
+    "evidence/uv-child-diagnostic/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "historical_windows_acceptance": "failed",
+  "diagnostic_success_is_installer_acceptance": false,
+  "full_item_complete": false
+}

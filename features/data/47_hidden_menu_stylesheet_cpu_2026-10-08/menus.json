@@ -1,0 +1,78 @@
+[
+  {
+    "variant": "before",
+    "timings": [
+      {
+        "seconds": 0.3317609630175866,
+        "count": 150
+      },
+      {
+        "seconds": 0.34769004001282156,
+        "count": 150
+      },
+      {
+        "seconds": 0.3662939569912851,
+        "count": 150
+      }
+    ],
+    "sheeted_hidden": 150,
+    "latest_on_open": true
+  },
+  {
+    "variant": "after",
+    "timings": [
+      {
+        "seconds": 0.0010974740143865347,
+        "count": 0
+      },
+      {
+        "seconds": 0.00016676500672474504,
+        "count": 0
+      },
+      {
+        "seconds": 0.00015012500807642937,
+        "count": 0
+      }
+    ],
+    "sheeted_hidden": 0,
+    "latest_on_open": true
+  },
+  {
+    "variant": "after",
+    "timings": [
+      {
+        "seconds": 0.0001828539534471929,
+        "count": 0
+      },
+      {
+        "seconds": 0.0001551850000396371,
+        "count": 0
+      },
+      {
+        "seconds": 0.00018894299864768982,
+        "count": 0
+      }
+    ],
+    "sheeted_hidden": 0,
+    "latest_on_open": true
+  },
+  {
+    "variant": "before",
+    "timings": [
+      {
+        "seconds": 0.22545517096295953,
+        "count": 150
+      },
+      {
+        "seconds": 0.35223305999534205,
+        "count": 150
+      },
+      {
+        "seconds": 0.33215491101145744,
+        "count": 150
+      }
+    ],
+    "sheeted_hidden": 150,
+    "latest_on_open": true
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "lesson": "60_pca",
+  "english_sha256": "0f5f4b13e20bb8f692c069237b8269efd05bed0517cbdf08d8345c6dd8588688",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "PCA: Messwerte erkunden und Komponenten exportieren",
+  "description": "Laden Sie gemessene Objekte, wählen Sie Merkmale, vergleichen Sie Hauptkomponenten und exportieren Sie Scores, Ladungen und erklärte Varianz.",
+  "objectives": [
+    "Eine Messdatenbank oder CSV laden und Merkmale auswählen.",
+    "Skalierung, Umgang mit fehlenden Werten und Filter wählen.",
+    "Komponentenscores und Ladungen prüfen und dann drei Ergebnistabellen exportieren."
+  ],
+  "prerequisite": "Laden Sie das Beispiel aus dem Annotate-Tutorial herunter und arbeiten Sie mit einer Kopie von measurements.db. Diese Anleitung verwendet dessen Tabelle cell mit 2.341 gemessenen Objekten aus vier Wells. Behalten Sie die Originaldatenbank und notieren Sie Merkmalsliste, Filter, Skalierung und Regel für fehlende Werte.",
+  "scenes": [
+    "Öffnen Sie von Home aus Image UMAP und wählen Sie dann PCA. Mit PCA fassen Sie mehrere Messspalten als Hauptkomponenten zusammen. Beginnen Sie mit der Messdatenbank aus dem verlinkten Annotate-Beispiel.",
+    "Klicken Sie neben der Überschrift PCA auf Load table. Öffnen Sie measurements.db und wählen Sie cell. Prüfen Sie die angezeigte Tabelle und die Objektzahl. Sie können auch eine CSV mit Messspalten laden.",
+    "Leeren Sie die Merkmalssuche und klicken Sie auf None, um alle sichtbaren Merkmale abzuwählen. Wählen Sie cell_area, cell_channel_1_mean_intensity und cell_perimeter. Leeren Sie die Suche erneut, setzen Sie Components auf 3 und klicken Sie auf Run PCA.",
+    "Lassen Sie Scale auf Standardise, um jedes Merkmal zu zentrieren und durch seine Stichproben-Standardabweichung zu teilen. Lesen Sie den Scree-Plot: Die ersten beiden Komponenten erklären etwa 65,7 % und 31,7 % der Varianz der ausgewählten Merkmale.",
+    "Wählen Sie rowID unter Colour, PC 3 auf X und PC 1 auf Y. Diese Regler zeichnen das angepasste Ergebnis neu. Jeder Punkt steht für eine Zelle; rowID kennzeichnet in diesem Beispiel eine räumliche Zeile.",
+    "Kehren Sie zu PC 1 und PC 2 zurück. Schalten Sie Loadings biplot um, um Merkmalspfeile ein- oder auszublenden. Die Pfeile zeigen Korrelationen mit den angezeigten Komponenten; vergleichen Sie Merkmale anhand ihrer Richtungen und des gestrichelten Referenzkreises.",
+    "Wählen Sie Centre only, um mit den ursprünglichen Messskalen anzupassen. Die erste Komponente erklärt nun etwa 90,1 %. Die Skalierung verändert die Frage, die zusammengefasst wird. Stellen Sie Standardise wieder ein, um Merkmale auf einer gemeinsamen Skala zu vergleichen.",
+    "Fügen Sie im Filter rechts cell_area hinzu und setzen Sie das Minimum auf 21.925. Der Bereich passt die PCA an die verbleibenden 1.171 Zellen neu an; damit ändern sich sowohl die Population als auch die Komponentenrichtungen.",
+    "Klicken Sie im Filter auf Clear all, um die vollständige Population wiederherzustellen. Prüfen Sie nach dem Filtern die Objektzahl. Die Quelldatenbank bleibt unverändert; das angezeigte Ergebnis wird für die gewählte Population neu berechnet.",
+    "Wählen Sie cell_channel_0_homogeneity_distance_32 als viertes Merkmal. Klicken Sie auf Run PCA, um es in das Ergebnis aufzunehmen. Dieses Beispiel hat in dieser Spalte sieben fehlende Messwerte; legen Sie mit NaN fest, wie die Anpassung damit umgeht.",
+    "Mit Auto werden Merkmale entfernt, die in mehr als 2 % der Zeilen fehlen, und anschließend unvollständige Zeilen verworfen. Hier bleiben alle vier Merkmale erhalten, und sieben Zellen werden ausgeschlossen. Lesen Sie im Bericht, welche Merkmale und Objekte tatsächlich analysiert wurden.",
+    "Wählen Sie Drop features, um jedes ausgewählte Merkmal mit fehlenden Werten zu entfernen. In diesem Beispiel wird das Texturmerkmal entfernt, und alle Zellen bleiben erhalten. Der Ergebnishinweis zeigt, welche Merkmale ausgeschlossen wurden, auch wenn ihre Kontrollkästchen aktiviert bleiben.",
+    "Wählen Sie Mean-impute, um alle Zellen und Merkmale zu behalten, indem fehlende Werte bei der Berechnung durch den beobachteten Merkmalsmittelwert ersetzt werden. Hier werden sieben Werte ersetzt. Dokumentieren Sie diese Wahl, wenn Sie das Ergebnis darstellen; die Ersatzwerte sind Schätzungen.",
+    "Wählen Sie Complete cases, um die ausgewählten Merkmale zu behalten und unvollständige Zeilen auszuschließen. Um zum ursprünglichen Beispiel zurückzukehren, wählen Sie Auto, wählen das Texturmerkmal ab, leeren die Suche, klicken auf Run PCA und setzen Colour auf none.",
+    "Klicken Sie auf Export und wählen Sie einen Basisnamen wie pca_example. Der Bereich schreibt drei CSV-Dateien: Scores für analysierte Objekte, Ladungen und Korrelationen für Merkmale sowie erklärte Varianz für Komponenten. Die Score-Tabelle enthält auch die Quell-Messspalten.",
+    "Öffnen Sie die exportierten Tabellen und bewahren Sie sie mit Merkmalsliste, Filtern und Analyseeinstellungen auf. Behandeln Sie die Zellen beim Deuten einer Trennung als Beobachtungen innerhalb ihrer Wells. Für eine reproduzierbare Python-Analyse verwenden Sie pca und PCASpec aus spacr.qt.widgets.pca_model."
+  ]
+}

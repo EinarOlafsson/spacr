@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Discovers the R1 and R2 files of each sample under ``src``. Paired vs single-end and R1/R2 orientation are chosen from ``settings['mode']`` and ``single_direction``.",
+      "label": "spacr.sequencing.generate_barecode_mapping#1",
+      "source": "Discovers the R1 and R2 files of each sample under ``src``. Paired vs single-end and R1/R2 orientation are chosen from ``settings['mode']`` and ``single_direction``.",
+      "source_sha256": "2248ee778f5a212033ec0a8e295a683216ef3f8c9f3bba0200531e9d9a81fbd9",
+      "translation": "``src`` के अंतर्गत प्रत्येक नमूने की R1 और R2 फ़ाइलों का पता लगाता है। पेयर्ड बनाम सिंगल-एंड और R1/R2 अभिविन्यास ``settings['mode']`` तथा ``single_direction`` से चुने जाते हैं।"
+    }
+  ],
+  "schema": 1
+}

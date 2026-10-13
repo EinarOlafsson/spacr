@@ -1,0 +1,72 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_prediction_retains_two_flow_axes_across_cellpose_return_contracts[array] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x780c1a52a870>
+return_form = 'array'
+
+    @pytest.mark.parametrize('return_form', ['array', 'tuple'])
+    def test_prediction_retains_two_flow_axes_across_cellpose_return_contracts(
+            monkeypatch, return_form):
+        original = dynamics.masks_to_flows_gpu
+    
+        def diffusion(*args, **kwargs):
+            result = original(*args, **kwargs)
+            vectors = result[0] if isinstance(result, tuple) else result
+            return vectors if return_form == 'array' else (vectors, None)
+    
+        monkeypatch.setattr(dynamics, 'masks_to_flows_gpu', diffusion)
+        labels, flows, styles = _prediction()
+>       assert flows[1].shape == (2, *labels.shape)
+E       assert (20, 28) == (2, 20, 28)
+E         
+E         At index 0 diff: 20 != 2
+E         Right contains one more item: 28
+E         Use -v to get more diff
+
+tests/test_plaque_segmentation_diagnostics.py:39: AssertionError
+_ test_prediction_retains_two_flow_axes_across_cellpose_return_contracts[tuple] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x780c1a45edb0>
+return_form = 'tuple'
+
+    @pytest.mark.parametrize('return_form', ['array', 'tuple'])
+    def test_prediction_retains_two_flow_axes_across_cellpose_return_contracts(
+            monkeypatch, return_form):
+        original = dynamics.masks_to_flows_gpu
+    
+        def diffusion(*args, **kwargs):
+            result = original(*args, **kwargs)
+            vectors = result[0] if isinstance(result, tuple) else result
+            return vectors if return_form == 'array' else (vectors, None)
+    
+        monkeypatch.setattr(dynamics, 'masks_to_flows_gpu', diffusion)
+        labels, flows, styles = _prediction()
+        assert flows[1].shape == (2, *labels.shape)
+        assert np.isfinite(flows[1]).all()
+        assert np.any(flows[1] != 0)
+        rows = plaque._plaque_segmentation_metrics(labels, (labels, flows, styles))
+        assert set(rows) == {3, 41}
+        for row in rows.values():
+>           assert row['flow_error'] == pytest.approx(0, abs=1e-12)
+E           assert None == 0 ± 1.0e-12
+E             
+E             comparison failed
+E             Obtained: None
+E             Expected: 0 ± 1.0e-12
+
+tests/test_plaque_segmentation_diagnostics.py:45: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  spacr.plaque:plaque.py:444 Plaque mask-flow agreement could not be calculated
+Traceback (most recent call last):
+  File "/mnt/wd4tb/spacr-worktrees/codex-683-four-module-coverage-20261007/spacr/plaque.py", line 442, in _plaque_segmentation_metrics
+    errors, mask_flows = dynamics.flow_error(dense, flow, device=torch.device("cpu"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/cellpose/dynamics.py", line 320, in flow_error
+    flow_errors = np.array([err[slc[0], slc[1]][maski[slc[0], slc[1]] == (j+1)].mean() for j, slc in enumerate(slices)])
+                                                                                                     ^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not iterable
+=========================== short test summary info ============================
+FAILED tests/test_plaque_segmentation_diagnostics.py::test_prediction_retains_two_flow_axes_across_cellpose_return_contracts[array]
+FAILED tests/test_plaque_segmentation_diagnostics.py::test_prediction_retains_two_flow_axes_across_cellpose_return_contracts[tuple]
+2 failed in 6.49s

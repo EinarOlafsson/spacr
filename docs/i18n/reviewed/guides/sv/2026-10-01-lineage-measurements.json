@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native signoff",
+  "draft_author": "root",
+  "technical_reviewer": "shared_ui",
+  "source_file": "docs/source/workflows.rst",
+  "source_file_sha256": "317a2755c402e74c757450f5b0e48a84c1d807ab53822f534921127385a8d04e",
+  "records": [
+    {
+      "source": "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused.",
+      "source_sha256": "4c5222a0348b1e345f4f0a1b1e9680bac8448e95a8eb8a4a6258e1eb27dba974",
+      "translation": "För att färglägga träd efter uppmätta egenskaper ska du först spåra med ``timelapse_lineage`` aktiverat så att spaCR sparar kopplingen mellan bildrutor och källor. Kör sedan Mätning på det sammanfogade projektet med ``timelapse=True``, motsvarande ``timelapse_objects`` och ``timelapse_lineage=True``. Aktivera alfafunktioner och tidsdimensionen för att visa släktträdskontrollerna. Ange en numerisk kolumn från det valda objektets mättabell som ``timelapse_lineage_color_by``. Segmentens medelvärden beräknas från tillgängliga uppmätta bildrutor; segment utan mätvärden förblir ofärgade och täckningen redovisas. Resultaten skrivs till ``tracks/lineage_measured`` utan att ersätta tidigare släktträdsresultat. Äldre spår utan kopplingen kräver en ny spårning. Sparad uttrycklig tidskalibrering ärvs; ett motstridigt intervall avvisas."
+    }
+  ],
+  "review": "Checked setting identifiers, measured source/label mapping, partial observations and uncoloured segments, separate output, old-track requirement and timing calibration. Literal markup checked."
+}

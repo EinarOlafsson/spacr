@@ -1,0 +1,23 @@
+{
+  "item": 571,
+  "date": "2026-10-02",
+  "acceptance": "The original DONE WHEN is met for annotated events: Kaplan-Meier curves and Cox hazard ratios agree with lifelines on the same event table.",
+  "archived_independent_comparison": {
+    "source": "features/future/571_time_to_event_analysis.txt, 2026-09-30 real-data validation",
+    "dataset": "Vicar et al. annotated LNCaP death movies, 581 tracked cells and 451 annotated deaths across three treatments",
+    "reference": "lifelines 0.30.3 on the same annotation table",
+    "result": "All three KM curves match exactly; the three-group log-rank p is 1.09e-19 in both; Cox HRs are 1.897 for staurosporine and 3.185 for black phosphorus relative to doxorubicin in both engines.",
+    "note": "This is the archived 2026-09-30 comparison, not a fresh rerun of its scratch data."
+  },
+  "current_source_check": {
+    "command": "QT_QPA_PLATFORM=offscreen OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' tools/run_capped.sh 4G taskset -c 0 /home/carruthers/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_time_to_event.py tests/test_event_detection_on_tracks.py tests/qt/test_time_to_event_alpha_gate.py -m 'not heavy' -p no:randomly",
+    "passed": 29,
+    "failed": 0,
+    "skipped": 1,
+    "deselected_heavy": 4,
+    "seconds": 9.91,
+    "scope": "Gehan published lifelines/R numeric values, annotated event extraction, censoring, saved tables and figures, division timing, and Qt alpha gate",
+    "skip_reason": "The optional lifelines package is absent from the spaCR environment; direct current-session dual-engine comparison was not run."
+  },
+  "limits": "No hand-annotated Toxoplasma egress/host-lysis movie was available. Well-cluster correlation, delayed entry, competing risks and lineage-derived division events remain separate extensions."
+}

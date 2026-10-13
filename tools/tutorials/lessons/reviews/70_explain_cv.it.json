@@ -1,0 +1,33 @@
+{
+  "lesson": "70_explain_cv",
+  "english_sha256": "7093bb0794d7d674bf79e62707b56be4c10e45d101b9bbbe000c6274aad6fd5d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Explain CV Model: confrontare le previsioni con le caratteristiche misurate",
+  "description": "Carica previsioni e misure corrispondenti, adatta un modello surrogato e leggine la fedeltà prima di usare le spiegazioni per caratteristica.",
+  "objectives": [
+    "Abbinare il database delle misure alle previsioni salvate del classificatore.",
+    "Scegliere le colonne di previsione, un motore e i gruppi tenuti da parte.",
+    "Leggere fedeltà, matrice di confusione e riepiloghi delle caratteristiche salvati."
+  ],
+  "prerequisite": "Usa measurements.db e il CSV delle previsioni degli stessi oggetti dell’esempio di Annotate e Classify. Seleziona come obiettivo le classi assegnate dal modello salvato. In questo esempio la fedeltà del surrogato è limitata, quindi le sue attribuzioni per caratteristica non vanno usate per spiegare il modello di visione. Valuta separatamente il classificatore originale con dati indipendenti.",
+  "scenes": [
+    "Da Home, apri Classify, poi scegli Explain CV Model in alto a destra. Prepara il database delle misure e le previsioni salvate per gli stessi oggetti ritagliati.",
+    "Seleziona measurements.db e il CSV delle previsioni corrispondente. Controlla i nomi dei file e l’identità degli oggetti prima di continuare. Questo esempio usa duecentotrentaquattro previsioni salvate.",
+    "Conferma il percorso delle previsioni con Invio se le scelte delle colonne non si sono aggiornate. Scegli filename per il percorso del ritaglio e predicted_label per le classi assegnate dal modello. Seleziona Random Forest, il raggruppamento per pozzetto e una nuova cartella di output.",
+    "Fai clic su Explain model. Il surrogato usa le caratteristiche misurate per riprodurre le classi salvate. Scegli motore e raggruppamento in questo modulo; usa l’API di Python per altre opzioni di adattamento.",
+    "Leggi prima Fidelity. Qui ottantanove righe hanno caratteristiche complete: sessantotto servono per l’adattamento e ventuno di un altro pozzetto sono tenute da parte. Confronta l’accordo con il riferimento ed esamina quali righe sono state escluse.",
+    "Apri Importance. In questo esempio il controllo di fedeltà trattiene la classifica. Esamina anche i nomi delle caratteristiche escluse: un avviso di fuga basato sul nome va verificato rispetto a ciò che la misura contiene davvero.",
+    "Apri Confusion per confrontare le classi del surrogato con quelle del modello di visione. Qui tutti gli oggetti tenuti da parte ricevono la classe uno, con diciassette concordanze e quattro differenze. Controlla le prestazioni per classe invece di affidarti solo all’accordo complessivo.",
+    "Per-cell SHAP descrive il surrogato adattato. Quando la fedeltà è inadeguata, questi valori non possono spiegare in modo affidabile il modello di visione. Conserva questa limitazione insieme a qualsiasi tabella di attribuzioni esportata.",
+    "Apri Correlations e Feature distributions per esaminare le misure. Queste tabelle dell’interfaccia mostrano fino a mille righe. Usa i file CSV salvati per esaminare i riepiloghi completi.",
+    "Apri Held-out cells per vedere l’identità degli oggetti ed entrambe le previsioni. Tieni insieme i file di output, le impostazioni e il rapporto di fedeltà. Prosegui con il tutorial Evaluation quando devi valutare il classificatore originale."
+  ]
+}

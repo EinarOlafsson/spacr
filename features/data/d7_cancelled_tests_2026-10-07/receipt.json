@@ -1,0 +1,134 @@
+{
+  "files": [
+    {
+      "file": "run-before.json.gz",
+      "gzip_bytes": 1576,
+      "gzip_sha256": "64146e520dfd9f62c10119ea43c85dd25c4cffaf97105c9b61e711bedb04e221",
+      "raw_bytes": 12577,
+      "raw_sha256": "5ec7d0950fa5e5da3bac9826dd1e7f8e716b064d091076b3edf98a739490711f",
+      "source_name": "run-before.json"
+    },
+    {
+      "file": "jobs-before.json.gz",
+      "gzip_bytes": 3815,
+      "gzip_sha256": "f90b90f1c22d2778d7bae71c30f8b914938f8f82a0e4f608ca93890e85df1477",
+      "raw_bytes": 64810,
+      "raw_sha256": "c3a0bad4fb073d7780bdff6d2f5421d7b41db430c706606044632f641ae1b9aa",
+      "source_name": "jobs-before.json"
+    },
+    {
+      "file": "artifacts-before.json.gz",
+      "gzip_bytes": 862,
+      "gzip_sha256": "7c06a4be6ee9714de9969bec95f31791b3f2cde62fb2e847f1f930bf2bdb20d6",
+      "raw_bytes": 3573,
+      "raw_sha256": "bb95dd782ca00262558d0cb1c199d633222662f3d6cca61c8bb87cef894c5c72",
+      "source_name": "artifacts-before.json"
+    },
+    {
+      "file": "run-terminal.json.gz",
+      "gzip_bytes": 1586,
+      "gzip_sha256": "f9ac3d404842222b07e3891eef02a056e8f040da7d2ac284485fd7851c971e78",
+      "raw_bytes": 12587,
+      "raw_sha256": "3f2f8b321e1148d102ea6443830fa9d2076476d652b1598d8a7039a13ec5ded0",
+      "source_name": "run-terminal.json"
+    },
+    {
+      "file": "jobs-terminal.json.gz",
+      "gzip_bytes": 4648,
+      "gzip_sha256": "fe41b69f37a8b16d0853de4d2a3b8a811ead6ddc3e97b7af1efa7c80fb2c8839",
+      "raw_bytes": 75513,
+      "raw_sha256": "71f76ce5bc0843b2afcbb74b8dcc292bdd5bbd3daaa8a609a2be96d82198036c",
+      "source_name": "jobs-terminal.json"
+    },
+    {
+      "file": "artifacts-terminal.json.gz",
+      "gzip_bytes": 1992,
+      "gzip_sha256": "1a4108cadec52678bd61fa2fb8c3d3e3993bfb506ae957041400d20488852cc6",
+      "raw_bytes": 12823,
+      "raw_sha256": "5c7ab37e56be8ed58dd0d8eeb756cef41e264c11366a2f37ce9f247336b06e17",
+      "source_name": "artifacts-terminal.json"
+    },
+    {
+      "file": "new-a44-run.json.gz",
+      "gzip_bytes": 1583,
+      "gzip_sha256": "ff03ce563e341ca910a262bf049c400e3952573c3a42cc9f7275ed433ea3ccda",
+      "raw_bytes": 12571,
+      "raw_sha256": "fb77ec8c3ccfe81bb495b3c49fde69e1648bf969aeb928169a3cc5f03ec1e69a",
+      "source_name": "new-a44-run.json"
+    },
+    {
+      "file": "protected-a44-serial.json.gz",
+      "gzip_bytes": 1554,
+      "gzip_sha256": "8a4ff4c25fbdbf48268140c437baaa3c822f46b95db4051fb892b728ce947de6",
+      "raw_bytes": 12396,
+      "raw_sha256": "ce7119e702eb865205b504509e89e963201cfbcace3dfe565d266b5e5d3a33e9",
+      "source_name": "protected-a44-serial.json"
+    },
+    {
+      "file": "coverage6.log.gz",
+      "gzip_bytes": 281770,
+      "gzip_sha256": "9b4dcd9aac50f285292ea123cf992e59da9458f8ba914d96fb7b26bb289fcdbc",
+      "raw_bytes": 2098780,
+      "raw_sha256": "851dd976f03531f7f9d94c41a7bbf8d4ca167ffd3809ecc05654f01caf9353c8",
+      "source_name": "coverage6.log"
+    }
+  ],
+  "interpretation": "The superseded d7 ordinary run is CANCELLED, not green. Its already-failed Coverage shard 6 and downstream failure jobs remain evidence. Cancellation released ordinary runner capacity while newer a44 tests were queued; the snapshot does not establish their outcome. The separate protected serial run was untouched.",
+  "kind": "ordinary-tests-run-cancellation",
+  "limits": [
+    "The before run endpoint reported queued despite active jobs; jobs are recorded separately as returned by the API.",
+    "Artifact listings are metadata only; large coverage ZIP payloads are intentionally excluded.",
+    "No claim that cancellation fixed the README assertion or any other test."
+  ],
+  "protected_serial_run": {
+    "action": "read-only; no cancellation",
+    "conclusion_at_capture": null,
+    "head_sha": "a44ef399af52bb7f39eb0136c369f6603ff8dc02",
+    "id": 37615889146,
+    "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37615889146",
+    "status_at_capture": "in_progress"
+  },
+  "recorded_at_utc": "2026-10-07T11:59:31+00:00",
+  "recorded_failure": {
+    "assertion": "README checkout size differs from tracked tree by 40%",
+    "job_id": 112760260751,
+    "job_name": "Coverage shard 6 of 12",
+    "log": "coverage6.log.gz",
+    "observed_readme_mb": 1710,
+    "observed_tracked_tree_mb": 2838,
+    "test": "tests/test_the_light_install_numbers_are_honest.py::test_the_checkout_size_in_the_readme_matches_the_tree"
+  },
+  "replacement_ordinary_run": {
+    "conclusion_at_capture": null,
+    "head_sha": "a44ef399af52bb7f39eb0136c369f6603ff8dc02",
+    "id": 37615878285,
+    "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37615878285",
+    "status_at_capture": "queued"
+  },
+  "run_before": {
+    "artifact_count": 5,
+    "conclusion": null,
+    "jobs": {
+      "completed:failure": 1,
+      "completed:success": 6,
+      "in_progress:none": 16,
+      "queued:none": 4
+    },
+    "status": "queued",
+    "updated_at": "2026-10-07T11:05:20Z"
+  },
+  "run_id": 37611716683,
+  "run_terminal": {
+    "artifact_count": 18,
+    "conclusion": "cancelled",
+    "jobs": {
+      "completed:cancelled": 20,
+      "completed:failure": 3,
+      "completed:success": 6
+    },
+    "status": "completed",
+    "updated_at": "2026-10-07T11:49:25Z"
+  },
+  "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37611716683",
+  "source_commit": "d7a4d4ad4c6a464130a988c732f7add1abe83076"
+}

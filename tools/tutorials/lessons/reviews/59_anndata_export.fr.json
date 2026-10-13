@@ -1,0 +1,35 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "AnnData Export : enregistrer les objets mesurés et leurs caractéristiques",
+  "description": "Exportez des mesures jointes ou une seule table d’objets au format h5ad, choisissez comment traiter les valeurs manquantes et conservez les métadonnées des objets.",
+  "objectives": [
+    "Ouvrir AnnData Export et sélectionner un projet mesuré.",
+    "Choisir des mesures jointes ou une seule table, et une règle pour les valeurs manquantes.",
+    "Exporter un fichier h5ad avec les noms des caractéristiques et les métadonnées des objets."
+  ],
+  "prerequisite": "Utilisez un projet pour lequel Measure est terminé, ou téléchargez l’exemple de mesures via Annotate. Travaillez sur une copie du projet et conservez ses images sources. Utilisez la version nightly actuelle pour l’exportateur standard présenté ici.",
+  "scenes": [
+    "Depuis Home, ouvrez Measure, puis choisissez AnnData Export. Cet outil enregistre ensemble, dans un fichier h5ad, les objets mesurés, leurs caractéristiques et leurs métadonnées.",
+    "Sélectionnez votre projet mesuré comme Source. Pour cette démonstration, utilisez une copie de l’exemple de mesures disponible via Annotate. Gardez ensemble son dossier de mesures et ses images sources.",
+    "Laissez Single table vide pour joindre les tables sélectionnées sur des lignes de cellules. Indiquez un nom de fichier de sortie se terminant par h5ad. Gardez float32 et gzip pour un export numérique compact.",
+    "Réglez Row limit sur zéro pour inclure toutes les lignes disponibles. Une limite positive est utile pour un premier petit export. Laissez Compute UMAP désactivé si vous n’avez besoin que de la matrice de mesures.",
+    "Choisissez keep comme règle pour les valeurs manquantes, puis appuyez sur Run. Lisez le message de fin. L’exemple joint contient deux mille trois cent quarante et une lignes de cellules et mille cent trente-six caractéristiques.",
+    "Réglez Single table sur cell et choisissez un nouveau nom de fichier. Relancez pour exporter uniquement les mesures des cellules. Ici, le résultat compte deux cent soixante et une caractéristiques et vingt-huit valeurs manquantes.",
+    "Choisissez mean pour remplacer les valeurs manquantes par la moyenne observée de chaque colonne. L’export enregistre aussi leurs positions d’origine dans une couche de valeurs manquantes. Utilisez cette règle lorsque l’imputation par la moyenne convient à votre analyse en aval.",
+    "Choisissez drop_features pour retirer les colonnes contenant des valeurs manquantes. Cet exemple conserve toutes les cellules et retire quatre colonnes de caractéristiques. Vérifiez les noms des caractéristiques conservées lorsque vous comparez des exports.",
+    "Choisissez drop_objects pour retirer les lignes contenant des valeurs de caractéristiques manquantes. Ici, sept cellules sont retirées. Demandez-vous si les objets exclus peuvent modifier votre analyse.",
+    "Choisissez nucleus comme table unique lorsque vous voulez une ligne par noyau. Cet exemple produit deux mille six cent quatre-vingt-deux noyaux et trois cent quarante et une caractéristiques.",
+    "Activez Register artifact pour que la sortie soit repérable dans le projet. Enregistrez chaque règle sous un nom de fichier distinct et conservez ses paramètres. Le fichier h5ad contient les mesures et les métadonnées ; conservez les images sources séparément.",
+    "Ouvrez le fichier h5ad obtenu dans votre analyse en aval et vérifiez ses dimensions, les noms des caractéristiques et les métadonnées des objets. Depuis Python, run_anndata_export utilise les mêmes paramètres, tandis que build_anndata construit les données en mémoire."
+  ]
+}

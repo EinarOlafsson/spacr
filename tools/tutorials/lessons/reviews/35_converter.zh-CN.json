@@ -1,0 +1,35 @@
+{
+  "lesson": "35_converter",
+  "english_sha256": "ebc9da9b1151232bc9d3f3ef39943821bd6d61b512039da9278febd7d3afaebe",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Format Converter：预览并转换图像文件",
+  "description": "选择源文件夹，检查目标名称和通道分配，然后转换图像，并继续已完成的工作。",
+  "objectives": [
+    "按照正确的采集布局选择源文件夹和目标文件夹。",
+    "预览目标名称、视野和通道分配。",
+    "转换文件，并对已完成的视野使用Resume。"
+  ],
+  "prerequisite": "准备一个包含受支持图像文件的文件夹，并保留它们的采集元数据。您可以使用Import Project教程中的两张TIFF图像进行练习。请根据您自己的采集方式设置布局和Z处理方式。",
+  "scenes": [
+    "从Home打开Import Project，然后选择Format Converter。用它为下一步分析准备图像文件和文件名。",
+    "转换器只按一个方向工作：从Source出发，经过Preview，到达Destination。Preview会在写入任何内容之前显示每个源文件将放到哪里，方便您检查分配；随后由Convert写出文件。",
+    "选择包含源图像的文件夹。本例使用两张单通道TIFF。检查转换后的名称时，请把原始采集元数据放在手边。",
+    "选择一个新的目标文件夹。转换器会把新图像和一个映射文件写到那里；请另外保留您的原始图像。",
+    "根据您的文件夹结构设置Layout。对于示例中的扁平文件夹，请选择图像直接位于源文件夹中的选项，并选择所需的板命名规则。对于按板和孔组织的目录树，请选择对应的布局。",
+    "选择Z平面的处理方式。需要完整堆栈时保留所有平面，需要投影图像时使用最大投影，或者在第一个平面就是预期输入时选择它。本例每个文件只有一个平面。",
+    "按下Preview。检查从源到目标的每一项分配，包括板、孔、视野和通道。带编号的名称是分配的标识；请用原始元数据确认它们对应哪些实验条件。",
+    "对照目标名称检查From field和From channel。数组中的通道索引和文件名中的通道编号可能采用不同的约定。请确认每个目标都包含您打算分析的图像平面。",
+    "如果某项映射不对，请更改源布局或转换设置，然后再次预览。预览表是只读的。",
+    "按下Convert，阅读关于已转换、失败和跳过文件的最终汇总。在继续进行分割或测量之前，打开一张转换后的图像，检查它的尺寸和通道。",
+    "把conversion_map.csv与转换后的图像放在一起。它记录源路径和目标路径、分配的标识以及转换状态。请把原始采集元数据也放在旁边。",
+    "以后使用相同的源、方案和目标再次运行时，请开启Resume。兼容的已完成视野可以重复使用。阅读汇总，查看哪些文件被转换了，哪些原本就已存在。"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "lesson": "36_import",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Import Project：把图像、掩膜和测量数据导入spaCR",
+  "description": "选择相互对应的图像、实例掩膜和测量表，检查它们的映射，然后创建spaCR项目。",
+  "objectives": [
+    "匹配图像、掩膜和测量行。",
+    "检查并保存列映射。",
+    "导入项目并检查其输出。"
+  ],
+  "prerequisite": "准备相互对应的图像文件、实例标签掩膜和一个测量CSV。保留每个视野原始的板和孔标识，并使用有记录的测量单位。",
+  "scenes": [
+    "从Home的Data类别中打开Import。使用这个界面把现有的图像、实例掩膜和测量数据导入spaCR项目。",
+    "根据您手头的数据选择导入工具：只有图像时使用Import Images或Format Converter，有图像和掩膜时使用External Masks。这个界面同时接收图像、掩膜和测量表。",
+    "如果您的图像和掩膜还需要整理，请打开Import Images并点击整理图像和掩膜。为每个通道和掩膜分配一列，选择是为Mask Generation还是为Measure写入，并在需要时拆分多通道文件。Apply会把它们移入该模块读取的目录结构，可直接在那里打开。",
+    "选择图像文件夹。本例使用两个显微视野，每个视野有一个强度通道和对应的细胞标签。请记录每个文件原始的板、孔和视野。",
+    "选择Cell mask文件夹，然后按Add。每个对象都需要自己的整数标签。如果同一视野还有对应的标签，可以再添加其他掩膜类别。",
+    "选择测量CSV。把ImageNumber对应到每个视野，把ObjectNumber对应到其掩膜标签。同时使用这两个标识符来区分不同视野中的对象。",
+    "如果知道校准值，请输入每像素的微米数；否则留空。检查面积和强度列是否保留了有记录的单位。",
+    "按Preview，在创建项目之前检查建议的列映射和连接。查看带foreign前缀的建议名称及其科学含义。",
+    "选择一个目标单元格，按F二编辑它的名称。当选择了Refuse the import时，与保留名称冲突会使Import不可用；请选择一个不同的目标名称，或使用Rename策略。",
+    "阅读连接报告，处理未匹配的行或对象。在本例中，全部一百零三行测量数据都与掩膜对象相匹配。",
+    "给导入的面积取一个清楚的名称，例如foreign reviewed area pixels squared。一起检查来源、目标、变换和单位。",
+    "使用Save mapping把检查过的列定义保存为CSV。把映射与您的图像、掩膜、测量表和采集标识放在一起。",
+    "使用Load mapping重复使用已保存的定义。每当源列、标签或单位不同时，都要检查生成的方案。",
+    "按Import并阅读完成报告。本例写出两个图像文件、两个掩膜和两个合并数组，两个对象表中各有一百零三行。",
+    "打开项目并检查导入的测量数据。foreign列表记录了它们的来源。如果希望spaCR从图像中计算新的特征，请使用Measure。",
+    "把转换映射与项目放在一起，并检查其中的板、孔和视野分配。通用文件名可能会被分配新的坐标，因此在进行板水平分析之前，请先确认它们的原始标识。",
+    "接下来可以在Database Browser中检查这些表，或在Annotate中审阅对象裁剪图。请把检查过的映射与完成的项目一起保存。"
+  ]
+}

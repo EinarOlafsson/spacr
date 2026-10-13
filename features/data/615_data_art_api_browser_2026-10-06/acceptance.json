@@ -1,0 +1,1088 @@
+{
+  "passed": true,
+  "strict_build_output": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/data-art-docs-html",
+  "scope": "All twelve changed API symbols rendered in each of nine languages; actual browser panels and protected literals.",
+  "nightly_deployment_verified": false,
+  "cases": [
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "sv",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "c2b971a4f0d6112104b67d0eb4b377f94af92e3b03ed91f1616c45473e5bc439",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "sv",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "7b8e6b05d97a5e1b3c57668d4b9643ae0058381d549e2d0f71b07e32abf5696f",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "sv",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "3c8271cbfc6342de12db2e079464fde94bd521e7468eb270f1d16387e7ea2a6f",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "sv",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "ec0a57753cd926a2c0a6fc79d949480aa4fcccb0f54842b56c79177c297f280b",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "sv",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "cd92228da31cd07cd39f9a9a50774d029084c5247cb36ed7cccf648275e52af7",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "sv",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "320d0e57481129bffd4915e5754301c02c42e3a632efdf1a1420da6327c81bc3",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "de",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "723cecb7a04accdda9c10196c373f888d9a80c81d83316933f3410754ab0c1ef",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "de",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "c4a5fbfec3754bd45c5dd0bb26fa42420633fa33823e556865d4a0fc34756a36",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "de",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "f05c88771d95d6ab6a7fd52ac10dbf7180d72e184463504952e0d5dd111b5891",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "de",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "8da47b6ec0775d3b113204b690be134b60547d6c4aeb8c5f39114349b4242db1",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "de",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "7f7711188eb86a5009e160bba38fa78a21bb52c20b87a0e30464e0698403c9bf",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "de",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "5e7e31b8d1bac89ecb93e59cfbbc5b59071679d8672ef2286f99908a8f676186",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "es",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "f91adfc7ace40bd942ca31123cc57f319f318fc2d5d89a081fd80e1c2321c8eb",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "es",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "afa2318745a34097a179780c60105bf1a1c175e9a016c8ccb9de979b5137a073",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "es",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "35c8770b157808cd9ede38b56530fb47228056a398ae80d739823001da7a1063",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "es",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "bf978c785f71825839156c2ef727f22864b31d7bca56a25abdac3aa751059210",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "es",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "2273e3a8806a32133da9e83835aacaa28e6452aac515cf0ba8c31e675ad6a9f7",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "es",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "2d455baccfd293005d2d8d052c852b67ad0675c1e159c17ec401587706d4fd1a",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "697517ef988482d5182f4a5596ebaa611f9503cecafe0882081e8917c20156bf",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "83c975efdbae88bd0ffda82f89410662e434f5b72e3e14d3161e184adafe4480",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "042de6faab01a788ebc11de00cd576caa2960aac58d52f23f676852e8082a97a",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "b2216f4633d7f71a6d2a463c065640cff4c44a4ba37e53637e501a3db45107b1",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "c682f6e7e48bb8083f3fe46605b838a3514171f2eb2f2014c93e51e6e50bce0c",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "2eb42e80b96edd5fdf86d6ebac031fdaf9a4295f7d660cba1804682a35509dbb",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "pt",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "f16a53c9596f6395b95acb8637a0afc8150777228a9d9bebbdf757e592c96fbb",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "pt",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "2949d530dd61a8f71612dfd9832e53a43f34f9a8d05522bc9ef9335c574bb41d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "pt",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "07462c89ffb5c66822e3d047c8e3ca40c304942c4989ba3cb74cab719852313d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "pt",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "43a1e16589a034e7fdb7a90b49dc353dea48d3f6f9a57f53d1fae5a89345164a",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "pt",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "e9c34acf952496722f26ae08d5c6dea88785e04f010540d0aafbbbcf7f8581c4",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "pt",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "1a2bcab1c894520efc622fb811e9395cd6d7f2a8d61371d3c3f1fcd3b8ad9fb5",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "hi",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "a81bd872bdfb0e957985572d756300410a5fefb5220379accd957a39707f8d1d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "hi",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "a2683793c686c813468f4a241c6be151f3650b5caf67a768933264618eae793e",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "hi",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "5d49294d82ee63f09bc0a04b07e653023eefa99af1e19214c563ab4208f16ef2",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "hi",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "bb58807981c0f9c1242bb0c0c768faad2d9f1c727491b36bf97440ea28e02f0a",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "hi",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "57b1d3d0f81ef1a80afd0d6cb4d3f2ceeddf3cca8f255157cee7c59379734f34",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "hi",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "0916450621ff213b8ebd50800b4a1b0cd3304bd86f8e2f297fa1953c95a6dc73",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "ko",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "294f12615e3461f866ca733dbc89973e32d4acd4089c3df3ae83306e9c7bb490",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "ko",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "4b38444cebcd73e034495313fcca4a9ec78474ab75c9efb9b4c1a1ebc373e377",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "ko",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "da668fbe6886f5c40d1445050bea272b5ff1ef04f7bf25d3698168ef198c219c",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "ko",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "9a9469aee0b09d7f302862278887793ce27b005f1c1ea1139ae904794b20c5b2",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "ko",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "c7714d1bbce0a5ceed5b2e97652c401ee73332ca3a323ab3406123ebe2aea643",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "ko",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "df4acbd3f7d70e106dbfbe92c5528d82c5e2d6e5d0654001c37171c861ac261c",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "is",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "e0cfa3607542ded5e62ac86bf06f89e747308f200d9c0e71a13751fe9ca3ff7d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "is",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "ade2d5da04107c5372e18fad01e6a879a6e4cc28dbd5cf274302f7e6e46b1a81",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "is",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "1c23bb64b7476c4ab986ebbd46504823b79952efa7849b7854d5467201f5dff6",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "is",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "077e1e07ed74802a3db55d1e524b0e5dbf752aa399baeb5981b36798985042b4",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "is",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "eb113e8f45e78e7f4021e7cbd80a340b2b0d99990ebc543f7d463ae427d1afdd",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "is",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "5b530d9158fb1e9c93a50216599e2dbbef1fdf3f4b2eef4853f405683c2fcf97",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes",
+      "language": "fr",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "protected_literals": 10,
+      "visible_translation_sha256": "99eeaf26e0cd2535f07ec6aca025803195ace36db3d3e879e5be04cf0f594639",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme",
+      "language": "fr",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "protected_literals": 1,
+      "visible_translation_sha256": "1adcb8283a9efe61a9ed8b38981cfbfef710def2fc74a13b764a51c41a84893d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.NightTheme.sound",
+      "language": "fr",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "protected_literals": 0,
+      "visible_translation_sha256": "55d049aa16158f7aa6e270e0d185589e505945e4c353862976952bec30981714",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.ambient_for",
+      "language": "fr",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "protected_literals": 3,
+      "visible_translation_sha256": "15011a07802ddf5fdd15f49d26900e5d222ad1fddbe3651ba8d1af8b49dde7d1",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.sound_for",
+      "language": "fr",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "protected_literals": 2,
+      "visible_translation_sha256": "998fe372b895ca3f319f8be5a1f2521cc68533cb5b4bd7c10e2f7ffe76836231",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.night_themes.theme_for",
+      "language": "fr",
+      "page": "api/spacr/qt/night_themes/index.html",
+      "html_sha256": "d6660b05ffa6ad38bf80a98708731832291b53171cca769ad097ef7a99a1078e",
+      "catalog_source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "protected_literals": 2,
+      "visible_translation_sha256": "d32104df94e3149a843e2c71b32ac61c54ebf6c062dba395d11efe1e47892d0f",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "sv",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "57898ff2d0b416785790f8220be8da8bffb95cb90718528fd358a27c597ac7a5",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "sv",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "9dbd072c10d70e7078eb1b31c95b9afdae291fc1570c098a01cdf1eff8abf6ae",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "sv",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "5808dc7c60309cfab9db66bc3bfa248444513511c0e483b6a6b86d37a4f01cb4",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "sv",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "1e657a65324b45674a5edfcd12a0713c3af545e1c2e87f022e93a45a0184699d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "sv",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "81970a213399e190982dd74fb17fcbb08957ac18ef2e7cc6e1400a0fd9f1adfb",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "de",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "835635f75b1afe34b502510bf6f540348b88ec155af020f9068890c63d87aef3",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "de",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "77cddef0bad39975c3148e450c52d25422d66ba4fca9fc6a44fdff629e4a77b0",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "de",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "243342268bc7bb96c0feb1aa3164511239f0de211b07b9f3768cb84b3ff76f07",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "de",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "c5980881608122b7ae538d81104c44f0ac0c829727a3164bb5c3996333ee3fd8",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "de",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "01fc161dd3ed32ff1531cb801649fb274309b32c3c110773119526d5cc99d738",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "es",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "351ceb3fb96bc143af5b45e376957b5e4dd07e8f1cdfbefcae35ce7d3c8c05ba",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "es",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "180dd95efa1b21a64b2d430464235c60cc4c74bdaf4c1626f3dd66811189273e",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "es",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "df02c2adac82d7cea32e0bb8f3387add27a1a729e2fb33f6616f427d822b45d1",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "es",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "84929422331b4cf766d0dc3a02e4f7bd273961ad3cbbc033e26bd9999c08bc5d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "es",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "d3a3ca6765d35bda22819f25d3332180071c3e7cef476f4757c7faba191ce4fc",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "28ee7a2cd6d5d18dd7c81c1114615e5960d5eac82591a517e1b991d837fc8479",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "413eae99ff6e46ef42cfa58d0e31687def87490c83913bff9fc6abe2a725bc3b",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "472be100d6cd0b09acb2135c28743d63dda6c37e1da5343a83486b852a36616c",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "c55f1b61eb67fac2a542af4be7c331ead7e7d6549d35fd565fc9fb98dc78ed55",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "47f24109d841ab954c74be5f93227de9ac90fab9cd826ac21ea8c7cdf0b3163f",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "pt",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "7be9153ef2dc2d0126cf3a40833277883727bbd65e898633214213286cf72209",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "pt",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "d57cc1aa03d02a2b29267fb0eb7d62f45ccc39d972a4362f9239f07279a27461",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "pt",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "d96cbb681351658ad74ce1a5a232b93bbf5106cbeb6cc0af22bd3d1c7bbb15e8",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "pt",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "a3d31805404ef485de02e9dcc8735c1514504762faa27312c4f383d4230b350d",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "pt",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "7ecd53c7df6b1ac049161a045f771848999333b92108a081c7abe4ec028d470e",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "hi",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "59caf780c3d511ff6060a87e8ec55da49492491f21966a7aeba611228f0997e8",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "hi",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "c762ab9cd6adb51dd6d8eedffdb5bc4f99a5fd6bddd5ecf61e892c9c46429f01",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "hi",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "bbd64b81d2c7ab013560679f8d939c667e18b46219fa73c761de94feab5e30e9",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "hi",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "ef528585c6aa678be3b21c871906fe364d508e620f8f1928b715112adb709479",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "hi",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "dab69fa486c23fef6c39a199fa01ec0e1842070d361d5b882f3c5db851891726",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "ko",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "b6cf45ae75dd32fb9235bf415f5900c36560859698a24073f783515c9dfd51a9",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "ko",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "56c65680d9b30a89051033b8e3bf699bb9091223b2023cabd3b79e54e01360bd",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "ko",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "a7694b157db1c6f67e7a45364494da68b32120f83b20df81cf08bde21336fc74",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "ko",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "1111a218482e4243f2ed27b042da805cbcd51c47fdb9cb0d00955c81646d7a12",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "ko",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "1bbcb1383f9c27127a2c087a9535ff8b7019fd78bc3c8f8d1f1c60add8f015a5",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "is",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "e780fcfbd7394b30ad3248d2672add15099702562da4ec2a0b9a89efc8365854",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "is",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "18643777eae9e4f1a517677a449662f24dee34a7018f3e5b7a306e2f5671ff34",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "is",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "17eed7295f91fee483c186075248afa750361740478dcad68e0d567e875497cd",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "is",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "c102c926769f668f0cab879ea94163c2ae77c883c4d2e303c672a8dfb61a161c",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "is",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "36a5d76fba28004dc31c72631ab42903fc9722aafe284b337a7c6c2535ba167f",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences",
+      "language": "fr",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "protected_literals": 82,
+      "visible_translation_sha256": "01f93d8ea2703fff292a8b9d195677c35945cea90828d10a0534c4f95b5eca0a",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.apply_night_theme",
+      "language": "fr",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "protected_literals": 1,
+      "visible_translation_sha256": "9693a9a38eaa8068b7e07784436893c0da262fc897c6b7cdfe05b6ef5afa4ef4",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.set_theme_choice",
+      "language": "fr",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "protected_literals": 1,
+      "visible_translation_sha256": "d73d5f398d777bd24d4e09e5b0df4b029d6acd24c2f48a7cd9dbbdcab479476c",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_choices",
+      "language": "fr",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "protected_literals": 1,
+      "visible_translation_sha256": "894784a1147a41f3cc3a408629689d8b8310256bbbe6eb88e16b4f3fa7a149b0",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.preferences.theme_description",
+      "language": "fr",
+      "page": "api/spacr/qt/preferences/index.html",
+      "html_sha256": "09a3540bbad125ae38986eeb3b00de9f4a5d19b86837c6f5dab1dd419e0ba635",
+      "catalog_source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "protected_literals": 1,
+      "visible_translation_sha256": "b5a7aa16515384648abf806ace230c2944d34105c26076164f3db24c0a666bf7",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "sv",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "08b2a4c386883874eb7884464ad50e7e404dae2d8fd5640728d220a6334c54a9",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "de",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "c4319629ff6d6ba46a267ce7a0a5464947acd907f3bf1d0fca214063c23261cb",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "es",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "190b6e06f68d96ea1ff1cf4780b163d8225d3839b22fe48d56a611688c2de3b5",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "zh_CN",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "86d20b2c88249c2928639e4c1d4a6d97a818ddb87bfb9b24a9cbd55eca861a6a",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "pt",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "fe52bb0292c3a097b981a415cb6435e8c2ae3229320bbd853eccf9b7b709ca42",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "hi",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "a44807e84699e7126ab095ffbc0ccbfaf6f9bc9acd7e8477d49be11e6c938202",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "ko",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "dd8c6f0797d05ece0d2f7ebab0b34b1c1cd19f1d7a01efcfcdacdaf25c776429",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "is",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "0afa8b170500a8eef262a2e087ce217ec871f544b4714793d8e1fcddf9d85181",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.theme",
+      "language": "fr",
+      "page": "api/spacr/qt/theme/index.html",
+      "html_sha256": "2f50742e15821bb8022795810be5944fed4288739be31dfa5121b5f4454ad6c4",
+      "catalog_source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "protected_literals": 9,
+      "visible_translation_sha256": "c5c11c228ba17f2989cac24b837be92e4161f089cfc862b43741015e6a97a471",
+      "passed": true
+    }
+  ]
+}

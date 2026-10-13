@@ -1,0 +1,129 @@
+{
+  "passed": true,
+  "exact_completed_workflow": 37438733539,
+  "actual_channels": {
+    "schema": 1,
+    "channels": {
+      "main": {
+        "schema": 1,
+        "branch": "main",
+        "commit": "91ab2b8ae7e9beed617b0c8ec9ec5cb7e9938ca1",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      },
+      "nightly": {
+        "schema": 1,
+        "branch": "nightly",
+        "commit": "47a19ab6b6b4a605d394a299f58c6d4c4b9fceae",
+        "translation_policy": "report-only; incompatible locales fall back to English"
+      }
+    },
+    "size_bytes": 989034561,
+    "media_files": 139
+  },
+  "actual_channels_sha256": "b54e5a3ddf0826da976c8c3458e6c874589857977a32a8282de82c2f18621dde",
+  "all_ten_API_catalog_bytes_match_current_source": true,
+  "all_fourteen_tutorial_catalog_bytes_match_current_source": true,
+  "actual_deployed_files": {
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/de.json": {
+      "bytes": 17947010,
+      "sha256": "1c41eddc5541cfafa065a8c5906ada4bbe57a68db30274bf930510f849d897a4"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/en.json": {
+      "bytes": 12557132,
+      "sha256": "b320a398d4141ac53ffff6b142b125bd89db2f3baf3dcebf7e22cada6067d026"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/es.json": {
+      "bytes": 17882723,
+      "sha256": "d100843c3dc58a9280acb4901948095cfadd2a6de1fd630f18b0f59c0bee36a6"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/fr.json": {
+      "bytes": 18069790,
+      "sha256": "b3ef81ed3fd68871294319192755f60ce89857e48a8cd19d5f5c63f8e5c3ae44"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/hi.json": {
+      "bytes": 24592839,
+      "sha256": "0ea891e2984a21d607b68e5e8276b8ef5b386d54693b1674ce95c8aee04b446f"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/is.json": {
+      "bytes": 17237615,
+      "sha256": "72efeb0b44813ded93b36e93afdbdee9e215b8f3f4236d39426b5f6c8efda34e"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/ko.json": {
+      "bytes": 18163725,
+      "sha256": "baaedfe33fc9c079aca2b220d4a78273f824c46c4283aed4471a46bb9e84e30b"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/pt.json": {
+      "bytes": 17729737,
+      "sha256": "84591e37a7b4a3935b21d0edefe4db0905a5df4de013ab1bbb1c4830b6e577cd"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/sv.json": {
+      "bytes": 17407990,
+      "sha256": "32b3184b8c1b0c2b66b5defbcca3e0b1a3276d4f3b27adf09dcc016df487c686"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/_static/i18n/api/zh_CN.json": {
+      "bytes": 16464679,
+      "sha256": "72e399336570b6c06d44cdb9d57fd8ad12c75f4effbc2a353d7b8208a2fb3323"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/captions_da.json": {
+      "bytes": 701703,
+      "sha256": "9235c375502a6307d5e4628243b5ff0ae5d99c6f4bedfc0f422611fc947f6fd0"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/captions_de.json": {
+      "bytes": 749067,
+      "sha256": "32ba79ca4f75bfe86091141a81aad779368f9b4df0014cfc68b0be5b3452c6a7"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/captions_is.json": {
+      "bytes": 706489,
+      "sha256": "b855ed7c1c2955d6ea8a24cc61d2a15cb06a9a0064e1112f949fb94d2992359f"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/captions_ko.json": {
+      "bytes": 743197,
+      "sha256": "c31d68929173991a2ad8d252080c73619ae23ee9e9aeaccaccfac62e2fecffbc"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/captions_nb.json": {
+      "bytes": 697486,
+      "sha256": "1846f5c10556512725bd7055e5c32cc6a43553d40abc107e867d4697773fccce"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/captions_sv.json": {
+      "bytes": 706644,
+      "sha256": "6b6e8ba4407d7caf624ca990ed0833ccbd70b6146786cef3f98b695b0127760b"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_en.json": {
+      "bytes": 677976,
+      "sha256": "3002b986248490a67d408d8a481666e7f6cd7f7f9df50239f1f6c06c1a01c731"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_es.json": {
+      "bytes": 1115292,
+      "sha256": "3e68c751d759a40a382de1571a1a230df376e64ca273b398e735a9d9ce3516dd"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_fr.json": {
+      "bytes": 1159633,
+      "sha256": "7204d093c78bddd4edab123ce44c22ddd150611528c2782e1f15f42cc1d2dda9"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_hi.json": {
+      "bytes": 1854585,
+      "sha256": "b8c5810b30e914922cef42e3f1973936be17e96196590eb274f908c89d5d0776"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_it.json": {
+      "bytes": 1103060,
+      "sha256": "66ad7fbfea9fee36ace3ef534afc93ebf3f6289a640651f478bda983158ddd23"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_ja.json": {
+      "bytes": 1235161,
+      "sha256": "f038df543a92d774107d5c36210f0d9b9a4f260273b1fc3c4ff213458b9081e2"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_pt-BR.json": {
+      "bytes": 1098441,
+      "sha256": "1e9ebc950dde198e5e90c4ff16491b3ca3c248b6ecf9c71b4e4d3fd5a16178ae"
+    },
+    "https://einarolafsson.github.io/spacr/nightly/tutorials/catalog/lessons_zh-CN.json": {
+      "bytes": 958467,
+      "sha256": "4aa7336344444fe95fb321e24314ac41ef202ce4ea4ba5875857402131715029"
+    }
+  },
+  "live_player_sha256": "899ec1dccf2a5b361604551be3dc521764d3bf4fc5be90964a601f05b597f61f",
+  "media_commit_unchanged_from_accepted_full_video_and_playback_receipt": "0889ee14f5a7368a791df27c7331862a6c7741b4",
+  "prior_full_media_playback_visual_receipt_sha256": "700a839ec65367817a3db3bb53e6d9bbbef54d7ddd009744f71fc44f5403271b",
+  "no_repeated_full_video_download_or_new_native_host_speaker_claim": true,
+  "script_sha256": "3d4493ae28e52fe35046fd4da59b687403784e11b79453fc490a91704137c6ef"
+}

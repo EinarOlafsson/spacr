@@ -1,0 +1,75 @@
+{
+  "_meta": {"schema": 1, "lesson_id": "71_investigate_hit", "scene_count": 5, "source_language": "en", "reviewed_date": "2026-08-15", "review_scope": "Natural narration, scientific terminology, and exact workflow semantics."},
+  "languages": {
+    "es": {
+      "description": "Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas.",
+      "narrations": [
+        "Este tutorial presenta Investigate Hit. Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas.",
+        "Elija la ejecución de regresión, el resultado seleccionado a nivel de gen o guía, la dirección del fenotipo, el umbral de falsos descubrimientos, el soporte entre guías y la base de datos de mediciones correspondiente.",
+        "En el área principal de configuración, revise la tabla de objetos, la columna de puntuación, la agrupación por pozo de microplaca, los umbrales de evidencia, las covariables y la mezcla jerárquica con ajuste cruzado opcional.",
+        "Previsualice las células candidatas ordenadas por puntuación y los resúmenes por pozo de microplaca. Ejecute el modelo con ajuste cruzado solo cuando el resultado seleccionado y el contrato de evidencia sean correctos.",
+        "Cuando finaliza el flujo de trabajo, spaCR guarda las células candidatas ordenadas, comparaciones entre pozos independientes, probabilidades opcionales de que cada célula coincida con el fenotipo seleccionado, la incertidumbre y una clasificación versionada que nunca sustituye las anotaciones manuales."
+      ]
+    },
+    "fr": {
+      "description": "Reliez un résultat de régression sélectionné aux cellules candidates et aux preuves quantitatives par puits de microplaque, sans écraser les annotations validées.",
+      "narrations": [
+        "Ce tutoriel présente Investigate Hit. Reliez un résultat de régression sélectionné aux cellules candidates et aux preuves quantitatives par puits de microplaque, sans écraser les annotations validées.",
+        "Choisissez l’exécution de régression, le résultat sélectionné au niveau du gène ou du guide, le sens du phénotype, le seuil de fausses découvertes, la concordance entre guides et la base de données de mesures correspondante.",
+        "Dans la zone de configuration principale, examinez la table des objets, la colonne de score, le regroupement par puits de microplaque, les seuils de preuve, les covariables et le mélange hiérarchique avec validation croisée facultative.",
+        "Prévisualisez les cellules candidates classées par score et les résumés par puits de microplaque. N’exécutez le modèle avec validation croisée que lorsque le résultat sélectionné et le contrat de preuve sont corrects.",
+        "À la fin du flux de travail, spaCR enregistre les cellules candidates classées, les comparaisons entre puits indépendants, les probabilités facultatives que chaque cellule corresponde au phénotype sélectionné, l’incertitude et une classification versionnée qui ne remplace jamais les annotations manuelles."
+      ]
+    },
+    "hi": {
+      "description": "चुने गए रिग्रेशन परिणाम को उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल के मात्रात्मक प्रमाण से जोड़ें, बिना समीक्षा की गई टिप्पणियों को बदले।",
+      "narrations": [
+        "यह ट्यूटोरियल Investigate Hit का परिचय देता है। चुने गए रिग्रेशन परिणाम को उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल के मात्रात्मक प्रमाण से जोड़ें, बिना समीक्षा की गई टिप्पणियों को बदले।",
+        "रिग्रेशन निष्पादन, चुना गया जीन या गाइड-स्तरीय परिणाम, फेनोटाइप की दिशा, गलत खोज की सीमा, गाइडों के बीच समर्थन और संबंधित मापन डेटाबेस चुनें।",
+        "मुख्य कॉन्फ़िगरेशन क्षेत्र में ऑब्जेक्ट तालिका, स्कोर कॉलम, माइक्रोप्लेट-वेल समूह, प्रमाण की सीमाएँ, सहचर चर और वैकल्पिक क्रॉस-फ़िट पदानुक्रमित मिश्रण की समीक्षा करें।",
+        "स्कोर के अनुसार क्रमबद्ध उम्मीदवार कोशिकाओं और माइक्रोप्लेट-वेल सारांशों का पूर्वावलोकन करें। क्रॉस-फ़िट मॉडल तभी चलाएँ जब चुना गया परिणाम और प्रमाण का अनुबंध सही हो।",
+        "कार्यप्रवाह पूरा होने पर spaCR क्रमबद्ध उम्मीदवार कोशिकाएँ, स्वतंत्र वेलों की तुलनाएँ, हर कोशिका के चुने गए फेनोटाइप से मेल खाने की वैकल्पिक संभावनाएँ, अनिश्चितता और संस्करणयुक्त वर्गीकरण सहेजता है। यह वर्गीकरण हाथ से की गई टिप्पणियों को कभी नहीं बदलता।"
+      ]
+    },
+    "it": {
+      "description": "Ricollega un risultato di regressione selezionato alle cellule candidate e alle prove quantitative per pozzetto di micropiastra, senza sovrascrivere le annotazioni revisionate.",
+      "narrations": [
+        "Questo tutorial presenta Investigate Hit. Ricollega un risultato di regressione selezionato alle cellule candidate e alle prove quantitative per pozzetto di micropiastra, senza sovrascrivere le annotazioni revisionate.",
+        "Scegli l’esecuzione di regressione, il risultato selezionato a livello di gene o guida, la direzione del fenotipo, la soglia di falsa scoperta, il supporto tra guide e il database delle misurazioni corrispondente.",
+        "Nell’area di configurazione principale, esamina la tabella degli oggetti, la colonna del punteggio, il raggruppamento per pozzetto di micropiastra, le soglie di evidenza, le covariate e la miscela gerarchica con adattamento incrociato facoltativo.",
+        "Visualizza in anteprima le cellule candidate ordinate per punteggio e i riepiloghi per pozzetto di micropiastra. Esegui il modello con adattamento incrociato solo quando il risultato selezionato e il contratto delle evidenze sono corretti.",
+        "Al termine del flusso di lavoro, spaCR salva le cellule candidate ordinate, i confronti tra pozzetti indipendenti, le probabilità facoltative che ogni cellula corrisponda al fenotipo selezionato, l’incertezza e una classificazione versionata che non sostituisce mai le annotazioni manuali."
+      ]
+    },
+    "pt-BR": {
+      "description": "Relacione um resultado de regressão selecionado às células candidatas e às evidências quantitativas por poço de microplaca, sem substituir as anotações revisadas.",
+      "narrations": [
+        "Este tutorial apresenta o Investigate Hit. Relacione um resultado de regressão selecionado às células candidatas e às evidências quantitativas por poço de microplaca, sem substituir as anotações revisadas.",
+        "Escolha a execução de regressão, o resultado selecionado no nível de gene ou guia, a direção do fenótipo, o limiar de falsas descobertas, o suporte entre guias e o banco de dados de medições correspondente.",
+        "Na área principal de configuração, revise a tabela de objetos, a coluna de pontuação, o agrupamento por poço de microplaca, os limiares de evidência, as covariáveis e a mistura hierárquica com ajuste cruzado opcional.",
+        "Visualize as células candidatas ordenadas por pontuação e os resumos por poço de microplaca. Execute o modelo com ajuste cruzado somente quando o resultado selecionado e o contrato de evidência estiverem corretos.",
+        "Quando o fluxo de trabalho termina, o spaCR salva as células candidatas ordenadas, comparações entre poços independentes, probabilidades opcionais de cada célula corresponder ao fenótipo selecionado, a incerteza e uma classificação versionada que nunca substitui as anotações manuais."
+      ]
+    },
+    "ja": {
+      "description": "選択した回帰結果を候補細胞とマイクロプレートのウェル単位の定量的証拠に結び付け、確認済みの注釈を上書きせずに調査します。",
+      "narrations": [
+        "このチュートリアルでは Investigate Hit を説明します。選択した回帰結果を候補細胞とマイクロプレートのウェル単位の定量的証拠に結び付け、確認済みの注釈を上書きせずに調査します。",
+        "回帰の実行結果、選択した遺伝子またはガイド単位の結果、表現型の方向、偽発見率のしきい値、ガイド間の支持、対応する測定データベースを選択します。",
+        "メインの設定領域で、オブジェクト表、スコア列、マイクロプレートのウェル単位のグループ化、証拠のしきい値、共変量、任意のクロスフィット階層混合モデルを確認します。",
+        "スコア順の候補細胞とウェル単位の要約をプレビューします。選択した結果と証拠の条件が正しいことを確認してから、クロスフィットモデルを実行します。",
+        "ワークフローが完了すると、spaCR は候補細胞の順位、独立したウェル間の比較、各細胞が選択した表現型に一致する任意の確率、不確実性、バージョン付きの判定を保存します。手作業の注釈が上書きされることはありません。"
+      ]
+    },
+    "zh-CN": {
+      "description": "将选定的回归结果关联到候选细胞和微孔板孔级定量证据，同时保留已经审核的注释。",
+      "narrations": [
+        "本教程介绍 Investigate Hit。将选定的回归结果关联到候选细胞和微孔板孔级定量证据，同时保留已经审核的注释。",
+        "请选择回归运行、选定的基因级或向导级结果、表型方向、错误发现阈值、向导间支持度以及对应的测量数据库。",
+        "在主配置区域中，检查对象表、分数列、微孔板孔分组、证据阈值、协变量，以及可选的交叉拟合分层混合模型。",
+        "预览按分数排序的候选细胞和微孔板孔摘要。只有在选定结果和证据约束均正确时，才运行交叉拟合模型。",
+        "工作流程完成后，spaCR 会保存候选细胞排序、独立孔之间的比较、每个细胞与所选表型匹配的可选概率、不确定性以及带版本的判定；它绝不会覆盖人工注释。"
+      ]
+    }
+  }
+}

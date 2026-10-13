@@ -1,0 +1,250 @@
+"""
+Qt-side extension of the package-scope logger.
+
+Delegates all file-handler configuration to :mod:`spacr.logging_util`
+and adds a :class:`QtLogHandler` that emits every formatted record
+over a Qt signal so widgets on the main thread can display them
+without cross-thread violations.
+
+Two sinks end up wired at ``spacr-qt`` startup:
+
+1. The rotating file handler at ``~/.spacr/logs/spacr.log``
+   (installed by :mod:`spacr.logging_util`).
+2. The :class:`QtLogHandler` here — ConsolePanel connects to its
+   ``record_ready(str, int)`` signal.
+
+Public API:
+    setup_logging(...)   — call once early in ``launch()``.
+    get_signal_handler() — the shared QtLogHandler instance.
+    log_path()           — absolute path of the rotating log file.
+"""
+from __future__ import annotations
+
+import logging
+import threading
+from pathlib import Path
+from typing import Optional
+
+from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal
+
+from ..logging_util import (
+    _SecondFormatter,
+    log_dir as _package_log_dir,
+    log_path as _package_log_path,
+    setup_logging as _package_setup_logging,
+)
+
+
+def log_dir() -> Path:
+    """Return the folder where spacr log files live.
+
+    Alias for :func:`spacr.logging_util.log_dir`.
+    """
+    return _package_log_dir()
+
+
+def log_path() -> Path:
+    """Return the absolute path of the rotating log file.
+
+    Alias for :func:`spacr.logging_util.log_path`.
+    """
+    return _package_log_path()
+
+
+
+
+class _RecordRelay(QObject):
+    """Own the Qt signal separately from ``logging.Handler.emit``.
+
+    PySide 6.6 misbinds a signal declared on a QObject/logging.Handler
+    multiple-inheritance class: ``signal.emit(text, level)`` resolves back to
+    the handler's one-argument ``emit(record)`` method. A plain QObject relay
+    avoids that name collision while preserving the public signal instance.
+    """
+
+    record_ready = Signal(str, int)
+    records_ready = Signal(list)
+    _records_waiting = Signal(bool)
+
+
+class QtLogHandler(QObject, logging.Handler):
+    """A logging.Handler that emits every formatted record over a Qt
+    signal so QWidget slots (running on the main thread) can display
+    them without cross-thread violations.
+
+    :ivar record_ready: signal ``(formatted_line, levelno)`` emitted
+        once per record.
+
+    :param level: the minimum level to relay, as `logging.Handler` takes it.
+    """
+
+    def __init__(self, level: int = logging.INFO):
+        """Create a logging handler that re-emits records as a Qt signal.
+
+        The signal lives on a small relay object rather than on the handler
+        itself, and is re-exported here so the existing
+        ``handler.record_ready.connect(...)`` contract is unchanged -- only the
+        ``QObject`` that owns it moved.
+
+        :param level: the minimum level to relay.
+        """
+        QObject.__init__(self)
+        logging.Handler.__init__(self, level=level)
+        self._record_relay = _RecordRelay(self)
+        try:
+            from PySide6.QtCore import QCoreApplication
+
+            application = QCoreApplication.instance()
+            if (application is not None
+                    and self.thread() is not application.thread()):
+                self.moveToThread(application.thread())
+        except Exception:                                  # noqa: BLE001
+            pass
+        self.record_ready = self._record_relay.record_ready
+        self.records_ready = self._record_relay.records_ready
+        self._waiting_lock = threading.Lock()
+        self._waiting: list = []
+        self._drain_asked = False
+        self._home_ident = None
+        self._record_relay._records_waiting.connect(
+            self._drain_soon, Qt.QueuedConnection)
+        self.setFormatter(_SecondFormatter(
+            "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+            datefmt="%H:%M:%S",
+        ))
+
+    def emit(self, record: logging.LogRecord) -> None:   # noqa: D401
+        """Format and re-emit ``record`` over :attr:`record_ready`.
+
+        Records produced *while* a console panel is mid-write are dropped.
+        Every ``ConsolePanel`` in the process subscribes to
+        :attr:`record_ready`, so without this a record logged from inside
+        ``append_stdout`` — which the function-trace profile hook emits on
+        entry to every spaCR function — comes straight back into the same
+        widget. ``_StdoutBlock.append`` answers it with a nested
+        ``setPlainText``, and the inner call destroys the QTextDocument's
+        frames while the outer one is still inside
+        ``QTextDocumentPrivate::clear()``: a segfault, gdb'd to
+        ``QTextFrame::~QTextFrame``.
+
+        The latch lives in :mod:`spacr.qt.verbose_logger` because that
+        module owns the console-target contract; this is the second sink
+        that has to honour it. Measured: a 30-file shard still dumped core
+        in the same place when only the first sink was guarded.
+
+        :param record: the log record; it is formatted with this handler's
+            formatter and emitted with its ``levelno``.
+        """
+        try:
+            from .verbose_logger import console_write_in_progress
+            if console_write_in_progress():
+                return
+        except Exception:
+            pass
+        try:
+            text = self.format(record)
+        except Exception:
+            self.handleError(record)
+            return
+        if self._on_home_thread():
+            self._drain_waiting()
+            self.record_ready.emit(text + "\n", record.levelno)
+            self.records_ready.emit([(text + "\n", record.levelno)])
+            return
+        loud = record.levelno >= logging.WARNING
+        with self._waiting_lock:
+            self._waiting.append((text + "\n", record.levelno))
+            if self._drain_asked and not loud:
+                return
+            self._drain_asked = True
+        self._record_relay._records_waiting.emit(loud)
+
+    _DRAIN_INTERVAL_MS = 50
+
+    def _on_home_thread(self) -> bool:
+        """Whether the caller runs on the thread this handler lives in.
+
+        Asked once per record, so the answer is remembered as a thread
+        identifier the first time Qt confirms it, and later records compare
+        two integers instead of building two thread wrappers.
+        """
+        ident = threading.get_ident()
+        home = self._home_ident
+        if home is not None:
+            return ident == home
+        if QThread.currentThread() is self.thread():
+            self._home_ident = ident
+            return True
+        return False
+
+    def _drain_soon(self, loud: bool) -> None:
+        """Send the records other threads logged, now or one interval on.
+
+        Records from a worker thread are held and sent together, so a run
+        logging thousands of records a second posts twenty events a second
+        to the interface rather than one per record. A warning or an error
+        is sent at once, after the records logged before it.
+
+        :param loud: whether a warning or worse is waiting.
+        """
+        if loud:
+            self._drain_waiting()
+        else:
+            QTimer.singleShot(self._DRAIN_INTERVAL_MS, self._drain_waiting)
+
+    def _drain_waiting(self) -> None:
+        """Emit every held record, in the order it was logged."""
+        with self._waiting_lock:
+            waiting, self._waiting = self._waiting, []
+            self._drain_asked = False
+        if not waiting:
+            return
+        for text, level in waiting:
+            self.record_ready.emit(text, level)
+        self.records_ready.emit(waiting)
+
+
+_SIGNAL_HANDLER: Optional[QtLogHandler] = None
+_INITIALISED: bool = False
+
+
+def get_signal_handler() -> QtLogHandler:
+    """Return the shared QtLogHandler. Instantiated on first access."""
+    global _SIGNAL_HANDLER
+    if _SIGNAL_HANDLER is None:
+        _SIGNAL_HANDLER = QtLogHandler()
+    return _SIGNAL_HANDLER
+
+
+
+def setup_logging(level: int = logging.INFO,
+                    console_level: int = logging.INFO) -> None:
+    """Install the file handler + the Qt signal handler on the root
+    logger. Idempotent — safe to call more than once.
+
+    :param level: minimum record level for the rotating file handler.
+    :param console_level: minimum record level for the Qt signal handler
+        (i.e. what ConsolePanel receives).
+    """
+    global _INITIALISED
+    if _INITIALISED:
+        return
+
+    _package_setup_logging(level=level, log_file=log_path())
+
+    qt_h = get_signal_handler()
+    qt_h.setLevel(console_level)
+    logging.getLogger().addHandler(qt_h)
+
+    _INITIALISED = True
+    logging.getLogger("spacr.qt").info(
+        "Qt log signal installed → %s", log_path()
+    )
+
+
+def get_logger(name: str = "spacr.qt") -> logging.Logger:
+    """Convenience wrapper — returns a child logger under ``spacr.qt``.
+
+    :param name: logger name, defaults to ``"spacr.qt"``.
+    """
+    return logging.getLogger(name)

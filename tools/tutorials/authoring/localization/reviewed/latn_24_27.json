@@ -1,0 +1,198 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete human review of Spanish, French, and Italian assay lessons 24 through 27, including scientific terminology, metadata, objectives, and every narration."
+  },
+  "lessons": {
+    "24_plaque": {"languages": {
+      "es": {
+        "description": "Segmente o reutilice máscaras de placas de lisis, valídelas y resuma la formación de placas por condición.",
+        "prerequisite": "Prepare imágenes del ensayo de placas, controles, metadatos de la placa y la calibración de píxeles.",
+        "objectives": ["Elegir entre realizar una segmentación y utilizar máscaras existentes.", "Ajustar la detección de placas de lisis a partir de las vistas previas.", "Validar y localizar los resultados del ensayo."],
+        "narrations": {
+          "1": "Plaque Assay mide las zonas de lisis en imágenes de placas. La consola registra la configuración resuelta, el progreso, las advertencias y las rutas de salida.",
+          "2": "Seleccione la carpeta de imágenes del ensayo y decida si desea segmentar las imágenes de origen o reutilizar máscaras de etiquetas con nombres correctos.",
+          "3": "Essentials contiene los controles necesarios para una primera ejecución. Modified permite auditar los cambios intencionados, mientras que All muestra los controles avanzados para resolver problemas.",
+          "4": "Ajuste el modelo y la escala esperada de las placas de lisis a imágenes representativas, en lugar de copiar un valor del tutorial.",
+          "5": "La configuración de detección afecta a las regiones candidatas, la uniformidad de la forma, el remuestreo y la limpieza. Ajústela utilizando varios pocillos de control y tratamiento.",
+          "6": "Utilice corrección de fondo o eliminación de ruido solo cuando las vistas previas indiquen que la adquisición lo requiere.",
+          "7": "Ejecute el análisis después de comprobar el origen, el modelo, la escala y el comportamiento de la salida. Comience con un conjunto de validación pequeño cuando esté recalibrando la segmentación.",
+          "8": "Examine las superposiciones y las distribuciones de las placas de lisis antes de comparar las condiciones. La base de datos, los resúmenes, las estadísticas y las figuras de control de calidad permanecen vinculados a la ejecución."
+        }
+      },
+      "fr": {
+        "description": "Segmentez ou réutilisez les masques de plages de lyse, validez-les et résumez la formation des plages par condition.",
+        "prerequisite": "Préparez les images de l'essai, les témoins, les métadonnées de la plaque et l'étalonnage des pixels.",
+        "objectives": ["Choisir entre une nouvelle segmentation et des masques existants.", "Régler la détection des plages de lyse à partir des aperçus.", "Valider et localiser les résultats de l'essai."],
+        "narrations": {
+          "1": "Plaque Assay mesure les zones de lyse dans les images de plaques. La console consigne les paramètres résolus, la progression, les avertissements et les chemins de sortie.",
+          "2": "Sélectionnez le dossier d'images de l'essai et choisissez de segmenter les images sources ou de réutiliser des masques d'étiquettes correctement nommés.",
+          "3": "Essentials contient les contrôles nécessaires à une première exécution. Modified permet d'auditer les modifications intentionnelles, tandis que All affiche les contrôles avancés de dépannage.",
+          "4": "Adaptez le modèle et l'échelle attendue des plages de lyse à des images représentatives au lieu de recopier une valeur du tutoriel.",
+          "5": "Les paramètres de détection influent sur les régions candidates, la régularité des formes, le rééchantillonnage et le nettoyage. Réglez-les à partir de plusieurs puits témoins et traités.",
+          "6": "N'appliquez une correction du fond ou un débruitage que si les aperçus montrent que l'acquisition le nécessite.",
+          "7": "Lancez l'analyse après avoir vérifié la source, le modèle, l'échelle et le comportement de la sortie. Commencez par un petit jeu de validation lorsque vous recalibrez la segmentation.",
+          "8": "Examinez les superpositions et les distributions des plages de lyse avant de comparer les conditions. La base de données, les résumés, les statistiques et les figures de contrôle qualité restent associés à l'exécution."
+        }
+      },
+      "it": {
+        "description": "Segmenta o riutilizza le maschere delle placche di lisi, convalidale e riassumi la formazione delle placche per condizione.",
+        "prerequisite": "Prepara le immagini del saggio, i controlli, i metadati della piastra e la calibrazione dei pixel.",
+        "objectives": ["Scegliere tra una nuova segmentazione e maschere esistenti.", "Regolare il rilevamento delle placche di lisi dalle anteprime.", "Convalidare e individuare i risultati del saggio."],
+        "narrations": {
+          "1": "Plaque Assay misura le aree di lisi nelle immagini delle piastre. La console registra le impostazioni risolte, l'avanzamento, gli avvisi e i percorsi di output.",
+          "2": "Seleziona la cartella delle immagini del saggio e decidi se segmentare le immagini sorgente o riutilizzare maschere di etichette denominate correttamente.",
+          "3": "Essentials contiene i controlli necessari per una prima esecuzione. Modified consente di verificare le modifiche intenzionali, mentre All mostra i controlli avanzati per la risoluzione dei problemi.",
+          "4": "Adatta il modello e la scala prevista delle placche di lisi a immagini rappresentative, anziché copiare un valore dal tutorial.",
+          "5": "Le impostazioni di rilevamento influiscono sulle regioni candidate, sulla regolarità della forma, sul ricampionamento e sulla pulizia. Regolale utilizzando diversi pozzetti di controllo e di trattamento.",
+          "6": "Usa la correzione del fondo o la riduzione del rumore solo quando le anteprime mostrano che l'acquisizione lo richiede.",
+          "7": "Avvia l'analisi dopo aver verificato la sorgente, il modello, la scala e il comportamento dell'output. Inizia con un piccolo set di convalida quando ricalibri la segmentazione.",
+          "8": "Esamina le sovrapposizioni e le distribuzioni delle placche di lisi prima di confrontare le condizioni. Il database, i riepiloghi, le statistiche e le figure di controllo qualità restano collegati all'esecuzione."
+        }
+      }
+    }},
+    "25_recruitment": {"languages": {
+      "es": {
+        "description": "Cuantifique el enriquecimiento de un marcador en las regiones asociadas a parásitos con respecto al fondo de la célula hospedadora.",
+        "prerequisite": "Mida los compartimentos pertinentes y prepare los metadatos de la placa con controles adecuados.",
+        "objectives": ["Asignar correctamente los canales y las máscaras.", "Elegir filtros de objetos y controles justificables.", "Validar el reclutamiento mediante imágenes y distribuciones."],
+        "narrations": {
+          "1": "Recruitment lee mediciones existentes y calcula el enriquecimiento del marcador en regiones asociadas a parásitos. No vuelve a segmentar las imágenes.",
+          "2": "Seleccione la raíz del experimento que contiene la base de datos de mediciones y los campos combinados.",
+          "3": "Essentials contiene el origen, la asignación de canales, los filtros, las etiquetas de la placa y los controles de diagnóstico. Modified ofrece una auditoría compacta antes de la ejecución.",
+          "4": "Asigne con cuidado cada plano de intensidad y de máscara y, a continuación, elija el canal de interés. Un índice de canal válido pero incorrecto puede producir cocientes verosímiles.",
+          "5": "Los filtros de objetos eliminan células, núcleos y parásitos inverosímiles. Elija los umbrales a partir de distribuciones y superposiciones, no de valores fijos del tutorial.",
+          "6": "Asigne las condiciones y los controles a los identificadores de placa correctos antes de interpretar las diferencias entre grupos.",
+          "7": "Run combina las mediciones, aplica los filtros revisados, calcula el reclutamiento, agrupa los pocillos y genera los diagnósticos.",
+          "8": "Examine las superposiciones de la segmentación y las distribuciones de los controles antes de confiar en los resúmenes por condición. Los resultados por objeto y por pocillo conservan sus identificadores de origen."
+        }
+      },
+      "fr": {
+        "description": "Quantifiez l'enrichissement d'un marqueur dans les régions associées aux parasites par rapport au fond de la cellule hôte.",
+        "prerequisite": "Mesurez les compartiments pertinents et préparez les métadonnées de la plaque avec des témoins appropriés.",
+        "objectives": ["Associer correctement les canaux et les masques.", "Choisir des filtres d'objets et des témoins justifiables.", "Valider le recrutement à l'aide d'images et de distributions."],
+        "narrations": {
+          "1": "Recruitment lit les mesures existantes et calcule l'enrichissement du marqueur dans les régions associées aux parasites. Il ne segmente pas de nouveau les images.",
+          "2": "Sélectionnez la racine de l'expérience qui contient la base de données de mesures et les champs fusionnés.",
+          "3": "Essentials contient la source, l'association des canaux, les filtres, les étiquettes de plaque et les contrôles de diagnostic. Modified propose un audit compact avant l'exécution.",
+          "4": "Associez soigneusement chaque plan d'intensité et de masque, puis choisissez le canal d'intérêt. Un indice de canal valide mais incorrect peut tout de même produire des rapports plausibles.",
+          "5": "Les filtres d'objets éliminent les cellules, noyaux et parasites non plausibles. Définissez les seuils à partir des distributions et des superpositions, et non de valeurs fixes du tutoriel.",
+          "6": "Associez les conditions et les témoins aux bons identifiants de plaque avant d'interpréter les différences entre groupes.",
+          "7": "Run joint les mesures, applique les filtres vérifiés, calcule le recrutement, regroupe les puits et produit les diagnostics.",
+          "8": "Examinez les superpositions de segmentation et les distributions des témoins avant de vous fier aux résumés par condition. Les résultats au niveau des objets et des puits conservent leurs identifiants sources."
+        }
+      },
+      "it": {
+        "description": "Quantifica l'arricchimento di un marcatore nelle regioni associate ai parassiti rispetto al fondo della cellula ospite.",
+        "prerequisite": "Misura i compartimenti pertinenti e prepara i metadati della piastra con controlli adeguati.",
+        "objectives": ["Associare correttamente i canali e le maschere.", "Scegliere filtri per gli oggetti e controlli giustificabili.", "Convalidare il reclutamento mediante immagini e distribuzioni."],
+        "narrations": {
+          "1": "Recruitment legge le misurazioni esistenti e calcola l'arricchimento del marcatore nelle regioni associate ai parassiti. Non segmenta nuovamente le immagini.",
+          "2": "Seleziona la cartella principale dell'esperimento che contiene il database delle misurazioni e i campi uniti.",
+          "3": "Essentials contiene la sorgente, l'associazione dei canali, i filtri, le etichette della piastra e i controlli diagnostici. Modified offre una verifica compatta prima dell'esecuzione.",
+          "4": "Associa con attenzione ogni piano di intensità e di maschera, quindi scegli il canale di interesse. Un indice di canale valido ma errato può comunque produrre rapporti plausibili.",
+          "5": "I filtri degli oggetti eliminano cellule, nuclei e parassiti non plausibili. Scegli le soglie dalle distribuzioni e dalle sovrapposizioni, non da valori fissi del tutorial.",
+          "6": "Associa le condizioni e i controlli agli identificatori corretti della piastra prima di interpretare le differenze tra i gruppi.",
+          "7": "Run unisce le misurazioni, applica i filtri verificati, calcola il reclutamento, raggruppa i pozzetti e genera i dati diagnostici.",
+          "8": "Esamina le sovrapposizioni della segmentazione e le distribuzioni dei controlli prima di considerare attendibili i riepiloghi per condizione. I risultati a livello di oggetto e di pozzetto conservano gli identificatori sorgente."
+        }
+      }
+    }},
+    "26_invasion": {"languages": {
+      "es": {
+        "description": "Utilice una tinción exterior-frente-a-total para distinguir los parásitos adheridos de los internalizados.",
+        "prerequisite": "Prepare un ensayo validado de tinción exterior-frente-a-total con controles y mediciones de los parásitos.",
+        "objectives": ["Asignar correctamente los canales de tinción.", "Calibrar la clasificación a partir de los controles.", "Revisar ejemplos y resultados de invasión por pocillo."],
+        "narrations": {
+          "1": "Invasion Assay clasifica los parásitos medidos mediante un diseño de tinción bicolor. La consola registra la configuración, los controles de calidad y los resultados.",
+          "2": "Seleccione un experimento que contenga mediciones de parásitos, canales de tinción, controles y metadatos de la placa.",
+          "3": "Essentials muestra las entradas, la asignación de canales, los umbrales, los controles, los filtros y las salidas necesarios para un primer análisis.",
+          "4": "Asigne la tinción exterior y la tinción total de los parásitos en el orden correcto. Si las intercambia, se invierte la interpretación biológica sin que necesariamente se produzca un error.",
+          "5": "Derive los umbrales de clasificación a partir de controles adecuados y examine la sensibilidad en torno al límite elegido.",
+          "6": "Defina controles de tinción y una evidencia mínima para campos y pocillos, de modo que los grupos con poca evidencia se señalen en lugar de sobreinterpretarse.",
+          "7": "Ejecute el análisis después de verificar la asignación de tinciones, los controles, los filtros de objetos y los metadatos de las condiciones.",
+          "8": "Revise conjuntamente ejemplos adheridos, internalizados e inciertos y los resúmenes por pocillo. Los resultados exportados conservan la configuración del ensayo y los identificadores de origen."
+        }
+      },
+      "fr": {
+        "description": "Utilisez un marquage extérieur-total pour distinguer les parasites adhérents des parasites internalisés.",
+        "prerequisite": "Préparez un essai validé de marquage extérieur-total avec des témoins et des mesures des parasites.",
+        "objectives": ["Associer correctement les canaux de marquage.", "Étalonner la classification à partir des témoins.", "Examiner des exemples et les résultats d'invasion par puits."],
+        "narrations": {
+          "1": "Invasion Assay classe les parasites mesurés à partir d'un protocole de marquage bicolore. La console consigne les paramètres, les contrôles qualité et les résultats.",
+          "2": "Sélectionnez une expérience contenant les mesures des parasites, les canaux de marquage, les témoins et les métadonnées de la plaque.",
+          "3": "Essentials présente les entrées, l'association des canaux, les seuils, les témoins, les filtres et les sorties nécessaires à une première analyse.",
+          "4": "Associez le marquage extérieur et le marquage total des parasites dans le bon ordre. Leur inversion renverse l'interprétation biologique sans nécessairement provoquer d'erreur.",
+          "5": "Déduisez les seuils de classification de témoins appropriés et examinez la sensibilité autour de la limite choisie.",
+          "6": "Définissez les témoins de marquage et le niveau minimal de preuve requis pour les champs et les puits, afin que les groupes peu documentés soient signalés plutôt que surinterprétés.",
+          "7": "Lancez l'analyse après avoir vérifié l'association des marquages, les témoins, les filtres d'objets et les métadonnées des conditions.",
+          "8": "Examinez ensemble des exemples adhérents, internalisés et incertains, ainsi que les résumés par puits. Les résultats exportés conservent les paramètres de l'essai et les identifiants sources."
+        }
+      },
+      "it": {
+        "description": "Usa una colorazione esterno-totale per distinguere i parassiti aderenti da quelli internalizzati.",
+        "prerequisite": "Prepara un saggio con colorazione esterno-totale convalidato, completo di controlli e misurazioni dei parassiti.",
+        "objectives": ["Associare correttamente i canali di colorazione.", "Calibrare la classificazione dai controlli.", "Esaminare esempi e risultati dell'invasione a livello di pozzetto."],
+        "narrations": {
+          "1": "Invasion Assay classifica i parassiti misurati mediante un protocollo di colorazione a due colori. La console registra le impostazioni, i controlli di qualità e i risultati.",
+          "2": "Seleziona un esperimento contenente le misurazioni dei parassiti, i canali di colorazione, i controlli e i metadati della piastra.",
+          "3": "Essentials mostra gli input, l'associazione dei canali, le soglie, i controlli, i filtri e gli output necessari per una prima analisi.",
+          "4": "Associa la colorazione esterna e quella totale dei parassiti nell'ordine corretto. Invertirle capovolge l'interpretazione biologica senza necessariamente causare un errore.",
+          "5": "Ricava le soglie di classificazione da controlli adeguati ed esamina la sensibilità intorno al limite scelto.",
+          "6": "Definisci i controlli di colorazione e il livello minimo di evidenza per campi e pozzetti, affinché i gruppi con evidenza insufficiente siano segnalati anziché sovrainterpretati.",
+          "7": "Avvia l'analisi dopo aver verificato l'associazione delle colorazioni, i controlli, i filtri degli oggetti e i metadati delle condizioni.",
+          "8": "Esamina insieme esempi aderenti, internalizzati e incerti e i riepiloghi per pozzetto. I risultati esportati conservano le impostazioni del saggio e gli identificatori sorgente."
+        }
+      }
+    }},
+    "27_replication": {"languages": {
+      "es": {
+        "description": "Asigne los parásitos a las vacuolas y resuma la replicación intracelular por condición.",
+        "prerequisite": "Mida las células hospedadoras, las vacuolas y los parásitos con relaciones y metadatos de condición revisados.",
+        "objectives": ["Configurar la asignación a vacuolas.", "Definir filtros y grupos de puntuación justificables.", "Validar los resúmenes de replicación frente a las imágenes."],
+        "narrations": {
+          "1": "Replication Assay calcula el número de parásitos por vacuola a partir de relaciones y mediciones existentes. La consola registra la configuración, el filtrado y los resultados.",
+          "2": "Seleccione la raíz del experimento y confirme que las células hospedadoras, las vacuolas y los parásitos tienen identificadores estables.",
+          "3": "Essentials presenta los controles de asignación, condición, filtrado, puntuación y salida. Utilice Modified para auditar los cambios intencionados.",
+          "4": "Elija cómo se asignan los parásitos a las vacuolas y cómo se gestionan las relaciones ambiguas o distantes.",
+          "5": "Filtre los fallos de segmentación a partir de distribuciones e imágenes revisadas, sin eliminar vacuolas infrecuentes pero válidas.",
+          "6": "Defina los grupos de recuento de parásitos y los resúmenes que responden a la pregunta biológica antes de realizar las pruebas estadísticas.",
+          "7": "Ejecute el análisis después de comprobar las asignaciones, las condiciones, los filtros y las definiciones de puntuación.",
+          "8": "Examine vacuolas en todo el intervalo de recuentos y revise las máscaras fusionadas o fragmentadas. Las distribuciones y estadísticas guardadas permanecen vinculadas a la evidencia por objeto."
+        }
+      },
+      "fr": {
+        "description": "Associez les parasites aux vacuoles et résumez la réplication intracellulaire par condition.",
+        "prerequisite": "Mesurez les cellules hôtes, les vacuoles et les parasites avec des relations et des métadonnées de condition vérifiées.",
+        "objectives": ["Configurer l'association aux vacuoles.", "Définir des filtres et des groupes de score justifiables.", "Valider les résumés de réplication par rapport aux images."],
+        "narrations": {
+          "1": "Replication Assay calcule le nombre de parasites par vacuole à partir de relations et de mesures existantes. La console consigne les paramètres, le filtrage et les résultats.",
+          "2": "Sélectionnez la racine de l'expérience et vérifiez que les cellules hôtes, les vacuoles et les parasites possèdent des identifiants stables.",
+          "3": "Essentials présente les contrôles d'association, de condition, de filtrage, de score et de sortie. Utilisez Modified pour auditer les modifications intentionnelles.",
+          "4": "Choisissez comment les parasites sont associés aux vacuoles et comment les relations ambiguës ou distantes sont traitées.",
+          "5": "Éliminez les échecs de segmentation à partir de distributions et d'images vérifiées, sans exclure les vacuoles rares mais valides.",
+          "6": "Définissez les groupes de dénombrement des parasites et les résumés qui répondent à la question biologique avant d'effectuer les tests statistiques.",
+          "7": "Lancez l'analyse après avoir vérifié les associations, les conditions, les filtres et les définitions des scores.",
+          "8": "Examinez les vacuoles sur toute la plage de dénombrement et contrôlez les masques fusionnés ou fragmentés. Les distributions et les statistiques enregistrées restent associées aux observations au niveau des objets."
+        }
+      },
+      "it": {
+        "description": "Associa i parassiti ai vacuoli e riassumi la replicazione intracellulare per condizione.",
+        "prerequisite": "Misura cellule ospiti, vacuoli e parassiti con relazioni e metadati delle condizioni verificati.",
+        "objectives": ["Configurare l'associazione ai vacuoli.", "Definire filtri e gruppi di punteggio giustificabili.", "Convalidare i riepiloghi della replicazione rispetto alle immagini."],
+        "narrations": {
+          "1": "Replication Assay calcola il numero di parassiti per vacuolo a partire da relazioni e misurazioni esistenti. La console registra le impostazioni, il filtraggio e i risultati.",
+          "2": "Seleziona la cartella principale dell'esperimento e verifica che cellule ospiti, vacuoli e parassiti abbiano identificatori stabili.",
+          "3": "Essentials presenta i controlli di associazione, condizione, filtraggio, punteggio e output. Usa Modified per verificare le modifiche intenzionali.",
+          "4": "Scegli come associare i parassiti ai vacuoli e come gestire le relazioni ambigue o distanti.",
+          "5": "Filtra gli errori di segmentazione in base a distribuzioni e immagini verificate, senza eliminare vacuoli rari ma validi.",
+          "6": "Definisci i gruppi di conteggio dei parassiti e i riepiloghi che rispondono alla domanda biologica prima di eseguire le analisi statistiche.",
+          "7": "Avvia l'analisi dopo aver verificato le associazioni, le condizioni, i filtri e le definizioni dei punteggi.",
+          "8": "Esamina i vacuoli nell'intero intervallo di conteggio e controlla le maschere fuse o frammentate. Le distribuzioni e le statistiche salvate restano collegate alle osservazioni a livello di oggetto."
+        }
+      }
+    }}
+  }
+}

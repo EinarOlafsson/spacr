@@ -1,0 +1,161 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "key": "Assign class 1",
+      "source": "Assign class 1",
+      "source_sha256": "8533d54f5b71a643b25e76a606ebb96a40cf40ca186f7658b16f1283f24e0cf3",
+      "table": "ui",
+      "translation": "Klasse 1 zuweisen"
+    },
+    {
+      "key": "Assign class 2",
+      "source": "Assign class 2",
+      "source_sha256": "2e440493b5203777ba17da454d079d9609ccac44c507baaa44d0c1884baf6844",
+      "table": "ui",
+      "translation": "Klasse 2 zuweisen"
+    },
+    {
+      "key": "Assign class 3",
+      "source": "Assign class 3",
+      "source_sha256": "ad419cec8b4d7d9f24f83c469f7e61413202c411b3356bc103e03b8e37672131",
+      "table": "ui",
+      "translation": "Klasse 3 zuweisen"
+    },
+    {
+      "key": "Assign class 4",
+      "source": "Assign class 4",
+      "source_sha256": "e435565314cdb77ccc339f695496b3f168f35566a1856fa545b351c152bb8b3b",
+      "table": "ui",
+      "translation": "Klasse 4 zuweisen"
+    },
+    {
+      "key": "Assign class 5",
+      "source": "Assign class 5",
+      "source_sha256": "3adf1bd61cd4a2141a885ef5fef808461738fa5dafc83f99e85f8e67645b0c5a",
+      "table": "ui",
+      "translation": "Klasse 5 zuweisen"
+    },
+    {
+      "key": "Assign class 6",
+      "source": "Assign class 6",
+      "source_sha256": "87aa7ce4f06f968948f2eeb9b8cd5c29c11cf5373d41f0f2703c79b93439ad73",
+      "table": "ui",
+      "translation": "Klasse 6 zuweisen"
+    },
+    {
+      "key": "Assign class 7",
+      "source": "Assign class 7",
+      "source_sha256": "8a399d5a70b4d4ad8094e0f298b8ebbb26be79d177635538f8f6b14503e54dc7",
+      "table": "ui",
+      "translation": "Klasse 7 zuweisen"
+    },
+    {
+      "key": "Assign class 8",
+      "source": "Assign class 8",
+      "source_sha256": "b3d449ccbe674b5ad3bdf0dacba87dfe9329b4abade381251c9f029cce252771",
+      "table": "ui",
+      "translation": "Klasse 8 zuweisen"
+    },
+    {
+      "key": "Assign class 9",
+      "source": "Assign class 9",
+      "source_sha256": "841de4aa8734f969414fb536fbb6308178ef845f71df2d00ed936aa015b98f5b",
+      "table": "ui",
+      "translation": "Klasse 9 zuweisen"
+    },
+    {
+      "key": "Clear the focused crop",
+      "source": "Clear the focused crop",
+      "source_sha256": "a71215e1ad2971b8d11376f34e7889078aaaf256b632f9d1456771ad145dc913",
+      "table": "ui",
+      "translation": "Fokussierten Bildausschnitt leeren"
+    },
+    {
+      "key": "Close keyboard legend or zoom",
+      "source": "Close keyboard legend or zoom",
+      "source_sha256": "fcc723d874caabb0ef7fd79a348f2608da8e6a7fd8cc9bdb7aed98e8beed4f1a",
+      "table": "ui",
+      "translation": "Tastaturlegende oder Zoom schließen"
+    },
+    {
+      "key": "Move focus down",
+      "source": "Move focus down",
+      "source_sha256": "725c3543aea0bdc7a3db5397bd96b6997295b4601f68dbde400ed1c0d93c4e5a",
+      "table": "ui",
+      "translation": "Fokus nach unten"
+    },
+    {
+      "key": "Move focus left",
+      "source": "Move focus left",
+      "source_sha256": "ecb7023a62810ea9df999e2a827ca1b9bb960a429bddba851a5ff13b7b761a84",
+      "table": "ui",
+      "translation": "Fokus nach links"
+    },
+    {
+      "key": "Move focus right",
+      "source": "Move focus right",
+      "source_sha256": "2186fbec6c899d9883fb00dca8add0903ec762ad64d8306d3dd51591f57543a6",
+      "table": "ui",
+      "translation": "Fokus nach rechts"
+    },
+    {
+      "key": "Move focus up",
+      "source": "Move focus up",
+      "source_sha256": "a0030bf22beab25cf7e606851963e919b7c06e23db3ad7f46b065b64b669b030",
+      "table": "ui",
+      "translation": "Fokus nach oben"
+    },
+    {
+      "key": "Move this merged .npy to merged_quarantined so later Measure runs skip it. Press {key} to quarantine or restore.",
+      "source": "Move this merged .npy to merged_quarantined so later Measure runs skip it. Press {key} to quarantine or restore.",
+      "source_sha256": "a393ac4c753f1aabdae1186574dd94af69b2405211d96285659b98311b010391",
+      "table": "ui",
+      "translation": "Verschiebt diese zusammengeführte .npy nach merged_quarantined, damit spätere Measure-Läufe sie überspringen. Drücken Sie {key}, um sie unter Quarantäne zu stellen oder wiederherzustellen."
+    },
+    {
+      "key": "Save and load the next batch",
+      "source": "Save and load the next batch",
+      "source_sha256": "04b096a48cd5d9f0e5ae098599848995506a36a674f6be354d8342e1da53d681",
+      "table": "ui",
+      "translation": "Speichern und nächsten Stapel laden"
+    },
+    {
+      "key": "Scope",
+      "source": "Scope",
+      "source_sha256": "b073f6c68ef8721107fd9815b19b2c35ec111d526b75c2123d1111ba64424000",
+      "table": "ui",
+      "translation": "Bereich"
+    },
+    {
+      "key": "Shortcut {key} is not a single key sequence.",
+      "source": "Shortcut {key} is not a single key sequence.",
+      "source_sha256": "92694c7177833f99548e4be57130936ab7d20ed9422314758fcd9b2beabe608c",
+      "table": "ui",
+      "translation": "Tastenkürzel {key} ist keine einzelne Tastenfolge."
+    },
+    {
+      "key": "Skip forward one crop",
+      "source": "Skip forward one crop",
+      "source_sha256": "e79047dc10cf7dbb2ddba34ff718bccc76cadd24ea8641e01ae4768d5cd9e418",
+      "table": "ui",
+      "translation": "Einen Bildausschnitt vorwärts springen"
+    },
+    {
+      "key": "Step back one crop",
+      "source": "Step back one crop",
+      "source_sha256": "284740e590505be28a63126778faa420917cf165bba67cdb5974955c9e1d0ea7",
+      "table": "ui",
+      "translation": "Einen Bildausschnitt zurückgehen"
+    },
+    {
+      "key": "Toggle keyboard legend",
+      "source": "Toggle keyboard legend",
+      "source_sha256": "8ae3c53d3192cfb7a923f0db024d5efe91359a812cbf42204b1972017288baa9",
+      "table": "ui",
+      "translation": "Tastaturlegende ein-/ausblenden"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff.",
+  "schema": 1
+}

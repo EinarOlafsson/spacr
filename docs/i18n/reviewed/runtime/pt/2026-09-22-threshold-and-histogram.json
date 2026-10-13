@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI-assisted linguistic and technical review against corrected CPU threshold and histogram contracts; no native-speaker sign-off",
+  "reused_review_sources": [
+    "Open a field first — a histogram needs an image."
+  ],
+  "records": [
+    {
+      "table": "ui",
+      "key": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source": "Threshold factor (default 1; range 0.1 to 5), applied before foreground selection. For positive global thresholds and local Otsu, increasing it keeps fewer bright or dark pixels. Sauvola and Niblack multiply their direct local levels: at positive levels, increasing it keeps fewer bright but more dark pixels; negative levels reverse that direction. Multi-Otsu shifts class boundaries, so a selected middle band can gain and lose pixels.",
+      "source_sha256": "e924c7c449871b9e8e06735b38d58c6a16d4c255501803fb96211f2335337ea8",
+      "translation": "Fator do limiar (padrão 1; intervalo de 0.1 a 5), aplicado antes da seleção do primeiro plano. Para limiares globais positivos e Otsu local, aumentá-lo mantém menos pixels claros ou escuros. Sauvola e Niblack multiplicam diretamente seus níveis locais: com níveis positivos, aumentá-lo mantém menos pixels claros, mas mais pixels escuros; níveis negativos invertem essa direção. Multi-Otsu desloca os limites das classes, de modo que uma faixa intermediária selecionada pode ganhar e perder pixels."
+    },
+    {
+      "table": "ui",
+      "key": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source": "Dimensionless local contrast weight (default 0.2; range -2 to 2). Niblack uses T=m-k*s: increasing k lowers the threshold and keeps more bright pixels, fewer dark pixels. Sauvola uses T=m*(1+k*(s/R-1)), where m is the local mean and s its standard deviation. Here R=1 because the detector receives floats without range rescaling; its response to k depends on m and s/R. Check the preview after changing intensity scale.",
+      "source_sha256": "5b68e468bb932052c654fd47ed0253554f685e9f89cd92fdf6092684c7265632",
+      "translation": "Peso adimensional do contraste local (padrão 0.2; intervalo de -2 a 2). Niblack usa T=m-k*s: aumentar k reduz o limiar e mantém mais pixels claros e menos pixels escuros. Sauvola usa T=m*(1+k*(s/R-1)), em que m é a média local e s é seu desvio padrão. Aqui R=1 porque o detector recebe valores de ponto flutuante sem reescalonar seu intervalo; a resposta a k depende de m e s/R. Confira a prévia depois de alterar a escala de intensidade."
+    },
+    {
+      "table": "ui",
+      "key": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source": "Subtracted from the Gaussian-weighted local mean (default 5). Increasing the offset lowers the threshold and keeps more foreground pixels before cleanup; a negative offset is stricter. Units follow the processed image: smoothed intensity for Adaptive threshold, ridge response for Ridge filter with an adaptive threshold. A raw-intensity offset can overwhelm a 0-to-1 response.",
+      "source_sha256": "5d06859f9f2e876e2669097b4ab2f168ccf73565eab91973e9a58a23f9ee03f4",
+      "translation": "Subtraído da média local ponderada por uma gaussiana (padrão 5). Aumentar o deslocamento reduz o limiar e mantém mais pixels de primeiro plano antes da limpeza; um deslocamento negativo é mais restritivo. As unidades seguem a imagem processada: intensidade suavizada para o limiar adaptativo, resposta de cristas para o filtro de cristas com limiar adaptativo. Um deslocamento adequado a intensidades brutas pode dominar uma resposta entre 0 e 1."
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source": "Suits uneven illumination when local contrast separates objects: the mean is weighted by local contrast. Check the image intensity scale: this detector uses R=1 without rescaling its float input. A constant positive window can become foreground with bright objects and positive k; blank areas are not automatically rejected.",
+      "source_sha256": "df20e4ff6040325eab80c7bba5240243086ecad441ad0f65a75168df8e7fe0ad",
+      "translation": "Adequado para iluminação desigual quando o contraste local separa os objetos: a média é ponderada pelo contraste local. Confira a escala de intensidade da imagem: este detector usa R=1 sem reescalonar sua entrada de ponto flutuante. Uma janela com valor positivo constante pode se tornar primeiro plano com objetos claros e k positivo; áreas vazias não são rejeitadas automaticamente."
+    },
+    {
+      "table": "ui",
+      "key": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source": "Suits uneven illumination when local intensity statistics separate objects, using the window's mean minus k times its standard deviation. Increasing k lowers the threshold and keeps more bright pixels, including background; negative k raises it. For dark objects the direction of pixel inclusion reverses.",
+      "source_sha256": "f3c95763bc78580a1849b1c6a3666638e31397a3e345a1b884a9f02e6677ffcc",
+      "translation": "Adequado para iluminação desigual quando as estatísticas locais de intensidade separam os objetos, usando a média da janela menos k vezes seu desvio padrão. Aumentar k reduz o limiar e mantém mais pixels claros, inclusive do fundo; k negativo o eleva. Para objetos escuros, a direção de inclusão dos pixels se inverte."
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Multi-Otsu uses this count in both magnifier scopes and whole-image detection. Each scope estimates thresholds from its own pixels; a small region may contain too few distinct intensities for the requested class count. In plain Otsu mode, this count still applies only to whole-image detect.",
+      "source_sha256": "75f6c992f2d348554ad9cca515f18a0d87798a4947a578b0a988e3626cbb8016",
+      "translation": "Número de faixas de brilho em que o campo será dividido. 2 corresponde à divisão original de Otsu: um nível entre o fundo e os objetos. Aumente o número quando o campo contiver mais de duas populações — fundo, um halo fraco e núcleos brilhantes — para que o corte saia do nível de compromisso entre as três e passe ao limite desejado, selecionado abaixo. Multi-Otsu usa esse número nos dois escopos da lupa e na detecção da imagem inteira. Cada escopo estima os limiares a partir de seus próprios pixels; uma região pequena pode conter poucas intensidades distintas para o número de classes solicitado. No modo Otsu simples, esse número continua se aplicando apenas à detecção da imagem inteira."
+    },
+    {
+      "table": "ui",
+      "key": "Calculating threshold histogram…",
+      "source": "Calculating threshold histogram…",
+      "source_sha256": "9311940b1f0c43e1ff2af6b1e282f208ac26636371db2b22691664e03228ec9e",
+      "translation": "Calculando o histograma de limiares…"
+    },
+    {
+      "table": "ui",
+      "key": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source": "Level: {levels} ({description}). These are the thresholds the detect button uses on the smoothed detector input.",
+      "source_sha256": "0a2e984308728e976e6a33941563bf6bc703a32668a112babc2813e6c4ce9617",
+      "translation": "Níveis: {levels} ({description}). Estes são os limiares que o botão de detecção usa na entrada suavizada do detector."
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source": "Local threshold varies by pixel ({description}); no single level is drawn. The histogram shows the smoothed detector input before local thresholding.",
+      "source_sha256": "e3f08d69a58b793e17b05762304b482590fd5c8d444dae4905d95ad53d9d8349",
+      "translation": "O limiar local varia por pixel ({description}); nenhum nível único é desenhado. O histograma mostra a entrada suavizada do detector antes da aplicação do limiar local."
+    },
+    {
+      "table": "ui",
+      "key": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source": "Preview the full-field detector input after inversion, normalization, enhancement and smoothing, with the selected method's thresholds. Local methods have no single threshold marker. Computation runs in the background; close the window to discard it. Open again to refresh after changing settings.",
+      "source_sha256": "ab0ab5e43f2f379d1d4a4d06fc6b5958541e321dcfab5f6089db010a2702693c",
+      "translation": "Mostra uma prévia da entrada do detector para todo o campo após inversão, normalização, realce e suavização, com os limiares do método selecionado. Métodos locais não têm um único marcador de limiar. O cálculo é executado em segundo plano; feche a janela para descartá-lo. Abra novamente para atualizar a prévia depois de alterar as configurações."
+    },
+    {
+      "table": "ui",
+      "key": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source": "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
+      "source_sha256": "d0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3",
+      "translation": "Instantâneo do campo inteiro e das configurações no momento da abertura. Abra o histograma novamente depois de alterar a imagem ou as configurações."
+    },
+    {
+      "table": "ui",
+      "key": "Threshold histogram failed: {error}",
+      "source": "Threshold histogram failed: {error}",
+      "source_sha256": "9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89",
+      "translation": "Falha no histograma de limiares: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "{method} histogram",
+      "source": "{method} histogram",
+      "source_sha256": "cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e",
+      "translation": "Histograma: {method}"
+    }
+  ]
+}

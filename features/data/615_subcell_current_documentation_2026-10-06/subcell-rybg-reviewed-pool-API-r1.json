@@ -1,0 +1,146 @@
+{
+  "sv": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "``(n, k, h, w)`` till ``(n, 1536)``, med de två huvudena sammanfogade."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "Kontrollpunkten avgör om ``k`` är två eller fyra kanaler."
+    }
+  ],
+  "de": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "``(n, k, h, w)`` nach ``(n, 1536)``, wobei die beiden Köpfe zusammengefügt werden."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "Der Checkpoint bestimmt, ob ``k`` zwei oder vier Kanäle umfasst."
+    }
+  ],
+  "es": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "De ``(n, k, h, w)`` a ``(n, 1536)``, concatenando las dos cabezas."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "El punto de control determina si ``k`` corresponde a dos o cuatro canales."
+    }
+  ],
+  "zh_CN": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "从 ``(n, k, h, w)`` 转换为 ``(n, 1536)``，拼接两个头的输出。"
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "检查点决定 ``k`` 是两个通道还是四个通道。"
+    }
+  ],
+  "pt": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "De ``(n, k, h, w)`` para ``(n, 1536)``, concatenando as duas cabeças."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "O checkpoint determina se ``k`` corresponde a dois ou quatro canais."
+    }
+  ],
+  "hi": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "``(n, k, h, w)`` से ``(n, 1536)`` तक, दोनों हेड के आउटपुट जोड़कर।"
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "चेकपॉइंट निर्धारित करता है कि ``k`` दो चैनल हैं या चार।"
+    }
+  ],
+  "ko": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "``(n, k, h, w)``에서 ``(n, 1536)``으로 변환하며 두 헤드의 출력을 이어 붙입니다."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "체크포인트에 따라 ``k``가 두 채널인지 네 채널인지 결정됩니다."
+    }
+  ],
+  "is": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "Úr ``(n, k, h, w)`` í ``(n, 1536)``, með hausana tvo samtengda."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "Vistun líkansins ákvarðar hvort ``k`` táknar tvær eða fjórar rásir."
+    }
+  ],
+  "fr": [
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "De ``(n, k, h, w)`` à ``(n, 1536)``, en concaténant les deux têtes."
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "Le point de contrôle détermine si ``k`` correspond à deux ou quatre canaux."
+    }
+  ]
+}

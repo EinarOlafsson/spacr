@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+"""Derive tutorial navigation from the same hierarchy the spaCR GUI draws.
+
+Only navigation metadata is generated: this never rewrites a lesson's scenes,
+translated narration, identifiers, media or timings merely because it moved.
+Missing lessons are reported explicitly, not replaced with invented videos.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
+KEY_ALIASES = {'cellpose_all': 'cellpose_masks'}
+HOSTED_MODES = {'classify': 'classify_merged', 'ml_analyze': 'classify_merged',
+                'parameter_sweep': 'regression'}
+LABELS = {
+    'en': ['Main modules', 'Submodules', 'Getting started', 'Help and utilities'],
+    'es': ['Módulos principales', 'Submódulos', 'Primeros pasos', 'Ayuda y utilidades'],
+    'fr': ['Modules principaux', 'Sous-modules', 'Premiers pas', 'Aide et utilitaires'],
+    'hi': ['मुख्य मॉड्यूल', 'उपमॉड्यूल', 'शुरुआत करें', 'सहायता और उपयोगिताएँ'],
+    'it': ['Moduli principali', 'Sottomoduli', 'Primi passi', 'Guida e utilità'],
+    'pt-BR': ['Módulos principais', 'Submódulos', 'Primeiros passos', 'Ajuda e utilitários'],
+    'ja': ['メインモジュール', 'サブモジュール', 'はじめに', 'ヘルプとユーティリティ'],
+    'zh-CN': ['主模块', '子模块', '入门', '帮助与实用工具'],
+    'da': ['Hovedmoduler', 'Undermoduler', 'Kom godt i gang', 'Hjælp og værktøjer'],
+    'de': ['Hauptmodule', 'Untermodule', 'Erste Schritte', 'Hilfe und Werkzeuge'],
+    'is': ['Aðaleiningar', 'Undireiningar', 'Fyrstu skrefin', 'Hjálp og verkfæri'],
+    'ko': ['주요 모듈', '하위 모듈', '시작하기', '도움말 및 유틸리티'],
+    'nb': ['Hovedmoduler', 'Undermoduler', 'Kom i gang', 'Hjelp og verktøy'],
+    'sv': ['Huvudmoduler', 'Undermoduler', 'Kom igång', 'Hjälp och verktyg'],
+}
+
+
+ORIENTATION_LABELS = {
+    'en': 'Home and pipelines', 'es': 'Inicio y flujos de trabajo',
+    'fr': 'Accueil et parcours', 'hi': 'होम और कार्यप्रवाह',
+    'it': 'Home e flussi di lavoro', 'pt-BR': 'Início e fluxos de trabalho',
+    'ja': 'ホームとワークフロー', 'zh-CN': '主页与工作流程',
+    'da': 'Hjem og arbejdsgange', 'de': 'Startseite und Arbeitsabläufe',
+    'is': 'Heim og verkferlar', 'ko': '홈 및 워크플로',
+    'nb': 'Hjem og arbeidsflyter', 'sv': 'Hem och arbetsflöden',
+}
+SETUP_ORDER = ('01_pypi_github', '02_install_spacr',
+               '04_platform_installers')
+ORIENTATION_ORDER = ('05_home', '78_spacr_screens', '80_image_analysis_pathways',
+                     '81_sequencing_pathways', '79_module_inputs_outputs')
+CATEGORY_REVIEW = Path(__file__).with_name('lessons') / 'navigation_categories.review.json'
+
+
+def category_labels(categories, review_path=CATEGORY_REVIEW):
+    """Require complete technical review for the current visible GUI categories."""
+    review = json.loads(Path(review_path).read_text(encoding='utf-8'))
+    source = list(categories)
+    source_hash = hashlib.sha256(json.dumps(source, ensure_ascii=False,
+                                            separators=(',', ':')).encode()).hexdigest()
+    if (review.get('schema') != 1 or review.get('source') != source
+            or review.get('source_sha256') != source_hash
+            or review.get('review_kind') != 'AI technical review, no native-speaker signoff'):
+        raise ValueError('Navigation category review does not match current GUI source')
+    labels = review.get('labels', {})
+    if set(labels) != set(LABELS):
+        raise ValueError('Navigation category review must cover all fourteen locales')
+    for language, values in labels.items():
+        if (not isinstance(values, list) or len(values) != len(source)
+                or any(not isinstance(value, str) or not value.strip() for value in values)):
+            raise ValueError(f'Incomplete navigation category review: {language}')
+    if labels['en'] != source:
+        raise ValueError('English navigation categories must preserve GUI source')
+    return labels
+
+
+def build(catalog: dict) -> dict:
+    os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+    sys.path.insert(0, str(REPO))
+    import spacr.qt
+    spacr.qt.register_self_registering_modules()
+    from spacr.qt import app
+    from spacr.qt.widgets.fold_strip import folded_modules
+
+    lessons = catalog['lessons']
+    by_key = {}
+    for lesson in lessons:
+        if lesson.get('app_key'):
+            key = lesson['app_key']
+            if key in by_key:
+                raise ValueError(f'Duplicate tutorial route {key}')
+            by_key[key] = lesson
+    from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS
+    tiles = app.tiled_apps()
+    # Alpha species whose lessons are still published keep their Home place
+    # here until those lessons are retired (none since 2026-10-04).
+    shown = {row[0] for row in tiles}
+    tiles = sorted(tiles + [row for row in app.APPS
+                            if row[0] in _SPECIES_WITH_PUBLISHED_LESSONS
+                            and row[0] not in shown],
+                   key=app.tile_sort_key)
+    tile_keys = {row[0] for row in tiles}
+    names = {row[0]: row[1] for row in app.APPS}
+    names.update({k: v[0] for k, v in folded_modules().items()})
+    folds = app.folded_children()
+    parents = {}
+    for host, children in folds.items():
+        for child in children:
+            parents[KEY_ALIASES.get(child, child)] = host
+    parents.update(HOSTED_MODES)
+    identities = {lesson['id'] for lesson in lessons}
+    intro = {'id': 'getting-started', 'kind': 'intro', 'label_index': 2,
+             'lessons': [key for key in SETUP_ORDER if key in identities]}
+    orientation = [key for key in ORIENTATION_ORDER if key in identities]
+    groups = []
+    bands = [(section, [row for row in tiles if row[3] == section])
+             for section in app.SECTIONS]
+    bands = [(section, rows) for section, rows in bands if rows]
+    reviewed_categories = category_labels([section for section, _rows in bands])
+    for category_index, (section, rows) in enumerate(bands):
+        groups.append({'id': section.lower(), 'title': section,
+                       'label_index': 5 + category_index,
+                       'kind': 'main', 'module_keys': [r[0] for r in rows],
+                       'lessons': [by_key[r[0]]['id'] for r in rows
+                                   if r[0] in by_key]})
+    subgroups = []
+    routes = {}
+    for key, lesson in by_key.items():
+        if key in tile_keys:
+            routes[lesson['id']] = {'kind': 'main', 'app_key': key}
+        elif key in parents:
+            host = parents[key]
+            routes[lesson['id']] = {'kind': 'submodule', 'app_key': key,
+                                    'host_app_key': host,
+                                    'host_lesson': by_key.get(host, {}).get('id'),
+                                    'host_title': names.get(host, host)}
+        elif key in app.TILELESS_APPS:
+            routes[lesson['id']] = {'kind': 'help', 'app_key': key}
+        else:
+            raise ValueError(f'Lesson has no current GUI location: {key}')
+    hosts = list(dict.fromkeys([r[0] for r in tiles] + list(folds)))
+    for host in hosts:
+        members = [l['id'] for l in lessons if parents.get(l.get('app_key')) == host]
+        if members:
+            subgroups.append({'id': host, 'kind': 'host',
+                              'title': names.get(host, host),
+                              'host_lesson': by_key.get(host, {}).get('id'),
+                              'help_host': host not in tile_keys,
+                              'lessons': members})
+    utilities = [l['id'] for l in lessons
+                 if routes.get(l['id'], {}).get('kind') == 'help'
+                 or (not l.get('app_key')
+                     and l['id'] not in (*intro['lessons'], *orientation))]
+    if utilities:
+        subgroups.append({'id': 'help', 'kind': 'help', 'label_index': 3,
+                          'lessons': utilities})
+    sections = [{'id': 'orientation', 'label_index': 4,
+                 'groups': [{'id': 'orientation', 'title': '', 'kind': 'intro',
+                             'lessons': orientation}]},
+                {'id': 'main', 'label_index': 0, 'groups': groups},
+                {'id': 'submodules', 'label_index': 1, 'groups': subgroups}]
+    assigned = intro['lessons'] + [identity for section in sections for group in section['groups']
+                                  for identity in group['lessons']]
+    if len(assigned) != len(set(assigned)) or set(assigned) != {l['id'] for l in lessons}:
+        raise ValueError('Navigation must place each existing lesson exactly once')
+    expected = set(names) | set(HOSTED_MODES)
+    expected = {KEY_ALIASES.get(k, k) for k in expected}
+    # Alpha modules get no tutorial: they are hidden while Preferences >
+    # Show alpha features is off, which is how every lesson is recorded.
+    from spacr.settings import _alpha_names
+    alpha_modules = sorted(expected & (set(_alpha_names('apps'))
+                                       - _SPECIES_WITH_PUBLISHED_LESSONS))
+    expected -= set(alpha_modules)
+    uncovered = [{'app_key': k, 'title': names.get(k, k), 'host_app_key': parents.get(k),
+                  'status': 'deferred_unvalidated_workflow' if k == 'ops' else 'needs_tutorial'}
+                 for k in sorted(expected - set(by_key))]
+    return {'schema': 1, 'source_commit': subprocess.check_output(
+                ['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
+            'labels': {language: labels + [ORIENTATION_LABELS[language]]
+                       + reviewed_categories[language]
+                       for language, labels in LABELS.items()},
+            'intro': intro, 'sections': sections, 'routes': routes,
+            'missing_tutorials': uncovered,
+            'alpha_modules_without_tutorials': alpha_modules,
+            'preserved_lesson_ids': [l['id'] for l in lessons]}
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--catalog', type=Path, default=WORKSPACE / 'catalog/lessons_en.json')
+    parser.add_argument('--output', type=Path, default=WORKSPACE / 'web/module_navigation.js')
+    args = parser.parse_args()
+    result = build(json.loads(args.catalog.read_text(encoding='utf-8')))
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text('"use strict";\nwindow.SPACR_TUTORIAL_NAVIGATION = Object.freeze('
+                          + json.dumps(result, ensure_ascii=False, indent=2) + ');\n',
+                          encoding='utf-8')
+    print(f"Placed {len(result['preserved_lesson_ids'])} existing lessons without changing media.")
+    print('Missing lessons:', ', '.join(x['app_key'] for x in result['missing_tutorials']))

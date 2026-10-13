@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "segmentation_backend",
+      "source": "Segmentation backend",
+      "source_sha256": "55d5430ab2ef3b4362493fe29d111b90f9aeea3e3161c05910d77a00677b752f",
+      "table": "setting_labels",
+      "translation": "विभाजन बैकएंड"
+    }
+  ],
+  "schema": 1
+}

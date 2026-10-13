@@ -1,0 +1,35 @@
+{
+  "lesson": "59_anndata_export",
+  "english_sha256": "37c9d1f4828e5a93b7a15daa8fc8bb683eba92294b60d77a4aa3657a5f912506",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "AnnData Export: gemessene Objekte und Merkmale speichern",
+  "description": "Exportieren Sie verknüpfte Messwerte oder eine einzelne Objekttabelle als h5ad, wählen Sie den Umgang mit fehlenden Werten und behalten Sie die Objektmetadaten.",
+  "objectives": [
+    "AnnData Export öffnen und ein gemessenes Projekt auswählen.",
+    "Verknüpfte oder Einzeltabellen-Messwerte und eine Regel für fehlende Werte wählen.",
+    "Eine h5ad-Datei mit Merkmalsnamen und Objektmetadaten exportieren."
+  ],
+  "prerequisite": "Verwenden Sie ein Projekt, für das Measure abgeschlossen ist, oder laden Sie das Messbeispiel über Annotate herunter. Arbeiten Sie mit einer Kopie des Projekts und behalten Sie seine Quellbilder. Verwenden Sie für den hier gezeigten normalen Exporter den aktuellen Nightly-Build.",
+  "scenes": [
+    "Öffnen Sie von Home aus Measure und wählen Sie dann AnnData Export. Mit diesem Werkzeug speichern Sie gemessene Objekte, ihre Merkmale und Metadaten gemeinsam in einer h5ad-Datei.",
+    "Wählen Sie Ihr gemessenes Projekt als Source. Verwenden Sie für diese Anleitung eine Kopie des über Annotate verfügbaren Messbeispiels. Halten Sie seinen Messordner und die Quellbilder zusammen.",
+    "Lassen Sie Single table leer, um die gewählten Tabellen auf Zellzeilen zusammenzuführen. Geben Sie einen Ausgabedateinamen mit der Endung h5ad an. Behalten Sie float32 und gzip für einen kompakten numerischen Export bei.",
+    "Setzen Sie Row limit auf 0, um alle verfügbaren Zeilen einzuschließen. Ein positives Limit ist für einen kleinen ersten Export nützlich. Lassen Sie Compute UMAP ausgeschaltet, wenn Sie nur die Messmatrix benötigen.",
+    "Wählen Sie keep als Regel für fehlende Werte und drücken Sie dann Run. Lesen Sie die Abschlussmeldung. Das verknüpfte Beispiel enthält 2.341 Zellzeilen und 1.136 Merkmale.",
+    "Setzen Sie Single table auf cell und wählen Sie einen neuen Ausgabedateinamen. Führen Sie den Export erneut aus, um nur die Zellmesswerte zu exportieren. Hier hat das Ergebnis 261 Merkmale und 28 fehlende Werte.",
+    "Wählen Sie mean, um fehlende Merkmalswerte durch die beobachteten Spaltenmittelwerte zu ersetzen. Der Export hält außerdem ihre ursprünglichen Positionen in einer Ebene für fehlende Werte fest. Verwenden Sie diese Regel, wenn eine Mittelwertimputation zu Ihrer weiteren Analyse passt.",
+    "Wählen Sie drop_features, um Spalten mit fehlenden Werten zu entfernen. Dieses Beispiel behält alle Zellen und entfernt vier Merkmalsspalten. Prüfen Sie beim Vergleich von Exporten die verbleibenden Merkmalsnamen.",
+    "Wählen Sie drop_objects, um Zeilen mit fehlenden Merkmalswerten zu entfernen. Hier werden sieben Zellen entfernt. Überlegen Sie, ob die ausgeschlossenen Objekte Ihre Analyse verändern könnten.",
+    "Wählen Sie nucleus als Einzeltabelle, wenn Sie eine Zeile pro Kern benötigen. Dieses Beispiel ergibt 2.682 Kerne und 341 Merkmale.",
+    "Aktivieren Sie Register artifact, damit die Ausgabe im Projekt auffindbar ist. Speichern Sie jede Regel unter einem eigenen Dateinamen und bewahren Sie ihre Einstellungen auf. Die h5ad-Datei enthält Messwerte und Metadaten; bewahren Sie die Quellbilder separat auf.",
+    "Öffnen Sie die entstandene h5ad-Datei in Ihrer weiteren Analyse und prüfen Sie Form, Merkmalsnamen und Objektmetadaten. In Python verwendet run_anndata_export dieselben Einstellungen, während build_anndata die Daten im Arbeitsspeicher aufbaut."
+  ]
+}

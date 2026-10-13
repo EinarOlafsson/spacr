@@ -1,0 +1,188 @@
+{
+  "passed": true,
+  "source_commit": "26d5089f82b02c9031089cfbe5035bfbf9de3272",
+  "private_integrated_candidate": "15eaaab9d357848b16a1a8d49cab2922468e985d",
+  "prior_complete_proof": "features/data/664_665_changed_runtime_coverage_2026-10-08/receipt.json",
+  "changed_coverage": {
+    "changed_executable_lines": 1175,
+    "hit_lines": 1137,
+    "missed_lines": 38,
+    "new_or_changed_branch_arcs": 349,
+    "hit_arcs": 328,
+    "missed_arcs": 21
+  },
+  "database_changed_lines": "297/297",
+  "database_changed_arcs": "83/83",
+  "cohort": {
+    "passed": 60,
+    "failed": 0,
+    "elapsed_seconds": 8.8
+  },
+  "local_py312_pytest842_new_cases": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "xfail": 0,
+    "elapsed_seconds": 4.85
+  },
+  "production_documentation_tools_unchanged": true,
+  "final_test_patch_identical_in_private_candidate": true,
+  "payloads": {
+    "logs/worker-runtime-coverage-r8.log.gz": {
+      "sha256": "c197ddce4ea19b2d877711f444fe8adace450912a0c814ee3dd22965d0c92ffd",
+      "bytes": 983,
+      "raw_sha256": "6d77278ab3281f62c74bc90f6dd2d8c09c5710cd80a813b41936ed25c7039354",
+      "raw_bytes": 4460
+    },
+    "logs/worker-runtime-coverage-r8-tool.log.gz": {
+      "sha256": "a7de5e5b8773e180a55c8a0a5909bb98aa8304b71589596c820a4392e39216a4",
+      "bytes": 762,
+      "raw_sha256": "bd81ea1052482607dbba73453d837cec1f0f9c32420b29dc1519af4193aebddf",
+      "raw_bytes": 3945
+    },
+    "logs/worker-runtime-coverage-r9.log.gz": {
+      "sha256": "54a8f4dc419f25958f0c707c1cb4c1f06e4f3baec9eb51e9076a3921003aedba",
+      "bytes": 1128,
+      "raw_sha256": "7efd1c820eb13d1a2d9019da5dae64fbb3d48e91f39e0cad3ff5a310ebbaec94",
+      "raw_bytes": 4101
+    },
+    "logs/worker-runtime-coverage-r9-tool.log.gz": {
+      "sha256": "3e2c8e795c03ce2278ad713f41444bcfcb0fe3cb1e436ca1cfa42b9e38001d55",
+      "bytes": 925,
+      "raw_sha256": "2d931420569115fef9d6a66144b00abcc11fd9d158f146ed62fda8c69ebd99b2",
+      "raw_bytes": 3537
+    },
+    "logs/worker-runtime-coverage-r10.log.gz": {
+      "sha256": "d30556c9f7f238b4aa3880630b269a57f2fc2c2a8dbfa251b1603c32ee43eb82",
+      "bytes": 661,
+      "raw_sha256": "96be6e8b1c44a7c2ed13ecf91bd0ca2555038eb0f4e71f2394b215519611b82a",
+      "raw_bytes": 1868
+    },
+    "logs/worker-runtime-coverage-r10-tool.log.gz": {
+      "sha256": "6d7640c40119b67db8ce9c76f7b7acef70192cb6c22ddd8ac5d109a7aa4b3517",
+      "bytes": 448,
+      "raw_sha256": "a4c118bc9ce81f2be2c18d46daadaa00a671e7c816e733a2deec40927cf4c2e1",
+      "raw_bytes": 1303
+    },
+    "logs/worker-supplement-hosted-py312-r1.log.gz": {
+      "sha256": "fccfb7808ac2fa2371ceac7c370e1fadf5b020473dcb16c432eab3a1c4ad0edc",
+      "bytes": 675,
+      "raw_sha256": "b5996198d227a646ec91e7e8d6ad6501492e628ea082553d24ad32fca7c40b35",
+      "raw_bytes": 1975
+    },
+    "logs/worker-supplement-hosted-py312-r1-tool.log.gz": {
+      "sha256": "f7b732341a694b8b0fe58ad6438b95345c97162c0d7569fd09df50f25b363dc3",
+      "bytes": 445,
+      "raw_sha256": "cfe30245532895188c1dfb31add09ea88697639887ff7d2da4fe8bb94f7c1df3",
+      "raw_bytes": 1304
+    },
+    "logs/worker-supplement-coverage-combine-r1.log.gz": {
+      "sha256": "bfd76eb2fc6a7c6f95f861bb5a86c7f246dae1a95e415b0d34036f94bc2c40cb",
+      "bytes": 708,
+      "raw_sha256": "15553c1d313856358853f4ddf56d3e95d99eed4b9d440634e3d2785817a39751",
+      "raw_bytes": 2630
+    },
+    "reports/worker-changed-runtime-coverage-independent-r13456710.json.gz": {
+      "sha256": "d19898c540175c1eb634b0e5701bbbd7173e1fdd84f7e8a0951f3af21fef4dd4",
+      "bytes": 207434,
+      "raw_sha256": "9eb56b7e2a9f23a7d5b78de4225b7846f61606864e7df33355df9d94ca4e1c16",
+      "raw_bytes": 655775
+    },
+    "coverage/worker-runtime-coverage-r8.data.carruthers.pid4134403.XKDpgh0x.HzKD15LUsfkh.gz": {
+      "sha256": "b2afaedccec45268603a32600452e9fcb28a5c13b0419de4abf71e55c86df4cf",
+      "bytes": 300476,
+      "raw_sha256": "f2ece2d1b03484e130acc9e911d594124540afc4d3abb97a7b12301d4b0082ad",
+      "raw_bytes": 729088
+    },
+    "coverage/worker-runtime-coverage-r9.data.carruthers.pid4134879.XJm3G88x.H6YoKRemT2nh.gz": {
+      "sha256": "989072ceaff4c8bfdddc7c929f525d9f09c9aae0070b30494a568eec7dcb1b47",
+      "bytes": 389796,
+      "raw_sha256": "1f21c1a250928efb470b44abea14a858f033497bd2e0bc64b917067e81fa5360",
+      "raw_bytes": 937984
+    },
+    "coverage/worker-runtime-coverage-r9.data.carruthers.pid4134961.XhyaCKYx.HzRcKQnM00oh.gz": {
+      "sha256": "e2b7e809c60f3f4285dd8aa7ec78ca852af66ab204a926d8725628d46277ddcb",
+      "bytes": 369750,
+      "raw_sha256": "af32e78e2a07ce988b0f093de72b932d43a2dc34ef4478f060ab217c792ce49c",
+      "raw_bytes": 888832
+    },
+    "coverage/worker-runtime-coverage-r10.data.gz": {
+      "sha256": "6a57a3124fa6ce958f917f3ab964e5f1576ad40a01a4369154b3a49beb9e98b4",
+      "bytes": 372024,
+      "raw_sha256": "6e57e6f5ae6b281494056e74c15aaeff1c4fce4502a7fc788f3f4fa8fb090c90",
+      "raw_bytes": 946176
+    },
+    "coverage/worker-runtime-coverage-r10.data.carruthers.pid4135486.XVHrQCgx.He6fAm2ptUIh.gz": {
+      "sha256": "576f5ab416bc2e2e0fd93b10f6f4e293ea4e39c50f6f1434d181bb2e1f8668e4",
+      "bytes": 389018,
+      "raw_sha256": "d35520b4214a5e71abd7b9244392f719ea0aea573ce950b60e1cd71089040b3b",
+      "raw_bytes": 942080
+    },
+    "coverage/worker-runtime-coverage-r10.data.carruthers.pid4135761.X0Sd71Zx.Hvr5KydJw1Dh.gz": {
+      "sha256": "3739e7b314eb858b534842902df4d512d3af1fc71868eb0cf5e540134428bf12",
+      "bytes": 358691,
+      "raw_sha256": "061c52a1959a5d5433f3f6c0703b1c9fc41a94474c7241776c9ad002860fc194",
+      "raw_bytes": 872448
+    },
+    "coverage/worker-runtime-coverage-independent-r13456710.data.gz": {
+      "sha256": "2fc2b6bda4e7d739e2e8550d3b6a2c52b928e711d7e6783021c8fc51197c7c00",
+      "bytes": 1116429,
+      "raw_sha256": "011eef26637468a1866c1109bd0b76aaaae2fa5de2b6f820886f2a5176984e30",
+      "raw_bytes": 2793472
+    },
+    "scripts/archive_worker_supplement_r1.py.gz": {
+      "sha256": "81104b5c65e119ed044cda63ac68c60f65b2fc8a81890ffe6fc8a877eeee492f",
+      "bytes": 1910,
+      "raw_sha256": "c7122eb5bffd4cf6b6625e06d9f20bda76993023c8e3de6ae618ddc8061e711d",
+      "raw_bytes": 5160
+    },
+    "scripts/merge_worker_supplement_r1.py.gz": {
+      "sha256": "90b420d713abbea7bf2e28ad41c2bdd4a08e8af47a1a98500ad553119bb82734",
+      "bytes": 370,
+      "raw_sha256": "58fce1566a0aacc2d79b332887fe3b551e4ab48869fdf0552367d3cb0ca361dd",
+      "raw_bytes": 771
+    },
+    "tests/tests/test_item60_measure_coverage.py.gz": {
+      "sha256": "a79db5d3087703df1c079f5e5beca25a8a44187a0961b1fb129b9381c5c70387",
+      "bytes": 5923,
+      "raw_sha256": "49c0e279416bed139c916362357b00046dc65909fb8dbd9eaea87397345cd5b3",
+      "raw_bytes": 21731
+    },
+    "tests/tests/test_parallel_queue_lifecycle_boundaries.py.gz": {
+      "sha256": "dfd00a11fd084ad8adabe3faec61fcf8f7d9a7f56c2b12f2b1be14a5160445e3",
+      "bytes": 1621,
+      "raw_sha256": "d2fa31e81ae530991fce87430f57b1fec7538cecfae50ac40816bd0c031a993c",
+      "raw_bytes": 4511
+    },
+    "tests/tests/test_sequencing_full_coverage.py.gz": {
+      "sha256": "60008e795b3c5b05fc8df00dcbab14e834f89a3eec15507ebab12d5a192cbbeb",
+      "bytes": 11673,
+      "raw_sha256": "1f3c361b353d0cfc6b9c9237820830026eab879dd11e3ecbfcffbb3f714348af",
+      "raw_bytes": 47344
+    },
+    "tests/tests/test_worker_writer_caller_boundaries.py.gz": {
+      "sha256": "6117c05834c44e7893f9bbe2d3dc89731bc394f9e93bb1f58597854721721745",
+      "bytes": 4434,
+      "raw_sha256": "d2be98bc76c394e211bd5bcab5628bad9b98b7786750e7398bc3752cc170a31b",
+      "raw_bytes": 15009
+    },
+    "tests/tests/test_worker_writer_failure_boundaries.py.gz": {
+      "sha256": "8ea69f130559add21f10ce622fc54c0fe1ba9abd91a78a66cb42d803d3fa9b4b",
+      "bytes": 2718,
+      "raw_sha256": "15bd6ee3fdf6a5d0c4db8b9d25f54450f9c9fd7a5c8d2e3839465d811e87b88a",
+      "raw_bytes": 11108
+    },
+    "patch/test-only-final-worker-boundaries.patch.gz": {
+      "sha256": "c33e311d6d48cb077268af971ffaa117ce8d79f258a2c6ef78d4559eee639ae6",
+      "bytes": 9080,
+      "raw_sha256": "7e5112778ee5425a39c0dcc149e1552695d6aa6e20ab05c6bd62c05cfb8ae898",
+      "raw_bytes": 37574
+    }
+  },
+  "scope": "Duplicate overloaded delivery receives one final attempt and one atomic row/ticket commit or one durable final error. Actual single-worker simulation producer/invalid-SQL/exhausted-lock failures raise, join the only writer and retain pending scientific data.",
+  "limitations": [
+    "38 changed statements and 21 changed branch arcs remain unhit, explicitly listed.",
+    "Earlier r8/r9 new-fixture errors retained; final coverage includes only passing r10 plus the prior accepted merge.",
+    "No new application code or global numerical/hosted/native acceptance. Product source remains private."
+  ]
+}

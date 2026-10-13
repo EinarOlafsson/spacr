@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "51_control_charts",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Acompanhe os controles entre placas e detecte desvios em relação a uma linha de base especificada.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Control Charts.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Control Charts. Acompanhe os controles entre placas e detecte desvios em relação a uma linha de base especificada.",
+        "Selecione medições repetidas dos controles que incluam a ordem das placas e os metadados da linha de base.",
+        "Na área principal de configuração, defina a linha de base, o agrupamento, a linha central, os limites e a política de alertas.",
+        "Renderize o gráfico e investigue, em seu contexto, deslocamentos, tendências ou placas fora de controle.",
+        "Ao término do fluxo de trabalho, o gráfico, os alertas e a definição da linha de base podem ser exportados para o acompanhamento da campanha."
+      ]
+    }
+  }
+}

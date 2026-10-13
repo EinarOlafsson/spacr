@@ -1,0 +1,35 @@
+{
+  "lesson": "85_host_pathogen",
+  "english_sha256": "e744c3949f480b452dc13cdc04ea44b00e1872b977979c44f5e21d1c9fff7b18",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Host–Pathogen: vincular marcadores de vacuolas y recuentos de parásitos",
+  "description": "Carga el ejemplo de microscopía, elige las entradas de marcadores y recuentos, revisa la vista previa y exporta resúmenes vinculados de vacuolas, células huésped y pocillos.",
+  "objectives": [
+    "Cargar el proyecto de ejemplo e identificar las mediciones de huésped y de vacuola.",
+    "Elegir los canales de marcadores y revisar el reclutamiento por vacuola en la vista previa Live.",
+    "Ejecutar el análisis y leer las tablas de salida con los denominadores correctos."
+  ],
+  "prerequisite": "Usa Load test data para el ejemplo de microscopía THP-1 incluido, o selecciona un proyecto medido con células huésped, vacuolas e intensidades de referencia del huésped. Conserva las células huésped no infectadas durante Measure cuando necesites un denominador de infección. Los recuentos individuales de parásitos requieren una tabla de parásitos vinculada o una columna de recuento medida.",
+  "scenes": [
+    "Host–Pathogen relaciona los marcadores y el recuento de parásitos de cada vacuola con su célula huésped y su pocillo. Para llegar, abre Toxoplasma desde Home y elige Host–Pathogen.",
+    "La forma más fácil de empezar es el ejemplo. Load test data descarga un pequeño proyecto de microscopía y rellena los ajustes: dos campos con imágenes, máscaras de huésped y de vacuola, y tablas de mediciones. Practica aquí antes de pasar a tu propio proyecto medido.",
+    "Todo lo que lee el módulo entra por Source, que debe apuntar al proyecto que contiene measurements/measurements.db. También puede leer una base de datos directamente, o combinar varios proyectos manteniendo separada la identidad de cada uno.",
+    "Ahora indícale dónde están las vacuolas y los huéspedes en esa base de datos: la tabla de vacuolas y el prefijo de sus columnas de intensidad, y después la tabla de referencia del huésped y su prefijo. El ejemplo usa pathogen y cytoplasm. Los vínculos entre objetos conectan cada vacuola con su célula huésped, así que comprueba que son correctos.",
+    "Marker channels indica qué intensidades comparar, contando desde cero. El ejemplo elige el canal uno, el marcador RNF213. El canal que elijas necesita mediciones de intensidad tanto en la vacuola como en el compartimento de referencia, porque la razón se calcula a partir de ambas.",
+    "Al principio, deja Marker thresholds vacío y limítate a mirar las razones de reclutamiento. Cuando tus controles muestren dónde empieza lo positivo, introduce el número de canal y ese umbral de razón; todo lo que lo iguale o lo supere cuenta como positivo. Si falta una medición de referencia o no es válida, el estado queda como desconocido en lugar de suponerse.",
+    "Los recuentos de parásitos vienen de uno de dos sitios: una tabla de parásitos cuyas filas enlazan con su vacuola de origen, o una columna de recuento medida en cada vacuola. El ejemplo de microscopía no tiene ninguna de las dos, así que deja ambas vacías aquí; sus recuentos de parásitos y sus lecturas de replicación quedan como desconocidos.",
+    "Antes de ejecutarlo todo, prueba con un campo. Activa Live, elige un campo y haz clic en Run preview. La tabla de vacuolas aparece junto a la imagen; selecciona una fila, o haz clic en una vacuola, para ver sus mediciones de marcadores y su recuento de parásitos, si lo hay.",
+    "Cuando la vista previa se vea bien, desactiva Live y despliega Actions si está plegado. Mantén Save activado y pulsa Run. Al terminar, la consola muestra la ruta de salida, y los resultados se guardan en results/host_pathogen dentro del primer proyecto seleccionado.",
+    "Los resultados van de lo pequeño a lo grande. vacuoles.csv tiene una fila por vacuola: su vínculo con el huésped, las razones de marcadores, el estado del marcador y el recuento de parásitos, si lo hay. cells.csv los agrupa en la infección de cada célula huésped y su número de vacuolas, y wells.csv los resume por pocillo.",
+    "Otras dos tablas responden a la pregunta biológica. marker_states.csv muestra los estados combinados de los marcadores, y replication_distribution.csv los recuentos de parásitos por vacuola contada. Los parásitos sin un vínculo de origen utilizable van a orphan_parasites.csv. Guarda settings.json con ellas para que tus elecciones de canales y umbrales las acompañen.",
+    "Una última comprobación antes de comparar condiciones: los denominadores. Las fracciones de infección usan las células huésped medidas que se conservaron, así que los huéspedes no infectados solo cuentan si Measure los conservó. Las distribuciones de recuentos usan solo vacuolas con un recuento de parásitos conocido, y lo desconocido nunca se convierte en cero sin avisar."
+  ]
+}

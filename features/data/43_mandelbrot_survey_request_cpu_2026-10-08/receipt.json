@@ -1,0 +1,31 @@
+{
+  "scope": "Test-only repair of a demonstrated hosted survey scheduling race; not an application renderer change.",
+  "hosted_failure_run": 37728397690,
+  "hosted_failure_job": 113154247593,
+  "hosted_source": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "tests": {
+    "focused_node_passed": 1,
+    "complete_file_passed": 9
+  },
+  "environment": {
+    "pytest": "8.4.2 scratch overlay",
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen"
+  },
+  "guards": "Fresh survey orbit identity asserted; stale result is not considered; new reference survey identity asserted.",
+  "source_bindings": {
+    "tests/qt/test_the_mandelbrot_camera_glides_to_detail.py": "ff75c00a1dcc1171061bedc13cb549290ceff7c0c8dfc769dd9e86decb05d960"
+  },
+  "application_changed": false,
+  "payloads": {
+    "focused-node.log.gz": {
+      "bytes": 444,
+      "sha256": "de0efe7d5da65b59a2192c9b1aa7a67dbdb24ba3c97ee218e9ef46fc6c980202"
+    },
+    "complete-file.log.gz": {
+      "bytes": 51,
+      "sha256": "d0ce45a100b6bf88c9d98ed9566b381944b706ea791a75b0e924fdfd2b2fd113"
+    }
+  }
+}

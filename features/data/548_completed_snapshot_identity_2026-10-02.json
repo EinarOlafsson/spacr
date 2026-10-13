@@ -1,0 +1,54 @@
+{
+  "item": "F548",
+  "date": "2026-10-02",
+  "status": "partial",
+  "scope": "Warn on completed source identity changes even when file size and mtime are preserved",
+  "source_base": "a766ccf219012f22d8cde235084ff2025967b26c",
+  "files": {
+    "spacr/core.py": "5c8de11ced3a1e0ba934dcebdb3b7985db97f67338263b1d963af68439474503",
+    "tests/test_watch_resume_identity_f548.py": "0cdacbc87a4554b94ed051262fd4660a00b78a1d116be481d6d4d80a9bdc0b10"
+  },
+  "validation": {
+    "reproduction": {
+      "failed": 1,
+      "seconds": 6.47,
+      "reason": "A completed real TIFF replaced with preserved size/mtime did not emit the changed-input warning"
+    },
+    "after_fix": {
+      "passed": 19,
+      "failed": 0,
+      "seconds": 20.41
+    },
+    "new_resume_cases": 5,
+    "existing_snapshot_cases": 13,
+    "existing_no_map_batch_parity_cases": 1,
+    "logs": {
+      "/tmp/spacr-implementation-20261001/f548-resume-identity-reproduction.log": "01464daa4863d53cdc7f614f272b62788b9ddf89ba4319c6ba0c74f0ae52ae34",
+      "/tmp/spacr-implementation-20261001/f548-resume-identity-tests.log": "58d931d3694145dba3377cb6389104e7395cfb9587f2b31139d2564aa16610e1"
+    },
+    "configured_memory_max_bytes": 4294967296,
+    "configured_memory_swap_max": 0,
+    "cpu_affinity": [
+      0
+    ],
+    "cuda_visible_devices": "",
+    "real_tiff_preprocess_measure": true,
+    "source_images": "synthetic painted objects in real TIFFs",
+    "model_forward_pass": "painted-object label stub",
+    "public_api_or_caption_changes": false
+  },
+  "coverage": [
+    "completed in-place TIFF rewrite and inode replacement with identical size/mtime warn without reanalysis",
+    "saved input identities and snapshot hashes remain unchanged",
+    "previous merged output remains unchanged",
+    "unchanged resume does not decode TIFF pixels",
+    "legacy ledgers without source identity retain size/mtime comparison",
+    "existing snapshot handoff safety and no-map batch_size=1 parity"
+  ],
+  "limits": [
+    "Identity changes are conservative change indicators, not proof of pixel changes",
+    "Legacy ledgers lack identity provenance and keep the existing size/mtime warning policy",
+    "No automatic reanalysis and no filesystem lock after handoff",
+    "F548 remains partial for raw vendor acquisition completion, unsupported z/t series and other previously recorded requirements"
+  ]
+}

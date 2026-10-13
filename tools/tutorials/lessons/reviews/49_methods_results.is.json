@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Methods & Results: gerðu drög að keyrsluskýrslu og fluttu hana út",
+  "description": "Veldu lokna keyrslu, búðu til skýrslu hennar, farðu yfir skráðar stillingar og niðurstöður og fluttu út Markdown.",
+  "objectives": [
+    "Velja verkefnið, keyrsludagbókina og samsvarandi niðurstöðumöppu.",
+    "Búa til samantekt og skoða flipana Methods, Results og Caveats.",
+    "Afrita texta skýrslunnar eða flytja út Markdown með keyrslusamantektinni."
+  ],
+  "prerequisite": "Ljúktu fyrst Regression-dæminu. Haltu verkefnismöppu þess, keyrsludagbók og guide_permutation-niðurstöðum saman. Farðu yfir ályktaðar stillingar, útgáfur greiningar og tölfræðilega þröskulda áður en þú notar myndaða textann í skýrslu.",
+  "scenes": [
+    "Frá Home opnarðu Regression og svo Methods and Results. Notaðu tólið til að gera drög að skýrslu úr lokinni greiningu. Yfirferðin heldur áfram með vistuðu keyrsluna úr Regression-dæminu.",
+    "Veldu verkefnismöppuna, keyrsludagbókina og samsvarandi möppu með aðhvarfsniðurstöðum. Hafðu Classifier tómt í þessu aðhvarfsdæmi. Staðfestu að allar valdar skrár tilheyri keyrslunni sem þú vilt lýsa.",
+    "Smelltu á Build digest og lestu svo flipana Methods og Results. Berðu útgáfu greiningarinnar saman við vistaða keyrsluumhverfið; útgáfa útflutningstólsins getur verið önnur en sú sem framkvæmdi greininguna.",
+    "Lestu Caveats og berðu frææfærslur saman við vistuðu stillingarnar eftir heiti. Umröðunarfræ og almennt fræ vísa til ólíkra slembigjafa. Láttu óskráð eldra fræ standa sem óþekkt þegar þú breytir skýrslunni.",
+    "Opnaðu Run digest til að skoða skipulögðu stillingarnar og upprunaskrárnar. Berðu þær saman við textann og farðu yfir viðvaranir um skýrslur sem vantar eða ályktuð sjálfgildi áður en þú deilir drögunum.",
+    "Í Results skoðarðu áhrifastærðir og leiðrétt q-gildi saman. Í þessu dæmi eru engin gen undir q-gildisþröskuldinum 0,05. Lýstu línunum sem raðaðir kandídatar þegar þú breytir fyrirsögn sem kallar þær hits.",
+    "Smelltu á Copy sections til að afrita birtu Methods og Results. Berðu afritaða textann saman við upprunaskrárnar. Notaðu Export Markdown þegar þú þarft líka skipulögðu keyrslusamantektina.",
+    "Smelltu á Export Markdown og veldu nýtt skráarheiti. Skráin inniheldur báða hluta skýrslunnar og keyrslusamantektina sem viðauka. Haltu upprunalegum drögum og vistaðu yfirfarnar endurskoðanir sérstaklega.",
+    "Draft with AI er valfrjálst og sendir samantektina til stillta þjónustuaðilans. Farðu yfir innihaldið áður en þú notar þann valkost og berðu svo myndaðan texta saman við vistuðu greininguna. Þú getur líka notað build_digest, render_methods og render_results úr Python."
+  ]
+}

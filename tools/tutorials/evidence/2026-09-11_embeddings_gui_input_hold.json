@@ -1,0 +1,31 @@
+{
+  "lesson": "77_embeddings",
+  "checked_commit": "c5246f4aa",
+  "scope": "Current screen factory and input-enabling contract; not encoder inference or a tutorial recording",
+  "screen_source_sha256": "506fc646e657ae164042c4aab928fc2542eb5f4f8f0146c6f50c517a691ecd47",
+  "method": "Create QApplication and make_embeddings_screen('embeddings') with QT_QPA_PLATFORM=offscreen; enumerate QPushButtons and inspect input state; call set_crops on a one-object 8x8x1 zero array only as a positive input-contract counterpart, without clicking Embed.",
+  "initial_state": {
+    "source": "no crops loaded",
+    "embed_enabled": false,
+    "buttons": [{"text": "Embed", "enabled": false}],
+    "accept_drops": false
+  },
+  "after_explicit_programmatic_input": {
+    "source": "Input contract check, not tutorial data",
+    "embed_enabled": true
+  },
+  "application_callsite_search": {
+    "command": "rg -n 'set_crops\\(' spacr",
+    "matches": ["spacr/qt/screens/embeddings.py:200:    def set_crops(self, crops: np.ndarray, *, label: str = \"\") -> None:"],
+    "caller_found": false
+  },
+  "tutorial_blocker": "The factory-built GUI has no demonstrated user-accessible crop input route. The sole action is disabled until crops are injected programmatically. Recording that injection as an ordinary GUI loading step would misrepresent the shipped interaction.",
+  "requested_app_owner_followup": "Connect a user-accessible crop source or file picker, retain object identity where needed, and provide a reproducible GUI input-to-result example. Then replace Coming soon with a real recording and all existing voices/languages.",
+  "engine_broken_claimed": false,
+  "inference_run": false,
+  "weights_loaded": false,
+  "test_array_used_as_tutorial_data": false,
+  "application_modified": false,
+  "current_workflow_accepted": false,
+  "published": false
+}

@@ -1,0 +1,2311 @@
+{
+  "source_DOI": "10.5281/zenodo.5750174",
+  "archive_sha256": "e9e5ad6b3d66f32590e7eb770edf55149b8420a5f95f940b8a9062b9fd063a2d",
+  "all_50_original_pixels_reverified": true,
+  "pairs": [
+    {
+      "split": "test",
+      "basename": "cell migration high and low - Position 0 - 1_XY1562738052_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/test/High/cell migration high and low - Position 0 - 1_XY1562738052_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "f284871f4b1e6ed2cef1fd9b08c1b7812570ffdd0d1af41df235e2d647a48b55",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "49a4792183f8e3dca37895011f94db03b4d595da56b48a5a15c87fab1a611f04",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 0 - 1_XY1562738052_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 0 - 1_XY1562738052_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/test/Low/cell migration high and low - Position 0 - 1_XY1562738052_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "0b287b90fad0bf573795d2e0bf1d21efc0de12a93950945a0954ba03232e1084",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "ec25d851b4430d2677212316ef0403c1e78ef356e827963daa0ec0751370277b",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 0 - 1_XY1562738052_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 0 - 1_XY1562738052_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.19684851169586182,
+      "phase_difference": -2.1487807089215494e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.18451546903119984,
+        "2": 0.7315640817348327,
+        "4": 0.8366041934931
+      },
+      "original_high_saturated_pixels": 2,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "test",
+      "basename": "cell migration high and low - Position 0_XY1562737767_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/test/High/cell migration high and low - Position 0_XY1562737767_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "8c612f196b73a42038464d43ecd9d7e818bea916e2d49e446051f14ea4514e4a",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "2fa7ea5a3a65f3b87a2005d2514d490829fc3733b1cb005a8d688485a8157c34",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 0_XY1562737767_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 0_XY1562737767_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/test/Low/cell migration high and low - Position 0_XY1562737767_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "3e90ad775c83ce4cfe13aa6e2c93c332e867ac50d694b34da0e28585b6bf4bf5",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "dcdb738da31ed8144b41973340cf9e9d825678c50e4e30a5dc7abea04b585031",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 0_XY1562737767_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 0_XY1562737767_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.24697548151016235,
+      "phase_difference": -2.983695068792258e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.5216347395339901,
+        "2": 0.9466131711108845,
+        "4": 0.9651978786716119
+      },
+      "original_high_saturated_pixels": 90,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "test",
+      "basename": "cell migration high and low - Position 1 - 1_XY1562738053_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/test/High/cell migration high and low - Position 1 - 1_XY1562738053_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "043e160ec7ebbb6136a4d0af3ae0a9c3d17cf306d10eae7c259ce12a13a00c9f",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "dc3f6439653a36bde9f1955b898fbe81fad0b20f1f4eb875ada83dbe467728d2",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 1 - 1_XY1562738053_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 1 - 1_XY1562738053_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/test/Low/cell migration high and low - Position 1 - 1_XY1562738053_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "57b67afc4e8e710dad659a94688df403d2b307e62618c65b1636691976bfd783",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "f85ea25c21a96714d033e2aefc2d149ca057d72fedd9829db339591f71da1b53",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 1 - 1_XY1562738053_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 1 - 1_XY1562738053_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.20000000298023224,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.19444340467453003,
+      "phase_difference": -2.2732902227318164e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.1921576395905658,
+        "2": 0.7016957047035802,
+        "4": 0.8007361262794999
+      },
+      "original_high_saturated_pixels": 32,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "test",
+      "basename": "cell migration high and low - Position 1_XY1562737768_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/test/High/cell migration high and low - Position 1_XY1562737768_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "aa014702b95b86f7abac0e7a87ca0e169a410ee313b2978b850f3f4d60c75596",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "ff54da729d4925cf1e3b66ad19a854ed25bce1dd02ae50f39cf250bd473b5d6f",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 1_XY1562737768_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 1_XY1562737768_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/test/Low/cell migration high and low - Position 1_XY1562737768_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "3ee82700264fcddda39d260618fd065b8db2ad054768dc5a6c17ad0eef082658",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "1789601af8339f7c86c0405cac2413366776bfe3e21b998288f616321ee5c573",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 1_XY1562737768_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 1_XY1562737768_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.24379442632198334,
+      "phase_difference": -1.958075301899953e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.487846816483045,
+        "2": 0.9472347194381986,
+        "4": 0.9653031440805171
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "test",
+      "basename": "cell migration high and low - Position 2 - 1_XY1562738054_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/test/High/cell migration high and low - Position 2 - 1_XY1562738054_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "cadc4ed8422f1e5a65196b3324d4f952ef9630a007b8c47fd0e8e1f3cd083a76",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "d5720b8847c813190670c8fdeb94c0090215e0dad5489c032f9df61df85b7e7c",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 2 - 1_XY1562738054_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 2 - 1_XY1562738054_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/test/Low/cell migration high and low - Position 2 - 1_XY1562738054_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "6fd1e9f88fe0f155df19c2bf195a1eb4003d2deb42b3f02f15d2b5fbcaa69ce8",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "73db7831a21e40f9fd350c94df449ecf2b666b1edc2522675644b6cd2183bf70",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 2 - 1_XY1562738054_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 2 - 1_XY1562738054_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.2271696776151657,
+      "phase_difference": -1.368605939688905e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.3655013515363646,
+        "2": 0.8992578853018354,
+        "4": 0.9336025332402893
+      },
+      "original_high_saturated_pixels": 2,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 10 - 1_XY1562738062_Z.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 10 - 1_XY1562738062_Z.tif",
+          "bytes": 2097574,
+          "sha256": "3eb4d24bcda56db979872cc50fd20329b88b0f3f5d1b2544b757cb09463c258f",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "c6f3b8bc63d1150f5fec295331277fd2054dd7280993ca84d2a53334bbc64ac3",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(422,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 142)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 10 - 1_XY1562738062_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 10 - 1_XY1562738062_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 10 - 1_XY1562738062_Z.tif",
+          "bytes": 2097570,
+          "sha256": "8374e1fb9a0d7c55bc3ff0f8e88550e2759ff9a2ed2d592a910fe4db0f9e0d47",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "486550a7c5bf334e828b5662ac6214f91c32f580bc18b812e6cf7cbcf8388120",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(418,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 142)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 10 - 1_XY1562738062_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 10 - 1_XY1562738062_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.20654296875,
+      "phase_difference": -3.662236514045958e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.3277596618406728,
+        "2": 0.8455399198358984,
+        "4": 0.8883301432022269
+      },
+      "original_high_saturated_pixels": 109,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 10_XY1562737777_Z0_T0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 10_XY1562737777_Z0_T0.tif",
+          "bytes": 2097566,
+          "sha256": "dc20c0a2828a531a99df8666ed811a27bc596722687d9c7ae09e7a9e50f33861",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "6fea10d06625467ef2ad06741fe82abae19d4ae3111f83dc44d3a04ce78ef0be",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(414,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 10_XY1562737777_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 10_XY1562737777_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 10_XY1562737777_Z0_T0.tif",
+          "bytes": 2097562,
+          "sha256": "c9a2843354a696006e6e3f18a463d9eebf5206b78d3c958145dc5adbaf998746",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "f12015adc4ab45a33ea6df7f24df4f55f8b6d191e74064d294cceda9a7d3f00d",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(410,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 10_XY1562737777_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 10_XY1562737777_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.21050302684307098,
+      "phase_difference": -3.5425058442228874e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.33080464150684685,
+        "2": 0.8867932960825711,
+        "4": 0.9281948480826583
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 11_XY1562738063_Z0_T0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 11_XY1562738063_Z0_T0.tif",
+          "bytes": 2097566,
+          "sha256": "51c60f685a67837960c964ef2c9710bfbfaf1b74b02bd3b618afb21cc6357546",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "ec10a3f6543445e07e123c28248a846b4bb58f5cdea52d2f59121aa1249259f3",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(414,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 11_XY1562738063_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 11_XY1562738063_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 11_XY1562738063_Z0_T0.tif",
+          "bytes": 2097562,
+          "sha256": "fdce10cad2a5f21ab400a07880eabb904b8cc8d7e698a50dcedb8bd5dcfe57d2",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "081ab3aa285e31b8b3d30aa040a6cec3f238fa4dae1346f12094e55d7f6a81cd",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(410,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 11_XY1562738063_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 11_XY1562738063_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.23696158826351166,
+      "phase_difference": -4.675124287700783e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.455262280150002,
+        "2": 0.938278402439638,
+        "4": 0.9632344848053389
+      },
+      "original_high_saturated_pixels": 2,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 12_XY1562738064_Z0_T0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 12_XY1562738064_Z0_T0.tif",
+          "bytes": 2097566,
+          "sha256": "a0c3d8dedd3a2182e3779e95d210e290fc6164c0c0fd72024b3e825aac086af1",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "e11cc55dbf9a546280f4c57273a40ba3895e3f1b0360538e09ae869ed63e8064",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(414,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 12_XY1562738064_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 12_XY1562738064_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 12_XY1562738064_Z0_T0.tif",
+          "bytes": 2097562,
+          "sha256": "2bd56d2af34ca2ab982b9c29a143a750fd97cd18c5319b12da276250bf555c0d",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "0761efa4b614ab9600ec96324216cfb87599d940f57aa1de223bf1356514bc35",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(410,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 12_XY1562738064_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 12_XY1562738064_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.2535342574119568,
+      "phase_difference": -2.6033974975803176e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.5431509870072233,
+        "2": 0.9588166882283997,
+        "4": 0.974775758849311
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 13_XY1562738065_Z0_T0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 13_XY1562738065_Z0_T0.tif",
+          "bytes": 2097566,
+          "sha256": "9dee471615b9864388fb7850af6bb129fb26b510e4c393d4b201081b605c0bc0",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "1e6e0b7cb145eea87a0f4969c8f661f05d03f668c5f3a9b2e38121f5693b93a3",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(414,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 13_XY1562738065_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 13_XY1562738065_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 13_XY1562738065_Z0_T0.tif",
+          "bytes": 2097562,
+          "sha256": "a71ae99a21078b32c62cf764782404da2ee765d7a87e2d2cc76206ec39586305",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "4c0b15c7a0c0f5d619f8e3753fb05b46de73cded5530ccea46ee20e0a8c6297a",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(410,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 134)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 13_XY1562738065_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 13_XY1562738065_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.2670488953590393,
+      "phase_difference": -2.0064192085555987e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.46489633481433656,
+        "2": 0.9446934743129543,
+        "4": 0.9691084415978585
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 2_XY1562737769_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 2_XY1562737769_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "7ea661791c5daad8cd051c29840397262389eaa13814a1d6b00546b80d728e82",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "a508d967c2fcf12c276eecf272e1ce59958b920fff43c9447fa412af1c3454ba",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 2_XY1562737769_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 2_XY1562737769_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 2_XY1562737769_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "8303b0aa54aa352ef48c1c6430236d2d8878b416f751d8e7b324d7b67d5a89c4",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "b140335eb3e35ee9253ce6bd551eb9d8327a8bf02314d5fcd4e33eca6b924613",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 2_XY1562737769_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 2_XY1562737769_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.24783074855804443,
+      "phase_difference": -1.8665271994677823e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.5530918048316684,
+        "2": 0.9587522443902291,
+        "4": 0.9720493119123991
+      },
+      "original_high_saturated_pixels": 452,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 3 - 1_XY1562738055_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 3 - 1_XY1562738055_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "9b6a95a4a2230842862cbaa3d6c05482c5b7231fc2f7e31cc1553ed59d3f86e8",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "cac762d3e50d22fd00087c7821bcff1a0cf89155972c580a18f4fa19d22e6ba6",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 3 - 1_XY1562738055_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 3 - 1_XY1562738055_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 3 - 1_XY1562738055_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "3d0f0d89c177d8b4c77211d940931f597d65852ed2e578395c43ccd5446f9851",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "d8a3e8f0134b5dc94448b77e75822788c096d18150871925b073657b663db72c",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 3 - 1_XY1562738055_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 3 - 1_XY1562738055_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.20593763887882233,
+      "phase_difference": -2.0901864683509075e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.2066202790327015,
+        "2": 0.7705947739398237,
+        "4": 0.8643625063775299
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 3_XY1562737770_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 3_XY1562737770_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "47f7509f2e62276ab8447f5ddb96186d5639f65c17c233668b14b14684e74961",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "892ffd4c7b14f235d90dd5a5e588ba7e63f028820ceb89944d98f8a32c0b17ee",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 3_XY1562737770_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 3_XY1562737770_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 3_XY1562737770_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "abbd1b7b9c6e36645bf7d384eff902dc168059f5555f08ecb3d31353ae691fff",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "1f654add4f04840988df72fabec975d8e5ba04315b7f0a79b9cdf28afab02471",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 3_XY1562737770_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 3_XY1562737770_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.23526860773563385,
+      "phase_difference": -1.3080078353766567e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.5008222179194273,
+        "2": 0.9501192564738455,
+        "4": 0.9675651972337573
+      },
+      "original_high_saturated_pixels": 93,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 4 - 1_XY1562738056_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 4 - 1_XY1562738056_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "f45b478822c1ac784c671f7eccf899c412707e579b4ac7bd545015ffb887424c",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "2a6598861ac0cbda5c608d237f9819c2d7e6e3696762f1de90aad54f18792113",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 4 - 1_XY1562738056_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 4 - 1_XY1562738056_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 4 - 1_XY1562738056_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "53c4af7d75605e200989e071fe698203f4af88a9a048c66b48861189609ef67f",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "6ba5d736d8be373ff52813a13867a354a86f755d2d6083ff005ae7a989b84d03",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 4 - 1_XY1562738056_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 4 - 1_XY1562738056_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        -0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.21925242245197296,
+      "phase_difference": 1.1017464274232225e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.5015781718938104,
+        "2": 0.9495086613182971,
+        "4": 0.9670719883608885
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 4_XY1562737771_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 4_XY1562737771_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "72c40f697f227da8a9a65c8925f56a67525f5cb644c56a4cd4a41e0cf610efac",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "2571256d0a34f2108dfdfe56adc7cdd027aefbc60c98aff81153a5c28ad8977d",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 4_XY1562737771_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 4_XY1562737771_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 4_XY1562737771_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "a1326de2c7dcb0b3852da6af1a57abc6368ec05d2fea00288825b342def4db88",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "d753d5c3f1c8dad6915fa8912d831b54008122a3afd413de568a407ddf4dc5d8",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 4_XY1562737771_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 4_XY1562737771_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.23034276068210602,
+      "phase_difference": -2.776779339797031e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.5257245682938096,
+        "2": 0.9520344952572499,
+        "4": 0.9694205072817103
+      },
+      "original_high_saturated_pixels": 77,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 5 - 1_XY1562738057_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 5 - 1_XY1562738057_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "e6f6a8eb91ebc352fe773c635ef41435e7b3e1cfee426a7c1c4bbf667daf5e30",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "e5e4ed23e78c7bc9d5f1179480c292bdd1bd4a6a97f9249d788cc2c49682d7c3",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 5 - 1_XY1562738057_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 5 - 1_XY1562738057_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 5 - 1_XY1562738057_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "1815f26824ca6723b1895f27364ff91f6dc3642b0ed3dab06e875078a4ad7981",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "8616438132d908015dadb00e63080c6e5327878ac1c2d232f507e5523033d87e",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 5 - 1_XY1562738057_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 5 - 1_XY1562738057_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.22063978016376495,
+      "phase_difference": -2.166102319733909e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.5138587454168216,
+        "2": 0.9526425059184106,
+        "4": 0.9690818223736186
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 5_XY1562737772_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 5_XY1562737772_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "5199de66a9446af2eac78eb719fe496d26c5dabc1186514f1524c9752a808806",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "863b336096ad40fb45fe2b3c13c562ffe7a03f4bb0a5456ba40066aa7880b7a9",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 5_XY1562737772_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 5_XY1562737772_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 5_XY1562737772_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "49c74d6e4fc3e80809ca94a547ce208ac93a8690f540e65ce9c15b80138eb5bf",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "9a20173c1fd448298485839d56f93863454f443da25c35da1c24f661c7106cac",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 5_XY1562737772_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 5_XY1562737772_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.21595145761966705,
+      "phase_difference": -5.2139439432608015e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.4785114775822426,
+        "2": 0.9304347665236221,
+        "4": 0.9547319398101436
+      },
+      "original_high_saturated_pixels": 151,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 6 - 1_XY1562738058_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 6 - 1_XY1562738058_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "4b77f01b49f6149d1e082ff0b7b587c11b2cc7fffd485f382a05a62a2ca9bece",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "fb1dbabbe0bcb42347ba6d7729d737f8e4fe08ae4123c6c18104cc51e5f44577",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 6 - 1_XY1562738058_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 6 - 1_XY1562738058_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 6 - 1_XY1562738058_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "3946fcbc2ae09b0693298b9a815fdcf3abe003f68f4ab36f765b297f2fbbc161",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "2150fa62b700dc8b2e1939136541ecbbb1a5c174942975b9ca5aee975b416312",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 6 - 1_XY1562738058_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 6 - 1_XY1562738058_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.21170033514499664,
+      "phase_difference": -3.725399544407537e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.31566583687317185,
+        "2": 0.8754236449274319,
+        "4": 0.9232842061009557
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 6_XY1562737773_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 6_XY1562737773_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "4314891a5a7880382f799369ae233ca1b80b01e9fdaff0c748ccecad0188cb06",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "b75af84de0b3268f94bb18d05abb3da1f8e2839d5d711fc029fdb5328ca122dd",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 6_XY1562737773_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 6_XY1562737773_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 6_XY1562737773_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "5e3b941fc8a5fa2ab9b79e13eabfaa20f01d3bf92e41933c10947e1d528b0742",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "942cc57f0f656ffa7ced04a41e7a04a611e9e4028c71ccf382f4d7692eaa3bb2",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 6_XY1562737773_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 6_XY1562737773_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.21499988436698914,
+      "phase_difference": -1.8126460332723582e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.48465857055583567,
+        "2": 0.9471680757124428,
+        "4": 0.9659757888495852
+      },
+      "original_high_saturated_pixels": 7,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 7 - 1_XY1562738059_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 7 - 1_XY1562738059_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "436c1e79cbd6d26f8304582b02dcbc2f6f715da79959fa9942bdcbbae6032278",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "20801a0192a2e4c253115d77fd50a87f84d126e62b63a1356105c916ed768362",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 7 - 1_XY1562738059_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 7 - 1_XY1562738059_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 7 - 1_XY1562738059_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "c088fc6c3325ba3de69079d958d19eb9f626bf51299851a755d0d1ab0ed3c93c",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "2c5db8a384109af592581276d3d1a93a728d4eb9107b53d8c5cdd7d6c0f8e5ce",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 7 - 1_XY1562738059_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 7 - 1_XY1562738059_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.19664932787418365,
+      "phase_difference": -4.3675978389501324e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.23913979391565085,
+        "2": 0.8120185290098862,
+        "4": 0.8861743685029208
+      },
+      "original_high_saturated_pixels": 0,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 7_XY1562737774_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 7_XY1562737774_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "18f4f28fe82b990430ebc18a708ea5571daa03cbbe250b3f3d3404af4370e620",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "4d099b68ade9aae0a24b4f20b8d4665b52230568a9a109c185939cfe62ff6c81",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 7_XY1562737774_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 7_XY1562737774_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 7_XY1562737774_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "e7fcc477cd56c6cacc80a56ea71e21cf676edcefcf643cca642ef62127d4bdb6",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "9cd277d3c5956e0d5560ed7000fd979c856c9971c985c6200e18b675cd8a5158",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 7_XY1562737774_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 7_XY1562737774_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.10000000149011612
+      ],
+      "phase_correlation_normalized_error": 0.21844692528247833,
+      "phase_difference": -1.0391243421281615e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.4644978234837545,
+        "2": 0.9421428568597258,
+        "4": 0.9630867596439894
+      },
+      "original_high_saturated_pixels": 11,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 8 - 1_XY1562738060_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 8 - 1_XY1562738060_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "de8b493ee519856897d3c9e213a8099f8cd8ee892a239afb26ca1cb67b38b69f",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "27a3fe13a6f446a2b4d048bbdd9709d593067d959a8c7c1629460557f88195da",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 8 - 1_XY1562738060_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 8 - 1_XY1562738060_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 8 - 1_XY1562738060_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "284677067813a616aaf03ed60ab334462b3c3ce7a5671de751693ebf6c99042a",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "f1114c7810ca9a8a0df962d48c0eba1d10e8717d95c836d4ab6744d4562d7cd7",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 8 - 1_XY1562738060_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 8 - 1_XY1562738060_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.30000001192092896
+      ],
+      "phase_correlation_normalized_error": 0.20078350603580475,
+      "phase_difference": -6.913585703927083e-09,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.24801075942616288,
+        "2": 0.8190447941205669,
+        "4": 0.8903950465378578
+      },
+      "original_high_saturated_pixels": 4,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 8_XY1562737775_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 8_XY1562737775_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "88073acf78f0062c45d9e6364d2ea5c08c0375aa80aedcffda5910fcaa87fb5c",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "fb839241c0ecc5f50ad21da30be3ebc6fb20a3cc5d186c80d34e299b1784793a",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 8_XY1562737775_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 8_XY1562737775_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 8_XY1562737775_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "64713ff3bc28ad3ea946b1f0d4432fa5c87b7dc6623530b2ffcf52fb2bc4df77",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "48b9e943a7211c931b25423d3bc6aa904f06c0d354b87bf4866873437616b159",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 8_XY1562737775_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 8_XY1562737775_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.20000000298023224,
+        0.0
+      ],
+      "phase_correlation_normalized_error": 0.2445867508649826,
+      "phase_difference": 1.665612714418785e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.4508097501682255,
+        "2": 0.7994485125879441,
+        "4": 0.8628872877187643
+      },
+      "original_high_saturated_pixels": 119,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 9 - 1_XY1562738061_Z0.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 9 - 1_XY1562738061_Z0.tif",
+          "bytes": 2097572,
+          "sha256": "f11ea31a71b1d57c57296d321fb61daba4dc5aeaf962010b0460cddd07ffb4f7",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "4d64f837004806e1c7ec10c33bc11b7004088de29259eebc308352a6a3b1f576",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(420,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 9 - 1_XY1562738061_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 9 - 1_XY1562738061_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 9 - 1_XY1562738061_Z0.tif",
+          "bytes": 2097568,
+          "sha256": "0297af27a9f85080e95f386800117601cf544831e5ed19b7b42add20995b71ff",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "4757f94c179ae2a42c958271815566d917a5dc1f622f42fe8f6d3f8cdc96272e",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(416,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 140)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 9 - 1_XY1562738061_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 9 - 1_XY1562738061_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        -0.10000000149011612,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.202003613114357,
+      "phase_difference": 3.2106436953505124e-10,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.2930922863731297,
+        "2": 0.8385961259065228,
+        "4": 0.8907771781958648
+      },
+      "original_high_saturated_pixels": 65,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    },
+    {
+      "split": "training",
+      "basename": "cell migration high and low - Position 9_XY1562737776_Z0_T0_.tif",
+      "originals": {
+        "high": {
+          "archive_member": "Denoising_Dataset/Training/high/cell migration high and low - Position 9_XY1562737776_Z0_T0_.tif",
+          "bytes": 2097564,
+          "sha256": "9a07e0ac21960d7ea3771f8d5bb60e1e00ac5936ce87c342454f71ae3c6c6a51",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "1aa27a596aa1ec57a2a4bab2f61ae26b1fb2e864f1da61a4dedc30909ff0c534",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=1198.0\nmax=65535.0",
+            "StripOffsets": "(412,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 9_XY1562737776_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 1198.0,
+            "max": 65535.0,
+            "Labels": "cell migration high and low - Position 9_XY1562737776_Z0_T0_C3.tif"
+          }
+        },
+        "low": {
+          "archive_member": "Denoising_Dataset/Training/low/cell migration high and low - Position 9_XY1562737776_Z0_T0_.tif",
+          "bytes": 2097560,
+          "sha256": "375bf1bba34777a6df484ffdb9bbe1cfc98794fad3a01ae8c2d6ac3883ca0713",
+          "shape": [
+            1024,
+            1024
+          ],
+          "dtype": "uint16",
+          "original_pixels_sha256": "0c24af86238fbd8ceed36f0c88cf226ab528f4cca4ae2a6a31c6216a4c5d7ec2",
+          "tags": {
+            "NewSubfileType": "0",
+            "ImageWidth": "1024",
+            "ImageLength": "1024",
+            "BitsPerSample": "16",
+            "PhotometricInterpretation": "1",
+            "ImageDescription": "ImageJ=1.53c\nunit=\\u00B5m\nmin=0.0\nmax=2077.0",
+            "StripOffsets": "(408,)",
+            "SamplesPerPixel": "1",
+            "RowsPerStrip": "1024",
+            "StripByteCounts": "(2097152,)",
+            "XResolution": "(1577923, 1000000)",
+            "YResolution": "(1577923, 1000000)",
+            "ResolutionUnit": "1",
+            "IJMetadataByteCounts": "(12, 132)",
+            "IJMetadata": "{'Labels': 'cell migration high and low - Position 9_XY1562737776_Z0_T0_C3.tif'}"
+          },
+          "OME_metadata": null,
+          "imagej_metadata": {
+            "ImageJ": "1.53c",
+            "unit": "\\u00B5m",
+            "min": 0.0,
+            "max": 2077.0,
+            "Labels": "cell migration high and low - Position 9_XY1562737776_Z0_T0_C3.tif"
+          }
+        }
+      },
+      "diagnostic_blur_sigma2_phase_correlation_shift_YX_px": [
+        0.0,
+        0.20000000298023224
+      ],
+      "phase_correlation_normalized_error": 0.2175595760345459,
+      "phase_difference": -1.7422740583583618e-08,
+      "unshifted_Pearson_by_Gaussian_sigma_px": {
+        "0": 0.43437315432078255,
+        "2": 0.9316137219924336,
+        "4": 0.9553639192472165
+      },
+      "original_high_saturated_pixels": 3,
+      "original_low_saturated_pixels": 0,
+      "no_images_resampled_or_shifted": true
+    }
+  ],
+  "exact_original_pixel_duplicate_groups": {},
+  "shift_is_diagnostic_only_not_a_mask_registration_or_physical_calibration": true,
+  "no_manual_masks_exposure_laser_or_photon_settings_in_original_archive": true,
+  "no_training_GPU_F1_or_calibrated_low_light_acceptance_claim": true
+}

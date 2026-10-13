@@ -1,0 +1,246 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, maintainer decision 2026-09-25, third to fifth passes 2026-09-26: runtime (GUI) translation debt written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "anndata_format",
+      "source": "Anndata format",
+      "source_sha256": "8b1bc09796c4f5edde3d03bf2f6576d0fb0cec5498695d5ab576d578b8c43e70",
+      "translation": "Anndata 형식"
+    },
+    {
+      "table": "setting_labels",
+      "key": "anndata_tidy_dir",
+      "source": "Anndata tidy dir",
+      "source_sha256": "bdc8e697db4999c867ba9f72079895d733c5b23d8a2b0bdb9133fec00a10e86d",
+      "translation": "Anndata 표 폴더"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle",
+      "source": "Cell cycle",
+      "source_sha256": "45f43a6352af32b97473bda5d55c311973b7db8ce7155a2696a4de687c0ea8f6",
+      "translation": "세포 주기"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_channel",
+      "source": "Cell cycle channel",
+      "source_sha256": "c4aeebb7e036aa50763e10df0ecdc628b4a6dc76930935a7a08470df209b4c39",
+      "translation": "세포 주기 채널"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_epochs",
+      "source": "Cell cycle epochs",
+      "source_sha256": "5672eefcc69dbbf9feeb2fd746b85678a28634092c19b20fac437586dd934c28",
+      "translation": "세포 주기 에포크"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_fucci_channels",
+      "source": "Cell cycle fucci channels",
+      "source_sha256": "5953366c0c58d1c0ef68605ecfa7dd0e4cf1518757de9657b7541ff371cceee6",
+      "translation": "세포 주기 FUCCI 채널"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_gates",
+      "source": "Cell cycle gates",
+      "source_sha256": "45f6c048eae9b1f1fad29577b85d23fd675d6d6aef5467810b1fb6f06c8bc7f8",
+      "translation": "세포 주기 게이트"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_labels",
+      "source": "Cell cycle labels",
+      "source_sha256": "306d2139302eddfa0411233fe9d209f393d09c7a63cbc5655ec129384314f93a",
+      "translation": "세포 주기 라벨"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_method",
+      "source": "Cell cycle method",
+      "source_sha256": "db9ebb82238a31d3c14b75b47743b8730f08633210ef0070a26d388350ed2c19",
+      "translation": "세포 주기 방법"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_mitotic_ratio",
+      "source": "Cell cycle mitotic ratio",
+      "source_sha256": "5027054826de0b7dc6d1510f0f73d2c05ebb11d339df2b64e7286382d5b71901",
+      "translation": "세포 주기 유사분열 비율"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cell_cycle_model",
+      "source": "Cell cycle model",
+      "source_sha256": "b5be37afbaa2eb98b3f8a94aa43ddc333a6db440be83407d986e70652668fd52",
+      "translation": "세포 주기 모델"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_anonymous",
+      "source": "Cloud anonymous",
+      "source_sha256": "1ecbeabff719b20e20085ed869bc8863054620ed3ed5af0823ec0659cdf1bc22",
+      "translation": "클라우드 익명 접근"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_cache",
+      "source": "Cloud cache",
+      "source_sha256": "51c431415dfc2ac3f513f2d2c31c86fdb7e00ad222f88c9fbbd490b9e41191fe",
+      "translation": "클라우드 캐시"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_endpoint",
+      "source": "Cloud endpoint",
+      "source_sha256": "9eb3a40dc09c584539959f0dcc73f221f3ae6f84753ff6b39a85d3d73c97cc64",
+      "translation": "클라우드 엔드포인트"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_fields",
+      "source": "Cloud fields",
+      "source_sha256": "3cca81a6d03b06293d9351467aec4ae4a82f0a53c25fec624cc5567677068ab2",
+      "translation": "클라우드 시야"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_level",
+      "source": "Cloud level",
+      "source_sha256": "ad7ab5b67d355b89ed0b48c92da6b6f708c989e28f5cd659624e34e1de410685",
+      "translation": "클라우드 해상도 수준"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_profile",
+      "source": "Cloud profile",
+      "source_sha256": "a55b80a378627b37395b7d51d6ef1f9b70746a3a4ad5f9b212c8981225c76b47",
+      "translation": "클라우드 프로필"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_results",
+      "source": "Cloud results",
+      "source_sha256": "3d03df54e5fda13232c9f54196ccbc273e86e8ef7f1b42922812e85e76eff9fb",
+      "translation": "클라우드 결과"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cloud_wells",
+      "source": "Cloud wells",
+      "source_sha256": "251becddf88619d8c12d0cc1e259910dd6a1976e9b516090779c3159d88b5945",
+      "translation": "클라우드 웰"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling",
+      "source": "Profiling",
+      "source_sha256": "88d90d834b4293f5172e44df525be76416e41a4a6ca477ecb4ada8432ff74c04",
+      "translation": "프로파일링"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_correlation_threshold",
+      "source": "Profiling correlation threshold",
+      "source_sha256": "93cc1c363d9668d370ad565ae46e979af8b74e77d1ef6ff837379d227254c0b3",
+      "translation": "프로파일링 상관 임계값"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_databases",
+      "source": "Profiling databases",
+      "source_sha256": "c94006886b4e04bebceacb5ea9202646d2d15d9c029627c9b7718b0bb1d56fa2",
+      "translation": "프로파일링 데이터베이스"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_feature_selection",
+      "source": "Profiling feature selection",
+      "source_sha256": "e780c3df190f23ddb05b477deb868fc544d2080c8641845a15c259a06aa3dcdb",
+      "translation": "프로파일링 특징 선택"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_metadata",
+      "source": "Profiling metadata",
+      "source_sha256": "4f95c442049f19b18ae549ca75d658f63babef1515fc1c0d294cf5b5faa31a98",
+      "translation": "프로파일링 메타데이터"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_negative_control",
+      "source": "Profiling negative control",
+      "source_sha256": "d4b41b993846e7c2ad07a317ea99fb7f3a28bf3706ab8b7af815813c8d241325",
+      "translation": "프로파일링 음성 대조군"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_normalization",
+      "source": "Profiling normalization",
+      "source_sha256": "02fee21c0408ee0c00ced427ac9db0a79fe7aa6dcc0c4338a70fa01a7588751c",
+      "translation": "프로파일링 정규화"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_phenotype_column",
+      "source": "Profiling phenotype column",
+      "source_sha256": "916bce2e696fe645b8ea40360e489442b639094ecca3d67a433d392d86341620",
+      "translation": "프로파일링 표현형 열"
+    },
+    {
+      "table": "setting_labels",
+      "key": "profiling_treatment_column",
+      "source": "Profiling treatment column",
+      "source_sha256": "5a239601bb088879bd8a51d2132faadb0b8d15ed1d4ee9f411cec5bdb5664b10",
+      "translation": "프로파일링 처리 조건 열"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wound_channel",
+      "source": "Wound channel",
+      "source_sha256": "70c681ae9ac4db11cc272538e264944faa62b32428f1ff6795baa576283d8d44",
+      "translation": "상처 채널"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wound_closure",
+      "source": "Wound closure",
+      "source_sha256": "59c43934a1eeb5c35bc47c503864562b376ddbc7f9df0c88781944890414c13d",
+      "translation": "상처 봉합"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wound_conditions",
+      "source": "Wound conditions",
+      "source_sha256": "0de26718932c7ef4ee05bd86fdf265bb5e700d5fe6704109e9959da0cc70224b",
+      "translation": "상처 조건"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wound_hours_per_frame",
+      "source": "Wound hours per frame",
+      "source_sha256": "9e296cfee91015eb1e1d4143efcb13e41704d8ac524fee0ff5102a879df4ca19",
+      "translation": "상처 프레임당 시간"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wound_source",
+      "source": "Wound source",
+      "source_sha256": "eacefa5bba0ee3b2848c8246e817b629939d5641aa8b6a019a40c470d6f2abf7",
+      "translation": "상처 소스"
+    },
+    {
+      "table": "setting_labels",
+      "key": "wound_window",
+      "source": "Wound window",
+      "source_sha256": "a3b8658db13e5151857c6bc4108eeaf149655c06a778cda7c8eee148e4e2b086",
+      "translation": "상처 창"
+    }
+  ]
+}

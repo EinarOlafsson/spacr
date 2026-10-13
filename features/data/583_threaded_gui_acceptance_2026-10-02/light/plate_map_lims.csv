@@ -1,0 +1,2 @@
+plateID,rowID,columnID,plate_barcode,strain,compound
+plate1,r1,c1,0001,RH,DMSO

@@ -1,0 +1,197 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "AI technical review (Codex), no human or native-speaker signoff",
+  "review_method": "Codex AI authored or corrected the target text after inspecting local-model outputs. Independent Codex AI peer review checked all 14 annotation instructions and all 10 vendor-tooltip sentence pairs per locale. These corrections are not claimed to be verbatim local-model outputs. Additional action, row-count and reinstall-confirmation captions received Codex AI technical review.",
+  "independent_review_candidate_sha256": "b2621102c063230bf77429d5435f7848c02cd92618c24a7e2994905c846d60e0",
+  "reviewed_tooltip_sentences": [
+    {
+      "source": "Assign saved intensity channels to a vendor flat-field calibration.",
+      "translation": "Asigne los canales de intensidad guardados a una calibración de campo plano del proveedor."
+    },
+    {
+      "source": "Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1.",
+      "translation": "El ejemplo 0:2,1:1 asigna los canales de intensidad 0 y 1 a los canales de calibración 2 y 1, respectivamente."
+    },
+    {
+      "source": "Intensity channel numbers start at 0.",
+      "translation": "La numeración de los canales de intensidad empieza en 0."
+    },
+    {
+      "source": "Calibration channel or image-layer numbers start at 1.",
+      "translation": "La numeración de los canales de calibración o de las capas de imagen empieza en 1."
+    },
+    {
+      "source": "Include every corrected intensity channel.",
+      "translation": "Incluya todos los canales de intensidad que se van a corregir."
+    },
+    {
+      "source": "An empty value keeps the original channel order.",
+      "translation": "Un valor vacío conserva el orden original de los canales."
+    },
+    {
+      "source": "With an empty value, a single calibration image layer applies to all channels.",
+      "translation": "Con un valor vacío, una única capa de imagen de calibración se aplica a todos los canales."
+    },
+    {
+      "source": "Select a vendor calibration file first.",
+      "translation": "Seleccione primero un archivo de calibración del proveedor."
+    },
+    {
+      "source": "A saved illumination model takes priority.",
+      "translation": "Un modelo de iluminación guardado tiene prioridad."
+    },
+    {
+      "source": "Default empty.",
+      "translation": "El valor predeterminado está vacío."
+    }
+  ],
+  "prior_local_model_drafts": {
+    "tooltip": "Asignar canales de intensidad guardados a una calibración de campo plano del proveedor. Ejemplo 0:2,1:1 asigna canales de densidad 0 y 1 a los canales de calibración 2 y 1. Los números de canal de intensidad comienzan en 0. Los números del canal de calibración o de capa de imagen comienzan a 1. Incluya cada canal de la intensidad corregida. Un valor vacío mantiene el orden del canal original. Con un valor vacío, una sola capa de la imagen de calibración se aplica a todos los canales. Seleccione un archivo de calibración del proveedor primero. Un modelo de iluminación guardado tiene prioridad.",
+    "ui": {
+      "Name a column (for example genotype), add rules, then add replicate and a combined condition column.": "Nombre una columna (por ejemplo genotipo), añada reglas, luego añada replicación y una columna de condición combinada.",
+      "Move columns up or down so inputs come before combinations.": "Mover columnas hacia arriba o hacia abajo para que las entradas vengan antes de las combinaciones.",
+      "Exact values match whole cells; regex searches within cells.": "Los valores exactos coinciden con celdas enteras; búsquedas regex dentro de celdas.",
+      "Include selects matching metadata values; a blank include uses manual rows only.": "Incluir selecciona los valores de metadatos coincidentes; un blanco incluye sólo las filas manuales.",
+      "Exclude removes matching rows, including dropped rows.": "Excluir elimina las filas coincidentes, incluyendo las filas caídas.",
+      "Drag selected source rows into a condition box.": "Arrastre las filas de origen seleccionadas a una caja de condiciones.",
+      "Resolve overlapping conditions before Apply.": "Resolver las condiciones de superposición antes de Aplicar.",
+      "Rows that match no condition get an empty value.": "Filas que no coinciden con ninguna condición obtienen un valor vacío.",
+      "Original source files are not modified.": "Los archivos originales de origen no se modifican.",
+      "Exact values match whole cells literally: c1 does not match c10. Regular expression mode uses Include and Exclude above.": "Los valores exactos coinciden literalmente con celdas enteras: c1 no coincide con c10. El modo de expresión regular utiliza Incluir y Excluir arriba."
+    }
+  },
+  "records": [
+    {
+      "table": "ui",
+      "key": "Exact values must match the entire table value.",
+      "source": "Exact values must match the entire table value.",
+      "source_sha256": "c2d530de42cb1e7a4eeceb7261063a52c2ec27feb0ae11eae80cf34719a10bb9",
+      "translation": "Los valores exactos deben coincidir con el valor completo de la tabla."
+    },
+    {
+      "table": "ui",
+      "key": "For example, c1 does not match c10.",
+      "source": "For example, c1 does not match c10.",
+      "source_sha256": "c81d922ea4df0b5e4645783bdef061c3259ab0a3cec001826632f5883a372184",
+      "translation": "Por ejemplo, c1 no coincide con c10."
+    },
+    {
+      "table": "ui",
+      "key": "Regular expression mode uses the Include and Exclude fields above.",
+      "source": "Regular expression mode uses the Include and Exclude fields above.",
+      "source_sha256": "1174a2e281004cd2ec55b39adae6ea9fe1df037790e5740d19d8dfb5fe1276bc",
+      "translation": "El modo de expresiones regulares utiliza los campos Incluir y Excluir situados arriba."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "illumination_vendor_channel_map",
+      "source": "Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty.",
+      "source_sha256": "6269a5492b359a6da1dc18e5714dada8d459fd536800b2b36c4485d7eb2e81d5",
+      "translation": "Asigne los canales de intensidad guardados a una calibración de campo plano del proveedor. El ejemplo 0:2,1:1 asigna los canales de intensidad 0 y 1 a los canales de calibración 2 y 1, respectivamente. La numeración de los canales de intensidad empieza en 0. La numeración de los canales de calibración o de las capas de imagen empieza en 1. Incluya todos los canales de intensidad que se van a corregir. Un valor vacío conserva el orden original de los canales. Con un valor vacío, una única capa de imagen de calibración se aplica a todos los canales. Seleccione primero un archivo de calibración del proveedor. Un modelo de iluminación guardado tiene prioridad. El valor predeterminado está vacío."
+    },
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close before the update starts. It will reopen automatically after the update succeeds.",
+      "source_sha256": "27ca5bee9a4211346d97948e373563a2108ee597a6ba43d084599999bf666d09",
+      "translation": "Esto reinstalará spaCR en su entorno actual. spaCR se cerrará antes de que comience la actualización. Se volverá a abrir automáticamente cuando la actualización se complete correctamente."
+    }
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source": "This will reinstall spaCR in its current environment. spaCR will close and reopen automatically after the update succeeds.",
+      "source_sha256": "928920e4fb1dd99577990e4c263fd8d064b6c2d043f61e979c482c55c865cb4e",
+      "translation": "Esto reinstalará spaCR en su entorno actual. spaCR se cerrará y volverá a abrirse automáticamente cuando la actualización se complete correctamente."
+    },
+    {
+      "table": "ui",
+      "key": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source": "Create genotype and replicate columns with rules, then combine them in a condition column.",
+      "source_sha256": "d876737d707c2a650b07e2238fd642bbe56a54f06e97b4f636e70e3a15879900",
+      "translation": "Cree columnas de genotipo y réplica mediante reglas y después combínelas en una columna de condición."
+    },
+    {
+      "table": "ui",
+      "key": "Place generated columns before any combined column that uses them.",
+      "source": "Place generated columns before any combined column that uses them.",
+      "source_sha256": "dfe8be8cc3405000938408cb7091c89d8e33a4b98a5cc474b944bec7a02bc805",
+      "translation": "Coloque las columnas generadas antes de cualquier columna combinada que las utilice."
+    },
+    {
+      "table": "ui",
+      "key": "Regex can match part of a table value.",
+      "source": "Regex can match part of a table value.",
+      "source_sha256": "6261d4e9fa0983a52bdbd8ced4bca29dc0c0b5110a110528997fc082b62a88c8",
+      "translation": "Regex puede coincidir con parte de un valor de la tabla."
+    },
+    {
+      "table": "ui",
+      "key": "Include selects rows whose chosen metadata matches the rule.",
+      "source": "Include selects rows whose chosen metadata matches the rule.",
+      "source_sha256": "a3accd3eb88b585dae5b6c969782ba924a6b240ec74f25b26688340411419b43",
+      "translation": "Incluir selecciona las filas cuyos metadatos elegidos coinciden con la regla."
+    },
+    {
+      "table": "ui",
+      "key": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source": "If the Include field is empty, only rows dragged into this box are assigned.",
+      "source_sha256": "3a2b440b35243a30356e52de42c0db64791eb1e948b7916e8f3fbcbfc28e84fd",
+      "translation": "Si el campo Incluir está vacío, solo se asignan las filas arrastradas a este cuadro."
+    },
+    {
+      "table": "ui",
+      "key": "Exclude removes matching rows, including rows dragged into this box.",
+      "source": "Exclude removes matching rows, including rows dragged into this box.",
+      "source_sha256": "136d6e070316ca3784203f0a7ea4c6e29989d4a23c693b3e4d25503d426a5eb6",
+      "translation": "Excluir elimina las filas coincidentes, incluidas las arrastradas a este cuadro."
+    },
+    {
+      "table": "ui",
+      "key": "Drag selected table rows into a condition box to assign them.",
+      "source": "Drag selected table rows into a condition box to assign them.",
+      "source_sha256": "6ae74571c67a58f1a39c1008c1d9a930e2346d752d5cdbc9d2e62f2685ea02a4",
+      "translation": "Arrastre las filas seleccionadas de la tabla a un recuadro de condición para asignarlas."
+    },
+    {
+      "table": "ui",
+      "key": "Resolve different labels assigned to the same row in one column before applying.",
+      "source": "Resolve different labels assigned to the same row in one column before applying.",
+      "source_sha256": "8914b01b909da3f6e47b47632d2470e81b191027125604432a88dd7df0cf849b",
+      "translation": "Antes de aplicar, resuelva las etiquetas distintas asignadas a la misma fila en una columna."
+    },
+    {
+      "table": "ui",
+      "key": "Multiple boxes may assign the same label without a conflict.",
+      "source": "Multiple boxes may assign the same label without a conflict.",
+      "source_sha256": "714a70fbee26e6d53be2e000e564bf3b24844a8cdd569fa8ad9e5c01c2dab722",
+      "translation": "Varios cuadros pueden asignar la misma etiqueta sin conflicto."
+    },
+    {
+      "table": "ui",
+      "key": "Rows that match no condition get an empty value.",
+      "source": "Rows that match no condition get an empty value.",
+      "source_sha256": "9d7399faf9a5e825acfbc6a90b4bc93867220d38dc3090a3cfe94821dce9108d",
+      "translation": "Las filas que no coinciden con ninguna condición reciben un valor vacío."
+    },
+    {
+      "table": "ui",
+      "key": "Original source files are not modified.",
+      "source": "Original source files are not modified.",
+      "source_sha256": "eb44a4c106a6cd864ccff03e473d06c0d57b6e260c5688d17d2dcb3f0fb30e58",
+      "translation": "Los archivos de origen originales no se modifican."
+    }
+  ],
+  "retirement_note": "The uncommitted reinstall draft was retired when its English source was clarified: spaCR closes before updating and reopens only after success.",
+  "normalization_corrections": [
+    {
+      "source": "Drag selected table rows into a condition box to assign them.",
+      "before": "Arrastre las filas seleccionadas de la tabla a un cuadro de condición para asignarlas.",
+      "after": "Arrastre las filas seleccionadas de la tabla a un recuadro de condición para asignarlas.",
+      "reason": "Recuadro explicitly denotes the condition box; the generic Spanish table contextualizer otherwise changes cuadro into tabla. Codex AI technical review; no gate change."
+    }
+  ],
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
+}

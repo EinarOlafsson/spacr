@@ -1,0 +1,34 @@
+{
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "44292936fb6b522935dc2402151ddb2bba49786333975d2b8a683e271411e2a4",
+  "review": {
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 original translations retained; Codex translated and technically reviewed the corrected fitted-support scene.",
+    "date": "2026-09-27",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Only scene8 narration changed. The remaining nine scenes, metadata, scene IDs and statistical caveats are preserved."
+  },
+  "language": "es",
+  "title": "Parameter Sweep: comparar ensayos de Regression guardados",
+  "description": "Indica las entradas emparejadas y la configuración de los ensayos, ejecuta un barrido pequeño y revisa la configuración, las figuras y las comprobaciones de inferencia de cada ensayo.",
+  "objectives": [
+    "Seleccionar archivos emparejados de puntuaciones y recuentos y una carpeta de salida para el barrido.",
+    "Elegir los ajustes variables y fijos, estimar el número de ensayos y ejecutar.",
+    "Revisar los ensayos guardados y la calidad de su inferencia antes de compararlos."
+  ],
+  "prerequisite": "Descarga los cuatro pares de puntuaciones y recuentos por placa del tutorial de Regression. Usa el mismo orden de placas y una carpeta de salida nueva. Los dos ensayos ridge mostrados terminan, pero no superan sus comprobaciones de calidad de inferencia; distingue el estado del cálculo de la idoneidad estadística.",
+  "scenes": [
+    "Desde Home, abre Regression y luego Parameter sweep, abajo a la derecha. Usa los cuatro pares de ejemplo de puntuaciones y recuentos del tutorial de Regression.",
+    "Añade los cuatro archivos de puntuaciones y los cuatro de recuentos a las listas propias del barrido, en el mismo orden de placas. Revisa estas listas aunque el formulario principal de Regression ya tenga entradas. Elige una carpeta de salida nueva.",
+    "Marca alpha e introduce cero coma cero uno y cero coma uno. Los ajustes sin marcar se mantienen fijos. Para este ejemplo, indica explícitamente ridge, inferencia paramétrica, agregación por media a nivel de pozo y sin transformación.",
+    "Elige el muestreo Grid, Maximum trials en dos y un proceso de trabajo, y luego haz clic en Estimate. Comprueba el número de combinaciones y los límites de recursos antes de ejecutar. Toma la estimación de tiempo como aproximada.",
+    "Haz clic en Start sweep. Cada ensayo escribe en su propia carpeta. Con un solo proceso de trabajo, los dos ensayos se ejecutan uno tras otro; elige un número de procesos adecuado a los recursos disponibles.",
+    "Revisa las filas completadas y luego abre sweep_results.csv y los archivos de configuración y de control de calidad de cada ensayo. Los dos ensayos mostrados terminan el cálculo pero no superan las comprobaciones de inferencia, así que un estado de ejecución ok no basta para elegir un modelo.",
+    "Selecciona la primera fila y haz clic en Show figures for selected row. Revisa los resultados por guía y las etiquetas de los ejes. El gráfico omite el intercepto de la tabla de coeficientes.",
+    "Cambia Level a Gene para revisar la familia de genes por separado. Comprueba sus filas, efectos y resultados de control de calidad antes de compararla con la vista por guía.",
+    "Vuelva a Guide. Compare las filas usadas en el ajuste y los pocillos únicos en el resumen del ensayo. Los recuentos se registran por separado para los ajustes a nivel de guía y a nivel de gen. Estos recuentos describen los datos que sustentan el ajuste, no la calidad de la inferencia.",
+    "Guarda la configuración, el resumen y los archivos de control de calidad de cada ensayo junto con sus figuras. Usa Regression Diagnostics para una revisión más a fondo, o SweepSpace y run_sweep desde Python para una comparación con código."
+  ]
+}

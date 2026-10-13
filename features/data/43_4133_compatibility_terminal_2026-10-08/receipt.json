@@ -1,0 +1,9 @@
+{
+  "source": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "run": 37728398107,
+  "scope": "Complete corrected-source hosted compatibility matrix, 17/17 job success; not required tests, Qt, coverage or documentation acceptance",
+  "file": "terminal-run.json.gz",
+  "sha256": "ff291ef70874160ad805ec6170ea264229ca7fbdeef0c313a9305f4d4e8dade2",
+  "raw_sha256": "e899e9750992fa2bf41faf283be0bbf4f8b0d94febbce31bbc210c3b8ab51f49",
+  "raw_bytes": 43721
+}

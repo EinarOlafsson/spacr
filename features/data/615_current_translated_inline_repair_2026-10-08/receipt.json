@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "verdict": "REJECTED incomplete archive attempt",
+  "reason": "First exact HTML inspection detects silent joined strong spans despite strict Sphinx exit0. Original full terminal failure is in the accepted r2 archive; these captured bytes retain the initial state and are not final acceptance.",
+  "accepted_successor": "../615_current_translated_inline_repair_2026-10-08_r2/receipt.json",
+  "artifacts_sha256": {
+    "source/accepted.patch.gz": "b32803074a1cfdb23d3a3ab50c4cbf330db1be35ac2d2f5a9d3b0c6fbe8cb3f7",
+    "source/import_inline_spacing.py.gz": "caef4cb2fc07da1e0829ab02405117a4d7024143e7b92a25d8a04e7ec75d3aba",
+    "logs/inline-spacing-all-nine-audit-r1.json.gz": "cea39c368b8dd125a90f257ce912f831ab8bdb4c9ba8bd9cb8d8f5c153a4fb6a",
+    "logs/inline-spacing-two-language-sphinx-r1.log.gz": "c407c895e6f4ca05815100193e6bbc9f012ef6a46a611298af697e61cb2603ee",
+    "logs/inline-spacing-all-nine-audit-r1.log.gz": "dbdf1ec2a10e99b7066df596562537737123d8eaf4121caa0788dd149c677a6e",
+    "logs/inline-spacing-import-r1.log.gz": "9e300773742fc93acc327d9a627e456da5a01d218a679870d6b33e53d5f2adca",
+    "logs/background-sphinx-english-final-r1.log.gz": "ff7b00565dfebc421fc5ed28c65789189a3d4b39b31947e7ecaa6482e74b49de",
+    "logs/inline-spacing-guide-tests-r1.log.gz": "adb57d246ca214a874216eeade7142662a4df4f3da317c1945403627fcafb048",
+    "logs/background-sphinx-all9-guides-final-r1.log.gz": "d643a66e02770ccf46ab165362c1caf91135d006eaa5b66e22abba3e72ea2728",
+    "logs/github-docs-55badc57f-failure.log.gz": "ae80b851ac6289d530f99de75d8cf36d98f4e0471926807478e7b3380bf6f8df",
+    "logs/inline-spacing-all-nine-sphinx-r1.log.gz": "1af0262162d7fe1a23d60e40065e8bf4eba9f1236dfc52ce88c769562aa9ad71",
+    "source/original/tools/build_guide_i18n.py.gz": "d1c44bdfe1799be95ef973223d8b190ee49138b9c5da99e0f77a7f64983a58d1",
+    "source/original/tests/test_guide_i18n.py.gz": "61fd1832ff96e4a9a47e00bf4562a5bb291708b3f59bdcb1daac0bcd4136dc39",
+    "source/original/docs/i18n/guides/ko/LC_MESSAGES/features.po.gz": "5935f313a738e090d2973f56f4b3e3cc1462b9b9fcfeed1b307c6d529f4cf095",
+    "source/original/docs/i18n/guides/ko/LC_MESSAGES/make_masks.po.gz": "8042a49ec0fa213c9cca70e090fcff6387d64f962c748a11e5875456691fbc82",
+    "source/original/docs/i18n/guides/ko/LC_MESSAGES/python_api.po.gz": "83c99b5ae53b2da6a2c7652ff4cf92a6b4500727dd158613c332bce608804cc3",
+    "source/original/docs/i18n/guides/zh_CN/LC_MESSAGES/features.po.gz": "20f1374fce0e04945e2d46898e8826edae1b839dc9682552524515bf841e2a9e",
+    "source/original/docs/i18n/guides/zh_CN/LC_MESSAGES/make_masks.po.gz": "52fe9123349efbcd989a10eb5976b5d4a373d4f96d76796192fb07a0faa8c267",
+    "source/accepted/tools/build_guide_i18n.py.gz": "4346b61a63297932a6e1da417055d073d7d56b61ab0137e9916425a3c8e80f3c",
+    "source/accepted/tests/test_guide_i18n.py.gz": "ce47b879e23493206e71b6565b5e083420b495e29f9a84f2647dcaac8136248e",
+    "source/accepted/docs/i18n/guides/ko/LC_MESSAGES/features.po.gz": "6bc115f4d88f3d62b53757a4fd3ea8fe0b74e09e3ed3716f29da242287993408",
+    "source/accepted/docs/i18n/guides/ko/LC_MESSAGES/make_masks.po.gz": "1aa60b9a983f2a08dc74fec25e9d04f67ecca8f3125a673879f4a51dd4941b1e",
+    "source/accepted/docs/i18n/guides/ko/LC_MESSAGES/python_api.po.gz": "f99f0a2e9d070a5264a332d1357375cecd3d1b92bcb9afcd0492e544531eca43",
+    "source/accepted/docs/i18n/guides/zh_CN/LC_MESSAGES/features.po.gz": "0bb4f4fbd42cca57c27f9b19e20b40fbf3663fe7944fc1240afb92c454fdd9b4",
+    "source/accepted/docs/i18n/guides/zh_CN/LC_MESSAGES/make_masks.po.gz": "bd332387d6cdee727ec70ad34ea236f461307d11b94f81cd4105e061e072e7cc"
+  }
+}

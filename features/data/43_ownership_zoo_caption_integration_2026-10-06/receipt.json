@@ -1,0 +1,18 @@
+{
+  "cohort_source": "f7af14aa18",
+  "passed": 70,
+  "seconds": 20.31,
+  "memory_cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "source_sha256": {
+    "tests/test_the_zoo_lists_every_backend_and_cellpose3_model.py": "698611e5e0f6e31e3ad6c29597db6278748051475652131733b2163080bad78b",
+    "tests/qt/test_the_settings_tree_is_drawn.py": "e2d80ff415ae29306ff43ffba5225bed0ae34996a21986398d75c9d81ac932d3",
+    "tests/qt/test_features_button_opens_the_measure_table.py": "4a63de255477e32fcc888c806812420101a1ae3e534974ccee141ab7b89156cb",
+    "tests/qt/test_i18n_caption_ratchet.py": "033eb2f722659c916c0654fe53955ebcea7beba64083f2b4bfbb91b96b5df726",
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "spacr/qt/widgets/ambient.py": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225"
+  },
+  "scope": "Independent bounded root integration of zoo inventory, settings-tree ownership, Measure heading ownership and indirect-caption guard. Relevant files match run-start source; unrelated test repairs were integrated later. Not a complete suite or hosted verdict."
+}

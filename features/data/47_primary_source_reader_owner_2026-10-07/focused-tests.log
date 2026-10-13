@@ -1,0 +1,7 @@
+Type conversion already registered from type PySide::PyObjectWrapper to type int
+.......................                                                  [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.13-final-0 _______________
+
+Coverage JSON written to file /mnt/wd4tb/scratch/primary-source-drain-20261007/coverage.json
+23 passed in 19.66s

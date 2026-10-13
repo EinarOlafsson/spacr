@@ -1,0 +1,45 @@
+{
+  "base_commit": "4d198d410a77b87e473d89e3b611e8334b6fdc3f",
+  "base_source_blob": "c9997539acd1df4873e9ddfe11119b35cd1daa6b",
+  "base_test_blob": "038686a900e0e809b102bd0b7b43b33da6aa33ca",
+  "final_commit": "af3ad0ac1aa3ffbc4429fddf65bc50ac89935ed0",
+  "final_source_blob": "b428217e00f3a6aa90347c51a37ae4a4d3b6ae8e",
+  "final_test_blob": "62c0e606ac2e26de7ed5affbcd139604439a4da8",
+  "inventory": "public API 13232 unchanged; six runtime tables unchanged including UI 7288; zero added/removed/changed entries",
+  "limits": "Local single-process owning-file check; old hosted Coverage7 failure is independently retained by root. No full-suite verdict.",
+  "payloads": {
+    "after-file.log": {
+      "bytes": 100,
+      "sha256": "760158c5fd40bbf57030846bb8e3030720e580ad9e8f3a35c1c6892e64a7143d"
+    },
+    "before-node.log": {
+      "bytes": 2042,
+      "sha256": "8f752059dbd4f52e059ee953468d031c1d4fa9b057affb3c7339b0367caa0ac2"
+    },
+    "inventory_delta.json": {
+      "bytes": 1166,
+      "sha256": "e069f01336cb670574128dfeb44cda18c22f7390abe563b6aac8ab13411c3b6b"
+    },
+    "inventory_probe.py": {
+      "bytes": 2558,
+      "sha256": "233adf300e1846f96f6cd3d7c32644883ebbee180bec5a44561d09839e6313c8"
+    },
+    "source.patch.gz": {
+      "bytes": 661,
+      "sha256": "fcf31899e2aa889c85ff5ef04087c4b1f479f8a0607b4a6d46e623d9178f4c57"
+    }
+  },
+  "scope": "Live Preview organelle API help; source-bound old failure and owning-file success",
+  "source_patch_plain_sha256": "1019aee369dc146288fb861034d2c2db84c5f59b215528e5a05f166df83d6611",
+  "validation": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "PySide6": "6.11.2",
+    "Qt": "offscreen",
+    "after": "49 passed in 13.99s, complete owning file, final source and test files",
+    "before": "1 failed in 1.94s, exact original assertion, old source and test files",
+    "cap": "4G",
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "pytest": "9.1.1",
+    "python": "3.12.13"
+  }
+}

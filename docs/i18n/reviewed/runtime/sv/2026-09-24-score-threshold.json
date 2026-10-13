@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI-assisted source-context review. Preserves per-view thresholding before agreement/voting, available probabilities and default. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "score_threshold",
+      "source": "Probability cutoff (0-1) applied to the model's positive-class score when deriving binary predictions. With test-time augmentation, this threshold labels each view before agreement and voting are calculated. Probability scores remain available. Default 0.5.",
+      "source_sha256": "4ac7d466720508704bc9a5a1e24952d1ed154bd2c6cb35393ef41791d33c7948",
+      "translation": "Sannolikhetsgräns (0–1) som tillämpas på modellens poäng för den positiva klassen när binära prediktioner tas fram. Vid testtidsaugmentering används gränsen för att klassificera varje vy innan överensstämmelse och röstning beräknas. Sannolikhetspoängen finns fortfarande tillgängliga. Standardvärde 0.5."
+    }
+  ]
+}

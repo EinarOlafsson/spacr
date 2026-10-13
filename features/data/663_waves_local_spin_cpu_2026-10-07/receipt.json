@@ -1,0 +1,28 @@
+{
+  "source_commit": "7e457e35ab",
+  "parent_commit": "bb2d3ddbf5",
+  "source_sha256": "a72bae23af4e5a6dce1753685aed5139d9dbd684aa4e95b0c60c60c12b091e8d",
+  "before_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "phase_results": [
+    {
+      "scope": "focused behavior/geometry/palette/cache/owned frames",
+      "passed": 59,
+      "seconds": 18.31,
+      "raw_log": "final_focused.log.gz"
+    },
+    {
+      "scope": "callable/nested documentation guards",
+      "passed": 113,
+      "seconds": 80.7,
+      "raw_log": "source_guards.log.gz"
+    }
+  ],
+  "native_grid_proof": {
+    "full_4k_pairs": 4,
+    "scope": "same new-wave source, safely culled vs uncropped seeded grid; two controls, two clocks"
+  },
+  "hard_24fps_acceptance": false,
+  "human_aesthetic_acceptance": false,
+  "source_scope": "Individual functional source before root shared-density/no-blur/catalog integration. No claim this whole-module hash matches a later combined source.",
+  "diagnostic_scope": "facet_cost.json no_production_change means the diagnostic itself made no additional production edits. Its native_bilinear variant is the functional implementation; nearest and vector variants are rejected."
+}

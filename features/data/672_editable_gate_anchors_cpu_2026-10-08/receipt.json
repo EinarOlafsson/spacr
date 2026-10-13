@@ -1,0 +1,227 @@
+{
+  "feature": "N672",
+  "before_checkpoint": "0527ae6fa0",
+  "source_checkpoint": "1ad258e625f",
+  "source_commits": [
+    "6b89b49b80c",
+    "1ad258e625f"
+  ],
+  "bindings": {
+    "spacr/qt/screens/gate_editor.py": "de13dde4e69d923ed971b944df7fc184e9b01eb247cd9bbb9f5fff1ca78f541d",
+    "spacr/qt/widgets/gate_editor.py": "4e10d4da0e2ebf3bfb09b7317797b406ede981d5a190a373b69bec7ead4b17dd",
+    "spacr/qt/widgets/gate_settings.py": "f3d7eb9b2d29c329c23bd339a245f19412a45c5271d051219d9116f04a7aa87b",
+    "spacr/qt/widgets/gate_spec.py": "cd0507c2510f54c24c85619e2757101a49fc56d76e58d596442a5870ff359093",
+    "tests/qt/test_gate_editable_anchors_and_surfaces.py": "e740d2552d22bbb9976332b82cc04f1765b219ae62a95ba559fd3e47559994fe",
+    "tests/test_gate_editable_volume.py": "59c5f2ee5db17cb83d526aa81bf9f3d57a3024e2959e88d669ea4890d17668de"
+  },
+  "final_phase": {
+    "passed": 244,
+    "seconds": 107.78,
+    "log": "logs/checkpoint-focused.log.gz",
+    "coverage": "coverage/checkpoint-focused-coverage.json.gz",
+    "scope": "Selected geometry, real GUI interaction, legacy regression and callable-doc guards; not whole suite. Original invocation text was not retained in this log. Recommended focused reproduction below is not claimed to be the identical 244-node invocation."
+  },
+  "earlier_phase": {
+    "passed": 454,
+    "seconds": 138.79,
+    "log": "logs/final2-focused.log.gz",
+    "scope": "Broader selected regressions before final surface-selection and fixed-height interaction explanation fixes; overlaps final phase, do not sum."
+  },
+  "changed_line_gap_audit": {
+    "spacr/qt/screens/gate_editor.py": {
+      "changed_missing_lines": [],
+      "changed_missing_arcs": []
+    },
+    "spacr/qt/widgets/gate_editor.py": {
+      "changed_missing_lines": [
+        1393,
+        1524,
+        1545,
+        1547,
+        1552,
+        1908,
+        1917,
+        1918,
+        1955,
+        1967,
+        1997,
+        2018,
+        2036,
+        2041,
+        2043,
+        2047,
+        2048,
+        2049,
+        2054,
+        2057,
+        2060,
+        2172,
+        2240,
+        2241,
+        2242,
+        2335,
+        2464,
+        2513
+      ],
+      "changed_missing_arcs": [
+        [
+          1102,
+          1104
+        ],
+        [
+          1392,
+          1393
+        ],
+        [
+          1523,
+          1524
+        ],
+        [
+          1544,
+          1545
+        ],
+        [
+          1546,
+          1547
+        ],
+        [
+          1550,
+          1552
+        ],
+        [
+          1898,
+          1900
+        ],
+        [
+          1907,
+          1908
+        ],
+        [
+          1954,
+          1955
+        ],
+        [
+          1966,
+          1967
+        ],
+        [
+          1996,
+          1997
+        ],
+        [
+          2017,
+          2018
+        ],
+        [
+          2035,
+          2036
+        ],
+        [
+          2040,
+          2041
+        ],
+        [
+          2042,
+          2043
+        ],
+        [
+          2053,
+          2054
+        ],
+        [
+          2056,
+          2057
+        ],
+        [
+          2059,
+          2060
+        ],
+        [
+          2105,
+          2107
+        ],
+        [
+          2171,
+          2172
+        ],
+        [
+          2191,
+          2193
+        ],
+        [
+          2230,
+          2243
+        ],
+        [
+          2334,
+          2335
+        ],
+        [
+          2461,
+          2464
+        ],
+        [
+          2512,
+          2513
+        ],
+        [
+          2514,
+          2516
+        ]
+      ]
+    },
+    "spacr/qt/widgets/gate_settings.py": {
+      "changed_missing_lines": [],
+      "changed_missing_arcs": []
+    },
+    "spacr/qt/widgets/gate_spec.py": {
+      "changed_missing_lines": [
+        2546,
+        2780,
+        2872,
+        2886
+      ],
+      "changed_missing_arcs": [
+        [
+          2484,
+          2476
+        ],
+        [
+          2545,
+          2546
+        ],
+        [
+          2779,
+          2780
+        ],
+        [
+          2845,
+          2886
+        ],
+        [
+          2871,
+          2872
+        ]
+      ]
+    }
+  },
+  "painter_ast": {
+    "before": "0d608d440bf83f512d7b1ccc2ffafe75ad3f4b98010cbd1fa84682f848090af5",
+    "after": "0d608d440bf83f512d7b1ccc2ffafe75ad3f4b98010cbd1fa84682f848090af5"
+  },
+  "environment": {
+    "python": "3.12.13",
+    "pytest": "8.4.2",
+    "Qt": "6.12 overlay",
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen"
+  },
+  "limits": [
+    "Not a whole-package numerical-ratchet closure. Changed-source gaps are listed explicitly.",
+    "No GPU/native display/FPS/aesthetics acceptance.",
+    "Curved gates preserve analytic membership until an edit commits an explained piecewise-linear boundary. View gates become bounded at explicit current view depth on first edit.",
+    "Invalid/self-intersecting/degenerate edits and end-on axis dragging are refused without geometry/history mutation."
+  ],
+  "focused_reproduction": "CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg tools/run_capped.sh 4G python -m pytest -q -p no:randomly tests/test_gate_editable_volume.py tests/qt/test_gate_editable_anchors_and_surfaces.py tests/test_cov_4_gate_spec.py tests/test_every_callable_in_the_package_is_documented.py"
+}

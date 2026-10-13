@@ -1,0 +1,110 @@
+{
+  "video": "/tmp/spacr-tutorial-current/captures/make_masks/11_saved_restored_mask.native.mp4",
+  "size": [
+    2560,
+    1440
+  ],
+  "fps": 30.0,
+  "duration_s": 16.967,
+  "frames": 509,
+  "passed": false,
+  "reasons": [
+    "choppy (capture loss): 25.3 distinct fps < 27.9 [capture loss in second(s) [0, 1, 2, 3, 5, 6, 9, 10, 13, 14, 15]]"
+  ],
+  "limits": {
+    "min_fps": 27.9,
+    "change_level": 10,
+    "change_pixels": 4,
+    "cursor_box": 72,
+    "peak_per_frame": 0.02,
+    "jump_margin": 1.5,
+    "min_cursor_found": 0.9,
+    "top_bar_height": 32,
+    "top_bar_every": 10
+  },
+  "field_window_s": null,
+  "distinct_fps": 25.28,
+  "distinct_fraction": 0.8425,
+  "longest_unchanged_run_frames": 29,
+  "distinct_per_second": [
+    23,
+    27,
+    26,
+    27,
+    28,
+    1,
+    27,
+    29,
+    28,
+    26,
+    25,
+    28,
+    28,
+    26,
+    27,
+    25
+  ],
+  "app_painted_per_second": [
+    146.2,
+    97.9,
+    113.9,
+    102.6,
+    65.8,
+    47.6,
+    102.4,
+    116.1,
+    99.1,
+    104.2,
+    112.2,
+    114.3,
+    113.3,
+    108.5,
+    113.9,
+    108.0
+  ],
+  "app_freeze_seconds": [],
+  "app_slow_seconds": [],
+  "capture_loss_seconds": [
+    0,
+    1,
+    2,
+    3,
+    5,
+    6,
+    9,
+    10,
+    13,
+    14,
+    15
+  ],
+  "app_stall_windows_s": [],
+  "app_stall_video_offset_s": 0.0,
+  "unchanged_frames": 80,
+  "unchanged_frames_in_app_stalls": 0,
+  "exact_md5_distinct_fraction": 0.945,
+  "cursor": {
+    "found_fraction": 1.0,
+    "shapes_seen": [
+      "left_ptr@32"
+    ],
+    "max_step_px": 57.1,
+    "p95_step_px": 34.1,
+    "bound_px": 76.8,
+    "jumps": [],
+    "jump_count": 0
+  },
+  "top_bar": {
+    "hidden": true,
+    "sampled_frames": 51,
+    "visible_in": [],
+    "first_sample": {
+      "frame": 0,
+      "visible": false,
+      "black_fraction": 0.0074,
+      "top_rows_black": 0.0,
+      "text_pixels": 0,
+      "below_black_fraction": 0.0
+    }
+  },
+  "adapter_bypasses": []
+}

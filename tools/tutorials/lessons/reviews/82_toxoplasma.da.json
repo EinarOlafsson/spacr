@@ -1,0 +1,46 @@
+{
+  "lesson": "82_toxoplasma",
+  "english_sha256": "dcc70fed94df66f7694d0d07128c5d22b869a518d284d5ba5cd9f4ca911c7be9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Prior reviewed translations retained; Claude Opus 5.5 (AI) translated and technically reviewed the revised scenes from the current English source",
+    "reviewer": "claude-opus-5.5",
+    "date": "2026-10-10",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "scope": "Scenes 3 and 5 revised for N678 (interactive diagram; Plaque Assay tutorial title); the other scene narrations and lesson metadata retained verbatim. UI labels stay in English as shown in the recording.",
+    "revised_scenes": [
+      3,
+      5
+    ],
+    "previous_english_sha256": "b828462b15fa6cc6e3588ccee5fd7b85024a37c73763f378577de7c54406c243",
+    "previous_review_sha256": "1f6f0a16955303c18dfd63e4a4b4b1e494aa63e03d86b9c2cea4e0d51e2280a3",
+    "previous_review": {
+      "kind": "Direct AI technical/context review, no native-speaker signoff",
+      "translator": "AI technical/context review from the exact current English source",
+      "date": "2026-10-08",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    }
+  },
+  "language": "da",
+  "title": "Organismen Toxoplasma: guide, diagram og assays",
+  "description": "Åbn organismesiden, udforsk celldiagrammet, og vælg en tilgængelig analyse.",
+  "objectives": [
+    "Åbne siden fra Home og finde dens vigtigste kontroller.",
+    "Identificere tilgængelige input, handlinger og output.",
+    "Vælge den næste tilgængelige analyse eller reference."
+  ],
+  "prerequisite": "Åbn Home i spaCR. Organismeguiden kræver ingen inputfiler. Hver analyse har sine egne input og en linket gennemgang.",
+  "scenes": [
+    "Vælg kategorien Organism på Home og derefter Toxoplasma. Denne side kombinerer en organismeguide, et interaktivt cellediagram og de tilgængelige Toxoplasma-assays. Udforsk den, før du vælger en analyse.",
+    "Begynd med introduktionen i informationsruden. Hver rude ruller for sig, og når du trækker i skillelinjen, får guiden eller analysefliserne mere plads.",
+    "Diagrammet er interaktivt. Hold markøren over en cellekomponent, så vises dens beskrivelse. Vælg flere for at holde dem fremhævet, og Clear components nulstiller billedet.",
+    "Plaque Assay tæller plaques og måler deres arealer. Recruitment måler berigelsen af markøren ved den parasitholdige vakuole, og Replication Assay tæller parasitter pr. vakuole. Vælg et assay ud fra den størrelse, du vil måle, og dets nødvendige input.",
+    "Klik på Plaque Assay for at åbne analyseskærmen. Indstillingspanelet angiver billedkilden, masker og detektionsmuligheder. Load test data giver et eksempel. Kontrollér input og forhåndsvisning, før du starter Run; vejledningen Plaque Assay beskriver hele arbejdsgangen.",
+    "Gå tilbage til Toxoplasma-vejledningen, og rul informationspanelet til referencerne. ToxoDB, Toxoplasmas hyperLOPIT-atlas, UniProt og NCBI Taxonomy linker til ressourcer om organismen. Disse links åbnes i din browser; vejledningen søger ikke i databaser og forudsiger ikke proteiners lokalisering.",
+    "Organismeguiden fremstiller ikke analysetabeller. Gå tilbage til Home for billedforberedelse, segmentering eller måling, og vælg derefter det assay, der passer til dit forberedte input. Hvert assay har egne krav og en tilknyttet gennemgang."
+  ]
+}

@@ -1,0 +1,395 @@
+{
+  "lesson": "20_cellpose_masks",
+  "accepted": false,
+  "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/cellpose_apply_runs/REAL-stock-model-7ti_do2a",
+  "original_inputs": {
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_01.tif": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_02.tif": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/derived/cellpose_masks/cell_pair_03.tif": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e"
+  },
+  "synthetic": false,
+  "accuracy_validated": false,
+  "ground_truth_used": false,
+  "app_source_modified": false,
+  "published": false,
+  "route": [
+    "make_masks",
+    "train_cellpose",
+    "Apply"
+  ],
+  "pipeline": {
+    "accepted": true,
+    "reasons": [],
+    "figure_count": 3,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "outputs": [
+    {
+      "image": "cell_pair_01.tif",
+      "sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa",
+      "dtype": "uint16",
+      "shape": [
+        512,
+        512
+      ],
+      "objects": 9,
+      "foreground_pixels": 32783,
+      "label_areas": {
+        "1": 2421,
+        "2": 5506,
+        "3": 1145,
+        "4": 8313,
+        "5": 2929,
+        "6": 2047,
+        "7": 5948,
+        "8": 3998,
+        "9": 476
+      }
+    },
+    {
+      "image": "cell_pair_02.tif",
+      "sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8",
+      "dtype": "uint16",
+      "shape": [
+        512,
+        512
+      ],
+      "objects": 94,
+      "foreground_pixels": 190846,
+      "label_areas": {
+        "1": 651,
+        "2": 4111,
+        "3": 1093,
+        "4": 2834,
+        "5": 3243,
+        "6": 1141,
+        "7": 1751,
+        "8": 1231,
+        "9": 4324,
+        "10": 669,
+        "11": 779,
+        "12": 803,
+        "13": 1747,
+        "14": 2055,
+        "15": 908,
+        "16": 706,
+        "17": 1520,
+        "18": 2162,
+        "19": 1647,
+        "20": 960,
+        "21": 3205,
+        "22": 1734,
+        "23": 4971,
+        "24": 1189,
+        "25": 3526,
+        "26": 1224,
+        "27": 1143,
+        "28": 600,
+        "29": 1966,
+        "30": 3275,
+        "31": 2175,
+        "32": 881,
+        "33": 968,
+        "34": 3066,
+        "35": 2597,
+        "36": 914,
+        "37": 3987,
+        "38": 742,
+        "39": 2060,
+        "40": 743,
+        "41": 795,
+        "42": 1098,
+        "43": 4590,
+        "44": 1778,
+        "45": 2225,
+        "46": 1762,
+        "47": 761,
+        "48": 1926,
+        "49": 1844,
+        "50": 1252,
+        "51": 2088,
+        "52": 1134,
+        "53": 1043,
+        "54": 1251,
+        "55": 1542,
+        "56": 920,
+        "57": 2943,
+        "58": 603,
+        "59": 2022,
+        "60": 470,
+        "61": 890,
+        "62": 2829,
+        "63": 1373,
+        "64": 4339,
+        "65": 1847,
+        "66": 1315,
+        "67": 2544,
+        "68": 1068,
+        "69": 4265,
+        "70": 2681,
+        "71": 2773,
+        "72": 2445,
+        "73": 1114,
+        "74": 2929,
+        "75": 1399,
+        "76": 3505,
+        "77": 2477,
+        "78": 2881,
+        "79": 3426,
+        "80": 2425,
+        "81": 2332,
+        "82": 7737,
+        "83": 500,
+        "84": 2119,
+        "85": 2245,
+        "86": 3124,
+        "87": 2172,
+        "88": 2647,
+        "89": 2521,
+        "90": 3540,
+        "91": 3730,
+        "92": 1878,
+        "93": 236,
+        "94": 192
+      }
+    },
+    {
+      "image": "cell_pair_03.tif",
+      "sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89",
+      "dtype": "uint16",
+      "shape": [
+        512,
+        512
+      ],
+      "objects": 46,
+      "foreground_pixels": 174546,
+      "label_areas": {
+        "1": 4390,
+        "2": 3164,
+        "3": 3501,
+        "4": 379,
+        "5": 4903,
+        "6": 2078,
+        "7": 940,
+        "8": 5419,
+        "9": 6058,
+        "10": 6971,
+        "11": 1574,
+        "12": 2197,
+        "13": 4187,
+        "14": 5605,
+        "15": 3600,
+        "16": 5548,
+        "17": 3815,
+        "18": 4034,
+        "19": 7330,
+        "20": 7526,
+        "21": 4453,
+        "22": 636,
+        "23": 4637,
+        "24": 4175,
+        "25": 1799,
+        "26": 6595,
+        "27": 8122,
+        "28": 560,
+        "29": 6575,
+        "30": 7477,
+        "31": 154,
+        "32": 2601,
+        "33": 4418,
+        "34": 4434,
+        "35": 4441,
+        "36": 3472,
+        "37": 2241,
+        "38": 2774,
+        "39": 4752,
+        "40": 3006,
+        "41": 4161,
+        "42": 3024,
+        "43": 3437,
+        "44": 480,
+        "45": 2293,
+        "46": 610
+      }
+    }
+  ],
+  "figures": [
+    {
+      "path": "batch_figure_00.png",
+      "sha256": "8a2d065fdfdd8c4cfc8791f24a9eb33b58f99c9ee0d719d656bdf7b7a4cbcb98"
+    },
+    {
+      "path": "batch_figure_01.png",
+      "sha256": "1ea5b74360eb12e488584ff75155b4075d5ac1714c8cc99a853547c4a5170458"
+    },
+    {
+      "path": "batch_figure_02.png",
+      "sha256": "908c1ccaad6edf04e0fc3c3060f24a05b518019b0a0c2bfbca5e4b957b2fb4fa"
+    }
+  ],
+  "hold": "Live preview uses raw-image Cellpose defaults, not the Apply normalization and resampling choices. Do not narrate it as an equivalent batch preflight.",
+  "preview_seed": {
+    "model": "cpsam",
+    "diameter": 30,
+    "flow_threshold": 0.4,
+    "cellprob": 0,
+    "object_types": [
+      "cell"
+    ],
+    "cell_channel": 0,
+    "nucleus_channel": 1,
+    "normalise": true,
+    "lo_pct": 2,
+    "hi_pct": 98,
+    "outline_thickness": 1,
+    "outline_colour": "color (random)",
+    "display_channel": null,
+    "fov": ""
+  },
+  "preview_explicit_controls": {
+    "model": "cpsam",
+    "diameter": 30,
+    "flow_threshold": 0.4,
+    "cellprob": 0,
+    "object_types": [
+      "cell"
+    ],
+    "cell_channel": 0,
+    "nucleus_channel": 1,
+    "normalise": true,
+    "lo_pct": 2,
+    "hi_pct": 99,
+    "outline_thickness": 1,
+    "outline_colour": "color (random)",
+    "display_channel": null,
+    "fov": "cell_pair_02.tif"
+  },
+  "preview": {
+    "status": "Found cell=95.",
+    "shape": [
+      512,
+      512
+    ],
+    "objects": 95,
+    "params": {
+      "model": "cpsam",
+      "diameter": 30,
+      "flow_threshold": 0.4,
+      "cellprob": 0,
+      "object_types": [
+        "cell"
+      ],
+      "cell_channel": 0,
+      "nucleus_channel": 1,
+      "normalise": true,
+      "lo_pct": 2,
+      "hi_pct": 99,
+      "outline_thickness": 1,
+      "outline_colour": "color (random)",
+      "display_channel": null,
+      "fov": "cell_pair_02.tif"
+    },
+    "batch_mask_equal": false
+  },
+  "filter": {
+    "before": 95,
+    "cutoff": 1838,
+    "after": 47,
+    "checked_pixels": 262144,
+    "raw_unchanged": true,
+    "restored": true
+  },
+  "original_inputs_preserved": true,
+  "private_inputs_preserved": true,
+  "date": "2026-09-10",
+  "source_commit": "38b644846",
+  "status": "batch_verified_preview_equivalence_held",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/cellpose_apply_exact_arrays_and_filters",
+  "independent_reference": {
+    "accepted": true,
+    "scope": "input/output attribution, not segmentation accuracy",
+    "checkpoint": "/home/olafsson/.cellpose/models/cpsam",
+    "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+    "files": [
+      {
+        "name": "cell_pair_01.tif",
+        "checked_pixels": 262144,
+        "objects": 9,
+        "exact_mask_equal": true,
+        "source_sha256": "2069121f2a4bf664b99e328444d77a4236ee309c0345f35bdf9631452071fa50",
+        "saved_mask_sha256": "70699586b650f96b61f878a72731eac10fb92bfa116f05cb0d474e38854d0baa"
+      },
+      {
+        "name": "cell_pair_02.tif",
+        "checked_pixels": 262144,
+        "objects": 94,
+        "exact_mask_equal": true,
+        "source_sha256": "cc9df7fe55a085f100d633f9cc83af6aca4b654de2c9208bfc80b3044e88c138",
+        "saved_mask_sha256": "5523bb5bf3a22179f4fb648a20ece1b25036443b0ce91f730a811b0020130dc8"
+      },
+      {
+        "name": "cell_pair_03.tif",
+        "checked_pixels": 262144,
+        "objects": 46,
+        "exact_mask_equal": true,
+        "source_sha256": "91aadd96190734607a2484d7b744f7c08222a84eafce16a1c86659cdd5c1132e",
+        "saved_mask_sha256": "ea398caaa0b83734ec752ebbb7d1d52ee06bdb00f6b70d08addb0eebf340cd89"
+      }
+    ],
+    "figures": [
+      {
+        "file": "batch_figure_00_arrays.npz",
+        "source_image": "cell_pair_02.tif",
+        "exact_values_checked": {
+          "original": 262144,
+          "overlay": 786432,
+          "flow": 262144
+        }
+      },
+      {
+        "file": "batch_figure_01_arrays.npz",
+        "source_image": "cell_pair_03.tif",
+        "exact_values_checked": {
+          "original": 262144,
+          "overlay": 786432,
+          "flow": 262144
+        }
+      },
+      {
+        "file": "batch_figure_02_arrays.npz",
+        "source_image": "cell_pair_01.tif",
+        "exact_values_checked": {
+          "original": 262144,
+          "overlay": 786432,
+          "flow": 262144
+        }
+      }
+    ],
+    "preview_default_reference": {
+      "checked_pixels": 262144,
+      "objects": 95,
+      "exact_mask_equal": true,
+      "differs_from_batch": true,
+      "meaning": "Matches raw-image Cellpose defaults, not the Apply preprocessing settings."
+    }
+  },
+  "helper_tests": {
+    "passed": 11,
+    "red_mutations": 7,
+    "statements": 22,
+    "branches": 12,
+    "coverage_percent": 100,
+    "scope": "tutorial arithmetic helper only"
+  },
+  "limits": [
+    "Three real demonstration crops, no ground-truth labels or accuracy validation.",
+    "Old custom training checkpoint was not used.",
+    "Plot outlines are external foreground contours, not every touching instance boundary.",
+    "Plot flow panel shows one channel of the flow visualization, not a displacement measurement.",
+    "Native preview is too small beneath the runtime cards for a final readable tutorial."
+  ],
+  "translation_review_complete": false,
+  "listening_review_complete": false,
+  "media_matrix_started": false
+}

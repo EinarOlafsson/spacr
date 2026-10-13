@@ -1,0 +1,43 @@
+{
+  "item": "F554",
+  "date": "2026-10-02",
+  "status": "partial",
+  "scope": "Opt-in strict completeness/provenance receipt; no new biological/model acceptance",
+  "source_base": "b03c88bdc4ad6da033da170a2e007d8178243a2e",
+  "files": {
+    "tools/compare_spotnet_ops.py": "fd5a898bbee063a7c1b72f912401612d12cc776e879a3ed35b8e49ba2998c547",
+    "tests/test_spot_comparison_receipt_f554.py": "a417136f1d231b77ccfd19399a19deb1daf387c8390a986350f49303bb88a9fd",
+    "features/data/554_spotiflow_vs_spotnet_vs_native.json": "a22206ad697023888c1758d414b773aeb595a8c3fec9e22ca2b2a9ed8a7d62c4"
+  },
+  "validation": {
+    "unique_passed": 20,
+    "initial_passed": 18,
+    "initial_seconds": 0.66,
+    "wal_followup_passed": 2,
+    "wal_followup_seconds": 0.35,
+    "logs": [
+      "/tmp/spacr-implementation-20261001/f554-strict-comparison-tests.log",
+      "/tmp/spacr-implementation-20261001/f554-strict-wal-tests.log"
+    ],
+    "configured_memory_max_bytes": 4294967296,
+    "configured_memory_swap_max": 0,
+    "cpu_affinity": [
+      0
+    ],
+    "cuda_visible_devices": "",
+    "real_inference": false,
+    "backend_install_or_download": false
+  },
+  "unavailable": [
+    "/home/carruthers/.spacr/backends/spotiflow",
+    "/mnt/wd4tb/spacr_testdata/ops/raw/ops/sequencing",
+    "/mnt/wd4tb/spacr_testdata/ops_plate_run/measurements.db",
+    "/mnt/wd4tb/spacr_testdata/ops_plate_run/library/pool10_prefixes.csv"
+  ],
+  "acceptance_limits": [
+    "Historical metrics do not carry image/model hashes",
+    "No real-data replay on this host",
+    "Comparison/library agreement is not biological accuracy"
+  ],
+  "replay_command": "tools/compare_spotnet_ops.py --tiles <sequencing> --db <measurements.db> --plate 20200202_6W-LaC024A --well A1 --sites 331 332 --library <pool10_prefixes.csv> --detectors spotnet spotiflow --strict --out <new-receipt.json>"
+}

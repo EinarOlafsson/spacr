@@ -1,0 +1,41 @@
+{
+  "lesson": "69_dose_response",
+  "english_sha256": "34417ee0b35163e5d977b5ec2c4cb8f350c8b51afbb57c35816ffba537990b2b",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Dose Response: ajustar curvas de concentração e ler seus intervalos",
+  "description": "Carregue uma tabela de concentrações, agrupe as séries, ajuste curvas logísticas e mantenha juntos estimativas, intervalos e avisos de ajuste.",
+  "objectives": [
+    "Carregar o exemplo sintético e escolher as colunas de concentração, resposta e agrupamento.",
+    "Ajustar curvas e comparar os intervalos de verossimilhança de perfil e de Wald.",
+    "Ler resultados sem limite ou recusados e salvar o relatório."
+  ],
+  "prerequisite": "Baixe o CSV sintético de dose-resposta indicado. Ele contém quatro séries ilustrativas, nove concentrações positivas e um veículo de dose zero, com três observações por concentração. Forneça valores de concentração brutos e prepare qualquer normalização ou conversão de unidade antes de carregar seus próprios dados.",
+  "scenes": [
+    "Na tela Home, abra Data e escolha Dose Response. Prepare uma tabela com colunas explícitas de concentração e de resposta para cada série que você quer ajustar.",
+    "Baixe o CSV sintético indicado, clique em Load table e abra o arquivo. As séries sintéticas nomeadas ilustram os controles e diferentes resultados de ajuste.",
+    "A tabela tem cento e vinte linhas em quatro séries. Cada uma inclui nove concentrações positivas, um veículo de dose zero e três observações em cada concentração.",
+    "Defina a coluna de concentração como concentration, a coluna de resposta como response e One curve per como series. Use as concentrações brutas, e não os logaritmos delas.",
+    "Digite a unidade de concentração em Unit. Neste exemplo, use micromolar. Esse campo apenas rotula os valores; converta os números antes se precisar de outra unidade.",
+    "Escolha Profile likelihood, deixe Fit non-monotone data desativado e clique em Fit. Inspecione juntos o painel de curvas e a tabela de resultados, incluindo séries com avisos ou com estimativas indisponíveis.",
+    "Selecione synthetic inhibition. O ponto médio é um vírgula cinco e a inclinação de Hill é negativa. O meio máximo fica a meio caminho entre os platôs ajustados, que aqui são cinco e noventa e cinco.",
+    "Selecione synthetic activation. O ponto médio é dois e a inclinação de Hill é positiva. A curva selecionada fica em destaque, e o relatório abaixo acompanha a linha selecionada.",
+    "Selecione o exemplo fora do intervalo. As concentrações testadas terminam em cem, o que deixa o ponto médio sem suporte. Leia o limite informado; células vazias de ponto médio e intervalo indicam uma estimativa indisponível.",
+    "Selecione a série que se inverte e leia por que o ajuste é recusado. Inspecione a forma da resposta e o contexto experimental antes de decidir se um modelo logístico monotônico é adequado.",
+    "Volte à inibição e leia as contagens de observações. Vinte e sete observações com dose positiva entram no ajuste. Os três controles de dose zero são resumidos à parte, porque o zero não pode entrar no ajuste logarítmico.",
+    "Leia o erro residual e a falta de ajuste junto com o R ao quadrado. Considere a estrutura de réplicas do seu experimento ao interpretar a incerteza; linhas repetidas, sozinhas, não comprovam experimentos independentes.",
+    "Escolha Wald e clique de novo em Fit para comparar os métodos de intervalo. Mudar o seletor exige um novo ajuste. O intervalo é calculado no logaritmo do ponto médio e convertido de volta para concentração.",
+    "Compare os extremos do intervalo nas séries bem delimitadas. Aqui as estimativas do ponto médio continuam parecidas; o exemplo fora do intervalo ainda não tem uma estimativa de ponto médio com suporte.",
+    "Volte para Profile likelihood e clique em Fit. Confira o método selecionado e o relatório correspondente antes de copiar os resultados.",
+    "Ordene a tabela somente depois de concluir as comparações de ajuste. Esta versão pode desalinhar as linhas se você ajustar de novo uma tabela ordenada. Selecione a inibição e confirme que o relatório cita a mesma série.",
+    "Selecione o texto do relatório e copie com o atalho de teclado habitual. Salve os avisos, o método de intervalo e as concentrações de entrada junto com o resultado.",
+    "Para saída em tabela, use fit_frame e a tabela de resultados de dose-resposta no Python. Esta tela não tem botão de exportação. Mantenha na saída as linhas sem limite e as recusadas, para que todas as séries de entrada fiquem registradas."
+  ]
+}

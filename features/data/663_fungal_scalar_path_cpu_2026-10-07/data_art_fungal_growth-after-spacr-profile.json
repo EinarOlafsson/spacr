@@ -1,0 +1,171 @@
+{
+  "source_commit": "Current b2a ambient vs exact scalar-overload-only candidate after ebe1 test-only commit",
+  "source_sha256": "ade8062fc41ba4b1f6798d54f5aa1fbcb24e7d6450bb1f27a4d250dce1c0e0ae",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/fungal-scalar-worker-20261007/after.py",
+  "variant": "after",
+  "theme": "data_art_fungal_growth",
+  "label": "spaCR growth",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 3.0,
+    "size": 2.5,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "spacr",
+    "colors": [
+      "#3b82f6",
+      "#ff00ff",
+      "#00cec8"
+    ]
+  },
+  "qt_platform": "xcb",
+  "profile_enabled": true,
+  "profile_scope": "inclusive wrappers overlap and introduce overhead; timing is diagnostic, not an uninstrumented performance acceptance",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 224672,
+    "widget_show_ms": 120.7346249721013,
+    "post_show_seconds": 2.0009925659978762,
+    "post_show_published_frames": 48,
+    "post_show_published_fps": 23.98809511621691,
+    "worker_shade": {
+      "median_ms": 2.991663001012057,
+      "p95_ms": 4.213687003357336,
+      "max_ms": 18.415648984955624,
+      "samples": 48
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.062780987937003,
+      "p95_ms": 14.093956997385249,
+      "max_ms": 40.75236900825985,
+      "samples": 195
+    },
+    "compile_ready": false,
+    "compile_failed": false,
+    "rss_peak_kib": 222136
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.011805418005679,
+      "published_frames": 97,
+      "published_fps": 19.35430287287544,
+      "distinct_published_clocks": 97,
+      "first_clock": 97.25300000000004,
+      "clock_advance": 4.944000000000102,
+      "painted_fps": 24.34252526279179,
+      "repeated_frame_objects": 25,
+      "worker_shade": {
+        "median_ms": 50.69757701130584,
+        "p95_ms": 61.97594801778905,
+        "max_ms": 64.5990350167267,
+        "samples": 97
+      },
+      "gui_paint": {
+        "median_ms": 5.38868700095918,
+        "p95_ms": 6.556209002155811,
+        "max_ms": 8.522579009877518,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.407683992525563,
+        "p95_ms": 34.74740401725285,
+        "max_ms": 43.65864399005659,
+        "samples": 367
+      },
+      "publication_intervals": {
+        "median_ms": 50.77187348797452,
+        "p95_ms": 62.00172699755058,
+        "max_ms": 64.62045398075134,
+        "samples": 96
+      },
+      "lightning_worker_shades": null,
+      "inclusive_profile_stages": {
+        "Qt.setPen": {
+          "median_ms": 0.11245370842516422,
+          "p95_ms": 0.13129384024068713,
+          "max_ms": 0.16036976012401283,
+          "samples": 97
+        },
+        "Qt.drawPath": {
+          "median_ms": 29.95620999718085,
+          "p95_ms": 35.53160818410106,
+          "max_ms": 37.33982890844345,
+          "samples": 97
+        },
+        "_reuse_fungal_raster": {
+          "median_ms": 8.357055950909853,
+          "p95_ms": 10.282346775056794,
+          "max_ms": 14.574786968296394,
+          "samples": 97
+        },
+        "geometry": {
+          "median_ms": 2.135362010449171,
+          "p95_ms": 2.496863016858697,
+          "max_ms": 2.7885690215043724,
+          "samples": 97
+        },
+        "Qt.drawEllipse": {
+          "median_ms": 0.025626999558880925,
+          "p95_ms": 0.043696025386452675,
+          "max_ms": 0.05804802640341222,
+          "samples": 97
+        },
+        "_warm_fungal_raster": {
+          "median_ms": 3.0644350044894964,
+          "p95_ms": 12.640200991882011,
+          "max_ms": 16.95065398234874,
+          "samples": 97
+        },
+        "_paint_cached_fungal_paths": {
+          "median_ms": 43.83876401698217,
+          "p95_ms": 53.890176001004875,
+          "max_ms": 56.77687001298182,
+          "samples": 97
+        },
+        "_fungal_paths": {
+          "median_ms": 3.3334509935230017,
+          "p95_ms": 3.7318720133043826,
+          "max_ms": 3.9821090176701546,
+          "samples": 97
+        },
+        "_paint_fungal_tips": {
+          "median_ms": 0.10149498120881617,
+          "p95_ms": 5.431436002254486,
+          "max_ms": 6.0513940115924925,
+          "samples": 97
+        }
+      },
+      "load_average": [
+        2.64404296875,
+        2.67578125,
+        2.208984375
+      ],
+      "current_rss_kib": 325108
+    }
+  ],
+  "frame_sha256": "2f8ddfc20ced459808ab023e3166efe2b54b3b944a830d5a50177bbc2067a93a",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 354092,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

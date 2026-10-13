@@ -1,0 +1,41 @@
+{
+  "lesson": "61_tabulate",
+  "english_sha256": "1d22d1f5a170f7e6d1e63dc052ce2281278fe4068e9a27b1c7c90b3a8c60d2cb",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Tabulate: opsummér målinger pr. brønd og synsfelt",
+  "description": "Gruppér målte objekter, vælg opsummerende statistik, undersøg tomme grupper, og eksportér en pivottabel eller send den til Graph Builder.",
+  "objectives": [
+    "Indlæse målinger og gruppere dem pr. brønd eller synsfelt.",
+    "Vælge værdier, statistik og filtre og samtidig kontrollere de bidragende antal.",
+    "Eksportere CSV-oversigter og opdatere deres diagrammer i Graph Builder."
+  ],
+  "prerequisite": "Hent måleeksemplet fra Annotate-vejledningen, og arbejd med en kopi af measurements.db. Dets tabel cell har 2.341 objekter fra fire brønde. Hold rumlige labels adskilt fra behandlingslabels, og vælg det grupperingsniveau, der passer til dit forsøg.",
+  "scenes": [
+    "Fra Home åbner du Database Browser og vælger derefter Tabulate. Brug værktøjet til at opsummere målekolonner pr. brønd, synsfelt eller en anden gruppe. Gennemgangen bruger databasen fra det linkede Annotate-eksempel.",
+    "I Tabulate klikker du på Load table, åbner measurements.db og vælger cell. Brug Tabulates egne kontroller til at vælge input og eksportere. Kontrollér tabellen og de 2.341 indlæste objekter.",
+    "Vælg Plate/row/column for at gruppere pr. plade og brønd. Lad Values være tom for at tælle kilderækker. De fire brønde indeholder 615, 525, 700 og 501 celler.",
+    "Søg efter fieldID, og træk det til Columns. Så dannes et gitter af brønde og synsfelter. Hold markøren over en tom celle for at undersøge den: eksemplet har én kombination uden kilderækker. Skeln den fra et målt nul.",
+    "Tøm Columns, og træk derefter cell_area til Values. Standardoversigten viser antal, gennemsnit og stikprøvestandardafvigelse. Søgningen finder kolonnenavne; ændringer af akser eller statistik genberegner oversigten.",
+    "Hold markøren over en resultatcelle for at se al dens statistik og det bidragende antal, også linjer, som rækkehøjden skjuler. Standardafvigelsen beskriver variationen mellem objekterne i gruppen.",
+    "Slå median, sem og quantile til for at tilføje disse statistikker. Sæt Quantile at til 0,75 for den øvre kvartil. SEM bruger det tilgængelige antal objekter; vælg niveauet for eksperimentelle replikater separat, når du estimerer biologisk usikkerhed.",
+    "Sæt Quantile at til 0,5 for at vise medianen. Den første brønd viser nu 22.400 for begge. Sæt 0,75 tilbage, og slå den ekstra statistik fra for at vende tilbage til den enklere oversigt.",
+    "Erstat cell_area med cell_channel_0_homogeneity_distance_32. Denne egenskab har syv manglende værdier, så dens bidragende antal er mindre end antallet af kilderækker. Brug disse antal, når du sammenligner grupper.",
+    "Sæt cell_area tilbage, og klik på Export CSV i Tabulate. Vælg et nyt filnavn. Denne brøndoversigt indeholder de tre grupperingsnøgler, antal, gennemsnit og standardafvigelse. Behold dine valg af gruppering, statistik og filtre ved siden af den eksporterede fil.",
+    "Klik på Plot this table for at sende oversigten til Graph Builder. Træk columnID til X, mean til Y og rowID til Colour. Kontrollér de udledte kolonnetyper: i dette eksempel behandler Automatic de fire forskellige gennemsnit som kategorier og viser et heatmap.",
+    "Tilføj et cell_area-filter med et minimum på 21.925. Pivottabellen opdateres straks for de resterende objekter. Klik på Plot this table igen, hver gang du vil overføre den opdaterede oversigt til diagrammet.",
+    "Når du har klikket på Plot this table, undersøger du de opdaterede gruppegennemsnit. En note om arealfilteret kan dukke op, fordi den overførte oversigt indeholder mean og ikke cell_area. Objektfilteret er allerede anvendt tidligere i Tabulate.",
+    "Klik på Clear all i filteret og derefter på Plot this table igen for at gendanne den oprindelige brøndoversigt. Gem filtrerede og ufiltrerede eksporter under forskellige navne, når du har brug for begge.",
+    "Til en oversigt pr. synsfelt trækker du fieldID til Rows efter brøndnøglerne. Hver række med data opsummerer nu ét synsfelt i en brønd. Undersøg de bidragende antal, og hold grupperingsniveauet konsekvent, når du sammenligner resultater.",
+    "Klik på Plot this table, læg fieldID på X, behold mean på Y og rowID på Colour, og vælg derefter Scatter under Plot. I dette eksempel genkendes mean nu som kontinuert. Bekræft de viste kolonnetyper og akselabels.",
+    "Punktdiagrammet viser 51 gennemsnit pr. synsfelt. Farverne angiver rumlige rækker, og gentagne synsfeltlabels kan høre til forskellige brønde. Brug den oprindelige objekttabel, når du vil vælge enkelte celler og undersøge deres billeder.",
+    "Eksportér synsfeltoversigten som en separat CSV. Den indeholder 52 gitterrækker, hvor den tomme kombination står blank; diagrammet indeholder 51 grupper med data. I Python bruger du pivot og PivotSpec fra spacr.qt.widgets.pivot_spec og derefter to_csv til at gemme resultatet."
+  ]
+}

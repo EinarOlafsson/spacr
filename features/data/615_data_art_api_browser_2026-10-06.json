@@ -1,0 +1,26 @@
+{
+  "current_strict_build_API_browser_cases_passed": 108,
+  "changed_symbols": 12,
+  "languages": 9,
+  "actual_translated_panels_and_protected_literals_verified": true,
+  "all_built_catalog_hashes_match_accepted_preservation_proof": true,
+  "nightly_deployment_verified": false,
+  "artifacts": {
+    "features/data/615_data_art_api_browser_2026-10-06/acceptance.json": {
+      "sha256": "60251f8ba85b183dc1dded7886ce45e34a8b746a729325c7803cb67c71326bb2",
+      "bytes": 52703
+    },
+    "features/data/615_data_art_api_browser_2026-10-06/archive_data_art_api_browser.py": {
+      "sha256": "afe467ae9d4b95c135b6b8839c1a7d512c012ef81fb03e23eaaa0ba12aeeed0a",
+      "bytes": 2518
+    },
+    "features/data/615_data_art_api_browser_2026-10-06/data-art-api-browser-r1.log.gz": {
+      "sha256": "9a189201865ca4c9ce33699a16ed316b8db1a5946bc88e9354fa90d889508a86",
+      "bytes": 69
+    },
+    "features/data/615_data_art_api_browser_2026-10-06/verify_data_art_api_browser.py": {
+      "sha256": "238f5a52d188f1bd3aaed45b94028e4690066c16cac4780f3eb542db0f9684f6",
+      "bytes": 5504
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "scope": "Complete immutable original preceding Root all-nine API/runtime catalog, review and source-history checkpoint after both original writers terminated1. Exact Swedish mask-saving API prose and Hindi VideoMAE encoder tip are the only reported audit failures. Split into bounded32MiB parts to preserve original ZIP bytes below repository upload limits; concatenate numbered parts before opening the ZIP. Subsequent selected-locale recovery is live and is not accepted in this receipt. This is not the later13,199-symbol final-source catalog.",
+  "original_archive": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/preceding-terminal-catalog-checkpoint-r1.zip",
+  "original_archive_bytes": 105983054,
+  "original_archive_sha256": "ac16486a3dab94e93fca526669331d13df92176ab8f40725d01b297cf6dba040",
+  "original_checkpoint_files": 3372,
+  "original_API_symbols": 13196,
+  "original_writer_exit_codes": {
+    "API": 1,
+    "runtime": 1
+  },
+  "parts": [
+    {
+      "path": "features/data/615_preceding_terminal_catalogs_2026-10-06/original-complete-checkpoint.zip.part00",
+      "bytes": 33554432,
+      "sha256": "a8b6c3c2fd537cd556d5e0bac554fd8154af172b3f5333b2ac3ede685bfcce44"
+    },
+    {
+      "path": "features/data/615_preceding_terminal_catalogs_2026-10-06/original-complete-checkpoint.zip.part01",
+      "bytes": 33554432,
+      "sha256": "049cb5bc330cc77a4f2ee5219da4becb2196dcdae10d1eb3d25d8e23902b0af1"
+    },
+    {
+      "path": "features/data/615_preceding_terminal_catalogs_2026-10-06/original-complete-checkpoint.zip.part02",
+      "bytes": 33554432,
+      "sha256": "d40a84a3fcffc5eeded3b82ddc2f4c742d474e74a99c421436e3b23a788a1d0d"
+    },
+    {
+      "path": "features/data/615_preceding_terminal_catalogs_2026-10-06/original-complete-checkpoint.zip.part03",
+      "bytes": 5319758,
+      "sha256": "4fdb2f1948a981f504d02bb0ecf02c143c431a6d8f61cfb7254e669b32fa9b8b"
+    }
+  ],
+  "current_final_source_acceptance": false,
+  "preceding_recovery_accepted": false,
+  "published": false
+}

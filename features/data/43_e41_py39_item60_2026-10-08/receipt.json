@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-08",
+  "files": {
+    "e41-minimum-deps-shard1.log.gz": {
+      "bytes": 599605,
+      "sha256": "a5c50962d9efb7a5e742b93149a6992f9bfa21a98496dad43e90ba96ccfb4724"
+    },
+    "focused.log.gz": {
+      "bytes": 331,
+      "sha256": "0bea78933dbb88d341991a0fd888bde0b3b5f272c9bb2913f09668153ab23ddf"
+    },
+    "full-five-files.log.gz": {
+      "bytes": 486,
+      "sha256": "8620879734179fa2a55a81a086fa72507d63c975545ef9113c89b45e17c2b12b"
+    },
+    "full-inventory-equality.log.gz": {
+      "bytes": 206,
+      "sha256": "7027d51487218381e68a17b05afc72e83dd00b489844dfc86ffdd4398fa1f94a"
+    },
+    "python39-stdlib.log.gz": {
+      "bytes": 271,
+      "sha256": "d309b946717c21c8f0f797a421d36a91916a9f9e802357ce2e5f355e959b8294"
+    },
+    "source-and-test.patch.gz": {
+      "bytes": 1664,
+      "sha256": "2324f603ac3447104107e1b2631b430a208c7134862f6baa9710d25d74b8f5a0"
+    }
+  },
+  "focused": "8 passed in 13.30s, CUDA hidden, CPU 4G, Python 3.12.13",
+  "full_owning_files": "144 passed, 14 warnings in 74.51s; test_item60_measure_coverage.py, test_mask_worker_resume.py, test_measure_validation.py, test_parallel_overload_queue.py, test_database_write_queue.py",
+  "historical_failed_run": {
+    "conclusion": "failure",
+    "id": 37846367787,
+    "minimum_dependencies_shard1_job": 113548884231,
+    "source_sha": "e41df27e0a37303cbbc81687d21f74738cc05e0b"
+  },
+  "limitation": "The older e41 run remains failed/cancelled; these local checks do not certify a later protected MinDeps or full N43 run.",
+  "normal_inventory": {
+    "api_entries": 13232,
+    "full_equal_to_base": true,
+    "runtime_counts": {
+      "categories": 237,
+      "installer": 65,
+      "module_summaries": 77,
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "ui": 7288
+    },
+    "serialized_sha256": "ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f"
+  },
+  "original_uncompressed": {
+    "e41-minimum-deps-shard1.log.gz": {
+      "uncompressed_bytes": 4345807,
+      "uncompressed_sha256": "efdbc5b10b5da3d07f30a7cd199a9cc2dfd0d260571acaf35adac6745e0f833f"
+    },
+    "focused.log.gz": {
+      "uncompressed_bytes": 627,
+      "uncompressed_sha256": "e31dda4c2f27d67fee249cd586e710c237923604586352fcb3010ed882c6fb1c"
+    },
+    "full-five-files.log.gz": {
+      "uncompressed_bytes": 1041,
+      "uncompressed_sha256": "237be1a69eaad995055cfcb155e725ba8c63f48b9cf250f8d685204b184c88e6"
+    },
+    "full-inventory-equality.log.gz": {
+      "uncompressed_bytes": 268,
+      "uncompressed_sha256": "3876cf0c33906adbcfcd5584fc088b45ed9c8a59c123fd8c49a425f955985c9d"
+    },
+    "python39-stdlib.log.gz": {
+      "uncompressed_bytes": 371,
+      "uncompressed_sha256": "48a3b4c4a357666fc099bd9b7ae9bcc7d2ad7d42ebf11a66a3e2e6653b540c23"
+    },
+    "source-and-test.patch.gz": {
+      "uncompressed_bytes": 4946,
+      "uncompressed_sha256": "e3025f14e5c3533dbd54290921e78b6e88e37b32a934b080ce6a6bffb05f772e"
+    }
+  },
+  "python39_probe": "Actual cached Python 3.9.21 stdlib AST and exception formatting; three-argument calls preserve traceback and the previous one-argument form raises the hosted TypeError. Full spaCR Python 3.9 environment was unavailable locally.",
+  "repair_base": "629d1aec008ad4c6a604b6159f7703bb726b5fdd",
+  "repair_commit": "50d01063bc7fb3cf297caba1ce7498ba6fa10383",
+  "scope": "Python 3.9 traceback compatibility and filesystem-order-independent Item60 fixture; no production order or gate change",
+  "source_sha256": {
+    "spacr/_mask_workers.py": "738350b8041f341df1cbe29f045c03dc74f7f80204e773933a683571f5195a06",
+    "spacr/database_concurrency.py": "831f8b0dcd226769613580cc38b5e1b88e35f299c3c31bd412396ef8c7c442f5",
+    "tests/test_item60_measure_coverage.py": "41b24c31150e4a86ff680e625193c56504046d735053d0f7b1488fb8a9df456f",
+    "tests/test_parallel_overload_queue.py": "a35070160e8ae4757174c6428b10be67b60b086188e1587aebd53f18ff232515"
+  }
+}

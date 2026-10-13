@@ -1,0 +1,40 @@
+{
+  "lesson": "36_import",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Import Project: ta inn bilder, masker og målinger i spaCR",
+  "description": "Velg samsvarende bilder, instansmasker og måletabeller, gå gjennom tilordningen og opprett et spaCR-prosjekt.",
+  "objectives": [
+    "Matche bilder, masker og målerader.",
+    "Gå gjennom og lagre kolonnetilordningen.",
+    "Importere prosjektet og undersøke utdataene."
+  ],
+  "prerequisite": "Klargjør samsvarende bildefiler, masker med instansmerkelapper og en CSV-fil med målinger. Behold den opprinnelige plate- og brønnidentiteten for hvert synsfelt, og bruk dokumenterte måleenheter.",
+  "scenes": [
+    "I kategorien Data på Home åpner du Import. Bruk denne skjermen til å ta eksisterende bilder, instansmasker og målinger inn i et spaCR-prosjekt.",
+    "Velg importverktøy ut fra hva du har: Import Images eller Format Converter for bare bilder, External Masks for bilder med masker. Denne skjermen tar imot bilder, masker og en måletabell samtidig.",
+    "Hvis bildene og maskene dine fortsatt må sorteres, åpner du Import Images og klikker på Organize images and masks. Gi hver kanal og maske en kolonne, velg om det skal skrives for Mask Generation eller Measure, og del opp filer med flere kanaler ved behov. Apply flytter dem inn i strukturen den modulen leser, klare til å åpnes der.",
+    "Velg bildemappen. Eksemplet bruker to mikroskopisynsfelt med én intensitetskanal og tilhørende cellemerkelapper. Noter den opprinnelige platen, brønnen og synsfeltet for hver fil.",
+    "Velg mappen for Cell mask og trykk på Add. Hvert objekt trenger sin egen heltallsmerkelapp. Legg til flere maskeklasser når du har tilsvarende merkelapper for de samme synsfeltene.",
+    "Velg CSV-filen med målinger. Koble ImageNumber til hvert synsfelt og ObjectNumber til maskemerkelappen. Bruk begge identifikatorene for å skille objekter mellom synsfelt.",
+    "Skriv inn mikrometer per piksel hvis du kjenner kalibreringen; ellers lar du feltet stå tomt. Kontroller at kolonnene for areal og intensitet beholder de dokumenterte enhetene sine.",
+    "Trykk på Preview for å undersøke den foreslåtte kolonnetilordningen og sammenkoblingene før prosjektet opprettes. Gå gjennom de foreslåtte navnene med prefikset foreign og den vitenskapelige betydningen deres.",
+    "Merk en målcelle og trykk på F2 for å redigere navnet. En konflikt med et reservert navn deaktiverer Import når Refuse the import er valgt; velg et annet målnavn eller bruk regelen Rename.",
+    "Les sammenkoblingsrapporten og løs rader eller objekter uten treff. I eksemplet samsvarer alle 103 måleradene med objekter i maskene.",
+    "Gi det importerte arealet et tydelig navn, for eksempel foreign_reviewed_area_px2. Gå gjennom kilde, mål, transformasjon og enheter samlet.",
+    "Bruk Save mapping for å lagre de gjennomgåtte kolonnedefinisjonene som CSV. Oppbevar tilordningen sammen med bildene, maskene, måletabellen og opptaksidentitetene.",
+    "Bruk Load mapping for å gjenbruke lagrede definisjoner. Gå gjennom den resulterende planen hver gang kildekolonner, merkelapper eller enheter er annerledes.",
+    "Trykk på Import og les sluttrapporten. Eksemplet skriver to bildefiler, to masker og to sammenslåtte matriser, med 103 rader i hver av to objekttabeller.",
+    "Åpne prosjektet og undersøk de importerte målingene. Tabellen over foreign-kolonner registrerer opprinnelsen deres. Bruk Measure når du vil at spaCR skal beregne nye egenskaper fra bildene.",
+    "Oppbevar konverteringstabellen sammen med prosjektet, og kontroller tilordningene av plate, brønn og synsfelt. Generiske filnavn kan få nye koordinater, så finn de opprinnelige identitetene før analyser på platenivå.",
+    "Fortsett i Database Browser for å undersøke tabellene, eller i Annotate for å gå gjennom objektutsnitt. Oppbevar den gjennomgåtte tilordningen sammen med det ferdige prosjektet."
+  ]
+}

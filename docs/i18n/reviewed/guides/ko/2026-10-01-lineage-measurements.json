@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct Codex AI technical translation with independent Codex agent technical review; no human/native signoff",
+  "draft_author": "mask_editor",
+  "technical_reviewer": "root",
+  "source_file": "docs/source/workflows.rst",
+  "source_file_sha256": "317a2755c402e74c757450f5b0e48a84c1d807ab53822f534921127385a8d04e",
+  "records": [
+    {
+      "source": "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused.",
+      "source_sha256": "4c5222a0348b1e345f4f0a1b1e9680bac8448e95a8eb8a4a6258e1eb27dba974",
+      "translation": "측정한 특성으로 트리의 색상을 지정하려면 먼저 ``timelapse_lineage``\\ 를 활성화하여 추적을 실행하세요. 그러면 spaCR이 프레임/원본 매핑을 저장합니다. 그런 다음 병합된 프로젝트에서 ``timelapse=True``\\ 와 ``timelapse_lineage=True``\\ 를 설정하고 ``timelapse_objects``\\ 를 추적에 사용한 객체와 일치시킨 뒤 측정을 실행하세요. 계보 제어 항목을 표시하려면 알파 기능과 시간 차원을 활성화하세요. ``timelapse_lineage_color_by``\\ 를 선택한 객체의 측정 테이블에 있는 수치형 열로 설정하세요. 구간 평균은 측정값이 있는 프레임을 사용하며, 측정값이 전혀 없는 구간에는 색상을 지정하지 않고 측정값이 있는 범위를 보고합니다. 결과는 기존 계보 출력을 대체하지 않고 ``tracks/lineage_measured``\\ 에 저장됩니다. 매핑이 없는 이전 추적 결과는 추적을 다시 실행해야 합니다. 저장된 명시적 시간 보정을 이어서 사용하며, 이와 충돌하는 시간 간격은 거부합니다."
+    }
+  ],
+  "review": "Checked setting identifiers, measured source/label mapping, partial observations and uncoloured segments, separate output, old-track requirement and timing calibration. Literal markup checked."
+}

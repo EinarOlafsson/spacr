@@ -1,0 +1,119 @@
+{
+  "id": "62_feature_dictionary",
+  "number": 62,
+  "slug": "feature_dictionary",
+  "series": 5,
+  "app_key": "feature_dict",
+  "section": "Help",
+  "title": "Feature Dictionary: find definitions and units",
+  "description": "Search by measurement name or concept, read the definition and units, and copy useful reference text.",
+  "objectives": [
+    "Find a definition by name or concept.",
+    "Narrow the results with concept and object filters.",
+    "Read units and notes, then copy the definition."
+  ],
+  "prerequisite": "Have a measurement column name ready, or start with an idea such as size or intensity. The built-in dictionary can be opened without loading a project.",
+  "scenes": [
+    {
+      "visual": "01_help_dictionary",
+      "narration": "Open Help, then Feature Dictionary. Use this window when you want to understand a measurement column in a results table or plot.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "34_database"
+      ]
+    },
+    {
+      "visual": "03_search_by_idea",
+      "narration": "Type size in the search field and select Area from the results. The definition appears on the right, and the matching list updates as you type.",
+      "hold_after": 0.7,
+      "focus": [
+        420,
+        150,
+        3020,
+        550
+      ]
+    },
+    {
+      "visual": "04_actual_concept_object_filters",
+      "narration": "Choose a concept and object type to narrow the definitions. Try intensity and cell. Reset the selectors to Any concept and Any object for a broader search.",
+      "hold_after": 0.7,
+      "focus": [
+        420,
+        150,
+        3020,
+        450
+      ]
+    },
+    {
+      "visual": "05_measurement_name",
+      "narration": "Search for cell_channel_1_mean_intensity and select Mean intensity. Read the statistic and units to understand what the column describes.",
+      "hold_after": 0.7,
+      "focus": [
+        1620,
+        265,
+        1780,
+        355
+      ]
+    },
+    {
+      "visual": "06_computing_function",
+      "narration": "Scroll down to Channel, Module and Computed by for more detail. Use the named computing function as a starting point in the API reference.",
+      "hold_after": 0.7,
+      "focus": [
+        1630,
+        1650,
+        1760,
+        225
+      ],
+      "related_lessons": [
+        "06_api"
+      ]
+    },
+    {
+      "visual": "07_conditional_area_units",
+      "narration": "Look up cell_area and read Unit. In two-dimensional measurements it represents area; in three-dimensional measurements it represents volume. Check the measurement units recorded in your project before converting values.",
+      "hold_after": 0.7,
+      "focus": [
+        1620,
+        265,
+        1780,
+        380
+      ]
+    },
+    {
+      "visual": "08_area_caveats",
+      "narration": "Read Note for qualifications such as values already expressed in physical units. For a dictionary of the columns actually present in a database, use describe_database and export_dictionary from Python.",
+      "hold_after": 0.7,
+      "focus": [
+        1630,
+        1520,
+        1760,
+        355
+      ],
+      "related_lessons": [
+        "06_api",
+        "34_database"
+      ]
+    },
+    {
+      "visual": "09_unknown_search",
+      "narration": "If no definitions match, clear the filters and try a broader term or the exact column name. Custom features may need documentation from the workflow that created them.",
+      "hold_after": 0.7,
+      "focus": [
+        420,
+        150,
+        3020,
+        450
+      ]
+    },
+    {
+      "visual": "11_actual_text_copy",
+      "narration": "Select the definition text and copy it into your notes. Use the Python export functions when you need a project-specific dictionary file, then return to your table or plot.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "34_database"
+      ]
+    }
+  ]
+}

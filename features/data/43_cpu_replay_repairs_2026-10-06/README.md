@@ -1,0 +1,3 @@
+CPU replay repairs, 2026-10-06
+
+The six source/test snapshots are hashed in receipt.json. All local checks ran with CUDA hidden, offscreen Qt and a 4 GiB cap. The 81-case preview, missing-mask and density cohort and 190-case layout/shared-flow cohort pass. The original flow method fails both exact-fit boundary cases. Wider captions also reproduce the original fixed-width layout failure. The final layout test reserves actual one-row preferred width and keeps every ordering, parent and alignment assertion; genuinely narrow windows continue to wrap. Final hosted CI, numerical coverage and uninterrupted serial acceptance remain open.

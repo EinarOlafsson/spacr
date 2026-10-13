@@ -1,0 +1,37 @@
+{
+  "lesson": "37_batch",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Batch Runner: configurar e executar uma fila",
+  "description": "Adicione configurações de módulo, organize as dependências, execute trabalhos e inspecione os registros separados de cada um.",
+  "objectives": [
+    "Adicionar trabalhos com suas configurações e dependências.",
+    "Salvar, executar e continuar a fila.",
+    "Inspecionar o registro e as saídas de cada trabalho."
+  ],
+  "prerequisite": "Prepare os dados de entrada e o JSON de configurações exportado para cada trabalho. O exemplo executa três conversões de imagens em pastas de saída separadas.",
+  "scenes": [
+    "Abra Help e depois Batch Runner. Use-o para colocar em fila trabalhos de módulos com seus arquivos de configurações, ordem de execução e registros separados.",
+    "Escolha o módulo e clique em Choose settings. Neste exemplo, selecione convert e o JSON de configurações do primeiro campo de microscopia.",
+    "Confira a origem e o destino nas configurações, adicione um rótulo descritivo e clique em Add job. Use uma pasta de saída separada para cada conversão.",
+    "Para o segundo trabalho, digite convert um em After para que ele dependa do primeiro. Adicione uma substituição de configuração quando este trabalho precisar de um valor diferente. Informe os caminhos de entrada explicitamente; uma dependência só controla a ordem.",
+    "Adicione mais trabalhos e revise os identificadores, os rótulos e as dependências. Selecione uma linha para carregar a configuração dela no editor.",
+    "Use os controles de movimentação para ordenar os trabalhos. Uma dependência precisa aparecer antes do trabalho que depende dela; leia as mensagens de validação e corrija a ordem.",
+    "Clique em Validate depois de organizar a fila. Resolva os problemas listados até que Run queue fique disponível.",
+    "Escolha em On failure se quer continuar com os trabalhos independentes ou parar na primeira falha. Defina Stop after para limitar as falhas consecutivas.",
+    "Clique em Save queue para salvar o plano como JSON. Use Load queue para reabri-lo depois, mantendo disponíveis os arquivos de configurações e as entradas a que ele se refere.",
+    "Antes de começar, abra Help, depois Window e depois Jobs. Quando a fila estiver rodando, o painel Jobs à direita a mostra com o progresso, o tempo decorrido e um botão Cancel. Ele lista os trabalhos em execução de todas as telas, então você pode acompanhar uma execução longa enquanto trabalha em outro lugar.",
+    "Clique em Run queue. Para pausar entre trabalhos, pressione Stop; o trabalho atual termina e os restantes ficam sem executar.",
+    "Clique em Run queue de novo para continuar com os trabalhos restantes. Acompanhe o status de cada linha conforme a fila avança.",
+    "Selecione uma linha para ler o registro dela e inspecionar erros ou caminhos de saída. No exemplo de conversão, confira os identificadores de campo e de canal informados.",
+    "Abra cada pasta de saída e inspecione as imagens convertidas e o registro da conversão. Guarde o JSON da fila, as configurações e os registros junto com os resultados."
+  ]
+}

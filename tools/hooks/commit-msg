@@ -1,0 +1,38 @@
+#!/bin/sh
+# Refuse any commit message that credits Claude.
+#
+# The maintainer's standing rule for this repository is that commits are
+# authored by Einar Olafsson alone, with no AI attribution and no
+# Co-Authored-By trailer.
+#
+# WHY THIS FILE IS TRACKED. Instruction 58 recorded a guard as installed and
+# it was not: `.git/hooks/` does not clone, sync or travel, so a hook put in
+# one checkout protects one checkout. Seventy trailers reached nightly from a
+# lane that had none, after the history had already been cleaned once. A
+# guard that lives in the tree is at least PRESENT in every clone.
+#
+# It still has to be switched on per clone, because git will not run a hook
+# from the working tree on its own:
+#
+#     git config core.hooksPath tools/hooks
+#
+# That is one command a person can forget, which is why the real backstop is
+# `tests/test_no_commit_credits_claude.py`: a test runs in CI whether or not
+# anybody remembered, and it fails on a trailer that reached the branch.
+
+msg="$1"
+
+if grep -qiE '^[[:space:]]*co-authored-by:[[:space:]]*claude' "$msg"; then
+    echo "commit-msg: REFUSED — the message carries a Co-Authored-By trailer" >&2
+    echo "  naming Claude. This repository is authored by Einar Olafsson alone." >&2
+    echo "  Remove the trailer and commit again." >&2
+    exit 1
+fi
+
+if grep -qiE 'generated with .*claude|co-authored-by:.*anthropic' "$msg"; then
+    echo "commit-msg: REFUSED — the message carries an AI attribution line." >&2
+    echo "  This repository is authored by Einar Olafsson alone." >&2
+    exit 1
+fi
+
+exit 0

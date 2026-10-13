@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "70_explain_cv",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-15",
+    "review_scope": "Natural narration, scientific terminology, and exact workflow semantics."
+  },
+  "languages": {
+    "es": {
+      "description": "Reproduzca predicciones de visión artificial a partir de características medidas y compruebe que las explicaciones resultantes sean fieles y no contengan fugas de información.",
+      "narrations": [
+        "Este tutorial presenta Explain CV Model. Reproduzca predicciones de visión artificial a partir de características medidas y compruebe que las explicaciones resultantes sean fieles y no contengan fugas de información.",
+        "Elija el archivo de predicciones por objeto, su base de datos de mediciones, la clase o puntuación predicha y la agrupación por pozo de microplaca o por placa que deba mantenerse intacta.",
+        "En el área principal de configuración, seleccione el motor del modelo sustituto, los grupos reservados para validación, las características que se excluirán, el número de repeticiones de permutación y el presupuesto limitado de SHAP.",
+        "Valide las exclusiones destinadas a evitar fugas y la partición por grupos. Después, ajuste el modelo sustituto y compare su fidelidad en validación con la referencia de la clase mayoritaria antes de interpretar la importancia de las características.",
+        "Cuando finaliza el flujo de trabajo, la ejecución registra la fidelidad, la importancia por permutación en el conjunto de validación, los resúmenes de SHAP, las columnas excluidas, la agrupación, el motor y la procedencia. Una fidelidad baja se comunica de forma explícita, no se oculta."
+      ]
+    },
+    "fr": {
+      "description": "Reproduisez les prédictions de vision par ordinateur à partir des caractéristiques mesurées et vérifiez que les explications obtenues sont fidèles et exemptes de fuite d’information.",
+      "narrations": [
+        "Ce tutoriel présente Explain CV Model. Reproduisez les prédictions de vision par ordinateur à partir des caractéristiques mesurées et vérifiez que les explications obtenues sont fidèles et exemptes de fuite d’information.",
+        "Choisissez le fichier de prédictions par objet, sa base de données de mesures, la classe ou le score prédit, ainsi que le regroupement par puits de microplaque ou par plaque qui doit rester intact.",
+        "Dans la zone de configuration principale, sélectionnez le moteur du modèle de substitution, les groupes réservés à la validation, les caractéristiques à exclure, le nombre de répétitions de permutation et le budget SHAP limité.",
+        "Validez les exclusions destinées à empêcher les fuites et le découpage par groupes. Ajustez ensuite le modèle de substitution et comparez sa fidélité sur l’ensemble de validation à la référence de la classe majoritaire avant d’interpréter l’importance des caractéristiques.",
+        "À la fin du flux de travail, l’exécution consigne la fidélité, l’importance par permutation sur l’ensemble de validation, les résumés SHAP, les colonnes exclues, le regroupement, le moteur et la provenance. Une fidélité faible est signalée explicitement, jamais dissimulée."
+      ]
+    },
+    "hi": {
+      "description": "मापी गई विशेषताओं से कंप्यूटर-विज़न की भविष्यवाणियाँ दोबारा तैयार करें और जाँचें कि उनसे मिली व्याख्याएँ विश्वसनीय तथा सूचना-रिसाव से मुक्त हैं।",
+      "narrations": [
+        "यह ट्यूटोरियल Explain CV Model का परिचय देता है। मापी गई विशेषताओं से कंप्यूटर-विज़न की भविष्यवाणियाँ दोबारा तैयार करें और जाँचें कि उनसे मिली व्याख्याएँ विश्वसनीय तथा सूचना-रिसाव से मुक्त हैं।",
+        "हर ऑब्जेक्ट की भविष्यवाणी वाली फ़ाइल, उसकी मापन डेटाबेस, अनुमानित वर्ग या स्कोर, और वह माइक्रोप्लेट-वेल या प्लेट समूह चुनें जिसे विभाजन के दौरान एक साथ रखना आवश्यक है।",
+        "मुख्य कॉन्फ़िगरेशन क्षेत्र में सरोगेट मॉडल का बैकएंड, सत्यापन के लिए आरक्षित समूह, बाहर रखी जाने वाली विशेषताएँ, परम्युटेशन की पुनरावृत्तियाँ और सीमित SHAP बजट चुनें।",
+        "सूचना-रिसाव रोकने वाले बहिष्करणों और समूह-आधारित विभाजन को सत्यापित करें। फिर सरोगेट मॉडल फ़िट करें और विशेषताओं के महत्व की व्याख्या करने से पहले सत्यापन पर उसकी निष्ठा की तुलना बहुसंख्यक-वर्ग बेसलाइन से करें।",
+        "कार्यप्रवाह पूरा होने पर निष्पादन निष्ठा, सत्यापन-समूह पर परम्युटेशन महत्व, SHAP सारांश, बहिष्कृत कॉलम, समूह व्यवस्था, बैकएंड और स्रोत-परंपरा दर्ज करता है। कम निष्ठा को छिपाया नहीं जाता, स्पष्ट रूप से बताया जाता है।"
+      ]
+    },
+    "it": {
+      "description": "Riproduci le previsioni di visione artificiale a partire dalle caratteristiche misurate e verifica che le spiegazioni ottenute siano fedeli e prive di fughe di informazione.",
+      "narrations": [
+        "Questo tutorial presenta Explain CV Model. Riproduci le previsioni di visione artificiale a partire dalle caratteristiche misurate e verifica che le spiegazioni ottenute siano fedeli e prive di fughe di informazione.",
+        "Scegli il file delle previsioni per oggetto, il relativo database delle misurazioni, la classe o il punteggio previsto e il raggruppamento per pozzetto di micropiastra o per piastra che deve rimanere integro.",
+        "Nell’area di configurazione principale, seleziona il motore del modello surrogato, i gruppi riservati alla validazione, le caratteristiche da escludere, il numero di ripetizioni della permutazione e il budget SHAP limitato.",
+        "Convalida le esclusioni che impediscono le fughe di informazione e la suddivisione per gruppi. Quindi adatta il modello surrogato e confronta la sua fedeltà sul set di validazione con il riferimento della classe maggioritaria prima di interpretare l’importanza delle caratteristiche.",
+        "Al termine del flusso di lavoro, l’esecuzione registra fedeltà, importanza per permutazione sul set di validazione, riepiloghi SHAP, colonne escluse, raggruppamento, motore e provenienza. Una fedeltà debole viene segnalata esplicitamente, non nascosta."
+      ]
+    },
+    "pt-BR": {
+      "description": "Reproduza previsões de visão computacional a partir de características medidas e verifique se as explicações resultantes são fiéis e livres de vazamento de informações.",
+      "narrations": [
+        "Este tutorial apresenta o Explain CV Model. Reproduza previsões de visão computacional a partir de características medidas e verifique se as explicações resultantes são fiéis e livres de vazamento de informações.",
+        "Escolha o arquivo de previsões por objeto, o banco de dados de medições correspondente, a classe ou pontuação prevista e o agrupamento por poço de microplaca ou por placa que deve permanecer intacto.",
+        "Na área principal de configuração, selecione o mecanismo do modelo substituto, os grupos reservados para validação, as características que serão excluídas, o número de repetições de permutação e o orçamento limitado de SHAP.",
+        "Valide as exclusões usadas para evitar vazamento e a divisão por grupos. Em seguida, ajuste o modelo substituto e compare sua fidelidade no conjunto de validação com a referência da classe majoritária antes de interpretar a importância das características.",
+        "Quando o fluxo de trabalho termina, a execução registra fidelidade, importância por permutação no conjunto de validação, resumos de SHAP, colunas excluídas, agrupamento, mecanismo e proveniência. Uma fidelidade baixa é informada explicitamente, nunca ocultada."
+      ]
+    },
+    "ja": {
+      "description": "測定済みの特徴量からコンピュータービジョンの予測を再現し、得られた説明が忠実で情報漏えいのないものか検証します。",
+      "narrations": [
+        "このチュートリアルでは Explain CV Model を説明します。測定済みの特徴量からコンピュータービジョンの予測を再現し、得られた説明が忠実で情報漏えいのないものか検証します。",
+        "オブジェクトごとの予測ファイル、対応する測定データベース、予測クラスまたはスコア、そして分割せずに保つ必要があるマイクロプレートのウェル単位またはプレート単位のグループを選択します。",
+        "メインの設定領域で、代理モデルのバックエンド、検証用に確保するグループ、除外する特徴量、並べ替えの反復回数、上限付きの SHAP 計算量を選択します。",
+        "情報漏えいを防ぐ除外条件とグループ単位の分割を確認します。次に代理モデルを学習し、特徴量の重要度を解釈する前に、検証時の忠実度を多数派クラスの基準値と比較します。",
+        "ワークフローが完了すると、忠実度、検証セットでの並べ替え重要度、SHAP の要約、除外列、グループ化、バックエンド、来歴が記録されます。忠実度が低い場合も隠さず明示されます。"
+      ]
+    },
+    "zh-CN": {
+      "description": "根据测量特征复现计算机视觉预测，并检查所得解释是否忠实且不存在信息泄漏。",
+      "narrations": [
+        "本教程介绍 Explain CV Model。根据测量特征复现计算机视觉预测，并检查所得解释是否忠实且不存在信息泄漏。",
+        "请选择逐对象预测文件、对应的测量数据库、预测类别或分数，以及在划分数据时必须保持完整的微孔板孔组或整板组。",
+        "在主配置区域中，选择代理模型后端、预留验证组、要排除的特征、置换重复次数以及有上限的 SHAP 计算预算。",
+        "验证防止信息泄漏的排除规则和按组划分方式。然后拟合代理模型，并在解释特征重要性之前，将其验证忠实度与多数类别基线进行比较。",
+        "工作流程完成后，本次运行会记录忠实度、验证集置换重要性、SHAP 摘要、已排除列、分组方式、后端和数据来源。忠实度较弱时会明确报告，而不会被隐藏。"
+      ]
+    }
+  }
+}

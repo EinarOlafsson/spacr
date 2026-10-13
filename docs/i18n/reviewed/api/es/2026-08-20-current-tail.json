@@ -1,0 +1,20 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "label": "spacr.figures.stats#2",
+      "source": "groups  variance   distribution   test 2       equal      ~normal        Student's t (two-sided) 2       unequal    ~normal        Welch's t 2       any        not normal     Mann-Whitney U >2      equal      ~normal        one-way ANOVA >2      unequal    ~normal        Welch's ANOVA >2      any        not normal     Kruskal-Wallis",
+      "source_sha256": "053fb7fa69aab329706702067266d5687b1eace8d5b37619f9186483ce2843a4",
+      "translation": "grupos prueba de distribución de varianza 2 igual ~normal t de Student (bilateral) 2 desigual ~normal t de Welch 2 cualquiera no normal U de Mann-Whitney >2 igual ~normal ANOVA unidireccional >2 desigual ~normal ANOVA de Welch >2 cualquiera no normal Kruskal-Wallis"
+    },
+    {
+      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
+      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "source_sha256": "9d23203bbb2c3d7976475e2fbf8605a8600d574db31031b02d35de7a65524774",
+      "translation": "Las fórmulas existentes se **mantienen** y se vuelven a aplicar. Eso es lo opuesto a lo que hace el filtro de datos local con sus cláusulas, a propósito: una cláusula de filtro que nombra una columna faltante se reduce menos de lo que afirma y es peligroso mantenerla, mientras que una fórmula que nombra una columna faltante falla, dice qué columna y es exactamente lo que el usuario quiere cuando vuelve a cargar la misma tabla."
+    }
+  ],
+  "schema": 1
+}

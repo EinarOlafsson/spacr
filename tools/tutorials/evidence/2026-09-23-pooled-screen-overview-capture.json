@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "source_base_commit": "077ff0acf74e7e27ed949aef360cf96060d7e2c5",
+  "lesson": "78_spacr_screens",
+  "stage": "/mnt/firecuda2/codex/workflow-overview-capture.3nam2P",
+  "files_sha256": {
+    "spacr/resources/module_workflows.json": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "tools/tutorials/lessons/78_spacr_screens.json": "299b17d85b24a7761da5c19b1d3758ab939ebc4efa631e015fce00b9108e0975",
+    "tools/tutorials/capture_workflow_overview.py": "4c8a3493cf109f12992540e28282e9b1d23e3f4b845625d9849d9f026b77fbb0",
+    "tools/tutorials/capture_refresh.py": "13488d9be0169b90a3a4635ce58e6f23f844d37ff0ba1343e5c72f2146c7ef1d",
+    "tools/tutorials/capture_policy.py": "953c5967b0e5781e42eb5cc526b97accdad131cef8e1ba12434a780ac7682943",
+    "tests/qt/test_tutorial_capture_policy.py": "dff938bfa75908936ea75b8181831eff09ac80f511a22d1f3b2e36669d847469",
+    "tools/tutorials/lessons/reviews/78_spacr_screens.de.json": "12048216a2c212d27ef8939428737bc4363df7dda0c94205161fe46f0db57eaf",
+    "tools/tutorials/lessons/reviews/78_spacr_screens.fr.json": "0c1a6bfdd74ba1e5d7c63535f518c9cc33afb5243d9e9073a52c9931c3a1f4fe",
+    "tools/tutorials/lessons/reviews/78_spacr_screens.es.json": "848803fa72ef7eacd8836afee264080634a9477046e80012c5cbb387a1fdf20c",
+    "tools/tutorials/lessons/reviews/78_spacr_screens.pt-BR.json": "466b74cf6d175b5ceef228528eb3776e9f3f7736c2e9aa5ebaf7a0e210708eec"
+  },
+  "capture_provenance": {
+    "commit": "9dd7187d5fcead1010ef0fc8464a99dd330fddc1",
+    "version": "1.5.0.9",
+    "module": "workflow_overview",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "workflow_acceptance": {
+    "accepted": true,
+    "scope": "Real Home navigation; data handoffs explained by the shared map",
+    "lesson": "78_spacr_screens",
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "lesson_sha256": "299b17d85b24a7761da5c19b1d3758ab939ebc4efa631e015fce00b9108e0975",
+    "visuals": [
+      "home",
+      "module_mask",
+      "module_measure",
+      "module_annotate",
+      "module_classify_merged",
+      "module_map_barcodes",
+      "module_regression",
+      "home_summary"
+    ],
+    "routes": [
+      {
+        "module": "mask",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true
+      },
+      {
+        "module": "measure",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true
+      },
+      {
+        "module": "annotate",
+        "tile_text": "",
+        "screen_class": "AnnotateScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true
+      },
+      {
+        "module": "classify_merged",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true
+      },
+      {
+        "module": "map_barcodes",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true
+      },
+      {
+        "module": "regression",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true
+      }
+    ],
+    "analysis_requested": false,
+    "download_requested": false,
+    "worked_experiment_completed": false,
+    "narration_or_media_accepted": false
+  },
+  "scene_images_sha256": {
+    "home": "86cce45e8b82622250bb0b75af055a61013f56429e8e8bfdbd7f2592140db4ad",
+    "module_mask": "e6c7b3a12fa3dee69880ddd192547aed54dcfed0ce93829ed34c8d020137c138",
+    "module_measure": "3baea2aa55543280afda9607b11032254587c8ffb366254a6a005b29ab91c341",
+    "module_annotate": "d49b4c44a74310bee72a3967611dd06efd9207dfc5f548b472761d6da346b833",
+    "module_classify_merged": "14a99aabce069ca735a3746de91db3a71a42c2c176365702dfdd56d5713020de",
+    "module_map_barcodes": "8dc32ffe6987c4364ef8c0b568d0c7d4a29f10604fc540e2867e49a324aa55ff",
+    "module_regression": "a431ce11201b560a80d95341cdee6b9e1b6e98618221ef6405bf428d3c6f589e",
+    "home_summary": "486e2843fe2761b6dd78ef1ccaa8165f6f4592ba39cc5ddd69888f62a1c48b57"
+  },
+  "validation": {
+    "captured_scenes": 8,
+    "native_resolution": [
+      3840,
+      2160
+    ],
+    "capture_policy_tests_passed": 20,
+    "reviewed_translation_languages": [
+      "de",
+      "es",
+      "fr",
+      "pt-BR"
+    ],
+    "required_translation_languages": 13,
+    "english_voice_rendering_in_progress": true,
+    "shared_master_rendering_in_progress": true,
+    "full_media_acceptance": false,
+    "native_speaker_signoff": false,
+    "human_listening_signoff": false,
+    "published": false
+  },
+  "visual_review": "Home and all six module views inspected across the capture pass. Regression columns resized for readability; final Map Barcodes frame shows the shared Blobs backdrop after the decorative DNA layer is hidden. No analysis/result demonstration is claimed."
+}

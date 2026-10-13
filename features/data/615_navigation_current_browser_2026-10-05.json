@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "passed": true,
+  "scope": "Actual current player navigation headings in eight selectable narration languages, desktop and mobile. Six caption-only locale labels validated by generator tests; no playback or publication claim.",
+  "cases": [
+    {
+      "language": "en",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "Core",
+        "Data",
+        "Tools",
+        "Assays"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "es",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "Funciones básicas",
+        "Datos",
+        "Herramientas",
+        "Ensayos"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "fr",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "Fonctions de base",
+        "Données",
+        "Outils",
+        "Essais"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "hi",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "मूल कार्य",
+        "डेटा",
+        "उपकरण",
+        "जैविक परीक्षण"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "it",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "Funzioni di base",
+        "Dati",
+        "Strumenti",
+        "Saggi"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "ja",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "基本機能",
+        "データ",
+        "ツール",
+        "アッセイ"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "pt-BR",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "Funções básicas",
+        "Dados",
+        "Ferramentas",
+        "Ensaios"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "zh-CN",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "visible_headings": [
+        "核心功能",
+        "数据",
+        "工具",
+        "测定"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "en",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "Core",
+        "Data",
+        "Tools",
+        "Assays"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "es",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "Funciones básicas",
+        "Datos",
+        "Herramientas",
+        "Ensayos"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "fr",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "Fonctions de base",
+        "Données",
+        "Outils",
+        "Essais"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "hi",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "मूल कार्य",
+        "डेटा",
+        "उपकरण",
+        "जैविक परीक्षण"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "it",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "Funzioni di base",
+        "Dati",
+        "Strumenti",
+        "Saggi"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "ja",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "基本機能",
+        "データ",
+        "ツール",
+        "アッセイ"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "pt-BR",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "Funções básicas",
+        "Dados",
+        "Ferramentas",
+        "Ensaios"
+      ],
+      "headings_verified": 4
+    },
+    {
+      "language": "zh-CN",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visible_headings": [
+        "核心功能",
+        "数据",
+        "工具",
+        "测定"
+      ],
+      "headings_verified": 4
+    }
+  ],
+  "navigation_sha256": "7611e362a1883917abc4fad4b1c10b31473a2d479adae97f02ab96ae6f65cc63",
+  "app_v2_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "player_source_modified": false,
+  "media_requests_blocked": true,
+  "media_playback_verified": false,
+  "published": false
+}

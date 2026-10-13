@@ -1,0 +1,172 @@
+Welcome to spaCR
+================
+
+.. image:: _static/logo_spacr_docs.png
+   :align: center
+   :alt: spaCR Logo
+   :width: 200px
+
+**spaCR** — *Spatial phenotype analysis of CRISPR screens.*
+
+Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.io/projects/spacr/>`_
+
+.. note::
+
+   You are reading the |docs-channel| documentation for spaCR
+   |spacr-version|. The main site follows ``main``. The nightly preview follows
+   ``nightly`` and may describe features not yet in a release. Each branch
+   publishes its own API, guides and committed tutorial catalog automatically.
+
+A Python toolkit for quantifying and visualising phenotypic changes in
+high-throughput microscopy screens. It provides a PySide6 desktop interface
+(``spacr``), headless pipeline functions (:mod:`spacr.core`), and a workflow
+from plate images to object classification built on PyTorch, Cellpose,
+scikit-image and SciPy.
+
+It is built for cell biologists running pooled or arrayed CRISPR screens
+who need per-cell measurements from plate images. The GUI route needs no
+programming; the same processing steps are available through the Python API
+for scripted and reproducible workflows.
+
+The GUI groups its applications into four categories: *Core* for the
+segment-measure-classify pipeline; *Data* for importing images and tables,
+feature embeddings, run comparison, experiment and power design,
+dose–response analysis and quality control; *Tools* for operations on an
+existing project — hand mask correction, stitching, image UMAP, gating and
+plotting; and *Organism* for the Toxoplasma organism guide, which
+lists its available assays; planned analyses are marked Coming soon. The
+bands under "Applications and workflow" below are those categories, in that
+order, with the tiles each one holds.
+
+Not every screen is a tile. Screens used within another step open from that
+step's masthead — **Timelapse** from Mask, **Illumination** and the
+**Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV
+Model** from Classify, **Annotator Agreement** from Annotate, and the
+**Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from
+Make Masks, among others. Home shows only the tiles enabled in the running
+build.
+
+.. grid:: 2
+   :gutter: 3
+
+   .. grid-item-card:: 🚀 Get started
+      :link: https://github.com/EinarOlafsson/spacr#install-spacr
+      :link-type: url
+
+      Install spaCR from PyPI and launch the Qt GUI in two commands.
+
+   .. grid-item-card:: 🎓 Interactive tutorials
+      :link: tutorials/
+      :link-type: url
+
+      Narrated, step-by-step lessons for spaCR workflows and modules.
+
+   .. grid-item-card:: 📖 API reference
+      :link: api/index
+      :link-type: doc
+
+      Supported workflow entry points and the complete module reference.
+
+   .. grid-item-card:: 🎬 Video tutorials
+      :link: tutorials/
+      :link-type: url
+
+      Narrated walkthroughs of each pipeline module.
+
+   .. grid-item-card:: 🐛 Report an issue
+      :link: https://github.com/EinarOlafsson/spacr/issues/new
+      :link-type: url
+
+      File a bug, request a feature, or ask a question.
+
+
+Applications and workflow
+-------------------------
+
+New to spaCR? :doc:`Choose a workflow after installation <workflows>` for
+the first Home tile, the inputs each step needs, and what to open next.
+
+Every tile links to the API page used by that application's in-product help.
+
+.. include:: _generated/workflow_grid.rst
+
+
+Installation
+------------
+
+Install spaCR and launch the desktop application. The standard package
+includes the Qt interface and command-line pipelines.
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   spacr                    # launch the Qt GUI
+
+For a terminal workflow on a cluster or server, use ``spacr-run`` without
+opening the desktop application:
+
+.. code-block:: bash
+
+   python -m pip install spacr
+   spacr-run --list         # list the headless pipeline modules
+
+
+Learn spaCR
+-----------
+
+Start with installation, continue to Home and the pipeline overviews, then
+follow the module walkthrough for your task in the
+`interactive tutorial library <tutorials/>`_. Each lesson lists its available
+narration voices and captions. New English lessons can appear while their
+translations are being prepared. Open the library from the GUI through
+**Help → Tutorial**.
+
+From a terminal, ``spacr-tutorial`` lists the lessons by number, title and
+screen and then opens the library in your web browser. ``spacr-tutorial mask``
+opens one lesson, named by number, slug or screen; ``--list`` prints the lessons
+and opens nothing, and ``--print-url`` prints the address instead of opening a
+browser. A name that matches no lesson exits with code 2 and suggests close
+matches.
+
+
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 2
+
+   installer_guide
+   system_requirements
+   workflows
+   table_workflows
+   installers
+   features
+   shortcuts_and_templates
+   make_masks
+   measure_live
+   cellpose_training
+   point_spread
+   recruitment
+   image_quality
+   host_pathogen
+   plaque_assay
+   python_api
+   anndata_export
+   settings_flow
+   model_zoo
+   Language <localization>
+   setting_animations
+   checkpoint_resume
+   reproducibility_manifests
+   run_history
+   batch_correction
+   classifier_evaluation
+   guide_permutation
+   model_explanation
+   umap_multiobjective
+   distributed_execution
+   plugin_sdk
+   leakage_audit
+   threading_cancellation_audit
+   database_concurrency_audit
+   api/index

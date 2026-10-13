@@ -1,0 +1,32 @@
+{
+  "lesson": "46_napari_bridge",
+  "english_sha256": "14688c14b96399c6c9c53e6f7d24eecc4573e2051c997b9e04f162a1d0977bf2",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Napari Bridge: modificare e riportare una maschera di etichette",
+  "description": "Apri un’immagine e la sua maschera in napari, modifica le etichette e salva la maschera corretta di nuovo in spaCR.",
+  "objectives": [
+    "Aprire i file di immagine e di etichette corrispondenti.",
+    "Modificare e annullare modifiche in napari.",
+    "Riportare la maschera salvata ed esaminarla."
+  ],
+  "prerequisite": "Installa la dipendenza facoltativa di napari e decomprimi l’esempio sintetico in una nuova cartella. Conserva un backup intatto: Take the mask back sovrascrive la maschera di lavoro selezionata. Chiudi e riapri il visualizzatore tra un ciclo di modifiche salvate e l’altro.",
+  "scenes": [
+    "Apri Make Masks e poi Napari Bridge. Usalo per modificare una maschera di etichette esistente, con la sua immagine di intensità come riferimento. Conserva un backup intatto della maschera.",
+    "Scarica e decomprimi l’esempio sintetico. Scegli mask punto tif per Mask e image punto tif per Image, poi premi Open in napari.",
+    "Seleziona in napari il livello Labels della maschera. L’etichetta zero è lo sfondo; ogni etichetta di oggetto ha un colore di visualizzazione. Fai le modifiche sul livello delle etichette.",
+    "Torna in spaCR e usa Take the mask back per importare le etichette correnti del visualizzatore. Se non hai fatto modifiche, lo stato indica che la maschera è invariata.",
+    "Per esercitarti, seleziona l’etichetta diciotto, scegli Fill e fai clic sull’oggetto con etichetta due. Esamina l’etichetta cambiata prima di importarla.",
+    "Usa Undo per annullare l’ultima modifica nel visualizzatore. Ripeti l’operazione Fill quando vuoi mantenere la modifica.",
+    "Fai clic su Take the mask back in spaCR. Controlla il numero di pixel cambiati, poi esamina la maschera salvata e il suo file ausiliario con la cronologia delle correzioni.",
+    "Fai clic su Close viewer e riapri la maschera prima del ciclo di modifiche successivo. Così la maschera salvata diventa il punto di partenza per le correzioni seguenti.",
+    "Dopo la modifica successiva, riporta la maschera ed esamina di nuovo il risultato. Chiudi il visualizzatore alla fine, conserva la cronologia delle correzioni e riesegui le misure interessate dalle etichette cambiate."
+  ]
+}

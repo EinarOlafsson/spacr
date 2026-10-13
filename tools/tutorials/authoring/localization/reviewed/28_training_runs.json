@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "28_training_runs",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Compare execuções de treinamento sobrepondo curvas e examinando diferenças entre configurações.",
+      "prerequisite": "Conclua pelo menos duas execuções de treinamento compatíveis, com métricas e configurações registradas.",
+      "objectives": [
+        "Carregar e validar execuções comparáveis.",
+        "Interpretar curvas entre pontos de verificação e partições.",
+        "Relacionar diferenças de desempenho a alterações nas configurações."
+      ],
+      "narrations": [
+        "Training Runs compara vários ajustes sem reduzir a escolha do modelo a um único valor da função de perda.",
+        "Selecione uma pasta ou um registro que contenha execuções de treinamento compatíveis e faça a varredura.",
+        "Examine as execuções encontradas, as métricas disponíveis, os registros incompletos e os avisos antes de selecionar os candidatos.",
+        "Selecione a métrica, a suavização, a exibição das partições e os campos das configurações que devem ser comparados.",
+        "Sobreponha o comportamento de validação nos mesmos eixos para comparar a convergência, a estabilidade e o sobreajuste.",
+        "Compare o melhor ponto de verificação com o ponto final quando as etapas tardias do treinamento puderem ter reduzido a capacidade de generalização.",
+        "Os resumos das partições revelam variações ocultas por uma única curva agregada.",
+        "Use as curvas por partição e as diferenças entre configurações, juntamente com o desempenho nos dados reservados, para selecionar uma execução reproduzível."
+      ]
+    }
+  }
+}

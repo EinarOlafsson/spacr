@@ -1,0 +1,32 @@
+{
+  "lesson": "49_methods_results",
+  "english_sha256": "95551a15853cc098cbf976cb18c135e3ce8cbea1fd4b2e73c4dabde5427f8840",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Methods & Results: einen Laufbericht entwerfen und exportieren",
+  "description": "Wählen Sie einen abgeschlossenen Lauf, erstellen Sie seinen Bericht, prüfen Sie erfasste Einstellungen und Ergebnisse und exportieren Sie Markdown.",
+  "objectives": [
+    "Projekt, Laufjournal und passenden Ergebnisordner auswählen.",
+    "Ein Digest erstellen und die Registerkarten Methods, Results und Caveats prüfen.",
+    "Den Berichtstext kopieren oder Markdown mit dem Lauf-Digest exportieren."
+  ],
+  "prerequisite": "Schließen Sie zuerst das Regression-Beispiel ab. Halten Sie Projektordner, Laufjournal und guide_permutation-Ergebnisse zusammen. Prüfen Sie abgeleitete Einstellungen, Analyseversionen und statistische Schwellen, bevor Sie den erzeugten Text in einem Bericht verwenden.",
+  "scenes": [
+    "Öffnen Sie von Home aus Regression und dann Methods and Results. Mit diesem Werkzeug entwerfen Sie einen Bericht zu einer abgeschlossenen Analyse. Diese Anleitung setzt mit dem gespeicherten Lauf aus dem Regression-Beispiel fort.",
+    "Wählen Sie Projektordner, Laufjournal und den passenden Regressions-Ergebnisordner. Lassen Sie Classifier für dieses Regressionsbeispiel leer. Stellen Sie sicher, dass alle gewählten Dateien zu dem Lauf gehören, den Sie beschreiben möchten.",
+    "Klicken Sie auf Build digest und lesen Sie dann die Registerkarten Methods und Results. Gleichen Sie die Analyseversion mit der gespeicherten Laufumgebung ab; die Version des Exporters kann von der Version abweichen, die die Analyse ausgeführt hat.",
+    "Lesen Sie Caveats und vergleichen Sie die Seed-Einträge anhand ihres Namens mit den gespeicherten Einstellungen. Ein Permutations-Seed und ein globaler Seed beziehen sich auf verschiedene Generatoren. Lassen Sie einen nicht erfassten historischen Seed beim Bearbeiten des Berichts als unbekannt stehen.",
+    "Öffnen Sie Run digest, um die strukturierten Einstellungen und Quelldatensätze zu prüfen. Vergleichen Sie sie mit dem Text und prüfen Sie Warnungen zu fehlenden Berichten oder abgeleiteten Standardwerten, bevor Sie den Entwurf weitergeben.",
+    "Prüfen Sie unter Results Effektstärken und korrigierte q-Werte gemeinsam. Dieses Beispiel hat keine Gene unter einer q-Wert-Schwelle von 0,05. Beschreiben Sie die aufgeführten Zeilen als gereihte Kandidaten, wenn Sie eine Überschrift bearbeiten, die sie als hits bezeichnet.",
+    "Klicken Sie auf Copy sections, um die angezeigten Methods und Results zu kopieren. Gleichen Sie den kopierten Text mit den Quelldatensätzen ab. Verwenden Sie Export Markdown, wenn Sie zusätzlich den strukturierten Lauf-Digest benötigen.",
+    "Klicken Sie auf Export Markdown und wählen Sie einen neuen Dateinamen. Die Datei enthält beide Berichtsabschnitte und den Lauf-Digest als Anhang. Bewahren Sie einen Originalentwurf auf und speichern Sie Ihre geprüften Überarbeitungen separat.",
+    "Draft with AI ist optional und sendet den Digest an Ihren konfigurierten Anbieter. Prüfen Sie seinen Inhalt, bevor Sie diese Option nutzen, und gleichen Sie erzeugten Text dann mit der gespeicherten Analyse ab. Sie können auch build_digest, render_methods und render_results aus Python verwenden."
+  ]
+}

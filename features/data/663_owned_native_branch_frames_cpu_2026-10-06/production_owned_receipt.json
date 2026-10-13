@@ -1,0 +1,11 @@
+{
+  "base_commit": "209651b7bf53088c635107692e38ee5c9c2730ae",
+  "production_renderer_sha256": "22166400010e43fbc4c6774c5cbfc062ebdf73b76e160dbb60751cab7608d2f9",
+  "measured_prototype_sha256": "57d5ca7a09595649567d28f038cb2c0c1bdfee3310fd5e7e538b2e32b1a70e6c",
+  "whole_module_executable_ast_equal": true,
+  "difference": "Two new shader docstrings describe production ownership rather than calling it a scratch prototype; all executable AST is identical.",
+  "added_statements": 22,
+  "missing_added_statements": [],
+  "touching_arcs": 0,
+  "missing_touching_arcs": []
+}

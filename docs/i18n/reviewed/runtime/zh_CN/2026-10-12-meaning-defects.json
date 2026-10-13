@@ -1,0 +1,41 @@
+{
+  "language": "zh_CN",
+  "schema": 1,
+  "records": [
+    {
+      "key": "Colormap",
+      "source": "Colormap",
+      "source_sha256": "b723e00569a6b89654b7f257bc9701fd510d0c00332b040c289f669debc6eff5",
+      "table": "ui",
+      "translation": "颜色映射"
+    },
+    {
+      "key": "Counts",
+      "source": "Counts",
+      "source_sha256": "c3ea5bf706e433a11fad5d5d13c99621f2d29d42c2fd57bf486616330f54e12d",
+      "table": "ui",
+      "translation": "计数"
+    },
+    {
+      "key": "Error bars",
+      "source": "Error bars",
+      "source_sha256": "aed89758b26c166e299333bc8ae97acb3a5cc3094786df775b95cb7cca5fe252",
+      "table": "ui",
+      "translation": "误差棒"
+    },
+    {
+      "key": "Logging",
+      "source": "Logging",
+      "source_sha256": "d3ef01b4a9c9910364c9b26b2499c8787a0461d2d24ab80376fff736a288b34c",
+      "table": "ui",
+      "translation": "日志记录"
+    },
+    {
+      "key": "Settings backdrop",
+      "source": "Settings backdrop",
+      "source_sha256": "ce2f7ac79260ab08f1859435a6743727e4277d16d651a077bdfca9ab9efdd4c6",
+      "table": "ui",
+      "translation": "设置背景"
+    }
+  ]
+}

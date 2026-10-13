@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.qt.app.the_missing_pip_escape#5",
+      "source_sha256": "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd",
+      "source": "Derived the way :func:`spacr.updater.find_uv` derives it, and it falls back to the path the installers WRITE rather than returning nothing: on the affected machine `find_uv` is what the installed build is too old to have, so a name the user can check is worth more than silence.",
+      "context": "Derived the way :func:`spacr.updater.find_uv` derives it, and it falls back to the path the installers WRITE rather than returning nothing: on the affected machine `find_uv` is what the installed build is too old to have, so a name the user can check is worth more than silence.",
+      "translation": "Derivado do mesmo modo que :func:`spacr.updater.find_uv` o deriva, e recorre ao caminho que os instaladores ESCREVEM em vez de não devolver nada: na máquina afetada, `find_uv` é justamente o que a versão instalada é demasiado antiga para ter, por isso um nome que o utilizador possa verificar vale mais do que o silêncio."
+    }
+  ]
+}

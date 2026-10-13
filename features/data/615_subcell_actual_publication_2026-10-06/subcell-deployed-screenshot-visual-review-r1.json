@@ -1,0 +1,30 @@
+{
+  "actual_browser_screenshots_visually_reviewed": true,
+  "screenshots": [
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-deployed-API-browser-r1/spec-sv.png",
+      "sha256": "8257109d65d32f5f2e79c1ea4a07e0b06b8cf888417fe48c20107a4bd0a8282c"
+    },
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-deployed-API-browser-r1/spec-zh_CN.png",
+      "sha256": "6cecbb87423f07dd5ccf1651408428652f8b3976bba47aad079bd7661417c232"
+    },
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-deployed-API-browser-r1/spec-ko.png",
+      "sha256": "57dcdbb73168821ce9e17d1d1760332211925f64ffbc3901c27c57c6060c59c8"
+    },
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-deployed-puncta-guides-r1/sv.png",
+      "sha256": "bc52416e3ad2c64a9ce3c28980388ff5d46f4de55e98a778c92917d55bf15326"
+    },
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-deployed-puncta-guides-r1/zh_CN.png",
+      "sha256": "8dceb9e7a7a8a0f30391838a5427bcf5ca67459445c7a9b671965fe502981f0e"
+    },
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-deployed-puncta-guides-r1/ko.png",
+      "sha256": "6b605d4530060910c68504ac15fe65ae828e5afdd0f6b937bdef55ba0dfebac7"
+    }
+  ],
+  "review": "All six actual screenshots inspected: translated paragraphs and scientific parameter names visible, Chinese/Korean glyphs render, no overlap or clipped parameter descriptions. This is a visual rendering check, not native-speaker approval."
+}

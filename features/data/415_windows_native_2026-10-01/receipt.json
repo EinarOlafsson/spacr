@@ -1,0 +1,3077 @@
+{
+  "feature": "N415",
+  "status": "complete: native Windows technical acceptance",
+  "accepted_commit": "7c13c23d35ae17677fdf421efeb01e59bdb9c772",
+  "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/36944677475",
+  "run_conclusion": "success",
+  "run_completed_utc": "2026-10-02T00:14:38Z",
+  "artifact": {
+    "id": 11202070071,
+    "name": "windows-native-startup-7c13c23d35ae17677fdf421efeb01e59bdb9c772",
+    "archive_sha256": "519adda896ac0089e6815ee8a12b9752fc7ec9da38db3e14116e74e2835f9f87",
+    "size_bytes": 750930
+  },
+  "native_summary": {
+    "passed": true,
+    "cases": [
+      {
+        "case": "os-light-spacr-light",
+        "passed": true,
+        "error": null
+      },
+      {
+        "case": "os-light-spacr-dark",
+        "passed": true,
+        "error": null
+      },
+      {
+        "case": "os-light-spacr-system",
+        "passed": true,
+        "error": null
+      },
+      {
+        "case": "os-dark-spacr-light",
+        "passed": true,
+        "error": null
+      },
+      {
+        "case": "os-dark-spacr-dark",
+        "passed": true,
+        "error": null
+      },
+      {
+        "case": "os-dark-spacr-system",
+        "passed": true,
+        "error": null
+      }
+    ],
+    "registry_restored": true,
+    "commit": "7c13c23d35ae17677fdf421efeb01e59bdb9c772",
+    "source_sha256": {
+      "spacr/qt/widgets/loading_screen.py": "d24e69dd36b899edbf54a906ecb9f8fe26a3ec2dfc481dc223a5b5867e3b58d8",
+      "spacr/qt/theme.py": "dd1d3fab885d7b43d49d919969188f0c7326fc161d95ce11544b058d95ba8c74",
+      "spacr/qt/preferences.py": "80ecd5b71dbc673770c66bb0b89935ed04858bf88ef1be5c3ac9ba203cd2f219",
+      "spacr/qt/app.py": "df0529f6441d964c9296bff41a5f539b93342386b6edea134e93d5d8f02df0ec",
+      "tools/validate_native_startup_contrast.py": "5360bf796f6caea4b942d244bf10f18bef459095ede2e4787f29ddd61a073c55"
+    },
+    "acceptance_scope": "Hosted Windows native Qt technical acceptance; not maintainer hands-on approval"
+  },
+  "case_receipts": {
+    "os-light-spacr-light": {
+      "passed": true,
+      "os_scheme_requested": "light",
+      "stored_theme": "light",
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "captures": [
+        {
+          "file": "splash-early-0.png",
+          "progress": 0,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 115,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-early-2.png",
+          "progress": 2,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-early-6.png",
+          "progress": 6,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 249,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 323,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-0.png",
+          "progress": 0,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 115,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-2.png",
+          "progress": 2,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-6.png",
+          "progress": 6,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 249,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 323,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            }
+          ]
+        }
+      ],
+      "bounds": {
+        "cpu_affinity": [
+          0
+        ],
+        "job_committed_memory_limit": 4294967296,
+        "pagefile": "Windows-managed; this is not a Linux zero-swap cgroup"
+      },
+      "qt": "6.11.2",
+      "pyside": "6.11.2",
+      "qpa": "windows",
+      "os_scheme_reported": "light",
+      "style_hint": "ColorScheme.Light",
+      "screen_geometry": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "preferences": {
+        "store": "\\HKEY_CURRENT_USER\\Software\\spacr\\qt",
+        "isolation": "disposable GitHub-hosted runner profile"
+      },
+      "effective_theme": "light",
+      "main_window": {
+        "background": "#fafafa",
+        "ink": "#0d0e10",
+        "first_backing_contrast": 18.502183885675922,
+        "preload_policy": "on_demand",
+        "capture": "home-native.png",
+        "device_pixel_ratio": 1.0
+      }
+    },
+    "os-light-spacr-dark": {
+      "passed": true,
+      "os_scheme_requested": "light",
+      "stored_theme": "dark",
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "captures": [
+        {
+          "file": "splash-early-0.png",
+          "progress": 0,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 140,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-early-2.png",
+          "progress": 2,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-early-6.png",
+          "progress": 6,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 19,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 472,
+              "best_pixel_contrast": 21.0,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 19,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 652,
+              "best_pixel_contrast": 21.0,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-0.png",
+          "progress": 0,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 140,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-2.png",
+          "progress": 2,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-6.png",
+          "progress": 6,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 14,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 472,
+              "best_pixel_contrast": 21.0,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 14,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 652,
+              "best_pixel_contrast": 21.0,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            }
+          ]
+        }
+      ],
+      "bounds": {
+        "cpu_affinity": [
+          0
+        ],
+        "job_committed_memory_limit": 4294967296,
+        "pagefile": "Windows-managed; this is not a Linux zero-swap cgroup"
+      },
+      "qt": "6.11.2",
+      "pyside": "6.11.2",
+      "qpa": "windows",
+      "os_scheme_reported": "light",
+      "style_hint": "ColorScheme.Light",
+      "screen_geometry": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "preferences": {
+        "store": "\\HKEY_CURRENT_USER\\Software\\spacr\\qt",
+        "isolation": "disposable GitHub-hosted runner profile"
+      },
+      "effective_theme": "dark",
+      "main_window": {
+        "background": "#000000",
+        "ink": "#ffffff",
+        "first_backing_contrast": 21.0,
+        "preload_policy": "on_demand",
+        "capture": "home-native.png",
+        "device_pixel_ratio": 1.0
+      }
+    },
+    "os-light-spacr-system": {
+      "passed": true,
+      "os_scheme_requested": "light",
+      "stored_theme": "system",
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "captures": [
+        {
+          "file": "splash-early-0.png",
+          "progress": 0,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 115,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-early-2.png",
+          "progress": 2,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-early-6.png",
+          "progress": 6,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 249,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 323,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-0.png",
+          "progress": 0,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 115,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-2.png",
+          "progress": 2,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-6.png",
+          "progress": 6,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 249,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 323,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            }
+          ]
+        }
+      ],
+      "bounds": {
+        "cpu_affinity": [
+          0
+        ],
+        "job_committed_memory_limit": 4294967296,
+        "pagefile": "Windows-managed; this is not a Linux zero-swap cgroup"
+      },
+      "qt": "6.11.2",
+      "pyside": "6.11.2",
+      "qpa": "windows",
+      "os_scheme_reported": "light",
+      "style_hint": "ColorScheme.Light",
+      "screen_geometry": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "preferences": {
+        "store": "\\HKEY_CURRENT_USER\\Software\\spacr\\qt",
+        "isolation": "disposable GitHub-hosted runner profile"
+      },
+      "effective_theme": "light",
+      "main_window": {
+        "background": "#fafafa",
+        "ink": "#0d0e10",
+        "first_backing_contrast": 18.502183885675922,
+        "preload_policy": "on_demand",
+        "capture": "home-native.png",
+        "device_pixel_ratio": 1.0
+      }
+    },
+    "os-dark-spacr-light": {
+      "passed": true,
+      "os_scheme_requested": "dark",
+      "stored_theme": "light",
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "captures": [
+        {
+          "file": "splash-early-0.png",
+          "progress": 0,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 115,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-early-2.png",
+          "progress": 2,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 15,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-early-6.png",
+          "progress": 6,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 249,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 323,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-0.png",
+          "progress": 0,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 115,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-2.png",
+          "progress": 2,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 159,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 11,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 189,
+              "best_pixel_contrast": 7.038986113167294,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.038986113167294
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-6.png",
+          "progress": 6,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 223,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 249,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 323,
+              "best_pixel_contrast": 18.502183885675922,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 18.502183885675922
+            }
+          ]
+        }
+      ],
+      "bounds": {
+        "cpu_affinity": [
+          0
+        ],
+        "job_committed_memory_limit": 4294967296,
+        "pagefile": "Windows-managed; this is not a Linux zero-swap cgroup"
+      },
+      "qt": "6.11.2",
+      "pyside": "6.11.2",
+      "qpa": "windows",
+      "os_scheme_reported": "dark",
+      "style_hint": "ColorScheme.Dark",
+      "screen_geometry": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "preferences": {
+        "store": "\\HKEY_CURRENT_USER\\Software\\spacr\\qt",
+        "isolation": "disposable GitHub-hosted runner profile"
+      },
+      "effective_theme": "light",
+      "main_window": {
+        "background": "#fafafa",
+        "ink": "#0d0e10",
+        "first_backing_contrast": 18.502183885675922,
+        "preload_policy": "on_demand",
+        "capture": "home-native.png",
+        "device_pixel_ratio": 1.0
+      }
+    },
+    "os-dark-spacr-dark": {
+      "passed": true,
+      "os_scheme_requested": "dark",
+      "stored_theme": "dark",
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "captures": [
+        {
+          "file": "splash-early-0.png",
+          "progress": 0,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 140,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-early-2.png",
+          "progress": 2,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-early-6.png",
+          "progress": 6,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 19,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 472,
+              "best_pixel_contrast": 21.0,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 19,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 652,
+              "best_pixel_contrast": 21.0,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-0.png",
+          "progress": 0,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 140,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-2.png",
+          "progress": 2,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-6.png",
+          "progress": 6,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 14,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 472,
+              "best_pixel_contrast": 21.0,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 14,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 652,
+              "best_pixel_contrast": 21.0,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            }
+          ]
+        }
+      ],
+      "bounds": {
+        "cpu_affinity": [
+          0
+        ],
+        "job_committed_memory_limit": 4294967296,
+        "pagefile": "Windows-managed; this is not a Linux zero-swap cgroup"
+      },
+      "qt": "6.11.2",
+      "pyside": "6.11.2",
+      "qpa": "windows",
+      "os_scheme_reported": "dark",
+      "style_hint": "ColorScheme.Dark",
+      "screen_geometry": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "preferences": {
+        "store": "\\HKEY_CURRENT_USER\\Software\\spacr\\qt",
+        "isolation": "disposable GitHub-hosted runner profile"
+      },
+      "effective_theme": "dark",
+      "main_window": {
+        "background": "#000000",
+        "ink": "#ffffff",
+        "first_backing_contrast": 21.0,
+        "preload_policy": "on_demand",
+        "capture": "home-native.png",
+        "device_pixel_ratio": 1.0
+      }
+    },
+    "os-dark-spacr-system": {
+      "passed": true,
+      "os_scheme_requested": "dark",
+      "stored_theme": "system",
+      "platform": "Windows-2025Server-10.0.26100-SP0",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "captures": [
+        {
+          "file": "splash-early-0.png",
+          "progress": 0,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 140,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-early-2.png",
+          "progress": 2,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 17,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-early-6.png",
+          "progress": 6,
+          "preferences_applied": false,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                381,
+                215,
+                538,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                538,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 19,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 472,
+              "best_pixel_contrast": 21.0,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                733,
+                215,
+                764,
+                235
+              ],
+              "readable_pixels": 19,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                764,
+                215,
+                987,
+                235
+              ],
+              "readable_pixels": 652,
+              "best_pixel_contrast": 21.0,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-0.png",
+          "progress": 0,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 140,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-2.png",
+          "progress": 2,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 190,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "single-cell image analysis",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 12,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "  →  ",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 229,
+              "best_pixel_contrast": 7.010875888315529,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink_dim",
+              "role_contrast": 7.010875888315529
+            }
+          ]
+        },
+        {
+          "file": "splash-applied-6.png",
+          "progress": 6,
+          "preferences_applied": true,
+          "device_pixel_ratio": 1.0,
+          "text": [
+            {
+              "box": [
+                383,
+                215,
+                540,
+                235
+              ],
+              "readable_pixels": 420,
+              "best_pixel_contrast": 21.0,
+              "text": "End-to-end microscopy",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                540,
+                215,
+                569,
+                235
+              ],
+              "readable_pixels": 14,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                569,
+                215,
+                733,
+                235
+              ],
+              "readable_pixels": 472,
+              "best_pixel_contrast": 21.0,
+              "text": "single-cell image analysis",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                733,
+                215,
+                762,
+                235
+              ],
+              "readable_pixels": 14,
+              "best_pixel_contrast": 21.0,
+              "text": "  →  ",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            },
+            {
+              "box": [
+                762,
+                215,
+                985,
+                235
+              ],
+              "readable_pixels": 652,
+              "best_pixel_contrast": 21.0,
+              "text": "genotype-to-phenotype mapping",
+              "role": "splash_ink",
+              "role_contrast": 21.0
+            }
+          ]
+        }
+      ],
+      "bounds": {
+        "cpu_affinity": [
+          0
+        ],
+        "job_committed_memory_limit": 4294967296,
+        "pagefile": "Windows-managed; this is not a Linux zero-swap cgroup"
+      },
+      "qt": "6.11.2",
+      "pyside": "6.11.2",
+      "qpa": "windows",
+      "os_scheme_reported": "dark",
+      "style_hint": "ColorScheme.Dark",
+      "screen_geometry": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "preferences": {
+        "store": "\\HKEY_CURRENT_USER\\Software\\spacr\\qt",
+        "isolation": "disposable GitHub-hosted runner profile"
+      },
+      "effective_theme": "dark",
+      "main_window": {
+        "background": "#000000",
+        "ink": "#ffffff",
+        "first_backing_contrast": 21.0,
+        "preload_policy": "on_demand",
+        "capture": "home-native.png",
+        "device_pixel_ratio": 1.0
+      }
+    }
+  },
+  "source_hash_verification": "All five recorded byte hashes match the exact accepted commit after Git Windows checkout LF-to-CRLF conversion; no source-content differences.",
+  "independent_review": {
+    "reviewer": "Codex AI technical and visual review; no human/native-user signoff",
+    "all_unique_pngs_viewed": 14,
+    "total_pngs": 42,
+    "duplicate_groups": {
+      "f804aea20e82fbcb7d1790e0b3b7a437db59c98ac6c90f8e56a883dbf7e6ae4d": [
+        "os-dark-spacr-dark/home-native.png",
+        "os-dark-spacr-system/home-native.png",
+        "os-light-spacr-dark/home-native.png"
+      ],
+      "6c89bd08f89fe79e36f875bd2536a23ce173744e9e96a25dbed28987df9bf361": [
+        "os-dark-spacr-dark/splash-applied-0.png",
+        "os-dark-spacr-system/splash-applied-0.png",
+        "os-light-spacr-dark/splash-applied-0.png"
+      ],
+      "6ec81a7fa2b4c83b522cb8476a0d17494665f623e1c1e06e9b959095ca9b8b23": [
+        "os-dark-spacr-dark/splash-applied-2.png",
+        "os-dark-spacr-system/splash-applied-2.png",
+        "os-light-spacr-dark/splash-applied-2.png"
+      ],
+      "18c1c8522cd0c13de10a0289f45de5533a78b403ec76089af80a41b01378fad2": [
+        "os-dark-spacr-dark/splash-applied-6.png",
+        "os-dark-spacr-system/splash-applied-6.png",
+        "os-light-spacr-dark/splash-applied-6.png"
+      ],
+      "bf423cb55cc1d4517f381c142994cbf200bb7709f7eeaae4704e5319c9b0692b": [
+        "os-dark-spacr-dark/splash-early-0.png",
+        "os-dark-spacr-system/splash-early-0.png",
+        "os-light-spacr-dark/splash-early-0.png"
+      ],
+      "af810f7fda4f139ff31c48d3537131035a01b469464182b8769769a8353720eb": [
+        "os-dark-spacr-dark/splash-early-2.png",
+        "os-dark-spacr-system/splash-early-2.png",
+        "os-light-spacr-dark/splash-early-2.png"
+      ],
+      "774b583e427db2c735eac5359e89cbaa08502b12cd409bca4b7f2f350ad58f31": [
+        "os-dark-spacr-dark/splash-early-6.png",
+        "os-dark-spacr-system/splash-early-6.png",
+        "os-light-spacr-dark/splash-early-6.png"
+      ],
+      "f1149e17339ebd893900bb95caf61afd9d94384a63aa40d4ded59b15aad451dd": [
+        "os-dark-spacr-light/home-native.png",
+        "os-light-spacr-light/home-native.png",
+        "os-light-spacr-system/home-native.png"
+      ],
+      "739c3ae37bcb0e7a62613590163bf0e2f9e08aca51520f1510702c49ce438e5e": [
+        "os-dark-spacr-light/splash-applied-0.png",
+        "os-light-spacr-light/splash-applied-0.png",
+        "os-light-spacr-system/splash-applied-0.png"
+      ],
+      "0b971612cf67f23ceec9dae9a697394895ba1018319e3743c5439c9fe3372151": [
+        "os-dark-spacr-light/splash-applied-2.png",
+        "os-light-spacr-light/splash-applied-2.png",
+        "os-light-spacr-system/splash-applied-2.png"
+      ],
+      "334072dd2747404713adbaa89affbc9e8a0d3d837448b96c53f8729b527a3149": [
+        "os-dark-spacr-light/splash-applied-6.png",
+        "os-light-spacr-light/splash-applied-6.png",
+        "os-light-spacr-system/splash-applied-6.png"
+      ],
+      "66f1711161e687f7a2da90b66f85b982606fd9a23232b02a4effaa0023016109": [
+        "os-dark-spacr-light/splash-early-0.png",
+        "os-light-spacr-light/splash-early-0.png",
+        "os-light-spacr-system/splash-early-0.png"
+      ],
+      "45b2bae7b57648e6479991572de48896dd502454ddcb2a69f2d999615b3ac00b": [
+        "os-dark-spacr-light/splash-early-2.png",
+        "os-light-spacr-light/splash-early-2.png",
+        "os-light-spacr-system/splash-early-2.png"
+      ],
+      "e91c8d792b9fe5ed864da0117812749cc2756dceba33cbfccf4b96f956cc4f2d": [
+        "os-dark-spacr-light/splash-early-6.png",
+        "os-light-spacr-light/splash-early-6.png",
+        "os-light-spacr-system/splash-early-6.png"
+      ]
+    },
+    "independent_pillow_pixel_checks": 180,
+    "result": "Every measured phrase/arrow has visible text at >=4.5:1; minimum strongest captured ink equals 7.010875888315529:1 dark and 7.038986113167294:1 light. Actual first-backing MainWindow palette is 21:1 dark / 18.502183885675922:1 light. All 14 unique images visually inspected; all other captures match them byte for byte."
+  },
+  "png_sha256": {
+    "os-dark-spacr-dark/home-native.png": "f804aea20e82fbcb7d1790e0b3b7a437db59c98ac6c90f8e56a883dbf7e6ae4d",
+    "os-dark-spacr-dark/splash-applied-0.png": "6c89bd08f89fe79e36f875bd2536a23ce173744e9e96a25dbed28987df9bf361",
+    "os-dark-spacr-dark/splash-applied-2.png": "6ec81a7fa2b4c83b522cb8476a0d17494665f623e1c1e06e9b959095ca9b8b23",
+    "os-dark-spacr-dark/splash-applied-6.png": "18c1c8522cd0c13de10a0289f45de5533a78b403ec76089af80a41b01378fad2",
+    "os-dark-spacr-dark/splash-early-0.png": "bf423cb55cc1d4517f381c142994cbf200bb7709f7eeaae4704e5319c9b0692b",
+    "os-dark-spacr-dark/splash-early-2.png": "af810f7fda4f139ff31c48d3537131035a01b469464182b8769769a8353720eb",
+    "os-dark-spacr-dark/splash-early-6.png": "774b583e427db2c735eac5359e89cbaa08502b12cd409bca4b7f2f350ad58f31",
+    "os-dark-spacr-light/home-native.png": "f1149e17339ebd893900bb95caf61afd9d94384a63aa40d4ded59b15aad451dd",
+    "os-dark-spacr-light/splash-applied-0.png": "739c3ae37bcb0e7a62613590163bf0e2f9e08aca51520f1510702c49ce438e5e",
+    "os-dark-spacr-light/splash-applied-2.png": "0b971612cf67f23ceec9dae9a697394895ba1018319e3743c5439c9fe3372151",
+    "os-dark-spacr-light/splash-applied-6.png": "334072dd2747404713adbaa89affbc9e8a0d3d837448b96c53f8729b527a3149",
+    "os-dark-spacr-light/splash-early-0.png": "66f1711161e687f7a2da90b66f85b982606fd9a23232b02a4effaa0023016109",
+    "os-dark-spacr-light/splash-early-2.png": "45b2bae7b57648e6479991572de48896dd502454ddcb2a69f2d999615b3ac00b",
+    "os-dark-spacr-light/splash-early-6.png": "e91c8d792b9fe5ed864da0117812749cc2756dceba33cbfccf4b96f956cc4f2d",
+    "os-dark-spacr-system/home-native.png": "f804aea20e82fbcb7d1790e0b3b7a437db59c98ac6c90f8e56a883dbf7e6ae4d",
+    "os-dark-spacr-system/splash-applied-0.png": "6c89bd08f89fe79e36f875bd2536a23ce173744e9e96a25dbed28987df9bf361",
+    "os-dark-spacr-system/splash-applied-2.png": "6ec81a7fa2b4c83b522cb8476a0d17494665f623e1c1e06e9b959095ca9b8b23",
+    "os-dark-spacr-system/splash-applied-6.png": "18c1c8522cd0c13de10a0289f45de5533a78b403ec76089af80a41b01378fad2",
+    "os-dark-spacr-system/splash-early-0.png": "bf423cb55cc1d4517f381c142994cbf200bb7709f7eeaae4704e5319c9b0692b",
+    "os-dark-spacr-system/splash-early-2.png": "af810f7fda4f139ff31c48d3537131035a01b469464182b8769769a8353720eb",
+    "os-dark-spacr-system/splash-early-6.png": "774b583e427db2c735eac5359e89cbaa08502b12cd409bca4b7f2f350ad58f31",
+    "os-light-spacr-dark/home-native.png": "f804aea20e82fbcb7d1790e0b3b7a437db59c98ac6c90f8e56a883dbf7e6ae4d",
+    "os-light-spacr-dark/splash-applied-0.png": "6c89bd08f89fe79e36f875bd2536a23ce173744e9e96a25dbed28987df9bf361",
+    "os-light-spacr-dark/splash-applied-2.png": "6ec81a7fa2b4c83b522cb8476a0d17494665f623e1c1e06e9b959095ca9b8b23",
+    "os-light-spacr-dark/splash-applied-6.png": "18c1c8522cd0c13de10a0289f45de5533a78b403ec76089af80a41b01378fad2",
+    "os-light-spacr-dark/splash-early-0.png": "bf423cb55cc1d4517f381c142994cbf200bb7709f7eeaae4704e5319c9b0692b",
+    "os-light-spacr-dark/splash-early-2.png": "af810f7fda4f139ff31c48d3537131035a01b469464182b8769769a8353720eb",
+    "os-light-spacr-dark/splash-early-6.png": "774b583e427db2c735eac5359e89cbaa08502b12cd409bca4b7f2f350ad58f31",
+    "os-light-spacr-light/home-native.png": "f1149e17339ebd893900bb95caf61afd9d94384a63aa40d4ded59b15aad451dd",
+    "os-light-spacr-light/splash-applied-0.png": "739c3ae37bcb0e7a62613590163bf0e2f9e08aca51520f1510702c49ce438e5e",
+    "os-light-spacr-light/splash-applied-2.png": "0b971612cf67f23ceec9dae9a697394895ba1018319e3743c5439c9fe3372151",
+    "os-light-spacr-light/splash-applied-6.png": "334072dd2747404713adbaa89affbc9e8a0d3d837448b96c53f8729b527a3149",
+    "os-light-spacr-light/splash-early-0.png": "66f1711161e687f7a2da90b66f85b982606fd9a23232b02a4effaa0023016109",
+    "os-light-spacr-light/splash-early-2.png": "45b2bae7b57648e6479991572de48896dd502454ddcb2a69f2d999615b3ac00b",
+    "os-light-spacr-light/splash-early-6.png": "e91c8d792b9fe5ed864da0117812749cc2756dceba33cbfccf4b96f956cc4f2d",
+    "os-light-spacr-system/home-native.png": "f1149e17339ebd893900bb95caf61afd9d94384a63aa40d4ded59b15aad451dd",
+    "os-light-spacr-system/splash-applied-0.png": "739c3ae37bcb0e7a62613590163bf0e2f9e08aca51520f1510702c49ce438e5e",
+    "os-light-spacr-system/splash-applied-2.png": "0b971612cf67f23ceec9dae9a697394895ba1018319e3743c5439c9fe3372151",
+    "os-light-spacr-system/splash-applied-6.png": "334072dd2747404713adbaa89affbc9e8a0d3d837448b96c53f8729b527a3149",
+    "os-light-spacr-system/splash-early-0.png": "66f1711161e687f7a2da90b66f85b982606fd9a23232b02a4effaa0023016109",
+    "os-light-spacr-system/splash-early-2.png": "45b2bae7b57648e6479991572de48896dd502454ddcb2a69f2d999615b3ac00b",
+    "os-light-spacr-system/splash-early-6.png": "e91c8d792b9fe5ed864da0117812749cc2756dceba33cbfccf4b96f956cc4f2d"
+  },
+  "retained_representative_pngs": [
+    "os-light-spacr-dark-splash-early-0.png",
+    "os-light-spacr-dark-home-native.png",
+    "os-light-spacr-light-splash-early-0.png",
+    "os-light-spacr-light-home-native.png"
+  ],
+  "local_checks": {
+    "sampler_safety_tests": 10,
+    "elapsed_seconds": 2.0,
+    "memory_bytes": 1073741824,
+    "swap_bytes": 0,
+    "cpu_affinity": [
+      0
+    ],
+    "constructor_smoke": "Actual MainWindow light/dark passed offscreen under4GiB/oneCPU/no swap; not native acceptance",
+    "static": "Ruff, Python AST, workflow YAML and git diff --check passed"
+  },
+  "limitations": [
+    "Hosted Windows Server2025 build26100, Qt6.11.2, DPR1 only; not a claim for every Windows build or scale.",
+    "Genuine QStyleHints scheme and QScreen native-window captures; no OS/painter/theme monkeypatch.",
+    "The eager LoadingScreen was directly advanced through0/2/6; heavy scientific pipeline imports were intentionally not run. The actual default on-demand MainWindow was also constructed and captured.",
+    "Windows workers have a4GiB committed-memory Job Object and actual oneCPU affinity; pagefile remains Windows-managed, not Linux zero-swap.",
+    "Earlier dated maintainer hands-on request is preserved as history; this receipt does not claim the maintainer personally ran or approved a Windows session."
+  ]
+}

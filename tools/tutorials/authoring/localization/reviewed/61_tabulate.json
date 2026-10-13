@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "61_tabulate",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Transforme medições em resumos agrupados, mantendo visível a contagem que contribui para cada valor.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Tabulate.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Tabulate. Transforme medições em resumos agrupados, mantendo visível a contagem que contribui para cada valor.",
+        "Selecione uma tabela e atribua os campos de agrupamento, as colunas de valores e as agregações.",
+        "Na área principal de configuração, examine os filtros, os valores ausentes, a ordem das categorias, os totais e a contagem subjacente a cada célula.",
+        "Construa a tabela e examine grupos esparsos ou inesperadamente vazios antes da exportação.",
+        "Ao término do fluxo de trabalho, a tabela dinâmica e sua especificação permanecem vinculadas à seleção de origem."
+      ]
+    }
+  }
+}

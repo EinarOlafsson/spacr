@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, rolling pass 2026-10-04: runtime rows the guide translators flagged as wrong in sense (Cap in Preferences > Storage and the montage cap; Share… and Delete buttons), re-translated and technically reviewed by AI. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "cap",
+      "source": "Cap",
+      "source_sha256": "1257ac04471db97becf0cd70818dbd6e4437f11afefd321065f199a14d986cb9",
+      "translation": "Övre gräns"
+    }
+  ]
+}

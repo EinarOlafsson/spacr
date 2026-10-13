@@ -1,0 +1,37 @@
+{
+  "lesson": "37_batch",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-30",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Batch Runner : configurer et lancer une file",
+  "description": "Ajoutez des paramètres de module, organisez les dépendances, lancez les tâches et examinez leurs journaux séparés.",
+  "objectives": [
+    "Ajouter des tâches avec leurs paramètres et leurs dépendances.",
+    "Enregistrer, lancer et reprendre la file.",
+    "Examiner le journal et les sorties de chaque tâche."
+  ],
+  "prerequisite": "Préparez les données d’entrée et le JSON de paramètres exporté pour chaque tâche. L’exemple lance trois conversions d’images dans des dossiers de sortie séparés.",
+  "scenes": [
+    "Ouvrez Help, puis Batch Runner. Utilisez-le pour mettre en file des tâches de modules avec leurs fichiers de paramètres, leur ordre d’exécution et des journaux séparés.",
+    "Choisissez le module et cliquez sur Choose settings. Pour cet exemple, sélectionnez convert et le JSON de paramètres du premier champ de microscopie.",
+    "Vérifiez la source et la destination dans les paramètres, ajoutez une étiquette descriptive, puis cliquez sur Add job. Utilisez un dossier de sortie distinct pour chaque conversion.",
+    "Pour la deuxième tâche, saisissez convert un dans After pour la rendre dépendante de la première. Ajoutez une surcharge de paramètre lorsque cette tâche a besoin d’une autre valeur. Indiquez explicitement les chemins d’entrée ; une dépendance ne contrôle que l’ordre.",
+    "Ajoutez d’autres tâches et vérifiez leurs identifiants, étiquettes et dépendances. Sélectionnez une ligne pour charger sa configuration dans l’éditeur.",
+    "Utilisez les contrôles de déplacement pour ordonner les tâches. Une dépendance doit apparaître avant la tâche qui en a besoin ; lisez les messages de validation et corrigez l’ordre.",
+    "Cliquez sur Validate après avoir ordonné la file. Résolvez les problèmes listés jusqu’à ce que Run queue soit disponible.",
+    "Choisissez dans On failure de continuer avec les tâches indépendantes ou de vous arrêter au premier échec. Réglez Stop after pour limiter les échecs consécutifs.",
+    "Cliquez sur Save queue pour enregistrer le plan au format JSON. Utilisez Load queue pour le rouvrir plus tard, en gardant disponibles les fichiers de paramètres et les entrées auxquels il renvoie.",
+    "Avant de commencer, ouvrez Help, puis Window, puis Jobs. Dès que la file s’exécute, le panneau Jobs à droite l’affiche avec sa progression, le temps écoulé et un bouton Cancel. Il liste les tâches en cours de tous les écrans : vous pouvez suivre une longue exécution tout en travaillant ailleurs.",
+    "Cliquez sur Run queue. Pour faire une pause entre deux tâches, appuyez sur Stop ; la tâche en cours se termine et les suivantes restent non exécutées.",
+    "Cliquez de nouveau sur Run queue pour poursuivre avec les tâches restantes. Suivez l’état de chaque ligne au fil de la file.",
+    "Sélectionnez une ligne pour lire son journal et examiner les erreurs ou les chemins de sortie. Pour l’exemple de conversion, vérifiez les identifiants de champ et de canal indiqués.",
+    "Ouvrez chaque dossier de sortie et examinez les images converties et l’enregistrement de conversion. Conservez le JSON de la file, les paramètres et les journaux avec les résultats."
+  ]
+}

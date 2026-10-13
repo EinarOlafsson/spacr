@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, ninth pass 2026-09-30: the colony_detector setting label and tooltip (item 542), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "colony_detector",
+      "source": "Colony detector",
+      "source_sha256": "68beea6aa1d0b2ea9eb4f3cc498e2b290aa8cab4fe933d6173b59636693715a4",
+      "translation": "콜로니 검출기"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "colony_detector",
+      "source": "A YOLO colony detector to find the colonies with, in place of thresholding: a checkpoint path or a Model Zoo key. It needs the ultralytics package. Detection counts colonies in chains and at the dish rim that thresholding merges or loses; polarity, threshold and minimum area are then not used. Blank thresholds. Default None.",
+      "source_sha256": "715e9aa717e6aead1dcdb1df63413b1db968a50e249118e910a1a7570505ae20",
+      "translation": "임계값 처리 대신 콜로니를 찾는 YOLO 콜로니 검출기입니다. 체크포인트 경로 또는 Model Zoo 키를 지정합니다. ultralytics 패키지가 필요합니다. 검출은 임계값 처리가 합치거나 놓치는 사슬 모양 콜로니와 접시 가장자리의 콜로니도 셉니다. 이때 극성, 임계값, 최소 면적은 사용되지 않습니다. 비워 두면 임계값 처리를 합니다. 기본값 None."
+    }
+  ]
+}

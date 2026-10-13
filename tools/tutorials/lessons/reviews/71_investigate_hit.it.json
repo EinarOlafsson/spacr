@@ -1,0 +1,41 @@
+{
+  "lesson": "71_investigate_hit",
+  "english_sha256": "33c50f8138627fad82401bb62af5f6e386536045275074685bcd5bc13bf13620",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Investigate Hit: risalire da un gene di Regression alle cellule misurate",
+  "description": "Invia un gene da Hit List a Investigate Hit, aggiungi il database delle misure, le predizioni per cellula e le frazioni delle guide, poi leggi le evidenze a livello di pozzetto.",
+  "objectives": [
+    "Aprire un’esecuzione di Regression in Hit List, controllare i valori q e inviare un gene a Investigate Hit.",
+    "Scegliere il database delle misure, le predizioni per cellula, le frazioni delle guide e la colonna del punteggio.",
+    "Leggere le schede di evidenze, pozzetti, guide e soglia, e trovare le tabelle salvate."
+  ],
+  "prerequisite": "Estrai Investigate_Hit_real_screen_example.zip. Tutto il contenuto proviene da un unico screening reale: l’esecuzione di Regression sui dati di prova di Regression (le impostazioni del tutorial di Regression), le corrispondenti predizioni CV per cellula e un database di misure con le reali misure di forma, dimensione e intensità delle stesse cellule. Per contenere il download, il database comprende 52 pozzetti: tutti i pozzetti analizzati con una guida per il gene 225160 e, per ciascuno, tre pozzetti senza guida della stessa piastra. Nessun gene di questa esecuzione rapida di Regression soddisfa q ≤ 0,05. Considera l’indagine un esempio pratico, non un hit confermato.",
+  "scenes": [
+    "Da Home, apri Regression. Investigate Hit parte da un’esecuzione di Regression completata. Si chiede se le cellule misurate nei pozzetti legati a un gene appaiano diverse da quelle dei pozzetti senza quel gene.",
+    "Scegli Hits per aprire Hit List. Prima estrai l’archivio di esempio. Contiene un’esecuzione di Regression sui dati di prova, le corrispondenti predizioni CV per cellula e un database di misure delle stesse cellule. Tutti e tre provengono da un unico screening reale.",
+    "Fai clic su Browse e seleziona la cartella guide_permutation dentro regression_run, results. È l’output dell’esecuzione sui dati di prova del tutorial di Regression.",
+    "Hit List ordina trecentoventicinque geni. Leggi insieme effetto, valore P e valore q di ogni riga, insieme al numero di guide e a quante di esse concordano.",
+    "Imposta Max q a zero virgola zero cinque. La tabella si svuota perché in questa esecuzione nessun gene ha un valore q pari o inferiore a zero virgola zero cinque. Con centonovantanove permutazioni, il valore P più piccolo possibile è zero virgola zero zero cinque, e il valore q più basso è circa zero virgola ventisette. Quello che segue esamina quindi un candidato in graduatoria, non un hit confermato.",
+    "Riporta Max q a uno, cerca due due cinque uno sei zero e seleziona la sua riga. Ha un effetto di zero virgola trentaquattro, un valore q di zero virgola ventisette e tre guide che concordano tutte nella direzione.",
+    "Fai clic su Investigate selected. Investigate Hit si apre con la cartella dei risultati, il gene, le sue tre guide e una direzione dell’effetto positiva già compilati da quella riga.",
+    "Accanto a Measurements database, fai clic su Browse e scegli measurements.db dall’esempio. Contiene forma, dimensione e intensità media per canale di ottomilanovecentoquindici cellule in cinquantadue pozzetti.",
+    "Per Existing CV predictions, scegli cv_predictions.csv. Ogni riga è il punteggio CV salvato di una cellula, collegato allo stesso oggetto misurato. Fai clic sul percorso e premi Invio così vengono lette le colonne dei punteggi, poi mantieni pred come colonna del punteggio del fenotipo.",
+    "Per Well/guide fractions, scegli regression_data.csv nella stessa cartella dei risultati. Questa tabella l’ha scritta Regression. Riporta la frazione di ciascuna guida in ogni pozzetto analizzato.",
+    "Lascia vuoto Independent morphology features. Il modulo usa allora le tredici misure cellulari numeriche del database ed esclude identificatori, frazioni delle guide e punteggio CV, così questo controllo non riutilizza il punteggio. Per il tuo database, indica solo colonne di misure senza valori mancanti.",
+    "Fai clic su Investigate hit. Il modello viene adattato escludendo una piastra alla volta, quindi nessuna cellula riceve un punteggio da un modello addestrato sulla propria piastra. La frazione di guida di un pozzetto fissa solo l’aspettativa iniziale per le sue cellule. Non indica mai che una cellula porta la guida. Questo esempio richiede alcuni minuti.",
+    "Evidence fornisce il risultato. I pozzetti bersaglio hanno una prevalenza di tipo hit superiore di appena zero virgola zero uno rispetto ai pozzetti di controllo. L’intervallo bootstrap per pozzetto va da meno zero virgola zero quattro a più zero virgola zero sei, e il valore P della permutazione a blocchi è circa zero virgola sessantatré. Le cellule non sostengono questo candidato.",
+    "Wells riporta per ogni pozzetto la frazione di guida, la probabilità media di tipo hit, la prevalenza e il numero di cellule. Ogni pozzetto conta come un’unità indipendente, quindi il confronto usa tredici pozzetti bersaglio e trentanove pozzetti di controllo, non le singole cellule.",
+    "Guides mostra ogni guida bersaglio separatamente. Le loro risposte alla dose vanno in direzioni diverse, un motivo in più per non trattare questo gene come un hit.",
+    "Threshold sensitivity ripete il confronto con soglie di probabilità da zero virgola cinque a zero virgola nove. Con ogni soglia la differenza resta vicina a zero virgola zero uno, quindi la conclusione non dipende dalla soglia.",
+    "Candidate cells ordina le cellule per probabilità di tipo hit, con il punteggio originale e la fold che ha assegnato il punteggio a ogni cellula. Queste probabilità descrivono una morfologia di tipo hit, non quale guida portasse una cellula. Promuovi le classificazioni all’annotazione solo quando le evidenze a livello di pozzetto sono convincenti. Undo annulla una promozione.",
+    "Le tabelle sono salvate nella cartella dei risultati, in hit_investigation e poi in due due cinque uno sei zero. Includono questa rappresentazione e un manifest, e ogni esecuzione viene anche conservata come nuova versione nel database. L’esempio non contiene immagini dei ritagli, quindi la galleria di revisione resta vuota. Come passo successivo, indaga un gene che superi la tua soglia in un’esecuzione di Regression con più permutazioni."
+  ]
+}

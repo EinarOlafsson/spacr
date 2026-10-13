@@ -1,0 +1,35 @@
+{
+  "lesson": "85_host_pathogen",
+  "english_sha256": "e744c3949f480b452dc13cdc04ea44b00e1872b977979c44f5e21d1c9fff7b18",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Host–Pathogen: tengdu merki bóla og fjölda sníkjudýra",
+  "description": "Hlaðu inn smásjárdæminu, veldu inntök fyrir merki og talningu, skoðaðu forskoðunina og fluttu út tengdar samantektir fyrir bólur, hýsilfrumur og brunna.",
+  "objectives": [
+    "Hlaða inn dæmaverkefninu og greina mælingar á hýsli og bólum.",
+    "Velja merkjarásir og skoða söfnun við hverja bólu í Live-forskoðun.",
+    "Keyra greininguna og lesa úttakstöflurnar með réttum nefnurum."
+  ],
+  "prerequisite": "Notaðu Load test data fyrir meðfylgjandi THP-1-smásjárdæmi, eða veldu mælt verkefni með hýsilfrumum, bólum og viðmiðunarstyrk hýsils. Haltu ósýktum hýsilfrumum í Measure þegar þú þarft nefnara fyrir sýkingu. Talning einstakra sníkjudýra krefst tengdrar sníkjudýratöflu eða mælds talningardálks.",
+  "scenes": [
+    "Host–Pathogen tengir merki og fjölda sníkjudýra hverrar bólu við hýsilfrumu hennar og brunn. Til að komast þangað opnarðu Toxoplasma frá Home og velur síðan Host–Pathogen.",
+    "Auðveldast er að byrja á dæminu. Load test data sækir lítið smásjárverkefni og fyllir út stillingarnar: tvö sjónsvið með myndum, grímum fyrir hýsil og bólur og mælitöflum. Æfðu þig hér áður en þú skiptir yfir í eigið mælt verkefni.",
+    "Allt sem einingin les kemur í gegnum Source, sem ætti að vísa á verkefnið með measurements/measurements.db. Hún getur líka lesið gagnagrunn beint, eða sameinað nokkur verkefni og haldið auðkenni hvers og eins aðskildu.",
+    "Segðu henni nú hvar bólur og hýslar eru í gagnagrunninum: bólutöfluna og forskeyti styrkleikadálka hennar, síðan viðmiðunartöflu hýsilsins og forskeyti hennar. Dæmið notar pathogen og cytoplasm. Tengingar milli hluta tengja hverja bólu við hýsilfrumu sína, svo athugaðu að þær séu réttar.",
+    "Marker channels segir hvaða styrkleika á að bera saman, talið frá 0. Dæmið velur rás 1, merkið RNF213. Hvaða rás sem þú velur þarf styrkleikamælingar bæði í bólunni og í viðmiðunarhólfinu, því hlutfallið er reiknað út frá hvoru tveggja.",
+    "Í fyrstu skaltu hafa Marker thresholds tómt og einfaldlega skoða söfnunarhlutföllin. Þegar viðmiðin sýna hvar jákvætt byrjar slærðu inn rásanúmerið og þann hlutfallsþröskuld; allt sem nær honum eða fer yfir telst jákvætt. Ef viðmiðunarmælingu vantar eða hún er ógild helst staðan óþekkt í stað þess að vera getið í hana.",
+    "Fjöldi sníkjudýra kemur af öðrum tveggja staða: sníkjudýratöflu þar sem línurnar vísa í bóluna sem þær tilheyra, eða talningardálki sem er mældur fyrir hverja bólu. Smásjárdæmið hefur hvorugt, svo hafðu hvort tveggja tómt hér; fjöldi sníkjudýra og mælingar á fjölgun haldast óþekkt.",
+    "Áður en þú keyrir allt skaltu prófa eitt sjónsvið. Kveiktu á Live, veldu sjónsvið og smelltu á Run preview. Bólutaflan birtist við hlið myndarinnar; veldu línu eða smelltu á bólu til að sjá merkjamælingar hennar og fjölda sníkjudýra ef hann liggur fyrir.",
+    "Þegar forskoðunin lítur rétt út slekkurðu á Live og opnar Actions ef það er fellt saman. Hafðu kveikt á Save og ýttu á Run. Stjórnborðið prentar úttaksslóðina þegar keyrslunni lýkur og niðurstöðurnar lenda í results/host_pathogen í fyrsta valda verkefninu.",
+    "Niðurstöðurnar byggjast upp frá smáu til stóru. vacuoles.csv hefur eina línu fyrir hverja bólu: tengingu við hýsil, merkjahlutföll, merkjastöðu og fjölda sníkjudýra ef hann liggur fyrir. cells.csv tekur þær saman í sýkingu og fjölda bóla fyrir hverja hýsilfrumu og wells.csv tekur þær saman eftir brunnum.",
+    "Tvær töflur til viðbótar svara líffræðilegu spurningunni. marker_states.csv sýnir samsettar merkjastöður og replication_distribution.csv fjölda sníkjudýra í hverri talinni bólu. Sníkjudýr án nothæfrar tengingar við bólu lenda í orphan_parasites.csv. Geymdu settings.json með þeim svo val þitt á rásum og þröskuldum fylgi með.",
+    "Ein síðasta athugun áður en skilyrði eru borin saman: nefnararnir. Sýkingarhlutföll nota mældu hýsilfrumurnar sem var haldið, svo ósýktir hýslar teljast aðeins með ef Measure hélt þeim. Dreifingar talninga nota aðeins bólur með þekktan fjölda sníkjudýra og óþekkt verður aldrei þegjandi að núlli."
+  ]
+}

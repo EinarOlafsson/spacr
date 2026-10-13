@@ -1,0 +1,28 @@
+{
+  "source_revision": "d213cd8a3ec487e00a02263b57d2c16a28896419",
+  "source_sha256": {
+    "tests/test_database_write_queue.py": "b04eb71a394d70f764a166355a0c4131dbab1251cdca5be60f5c8b762967d3cb",
+    "tests/test_the_ops_primitives_agree_on_every_backend.py": "82521146c3536b9651ad7835e12bb48e05307eabf9c0fdebd22b4806886e50dd",
+    "spacr/ops_accel.py": "2c7d2c7b984d927cb3a9a6ab3d5e206125474013b9fbbdbda15b01958e4639c3"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_database_write_queue.py tests/test_the_ops_primitives_agree_on_every_backend.py",
+  "integrated_result": "51 passed, 3 skipped in 20.61s",
+  "skip_reason": "Three existing CuPy kernel tests require unavailable usable CuPy backend; no CPU stand-in or new skip introduced.",
+  "independent_owner_proof_verification": {
+    "F288_payloads": 7,
+    "F288_current_source_test_bindings": 2,
+    "hosted_complete_report_hash": true,
+    "rollback_logs_gzip_and_raw_hashes": 3,
+    "rollback_current_test_hash": true
+  },
+  "github_open_issue_query": {
+    "command": "gh issue list --repo EinarOlafsson/spacr --state open --limit 100 --json number,title,url,labels,updatedAt",
+    "queried_utc": "2026-10-09 00:34 UTC",
+    "result": []
+  },
+  "limits": [
+    "Current hosted green not yet established.",
+    "Literal90 module coverage requires actual CuPy evidence; selector test validates dispatch metadata only.",
+    "Old complete hosted report5636 shows663of664 modules>=90 and one module at82.7586; CPU selector test source-exact union estimate84.729 is not current hosted aggregate."
+  ]
+}

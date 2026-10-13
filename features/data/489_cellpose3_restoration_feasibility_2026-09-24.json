@@ -1,0 +1,76 @@
+{
+  "source": "/mnt/firecuda2/Claude/implementation-20260922/host-pathogen-published-download/merged/PLATE1_E01_1_1.npy",
+  "roi": [
+    146,
+    274,
+    742,
+    870
+  ],
+  "channel": 0,
+  "results": [
+    {
+      "model": "denoise_nuclei",
+      "cellpose_version": "3.1.1.3",
+      "torch_version": "2.14.0+cu130",
+      "device": "cpu",
+      "diameter_px": 25.0,
+      "normalization": "Cellpose 1st/99th percentile",
+      "weights_sha256": "da6dacca6c44367cb9180e4251f7f25273559e7dfb68884a608b62b9cca41d0e",
+      "load_seconds": 3.59371430700412,
+      "inference_seconds": 0.5521180999930948,
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "range": [
+        -0.0013437200104817748,
+        0.9828283786773682
+      ],
+      "source_unchanged": true
+    },
+    {
+      "model": "deblur_nuclei",
+      "cellpose_version": "3.1.1.3",
+      "torch_version": "2.14.0+cu130",
+      "device": "cpu",
+      "diameter_px": 25.0,
+      "normalization": "Cellpose 1st/99th percentile",
+      "weights_sha256": "00a2c9a84998c8e32cbfbbb7d7dfcf20a7d1413081ecb3e6a30a1c3e5b48171c",
+      "load_seconds": 3.4436312319885474,
+      "inference_seconds": 0.22435876799863763,
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "range": [
+        -0.0007644811412319541,
+        1.0171552896499634
+      ],
+      "source_unchanged": true
+    },
+    {
+      "model": "oneclick_nuclei",
+      "cellpose_version": "3.1.1.3",
+      "torch_version": "2.14.0+cu130",
+      "device": "cpu",
+      "diameter_px": 25.0,
+      "normalization": "Cellpose 1st/99th percentile",
+      "weights_sha256": "91470f1dcb1dc698a9113275519fb8d37d2baf755536b0c739870df519c91b8d",
+      "load_seconds": 6.31866566897952,
+      "inference_seconds": 0.2285014289955143,
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "range": [
+        -0.00021606376685667783,
+        1.0049505233764648
+      ],
+      "source_unchanged": true
+    }
+  ],
+  "scope": "Feasibility only; no enhancement, segmentation-accuracy or biological-fidelity claim."
+}

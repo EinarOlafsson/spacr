@@ -1,0 +1,40 @@
+{
+  "lesson": "28_training_runs",
+  "english_sha256": "bfd4577f24cda15426fb3ce671f5fed9b5d30194aad42e78bfe98ffb932b88b6",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Training Runs：比较曲线和设置",
+  "description": "加载训练日志，叠加指标，比较设置，并查看交叉验证的各折。",
+  "objectives": [
+    "找到保存的运行，并选择要比较的运行。",
+    "叠加训练和验证指标，并检查设置差异。",
+    "在单独的各折与其平均值和标准差之间切换。"
+  ],
+  "prerequisite": "下载并解压链接的合成Training Runs示例。其中的曲线是练习数据。对于您自己的分析，请选择一个上级文件夹，其中包含保存的train.csv和validation.csv文件以及每次运行的设置。评估性能时，请把独立的评估结果与模型放在一起。",
+  "scenes": [
+    "从Home打开Classify，然后打开Training Runs。使用这个工具比较已保存训练运行的进度日志和设置。链接的样本包含用于练习控件的合成曲线。",
+    "按顺序使用这个界面：选择一个文件夹来查找运行，在列表中勾选它们，然后选择Metric和Folds，并点击Overlay selected。从存放您各次运行的上级文件夹开始。",
+    "解压链接的样本，点击Choose folder。选择其中的training_runs文件夹，然后确认。对于您自己的项目，请选择包含各运行文件夹及其保存的CSV日志的上级文件夹。",
+    "扫描文件夹并检查找到的运行。样本包含baseline、tuned和cross_validated三个示例，外加一个不完整的条目。选择您想比较的可用运行。",
+    "查看关于不完整条目的警告。缺少train.csv、validation.csv或设置，可能导致曲线或设置无法显示。在加入比较之前，请找到完整的运行文件夹。",
+    "勾选baseline和tuned，然后在Metric中选择accuracy。菜单列出所选日志中可用的数值列。当loss或其他已记录的指标更能回答您的比较问题时，请选择它。",
+    "点击Overlay selected。训练曲线为虚线，验证曲线为实线。在图例中识别每次运行和每种数据划分。每条曲线都在其自身最后记录的轮次结束。",
+    "查看图下方的设置比较。它会突出显示批大小、轮数和学习率等差异。在解读曲线之前，先用它确认各次运行之间改变了什么。",
+    "环境这一行把执行设置（例如工作进程数）与训练配置区分开。比较在不同机器上完成的运行时，请把这一行与配置差异结合起来阅读。",
+    "点击一条验证曲线，查看其最后和最佳的记录值以及对应的轮次。比较运行时请使用相同的选择规则。要评估所选检查点的性能，请在独立数据上进行评估。",
+    "在Metric中选择loss，更新纵轴和叠加图。比较训练和验证的变化轨迹，包括它们在训练接近结束时的走向。",
+    "选择tuned和cross_validated，选择accuracy，然后点击Overlay selected。打开Folds，选择显示单独的各折、它们的平均值和标准差，还是两者都显示。",
+    "选择平均值加减标准差来汇总各折曲线。每条色带表示该轮次下各可用折之间的一个样本标准差。请把色带理解为各折之间的差异。",
+    "选择两者都显示，即可把单独的各折曲线与它们的平均值一起显示。比较各折，看看汇总是否掩盖了某次轨迹不同的运行。",
+    "选择按折显示，只显示单独的曲线。设置比较会随您选择的运行而更新。比较训练在哪里结束时，请留意每条曲线的轮次范围。",
+    "回到Metric比较另一个已记录的量，或者更改所选运行以缩小比较范围。请把原始CSV日志和设置放在一起，以便重新打开同样的比较。",
+    "如需用脚本分析，请使用spacr.train_compare中的find_runs和load_run，然后使用compare_runs和plot_curves。选择下一个训练配置时，请把比较结果与您的模型和独立评估结果放在一起。"
+  ]
+}

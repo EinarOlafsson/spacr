@@ -1,0 +1,37 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "c9422e3e62380aac367c30389de6533c519bd2e7212353f5650aae238e314280",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Classifier Evaluation：检查预测和错误",
+  "description": "加载保存的评估包，检查数据泄漏和混淆计数，并筛选需要复核的预测。",
+  "objectives": [
+    "加载评估包并检查数据泄漏。",
+    "检查混淆计数和置信度分组。",
+    "筛选预测并找到保存的图。"
+  ],
+  "prerequisite": "下载并解压链接中的保存结果示例。其中包含预测、表格和图；裁剪图像需要在Annotate中打开您对应的实验。该示例的训练数据和测试数据共享孔，因此请用它学习检查器的用法，而不是估计独立孔上的准确率。",
+  "scenes": [
+    "打开Classify，然后打开Classifier Evaluation。生成预测之后，用这个检查器浏览保存的评估包。",
+    "下载并解压下方的示例。点击Browse，选择包含evaluation manifest点json的文件夹。",
+    "阅读Summary，了解预测数量和记录的类别名称。示例包含两个类别共二百三十四条预测。",
+    "在解读准确率之前，先打开Leakage audit。本例会标出训练和测试数据之间共享的孔。要进行独立孔评估，请准备孔相互分开的划分，然后重新训练和评估。",
+    "打开Confusion matrix。行是记录的类别，列是预测。对角线表示一致；对角线以外的格子表示需要复核的不一致。",
+    "点击一个不一致的格子，列出其中的示例。所选格子包含十一处不一致，按置信度分组。",
+    "更改Confidence threshold，选择哪些不一致进入高置信度列表。把它从零点七五提高到零点九五后，高置信度列表剩下两条，低置信度列表有九条。",
+    "结合图像和标注复核所选示例。把显示的解释当作调查线索，在修改标签之前先核实证据。",
+    "打开Per-plate metrics，按板比较结果。本例只有一块板；多板的评估包会提供可比较的单独行。",
+    "打开Calibration，比较预测概率与观察到的类别频率。解读差异时，请检查每个区间的计数。",
+    "打开Predictions，输入样本或孔标识来筛选记录。在本例中，r五下划线c二会选出一个孔的预测。",
+    "清除筛选即可恢复所有记录。要在您自己的项目中打开裁剪图像，请先在Annotate中加载对应的实验；可下载的结果示例不含裁剪图像。",
+    "在评估包文件夹中找到保存的校准图和混淆图。在报告中使用之前，请检查标签和可读性。",
+    "把泄漏审计结果与报告的指标放在一起。用Training Runs比较保存的训练进度，需要复核图像或标签时回到Annotate。"
+  ]
+}

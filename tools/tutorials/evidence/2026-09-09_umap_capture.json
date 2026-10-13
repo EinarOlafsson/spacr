@@ -1,0 +1,19 @@
+{
+  "lesson": "15_image_umap",
+  "capture": "refresh_2026-09-09/annotate_fresh/captures/umap_explorer",
+  "application_commit": "53ae4b9edb6c6e555ccce8e45287a184887650f8",
+  "version": "1.5.0.4",
+  "frames": 23,
+  "native_resolution": [3840, 2160],
+  "actual_font_scale": 1.5,
+  "dataset": "The 2341-crop project already downloaded through Annotate's actual Load route; no UMAP-specific download is claimed",
+  "bounded_run": {"row_limit": 400, "n_jobs": 2, "n_neighbors": 15, "min_dist": 0.1, "random_seed": 42, "backend": "cpu", "image_nr": 12, "img_zoom": 0.3, "plot_images": true, "save_figure": true, "remove_cluster_noise": false},
+  "outputs": {"embedding_shape": [400, 2], "cluster_counts": {"0": 400}, "gui_figures": 1, "export_rows": 400, "export_bytes": 5672082, "export_sha256": "ca730a700b4f0fe833608739e3b6b0b629cbc7ed8485d29a9445497e42e9161a", "exported_coordinates_claimed": false},
+  "interactive_checks": {"actual_point_clicks": [0, 200], "both_actual_crops_visible": true, "database_unchanged": true, "settings_unchanged": true, "annotations_written": false, "new_embedding_requested": false, "search_started": false, "ai_prompt_submitted": false},
+  "nested_routes": ["55_image_scatter", "60_pca"],
+  "worker_errors": [],
+  "capture_accepted": true,
+  "app_source_modified": false,
+  "published": false,
+  "translations_and_media_complete": false
+}

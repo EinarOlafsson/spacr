@@ -1,0 +1,31 @@
+{
+  "records": [
+    {
+      "payloads_verified": 29,
+      "raw_and_archive_sha256_verified": true,
+      "receipt": "features/data/43_scoped_localization_test_runtime_2026-10-08/receipt.json"
+    },
+    {
+      "payloads_verified": 77,
+      "raw_and_archive_sha256_verified": true,
+      "receipt": "features/data/664_665_integrated_documentation_2026-10-08/receipt.json"
+    },
+    {
+      "payloads_verified": 24,
+      "raw_and_archive_sha256_verified": true,
+      "receipt": "features/data/615_home_preferences_hosted_media_2026-10-08/receipt.json"
+    },
+    {
+      "adopted": false,
+      "fixture_opt_in_tests": [
+        "test_empty_flowchart_caption_translates_without_changing_python_none",
+        "test_runtime_catalogs_need_no_incremental_repairs"
+      ],
+      "original_test_bodies_ast_identical": 39,
+      "patch_applies_to_current_source": true,
+      "production_changes": false
+    }
+  ],
+  "scope": "Independent Git-backed raw/compressed payload validation and test-body AST review; no new hosted or live publication acceptance. Optional localization optimization not adopted; protected serial source unchanged.",
+  "source": "ebc971b898628a3ee7570e6e130df1c05024bcc9"
+}

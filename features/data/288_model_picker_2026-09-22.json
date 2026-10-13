@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "7e7d2931633e1f021a9cfb1550bc9e7fe373f53f",
+  "scope": "Targeted branch and statement coverage; not a whole-suite verdict.",
+  "source_path": "spacr/qt/widgets/model_zoo_picker.py",
+  "source_sha256": "c9aa97e648b4a52e839c4c7a0241ae54fe622c07650e99b23b6e8ff7126f659a",
+  "coverage_json_sha256": "559270aba284e625aa76f556ef726d092e902ac7dd6e3c332d147aac9e5e0516",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 797,
+    "num_statements": 850,
+    "percent_covered": 92.6526717557252,
+    "percent_covered_display": "92.65",
+    "missing_lines": 53,
+    "excluded_lines": 0,
+    "percent_statements_covered": 93.76470588235294,
+    "percent_statements_covered_display": "93.76",
+    "num_branches": 198,
+    "num_partial_branches": 20,
+    "covered_branches": 174,
+    "missing_branches": 24,
+    "percent_branches_covered": 87.87878787878788,
+    "percent_branches_covered_display": "87.88"
+  },
+  "missing_lines": [
+    82,
+    168,
+    181,
+    182,
+    183,
+    184,
+    192,
+    193,
+    285,
+    288,
+    420,
+    429,
+    445,
+    899,
+    900,
+    901,
+    902,
+    903,
+    905,
+    909,
+    913,
+    914,
+    915,
+    916,
+    917,
+    919,
+    1067,
+    1075,
+    1085,
+    1122,
+    1233,
+    1234,
+    1295,
+    1353,
+    1355,
+    1368,
+    1371,
+    1372,
+    1373,
+    1374,
+    1382,
+    1389,
+    1390,
+    1392,
+    1452,
+    1475,
+    1476,
+    1477,
+    1478,
+    1535,
+    1536,
+    1547,
+    1548
+  ],
+  "missing_branches": [
+    [
+      81,
+      82
+    ],
+    [
+      181,
+      182
+    ],
+    [
+      181,
+      184
+    ],
+    [
+      284,
+      285
+    ],
+    [
+      287,
+      288
+    ],
+    [
+      416,
+      420
+    ],
+    [
+      425,
+      429
+    ],
+    [
+      443,
+      445
+    ],
+    [
+      897,
+      899
+    ],
+    [
+      1047,
+      1044
+    ],
+    [
+      1066,
+      1067
+    ],
+    [
+      1072,
+      1075
+    ],
+    [
+      1084,
+      1085
+    ],
+    [
+      1121,
+      1122
+    ],
+    [
+      1262,
+      -1251
+    ],
+    [
+      1265,
+      1267
+    ],
+    [
+      1294,
+      1295
+    ],
+    [
+      1352,
+      1353
+    ],
+    [
+      1371,
+      -1366
+    ],
+    [
+      1371,
+      1372
+    ],
+    [
+      1381,
+      1382
+    ],
+    [
+      1451,
+      1452
+    ],
+    [
+      1474,
+      1475
+    ],
+    [
+      1480,
+      -1470
+    ]
+  ],
+  "validation": {
+    "passed": 124,
+    "skipped": 0,
+    "seconds": 72.33,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/qt/test_model_picker_local_and_share_outcomes.py",
+      "tests/qt/test_model_zoo_picker.py",
+      "tests/qt/test_the_model_zoo_picker_groups_by_source.py",
+      "tests/qt/test_model_install_completion.py",
+      "tests/qt/test_model_install_runs_off_the_gui_thread.py",
+      "tests/qt/test_a_backend_installs_into_its_own_environment.py",
+      "tests/qt/test_a_cellpose3_model_is_one_click_away.py",
+      "tests/qt/test_a_model_row_has_a_zoo_button.py"
+    ],
+    "log_sha256": "295cecc5d9b2b5c6e461483d8ee31d4980dfafbb8f2d2197e68decdef950b6c9",
+    "test_sha256": {
+      "tests/qt/test_model_picker_local_and_share_outcomes.py": "6c01e4704535388d65ab55bb73d92c27d9646e781db07ed4b0267a6d3c739ff2",
+      "tests/qt/test_model_zoo_picker.py": "842b7790a48634cf6947b3b07c34b2ae425c9792d64604a676e4c449fd631f1b",
+      "tests/qt/test_the_model_zoo_picker_groups_by_source.py": "ea7a8705ffe28c06264e7ef96c7bb7d998290eb2cb55f99fde5f8c40531175c4",
+      "tests/qt/test_model_install_completion.py": "888d15d167ad3635e8c97332eaff6ebdf397171b2743b69ce5d3e2fd18c63bae",
+      "tests/qt/test_model_install_runs_off_the_gui_thread.py": "ebb87fdf7c1f8b46c0077d4fed38969abbf26be2d1f0ea2c8feac3d80d18aef6",
+      "tests/qt/test_a_backend_installs_into_its_own_environment.py": "513aa9dafd433d575b023dec6fce42477d61bea0eb5dc79b638290ef054a27a3",
+      "tests/qt/test_a_cellpose3_model_is_one_click_away.py": "04966e4c91da9c6b08ceae4d57ec8774521256a5b60e3f44784fd4d1ead8f099",
+      "tests/qt/test_a_model_row_has_a_zoo_button.py": "8563c9f5518e16ba6dcffb389869c78c105b112d791413bc1dd5c40790d19686"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Targeted tests use fake network/upload/token providers; no credentials read or uploads performed. Worker run methods execute on the test thread."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "60591cb8b483c4bcd98a3ff410ea16677a8b7589ee3250c9c364479a2b384bc9",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-09-25",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Feature Explorer: sammenlign grupper og eksporter en rangering av egenskaper",
+  "description": "Velg en grupperingskolonne, ranger målinger etter AUC eller KS, undersøk fordelinger og eksporter de valgte egenskapene.",
+  "objectives": [
+    "Laste inn målinger og velge sammenligningsgruppene.",
+    "Lese rangeringer og fordelinger og deretter utforske filtre og beregnede kolonner.",
+    "Eksportere ønsket antall rangerte egenskaper."
+  ],
+  "prerequisite": "Last ned Annotate-eksemplet og åpne en arbeidskopi av measurements.db. Den inneholder 2 341 celler. Gjennomgangen sammenligner rowID-gruppene r12 og r5, som angir romlige platerader. Velg en gruppekolonne som passer eksperimentet ditt, og ta hensyn til at celler deler brønner når du tolker sammenligningen.",
+  "scenes": [
+    "Fra Home åpner du Classify og deretter Feature Explorer. Bruk måledatabasen fra Annotate-eksemplet til å sammenligne eksisterende egenskaper mellom grupper.",
+    "Klikk på Load table, velg measurements.db og velg cell. Sett Split by til rowID. Eksempelgruppene er romlige platerader; kontroller at grupperingskolonnen din representerer sammenligningen du ønsker.",
+    "Velg AUC under Rank by. Separasjonen er absoluttverdien av 2 × AUC − 1. Higher in viser retningen, og min n teller endelige måleverdier i den minste gruppen.",
+    "Sett Top til 4 for å undersøke fire overlagte histogrammer. Innenfor hver egenskap deler gruppene klassegrenser, og søylehøyden viser antall. Les både fordelingene og rangeringspoengsummen.",
+    "Klikk på Export ranking for å lagre de viste toppegenskapene. Med Top satt til 4 inneholder eksporten fire egenskapsrader. Øk Top før du eksporterer en lengre rangering.",
+    "Sett Top til 500 for å ta med alle de 261 egenskapene i eksemplet som kan gis poeng. Plottet viser høyst åtte fordelinger, selv når den eksporterte rangeringen er lengre.",
+    "Bytt Rank by til KS for å sammenligne den største avstanden mellom kumulative fordelinger. KS kan avdekke spredningsforskjeller som AUC går glipp av. Gå tilbake til AUC for å se retningen i Higher in.",
+    "Under Filter legger du til cell_area og setter minimum til 21 925. Populasjonen endres til 1 171 celler, og rangeringen oppdateres.",
+    "Klikk på Clear all for å gjenopprette hele populasjonen og rangeringen. Kontroller Split by på nytt etter filterendringer, slik at du vet hvilke grupper som sammenlignes.",
+    "Når rowID filtreres til r12, forsvinner den andre gruppen. I denne versjonen bytter Split by da automatisk til en annen kolonne. Kontroller den innstillingen hver gang et filter fjerner en gruppe.",
+    "Tøm filteret og sett rowID uttrykkelig tilbake under Split by. La Shuffle test være av i dette eksemplet: cellene deler brønner, så fri omstokking av celleetiketter tilsvarer ikke uavhengige eksperimentelle replikater.",
+    "Åpne Columns og gi en beregnet kolonne navnet area_k. Skriv inn cell_area delt på 1000 og klikk på Add column med erstatning slått av. Preview viser de første 2 000 radene; når kolonnen legges til, brukes formelen på hele tabellen.",
+    "Den beregnede kolonnen tas med i rangeringen. En positiv omskalering gir den samme AUC og KS som cell_area. Fjern formelen for å gå tilbake til de opprinnelige egenskapene.",
+    "Eksporter rangeringen etter at du har kontrollert populasjonen, Split by og Top. I Python bruker du rank_features og ExplorerSpec fra spacr.qt.widgets.feature_rank. Fortsett i Graph Builder for å plotte en valgt egenskap mer detaljert."
+  ]
+}

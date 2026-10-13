@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "云存储访问、本地缓存、选定的孔和视野、图像分辨率及结果上传。当数据源为远程存储地址时，请使用这些设置。"
+    },
+    {
+      "table": "ui",
+      "key": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "source_sha256": "24a001745dccbfe5d65f0701b9abed5fd2c35297fbd1139c0102ff0445896aa6",
+      "source": "Cloud storage access, local cache, selected wells and fields, image resolution, and result uploads. Use these settings when the source is a remote storage address.",
+      "translation": "云存储访问、本地缓存、选定的孔和视野、图像分辨率及结果上传。当数据源为远程存储地址时，请使用这些设置。"
+    }
+  ]
+}

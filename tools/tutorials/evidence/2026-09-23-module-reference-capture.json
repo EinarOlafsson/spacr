@@ -1,0 +1,2182 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "79_module_inputs_outputs",
+  "capture_stage": "/mnt/firecuda2/codex/workflow-module-capture.llkELA",
+  "capture_provenance": {
+    "commit": "197edcb800b8605a171cdec7be94b1955d653465",
+    "version": "1.5.0.9",
+    "module": "workflow_overview",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "navigation": {
+    "accepted": true,
+    "scope": "Real Home/fold navigation and indexed API search; data handoffs explained by the shared map",
+    "lesson": "79_module_inputs_outputs",
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "lesson_sha256": "6d03cb1b630cda7426558bd74b17e25d6ce9e268c696dfdb8f1725d46fa2595a",
+    "visuals": [
+      "home",
+      "module_mask",
+      "module_measure",
+      "module_annotate",
+      "module_classify_merged",
+      "module_map_barcodes",
+      "module_regression",
+      "module_feature_explorer",
+      "module_convert",
+      "module_foreign",
+      "module_external_masks",
+      "module_queue",
+      "module_batch",
+      "module_distributed_jobs",
+      "module_db_browser",
+      "module_run_history",
+      "module_report",
+      "module_data_manager",
+      "module_pipeline_graph",
+      "module_qc_dashboard",
+      "module_lineage",
+      "module_experiment_design",
+      "module_layer_viewer",
+      "module_power",
+      "module_run_compare",
+      "module_tabulate",
+      "module_dose_response",
+      "module_project_browser",
+      "module_outliers",
+      "module_embeddings",
+      "module_control_chart",
+      "module_train_compare",
+      "module_align",
+      "module_make_masks",
+      "module_plate_view",
+      "module_umap",
+      "module_profiler",
+      "module_graph_builder",
+      "module_investigate_hit",
+      "module_gate_editor",
+      "module_feature_dict",
+      "module_trellis",
+      "module_analyze_plaques",
+      "module_recruitment",
+      "module_invasion",
+      "module_replication",
+      "module_train_cellpose",
+      "module_cellpose_all",
+      "module_model_compare",
+      "module_model_zoo",
+      "module_curate",
+      "module_napari_bridge",
+      "module_import_images",
+      "module_barcode_qc",
+      "module_image_scatter",
+      "module_pca",
+      "module_volcano_explorer",
+      "module_hit_list",
+      "module_methods_export",
+      "module_regression_diagnostics",
+      "module_illumination",
+      "module_anndata_export",
+      "module_motility",
+      "module_timelapse",
+      "module_ops",
+      "module_classifier_evaluation",
+      "module_explain_cv",
+      "module_activation",
+      "module_agreement",
+      "module_classify",
+      "module_ml_analyze",
+      "module_parameter_sweep",
+      "module_toxoplasma",
+      "module_plasmodium",
+      "module_candida",
+      "module_endodyogeny",
+      "module_cellpose_masks",
+      "module_simulation",
+      "home_summary"
+    ],
+    "routes": [
+      {
+        "module": "mask",
+        "home_host": "mask",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "measure",
+        "home_host": "measure",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "annotate",
+        "home_host": "annotate",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AnnotateScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "classify_merged",
+        "home_host": "classify_merged",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "map_barcodes",
+        "home_host": "map_barcodes",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "regression",
+        "home_host": "regression",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "feature_explorer",
+        "home_host": "classify_merged",
+        "parent": "classify_merged",
+        "tile_text": "",
+        "screen_class": "FeatureExplorerScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "convert",
+        "home_host": "foreign",
+        "parent": "foreign",
+        "tile_text": "",
+        "screen_class": "ConvertScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "foreign",
+        "home_host": "foreign",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "ForeignScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "external_masks",
+        "home_host": "foreign",
+        "parent": "foreign",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "queue",
+        "home_tile_clicked": false,
+        "search_query": "Plate Queue",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "QueueScreen"
+      },
+      {
+        "module": "batch",
+        "home_tile_clicked": false,
+        "search_query": "Batch Runner",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "BatchScreen"
+      },
+      {
+        "module": "distributed_jobs",
+        "home_tile_clicked": false,
+        "search_query": "Distributed Jobs",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "DistributedJobsScreen"
+      },
+      {
+        "module": "db_browser",
+        "home_tile_clicked": false,
+        "search_query": "Database Browser",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "DbBrowserScreen"
+      },
+      {
+        "module": "run_history",
+        "home_tile_clicked": false,
+        "search_query": "Run History",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "RunHistoryScreen"
+      },
+      {
+        "module": "report",
+        "home_tile_clicked": false,
+        "search_query": "Report",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "ReportScreen"
+      },
+      {
+        "module": "data_manager",
+        "home_tile_clicked": false,
+        "search_query": "Data Manager",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "DataManagerScreen"
+      },
+      {
+        "module": "pipeline_graph",
+        "home_tile_clicked": false,
+        "search_query": "Pipeline Graph",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "PipelineGraphScreen"
+      },
+      {
+        "module": "qc_dashboard",
+        "home_host": "qc_dashboard",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "QCDashboardScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "lineage",
+        "home_host": "db_browser",
+        "parent": "db_browser",
+        "tile_text": null,
+        "screen_class": "LineageScreen",
+        "home_tile_clicked": false,
+        "screen_visible": true,
+        "host_opened_through_help": true,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "experiment_design",
+        "home_host": "experiment_design",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "ExperimentDesignScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "layer_viewer",
+        "home_host": "qc_dashboard",
+        "parent": "qc_dashboard",
+        "tile_text": "",
+        "screen_class": "LayerViewer",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "power",
+        "home_host": "power",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "PowerScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "run_compare",
+        "home_host": "run_compare",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "RunCompareScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "tabulate",
+        "home_host": "db_browser",
+        "parent": "db_browser",
+        "tile_text": null,
+        "screen_class": "TabulateScreen",
+        "home_tile_clicked": false,
+        "screen_visible": true,
+        "host_opened_through_help": true,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "dose_response",
+        "home_host": "dose_response",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "DoseResponseScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "project_browser",
+        "home_tile_clicked": false,
+        "search_query": "Project Browser",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "ProjectBrowserScreen"
+      },
+      {
+        "module": "outliers",
+        "home_host": "qc_dashboard",
+        "parent": "qc_dashboard",
+        "tile_text": "",
+        "screen_class": "OutliersScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "embeddings",
+        "home_host": "embeddings",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "EmbeddingsScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "control_chart",
+        "home_host": "qc_dashboard",
+        "parent": "qc_dashboard",
+        "tile_text": "",
+        "screen_class": "ControlChartScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "train_compare",
+        "home_host": "classify_merged",
+        "parent": "classify_merged",
+        "tile_text": "",
+        "screen_class": "TrainCompareScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "align",
+        "home_host": "align",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AlignScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "make_masks",
+        "home_host": "make_masks",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "MakeMasksScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "plate_view",
+        "home_host": "graph_builder",
+        "parent": "graph_builder",
+        "tile_text": "",
+        "screen_class": "PlateViewScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "umap",
+        "home_host": "umap",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "profiler",
+        "home_host": "regression",
+        "parent": "regression",
+        "tile_text": "",
+        "screen_class": "ProfilerScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "graph_builder",
+        "home_host": "graph_builder",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "GraphBuilderScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "investigate_hit",
+        "home_host": "regression",
+        "parent": "regression",
+        "tile_text": "",
+        "screen_class": "InvestigateHitScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "gate_editor",
+        "home_host": "gate_editor",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "GateEditorScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "feature_dict",
+        "home_tile_clicked": false,
+        "search_query": "Feature Dictionary",
+        "real_help_result_visible": true,
+        "module_result_selected": true,
+        "screen_visible": true,
+        "screen_class": "FeatureDictionaryPanel"
+      },
+      {
+        "module": "trellis",
+        "home_host": "graph_builder",
+        "parent": "graph_builder",
+        "tile_text": "",
+        "screen_class": "TrellisScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "analyze_plaques",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "recruitment",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "invasion",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "replication",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "train_cellpose",
+        "home_host": "make_masks",
+        "parent": "make_masks",
+        "tile_text": "",
+        "screen_class": "FoldedModulePanel",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "cellpose_all",
+        "home_host": "make_masks",
+        "parent": "make_masks",
+        "tile_text": "",
+        "screen_class": "MakeMasksScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": true,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "model_compare",
+        "home_host": "make_masks",
+        "parent": "make_masks",
+        "tile_text": "",
+        "screen_class": "FoldedModulePanel",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "model_zoo",
+        "home_host": "make_masks",
+        "parent": "make_masks",
+        "tile_text": "",
+        "screen_class": "FoldedModulePanel",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "curate",
+        "home_host": "make_masks",
+        "parent": "make_masks",
+        "tile_text": "",
+        "screen_class": "FoldedModulePanel",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "napari_bridge",
+        "home_host": "make_masks",
+        "parent": "make_masks",
+        "tile_text": "",
+        "screen_class": "FoldedModulePanel",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "import_images",
+        "home_host": "foreign",
+        "parent": "foreign",
+        "tile_text": "",
+        "screen_class": "ImageImportScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "barcode_qc",
+        "home_host": "map_barcodes",
+        "parent": "map_barcodes",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": true,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "image_scatter",
+        "home_host": "umap",
+        "parent": "umap",
+        "tile_text": "",
+        "screen_class": "ImageScatterScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "pca",
+        "home_host": "umap",
+        "parent": "umap",
+        "tile_text": "",
+        "screen_class": "PCAScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "volcano_explorer",
+        "home_host": "regression",
+        "parent": "regression",
+        "tile_text": "",
+        "screen_class": "VolcanoScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "hit_list",
+        "home_host": "regression",
+        "parent": "regression",
+        "tile_text": "",
+        "screen_class": "HitListScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "methods_export",
+        "home_host": "regression",
+        "parent": "regression",
+        "tile_text": "",
+        "screen_class": "MethodsExportScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "regression_diagnostics",
+        "home_host": "regression",
+        "parent": "regression",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "illumination",
+        "home_host": "measure",
+        "parent": "measure",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "anndata_export",
+        "home_host": "measure",
+        "parent": "measure",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "motility",
+        "home_host": "measure",
+        "parent": "measure",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "timelapse",
+        "home_host": "mask",
+        "parent": "mask",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": true,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "ops",
+        "home_host": "mask",
+        "parent": "mask",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": true
+      },
+      {
+        "module": "classifier_evaluation",
+        "home_host": "classify_merged",
+        "parent": "classify_merged",
+        "tile_text": "",
+        "screen_class": "ClassifierEvaluationScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "explain_cv",
+        "home_host": "classify_merged",
+        "parent": "classify_merged",
+        "tile_text": "",
+        "screen_class": "ModelExplanationScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "activation",
+        "home_host": "classify_merged",
+        "parent": "classify_merged",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "agreement",
+        "home_host": "annotate",
+        "parent": "annotate",
+        "tile_text": "",
+        "screen_class": "AgreementScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "classify",
+        "home_host": "classify_merged",
+        "parent": "classify_merged",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "ml_analyze",
+        "home_host": "classify_merged",
+        "parent": "classify_merged",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "parameter_sweep",
+        "home_host": "regression",
+        "parent": "regression",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": true,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "toxoplasma",
+        "home_host": "toxoplasma",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "OrganismScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "plasmodium",
+        "home_host": "plasmodium",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "OrganismScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "candida",
+        "home_host": "candida",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "OrganismScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "host_opened_through_help": false,
+        "navigation_only_empty_folder_guard": false,
+        "timelapse_switch_enabled_without_running": false,
+        "parameter_sweep_opened_without_running": false,
+        "native_no_diagnostics_message": false,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "endodyogeny",
+        "api_symbol": "spacr.submodules.analyze_endodyogeny",
+        "search_query": "analyze_endodyogeny",
+        "real_help_result_visible": true,
+        "api_executed": false,
+        "local_docstring_displayed": true,
+        "displayed_docstring_sha256": "492250938423d5ad424d42a1fe9230f1cd7c7f1e4f242271237e7f2ef6fd7d90",
+        "home_tile_clicked": false
+      },
+      {
+        "module": "cellpose_masks",
+        "api_symbol": "spacr.spacr_cellpose.identify_masks_finetune",
+        "search_query": "identify_masks_finetune",
+        "real_help_result_visible": true,
+        "api_executed": false,
+        "local_docstring_displayed": true,
+        "displayed_docstring_sha256": "8ba12b47ca6eeb9613d09e6584aa597d6f61d1ae50c258054bbc305cab979400",
+        "home_tile_clicked": false
+      },
+      {
+        "module": "simulation",
+        "api_symbol": "spacr.sim.run_multiple_simulations",
+        "search_query": "run_multiple_simulations",
+        "real_help_result_visible": true,
+        "api_executed": false,
+        "local_docstring_displayed": true,
+        "displayed_docstring_sha256": "38a776efefe7a669c5e74482be69d5249d59c15b48a69c81ce304b88c3068a0d",
+        "home_tile_clicked": false
+      }
+    ],
+    "analysis_requested": false,
+    "download_requested": false,
+    "worked_experiment_completed": false,
+    "narration_or_media_accepted": false
+  },
+  "scene_count": 79,
+  "frames": {
+    "00_home": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/00_home.png",
+      "sha256": "6fe34f50ba456ecec9c4d4cdc9d47ce1b48ed32ed6b078dc1e2051f3f6e10239",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 27
+      }
+    },
+    "home": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/home.png",
+      "sha256": "6fe34f50ba456ecec9c4d4cdc9d47ce1b48ed32ed6b078dc1e2051f3f6e10239",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 28
+      }
+    },
+    "module_mask": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_mask.png",
+      "sha256": "69744e52c9cd44463b8a3b496553979413022b720b6cdb7d4f58856f43f71581",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 88
+      }
+    },
+    "module_measure": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_measure.png",
+      "sha256": "75b4283822e76739e6a049c576b8a2ab3118771ec251d92a2629ce1569e056bf",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 161
+      }
+    },
+    "module_annotate": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_annotate.png",
+      "sha256": "10ec6302d0094dd6595d65f623c34e5fefd40e273ec5d078e9ff73d357d179f3",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 269
+      }
+    },
+    "module_classify_merged": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_classify_merged.png",
+      "sha256": "3b0ea99af21e7c5a78cbc73b659856b54f7d3d4275facda84e098fb3a03bb72d",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 294
+      }
+    },
+    "module_map_barcodes": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_map_barcodes.png",
+      "sha256": "786ed2b4e196fe0c933c0bc8e33db8dbf15a7f904b6a3581a12b182a49bcba90",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 375
+      }
+    },
+    "module_regression": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_regression.png",
+      "sha256": "2e37b127bf347392e374997b989b731ba40490f5fbd28dfa185bac8736b278ab",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 449
+      }
+    },
+    "module_feature_explorer": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_feature_explorer.png",
+      "sha256": "ed0a88665ccb007e25663288ee948a48233bb61d32c0d0577aa2a412a1699160",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 530
+      }
+    },
+    "module_convert": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_convert.png",
+      "sha256": "d37b2320a7fc522f0ee91c90afa21f4c672ec6cc5dd85997e4382924ae970a38",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 667
+      }
+    },
+    "module_foreign": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_foreign.png",
+      "sha256": "33970e37001e0ba37a1a2e2ac847efc73d59d43cffc62a5a7a40ca4e3d8672ee",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 765
+      }
+    },
+    "module_external_masks": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_external_masks.png",
+      "sha256": "c29c5924ca6fe43f25594d64dfb0f3be160781902872d41a1c4b57f12a0c2bb7",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 943
+      }
+    },
+    "help_search_queue": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_queue.png",
+      "sha256": "b12b0af1211870dfbdac0cebbd444d04bddcdc4b9cf620e3b7ec286760f23fb6",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 771
+      }
+    },
+    "module_queue": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_queue.png",
+      "sha256": "9545fe69ed98c0cd14f72691d6d28c7c7f83ed0d2b0093b46797eca4b45c6d7d",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 848
+      }
+    },
+    "help_search_batch": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_batch.png",
+      "sha256": "a60630ced0be42050178aac9e822a2689b8e2c9a603bfffb0acaa1cc7c5d4a27",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 830
+      }
+    },
+    "module_batch": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_batch.png",
+      "sha256": "01dc349a04c3ba829b56c0d964b385fb706f09a58962139a1f883a7ff40316cc",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 893
+      }
+    },
+    "help_search_distributed_jobs": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_distributed_jobs.png",
+      "sha256": "44922ca94c135f9203075890441e3202e92fc14e7c985f64cc674d3c2c652b5f",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 883
+      }
+    },
+    "module_distributed_jobs": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_distributed_jobs.png",
+      "sha256": "05531ff0e38408e05fb15601fb1c1264e4c27a10db8af3752926431e51351442",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 948
+      }
+    },
+    "help_search_db_browser": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_db_browser.png",
+      "sha256": "618887b70779e3559a42f857c3598287c12fa73e6b02df468000d618da379e51",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 935
+      }
+    },
+    "module_db_browser": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_db_browser.png",
+      "sha256": "4bedb5bbb941e114f0852543d0963a60abbcabea8d5d218c84efcc9bb2644f0d",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 998
+      }
+    },
+    "help_search_run_history": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_run_history.png",
+      "sha256": "2d8d5f6e311c8f0406ce9c902fb896faae2fe5693c2be18e6fa6b544abae6285",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 986
+      }
+    },
+    "module_run_history": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_run_history.png",
+      "sha256": "d3ec27a40b5dcbac298174a101a1d058852ce7f18b528ed6bae1584338b5f1db",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1041
+      }
+    },
+    "help_search_report": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_report.png",
+      "sha256": "02538cf15a4596eef3ee8a962e6aa98e228341f3133f0a2775ded16fdc946180",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1035
+      }
+    },
+    "module_report": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_report.png",
+      "sha256": "18507d563689b6f0e1e1761be60a8ec46b8196ef6c57a7848a0a5e05f48bc953",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1100
+      }
+    },
+    "help_search_data_manager": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_data_manager.png",
+      "sha256": "8ba3e535f02f8e512f515bddd95e2ef0c49fd1d8656793d79e0f80749017218e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1087
+      }
+    },
+    "module_data_manager": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_data_manager.png",
+      "sha256": "7eda859ee412870830e178091fc9e4a764286eee5018ebc4e0ecee21ece67cc6",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1170
+      }
+    },
+    "help_search_pipeline_graph": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_pipeline_graph.png",
+      "sha256": "2cddd2aead22091b2601dc0eda194f392e231a5a3787b59af977517e319c21b3",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1150
+      }
+    },
+    "module_pipeline_graph": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_pipeline_graph.png",
+      "sha256": "eb6075301a3c9d02df88ce784ab41196a658f81ac0c70fb675aad652955fce80",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1211
+      }
+    },
+    "module_qc_dashboard": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_qc_dashboard.png",
+      "sha256": "ca763c90b4231260b668876d4862b1ecc96b6fb4a35edc99c57eae3bd4e00c90",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1295
+      }
+    },
+    "help_host_lineage": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_host_lineage.png",
+      "sha256": "42f8f162a5cc0ff564b1eb8505533b9c87699c1ae5a2502e019c7848dc7804cd",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1270
+      }
+    },
+    "module_lineage": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_lineage.png",
+      "sha256": "872122cb611c28d79f5cc350412ab36029423b966ac22f9c99d8988a2c286e46",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1419
+      }
+    },
+    "module_experiment_design": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_experiment_design.png",
+      "sha256": "3a98083f2d03103f49b8d4e754e4f2508c7e714cf589a447ad166d81a952002e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1429
+      }
+    },
+    "module_layer_viewer": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_layer_viewer.png",
+      "sha256": "ed118bb40ee3f00464ec9245804bf41a395c7ee19b011e51d5b158ef34eecbdc",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1607
+      }
+    },
+    "module_power": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_power.png",
+      "sha256": "851f3c1fcab8fe1be5f1e868fdd7ba26c89ea64f0b47f34536ec0f3a332fd030",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1590
+      }
+    },
+    "module_run_compare": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_run_compare.png",
+      "sha256": "7e48f90a4dca5192e8462c97f659dd0ba256317a2e9877be0e07df07a17c5b87",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1649
+      }
+    },
+    "help_host_tabulate": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_host_tabulate.png",
+      "sha256": "6cb31de4ee8c67106d2c1a2e81b22cef25e7aa5f5855e4feefa87314a0414cd0",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1628
+      }
+    },
+    "module_tabulate": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_tabulate.png",
+      "sha256": "5223caee93db323cac10a6d394dad511aca7f3a15d9b14c9329036c43901a0ea",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1840
+      }
+    },
+    "module_dose_response": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_dose_response.png",
+      "sha256": "f66c28898814e0bc0aee43c07af200ef08746ea1ddda672a9afc44b02dca3113",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1802
+      }
+    },
+    "help_search_project_browser": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_project_browser.png",
+      "sha256": "39ff864ca0bdacef2b5199c12c6abeb63c8c6015c1530d400649fa2d1763dc20",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1775
+      }
+    },
+    "module_project_browser": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_project_browser.png",
+      "sha256": "0568b5641ea6a708dc3c6fe4cbb35ca82d179c1091491d38c1b84853842782e6",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1834
+      }
+    },
+    "module_outliers": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_outliers.png",
+      "sha256": "5dd8f8a3c7832a533bf1f543cd3c642ad37b62b95b9d7b9eb600075dd72ef25b",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2087
+      }
+    },
+    "module_embeddings": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_embeddings.png",
+      "sha256": "c474648aa4bf7a8c32e77dc14a5b310a8617f63726acedf9ef8dbc82bdf6c88a",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1991
+      }
+    },
+    "module_control_chart": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_control_chart.png",
+      "sha256": "b7073fd14b8860ed782b3979c6117ccdeacef722b87615a2874ecdc7b92c38ff",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2294
+      }
+    },
+    "module_train_compare": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_train_compare.png",
+      "sha256": "5f8ade53d5b2c91afb41dd255076edf3ee44476ebacc664b446b91c4f9962114",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2115
+      }
+    },
+    "module_align": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_align.png",
+      "sha256": "08194743f5b92673d2c0c425e380e56dcb67ab2a19cc67aba1fd61ab1409af00",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2214
+      }
+    },
+    "module_make_masks": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_make_masks.png",
+      "sha256": "9026621b2b2f75f485cbe64cbdfb5f9e0280005bb6d236aa6ec91bb41b1c2b78",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2263
+      }
+    },
+    "module_plate_view": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_plate_view.png",
+      "sha256": "f0bf7097b105cc0dee8b32f674ed402d3ce77a0467d95dbb8322a131ea208e35",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2361
+      }
+    },
+    "module_umap": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_umap.png",
+      "sha256": "782276cd0237c773c991684ff19bfbe91d13864cc7c84fc073caffd23d31aeec",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2368
+      }
+    },
+    "module_profiler": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_profiler.png",
+      "sha256": "95f1b74f088fa7493869e153766d817261e7f7bfb038f5fffa6d9cbd3589a36a",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2447
+      }
+    },
+    "module_graph_builder": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_graph_builder.png",
+      "sha256": "511f63f146c49640e161ee6d6e435db0dc30e94cb1556c9151a42ff8759afd50",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2614
+      }
+    },
+    "module_investigate_hit": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_investigate_hit.png",
+      "sha256": "fb0fbda7a0eda9b5816d03686db4fefca2f65d31f910664c2acfa39e2fe8876b",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2590
+      }
+    },
+    "module_gate_editor": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_gate_editor.png",
+      "sha256": "ce72429899aad08a519c2d0816b5a7467494d447bfcb3858527b7663812919fe",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2692
+      }
+    },
+    "help_search_feature_dict": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/help_search_feature_dict.png",
+      "sha256": "b49219bd0a03374eb70ed269b0eecb339fc08a689e49bc976138492ab98e13f5",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2671
+      }
+    },
+    "module_feature_dict": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_feature_dict.png",
+      "sha256": "c31f747614cdc35b48160ba75cba84abf54b7fb74cb84c12a2cd3d55d55c62dc",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2690
+      }
+    },
+    "module_trellis": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_trellis.png",
+      "sha256": "a84d78a5787bc94f3ee057cd0a6cc07d9cb7d98f0c28e5f7b4d1181512812269",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2924
+      }
+    },
+    "organism_route_analyze_plaques": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/organism_route_analyze_plaques.png",
+      "sha256": "2835a2ac0488b769310b0c5d283752859bfcadcf6dd9ff3d9bbc8d9352c65599",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2856
+      }
+    },
+    "module_analyze_plaques": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_analyze_plaques.png",
+      "sha256": "520a031d143db3deb94e5ce169e7ac2f41ce24d90351f60389b978820756a49f",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2846
+      }
+    },
+    "organism_route_recruitment": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/organism_route_recruitment.png",
+      "sha256": "a773d2634b8a4108053e7f80911fa79a33395664541515627dc601c3ebda1ea5",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2983
+      }
+    },
+    "module_recruitment": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_recruitment.png",
+      "sha256": "20eb86b8839cd592183513a174651d5471d947847caf8997b5646183e2c340a5",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 2932
+      }
+    },
+    "organism_route_invasion": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/organism_route_invasion.png",
+      "sha256": "859b3f588ebdf08eeebfa8759c0cbdedf7c32625ce204f5b0cac6a9d58f3504d",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3115
+      }
+    },
+    "module_invasion": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_invasion.png",
+      "sha256": "7514fcadbcab138eb0fac21ac496a59d28eb2d01d997107170567dfbe1ad7008",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3017
+      }
+    },
+    "organism_route_replication": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/organism_route_replication.png",
+      "sha256": "65efa9dda5ef9627cd4999ae1fd4fb07868719e9b7b294486e4957734151edcc",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3243
+      }
+    },
+    "module_replication": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_replication.png",
+      "sha256": "562b313a87f780015d6d1ba6654118286a727f5a6cc3a6c06bd0031d1a88d84e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3103
+      }
+    },
+    "module_train_cellpose": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_train_cellpose.png",
+      "sha256": "31c85773b37a6f60162292ed814633cc7e325918028a192f33ffc2d0cf2fe603",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3308
+      }
+    },
+    "module_cellpose_all": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_cellpose_all.png",
+      "sha256": "cf525356bd82aa6658f33acd9a4bb2d62458ec3386e46bfa763051bd94a52605",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3423
+      }
+    },
+    "module_model_compare": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_model_compare.png",
+      "sha256": "e4b62f71c577c855a3be67b377dbaae853f2db9023f5f2c8af941692bf1adfbc",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3575
+      }
+    },
+    "module_model_zoo": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_model_zoo.png",
+      "sha256": "a987f9fc770782e36e8e4badf9c87fa3639ef21c67f036cbb18ae39ccb3bad25",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3703
+      }
+    },
+    "module_curate": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_curate.png",
+      "sha256": "afc14004772f9f27b376821694cfa81fcc76471a047a3cddb618339b733c8a92",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3847
+      }
+    },
+    "module_napari_bridge": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_napari_bridge.png",
+      "sha256": "85cacc1545bd48cc00fc7312ebf0857dc500d4d7bd9f6f6bef6ac2d49b7d1ab4",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3991
+      }
+    },
+    "module_import_images": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_import_images.png",
+      "sha256": "e7d9e6f7b3afb384104363ecfc03c51489f995a6c8e7886495fa8d349f4f06d7",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3888
+      }
+    },
+    "module_barcode_qc": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_barcode_qc.png",
+      "sha256": "1c197b6398aacc2ad867d5b56a76c193b265eb0f212f4a2dfa433570c7d53c1f",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3813
+      }
+    },
+    "module_image_scatter": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_image_scatter.png",
+      "sha256": "c1b4fd54a06e5e5127cfaff99f1c064bc7ada1f3bfa99811cc332532bfd0f978",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3842
+      }
+    },
+    "module_pca": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_pca.png",
+      "sha256": "b4ac3137c89c4708fd6acb4a1b73e1ec760557f49749c3f188871b3d13992a3e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3919
+      }
+    },
+    "module_volcano_explorer": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_volcano_explorer.png",
+      "sha256": "53be8a226d6198861ec5508c13c7310da7cc553ae1b428c681be6078f59c3671",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 3991
+      }
+    },
+    "module_hit_list": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_hit_list.png",
+      "sha256": "8309ae0dacbad975a9b72e2f638f606a6df876c01dbf862da992c4beb3aabaf4",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4071
+      }
+    },
+    "module_methods_export": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_methods_export.png",
+      "sha256": "b2f2a920bc0ea6b9c0c526e529bbce57cc922a7c7ab3c1d0d02cf5fe99234eed",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4142
+      }
+    },
+    "module_regression_diagnostics": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_regression_diagnostics.png",
+      "sha256": "bc2ad31a7980f4f2fa81a767611ab8159208dc78660abac0bc49065908a5745c",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4204
+      }
+    },
+    "module_illumination": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_illumination.png",
+      "sha256": "8ae2aa94ae5e395436176f3da3012e6d067632a63190bb46ab02762e6420f6e5",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4321
+      }
+    },
+    "module_anndata_export": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_anndata_export.png",
+      "sha256": "0b8fe7f2da157c5ec23224fc577b8671a5451d39e5eb1a94a102f3f31be0a812",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4402
+      }
+    },
+    "module_motility": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_motility.png",
+      "sha256": "329246cc6f7f8bb2fc15cd63d17bb814a8f76d5672e9c4a1ffbc43f7c8d25d4d",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4486
+      }
+    },
+    "module_timelapse": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_timelapse.png",
+      "sha256": "ea56f67967aebc1d7449e8e37158acce3d2392d9883686233ef1f0ed61b97e21",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4544
+      }
+    },
+    "module_ops": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_ops.png",
+      "sha256": "ff1872ce9471d270b050a18ffd774d11d3abccdc2bd052f23a263c325819e128",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4665
+      }
+    },
+    "module_classifier_evaluation": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_classifier_evaluation.png",
+      "sha256": "82a838cc1b957f5a4e578bc0512378dc5d8980ee011e88af5109798d63d5fea0",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4710
+      }
+    },
+    "module_explain_cv": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_explain_cv.png",
+      "sha256": "e9b69ba71e0c1e6c82257cb613d68a47265242fcda7aea53530f3e319fe0f423",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4789
+      }
+    },
+    "module_activation": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_activation.png",
+      "sha256": "4634c078df1a4df1851a909899fdea5f98894d012d47b828ffe2ba6a3916b5df",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 4896
+      }
+    },
+    "module_agreement": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_agreement.png",
+      "sha256": "39713142ea9bcaf67c09e45d74e17c5d2c4ea8cde2cd3e811346d28b74e8b95e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5080
+      }
+    },
+    "module_classify": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_classify.png",
+      "sha256": "a10a43bc30f8ac8bd6a1582a6c0b5dc1445e333b408be76e2fdf3644de8ded7f",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5042
+      }
+    },
+    "module_ml_analyze": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_ml_analyze.png",
+      "sha256": "f1540b751ec5139ba33e31dda2ab0d910c3c28dfbb43219fec7818c2523fcf26",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5118
+      }
+    },
+    "module_parameter_sweep": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_parameter_sweep.png",
+      "sha256": "dcac8565f0b6735b44e58461c1d763f7dee49000da0f727b110d3d9c93380bd3",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5197
+      }
+    },
+    "module_toxoplasma": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_toxoplasma.png",
+      "sha256": "6d20058043fe2bbe8ec4fb00772fc7cb46af4a252ede8bb246ac524552e8a162",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5451
+      }
+    },
+    "module_plasmodium": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_plasmodium.png",
+      "sha256": "38576e658214f7cd55c8a1964d83e3d7252cba0562d5455a83dde998e822d7dc",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5307
+      }
+    },
+    "module_candida": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_candida.png",
+      "sha256": "e388d5379328ac4a21e6cdb3f74f12cadd315674616f95025dccba664a880f3e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5350
+      }
+    },
+    "api_search_endodyogeny": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/api_search_endodyogeny.png",
+      "sha256": "4a7bb9d35a9ce9f3adc98c95f15f84784c17f0af1e964a5bc6a0801f2eb93025",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5347
+      }
+    },
+    "module_endodyogeny": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_endodyogeny.png",
+      "sha256": "816a2d571f6c63ea74ad343284f4001ece6430c79a038dba878ce528d6a0f638",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5358
+      }
+    },
+    "api_search_cellpose_masks": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/api_search_cellpose_masks.png",
+      "sha256": "2d011d62dd8a8b4ff9f09d1bea3152fe45cd8f7be40d850552563a78a067dd5f",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5378
+      }
+    },
+    "module_cellpose_masks": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_cellpose_masks.png",
+      "sha256": "66acfbb09232804fe92d6306b2323a64d5df442f45c6f03fba528981444603a1",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5389
+      }
+    },
+    "api_search_simulation": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/api_search_simulation.png",
+      "sha256": "234778c15f5a26962d5f9a9a9d9be9f8721cf9797e571f13730fef0c3e43292d",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5409
+      }
+    },
+    "module_simulation": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/module_simulation.png",
+      "sha256": "de6e488352875352fc749be90024c804db3fb30847f344c9cfc1543d398c2be1",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5420
+      }
+    },
+    "home_summary": {
+      "path": "/mnt/firecuda2/codex/workflow-module-capture.llkELA/captures/module-inputs-outputs/home_summary.png",
+      "sha256": "682fa2e476cb835c439da1cebc4fc70f9d133c362ad233131fb1e293ff759153",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 5430
+      }
+    }
+  },
+  "source_sha256": {
+    "tools/tutorials/capture_workflow_overview.py": "36908eda76a4aabbd8f2530b8f25f48938d498d96be34f4d31a043242150dfea",
+    "tools/tutorials/capture_refresh.py": "16930734f37db81a50b6bf5115082588dc62327492d9df420dfd818282880e3c",
+    "tools/tutorials/run_neutral_capture.sh": "efa1f4f5866d7f94cc532d68de360048251ce0bb168d936b4d2d5e00daf120a6",
+    "spacr/resources/module_workflows.json": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "tools/tutorials/lessons/79_module_inputs_outputs.json": "6d03cb1b630cda7426558bd74b17e25d6ce9e268c696dfdb8f1725d46fa2595a",
+    "spacr/qt/screens/app_screen.py": "88a34dfe12ad784ad40c3b69f620fbfe50f783f5006537fc837f7196b59bb056",
+    "spacr/qt/screens/regression.py": "5f1f7b95d22d3edd29d5d30f4b4382936919be43ad0873b0815ffb8f674d8d54",
+    "spacr/submodules.py": "c7ef67d2c537cf556b5ff356c362474f73c255274b2e2879da40ad55c6203391",
+    "spacr/spacr_cellpose.py": "d463c9469d1138a4da8f67899cb0d74f538a21f1fc476c946ce7e8e38509bffc",
+    "spacr/sim.py": "e10e621544659487e40670b3bc859db2c0663aaeff90c0a6eecd94faf901c46a"
+  },
+  "presentation": [
+    "Actual Home/category tiles, Help search results and nested fold controls for all 77 modules",
+    "Native empty-input guards for Cellpose All and Diagnostics; Timelapse and Parameter Sweep toggled without running analysis",
+    "Real classifier-family selector opens CV and ML modes",
+    "The committed Hits visibility fix exposes the native tab before any regression has run",
+    "Three API-only workflows open actual source-checked offline Help references"
+  ],
+  "visual_review": "Reviewed all 79 lesson frames in seven contact sheets. Empty-input views and native guard messages are navigation examples, not completed analyses.",
+  "tests": {
+    "named_checks": 51,
+    "log_sha256": "78b8d03ac7154aceaed7414a5eb574b6fc5a9c45a362c1f39011e82c889bc737"
+  },
+  "analysis_requested": false,
+  "download_requested": false,
+  "narration_or_media_accepted": false,
+  "published": false,
+  "remaining": [
+    "Stage in numbered order",
+    "Thirteen translated scripts and fifty voices",
+    "Shared video, caption/player/media and listening checks",
+    "Complete-set publication"
+  ]
+}

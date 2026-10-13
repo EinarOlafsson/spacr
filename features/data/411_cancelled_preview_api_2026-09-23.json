@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "baseline_commit": "44b1f48b110b445796141b8f4159b868907b8dab",
+  "previous_count": 11491,
+  "current_count": 11492,
+  "added": [
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy"
+  ],
+  "removed": [],
+  "changed": [
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.preview_running"
+  ],
+  "localized_api_rebuilt": false,
+  "translation_policy": "report-only; incompatible entries use English"
+}
